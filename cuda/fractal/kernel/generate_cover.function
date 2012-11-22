@@ -1,0 +1,91 @@
+	TCoverVertex&vout = out_vertices[linear];
+	DEVICE_RESOURCE(TVertex,vertex) = surface.vertex[index_field[linear]];
+	vout.channel = vertex.channel;
+	
+	dvC3(vertex.position,vout.position);
+	
+	vout.height = vertex.height;
+	
+	
+	
+
+	dvMad(vertex.position,surface.sector,context.sector_size,vout.up);
+	dvMult(vout.up,context.variance);
+	dvNormalize(vout.up);
+	
+	dvC3(vertex.normal,vout.normal);
+	dvNormalize(vout.normal);
+	
+	
+	float	//surficial = dbLinearStep(vertex.height,-0.01f,0.0f),
+				height = vertex.height,
+				planarity = dvDot(vout.normal,vout.up),
+				temperature = (1.0f-fabsf(vout.up[1]))*context.temperature,
+				snow_line,
+				snow_fade,
+				snow,
+				water,
+				general_fertility,
+				general_sand,
+				sand,
+				//fertility = dbClamped(/*planarity*/dbSqr(dbClamped(snow_line-vertex.height,0.0f,1.0f)+0.1f)*general_fertility*3*dbCubicStep(planarity,0.15f,0.75f),0.0f,1.0f-sand-fabsf(vertex.height));
+				fertility;
+		
+		
+		if (height > 0 || !context.has_ocean)
+		{
+			snow_line = 1.5*temperature*(1.0f-0.5f*vertex.channel.water);
+			snow_fade = 0.05+dbSqr((float)(surface.depth+1)/context.recursive_depth)*0.1;
+			snow = (dbLinearStep(height,snow_line-0.5f,snow_line)*planarity+dbLinearStep(height,0.9f,1.0f))*context.fertility;
+			water = vertex.channel.water+snow*0.5;
+			general_fertility = dbLinearStep(water+0.3*(temperature),0.3f,0.8f)*fminf(height*100.0f,1.0f);
+			general_sand = dbClamped(dbSqr(1.0f-(height)),0,1)*dbSqr(temperature)*(1.0f-general_fertility);
+			
+			sand = dbCubicStep(planarity,0.25f,0.75f)*general_sand;
+				//fertility = dbClamped(/*planarity*/dbSqr(dbClamped(snow_line-vertex.height,0.0f,1.0f)+0.1f)*general_fertility*3*dbCubicStep(planarity,0.15f,0.75f),0.0f,1.0f-sand-fabsf(vertex.height));
+			fertility = dbClamped(dbSqr(dbClamped(snow_line-height,0.0f,1.0f)+0.1f)*dbCubicStep(planarity,0.3,0.7)*3*general_fertility,0.0f,(1.0f-(sand+(vertex.height))));//*(1.0f-(sand+fabsf(vertex.height)));
+			snow = 	dbLinearStep(snow,0.5-snow_fade,0.5+snow_fade);
+			
+			if (context.has_ocean && height < 0.05f)
+				snow *= fmaxf(1.0f+(-0.05f+height)*80.0f*(0.25f+0.75f*(1.0f-dbSqr(planarity))),0.0f);
+				
+		}
+		else
+		{
+			snow = 0;
+			water = 0;
+			snow_line = 0;
+			general_fertility = 0.0f;
+			general_sand = dbClamped(dbSqr(1.0f-(height)),0,1)*dbSqr(temperature);
+			fertility = 0;
+			sand = dbCubicStep(planarity,0.25f,0.75f)*general_sand;
+		}
+		
+			
+		if (context.has_ocean)
+		{
+			const float	upper_shore_boundary = planarity > 0.5f?(1.0f-dbSqr((planarity-0.55f)/0.5f))*0.01f:0.005f,
+						lower_shore_boundary = -0.015f,
+						sabulosity = planarity > 0.7f?temperature*dbSqr((planarity-0.7f)/0.3f):0.0f;
+						
+			
+			if (height < upper_shore_boundary && height > lower_shore_boundary)
+			{
+				float shore_strength = height >= 0.0f?
+											fminf((1.0f-height/upper_shore_boundary)*1.1f,1.0f):
+											fminf((1.0f-height/lower_shore_boundary)*1.1f,1.0f);
+				sand = dbClamped(sand+shore_strength*(2.0f*sabulosity-1.0f),0.0f,1.0f);
+				fertility = fmaxf(fertility-shore_strength*(0.25f+0.75f*(1.0f-planarity))*4.0f,0.0f);
+			}
+		}
+		
+		vout.snow = snow;
+		//vout.water = water;
+		vout.snow_line = snow_line;
+		vout.sand = sand;
+		vout.fertility = fertility;
+		
+		vout.planarity = planarity;
+		vout.height = height;
+		vout.temperature = temperature;
+		

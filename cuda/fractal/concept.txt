@@ -1,0 +1,115 @@
+[-]
+	* introduction
+		+ abstract
+			- this system generates pseudo random planets
+		+ motivation
+			- increased hardware capacities offer new options
+			- (re)creation of earth-like ecosystems for astronomic (gaming) environments
+			- merging the concepts of large and small scale scenarios to one adaptive environment
+		+ required concepts
+			- real time rendering
+				= any content can be generated and rendered in real time (given modern hardware)
+			- invariance
+				= given the exact same configuration (including seed), the exact same planet is generated
+			- adaptivity
+				= detail is generated depending on interaction with the user
+			- diversity
+				= given the same basic configuration, the system can generate a virtually
+					infinite number of different planets by varying the seed.
+			- scalability
+				= the system can generate and render a multitude of planets simultaniously.
+			- networkability
+				= the average planet configuration (including seed) must be small enough to quickly reproduce
+					the same planet on different machines throughout a network.
+		+ conceptual limitations
+			- calculation limited to fractal processing. parent vertices are invariant
+			- simulation of rivers and streams is conceptually difficult
+		+ limitations of the introduced implementation
+			- no terraforming
+			- no custom planet shaping
+			- limited physical interaction
+			- invariant oceanic water height
+			- limited vegetation
+
+	* reference implementation
+		+ general outline
+		+ used technologies
+			- OpenGL
+			- NVidia CUDA
+
+	* definitions
+		+ shape (fractal structure)
+		+ patch (triangular surface)
+		+ face  (individual triangle)
+		+ vertex
+		+ map
+		+ index pattern
+	
+	* structure
+		+ seeds
+			- string seeds
+			- integer seeds
+			- conversions
+		+ patch layout
+			- vertex configuration
+			- edges
+			- neighbors
+			- parent
+			- children
+			- rendering data
+			- texture
+				= normals
+				= appearance
+			- sectoring
+			- sphere abstraction
+		+ shape layout
+			- patches
+			- maps
+			- index patterns
+		+ vertex layout
+			- geometrical components
+			- channels
+		+ camera configuration
+
+	* methods
+		+ shape construction
+			- building from a custom mesh
+				= mesh constraints
+			- generating top level fractal data
+		+ sub-division
+			- random transmutation
+			- vertex derivation
+				= vertex random seed distribution
+				= 2 parent vs 4 parent systems & vertex aging
+				= channel mutation
+				= water calculation
+				= height calculation and adaption
+		+ neighbor synchronization
+			- edge vertex re-derivation
+			- restrictions
+		+ texturing
+			- texture rendering
+				= normals
+				= flavors
+			- roll spaces
+		+ vbo construction
+			- layout
+			- detail reduction
+		+ data shifting (between device and host memory as required)
+		+ placing vegetation
+			- patch attachment
+			- plant layers
+			- mesh plants
+		+ casting (the process of adjusting the fractal scenery to the current camera configuration)
+			- patch visibility and priority estimation
+			- patch ttl calculation
+			- neighbor detail adaption (hiding gaps between patches)
+			- priority based child creation and throttling
+		+ general rendering
+			- visual range adjustment
+			- landscape shader layout
+			- planetary water surfaces
+				= per patch surface
+				= spherical surface
+		+ physical simulation in sector space
+		+ camera movement in sector space

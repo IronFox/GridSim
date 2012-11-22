@@ -1,0 +1,226 @@
+/*
+	generate3() function content for inclusion in cuda kernel and cpu adaptions
+*/
+
+
+	float distance = dvDistance(p0.position,p1.position);	
+	
+	float noise = getNoise(distance,p0,p1,surface,context);
+
+	float weight= SECONDARY_PARENT_WEIGHT*2.0f;
+
+	int random_seed = seed;
+
+
+	#if WEIGHTING==TWO_PARENTS_BALANCED
+		float	w2 = 0,
+				w0 = 0.5,
+				w1 = 0.5;
+	#elif WEIGHTING==TWO_PARENTS_AGE_SENSITIVE
+		float	total_age = p0.channel.age+p1.channel.age,
+				w2 = 0,
+				w0 = p0.channel.age/total_age,
+				w1 = p1.channel.age/total_age;
+	#elif WEIGHTING==SIMPLE_BALANCED
+		float	w2 = 0.2360679775f,
+				w0 = 0.38196601125f,
+				w1 = 0.38196601125f;
+	#elif WEIGHTING==HALF_AGE_SENSITIVE
+		float	total_age = p2.channel.age,
+				w2 = weight*p2.channel.age/total_age*0.5f,
+				w0 = 0.5f-(w2),
+				w1 = 0.5f-(w2);
+	#elif WEIGHTING==FULL_AGE_SENSITIVE
+		float	total_age = p0.channel.age+p1.channel.age+p2.channel.age*weight,
+				w2 = weight*p2.channel.age/total_age,
+	 			w0 = p0.channel.age/total_age,
+				w1 = p1.channel.age/total_age;
+	#elif WEIGHTING==SELECTIVE_AGE_SENSITIVE
+		float	total_age = p0.channel.age+p1.channel.age+p2.channel.age*weight,
+				w2 = weight*p2.channel.age/total_age,
+	 			w0 = p0.channel.age/total_age,
+				w1 = p1.channel.age/total_age;
+		if (w0 > 0.3f)
+		{
+			w0 = 1.0f;
+			w1 = 0.0f;
+			w2 = 0.0f;
+		}
+		elif (w1 > 0.3f)
+		{
+			w1 = 1.0f;
+			w0 = 0.0f;
+			w2 = 0.0f;
+		}
+		elif (w2 > 0.3f)
+		{
+			w2 = 1.0f;
+			w0 = 0.0f;
+			w1 = 0.0f;
+		}
+		else
+		{
+			w2 = 0.2360679775f;
+			w0 = 0.38196601125f;
+			w1 = 0.38196601125f;
+		}
+				
+	#elif WEIGHTING==BALANCED_AGE_SENSITIVE
+		float	total_age = p0.channel.age+p1.channel.age+p2.channel.age*weight,
+				w2 = weight*p2.channel.age/total_age,
+	 			w0 = (p0.channel.age+p1.channel.age)/total_age/2.0f,
+				w1 = w0;
+	#else
+		float	w2 = weight*0.25f,
+				w0 = 0.5f-(w2),
+				w1 = 0.5f-(w2);
+	#endif
+			
+	result.channel.c0 = dbClamped((w0*p0.channel.c0+w1*p1.channel.c0+w2*p2.channel.c0)+noise*getRandom(random_seed) C0_CUSTOM_NOISE_FACTOR,0,1);
+	result.channel.c1 = dbClamped((w0*p0.channel.c1+w1*p1.channel.c1+w2*p2.channel.c1)+noise*getRandom(random_seed) C1_CUSTOM_NOISE_FACTOR,0,1);
+	result.channel.c2 = w0*p0.channel.c2+w1*p1.channel.c2+w2*p2.channel.c2;
+	#if FRACTAL_KERNEL!=MINIMAL_KERNEL
+		result.channel.c3 = dbClamped((w0*p0.channel.c3+w1*p1.channel.c3+w2*p2.channel.c3)+noise*getRandom(random_seed) C3_CUSTOM_NOISE_FACTOR,0,1);
+	#endif
+	#if FRACTAL_KERNEL==FULL_KERNEL
+		result.channel.c4 = dbClamped((w0*p0.channel.c4+w1*p1.channel.c4+w2*p2.channel.c4)+noise*getRandom(random_seed) C4_CUSTOM_NOISE_FACTOR,0,1);
+	#endif
+	
+	float	riff_distance = fabsf(0.5f-result.channel.c2)*5.0f,
+			riff_noise = noise*getRandom(random_seed) C2_CUSTOM_NOISE_FACTOR;
+	
+	#ifdef C2_NOISE_LEVEL
+		riff_noise *= C2_NOISE_LEVEL;
+	#endif
+
+	if (riff_distance>=0.02f && riff_distance < 0.13f)
+	#if FRACTAL_KERNEL==FULL_KERNEL
+		riff_noise/=(1.0f+result.channel.c4*result.channel.c3);
+	#elif FRACTAL_KERNEL!=MINIMAL_KERNEL
+		riff_noise/=(1.0f+0.25*result.channel.c3);
+	#else
+		riff_noise/=(1.0f+0.25);
+	#endif
+	#if FRACTAL_KERNEL==MINIMAL_KERNEL
+		riff_noise *= 0.5;
+	#endif
+	
+	result.channel.c2 = dbClamped(result.channel.c2+riff_noise,0,1);
+
+	result.channel.oceanic = dbClamped((w0*p0.channel.oceanic+w1*p1.channel.oceanic+w2*p2.channel.oceanic)+noise*getRandom(random_seed)*CONTINENTAL_NOISE,0,1);
+
+	//result.channel.age = ageAt(surface.depth);
+	
+
+	
+	
+	result.channel.water = 0;//(w0*p0.channel.water+w1*p1.channel.water+w2*p2.channel.water);
+	
+	/*{
+		// smooth channels: doesn't work
+		
+		float smooth_strength = getSmoothStrength(distance,p0,p1,surface,context);
+		
+		float	w2 = 0.333f,
+				w0 = 0.333f,
+				w1 = 0.333f;
+		
+		result.channel.c0 = (1.0f-smooth_strength)*result.channel.c0+(smooth_strength*(p0.channel.c0*w0+p1.channel.c0*w1+p2.channel.c0*w2));
+		result.channel.c1 = (1.0f-smooth_strength)*result.channel.c1+(smooth_strength*(p0.channel.c1*w0+p1.channel.c1*w1+p2.channel.c1*w2));
+		result.channel.c2 = (1.0f-smooth_strength)*result.channel.c2+(smooth_strength*(p0.channel.c2*w0+p1.channel.c2*w1+p2.channel.c2*w2));
+		
+		#if FRACTAL_KERNEL!=MINIMAL_KERNEL
+			result.channel.c3 = (1.0f-smooth_strength)*result.channel.c3+(smooth_strength*(p0.channel.c3*w0+p1.channel.c3*w1+p2.channel.c3*w2));
+		#endif
+		#if FRACTAL_KERNEL==FULL_KERNEL
+			result.channel.c4 = (1.0f-smooth_strength)*result.channel.c4+(smooth_strength*(p0.channel.c4*w0+p1.channel.c4*w1+p2.channel.c4*w2));
+		#endif		
+		
+	}*/
+	
+	
+	#ifdef RIVERS
+		result.channel.river_depth = dbClamped(p0.channel.river_depth*0.25f+p1.channel.river_depth*0.25f + 0.5f*(p0.channel.river_depth*w0 + p1.channel.river_depth*w1 + p2.channel.river_depth*w2)+noise*getRandom(random_seed),0,1);
+		
+		/*if (surface.depth == context.recursive_depth-4 && getRandom(random_seed) < -0.9)
+			result.channel.river_depth = 1.0f;*/
+		
+	#endif
+	
+	
+	result.FRACTAL_HEIGHT = height(result.channel);
+	
+	
+
+	
+	{	//remove spikes
+		
+		float	min = fminf(fminf(p0.FRACTAL_HEIGHT,p1.FRACTAL_HEIGHT),p2.FRACTAL_HEIGHT),
+				max = fmaxf(fmaxf(p0.FRACTAL_HEIGHT,p1.FRACTAL_HEIGHT),p2.FRACTAL_HEIGHT),
+				avg = (min+max)/2.0f,
+				rng = fmaxf((max-min)/2.0f,0.001f)/1.5f;
+		
+		float depth = (float)surface.depth/context.recursive_depth;
+		result.channel.age = getWeight(result.FRACTAL_HEIGHT,avg,rng,depth);
+		
+		
+		
+	
+	
+	
+		/* constrain channels+height: doesn't work
+		const TVertex*max=&p0,*min=&p0;
+		if (max->height < p1.height)
+			max = &p1;
+		if (max->height < p2.height)
+			max = &p2;
+			
+		if (min->height > p1.height)
+			min = &p1;
+		if (min->height > p2.height)
+			min = &p2;
+		
+		if (result.height < min->height)
+		{
+			result.channel = min->channel;
+			result.height = min->height;
+		}
+		elif (result.height > max->height)
+		{
+			result.channel = max->channel;
+			result.height = max->height;
+		}
+		*/
+	
+	
+		/* constrain height: doesn't work
+		float	min = fminf(fminf(p0.height,p1.height),p2.height),
+				max = fmaxf(fmaxf(p0.height,p1.height),p2.height),
+				avg = (min+max)/2.0f,
+				rng = (max-min)/2.0f;
+		
+		result.height = dbClamped(result.height,avg-rng,avg+rng);
+		*/
+	}
+	
+		//result.channel.water = 0;
+		if (p0.FRACTAL_HEIGHT > result.FRACTAL_HEIGHT)
+			result.channel.water += p0.channel.water*WATER_GAIN_DOWN*w0;
+		else
+			result.channel.water += p0.channel.water*WATER_GAIN_UP*w0;
+		if (p1.FRACTAL_HEIGHT > result.FRACTAL_HEIGHT)
+			result.channel.water += p1.channel.water*WATER_GAIN_DOWN*w1;
+		else
+			result.channel.water += p1.channel.water*WATER_GAIN_UP*w1;
+		if (p2.FRACTAL_HEIGHT > result.FRACTAL_HEIGHT)
+			result.channel.water += p2.channel.water*WATER_GAIN_DOWN*w2;
+		else
+			result.channel.water += p2.channel.water*WATER_GAIN_UP*w2;
+		
+		if (result.FRACTAL_HEIGHT < -0.005f)
+			result.channel.water += 0.1f;
+		result.channel.water = dbClamped(result.channel.water+noise*getRandom(random_seed)*WATER_NOISE,0.0f,context.fertility);
+
+
+
+

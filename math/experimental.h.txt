@@ -1,0 +1,221 @@
+#ifndef experimentalH
+#define experimentalH
+
+
+#include "object.h"
+
+/******************************************************************************************
+
+This file is part of the DeltaWorks-Foundation or an immediate derivative core module.
+Original Author: Stefan Elsen
+Copyright (C) 2006 Computer Science Department of the Univerity of Trier, Germany.
+
+This file is part of the DeltaWorks-Foundation or an immediate derivative core application.
+Original Author: Stefan Elsen
+Copyright (C) 2006 University of Trier, Computer Science Department, Germany.
+
+A royalty-free, non-exclusive, perpetual right to read, modify, compile,
+and/or use this file in any way suited is hereby granted to all students and associates
+of the Computer Science Department of the University of Trier.
+This right may be granted to other individuals or parties in any modified form as well
+as denied to any member of the above mentioned group by the Auhorities of the
+Computer Science Department of the University of Trier.
+
+The right granted in the above section is expressly made subject to and limited by the
+following conditions and restrictions:
+a) Any modifications to this file must be made available to the Computer Science Department
+of the University of Trier.
+b) Disclosure of this file, modified or unmodified, in parts or in its entirety to third
+parties is strictly prohibited.
+
+All rights and privileges that have not explicitly been granted are reserved.
+
+THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,
+BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+******************************************************************************************/
+
+typedef float *     T_Object;
+typedef double*     T_dObject;
+typedef unsigned*   T_SectorMap;
+typedef unsigned*   T_IndexBuffer;
+
+class C_oStripVertex;
+class C_oStripFace;
+
+extern float        GLOBAL_DIMENSION[12],
+                    SECTOR_SET[18];
+extern unsigned     CURRENT_BUFFER_SIZE;
+extern float       *GLOBAL_OBJECT_BUFFER;
+extern unsigned    *GLOBAL_INDEX_BUFFER;
+extern unsigned     SECTOR_ID[3],
+                    GLOBAL_INDEX_CNT,GLOBAL_VERTEX_CNT,GLOBAL_INDEX_SPLIT,GLOBAL_VERTEX_SPLIT;
+
+
+extern bool         strip_debug;
+
+#define MFUNC4  template <class C0, class C1, class C2, class C3, class C4> inline
+#define MFUNC5  template <class C0, class C1, class C2, class C3, class C4, class C5> inline
+#define MFUNC6  template <class C0, class C1, class C2, class C3, class C4, class C5, class C6> inline
+#define MFUNC7  template <class C0, class C1, class C2, class C3, class C4, class C5, class C6, class C7> inline
+#define MFUNC3D template <class C0, class C1, class C2, class C3, unsigned Dim0, unsigned Dim1> inline
+
+
+
+#define OBJECT_LOOP(cnt,band)                        for (unsigned el = 0; el < (cnt)*(band); el+=3*(band))
+#define OBJECT_LOOP_EACH(cnt,band)                   for (unsigned el = 0; el < (cnt)*(band); el+=(band))
+
+#define MIN_EDGE_SIZE GLOBAL_D_ERROR
+#define INTERSECT_NEXT_DIF 0.0001
+
+#define KICK_OUTSIDE 0
+#define KICK_INSIDE  1
+#define KICK_ALLWAYS 2
+#define KICK_NEVER   3
+
+#define MAP_DETAIL          10     //10=medium/high detail. Beware! Map size will be MAP_DETAIL³+N where N depends on the number and size of given triangles
+#define MAP_OVERSIZE        0.02   //defines the whitespace on each side of the map cube. Should be above zero but not bigger than 0.1. The lower, the more efficient the map will be used. The bigger the lower the chance for "escaping" triangles. 0.02 should be perfect.
+
+
+MFUNC3D void        _oResolveNURBSfield(const C0***map, const C1&inner, const C2&outer, C3*out);
+MFUNC6  void        _oResolveNURBSfield(const C0 string0[4][3], const C1 string1[4][3], const C2 string2[4][3], const C3 string3[4][3], const C4&x, const C5&y, C6*out);
+MFUNC   bool        _oStrip(const C*in_field, C in_len, C**out_field, C&out_len, C**out_segments, C&out_num_segments, unsigned index_threshold);
+MFUNC1  bool        _oRearange(const C0*v_field, unsigned band, C1*index_field, unsigned len, float tollerance);
+
+
+
+//ancient stuff
+
+
+                    void            _oResizeBuffer(unsigned new_buffer_size);
+
+template <class C>  void            _oInvert(C*o, unsigned cnt, unsigned band);
+
+template <class C>  void            _oCopy(const C*o, unsigned o_band, C*destination, unsigned cnt, unsigned band);
+template <class C>  void            _oTriangleToMatrix(const C*p1, const C*p2, const C*p3);
+
+template <class C>  void            _oDefineDimension(const C* o, unsigned cnt, unsigned band);
+template <class C>  void            _oStoreDimension(T_IndexBuffer b);
+template <class C>  void            _oRestoreDimension(T_IndexBuffer b);
+template <class C>  void            _oSectorsOfVertex  (const C*v, T_IndexBuffer out, unsigned&cnt);
+template <class C>  void            _oSectorsOfEdge    (const C*v, const C*w, T_IndexBuffer out, unsigned&cnt);
+template <class C>  void            _oSectorsOfTriangle(const C*o, unsigned band, T_IndexBuffer out, unsigned&cnt);
+template <class C>  unsigned        _oCreateObjectMap  (const C*o, unsigned cnt, unsigned band);  //to sector buffer
+                    T_IndexBuffer   _oGetSector        (const T_SectorMap map, unsigned sector); //returns pointer to sector part in map
+
+template <class C>  unsigned        _oAnd(const C*o, unsigned o_cnt, unsigned o_band, T_SectorMap o_map, const C*p, unsigned p_cnt, unsigned p_band, T_SectorMap p_map, unsigned band);   //both sector maps may be NULL
+template <class C>  unsigned        _oOr(const C*o, unsigned o_cnt, unsigned o_band, T_SectorMap o_map, const C*p, unsigned p_cnt, unsigned p_band, T_SectorMap p_map, unsigned band);    //both sector maps may be NULL
+template <class C>  bool            _oInside(const C*v, const C*o, unsigned cnt, unsigned band, T_SectorMap map, bool inverted);
+template <class C>  unsigned        _oCut(const C*butter, unsigned butter_cnt,unsigned butter_band, const C*knife,unsigned knife_cnt,unsigned knife_band, unsigned band);        //unfortunatly we cannot use sector maps here for conditions change during cutting process. Would have to use live-sector-update or something. Very likely to be inefficient.
+template <class C>  unsigned        _oDecission(const C*o,unsigned o_cnt,unsigned o_band, const C*decission_space,unsigned d_cnt,unsigned d_band, unsigned band, unsigned char rule,T_SectorMap map); //map may be zero
+
+template <class C>  C_TriangleObject<C>     _oCube(C width, C height, C depth);
+
+template <class C>  void            _oAdd(C*o, unsigned o_cnt, unsigned o_band, C*vector, unsigned channel_start, unsigned el_count);
+template <class C>  void            _oAdd(C*o, unsigned o_cnt, unsigned o_band, C value, unsigned channel);
+template <class C>  void            _oAdd(C*o, unsigned o_cnt, unsigned o_band, C value, unsigned channel_start, unsigned band);
+
+template <class C>  void            _oSubtract(C*o, unsigned o_cnt, unsigned o_band, C*vector, unsigned channel_start, unsigned el_count);
+template <class C>  void            _oSubtract(C*o, unsigned o_cnt, unsigned o_band, C value, unsigned channel);
+template <class C>  void            _oSubtract(C*o, unsigned o_cnt, unsigned o_band, C value, unsigned channel_start, unsigned band);
+
+template <class C>  void            _oMultiply(C*o, unsigned o_cnt, unsigned o_band, C*vector, unsigned channel_start, unsigned el_count);
+template <class C>  void            _oMultiply(C*o, unsigned o_cnt, unsigned o_band, C value, unsigned channel);
+template <class C>  void            _oMultiply(C*o, unsigned o_cnt, unsigned o_band, C value, unsigned channel_start, unsigned band);
+
+template <class C>  void            _oDivide(C*o, unsigned o_cnt, unsigned o_band, C*vector, unsigned channel_start, unsigned el_count);
+template <class C>  void            _oDivide(C*o, unsigned o_cnt, unsigned o_band, C value, unsigned channel);
+template <class C>  void            _oDivide(C*o, unsigned o_cnt, unsigned o_band, C value, unsigned channel_start, unsigned band);
+
+
+template <class C>  bool            _oValidTriangle(C*o, unsigned band);
+template <class C>  bool            _oValidTriangle(C*v1, C*v2, C*v3);
+                    unsigned        _oIntersectSize(unsigned ext_band, unsigned level);
+template <class C>  void            _oCutPoint(const C*n, const C*p, const C*d, const C*b, C*out);
+template <class C>  void            _oCutPoint(const C*n, const C*p, const C*d, const C*b, C*out, unsigned el_count);
+template <class C>  void            _oIntersectTriangle(const C*triangle, C*out, unsigned stride, unsigned level);
+template <class C>  unsigned        _oIntersectTriangle(C*in_out,unsigned band, unsigned level);
+template <class C>  void            _oIntersect(const C*p1, const C*d1, const C*p2, const C*d2, C offset, C*position_out, C*normal_out);
+template <class C>  C               _oIntersect(const C*p1, const C*d1, const C*p2, const C*d2, C offset, C*position_out, C*normal_out, unsigned band);
+template <class C>  unsigned        _oCreateIntersectedPath(const C*p1, const C*d1, const C*p2, const C*d2, C*path_out, unsigned level, unsigned stride); //note: detail is 2^(level+1)+1
+template <class C>  unsigned        _oCreateIntersectedPath(const C*p1, const C*d1, const C*p2, const C*d2, C*path_out, unsigned level, unsigned stride, unsigned band); //note: detail is 2^(level+1)+1
+
+
+
+/*internal usage*/
+
+template <class C>  void            _oSliceTriangleEdge(C*p1, C*p2, C*p3,C*triangle, unsigned band, unsigned char edge);
+template <class C>  void            _oSlice(C*p1, C*p2, C*p3, unsigned lower_limit, unsigned band);
+template <class C>  void            _oStab(C*start, C*end, unsigned lower_limit, unsigned band);
+                    void            _oCheckAppendSector(T_IndexBuffer out,unsigned&addr);
+
+
+
+
+
+
+class C_oStripVertex
+{
+public:
+        typedef C_oStripFace    T_Face;
+        typedef C_oStripVertex  T_Vertex;
+
+        T_Face     *first,*last;
+
+                    C_oStripVertex();
+        T_Face*     findOther(T_Vertex*edge_vertex, T_Face*not_this);
+        void        add(T_Face*face);
+};
+
+class C_oStripFace
+{
+public:
+        typedef C_oStripFace    T_Face;
+        typedef C_oStripVertex  T_Vertex;
+
+        unsigned    marked;
+        T_Face     *next[3],*ref;
+        bool        done;
+
+union
+{
+        T_Face     *neighbour[3];
+    struct
+    {
+        T_Face     *n0,*n1,*n2;
+    };
+};
+union
+{
+        T_Vertex   *vertex[3];
+    struct
+    {
+        T_Vertex   *v0,*v1,*v2;
+    };
+};
+        BYTE        opposing[3];
+        char        orthogonal;
+        float       normal[3];
+
+                    C_oStripFace();
+        BYTE        openNeighbours();
+        char        indexOf(T_Vertex*vertex);
+        void        setNeighbour(BYTE dir, T_Face*face);
+        bool        canGo(char dir, unsigned ident);
+        T_Face*     go(char dir, char&dir_out);
+        char        wayOut(unsigned&larger, unsigned&lesser);
+        T_Face*     walk(bool left, char&dir, char&not_dir, char&lonely);
+        bool        validOrder(BYTE n);
+        void        reorder(float tollerance, unsigned depth=0);
+        unsigned    simulate(char dir);
+};
+
+
+#include "experimental.tpl.h"
+#endif

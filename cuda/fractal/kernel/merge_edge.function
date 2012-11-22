@@ -1,0 +1,243 @@
+	DEVICE_RESOURCE(TVertexInfo,this_info) = info_field[edge[linear]];
+
+	TVertex	&this_v = this_surface.vertex[edge[linear]],
+			&that_v = that_surface.vertex[neighbor_edge[edge_length-linear-1]];
+	
+	if (!this_info.grid_vertex)
+	{
+		#ifdef KERNEL_ALLOW_DEBUG
+			ARRAY_DEBUG_POINT(m,edge_length-linear-1)
+			unsigned index = neighbor_edge[edge_length-linear-1];
+			ARRAY_DEBUG_POINT(m,index)
+			DEVICE_RESOURCE(TVertexInfo,that_info) = info_field[index];
+		#else
+			DEVICE_RESOURCE(TVertexInfo,that_info) = info_field[neighbor_edge[edge_length-linear-1]];
+		#endif
+		float delta[3];
+		dvSub(that_surface.sector,this_surface.sector,delta);
+		dvMult(delta,context.sector_size);
+		
+		
+		#ifdef KERNEL_ALLOW_DEBUG
+			ARRAY_DEBUG_POINT2(m,this_info.parent0,this_info.parent1)
+		#endif
+		bool forward = this_surface.vertex[this_info.parent0].position[0]<this_surface.vertex[this_info.parent1].position[0];
+		unsigned edge_linear = linear;
+		if (!forward)
+			edge_linear = edge_length-1-linear;
+		#ifdef KERNEL_ALLOW_DEBUG
+			ARRAY_DEBUG_POINT(m,this_info.edge_index)
+		#endif
+		int seed = this_surface.outer_seed[this_info.edge_index]+(((edge_linear*15+3)*(edge_linear*11+2)));
+		if ((linear%2)!=0)
+		{
+			//if (copy_to)
+			{
+				//if (!(this_surface.flags& ::TBaseSurface::HasChildren))	//should be always true
+				{
+					#ifdef KERNEL_ALLOW_DEBUG
+						ARRAY_DEBUG_POINT(m,this_info.parent0)
+					#endif
+					TVertex	&p0 = this_surface.vertex[this_info.parent0],
+							&p0b = that_surface.vertex[that_info.parent1],
+							&p1 = this_surface.vertex[this_info.parent1],
+							&p1b = that_surface.vertex[that_info.parent0];
+					
+					p0b.channel.age = p0.channel.age = (p0.channel.age+p0b.channel.age)/2.0f;
+					p1b.channel.age = p1.channel.age = (p1.channel.age+p1b.channel.age)/2.0f;
+					
+					DEVICE_RESOURCE(TVertex,p2) = this_surface.vertex[this_info.parent2];
+					#ifdef KERNEL_ALLOW_DEBUG
+						ARRAY_DEBUG_POINT(m,that_info.parent2)
+					#endif
+					DEVICE_RESOURCE(TVertex,p3) = that_surface.vertex[that_info.parent2];
+
+					#ifdef KERNEL_ALLOW_DEBUG
+						DEBUG_POINT(m)
+					#endif
+					generate4edge(	p0,p1,
+								p2,p3,
+								this_v,
+								seed,this_surface,context);
+					//this_v.height = height(this_v.channel);
+					dvCenter(p0.position,p1.position,this_v.position);
+					setHeight(this_v.position,(p0.height+p1.height)/2,this_v.height,this_surface,context);
+				}
+				that_v.channel = this_v.channel;
+				that_v.height = this_v.height;
+				dvSub(this_v.position,delta,that_v.position);
+			}
+			/*else
+			{
+				if (!(that_surface.flags& ::TBaseSurface::HasChildren))
+				{
+					DEVICE_RESOURCE(TVertex,p0) = that_surface.vertex[that_info.parent0];
+					DEVICE_RESOURCE(TVertex,p1) = that_surface.vertex[that_info.parent1];
+					DEVICE_RESOURCE(TVertex,p2) = that_surface.vertex[that_info.parent2];
+					DEVICE_RESOURCE(TVertex,p3) = this_surface.vertex[this_info.parent2];
+
+					
+					generate4edge(	p0,p1,
+								p2,p3,
+								that_v,
+								seed,that_surface,context);
+					//that_v.height = height(that_v.channel);
+					dvCenter(p0.position,p1.position,that_v.position);
+					setHeight(that_v.position,(p0.height+p1.height)/2,that_v.height,that_surface,context);
+				}
+				this_v.channel = that_v.channel;
+				this_v.height = that_v.height;
+				dvAdd(that_v.position,delta,this_v.position);
+			}*/
+		}
+	}
+	#if NORMAL_GENERATION==DOUBLE_NORMAL_STORAGE
+		dvAdd(this_v.base_normal,that_v.base_normal,this_v.normal);
+	#elif NORMAL_GENERATION==SIMPLE_NORMAL_MERGE
+		dvAdd(this_v.normal,that_v.normal,this_v.normal);
+		dvC3(this_v.normal,that_v.normal);
+	#else
+	{
+		/*if (!this_info.grid_vertex)
+		{
+			dvClear(this_v.normal);
+		
+			//if (linear+1<edge_length)
+			doAddTriangleNormal(this_surface.vertex[this_info.parent0].position,this_surface.vertex[this_info.parent2].position,this_v.position,this_v.normal);
+			doAddTriangleNormal(this_surface.vertex[this_info.parent2].position,this_surface.vertex[this_info.parent1].position,this_v.position,this_v.normal);
+			DEVICE_RESOURCE(TVertexInfo,that_info) = info_field[neighbor_edge[edge_length-linear-1]];
+			doAddTriangleNormal(that_surface.vertex[that_info.parent0].position,that_surface.vertex[that_info.parent2].position,this_v.position,this_v.normal);
+			doAddTriangleNormal(that_surface.vertex[that_info.parent2].position,that_surface.vertex[that_info.parent1].position,this_v.position,this_v.normal);
+				
+			dvC3(this_v.normal,that_v.normal);
+		}
+		else*/
+		{
+			dvClear(this_v.normal);
+			
+			
+			if (this_info.y > 0)
+			{
+				if (this_info.x > 0)
+				{
+					#ifdef KERNEL_ALLOW_DEBUG
+						ARRAY_DEBUG_POINT2(m,vertexIndex(this_info.x-1,this_info.y-1),vertexIndex(this_info.x-1,this_info.y))
+					#endif
+					doAddTriangleNormal(this_surface.vertex[vertexIndex(this_info.x-1,this_info.y-1)].position,this_surface.vertex[vertexIndex(this_info.x-1,this_info.y)].position,this_v.position,this_v.normal);
+				}
+
+				if (this_info.x < this_info.y)
+				{
+					if (this_info.x > 0)
+					{
+						#ifdef KERNEL_ALLOW_DEBUG
+							ARRAY_DEBUG_POINT2(m,vertexIndex(this_info.x,this_info.y-1),vertexIndex(this_info.x-1,this_info.y-1))
+						#endif
+						doAddTriangleNormal(this_surface.vertex[vertexIndex(this_info.x,this_info.y-1)].position,this_surface.vertex[vertexIndex(this_info.x-1,this_info.y-1)].position,this_v.position,this_v.normal);
+					}
+					#ifdef KERNEL_ALLOW_DEBUG
+						ARRAY_DEBUG_POINT2(m,vertexIndex(this_info.x+1,this_info.y),vertexIndex(this_info.x,this_info.y-1))
+					#endif
+					doAddTriangleNormal(this_surface.vertex[vertexIndex(this_info.x+1,this_info.y)].position,this_surface.vertex[vertexIndex(this_info.x,this_info.y-1)].position,this_v.position,this_v.normal);
+				}
+			}
+			
+			if (this_info.y+1 < edge_length)
+			{
+				if (this_info.x > 0)
+				{
+					#ifdef KERNEL_ALLOW_DEBUG
+						ARRAY_DEBUG_POINT2(m,vertexIndex(this_info.x-1,this_info.y),vertexIndex(this_info.x,this_info.y+1))
+					#endif
+					doAddTriangleNormal(this_surface.vertex[vertexIndex(this_info.x-1,this_info.y)].position,this_surface.vertex[vertexIndex(this_info.x,this_info.y+1)].position,this_v.position,this_v.normal);
+				}
+				#ifdef KERNEL_ALLOW_DEBUG
+					ARRAY_DEBUG_POINT2(m,vertexIndex(this_info.x,this_info.y+1),vertexIndex(this_info.x+1,this_info.y+1))
+				#endif
+				doAddTriangleNormal(this_surface.vertex[vertexIndex(this_info.x,this_info.y+1)].position,this_surface.vertex[vertexIndex(this_info.x+1,this_info.y+1)].position,this_v.position,this_v.normal);
+				if (this_info.x < this_info.y)
+				{
+					#ifdef KERNEL_ALLOW_DEBUG
+						ARRAY_DEBUG_POINT2(m,vertexIndex(this_info.x+1,this_info.y+1),vertexIndex(this_info.x+1,this_info.y))
+					#endif
+					doAddTriangleNormal(this_surface.vertex[vertexIndex(this_info.x+1,this_info.y+1)].position,this_surface.vertex[vertexIndex(this_info.x+1,this_info.y)].position,this_v.position,this_v.normal);
+				}
+			}
+			#ifdef KERNEL_ALLOW_DEBUG
+				ARRAY_DEBUG_POINT(m,edge_length-linear-1);
+				unsigned index = neighbor_edge[edge_length-linear-1];
+				ARRAY_DEBUG_POINT(m,index);
+				DEVICE_RESOURCE(TVertexInfo,that_info) = info_field[index];
+			#else
+				DEVICE_RESOURCE(TVertexInfo,that_info) = info_field[neighbor_edge[edge_length-linear-1]];
+			#endif
+			if (that_info.y > 0)
+			{
+				if (that_info.x > 0)
+				{
+					#ifdef KERNEL_ALLOW_DEBUG
+						ARRAY_DEBUG_POINT2(m,vertexIndex(this_info.x-1,this_info.y-1),vertexIndex(this_info.x-1,this_info.y))
+					#endif
+					doAddTriangleNormal(that_surface.vertex[vertexIndex(that_info.x-1,that_info.y-1)].position,that_surface.vertex[vertexIndex(that_info.x-1,that_info.y)].position,that_v.position,this_v.normal);
+				}
+
+				if (that_info.x < that_info.y)
+				{
+					if (that_info.x > 0)
+					{
+						#ifdef KERNEL_ALLOW_DEBUG
+							ARRAY_DEBUG_POINT2(m,vertexIndex(this_info.x,this_info.y-1),vertexIndex(this_info.x-1,this_info.y-1))
+						#endif
+						doAddTriangleNormal(that_surface.vertex[vertexIndex(that_info.x,that_info.y-1)].position,that_surface.vertex[vertexIndex(that_info.x-1,that_info.y-1)].position,that_v.position,this_v.normal);
+					}
+					#ifdef KERNEL_ALLOW_DEBUG
+						ARRAY_DEBUG_POINT2(m,vertexIndex(this_info.x+1,this_info.y),vertexIndex(this_info.x,this_info.y-1))
+					#endif
+					doAddTriangleNormal(that_surface.vertex[vertexIndex(that_info.x+1,that_info.y)].position,that_surface.vertex[vertexIndex(that_info.x,that_info.y-1)].position,that_v.position,this_v.normal);
+				}
+			}
+			
+			if (that_info.y+1 < edge_length)
+			{
+				if (that_info.x > 0)
+				{
+					#ifdef KERNEL_ALLOW_DEBUG
+						ARRAY_DEBUG_POINT2(m,vertexIndex(this_info.x-1,this_info.y),vertexIndex(this_info.x,this_info.y+1))
+					#endif
+					doAddTriangleNormal(that_surface.vertex[vertexIndex(that_info.x-1,that_info.y)].position,that_surface.vertex[vertexIndex(that_info.x,that_info.y+1)].position,that_v.position,this_v.normal);
+				}
+				#ifdef KERNEL_ALLOW_DEBUG
+					ARRAY_DEBUG_POINT2(m,vertexIndex(this_info.x,this_info.y+1),vertexIndex(this_info.x+1,this_info.y+1))
+				#endif
+				doAddTriangleNormal(that_surface.vertex[vertexIndex(that_info.x,that_info.y+1)].position,that_surface.vertex[vertexIndex(that_info.x+1,that_info.y+1)].position,that_v.position,this_v.normal);
+				if (that_info.x < that_info.y)
+				{
+					#ifdef KERNEL_ALLOW_DEBUG
+						ARRAY_DEBUG_POINT2(m,vertexIndex(this_info.x+1,this_info.y+1),vertexIndex(this_info.x+1,this_info.y))
+					#endif
+					doAddTriangleNormal(that_surface.vertex[vertexIndex(that_info.x+1,that_info.y+1)].position,that_surface.vertex[vertexIndex(that_info.x+1,that_info.y)].position,that_v.position,this_v.normal);
+				}
+			}
+			
+			dvC3(this_v.normal,that_v.normal);
+		}
+		
+		/*
+		if (linear+1<edge_length)
+			doAddTriangleNormal(this_surface.vertex[edge[linear+1]].position,this_surface.vertex[this_info.sibling0].position,this_v.position,this_v.normal);
+		doAddTriangleNormal(this_surface.vertex[this_info.sibling0].position,this_surface.vertex[this_info.sibling1].position,this_v.position,this_v.normal);
+		if (linear > 0)
+			doAddTriangleNormal(this_surface.vertex[this_info.sibling1].position,this_surface.vertex[edge[linear-1]].position,this_v.position,this_v.normal);
+		
+		DEVICE_RESOURCE(TVertexInfo,that_info) = info_field[neighbor_edge[edge_length-linear-1]];
+		
+		if (edge_length-linear<edge_length)
+			doAddTriangleNormal(that_surface.vertex[neighbor_edge[edge_length-linear-1+1]].position,that_surface.vertex[that_info.sibling0].position,this_v.position,this_v.normal);
+		doAddTriangleNormal(that_surface.vertex[that_info.sibling0].position,that_surface.vertex[that_info.sibling1].position,this_v.position,this_v.normal);
+		if (edge_length-linear-2<edge_length)
+			doAddTriangleNormal(that_surface.vertex[that_info.sibling1].position,that_surface.vertex[neighbor_edge[edge_length-linear-1-1]].position,this_v.position,this_v.normal);
+		*/
+		
+		
+	}
+	#endif

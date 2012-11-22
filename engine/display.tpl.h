@@ -1,0 +1,852 @@
+#ifndef eveTplH
+#define eveTplH
+
+
+namespace Engine
+{
+
+	template <class GL>Display<GL>::Display():exec_target(NULL),context_error(false),region_locked(false),framebuffer_bound(false),config(default_buffer_config)
+	{
+		GL::global_instance = this;
+	}
+
+
+	template <class GL> inline void Display<GL>::renderToken()
+	{
+		renderSomething();
+	}
+
+	template <class GL> inline void Display<GL>::renderPivot()
+	{
+		renderSomething();
+	}
+	
+	template <class GL> 
+	void						Display<GL>::renderLights()
+	{
+		Array<Light*>	lights;
+		GL::getSceneLights(lights, true);
+		if (!lights_defined)
+		{
+			lights_defined = true;
+			
+		/*	spot.select(SimpleGeometry::Lines);
+			spot.color(1,1,1);
+			spot.vertex(0,0,0);
+			spot.color(0,0,1);
+			spot.vertex(0,1,1);
+			spot.color(1,1,1);
+			spot.vertex(0,0,0);
+			spot.color(0,0,1);
+			spot.vertex(0,-1,1);
+			spot.color(1,1,1);
+			spot.vertex(0,0,0);
+			spot.color(0,0,1);
+			spot.vertex(1,0,1);
+			spot.color(1,1,1);
+			spot.vertex(0,0,0);
+			spot.color(0,0,1);
+			spot.vertex(-1,0,1);
+			for (unsigned i = 0; i < 40; i++)
+			{
+				float	f0 = (float)i/40.0f*2*M_PI,
+						f1 = (float)(i+1)/40.0f*2*M_PI;
+				spot.vertex(cos(f0),sin(f0),1);
+				spot.vertex(cos(f1),sin(f1),1);
+			}*/
+			
+			spot.select(SimpleGeometry::Triangles);
+			for (unsigned i = 0; i < 40; i++)
+			{
+				float	f0 = (float)i/40.0f*2*M_PI,
+						f1 = (float)(i+1)/40.0f*2*M_PI;
+				spot.color(0,0,1,0);
+				spot.vertex(cos(f0),sin(f0),1);
+				spot.vertex(cos(f1),sin(f1),1);
+				spot.color(1,1,1);
+				spot.vertex(0,0,0);
+			}
+			
+			spot.seal();
+			
+			
+			omni.select(SimpleGeometry::Lines);
+			omni.color(1,1,1);
+			omni.vertex(2,0,0);
+			omni.vertex(-2,0,0);
+			omni.vertex(0,2,0);
+			omni.vertex(0,-2,0);
+			omni.vertex(0,0,2);
+			omni.vertex(0,0,-2);
+			omni.seal();
+			
+			
+
+			direct.select(SimpleGeometry::Quads);
+			for (unsigned i = 0; i < 40; i++)
+			{
+				float	f0 = (float)i/40.0f*2*M_PI,
+						f1 = (float)(i+1)/40.0f*2*M_PI;
+				direct.color(0,0,1,0);
+				direct.vertex(cos(f1)*0.5,sin(f1)*0.5,0);
+				direct.vertex(cos(f0)*0.5,sin(f0)*0.5,0);
+				direct.color(1,1,1);
+				direct.vertex(cos(f0)*0.5,sin(f0)*0.5,1);
+				direct.vertex(cos(f1)*0.5,sin(f1)*0.5,1);
+			}
+			
+			direct.select(SimpleGeometry::Triangles);
+			direct.color(1,1,1);
+			for (unsigned i = 0; i < 40; i++)
+			{
+				float	f0 = (float)i/40.0f*2*M_PI,
+						f1 = (float)(i+1)/40.0f*2*M_PI;
+				direct.vertex(cos(f1)*0.5,sin(f1)*0.5,1);
+				direct.vertex(cos(f0)*0.5,sin(f0)*0.5,1);
+				direct.vertex(0,0,1);
+			}
+			
+			direct.seal();
+			
+			
+		}
+		for (unsigned i = 0; i < lights.count(); i++)
+		{
+		
+			switch (lights[i]->getType())
+			{
+				case Light::Spot:
+				{
+					float scale = _distance(camera_location,lights[i]->getPosition())/5;
+					float system[16];
+					float angle = pow(0.94,lights[i]->getSpotExponent());
+					/*if (angle*45 > lights[i]->getSpotCutoff())
+						angle = lights[i]->getSpotCutoff()/45;*/
+					float z_scale = 1.0/clamped(angle,0.1,1);
+					__makeAxisSystem(lights[i]->getPosition(),lights[i]->getSpotDirection(),2,system);
+					_mult(system,scale/z_scale);
+					_mult(system+4,scale/z_scale);
+					_mult(system+8,scale*z_scale);
+					
+					GL::enterSubSystem(system);
+						GL::render(spot);
+					
+					GL::exitSubSystem();
+				
+				}
+				break;
+				case Light::Omni:
+				{
+					float scale = _distance(camera_location,lights[i]->getPosition())/10;
+					float system[16];
+					__eye4(system);
+					_c3(lights[i]->getPosition(),system+12);
+					_mult(system,scale);
+					_mult(system+4,scale);
+					_mult(system+8,scale);
+					GL::enterSubSystem(system);
+						GL::render(omni);
+					GL::exitSubSystem();
+				}
+				break;
+				case Light::Direct:
+				{
+					float scale = _length(camera_location)/4;
+					float system[16],offset[3];
+					_mult(lights[i]->getPosition(),scale,offset);
+					__makeAxisSystem(offset,lights[i]->getPosition(),2,system);
+					_mult(system,scale);
+					_mult(system+4,scale);
+					_mult(system+8,scale*2);
+					GL::enterSubSystem(system);
+						GL::render(direct);
+					GL::exitSubSystem();
+				}
+				break;
+			}
+		
+		
+		}
+		
+		
+		
+	}
+
+	template <class GL> void Display<GL>::renderSomething()
+	{
+	    if (!pivot_defined)
+	    {
+	        pivot_defined = true;
+	        pivot.select(SimpleGeometry::Triangles);
+	        pivot.resize(8);
+
+	        pivot.color(1,0,0); pivot.vertex(0,0,1);
+	        pivot.color(0,1,0); pivot.vertex(1,0,0);
+	        pivot.color(0,0,1); pivot.vertex(0,1,0);
+
+	        pivot.color(0,1,0); pivot.vertex(1,0,0);
+	        pivot.color(1,1,0); pivot.vertex(0,0,-1);
+	        pivot.color(0,0,1); pivot.vertex(0,1,0);
+
+	        pivot.color(1,1,0); pivot.vertex(0,0,-1);
+	        pivot.color(0,1,1); pivot.vertex(-1,0,0);
+	        pivot.color(0,0,1); pivot.vertex(0,1,0);
+
+	        pivot.color(0,1,1); pivot.vertex(-1,0,0);
+	        pivot.color(1,0,0); pivot.vertex(0,0,1);
+	        pivot.color(0,0,1); pivot.vertex(0,1,0);
+
+	        pivot.color(0,1,0); pivot.vertex(1,0,0);
+	        pivot.color(1,0,0); pivot.vertex(0,0,1);
+	        pivot.color(0,0,1); pivot.vertex(0,-1,0);
+
+	        pivot.color(1,1,0); pivot.vertex(0,0,-1);
+	        pivot.color(0,1,0); pivot.vertex(1,0,0);
+	        pivot.color(0,0,1); pivot.vertex(0,-1,0);
+
+	        pivot.color(0,1,1); pivot.vertex(-1,0,0);
+	        pivot.color(1,1,0); pivot.vertex(0,0,-1);
+	        pivot.color(0,0,1); pivot.vertex(0,-1,0);
+
+	        pivot.color(1,0,0); pivot.vertex(0,0,1);
+	        pivot.color(0,1,1); pivot.vertex(-1,0,0);
+	        pivot.color(0,0,1); pivot.vertex(0,-1,0);
+	    }
+	    GL::render(pivot);
+	}
+
+
+
+	template <class GL>inline bool Display<GL>::create()
+	{
+		return create("[Application]",false);
+	}
+
+	template <class GL>inline bool Display<GL>::create(bool hide_border)
+	{
+		return create("[Application]",hide_border);
+	}
+	
+	template <class GL>inline bool Display<GL>::createIconed(const String&window_name, const String&icon_filename)
+	{
+		return createEx(window_name,false,icon_filename);
+	}
+
+	template <class GL>inline bool Display<GL>::create(const String&window_name, bool hide_border)
+	{
+		return createEx(window_name,hide_border,"");
+	}
+	
+	#if SYSTEM==WINDOWS
+	template <class GL>bool Display<GL>::createEx(const String&window_name, bool hide_border, const String&icon_filename)
+	{
+
+	    framebuffer_bound = false;
+	    while (true)
+	    {
+	        HWND hWnd = context.createWindow(window_name,hide_border,icon_filename);
+	        if (!hWnd)
+	        {
+	            context_error = true;
+	            return false;
+	        }
+	        if (!GL::createContext(hWnd,config))
+	        {
+	            context.destroyWindow();
+	            if (GL::getErrorCode() == ERR_RETRY)
+	                continue;
+	            context_error = false;
+	            return false;
+	        }
+	        const RECT&window = context.windowLocation();
+	        GL::setRegion(rect(0,0,window.right-window.left,window.bottom-window.top));
+	        current_target_resolution = window_client_resolution = context.clientSize();
+	        pixel_aspect = window_client_resolution.aspect();
+	        return true;
+	    }
+
+	}
+	#elif SYSTEM==UNIX
+	template <class GL>bool Display<GL>::createEx(const String&window_name, bool hide_border, const String&icon_filename)
+	{
+	    framebuffer_bound = false;
+	    Display*connection = context.connect();
+	    if (!connection)
+	    {
+	        context_error = true;
+	        return false;
+	    }
+	    while (true)
+	    {
+	        TWindowAttributes attributes;
+	        if (!GL::createContext(connection,config,attributes))
+	        {
+	            if (GL::getErrorCode() == ERR_RETRY)
+	                continue;
+	            context.disconnect();
+	            context_error = false;
+	            return false;
+	        }
+	        Window wnd = context.createWindow(window_name,attributes,hide_border,icon_filename);
+	        if (!wnd)
+	        {
+	            GL::destroyContext();
+	            context_error = true;
+	            context.disconnect();
+	            return false;
+	        }
+	        if (!GL::bindContext(wnd))
+	        {
+	            context_error = false;
+	            context.destroyWindow();
+	            GL::destroyContext();
+	            context.disconnect();
+	            context_error = false;
+	            return false;
+	        }
+	        const RECT&window = context.windowLocation();
+	        GL::setRegion(rect(0,0,window.right-window.left,window.bottom-window.top));
+
+	        current_target_resolution = window_client_resolution = context.clientSize();
+			pixel_aspect = current_target_resolution.aspect();
+
+	        return true;
+	    }
+	}
+	#endif
+
+
+	template <class GL>String Display<GL>::errorStr()
+	{
+	    if (context_error)
+	        return "Context returns ("+IntToStr(context.errorCode())+"): "+String(context.errorStr());
+	    return "System "+String(GL::name())+" returns ("+IntToStr(GL::getErrorCode())+"): "+String(GL::getErrorStr());
+	}
+
+
+	template <class GL> inline bool Display<GL>::hideCursor()
+	{
+	    return mouse.hideCursor();
+	}
+
+	template <class GL> inline void Display<GL>::showCursor()
+	{
+	    mouse.showCursor();
+	}
+
+	template <class GL> inline  void  Display<GL>::locateWindow(unsigned left, unsigned top, unsigned width, unsigned height)
+	{
+	    context.locateWindow(left,top,width,height);
+		overrideSetClientResolution(context.clientSize());
+	}
+
+	template <class GL>	inline	void	Display<GL>::overrideSetClientResolution(const Resolution&region)
+	{
+		window_client_resolution = region;
+	    if (!framebuffer_bound)
+	    {
+	        current_target_resolution = window_client_resolution;
+			pixel_aspect = current_target_resolution.aspect();
+	    }
+	}
+
+	template <class GL> inline  void Display<GL>::locateWindow(const RECT&rect)
+	{
+		context.locateWindow(rect);
+		overrideSetClientResolution(context.clientSize());
+	}
+
+	template <class GL> inline  void Display<GL>::resizeWindow(unsigned width, unsigned height, bool hide_border)
+	{
+	    context.resizeWindow(width,height,hide_border);
+		overrideSetClientResolution(context.clientSize());
+	}
+	template <class GL>
+		inline	void		Display<GL>::setDimension(unsigned width, unsigned height, bool hide_border)
+		{
+			resizeWindow(width,height,hide_border);
+		}
+	template <class GL>
+		inline	void		Display<GL>::setSize(unsigned width, unsigned height, bool hide_border)
+		{
+			resizeWindow(width,height,hide_border);
+		}
+	template <class GL>
+		inline	void		Display<GL>::setDimensions(unsigned width, unsigned height, bool hide_border)
+		{
+			resizeWindow(width,height,hide_border);
+		}
+
+
+	template <class GL>
+		/*static*/ inline  const RECT& Display<GL>::windowLocation()
+		{
+			return context.windowLocation();
+		}
+
+	template <class GL> inline
+		/*static*/ unsigned			Display<GL>::width()
+		{
+			const RECT&	dim = context.windowLocation();
+			return dim.right-dim.left;
+		}
+
+	template <class GL> inline
+		UINT			Display<GL>::clientWidth()	const
+		{
+			return window_client_resolution.width;
+		}
+	
+	template <class GL> inline
+		UINT			Display<GL>::clientHeight()	const
+		{
+			return window_client_resolution.height;
+		}
+	
+		
+
+	template <class GL> inline
+		/*static*/ unsigned			Display<GL>::height()
+		{
+			const RECT& dim = context.windowLocation();
+			return dim.bottom-dim.top;
+		}
+
+	template <class GL> inline
+		const Resolution&				Display<GL>::clientSize()	const
+		{
+			return window_client_resolution;
+		}
+		
+		
+	template <class GL> inline
+		/*static*/ Resolution				Display<GL>::size()
+		{
+			return context.windowSize();
+		}
+
+	template <class GL> inline
+		/*static*/ Resolution				Display<GL>::dimension()
+		{
+			return context.windowSize();
+		}
+
+	template <class GL> inline
+		/*static*/ Resolution				Display<GL>::dimensions()
+		{
+			return context.windowSize();
+		}
+
+
+
+
+
+	template <class GL> inline void Display<GL>::setScreen(const TDisplayMode&mode)
+	{
+	    context.setScreen(mode);
+		overrideSetClientResolution(context.clientSize());
+	}
+
+	template <class GL> inline void Display<GL>::queryScreen(ResolutionList*r_list, FrequencyList*f_list, DWORD w_min, DWORD h_min, DWORD f_min)
+	{
+	    context.queryScreen(r_list,f_list,w_min,h_min,f_min);
+	}
+
+	template <class GL>
+		/*static*/ inline Resolution		Display<GL>::getScreenSize()
+		{
+			return context.getScreenSize();
+		}
+
+	
+	#if SYSTEM==WINDOWS
+
+	template <class GL>
+		/*static*/ inline bool Display<GL>::getScreen(DEVMODE&mode)
+		{
+			return context.getScreen(mode);
+		}
+
+	template <class GL>
+		/*static*/ inline bool Display<GL>::getScreen(DEVMODE*mode)
+		{
+			return context.getScreen(mode);
+		}
+
+	template <class GL>
+		/*static*/ inline bool Display<GL>::isCurrent(const DEVMODE&screen)
+		{
+			return context.isCurrent(screen);
+		}
+
+	#elif SYSTEM==UNIX
+
+	template <class GL> inline  int Display<GL>::findScreen(DWORD width, DWORD height, DWORD&refresh_rate)
+	{
+	    return context.findScreen(width,height,refresh_rate);
+	}
+
+/*
+	template <class GL> inline const XRRScreenSize&   Display<GL>::getScreen(unsigned index)
+	{
+	    return context.getScreen(index);
+	}
+
+	template <class GL> inline bool Display<GL>::getScreen(XRRScreenSize*size)
+	{
+	    return context.getScreen(size);
+	}
+
+	template <class GL> inline bool Display<GL>::getScreen(XRRScreenSize&size)
+	{
+	    return context.getScreen(size);
+	}
+
+	template <class GL> inline bool Display<GL>::isCurrent(const XRRScreenSize&size)
+	{
+	    return context.isCurrent(size);
+	}
+*/
+
+
+	#endif
+
+	template <class GL> inline short Display<GL>::getRefreshRate()
+	{
+	    return context.getRefreshRate();
+	}
+
+
+
+	template <class GL> inline bool Display<GL>::applyScreen()
+	{
+	    bool result = context.applyScreen();
+		overrideSetClientResolution(context.clientSize());
+	    return result;
+	}
+
+
+	template <class GL> inline  bool Display<GL>::applyWindowScreen(DWORD refresh_rate)
+	{
+	    bool result = context.applyWindowScreen(refresh_rate);
+		overrideSetClientResolution(context.clientSize());
+	    return result;
+	}
+
+	template <class GL> inline  void Display<GL>::resetScreen()
+	{
+	    context.resetScreen();
+		overrideSetClientResolution(context.clientSize());
+	}
+
+	template <class GL> inline	void	Display<GL>::capture(Image&target)
+	{
+		if (!framebuffer_bound)
+			target.setDimension(current_target_resolution.width,current_target_resolution.height,config.alpha_buffer_bits?4:3);
+		else
+			target.setDimension(current_target_resolution.width,current_target_resolution.height,framebuffer_alpha?4:3);
+		GL::capture(target);
+	}
+	template <class GL> inline	void	Display<GL>::capture(FloatImage&target)
+	{
+		if (!framebuffer_bound)
+			target.setDimension(current_target_resolution.width,current_target_resolution.height,config.alpha_buffer_bits?4:3);
+		else
+			target.setDimension(current_target_resolution.width,current_target_resolution.height,framebuffer_alpha?4:3);
+		GL::capture(target);
+	}
+
+	template <class GL> inline	void	Display<GL>::capture(typename GL::Texture&target)
+	{
+		GL::capture(target,current_target_resolution.width,current_target_resolution.height);
+	}
+
+	template <class GL> inline	void	Display<GL>::captureDepth(typename GL::Texture&target)
+	{
+		GL::captureDepth(target,current_target_resolution.width,current_target_resolution.height);
+	}
+
+
+	template <class GL>void Display<GL>::assign(pEngineExec target)
+	{
+	    exec_target = target;
+	//    context.assign(target);
+	}
+
+	template <class GL>void Display<GL>::interruptCheckEvents()
+	{
+        #if SYSTEM==WINDOWS
+            MSG msg;
+            while (PeekMessage(&msg,NULL,0,0,PM_NOREMOVE))
+            {
+                if (!GetMessage(&msg, NULL,0,0))
+                    FATAL__("event-handling error");
+                TranslateMessage(&msg);
+                process(msg);
+//                    DispatchMessage(&msg);
+            }
+        #elif SYSTEM==UNIX
+            XEvent event;
+            while (!context.shutting_down && XPending(connection))
+            {
+                if (XNextEvent(connection,&event))
+                    FATAL__("event-handling error");
+                process(event);
+            }
+        #endif
+
+	}
+
+	template <class GL>void Display<GL>::execute()
+	{
+	    if (!exec_target)
+	        return;
+	    bool exec_loop = true;
+	    #if SYSTEM==UNIX
+	        Display*connection = context.connection();
+	        if (!connection)
+	            return;
+	    #endif
+		BYTE focus_check = 1;
+	    while (exec_loop)
+	    {
+			if (!--focus_check)
+			{
+				focus_check = 5;
+				if (mouse.isLocked())
+					context.checkFocus();
+			}
+	        timing.update();
+	        mouse.update();
+	        exec_loop = !context.shutting_down && exec_target();
+
+			interruptCheckEvents();
+	        GL::nextFrame();
+	    }
+	}
+
+	template <class GL>void Display<GL>::executeNoClr()
+	{
+	    if (!exec_target)
+	        return;
+	    bool exec_loop = true;
+	    #if SYSTEM==UNIX
+	        Display*connection = context.connection();
+	        if (!connection)
+	            return;
+	    #endif
+		BYTE focus_check = 1;
+	    while (exec_loop)
+	    {
+			if (!--focus_check)
+			{
+				focus_check = 5;
+				if (mouse.isLocked())
+					context.checkFocus();
+			}
+	        timing.update();
+	        mouse.update();
+	        exec_loop = !context.shutting_down && exec_target();
+
+	        #if SYSTEM==WINDOWS
+	            MSG msg;
+	            while (PeekMessage(&msg,NULL,0,0,PM_NOREMOVE))
+	            {
+	                if (!GetMessage(&msg, NULL,0,0))
+	                    FATAL__("event-handling error");
+	                TranslateMessage(&msg);
+	                process(msg);
+	//                    DispatchMessage(&msg);
+	            }
+	        #elif SYSTEM==UNIX
+	            XEvent event;
+	            while (XPending(connection))
+	            {
+	                if (!XNextEvent(connection,&event))
+	                    FATAL__("event-handling error");
+	                process(event);
+	            }
+	        #endif
+
+	        GL::nextFrameNoClr();
+	    }
+	}
+
+	#if SYSTEM==WINDOWS
+	    template <class GL>inline void Display<GL>::process(const MSG&msg)
+	    {
+	        if ((msg.message == WM_DESTROY || msg.message == WM_CLOSE || msg.message == WM_QUIT) && !context.shutting_down)
+	            close();
+	        else
+	            DispatchMessage(&msg);
+	    }
+
+	#elif SYSTEM==UNIX
+
+	    template <class GL>inline void Display<GL>::process(XEvent&event)
+	    {
+	        if (event.type == DestroyNotify && !context.shutting_down)
+	            close();
+	        else
+	            Engine::ExecuteEvent(event);
+	    }
+
+	#endif
+
+	template <class GL>void Display<GL>::close()
+	{
+	    unbindFrameBuffer();
+	    GL::destroyContext();
+	    context.close();
+	}
+
+	template <class GL>
+		void Display<GL>::terminate()
+		{
+			close();
+		}
+
+	template <class GL> void Display<GL>::lockRegion()
+	{
+	    region_locked = true;
+	}
+
+	template <class GL> void Display<GL>::unlockRegion()
+	{
+	    region_locked = false;
+	}
+
+	/**
+		@brief Multi-window specific method. Allows to transform a float viewport to the corresponding pixel-region.
+
+		Uses the locally stored dimensions if a frame buffer object is currently bound, the specified client size otherwise
+
+		@param rect Viewport to transform
+		@param clientSize Size of the client viewport (in pixels) to use, if no frame buffer object is currently bound
+	*/
+	template <class GL> RECT Display<GL>::transformViewport(const TFloatRect&rect, const Resolution&client_size)
+	{
+		if (framebuffer_bound)
+			return transform(rect);
+
+	    RECT result;
+	    result.left     = (LONG)(rect.left       *client_size.width);
+	    result.right    = (LONG)(rect.right      *client_size.width);
+	    result.top      = (LONG)((rect.top)      *client_size.height);
+	    result.bottom   = (LONG)((rect.bottom)   *client_size.height);
+	    return result;
+
+	}
+
+	template <class GL> RECT Display<GL>::transform(const TFloatRect&rect)
+	{
+	    RECT result;
+	    result.left     = (LONG)(rect.left       *current_target_resolution.width);
+	    result.right    = (LONG)(rect.right      *current_target_resolution.width);
+	    result.top      = (LONG)((rect.top)      *current_target_resolution.height);
+	    result.bottom   = (LONG)((rect.bottom)   *current_target_resolution.height);
+	    return result;
+	}
+
+
+	template <class GL> void Display<GL>::pickRegion(const TFloatRect&rect)
+	{
+	    GL::setRegion(transform(rect));
+	}
+
+
+	template <class GL>
+	template <class C>void Display<GL>::pick(const Aspect<C>&aspect)
+	{
+	    if (!region_locked)
+	        GL::setRegion(transform(aspect.region));
+		if (GlobalAspectConfiguration::load_as_projection)
+		{
+			TMatrix4<>	view_projection;
+			Mat::mult(aspect.projection,aspect.view,view_projection);
+			GL::loadModelview(Matrix<>::eye4);
+			GL::loadProjection(view_projection);
+		}
+		else
+		{
+			GL::loadModelview(aspect.view);
+			GL::loadProjection(aspect.projection);
+		}
+		GL::setDepthTest(aspect.depth_test);
+		environment_matrix.x.xyz = aspect.view_invert.x.xyz;
+		environment_matrix.y.xyz = aspect.view_invert.y.xyz;
+		environment_matrix.z.xyz = aspect.view_invert.z.xyz;
+		camera_location = aspect.view_invert.w.xyz;
+	}
+
+	template <class GL>
+	template <class C>void Display<GL>::pickCentered(const Aspect<C>&aspect)
+	{
+	    if (!region_locked)
+	        GL::setRegion(transform(aspect.region));
+	    TMatrix4<C>   view;
+		view.x = aspect.view.x;
+		view.y = aspect.view.y;
+		view.z = aspect.view.z;
+	    Vec::def(view.w,0,0,0,1);
+
+	    GL::loadModelview(view);
+	    GL::loadProjection(aspect.projection);
+		GL::setDepthTest(aspect.depth_test);
+
+		environment_matrix.x.xyz = aspect.view_invert.x.xyz;
+		environment_matrix.y.xyz = aspect.view_invert.y.xyz;
+		environment_matrix.z.xyz = aspect.view_invert.z.xyz;
+		camera_location = aspect.view_invert.w.xyz;
+	}
+
+	template <class GL>
+	bool Display<GL>::bindFrameBuffer(const typename GL::FBO&pobj)
+	{
+	    if (pobj.isEmpty())
+		{
+			unbindFrameBuffer();
+	        return false;
+		}
+	    if (GL::bindFrameBufferObject(pobj))
+	    {
+			framebuffer_bound = true;
+	        current_target_resolution = pobj.size();
+			framebuffer_alpha = pobj.primaryHasAlpha();
+	        pixel_aspect = current_target_resolution.aspect();
+			//ShowMessage("pbuffer bound. region is "+String(region_size.x)+", "+String(region_size.y)+". aspect is "+String(pixel_aspect));
+	        return true;
+	    }
+	    unbindFrameBuffer();
+	    return false;
+	}
+
+
+	template <class GL>
+	void Display<GL>::unbindFrameBuffer()
+	{
+	    if (!framebuffer_bound)
+			return;
+		
+	    GL::unbindFrameBufferObject();
+	    current_target_resolution = window_client_resolution;
+	    pixel_aspect = current_target_resolution.aspect();
+		//const RECT&window = context.windowLocation();
+		/*GL::setRegion(rect(0,0,window.right-window.left,window.bottom-window.top));*/	//so if i set region here everything goes boom..... guess stranger things happen
+	    framebuffer_bound = false;
+		//ShowMessage("pbuffer unbound. region is "+String(region_size.x)+", "+String(region_size.y)+". aspect is "+String(pixel_aspect));
+		
+		
+	}
+
+
+	template <class GL> SimpleGeometry					Display<GL>::pivot;
+	template <class GL> SimpleGeometry					Display<GL>::omni;
+	template <class GL> SimpleGeometry					Display<GL>::spot;
+	template <class GL> SimpleGeometry					Display<GL>::direct;
+	template <class GL> bool                        Display<GL>::pivot_defined=false;
+	template <class GL> bool                        Display<GL>::lights_defined=false;
+
+}
+
+#endif

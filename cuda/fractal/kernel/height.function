@@ -1,0 +1,92 @@
+/*
+	height() function content for inclusion in cuda kernel and cpu adaptions
+	
+	Common format: 	float	height(const TChannelConfig&channel)
+*/
+
+
+	//return channel.c0;
+	
+	float	rs;
+	
+	
+	// base height:
+	#if FRACTAL_KERNEL==FULL_KERNEL
+		rs = fminf(fminf(fminf(channel.c0,channel.c1),fminf(channel.c2,channel.c3)),channel.c4);
+		rs += channel.c0*channel.c1*channel.c2*channel.c3*channel.c4*0.5;
+	#elif FRACTAL_KERNEL==REDUCED_KERNEL
+		rs = fminf(fminf(channel.c0,channel.c1),fminf(channel.c2,channel.c3));
+		rs += channel.c0*channel.c1*channel.c2*channel.c3*0.5;
+	#else	//minimal kernel
+		rs = fminf(fminf(channel.c0,channel.c1),channel.c2);
+		rs += channel.c0*channel.c1*channel.c2*0.5;
+	#endif
+	//rs *= 0.9;
+	//stretch 1:
+	rs = dbSign(rs)*__powf(fabsf(rs),1.3f)*0.6f; //1.5
+	//rs += 0.03f;
+	
+	//rs += dbCubicStep(channel.c0,0.4,0.6)*0.1f*channel.c1;	//mountains
+	#if FRACTAL_KERNEL==FULL_KERNEL
+		rs -= dbCubicStep(channel.c2*channel.c3,0.6,0.8)*0.15f*channel.c4;	//just some holes'n stuff
+	#elif FRACTAL_KERNEL==REDUCED_KERNEL
+		rs -= dbCubicStep(channel.c2*channel.c3,0.6,0.8)*0.15f*channel.c3;	//just some holes'n stuff
+	#else	//minimal kernel
+		rs -= dbCubicStep(channel.c2,0.6,0.8)*0.15f*channel.c2;	//just some holes'n stuff
+	#endif
+	
+	rs -= dbCubicStep(channel.oceanic,0.4,0.5)*0.5f;	//oceanic basin
+	
+	//rs -= dbCubicStep(channel.oceanic,0.2,0.4)*0.045f;	//inner elevation / outer shore suppression
+	
+	#ifndef RIVERS
+		//canyons:
+		float	riff_distance = fabsf(0.5-channel.c2)*5.0f;
+		#if FRACTAL_KERNEL==FULL_KERNEL
+			rs -= 0.04*channel.c4*channel.c3*(1.0-dbCubicStep(riff_distance,0.02,0.09));
+		#elif FRACTAL_KERNEL==REDUCED_KERNEL
+			rs -= 0.02*channel.c3*(1.0-dbCubicStep(riff_distance,0.02,0.09));
+		#else	//minimal kernel
+			rs -= 0.02*(1.0-dbCubicStep(riff_distance,0.02,0.09));
+		#endif
+	#endif
+	rs += (1.0f-dbCubicStep(channel.oceanic,0,0.4))*0.15;	//continental upheav
+	
+	rs += 0.01;
+	
+	
+	float boundary = 1.0f;//-channel.c0*0.1f-channel.c1*0.1f-channel.c2*0.1f;
+	#if 1
+		#define TOP_ROUND 0.005f
+		if (rs > boundary-TOP_ROUND)
+		{
+			rs -= (boundary+TOP_ROUND);
+			if (rs > TOP_ROUND*2)
+				rs = boundary-rs+TOP_ROUND;//-0.25f*TOP_ROUND;
+			else
+				rs = boundary-TOP_ROUND*dbSqr((rs)/(2*TOP_ROUND));
+		}	
+	#else
+		if (rs > 1)
+			rs = 2-rs;
+		/*rs++;
+		rs = 1.0f-1.0f/(rs*rs);*/
+	#endif
+
+	#ifdef RIVERS
+		//rs -= 0.1*dbCubicStep(channel.river_depth,0.25f,0.75f);
+		rs -= 0.1*fmaxf(channel.river_depth*1.5f-0.25f,0.0f);
+	#endif
+	
+	float shore_relative = rs;//+0.0015f;
+	if (fabsf(shore_relative) < 0.01f)	//shore
+	{
+		shore_relative*=100.0f;
+		shore_relative = shore_relative*shore_relative*shore_relative;
+		shore_relative/=100.0f;
+		rs = shore_relative;//-0.0015f;
+	
+	
+	}
+	
+	return rs;

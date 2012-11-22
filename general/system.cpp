@@ -1,0 +1,614 @@
+#include "../global_root.h"
+#include "system.h"
+
+
+/******************************************************************
+
+E:\include\general\system.cpp
+
+This file is part of Delta-Works
+Copyright (C) 2006-2008 Stefan Elsen, University of Trier, Germany.
+http://www.delta-works.org/forge/
+http://informatik.uni-trier.de/
+
+******************************************************************/
+
+
+/*
+Calling a DLL with C# (C Sharp)
+		The following example demonstrates how to call a (C++) DLL from C Sharp. The code for the DLL is here. 
+call_dll.cs
+// http://www.c-sharpcenter.com/Tutorial/UnManaged.htm
+
+
+using System.Runtime.InteropServices;
+using System;
+
+class call_dll {
+
+  [StructLayout(LayoutKind.Sequential, Pack=1)]
+  private struct STRUCT_DLL {
+    public Int32  count_int;
+    public IntPtr ints;
+  }
+
+  [DllImport("mingw_dll.dll")]
+  private static extern int func_dll(
+      int an_int,
+      [MarshalAs(UnmanagedType.LPArray)] byte[] string_filled_in_dll,
+      ref STRUCT_DLL s
+   );
+  
+  public static void Main() {
+
+    byte[] string_filled_in_dll = new byte[21];
+
+
+    STRUCT_DLL struct_dll = new STRUCT_DLL();
+    struct_dll.count_int = 5;
+    int[]  ia = new int[5];
+    ia[0] = 2; ia[1] = 3; ia[2] = 5; ia[3] = 8; ia[4] = 13;
+
+    GCHandle gch    = GCHandle.Alloc(ia);
+    struct_dll.ints = Marshal.UnsafeAddrOfPinnedArrayElement(ia, 0);
+
+    int ret=func_dll(5,string_filled_in_dll, ref struct_dll);
+    
+    Console.WriteLine("Return Value: " + ret);
+    Console.WriteLine("String filled in DLL: " + System.Text.Encoding.ASCII.GetString(string_filled_in_dll));
+
+  }
+}
+*/
+
+
+
+namespace System
+{
+
+
+
+
+
+    SharedLibrary::SharedLibrary():module_handle(NULL)
+    {}
+
+
+    SharedLibrary::SharedLibrary(const char*filename):module_handle(NULL)
+    {
+        load(filename);
+    }
+
+    SharedLibrary::~SharedLibrary()
+    {
+        close();
+    }
+	
+	void SharedLibrary::adoptData(SharedLibrary&other)
+	{
+		close();
+		module_handle = other.module_handle;
+		other.module_handle = NULL;
+	}
+
+    bool SharedLibrary::load(const char*filename)
+    {
+        close();
+        if (!filename)
+            return false;
+        #if SYSTEM==WINDOWS
+            module_handle = LoadLibraryA(filename);
+        #elif SYSTEM==UNIX
+            module_handle = dlopen(filename,RTLD_LAZY);
+        #endif
+        return module_handle!=NULL;
+    }
+
+	bool	SharedLibrary::loadFromFile(const char*filename)
+	{
+		return load(filename);
+	}
+
+	bool	SharedLibrary::open(const char*filename)
+	{
+		return load(filename);
+	}
+
+    bool SharedLibrary::loaded()
+    {
+        return module_handle!=NULL;
+    }
+
+    bool SharedLibrary::isActive()
+    {
+        return module_handle!=NULL;
+    }
+
+
+    void SharedLibrary::close()
+    {
+        if (!module_handle)
+            return;
+        #if SYSTEM==WINDOWS
+            FreeLibrary(module_handle);
+        #elif SYSTEM==UNIX
+            dlclose(module_handle);
+        #endif
+        module_handle = NULL;
+    }
+
+    void* SharedLibrary::locate(const char*funcname)
+    {
+        if (!module_handle)
+            return NULL;
+        #if SYSTEM==WINDOWS
+            return (void*)GetProcAddress(module_handle,funcname);
+        #elif SYSTEM==UNIX
+            return dlsym(module_handle,funcname);
+        #else
+            #error unsupported
+        #endif
+    }
+
+	const char*			getLastError()
+	{
+		static char		error_buffer[512];
+
+        LPVOID lpMsgBuf;
+        FormatMessage(
+            FORMAT_MESSAGE_ALLOCATE_BUFFER |
+            FORMAT_MESSAGE_FROM_SYSTEM |
+            FORMAT_MESSAGE_IGNORE_INSERTS,
+            NULL,
+            GetLastError(),
+            MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
+            (LPTSTR) &lpMsgBuf,
+            0,
+            NULL
+            );
+        size_t len = strlen((char*)lpMsgBuf);
+        if (len >= sizeof(error_buffer))
+            len = sizeof(error_buffer)-1;
+        memcpy(error_buffer,lpMsgBuf,len);
+        error_buffer[len] = 0;
+        LocalFree( lpMsgBuf );
+        return error_buffer;
+	}
+
+    const char*  SharedLibrary::errorStr()
+    {
+        #if SYSTEM==UNIX
+            return dlerror();
+        #elif SYSTEM==WINDOWS
+			return getLastError();
+
+        #else
+            #error unsupported
+        #endif
+    }
+
+
+    Pipe::Pipe(DWORD size)
+    {
+        #if SYSTEM==WINDOWS
+            if (!CreatePipe(&read_handle,&write_handle,NULL,size))
+                FATAL__("pipe-creation failed!");
+        #elif SYSTEM==UNIX
+            if (pipe(handle))
+                FATAL__("pipe-creation failed!");
+            fcntl(handle[0], F_SETFL, O_NONBLOCK); //O_NOBLOCK)
+        #endif
+    }
+
+    Pipe::~Pipe()
+    {
+        #if SYSTEM==WINDOWS
+            CloseHandle(read_handle);
+            CloseHandle(write_handle);
+        #elif SYSTEM==UNIX
+            close(handle[0]);
+            close(handle[1]);
+        #endif
+    }
+
+    bool Pipe::write(const void*data, unsigned bytes)
+    {
+        #if SYSTEM==WINDOWS
+            DWORD written;
+            return WriteFile(write_handle,data,bytes,&written,NULL) && written == bytes;
+        #elif SYSTEM==UNIX
+           return (:: write(handle[1],data,bytes) == bytes);
+        #endif
+    }
+
+    bool    Pipe::read(void*target, unsigned bytes)
+    {
+        #if SYSTEM==WINDOWS
+            DWORD size;
+            if (!PeekNamedPipe(read_handle,NULL,0,NULL,&size,NULL) || size < bytes)
+                return false;
+            ReadFile(read_handle,target,bytes,&size,NULL);
+            return true;
+        #elif SYSTEM==UNIX
+            return (::read(handle[0],target,bytes) == bytes);
+        #endif
+
+    }
+
+    BlockingPipe::BlockingPipe(DWORD size)
+    {
+        #if SYSTEM==WINDOWS
+            if (!CreatePipe(&read_handle,&write_handle,NULL,size))
+                FATAL__("pipe-creation failed!");
+        #elif SYSTEM==UNIX
+            if (pipe(handle))
+                FATAL__("pipe-creation failed!");
+            //fcntl(handle[0], F_SETFL, O_BLOCK); //O_NOBLOCK)
+        #endif
+    }
+	
+    BlockingPipe::BlockingPipe(bool)
+    {
+        #if SYSTEM==WINDOWS
+			read_handle = write_handle = 0;
+        #elif SYSTEM==UNIX
+			handle[0] = 0;
+			handle[1] = 0;
+        #endif
+    }
+
+    BlockingPipe::~BlockingPipe()
+    {
+        #if SYSTEM==WINDOWS
+			if (read_handle)
+				CloseHandle(read_handle);
+			if (write_handle && read_handle != write_handle)
+				CloseHandle(write_handle);
+        #elif SYSTEM==UNIX
+			if (handle[0])
+				close(handle[0]);
+			if (handle[1] && handle[0] != handle[1])
+				close(handle[1]);
+        #endif
+    }
+
+    bool BlockingPipe::write(const void*data, unsigned bytes)
+    {
+        #if SYSTEM==WINDOWS
+            DWORD written;
+            return WriteFile(write_handle,data,bytes,&written,NULL) && written == bytes;
+        #elif SYSTEM==UNIX
+           return (:: write(handle[1],data,bytes) == bytes);
+        #endif
+    }
+
+    bool    BlockingPipe::read(void*target, unsigned bytes)
+    {
+        #if SYSTEM==WINDOWS
+            DWORD size;
+            return ReadFile(read_handle,target,bytes,&size,NULL) && size == bytes;
+        #elif SYSTEM==UNIX
+            return (::read(handle[0],target,bytes) == bytes);
+        #endif
+    }
+
+    bool PipeFeed::write(const void*data, unsigned bytes)
+    {
+        #if SYSTEM==WINDOWS
+            DWORD written;
+            return WriteFile(write_handle,data,bytes,&written,NULL) && written == bytes;
+        #elif SYSTEM==UNIX
+           return (:: write(write_handle,data,bytes) == bytes);
+        #endif
+    }
+
+
+	NamedPipeClient::NamedPipeClient():BlockingPipe(true)
+	{
+	
+	}
+
+	
+	bool		NamedPipeClient::connectTo(const char*pipe_name, unsigned timeout)
+	{
+		#if SYSTEM==WINDOWS
+			if (!WaitNamedPipeA(pipe_name , timeout))
+				return false;
+			read_handle = write_handle = CreateFileA(pipe_name , GENERIC_READ|GENERIC_WRITE ,  0 , NULL , OPEN_EXISTING , FILE_ATTRIBUTE_NORMAL, NULL); 
+			if (read_handle == INVALID_HANDLE_VALUE)
+			{
+				return false;
+			}
+			return true;
+		#else
+			return false;
+		#endif
+	}
+	
+	
+	bool		NamedPipeClient::isActive()			const
+	{
+		#if SYSTEM==WINDOWS
+			return read_handle!=INVALID_HANDLE_VALUE;
+		#else
+			return false;
+		#endif
+	}
+	
+	bool		NamedPipeClient::isConnected()		const
+	{
+		return isActive();
+	}
+	
+	NamedPipeServer::NamedPipeServer():BlockingPipe(true)
+	{
+	
+	}
+
+	
+	bool		NamedPipeServer::start(const char*pipe_name)
+	{
+		#if SYSTEM==WINDOWS
+			//read_handle = write_handle = CreateFileA(pipe_name , GENERIC_READ|GENERIC_WRITE ,  FILE_SHARE_WRITE|FILE_SHARE_READ , NULL , CREATE_NEW, FILE_ATTRIBUTE_NORMAL|FILE_FLAG_DELETE_ON_CLOSE, NULL); 
+			read_handle = write_handle = CreateNamedPipeA(pipe_name,PIPE_ACCESS_DUPLEX,PIPE_TYPE_BYTE|PIPE_READMODE_BYTE| PIPE_WAIT,PIPE_UNLIMITED_INSTANCES,1024,1024,500,NULL);
+			if (read_handle == INVALID_HANDLE_VALUE)
+			{
+				return false;
+			}
+			return true;
+		#else
+			return false;
+		#endif
+	}
+	void		NamedPipeServer::acceptClient()
+	{
+		#if SYSTEM==WINDOWS
+			ConnectNamedPipe(read_handle,NULL);
+		#endif	
+	}
+	
+	bool		NamedPipeServer::isActive()			const
+	{
+		#if SYSTEM==WINDOWS
+			return read_handle!=INVALID_HANDLE_VALUE;
+		#else
+			return false;
+		#endif
+	}
+	
+	bool		NamedPipeServer::isConnected()		const
+	{
+		return isActive();
+	}
+
+
+
+
+
+	const char*				getFirstEnv(const char**field, unsigned len, const char*except)
+	{
+		for (unsigned i = 0; i < len; i++)
+			if (const char*rs = getenv(field[i]))
+				return rs;
+		return except;
+	}
+
+	const char*				getSystemName()
+	{
+		static const char*	key_names[] = {"OSTYPE","OS"};
+		return getFirstEnv(key_names,ARRAYSIZE(key_names),"unknown");
+	}
+
+	const char*				getUserName()
+	{
+		static const char*	key_names[] = {"USER","LOGNAME","USERNAME"};
+		return getFirstEnv(key_names,ARRAYSIZE(key_names),"unknown");
+	}
+
+	const char*				getUserDomain()
+	{
+		static const char*	key_names[] = {"GROUP","USERDOMAIN"};
+		return getFirstEnv(key_names,ARRAYSIZE(key_names),"");
+	}
+
+
+	const char*				getUserHomeFolder()
+	{
+		static const char*	key_names[] = {"HOME","PWD","USERPROFILE"};
+		return getFirstEnv(key_names,ARRAYSIZE(key_names),"");
+	}
+
+	const char*				getTempFolder()
+	{
+		static const char*	key_names[] = {"TEMP","TMP","TMPDIR"};
+		return getFirstEnv(key_names,ARRAYSIZE(key_names),FOLDER_SLASH_STR"tmp");
+	}
+
+	const char*				getHostName()
+	{
+		static const char*	key_names[] = {"HOST","LOGONSERVER","COMPUTERNAME"};	//ok, these are not identical but wtf
+		return getFirstEnv(key_names,ARRAYSIZE(key_names),"unknown");
+	}
+
+
+	size_t					getPhysicalMemory()
+	{
+		#if SYSTEM==WINDOWS
+			MEMORYSTATUS status;
+			GlobalMemoryStatus(&status);
+			return status.dwTotalPhys;
+		#elif SYSTEM_VARIANCE==LINUX
+			//check /proc/meminfo
+			#error find some solution
+		#else
+			#error find some solution
+		#endif
+	}
+
+	size_t					getMemoryConsumption()
+	{
+		#if SYSTEM==WINDOWS
+			PROCESS_MEMORY_COUNTERS	information;
+
+			if (!GetProcessMemoryInfo(GetCurrentProcess(),&information,sizeof(information)))
+				return 0;
+			return information.WorkingSetSize;
+  		#elif SYSTEM_VARIANCE==LINUX
+			rusage	usage;
+			if (getrusage(RUSAGE_SELF,&usage))
+				return 0;
+			return usage.ru_ixrss+usage.ru_idrss+usage.ru_isrss;
+			//check /proc/[pid]/statm second entry, multiply with page file
+			#error find some solution
+		#else
+			#error find some solution
+		#endif
+	}
+
+
+    unsigned                getProcessorCount()
+    {
+        #if SYSTEM_VARIANCE==LINUX
+			/*
+            FILE*f = fopen("/proc/cpuinfo","rb");
+            if (!f)
+                return 1;
+            unsigned cnt = 0;
+            char buffer[0x200];
+            while (fgets(buffer,sizeof(buffer),f))
+            {
+                char*at = buffer;
+                while (char*found = strstr(at,"processor"))
+                {
+                    cnt++;
+                    at = found + 10;
+                }
+            }
+            fclose(f);
+
+            return cnt;*/
+			return (unsigned)sysconf(_SC_NPROCESSORS_CONF);
+        #elif SYSTEM==WINDOWS
+
+            const char*str = getenv("NUMBER_OF_PROCESSORS");
+            if (!str)
+                return 1;
+            unsigned cnt(0);
+            while (*str)
+            {
+                cnt *= 10;
+                cnt += (*str)-'0';
+                str++;
+            }
+            return cnt;
+        #else
+            #error not supported
+        #endif
+    }
+
+	bool					copyToClipboard(HWND window, const char*line)
+	{
+		#if SYSTEM==WINDOWS
+			if (!OpenClipboard(window))
+				return false;
+			EmptyClipboard();
+			size_t len = strlen(line);
+			HGLOBAL hglbCopy = GlobalAlloc(GMEM_MOVEABLE|GMEM_DDESHARE, len+1);
+	        if (hglbCopy == NULL)
+	        {
+	            CloseClipboard();
+	            return false;
+	        }
+
+
+			char*lptstrCopy = (char*)GlobalLock(hglbCopy);
+				memcpy(lptstrCopy, line, len+1);
+			GlobalUnlock(hglbCopy);
+			SetClipboardData(CF_TEXT, hglbCopy);
+
+
+			CloseClipboard();
+
+			//GlobalFree(hglbCopy);
+
+			return true;
+
+		#elif SYSTEM_VARIANCE==LINUX
+
+			return false;
+
+		#else
+			#error stump
+		#endif
+	}
+
+	bool				getFromClipboardIfText(HWND window, char*buffer, size_t buffer_size)
+	{
+		#if SYSTEM==WINDOWS
+			if (!IsClipboardFormatAvailable(CF_TEXT))
+				return false;
+			if (!OpenClipboard(window))
+				return false;
+
+			bool success = false;
+			HANDLE hglb = GetClipboardData(CF_TEXT);
+			if (hglb != NULL)
+			{
+				const char*lptstr = (const char*)GlobalLock(hglb);
+				if (lptstr)
+				{
+					size_t len = strlen(lptstr);
+					if (len >= buffer_size)
+						len = buffer_size-1;
+					memcpy(buffer,lptstr,len);
+					buffer[len] = 0;
+					GlobalUnlock(hglb);
+					success = true;
+				}
+			}
+			CloseClipboard();
+			return success;
+		#elif SYSTEM_VARIANCE==LINUX
+
+
+			return false;
+		#else
+			#error stump
+		#endif
+	}
+
+	int getConsoleWidth()
+	{
+		#if SYSTEM==UNIX
+			int fd;
+			winsize wsz;
+
+			fd = fileno (stderr);
+			if (ioctl (fd, TIOCGWINSZ, &wsz) < 0)
+				return 0;			/* most likely ENOTTY */
+
+			return wsz.ws_col;
+		#elif SYSTEM==WINDOWS
+			CONSOLE_SCREEN_BUFFER_INFO	info;
+			if (!GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE),&info))
+				return 0;
+			int w = info.srWindow.Right-info.srWindow.Left;
+			if (w > info.dwSize.X)
+				w = info.dwSize.X;
+			return w;
+		#endif
+	}
+
+/*    bool                    setEnv(const String&name, const String&value);
+    {
+        #if SYSTEM==WINDOWS
+            return !_putenv((name+"="+value).c_str());
+        #elif SYSTEM==UNIX
+            return !putenv(name.c_str(),value.c_str(),1);
+        #else
+            #error not supported
+        #endif
+   }*/
+   
+}
+

@@ -1,0 +1,249 @@
+/*
+	void	generateTexture(unsigned char*texel_data,T[Device/Host]Surface surface,TContext context,const TVertexInfo*info_field,unsigned dimension)
+	
+	can't use x, y (cuda variables).
+	
+	Generates normal and style texels including cloud phase and 4th normal component and cloud frequency as 4th style component.
+*/
+
+	//normal seam 3, flavor seam 4. diagonal belongs to normal
+	
+	DEVICE_RESOURCE(TVertexInfo,info) = info_field[linear];
+	
+	//unsigned seam = dimension/2;
+	
+	/*#define SEAM_WIDTH		2
+	#define CO_SEAM_WIDTH	1
+	
+	if (info.x < seam)
+		x = info.x;
+	elif (info.x >= seam+SEAM_WIDTH)
+		x = info.x-SEAM_WIDTH;
+	else
+		return;
+	
+	if (info.y < seam)
+		y = info.y+SEAM_WIDTH;
+	elif (info.y >= seam+SEAM_WIDTH)
+		y = info.y;
+	else
+		return;
+	y--;*/
+	
+	
+	/*
+		x and y coordinates in the final texture
+	*/
+	unsigned px = info.x;
+	unsigned py = info.y+TEXTURE_SEAM_EXTENSION+1;
+	
+	bool extend = px+TEXTURE_SEAM_EXTENSION+1 >= py;
+	
+	if (px >= dimension || py >= dimension)
+		return;
+	
+	unsigned char	*normal_texel = getTexel4(texel_data,px,py,dimension);
+				
+
+	DEVICE_RESOURCE(TVertex,vertex) = surface.vertex[linear];
+	float nlen = dvLength(vertex.normal);
+	
+	
+	float	cloud_phase = (vertex.channel.c0+(1.0f-vertex.channel.c1)+(1.0f-vertex.channel.c2)+fabsf(vertex.channel.oceanic-0.5f)*2.0f)*0.25f,
+			cloud_frequency = ((1.0f-vertex.channel.c0)+(1.0f-vertex.channel.c1)+(vertex.channel.c2)+fabsf(0.5f-vertex.channel.oceanic)*2.0f)*0.25f;
+	
+	
+	normal_texel[0] = (unsigned char)(255.0f*(0.5f+vertex.normal[0]/nlen*0.5f));
+	normal_texel[1] = (unsigned char)(255.0f*(0.5f+vertex.normal[1]/nlen*0.5f));
+	normal_texel[2] = (unsigned char)(255.0f*(0.5f+vertex.normal[2]/nlen*0.5f));
+	normal_texel[3] = (unsigned char)(255.0f*cloud_phase);
+	
+	if (extend)
+	{
+		/*normal_texel[0] = 255;
+		normal_texel[1] = 0;
+		normal_texel[2] = 0;*/
+		#if TEXTURE_SEAM_EXTENSION >= 1
+			dvC4(normal_texel,getTexel4(texel_data,px+1,py,dimension));
+			if (py==TEXTURE_SEAM_EXTENSION+1)
+				dvC4(normal_texel,getTexel4(texel_data,px,py-1,dimension));
+		#endif
+		#if TEXTURE_SEAM_EXTENSION >= 2
+			dvC4(normal_texel,getTexel4(texel_data,px+1,py-1,dimension));
+		#endif
+	}
+	
+	#if 0
+	if (px==py-1)
+	{
+		/*normal_texel[0] = 255;
+		normal_texel[1] = 0;
+		normal_texel[2] = 0;*/
+		if (py == 1)
+			dvC4(normal_texel,getTexel4(texel_data,px,py-1,dimension));
+		if (px < dimension-1)
+		{
+		
+			dvC4(normal_texel,getTexel4(texel_data,px+1,py,dimension));
+		}
+		if (px < dimension-2)
+			dvC4(normal_texel,getTexel4(texel_data,px+2,py,dimension));
+			
+		if (py > 0 && px < dimension-1)
+			dvC4(normal_texel,getTexel4(texel_data,px+1,py-1,dimension));
+	}
+	#endif
+	
+	/*
+	if (x >= seam && x < seam+CO_SEAM_WIDTH)
+		return;
+	if (x > seam)
+		x-=CO_SEAM_WIDTH;
+	if (y >= seam && y < seam+CO_SEAM_WIDTH)
+		return;
+	if (y < seam)
+		y+=CO_SEAM_WIDTH;
+	*/
+	px = dimension-px-1;
+	py = dimension-py-1;
+	/*if (x == y || x == y+1)
+		return;*/
+	if (px >= dimension || py >= dimension)
+		return;
+	
+	
+	unsigned char* style_texel = getTexel4(texel_data,px,py,dimension);
+	
+	#if !defined(COLOR_CHANNELS) || COLOR_CHANNELS>=3
+		float	up[3];
+		
+		dvMad(vertex.position,surface.sector,context.sector_size,up);
+		dvMult(up,context.variance);
+		dvNormalize(up);
+		
+		/*
+			Notes:
+			* sand and natural areas should be mutualy exclusive. quickly changing areas between sand and plant are not nice
+			* both sand and natural areas feed on temperature. near the poles you'd find neither sand nor natural areas
+			* make sure snow is not too close to intensive green areas. it looks odd from further away.
+			* snow is water too. if you increase snow due to lack of temperature, increase water too
+		*/
+		
+		float	//surficial = dbLinearStep(vertex.height,-0.01f,0.0f),
+				height = vertex.height,
+				planarity = dvDot(vertex.normal,up)/nlen,
+				temperature = (1.0f-fabsf(up[1]))*context.temperature,
+				snow_line,
+				snow_fade,
+				snow,
+				water,
+				general_fertility,
+				general_sand,
+				sand,
+				//fertility = dbClamped(/*planarity*/dbSqr(dbClamped(snow_line-vertex.height,0.0f,1.0f)+0.1f)*general_fertility*3*dbCubicStep(planarity,0.15f,0.75f),0.0f,1.0f-sand-fabsf(vertex.height));
+				fertility;
+		
+		if (height > 0 || !context.has_ocean)
+		{
+			snow_line = 1.5*temperature*(1.0f-0.5f*vertex.channel.water);
+			snow_fade = 0.05+dbSqr((float)(surface.depth+1)/context.recursive_depth)*0.1;
+			snow = (dbLinearStep(height,snow_line-0.5f,snow_line)*planarity+dbLinearStep(height,0.9f,1.0f))*context.fertility;
+			water = vertex.channel.water+snow*0.5;
+			general_fertility = dbLinearStep(water+0.3*(temperature),0.3f,0.8f)*fminf(height*100.0f,1.0f);
+			general_sand = dbClamped(dbSqr(1.0f-(height)),0,1)*dbSqr(temperature)*(1.0f-general_fertility);
+			
+			sand = dbCubicStep(planarity,0.25f,0.75f)*general_sand;
+				//fertility = dbClamped(/*planarity*/dbSqr(dbClamped(snow_line-vertex.height,0.0f,1.0f)+0.1f)*general_fertility*3*dbCubicStep(planarity,0.15f,0.75f),0.0f,1.0f-sand-fabsf(vertex.height));
+			fertility = dbClamped(dbSqr(dbClamped(snow_line-height,0.0f,1.0f)+0.1f)*dbCubicStep(planarity,0.3,0.7)*3*general_fertility,0.0f,(1.0f-(sand+(vertex.height))));//*(1.0f-(sand+fabsf(vertex.height)));
+			snow = 	dbLinearStep(snow,0.5-snow_fade,0.5+snow_fade);
+			
+			if (context.has_ocean && height < 0.05f)
+				snow *= fmaxf(1.0f+(-0.05f+height)*80.0f*(0.25f+0.75f*(1.0f-dbSqr(planarity))),0.0f);
+				
+		}
+		else
+		{
+			snow = 0;
+			water = 0;
+			//snow_line = 0;
+			general_fertility = 0.0f;
+			general_sand = dbClamped(dbSqr(1.0f-(height)),0,1)*dbSqr(temperature);
+			fertility = 0;
+			sand = dbCubicStep(planarity,0.25f,0.75f)*general_sand;
+		}
+			
+		if (context.has_ocean)
+		{
+			const float	upper_shore_boundary = planarity > 0.5f?(1.0f-dbSqr((planarity-0.55f)/0.5f))*0.005f:0.0025f,
+						lower_shore_boundary = -0.01f,
+						sabulosity = planarity > 0.7f?temperature*dbSqr((planarity-0.7f)/0.3f):0.0f;
+						
+			
+			if (height < upper_shore_boundary && height > lower_shore_boundary)
+			{
+				float shore_strength = height >= 0.0f?
+											fminf((1.0f-height/upper_shore_boundary)*1.1f,1.0f):
+											fminf((1.0f-height/lower_shore_boundary)*1.1f,1.0f);
+				sand = dbClamped(sand+shore_strength*(2.0f*sabulosity-1.0f),0.0f,1.0f);
+				fertility = fmaxf(fertility-shore_strength*(0.25f+0.75f*(1.0f-planarity))*4.0f,0.0f);
+			}
+		}
+
+		/*
+		style_texel[0] = (unsigned char)(255.0f*sand);
+		style_texel[1] = (unsigned char)(255.0f*fertility);
+		style_texel[2] = (unsigned char)(255.0f*snow);*/
+		#if COLOR_CHANNELS == 3
+			style_texel[0] = 255*planarity;
+			style_texel[1] = 255*general_fertility;
+			style_texel[2] = 255*water*0.66;
+		#elif COLOR_CHANNELS == 4
+			style_texel[0] = 255*general_sand;
+			style_texel[1] = 255*sand;
+			style_texel[2] = 255*fertility;
+		#else
+			style_texel[0] = 255*sand;
+			style_texel[1] = 255*fertility;
+			style_texel[2] = 255*snow;
+		#endif
+	#elif COLOR_CHANNELS == 0
+		style_texel[0] = 255*vertex.channel.c0;
+		style_texel[1] = 255*vertex.channel.c1;
+		style_texel[2] = 255*vertex.channel.c2;
+	#elif COLOR_CHANNELS == 1
+		#if FRACTAL_KERNEL!=MINIMAL_KERNEL		
+			style_texel[0] = 255*vertex.channel.c3;
+		#else
+			style_texel[0] = 0;
+		#endif
+		#if FRACTAL_KERNEL==FULL_KERNEL
+			style_texel[1] = 255*vertex.channel.c4;
+		#else
+			style_texel[1] = 0;
+		#endif
+		style_texel[2] = 255*vertex.height;
+		
+	#elif COLOR_CHANNELS == 2
+		style_texel[0] = 255*vertex.channel.oceanic;
+		style_texel[1] = 255*vertex.channel.age/2;
+		style_texel[2] = 255*vertex.channel.water;
+
+	#endif
+	
+	style_texel[3] = 255*cloud_frequency;
+	
+	if (extend)
+	{
+		#if TEXTURE_SEAM_EXTENSION >= 1
+			dvC4(style_texel,getTexel4(texel_data,px-1,py,dimension));
+			if (py+TEXTURE_SEAM_EXTENSION+1==dimension-1)
+				dvC4(style_texel,getTexel4(texel_data,px,py+1,dimension));
+		#endif
+		#if TEXTURE_SEAM_EXTENSION >= 2
+			dvC4(style_texel,getTexel4(texel_data,px-1,py+1,dimension));
+		#endif
+	
+		/*style_texel[0] = 255;
+		style_texel[1] = 0;
+		style_texel[2] = 0;*/
+	}	

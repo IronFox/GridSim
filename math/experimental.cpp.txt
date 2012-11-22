@@ -1,0 +1,329 @@
+#include <inter_root.h>
+#include "object.h"
+
+/******************************************************************************************
+
+This file is part of the DeltaWorks-Foundation or an immediate derivative core module.
+Original Author: Stefan Elsen
+Copyright (C) 2006 Computer Science Department of the Univerity of Trier, Germany.
+
+This file is part of the DeltaWorks-Foundation or an immediate derivative core application.
+Original Author: Stefan Elsen
+Copyright (C) 2006 University of Trier, Computer Science Department, Germany.
+
+A royalty-free, non-exclusive, perpetual right to read, modify, compile,
+and/or use this file in any way suited is hereby granted to all students and associates
+of the Computer Science Department of the University of Trier.
+This right may be granted to other individuals or parties in any modified form as well
+as denied to any member of the above mentioned group by the Auhorities of the
+Computer Science Department of the University of Trier.
+
+The right granted in the above section is expressly made subject to and limited by the
+following conditions and restrictions:
+a) Any modifications to this file must be made available to the Computer Science Department
+of the University of Trier.
+b) Disclosure of this file, modified or unmodified, in parts or in its entirety to third
+parties is strictly prohibited.
+
+All rights and privileges that have not explicitly been granted are reserved.
+
+THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,
+BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+******************************************************************************************/
+
+//-----------------------------------------------------------------------------------------------------------------------
+
+
+unsigned            CURRENT_BUFFER_SIZE=0x10000;
+float              *GLOBAL_OBJECT_BUFFER = new float[CURRENT_BUFFER_SIZE];
+float               GLOBAL_DIMENSION[12],
+                    SECTOR_SET[18];
+unsigned           *GLOBAL_INDEX_BUFFER=new unsigned[CURRENT_BUFFER_SIZE];
+unsigned            SECTOR_ID[3],
+                    GLOBAL_INDEX_CNT=0,GLOBAL_VERTEX_CNT=0,GLOBAL_INDEX_SPLIT,GLOBAL_VERTEX_SPLIT;
+
+unsigned     GLOBAL_SECTOR_COUNT;
+void        *GLOBAL_SECTOR_MAP[GLOBAL_SECTOR_MAP_SIZE];
+bool         strip_debug(false);
+
+
+unsigned        _oIntersectSize(unsigned ext_band, unsigned level)
+{
+    unsigned step = 1;
+    unsigned base = 0,stride = 12+ext_band,tri_stride=stride*3;
+    for (unsigned i = 0; i < level; i++)
+    {
+        base+=step*tri_stride;
+        step*=4;
+    };
+    return base+step*tri_stride;
+};
+
+
+void _oCheckAppendSector(T_IndexBuffer out,unsigned&addr)
+{
+for (unsigned char i = 0; i < 3; i++)
+    if (SECTOR_ID[i]>=MAP_DETAIL) return;  //double check
+unsigned id = SECTOR_ID[0]*MAP_DETAIL*MAP_DETAIL+SECTOR_ID[1]*MAP_DETAIL+SECTOR_ID[2];
+VECTOR_LOOP(addr)
+      if (out[el] == id) return;
+out[addr++] = id;
+};
+
+
+/*
+unsigned            _oSizeOf(T_Object o)
+{
+unsigned size =  5+o[0]*o[1]*o[4]/sizeof(unsigned)+o[2]+o[3];
+if (o[5])
+{
+size+=o[size];
+size+=o[size];  //NO error
+};
+return size;
+};
+*/
+
+void                _oResizeBuffer(unsigned new_buffer_size)
+{
+delete[] GLOBAL_OBJECT_BUFFER;
+delete[] GLOBAL_INDEX_BUFFER;
+GLOBAL_OBJECT_BUFFER = new float[new_buffer_size];
+GLOBAL_INDEX_BUFFER = new unsigned[new_buffer_size];
+CURRENT_BUFFER_SIZE = new_buffer_size;
+};
+
+T_IndexBuffer       _oGetSector(T_SectorMap map, unsigned sector)
+{
+return &map[map[map[0]+sector+1]];
+};
+
+
+
+
+
+
+
+
+C_oStripVertex::C_oStripVertex():first(NULL),last(NULL)
+{}
+
+C_oStripFace* C_oStripVertex::findOther(T_Vertex*edge_vertex, T_Face*not_this)
+{
+    T_Face*face = first;
+    while (face)
+    {
+        if (face->indexOf(this) == -1)
+            ERROR_THROW__("vertex not part of face");
+        if (face != not_this && face->indexOf(edge_vertex) != -1)
+            return face;
+        face = face->next[face->indexOf(this)];
+    }
+    return NULL;
+}
+
+
+void C_oStripVertex::add(T_Face*face)
+{
+    if (face->indexOf(this) == -1)
+        ERROR_THROW__("vertex not part of this");
+    if (last)
+    {
+        if (last->indexOf(this) == -1)
+            ERROR_THROW__("structure corrupted");
+        last->next[last->indexOf(this)] = face;
+    }
+    else
+        first = face;
+    last = face;
+}
+
+
+
+
+C_oStripFace::C_oStripFace():marked(UNSIGNED_UNDEF),done(false) ,orthogonal(-1),ref(NULL)
+{
+    _clear(next);
+    _clear(neighbour);
+    _clear(vertex);
+}
+
+bool C_oStripFace::validOrder(BYTE n)
+{
+    return neighbour[n] && neighbour[n]->orthogonal != -1 && neighbour[n]->done;
+}
+
+
+void C_oStripFace::reorder(float tollerance,unsigned depth)
+{
+    BYTE ni = (orthogonal+1)%3,
+         no = (orthogonal+2)%3;
+    T_Face*n = orthogonal==-1?NULL:neighbour[ni];
+    if (done)
+        return;
+    done = true;
+    if (!n || n->orthogonal != ((opposing[ni]+2)%3)   || _dot(normal,n->normal) < 1.0f-tollerance)
+        return;
+    n->done = true;
+    T_Face*other(NULL);
+    if (validOrder(orthogonal))
+        other = neighbour[orthogonal];
+    else
+        if (validOrder(no))
+            other = neighbour[(orthogonal+2)%3];
+        else
+            if (n->validOrder(n->orthogonal))
+                other = n->neighbour[n->orthogonal];
+            else
+                if (n->validOrder((n->orthogonal+2)%3))
+                    other = n->neighbour[(n->orthogonal+2)%3];
+
+    if (other && other->vertex[other->orthogonal] == vertex[orthogonal])
+    {
+        //reorder
+//        ShowMessage("reordering "+C_String(_toString((int*)vertex))+"-"+C_String(_toString((int*)n->vertex)));
+        
+        vertex[no] = n->vertex[n->orthogonal];
+        n->vertex[(n->orthogonal+2)%3] = n->vertex[orthogonal];
+        n->neighbour[(n->orthogonal+1)%3] = neighbour[no];
+        neighbour[ni] = n->neighbour[(n->orthogonal+2)%3];
+        neighbour[no] = n;
+        n->neighbour[(n->orthogonal+2)%3] = this;
+        orthogonal = (orthogonal+1)%3;
+        n->orthogonal = (n->orthogonal+1)%3;
+//        ShowMessage("reordered "+C_String(_toString((int*)vertex))+"-"+C_String(_toString((int*)n->vertex)));
+    }
+    if (depth >= MAX_RECURSION)
+        return;
+    //ShowMessage("going deeper");
+    for (BYTE k = 0; k < 3; k++)
+        if (!n->neighbour[k]->done)
+            n->neighbour[k]->reorder(tollerance,depth+1);
+    for (BYTE k = 0; k < 3; k++)
+        if (!neighbour[k]->done)
+            neighbour[k]->reorder(tollerance,depth+1);
+
+}
+
+
+BYTE C_oStripFace::openNeighbours()
+{
+    return (BYTE)(n0 && !n0->done) + (n1 && !n1->done) && (n2 && !n2->done);
+}
+
+
+char C_oStripFace::indexOf(T_Vertex*vertex_)
+{
+    if (v0 == vertex_)
+        return 0;
+    if (v1 == vertex_)
+        return 1;
+    if (v2 == vertex_)
+        return 2;
+    return -1;
+}
+
+void C_oStripFace::setNeighbour(BYTE dir, T_Face*face)
+{
+    neighbour[dir] = face;
+    if (face)
+    {
+        opposing[dir] = face->indexOf(vertex[(dir+1)%3]);
+        face->opposing[opposing[dir]] = dir;
+        face->neighbour[opposing[dir]] = this;
+    }
+}
+
+
+bool C_oStripFace::canGo(char dir, unsigned ident)
+{
+    return neighbour[dir] && !neighbour[dir]->done && neighbour[dir]->marked != ident;
+}
+
+
+
+C_oStripFace*C_oStripFace::go(char dir, char&dir_out)
+{
+    T_Face*result = neighbour[dir];
+    if (result)
+        dir_out = opposing[dir];
+    return result;
+}
+
+
+unsigned C_oStripFace::simulate(char dir)
+{
+    bool left = true,
+         searching = true;
+    unsigned rs = 0;
+    C_oStripFace*fce = this;
+    while (true)
+    {
+        if (dir == -1)
+        {
+            searching = false;
+            return rs;;
+        }
+        if (!fce)
+            ERROR_THROW__("generic error");
+        char not_dir,lonely;
+        fce = fce->walk(left,dir,not_dir,lonely);
+        left = !left;
+        if (fce)
+            rs++;
+        if (rs > 25)
+            return rs;
+    }
+}
+
+
+char C_oStripFace::wayOut(unsigned &larger, unsigned&lesser)
+{
+    char rs=-1;
+    larger = lesser = 0;
+    
+    for (BYTE k = 0; k < 3; k++)
+        if (neighbour[k] && !neighbour[k]->done)
+        {
+            unsigned l = simulate(k);
+            if (l > larger)
+            {
+                lesser = larger;
+                larger = l;
+                rs = k;
+            }
+        }
+    return rs;
+}
+
+
+C_oStripFace* C_oStripFace::walk(bool left, char&dir, char&not_dir, char&lonely)
+{
+    T_Face*result = neighbour[dir];
+    char back = opposing[dir];
+    lonely = (back+2)%3;
+    dir = (back+left+1)%3;
+    if (left)
+        not_dir = (dir+2)%3;
+    else
+        not_dir = (dir+1)%3;
+    if (!result || !result->neighbour[not_dir] || result->neighbour[not_dir]->done)
+        not_dir = -1;
+    if (!result || !result->neighbour[dir] || result->neighbour[dir]->done)
+        dir = -1;
+    return result;
+}
+
+
+
+
+
+
+
