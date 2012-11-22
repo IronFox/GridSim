@@ -25,7 +25,7 @@ Image-class used to store and process textures
 #define		COS_RESIZE
 
 
-CONSTRUCT_ENUMERATION4(PixelType, None, Color, ObjectSpaceNormal, TangentSpaceNormal);
+CONSTRUCT_ENUMERATION6(PixelType, None, Color, RedGreenColor, Depth,ObjectSpaceNormal, TangentSpaceNormal);
 
 
 class ImageRandomSource : std::mt19937

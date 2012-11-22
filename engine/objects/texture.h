@@ -19,7 +19,7 @@ namespace Engine
 							texture_height;			//!< Texture height in pixels
 			BYTE			texture_channels;		//!< Number of texture channels (1 to 4)
 			TextureDim		texture_dimension;	//!< Effective dimension of this texture
-							
+			PixelType		texture_type;			//!< Type of the contained pixels
 	public:
 							GenericTexture():texture_width(0),texture_height(0),texture_channels(3)
 							{}

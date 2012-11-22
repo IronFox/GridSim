@@ -7,7 +7,7 @@
 namespace Engine
 {
 	template <typename GLType>
-		static	void		GL::Texture::formatAt(BYTE channels, bool compress, GLenum&internal_format, GLenum&import_format)
+		static	void		GL::Texture::formatAt(BYTE channels, PixelType type, bool compress, GLenum&internal_format, GLenum&import_format)
 		{
 			switch (channels)
 			{
@@ -16,8 +16,8 @@ namespace Engine
 				import_format = internal_format == GL_DEPTH_COMPONENT24 ? GL_DEPTH_COMPONENT : GL_ALPHA;
 				break;
 			case 2:
-				internal_format = compress ? GL_COMPRESSED_LUMINANCE_ALPHA : GLType::luminance_alpha_type_constant;
-				import_format = GL_LUMINANCE_ALPHA;
+				internal_format = type == PixelType::RedGreenColor ? (compress ? GL_COMPRESSED_RG : GLType::rg_type_constant):(compress ? GL_COMPRESSED_LUMINANCE_ALPHA : GLType::luminance_alpha_type_constant);
+				import_format = PixelType::RedGreenColor ? GL_RG : GL_LUMINANCE_ALPHA;
 				break;
 			case 3:
 				internal_format = compress ? GL_COMPRESSED_RGB : GLType::rgb_type_constant;
@@ -35,13 +35,14 @@ namespace Engine
 
 
 	template <typename data_t>
-		void	GL::Texture::load(const data_t*data, GLuint width_, GLuint height_, BYTE channels_, float anisotropy, bool clamp_texcoords, TextureFilter filter, bool compress)
+		void	GL::Texture::load(const data_t*data, GLuint width_, GLuint height_, BYTE channels_, PixelType type, float anisotropy, bool clamp_texcoords, TextureFilter filter, bool compress)
 		{
 			if (!width_ || !height_ || !channels_ || channels_ > 4)
 			{
 				throw Renderer::TextureTransfer::ParameterFault("Invalid data dimensions (width="+String(width_)+", height="+String(height_)+", channels="+String(channels_)+")");
 				return;
 			}
+			texture_type = type;
 
 			OpenGL::ContextLock	context_lock;
 
@@ -88,7 +89,7 @@ namespace Engine
 			GLenum internal_format,import_format;
 
 
-			formatAt<GLType<data_t> >(texture_channels,compress, internal_format, import_format);
+			formatAt<GLType<data_t> >(texture_channels,type,compress, internal_format, import_format);
 			if (mipmap && (compress || !glGenerateMipmap)) //glGenerateMipmap apparently doesn't like compression
 			{
 				if (is_1D)

@@ -630,7 +630,7 @@ namespace Engine
 				glGetError();
 				glBindTexture(GL_TEXTURE_2D,handle);
 					GLenum internal_format, import_format;
-					formatAt<GLType<GLbyte> >(texture_channels,false, internal_format, import_format);
+					formatAt<GLType<GLbyte> >(texture_channels,texture_type,false, internal_format, import_format);
 					glTexImage2D( GL_TEXTURE_2D, 0, internal_format, texture_width, texture_height, 0, import_format, GL_UNSIGNED_BYTE, NULL);
 				glBindTexture(GL_TEXTURE_2D,0);
 				return glGetError() == GL_NO_ERROR;
@@ -673,7 +673,7 @@ namespace Engine
 			glBindBuffer( GL_PIXEL_UNPACK_BUFFER_ARB, object.getHandle());
 
 			GLenum internal_format, import_format;
-			formatAt<GLType<GLbyte> >(texture_channels,false, internal_format, import_format);
+			formatAt<GLType<GLbyte> >(texture_channels,texture_type,false, internal_format, import_format);
 			
 			glTexSubImage2D( GL_TEXTURE_2D, 0, 0, 0,
 							 texture_width, texture_height,
@@ -1137,7 +1137,7 @@ namespace Engine
 	{
 		DBG_ASSERT__(hasCurrentContext());
 		if (target.width() != width || target.height() != height || target.channels() != 3)
-			target.load<GLbyte>(NULL, width, height, 3, 1.0f, true, TextureFilter::Linear);
+			target.load<GLbyte>(NULL, width, height, 3, PixelType::Color,1.0f, true, TextureFilter::Linear);
 		glGetError();
 		glBindTexture(GL_TEXTURE_2D,target.getHandle());
 			glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0,  width, height);
@@ -1150,7 +1150,7 @@ namespace Engine
 	{
 		DBG_ASSERT__(hasCurrentContext());
 		if (target.width() != width || target.height() != height || target.channels() != 3)
-			target.load<GLDepthComponent>(NULL, width, height, 1, 1.0f, true, TextureFilter::Linear);
+			target.load<GLDepthComponent>(NULL, width, height, 1, PixelType::Depth,1.0f, true, TextureFilter::Linear);
 		glGetError();
 		glBindTexture(GL_TEXTURE_2D,target.getHandle());
 			glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_NONE );

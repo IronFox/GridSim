@@ -260,7 +260,7 @@ namespace Engine
 		{
 		protected:
 		template <typename GLType>
-		static	void								formatAt(BYTE channels, bool compress, GLenum&internal_format, GLenum&import_format);
+		static	void								formatAt(BYTE channels, PixelType type, bool compress, GLenum&internal_format, GLenum&import_format);
 								
 		static	bool								configureFilter(GLenum target, TextureFilter filter, float anisotropy);
 		
@@ -317,18 +317,19 @@ namespace Engine
 														@param width Width of the texture in pixels
 														@param height Height of the texture in pixels
 														@param channels Number of color channels of the specified texture
+														@param type Pixel type to load
 														@param compress Set true to compress this texture
 														@param clamp_texcoords Initial texture clamp setting. Set true to automatically clamp texcoords to the range [0,1]
 														@param filter Specify filtering. Linear only enables mag filter linear, Bilinear enables mag filtering and nearest mipmap layer filtering, Trilinear enables all linear axes. Choosing Bilinear or Trilinear requires the glGenerateMipmapEXT extension to be loaded
 														@param anisotropy Max anisotropy value associated with this texture. Applied only if @a filter is either Bilinear or Trilinear
 													*/
 			template <typename data_t>
-				void								load(const data_t*data, GLuint width, GLuint height, BYTE channels, float anisotropy=1.0f, bool clamp_texcoords=true, TextureFilter filter = TextureFilter::Trilinear, bool compress=false);
+				void								load(const data_t*data, GLuint width, GLuint height, BYTE channels, PixelType type, float anisotropy=1.0f, bool clamp_texcoords=true, TextureFilter filter = TextureFilter::Trilinear, bool compress=false);
 				
 			template <typename Nature>
 				void								load(const GenericImage<Nature>&image, float anisotropy=1.0f, bool clamp_texcoords=true, TextureFilter filter=TextureFilter::Trilinear, bool compress=false)
 													{
-														load(image.getData(), image.width(), image.height(), image.channels(), anisotropy, clamp_texcoords, filter, compress);
+														load(image.getData(), image.width(), image.height(), image.channels(), image.getContentType(), anisotropy, clamp_texcoords, filter, compress);
 													}
 								
 													/**
@@ -669,7 +670,8 @@ namespace Engine
 									{
 										return config.resolution.height;
 									}
-
+			inline	const Resolution&		getResolution()	const	{return config.resolution;}
+			inline	const Resolution&		resolution()	const	{return config.resolution;}
 			inline	GLuint			getTextureHandle(BYTE target)	const
 									{
 										ASSERT_LESS__(target,config.num_color_targets);
