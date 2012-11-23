@@ -968,15 +968,26 @@ namespace Engine
 			case GL_RGBA16F:
 			case GL_RGBA32F:
 			case GL_RGBA16:
+			case GL_RGBA32I:
+			case GL_RGBA32UI:
 				return 4;
 			case GL_RGB:
 			case GL_RGB8:
 			case GL_RGB16:
+			case GL_RGB32I:
+			case GL_RGB32UI:
 			case GL_RGB16F:
 			case GL_RGB32F:
 				return 3;
 			case GL_LUMINANCE_ALPHA:
 			case GL_LUMINANCE8_ALPHA8:
+			case GL_RG:
+			case GL_RG8:
+			case GL_RG16:
+			case GL_RG32UI:
+			case GL_RG32I:
+			case GL_RG16F:
+			case GL_RG32F:
 				return 2;
 			case GL_ALPHA:
 			case GL_LUMINANCE:
@@ -986,6 +997,13 @@ namespace Engine
 			case GL_LUMINANCE16:
 			case GL_ALPHA16F_ARB:
 			case GL_LUMINANCE16F_ARB:
+			case GL_R:
+			case GL_R8:
+			case GL_R16:
+			case GL_R32I:
+			case GL_R32UI:
+			case GL_R16F:
+			case GL_R32F:
 				return 1;
 			default:
 				FATAL__("Unexpected opengl format enumeration value");
