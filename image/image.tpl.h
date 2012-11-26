@@ -892,7 +892,7 @@ template <typename T>
 template <class Nature>
 	void	GenericImage<Nature>::changeSaturation(float scale_by)
 	{
-		if (content_type != PixelType::Color || image_channels < 3)
+		if (!isColorMap() || image_channels < 3)
 			return;
 		Concurrency::parallel_for(dimension_t(0),image_height,[this,scale_by](dimension_t y)
 		{
@@ -910,7 +910,7 @@ template <class Nature>
 template <class Nature>
 	void	GenericImage<Nature>::power(BYTE channel, float exponent)
 	{
-		if (content_type != PixelType::Color)
+		if (!isColorMap())
 			return;
 		Concurrency::parallel_for(dimension_t(0),image_height,[this,exponent,channel](dimension_t y)
 		{
@@ -928,7 +928,7 @@ template <class Nature>
 template <class Nature>
 	void GenericImage<Nature>::flipHorizontal()
 	{
-		if (content_type != PixelType::Color && image_channels >= 3)
+		if (isNormalMap() && image_channels >= 3)
 		{
 			Concurrency::parallel_for(dimension_t(0),image_height,[this](dimension_t y)
 			{
@@ -981,7 +981,7 @@ template <class Nature>
 template <class Nature>
 	void GenericImage<Nature>::flipVertical()
 	{
-		if (content_type != PixelType::Color && image_channels >= 3)
+		if (isNormalMap() && image_channels >= 3)
 		{
 			Concurrency::parallel_for(dimension_t(0),image_width,[this](dimension_t x)
 			{
@@ -1038,7 +1038,7 @@ template <class Nature>
 
 
 
-		if (content_type != PixelType::Color)
+		if (isNormalMap())
 		{
 			Concurrency::parallel_for(dimension_t(0),image_height,[this,&temp](dimension_t x)
 			{
@@ -1069,7 +1069,7 @@ template <class Nature>
 		temp.content_type = content_type;
 		temp.origin.adoptData(origin);
 
-		if (content_type != PixelType::Color)
+		if (isNormalMap())
 		{
 			Concurrency::parallel_for(dimension_t(0),image_height,[this,&temp](dimension_t x)
 			{
@@ -1112,7 +1112,7 @@ template <class Nature>
 		Concurrency::parallel_for(dimension_t(0),image_width/2,[this,&temp](dimension_t x)
 		{
 			for (dimension_t y = 0; y < image_height/2; y++)
-				if (content_type!=PixelType::Color && image_channels == 3)
+				if (isNormalMap() && image_channels == 3)
 				{
 					TVec3<F> norm0,norm1,norm2,norm3;
 					getNormal(x*2,y*2,norm0);
@@ -1156,7 +1156,7 @@ template <class Nature>
 		Concurrency::parallel_for(dimension_t(0),image_height,[this,&temp](dimension_t y)
 		{
 			for (dimension_t x = 0; x < image_width/2; x++)
-				if (content_type!=PixelType::Color && image_channels == 3)
+				if (isNormalMap() && image_channels == 3)
 				{
 					TVec3<F> norm0,norm1;
 					getNormal(x*2,y,norm0);
@@ -1186,7 +1186,7 @@ template <class Nature>
 		Concurrency::parallel_for(dimension_t(0),image_width,[this,&temp](dimension_t x)
 		{
 			for (dimension_t y = 0; y < image_height/2; y++)
-				if (content_type!=PixelType::Color && image_channels == 3)
+				if (isNormalMap() && image_channels == 3)
 				{
 					TVec3<F> norm0,norm1;
 					getNormal(x,y*2,norm0);
@@ -1296,7 +1296,7 @@ template <class Nature>
 				temp.set(x*2,y,this->getPixel(x,y));
 				if (x == image_width-1)
 					continue;
-				if (content_type!=PixelType::Color && image_channels == 3)
+				if (isNormalMap() && image_channels == 3)
 				{
 					TVec3<F> norm0,norm1;
 					getNormal(x,y,norm0);
@@ -1331,7 +1331,7 @@ template <class Nature>
 				temp.set(x,y*2,this->getPixel(x,y));
 				if (y == image_height-1)
 					continue;
-				if (content_type!=PixelType::Color && image_channels == 3)
+				if (isNormalMap() && image_channels == 3)
 				{
 					TVec3<F> norm0,norm1;
 					getNormal(x,y,norm0);
@@ -1374,7 +1374,7 @@ template <class Nature>
 		GenericImage<Nature>	temp(w,h,image_channels);
 		temp.origin.adoptData(origin);
 		temp.setContentType(content_type);
-		if (content_type!=PixelType::Color)
+		if (isNormalMap())
 		{
 			Concurrency::parallel_for(dimension_t(0),w,[this,&temp,w,h](dimension_t x)
 			{

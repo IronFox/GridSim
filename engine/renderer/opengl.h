@@ -656,6 +656,7 @@ namespace Engine
 			void					adoptData(FBO&other);
 			void					swap(FBO&other);
 		
+			void					resize(const Resolution&res);
 			bool					create(const Resolution&res, DepthStorage depth_texture, BYTE num_color_targets, const GLenum*format, bool filtered=true);
 			inline	bool			primaryHasAlpha()	const	{return config.num_color_targets > 0 && Extension::formatHasAlpha(config.color_target[0].texture_format);}
 			inline	const Resolution&size() const

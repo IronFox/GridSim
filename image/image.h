@@ -25,7 +25,9 @@ Image-class used to store and process textures
 #define		COS_RESIZE
 
 
-CONSTRUCT_ENUMERATION6(PixelType, None, Color, RedGreenColor, Depth,ObjectSpaceNormal, TangentSpaceNormal);
+CONSTRUCT_ENUMERATION6(PixelType, None, Color, StrictColor, Depth,ObjectSpaceNormal, TangentSpaceNormal);
+//StrictColor enforces loading 1 and 2 channel images as R and RG texturesk, respectively. Effective only when loading images into VRAM, mostly identical to Color otherwise
+
 
 
 class ImageRandomSource : std::mt19937
@@ -128,6 +130,8 @@ static	PixelType				getContentType(const THeader&header);										//!< Extracts
 		THeader					header()															const;	//!< Generates a header from the local image data
 		THeader					getHeader()															const;	//!< Generates a header from the local image data
 		String					toString()															const;		//!< Generates a string representation of the local image (width, height, channels, type, etc)
+		bool					isColorMap()														const;	//!< Checks if the local map contains color pixels
+		bool					isNormalMap()														const;	//!< Checks if the local map contains normal pixels
 };
 
 

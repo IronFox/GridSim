@@ -934,6 +934,16 @@ namespace Engine
 			Container<GLuint>::swap(other);
 			swp(config,other.config);
 		}
+
+		void		FBO::resize(const Resolution&res)
+		{
+			ContextLock	context_lock;
+			TFrameBuffer	buffer;
+			((TFBOConfig&)buffer) = config;
+			buffer.frame_buffer = handle;
+			Extension::resizeFrameBuffer(buffer,res);
+			config = buffer; //handle should stay the same
+		}
 		
 		bool		FBO::create(const Resolution&res, DepthStorage depth_storage, BYTE num_color_targets, const GLenum*format, bool filtered/*=true*/)
 		{

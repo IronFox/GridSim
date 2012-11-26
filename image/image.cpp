@@ -176,7 +176,15 @@ BaseImage::THeader					BaseImage::getHeader()															const
 }
 
 
+bool	BaseImage::isColorMap()	const
+{
+	return content_type == PixelType::Color || content_type == PixelType::StrictColor;
+}
 
+bool	BaseImage::isNormalMap() const
+{
+	return content_type == PixelType::ObjectSpaceNormal || content_type == PixelType::TangentSpaceNormal;
+}
 
 
 String BaseImage::toString()                                                             const

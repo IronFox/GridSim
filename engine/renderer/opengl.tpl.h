@@ -11,24 +11,32 @@ namespace Engine
 		{
 			switch (channels)
 			{
-			case 1:
-				internal_format = compress ? GL_COMPRESSED_ALPHA : GLType::alpha_type_constant;
-				import_format = internal_format == GL_DEPTH_COMPONENT24 ? GL_DEPTH_COMPONENT : GL_ALPHA;
+				case 1:
+					if (type == PixelType::StrictColor)
+					{
+						internal_format = compress ? GL_COMPRESSED_RED: GLType::r_type_constant;
+						import_format = internal_format == GL_DEPTH_COMPONENT24 ? GL_DEPTH_COMPONENT : GL_RED;
+					}
+					else
+					{
+						internal_format = compress ? GL_COMPRESSED_ALPHA : GLType::alpha_type_constant;
+						import_format = internal_format == GL_DEPTH_COMPONENT24 ? GL_DEPTH_COMPONENT : GL_ALPHA;
+					}
 				break;
-			case 2:
-				internal_format = type == PixelType::RedGreenColor ? (compress ? GL_COMPRESSED_RG : GLType::rg_type_constant):(compress ? GL_COMPRESSED_LUMINANCE_ALPHA : GLType::luminance_alpha_type_constant);
-				import_format = PixelType::RedGreenColor ? GL_RG : GL_LUMINANCE_ALPHA;
+				case 2:
+					internal_format = type == PixelType::StrictColor ? (compress ? GL_COMPRESSED_RG : GLType::rg_type_constant):(compress ? GL_COMPRESSED_LUMINANCE_ALPHA : GLType::luminance_alpha_type_constant);
+					import_format = PixelType::StrictColor ? GL_RG : GL_LUMINANCE_ALPHA;
 				break;
-			case 3:
-				internal_format = compress ? GL_COMPRESSED_RGB : GLType::rgb_type_constant;
-				import_format = GL_RGB;
+				case 3:
+					internal_format = compress ? GL_COMPRESSED_RGB : GLType::rgb_type_constant;
+					import_format = GL_RGB;
 				break;
-			case 4:
-				internal_format = compress?GL_COMPRESSED_RGBA : GLType::rgba_type_constant;
-				import_format = GL_RGBA;
+				case 4:
+					internal_format = compress?GL_COMPRESSED_RGBA : GLType::rgba_type_constant;
+					import_format = GL_RGBA;
 				break;
-			default:
-				FATAL__("Unsupported channel count: "+String(channels));
+				default:
+					FATAL__("Unsupported channel count: "+String(channels));
 			}
 
 		}
