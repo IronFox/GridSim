@@ -672,6 +672,7 @@ namespace Engine
 		alpha_threshold = 0.5;
 		alpha_test = false;
 		fully_reflective = false;
+		blend = true;
 	}
 
 	void VertexBinding::resetToDefault(bool erase_layers)

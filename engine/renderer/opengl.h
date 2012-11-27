@@ -69,8 +69,8 @@ namespace Engine
 					friend class Engine::OpenGL;
 			public:
 								Container():handle(0) {}
-			virtual				~Container()				{if (!application_shutting_down) clear();}
-			virtual	void		clear() 					{handle=0;}		//!< Erases the local handle and sets it to 0 
+			virtual				~Container()				{}
+			virtual	void		clear()=0;// 					{handle=0;}		//!< Erases the local handle and sets it to 0 
 			virtual	void		flush()						{handle=0;}		//!< Flushes (unsets but does not erase) the local handle and sets it to 0
 			
 					void		adoptData(Container<T>&other)
@@ -135,24 +135,25 @@ namespace Engine
 		class	Query:public Container<GLuint>	//! Query type. The Container<GLuint> handle is used for the query handle
 		{
 		protected:
-				GLuint								geometry_handle;
+			GLuint									geometry_handle;
 
-				friend class OpenGL;
+			friend class OpenGL;
 
-				bool								createQuery();
+			bool									createQuery();
 													
 		public:
-													Query():geometry_handle(0)	{}
-		virtual	void								clear();
-		virtual	void								flush();
-				void								adoptData(Query&other);
-				void								swap(Query&other);
+			/**/									Query():geometry_handle(0)	{}
+			virtual									~Query()	{if (!application_shutting_down) clear();}
+			virtual	void							clear()	override;
+			virtual	void							flush()	override;
+			void									adoptData(Query&other);
+			void									swap(Query&other);
 				
-				bool								create();
-				bool								createPoint(const float point[3]);
-				bool								createBox(const float lower[3],const float upper[3]);
+			bool									create();
+			bool									createPoint(const float point[3]);
+			bool									createBox(const float lower[3],const float upper[3]);
 				
-				bool								isValid()	const;	//!< Checks if the local query object is valid. A valid query object contains both a valid or 0 handle and a valid or 0 geometry handle
+			bool									isValid()	const;	//!< Checks if the local query object is valid. A valid query object contains both a valid or 0 handle and a valid or 0 geometry handle
 		};
 
 		class Texture;
@@ -273,8 +274,9 @@ namespace Engine
 
 
 													Texture()	{};
-		virtual	void								clear();
-		virtual	void								flush();
+			virtual									~Texture()	{if (!application_shutting_down) clear();}
+			virtual	void							clear()	override;
+			virtual	void							flush()	override;
 								
 				
 				Reference							reference()	const		//! Creates a reference object to the local object
@@ -381,8 +383,9 @@ namespace Engine
 													{
 														requires_tangents = false;
 													}
-		virtual	void								flush();
-		virtual	void								clear();
+			virtual									~Shader()	{if (!application_shutting_down) clear();}
+			virtual	void							flush()	override;
+			virtual	void							clear()	override;
 		
 				Instance*							construct()	const
 													{
@@ -415,8 +418,9 @@ namespace Engine
 		public:
 							Buffer():data_size(0)
 							{}
-		virtual	void		clear();
-		virtual	void		flush();
+			virtual			~Buffer()	{if (!application_shutting_down) clear();}
+			virtual	void	clear() override;
+			virtual	void	flush() override;
 				
 		inline	size_t		size()	const			//!< Retrieves the current object size in bytes.
 							{
@@ -651,8 +655,9 @@ namespace Engine
 			TFBOConfig	config;
 			friend class OpenGL;
 		public:
-			virtual	void			flush();
-			virtual	void			clear();
+			virtual					~FBO()	{if (!application_shutting_down) clear();}
+			virtual	void			flush()	override;
+			virtual	void			clear()	override;
 			void					adoptData(FBO&other);
 			void					swap(FBO&other);
 		

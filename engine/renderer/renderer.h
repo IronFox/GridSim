@@ -449,6 +449,7 @@ namespace Engine
 										emission;		//!< Emission light intensity vector
 			float						alpha_threshold;	//!< @deprecated{should implement this feature using shaders} Minimum alpha value for a fragment to be visible. Effective only if @a alpha_test is set true
 			bool						alpha_test,			//!< @deprecated{should implement this feature using shaders}
+										blend,				//!< Indicates that alpha blending should be used for this material (true by default)
 										fully_reflective;	//!< Configures the shader to apply any reflection map everywhere, thus overriding any other material parameters (safe for normal mapping)
 			BYTE						shininess_exponent;	//!< Shininess exponent in the range 1-128. The higher, the sharper the reflected cone will be. Defaults to 16
 

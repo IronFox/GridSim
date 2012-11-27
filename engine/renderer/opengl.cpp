@@ -1836,7 +1836,7 @@ namespace Engine
 			glDisable(GL_TEXTURE_GEN_R);
 		}
 		glDisable(GL_ALPHA_TEST);
-		glEnable(GL_BLEND);
+		//glEnable(GL_BLEND);
 		state.render_setup.bound_texture_layers = 0;
 		state.render_setup.bound_texcoord_layers = 0;
 		if (glActiveTexture)

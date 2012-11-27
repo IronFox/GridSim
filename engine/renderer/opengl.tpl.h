@@ -164,7 +164,7 @@ namespace Engine
 			typedef GLType<data_t>	Type;
 
 			GLenum internal_format, import_format;
-			formatAt<Type>(texture_channels,compress, internal_format, import_format);
+			formatAt<Type>(texture_channels,PixelType::Color,compress, internal_format, import_format);
 			if (mipmap && (compress || !glGenerateMipmap)) //glGenerateMipmap apparently doesn't like compression
 			{
 				gluBuild2DMipmaps( GL_TEXTURE_CUBE_MAP_POSITIVE_X_EXT, internal_format, texture_width, texture_height, import_format, Type::constant, data0);
@@ -292,7 +292,10 @@ namespace Engine
 			}
 			else
 			{
-				glEnable(GL_BLEND);
+				if (config.blend)
+					glEnable(GL_BLEND);
+				else
+					glDisable(GL_BLEND);
 				glDisable(GL_ALPHA_TEST);
 			}
 
