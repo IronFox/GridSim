@@ -266,6 +266,13 @@ namespace Math
 										bottom = y - h/(T)2;
 										top = y + h/(T)2;
 									}
+			MF_DECLARE(void)		setCenter(const T&x, const T& y, const T&ext_x, const T&ext_y)
+									{
+										left = x - ext_x;
+										right = x + ext_x;
+										bottom = y - ext_y;
+										top = y + ext_y;
+									}
 		template <typename T0>
 			MF_DECLARE(void)		setAll(const T0&value)
 									{
