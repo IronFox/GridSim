@@ -828,7 +828,7 @@ namespace Engine
 	    if (!framebuffer_bound)
 			return;
 		
-	    GL::unbindFrameBufferObject();
+	    GL::unbindFrameBufferObject(window_client_resolution);
 	    current_target_resolution = window_client_resolution;
 	    pixel_aspect = current_target_resolution.aspect();
 		//const RECT&window = context.windowLocation();

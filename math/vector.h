@@ -5,11 +5,6 @@
 
 Collection of template vector-math-functions.
 
-This file is part of Delta-Works
-Copyright (C) 2006-2008 Stefan Elsen, University of Trier, Germany.
-http://www.delta-works.org/forge/
-http://informatik.uni-trier.de/
-
 ******************************************************************/
 
 #include "../global_string.h"
@@ -255,30 +250,14 @@ namespace Math
 									Rect(const T&left_, const T& bottom_, const T& right_, const T& top_):left(left_),bottom(bottom_),right(right_),top(top_){}
 									Rect(const TVec2<>&lower_, const TVec2<>&upper_):lower(lower_),upper(upper_){}
 									
-			MF_DECLARE(void)		set(T left_, T bottom_, T right_, T top_)
+			MF_DECLARE(void)		set(const T&left_, const T& bottom_, const T& right_, const T& top_)	//! By reference variant of Math::set()
 									{
 										left = left_;
 										bottom = bottom_;
 										right = right_;
 										top = top_;
 									}
-			MF_DECLARE(void)		setByRef(const T&left_, const T& bottom_, const T& right_, const T& top_)	//! By reference variant of Math::set()
-									{
-										left = left_;
-										bottom = bottom_;
-										right = right_;
-										top = top_;
-									}
-			MF_DECLARE(void)		setCenter(T x, T y)
-									{
-										T	w = right - left,
-											h = top - bottom;
-										left = x - w/(T)2;
-										right = x + w/(T)2;
-										bottom = y - h/(T)2;
-										top = y + h/(T)2;
-									}
-			MF_DECLARE(void)		setCenterByRef(const T&x, const T& y)	//! By reference variant of Math::set()
+			MF_DECLARE(void)		setCenter(const T&x, const T& y)
 									{
 										T	w = right - left,
 											h = top - bottom;
@@ -288,25 +267,12 @@ namespace Math
 										top = y + h/(T)2;
 									}
 		template <typename T0>
-			MF_DECLARE(void)		setAll(T0 value)
-									{
-										bottom = right = top = left = (T)value;
-									}
-		template <typename T0>
-			MF_DECLARE(void)		setAllByRef(const T0&value)	//! By reference variant of Math::setAll()
+			MF_DECLARE(void)		setAll(const T0&value)
 									{
 										bottom = right = top = left = (T)value;
 									}
 
-			MF_DECLARE(void)		scale(T by)	//! Scales the rectangle from its central location
-									{
-										TVec2<>	center;
-										Vec::center(lower,upper,center);
-										Vec::scale(center,by,lower);
-										Vec::scale(center,by,upper);
-									}
-
-			MF_DECLARE(void)		scaleByRef(const T&by)	//! By-reference variant of Math::scale()
+			MF_DECLARE(void)		scale(const T&by)	//! Scales the rectangle from its central location
 									{
 										TVec2<>	center;
 										Vec::center(lower,upper,center);
@@ -315,15 +281,7 @@ namespace Math
 										upper.x = center.x + (upper.x-center.x)*by;
 										upper.y = center.y + (upper.y-center.y)*by;
 									}
-			MF_DECLARE(void)		expand(T by)	//! Expands the rectangle. @b bottom is expected to be less than @b top
-									{
-										left -= by;
-										bottom -= by;
-										right += by;
-										top += by;
-									}
-
-			MF_DECLARE(void)		expandByRef(const T&by)	//! By-reference variant of Math::expand()
+			MF_DECLARE(void)		expand(const T& by)	//! Expands the rectangle. @b bottom is expected to be less than @b top
 									{
 										left -= by;
 										bottom -= by;
@@ -373,22 +331,7 @@ namespace Math
 			@brief Modifies the local rectangle so that it contains the specified point. @b top is expected to be greater or equal @b bottom
 		*/
 		template <typename T0, typename T1>
-			MF_DECLARE(void)		include(T0 x, T1 y)
-									{
-										if (left > (T)x)
-											left = (T)x;
-										if (right < (T)x)
-											right = (T)x;
-										if (bottom > (T)y)
-											bottom = (T)y;
-										if (top < (T)y)
-											top = (T)y;
-									}
-		/*!
-			@brief By reference variant of Math::include()
-		*/
-		template <typename T0, typename T1>
-			MF_DECLARE(void)		includeByRef(const T0&x, const T1&y)
+			MF_DECLARE(void)		include(const T0&x, const T1&y)
 									{
 										if (left > (T)x)
 											left = (T)x;
@@ -424,19 +367,7 @@ namespace Math
 				\return true if the point lies in the rectangle
 			*/
 		template <typename T0, typename T1>
-			MF_DECLARE(bool)		contains(T0 x, T1 y)	const
-									{
-										return (T)x >= left && (T)y >= bottom && (T)x <= right && (T)y <= top;
-									}
-		
-			/*!
-				\brief	By reference variant of Math::contains()
-				\param x X coordinate of the point
-				\param y Y coordinate of the point
-				\return true if the point lies in the rectangle
-			*/
-		template <typename T0, typename T1>
-			MF_DECLARE(bool)		containsByRef(const T0& x, const T1& y)	const
+			MF_DECLARE(bool)		contains(const T0& x, const T1& y)	const
 									{
 										return (T)x >= left && (T)y >= bottom && (T)x <= right && (T)y <= top;
 									}
@@ -458,16 +389,7 @@ namespace Math
 									}
 									
 		template <typename T0, typename T1>
-			MF_DECLARE(void)		translate(T0 delta_x, T1 delta_y)
-									{
-										x0 += (T)delta_x;
-										y0 += (T)delta_y;
-										x1 += (T)delta_x;
-										y1 += (T)delta_y;
-									}
-									
-		template <typename T0, typename T1>
-			MF_DECLARE(void)		translateByRef(const T0&delta_x, const T1&delta_y)
+			MF_DECLARE(void)		translate(const T0&delta_x, const T1&delta_y)
 									{
 										x0 += (T)delta_x;
 										y0 += (T)delta_y;
@@ -476,51 +398,32 @@ namespace Math
 									}
 			
 		template <typename T0,typename T1>
-			MF_DECLARE(void)		makeRelative(T x, T y, T0&x_out, T1&y_out)	const
-									{
-										x_out = (T0)((x-x0)/(x1-x0));
-										y_out = (T1)((y-y0)/(y1-y0));
-									}
-			
-			
-		template <typename T0,typename T1>
-			MF_DECLARE(void)		makeRelativeByRef(const T& x, const T& y, T0&x_out, T1&y_out)	const
+			MF_DECLARE(void)		makeRelative(const T& x, const T& y, T0&x_out, T1&y_out)	const
 									{
 										x_out = (T0)((x-x0)/(x1-x0));
 										y_out = (T1)((y-y0)/(y1-y0));
 									}
 			
 		template <typename T0,typename T1>
-			MF_DECLARE(void)		relativate(T x, T y, T0&x_out, T1&y_out)	const
+			MF_DECLARE(void)		relativate(const T& x, const T& y, T0&x_out, T1&y_out)	const
 									{
 										makeRelative(x,y,x_out,y_out);
+									}
+		template <typename T0>
+			MF_DECLARE(void)		relativate(const TVec2<T>&p, TVec2<T0>&out)	const
+									{
+										makeRelative(p.x,p.y,out.x,out.y);
 									}			
 			
+
 		template <typename T0,typename T1>
-			MF_DECLARE(void)		relativateByRef(const T& x, const T& y, T0&x_out, T1&y_out)	const
-									{
-										makeRelative(x,y,x_out,y_out);
-									}			
-		template <typename T0,typename T1>
-			MF_DECLARE(void)		derelativate(T x, T y, T0&x_out, T1&y_out)	const
-									{
-										makeAbsolute(x,y,x_out,y_out);
-									}
-		template <typename T0,typename T1>
-			MF_DECLARE(void)		derelativateByRef(const T& x, const T& y, T0&x_out, T1&y_out)	const
+			MF_DECLARE(void)		derelativate(const T& x, const T& y, T0&x_out, T1&y_out)	const
 									{
 										makeAbsolute(x,y,x_out,y_out);
 									}
 			
 		template <typename T0,typename T1>
-			MF_DECLARE(void)		makeAbsolute(T x, T y, T0&x_out, T1&y_out)	const
-									{
-										x_out = (T0)(x0 + x*(x1-x0));
-										y_out = (T1)(y0 + y*(y1-y0));
-									}
-			
-		template <typename T0,typename T1>
-			MF_DECLARE(void)		makeAbsoluteByRef(const T& x, const T& y, T0&x_out, T1&y_out)	const
+			MF_DECLARE(void)		makeAbsolute(const T& x, const T& y, T0&x_out, T1&y_out)	const
 									{
 										x_out = (T0)(x0 + x*(x1-x0));
 										y_out = (T1)(y0 + y*(y1-y0));

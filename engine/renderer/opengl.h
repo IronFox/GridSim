@@ -46,6 +46,10 @@ namespace Engine
 	
 	namespace GL
 	{
+		BYTE formatToChannels(GLenum format);
+		GLenum formatToOrder(GLenum format);
+
+
 		template <typename T>
 			class		Container:public DW::Object	//! Base OpenGL object providing one handle
 			{
@@ -664,6 +668,7 @@ namespace Engine
 			void					resize(const Resolution&res);
 			bool					create(const Resolution&res, DepthStorage depth_texture, BYTE num_color_targets, const GLenum*format, bool filtered=true);
 			inline	bool			primaryHasAlpha()	const	{return config.num_color_targets > 0 && Extension::formatHasAlpha(config.color_target[0].texture_format);}
+			unsigned				channels(BYTE target) const {return target < config.num_color_targets ? formatToChannels(config.color_target[target].texture_format) : 0;}
 			inline	const Resolution&size() const
 									{
 										return config.resolution;
@@ -687,8 +692,9 @@ namespace Engine
 									{
 										return config.depth_target.storage_type == DepthStorage::Texture ? config.depth_target.handle : 0;
 									}
-			bool					exportColorTo(Image&target)	const;
-			bool					exportColorTo(FloatImage&target)	const;
+			bool					exportColorTo(Image&out_image,BYTE target=0)	const;
+			bool					exportColorTo(FloatImage&out_image,BYTE target=0)	const;
+			bool					exportColorTo(UnclampedFloatImage&out_image,BYTE target=0)	const;
 			Texture::Reference		reference(UINT target=0)	const;
 			void					generateMIPLayers(UINT target=0);
 			bool					isValid()	const;	//!< Checks if the local frame buffer object is valid. A valid frame buffer object contains a valid or 0 handle
@@ -836,7 +842,7 @@ namespace Engine
 
 	protected:
 		static			bool				bindFrameBufferObject(const GL::FBO&);
-						void				unbindFrameBufferObject();
+						void				unbindFrameBufferObject(const Resolution&new_resolution);
 		inline			void				onModelviewChange();
 
 		virtual			void				enableLight(Light*);

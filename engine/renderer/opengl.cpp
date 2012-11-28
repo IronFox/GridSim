@@ -876,31 +876,44 @@ namespace Engine
 		}
 
 
-		bool	FBO::exportColorTo(FloatImage&target)	const
+		bool	FBO::exportColorTo(FloatImage&target,BYTE target_index/*=0*/)	const
 		{
-			if (!config.color_target[0].texture_handle)
+			if (target_index >= config.num_color_targets || !config.color_target[target_index].texture_handle)
 				return false;
-			target.setSize(config.resolution.width,config.resolution.height,3 + primaryHasAlpha());
+			target.setSize(config.resolution.width,config.resolution.height,channels(target_index));
 			ContextLock	context_lock;
 
 			glPushAttrib(GL_TEXTURE_BIT);
-				glBindTexture(GL_TEXTURE_2D,config.color_target[0].texture_handle);
-				glGetTexImage(GL_TEXTURE_2D,0,primaryHasAlpha()?GL_RGBA:GL_RGB,GL_FLOAT,target.getData());
+				glBindTexture(GL_TEXTURE_2D,config.color_target[target_index].texture_handle);
+				glGetTexImage(GL_TEXTURE_2D,0,formatToOrder(config.color_target[target_index].texture_format),GL_FLOAT,target.getData());
 			glPopAttrib();
 			return true;
 		}
 
-
-		bool	FBO::exportColorTo(Image&target)	const
+		bool	FBO::exportColorTo(UnclampedFloatImage&target,BYTE target_index/*=0*/)	const
 		{
-			if (!config.color_target[0].texture_handle)
+			if (target_index >= config.num_color_targets || !config.color_target[target_index].texture_handle)
 				return false;
-			target.setSize(config.resolution.width,config.resolution.height,3 + primaryHasAlpha());
+			target.setSize(config.resolution.width,config.resolution.height,channels(target_index));
 			ContextLock	context_lock;
 
 			glPushAttrib(GL_TEXTURE_BIT);
-				glBindTexture(GL_TEXTURE_2D,config.color_target[0].texture_handle);
-				glGetTexImage(GL_TEXTURE_2D,0,primaryHasAlpha()?GL_RGBA:GL_RGB,GL_UNSIGNED_BYTE,target.getData());
+				glBindTexture(GL_TEXTURE_2D,config.color_target[target_index].texture_handle);
+				glGetTexImage(GL_TEXTURE_2D,0,formatToOrder(config.color_target[target_index].texture_format),GL_FLOAT,target.getData());
+			glPopAttrib();
+			return true;
+		}
+
+		bool	FBO::exportColorTo(Image&target,BYTE target_index/*=0*/)	const
+		{
+			if (target_index >= config.num_color_targets || !config.color_target[target_index].texture_handle)
+				return false;
+			target.setSize(config.resolution.width,config.resolution.height,channels(target_index));
+			ContextLock	context_lock;
+
+			glPushAttrib(GL_TEXTURE_BIT);
+				glBindTexture(GL_TEXTURE_2D,config.color_target[target_index].texture_handle);
+				glGetTexImage(GL_TEXTURE_2D,0,formatToOrder(config.color_target[target_index].texture_format),GL_UNSIGNED_BYTE,target.getData());
 			glPopAttrib();
 			return true;
 		}
@@ -969,7 +982,63 @@ namespace Engine
 			return true;
 		}
 	
-		static BYTE formatToChannels(GLenum format)
+		GLenum formatToOrder(GLenum format)
+		{
+			switch (format)
+			{
+				case GL_RGBA:
+				case GL_RGBA8:
+				case GL_RGBA16F:
+				case GL_RGBA32F:
+				case GL_RGBA16:
+				case GL_RGBA32I:
+				case GL_RGBA32UI:
+					return GL_RGBA;
+				case GL_RGB:
+				case GL_RGB8:
+				case GL_RGB16:
+				case GL_RGB32I:
+				case GL_RGB32UI:
+				case GL_RGB16F:
+				case GL_RGB32F:
+					return GL_RGB;
+				case GL_LUMINANCE_ALPHA:
+				case GL_LUMINANCE8_ALPHA8:
+					return GL_LUMINANCE_ALPHA;
+				case GL_RG:
+				case GL_RG8:
+				case GL_RG16:
+				case GL_RG32UI:
+				case GL_RG32I:
+				case GL_RG16F:
+				case GL_RG32F:
+					return GL_RG;
+				case GL_ALPHA:
+				case GL_ALPHA8:
+				case GL_ALPHA16:
+				case GL_ALPHA16F_ARB:
+					return GL_ALPHA;
+				case GL_LUMINANCE:
+				case GL_LUMINANCE8:
+				case GL_LUMINANCE16:
+				case GL_LUMINANCE16F_ARB:
+					return GL_LUMINANCE;
+				case GL_R:
+				case GL_R8:
+				case GL_R16:
+				case GL_R32I:
+				case GL_R32UI:
+				case GL_R16F:
+				case GL_R32F:
+					return GL_RED;
+				default:
+					FATAL__("Unexpected opengl format enumeration value");
+					return 0;
+			}
+
+		}
+
+		BYTE formatToChannels(GLenum format)
 		{
 			switch (format)
 			{
@@ -1147,6 +1216,7 @@ namespace Engine
 			target.setChannels(3);
 		//set pixel read 
 		glGetError();
+		glReadBuffer(GL_FRONT);
 		glReadPixels(0,0,target.getWidth(),target.getHeight(),  target.getChannels()==4?GL_RGBA:GL_RGB,GL_UNSIGNED_BYTE,target.getData());
 		ASSERT_EQUAL__(glGetError(), GL_NO_ERROR);
 	}
@@ -1157,6 +1227,7 @@ namespace Engine
 		if (target.getChannels() != 3 && target.getChannels() != 4)
 			target.setChannels(3);
 		glGetError();
+		glReadBuffer(GL_FRONT);
 		glReadPixels(0,0,target.getWidth(),target.getHeight(),  target.getChannels()==4?GL_RGBA:GL_RGB,GL_FLOAT,target.getData());
 		ASSERT_EQUAL__(glGetError(), GL_NO_ERROR);
 	}
@@ -1716,10 +1787,11 @@ namespace Engine
 		return true;
 	}
 
-	void OpenGL::unbindFrameBufferObject()
+	void OpenGL::unbindFrameBufferObject(const Resolution&new_resolution)
 	{
 		GL_BEGIN
-		gl_extensions.unbindFrameBuffer();
+			gl_extensions.unbindFrameBuffer();
+			glViewport(0,0,new_resolution.width,new_resolution.height);
 		GL_END
 	}
 
