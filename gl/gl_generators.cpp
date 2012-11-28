@@ -5,13 +5,77 @@
 
 Predefined OpenGL display-list generators.
 
-This file is part of Delta-Works
-Copyright (C) 2006-2008 Stefan Elsen, University of Trier, Germany.
-http://www.delta-works.org/forge/
-http://informatik.uni-trier.de/
-
 ******************************************************************/
 
+
+GLuint Generator::glBox(float size)
+{
+	GLuint rs = glGenLists(2);
+    glNewList(rs,GL_COMPILE);
+		glBegin(GL_QUADS);
+			glNormal3f(0,0,-1);
+			glTexCoord2f(0,0);
+				glVertex3f(-size,-size,-size);
+			glTexCoord2f(1,0);
+				glVertex3f(size,-size,-size);
+			glTexCoord2f(1,1);
+				glVertex3f(size,size,-size);
+			glTexCoord2f(0,1);
+				glVertex3f(-size,size,-size);
+
+			glNormal3f(0,0,1);
+			glTexCoord2f(0,0);
+				glVertex3f(size,-size,size);
+			glTexCoord2f(1,0);
+				glVertex3f(-size,-size,size);
+			glTexCoord2f(1,1);
+				glVertex3f(-size,size,size);
+			glTexCoord2f(0,1);
+				glVertex3f(size,size,size);
+
+			glNormal3f(-1,0,0);
+			glTexCoord2f(0,0);
+				glVertex3f(-size,-size,-size);
+			glTexCoord2f(1,0);
+				glVertex3f(-size,-size,size);
+			glTexCoord2f(1,1);
+				glVertex3f(-size,size,size);
+			glTexCoord2f(0,1);
+				glVertex3f(-size,size,-size);
+
+			glNormal3f(1,0,0);
+			glTexCoord2f(0,0);
+				glVertex3f(size,-size,size);
+			glTexCoord2f(1,0);
+				glVertex3f(size,-size,-size);
+			glTexCoord2f(1,1);
+				glVertex3f(size,size,-size);
+			glTexCoord2f(0,1);
+				glVertex3f(size,size,size);
+
+			glNormal3f(0,-1,0);
+			glTexCoord2f(0,0);
+				glVertex3f(-size,-size,size);
+			glTexCoord2f(1,0);
+				glVertex3f(size,-size,size);
+			glTexCoord2f(1,1);
+				glVertex3f(size,-size,-size);
+			glTexCoord2f(0,1);
+				glVertex3f(-size,-size,-size);
+
+			glNormal3f(0,1,0);
+			glTexCoord2f(0,0);
+				glVertex3f(-size,size,-size);
+			glTexCoord2f(1,0);
+				glVertex3f(size,size,-size);
+			glTexCoord2f(1,1);
+				glVertex3f(size,size,size);
+			glTexCoord2f(0,1);
+				glVertex3f(-size,size,size);
+		glEnd();
+    glEndList();
+    return rs;
+}
 
 GLuint Generator::glSkyBox()
 {

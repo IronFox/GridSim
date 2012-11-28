@@ -6,11 +6,6 @@
 
 Predefined OpenGL display-list generators.
 
-This file is part of Delta-Works
-Copyright (C) 2006-2008 Stefan Elsen, University of Trier, Germany.
-http://www.delta-works.org/forge/
-http://informatik.uni-trier.de/
-
 ******************************************************************/
 
 
@@ -34,6 +29,7 @@ namespace Generator
 	GLuint glCubeCoordSphere(float radius, unsigned iterations);               //similar to the above using normals as 3d-texture-coordinates
 	GLuint glSphereSide(float radius, unsigned iterations);                    //creates the top-side of a sphere (similar to gl_Sphere)
 	GLuint glWireEightSided(float size);                                       //creates a wireframe octahedron
+	GLuint glBox(float size);													//creates a solid box, including normals and texture coordinates
 	GLuint glWireBox(float size);                                              //creates a wireframe box
 	GLuint glCornerWireBox(float size);                                        //creates a wireframe box with lines only near the corners
 	GLuint glArrow(float length, float radius, unsigned steps, BYTE direction_component);  //creates a 3d-arrow using a cone as peak. length specifies the length of the arrow,radius the radius of the peak, steps the number of iterations and direction_component the axis, the arrow should point to.
