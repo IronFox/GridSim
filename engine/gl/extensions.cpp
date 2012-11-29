@@ -741,6 +741,25 @@ namespace Engine
 			return glGetError() == GL_NO_ERROR;
 		}
 	
+
+		bool			Variable::set4f(float x, float y, float z, float w)
+		{
+			if (handle == -1)
+				return false;
+			bool was_installed = instance->installed();
+			if (!was_installed && assert_is_installed)
+				FATAL__("trying to update variable '"+name+"' while shader is NOT installed");
+			if (!was_installed && (lock_uninstalled || !instance->install()))
+				return false;
+			
+			glGetError();//flush errors
+			glUniform4f(handle, x,y,z,w);
+
+			if (!was_installed)
+				instance->uninstall();
+			return glGetError() == GL_NO_ERROR;
+		}
+
 		bool			Variable::set4fv(const float vector[4])
 		{
 			if (handle == -1)

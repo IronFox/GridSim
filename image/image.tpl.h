@@ -774,14 +774,16 @@ template <typename T>
 				//fmod(x,1.f);
 			y = y - floor(y);
 			//fmod(y,1.f);
+			x*=(image_width);
+			y*=(image_height);
 		}
 		else
 		{
 			x = clamped(x,0.f,1.f);
 			y = clamped(y,0.f,1.f);
+			x*=(image_width-1);
+			y*=(image_height-1);
 		}
-		x*=(image_width);
-		y*=(image_height);
 		dimension_t x0 = (dimension_t)floor(x),
 					y0 = (dimension_t)floor(y),
 					x1,
