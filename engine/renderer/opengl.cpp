@@ -1216,7 +1216,6 @@ namespace Engine
 			target.setChannels(3);
 		//set pixel read 
 		glGetError();
-		glReadBuffer(GL_FRONT);
 		glReadPixels(0,0,target.getWidth(),target.getHeight(),  target.getChannels()==4?GL_RGBA:GL_RGB,GL_UNSIGNED_BYTE,target.getData());
 		ASSERT_EQUAL__(glGetError(), GL_NO_ERROR);
 	}
@@ -1227,7 +1226,6 @@ namespace Engine
 		if (target.getChannels() != 3 && target.getChannels() != 4)
 			target.setChannels(3);
 		glGetError();
-		glReadBuffer(GL_FRONT);
 		glReadPixels(0,0,target.getWidth(),target.getHeight(),  target.getChannels()==4?GL_RGBA:GL_RGB,GL_FLOAT,target.getData());
 		ASSERT_EQUAL__(glGetError(), GL_NO_ERROR);
 	}
