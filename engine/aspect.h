@@ -145,8 +145,10 @@ MF_DECLARE(void)				getFrustrum(Volume&v)												const;	//!< Identical to re
 template <typename SubType>
 MF_DECLARE(void)				resolveVolumeST(Volume&v)											const;	//!< Similar however potential more precise version of resolveVolume(). Normal calculation is done using the specified sub type instead (double recommended here)
 MF_DECLARE(String)				toString()															const;	//!< Creates a string representation of the local aspect. \return String representation.
-MF_DECLARE(const TVec3<C>&)	absoluteLocation()													const;	//!< Returns the absolute realworld coordinates of the local aspect object
+MF_DECLARE(const TVec3<C>&)		absoluteLocation()													const;	//!< Returns the absolute realworld coordinates of the local aspect object
 MF_DECLARE(void)				loadIdentity();														//!< Resets all matrices and vectors to identity. New aspects automatically load identity into every matrix.
+MF_DECLARE(TVec3<C>&)			viewingDirection();													//!< Retrieves the vector describing the local camera's viewing direction
+MF_DECLARE(const TVec3<C>&)		viewingDirection()		const;										//!< \overload
 };
 
 
@@ -208,8 +210,6 @@ MFUNC1	(void)				translate(const TVec3<C0>&delta);										//!< Moves the camer
 MFUNC3	(void)				locate(const C0&x, const C1&y, const C2&z);							//!< Redefines the camera center and rebuilds. \param x Camera x-coordinate \param y Camera y-coordinate \param z Camera z-coordinate
 MFUNC1	(void)				locate(const TVec3<C0>&position);										//!< Redefines the camera center and rebuilds. \param position New camera position (x,y,z)
 MFUNC2	(void) 				extractDepthRange(C0&zNear, C1&zFar)	const;						//!< Extracts the zNear and zFar values from the projection matrix
-MF_DECLARE	(TVec3<C>&)		viewingDirection();													//!< Retrieves the vector describing the local camera's viewing direction
-MF_DECLARE	(const TVec3<C>&)	viewingDirection()		const;										//!< \overload
 };
 
 template <class C=float>

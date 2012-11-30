@@ -775,13 +775,13 @@ template <class C> MF_DECLARE (void) Camera<C>::build()
 }
 
 template <class C>
-	MF_DECLARE (TVec3<C>&)			Camera<C>::viewingDirection()
+	MF_DECLARE (TVec3<C>&)			Aspect<C>::viewingDirection()
 	{
 		return view_invert.z.xyz;
 	}
 	
 template <class C>
-	MF_DECLARE (const TVec3<C>&)	Camera<C>::viewingDirection()		const
+	MF_DECLARE (const TVec3<C>&)	Aspect<C>::viewingDirection()		const
 	{
 		return view_invert.z.xyz;
 	}
