@@ -3355,7 +3355,7 @@ namespace Engine
 							default:
 							break;
 						}
-						ErrMessage("Frame buffer construction failed: OpenGL reports: \""+String(error)+"\"");
+						FATAL__("Frame buffer construction failed: OpenGL reports: \""+String(error)+"\"");
 						destroyFrameBuffer(result);
 						return result;
 					}					

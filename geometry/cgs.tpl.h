@@ -4413,6 +4413,80 @@ template <class Def> void Geometry<Def>::makeSimpleObject(const Float*vertex,cou
 	//verifyIntegrity();
 }
 
+template <class Def>
+	void	Geometry<Def>::makeFromConstructor(const Constructor<Def>&ctr)
+	{
+		clear();
+		setSize(ctr.countObjects(),1,0,0);
+		ASSERT__(object_field.length()==ctr.countObjects());
+		material_field[0].data.object_field.setSize(ctr.countObjects());
+		material_field[0].data.coord_layers = (unsigned)(ctr.countTextureLayers());
+		for (index_t i = 0; i < ctr.countObjects(); i++)
+		{
+			RenderObjectA<Def>&robj = material_field[0].data.object_field[i];
+			robj.target = object_field.pointer() + i;
+			ASSERT_LESS__(ctr.countTextureLayers(),0x10000);
+			const typename Constructor<Def>::Object&cobj = ctr.getObject(i);
+			robj.vpool.setSize(ctr.countVertices(),(UINT16)ctr.countTextureLayers(),ctr.getVertexFlags());
+	
+			robj.vpool.vdata.copyFrom(cobj.getVertices());
+			robj.detail=0;
+			robj.ipool.idata.setSize(cobj.countIndices());
+			robj.ipool.triangles = unsigned(cobj.countTriangles());
+			robj.ipool.idata.copyFrom(cobj.getIndices());
+			object_field[i].vs_hull_field.setSize(1);
+			typedef Mesh<typename SubGeometryA<Def>::VsDef>	VsMesh;
+			VsMesh	&obj = object_field[i].vs_hull_field[0];
+			obj.vertex_field.setSize(cobj.countVertices());
+			obj.triangle_field.setSize(cobj.countIndices()/3);
+			obj.edge_field.free();
+			obj.quad_field.free();
+			UINT32 band = cobj.getVertexSize();
+			const count_t vertices = cobj.countVertices();
+			const Float*vertex = cobj.getVertices();
+			for (index_t i = 0; i < vertices; i++)
+			{
+				Vec::clear(obj.vertex_field[i].position);
+				copy3(vertex+i*band,obj.vertex_field[i].position.v);
+				obj.vertex_field[i].index = i;
+				obj.vertex_field[i].marked = false;
+			}
+			const count_t triangles = cobj.countTriangles();
+			const Index*index = cobj.getIndices();
+			for (index_t i = 0; i < triangles; i++)
+			{
+				obj.triangle_field[i].vertex[0] = obj.vertex_field+index[i*3];
+				obj.triangle_field[i].vertex[1] = obj.vertex_field+index[i*3+1];
+				obj.triangle_field[i].vertex[2] = obj.vertex_field+index[i*3+2];
+				obj.triangle_field[i].index = i;
+				obj.triangle_field[i].marked = false;
+			}
+			ASSERT1__(obj.valid(),obj.errorStr());
+
+			object_field[i].name = str2name("child"+String(i));
+			Mat::eye(object_field[i].meta.system);
+			Vec::clear(object_field[i].meta.center);
+			object_field[i].meta.radius = 1;
+			object_field[i].meta.volume = 1;
+			object_field[i].meta.density = 1;
+			object_field[i].extractShortestVisualEdgeLength(0,object_field[i].meta.shortest_edge_length);
+			Mat::eye(object_field[i].path);
+			object_field[i].system_link = &object_field[i].path;
+			robj.tname = object_field[i].name;
+		}
+		material_field[0].info.layer_field.setSize(ctr.countTextureLayers());
+		for (index_t i = 0; i < ctr.countTextureLayers(); i++)
+		{
+			material_field[0].info.layer_field[i].combiner = 0x2100;
+			material_field[0].info.layer_field[i].source = NULL;
+		}
+	
+	
+
+	}
+
+
+
 template <class Def> template <typename T0>
 	void	Geometry<Def>::makeBox(const TBox<T0>&b)
 	{

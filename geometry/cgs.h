@@ -45,6 +45,11 @@ namespace CGS	//! Compiled Geometrical Structure
 		namespace CGS\
 		{
 
+	#define CGS_DECLARE_ADOPTING_T(_class_)\
+		}\
+		DECLARE_T__(CGS::_class_,Adopting);\
+		namespace CGS\
+		{
 	#define CGS_DECLARE_ADOPTING_2(_class_,_type0_,_type1_)\
 		}\
 		DECLARE_T2__(CGS::_class_,_type0_,_type1_,Adopting);\
@@ -161,6 +166,8 @@ namespace CGS	//! Compiled Geometrical Structure
 
 	class StdDef;
 
+	template <class Def>
+		class Constructor;
 
 
 	typedef Array<index_t>					Path;
@@ -1121,6 +1128,7 @@ namespace CGS	//! Compiled Geometrical Structure
 			void									clearFlags(UINT32 clear_mask=0xFFFFFFFF, bool geometries=true, bool wheels=true, bool accelerators=true, bool constructs=true);	//!< Recursivly clears the specified flags. @param clear_mask Mask to limit clearing of flags. Only bits in this value are cleared @param geometries Apply to sub geometries @param wheels Apply to wheels @param accelerators Apply to accelerators @param constructs Apply to constructs
 			void									flagAnimationTargets(UINT32 flag=AnimationTargetFlag);	//!< Recursivly adds the specified flag to targeted sub geometries, wheels, and accelerators
 		
+			void									makeFromConstructor(const Constructor<Def>&);
 			void									makeSimpleObject(const Float*vertex,count_t vertices,const Index*index,count_t indices);	//!< Clears any existing local data and generates a simple triangular visual geometry with one SubGeometry<Def> instance from the provided data \param vertex Float field. Each vertex is required to provide 6 floats, 3 for the position and 3 for the normal. \param vertices Total number of vertices \param index Index field. Each triangle requires three indices. \param indices Total number of indices (should be 3*number of triangles)
 			void									makeSimpleObject(const Float*vertex,count_t vertices,count_t layers, const Index*index,count_t indices);	//!< Clears any existing local data and generates a simple triangular visual geometry with a number of pre-generated empty texture layers and one SubGeometry<Def> instance from the provided data \param vertex Float field. Each vertex is required to provide 3 elements for the position, 3 for the normal plus 2 for each layer. \param vertices Total number of vertices \param layers Number of (empty) texture layers that should be generated. \param index Index field. Each triangle requires three indices. \param indices Total number of indices (should be 3*number of triangles)
 			void									makeSphere(Float radius, count_t iterations);		//!< Clears any existing data and generates a simple textureless sphere \param radius Sphere radius \param iterations Sphere resolution. The more iterations, the higher the detail. Usually 5 means rather low, 50 means very high and everything above overkill.
@@ -1404,6 +1412,678 @@ namespace CGS	//! Compiled Geometrical Structure
 
 
 	typedef StaticInstance<StdDef>	StdInstance;
+
+
+	/**
+	@brief Geometry constructor helper class
+
+	Simplifies dynamic geometry construction
+	*/
+	template <class Def=StdDef>
+		class Constructor
+		{
+		public:
+			typedef typename Def::FloatType	Float;
+			typedef typename Def::IndexType	Index;
+
+			struct VConfig
+			{
+				count_t			vsize;
+				count_t			num_texture_layers;
+				UINT			vertex_flags;
+			};
+
+			class Object
+			{
+			private:
+				friend class Constructor<Def>;
+
+				Buffer<Float>	vertex_data;
+				Buffer<Index>	index_data;
+				Index			voffset;
+				VConfig			config;
+			public:
+				/**/			Object():voffset(0)	{}
+				void			swap(Object&other)
+								{
+									vertex_data.swap(other.vertex_data);
+									index_data.swap(other.index_data);
+									swp(config,other.config);
+									swp(voffset,other.voffset);
+								}
+				void			adoptData(Object&other)
+								{
+									vertex_data.adoptData(other.vertex_data);
+									index_data.adoptData(other.index_data);
+									config = other.config;
+									voffset = other.voffset;
+								}
+				count_t			countTextureLayers()	const	{return config.num_texture_layers;}
+				UINT			getVertexFlags()		const	{return config.vertex_flags;}
+				count_t			getVertexSize()			const	{return config.vsize;}
+				void			setVertexOffset(Index offset)	{voffset = offset;}
+				void			setVertexOffsetToCurrent()		{voffset = (Index)vertex_data.length() / vsize;}
+				void			triangle(Index v0, Index v1, Index v2)
+								{
+									Index*t = index_data.appendRow(3);
+									t[0] = v0 + voffset;
+									t[1] = v1 + voffset;
+									t[2] = v2 + voffset;
+								}
+				const Index*	getIndices()	const {return index_data.pointer();}
+				const Float*	getVertices()	const {return vertex_data.pointer();}
+				count_t			countIndices()	const {return index_data.length();}
+				count_t			countTriangles()const {return index_data.length()/3;}
+				count_t			countFloats()	const {return vertex_data.length();}
+				count_t			countVertices()	const {return vertex_data.length() / config.vsize;}
+
+				template <typename T>
+					Index		vertex(const TVec3<T>&location)
+					{
+						Index result = (Index)vertex_data.length() / config.vsize;
+						Float*out = vertex_data.appendRow(config.vsize);
+						Float*end = out + config.vsize;
+						Vec::copy(location,Vec::ref3(out)); out+=3;
+						for (;out != end; ++out)
+							(*out) = Float(0);
+						return result;
+					}
+				template <typename T>
+					Index		vertex(const TVec3<T>&location, const TVec2<T>&texcoords0)
+					{
+						Index result = (Index)vertex_data.length() / config.vsize;
+						Float*out = vertex_data.appendRow(config.vsize);
+						Float*end = out + config.vsize;
+						Vec::copy(location,Vec::ref3(out)); out+=3;
+						if (config.vertex_flags&HasNormalFlag)
+						{
+							Vec::clear(Vec::ref3(out)); out+=3;
+						}
+						if (config.vertex_flags&HasTangentFlag)
+						{
+							Vec::clear(Vec::ref3(out)); out+=3;
+						}
+						if (config.vertex_flags&HasColorFlag)
+						{
+							Vec::clear(Vec::ref4(out)); out+=4;
+						}
+						if (config.num_texture_layers > 0)
+						{
+							Vec::copy(texcoords0,Vec::ref2(out)); out+=2;
+						}
+						for (;out != end; ++out)
+							(*out) = Float(0);
+						return result;
+					}
+				template <typename T>
+					Index		vertex(const TVec3<T>&location, const TVec2<T>&texcoords0, const TVec2<T>&texcoords1)
+					{
+						Index result = (Index)vertex_data.length() / config.vsize;
+						Float*out = vertex_data.appendRow(config.vsize);
+						Float*end = out + config.vsize;
+						Vec::copy(location,Vec::ref3(out)); out+=3;
+						if (config.vertex_flags&HasNormalFlag)
+						{
+							Vec::clear(Vec::ref3(out)); out+=3;
+						}
+						if (config.vertex_flags&HasTangentFlag)
+						{
+							Vec::clear(Vec::ref3(out)); out+=3;
+						}
+						if (config.vertex_flags&HasColorFlag)
+						{
+							Vec::clear(Vec::ref4(out)); out+=4;
+						}
+						if (config.num_texture_layers > 0)
+						{
+							Vec::copy(texcoords0,Vec::ref2(out)); out+=2;
+						}
+						if (config.num_texture_layers > 1)
+						{
+							Vec::copy(texcoords1,Vec::ref2(out)); out+=2;
+						}
+						for (;out != end; ++out)
+							(*out) = Float(0);
+						return result;
+					}
+				template <typename T>
+					Index		vertex(const TVec3<T>&location, const TVec2<T>&texcoords0, const TVec2<T>&texcoords1, const TVec2<T>&texcoords2)
+					{
+						Index result = (Index)vertex_data.length() / config.vsize;
+						Float*out = vertex_data.appendRow(config.vsize);
+						Float*end = out + config.vsize;
+						Vec::copy(location,Vec::ref3(out)); out+=3;
+						if (config.vertex_flags&HasNormalFlag)
+						{
+							Vec::clear(Vec::ref3(out)); out+=3;
+						}
+						if (config.vertex_flags&HasTangentFlag)
+						{
+							Vec::clear(Vec::ref3(out)); out+=3;
+						}
+						if (config.vertex_flags&HasColorFlag)
+						{
+							Vec::clear(Vec::ref4(out)); out+=4;
+						}
+						if (config.num_texture_layers > 0)
+						{
+							Vec::copy(texcoords0,Vec::ref2(out)); out+=2;
+						}
+						if (config.num_texture_layers > 1)
+						{
+							Vec::copy(texcoords1,Vec::ref2(out)); out+=2;
+						}
+						if (config.num_texture_layers > 2)
+						{
+							Vec::copy(texcoords2,Vec::ref2(out)); out+=2;
+						}
+						for (;out != end; ++out)
+							(*out) = Float(0);
+						return result;
+					}
+
+
+				template <typename T>
+					Index		vertex(const TVec3<T>&location, const TVec3<T>&normal)
+					{
+						Index result = (Index)vertex_data.length() / config.vsize;
+						Float*out = vertex_data.appendRow(config.vsize);
+						Float*end = out + config.vsize;
+						Vec::copy(location,Vec::ref3(out)); out+=3;
+						if (config.vertex_flags&HasNormalFlag)
+						{
+							Vec::copy(normal,Vec::ref3(out)); out+=3;
+						}
+						for (;out != end; ++out)
+							(*out) = Float(0);
+						return result;
+					}
+				template <typename T>
+					Index		vertex(const TVec3<T>&location, const TVec3<T>&normal, const TVec2<T>&texcoords0)
+					{
+						Index result = (Index)vertex_data.length() / config.vsize;
+						Float*out = vertex_data.appendRow(config.vsize);
+						Float*end = out + config.vsize;
+						Vec::copy(location,Vec::ref3(out)); out+=3;
+						if (config.vertex_flags&HasNormalFlag)
+						{
+							Vec::copy(normal,Vec::ref3(out)); out+=3;
+						}
+						if (config.vertex_flags&HasTangentFlag)
+						{
+							Vec::clear(Vec::ref3(out)); out+=3;
+						}
+						if (config.vertex_flags&HasColorFlag)
+						{
+							Vec::clear(Vec::ref4(out)); out+=4;
+						}
+						if (config.num_texture_layers > 0)
+						{
+							Vec::copy(texcoords0,Vec::ref2(out)); out+=2;
+						}
+						for (;out != end; ++out)
+							(*out) = Float(0);
+						return result;
+					}
+				template <typename T>
+					Index		vertex(const TVec3<T>&location, const TVec3<T>&normal, const TVec2<T>&texcoords0, const TVec2<T>&texcoords1)
+					{
+						Index result = (Index)vertex_data.length() / config.vsize;
+						Float*out = vertex_data.appendRow(config.vsize);
+						Float*end = out + config.vsize;
+						Vec::copy(location,Vec::ref3(out)); out+=3;
+						if (config.vertex_flags&HasNormalFlag)
+						{
+							Vec::copy(normal,Vec::ref3(out)); out+=3;
+						}
+						if (config.vertex_flags&HasTangentFlag)
+						{
+							Vec::clear(Vec::ref3(out)); out+=3;
+						}
+						if (config.vertex_flags&HasColorFlag)
+						{
+							Vec::clear(Vec::ref4(out)); out+=4;
+						}
+						if (config.num_texture_layers > 0)
+						{
+							Vec::copy(texcoords0,Vec::ref2(out)); out+=2;
+						}
+						if (config.num_texture_layers > 1)
+						{
+							Vec::copy(texcoords1,Vec::ref2(out)); out+=2;
+						}
+						for (;out != end; ++out)
+							(*out) = Float(0);
+						return result;
+					}
+				template <typename T>
+					Index		vertex(const TVec3<T>&location, const TVec3<T>&normal, const TVec2<T>&texcoords0, const TVec2<T>&texcoords1, const TVec2<T>&texcoords2)
+					{
+						Index result = (Index)vertex_data.length() / config.vsize;
+						Float*out = vertex_data.appendRow(config.vsize);
+						Float*end = out + config.vsize;
+						Vec::copy(location,Vec::ref3(out)); out+=3;
+						if (config.vertex_flags&HasNormalFlag)
+						{
+							Vec::copy(normal,Vec::ref3(out)); out+=3;
+						}
+						if (config.vertex_flags&HasTangentFlag)
+						{
+							Vec::clear(Vec::ref3(out)); out+=3;
+						}
+						if (config.vertex_flags&HasColorFlag)
+						{
+							Vec::clear(Vec::ref4(out)); out+=4;
+						}
+						if (config.num_texture_layers > 0)
+						{
+							Vec::copy(texcoords0,Vec::ref2(out)); out+=2;
+						}
+						if (config.num_texture_layers > 1)
+						{
+							Vec::copy(texcoords1,Vec::ref2(out)); out+=2;
+						}
+						if (config.num_texture_layers > 2)
+						{
+							Vec::copy(texcoords2,Vec::ref2(out)); out+=2;
+						}
+						for (;out != end; ++out)
+							(*out) = Float(0);
+						return result;
+					}
+
+
+
+
+
+
+
+
+				template <typename T>
+					Index		vertex(const TVec3<T>&location, const TVec4<T>&color)
+					{
+						Index result = (Index)vertex_data.length() / config.vsize;
+						Float*out = vertex_data.appendRow(config.vsize);
+						Float*end = out + config.vsize;
+						Vec::copy(location,Vec::ref3(out)); out+=3;
+						if (config.vertex_flags&HasNormalFlag)
+						{
+							Vec::clear(Vec::ref3(out)); out+=3;
+						}
+						if (config.vertex_flags&HasTangentFlag)
+						{
+							Vec::clear(Vec::ref3(out)); out+=3;
+						}
+						if (config.vertex_flags&HasColorFlag)
+						{
+							Vec::copy(color,Vec::ref4(out)); out+=4;
+						}
+						for (;out != end; ++out)
+							(*out) = Float(0);
+						return result;
+					}
+				template <typename T>
+					Index		vertex(const TVec3<T>&location, const TVec4<T>&color, const TVec2<T>&texcoords0)
+					{
+						Index result = (Index)vertex_data.length() / config.vsize;
+						Float*out = vertex_data.appendRow(config.vsize);
+						Float*end = out + config.vsize;
+						Vec::copy(location,Vec::ref3(out)); out+=3;
+						if (config.vertex_flags&HasNormalFlag)
+						{
+							Vec::clear(Vec::ref3(out)); out+=3;
+						}
+						if (config.vertex_flags&HasTangentFlag)
+						{
+							Vec::clear(Vec::ref3(out)); out+=3;
+						}
+						if (config.vertex_flags&HasColorFlag)
+						{
+							Vec::copy(color,Vec::ref4(out)); out+=4;
+						}
+						if (config.num_texture_layers > 0)
+						{
+							Vec::copy(texcoords0,Vec::ref2(out)); out+=2;
+						}
+						for (;out != end; ++out)
+							(*out) = Float(0);
+						return result;
+					}
+				template <typename T>
+					Index		vertex(const TVec3<T>&location, const TVec4<T>&color, const TVec2<T>&texcoords0, const TVec2<T>&texcoords1)
+					{
+						Index result = (Index)vertex_data.length() / config.vsize;
+						Float*out = vertex_data.appendRow(config.vsize);
+						Float*end = out + config.vsize;
+						Vec::copy(location,Vec::ref3(out)); out+=3;
+						if (config.vertex_flags&HasNormalFlag)
+						{
+							Vec::clear(Vec::ref3(out)); out+=3;
+						}
+						if (config.vertex_flags&HasTangentFlag)
+						{
+							Vec::clear(Vec::ref3(out)); out+=3;
+						}
+						if (config.vertex_flags&HasColorFlag)
+						{
+							Vec::copy(color,Vec::ref4(out)); out+=4;
+						}
+						if (config.num_texture_layers > 0)
+						{
+							Vec::copy(texcoords0,Vec::ref2(out)); out+=2;
+						}
+						if (config.num_texture_layers > 1)
+						{
+							Vec::copy(texcoords1,Vec::ref2(out)); out+=2;
+						}
+						for (;out != end; ++out)
+							(*out) = Float(0);
+						return result;
+					}
+				template <typename T>
+					Index		vertex(const TVec3<T>&location, const TVec4<T>&color, const TVec2<T>&texcoords0, const TVec2<T>&texcoords1, const TVec2<T>&texcoords2)
+					{
+						Index result = (Index)vertex_data.length() / config.vsize;
+						Float*out = vertex_data.appendRow(config.vsize);
+						Float*end = out + config.vsize;
+						Vec::copy(location,Vec::ref3(out)); out+=3;
+						if (config.vertex_flags&HasNormalFlag)
+						{
+							Vec::clear(Vec::ref3(out)); out+=3;
+						}
+						if (config.vertex_flags&HasTangentFlag)
+						{
+							Vec::clear(Vec::ref3(out)); out+=3;
+						}
+						if (config.vertex_flags&HasColorFlag)
+						{
+							Vec::copy(color,Vec::ref4(out)); out+=4;
+						}
+						if (config.num_texture_layers > 0)
+						{
+							Vec::copy(texcoords0,Vec::ref2(out)); out+=2;
+						}
+						if (config.num_texture_layers > 1)
+						{
+							Vec::copy(texcoords1,Vec::ref2(out)); out+=2;
+						}
+						if (config.num_texture_layers > 2)
+						{
+							Vec::copy(texcoords2,Vec::ref2(out)); out+=2;
+						}
+						for (;out != end; ++out)
+							(*out) = Float(0);
+						return result;
+					}
+
+
+				template <typename T>
+					Index		vertex(const TVec3<T>&location, const TVec3<T>&normal, const TVec4<T>&color)
+					{
+						Index result = (Index)vertex_data.length() / config.vsize;
+						Float*out = vertex_data.appendRow(config.vsize);
+						Float*end = out + config.vsize;
+						Vec::copy(location,Vec::ref3(out)); out+=3;
+						if (config.vertex_flags&HasNormalFlag)
+						{
+							Vec::copy(normal,Vec::ref3(out)); out+=3;
+						}
+						if (config.vertex_flags&HasTangentFlag)
+						{
+							Vec::clear(Vec::ref3(out)); out+=3;
+						}
+						if (config.vertex_flags&HasColorFlag)
+						{
+							Vec::copy(color,Vec::ref4(out)); out+=4;
+						}
+						for (;out != end; ++out)
+							(*out) = Float(0);
+						return result;
+					}
+				template <typename T>
+					Index		vertex(const TVec3<T>&location, const TVec3<T>&normal, const TVec4<T>&color, const TVec2<T>&texcoords0)
+					{
+						Index result = (Index)vertex_data.length() / config.vsize;
+						Float*out = vertex_data.appendRow(config.vsize);
+						Float*end = out + config.vsize;
+						Vec::copy(location,Vec::ref3(out)); out+=3;
+						if (config.vertex_flags&HasNormalFlag)
+						{
+							Vec::copy(normal,Vec::ref3(out)); out+=3;
+						}
+						if (config.vertex_flags&HasTangentFlag)
+						{
+							Vec::clear(Vec::ref3(out)); out+=3;
+						}
+						if (config.vertex_flags&HasColorFlag)
+						{
+							Vec::copy(color,Vec::ref4(out)); out+=4;
+						}
+						if (config.num_texture_layers > 0)
+						{
+							Vec::copy(texcoords0,Vec::ref2(out)); out+=2;
+						}
+						for (;out != end; ++out)
+							(*out) = Float(0);
+						return result;
+					}
+				template <typename T>
+					Index		vertex(const TVec3<T>&location, const TVec3<T>&normal, const TVec4<T>&color, const TVec2<T>&texcoords0, const TVec2<T>&texcoords1)
+					{
+						Index result = (Index)vertex_data.length() / config.vsize;
+						Float*out = vertex_data.appendRow(config.vsize);
+						Float*end = out + config.vsize;
+						Vec::copy(location,Vec::ref3(out)); out+=3;
+						if (config.vertex_flags&HasNormalFlag)
+						{
+							Vec::copy(normal,Vec::ref3(out)); out+=3;
+						}
+						if (config.vertex_flags&HasTangentFlag)
+						{
+							Vec::clear(Vec::ref3(out)); out+=3;
+						}
+						if (config.vertex_flags&HasColorFlag)
+						{
+							Vec::copy(color,Vec::ref4(out)); out+=4;
+						}
+						if (config.num_texture_layers > 0)
+						{
+							Vec::copy(texcoords0,Vec::ref2(out)); out+=2;
+						}
+						if (config.num_texture_layers > 1)
+						{
+							Vec::copy(texcoords1,Vec::ref2(out)); out+=2;
+						}
+						for (;out != end; ++out)
+							(*out) = Float(0);
+						return result;
+					}
+				template <typename T>
+					Index		vertex(const TVec3<T>&location, const TVec3<T>&normal, const TVec4<T>&color, const TVec2<T>&texcoords0, const TVec2<T>&texcoords1, const TVec2<T>&texcoords2)
+					{
+						Index result = (Index)vertex_data.length() / config.vsize;
+						Float*out = vertex_data.appendRow(config.vsize);
+						Float*end = out + config.vsize;
+						Vec::copy(location,Vec::ref3(out)); out+=3;
+						if (config.vertex_flags&HasNormalFlag)
+						{
+							Vec::copy(normal,Vec::ref3(out)); out+=3;
+						}
+						if (config.vertex_flags&HasTangentFlag)
+						{
+							Vec::clear(Vec::ref3(out)); out+=3;
+						}
+						if (config.vertex_flags&HasColorFlag)
+						{
+							Vec::copy(color,Vec::ref4(out)); out+=4;
+						}
+						if (config.num_texture_layers > 0)
+						{
+							Vec::copy(texcoords0,Vec::ref2(out)); out+=2;
+						}
+						if (config.num_texture_layers > 1)
+						{
+							Vec::copy(texcoords1,Vec::ref2(out)); out+=2;
+						}
+						if (config.num_texture_layers > 2)
+						{
+							Vec::copy(texcoords2,Vec::ref2(out)); out+=2;
+						}
+						for (;out != end; ++out)
+							(*out) = Float(0);
+						return result;
+					}
+
+
+
+				template <typename T>
+					Index		vertex(const TVec3<T>&location, const TVec3<T>&normal, const TVec3<T>&tangent)
+					{
+						Index result = (Index)vertex_data.length() / config.vsize;
+						Float*out = vertex_data.appendRow(config.vsize);
+						Float*end = out + config.vsize;
+						Vec::copy(location,Vec::ref3(out)); out+=3;
+						if (config.vertex_flags&HasNormalFlag)
+						{
+							Vec::copy(normal,Vec::ref3(out)); out+=3;
+						}
+						if (config.vertex_flags&HasTangentFlag)
+						{
+							Vec::copy(tangent,Vec::ref3(out)); out+=3;
+						}
+						for (;out != end; ++out)
+							(*out) = Float(0);
+						return result;
+					}
+				template <typename T>
+					Index		vertex(const TVec3<T>&location, const TVec3<T>&normal, const TVec3<T>&tangent, const TVec2<T>&texcoords0)
+					{
+						Index result = (Index)vertex_data.length() / config.vsize;
+						Float*out = vertex_data.appendRow(config.vsize);
+						Float*end = out + config.vsize;
+						Vec::copy(location,Vec::ref3(out)); out+=3;
+						if (config.vertex_flags&HasNormalFlag)
+						{
+							Vec::copy(normal,Vec::ref3(out)); out+=3;
+						}
+						if (config.vertex_flags&HasTangentFlag)
+						{
+							Vec::copy(tangent,Vec::ref3(out)); out+=3;
+						}
+						if (config.vertex_flags&HasColorFlag)
+						{
+							Vec::clear(Vec::ref4(out)); out+=4;
+						}
+						if (config.num_texture_layers > 0)
+						{
+							Vec::copy(texcoords0,Vec::ref2(out)); out+=2;
+						}
+						for (;out != end; ++out)
+							(*out) = Float(0);
+						return result;
+					}
+				template <typename T>
+					Index		vertex(const TVec3<T>&location, const TVec3<T>&normal, const TVec3<T>&tangent, const TVec2<T>&texcoords0, const TVec2<T>&texcoords1)
+					{
+						Index result = (Index)vertex_data.length() / config.vsize;
+						Float*out = vertex_data.appendRow(config.vsize);
+						Float*end = out + config.vsize;
+						Vec::copy(location,Vec::ref3(out)); out+=3;
+						if (config.vertex_flags&HasNormalFlag)
+						{
+							Vec::copy(normal,Vec::ref3(out)); out+=3;
+						}
+						if (config.vertex_flags&HasTangentFlag)
+						{
+							Vec::copy(tangent,Vec::ref3(out)); out+=3;
+						}
+						if (config.vertex_flags&HasColorFlag)
+						{
+							Vec::clear(Vec::ref4(out)); out+=4;
+						}
+						if (config.num_texture_layers > 0)
+						{
+							Vec::copy(texcoords0,Vec::ref2(out)); out+=2;
+						}
+						if (config.num_texture_layers > 1)
+						{
+							Vec::copy(texcoords1,Vec::ref2(out)); out+=2;
+						}
+						for (;out != end; ++out)
+							(*out) = Float(0);
+						return result;
+					}
+				template <typename T>
+					Index		vertex(const TVec3<T>&location, const TVec3<T>&normal, const TVec3<T>&tangent, const TVec2<T>&texcoords0, const TVec2<T>&texcoords1, const TVec2<T>&texcoords2)
+					{
+						Index result = (Index)vertex_data.length() / config.vsize;
+						Float*out = vertex_data.appendRow(config.vsize);
+						Float*end = out + config.vsize;
+						Vec::copy(location,Vec::ref3(out)); out+=3;
+						if (config.vertex_flags&HasNormalFlag)
+						{
+							Vec::copy(normal,Vec::ref3(out)); out+=3;
+						}
+						if (config.vertex_flags&HasTangentFlag)
+						{
+							Vec::copy(tangent,Vec::ref3(out)); out+=3;
+						}
+						if (config.vertex_flags&HasColorFlag)
+						{
+							Vec::clear(Vec::ref4(out)); out+=4;
+						}
+						if (config.num_texture_layers > 0)
+						{
+							Vec::copy(texcoords0,Vec::ref2(out)); out+=2;
+						}
+						if (config.num_texture_layers > 1)
+						{
+							Vec::copy(texcoords1,Vec::ref2(out)); out+=2;
+						}
+						if (config.num_texture_layers > 2)
+						{
+							Vec::copy(texcoords2,Vec::ref2(out)); out+=2;
+						}
+						for (;out != end; ++out)
+							(*out) = Float(0);
+						return result;
+					}
+			};
+
+		private:
+			VConfig			config;
+			Buffer<Object,1,Adopt>	objects;
+		public:
+
+			/**/			Constructor(count_t num_layers=0, UINT vertex_flags=0)
+							{
+								config.num_texture_layers = num_layers;
+								config.vertex_flags = vertex_flags;
+								config.vsize = VSIZE(num_layers,vertex_flags);
+							}
+			void			swap(Constructor<Def>&other)
+							{
+								objects.swap(other.objects);
+								swp(config,other.config);
+							}
+			void			adoptData(Constructor<Def>&other)
+							{
+								objects.adoptData(other.objects);
+								config = other.config;
+							}
+			count_t			countTextureLayers()	const	{return config.num_texture_layers;}
+			UINT			getVertexFlags()		const	{return config.vertex_flags;}
+			count_t			getVertexSize()			const	{return config.vsize;}
+			count_t			countObjects()			const	{return objects.count();}
+			Object&			getObject(index_t index)		{return objects[index];}
+			const Object&	getObject(index_t index)const	{return objects[index];}
+
+			Object&			appendObject()	{Object&result = objects.append(); result.config = config; return result;}
+			void			clear()			{objects.reset();}
+
+
+		};
+	CGS_DECLARE_ADOPTING_T(Constructor)
 
 
 	#include "cgs.tpl.h"

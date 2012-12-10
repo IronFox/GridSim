@@ -301,7 +301,7 @@ namespace System
 						if (lock_level != 0)	//technically, this should not be possible
 						{
 							operation_shield.unlock();
-							FATAL__("Trying to lock recurive mutex on lock_level != 0");
+							FATAL__("Trying to lock recursive mutex on lock_level != 0");
 							return;
 						}
 
@@ -329,7 +329,7 @@ namespace System
 						if (lock_level != 0)	//technically, this should not be possible
 						{
 							operation_shield.unlock();
-							FATAL__("Trying to lock recurive mutex on lock_level != 0");
+							FATAL__("Trying to lock recursive mutex on lock_level != 0");
 							return false;
 						}
 
@@ -360,7 +360,7 @@ namespace System
 						if (lock_level != 0)	//technically, this should not be possible
 						{
 							operation_shield.unlock();
-							FATAL__("Trying to lock recurive mutex on lock_level != 0");
+							FATAL__("Trying to lock recursive mutex on lock_level != 0");
 							return false;
 						}
 						lock_level = 1;

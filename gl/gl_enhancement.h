@@ -132,6 +132,8 @@ void                glPrintError();
 
 
 struct GLDepthComponent;
+struct GLhalf;
+
 
 /**
 	@brief OpenGL type constant
