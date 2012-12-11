@@ -1845,6 +1845,10 @@ namespace Engine
 		{
 			if (!display)
 				FATAL__("GUI not properly initialized. Display is NULL");
+			bool aspect_was_in_projection = GlobalAspectConfiguration::load_as_projection;
+			GlobalAspectConfiguration::load_as_projection = false;
+			bool world_z_was_up = GlobalAspectConfiguration::world_z_is_up;
+			GlobalAspectConfiguration::world_z_is_up = false;
 			if (focused)
 			{
 				time_since_last_tick += timing.delta;
@@ -2169,6 +2173,8 @@ namespace Engine
 			
 			drawRect(rect);
 			*/
+			GlobalAspectConfiguration::load_as_projection = aspect_was_in_projection;
+			GlobalAspectConfiguration::world_z_is_up = world_z_was_up;
 		}
 		
 		
@@ -2454,13 +2460,20 @@ namespace Engine
 				rs->bind(Key::Tab);
 			input.popProfile();
 		
-		
+
+			bool aspect_was_in_projection = GlobalAspectConfiguration::load_as_projection;
+			GlobalAspectConfiguration::load_as_projection = false;
+			bool world_z_was_up = GlobalAspectConfiguration::world_z_is_up;
+			GlobalAspectConfiguration::world_z_is_up = false;
+
 			rs->updateDisplaySize();
 			rs->projected_space.make(1.0f,0.1,100,92);
 			//projected_space.retraction[2] = -1;
 			rs->projected_space.build();
 			rs->projected_space.depth_test = NoDepthTest;
 
+			GlobalAspectConfiguration::load_as_projection = aspect_was_in_projection;
+			GlobalAspectConfiguration::world_z_is_up = world_z_was_up;
 		
 			GUI::initialize();
 			return rs;
