@@ -94,4 +94,17 @@ namespace Engine
 		control->cluster = NULL;
 		control_stack.drop(control);
 	}
+
+	bool		ControlCluster::detectNearestGroundHeight(const TVec3<>&reference_position,float&out_height)
+	{
+		out_height = std::numeric_limits<float>::min();
+		bool result = false;
+		for (index_t i = 0; i < control_stack.count(); i++)
+		{
+			Control*control = control_stack[i];
+			result |= control->detectNearestGroundHeight(reference_position,out_height);
+		}
+		return result;
+	}
+
 }
