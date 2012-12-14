@@ -42,6 +42,11 @@ virtual	bool	write(const void*data, serial_size_t size)=0;	//!< Writes a chunk o
 		{
 			return write(&element,sizeof(element));
 		}
+	template <typename T>
+		bool	writePrimitives(const T*elements, count_t num_elements)
+		{
+			return write(elements,sizeof(T)*num_elements);
+		}
 
 		bool	writeSize(serial_size_t size)	//! Reads the content of a size variable in little endian 
 		{

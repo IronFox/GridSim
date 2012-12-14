@@ -218,6 +218,8 @@ template <class Carrier>
 			inline size_t					count()								const;	//!< Returns the number of entries currently stored in the set/table. \return Number of entries in the set/table.
 			inline operator 				size_t()							const;	//!< Implicit conversion to size_t. \return Returns the number of entries in the set/table.
 			inline	void					clear();									//!< Resizes back to the initial set size and un-occupies all carriers. If no resizing took place then the respective objects are not reinitialized.
+			inline	bool					isEmpty()							const;	//!< Checks if the local table is empty
+			inline	bool					isNotEmpty()						const;	//!< Checks if the local table contains at least one element
 			inline	void					import(GenericHashBase<Carrier>&list);		//!< Imports the content of the specified other hashset/hashtable in addition to the already contained entries. Existing entries are overwritten. \param list Hashset to import entries from.
 		template <class Key>
 			inline	void					exportKeys(ArrayData<Key>&keys)	const;			//!< Exports the keys to the specified array. \param keys Reference to an array containing all associated keys after execution. 

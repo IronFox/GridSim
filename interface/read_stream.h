@@ -46,6 +46,11 @@ virtual	bool	read(void*target_data, serial_size_t size)=0;	//!< Loads a chunk of
 			return read(&element,sizeof(element));
 		}
 	template <typename T>
+		bool	readPrimitives(T*elements, count_t num_elements)
+		{
+			return read(elements,sizeof(T)*num_elements);
+		}
+	template <typename T>
 		bool	readSize(T&size_out)	//! Reads the content of a size variable in little endian 
 		{
 			BYTE b[4];

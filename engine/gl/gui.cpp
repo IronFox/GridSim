@@ -29,7 +29,7 @@ namespace Engine
 
 			float							time_since_last_tick=0;
 
-			shared_ptr<Component>	clicked,//component that caught the mouse down event
+			shared_ptr<Component>			clicked,//component that caught the mouse down event
 											focused,//last clicked component. unlike 'clicked' this variable will not be set to NULL if the mouse button is released
 											hovered;//last hovered component
 		
@@ -2442,7 +2442,7 @@ namespace Engine
 			shared_ptr<Operator> rs = shared_ptr<Operator>(new Operator(display,mouse,input,mode));
 			input.pushProfile();
 			input.bindProfile(my_profile);
-				input.cascadeKeys();
+				//input.cascadeKeys();
 				rs->bind(Key::Left);
 				rs->bind(Key::Right);
 				rs->bind(Key::Up);
