@@ -280,6 +280,26 @@ template <typename T>
 	}
 
 template <typename T>
+	void		ImageTemplate<T>::paintRect(dimension_t left, dimension_t bottom, dimension_t width, dimension_t height, T r, T g, T b)
+	{
+		if (image_channels != 3)
+			return;
+		for (dimension_t x = left; x < left+width; x++)
+			for (dimension_t y = bottom; y < bottom + height; y++)
+			{
+				if (x < image_width && y < image_height)
+				{
+					T*pixel = get(x,y);
+					pixel[0] = r;
+					pixel[1] = g;
+					pixel[2] = b;
+				}
+			}
+
+	}
+
+
+template <typename T>
 	void		ImageTemplate<T>::noiseFillChannel(BYTE channel, T min_value, T max_value)
 	{
 		noiseFillChannel(channel,min_value,max_value,rand());
