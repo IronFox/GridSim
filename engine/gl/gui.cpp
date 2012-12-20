@@ -2189,7 +2189,7 @@ namespace Engine
 			if (!window->operator_link.expired())
 			{
 				shared_ptr<Operator>	op = window->operator_link.lock();
-				if (op.get() != this)
+				if (op && op.get() != this)
 				{
 					op->removeWindow(window);
 					window->operator_link = shared_from_this();
@@ -2432,8 +2432,8 @@ namespace Engine
 		
 		void Operator::bind(Key::Name key)
 		{
-			input->bind(key,Component::keyDown,Component::keyUp);
-			input->bindCtrl(key,Component::keyDown);
+			input->bind(key,std::bind(Component::keyDown,key),std::bind(Component::keyUp,key));
+			input->bindCtrl(key,std::bind(Component::keyDown,key));
 		}
 
 		

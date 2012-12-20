@@ -41,6 +41,7 @@ namespace Engine
 	
 		virtual	void		onInstall()									{};					//!< Invoked once this control module is installed on the specified control cluster
 		virtual	void		onUninstall()								{};					//!< Invoked once this control module is installed on the specified control cluster
+		ControlCluster*		getCluster()	const						{return cluster;}
 	};
 	
 	/**

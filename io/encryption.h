@@ -5,11 +5,6 @@
 
 sha1, md4 and rc4 hashsum-calculators/encryptors.
 
-This file is part of Delta-Works
-Copyright (C) 2006-2008 Stefan Elsen, University of Trier, Germany.
-http://www.delta-works.org/forge/
-http://informatik.uni-trier.de/
-
 ******************************************************************/
 
 
@@ -35,12 +30,12 @@ namespace Encryption
 template <UINT32 int32_count>
 	struct THash
 	{
+		static const count_t num_bytes = int32_count*4;
 		union
 		{
-			BYTE	bytes[int32_count*4];
+			BYTE	bytes[num_bytes];
 			UINT32	ints[int32_count];
 		};
-		
 		
 		bool	operator==(const THash<int32_count>&other)	const
 				{
@@ -97,31 +92,31 @@ public:
 };
 
 
-class CSHA256
+class SHA256
 {
 protected:
-	    UINT32      h0,h1,h2,h3,h4,h5,h6,h7;
+	UINT32			h0,h1,h2,h3,h4,h5,h6,h7;
 					
-		static const size_t chunk_size = 64;
+	static const size_t chunk_size = 64;
 		
-		UINT32		w[64];
-		BYTE		*current;
-		UINT64		total;
-		
-static	UINT32		k[64];
-
-
-		void 		processChunk();
-
+	UINT32			w[64];
+	BYTE			*current;
+	UINT64			total;
+	static UINT32	k[64];
+	void 			processChunk();
 public:
-		typedef THash<8>	Hash;
+	typedef THash<8>	Hash;
+	static const size_t out_bytes = Hash::num_bytes;
 
+	static void		hash(const void*data, size_t size, THash<8>&out);
+	static void		hash(const void*data, size_t size, void*out);
 
-                    CSHA256();
-		void		reset();
-        void        append(const void*source, size_t size);
-        void        finish(void*target);
-        void        finish(Hash&target);
+	/**/			SHA256();
+	/**/			SHA256(const void*source, size_t size);
+	void			reset();
+    void			append(const void*source, size_t size);
+    void			finish(void*target);
+    void			finish(Hash&target);
 };
 
 

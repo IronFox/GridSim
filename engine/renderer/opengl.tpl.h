@@ -43,6 +43,90 @@ namespace Engine
 
 
 	template <typename data_t>
+		void	GL::Texture::Reference::update(const data_t*data,TextureFilter filter, float anisotropy)
+		{
+			if (readonly)
+				throw Renderer::TextureTransfer::GeneralFault(globalString("Update not possible: This texture is read-only"));
+
+			OpenGL::ContextLock	context_lock;
+
+			glGetError();
+			GLenum target;
+			switch (texture_dimension)
+			{
+				case TextureDimension::Linear:
+					target = GL_TEXTURE_1D;
+				break;
+				case TextureDimension::Planar:
+					target = GL_TEXTURE_2D;
+				break;
+				case TextureDimension::Volume:
+					target = GL_TEXTURE_3D;
+				break;
+				default:
+					throw Renderer::TextureTransfer::GeneralFault(globalString("Update not possible: Incompatible texture dimension"));
+				break;
+			}
+			
+			if (!handle)
+				throw Renderer::TextureTransfer::GeneralFault(globalString("Update not possible: This texture is empty"));
+
+
+			glPushAttrib(GL_TEXTURE_BIT);
+			glBindTexture(target,handle);
+
+			//glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			bool mipmap = configureFilter(target, filter, anisotropy);
+
+			GLenum error = glGetError();
+			if (error != GL_NO_ERROR)
+			{
+				glPopAttrib();
+				throw Renderer::TextureTransfer::GeneralFault("OpenGL reports general fault while trying to configure texture handle ("+String(glGetErrorName(error))+")");
+				return;
+			}
+			
+			//cout << "load "<<width<<"*"<<height<<"*"<<(int)channels<<endl;
+			glGetError();
+			GLenum internal_format,import_format;
+
+
+			formatAt<GLType<data_t> >(texture_channels,texture_type,false, internal_format, import_format);
+			if (mipmap && (!glGenerateMipmap)) //glGenerateMipmap apparently doesn't like compression
+			{
+				if (texture_dimension == TextureDimension::Linear)
+					gluBuild1DMipmaps(target,internal_format,texture_width,import_format,GLType<data_t>::constant,data);
+				else
+					gluBuild2DMipmaps(target,internal_format,texture_width,texture_height,import_format,GLType<data_t>::constant,data);
+			}
+			else
+			{
+				if (texture_dimension == TextureDimension::Linear)
+					glTexImage1D( target, 0, internal_format, texture_width, 0, import_format, GLType<data_t>::constant, data);
+				else
+					glTexImage2D( target, 0, internal_format, texture_width, texture_height, 0, import_format, GLType<data_t>::constant, data);
+				GLenum error = glGetError();
+				if (error != GL_NO_ERROR)
+				{
+					glPopAttrib();
+					throw Renderer::TextureTransfer::GeneralFault("First chance: OpenGL reports general fault while trying to load texture ("+String(glGetErrorName(error))+") using internal format 0x"+IntToHex((int)internal_format,4)+" and import format 0x"+IntToHex((int)import_format,4));
+					return;
+				}
+				if (mipmap)
+				{
+					ASSERT_NOT_NULL__(glGenerateMipmap);	//this should be redundant
+					glGenerateMipmap(target);
+				}
+			}
+			glPopAttrib();
+			error = glGetError();
+			if (error != GL_NO_ERROR)
+				throw Renderer::TextureTransfer::GeneralFault("Second chance: OpenGL reports general fault while trying to load texture ("+String(glGetErrorName(error))+") using internal format 0x"+IntToHex((int)internal_format,4)+" and import format 0x"+IntToHex((int)import_format,4));
+		}
+
+
+
+	template <typename data_t>
 		void	GL::Texture::load(const data_t*data, GLuint width_, GLuint height_, BYTE channels_, PixelType type, float anisotropy, bool clamp_texcoords, TextureFilter filter, bool compress)
 		{
 			if (!width_ || !height_ || !channels_ || channels_ > 4)

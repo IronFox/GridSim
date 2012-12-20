@@ -160,7 +160,7 @@ namespace Engine
 				weak_ptr<Scrollable>		scrollable;
 				bool						horizontal,		//!< Indicates that the scrollbar is horizontal rather than vertical
 											auto_visibility;	//!< Indicates that the governing structure (ie a scrollbox) should attempt to determine and update the visibility of this scrollbar automatically
-				::Event<ScrollBar>			scroll_event;		//!< Event that is fired if the scrollbar changes
+				FunctionalEvent				on_scroll;		//!< Event that is fired if the scrollbar changes
 				TScrollData					scroll_data;		//!< Current scrollbar state
 				ScrollBarLayout*			scroll_layout;		//!< Inner scrollbar layout. Functionality is undetermined if the scrollbar has no inner layout
 										
@@ -228,7 +228,7 @@ namespace Engine
 				
 		public:
 
-				::Event<Slider>		slide_event;		//!< Event that is fired if the slider changes
+				FunctionalEvent			on_slide;		//!< Event that is fired if the slider changes
 				SliderLayout*			slider_layout;		//!< Inner slider layout. Functionality is undetermined if the slider has no inner layout
 				float					current,
 										max;
@@ -411,7 +411,7 @@ namespace Engine
 		public:
 				String					caption;		//!< Button caption
 		static	Layout					global_layout;	//!< Global default button layout
-				::Event<Button>			event;		//!< Event that is fired if the button is pressed
+				FunctionalEvent			on_execute;		//!< Event that is fired if the button is pressed
 
 										Button():Component("Button"),down(false),pressed(false),caption("Button")
 										{
@@ -446,7 +446,7 @@ namespace Engine
 										}
 		virtual	void					onExecute()
 										{
-											event(this);
+											on_execute();
 										}
 		};
 		
@@ -496,7 +496,7 @@ namespace Engine
 			};
 			union
 			{
-				bool					mask_input;		//!< Render dots instead of characters
+				bool					mask_input;		//!< Render dots instead of characters. Prevents copying from this edit (but still allows pasting into it)
 				bool					masked_input;	//!< Mapping to mask_input
 				bool					masked_view;	//!< Mapping to mask_input
 			};
@@ -505,8 +505,8 @@ namespace Engine
 										view_begin,		//!< First visible character
 										view_end;		//!< One past the last visible character
 				StringBuffer			text;			//!< Edit buffer
-				::Event<Edit>			change_event,	//!< Event that is fired if the local input is changed
-										enter_event;	//!< Event that is fired if the user pressed enter or return on this edit field
+				FunctionalEvent			on_change,	//!< Event that is fired if the local input is changed
+										on_enter;	//!< Event that is fired if the user pressed enter or return on this edit field
 				bool					(*acceptChar)(char);	//!< Pointer to a char filter. Only if the function returns true then the character is inserted
 				
 
@@ -558,8 +558,8 @@ namespace Engine
 										}
 		public:
 				shared_ptr<IToString>	object;	//!< Link to the object used to dynamically retrieve the local entry caption. NULL by default @b Not automatically deleted.
-				::Event<IToString>				event;		//!< Event fired if this menu entry is executed
-				bool							open_down;	//!< Indicates that the sub menu of this item (if any) opens down, rather than to the right.
+				FunctionalEvent			on_execute;		//!< Event fired if this menu entry is executed
+				bool					open_down;	//!< Indicates that the sub menu of this item (if any) opens down, rather than to the right.
 				
 										MenuEntry():Label("MenuEntry")	//!< Creates a standard menu entry
 										{
@@ -643,7 +643,7 @@ namespace Engine
 				void					setup();
 		public:
 				shared_ptr<IToString>	selected_object;	//!< Currently selected object (if any)
-				::Event<ComboBox>		change_event;		//!< Event that is fired if the selected item changed
+				FunctionalEvent			on_change;		//!< Event that is fired if the selected item changed
 				
 		static	Layout					global_layout;
 				
@@ -687,7 +687,7 @@ namespace Engine
 				
 				String					caption;	//!< Checkbox caption
 				TStyle					*style;			//!< Inner checkbox style
-				::Event<CheckBox>		event;
+				FunctionalEvent			on_change;
 				
 		static	TStyle					global_style;	//!< Global default checkbox style
 				
@@ -726,14 +726,19 @@ namespace Engine
 		};
 		
 		
-			void	loadTheme(const String&theme_file, float scale=1.0f);
+		void			loadTheme(const String&theme_file, float scale=1.0f);
 		
-			void	showMessage(Operator&op, const String&title, const String&message);
-			void	showMessage(Operator&op, const String&message);
-	inline	void	showMessage(const shared_ptr<Operator>&op, const String&title, const String&message)	{if (!op)return; showMessage(*op,title,message);}
-	inline	void	showMessage(const shared_ptr<Operator>&op, const String&message)						{if (!op)return; showMessage(*op,message);}
-			bool	showingMessage();
-			void	hideMessage();
+		void			showMessage(Operator&op, const String&title, const String&message);
+		void			showMessage(Operator&op, const String&message);
+		inline	void	showMessage(const shared_ptr<Operator>&op, const String&title, const String&message)	{if (!op)return; showMessage(*op,title,message);}
+		inline	void	showMessage(const shared_ptr<Operator>&op, const String&message)						{if (!op)return; showMessage(*op,message);}
+		bool			showingMessage();
+		void			hideMessage();
+		
+		void			showChoice(Operator&op, const String&title, const String&query, const Array<String>&choices, const function<void(index_t)>&onSelect);
+		inline void		showChoice(Operator&op, const String&query, const Array<String>&choices, const function<void(index_t)>&onSelect)	{showChoice(op,"Inquiry",query,choices,onSelect);}
+		inline void		showChoice(const shared_ptr<Operator>&op, const String&title, const String&query, const Array<String>&choices, const function<void(index_t)>&onSelect)	{showChoice(*op,title,query,choices,onSelect);}
+		inline void		showChoice(const shared_ptr<Operator>&op, const String&query, const Array<String>&choices, const function<void(index_t)>&onSelect)	{showChoice(*op,"Inquiry",query,choices,onSelect);}
 		
 	}
 }

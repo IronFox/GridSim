@@ -3,7 +3,7 @@
 
 namespace Engine
 {
-	static TKeyPointer	unbound;
+	std::function<void()>	unbound;
 	
 	InputMap	input;
 	
@@ -36,13 +36,13 @@ namespace Engine
 			if (verbose)
 				cout << " CTRL "<<profile->key[index].ctrl_pntr<<endl;
 			
-			profile->key[index].ctrl_pntr(profile->key[index].ctrl_parameter);
+			profile->key[index].ctrl_pntr();
 		}
 		else
 		{
 			if (verbose)
 				cout << " "<<profile->key[index].down_pntr << endl;
-			profile->key[index].down_pntr(profile->key[index].parameter);
+			profile->key[index].down_pntr();
 		}
 		stack_forward_depth--;
 	}
@@ -72,19 +72,19 @@ namespace Engine
 		if (verbose)
 			cout << " "<< profile->key[index].up_pntr << endl;
 			
-		profile->key[index].up_pntr(profile->key[index].parameter);
+		profile->key[index].up_pntr();
 		stack_forward_depth--;
 	}
 	
-	static void cascadeDown(int key)
-	{
-		input.cascadeKeyDown(key);
-	}
-	
-	static void cascadeUp(int key)
-	{
-		input.cascadeKeyUp(key);
-	}
+	//static void cascadeDown(int key)
+	//{
+	//	input.cascadeKeyDown(key);
+	//}
+	//
+	//static void cascadeUp(int key)
+	//{
+	//	input.cascadeKeyUp(key);
+	//}
 	
 	bool InputMap::keyDown(unsigned index)
 	{
@@ -100,7 +100,9 @@ namespace Engine
 			{
 				cout << " CTRL "<<key[index].ctrl_pntr << endl;
 			}
-			result = key[index].ctrl_pntr(key[index].ctrl_parameter);
+			result = key[index].ctrl_pntr;
+			if (result)
+				key[index].ctrl_pntr();
 		}
 		else
 		{
@@ -108,7 +110,9 @@ namespace Engine
 			{
 				cout << " "<<key[index].down_pntr << endl;
 			}
-			result = key[index].down_pntr(key[index].parameter);
+			result = key[index].down_pntr;
+			if (result)
+				key[index].down_pntr();
 		}
 		pressed[index]=true;
 		return result;
@@ -133,14 +137,15 @@ namespace Engine
 		}
 		if (verbose)
 			cout << " "<<key[index].up_pntr << endl;
-		return key[index].up_pntr(key[index].parameter);
+		if (!key[index].up_pntr)
+			return false;
+		key[index].up_pntr();
+		return true;
 	}
 	
 
-	InputMap::InputMap():active_profile(&default_profile),prepared(0),stack_forward_depth(0),verbose(false)
+	InputMap::InputMap():active_profile(&default_profile),stack_forward_depth(0),verbose(false)
 	{
-		
-		
 		resetKeys();
 		
 		empty_source.name = "Undefined";
@@ -164,8 +169,6 @@ namespace Engine
 			key[i].down_pntr = unbound;
 			key[i].up_pntr = unbound;
 			key[i].ctrl_pntr = unbound;
-			key[i].parameter = i;
-			key[i].ctrl_parameter = i;
 			pressed[i] = false;
 		}
 	}
@@ -176,72 +179,41 @@ namespace Engine
 			cout << " input: cascade keys"<<endl;
 		for (unsigned i = 0; i < NumKeys; i++)
 		{
-			key[i].down_pntr = cascadeDown;
-			key[i].up_pntr = cascadeUp;
+			key[i].down_pntr = std::bind(&InputMap::cascadeKeyDown,this,i);
+			key[i].up_pntr = std::bind(&InputMap::cascadeKeyUp,this,i);
 			key[i].ctrl_pntr = unbound;
-			key[i].parameter = i;
-			key[i].ctrl_parameter = i;
 			pressed[i] = false;
 		}
 	}
 
-	void InputMap::bind(Key::Name name, TKeyPointer cmd)
+	void InputMap::bind(Key::Name name, const std::function<void()>& cmd)
 	{
 		if (verbose)
 			cout << " input: binding "<<resolveKeyName(name)<<"("<<name<<")"<<" to command "<<cmd<<endl;
 		unsigned k = ((unsigned)name)%NumKeys;
 		key[k].down_pntr = cmd;
 		key[k].up_pntr = unbound;
-		key[k].parameter = k;
 	}
 
-	void InputMap::bind(Key::Name name, TKeyPointer cmd, int param)
-	{
-		if (verbose)
-			cout << " input: binding "<<resolveKeyName(name)<<"("<<name<<")"<<" to command "<<cmd<<" using parameter "<<param<<endl;
-		unsigned k = ((unsigned)name)%NumKeys;
-		key[k].down_pntr = cmd;
-		key[k].up_pntr = unbound;
-		key[k].parameter = (int)param;
-	}
 
-	void InputMap::bind(Key::Name name, TKeyPointer cmd, TKeyPointer ucmd)
+	void InputMap::bind(Key::Name name, const std::function<void()>& cmd, const std::function<void()>& ucmd)
 	{
 		if (verbose)
 			cout << " input: binding "<<resolveKeyName(name)<<"("<<name<<")"<<" to commands "<<cmd<<"(down) and "<<ucmd<<"(up)"<<endl;
 		unsigned k = ((unsigned)name)%NumKeys;
 		key[k].down_pntr = cmd;
 		key[k].up_pntr = ucmd;
-		key[k].parameter = (int)name;
 	}
 
-	void InputMap::bind(Key::Name name, TKeyPointer cmd, TKeyPointer ucmd, int param)
-	{
-		if (verbose)
-			cout << " input: binding "<<resolveKeyName(name)<<"("<<name<<")"<<" to commands "<<cmd<<"(down) and "<<ucmd<<"(up) using parameter "<<param<<endl;
-		unsigned k = ((unsigned)name)%NumKeys;
-		key[k].down_pntr = cmd;
-		key[k].up_pntr = ucmd;
-		key[k].parameter = (int)param;
-	}
 
-	void InputMap::bindCtrl(Key::Name name, TKeyPointer cmd)
+	void InputMap::bindCtrl(Key::Name name, const std::function<void()>& cmd)
 	{
 		if (verbose)
 			cout << " input: binding ctrl+"<<resolveKeyName(name)<<"("<<name<<")"<<" to command "<<cmd<<endl;
 		unsigned k = ((unsigned)name)%NumKeys;
 		key[k].ctrl_pntr = cmd;
-		key[k].ctrl_parameter = (int)name;
 	}
 
-	void InputMap::bindCtrl(Key::Name name, TKeyPointer cmd, int param)
-	{
-		if (verbose)
-			cout << " input: binding ctrl+"<<resolveKeyName(name)<<"("<<name<<")"<<" to command "<<cmd<<" using parameter "<<param<<endl;
-		unsigned k = ((unsigned)name)%NumKeys;
-		key[k].ctrl_pntr = cmd;
-		key[k].ctrl_parameter = param;
-	}
 
 	void InputMap::unbind(Key::Name name)
 	{
@@ -258,89 +230,36 @@ namespace Engine
 		if (verbose)
 			cout << " input: cascading "<<resolveKeyName(name)<<"("<<name<<")"<<endl;
 		unsigned k = ((unsigned)name)%NumKeys;
-		key[k].down_pntr = cascadeDown;
-		key[k].up_pntr = cascadeUp;
+		key[k].down_pntr = std::bind(&InputMap::cascadeKeyDown,this,k);
+		key[k].up_pntr = std::bind(&InputMap::cascadeKeyUp,this,k);
 		key[k].ctrl_pntr = unbound;
 	}
 
 
 	void InputMap::regInit()
 	{
-		prepared = 0;
+		preparation.reset();
 	}
 
-	void InputMap::regKey(const char*name, TKeyPointer cmd, Key::Name kname)
+	void InputMap::regKey(const String&name, const std::function<void()>& cmd, Key::Name kname)
 	{
-		if (strlen(name) >= 64)
-			return;
-		unsigned k = ((unsigned)kname)%NumKeys;
-		strcpy(preparation[prepared].name,name);
-		preparation[prepared].key_id = kname;
-		preparation[prepared].function_pointer = cmd;
-		preparation[prepared].snd_pointer = unbound;
-		preparation[prepared].overwrite = false;
-		preparation[prepared].done = false;
-		preparation[prepared++].function_param = (int)kname;
+		TKeyPreparation&p = preparation.append();
+		p.name = name;
+		p.function_pointer = cmd;
+		p.snd_pointer = unbound;
+		p.key_id = kname;
+		p.done = false;
 	}
 
 
-	void InputMap::regKey(const char*name, TKeyPointer cmd, Key::Name kname, int param)
+	void InputMap::regKey(const String&name, const std::function<void()>& cmd, const std::function<void()>& ucmd, Key::Name kname)
 	{
-		if (strlen(name) >= 64)
-			return;
-		unsigned k = ((unsigned)kname)%NumKeys;
-		strcpy(preparation[prepared].name,name);
-		preparation[prepared].key_id = kname;
-		preparation[prepared].function_pointer = cmd;
-		preparation[prepared].snd_pointer = unbound;
-		preparation[prepared].overwrite = true;
-		preparation[prepared].done = false;
-		preparation[prepared++].function_param = param;
-	}
-
-	void InputMap::regKey(const char*name, TKeyPointer cmd, TKeyPointer ucmd, Key::Name kname)
-	{
-		if (strlen(name) >= 64)
-			return;
-		unsigned k = ((unsigned)kname)%NumKeys;
-		strcpy(preparation[prepared].name,name);
-		preparation[prepared].key_id = kname;
-		preparation[prepared].function_pointer = cmd;
-		preparation[prepared].snd_pointer = ucmd;
-		preparation[prepared].overwrite = false;
-		preparation[prepared].done = false;
-		preparation[prepared++].function_param = (int)kname;
-	}
-
-
-	void InputMap::regKey(const char*name, TKeyPointer cmd, TKeyPointer ucmd, Key::Name kname, int param)
-	{
-		if (strlen(name) >= 64)
-			return;
-		unsigned k = ((unsigned)kname)%NumKeys;
-		strcpy(preparation[prepared].name,name);
-		preparation[prepared].key_id = kname;
-		preparation[prepared].function_pointer = cmd;
-		preparation[prepared].snd_pointer = ucmd;
-		preparation[prepared].overwrite = true;
-		preparation[prepared].done = false;
-		preparation[prepared++].function_param = param;
-	}
-
-	const char* InputMap::keyName(TKeyPointer cmd)
-	{
-		for (unsigned i = 0; i < NumKeys; i++)
-			if (key[i].down_pntr == cmd || key[i].up_pntr == cmd || key[i].ctrl_pntr == cmd)
-				return resolveKeyName((Key::Name)i);
-		return "";
-	}
-
-	const char* InputMap::keyName(TKeyPointer cmd, int param)
-	{
-		for (unsigned i = 0; i < NumKeys; i++)
-			if (((key[i].down_pntr == cmd || key[i].up_pntr == cmd) && key[i].parameter == param) || (key[i].ctrl_pntr == cmd && key[i].ctrl_parameter == param))
-				return resolveKeyName((Key::Name)i);
-		return "";
+		TKeyPreparation&p = preparation.append();
+		p.name = name;
+		p.function_pointer = cmd;
+		p.snd_pointer = ucmd;
+		p.key_id = kname;
+		p.done = false;
 	}
 
 
@@ -364,26 +283,22 @@ namespace Engine
 		}
 	}*/
 
-	void InputMap::linkKey(const char*name, Key::Name kname)
+	void InputMap::linkKey(const String&name, Key::Name kname)
 	{
 		BYTE k = (BYTE)kname;
-		for (BYTE i = 0; i < prepared; i++)
-			if (!strcmp(preparation[i].name,name))
+		for (index_t i = 0; i < preparation.count(); i++)
+			if (preparation[i].name == name)
 			{
 				key[k].down_pntr = preparation[i].function_pointer;
 				key[k].up_pntr = preparation[i].snd_pointer;
-				if (preparation[i].overwrite)
-					key[k].parameter = preparation[i].function_param;
 				preparation[i].done = true;
 				return;
 			}
-		for (BYTE i = 0; i < prepared; i++)
-			if (!strcmpi(preparation[i].name,name))
+		for (index_t i = 0; i < preparation.count(); i++)
+			if (preparation[i].name.equalsIgnoreCase(name))
 			{
 				key[k].down_pntr = preparation[i].function_pointer;
 				key[k].up_pntr = preparation[i].snd_pointer;
-				if (preparation[i].overwrite)
-					key[k].parameter = preparation[i].function_param;
 				preparation[i].done = true;
 				return;
 			}
@@ -391,15 +306,13 @@ namespace Engine
 
 	void InputMap::linkOthers()
 	{
-		for (BYTE i = 0; i < prepared; i++)
-			if (!preparation[i].done && !key[preparation[i].key_id].down_pntr.isset())
+		for (index_t i = 0; i < preparation.count(); i++)
+			if (!preparation[i].done && !key[preparation[i].key_id].down_pntr)
 			{
 				key[preparation[i].key_id].down_pntr = preparation[i].function_pointer;
 				key[preparation[i].key_id].up_pntr = preparation[i].snd_pointer;
-				if (preparation[i].overwrite)
-					key[preparation[i].key_id].parameter = preparation[i].function_param;
 			}
-		prepared = 0;
+		preparation.reset();
 	}	
 
 

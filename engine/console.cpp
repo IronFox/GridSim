@@ -18,66 +18,62 @@ namespace Engine
 	static LogFile		console_log("console.log",true);
 	#define CONSOLE_LOG(msg) console_log << __func__<<"("<<__LINE__<<"): "<<msg<<nl;
 
-Console*         Console::target(NULL);
 
 void Console::clearHistory()
 {
 	lines.clear();
 }
 
-void Console::closeEvent(BYTE)
+void Console::closeEvent()
 {
-	if (target)
-		target->close();
+	close();
 }
 
-void Console::fetchInput(BYTE)
+void Console::fetchInput()
 {
-    if (!target)
-        return;
 	CONSOLE_LOG("retrieving input");
     const char*input = keyboard.getInput();
 	CONSOLE_LOG("input is '"<<input<<"'");
     if (keyboard.getInputLen())
     {
 		CONSOLE_LOG("erasing history occurances");
-        target->inputs.eraseOccurrences(input);
+        inputs.eraseOccurrences(input);
 		CONSOLE_LOG("appending to input histpry");
-        target->inputs.add(input);
+        inputs.add(input);
 		CONSOLE_LOG("history modified");
     }
-    if (target->parser)
+    if (parser)
 	{
 		CONSOLE_LOG("sending to parser");
-        target->parser(input);
+        parser(input);
 		CONSOLE_LOG("parser returned");
 	}
 	CONSOLE_LOG("flushing input");
     keyboard.flushInput();
 	CONSOLE_LOG("reseting selected input");
-    target->selected_input = 0;
+    selected_input = 0;
 	CONSOLE_LOG("input handled");
 }
 
-void Console::prevInput(BYTE)
+void Console::prevInput()
 {
-    if (target && target->selected_input < target->inputs)
+    if (selected_input < inputs.count())
     {
-        target->selected_input++;
-        keyboard.fillInput(target->inputs.getReverse(target->selected_input-1));
+        selected_input++;
+        keyboard.fillInput(inputs.getReverse(selected_input-1));
     }
 }
 
-void Console::nextInput(BYTE)
+void Console::nextInput()
 {
-    if (target && target->selected_input)
+    if (selected_input)
     {
-        target->selected_input--;
-        keyboard.fillInput(target->inputs.getReverse(target->selected_input-1));
+        selected_input--;
+        keyboard.fillInput(inputs.getReverse(selected_input-1));
     }
 }
 
-void Console::back(BYTE)
+void Console::back()
 {
     keyboard.dropLastCharacter();
 }
@@ -86,10 +82,10 @@ Console::Console():profile(true,false),selected_input(0),parser(NULL),status(0),
 {
     input.pushProfile();
 		input.bindProfile(profile);
-        input.bind(Key::Return,fetchInput);
-        input.bind(Key::Back,back);
-        input.bind(Key::Up,prevInput);
-        input.bind(Key::Down,nextInput);
+        input.bind(Key::Return,bind(&Console::fetchInput,this));
+        input.bind(Key::Back,bind(&Console::back,this));
+        input.bind(Key::Up,bind(&Console::prevInput,this));
+        input.bind(Key::Down,bind(&Console::nextInput,this));
     input.popProfile();
 }
 
@@ -97,7 +93,7 @@ void	Console::bindCloseKey(Key::Name key)
 {
 	input.pushProfile();
 		input.bindProfile(profile);
-		input.bind(key,closeEvent);
+		input.bind(key,bind(&Console::closeEvent,this));
 	input.popProfile();
 }
 
@@ -141,7 +137,6 @@ void Console::focus()
         return;
     is_focused = true;
     keyboard.read = true;
-    target = this;
     input.pushProfile();
         input.chooseProfile(profile);
 }

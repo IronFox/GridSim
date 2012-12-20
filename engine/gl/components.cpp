@@ -59,14 +59,15 @@ namespace Engine
 		
 		void			Panel::appendRight(const shared_ptr<Component>&component)
 		{
-			component->anchored.set(true,false,false,true);
 			if (children.isNotEmpty())
 			{
+				component->anchored = children.last()->anchored;
 				component->offset.top = children.last()->offset.top;
 				component->offset.left = children.last()->offset.left+children.last()->width;
 			}
 			else
 			{
+				component->anchored.set(true,false,false,true);
 				component->offset.top = 0;
 				component->offset.left = 0;
 			}
@@ -372,7 +373,7 @@ namespace Engine
 
 		void		Slider::onSlide()
 		{
-			slide_event(this);
+			on_slide();
 		}
 		
 		
@@ -575,7 +576,7 @@ namespace Engine
 					scrollable_->onVerticalScroll();
 				}
 			}
-			scroll_event(this);
+			on_scroll();
 		}
 		
 		
@@ -1563,7 +1564,7 @@ namespace Engine
 							if (text.erase(--cursor,1))
 							{
 								updateView();
-								change_event(this);
+								on_change();
 								return RequestingRepaint;
 							}
 							
@@ -1575,7 +1576,7 @@ namespace Engine
 								{
 									sel_start = cursor;
 									updateView();
-									change_event(this);
+									on_change();
 									return RequestingRepaint;
 								}
 							}
@@ -1584,7 +1585,7 @@ namespace Engine
 								{
 									cursor = sel_start;
 									updateView();
-									change_event(this);
+									on_change();
 									return RequestingRepaint;
 								}
 					}
@@ -1597,7 +1598,7 @@ namespace Engine
 							if (text.erase(cursor,1))
 							{
 								updateView();
-								change_event(this);
+								on_change();
 								return RequestingRepaint;
 							}
 							
@@ -1609,7 +1610,7 @@ namespace Engine
 								{
 									sel_start = cursor;
 									updateView();
-									change_event(this);
+									on_change();
 									return RequestingRepaint;
 								}
 							}
@@ -1618,7 +1619,7 @@ namespace Engine
 								{
 									cursor = sel_start;
 									updateView();
-									change_event(this);
+									on_change();
 									return RequestingRepaint;
 								}
 					}
@@ -1650,7 +1651,7 @@ namespace Engine
 								cursor = begin;
 							sel_start = cursor;
 							updateView();
-							change_event(this);
+							on_change();
 							return RequestingRepaint;
 						}
 					}
@@ -1676,14 +1677,14 @@ namespace Engine
 							cursor+=len;
 							sel_start = cursor;
 							updateView();
-							change_event(this);
+							on_change();
 							return RequestingRepaint;
 						}
 					}
 				break;
 				case Key::Enter:
 				case Key::Return:
-					enter_event(this);
+					on_enter();
 				return Handled;
 				default:
 					return Unsupported;
@@ -1743,7 +1744,7 @@ namespace Engine
 			text.insert(cursor++,c);
 			sel_start = cursor;
 			updateView();
-			change_event(this);
+			on_change();
 			return RequestingRepaint;
 		}
 		
@@ -1826,7 +1827,7 @@ namespace Engine
 				case Key::Space:
 				case Key::Enter:
 				case Key::Return:
-					event(this);
+					on_execute();
 				return Handled;
 			}
 			return Unsupported;
@@ -1953,7 +1954,7 @@ namespace Engine
 			if (pressed)
 			{
 				checked = !checked;
-				event(this);
+				on_change();
 			}
 			bool changed = pressed;
 			pressed = false;
@@ -2196,7 +2197,7 @@ namespace Engine
 			else
 				setText("");
 			window()->apply(RequestingReshape);
-			change_event(this);
+			on_change();
 		}
 		
 		void	ComboBox::select(index_t index)
@@ -2223,7 +2224,7 @@ namespace Engine
 		Component::eEventResult			MenuEntry::onMouseDown(float x, float y, TExtEventResult&ext)
 		{
 			ext.caught_by = shared_from_this();
-			event(object.get());
+			on_execute();
 			
 			if (menu_window)
 			{
@@ -2750,10 +2751,63 @@ namespace Engine
 
 		}
 		
+		
+		void			showChoice(Operator&op, const String&title, const String&query, const Array<String>&choices, const function<void(index_t)>&onSelect)
+		{
+			if (choices.isEmpty())
+				return;
+			shared_ptr<Label>	message_label = shared_ptr<Label>(new Label());
+			shared_ptr<Panel>	panel = shared_ptr<Panel>(new Panel());
+			Array<shared_ptr<Button> >	buttons(choices.count());
+			for (index_t i = 0; i < buttons.count(); i++)
+			{
+				buttons[i] = shared_ptr<Button>(new Button());
+				buttons[i]->anchored.set(true,true,false,false);
+				buttons[i]->setCaption(choices[i]);
+				buttons[i]->width = std::max(buttons[i]->width,100.f);
+			}
+				//message_button->on_execute += hideMessage;
+			
+			message_label->setText(query);
+			message_label->wrap_text = true;
+			message_label->anchored.set(true,true,true,true);
+			panel->add(message_label);
+			panel->add(buttons.first());
+			for (index_t i = 1; i < buttons.count(); i++)
+				panel->appendRight(buttons[i]);
+
+			message_label->offset.bottom = buttons.first()->height;
+
+			float	mx = op.getDisplay().clientWidth()/2,
+					my = op.getDisplay().clientHeight()/2;
+			shared_ptr<GUI::Window>	window = op.createWindow(Rect<float>(mx-200,my-100,mx+200,my+100),title,panel);
+			window->is_modal = true;
+			window->fixed_size = true;
+			window->iheight = (size_t)(window->fheight = window->minHeight());
+			window->layout_changed = true;
+			window->visual_changed = true;
+			op.insertWindow(window);
+			Component::setFocused(buttons[0]);
+			
+			weak_ptr<GUI::Window>	weak_window = window;
+			for (index_t i = 0; i < buttons.count(); i++)
+				buttons[i]->on_execute += [weak_window,i,onSelect]()
+				{
+					shared_ptr<GUI::Window>	window = weak_window.lock();
+					if (window)
+					{
+						shared_ptr<GUI::Operator>&op = window->operator_link.lock();
+						if (op)
+							op->removeWindow(window);
+					}
+					onSelect(i);
+				};
+		}
+
+
 		static shared_ptr<Window>	message_window;
 		static shared_ptr<Label>	message_label;
 		static shared_ptr<Button>	message_button;
-		
 		static void createMessageWindow(Operator&op)
 		{
 			if (message_window)
@@ -2766,7 +2820,7 @@ namespace Engine
 			message_button->anchored.set(false,true,false,false);
 			message_button->setCaption("OK");
 			message_button->width = 100;
-			message_button->event += hideMessage;
+			message_button->on_execute += hideMessage;
 			
 			message_label->setText("message");
 			message_label->wrap_text = true;

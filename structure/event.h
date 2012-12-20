@@ -3,6 +3,7 @@
 
 #include "../global_string.h"
 #include "../container/buffer.h"
+#include <functional>
 
 /**
 	@brief Generalized event object
@@ -95,6 +96,26 @@ template <class DomainClass>
 										for (index_t i = 0; i < callbacks.count(); i++)
 											callbacks[i].execute(cl);
 									}
+	};
+
+	class FunctionalEvent
+	{
+	public:
+		typedef std::function<void()>	Callback;
+	protected:
+		Buffer<Callback,0,Swap>			callbacks;
+	public:
+		void							operator+=(const Callback&callback)
+										{
+											callbacks << callback;
+										}
+		void							operator()()	const
+										{
+											for (index_t i = 0; i < callbacks.count(); i++)
+												callbacks[i]();
+										}
+		void							clear()		{callbacks.reset();}
+
 	};
 
 #endif

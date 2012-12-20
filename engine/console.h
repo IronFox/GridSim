@@ -61,12 +61,12 @@ namespace Engine
 								target_open;		//!< True if the console is animating towards an open state, false if towards a closed state
 
 			
-	static	Console*			target;				//!< Currently focused console (global)
-	static	void				fetchInput(BYTE);	//!< Invoked when the user presses the return key, executing the current input (if any)
-	static	void				prevInput(BYTE);	//!< Invoked when the user presses the up key to query the previous entry in the input history
-	static	void				nextInput(BYTE);	//!< Invoked when the user presses the down key to query the next entry in the input history
-	static	void				back(BYTE);			//!< Invoked when the user presses the backspace key to erase the last character from the input
-	static	void 				closeEvent(BYTE);	//!< Invoked when the user pressed the console close key
+//	static	Console*			target;				//!< Currently focused console (global)
+			void				fetchInput();	//!< Invoked when the user presses the return key, executing the current input (if any)
+			void				prevInput();	//!< Invoked when the user presses the up key to query the previous entry in the input history
+			void				nextInput();	//!< Invoked when the user presses the down key to query the next entry in the input history
+			void				back();			//!< Invoked when the user presses the backspace key to erase the last character from the input
+			void 				closeEvent();	//!< Invoked when the user pressed the console close key
 
 
 	public:

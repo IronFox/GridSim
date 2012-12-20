@@ -272,9 +272,36 @@ namespace Engine
 		virtual	void								overrideSetAttributes(UINT32 new_width, UINT32 new_height, BYTE new_channels, TextureDimension)	override {}	//no override allowed
 
 		public:
-				typedef Reference<Texture,GenericTexture>
-													Reference;	//!< Reference type
+			class Reference : public GL::Reference<Texture,GenericTexture>
+			{
+			public:
+				typedef GL::Reference<Texture,GenericTexture>	Super;
+			private:
+				bool				readonly;
+				Reference(const Texture*parent,bool readonly_):Super(parent),readonly(readonly_)	{};
+				friend class Texture;
+				template <typename data_t>
+					void							update(const data_t*data,TextureFilter filter, float anisotropy);
+			public:
+				Reference():readonly(true)			{};
+				Reference(Texture*parent):Super(parent),readonly(false)			{};
+				Reference(const Texture*parent):Super(parent),readonly(true)			{};
+				Reference(Texture&parent):Super(&parent),readonly(false)			{};
+				Reference(const Texture&parent):Super(&parent),readonly(true)			{};
 
+				template <typename Nature>
+					void							update(const GenericImage<Nature>&image,TextureFilter filter=TextureFilter::Trilinear, float anisotropy=1.f)
+													{
+														if (image.width() != texture_width || image.height() != texture_height || image.contentType() != texture_type || texture_channels != image.channels())
+														{
+															throw Renderer::TextureTransfer::ParameterFault(globalString("Image properties are incompatible to the local texture properties"));
+															return;
+														}
+														update(image.getData(),filter,anisotropy);
+													}
+
+			};
+			
 
 
 													Texture()	{};
@@ -283,13 +310,17 @@ namespace Engine
 			virtual	void							flush()	override;
 								
 				
-				Reference							reference()	const		//! Creates a reference object to the local object
+			Reference								reference()	const		//! Creates a reference object to the local object
 													{
-														return Reference(this);
+														return Reference(this,true);
+													}
+			Reference								reference()		//! Creates a reference object to the local object
+													{
+														return Reference(this,false);
 													}
 
-				void								adoptData(Texture&other);
-				void								swap(Texture&other);
+			void									adoptData(Texture&other);
+			void									swap(Texture&other);
 													/**
 														@brief Resizes the local texture to provide the specified 2 dimensiona range of pixels and channels
 									
@@ -301,15 +332,15 @@ namespace Engine
 														@param height New image height in pixels
 														@param channels New number of channels (1-4).
 													*/
-				bool								resize(GLuint width, GLuint height, BYTE channels);
-				bool								exportTo(Image&target)	const;
+			bool									resize(GLuint width, GLuint height, BYTE channels);
+			bool									exportTo(Image&target)	const;
 
 													/**
 														@brief Fills the allocated texture with the pixel content of the specified pixel buffer object
 									
 														resize() is automatically invoked
 													*/
-				bool								load(const Buffer&object, GLuint width_, GLuint height_, BYTE channels_);
+			bool									load(const Buffer&object, GLuint width_, GLuint height_, BYTE channels_);
 								
 													/**
 														@brief Loads texture data from host memory to video memory for rendering

@@ -608,13 +608,31 @@ void CRC4::set(const void*data, size_t size)
 }
 
 
+/*static*/ void		SHA256::hash(const void*data, size_t size, THash<8>&out)
+{
+	SHA256	obj(data,size);
+	obj.finish(out);
+}
 
-CSHA256::CSHA256()
+/*static*/ void		SHA256::hash(const void*data, size_t size, void*out)
+{
+	SHA256	obj(data,size);
+	obj.finish(out);
+}
+
+
+SHA256::SHA256(const void*data, size_t size)
+{
+	reset();
+	append(data,size);
+}
+
+SHA256::SHA256()
 {
 	reset();
 }
 
-void CSHA256::reset()
+void SHA256::reset()
 {
 
 
@@ -683,7 +701,7 @@ static inline UINT32 sha256_expand(UINT32*w, UINT32 j)
 	return (w[j&0x0f] += sha256_sigma1(w[(j+14)&0x0f]) + w[(j+9)&0x0f] + sha256_sigma0(w[(j+1)&0x0f]));
 }
 
-void CSHA256::processChunk()
+void SHA256::processChunk()
 {
 	UINT32 w2[16];
 	BYTE*buffer = (BYTE*)w;
@@ -729,7 +747,7 @@ void CSHA256::processChunk()
 	current = (BYTE*)w;
 }
 
-void CSHA256::append(const void*data, size_t size)
+void SHA256::append(const void*data, size_t size)
 {
 	UINT32 i, index, curpos = 0;
 	/* Compute number of bytes mod 64 */
@@ -778,12 +796,12 @@ void CSHA256::append(const void*data, size_t size)
 	total += size*8;*/
 }
 
-void CSHA256::finish(Hash&target)
+void SHA256::finish(Hash&target)
 {
 	finish(target.bytes);
 }
 
-void CSHA256::finish(void*target)
+void SHA256::finish(void*target)
 {
 	UINT32 index = ((total >> 3) & 0x3f);
 	BYTE*buffer = (BYTE*)w;
@@ -844,7 +862,7 @@ void CSHA256::finish(void*target)
 }
 	
 
-UINT32	CSHA256::k[64] = {
+UINT32	SHA256::k[64] = {
 	0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5,
 	0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
 	0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3,
