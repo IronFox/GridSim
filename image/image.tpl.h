@@ -784,6 +784,25 @@ template <class Nature>
 		}
 
 template <typename T>
+	void			ImageTemplate<T>::copyChannel(copyChannel(const ImageTemplate<T>&source_image, BYTE source_channel, BYTE target_channel)
+	{
+		if (source_image.width() != width() || source_image.height() != height() || source_channel >= source_image.channels() || target_channel >= channels())
+		{
+			FATAL__("Copy operation cannot be performed due to image incompatibility or parameter invalidity");
+			return;
+		}
+		Concurrency::parallel_for(dimension_t(0),image_width,[this,&buffer](dimension_t x)
+		{
+			for (dimension_t y = 0; y < image_height; y++)
+			{
+				//   BYTE*old = getPixel(x,y);
+				Vec::copyD(this->getPixel(x,y),&buffer[size_type(y)*size_type(image_width)*size_type(4)+size_type(x)*size_type(4)],vmin(image_channels,4));
+			};
+		});
+
+	}
+
+template <typename T>
 	T				ImageTemplate<T>::sampleChannelAt(float x, float y, BYTE channel, bool loop)	const
 	{
 		if (!image_width || !image_height || channel >= image_channels)

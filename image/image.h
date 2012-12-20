@@ -157,13 +157,13 @@ template <typename T>
 
 	public:
 
-									ImageTemplate();
-									ImageTemplate(const ImageTemplate<T>&other);									//!< Copy constructor
-									ImageTemplate(dimension_t width, dimension_t height, BYTE channels=3,PixelType type=PixelType::Color);		//!< Direct constructor. Directly allocates a field of the specified size. \param width Image width \param height Image height, \param channels Number of color channels. \param type Image content type
-									ImageTemplate(const THeader&header);															//!< Header constructor. Configures the local image based on the information stored in the provided header
-	virtual							~ImageTemplate();
-			ImageTemplate<T>&		operator=(const ImageTemplate<T>&other);												//!< Copy assignment
-			void					free()
+		/**/						ImageTemplate();
+		/**/						ImageTemplate(const ImageTemplate<T>&other);									//!< Copy constructor
+		/**/						ImageTemplate(dimension_t width, dimension_t height, BYTE channels=3,PixelType type=PixelType::Color);		//!< Direct constructor. Directly allocates a field of the specified size. \param width Image width \param height Image height, \param channels Number of color channels. \param type Image content type
+		/**/						ImageTemplate(const THeader&header);															//!< Header constructor. Configures the local image based on the information stored in the provided header
+		virtual						~ImageTemplate();
+		ImageTemplate<T>&			operator=(const ImageTemplate<T>&other);												//!< Copy assignment
+		void						free()
 									{
 										dealloc(image_data);
 										image_data = NULL;
@@ -172,24 +172,26 @@ template <typename T>
 										image_channels = 3;
 										content_type = PixelType::Color;
 									}
-			void					applyHeader(const THeader&header);											//!< Changes the size, channels, and type of the local image based on the provided header. Any content in the local image will be lost if the size of the local color array changes
-	inline	T*						getData();																	//!< Retrieves a pointer to the actual pixel data of the image \return Pointer to the image pixel data array. The returned array <b>must not be deleted</b>
-	inline	const T*				getData()															const;	//!< Const version of getData().
-	inline	T*						data();																	//!< Retrieves a pointer to the actual pixel data of the image \return Pointer to the image pixel data array. The returned array <b>must not be deleted</b>
-	inline	const T*				data()																const;	//!< Const version of getData().
-			void					adoptData(ImageTemplate<T>&other);													//!< Clears any local data and adopts all pointers of the other image. The respective other image will be empty when the operation is executed.
-			void					swap(ImageTemplate<T>&other);													//!< Swaps all pointers and attributes with the other image.
-			void					setDimensions(dimension_t width, dimension_t height, BYTE channels);				//!< Alters the dimensions of the local image. The content of the pixel data field is lost if it is resized during this operation. \param width New image width in pixels \param height New image height in pixels. \param channels New number of color channels.
-			void					setDimension(dimension_t width, dimension_t height, BYTE channels);				//!< Identical to setDimensions()
-			void					setSize(dimension_t width, dimension_t height, BYTE channels);							//!< Identical to setDimensions()
-	inline	void					setChannel(dimension_t X, dimension_t Y, BYTE channel, T newData);	//!< Alters the content of one color channel of one specific pixel.  \param X X-coordinate of the pixel (0 = left most pixel, must be valid) \param Y Y-coordinate of the pixel (usually 0 = bottom most pixel, must be valid) \param channel Target channel (must be valid) \param newData New value for the specified channel of the specified pixel.
-			void					setChannel(BYTE channel, T new_value);							//!< Alters the content of one color channel of all pixels  \param channel Target channel (must be valid) \param newData New value for the specified channel of all pixels.
-			void					paintRect(dimension_t left, dimension_t bottom, dimension_t width, dimension_t height, T r, T g, T b);
-			void					noiseFillChannel(BYTE channel, T min_value, T max_value);		//!< Alters the content of one color channel of all pixels to random values \param channel Target channel (must be valid) \param min_value Minimum channel value @param max_value maximum channel value
-			void					noiseFillChannel(BYTE channel, T min_value, T max_value, unsigned seed);		//!< Alters the content of one color channel of all pixels to random values \param channel Target channel (must be valid) \param min_value Minimum channel value @param max_value maximum channel value
-			void					blurChannel(BYTE channel, float radius, bool loop);					//!< Blurs the specified image channel (all other channels are left unchanged) @param channel Channel to blur @param radius Radius controling the blur intensity @param loop Image is seamless and blurring should loop around image borders
-			void					linearBlurChannel(BYTE channel, float radius, bool loop);					//!< Blurs the specified image channel (all other channels are left unchanged). Separates horizontal from vertical blurring @param channel Channel to blur @param radius Radius controling the blur intensity @param loop Image is seamless and blurring should loop around image borders
-			void					fill(T red, T green, T blue, T alpha=TypeInfo<T>::zero);			//!< Fills the lower 4 (or less if less) channels of the local image with the specified values.
+		void						clear()	{free();}
+		void						applyHeader(const THeader&header);											//!< Changes the size, channels, and type of the local image based on the provided header. Any content in the local image will be lost if the size of the local color array changes
+		inline	T*					getData();																	//!< Retrieves a pointer to the actual pixel data of the image \return Pointer to the image pixel data array. The returned array <b>must not be deleted</b>
+		inline	const T*			getData()															const;	//!< Const version of getData().
+		inline	T*					data();																	//!< Retrieves a pointer to the actual pixel data of the image \return Pointer to the image pixel data array. The returned array <b>must not be deleted</b>
+		inline	const T*			data()																const;	//!< Const version of getData().
+		void						adoptData(ImageTemplate<T>&other);													//!< Clears any local data and adopts all pointers of the other image. The respective other image will be empty when the operation is executed.
+		void						swap(ImageTemplate<T>&other);													//!< Swaps all pointers and attributes with the other image.
+		void						setDimensions(dimension_t width, dimension_t height, BYTE channels);				//!< Alters the dimensions of the local image. The content of the pixel data field is lost if it is resized during this operation. \param width New image width in pixels \param height New image height in pixels. \param channels New number of color channels.
+		void						setDimension(dimension_t width, dimension_t height, BYTE channels);				//!< Identical to setDimensions()
+		void						setSize(dimension_t width, dimension_t height, BYTE channels);							//!< Identical to setDimensions()
+		inline	void				setChannel(dimension_t X, dimension_t Y, BYTE channel, T newData);	//!< Alters the content of one color channel of one specific pixel.  \param X X-coordinate of the pixel (0 = left most pixel, must be valid) \param Y Y-coordinate of the pixel (usually 0 = bottom most pixel, must be valid) \param channel Target channel (must be valid) \param newData New value for the specified channel of the specified pixel.
+		void						setChannel(BYTE channel, T new_value);							//!< Alters the content of one color channel of all pixels  \param channel Target channel (must be valid) \param newData New value for the specified channel of all pixels.
+		void						copyChannel(const ImageTemplate<T>&source_image, BYTE source_channel, BYTE target_channel);
+		void						paintRect(dimension_t left, dimension_t bottom, dimension_t width, dimension_t height, T r, T g, T b);
+		void						noiseFillChannel(BYTE channel, T min_value, T max_value);		//!< Alters the content of one color channel of all pixels to random values \param channel Target channel (must be valid) \param min_value Minimum channel value @param max_value maximum channel value
+		void						noiseFillChannel(BYTE channel, T min_value, T max_value, unsigned seed);		//!< Alters the content of one color channel of all pixels to random values \param channel Target channel (must be valid) \param min_value Minimum channel value @param max_value maximum channel value
+		void						blurChannel(BYTE channel, float radius, bool loop);					//!< Blurs the specified image channel (all other channels are left unchanged) @param channel Channel to blur @param radius Radius controling the blur intensity @param loop Image is seamless and blurring should loop around image borders
+		void						linearBlurChannel(BYTE channel, float radius, bool loop);					//!< Blurs the specified image channel (all other channels are left unchanged). Separates horizontal from vertical blurring @param channel Channel to blur @param radius Radius controling the blur intensity @param loop Image is seamless and blurring should loop around image borders
+		void						fill(T red, T green, T blue, T alpha=TypeInfo<T>::zero);			//!< Fills the lower 4 (or less if less) channels of the local image with the specified values.
 									/*!
 										\brief Overwrites the color of a specific pixel.
 										\param X X-coordinate of the pixel
@@ -200,7 +202,7 @@ template <typename T>
 										the local image has at least 3 channels.
 										Corrupted x/y coordinates or insufficient entries in the \b data field will lead to access violations and/or segmentation faults.
 									*/
-	inline	void					set3(dimension_t X, dimension_t Y, const T*data);
+		inline	void				set3(dimension_t X, dimension_t Y, const T*data);
 									/*!
 										\brief Overwrites the color of a specific pixel.
 										\param X X-coordinate of the pixel
@@ -211,7 +213,7 @@ template <typename T>
 										the local image has at least 4 channels.
 										Corrupted x/y coordinates or insufficient entries in the \b data field will lead to access violations and/or segmentation faults.
 									*/
-	inline	void					set4(dimension_t X, dimension_t Y, const T*data);
+		inline	void				set4(dimension_t X, dimension_t Y, const T*data);
 									/*!
 										\brief Overwrites the color of a specific pixel.
 										\param X X-coordinate of the pixel
@@ -221,7 +223,7 @@ template <typename T>
 										set() overwrites the local pixel data with the specified color (\b data). The method does not check for correctness.
 										Corrupted x/y coordinates or insufficient entries in the \b data field will lead to access violations and/or segmentation faults.
 									*/
-	inline 	void					set(dimension_t X, dimension_t Y, const T*data);
+		inline 	void				set(dimension_t X, dimension_t Y, const T*data);
 									/*!
 										\brief Overwrites the color of a specific pixel.
 										\param X X-coordinate of the pixel
@@ -234,7 +236,7 @@ template <typename T>
 										The method does not check for correctness. Corrupted x/y coordinates or insufficient entries in the \b data
 										field will lead to access violations and/or segmentation faults.
 									*/
-	inline 	void					set(dimension_t X, dimension_t Y, const T*data, BYTE channels);
+		inline 	void				set(dimension_t X, dimension_t Y, const T*data, BYTE channels);
 									/*!
 										\brief Overwrites the color of a specific pixel.
 										\param X X-coordinate of the pixel
@@ -249,7 +251,7 @@ template <typename T>
 										The method does not check for correctness. Corrupted x/y coordinates will lead to access violations and/or
 										segmentation faults.
 									*/
-	inline	void					set(dimension_t X, dimension_t Y, T red, T green, T blue, T alpha); 
+		inline	void				set(dimension_t X, dimension_t Y, T red, T green, T blue, T alpha); 
 									/*!
 										\brief Overwrites the color of a specific pixel.
 										\param X X-coordinate of the pixel
@@ -263,39 +265,39 @@ template <typename T>
 										The method does not check for correctness. Corrupted x/y coordinates will lead to access violations and/or
 										segmentation faults.
 									*/
-	inline	void					set(dimension_t X, dimension_t Y, T red, T green, T blue); 
+		inline	void				set(dimension_t X, dimension_t Y, T red, T green, T blue); 
 
-	T								sampleChannelAt(float x, float y, BYTE channel,bool loop)	const;
-	inline	T*						get(dimension_t X, dimension_t Y)														//! Retrieves a pointer to the color data of the specified pixel. Warning: The method behavior is undefined for invalid pixel coordinates. \param X X-coordinate of the pixel \param Y Y-coordinate of the pixel  \return Pointer to the color data of the specified pixel.
+		T							sampleChannelAt(float x, float y, BYTE channel,bool loop)	const;
+		inline	T*					get(dimension_t X, dimension_t Y)														//! Retrieves a pointer to the color data of the specified pixel. Warning: The method behavior is undefined for invalid pixel coordinates. \param X X-coordinate of the pixel \param Y Y-coordinate of the pixel  \return Pointer to the color data of the specified pixel.
 									{
 										return image_data+(size_t(Y)*size_t(image_width)+size_t(X))*size_t(image_channels);
 									}
-	inline	const T*				get(dimension_t X, dimension_t Y)											const		//! Retrieves a pointer to the color data of the specified pixel. Warning: The method behavior is undefined for invalid pixel coordinates. \param X X-coordinate of the pixel \param Y Y-coordinate of the pixel  \return Pointer to the color data of the specified pixel.
+		inline	const T*			get(dimension_t X, dimension_t Y)											const		//! Retrieves a pointer to the color data of the specified pixel. Warning: The method behavior is undefined for invalid pixel coordinates. \param X X-coordinate of the pixel \param Y Y-coordinate of the pixel  \return Pointer to the color data of the specified pixel.
 									{
 										return image_data+(size_t(Y)*size_t(image_width)+size_t(X))*size_t(image_channels);
 									}
-	inline	T*						getPixel(dimension_t X, dimension_t Y)														//! Retrieves a pointer to the color data of the specified pixel. Warning: The method behavior is undefined for invalid pixel coordinates. \param X X-coordinate of the pixel \param Y Y-coordinate of the pixel  \return Pointer to the color data of the specified pixel.
+		inline	T*					getPixel(dimension_t X, dimension_t Y)														//! Retrieves a pointer to the color data of the specified pixel. Warning: The method behavior is undefined for invalid pixel coordinates. \param X X-coordinate of the pixel \param Y Y-coordinate of the pixel  \return Pointer to the color data of the specified pixel.
 									{
 										return image_data+(size_t(Y)*size_t(image_width)+size_t(X))*size_t(image_channels);
 									}
-	inline	const T*				getPixel(dimension_t X, dimension_t Y)											const		//! Retrieves a pointer to the color data of the specified pixel. Warning: The method behavior is undefined for invalid pixel coordinates. \param X X-coordinate of the pixel \param Y Y-coordinate of the pixel  \return Pointer to the color data of the specified pixel.
+		inline	const T*			getPixel(dimension_t X, dimension_t Y)											const		//! Retrieves a pointer to the color data of the specified pixel. Warning: The method behavior is undefined for invalid pixel coordinates. \param X X-coordinate of the pixel \param Y Y-coordinate of the pixel  \return Pointer to the color data of the specified pixel.
 									{
 										return image_data+(size_t(Y)*size_t(image_width)+size_t(X))*size_t(image_channels);
 									}
-	inline 	T*						getVerified(dimension_t X, dimension_t Y);											//!< Retrieves a pointer to the color data of the specified pixel. \param X X-coordinate of the pixel \param Y Y-coordinate of the pixel  \return Pointer to the color data of the specified pixel or NULL if the specified pixel does not exist.
-	inline 	const T*				getVerified(dimension_t X, dimension_t Y)									const;		//!< Retrieves a pointer to the color data of the specified pixel. \param X X-coordinate of the pixel \param Y Y-coordinate of the pixel  \return Pointer to the color data of the specified pixel or NULL if the specified pixel does not exist.
+		inline 	T*					getVerified(dimension_t X, dimension_t Y);											//!< Retrieves a pointer to the color data of the specified pixel. \param X X-coordinate of the pixel \param Y Y-coordinate of the pixel  \return Pointer to the color data of the specified pixel or NULL if the specified pixel does not exist.
+		inline 	const T*			getVerified(dimension_t X, dimension_t Y)									const;		//!< Retrieves a pointer to the color data of the specified pixel. \param X X-coordinate of the pixel \param Y Y-coordinate of the pixel  \return Pointer to the color data of the specified pixel or NULL if the specified pixel does not exist.
 
-			void					swapChannels(BYTE c0, BYTE c1);													//!< Exchanges the content of two channels for all pixels. \param c0 First channel index (0 = first(red) channel) \param c1 Second channel index (0 = first(red) channel).
-			void					appendAlpha(const ImageTemplate<T>*other);												//!< Creates/overwrites the local 4th channel with the first channel of the specified other image for all pixels. \param other Pointer to another Image object. \b other is required to be of the exact same dimensions as the local image.
-			void					appendAlphaAndDelete(ImageTemplate<T>*other);												//!< Performs appendAlpha(), then deletes \b other. \param other Pointer to another Image object. \b other is required to be of the exact same dimensions as the local image but will be deleted even if that should not be the case.
-	inline	size_t					size()																const;		//!< Retrieves the size of the local pixel data. \return Size of the local pixel map in bytes (identical to getWidth()*getHeight()*getChannels()).
-			void					readFrom(const ImageTemplate<T>*other);																	//!< Adapts the local image data to the specified image's data. Deprecated. \param other Image to copy data from.
-			void					read(const T* data);																			//!< Adopts the local image data to the specified array content. \param data Array to copy from. Must be the exact same size as what size() returns.
-			bool					exportRectangle(dimension_t x, dimension_t y, dimension_t width, dimension_t height, T*target)	const;	//!< Exports a rectangular pixel area from the local pixel data. \param x Pixel offset (X) \param y Pixel offset (Y) \param width Pixels in x-direction to export \param height Pixels in y-direction to export. \param target Array to write to. Must be at least (\b width * \b height * getChannels()) elements long.
-			bool					importRectangle(dimension_t x, dimension_t y, dimension_t width, dimension_t height, const T*target);	//!< Overwrites a section in the local pixel data. \param x Pixel offset (X) \param y Pixel offset (Y) \param width Pixels in x-direction to overwrite \param height Pixels in y-direction to overwrite. \param target Array to read from. Must be at least (\b width * \b height * getChannels()) elements long.
-			void					extractChannels(BYTE channel, BYTE c_num, ImageTemplate<T>&target);								//!< Extracts the specified channel range into the specified target image
+		void						swapChannels(BYTE c0, BYTE c1);													//!< Exchanges the content of two channels for all pixels. \param c0 First channel index (0 = first(red) channel) \param c1 Second channel index (0 = first(red) channel).
+		void						appendAlpha(const ImageTemplate<T>*other);												//!< Creates/overwrites the local 4th channel with the first channel of the specified other image for all pixels. \param other Pointer to another Image object. \b other is required to be of the exact same dimensions as the local image.
+		void						appendAlphaAndDelete(ImageTemplate<T>*other);												//!< Performs appendAlpha(), then deletes \b other. \param other Pointer to another Image object. \b other is required to be of the exact same dimensions as the local image but will be deleted even if that should not be the case.
+		inline	size_t				size()																const;		//!< Retrieves the size of the local pixel data. \return Size of the local pixel map in bytes (identical to getWidth()*getHeight()*getChannels()).
+		void						readFrom(const ImageTemplate<T>*other);																	//!< Adapts the local image data to the specified image's data. Deprecated. \param other Image to copy data from.
+		void						read(const T* data);																			//!< Adopts the local image data to the specified array content. \param data Array to copy from. Must be the exact same size as what size() returns.
+		bool						exportRectangle(dimension_t x, dimension_t y, dimension_t width, dimension_t height, T*target)	const;	//!< Exports a rectangular pixel area from the local pixel data. \param x Pixel offset (X) \param y Pixel offset (Y) \param width Pixels in x-direction to export \param height Pixels in y-direction to export. \param target Array to write to. Must be at least (\b width * \b height * getChannels()) elements long.
+		bool						importRectangle(dimension_t x, dimension_t y, dimension_t width, dimension_t height, const T*target);	//!< Overwrites a section in the local pixel data. \param x Pixel offset (X) \param y Pixel offset (Y) \param width Pixels in x-direction to overwrite \param height Pixels in y-direction to overwrite. \param target Array to read from. Must be at least (\b width * \b height * getChannels()) elements long.
+		void						extractChannels(BYTE channel, BYTE c_num, ImageTemplate<T>&target);								//!< Extracts the specified channel range into the specified target image
 
-			bool					truncateToOpaque();																	//!< Reduces the image to the minimum necessary rectangle covering all opaque pixels. This method has no effect if the image does not have 2 (intensity+opacity) or 4 (rgb+opacity) channels @return True if the local image has been changed, false otherwise
+		bool						truncateToOpaque();																	//!< Reduces the image to the minimum necessary rectangle covering all opaque pixels. This method has no effect if the image does not have 2 (intensity+opacity) or 4 (rgb+opacity) channels @return True if the local image has been changed, false otherwise
 
 	};
 
