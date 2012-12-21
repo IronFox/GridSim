@@ -488,6 +488,7 @@ namespace Engine
 												return textout.getFont().getHeight()*0.75*num_chars;
 											return textout.unscaledLength(str,num_chars);
 										}
+				StringBuffer			text;			//!< Edit buffer
 		public:
 			union
 			{
@@ -504,7 +505,6 @@ namespace Engine
 										sel_start,		//!< Selection start. This can be before or after the cursor location
 										view_begin,		//!< First visible character
 										view_end;		//!< One past the last visible character
-				StringBuffer			text;			//!< Edit buffer
 				FunctionalEvent			on_change,	//!< Event that is fired if the local input is changed
 										on_enter;	//!< Event that is fired if the user pressed enter or return on this edit field
 				bool					(*acceptChar)(char);	//!< Pointer to a char filter. Only if the function returns true then the character is inserted
@@ -516,21 +516,26 @@ namespace Engine
 										{
 											setup();
 										}
-		virtual	eEventResult			onFocusGained()					{cursor_ticks = 0; return RequestingRepaint;}
-		virtual	eEventResult			onFocusLost()					{return RequestingRepaint;}
-		virtual	float					clientMinWidth()	const		{return 50;}
-		virtual	float					clientMinHeight()	const		{return textout.getFont().getHeight();}
-		virtual	void					onColorPaint();
-		virtual	eEventResult			onKeyDown(Key::Name key);
-		virtual	eEventResult			onKeyUp(Key::Name key);
-		virtual	eEventResult			onChar(char c);
-		virtual	eEventResult			onMouseDrag(float x, float y);
-		virtual	eEventResult			onMouseDown(float x, float y, TExtEventResult&);
-		virtual	eEventResult			onMouseHover(float x, float y, TExtEventResult&);
-		virtual	eEventResult			onMouseUp(float x, float y);
-		virtual	eEventResult			onTick();
-		virtual	bool					tabFocusable()	const				{return true;}
-		virtual	void					updateLayout(const Rect<float>&parent_region);
+			void						setText(const String&new_text)	{text = new_text;signalVisualChange();}
+			StringBuffer&				getBuffer()			{signalVisualChange(); return text;}
+			const StringBuffer&			getBuffer() const	{return text;}
+			String						getText()		const{return text.toString();}
+			ReferenceExpression<char>	getTextRef()	const {return text.toStringRef();}
+			virtual	eEventResult		onFocusGained()	override				{cursor_ticks = 0; return RequestingRepaint;}
+			virtual	eEventResult		onFocusLost()	override					{return RequestingRepaint;}
+			virtual	float				clientMinWidth()	const	override		{return 50;}
+			virtual	float				clientMinHeight()	const	override		{return textout.getFont().getHeight();}
+			virtual	void				onColorPaint()	override;
+			virtual	eEventResult		onKeyDown(Key::Name key)	override;
+			virtual	eEventResult		onKeyUp(Key::Name key)	override;
+			virtual	eEventResult		onChar(char c)	override;
+			virtual	eEventResult		onMouseDrag(float x, float y)	override;
+			virtual	eEventResult		onMouseDown(float x, float y, TExtEventResult&)	override;
+			virtual	eEventResult		onMouseHover(float x, float y, TExtEventResult&)	override;
+			virtual	eEventResult		onMouseUp(float x, float y)	override;
+			virtual	eEventResult		onTick()	override;
+			virtual	bool				tabFocusable()	const	override				{return true;}
+			virtual	void				updateLayout(const Rect<float>&parent_region)	override;
 		};
 		
 		typedef Edit	Input;

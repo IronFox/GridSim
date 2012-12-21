@@ -107,4 +107,13 @@ namespace Engine
 		return result;
 	}
 
+	void		ControlCluster::signalResolutionChange()
+	{
+		for (index_t i = 0; i < control_stack.count(); i++)
+		{
+			control_stack[i]->onResolutionChange();
+		}
+	}
+
+
 }

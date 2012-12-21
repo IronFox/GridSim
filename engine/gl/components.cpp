@@ -74,10 +74,7 @@ namespace Engine
 			component->setWindow(window_link);
 			children << component;
 
-			shared_ptr<Window> wnd = window();
-			if (wnd)
-				wnd->layout_changed = true;
-
+			signalLayoutChange();
 		}
 		
 		bool					Panel::add(const shared_ptr<Component>&component)
@@ -243,7 +240,7 @@ namespace Engine
 				const shared_ptr<Component>&child = children[i];
 				if (child->visible && child->cell_layout.border.contains(x,y))
 				{
-					if (!child->enabled)
+					if (!child->isEnabled())
 						return Unsupported;
 					return child->onMouseHover(x,y,ext);
 				}
@@ -258,7 +255,7 @@ namespace Engine
 				const shared_ptr<Component>&child = children[i];
 				if (child->visible && child->cell_layout.border.contains(x,y))
 				{
-					if (child->enabled)
+					if (child->isEnabled())
 						return child->onMouseDown(x,y,ext);
 					return Unsupported;
 				}
@@ -271,7 +268,7 @@ namespace Engine
 			for (index_t i = children.count()-1; i < children.count(); i--)
 			{
 				const shared_ptr<Component>&child = children[i];
-				if (child->visible && child->enabled && child->current_region.contains(x,y))
+				if (child->visible && child->isEnabled() && child->current_region.contains(x,y))
 					return child->onMouseWheel(x,y,delta);
 			}
 			return Unsupported;
@@ -1095,13 +1092,13 @@ namespace Engine
 		
 		Component::eEventResult		ScrollBox::onMouseWheel(float x, float y, short delta)
 		{
-			if (horizontal_bar->visible && horizontal_bar->enabled && horizontal_bar->current_region.contains(x,y))
+			if (horizontal_bar->visible && horizontal_bar->isEnabled() && horizontal_bar->current_region.contains(x,y))
 			{
 				if (horizontal_bar->scrollable.expired())
 					horizontal_bar->scrollable = toScrollable();
 				return horizontal_bar->onMouseWheel(x,y,delta);
 			}
-			if (vertical_bar->visible && horizontal_bar->enabled && vertical_bar->current_region.contains(x,y))
+			if (vertical_bar->visible && horizontal_bar->isEnabled() && vertical_bar->current_region.contains(x,y))
 			{
 				if (vertical_bar->scrollable.expired())
 					vertical_bar->scrollable = toScrollable();
@@ -1115,7 +1112,7 @@ namespace Engine
 					const shared_ptr<Component>&child = visible_children[i];
 					if (child->current_region.contains(x,y))
 					{
-						if (!child->enabled)
+						if (!child->isEnabled())
 							break;
 						eEventResult rs = child->onMouseWheel(x,y,delta);
 						if (rs == Unsupported)
@@ -1124,13 +1121,13 @@ namespace Engine
 					}
 				}
 			}
-			if (vertical_bar->visible && vertical_bar->enabled)
+			if (vertical_bar->visible && vertical_bar->isEnabled())
 			{
 				if (vertical_bar->scrollable.expired())
 					vertical_bar->scrollable = toScrollable();
 				return vertical_bar->onMouseWheel(x,y,delta);
 			}
-			if (horizontal_bar->visible && horizontal_bar->enabled)
+			if (horizontal_bar->visible && horizontal_bar->isEnabled())
 			{
 				if (horizontal_bar->scrollable.expired())
 					horizontal_bar->scrollable = toScrollable();
@@ -1210,13 +1207,13 @@ namespace Engine
 			{
 				if (horizontal_bar->scrollable.expired())
 					horizontal_bar->scrollable = toScrollable();
-				return horizontal_bar->enabled?horizontal_bar->onMouseHover(x,y,ext):Unsupported;
+				return horizontal_bar->isEnabled()?horizontal_bar->onMouseHover(x,y,ext):Unsupported;
 			}
 			if (vertical_bar->visible && vertical_bar->cell_layout.border.contains(x,y))
 			{
 				if (vertical_bar->scrollable.expired())
 					vertical_bar->scrollable = toScrollable();
-				return vertical_bar->enabled?vertical_bar->onMouseHover(x,y,ext):Unsupported;
+				return vertical_bar->isEnabled()?vertical_bar->onMouseHover(x,y,ext):Unsupported;
 			}
 			if (effective_client_region.contains(x,y))
 			{
@@ -1225,7 +1222,7 @@ namespace Engine
 					const shared_ptr<Component>&child = visible_children[i];
 					if (child->cell_layout.border.contains(x,y))
 					{
-						if (!child->enabled)
+						if (!child->isEnabled())
 							return Unsupported;
 						return child->onMouseHover(x,y,ext);
 					}
@@ -1237,13 +1234,13 @@ namespace Engine
 		Component::eEventResult		ScrollBox::onMouseDown(float x, float y, TExtEventResult&ext)
 		{
 			Component::eEventResult result;
-			if (horizontal_bar->visible && horizontal_bar->enabled && horizontal_bar->current_region.contains(x,y) && (result = horizontal_bar->onMouseDown(x,y,ext)))
+			if (horizontal_bar->visible && horizontal_bar->isEnabled() && horizontal_bar->current_region.contains(x,y) && (result = horizontal_bar->onMouseDown(x,y,ext)))
 			{
 				if (horizontal_bar->scrollable.expired())
 					horizontal_bar->scrollable = toScrollable();
 				return result;
 			}
-			if (vertical_bar->visible && vertical_bar->enabled && vertical_bar->current_region.contains(x,y) && (result = vertical_bar->onMouseDown(x,y,ext)))
+			if (vertical_bar->visible && vertical_bar->isEnabled() && vertical_bar->current_region.contains(x,y) && (result = vertical_bar->onMouseDown(x,y,ext)))
 			{
 				if (vertical_bar->scrollable.expired())
 					vertical_bar->scrollable = toScrollable();
@@ -1256,7 +1253,7 @@ namespace Engine
 					const shared_ptr<Component>&child = visible_children[i];
 					if (child->cell_layout.border.contains(x,y))
 					{
-						if (!child->enabled)
+						if (!child->isEnabled())
 							return Unsupported;
 						return child->onMouseDown(x,y,ext);
 					}
@@ -1275,9 +1272,7 @@ namespace Engine
 			component->offset.left = 0;
 			component->setWindow(window_link);
 			children << component;
-			shared_ptr<Window> wnd = window();
-			if (wnd)
-				wnd->layout_changed = true;
+			signalLayoutChange();
 		}
 		
 		
@@ -2158,7 +2153,9 @@ namespace Engine
 			}
 					
 			if (menu_window->layout_changed || changed)
+			{
 				menu_window->updateLayout();
+			}
 		}
 
 		
@@ -2431,8 +2428,7 @@ namespace Engine
 			//((MenuEntry*)component)->level = level;
 			component->setWindow(window_link);		
 			arrangeItems();
-			if (!window_link.expired())
-				window_link.lock()->layout_changed = true;
+			signalLayoutChange();
 			return true;
 		}
 		

@@ -413,6 +413,30 @@ namespace Engine
 				focused->window()->apply(focused->onChar(c));
 		}
 
+		void					Component::signalLayoutChange()	const
+		{
+			shared_ptr<Window>	wnd = window();
+			if (wnd)
+				wnd->layout_changed = wnd->visual_changed = true;
+		}
+		void					Component::signalVisualChange()	const
+		{
+			shared_ptr<Window>	wnd = window();
+			if (wnd)
+				wnd->visual_changed = true;
+		}
+
+
+		/*virtual*/	void					Component::setEnabled(bool enabled)
+		{
+			if (this->enabled != enabled)
+			{
+				this->enabled = enabled;
+				signalVisualChange();
+			}
+		}
+
+
 		shared_ptr<Operator>	Component::getOperator() const
 		{
 			if (window_link.expired())
@@ -2329,7 +2353,7 @@ namespace Engine
 					continue;
 				}
 				
-				if (window->component_link && window->component_link->visible && window->component_link->enabled)
+				if (window->component_link && window->component_link->visible && window->component_link->isEnabled())
 				{
 					Component::eEventResult rs = window->component_link->onMouseWheel(x,y,delta);
 					window->apply(rs);
@@ -2352,7 +2376,7 @@ namespace Engine
 				if (!window->cell_layout.border.contains(x,y))
 					continue;
 				
-				if (window->component_link && window->component_link->visible && window->component_link->enabled)
+				if (window->component_link && window->component_link->visible && window->component_link->isEnabled())
 				{
 					Component::eEventResult rs = window->component_link->onMouseWheel(x,y,delta);
 					window->apply(rs);

@@ -38,7 +38,8 @@ namespace Engine
 		virtual	void		renderShadow(const Aspect<>&)				{};					//!< Triggers shadow rendering. No shader or texture is bound at this time. Lighting is disabled, depth test is enabled
 		virtual	void		renderHUD()									{};					//!< Triggers HUD rendering. The bound aspect is always orthographic from 0,0 to 1,1. Layer0 textures may be bound, shaders and depth test are disabled
 		virtual	bool		detectNearestGroundHeight(const TVec3<>&reference_position,float&out_height)	{return false;};
-	
+		virtual void		onResolutionChange()						{};
+
 		virtual	void		onInstall()									{};					//!< Invoked once this control module is installed on the specified control cluster
 		virtual	void		onUninstall()								{};					//!< Invoked once this control module is installed on the specified control cluster
 		ControlCluster*		getCluster()	const						{return cluster;}
@@ -73,6 +74,7 @@ namespace Engine
 		void				install(Control*);
 		void				uninstall(Control*);
 		bool				detectNearestGroundHeight(const TVec3<>&reference_position,float&out_height);
+		void				signalResolutionChange();
 	};
 
 

@@ -222,7 +222,8 @@ namespace Engine
 		protected:
 				weak_ptr<Window>			window_link;	//!< Link to the owning window. Not NULL if this component is part of any window.
 				friend class Window;
-				
+				bool						enabled;		//!< Indicates that this item may receive events
+											
 		public:
 		static	void						keyDown(int key);	//!< Key down event linked to the keyboard interface
 		static	void						keyUp(int key);		//!< Key up event linked to the keyboard interface
@@ -242,59 +243,64 @@ namespace Engine
 					shared_ptr<Component>	caught_by;		//!< Component that actually caught the event
 				};
 
-				Rect<float>				current_region,	//!< Current component region. This rectangle completely surrounds the component including all cells of its layout (if any)
+				Rect<float>					current_region,	//!< Current component region. This rectangle completely surrounds the component including all cells of its layout (if any)
 											offset;			//!< Signed offset from the parent region. Effective only if @b anchored.coord[x] is true. should be negative for right/top offset
 				Rect<bool>					anchored;		//!< Indicates that the respective coordinates of the final component region is calculated relative to the respective parent edge.
 				float						width,			//!< Fixed component width if either anchored.left or anchored.right is false. Has no effect if both anchored.left and anchored.right are true
 											height;			//!< Fixed component height if either anchored.bottom or anchored.top is false. Has no effect if both anchored.bottom and anchored.top are true
-		const	String						type_name;		//!< Constant type name of this component. Assigned during construction (usually the class name without the leading 'C')
+				const String				type_name;		//!< Constant type name of this component. Assigned during construction (usually the class name without the leading 'C')
 				TCellLayout					cell_layout;	//!< Effective applied cell layout. This variable is updated even if this component has no layout
-				Layout*						layout;		//!< Layout attached to this component or NULL if this component has no layout
+				Layout*						layout;			//!< Layout attached to this component or NULL if this component has no layout
 		static	Textout<GLTextureFont2>		textout;		//!< Global textout used to render text
 				float						tick_interval;	//!< Interval (in seconds) between executions of the onTick() method
-				bool						enabled,		//!< Indicates that this item may receive events
-											visible;		//!< Indicates that this item is visible. Invisible items are automatically treated as disabled.
+
+				bool						visible;		//!< Indicates that this item is visible. Invisible items are automatically treated as disabled.
 
 		
 				
 				
 												Component(const String&type_name);	//!< Constructs a new component. Requires a type_name
-		virtual									~Component();
-		virtual	void							updateLayout(const Rect<float>&parent_region);	//!< Updates the applied layout and possibly existing other components to the changed parent region rectangle. Also updates @b current_region @param parent_region Absolute location of the respective parent component or window
-		virtual	float							clientMinWidth()	const	{return 0;}			//!< Queries the minimum width of the inner content of this component (excluding the minimum size of the layout)
-		virtual	float							clientMinHeight()	const	{return 0;}			//!< Queries the minimum height of the inner content of this component (excluding the minimum size of the layout)
-		virtual	float							minWidth(bool include_offsets)	const;			//!< Queries the effective minimum width of this component	@param include_offsets Set true to also include anchor offsets @return Minimum width of this component
-		virtual	float							minHeight(bool include_offsets)	const;			//!< Queries the effective minimum height of this component 	@param include_offsets Set true to also include anchor offsets @return Minimum height of this component
-		virtual	void							onColorPaint();						//!< Causes this component to repaint its color components
-		virtual	void							onNormalPaint();						//!< Causes this component to repaint its normal components
-		virtual	shared_ptr<Component>			getFocused()					{return shared_from_this();};	//!< Retrieves the actually focused element from the component returned by onMouseDown(). Returns this by default
-		virtual	eEventResult					onMouseDown(float x, float y, TExtEventResult&)		{return Unsupported;};	//!< Triggered if the primary mouse button was pressed over this component @param x Window space x coordinate of the mouse cursor @param y Window space y coordinate of the mouse cursor @return Event result
-		virtual	eEventResult					onMouseHover(float x, float y, TExtEventResult&)	{return Unsupported;};	//!< Triggered if the mouse was moved while above this component @param x Window space x coordinate of the mouse cursor @param y Window space y coordinate of the mouse cursor @return Event result
-		virtual	eEventResult					onMouseExit()					{return Unsupported;};						//!< Triggered if the mouse has left the area of this component @return Event result
-		virtual	eEventResult					onMouseDrag(float x, float y)	{return Unsupported;};						//!< Triggered if the mouse was moved while the primary mouse button is down and this component is the currently clicked component @param x Window space x coordinate of the mouse cursor @param y Window space y coordinate of the mouse cursor @return Event result
-		virtual	eEventResult					onMouseUp(float x, float y)		{return Unsupported;};						//!< Triggered if the primary mouse button was released and this component was the clicked component
-		virtual	eEventResult					onMouseWheel(float x, float y, short delta)		{return Unsupported;};		//!< Triggered if the mouse wheel was used while the mouse cursor is above this component
-		virtual	eEventResult					onFocusGained()					{return Unsupported;}						//!< Triggered if this component has gained the input focus
-		virtual	eEventResult					onFocusLost()					{return Unsupported;}						//!< Triggered if this component has lost the input focus
-		virtual	eEventResult					onKeyDown(Key::Name key)		{return Unsupported;}						//!< Triggered if the user has pressed a supported key while this component had the focus. This event may fire multiple times before the user releases the key and the onKeyUp() event method is triggered.
-		virtual	eEventResult					onKeyUp(Key::Name key)			{return Unsupported;}						//!< Triggered if the user has released a supported key while this component had the focus.
-		virtual	eEventResult					onChar(char c)					{return Unsupported;}						//!< Triggered if the user has pressed a character key while this component had the focus.
-		virtual	eEventResult					onTick()						{return Unsupported;}						//!< Triggered each time the counter hit @b tick_interval seconds while this component has the focus
-		virtual	bool							tabFocusable() const			{return false;}								//!< Queries whether or not this entry is focusable via the tab key
-				void							setWindow(const weak_ptr<Window>&wnd);						//!< Updates the local window link variable as well as that of all children (recursively)
-				bool							isFocused()	const;															//!< Queries whether or not this component currently has the input focus
-				shared_ptr<Window>				window()	const				{return window_link.lock();}						//!< Retrieves the super window of this component (if any)
-		virtual	shared_ptr<const Component>		child(index_t) const			{return shared_ptr<const Component>();}							//!< Queries the nth child of this component (if any)
-		virtual	shared_ptr<Component>			child(index_t)	{return shared_ptr<Component>();}									//!< @overload
-		virtual	count_t							countChildren()	const {return 0;}								//!< Queries the number of children of this component (if any) @return Number of children
-		virtual	index_t							indexOfChild(const shared_ptr<Component>&child) const;						//!< Determines the index of the specified child or 0xFFFFFFFF if the specified component is no child of this component.
-				shared_ptr<Component>			successorOf(const shared_ptr<Component>&child);									//!< Queries the successor element of the specified one @return successor or NULL if no successor could be found
-				void							locate(const Rect<float>&parent_region,Rect<float>&region)	const;	//!< Resolves the absolute location of the local item based on the specified parent region.
-		
-		static	void 							setFocused(const shared_ptr<Component>&component);								//!< Changes the currently focused component
+			virtual								~Component();
+			virtual	void						updateLayout(const Rect<float>&parent_region);	//!< Updates the applied layout and possibly existing other components to the changed parent region rectangle. Also updates @b current_region @param parent_region Absolute location of the respective parent component or window
+			virtual	float						clientMinWidth()	const	{return 0;}			//!< Queries the minimum width of the inner content of this component (excluding the minimum size of the layout)
+			virtual	float						clientMinHeight()	const	{return 0;}			//!< Queries the minimum height of the inner content of this component (excluding the minimum size of the layout)
+			virtual	float						minWidth(bool include_offsets)	const;			//!< Queries the effective minimum width of this component	@param include_offsets Set true to also include anchor offsets @return Minimum width of this component
+			virtual	float						minHeight(bool include_offsets)	const;			//!< Queries the effective minimum height of this component 	@param include_offsets Set true to also include anchor offsets @return Minimum height of this component
+			virtual	void						onColorPaint();						//!< Causes this component to repaint its color components
+			virtual	void						onNormalPaint();						//!< Causes this component to repaint its normal components
+			virtual	shared_ptr<Component>		getFocused()					{return shared_from_this();};	//!< Retrieves the actually focused element from the component returned by onMouseDown(). Returns this by default
+			virtual	eEventResult				onMouseDown(float x, float y, TExtEventResult&)		{return Unsupported;};	//!< Triggered if the primary mouse button was pressed over this component @param x Window space x coordinate of the mouse cursor @param y Window space y coordinate of the mouse cursor @return Event result
+			virtual	eEventResult				onMouseHover(float x, float y, TExtEventResult&)	{return Unsupported;};	//!< Triggered if the mouse was moved while above this component @param x Window space x coordinate of the mouse cursor @param y Window space y coordinate of the mouse cursor @return Event result
+			virtual	eEventResult				onMouseExit()					{return Unsupported;};						//!< Triggered if the mouse has left the area of this component @return Event result
+			virtual	eEventResult				onMouseDrag(float x, float y)	{return Unsupported;};						//!< Triggered if the mouse was moved while the primary mouse button is down and this component is the currently clicked component @param x Window space x coordinate of the mouse cursor @param y Window space y coordinate of the mouse cursor @return Event result
+			virtual	eEventResult				onMouseUp(float x, float y)		{return Unsupported;};						//!< Triggered if the primary mouse button was released and this component was the clicked component
+			virtual	eEventResult				onMouseWheel(float x, float y, short delta)		{return Unsupported;};		//!< Triggered if the mouse wheel was used while the mouse cursor is above this component
+			virtual	eEventResult				onFocusGained()					{return Unsupported;}						//!< Triggered if this component has gained the input focus
+			virtual	eEventResult				onFocusLost()					{return Unsupported;}						//!< Triggered if this component has lost the input focus
+			virtual	eEventResult				onKeyDown(Key::Name key)		{return Unsupported;}						//!< Triggered if the user has pressed a supported key while this component had the focus. This event may fire multiple times before the user releases the key and the onKeyUp() event method is triggered.
+			virtual	eEventResult				onKeyUp(Key::Name key)			{return Unsupported;}						//!< Triggered if the user has released a supported key while this component had the focus.
+			virtual	eEventResult				onChar(char c)					{return Unsupported;}						//!< Triggered if the user has pressed a character key while this component had the focus.
+			virtual	eEventResult				onTick()						{return Unsupported;}						//!< Triggered each time the counter hit @b tick_interval seconds while this component has the focus
+			virtual	bool						tabFocusable() const			{return false;}								//!< Queries whether or not this entry is focusable via the tab key
+			void								setWindow(const weak_ptr<Window>&wnd);						//!< Updates the local window link variable as well as that of all children (recursively)
+			bool								isFocused()	const;															//!< Queries whether or not this component currently has the input focus
+			shared_ptr<Window>					window()	const				{return window_link.lock();}						//!< Retrieves the super window of this component (if any)
+			virtual	shared_ptr<const Component>	child(index_t) const			{return shared_ptr<const Component>();}							//!< Queries the nth child of this component (if any)
+			virtual	shared_ptr<Component>		child(index_t)	{return shared_ptr<Component>();}									//!< @overload
+			virtual	count_t						countChildren()	const {return 0;}								//!< Queries the number of children of this component (if any) @return Number of children
+			virtual	index_t						indexOfChild(const shared_ptr<Component>&child) const;						//!< Determines the index of the specified child or 0xFFFFFFFF if the specified component is no child of this component.
+			shared_ptr<Component>				successorOf(const shared_ptr<Component>&child);									//!< Queries the successor element of the specified one @return successor or NULL if no successor could be found
+			void								locate(const Rect<float>&parent_region,Rect<float>&region)	const;	//!< Resolves the absolute location of the local item based on the specified parent region.
+			virtual void						setEnabled(bool enabled);				//!< Enables/disables the ability of this component to receive events. Disables components may have a different style. A redraw is automatically issued
+			bool								isEnabled()	const	{return enabled;}
+			void								signalLayoutChange() const;					//!< Signals that the layout of the local component has changed in such a way that all components must be re-arranged
+			void								signalVisualChange() const;					//!< Signals that the local component must be redrawn
+			
 
-				shared_ptr<Operator>			getOperator()	const;
-				shared_ptr<Operator>			requireOperator()	const;
+			static	void 						setFocused(const shared_ptr<Component>&component);								//!< Changes the currently focused component
+
+			shared_ptr<Operator>				getOperator()	const;
+			shared_ptr<Operator>				requireOperator()	const;
 		};
 		
 		/**
