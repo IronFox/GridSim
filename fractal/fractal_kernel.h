@@ -10,7 +10,6 @@
 #include "../general/exception.h"
 #include "../global_string.h"
 
-#include "../general/thread_granularity_optimizer.h"
 //#include "../math/composite.h"
 #include "../math/sse.h"
 

@@ -36,7 +36,6 @@
     <Filter Include="Source Files\al" />
     <Filter Include="Source Files\remote\bz2" />
     <Filter Include="Source Files\remote\jpeg" />
-    <Filter Include="Source Files\windows" />
     <Filter Include="Source Files\remote\zlib" />
     <Filter Include="Source Files\remote\png" />
     <Filter Include="Header Files\io" />
@@ -60,7 +59,6 @@
     <Filter Include="Header Files\al" />
     <Filter Include="Header Files\Nx" />
     <Filter Include="Header Files\image\converter" />
-    <Filter Include="Header Files\windows" />
     <Filter Include="Header Files\remote\jpeg" />
     <Filter Include="Header Files\remote\bz2" />
     <Filter Include="Header Files\remote\zlib" />
@@ -246,17 +244,11 @@
     <ClCompile Include="..\..\general\random.cpp">
       <Filter>Source Files\general</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\general\thread_granularity_optimizer.cpp">
-      <Filter>Source Files\general</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\al\CWaves.cpp">
       <Filter>Source Files\al</Filter>
     </ClCompile>
     <ClCompile Include="..\..\engine\gl\texture_triangle_buffer.cpp">
       <Filter>Source Files\engine\gl</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\io\shared_memory.cpp">
-      <Filter>Source Files\io</Filter>
     </ClCompile>
     <ClCompile Include="..\..\geometry\cgs.cpp">
       <Filter>Source Files\geometry</Filter>
@@ -299,9 +291,6 @@
     </ClCompile>
     <ClCompile Include="..\..\engine\scenery.cpp">
       <Filter>Source Files\engine</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\io\lwo.cpp">
-      <Filter>Source Files\io</Filter>
     </ClCompile>
     <ClCompile Include="..\..\general\memory_shield.cpp">
       <Filter>Source Files\general</Filter>
@@ -633,6 +622,9 @@
     <ClCompile Include="..\..\structure\structure_simulation.cpp">
       <Filter>Source Files\structure</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\geometry\converter\lwo.cpp">
+      <Filter>Source Files\geometry\converter</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\io\config.h">
@@ -887,9 +879,6 @@
     <ClInclude Include="..\..\al\ks.h">
       <Filter>Header Files\al</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\general\thread_granularity_optimizer.h">
-      <Filter>Header Files\general</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\math\basic.h">
       <Filter>Header Files\math</Filter>
     </ClInclude>
@@ -946,9 +935,6 @@
     </ClInclude>
     <ClInclude Include="..\..\container\queue.tpl.h">
       <Filter>Header Files\container</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\io\shared_memory.h">
-      <Filter>Header Files\io</Filter>
     </ClInclude>
     <ClInclude Include="..\..\general\root.h">
       <Filter>Header Files\general</Filter>
@@ -1112,12 +1098,6 @@
     <ClInclude Include="..\..\string\tokenizer.h">
       <Filter>Header Files\string</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\windows\wnd_manager.h">
-      <Filter>Header Files\windows</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\io\lwo.h">
-      <Filter>Header Files\io</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\net\node.h">
       <Filter>Header Files\net</Filter>
     </ClInclude>
@@ -1215,9 +1195,6 @@
       <Filter>Header Files\general</Filter>
     </ClInclude>
     <ClInclude Include="..\..\io\date.h">
-      <Filter>Header Files\io</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\io\lwo.tpl.h">
       <Filter>Header Files\io</Filter>
     </ClInclude>
     <ClInclude Include="..\..\io\mutex_log.h">
@@ -1549,6 +1526,12 @@
     </ClInclude>
     <ClInclude Include="..\..\net\containers.h">
       <Filter>Header Files\net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\geometry\converter\lwo.h">
+      <Filter>Header Files\geometry\converter</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\geometry\converter\lwo.tpl.h">
+      <Filter>Header Files\geometry\converter</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -2,7 +2,6 @@
 #define cgs_track_segmentH
 
 #include "cgs.h"
-#include "../general/managed.h"
 #include "../io/log_stream.h"
 #include "coordinates.h"
 

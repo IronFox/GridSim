@@ -4,7 +4,6 @@
 #include "../geometry/cgs.h"
 #include "../io/xml.h"
 #include "../io/file_system.h"
-#include "../general/managed.h"
 #include "../math/vclasses.h"
 #include "../container/string_list.h"
 #include "../geometry/cgs_track_segment.h"
