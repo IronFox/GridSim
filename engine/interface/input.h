@@ -63,8 +63,9 @@ namespace Engine
 		static const unsigned	NumKeys = Key::Max+1;	//0x100 + 0x20 joystick buttons + 0x5 mouse buttons		
 		bool		keyboard,
 					device_buttons;
-		TKeyLink	key[NumKeys];
-			
+		//TKeyLink	key[NumKeys];
+		Array<TKeyLink>	key;	
+
 					InputProfile(bool keyboard=true, bool device_buttons=true);
 		void		importFrom(InputMap*map);
 		void		exportTo(InputMap*map);
@@ -83,7 +84,8 @@ namespace Engine
 			
 			friend class InputProfile;
 
-			TKeyLink				key[NumKeys];
+			//TKeyLink				key[NumKeys];
+			Array<TKeyLink>			key;	
 			InputProfile			default_profile,
 									*active_profile;
 			

@@ -1291,7 +1291,29 @@ namespace Engine
 			height = minHeight(false);
 		}
 
-		
+		void Edit::setText(const String&new_text)
+		{
+			text = new_text;
+			sel_start = 0;
+			view_begin = view_end = 0;
+			updateView();
+			signalVisualChange();
+		}
+		void Edit::setText(const ReferenceExpression<char>&new_text)
+		{
+			text = new_text;
+			sel_start = 0;
+			view_begin = view_end = 0;
+			updateView();
+			signalVisualChange();
+		}
+
+		void						Edit::setText(const char*new_text)
+		{
+			setText(ReferenceExpression<char>(new_text));
+		}
+
+
 		void						Edit::onColorPaint()
 		{
 			if (readonly || !enabled)
@@ -2054,6 +2076,7 @@ namespace Engine
 			text_changed = true;
 			if (!wrap_text)
 				width = minWidth(false);
+			signalLayoutChange();
 			return this;
 		}
 

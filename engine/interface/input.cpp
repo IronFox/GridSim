@@ -3,7 +3,7 @@
 
 namespace Engine
 {
-	std::function<void()>	unbound;
+	//std::function<void()>	unbound;
 	
 	InputMap	input;
 	
@@ -36,13 +36,15 @@ namespace Engine
 			if (verbose)
 				cout << " CTRL "<<profile->key[index].ctrl_pntr<<endl;
 			
-			profile->key[index].ctrl_pntr();
+			if (profile->key[index].ctrl_pntr)
+				profile->key[index].ctrl_pntr();
 		}
 		else
 		{
 			if (verbose)
 				cout << " "<<profile->key[index].down_pntr << endl;
-			profile->key[index].down_pntr();
+			if (profile->key[index].down_pntr)
+				profile->key[index].down_pntr();
 		}
 		stack_forward_depth--;
 	}
@@ -71,8 +73,9 @@ namespace Engine
 		}
 		if (verbose)
 			cout << " "<< profile->key[index].up_pntr << endl;
-			
-		profile->key[index].up_pntr();
+		
+		if (profile->key[index].up_pntr)
+			profile->key[index].up_pntr();
 		stack_forward_depth--;
 	}
 	
@@ -144,7 +147,7 @@ namespace Engine
 	}
 	
 
-	InputMap::InputMap():active_profile(&default_profile),stack_forward_depth(0),verbose(false)
+	InputMap::InputMap():key(NumKeys),active_profile(&default_profile),stack_forward_depth(0),verbose(false)
 	{
 		resetKeys();
 		
@@ -155,7 +158,9 @@ namespace Engine
 	}
 	
 	InputMap::~InputMap()
-	{}
+	{
+		resetKeys();
+	}
 	
 	
 	
@@ -166,9 +171,9 @@ namespace Engine
 			cout << " input: reset keys"<<endl;
 		for (unsigned i = 0; i < NumKeys; i++)
 		{
-			key[i].down_pntr = unbound;
-			key[i].up_pntr = unbound;
-			key[i].ctrl_pntr = unbound;
+			key[i].down_pntr = std::function<void()>();
+			key[i].up_pntr = std::function<void()>();
+			key[i].ctrl_pntr = std::function<void()>();
 			pressed[i] = false;
 		}
 	}
@@ -181,7 +186,7 @@ namespace Engine
 		{
 			key[i].down_pntr = std::bind(&InputMap::cascadeKeyDown,this,i);
 			key[i].up_pntr = std::bind(&InputMap::cascadeKeyUp,this,i);
-			key[i].ctrl_pntr = unbound;
+			key[i].ctrl_pntr = std::function<void()>();
 			pressed[i] = false;
 		}
 	}
@@ -192,7 +197,7 @@ namespace Engine
 			cout << " input: binding "<<resolveKeyName(name)<<"("<<name<<")"<<" to command "<<cmd<<endl;
 		unsigned k = ((unsigned)name)%NumKeys;
 		key[k].down_pntr = cmd;
-		key[k].up_pntr = unbound;
+		key[k].up_pntr = std::function<void()>();
 	}
 
 
@@ -220,9 +225,9 @@ namespace Engine
 		if (verbose)
 			cout << " input: unbinding "<<resolveKeyName(name)<<"("<<name<<")"<<endl;
 		unsigned k = ((unsigned)name)%NumKeys;
-		key[k].down_pntr = unbound;
-		key[k].up_pntr = unbound;
-		key[k].ctrl_pntr = unbound;
+		key[k].down_pntr = std::function<void()>();
+		key[k].up_pntr = std::function<void()>();
+		key[k].ctrl_pntr = std::function<void()>();
 	}
 	
 	void InputMap::cascade(Key::Name name)
@@ -232,7 +237,7 @@ namespace Engine
 		unsigned k = ((unsigned)name)%NumKeys;
 		key[k].down_pntr = std::bind(&InputMap::cascadeKeyDown,this,k);
 		key[k].up_pntr = std::bind(&InputMap::cascadeKeyUp,this,k);
-		key[k].ctrl_pntr = unbound;
+		key[k].ctrl_pntr = std::function<void()>();
 	}
 
 
@@ -246,7 +251,7 @@ namespace Engine
 		TKeyPreparation&p = preparation.append();
 		p.name = name;
 		p.function_pointer = cmd;
-		p.snd_pointer = unbound;
+		p.snd_pointer = std::function<void()>();
 		p.key_id = kname;
 		p.done = false;
 	}
@@ -321,9 +326,9 @@ namespace Engine
 		return active_profile;
 	}
 	
-	InputProfile::InputProfile(bool keyboard_, bool device_buttons_):keyboard(keyboard_),device_buttons(device_buttons_)
+	InputProfile::InputProfile(bool keyboard_, bool device_buttons_):keyboard(keyboard_),device_buttons(device_buttons_),key(NumKeys)
 	{
-		memset(key,0,sizeof(key));
+		//memset(key,0,sizeof(key));
 	}
 	
 	void InputProfile::importFrom(InputMap*from)
@@ -331,9 +336,9 @@ namespace Engine
 		if (from->verbose)
 			cout << " input: importing map "<<from<<" into profile "<<this<<endl;
 		if (keyboard)
-			memcpy(this->key,from->key,0x100*sizeof(TKeyLink));
+			key.copyFrom(from->key.pointer(),0x100);
 		if (device_buttons)
-			memcpy(this->key+0x100,from->key+0x100,(NumKeys-0x100)*sizeof(TKeyLink));
+			CopyStrategy::copyElements(from->key + 0x100,key + 0x100,(NumKeys-0x100));
 	}
 	
 	void InputProfile::exportTo(InputMap*to)
@@ -341,9 +346,9 @@ namespace Engine
 		if (to->verbose)
 			cout << " input: exporting profile "<<this<<" to map "<<to<<endl;
 		if (keyboard)
-			memcpy(to->key,this->key,0x100*sizeof(TKeyLink));
+			to->key.copyFrom(key.pointer(),0x100);
 		if (device_buttons)
-			memcpy(to->key+0x100,this->key+0x100,(NumKeys-0x100)*sizeof(TKeyLink));
+			CopyStrategy::copyElements(key + 0x100,to->key + 0x100,(NumKeys-0x100));
 	}
 
 

@@ -16,35 +16,35 @@ namespace Engine
 		class Label:public Component, public IToString
 		{
 		protected:
-				String					caption;	//!< Single line (complete) caption of the label
-				Array<String>			lines;			//!< Split (wrapped) caption
-				bool					text_changed;	//!< Indicates that the text changed and the text should be re-wrapped before printing it the next time
+			String						caption;	//!< Single line (complete) caption of the label
+			Array<String>				lines;			//!< Split (wrapped) caption
+			bool						text_changed;	//!< Indicates that the text changed and the text should be re-wrapped before printing it the next time
 				
-				void					setup();
-		static	float					charLen(char c);
+			void						setup();
+			static	float				charLen(char c);
 
 										Label(const String&type):Component("Label/"+type)	//!< Derivative label constructor
 										{
 											setup();
 										}		
 		public:
-				bool					wrap_text,			//!< Indicates that the caption should be wrapped at t
+			bool						wrap_text,			//!< Indicates that the caption should be wrapped at t
 										fill_background;	//!< Fills the label background before writing the label caption (false by default)
-				TVec3<GLfloat>			background_color;//!< Label background used if @b fill_background is true (light blueish by default)
-				TIcon					icon;				//!< Label icon (empty by default)
+			TVec3<GLfloat>				background_color;//!< Label background used if @b fill_background is true (light blueish by default)
+			TIcon						icon;				//!< Label icon (empty by default)
 				
 										Label():Component("Label")	//!< Simple label constructor
 										{
 											setup();
 										}
 
-		virtual	float					clientMinWidth()	const;	
-		virtual	float					clientMinHeight()	const;
-		virtual	void					onColorPaint();
-				const String&			text() const	{return caption;}	//!< Retrieves the current caption
-				Label*					setText(const String&text);		//!< Updates label caption
-				String					toString()	const	{return caption;}	//!< Simple CSObject toString() override
-		virtual	void					updateLayout(const Rect<float>&parent_region);
+			virtual	float				clientMinWidth()	const;	
+			virtual	float				clientMinHeight()	const;
+			virtual	void				onColorPaint();
+			const String&				text() const	{return caption;}	//!< Retrieves the current caption
+			Label*						setText(const String&text);		//!< Updates label caption
+			String						toString()	const	{return caption;}	//!< Simple CSObject toString() override
+			virtual	void				updateLayout(const Rect<float>&parent_region);
 		};
 		
 
@@ -516,7 +516,9 @@ namespace Engine
 										{
 											setup();
 										}
-			void						setText(const String&new_text)	{text = new_text;signalVisualChange();}
+			void						setText(const char*new_text);
+			void						setText(const String&new_text);
+			void						setText(const ReferenceExpression<char>&new_text);
 			StringBuffer&				getBuffer()			{signalVisualChange(); return text;}
 			const StringBuffer&			getBuffer() const	{return text;}
 			String						getText()		const{return text.toString();}
