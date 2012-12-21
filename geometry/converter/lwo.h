@@ -5,19 +5,14 @@
 
 LWO-access-unit.
 
-This file is part of Delta-Works
-Copyright (C) 2006-2008 Stefan Elsen, University of Trier, Germany.
-http://www.delta-works.org/forge/
-http://informatik.uni-trier.de/
-
 ******************************************************************/
 
 //---------------------------------------------------------------------------
 
 #include <stdio.h>
-#include "../math/vector.h"
-#include "../container/lvector.h"
-#include "../container/buffer.h"
+#include "../../math/vector.h"
+#include "../../container/lvector.h"
+#include "../../container/buffer.h"
 
 #define LWO_ASSEMBLE(c0,c1,c2,c3)	(((unsigned)(c3)<<24)|((unsigned)(c2)<<16)|((unsigned)(c1)<<8)|(unsigned)(c0))
 

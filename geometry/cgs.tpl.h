@@ -4427,7 +4427,7 @@ template <class Def>
 			robj.target = object_field.pointer() + i;
 			ASSERT_LESS__(ctr.countTextureLayers(),0x10000);
 			const typename Constructor<Def>::Object&cobj = ctr.getObject(i);
-			robj.vpool.setSize(ctr.countVertices(),(UINT16)ctr.countTextureLayers(),ctr.getVertexFlags());
+			robj.vpool.setSize(cobj.countVertices(),(UINT16)ctr.countTextureLayers(),ctr.getVertexFlags());
 	
 			robj.vpool.vdata.copyFrom(cobj.getVertices());
 			robj.detail=0;
@@ -4444,22 +4444,22 @@ template <class Def>
 			UINT32 band = cobj.getVertexSize();
 			const count_t vertices = cobj.countVertices();
 			const Float*vertex = cobj.getVertices();
-			for (index_t i = 0; i < vertices; i++)
+			for (index_t j = 0; j < vertices; j++)
 			{
-				Vec::clear(obj.vertex_field[i].position);
-				copy3(vertex+i*band,obj.vertex_field[i].position.v);
-				obj.vertex_field[i].index = i;
-				obj.vertex_field[i].marked = false;
+				Vec::clear(obj.vertex_field[j].position);
+				copy3(vertex+j*band,obj.vertex_field[j].position.v);
+				obj.vertex_field[j].index = j;
+				obj.vertex_field[j].marked = false;
 			}
 			const count_t triangles = cobj.countTriangles();
 			const Index*index = cobj.getIndices();
-			for (index_t i = 0; i < triangles; i++)
+			for (index_t j = 0; j < triangles; j++)
 			{
-				obj.triangle_field[i].vertex[0] = obj.vertex_field+index[i*3];
-				obj.triangle_field[i].vertex[1] = obj.vertex_field+index[i*3+1];
-				obj.triangle_field[i].vertex[2] = obj.vertex_field+index[i*3+2];
-				obj.triangle_field[i].index = i;
-				obj.triangle_field[i].marked = false;
+				obj.triangle_field[j].vertex[0] = obj.vertex_field+index[j*3];
+				obj.triangle_field[j].vertex[1] = obj.vertex_field+index[j*3+1];
+				obj.triangle_field[j].vertex[2] = obj.vertex_field+index[j*3+2];
+				obj.triangle_field[j].index = j;
+				obj.triangle_field[j].marked = false;
 			}
 			ASSERT1__(obj.valid(),obj.errorStr());
 
