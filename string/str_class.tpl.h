@@ -3015,6 +3015,12 @@ template <typename T>
 		return Template::strcmpi(field,string)==0;
 	}
 
+template <typename T>
+	bool				StringTemplate<T>::equalsIgnoreCase(const StringTemplate<T>&string)		const
+	{
+		return Template::strcmpi(field,string.field)==0;
+	}
+
 
 
 template <typename T>
