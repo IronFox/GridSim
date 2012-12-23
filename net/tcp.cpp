@@ -16,6 +16,25 @@ namespace TCP
 		socket = INVALID_SOCKET;
 		closesocket(socket_to_close);
 	}
+	String	addressToString(const addrinfo&address)
+	{
+		static char buffer[INET6_ADDRSTRLEN];
+		if (address.ai_addrlen == sizeof(sockaddr_in6))
+		{
+			sockaddr_in6 copy = *(const sockaddr_in6*)address.ai_addr;
+			inet_ntop(AF_INET6,&copy.sin6_addr,buffer,sizeof(buffer));
+		}
+		else
+			if (address.ai_addrlen == sizeof(sockaddr_in))
+			{
+				sockaddr_in copy = *(const sockaddr_in*)address.ai_addr;
+				inet_ntop(AF_INET,&copy.sin_addr,buffer,sizeof(buffer));
+			}
+			else
+				strcpy_s(buffer,sizeof(buffer),"[Unknown address type]");
+					
+		return buffer;
+	}
 
 
 	static const char* lastSocketError()
@@ -220,12 +239,12 @@ namespace TCP
 
 
 
-	bool	Peer::createSocket()
+	bool	Peer::createSocket(int af, int type, int protocol)
 	{
 		if (socket_handle!=INVALID_SOCKET)
 			return true;
 		owner->block_events = 0;
-		socket_handle = socket(AF_INET,SOCK_STREAM,IPPROTO_TCP); //and create a new socket
+		socket_handle = socket(af,type,protocol); //and create a new socket
 		return socket_handle != INVALID_SOCKET;
 	}
 	
@@ -233,7 +252,7 @@ namespace TCP
 	
 	void ConnectionAttempt::ThreadMain()
 	{
-#if 0
+
 		if (verbose)
 			cout << "ConnectionAttempt::ThreadMain() enter"<<endl;
 		client->disconnect();
@@ -266,55 +285,42 @@ namespace TCP
 				cout << "ConnectionAttempt::ThreadMain() exit: provided port is not parsable"<<endl;
 			return;
 		}
-		sockaddr_in target_addr;
-		memset(&target_addr,0,sizeof(target_addr)); //clear the address
-		target_addr.sin_port = htons(port); //set the port
-		target_addr.sin_family		= AF_INET;//internet - what else?
-		hostent*server;
-		if (isalpha(addr.firstChar()))
-			server = gethostbyname(addr.c_str()); //next we look up the hostname - this is actually a bit laggy
-		else
+
+
+
+		addrinfo hints,*remote_address;
+		memset(&hints,0,sizeof(hints));
+		hints.ai_family = AF_UNSPEC;
+		hints.ai_socktype = SOCK_STREAM;
+
+		if (getaddrinfo(addr.c_str(),s_port.c_str(),&hints,&remote_address) != 0)
 		{
-			UINT32 ip = inet_addr(addr.c_str());
-			if (ip == INADDR_NONE)
-			{
-				client->setError("Unable to resolve address '"+String(addr)+"'");
-				client->handleEvent(Event::ConnectionFailed,client);
-				if (verbose)
-					cout << "ConnectionAttempt::ThreadMain() exit: unable to decode IP address"<<endl;
-				return;
-			}
-			server = gethostbyaddr((const char*)&ip,sizeof(ip),AF_INET);
+			client->setError("Unable to resolve address '"+String(addr)+"'");
+			client->handleEvent(Event::ConnectionFailed,client);
+			if (verbose)
+				cout << "ConnectionAttempt::ThreadMain() exit: unable to decode IP address"<<endl;
+			return;
 		}
-		#if SYSTEM==WINDOWS
-			if (!server || WSAGetLastError()-WSABASEERR>0) //if we got an error we just abort. Usually it's a "host not found"-error
-		#else
-			if (!server)
-		#endif
-			{
-				client->setError("Unable to resolve address '"+String(addr)+"'");
-				client->handleEvent(Event::ConnectionFailed,client);
-				if (verbose)
-					cout << "ConnectionAttempt::ThreadMain() exit: unable to resolve address"<<endl;
-				return;
-			}
-		target_addr.sin_addr.s_addr = 0;											  //reset all 4 bytes, so we don't get funny things later because...
-		memcpy(&target_addr.sin_addr.s_addr,server->h_addr_list[0],server->h_length); //I don't know why, but addresses returned by getHostByName are not necessarily 4-byte addresses. They can be of lesser length, so we use memcpy, to transfer the address
-	
-		client->address = target_addr;
-		
-		//connect to target_addr:
-		if (!client->createSocket())	//create socket if it hasn't been created alnetReady (the method returns if it has been previously created)
+
+
+		if (!client->createSocket(remote_address->ai_family,remote_address->ai_socktype,remote_address->ai_protocol))	//create socket if it hasn't been created alnetReady (the method returns if it has been previously created)
 		{
 			client->fail("Socket creation failed");
 			if (verbose)
 				cout << "ConnectionAttempt::ThreadMain() exit: unable to create socket"<<endl;
 			return;
 		}
-		
-		if (connect(client->socket_handle,(sockaddr*)&target_addr,sizeof(target_addr)))
+
+		if (client->address)
+			freeaddrinfo(client->address);
+		client->address = remote_address;
+
+		String host = client->toString();
+
+	
+		if (connect(client->socket_handle,remote_address->ai_addr,(int)remote_address->ai_addrlen) != 0)
 		{
-			client->setError("Connection to '"+Net::Name(target_addr).toString()+"' failed ("+lastSocketError()+")");
+			client->setError("Connection to '"+host+"' failed ("+lastSocketError()+")");
 			client->handleEvent(Event::ConnectionFailed,client);
 			swapCloseSocket(client->socket_handle);
 			client->socket_handle = INVALID_SOCKET;
@@ -322,6 +328,7 @@ namespace TCP
 				cout << "ConnectionAttempt::ThreadMain() exit: connection failed"<<endl;
 			return;
 		}
+
 		if (verbose)
 			cout << "ConnectionAttempt::ThreadMain(): sending 'connection established' event"<<endl;
 		client->handleEvent(Event::ConnectionEstablished,client);
@@ -330,7 +337,7 @@ namespace TCP
 		client->start();
 		if (verbose)
 			cout << "ConnectionAttempt::ThreadMain() exit: connection established"<<endl;
-#endif /*0*/
+
 	}
 
 
@@ -389,7 +396,7 @@ namespace TCP
 				cout << "Peer::succeeded() exit: socket handle reset by remote operation"<<endl;
 			return false;
 		}
-		owner->setError("Connection lost to "+address.toString()+" ("+lastSocketError()+")");
+		owner->setError("Connection lost to "+toString()+" ("+lastSocketError()+")");
 		swapCloseSocket(socket_handle);
 		owner->handleEvent(Event::ConnectionLost,this);
 		owner->onDisconnect(this,Event::ConnectionLost);
@@ -433,7 +440,7 @@ namespace TCP
 					return false;
 				}
 				swapCloseSocket(socket_handle);
-				owner->setError("Connection lost to "+address.toString()+" ("+lastSocketError()+")");
+				owner->setError("Connection lost to "+toString()+" ("+lastSocketError()+")");
 				owner->handleEvent(Event::ConnectionLost,this);
 				owner->onDisconnect(this,Event::ConnectionLost);
 				if (verbose)

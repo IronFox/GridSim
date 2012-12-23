@@ -89,7 +89,7 @@ namespace Net
 
 
 
-	typedef sockaddr_storage									NetIdent;
+	//typedef sockaddr_storage									NetIdent;
 	typedef IndexTable<TChannel>							ChannelList;
 
 	typedef void (*_netReceive)(Connection*connection, UINT16 channel, const void*pntr,UINT32 size);
@@ -230,56 +230,59 @@ namespace Net
 	};
 
 
-	class Name : public NetIdent	//! Network address identifier
-	{
-	public:
 
 
-							Name()
-							{}
-							Name(const sockaddr_storage&ident):NetIdent(ident)
-							{}
-			int				compareTo(const Name&other)	const
-							{
-								if (this->ss_family < other.ss_family)
-									return -1;
-								if (ss_family > other.ss_family)
-									return 1;
-								if (ss_family == AF_INET6)
-								{
-									const sockaddr_in6&a = (const sockaddr_in6&)*this,
-														&b = (const sockaddr_in6&)other;
-									for (BYTE k = 0; k < 8; k++)
-										if (a.sin6_addr.u.Word[k] < b.sin6_addr.u.Word[k])
-											return -1;
-										elif (a.sin6_addr.u.Word[k] > b.sin6_addr.u.Word[k])
-											return 1;
-								}
-								else
-								{
-									const sockaddr_in	&a = (const sockaddr_in&)*this,
-														&b = (const sockaddr_in&)other;
-									if (a.sin_addr.S_un.S_addr < b.sin_addr.S_un.S_addr)
-										return -1;
-									elif (a.sin_addr.S_un.S_addr > b.sin_addr.S_un.S_addr)
-										return 1;
-								}
-								return 0;
-							}
-			bool			operator<(const Name&other) const
-							{
-								return compareTo(other) < 0;
-							}
-			bool			operator>(const Name&other) const
-							{
-								return compareTo(other) > 0;
-							}
-			bool			operator==(const Name&other) const
-							{
-								return compareTo(other) == 0;
-							}
-			String			toString() const;		//!< Converts a network address into a string of the form 192.168.0.1:2048 \return String representation of the address
-	};
+	//class Name//! Network address identifier
+	//{
+	//public:
+
+
+	//						Name()
+	//						{}
+	//						Name(const sockaddr_storage&ident):NetIdent(ident)
+	//						{}
+	//		int				compareTo(const Name&other)	const
+	//						{
+	//							addr->
+	//							if (this->ss_family < other.ss_family)
+	//								return -1;
+	//							if (ss_family > other.ss_family)
+	//								return 1;
+	//							if (ss_family == AF_INET6)
+	//							{
+	//								const sockaddr_in6&a = (const sockaddr_in6&)*this,
+	//													&b = (const sockaddr_in6&)other;
+	//								for (BYTE k = 0; k < 8; k++)
+	//									if (a.sin6_addr.u.Word[k] < b.sin6_addr.u.Word[k])
+	//										return -1;
+	//									elif (a.sin6_addr.u.Word[k] > b.sin6_addr.u.Word[k])
+	//										return 1;
+	//							}
+	//							else
+	//							{
+	//								const sockaddr_in	&a = (const sockaddr_in&)*this,
+	//													&b = (const sockaddr_in&)other;
+	//								if (a.sin_addr.S_un.S_addr < b.sin_addr.S_un.S_addr)
+	//									return -1;
+	//								elif (a.sin_addr.S_un.S_addr > b.sin_addr.S_un.S_addr)
+	//									return 1;
+	//							}
+	//							return 0;
+	//						}
+	//		bool			operator<(const Name&other) const
+	//						{
+	//							return compareTo(other) < 0;
+	//						}
+	//		bool			operator>(const Name&other) const
+	//						{
+	//							return compareTo(other) > 0;
+	//						}
+	//		bool			operator==(const Name&other) const
+	//						{
+	//							return compareTo(other) == 0;
+	//						}
+	//		String			toString() const;		//!< Converts a network address into a string of the form 192.168.0.1:2048 \return String representation of the address
+	//};
 
 
 
@@ -287,10 +290,10 @@ namespace Net
 	{
 	public:
 			_netClientEvent exec;				//!< Event handler
-			Name		target;				//!< Target address
+			const addrinfo*	target;				//!< Target address
 			UINT32			parameter;			//!< Event parameter
 
-							ClientEventItem(_netClientEvent event, const Name&name, UINT32 para);
+							ClientEventItem(_netClientEvent event, const addrinfo*name, UINT32 para);
 	virtual					~ClientEventItem();
 	};
 

@@ -22,6 +22,7 @@ namespace TCP
 
 
 	void	swapCloseSocket(volatile SOCKET&socket);
+	String	addressToString(const addrinfo&address);
 	
 
 	extern bool			verbose;	//!< Set true to automatically print events to the console. false by default
@@ -364,7 +365,7 @@ namespace TCP
 			friend class Server;
 			friend class RootChannel;
 			
-			bool						createSocket();			//!< Creates a new socket object (if not already existing) @return true if socket connection was successful
+			bool						createSocket(int af, int type, int protocol);			//!< Creates a new socket object (if not already existing) @return true if socket connection was successful
 			void						ThreadMain();			//!< Socket read thread main
 			bool						sendData(UINT32 channel_id, const void*data, size_t size);	//!< Sends raw data to the TCP stream
 			bool						succeeded(int result, size_t desired);							//!< Handles the result of a TCP socket send operation. @param result Actual value returned by send() @param desired Valued expected to be returned by send() @return true if both values match, false otherwise. The connection is automatically closed, events triggered and error values set if the operation failed.
@@ -389,18 +390,20 @@ namespace TCP
 				
 			*/
 			shared_ptr<Attachment>		attachment;
-			Net::Name					address;							//!< Remote peer address
+			addrinfo					*address;					//!< Remote peer address
 			unsigned					user_level;							//!< Current user level. Anonymous by default
 			
 			
 				
-										Peer(Connection*connection):owner(connection),socket_handle(INVALID_SOCKET),user_level(User::Anonymous)
+										Peer(Connection*connection):owner(connection),socket_handle(INVALID_SOCKET),address(NULL),user_level(User::Anonymous)
 										{
 											ASSERT_NOT_NULL__(owner);
 										}
 	virtual								~Peer()
 										{
 											disconnect();
+											if (address)
+												freeaddrinfo(address);
 										}
 
 			void						disconnect();			//!< Disconnects the local peer. If this peer is element of a peer collection (ie. a Server instance) then the owner is automatically notified that the client on this peer is no longer available. The local data is erased immediately if the respective dispatcher is set to @b async, or when its resolve() method is next executed.
@@ -410,7 +413,7 @@ namespace TCP
 										}
 			String						toString()	const	//! Converts the local address into a string. If the local object is NULL then the string "NULL" is returned instead.
 										{
-											return this?address.toString():"NULL";
+											return this&&address?addressToString(*address):"NULL";
 										}
 			bool						sendSignal(UINT32 channel);		//!< Sends a data-less package to the other end of this peer
 			

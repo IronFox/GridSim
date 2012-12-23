@@ -37,6 +37,7 @@ namespace Net
 	}
 
 
+#if 0
 	String Name::toString() const
 	{
 		char str[INET6_ADDRSTRLEN];
@@ -61,7 +62,7 @@ namespace Net
 		}
 		return "NA";
 	}
-
+#endif /*0*/
 	
 
 	void sysmessage(Node*node, const String&str)
