@@ -435,8 +435,16 @@ namespace Engine
 				signalVisualChange();
 			}
 		}
-
-
+	
+		/*virtual*/	void					Component::setVisible(bool visible)
+		{
+			if (this->visible != visible)
+			{
+				this->visible = visible;
+				signalVisualChange();
+			}
+		}
+	
 		shared_ptr<Operator>	Component::getOperator() const
 		{
 			if (window_link.expired())
@@ -2353,7 +2361,7 @@ namespace Engine
 					continue;
 				}
 				
-				if (window->component_link && window->component_link->visible && window->component_link->isEnabled())
+				if (window->component_link && window->component_link->isVisible() && window->component_link->isEnabled())
 				{
 					Component::eEventResult rs = window->component_link->onMouseWheel(x,y,delta);
 					window->apply(rs);
@@ -2376,7 +2384,7 @@ namespace Engine
 				if (!window->cell_layout.border.contains(x,y))
 					continue;
 				
-				if (window->component_link && window->component_link->visible && window->component_link->isEnabled())
+				if (window->component_link && window->component_link->isVisible() && window->component_link->isEnabled())
 				{
 					Component::eEventResult rs = window->component_link->onMouseWheel(x,y,delta);
 					window->apply(rs);

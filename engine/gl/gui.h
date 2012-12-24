@@ -218,43 +218,43 @@ namespace Engine
 		class Component: public enable_shared_from_this<Component>
 		{
 		private:
-		static	void 						charRead(char c);
+			static	void 						charRead(char c);
 		protected:
-				weak_ptr<Window>			window_link;	//!< Link to the owning window. Not NULL if this component is part of any window.
-				friend class Window;
-				bool						enabled;		//!< Indicates that this item may receive events
+			weak_ptr<Window>					window_link;	//!< Link to the owning window. Not NULL if this component is part of any window.
+			friend class Window;
+			bool								enabled;		//!< Indicates that this item may receive events
+			bool								visible;		//!< Indicates that this item is visible. Invisible items are automatically treated as disabled.
 											
 		public:
-		static	void						keyDown(int key);	//!< Key down event linked to the keyboard interface
-		static	void						keyUp(int key);		//!< Key up event linked to the keyboard interface
+			static	void						keyDown(int key);	//!< Key down event linked to the keyboard interface
+			static	void						keyUp(int key);		//!< Key up event linked to the keyboard interface
 		
 		
-				enum eEventResult		//! Generic event result
-				{
-					Unsupported,		//!< The invoked event type is not supported by the component in its current state or at all
-					Handled,			//!< The invoked event has been handled but no visual changes occured
-					RequestingRepaint,	//!< The invoked event has been handled and the component requests a window repaint
-					RequestingReshape	//!< The invoked event has been handled and the component requests a complete window layout update and repaint
-				};
+			enum eEventResult		//! Generic event result
+			{
+				Unsupported,		//!< The invoked event type is not supported by the component in its current state or at all
+				Handled,			//!< The invoked event has been handled but no visual changes occured
+				RequestingRepaint,	//!< The invoked event has been handled and the component requests a window repaint
+				RequestingReshape	//!< The invoked event has been handled and the component requests a complete window layout update and repaint
+			};
 
-				struct TExtEventResult	//! Struct to hold additional event results of certain event methods
-				{
-					Mouse::eCursor			custom_cursor;	//!< Cursor to replace the current one with
-					shared_ptr<Component>	caught_by;		//!< Component that actually caught the event
-				};
+			struct TExtEventResult	//! Struct to hold additional event results of certain event methods
+			{
+				Mouse::eCursor					custom_cursor;	//!< Cursor to replace the current one with
+				shared_ptr<Component>			caught_by;		//!< Component that actually caught the event
+			};
 
-				Rect<float>					current_region,	//!< Current component region. This rectangle completely surrounds the component including all cells of its layout (if any)
-											offset;			//!< Signed offset from the parent region. Effective only if @b anchored.coord[x] is true. should be negative for right/top offset
-				Rect<bool>					anchored;		//!< Indicates that the respective coordinates of the final component region is calculated relative to the respective parent edge.
-				float						width,			//!< Fixed component width if either anchored.left or anchored.right is false. Has no effect if both anchored.left and anchored.right are true
-											height;			//!< Fixed component height if either anchored.bottom or anchored.top is false. Has no effect if both anchored.bottom and anchored.top are true
-				const String				type_name;		//!< Constant type name of this component. Assigned during construction (usually the class name without the leading 'C')
-				TCellLayout					cell_layout;	//!< Effective applied cell layout. This variable is updated even if this component has no layout
-				Layout*						layout;			//!< Layout attached to this component or NULL if this component has no layout
-		static	Textout<GLTextureFont2>		textout;		//!< Global textout used to render text
-				float						tick_interval;	//!< Interval (in seconds) between executions of the onTick() method
+			Rect<float>							current_region,	//!< Current component region. This rectangle completely surrounds the component including all cells of its layout (if any)
+												offset;			//!< Signed offset from the parent region. Effective only if @b anchored.coord[x] is true. should be negative for right/top offset
+			Rect<bool>							anchored;		//!< Indicates that the respective coordinates of the final component region is calculated relative to the respective parent edge.
+			float								width,			//!< Fixed component width if either anchored.left or anchored.right is false. Has no effect if both anchored.left and anchored.right are true
+												height;			//!< Fixed component height if either anchored.bottom or anchored.top is false. Has no effect if both anchored.bottom and anchored.top are true
+			const String						type_name;		//!< Constant type name of this component. Assigned during construction (usually the class name without the leading 'C')
+			TCellLayout							cell_layout;	//!< Effective applied cell layout. This variable is updated even if this component has no layout
+			Layout*								layout;			//!< Layout attached to this component or NULL if this component has no layout
+			static	Textout<GLTextureFont2>		textout;		//!< Global textout used to render text
+			float								tick_interval;	//!< Interval (in seconds) between executions of the onTick() method
 
-				bool						visible;		//!< Indicates that this item is visible. Invisible items are automatically treated as disabled.
 
 		
 				
@@ -291,8 +291,10 @@ namespace Engine
 			virtual	index_t						indexOfChild(const shared_ptr<Component>&child) const;						//!< Determines the index of the specified child or 0xFFFFFFFF if the specified component is no child of this component.
 			shared_ptr<Component>				successorOf(const shared_ptr<Component>&child);									//!< Queries the successor element of the specified one @return successor or NULL if no successor could be found
 			void								locate(const Rect<float>&parent_region,Rect<float>&region)	const;	//!< Resolves the absolute location of the local item based on the specified parent region.
-			virtual void						setEnabled(bool enabled);				//!< Enables/disables the ability of this component to receive events. Disables components may have a different style. A redraw is automatically issued
+			virtual void						setEnabled(bool enabled);				//!< Enables/disables the ability of this component to receive events. Disabled components may have a different style. A redraw is automatically issued
 			bool								isEnabled()	const	{return enabled;}
+			virtual void						setVisible(bool visible);				//!< Changes the visibility of this component. A redraw is automatically issued
+			bool								isVisible()	const	{return visible;}
 			void								signalLayoutChange() const;					//!< Signals that the layout of the local component has changed in such a way that all components must be re-arranged
 			void								signalVisualChange() const;					//!< Signals that the local component must be redrawn
 			

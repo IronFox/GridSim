@@ -216,7 +216,7 @@ namespace Engine
 
 			op->focus(cell_layout.client);
 			for (index_t i = 0; i < children.count(); i++)
-				if (children[i]->visible)
+				if (children[i]->isVisible())
 					children[i]->onColorPaint();
 			op->unfocus();
 		}
@@ -228,7 +228,7 @@ namespace Engine
 			
 			op->focus(cell_layout.client);
 			for (index_t i = 0; i < children.count(); i++)
-				if (children[i]->visible)
+				if (children[i]->isVisible())
 					children[i]->onNormalPaint();
 			op->unfocus();
 		}
@@ -238,7 +238,7 @@ namespace Engine
 			for (index_t i = children.count()-1; i < children.count(); i--)
 			{
 				const shared_ptr<Component>&child = children[i];
-				if (child->visible && child->cell_layout.border.contains(x,y))
+				if (child->isVisible() && child->cell_layout.border.contains(x,y))
 				{
 					if (!child->isEnabled())
 						return Unsupported;
@@ -253,7 +253,7 @@ namespace Engine
 			for (index_t i = children.count()-1; i < children.count(); i--)
 			{
 				const shared_ptr<Component>&child = children[i];
-				if (child->visible && child->cell_layout.border.contains(x,y))
+				if (child->isVisible() && child->cell_layout.border.contains(x,y))
 				{
 					if (child->isEnabled())
 						return child->onMouseDown(x,y,ext);
@@ -268,7 +268,7 @@ namespace Engine
 			for (index_t i = children.count()-1; i < children.count(); i--)
 			{
 				const shared_ptr<Component>&child = children[i];
-				if (child->visible && child->isEnabled() && child->current_region.contains(x,y))
+				if (child->isVisible() && child->isEnabled() && child->current_region.contains(x,y))
 					return child->onMouseWheel(x,y,delta);
 			}
 			return Unsupported;
@@ -979,12 +979,12 @@ namespace Engine
 					//children[i]->updateLayout(cell_layout.client);
 					Rect<float>	child_region;
 					const shared_ptr<Component>&child = children[i];
-					if (vertical_bar->visible)
+					if (vertical_bar->isVisible())
 					{
 						child->anchored.top = true;
 						child->anchored.bottom = false;
 					}
-					if (horizontal_bar->visible)
+					if (horizontal_bar->isVisible())
 					{
 						child->anchored.left = true;
 						child->anchored.right = false;
@@ -1015,31 +1015,31 @@ namespace Engine
 			vertical.window = cell_layout.client.height();
 			
 			if (horizontal_bar->auto_visibility)
-				horizontal_bar->visible = horizontal.max>horizontal.window;
+				horizontal_bar->setVisible(horizontal.max>horizontal.window);
 			if (vertical_bar->auto_visibility)
-				vertical_bar->visible = vertical.max>vertical.window;
+				vertical_bar->setVisible(vertical.max>vertical.window);
 			
-			if (vertical_bar->visible)
+			if (vertical_bar->isVisible())
 				horizontal.window-=vertical_bar->width;
-			if (horizontal_bar->visible)
+			if (horizontal_bar->isVisible())
 				vertical.window-=horizontal_bar->height;
 			
-			if (!horizontal_bar->visible && horizontal_bar->auto_visibility)
+			if (!horizontal_bar->isVisible() && horizontal_bar->auto_visibility)
 			{
-				horizontal_bar->visible = horizontal.max>horizontal.window;
-				if (horizontal_bar->visible)
+				horizontal_bar->setVisible(horizontal.max>horizontal.window);
+				if (horizontal_bar->isVisible())
 					vertical.window-=horizontal_bar->height;
 			}
-			if (!vertical_bar->visible && vertical_bar->auto_visibility)
+			if (!vertical_bar->isVisible() && vertical_bar->auto_visibility)
 			{
-				vertical_bar->visible = vertical.max>vertical.window;
-				if (vertical_bar->visible)
+				vertical_bar->setVisible(vertical.max>vertical.window);
+				if (vertical_bar->isVisible())
 				{
 					horizontal.window-=vertical_bar->height;
-					if (!horizontal_bar->visible && horizontal_bar->auto_visibility)
+					if (!horizontal_bar->isVisible() && horizontal_bar->auto_visibility)
 					{
-						horizontal_bar->visible = horizontal.max>horizontal.window;
-						if (horizontal_bar->visible)
+						horizontal_bar->setVisible(horizontal.max>horizontal.window);
+						if (horizontal_bar->isVisible())
 							vertical.window-=horizontal_bar->height;
 					}
 				}
@@ -1048,14 +1048,14 @@ namespace Engine
 			horizontal_bar->scroll_data = horizontal;
 			vertical_bar->scroll_data = vertical;
 			horizontal_bar->anchored.set(true,true,true,false);
-			horizontal_bar->offset.set(0,0,vertical_bar->visible?-vertical_bar->minWidth(false):0,0);
+			horizontal_bar->offset.set(0,0,vertical_bar->isVisible()?-vertical_bar->minWidth(false):0,0);
 			vertical_bar->anchored.set(false,true,true,true);
-			vertical_bar->offset.set(0,horizontal_bar->visible?horizontal_bar->minHeight(false):0,0,0);
+			vertical_bar->offset.set(0,horizontal_bar->isVisible()?horizontal_bar->minHeight(false):0,0,0);
 			horizontal_bar->updateLayout(cell_layout.client);
 			vertical_bar->updateLayout(cell_layout.client);
 			effective_client_region.set(cell_layout.client.left,
-										horizontal_bar->visible?/*floor*/(horizontal_bar->current_region.top):cell_layout.client.bottom,
-										vertical_bar->visible?/*ceil*/(vertical_bar->current_region.left):cell_layout.client.right,
+										horizontal_bar->isVisible()?/*floor*/(horizontal_bar->current_region.top):cell_layout.client.bottom,
+										vertical_bar->isVisible()?/*ceil*/(vertical_bar->current_region.left):cell_layout.client.right,
 										cell_layout.client.top);
 			//effective_client_region = cell_layout.client;
 			
@@ -1072,8 +1072,8 @@ namespace Engine
 				vertical.current = vertical_bar->scroll_data.current = 0;
 			}
 
-			float	offset_x = horizontal_bar->visible?-(horizontal.current * hrange):0,
-					offset_y = vertical_bar->visible?(vertical.current * vrange):0;
+			float	offset_x = horizontal_bar->isVisible()?-(horizontal.current * hrange):0,
+					offset_y = vertical_bar->isVisible()?(vertical.current * vrange):0;
 			
 			Rect<float>	space = effective_client_region;
 			space.translate(offset_x,offset_y);
@@ -1082,7 +1082,7 @@ namespace Engine
 			for (index_t i = 0; i < children.count(); i++)
 			{
 				const shared_ptr<Component>&child = children[i];
-				if (!child->visible)
+				if (!child->isVisible())
 					continue;
 				child->updateLayout(space);
 				if (effective_client_region.intersects(child->current_region))
@@ -1092,13 +1092,13 @@ namespace Engine
 		
 		Component::eEventResult		ScrollBox::onMouseWheel(float x, float y, short delta)
 		{
-			if (horizontal_bar->visible && horizontal_bar->isEnabled() && horizontal_bar->current_region.contains(x,y))
+			if (horizontal_bar->isVisible() && horizontal_bar->isEnabled() && horizontal_bar->current_region.contains(x,y))
 			{
 				if (horizontal_bar->scrollable.expired())
 					horizontal_bar->scrollable = toScrollable();
 				return horizontal_bar->onMouseWheel(x,y,delta);
 			}
-			if (vertical_bar->visible && horizontal_bar->isEnabled() && vertical_bar->current_region.contains(x,y))
+			if (vertical_bar->isVisible() && horizontal_bar->isEnabled() && vertical_bar->current_region.contains(x,y))
 			{
 				if (vertical_bar->scrollable.expired())
 					vertical_bar->scrollable = toScrollable();
@@ -1121,13 +1121,13 @@ namespace Engine
 					}
 				}
 			}
-			if (vertical_bar->visible && vertical_bar->isEnabled())
+			if (vertical_bar->isVisible() && vertical_bar->isEnabled())
 			{
 				if (vertical_bar->scrollable.expired())
 					vertical_bar->scrollable = toScrollable();
 				return vertical_bar->onMouseWheel(x,y,delta);
 			}
-			if (horizontal_bar->visible && horizontal_bar->isEnabled())
+			if (horizontal_bar->isVisible() && horizontal_bar->isEnabled())
 			{
 				if (horizontal_bar->scrollable.expired())
 					horizontal_bar->scrollable = toScrollable();
@@ -1138,8 +1138,8 @@ namespace Engine
 		
 		float		ScrollBox::clientMinWidth()	const
 		{
-			float w = horizontal_bar->visible || horizontal_bar->auto_visibility?horizontal_bar->minWidth(false):Panel::clientMinWidth();
-			if (vertical_bar->visible)
+			float w = horizontal_bar->isVisible() || horizontal_bar->auto_visibility?horizontal_bar->minWidth(false):Panel::clientMinWidth();
+			if (vertical_bar->isVisible())
 				w += vertical_bar->minWidth(false);
 			return w;
 		}
@@ -1147,7 +1147,7 @@ namespace Engine
 		float		ScrollBox::clientMinHeight()	const
 		{
 			float h;
-			if (vertical_bar->visible || vertical_bar->auto_visibility)
+			if (vertical_bar->isVisible() || vertical_bar->auto_visibility)
 				h = vertical_bar->minHeight(false);
 			else
 			{
@@ -1155,7 +1155,7 @@ namespace Engine
 				for (index_t i = 0; i < children.count(); i++)
 					h += children[i]->height;
 			}
-			if (horizontal_bar->visible)
+			if (horizontal_bar->isVisible())
 				h += horizontal_bar->minHeight(false);
 			return h;
 		}
@@ -1173,9 +1173,9 @@ namespace Engine
 				visible_children[i]->onColorPaint();
 			op->unfocus();
 			
-			if (horizontal_bar->visible)
+			if (horizontal_bar->isVisible())
 				horizontal_bar->onColorPaint();
-			if (vertical_bar->visible)
+			if (vertical_bar->isVisible())
 				vertical_bar->onColorPaint();
 		}
 		
@@ -1192,9 +1192,9 @@ namespace Engine
 				visible_children[i]->onNormalPaint();
 			op->unfocus();
 
-			if (horizontal_bar->visible)
+			if (horizontal_bar->isVisible())
 				horizontal_bar->onNormalPaint();
-			if (vertical_bar->visible)
+			if (vertical_bar->isVisible())
 				vertical_bar->onNormalPaint();
 		}
 
@@ -1203,13 +1203,13 @@ namespace Engine
 		
 		Component::eEventResult		ScrollBox::onMouseHover(float x, float y, TExtEventResult&ext)
 		{
-	 		if (horizontal_bar->visible && horizontal_bar->cell_layout.border.contains(x,y))
+	 		if (horizontal_bar->isVisible() && horizontal_bar->cell_layout.border.contains(x,y))
 			{
 				if (horizontal_bar->scrollable.expired())
 					horizontal_bar->scrollable = toScrollable();
 				return horizontal_bar->isEnabled()?horizontal_bar->onMouseHover(x,y,ext):Unsupported;
 			}
-			if (vertical_bar->visible && vertical_bar->cell_layout.border.contains(x,y))
+			if (vertical_bar->isVisible() && vertical_bar->cell_layout.border.contains(x,y))
 			{
 				if (vertical_bar->scrollable.expired())
 					vertical_bar->scrollable = toScrollable();
@@ -1234,13 +1234,13 @@ namespace Engine
 		Component::eEventResult		ScrollBox::onMouseDown(float x, float y, TExtEventResult&ext)
 		{
 			Component::eEventResult result;
-			if (horizontal_bar->visible && horizontal_bar->isEnabled() && horizontal_bar->current_region.contains(x,y) && (result = horizontal_bar->onMouseDown(x,y,ext)))
+			if (horizontal_bar->isVisible() && horizontal_bar->isEnabled() && horizontal_bar->current_region.contains(x,y) && (result = horizontal_bar->onMouseDown(x,y,ext)))
 			{
 				if (horizontal_bar->scrollable.expired())
 					horizontal_bar->scrollable = toScrollable();
 				return result;
 			}
-			if (vertical_bar->visible && vertical_bar->isEnabled() && vertical_bar->current_region.contains(x,y) && (result = vertical_bar->onMouseDown(x,y,ext)))
+			if (vertical_bar->isVisible() && vertical_bar->isEnabled() && vertical_bar->current_region.contains(x,y) && (result = vertical_bar->onMouseDown(x,y,ext)))
 			{
 				if (vertical_bar->scrollable.expired())
 					vertical_bar->scrollable = toScrollable();
@@ -2572,7 +2572,7 @@ namespace Engine
 
 		void	Menu::setup()
 		{
-			ScrollBox::horizontal_bar->visible = false;
+			ScrollBox::horizontal_bar->setVisible(false);
 			ScrollBox::vertical_bar->auto_visibility = true;
 			parent.reset();
 			//level = 0;
