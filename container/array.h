@@ -694,7 +694,7 @@ template <class C>
 
 			virtual	bool			serialize(IWriteStream&out_stream, bool export_size) const
 			{
-				if (export_size)
+				if (export_size || isISerializable(data))
 					if (!out_stream.writeSize(elements))
 						return false;
 				if (!isISerializable(data))
@@ -726,7 +726,10 @@ template <class C>
 					if (!isISerializable(data))
 						size = (count_t)(fixed_size/sizeof(C));
 					else
-						FATAL__("trying to deserialize an array containing serializable objects from a fixed size stream data section not including any element count");
+						if (!in_stream.readSize(size))
+							return false;
+						
+						//FATAL__("trying to deserialize an array containing serializable objects from a fixed size stream data section not including any element count");
 				}
 
 				setSize(size);
