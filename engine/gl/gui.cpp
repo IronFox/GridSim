@@ -2475,6 +2475,8 @@ namespace Engine
 			input.pushProfile();
 			input.bindProfile(my_profile);
 				//input.cascadeKeys();
+				input.cascade(Key::Escape);
+
 				rs->bind(Key::Left);
 				rs->bind(Key::Right);
 				rs->bind(Key::Up);
