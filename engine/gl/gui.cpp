@@ -2231,7 +2231,11 @@ namespace Engine
 				window->operator_link = shared_from_this();
 			Component::setFocused(shared_ptr<Component>());
 			window_stack.findAndErase(window);
-			window_stack << window;
+
+			if (!window->is_modal && window_stack.isNotEmpty() && window_stack.last()->is_modal)
+				window_stack.insert(window_stack.size()-1,window);
+			else
+				window_stack << window;
 			#ifdef DEEP_GUI
 				window->current_center.shell_radius = window->destination.shell_radius = window->origin.shell_radius = radiusOf(window_stack-1);
 			#endif

@@ -204,12 +204,20 @@ namespace Engine
 
 	void GLTextureFont2::write(const char*str)
 	{
-	        glCallLists((GLsizei)strlen(str), GL_UNSIGNED_BYTE, str);
+			write(str,strlen(str));
 	}
 
 	void GLTextureFont2::write(const char*str, size_t len)
 	{
-	        glCallLists(GLuint(len),GL_UNSIGNED_BYTE,str);
+		for (index_t i = 0; i < len; i++)
+		{
+			BYTE at= str[i];
+			if (chars[at].isset)
+				glCallList(base + at);
+			else
+				glCallList(base + (BYTE)'?');
+		}
+	        //glCallLists(GLuint(len),GL_UNSIGNED_BYTE,str);
 	}
 
 	void GLTextureFont2::end()
