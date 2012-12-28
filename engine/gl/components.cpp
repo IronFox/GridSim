@@ -910,6 +910,7 @@ namespace Engine
 		bool					ScrollBox::erase(const shared_ptr<Component>&component)
 		{
 			visible_children.findAndErase(component);
+			signalLayoutChange();
 			return children.findAndErase(component);
 		}
 		
@@ -919,6 +920,7 @@ namespace Engine
 				return false;
 			visible_children.findAndErase(children[index]);
 			children.erase(index);
+			signalLayoutChange();
 			return true;
 		}
 		
@@ -2787,11 +2789,13 @@ namespace Engine
 			}
 				//message_button->on_execute += hideMessage;
 			
-			message_label->setText(query);
 			message_label->wrap_text = true;
+			message_label->setText(query);
 			message_label->anchored.set(true,true,true,true);
 			panel->add(message_label);
 			panel->add(buttons.first());
+			buttons.first()->anchored.set(true,true,false,false);
+
 			for (index_t i = 1; i < buttons.count(); i++)
 				panel->appendRight(buttons[i]);
 
@@ -2805,6 +2809,12 @@ namespace Engine
 			window->iheight = (size_t)(window->fheight = window->minHeight());
 			window->layout_changed = true;
 			window->visual_changed = true;
+			window->updateLayout();
+			window->iheight = (size_t)(window->fheight = window->minHeight());
+			message_label->setText(query);
+			window->updateLayout();
+			window->iheight = (size_t)(window->fheight = window->minHeight());
+
 			op.insertWindow(window);
 			Component::setFocused(buttons[0]);
 			
