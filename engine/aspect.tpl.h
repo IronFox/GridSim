@@ -831,6 +831,10 @@ template <class C> MF_DECLARE (void) AngularCamera<C>::build()
 	C	a0 = angle.x*M_PI/180,
 		a1 = angle.y*M_PI/180,
 		a2 = angle.z*M_PI/180;
+	if (GlobalAspectConfiguration::world_z_is_up)
+	{
+		swp(a1,a2);
+	}
 
 	TMatrix3<C>	mbuffer0,
 				mbuffer1,
@@ -890,8 +894,18 @@ MFUNC1 (void) AngularCamera<C>::lookAtPlanar(const TVec3<C0>&vector)
 template <class C>
 MFUNC1 (void) AngularCamera<C>::lookAt(const TVec3<C0>&vector)
 {
-	angle.y = 90.f - Vec::angle360(location.x-vector.x,location.z-vector.z);
-	angle.x = vatan2(location.y-vector.y,vsqrt(sqr(location.x-vector.x)+sqr(location.z-vector.z)))*(C)180/M_PI;
+	if (GlobalAspectConfiguration::world_z_is_up)
+	{
+		angle.z = 90.f - Vec::angle360(location.x-vector.x,location.y-vector.y);
+		angle.x = vatan2(location.z-vector.z,vsqrt(sqr(location.x-vector.x)+sqr(location.y-vector.y)))*(C)180/M_PI;
+		angle.z = 0;
+	}
+	else
+	{
+		angle.y = 90.f - Vec::angle360(location.x-vector.x,location.z-vector.z);
+		angle.x = vatan2(location.y-vector.y,vsqrt(sqr(location.x-vector.x)+sqr(location.z-vector.z)))*(C)180/M_PI;
+		angle.z = 0;
+	}
 	build();
 }
 
