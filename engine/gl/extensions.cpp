@@ -702,8 +702,8 @@ namespace Engine
 		
 			return glGetError() == GL_NO_ERROR;
 		}
-	
-		bool			Variable::set3fv(const float vector[3])
+
+		bool					Variable::set(const TVec3<>&vector)
 		{
 			if (handle == -1)
 				return false;
@@ -714,15 +714,16 @@ namespace Engine
 				return false;
 
 			glGetError();//flush errors
-			glUniform3f(handle, vector[0],vector[1],vector[2]);
+			glUniform3f(handle, vector.x,vector.y,vector.z);
 		
 			if (!was_installed)
 				instance->uninstall();
 		
 			return glGetError() == GL_NO_ERROR;
+
 		}
 	
-		bool			Variable::set2fv(const float vector[2])
+		bool					Variable::set(const TVec2<>&vector)
 		{
 			if (handle == -1)
 				return false;
@@ -733,7 +734,7 @@ namespace Engine
 				return false;
 
 			glGetError();//flush errors
-			glUniform2f(handle, vector[0],vector[1]);
+			glUniform2f(handle, vector.x,vector.y);
 		
 			if (!was_installed)
 				instance->uninstall();
@@ -760,7 +761,8 @@ namespace Engine
 			return glGetError() == GL_NO_ERROR;
 		}
 
-		bool			Variable::set4fv(const float vector[4])
+
+		bool			Variable::set(const TVec4<>&vector)
 		{
 			if (handle == -1)
 				return false;
@@ -771,14 +773,14 @@ namespace Engine
 				return false;
 			
 			glGetError();//flush errors
-			glUniform4f(handle, vector[0],vector[1],vector[2],vector[3]);
+			glUniform4f(handle, vector.x,vector.y,vector.z,vector.w);
 
 			if (!was_installed)
 				instance->uninstall();
 			return glGetError() == GL_NO_ERROR;
 		}
 	
-		bool			Variable::setMatrix3fv(const float matrix[9])
+		bool					Variable::set(const TMatrix3<>&matrix)
 		{
 			if (handle == -1)
 				return false;
@@ -788,13 +790,13 @@ namespace Engine
 			if (!was_installed && (lock_uninstalled || !instance->install()))
 				return false;
 			glGetError();//flush errors
-			glUniformMatrix3fv(handle,1,false,matrix);
+			glUniformMatrix3fv(handle,1,false,matrix.v);
 			if (!was_installed)
 				instance->uninstall();
 			return glGetError() == GL_NO_ERROR;
 		}
 	
-		bool			Variable::setMatrix4fv(const float matrix[16])
+		bool					Variable::set(const TMatrix4<>&matrix)
 		{
 			if (handle == -1)
 				return false;
@@ -804,7 +806,7 @@ namespace Engine
 			if (!was_installed && (lock_uninstalled || !instance->install()))
 				return false;
 			glGetError();//flush errors
-			glUniformMatrix4fv(handle,1,false,matrix);
+			glUniformMatrix4fv(handle,1,false,matrix.v);
 			if (!was_installed)
 				instance->uninstall();
 			return glGetError() == GL_NO_ERROR;

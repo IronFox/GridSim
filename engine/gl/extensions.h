@@ -172,12 +172,12 @@
 											Variable();
 
 					bool					setf(float value);
-					bool					set2fv(const float vector[2]);
-					bool					set3fv(const float vector[3]);
-					bool					set4fv(const float vector[4]);
 					bool					set4f(float x, float y, float z, float w);
-					bool					setMatrix3fv(const float matrix[9]);
-					bool					setMatrix4fv(const float matrix[16]);
+					bool					set(const TVec2<>&);
+					bool					set(const TVec3<>&);
+					bool					set(const TVec4<>&);
+					bool					set(const TMatrix3<>&);
+					bool					set(const TMatrix4<>&);
 					bool					seti(int value);
 				
 			static	void					lockUninstalledShaderVariables()

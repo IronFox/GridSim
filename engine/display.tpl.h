@@ -217,34 +217,15 @@ namespace Engine
 
 
 
-	template <class GL>inline bool Display<GL>::create()
-	{
-		return create("[Application]",false);
-	}
-
-	template <class GL>inline bool Display<GL>::create(bool hide_border)
-	{
-		return create("[Application]",hide_border);
-	}
-	
-	template <class GL>inline bool Display<GL>::createIconed(const String&window_name, const String&icon_filename)
-	{
-		return createEx(window_name,false,icon_filename);
-	}
-
-	template <class GL>inline bool Display<GL>::create(const String&window_name, bool hide_border)
-	{
-		return createEx(window_name,hide_border,"");
-	}
 	
 	#if SYSTEM==WINDOWS
-	template <class GL>bool Display<GL>::createEx(const String&window_name, bool hide_border, const String&icon_filename)
+	template <class GL>bool Display<GL>::create(const DisplayConfig&dconfig)
 	{
 
 	    framebuffer_bound = false;
 	    while (true)
 	    {
-	        HWND hWnd = context.createWindow(window_name,hide_border,icon_filename);
+	        HWND hWnd = context.createWindow(dconfig.window_name,dconfig.hide_border,dconfig.icon_filename);
 	        if (!hWnd)
 	        {
 	            context_error = true;
@@ -267,7 +248,7 @@ namespace Engine
 
 	}
 	#elif SYSTEM==UNIX
-	template <class GL>bool Display<GL>::createEx(const String&window_name, bool hide_border, const String&icon_filename)
+	template <class GL>bool Display<GL>::create(const DisplayConfig&dconfig)
 	{
 	    framebuffer_bound = false;
 	    Display*connection = context.connect();
@@ -287,7 +268,7 @@ namespace Engine
 	            context_error = false;
 	            return false;
 	        }
-	        Window wnd = context.createWindow(window_name,attributes,hide_border,icon_filename);
+	        Window wnd = context.createWindow(dconfig.window_name,attributes,dconfig.hide_border,dconfig.icon_filename);
 	        if (!wnd)
 	        {
 	            GL::destroyContext();

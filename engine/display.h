@@ -69,7 +69,26 @@ namespace Engine
 	#define ERR_WINDOW_CREATION_FAILED	 	2
 	#define ERR_X_CONNECTION_FAILED			3
 
+	class DisplayConfig
+	{
+	public:
+		String					window_name,
+								icon_filename;
+		bool					hide_border;
 
+
+		DisplayConfig():hide_border(false)
+		{}
+		DisplayConfig(bool hide_border_):hide_border(hide_border_)
+		{}
+		DisplayConfig(const char*window_name_):window_name(window_name_),hide_border(false)
+		{}
+		DisplayConfig(const String&window_name_):window_name(window_name_),hide_border(false)
+		{}
+		DisplayConfig(const String&window_name_, bool hide_border_):window_name(window_name_),hide_border(hide_border_)
+		{}
+
+	};
 
 	/*!
 		\brief	Display root interface
@@ -100,7 +119,6 @@ namespace Engine
 	inline  void						process(XEvent&event);
 	#endif
 			RECT						transform(const TFloatRect&rect);
-			bool						createEx(const String&window_name, bool hide_border, const String&icon_filename);
 
 	public:
 
@@ -124,41 +142,8 @@ namespace Engine
 											Successive calls to create() will have no effect until the Display context
 											has been destroyed via close(). The window and rendering context will
 											be destroyed automatically if the Display object instance is deleted.
-											Set \a hide_border true for fullscreen applications.
 										*/
-	inline	bool						create();
-										/*!
-											\brief Creates the eve interface
-											\param hide_border If set true the window will have no borders
-											\return true on success
-
-											create() creates a window and binds the GL rendering context to the window.
-											Successive calls to create() will have no effect until the Display context
-											has been destroyed via close(). The window and rendering context will
-											be destroyed automatically if the Display object instance is deleted.
-											If \a hide_border is set true, then the window will be created without
-											window decoration disallowing the user to move or close the active window
-											via its decoration (border).
-											Set \a hide_border true for fullscreen applications.
-										*/
-	inline	bool						create(bool hide_border);
-										/*!
-											\brief Creates the eve interface
-											\param hide_border If set true the window will have no borders
-											\param window_name Name to use for the eve window
-											\return true on success
-
-											create() creates a window and binds the GL rendering context to the window.
-											Successive calls to create() will have no effect until the Display context
-											has been destroyed via close(). The window and rendering context will
-											be destroyed automatically if the Display object instance is deleted.
-											If \a hide_border is set true, then the window will be created without
-											window decoration disallowing the user to move or close the active window
-											via its decoration (border).
-											Set \a hide_border true for fullscreen applications.
-										*/
-	inline	bool						create(const String&window_name,bool hide_border);	//!< @overload
-	inline	bool						createIconed(const String&window_name, const String&icon_filename);	//!< Creates a new window like create() but with a custom icon loaded from the specified icon file
+	inline	bool						create(const DisplayConfig&config = DisplayConfig());	//!< @overload
 	FORWARD bool						hideCursor();   				//!< Hides the mouse cursor while above the active window. A created context is required. \return true if cursor is hidden
 	FORWARD void						showCursor();   				//!< Shows cursor again if it has previously been hidden.
 										/*!

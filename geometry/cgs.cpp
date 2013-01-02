@@ -130,6 +130,7 @@ void MaterialInfo::adoptData(MaterialInfo&other)
 	emission = other.emission;
 	shininess = other.shininess;
 	alpha_threshold = other.alpha_threshold;
+	attachment.swap(other.attachment);
 
 }
 

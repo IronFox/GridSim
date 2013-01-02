@@ -408,7 +408,10 @@ namespace CGS	//! Compiled Geometrical Structure
 
 
 	class MaterialObject	//! Material info attachment base class
-	{};
+	{
+	public:
+		virtual ~MaterialObject()	{};
+	};
 
 	class MaterialHook		//!< Material data / render object attachment base class
 	{};
@@ -473,25 +476,27 @@ namespace CGS	//! Compiled Geometrical Structure
 		
 		The material info structure holds all material parameters (i.e. colors) as opposed to the actual geometrical rendering data.
 	*/
-	class MaterialInfo:public Reference<MaterialObject>
+	class MaterialInfo
 	{
 	public:
-			bool									alpha_test,			//!< Set true if the local material is masked (transparency tested). Masked material fragments are either fully opaque or invisible but never blended.
+		weak_ptr<MaterialObject>					attachment;
+
+		bool										alpha_test,			//!< Set true if the local material is masked (transparency tested). Masked material fragments are either fully opaque or invisible but never blended.
 													fully_reflective;	//!< Set true to apply any environment map everywhere on the material. All other material properties are ignored
-			Array<TLayer>							layer_field;		//!< Array of texture layers. The number of texture layers must correspond to the number of texture coordinates provided by the vertex container of each rendering object (of this material)
-			TVec4<float>							ambient,			//!< Material ambient color. The last component is supposed to be 1.
+		Array<TLayer>								layer_field;		//!< Array of texture layers. The number of texture layers must correspond to the number of texture coordinates provided by the vertex container of each rendering object (of this material)
+		TVec4<float>								ambient,			//!< Material ambient color. The last component is supposed to be 1.
 													diffuse,			//!< Material diffuse color. The last component is supposed to be 1.
 													specular,			//!< Material specular color. The last component is supposed to be 1.
 													emission;			//!< Material emission. The last component is supposed to be 1.
-			float									shininess,			//!< Material shininess. The stored scalar [0,1] is mapped to the effective shininess exponent [0,128]
+		float										shininess,			//!< Material shininess. The stored scalar [0,1] is mapped to the effective shininess exponent [0,128]
 													alpha_threshold;	//!< Alpha border used to determine visibility. Effective only if \b masked is set true.
 
 													MaterialInfo();
-			bool									similar(const MaterialInfo&other)	const;	//!< Determines whether or not the local material info is similar to the specified other material info. This method may return false where the finally loaded appearance is in fact similar, however never the other way around. \param other Material info to compare to \return true if the local material info is similar to the specified material info, false otherwise.
-			bool									operator==(const MaterialInfo&other) const;
-			count_t									countCoordLayers()	const;					//!< Retrieves the number of 2 component texture coordinates, this material requires (not all layers do require texture coordinates).
-			void									postCopyLink(TextureResource*);				//!< Relinks texture resources if a CGS geometry has been copied (automatically evoked)
-			void									adoptData(MaterialInfo&other);
+		bool										similar(const MaterialInfo&other)	const;	//!< Determines whether or not the local material info is similar to the specified other material info. This method may return false where the finally loaded appearance is in fact similar, however never the other way around. \param other Material info to compare to \return true if the local material info is similar to the specified material info, false otherwise.
+		bool										operator==(const MaterialInfo&other) const;
+		count_t										countCoordLayers()	const;					//!< Retrieves the number of 2 component texture coordinates, this material requires (not all layers do require texture coordinates).
+		void										postCopyLink(TextureResource*);				//!< Relinks texture resources if a CGS geometry has been copied (automatically evoked)
+		void										adoptData(MaterialInfo&other);
 	};
 	CGS_DECLARE_ADOPTING(MaterialInfo);
 
@@ -1462,7 +1467,7 @@ namespace CGS	//! Compiled Geometrical Structure
 				UINT			getVertexFlags()		const	{return config.vertex_flags;}
 				count_t			getVertexSize()			const	{return config.vsize;}
 				void			setVertexOffset(Index offset)	{voffset = offset;}
-				void			setVertexOffsetToCurrent()		{voffset = (Index)vertex_data.length() / vsize;}
+				void			setVertexOffsetToCurrent()		{voffset = (Index)(vertex_data.length() / config.vsize);}
 				void			triangle(Index v0, Index v1, Index v2)
 								{
 									Index*t = index_data.appendRow(3);

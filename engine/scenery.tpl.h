@@ -403,7 +403,7 @@ namespace Engine
 
 
 
-	template <class GL, class Def> Material<GL,Def>::Material(GL*renderer_,CGS::MaterialInfo&source,TextureTable<GL>*table):renderer(renderer_),info(source),vertex_flags(0),texture_table(table),locked(false),requires_rebuild(false),initialized(false),additional(0)
+	template <class GL, class Def> Material<GL,Def>::Material(Scenery<GL,Def>*parent, GL*renderer_,CGS::MaterialInfo&source,TextureTable<GL>*table):owner(parent), renderer(renderer_),info(source),vertex_flags(0),texture_table(table),locked(false),requires_rebuild(false),initialized(false),additional(0)
 	{
 	    SCENERY_LOG("creating visual");
 	    coord_layers = UINT32(source.countCoordLayers());
@@ -445,7 +445,7 @@ namespace Engine
 	{
 		if (application_shutting_down)
 			return;
-		if (info)
+		if (info.attachment.lock())
 		{
 		    for (index_t i = 0; i < info.layer_field.length(); i++)
 			{
@@ -661,9 +661,9 @@ namespace Engine
 	    return (material.info) == (info);
 	}
 
-	template <class GL, class Def> bool Material<GL,Def>::similar(const Material<GL,Def>*that)
+	template <class GL, class Def> bool Material<GL,Def>::similar(const Material<GL,Def>&that)
 	{
-		return this->material == that->material;
+		return this->material == that.material;
 	}
 
 
@@ -710,7 +710,7 @@ namespace Engine
 
 	}
 
-	template <class GL, class Def> void Material<GL,Def>::render()
+	template <class GL, class Def> void Material<GL,Def>::render(bool ignore_materials /*=false*/)
 	{
 		if (!renderer)
 		{
@@ -723,7 +723,8 @@ namespace Engine
 	    if (!initialized)
 	        return;
 
-	    renderer->bindMaterial(material,shader);
+		if (!ignore_materials)
+			renderer->bindMaterial(material,shader);
 
 	    renderer->bindVertices(vbo,binding);
 	    renderer->bindIndices(ibo);
@@ -750,15 +751,7 @@ namespace Engine
 					
 		                unsigned    at(detail.offset[i]),
 		                            cnt(d.triangles*3);
-	//                GL::render(entity->name->name,buffer.index_field,at,entity->section[detail*2+1]);
 
-	/*
-	                if (at+cnt > buffer.index_length)
-	                    FATAL__("render-error");
-	                for (unsigned i = 0; i < cnt; i++)
-	                    if (buffer.index_field[i] >= buffer.vertex_length/VSIZE(vertex_band,coord_layers,0))
-	                        FATAL__("invalid vertex-index at "+String(i)+" ("+String(buffer.index_field[i])+"/"+String(buffer.vertex_length/VSIZE(vertex_band,coord_layers,0))+")");
-	*/
 		                renderer->enterSubSystem(*oentity.system);
 		                    renderer->render(at,cnt);
 		                    at+=cnt;
@@ -769,8 +762,8 @@ namespace Engine
 				}
 			}
 		}
-		//GL::unbindAll();
 	}
+
 
 	template <class GL, class Def> void Material<GL,Def>::extractRenderPath(List::Vector<typename Def::FloatType>&out)
 	{
@@ -856,15 +849,12 @@ namespace Engine
 	*/
 	template <class GL, class Def> StructureEntity<Def>* Scenery<GL,Def>::searchForEntityOf(CGS::SubGeometryA<Def>&object, index_t&sub_index)
 	{
-		synchronized(mutex)
+		structures.reset();
+		while (StructureEntity<Def>*structure = structures.each())
 		{
-			structures.reset();
-			while (StructureEntity<Def>*structure = structures.each())
-			{
-				sub_index = structure->indexOf(&object);
-				if (sub_index != InvalidIndex)
-					return structure;
-			}
+			sub_index = structure->indexOf(&object);
+			if (sub_index != InvalidIndex)
+				return structure;
 		}
 		return NULL;
 	}
@@ -878,15 +868,12 @@ namespace Engine
 	*/
 	template <class GL, class Def> StructureEntity<Def>* Scenery<GL,Def>::searchForEntityOf(CGS::SubGeometryInstance<Def>&instance, index_t&sub_index)
 	{
-		synchronized(mutex)
+		structures.reset();
+		while (StructureEntity<Def>*structure = structures.each())
 		{
-			structures.reset();
-			while (StructureEntity<Def>*structure = structures.each())
-			{
-				sub_index = structure->object_entity_map.get(&instance.path,InvalidIndex);
-				if (sub_index != InvalidIndex)
-					return structure;
-			}
+			sub_index = structure->object_entity_map.get(&instance.path,InvalidIndex);
+			if (sub_index != InvalidIndex)
+				return structure;
 		}
 		return NULL;
 	}
@@ -905,153 +892,115 @@ namespace Engine
 				FATAL__("trying to rebuild scenery without renderer");
 		}
 			
-	    mutex.lock();
 	    SCENERY_LOG("rebuilding scenery");
-	    opaque_materials.reset();
-	    while (Material<GL,Def>*visual = opaque_materials.each())
-	        visual->rebuild(&warnings);
-	    transparent_materials.reset();
-	    while (Material<GL,Def>*visual = transparent_materials.each())
-	        visual->rebuild(&warnings);
+		foreach (all_materials,my_material)
+			(*my_material)->rebuild(&warnings);
 	    SCENERY_LOG("done rebuilding scenery");
-	    mutex.release();
 	}
 
-	template <class GL, class Def> void Scenery<GL,Def>::setConfig(CGS::Geometry<Def>&structure,unsigned config, bool thread_safe)
+	template <class GL, class Def> void Scenery<GL,Def>::setConfig(CGS::Geometry<Def>&structure,unsigned config)
 	{
-	    if (thread_safe)
-	        mutex.lock();
-	            StructureEntity<Def>*super = structures.lookup(structure.system_link);
-	            if (super)
-	                super->config = config;
-	    if (thread_safe)
-	        mutex.release();
+	    StructureEntity<Def>*super = structures.lookup(structure.system_link);
+	    if (super)
+	        super->config = config;
 	}
 
-	template <class GL, class Def> void Scenery<GL,Def>::setConfig(CGS::Geometry<Def>*structure,unsigned config, bool thread_safe)
+	template <class GL, class Def> void Scenery<GL,Def>::setConfig(CGS::Geometry<Def>*structure,unsigned config)
 	{
-	    if (thread_safe)
-	    mutex.lock();
-	        StructureEntity<Def>*super = structures.lookup(structure->system_link);
+	    StructureEntity<Def>*super = structures.lookup(structure->system_link);
+	    if (super)
+	        super->config = config;
+	}
+
+	template <class GL, class Def> void Scenery<GL,Def>::setConfig(CGS::StaticInstance<Def>&structure,unsigned config)
+	{
+	    StructureEntity<Def>*super;
+	    if (structure.signature == this && structure.reference)
+	        super = (StructureEntity<Def>*)structure.reference;
+	    else
+	    {
+	        super = structures.lookup(&structure.matrix);
 	        if (super)
-	            super->config = config;
-	    if (thread_safe)
-	    mutex.release();
+	        {
+	            structure.signature = this;
+	            structure.reference = super;
+	        }
+	    }
+	    if (super)
+	        super->config = config;
 	}
 
-	template <class GL, class Def> void Scenery<GL,Def>::setConfig(CGS::StaticInstance<Def>&structure,unsigned config, bool thread_safe)
+	template <class GL, class Def> void Scenery<GL,Def>::setConfig(CGS::StaticInstance<Def>*structure,unsigned config)
 	{
-	    if (thread_safe)
-	        mutex.lock();
-	            StructureEntity<Def>*super;
-	            if (structure.signature == this && structure.reference)
-	                super = (StructureEntity<Def>*)structure.reference;
-	            else
-	            {
-	                super = structures.lookup(&structure.matrix);
-	                if (super)
-	                {
-	                    structure.signature = this;
-	                    structure.reference = super;
-	                }
-	            }
-	            if (super)
-	                super->config = config;
-	    if (thread_safe)
-	        mutex.release();
+	    StructureEntity<Def>*super;
+	    if (structure->signature == this && structure->reference)
+	        super = (StructureEntity<Def>*)structure->reference;
+	    else
+	    {
+	        super = structures.lookup(&structure->matrix);
+	        if (super)
+	        {
+	            structure->signature = this;
+	            structure->reference = super;
+	        }
+	    }
+	    if (super)
+	        super->config = config;
 	}
 
-	template <class GL, class Def> void Scenery<GL,Def>::setConfig(CGS::StaticInstance<Def>*structure,unsigned config, bool thread_safe)
-	{
-	    if (thread_safe)
-	        mutex.lock();
-	            StructureEntity<Def>*super;
-	            if (structure->signature == this && structure->reference)
-	                super = (StructureEntity<Def>*)structure->reference;
-	            else
-	            {
-	                super = structures.lookup(&structure->matrix);
-	                if (super)
-	                {
-	                    structure->signature = this;
-	                    structure->reference = super;
-	                }
-	            }
-	            if (super)
-	                super->config = config;
-	    if (thread_safe)
-	        mutex.release();
-	}
-
-	template <class GL, class Def> unsigned Scenery<GL,Def>::getConfig(CGS::Geometry<Def>&structure,bool thread_safe)
+	template <class GL, class Def> unsigned Scenery<GL,Def>::getConfig(CGS::Geometry<Def>&structure)
 	{
 	    unsigned rs = StructureConfig::Invalid;
-	    if (thread_safe)
-	        mutex.lock();
-	            StructureEntity<Def>*super = structures.lookup(structure.system_link);
-	            if (super)
-	                rs = super->config;
-	    if (thread_safe)
-	        mutex.release();
+	    StructureEntity<Def>*super = structures.lookup(structure.system_link);
+	    if (super)
+	        rs = super->config;
 	    return rs;
 	}
 
-	template <class GL, class Def> unsigned Scenery<GL,Def>::getConfig(CGS::Geometry<Def>*structure,bool thread_safe)
+	template <class GL, class Def> unsigned Scenery<GL,Def>::getConfig(CGS::Geometry<Def>*structure)
 	{
 	    unsigned rs = StructureConfig::Invalid;
-	    if (thread_safe)
-	        mutex.lock();
-	            StructureEntity<Def>*super = structures.lookup(structure->system_link);
-	            if (super)
-	                rs = super->config;
-	    if (thread_safe)
-	        mutex.release();
+	    StructureEntity<Def>*super = structures.lookup(structure->system_link);
+	    if (super)
+	        rs = super->config;
 	    return rs;
 	}
 
-	template <class GL, class Def> unsigned Scenery<GL,Def>::getConfig(CGS::StaticInstance<Def>&structure,bool thread_safe)
+	template <class GL, class Def> unsigned Scenery<GL,Def>::getConfig(CGS::StaticInstance<Def>&structure)
 	{
 	    unsigned rs = StructureConfig::Invalid;
-	    if (thread_safe)
-	        mutex.lock();
-	            StructureEntity<Def>*super;
-	            if (structure.signature == this && structure.reference)
-	                rs = ((StructureEntity<Def>*)structure.reference)->config;
-	            else
-	            {
-	                super = structures.lookup(&structure.matrix);
-	                if (super)
-	                {
-	                    structure.signature = this;
-	                    structure.reference = super;
-	                    rs = super->config;
-	                }
-	            }
-	    if (thread_safe)
-	        mutex.release();
+	    StructureEntity<Def>*super;
+	    if (structure.signature == this && structure.reference)
+	        rs = ((StructureEntity<Def>*)structure.reference)->config;
+	    else
+	    {
+	        super = structures.lookup(&structure.matrix);
+	        if (super)
+	        {
+	            structure.signature = this;
+	            structure.reference = super;
+	            rs = super->config;
+	        }
+	    }
 	    return rs;
 	}
 
-	template <class GL, class Def> unsigned Scenery<GL,Def>::getConfig(CGS::StaticInstance<Def>*structure,bool thread_safe)
+	template <class GL, class Def> unsigned Scenery<GL,Def>::getConfig(CGS::StaticInstance<Def>*structure)
 	{
 	    unsigned rs = StructureConfig::Invalid;
-	    if (thread_safe)
-	        mutex.lock();
-	            StructureEntity<Def>*super;
-	            if (structure->signature == this && structure->reference)
-	                rs = ((StructureEntity<Def>*)structure->reference)->config;
-	            else
-	            {
-	                super = structures.lookup(&structure->matrix);
-	                if (super)
-	                {
-	                    structure->signature = this;
-	                    structure->reference = super;
-	                    rs = super->config;
-	                }
-	            }
-	    if (thread_safe)
-	        mutex.release();
+	    StructureEntity<Def>*super;
+	    if (structure->signature == this && structure->reference)
+	        rs = ((StructureEntity<Def>*)structure->reference)->config;
+	    else
+	    {
+	        super = structures.lookup(&structure->matrix);
+	        if (super)
+	        {
+	            structure->signature = this;
+	            structure->reference = super;
+	            rs = super->config;
+	        }
+	    }
 	    return rs;
 	}
 
@@ -1060,45 +1009,35 @@ namespace Engine
 
 	template <class GL, class Def> StructureEntity<Def>* Scenery<GL,Def>::embed(CGS::StaticInstance<Def>&instance,unsigned detail_type)
 	{
-	    mutex.lock();
-	        instance.link();
-	        StructureEntity<Def>*super = embed(*instance.target,detail_type,false);
-	    mutex.release();
+	    instance.link();
+	    StructureEntity<Def>*super = embed(*instance.target,detail_type);
 	    return super;
 	}
 
 	template <class GL, class Def> StructureEntity<Def>* Scenery<GL,Def>::embed(CGS::StaticInstance<Def>*instance,unsigned detail_type)
 	{
-	    mutex.lock();
-	        instance->link();
-	        StructureEntity<Def>*super = embed(*instance->target,detail_type,false);
-	    mutex.release();
+	    instance->link();
+	    StructureEntity<Def>*super = embed(*instance->target,detail_type);
 	    return super;
 	}
 
 	template <class GL, class Def> StructureEntity<Def>* Scenery<GL,Def>::embed(CGS::AnimatableInstance<Def>&instance,unsigned detail_type)
 	{
-	    mutex.lock();
-	        instance.link();
-	        StructureEntity<Def>*super = embed(*instance.target,detail_type,false);
-	    mutex.release();
+	    instance.link();
+	    StructureEntity<Def>*super = embed(*instance.target,detail_type);
 	    return super;
 	}
 
 	template <class GL, class Def> StructureEntity<Def>* Scenery<GL,Def>::embed(CGS::AnimatableInstance<Def>*instance,unsigned detail_type)
 	{
-	    mutex.lock();
-	        instance->link();
-	        StructureEntity<Def>*super = embed(*instance->target,detail_type,false);
-	    mutex.release();
+	    instance->link();
+	    StructureEntity<Def>*super = embed(*instance->target,detail_type);
 	    return super;
 	}
 
 
-	template <class GL, class Def> StructureEntity<Def>* Scenery<GL,Def>::embed(CGS::Geometry<Def>&structure, unsigned detail_type, bool thread_safe)
+	template <class GL, class Def> StructureEntity<Def>* Scenery<GL,Def>::embed(CGS::Geometry<Def>&structure, unsigned detail_type)
 	{
-	    if (thread_safe)
-	        mutex.lock();
 	        
 	    SCENERY_LOG("embedding with locked set "+String(locked));
 	    StructureEntity<Def>*super = structures.lookup(structure.system_link);
@@ -1110,10 +1049,8 @@ namespace Engine
 	    }
 	    SCENERY_LOG("embedding materials");
 	    for (index_t i = 0; i < structure.material_field.length(); i++)
-	        embed(super,structure.material_field[i],false);
+	        embed(super,structure.material_field[i]);
 	        
-	    if (thread_safe)
-	        mutex.release();
 	    return super;
 	}
 
@@ -1123,132 +1060,99 @@ namespace Engine
 	}
 
 
-	template <class GL, class Def> void Scenery<GL,Def>::remove(CGS::AnimatableInstance<Def>&instance, bool thread_safe)
+	template <class GL, class Def> void Scenery<GL,Def>::remove(CGS::AnimatableInstance<Def>&instance)
 	{
-		if (thread_safe)
-			mutex.lock();
 		{
 	        SCENERY_LOG("linking instance");
 	        instance.link();
-	        remove(*instance.target,false);
+	        remove(*instance.target);
 	        if (instance.signature == this)
 	            instance.reference = NULL;
 		}
-		
-		if (thread_safe)
-			mutex.release();
 	}
 
 	template <class GL, class Def> void Scenery<GL,Def>::remove(CGS::AnimatableInstance<Def>*instance)
 	{
-	    mutex.lock();
-	        SCENERY_LOG("linking instance");
-	        instance->link();
-	        remove(*instance->target);
-	        if (instance->signature == this)
-	            instance->reference = NULL;
-	    mutex.release();
+	    SCENERY_LOG("linking instance");
+	    instance->link();
+	    remove(*instance->target);
+	    if (instance->signature == this)
+	        instance->reference = NULL;
 	}
 
-	template <class GL, class Def> void Scenery<GL,Def>::remove(CGS::StaticInstance<Def>&instance, bool thread_safe)
+	template <class GL, class Def> void Scenery<GL,Def>::remove(CGS::StaticInstance<Def>&instance)
 	{
-		if (thread_safe)
-			mutex.lock();
 		{
 	        SCENERY_LOG("linking instance");
 	        instance.link();
-	        remove(*instance.target,false);
+	        remove(*instance.target);
 	        if (instance.signature == this)
 	            instance.reference = NULL;
 		}
-		
-		if (thread_safe)
-			mutex.release();
 	}
 
 	template <class GL, class Def> void Scenery<GL,Def>::remove(CGS::StaticInstance<Def>*instance)
 	{
-	    mutex.lock();
-	        SCENERY_LOG("linking instance");
-	        instance->link();
-	        remove(*instance->target);
-	        if (instance->signature == this)
-	            instance->reference = NULL;
-	    mutex.release();
+	    SCENERY_LOG("linking instance");
+	    instance->link();
+	    remove(*instance->target);
+	    if (instance->signature == this)
+	        instance->reference = NULL;
 	}
 
 	template <class GL, class Def>
 		StructureEntity<Def>* 	Scenery<GL,Def>::findEntityOf(CGS::StaticInstance<Def>&instance)
 		{
-			synchronized(mutex)
-			{
-				return structures.lookup(&instance.matrix);
-			}
-			return NULL;
+			return structures.lookup(&instance.matrix);
 		}
 		
 	template <class GL, class Def>
 		StructureEntity<Def>* 	Scenery<GL,Def>::findEntityOf(CGS::Geometry<Def>&geometry)
 		{
-			synchronized(mutex)
-			{
-				return structures.lookup(geometry.system_link);
-			}
-			return NULL;
+			return structures.lookup(geometry.system_link);
 		}
 
-	template <class GL, class Def> void Scenery<GL,Def>::remove(CGS::Geometry<Def>&structure, bool thread_safe)
+	template <class GL, class Def> void Scenery<GL,Def>::remove(CGS::Geometry<Def>&structure)
 	{
-	    if (thread_safe)
-	        mutex.lock();
 	    SCENERY_LOG("removing structure");
 	    StructureEntity<Def>*super = structures.dropByIdent(structure.system_link);
 	    if (!super)
 	    {
 	        SCENERY_LOG("super-entity not found - returning");
-	        if (thread_safe)
-	            mutex.release();
 	        return;
 	    }
 	    SCENERY_LOG("unmapping all hooked entities");
 	        {
-	            opaque_materials.reset();
-	            while (Material<GL,Def>*visual = opaque_materials.each())
-	                visual->unmap(super, false, warnings);
-	            transparent_materials.reset();
-	            while (Material<GL,Def>*visual = transparent_materials.each())
-	                visual->unmap(super, false, warnings);
+				foreach (all_materials,my_material)
+					(*my_material)->unmap(super, false, warnings);
 	        }
 	    SCENERY_LOG("discarding super-entity");
 	    DISCARD(super);
 	    SCENERY_LOG("unhooking.");
 	    for (index_t i = 0; i < structure.material_field.length(); i++)
-	        if (structure.material_field[i].info.signature == this && structure.material_field[i].info.reference && !((Material<GL,Def>*)structure.material_field[i].info.reference)->groups)
-	            structure.material_field[i].info.signature = NULL;
+		{
+			shared_ptr<Material<GL,Def>	> m = dynamic_pointer_cast<Material<GL,Def>,CGS::MaterialObject>(structure.material_field[i].info.attachment.lock());
+	        if (m && m->owner == this && !m->groups)
+	            structure.material_field[i].info.attachment.reset();
+		}
 
-	    opaque_materials.reset();
-	    while (Material<GL,Def>*visual = opaque_materials.each())
-	        if (!visual->groups && !visual->locked && !keep_unused_materials)
+		for (index_t i = 0; i < all_materials.count(); i++)
+		{
+			auto m = all_materials[i];
+	        if (!m->groups && !m->locked && !keep_unused_materials)
 	        {
 	            SCENERY_LOG("erasing empty material");
-	            opaque_materials.erase();
+				all_materials.erase(i--);
+				if (m->isOpaque())
+					opaque_materials.findAndErase(m);
+				else
+					transparent_materials.findAndErase(m);
 	        }
 	        else
 	            if (!locked)
-	                visual->rebuild(&warnings);
-	    transparent_materials.reset();
-	    while (Material<GL,Def>*visual = transparent_materials.each())
-	        if (!visual->groups && !visual->locked && !keep_unused_materials)
-	        {
-	            SCENERY_LOG("erasing empty material");
-	            transparent_materials.erase();
-	        }
-	        else
-	            if (!locked)
-	                visual->rebuild(&warnings);
+	                m->rebuild(&warnings);
+		}
 	    SCENERY_LOG("structure removed");
-	    if (thread_safe)
-	        mutex.release();
 	}
 
 	template <class GL, class Def> void Scenery<GL,Def>::remove(CGS::Geometry<Def>*structure)
@@ -1258,7 +1162,6 @@ namespace Engine
 
 	template <class GL, class Def> void Scenery<GL,Def>::embedDummyMaterial()
 	{
-	    mutex.lock();
 	    SCENERY_LOG("embedding dummy-material");
 	    if (!dummy_texture.face_field.length())
 	    {
@@ -1282,10 +1185,11 @@ namespace Engine
 	        dummy_info.layer_field.setSize(1);
 	        dummy_info.layer_field[0].combiner = 0x2100;
 	        dummy_info.layer_field[0].source = &dummy_texture;
-	        opaque_materials.append(SHIELDED(new Material<GL,Def>(renderer,dummy_info,textures)));
+			shared_ptr<Material<GL,Def> >	dummy(new Material<GL,Def>(this,renderer,dummy_info,textures));
+	        opaque_materials.append(dummy);
+			all_materials.append(dummy);
 	    }
 	    SCENERY_LOG("dummy material embedded");
-	    mutex.release();
 	}
 
 
@@ -1296,80 +1200,42 @@ namespace Engine
 
 	template <class GL, class Def> void Scenery<GL,Def>::lockMaterials(CGS::Geometry<Def>*structure)
 	{
-	    mutex.lock();
 	    for (index_t i = 0; i < structure->material_field.length(); i++)
-	        lockMaterial(structure->material_field[i],false);
-	    mutex.release();
-
+	        lockMaterial(structure->material_field[i]);
 	}
 
-	template <class GL, class Def> void Scenery<GL,Def>::lockMaterial(CGS::MaterialA<Def>&material, bool thread_safe)
+	template <class GL, class Def> void Scenery<GL,Def>::lockMaterial(CGS::MaterialA<Def>&material)
 	{
-	    if (thread_safe)
-	        mutex.lock();
 	    SCENERY_LOG("locking material");
-	    if (material.info.signature == this && material.info.reference)
+		shared_ptr<Material<GL,Def> > my_material = dynamic_pointer_cast<Material<GL,Def>,CGS::MaterialObject>(material.info.attachment.lock());
+	    if (my_material && my_material->owner == this)
 	    {
-	        Material<GL,Def>*visual = reinterpret_cast<Material<GL,Def>*>(material.info.reference);
-	        visual->locked = true;
+	        my_material->locked = true;
 	        SCENERY_LOG("material locked");
-	        if (thread_safe)
-	            mutex.release();
 	        return;
 	    }
 	    SCENERY_LOG("not previously embedded");
 
-	    material.info.signature = this;
-	    opaque_materials.reset();
-	    while (Material<GL,Def>*visual = opaque_materials.each())
-	        if (visual->similar(material))
+		foreach (all_materials,my_material)
+	        if ((*my_material)->similar(material))
 	        {
-	            material.info.reference = visual;
-	            visual->locked = true;
+	            material.info.attachment = *my_material;
+	            (*my_material)->locked = true;
 	            SCENERY_LOG("material locked");
-	            if (thread_safe)
-	                mutex.release();
-	            return;
-	        }
-	    transparent_materials.reset();
-	    while (Material<GL,Def>*visual = transparent_materials.each())
-	        if (visual->similar(material))
-	        {
-	            material.info.reference = visual;
-	            visual->locked = true;
-	            SCENERY_LOG("material locked");
-	            if (thread_safe)
-	                mutex.release();
 	            return;
 	        }
 	    SCENERY_LOG("creating temporary visual");
 
-	    Material<GL,Def>*vs = SHIELDED(new Material<GL,Def>(renderer,material.info,textures));
+	    shared_ptr<Material<GL,Def> > vs = shared_ptr<Material<GL,Def> >(new Material<GL,Def>(this, renderer,material.info,textures));
 
-	    opaque_materials.reset();
-	    while (Material<GL,Def>*visual = opaque_materials.each())
-	        if (visual->similar(vs))
+		foreach (all_materials,my_material)
+	        if ((*my_material)->similar(*vs))
 	        {
-	            visual->locked = true;
-	            material.info.reference = visual;
+	            (*my_material)->locked = true;
+	            material.info.attachment = (*my_material);
 	            SCENERY_LOG("discarding temporary visual");
-	            DISCARD(vs);
+	            vs.reset();
 	            SCENERY_LOG("material locked");
-	            if (thread_safe)
-	                mutex.release();
-	            return;
-	        }
-	    transparent_materials.reset();
-	    while (Material<GL,Def>*visual = transparent_materials.each())
-	        if (visual->similar(vs))
-	        {
-	            visual->locked = true;
-	            material.info.reference = visual;
-	            SCENERY_LOG("discarding temporary visual");
-	            DISCARD(vs);
-	            SCENERY_LOG("material locked");
-	            if (thread_safe)
-	                mutex.release();
 	            return;
 	        }
 	    vs->locked = true;
@@ -1378,19 +1244,15 @@ namespace Engine
 			opaque_materials.append(vs);
 		else
 			transparent_materials.append(vs);
-	    material.info.reference = vs;
+		all_materials.append(vs);
+	    material.info.attachment = vs;
 	    SCENERY_LOG("material locked");
-	    if (thread_safe)
-	        mutex.release();
-
 	}
 
 
 
-	template <class GL, class Def> Material<GL,Def>* Scenery<GL,Def>::embed(MyStructureEntity*entity,CGS::MaterialA<Def>&material, bool thread_safe)
+	template <class GL, class Def> shared_ptr<Material<GL,Def> > Scenery<GL,Def>::embed(MyStructureEntity*entity,CGS::MaterialA<Def>&material)
 	{
-	    if (thread_safe)
-	        mutex.lock();
 		if (!locked && !renderer)
 		{
 			setRenderer(GL::global_instance,false);
@@ -1399,85 +1261,44 @@ namespace Engine
 		}
 		
 	    SCENERY_LOG("embedding material '"+material.name+"'");
-	    if (material.info.signature == this && material.info.reference)
+		shared_ptr<Material<GL,Def> > my_material = dynamic_pointer_cast<Material<GL,Def>,CGS::MaterialObject>(material.info.attachment.lock());
+	    if (my_material && my_material->owner == this)
 	    {
-	        Material<GL,Def>*visual = (Material<GL,Def>*)(material.info.reference);
 			SCENERY_LOG("similar material found. merging...");
-	        visual->merge(entity,material,!locked,warnings);
+	        my_material->merge(entity,material,!locked,warnings);
 	        SCENERY_LOG("material merged");
-	        if (thread_safe)
-	            mutex.release();
-	        return visual;
+	        return my_material;
 	    }
 	    SCENERY_LOG("not previously embedded");
-
-	    material.info.signature = this;
-		material.info.reference = NULL;
 		
 		if (merge_materials)
 		{
-		    opaque_materials.reset();
-		    while (Material<GL,Def>*visual = opaque_materials.each())
-		        if (visual->similar(material))					//check for texture names and colors
+			foreach (all_materials,my_material)
+				if ((*my_material)->similar(material))
 		        {
 					SCENERY_LOG("similar material found. merging...");
-		            visual->merge(entity,material,!locked,warnings);
-		            material.info.reference = visual;
+		            (*my_material)->merge(entity,material,!locked,warnings);
+		            material.info.attachment = (*my_material);
 		            SCENERY_LOG("material merged");
-		            if (thread_safe)
-		                mutex.release();
-
-		            return visual;
-		        }
-		    transparent_materials.reset();
-		    while (Material<GL,Def>*visual = transparent_materials.each())
-		        if (visual->similar(material))					//check for texture names and colors
-		        {
-					SCENERY_LOG("similar material found. merging...");
-		            visual->merge(entity,material,!locked,warnings);
-		            material.info.reference = visual;
-		            SCENERY_LOG("material merged");
-		            if (thread_safe)
-		                mutex.release();
-
-		            return visual;
+		            return (*my_material);
 		        }
 		}
 		SCENERY_LOG("creating temporary visual.");
 		
-		Material<GL,Def>*vs = SHIELDED(new Material<GL,Def>(renderer,material.info,textures));
+		shared_ptr<Material<GL,Def> > vs = shared_ptr<Material<GL,Def> >(new Material<GL,Def>(this,renderer,material.info,textures));
 
 		if (merge_materials)
 		{
-		    opaque_materials.reset();
-		    while (Material<GL,Def>*visual = opaque_materials.each())
-		        if (visual->similar(vs))						//check for texture content and colors
+			foreach (all_materials,my_material)
+				if ((*my_material)->similar(*vs))
 		        {
 					SCENERY_LOG("identical material found. merging...");
-		            visual->merge(entity,material,!locked,warnings);
-		            material.info.reference = visual;
+		            (*my_material)->merge(entity,material,!locked,warnings);
+		            material.info.attachment = (*my_material);
 		            SCENERY_LOG("discarding temporary visual");
-		            DISCARD(vs);
+		            vs.reset();
 		            SCENERY_LOG("material merged");
-		            if (thread_safe)
-		                mutex.release();
-
-		            return visual;
-		        }
-		    transparent_materials.reset();
-		    while (Material<GL,Def>*visual = transparent_materials.each())
-		        if (visual->similar(vs))						//check for texture content and colors
-		        {
-					SCENERY_LOG("identical material found. merging...");
-		            visual->merge(entity,material,!locked,warnings);
-		            material.info.reference = visual;
-		            SCENERY_LOG("discarding temporary visual");
-		            DISCARD(vs);
-		            SCENERY_LOG("material merged");
-		            if (thread_safe)
-		                mutex.release();
-
-		            return visual;
+		            return (*my_material);
 		        }
 		}
 	    vs->merge(entity,material,!locked,warnings);
@@ -1486,10 +1307,9 @@ namespace Engine
 			opaque_materials.append(vs);
 		else
 			transparent_materials.append(vs);
-	    material.info.reference = vs;
+		all_materials.append(vs);
+	    material.info.attachment = vs;
 	    SCENERY_LOG("material embedded");
-	    if (thread_safe)
-	        mutex.release();
 
 	    return vs;
 	}
@@ -1498,7 +1318,7 @@ namespace Engine
 
 	template <class GL, class Def> bool Scenery<GL,Def>::idle()
 	{
-	    return !structures.count() && !opaque_materials.count() && !transparent_materials.count();
+	    return structures.isEmpty() && all_materials.isEmpty();
 	}
 
 
@@ -1618,17 +1438,15 @@ namespace Engine
 	template <class GL, class Def>
 	void Scenery<GL,Def>::renderOpaqueMaterials()
 	{
-	    opaque_materials.reset();
-	    while (Material<GL,Def>*visual = opaque_materials.each())
-	        visual->render();
+		foreach (opaque_materials,my_material)
+			(*my_material)->render();
 	}
 
 	template <class GL, class Def>
 	void Scenery<GL,Def>::renderTransparentMaterials()
 	{
-	    transparent_materials.reset();
-	    while (Material<GL,Def>*visual = transparent_materials.each())
-	        visual->render();
+		foreach (transparent_materials,my_material)
+			(*my_material)->render();
 	}
 
 
@@ -1642,15 +1460,12 @@ namespace Engine
 			if (!renderer)
 				FATAL__("trying to render without renderer");
 		}
-	    mutex.lock();
 			resolve(aspect,visual_range);
 
-	    opaque_materials.reset();
-	    while (Material<GL,Def>*visual = opaque_materials.each())
-	        visual->render();
-	    transparent_materials.reset();
-	    while (Material<GL,Def>*visual = transparent_materials.each())
-	        visual->render();
+		foreach (opaque_materials,my_material)
+			(*my_material)->render();
+		foreach (transparent_materials,my_material)
+			(*my_material)->render();
 	    renderer->unbindAll();
 		postRenderCleanup();
 	    
@@ -1679,7 +1494,6 @@ namespace Engine
 	        }
 	    glEnable(GL_DEPTH_TEST);
 	    glEnable(GL_LIGHTING);*/
-	    mutex.release();
 	}
 
 	template <class GL, class Def>
@@ -1691,7 +1505,6 @@ namespace Engine
 			if (!renderer)
 				FATAL__("trying to render without renderer");
 		}
-	    mutex.lock();
 	
 		
 
@@ -1705,17 +1518,15 @@ namespace Engine
 				it->visible = true;
 		}
 		
-	    opaque_materials.reset();
-	    while (Material<GL,Def>*visual = opaque_materials.each())
-	        visual->render();
-	    transparent_materials.reset();
-	    while (Material<GL,Def>*visual = transparent_materials.each())
-	        visual->render();
+		foreach (opaque_materials,my_material)
+			(*my_material)->render();
+		foreach (transparent_materials,my_material)
+			(*my_material)->render();
+
 	    renderer->unbindAll();
 		postRenderCleanup();
 
 
-	    mutex.release();
 	}
 	
 	template <class GL, class Def>
@@ -1728,45 +1539,38 @@ namespace Engine
 			if (!renderer)
 				FATAL__("trying to render without renderer");
 		}
-	    mutex.lock();
 			resolve(aspect);
 
-	    opaque_materials.reset();
-	    while (Material<GL,Def>*visual = opaque_materials.each())
-	        visual->render();
-	    transparent_materials.reset();
-	    while (Material<GL,Def>*visual = transparent_materials.each())
-	        visual->render();
+		foreach (opaque_materials,my_material)
+			(*my_material)->render();
+		foreach (transparent_materials,my_material)
+			(*my_material)->render();
+
 	    renderer->unbindAll();
 		postRenderCleanup();
 
-	/*
-	    glDisable(GL_TEXTURE_2D);
-	    glDisable(GL_DEPTH_TEST);
-	    glDisable(GL_LIGHTING);
-	    objects.reset();
-	    while (ObjectEntity<Def>*entity = objects.each())
-	        if (entity->visible)
-	        {
-	            glPushMatrix();
-	                glMultMatrix(entity->name);
-	                glBegin(GL_LINES);
-	                    glColor3f(1,1,1);
-	                    glVertex3f(0,0,0);
-	                    glVertex3f(1,0,0);
-	                    glVertex3f(0,0,1);
-	                    glVertex3f(0,0,0);
-	                    glVertex3f(0,0,0);
-	                    glColor3f(1,0,0);
-	                    glVertex3f(0,1,0);
-	                glEnd();
-	            glPopMatrix();
-	        }
-	    glEnable(GL_DEPTH_TEST);
-	    glEnable(GL_LIGHTING);*/
-	    mutex.release();
 	}
 
+	template <class GL, class Def>
+	template <class C0>
+	void Scenery<GL,Def>::renderIgnoreMaterials(const Aspect<C0>&aspect)
+	{
+		if (!renderer)
+		{
+			setRenderer(GL::global_instance,false);
+			if (!renderer)
+				FATAL__("trying to render without renderer");
+		}
+			resolve(aspect);
+
+		foreach (opaque_materials,my_material)
+			(*my_material)->render(true);
+		foreach (transparent_materials,my_material)
+			(*my_material)->render(true);
+
+		postRenderCleanup();
+
+	}
 
 
 	template <class GL, class Def> Scenery<GL,Def>::Scenery(TextureTable<GL>*table):locked(0),renderer(GL::global_instance),textures(table?table:&local_textures)
@@ -1797,12 +1601,8 @@ namespace Engine
 			if (!idle() && fail_if_not_idle)
 				FATAL__("Attempting to update renderer (0x"+PointerToHex(renderer)+"=>0x"+PointerToHex(renderer_)+") on a non-idle scenery");
 			renderer = renderer_;
-			opaque_materials.reset();
-			while (Material<GL,Def>*visual = opaque_materials.each())
-				visual->renderer = renderer_;
-			transparent_materials.reset();
-			while (Material<GL,Def>*visual = transparent_materials.each())
-				visual->renderer = renderer_;
+			foreach (all_materials,my_material)
+				(*my_material)->renderer = renderer_;
 		}
 		
 	template <class GL, class Def> 
@@ -1829,22 +1629,18 @@ namespace Engine
 
 	template <class GL, class Def> void Scenery<GL,Def>::clear(bool disconnected)
 	{
-	    mutex.lock();
 		if (disconnected)
 		{
-			opaque_materials.reset();
-			while (Material<GL,Def>*visual = opaque_materials.each())
-				visual->shutdown();
-			transparent_materials.reset();
-			while (Material<GL,Def>*visual = transparent_materials.each())
-				visual->shutdown();
+			foreach (all_materials,my_material)
+				(*my_material)->shutdown();
 		}
 		
-	    opaque_materials.clear();
-		transparent_materials.clear();
+	    opaque_materials.reset();
+		transparent_materials.reset();
+		all_materials.reset();
+
 	    structures.clear();
 	    local_textures.clear();
-	    mutex.release();
 	}
 
 
@@ -1852,80 +1648,57 @@ namespace Engine
 
 	template <class GL, class Def> String Scenery<GL,Def>::state()
 	{
-	    mutex.lock();
 	    unsigned total(0);
 	    String rs = String(structures.count())+" structure(s)\n"+String(textures->storage.count())+" texture(s)\n";
 	    rs+=String(opaque_materials.count())+" opaque visual(s):\n";
-	    opaque_materials.reset();
-	    while (Material<GL,Def>*visual = opaque_materials.each())
-	        rs+=visual->state()+"-----------------------------------------------------------------------\n";
+
+		foreach (transparent_materials,my_material)
+	        rs+=(*my_material)->state()+"-----------------------------------------------------------------------\n";
 	    rs+=String(transparent_materials.count())+" transparent visual(s):\n";
-	    transparent_materials.reset();
-	    while (Material<GL,Def>*visual = transparent_materials.each())
-	        rs+=visual->state()+"-----------------------------------------------------------------------\n";
+		foreach (transparent_materials,my_material)
+	        rs+=(*my_material)->state()+"-----------------------------------------------------------------------\n";
 	    rs+="total faces in scene (detail 0): "+String(total)+"\n";
-	    mutex.release();
 	    return rs;
 	}
 
 
 	template <class GL, class Def> typename Def::FloatType*    Scenery<GL,Def>::extractRenderPath(count_t&points)
 	{
-	    mutex.lock();
 	    List::Vector<typename Def::FloatType>   list;
-	    opaque_materials.reset();
-	    while (Material<GL,Def>*visual = opaque_materials.each())
-	        visual->extractRenderPath(list);
-	    transparent_materials.reset();
-	    while (Material<GL,Def>*visual = transparent_materials.each())
-	        visual->extractRenderPath(list);
+		foreach(all_materials,my_material)
+	        (*my_material)->extractRenderPath(list);
 	    typename Def::FloatType*result;
 	    alloc(result,list.count()*3);
 	    for (index_t i = 0; i < list.count(); i++)
 	        copy3(list[i],&result[i*3]);
 	    points = list.count();
-	    mutex.release();
 	    return result;
 	}
 
 
-	template <class GL, class Def> Material<GL,Def>*Scenery<GL,Def>::largestVisual()
+	template <class GL, class Def> shared_ptr<Material<GL,Def> > Scenery<GL,Def>::largestMaterial()
 	{
-	    mutex.lock();
-	    Material<GL,Def>*result(NULL);
+	    shared_ptr<Material<GL,Def> > result;
 	    size_t size(0);
-	    opaque_materials.reset();
-	    while (Material<GL,Def>*vs = opaque_materials.each())
-			if (vs->buffer.index_field.length() > size)
+		foreach (all_materials,my_material)
+			if ((*my_material)->buffer.index_field.length() > size)
 	        {
-	            result = vs;
-	            size = vs->buffer.index_field.length();
+	            result = (*my_material);
+	            size = (*my_material)->buffer.index_field.length();
 	        }
-	    transparent_materials.reset();
-	    while (Material<GL,Def>*vs = transparent_materials.each())
-	        if (vs->buffer.index_field.length() > size)
-	        {
-	            result = vs;
-	            size = vs->buffer.index_field.length();
-	        }
-	    mutex.release();
 	    return result;
 	}
 
 
 	template <class GL, class Def> void Scenery<GL,Def>::lock()
 	{
-	    mutex.lock();
 	    locked++;
-	    mutex.release();
 	}
 
 	template <class GL, class Def> void Scenery<GL,Def>::unlock()
 	{
-	    mutex.lock();
 	    if (locked)
 	        locked--;
-	    mutex.release();
 	}
 
 
@@ -2471,12 +2244,11 @@ namespace Engine
 		{
 			StructureEntity<Def>*rs = Scenery::embed(instance,detail_type);
 			if (rs)
-				synchronized(Scenery::mutex)
-				{
-					objects.import(rs->object_entities);
-					if (!Scenery::locked)
-						remap(false);
-				}
+			{
+				objects.import(rs->object_entities);
+				if (!Scenery::locked)
+					remap(false);
+			}
 			
 			return rs;
 		}
@@ -2487,12 +2259,11 @@ namespace Engine
 			StructureEntity<Def>*rs = Scenery::embed(instance,detail_type);
 			
 			if (rs)
-				synchronized(Scenery::mutex)
-				{
-					objects.import(rs->object_entities);
-					if (!Scenery::locked)
-						remap(false);
-				}
+			{
+				objects.import(rs->object_entities);
+				if (!Scenery::locked)
+					remap(false);
+			}
 			return rs;
 		}
 	
@@ -2502,12 +2273,11 @@ namespace Engine
 		{
 			StructureEntity<Def>*rs = Scenery::embed(instance,detail_type);
 			if (rs)
-				synchronized(Scenery::mutex)
-				{
-					objects.import(rs->object_entities);
-					if (!Scenery::locked)
-						remap(false);
-				}
+			{
+				objects.import(rs->object_entities);
+				if (!Scenery::locked)
+					remap(false);
+			}
 			
 			return rs;
 		}
@@ -2518,31 +2288,24 @@ namespace Engine
 			StructureEntity<Def>*rs = Scenery::embed(instance,detail_type);
 			
 			if (rs)
-				synchronized(Scenery::mutex)
-				{
-					objects.import(rs->object_entities);
-					if (!Scenery::locked)
-						remap(false);
-				}
+			{
+				objects.import(rs->object_entities);
+				if (!Scenery::locked)
+					remap(false);
+			}
 			return rs;
 		}
 
 	template <class GL, class Def>
-		StructureEntity<Def>*MappedScenery<GL,Def>::embed(CGS::Geometry<Def>&structure,unsigned detail_type, bool thread_safe)
+		StructureEntity<Def>*MappedScenery<GL,Def>::embed(CGS::Geometry<Def>&structure,unsigned detail_type)
 		{
 			StructureEntity<Def>*rs = Scenery::embed(structure,detail_type,thread_safe);
 			
 			if (rs)
 			{
-				if (thread_safe)
-					Scenery::mutex.lock();
-					
 				objects.import(rs->object_entities);
 				if (!Scenery::locked)
 					remap(false);
-					
-				if (thread_safe)
-					Scenery::mutex.release();
 			}
 			return rs;
 		}
@@ -2554,20 +2317,17 @@ namespace Engine
 			
 			
 			if (rs)
-				synchronized(Scenery::mutex)
-				{
-					objects.import(rs->object_entities);
-					if (!Scenery::locked)
-						remap(false);
-				}
+			{
+				objects.import(rs->object_entities);
+				if (!Scenery::locked)
+					remap(false);
+			}
 			return rs;
 		}
 		
 	template <class GL, class Def>
-		void			MappedScenery<GL,Def>::remove(CGS::Geometry<Def>&structure, bool thread_safe)
+		void			MappedScenery<GL,Def>::remove(CGS::Geometry<Def>&structure)
 		{
-			if (thread_safe)
-				Scenery::mutex.lock();
 
 			StructureEntity<Def>*entity = Scenery::structures.lookup(structure.system_link);
 			if (entity)
@@ -2579,33 +2339,25 @@ namespace Engine
 				if (!Scenery::locked)
 					remap(false);
 			}
-			if (thread_safe)
-				Scenery::mutex.release();
 		}
 		
 	template <class GL, class Def>
 		void			MappedScenery<GL,Def>::remove(CGS::Geometry<Def>*structure)
 		{
-			synchronized(Scenery::mutex)
-			{
-				StructureEntity<Def>*entity = Scenery::structures.lookup(structure->system_link);
-				if (!entity)
-					return;
-				entity->object_entities.reset();
-				while (ObjectEntity<Def>*obj = entity->object_entities.each())
-					objects.drop(obj);
-				Scenery::remove(*structure,false);
-				if (!Scenery::locked)
-					remap(false);
-			}
+			StructureEntity<Def>*entity = Scenery::structures.lookup(structure->system_link);
+			if (!entity)
+				return;
+			entity->object_entities.reset();
+			while (ObjectEntity<Def>*obj = entity->object_entities.each())
+				objects.drop(obj);
+			Scenery::remove(*structure,false);
+			if (!Scenery::locked)
+				remap(false);
 		}
 		
 	template <class GL, class Def>
-		void			MappedScenery<GL,Def>::remove(CGS::AnimatableInstance<Def>&instance, bool thread_safe)
+		void			MappedScenery<GL,Def>::remove(CGS::AnimatableInstance<Def>&instance)
 		{
-			if (thread_safe)
-				Scenery::mutex.lock();
-
 			StructureEntity<Def>*entity = Scenery::structures.lookup(instance.system);
 			if (entity)
 			{
@@ -2616,33 +2368,25 @@ namespace Engine
 				if (!Scenery::locked)
 					remap(false);
 			}
-			if (thread_safe)
-				Scenery::mutex.release();
 		}
 		
 	template <class GL, class Def>
 		void			MappedScenery<GL,Def>::remove(CGS::AnimatableInstance<Def>*instance)
 		{
-			synchronized(Scenery::mutex)
-			{
-				StructureEntity<Def>*entity = Scenery::structures.lookup(instance->system);
-				if (!entity)
-					return;
-				entity->object_entities.reset();
-				while (ObjectEntity<Def>*obj = entity->object_entities.each())
-					objects.drop(obj);
-				Scenery::remove(*instance,false);
-				if (!Scenery::locked)
-					remap(false);
-			}
+			StructureEntity<Def>*entity = Scenery::structures.lookup(instance->system);
+			if (!entity)
+				return;
+			entity->object_entities.reset();
+			while (ObjectEntity<Def>*obj = entity->object_entities.each())
+				objects.drop(obj);
+			Scenery::remove(*instance,false);
+			if (!Scenery::locked)
+				remap(false);
 		}
 		
 	template <class GL, class Def>
-		void			MappedScenery<GL,Def>::remove(CGS::StaticInstance<Def>&instance, bool thread_safe)
+		void			MappedScenery<GL,Def>::remove(CGS::StaticInstance<Def>&instance)
 		{
-			if (thread_safe)
-				Scenery::mutex.lock();
-
 			StructureEntity<Def>*entity = Scenery::structures.lookup(instance.system);
 			if (entity)
 			{
@@ -2653,25 +2397,20 @@ namespace Engine
 				if (!Scenery::locked)
 					remap(false);
 			}
-			if (thread_safe)
-				Scenery::mutex.release();
 		}
 		
 	template <class GL, class Def>
 		void			MappedScenery<GL,Def>::remove(CGS::StaticInstance<Def>*instance)
 		{
-			synchronized(Scenery::mutex)
-			{
-				StructureEntity<Def>*entity = Scenery::structures.lookup(instance->system);
-				if (!entity)
-					return;
-				entity->object_entities.reset();
-				while (ObjectEntity<Def>*obj = entity->object_entities.each())
-					objects.drop(obj);
-				Scenery::remove(*instance,false);
-				if (!Scenery::locked)
-					remap(false);
-			}
+			StructureEntity<Def>*entity = Scenery::structures.lookup(instance->system);
+			if (!entity)
+				return;
+			entity->object_entities.reset();
+			while (ObjectEntity<Def>*obj = entity->object_entities.each())
+				objects.drop(obj);
+			Scenery::remove(*instance,false);
+			if (!Scenery::locked)
+				remap(false);
 		}
 		
 	template <class GL, class Def>
@@ -2684,37 +2423,23 @@ namespace Engine
 		}
 		
 	template <class GL, class Def>
-		void			MappedScenery<GL,Def>::remap(bool thread_safe)
+		void			MappedScenery<GL,Def>::remap()
 		{
-			if (thread_safe)
-				Scenery::mutex.lock();
-			{
-				if (!Scenery::locked)
-					tree.remap(&objects);
-			}
-			if (thread_safe)
-				Scenery::mutex.release();
-			
+			if (!Scenery::locked)
+				tree.remap(&objects);
 		}
 		
 	template <class GL, class Def> template <typename T>
 		void 			MappedScenery<GL,Def>::lookup(const TBox<T>&box, Buffer<ObjectEntity<Def>*>&out, const StructureEntity<Def>*exclude)
 		{
-			synchronized(Scenery::mutex)
-			{
-				tree.lookup(box, out, exclude);
-			}
+			tree.lookup(box, out, exclude);
 		}
 		
 	template <class GL, class Def>
 		void			MappedScenery<GL,Def>::clear(bool disconnected)
 		{
-			synchronized(Scenery::mutex)
-			{
-				tree.clear();
-				objects.flush();
-			}
-			Scenery::clear(disconnected);
+			tree.clear();
+			objects.flush();
 		}
 		
 	template <class GL, class Def> template <class Def2>
@@ -2815,18 +2540,15 @@ namespace Engine
 				if (!Scenery::renderer)
 					FATAL__("trying to render without renderer");
 			}
-		    Scenery::mutex.lock();
 				resolve(aspect);
 
-		    Scenery::opaque_materials.reset();
-		    while (Material<GL,Def>*visual = Scenery::opaque_materials.each())
-		        visual->render();
-		    Scenery::transparent_materials.reset();
-		    while (Material<GL,Def>*visual = Scenery::transparent_materials.each())
-		        visual->render();
+			foreach (Scenery::opaque_materials,my_material)
+				(*my_material)->render();
+			foreach (Scenery::transparent_materials,my_material)
+				(*my_material)->render();
+
 		    Scenery::renderer->unbindAll();
 			postRenderCleanup();
-			Scenery::mutex.release();
 		}
 		
 	template <class GL, class Def> template <class C0, class C1, class C2, class C3>
@@ -2836,222 +2558,219 @@ namespace Engine
 			C0 least_distance(1000000000);
 			ObjectEntity<Def>*	closest_entity(NULL);
 			
-			synchronized(Scenery::mutex)
-			{
-				typename SceneryTree<Def>::Volume volume;
-				Vec::subVal(center,radius,volume.lower);
-				Vec::addVal(center,radius,volume.upper);
-				static Buffer<ObjectEntity<Def>*> obj_buffer;
-				obj_buffer.reset();
-				tree.lookup(volume,obj_buffer);
+			typename SceneryTree<Def>::Volume volume;
+			Vec::subVal(center,radius,volume.lower);
+			Vec::addVal(center,radius,volume.upper);
+			static Buffer<ObjectEntity<Def>*> obj_buffer;
+			obj_buffer.reset();
+			tree.lookup(volume,obj_buffer);
 				
-				for (index_t i = 0; i < obj_buffer.fillLevel(); i++)
+			for (index_t i = 0; i < obj_buffer.fillLevel(); i++)
+			{
+				ObjectEntity<Def>*entity = obj_buffer[i];
+				CGS::SubGeometryA<Def>*child = entity->source;
+				if (!child->vs_hull_field.length() || (entity->structure->config & StructureConfig::NonDetectable))
+					continue;
+				typedef typename CGS::SubGeometryA<Def>::VsDef	VsDef;
+				Mesh<VsDef>&obj = child->vs_hull_field.last();
+				if (!obj.map)
 				{
-					ObjectEntity<Def>*entity = obj_buffer[i];
-					CGS::SubGeometryA<Def>*child = entity->source;
-					if (!child->vs_hull_field.length() || (entity->structure->config & StructureConfig::NonDetectable))
-						continue;
-					typedef typename CGS::SubGeometryA<Def>::VsDef	VsDef;
-					Mesh<VsDef>&obj = child->vs_hull_field.last();
-					if (!obj.map)
-					{
-						obj.map = obj.buildMap(O_ALL,4);
+					obj.map = obj.buildMap(O_ALL,4);
 					
-						for (index_t i = 0; i < obj.vertex_field.length(); i++)
-							Vec::clear(obj.vertex_field[i].normal);
-						for (index_t i = 0; i < obj.triangle_field.length(); i++)
+					for (index_t i = 0; i < obj.vertex_field.length(); i++)
+						Vec::clear(obj.vertex_field[i].normal);
+					for (index_t i = 0; i < obj.triangle_field.length(); i++)
+					{
+						MeshTriangle<VsDef>&t = obj.triangle_field[i];
+						Obj::triangleNormal(t.v0->position,t.v1->position,t.v2->position,t.normal);
+						Vec::add(t.v0->normal,t.normal);
+						Vec::add(t.v1->normal,t.normal);
+						Vec::add(t.v2->normal,t.normal);
+						Vec::normalize0(t.normal);
+					}
+					for (index_t i = 0; i < obj.quad_field.length(); i++)
+					{
+						MeshQuad<VsDef>&q = obj.quad_field[i];
+						Obj::triangleNormal(q.v0->position,q.v1->position,q.v2->position,q.normal[0]);
+						Vec::add(q.v0->normal,q.normal[0]);
+						Vec::add(q.v1->normal,q.normal[0]);
+						Vec::add(q.v2->normal,q.normal[0]);
+						Obj::triangleNormal(q.v0->position,q.v2->position,q.v3->position,q.normal[1]);
+						Vec::add(q.v0->normal,q.normal[1]);
+						Vec::add(q.v2->normal,q.normal[1]);
+						Vec::add(q.v3->normal,q.normal[1]);
+						Vec::normalize0(q.normal[0]);
+						Vec::normalize0(q.normal[1]);
+					}
+					for (index_t i = 0; i < obj.vertex_field.length(); i++)
+						Vec::normalize0(obj.vertex_field[i].normal);
+					for (index_t i = 0; i < obj.edge_field.length(); i++)
+					{
+						MeshEdge<VsDef>&e = obj.edge_field[i];
+						Vec::clear(e.normal);
+						if (e.n[0])
 						{
-							MeshTriangle<VsDef>&t = obj.triangle_field[i];
-							Obj::triangleNormal(t.v0->position,t.v1->position,t.v2->position,t.normal);
-							Vec::add(t.v0->normal,t.normal);
-							Vec::add(t.v1->normal,t.normal);
-							Vec::add(t.v2->normal,t.normal);
-							Vec::normalize0(t.normal);
-						}
-						for (index_t i = 0; i < obj.quad_field.length(); i++)
-						{
-							MeshQuad<VsDef>&q = obj.quad_field[i];
-							Obj::triangleNormal(q.v0->position,q.v1->position,q.v2->position,q.normal[0]);
-							Vec::add(q.v0->normal,q.normal[0]);
-							Vec::add(q.v1->normal,q.normal[0]);
-							Vec::add(q.v2->normal,q.normal[0]);
-							Obj::triangleNormal(q.v0->position,q.v2->position,q.v3->position,q.normal[1]);
-							Vec::add(q.v0->normal,q.normal[1]);
-							Vec::add(q.v2->normal,q.normal[1]);
-							Vec::add(q.v3->normal,q.normal[1]);
-							Vec::normalize0(q.normal[0]);
-							Vec::normalize0(q.normal[1]);
-						}
-						for (index_t i = 0; i < obj.vertex_field.length(); i++)
-							Vec::normalize0(obj.vertex_field[i].normal);
-						for (index_t i = 0; i < obj.edge_field.length(); i++)
-						{
-							MeshEdge<VsDef>&e = obj.edge_field[i];
-							Vec::clear(e.normal);
-							if (e.n[0])
+							if (e.n[0].is_quad)
 							{
-								if (e.n[0].is_quad)
-								{
-									Vec::mult(e.n[0].quad->normal[0],0.5,e.normal);
-									Vec::mad(e.normal,e.n[0].quad->normal[1],0.5);
-								}
-								else
-									Vec::copy(e.n[0].triangle->normal,e.normal);
+								Vec::mult(e.n[0].quad->normal[0],0.5,e.normal);
+								Vec::mad(e.normal,e.n[0].quad->normal[1],0.5);
 							}
-							if (e.n[1])
+							else
+								Vec::copy(e.n[0].triangle->normal,e.normal);
+						}
+						if (e.n[1])
+						{
+							if (e.n[1].is_quad)
 							{
-								if (e.n[1].is_quad)
-								{
-									Vec::mad(e.normal,e.n[1].quad->normal[0],0.5);
-									Vec::mad(e.normal,e.n[1].quad->normal[1],0.5);
-								}
-								else
-									Vec::add(e.normal,e.n[1].triangle->normal);
+								Vec::mad(e.normal,e.n[1].quad->normal[0],0.5);
+								Vec::mad(e.normal,e.n[1].quad->normal[1],0.5);
 							}
-							Vec::normalize0(e.normal);
+							else
+								Vec::add(e.normal,e.n[1].triangle->normal);
+						}
+						Vec::normalize0(e.normal);
+					}
+				}
+					
+				TVec3<C0> inner_center;
+				if (!entity->invert_set)
+				{
+					Mat::invertSystem(entity->system,entity->invert);
+					entity->invert_set = true;
+				}
+				Mat::transform(entity->invert,center,inner_center);
+				TBox<typename VsDef::Type> inner_volume;
+				Vec::sub(inner_center,radius,inner_volume.lower);
+				Vec::add(inner_center,radius,inner_volume.upper);
+				unsigned cnt = obj.map->lookup(inner_volume);
+				if (!cnt)
+					continue;
+					
+				union
+				{
+					MeshQuad<VsDef>		*qbuffer[1024];
+					MeshTriangle<VsDef>	*tbuffer[1024];
+					MeshEdge<VsDef>		*ebuffer[1024];
+					MeshVertex<VsDef>	*vbuffer[1024];
+				};
+					
+					
+				if (unsigned cnt = obj.map->resolveVertices(vbuffer,ARRAYSIZE(vbuffer)))
+				{
+					for (unsigned i = 0; i < cnt; i++)
+					{
+						C0 dist = Vec::quadraticDistance(vbuffer[i]->position,inner_center);
+						if (dist < least_distance)
+						{
+							least_distance = dist;
+							Mat::transform(entity->system,vbuffer[i]->position,position_out);
+							Mat::rotate(entity->system,vbuffer[i]->normal,normal_out);
+							closest_entity = entity;
 						}
 					}
+				}
 					
-					TVec3<C0> inner_center;
-					if (!entity->invert_set)
+				if (unsigned cnt = obj.map->resolveTriangles(tbuffer,ARRAYSIZE(tbuffer)))
+				{
+					for (unsigned i = 0; i < cnt; i++)
 					{
-						Mat::invertSystem(entity->system,entity->invert);
-						entity->invert_set = true;
-					}
-					Mat::transform(entity->invert,center,inner_center);
-					TBox<typename VsDef::Type> inner_volume;
-					Vec::sub(inner_center,radius,inner_volume.lower);
-					Vec::add(inner_center,radius,inner_volume.upper);
-					unsigned cnt = obj.map->lookup(inner_volume);
-					if (!cnt)
-						continue;
-					
-					union
-					{
-						MeshQuad<VsDef>		*qbuffer[1024];
-						MeshTriangle<VsDef>	*tbuffer[1024];
-						MeshEdge<VsDef>		*ebuffer[1024];
-						MeshVertex<VsDef>	*vbuffer[1024];
-					};
-					
-					
-					if (unsigned cnt = obj.map->resolveVertices(vbuffer,ARRAYSIZE(vbuffer)))
-					{
-						for (unsigned i = 0; i < cnt; i++)
+						MeshTriangle<VsDef>*t = tbuffer[i];
+						TVec3<C0> factors,e1,e2;
+						Vec::mad(inner_center,tbuffer[i]->normal,-radius,e2);
+						Vec::mad(inner_center,tbuffer[i]->normal,radius,e1);
+						if (!_oDetTriangleEdgeIntersection(t->v0->position,t->v1->position,t->v2->position,e1,e2,factors))
+							continue;
+						if (!_oValidTriangleEdgeIntersection(factors))
+							continue;
+						factors.z = factors.z*2-1;
+						if (sqr(factors.z*radius) < least_distance)
 						{
-							C0 dist = Vec::quadraticDistance(vbuffer[i]->position,inner_center);
-							if (dist < least_distance)
+							least_distance = sqr(factors.z*radius);
+							Vec::mad(inner_center,tbuffer[i]->normal,-factors[2]*radius,e2);
+							Mat::transform(entity->system,e2,position_out);
+							Mat::rotate(entity->system,tbuffer[i]->normal,normal_out);
+							closest_entity = entity;
+						}
+					}
+				}
+					
+				if (unsigned cnt = obj.map->resolveQuads(qbuffer,ARRAYSIZE(qbuffer)))
+				{
+					for (unsigned i = 0; i < cnt; i++)
+					{
+						MeshQuad<VsDef>*q = qbuffer[i];
+						C0 dist = _oProjectionFactor(q->v0->position,q->normal[0],inner_center);
+						TVec3<C0>	collapsed,factors,e1,e2;
+							
+						Vec::mad(inner_center,q->normal[0],-radius,e2);
+						Vec::mad(inner_center,q->normal[0],radius,e1);
+						if (_oDetTriangleEdgeIntersection(q->v0->position,q->v1->position,q->v2->position,e1,e2,factors)
+							&&
+							_oValidTriangleEdgeIntersection(factors))
+						{
+							C0 factor = factors.z*2.0-1.0;
+							if (sqr(factor*radius) < least_distance)
 							{
-								least_distance = dist;
-								Mat::transform(entity->system,vbuffer[i]->position,position_out);
-								Mat::rotate(entity->system,vbuffer[i]->normal,normal_out);
+								//ShowMessage("got quad");
+								least_distance = sqr(factor*radius);
+								Vec::mad(inner_center,q->normal[0],-factor*radius,e2);
+								Mat::transform(entity->system,e2,position_out);
+								Mat::rotate(entity->system,q->normal[0],normal_out);
 								closest_entity = entity;
 							}
 						}
-					}
-					
-					if (unsigned cnt = obj.map->resolveTriangles(tbuffer,ARRAYSIZE(tbuffer)))
-					{
-						for (unsigned i = 0; i < cnt; i++)
+						
+						Vec::mad(inner_center,q->normal[1],-radius,e2);
+						Vec::mad(inner_center,q->normal[1],radius,e1);
+						if (_oDetTriangleEdgeIntersection(q->v0->position,q->v2->position,q->v3->position,e1,e2,factors)
+							&&
+							_oValidTriangleEdgeIntersection(factors))
 						{
-							MeshTriangle<VsDef>*t = tbuffer[i];
-							TVec3<C0> factors,e1,e2;
-							Vec::mad(inner_center,tbuffer[i]->normal,-radius,e2);
-							Vec::mad(inner_center,tbuffer[i]->normal,radius,e1);
-							if (!_oDetTriangleEdgeIntersection(t->v0->position,t->v1->position,t->v2->position,e1,e2,factors))
-								continue;
-							if (!_oValidTriangleEdgeIntersection(factors))
-								continue;
-							factors.z = factors.z*2-1;
+							factors.z = factors.z*2.0-1.0;
 							if (sqr(factors.z*radius) < least_distance)
 							{
-								least_distance = sqr(factors.z*radius);
-								Vec::mad(inner_center,tbuffer[i]->normal,-factors[2]*radius,e2);
+								//ShowMessage("got quad2");
+								least_distance = sqr(factors[2]*radius);
+								Vec::mad(inner_center,q->normal[1],-factors[2]*radius,e2);
 								Mat::transform(entity->system,e2,position_out);
-								Mat::rotate(entity->system,tbuffer[i]->normal,normal_out);
+								Mat::rotate(entity->system,q->normal[1],normal_out);
 								closest_entity = entity;
 							}
 						}
 					}
-					
-					if (unsigned cnt = obj.map->resolveQuads(qbuffer,ARRAYSIZE(qbuffer)))
-					{
-						for (unsigned i = 0; i < cnt; i++)
-						{
-							MeshQuad<VsDef>*q = qbuffer[i];
-							C0 dist = _oProjectionFactor(q->v0->position,q->normal[0],inner_center);
-							TVec3<C0>	collapsed,factors,e1,e2;
-							
-							Vec::mad(inner_center,q->normal[0],-radius,e2);
-							Vec::mad(inner_center,q->normal[0],radius,e1);
-							if (_oDetTriangleEdgeIntersection(q->v0->position,q->v1->position,q->v2->position,e1,e2,factors)
-								&&
-								_oValidTriangleEdgeIntersection(factors))
-							{
-								C0 factor = factors.z*2.0-1.0;
-								if (sqr(factor*radius) < least_distance)
-								{
-									//ShowMessage("got quad");
-									least_distance = sqr(factor*radius);
-									Vec::mad(inner_center,q->normal[0],-factor*radius,e2);
-									Mat::transform(entity->system,e2,position_out);
-									Mat::rotate(entity->system,q->normal[0],normal_out);
-									closest_entity = entity;
-								}
-							}
-						
-							Vec::mad(inner_center,q->normal[1],-radius,e2);
-							Vec::mad(inner_center,q->normal[1],radius,e1);
-							if (_oDetTriangleEdgeIntersection(q->v0->position,q->v2->position,q->v3->position,e1,e2,factors)
-								&&
-								_oValidTriangleEdgeIntersection(factors))
-							{
-								factors.z = factors.z*2.0-1.0;
-								if (sqr(factors.z*radius) < least_distance)
-								{
-									//ShowMessage("got quad2");
-									least_distance = sqr(factors[2]*radius);
-									Vec::mad(inner_center,q->normal[1],-factors[2]*radius,e2);
-									Mat::transform(entity->system,e2,position_out);
-									Mat::rotate(entity->system,q->normal[1],normal_out);
-									closest_entity = entity;
-								}
-							}
-						}
-					}
-					
-					
-					
-					if (unsigned cnt = obj.map->resolveEdges(ebuffer,ARRAYSIZE(ebuffer)))
-					{
-						for (unsigned i = 0; i < cnt; i++)
-						{
-							TVec3<C0> d;
-							Vec::sub(ebuffer[i]->v1->position,ebuffer[i]->v0->position,d);
-							C0 sub = Vec::dot(d);
-							if (sub < getError<C0>())
-								continue;
-							C0 fc = (Vec::dot(inner_center,d)-Vec::dot(ebuffer[i]->v0->position,d))/sub;
-							if (fc < -getError<C0>() || fc > 1.0f+getError<C0>())
-								continue;
-							TVec3<C0> p;
-							Vec::mad(ebuffer[i]->v0->position,d,fc,p);
-							C0 dist = Vec::quadraticDistance(p,inner_center);
-							if (dist < least_distance)
-							{
-								TVec3<C0> normal;
-								least_distance = dist;
-								Vec::copy(ebuffer[i]->normal,normal);
-								Vec::normalize0(normal);
-								Vec::copy(p,position_out);
-								Mat::transform(entity->system,p,position_out);
-								Mat::rotate(entity->system,normal,normal_out);
-								closest_entity = entity;
-							}
-						}
-					}
-					
 				}
+					
+					
+					
+				if (unsigned cnt = obj.map->resolveEdges(ebuffer,ARRAYSIZE(ebuffer)))
+				{
+					for (unsigned i = 0; i < cnt; i++)
+					{
+						TVec3<C0> d;
+						Vec::sub(ebuffer[i]->v1->position,ebuffer[i]->v0->position,d);
+						C0 sub = Vec::dot(d);
+						if (sub < getError<C0>())
+							continue;
+						C0 fc = (Vec::dot(inner_center,d)-Vec::dot(ebuffer[i]->v0->position,d))/sub;
+						if (fc < -getError<C0>() || fc > 1.0f+getError<C0>())
+							continue;
+						TVec3<C0> p;
+						Vec::mad(ebuffer[i]->v0->position,d,fc,p);
+						C0 dist = Vec::quadraticDistance(p,inner_center);
+						if (dist < least_distance)
+						{
+							TVec3<C0> normal;
+							least_distance = dist;
+							Vec::copy(ebuffer[i]->normal,normal);
+							Vec::normalize0(normal);
+							Vec::copy(p,position_out);
+							Mat::transform(entity->system,p,position_out);
+							Mat::rotate(entity->system,normal,normal_out);
+							closest_entity = entity;
+						}
+					}
+				}
+					
 			}
 			SCENERY_END
 			return 	closest_entity;
