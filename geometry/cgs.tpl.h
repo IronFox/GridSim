@@ -808,7 +808,7 @@ template <typename T>
 template <typename T> template <typename T2>
 	inline void	System<T>::moveTo(const TVec3<T2>&p)
 	{
-		Vec::copy(p,matrix.w);
+		Vec::copy(p,matrix.w.xyz);
 		if (callback)
 			callback->onSystemChange();
 	}
@@ -816,7 +816,7 @@ template <typename T> template <typename T2>
 template <typename T> template <typename T2>
 	inline void	System<T>::moveToNoCallback(const TVec3<T2>&p)
 	{
-		Vec::copy(p,matrix.w);
+		Vec::copy(p,matrix.w.xyz);
 	}
 	
 	
