@@ -5763,4 +5763,31 @@ template <class Def> bool RenderObjectA<Def>::equal;
 
 template <class Def> String Geometry<Def>::error;
 template <class Def> String SubGeometryA<Def>::error;
+
+
+
+template <class Def> 
+	void			Constructor<Def>::Object::verifyIntegrity(bool verify_all_vertices_are_used)	const
+	{
+		ASSERT__(!(vertex_data.length()%config.vsize));
+		for (index_t i = 0; i < index_data.length(); i++)
+		{
+			ASSERT_LESS__(index_data[i],vertex_data.length()/config.vsize);
+		}
+
+		if (verify_all_vertices_are_used)
+		{
+			Array<bool>	used(vertex_data.length()/config.vsize);
+			used.fill(false);
+			for (index_t i = 0; i < index_data.length(); i++)
+				used[index_data[i]] = true;
+			for (index_t i = 0; i < used.length(); i++)
+				ASSERT1__(used[i],i);
+		}
+	}
+
+
+
+
+
 #endif

@@ -1477,6 +1477,8 @@ namespace CGS	//! Compiled Geometrical Structure
 				count_t			countFloats()	const {return vertex_data.length();}
 				count_t			countVertices()	const {return vertex_data.length() / config.vsize;}
 
+				void			verifyIntegrity(bool verify_all_vertices_are_used)	const;
+
 				template <typename T>
 					Index		vertex(const TVec3<T>&location)
 					{
