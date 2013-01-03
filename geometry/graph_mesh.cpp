@@ -3159,8 +3159,7 @@ bool	SurfaceNetwork::nodeIsFlipped(index_t node_id)	const
 	//if (texture != 0)
 	{
 		Vec::def(target.material_field[0].info.ambient,0.4,0.4,0.4,1);
-		target.material_field[0].info.reference = NULL;
-		target.material_field[0].info.signature = NULL;
+		target.material_field[0].info.attachment.reset();
 		target.material_field[0].info.layer_field.setSize((texture!=0) + (normal_texture!=0));
 		if (texture != 0)
 		{
@@ -3291,8 +3290,7 @@ bool	SurfaceNetwork::nodeIsFlipped(index_t node_id)	const
 	//if (texture != 0)
 	{
 		Vec::def(target.material_field[0].info.ambient,0.4,0.4,0.4,1);
-		target.material_field[0].info.reference = NULL;
-		target.material_field[0].info.signature = NULL;
+		target.material_field[0].info.attachment.reset();
 		target.material_field[0].info.layer_field.setSize((texture!=0) + (normal_texture!=0));
 		if (texture != 0)
 		{
