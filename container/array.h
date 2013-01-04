@@ -993,6 +993,16 @@ template <class C, class Strategy=typename StrategySelector<C>::Default>
 
 						Strategy::copyElements(origin,data,max);
 					}
+				template <class T>
+					inline void	copyFrom(index_t target_offset, const T*origin, count_t max=Undefined) //! Copies all elements from \b origin via the = operator \param origin Array to copy from (may be of a different entry type) \param max Maximum number of elements to read
+					{
+						if (target_offset >= elements)
+							return;
+						if (max > elements - target_offset)
+							max = elements - target_offset;
+
+						Strategy::copyElements(origin,data+target_offset,max);
+					}
 
 					inline	void	importFrom(C*origin, count_t max=Undefined)	//! Moves up to @b max elements from @b origin to the local array. The type of movement depends on the used strategy
 					{

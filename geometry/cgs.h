@@ -1443,26 +1443,37 @@ namespace CGS	//! Compiled Geometrical Structure
 			private:
 				friend class Constructor<Def>;
 
-				Buffer<Float>	vertex_data;
-				Buffer<Index>	index_data;
+				Buffer<Float,0>	vertex_data;
+				Buffer<Index,0>	index_data,quad_data;
 				Index			voffset;
 				VConfig			config;
+				TMatrix4<typename Def::SystemType>	system;
 			public:
-				/**/			Object():voffset(0)	{}
+				/**/			Object():voffset(0),system(Matrix<typename Def::SystemType>::eye4)	{}
 				void			swap(Object&other)
 								{
 									vertex_data.swap(other.vertex_data);
 									index_data.swap(other.index_data);
+									quad_data.swap(other.quad_data);
 									swp(config,other.config);
 									swp(voffset,other.voffset);
+									swp(system,other.system);
 								}
 				void			adoptData(Object&other)
 								{
 									vertex_data.adoptData(other.vertex_data);
 									index_data.adoptData(other.index_data);
+									quad_data.adoptData(other.quad_data);
 									config = other.config;
 									voffset = other.voffset;
+									system = other.system;
 								}
+			template <typename T>
+				void			setSystem(const TMatrix4<T>&m)
+				{
+					Mat::copy(m,system);
+				}
+				const TMatrix4<typename Def::SystemType>& getSystem()	const {return system;}
 				count_t			countTextureLayers()	const	{return config.num_texture_layers;}
 				UINT			getVertexFlags()		const	{return config.vertex_flags;}
 				count_t			getVertexSize()			const	{return config.vsize;}
@@ -1475,10 +1486,21 @@ namespace CGS	//! Compiled Geometrical Structure
 									t[1] = v1 + voffset;
 									t[2] = v2 + voffset;
 								}
+				void			quad(Index v0, Index v1, Index v2, Index v3)
+								{
+									Index*t = quad_data.appendRow(4);
+									t[0] = v0 + voffset;
+									t[1] = v1 + voffset;
+									t[2] = v2 + voffset;
+									t[3] = v3 + voffset;
+								}
 				const Index*	getIndices()	const {return index_data.pointer();}
+				const Index*	getQuadIndices()const {return quad_data.pointer();}
 				const Float*	getVertices()	const {return vertex_data.pointer();}
 				count_t			countIndices()	const {return index_data.length();}
+				count_t			countQuadIndices()	const {return quad_data.length();}
 				count_t			countTriangles()const {return index_data.length()/3;}
+				count_t			countQuads()	const {return quad_data.length()/4;}
 				count_t			countFloats()	const {return vertex_data.length();}
 				count_t			countVertices()	const {return vertex_data.length() / config.vsize;}
 
@@ -2087,8 +2109,7 @@ namespace CGS	//! Compiled Geometrical Structure
 
 			Object&			appendObject()	{Object&result = objects.append(); result.config = config; return result;}
 			void			clear()			{objects.reset();}
-
-
+			void			verifyIntegrity(bool verify_all_vertices_are_used)	const;
 		};
 	CGS_DECLARE_ADOPTING_T(Constructor)
 

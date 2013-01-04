@@ -4431,16 +4431,18 @@ template <class Def>
 	
 			robj.vpool.vdata.copyFrom(cobj.getVertices());
 			robj.detail=0;
-			robj.ipool.idata.setSize(cobj.countIndices());
+			robj.ipool.idata.setSize(cobj.countIndices() + cobj.countQuadIndices());
 			robj.ipool.triangles = unsigned(cobj.countTriangles());
-			robj.ipool.idata.copyFrom(cobj.getIndices());
+			robj.ipool.quads = unsigned(cobj.countQuads());
+			robj.ipool.idata.copyFrom(cobj.getIndices(),cobj.countIndices());
+			robj.ipool.idata.copyFrom(cobj.countIndices(),cobj.getQuadIndices(),cobj.countQuadIndices());
 			object_field[i].vs_hull_field.setSize(1);
 			typedef Mesh<typename SubGeometryA<Def>::VsDef>	VsMesh;
 			VsMesh	&obj = object_field[i].vs_hull_field[0];
 			obj.vertex_field.setSize(cobj.countVertices());
-			obj.triangle_field.setSize(cobj.countIndices()/3);
+			obj.triangle_field.setSize(cobj.countTriangles());
 			obj.edge_field.free();
-			obj.quad_field.free();
+			obj.quad_field.setSize(cobj.countQuads());
 			UINT32 band = cobj.getVertexSize();
 			const count_t vertices = cobj.countVertices();
 			const Float*vertex = cobj.getVertices();
@@ -4461,16 +4463,29 @@ template <class Def>
 				obj.triangle_field[j].index = j;
 				obj.triangle_field[j].marked = false;
 			}
+			const count_t quads = cobj.countQuads();
+			index = cobj.getQuadIndices();
+			for (index_t j = 0; j < quads; j++)
+			{
+				obj.quad_field[j].vertex[0] = obj.vertex_field+index[j*4];
+				obj.quad_field[j].vertex[1] = obj.vertex_field+index[j*4+1];
+				obj.quad_field[j].vertex[2] = obj.vertex_field+index[j*4+2];
+				obj.quad_field[j].vertex[3] = obj.vertex_field+index[j*4+3];
+				obj.quad_field[j].index = j;
+				obj.quad_field[j].marked = false;
+			}
 			ASSERT1__(obj.valid(),obj.errorStr());
 
 			object_field[i].name = str2name("child"+String(i));
-			Mat::eye(object_field[i].meta.system);
+			//Mat::eye(object_field[i].meta.system);
+			object_field[i].meta.system = cobj.getSystem();
 			Vec::clear(object_field[i].meta.center);
 			object_field[i].meta.radius = 1;
 			object_field[i].meta.volume = 1;
 			object_field[i].meta.density = 1;
 			object_field[i].extractShortestVisualEdgeLength(0,object_field[i].meta.shortest_edge_length);
-			Mat::eye(object_field[i].path);
+			object_field[i].path = object_field[i].meta.system;
+			//Mat::eye(object_field[i].path);
 			object_field[i].system_link = &object_field[i].path;
 			robj.tname = object_field[i].name;
 		}
@@ -5770,9 +5785,15 @@ template <class Def>
 	void			Constructor<Def>::Object::verifyIntegrity(bool verify_all_vertices_are_used)	const
 	{
 		ASSERT__(!(vertex_data.length()%config.vsize));
+		ASSERT__(!(index_data.length()%3));
+		ASSERT__(!(quad_data.length()%4));
 		for (index_t i = 0; i < index_data.length(); i++)
 		{
 			ASSERT_LESS__(index_data[i],vertex_data.length()/config.vsize);
+		}
+		for (index_t i = 0; i < quad_data.length(); i++)
+		{
+			ASSERT_LESS__(quad_data[i],vertex_data.length()/config.vsize);
 		}
 
 		if (verify_all_vertices_are_used)
@@ -5781,8 +5802,22 @@ template <class Def>
 			used.fill(false);
 			for (index_t i = 0; i < index_data.length(); i++)
 				used[index_data[i]] = true;
+			for (index_t i = 0; i < quad_data.length(); i++)
+				used[quad_data[i]] = true;
 			for (index_t i = 0; i < used.length(); i++)
 				ASSERT1__(used[i],i);
+		}
+	}
+
+template <class Def> 
+	void			Constructor<Def>::verifyIntegrity(bool verify_all_vertices_are_used)	const
+	{
+		for (index_t i = 0; i < objects.count(); i++)
+		{
+			ASSERT_EQUAL__(config.vsize,objects[i].config.vsize);
+			ASSERT_EQUAL__(config.num_texture_layers,objects[i].config.num_texture_layers);
+			ASSERT_EQUAL__(config.vertex_flags,objects[i].config.vertex_flags);
+			objects[i].verifyIntegrity(verify_all_vertices_are_used);
 		}
 	}
 
