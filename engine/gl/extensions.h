@@ -658,6 +658,7 @@
 
 					public:
 							bool 				shade_invoked,				//!< Specifies that the shade() function is called in this block
+												shade2_invoked,
 												custom_shade_invoked,		//!< Specifies that the customShade() function is called in this block
 												spotlight_invoked,			//!< Specifies that the spotLight() function is called in this block
 												omnilight_invoked,			//!< Specifies that the omniLight() function is called in this block

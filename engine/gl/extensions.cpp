@@ -1948,6 +1948,7 @@ namespace Engine
 			bool			Template::RootBlock::scan(const String&source, VariableMap&map, StringBuffer&log_out, index_t&line)
 			{
 				shade_invoked = source.findWord("shade")!=0;
+				shade2_invoked = source.findWord("shade2")!=0;
 				custom_shade_invoked = source.findWord("customShade")!=0;
 				spotlight_invoked = source.findWord("spotLight")!=0;
 				omnilight_invoked = source.findWord("omniLight")!=0;
@@ -2199,7 +2200,7 @@ namespace Engine
 
 			bool			Template::RootBlock::usesLighting()	const
 			{
-				if (shade_invoked || custom_shade_invoked)
+				if (shade_invoked || shade2_invoked || custom_shade_invoked)
 					return true;
 				return Block::usesLighting();
 			}
@@ -2322,6 +2323,89 @@ namespace Engine
 						buffer << " return vec4(1.0);\n";
 					buffer << "}\n\n";
 				}
+
+
+				if (shade2_invoked)
+				{
+					buffer << nl <<
+					"vec4 shade2(vec3 position, vec3 eye_direction, vec3 normal, vec3 reflected)\n"
+					"{\n";
+					if (render_config.lighting_enabled)
+					{
+						buffer <<
+						"	vec3 result = vec3(0.0);\n"
+						"	float fresnel = 1.0-abs(dot(normal,eye_direction))*0.5;\n";
+						for (index_t i = 0; i < render_config.lights.fillLevel(); i++)
+							switch (render_config.lights[i])
+							{
+								case Light::Omni:
+									buffer << 
+									"	{\n"
+									"		vec3 ldir = (gl_LightSource["<<i<<"].position.xyz-position);\n"
+									"		float distance = length(ldir);\n"
+									"		ldir /= distance;\n"
+									"		float shadow = ";
+									shadowFunction(i,buffer);
+									buffer <<";\n"
+									"		float attenuation = 1.0 / (gl_LightSource["<<i<<"].constantAttenuation + gl_LightSource["<<i<<"].linearAttenuation * distance + gl_LightSource["<<i<<"].quadraticAttenuation * distance*distance);\n"
+									"		result += max(dot(normal,ldir),0.0)*gl_FrontLightProduct["<<i<<"].diffuse.rgb*attenuation*shadow;\n"
+									"		if (gl_FrontMaterial.shininess > 0.0)\n"
+									"			result += pow(max(dot(reflected,ldir),0.0),gl_FrontMaterial.shininess*fresnel)*gl_FrontLightProduct["<<i<<"].specular.rgb*attenuation*fresnel*shadow;\n"
+									"		result += gl_FrontLightProduct["<<i<<"].ambient.rgb*attenuation;\n"
+									"	}\n";
+								break;
+								case Light::Direct:
+									buffer << 
+									"	{\n"
+									"		vec3 ldir = gl_LightSource["<<i<<"].position.xyz;\n"
+									"		float shadow = ";
+													shadowFunction(i,buffer);
+													buffer <<";\n"
+									"		result += max(dot(normal,ldir),0.0)*gl_FrontLightProduct["<<i<<"].diffuse.rgb*shadow;\n"
+									"		if (gl_FrontMaterial.shininess > 0.0)\n"
+									"			result += pow(max(dot(reflected,ldir),0.0),gl_FrontMaterial.shininess*fresnel)*gl_FrontLightProduct["<<i<<"].specular.rgb*fresnel*shadow;\n"
+									"		result += gl_FrontLightProduct["<<i<<"].ambient.rgb;\n"
+									"	}\n";
+								break;
+								case Light::Spot:
+									buffer <<
+									"	{\n"
+									"		vec3 ldir = (gl_LightSource["<<i<<"].position.xyz-position);\n"
+									"		float general_intensity = -dot(gl_LightSource["<<i<<"].spotDirection,ldir);\n"
+									"		if (general_intensity > 0.0)\n"
+									"		{\n"
+									"			float diffuse = dot(normal,ldir);\n"
+									"			if (diffuse > 0.0)\n"
+									"			{\n"
+									"				float distance = length(ldir);\n"
+									"				ldir /= distance;\n"
+									"				general_intensity /= distance;\n"
+									"				diffuse /= distance;\n"
+									"				float shadow = ";
+														shadowFunction(i,buffer);
+														buffer <<";\n"
+									"				float attenuation = 1.0 / (gl_LightSource["<<i<<"].constantAttenuation + gl_LightSource["<<i<<"].linearAttenuation * distance + gl_LightSource["<<i<<"].quadraticAttenuation * distance*distance);\n"
+									"				float cone_intensity = pow(general_intensity,gl_LightSource["<<i<<"].spotExponent)*attenuation;\n"
+									"				diffuse *= cone_intensity;\n"
+									"				if (gl_FrontMaterial.shininess > 0.0)\n"
+									"				{\n"
+									"					float specular = pow(max(dot(reflected,ldir),0.0),gl_FrontMaterial.shininess*fresnel)*cone_intensity*fresnel*shadow;\n"
+									"					result += specular * gl_FrontLightProduct["<<i<<"].specular.rgb;\n"
+									"				}\n"
+									"				result += diffuse * gl_FrontLightProduct["<<i<<"].diffuse.rgb*shadow;\n"
+									"				result += attenuation * gl_FrontLightProduct["<<i<<"].ambient.rgb;\n"
+									"			}\n"
+									"		}\n"
+									"	}\n";				
+								break;
+							}
+						buffer << "	return vec4(result,1.0);\n";
+					}
+					else
+						buffer << " return vec4(1.0);\n";
+					buffer << "}\n\n";
+				}
+		
 		
 				if (custom_shade_invoked)
 				{
