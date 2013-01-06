@@ -894,19 +894,25 @@ MFUNC1 (void) AngularCamera<C>::lookAtPlanar(const TVec3<C0>&vector)
 template <class C>
 MFUNC1 (void) AngularCamera<C>::lookAt(const TVec3<C0>&vector)
 {
+	TVec3<C>	delta;
+	Vec::sub(location,vector,delta);
 	if (GlobalAspectConfiguration::world_z_is_up)
 	{
-		angle.z = 90.f - Vec::angle360(location.x-vector.x,location.y-vector.y);
-		angle.x = vatan2(location.z-vector.z,vsqrt(sqr(location.x-vector.x)+sqr(location.y-vector.y)))*(C)180/M_PI;
-		angle.z = 0;
+		angle.z = 90.f + Vec::angle360(delta.x,delta.y);
+		angle.x = vatan2(delta.z,vsqrt(sqr(delta.x)+sqr(delta.y)))*(C)180/M_PI;
+		angle.y = 0;
 	}
 	else
 	{
-		angle.y = 90.f - Vec::angle360(location.x-vector.x,location.z-vector.z);
-		angle.x = vatan2(location.y-vector.y,vsqrt(sqr(location.x-vector.x)+sqr(location.z-vector.z)))*(C)180/M_PI;
+		angle.y = 90.f - Vec::angle360(delta.x,delta.z);
+		angle.x = vatan2(delta.y,vsqrt(sqr(delta.x)+sqr(delta.z)))*(C)180/M_PI;
 		angle.z = 0;
 	}
 	build();
+
+	//const TVec3<>&	view = viewingDirection();
+	//if (!Vec::similar(view,delta))
+	//	FATAL__("Expected similarity");
 }
 
 
