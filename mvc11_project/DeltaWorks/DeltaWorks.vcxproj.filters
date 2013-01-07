@@ -619,9 +619,6 @@
     <ClCompile Include="..\..\engine\aspect.cpp">
       <Filter>Source Files\engine</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\structure\structure_simulation.cpp">
-      <Filter>Source Files\structure</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\geometry\converter\lwo.cpp">
       <Filter>Source Files\geometry\converter</Filter>
     </ClCompile>

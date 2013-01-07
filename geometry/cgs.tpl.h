@@ -4443,7 +4443,7 @@ template <class Def>
 			obj.triangle_field.setSize(cobj.countTriangles());
 			obj.edge_field.free();
 			obj.quad_field.setSize(cobj.countQuads());
-			UINT32 band = cobj.getVertexSize();
+			UINT32 band = (UINT32)cobj.getVertexSize();
 			const count_t vertices = cobj.countVertices();
 			const Float*vertex = cobj.getVertices();
 			for (index_t j = 0; j < vertices; j++)

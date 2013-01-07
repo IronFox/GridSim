@@ -6,6 +6,7 @@ template CGS::Geometry<CGS::StdDef>;
 template CGS::AnimatableInstance<CGS::StdDef>;
 template CGS::StaticInstance<CGS::StdDef>;
 template CGS::VertexContainerA<CGS::StdDef>;
+template CGS::Constructor<CGS::StdDef>;
 
 
 const char* shortenFile(const char*full_file)
@@ -218,20 +219,20 @@ void		TextureA::downSample(BYTE modifier, String*error_out)
 		if (face_field[i].contentSize() < sizeof(Image::THeader))
 		{
 			if (error_out)
-				(*error_out) += "Face #"+IntToStr(i)+": insufficient size ("+IntToStr((unsigned)face_field[i].contentSize())+" byte(s))";
+				(*error_out) += "Face #"+String(i)+": insufficient size ("+String((unsigned)face_field[i].contentSize())+" byte(s))";
 			continue;
 		}
 		Image::THeader header = *(Image::THeader*)face_field[i].pointer();
 		if (header.x_exp == 1 && header.y_exp == 1)
 		{
 			if (error_out)
-				(*error_out) += "Face #"+IntToStr(i)+": already too small ("+IntToStr(1<<header.x_exp)+"x"+IntToStr(1<<header.y_exp)+")";
+				(*error_out) += "Face #"+String(i)+": already too small ("+String(1<<header.x_exp)+"x"+String(1<<header.y_exp)+")";
 			continue;
 		}
 		if (!TextureCompression::decompress(face_field[i],extracted))
 		{
 			if (error_out)
-				(*error_out) += "Face #"+IntToStr(i)+": extraction failed ("+TextureCompression::getError()+")";
+				(*error_out) += "Face #"+String(i)+": extraction failed ("+TextureCompression::getError()+")";
 			continue;
 		}
 		if (header.x_exp > 1+modifier)
@@ -260,7 +261,7 @@ void	TextureA::limitSizeExponent(BYTE max_exponent, String*error_out)
 		if (face_field[i].contentSize() < sizeof(Image::THeader))
 		{
 			if (error_out)
-				(*error_out) += "Face #"+IntToStr(i)+": insufficient size ("+IntToStr((unsigned)face_field[i].contentSize())+" byte(s))";
+				(*error_out) += "Face #"+String(i)+": insufficient size ("+String((unsigned)face_field[i].contentSize())+" byte(s))";
 			continue;
 		}
 		Image::THeader header = *(Image::THeader*)face_field[i].pointer();
@@ -269,7 +270,7 @@ void	TextureA::limitSizeExponent(BYTE max_exponent, String*error_out)
 		if (!TextureCompression::decompress(face_field[i],extracted))
 		{
 			if (error_out)
-				(*error_out) += "Face #"+IntToStr(i)+": extraction failed ("+TextureCompression::getError()+")";
+				(*error_out) += "Face #"+String(i)+": extraction failed ("+TextureCompression::getError()+")";
 			continue;
 		}
 		if (header.x_exp > max_exponent)

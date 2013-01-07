@@ -352,9 +352,6 @@
     <ClCompile Include="..\..\structure\plant.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="..\..\structure\structure_simulation.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
     <ClCompile Include="..\..\structure\texture_buffer.cpp" />
   </ItemGroup>
   <ItemGroup>

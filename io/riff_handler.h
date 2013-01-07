@@ -382,7 +382,7 @@ template <typename T>
 template <class C>
 		bool			stream(C&obj);
 template <class C>
-		bool			stream(C*obj, UINT num);
+		bool			stream(C*obj, count_t num);
 		bool			streamPointer(void*target, size_t data_size);
 		void			closeStream();
 		bool			overwrite(const void*data, size_t check_size);

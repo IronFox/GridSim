@@ -1615,7 +1615,7 @@ namespace CGS	//! Compiled Geometrical Structure
 				template <typename T>
 					Index		vertex(const TVec3<T>&location, const TVec3<T>&normal)
 					{
-						Index result = (Index)vertex_data.length() / config.vsize;
+						Index result = (Index)(vertex_data.length() / config.vsize);
 						Float*out = vertex_data.appendRow(config.vsize);
 						Float*end = out + config.vsize;
 						Vec::copy(location,Vec::ref3(out)); out+=3;
@@ -1630,7 +1630,7 @@ namespace CGS	//! Compiled Geometrical Structure
 				template <typename T>
 					Index		vertex(const TVec3<T>&location, const TVec3<T>&normal, const TVec2<T>&texcoords0)
 					{
-						Index result = (Index)vertex_data.length() / config.vsize;
+						Index result = (Index)(vertex_data.length() / config.vsize);
 						Float*out = vertex_data.appendRow(config.vsize);
 						Float*end = out + config.vsize;
 						Vec::copy(location,Vec::ref3(out)); out+=3;
@@ -1657,7 +1657,7 @@ namespace CGS	//! Compiled Geometrical Structure
 				template <typename T>
 					Index		vertex(const TVec3<T>&location, const TVec3<T>&normal, const TVec2<T>&texcoords0, const TVec2<T>&texcoords1)
 					{
-						Index result = (Index)vertex_data.length() / config.vsize;
+						Index result = (Index)(vertex_data.length() / config.vsize);
 						Float*out = vertex_data.appendRow(config.vsize);
 						Float*end = out + config.vsize;
 						Vec::copy(location,Vec::ref3(out)); out+=3;
@@ -1688,7 +1688,7 @@ namespace CGS	//! Compiled Geometrical Structure
 				template <typename T>
 					Index		vertex(const TVec3<T>&location, const TVec3<T>&normal, const TVec2<T>&texcoords0, const TVec2<T>&texcoords1, const TVec2<T>&texcoords2)
 					{
-						Index result = (Index)vertex_data.length() / config.vsize;
+						Index result = (Index)(vertex_data.length() / config.vsize);
 						Float*out = vertex_data.appendRow(config.vsize);
 						Float*end = out + config.vsize;
 						Vec::copy(location,Vec::ref3(out)); out+=3;
@@ -1731,7 +1731,7 @@ namespace CGS	//! Compiled Geometrical Structure
 				template <typename T>
 					Index		vertex(const TVec3<T>&location, const TVec4<T>&color)
 					{
-						Index result = (Index)vertex_data.length() / config.vsize;
+						Index result = (Index)(vertex_data.length() / config.vsize);
 						Float*out = vertex_data.appendRow(config.vsize);
 						Float*end = out + config.vsize;
 						Vec::copy(location,Vec::ref3(out)); out+=3;
@@ -1754,7 +1754,7 @@ namespace CGS	//! Compiled Geometrical Structure
 				template <typename T>
 					Index		vertex(const TVec3<T>&location, const TVec4<T>&color, const TVec2<T>&texcoords0)
 					{
-						Index result = (Index)vertex_data.length() / config.vsize;
+						Index result = (Index)(vertex_data.length() / config.vsize);
 						Float*out = vertex_data.appendRow(config.vsize);
 						Float*end = out + config.vsize;
 						Vec::copy(location,Vec::ref3(out)); out+=3;
@@ -1781,7 +1781,7 @@ namespace CGS	//! Compiled Geometrical Structure
 				template <typename T>
 					Index		vertex(const TVec3<T>&location, const TVec4<T>&color, const TVec2<T>&texcoords0, const TVec2<T>&texcoords1)
 					{
-						Index result = (Index)vertex_data.length() / config.vsize;
+						Index result = (Index)(vertex_data.length() / config.vsize);
 						Float*out = vertex_data.appendRow(config.vsize);
 						Float*end = out + config.vsize;
 						Vec::copy(location,Vec::ref3(out)); out+=3;
@@ -1812,7 +1812,7 @@ namespace CGS	//! Compiled Geometrical Structure
 				template <typename T>
 					Index		vertex(const TVec3<T>&location, const TVec4<T>&color, const TVec2<T>&texcoords0, const TVec2<T>&texcoords1, const TVec2<T>&texcoords2)
 					{
-						Index result = (Index)vertex_data.length() / config.vsize;
+						Index result = (Index)(vertex_data.length() / config.vsize);
 						Float*out = vertex_data.appendRow(config.vsize);
 						Float*end = out + config.vsize;
 						Vec::copy(location,Vec::ref3(out)); out+=3;
@@ -1849,7 +1849,7 @@ namespace CGS	//! Compiled Geometrical Structure
 				template <typename T>
 					Index		vertex(const TVec3<T>&location, const TVec3<T>&normal, const TVec4<T>&color)
 					{
-						Index result = (Index)vertex_data.length() / config.vsize;
+						Index result = (Index)(vertex_data.length() / config.vsize);
 						Float*out = vertex_data.appendRow(config.vsize);
 						Float*end = out + config.vsize;
 						Vec::copy(location,Vec::ref3(out)); out+=3;
@@ -1872,7 +1872,7 @@ namespace CGS	//! Compiled Geometrical Structure
 				template <typename T>
 					Index		vertex(const TVec3<T>&location, const TVec3<T>&normal, const TVec4<T>&color, const TVec2<T>&texcoords0)
 					{
-						Index result = (Index)vertex_data.length() / config.vsize;
+						Index result = (Index)(vertex_data.length() / config.vsize);
 						Float*out = vertex_data.appendRow(config.vsize);
 						Float*end = out + config.vsize;
 						Vec::copy(location,Vec::ref3(out)); out+=3;
@@ -1899,7 +1899,7 @@ namespace CGS	//! Compiled Geometrical Structure
 				template <typename T>
 					Index		vertex(const TVec3<T>&location, const TVec3<T>&normal, const TVec4<T>&color, const TVec2<T>&texcoords0, const TVec2<T>&texcoords1)
 					{
-						Index result = (Index)vertex_data.length() / config.vsize;
+						Index result = (Index)(vertex_data.length() / config.vsize);
 						Float*out = vertex_data.appendRow(config.vsize);
 						Float*end = out + config.vsize;
 						Vec::copy(location,Vec::ref3(out)); out+=3;
@@ -1930,7 +1930,7 @@ namespace CGS	//! Compiled Geometrical Structure
 				template <typename T>
 					Index		vertex(const TVec3<T>&location, const TVec3<T>&normal, const TVec4<T>&color, const TVec2<T>&texcoords0, const TVec2<T>&texcoords1, const TVec2<T>&texcoords2)
 					{
-						Index result = (Index)vertex_data.length() / config.vsize;
+						Index result = (Index)(vertex_data.length() / config.vsize);
 						Float*out = vertex_data.appendRow(config.vsize);
 						Float*end = out + config.vsize;
 						Vec::copy(location,Vec::ref3(out)); out+=3;
@@ -1968,7 +1968,7 @@ namespace CGS	//! Compiled Geometrical Structure
 				template <typename T>
 					Index		vertex(const TVec3<T>&location, const TVec3<T>&normal, const TVec3<T>&tangent)
 					{
-						Index result = (Index)vertex_data.length() / config.vsize;
+						Index result = (Index)(vertex_data.length() / config.vsize);
 						Float*out = vertex_data.appendRow(config.vsize);
 						Float*end = out + config.vsize;
 						Vec::copy(location,Vec::ref3(out)); out+=3;
@@ -1987,7 +1987,7 @@ namespace CGS	//! Compiled Geometrical Structure
 				template <typename T>
 					Index		vertex(const TVec3<T>&location, const TVec3<T>&normal, const TVec3<T>&tangent, const TVec2<T>&texcoords0)
 					{
-						Index result = (Index)vertex_data.length() / config.vsize;
+						Index result = (Index)(vertex_data.length() / config.vsize);
 						Float*out = vertex_data.appendRow(config.vsize);
 						Float*end = out + config.vsize;
 						Vec::copy(location,Vec::ref3(out)); out+=3;
@@ -2014,7 +2014,7 @@ namespace CGS	//! Compiled Geometrical Structure
 				template <typename T>
 					Index		vertex(const TVec3<T>&location, const TVec3<T>&normal, const TVec3<T>&tangent, const TVec2<T>&texcoords0, const TVec2<T>&texcoords1)
 					{
-						Index result = (Index)vertex_data.length() / config.vsize;
+						Index result = (Index)(vertex_data.length() / config.vsize);
 						Float*out = vertex_data.appendRow(config.vsize);
 						Float*end = out + config.vsize;
 						Vec::copy(location,Vec::ref3(out)); out+=3;
@@ -2045,7 +2045,7 @@ namespace CGS	//! Compiled Geometrical Structure
 				template <typename T>
 					Index		vertex(const TVec3<T>&location, const TVec3<T>&normal, const TVec3<T>&tangent, const TVec2<T>&texcoords0, const TVec2<T>&texcoords1, const TVec2<T>&texcoords2)
 					{
-						Index result = (Index)vertex_data.length() / config.vsize;
+						Index result = (Index)(vertex_data.length() / config.vsize);
 						Float*out = vertex_data.appendRow(config.vsize);
 						Float*end = out + config.vsize;
 						Vec::copy(location,Vec::ref3(out)); out+=3;
