@@ -302,32 +302,44 @@ namespace TCP
 			return;
 		}
 
+		addrinfo*actual_address = remote_address;
 
-		if (!client->createSocket(remote_address->ai_family,remote_address->ai_socktype,remote_address->ai_protocol))	//create socket if it hasn't been created alnetReady (the method returns if it has been previously created)
+		String host = "";
+
+		while (actual_address != NULL)
 		{
-			client->fail("Socket creation failed");
-			if (verbose)
-				cout << "ConnectionAttempt::ThreadMain() exit: unable to create socket"<<endl;
-			return;
+			if (!client->createSocket(actual_address->ai_family,actual_address->ai_socktype,actual_address->ai_protocol))	//create socket if it hasn't been created alnetReady (the method returns if it has been previously created)
+			{
+				client->fail("Socket creation failed");
+				if (verbose)
+					cout << "ConnectionAttempt::ThreadMain() exit: unable to create socket"<<endl;
+				return;
+			}
+
+			if (connect(client->socket_handle,actual_address->ai_addr,(int)actual_address->ai_addrlen) == 0)
+				break;
+			host += " "+addressToString(*actual_address);
+			actual_address = actual_address->ai_next;
+			swapCloseSocket(client->socket_handle);
 		}
 
-		if (client->address)
-			freeaddrinfo(client->address);
-		client->address = remote_address;
-
-		String host = client->toString();
-
-	
-		if (connect(client->socket_handle,remote_address->ai_addr,(int)remote_address->ai_addrlen) != 0)
+		if (actual_address == NULL)
 		{
 			client->setError("Connection to '"+host+"' failed ("+lastSocketError()+")");
 			client->handleEvent(Event::ConnectionFailed,client);
-			swapCloseSocket(client->socket_handle);
-			client->socket_handle = INVALID_SOCKET;
 			if (verbose)
 				cout << "ConnectionAttempt::ThreadMain() exit: connection failed"<<endl;
 			return;
 		}
+
+		if (client->root_address)
+			freeaddrinfo(client->root_address);
+		client->root_address = remote_address;
+		client->actual_address = actual_address;
+
+		//String host = client->toString();
+
+	
 
 		if (verbose)
 			cout << "ConnectionAttempt::ThreadMain(): sending 'connection established' event"<<endl;

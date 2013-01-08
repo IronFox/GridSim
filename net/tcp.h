@@ -390,20 +390,21 @@ namespace TCP
 				
 			*/
 			shared_ptr<Attachment>		attachment;
-			addrinfo					*address;					//!< Remote peer address
+			addrinfo					*root_address,					//!< Remote peer address set (root pointer to linked list describing the remote address)
+										*actual_address;					//!< Part of the @a root_address linked list that actually describes the remote address
 			unsigned					user_level;							//!< Current user level. Anonymous by default
 			
 			
 				
-										Peer(Connection*connection):owner(connection),socket_handle(INVALID_SOCKET),address(NULL),user_level(User::Anonymous)
+										Peer(Connection*connection):owner(connection),socket_handle(INVALID_SOCKET),root_address(NULL),actual_address(NULL),user_level(User::Anonymous)
 										{
 											ASSERT_NOT_NULL__(owner);
 										}
 	virtual								~Peer()
 										{
 											disconnect();
-											if (address)
-												freeaddrinfo(address);
+											if (root_address)
+												freeaddrinfo(root_address);
 										}
 
 			void						disconnect();			//!< Disconnects the local peer. If this peer is element of a peer collection (ie. a Server instance) then the owner is automatically notified that the client on this peer is no longer available. The local data is erased immediately if the respective dispatcher is set to @b async, or when its resolve() method is next executed.
@@ -413,7 +414,7 @@ namespace TCP
 										}
 			String						toString()	const	//! Converts the local address into a string. If the local object is NULL then the string "NULL" is returned instead.
 										{
-											return this&&address?addressToString(*address):"NULL";
+											return this&&actual_address?addressToString(*actual_address):"NULL";
 										}
 			bool						sendSignal(UINT32 channel);		//!< Sends a data-less package to the other end of this peer
 			
