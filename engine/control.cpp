@@ -73,6 +73,12 @@ namespace Engine
 		for (index_t i = 0; i < control_stack.count(); i++)
 			control_stack[i]->renderHUD();
 	}
+
+	void		ControlCluster::shutdown()
+	{
+		for (index_t i = 0; i < control_stack.count(); i++)
+			control_stack[i]->shutdown();
+	}
 	
 	
 	void		ControlCluster::install(Control*control)

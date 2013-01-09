@@ -39,6 +39,7 @@ namespace Engine
 		virtual	void		renderHUD()									{};					//!< Triggers HUD rendering. The bound aspect is always orthographic from 0,0 to 1,1. Layer0 textures may be bound, shaders and depth test are disabled
 		virtual	bool		detectNearestGroundHeight(const TVec3<>&reference_position,float&out_height)	{return false;};
 		virtual void		onResolutionChange()						{};
+		virtual void		shutdown()									{};					//!< Signals that the applications is being shut down
 
 		virtual	void		onInstall()									{};					//!< Invoked once this control module is installed on the specified control cluster
 		virtual	void		onUninstall()								{};					//!< Invoked once this control module is installed on the specified control cluster
@@ -70,7 +71,8 @@ namespace Engine
 		void				renderShaded(const Aspect<>&);			//!< Invokes renderShaded() methods of all contained control instances. Walks forwards through the list
 		void				renderSchematics(const Aspect<>&);		//!< Invokes renderSchematics() methods of all contained control instances. Walks forwards through the list
 		void				renderHUD();							//!< Invokes renderHUD() methods of all contained control instances. Walks forwards through the list
-	
+		void				shutdown();								//!< Signals that the application is being shut down
+
 		void				install(Control*);
 		void				uninstall(Control*);
 		bool				detectNearestGroundHeight(const TVec3<>&reference_position,float&out_height);
