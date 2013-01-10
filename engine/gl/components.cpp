@@ -47,6 +47,7 @@ namespace Engine
 		
 		void			Panel::append(const shared_ptr<Component>&component)
 		{
+			DBG_ASSERT__(!children.contains(component));
 			component->anchored.set(true,false,false,true);
 			if (children.isNotEmpty())
 				component->offset.top = children.last()->offset.top-children.last()->height;
@@ -55,10 +56,13 @@ namespace Engine
 			component->offset.left = 0;
 			component->setWindow(window_link);
 			children << component;
+
+			signalLayoutChange();
 		}
 		
 		void			Panel::appendRight(const shared_ptr<Component>&component)
 		{
+			DBG_ASSERT__(!children.contains(component));
 			if (children.isNotEmpty())
 			{
 				component->anchored = children.last()->anchored;
@@ -83,19 +87,28 @@ namespace Engine
 				return false;
 			children << component;
 			component->setWindow(window_link);
+			signalLayoutChange();
 			return true;
 		}
 		
 		bool					Panel::erase(const shared_ptr<Component>&component)
 		{
-			return children.findAndErase(component);
+			if (children.findAndErase(component))
+			{
+				component->setWindow(shared_ptr<Window>());
+				signalLayoutChange();
+				return true;
+			}
+			return false;
 		}
 		
 		bool					Panel::erase(index_t index)
 		{
 			if (index < children.count())
 			{
+				children[index]->setWindow(shared_ptr<Window>());
 				children.erase(index);
+				signalLayoutChange();
 				return true;
 			}
 			return false;
@@ -115,6 +128,7 @@ namespace Engine
 			if (index+1 >= children.count())
 				return false;
 			Buffer<shared_ptr<Component>,4>::AppliedStrategy::swap(children[index],children[index+1]);
+			signalVisualChange();
 			return true;
 		}
 		
@@ -133,6 +147,7 @@ namespace Engine
 			if (!index || index >= children.count())
 				return false;
 			Buffer<shared_ptr<Component>,4>::AppliedStrategy::swap(children[index-1],children[index]);
+			signalVisualChange();
 			return true;
 		}
 
@@ -151,6 +166,7 @@ namespace Engine
 				shared_ptr<Component> cmp = children[index];
 				children.erase(index);
 				children << cmp;
+				signalVisualChange();
 				return true;
 			}
 			return false;
@@ -171,6 +187,7 @@ namespace Engine
 				shared_ptr<Component> cmp = children[index];
 				children.erase(index);
 				children.insert(0,cmp);
+				signalVisualChange();
 				return true;
 			}
 			return false;
@@ -909,9 +926,14 @@ namespace Engine
 		
 		bool					ScrollBox::erase(const shared_ptr<Component>&component)
 		{
-			visible_children.findAndErase(component);
-			signalLayoutChange();
-			return children.findAndErase(component);
+			if (children.findAndErase(component))
+			{
+				visible_children.findAndErase(component);
+				signalLayoutChange();
+				component->setWindow(shared_ptr<Window>());
+				return true;
+			}
+			return false;
 		}
 		
 		bool					ScrollBox::erase(index_t index)
@@ -919,6 +941,7 @@ namespace Engine
 			if (index >= children.count())
 				return false;
 			visible_children.findAndErase(children[index]);
+			children[index]->setWindow(shared_ptr<Window>());
 			children.erase(index);
 			signalLayoutChange();
 			return true;
