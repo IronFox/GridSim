@@ -485,7 +485,10 @@ namespace Engine
 			time_since_last_tick = 0;
 			if (focused)
 			{
-				focused->window()->apply(focused->onFocusLost());
+				eEventResult result = focused->onFocusLost();
+				shared_ptr<Window> wnd = focused->window();
+				if (wnd)
+					wnd->apply(result);
 				if (!component)
 				{
 					input.popProfile();
@@ -959,7 +962,7 @@ namespace Engine
 		
 
 
-		Window::Window(bool modal, Layout*style):is_modal(modal),exp_x(0),exp_y(0),iwidth(1),iheight(1),progress(0),fwidth(1),fheight(1),usage_x(0),usage_y(0),layout(style),title(""),layout_changed(true),visual_changed(true),fixed_position(false),fixed_size(false),hidden(timer.now())
+		Window::Window(bool modal, Layout*style):is_modal(modal),exp_x(0),exp_y(0),iwidth(1),iheight(1),progress(0),fwidth(1),fheight(1),usage_x(0),usage_y(0),layout(style),title(""),size_changed(true),layout_changed(true),visual_changed(true),fixed_position(false),fixed_size(false),hidden(timer.now())
 		{
 			#ifdef DEEP_GUI
 				_clear(destination.coord);
@@ -1233,7 +1236,7 @@ namespace Engine
 				x += d.x /2;
 				y += d.y /2;
 			#endif
-			layout_changed = visual_changed = true;
+			size_changed = layout_changed = visual_changed = true;
 			iwidth = (unsigned)round(fwidth);
 			iheight = (unsigned)round(fheight);
 			//updateLayout();
@@ -1273,21 +1276,21 @@ namespace Engine
 			iwidth = (unsigned)round(fwidth);
 			fheight = height;
 			iheight = (unsigned)round(fheight);
-			layout_changed = visual_changed = true;
+			size_changed = layout_changed = visual_changed = true;
 		}
 		
 		void	Window::setHeight(float height)
 		{
 			fheight = height;
 			iheight = (unsigned)round(fheight);
-			layout_changed = visual_changed = true;
+			size_changed = layout_changed = visual_changed = true;
 		}
 		
 		void	Window::setWidth(float width)
 		{
 			fwidth = width;
 			iwidth = (unsigned)round(fwidth);
-			layout_changed = visual_changed = true;
+			size_changed = layout_changed = visual_changed = true;
 		}
 		
 		float	Window::minHeight()	const
@@ -1609,6 +1612,9 @@ namespace Engine
 				updateLayout();
 			layout_changed = false;
 			visual_changed = false;
+			if (size_changed)
+				onResize();
+			size_changed = false;
 			ASSERT_GREATER__(fwidth,0);
 			ASSERT_GREATER__(fheight,0);
 			unsigned	ex = (unsigned)ceil(log((float)iwidth)/M_LN2),
@@ -1829,23 +1835,7 @@ namespace Engine
 			//current = cursor;
 		}
 		
-		static bool mouseDown(const shared_ptr<Window>&window, float x, float y)
-		{
-			handling_event = true;
-			ext.custom_cursor = Mouse::CursorType::Default;
-			ext.caught_by.reset();
-			Component::eEventResult rs = window->component_link->onMouseDown(x,y,ext);
-			clicked.reset();
-			if (rs != Component::Unsupported)
-			{
-				window->apply(rs);
-				clicked = ext.caught_by;
-				setCursor(ext.custom_cursor);
-			}
-			Component::setFocused(clicked?clicked->getFocused():shared_ptr<Component>());
-			handling_event = false;
-			return rs != Component::Unsupported;
-		}
+
 		
 		
 		/**
@@ -2234,7 +2224,7 @@ namespace Engine
 			}
 			else
 				window->operator_link = shared_from_this();
-			if (window_stack.last() == window)
+			if (window_stack.isNotEmpty() && window_stack.last() == window)
 				return;
 			window_stack.findAndErase(window);
 
@@ -2287,7 +2277,23 @@ namespace Engine
 		}
 		
 		
-		
+		static bool mouseDown(const shared_ptr<Window>&window, float x, float y)
+		{
+			handling_event = true;
+			ext.custom_cursor = Mouse::CursorType::Default;
+			ext.caught_by.reset();
+			Component::eEventResult rs = window->component_link->onMouseDown(x,y,ext);
+			clicked.reset();
+			if (rs != Component::Unsupported)
+			{
+				window->apply(rs);
+				clicked = ext.caught_by;
+				setCursor(ext.custom_cursor);
+			}
+			Component::setFocused(clicked?clicked->getFocused():shared_ptr<Component>());
+			handling_event = false;
+			return rs != Component::Unsupported;
+		}		
 		
 		bool			Operator::mouseDown()
 		{
@@ -2535,8 +2541,12 @@ namespace Engine
 			input.pushProfile();
 			input.bindProfile(my_profile);
 				//input.cascadeKeys();
-				input.cascade(Key::Escape);
-
+				for (Key::Name k = (Key::Name)0; k <= Key::Max; k = (Key::Name)(k+1))
+				{
+					if ((k < Key::A || k > Key::Z) && (k < Key::N0 || k > Key::N9) && k != Key::SZ && k != Key::AE && k != Key::UE && k != Key::OE)
+						input.cascade(k);
+				}
+	
 				rs->bind(Key::Left);
 				rs->bind(Key::Right);
 				rs->bind(Key::Up);

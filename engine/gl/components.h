@@ -20,6 +20,7 @@ namespace Engine
 			Array<String>				lines;			//!< Split (wrapped) caption
 			bool						text_changed;	//!< Indicates that the text changed and the text should be re-wrapped before printing it the next time
 			TVec4<GLfloat>				text_color;			//!< Label text color (solid white by default)
+			float						last_width;
 				
 			void						setup();
 			static	float				charLen(char c);
@@ -193,6 +194,7 @@ namespace Engine
 												scroll_data.window = height;
 											}
 										}
+			void						scrollTo(float v);
 		virtual	void					onScroll();	//!< Triggered if the scrollbar changes. Invokes the local event container and notifies the linked scrollable by default
 		virtual	void					updateLayout(const Rect<float>&parent_region);
 		virtual	float					clientMinWidth()	const;
@@ -400,6 +402,10 @@ namespace Engine
 		virtual	bool					erase(const shared_ptr<Component>&component);
 		virtual	bool					erase(index_t index);
 		virtual	void					clear()	{children.reset();visible_children.reset();}
+
+			void						scrollTo(float x, float y);
+			void						scrollToX(float x);
+			void						scrollToY(float y);
 
 		};
 		

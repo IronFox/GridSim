@@ -6,10 +6,6 @@
 String-class providing mostly identical functionality
 as the Borland AnsiString-class.
 
-This file is part of Delta-Works
-Copyright (C) 2006-2008 Stefan Elsen, University of Trier, Germany.
-http://www.delta-works.org/forge/
-http://informatik.uni-trier.de/
 
 ******************************************************************/
 

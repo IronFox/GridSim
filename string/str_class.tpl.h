@@ -4229,6 +4229,7 @@ template <typename T0, typename T1, typename T2>
 					*word_begin=string,
 					*line_begin=string;
 		size_t lines=0;
+		bool word_ended = false;
 		//cout << "wrapping '"<<string<<"'"<<endl;
 		while (*at)
 		{
@@ -4256,10 +4257,15 @@ template <typename T0, typename T1, typename T2>
 				//*at = ' ';
 				if (line_begin == at)
 					line_begin++;
-				word_begin = at+1;
-				word_length = 0;
+				word_ended = true;
 			}
-
+			else
+				if (word_ended)
+				{
+					word_ended = false;
+					word_begin = at;
+					word_length = 0;
+				}
 			at++;
 		}
 		if (at > word_begin)
@@ -4272,7 +4278,7 @@ template <typename T0, typename T1, typename T2>
 		line_begin=string;
 		line_length = 0;
 		word_length = 0;
-		
+		word_ended = false;
 		lines = 0;
 		while (*at)
 		{
@@ -4299,11 +4305,18 @@ template <typename T0, typename T1, typename T2>
 			
 			if (isWhitespace(*at))
 			{
+				//*at = ' ';
 				if (line_begin == at)
 					line_begin++;
-				word_begin = at+1;
-				word_length = 0;
+				word_ended = true;
 			}
+			else
+				if (word_ended)
+				{
+					word_ended = false;
+					word_begin = at;
+					word_length = 0;
+				}
 
 			at++;
 		}

@@ -574,6 +574,12 @@ namespace Engine
 			scroll_layout = &ScrollBarLayout::global;
 			auto_visibility = false;
 		}
+
+		void		ScrollBar::scrollTo(float v)
+		{
+			scroll_data.current = v;
+			onScroll();
+		}
 		
 		void		ScrollBar::onScroll()
 		{
@@ -923,6 +929,23 @@ namespace Engine
 			pressed = false;
 			down = false;
 */
+
+		void					ScrollBox::scrollTo(float x, float y)
+		{
+			horizontal_bar->scrollTo(x);
+			vertical_bar->scrollTo(y);
+		}
+		
+		void					ScrollBox::scrollToX(float x)
+		{
+			horizontal_bar->scrollTo(x);
+		}
+
+		void					ScrollBox::scrollToY(float y)
+		{
+			vertical_bar->scrollTo(y);
+		}
+
 		
 		bool					ScrollBox::erase(const shared_ptr<Component>&component)
 		{
@@ -980,7 +1003,7 @@ namespace Engine
 		
 		void		ScrollBox::updateLayout(const Rect<float>&parent_region)
 		{
-			Panel::updateLayout(parent_region);
+			Component::updateLayout(parent_region);
 			
 			if (horizontal_bar->scrollable.expired())
 				horizontal_bar->scrollable = toScrollable();
@@ -2052,15 +2075,15 @@ namespace Engine
 			Component::updateLayout(parent_space);
 			if (wrap_text)
 			{
-				static float last_width = -1;
 				float w = cell_layout.client.width();
 				if (w != last_width || text_changed)
 				{
 					text_changed = false;
 					last_width = w;
 					wrapf(caption,w,charLen,lines);
-					for (index_t i = 0; i < lines.count(); i++)
-						cout << "'"<<lines[i]<<"'"<<endl;
+					//for (index_t i = 0; i < lines.count(); i++)
+					//	cout << "'"<<lines[i]<<"'"<<endl;
+					height = minHeight(false);
 				}
 			}
 					
@@ -2071,6 +2094,7 @@ namespace Engine
 		
 		void			Label::setup()
 		{
+			last_width = -1;
 			caption = "Label";
 			wrap_text = false;
 			text_changed = true;

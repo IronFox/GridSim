@@ -409,7 +409,8 @@ namespace Engine
 										hover_result;	//!< Result of the last mouse hover event that was processed by this window*/
 				TFrameBuffer			color_buffer,	//!< Texture buffer to store the color components of the window in
 										normal_buffer;	//!< Texture buffer to store the normal components of the window in
-				bool					layout_changed,	//!< Indicates that the general window content has changed and requires a layout and render update into the respective color and normal buffers
+				bool					size_changed,	//!< Indicates that the window size has changed and onResize needs to be triggered after the next layout update
+										layout_changed,	//!< Indicates that the general window content has changed and requires a layout and render update into the respective color and normal buffers
 										visual_changed,	//!< Indicates that the window should be repainted
 										fixed_position,	//!< Window is fixed to its current location and may neither be resized nor moved
 										fixed_size;		//!< Windows has fixed size and may be moved but not resized
@@ -418,7 +419,8 @@ namespace Engine
 				
 
 				FunctionalEvent			onFocusGained,	//!< Triggered whenever this window gains the focus (also, if it has just become visible)
-										onFocusLost;	//!< Triggered whenever this window loses the focus (also, if it has just been removed)
+										onFocusLost,	//!< Triggered whenever this window loses the focus (also, if it has just been removed)
+										onResize;		//!< Triggered whenever this window is resized (new size has been adapted when this event is fired, but more updates may follow)
 
 										Window(bool modal, Layout*style=&common_style);	//!< Creates a new window using the specified style
 		virtual							~Window()
