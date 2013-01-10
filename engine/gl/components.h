@@ -19,6 +19,7 @@ namespace Engine
 			String						caption;	//!< Single line (complete) caption of the label
 			Array<String>				lines;			//!< Split (wrapped) caption
 			bool						text_changed;	//!< Indicates that the text changed and the text should be re-wrapped before printing it the next time
+			TVec4<GLfloat>				text_color;			//!< Label text color (solid white by default)
 				
 			void						setup();
 			static	float				charLen(char c);
@@ -30,7 +31,7 @@ namespace Engine
 		public:
 			bool						wrap_text,			//!< Indicates that the caption should be wrapped at t
 										fill_background;	//!< Fills the label background before writing the label caption (false by default)
-			TVec3<GLfloat>				background_color;//!< Label background used if @b fill_background is true (light blueish by default)
+			TVec3<GLfloat>				background_color;	//!< Label background used if @b fill_background is true (light blueish by default)
 			TIcon						icon;				//!< Label icon (empty by default)
 				
 										Label():Component("Label")	//!< Simple label constructor
@@ -43,6 +44,7 @@ namespace Engine
 			virtual	void				onColorPaint();
 			const String&				text() const	{return caption;}	//!< Retrieves the current caption
 			Label*						setText(const String&text);		//!< Updates label caption
+			Label*						setColor(const TVec4<>&color);	//!< Updates label text color
 			String						toString()	const	{return caption;}	//!< Simple CSObject toString() override
 			virtual	void				updateLayout(const Rect<float>&parent_region);
 		};

@@ -2076,6 +2076,7 @@ namespace Engine
 			text_changed = true;
 			fill_background = false;
 			Vec::set(background_color,1);
+			Vec::set(text_color,1);
 			height = minHeight(false);
 			width = minWidth(false);
 		}
@@ -2102,6 +2103,12 @@ namespace Engine
 			if (!wrap_text)
 				width = minWidth(false);
 			signalLayoutChange();
+			return this;
+		}
+		Label*			Label::setColor(const TVec4<>&color)
+		{
+			text_color = color;
+			signalVisualChange();
 			return this;
 		}
 
@@ -2131,7 +2138,7 @@ namespace Engine
 			{
 				shared_ptr<Operator> op = requireOperator();
 				op->focus(cell_layout.client);
-				textout.color(1,1,1);
+				textout.color(text_color);
 				if (!fill_background)
 					glDisable(GL_BLEND);
 				if (!wrap_text)
