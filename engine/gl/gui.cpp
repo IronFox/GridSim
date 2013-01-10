@@ -954,7 +954,7 @@ namespace Engine
 		
 
 
-		Window::Window(Layout*style):exp_x(0),exp_y(0),iwidth(1),iheight(1),progress(0),fwidth(1),fheight(1),usage_x(0),usage_y(0),layout(style),title(""),layout_changed(true),visual_changed(true),is_modal(false),fixed_position(false),fixed_size(false),hidden(timer.now())
+		Window::Window(bool modal, Layout*style):is_modal(modal),exp_x(0),exp_y(0),iwidth(1),iheight(1),progress(0),fwidth(1),fheight(1),usage_x(0),usage_y(0),layout(style),title(""),layout_changed(true),visual_changed(true),fixed_position(false),fixed_size(false),hidden(timer.now())
 		{
 			#ifdef DEEP_GUI
 				_clear(destination.coord);
@@ -2229,6 +2229,8 @@ namespace Engine
 			}
 			else
 				window->operator_link = shared_from_this();
+			if (window_stack.last() == window)
+				return;
 			window_stack.findAndErase(window);
 
 			if (!window->is_modal && window_stack.isNotEmpty() && window_stack.last()->is_modal)
@@ -2240,7 +2242,10 @@ namespace Engine
 			}
 			else
 			{
+				if (window_stack.isNotEmpty())
+					window_stack.last()->onFocusLost();
 				window_stack << window;
+				window->onFocusGained();
 				Component::setFocused(shared_ptr<Component>());
 			}
 			#ifdef DEEP_GUI
@@ -2256,8 +2261,16 @@ namespace Engine
 		
 		void			Operator::removeWindow(const shared_ptr<Window>&window)
 		{
+			bool was_top = window_stack.isNotEmpty() && window_stack.last() == window;
+				
 			if (window_stack.findAndErase(window))
 			{
+				if (was_top)
+				{
+					window->onFocusLost();
+					if (window_stack.isNotEmpty())
+						window_stack.last()->onFocusGained();
+				}
 				window->operator_link.reset();
 				Component::setFocused(shared_ptr<Component>());
 				#ifdef DEEP_GUI
@@ -2321,8 +2334,10 @@ namespace Engine
 				{
 					if (i+1 != window_stack.count())
 					{
+						window_stack.last()->onFocusLost();
 						window_stack.erase(i);
 						window_stack << window;
+						window->onFocusGained();
 						#ifdef DEEP_GUI
 							for (unsigned j = 0; j < window_stack.count(); j++)
 								window_stack[j]->setShellDestination(radiusOf(j));
@@ -2402,8 +2417,13 @@ namespace Engine
 					if (rs != Component::Unsupported)
 						mouseHover(window,x,y);
 				}
-				window_stack.erase(i);
-				window_stack << window;
+				if (i+1 != window_stack.count())
+				{
+					window_stack.last()->onFocusLost();
+					window_stack.erase(i);
+					window_stack << window;
+					window->onFocusGained();
+				}
 				#ifdef DEEP_GUI
 					for (unsigned j = 0; j < window_stack.count(); j++)
 						window_stack[j]->setShellDestination(radiusOf(j));
@@ -2430,15 +2450,35 @@ namespace Engine
 		
 
 		
-		shared_ptr<Window>		Operator::createWindow(const Rect<float>&region, const String&name,const shared_ptr<Component>&component /*=shared_ptr<Component>()*/)
+		shared_ptr<Window>		Operator::createWindow(const Rect<float>&region, const String&name,modal_t modal, const shared_ptr<Component>&component /*=shared_ptr<Component>()*/)
 		{
-			return createWindow(region,name,&Window::common_style,component);
+			return createWindow(region,name,modal,&Window::common_style,component);
 		}
 		
-		shared_ptr<Window>		Operator::createWindow(const Rect<float>&region, const String&name,Layout*layout,const shared_ptr<Component>&component)
+		shared_ptr<Window>		Operator::createWindow(const Rect<float>&region, const String&name, modal_t modal,Layout*layout,const shared_ptr<Component>&component)
 		{
-			shared_ptr<Window>&result = window_stack.append();
-			result.reset(new Window(layout));
+			shared_ptr<Window> result(new Window(modal == ModalWindow,layout));
+			if (window_stack.isNotEmpty())
+			{
+				if (!window_stack.last()->is_modal || modal)
+				{
+					window_stack.last()->onFocusLost();
+					window_stack.append(result);
+					result->onFocusGained();
+				}
+				else
+				{
+					index_t at = window_stack.size()-2;
+					while (at != InvalidIndex && window_stack[at]->is_modal)
+						at--;
+					window_stack.insert(at+1,result);
+				}
+			}
+			else
+			{
+				window_stack.append(result);
+				result->onFocusGained();
+			}
 			result->operator_link = shared_from_this();
 			
 			#ifdef DEEP_GUI

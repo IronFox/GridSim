@@ -2356,7 +2356,7 @@ namespace Engine
 		{
 			if (!menu_window)
 			{
-				menu_window.reset(new Window(&Window::menu_style));
+				menu_window.reset(new Window(false, &Window::menu_style));
 				shared_ptr<Menu> menu = shared_ptr<Menu>(new Menu());
 				menu_window->setComponent(menu);
 				menu->parent = static_pointer_cast<MenuEntry,Component>(shared_from_this());
@@ -2803,8 +2803,7 @@ namespace Engine
 
 			float	mx = op.getDisplay().clientWidth()/2,
 					my = op.getDisplay().clientHeight()/2;
-			shared_ptr<GUI::Window>	window = op.createWindow(Rect<float>(mx-200,my-100,mx+200,my+100),title,panel);
-			window->is_modal = true;
+			shared_ptr<GUI::Window>	window = op.createWindow(Rect<float>(mx-200,my-100,mx+200,my+100),title,GUI::ModalWindow,panel);
 			window->fixed_size = true;
 			window->iheight = (size_t)(window->fheight = window->minHeight());
 			window->layout_changed = true;
@@ -2860,8 +2859,7 @@ namespace Engine
 
 			float	mx = op.getDisplay().clientWidth()/2,
 					my = op.getDisplay().clientHeight()/2;
-			message_window = op.createWindow(Rect<float>(mx-200,my-100,mx+200,my+100),"Message",panel);
-			message_window->is_modal = true;
+			message_window = op.createWindow(Rect<float>(mx-200,my-100,mx+200,my+100),"Message",GUI::ModalWindow,panel);
 			message_window->fixed_size = true;
 		}
 		

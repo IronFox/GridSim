@@ -40,7 +40,13 @@ namespace Engine
 		static const float font_offset = -2;	//!< Vertical font offset
 		
 		static const float global_anisotropy = 20;
-		
+
+		enum modal_t
+		{
+			DefaultWindow,
+			ModalWindow
+		};
+
 		/**
 			@brief Simple hybrid texture containing both color and normal maps
 		*/
@@ -405,12 +411,16 @@ namespace Engine
 										normal_buffer;	//!< Texture buffer to store the normal components of the window in
 				bool					layout_changed,	//!< Indicates that the general window content has changed and requires a layout and render update into the respective color and normal buffers
 										visual_changed,	//!< Indicates that the window should be repainted
-										is_modal,		//!< True if this window does not allow events to pass further down.
 										fixed_position,	//!< Window is fixed to its current location and may neither be resized nor moved
 										fixed_size;		//!< Windows has fixed size and may be moved but not resized
-				Timer::Time			hidden;			//!< Time stamp when this window was hidden
+				const bool				is_modal;		//!< True if this window does not allow events to pass further down.
+				Timer::Time				hidden;			//!< Time stamp when this window was hidden
 				
-										Window(Layout*style=&common_style);	//!< Creates a new window using the specified style
+
+				FunctionalEvent			onFocusGained,	//!< Triggered whenever this window gains the focus (also, if it has just become visible)
+										onFocusLost;	//!< Triggered whenever this window loses the focus (also, if it has just been removed)
+
+										Window(bool modal, Layout*style=&common_style);	//!< Creates a new window using the specified style
 		virtual							~Window()
 										{}
 				
@@ -499,8 +509,8 @@ namespace Engine
 				void									insertWindow(const shared_ptr<Window>&window);	//!< Appends a window to the local window stack as new top level window. If the window is already inserted then it will simply be moved to the top position @param window Window to append @param managed Set true to also add the window to the local container, automatically deleting it if no longer necessary
 				void									removeWindow(const shared_ptr<Window>&window);				//!< Removes a window from the window stack (does not delete the window)
 				bool									windowIsVisible(const shared_ptr<Window>&window)	const;
-				shared_ptr<Window>						createWindow(const Rect<float>&region, const String&name,const shared_ptr<Component>&component=shared_ptr<Component>());		//!< Creates a new window @param region Window region in pixels. Allowed region is (0,0) [lower left corner] to (display.width(),display.height()) [upper right corner] @param window name (and title)  @param component Component to put on the new window @return new window
-				shared_ptr<Window>						createWindow(const Rect<float>&region, const String&name,Layout*layout,const shared_ptr<Component>&component);//!< Creates a new window @param region Window region in pixels. Allowed region is (0,0) [lower left corner] to (display.width(),display.height()) [upper right corner] @param window name (and title)  @param layout Layout to apply to the new window @param component Component to put on the new window @return new window
+				shared_ptr<Window>						createWindow(const Rect<float>&region, const String&name,modal_t modal, const shared_ptr<Component>&component=shared_ptr<Component>());		//!< Creates a new window @param region Window region in pixels. Allowed region is (0,0) [lower left corner] to (display.width(),display.height()) [upper right corner] @param window name (and title)  @param component Component to put on the new window @return new window
+				shared_ptr<Window>						createWindow(const Rect<float>&region, const String&name,modal_t modal, Layout*layout,const shared_ptr<Component>&component);//!< Creates a new window @param region Window region in pixels. Allowed region is (0,0) [lower left corner] to (display.width(),display.height()) [upper right corner] @param window name (and title)  @param layout Layout to apply to the new window @param component Component to put on the new window @return new window
 				bool									mouseDown();			//!< Signals that the main mouse button has been pressed.
 				void									mouseUp();				//!< Signals that the main mouse button has been released
 				bool									mouseWheel(short delta);	//!< Signals that the mouse wheel has been used
