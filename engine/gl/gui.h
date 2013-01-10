@@ -304,7 +304,7 @@ namespace Engine
 			void								signalLayoutChange() const;					//!< Signals that the layout of the local component has changed in such a way that all components must be re-arranged
 			void								signalVisualChange() const;					//!< Signals that the local component must be redrawn
 			
-
+			static void							resetFocused();																	//!< Unsets the currently focused component. Identical to passing an empty (null) pointer to setFocused()
 			static	void 						setFocused(const shared_ptr<Component>&component);								//!< Changes the currently focused component
 
 			shared_ptr<Operator>				getOperator()	const;

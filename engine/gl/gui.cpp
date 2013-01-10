@@ -473,6 +473,11 @@ namespace Engine
 				child(i)->setWindow(wnd);
 		}
 		
+		void Component::resetFocused()
+		{
+			setFocused(shared_ptr<Component>());
+		}
+
 		void Component::setFocused(const shared_ptr<Component>&component)
 		{
 			if (focused == component)
@@ -2245,8 +2250,8 @@ namespace Engine
 				if (window_stack.isNotEmpty())
 					window_stack.last()->onFocusLost();
 				window_stack << window;
+				Component::resetFocused();
 				window->onFocusGained();
-				Component::setFocused(shared_ptr<Component>());
 			}
 			#ifdef DEEP_GUI
 				window->current_center.shell_radius = window->destination.shell_radius = window->origin.shell_radius = radiusOf(window_stack-1);
@@ -2268,11 +2273,11 @@ namespace Engine
 				if (was_top)
 				{
 					window->onFocusLost();
+					Component::resetFocused();
 					if (window_stack.isNotEmpty())
 						window_stack.last()->onFocusGained();
 				}
 				window->operator_link.reset();
-				Component::setFocused(shared_ptr<Component>());
 				#ifdef DEEP_GUI
 					for (index_t j = 0; j < window_stack.count(); j++)
 						window_stack[j]->setShellDestination(radiusOf(j));
@@ -2332,10 +2337,16 @@ namespace Engine
 				
 				if (rs != Window::ClickResult::Missed)
 				{
+					if (rs == Window::ClickResult::Component)
+						if (!GUI::mouseDown(window,rx,ry))
+							rs = window->fixed_position?Window::ClickResult::Ignored:Window::ClickResult::DragWindow;
+					if (rs != Window::ClickResult::Component)
+						Component::resetFocused();
 					if (i+1 != window_stack.count())
 					{
 						window_stack.last()->onFocusLost();
 						window_stack.erase(i);
+						Component::resetFocused();
 						window_stack << window;
 						window->onFocusGained();
 						#ifdef DEEP_GUI
@@ -2343,11 +2354,6 @@ namespace Engine
 								window_stack[j]->setShellDestination(radiusOf(j));
 						#endif
 					}
-					if (rs == Window::ClickResult::Component)
-						if (!GUI::mouseDown(window,rx,ry))
-							rs = window->fixed_position?Window::ClickResult::Ignored:Window::ClickResult::DragWindow;
-					if (rs != Window::ClickResult::Component)
-						Component::setFocused(shared_ptr<Component>());
 					owns_mouse_down = true;
 					dragging = (rs >= Window::ClickResult::DragWindow ? window : shared_ptr<Window>());
 					drag_type = rs;
@@ -2421,6 +2427,7 @@ namespace Engine
 				{
 					window_stack.last()->onFocusLost();
 					window_stack.erase(i);
+					Component::resetFocused();
 					window_stack << window;
 					window->onFocusGained();
 				}
@@ -2464,6 +2471,7 @@ namespace Engine
 				{
 					window_stack.last()->onFocusLost();
 					window_stack.append(result);
+					Component::resetFocused();
 					result->onFocusGained();
 				}
 				else
@@ -2476,6 +2484,7 @@ namespace Engine
 			}
 			else
 			{
+				Component::resetFocused();
 				window_stack.append(result);
 				result->onFocusGained();
 			}
