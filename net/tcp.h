@@ -3,6 +3,7 @@
 
 #include "node.h"
 #include "../container/buffer.h"
+#include "../io/byte_stream.h"
 
 #ifndef INVALID_SOCKET
 #define INVALID_SOCKET -1
@@ -361,7 +362,8 @@ namespace TCP
 			volatile SOCKET				socket_handle;	//!< Handle to the occupied socket
 			serial_size_t				remaining_size,			//!< Size remaining for reading streams 
 										remaining_write_size;	//!< Size remaining for writing streams in the announced memory frame
-			
+			ByteStream					serial_buffer;		//!< Buffer used to serialize package data
+
 			friend class Server;
 			friend class RootChannel;
 			
@@ -369,6 +371,7 @@ namespace TCP
 			void						ThreadMain();			//!< Socket read thread main
 			bool						sendData(UINT32 channel_id, const void*data, size_t size);	//!< Sends raw data to the TCP stream
 			bool						succeeded(int result, size_t desired);							//!< Handles the result of a TCP socket send operation. @param result Actual value returned by send() @param desired Valued expected to be returned by send() @return true if both values match, false otherwise. The connection is automatically closed, events triggered and error values set if the operation failed.
+			void						handleUnexpectedSendResult(int result);
 			bool						read(void*target, serial_size_t size);								//!< IInStream override for direct TCP stream input
 			bool						write(const void*target, serial_size_t size);						//!< IOutStream override for direct TCP stream output
 			bool						netRead(BYTE*current, size_t size);							//!< Continuously reads a sequence of bytes from the TCP stream. The method does not return until either the requested amount of bytes was received or an error occured

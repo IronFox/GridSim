@@ -245,6 +245,15 @@ namespace TCP
 			return true;
 		owner->block_events = 0;
 		socket_handle = socket(af,type,protocol); //and create a new socket
+		if (socket_handle != INVALID_SOCKET)
+		{
+			int i = 1;
+			if (setsockopt( socket_handle, IPPROTO_TCP, TCP_NODELAY, (const char *)&i, sizeof(i)) == SOCKET_ERROR )
+			{
+				closesocket(socket_handle);
+				return false;
+			}
+		}
 		return socket_handle != INVALID_SOCKET;
 	}
 	
@@ -375,6 +384,38 @@ namespace TCP
 		attempt.client = this;
 		attempt.start();
 	}
+
+	void	Peer::handleUnexpectedSendResult(int result)
+	{
+		if (!result || result == SOCKET_ERROR)
+		{
+			if (socket_handle == INVALID_SOCKET)
+			{
+				if (verbose)
+					cout << "Peer::succeeded() exit: socket handle reset by remote operation"<<endl;
+				return;
+			}
+			owner->setError("");
+			owner->handleEvent(Event::ConnectionClosed,this);
+			swapCloseSocket(socket_handle);
+			owner->onDisconnect(this,Event::ConnectionClosed);
+			if (verbose)
+				cout << "Peer::succeeded() exit: result is 0"<<endl;
+			return;
+		}
+		if (socket_handle == INVALID_SOCKET)
+		{
+			if (verbose)
+				cout << "Peer::succeeded() exit: socket handle reset by remote operation"<<endl;
+			return;
+		}
+		owner->setError("Connection lost to "+toString()+" ("+lastSocketError()+")");
+		swapCloseSocket(socket_handle);
+		owner->handleEvent(Event::ConnectionLost,this);
+		owner->onDisconnect(this,Event::ConnectionLost);
+		if (verbose)
+			cout << "Peer::succeeded() exit: result was unexpected. socket closed"<<endl;
+	}
 	
 	bool	Peer::succeeded(int result, size_t desired)
 	{
@@ -386,34 +427,7 @@ namespace TCP
 				cout << "Peer::succeed() exit: match"<<endl;
 			return true;
 		}
-		if (!result)
-		{
-			if (socket_handle == INVALID_SOCKET)
-			{
-				if (verbose)
-					cout << "Peer::succeeded() exit: socket handle reset by remote operation"<<endl;
-				return false;
-			}
-			owner->setError("");
-			owner->handleEvent(Event::ConnectionClosed,this);
-			swapCloseSocket(socket_handle);
-			owner->onDisconnect(this,Event::ConnectionClosed);
-			if (verbose)
-				cout << "Peer::succeeded() exit: result is 0"<<endl;
-			return false;
-		}
-		if (socket_handle == INVALID_SOCKET)
-		{
-			if (verbose)
-				cout << "Peer::succeeded() exit: socket handle reset by remote operation"<<endl;
-			return false;
-		}
-		owner->setError("Connection lost to "+toString()+" ("+lastSocketError()+")");
-		swapCloseSocket(socket_handle);
-		owner->handleEvent(Event::ConnectionLost,this);
-		owner->onDisconnect(this,Event::ConnectionLost);
-		if (verbose)
-			cout << "Peer::succeeded() exit: result was unexpected. socket closed"<<endl;
+		handleUnexpectedSendResult(result);
 		return false;
 	}
 	
@@ -534,45 +548,50 @@ namespace TCP
 			cout << "Peer::sendObject() exit: package size determined as "<<size32<<" byte(s)"<<endl;
 		softsync(write_mutex)
 		{
-			if (!succeeded(send(socket_handle,(const char*)&channel_id,4,0),4))
+			//if (!succeeded(send(socket_handle,(const char*)&channel_id,4,0),4))
+			//{
+			//	if (verbose)
+			//		cout << "Peer::sendObject() exit: failed to send channel id"<<endl;
+			//	return false;
+			//}
+			//if (!succeeded(send(socket_handle,(const char*)&size32,4,0),4))
+			//{
+			//	if (verbose)
+			//		cout << "Peer::sendObject() exit: failed to send package size"<<endl;
+			//	return false;
+			//}
+			//remaining_write_size = (size_t)size32;
+			//bool did_serialize = object.serialize(*this,false);
+			serial_buffer.reset();
+			serial_buffer << (UINT32)channel_id;
+			serial_buffer << (UINT32)0;
+			bool did_serialize = object.serialize(serial_buffer,false);
+			bool did_write = false;
+			if (did_serialize)
 			{
-				if (verbose)
-					cout << "Peer::sendObject() exit: failed to send channel id"<<endl;
-				return false;
-			}
-			if (!succeeded(send(socket_handle,(const char*)&size32,4,0),4))
-			{
-				if (verbose)
-					cout << "Peer::sendObject() exit: failed to send package size"<<endl;
-				return false;
-			}
-			remaining_write_size = (size_t)size32;
-			bool did_serialize = object.serialize(*this,false);
-			bool result = did_serialize && !remaining_write_size;
-			if (did_serialize && remaining_write_size)
-			{
-				FATAL__("Operation failed. Serialization did not consume requested data amount. Channel ID is "+String(channel_id)+", remaining bytes are "+String(remaining_write_size));
-			}
-			if (!did_serialize && verbose)
-				cout << "Peer::sendObject(): serialization to socket failed (remaining size in bytes is "<<remaining_write_size<<")"<<endl;
-			
-			if (remaining_write_size && socket_handle != INVALID_SOCKET)
-			{
-				while (remaining_write_size > sizeof(dump_buffer))
-					if (!succeeded(send(socket_handle,(const char*)dump_buffer,sizeof(dump_buffer),0),sizeof(dump_buffer)))
+				UINT32*data = (UINT32*)serial_buffer.data();
+				data[1] = (UINT32)(serial_buffer.fillLevel() - 8);
+				const char* at = (const char*)serial_buffer.data(),
+						* end = at + serial_buffer.fillLevel();
+				while (at < end)
+				{
+					int sent = send(socket_handle,at,end-at,0);
+					if (sent <= 0)
 					{
 						if (verbose)
-							cout << "Peer::sendObject() exit: failed to send dummy bytes ("<<sizeof(dump_buffer)<<")"<<endl;
+							cout << "Peer::sendObject() exit: failed to send package chunk"<<endl;
+						handleUnexpectedSendResult(sent);
 						return false;
 					}
-					else
-						remaining_write_size -= sizeof(dump_buffer);
-				if (remaining_write_size)
-					succeeded(send(socket_handle,(const char*)dump_buffer,int(remaining_write_size),0),remaining_write_size);
+					at += sent;
+				}
 			}
+			//this->write(serial_buffer.data(),(serial_size_t)serial_buffer.fillLevel());
+
+			
 			if (verbose)
-				cout << "Peer::sendObject() exit: returning result "<<(int)result<<endl;
-			return result;
+				cout << "Peer::sendObject() exit: success "<<endl;
+			return true;
 		}
 		FATAL__("Architectural flaw");
 		return false;
