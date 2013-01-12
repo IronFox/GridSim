@@ -12,7 +12,7 @@ public:
 		};
 
 
-		UINT						width,
+		UINT32						width,
 									height;
 
 
@@ -39,7 +39,7 @@ public:
 									}
 		Resolution					operator/(int div) const
 									{
-										return Resolution(std::max<UINT>(1,width/div),std::max<UINT>(1,height/div));
+										return Resolution(std::max<UINT32>(1,width/div),std::max<UINT32>(1,height/div));
 									}
 
 };
