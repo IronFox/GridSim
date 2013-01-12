@@ -903,6 +903,12 @@ template <typename T, typename Strategy>
 	}
 
 template <typename T, typename Strategy>
+	inline void		BasicBuffer<T, Strategy>::clear()
+	{
+		reset();
+	}
+
+template <typename T, typename Strategy>
 	inline	bool			BasicBuffer<T, Strategy>::empty()						const
 	{
 		return usage_end==storage_begin;
