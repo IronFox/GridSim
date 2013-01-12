@@ -15,7 +15,6 @@ Simplified interface to extract image-date from compressed
 #include "../remote/png/png.h"
 #include "delta_crc32.h"
 #include "../container/buffer.h"
-#include "../io/log.h"
 
 /**
     \brief Simplified texture decompression interface for images of size 2^n * 2^m

@@ -6,12 +6,20 @@
 Simplified interface to extract image-date from compressed
 .tex-files and texture-blocks.
 
-This file is part of Delta-Works
-Copyright (C) 2006-2008 Stefan Elsen, University of Trier, Germany.
-http://www.delta-works.org/forge/
-http://informatik.uni-trier.de/
-
 ******************************************************************/
+
+#undef LOG_TEXTURE_COMPRESSION
+//#define LOG_TEXTURE_COMPRESSION	//define this to write compression operations to compression.log in working directory
+
+
+#undef LOG_TEXTURE_COMPRESSION_STAGE
+#ifdef LOG_TEXTURE_COMPRESSION
+	#include "../io/log.h"
+
+	#define LOG_TEXTURE_COMPRESSION_STAGE(STAGE)	log_file << STAGE << nl;
+#else
+	#define LOG_TEXTURE_COMPRESSION_STAGE(STAGE)
+#endif
 
 
 static String	ext_error;
@@ -258,9 +266,12 @@ size_t TextureCompression::compress(const Image&source, Array<BYTE>&buffer, Code
 	}
 	
 	size_t compressed_size = 0;
-	static LogFile	log_file("compression.log",true);
+	#ifdef LOG_TEXTURE_COMPRESSION
+		static LogFile	log_file("compression.log",true);
+	#endif
 
-	log_file << "compressing "<<from->getWidth()<<"*"<<from->getHeight()<<"*"<<from->getChannels()<<nl;
+	LOG_TEXTURE_COMPRESSION_STAGE("compressing "<<from->getWidth()<<"*"<<from->getHeight()<<"*"<<from->getChannels());
+
 
 	switch (codec)
 	{
@@ -296,7 +307,8 @@ size_t TextureCompression::compress(const Image&source, Array<BYTE>&buffer, Code
 			png_set_compression_level(png,9);	//maximum compression
 			png_set_write_fn(png,NULL,writeSection,flushSection);
 
-			log_file << "configuring info...\r\n";
+			LOG_TEXTURE_COMPRESSION_STAGE("configuring info");
+
 			info->width = from->getWidth();
 			info->height = from->getHeight();
 			info->valid = 0;
@@ -314,8 +326,8 @@ size_t TextureCompression::compress(const Image&source, Array<BYTE>&buffer, Code
 			info->spare_byte = 0;
 			memcpy(info->signature,"PNG     ",8);
 			
-			log_file << "creating map...\r\n";
-			
+			LOG_TEXTURE_COMPRESSION_STAGE("creating map");
+
 			png_bytepp image = new png_bytep[from->getHeight()];
 			for (unsigned i = 0; i < from->getHeight(); i++)
 			{
@@ -328,15 +340,15 @@ size_t TextureCompression::compress(const Image&source, Array<BYTE>&buffer, Code
 				}
 			}
 			
-			log_file << "sending map...\r\n";
+			LOG_TEXTURE_COMPRESSION_STAGE("sending map");
 			
 			png_set_rows(png,info,image);
-			log_file << "writing png...\r\n";
+			LOG_TEXTURE_COMPRESSION_STAGE("writing png");
 			
 			png_write_png(png,info,PNG_TRANSFORM_IDENTITY,NULL);
-			log_file << "cleaning up...\r\n";
+			LOG_TEXTURE_COMPRESSION_STAGE("cleaning up 1");
 		    png_destroy_info_struct(png,&info);
-			log_file << "cleaning up...\r\n";
+			LOG_TEXTURE_COMPRESSION_STAGE("cleaning up 2");
 			png_destroy_write_struct(&png,NULL);
 			
 			
@@ -346,11 +358,11 @@ size_t TextureCompression::compress(const Image&source, Array<BYTE>&buffer, Code
 			}
 			delete[] image;
 	
-			log_file << "copying compressed image ("<<out_buffer.fillLevel()<<" byte(s))...\r\n";
+			LOG_TEXTURE_COMPRESSION_STAGE("copying compressed image ("<<out_buffer.fillLevel()<<" byte(s))");
 	
 			compressed_size = out_buffer.fillLevel();
 			buffer.setSize(sizeof(Image::THeader)+out_buffer.fillLevel());
-			log_file << "buffer resized to "<<buffer.contentSize()<<" byte(s)\r\n";
+			LOG_TEXTURE_COMPRESSION_STAGE("buffer resized to "<<buffer.contentSize()<<" byte(s)");
 			memcpy(buffer.pointer()+sizeof(Image::THeader),out_buffer.pointer(),compressed_size);
 		}
 	}
@@ -361,7 +373,7 @@ size_t TextureCompression::compress(const Image&source, Array<BYTE>&buffer, Code
 	Image::THeader*head = (Image::THeader*)buffer.pointer();
 	head->crc = CRC32::getChecksum(&head->settings,buffer.size()-4);
 	
-	log_file << "all done\r\n";
+	LOG_TEXTURE_COMPRESSION_STAGE("all done");
 	
 	return buffer.size();
 	/*}
