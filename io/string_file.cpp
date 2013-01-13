@@ -146,7 +146,7 @@ bool StringFile::create(const String&filename)
 bool StringFile::append(const String&filename)
 {
     close();
-    f = fopen(filename.c_str(),"ab");
+    f = fopen(filename.c_str(),"a+b");
     active = f!=NULL;
     write_mode = active;
     read_mode = false;

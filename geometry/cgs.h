@@ -312,14 +312,16 @@ namespace CGS	//! Compiled Geometrical Structure
 	class DimensionParser //! Structure used to determine the dimensions of a structure.
 	{
 	public:
-			TBox<C>									dimension;	//!< Effective dimensions
-			bool									set;			//!< True if dimensions are defined
+		Box<C>										dimension;	//!< Effective dimensions
+		bool										set;			//!< True if dimensions are defined
 
 													DimensionParser();
-	template <class C0>
+		template <class C0>
 			void									parse(const C0 point[3]);	//!< Includes a point into the given dimension space
-	template <class C0>
+		template <class C0>
 			void									parse(const TVec3<C0>&point);	//!< Includes a point into the given dimension space
+		template <class C0>
+			void									parse(const Box<C0>&box);	//!< Includes a box into the given dimension space
 	};
 
 	template <class Def>
@@ -471,19 +473,11 @@ namespace CGS	//! Compiled Geometrical Structure
 
 
 
-	/*!
-		\brief CGS material info structure
-		
-		The material info structure holds all material parameters (i.e. colors) as opposed to the actual geometrical rendering data.
-	*/
-	class MaterialInfo
+	class MaterialColors
 	{
 	public:
-		weak_ptr<MaterialObject>					attachment;
-
 		bool										alpha_test,			//!< Set true if the local material is masked (transparency tested). Masked material fragments are either fully opaque or invisible but never blended.
 													fully_reflective;	//!< Set true to apply any environment map everywhere on the material. All other material properties are ignored
-		Array<TLayer>								layer_field;		//!< Array of texture layers. The number of texture layers must correspond to the number of texture coordinates provided by the vertex container of each rendering object (of this material)
 		TVec4<float>								ambient,			//!< Material ambient color. The last component is supposed to be 1.
 													diffuse,			//!< Material diffuse color. The last component is supposed to be 1.
 													specular,			//!< Material specular color. The last component is supposed to be 1.
@@ -491,9 +485,28 @@ namespace CGS	//! Compiled Geometrical Structure
 		float										shininess,			//!< Material shininess. The stored scalar [0,1] is mapped to the effective shininess exponent [0,128]
 													alpha_threshold;	//!< Alpha border used to determine visibility. Effective only if \b masked is set true.
 
+													MaterialColors();
+		bool										similar(const MaterialColors&other)	const;	//!< Determines whether or not the local material info is similar to the specified other material info. This method may return false where the finally loaded appearance is in fact similar, however never the other way around. \param other Material info to compare to \return true if the local material info is similar to the specified material info, false otherwise.
+		bool										operator==(const MaterialColors&other) const;
+
+	};
+
+	/*!
+		\brief CGS material info structure
+		
+		The material info structure holds all material parameters (i.e. colors) as opposed to the actual geometrical rendering data.
+	*/
+	class MaterialInfo : public MaterialColors
+	{
+	public:
+		weak_ptr<MaterialObject>					attachment;
+
+		Array<TLayer>								layer_field;		//!< Array of texture layers. The number of texture layers must correspond to the number of texture coordinates provided by the vertex container of each rendering object (of this material)
+
 													MaterialInfo();
 		bool										similar(const MaterialInfo&other)	const;	//!< Determines whether or not the local material info is similar to the specified other material info. This method may return false where the finally loaded appearance is in fact similar, however never the other way around. \param other Material info to compare to \return true if the local material info is similar to the specified material info, false otherwise.
 		bool										operator==(const MaterialInfo&other) const;
+		MaterialInfo&								operator=(const MaterialColors&other);
 		count_t										countCoordLayers()	const;					//!< Retrieves the number of 2 component texture coordinates, this material requires (not all layers do require texture coordinates).
 		void										postCopyLink(TextureResource*);				//!< Relinks texture resources if a CGS geometry has been copied (automatically evoked)
 		void										adoptData(MaterialInfo&other);
@@ -885,7 +898,7 @@ namespace CGS	//! Compiled Geometrical Structure
 
 			
 		template <class C>
-			bool									extractDimensions(TBox<C>&dim) const;			//!< Determines the relative dimensions of the first visual detail layer of the local sub geometry instance (non recursive) \param dim Dimension field to store the visual dimensions in \return true if the local visual hull contained at least one vertex, false otherwise
+			bool									extractDimensions(Box<C>&dim) const;			//!< Determines the relative dimensions of the first visual detail layer of the local sub geometry instance (non recursive) \param dim Dimension field to store the visual dimensions in \return true if the local visual hull contained at least one vertex, false otherwise
 		template <class C>
 			void									extractRadius(C&radius) const;				//!< Determines the local visual radius (distance between the point of origin an the furthest vertex) and stores it in out(non recursive) \param radius Out radius
 		template <class C>
@@ -1078,7 +1091,7 @@ namespace CGS	//! Compiled Geometrical Structure
 
 
 		template <class C>
-			bool									extractDimensions(TBox<C>&dim)				const;				//!< Determines the visual dimensions of the local geometry. \param dim Dimension field to write the dimensions to \return true if the geometry is not empty and the dimensions could be extracted, false otherwise.
+			bool									extractDimensions(Box<C>&dim)				const;				//!< Determines the visual dimensions of the local geometry. \param dim Dimension field to write the dimensions to \return true if the geometry is not empty and the dimensions could be extracted, false otherwise.
 		template <class C>
 			void									extractRadius(C&radius)					const;				//!< Extracts the visual radius (the distance between the geometry point of origin and the furthest sub geometry vertex) of the local geometry
 		template <class C>
@@ -1138,7 +1151,7 @@ namespace CGS	//! Compiled Geometrical Structure
 			void									makeSimpleObject(const Float*vertex,count_t vertices,count_t layers, const Index*index,count_t indices);	//!< Clears any existing local data and generates a simple triangular visual geometry with a number of pre-generated empty texture layers and one SubGeometry<Def> instance from the provided data \param vertex Float field. Each vertex is required to provide 3 elements for the position, 3 for the normal plus 2 for each layer. \param vertices Total number of vertices \param layers Number of (empty) texture layers that should be generated. \param index Index field. Each triangle requires three indices. \param indices Total number of indices (should be 3*number of triangles)
 			void									makeSphere(Float radius, count_t iterations);		//!< Clears any existing data and generates a simple textureless sphere \param radius Sphere radius \param iterations Sphere resolution. The more iterations, the higher the detail. Usually 5 means rather low, 50 means very high and everything above overkill.
 		template <typename T0>
-			void									makeBox(const TBox<T0>&);	//!< Clears any existing data and generates a simple textureless box \param lower_corner Lower corner of the box \param upper_corner Upper corner of the box
+			void									makeBox(const Box<T0>&);	//!< Clears any existing data and generates a simple textureless box \param lower_corner Lower corner of the box \param upper_corner Upper corner of the box
 			void									makeBox(Float lower_x, Float lower_y, Float lower_z, Float upper_x, Float upper_y, Float upper_z);	//!< \overload
 			void									makePlane(Float width, Float depth, count_t x_segments, count_t z_segments);
 	//		String								difference(Geometry*other);
@@ -1479,20 +1492,22 @@ namespace CGS	//! Compiled Geometrical Structure
 				count_t			getVertexSize()			const	{return config.vsize;}
 				void			setVertexOffset(Index offset)	{voffset = offset;}
 				void			setVertexOffsetToCurrent()		{voffset = (Index)(vertex_data.length() / config.vsize);}
-				void			triangle(Index v0, Index v1, Index v2)
+				template <typename T>
+					void		triangle(T v0, T v1, T v2)
 								{
 									Index*t = index_data.appendRow(3);
-									t[0] = v0 + voffset;
-									t[1] = v1 + voffset;
-									t[2] = v2 + voffset;
+									t[0] = (Index)(v0 + voffset);
+									t[1] = (Index)(v1 + voffset);
+									t[2] = (Index)(v2 + voffset);
 								}
-				void			quad(Index v0, Index v1, Index v2, Index v3)
+				template <typename T>
+					void		quad(T v0, T v1, T v2, T v3)
 								{
 									Index*t = quad_data.appendRow(4);
-									t[0] = v0 + voffset;
-									t[1] = v1 + voffset;
-									t[2] = v2 + voffset;
-									t[3] = v3 + voffset;
+									t[0] = (Index)(v0 + voffset);
+									t[1] = (Index)(v1 + voffset);
+									t[2] = (Index)(v2 + voffset);
+									t[3] = (Index)(v3 + voffset);
 								}
 				const Index*	getIndices()	const {return index_data.pointer();}
 				const Index*	getQuadIndices()const {return quad_data.pointer();}
@@ -2083,6 +2098,8 @@ namespace CGS	//! Compiled Geometrical Structure
 			VConfig			config;
 			Buffer<Object,1,Adopt>	objects;
 		public:
+			MaterialColors	colors;
+
 
 			/**/			Constructor(count_t num_layers=0, UINT vertex_flags=0)
 							{
@@ -2106,7 +2123,6 @@ namespace CGS	//! Compiled Geometrical Structure
 			count_t			countObjects()			const	{return objects.count();}
 			Object&			getObject(index_t index)		{return objects[index];}
 			const Object&	getObject(index_t index)const	{return objects[index];}
-
 			Object&			appendObject()	{Object&result = objects.append(); result.config = config; return result;}
 			void			clear()			{objects.reset();}
 			void			verifyIntegrity(bool verify_all_vertices_are_used)	const;

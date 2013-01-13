@@ -99,10 +99,8 @@ namespace Engine
 			if (chars[id].height > height)
 				height = chars[id].height;
 			chars[id].texcoords.set(left,bottom,right,top);
-			chars[id].texcoords.left /= (float)(image.width()-1);
-			chars[id].texcoords.right /= (float)(image.width()-1);
-			chars[id].texcoords.bottom /= (float)(image.height()-1);
-			chars[id].texcoords.top /= (float)(image.height()-1);
+			chars[id].texcoords.x /= (float)(image.width()-1);
+			chars[id].texcoords.y /= (float)(image.height()-1);
 		}
 		for (unsigned i = 0; i < ARRAYSIZE(chars); i++)
 			chars[i].yoffset -= lowest;
@@ -145,10 +143,10 @@ namespace Engine
 	            glNewList(local,GL_COMPILE);
 	            
 	                glBegin(GL_QUADS);
-	                    glTexCoord2f(chars[i].texcoords.left,chars[i].texcoords.bottom);   	glVertex2f(0,scale*chars[i].yoffset);
-	                    glTexCoord2f(chars[i].texcoords.right,chars[i].texcoords.bottom);   glVertex2f(scale*chars[i].width,scale*chars[i].yoffset);
-	                    glTexCoord2f(chars[i].texcoords.right,chars[i].texcoords.top);   	glVertex2f(scale*chars[i].width,scale*(chars[i].yoffset+chars[i].height));
-	                    glTexCoord2f(chars[i].texcoords.left,chars[i].texcoords.top);   	glVertex2f(0,scale*(chars[i].yoffset+chars[i].height));
+	                    glTexCoord2f(chars[i].texcoords.x.min,chars[i].texcoords.y.min);   	glVertex2f(0,scale*chars[i].yoffset);
+	                    glTexCoord2f(chars[i].texcoords.x.max,chars[i].texcoords.y.min);	glVertex2f(scale*chars[i].width,scale*chars[i].yoffset);
+	                    glTexCoord2f(chars[i].texcoords.x.max,chars[i].texcoords.y.max);   	glVertex2f(scale*chars[i].width,scale*(chars[i].yoffset+chars[i].height));
+	                    glTexCoord2f(chars[i].texcoords.x.min,chars[i].texcoords.y.max);   	glVertex2f(0,scale*(chars[i].yoffset+chars[i].height));
 	                glEnd();
 	                glTranslatef(scale*chars[i].width,0,0);
 	            glEndList();

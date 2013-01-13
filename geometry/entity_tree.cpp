@@ -28,9 +28,7 @@ static bool		intersect(const Composite::Coordinates&e0, const Composite::Coordin
 	Composite::sub(e1,b.lower,_e1,sector_size);
 	Composite::sub(b.upper,b.lower,box_extend,sector_size);
 
-	TBox<double>	box;
-	box.lower = Vector<double>::zero;
-	box.upper = box_extend;
+	Box<double>	box(Vector<double>::zero,box_extend);
 	return _oIntersectsBox(_e0, _e1, box);
 }
 
@@ -38,14 +36,15 @@ static bool		intersect(const Composite::Coordinates&e0, const Composite::Coordin
 
 static bool		intersect(const EntityTree::Volume&a, const EntityTree::Volume&b)
 {
-	TVec3<> dif;
-	if (Vec::oneGreater(a.lower,b.upper))
-		return false;
-	
-	if (Vec::oneGreater(b.lower,a.upper))
-		return false;
-	
-	return true;
+	return a.intersects(b);
+	//TVec3<> dif;
+	//if (Vec::oneGreater(a.lower,b.upper))
+	//	return false;
+	//
+	//if (Vec::oneGreater(b.lower,a.upper))
+	//	return false;
+	//
+	//return true;
 }
 
 
@@ -681,8 +680,8 @@ void		EntityTree::recursiveRemap(const Buffer<Entity*>&source)
 		if (!intersect(volume,entity->volume))
 			continue;
 		
-		TVec3<> center;
-		Vec::center(entity->volume.lower,entity->volume.upper,center);
+		TVec3<> center = entity->volume.center();
+		//Vec::center(entity->volume.lower,entity->volume.upper,center);
 		
 		Vec::add(split,center);
 
@@ -708,6 +707,9 @@ void		EntityTree::recursiveRemap(const Buffer<Entity*>&source)
 	BYTE greatest(0),collapsed(0);
 	float greatest_range(0);
 	
+	TVec3<> min,max;
+	volume.getMin(min);
+	volume.getMax(max);
 	TVec3<> new_split;
 	for (BYTE k = 0; k < 3; k++)
 	{
@@ -715,11 +717,11 @@ void		EntityTree::recursiveRemap(const Buffer<Entity*>&source)
 			cout << "  processing axis "<<(int)k<<endl;
 		float				delta,delta2,lower,upper,val,original_split;
 	
-		delta = (volume.upper.v[k]-volume.lower.v[k])*0.2;
+		delta = (max.v[k]-min.v[k])*0.2;
 		
 		//determine lower and upper boundaries:
-		lower = volume.lower.v[k]+delta;
-		upper = volume.upper.v[k]-delta;
+		lower = min.v[k]+delta;
+		upper = max.v[k]-delta;
 		
 		if (lower > split.v[k])
 			split.v[k] = lower;
@@ -740,8 +742,9 @@ void		EntityTree::recursiveRemap(const Buffer<Entity*>&source)
 				Entity*object = entities[i];
 				
 				float upper,lower,separation;
-				lower = object->volume.lower.v[k];
-				upper = object->volume.upper.v[k];
+				const Range<>&axis = object->volume.axis[k];
+				lower = axis.min;
+				upper = axis.max;
 				separation = (upper-lower)/20;
 				
 				if (lower < val && upper > val)
@@ -769,7 +772,7 @@ void		EntityTree::recursiveRemap(const Buffer<Entity*>&source)
 						if (verbose)
 							cout << "   rare case"<<endl;
 						float center;
-						center = (object->volume.upper.v[k]+object->volume.lower.v[k])/2;
+						center = object->volume.axis[k].center();
 						if (center > val)
 						{
 							if (verbose)
@@ -791,19 +794,15 @@ void		EntityTree::recursiveRemap(const Buffer<Entity*>&source)
 		if (verbose)
 			cout << " split vector component determined at "<<val<<endl;
 	
-		if (val < volume.lower.v[k])
-			val = volume.lower.v[k];
-			
-		if (val > volume.upper.v[k])
-			val = volume.upper.v[k];
+		val = volume.axis[k].clamp(val);
 
 		if (verbose)
 			cout << " split vector component clamped to "<<val<<endl;
 
 		delta /= 2;
 		
-		lower = volume.lower.v[k]+delta;
-		upper = volume.upper.v[k]-delta;
+		lower = volume.axis[k].min+delta;
+		upper = volume.axis[k].max-delta;
 		
 		if (val < lower)
 		{
@@ -861,9 +860,9 @@ void		EntityTree::recursiveRemap(const Buffer<Entity*>&source)
 		bool collapsed(false);
 		for (BYTE j = 0; j < 3; j++)
 		{
-			d.lower.v[j] = p[j]?split.v[j]:volume.lower.v[j];
-			d.upper.v[j] = p[j]?volume.upper.v[j]:split.v[j];
-			collapsed |= d.upper.v[j]-d.lower.v[j] < (volume.upper.v[j]-volume.lower.v[j])/20;
+			d.axis[j].min = p[j]?split.v[j]:volume.axis[j].min;
+			d.axis[j].max = p[j]?volume.axis[j].max:split.v[j];
+			collapsed |= d.axis[j].extend() < (volume.axis[j].extend())/20;
 		}
 		
 		if (!collapsed)
@@ -930,7 +929,7 @@ count_t	EntityTree::recursiveLookup(const TVec3<>&p0, const TVec3<>&p1, Buffer<E
 	BYTE define[3];
 
 	for (BYTE j = 0; j < 2; j++)
-			if (Vec::allGreater(edge[j],volume.min) && Vec::allLess(edge[j],volume.max))
+			if (volume.contains(edge[j]))
 			{
 				for (BYTE k = 0; k < 3; k++)
 					define[k] = edge[j].v[k] > split.v[k];
@@ -944,26 +943,27 @@ count_t	EntityTree::recursiveLookup(const TVec3<>&p0, const TVec3<>&p1, Buffer<E
 		{
 			BYTE	x = (k+1)%3,
 					y = (k+2)%3;
+			TVec3<> corner[2] = {volume.min(),volume.max()};
 			for (BYTE j = 0; j < 2; j++)
 			{
-					define[k] = j;
-					float alpha = (volume.corner[j].v[k]-p0.v[k])/dir.v[k];
-					if (alpha > 1 || alpha < 0)
-						continue;
-					float	vx = p0.v[x] + dir.v[x] *alpha,
-							vy = p0.v[y] + dir.v[y] *alpha;
-					if (vx < volume.min.v[x] || vx > volume.max.v[x] || vy < volume.min.v[y] || vy > volume.max.v[y])
-						continue;
-					define[x] = vx > split.v[x];
-					define[y] = vy > split.v[y];
-					set[define[0]*4 + define[1]*2 + define[2]] = true;
+				define[k] = j;
+				float alpha = (corner[j].v[k]-p0.v[k])/dir.v[k];
+				if (alpha > 1 || alpha < 0)
+					continue;
+				float	vx = p0.v[x] + dir.v[x] *alpha,
+						vy = p0.v[y] + dir.v[y] *alpha;
+				if (!volume.axis[x].contains(vx) || !volume.axis[y].contains(vy))
+					continue;
+				define[x] = vx > split.v[x];
+				define[y] = vy > split.v[y];
+				set[define[0]*4 + define[1]*2 + define[2]] = true;
 			}
 			float	alpha = (split.v[k] - p0.v[k]) / dir.v[k];
 			if (alpha > 1 || alpha < 0)
 				continue;
 			float	vx = p0.v[x] + dir.v[x] *alpha,
 					vy = p0.v[y] + dir.v[y] *alpha;
-			if (vx < volume.min.v[x] || vx > volume.max.v[x] || vy < volume.min.v[y] || vy > volume.max.v[y])
+			if (!volume.axis[x].contains(vx) || !volume.axis[y].contains(vy))
 				continue;
 			define[k] = 0;
 			define[x] = vx > split.v[x];
@@ -1090,15 +1090,11 @@ void		EntityTree::remap(const Buffer<Entity*>&source, unsigned depth)
 		Entity*object = source.first();
 		volume = object->volume;
 	}
-	for (unsigned i = 0; i < source.count(); i++)
+	for (index_t i = 1; i < source.count(); i++)
 	{
 		Entity*entity = source[i];
-		
-		if (!!i)
-		{
-			Vec::min(volume.lower,entity->volume.lower,volume.lower);
-			Vec::max(volume.upper,entity->volume.upper,volume.upper);
-		}
+
+		volume.include(entity->volume);
 	}
 	recursiveRemap(source);
 }
@@ -1115,17 +1111,14 @@ void		EntityTree::remap(List::Vector<Entity>&source, unsigned depth)
 	{
 		Entity*object = source.first();
 		volume = object->volume;
+		entities << object;
 	}
-	for (unsigned i = 0; i < source.count(); i++)
+	for (index_t i = 1; i < source.count(); i++)
 	{
 		Entity*entity = source[i];
 		
-		if (!!i)
-		{
-			Vec::min(volume.lower,entity->volume.lower,volume.lower);
-			Vec::max(volume.upper,entity->volume.upper,volume.upper);
-		}
-		
+		volume.include(entity->volume);
+
 		entities << entity;
 	}
 	recursiveRemap(entities);

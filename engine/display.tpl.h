@@ -711,10 +711,10 @@ namespace Engine
 			return transform(rect);
 
 	    RECT result;
-	    result.left     = (LONG)(rect.left       *client_size.width);
-	    result.right    = (LONG)(rect.right      *client_size.width);
-	    result.top      = (LONG)((rect.top)      *client_size.height);
-	    result.bottom   = (LONG)((rect.bottom)   *client_size.height);
+	    result.left     = (LONG)(rect.x.min       *client_size.width);
+	    result.right    = (LONG)(rect.x.max      *client_size.width);
+	    result.top      = (LONG)((rect.y.max)      *client_size.height);
+	    result.bottom   = (LONG)((rect.y.min)   *client_size.height);
 	    return result;
 
 	}
@@ -722,10 +722,10 @@ namespace Engine
 	template <class GL> RECT Display<GL>::transform(const TFloatRect&rect)
 	{
 	    RECT result;
-	    result.left     = (LONG)(rect.left       *current_target_resolution.width);
-	    result.right    = (LONG)(rect.right      *current_target_resolution.width);
-	    result.top      = (LONG)((rect.top)      *current_target_resolution.height);
-	    result.bottom   = (LONG)((rect.bottom)   *current_target_resolution.height);
+	    result.left     = (LONG)(rect.x.min		*current_target_resolution.width);
+	    result.right    = (LONG)(rect.x.max		*current_target_resolution.width);
+	    result.top      = (LONG)((rect.y.max)	*current_target_resolution.height);
+	    result.bottom   = (LONG)((rect.y.min)	*current_target_resolution.height);
 	    return result;
 	}
 

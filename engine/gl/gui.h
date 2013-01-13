@@ -72,7 +72,7 @@ namespace Engine
 				
 		struct TFreeCell	//! Free component layout cell
 		{
-				Rect<float>			region;			//!< Effective cell region
+				Rect<float>				region;			//!< Effective cell region
 				BYTE					orientation;	//!< Cell orientation. Rotation is 90 degress times orientation
 				const OpenGL::Texture	*color,			//!< Cell color texture
 										*normal;			//!< Cell normal texture
@@ -250,9 +250,9 @@ namespace Engine
 				shared_ptr<Component>			caught_by;		//!< Component that actually caught the event
 			};
 
-			Rect<float>							current_region,	//!< Current component region. This rectangle completely surrounds the component including all cells of its layout (if any)
-												offset;			//!< Signed offset from the parent region. Effective only if @b anchored.coord[x] is true. should be negative for right/top offset
-			Rect<bool>							anchored;		//!< Indicates that the respective coordinates of the final component region is calculated relative to the respective parent edge.
+			Rect<float>							current_region;	//!< Current component region. This rectangle completely surrounds the component including all cells of its layout (if any)
+			Quad<float>							offset;			//!< Signed offset from the parent region. Effective only if @b anchored.coord[x] is true. should be negative for right/top offset
+			Quad<bool>							anchored;		//!< Indicates that the respective coordinates of the final component region is calculated relative to the respective parent edge.
 			float								width,			//!< Fixed component width if either anchored.left or anchored.right is false. Has no effect if both anchored.left and anchored.right are true
 												height;			//!< Fixed component height if either anchored.bottom or anchored.top is false. Has no effect if both anchored.bottom and anchored.top are true
 			const String						type_name;		//!< Constant type name of this component. Assigned during construction (usually the class name without the leading 'C')

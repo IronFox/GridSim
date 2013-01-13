@@ -196,7 +196,7 @@ namespace Engine
 												client_visible,	//!< Reserved for custom client application usage
 												added,			//!< Should be false at all times. Used to distinctly map object entities to the lookup buffer by SceneryTree
 												invert_set;		//!< True if the provided system invert is calculated (false by default. only makes sense if the local entity is mostly stationary)
-			TBox<typename Def::FloatType>		dim;			//!< System relative bounding box of the local object (updated when the local entity is created)
+			Box<typename Def::FloatType>		dim;			//!< System relative bounding box of the local object (updated when the local entity is created)
 			TVec4<typename Def::FloatType>		cage[8];		//!< System relative cage for determining visibility (created using dim)
 			typename Def::FloatType				shortest_edge_length,	//!< Average edge length on maximum detail
 												radius,			//!< Radius of the local entity (distance between the furthest vertex and the local object center)
@@ -495,7 +495,7 @@ namespace Engine
 				typedef typename Def::FloatType		Float;
 				typedef SceneryTree<Def>			Tree;
 				
-				typedef TBox<Float>					Volume;
+				typedef Box<Float>					Volume;
 			
 		protected:
 				List								elements;		//!< (Reference)list of all object entities that are mapped in the local tree node
@@ -584,12 +584,12 @@ namespace Engine
 				void								rebuild();	//!< Rebuilds modified materials (Scenery::rebuild()) and remaps the local scenery
 				void								remap();	//!< Remaps the local scenery. Invoke this whenever objects have been moved. If the local scenery is static then this method need not be called manually 
 				
-		template <typename T>
-				void 								lookup(const TBox<T>&vol, Buffer<ObjectEntity<Def>*>&out, const MyStructureEntity*exclude=NULL);	//!< Performs a recursive lookup on the local tree. For this method to work correctly the local tree is required to be up to date. \param lower Lower corner of the lookup volume \param upper Upper corner of the lookup volume \param out Outbuffer for (distinct) found object entities \param exclude Structure entity to exclude the object entities of or NULL to not exclude any object entities
+			template <typename T>
+				void 								lookup(const Box<T>&vol, Buffer<ObjectEntity<Def>*>&out, const MyStructureEntity*exclude=NULL);	//!< Performs a recursive lookup on the local tree. For this method to work correctly the local tree is required to be up to date. \param lower Lower corner of the lookup volume \param upper Upper corner of the lookup volume \param out Outbuffer for (distinct) found object entities \param exclude Structure entity to exclude the object entities of or NULL to not exclude any object entities
 				
 				void								clear(bool disconnected=false); 		//!< Clears the local scenery. When erasing materials Scenery assumes that the linked CGS::Geometry instances still exist. \param disconnected Pass true if referenced CGS::Geometry/SubGeometry instances do no longer exist-
 				
-		template <class Def2>
+			template <class Def2>
 				void								import(Scenery<GL,Def2>&scenery);		//!< Imports the content of the specified other scenery
 				/*!
 					\brief Determines the detail of all structure entities and the visibility of their respective child object entities using visual volume extraction and recursive tree lookups. 
@@ -600,16 +600,16 @@ namespace Engine
 					
 					\param aspect Camera to test visibily against
 				*/
-		template <class C0>
+			template <class C0>
 				void 								resolve(const Aspect<C0>&aspect);
 				virtual void						postRenderCleanup();						//!< Perform post render cleanup
 		// template <class C0, class C1>
 				// void								render(const Aspect<C0>&aspect, const C1&max_range);
-		template <class C0>
+			template <class C0>
 				void								render(const Aspect<C0>&aspect);			//!< Invokes resolve() using the specified parameters and renders the scenery \param aspect Camera that is currently loaded the rendering context (The scenery does not load this camera)
 
 
-		template <class C0, class C1, class C2, class C3>
+			template <class C0, class C1, class C2, class C3>
 				ObjectEntity<Def>*					lookupClosest(const TVec3<C0>&center, const C1&radius, TVec3<C2>&position_out, TVec3<C3>&normal_out);	//!< Determines the closest hull point approximately inside the specified sphere. Invisible entities are ignored. The method does not miss points that should be inside but may return a point that lies outside the specified radius. \param center Sphere center \param radius Sphere radius, \param position_out 3 component out vector for the closest hull point \param normal_out 3 component out vector for the normal of the closest hull point \return Pointer to the closest object entity or NULL if no object is close enough to the sphere center.
 		
 		};

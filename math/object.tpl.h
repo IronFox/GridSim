@@ -455,9 +455,9 @@ namespace ObjectMath
 	}
 
 
-	MFUNC2 (void) _oDetDimension(const TVec3<C0>&vertex, TBox<C1>&dimensions)
+	MFUNC2 (void) _oDetDimension(const TVec3<C0>&vertex, Box<C1>&dimensions)
 	{
-		_oDetDimension(vertex,dimensions.lower,dimensions.upper);
+		dimensions.include(vertex);
 	}
 	
 	MFUNC3 (void) _oDetDimension(const TVec3<C0>&vertex, TVec3<C1>&lower, TVec3<C2>&upper)
@@ -1322,7 +1322,7 @@ namespace ObjectMath
 		return "";
 	}
 	
-	MFUNC4 (bool)		_oDetectOpticalBoxIntersection(const TBox<C0>&box, const TVec3<C1>&b, const TVec3<C2>&d, C3&distance)
+	MFUNC4 (bool)		_oDetectOpticalBoxIntersection(const Box<C0>&box, const TVec3<C1>&b, const TVec3<C2>&d, C3&distance)
 	{
 		bool result = false;
 		for (BYTE k = 0; k < 3; k++)
@@ -1360,12 +1360,14 @@ namespace ObjectMath
 		return result;
 	}
 	
-	MFUNC3 (bool)		_oIntersectsBox(const TVec3<C0>&p0, const TVec3<C1>&p1, const TBox<C2>&box)
+	MFUNC3 (bool)		_oIntersectsBox(const TVec3<C0>&p0, const TVec3<C1>&p1, const Box<C2>&box)
 	{
+		TVec3<C2>	min = box.min(),
+					max = box.max();
 		if (
-			(!Vec::oneLess(p0,box.lower) && !Vec::oneGreater(p0,box.upper))
+			(!Vec::oneLess(p0,min) && !Vec::oneGreater(p0,max))
 			||
-			(!Vec::oneLess(p1,box.lower) && !Vec::oneGreater(p1,box.upper)))
+			(!Vec::oneLess(p1,min) && !Vec::oneGreater(p1,max)))
 			return true;
 
 		for (BYTE k = 0; k < 3; k++)
@@ -1373,24 +1375,24 @@ namespace ObjectMath
 			{
 				BYTE	i = (k+1)%3,
 						j = (k+2)%3;
-				C2 f = (box.lower.v[k]-p0.v[k])/(p1.v[k]-p0.v[k]),x,y;
+				C2 f = (min.v[k]-p0.v[k])/(p1.v[k]-p0.v[k]),x,y;
 				if (f >= -Math::getError<C2>() && f <= (C2)1+Math::getError<C2>())
 				{
 					x = p0.v[i]+(p1.v[i]-p0.v[i])*f;
 					y = p0.v[j]+(p1.v[j]-p0.v[j])*f;
-					if (x >= box.lower.v[i] && x <= box.upper.v[i]
+					if (x >= min.v[i] && x <= max.v[i]
 						&&
-						y >= box.lower.v[j] && y <= box.upper.v[j])
+						y >= min.v[j] && y <= max.v[j])
 						return true;
 				}
-				f = (box.upper.v[k]-p0.v[k])/(p1.v[k]-p0.v[k]);
+				f = (max.v[k]-p0.v[k])/(p1.v[k]-p0.v[k]);
 				if (f >= 0 && f <= 1)
 				{
 					x = p0.v[i]+(p1.v[i]-p0.v[i])*f;
 					y = p0.v[j]+(p1.v[j]-p0.v[j])*f;
-					if (x >= box.lower.v[i] && x <= box.upper.v[i]
+					if (x >= min.v[i] && x <= max.v[i]
 						&&
-						y >= box.lower.v[j] && y <= box.upper.v[j])
+						y >= min.v[j] && y <= max.v[j])
 						return true;
 				}
 			}
@@ -5475,7 +5477,7 @@ namespace ObjectMath
 			triangle_field.adoptData(tfield);
 		}
 	
-	template <class Def>MF_DECLARE	(void) Mesh<Def>::vertexDimensions(TBox<typename Def::Type>&field)	const
+	template <class Def>MF_DECLARE	(void) Mesh<Def>::vertexDimensions(Box<typename Def::Type>&field)	const
 	{
 		if (!vertex_field.length())
 			return;
@@ -5772,7 +5774,7 @@ namespace ObjectMath
 			ObjDataFace<Def>*		exportFaces();*/
 
 
-	template <class Def>ObjMap<Def>::ObjMap(const TBox<C>&dimension, unsigned Level):level(Level),keep_dimensions(true)
+	template <class Def>ObjMap<Def>::ObjMap(const Box<C>&dimension, unsigned Level):level(Level),keep_dimensions(true)
 	{
 		dim = dimension;
 		for (BYTE k = 0; k < 8; k++)
@@ -5815,33 +5817,33 @@ namespace ObjectMath
 
 		if (empty() && !keep_dimensions)
 		{
-			TBox<C>	new_dim;
+			Box<C>	new_dim;
 			if ((tag & O_VERTICES) && object.vertex_field.length())
 			{
-				new_dim.lower = new_dim.upper = object.vertex_field[0].position;
+				new_dim.set(object.vertex_field[0].position);
 				for (index_t i = 1; i < object.vertex_field.length(); i++)
-					_oDetDimension(object.vertex_field[i].position,new_dim);
+					new_dim.include(object.vertex_field[i].position);
 			}
 			elif ((tag & O_EDGES) && object.edge_field.length())
 			{
-				new_dim.lower = new_dim.upper = object.edge_field[0].v0->position;
+				new_dim.set(object.edge_field[0].v0->position);
 				for (BYTE k = 0; k < 2; k++)
 					for (index_t i = 0; i < object.edge_field.length(); i++)
-						_oDetDimension(object.edge_field[i].vertex[k]->position,new_dim);
+						new_dim.include(object.edge_field[i].vertex[k]->position);
 			}
 			elif ((tag & O_TRIANGLES) && object.triangle_field.length())
 			{
-				new_dim.lower = new_dim.upper = object.triangle_field[0].v0->position;
+				new_dim.set(object.triangle_field[0].v0->position);
 				for (BYTE k = 0; k < 3; k++)
 					for (index_t i = 0; i < object.triangle_field.length(); i++)
-						_oDetDimension(object.triangle_field[i].vertex[k]->position,new_dim);
+						new_dim.include(object.triangle_field[i].vertex[k]->position);
 			}
 			elif ((tag & O_QUADS) && object.quad_field.length())
 			{
-				new_dim.lower = new_dim.upper = object.quad_field[0].v0->position;
+				new_dim.set(object.quad_field[0].v0->position);
 				for (BYTE k = 0; k < 4; k++)
 					for (index_t i = 0; i < object.quad_field.length(); i++)
-						_oDetDimension(object.quad_field[i].vertex[k]->position,new_dim);
+						new_dim.include(object.quad_field[i].vertex[k]->position);
 			}
 			else
 				return;
@@ -5857,17 +5859,16 @@ namespace ObjectMath
 			_sub(dim,new_dim);
 			_add(dim+3,new_dim);*/
 			
-			C range = Vec::distance(new_dim.lower,new_dim.upper);
+			C range = Vec::length(new_dim.extend());
 			for (BYTE k = 0; k < 3; k++)
 			{
-				if (new_dim.upper.v[k] == new_dim.lower.v[k])
+				if (new_dim.axis[k].max == new_dim.axis[k].min)
 				{
-					new_dim.upper.v[k]+=range/100;
-					new_dim.lower.v[k]-=range/50;
+					new_dim.axis[k].max+=range/100;
+					new_dim.axis[k].min-=range/50;
 				}
-				C dif = new_dim.upper.v[k]-new_dim.lower.v[k];
-				new_dim.lower.v[k] -= dif/100;
-				new_dim.upper.v[k] += dif/100;
+				C dif = new_dim.axis[k].extend();
+				new_dim.axis[k].expand(dif/100);
 			}
 			dim = new_dim;
 
@@ -6011,11 +6012,11 @@ namespace ObjectMath
 				BYTE p[3] = {	k / 4,
 								k % 4 / 2,
 								k % 4 % 2};
-				TBox<C>	d;
+				Box<C>	d;
 				for (BYTE j = 0; j < 3; j++)
 				{
-					d.lower.v[j] = dim.lower.v[j] + (dim.upper.v[j] - dim.lower.v[j])/2*p[j];
-					d.upper.v[j] = d.lower.v[j] + (dim.upper.v[j] - dim.lower.v[j])/2;
+					d.axis[j].min = dim.axis[j].min + (dim.axis[j].extend())/2*p[j];
+					d.axis[j].max = d.axis[j].min + (dim.axis[j].extend())/2;
 				}
 				child[k] = SHIELDED(new ObjMap<Def>(d, level-1));
 			}
@@ -6027,13 +6028,12 @@ namespace ObjectMath
 				qbuffered[8] = {0,0,0,0, 0,0,0,0};
 		
 		bool set[8];
-		TVec3<C>	half;
-		Vec::center(dim.lower,dim.upper,half);
+		TVec3<C>	half = dim.center();
 
 		if (tag & O_VERTICES)
 			for (index_t i = 0; i < vertex_field.length(); i++)
 				for (BYTE k = 0; k < 8; k++)
-					if (Vec::allGreater(vertex_field[i]->position,child[k]->dim.lower) && Vec::allLess(vertex_field[i]->position,child[k]->dim.upper))
+					if (child[k]->dim.contains(vertex_field[i]->position))
 						vbuffer[k][vbuffered[k]++] = vertex_field[i];
 
 		if (tag & O_EDGES)
@@ -6043,7 +6043,7 @@ namespace ObjectMath
 				BYTE define[3];
 
 				for (BYTE j = 0; j < 2; j++)
-					if (Vec::allGreater(edge_field[i]->vertex[j]->position,dim.lower) && Vec::allLess(edge_field[i]->vertex[j]->position,dim.upper))
+					if (dim.contains(edge_field[i]->vertex[j]->position))
 					{
 						for (BYTE k = 0; k < 3; k++)
 							define[k] = edge_field[i]->vertex[j]->position.v[k] > half.v[k];
@@ -6059,15 +6059,16 @@ namespace ObjectMath
 					{
 						BYTE	x = (k+1)%3,
 								y = (k+2)%3;
+						TVec3<C>	corner[2] = {dim.min(),dim.max()};
 						for (BYTE j = 0; j < 2; j++)
 						{
 							define[k] = j;
-							C		alpha = (dim.corner[j].v[k]-edge_field[i]->v0->position.v[k])/dir.v[k];
+							C		alpha = (corner[j].v[k]-edge_field[i]->v0->position.v[k])/dir.v[k];
 							if (alpha > 1 || alpha < 0)
 								continue;
 							C		vx = edge_field[i]->v0->position.v[x] + dir.v[x] *alpha,
 									vy = edge_field[i]->v0->position.v[y] + dir.v[y] *alpha;
-							if (vx < dim.lower.v[x] || vx > dim.upper.v[x] || vy < dim.lower.v[y] || vy > dim.upper.v[y])
+							if (!dim.axis[x].contains(vx) || !dim.axis[y].contains(vy))
 								continue;
 							define[x] = vx > half.v[x];
 							define[y] = vy > half.v[y];
@@ -6078,7 +6079,7 @@ namespace ObjectMath
 							continue;
 						C	vx = edge_field[i]->v0->position.v[x] + dir.v[x] *alpha,
 							vy = edge_field[i]->v0->position.v[y] + dir.v[y] *alpha;
-						if (vx < dim.lower.v[x] || vx > dim.upper.v[x] || vy < dim.lower.v[y] || vy > dim.upper.v[y])
+						if (!dim.axis[x].contains(vx) || !dim.axis[y].contains(vy))
 							continue;
 						define[k] = 0;
 						define[x] = vx > half.v[x];
@@ -6099,7 +6100,7 @@ namespace ObjectMath
 				BYTE define[3];
 
 				for (BYTE j = 0; j < 3; j++)
-					if (Vec::oneLess(triangle_field[i]->vertex[j]->position,dim.lower) || Vec::oneGreater(triangle_field[i]->vertex[j]->position,dim.upper))
+					if (!dim.contains(triangle_field[i]->vertex[j]->position))
 						continue;
 					else
 					{
@@ -6116,15 +6117,17 @@ namespace ObjectMath
 						{
 							BYTE x = (k+1)%3,
 									y = (k+2)%3;
+							TVec3<C>	corner[2] = {dim.min(),dim.max()};
+
 							for (BYTE j = 0; j < 2; j++)
 							{
 								define[k] = j;
-								C	alpha = (dim.corner[j].v[k]-triangle_field[i]->vertex[h]->position.v[k])/dir.v[k];
+								C	alpha = (corner[j].v[k]-triangle_field[i]->vertex[h]->position.v[k])/dir.v[k];
 								if (alpha > 1 || alpha < 0)
 									continue;
 								C	vx = triangle_field[i]->vertex[h]->position.v[x] + dir.v[x] *alpha,
 									vy = triangle_field[i]->vertex[h]->position.v[y] + dir.v[y] *alpha;
-								if (vx < dim.lower.v[x] || vx > dim.upper.v[x] || vy < dim.lower.v[y] || vy > dim.upper.v[y])
+								if (!dim.axis[x].contains(vx) || !dim.axis[y].contains(vy))
 									continue;
 								define[x] = vx > half.v[x];
 								define[y] = vy > half.v[y];
@@ -6135,7 +6138,7 @@ namespace ObjectMath
 								continue;
 							C	vx = triangle_field[i]->vertex[h]->position.v[x] + dir.v[x] *alpha,
 								vy = triangle_field[i]->vertex[h]->position.v[y] + dir.v[y] *alpha;
-							if (vx < dim.lower.v[x] || vx > dim.upper.v[x] || vy < dim.lower.v[y] || vy > dim.upper.v[y])
+							if (!dim.axis[x].contains(vx) || !dim.axis[y].contains(vy))
 								continue;
 							define[k] = 0;
 							define[x] = vx > half.v[x];
@@ -6157,13 +6160,13 @@ namespace ObjectMath
 						for (BYTE fy = 0; fy < 3; fy++)
 						{
 							TVec3<C> a,d={0,0,0};
-							a = dim.lower;
+							a = dim.min();
 
 							BYTE	x = (k+1)%3,
 									y = (k+2)%3;
-							a.v[x] += (dim.upper.v[x] - dim.lower.v[x])/2 * fx;
-							a.v[y] += (dim.upper.v[y] - dim.lower.v[y])/2 * fy;
-							d.v[k] =	dim.upper.v[k] - dim.lower.v[k]; //so now we got the base point and direction;
+							a.v[x] += (dim.axis[x].extend())/2 * fx;
+							a.v[y] += (dim.axis[y].extend())/2 * fy;
+							d.v[k] =	dim.axis[k].extend(); //so now we got the base point and direction;
 							TVec3<C>	n0,n1,cross_point,dif;
 							C	div = Vec::dot(d, normal);
 							if (!div)
@@ -6203,7 +6206,7 @@ namespace ObjectMath
 				BYTE define[3];
 
 				for (BYTE j = 0; j < 4; j++)
-					if (Vec::oneLess(quad_field[i]->vertex[j]->position,dim.lower) || Vec::oneGreater(quad_field[i]->vertex[j]->position,dim.upper))
+					if (!dim.contains(quad_field[i]->vertex[j]->position))
 						continue;
 					else
 					{
@@ -6220,15 +6223,17 @@ namespace ObjectMath
 						{
 							BYTE	x = (k+1)%3,
 									y = (k+2)%3;
+							TVec3<C>	corner[2] = {dim.min(),dim.max()};
+
 							for (BYTE j = 0; j < 2; j++)
 							{
 								define[k] = j;
-								C	alpha = (dim.corner[j].v[k]-quad_field[i]->vertex[h]->position.v[k])/dir.v[k];
+								C	alpha = (corner[j].v[k]-quad_field[i]->vertex[h]->position.v[k])/dir.v[k];
 								if (alpha > 1 || alpha < 0)
 									continue;
 								C	vx = quad_field[i]->vertex[h]->position.v[x] + dir.v[x] *alpha,
 									vy = quad_field[i]->vertex[h]->position.v[y] + dir.v[y] *alpha;
-								if (vx < dim.lower.v[x] || vx > dim.upper.v[x] || vy < dim.lower.v[y] || vy > dim.upper.v[y])
+								if (!dim.axis[x].contains(vx) || !dim.axis[y].contains(vy))
 									continue;
 								define[x] = vx > half.v[x];
 								define[y] = vy > half.v[y];
@@ -6239,7 +6244,7 @@ namespace ObjectMath
 								continue;
 							C	vx = quad_field[i]->vertex[h]->position.v[x] + dir.v[x] *alpha,
 								vy = quad_field[i]->vertex[h]->position.v[y] + dir.v[y] *alpha;
-							if (vx < dim.lower.v[x] || vx > dim.upper.v[x] || vy < dim.lower.v[y] || vy > dim.upper.v[y])
+							if (!dim.axis[x].contains(vx) || !dim.axis[y].contains(vy))
 								continue;
 							define[k] = 0;
 							define[x] = vx > half.v[x];
@@ -6263,12 +6268,12 @@ namespace ObjectMath
 							for (BYTE fy = 0; fy < 3; fy++)
 							{
 								TVec3<C> a,d={0,0,0};
-								a = dim.lower;
+								a = dim.min();
 								BYTE	x = (k+1)%3,
 										y = (k+2)%3;
-								a.v[x] += (dim.upper.v[x] - dim.lower.v[x])/2 * fx;
-								a.v[y] += (dim.upper.v[y] - dim.lower.v[y])/2 * fy;
-								d.v[k] =	dim.upper.v[k] - dim.lower.v[k]; //so now we got the base point and direction;
+								a.v[x] += (dim.axis[x].extend())/2 * fx;
+								a.v[y] += (dim.axis[y].extend())/2 * fy;
+								d.v[k] =	dim.axis[k].extend(); //so now we got the base point and direction;
 								TVec3<C>	n0,n1,cross_point,dif;
 								C	div = Vec::dot(d, normal);
 								if (!div)
@@ -6305,12 +6310,12 @@ namespace ObjectMath
 							for (BYTE fy = 0; fy < 3; fy++)
 							{
 								TVec3<C> a,d={0,0,0};
-								a = dim.lower;
+								a = dim.min();
 								BYTE	x = (k+1)%3,
 										y = (k+2)%3;
-								a.v[x] += (dim.upper.v[x] - dim.lower.v[x])/2 * fx;
-								a.v[y] += (dim.upper.v[y] - dim.lower.v[y])/2 * fy;
-								d.v[k] =	dim.upper.v[k] - dim.lower.v[k]; //so now we got the base point and direction;
+								a.v[x] += (dim.axis[x].extend())/2 * fx;
+								a.v[y] += (dim.axis[y].extend())/2 * fy;
+								d.v[k] =	dim.axis[k].extend(); //so now we got the base point and direction;
 								TVec3<C>	n0,n1,cross_point,dif;
 								C	div = Vec::dot(d, normal);
 								if (!div)

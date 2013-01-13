@@ -1299,11 +1299,10 @@ namespace Converter
 			
 			if (vertex_field.length())
 			{
-				TBox<Def::FloatType> dim;
-				dim.lower = dim.upper = vertex_field.first().p;
+				Box<Def::FloatType> dim(vertex_field.first().p,vertex_field.first().p);
 				//pool[0]->index = 0;
 
-				vs_hull.vertex_field[0].position = dim.lower;
+				vs_hull.vertex_field[0].position = dim.min();
 			
 				for (index_t j = 1; j < pool.count(); j++)
 				{
@@ -1312,9 +1311,9 @@ namespace Converter
 					_oDetDimension(vs_hull.vertex_field[j].position,dim);
 				}
 
-				logMessage("extracted dimensions of '"+child.name+"': "+Vec::toString(dim.lower)+" - "+Vec::toString(dim.upper));
+				logMessage("extracted dimensions of '"+child.name+"': "+dim.toString());
 				
-				Vec::center(dim.lower,dim.upper,child.meta.system.w.xyz);
+				dim.getCenter(child.meta.system.w.xyz);
 				for (index_t j = 0; j < vs_hull.vertex_field.length(); j++)
 					Vec::sub(vs_hull.vertex_field[j].position,child.meta.system.w.xyz);
 					

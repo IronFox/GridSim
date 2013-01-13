@@ -439,7 +439,7 @@ namespace Engine
 			if (!renderer)
 				return;
 			TMatrix4<> matrix = Matrix<>::eye4;
-			matrix.w.xy = Base::position.v0;
+			matrix.w.xy = Base::position.min();
 			matrix.x.x = Base::position.width();
 			matrix.y.y = Base::position.height();
 			renderer->enterSubSystem(matrix);
@@ -460,7 +460,7 @@ namespace Engine
 			
 			float indent = active_textout->scaledLength('X');
 			
-			float x = Base::position.right+indent/2;
+			float x = Base::position.x.max+indent/2;
 			
 			if (caption_left)
 			{
@@ -480,11 +480,11 @@ namespace Engine
 					}
 				}
 				
-				x = Base::position.left-width-indent/2;
+				x = Base::position.x.min-width-indent/2;
 			}
-			float y = Base::position.bottom;
+			float y = Base::position.y.min;
 			
-			active_textout->locate(Base::position.left+indent/2,Base::position.top-active_textout->state.y_scale);
+			active_textout->locate(Base::position.x.min+indent/2,Base::position.y.max-active_textout->state.y_scale);
 			active_textout->color(1,1,1);
 			active_textout->print(Base::name);
 			
@@ -493,7 +493,7 @@ namespace Engine
 			if (group >= 0 && (index_t)group < data->groups() && channel >= 0 && (index_t)channel < data->group(group).channels())
 				exclusive = &data->group(group).channel(channel);
 			
-			float 	base = Base::position.bottom,
+			float 	base = Base::position.y.min,
 					font_height = active_textout->state.scale_y*active_textout->getFont().getHeight();
 			
 			if ((view != Solid || exclusive) && print_channel_names)
@@ -538,7 +538,7 @@ namespace Engine
 								active_textout->color(color,0.5);
 								active_textout->locate(x,y);
 								
-								active_textout->locate(Base::position.right-active_textout->scaledLength(channel.name),base+this_height*0.65-font_height*0.5);
+								active_textout->locate(Base::position.x.max-active_textout->scaledLength(channel.name),base+this_height*0.65-font_height*0.5);
 								active_textout->print(channel.name);
 							
 							
@@ -558,7 +558,7 @@ namespace Engine
 			}
 			active_textout->color(1,1,1);
 			
-			active_textout->locate(position.right-active_textout->scaledLength(str_current)-indent/2, position.top-active_textout->state.y_scale*active_textout->getFont().getHeight());
+			active_textout->locate(position.x.max-active_textout->scaledLength(str_current)-indent/2, position.y.max-active_textout->state.y_scale*active_textout->getFont().getHeight());
 			active_textout->print(str_current);
 			
 		}

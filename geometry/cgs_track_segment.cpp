@@ -53,7 +53,7 @@ namespace CGS
 		ASSERT_EQUAL__(connectors.count(),stub->geometry.connector_field.length());
 		ASSERT_EQUAL__(nodes.count(),stub->geometry.connector_field.length());
 		
-		float offset = -stub->dim.upper.z;
+		float offset = -stub->dim.z.max;
 		//(is_outbound)?-stub->dim[2]:-stub->dim[5];	//stubs are rotated. always upper boundary :P
 		//lout << "outbound is "<<(is_outbound?"true":"false")<<nl;
 		//lout << "stub offset is "<<offset<<nl;
@@ -785,8 +785,7 @@ namespace CGS
 		/*TFrame		frame[Resolution];
 		for (index_t i = 0; i < Resolution; i++)*/
 		
-		TVec3<>	range;
-		Vec::sub(source.dim.upper,source.dim.lower,range);
+		TVec3<>	range = source.dim.extend();
 		
 		//::lout << "bending segment with"<<nl;
 		//lout << " dim="<<Vec::toString(source.dim.lower)<<'-'<<Vec::toString(source.dim.upper)<<nl;
@@ -857,7 +856,7 @@ namespace CGS
 					{
 						float*vout = vfield+l*frame_length;
 						float z = p.z;
-						float rel = 1.0f-((z-source.dim.lower.z)/zrange+segment_length*l);
+						float rel = 1.0f-((z-source.dim.z.min)/zrange+segment_length*l);
 						TFrame vec;
 						interpolate(rel,vec);
 						{
@@ -956,7 +955,7 @@ namespace CGS
 				const Mesh<Def>	&source_hull = source_objects[i]->vs_hull_field[j];
 				Mesh<Def>	&target_hull = objects[i]->vs_hull_field[j];
 
-				bendHull(source_hull,target_hull,repeat,source.dim.lower.z, zrange, segment_length, stretch, path, center);
+				bendHull(source_hull,target_hull,repeat,source.dim.z.min, zrange, segment_length, stretch, path, center);
 				
 				//Mesh<Def>	nobj;
 			}
@@ -966,7 +965,7 @@ namespace CGS
 			const Mesh<Def>	&source_hull = source_objects[i]->ph_hull;
 			Mesh<Def>	&target_hull = objects[i]->ph_hull;
 
-			bendHull(source_hull,target_hull,repeat,source.dim.lower.z, zrange, segment_length, stretch, path, center);
+			bendHull(source_hull,target_hull,repeat,source.dim.z.min, zrange, segment_length, stretch, path, center);
 		}
 		/*for (index_t i = 0; i < objects.count(); i++)
 			Mat::eye(objects[i]->meta.system);*/

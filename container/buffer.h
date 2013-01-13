@@ -161,7 +161,7 @@ template <typename T, typename Strategy>
 
 
 	//! General buffer structure. Stores object copies rather than pointers making it extremely fast for primitive types
-template <typename T, count_t InitialLength=1024, typename Strategy=typename StrategySelector<T>::Default>
+template <typename T, count_t InitialLength=128, typename Strategy=typename StrategySelector<T>::Default>
 	class Buffer:public BasicBuffer<T,Strategy>
 	{
 	public:

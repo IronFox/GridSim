@@ -11,7 +11,7 @@ namespace CGS
 	{
 	public:
 			CGS::Geometry<>			geometry;	//!< Loaded geometry (may be empty, but usually isn't)
-			TBox<>					dim;		//!< Dimension of the loaded geometry
+			Box<>					dim;		//!< Dimension of the loaded geometry
 			String					filename;	//!< Filename that this geometry was originally loaded from
 			index_t					index;		//!< Linearized index of this tile.
 			

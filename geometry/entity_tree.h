@@ -16,7 +16,7 @@
 class EntityTree
 {
 public:
-		typedef TBox<>	Volume;
+		typedef Box<>	Volume;
 		
 		class Entity
 		{
@@ -35,7 +35,7 @@ public:
 
 	
 protected:
-		Buffer<Entity*>					entities;		//!< Entities mapped to the local tree node
+		Buffer<Entity*>						entities;		//!< Entities mapped to the local tree node
 		Volume								volume;			//!< Effective volume of the local tree node
 		TVec3<>								split;			//!< Composite used to split the local volume into up to 8 child volumes.
 		EntityTree							*child[8];		//!< Pointer to the respective children (up to 8). Any of these may be NULL.

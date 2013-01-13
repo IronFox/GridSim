@@ -2312,18 +2312,17 @@ template <class C> bool SubGeometryA<Def>::extractDimensions(const TMatrix4<type
 	{
 		def = true;
 		TVec3<C>	p;
-		TBox<C>		local;
 
 		Mat::transform(lsystem,vs_hull_field[0].vertex_field[0].position,p);
-		local.lower = local.upper = p;
+		Box<C>		local(p,p);
 
 		for (index_t i = 1; i < vs_hull_field[0].vertex_field.length(); i++)
 		{
 			Mat::transform(lsystem,vs_hull_field[0].vertex_field[i].position,p);
 			_oDetDimension(p,local);
 		}
-		parser.parse(local.lower);
-		parser.parse(local.upper);
+		parser.parse(local.min());
+		parser.parse(local.max());
 	}
 	else
 		def = false;
@@ -2333,20 +2332,20 @@ template <class C> bool SubGeometryA<Def>::extractDimensions(const TMatrix4<type
 }
 
 template <class Def>
-template <class C> bool SubGeometryA<Def>::extractDimensions(TBox<C>&dim) const
+template <class C> bool SubGeometryA<Def>::extractDimensions(Box<C>&dim) const
 {
 	bool def;
 	if (vs_hull_field.length()&&vs_hull_field[0].vertex_field.length())
 	{
 		def = true;
-		dim.lower = dim.upper = vs_hull_field[0].vertex_field[0].position;
+		dim.set(vs_hull_field[0].vertex_field[0].position);
 
 		for (index_t i = 1; i < vs_hull_field[0].vertex_field.length(); i++)
-			_oDetDimension(vs_hull_field[0].vertex_field[i].position,dim);
+			dim.include(vs_hull_field[0].vertex_field[i].position);
 	}
 	else
 	{
-		dim.lower = dim.upper = Vector<C>::zero;
+		dim.setAll(0);
 		def = false;
 	}
 	return def;
@@ -2739,27 +2738,34 @@ template <class C> DimensionParser<C>::DimensionParser():set(false)
 template <class C>
 template <class C0> void DimensionParser<C>::parse(const C0 point[3])
 {
-	if (set)
-		_oDetDimension(Vec::ref3(point),dimension);
-	else
-	{
-		dimension.lower = dimension.upper = Vec::ref3(point);
-		set = true;
-	}
+	parse(Vec::ref3(point));
 }
 
 template <class C>
 template <class C0> void DimensionParser<C>::parse(const TVec3<C0>&point)
 {
 	if (set)
-		_oDetDimension(point,dimension);
+		dimension.include(point);
 	else
 	{
-		dimension.lower = dimension.upper = point;
+		dimension.set(point,point);
 		set = true;
 	}
 }
 
+template <class C>
+template <class C0> void DimensionParser<C>::parse(const Box<C0>&box)
+{
+	if (set)
+	{
+		dimension.include(box);
+	}
+	else
+	{
+		dimension = box;
+		set = true;
+	}
+}
 
 
 template <class Def>
@@ -4191,7 +4197,7 @@ template <class Def> const AnimatorA<Def>*Geometry<Def>::lookupAnimator(const St
 
 
 template <class Def>
-template <class C> bool Geometry<Def>::extractDimensions(TBox<C>&dim) const
+template <class C> bool Geometry<Def>::extractDimensions(Box<C>&dim) const
 {
 	if (!object_field.length())
 		return false;
@@ -4489,6 +4495,7 @@ template <class Def>
 			object_field[i].system_link = &object_field[i].path;
 			robj.tname = object_field[i].name;
 		}
+		material_field[0].info = ctr.colors;
 		material_field[0].info.layer_field.setSize(ctr.countTextureLayers());
 		for (index_t i = 0; i < ctr.countTextureLayers(); i++)
 		{
@@ -4503,10 +4510,13 @@ template <class Def>
 
 
 template <class Def> template <typename T0>
-	void	Geometry<Def>::makeBox(const TBox<T0>&b)
+	void	Geometry<Def>::makeBox(const Box<T0>&b)
 	{
-		const T0*l = b.lower.v,
-				*u = b.upper.v;
+		TVec3<T0>	lv,uv;
+		b.getMin(lv);
+		b.getMax(uv);
+		const T0*l = lv.v,
+				*u = uv.v;
 		Float	vertex_path[] = {
 								l[0],l[1],l[2],	-1,0,0,
 								l[0],l[1],u[2],	-1,0,0,
@@ -4590,8 +4600,8 @@ template <class Def>
 template <class Def>	
 	void	Geometry<Def>::makeBox(Float lower_x, Float lower_y, Float lower_z, Float upper_x, Float upper_y, Float upper_z)
 	{
-		TBox<Float> box = { lower_x, lower_y, lower_z,
-							upper_x, upper_y, upper_z};
+		Box<Float> box ( lower_x, lower_y, lower_z,
+							upper_x, upper_y, upper_z);
 		makeBox(box);
 	}
 

@@ -204,7 +204,7 @@ namespace Engine
 		target->extractRadius(radius);
 		if (!radius)
 			radius = 1;
-		SCENERY_LOG(" dim = "+Vec::toString(dim.lower)+" - "+Vec::toString(dim.upper));
+		SCENERY_LOG(" dim = "+dim.toString());
 		SCENERY_LOG(" radius = "+String(radius));
 		//target->extractAverageVisualEdgeLength(0,average_edge_length);
 	    rescale();
@@ -221,14 +221,14 @@ namespace Engine
 
 	template <class Def> void ObjectEntity<Def>::updateCage()
 	{
-	    Vec::def(cage[0],dim.lower.v[0],dim.lower.v[1],dim.lower.v[2],1);
-	    Vec::def(cage[1],dim.lower.v[0],dim.lower.v[1],dim.upper.v[2],1);
-	    Vec::def(cage[2],dim.lower.v[0],dim.upper.v[1],dim.lower.v[2],1);
-	    Vec::def(cage[3],dim.lower.v[0],dim.upper.v[1],dim.upper.v[2],1);
-	    Vec::def(cage[4],dim.upper.v[0],dim.lower.v[1],dim.lower.v[2],1);
-	    Vec::def(cage[5],dim.upper.v[0],dim.lower.v[1],dim.upper.v[2],1);
-	    Vec::def(cage[6],dim.upper.v[0],dim.upper.v[1],dim.lower.v[2],1);
-	    Vec::def(cage[7],dim.upper.v[0],dim.upper.v[1],dim.upper.v[2],1);
+	    Vec::def(cage[0],dim.x.min,dim.y.min,dim.z.min,1);
+	    Vec::def(cage[1],dim.x.min,dim.y.min,dim.z.max,1);
+	    Vec::def(cage[2],dim.x.min,dim.y.max,dim.z.min,1);
+	    Vec::def(cage[3],dim.x.min,dim.y.max,dim.z.max,1);
+	    Vec::def(cage[4],dim.x.max,dim.y.min,dim.z.min,1);
+	    Vec::def(cage[5],dim.x.max,dim.y.min,dim.z.max,1);
+	    Vec::def(cage[6],dim.x.max,dim.y.max,dim.z.min,1);
+	    Vec::def(cage[7],dim.x.max,dim.y.max,dim.z.max,1);
 	    /*
 	    Vec::multiply(cage[0],sys_scale);
 	    Vec::multiply(cage[1],sys_scale);
@@ -1848,14 +1848,19 @@ namespace Engine
 				BYTE p[3] = {k / 4,
 							 k % 4 / 2,
 							 k % 4 % 2};
-				Volume d;
 				bool collapsed(false);
+				TVec3<typename Def::FloatType>	min,max,out_min,out_max;
+				volume.getMin(min);
+				volume.getMax(max);
+
+				
 				for (BYTE j = 0; j < 3; j++)
 				{
-					d.lower.v[j] = p[j]?split.v[j]:volume.lower.v[j];
-					d.upper.v[j] = p[j]?volume.upper.v[j]:split.v[j];
-					collapsed |= (d.upper.v[j]-d.lower.v[j]) < (volume.upper.v[j]-volume.lower.v[j])/20;
+					out_min.v[j] = p[j]?split.v[j]:min.v[j];
+					out_max.v[j] = p[j]?max.v[j]:split.v[j];
+					collapsed |= (out_max.v[j]-out_min.v[j]) < (max.v[j]-min.v[j])/20;
 				}
+				Volume d(out_min,out_max);
 				if (!collapsed)
 				{
 					child[k] = SHIELDED(new Tree(d, level-1));
@@ -2430,7 +2435,7 @@ namespace Engine
 		}
 		
 	template <class GL, class Def> template <typename T>
-		void 			MappedScenery<GL,Def>::lookup(const TBox<T>&box, Buffer<ObjectEntity<Def>*>&out, const StructureEntity<Def>*exclude)
+		void 			MappedScenery<GL,Def>::lookup(const Box<T>&box, Buffer<ObjectEntity<Def>*>&out, const StructureEntity<Def>*exclude)
 		{
 			tree.lookup(box, out, exclude);
 		}
@@ -2639,9 +2644,10 @@ namespace Engine
 					entity->invert_set = true;
 				}
 				Mat::transform(entity->invert,center,inner_center);
-				TBox<typename VsDef::Type> inner_volume;
-				Vec::sub(inner_center,radius,inner_volume.lower);
-				Vec::add(inner_center,radius,inner_volume.upper);
+				Box<typename VsDef::Type> inner_volume;
+				inner_volume.setCenter(inner_center,radius);
+				//Vec::sub(inner_center,radius,inner_volume.lower);
+				//Vec::add(inner_center,radius,inner_volume.upper);
 				unsigned cnt = obj.map->lookup(inner_volume);
 				if (!cnt)
 					continue;

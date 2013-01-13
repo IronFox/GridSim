@@ -109,7 +109,7 @@ namespace Map	//! Geometrical scenario composition
 		
 			TVec3<>					position,						//!< Position of this entity in R3. This vector is undefined if \b flags contains \b NoPosition
 									y_align;						//!< Y-Align of the local entity. The y alignment directly defines the y-axis if the local entity is non-directional, otherwise the effective y-axis approximates this vector. This vector is undefined if \b flags contains \b NoOrientation
-			TBox<>					constraints;					//!< Dimensional constraints. The first three components define the lower box corner, the last three the upper box corner. Constraints are local (relative to the local system)
+			Box<>					constraints;					//!< Dimensional constraints. The first three components define the lower box corner, the last three the upper box corner. Constraints are local (relative to the local system)
 			TMatrix4<>				system,							//!< Effective entity system (4x4 out matrix). This matrix is undefined if \b flags contains \b NoPosition. This system may directly be passed to rendering contexts such as OpenGL
 									inverse;						//!< Inverse of the entity system (4x4 in matrix). This matrix is automatically updated when the system matrix is recompiled.
 			union
@@ -129,8 +129,8 @@ namespace Map	//! Geometrical scenario composition
 										position = Vector<>::zero;
 										y_align = Vector<>::y_axis;
 										x_align = Vector<>::x_axis;
-										Vec::set(constraints.lower,-1);
-										Vec::set(constraints.upper,1);
+										constraints.setAllMin(-1);
+										constraints.setAllMax(1);
 									}
 									/*!
 										\brief Entity class constructor
@@ -145,8 +145,8 @@ namespace Map	//! Geometrical scenario composition
 										position = Vector<>::zero;
 										y_align = Vector<>::y_axis;
 										x_align = Vector<>::x_axis;
-										Vec::set(constraints.lower,-1);
-										Vec::set(constraints.upper,1);
+										constraints.setAllMin(-1);
+										constraints.setAllMax(1);
 									}
 									Entity(Entity&&other):sub_line(other.sub_line),position(other.position),y_align(other.y_align),constraints(other.constraints),system(other.system),inverse(other.inverse),
 															x_align(other.x_align),flags(other.flags),order(other.order),name(other.name),entity_class(other.entity_class),composition(other.composition)
@@ -410,7 +410,7 @@ namespace Map	//! Geometrical scenario composition
 									geometry_orthogonal;
 				Instance			geometry_instance;
 				float				scale;
-				TBox<float>			object_bounds;
+				Box<>				object_bounds;
 				//TreeLib::Tree		tree;
 
 
@@ -732,7 +732,7 @@ namespace Map	//! Geometrical scenario composition
 										*context;
 			
 	public:
-			Instance					loadGeometry(const String&filename, float scale, const FileSystem::Folder&load_context, TBox<>&constraints);
+			Instance					loadGeometry(const String&filename, float scale, const FileSystem::Folder&load_context, Box<>&constraints);
 			CGS::Tile*					loadGeometry(const String&filename, float scale, const FileSystem::Folder&load_context);
 	
 			Composition					*parent;	//!< Pointer to a respective parent Composition instance or NULL

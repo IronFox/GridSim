@@ -252,7 +252,7 @@ namespace ObjectMath	//! Collection of geometry related mathematical functions a
 		\param dimensions Out dimension field
 		\param band Number of dimensions
 	*/
-	MFUNC2	(void)		_oDetDimension(const TVec3<C0>&vertex, TBox<C1>&dimensions);
+	MFUNC2	(void)		_oDetDimension(const TVec3<C0>&vertex, Box<C1>&dimensions);
 	MFUNC3	(void)		_oDetDimension(const TVec3<C0>&vertex, TVec3<C1>&lower, TVec3<C2>&upper);	//!< Identical to the above for separate lower/upper boundaries
 	MFUNC2V (void)		_oDetDimensionV(const C0*vertex, C1*dimensions);			//!< Compile time defined variable version of _oDetDimension()
 	
@@ -375,7 +375,7 @@ namespace ObjectMath	//! Collection of geometry related mathematical functions a
 		\param distance In/out distance scalar. This value will be updated if a closer (positive) intersection was detected.
 		\return true if a positive intersection closer than the specified distance was detected, false otherwise. The specified distance value remains unchanged if the result is false.
 	*/
-	MFUNC4	(bool)		_oDetectOpticalBoxIntersection(const TBox<C0>&box, const TVec3<C1>&b, const TVec3<C2>&d, C3&distance );
+	MFUNC4	(bool)		_oDetectOpticalBoxIntersection(const Box<C0>&box, const TVec3<C1>&b, const TVec3<C2>&d, C3&distance );
 	
 	/*!
 		\brief Checks if the specified edge and box intersect
@@ -385,7 +385,7 @@ namespace ObjectMath	//! Collection of geometry related mathematical functions a
 		\param box Volume field with the first three components describing the lower, the last three components the upper boundaries of the box.
 		\return true if an intersection was detected, false otherwise.
 	*/
-	MFUNC3	(bool)		_oIntersectsBox(const TVec3<C0>&p0, const TVec3<C1>&p1, const TBox<C2>&box);
+	MFUNC3	(bool)		_oIntersectsBox(const TVec3<C0>&p0, const TVec3<C1>&p1, const Box<C2>&box);
 	
 	/*!
 		\brief Projects a point onto a plane
@@ -1143,8 +1143,8 @@ namespace ObjectMath	//! Collection of geometry related mathematical functions a
 		MF_DECLARE	(void)						verifyIntegrity()									const;	//!< Checks the validity of the local geometry and triggers a fatal exception if it isn't.
 		MF_DECLARE	(bool)						valid(bool check_range=true)						const;	//!< Checks the validity of the local geometry. \param check_range Set true to also check link pointers for broken links, otherwise just for broken neighbor links and collapsed vertex pointers. \return true if the local geometry is found valid, false otherwise. Use errorStr() to retrieve an error description if the method returns false.
 		MF_DECLARE	(String)					errorStr()											const;	//!< Generates a string representation of the last occured error
-		MF_DECLARE	(void)						vertexDimensions(TBox<typename Def::Type>&field)	const;	//!< Determines a box enclosing all local vertices \param field Out bounding box with the first three components defining the lower corner and the last three components defining the upper corner
-		MF_DECLARE	(void)						getBoundingBox(TBox<typename Def::Type>&field)		const	{vertexDimensions(field);}	//!< Determines a box enclosing all local vertices \param field Out bounding box with the first three components defining the lower corner and the last three components defining the upper corner
+		MF_DECLARE	(void)						vertexDimensions(Box<typename Def::Type>&field)	const;	//!< Determines a box enclosing all local vertices \param field Out bounding box with the first three components defining the lower corner and the last three components defining the upper corner
+		MF_DECLARE	(void)						getBoundingBox(Box<typename Def::Type>&field)		const	{vertexDimensions(field);}	//!< Determines a box enclosing all local vertices \param field Out bounding box with the first three components defining the lower corner and the last three components defining the upper corner
 
 		template <typename T>
 		MF_DECLARE	(void)						scale(const T&factor);									//!< Scales the local geometry by the specified factor.
@@ -1202,7 +1202,7 @@ namespace ObjectMath	//! Collection of geometry related mathematical functions a
 		public:
 			static	Buffer<ObjMap<Def>*>sector_map;					//!< Global sector lookup buffer
 	
-			TBox<C>						dim;								//!< Bounding box
+			Box<C>						dim;								//!< Bounding box
 			ObjMap<Def>*				child[8];							//!< Pointer to node children or NULL if the respective child does not exist
 			unsigned					level;								//!< Recursive level of the local map (0=lowest level/leaf)
 			count_t						bad_hits;							//!< Number of double mappings encountered during the last lookup
@@ -1213,7 +1213,7 @@ namespace ObjectMath	//! Collection of geometry related mathematical functions a
 
 										ObjMap(unsigned depth, bool keep = false);		//!< Default map constructor \param depth Maximum recursion depth \param keep Forwarded to the local \b keep_dimensions variable
 										ObjMap(const ObjMap<Def>&other);				//!< Copy constructor
-										ObjMap(const TBox<C>&dimension, unsigned level);	//!< Default child constructor \param dimension Bounding box of this node \param level Recursive level of this node
+										ObjMap(const Box<C>&dimension, unsigned level);	//!< Default child constructor \param dimension Bounding box of this node \param level Recursive level of this node
 			virtual						~ObjMap();
 			MF_DECLARE	(void)			map(Mesh<Def>&mesh, BYTE tag);					//!< Recursivly maps the specified mesh into the local tree \param mesh Mesh to map \param tag Components that should be mapped. May be any combination of O_VERTICES, O_EDGES, O_TRIANGLES, and O_QUADS. Additionally O_FACES combine O_TRIANGLES and O_QUADS and O_ALL means all components. Non specified components are not mapped. 
 			MF_DECLARE	(void)			drop(index_t index, BYTE tag = O_ALL);				//!< Drops all elements of the specified type and index

@@ -247,8 +247,8 @@ namespace Engine
 
 		void						Operator::showMenu(const shared_ptr<Window>&menu_window)
 		{
-			/*			result->x = region.centerX()-display->clientWidth()/2;
-				result->y = region.centerY()-display->clientHeight()/2;*/
+			/*			result->x = region.x.center()-display->clientWidth()/2;
+				result->y = region.y.center()-display->clientHeight()/2;*/
 
 			float	w = display->clientWidth()/2,
 					h = display->clientHeight()/2;
@@ -288,34 +288,34 @@ namespace Engine
 			{
 				case 0:
 					glBegin(GL_QUADS);
-						glTexCoord2f(0,0); glVertex2f(cell.region.left,cell.region.bottom);
-						glTexCoord2f(1,0); glVertex2f(cell.region.right,cell.region.bottom);
-						glTexCoord2f(1,1); glVertex2f(cell.region.right,cell.region.top);
-						glTexCoord2f(0,1); glVertex2f(cell.region.left,cell.region.top);
+						glTexCoord2f(0,0); glVertex2f(cell.region.x.min,cell.region.y.min);
+						glTexCoord2f(1,0); glVertex2f(cell.region.x.max,cell.region.y.min);
+						glTexCoord2f(1,1); glVertex2f(cell.region.x.max,cell.region.y.max);
+						glTexCoord2f(0,1); glVertex2f(cell.region.x.min,cell.region.y.max);
 					glEnd();
 				break;
 				case 1:
 					glBegin(GL_QUADS);
-						glTexCoord2f(1,0); glVertex2f(cell.region.left,cell.region.bottom);
-						glTexCoord2f(1,1); glVertex2f(cell.region.right,cell.region.bottom);
-						glTexCoord2f(0,1); glVertex2f(cell.region.right,cell.region.top);
-						glTexCoord2f(0,0); glVertex2f(cell.region.left,cell.region.top);
+						glTexCoord2f(1,0); glVertex2f(cell.region.x.min,cell.region.y.min);
+						glTexCoord2f(1,1); glVertex2f(cell.region.x.max,cell.region.y.min);
+						glTexCoord2f(0,1); glVertex2f(cell.region.x.max,cell.region.y.max);
+						glTexCoord2f(0,0); glVertex2f(cell.region.x.min,cell.region.y.max);
 					glEnd();
 				break;
 				case 2:
 					glBegin(GL_QUADS);
-						glTexCoord2f(1,1); glVertex2f(cell.region.left,cell.region.bottom);
-						glTexCoord2f(0,1); glVertex2f(cell.region.right,cell.region.bottom);
-						glTexCoord2f(0,0); glVertex2f(cell.region.right,cell.region.top);
-						glTexCoord2f(1,0); glVertex2f(cell.region.left,cell.region.top);
+						glTexCoord2f(1,1); glVertex2f(cell.region.x.min,cell.region.y.min);
+						glTexCoord2f(0,1); glVertex2f(cell.region.x.max,cell.region.y.min);
+						glTexCoord2f(0,0); glVertex2f(cell.region.x.max,cell.region.y.max);
+						glTexCoord2f(1,0); glVertex2f(cell.region.x.min,cell.region.y.max);
 					glEnd();
 				break;
 				case 3:
 					glBegin(GL_QUADS);
-						glTexCoord2f(0,1); glVertex2f(cell.region.left,cell.region.bottom);
-						glTexCoord2f(0,0); glVertex2f(cell.region.right,cell.region.bottom);
-						glTexCoord2f(1,0); glVertex2f(cell.region.right,cell.region.top);
-						glTexCoord2f(1,1); glVertex2f(cell.region.left,cell.region.top);
+						glTexCoord2f(0,1); glVertex2f(cell.region.x.min,cell.region.y.min);
+						glTexCoord2f(0,0); glVertex2f(cell.region.x.max,cell.region.y.min);
+						glTexCoord2f(1,0); glVertex2f(cell.region.x.max,cell.region.y.max);
+						glTexCoord2f(1,1); glVertex2f(cell.region.x.min,cell.region.y.max);
 					glEnd();
 				break;
 			}
@@ -334,37 +334,37 @@ namespace Engine
 			{
 				case 0:
 					glBegin(GL_QUADS);
-						glTexCoord2f(0,0); glVertex2f(cell.region.left,cell.region.bottom);
-						glTexCoord2f(1,0); glVertex2f(cell.region.right,cell.region.bottom);
-						glTexCoord2f(1,1); glVertex2f(cell.region.right,cell.region.top);
-						glTexCoord2f(0,1); glVertex2f(cell.region.left,cell.region.top);
+						glTexCoord2f(0,0); glVertex2f(cell.region.x.min,cell.region.y.min);
+						glTexCoord2f(1,0); glVertex2f(cell.region.x.max,cell.region.y.min);
+						glTexCoord2f(1,1); glVertex2f(cell.region.x.max,cell.region.y.max);
+						glTexCoord2f(0,1); glVertex2f(cell.region.x.min,cell.region.y.max);
 					glEnd();
 				break;
 				case 1:
 					glRotatef(-90,0,0,1);
 					glBegin(GL_QUADS);
-						glTexCoord2f(1,0); glVertex2f(cell.region.left,cell.region.bottom);
-						glTexCoord2f(1,1); glVertex2f(cell.region.right,cell.region.bottom);
-						glTexCoord2f(0,1); glVertex2f(cell.region.right,cell.region.top);
-						glTexCoord2f(0,0); glVertex2f(cell.region.left,cell.region.top);
+						glTexCoord2f(1,0); glVertex2f(cell.region.x.min,cell.region.y.min);
+						glTexCoord2f(1,1); glVertex2f(cell.region.x.max,cell.region.y.min);
+						glTexCoord2f(0,1); glVertex2f(cell.region.x.max,cell.region.y.max);
+						glTexCoord2f(0,0); glVertex2f(cell.region.x.min,cell.region.y.max);
 					glEnd();
 				break;
 				case 2:
 					glRotatef(-180,0,0,1);
 					glBegin(GL_QUADS);
-						glTexCoord2f(1,1); glVertex2f(cell.region.left,cell.region.bottom);
-						glTexCoord2f(0,1); glVertex2f(cell.region.right,cell.region.bottom);
-						glTexCoord2f(0,0); glVertex2f(cell.region.right,cell.region.top);
-						glTexCoord2f(1,0); glVertex2f(cell.region.left,cell.region.top);
+						glTexCoord2f(1,1); glVertex2f(cell.region.x.min,cell.region.y.min);
+						glTexCoord2f(0,1); glVertex2f(cell.region.x.max,cell.region.y.min);
+						glTexCoord2f(0,0); glVertex2f(cell.region.x.max,cell.region.y.max);
+						glTexCoord2f(1,0); glVertex2f(cell.region.x.min,cell.region.y.max);
 					glEnd();
 				break;
 				case 3:
 					glRotatef(-270,0,0,1);
 					glBegin(GL_QUADS);
-						glTexCoord2f(0,1); glVertex2f(cell.region.left,cell.region.bottom);
-						glTexCoord2f(0,0); glVertex2f(cell.region.right,cell.region.bottom);
-						glTexCoord2f(1,0); glVertex2f(cell.region.right,cell.region.top);
-						glTexCoord2f(1,1); glVertex2f(cell.region.left,cell.region.top);
+						glTexCoord2f(0,1); glVertex2f(cell.region.x.min,cell.region.y.min);
+						glTexCoord2f(0,0); glVertex2f(cell.region.x.max,cell.region.y.min);
+						glTexCoord2f(1,0); glVertex2f(cell.region.x.max,cell.region.y.max);
+						glTexCoord2f(1,1); glVertex2f(cell.region.x.min,cell.region.y.max);
 					glEnd();
 				break;
 			}
@@ -613,10 +613,10 @@ namespace Engine
 		static inline void drawRect(const Rect<float>&rect)
 		{
 			glBegin(GL_LINE_LOOP);
-				glVertex2f(rect.left,rect.bottom);
-				glVertex2f(rect.right,rect.bottom);
-				glVertex2f(rect.right,rect.top);
-				glVertex2f(rect.left,rect.top);
+				glVertex2f(rect.x.min,rect.y.min);
+				glVertex2f(rect.x.max,rect.y.min);
+				glVertex2f(rect.x.max,rect.y.max);
+				glVertex2f(rect.x.min,rect.y.max);
 			glEnd();
 		}
 		
@@ -710,13 +710,13 @@ namespace Engine
 				if (segments.count() != 4)
 					throw IO::DriveAccess::FileFormatFault(globalString("'title_position' attribute of XML 'layout' node does not contain 4 comma-separated segments"));
 
-				if (!convert(segments[0].c_str(),title_position.left)
+				if (!convert(segments[0].c_str(),title_position.x.min)
 					||
-					!convert(segments[1].c_str(),title_position.bottom)
+					!convert(segments[1].c_str(),title_position.y.min)
 					||
-					!convert(segments[2].c_str(),title_position.right)
+					!convert(segments[2].c_str(),title_position.x.max)
 					||
-					!convert(segments[3].c_str(),title_position.top))
+					!convert(segments[3].c_str(),title_position.y.max))
 				{
 					throw IO::DriveAccess::FileFormatFault(globalString("One or more segments of 'title_position' attribute of XML 'layout' node could not be converted to float"));
 				}
@@ -731,13 +731,13 @@ namespace Engine
 				if (segments.count() != 4)
 					throw IO::DriveAccess::FileFormatFault(globalString("'border_edge' attribute of XML 'layout' node does not contain 4 comma-separated segments"));
 
-				if (!convert(segments[0].c_str(),border_edge.left)
+				if (!convert(segments[0].c_str(),border_edge.x.min)
 					||
-					!convert(segments[1].c_str(),border_edge.bottom)
+					!convert(segments[1].c_str(),border_edge.y.min)
 					||
-					!convert(segments[2].c_str(),border_edge.right)
+					!convert(segments[2].c_str(),border_edge.x.max)
 					||
-					!convert(segments[3].c_str(),border_edge.top))
+					!convert(segments[3].c_str(),border_edge.y.max))
 				{
 					throw IO::DriveAccess::FileFormatFault(globalString("One or more segments of 'border_edge' attribute of XML 'layout' node could not be converted to float"));
 				}
@@ -752,13 +752,13 @@ namespace Engine
 				if (segments.count() != 4)
 					throw IO::DriveAccess::FileFormatFault(globalString("'client_edge' attribute of XML 'layout' node does not contain 4 comma-separated segments"));
 
-				if (!convert(segments[0].c_str(),client_edge.left)
+				if (!convert(segments[0].c_str(),client_edge.x.min)
 					||
-					!convert(segments[1].c_str(),client_edge.bottom)
+					!convert(segments[1].c_str(),client_edge.y.min)
 					||
-					!convert(segments[2].c_str(),client_edge.right)
+					!convert(segments[2].c_str(),client_edge.x.max)
 					||
-					!convert(segments[3].c_str(),client_edge.top))
+					!convert(segments[3].c_str(),client_edge.y.max))
 				{
 					throw IO::DriveAccess::FileFormatFault(globalString("One or more segments of 'client_edge' attribute of XML 'layout' node could not be converted to float"));
 				}
@@ -876,10 +876,10 @@ namespace Engine
 		{
 			for (BYTE k = 0; k < 4; k++)
 			{
-				if (relative.coord[k] < 0)
-					target.coord[k] = window.coord[2+(k%2)]+relative.coord[k];
+				if (relative[k] < 0)
+					target[k] = window[2+(k%2)]+relative[k];
 				else
-					target.coord[k] = window.coord[(k%2)]+relative.coord[k];
+					target[k] = window[(k%2)]+relative[k];
 			}
 		}
 		
@@ -896,15 +896,15 @@ namespace Engine
 			if (variable_height < 0)
 				variable_height = 0;
 			
-			float y = window_location.top;
+			float y = window_location.y.max;
 			
 			unsigned cell_index = 0;
 			
-			layout.title.left = title_position.left>=0?window_location.left + title_position.left:window_location.right+title_position.left;
-			layout.title.right = title_position.right>=0?window_location.left + title_position.right:window_location.right+title_position.right;
+			layout.title.x.min = title_position.x.min>=0?window_location.x.min + title_position.x.min:window_location.x.max+title_position.x.min;
+			layout.title.x.max = title_position.x.max>=0?window_location.x.min + title_position.x.max:window_location.x.max+title_position.x.max;
 			
-			layout.title.bottom = title_position.bottom>=0?window_location.bottom + title_position.bottom:window_location.top+title_position.bottom;
-			layout.title.top = title_position.top>=0?window_location.bottom + title_position.top:window_location.top+title_position.top;
+			layout.title.y.min = title_position.y.min>=0?window_location.y.min + title_position.y.min:window_location.y.max+title_position.y.min;
+			layout.title.y.max = title_position.y.max>=0?window_location.y.min + title_position.y.max:window_location.y.max+title_position.y.max;
 			
 			
 			
@@ -918,7 +918,7 @@ namespace Engine
 				float variable_width = (width-row.fixed_width)/row.variable_cells;
 				if (variable_width < 0)
 					variable_width = 0;
-				float x = window_location.x0;
+				float x = window_location.x.min;
 				for (unsigned j = 0; j < row.cells.count(); j++)
 				{
 
@@ -928,10 +928,10 @@ namespace Engine
 					ASSERT2__(cell_index < cell_count,cell_index,cell_count);
 					TCellInstance&instance = layout.cells[cell_index++];
 					
-					instance.region.left = x;
-					instance.region.right = x+cell_width;
-					instance.region.top = y;
-					instance.region.bottom = y-row_height;
+					instance.region.x.min = x;
+					instance.region.x.max = x+cell_width;
+					instance.region.y.max = y;
+					instance.region.y.min = y-row_height;
 					//instance.width = cell.width;
 					instance.color_texture = &cell.color_texture;
 					instance.normal_texture = &cell.normal_texture;
@@ -942,14 +942,14 @@ namespace Engine
 				y-=row_height;
 			}
 			ASSERT_EQUAL__(cell_index,layout.cells.count());
-			layout.client.left = /* floor */round(window_location.left+client_edge.left);
-			layout.client.right = /* ceil */round(window_location.right-client_edge.right);
-			layout.client.bottom = /* floor */round(window_location.bottom+client_edge.bottom);
-			layout.client.top = /* ceil */round(window_location.top-client_edge.top);
-			layout.border.left = window_location.left+border_edge.left;
-			layout.border.right = window_location.right-border_edge.right;
-			layout.border.bottom = window_location.bottom+border_edge.bottom;
-			layout.border.top = window_location.top-border_edge.top;
+			layout.client.x.min = /* floor */round(window_location.x.min+client_edge.x.min);
+			layout.client.x.max = /* ceil */round(window_location.x.max-client_edge.x.max);
+			layout.client.y.min = /* floor */round(window_location.y.min+client_edge.y.min);
+			layout.client.y.max = /* ceil */round(window_location.y.max-client_edge.y.max);
+			layout.border.x.min = window_location.x.min+border_edge.x.min;
+			layout.border.x.max = window_location.x.max-border_edge.x.max;
+			layout.border.y.min = window_location.y.min+border_edge.y.min;
+			layout.border.y.max = window_location.y.max-border_edge.y.max;
 		}
 		
 
@@ -984,10 +984,9 @@ namespace Engine
 				ASSERT_IS_CONSTRAINED__(window->x,-100000,100000);
 				ASSERT_IS_CONSTRAINED__(window->y,-100000,100000);
 			#endif
-			Rect<float>	rect;
-			project(window.get(),-1,-1,rect.v0);
-			rect.v1 = rect.v0;
-			TVec2<float> p;
+			TVec2<> p;
+			project(window.get(),-1,-1,p);
+			Rect<>	rect(p,p);
 			project(window.get(),1,-1,p);
 			rect.include(p);
 			project(window.get(),1,1,p);
@@ -1005,7 +1004,7 @@ namespace Engine
 						continue;
 					}
 					Window*menu = menu_.get();
-					project(menu,-1,-1,rect.v0);
+					project(menu,-1,-1,p);
 					rect.include(p);
 					project(menu,1,-1,p);
 					rect.include(p);
@@ -1017,14 +1016,14 @@ namespace Engine
 			
 			
 			rect.expand(5);
-			rect.constrain(Rect<float>(0,0,w,h));
+			rect.constrainBy(Rect<float>(0,0,w,h));
 			if (rect.width() <= 0 || rect.height() <= 0)
 				return;
 			
 			if ((blur_effect || refract_effect) && !is_menu)	//menu reuses the copy before the top most non-menu window
 			{
 				glGetError();
-				glCopyTexSubImage2D(GL_TEXTURE_2D, 0, (int)rect.x0, (int)rect.y0, (int)rect.x0, (int)rect.y0,  (int)rect.width(), (int)rect.height());
+				glCopyTexSubImage2D(GL_TEXTURE_2D, 0, (int)rect.x.min, (int)rect.y.min, (int)rect.x.min, (int)rect.y.min,  (int)rect.width(), (int)rect.height());
 				if (glGetError())
 				{
 					//FATAL__("Failed to copy "+rect.toString());
@@ -1263,7 +1262,7 @@ namespace Engine
 				rs = component_link->minWidth(true);
 			if (layout)
 			{
-				rs += layout->client_edge.left+layout->client_edge.right;
+				rs += layout->client_edge.x.min+layout->client_edge.x.max;
 				if (rs < layout->min_width)
 					rs = layout->min_width;
 			}
@@ -1300,7 +1299,7 @@ namespace Engine
 				rs = component_link->minHeight(true);
 			if (layout)
 			{
-				rs += layout->client_edge.bottom+layout->client_edge.top;
+				rs += layout->client_edge.y.min+layout->client_edge.y.max;
 				if (rs < layout->min_height)
 					rs = layout->min_height;
 			}
@@ -1352,26 +1351,26 @@ namespace Engine
 			
 			if (!fixed_size && !fixed_position)
 			{
-				if (x > cell_layout.border.right-BorderWidth)
+				if (x > cell_layout.border.x.max-BorderWidth)
 				{
-					if (y > cell_layout.border.top-BorderWidth)
+					if (y > cell_layout.border.y.max-BorderWidth)
 						return ClickResult::ResizeTopRight;
-					if (y < cell_layout.border.bottom+BorderWidth)
+					if (y < cell_layout.border.y.min+BorderWidth)
 						return ClickResult::ResizeBottomRight;
 					return ClickResult::ResizeRight;
 				}
-				if (x < cell_layout.border.left+BorderWidth)
+				if (x < cell_layout.border.x.min+BorderWidth)
 				{
-					if (y > cell_layout.border.top-BorderWidth)
+					if (y > cell_layout.border.y.max-BorderWidth)
 						return ClickResult::ResizeTopLeft;
-					if (y < cell_layout.border.bottom+BorderWidth)
+					if (y < cell_layout.border.y.min+BorderWidth)
 						return ClickResult::ResizeBottomLeft;
 					return ClickResult::ResizeLeft;
 				}
 				
-				if (y > cell_layout.border.top-BorderWidth)
+				if (y > cell_layout.border.y.max-BorderWidth)
 					return ClickResult::ResizeTop;
-				if (y < cell_layout.border.bottom+BorderWidth)
+				if (y < cell_layout.border.y.min+BorderWidth)
 					return ClickResult::ResizeBottom;
 			}
 				
@@ -1405,9 +1404,9 @@ namespace Engine
 		
 		void		Operator::apply(const Rect<int>&port)
 		{
-			glViewport(port.left,port.bottom,port.width(),port.height());
-			texture_space.make(port.left,port.bottom,
-								port.right,port.top,
+			glViewport(port.x.min,port.y.min,port.width(),port.height());
+			texture_space.make(port.x.min,port.y.min,
+								port.x.max,port.y.max,
 								-1,1);
 			display->pick(texture_space);
 		}
@@ -1416,14 +1415,14 @@ namespace Engine
 		{
 			Rect<int>&next = focus_stack.append();
 			//next = region;
-			next.left = (int)floor(region.left);
-			next.bottom = (int)floor(region.bottom);
-			next.right = (int)ceil(region.right);
-			next.top = (int)ceil(region.top);
+			next.x.min = (int)floor(region.x.min);
+			next.y.min = (int)floor(region.y.min);
+			next.x.max = (int)ceil(region.x.max);
+			next.y.max = (int)ceil(region.y.max);
 			if (focus_stack.count() > 1)
 			{
 				const Rect<int>&prev = focus_stack[focus_stack.count()-2];
-				next.constrain(prev);
+				next.constrainBy(prev);
 			}
 			apply(next);
 		}
@@ -1441,10 +1440,10 @@ namespace Engine
 			static Viewport	current(Rect<float>(0,0,1,1));
 			Viewport rs = current;
 			current = port;
-			int l = (int)floor(port.left),
-				b = (int)floor(port.bottom),
-				r = (int)ceil(port.right),
-				t = (int)ceil(port.top);
+			int l = (int)floor(port.x.min),
+				b = (int)floor(port.y.min),
+				r = (int)ceil(port.x.max),
+				t = (int)ceil(port.y.max);
 			
 			glViewport(l+(int)port.absolute_dx,b+(int)port.absolute_dy,r-l,t-b);
 			texture_space.make(l,b,
@@ -1525,31 +1524,31 @@ namespace Engine
 			float	w = parent_region.width(),
 					h = parent_region.height();
 			for (BYTE k = 0; k < 4; k++)
-				if (anchored.coord[k])
-					region.coord[k] = parent_region.coord[k]+offset.coord[k];
+				if (anchored.value[k])
+					region[k] = parent_region[k]+offset.value[k];
 			if (!anchored.left)
 				if (anchored.right)
-					region.left = region.right-width;
+					region.x.min = region.x.max-width;
 				else
 				{
-					region.left = parent_region.centerX()-width/2;
-					region.right = region.left+width;
+					region.x.min = parent_region.x.center()-width/2;
+					region.x.max = region.x.min+width;
 				}
 			else
 				if (!anchored.right)
-					region.right = region.left+width;
+					region.x.max = region.x.min+width;
 
 			if (!anchored.bottom)
 				if (anchored.top)
-					region.bottom = region.top-height;
+					region.y.min = region.y.max-height;
 				else
 				{
-					region.bottom = parent_region.centerY()-height/2;
-					region.top = region.bottom+height;
+					region.y.min = parent_region.y.center()-height/2;
+					region.y.max = region.y.min+height;
 				}
 			else
 				if (!anchored.top)
-					region.top = region.bottom+height;
+					region.y.max = region.y.min+height;
 		
 		}
 		
@@ -1573,7 +1572,7 @@ namespace Engine
 				rs += offset.left;
 			if (layout)
 			{
-				rs += layout->client_edge.left+layout->client_edge.right;
+				rs += layout->client_edge.x.min+layout->client_edge.x.max;
 				if (rs < layout->min_width)
 					rs = layout->min_width;
 			}
@@ -1589,7 +1588,7 @@ namespace Engine
 				rs += offset.bottom;
 			if (layout)
 			{
-				rs += layout->client_edge.bottom+layout->client_edge.top;
+				rs += layout->client_edge.y.min+layout->client_edge.y.max;
 				if (rs < layout->min_height)
 					rs = layout->min_height;
 			}
@@ -1683,12 +1682,12 @@ namespace Engine
 				const TCellInstance&cell = cell_layout.cells[j];
 				display.useTexture(cell.normal_texture,true);
 				Rect<float>	rect(cell.region);
-				//rect.translate(-region.left,-region.bottom);
+				//rect.translate(-region.x.min,-region.y.min);
 				glBegin(GL_QUADS);
-					glTexCoord2f(0,0); glVertex2f(rect.left,rect.bottom);
-					glTexCoord2f(1,0); glVertex2f(rect.right,rect.bottom);
-					glTexCoord2f(1,1); glVertex2f(rect.right,rect.top);
-					glTexCoord2f(0,1); glVertex2f(rect.left,rect.top);
+					glTexCoord2f(0,0); glVertex2f(rect.x.min,rect.y.min);
+					glTexCoord2f(1,0); glVertex2f(rect.x.max,rect.y.min);
+					glTexCoord2f(1,1); glVertex2f(rect.x.max,rect.y.max);
+					glTexCoord2f(0,1); glVertex2f(rect.x.min,rect.y.max);
 				glEnd();
 			}
 			glEnable(GL_BLEND);
@@ -1712,19 +1711,19 @@ namespace Engine
 				const TCellInstance&cell = cell_layout.cells[j];
 				display.useTexture(cell.color_texture,true);
 				const Rect<float>	&rect(cell.region);
-				//rect.translate(-region.left,-region.bottom);
+				//rect.translate(-region.x.min,-region.y.min);
 
 				glBegin(GL_QUADS);
-					glTexCoord2f(0,0); glVertex2f(rect.left,rect.bottom);
-					glTexCoord2f(1,0); glVertex2f(rect.right,rect.bottom);
-					glTexCoord2f(1,1); glVertex2f(rect.right,rect.top);
-					glTexCoord2f(0,1); glVertex2f(rect.left,rect.top);
+					glTexCoord2f(0,0); glVertex2f(rect.x.min,rect.y.min);
+					glTexCoord2f(1,0); glVertex2f(rect.x.max,rect.y.min);
+					glTexCoord2f(1,1); glVertex2f(rect.x.max,rect.y.max);
+					glTexCoord2f(0,1); glVertex2f(rect.x.min,rect.y.max);
 				glEnd();
 			}
 			glEnable(GL_BLEND);
 			if (cell_layout.title.width()>0)
 			{
-				Component::textout.locate(cell_layout.title.left,cell_layout.title.centerY()-Component::textout.getFont().getHeight()/2+font_offset);
+				Component::textout.locate(cell_layout.title.x.min,cell_layout.title.y.center()-Component::textout.getFont().getHeight()/2+font_offset);
 				Component::textout.color(1,1,1);
 				Component::textout.print(title);
 			}			
@@ -1792,10 +1791,10 @@ namespace Engine
 				const Rect<float>&rect = cell.region;
 
 				glBegin(GL_QUADS);
-					glTexCoord2f(0,0); glVertex2f(rect.left,rect.bottom);
-					glTexCoord2f(1,0); glVertex2f(rect.right,rect.bottom);
-					glTexCoord2f(1,1); glVertex2f(rect.right,rect.top);
-					glTexCoord2f(0,1); glVertex2f(rect.left,rect.top);
+					glTexCoord2f(0,0); glVertex2f(rect.x.min,rect.y.min);
+					glTexCoord2f(1,0); glVertex2f(rect.x.max,rect.y.min);
+					glTexCoord2f(1,1); glVertex2f(rect.x.max,rect.y.max);
+					glTexCoord2f(0,1); glVertex2f(rect.x.min,rect.y.max);
 				glEnd();
 			}
 			glDisable(GL_ALPHA_TEST);
@@ -1817,10 +1816,10 @@ namespace Engine
 				const Rect<float>&rect = cell.region;
 
 				glBegin(GL_QUADS);
-					glTexCoord2f(0,0); glVertex2f(rect.left,rect.bottom);
-					glTexCoord2f(1,0); glVertex2f(rect.right,rect.bottom);
-					glTexCoord2f(1,1); glVertex2f(rect.right,rect.top);
-					glTexCoord2f(0,1); glVertex2f(rect.left,rect.top);
+					glTexCoord2f(0,0); glVertex2f(rect.x.min,rect.y.min);
+					glTexCoord2f(1,0); glVertex2f(rect.x.max,rect.y.min);
+					glTexCoord2f(1,1); glVertex2f(rect.x.max,rect.y.max);
+					glTexCoord2f(0,1); glVertex2f(rect.x.min,rect.y.max);
 				glEnd();
 			}
 		}
@@ -2497,8 +2496,8 @@ namespace Engine
 			result->operator_link = shared_from_this();
 			
 			#ifdef DEEP_GUI
-				result->destination.x = region.centerX()-display->clientWidth()/2;
-				result->destination.y = region.centerY()-display->clientHeight()/2;
+				result->destination.x = region.x.center()-display->clientWidth()/2;
+				result->destination.y = region.y.center()-display->clientHeight()/2;
 				
 				for (index_t i = 0; i < window_stack.count(); i++)
 					window_stack[i]->destination.shell_radius = radiusOf(i);
@@ -2511,8 +2510,8 @@ namespace Engine
 				result->origin = result->destination;
 				result->current_center = result->origin;
 			#else
-				result->x = region.centerX()-display->clientWidth()/2;
-				result->y = region.centerY()-display->clientHeight()/2;
+				result->x = region.x.center()-display->clientWidth()/2;
+				result->y = region.y.center()-display->clientHeight()/2;
 			#endif
 			result->fwidth = region.width();
 			result->fheight = region.height();

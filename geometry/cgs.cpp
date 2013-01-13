@@ -34,7 +34,8 @@ template class StaticInstance<StdDef>;
 template class AnimatorInstanceA<StdDef>;
 
 
-MaterialInfo::MaterialInfo():alpha_test(false),fully_reflective(false)
+
+MaterialColors::MaterialColors():alpha_test(false),fully_reflective(false)
 {
 	ambient = ambient_default;
 	diffuse = diffuse_default;
@@ -43,6 +44,10 @@ MaterialInfo::MaterialInfo():alpha_test(false),fully_reflective(false)
 	shininess = 0.5;
 	alpha_threshold = 0.5;
 }
+
+
+MaterialInfo::MaterialInfo()
+{}
 
 
 bool		layerRequiresTexCoords(const TLayer&layer)
@@ -75,6 +80,21 @@ bool MaterialInfo::similar(const MaterialInfo&other) const
 {
 	if (layer_field.length() != other.layer_field.length())
 		return false;
+	if (!MaterialColors::similar(other))
+		return false;
+	for (unsigned i = 0; i < layer_field.length(); i++)
+	{
+		if (layer_field[i].combiner != other.layer_field[i].combiner)
+			return false;
+		bool cube = layer_field[i].source && layer_field[i].source->face_field.length() == 6;
+		if (cube && layer_field[i].mirror_map != other.layer_field[i].mirror_map)
+			return false;
+	}
+	return true;
+}
+
+bool MaterialColors::similar(const MaterialColors&other) const
+{
 	if (alpha_test != other.alpha_test)
 		return false;
 	if (fully_reflective != other.fully_reflective)
@@ -92,17 +112,20 @@ bool MaterialInfo::similar(const MaterialInfo&other) const
 		return false;
 	if (alpha_threshold != other.alpha_threshold)
 		return false;
-	for (unsigned i = 0; i < layer_field.length(); i++)
-	{
-		if (layer_field[i].combiner != other.layer_field[i].combiner)
-			return false;
-		bool cube = layer_field[i].source && layer_field[i].source->face_field.length() == 6;
-		if (cube && layer_field[i].mirror_map != other.layer_field[i].mirror_map)
-			return false;
-	}
 	return true;
 }
 
+MaterialInfo&			MaterialInfo::operator=(const MaterialColors&other)
+{
+	((MaterialColors&)*this) = other;
+	return *this;
+}
+
+
+bool MaterialColors::operator==(const MaterialColors&other) const
+{
+	return similar(other);
+}
 
 bool MaterialInfo::operator==(const MaterialInfo&other) const
 {
@@ -122,17 +145,9 @@ bool MaterialInfo::operator==(const MaterialInfo&other) const
 
 void MaterialInfo::adoptData(MaterialInfo&other)
 {
-	fully_reflective = other.fully_reflective;
-	alpha_test = other.alpha_test;
+	((MaterialColors&)*this) = other;
 	layer_field.adoptData(other.layer_field);
-	ambient = other.ambient;
-	diffuse = other.diffuse;
-	specular = other.specular;
-	emission = other.emission;
-	shininess = other.shininess;
-	alpha_threshold = other.alpha_threshold;
 	attachment.swap(other.attachment);
-
 }
 
 

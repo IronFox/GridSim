@@ -247,7 +247,7 @@ CGS::Tile*		Map::Composition::loadGeometry(const String&filename, float scale, c
 	return NULL;
 }
 
-Map::Instance	Map::Composition::loadGeometry(const String&filename, float scale, const FileSystem::Folder&load_context, TBox<>&constraints)
+Map::Instance	Map::Composition::loadGeometry(const String&filename, float scale, const FileSystem::Folder&load_context, Box<>&constraints)
 {
 	CGS::Tile*tile = loadGeometry(filename,scale,load_context);
 	if (tile)
@@ -584,7 +584,7 @@ void	Map::Shape::updateTriangulation()
 	_oTriangulate(polygon_points.pointer(),polygon_points.count(),triangulation);
 	if (triangulation.vertex_field.length())
 	{
-		Entity::constraints.lower = Entity::constraints.upper = triangulation.vertex_field.first().position;
+		Entity::constraints.set(triangulation.vertex_field.first().position);
 		
 		for (index_t i = 1; i < triangulation.vertex_field.length(); i++)
 			_oDetDimension(triangulation.vertex_field[i].position,Entity::constraints);
@@ -728,8 +728,8 @@ void					Map::HexGrid::updateConstraints()
 	const float cell_width = cell_height / sin(M_PI/3.f),
 				cell_indent = cell_width * 3.f/4.f;
 
-	constraints.min = float3(cell_indent*grid_offset.x,0,cell_height*grid_offset.y);
-	constraints.max = float3(cell_indent*(grid_offset.x+grid.width())+cell_width*0.25f,0,cell_height*(grid_offset.y+grid.height())+cell_height*0.5f);
+	constraints.setMin(float3(cell_indent*grid_offset.x,0,cell_height*grid_offset.y));
+	constraints.setMax(float3(cell_indent*(grid_offset.x+grid.width())+cell_width*0.25f,0,cell_height*(grid_offset.y+grid.height())+cell_height*0.5f));
 }
 
 
@@ -770,7 +770,7 @@ void					Map::HexGrid::updateConstraints()
 				if (cell.geometry_instance)
 				{
 					getMatrixOfCell(cell.geometry_instance->matrix,x,y);
-					Vec::mad(cell.geometry_instance->matrix.w.xyz,cell.geometry_instance->matrix.y.xyz,-cell.object_bounds.lower.y);
+					Vec::mad(cell.geometry_instance->matrix.w.xyz,cell.geometry_instance->matrix.y.xyz,-cell.object_bounds.y.min);
 				}
 			}
 		}
@@ -891,14 +891,14 @@ void 		Map::Volume::parse(const XML::Node&node,float scale, const FileSystem::Fo
 	if (string == "sphere")
 	{
 		type = Sphere;
-		Vec::set(Entity::constraints.lower,-radius);
-		Vec::set(Entity::constraints.upper,radius);
+		Entity::constraints.setAllMin(-radius);
+		Entity::constraints.setAllMax(radius);
 	}
 	else
 	{
 		type = Cylinder;
-		Vec::def(Entity::constraints.lower,-radius,-height/2,-radius);
-		Vec::def(Entity::constraints.upper,radius,height/2,radius);
+		Entity::constraints.setMin(-radius,-height/2,-radius);
+		Entity::constraints.setMax(radius,height/2,radius);
 	}
 	for (index_t i = 0; i < node.children.count(); i++)
 	{
@@ -1488,12 +1488,10 @@ void Map::SplineTrack::recompileGeometry(float scale)
 
 				if (i+1 == SurfaceNetwork::num_lods*3)
 				{
-					TBox<>	box;
-					box.min = box.max = vertex_buffer[voffset].position;
+					Box<>	box(vertex_buffer[voffset].position);
 					for (index_t k = voffset+1; k < vertex_buffer.fillLevel(); k++)
 						_oDetDimension(vertex_buffer[k].position,box);
-					float3 center;
-					Vec::center(box.min,box.max,center);
+					float3 center = box.center();
 					float radius = 0;
 					for (index_t k = voffset; k < vertex_buffer.fillLevel(); k++)
 					{

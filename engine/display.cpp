@@ -753,10 +753,10 @@ namespace Engine
 				height = client_area.bottom-client_area.top;
 		//ShowMessage(IntToStr(width)+" x "+IntToStr(height));
 		RECT result;
-		result.left	 = (LONG)(rect.left	   *width);
-		result.right	= (LONG)(rect.right	  *width);
-		result.top	  = (LONG)((rect.top)	  *height);
-		result.bottom   = (LONG)((rect.bottom)   *height);
+		result.left	 = (LONG)(rect.x.min	   *width);
+		result.right	= (LONG)(rect.x.max	  *width);
+		result.top	  = (LONG)((rect.y.max)	  *height);
+		result.bottom   = (LONG)((rect.y.min)   *height);
 		return result;
 	}
 

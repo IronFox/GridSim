@@ -217,6 +217,214 @@ namespace Math
 		{};
 
 
+	template <typename T=float>
+		class Range
+		{
+		public:
+			union
+			{
+				struct
+				{
+					T				min,max;
+				};
+				T					extreme[2];
+			};
+
+
+
+			template <typename T1>
+				Range<T>&			operator=(const Range<T1>&other)
+									{
+										min = (T)other.min;
+										max = (T)other.max;
+										return *this;
+									}
+									
+			MF_DECLARE(void)		set(const T&min, const T& max)
+									{
+										this->min = min;
+										this->max = max;
+									}
+			template<typename T0>
+				MF_DECLARE(void)	set(const Range<T0>&other)
+									{
+										min = (T)other.min;
+										max = (T)other.max;
+									}
+			MF_DECLARE(void)		setCenter(const T&center)
+									{
+										T	ext = (max - min)/(T)2;
+										setCenter(center,ext);
+									}
+			MF_DECLARE(void)		setCenter(const T&center, const T&ext)
+									{
+										min = center - ext;
+										max = center + ext;
+									}
+			template <typename T0>
+				MF_DECLARE(void)	setAll(const T0&value)
+									{
+										min = max = (T)value;
+									}
+			MF_DECLARE(void)		scale(const T&by)	//! Scales the range from its central extend
+									{
+										T	c = center();
+										T	ext  = (max - c);
+										setCenter(c,ext*by);
+									}
+			MF_DECLARE(void)		expand(const T& by)	//! Expands the range. @b min is expected to be less than @b max
+									{
+										min -= by;
+										max += by;
+									}
+			MF_DECLARE(void)		constrainBy(const Range<T>&constraint)	//! Modifies the local range so that it lies within the specified constraint range
+									{
+										min = Math::clamp(min,constraint.min,constraint.max);
+										max = Math::clamp(max,constraint.min,constraint.max);
+									}
+			MF_DECLARE(T)			center()	const	//! Retrieves the center of the local range
+									{
+										return (min+max)/(T)2;
+									}
+			MF_DECLARE(T)			extend()	const	//! Retrieves the difference between max and min
+									{
+										return max - min;
+									}
+			template<typename T0>
+				MF_DECLARE(bool)	contains(const T0&value)	const //! Checks if the specified value lies within the local range
+									{
+										return (T)value >= min && (T)value <= max;
+									}
+			template<typename T0>
+				MF_DECLARE(void)	include(const T0&value)	//!< Expands the local range so that it includes the specified value
+									{
+										min = std::min<T>(min,value);
+										max = std::max<T>(max,value);
+									}
+			template<typename T0>
+				MF_DECLARE(void)	include(const Range<T0>&other)	//!< Expands the local range so that it includes the specified other range
+									{
+										min = std::min<T>(min,other.min);
+										max = std::max<T>(max,other.max);
+									}
+			template <typename T0>
+				MF_DECLARE(void)	translate(const T0&delta)
+									{
+										min = (T)(min + delta);
+										max = (T)(max + delta);
+									}
+			template <typename T0,typename T1>
+				MF_DECLARE(void)	relativate(const T0& absolute, T1&relative_out)	const
+									{
+										relative_out = (T1)((absolute-min)/extend());
+									}
+			template <typename T0,typename T1>
+				MF_DECLARE(void)	relativateRange(const Range<T0>& absolute, Range<T1>&relative_out)	const
+									{
+										relativate(absolute.min,relative_out.min);
+										relativate(absolute.max,relative_out.max);
+									}
+			template <typename T0,typename T1>
+				MF_DECLARE(void)	derelativate(const T0& relative, T1&absolute_out)	const
+									{
+										absolute_out = (T1)(min + relative*extend());
+									}
+			template <typename T0,typename T1>
+				MF_DECLARE(void)	derelativateRange(const Range<T0>& relative, Range<T1>&absolute_out)	const
+									{
+										derelativate(relative.min,absolute_out.min);
+										derelativate(relative.max,absolute_out.max);
+									}
+
+				
+			template <typename T0,typename T1>
+				MF_DECLARE(void)	makeRelative(const T0& absolute, T1&relative_out)	const
+									{
+										relative_out = (T1)((absolute-min)/extend());
+									}
+			template <typename T0,typename T1>
+				MF_DECLARE(void)	makeRangeRelative(const Range<T0>& absolute, Range<T1>&relative_out)	const
+									{
+										relativate(absolute.min,relative_out.min);
+										relativate(absolute.max,relative_out.max);
+									}
+			template <typename T0,typename T1>
+				MF_DECLARE(void)	makeAbsolute(const T0& relative, T1&absolute_out)	const
+									{
+										absolute_out = (T1)(min + relative*extend());
+									}
+			template <typename T0,typename T1>
+				MF_DECLARE(void)	makeRangeAbsolute(const Range<T0>& relative, Range<T1>&absolute_out)	const
+									{
+										derelativate(relative.min,absolute_out.min);
+										derelativate(relative.max,absolute_out.max);
+									}
+			T						clamp(const T&value)	const
+									{
+										return Math::clamp(value,min,max);
+									}
+				
+			template <typename T1>
+				MF_DECLARE(bool)	intersects(const Range<T1>&other)	const
+									{
+										return min <= other.max && max >= other.min;
+									}
+			template <typename T1>
+				MF_DECLARE(void)	operator*=(T1 factor)
+									{
+										min *= factor;
+										max *= factor;
+									}
+			template <typename T1>
+				MF_DECLARE(void)	operator/=(T1 factor)
+									{
+										min /= factor;
+										max /= factor;
+									}
+
+		};
+
+	template <typename T>
+		class Quad
+		{
+		public:
+			union
+			{
+				struct
+				{
+					T				left,
+									bottom,
+									right,
+									top;
+				};
+				T					value[4];
+			};
+
+			Quad()					{}
+			Quad(const T&v)			:left(v),bottom(v),right(v),top(v)	{}
+			/**/					Quad(const T&left_, const T&bottom_, const T&right_, const T&top_)
+										:left(left_),bottom(bottom_),right(right_),top(top_)	{}
+
+			/**
+			@brief Updates all values of the local quad
+			*/
+			MF_DECLARE(void)		set(const T&left, const T& bottom, const T& right, const T& top)
+									{
+										this->left = left;
+										this->right = right;
+										this->bottom = bottom;
+										this->top = top;
+									}
+
+			template <typename T0>
+				MF_DECLARE(void)	setAll(const T0&value)
+									{
+										left = (T)value;
+										right = (T)value;
+										bottom = (T)value;
+										top = (T)value;
+									}
+		};
 
 
 	
@@ -228,155 +436,227 @@ namespace Math
 			{
 				struct
 				{
-					T				left,bottom,right,top;
+					Range<T>		x,y;
 				};
-				struct
-				{
-					T				x0,y0,		x1,y1;
-				};
-				struct
-				{
-					TVec2<T>		v0,	v1;
-				};
-				struct
-				{
-					TVec2<T>		lower,	upper;
-				};
-				T					dim[4];
-				T					coord[4];
+				Range<T>			axis[2];
 			};
 
-									Rect(){}
-									Rect(const T&left_, const T& bottom_, const T& right_, const T& top_):left(left_),bottom(bottom_),right(right_),top(top_){}
-									Rect(const TVec2<>&lower_, const TVec2<>&upper_):lower(lower_),upper(upper_){}
-									
-			MF_DECLARE(void)		set(const T&left_, const T& bottom_, const T& right_, const T& top_)	//! By reference variant of Math::set()
+			/**/					Rect(){}
+			/**/					Rect(const T&left, const T& bottom, const T& right, const T& top)
 									{
-										left = left_;
-										bottom = bottom_;
-										right = right_;
-										top = top_;
+										set(left,bottom,right,top);
 									}
+			/**/					Rect(const TVec2<T>&min, const TVec2<T>&max)
+									{
+										set(min,max);
+									}
+			/**/					Rect(const TVec2<T>&min_and_max)
+									{
+										set(min_and_max);
+									}
+			template<typename T1>
+				/**/				Rect(const Rect<T1>&other)
+										:x(other.x),y(other.y)	{}
+
+			template <typename T1>
+				Rect<T>&			operator=(const Rect<T1>&other)
+									{
+										x = other.x;
+										y = other.y;
+										return *this;
+									}
+									
+			/**
+			@brief Updates all values of the local rectangle
+			*/
+			MF_DECLARE(void)		set(const T&left, const T& bottom, const T& right, const T& top)
+									{
+										x.set(left,right);
+										y.set(bottom,top);
+									}
+			/**
+			@brief Updates all values of the local rectangle
+			*/
+			MF_DECLARE(void)		set(const TVec2<T>&min, const TVec2<T>&max)
+									{
+										x.set(min.x,max.x);
+										y.set(min.y,max.y);
+									}
+			/**
+			@brief Updates all values of the local rectangle
+			*/
+			MF_DECLARE(void)		set(const TVec2<T>&min_and_max)
+									{
+										x.setAll(min_and_max.x);
+										y.setAll(min_and_max.y);
+									}
+			/**
+			@brief Relocates the center of the local rectangle.
+			Width and height remain unchanged.
+			*/
 			MF_DECLARE(void)		setCenter(const T&x, const T& y)
 									{
-										T	w = right - left,
-											h = top - bottom;
-										left = x - w/(T)2;
-										right = x + w/(T)2;
-										bottom = y - h/(T)2;
-										top = y + h/(T)2;
+										this->x.setCenter(x);
+										this->y.setCenter(y);
 									}
+			/**
+			@brief Updates all values of the local rectangle so that the center points to the specified x and y coordinates, and width and height match twice the specified extend
+			@param x X coordinate of the new center
+			@param y Y coordinate of the new center
+			@param ext_x Extend in both directions along the x axis. Equals half the resulting width
+			@param ext_y Extend in both directions along the y axis. Equals half the resulting height
+			*/
 			MF_DECLARE(void)		setCenter(const T&x, const T& y, const T&ext_x, const T&ext_y)
 									{
-										left = x - ext_x;
-										right = x + ext_x;
-										bottom = y - ext_y;
-										top = y + ext_y;
+										this->x.setCenter(x,ext_x);
+										this->y.setCenter(y,ext_y);
 									}
-		template <typename T0>
-			MF_DECLARE(void)		setAll(const T0&value)
+			/**
+			@brief Updates all values of the local rectangle so that the center points to the specified x and y coordinates, and width and height match twice the specified extend
+			@param x X coordinate of the new center
+			@param y Y coordinate of the new center
+			@param ext Extend in both directions along the x and y axes. Equals half the resulting width/height
+			*/
+			MF_DECLARE(void)		setCenter(const T&x, const T& y, const T&ext)
 									{
-										bottom = right = top = left = (T)value;
+										this->x.setCenter(x,ext);
+										this->y.setCenter(y,ext);
+									}
+			/**
+			@brief Updates all values of the local rectangle to the specified value
+			*/
+			template <typename T0>
+				MF_DECLARE(void)	setAll(const T0&value)
+									{
+										x.setAll(value);
+										y.setAll(value);
+									}
+			/**
+			@brief Updates all min values of the local rectangle to the specified value
+			*/
+			template <typename T0>
+				MF_DECLARE(void)	setAllMin(const T0&value)
+									{
+										x.min = (T)value;
+										y.min = (T)value;
+									}
+			/**
+			@brief Updates all max values of the local rectangle to the specified value
+			*/
+			template <typename T0>
+				MF_DECLARE(void)	setAllMax(const T0&value)
+									{
+										x.max = (T)value;
+										y.max = (T)value;
+									}
+			/**
+			@brief Updates the minimum values of the local rectangle
+			*/
+			MF_DECLARE(void)		setMin(const TVec2<T>&min)
+									{
+										x.min = min.x;
+										y.min = min.y;
+									}
+			/**
+			@brief Updates the maximum values of the local rectangle
+			*/
+			MF_DECLARE(void)		setMax(const TVec2<T>&max)
+									{
+										x.max = max.x;
+										y.max = max.y;
+									}
+			/**
+			@brief Updates the minimum values of the local rectangle
+			*/
+			template<typename T0, typename T1>
+				MF_DECLARE(void)	setMin(const T0&min_x, const T1&min_y)
+									{
+										x.min = (T)min_x;
+										y.min = (T)min_y;
+									}
+			/**
+			@brief Updates the maximum values of the local rectangle
+			*/
+			template<typename T0, typename T1>
+				MF_DECLARE(void)	setMax(const T0&min_x, const T1&min_y)
+									{
+										x.max = (T)max_x;
+										y.max = (T)max_y;
 									}
 
 			MF_DECLARE(void)		scale(const T&by)	//! Scales the rectangle from its central location
 									{
-										TVec2<>	center;
-										Vec::center(lower,upper,center);
-										lower.x = center.x + (lower.x-center.x)*by;
-										lower.y = center.y + (lower.y-center.y)*by;
-										upper.x = center.x + (upper.x-center.x)*by;
-										upper.y = center.y + (upper.y-center.y)*by;
+										x.scale(by);
+										y.scale(by);
 									}
 			MF_DECLARE(void)		expand(const T& by)	//! Expands the rectangle. @b bottom is expected to be less than @b top
 									{
-										left -= by;
-										bottom -= by;
-										right += by;
-										top += by;
+										x.expand(by);
+										y.expand(by);
 									}
 									
-			MF_DECLARE(void)		constrain(const Rect<T>&constraint)	//! Modifies the local rectangle so that it lies within the specified constraint rectangle. @b bottom is expected to be less than @b top
+			MF_DECLARE(void)		constrainBy(const Rect<T>&constraint)	//! Modifies the local rectangle so that it lies within the specified constraint rectangle. @b bottom is expected to be less than @b top
 									{
-										if (left < constraint.left)
-											left = constraint.left;
-										if (right < constraint.left)
-											right = constraint.left;
-										if (bottom < constraint.bottom)
-											bottom = constraint.bottom;
-										if (top < constraint.bottom)
-											top = constraint.bottom;
-										if (bottom > constraint.top)
-											bottom = constraint.top;
-										if (top > constraint.top)
-											top = constraint.top;
-										if (left > constraint.right)
-											left = constraint.right;
-										if (right > constraint.right)
-											right = constraint.right;
+										x.constrainBy(constraint.x);
+										y.constrainBy(constraint.y);
 									}
 			/*!
-				\brief	Calculate aspect of the rectangle
-				\return Aspect
+			@brief	Calculate aspect of the rectangle
+			@return Aspect
 			*/
 			MF_DECLARE(T)			aspect()	const
 									{
-										return (right-left)/(top-bottom);
+										return x.extend()/y.extend();
 									}
 			/*!
-				\brief	Determines whether or not the specified point lies within the local rectangle. @b top is expected to be greater or equal @b bottom
-				\param p Pointer to a 2d vector
-				\return true if the point lies in the rectangle
+			@brief	Determines whether or not the specified point lies within the local rectangle. @b top is expected to be greater or equal @b bottom
+			@param p Pointer to a 2d vector
+			@return true if the point lies in the rectangle
 			*/
-		template <typename T0>
-			MF_DECLARE(bool)		contains(const TVec2<T0>&p)	const
+			template <typename T0>
+				MF_DECLARE(bool)	contains(const TVec2<T0>&p)	const
 									{
-										return (T)p.x >= left && (T)p.y >= bottom && (T)p.x <= right && (T)p.y <= top;
-									}
-		
-		/*!
-			@brief Modifies the local rectangle so that it contains the specified point. @b top is expected to be greater or equal @b bottom
-		*/
-		template <typename T0, typename T1>
-			MF_DECLARE(void)		include(const T0&x, const T1&y)
-									{
-										if (left > (T)x)
-											left = (T)x;
-										if (right < (T)x)
-											right = (T)x;
-										if (bottom > (T)y)
-											bottom = (T)y;
-										if (top < (T)y)
-											top = (T)y;
-									}
-		/*!
-			@brief Modifies the local rectangle so that it contains the specified point. @b top is expected to be greater or equal @b bottom
-		*/
-		template <typename T0>
-			MF_DECLARE(void)		include(const TVec2<T0>&p)
-									{
-										include(p.x,p.y);
-									}
-		/*!
-			@brief Modifies the local rectangle so that it contains the specified rectangle. @b top is expected to be greater or equal @b bottom
-		*/
-		template <typename T0>
-			MF_DECLARE(void)		include(const Rect<T0>&other)
-									{
-										include(other.left,other.bottom);
-										include(other.right,other.top);
+										return x.contains(p.x) && y.contains(p.y);
 									}
 		
 			/*!
+			@brief Modifies the local rectangle so that it contains the specified point. @b top is expected to be greater or equal @b bottom
+			*/
+			template <typename T0, typename T1>
+				MF_DECLARE(void)	include(const T0&x, const T1&y)
+									{
+										this->x.include(x);
+										this->y.include(y);
+									}
+			/*!
+			@brief Modifies the local rectangle so that it contains the specified point. @b top is expected to be greater or equal @b bottom
+			*/
+			template <typename T0>
+				MF_DECLARE(void)	include(const TVec2<T0>&p)
+									{
+										x.include(p.x);
+										y.include(p.y);
+									}
+			/*!
+			@brief Modifies the local rectangle so that it contains the specified rectangle. @b top is expected to be greater or equal @b bottom
+			*/
+			template <typename T0>
+				MF_DECLARE(void)	include(const Rect<T0>&other)
+									{
+										x.include(other.x);
+										y.include(other.y);
+									}
+		
+				/*!
 				\brief	Determines whether or not the specified point lies within the local rectangle
 				\param x X coordinate of the point
 				\param y Y coordinate of the point
 				\return true if the point lies in the rectangle
-			*/
-		template <typename T0, typename T1>
-			MF_DECLARE(bool)		contains(const T0& x, const T1& y)	const
+				*/
+			template <typename T0, typename T1>
+				MF_DECLARE(bool)	contains(const T0& x, const T1& y)	const
 									{
-										return (T)x >= left && (T)y >= bottom && (T)x <= right && (T)y <= top;
+										return this->x.contains(x) && this->y.contains(y);
 									}
 			/*!
 				\brief Calculates the width of the rectangle
@@ -384,7 +664,7 @@ namespace Math
 			*/
 			MF_DECLARE(T)			width()		const
 									{
-										return right-left;
+										return x.extend();
 									}
 			/*!
 				\brief Calculates the height of the rectangle
@@ -392,122 +672,637 @@ namespace Math
 			*/
 			MF_DECLARE(T)			height()	const
 									{
-										return top-bottom;
+										return y.extend();
 									}
 									
-		template <typename T0, typename T1>
-			MF_DECLARE(void)		translate(const T0&delta_x, const T1&delta_y)
+			template <typename T0, typename T1>
+				MF_DECLARE(void)	translate(const T0&delta_x, const T1&delta_y)
 									{
-										x0 += (T)delta_x;
-										y0 += (T)delta_y;
-										x1 += (T)delta_x;
-										y1 += (T)delta_y;
+										x.translate(delta_x);
+										y.translate(delta_y);
 									}
 			
-		template <typename T0,typename T1>
-			MF_DECLARE(void)		makeRelative(const T& x, const T& y, T0&x_out, T1&y_out)	const
+			template <typename T0,typename T1>
+				MF_DECLARE(void)	makeRelative(const T& x, const T& y, T0&x_out, T1&y_out)	const
 									{
-										x_out = (T0)((x-x0)/(x1-x0));
-										y_out = (T1)((y-y0)/(y1-y0));
+										this->x.makeRelative(x,x_out);
+										this->y.makeRelative(y,y_out);
 									}
-			
-		template <typename T0,typename T1>
-			MF_DECLARE(void)		relativate(const T& x, const T& y, T0&x_out, T1&y_out)	const
-									{
-										makeRelative(x,y,x_out,y_out);
-									}
-		template <typename T0>
-			MF_DECLARE(void)		relativate(const TVec2<T>&p, TVec2<T0>&out)	const
+			template <typename T0>
+				MF_DECLARE(void)	makeRelative(const TVec2<T>&p, TVec2<T0>&out)	const
 									{
 										makeRelative(p.x,p.y,out.x,out.y);
 									}			
 			
+			template <typename T0,typename T1>
+				MF_DECLARE(void)	relativate(const T& x, const T& y, T0&x_out, T1&y_out)	const
+									{
+										makeRelative(x,y,x_out,y_out);
+									}
+			template <typename T0>
+				MF_DECLARE(void)	relativate(const TVec2<T>&absolute, TVec2<T0>&relative_out)	const
+									{
+										makeRelative(absolute.x,absolute.y,relative_out.x,relative_out.y);
+									}			
+			
 
-		template <typename T0,typename T1>
-			MF_DECLARE(void)		derelativate(const T& x, const T& y, T0&x_out, T1&y_out)	const
+			template <typename T0,typename T1>
+				MF_DECLARE(void)	derelativate(const T& x, const T& y, T0&x_out, T1&y_out)	const
 									{
 										makeAbsolute(x,y,x_out,y_out);
 									}
 			
-		template <typename T0,typename T1>
-			MF_DECLARE(void)		makeAbsolute(const T& x, const T& y, T0&x_out, T1&y_out)	const
+			template <typename T0,typename T1>
+				MF_DECLARE(void)	makeAbsolute(const T& x, const T& y, T0&x_out, T1&y_out)	const
 									{
-										x_out = (T0)(x0 + x*(x1-x0));
-										y_out = (T1)(y0 + y*(y1-y0));
+										this->x.makeAbsolute(x,x_out);
+										this->y.makeAbsolute(y,y_out);
 									}
-									
-		template <typename T0,typename T1>
-			MF_DECLARE(void)		makeRelative(const Rect<T0>&absolute, Rect<T1>&relative)	const
+			template <typename T0,typename T1>
+				MF_DECLARE(void)	derelativate(const TVec2<T0>& relative, TVec2<T0>&absolute_out)	const
 									{
-										makeRelative(absolute.x0,absolute.y0,relative.x0,relative.y0);
-										makeRelative(absolute.x1,absolute.y1,relative.x1,relative.y1);
+										x.makeAbsolute(relative.x,absolute_out.x);
+										y.makeAbsolute(relative.y,absolute_out.y);
 									}
-			
-		template <typename T0,typename T1>
-			MF_DECLARE(void)		relativate(const Rect<T0>&absolute, Rect<T1>&relative)	const
+			template <typename T0,typename T1>
+				MF_DECLARE(void)	makeAbsolute(const TVec2<T0>& relative, TVec2<T0>&absolute_out)	const
 									{
-										makeRelative(absolute.x0,absolute.y0,relative.x0,relative.y0);
-										makeRelative(absolute.x1,absolute.y1,relative.x1,relative.y1);
+										x.makeAbsolute(relative.x,absolute_out.x);
+										y.makeAbsolute(relative.y,absolute_out.y);
 									}
 			
-		template <typename T0,typename T1>
-			MF_DECLARE(void)		makeAbsolute(const Rect<T0>&relative, Rect<T1>&absolute)	const
+	
+			template <typename T0, typename T1>
+				MF_DECLARE(void)	makeRelative(const Rect<T0>&absolute, Rect<T1>&relative_out)	const
 									{
-										makeAbsolute(relative.x0,relative.y0,absolute.x0,absolute.y0);
-										makeAbsolute(relative.x1,relative.y1,absolute.x1,absolute.y1);
+										x.relativateRange(absolute.x,relative_out.x);
+										y.relativateRange(absolute.y,relative_out.y);
+									}			
+			
+			template <typename T0, typename T1>
+				MF_DECLARE(void)	relativate(const Rect<T0>&absolute, Rect<T1>&relative_out)	const
+									{
+										x.relativateRange(absolute.x,relative_out.x);
+										y.relativateRange(absolute.y,relative_out.y);
+									}			
+
+			template <typename T0, typename T1>
+				MF_DECLARE(void)	makeAbsolute(const Rect<T0>&relative, Rect<T1>&absolute_out)	const
+									{
+										x.derelativateRange(relative.x,absolute_out.x);
+										y.derelativateRange(relative.y,absolute_out.y);
+									}			
+			
+			template <typename T0, typename T1>
+				MF_DECLARE(void)	derelativate(const Rect<T0>&relative, Rect<T1>&absolute_out)	const
+									{
+										x.derelativateRange(relative.x,absolute_out.x);
+										y.derelativateRange(relative.y,absolute_out.y);
+									}			
+
+
+
+			MF_DECLARE(T&)			left()
+									{
+										return x.min;
+									}
+			MF_DECLARE(T&)			right()
+									{
+										return x.max;
+									}
+			MF_DECLARE(T&)			bottom()
+									{
+										return y.min;
+									}
+			MF_DECLARE(T&)			top()
+									{
+										return y.max;
+									}
+
+			MF_DECLARE(const T&)	left()	const
+									{
+										return x.min;
+									}
+			MF_DECLARE(const T&)	right()	const
+									{
+										return x.max;
+									}
+			MF_DECLARE(const T&)	bottom()	const
+									{
+										return y.min;
+									}
+			MF_DECLARE(const T&)	top()	const
+									{
+										return y.max;
+									}
+
+			MF_DECLARE(const T&)	operator[](index_t index)	const
+									{
+										DBG_ASSERT_LESS__(index,4);
+										return axis[index%2].extreme[index/2];
+									}
+			MF_DECLARE(T&)			operator[](index_t index)
+									{
+										DBG_ASSERT_LESS__(index,4);
+										return axis[index%2].extreme[index/2];
 									}
 			
-			MF_DECLARE(T)			centerX()	const
+			template <typename T0>
+				MF_DECLARE(void)	getMin(TVec2<T0>&out)	const
 									{
-										return (x0+x1)/2;
+										out.x = (T0)x.min;
+										out.y = (T0)y.min;
 									}
-			MF_DECLARE(T)			centerY()	const
+			template <typename T0>
+				MF_DECLARE(void)	getMax(TVec2<T0>&out)	const
 									{
-										return (y0+y1)/2;
+										out.x = (T0)x.max;
+										out.y = (T0)y.max;
 									}
-		template <typename T1>
-			MF_DECLARE(bool)		intersects(const Rect<T1>&other)	const
+			template <typename T0>
+				MF_DECLARE(void)	getCenter(TVec2<T0>&out)	const
 									{
-										return left <= other.right && bottom <= other.top && right >= other.left && top >= other.bottom;
+										out.x = (T0)x.center();
+										out.y = (T0)y.center();
+									}
+			template <typename T0>
+				MF_DECLARE(void)	getExtend(TVec2<T0>&out)	const
+									{
+										out.x = (T0)x.extend();
+										out.y = (T0)y.extend();
+									}
+			MF_DECLARE(TVec2<T>)	min()	const
+									{
+										TVec2<T> rs ={x.min,y.min};
+										return rs;
+									}
+			MF_DECLARE(TVec2<T>)	max()	const
+									{
+										TVec2<T> rs ={x.max,y.max};
+										return rs;
+									}
+			MF_DECLARE(TVec2<T>)	center()	const
+									{
+										TVec2<T> rs = {x.center(),y.center()};
+										return rs;
+									}
+			MF_DECLARE(TVec2<T>)	extend()	const
+									{
+										TVec2<T> rs = {x.extend(),y.extend()};
+										return rs;
+									}
+
+			template <typename T1>
+				MF_DECLARE(bool)	intersects(const Rect<T1>&other)	const
+									{
+										return x.intersects(other.x) && y.intersects(other.y);
 									}
 			
-			String					toString()	const
+			virtual String			toString()	const	override
 									{
-										return	"("+String(x0)+", "+String(y0)+") - ("+String(x1)+", "+String(y1)+")";
+										return	"("+String(x.min)+", "+String(y.min)+") - ("+String(x.max)+", "+String(y.max)+")";
 									}
-		template <typename T1>
-			MF_DECLARE(void)		operator*=(T1 factor)
+			template <typename T1>
+				MF_DECLARE(void)	operator*=(T1 factor)
 									{
-										x0 *= factor;
-										y0 *= factor;
-										x1 *= factor;
-										y1 *= factor;
+										x *= factor;
+										y *= factor;
+									}
+			template <typename T1>
+				MF_DECLARE(void)	operator/=(T1 factor)
+									{
+										x /= factor;
+										y /= factor;
 									}
 		};
-
-
-
-
-
-	typedef Rect<float>	TFloatRect;
 	
+	typedef Rect<float>	TFloatRect;
+
+
 
 	template <typename T=float>
-		union TBox
+		class Box: public IToString	//! General purpose box
 		{
-			struct
+		public:
+			union
 			{
-				TVec3<T>	lower,	//!< Lower/minimum corner
-							upper;	//!< Upper/maximum corner. For this cube to be valid all components of upper/max must be >= the respective component of lower/min
+				struct
+				{
+					Range<T>		x,y,z;
+				};
+				Range<T>			axis[3];
 			};
-			struct
-			{
-				TVec3<T>	min,	//!< Lower/minimum corner
-							max;	//!< Upper/maximum corner. For this cube to be valid all components of upper/max must be >= the respective component of lower/min
-			};
-			TVec3<T>		corner[2];	//!< Mapping of the two corners to an array. corner[0] represents the lower/minimum corner, corner[1] the upper/maximum corner
-		};
+
+			/**/					Box(){}
+			/**/					Box(const T&min_x, const T& min_y, const T& min_z, const T&max_x, const T& max_y, const T& max_z)
+									{
+										set(min_x, min_y, min_z, max_x, max_y, max_z);
+									}
+			/**/					Box(const TVec3<T>&min, const TVec3<T>&max)
+									{
+										set(min,max);
+									}
+
+			/**/					Box(const TVec3<T>&min_and_max)
+									{
+										set(min_and_max);
+									}
+			template<typename T1>
+				/**/				Box(const Box<T1>&other)
+									{
+										x.set(other.x);
+										y.set(other.y);
+										z.set(other.z);
+									}
+
+			template <typename T1>
+				Box<T>&				operator=(const Box<T1>&other)
+									{
+										x.set(other.x);
+										y.set(other.y);
+										z.set(other.z);
+										return *this;
+									}
+									
+			/**
+			@brief Updates all values of the local box
+			*/
+			MF_DECLARE(void)		set(const T&min_x, const T& min_y, const T& min_z, const T&max_x, const T& max_y, const T& max_z)
+									{
+										x.set(min_x,max_x);
+										y.set(min_y,max_y);
+										z.set(min_z,max_z);
+									}
+			/**
+			@brief Updates all values of the local rectangle
+			*/
+			MF_DECLARE(void)		set(const TVec3<T>&min, const TVec3<T>&max)
+									{
+										x.set(min.x,max.x);
+										y.set(min.y,max.y);
+										z.set(min.z,max.z);
+									}
+			/**
+			@brief Updates all values of the local rectangle
+			*/
+			MF_DECLARE(void)		set(const TVec3<T>&min_and_max)
+									{
+										x.setAll(min_and_max.x);
+										y.setAll(min_and_max.y);
+										z.setAll(min_and_max.z);
+									}
+			/**
+			@brief Relocates the center of the local box.
+			Width, height, and depth remain unchanged.
+			*/
+			MF_DECLARE(void)		setCenter(const T&x, const T& y, const T&z)
+									{
+										this->x.setCenter(x);
+										this->y.setCenter(y);
+										this->z.setCenter(z);
+									}
+			/**
+			@brief Updates all values of the local box so that the center points to the specified x, y, z coordinates, and width, height, depth match twice the specified extend
+			@param center New center
+			@param ext Extend in both directions along the respective axis. Equals half the resulting width/height/depth
+			*/
+			template<typename T0, typename T1>
+				MF_DECLARE(void)	setCenter(const TVec3<T0>&center, const TVec3<T1>&ext)
+									{
+										x.setCenter(center.x,ext.x);
+										y.setCenter(center.y,ext.y);
+										z.setCenter(center.z,ext.z);
+									}
+			/**
+			@brief Updates all values of the local box so that the center points to the specified x, y, z coordinates, and width, height, depth match twice the specified extend
+			@param center New center
+			@param ext Extend in both directions along the respective axis. Equals half the resulting width/height/depth
+			*/
+			template<typename T0, typename T1>
+				MF_DECLARE(void)	setCenter(const TVec3<T0>&center, const T1&ext)
+									{
+										x.setCenter(center.x,ext);
+										y.setCenter(center.y,ext);
+										z.setCenter(center.z,ext);
+									}
+			/**
+			@brief Updates all values of the local box to the specified value
+			*/
+			template <typename T0>
+				MF_DECLARE(void)	setAll(const T0&value)
+									{
+										x.setAll(value);
+										y.setAll(value);
+										z.setAll(value);
+									}
+			/**
+			@brief Updates all min values of the local box to the specified value
+			*/
+			template <typename T0>
+				MF_DECLARE(void)	setAllMin(const T0&value)
+									{
+										x.min = (T)value;
+										y.min = (T)value;
+										z.min = (T)value;
+									}
+			/**
+			@brief Updates all max values of the local box to the specified value
+			*/
+			template <typename T0>
+				MF_DECLARE(void)	setAllMax(const T0&value)
+									{
+										x.max = (T)value;
+										y.max = (T)value;
+										z.max = (T)value;
+									}
+			/**
+			@brief Updates the minimum values of the local box
+			*/
+			MF_DECLARE(void)		setMin(const TVec3<T>&min)
+									{
+										x.min = min.x;
+										y.min = min.y;
+										z.min = min.z;
+									}
+			/**
+			@brief Updates the maximum values of the local box
+			*/
+			MF_DECLARE(void)		setMax(const TVec3<T>&max)
+									{
+										x.max = max.x;
+										y.max = max.y;
+										z.max = max.z;
+									}
+			/**
+			@brief Updates the minimum values of the local box
+			*/
+			template <typename T0, typename T1, typename T2>
+				MF_DECLARE(void)	setMin(const T0&min_x,const T1&min_y,const T2&min_z)
+									{
+										x.min = (T)min_x;
+										y.min = (T)min_y;
+										z.min = (T)min_z;
+									}
+			/**
+			@brief Updates the maximum values of the local box
+			*/
+			template <typename T0, typename T1, typename T2>
+				MF_DECLARE(void)	setMax(const T0&max_x,const T1&max_y,const T2&max_z)
+									{
+										x.max = (T)max_x;
+										y.max = (T)max_y;
+										z.max = (T)max_z;
+									}
+
+			MF_DECLARE(void)		scale(const T&by)	//! Scales the box from its central location
+									{
+										x.scale(by);
+										y.scale(by);
+										z.scale(by);
+									}
+			MF_DECLARE(void)		expand(const T& by)	//! Expands the box
+									{
+										x.expand(by);
+										y.expand(by);
+										z.expand(by);
+									}
+									
+			MF_DECLARE(void)		constrainBy(const Box<T>&constraint)	//! Modifies the local box so that it lies within the specified constraint box
+									{
+										x.constrainBy(constraint.x);
+										y.constrainBy(constraint.y);
+										z.constrainBy(constraint.z);
+									}
+			/*!
+			@brief	Determines whether or not the specified point lies within the local box
+			@param p 3d point
+			@return true if the point lies in the box
+			*/
+			template <typename T0>
+				MF_DECLARE(bool)	contains(const TVec3<T0>&p)	const
+									{
+										return x.contains(p.x) && y.contains(p.y) && z.contains(p.z);
+									}
 		
+			/*!
+			@brief Modifies the local box so that it contains the specified point
+			*/
+			template <typename T0, typename T1, typename T2>
+				MF_DECLARE(void)	include(const T0&x, const T1&y, const T2&z)
+									{
+										this->x.include(x);
+										this->y.include(y);
+										this->z.include(z);
+									}
+			/*!
+			@brief Modifies the local box so that it contains the specified point
+			*/
+			template <typename T0>
+				MF_DECLARE(void)	include(const TVec3<T0>&p)
+									{
+										x.include(p.x);
+										y.include(p.y);
+										z.include(p.z);
+									}
+			/*!
+			@brief Modifies the local box so that it contains the specified other box
+			*/
+			template <typename T0>
+				MF_DECLARE(void)	include(const Box<T0>&other)
+									{
+										x.include(other.x);
+										y.include(other.y);
+										z.include(other.z);
+									}
+		
+			/*!
+			\brief	Determines whether or not the specified point lies within the local rectangle
+			\param x X coordinate of the point
+			\param y Y coordinate of the point
+			\return true if the point lies in the rectangle
+			*/
+			template <typename T0, typename T1, typename T2>
+				MF_DECLARE(bool)	contains(const T0& x, const T1& y, const T2& z)	const
+									{
+										return this->x.contains(x) && this->y.contains(y) && this->z.contains(z);
+									}
+			/*!
+			\brief Calculates the width of the box
+			\return Rectangle width
+			*/
+			MF_DECLARE(T)			width()		const
+									{
+										return x.extend();
+									}
+			/*!
+			\brief Calculates the height of the box
+			\return Rectangle height
+			*/
+			MF_DECLARE(T)			height()	const
+									{
+										return y.extend();
+									}
+			/*!
+			\brief Calculates the depth of the box
+			\return Rectangle depth
+			*/
+			MF_DECLARE(T)			depth()	const
+									{
+										return z.extend();
+									}
+									
+			template <typename T0, typename T1, typename T2>
+				MF_DECLARE(void)	translate(const T0&delta_x, const T1&delta_y, const T2&delta_z)
+									{
+										x.translate(delta_x);
+										y.translate(delta_y);
+										z.translate(delta_z);
+									}
+			template <typename T0>
+				MF_DECLARE(void)	translate(const TVec3<T0>&delta)
+									{
+										x.translate(delta.x);
+										y.translate(delta.y);
+										z.translate(delta.z);
+									}
+			
+
+
+			template <typename T0, typename T1>
+				MF_DECLARE(void)	makeRelative(const TVec3<T0>&absolute, TVec3<T1>&relative_out)	const
+									{
+										x.relativate(absolute.x,relative_out.x);
+										y.relativate(absolute.y,relative_out.y);
+										z.relativate(absolute.y,relative_out.z);
+									}			
+			
+			template <typename T0>
+				MF_DECLARE(void)	relativate(const TVec2<T>&absolute, TVec2<T0>&relative_out)	const
+									{
+										x.relativate(absolute.x,relative_out.x);
+										y.relativate(absolute.y,relative_out.y);
+										z.relativate(absolute.y,relative_out.z);
+									}			
+			
+
+			template <typename T0,typename T1>
+				MF_DECLARE(void)	derelativate(const TVec3<T0>& relative, TVec3<T0>&absolute_out)	const
+									{
+										x.makeAbsolute(relative.x,absolute_out.x);
+										y.makeAbsolute(relative.y,absolute_out.y);
+										z.makeAbsolute(relative.z,absolute_out.z);
+									}
+			template <typename T0,typename T1>
+				MF_DECLARE(void)	makeAbsolute(const TVec3<T0>& relative, TVec3<T0>&absolute_out)	const
+									{
+										x.makeAbsolute(relative.x,absolute_out.x);
+										y.makeAbsolute(relative.y,absolute_out.y);
+										z.makeAbsolute(relative.z,absolute_out.z);
+									}
+			
+	
+			template <typename T0, typename T1>
+				MF_DECLARE(void)	makeRelative(const Box<T0>&absolute, Box<T1>&relative_out)	const
+									{
+										x.relativateRange(absolute.x,relative_out.x);
+										y.relativateRange(absolute.y,relative_out.y);
+										z.relativateRange(absolute.z,relative_out.z);
+									}			
+			
+			template <typename T0, typename T1>
+				MF_DECLARE(void)	relativate(const Box<T0>&absolute, Box<T1>&relative_out)	const
+									{
+										x.relativateRange(absolute.x,relative_out.x);
+										y.relativateRange(absolute.y,relative_out.y);
+										z.relativateRange(absolute.z,relative_out.z);
+									}			
+
+			template <typename T0, typename T1>
+				MF_DECLARE(void)	makeAbsolute(const Box<T0>&relative, Box<T1>&absolute_out)	const
+									{
+										x.derelativateRange(relative.x,absolute_out.x);
+										y.derelativateRange(relative.y,absolute_out.y);
+										z.derelativateRange(relative.z,absolute_out.z);
+									}			
+			
+			template <typename T0, typename T1>
+				MF_DECLARE(void)	derelativate(const Box<T0>&relative, Box<T1>&absolute_out)	const
+									{
+										x.derelativateRange(relative.x,absolute_out.x);
+										y.derelativateRange(relative.y,absolute_out.y);
+										z.derelativateRange(relative.z,absolute_out.z);
+									}			
+			template <typename T0>
+				void				getMin(TVec3<T0>&out)	const
+									{
+										out.x = (T0)x.min;
+										out.y = (T0)y.min;
+										out.z = (T0)z.min;
+									}
+			template <typename T0>
+				void				getMax(TVec3<T0>&out)	const
+									{
+										out.x = (T0)x.max;
+										out.y = (T0)y.max;
+										out.z = (T0)z.max;
+									}
+			template <typename T0>
+				void				getCenter(TVec3<T0>&out)	const
+									{
+										out.x = (T0)x.center();
+										out.y = (T0)y.center();
+										out.z = (T0)z.center();
+									}
+			template <typename T0>
+				void				getExtend(TVec3<T0>&out)	const
+									{
+										out.x = (T0)x.extend();
+										out.y = (T0)y.extend();
+										out.z = (T0)z.extend();
+									}
+			MF_DECLARE(TVec3<T>)	center()	const
+									{
+										TVec3<T> rs = {x.center(),y.center(),z.center()};
+										return rs;
+									}
+			MF_DECLARE(TVec3<T>)	min()	const
+									{
+										TVec3<T> rs = {x.min,y.min,z.min};
+										return rs;
+									}
+			MF_DECLARE(TVec3<T>)	max()	const
+									{
+										TVec3<T> rs = {x.max,y.max,z.max};
+										return rs;
+									}
+			MF_DECLARE(TVec3<T>)	extend()	const
+									{
+										TVec3<T> rs = {x.extend(),y.extend(),z.extend()};
+										return rs;
+									}
+
+			template <typename T1>
+				MF_DECLARE(bool)	intersects(const Box<T1>&other)	const
+									{
+										return x.intersects(other.x) && y.intersects(other.y) && z.intersects(other.z);
+									}
+			
+			virtual String			toString()	const	override
+									{
+										return	"("+String(x.min)+", "+String(y.min)+", "+String(z.min)+") - ("+String(x.max)+", "+String(y.max)+", "+String(z.max)+")";
+									}
+			template <typename T1>
+				MF_DECLARE(void)	operator*=(T1 factor)
+									{
+										x *= factor;
+										y *= factor;
+										z *= factor;
+									}
+		};
+
+
+	
+
 
 
 	/**

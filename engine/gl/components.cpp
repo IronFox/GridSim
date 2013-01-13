@@ -21,10 +21,10 @@ namespace Engine
 		static void fillRect(const Rect<float>&rect)
 		{
 			glBegin(GL_QUADS);
-				glVertex2f(rect.left,rect.bottom);
-				glVertex2f(rect.right,rect.bottom);
-				glVertex2f(rect.right,rect.top);
-				glVertex2f(rect.left,rect.top);
+				glVertex2f(rect.x.min,rect.y.min);
+				glVertex2f(rect.x.max,rect.y.min);
+				glVertex2f(rect.x.max,rect.y.max);
+				glVertex2f(rect.x.min,rect.y.max);
 			glEnd();
 		}
 
@@ -398,13 +398,13 @@ namespace Engine
 			if (!slider_layout)
 				return;
 			float width = slider_layout->slider.width;
-			slide_from = cell_layout.client.left+width/2;
-			slide_range = cell_layout.client.right-cell_layout.client.left-width;
+			slide_from = cell_layout.client.left()+width/2;
+			slide_range = cell_layout.client.x.max-cell_layout.client.left()-width;
 			float center = slide_from+current/max*slide_range;
-			cursor_region.left = center-width/2;
-			cursor_region.right = center+width/2;
-			cursor_region.top = cell_layout.client.centerY()+slider_layout->slider.height/2;
-			cursor_region.bottom = cursor_region.top-slider_layout->slider.height;
+			cursor_region.left() = center-width/2;
+			cursor_region.x.max = center+width/2;
+			cursor_region.top() = cell_layout.client.y.center()+slider_layout->slider.height/2;
+			cursor_region.bottom() = cursor_region.top()-slider_layout->slider.height;
 			slider.region = cursor_region;			
 		}
 		
@@ -417,27 +417,27 @@ namespace Engine
 			if (slider_layout)
 			{
 				bar_left.region = cell_layout.client;
-				bar_left.region.right = bar_left.region.left+slider_layout->bar_left.width;
-				bar_left.region.top = cell_layout.client.centerY()+slider_layout->bar_left.height/2;
-				bar_left.region.bottom = bar_left.region.top-slider_layout->bar_left.height;
+				bar_left.region.x.max = bar_left.region.left()+slider_layout->bar_left.width;
+				bar_left.region.top() = cell_layout.client.y.center()+slider_layout->bar_left.height/2;
+				bar_left.region.bottom() = bar_left.region.top()-slider_layout->bar_left.height;
 				bar_left.color = &slider_layout->bar_left.color;
 				bar_left.normal = &slider_layout->bar_left.normal;
 				bar_left.orientation = 0;
 				
 				bar_right.region = cell_layout.client;
-				bar_right.region.left = bar_right.region.right-slider_layout->bar_left.width;
-				bar_right.region.top = cell_layout.client.centerY()+slider_layout->bar_left.height/2;
-				bar_right.region.bottom = bar_right.region.top-slider_layout->bar_left.height;
+				bar_right.region.left() = bar_right.region.x.max-slider_layout->bar_left.width;
+				bar_right.region.top() = cell_layout.client.y.center()+slider_layout->bar_left.height/2;
+				bar_right.region.bottom() = bar_right.region.top()-slider_layout->bar_left.height;
 				bar_right.color = &slider_layout->bar_left.color;
 				bar_right.normal = &slider_layout->bar_left.normal;
 				bar_right.orientation = 2;
 				
 				
 				bar_center.region = cell_layout.client;
-				bar_center.region.left = bar_left.region.right;
-				bar_center.region.right = bar_right.region.left;
-				bar_center.region.top = cell_layout.client.centerY()+slider_layout->bar_center.height/2;
-				bar_center.region.bottom = bar_center.region.top-slider_layout->bar_center.height;
+				bar_center.region.left() = bar_left.region.x.max;
+				bar_center.region.x.max = bar_right.region.left();
+				bar_center.region.top() = cell_layout.client.y.center()+slider_layout->bar_center.height/2;
+				bar_center.region.bottom() = bar_center.region.top()-slider_layout->bar_center.height;
 				bar_center.color = &slider_layout->bar_center.color;
 				bar_center.normal = &slider_layout->bar_center.normal;
 				bar_center.orientation = 0;
@@ -504,7 +504,7 @@ namespace Engine
 		{
 			if (cursor_grabbed)
 			{
-				float	relative = x-cursor_region.left,
+				float	relative = x-cursor_region.left(),
 						delta = (relative-cursor_hook[0])*max/slide_range;
 				current = clamped(current+delta,0,max);
 				
@@ -523,8 +523,8 @@ namespace Engine
 			ext.caught_by = shared_from_this();
 			if (cursor_region.contains(x,y) && max > 0)
 			{
-				cursor_hook[0] = x-cursor_region.left;
-				cursor_hook[1] = y-cursor_region.bottom;
+				cursor_hook[0] = x-cursor_region.left();
+				cursor_hook[1] = y-cursor_region.bottom();
 				cursor_grabbed = true;
 				return RequestingRepaint;
 			}
@@ -610,33 +610,33 @@ namespace Engine
 				if (!horizontal)
 				{
 					up_button.region = cell_layout.client;
-					up_button.region.bottom = up_button.region.top-scroll_layout->bottom_button.height;
+					up_button.region.bottom() = up_button.region.top()-scroll_layout->bottom_button.height;
 					up_button.color = &scroll_layout->bottom_button.color;
 					up_button.normal = &scroll_layout->bottom_button.normal;
 					up_button.orientation = 2;
 					
 					down_button.region = cell_layout.client;
-					down_button.region.top = down_button.region.bottom+scroll_layout->bottom_button.height;
+					down_button.region.top() = down_button.region.bottom()+scroll_layout->bottom_button.height;
 					down_button.color = &scroll_layout->bottom_button.color;
 					down_button.normal = &scroll_layout->bottom_button.normal;
 					down_button.orientation = 0;
 				
 					background_top.region = cell_layout.client;
-					background_top.region.bottom = background_top.region.top-scroll_layout->back_bottom.height;
+					background_top.region.bottom() = background_top.region.top()-scroll_layout->back_bottom.height;
 					background_top.color = &scroll_layout->back_bottom.color;
 					background_top.normal = &scroll_layout->back_bottom.normal;
 					background_top.orientation = 2;
 					
 					
 					background_bottom.region = cell_layout.client;
-					background_bottom.region.top = background_bottom.region.bottom+scroll_layout->back_bottom.height;
+					background_bottom.region.top() = background_bottom.region.bottom()+scroll_layout->back_bottom.height;
 					background_bottom.color = &scroll_layout->back_bottom.color;
 					background_bottom.normal = &scroll_layout->back_bottom.normal;
 					background_bottom.orientation = 0;
 					
 					background_center.region = cell_layout.client;
-					background_center.region.top = background_top.region.bottom;
-					background_center.region.bottom = background_bottom.region.top;
+					background_center.region.top() = background_top.region.bottom();
+					background_center.region.bottom() = background_bottom.region.top();
 					background_center.color = &scroll_layout->back_center.color;
 					background_center.normal = &scroll_layout->back_center.normal;
 					background_center.orientation = 0;
@@ -649,63 +649,63 @@ namespace Engine
 					if (cursor_length < 2*scroll_layout->cursor_bottom.height)
 						cursor_length = 2*scroll_layout->cursor_bottom.height;
 					cursor_range -= cursor_length;
-					cursor_top.region.left = cell_layout.client.left;
-					cursor_top.region.right = cell_layout.client.right;
-					cursor_top.region.top = cell_layout.client.top-scroll_layout->bottom_button.height+scroll_layout->button_indent-cursor_range*current;
-					cursor_top.region.bottom = cursor_top.region.top-scroll_layout->cursor_bottom.height;
+					cursor_top.region.left() = cell_layout.client.left();
+					cursor_top.region.x.max = cell_layout.client.x.max;
+					cursor_top.region.top() = cell_layout.client.top()-scroll_layout->bottom_button.height+scroll_layout->button_indent-cursor_range*current;
+					cursor_top.region.bottom() = cursor_top.region.top()-scroll_layout->cursor_bottom.height;
 					cursor_top.color = &scroll_layout->cursor_bottom.color;
 					cursor_top.normal = &scroll_layout->cursor_bottom.normal;
 					cursor_top.orientation = 2;
 					
-					cursor_center.region.left = cell_layout.client.left;
-					cursor_center.region.right = cell_layout.client.right;
-					cursor_center.region.top = cursor_top.region.bottom;
-					cursor_center.region.bottom = cursor_center.region.top-cursor_length+2*scroll_layout->cursor_bottom.height;
+					cursor_center.region.left() = cell_layout.client.left();
+					cursor_center.region.x.max = cell_layout.client.x.max;
+					cursor_center.region.top() = cursor_top.region.bottom();
+					cursor_center.region.bottom() = cursor_center.region.top()-cursor_length+2*scroll_layout->cursor_bottom.height;
 					cursor_center.color = &scroll_layout->cursor_center.color;
 					cursor_center.normal = &scroll_layout->cursor_center.normal;
 					cursor_center.orientation = 0;
 					
-					cursor_bottom.region.left = cell_layout.client.left;
-					cursor_bottom.region.right = cell_layout.client.right;
-					cursor_bottom.region.top = cursor_center.region.bottom;
-					cursor_bottom.region.bottom = cursor_bottom.region.top-scroll_layout->cursor_bottom.height;
+					cursor_bottom.region.left() = cell_layout.client.left();
+					cursor_bottom.region.x.max = cell_layout.client.x.max;
+					cursor_bottom.region.top() = cursor_center.region.bottom();
+					cursor_bottom.region.bottom() = cursor_bottom.region.top()-scroll_layout->cursor_bottom.height;
 					cursor_bottom.color = &scroll_layout->cursor_bottom.color;
 					cursor_bottom.normal = &scroll_layout->cursor_bottom.normal;
 					cursor_bottom.orientation = 0;
 					
-					cursor_region.set(cell_layout.client.left,cursor_bottom.region.bottom,cell_layout.client.right,cursor_top.region.top);
+					cursor_region.set(cell_layout.client.left(),cursor_bottom.region.bottom(),cell_layout.client.x.max,cursor_top.region.top());
 				}
 				else
 				{
 					current = 1.0f-current;
 					down_button.region = cell_layout.client;
-					down_button.region.left = down_button.region.right-scroll_layout->bottom_button.height;
+					down_button.region.left() = down_button.region.x.max-scroll_layout->bottom_button.height;
 					down_button.color = &scroll_layout->bottom_button.color;
 					down_button.normal = &scroll_layout->bottom_button.normal;
 					down_button.orientation = 3;
 					
 					up_button.region = cell_layout.client;
-					up_button.region.right = up_button.region.left+scroll_layout->bottom_button.height;
+					up_button.region.x.max = up_button.region.left()+scroll_layout->bottom_button.height;
 					up_button.color = &scroll_layout->bottom_button.color;
 					up_button.normal = &scroll_layout->bottom_button.normal;
 					up_button.orientation = 1;
 				
 					background_top.region = cell_layout.client;
-					background_top.region.left = background_top.region.right-scroll_layout->back_bottom.height;
+					background_top.region.left() = background_top.region.x.max-scroll_layout->back_bottom.height;
 					background_top.color = &scroll_layout->back_bottom.color;
 					background_top.normal = &scroll_layout->back_bottom.normal;
 					background_top.orientation = 3;
 					
 					
 					background_bottom.region = cell_layout.client;
-					background_bottom.region.right = background_bottom.region.left+scroll_layout->back_bottom.height;
+					background_bottom.region.x.max = background_bottom.region.left()+scroll_layout->back_bottom.height;
 					background_bottom.color = &scroll_layout->back_bottom.color;
 					background_bottom.normal = &scroll_layout->back_bottom.normal;
 					background_bottom.orientation = 1;
 					
 					background_center.region = cell_layout.client;
-					background_center.region.right = background_top.region.left;
-					background_center.region.left = background_bottom.region.right;
+					background_center.region.x.max = background_top.region.left();
+					background_center.region.left() = background_bottom.region.x.max;
 					background_center.color = &scroll_layout->back_center.color;
 					background_center.normal = &scroll_layout->back_center.normal;
 					background_center.orientation = 1;
@@ -718,31 +718,31 @@ namespace Engine
 					if (cursor_length < 2*scroll_layout->cursor_bottom.height)
 						cursor_length = 2*scroll_layout->cursor_bottom.height;
 					cursor_range -= cursor_length;
-					cursor_top.region.top = cell_layout.client.top;
-					cursor_top.region.bottom = cell_layout.client.bottom;
-					cursor_top.region.right = cell_layout.client.right-scroll_layout->bottom_button.height+scroll_layout->button_indent-cursor_range*current;
-					cursor_top.region.left = cursor_top.region.right-scroll_layout->cursor_bottom.height;
+					cursor_top.region.top() = cell_layout.client.top();
+					cursor_top.region.bottom() = cell_layout.client.bottom();
+					cursor_top.region.x.max = cell_layout.client.x.max-scroll_layout->bottom_button.height+scroll_layout->button_indent-cursor_range*current;
+					cursor_top.region.left() = cursor_top.region.x.max-scroll_layout->cursor_bottom.height;
 					cursor_top.color = &scroll_layout->cursor_bottom.color;
 					cursor_top.normal = &scroll_layout->cursor_bottom.normal;
 					cursor_top.orientation = 3;
 					
-					cursor_center.region.bottom = cell_layout.client.bottom;
-					cursor_center.region.top = cell_layout.client.top;
-					cursor_center.region.right = cursor_top.region.left;
-					cursor_center.region.left = cursor_center.region.right-cursor_length+2*scroll_layout->cursor_bottom.height;
+					cursor_center.region.bottom() = cell_layout.client.bottom();
+					cursor_center.region.top() = cell_layout.client.top();
+					cursor_center.region.x.max = cursor_top.region.left();
+					cursor_center.region.left() = cursor_center.region.x.max-cursor_length+2*scroll_layout->cursor_bottom.height;
 					cursor_center.color = &scroll_layout->cursor_center.color;
 					cursor_center.normal = &scroll_layout->cursor_center.normal;
 					cursor_center.orientation = 1;
 					
-					cursor_bottom.region.bottom = cell_layout.client.bottom;
-					cursor_bottom.region.top = cell_layout.client.top;
-					cursor_bottom.region.right = cursor_center.region.left;
-					cursor_bottom.region.left = cursor_bottom.region.right-scroll_layout->cursor_bottom.height;
+					cursor_bottom.region.bottom() = cell_layout.client.bottom();
+					cursor_bottom.region.top() = cell_layout.client.top();
+					cursor_bottom.region.x.max = cursor_center.region.left();
+					cursor_bottom.region.left() = cursor_bottom.region.x.max-scroll_layout->cursor_bottom.height;
 					cursor_bottom.color = &scroll_layout->cursor_bottom.color;
 					cursor_bottom.normal = &scroll_layout->cursor_bottom.normal;
 					cursor_bottom.orientation = 1;
 					
-					cursor_region.set(cursor_bottom.region.left,cell_layout.client.bottom,cursor_top.region.right,cell_layout.client.top);
+					cursor_region.set(cursor_bottom.region.left(),cell_layout.client.bottom(),cursor_top.region.x.max,cell_layout.client.top());
 				}
 			
 			}
@@ -829,14 +829,14 @@ namespace Engine
 			{
 				if (horizontal)
 				{
-					float	relative = x-cursor_region.left,
+					float	relative = x-cursor_region.left(),
 							delta = (relative-cursor_hook[0])/cursor_range;
 					scroll_data.current+=delta;
 					scroll_data.current = clamped(scroll_data.current,0,1);
 				}
 				else
 				{
-					float	relative = y-cursor_region.bottom,
+					float	relative = y-cursor_region.bottom(),
 							delta = (relative-cursor_hook[1])/cursor_range;
 					scroll_data.current-=delta;
 					scroll_data.current = clamped(scroll_data.current,0,1);
@@ -854,8 +854,8 @@ namespace Engine
 			ext.caught_by = shared_from_this();
 			if (cursor_region.contains(x,y) && cursor_range > 0)
 			{
-				cursor_hook[0] = x-cursor_region.left;
-				cursor_hook[1] = y-cursor_region.bottom;
+				cursor_hook[0] = x-cursor_region.left();
+				cursor_hook[1] = y-cursor_region.bottom();
 				cursor_grabbed = true;
 			}
 			elif (up_button.region.contains(x,y))
@@ -1054,10 +1054,10 @@ namespace Engine
 			vertical.max = current.height();
 			
 			
-			/*	horizontal.min -= cell_layout.client.left;
-				horizontal.max -= cell_layout.client.left;
-				vertical.min -= cell_layout.client.top;
-				vertical.max -= cell_layout.client.top;*/
+			/*	horizontal.min -= cell_layout.client.left();
+				horizontal.max -= cell_layout.client.left();
+				vertical.min -= cell_layout.client.top();
+				vertical.max -= cell_layout.client.top();*/
 			
 			horizontal.window = cell_layout.client.width();
 			vertical.window = cell_layout.client.height();
@@ -1101,10 +1101,10 @@ namespace Engine
 			vertical_bar->offset.set(0,horizontal_bar->isVisible()?horizontal_bar->minHeight(false):0,0,0);
 			horizontal_bar->updateLayout(cell_layout.client);
 			vertical_bar->updateLayout(cell_layout.client);
-			effective_client_region.set(cell_layout.client.left,
-										horizontal_bar->isVisible()?/*floor*/(horizontal_bar->current_region.top):cell_layout.client.bottom,
-										vertical_bar->isVisible()?/*ceil*/(vertical_bar->current_region.left):cell_layout.client.right,
-										cell_layout.client.top);
+			effective_client_region.set(cell_layout.client.left(),
+										horizontal_bar->isVisible()?/*floor*/(horizontal_bar->current_region.top()):cell_layout.client.bottom(),
+										vertical_bar->isVisible()?/*ceil*/(vertical_bar->current_region.left()):cell_layout.client.x.max,
+										cell_layout.client.top());
 			//effective_client_region = cell_layout.client;
 			
 			float	hrange = (horizontal.max-effective_client_region.width()),
@@ -1378,8 +1378,8 @@ namespace Engine
 			{
 				op->focus(cell_layout.client);
 				textout.color(1,1,1);
-				float	bottom = cell_layout.client.centerY()-textout.getFont().getHeight()/2+font_offset,
-						top = cell_layout.client.centerY()+textout.getFont().getHeight()/2;
+				float	bottom = cell_layout.client.y.center()-textout.getFont().getHeight()/2+font_offset,
+						top = cell_layout.client.y.center()+textout.getFont().getHeight()/2;
 				glDisable(GL_BLEND);
 				if (mask_input)
 				{
@@ -1392,13 +1392,13 @@ namespace Engine
 					glDisable(GL_TEXTURE_2D);
 					glBegin(GL_POINTS);
 					for (size_t i = view_begin; i < end; i++)
-						glVertex2f(cell_layout.client.left+csize*(0.5+i),cell_layout.client.centerY());
+						glVertex2f(cell_layout.client.left()+csize*(0.5+i),cell_layout.client.y.center());
 					glEnd();
 					glPointSize(psize);
 				}
 				else
 				{
-					textout.locate(cell_layout.client.left,bottom);
+					textout.locate(cell_layout.client.left(),bottom);
 					textout.print(text.root()+view_begin,end-view_begin);
 				}
 				if (sel_start != cursor)
@@ -1414,8 +1414,8 @@ namespace Engine
 							sel_begin = view_begin;
 						if (sel_end < view_begin)
 							sel_end = view_begin;
-						float	left = cell_layout.client.left+textWidth(text.root()+view_begin,sel_begin-view_begin),
-								right = cell_layout.client.left+textWidth(text.root()+view_begin,sel_end-view_begin);
+						float	left = cell_layout.client.left()+textWidth(text.root()+view_begin,sel_begin-view_begin),
+								right = cell_layout.client.left()+textWidth(text.root()+view_begin,sel_end-view_begin);
 						//glColor4f(0.4,0.6,1,0.7);
 						glColor4f(0.2,0.3,0.5,0.7);
 						glVertex2f(left-2,bottom);
@@ -1437,14 +1437,14 @@ namespace Engine
 						glWhite();
 						glBegin(GL_POINTS);
 						for (index_t i = sel_begin; i < sel_end; i++)
-							glVertex2f(cell_layout.client.left+csize*(0.5+i),cell_layout.client.centerY());
+							glVertex2f(cell_layout.client.left()+csize*(0.5+i),cell_layout.client.y.center());
 						glEnd();
 						glPointSize(psize);
 					}
 					else
 					{
 						textout.color(1,1,1,1);
-						textout.locate(cell_layout.client.left+textout.unscaledLength(text.root()+view_begin,sel_begin-view_begin),bottom);
+						textout.locate(cell_layout.client.left()+textout.unscaledLength(text.root()+view_begin,sel_begin-view_begin),bottom);
 						textout.print(text.root()+sel_begin,sel_end-sel_begin);
 					}
 				}
@@ -1458,8 +1458,8 @@ namespace Engine
 				glWhite();
 				op->getDisplay().useTexture(NULL);
 				glBegin(GL_LINES);
-					glVertex2f(cursor_offset,cell_layout.client.centerY()-textout.getFont().getHeight()/2);
-					glVertex2f(cursor_offset,cell_layout.client.centerY()+textout.getFont().getHeight()/2+font_offset);
+					glVertex2f(cursor_offset,cell_layout.client.y.center()-textout.getFont().getHeight()/2);
+					glVertex2f(cursor_offset,cell_layout.client.y.center()+textout.getFont().getHeight()/2+font_offset);
 				glEnd();
 			}
 		}
@@ -1505,7 +1505,7 @@ namespace Engine
 			if (cell_layout.client.contains(x,y))
 			{
 				//ShowMessage(String(x)+", "+String(y)+" is in "+cell_layout.client.toString());
-				float rx = x - cell_layout.client.left;
+				float rx = x - cell_layout.client.left();
 				size_t end = vmin(view_end-1+view_right_most,text.length());
 				index_t index=view_begin;
 				for (; index < end; index++)
@@ -1520,7 +1520,7 @@ namespace Engine
 					sel_start = cursor;
 				ext.custom_cursor = Mouse::CursorType::EditText;
 				
-				cursor_offset = cell_layout.client.left+textWidth(text.root()+view_begin,cursor-view_begin);			
+				cursor_offset = cell_layout.client.left()+textWidth(text.root()+view_begin,cursor-view_begin);			
 				return RequestingRepaint;
 			}
 			return Handled;
@@ -1528,7 +1528,7 @@ namespace Engine
 		
 		Component::eEventResult	Edit::onMouseDrag(float x, float y)
 		{
-			float rx = x - cell_layout.client.left;
+			float rx = x - cell_layout.client.left();
 			go_left = rx < 0;
 			size_t end = vmin(view_end-1+view_right_most,text.length());
 			index_t index=view_begin;
@@ -1541,7 +1541,7 @@ namespace Engine
 			}
 			go_right = index == end && rx > 0;
 			cursor = index;
-			cursor_offset = cell_layout.client.left+textWidth(text.root()+view_begin,cursor-view_begin);			
+			cursor_offset = cell_layout.client.left()+textWidth(text.root()+view_begin,cursor-view_begin);			
 			return RequestingRepaint;
 		}
 		
@@ -1780,7 +1780,7 @@ namespace Engine
 			view_right_most = textWidth(text.root()+view_begin,view_end-view_begin)<cell_layout.client.width();
 			//if (textout.unscaledLength(text.root()+view_begin,view_end-view_begin)>=cell_layout.client.width())
 				//view_end--;
-			cursor_offset = cell_layout.client.left+textWidth(text.root()+view_begin,cursor-view_begin);
+			cursor_offset = cell_layout.client.left()+textWidth(text.root()+view_begin,cursor-view_begin);
 		}
 		
 		void	Edit::updateLayout(const Rect<float>&parent_region)
@@ -1847,7 +1847,7 @@ namespace Engine
 			const Rect<float>&rect=cell_layout.client;
 			
 			glDisable(GL_BLEND);
-			textout.locate(rect.centerX()-textout.unscaledLength(caption)*0.5+pressed,rect.centerY()-textout.getFont().getHeight()/2+font_offset);//textout.getFont().getHeight()*0.5);
+			textout.locate(rect.x.center()-textout.unscaledLength(caption)*0.5+pressed,rect.y.center()-textout.getFont().getHeight()/2+font_offset);//textout.getFont().getHeight()*0.5);
 			textout.color(1.0-0.2*(pressed||!enabled),1.0-0.2*(pressed||!enabled),1.0-0.2*(pressed||!enabled));
 			textout.print(caption);
 			glEnable(GL_BLEND);
@@ -1927,13 +1927,13 @@ namespace Engine
 				shared_ptr<Operator> op = requireOperator();
 
 				op->getDisplay().useTexture(style->box_normal);
-				float cy = rect.centerY();
+				float cy = rect.y.center();
 				float size = boxSize();
 				glBegin(GL_QUADS);
-					glTexCoord2f(0,0); glVertex2f(rect.left,cy-size/2);
-					glTexCoord2f(1,0); glVertex2f(rect.left+size,cy-size/2);
-					glTexCoord2f(1,1); glVertex2f(rect.left+size,cy+size/2);
-					glTexCoord2f(0,1); glVertex2f(rect.left,cy+size/2);
+					glTexCoord2f(0,0); glVertex2f(rect.left(),cy-size/2);
+					glTexCoord2f(1,0); glVertex2f(rect.left()+size,cy-size/2);
+					glTexCoord2f(1,1); glVertex2f(rect.left()+size,cy+size/2);
+					glTexCoord2f(0,1); glVertex2f(rect.left(),cy+size/2);
 				glEnd();
 			}
 		}
@@ -1943,7 +1943,7 @@ namespace Engine
 			Component::onColorPaint();
 			
 			const Rect<float>&rect=cell_layout.client;
-			float cy = rect.centerY();
+			float cy = rect.y.center();
 			float size = boxSize();
 			shared_ptr<Operator> op = requireOperator();
 			Engine::Display<OpenGL>&display = op->getDisplay();
@@ -1952,10 +1952,10 @@ namespace Engine
 
 				display.useTexture(style->box_color);
 				glBegin(GL_QUADS);
-					glTexCoord2f(0,0); glVertex2f(rect.left,cy-size/2);
-					glTexCoord2f(1,0); glVertex2f(rect.left+size,cy-size/2);
-					glTexCoord2f(1,1); glVertex2f(rect.left+size,cy+size/2);
-					glTexCoord2f(0,1); glVertex2f(rect.left,cy+size/2);
+					glTexCoord2f(0,0); glVertex2f(rect.left(),cy-size/2);
+					glTexCoord2f(1,0); glVertex2f(rect.left()+size,cy-size/2);
+					glTexCoord2f(1,1); glVertex2f(rect.left()+size,cy+size/2);
+					glTexCoord2f(0,1); glVertex2f(rect.left(),cy+size/2);
 				glEnd();
 			}
 			
@@ -1964,10 +1964,10 @@ namespace Engine
 				display.useTexture(style->check_mark);
 				glBlack();
 				glBegin(GL_QUADS);
-					glTexCoord2f(0,0); glVertex2f(rect.left,cy-size/2);
-					glTexCoord2f(1,0); glVertex2f(rect.left+size,cy-size/2);
-					glTexCoord2f(1,1); glVertex2f(rect.left+size,cy+size/2);
-					glTexCoord2f(0,1); glVertex2f(rect.left,cy+size/2);
+					glTexCoord2f(0,0); glVertex2f(rect.left(),cy-size/2);
+					glTexCoord2f(1,0); glVertex2f(rect.left()+size,cy-size/2);
+					glTexCoord2f(1,1); glVertex2f(rect.left()+size,cy+size/2);
+					glTexCoord2f(0,1); glVertex2f(rect.left(),cy+size/2);
 				glEnd();
 			}
 			
@@ -1976,15 +1976,15 @@ namespace Engine
 				display.useTexture(style->highlight_mark);
 				glColor3f(1,0.6,0);
 				glBegin(GL_QUADS);
-					glTexCoord2f(0,0); glVertex2f(rect.left,cy-size/2);
-					glTexCoord2f(1,0); glVertex2f(rect.left+size,cy-size/2);
-					glTexCoord2f(1,1); glVertex2f(rect.left+size,cy+size/2);
-					glTexCoord2f(0,1); glVertex2f(rect.left,cy+size/2);
+					glTexCoord2f(0,0); glVertex2f(rect.left(),cy-size/2);
+					glTexCoord2f(1,0); glVertex2f(rect.left()+size,cy-size/2);
+					glTexCoord2f(1,1); glVertex2f(rect.left()+size,cy+size/2);
+					glTexCoord2f(0,1); glVertex2f(rect.left(),cy+size/2);
 				glEnd();
 			}
 		
 			glDisable(GL_BLEND);
-			textout.locate(rect.left+size+textout.getFont().getHeight()*0.2,rect.centerY()-textout.getFont().getHeight()/2+font_offset);//textout.getFont().getHeight()*0.5);
+			textout.locate(rect.left()+size+textout.getFont().getHeight()*0.2,rect.y.center()-textout.getFont().getHeight()/2+font_offset);//textout.getFont().getHeight()*0.5);
 			textout.color(1.0-0.2*(!enabled),1.0-0.2*(!enabled),1.0-0.2*(!enabled));
 			textout.print(caption);
 			glEnable(GL_BLEND);
@@ -2040,7 +2040,7 @@ namespace Engine
 			}
 			if (layout)
 			{
-				rs += layout->client_edge.left+layout->client_edge.right;
+				rs += layout->client_edge.left()+layout->client_edge.x.max;
 				if (rs < layout->min_width)
 					rs = layout->min_width;
 			}
@@ -2059,7 +2059,7 @@ namespace Engine
 			}
 			if (layout)
 			{
-				rs += layout->client_edge.bottom+layout->client_edge.top;
+				rs += layout->client_edge.bottom()+layout->client_edge.top();
 				if (rs < layout->min_height)
 					rs = layout->min_height;
 			}
@@ -2167,15 +2167,15 @@ namespace Engine
 					glDisable(GL_BLEND);
 				if (!wrap_text)
 				{
-					float	bottom = cell_layout.client.centerY()-textout.getFont().getHeight()/2+font_offset;
-					textout.locate(cell_layout.client.left,bottom);
+					float	bottom = cell_layout.client.y.center()-textout.getFont().getHeight()/2+font_offset;
+					textout.locate(cell_layout.client.left(),bottom);
 					textout.print(caption);
 				}
 				else
 				{
 					for (index_t i = 0; i < lines.count(); i++)
 					{
-						textout.locate(cell_layout.client.left,cell_layout.client.top-(textout.getFont().getHeight()*(i+1)));
+						textout.locate(cell_layout.client.left(),cell_layout.client.top()-(textout.getFont().getHeight()*(i+1)));
 						textout.print(lines[i]);
 					}
 				}
@@ -2222,7 +2222,7 @@ namespace Engine
 			Menu*	menu = (Menu*)menu_window->component_link.get();
 			float mh = menu->idealHeight();
 			if (menu_window->layout)
-				mh += menu_window->layout->client_edge.top+menu_window->layout->client_edge.bottom;
+				mh += menu_window->layout->client_edge.top()+menu_window->layout->client_edge.bottom();
 			float h = vmin(150,mh);
 			if (menu_window->fheight != h)
 			{
@@ -2331,16 +2331,16 @@ namespace Engine
 					#ifdef DEEP_GUI
 						if (open_down)
 						{
-							menu_window->current_center.x = absolute.left+menu_window->fwidth/2;
-							menu_window->current_center.y = absolute.bottom-menu_window->fheight/2;
+							menu_window->current_center.x = absolute.left()+menu_window->fwidth/2;
+							menu_window->current_center.y = absolute.bottom()-menu_window->fheight/2;
 						}
 						else
 						{
-							menu_window->current_center.x = absolute.right+menu_window->fwidth/2;
-							menu_window->current_center.y = absolute.top-menu_window->fheight/2;
+							menu_window->current_center.x = absolute.x.max+menu_window->fwidth/2;
+							menu_window->current_center.y = absolute.top()-menu_window->fheight/2;
 						}
-						menu_window->current_center.x -= (menu_window->cell_layout.border.left);
-						menu_window->current_center.y += (menu_window->fheight-menu_window->cell_layout.border.top);
+						menu_window->current_center.x -= (menu_window->cell_layout.border.left());
+						menu_window->current_center.y += (menu_window->fheight-menu_window->cell_layout.border.top());
 						
 						menu_window->current_center.shell_radius = 1;
 						
@@ -2348,16 +2348,16 @@ namespace Engine
 					#else
 						if (open_down)
 						{
-							menu_window->x = absolute.left+menu_window->fwidth/2;
-							menu_window->y = absolute.bottom-menu_window->fheight/2;
+							menu_window->x = absolute.left()+menu_window->fwidth/2;
+							menu_window->y = absolute.bottom()-menu_window->fheight/2;
 						}
 						else
 						{
-							menu_window->x = absolute.right+menu_window->fwidth/2;
-							menu_window->y = absolute.top-menu_window->fheight/2;
+							menu_window->x = absolute.x.max+menu_window->fwidth/2;
+							menu_window->y = absolute.top()-menu_window->fheight/2;
 						}
-						menu_window->x -= (menu_window->cell_layout.border.left);
-						menu_window->y += (menu_window->fheight-menu_window->cell_layout.border.top);
+						menu_window->x -= (menu_window->cell_layout.border.left());
+						menu_window->y += (menu_window->fheight-menu_window->cell_layout.border.top());
 					#endif
 						
 					requireOperator()->showMenu(menu_window);
@@ -2485,7 +2485,7 @@ namespace Engine
 			for (index_t i = 0; i < children.count(); i++)
 				h += children[i]->height;
 			if (layout)
-				h += layout->client_edge.top+layout->client_edge.bottom;
+				h += layout->client_edge.top()+layout->client_edge.bottom();
 			return h;
 		}
 		
