@@ -88,6 +88,11 @@ namespace Engine
 					"const vec3 light = vec3(0,0.70710678118654752440084436210485,0.70710678118654752440084436210485);\n"
 					"varying vec2 eye;\n"
 					"varying mat3 tangent_space;\n"
+					"vec3 toneBackground(vec3 color)\n"
+					"{\n"
+						"float brightness = dot(color,vec3(0.35,0.5,0.15));\n"
+						"return color / (1.0 + pow(brightness,4.0)*0.35);\n"
+					"}\n"
 					"void main()\n"
 					"{\n"
 						"vec3 color = vec3(0.0);\n"
@@ -121,21 +126,24 @@ namespace Engine
 									"vec2 coord = (sample+vec2(float(x)*1.3/1280.0,float(y)*1.3/1024.0f));\n"
 									"color += texture2D(background,coord).rgb;\n"
 								"}\n"
+								"color /= 25.0;\n"
+								"color = toneBackground(color);\n"
 							"#if bump_mapping\n"
 								"float intensity = pow(max(dot(reflected,light),0.0),7.0)*0.5*gl_Color.a+0.05;\n"
-								"gl_FragColor.rgb = mix(color.rgb/25.0+intensity,color_sample.rgb*(1.0+intensity),color_sample.a+(1.0-color_sample.a)*(1.0-normal.a));\n"
+								"gl_FragColor.rgb = mix(color+intensity,color_sample.rgb*(1.0+intensity),color_sample.a+(1.0-color_sample.a)*(1.0-normal.a));\n"
 								//"gl_FragColor.rgb = mix(color.rgb/25.0+intensity,color_sample.rgb*(1.0+intensity),1.0);\n"
 							"#else\n"
-								"gl_FragColor.rgb = mix(color.rgb/25.0,color_sample.rgb,color_sample.a+(1.0-color_sample.a)*(1.0-normal.a));\n"
+								"gl_FragColor.rgb = mix(color,color_sample.rgb,color_sample.a+(1.0-color_sample.a)*(1.0-normal.a));\n"
 							"#endif\n"
 							"gl_FragColor.a = color_sample.a+(1.0-color_sample.a)*normal.a;\n"
 						"#elif refract\n"
 							"color = texture2D(background,sample).rgb;\n"
+							"color = toneBackground(color);\n"
 							"#if bump_mapping\n"
 								"float intensity = pow(max(dot(reflected,light),0.0),7.0)*0.5*gl_Color.a+0.05;\n"
-								"gl_FragColor.xyz = mix(color.rgb+intensity,color_sample.rgb*(1.0+intensity),color_sample.a+(1.0-color_sample.a)*(1.0-normal.a));\n"
+								"gl_FragColor.xyz = mix(color+intensity,color_sample.rgb*(1.0+intensity),color_sample.a+(1.0-color_sample.a)*(1.0-normal.a));\n"
 							"#else\n"
-								"gl_FragColor.xyz = mix(color.rgb,color_sample.rgb,color_sample.a+(1.0-color_sample.a)*(1.0-normal.a));\n"
+								"gl_FragColor.xyz = mix(color,color_sample.rgb,color_sample.a+(1.0-color_sample.a)*(1.0-normal.a));\n"
 							"#endif\n"
 							"gl_FragColor.a = color_sample.a+(1.0-color_sample.a)*normal.a;\n"
 						"#else\n"
@@ -409,8 +417,14 @@ namespace Engine
 		
 		void Component::charRead(char c)
 		{
+			eEventResult rs = Unsupported;
 			if (focused)
-				focused->window()->apply(focused->onChar(c));
+			{
+				rs = focused->onChar(c);
+				focused->window()->apply(rs);
+			}
+			if (rs == Unsupported && old_read)
+				old_reader(c);
 		}
 
 		void					Component::signalLayoutChange()	const
@@ -2209,6 +2223,13 @@ namespace Engine
 			return window_stack.contains(window);
 		}
 		
+		shared_ptr<Window>	Operator::getTopWindow() const
+		{
+			if (window_stack.isEmpty())
+				return shared_ptr<Window>();
+			return window_stack.last();
+		}
+
 		
 		void			Operator::insertWindow(const shared_ptr<Window>&window)
 		{

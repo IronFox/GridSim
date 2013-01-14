@@ -305,7 +305,7 @@ namespace Engine
 			void								signalVisualChange() const;					//!< Signals that the local component must be redrawn
 			
 			static void							resetFocused();																	//!< Unsets the currently focused component. Identical to passing an empty (null) pointer to setFocused()
-			static	void 						setFocused(const shared_ptr<Component>&component);								//!< Changes the currently focused component
+			static void 						setFocused(const shared_ptr<Component>&component);								//!< Changes the currently focused component
 
 			shared_ptr<Operator>				getOperator()	const;
 			shared_ptr<Operator>				requireOperator()	const;
@@ -508,6 +508,7 @@ namespace Engine
 				bool									ownsMouseDown()	const	{return owns_mouse_down;}
 				void									updateDisplaySize();	//!< Updates local texture sizes based on display size
 
+				shared_ptr<Window>						getTopWindow() const;	//!< Retrieves the top-most window
 				void									insertWindow(const shared_ptr<Window>&window);	//!< Appends a window to the local window stack as new top level window. If the window is already inserted then it will simply be moved to the top position @param window Window to append @param managed Set true to also add the window to the local container, automatically deleting it if no longer necessary
 				void									removeWindow(const shared_ptr<Window>&window);				//!< Removes a window from the window stack (does not delete the window)
 				bool									windowIsVisible(const shared_ptr<Window>&window)	const;
