@@ -742,7 +742,7 @@ void		EntityTree::recursiveRemap(const Buffer<Entity*>&source)
 				Entity*object = entities[i];
 				
 				float upper,lower,separation;
-				const Range<>&axis = object->volume.axis[k];
+				const TRange<>&axis = object->volume.axis[k];
 				lower = axis.min;
 				upper = axis.max;
 				separation = (upper-lower)/20;

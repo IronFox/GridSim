@@ -2539,28 +2539,30 @@ namespace Engine
 			shared_ptr<Operator> rs = shared_ptr<Operator>(new Operator(display,mouse,input,mode));
 			input.pushProfile();
 			input.bindProfile(my_profile);
-				//input.cascadeKeys();
 				for (Key::Name k = (Key::Name)0; k <= Key::Max; k = (Key::Name)(k+1))
-				{
-					if ((k < Key::A || k > Key::Z) && (k < Key::N0 || k > Key::N9) && k != Key::SZ && k != Key::AE && k != Key::UE && k != Key::OE)
-						input.cascade(k);
-				}
+					rs->bind(k);
+				//input.cascadeKeys();
+				//for (Key::Name k = (Key::Name)0; k <= Key::Max; k = (Key::Name)(k+1))
+				//{
+				//	if ((k < Key::A || k > Key::Z) && (k < Key::N0 || k > Key::N9) && k != Key::SZ && k != Key::AE && k != Key::UE && k != Key::OE && k != Key::Space && k != Key::Period && k != Key::Comma && k != Key::Minus && k != Key::Mesh)
+				//		input.cascade(k);
+				//}
 	
-				rs->bind(Key::Left);
-				rs->bind(Key::Right);
-				rs->bind(Key::Up);
-				rs->bind(Key::Down);
-				rs->bind(Key::Return);
-				rs->bind(Key::Enter);
-				rs->bind(Key::Backspace);
-				rs->bind(Key::Delete);
-				rs->bind(Key::Home);
-				rs->bind(Key::End);
-				rs->bind(Key::Tab);
-				rs->bind(Key::C);
-				rs->bind(Key::X);
-				rs->bind(Key::V);
-				rs->bind(Key::Tab);
+				//rs->bind(Key::Left);
+				//rs->bind(Key::Right);
+				//rs->bind(Key::Up);
+				//rs->bind(Key::Down);
+				//rs->bind(Key::Return);
+				//rs->bind(Key::Enter);
+				//rs->bind(Key::Backspace);
+				//rs->bind(Key::Delete);
+				//rs->bind(Key::Home);
+				//rs->bind(Key::End);
+				//rs->bind(Key::Tab);
+				//rs->bind(Key::C);
+				//rs->bind(Key::X);
+				//rs->bind(Key::V);
+				//rs->bind(Key::Tab);
 			input.popProfile();
 		
 

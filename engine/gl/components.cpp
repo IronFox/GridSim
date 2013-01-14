@@ -1752,7 +1752,12 @@ namespace Engine
 					on_enter();
 				return Handled;
 				default:
-					return Unsupported;
+					{
+						Key::Name k = key;
+						if ((k < Key::A || k > Key::Z) && (k < Key::N0 || k > Key::N9) && k != Key::SZ && k != Key::AE && k != Key::UE && k != Key::OE && k != Key::Space && k != Key::Period && k != Key::Comma && k != Key::Minus && k != Key::Mesh)
+							return Unsupported;	//really have no use for these. Cascade away.
+						//else goto Handled...
+					}
 			}
 			return Handled;
 		}

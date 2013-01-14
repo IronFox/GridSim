@@ -67,7 +67,7 @@ namespace Math
 				};
 				struct
 				{
-					T			lower,upper;	//!< Range accessors
+					T			lower,upper;	//!< TRange accessors
 				};
 				struct
 				{
@@ -218,7 +218,7 @@ namespace Math
 
 
 	template <typename T=float>
-		class Range
+		class TRange
 		{
 		public:
 			union
@@ -233,7 +233,7 @@ namespace Math
 
 
 			template <typename T1>
-				Range<T>&			operator=(const Range<T1>&other)
+				TRange<T>&			operator=(const TRange<T1>&other)
 									{
 										min = (T)other.min;
 										max = (T)other.max;
@@ -246,7 +246,7 @@ namespace Math
 										this->max = max;
 									}
 			template<typename T0>
-				MF_DECLARE(void)	set(const Range<T0>&other)
+				MF_DECLARE(void)	set(const TRange<T0>&other)
 									{
 										min = (T)other.min;
 										max = (T)other.max;
@@ -277,7 +277,7 @@ namespace Math
 										min -= by;
 										max += by;
 									}
-			MF_DECLARE(void)		constrainBy(const Range<T>&constraint)	//! Modifies the local range so that it lies within the specified constraint range
+			MF_DECLARE(void)		constrainBy(const TRange<T>&constraint)	//! Modifies the local range so that it lies within the specified constraint range
 									{
 										min = Math::clamp(min,constraint.min,constraint.max);
 										max = Math::clamp(max,constraint.min,constraint.max);
@@ -302,7 +302,7 @@ namespace Math
 										max = std::max<T>(max,value);
 									}
 			template<typename T0>
-				MF_DECLARE(void)	include(const Range<T0>&other)	//!< Expands the local range so that it includes the specified other range
+				MF_DECLARE(void)	include(const TRange<T0>&other)	//!< Expands the local range so that it includes the specified other range
 									{
 										min = std::min<T>(min,other.min);
 										max = std::max<T>(max,other.max);
@@ -319,7 +319,7 @@ namespace Math
 										relative_out = (T1)((absolute-min)/extend());
 									}
 			template <typename T0,typename T1>
-				MF_DECLARE(void)	relativateRange(const Range<T0>& absolute, Range<T1>&relative_out)	const
+				MF_DECLARE(void)	relativateRange(const TRange<T0>& absolute, TRange<T1>&relative_out)	const
 									{
 										relativate(absolute.min,relative_out.min);
 										relativate(absolute.max,relative_out.max);
@@ -330,7 +330,7 @@ namespace Math
 										absolute_out = (T1)(min + relative*extend());
 									}
 			template <typename T0,typename T1>
-				MF_DECLARE(void)	derelativateRange(const Range<T0>& relative, Range<T1>&absolute_out)	const
+				MF_DECLARE(void)	derelativateRange(const TRange<T0>& relative, TRange<T1>&absolute_out)	const
 									{
 										derelativate(relative.min,absolute_out.min);
 										derelativate(relative.max,absolute_out.max);
@@ -343,7 +343,7 @@ namespace Math
 										relative_out = (T1)((absolute-min)/extend());
 									}
 			template <typename T0,typename T1>
-				MF_DECLARE(void)	makeRangeRelative(const Range<T0>& absolute, Range<T1>&relative_out)	const
+				MF_DECLARE(void)	makeRangeRelative(const TRange<T0>& absolute, TRange<T1>&relative_out)	const
 									{
 										relativate(absolute.min,relative_out.min);
 										relativate(absolute.max,relative_out.max);
@@ -354,7 +354,7 @@ namespace Math
 										absolute_out = (T1)(min + relative*extend());
 									}
 			template <typename T0,typename T1>
-				MF_DECLARE(void)	makeRangeAbsolute(const Range<T0>& relative, Range<T1>&absolute_out)	const
+				MF_DECLARE(void)	makeRangeAbsolute(const TRange<T0>& relative, TRange<T1>&absolute_out)	const
 									{
 										derelativate(relative.min,absolute_out.min);
 										derelativate(relative.max,absolute_out.max);
@@ -365,7 +365,7 @@ namespace Math
 									}
 				
 			template <typename T1>
-				MF_DECLARE(bool)	intersects(const Range<T1>&other)	const
+				MF_DECLARE(bool)	intersects(const TRange<T1>&other)	const
 									{
 										return min <= other.max && max >= other.min;
 									}
@@ -383,6 +383,13 @@ namespace Math
 									}
 
 		};
+
+	template <typename T>
+		inline TRange<T>	range(const T&min, const T&max)
+		{
+			TRange<T> result = {min,max};
+			return result;
+		}
 
 	template <typename T>
 		class Quad
@@ -436,9 +443,9 @@ namespace Math
 			{
 				struct
 				{
-					Range<T>		x,y;
+					TRange<T>		x,y;
 				};
-				Range<T>			axis[2];
+				TRange<T>			axis[2];
 			};
 
 			/**/					Rect(){}
@@ -888,9 +895,9 @@ namespace Math
 			{
 				struct
 				{
-					Range<T>		x,y,z;
+					TRange<T>		x,y,z;
 				};
-				Range<T>			axis[3];
+				TRange<T>			axis[3];
 			};
 
 			/**/					Box(){}

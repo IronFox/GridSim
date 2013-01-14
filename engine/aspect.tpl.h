@@ -420,7 +420,7 @@ MFUNC2 (bool) Aspect<C>::project(const TVec3<C0>&point, TVec3<C1>&projected)	con
 	if (vabs(temp1.w) < getError<C>())
 		return false;
 	Vec::divide(temp1.xyz,temp1.w,projected);
-	return temp1.w >= -1 && temp1.w <= 1;
+	return projected.z >= -1 && projected.z <= 1;
 }
 
 template <class C>
