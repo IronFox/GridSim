@@ -973,7 +973,15 @@ namespace Engine
 		
 		
 		
-		
+		bool	Window::remove()
+		{
+			shared_ptr<Operator>	op = operator_link.lock();
+			if (op)
+			{
+				return op->removeWindow(shared_from_this());
+			}
+			return false;
+		}
 
 
 		Window::Window(bool modal, Layout*style):is_modal(modal),exp_x(0),exp_y(0),iwidth(1),iheight(1),progress(0),fwidth(1),fheight(1),usage_x(0),usage_y(0),layout(style),title(""),size_changed(true),layout_changed(true),visual_changed(true),fixed_position(false),fixed_size(false),hidden(timer.now())
@@ -2274,7 +2282,7 @@ namespace Engine
 			stack_changed=true;
 		}
 		
-		void			Operator::removeWindow(const shared_ptr<Window>&window)
+		bool			Operator::removeWindow(const shared_ptr<Window>&window)
 		{
 			bool was_top = window_stack.isNotEmpty() && window_stack.last() == window;
 				
@@ -2293,7 +2301,9 @@ namespace Engine
 						window_stack[j]->setShellDestination(radiusOf(j));
 				#endif
 				stack_changed=true;
+				return true;
 			}
+			return false;
 		}
 		
 		

@@ -217,25 +217,25 @@ namespace Engine
 		class Slider: public Component
 		{
 		protected:
-				float					cursor_hook[2];
-				bool					cursor_grabbed;
-				TFreeCell				bar_left,
+			float						cursor_hook[2];
+			bool						cursor_grabbed;
+			TFreeCell					bar_left,
 										bar_center,
 										bar_right,
 										slider;
-				float					slide_from,
+			float						slide_from,
 										slide_range;
-				Rect<float>			cursor_region;
+			float						current,
+										max;
+			Rect<float>					cursor_region;
 				
-				void					setup();
-				void					updateCursorRegion();
+			void						setup();
+			void						updateCursorRegion();
 				
 		public:
 
-				FunctionalEvent			on_slide;		//!< Event that is fired if the slider changes
-				SliderLayout*			slider_layout;		//!< Inner slider layout. Functionality is undetermined if the slider has no inner layout
-				float					current,
-										max;
+			FunctionalEvent				on_slide;		//!< Event that is fired if the slider changes
+			SliderLayout*				slider_layout;		//!< Inner slider layout. Functionality is undetermined if the slider has no inner layout
 										
 										
 				
@@ -246,16 +246,21 @@ namespace Engine
 											width = minWidth(false);
 											height = minHeight(false);
 										}
-		virtual	void					onSlide();	//!< Triggered if the slider changes. Invokes the local event container by default
-		virtual	void					updateLayout(const Rect<float>&parent_region);
-		virtual	float					clientMinWidth()	const;
-		virtual	float					clientMinHeight()	const;
-		virtual	void					onColorPaint();
-		virtual	void					onNormalPaint();
-		virtual	eEventResult			onMouseDrag(float x, float y);
-		virtual	eEventResult			onMouseDown(float x, float y, TExtEventResult&);
-		virtual	eEventResult			onMouseUp(float x, float y);
-		virtual	eEventResult			onMouseWheel(float x, float y, short delta);
+			virtual	void				onSlide();	//!< Triggered if the slider changes. Invokes the local event container by default
+			virtual	void				updateLayout(const Rect<float>&parent_region);
+			virtual	float				clientMinWidth()	const;
+			virtual	float				clientMinHeight()	const;
+			virtual	void				onColorPaint();
+			virtual	void				onNormalPaint();
+			virtual	eEventResult		onMouseDrag(float x, float y);
+			virtual	eEventResult		onMouseDown(float x, float y, TExtEventResult&);
+			virtual	eEventResult		onMouseUp(float x, float y);
+			virtual	eEventResult		onMouseWheel(float x, float y, short delta);
+		
+			inline float				getMax()const {return max;}
+			inline float				getCurrent() const {return current;}
+			void						setMax(float max_)	{if (max_ != max) {max = max_; signalLayoutChange();}}
+			void						setCurrent(float current_)	{if (current_ != current) {current = current_; signalLayoutChange();}}
 		};
 		
 
@@ -686,7 +691,9 @@ namespace Engine
 		class CheckBox:public Component
 		{
 		protected:
-				bool					down, pressed;
+			bool						down, pressed;
+			bool						checked;	//!< True if the checkbox is currently checked
+			String						caption;	//!< Checkbox caption
 		public:
 			struct TStyle
 			{
@@ -698,46 +705,37 @@ namespace Engine
 
 		
 		
-				bool					checked;	//!< True if the checkbox is currently checked
 				
-				String					caption;	//!< Checkbox caption
-				TStyle					*style;			//!< Inner checkbox style
-				FunctionalEvent			on_change;
+			TStyle						*style;			//!< Inner checkbox style
+			FunctionalEvent				on_change;
 				
-		static	TStyle					global_style;	//!< Global default checkbox style
+			static	TStyle				global_style;	//!< Global default checkbox style
 				
 										CheckBox():Component("Checkbox"),down(false),pressed(false),checked(false),caption("Checkbox"),style(&global_style)
 										{
 											width = minWidth(false);
 											height = minHeight(false);
 										}
-		virtual	void					onColorPaint();
-		virtual	void					onNormalPaint();
-		virtual	float					minWidth(bool include_offsets)	const;
-		virtual	float					minHeight(bool include_offsets)	const;
-		virtual	eEventResult			onMouseDrag(float x, float y);
-		virtual	eEventResult			onMouseDown(float x, float y, TExtEventResult&);
-		virtual	eEventResult			onMouseUp(float x, float y);
-				CheckBox*				setCaption(const String&caption_)
+			virtual	void				onColorPaint();
+			virtual	void				onNormalPaint();
+			virtual	float				minWidth(bool include_offsets)	const;
+			virtual	float				minHeight(bool include_offsets)	const;
+			virtual	eEventResult		onMouseDrag(float x, float y);
+			virtual	eEventResult		onMouseDown(float x, float y, TExtEventResult&);
+			virtual	eEventResult		onMouseUp(float x, float y);
+
+			inline bool					isChecked()	const	{return checked;}
+			void						setChecked(bool b)	{if (checked == b) return; checked = b; signalVisualChange();}
+
+			inline const String&		getCaption()	const {return caption;}
+			CheckBox*					setCaption(const String&caption_)
 										{
 											caption = caption_;
 											width = minWidth(false);
-											shared_ptr<Window>	wnd = window();
-											if (wnd)
-												wnd->apply(RequestingReshape);
+											signalLayoutChange();
 											return this;
 										}
-				CheckBox*				setChecked(bool checked_)
-										{
-											checked = checked_;
-											if (!window_link.expired())
-												window_link.lock()->apply(RequestingRepaint);
-											return this;
-										}
-				float					boxSize()	const
-										{
-											return 16;
-										}
+			inline float				boxSize()	const	{return 16.f;}
 		};
 		
 		

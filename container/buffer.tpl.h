@@ -613,6 +613,7 @@ template <typename T2>
 template <typename T, typename Strategy>
 	inline void				BasicBuffer<T, Strategy>::eraseLast()
 	{
+		BUFFER_ASSERT_NOT_EMPTY();
 		usage_end--;
 		usage_end->~T();
 		#if defined(_DEBUG) && __BUFFER_DBG_FILL_STATE__
@@ -624,6 +625,7 @@ template <typename T, typename Strategy>
 template <typename T, typename Strategy>
 	inline T				BasicBuffer<T, Strategy>::pop()
 	{
+		BUFFER_ASSERT_NOT_EMPTY();
 		usage_end--;
 		T data;
 		Strategy::move(*usage_end,data);

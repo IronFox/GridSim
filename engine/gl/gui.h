@@ -357,92 +357,93 @@ namespace Engine
 				friend void	 render();
 				//friend bool	 mouseWheel(short delta);
 		public:
-			
-				shared_ptr<Component>		component_link;
-				weak_ptr<Operator>			operator_link;
+			shared_ptr<Component>		component_link;
+			weak_ptr<Operator>			operator_link;
 				
-				struct ClickResult
+			struct ClickResult
+			{
+				enum value_t	//! Click result returned by the resolve() method
 				{
-					enum value_t	//! Click result returned by the resolve() method
-					{
-						Missed,			//!< The mouse cursor is not above the window
-						Ignored,		//!< The mouse cursor is above the window but a click would have no effect
-						Component,		//!< The mouse cursor is above the component
-						DragWindow,			//!< The mouse cursor is above the window but not above the edges or the component causing the window to be dragged if the primary mouse button is pressed.
-						ResizeTopRight,		//!< The mouse cursor is above the top right resize corner of the window
-						ResizeRight,		//!< The mouse cursor is above the right window edge
-						ResizeBottomRight,	//!< The mouse cursor is above the bottom right resize corner of the window
-						ResizeBottom,		//!< The mouse cursor is above the bottom window edge
-						ResizeBottomLeft,	//!< The mouse cursor is above the bottom left resize corner of the window
-						ResizeLeft,			//!< The mouse cursor is above the left window edge
-						ResizeTopLeft,		//!< The mouse cursor is above the top left resize corner of the window
-						ResizeTop			//!< The mouse cursor is above the top window edge
-					};
+					Missed,			//!< The mouse cursor is not above the window
+					Ignored,		//!< The mouse cursor is above the window but a click would have no effect
+					Component,		//!< The mouse cursor is above the component
+					DragWindow,			//!< The mouse cursor is above the window but not above the edges or the component causing the window to be dragged if the primary mouse button is pressed.
+					ResizeTopRight,		//!< The mouse cursor is above the top right resize corner of the window
+					ResizeRight,		//!< The mouse cursor is above the right window edge
+					ResizeBottomRight,	//!< The mouse cursor is above the bottom right resize corner of the window
+					ResizeBottom,		//!< The mouse cursor is above the bottom window edge
+					ResizeBottomLeft,	//!< The mouse cursor is above the bottom left resize corner of the window
+					ResizeLeft,			//!< The mouse cursor is above the left window edge
+					ResizeTopLeft,		//!< The mouse cursor is above the top left resize corner of the window
+					ResizeTop			//!< The mouse cursor is above the top window edge
 				};
+			};
 				
 		
-				#ifdef DEEP_GUI
-					TScreenPosition		current_center,	//!< Current shell location of this window (x,y,radius)
-										origin,			//!< Origin shell location
-										destination;	//!< Target shell location
-				#else
-					float				x,				//!< Central window X position (center point) in the range [-display.clientWidth()/2, display.clientWidth()/2]
-										y;				//!< Central window Y position (center point) in the range [-display.clientHeight()/2, display.clientHeight()/2]
-				#endif
-				size_t					exp_x,			//!< Current texture exponent along the x axis
-										exp_y,			//!< Current texture exponent along the y axis
-										iwidth,			//!< Effective (applied) integer width
-										iheight;		//!< Effective (applied) integer height
-				float					progress,		//!< Animation progress from @b origin to @b destination (0-1)
-										fwidth,			//!< Float window width
-										fheight,		//!< Float window height
-										usage_x,		//!< Usage of the texture buffers in x direction (0-1)
-										usage_y;		//!< Usage of the texture buffers in y direction (0-1)
+			#ifdef DEEP_GUI
+				TScreenPosition		current_center,	//!< Current shell location of this window (x,y,radius)
+									origin,			//!< Origin shell location
+									destination;	//!< Target shell location
+			#else
+				float				x,				//!< Central window X position (center point) in the range [-display.clientWidth()/2, display.clientWidth()/2]
+									y;				//!< Central window Y position (center point) in the range [-display.clientHeight()/2, display.clientHeight()/2]
+			#endif
+			size_t					exp_x,			//!< Current texture exponent along the x axis
+									exp_y,			//!< Current texture exponent along the y axis
+									iwidth,			//!< Effective (applied) integer width
+									iheight;		//!< Effective (applied) integer height
+			float					progress,		//!< Animation progress from @b origin to @b destination (0-1)
+									fwidth,			//!< Float window width
+									fheight,		//!< Float window height
+									usage_x,		//!< Usage of the texture buffers in x direction (0-1)
+									usage_y;		//!< Usage of the texture buffers in y direction (0-1)
 				
-				Layout					*layout;		//!< Used layout (if any) or NULL. Unmanaged at this point.
-		static	Layout					common_style,	//!< Common window style
-										menu_style,		//!< Menu window
-										hint_style;		//!< Hint display window
-				TCellLayout				cell_layout;	//!< Active layout as applied by the active layout.
-				String					title;			//!< Window title. Empty by default
-				/*EClickResult			click_result,	//!< Result of the last click event that was caught (or not caught) by this window
-										hover_result;	//!< Result of the last mouse hover event that was processed by this window*/
-				TFrameBuffer			color_buffer,	//!< Texture buffer to store the color components of the window in
-										normal_buffer;	//!< Texture buffer to store the normal components of the window in
-				bool					size_changed,	//!< Indicates that the window size has changed and onResize needs to be triggered after the next layout update
-										layout_changed,	//!< Indicates that the general window content has changed and requires a layout and render update into the respective color and normal buffers
-										visual_changed,	//!< Indicates that the window should be repainted
-										fixed_position,	//!< Window is fixed to its current location and may neither be resized nor moved
-										fixed_size;		//!< Windows has fixed size and may be moved but not resized
-				const bool				is_modal;		//!< True if this window does not allow events to pass further down.
-				Timer::Time				hidden;			//!< Time stamp when this window was hidden
+			Layout					*layout;		//!< Used layout (if any) or NULL. Unmanaged at this point.
+			static	Layout			common_style,	//!< Common window style
+									menu_style,		//!< Menu window
+									hint_style;		//!< Hint display window
+			TCellLayout				cell_layout;	//!< Active layout as applied by the active layout.
+			String					title;			//!< Window title. Empty by default
+			/*EClickResult			click_result,	//!< Result of the last click event that was caught (or not caught) by this window
+									hover_result;	//!< Result of the last mouse hover event that was processed by this window*/
+			TFrameBuffer			color_buffer,	//!< Texture buffer to store the color components of the window in
+									normal_buffer;	//!< Texture buffer to store the normal components of the window in
+			bool					size_changed,	//!< Indicates that the window size has changed and onResize needs to be triggered after the next layout update
+									layout_changed,	//!< Indicates that the general window content has changed and requires a layout and render update into the respective color and normal buffers
+									visual_changed,	//!< Indicates that the window should be repainted
+									fixed_position,	//!< Window is fixed to its current location and may neither be resized nor moved
+									fixed_size;		//!< Windows has fixed size and may be moved but not resized
+			const bool				is_modal;		//!< True if this window does not allow events to pass further down.
+			Timer::Time				hidden;			//!< Time stamp when this window was hidden
 				
 
-				FunctionalEvent			onFocusGained,	//!< Triggered whenever this window gains the focus (also, if it has just become visible)
-										onFocusLost,	//!< Triggered whenever this window loses the focus (also, if it has just been removed)
-										onResize;		//!< Triggered whenever this window is resized (new size has been adapted when this event is fired, but more updates may follow)
+			FunctionalEvent			onFocusGained,	//!< Triggered whenever this window gains the focus (also, if it has just become visible)
+									onFocusLost,	//!< Triggered whenever this window loses the focus (also, if it has just been removed)
+									onResize;		//!< Triggered whenever this window is resized (new size has been adapted when this event is fired, but more updates may follow)
 
-										Window(bool modal, Layout*style=&common_style);	//!< Creates a new window using the specified style
-		virtual							~Window()
-										{}
+			/**/					Window(bool modal, Layout*style=&common_style);	//!< Creates a new window using the specified style
+			virtual					~Window()
+									{}
 				
-				void					setSize(float width, float height);				//!< Updates window dimensions
-				void					setWidth(float width);							//!< Updates window width
-				void					setHeight(float height);						//!< Updates window height
-				void					drag(const TVec2<float>&d);								//!< Causes the window to move by the specified delta vector. The specified vector is modifable to allow the method to reduce it if dragging is not possible
-				void					dragResize(TVec2<float>&d,ClickResult::value_t resolved);	//!< Causes the window to be resized by the specified delta vector.  The specified vector is modifable to allow the method to reduce it if resizing is not possible
-				void					mouseUp(float x, float y);						//!< Signals that the mouse has been released
-				ClickResult::value_t	resolve(float x_, float y_, float&inner_x, float&inner_y);	//!< Resolves how a click would be handled given the current mouse position @param x_ Mouse x coordinate @param y_ Mouse y coordinate @param inner_x X coordinate of the resulting window relative mouse position @param inner_y Y coordinate of the resulting window relative mouse position @return Resolve result
-				void					renderBuffers(Display<OpenGL>&display);							//!< Rerenders the window content into the buffers
-				#ifdef DEEP_GUI
-					void					setShellDestination(float new_shell_radius);				//!< Changes the window animation target
-				#endif
+			void					setSize(float width, float height);				//!< Updates window dimensions
+			void					setWidth(float width);							//!< Updates window width
+			void					setHeight(float height);						//!< Updates window height
+			void					drag(const TVec2<float>&d);								//!< Causes the window to move by the specified delta vector. The specified vector is modifable to allow the method to reduce it if dragging is not possible
+			void					dragResize(TVec2<float>&d,ClickResult::value_t resolved);	//!< Causes the window to be resized by the specified delta vector.  The specified vector is modifable to allow the method to reduce it if resizing is not possible
+			void					mouseUp(float x, float y);						//!< Signals that the mouse has been released
+			ClickResult::value_t	resolve(float x_, float y_, float&inner_x, float&inner_y);	//!< Resolves how a click would be handled given the current mouse position @param x_ Mouse x coordinate @param y_ Mouse y coordinate @param inner_x X coordinate of the resulting window relative mouse position @param inner_y Y coordinate of the resulting window relative mouse position @return Resolve result
+			void					renderBuffers(Display<OpenGL>&display);							//!< Rerenders the window content into the buffers
+			#ifdef DEEP_GUI
+				void					setShellDestination(float new_shell_radius);				//!< Changes the window animation target
+			#endif
 		
-				float					minHeight()	const;									//!< Resolves the minimum height of this window in pixels
-				float					minWidth()	const;									//!< Resolves the minimum width of this window in pixels
-				void					updateLayout();										//!< Updates the layout and component layout if existing
-				void					setComponent(const shared_ptr<Component>&component);					//!< Changes the primary component of this window @param discardable Set true if the assigned component may be erased when the window is deleted or another component assigned
-				void					apply(Component::eEventResult rs);	//!< Applies the result of a component event to the local state variables
+			float					minHeight()	const;									//!< Resolves the minimum height of this window in pixels
+			float					minWidth()	const;									//!< Resolves the minimum width of this window in pixels
+			void					updateLayout();										//!< Updates the layout and component layout if existing
+			void					setComponent(const shared_ptr<Component>&component);					//!< Changes the primary component of this window @param discardable Set true if the assigned component may be erased when the window is deleted or another component assigned
+			void					apply(Component::eEventResult rs);	//!< Applies the result of a component event to the local state variables
+			
+			bool					remove();	//!< Attempts to remove the local window from its operator
 		};
 		
 		
@@ -510,7 +511,7 @@ namespace Engine
 
 				shared_ptr<Window>						getTopWindow() const;	//!< Retrieves the top-most window
 				void									insertWindow(const shared_ptr<Window>&window);	//!< Appends a window to the local window stack as new top level window. If the window is already inserted then it will simply be moved to the top position @param window Window to append @param managed Set true to also add the window to the local container, automatically deleting it if no longer necessary
-				void									removeWindow(const shared_ptr<Window>&window);				//!< Removes a window from the window stack (does not delete the window)
+				bool									removeWindow(const shared_ptr<Window>&window);				//!< Removes a window from the window stack (does not delete the window)
 				bool									windowIsVisible(const shared_ptr<Window>&window)	const;
 				shared_ptr<Window>						createWindow(const Rect<float>&region, const String&name,modal_t modal, const shared_ptr<Component>&component=shared_ptr<Component>());		//!< Creates a new window @param region Window region in pixels. Allowed region is (0,0) [lower left corner] to (display.width(),display.height()) [upper right corner] @param window name (and title)  @param component Component to put on the new window @return new window
 				shared_ptr<Window>						createWindow(const Rect<float>&region, const String&name,modal_t modal, Layout*layout,const shared_ptr<Component>&component);//!< Creates a new window @param region Window region in pixels. Allowed region is (0,0) [lower left corner] to (display.width(),display.height()) [upper right corner] @param window name (and title)  @param layout Layout to apply to the new window @param component Component to put on the new window @return new window

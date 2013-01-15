@@ -1343,6 +1343,7 @@ namespace Engine
 		{
 			text = new_text;
 			sel_start = 0;
+			cursor = 0;
 			view_begin = view_end = 0;
 			updateView();
 			signalVisualChange();
