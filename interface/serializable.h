@@ -6,6 +6,55 @@
 
 
 
+template <typename T>
+	struct SerialType
+	{
+		static const bool IsFixedSize = T::IsFixedSize;
+		static const serial_size_t FixedSize = T::FixedSize;
+		static inline bool	serializeTo(IWriteStream&stream, const T&instance, bool integrate_size)
+		{
+			return instance.serialize(stream,integrate_size);
+		}
+		static inline bool deserialize(IReadStream&stream, T&instance, bool derive_size, serial_size_t remaining_size)
+		{
+			return instance.deserialize(stream,derive_size, remaining_size);
+		}
+	};
+
+#undef SERIAL_PRIMITIVE
+#define SERIAL_PRIMITIVE(PRIM)\
+	template <>\
+	struct SerialType<PRIM>\
+	{\
+		static const bool IsFixedSize = true;\
+		static const serial_size_t FixedSize = sizeof(PRIM);\
+		static inline bool	serializeTo(IWriteStream&stream, PRIM prim, bool integrate_size)\
+		{\
+			return stream.writePrimitive(prim);\
+		}\
+		static inline bool deserialize(IReadStream&stream, PRIM&prim, bool derive_size, serial_size_t remaining_size)\
+		{\
+			return stream.readPrimitive(prim);\
+		}\
+	};
+
+SERIAL_PRIMITIVE(char);
+SERIAL_PRIMITIVE(unsigned char);
+SERIAL_PRIMITIVE(short);
+SERIAL_PRIMITIVE(unsigned short);
+SERIAL_PRIMITIVE(int);
+SERIAL_PRIMITIVE(unsigned int);
+SERIAL_PRIMITIVE(long);
+SERIAL_PRIMITIVE(unsigned long);
+SERIAL_PRIMITIVE(long long);
+SERIAL_PRIMITIVE(unsigned long long);
+SERIAL_PRIMITIVE(float);
+SERIAL_PRIMITIVE(double);
+
+
+
+
+
 
 /*!
 	@brief	Serializable interface
