@@ -666,7 +666,6 @@ namespace TCP
 			unsigned min_user_level;
 			if (!remaining_size && owner->signal_map.query(channel_index,min_user_level) && user_level >= min_user_level)
 			{
-				// cout << "has signal "<<channel_index<<endl;
 				owner->handleSignal(channel_index,this);
 			}
 			else
@@ -693,7 +692,7 @@ namespace TCP
 				elif (owner->onIgnorePackage)
 				{
 					if (verbose)
-						cout << "Peer::ThreadMain(): no received available. ignoring package"<<endl;
+						cout << "Peer::ThreadMain(): no receiver available (nothing installed on this channel). ignoring package"<<endl;
 					owner->onIgnorePackage(channel_index,UINT32(remaining_size),this);
 				}
 				
