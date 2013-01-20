@@ -1463,6 +1463,12 @@ namespace CGS	//! Compiled Geometrical Structure
 				TMatrix4<typename Def::SystemType>	system;
 			public:
 				/**/			Object():voffset(0),system(Matrix<typename Def::SystemType>::eye4)	{}
+				void			clear()
+								{
+									vertex_data.clear();
+									index_data.clear();
+									quad_data.clear();
+								}
 				void			swap(Object&other)
 								{
 									vertex_data.swap(other.vertex_data);
