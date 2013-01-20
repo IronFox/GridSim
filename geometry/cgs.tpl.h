@@ -5790,6 +5790,65 @@ template <class Def> String Geometry<Def>::error;
 template <class Def> String SubGeometryA<Def>::error;
 
 
+template <class Def> 
+	void			Constructor<Def>::Object::setComputeNormalsBegin()
+	{
+		if (!(config.vertex_flags & HasNormalFlag))
+			return;
+		normals_from_quad = quad_data.fillLevel();
+		normals_from_triangle = index_data.fillLevel();
+		normals_from_vertex = countVertices();
+	}
+
+template <class Def> 
+	void			Constructor<Def>::Object::computeNormals()
+	{
+		if (!(config.vertex_flags & HasNormalFlag))
+			return;
+		const count_t num_vertices = countVertices();
+		const count_t num_quad_indices = countQuadIndices();
+		const count_t num_tri_indices = countIndices();
+		for (index_t i = normals_from_vertex; i < num_vertices; i++)
+		{
+			Float*nrm = vertex_data.pointer() + i * config.vsize + 3;
+			Vec::clear(Vec::ref3(nrm));
+		}
+		for (index_t i = normals_from_triangle; i < num_tri_indices; i+=3)
+		{
+			TVec3<Float>	normal;
+			Float	*v0 = vertex_data.pointer() + index_data[i] * config.vsize,
+					*v1 = vertex_data.pointer() + index_data[i+1] * config.vsize,
+					*v2 = vertex_data.pointer() + index_data[i+2] * config.vsize;
+
+			Obj::triangleNormal(Vec::ref3(v0),Vec::ref3(v1),Vec::ref3(v2),normal);
+			Vec::add(Vec::ref3(v0+3),normal);
+			Vec::add(Vec::ref3(v1+3),normal);
+			Vec::add(Vec::ref3(v2+3),normal);
+		}
+		for (index_t i = normals_from_quad; i < num_quad_indices; i+=4)
+		{
+			TVec3<Float>	normal,normal2;
+			Float	*v0 = vertex_data.pointer() + quad_data[i] * config.vsize,
+					*v1 = vertex_data.pointer() + quad_data[i+1] * config.vsize,
+					*v2 = vertex_data.pointer() + quad_data[i+2] * config.vsize,
+					*v3 = vertex_data.pointer() + quad_data[i+3] * config.vsize;
+
+			Obj::triangleNormal(Vec::ref3(v0),Vec::ref3(v1),Vec::ref3(v2),normal);
+			Obj::triangleNormal(Vec::ref3(v0),Vec::ref3(v2),Vec::ref3(v3),normal2);
+			Vec::add(normal,normal2);
+			Vec::add(Vec::ref3(v0+3),normal);
+			Vec::add(Vec::ref3(v1+3),normal);
+			Vec::add(Vec::ref3(v2+3),normal);
+			Vec::add(Vec::ref3(v3+3),normal);
+		}
+		for (index_t i = normals_from_vertex; i < num_vertices; i++)
+		{
+			Float*nrm = vertex_data.pointer() + i * config.vsize + 3;
+			Vec::normalize0(Vec::ref3(nrm));
+		}
+		setComputeNormalsBegin();
+	}
+
 
 template <class Def> 
 	void			Constructor<Def>::Object::verifyIntegrity(bool verify_all_vertices_are_used)	const

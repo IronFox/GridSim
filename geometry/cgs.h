@@ -1457,17 +1457,22 @@ namespace CGS	//! Compiled Geometrical Structure
 				friend class Constructor<Def>;
 
 				Buffer<Float,0>	vertex_data;
-				Buffer<Index,0>	index_data,quad_data;
-				Index			voffset;
+				Buffer<Index,0>	index_data,
+								quad_data;
+				Index			voffset,normals_from_vertex,normals_from_triangle,normals_from_quad;
 				VConfig			config;
 				TMatrix4<typename Def::SystemType>	system;
 			public:
-				/**/			Object():voffset(0),system(Matrix<typename Def::SystemType>::eye4)	{}
+				/**/			Object():voffset(0),normals_from_vertex(0),normals_from_triangle(0),normals_from_quad(0), system(Matrix<typename Def::SystemType>::eye4)	{}
 				void			clear()
 								{
 									vertex_data.clear();
 									index_data.clear();
 									quad_data.clear();
+									voffset = 0;
+									normals_from_vertex = 0;
+									normals_from_triangle = 0;
+									normals_from_quad = 0;
 								}
 				void			swap(Object&other)
 								{
@@ -1475,8 +1480,11 @@ namespace CGS	//! Compiled Geometrical Structure
 									index_data.swap(other.index_data);
 									quad_data.swap(other.quad_data);
 									swp(config,other.config);
-									swp(voffset,other.voffset);
 									swp(system,other.system);
+									swp(voffset,other.voffset);
+									swp(normals_from_vertex,other.normals_from_vertex);
+									swp(normals_from_triangle,other.normals_from_triangle);
+									swp(normals_from_quad,other.normals_from_quad);
 								}
 				void			adoptData(Object&other)
 								{
@@ -1484,8 +1492,11 @@ namespace CGS	//! Compiled Geometrical Structure
 									index_data.adoptData(other.index_data);
 									quad_data.adoptData(other.quad_data);
 									config = other.config;
-									voffset = other.voffset;
 									system = other.system;
+									voffset = other.voffset;
+									normals_from_vertex = other.normals_from_vertex;
+									normals_from_triangle = other.normals_from_triangle;
+									normals_from_quad = other.normals_from_quad;
 								}
 			template <typename T>
 				void			setSystem(const TMatrix4<T>&m)
@@ -1498,6 +1509,8 @@ namespace CGS	//! Compiled Geometrical Structure
 				count_t			getVertexSize()			const	{return config.vsize;}
 				void			setVertexOffset(Index offset)	{voffset = offset;}
 				void			setVertexOffsetToCurrent()		{voffset = (Index)(vertex_data.length() / config.vsize);}
+				void			setComputeNormalsBegin();
+				void			computeNormals();
 				template <typename T>
 					void		triangle(T v0, T v1, T v2)
 								{
