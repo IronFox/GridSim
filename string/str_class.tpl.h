@@ -1026,7 +1026,7 @@ template <typename T>
 template <typename T>
 	StringTemplate<T>&		StringTemplate<T>::eraseCharacters(bool doReplace(T character), bool erase_matches)
 	{
-		genericEraseCharacters(doReplace,erase_matches);
+		genericEraseCharacters(&doReplace,erase_matches);
 		return *this;
 	}
 

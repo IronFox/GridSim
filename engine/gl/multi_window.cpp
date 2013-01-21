@@ -2640,6 +2640,9 @@ namespace Engine
 				window->bind();
 				switch (Msg)
 				{
+					case WM_SETCURSOR:
+						return (LOWORD(lParam) == HTCLIENT) && window->mouse.cursorIsNotDefault() ? 1 : DefWindowProc(hWnd, Msg, wParam, lParam);
+
 					case MW_CREATE_WINDOW_REQUEST:
 					{
 						TWindowCreationRequest*req = reinterpret_cast<TWindowCreationRequest*>(lParam);

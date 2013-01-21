@@ -1258,7 +1258,8 @@ namespace Engine
 			case WM_SETCURSOR:
 				return (LOWORD(lParam) == HTCLIENT) && mouse.cursorIsNotDefault() ? 1 : DefWindowProc(hWnd, Msg, wParam, lParam);
 			case WM_SIZING:		context.signalResize(false);								return 0;
-			case WM_SIZE:		context.signalResize(true/*, wParam == SIZE_MAXIMIZED*/);		return 0;
+			//case WM_SIZE:		context.signalResize(true/*, wParam == SIZE_MAXIMIZED*/);		return 0;
+			case WM_EXITSIZEMOVE:context.signalResize(true);								return 0;
 			case WM_ERASEBKGND: 															return 1;
 			case WM_SETFOCUS:   context.restoreFocus();										return 0;
 			case WM_KILLFOCUS:  context.looseFocus();										return 0;
