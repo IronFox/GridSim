@@ -67,8 +67,8 @@ namespace Engine
 	class DisplayConfig
 	{
 	public:
-		typedef function<void(UINT,UINT, bool)>	FOnResize;
-		typedef void (*f_on_resize)(UINT new_width, UINT new_height, bool is_final);
+		typedef function<void(UINT,UINT, bool, bool)>	FOnResize;
+		typedef void (*f_on_resize)(UINT new_width, UINT new_height, bool is_final, bool is_full_screen);
 
 		enum border_style_t
 		{
@@ -338,7 +338,7 @@ namespace Engine
 			RECT						transform(const TFloatRect&field)		const;
 			void						destroyWindow();
 
-			void						signalResize(bool is_final/*, bool is_maximized*/);
+			void						signalResize(bool is_final, bool is_maximized);
 
 			bool						isTopWindow()							const;
 			void						focus();

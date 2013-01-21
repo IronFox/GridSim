@@ -35,8 +35,8 @@ namespace Engine
 			catch (const IO::DriveAccess::FileOpenFault&)
 			{}
 			
-			DisplayConfig config(name,[file_name,onResize,&display](UINT width, UINT height, bool is_final){
-				if (is_final)
+			DisplayConfig config(name,[file_name,onResize,&display](UINT width, UINT height, bool is_final, bool is_full_screen){
+				if (is_final && !is_full_screen)
 				{
 					XML::Container xconfig;
 					XML::Node&xdisplay = xconfig.create("config/display");
@@ -45,7 +45,7 @@ namespace Engine
 					FileSystem::createFolder("config");
 					xconfig.saveToFile("./config/"+file_name+".xml");
 				}
-				onResize(width,height,is_final);
+				onResize(width,height,is_final,is_full_screen);
 			});
 			display.setSize(resolution.width, resolution.height, DisplayConfig::ResizableBorder);
 			

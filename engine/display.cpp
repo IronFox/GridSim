@@ -506,7 +506,7 @@ namespace Engine
 		#endif
 	}
 
-	void Context::signalResize(bool is_final)
+	void Context::signalResize(bool is_final, bool is_full_screen)
 	{
 		#if SYSTEM==WINDOWS
 			if (!hWnd)
@@ -518,7 +518,7 @@ namespace Engine
 				client_area = info.rcClient;
 				mouse.redefineWindow(client_area);
 				if (onResize)
-					onResize(client_area.right - client_area.left,client_area.bottom - client_area.top,is_final);
+					onResize(client_area.right - client_area.left,client_area.bottom - client_area.top,is_final,is_full_screen);
 			}
 		#elif SYSTEM==UNIX
 			#error not defined
@@ -1257,9 +1257,9 @@ namespace Engine
 		{
 			case WM_SETCURSOR:
 				return (LOWORD(lParam) == HTCLIENT) && mouse.cursorIsNotDefault() ? 1 : DefWindowProc(hWnd, Msg, wParam, lParam);
-			case WM_SIZING:		context.signalResize(false);								return 0;
-			//case WM_SIZE:		context.signalResize(true/*, wParam == SIZE_MAXIMIZED*/);		return 0;
-			case WM_EXITSIZEMOVE:context.signalResize(true);								return 0;
+			case WM_SIZING:		context.signalResize(false,false);								return 0;
+			case WM_SIZE:		if (wParam != SIZE_MINIMIZED) context.signalResize(wParam == SIZE_MAXIMIZED || wParam == SIZE_RESTORED, wParam == SIZE_MAXIMIZED);		return 0;
+			case WM_EXITSIZEMOVE:context.signalResize(true,false);								return 0;
 			case WM_ERASEBKGND: 															return 1;
 			case WM_SETFOCUS:   context.restoreFocus();										return 0;
 			case WM_KILLFOCUS:  context.looseFocus();										return 0;
