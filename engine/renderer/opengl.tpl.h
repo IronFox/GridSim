@@ -1028,10 +1028,10 @@ namespace Engine
 		glBlendFunc(GL_SRC_ALPHA,GL_ONE);
 	}
 
-	/*static*/	inline	void	OpenGL::overrideEmission(const TVec3<>&emission_color)
+	/*static*/	inline	void	OpenGL::overrideEmission(const TVec4<>&emission_color)
 	{
-		float color[4] = {emission_color.red,emission_color.green, emission_color.blue,1.0f};
-		glMaterialfv(GL_FRONT_AND_BACK,GL_EMISSION,color);
+		//float color[4] = {emission_color.red,emission_color.green, emission_color.blue,1.0f};
+		glMaterialfv(GL_FRONT_AND_BACK,GL_EMISSION,emission_color.v);
 	}
 	
 	

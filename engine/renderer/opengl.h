@@ -994,7 +994,7 @@ namespace Engine
 						void						bindMaterialIgnoreShader(const MaterialConfiguration&config)	{bindMaterialIgnoreShader(config,(const Texture::Reference*)NULL);}
 						void						bindMaterialIgnoreShader(const Material&material)				{bindMaterialIgnoreShader(material,material.textures.pointer());}
 
-		static	inline	void						overrideEmission(const TVec3<>&emission_color);	//!< Overrides the emission color specified by the last bindMaterial() or bindMaterilIgnoreShader() call
+		static	inline	void						overrideEmission(const TVec4<>&emission_color);	//!< Overrides the emission color specified by the last bindMaterial() or bindMaterilIgnoreShader() call
 
 						void						bindVertices(const VBO&vobj, const VertexBinding&binding);
 						void						bindIndices(const IBO&iobj);

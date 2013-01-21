@@ -1232,6 +1232,8 @@ namespace Engine
 	
 	void	OpenGL::capture(Texture&target, unsigned width, unsigned height)
 	{
+		if (width == 0 || height == 0)
+			return;
 		DBG_ASSERT__(hasCurrentContext());
 		if (target.width() != width || target.height() != height || target.channels() != 3)
 			target.load<GLbyte>(NULL, width, height, 3, PixelType::Color,1.0f, true, TextureFilter::Linear);
@@ -1245,6 +1247,8 @@ namespace Engine
 	
 	void	OpenGL::captureDepth(Texture&target, unsigned width, unsigned height)
 	{
+		if (width == 0 || height == 0)
+			return;
 		DBG_ASSERT__(hasCurrentContext());
 		if (target.width() != width || target.height() != height || target.channels() != 3)
 			target.load<GLDepthComponent>(NULL, width, height, 1, PixelType::Depth,1.0f, true, TextureFilter::Linear);

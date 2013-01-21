@@ -252,7 +252,7 @@ namespace Engine
 		}
 
 	template <class Def> StructureEntity<Def>::StructureEntity(CGS::Geometry<Def>*target_,unsigned type):system(target_->system_link),target(target_),detail(0),max_detail(target_->maxDetail()),src_radius(1.0),
-	                                              sys_scale(1),visible(false),added(false),radius(1.0),config(type),tint(Vector<>::zero), shortest_edge_length(std::numeric_limits<typename Def::FloatType>::max())
+	                                              sys_scale(1),visible(false),added(false),radius(1.0),config(type),tint(Vector4<>::zero), shortest_edge_length(std::numeric_limits<typename Def::FloatType>::max())
 	{
 		for (index_t i = 0; i < target->object_field.length(); i++)
 			createEntity(target->object_field[i]);

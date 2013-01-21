@@ -235,7 +235,7 @@ namespace Engine
 			unsigned					detail,									//!< Calculated detail of this structure entity
 										max_detail,								//!< Maximum detail level provided by the respective structure
 										config;									//!< Structure configuration (any combination of StructureConfig::StructureFlags ). This value affects all ObjectEntity instances linked to this instance.
-			TVec3<>						tint;									//!< Tint to apply to this structure. Applied as emission color. Black by default
+			TVec4<>						tint;									//!< Tint to apply to this structure. Applied as emission color. Black by default
 			bool						visible,								//!< True if this structure passed the last visibility check.
 										added;									//!< Should be false at all times. Used to distinctly map structure entities to the lookup buffer by SceneryTree
 			typename Def::FloatType		src_radius,								//!< Unscaled geometrical radius as extracted from the linked Geometry instance.
