@@ -987,7 +987,7 @@ template <typename T>
 		}
 
 template <typename T>
-	StringTemplate<T>&		eraseCharacter(T chr)
+	StringTemplate<T>&		StringTemplate<T>::eraseCharacter(T chr)
 	{
 		genericEraseCharacters(CharacterMarker(chr),true);
 		return *this;
@@ -1048,7 +1048,7 @@ template <typename T>
 		if (!len)
 			return *this;
 		
-		genericEraseCharacters(CaseInsensitiveFieldMarker(characters.field,len),erase_matches);
+		genericEraseCharacters(CaseInsensitiveFieldMarker(characters,len),erase_matches);
 		return *this;
 	}
 
@@ -1102,7 +1102,7 @@ template <typename T>
 template <typename T>
 	count_t					StringTemplate<T>::countCharacters(bool isMatch(T character), bool count_matches)	const
 	{
-		return genericCountCharacters(isMatch,count_matches);
+		return genericCountCharacters(&isMatch,count_matches);
 	}
 template <typename T>
 	count_t					StringTemplate<T>::countCharactersIgnoreCase(const StringTemplate<T>& characters, bool count_matches)	const
@@ -1160,30 +1160,30 @@ template <typename T>
 template <typename T>
 	StringTemplate<T>		StringTemplate<T>::addSlashes()	const
 	{
-		return String(*this).addSlashesToThis();
+		return StringTemplate<T>(*this).addSlashesToThis();
 	}
 template <typename T>
 	StringTemplate<T>		StringTemplate<T>::addSlashes(const T*	before_characters)	const
 	{
-		return String(*this).addSlashesToThis(before_characters);
+		return StringTemplate<T>(*this).addSlashesToThis(before_characters);
 	}
 
 template <typename T>
 	StringTemplate<T>		StringTemplate<T>::addSlashes(const T*	before_characters, count_t before_character_count)	const
 	{
-		return String(*this).addSlashesToThis(before_characters,before_character_count);
+		return StringTemplate<T>(*this).addSlashesToThis(before_characters,before_character_count);
 	}
 template <typename T>
 	StringTemplate<T>		StringTemplate<T>::addSlashes(bool isMatch(T character))	const
 	{
-		return String(*this).addSlashesToThis(isMatch);
+		return StringTemplate<T>(*this).addSlashesToThis(isMatch);
 	}
 
 
 template <typename T>
 	StringTemplate<T>&		StringTemplate<T>::addSlashesToThis()
 	{
-		genericAddSlashes(Template::isEscapable<T>);
+		genericAddSlashes(&Template::isEscapable<T>);
 		return *this;
 	}
 
@@ -1211,14 +1211,14 @@ template <typename T>
 template <typename T>
 	StringTemplate<T>&		StringTemplate<T>::addSlashesToThis(bool isMatch(T character))
 	{
-		genericAddSlashes(isMatch);
+		genericAddSlashes(&isMatch);
 		return *this;
 	}
 
 template <typename T>
 	StringTemplate<T>		StringTemplate<T>::stripSlashes()	const
 	{
-		return String(*this).stripSlashesInThis();
+		return StringTemplate<T>(*this).stripSlashesInThis();
 	}
 
 template <typename T>
@@ -2017,17 +2017,7 @@ template <typename T>
 		return ReferenceExpression<T>(field+index,count);
 	}
 
-template <typename T>
-	double				StringTemplate<T>::toDouble()		const
-	{
-		return extractFloat(field);
-	}
 
-template <typename T>
-	int					StringTemplate<T>::toInt()			const
-	{
-		return extractInt(field);
-	}
 
 
 template <typename T>
@@ -3008,6 +2998,16 @@ template <typename T>
 	{
 		return Template::strcmp(field,string)==0;
 	}
+template <typename T>
+	bool				StringTemplate<T>::equals(T chr)		const
+	{
+		return field[0] == chr && !field[1];;
+	}
+template <typename T>
+	bool				StringTemplate<T>::equals(const StringTemplate<T>&string)		const
+	{
+		return Template::strcmp(field,string.field)==0;
+	}
 
 template <typename T>
 	bool				StringTemplate<T>::equalsIgnoreCase(const T*string)		const
@@ -3019,6 +3019,11 @@ template <typename T>
 	bool				StringTemplate<T>::equalsIgnoreCase(const StringTemplate<T>&string)		const
 	{
 		return Template::strcmpi(field,string.field)==0;
+	}
+template <typename T>
+	bool				StringTemplate<T>::equalsIgnoreCase(T chr)		const
+	{
+		return Template::toupper(field[0]) == Template::toupper(chr) && !field[1];
 	}
 
 

@@ -856,8 +856,6 @@ template <typename T>
 	template <class Type, class UType> 
 		static T* signedToStr(Type value, T*end, T*first);
 	
-	static int			extractInt(const T*);
-	static float		extractFloat(const T*);
 	
 	template <typename Expression>
 		inline char		compareExpression(const Expression&expression)	const;
@@ -1241,8 +1239,6 @@ template <typename T>
 		template <typename IndexType>
 			StringTemplate<T>		subString(IndexType index, size_t count=size_t(-1)) const;	//!< Creates a string copy containing the specified sub string of the local string @param index Index of the sub string to extract with 0 being the first character  Invalid values are clamped to the valid range. @param count Number of characters to extract starting at @a index @return Extracted string
 			ReferenceExpression<T>	subStringRef(int index, size_t count=size_t(-1)) const;	//!< Creates a string reference expression pointing to the specified sub string of the local string. The returned object remains valid as long as the local string object is not deleted or modified @param index Index of the sub string to extract with 0 being the first character  Invalid values are clamped to the valid range. @param count Number of characters to extract starting at @a index @return String segment
-			double					toDouble()		const;										//!< Converts the local string to a double value. @return Double value decoded from the local string The result is undefined if the conversion fails
-			int						toInt()			const;										//!< Converts the local string to an integer value, @return Integer value decoded from the local string. The result is undefined if the conversion fails
 								/*!	\brief Removes whitespace characters from the beginning and the end of the local string
 									\return Reference to the local string
 									
@@ -1618,8 +1614,8 @@ typedef StringTemplate<wchar_t>	StringW;
 				#define PointerToString	PointerToHex
 				#define PointerToStr	PointerToHex
 String			PointerToHex(const void*pointer);	//!< Converts the specified pointer to a hex string without leading 0x
-int				extractInt(const char*string);
-float			extractFloat(const char*string);
+//int				extractInt(const char*string);
+//float			extractFloat(const char*string);
 
 char*			writeToCharField(unsigned value, char*offset, char*end);	//!< Writes the specified unsigned value to the specified char field. Does \b not add a trailing 0. \param value Unsigned value to transform \param offset Character out offset \param end Pointer to one character past the end of the field. The function will stop when it hits this pointer.
 char*			writeFloatToCharField(float value, char*offset, char*end);	//!< Writes the specified float value to the specified char field. Does \b not add a trailing 0. \param value Unsigned value to transform \param offset Character out offset \param end Pointer to one character past the end of the field. The function will stop when it hits this pointer.
