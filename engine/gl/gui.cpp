@@ -1848,12 +1848,12 @@ namespace Engine
 		
 		static void setCursor(Mouse::eCursor cursor)
 		{
-			//static Mouse::eCursor	current = Mouse::CursorType::Default;
-			/*if (cursor == current)
-				return;*/
+			static bool was_default = true;
+			if (cursor == Mouse::CursorType::Default && was_default)
+				return;
 			
 			mouse.setCursor(cursor);
-			//current = cursor;
+			was_default = cursor == Mouse::CursorType::Default;
 		}
 		
 

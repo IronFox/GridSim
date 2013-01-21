@@ -1,6 +1,11 @@
 #include "../global_root.h"
 #include "display.h"
 
+#include "renderer/opengl.h"
+
+template Engine::Display<Engine::OpenGL>;
+
+
 
 
 #if SYSTEM==WINDOWS
@@ -201,10 +206,10 @@ namespace Engine
 	}
 	
 	
-	HWND Context::createWindow(const String&window_name, bool hide_border,const String&icon_name)
+	HWND Context::createWindow(const String&window_name, DisplayConfig::border_style_t border_style, const DisplayConfig::FOnResize&onResize, const String&icon_name)
 	{
-		_hide_border = hide_border;
-
+		this->border_style = border_style;
+		this->onResize = onResize;
 	/*
 	XCreateWindow(WFDisplay,RootWindow(WFDisplay,VisualInfo->screen),30,40,Width,Height,0,VisualInfo->depth,InputOutput,VisualInfo->visual,CWBorderPixel|CWColormap|CWEventMask,&WindowAttributes);
 	*/
@@ -214,10 +219,18 @@ namespace Engine
 			return hWnd;
 		mouse.looseFocus();
 		DWORD style = WS_POPUP|WS_CLIPCHILDREN;//|WS_CLIPSIBLINGS;
-		if (!hide_border)
-			style |=   WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX;
-		else
-			style |= WS_EX_TOPMOST;
+		switch (border_style)
+		{
+			case DisplayConfig::NoBorder:
+				style |= WS_EX_TOPMOST;
+			break;
+			case DisplayConfig::FixedBorder:
+				style |=   WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX;
+			break;
+			case DisplayConfig::ResizableBorder:
+				style |=   WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_THICKFRAME;
+			break;
+		}
 		_error = ERR_NO_ERROR;
 		hInstance = getInstance();
 
@@ -401,9 +414,10 @@ namespace Engine
 	}
 
 
-	Window Context::createWindow(const String&window_name, const TWindowAttributes&attributes,bool hide_border, const String&icon_filename)
+	Window Context::createWindow(const String&window_name, const TWindowAttributes&attributes,DisplayConfig::border_style_t border_style, const DisplayConfig::FOnResize&onResize, const String&icon_filename)
 	{
-		_hide_border = hide_border;
+		this->border_style = border_style;
+		this->onResize = onResize;
 		if (!display)
 			return 0;
 
@@ -418,9 +432,9 @@ namespace Engine
 			return 0;
 		XSetWindowAttributes attrib;
 		attrib.colormap = colormap;
-		attrib.border_pixel = hide_border?0:CopyFromParent;
+		attrib.border_pixel = border_style == DisplayConfig::HideBorder ?0:CopyFromParent;
 		attrib.event_mask = ExposureMask|ButtonPressMask|ButtonReleaseMask|StructureNotifyMask|KeyPressMask|KeyReleaseMask|SubstructureRedirectMask;
-		attrib.override_redirect = hide_border;
+		attrib.override_redirect = border_style == DisplayConfig::HideBorder;
 
 
 
@@ -473,11 +487,11 @@ namespace Engine
 				return;
 			SetWindowPos(hWnd,NULL,_location.left,_location.top,_location.right-_location.left,_location.bottom-_location.top,0);
 			WINDOWINFO	info;
-			if (GetWindowInfo(context.hWnd,&info))
+			if (GetWindowInfo(hWnd,&info))
 			{
-				context._location = info.rcWindow;
-				context.client_area = info.rcClient;
-				mouse.redefineWindow(context.client_area);
+				_location = info.rcWindow;
+				client_area = info.rcClient;
+				mouse.redefineWindow(client_area);
 			}
 		#elif SYSTEM==UNIX
 			client_area.left = 0;
@@ -492,22 +506,48 @@ namespace Engine
 		#endif
 	}
 
-	void Context::resizeWindow(unsigned width, unsigned height, bool hide_border)
+	void Context::signalResize(bool is_final)
 	{
-		if (hide_border != _hide_border)
+		#if SYSTEM==WINDOWS
+			if (!hWnd)
+				return;
+			WINDOWINFO	info;
+			if (GetWindowInfo(hWnd,&info))
+			{
+				_location = info.rcWindow;
+				client_area = info.rcClient;
+				mouse.redefineWindow(client_area);
+				if (onResize)
+					onResize(client_area.right - client_area.left,client_area.bottom - client_area.top,is_final);
+			}
+		#elif SYSTEM==UNIX
+			#error not defined
+		#else
+			#error not defined
+		#endif
+	}
+
+	void Context::resizeWindow(unsigned width, unsigned height, DisplayConfig::border_style_t style)
+	{
+		if (style != border_style)
 		{
 			LONG lStyle = GetWindowLong(window(), GWL_STYLE);
-			if (hide_border)
+			switch (style)
 			{
-				lStyle &= ~(WS_CAPTION | WS_THICKFRAME | WS_MINIMIZE | WS_MAXIMIZE | WS_SYSMENU);
-			}
-			else
-			{
-				lStyle |= WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX;
+				case DisplayConfig::NoBorder:
+					lStyle &= ~(WS_CAPTION | WS_THICKFRAME | WS_MINIMIZE | WS_MAXIMIZE | WS_SYSMENU);
+				break;
+				case DisplayConfig::FixedBorder:
+					lStyle |= WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX;
+					lStyle &= ~(WS_MAXIMIZEBOX | WS_THICKFRAME);
+				break;
+				case DisplayConfig::ResizableBorder:
+					lStyle |= WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MAXIMIZEBOX | WS_MINIMIZEBOX | WS_THICKFRAME;
+				break;
 			}
 			SetWindowLong(window(), GWL_STYLE, lStyle);
 			SetWindowPos(window(), NULL, 0,0,0,0, SWP_FRAMECHANGED | SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOOWNERZORDER);
-			_hide_border = hide_border;
+			border_style = style;
 		}
 		_location.right = _location.left + width;
 		_location.bottom = _location.top + height;
@@ -553,6 +593,14 @@ namespace Engine
 			client_area.bottom-client_area.top);
 	}
 
+	UINT	Context::clientWidth()	const
+	{
+		return client_area.right-client_area.left;
+	}
+	UINT	Context::clientHeight()	const
+	{
+		return client_area.bottom-client_area.top;
+	}
 
 	bool	Context::isTopWindow()	const
 	{
@@ -1207,6 +1255,10 @@ namespace Engine
 
 		switch (Msg)
 		{
+			case WM_SETCURSOR:
+				return (LOWORD(lParam) == HTCLIENT) && mouse.cursorIsNotDefault() ? 1 : DefWindowProc(hWnd, Msg, wParam, lParam);
+			case WM_SIZING:		context.signalResize(false);								return 0;
+			case WM_SIZE:		context.signalResize(true/*, wParam == SIZE_MAXIMIZED*/);		return 0;
 			case WM_ERASEBKGND: 															return 1;
 			case WM_SETFOCUS:   context.restoreFocus();										return 0;
 			case WM_KILLFOCUS:  context.looseFocus();										return 0;

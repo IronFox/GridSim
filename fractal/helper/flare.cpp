@@ -520,7 +520,7 @@ namespace Flare
 					continue;
 				TVec2<OpenGL::FloatType> at;
 				Vec::mult(light->projected,sprites[i].position,at);
-				float	w = sprites[i].width/display.pixel_aspect,
+				float	w = sprites[i].width/display.pixelAspect(),
 						h = sprites[i].height;
 				if (true) //sprites[i].distance_dependent)
 				{
@@ -653,7 +653,7 @@ namespace Flare
 				TVec2<OpenGL::FloatType> at,vec;
 				Vec::sub(light->projected,screen_center,vec);
 				Vec::mad(screen_center,vec,sprites[i].position,at);
-				float	w = sprites[i].width/display.pixel_aspect/screen_scale,
+				float	w = sprites[i].width/display.pixelAspect()/screen_scale,
 						h = sprites[i].height/screen_scale;
 				if (true) //sprites[i].distance_dependent)
 				{

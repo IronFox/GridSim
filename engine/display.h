@@ -5,11 +5,6 @@
 
 Engine Display
 
-This file is part of Delta-Works
-Copyright (C) 2006-2008 Stefan Elsen, University of Trier, Germany.
-http://www.delta-works.org/forge/
-http://informatik.uni-trier.de/
-
 ******************************************************************/
 
 
@@ -72,20 +67,49 @@ namespace Engine
 	class DisplayConfig
 	{
 	public:
-		String					window_name,
-								icon_filename;
-		bool					hide_border;
+		typedef function<void(UINT,UINT, bool)>	FOnResize;
+		typedef void (*f_on_resize)(UINT new_width, UINT new_height, bool is_final);
+
+		enum border_style_t
+		{
+			NoBorder,
+			FixedBorder,
+			ResizableBorder
+		};
 
 
-		DisplayConfig():hide_border(false)
+		String			window_name,
+						icon_filename;
+		border_style_t	border_style;
+		FOnResize		onResize;
+
+
+
+		DisplayConfig():border_style(FixedBorder)
 		{}
-		DisplayConfig(bool hide_border_):hide_border(hide_border_)
+		DisplayConfig(border_style_t border_style_):border_style(border_style_)
 		{}
-		DisplayConfig(const char*window_name_):window_name(window_name_),hide_border(false)
+		DisplayConfig(const char*window_name_):window_name(window_name_),border_style(FixedBorder)
 		{}
-		DisplayConfig(const String&window_name_):window_name(window_name_),hide_border(false)
+		DisplayConfig(const String&window_name_):window_name(window_name_),border_style(FixedBorder)
 		{}
-		DisplayConfig(const String&window_name_, bool hide_border_):window_name(window_name_),hide_border(hide_border_)
+		DisplayConfig(const String&window_name_, bool hide_border_):window_name(window_name_),border_style(FixedBorder)
+		{}
+		DisplayConfig(border_style_t style, const FOnResize&resize):border_style(style),onResize(resize)
+		{}
+		DisplayConfig(const char*window_name_, const FOnResize&resize):window_name(window_name_),border_style(ResizableBorder),onResize(resize)
+		{}
+		DisplayConfig(const String&window_name_, const FOnResize&resize):window_name(window_name_),border_style(ResizableBorder),onResize(resize)
+		{}
+		DisplayConfig(const String&window_name_, border_style_t style, const FOnResize&resize):window_name(window_name_),border_style(style),onResize(resize)
+		{}
+		DisplayConfig(border_style_t style, f_on_resize resize):border_style(style),onResize(resize)
+		{}
+		DisplayConfig(const char*window_name_, f_on_resize resize):window_name(window_name_),border_style(ResizableBorder),onResize(resize)
+		{}
+		DisplayConfig(const String&window_name_, f_on_resize resize):window_name(window_name_),border_style(ResizableBorder),onResize(resize)
+		{}
+		DisplayConfig(const String&window_name_, border_style_t style, f_on_resize resize):window_name(window_name_),border_style(style),onResize(resize)
 		{}
 
 	};
@@ -104,9 +128,10 @@ namespace Engine
 			bool						context_error,
 										region_locked,
 										depth_test_locked,
-										framebuffer_bound;
-			Resolution					current_target_resolution,
-										window_client_resolution;
+										framebuffer_bound,
+										resolution_overridden;
+			Resolution					target_buffer_resolution,
+										overridden_client_resolution;
 			bool						framebuffer_alpha;
 			TVec3<float>				camera_location;
 	static  SimpleGeometry				pivot,omni,spot,direct;
@@ -131,7 +156,6 @@ namespace Engine
 
 			TextureResource<GL>			archive;			//!< gl specific archive
 			TVisualConfig				config;			 	//!< startup configuration
-			float						pixel_aspect;	   //!< window pixel-aspect
 
 										Display();
 										/*!
@@ -168,18 +192,20 @@ namespace Engine
 											resizeWindow() redefines the size of the active window. If no window is active then
 											the specified window dimension will be applied during the next create() call.
 										*/
-	inline  void						resizeWindow(unsigned width, unsigned height, bool hide_border);
-	inline	void						setDimension(unsigned width, unsigned height, bool hide_border);	//!< @copydoc resizeWindow()
-	inline	void						setDimensions(unsigned width, unsigned height, bool hide_border);	//!< @copydoc resizeWindow()
-	inline	void						setSize(unsigned width, unsigned height, bool hide_border);	//!< @copydoc resizeWindow()
+	inline  void						resizeWindow(unsigned width, unsigned height, DisplayConfig::border_style_t style);
+	inline	void						setDimension(unsigned width, unsigned height, DisplayConfig::border_style_t style);	//!< @copydoc resizeWindow()
+	inline	void						setDimensions(unsigned width, unsigned height, DisplayConfig::border_style_t style);	//!< @copydoc resizeWindow()
+	inline	void						setSize(unsigned width, unsigned height, DisplayConfig::border_style_t style);	//!< @copydoc resizeWindow()
 
 	FORWARD const RECT&					windowLocation();	//!< Retrieves the current window location and size \return RECT Struct containing the current window location.
 	FORWARD	unsigned					width();			//!< Queries the current window width
 	FORWARD	unsigned					height();				//!< Queries the current window height
 	inline	UINT						clientWidth()			const;	//!< Queries the current window's inner width
 	inline	UINT						clientHeight()			const;	//!< Queries the current window's inner height
+	inline	float						pixelAspect()	const;	   //!< window pixel-aspect
 	FORWARD	Resolution					size();							//!< Queries the current window size
-	inline	const Resolution&			clientSize()			const;	//!< Queries the current window's inner size
+	inline	Resolution					clientSize()			const;	//!< Queries the current window's inner size
+	inline	Resolution					currentRargetResolution()				const;
 	FORWARD	Resolution					dimension();					//!< Identical to size()
 	FORWARD	Resolution					dimensions();					//!< Identical to size()
 	FORWARD void						queryScreen(ResolutionList*r_list, FrequencyList*f_list=NULL, DWORD w_min=0, DWORD h_min=0, DWORD f_min=0);
@@ -268,11 +294,12 @@ namespace Engine
 
 
 	protected:
-			int							_error;
-			DWORD						_trate;
-			RECT					 	_location,client_area;
-			bool						_hide_border;
-
+			int								_error;
+			DWORD							_trate;
+			RECT					 		_location,
+											client_area;
+			DisplayConfig::border_style_t	border_style;
+			DisplayConfig::FOnResize		onResize;
 	public:
 			bool						shutting_down;
 
@@ -284,7 +311,7 @@ namespace Engine
 										{
 											return window();
 										}
-			HWND						createWindow(const String&window_name, bool hide_border, const String&icon_filename);
+			HWND						createWindow(const String&window_name, DisplayConfig::border_style_t border_style, const DisplayConfig::FOnResize&onResize, const String&icon_filename);
 			HWND 						createChildWindow(HWND parent, bool enabled);
 			void						setWindow(HWND);
 			String						createClass();
@@ -293,21 +320,25 @@ namespace Engine
 			Display*					connect();
 			Display*					connection();
 			void						disconnect();
-			Window						createWindow(const String&window_name, const TWindowAttributes&attributes, bool hide_border, const String&icon_filename);
+			Window						createWindow(const String&window_name, const TWindowAttributes&attributes, DisplayConfig::border_style_t border_style, const DisplayConfig::FOnResize&onResize, const String&icon_filename);
 			void						setWindow(Window);
 	#endif
 
 			bool						hideCursor();
 			void						showCursor();
-			void						resizeWindow(unsigned width, unsigned height, bool hide_border);
+			void						resizeWindow(unsigned width, unsigned height, DisplayConfig::border_style_t border_style);
 			void						locateWindow(unsigned left, unsigned top, unsigned width, unsigned height);
 			void						locateWindow(const RECT&dimensions);
 			const RECT&					windowLocation()						const;
 			const RECT&					windowClientArea()						const;
 			Resolution					windowSize()							const;
 			Resolution					clientSize()							const;
+			UINT						clientWidth()							const;
+			UINT						clientHeight()							const;
 			RECT						transform(const TFloatRect&field)		const;
 			void						destroyWindow();
+
+			void						signalResize(bool is_final/*, bool is_maximized*/);
 
 			bool						isTopWindow()							const;
 			void						focus();

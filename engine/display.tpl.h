@@ -5,7 +5,7 @@
 namespace Engine
 {
 
-	template <class GL>Display<GL>::Display():exec_target(NULL),context_error(false),region_locked(false),framebuffer_bound(false),config(default_buffer_config)
+	template <class GL>Display<GL>::Display():exec_target(NULL),context_error(false),region_locked(false),framebuffer_bound(false),resolution_overridden(false),config(default_buffer_config)
 	{
 		GL::global_instance = this;
 	}
@@ -117,16 +117,16 @@ namespace Engine
 			{
 				case Light::Spot:
 				{
-					float scale = _distance(camera_location,lights[i]->getPosition())/5;
-					float system[16];
+					float scale = Vec::distance(camera_location,lights[i]->getPosition())/5;
+					TMatrix4<> system;
 					float angle = pow(0.94,lights[i]->getSpotExponent());
 					/*if (angle*45 > lights[i]->getSpotCutoff())
 						angle = lights[i]->getSpotCutoff()/45;*/
 					float z_scale = 1.0/clamped(angle,0.1,1);
-					__makeAxisSystem(lights[i]->getPosition(),lights[i]->getSpotDirection(),2,system);
-					_mult(system,scale/z_scale);
-					_mult(system+4,scale/z_scale);
-					_mult(system+8,scale*z_scale);
+					Mat::makeAxisSystem(lights[i]->getPosition(),lights[i]->getSpotDirection(),2,system);
+					Vec::mult(system.x.xyz,scale/z_scale);
+					Vec::mult(system.y.xyz,scale/z_scale);
+					Vec::mult(system.z.xyz,scale*z_scale);
 					
 					GL::enterSubSystem(system);
 						GL::render(spot);
@@ -137,13 +137,13 @@ namespace Engine
 				break;
 				case Light::Omni:
 				{
-					float scale = _distance(camera_location,lights[i]->getPosition())/10;
-					float system[16];
-					__eye4(system);
-					_c3(lights[i]->getPosition(),system+12);
-					_mult(system,scale);
-					_mult(system+4,scale);
-					_mult(system+8,scale);
+					float scale = Vec::distance(camera_location,lights[i]->getPosition())/10;
+					TMatrix4<> system;
+					Mat::eye(system);
+					Vec::copy(lights[i]->getPosition(),system.w.xyz);
+					Vec::mult(system.x.xyz,scale);
+					Vec::mult(system.y.xyz,scale);
+					Vec::mult(system.z.xyz,scale);
 					GL::enterSubSystem(system);
 						GL::render(omni);
 					GL::exitSubSystem();
@@ -151,13 +151,14 @@ namespace Engine
 				break;
 				case Light::Direct:
 				{
-					float scale = _length(camera_location)/4;
-					float system[16],offset[3];
-					_mult(lights[i]->getPosition(),scale,offset);
-					__makeAxisSystem(offset,lights[i]->getPosition(),2,system);
-					_mult(system,scale);
-					_mult(system+4,scale);
-					_mult(system+8,scale*2);
+					float scale = Vec::length(camera_location)/4;
+					TMatrix4<> system;
+					TVec3<>	offset;
+					Vec::mult(lights[i]->getPosition(),scale,offset);
+					Mat::makeAxisSystem(offset,lights[i]->getPosition(),2,system);
+					Vec::mult(system.x.xyz,scale);
+					Vec::mult(system.y.xyz,scale);
+					Vec::mult(system.z.xyz,scale*2);
 					GL::enterSubSystem(system);
 						GL::render(direct);
 					GL::exitSubSystem();
@@ -223,9 +224,10 @@ namespace Engine
 	{
 
 	    framebuffer_bound = false;
-	    while (true)
+		resolution_overridden = false;
+		while (true)
 	    {
-	        HWND hWnd = context.createWindow(dconfig.window_name,dconfig.hide_border,dconfig.icon_filename);
+			HWND hWnd = context.createWindow(dconfig.window_name,dconfig.border_style, dconfig.onResize,dconfig.icon_filename);
 	        if (!hWnd)
 	        {
 	            context_error = true;
@@ -241,8 +243,6 @@ namespace Engine
 	        }
 	        const RECT&window = context.windowLocation();
 	        GL::setRegion(rect(0,0,window.right-window.left,window.bottom-window.top));
-	        current_target_resolution = window_client_resolution = context.clientSize();
-	        pixel_aspect = window_client_resolution.aspect();
 	        return true;
 	    }
 
@@ -323,12 +323,8 @@ namespace Engine
 
 	template <class GL>	inline	void	Display<GL>::overrideSetClientResolution(const Resolution&region)
 	{
-		window_client_resolution = region;
-	    if (!framebuffer_bound)
-	    {
-	        current_target_resolution = window_client_resolution;
-			pixel_aspect = current_target_resolution.aspect();
-	    }
+		overridden_client_resolution = region;
+		resolution_overridden = true;
 	}
 
 	template <class GL> inline  void Display<GL>::locateWindow(const RECT&rect)
@@ -337,25 +333,25 @@ namespace Engine
 		overrideSetClientResolution(context.clientSize());
 	}
 
-	template <class GL> inline  void Display<GL>::resizeWindow(unsigned width, unsigned height, bool hide_border)
+	template <class GL> inline  void Display<GL>::resizeWindow(unsigned width, unsigned height, DisplayConfig::border_style_t style)
 	{
-	    context.resizeWindow(width,height,hide_border);
+	    context.resizeWindow(width,height,style);
 		overrideSetClientResolution(context.clientSize());
 	}
 	template <class GL>
-		inline	void		Display<GL>::setDimension(unsigned width, unsigned height, bool hide_border)
+		inline	void		Display<GL>::setDimension(unsigned width, unsigned height, DisplayConfig::border_style_t style)
 		{
-			resizeWindow(width,height,hide_border);
+			resizeWindow(width,height,style);
 		}
 	template <class GL>
-		inline	void		Display<GL>::setSize(unsigned width, unsigned height, bool hide_border)
+		inline	void		Display<GL>::setSize(unsigned width, unsigned height, DisplayConfig::border_style_t style)
 		{
-			resizeWindow(width,height,hide_border);
+			resizeWindow(width,height,style);
 		}
 	template <class GL>
-		inline	void		Display<GL>::setDimensions(unsigned width, unsigned height, bool hide_border)
+		inline	void		Display<GL>::setDimensions(unsigned width, unsigned height, DisplayConfig::border_style_t style)
 		{
-			resizeWindow(width,height,hide_border);
+			resizeWindow(width,height,style);
 		}
 
 
@@ -375,13 +371,13 @@ namespace Engine
 	template <class GL> inline
 		UINT			Display<GL>::clientWidth()	const
 		{
-			return window_client_resolution.width;
+			return resolution_overridden ? overridden_client_resolution.width : context.clientWidth();
 		}
 	
 	template <class GL> inline
 		UINT			Display<GL>::clientHeight()	const
 		{
-			return window_client_resolution.height;
+			return resolution_overridden ? overridden_client_resolution.height : context.clientHeight();
 		}
 	
 		
@@ -394,17 +390,37 @@ namespace Engine
 		}
 
 	template <class GL> inline
-		const Resolution&				Display<GL>::clientSize()	const
+		Resolution				Display<GL>::clientSize()	const
 		{
-			return window_client_resolution;
+			return resolution_overridden ? overridden_client_resolution : context.clientSize();
 		}
 		
+	template <class GL>
+		inline Resolution					Display<GL>::currentRargetResolution()	const
+		{
+			if (framebuffer_bound)
+				return target_buffer_resolution;
+			if (resolution_overridden)
+				return overridden_client_resolution;
+			return context.clientSize();
+		}
 		
 	template <class GL> inline
 		/*static*/ Resolution				Display<GL>::size()
 		{
 			return context.windowSize();
 		}
+
+	template <class GL> inline
+		float				Display<GL>::pixelAspect()	const
+		{
+			if (framebuffer_bound)
+				return target_buffer_resolution.aspect();
+			if (resolution_overridden)
+				return overridden_client_resolution.aspect();
+			return context.pixelAspectf();
+		}
+
 
 	template <class GL> inline
 		/*static*/ Resolution				Display<GL>::dimension()
@@ -523,28 +539,40 @@ namespace Engine
 	template <class GL> inline	void	Display<GL>::capture(Image&target)
 	{
 		if (!framebuffer_bound)
-			target.setDimension(current_target_resolution.width,current_target_resolution.height,config.alpha_buffer_bits?4:3);
+		{
+			if (resolution_overridden)
+				target.setDimension(overridden_client_resolution.width,overridden_client_resolution.height,config.alpha_buffer_bits?4:3);
+			else
+				target.setDimension(context.clientWidth(),context.clientHeight(),config.alpha_buffer_bits?4:3);
+		}
 		else
-			target.setDimension(current_target_resolution.width,current_target_resolution.height,framebuffer_alpha?4:3);
+			target.setDimension(target_buffer_resolution.width,target_buffer_resolution.height,framebuffer_alpha?4:3);
 		GL::capture(target);
 	}
 	template <class GL> inline	void	Display<GL>::capture(FloatImage&target)
 	{
 		if (!framebuffer_bound)
-			target.setDimension(current_target_resolution.width,current_target_resolution.height,config.alpha_buffer_bits?4:3);
+		{
+			if (resolution_overridden)
+				target.setDimension(overridden_client_resolution.width,overridden_client_resolution.height,config.alpha_buffer_bits?4:3);
+			else
+				target.setDimension(context.clientWidth(),context.clientHeight(),config.alpha_buffer_bits?4:3);
+		}
 		else
-			target.setDimension(current_target_resolution.width,current_target_resolution.height,framebuffer_alpha?4:3);
+			target.setDimension(target_buffer_resolution.width,target_buffer_resolution.height,framebuffer_alpha?4:3);
 		GL::capture(target);
 	}
 
 	template <class GL> inline	void	Display<GL>::capture(typename GL::Texture&target)
 	{
-		GL::capture(target,current_target_resolution.width,current_target_resolution.height);
+		Resolution res = currentRargetResolution();
+		GL::capture(target,res.width,res.height);
 	}
 
 	template <class GL> inline	void	Display<GL>::captureDepth(typename GL::Texture&target)
 	{
-		GL::captureDepth(target,current_target_resolution.width,current_target_resolution.height);
+		Resolution res = currentRargetResolution();
+		GL::captureDepth(target,res.width,res.height);
 	}
 
 
@@ -721,11 +749,13 @@ namespace Engine
 
 	template <class GL> RECT Display<GL>::transform(const TFloatRect&rect)
 	{
+		Resolution res = currentRargetResolution();
+
 	    RECT result;
-	    result.left     = (LONG)(rect.x.min		*current_target_resolution.width);
-	    result.right    = (LONG)(rect.x.max		*current_target_resolution.width);
-	    result.top      = (LONG)((rect.y.max)	*current_target_resolution.height);
-	    result.bottom   = (LONG)((rect.y.min)	*current_target_resolution.height);
+	    result.left     = (LONG)(rect.x.min		*res.width);
+	    result.right    = (LONG)(rect.x.max		*res.width);
+	    result.top      = (LONG)((rect.y.max)	*res.height);
+	    result.bottom   = (LONG)((rect.y.min)	*res.height);
 	    return result;
 	}
 
@@ -792,9 +822,9 @@ namespace Engine
 	    if (GL::bindFrameBufferObject(pobj))
 	    {
 			framebuffer_bound = true;
-	        current_target_resolution = pobj.size();
+	        target_buffer_resolution = pobj.size();
 			framebuffer_alpha = pobj.primaryHasAlpha();
-	        pixel_aspect = current_target_resolution.aspect();
+	        //pixel_aspect = current_target_resolution.aspect();
 			//ShowMessage("pbuffer bound. region is "+String(region_size.x)+", "+String(region_size.y)+". aspect is "+String(pixel_aspect));
 	        return true;
 	    }
@@ -809,15 +839,12 @@ namespace Engine
 	    if (!framebuffer_bound)
 			return;
 		
-	    GL::unbindFrameBufferObject(window_client_resolution);
-	    current_target_resolution = window_client_resolution;
-	    pixel_aspect = current_target_resolution.aspect();
+	    framebuffer_bound = false;
+	    GL::unbindFrameBufferObject(clientSize());
+	    //current_target_resolution = window_client_resolution;
 		//const RECT&window = context.windowLocation();
 		/*GL::setRegion(rect(0,0,window.right-window.left,window.bottom-window.top));*/	//so if i set region here everything goes boom..... guess stranger things happen
-	    framebuffer_bound = false;
 		//ShowMessage("pbuffer unbound. region is "+String(region_size.x)+", "+String(region_size.y)+". aspect is "+String(pixel_aspect));
-		
-		
 	}
 
 

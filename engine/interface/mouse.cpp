@@ -286,6 +286,7 @@ namespace Engine
 	    location.fx = ((float)location.x-window.left)/(window.right-window.left);
 	    location.fy = (1-((float)location.y-window.top)/(window.bottom-window.top));
 		
+#if 0
 		#if SYSTEM==WINDOWS
 			if (loaded_cursor)
 			{
@@ -298,7 +299,7 @@ namespace Engine
 				#endif
 			}
 		#endif
-		
+#endif /*0*/	
 	}
 
 	void Mouse::freeMouse()
@@ -533,7 +534,11 @@ namespace Engine
 	//bas: 75 51 41 60
 	#endif
 	
-	
+	bool	Mouse::cursorIsNotDefault()	const
+	{
+		return (loaded_cursor != cursor_reference[CursorType::Default]);
+	}
+
 	void	Mouse::setCursor(eCursor cursor)
 	{
 		if (cursor == CursorType::None || cursor >= CursorType::Count)

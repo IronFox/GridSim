@@ -113,11 +113,11 @@ namespace Engine
 		return result;
 	}
 
-	void		ControlCluster::signalResolutionChange()
+	void		ControlCluster::signalResolutionChange(UINT new_width, UINT new_height, bool is_final)
 	{
 		for (index_t i = 0; i < control_stack.count(); i++)
 		{
-			control_stack[i]->onResolutionChange();
+			control_stack[i]->onResolutionChange(new_width, new_height, is_final);
 		}
 	}
 

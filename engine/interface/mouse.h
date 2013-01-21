@@ -5,11 +5,6 @@
 
 eve mouse-interface.
 
-This file is part of Delta-Works
-Copyright (C) 2006-2008 Stefan Elsen, University of Trier, Germany.
-http://www.delta-works.org/forge/
-http://informatik.uni-trier.de/
-
 ******************************************************************/
 
 #if SYSTEM==UNIX
@@ -209,6 +204,8 @@ namespace Engine
 			void				bindWheel(wheelLink WLink);								//!< Unbinds/binds the specified wheel event handler to the mouse wheel. \param WLink Mouse wheel event handler or NULL to unbind the mouse wheel event.
 			bool				hideCursor(bool force=true);							//!< Hides the mouse cursor while above the active window. @param force Set true to disallow subsequent setCursor() invokations to alter show the cursor \return true if the mouse cursor could be hidden, false otherwise.
 			void				showCursor(bool override=true);							//!< Shows the mouse cursor again. @param override Set true to override (and clear) the forced flag
+			bool				cursorIsNotDefault()	const;
+
 								/*!	\brief Locks the mouse cursor to the center of the screen.
 								
 									While caught Mouse will constantly reset the mouse position to the center of the screen and write the respective cursor movement 
