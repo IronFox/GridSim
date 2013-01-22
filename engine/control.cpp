@@ -55,6 +55,11 @@ namespace Engine
 		for (index_t i = 0; i < control_stack.count(); i++)
 			control_stack[i]->renderShaded(aspect);
 	}
+	void		ControlCluster::renderShadedReflection(const Aspect<>&aspect)
+	{
+		for (index_t i = 0; i < control_stack.count(); i++)
+			control_stack[i]->renderShadedReflection(aspect);
+	}
 
 	void		ControlCluster::renderShadow(const Aspect<>&aspect)
 	{

@@ -34,6 +34,7 @@ namespace Engine
 		virtual	void		advance(float delta)						{};					//!< Advances the frame. @param Last frames frame length. The control is encouraged to use this delta value rather than the global timing variable if slowmotion effects should be possible
 	
 		virtual	void		renderShaded(const Aspect<>&)				{};					//!< Triggers fully shaded rendering. No shader is bound at this time but layer0 textures may be bound. Lighting and depth test are enabled
+		virtual	void		renderShadedReflection(const Aspect<>&aspect){renderShaded(aspect);};					//!< Triggers fully shaded rendering. No shader is bound at this time but layer0 textures may be bound. Lighting and depth test are enabled
 		virtual	void		renderSchematics(const Aspect<>&)			{};					//!< Triggers schematic rendering. No shader or texture is bound at this time. Lighting and depth test are disabled
 		virtual	void		renderShadow(const Aspect<>&)				{};					//!< Triggers shadow rendering. No shader or texture is bound at this time. Lighting is disabled, depth test is enabled
 		virtual	void		renderHUD()									{};					//!< Triggers HUD rendering. The bound aspect is always orthographic from 0,0 to 1,1. Layer0 textures may be bound, shaders and depth test are disabled
@@ -65,12 +66,13 @@ namespace Engine
 		bool				onKeyUp(Key::Name);						//!< Invokes onKeyUp() methods of all contained control instances. Walks backwards through the list and stops at the first that returns true @return true if any contained instance returned true, false otherwise
 		bool				onMouseWheel(short delta);				//!< Invokes onMouseWheel() methods of all contained control instances. Walks backwards through the list and stops at the first that returns true @return true if any contained instance returned true, false otherwise
 	
-		void				advance(float delta);					//!< Invokes advance() methods of all contained control instances. Walks forwards through the list
+		void				advance(float delta);					//!< Invokes advance() methods of all contained control instances. Walks forward through the list
 			
 		void				renderShadow(const Aspect<>&);
-		void				renderShaded(const Aspect<>&);			//!< Invokes renderShaded() methods of all contained control instances. Walks forwards through the list
-		void				renderSchematics(const Aspect<>&);		//!< Invokes renderSchematics() methods of all contained control instances. Walks forwards through the list
-		void				renderHUD();							//!< Invokes renderHUD() methods of all contained control instances. Walks forwards through the list
+		void				renderShaded(const Aspect<>&);			//!< Invokes renderShaded() methods of all contained control instances. Walks forward through the list
+		void				renderShadedReflection(const Aspect<>&);			//!< Invokes renderShadedReflection() methods of all contained control instances. Walks forward through the list
+		void				renderSchematics(const Aspect<>&);		//!< Invokes renderSchematics() methods of all contained control instances. Walks forward through the list
+		void				renderHUD();							//!< Invokes renderHUD() methods of all contained control instances. Walks forward through the list
 		void				shutdown();								//!< Signals that the application is being shut down
 
 		void				install(Control*);

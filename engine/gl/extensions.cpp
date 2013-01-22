@@ -896,7 +896,7 @@ namespace Engine
 	
 
 
-		static bool		extractFileContent(const String&filename, String&target, StringBuffer&log_out)
+		bool		extractFileContent(const String&filename, String&target, StringBuffer&log_out)
 		{
 			FileStream	file(filename.c_str(),FileStream::StandardRead);
 			if (!file.isOpen())
@@ -915,7 +915,7 @@ namespace Engine
 			return true;
 		}
 
-		static bool		extractFileContent(const String&filename, String&target)
+		bool		extractFileContent(const String&filename, String&target)
 		{
 			FileStream	file(filename.c_str(),FileStream::StandardRead);
 			if (!file.isOpen())
@@ -1016,30 +1016,42 @@ namespace Engine
 				static StringList tokens;
 				Tokenizer::tokenize(source, config, tokens);	//!< @overload
 
-				for (index_t i = 0; i+1 < tokens.count(); i+=2)	//each two elements are a shader code pair
+				for (index_t i = 0; i+1 < tokens.count();)
 				{
-					const String&source = tokens[i+1];
-					if (!source.beginsWith('{') || !source.endsWith('}'))
+					String*source_target = NULL;
+					const String&group = tokens[i];
 					{
-						ErrMessage("Warning: Malformatted code segment encountered");
+						if (group == "shared")
+							source_target = &shared_source;
+						elif (group == "vertex")
+							source_target = &vertex_source;
+						elif (group == "fragment")
+							source_target = &fragment_source;
+						elif (group == "geometry")
+							source_target = &geometry_source;
+					}
+					i++;
+					if (!source_target)
+					{
+						if (group.trimRef().length() > 0)
+							ErrMessage("Warning: unexpected code token(s) encountered: '"+group+"'");
 						continue;
 					}
-					ReferenceExpression<char>	code = source.subStringRef(1,source.length()-2);
-					if (code.length() > 0)
+					for (; i < tokens.count(); )
 					{
-						const String&group = tokens[i];
-						if (group == "shared")
-							shared_source = code;
-						elif (group == "vertex")
-							vertex_source = code;
-						elif (group == "fragment")
-							fragment_source = code;
-						elif (group == "geometry")
-							geometry_source = code;
-						else
-							ErrMessage("Warning: unexpected code group encountered: '"+group+"'");
+						ReferenceExpression<char>	source = tokens[i++].trimRef();
+						if (source.length() == 0)
+							continue;
+						
+						if (source.pointer()[0] != '{' || source.pointer()[source.length()-1] != '}')
+							continue;
+						
+						*source_target = ReferenceExpression<char>(source.pointer() + 1, source.length()-2);
+						source_target = NULL;
+						break;
 					}
-					
+					if (source_target != NULL)
+						ErrMessage("Warning: Unable to find body for group '"+group+"'");
 				}
 
 			}
