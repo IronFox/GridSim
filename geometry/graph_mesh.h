@@ -416,7 +416,7 @@ public:
 };
 
 
-class Shape
+class LineShape
 {
 public:
 		class Node
@@ -429,13 +429,13 @@ public:
 		Buffer<Node>			nodes;
 		
 		
-		void					adoptData(Shape&other)
+		void					adoptData(LineShape&other)
 								{
 									nodes.adoptData(other.nodes);
 								}
 };
 
-DECLARE__(Shape,Adoptable);
+DECLARE__(LineShape,Adoptable);
 
 
 
@@ -445,7 +445,7 @@ DECLARE__(Shape,Adoptable);
 class Outline
 {
 public:
-		Buffer<Shape>			shapes;
+		Buffer<LineShape>		shapes;
 		
 		
 		count_t					countNodes()	const

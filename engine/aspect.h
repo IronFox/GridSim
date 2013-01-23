@@ -123,6 +123,7 @@ public:
 		eDepthTest				depth_test;	//!< Depth test configuration of this aspect ( Engine::VisualEnum::NormalDepthTest by default)
 
 MF_CONSTRUCTOR					Aspect();
+MF_CONSTRUCTOR					Aspect(VisualEnum::eDepthTest dtest);
 
 MF_DECLARE	(void)				updateInvert();														//!< Updates view_invert and projection_invert from view and projection
 MFUNC3	(void)					translate(const C0&x, const C1&y, const C2&z);						//!< Moves the aspect depending on the current view orientation. Auto updates view_invert. \param x Translation in X-direction (horizontal) \param y Translation in Y-direction (vertical) \param Translation in Z-direction (depth)

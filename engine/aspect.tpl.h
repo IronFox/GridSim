@@ -333,6 +333,12 @@ template <class C> MF_CONSTRUCTOR Aspect<C>::Aspect():region(0,0,1,1),depth_test
 	loadIdentity();
 }
 
+template <class C> MF_CONSTRUCTOR Aspect<C>::Aspect(VisualEnum::eDepthTest dtest):region(0,0,1,1),depth_test(dtest)
+{
+	loadIdentity();
+}
+
+
 template <class C> MF_DECLARE(void)	Aspect<C>::loadIdentity()
 {
 	view = Matrix<C>::eye4;
