@@ -697,33 +697,34 @@ namespace Engine
 	        state.matrix_changed = true;
 	}
 
+
 	template <class C>
-		inline void		OpenGL::replaceModelview(const TMatrix4<C>&matrix)
+		inline void		OpenGL::replaceCamera(const TMatrix4<C>&modelview, const TMatrix4<C>&projection)
 		{
-			glPushMatrix();
-			glLoadMatrix(matrix.v);
+			storeCamera();
+
+			glLoadMatrix(modelview.v);
+			glMatrixMode(GL_PROJECTION);
+			glLoadMatrix(projection.v);
+			glMatrixMode(GL_MODELVIEW);
 			onModelviewChange();
 		}
 
-	template <class C>
-		inline void		OpenGL::replaceProjection(const TMatrix4<C>&matrix)
-		{
-			glMatrixMode(GL_PROJECTION);
-			glPushMatrix();
-			glLoadMatrix(matrix.v);
-			glMatrixMode(GL_MODELVIEW);
-		}
-
-	inline	void		OpenGL::restoreModelview()
+	inline	void		OpenGL::restoreCamera()
 	{
+		glMatrixMode(GL_PROJECTION);
+		glPopMatrix();
+		glMatrixMode(GL_MODELVIEW);
 		glPopMatrix();
 		onModelviewChange();
 	}
 
-	inline	void		OpenGL::restoreProjection()
+
+	inline	void		OpenGL::storeCamera()
 	{
+		glPushMatrix();
 		glMatrixMode(GL_PROJECTION);
-		glPopMatrix();
+		glPushMatrix();
 		glMatrixMode(GL_MODELVIEW);
 	}
 

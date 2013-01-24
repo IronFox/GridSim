@@ -1893,10 +1893,18 @@ namespace Engine
 		{
 			if (!display)
 				FATAL__("GUI not properly initialized. Display is NULL");
+			
+			
+			//backup aspect configuration
 			bool aspect_was_in_projection = GlobalAspectConfiguration::load_as_projection;
 			GlobalAspectConfiguration::load_as_projection = false;
 			bool world_z_was_up = GlobalAspectConfiguration::world_z_is_up;
 			GlobalAspectConfiguration::world_z_is_up = false;
+			display->storeCamera();
+
+
+			
+			
 			if (focused)
 			{
 				time_since_last_tick += timing.delta;
@@ -2223,20 +2231,38 @@ namespace Engine
 			*/
 			GlobalAspectConfiguration::load_as_projection = aspect_was_in_projection;
 			GlobalAspectConfiguration::world_z_is_up = world_z_was_up;
+			display->restoreCamera();
+
 		}
 		
-		
+		/**
+		@brief Queries whether the specified window is currently part of the local window stack
+		@return true, if the specified window is contained in the local window stack, false otherwise.
+		*/
 		bool			Operator::windowIsVisible(const shared_ptr<Window>&window)	const
 		{
 			return window_stack.contains(window);
 		}
 		
+		/**
+		@brief Queries the top-most window (if any)
+		@return Shared pointer to the top most window. May be empty, if the local window stack is empty.
+		*/
 		shared_ptr<Window>	Operator::getTopWindow() const
 		{
 			if (window_stack.isEmpty())
 				return shared_ptr<Window>();
 			return window_stack.last();
 		}
+
+		/**
+		@brief Checks whether the operator shows at least one modal window (multiple modal windows maty be on top of each other)
+		*/
+		bool				Operator::showingModalWindows()	const
+		{
+			return window_stack.isNotEmpty() && window_stack.last()->is_modal;
+		}
+
 
 		
 		void			Operator::insertWindow(const shared_ptr<Window>&window)

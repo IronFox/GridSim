@@ -6,11 +6,6 @@
 
 E:\include\string\string_buffer.cpp
 
-This file is part of Delta-Works
-Copyright (C) 2006-2008 Stefan Elsen, University of Trier, Germany.
-http://www.delta-works.org/forge/
-http://informatik.uni-trier.de/
-
 ******************************************************************/
 
 StringBuffer::StringBuffer(size_t l):field(alloc<char>(l)),len(l),remaining(l),overflow(false),auto_resize(true)
@@ -432,6 +427,10 @@ void			StringBuffer::reset()
 	remaining = len;
 	overflow = false;
 }
+void			StringBuffer::clear()
+{
+	reset();
+}
 
 const char*	 StringBuffer::root()	  const
 {
@@ -442,6 +441,15 @@ char*			StringBuffer::root()
 {
 	return field;
 }
+char*     		StringBuffer::pointer()
+{
+	return field;
+}
+const char*     StringBuffer::pointer()      	const
+{
+	return field;
+}
+
 
 size_t		StringBuffer::length()	const
 {

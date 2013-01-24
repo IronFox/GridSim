@@ -57,8 +57,11 @@ inline	char			operator[](size_t index)	const
 						}
 		
         void            reset();					//!< Resets the local string to the first character of the buffer without truncating the character array
-        char*     		root();						//!< Retrieves a pointer to the beginning of the local buffer field
-        const char*     root()      	const;		//!< @overload
+        void			clear();					//!< @copydoc reset()
+		char*     		root();						//!< Retrieves a pointer to the beginning of the local buffer field
+        const char*     root()      	const;		//!< @copydoc root()
+        char*     		pointer();					//!< @copydoc root()
+        const char*     pointer()      	const;		//!< @copydoc root()
         size_t          length()    	const;		//!< Retrieves the current fill state of the local buffer
 		ReferenceExpression<char>
 						toStringRef()	const;		//!< Returns a string reference to the local content

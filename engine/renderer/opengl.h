@@ -1028,10 +1028,10 @@ namespace Engine
 						void						unbindAll();																					//!< Unbinds the currently bound material, all textures and all vertex/index objects
 	T_					void						loadModelview(const TMatrix4<C>&matrix);															//!< Loads the specified matrix as modelview matrix \param matrix Pointer to a 4x4 (system) matrix
 	T_					void						loadProjection(const TMatrix4<C>&matrix);															//!< Loads the specified matrix as projection matrix \param matrix Pointer to a 4x4 (projection) matrix
-	T_					void						replaceModelview(const TMatrix4<C>&matrix);															//!< Pushes the current modelview matrix to the stack and loads the specified one. restoreModelview() must be called when done working with the replacement \param matrix Pointer to a 4x4 (system) matrix to replace the current one
-	T_					void						replaceProjection(const TMatrix4<C>&matrix);															//!< Pushes the current projection matrix to the stack and loads the specified one. restoreProjection() must be called when done working with the replacement \param matrix Pointer to a 4x4 (projection) matrix to replace the current one
-		inline			void						restoreModelview();																				//!< Restores the modelview matrix from the stack overwriting the currently loaded modelview matrix
-		inline			void						restoreProjection();																			//!< Restores the projection matrix from the stack overwriting the currently loaded projection matrix
+	T_					void						replaceCamera(const TMatrix4<C>&modelview, const TMatrix4<C>&projection);								//!< Pushes the current modelview and projection matrices to the stack and loads the specified ones. restoreCamera() must be called when done working with the replacement
+		inline			void						storeCamera();																					//!< Pushes the current modelview and projection matrices to the stack
+		inline			void						restoreCamera();																				//!< Restores the modelview and projection matrices from the stack, overwriting the currently loaded modelview and projection matrices
+		
 						void						nextFrameNoClr();																				//!< Swaps buffers
 						void						nextFrame();																					//!< Swaps buffers and clears the back buffer
 
