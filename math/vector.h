@@ -296,6 +296,11 @@ namespace Math
 										return (T)value >= min && (T)value <= max;
 									}
 			template<typename T0>
+				MF_DECLARE(bool)	contains(const TRange<T0>&range)	const //! Checks if the specified range lies within the local range
+									{
+										return (T)range.min >= min && (T)range.max <= max;
+									}
+			template<typename T0>
 				MF_DECLARE(void)	include(const T0&value)	//!< Expands the local range so that it includes the specified value
 									{
 										min = std::min<T>(min,value);
@@ -616,14 +621,22 @@ namespace Math
 										return x.extend()/y.extend();
 									}
 			/*!
-			@brief	Determines whether or not the specified point lies within the local rectangle. @b top is expected to be greater or equal @b bottom
-			@param p Pointer to a 2d vector
+			@brief	Determines whether or not the specified point lies within the local rectangle
 			@return true if the point lies in the rectangle
 			*/
 			template <typename T0>
 				MF_DECLARE(bool)	contains(const TVec2<T0>&p)	const
 									{
 										return x.contains(p.x) && y.contains(p.y);
+									}
+			/*!
+			@brief	Determines whether or not the specified rect lies within the local rectangle
+			@return true if the rectangle lies in the local rectangle
+			*/
+			template <typename T0>
+				MF_DECLARE(bool)	contains(const Rect<T0>&r)	const
+									{
+										return x.contains(r.x) && y.contains(r.y);
 									}
 		
 			/*!
@@ -1089,6 +1102,15 @@ namespace Math
 				MF_DECLARE(bool)	contains(const TVec3<T0>&p)	const
 									{
 										return x.contains(p.x) && y.contains(p.y) && z.contains(p.z);
+									}
+			/*!
+			@brief	Determines whether or not the specified box lies within the local box
+			@return true if the box lies in the box
+			*/
+			template <typename T0>
+				MF_DECLARE(bool)	contains(const Box<T0>&b)	const
+									{
+										return x.contains(b.x) && y.contains(r.y) && z.contains(r.z);
 									}
 		
 			/*!
