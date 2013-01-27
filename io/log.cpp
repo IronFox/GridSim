@@ -112,15 +112,15 @@
 			if (fwrite(line,1,nl-line+1,f)!=nl-line+1)
 				return false;
 			indent_ = true;
-			return log(nl+1,false);
+			return !strlen(nl+1) || log(nl+1,false);
 		}
-		else
-		{
-			size_t len = strlen(line);
-			if (fwrite(line,1,len,f)!=len)
-				return false;
-			fflush(f);
-		}
+		size_t len = strlen(line);
+		if (fwrite(line,1,len,f)!=len)
+			return false;
+		char nl_ = '\n';
+		if (fwrite(&nl_,1,1,f)!=1)
+			return false;
+		fflush(f);
 		return true;
 	}
 
@@ -146,9 +146,12 @@
 			if (fwrite(line.c_str(),1,at,f)!=at)
 				return false;
 			indent_ = true;
-			return log(line.c_str()+at,false);
+			return at == line.length() || log(line.c_str()+at,false);
 		}
 		if (fwrite(line.c_str(),1,line.length(),f)!=line.length())
+			return false;
+		char nl_ = '\n';
+		if (fwrite(&nl_,1,1,f)!=1)
 			return false;
 		fflush(f);
 		return true;
