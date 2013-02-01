@@ -355,15 +355,6 @@
     <ClCompile Include="..\..\remote\bz2\bz2.cpp">
       <Filter>Source Files\remote\bz2</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\remote\jpeg\jquant1.cpp">
-      <Filter>Source Files\remote\jpeg</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\remote\jpeg\jquant2.cpp">
-      <Filter>Source Files\remote\jpeg</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\remote\jpeg\jutils.cpp">
-      <Filter>Source Files\remote\jpeg</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\remote\bz2\decompress.c">
       <Filter>Source Files\remote\bz2</Filter>
     </ClCompile>
@@ -423,135 +414,6 @@
     </ClCompile>
     <ClCompile Include="..\..\remote\zlib\inftrees.c">
       <Filter>Source Files\remote\zlib</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\remote\jpeg\jcapimin.cpp">
-      <Filter>Source Files\remote\jpeg</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\remote\jpeg\jcapistd.cpp">
-      <Filter>Source Files\remote\jpeg</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\remote\jpeg\jccoefct.cpp">
-      <Filter>Source Files\remote\jpeg</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\remote\jpeg\jccolor.cpp">
-      <Filter>Source Files\remote\jpeg</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\remote\jpeg\jcdctmgr.cpp">
-      <Filter>Source Files\remote\jpeg</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\remote\jpeg\jchuff.cpp">
-      <Filter>Source Files\remote\jpeg</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\remote\jpeg\jcinit.cpp">
-      <Filter>Source Files\remote\jpeg</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\remote\jpeg\jcmainct.cpp">
-      <Filter>Source Files\remote\jpeg</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\remote\jpeg\jcmarker.cpp">
-      <Filter>Source Files\remote\jpeg</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\remote\jpeg\jcmaster.cpp">
-      <Filter>Source Files\remote\jpeg</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\remote\jpeg\jcomapi.cpp">
-      <Filter>Source Files\remote\jpeg</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\remote\jpeg\jcparam.cpp">
-      <Filter>Source Files\remote\jpeg</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\remote\jpeg\jcphuff.cpp">
-      <Filter>Source Files\remote\jpeg</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\remote\jpeg\jcprepct.cpp">
-      <Filter>Source Files\remote\jpeg</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\remote\jpeg\jcsample.cpp">
-      <Filter>Source Files\remote\jpeg</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\remote\jpeg\jctrans.cpp">
-      <Filter>Source Files\remote\jpeg</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\remote\jpeg\jdapimin.cpp">
-      <Filter>Source Files\remote\jpeg</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\remote\jpeg\jdapistd.cpp">
-      <Filter>Source Files\remote\jpeg</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\remote\jpeg\jdatadst.cpp">
-      <Filter>Source Files\remote\jpeg</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\remote\jpeg\jdatasrc.cpp">
-      <Filter>Source Files\remote\jpeg</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\remote\jpeg\jdcoefct.cpp">
-      <Filter>Source Files\remote\jpeg</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\remote\jpeg\jdcolor.cpp">
-      <Filter>Source Files\remote\jpeg</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\remote\jpeg\jddctmgr.cpp">
-      <Filter>Source Files\remote\jpeg</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\remote\jpeg\jdhuff.cpp">
-      <Filter>Source Files\remote\jpeg</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\remote\jpeg\jdinput.cpp">
-      <Filter>Source Files\remote\jpeg</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\remote\jpeg\jdmainct.cpp">
-      <Filter>Source Files\remote\jpeg</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\remote\jpeg\jdmarker.cpp">
-      <Filter>Source Files\remote\jpeg</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\remote\jpeg\jdmaster.cpp">
-      <Filter>Source Files\remote\jpeg</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\remote\jpeg\jdmerge.cpp">
-      <Filter>Source Files\remote\jpeg</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\remote\jpeg\jdphuff.cpp">
-      <Filter>Source Files\remote\jpeg</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\remote\jpeg\jdpostct.cpp">
-      <Filter>Source Files\remote\jpeg</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\remote\jpeg\jdsample.cpp">
-      <Filter>Source Files\remote\jpeg</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\remote\jpeg\jdtrans.cpp">
-      <Filter>Source Files\remote\jpeg</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\remote\jpeg\jerror.cpp">
-      <Filter>Source Files\remote\jpeg</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\remote\jpeg\jfdctflt.cpp">
-      <Filter>Source Files\remote\jpeg</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\remote\jpeg\jfdctfst.cpp">
-      <Filter>Source Files\remote\jpeg</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\remote\jpeg\jfdctint.cpp">
-      <Filter>Source Files\remote\jpeg</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\remote\jpeg\jidctflt.cpp">
-      <Filter>Source Files\remote\jpeg</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\remote\jpeg\jidctfst.cpp">
-      <Filter>Source Files\remote\jpeg</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\remote\jpeg\jidctint.cpp">
-      <Filter>Source Files\remote\jpeg</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\remote\jpeg\jidctred.cpp">
-      <Filter>Source Files\remote\jpeg</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\remote\jpeg\jmemmgr.cpp">
-      <Filter>Source Files\remote\jpeg</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\remote\jpeg\jmemnobs.cpp">
-      <Filter>Source Files\remote\jpeg</Filter>
     </ClCompile>
     <ClCompile Include="..\..\remote\png\png.c">
       <Filter>Source Files\remote\png</Filter>
@@ -624,6 +486,219 @@
     </ClCompile>
     <ClCompile Include="..\..\math\vector.cpp">
       <Filter>Source Files\math</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\cdjpeg.c">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\cjpeg.c">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\ckconfig.c">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\djpeg.c">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\example.c">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jaricom.c">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jcapimin.c">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jcapistd.c">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jcarith.c">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jccoefct.c">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jccolor.c">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jcdctmgr.c">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jchuff.c">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jcinit.c">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jcmainct.c">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jcmarker.c">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jcmaster.c">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jcomapi.c">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jcparam.c">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jcprepct.c">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jcsample.c">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jctrans.c">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jdapimin.c">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jdapistd.c">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jdarith.c">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jdatadst.c">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jdatasrc.c">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jdcoefct.c">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jdcolor.c">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jddctmgr.c">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jdhuff.c">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jdinput.c">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jdmainct.c">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jdmarker.c">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jdmaster.c">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jdmerge.c">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jdpostct.c">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jdsample.c">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jdtrans.c">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jerror.c">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jfdctflt.c">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jfdctfst.c">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jfdctint.c">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jidctflt.c">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jidctfst.c">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jidctint.c">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jmemansi.c">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jmemdos.c">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jmemmac.c">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jmemmgr.c">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jmemname.c">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jmemnobs.c">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jpegtran.c">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jquant1.c">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jquant2.c">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jutils.c">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\rdbmp.c">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\rdcolmap.c">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\rdgif.c">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\rdjpgcom.c">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\rdppm.c">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\rdrle.c">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\rdswitch.c">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\rdtarga.c">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\transupp.c">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\wrbmp.c">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\wrgif.c">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\wrjpgcom.c">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\wrppm.c">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\wrrle.c">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\wrtarga.c">
+      <Filter>Source Files\remote\jpeg</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1293,15 +1368,6 @@
     <ClInclude Include="..\..\gl\wglext.h">
       <Filter>Header Files\gl</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\remote\jpeg\Basic.h">
-      <Filter>Header Files\remote\jpeg</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\remote\jpeg\bmpdlg.h">
-      <Filter>Header Files\remote\jpeg</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\remote\jpeg\bmpfile.h">
-      <Filter>Header Files\remote\jpeg</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\remote\bz2\bz2.h">
       <Filter>Header Files\remote\bz2</Filter>
     </ClInclude>
@@ -1310,12 +1376,6 @@
     </ClInclude>
     <ClInclude Include="..\..\remote\bz2\bzlib_private.h">
       <Filter>Header Files\remote\bz2</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\remote\jpeg\cderror.h">
-      <Filter>Header Files\remote\jpeg</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\remote\jpeg\cdjpeg.h">
-      <Filter>Header Files\remote\jpeg</Filter>
     </ClInclude>
     <ClInclude Include="..\..\math\complex.h">
       <Filter>Header Files\math</Filter>
@@ -1331,9 +1391,6 @@
     </ClInclude>
     <ClInclude Include="..\..\remote\zlib\deflate.h">
       <Filter>Header Files\remote\zlib</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\remote\jpeg\Dl1quant.h">
-      <Filter>Header Files\remote\jpeg</Filter>
     </ClInclude>
     <ClInclude Include="..\..\al\efx.h">
       <Filter>Header Files\al</Filter>
@@ -1371,62 +1428,14 @@
     <ClInclude Include="..\..\net\conventions\infworlds.h">
       <Filter>Header Files\net\conventions</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\remote\jpeg\jchuff.h">
-      <Filter>Header Files\remote\jpeg</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\remote\jpeg\jconfig.h">
-      <Filter>Header Files\remote\jpeg</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\remote\jpeg\jdct.h">
-      <Filter>Header Files\remote\jpeg</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\remote\jpeg\jdhuff.h">
-      <Filter>Header Files\remote\jpeg</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\remote\jpeg\jerror.h">
-      <Filter>Header Files\remote\jpeg</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\remote\jpeg\jinclude.h">
-      <Filter>Header Files\remote\jpeg</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\remote\jpeg\jmemsys.h">
-      <Filter>Header Files\remote\jpeg</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\remote\jpeg\jmorecfg.h">
-      <Filter>Header Files\remote\jpeg</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\remote\jpeg\Jpegfile.h">
-      <Filter>Header Files\remote\jpeg</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\remote\jpeg\jpegint.h">
-      <Filter>Header Files\remote\jpeg</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\remote\jpeg\jpeglib.h">
-      <Filter>Header Files\remote\jpeg</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\remote\jpeg\jversion.h">
-      <Filter>Header Files\remote\jpeg</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\al\KsMedia.h">
       <Filter>Header Files\al</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\remote\jpeg\MainFrm.h">
-      <Filter>Header Files\remote\jpeg</Filter>
     </ClInclude>
     <ClInclude Include="..\..\math\mclasses.h">
       <Filter>Header Files\math</Filter>
     </ClInclude>
     <ClInclude Include="..\..\math\mclasses.tpl.h">
       <Filter>Header Files\math</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\remote\jpeg\MfcApp.h">
-      <Filter>Header Files\remote\jpeg</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\remote\jpeg\MfcAppDoc.h">
-      <Filter>Header Files\remote\jpeg</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\remote\jpeg\MfcAppView.h">
-      <Filter>Header Files\remote\jpeg</Filter>
     </ClInclude>
     <ClInclude Include="..\..\net\conventions\net_connection.h">
       <Filter>Header Files\net\conventions</Filter>
@@ -1451,15 +1460,6 @@
     </ClInclude>
     <ClInclude Include="..\..\remote\png\pnglib.h">
       <Filter>Header Files\remote\png</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\remote\jpeg\Quantdlg.h">
-      <Filter>Header Files\remote\jpeg</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\remote\jpeg\resource.h">
-      <Filter>Header Files\remote\jpeg</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\remote\jpeg\StdAfx.h">
-      <Filter>Header Files\remote\jpeg</Filter>
     </ClInclude>
     <ClInclude Include="..\..\remote\zlib\trees.h">
       <Filter>Header Files\remote\zlib</Filter>
@@ -1532,6 +1532,39 @@
     </ClInclude>
     <ClInclude Include="..\..\geometry\converter\lwo.tpl.h">
       <Filter>Header Files\geometry\converter</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\remote\jpeg\cderror.h">
+      <Filter>Header Files\remote\jpeg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\remote\jpeg\cdjpeg.h">
+      <Filter>Header Files\remote\jpeg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\remote\jpeg\jdct.h">
+      <Filter>Header Files\remote\jpeg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\remote\jpeg\jerror.h">
+      <Filter>Header Files\remote\jpeg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\remote\jpeg\jinclude.h">
+      <Filter>Header Files\remote\jpeg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\remote\jpeg\jmemsys.h">
+      <Filter>Header Files\remote\jpeg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\remote\jpeg\jmorecfg.h">
+      <Filter>Header Files\remote\jpeg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\remote\jpeg\jpegint.h">
+      <Filter>Header Files\remote\jpeg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\remote\jpeg\jpeglib.h">
+      <Filter>Header Files\remote\jpeg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\remote\jpeg\jversion.h">
+      <Filter>Header Files\remote\jpeg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\remote\jpeg\transupp.h">
+      <Filter>Header Files\remote\jpeg</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -1244,6 +1244,7 @@ template <typename T>
 									
 									The following characters are considered whitespace: space (' '), tab ('\\t'), carriage return ('\\r') and newline ('\\n').*/
 			StringTemplate<T>&		trimThis();
+			ReferenceExpression<T>	ref()			const;	//!< Creates a reference expression of the local string
 								/*!	\brief Creates a copy of the local string with whitespace characters removed from the beginning and the end of the local string
 									\return Trimmed copy of the local string.
 									
@@ -1587,8 +1588,11 @@ template <typename T> inline
 
 
 typedef StringTemplate<char>		String;
-typedef StringTemplate<wchar_t>	CWString;
-typedef StringTemplate<wchar_t>	StringW;
+typedef StringTemplate<wchar_t>		WString;
+typedef StringTemplate<wchar_t>		StringW;
+typedef ReferenceExpression<char>	StringRef;
+typedef ReferenceExpression<wchar_t>WStringRef;
+typedef ReferenceExpression<wchar_t>StringRefW;
 
 
 

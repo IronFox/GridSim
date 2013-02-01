@@ -143,9 +143,9 @@ namespace Composite
 							{
 								return "["+String(sector)+"] "+String(remainder);
 							}
-			CWString		toStringW()	const
+			WString			toStringW()	const
 							{
-								return L"["+CWString(sector)+L"] "+CWString(remainder);
+								return L"["+WString(sector)+L"] "+WString(remainder);
 							}
 
 			operator bool() const	{return sector != 0 || remainder != 0;}

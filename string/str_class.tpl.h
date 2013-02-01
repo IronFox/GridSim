@@ -2017,6 +2017,12 @@ template <typename T>
 		return ReferenceExpression<T>(field+index,count);
 	}
 
+template <typename T>
+	ReferenceExpression<T>				StringTemplate<T>::ref()	const
+	{
+		return ReferenceExpression<T>(field,string_length);
+	}
+
 
 
 

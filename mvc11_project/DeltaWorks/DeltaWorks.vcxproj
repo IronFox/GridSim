@@ -266,52 +266,197 @@
     <ClCompile Include="..\..\remote\bz2\decompress.c" />
     <ClCompile Include="..\..\remote\bz2\huffman.c" />
     <ClCompile Include="..\..\remote\bz2\randtable.c" />
-    <ClCompile Include="..\..\remote\jpeg\jcapimin.cpp" />
-    <ClCompile Include="..\..\remote\jpeg\jcapistd.cpp" />
-    <ClCompile Include="..\..\remote\jpeg\jccoefct.cpp" />
-    <ClCompile Include="..\..\remote\jpeg\jccolor.cpp" />
-    <ClCompile Include="..\..\remote\jpeg\jcdctmgr.cpp" />
-    <ClCompile Include="..\..\remote\jpeg\jchuff.cpp" />
-    <ClCompile Include="..\..\remote\jpeg\jcinit.cpp" />
-    <ClCompile Include="..\..\remote\jpeg\jcmainct.cpp" />
-    <ClCompile Include="..\..\remote\jpeg\jcmarker.cpp" />
-    <ClCompile Include="..\..\remote\jpeg\jcmaster.cpp" />
-    <ClCompile Include="..\..\remote\jpeg\jcomapi.cpp" />
-    <ClCompile Include="..\..\remote\jpeg\jcparam.cpp" />
-    <ClCompile Include="..\..\remote\jpeg\jcphuff.cpp" />
-    <ClCompile Include="..\..\remote\jpeg\jcprepct.cpp" />
-    <ClCompile Include="..\..\remote\jpeg\jcsample.cpp" />
-    <ClCompile Include="..\..\remote\jpeg\jctrans.cpp" />
-    <ClCompile Include="..\..\remote\jpeg\jdapimin.cpp" />
-    <ClCompile Include="..\..\remote\jpeg\jdapistd.cpp" />
-    <ClCompile Include="..\..\remote\jpeg\jdatadst.cpp" />
-    <ClCompile Include="..\..\remote\jpeg\jdatasrc.cpp" />
-    <ClCompile Include="..\..\remote\jpeg\jdcoefct.cpp" />
-    <ClCompile Include="..\..\remote\jpeg\jdcolor.cpp" />
-    <ClCompile Include="..\..\remote\jpeg\jddctmgr.cpp" />
-    <ClCompile Include="..\..\remote\jpeg\jdhuff.cpp" />
-    <ClCompile Include="..\..\remote\jpeg\jdinput.cpp" />
-    <ClCompile Include="..\..\remote\jpeg\jdmainct.cpp" />
-    <ClCompile Include="..\..\remote\jpeg\jdmarker.cpp" />
-    <ClCompile Include="..\..\remote\jpeg\jdmaster.cpp" />
-    <ClCompile Include="..\..\remote\jpeg\jdmerge.cpp" />
-    <ClCompile Include="..\..\remote\jpeg\jdphuff.cpp" />
-    <ClCompile Include="..\..\remote\jpeg\jdpostct.cpp" />
-    <ClCompile Include="..\..\remote\jpeg\jdsample.cpp" />
-    <ClCompile Include="..\..\remote\jpeg\jdtrans.cpp" />
-    <ClCompile Include="..\..\remote\jpeg\jerror.cpp" />
-    <ClCompile Include="..\..\remote\jpeg\jfdctflt.cpp" />
-    <ClCompile Include="..\..\remote\jpeg\jfdctfst.cpp" />
-    <ClCompile Include="..\..\remote\jpeg\jfdctint.cpp" />
-    <ClCompile Include="..\..\remote\jpeg\jidctflt.cpp" />
-    <ClCompile Include="..\..\remote\jpeg\jidctfst.cpp" />
-    <ClCompile Include="..\..\remote\jpeg\jidctint.cpp" />
-    <ClCompile Include="..\..\remote\jpeg\jidctred.cpp" />
-    <ClCompile Include="..\..\remote\jpeg\jmemmgr.cpp" />
-    <ClCompile Include="..\..\remote\jpeg\jmemnobs.cpp" />
-    <ClCompile Include="..\..\remote\jpeg\jquant1.cpp" />
-    <ClCompile Include="..\..\remote\jpeg\jquant2.cpp" />
-    <ClCompile Include="..\..\remote\jpeg\jutils.cpp" />
+    <ClCompile Include="..\..\remote\jpeg\cdjpeg.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\cjpeg.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\ckconfig.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\djpeg.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\example.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jaricom.c" />
+    <ClCompile Include="..\..\remote\jpeg\jcapimin.c" />
+    <ClCompile Include="..\..\remote\jpeg\jcapistd.c" />
+    <ClCompile Include="..\..\remote\jpeg\jcarith.c" />
+    <ClCompile Include="..\..\remote\jpeg\jccoefct.c" />
+    <ClCompile Include="..\..\remote\jpeg\jccolor.c" />
+    <ClCompile Include="..\..\remote\jpeg\jcdctmgr.c" />
+    <ClCompile Include="..\..\remote\jpeg\jchuff.c" />
+    <ClCompile Include="..\..\remote\jpeg\jcinit.c" />
+    <ClCompile Include="..\..\remote\jpeg\jcmainct.c" />
+    <ClCompile Include="..\..\remote\jpeg\jcmarker.c" />
+    <ClCompile Include="..\..\remote\jpeg\jcmaster.c" />
+    <ClCompile Include="..\..\remote\jpeg\jcomapi.c" />
+    <ClCompile Include="..\..\remote\jpeg\jcparam.c" />
+    <ClCompile Include="..\..\remote\jpeg\jcprepct.c" />
+    <ClCompile Include="..\..\remote\jpeg\jcsample.c" />
+    <ClCompile Include="..\..\remote\jpeg\jctrans.c" />
+    <ClCompile Include="..\..\remote\jpeg\jdapimin.c" />
+    <ClCompile Include="..\..\remote\jpeg\jdapistd.c" />
+    <ClCompile Include="..\..\remote\jpeg\jdarith.c" />
+    <ClCompile Include="..\..\remote\jpeg\jdatadst.c" />
+    <ClCompile Include="..\..\remote\jpeg\jdatasrc.c" />
+    <ClCompile Include="..\..\remote\jpeg\jdcoefct.c" />
+    <ClCompile Include="..\..\remote\jpeg\jdcolor.c" />
+    <ClCompile Include="..\..\remote\jpeg\jddctmgr.c" />
+    <ClCompile Include="..\..\remote\jpeg\jdhuff.c" />
+    <ClCompile Include="..\..\remote\jpeg\jdinput.c" />
+    <ClCompile Include="..\..\remote\jpeg\jdmainct.c" />
+    <ClCompile Include="..\..\remote\jpeg\jdmarker.c" />
+    <ClCompile Include="..\..\remote\jpeg\jdmaster.c" />
+    <ClCompile Include="..\..\remote\jpeg\jdmerge.c" />
+    <ClCompile Include="..\..\remote\jpeg\jdpostct.c" />
+    <ClCompile Include="..\..\remote\jpeg\jdsample.c" />
+    <ClCompile Include="..\..\remote\jpeg\jdtrans.c" />
+    <ClCompile Include="..\..\remote\jpeg\jerror.c" />
+    <ClCompile Include="..\..\remote\jpeg\jfdctflt.c" />
+    <ClCompile Include="..\..\remote\jpeg\jfdctfst.c" />
+    <ClCompile Include="..\..\remote\jpeg\jfdctint.c" />
+    <ClCompile Include="..\..\remote\jpeg\jidctflt.c" />
+    <ClCompile Include="..\..\remote\jpeg\jidctfst.c" />
+    <ClCompile Include="..\..\remote\jpeg\jidctint.c" />
+    <ClCompile Include="..\..\remote\jpeg\jmemansi.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jmemdos.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jmemmac.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jmemmgr.c" />
+    <ClCompile Include="..\..\remote\jpeg\jmemname.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jmemnobs.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jpegtran.c" />
+    <ClCompile Include="..\..\remote\jpeg\jquant1.c" />
+    <ClCompile Include="..\..\remote\jpeg\jquant2.c" />
+    <ClCompile Include="..\..\remote\jpeg\jutils.c" />
+    <ClCompile Include="..\..\remote\jpeg\rdbmp.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\rdcolmap.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\rdgif.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\rdjpgcom.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\rdppm.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\rdrle.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\rdswitch.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\rdtarga.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\transupp.c" />
+    <ClCompile Include="..\..\remote\jpeg\wrbmp.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\wrgif.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\wrjpgcom.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\wrppm.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\wrrle.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\wrtarga.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="..\..\remote\png\png.c" />
     <ClCompile Include="..\..\remote\png\pngerror.c" />
     <ClCompile Include="..\..\remote\png\pnggccrd.c" />
@@ -595,31 +740,17 @@
     <ClInclude Include="..\..\remote\bz2\bz2.h" />
     <ClInclude Include="..\..\remote\bz2\bzlib.h" />
     <ClInclude Include="..\..\remote\bz2\bzlib_private.h" />
-    <ClInclude Include="..\..\remote\jpeg\Basic.h" />
-    <ClInclude Include="..\..\remote\jpeg\bmpdlg.h" />
-    <ClInclude Include="..\..\remote\jpeg\bmpfile.h" />
     <ClInclude Include="..\..\remote\jpeg\cderror.h" />
     <ClInclude Include="..\..\remote\jpeg\cdjpeg.h" />
-    <ClInclude Include="..\..\remote\jpeg\Dl1quant.h" />
-    <ClInclude Include="..\..\remote\jpeg\jchuff.h" />
-    <ClInclude Include="..\..\remote\jpeg\jconfig.h" />
     <ClInclude Include="..\..\remote\jpeg\jdct.h" />
-    <ClInclude Include="..\..\remote\jpeg\jdhuff.h" />
     <ClInclude Include="..\..\remote\jpeg\jerror.h" />
     <ClInclude Include="..\..\remote\jpeg\jinclude.h" />
     <ClInclude Include="..\..\remote\jpeg\jmemsys.h" />
     <ClInclude Include="..\..\remote\jpeg\jmorecfg.h" />
-    <ClInclude Include="..\..\remote\jpeg\Jpegfile.h" />
     <ClInclude Include="..\..\remote\jpeg\jpegint.h" />
     <ClInclude Include="..\..\remote\jpeg\jpeglib.h" />
     <ClInclude Include="..\..\remote\jpeg\jversion.h" />
-    <ClInclude Include="..\..\remote\jpeg\MainFrm.h" />
-    <ClInclude Include="..\..\remote\jpeg\MfcApp.h" />
-    <ClInclude Include="..\..\remote\jpeg\MfcAppDoc.h" />
-    <ClInclude Include="..\..\remote\jpeg\MfcAppView.h" />
-    <ClInclude Include="..\..\remote\jpeg\Quantdlg.h" />
-    <ClInclude Include="..\..\remote\jpeg\resource.h" />
-    <ClInclude Include="..\..\remote\jpeg\StdAfx.h" />
+    <ClInclude Include="..\..\remote\jpeg\transupp.h" />
     <ClInclude Include="..\..\remote\png\png.h" />
     <ClInclude Include="..\..\remote\png\pngconf.h" />
     <ClInclude Include="..\..\remote\png\pnglib.h" />
