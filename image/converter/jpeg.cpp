@@ -23,14 +23,35 @@ typedef struct my_error_mgr * my_error_ptr;
 
 
 
-void my_error_exit (j_common_ptr cinfo)
+void my_error_exit (j_common_ptr cinfo_ptr)
 {
-//	my_error_ptr myerr = (my_error_ptr) cinfo->err;
-	//char buffer[JMSG_LENGTH_MAX];
-	//(*cinfo->err->format_message) (cinfo, jpeg_detail);
-	//longjmp(myerr->setjmp_buffer, 1);
-	
-	throw IO::DriveAccess::DataReadFault();
+	jpeg_decompress_struct* cinfo_tmp = reinterpret_cast<jpeg_decompress_struct*>(cinfo_ptr);
+	jpeg_decompress_struct& cinfo = *cinfo_tmp;
+	const char* msg1 = cinfo.err->jpeg_message_table[cinfo.err->msg_code - cinfo.err->first_addon_message];
+	const char* msg2 = "";
+	if (cinfo.err->addon_message_table != NULL)
+	{
+		msg2 = cinfo.err->addon_message_table[cinfo.err->msg_code - cinfo.err->first_addon_message];
+		//MessageBox(NULL,msg2,NULL,MB_OK);
+	}
+	throw IO::DriveAccess::DataReadFault(String(msg1) + '\n' + String(msg2));
+//	
+//	//const char* msg2 = "";
+//	MessageBox(NULL,msg1,NULL,MB_OK);
+//	if (cinfo.err->addon_message_table != NULL)
+//	{
+//	msg2 = cinfo.err->addon_message_table[cinfo.err->msg_code - cinfo.err->first_addon_message];
+//	MessageBox(NULL,msg2,NULL,MB_OK);
+//	}
+//	jpeg_destroy_decompress(&cinfo);
+//
+//
+////	my_error_ptr myerr = (my_error_ptr) cinfo->err;
+//	//char buffer[JMSG_LENGTH_MAX];
+//	//(*cinfo->err->format_message) (cinfo, jpeg_detail);
+//	//longjmp(myerr->setjmp_buffer, 1);
+//	
+//	throw IO::DriveAccess::DataReadFault();
 }
 
 
