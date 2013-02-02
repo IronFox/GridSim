@@ -765,7 +765,7 @@ namespace Engine
 		GL_BEGIN
 	    glPushMatrix();
 	        glMultMatrix(system);
-	        renderExplict(GL_TRIANGLES,vertex_offset,vertex_count);
+	        renderExplicit(GL_TRIANGLES,vertex_offset,vertex_count);
 	    glPopMatrix();
 		GL_END
 	}
@@ -776,7 +776,7 @@ namespace Engine
 		GL_BEGIN
 	    glPushMatrix();
 	        glMultMatrix(system);
-	        renderExplict(GL_QUADS,vertex_offset,vertex_count);
+	        renderExplicit(GL_QUADS,vertex_offset,vertex_count);
 	    glPopMatrix();
 		GL_END
 	}
@@ -784,14 +784,14 @@ namespace Engine
 	inline void OpenGL::render(unsigned vertex_offset, unsigned vertex_count)
 	{
 		GL_BEGIN
-	    renderExplict(GL_TRIANGLES,vertex_offset,vertex_count);
+	    renderExplicit(GL_TRIANGLES,vertex_offset,vertex_count);
 		GL_END
 	}
 
 	inline void OpenGL::renderQuads(unsigned vertex_offset, unsigned vertex_count)
 	{
 		GL_BEGIN
-	    renderExplict(GL_QUADS,vertex_offset,vertex_count);
+	    renderExplicit(GL_QUADS,vertex_offset,vertex_count);
 		GL_END
 	}
 
@@ -801,7 +801,7 @@ namespace Engine
 		GL_BEGIN
 	    glPushMatrix();
 	        glMultMatrix(system);
-	        renderExplict(GL_TRIANGLE_STRIP,vertex_offset,vertex_count);
+	        renderExplicit(GL_TRIANGLE_STRIP,vertex_offset,vertex_count);
 	    glPopMatrix();
 		GL_END
 	}
@@ -812,7 +812,7 @@ namespace Engine
 		GL_BEGIN
 	    glPushMatrix();
 	        glMultMatrix(system);
-	        renderExplict(GL_QUAD_STRIP,vertex_offset,vertex_count);
+	        renderExplicit(GL_QUAD_STRIP,vertex_offset,vertex_count);
 	    glPopMatrix();
 		GL_END
 	}
@@ -820,14 +820,14 @@ namespace Engine
 	inline void OpenGL::renderStrip(unsigned vertex_offset, unsigned vertex_count)
 	{
 		GL_BEGIN
-	    renderExplict(GL_TRIANGLE_STRIP,vertex_offset,vertex_count);
+	    renderExplicit(GL_TRIANGLE_STRIP,vertex_offset,vertex_count);
 		GL_END
 	}
 
 	inline void OpenGL::renderQuadStrip(unsigned vertex_offset, unsigned vertex_count)
 	{
 		GL_BEGIN
-	    renderExplict(GL_QUAD_STRIP,vertex_offset,vertex_count);
+	    renderExplicit(GL_QUAD_STRIP,vertex_offset,vertex_count);
 		GL_END
 	}
 

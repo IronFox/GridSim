@@ -960,20 +960,29 @@ namespace Engine
 		
 		bool		FBO::create(const Resolution&res, DepthStorage depth_storage, BYTE num_color_targets, const GLenum*format, bool filtered/*=true*/)
 		{
+			return create(Configuration(res,depth_storage,num_color_targets,format,filtered));
+		}
+		bool		FBO::create(const Resolution& res, const BaseConfiguration&config)
+		{
+			return create(Configuration(res,config));
+		}
+
+		bool		FBO::create(const Configuration&config)
+		{
 			ContextLock	context_lock;
 
 			clear();
-			TFrameBuffer	buffer = Extension::createFrameBuffer(res, depth_storage,num_color_targets, format);
+			TFrameBuffer	buffer = Extension::createFrameBuffer(config.resolution, config.depth_storage,config.num_color_targets, config.format);
 			if (!buffer.frame_buffer)
 				return false;
 			handle = buffer.frame_buffer;
-			config = buffer;
-			if (!filtered)	//defaults to filtered
+			this->config = buffer;
+			if (!config.filtered)	//defaults to filtered
 			{
 				for (int i = 0; i < 4; i++)
-					if (config.color_target[i].texture_handle)
+					if (this->config.color_target[i].texture_handle)
 					{
-						glBindTexture(GL_TEXTURE_2D,config.color_target[i].texture_handle);
+						glBindTexture(GL_TEXTURE_2D,this->config.color_target[i].texture_handle);
 						glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
 						glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
 					}
@@ -2901,7 +2910,7 @@ namespace Engine
 		return "";
 	}
 
-	void OpenGL::renderExplict(GLuint type, index_t vertex_offset, GLsizei vertex_count)
+	void OpenGL::renderExplicit(GLuint type, index_t vertex_offset, GLsizei vertex_count)
 	{
 		GL_BEGIN
 			if (state.indices_bound)

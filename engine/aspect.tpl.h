@@ -11,6 +11,9 @@ different types of cameras.
 namespace Engine
 {
 
+	template <typename C>
+	/*static*/ const Aspect<C>		Aspect<C>::identity;
+
 template <class C>
 MFUNC2 (bool) Frustum<C>::visible(const TVec3<C0>&center, const C1&radius) const
 {
@@ -685,7 +688,14 @@ template <class C> MF_DECLARE (void) OrthographicAspect<C>::build()
 	view_invert.w.xyz = location;
 	Mat::invertSystem(view_invert,view);
 }
-
+template <class C> MF_DECLARE (void) OrthographicAspect<C>::buildScaled()
+{
+	view_invert.x.xyz = orientation.x;
+	view_invert.y.xyz = orientation.y;
+	view_invert.z.xyz = orientation.z;
+	view_invert.w.xyz = location;
+	Mat::invert(view_invert,view);
+}
 
 
 template <class C> MF_CONSTRUCTOR Camera<C>::Camera()

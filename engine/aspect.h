@@ -107,49 +107,50 @@ template <class C=float>
 class	Aspect		//! Generalized aspect container. It contains various matrices, the current center location and the region on the screen
 {
 private:
-static	Frustum<C>		result;
+	static	Frustum<C>			result;
 public:
-		typedef Frustum<C>	Volume;		//!< Visual volume type
-		typedef C				Type;				//!< Local type
+	typedef Frustum<C>			Volume;		//!< Visual volume type
+	typedef C					Type;				//!< Local type
 
 
-		TMatrix4<Type>			view,					//!< 4x4 out view matrix (primary). Set to identity by default
+	TMatrix4<Type>				view,					//!< 4x4 out view matrix (primary). Set to identity by default
 								view_invert,			//!< 4x4 in view matrix (inverted). Set to identity by default
 								projection,				//!< 4x4 out projection matrix (primary). Set to identity by default
 								projection_invert;		//!< 4x4 in projection matrix (inverted). Set to identity by default
-		TVec3<Type>				location;				//!< Central aspect location. Set to (0,0,0) by default
+	TVec3<Type>					location;				//!< Central aspect location. Set to (0,0,0) by default
 
-		TFloatRect				region;					//!< Aspect screen region (set to 0,0,1,1 by default)
-		eDepthTest				depth_test;	//!< Depth test configuration of this aspect ( Engine::VisualEnum::NormalDepthTest by default)
+	TFloatRect					region;					//!< Aspect screen region (set to 0,0,1,1 by default)
+	eDepthTest					depth_test;	//!< Depth test configuration of this aspect ( Engine::VisualEnum::NormalDepthTest by default)
 
-MF_CONSTRUCTOR					Aspect();
-MF_CONSTRUCTOR					Aspect(VisualEnum::eDepthTest dtest);
+	static const Aspect<C>		identity;	//!< identity aspect using normal depth test
+	MF_CONSTRUCTOR				Aspect();
+	MF_CONSTRUCTOR				Aspect(VisualEnum::eDepthTest dtest);
 
-MF_DECLARE	(void)				updateInvert();														//!< Updates view_invert and projection_invert from view and projection
-MFUNC3	(void)					translate(const C0&x, const C1&y, const C2&z);						//!< Moves the aspect depending on the current view orientation. Auto updates view_invert. \param x Translation in X-direction (horizontal) \param y Translation in Y-direction (vertical) \param Translation in Z-direction (depth)
-MFUNC1	(void)					translate(const TVec3<C0>&delta);										//!< Moves the aspect depending on the current view orientation. Auto updates view_invert. \param delta 3 component movement vector (x,y,z)
-MFUNC4	(void)					rotate(const C0&angle, const C1&x, const C2&y, const C3&z);			//!< Rotates the view matrix about an arbitrary axis. The axis components are not required to form a normalized vector. Auto updates view_invert. \param Angle to rotate by (0...360) \param x X-component of the rotation axis \param y Y-component of the rotation axis. \param z Z-component of the rotation axis
-MFUNC2	(void)					rotate(const C0&angle, const TVec3<C1>&v);								//!< Rotates the view matrix about an arbitrary axis. The axis is not required to form a normalized vector. Auto updates view_invert. \param Angle to rotate by (0...360) \param v Rotation axis (x,y,z)
-MFUNC1	(void)					rotate(const TVec4<C0>&quaternion);										//!< Rotates the view matrix via an arbitrary quaternion. Auto updates view_invert. \param quaternion Quaternion to use for the rotation. The quaternion is required to be normalized.
-MFUNC2	(bool)					pointToScreen(const TVec3<C0>&point, TVec2<C1>&screen_point)				const;	//!< Projects a 3d point to 2d screen coordinates (using both view and projection transformations). \param point Point to transform \param screen_point 2 component out vector to store the final screen position in. \return true if the projected point lies within the projection depth range, false otherwise.
-MFUNC2	(bool)					vectorToScreen(const TVec3<C0>&vector, TVec2<C1>&screen_point)			const;	//!< Projects a 3d vector to 2d screen coordinates (using both view and projection transformations). The vector is rotated and projected but not translated. \param vector Vector to project \param screen_point 2 component out vector to store the final screen position in. \return true if the vector could be projected.
-MFUNC3	(void)					screenToVector(const TVec2<C0>&point, TVec3<C1>&position, TVec3<C2>&direction)	const;	//!< Reverse projects a point on the screen to a point and a direction vector. \param point Screen point to reverse project. \param position 3 component out vector to write the final point coordinates to. \param direction 3 component out vector to write the final viewing direction to.
-MFUNC4	(void)					screenToVector(const C0&x, const C1&y, TVec3<C2>&position, TVec3<C3>&direction)	const;	//!< Reverse projects a point on the screen to a point and a direction vector. \param x Screen point(x) to reverse project. \param y Screen point(y) to reverse project. \param position 3 component out vector to write the final point coordinates to. \param direction 3 component out vector to write the final viewing direction to.
-MFUNC2	(bool)					project(const TVec3<C0>&point, TVec3<C1>&projected)							const;	//!< Transforms the specified point and projectes it to the screen.
-MFUNC2	(void)					reverseProject(const TVec3<C0>&point, TVec3<C1>&position)					const;	//!< Reverse projects a point on the screen to its point of origin. \param point 3 component screen point to reverse project.\param position 3 component out vector to write the final point coordinates to. 
-MF_DECLARE(const Volume&)		resolveVolume() 													const;	//!< Extracts a visual volume from the current matrix content. \return Const reference to a global visual volume object that contains the local visual volume.
-MF_DECLARE(const Volume&)		resolveFrustum()													const;	//!< Identical to resolveVolume()
-MF_DECLARE(const Volume&)		getFrustrum()														const;	//!< Identical to resolveVolume()
-MF_DECLARE(void)				resolveVolume(Volume&v) 											const;	//!< Extracts a visual volume from the current matrix content. @param v [out] Reference to a global visual volume object that should contain the local visual volume.
-MF_DECLARE(void)				resolveFrustum(Volume&v)											const;	//!< Identical to resolveVolume()
-MF_DECLARE(void)				getFrustrum(Volume&v)												const;	//!< Identical to resolveVolume()
-template <typename SubType>
-MF_DECLARE(void)				resolveVolumeST(Volume&v)											const;	//!< Similar however potential more precise version of resolveVolume(). Normal calculation is done using the specified sub type instead (double recommended here)
-MF_DECLARE(String)				toString()															const;	//!< Creates a string representation of the local aspect. \return String representation.
-MF_DECLARE(const TVec3<C>&)		absoluteLocation()													const;	//!< Returns the absolute realworld coordinates of the local aspect object
-MF_DECLARE(void)				loadIdentity();														//!< Resets all matrices and vectors to identity. New aspects automatically load identity into every matrix.
-MF_DECLARE(TVec3<C>&)			viewingDirection();													//!< Retrieves the vector describing the local camera's viewing direction
-MF_DECLARE(const TVec3<C>&)		viewingDirection()		const;										//!< \overload
+	MF_DECLARE(void)			updateInvert();														//!< Updates view_invert and projection_invert from view and projection
+	MFUNC3(void)				translate(const C0&x, const C1&y, const C2&z);						//!< Moves the aspect depending on the current view orientation. Auto updates view_invert. \param x Translation in X-direction (horizontal) \param y Translation in Y-direction (vertical) \param Translation in Z-direction (depth)
+	MFUNC1(void)				translate(const TVec3<C0>&delta);										//!< Moves the aspect depending on the current view orientation. Auto updates view_invert. \param delta 3 component movement vector (x,y,z)
+	MFUNC4(void)				rotate(const C0&angle, const C1&x, const C2&y, const C3&z);			//!< Rotates the view matrix about an arbitrary axis. The axis components are not required to form a normalized vector. Auto updates view_invert. \param Angle to rotate by (0...360) \param x X-component of the rotation axis \param y Y-component of the rotation axis. \param z Z-component of the rotation axis
+	MFUNC2(void)				rotate(const C0&angle, const TVec3<C1>&v);								//!< Rotates the view matrix about an arbitrary axis. The axis is not required to form a normalized vector. Auto updates view_invert. \param Angle to rotate by (0...360) \param v Rotation axis (x,y,z)
+	MFUNC1(void)				rotate(const TVec4<C0>&quaternion);										//!< Rotates the view matrix via an arbitrary quaternion. Auto updates view_invert. \param quaternion Quaternion to use for the rotation. The quaternion is required to be normalized.
+	MFUNC2(bool)				pointToScreen(const TVec3<C0>&point, TVec2<C1>&screen_point)				const;	//!< Projects a 3d point to 2d screen coordinates (using both view and projection transformations). \param point Point to transform \param screen_point 2 component out vector to store the final screen position in. \return true if the projected point lies within the projection depth range, false otherwise.
+	MFUNC2(bool)				vectorToScreen(const TVec3<C0>&vector, TVec2<C1>&screen_point)			const;	//!< Projects a 3d vector to 2d screen coordinates (using both view and projection transformations). The vector is rotated and projected but not translated. \param vector Vector to project \param screen_point 2 component out vector to store the final screen position in. \return true if the vector could be projected.
+	MFUNC3(void)				screenToVector(const TVec2<C0>&point, TVec3<C1>&position, TVec3<C2>&direction)	const;	//!< Reverse projects a point on the screen to a point and a direction vector. \param point Screen point to reverse project. \param position 3 component out vector to write the final point coordinates to. \param direction 3 component out vector to write the final viewing direction to.
+	MFUNC4(void)				screenToVector(const C0&x, const C1&y, TVec3<C2>&position, TVec3<C3>&direction)	const;	//!< Reverse projects a point on the screen to a point and a direction vector. \param x Screen point(x) to reverse project. \param y Screen point(y) to reverse project. \param position 3 component out vector to write the final point coordinates to. \param direction 3 component out vector to write the final viewing direction to.
+	MFUNC2(bool)				project(const TVec3<C0>&point, TVec3<C1>&projected)							const;	//!< Transforms the specified point and projectes it to the screen.
+	MFUNC2(void)				reverseProject(const TVec3<C0>&point, TVec3<C1>&position)					const;	//!< Reverse projects a point on the screen to its point of origin. \param point 3 component screen point to reverse project.\param position 3 component out vector to write the final point coordinates to. 
+	MF_DECLARE(const Volume&)	resolveVolume() 													const;	//!< Extracts a visual volume from the current matrix content. \return Const reference to a global visual volume object that contains the local visual volume.
+	MF_DECLARE(const Volume&)	resolveFrustum()													const;	//!< Identical to resolveVolume()
+	MF_DECLARE(const Volume&)	getFrustrum()														const;	//!< Identical to resolveVolume()
+	MF_DECLARE(void)			resolveVolume(Volume&v) 											const;	//!< Extracts a visual volume from the current matrix content. @param v [out] Reference to a global visual volume object that should contain the local visual volume.
+	MF_DECLARE(void)			resolveFrustum(Volume&v)											const;	//!< Identical to resolveVolume()
+	MF_DECLARE(void)			getFrustrum(Volume&v)												const;	//!< Identical to resolveVolume()
+	template <typename SubType>
+		MF_DECLARE(void)		resolveVolumeST(Volume&v)											const;	//!< Similar however potential more precise version of resolveVolume(). Normal calculation is done using the specified sub type instead (double recommended here)
+	MF_DECLARE(String)			toString()															const;	//!< Creates a string representation of the local aspect. \return String representation.
+	MF_DECLARE(const TVec3<C>&)	absoluteLocation()													const;	//!< Returns the absolute realworld coordinates of the local aspect object
+	MF_DECLARE(void)			loadIdentity();														//!< Resets all matrices and vectors to identity. New aspects automatically load identity into every matrix.
+	MF_DECLARE(TVec3<C>&)		viewingDirection();													//!< Retrieves the vector describing the local camera's viewing direction
+	MF_DECLARE(const TVec3<C>&)	viewingDirection()		const;										//!< \overload
 };
 
 
@@ -178,6 +179,7 @@ MF_DECLARE(void)			make(const C&left, const C&bottom, const C&right, const C&top
 MFUNC1 (void)				make(const Rect<C0>&area, const C&zNear, const C&zFar);											//!< Create the local projection matrix via borders. Also updates the projection invert. \param area Planar viewing area \param zNear Near z plane. \param zFar Far z plane.
 MFUNC2 (void)				alterDepthRange(const C0&zNear, const C1&zFar);														//!< Changes the depth range of the local projection matrix. Also updates the projection invert. \param zNear New near z plane. \param zFar New far z plane.
 MF_DECLARE(void)			build();																							//!< (Re)assembles the view matrix using the local orientation matrix. Also updates the view invert.
+MF_DECLARE(void)			buildScaled();																					//!< Identical to build() except that it allows orientation to consist of non-normalized vectors.
 };
 
 

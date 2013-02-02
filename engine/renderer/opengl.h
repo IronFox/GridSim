@@ -518,34 +518,34 @@ namespace Engine
 		class SmartBuffer
 		{
 		protected:
-				size_t	data_size;
-				union
-				{
-					BYTE		*host_data;
-					GLuint		device_handle;
-				};
-				bool	on_device;
+			size_t				data_size;
+			union
+			{
+				BYTE			*host_data;
+				GLuint			device_handle;
+			};
+			bool				on_device;
 		public:
-				typedef GLuint	handle_t;
+			typedef GLuint		handle_t;
 
 
 		private:
-								SmartBuffer(const SmartBuffer&other):data_size(0),host_data(NULL),on_device(false)
+			/**/				SmartBuffer(const SmartBuffer&other):data_size(0),host_data(NULL),on_device(false)
 								{
 									FATAL__("Call to illegal operation");
 								}	//private. never use
-								SmartBuffer&	operator=(const SmartBuffer&)	//!< private. derivative classes should never copy on assignment
+			/**/				SmartBuffer&	operator=(const SmartBuffer&)	//!< private. derivative classes should never copy on assignment
 								{
 									FATAL__("Call to illegal operation");
 									return *this;
 								};
-				friend class Engine::OpenGL;
+			friend class		Engine::OpenGL;
 		public:
-								SmartBuffer():data_size(0),host_data(NULL),on_device(false)				{}
-		virtual					~SmartBuffer()				{if (!application_shutting_down) clear();}
-		virtual	void			clear();
+			/**/				SmartBuffer():data_size(0),host_data(NULL),on_device(false)				{}
+			virtual				~SmartBuffer()				{if (!application_shutting_down) clear();}
+			virtual	void		clear();
 			
-				void			adoptData(SmartBuffer&other)
+			void				adoptData(SmartBuffer&other)
 								{
 									clear();
 									data_size = other.data_size;
@@ -555,14 +555,14 @@ namespace Engine
 									other.host_data = NULL;
 									other.on_device = false;
 								}
-				void			swap(SmartBuffer&other)
+			void				swap(SmartBuffer&other)
 								{
 									swp(data_size,other.data_size);
 									swp(host_data,other.host_data);
 									swp(on_device,other.on_device);
 								}
 
-		inline	int				compareTo(const SmartBuffer&other) const
+			inline	int			compareTo(const SmartBuffer&other) const
 								{
 									if (on_device && !other.on_device)
 										return 1;
@@ -584,99 +584,100 @@ namespace Engine
 									}
 									return 0;
 								}
+			inline	bool		operator==(const SmartBuffer&other) const
+			/**/				{
+			/**/					return !operator!=(other);
+			/**/				}
+			inline	bool		operator!=(const SmartBuffer&other) const
+			/**/				{
+			/**/					return on_device != other.on_device || (on_device ? device_handle != other.device_handle : host_data != other.host_data);
+			/**/				}
+			inline	bool		operator<(const SmartBuffer&other) const
+			/**/				{
+			/**/					return compareTo(other) < 0;
+			/**/				}
+			inline	bool		operator>(const SmartBuffer&other) const
+			/**/				{
+			/**/					return compareTo(other) > 0;
+			/**/				}
 
-		inline	bool			operator==(const SmartBuffer&other) const
-								{
-									return !operator!=(other);
-								}
-		inline	bool			operator!=(const SmartBuffer&other) const
-								{
-									return on_device != other.on_device || (on_device ? device_handle != other.device_handle : host_data != other.host_data);
-								}
-		inline	bool			operator<(const SmartBuffer&other) const
-								{
-									return compareTo(other) < 0;
-								}
-		inline	bool			operator>(const SmartBuffer&other) const
-								{
-									return compareTo(other) > 0;
-								}
 
-
-		inline	handle_t		getDeviceHandle() const
+			inline	handle_t	getDeviceHandle() const
 								{
 									return on_device?device_handle:0;
 								}
-		inline	const void*		getHostData() const		//!< Retrieves a pointer to any internally stored host data, or NULL if no such is available. Also returns NULL if the buffered data resides in device space
+			inline	const void*	getHostData() const		//!< Retrieves a pointer to any internally stored host data, or NULL if no such is available. Also returns NULL if the buffered data resides in device space
 								{
 									return on_device?NULL:host_data;
 								}
-		inline	bool			isEmpty()	const	//! Determine whether or not the local object is empty. NULL-pointer sensitive @return true if the local object is NULL or the associated handle 0
+			inline	bool		isEmpty()	const	//! Determine whether or not the local object is empty. NULL-pointer sensitive @return true if the local object is NULL or the associated handle 0
 								{
 									return !this || !data_size;
 								}
-		inline	bool			isNotEmpty()	const	//! Determine whether or not the local object is empty. NULL-pointer sensitive @return true if the local object is NULL or the associated handle 0
+			inline	bool		isNotEmpty()	const	//! Determine whether or not the local object is empty. NULL-pointer sensitive @return true if the local object is NULL or the associated handle 0
 								{
 									return this!=NULL && data_size>0;
 								}
 
-		inline	size_t			size()	const			//!< Retrieves the current object size in bytes.
+			inline	size_t		size()	const			//!< Retrieves the current object size in bytes.
 								{
 									return data_size;
 								}
 							
-								/**
-									@brief Resizes the buffer
+			/**
+			@brief Resizes the buffer
 								
-									The method has no effect if the buffer's current size already matches the specified one.
-									If the buffer is resized then its content is undefined as no data is actually transfered.
-									The data resizing will affect device data if possible, host data otherwise
+			The method has no effect if the buffer's current size already matches the specified one.
+			If the buffer is resized then its content is undefined as no data is actually transfered.
+			The data resizing will affect device data if possible, host data otherwise
+			@param size_ Size (in bytes) that the buffer should hold.
+			@param type GL_ARRAY_BUFFER_ARB for floats (GLfloat), GL_ELEMENT_ARRAY_BUFFER_ARB for indices (GLuint)
+			*/
+			void				resize(size_t size_, GLenum type);
+			/**
+			@brief Resizes and loads data into the local buffer object
 								
-									@param size_ Size (in bytes) that the buffer should hold.
-									@param type GL_ARRAY_BUFFER_ARB for floats (GLfloat), GL_ELEMENT_ARRAY_BUFFER_ARB for indices (GLuint)
-								*/
-				void			resize(size_t size_, GLenum type);
-								/**
-									@brief Resizes and loads data into the local buffer object
-								
-									The data will be loaded into device space if possible, host space otherwise
-
-									@param data Pointer to the first byte of the data to buffer
-									@param type GL_ARRAY_BUFFER_ARB for floats (GLfloat), GL_ELEMENT_ARRAY_BUFFER_ARB for indices (GLuint)
-									@param size_ Size (in bytes) of the data to buffer
-								*/
-				void			loadData(const void*data, size_t size_, GLenum type);
+			The data will be loaded into device space if possible, host space otherwise
+			@param data Pointer to the first byte of the data to buffer
+			@param type GL_ARRAY_BUFFER_ARB for floats (GLfloat), GL_ELEMENT_ARRAY_BUFFER_ARB for indices (GLuint)
+			@param size_ Size (in bytes) of the data to buffer
+			*/
+			void				loadData(const void*data, size_t size_, GLenum type);
 							
-								/**
-									@brief Loads data into the local buffer object using the current buffer size
+			/**
+			@brief Loads data into the local buffer object using the current buffer size
 								
-									@param data Pointer to the first byte of the data to buffer. Must be at least as long as the current object length
-									@param type GL_ARRAY_BUFFER_ARB for floats (GLfloat), GL_ELEMENT_ARRAY_BUFFER_ARB for indices (GLuint)
-								*/
-				void			streamData(const void*data, size_t size_, GLenum type);
-				bool			isValid()		const;	//!< Checks if the local buffer object is valid. A valid buffer object contains a valid or 0 handle. If the local object links to host space, then the result is always true
-				bool			isOnDevice()	const	{return on_device;}
+			@param data Pointer to the first byte of the data to buffer. Must be at least as long as the current object length
+			@param type GL_ARRAY_BUFFER_ARB for floats (GLfloat), GL_ELEMENT_ARRAY_BUFFER_ARB for indices (GLuint)
+			*/
+			void				streamData(const void*data, size_t size_, GLenum type);
+			bool				isValid()		const;	//!< Checks if the local buffer object is valid. A valid buffer object contains a valid or 0 handle. If the local object links to host space, then the result is always true
+			bool				isOnDevice()	const	{return on_device;}
 		};
 		
 		template <typename T>
 			class SmartGeometryBuffer:public SmartBuffer
 			{
 			protected:
-					SmartBuffer::loadData;
-					SmartBuffer::resize;
-					SmartBuffer::streamData;
+				SmartBuffer::loadData;
+				SmartBuffer::resize;
+				SmartBuffer::streamData;
 
 			public:
-			inline	void		load(const T*field, count_t num_units);	//!< Loads the specified data into the local buffer. @a field must be at least @a num_units units long but may be NULL if @a num_units is 0
-			inline	void		load(const ArrayData<T>&field)		{load(field.pointer(),field.length());}	
-			inline	void		load(const BasicBuffer<T>&field)	{load(field.pointer(),field.length());}
-			template <typename StructType>
-				inline	void	loadStructs(const StructType*field, count_t num_structs)	{load((const T*)field,num_structs * sizeof(StructType)/sizeof(T));}
-			template <typename StructType>
-				inline	void	loadStructs(const ArrayData<StructType>&field)	{loadStructs(field.pointer(),field.length());}
-			template <typename StructType>
-				inline	void	loadStructs(const BasicBuffer<StructType>&field)	{loadStructs(field.pointer(),field.length());}
-			inline	const T*	getHostData() const		{return static_cast<const T*>(SmartBuffer::getHostData());}//!< Retrieves a pointer to any internally stored host data, or NULL if no such is available. Also returns NULL if the buffered data resides in device space
+				inline	void		load(const T*field, count_t num_units);	//!< Loads the specified data into the local buffer. @a field must be at least @a num_units units long but may be NULL if @a num_units is 0
+				inline	void		load(const ArrayData<T>&field)		{load(field.pointer(),field.length());}	
+				inline	void		load(const BasicBuffer<T>&field)	{load(field.pointer(),field.length());}
+				template <typename StructType>
+					inline	void	loadStructs(const StructType*field, count_t num_structs)	{load((const T*)field,num_structs * sizeof(StructType)/sizeof(T));}
+				template <typename StructType>
+					inline	void	loadStructs(const ArrayData<StructType>&field)	{loadStructs(field.pointer(),field.length());}
+				template <typename StructType>
+					inline	void	loadStructs(const BasicBuffer<StructType>&field)	{loadStructs(field.pointer(),field.length());}
+				inline	const T*	getHostData() const		{return static_cast<const T*>(SmartBuffer::getHostData());}//!< Retrieves a pointer to any internally stored host data, or NULL if no such is available. Also returns NULL if the buffered data resides in device space
+				inline	count_t		countPrimitives()	const			//! Retrieves the number of primitives currently loaded into the buffer.
+									{
+										return data_size/sizeof(T);
+									}
 			};
 
 
@@ -690,6 +691,29 @@ namespace Engine
 			TFBOConfig	config;
 			friend class OpenGL;
 		public:
+			struct BaseConfiguration
+			{
+				DepthStorage		depth_texture;
+				BYTE				num_color_targets;
+				const GLenum		*format;
+				bool				filtered;
+
+				/**/				BaseConfiguration(DepthStorage depth_texture, BYTE num_color_targets, const GLenum*format, bool filtered=true) 
+									: depth_texture(depth_texture), num_color_targets(num_color_targets),
+									format(format),filtered(filtered){}
+
+			};
+			struct Configuration : public BaseConfiguration
+			{
+				Resolution			resolution;
+
+				/**/				Configuration(Resolution resolution, DepthStorage depth_texture, BYTE num_color_targets, const GLenum*format, bool filtered=true) 
+									: resolution(resolution), BaseConfiguration(depth_texture,num_color_targets,format,filtered){}
+				/**/				Configuration(Resolution resolution, BaseConfiguration config) 
+									: resolution(resolution), BaseConfiguration(config){}
+			};
+
+
 			virtual					~FBO()	{if (!application_shutting_down) clear();}
 			virtual	void			flush()	override;
 			virtual	void			clear()	override;
@@ -698,6 +722,8 @@ namespace Engine
 		
 			void					resize(const Resolution&res);
 			bool					create(const Resolution&res, DepthStorage depth_texture, BYTE num_color_targets, const GLenum*format, bool filtered=true);
+			bool					create(const Configuration&config);
+			bool					create(const Resolution&res, const BaseConfiguration&config);
 			inline	bool			primaryHasAlpha()	const	{return config.num_color_targets > 0 && Extension::formatHasAlpha(config.color_target[0].texture_format);}
 			unsigned				channels(BYTE target) const {return target < config.num_color_targets ? formatToChannels(config.color_target[target].texture_format) : 0;}
 			inline	const Resolution&size() const
@@ -860,7 +886,6 @@ namespace Engine
 		static			GL::RenderState		state;					//!< Active OpenGL render state
 
 						void				initGL();					//!< Applies the initial OpenGL configuration
-						void				renderExplict(GLuint type, index_t vertex_offset, GLsizei vertex_count);	//!< Render with explicit given configuration \param type OpenGL primitive type (GL_TRIANGLES, GL_QUADS, etc.) \param vertex_offset First vertex to render \param vertex_count Number of vertices to render
 		static			void 				generateNormalCubeSide(Image&target,  float ox, float oy, float oz,  float xx, float xy, float xz, float yx, float yy, float yz);
 
 						String				sampleTexture(unsigned layer);	//!< Returns a string describing the sampling of the specified texture layer depending on the type of texture currently bound
@@ -999,6 +1024,7 @@ namespace Engine
 						void						bindVertices(const VBO&vobj, const VertexBinding&binding);
 						void						bindIndices(const IBO&iobj);
 						void						unbindIndices();
+						void						renderExplicit(GLuint type, index_t vertex_offset, GLsizei vertex_count);	//!< Render with explicit given configuration \param type OpenGL primitive type (GL_TRIANGLES, GL_QUADS, etc.) \param vertex_offset First vertex to render \param vertex_count Number of vertices to render
 	T_	inline			void						renderSub(const C system[4*4], unsigned vertex_offset, unsigned vertex_count);
 	T_	inline			void						renderQuadsSub(const C system[4*4], unsigned vertex_offset, unsigned vertex_count);
 		inline			void						render(unsigned vertex_offset, unsigned vertex_count);
