@@ -49,55 +49,67 @@ namespace Math
 	template <class C=float> class Vec3:public TVec<C,3>
 	{
 	public:
+		typedef Vec3<C>					Self;
 
-	MF_CONSTRUCTOR					Vec3();
-	MF_CONSTRUCTOR					Vec3(const C&value);
-	MF_CONSTRUCTOR2					Vec3(const TVec2<C0>&other,const C1&z);
-	MF_CONSTRUCTOR1					Vec3(const TVec3<C0>&other);
-	MF_CONSTRUCTOR3					Vec3(const C0&x, const C1&y, const C2&z);
-	MF_CONSTRUCTOR1					Vec3(const C0 field[3]);
+		MF_CONSTRUCTOR					Vec3();
+		MF_CONSTRUCTOR					Vec3(const C&value);
+		MF_CONSTRUCTOR2					Vec3(const TVec2<C0>&other,const C1&z);
+		MF_CONSTRUCTOR1					Vec3(const TVec3<C0>&other);
+		MF_CONSTRUCTOR3					Vec3(const C0&x, const C1&y, const C2&z);
+		MF_CONSTRUCTOR1					Vec3(const C0 field[3]);
 
-	
-	static MF_DECLARE(Vec3<C>&)		reinterpret(TVec3<C>&);
-	static MF_DECLARE(const Vec3<C>&)	reinterpret(const TVec3<C>&);
+		static MF_DECLARE(Self&)		reinterpret(TVec3<C>&vec)	{return reinterpret_cast<Self&>(vec);}
+		static MF_DECLARE(Self&)		Reinterpret(TVec3<C>&vec)	{return reinterpret_cast<Self&>(vec);}
+		static MF_DECLARE(const Self&)	reinterpret(const TVec3<C>&vec)	{return reinterpret_cast<const Self&>(vec);}
+		static MF_DECLARE(const Self&)	Reinterpret(const TVec3<C>&vec)	{return reinterpret_cast<const Self&>(vec);}
 
-	MFUNC3 (void)					set(const C0&x, const C1&y, const C2&z)	{Vec::def(*this,x,y,z);}
-	MFUNC1 (void)					set(const C0&v)							{Vec::set(*this,v);}
-	MF_DECLARE(void)				clear();
-	MF_DECLARE(String)				toString()								const;
-	MF_DECLARE(C)					length()								const;
-	MF_DECLARE(C)					sqr()							 		const;
-	MF_DECLARE(C)					summary()								const;
-	MF_DECLARE(Vec3<C>)				normalized()							const;		//returns normalized vector
-	MF_DECLARE(Vec3<C>)				normalized0()							const;
-	MF_DECLARE(Vec3<C>&)			normalize();
-	MF_DECLARE(Vec3<C>&)			normalize0();
-	MFUNC1 (Vec3<C>)				operator+(const TVec3<C0>&other)		const;
-	MF_DECLARE(Vec3<C>)				operator+(const C&value)				const;
-	MFUNC1 (void)					operator+=(const TVec3<C0>&other);
-	MF_DECLARE(void)				operator+=(const C&value);
-	MFUNC1 (C)						operator*(const TVec3<C0>&other)		const;
-	MF_DECLARE(Vec3<C>)				operator*(const C&factor)				const;
-	MF_DECLARE(void)				operator*=(const C&factor);
-	MFUNC1 (Vec3<C>)				operator/(const C0&factor)				const;
-	MFUNC1 (void)					operator/=(const C0&factor);
-	MFUNC1 (Vec3<C>)				operator-(const TVec3<C0>&other)		const;
-	MF_DECLARE(Vec3<C>)				operator-(const C&value)				const;
-	MF_DECLARE(Vec3<C>)				operator-()							 const;
-	MFUNC1 (void)					operator-=(const TVec3<C0>&other);
-	MF_DECLARE(void)				operator-=(const C&value);
-	MFUNC1 (Vec3<C>)				operator|(const TVec3<C0>&other)		const;
-	MFUNC1 (Vec3<C>)				operator&(const TVec3<C0>&other)		const;
-	MFUNC1 (void)					operator=(const TVec3<C0>&other);
-	MFUNC1 (bool)					operator==(const TVec3<C0>&other)		const;
-	MFUNC1 (bool)					operator!=(const TVec3<C0>&other)		const;
-	MFUNC1 (bool)					operator>(const TVec3<C0>&other)		const;		//!< Lexicographic order using _compare
-	MFUNC1 (bool)					operator<(const TVec3<C0>&other)		const;		//!< Lexicographic order using _compare
-	MFUNC1 (char)					compareTo(const TVec3<C0>&other)		const;		//!< Lexicographic order using _compare
-	MF_DECLARE(C&)					operator[](index_t component);						//return component of the vector
-	MF_DECLARE(const C&)			operator[](index_t component)			const;
+		MFUNC3 (void)					set(const C0&x, const C1&y, const C2&z)	{Vec::def(*this,x,y,z);}
+		MFUNC3 (void)					Set(const C0&x, const C1&y, const C2&z)	{Vec::def(*this,x,y,z);}
+		MFUNC1 (void)					set(const C0&v)							{Vec::set(*this,v);}
+		MFUNC1 (void)					Set(const C0&v)							{Vec::set(*this,v);}
+		MF_DECLARE(void)				clear()									{Vec::clear(*this);}
+		MF_DECLARE(void)				Clear()									{Vec::clear(*this);}
+		MF_DECLARE(String)				toString()								const	{return Vec::toString(*this);}
+		MF_DECLARE(String)				ToString()								const	{return Vec::toString(*this);}
+		MF_DECLARE(C)					length()								const	{return Vec::length(*this);}
+		MF_DECLARE(C)					Length()								const	{return Vec::length(*this);}
+		MF_DECLARE(C)					sqr()							 		const	{return Vec::dot(*this);}
+		MF_DECLARE(C)					Sqr()							 		const	{return Vec::dot(*this);}
+		MF_DECLARE(C)					summary()								const	{return x+y+z;}
+		MF_DECLARE(C)					Summary()								const	{return x+y+z;}
+		MF_DECLARE(Vec3<C>)				normalized()							const;		//returns normalized vector
+		MF_DECLARE(Vec3<C>)				normalized0()							const;
+		MF_DECLARE(Self&)				normalize()								{Vec::normalize(*this);return *this;}
+		MF_DECLARE(Self&)				Normalize()								{Vec::normalize(*this);return *this;}
+		MF_DECLARE(Self&)				normalize0()							{Vec::normalize0(*this);return *this;}
+		MF_DECLARE(Self&)				Normalize0()							{Vec::normalize0(*this);return *this;}
+		MFUNC1 (Vec3<C>)				operator+(const TVec3<C0>&other)		const;
+		MF_DECLARE(Vec3<C>)				operator+(const C&value)				const;
+		MFUNC1 (void)					operator+=(const TVec3<C0>&other);
+		MF_DECLARE(void)				operator+=(const C&value);
+		MFUNC1 (C)						operator*(const TVec3<C0>&other)		const;
+		MF_DECLARE(Vec3<C>)				operator*(const C&factor)				const;
+		MF_DECLARE(void)				operator*=(const C&factor);
+		MFUNC1 (Vec3<C>)				operator/(const C0&factor)				const;
+		MFUNC1 (void)					operator/=(const C0&factor);
+		MFUNC1 (Vec3<C>)				operator-(const TVec3<C0>&other)		const;
+		MF_DECLARE(Vec3<C>)				operator-(const C&value)				const;
+		MF_DECLARE(Vec3<C>)				operator-()							 const;
+		MFUNC1 (void)					operator-=(const TVec3<C0>&other);
+		MF_DECLARE(void)				operator-=(const C&value);
+		MFUNC1 (Vec3<C>)				operator|(const TVec3<C0>&other)		const;
+		MFUNC1 (Vec3<C>)				operator&(const TVec3<C0>&other)		const;
+		MFUNC1 (void)					operator=(const TVec3<C0>&other);
+		MFUNC1 (bool)					operator==(const TVec3<C0>&other)		const;
+		MFUNC1 (bool)					operator!=(const TVec3<C0>&other)		const;
+		MFUNC1 (bool)					operator>(const TVec3<C0>&other)		const;		//!< Lexicographic order using _compare
+		MFUNC1 (bool)					operator<(const TVec3<C0>&other)		const;		//!< Lexicographic order using _compare
+		MFUNC1 (int)					compareTo(const TVec3<C0>&other)		const	{return Vec::compare(*this,other);}
+		MFUNC1 (int)					CompareTo(const TVec3<C0>&other)		const	{return Vec::compare(*this,other);}
+		MF_DECLARE(C&)					operator[](index_t component);						//return component of the vector
+		MF_DECLARE(const C&)			operator[](index_t component)			const;
 
-	MFUNC1 (C)						operator()(const C0&x)					const;		//!< Evaluates the local vector as a polynomial ax² + bx + c
+		MFUNC1 (C)						operator()(const C0&x)					const;		//!< Evaluates the local vector as a polynomial ax² + bx + c
 
 	};
 
@@ -105,56 +117,72 @@ namespace Math
 	template <class C=float> class Vec2:public TVec<C,2>
 	{
 	public:
+		typedef Vec2<C>					Self;
 
+		MF_CONSTRUCTOR					Vec2();
+		MF_CONSTRUCTOR					Vec2(const C&value);
+		MF_CONSTRUCTOR1					Vec2(const TVec2<C0>&other);
+		MF_CONSTRUCTOR2					Vec2(const C0&x, const C1&y);
+		MF_CONSTRUCTOR1					Vec2(const C0 field[2]);
 
-	MF_CONSTRUCTOR					Vec2();
-	MF_CONSTRUCTOR					Vec2(const C&value);
-	MF_CONSTRUCTOR1					Vec2(const TVec2<C0>&other);
-	MF_CONSTRUCTOR2					Vec2(const C0&x, const C1&y);
-	MF_CONSTRUCTOR1					Vec2(const C0 field[2]);
+		static MF_DECLARE(Self&)		reinterpret(TVec3<C>&vec)	{return reinterpret_cast<Self&>(vec);}
+		static MF_DECLARE(Self&)		Reinterpret(TVec3<C>&vec)	{return reinterpret_cast<Self&>(vec);}
+		static MF_DECLARE(const Self&)	reinterpret(const TVec3<C>&vec)	{return reinterpret_cast<const Self&>(vec);}
+		static MF_DECLARE(const Self&)	Reinterpret(const TVec3<C>&vec)	{return reinterpret_cast<const Self&>(vec);}
 
-	static MF_DECLARE(Vec2<C>&)		reinterpret(TVec2<C>&);
-	static MF_DECLARE(const Vec2<C>&)	reinterpret(const TVec2<C>&);
-
-	MFUNC2 (void)					set(const C0&x, const C1&y)				{Vec::def(*this,x,y);}
-	MF_DECLARE(void)				clear();
-	MF_DECLARE(String)				toString()								const;
-	MF_DECLARE(C)					length()								const;
-	MF_DECLARE(C)					sqr()							 		const;
-	MF_DECLARE(C)					summary()								const;
-	MF_DECLARE(Vec2<C>)				normalized()							const;		//returns normalized vector
-	MF_DECLARE(Vec2<C>)				normalized0()							const;
-	MF_DECLARE(Vec2<C>&)			normalize();
-	MF_DECLARE(Vec2<C>&)			normalize0();
-	MF_DECLARE(void)				flip()									{swp(x,y);}
-	MF_DECLARE(Vec2<C>)				flipped()								const	{return Vec2<C>(y,x);}
-	MF_DECLARE(Vec2<C>)				normal()								const	{return Vec2<C>(-y,x);}	//!< Returns a vector normal to this one
-	MF_DECLARE(bool)				contains(const C&value)					const	{return value >= lower-getError<C>() && value <= upper+getError<C>();}	//!< Interprets the local vector as a range and determines whether the specified value is within that range (including error tolerance)
-	MF_DECLARE(const C&)			clamped(const C&value)					const	{return value < lower?lower: (value > upper?upper: value);}						//!< Returns the specified value, clamped in the range between x and y
-	MFUNC1 (Vec2<C>)				operator+(const TVec2<C0>&other)		const;
-	MF_DECLARE(Vec2<C>)				operator+(const C&value)				const;
-	MFUNC1 (void)					operator+=(const TVec2<C0>&other);
-	MF_DECLARE(void)				operator+=(const C&value);
-	MFUNC1 (C)						operator*(const TVec2<C0>&other)		const;
-	MF_DECLARE(Vec2<C>)				operator*(const C&factor)				const;
-	MF_DECLARE(void)				operator*=(const C&factor);
-	MFUNC1 (Vec2<C>)				operator/(const C0&factor)				const;
-	MFUNC1 (void)					operator/=(const C0&factor);
-	MFUNC1 (Vec2<C>)				operator-(const TVec2<C0>&other)		const;
-	MF_DECLARE(Vec2<C>)				operator-(const C&value)				const;
-	MF_DECLARE(Vec2<C>)				operator-()							 const;
-	MFUNC1 (void)					operator-=(const TVec2<C0>&other);
-	MF_DECLARE(void)				operator-=(const C&value);
-	MFUNC1 (Vec2<C>)				operator&(const TVec2<C0>&other)		const;
-	MFUNC1 (void)					operator=(const TVec2<C0>&other);
-	MFUNC1 (bool)					operator==(const TVec2<C0>&other)		const;
-	MFUNC1 (bool)					operator!=(const TVec2<C0>&other)		const;
-	MFUNC1 (bool)					operator>(const TVec2<C0>&other)		const;		//!< Lexicographic order using _compare
-	MFUNC1 (bool)					operator<(const TVec2<C0>&other)		const;		//!< Lexicographic order using _compare
-	MFUNC1 (char)					compareTo(const TVec2<C0>&other)		const;		//!< Lexicographic order using _compare
-	MF_DECLARE(C&)					operator[](index_t component);						//return component of the vector
-	MF_DECLARE(const C&)			operator[](index_t component)			const;
-	MFUNC1 (C)						operator()(const C0&x)					const;		//!< Evaluates the local vector as a polynomial ax + b
+		MFUNC2 (void)					set(const C0&x, const C1&y)				{Vec::def(*this,x,y);}
+		MFUNC2 (void)					Set(const C0&x, const C1&y)				{Vec::def(*this,x,y);}
+		MF_DECLARE(void)				clear()									{Vec::clear(*this);}
+		MF_DECLARE(void)				Clear()									{Vec::clear(*this);}
+		MF_DECLARE(String)				toString()								const	{return Vec::toString(*this);}
+		MF_DECLARE(String)				ToString()								const	{return Vec::toString(*this);}
+		MF_DECLARE(C)					length()								const	{return Vec::length(*this);}
+		MF_DECLARE(C)					Length()								const	{return Vec::length(*this);}
+		MF_DECLARE(C)					sqr()							 		const	{return Vec::dot(*this);}
+		MF_DECLARE(C)					Sqr()							 		const	{return Vec::dot(*this);}
+		MF_DECLARE(C)					summary()								const	{return x+y;}
+		MF_DECLARE(C)					Summary()								const	{return x+y;}
+		MF_DECLARE(Vec2<C>)				normalized()							const;		//returns normalized vector
+		MF_DECLARE(Vec2<C>)				normalized0()							const;
+		MF_DECLARE(Self&)				normalize()								{Vec::normalize(*this);return *this;}
+		MF_DECLARE(Self&)				Normalize()								{Vec::normalize(*this);return *this;}
+		MF_DECLARE(Self&)				normalize0()							{Vec::normalize0(*this);return *this;}
+		MF_DECLARE(Self&)				Normalize0()							{Vec::normalize0(*this);return *this;}
+		MF_DECLARE(void)				flip()									{swp(x,y);}
+		MF_DECLARE(void)				Flip()									{swp(x,y);}
+		MF_DECLARE(Vec2<C>)				flipped()								const	{return Vec2<C>(y,x);}
+		MF_DECLARE(Vec2<C>)				Flipped()								const	{return Vec2<C>(y,x);}
+		MF_DECLARE(Vec2<C>)				normal()								const	{return Vec2<C>(-y,x);}	//!< Returns a vector normal to this one
+		MF_DECLARE(Vec2<C>)				Normal()								const	{return Vec2<C>(-y,x);}	//!< Returns a vector normal to this one
+		MF_DECLARE(bool)				contains(const C&value)					const	{return value >= lower-getError<C>() && value <= upper+getError<C>();}	//!< Interprets the local vector as a range and determines whether the specified value is within that range (including error tolerance)
+		MF_DECLARE(bool)				Contains(const C&value)					const	{return value >= lower-getError<C>() && value <= upper+getError<C>();}	//!< Interprets the local vector as a range and determines whether the specified value is within that range (including error tolerance)
+		MF_DECLARE(const C&)			clamped(const C&value)					const	{return value < lower?lower: (value > upper?upper: value);}						//!< Returns the specified value, clamped in the range between x and y
+		MF_DECLARE(const C&)			Clamped(const C&value)					const	{return value < lower?lower: (value > upper?upper: value);}						//!< Returns the specified value, clamped in the range between x and y
+		MFUNC1 (Vec2<C>)				operator+(const TVec2<C0>&other)		const;
+		MF_DECLARE(Vec2<C>)				operator+(const C&value)				const;
+		MFUNC1 (void)					operator+=(const TVec2<C0>&other);
+		MF_DECLARE(void)				operator+=(const C&value);
+		MFUNC1 (C)						operator*(const TVec2<C0>&other)		const;
+		MF_DECLARE(Vec2<C>)				operator*(const C&factor)				const;
+		MF_DECLARE(void)				operator*=(const C&factor);
+		MFUNC1 (Vec2<C>)				operator/(const C0&factor)				const;
+		MFUNC1 (void)					operator/=(const C0&factor);
+		MFUNC1 (Vec2<C>)				operator-(const TVec2<C0>&other)		const;
+		MF_DECLARE(Vec2<C>)				operator-(const C&value)				const;
+		MF_DECLARE(Vec2<C>)				operator-()							 const;
+		MFUNC1 (void)					operator-=(const TVec2<C0>&other);
+		MF_DECLARE(void)				operator-=(const C&value);
+		MFUNC1 (Vec2<C>)				operator&(const TVec2<C0>&other)		const;
+		MFUNC1 (void)					operator=(const TVec2<C0>&other);
+		MFUNC1 (bool)					operator==(const TVec2<C0>&other)		const;
+		MFUNC1 (bool)					operator!=(const TVec2<C0>&other)		const;
+		MFUNC1 (bool)					operator>(const TVec2<C0>&other)		const;		//!< Lexicographic order using _compare
+		MFUNC1 (bool)					operator<(const TVec2<C0>&other)		const;		//!< Lexicographic order using _compare
+		MFUNC1 (int)					compareTo(const TVec2<C0>&other)		const	{return Vec::compare(*this,other);}
+		MFUNC1 (int)					CompareTo(const TVec2<C0>&other)		const	{return Vec::compare(*this,other);}
+		MF_DECLARE(C&)					operator[](index_t component);						//return component of the vector
+		MF_DECLARE(const C&)			operator[](index_t component)			const;
+		MFUNC1 (C)						operator()(const C0&x)					const;		//!< Evaluates the local vector as a polynomial ax + b
 
 	};
 
@@ -162,49 +190,62 @@ namespace Math
 	template <class C=float> class Vec4:public TVec<C,4>
 	{
 	public:
+		typedef Vec4<C>					Self;
 
-	MF_CONSTRUCTOR					Vec4();
-	MF_CONSTRUCTOR					Vec4(const C&value);
-	MF_CONSTRUCTOR3					Vec4(const TVec2<C0>&other,const C1&z, const C2&w);
-	MF_CONSTRUCTOR2					Vec4(const TVec3<C0>&other, const C1&w);
-	MF_CONSTRUCTOR1					Vec4(const TVec4<C0>&other);
-	MF_CONSTRUCTOR4					Vec4(const C0&x, const C1&y, const C2&z, const C3&a);
-	MF_CONSTRUCTOR1					Vec4(const C0 field[4]);
+		MF_CONSTRUCTOR					Vec4();
+		MF_CONSTRUCTOR					Vec4(const C&value);
+		MF_CONSTRUCTOR3					Vec4(const TVec2<C0>&other,const C1&z, const C2&w);
+		MF_CONSTRUCTOR2					Vec4(const TVec3<C0>&other, const C1&w);
+		MF_CONSTRUCTOR1					Vec4(const TVec4<C0>&other);
+		MF_CONSTRUCTOR4					Vec4(const C0&x, const C1&y, const C2&z, const C3&a);
+		MF_CONSTRUCTOR1					Vec4(const C0 field[4]);
 
-	MFUNC4 (void)					set(const C0&x, const C1&y, const C2&z, const C3&w)	{Vec::def(*this,x,y,z,w);}
-	MF_DECLARE(void)				clear();
-	MF_DECLARE(String)				toString()								const;
-	MF_DECLARE(C)					length()								const;
-	MF_DECLARE(C)					sqr()							 		const;
-	MF_DECLARE(C)					summary()								const;
-	MF_DECLARE(Vec4<C>)				normalized()							const;		//returns normalized vector
-	MF_DECLARE(Vec3<C>)				vector(BYTE c0, BYTE c1, BYTE c2)		const;
-	MF_DECLARE(Vec2<C>)				vector(BYTE c0, BYTE c1)				const;
-	MFUNC1 (Vec4<C>)				operator+(const TVec4<C0>&other)		const;
-	MF_DECLARE(Vec4<C>)				operator+(const C&value)				const;
-	MFUNC1 (void)					operator+=(const TVec4<C0>&other);
-	MF_DECLARE(void)				operator+=(const C&value);
-	MFUNC1 (C)						operator*(const TVec4<C0>&other)		const;
-	MF_DECLARE(Vec4<C>)				operator*(const C&factor)				const;
-	MF_DECLARE(void)				operator*=(const C&factor);
-	MFUNC1 (Vec4<C>)				operator/(const C0&factor)				const;
-	MFUNC1 (void)					operator/=(const C0&factor);
-	MFUNC1 (Vec4<C>)				operator-(const TVec4<C0>&other)		const;
-	MF_DECLARE(Vec4<C>)				operator-()							 const;
-	MF_DECLARE(Vec4<C>)				operator-(const C&value)				const;
-	MFUNC1 (void)					operator-=(const TVec4<C0>&other);
-	MF_DECLARE(void)				operator-=(const C&value);
-	MFUNC1 (Vec3<C>)				operator|(const TVec4<C0>&other)		const;
-	MFUNC1 (void)					operator=(const TVec2<C0>&other);
-	MFUNC1 (void)					operator=(const TVec3<C0>&other);
-	MFUNC1 (void)					operator=(const TVec4<C0>&other);
-	MFUNC1 (bool)					operator==(const TVec4<C0>&other)		const;
-	MFUNC1 (bool)					operator!=(const TVec4<C0>&other)		const;
-	MFUNC1 (bool)					operator>(const TVec4<C0>&other)		const;		//!< Lexicographic order using _compare
-	MFUNC1 (bool)					operator<(const TVec4<C0>&other)		const;		//!< Lexicographic order using _compare
-	MFUNC1 (char)					compareTo(const TVec4<C0>&other)		const;		//!< Lexicographic order using _compare
-	MF_DECLARE(C&)					operator[](index_t component);						//return component of the vector
-	MF_DECLARE(const C&)			operator[](index_t component)			const;
+		MFUNC4 (void)					set(const C0&x, const C1&y, const C2&z, const C3&w)	{Vec::def(*this,x,y,z,w);}
+		MFUNC4 (void)					Set(const C0&x, const C1&y, const C2&z, const C3&w)	{Vec::def(*this,x,y,z,w);}
+		MF_DECLARE(void)				clear()									{Vec::clear(*this);}
+		MF_DECLARE(void)				Clear()									{Vec::clear(*this);}
+		MF_DECLARE(String)				toString()								const	{return Vec::toString(*this);}
+		MF_DECLARE(String)				ToString()								const	{return Vec::toString(*this);}
+		MF_DECLARE(C)					length()								const	{return Vec::length(*this);}
+		MF_DECLARE(C)					Length()								const	{return Vec::length(*this);}
+		MF_DECLARE(C)					sqr()							 		const	{return Vec::dot(*this);}
+		MF_DECLARE(C)					Sqr()							 		const	{return Vec::dot(*this);}
+		MF_DECLARE(C)					summary()								const	{return x+y+z+w;}
+		MF_DECLARE(C)					Summary()								const	{return x+y+z+w;}
+		MF_DECLARE(Vec4<C>)				normalized()							const;		//returns normalized vector
+		MF_DECLARE(Self&)				normalize()								{Vec::normalize(*this);return *this;}
+		MF_DECLARE(Self&)				Normalize()								{Vec::normalize(*this);return *this;}
+		MF_DECLARE(Self&)				normalize0()							{Vec::normalize0(*this);return *this;}
+		MF_DECLARE(Self&)				Normalize0()							{Vec::normalize0(*this);return *this;}
+
+		MF_DECLARE(Vec3<C>)				vector(BYTE c0, BYTE c1, BYTE c2)		const;
+		MF_DECLARE(Vec2<C>)				vector(BYTE c0, BYTE c1)				const;
+		MFUNC1 (Vec4<C>)				operator+(const TVec4<C0>&other)		const;
+		MF_DECLARE(Vec4<C>)				operator+(const C&value)				const;
+		MFUNC1 (void)					operator+=(const TVec4<C0>&other);
+		MF_DECLARE(void)				operator+=(const C&value);
+		MFUNC1 (C)						operator*(const TVec4<C0>&other)		const;
+		MF_DECLARE(Vec4<C>)				operator*(const C&factor)				const;
+		MF_DECLARE(void)				operator*=(const C&factor);
+		MFUNC1 (Vec4<C>)				operator/(const C0&factor)				const;
+		MFUNC1 (void)					operator/=(const C0&factor);
+		MFUNC1 (Vec4<C>)				operator-(const TVec4<C0>&other)		const;
+		MF_DECLARE(Vec4<C>)				operator-()							 const;
+		MF_DECLARE(Vec4<C>)				operator-(const C&value)				const;
+		MFUNC1 (void)					operator-=(const TVec4<C0>&other);
+		MF_DECLARE(void)				operator-=(const C&value);
+		MFUNC1 (Vec3<C>)				operator|(const TVec4<C0>&other)		const;
+		MFUNC1 (void)					operator=(const TVec2<C0>&other);
+		MFUNC1 (void)					operator=(const TVec3<C0>&other);
+		MFUNC1 (void)					operator=(const TVec4<C0>&other);
+		MFUNC1 (bool)					operator==(const TVec4<C0>&other)		const;
+		MFUNC1 (bool)					operator!=(const TVec4<C0>&other)		const;
+		MFUNC1 (bool)					operator>(const TVec4<C0>&other)		const;		//!< Lexicographic order using _compare
+		MFUNC1 (bool)					operator<(const TVec4<C0>&other)		const;		//!< Lexicographic order using _compare
+		MFUNC1 (int)					compareTo(const TVec4<C0>&other)		const	{return Vec::compare(*this,other);}
+		MFUNC1 (int)					CompareTo(const TVec4<C0>&other)		const	{return Vec::compare(*this,other);}
+		MF_DECLARE(C&)					operator[](index_t component);						//return component of the vector
+		MF_DECLARE(const C&)			operator[](index_t component)			const;
 	};
 
 
@@ -213,24 +254,24 @@ namespace Math
 	template <class C=float> class Line
 	{
 	public:
-			Vec3<C>			position,direction;
+		Vec3<C>			position,direction;
 
-	MF_CONSTRUCTOR				Line();
-	MF_CONSTRUCTOR				Line(const Line<C>&);
-	MF_CONSTRUCTOR1				Line(const Line<C0>&);
-	MF_CONSTRUCTOR2				Line(const TVec3<C0>&, const TVec3<C1>&);
-	MF_DECLARE(String)			toString();
-	MFUNC1 (Vec3<C>)			resolvePoint(const C0&);
-	MFUNC1 (void)				operator+=(const Line<C0>&);
-	MFUNC1 (void)				operator-=(const Line<C0>&);
-	MFUNC1 (void)				operator*=(const C0&);
-	MFUNC1 (void)				operator/=(const C0&);
-	MFUNC1 (void)				operator=(const Line<C0>&);
-	MFUNC1 (Line<C>)			operator+(const Line<C0>&)			 const;
-	MFUNC1 (Line<C>)			operator-(const Line<C0>&)			 const;
-	MFUNC1 (Line<C>)			operator*(const C0&)					const;
-	MFUNC1 (Line<C>)			operator/(const C0&)					const;
-	MF_DECLARE(Line<C>)		operator-()							 const;
+		MF_CONSTRUCTOR				Line();
+		MF_CONSTRUCTOR				Line(const Line<C>&);
+		MF_CONSTRUCTOR1				Line(const Line<C0>&);
+		MF_CONSTRUCTOR2				Line(const TVec3<C0>&, const TVec3<C1>&);
+		MF_DECLARE(String)			toString();
+		MFUNC1 (Vec3<C>)			resolvePoint(const C0&);
+		MFUNC1 (void)				operator+=(const Line<C0>&);
+		MFUNC1 (void)				operator-=(const Line<C0>&);
+		MFUNC1 (void)				operator*=(const C0&);
+		MFUNC1 (void)				operator/=(const C0&);
+		MFUNC1 (void)				operator=(const Line<C0>&);
+		MFUNC1 (Line<C>)			operator+(const Line<C0>&)			 const;
+		MFUNC1 (Line<C>)			operator-(const Line<C0>&)			 const;
+		MFUNC1 (Line<C>)			operator*(const C0&)					const;
+		MFUNC1 (Line<C>)			operator/(const C0&)					const;
+		MF_DECLARE(Line<C>)		operator-()							 const;
 	};
 
 
@@ -319,6 +360,39 @@ namespace Math
 	typedef Vec3<bool>		bool3;
 	typedef Vec4<bool>		bool4;
 
+
+
+
+	template <typename T>
+		inline Vec2<T>	operator-(const TVec2<T>&a, const TVec2<T>&b)
+		{
+			return Vec2<T>(a.x - b.x, a.y - b.y);
+		}
+	template <typename T>
+		inline Vec3<T>	operator-(const TVec3<T>&a, const TVec3<T>&b)
+		{
+			return Vec3<T>(a.x - b.x, a.y - b.y, a.z - b.z);
+		}
+	template <typename T>
+		inline Vec4<T>	operator-(const TVec4<T>&a, const TVec4<T>&b)
+		{
+			return Vec4<T>(a.x - b.x, a.y - b.y, a.z - b.z, a.w - b.w);
+		}
+	template <typename T>
+		inline Vec2<T>	operator+(const TVec2<T>&a, const TVec2<T>&b)
+		{
+			return Vec2<T>(a.x + b.x, a.y + b.y);
+		}
+	template <typename T>
+		inline Vec3<T>	operator+(const TVec3<T>&a, const TVec3<T>&b)
+		{
+			return Vec3<T>(a.x + b.x, a.y + b.y, a.z + b.z);
+		}
+	template <typename T>
+		inline Vec4<T>	operator+(const TVec4<T>&a, const TVec4<T>&b)
+		{
+			return Vec4<T>(a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w);
+		}
 }
 
 

@@ -241,16 +241,6 @@ namespace Math
 			return x*x*a + x*b + c;
 		}
 
-	template <class C>
-		/*static*/ MF_DECLARE(Vec3<C>&)		Vec3<C>::reinterpret(TVec3<C>&vec)
-		{
-			return reinterpret_cast<Vec3<C>&>(vec);
-		}
-	template <class C>
-		/*static*/ MF_DECLARE(const Vec3<C>&)	Vec3<C>::reinterpret(const TVec3<C>&vec)
-		{
-			return reinterpret_cast<const Vec3<C>&>(vec);
-		}
 
 
 
@@ -294,25 +284,8 @@ namespace Math
 	}
 
 
-    template <class C>  MF_DECLARE  (void)        Vec3<C>::clear()
-    {
-        Vec::clear(*this);
-    }
 
-    template <class C>  MF_DECLARE(String)    Vec3<C>::toString()               const
-    {
-        return Vec::toString(*this);
-    }
 
-    template <class C>  MF_DECLARE  (C)           Vec3<C>::length()                 const
-    {
-        return Vec::length(*this);
-    }
-
-    template <class C>  MF_DECLARE  (C)           Vec3<C>::summary()                const
-    {
-        return x+y+z;
-    }
 
     template <class C>  MF_DECLARE  (Vec3<C>)    Vec3<C>::normalized()                const
     {
@@ -328,28 +301,6 @@ namespace Math
         return Vec3<C>(1,0,0);
     }
     
-    template <class C>  MF_DECLARE  (Vec3<C>&)    Vec3<C>::normalize()
-    {
-        C   len = Vec::length(*this);
-		x/=len;
-		y/=len;
-		z/=len;
-		return *this;
-    }
-
-    template <class C>  MF_DECLARE  (Vec3<C>&)    Vec3<C>::normalize0()
-    {
-        C   len = Vec::length(*this);
-        if (vabs(len) > getError<C>())
-		{
-			x/=len;
-			y/=len;
-			z/=len;
-		}
-		else
-			x = 1;
-		return *this;
-    }
     
     template <class C>
     template <class C0> MF_DECLARE  (Vec3<C>)   Vec3<C>::operator+(const TVec3<C0>&other)    const
@@ -481,12 +432,6 @@ namespace Math
 		return Vec::compare(*this,other) < 0;
     }
 
-	template <class C>
-	MFUNC1  (char)        Vec3<C>::compareTo(const TVec3<C0>&other)    const
-	{
-		return Vec::compare(*this,other);
-	}
-
 
     template <class C>  MF_DECLARE  (C&)          Vec3<C>::operator[](index_t component)
     {
@@ -502,17 +447,6 @@ namespace Math
 
     // ----------------     vec2     ------------------------------------------------------------------------------
 
-
-	template <class C>
-		/*static*/ MF_DECLARE(Vec2<C>&)		Vec2<C>::reinterpret(TVec2<C>&vec)
-		{
-			return reinterpret_cast<Vec2<C>&>(vec);
-		}
-	template <class C>
-		/*static*/ MF_DECLARE(const Vec2<C>&)	Vec2<C>::reinterpret(const TVec2<C>&vec)
-		{
-			return reinterpret_cast<const Vec2<C>&>(vec);
-		}
 
     template <class C>  MF_CONSTRUCTOR              Vec2<C>::Vec2()
 	{
@@ -559,30 +493,6 @@ namespace Math
 	}
 
 
-    template <class C>  MF_DECLARE  (void)        Vec2<C>::clear()
-    {
-        Vec::clear(*this);
-    }
-
-    template <class C>  MF_DECLARE(String)     Vec2<C>::toString()                           const
-    {
-        return Vec::toString(*this);
-    }
-
-    template <class C>  MF_DECLARE (C)            Vec2<C>::length()                             const
-    {
-        return Vec::length(*this);
-    }
-
-    template <class C>  MF_DECLARE (C)            Vec2<C>::sqr()                             const
-    {
-        return Vec::dot(*this);
-    }
-
-    template <class C>  MF_DECLARE (C)            Vec2<C>::summary()                            const
-    {
-        return x+y;
-    }
 
     template <class C>  MF_DECLARE (Vec2<C>) Vec2<C>::normalized()                            const
     {
@@ -592,18 +502,6 @@ namespace Math
 	template <class C>  MF_DECLARE(Vec2<C>)			Vec2<C>::normalized0()							const
 	{
 		return Vec2<C>(*this).normalize0();
-	}
-
-	template <class C>  MF_DECLARE(Vec2<C>&)			Vec2<C>::normalize()
-	{
-		Vec::normalize(*this);
-		return *this;
-	}
-
-	template <class C>  MF_DECLARE(Vec2<C>&)			Vec2<C>::normalize0()
-	{
-		Vec::normalize0(*this);
-		return *this;
 	}
 
 
@@ -722,11 +620,6 @@ namespace Math
 		return Vec::compare(*this,other)<0;
     }
 
-	template <class C>
-	MFUNC1  (char)        Vec2<C>::compareTo(const TVec2<C0>&other)    const
-	{
-		return Vec::compare(*this,other);
-	}
 
 
     template <class C>
@@ -817,31 +710,6 @@ namespace Math
 	}
 
 
-
-    template <class C>  MF_DECLARE  (void)        Vec4<C>::clear()
-    {
-        Vec::clear(*this);
-    }
-
-    template <class C>  MF_DECLARE(String)    Vec4<C>::toString()                           const
-    {
-        return Vec::toString(*this);
-    }
-
-    template <class C>  MF_DECLARE  (C)           Vec4<C>::length()                             const
-    {
-        return Vec::length(*this);
-    }
-
-    template <class C>  MF_DECLARE  (C)           Vec4<C>::sqr()                             const
-    {
-        return Vec::dot(*this);
-    }
-
-    template <class C>  MF_DECLARE  (C)           Vec4<C>::summary()                            const
-    {
-        return x+y+z+w;
-    }
 
     template <class C>  MF_DECLARE  (Vec4<C>)    Vec4<C>::normalized()                            const
     {
@@ -997,11 +865,6 @@ namespace Math
 		return Vec::compare(*this,other)<0;
     }
 
-	template <class C>
-	MFUNC1  (char)        Vec4<C>::compareTo(const TVec4<C0>&other)    const
-	{
-		return Vec::compare(*this,other);
-	}
 
 
     template <class C>  MF_DECLARE  (C&)          Vec4<C>::operator[](index_t component)

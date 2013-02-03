@@ -880,7 +880,7 @@ namespace Engine
 		{
 			if (target_index >= config.num_color_targets || !config.color_target[target_index].texture_handle)
 				return false;
-			target.setSize(config.resolution.width,config.resolution.height,channels(target_index));
+			target.setSize(config.resolution.width,config.resolution.height,getChannelsOfTarget(target_index));
 			ContextLock	context_lock;
 
 			glPushAttrib(GL_TEXTURE_BIT);
@@ -894,7 +894,7 @@ namespace Engine
 		{
 			if (target_index >= config.num_color_targets || !config.color_target[target_index].texture_handle)
 				return false;
-			target.setSize(config.resolution.width,config.resolution.height,channels(target_index));
+			target.setSize(config.resolution.width,config.resolution.height,getChannelsOfTarget(target_index));
 			ContextLock	context_lock;
 
 			glPushAttrib(GL_TEXTURE_BIT);
@@ -908,7 +908,7 @@ namespace Engine
 		{
 			if (target_index >= config.num_color_targets || !config.color_target[target_index].texture_handle)
 				return false;
-			target.setSize(config.resolution.width,config.resolution.height,channels(target_index));
+			target.setSize(config.resolution.width,config.resolution.height,getChannelsOfTarget(target_index));
 			ContextLock	context_lock;
 
 			glPushAttrib(GL_TEXTURE_BIT);
@@ -948,7 +948,7 @@ namespace Engine
 			swp(config,other.config);
 		}
 
-		void		FBO::resize(const Resolution&res)
+		void		FBO::resize(const ::Resolution&res)
 		{
 			ContextLock	context_lock;
 			TFrameBuffer	buffer;
@@ -958,14 +958,6 @@ namespace Engine
 			config = buffer; //handle should stay the same
 		}
 		
-		bool		FBO::create(const Resolution&res, DepthStorage depth_storage, BYTE num_color_targets, const GLenum*format, bool filtered/*=true*/)
-		{
-			return create(Configuration(res,depth_storage,num_color_targets,format,filtered));
-		}
-		bool		FBO::create(const Resolution& res, const BaseConfiguration&config)
-		{
-			return create(Configuration(res,config));
-		}
 
 		bool		FBO::create(const Configuration&config)
 		{

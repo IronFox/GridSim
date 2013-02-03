@@ -15,6 +15,7 @@
 struct NAME\
 		{\
 		static const size_t NumberOfPossibilities = COUNT;\
+		static const size_t N = COUNT;\
 		enum value_t\
 			{\
 
@@ -32,13 +33,17 @@ struct NAME\
 			}\
 			return #NAME"::Invalid enumeration value";\
 		}\
+		static inline const char*		ToString(value_t type)	{return toString(type);}\
 		value_t			value;	/*!< Current enumeration value */ \
 		NAME():value(DEFAULT_VALUE)				{}\
 		NAME(value_t val):value(val)			{}\
 		NAME(const NAME&val):value(val.value)	{}\
-		const char*	toString() const			{return toString(value);}	/*!< Converts the current enumeration value to a string*/ \
+		inline const char*	toString() const	/** Converts the current enumeration value to a string*/		{return toString(value);} \
+		inline const char*	ToString() const	/** @copydoc toString()*/		{return toString(value);}	 \
 		template <typename T> bool	load(const T&v)	{index_t val = (index_t)(v); if (val < NumberOfPossibilities) {value = (value_t)val; return true;} return false;}\
+		template <typename T> inline bool	Load(const T&v)	{return load(v);}\
 		template <typename T> static NAME		reinterpret(const T&v)	{index_t val = (index_t)(v); if (val < NumberOfPossibilities) return NAME((value_t)val); return NAME();}\
+		template <typename T> static inline NAME	Reinterpret(const T&v)	{return reinterpret(v);}\
 		NAME&	operator=(value_t value_)		{value = value_; return *this;}\
 		NAME&	operator=(const NAME&value_)	{value = value_.value; return *this;}\
 		bool	operator==(value_t value_)		{return value == value_;}\

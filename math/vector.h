@@ -389,8 +389,21 @@ namespace Math
 
 		};
 
+	/**
+	@brief Constructs a new range
+	*/
 	template <typename T>
 		inline TRange<T>	range(const T&min, const T&max)
+		{
+			TRange<T> result = {min,max};
+			return result;
+		}
+	
+	/**
+	@copydoc range()
+	*/
+	template <typename T>
+		inline TRange<T>	Range(const T&min, const T&max)
 		{
 			TRange<T> result = {min,max};
 			return result;
