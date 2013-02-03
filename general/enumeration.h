@@ -7,7 +7,7 @@
 
 
 #undef CONSTRUCT_ECASE
-#define CONSTRUCT_ECASE(ENUM_NAME,ENUM_VAL)	case ENUM_VAL: return #ENUM_NAME"::"#ENUM_VAL;
+#define CONSTRUCT_ECASE(ENUM_NAME,ENUM_VAL)	case ENUM_VAL: return #ENUM_VAL;
 
 
 #undef CONSTRUCT_ENUM_HEAD
@@ -31,7 +31,7 @@ struct NAME\
 #undef CONSTRUCT_ENUM_TAIL
 #define CONSTRUCT_ENUM_TAIL(NAME,DEFAULT_VALUE)\
 			}\
-			return #NAME"::Invalid enumeration value";\
+			return "<Invalid Enumeration Value>";\
 		}\
 		static inline const char*		ToString(value_t type)	{return toString(type);}\
 		value_t			value;	/*!< Current enumeration value */ \

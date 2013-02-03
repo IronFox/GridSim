@@ -172,13 +172,21 @@
 				/**/					Variable();
 
 				bool					setf(float value);
+				inline bool				Set(float value)		{return setf(value);}
 				bool					set4f(float x, float y, float z, float w);
+				inline bool				Set(float x, float y, float z, float w)		{return set4f(x,y,z,w);}
 				bool					set(const TVec2<>&);
+				inline bool				Set(const TVec2<>&v)	{return set(v);}
 				bool					set(const TVec3<>&);
+				inline bool				Set(const TVec3<>&v)	{return set(v);}
 				bool					set(const TVec4<>&);
+				inline bool				Set(const TVec4<>&v)	{return set(v);}
 				bool					set(const TMatrix3<>&);
+				inline bool				Set(const TMatrix3<>&m)	{return set(m);}
 				bool					set(const TMatrix4<>&);
+				inline bool				Set(const TMatrix4<>&m)	{return set(m);}
 				bool					seti(int value);
+				inline bool				SetInt(int value)		{return seti(value);}
 				
 				static	void			lockUninstalledShaderVariables()
 										{

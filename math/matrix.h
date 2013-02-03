@@ -5,11 +5,6 @@
 
 Collection of template matrix-math-functions.
 
-This file is part of Delta-Works
-Copyright (C) 2006-2008 Stefan Elsen, University of Trier, Germany.
-http://www.delta-works.org/forge/
-http://informatik.uni-trier.de/
-
 ******************************************************************/
 
 
@@ -237,6 +232,7 @@ namespace Math
 
 		MFUNC2(void)		invertSystem(const TMatrix4<C0>&sys, TMatrix4<C1>&result);
 		MFUNC2(bool)		invert(const TMatrix4<C0>&sys, TMatrix4<C1>&result);
+		MFUNC2(bool)		invert(const TMatrix3<C0>&sys, TMatrix3<C1>&result);
 		MFUNC3(void)		makeAxisSystem(const TVec3<C0>&position,const TVec3<C1>&axis, BYTE direction,TMatrix4<C2>&result);			//!< Creates a system matrix from a point and an axis and stores the result in \b out. \param position Base position of the new system \param axis Orientation axis \param direction Coordinate vector of the final matrix that should point along the specified axis (0-2). For instance passing 1 as \b direction effectivly causes the y axis of the final matrix to point along the specified axis. \param result Out 4x4 matrix for the constructed system matrix.
 		MFUNC2(void)		makeAxisSystem(const TVec3<C0>&axis, BYTE direction,TMatrix3<C1>&result);									//!< Creates an orientation matrix from the specified axis and stores the result in \b out. \param axis Orientation axis \param direction Coordinate vector of the final matrix that should point along the specified axis (0-2). For instance passing 1 as \b direction effectivly causes the y axis of the final matrix to point along the specified axis. \param result Out 3x3 matrix for the constructed orientation matrix.
 
@@ -245,6 +241,8 @@ namespace Math
 		MFUNC2(void)		copyOrientation(const TMatrix4<C0>&from,TMatrix3<C1>&to);													//!< Copies the x, y, and z components of the first three axes to @b target
 		MFUNC4(void)		buildSystem(const TVec3<C0>&base,const TVec3<C1>&x,const TVec3<C2>&y, TMatrix4<C3>&out);						//!< Creates a system matrix based on base, x and y axes. The x axis is primary and used exactly as it is (though normalized). The y axis is normalized and used as close as it is orthogonal to x. @param base 3d vector to the base of the system @param x X axis of the system (any length > 0) @param y Y axis of the system (any length > 0) @param out Out matrix for the finished 4x4 system matrix
 
+		MFUNC(String)		toString(const TMatrix4<C>&matrix);
+		MFUNC(String)		toString(const TMatrix3<C>&matrix);
 	}
 }
 

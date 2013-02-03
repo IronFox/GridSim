@@ -5,11 +5,6 @@
 
 Collection of template matrix-math-functions.
 
-This file is part of Delta-Works
-Copyright (C) 2006-2008 Stefan Elsen, University of Trier, Germany.
-http://www.delta-works.org/forge/
-http://informatik.uni-trier.de/
-
 ******************************************************************/
 
 
@@ -572,6 +567,20 @@ namespace Math
 		MFUNC2(bool)	invert(const TMatrix4<C0>&sys, TMatrix4<C1>&result)
 		{
 	        return __invertMatrix<C0,C1,4>(sys.v,result.v);
+		}
+
+		MFUNC2(bool)	invert(const TMatrix3<C0>&sys, TMatrix3<C1>&result)
+		{
+	        return __invertMatrix<C0,C1,3>(sys.v,result.v);
+		}
+
+		MFUNC(String)		toString(const TMatrix4<C>&matrix)
+		{
+			return __toString(matrix.v,4,4);
+		}
+		MFUNC(String)		toString(const TMatrix3<C>&matrix)
+		{
+			return __toString(matrix.v,3,3);
 		}
 
 
