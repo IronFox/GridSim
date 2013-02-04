@@ -2861,10 +2861,7 @@ namespace Engine
 
 			message_label->offset.bottom = buttons.first()->height;
 
-			float	mx = op.getDisplay().clientWidth()/2,
-					my = op.getDisplay().clientHeight()/2;
-			shared_ptr<GUI::Window>	window = op.createWindow(Rect<float>(mx-200,my-100,mx+200,my+100),title,GUI::ModalWindow,panel);
-			window->fixed_size = true;
+			shared_ptr<GUI::Window>	window = Window::CreateNew(NewWindowConfig(title,WindowPosition(0,0,400,200,true),true),panel);
 			window->iheight = (size_t)(window->fheight = window->minHeight());
 			window->layout_changed = true;
 			window->visual_changed = true;
@@ -2917,10 +2914,9 @@ namespace Engine
 			panel->add(message_button);
 			message_label->offset.bottom = message_button->height;
 
-			float	mx = op.getDisplay().clientWidth()/2,
-					my = op.getDisplay().clientHeight()/2;
-			message_window = op.createWindow(Rect<float>(mx-200,my-100,mx+200,my+100),"Message",GUI::ModalWindow,panel);
-			message_window->fixed_size = true;
+			//float	mx = op.getDisplay().clientWidth()/2,
+			//		my = op.getDisplay().clientHeight()/2;
+			message_window = Window::CreateNew(NewWindowConfig("Message",WindowPosition(0,0,400,200,true),true),panel);
 		}
 		
 		

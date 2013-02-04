@@ -50,6 +50,7 @@ namespace Engine
 			virtual	void				updateLayout(const Rect<float>&parent_region);
 		};
 		
+		typedef shared_ptr<Label>		PLabel;
 
 		class SliderLayout
 		{
@@ -206,6 +207,7 @@ namespace Engine
 		virtual	eEventResult			onMouseUp(float x, float y);
 		virtual	eEventResult			onMouseWheel(float x, float y, short delta);
 		};
+		typedef shared_ptr<ScrollBar>		PScrollBar;
 		
 
 
@@ -262,7 +264,8 @@ namespace Engine
 			void						setMax(float max_)	{if (max_ != max) {max = max_; signalLayoutChange();}}
 			void						setCurrent(float current_)	{if (current_ != current) {current = current_; signalLayoutChange();}}
 		};
-		
+		typedef shared_ptr<Slider>		PSlider;
+	
 
 
 		/**
@@ -357,6 +360,7 @@ namespace Engine
 		virtual	index_t					indexOf(const shared_ptr<Component>&child)const	{return children.indexOf(child)+1;}	//!< Queries the index of a child +1. @return Index+1 or 0 if the child could not be found
 		virtual	void					clear()	{children.reset();}
 		};
+		typedef shared_ptr<Panel>		PPanel;
 		
 		/**
 			@brief Scrollable panel
@@ -413,6 +417,7 @@ namespace Engine
 			void						scrollToY(float y);
 
 		};
+		typedef shared_ptr<ScrollBox>		PScrollBox;
 		
 		/**
 			@brief Button component
@@ -462,6 +467,7 @@ namespace Engine
 											on_execute();
 										}
 		};
+		typedef shared_ptr<Button>		PButton;
 		
 		
 		/**
@@ -552,6 +558,7 @@ namespace Engine
 			virtual	bool				tabFocusable()	const	override				{return true;}
 			virtual	void				updateLayout(const Rect<float>&parent_region)	override;
 		};
+		typedef shared_ptr<Edit>		PEdit;
 		
 		typedef Edit	Input;
 		
@@ -600,6 +607,7 @@ namespace Engine
 		virtual	void							onMenuClose(const shared_ptr<MenuEntry>&child);
 		virtual	void							updateLayout(const Rect<float>&parent_region);
 		};
+		typedef shared_ptr<MenuEntry>		PMenuEntry;
 		
 		
 		/**
@@ -649,6 +657,7 @@ namespace Engine
 		virtual	eEventResult			onKeyDown(Key::Name key);
 		virtual	eEventResult			onMouseHover(float x, float y, TExtEventResult&);
 		};
+		typedef shared_ptr<Menu>		PMenu;
 		
 		/**
 			@brief Combobox component
@@ -684,6 +693,7 @@ namespace Engine
 		virtual	eEventResult			onMouseHover(float x, float y, TExtEventResult&ext);
 		
 		};
+		typedef shared_ptr<ComboBox>		PComboBox;
 		
 		/**
 			@brief Checkbox component
@@ -737,6 +747,7 @@ namespace Engine
 										}
 			inline float				boxSize()	const	{return 16.f;}
 		};
+		typedef shared_ptr<CheckBox>		PCheckBox;
 		
 		
 		void			loadTheme(const String&theme_file, float scale=1.0f);

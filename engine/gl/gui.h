@@ -31,6 +31,8 @@ namespace Engine
 	namespace GUI
 	{
 		class Operator;
+		typedef shared_ptr<Operator>	POperator;
+
 
 		struct TCellLayout;
 
@@ -215,6 +217,7 @@ namespace Engine
 		
 		
 		class Window;
+		typedef shared_ptr<Window>	PWindow;
 		
 		/**
 			@brief Root component
@@ -290,7 +293,7 @@ namespace Engine
 			virtual	bool						tabFocusable() const			{return false;}								//!< Queries whether or not this entry is focusable via the tab key
 			void								setWindow(const weak_ptr<Window>&wnd);						//!< Updates the local window link variable as well as that of all children (recursively)
 			bool								isFocused()	const;															//!< Queries whether or not this component currently has the input focus
-			shared_ptr<Window>					window()	const				{return window_link.lock();}						//!< Retrieves the super window of this component (if any)
+			PWindow								window()	const				{return window_link.lock();}						//!< Retrieves the super window of this component (if any)
 			virtual	shared_ptr<const Component>	child(index_t) const			{return shared_ptr<const Component>();}							//!< Queries the nth child of this component (if any)
 			virtual	shared_ptr<Component>		child(index_t)	{return shared_ptr<Component>();}									//!< @overload
 			virtual	count_t						countChildren()	const {return 0;}								//!< Queries the number of children of this component (if any) @return Number of children
@@ -307,9 +310,11 @@ namespace Engine
 			static void							resetFocused();																	//!< Unsets the currently focused component. Identical to passing an empty (null) pointer to setFocused()
 			static void 						setFocused(const shared_ptr<Component>&component);								//!< Changes the currently focused component
 
-			shared_ptr<Operator>				getOperator()	const;
-			shared_ptr<Operator>				requireOperator()	const;
+			POperator							getOperator()	const;
+			POperator							requireOperator()	const;
 		};
+
+		typedef shared_ptr<Component>	PComponent;
 		
 		/**
 			@brief Icon container
@@ -344,6 +349,32 @@ namespace Engine
 				};
 				float							coord[3];	//!< Vector mapping of the above attributes
 			};
+		};
+
+
+		class WindowPosition
+		{
+		public:
+			TVec2<>			center;	//!< Window center position in pixels relative to the center of the screen. Actual size depending on to the current display resolution. (0,0) always points to the center of the screen. Defaults to (0,0)
+			TVec2<>			size;	//!< Window size (x = width, y = height) in pixels. Actual size depending on to the current display resolution. Must be > 0 at all times. Defaults to 100x100
+			bool			fixedSize;	//!< True if the size of the finished window should be unchangeable, false otherwise. Defaults to false.
+			bool			fixedPosition;	//!< True if the position of the finished window should be unchangeable, false otherwise. Defaults to false.
+
+			/**/			WindowPosition(bool fixedSize=false, bool fixedPosition=false):fixedSize(fixedSize),fixedPosition(fixedPosition)	{Vec::clear(center);Vec::set(size,100);}
+			/**/			WindowPosition(const TVec2<>&center, const TVec2<>&size,bool fixedSize=false, bool fixedPosition=false):center(center),size(size),fixedSize(fixedSize),fixedPosition(fixedPosition)	{}
+			/**/			WindowPosition(float x, float y, float width, float height,bool fixedSize=false, bool fixedPosition=false):fixedSize(fixedSize),fixedPosition(fixedPosition)	{Vec::def(center,x,y); Vec::def(size,width,height);}
+		};
+
+		class NewWindowConfig
+		{
+		public:
+			WindowPosition	initialPosition;
+			String			windowName;
+			bool			isModal;
+
+			/**/			NewWindowConfig(bool isModal=false):windowName("Unnamed window"),isModal(isModal)	{}
+			/**/			NewWindowConfig(const String&name, bool isModal=false):windowName(name),isModal(isModal)	{}
+			/**/			NewWindowConfig(const String&name, const WindowPosition&position, bool isModal=false):initialPosition(position), windowName(name),isModal(isModal)	{}
 		};
 
 
@@ -444,6 +475,20 @@ namespace Engine
 			void					apply(Component::eEventResult rs);	//!< Applies the result of a component event to the local state variables
 			
 			bool					remove();	//!< Attempts to remove the local window from its operator
+
+			/**
+			@brief Creates a new window without inserting it
+			@param config Initial window configuration
+			@param component Root component of the new window
+			*/
+			static PWindow			CreateNew(const NewWindowConfig&config, const shared_ptr<Component>&component=shared_ptr<Component>());
+			/**
+			@brief Creates a new window with a custom layout without inserting it
+			@param config Initial window configuration
+			@param layout Custom layout to use for this window. May be NULL
+			@param component Root component of the new window
+			*/
+			static PWindow			CreateNew(const NewWindowConfig&config, Layout*layout,const shared_ptr<Component>&component);
 		};
 		
 		
@@ -453,29 +498,31 @@ namespace Engine
 			Cylindrical
 		};
 
+
+
 		class Operator: public enable_shared_from_this<Operator>	//! GUI Instance
 		{
 		protected:
-			bool									owns_mouse_down;		//!< True if the currently pressed mouse button is handled by the window system
-			Display<OpenGL>							*display;
-			const Mouse								*mouse;
-			InputMap								*input;
-			mode_t									mode;
-			bool									created,
-													stack_changed;
-			Buffer<shared_ptr<Window> >				window_stack;
-			Buffer<weak_ptr<Window> >				menu_stack;
-			OrthographicAspect<>					window_space,
-													texture_space;
-			Camera<>								projected_space;
-			Buffer<Rect<int> >						focus_stack;
-			GLuint									layer_texture;
+			bool						owns_mouse_down;		//!< True if the currently pressed mouse button is handled by the window system
+			Display<OpenGL>				*display;
+			const Mouse					*mouse;
+			InputMap					*input;
+			mode_t						mode;
+			bool						created,
+										stack_changed;
+			Buffer<PWindow>				window_stack;
+			Buffer<weak_ptr<Window> >	menu_stack;
+			OrthographicAspect<>		window_space,
+										texture_space;
+			Camera<>					projected_space;
+			Buffer<Rect<int> >			focus_stack;
+			GLuint						layer_texture;
 
 
-			void									cylindricVertex(float px, float py, float tx, float ty, float r=1)	const;
-			void									cylindricVertex(Window*window, float x, float y)	const;
-			void									planarVertex(float px, float py, float tx, float ty) const;
-			void									planarVertex(Window*window, float x, float y)	const;
+			void						cylindricVertex(float px, float py, float tx, float ty, float r=1)	const;
+			void						cylindricVertex(Window*window, float x, float y)	const;
+			void						planarVertex(float px, float py, float tx, float ty) const;
+			void						planarVertex(Window*window, float x, float y)	const;
 
 
 			/**
@@ -484,65 +531,76 @@ namespace Engine
 			@param x Window relative x coordinate (-1 to 1)
 			@param y Window relative y coordinate (-1 to 1)
 			*/
-			void									project(Window*window, float x, float y, TVec2<float>&p)	const;
-			void									unproject(const TVec3<float>&f, TVec2<float>&p) const;	//f required to be normalized
+			void						project(Window*window, float x, float y, TVec2<float>&p)	const;
+			void						unproject(const TVec3<float>&f, TVec2<float>&p) const;	//f required to be normalized
 
-			void									unprojectMouse(TVec2<float>&p)	const;
-			void									render(const shared_ptr<Window>&window, float w, float h, bool is_menu);//!< Renders this window given the current display dimensions @param w Display width @param h Display Height @param is_menu True if this window is rendered as a menu, false otherwise
-			void									renderBox(const shared_ptr<Window>&window, float w, float h, bool is_menu);
-			float									radiusOf(index_t stack_layer)	const;
-			void									apply(const Rect<int>&port);
+			void						unprojectMouse(TVec2<float>&p)	const;
+			void						render(const PWindow&window, float w, float h, bool is_menu);//!< Renders this window given the current display dimensions @param w Display width @param h Display Height @param is_menu True if this window is rendered as a menu, false otherwise
+			void						renderBox(const PWindow&window, float w, float h, bool is_menu);
+			float						radiusOf(index_t stack_layer)	const;
+			void						apply(const Rect<int>&port);
 
-			void									bind(Key::Name key);
+			void						bind(Key::Name key);
 
-			/**/									Operator(Display<OpenGL>&display, const Mouse&mouse, InputMap&input, mode_t mode);
+			/**/						Operator(Display<OpenGL>&display, const Mouse&mouse, InputMap&input, mode_t mode);
 
 		public:
-			virtual									~Operator()	{ }
+			virtual						~Operator()	{ }
 		
-			static shared_ptr<Operator>				create(Display<OpenGL>&display, const Mouse&mouse, InputMap&input, mode_t mode=Cylindrical);
-			inline static shared_ptr<Operator>		Create(Display<OpenGL>&display, const Mouse&mouse, InputMap&input, mode_t mode=Cylindrical)	{return create(display,mouse,input,mode);}
-			Display<OpenGL>&						getDisplay()	{return *display;}
-			inline Display<OpenGL>&					GetDisplay()	{return *display;}
-			void									render();					//!< Animates and renders all windows. Also triggers certain mouse movement related component events
-			inline void								Render()	{render();}
-			bool									ownsMouseDown()	const	{return owns_mouse_down;}
-			inline bool								OwnsMouseDown()	const	{return owns_mouse_down;}
-			void									updateDisplaySize();	//!< Updates local texture sizes based on display size
-			inline void								UpdateDisplaySize()	{updateDisplaySize();}
-			bool									showingModalWindows()	const;
-			inline bool								ShowingModalWindows()	const	{return showingModalWindows();}
-			shared_ptr<Window>						getTopWindow() const;	//!< Retrieves the top-most window
-			inline shared_ptr<Window>				GetTopWindow() const	{return getTopWindow();}
-			void									insertWindow(const shared_ptr<Window>&window);	//!< Appends a window to the local window stack as new top level window. If the window is already inserted then it will simply be moved to the top position @param window Window to append @param managed Set true to also add the window to the local container, automatically deleting it if no longer necessary
-			inline void								InsertWindow(const shared_ptr<Window>&window)	{insertWindow(window);}
-			bool									removeWindow(const shared_ptr<Window>&window);				//!< Removes a window from the window stack (does not delete the window)
-			inline bool								RemoveWindow(const shared_ptr<Window>&window)	{return removeWindow(window);}
-			bool									windowIsVisible(const shared_ptr<Window>&window)	const;
-			inline bool								WindowIsVisible(const shared_ptr<Window>&window)	const	{return windowIsVisible(window);}
-			shared_ptr<Window>						createWindow(const Rect<float>&region, const String&name,modal_t modal, const shared_ptr<Component>&component=shared_ptr<Component>());		//!< Creates a new window @param region Window region in pixels. Allowed region is (0,0) [lower left corner] to (display.width(),display.height()) [upper right corner] @param window name (and title)  @param component Component to put on the new window @return new window
-			inline shared_ptr<Window>				CreateWindow(const Rect<float>&region, const String&name,modal_t modal, const shared_ptr<Component>&component=shared_ptr<Component>())	{return createWindow(region,name,modal,component);}
-			shared_ptr<Window>						createWindow(const Rect<float>&region, const String&name,modal_t modal, Layout*layout,const shared_ptr<Component>&component);//!< Creates a new window @param region Window region in pixels. Allowed region is (0,0) [lower left corner] to (display.width(),display.height()) [upper right corner] @param window name (and title)  @param layout Layout to apply to the new window @param component Component to put on the new window @return new window
-			inline shared_ptr<Window>				CreateWindow(const Rect<float>&region, const String&name,modal_t modal, Layout*layout,const shared_ptr<Component>&component)	{return createWindow(region,name,modal,layout,component);}
-			bool									mouseDown();			//!< Signals that the main mouse button has been pressed.
-			inline bool								SignalMouseDown()	{mouseDown();}
-			void									mouseUp();				//!< Signals that the main mouse button has been released
-			inline void								SignalMouseUp()	{mouseUp();}
-			bool									mouseWheel(short delta);	//!< Signals that the mouse wheel has been used
-			inline bool								SignalMouseWheel(short delta)	{mouseWheel(delta);}
-
-			void									showMenu(const shared_ptr<Window>&menu_window);
-			inline void								ShowMenu(const shared_ptr<Window>&menuWindow)	{showMenu(menuWindow);}
-			void									hideMenus();
-			inline void								HideMenus()	{hideMenus();}
+			static POperator			create(Display<OpenGL>&display, const Mouse&mouse, InputMap&input, mode_t mode=Cylindrical);
+			inline static POperator		Create(Display<OpenGL>&display, const Mouse&mouse, InputMap&input, mode_t mode=Cylindrical)	{return create(display,mouse,input,mode);}
+			Display<OpenGL>&			getDisplay()	{return *display;}
+			inline Display<OpenGL>&		GetDisplay()	{return *display;}
+			void						render();					//!< Animates and renders all windows. Also triggers certain mouse movement related component events
+			inline void					Render()	{render();}
+			bool						ownsMouseDown()	const	{return owns_mouse_down;}
+			inline bool					OwnsMouseDown()	const	{return owns_mouse_down;}
+			void						updateDisplaySize();	//!< Updates local texture sizes based on display size
+			inline void					UpdateDisplaySize()	{updateDisplaySize();}
+			bool						showingModalWindows()	const;
+			inline bool					ShowingModalWindows()	const	{return showingModalWindows();}
+			PWindow						getTopWindow() const;	//!< Retrieves the top-most window
+			inline PWindow				GetTopWindow() const	{return getTopWindow();}
+			void						insertWindow(const PWindow&window);	//!< Appends a window to the local window stack as new top level window. If the window is already inserted then it will simply be moved to the top position @param window Window to append @param managed Set true to also add the window to the local container, automatically deleting it if no longer necessary
+			inline void					InsertWindow(const PWindow&window)	{insertWindow(window);}
+			bool						removeWindow(const PWindow&window);				//!< Removes a window from the window stack (does not delete the window)
+			inline bool					RemoveWindow(const PWindow&window)	{return removeWindow(window);}
+			bool						windowIsVisible(const PWindow&window)	const;
+			inline bool					WindowIsVisible(const PWindow&window)	const	{return windowIsVisible(window);}
+			/**
+			@brief Creates a new window, and immediately inserts it
+			@param config Initial window configuration
+			@param component Root component of the new window
+			*/
+			PWindow						InsertNewWindow(const NewWindowConfig&config, const shared_ptr<Component>&component=shared_ptr<Component>());
+			/**
+			@brief Creates a new window with a custom layout, and immediately inserts it
+			@param config Initial window configuration
+			@param component Root component of the new window
+			*/
+			PWindow						InsertNewWindow(const NewWindowConfig&config, Layout*layout,const shared_ptr<Component>&component);
 
 
-			void									focus(const Rect<float>&region);	//!< Focuses on an area by applying the current viewport and translation to the specified region and further limiting the viewport. The existing translation will be modified by dx and dy
-			inline void								Focus(const Rect<float>&region)	{focus(region);}
-			void									unfocus();	//!< Reverts the focus process by jumping back to the next upper focus
-			inline void								Unfocus()	{unfocus();}
-			inline void								resetFocus()	{focus_stack.reset();}
-			inline void								ResetFocus()	{focus_stack.reset();}
+
+			bool						mouseDown();			//!< Signals that the main mouse button has been pressed.
+			inline bool					SignalMouseDown()	{mouseDown();}
+			void						mouseUp();				//!< Signals that the main mouse button has been released
+			inline void					SignalMouseUp()	{mouseUp();}
+			bool						mouseWheel(short delta);	//!< Signals that the mouse wheel has been used
+			inline bool					SignalMouseWheel(short delta)	{mouseWheel(delta);}
+
+			void						showMenu(const PWindow&menu_window);
+			inline void					ShowMenu(const PWindow&menuWindow)	{showMenu(menuWindow);}
+			void						hideMenus();
+			inline void					HideMenus()	{hideMenus();}
+
+
+			void						focus(const Rect<float>&region);	//!< Focuses on an area by applying the current viewport and translation to the specified region and further limiting the viewport. The existing translation will be modified by dx and dy
+			inline void					Focus(const Rect<float>&region)	{focus(region);}
+			void						unfocus();	//!< Reverts the focus process by jumping back to the next upper focus
+			inline void					Unfocus()	{unfocus();}
+			inline void					resetFocus()	{focus_stack.reset();}
+			inline void					ResetFocus()	{focus_stack.reset();}
 		};
 
 		void							loadBump(const String&filename, OpenGL::Texture&target);	//!< Loads a bump texture

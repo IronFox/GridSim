@@ -970,7 +970,50 @@ namespace Engine
 
 		
 		
+		/*static*/ PWindow			Window::CreateNew(const NewWindowConfig&config, const shared_ptr<Component>&component/*=shared_ptr<Component>()*/)
+		{
+			return CreateNew(config,&Window::common_style,component);
+		}
+		/*static*/ PWindow			Window::CreateNew(const NewWindowConfig&config, Layout*layout,const shared_ptr<Component>&component)
+		{
+			shared_ptr<Window> result(new Window(config.isModal,layout));
 		
+			#ifdef DEEP_GUI
+				result->destination.x = config.initialPosition.center.x;
+				result->destination.y = config.initialPosition.center.y;
+				
+				for (index_t i = 0; i < window_stack.count(); i++)
+					window_stack[i]->destination.shell_radius = radiusOf(i);
+				//result->destination.shell_radius = radiusOf(window_stack.count()-1);
+				//result->destination.x *= result->destination.shell_radius;
+				//result->destination.y *= result->destination.shell_radius;
+				result->origin.x = 0;
+				result->origin.y = 0;
+				result->origin.shell_radius = 1000;
+				result->origin = result->destination;
+				result->current_center = result->origin;
+			#else
+				result->x = config.initialPosition.center.x;
+				result->y = config.initialPosition.center.y;
+			#endif
+			ASSERT_GREATER__(config.initialPosition.size.x,0);
+			ASSERT_GREATER__(config.initialPosition.size.y,0);
+			result->fwidth = config.initialPosition.size.x;
+			result->fheight = config.initialPosition.size.y;
+			result->iwidth = (unsigned)round(result->fwidth);
+			result->iheight = (unsigned)round(result->fheight);
+			result->setComponent(component);
+			result->title = config.windowName;
+			result->fixed_size = config.initialPosition.fixedSize;
+			result->fixed_position = config.initialPosition.fixedPosition;
+			Rect<float> reg(0,0,result->iwidth,result->iheight);
+			if (layout)
+				layout->updateCells(reg,result->cell_layout);
+			else
+				result->cell_layout.border = result->cell_layout.client = reg;
+			return result;
+		}
+
 		
 		
 		bool	Window::remove()
@@ -2519,68 +2562,15 @@ namespace Engine
 		
 
 		
-		shared_ptr<Window>		Operator::createWindow(const Rect<float>&region, const String&name,modal_t modal, const shared_ptr<Component>&component /*=shared_ptr<Component>()*/)
+		shared_ptr<Window>		Operator::InsertNewWindow(const NewWindowConfig&config, const shared_ptr<Component>&component /*=shared_ptr<Component>()*/)
 		{
-			return createWindow(region,name,modal,&Window::common_style,component);
+			return InsertNewWindow(config,&Window::common_style,component);
 		}
 		
-		shared_ptr<Window>		Operator::createWindow(const Rect<float>&region, const String&name, modal_t modal,Layout*layout,const shared_ptr<Component>&component)
+		shared_ptr<Window>		Operator::InsertNewWindow(const NewWindowConfig&config,Layout*layout,const shared_ptr<Component>&component)
 		{
-			shared_ptr<Window> result(new Window(modal == ModalWindow,layout));
-			if (window_stack.isNotEmpty())
-			{
-				if (!window_stack.last()->is_modal || modal)
-				{
-					window_stack.last()->onFocusLost();
-					window_stack.append(result);
-					Component::resetFocused();
-					result->onFocusGained();
-				}
-				else
-				{
-					index_t at = window_stack.size()-2;
-					while (at != InvalidIndex && window_stack[at]->is_modal)
-						at--;
-					window_stack.insert(at+1,result);
-				}
-			}
-			else
-			{
-				Component::resetFocused();
-				window_stack.append(result);
-				result->onFocusGained();
-			}
-			result->operator_link = shared_from_this();
-			
-			#ifdef DEEP_GUI
-				result->destination.x = region.x.center()-display->clientWidth()/2;
-				result->destination.y = region.y.center()-display->clientHeight()/2;
-				
-				for (index_t i = 0; i < window_stack.count(); i++)
-					window_stack[i]->destination.shell_radius = radiusOf(i);
-				//result->destination.shell_radius = radiusOf(window_stack.count()-1);
-				//result->destination.x *= result->destination.shell_radius;
-				//result->destination.y *= result->destination.shell_radius;
-				result->origin.x = 0;
-				result->origin.y = 0;
-				result->origin.shell_radius = 1000;
-				result->origin = result->destination;
-				result->current_center = result->origin;
-			#else
-				result->x = region.x.center()-display->clientWidth()/2;
-				result->y = region.y.center()-display->clientHeight()/2;
-			#endif
-			result->fwidth = region.width();
-			result->fheight = region.height();
-			result->iwidth = (unsigned)round(result->fwidth);
-			result->iheight = (unsigned)round(result->fheight);
-			result->setComponent(component);
-			result->title = name;
-			Rect<float> reg(0,0,result->iwidth,result->iheight);
-			if (layout)
-				layout->updateCells(reg,result->cell_layout);
-			else
-				result->cell_layout.border = result->cell_layout.client = reg;
+			shared_ptr<Window> result(Window::CreateNew(config,layout,component));
+			InsertWindow(result);
 			return result;
 		}
 		
