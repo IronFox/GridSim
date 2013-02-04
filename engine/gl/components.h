@@ -425,36 +425,35 @@ namespace Engine
 		class Button:public Component
 		{
 		protected:
-				bool					down, pressed;
+			bool						down, pressed;
+			String						caption;		//!< Button caption
 		public:
-				String					caption;		//!< Button caption
-		static	Layout					global_layout;	//!< Global default button layout
-				FunctionalEvent			on_execute;		//!< Event that is fired if the button is pressed
+			static	Layout				global_layout;	//!< Global default button layout
+			FunctionalEvent				on_execute;		//!< Event that is fired if the button is pressed
 
-										Button():Component("Button"),down(false),pressed(false),caption("Button")
+			/**/						Button():Component("Button"),down(false),pressed(false),caption("Button")
 										{
 											layout = global_layout.reference();
 											width = minWidth(false);
 											height = minHeight(false);
 										}
-										Button(const String&caption_):Component("Button"),down(false),pressed(false),caption(caption_)
+			/**/						Button(const String&caption_):Component("Button"),down(false),pressed(false),caption(caption_)
 										{
 											layout = global_layout.reference();
 											width = minWidth(false);
 											height = minHeight(false);
 										}
-		virtual	void					onColorPaint();
-		virtual	void					onNormalPaint();
-		virtual	float					clientMinWidth()	const;
-		virtual	float					clientMinHeight()	const;
-		virtual	eEventResult			onMouseDrag(float x, float y);
-		//virtual	eEventResult			onMouseHover(float x, float y, TExtEventResult&);
-		virtual	eEventResult			onMouseDown(float x, float y, TExtEventResult&);
-		virtual	eEventResult			onMouseUp(float x, float y);
-		virtual	eEventResult			onKeyDown(Key::Name key);
-		virtual	eEventResult			onKeyUp(Key::Name key);
+			virtual	void				onColorPaint()	override;
+			virtual	void				onNormalPaint()	override;
+			virtual	float				clientMinWidth()	const	override;
+			virtual	float				clientMinHeight()	const	override;
+			virtual	eEventResult		onMouseDrag(float x, float y)	override;
+			virtual	eEventResult		onMouseDown(float x, float y, TExtEventResult&)	override;
+			virtual	eEventResult		onMouseUp(float x, float y)	override;
+			virtual	eEventResult		onKeyDown(Key::Name key)	override;
+			virtual	eEventResult		onKeyUp(Key::Name key)	override;
 		
-				void					setCaption(const String&caption_)	//!< Updates the caption of the local string and automatically adjusts the local button width to match the minimum required size
+			void						setCaption(const String&caption_)	//!< Updates the caption of the local string and automatically adjusts the local button width to match the minimum required size
 										{
 											caption = caption_;
 											width = minWidth(false);
@@ -462,7 +461,7 @@ namespace Engine
 											if (wnd)
 												wnd->apply(RequestingReshape);
 										}
-		virtual	void					onExecute()
+			virtual	void				onExecute()
 										{
 											on_execute();
 										}
