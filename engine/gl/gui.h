@@ -19,7 +19,7 @@
 
 
 //#define DEEP_GUI
-
+#undef CreateWindow
 
 
 namespace Engine
@@ -500,29 +500,49 @@ namespace Engine
 		public:
 			virtual									~Operator()	{ }
 		
-			static	shared_ptr<Operator>			create(Display<OpenGL>&display, const Mouse&mouse, InputMap&input, mode_t mode=Cylindrical);
+			static shared_ptr<Operator>				create(Display<OpenGL>&display, const Mouse&mouse, InputMap&input, mode_t mode=Cylindrical);
+			inline static shared_ptr<Operator>		Create(Display<OpenGL>&display, const Mouse&mouse, InputMap&input, mode_t mode=Cylindrical)	{return create(display,mouse,input,mode);}
 			Display<OpenGL>&						getDisplay()	{return *display;}
+			inline Display<OpenGL>&					GetDisplay()	{return *display;}
 			void									render();					//!< Animates and renders all windows. Also triggers certain mouse movement related component events
+			inline void								Render()	{render();}
 			bool									ownsMouseDown()	const	{return owns_mouse_down;}
+			inline bool								OwnsMouseDown()	const	{return owns_mouse_down;}
 			void									updateDisplaySize();	//!< Updates local texture sizes based on display size
+			inline void								UpdateDisplaySize()	{updateDisplaySize();}
 			bool									showingModalWindows()	const;
+			inline bool								ShowingModalWindows()	const	{return showingModalWindows();}
 			shared_ptr<Window>						getTopWindow() const;	//!< Retrieves the top-most window
+			inline shared_ptr<Window>				GetTopWindow() const	{return getTopWindow();}
 			void									insertWindow(const shared_ptr<Window>&window);	//!< Appends a window to the local window stack as new top level window. If the window is already inserted then it will simply be moved to the top position @param window Window to append @param managed Set true to also add the window to the local container, automatically deleting it if no longer necessary
+			inline void								InsertWindow(const shared_ptr<Window>&window)	{insertWindow(window);}
 			bool									removeWindow(const shared_ptr<Window>&window);				//!< Removes a window from the window stack (does not delete the window)
+			inline bool								RemoveWindow(const shared_ptr<Window>&window)	{return removeWindow(window);}
 			bool									windowIsVisible(const shared_ptr<Window>&window)	const;
+			inline bool								WindowIsVisible(const shared_ptr<Window>&window)	const	{return windowIsVisible(window);}
 			shared_ptr<Window>						createWindow(const Rect<float>&region, const String&name,modal_t modal, const shared_ptr<Component>&component=shared_ptr<Component>());		//!< Creates a new window @param region Window region in pixels. Allowed region is (0,0) [lower left corner] to (display.width(),display.height()) [upper right corner] @param window name (and title)  @param component Component to put on the new window @return new window
+			inline shared_ptr<Window>				CreateWindow(const Rect<float>&region, const String&name,modal_t modal, const shared_ptr<Component>&component=shared_ptr<Component>())	{return createWindow(region,name,modal,component);}
 			shared_ptr<Window>						createWindow(const Rect<float>&region, const String&name,modal_t modal, Layout*layout,const shared_ptr<Component>&component);//!< Creates a new window @param region Window region in pixels. Allowed region is (0,0) [lower left corner] to (display.width(),display.height()) [upper right corner] @param window name (and title)  @param layout Layout to apply to the new window @param component Component to put on the new window @return new window
+			inline shared_ptr<Window>				CreateWindow(const Rect<float>&region, const String&name,modal_t modal, Layout*layout,const shared_ptr<Component>&component)	{return createWindow(region,name,modal,layout,component);}
 			bool									mouseDown();			//!< Signals that the main mouse button has been pressed.
+			inline bool								SignalMouseDown()	{mouseDown();}
 			void									mouseUp();				//!< Signals that the main mouse button has been released
+			inline void								SignalMouseUp()	{mouseUp();}
 			bool									mouseWheel(short delta);	//!< Signals that the mouse wheel has been used
+			inline bool								SignalMouseWheel(short delta)	{mouseWheel(delta);}
 
 			void									showMenu(const shared_ptr<Window>&menu_window);
+			inline void								ShowMenu(const shared_ptr<Window>&menuWindow)	{showMenu(menuWindow);}
 			void									hideMenus();
+			inline void								HideMenus()	{hideMenus();}
 
 
 			void									focus(const Rect<float>&region);	//!< Focuses on an area by applying the current viewport and translation to the specified region and further limiting the viewport. The existing translation will be modified by dx and dy
+			inline void								Focus(const Rect<float>&region)	{focus(region);}
 			void									unfocus();	//!< Reverts the focus process by jumping back to the next upper focus
-			void									resetFocus()	{focus_stack.reset();}
+			inline void								Unfocus()	{unfocus();}
+			inline void								resetFocus()	{focus_stack.reset();}
+			inline void								ResetFocus()	{focus_stack.reset();}
 		};
 
 		void							loadBump(const String&filename, OpenGL::Texture&target);	//!< Loads a bump texture

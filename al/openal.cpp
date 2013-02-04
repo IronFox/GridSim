@@ -336,16 +336,16 @@ namespace OpenAL
 				(WV_SUCCEEDED(wave_loader.GetWaveALBufferFormat(WaveID, &alGetEnumValue, (unsigned long*)&eBufferFormat))))
 			{
 				alGetError();
-				alGenBuffers(1,&result.buffer_handle);
+				alGenBuffers(1,&result.bufferHandle);
 				alGetError();
-				alBufferData(result.buffer_handle, eBufferFormat, pData, iDataSize, iFrequency);
+				alBufferData(result.bufferHandle, eBufferFormat, pData, iDataSize, iFrequency);
 				if (alGetError() != AL_NO_ERROR)
 				{
 					if (error_out)
 						(*error_out) = "OpenAL internal error";
 					
-					alDeleteBuffers(1,&result.buffer_handle);
-					result.buffer_handle = 0;
+					alDeleteBuffers(1,&result.bufferHandle);
+					result.bufferHandle = 0;
 				}
 			}
 			wave_loader.DeleteWaveFile(WaveID);
@@ -371,10 +371,10 @@ namespace OpenAL
 	
 	void				discard(WaveBuffer&wbo)
 	{
-		if (!wbo.buffer_handle)
+		if (!wbo.bufferHandle)
 			return;
-		alDeleteBuffers(1,&wbo.buffer_handle);
-		wbo.buffer_handle = 0;
+		alDeleteBuffers(1,&wbo.bufferHandle);
+		wbo.bufferHandle = 0;
 	}
 	
 	

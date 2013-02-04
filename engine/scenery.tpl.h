@@ -468,7 +468,7 @@ namespace Engine
 
 
 
-	template <class GL, class Def> void Material<GL,Def>::rebuild(StringList*warn_out, bool enforce_rebuild)
+	template <class GL, class Def> void Material<GL,Def>::Rebuild(StringList*warn_out, bool enforce_rebuild)
 	{
 		if (!enforce_rebuild && !requires_rebuild)
 			return;
@@ -649,7 +649,7 @@ namespace Engine
 		{
 			groups.erase(group);
 			if (rebuild_)
-				rebuild(&warn_out,true);
+				Rebuild(&warn_out,true);
 			else
 				requires_rebuild = true;
 		}
@@ -682,7 +682,7 @@ namespace Engine
 			if (!initialized)
 				init();
 		    if (rebuild_)
-		        rebuild(&warn_out,true);
+		        Rebuild(&warn_out,true);
 			else
 				requires_rebuild = true;
 			
@@ -697,7 +697,7 @@ namespace Engine
 			if (!initialized)
 				init();
 		    if (rebuild_)
-		        rebuild(&warn_out,true);
+		        Rebuild(&warn_out,true);
 			else
 				requires_rebuild = true;
 		}
@@ -719,7 +719,7 @@ namespace Engine
 				FATAL__("trying to load texture without renderer");
 		}
 		if (requires_rebuild)
-			rebuild(NULL);
+			Rebuild(NULL);
 	    if (!initialized)
 	        return;
 
@@ -881,7 +881,7 @@ namespace Engine
 
 
 
-	template <class GL, class Def> void Scenery<GL,Def>::rebuild()
+	template <class GL, class Def> void Scenery<GL,Def>::Rebuild()
 	{
 	    if (locked)
 	        return;
@@ -894,7 +894,7 @@ namespace Engine
 			
 	    SCENERY_LOG("rebuilding scenery");
 		foreach (all_materials,my_material)
-			(*my_material)->rebuild(&warnings);
+			(*my_material)->Rebuild(&warnings);
 	    SCENERY_LOG("done rebuilding scenery");
 	}
 
@@ -1150,7 +1150,7 @@ namespace Engine
 	        }
 	        else
 	            if (!locked)
-	                m->rebuild(&warnings);
+	                m->Rebuild(&warnings);
 		}
 	    SCENERY_LOG("structure removed");
 	}
@@ -1524,7 +1524,7 @@ namespace Engine
 			(*my_material)->render();
 
 	    renderer->unbindAll();
-		postRenderCleanup();
+		PostRenderCleanup();
 
 
 	}
@@ -1568,7 +1568,7 @@ namespace Engine
 		foreach (transparent_materials,my_material)
 			(*my_material)->render(true);
 
-		postRenderCleanup();
+		PostRenderCleanup();
 
 	}
 
@@ -1756,10 +1756,9 @@ namespace Engine
 	        source->reset();
 	        while (Object*section = source->each())
 	        {
-				TVec3<Float> lower,upper;
-				Vec::addVal(section->system->w.xyz,(typename Def::SystemType)section->radius,upper);
-				Vec::subVal(section->system->w.xyz,(typename Def::SystemType)section->radius,lower);
-	            if (Vec::oneLess(upper,volume.lower) || Vec::oneGreater(lower, volume.upper))
+				Box<Float> box;
+				box.setCenter(section->system->w.xyz,section->radius);
+				if (!volume.intersects(box))
 	                continue;
 
 				Vec::add(split,section->system->w.xyz);
@@ -1779,8 +1778,8 @@ namespace Engine
 			TVec3<Float>	new_split;
 			for (BYTE k = 0; k < 3; k++)
 			{
-				Float delta = (volume.upper.v[k]-volume.lower.v[k]);
-				split.v[k] = clamped(split.v[k],volume.lower.v[k]+delta/5,volume.upper.v[k]-delta/5);
+				Float delta = (volume.axis[k].max-volume.axis[k].min);
+				split.v[k] = clamped(split.v[k],volume.axis[k].min+delta/5,volume.axis[k].max-delta/5);
 				Float val = split.v[k];
 				
 				bool moved;
@@ -1806,14 +1805,14 @@ namespace Engine
 				}
 				
 		
-				new_split.v[k] = clamped(val,volume.lower.v[k],volume.upper.v[k]);
+				new_split.v[k] = clamped(val,volume.axis[k].min,volume.axis[k].max);
 				
-				if (new_split.v[k] < volume.lower.v[k]+delta/10 || new_split.v[k] > volume.upper.v[k]-delta/10)
+				if (new_split.v[k] < volume.axis[k].min+delta/10 || new_split.v[k] > volume.axis[k].max-delta/10)
 				{
-					if (new_split.v[k] < volume.lower.v[k]+delta/10)
-						new_split.v[k] = volume.lower.v[k];
+					if (new_split.v[k] < volume.axis[k].min+delta/10)
+						new_split.v[k] = volume.axis[k].min;
 					else
-						new_split.v[k] = volume.upper.v[k];
+						new_split.v[k] = volume.axis[k].max;
 					collapsed ++;
 				}
 				if (delta > greatest_range)
@@ -1903,7 +1902,7 @@ namespace Engine
 		{
 			SCENERY_BEGIN
 	        const count_t cnt = elements.count();
-	        if ((exclude && dominating == exclude) || Vec::oneLess(space.upper,volume.lower) || Vec::oneGreater(space.lower,volume.upper) || !cnt)
+			if ((exclude && dominating == exclude) || !volume.intersects(space) || !cnt)
 			{
 				SCENERY_END
 	            return 0;
@@ -1916,10 +1915,9 @@ namespace Engine
 	                Object*object = elements[i];
 					if (object->structure == exclude)
 						continue;
-					TVec3<Float> lower,upper;
-					Vec::addVal(object->system.w.xyz,(typename Def::SystemType)object->radius,upper);
-					Vec::subVal(object->system.w.xyz,(typename Def::SystemType)object->radius,lower);
-	                if (Vec::oneLess(space.upper,lower) ||Vec::oneGreater(space.lower,upper))
+					Box<Float> box;
+					box.setCenter(object->system->w.xyz,object->radius);
+					if (!volume.intersects(box))
 	                    continue;
 					buffer << object;
 	                c++;
@@ -2006,7 +2004,7 @@ namespace Engine
 		{
 			SCENERY_BEGIN
 	        for (index_t i = 0; i < other.elements; i++)
-	            elements.append(other.elements[i]);
+				elements.add(const_cast<Engine::ObjectEntity<Def> *>(other.elements[i]));	//this is not the clean way but i'm feeling rather busy right now
 	        dominating = other.dominating;
 	        if (level && elements.count())
 			{
@@ -2073,8 +2071,7 @@ namespace Engine
 
 			{
 				Object*object = source->first();
-				Vec::addVal(object->system->w.xyz,(typename Def::SystemType)object->radius,volume.upper);
-				Vec::subVal(object->system->w.xyz,(typename Def::SystemType)object->radius,volume.lower);
+				volume.setCenter(object->system->w.xyz,object->radius);
 			}
 	        dominating = source->first()->structure;
 	        source->reset();
@@ -2082,11 +2079,9 @@ namespace Engine
 			{
 				//elements.insert(object);
 				//_add(center,object->system+12);
-				TVec3<Float> lower,upper;
-				Vec::addVal(object->system->w.xyz,(typename Def::SystemType)object->radius,upper);
-				Vec::subVal(object->system->w.xyz,(typename Def::SystemType)object->radius,lower);
-				_oDetDimension(lower,volume);
-				_oDetDimension(upper,volume);
+				Box<Float> box;
+				box.setCenter(object->system->w.xyz,object->radius);
+				volume.include(box);
 				/*float absolute[3];
 				for (BYTE k = 0; k < 8; k++)
 				{
@@ -2159,7 +2154,7 @@ namespace Engine
 					DISCARD(child[k]);
 	        elements.flush();
 	        for (index_t i = 0; i < other.elements; i++)
-	            elements.append(other.elements[i]);
+	            elements.add(const_cast<Engine::ObjectEntity<Def> *>(other.elements[i]));
 	        dominating = other.dominating;
 	        if (level && elements)
 	            for (BYTE k = 0; k < 8; k++)
@@ -2199,7 +2194,7 @@ namespace Engine
 		}
 		
 	template <class Def>
-		const typename Def::FloatType*								SceneryTree<Def>::getSplitVector()
+		const TVec3<typename Def::FloatType>&						SceneryTree<Def>::getSplitVector()
 		{
 			return split;
 		}
@@ -2250,9 +2245,11 @@ namespace Engine
 			StructureEntity<Def>*rs = Scenery::embed(instance,detail_type);
 			if (rs)
 			{
-				objects.import(rs->object_entities);
+				for (index_t i = 0; i < rs->object_entities.count(); i++)
+					objects.add(rs->object_entities+i);
+				//objects.import(rs->object_entities);
 				if (!Scenery::locked)
-					remap(false);
+					remap();
 			}
 			
 			return rs;
@@ -2265,9 +2262,11 @@ namespace Engine
 			
 			if (rs)
 			{
-				objects.import(rs->object_entities);
+				for (index_t i = 0; i < rs->object_entities.count(); i++)
+					objects.add(rs->object_entities+i);
+				//objects.import(rs->object_entities);
 				if (!Scenery::locked)
-					remap(false);
+					remap();
 			}
 			return rs;
 		}
@@ -2279,9 +2278,11 @@ namespace Engine
 			StructureEntity<Def>*rs = Scenery::embed(instance,detail_type);
 			if (rs)
 			{
-				objects.import(rs->object_entities);
+				for (index_t i = 0; i < rs->object_entities.count(); i++)
+					objects.add(rs->object_entities+i);
+				//objects.import(rs->object_entities);
 				if (!Scenery::locked)
-					remap(false);
+					remap();
 			}
 			
 			return rs;
@@ -2294,9 +2295,11 @@ namespace Engine
 			
 			if (rs)
 			{
-				objects.import(rs->object_entities);
+				for (index_t i = 0; i < rs->object_entities.count(); i++)
+					objects.add(rs->object_entities+i);
+				//objects.import(rs->object_entities);
 				if (!Scenery::locked)
-					remap(false);
+					remap();
 			}
 			return rs;
 		}
@@ -2304,13 +2307,15 @@ namespace Engine
 	template <class GL, class Def>
 		StructureEntity<Def>*MappedScenery<GL,Def>::embed(CGS::Geometry<Def>&structure,unsigned detail_type)
 		{
-			StructureEntity<Def>*rs = Scenery::embed(structure,detail_type,thread_safe);
+			StructureEntity<Def>*rs = Scenery::embed(structure,detail_type);
 			
 			if (rs)
 			{
-				objects.import(rs->object_entities);
+				for (index_t i = 0; i < rs->object_entities.count(); i++)
+					objects.add(rs->object_entities+i);
+				//objects.import(rs->object_entities);
 				if (!Scenery::locked)
-					remap(false);
+					remap();
 			}
 			return rs;
 		}
@@ -2323,9 +2328,11 @@ namespace Engine
 			
 			if (rs)
 			{
-				objects.import(rs->object_entities);
+				for (index_t i = 0; i < rs->object_entities.count(); i++)
+					objects.add(rs->object_entities+i);
+				//objects.import(rs->object_entities);
 				if (!Scenery::locked)
-					remap(false);
+					remap();
 			}
 			return rs;
 		}
@@ -2337,12 +2344,11 @@ namespace Engine
 			StructureEntity<Def>*entity = Scenery::structures.lookup(structure.system_link);
 			if (entity)
 			{
-				entity->object_entities.reset();
-				while (ObjectEntity<Def>*obj = entity->object_entities.each())
-					objects.drop(obj);
-				Scenery::remove(structure,false);
+				for (index_t i = 0; i < entity->object_entities.count(); i++)
+					objects.drop(&entity->object_entities[i]);
+				Scenery::remove(structure);
 				if (!Scenery::locked)
-					remap(false);
+					remap();
 			}
 		}
 		
@@ -2352,78 +2358,75 @@ namespace Engine
 			StructureEntity<Def>*entity = Scenery::structures.lookup(structure->system_link);
 			if (!entity)
 				return;
-			entity->object_entities.reset();
-			while (ObjectEntity<Def>*obj = entity->object_entities.each())
-				objects.drop(obj);
-			Scenery::remove(*structure,false);
+			for (index_t i = 0; i < entity->object_entities.count(); i++)
+				objects.drop(&entity->object_entities[i]);
+			Scenery::remove(*structure);
 			if (!Scenery::locked)
-				remap(false);
+				remap();
 		}
 		
 	template <class GL, class Def>
 		void			MappedScenery<GL,Def>::remove(CGS::AnimatableInstance<Def>&instance)
 		{
-			StructureEntity<Def>*entity = Scenery::structures.lookup(instance.system);
+			StructureEntity<Def>*entity = Scenery::structures.lookup(&instance.matrix);
 			if (entity)
 			{
-				entity->object_entities.reset();
-				while (ObjectEntity<Def>*obj = entity->object_entities.each())
-					objects.drop(obj);
-				Scenery::remove(instance,false);
+				for (index_t i = 0; i < entity->object_entities.count(); i++)
+					objects.drop(&entity->object_entities[i]);
+
+				Scenery::remove(instance);
 				if (!Scenery::locked)
-					remap(false);
+					remap();
 			}
 		}
 		
 	template <class GL, class Def>
 		void			MappedScenery<GL,Def>::remove(CGS::AnimatableInstance<Def>*instance)
 		{
-			StructureEntity<Def>*entity = Scenery::structures.lookup(instance->system);
+			StructureEntity<Def>*entity = Scenery::structures.lookup(&instance->matrix);
 			if (!entity)
 				return;
-			entity->object_entities.reset();
-			while (ObjectEntity<Def>*obj = entity->object_entities.each())
-				objects.drop(obj);
-			Scenery::remove(*instance,false);
+			for (index_t i = 0; i < entity->object_entities.count(); i++)
+				objects.drop(&entity->object_entities[i]);
+			Scenery::remove(*instance);
 			if (!Scenery::locked)
-				remap(false);
+				remap();
 		}
 		
 	template <class GL, class Def>
 		void			MappedScenery<GL,Def>::remove(CGS::StaticInstance<Def>&instance)
 		{
-			StructureEntity<Def>*entity = Scenery::structures.lookup(instance.system);
+			StructureEntity<Def>*entity = Scenery::structures.lookup(&instance.matrix);
 			if (entity)
 			{
-				entity->object_entities.reset();
-				while (ObjectEntity<Def>*obj = entity->object_entities.each())
-					objects.drop(obj);
-				Scenery::remove(instance,false);
+				for (index_t i = 0; i < entity->object_entities.count(); i++)
+					objects.drop(&entity->object_entities[i]);
+
+				Scenery::remove(instance);
 				if (!Scenery::locked)
-					remap(false);
+					remap();
 			}
 		}
 		
 	template <class GL, class Def>
 		void			MappedScenery<GL,Def>::remove(CGS::StaticInstance<Def>*instance)
 		{
-			StructureEntity<Def>*entity = Scenery::structures.lookup(instance->system);
+			StructureEntity<Def>*entity = Scenery::structures.lookup(&instance->matrix);
 			if (!entity)
 				return;
-			entity->object_entities.reset();
-			while (ObjectEntity<Def>*obj = entity->object_entities.each())
-				objects.drop(obj);
-			Scenery::remove(*instance,false);
+			for (index_t i = 0; i < entity->object_entities.count(); i++)
+				objects.drop(&entity->object_entities[i]);
+			Scenery::remove(*instance);
 			if (!Scenery::locked)
-				remap(false);
+				remap();
 		}
 		
 	template <class GL, class Def>
-		void			MappedScenery<GL,Def>::rebuild()
+		void			MappedScenery<GL,Def>::Rebuild()
 		{
 			if (Scenery::locked)
 				return;
-			Scenery::rebuild();
+			Scenery::Rebuild();
 			remap();
 		}
 		
@@ -2525,7 +2528,7 @@ namespace Engine
 		}
 		
 	template <class GL, class Def>
-		void MappedScenery<GL,Def>::postRenderCleanup()
+		void MappedScenery<GL,Def>::PostRenderCleanup()
 		{
 			for (index_t i = 0; i < structure_buffer.fillLevel(); i++)
 				structure_buffer[i]->visible = false;
@@ -2533,7 +2536,7 @@ namespace Engine
 				object_buffer[i]->visible = false;
 			structure_buffer.reset();
 			object_buffer.reset();
-			Super::postRenderCleanup();
+			Super::PostRenderCleanup();
 		}
 
 	template <class GL, class Def> template <class C0>

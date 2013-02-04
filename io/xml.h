@@ -14,11 +14,6 @@
 
 E:\include\io\xml.h
 
-This file is part of Delta-Works
-Copyright (C) 2006-2008 Stefan Elsen, University of Trier, Germany.
-http://www.delta-works.org/forge/
-http://informatik.uni-trier.de/
-
 ******************************************************************/
 
 namespace XML
@@ -38,40 +33,48 @@ namespace XML
 
 	struct  TAttribute
 	{
-	        String					name,
-									value;
+		String					name,
+								value;
 	};
 
 	class Node
 	{
 	public:
-	        String					name,
-									inner_content,
-									following_content;
+	    String				name,
+							inner_content,
+							following_content;
 	                    
-	        //Node          			*parent;
-			Buffer<Node,0,Swap>		children;
+	    //Node          			*parent;
+		Buffer<Node,0,Swap>	children;
 			
 			
-			StringMappedList<TAttribute>
-									attributes;
+		StringMappedList<TAttribute>
+							attributes;
 	                            
-									//Node()/*:parent(NULL)*/    {}
-									//Node(const Node&other);
+								//Node()/*:parent(NULL)*/    {}
+								//Node(const Node&other);
 								
-			Node&					newChild(const String&name);
-			Node&					addChild(const String&name)			{return newChild(name);}
-			Node&					addNewChild(const String&name)		{return newChild(name);}
-			TAttribute*				set(const String&attrib_name, const String&parameter_value);
-			void					unset(const String&attrib_name);
-	        Node*          			find(const String&path);				//!< Returns the first matching node (if any) @param path Path string in the form 'node/subnode/.../subnodeN' @return Pointer to the matching node or NULL if no such could be found
-	        const Node*				find(const String&path)		const;	//!< @overload
-			Node&					create(const String&path, const String&inner_content="");
-			bool					query(const String&attrib_name, String&val_out)	const;	//!< Queries the string content of the specified attribute of the local node. The method does not crash if this is NULL. \param attrib_name Name of the requested attribute \param val_out String reference to store the respective attribute's value in \return true if the local object is not NULL and the requested attribute exists, false otherwise.
-			bool					query(const char*attrib_name, String&val_out)		const;	//!< @overload
-			//String					path()	const;	//!< Determines the full path of this node
-			void					swap(Node&other);
-			//bool					query(const String&attrib_name, String&val_out)	const;	//!< @overload
+		Node&				newChild(const String&name);
+		inline Node&		NewChild(const String&name)			{return newChild(name);}
+		Node&				addChild(const String&name)			{return newChild(name);}
+		inline Node&		AddChild(const String&name)			{return newChild(name);}
+		Node&				addNewChild(const String&name)		{return newChild(name);}
+		inline Node&		AddNewChild(const String&name)		{return newChild(name);}
+		TAttribute*			set(const String&attrib_name, const String&attrib_value);
+		inline TAttribute*	Set(const String&attribName, const String&attribValue)	{return set(attribName,attribValue);}
+		void				unset(const String&attrib_name);
+		inline void			Unset(const String&attribName)	{unset(attribName);}
+	    Node*          		find(const String&path);				//!< Returns the first matching node (if any) @param path Path string in the form 'node/subnode/.../subnodeN' @return Pointer to the matching node or NULL if no such could be found
+		inline Node*		Find(const String&path)	{return find(path);}
+	    const Node*			find(const String&path)		const;	//!< @copydoc find()
+		inline const Node*	Find(const String&path)		const	{return find(path);}
+		Node&				create(const String&path, const String&inner_content="");
+		inline Node&		Create(const String&path, const String&innerContent="")	{return create(path,innerContent);}
+		bool				query(const String&attrib_name, String&val_out)	const;	//!< Queries the string content of the specified attribute of the local node. The method does not crash if this is NULL. \param attrib_name Name of the requested attribute \param val_out String reference to store the respective attribute's value in \return true if the local object is not NULL and the requested attribute exists, false otherwise.
+		inline bool			Query(const String&attribName, String&valOut)	const	{return query(attribName,valOut);}
+		bool				query(const char*attrib_name, String&val_out)	const;	//!< @copydoc query()
+		inline bool			Query(const char*attribName, String&valOut)		const	{return query(attribName,valOut);}
+		void				swap(Node&other);
 	};
 
 	class Container
@@ -79,49 +82,56 @@ namespace XML
 	private:
 
 	public:
-	        Node           		root_node;
-			String				encoding;							//!< Character encoding
+        Node           		root_node;
+		String				encoding;							//!< Character encoding
 
-								Container()						{root_node.name = "xml"; encoding = "UTF-8"; }
-								Container(const String&source)	{root_node.name = "xml"; encoding = "UTF-8"; loadFromFile(source);}
-			void				clear();													//!< Clears all local data
-	        Node*          		find(const String&path);				//!< Returns the first matching node (if any) @param path Path string in the form 'node/subnode/.../subnodeN' @return Pointer to the matching node or NULL if no such could be found
-	        const Node*			find(const String&path)		const;	//!< @overload
-			Node&				create(const String&path, const String&inner_content="");
+		/**/				Container()						{root_node.name = "xml"; encoding = "UTF-8"; }
+		/**/				Container(const String&source)	{root_node.name = "xml"; encoding = "UTF-8"; loadFromFile(source);}
+		void				clear();													//!< Clears all local data
+		inline void			Clear()	{clear();}
+		Node*				find(const String&path);				//!< Returns the first matching node (if any) @param path Path string in the form 'node/subnode/.../subnodeN' @return Pointer to the matching node or NULL if no such could be found
+		inline Node*		Find(const String&path)	{return find(path);}
+		const Node*			find(const String&path)		const;	//!< @copydoc find()
+		inline const Node*	Find(const String&path)		const	{return find(path);}
+		Node&				create(const String&path, const String&inner_content="");
+		inline Node&		Create(const String&path, const String&innerContent="")	{return create(path,innerContent);}
 
-			/**
-				@brief Attempts to load the local XML configuration from the specified char field
+		/**
+		@brief Attempts to load the local XML configuration from the specified char field
 				
-				The specified char field must include the terminating 0 and be mutable. The array length will not be altered but dividing zeroes will be inserted as necessary
-				
-				@param field Char array as specified
-			*/
-			void				loadFromCharArray(ArrayData<char>&field);
-			
-			/**
-				@brief Attempts to load the local XML configuration from the specified file
-				@param filename Name of the file to load
-				@param content_out Optional string to store unprocesses file content in. Pass valid string pointer or NULL if no content exporting should be performed
-			*/
-	        void                loadFromFile(const String&filename, String*content_out=NULL);
-			/**
-				@brief Attempts to load the local XML configuration from the specified content string
-				@param content String to parse
-			*/
-			void				loadFromString(const String&content);
-	        void                saveToFile(const String&filename, export_style_t style=Nice);
-			void				saveToStringBuffer(StringBuffer&target, export_style_t style=Nice);
+		The specified char field must include the terminating 0 and be mutable. The array length will not be altered but dividing zeroes will be inserted as necessary
+		@param field Char array as specified
+		*/
+		void				loadFromCharArray(ArrayData<char>&field);
+		inline void			LoadFromCharArray(ArrayData<char>&field)	{loadFromCharArray(field);}
+		/**
+		@brief Attempts to load the local XML configuration from the specified file
+		@param filename Name of the file to load
+		@param content_out Optional string to store unprocesses file content in. Pass valid string pointer or NULL if no content exporting should be performed
+		*/
+        void                loadFromFile(const String&filename, String*content_out=NULL);
+		inline void			LoadFromFile(const String&filename, String*contentOut=NULL)	{return loadFromFile(filename,contentOut);}
+		/**
+		@brief Attempts to load the local XML configuration from the specified content string
+		@param content String to parse
+		*/
+		void				loadFromString(const String&content);
+		inline void			LoadFromString(const String&content)	{loadFromString(content);}
+		void                saveToFile(const String&filename, export_style_t style=Nice);
+		inline void			SaveToFile(const String&filename, export_style_t style=Nice)	{saveToFile(filename,style);}
+		void				saveToStringBuffer(StringBuffer&target, export_style_t style=Nice);
+		inline void			SaveToStringBuffer(StringBuffer&target, export_style_t style=Nice)	{saveToStringBuffer(target,style);}
 	};
 	
 	
 	
 	struct TScannerNode
 	{
-			StringMappedList<TAttribute>
-								attributes;
-			String				content;
-			TScannerNode		*parent;
-			ScannerRule			*rule;
+		StringMappedList<TAttribute>
+							attributes;
+		String				content;
+		TScannerNode		*parent;
+		ScannerRule			*rule;
 	};
 	
 	

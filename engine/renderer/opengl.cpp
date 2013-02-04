@@ -8,7 +8,7 @@ namespace Engine
 		#ifndef PFD_SUPPORT_COMPOSITION
 			#define PFD_SUPPORT_COMPOSITION	0x00008000
 		#endif
-	/*static*/		bool GL::Shader::local_shader_is_bound = false;
+	/*static*/		bool GL::Shader::localShaderIsBound = false;
 
 
 		static bool myPickPixelFormat(HDC context, int*attribs, GLint&pixel_format_out, BYTE&sample_out)
@@ -67,10 +67,10 @@ namespace Engine
 	namespace GL
 	{
 	
-		GLShader::Template::VariableMap		Shader::global_map;
-		GLShader::Template::UserConfig		Shader::global_user_config;
-		GLShader::Template::Configuration	Shader::global_config(GLShader::Template::global_render_config,global_user_config,false);
-		Texture::Reference					Shader::global_sky_texture;
+		GLShader::Template::VariableMap		Shader::globalMap;
+		GLShader::Template::UserConfig		Shader::globalUserConfig;
+		GLShader::Template::Configuration	Shader::globalConfig(GLShader::Template::global_render_config,globalUserConfig,false);
+		Texture::Reference					Shader::globalSkyTexture;
 
 		
 		bool	Shader::install()	const
@@ -82,21 +82,21 @@ namespace Engine
 			}
 			
 			GLShader::Template::global_render_config.redetect();
-			local_shader_is_bound = handle->buildShader()->permissiveInstall();
-			return local_shader_is_bound;
+			localShaderIsBound = handle->buildShader()->permissiveInstall();
+			return localShaderIsBound;
 		}
 
-		/*static*/ bool Shader::install(const GLShader::Instance*instance)
+		/*static*/ bool Shader::_Install(const GLShader::Instance*instance)
 		{
-			local_shader_is_bound = instance->permissiveInstall();
-			return local_shader_is_bound;
+			localShaderIsBound = instance->permissiveInstall();
+			return localShaderIsBound;
 		}
 		
 		/*static*/ void	Shader::uninstall()
 		{
-			if (local_shader_is_bound)	//we didn't install it, we don't uninstall it
+			if (localShaderIsBound)	//we didn't install it, we don't uninstall it
 				GLShader::Instance::permissiveUninstall();
-			local_shader_is_bound= false;
+			localShaderIsBound= false;
 		}
 		
 		String			Shader::report()	const
@@ -114,8 +114,8 @@ namespace Engine
 		
 			if (use_global_status)
 			{
-				handle->setMap(&global_map);
-				handle->setConfig(&global_config);
+				handle->setMap(&globalMap);
+				handle->setConfig(&globalConfig);
 			}
 			else
 			{
@@ -193,7 +193,7 @@ namespace Engine
 					break;
 				}
 			}
-			if (global_sky_texture.isNotEmpty())
+			if (globalSkyTexture.isNotEmpty())
 			{
 				samplers << "uniform samplerCube sky;\n";
 				code_out.sky_lighting = true;
@@ -1805,7 +1805,7 @@ namespace Engine
 			Shader::Instance*instance = shader.construct();
 			ASSERT1__(shader.isEmpty() || instance!=NULL,shader.report());
 			genericBindMaterial(config,list,instance != NULL);
-			Shader::install(instance);
+			Shader::_Install(instance);
 		GL_END
 	}
 
@@ -1816,7 +1816,7 @@ namespace Engine
 			ASSERT1__(shader.isEmpty() || instance!=NULL,shader.report());
 
 			genericBindMaterial(config,list,instance != NULL);
-			Shader::install(instance);
+			Shader::_Install(instance);
 		GL_END
 	}
 
@@ -1824,7 +1824,7 @@ namespace Engine
 	{
 		GL_BEGIN
 			genericBindMaterial(config,list,shader->isLoaded());
-			Shader::install(shader);
+			Shader::_Install(shader);
 			
 		GL_END
 	}
@@ -1832,7 +1832,7 @@ namespace Engine
 	{
 		GL_BEGIN
 			genericBindMaterial(config,list,shader->isLoaded());
-			Shader::install(shader);
+			Shader::_Install(shader);
 		GL_END
 	}
 

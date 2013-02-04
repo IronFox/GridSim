@@ -54,41 +54,35 @@ namespace Engine
 			class		Container:public DW::Object	//! Base OpenGL object providing one handle
 			{
 			public:
-					typedef T	handle_t;
+				typedef T		handle_t;
 			protected:
 
-					handle_t	handle;				//!< Handle to the referenced data
+				handle_t		handle;				//!< Handle to the referenced data
 
-								Container(handle_t h):handle(h) {}
+				/**/			Container(handle_t h):handle(h) {}
 			private:
-					Container(const Container<T>&other):handle(0)
-					{
-						FATAL__("Call to illegal operation");
-					}	//private. never use
-					Container<T>&	operator=(const Container<T>&)	//!< private. derivative classes should never copy on assignment
-								{
-									FATAL__("Call to illegal operation");
-									return *this;
-								};
-					friend class Engine::OpenGL;
+				/**/			Container(const Container<T>&other):handle(0)	{FATAL__("Call to illegal operation");}	//private. never use
+				Container<T>&	operator=(const Container<T>&)	/** private. derivative classes should never copy on assignment*/ { FATAL__("Call to illegal operation");return *this;};
+				friend class	Engine::OpenGL;
 			public:
-								Container():handle(0) {}
-			virtual				~Container()				{}
-			virtual	void		clear()=0;// 					{handle=0;}		//!< Erases the local handle and sets it to 0 
-			virtual	void		flush()						{handle=0;}		//!< Flushes (unsets but does not erase) the local handle and sets it to 0
-			
-					void		adoptData(Container<T>&other)
+				/**/			Container():handle(0) {}
+				virtual			~Container()				{}
+				virtual	void	clear()=0;// 					{handle=0;}		//!< Erases the local handle and sets it to 0 
+				inline void		Clear()	{clear();}
+				virtual	void	flush()						{handle=0;}		//!< Flushes (unsets but does not erase) the local handle and sets it to 0
+				inline void		Flush()	{flush();}
+				void			adoptData(Container<T>&other)
 								{
 									clear();
 									handle = other.handle;
 									other.handle = 0;	//don't call flush() here, inheriting object may call this method before adopting its other content. flush() would drop that content
 								}
-					void		swap(Container<T>&other)
+				void			swap(Container<T>&other)
 								{
 									swp(handle,other.handle);
 								}
 
-			inline	int			compareTo(const Container<T>&other) const
+				inline int		compareTo(const Container<T>&other) const
 								{
 									if (handle > other.handle)
 										return 1;
@@ -96,68 +90,67 @@ namespace Engine
 										return -1;
 									return 0;
 								}
-
-			inline	bool		operator==(const Container<T>&other) const
+				inline int		CompareTo(const Container<T>&other) const {return compareTo(other);}
+				inline bool		operator==(const Container<T>&other) const
 								{
 									return handle == other.handle;
 								}
-			inline	bool		operator!=(const Container<T>&other) const
+				inline bool		operator!=(const Container<T>&other) const
 								{
 									return handle != other.handle;
 								}
-			inline	bool		operator<(const Container<T>&other) const
+				inline bool		operator<(const Container<T>&other) const
 								{
 									return handle < other.handle;
 								}
-			inline	bool		operator>(const Container<T>&other) const
+				inline bool		operator>(const Container<T>&other) const
 								{
 									return handle > other.handle;
 								}
-
-
-			inline	handle_t	getHandle() const
-								{
-									return handle;
-								}
-			inline	bool		isEmpty()	const	//! Determine whether or not the local object is empty. NULL-pointer sensitive @return true if the local object is NULL or the associated handle 0
-								{
-									return !this || !handle;
-								}
-			inline	bool		isNotEmpty()	const	//! Determine whether or not the local object is empty. NULL-pointer sensitive @return true if the local object is NULL or the associated handle 0
-								{
-									return this!=NULL && handle!=0;
-								}
+				inline handle_t	getHandle() const	{return handle;}
+				inline handle_t	GetHandle() const	{return handle;}
+				/** @brief Determine whether or not the local object is empty. NULL-pointer sensitive @return true if the local object is NULL or the associated handle 0*/
+				inline bool		isEmpty()	const	{return !this || !handle;}
+				inline bool		IsEmpty()	const	{return !this || !handle;}
+				/** Determine whether or not the local object is empty. NULL-pointer sensitive @return true if the local object is NULL or the associated handle 0*/
+				inline bool		isNotEmpty()	const	{return this!=NULL && handle!=0;}
+				inline bool		IsNotEmpty()	const	{return this!=NULL && handle!=0;}
 								
-			inline	void		overrideSetHandle(handle_t h, bool do_clear=true)	//!< Override method (use only to override the native OpenGL texture constructors). Sets the local handle. The method is kept explicit so that users are aware of this being rather unusual and potentially having undesired side-effects
+				inline void		overrideSetHandle(handle_t h, bool do_clear=true)	//! Override method (use only to override the native OpenGL texture constructors). Sets the local handle. The method is kept explicit so that users are aware of this being rather unusual and potentially having undesired side-effects
 								{
 									if (do_clear)
 										clear();
 									handle = h;
 								}
+				inline void		OverrideSetHandle(handle_t h, bool doClear=true)	{overrideSetHandle(h,doClear);}
 			};
 
 		class	Query:public Container<GLuint>	//! Query type. The Container<GLuint> handle is used for the query handle
 		{
 		protected:
-			GLuint									geometry_handle;
+			GLuint						geometry_handle;
 
 			friend class OpenGL;
 
-			bool									createQuery();
+			bool						createQuery();
 													
 		public:
-			/**/									Query():geometry_handle(0)	{}
-			virtual									~Query()	{if (!application_shutting_down) clear();}
-			virtual	void							clear()	override;
-			virtual	void							flush()	override;
-			void									adoptData(Query&other);
-			void									swap(Query&other);
+			/**/						Query():geometry_handle(0)	{}
+			virtual						~Query()	{if (!application_shutting_down) clear();}
+			virtual	void				clear()	override;
+			virtual	void				flush()	override;
+			void						adoptData(Query&other);
+			void						swap(Query&other);
 				
-			bool									create();
-			bool									createPoint(const float point[3]);
-			bool									createBox(const float lower[3],const float upper[3]);
+			bool						create();
+			inline bool					Create()	{return create();}
+			bool						createPoint(const float point[3]);
+			inline bool					CreatePoint(const float point[3])	{return createPoint(point);}
+			bool						createBox(const float lower[3],const float upper[3]);
+			inline bool					CreateBox(const float lower[3],const float upper[3])	{return createBox(lower,upper);}
 				
-			bool									isValid()	const;	//!< Checks if the local query object is valid. A valid query object contains both a valid or 0 handle and a valid or 0 geometry handle
+			bool						isValid()	const;	//!< Checks if the local query object is valid. A valid query object contains both a valid or 0 handle and a valid or 0 geometry handle
+			inline bool					IsValid()	const	{return isValid();}
 		};
 
 		class Texture;
@@ -173,82 +166,64 @@ namespace Engine
 		template <typename Object, typename Inherit>
 			class Reference:public Inherit		//! Generic reference type. Can be applied to most GL object types
 			{
-			protected:
-					typename Object::handle_t			handle;				//!< Handle as retrieved from the target object. May be 0
-					const Object						*target_object;		//!< Target object pointer. May be NULL
-
-					friend class OpenGL;
-
 			public:
-														Reference(const Object*object):Inherit(*object),handle(object->getHandle()),target_object(object)
-														{}
-														Reference(const Object&object):Inherit(object),handle(object.getHandle()),target_object(&object)
-														{}
-														Reference():handle(0),target_object(NULL)
-														{}
+				typedef Reference<Object,Inherit>	ThisType;
+				typedef typename Object::handle_t	handle_t;
+			protected:
+				handle_t				handle;				//!< Handle as retrieved from the target object. May be 0
+				const Object			*target_object;		//!< Target object pointer. May be NULL
 
-					Reference<Object,Inherit>&			operator=(const Object&object)
-														{
-															target(&object);
-															return *this;
-														}
+				friend class OpenGL;
+			public:
+				/**/					Reference(const Object*object):Inherit(*object),handle(object->getHandle()),target_object(object){}
+				/**/					Reference(const Object&object):Inherit(object),handle(object.getHandle()),target_object(&object){}
+				/**/					Reference():handle(0),target_object(NULL){}
 
-					void								adoptData(Reference<Object,Inherit>&that)
-														{
-															this->Inherit::adoptData(that);
-															this->handle = that.handle;
-															this->target_object = that.target_object;
-															that.handle = 0;
-															that.target_object = NULL;
-														}
-					void								swap(Reference<Object,Inherit>&that)
-														{
-															this->Inherit::swap(that);
-															swp(this->handle,that.handle);
-															swp(this->target_object,that.target_object);
-														}
+				ThisType&				operator=(const Object&object)	{target(&object);return *this;}
+				void					adoptData(Reference<Object,Inherit>&that)
+										{
+											this->Inherit::adoptData(that);
+											this->handle = that.handle;
+											this->target_object = that.target_object;
+											that.handle = 0;
+											that.target_object = NULL;
+										}
+				void					swap(Reference<Object,Inherit>&that)
+										{
+											this->Inherit::swap(that);
+											swp(this->handle,that.handle);
+											swp(this->target_object,that.target_object);
+										}
 
-					void								update()	//! Updates local data from the linked target object
-														{
-															if (target_object)
-															{
-																((Inherit&)*this) = *target_object;
-																handle = target_object->getHandle();
-															}
-														}
+				void					update()	//! Updates local data from the linked target object
+										{
+											if (target_object)
+											{
+												((Inherit&)*this) = *target_object;
+												handle = target_object->getHandle();
+											}
+										}
+				inline void				Update()	{update();}
+				void					target(const Object*new_target)	//! Changes target to the specified pointer @param new_target New reference target. May be NULL
+										{
+											target_object = new_target;
+											update();
+										}
+				inline void				SetTarget(const Object*newTarget)	{target(newTarget);}
 
-					void								target(const Object*new_target)	//! Changes target to the specified pointer @param new_target New reference target. May be NULL
-														{
-															target_object = new_target;
-															update();
-														}
-
-					const Object*						target()	const
-														{
-															return target_object;
-														}
-			inline	typename Object::handle_t			getHandle() const
-														{
-															return handle;
-														}
-			inline	bool								isEmpty()	const	//! Determine whether or not the local object is empty. NULL-pointer sensitive @return true if the local object is NULL or the associated handle 0
-														{
-															return !this || !handle;
-														}
-			inline	bool								isNotEmpty()	const	//! Determine whether or not the local object is empty. NULL-pointer sensitive @return true if the local object is NULL or the associated handle 0
-														{
-															return this!=NULL && handle!=0;
-														}
-
-
-			inline	Reference<Object,Inherit>*			operator->()	// reference self rather than target because self may be reference local where target is not. This operator exists for seamless interchangability of a pointer to the object and its reference
-														{
-															return this;
-														}
-			inline	const Reference<Object,Inherit>*	operator->() const
-														{
-															return this;
-														}
+				inline const Object*	target()	const	{return target_object;}
+				inline const Object*	GetTarget()	const	{return target_object;}
+				inline handle_t			getHandle() const	{return handle;}
+				inline handle_t			GetHandle() const	{return handle;}
+				/** Determine whether or not the local object is empty. NULL-pointer sensitive @return true if the local object is NULL or the associated handle 0*/
+				inline bool				isEmpty()	const	{return !this || !handle;}
+				inline bool				IsEmpty()	const	{return !this || !handle;}
+				/** Determine whether or not the local object is empty. NULL-pointer sensitive @return true if the local object is NULL or the associated handle 0*/
+				inline bool				isNotEmpty()	const	{return this!=NULL && handle!=0;}
+				inline bool				IsNotEmpty()	const	{return this!=NULL && handle!=0;}
+				/** reference self rather than target because self may be reference local where target is not. This operator exists for seamless interchangability of a pointer to the object and its reference*/
+				inline ThisType*		operator->()	{return this;}
+				inline const ThisType*	operator->() const	{return this;}
 			};
 
 
@@ -264,12 +239,10 @@ namespace Engine
 		class Texture:public Container<GLuint>, public GenericTexture
 		{
 		protected:
-		template <typename GLType>
-		static	void								formatAt(BYTE channels, PixelType type, bool compress, GLenum&internal_format, GLenum&import_format);
-								
-		static	bool								configureFilter(GLenum target, TextureFilter filter, float anisotropy);
-		
-		virtual	void								overrideSetAttributes(UINT32 new_width, UINT32 new_height, BYTE new_channels, TextureDimension)	override {}	//no override allowed
+			template <typename GLType>
+				static	void						formatAt(BYTE channels, PixelType type, bool compress, GLenum&internal_format, GLenum&import_format);
+			static	bool							configureFilter(GLenum target, TextureFilter filter, float anisotropy);
+			virtual	void							overrideSetAttributes(UINT32 new_width, UINT32 new_height, BYTE new_channels, TextureDimension)	override {}	//no override allowed
 
 		public:
 			class Reference : public GL::Reference<Texture,GenericTexture>
@@ -277,141 +250,163 @@ namespace Engine
 			public:
 				typedef GL::Reference<Texture,GenericTexture>	Super;
 			private:
-				bool				readonly;
-				Reference(const Texture*parent,bool readonly_):Super(parent),readonly(readonly_)	{};
+				bool					readonly;
+				/**/					Reference(const Texture*parent,bool readonly_):Super(parent),readonly(readonly_)	{};
 				friend class Texture;
 				template <typename data_t>
-					void							update(const data_t*data,TextureFilter filter, float anisotropy);
+					void				update(const data_t*data,TextureFilter filter, float anisotropy);
 			public:
-				Reference():readonly(true)			{};
-				Reference(Texture*parent):Super(parent),readonly(false)			{};
-				Reference(const Texture*parent):Super(parent),readonly(true)			{};
-				Reference(Texture&parent):Super(&parent),readonly(false)			{};
-				Reference(const Texture&parent):Super(&parent),readonly(true)			{};
+				/**/					Reference():readonly(true)			{};
+				/**/					Reference(Texture*parent):Super(parent),readonly(false)			{};
+				/**/					Reference(const Texture*parent):Super(parent),readonly(true)			{};
+				/**/					Reference(Texture&parent):Super(&parent),readonly(false)			{};
+				/**/					Reference(const Texture&parent):Super(&parent),readonly(true)			{};
 
 				template <typename Nature>
-					void							update(const GenericImage<Nature>&image,TextureFilter filter=TextureFilter::Trilinear, float anisotropy=1.f)
-													{
-														if (image.width() != texture_width || image.height() != texture_height || image.contentType() != texture_type || texture_channels != image.channels())
-														{
-															throw Renderer::TextureTransfer::ParameterFault(globalString("Image properties are incompatible to the local texture properties"));
-															return;
-														}
-														update(image.getData(),filter,anisotropy);
-													}
-
+					void				update(const GenericImage<Nature>&image,TextureFilter filter=TextureFilter::Trilinear, float anisotropy=1.f)
+										{
+											if (image.width() != texture_width || image.height() != texture_height || image.contentType() != texture_type || texture_channels != image.channels())
+											{
+												throw Renderer::TextureTransfer::ParameterFault(globalString("Image properties are incompatible to the local texture properties"));
+												return;
+											}
+											update(image.getData(),filter,anisotropy);
+										}
+				template <typename Nature>
+					inline void			Update(const GenericImage<Nature>&image,TextureFilter filter=TextureFilter::Trilinear, float anisotropy=1.f)
+										{
+											update(image,filter,anisotropy);
+										}
 			};
 			
 
 
-													Texture()	{};
-			virtual									~Texture()	{if (!application_shutting_down) clear();}
-			virtual	void							clear()	override;
-			virtual	void							flush()	override;
+			/**/						Texture()	{};
+			virtual						~Texture()	{if (!application_shutting_down) clear();}
+			virtual	void				clear()	override;
+			virtual	void				flush()	override;
 								
 				
-			Reference								reference()	const		//! Creates a reference object to the local object
-													{
-														return Reference(this,true);
-													}
-			Reference								reference()		//! Creates a reference object to the local object
-													{
-														return Reference(this,false);
-													}
+			Reference					reference()	const		/** Creates a reference object to the local object*/ {return Reference(this,true);}
+			Reference					reference()				/** Creates a reference object to the local object*/ {return Reference(this,false);}
+			Reference					Refer()	const			/** Creates a reference object to the local object*/ {return Reference(this,true);}
+			Reference					Refer()					/** Creates a reference object to the local object*/ {return Reference(this,false);}
 
-			void									adoptData(Texture&other);
-			void									swap(Texture&other);
-													/**
-														@brief Resizes the local texture to provide the specified 2 dimensiona range of pixels and channels
+			void						adoptData(Texture&other);
+			void						swap(Texture&other);
+			/**
+			@brief Resizes the local texture to provide the specified 2 dimensiona range of pixels and channels
 									
-														The method reuses the current texture handle if not 0.
-														Resizing is performed only if the texture size has actually changed or the currently loaded texture is a cube map.
-														Memory is allocated but not initialized. Automatically called by readFrom() so usually there's no need to call this method manually.
+			The method reuses the current texture handle if not 0.
+			Resizing is performed only if the texture size has actually changed or the currently loaded texture is a cube map.
+			Memory is allocated but not initialized. Automatically called by readFrom() so usually there's no need to call this method manually.
+			@param width New image width in pixels
+			@param height New image height in pixels
+			@param channels New number of channels (1-4).
+			*/
+			bool						resize(GLuint width, GLuint height, BYTE channels);
+			inline bool					Resize(GLuint width, GLuint height, BYTE channels)	{return resize(width,height,channels);}
+			bool						exportTo(Image&target)	const;
+			inline bool					ExportTo(Image&target)	const						{return exportTo(target);}
+			/**
+			@brief Fills the allocated texture with the pixel content of the specified pixel buffer object
 									
-														@param width New image width in pixels
-														@param height New image height in pixels
-														@param channels New number of channels (1-4).
-													*/
-			bool									resize(GLuint width, GLuint height, BYTE channels);
-			bool									exportTo(Image&target)	const;
+			resize() is automatically invoked
+			*/
+			bool						load(const Buffer&object, GLuint width, GLuint height, BYTE channels);
+			inline bool					Load(const Buffer&object, GLuint width, GLuint height, BYTE channels)	{return load(object,width,height,channels);}
+			/**
+			@brief Loads texture data from host memory to video memory for rendering
 
-													/**
-														@brief Fills the allocated texture with the pixel content of the specified pixel buffer object
-									
-														resize() is automatically invoked
-													*/
-			bool									load(const Buffer&object, GLuint width_, GLuint height_, BYTE channels_);
-								
-													/**
-														@brief Loads texture data from host memory to video memory for rendering
-
-														The texture MIN filter will be set to GL_LINEAR_MIPMAP_LINEAR if @a mipmap is true,
-														GL_NEAREST otherwise<br>
-														Compilation will fail if the used data type is incompatible with OpenGL. All native types are supported.
-														Channel interpretation will vary with the used type. For BYTES 0 is 0.0(black) and 255 is 1.0(white)
-
-														@param data Binary data to load.
-														@param width Width of the texture in pixels
-														@param height Height of the texture in pixels
-														@param channels Number of color channels of the specified texture
-														@param type Pixel type to load
-														@param compress Set true to compress this texture
-														@param clamp_texcoords Initial texture clamp setting. Set true to automatically clamp texcoords to the range [0,1]
-														@param filter Specify filtering. Linear only enables mag filter linear, Bilinear enables mag filtering and nearest mipmap layer filtering, Trilinear enables all linear axes. Choosing Bilinear or Trilinear requires the glGenerateMipmapEXT extension to be loaded
-														@param anisotropy Max anisotropy value associated with this texture. Applied only if @a filter is either Bilinear or Trilinear
-													*/
+			The texture MIN filter will be set to GL_LINEAR_MIPMAP_LINEAR if @a mipmap is true,
+			GL_NEAREST otherwise<br>
+			Compilation will fail if the used data type is incompatible with OpenGL. All native types are supported.
+			Channel interpretation will vary with the used type. For BYTES 0 is 0.0(black) and 255 is 1.0(white)
+			@param data Binary data to load.
+			@param width Width of the texture in pixels
+			@param height Height of the texture in pixels
+			@param channels Number of color channels of the specified texture
+			@param type Pixel type to load
+			@param compress Set true to compress this texture
+			@param clamp_texcoords Initial texture clamp setting. Set true to automatically clamp texcoords to the range [0,1]
+			@param filter Specify filtering. Linear only enables mag filter linear, Bilinear enables mag filtering and nearest mipmap layer filtering, Trilinear enables all linear axes. Choosing Bilinear or Trilinear requires the glGenerateMipmapEXT extension to be loaded
+			@param anisotropy Max anisotropy value associated with this texture. Applied only if @a filter is either Bilinear or Trilinear
+			*/
 			template <typename data_t>
-				void								load(const data_t*data, GLuint width, GLuint height, BYTE channels, PixelType type, float anisotropy=1.0f, bool clamp_texcoords=true, TextureFilter filter = TextureFilter::Trilinear, bool compress=false);
-				
-			template <typename Nature>
-				void								load(const GenericImage<Nature>&image, float anisotropy=1.0f, bool clamp_texcoords=true, TextureFilter filter=TextureFilter::Trilinear, bool compress=false)
-													{
-														load(image.getData(), image.width(), image.height(), image.channels(), image.getContentType(), anisotropy, clamp_texcoords, filter, compress);
-													}
-								
-													/**
-														@brief Loads cube texture content from host memory
-													*/
+				void					load(const data_t*data, GLuint width, GLuint height, BYTE channels, PixelType type, float anisotropy=1.0f, bool clamp_texcoords=true, TextureFilter filter = TextureFilter::Trilinear, bool compress=false);
 			template <typename data_t>
-				void								loadCube(const data_t*data0, const data_t*data1, const data_t*data2, const data_t*data3, const data_t*data4, const data_t*data5, GLuint width_, GLuint height_, BYTE channels_, TextureFilter filter = TextureFilter::Trilinear, bool compress=false);
-			template <typename Nature>
-				void								loadCube(const GenericImage<Nature> faces[6], TextureFilter filter = TextureFilter::Trilinear, bool compress=false);
-			template <typename Nature>
-				void								loadCube(const GenericImage<Nature>&face0, const GenericImage<Nature>&face1, const GenericImage<Nature>&face2, const GenericImage<Nature>&face3, const GenericImage<Nature>&face4, const GenericImage<Nature>&face5, TextureFilter filter = TextureFilter::Trilinear, bool compress=false);
+				void					Load(const data_t*data, GLuint width, GLuint height, BYTE channels, PixelType type, float anisotropy=1.0f, bool clampTexcoords=true, TextureFilter filter = TextureFilter::Trilinear, bool compress=false)
+										{load(data,width,height,channels,type,anisotropy,clampTexcoords,filter,compress);}
 				
-		inline	bool								isTransparent()	const
-													{
-														return handle && (texture_channels==4 || texture_channels==2);	//RGBA or INTENSITY+ALPHA
-													}
-
-				bool								isValid()	const;	//!< Checks if the local texture object is valid. A valid texture object contains a valid or 0 texture handle
-				void								overrideSetHandle(GLuint h, UINT32 width, UINT32 height, BYTE num_channels, bool do_clear=true);	//!< Override method (use only to override the native OpenGL texture constructors). Sets the local handle. The method is kept explicit so that users are aware of this being rather unusual and potentially having undesired side-effects
-
-
-
+			template <typename Nature>
+				inline void				load(const GenericImage<Nature>&image, float anisotropy=1.0f, bool clamp_texcoords=true, TextureFilter filter=TextureFilter::Trilinear, bool compress=false)
+										{
+											load(image.getData(), image.width(), image.height(), image.channels(), image.getContentType(), anisotropy, clamp_texcoords, filter, compress);
+										}
+			template <typename Nature>
+				inline void				Load(const GenericImage<Nature>&image, float anisotropy=1.0f, bool clamp_texcoords=true, TextureFilter filter=TextureFilter::Trilinear, bool compress=false)
+										{
+											load(image.getData(), image.width(), image.height(), image.channels(), image.getContentType(), anisotropy, clamp_texcoords, filter, compress);
+										}
+								
+			/**
+			@brief Loads cube texture content from host memory
+			*/
+			template <typename data_t>
+				void					loadCube(const data_t*data0, const data_t*data1, const data_t*data2, const data_t*data3, const data_t*data4, const data_t*data5, GLuint width, GLuint height, BYTE channels, TextureFilter filter = TextureFilter::Trilinear, bool compress=false);
+			template <typename data_t>
+				inline void				LoadCube(const data_t*data0, const data_t*data1, const data_t*data2, const data_t*data3, const data_t*data4, const data_t*data5, GLuint width, GLuint height, BYTE channels, TextureFilter filter = TextureFilter::Trilinear, bool compress=false)
+										{
+											loadCube(data0,data1,data2,data3,data4,data5,width,height,channels,filter,compress);
+										}
+			template <typename Nature>
+				void					loadCube(const GenericImage<Nature> faces[6], TextureFilter filter = TextureFilter::Trilinear, bool compress=false);
+			template <typename Nature>
+				inline void				LoadCube(const GenericImage<Nature> faces[6], TextureFilter filter = TextureFilter::Trilinear, bool compress=false)
+										{
+											loadCube(faces,filter,compress);
+										}
+			template <typename Nature>
+				void					loadCube(const GenericImage<Nature>&face0, const GenericImage<Nature>&face1, const GenericImage<Nature>&face2, const GenericImage<Nature>&face3, const GenericImage<Nature>&face4, const GenericImage<Nature>&face5, TextureFilter filter = TextureFilter::Trilinear, bool compress=false);
+			template <typename Nature>
+				inline void				LoadCube(const GenericImage<Nature>&face0, const GenericImage<Nature>&face1, const GenericImage<Nature>&face2, const GenericImage<Nature>&face3, const GenericImage<Nature>&face4, const GenericImage<Nature>&face5, TextureFilter filter = TextureFilter::Trilinear, bool compress=false)
+										{
+											loadCube(face0,face1,face2,face3,face4,face5,filter,compress);
+										}
 				
-
+			inline bool					isTransparent()	const
+										{
+											return handle && (texture_channels==4 || texture_channels==2);	//RGBA or INTENSITY+ALPHA
+										}
+			inline bool					IsTransparent()	const	{return isTransparent();}
+			bool						isValid()	const;	//!< Checks if the local texture object is valid. A valid texture object contains a valid or 0 texture handle
+			inline bool					IsValid()	const		{return isValid();}
+			void						overrideSetHandle(GLuint h, UINT32 width, UINT32 height, BYTE num_channels, bool do_clear=true);	//!< Override method (use only to override the native OpenGL texture constructors). Sets the local handle. The method is kept explicit so that users are aware of this being rather unusual and potentially having undesired side-effects
+			void						OverrideSetHandle(GLuint h, UINT32 width, UINT32 height, BYTE numChannels, bool doClear=true)
+										{
+											overrideSetHandle(h,width,height,numChannels,doClear);
+										}
 		};
 
 		
 		class	Shader:public Container<GLShader::Template*>, public TExtShaderConfiguration
 		{
 		protected:
-				friend class OpenGL;
+			friend class OpenGL;
 
-		static bool									local_shader_is_bound;
-		static	bool								install(const GLShader::Instance*instance);
+			static bool								localShaderIsBound;
+			static bool								_Install(const GLShader::Instance*instance);
 
 		public:
-		static	GLShader::Template::VariableMap		global_map;
-		static	GLShader::Template::UserConfig		global_user_config;
-		static	GLShader::Template::Configuration	global_config;
-		static	Texture::Reference					global_sky_texture;	//!< Sky texture to use during shading. Leave empty to not use sky shading
+			static GLShader::Template::VariableMap	globalMap;
+			static GLShader::Template::UserConfig	globalUserConfig;
+			static GLShader::Template::Configuration	globalConfig;
+			static Texture::Reference				globalSkyTexture;	//!< Sky texture to use during shading. Leave empty to not use sky shading
 
-		static	const index_t						global_sky_layer = 4;	//bit dangerous but let's see
+			static const index_t					globalSkyLayer = 4;	//bit dangerous but let's see
 
-		typedef	ShaderSourceCode					SourceCode;
-		typedef GLShader::Instance					Instance;
+			typedef	ShaderSourceCode				SourceCode;
+			typedef GLShader::Instance				Instance;
 
 		
 													Shader()
@@ -422,20 +417,23 @@ namespace Engine
 			virtual	void							flush()	override;
 			virtual	void							clear()	override;
 		
-				Instance*							construct()	const
+			Instance*								construct()	const
 													{
 														GLShader::Template::global_render_config.redetect();
 														return handle->buildShader();
 													}
+			inline Instance*						Construct()	const	{return construct();}
 
-				bool								create(const SourceCode&code,bool use_global_status=true);
-				String								report()	const;
-		static	bool								compose(const MaterialComposition<Texture::Reference>&config, SourceCode&code_out);
-
-
-		//static	bool				compose(const CGS::GraphMaterial&, SourceCode&code_out);
-				bool								install()	const;
-		static	void								uninstall();
+			bool									create(const SourceCode&code,bool use_global_status=true);
+			inline bool								Create(const SourceCode&code,bool useGlobalStatus=true)	{return create(code,useGlobalStatus);}
+			String									report()	const;
+			inline String							Report()	const	{return report();}
+			static bool								compose(const MaterialComposition<Texture::Reference>&config, SourceCode&code_out);
+			inline static bool						Compose(const MaterialComposition<Texture::Reference>&config, SourceCode&codeOut)	{return compose(config,codeOut);}
+			bool									install()	const;
+			inline bool								Install()	const	{return install();}
+			static void								uninstall();
+			inline static void						Uninstall()	{uninstall();}
 		};
 
 		
@@ -761,7 +759,7 @@ namespace Engine
 			bool					exportColorTo(UnclampedFloatImage&out_image,BYTE target=0)	const;
 			inline bool				ExportColorTo(UnclampedFloatImage&outImage,BYTE target=0)	const	{return exportColorTo(outImage,target);}
 			Texture::Reference		reference(UINT target=0)	const;
-			Texture::Reference		Reference(UINT target=0)	const	{return reference(target);}
+			Texture::Reference		Refer(UINT target=0)		const	{return reference(target);}
 			void					generateMIPLayers(UINT target=0);
 			inline void				GenerateMIPLayers(UINT target=0)	{generateMIPLayers(target);}
 			bool					isValid()	const;	//!< Checks if the local frame buffer object is valid. A valid frame buffer object contains a valid or 0 handle

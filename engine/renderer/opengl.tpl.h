@@ -574,7 +574,7 @@ namespace Engine
 					}
 				}
 
-				if (Shader::global_sky_texture.isNotEmpty())
+				if (Shader::globalSkyTexture.isNotEmpty())
 				{
 					const index_t source_layer = layer_count;
 					if (glActiveTexture)
@@ -594,7 +594,7 @@ namespace Engine
 					glDisable(GL_TEXTURE_2D);	glBindTexture(GL_TEXTURE_2D,0);
 					glDisable(GL_TEXTURE_3D);	glBindTexture(GL_TEXTURE_3D,0);
 					glEnable(GL_TEXTURE_CUBE_MAP);
-					glBindTexture(GL_TEXTURE_CUBE_MAP,Shader::global_sky_texture.getHandle());
+					glBindTexture(GL_TEXTURE_CUBE_MAP,Shader::globalSkyTexture.getHandle());
 
 					layer_count++;
 				}

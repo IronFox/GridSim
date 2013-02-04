@@ -336,7 +336,7 @@ namespace Engine
 			bool								similar(const Material<GL,Def>&other);			//!< Queries whether ot not the local visual is similar to the specified remote visual. This comparison compares both material parameters and texture data. The method may return true where the similar() method for CGS materials returned false. \param other Visual to compare to \return true if the specified visual is similar to the local visual and may be merged with it
 			void								merge(StructureEntity<Def>*entity, CGS::MaterialA<Def>&material, bool rebuild,StringList&warn_out);	//!< Merges a CGS material with the local visual \param entity Super entity associated with the material data \param material Material to merge \param rebuild Rebuild the local visual when done merging. Passing false here will require explicit rebuilding later. \param warn_out Out string list to store merging warnings in
 			void								unmap(StructureEntity<Def>*entity, bool rebuild, StringList&warn_out);	//!< Unmaps the specified structure entity \param entity Structure entity to unmap \param rebuild Rebuild the local visual when done unmapping. Passing false here will require explicit rebuilding later. \param warn_out Out string list to store unmapping warnings in
-			void								rebuild(StringList*warn_out, bool enforce=false);							//!< Explicitly rebuilds the local visual \param warn_out Out warning string list or NULL to not log warnings \param enforce Set true to enforce rebuild even if the local visual does not require rebuilding
+			void								Rebuild(StringList*warn_out, bool enforce=false);							//!< Explicitly rebuilds the local visual \param warn_out Out warning string list or NULL to not log warnings \param enforce Set true to enforce rebuild even if the local visual does not require rebuilding
 			void								render(bool ignore_material=false);						//!< Renders the local visual. render() automatically rebuilds the visual if \b requires_update is set true
 			String								state();												//!< Queries a state string representation
 			bool								isOpaque();												//!< Returns true if the local visual fully visible (not transparent)
@@ -354,128 +354,182 @@ namespace Engine
 		class Scenery:public Signature
 		{
 		protected:
-				CGS::TextureA				dummy_texture;	//!< Non empty dummy texture (for embedDummyMaterial())
-				CGS::MaterialInfo			dummy_info;		//!< Non empty dummy material info (for embedDummyMaterial())
-				unsigned					locked;			//!< Lock level (0 = not locked, 1+ = locked). Lock prevents the scenery from automatically rebuilding materials.
+			CGS::TextureA				dummy_texture;	//!< Non empty dummy texture (for embedDummyMaterial())
+			CGS::MaterialInfo			dummy_info;		//!< Non empty dummy material info (for embedDummyMaterial())
+			unsigned					locked;			//!< Lock level (0 = not locked, 1+ = locked). Lock prevents the scenery from automatically rebuilding materials.
 				
-				String						fused;
-				StringList					warnings;		//!< Scenery warning list
+			String						fused;
+			StringList					warnings;		//!< Scenery warning list
 
-				GL							*renderer;		//!< Link to the active renderer. The scenery will attempt to automatically retrieve a renderer once if this pointer is NULL. If renderer remains NULL, then Scenery will throw an exception.
-
-	//			void						remove(CGS::Material<Def>&material);
+			GL							*renderer;		//!< Link to the active renderer. The scenery will attempt to automatically retrieve a renderer once if this pointer is NULL. If renderer remains NULL, then Scenery will throw an exception.
 		public:
-				typedef StructureEntity<Def>MyStructureEntity;
+			typedef StructureEntity<Def>MyStructureEntity;
 				
-											Scenery(TextureTable<GL>*table=NULL);				//!< Base constructor. Implies automatical renderer retrieval. \param table Pointer to a compatible external texture table or NULL to use the internal texture table
-											Scenery(GL*renderer, TextureTable<GL>*table=NULL);	//!< Constructor for a specific renderer. \param renderer Pointer to the renderer to use for geometry/texture upload and rendering \param table Pointer to a compatible external texture table or NULL to use the internal texture table
-											Scenery(GL&renderer, TextureTable<GL>*table=NULL);	//!< Constructor for a specific renderer. \param renderer Reference to the renderer to use for geometry/texture upload and rendering \param table Pointer to a compatible external texture table or NULL to use the internal texture table
-		virtual								~Scenery();												//!< The destructor calls clear() with \b disconnected set true, assuming any referenced geometrical data does no longer exist or will be erased shortly after.
+			/**/						Scenery(TextureTable<GL>*table=NULL);				//!< Base constructor. Implies automatical renderer retrieval. \param table Pointer to a compatible external texture table or NULL to use the internal texture table
+			/**/						Scenery(GL*renderer, TextureTable<GL>*table=NULL);	//!< Constructor for a specific renderer. \param renderer Pointer to the renderer to use for geometry/texture upload and rendering \param table Pointer to a compatible external texture table or NULL to use the internal texture table
+			/**/						Scenery(GL&renderer, TextureTable<GL>*table=NULL);	//!< Constructor for a specific renderer. \param renderer Reference to the renderer to use for geometry/texture upload and rendering \param table Pointer to a compatible external texture table or NULL to use the internal texture table
+			virtual						~Scenery();												//!< The destructor calls clear() with \b disconnected set true, assuming any referenced geometrical data does no longer exist or will be erased shortly after.
 
-		#ifdef DEBUG
-				StringList					debug;
-		#endif
-				bool						merge_materials;											//!< True by default. Allows merging of similar materials. Setting this value to false will prevent the scenery from automatically merging materials. Disabling material merging can prove useful in scenarios where material color attributes may dynamically change.
-				bool						keep_unused_materials;										//!< False by default. Allows materials to remain loaded, even though they are not actually needed by any loaded data
+			#ifdef DEBUG
+				StringList				debug;
+			#endif
+			bool						merge_materials;											//!< True by default. Allows merging of similar materials. Setting this value to false will prevent the scenery from automatically merging materials. Disabling material merging can prove useful in scenarios where material color attributes may dynamically change.
+			bool						keep_unused_materials;										//!< False by default. Allows materials to remain loaded, even though they are not actually needed by any loaded data
 
-				StructureField<Def>			structures;													//!< List of embedded structure entities (object entities are managed by the respective structure entity)
-				//ObjectField<Def>			objects;
-				TextureTable<GL>			local_textures,												//!< Local texture table to upload/retrieve texture references of CGS::Texture instances.
-											*textures;													//!< Effective texture table. By default this pointer points to \b local_textures.
-				Buffer<shared_ptr<Material<GL,Def> >,0,Swap>	opaque_materials,												//!< List of fully opaque materials. This also includes masked materials since those do not provide blended transparency.
-											transparent_materials,										//!< List of transparent materials that require blending.
-											all_materials;
+			StructureField<Def>			structures;													//!< List of embedded structure entities (object entities are managed by the respective structure entity)
+			TextureTable<GL>			local_textures,												//!< Local texture table to upload/retrieve texture references of CGS::Texture instances.
+										*textures;													//!< Effective texture table. By default this pointer points to \b local_textures.
+			Buffer<shared_ptr<Material<GL,Def> >,0,Swap>	opaque_materials,												//!< List of fully opaque materials. This also includes masked materials since those do not provide blended transparency.
+										transparent_materials,										//!< List of transparent materials that require blending.
+										all_materials;
 				
-				count_t						countWarnings();						//!< Queries the number of warnings occured during previous embed(), remove() or rebuild() calls.
-				void						clearWarnings();						//!< Clear warnings generated during preceeding embed(), remove(), or rebuild() calls.
-				const String&				getWarning(index_t index);				//!< Queries a specified warning \param index Index of the warning to retrieve ranging [0,countWarnings()-1] \return const String reference to the respective warning
-				const String&				getWarnings(bool clear_warnings=true);	//!< Queries a merged warning string using newline as separator \param clear_warnings Clear local warnings after merging \return const String reference to the respective merged warning list
+			count_t						countWarnings();						//!< Queries the number of warnings occured during previous embed(), remove() or rebuild() calls.
+			inline count_t				CountWarnings()	{return countWarnings();}
+			void						clearWarnings();						//!< Clear warnings generated during preceeding embed(), remove(), or rebuild() calls.
+			inline void					ClearWarnings()	{clearWarnings();}
+			const String&				getWarning(index_t index);				//!< Queries a specified warning \param index Index of the warning to retrieve ranging [0,countWarnings()-1] \return const String reference to the respective warning
+			inline const String&		GetWarning(index_t index)	{return getWarning(index);}
+			const String&				getWarnings(bool clear_warnings=true);	//!< Queries a merged warning string using newline as separator \param clear_warnings Clear local warnings after merging \return const String reference to the respective merged warning list
+			inline const String&		GetWarnings(bool clearWarnings=true)	{return getWarnings(clearWarnings);}
 				
-				MyStructureEntity*			embed(CGS::StaticInstance<Def>&instance,unsigned detail_type=StructureConfig::Default);	//!< Embeds a CGS::StaticInstance instance creating a new StructureEntity instance (if not already embedded). Subsequent embed() calls on the same geometrical instance reuse loaded data. \param instance Instance to embed \param detail_type Detail type to use for this particular instance \return Newly embedded or already mapped StructureEntity
-				MyStructureEntity*			embed(CGS::StaticInstance<Def>*instance,unsigned detail_type=StructureConfig::Default);	//!< Embeds a CGS::StaticInstance instance creating a new StructureEntity instance (if not already embedded). Subsequent embed() calls on the same geometrical instance reuse loaded data. \param instance Instance to embed \param detail_type Detail type to use for this particular instance \return Newly embedded or already mapped StructureEntity
-				MyStructureEntity*			embed(CGS::AnimatableInstance<Def>&instance,unsigned detail_type=StructureConfig::Default);	//!< Embeds a CGS::AnimatableInstance instance creating a new StructureEntity instance (if not already embedded). Subsequent embed() calls on the same geometrical instance reuse loaded data. \param instance Instance to embed \param detail_type Detail type to use for this particular instance \return Newly embedded or already mapped StructureEntity
-				MyStructureEntity*			embed(CGS::AnimatableInstance<Def>*instance,unsigned detail_type=StructureConfig::Default);	//!< Embeds a CGS::AnimatableInstance instance creating a new StructureEntity instance (if not already embedded). Subsequent embed() calls on the same geometrical instance reuse loaded data. \param instance Instance to embed \param detail_type Detail type to use for this particular instance \return Newly embedded or already mapped StructureEntity
-				MyStructureEntity*			embed(CGS::Geometry<Def>&structure,unsigned detail_type=StructureConfig::Default);	//!< Embeds the currently linked system pointers of the specified geometry creating a new StructureEntity instance (if not already embedded). Subsequent embed() calls on the same geometry reuse loaded data. \param instance Instance to embed \param detail_type Detail type to use for this particular instance \return Newly embedded or already mapped StructureEntity
-				MyStructureEntity*			embed(CGS::Geometry<Def>*structure,unsigned detail_type=StructureConfig::Default);	//!< Embeds the currently linked system pointers of the specified geometry creating a new StructureEntity instance (if not already embedded). Subsequent embed() calls on the same geometry reuse loaded data. \param instance Instance to embed \param detail_type Detail type to use for this particular instance \return Newly embedded or already mapped StructureEntity
-				shared_ptr<Material<GL,Def> >embed(MyStructureEntity*entity,CGS::MaterialA<Def>&material);	//!< Embeds a CGS material \param entity Parent structure entity (must not be NULL) \param material Material to embed
-				void						embedDummyMaterial();												//!< Embeds an empty dummy material. When rendering large texture-less geometries this method may greatly increase rendering speed (due to whatever odd gpu related reasons)
-				void						remove(CGS::Geometry<Def>&structure);		//!< Removes the structure entity (and children) refering the currently linked structure system pointers of the specified structure. Non-locked materials refering to this structure that become empty as a result of this operation are automatically deleted 
-				void						remove(CGS::Geometry<Def>*structure);								//!< Removes the structure entity (and children) refering the currently linked structure system pointers of the specified structure. Non-locked materials refering to this structure that become empty as a result of this operation are automatically deleted
-				void						remove(CGS::StaticInstance<Def>&instance);	//!< Removes the structure entity (and children)  refering the specified structure instance system pointers. Non-locked materials refering to this structure that become empty as a result of this operation are automatically deleted
-				void						remove(CGS::StaticInstance<Def>*instance);							//!< Removes the structure entity (and children)  refering the specified structure instance system pointers. Non-locked materials refering to this structure that become empty as a result of this operation are automatically deleted
-				void						remove(CGS::AnimatableInstance<Def>&instance);	//!< Removes the structure entity (and children)  refering the specified structure instance system pointers. Non-locked materials refering to this structure that become empty as a result of this operation are automatically deleted
-				void						remove(CGS::AnimatableInstance<Def>*instance);							//!< Removes the structure entity (and children)  refering the specified structure instance system pointers. Non-locked materials refering to this structure that become empty as a result of this operation are automatically deleted
-				void						lockMaterials(CGS::Geometry<Def>&structure);							//!< Loads (unless already loaded) the CGS materials of the specified CGS geometry to materials and locks them. Locked materials are not automatically erased when they become empty thus retaining their order.
-				void						lockMaterials(CGS::Geometry<Def>*structure);							//!< Loads (unless already loaded) the CGS materials of the specified CGS geometry to materials and locks them. Locked materials are not automatically erased when they become empty thus retaining their order.
-				void						lockMaterial(CGS::MaterialA<Def>&material);		//!< Loads (unless already loaded) a specific CGS material and locks the associated visual. Locked materials are not automatically erased when they become empty thus retaining their order.
+			MyStructureEntity*			embed(CGS::StaticInstance<Def>&instance,unsigned detail_type=StructureConfig::Default);	//!< Embeds a CGS::StaticInstance instance creating a new StructureEntity instance (if not already embedded). Subsequent embed() calls on the same geometrical instance reuse loaded data. \param instance Instance to embed \param detail_type Detail type to use for this particular instance \return Newly embedded or already mapped StructureEntity
+			inline MyStructureEntity*	Embed(CGS::StaticInstance<Def>&instance,unsigned detailType=StructureConfig::Default)	{return embed(instance,detailType);}
+			MyStructureEntity*			embed(CGS::StaticInstance<Def>*instance,unsigned detail_type=StructureConfig::Default);	//!< Embeds a CGS::StaticInstance instance creating a new StructureEntity instance (if not already embedded). Subsequent embed() calls on the same geometrical instance reuse loaded data. \param instance Instance to embed \param detail_type Detail type to use for this particular instance \return Newly embedded or already mapped StructureEntity
+			inline MyStructureEntity*	Embed(CGS::StaticInstance<Def>*instance,unsigned detailType=StructureConfig::Default)	{return embed(instance,detailType);}
+			MyStructureEntity*			embed(CGS::AnimatableInstance<Def>&instance,unsigned detail_type=StructureConfig::Default);	//!< Embeds a CGS::AnimatableInstance instance creating a new StructureEntity instance (if not already embedded). Subsequent embed() calls on the same geometrical instance reuse loaded data. \param instance Instance to embed \param detail_type Detail type to use for this particular instance \return Newly embedded or already mapped StructureEntity
+			inline MyStructureEntity*	Embed(CGS::AnimatableInstance<Def>&instance,unsigned detailType=StructureConfig::Default){return embed(instance,detailType);}
+			MyStructureEntity*			embed(CGS::AnimatableInstance<Def>*instance,unsigned detail_type=StructureConfig::Default);	//!< Embeds a CGS::AnimatableInstance instance creating a new StructureEntity instance (if not already embedded). Subsequent embed() calls on the same geometrical instance reuse loaded data. \param instance Instance to embed \param detail_type Detail type to use for this particular instance \return Newly embedded or already mapped StructureEntity
+			inline MyStructureEntity*	Embed(CGS::AnimatableInstance<Def>*instance,unsigned detailType=StructureConfig::Default)	{return embed(instance,detailType);}
+			MyStructureEntity*			embed(CGS::Geometry<Def>&structure,unsigned detail_type=StructureConfig::Default);	//!< Embeds the currently linked system pointers of the specified geometry creating a new StructureEntity instance (if not already embedded). Subsequent embed() calls on the same geometry reuse loaded data. \param instance Instance to embed \param detail_type Detail type to use for this particular instance \return Newly embedded or already mapped StructureEntity
+			inline MyStructureEntity*	Embed(CGS::Geometry<Def>&structure,unsigned detailType=StructureConfig::Default)			{return embed(structure,detailType);}
+			MyStructureEntity*			embed(CGS::Geometry<Def>*structure,unsigned detail_type=StructureConfig::Default);	//!< Embeds the currently linked system pointers of the specified geometry creating a new StructureEntity instance (if not already embedded). Subsequent embed() calls on the same geometry reuse loaded data. \param instance Instance to embed \param detail_type Detail type to use for this particular instance \return Newly embedded or already mapped StructureEntity
+			inline MyStructureEntity*	Embed(CGS::Geometry<Def>*structure,unsigned detailType=StructureConfig::Default)			{return embed(structure,detailType);}
+			shared_ptr<Material<GL,Def> >embed(MyStructureEntity*entity,CGS::MaterialA<Def>&material);	//!< Embeds a CGS material \param entity Parent structure entity (must not be NULL) \param material Material to embed
+			inline shared_ptr<Material<GL,Def> >Embed(MyStructureEntity*entity,CGS::MaterialA<Def>&material)						{return embed(entity,material);}
+			void						embedDummyMaterial();												//!< Embeds an empty dummy material. When rendering large texture-less geometries this method may greatly increase rendering speed (due to whatever odd gpu related reasons)
+			inline void					EmbedDummyMaterial()	{embedDummyMaterial();}
+			void						remove(CGS::Geometry<Def>&structure);		//!< Removes the structure entity (and children) refering the currently linked structure system pointers of the specified structure. Non-locked materials refering to this structure that become empty as a result of this operation are automatically deleted 
+			inline void					Remove(CGS::Geometry<Def>&structure)	{remove(structure);}
+			void						remove(CGS::Geometry<Def>*structure);								//!< Removes the structure entity (and children) refering the currently linked structure system pointers of the specified structure. Non-locked materials refering to this structure that become empty as a result of this operation are automatically deleted
+			inline void					Remove(CGS::Geometry<Def>*structure)	{remove(structure);}
+			void						remove(CGS::StaticInstance<Def>&instance);	//!< Removes the structure entity (and children)  refering the specified structure instance system pointers. Non-locked materials refering to this structure that become empty as a result of this operation are automatically deleted
+			inline void					Remove(CGS::StaticInstance<Def>&instance)	{remove(instance);}
+			void						remove(CGS::StaticInstance<Def>*instance);							//!< Removes the structure entity (and children)  refering the specified structure instance system pointers. Non-locked materials refering to this structure that become empty as a result of this operation are automatically deleted
+			inline void					Remove(CGS::StaticInstance<Def>*instance)	{remove(instance);}
+			void						remove(CGS::AnimatableInstance<Def>&instance);	//!< Removes the structure entity (and children)  refering the specified structure instance system pointers. Non-locked materials refering to this structure that become empty as a result of this operation are automatically deleted
+			inline void					Remove(CGS::AnimatableInstance<Def>&instance)	{remove(instance);}
+			void						remove(CGS::AnimatableInstance<Def>*instance);							//!< Removes the structure entity (and children)  refering the specified structure instance system pointers. Non-locked materials refering to this structure that become empty as a result of this operation are automatically deleted
+			inline void					Remove(CGS::AnimatableInstance<Def>*instance)	{remove(instance);}
+			void						lockMaterials(CGS::Geometry<Def>&structure);							//!< Loads (unless already loaded) the CGS materials of the specified CGS geometry to materials and locks them. Locked materials are not automatically erased when they become empty thus retaining their order.
+			inline void					LockMaterials(CGS::Geometry<Def>&structure)	{lockMaterials(structure);}
+			void						lockMaterials(CGS::Geometry<Def>*structure);							//!< Loads (unless already loaded) the CGS materials of the specified CGS geometry to materials and locks them. Locked materials are not automatically erased when they become empty thus retaining their order.
+			inline void					LockMaterials(CGS::Geometry<Def>*structure)	{lockMaterials(structure);}
+			void						lockMaterial(CGS::MaterialA<Def>&material);		//!< Loads (unless already loaded) a specific CGS material and locks the associated visual. Locked materials are not automatically erased when they become empty thus retaining their order.
+			inline void					LockMaterial(CGS::MaterialA<Def>&material)	{lockMaterial(material);}
 				
-				void						setRenderer(GL*renderer,bool fail_if_not_idle=true);			//!< Sets the renderer to use for subsequent geometry/texture uploads and rendering. Setting the active renderer on a non-idle scenery causes and exception (unless \b fail_if_not_idle is false).
-				void						setRenderer(GL&renderer);			//!< Sets the renderer to use for subsequent geometry/texture uploads and rendering. Setting the active renderer on a non-idle scenery causes and exception.
-				GL*							getRenderer()	const;				//!< Retrieves the currently used renderer
+			void						setRenderer(GL*renderer,bool fail_if_not_idle=true);			//!< Sets the renderer to use for subsequent geometry/texture uploads and rendering. Setting the active renderer on a non-idle scenery causes and exception (unless \b fail_if_not_idle is false).
+			inline void					SetRenderer(GL*renderer,bool failIfNotIdle=true)	{setRenderer(renderer,failIfNotIdle);}
+			void						setRenderer(GL&renderer);			//!< Sets the renderer to use for subsequent geometry/texture uploads and rendering. Setting the active renderer on a non-idle scenery causes and exception.
+			inline void					SetRenderer(GL&renderer)	{setRenderer(renderer);}
+			GL*							getRenderer()	const;				//!< Retrieves the currently used renderer
+			inline GL*					GetRenderer()	const	{return getRenderer();}
 				
-				void						setConfig(CGS::Geometry<Def>&structure,unsigned status);	//!< Updates the config/detail behavior of the structure entity associated with the currently linked geometry system matrices. The method fails if no such structure entity exists. \param structure Geometry to associate the new status with \param status New status
-				void						setConfig(CGS::Geometry<Def>*structure,unsigned status);		//!< Updates the config/detail behavior of the structure entity associated with the currently linked geometry system matrices. The method fails if no such structure entity exists. \param structure Geometry to associate the new status with \param status New status
-				void						setConfig(CGS::StaticInstance<Def>&structure,unsigned status);	//!< Updates the config/detail behavior of the structure entity associated with the geometry instance system matrices. The method fails if no such structure entity exists. \param structure Geometry to associate the new status with \param status New status
-				void						setConfig(CGS::StaticInstance<Def>*structure,unsigned status);	//!< Updates the config/detail behavior of the structure entity associated with the geometry instance system matrices. The method fails if no such structure entity exists. \param structure Geometry to associate the new status with \param status New status
+			void						setConfig(CGS::Geometry<Def>&structure,unsigned status);	//!< Updates the config/detail behavior of the structure entity associated with the currently linked geometry system matrices. The method fails if no such structure entity exists. \param structure Geometry to associate the new status with \param status New status
+			inline void					SetConfig(CGS::Geometry<Def>&structure,unsigned status)	{setConfig(structure,status);}
+			void						setConfig(CGS::Geometry<Def>*structure,unsigned status);		//!< Updates the config/detail behavior of the structure entity associated with the currently linked geometry system matrices. The method fails if no such structure entity exists. \param structure Geometry to associate the new status with \param status New status
+			inline void					SetConfig(CGS::Geometry<Def>*structure,unsigned status)	{setConfig(structure,status);}
+			void						setConfig(CGS::StaticInstance<Def>&structure,unsigned status);	//!< Updates the config/detail behavior of the structure entity associated with the geometry instance system matrices. The method fails if no such structure entity exists. \param structure Geometry to associate the new status with \param status New status
+			inline void					SetConfig(CGS::StaticInstance<Def>&structure,unsigned status)	{setConfig(structure,status);}
+			void						setConfig(CGS::StaticInstance<Def>*structure,unsigned status);	//!< Updates the config/detail behavior of the structure entity associated with the geometry instance system matrices. The method fails if no such structure entity exists. \param structure Geometry to associate the new status with \param status New status
+			inline void					SetConfig(CGS::StaticInstance<Def>*structure,unsigned status)	{setConfig(structure,status);}
 
-				unsigned					getConfig(CGS::Geometry<Def>&structure);			//!< Attempts to retrieve the config/detail behavior of the structure entity associated  with the currently linked geometry system matrices. \param structure Geometry to identify the respective structure entity  \return Current config/detail behavior of the associated structure entity or StructureEntity::Invalid if no structure entity could be found
-				unsigned					getConfig(CGS::Geometry<Def>*structure);			//!< Attempts to retrieve the config/detail behavior of the structure entity associated  with the currently linked geometry system matrices. \param structure Geometry to identify the respective structure entity \return Current config/detail behavior of the associated structure entity or StructureEntity::Invalid if no structure entity could be found
-				unsigned					getConfig(CGS::StaticInstance<Def>&structure);			//!< Attempts to retrieve the config/detail behavior of the structure entity associated  with the geometry instance system matrices. \param structure Geometry instance to identify the respective structure entity \return Current config/detail behavior of the associated structure entity or StructureEntity::Invalid if no structure entity could be found
-				unsigned					getConfig(CGS::StaticInstance<Def>*structure);			//!< Attempts to retrieve the config/detail behavior of the structure entity associated  with the geometry instance system matrices. \param structure Geometry instance to identify the respective structure entity \return Current config/detail behavior of the associated structure entity or StructureEntity::Invalid if no structure entity could be found
+			unsigned					getConfig(CGS::Geometry<Def>&structure);			//!< Attempts to retrieve the config/detail behavior of the structure entity associated  with the currently linked geometry system matrices. \param structure Geometry to identify the respective structure entity  \return Current config/detail behavior of the associated structure entity or StructureEntity::Invalid if no structure entity could be found
+			inline unsigned				GetConfig(CGS::Geometry<Def>&structure)		{return getConfig(structure);}
+			unsigned					getConfig(CGS::Geometry<Def>*structure);			//!< Attempts to retrieve the config/detail behavior of the structure entity associated  with the currently linked geometry system matrices. \param structure Geometry to identify the respective structure entity \return Current config/detail behavior of the associated structure entity or StructureEntity::Invalid if no structure entity could be found
+			inline unsigned				GetConfig(CGS::Geometry<Def>*structure)		{return getConfig(structure);}
+			unsigned					getConfig(CGS::StaticInstance<Def>&structure);			//!< Attempts to retrieve the config/detail behavior of the structure entity associated  with the geometry instance system matrices. \param structure Geometry instance to identify the respective structure entity \return Current config/detail behavior of the associated structure entity or StructureEntity::Invalid if no structure entity could be found
+			inline unsigned				GetConfig(CGS::StaticInstance<Def>&structure)		{return getConfig(structure);}
+			unsigned					getConfig(CGS::StaticInstance<Def>*structure);			//!< Attempts to retrieve the config/detail behavior of the structure entity associated  with the geometry instance system matrices. \param structure Geometry instance to identify the respective structure entity \return Current config/detail behavior of the associated structure entity or StructureEntity::Invalid if no structure entity could be found
+			inline unsigned				GetConfig(CGS::StaticInstance<Def>*structure)		{return getConfig(structure);}
 				
-				MyStructureEntity* 			searchForEntityOf(CGS::SubGeometryA<Def>&child, index_t&sub_index);
-				MyStructureEntity* 			searchForEntityOf(CGS::SubGeometryInstance<Def>&instance, index_t&sub_index);
-				MyStructureEntity* 			findEntityOf(CGS::Geometry<Def>&geometry);					//!< Attempts to find the structure entity associated with the currently bound system matrix of the specified geometry. Operates in O(log n). \return Pointer to the respective structure entity or NULL if no structure entity could be found
-				MyStructureEntity* 			findEntityOf(CGS::StaticInstance<Def>&instance);			//!< Attempts to find the structure entity associated with the system matrix of the specified geometry instance. Operates in O(log n). \return Pointer to the respective structure entity or NULL if no structure entity could be found
+			MyStructureEntity* 			searchForEntityOf(CGS::SubGeometryA<Def>&child, index_t&sub_index);
+			inline MyStructureEntity* 	SearchForEntityOf(CGS::SubGeometryA<Def>&child, index_t&subIndex)	{return searchForEntityOf(child,subIndex);}
+			MyStructureEntity* 			searchForEntityOf(CGS::SubGeometryInstance<Def>&instance, index_t&sub_index);
+			inline MyStructureEntity* 	SearchForEntityOf(CGS::SubGeometryInstance<Def>&instance, index_t&subIndex)	{return searchForEntityOf(instance,subIndex);}
+			MyStructureEntity* 			findEntityOf(CGS::Geometry<Def>&geometry);					//!< Attempts to find the structure entity associated with the currently bound system matrix of the specified geometry. Operates in O(log n). \return Pointer to the respective structure entity or NULL if no structure entity could be found
+			inline MyStructureEntity* 	FindEntityOf(CGS::Geometry<Def>&geometry)			{return findEntityOf(geometry);}
+			MyStructureEntity* 			findEntityOf(CGS::StaticInstance<Def>&instance);			//!< Attempts to find the structure entity associated with the system matrix of the specified geometry instance. Operates in O(log n). \return Pointer to the respective structure entity or NULL if no structure entity could be found
+			inline MyStructureEntity* 	FindEntityOf(CGS::StaticInstance<Def>&instance)		{return findEntityOf(instance);}
 
-		virtual	void						rebuild();													//!< Rebuilds materials of the local scenery that require a rebuild
-				void						lock();														//!< Increases the local lock variable by one, preventing automatic visual rebuilds (except when rendering) due to changes in the local scenery.
-				void						unlock();													//!< Decreases the local lock variable by one. Subsequent automatic rebuilding is again allowed if the lock variable is reduced to zero by this operation.
+			virtual	void				Rebuild();													//!< Rebuilds materials of the local scenery that require a rebuild
+			void						lock();														//!< Increases the local lock variable by one, preventing automatic visual rebuilds (except when rendering) due to changes in the local scenery.
+			inline void					Lock()		{lock();}
+			void						unlock();													//!< Decreases the local lock variable by one. Subsequent automatic rebuilding is again allowed if the lock variable is reduced to zero by this operation.
+			inline void					Unlock()	{unlock();}
 				
-		virtual	void						clear(bool disconnected=false);		//!< Clears the local scenery. When erasing materials Scenery assumes that the linked CGS::Geometry instances still exist. \param disconnected Pass true if referenced CGS::Geometry/CGS::SubGeometry instances do no longer exist.
-				bool						idle();								//!< Queries whether or not data is currently loaded into the scenery \return true if \b no data is currently loaded into the scenery, false otherwise
+			virtual	void				clear(bool disconnected=false);		//!< Clears the local scenery. When erasing materials Scenery assumes that the linked CGS::Geometry instances still exist. \param disconnected Pass true if referenced CGS::Geometry/CGS::SubGeometry instances do no longer exist.
+			inline void					Clear(bool disconnected=false)	{clear(disconnected);}
+			bool						idle();								//!< Queries whether or not data is currently loaded into the scenery \return true if \b no data is currently loaded into the scenery, false otherwise
+			inline bool					IsIdle()	{return idle();}
 				
-				String						state();							//!< Retrieves a string representation of the current scenery state
+			String						state();							//!< Retrieves a string representation of the current scenery state
+			inline String				GetState()	{return state();}
 				
-				typename Def::FloatType*	extractRenderPath(count_t&points);
-				shared_ptr<Material<GL,Def> > largestMaterial();
+			typename Def::FloatType*	extractRenderPath(count_t&points);
+			inline typename Def::FloatType*	ExtractRenderPath(count_t&points)	{return extractRenderPath(points);}
+			shared_ptr<Material<GL,Def> > largestMaterial();
+			inline shared_ptr<Material<GL,Def> > GetLargestMaterial()	{return largestMaterial();}
 				
-		template <class Def2>
-				void						import(Scenery<GL,Def2>&scenery);	//!< Imports rendering data from another scenery (experimental)
-				/*!
-					\brief Determines the detail of all structure entities and the visibility of their respective object entities using cage projection
+			template <class Def2>
+				void					import(Scenery<GL,Def2>&scenery);	//!< Imports rendering data from another scenery (experimental)
+			template <class Def2>
+				inline void				Import(Scenery<GL,Def2>&scenery)	{import(scenery);}
+			/*!
+			\brief Determines the detail of all structure entities and the visibility of their respective object entities using cage projection
 					
-					The determined structure detail is stored in the StructureEntity::detail member variables, object visibility in the ObjectEntity::visible member variables.
-					Structures or objects exceeding the specified maximum visual range are classified invisible.
-					
-					\param aspect Camera to test visibily against
-					\param visual_range Maximum viewing distance from the camera center
-				*/
-		template <class C0, class C1>
-				void 						resolve(const Aspect<C0>&aspect, const C1&visual_range);
+			The determined structure detail is stored in the StructureEntity::detail member variables, object visibility in the ObjectEntity::visible member variables.
+			Structures or objects exceeding the specified maximum visual range are classified invisible.
+			\param aspect Camera to test visibily against
+			\param visual_range Maximum viewing distance from the camera center
+			*/
+			template <class C0, class C1>
+				void 					resolve(const Aspect<C0>&aspect, const C1&visual_range);
+			template <class C0, class C1>
+				inline void 			Resolve(const Aspect<C0>&aspect, const C1&visualRange)	{resolve(aspect,visualRange);}
 		
-				/*!
-					\brief Determines the detail of all structure entities and the visibility of their respective object entities using visual volume extraction and sphere tests.
+			/*!
+			\brief Determines the detail of all structure entities and the visibility of their respective object entities using visual volume extraction and sphere tests.
 					
-					The determined structure detail is stored in the StructureEntity::detail member variables, the respective object visibility in the ObjectEntity::visible member variables.
-					Object entities whoes sphere does not at least intersect the visual volume of \b aspect are classified invisible.
-					
-					\param aspect Camera to test visibily against
-				*/
+			The determined structure detail is stored in the StructureEntity::detail member variables, the respective object visibility in the ObjectEntity::visible member variables.
+			Object entities whoes sphere does not at least intersect the visual volume of \b aspect are classified invisible.
+			\param aspect Camera to test visibily against
+			*/
 			template <class C0>
-				void 						resolve(const Aspect<C0>&aspect);
+				void 					resolve(const Aspect<C0>&aspect);
+			template <class C0>
+				inline void 			Resolve(const Aspect<C0>&aspect)	{resolve(aspect);}
 
 			template <class C0, class C1>
-				void						render(const Aspect<C0>&aspect, const C1&max_range);		//!< Invokes resolve() using the specified parameters and renders the scenery. Invokes postRenderCleanup() after render \param aspect Camera that is currently loaded the rendering context (The scenery does not load this camera) \param max_range Maximum viewing distance
+				void					render(const Aspect<C0>&aspect, const C1&max_range);		//!< Invokes resolve() using the specified parameters and renders the scenery. Invokes postRenderCleanup() after render \param aspect Camera that is currently loaded the rendering context (The scenery does not load this camera) \param max_range Maximum viewing distance
+			template <class C0, class C1>
+				inline void				Render(const Aspect<C0>&aspect, const C1&maxRange)	{render(aspect,maxRange);}
 			template <class C0>
-				void						render(const Aspect<C0>&aspect);							//!< Invokes resolve() using the specified parameters and renders the scenery. Invokes postRenderCleanup() after render \param aspect Camera that is currently loaded the rendering context (The scenery does not load this camera)
+				void					render(const Aspect<C0>&aspect);							//!< Invokes resolve() using the specified parameters and renders the scenery. Invokes postRenderCleanup() after render \param aspect Camera that is currently loaded the rendering context (The scenery does not load this camera)
 			template <class C0>
-				void						renderIgnoreMaterials(const Aspect<C0>&aspect);				//!< Invokes resolve() using the specified parameters and renders the scenery. Does not bind any shaders. Invokes postRenderCleanup() after render \param aspect Camera that is currently loaded the rendering context (The scenery does not load this camera)
-				void						render(unsigned detail=0);									//!< Renders the entire scenery in the specified detail disregarding of visibility
-				void						renderOpaqueMaterials();										//!< Renders non-transparent materials. Required to be embedded between resolve() and postRenderCleanup()
-				void						renderTransparentMaterials();									//!< Renders transparent materials. Required to be embedded between resolve() and postRenderCleanup()
-				
-				virtual void				postRenderCleanup()	{};										//!< Automatically invoked by render(). Derivative classes such as MappedScenery<> require post rendering cleanups.
+				inline void				Render(const Aspect<C0>&aspect)	{render(aspect);}
+			template <class C0>
+				void					renderIgnoreMaterials(const Aspect<C0>&aspect);				//!< Invokes resolve() using the specified parameters and renders the scenery. Does not bind any shaders. Invokes postRenderCleanup() after render \param aspect Camera that is currently loaded the rendering context (The scenery does not load this camera)
+			template <class C0>
+				inline void				RenderIgnoreMaterials(const Aspect<C0>&aspect)	{renderIgnoreMaterials(aspect);}
+			void						render(unsigned detail=0);									//!< Renders the entire scenery in the specified detail disregarding of visibility
+			inline void					Render(unsigned detail=0)	{render(detail);}
+			void						renderOpaqueMaterials();										//!< Renders non-transparent materials. Required to be embedded between resolve() and postRenderCleanup()
+			inline void					RenderOpaqueMaterials()	{renderOpaqueMaterials();}
+			void						renderTransparentMaterials();									//!< Renders transparent materials. Required to be embedded between resolve() and postRenderCleanup()
+			inline void					RenderTransparentMaterials()	{renderTransparentMaterials();}
+		
+		protected:
+			virtual void				PostRenderCleanup()	{};										//!< Automatically invoked by render(). Derivative classes such as MappedScenery<> require post rendering cleanups.
 		};
 
 	/*!
@@ -528,7 +582,7 @@ namespace Engine
 				Structure*							getDominating();				//!< Retrieves the dominating structure entity of the local tree node.(if any)
 				bool								hasChildren();					//!< Returns true if the node has at least one child, false otherwise
 				unsigned							getLevel();						//!< Retrieves the recursive level of the local tree node (0 = bottom most node/leaf).
-				const Float*						getSplitVector();				//!< Retrieves the split point (3 components) used to determine the volumes of the local children. The returned vector is undefined if the local node has no children.
+				const TVec3<Float>&					getSplitVector();				//!< Retrieves the split point (3 components) used to determine the volumes of the local children. The returned vector is undefined if the local node has no children.
 				const Volume&						getVolume();					//!< Retrieves the actual volume of the local tree node
 				count_t								countElements();				//!< Retrieves the number of elements mapped in this node
 				void								getElements(List&out);			//!< Copies the pointers of all locally mapped object entities to the target list.
@@ -549,8 +603,8 @@ namespace Engine
 		class MappedScenery:public Scenery<GL,Def>
 		{
 		public:
-				typedef	Engine::StructureEntity<Def>	MyStructureEntity;
-				typedef Scenery<GL,Def>					Super;
+			typedef	Engine::StructureEntity<Def>	MyStructureEntity;
+			typedef Scenery<GL,Def>					Super;
 				
 		protected:
 				Buffer<MyStructureEntity*>			structure_buffer;	//!< Buffer used to store structure lookup results
@@ -581,13 +635,13 @@ namespace Engine
 				void								remove(CGS::AnimatableInstance<Def>&instance);
 				void								remove(CGS::AnimatableInstance<Def>*instance);
 				
-				void								rebuild();	//!< Rebuilds modified materials (Scenery::rebuild()) and remaps the local scenery
+				virtual void						Rebuild()	override;	//!< Rebuilds modified materials (Scenery::rebuild()) and remaps the local scenery
 				void								remap();	//!< Remaps the local scenery. Invoke this whenever objects have been moved. If the local scenery is static then this method need not be called manually 
 				
 			template <typename T>
 				void 								lookup(const Box<T>&vol, Buffer<ObjectEntity<Def>*>&out, const MyStructureEntity*exclude=NULL);	//!< Performs a recursive lookup on the local tree. For this method to work correctly the local tree is required to be up to date. \param lower Lower corner of the lookup volume \param upper Upper corner of the lookup volume \param out Outbuffer for (distinct) found object entities \param exclude Structure entity to exclude the object entities of or NULL to not exclude any object entities
 				
-				void								clear(bool disconnected=false); 		//!< Clears the local scenery. When erasing materials Scenery assumes that the linked CGS::Geometry instances still exist. \param disconnected Pass true if referenced CGS::Geometry/SubGeometry instances do no longer exist-
+				void								clear(bool disconnected=false) override; 		//!< Clears the local scenery. When erasing materials Scenery assumes that the linked CGS::Geometry instances still exist. \param disconnected Pass true if referenced CGS::Geometry/SubGeometry instances do no longer exist-
 				
 			template <class Def2>
 				void								import(Scenery<GL,Def2>&scenery);		//!< Imports the content of the specified other scenery
@@ -602,7 +656,6 @@ namespace Engine
 				*/
 			template <class C0>
 				void 								resolve(const Aspect<C0>&aspect);
-				virtual void						postRenderCleanup();						//!< Perform post render cleanup
 		// template <class C0, class C1>
 				// void								render(const Aspect<C0>&aspect, const C1&max_range);
 			template <class C0>
@@ -612,6 +665,8 @@ namespace Engine
 			template <class C0, class C1, class C2, class C3>
 				ObjectEntity<Def>*					lookupClosest(const TVec3<C0>&center, const C1&radius, TVec3<C2>&position_out, TVec3<C3>&normal_out);	//!< Determines the closest hull point approximately inside the specified sphere. Invisible entities are ignored. The method does not miss points that should be inside but may return a point that lies outside the specified radius. \param center Sphere center \param radius Sphere radius, \param position_out 3 component out vector for the closest hull point \param normal_out 3 component out vector for the normal of the closest hull point \return Pointer to the closest object entity or NULL if no object is close enough to the sphere center.
 		
+		protected:
+			virtual void						PostRenderCleanup() override;						//!< Perform post render cleanup
 		};
 
 
