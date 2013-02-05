@@ -449,6 +449,15 @@ namespace Math
 										bottom = (T)value;
 										top = (T)value;
 									}
+			template <typename T1>
+				MF_DECLARE(void)	operator*=(T1 factor)
+									{
+										left *= factor;
+										right *= factor;
+										bottom *= factor;
+										top *= factor;
+									}
+
 		};
 
 

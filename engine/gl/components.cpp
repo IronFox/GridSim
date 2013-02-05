@@ -1201,7 +1201,7 @@ namespace Engine
 			{
 				h = 0;
 				for (index_t i = 0; i < children.count(); i++)
-					h += children[i]->height;
+					h = std::max(children[i]->minHeight(true),h);
 			}
 			if (horizontal_bar->isVisible())
 				h += horizontal_bar->minHeight(false);
@@ -1830,7 +1830,7 @@ namespace Engine
 				glPushMatrix();
 				if (!enabled)
 					glScalef(0.1,0.1,1);
-				elif (pressed)
+				elif (AppearsPressed())
 					glScalef(-1,-1,1);
 			glMatrixMode(GL_MODELVIEW);
 			
@@ -1843,21 +1843,24 @@ namespace Engine
 		
 		void		Button::onColorPaint()
 		{
+			bool pressed = AppearsPressed();
 			if (pressed || !enabled)
 				glGrey(0.5);
 			else
 				glWhite();
 			
 			Component::onColorPaint();
-			glWhite();
-			const Rect<float>&rect=cell_layout.client;
+			if (caption.isNotEmpty())
+			{
+				glWhite();
+				const Rect<float>&rect=cell_layout.client;
 			
-			glDisable(GL_BLEND);
-			textout.locate(rect.x.center()-textout.unscaledLength(caption)*0.5+pressed,rect.y.center()-textout.getFont().getHeight()/2+font_offset);//textout.getFont().getHeight()*0.5);
-			textout.color(1.0-0.2*(pressed||!enabled),1.0-0.2*(pressed||!enabled),1.0-0.2*(pressed||!enabled));
-			textout.print(caption);
-			glEnable(GL_BLEND);
-			
+				glDisable(GL_BLEND);
+				textout.locate(rect.x.center()-textout.unscaledLength(caption)*0.5+pressed,rect.y.center()-textout.getFont().getHeight()/2+font_offset);//textout.getFont().getHeight()*0.5);
+				textout.color(1.0-0.2*(pressed||!enabled),1.0-0.2*(pressed||!enabled),1.0-0.2*(pressed||!enabled));
+				textout.print(caption);
+				glEnable(GL_BLEND);
+			}			
 		}
 		
 		Component::eEventResult	Button::onMouseDrag(float x, float y)
@@ -2046,7 +2049,7 @@ namespace Engine
 			}
 			if (layout)
 			{
-				rs += layout->client_edge.left()+layout->client_edge.x.max;
+				rs += layout->client_edge.left+layout->client_edge.right;
 				if (rs < layout->min_width)
 					rs = layout->min_width;
 			}
@@ -2065,7 +2068,7 @@ namespace Engine
 			}
 			if (layout)
 			{
-				rs += layout->client_edge.bottom()+layout->client_edge.top();
+				rs += layout->client_edge.bottom+layout->client_edge.top;
 				if (rs < layout->min_height)
 					rs = layout->min_height;
 			}
@@ -2228,7 +2231,7 @@ namespace Engine
 			Menu*	menu = (Menu*)menu_window->component_link.get();
 			float mh = menu->idealHeight();
 			if (menu_window->layout)
-				mh += menu_window->layout->client_edge.top()+menu_window->layout->client_edge.bottom();
+				mh += menu_window->layout->client_edge.top+menu_window->layout->client_edge.bottom;
 			float h = vmin(150,mh);
 			if (menu_window->fheight != h)
 			{
@@ -2491,7 +2494,7 @@ namespace Engine
 			for (index_t i = 0; i < children.count(); i++)
 				h += children[i]->height;
 			if (layout)
-				h += layout->client_edge.top()+layout->client_edge.bottom();
+				h += layout->client_edge.top+layout->client_edge.bottom;
 			return h;
 		}
 		
@@ -2861,7 +2864,7 @@ namespace Engine
 
 			message_label->offset.bottom = buttons.first()->height;
 
-			shared_ptr<GUI::Window>	window = Window::CreateNew(NewWindowConfig(title,WindowPosition(0,0,400,200,true),true),panel);
+			shared_ptr<GUI::Window>	window = Window::CreateNew(NewWindowConfig(title,WindowPosition(0,0,400,200,SizeChange::Fixed),true),panel);
 			window->iheight = (size_t)(window->fheight = window->minHeight());
 			window->layout_changed = true;
 			window->visual_changed = true;
@@ -2871,7 +2874,7 @@ namespace Engine
 			window->updateLayout();
 			window->iheight = (size_t)(window->fheight = window->minHeight());
 
-			op.insertWindow(window);
+			op.ShowWindow(window);
 			Component::setFocused(buttons[0]);
 			
 			weak_ptr<GUI::Window>	weak_window = window;
@@ -2883,7 +2886,7 @@ namespace Engine
 					{
 						shared_ptr<GUI::Operator>&op = window->operator_link.lock();
 						if (op)
-							op->removeWindow(window);
+							op->HideWindow(window);
 					}
 					onSelect(i);
 				};
@@ -2916,7 +2919,7 @@ namespace Engine
 
 			//float	mx = op.getDisplay().clientWidth()/2,
 			//		my = op.getDisplay().clientHeight()/2;
-			message_window = Window::CreateNew(NewWindowConfig("Message",WindowPosition(0,0,400,200,true),true),panel);
+			message_window = Window::CreateNew(NewWindowConfig("Message",WindowPosition(0,0,400,200,SizeChange::Fixed),true),panel);
 		}
 		
 		
@@ -2944,7 +2947,7 @@ namespace Engine
 				message_window->y = 0;
 			#endif
 			//ShowMessage("inserting window");
-			op.insertWindow(message_window);
+			op.ShowWindow(message_window);
 			Component::setFocused(message_button);
 		}
 		
@@ -2961,7 +2964,7 @@ namespace Engine
 		void	hideMessage()
 		{
 			if (message_window && !message_window->operator_link.expired())
-				message_window->operator_link.lock()->removeWindow(message_window);
+				message_window->operator_link.lock()->HideWindow(message_window);
 		}
 		
 	}

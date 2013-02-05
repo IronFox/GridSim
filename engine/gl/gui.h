@@ -157,8 +157,8 @@ namespace Engine
 				Layout&					operator=(const Layout&other) {return *this;}
 		public:
 				Array<TRow>				rows;				//!< Collection of rows
-				Rect<float>				title_position,		//!< Title position.	Negative values are interpreted relative to the right/top edges, positive ones to the left, bottom edges
-										border_edge,		//!< Distance from the window/component edge to the effective (visual) edge of the layout. All values are >= 0
+				Rect<float>				title_position;		//!< Title position.	Negative values are interpreted relative to the right/top edges, positive ones to the left, bottom edges
+				Quad<float>				border_edge,		//!< Distance from the window/component edge to the effective (visual) edge of the layout. All values are >= 0
 										client_edge;		//!< Distance from the window/component edge to the client edge of the layout. All values are >= 0
 				float					min_width,			//!< Minimum width of this layout
 										min_height;			//!< Minimum height of this layout
@@ -352,17 +352,19 @@ namespace Engine
 		};
 
 
+		CONSTRUCT_ENUMERATION4(SizeChange,Free,FixedWidth,FixedHeight,Fixed);
+
 		class WindowPosition
 		{
 		public:
 			TVec2<>			center;	//!< Window center position in pixels relative to the center of the screen. Actual size depending on to the current display resolution. (0,0) always points to the center of the screen. Defaults to (0,0)
 			TVec2<>			size;	//!< Window size (x = width, y = height) in pixels. Actual size depending on to the current display resolution. Must be > 0 at all times. Defaults to 100x100
-			bool			fixedSize;	//!< True if the size of the finished window should be unchangeable, false otherwise. Defaults to false.
+			SizeChange		sizeChange;
 			bool			fixedPosition;	//!< True if the position of the finished window should be unchangeable, false otherwise. Defaults to false.
 
-			/**/			WindowPosition(bool fixedSize=false, bool fixedPosition=false):fixedSize(fixedSize),fixedPosition(fixedPosition)	{Vec::clear(center);Vec::set(size,100);}
-			/**/			WindowPosition(const TVec2<>&center, const TVec2<>&size,bool fixedSize=false, bool fixedPosition=false):center(center),size(size),fixedSize(fixedSize),fixedPosition(fixedPosition)	{}
-			/**/			WindowPosition(float x, float y, float width, float height,bool fixedSize=false, bool fixedPosition=false):fixedSize(fixedSize),fixedPosition(fixedPosition)	{Vec::def(center,x,y); Vec::def(size,width,height);}
+			/**/			WindowPosition(SizeChange sizeChange=SizeChange::Free, bool fixedPosition=false):sizeChange(sizeChange),fixedPosition(fixedPosition)	{Vec::clear(center);Vec::set(size,100);}
+			/**/			WindowPosition(const TVec2<>&center, const TVec2<>&size,SizeChange sizeChange=SizeChange::Free, bool fixedPosition=false):center(center),size(size),sizeChange(sizeChange),fixedPosition(fixedPosition)	{}
+			/**/			WindowPosition(float x, float y, float width, float height,SizeChange sizeChange=SizeChange::Free, bool fixedPosition=false):sizeChange(sizeChange),fixedPosition(fixedPosition)	{Vec::def(center,x,y); Vec::def(size,width,height);}
 		};
 
 		class NewWindowConfig
@@ -442,8 +444,9 @@ namespace Engine
 			bool					size_changed,	//!< Indicates that the window size has changed and onResize needs to be triggered after the next layout update
 									layout_changed,	//!< Indicates that the general window content has changed and requires a layout and render update into the respective color and normal buffers
 									visual_changed,	//!< Indicates that the window should be repainted
-									fixed_position,	//!< Window is fixed to its current location and may neither be resized nor moved
-									fixed_size;		//!< Windows has fixed size and may be moved but not resized
+									fixed_position;	//!< Window is fixed to its current location and may neither be resized nor moved
+			SizeChange				sizeChange;
+
 			const bool				is_modal;		//!< True if this window does not allow events to pass further down.
 			Timer::Time				hidden;			//!< Time stamp when this window was hidden
 				
@@ -474,8 +477,7 @@ namespace Engine
 			void					setComponent(const shared_ptr<Component>&component);					//!< Changes the primary component of this window @param discardable Set true if the assigned component may be erased when the window is deleted or another component assigned
 			void					apply(Component::eEventResult rs);	//!< Applies the result of a component event to the local state variables
 			
-			bool					remove();	//!< Attempts to remove the local window from its operator
-
+			bool					Hide();	//!< Attempts to remove the local window from its operator
 			/**
 			@brief Creates a new window without inserting it
 			@param config Initial window configuration
@@ -561,24 +563,22 @@ namespace Engine
 			inline bool					ShowingModalWindows()	const	{return showingModalWindows();}
 			PWindow						getTopWindow() const;	//!< Retrieves the top-most window
 			inline PWindow				GetTopWindow() const	{return getTopWindow();}
-			void						insertWindow(const PWindow&window);	//!< Appends a window to the local window stack as new top level window. If the window is already inserted then it will simply be moved to the top position @param window Window to append @param managed Set true to also add the window to the local container, automatically deleting it if no longer necessary
-			inline void					InsertWindow(const PWindow&window)	{insertWindow(window);}
-			bool						removeWindow(const PWindow&window);				//!< Removes a window from the window stack (does not delete the window)
-			inline bool					RemoveWindow(const PWindow&window)	{return removeWindow(window);}
+			void						ShowWindow(const PWindow&window);	//!< Appends a window to the local window stack as new top level window. If the window is already inserted then it will simply be moved to the top position @param window Window to append @param managed Set true to also add the window to the local container, automatically deleting it if no longer necessary
+			bool						HideWindow(const PWindow&window);				//!< Removes a window from the window stack (does not delete the window)
 			bool						windowIsVisible(const PWindow&window)	const;
 			inline bool					WindowIsVisible(const PWindow&window)	const	{return windowIsVisible(window);}
 			/**
-			@brief Creates a new window, and immediately inserts it
+			@brief Creates a new window, and immediately shows it
 			@param config Initial window configuration
 			@param component Root component of the new window
 			*/
-			PWindow						InsertNewWindow(const NewWindowConfig&config, const shared_ptr<Component>&component=shared_ptr<Component>());
+			PWindow						ShowNewWindow(const NewWindowConfig&config, const shared_ptr<Component>&component=shared_ptr<Component>());
 			/**
-			@brief Creates a new window with a custom layout, and immediately inserts it
+			@brief Creates a new window with a custom layout, and immediately shows it
 			@param config Initial window configuration
 			@param component Root component of the new window
 			*/
-			PWindow						InsertNewWindow(const NewWindowConfig&config, Layout*layout,const shared_ptr<Component>&component);
+			PWindow						ShowNewWindow(const NewWindowConfig&config, Layout*layout,const shared_ptr<Component>&component);
 
 
 

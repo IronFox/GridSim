@@ -393,6 +393,148 @@ namespace Math
 		{
 			return Vec4<T>(a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w);
 		}
+
+
+	template <typename T>
+		inline Vec2<T>	operator*(const TVec2<T>&a, const T&f)
+		{
+			return Vec2<T>(a.x *f, a.y *f);
+		}
+	template <typename T>
+		inline Vec3<T>	operator*(const TVec3<T>&a, const T&f)
+		{
+			return Vec3<T>(a.x * f, a.y * f, a.z * f);
+		}
+	template <typename T>
+		inline Vec4<T>	operator*(const TVec4<T>&a, const T&f)
+		{
+			return Vec4<T>(a.x * f, a.y * f, a.z * f, a.w * f);
+		}
+
+	template <typename T>
+		inline Vec2<T>	operator*(const T&f, const TVec2<T>&a)
+		{
+			return Vec2<T>(a.x *f, a.y *f);
+		}
+	template <typename T>
+		inline Vec3<T>	operator*(const T&f, const TVec3<T>&a)
+		{
+			return Vec3<T>(a.x * f, a.y * f, a.z * f);
+		}
+	template <typename T>
+		inline Vec4<T>	operator*(const T&f, const TVec4<T>&a)
+		{
+			return Vec4<T>(a.x * f, a.y * f, a.z * f, a.w * f);
+		}
+
+
+	template <typename T>
+		inline TVec2<T>&	operator-=(TVec2<T>&a, const TVec2<T>&b)
+		{
+			a.x -= b.x;
+			a.y -= b.y;
+			return a;
+		}
+
+	template <typename T>
+		inline TVec3<T>&	operator-=(TVec3<T>&a, const TVec3<T>&b)
+		{
+			a.x -= b.x;
+			a.y -= b.y;
+			a.z -= b.z;
+			return a;
+		}
+
+	template <typename T>
+		inline TVec4<T>&	operator-=(TVec4<T>&a, const TVec4<T>&b)
+		{
+			a.x -= b.x;
+			a.y -= b.y;
+			a.z -= b.z;
+			a.w -= b.w;
+			return a;
+		}
+
+	template <typename T>
+		inline TVec2<T>&	operator+=(TVec2<T>&a, const TVec2<T>&b)
+		{
+			a.x += b.x;
+			a.y += b.y;
+			return a;
+		}
+
+	template <typename T>
+		inline TVec3<T>&	operator+=(TVec3<T>&a, const TVec3<T>&b)
+		{
+			a.x += b.x;
+			a.y += b.y;
+			a.z += b.z;
+			return a;
+		}
+
+	template <typename T>
+		inline TVec4<T>&	operator+=(TVec4<T>&a, const TVec4<T>&b)
+		{
+			a.x += b.x;
+			a.y += b.y;
+			a.z += b.z;
+			a.w += b.w;
+			return a;
+		}
+
+
+	template <typename T>
+		inline TVec2<T>&	operator*=(TVec2<T>&a, const T&b)
+		{
+			a.x *= b;
+			a.y *= b;
+			return a;
+		}
+
+	template <typename T>
+		inline TVec3<T>&	operator*=(TVec3<T>&a, const T&b)
+		{
+			a.x *= b;
+			a.y *= b;
+			a.z *= b;
+			return a;
+		}
+
+	template <typename T>
+		inline TVec4<T>&	operator*=(TVec4<T>&a, const T&b)
+		{
+			a.x *= b;
+			a.y *= b;
+			a.z *= b;
+			a.w *= b;
+			return a;
+		}
+	template <typename T>
+		inline TVec2<T>&	operator/=(TVec2<T>&a, const T&b)
+		{
+			a.x /= b;
+			a.y /= b;
+			return a;
+		}
+
+	template <typename T>
+		inline TVec3<T>&	operator/=(TVec3<T>&a, const T&b)
+		{
+			a.x /= b;
+			a.y /= b;
+			a.z /= b;
+			return a;
+		}
+
+	template <typename T>
+		inline TVec4<T>&	operator/=(TVec4<T>&a, const T&b)
+		{
+			a.x /= b;
+			a.y /= b;
+			a.z /= b;
+			a.w /= b;
+			return a;
+		}
 }
 
 

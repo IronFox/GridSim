@@ -424,20 +424,23 @@ namespace Engine
 		*/
 		class Button:public Component
 		{
-		protected:
-			bool						down, pressed;
+		private:
+			bool						down,
+										pressed;
 			String						caption;		//!< Button caption
+		protected:
+			bool						constantlyDown;
 		public:
 			static	Layout				global_layout;	//!< Global default button layout
 			FunctionalEvent				on_execute;		//!< Event that is fired if the button is pressed
 
-			/**/						Button():Component("Button"),down(false),pressed(false),caption("Button")
+			/**/						Button():Component("Button"),down(false),pressed(false),constantlyDown(false),caption("Button")
 										{
 											layout = global_layout.reference();
 											width = minWidth(false);
 											height = minHeight(false);
 										}
-			/**/						Button(const String&caption_):Component("Button"),down(false),pressed(false),caption(caption_)
+			/**/						Button(const String&caption_):Component("Button"),down(false),pressed(false),constantlyDown(false),caption(caption_)
 										{
 											layout = global_layout.reference();
 											width = minWidth(false);
@@ -465,6 +468,7 @@ namespace Engine
 										{
 											on_execute();
 										}
+			inline bool					AppearsPressed()	const	{return pressed || constantlyDown;}
 		};
 		typedef shared_ptr<Button>		PButton;
 		

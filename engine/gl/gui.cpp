@@ -163,6 +163,7 @@ namespace Engine
 						"gl_FragColor.z = 0;\n"
 						"gl_FragColor.a = 1;\n"*/
 						//"gl_FragColor.xyz = normal.xyz*0.5+0.5;\n"
+						//"gl_FragColor = color_sample;\n"
 					"}\n"
 				))
 				{
@@ -745,13 +746,13 @@ namespace Engine
 				if (segments.count() != 4)
 					throw IO::DriveAccess::FileFormatFault(globalString("'border_edge' attribute of XML 'layout' node does not contain 4 comma-separated segments"));
 
-				if (!convert(segments[0].c_str(),border_edge.x.min)
+				if (!convert(segments[0].c_str(),border_edge.left)
 					||
-					!convert(segments[1].c_str(),border_edge.y.min)
+					!convert(segments[1].c_str(),border_edge.bottom)
 					||
-					!convert(segments[2].c_str(),border_edge.x.max)
+					!convert(segments[2].c_str(),border_edge.right)
 					||
-					!convert(segments[3].c_str(),border_edge.y.max))
+					!convert(segments[3].c_str(),border_edge.top))
 				{
 					throw IO::DriveAccess::FileFormatFault(globalString("One or more segments of 'border_edge' attribute of XML 'layout' node could not be converted to float"));
 				}
@@ -766,13 +767,13 @@ namespace Engine
 				if (segments.count() != 4)
 					throw IO::DriveAccess::FileFormatFault(globalString("'client_edge' attribute of XML 'layout' node does not contain 4 comma-separated segments"));
 
-				if (!convert(segments[0].c_str(),client_edge.x.min)
+				if (!convert(segments[0].c_str(),client_edge.left)
 					||
-					!convert(segments[1].c_str(),client_edge.y.min)
+					!convert(segments[1].c_str(),client_edge.bottom)
 					||
-					!convert(segments[2].c_str(),client_edge.x.max)
+					!convert(segments[2].c_str(),client_edge.right)
 					||
-					!convert(segments[3].c_str(),client_edge.y.max))
+					!convert(segments[3].c_str(),client_edge.top))
 				{
 					throw IO::DriveAccess::FileFormatFault(globalString("One or more segments of 'client_edge' attribute of XML 'layout' node could not be converted to float"));
 				}
@@ -956,14 +957,14 @@ namespace Engine
 				y-=row_height;
 			}
 			ASSERT_EQUAL__(cell_index,layout.cells.count());
-			layout.client.x.min = /* floor */round(window_location.x.min+client_edge.x.min);
-			layout.client.x.max = /* ceil */round(window_location.x.max-client_edge.x.max);
-			layout.client.y.min = /* floor */round(window_location.y.min+client_edge.y.min);
-			layout.client.y.max = /* ceil */round(window_location.y.max-client_edge.y.max);
-			layout.border.x.min = window_location.x.min+border_edge.x.min;
-			layout.border.x.max = window_location.x.max-border_edge.x.max;
-			layout.border.y.min = window_location.y.min+border_edge.y.min;
-			layout.border.y.max = window_location.y.max-border_edge.y.max;
+			layout.client.x.min = /* floor */round(window_location.x.min+client_edge.left);
+			layout.client.x.max = /* ceil */round(window_location.x.max-client_edge.right);
+			layout.client.y.min = /* floor */round(window_location.y.min+client_edge.bottom);
+			layout.client.y.max = /* ceil */round(window_location.y.max-client_edge.top);
+			layout.border.x.min = window_location.x.min+border_edge.left;
+			layout.border.x.max = window_location.x.max-border_edge.right;
+			layout.border.y.min = window_location.y.min+border_edge.bottom;
+			layout.border.y.max = window_location.y.max-border_edge.top;
 		}
 		
 
@@ -1004,7 +1005,7 @@ namespace Engine
 			result->iheight = (unsigned)round(result->fheight);
 			result->setComponent(component);
 			result->title = config.windowName;
-			result->fixed_size = config.initialPosition.fixedSize;
+			result->sizeChange = config.initialPosition.sizeChange;
 			result->fixed_position = config.initialPosition.fixedPosition;
 			Rect<float> reg(0,0,result->iwidth,result->iheight);
 			if (layout)
@@ -1016,18 +1017,18 @@ namespace Engine
 
 		
 		
-		bool	Window::remove()
+		bool	Window::Hide()
 		{
 			shared_ptr<Operator>	op = operator_link.lock();
 			if (op)
 			{
-				return op->removeWindow(shared_from_this());
+				return op->HideWindow(shared_from_this());
 			}
 			return false;
 		}
 
 
-		Window::Window(bool modal, Layout*style):is_modal(modal),exp_x(0),exp_y(0),iwidth(1),iheight(1),progress(0),fwidth(1),fheight(1),usage_x(0),usage_y(0),layout(style),title(""),size_changed(true),layout_changed(true),visual_changed(true),fixed_position(false),fixed_size(false),hidden(timer.now())
+		Window::Window(bool modal, Layout*style):is_modal(modal),exp_x(0),exp_y(0),iwidth(1),iheight(1),progress(0),fwidth(1),fheight(1),usage_x(0),usage_y(0),layout(style),title(""),size_changed(true),layout_changed(true),visual_changed(true),fixed_position(false),hidden(timer.now())
 		{
 			#ifdef DEEP_GUI
 				_clear(destination.coord);
@@ -1327,7 +1328,7 @@ namespace Engine
 				rs = component_link->minWidth(true);
 			if (layout)
 			{
-				rs += layout->client_edge.x.min+layout->client_edge.x.max;
+				rs += layout->client_edge.left+layout->client_edge.right;
 				if (rs < layout->min_width)
 					rs = layout->min_width;
 			}
@@ -1345,16 +1346,27 @@ namespace Engine
 		
 		void	Window::setHeight(float height)
 		{
-			fheight = height;
-			iheight = (unsigned)round(fheight);
-			size_changed = layout_changed = visual_changed = true;
+			unsigned heighti = (unsigned)round(height);
+			{
+				fheight = height;
+				if (iheight != heighti)
+				{
+					iheight = heighti;
+					size_changed = layout_changed = visual_changed = true;
+				}
+			}
+
 		}
 		
 		void	Window::setWidth(float width)
 		{
+			unsigned widthi = (unsigned)round(width);
 			fwidth = width;
-			iwidth = (unsigned)round(fwidth);
-			size_changed = layout_changed = visual_changed = true;
+			if (widthi != iwidth)
+			{
+				iwidth = widthi;
+				size_changed = layout_changed = visual_changed = true;
+			}
 		}
 		
 		float	Window::minHeight()	const
@@ -1364,7 +1376,7 @@ namespace Engine
 				rs = component_link->minHeight(true);
 			if (layout)
 			{
-				rs += layout->client_edge.y.min+layout->client_edge.y.max;
+				rs += layout->client_edge.bottom+layout->client_edge.top;
 				if (rs < layout->min_height)
 					rs = layout->min_height;
 			}
@@ -1414,29 +1426,41 @@ namespace Engine
 			if (!cell_layout.border.contains(x,y))
 				return ClickResult::Missed;
 			
-			if (!fixed_size && !fixed_position)
+			if (!fixed_position)
 			{
-				if (x > cell_layout.border.x.max-BorderWidth)
+				if (sizeChange == SizeChange::Free || sizeChange == SizeChange::FixedHeight)
 				{
-					if (y > cell_layout.border.y.max-BorderWidth)
-						return ClickResult::ResizeTopRight;
-					if (y < cell_layout.border.y.min+BorderWidth)
-						return ClickResult::ResizeBottomRight;
-					return ClickResult::ResizeRight;
-				}
-				if (x < cell_layout.border.x.min+BorderWidth)
-				{
-					if (y > cell_layout.border.y.max-BorderWidth)
-						return ClickResult::ResizeTopLeft;
-					if (y < cell_layout.border.y.min+BorderWidth)
-						return ClickResult::ResizeBottomLeft;
-					return ClickResult::ResizeLeft;
+					if (x > cell_layout.border.x.max-BorderWidth)
+					{
+						if (sizeChange != SizeChange::FixedHeight)
+						{
+							if (y > cell_layout.border.y.max-BorderWidth)
+								return ClickResult::ResizeTopRight;
+							if (y < cell_layout.border.y.min+BorderWidth)
+								return ClickResult::ResizeBottomRight;
+						}
+						return ClickResult::ResizeRight;
+					}
+					if (x < cell_layout.border.x.min+BorderWidth)
+					{
+						if (sizeChange != SizeChange::FixedHeight)
+						{
+							if (y > cell_layout.border.y.max-BorderWidth)
+								return ClickResult::ResizeTopLeft;
+							if (y < cell_layout.border.y.min+BorderWidth)
+								return ClickResult::ResizeBottomLeft;
+						}
+						return ClickResult::ResizeLeft;
+					}
 				}
 				
-				if (y > cell_layout.border.y.max-BorderWidth)
-					return ClickResult::ResizeTop;
-				if (y < cell_layout.border.y.min+BorderWidth)
-					return ClickResult::ResizeBottom;
+				if (sizeChange != SizeChange::FixedHeight && sizeChange != SizeChange::Fixed)
+				{
+					if (y > cell_layout.border.y.max-BorderWidth)
+						return ClickResult::ResizeTop;
+					if (y < cell_layout.border.y.min+BorderWidth)
+						return ClickResult::ResizeBottom;
+				}
 			}
 				
 			if (component_link && (!layout || cell_layout.client.contains(x,y))&&component_link->visible&&component_link->enabled&&component_link->cell_layout.border.contains(x,y))
@@ -1467,8 +1491,10 @@ namespace Engine
 		}
 		
 		
-		void		Operator::apply(const Rect<int>&port)
+		void		Operator::apply(const Rect<int>&port_)
 		{
+			Rect<int> port = port_;
+			port *= 2;
 			glViewport(port.x.min,port.y.min,port.width(),port.height());
 			texture_space.make(port.x.min,port.y.min,
 								port.x.max,port.y.max,
@@ -1637,7 +1663,7 @@ namespace Engine
 				rs += offset.left;
 			if (layout)
 			{
-				rs += layout->client_edge.x.min+layout->client_edge.x.max;
+				rs += layout->client_edge.left+layout->client_edge.right;
 				if (rs < layout->min_width)
 					rs = layout->min_width;
 			}
@@ -1653,7 +1679,7 @@ namespace Engine
 				rs += offset.bottom;
 			if (layout)
 			{
-				rs += layout->client_edge.y.min+layout->client_edge.y.max;
+				rs += layout->client_edge.bottom+layout->client_edge.top;
 				if (rs < layout->min_height)
 					rs = layout->min_height;
 			}
@@ -1679,6 +1705,8 @@ namespace Engine
 			if (size_changed)
 				onResize();
 			size_changed = false;
+			unsigned iwidth = this->iwidth * 2;
+			unsigned iheight = this->iheight * 2;
 			ASSERT_GREATER__(fwidth,0);
 			ASSERT_GREATER__(fheight,0);
 			unsigned	ex = (unsigned)ceil(log((float)iwidth)/M_LN2),
@@ -1691,8 +1719,8 @@ namespace Engine
 			
 			if (!color_buffer.color_target[0].texture_handle)
 			{
-				color_buffer = gl_extensions.createFrameBuffer(target_resolution,Engine::DepthStorage::SharedBuffer,1,&GLType<GLbyte>::rgba_type_constant);
-				normal_buffer = gl_extensions.createFrameBuffer(target_resolution,Engine::DepthStorage::SharedBuffer,1,&GLType<GLbyte>::rgba_type_constant);
+				color_buffer = gl_extensions.createFrameBuffer(target_resolution,Engine::DepthStorage::NoDepthStencil,1,&GLType<GLbyte>::rgba_type_constant);
+				normal_buffer = gl_extensions.createFrameBuffer(target_resolution,Engine::DepthStorage::NoDepthStencil,1,&GLType<GLbyte>::rgba_type_constant);
 				exp_x = ex;
 				exp_y = ey;
 			}
@@ -2308,14 +2336,14 @@ namespace Engine
 
 
 		
-		void			Operator::insertWindow(const shared_ptr<Window>&window)
+		void			Operator::ShowWindow(const shared_ptr<Window>&window)
 		{
 			if (!window->operator_link.expired())
 			{
 				shared_ptr<Operator>	op = window->operator_link.lock();
 				if (op && op.get() != this)
 				{
-					op->removeWindow(window);
+					op->HideWindow(window);
 					window->operator_link = shared_from_this();
 				}
 			}
@@ -2351,7 +2379,7 @@ namespace Engine
 			stack_changed=true;
 		}
 		
-		bool			Operator::removeWindow(const shared_ptr<Window>&window)
+		bool			Operator::HideWindow(const shared_ptr<Window>&window)
 		{
 			bool was_top = window_stack.isNotEmpty() && window_stack.last() == window;
 				
@@ -2562,15 +2590,15 @@ namespace Engine
 		
 
 		
-		shared_ptr<Window>		Operator::InsertNewWindow(const NewWindowConfig&config, const shared_ptr<Component>&component /*=shared_ptr<Component>()*/)
+		shared_ptr<Window>		Operator::ShowNewWindow(const NewWindowConfig&config, const shared_ptr<Component>&component /*=shared_ptr<Component>()*/)
 		{
-			return InsertNewWindow(config,&Window::common_style,component);
+			return ShowNewWindow(config,&Window::common_style,component);
 		}
 		
-		shared_ptr<Window>		Operator::InsertNewWindow(const NewWindowConfig&config,Layout*layout,const shared_ptr<Component>&component)
+		shared_ptr<Window>		Operator::ShowNewWindow(const NewWindowConfig&config,Layout*layout,const shared_ptr<Component>&component)
 		{
 			shared_ptr<Window> result(Window::CreateNew(config,layout,component));
-			InsertWindow(result);
+			ShowWindow(result);
 			return result;
 		}
 		
