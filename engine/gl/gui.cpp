@@ -1491,10 +1491,8 @@ namespace Engine
 		}
 		
 		
-		void		Operator::apply(const Rect<int>&port_)
+		void		Operator::apply(const Rect<int>&port)
 		{
-			Rect<int> port = port_;
-			port *= 2;
 			glViewport(port.x.min,port.y.min,port.width(),port.height());
 			texture_space.make(port.x.min,port.y.min,
 								port.x.max,port.y.max,
@@ -1705,8 +1703,6 @@ namespace Engine
 			if (size_changed)
 				onResize();
 			size_changed = false;
-			unsigned iwidth = this->iwidth * 2;
-			unsigned iheight = this->iheight * 2;
 			ASSERT_GREATER__(fwidth,0);
 			ASSERT_GREATER__(fheight,0);
 			unsigned	ex = (unsigned)ceil(log((float)iwidth)/M_LN2),
