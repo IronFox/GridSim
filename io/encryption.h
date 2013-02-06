@@ -105,18 +105,25 @@ protected:
 	static UINT32	k[64];
 	void 			processChunk();
 public:
-	typedef THash<8>	Hash;
-	static const size_t out_bytes = Hash::num_bytes;
+	typedef THash<8>	HashContainer;
+	static const size_t out_bytes = HashContainer::num_bytes;
+	static const size_t HashLength = HashContainer::num_bytes;
 
-	static void		hash(const void*data, size_t size, THash<8>&out);
+	static void		hash(const void*data, size_t size, HashContainer&out);
+	static void		Hash(const void*data, size_t size, HashContainer&out)	{hash(data,size,out);}
 	static void		hash(const void*data, size_t size, void*out);
+	static void		Hash(const void*data, size_t size, void*out)	{hash(data,size,out);}
 
 	/**/			SHA256();
 	/**/			SHA256(const void*source, size_t size);
 	void			reset();
+	inline void		Reset()	{reset();}
     void			append(const void*source, size_t size);
+	inline void		Append(const void*source, size_t size)	{append(source,size);}
     void			finish(void*target);
-    void			finish(Hash&target);
+	inline void		Finish(void*target)	{finish(target);}
+    void			finish(HashContainer&target);
+	inline void		Finish(HashContainer&target)	{finish(target);}
 };
 
 

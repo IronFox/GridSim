@@ -28,7 +28,6 @@ Timer::Timer()
             MessageBoxA(NULL,"not available", "timer-error",MB_OK);
             return;
         }
-        QueryPerformanceCounter((LARGE_INTEGER*)&started);
         SetThreadAffinityMask(GetCurrentThread(), oldmask);
         dresolution = 1.0/(double)frequency;
         fresolution = (float)dresolution;
@@ -41,7 +40,7 @@ Timer::Timer()
         gettimeofday(&t,NULL);
         started = frequency*t.tv_sec + t.tv_usec;
     #endif
-    lastcall = started;
+    lastcall = now();
 }
 
 
@@ -97,50 +96,23 @@ Timer::Time Timer::getDeltai()
     return delta;
 }
 
-float   Timer::getTimef()	const
+
+Timer::Time					Timer::GetAgeOf(Time stamp)					const
 {
-    #if SYSTEM==WINDOWS
-        Time   time;
-        DWORD oldmask=SetThreadAffinityMask(GetCurrentThread(), 1);
-        QueryPerformanceCounter((LARGE_INTEGER*)&time);
-        SetThreadAffinityMask(GetCurrentThread(), oldmask);
-        return fresolution*(time-started);
-    #elif SYSTEM==UNIX
-        timeval t;
-        gettimeofday(&t,NULL);
-        return fresolution * (frequency*t.tv_sec + t.tv_usec - started);
-    #endif
+	return now() - stamp;
 }
 
-double  Timer::getTimed()	const
+float					Timer::GetSecondsSince(Time stamp)				const
 {
-    #if SYSTEM==WINDOWS
-        Time time;
-        DWORD oldmask=SetThreadAffinityMask(GetCurrentThread(), 1);
-        QueryPerformanceCounter((LARGE_INTEGER*)&time);
-        SetThreadAffinityMask(GetCurrentThread(), oldmask);
-        return dresolution*(time-started);
-    #elif SYSTEM==UNIX
-        timeval t;
-        gettimeofday(&t,NULL);
-        return dresolution * (frequency*t.tv_sec + t.tv_usec - started);
-    #endif
+	return toSecondsf(now() - stamp);
 }
 
-Timer::Time Timer::getTimei()	const
+double					Timer::GetSecondsSinceD(Time stamp)		const
 {
-    #if SYSTEM==WINDOWS
-        Time time;
-        DWORD oldmask=SetThreadAffinityMask(GetCurrentThread(), 1);
-        QueryPerformanceCounter((LARGE_INTEGER*)&time);
-        SetThreadAffinityMask(GetCurrentThread(), oldmask);
-        return time-started;
-    #elif SYSTEM==UNIX
-        timeval t;
-        gettimeofday(&t,NULL);
-        return frequency*t.tv_sec + t.tv_usec - started;
-    #endif
+	return toSecondsd(now() - stamp);
 }
+
+
 
 Timer::Time Timer::now()	const
 {

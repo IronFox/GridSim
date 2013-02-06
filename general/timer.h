@@ -6,11 +6,6 @@
 Theoretically plattform independent time-query-class.
 Works under linux and windows so far.
 
-This file is part of Delta-Works
-Copyright (C) 2006-2008 Stefan Elsen, University of Trier, Germany.
-http://www.delta-works.org/forge/
-http://informatik.uni-trier.de/
-
 ******************************************************************/
 
 #if SYSTEM==UNIX
@@ -25,33 +20,47 @@ http://informatik.uni-trier.de/
 class Timer
 {
 private:
-		float			fresolution;
-		double			dresolution;
-		UINT64			frequency,
-						started,
-						lastcall;
+	float					fresolution;
+	double					dresolution;
+	UINT64					frequency,
+							lastcall;
 public:
-		typedef UINT64	Time;				//!< Time container. Currently using unsigned 64 bit integers
+	typedef UINT64			Time;				//!< Time container. Currently using unsigned 64 bit integers
 
-						Timer();
-		float			getDeltaf();		//!< Query time since last call in seconds (float) \return Time since last call in seconds
-		double			getDeltad();		//!< Query time since last call in seconds (double) \return Time since last call in seconds
-		Time			getDeltai();		//!< Query time since last call in ticks \return Time since last call in ticks
-		float			getTimef()								const;	//!< Query passed time since object creation \return Time in seconds since object was created
-		double			getTimed()								const;	//!< Query passed time since object creation \return Time in seconds since object was created
-		Time			getTimei()								const;	//!< Query passed time since object creation \return Time in ticks since object was created
-		Time			now()									const;	//!< Query native system time \return Current system time in ticks (zero time unknown)
-		Time			netTime()								const;	//!< Query native system time in microseconds \return Current system time in micro seconds
-		Time			getTicksPerSecond()						const;	//!< Query number of ticks per second \return Number of ticks per second (always 1000000 on unix)
-		float			toSecondsf(const Time&ticks)			const;	//!< Converts ticks into seconds (float) \param ticks Time in ticks \return Time equivalent in seconds
-		double			toSecondsd(const Time&ticks)			const;	//!< Converts ticks into seconds (double) \param ticks Time in ticks \return Time equivalent in seconds
-		Time			toTicks(double seconds)					const;	//!< Converts seconds into ticks \param seconds Time (in seconds) to convert to ticks \return Time equivalent in ticks
+	/**/					Timer();
+	float					getDeltaf();		//!< Query time since last call in seconds (float) \return Time since last call in seconds
+	inline float			GetDelta()				{return getDeltaf();}
+	double					getDeltad();		//!< Query time since last call in seconds (double) \return Time since last call in seconds
+	inline double			GetDeltaD()			{return getDeltad();}
+	Time					getDeltai();		//!< Query time since last call in ticks \return Time since last call in ticks
+	inline Time				GetTimeDelta()		{return getDeltai();}
+	Time					now()									const;	//!< Query native system time \return Current system time in ticks (zero time unknown)
+	inline Time				Now()									const	{return now();}
+	Time					netTime()								const;	//!< Query native system time in microseconds \return Current system time in micro seconds
+	inline Time				GetNetTime()							const	{return netTime();}
+	Time					getTicksPerSecond()						const;	//!< Query number of ticks per second \return Number of ticks per second (always 1000000 on unix)
+	inline Time				GetTicksPerSecond()						const	{return getTicksPerSecond();}
+	Time					GetAgeOf(Time stamp)					const;	//!< Calculates the time difference in ticks between the specified stamp and the current time
+	float					GetSecondsSince(Time stamp)				const;	//!< Calculates the time difference in seconds between the specified stamp and the current time
+	double					GetSecondsSinceD(Time stamp)			const;	//!< Calculates the time difference in seconds between the specified stamp and the current time
+	float					toSecondsf(const Time&ticks)			const;	//!< Converts ticks into seconds (float) \param ticks Time in ticks \return Time equivalent in seconds
+	double					toSecondsd(const Time&ticks)			const;	//!< Converts ticks into seconds (double) \param ticks Time in ticks \return Time equivalent in seconds
+	inline float			ToSeconds(const Time&ticks)				const	{return toSecondsf(ticks);}
+	inline double			ToSecondsD(const Time&ticks)			const	{return toSecondsf(ticks);}
+	Time					toTicks(double seconds)					const;	//!< Converts seconds into ticks \param seconds Time (in seconds) to convert to ticks \return Time equivalent in ticks
+	inline Time				ToTicks(double seconds)					const	{return toTicks(seconds);}
 		
-		Time			netToLocalTicks(const Time&mseconds)	const;
-		Time			localToNetTicks(const Time&ticks)		const;
-static	float			netToSecondsf(const Time&mseconds);	//!< Converts net time (micro seconds) into seconds (float) \param mseconds Time in micro seconds \return Time in seconds
-static	double			netToSecondsd(const Time&mseconds);	//!< Converts net time (micro seconds) into seconds (double) \param mseconds Time in micro seconds \return Time in seconds
-static	Time			netToTicks(double seconds);			//!< Converts net time (in seconds) into ticks (micro seconds)	@param seconds Time (in seconds) to convert to net ticks @return Time equivalent in net ticks
+	Time					netToLocalTicks(const Time&mseconds)	const;
+	inline Time				NetToLocalTicks(const Time&mseconds)	const	{return netToLocalTicks(mseconds);}
+	Time					localToNetTicks(const Time&ticks)		const;
+	inline Time				LocalToNetTicks(const Time&ticks)		const	{return localToNetTicks(ticks);}
+
+	static float			netToSecondsf(const Time&mseconds);	//!< Converts net time (micro seconds) into seconds (float) \param mseconds Time in micro seconds \return Time in seconds
+	static inline float		NetToSeconds(const Time&mseconds)	{return netToSecondsf(mseconds);}
+	static double			netToSecondsd(const Time&mseconds);	//!< Converts net time (micro seconds) into seconds (double) \param mseconds Time in micro seconds \return Time in seconds
+	static inline double	NetToSecondsD(const Time&mseconds)	{return netToSecondsd(mseconds);}
+	static Time				netToTicks(double seconds);			//!< Converts net time (in seconds) into ticks (micro seconds)	@param seconds Time (in seconds) to convert to net ticks @return Time equivalent in net ticks
+	static inline Time		NetToTicks(double seconds)			{return netToTicks(seconds);}
 };
 
 

@@ -796,9 +796,20 @@ void SHA256::append(const void*data, size_t size)
 	total += size*8;*/
 }
 
-void SHA256::finish(Hash&target)
+void SHA256::finish(HashContainer&target)
 {
 	finish(target.bytes);
+}
+
+static void swapBytes(UINT32 in, UINT32&out)
+{
+	out =	(in>>24)
+			|
+			(((in >> 16)&0xFF)<<8)
+			|
+			(((in >> 8)&0xFF)<<16)
+			|
+			(((in)&0xFF)<<24);
 }
 
 void SHA256::finish(void*target)
@@ -851,14 +862,14 @@ void SHA256::finish(void*target)
 	ASSERT_EQUAL__(current,(BYTE*)w);
 	*/
 	UINT32*out = (UINT32*)target;
-	out[0] = h0;
-	out[1] = h1;
-	out[2] = h2;
-	out[3] = h3;
-	out[4] = h4;
-	out[5] = h5;
-	out[6] = h6;
-	out[7] = h7;
+	swapBytes(h0,out[0]);
+	swapBytes(h1,out[1]);
+	swapBytes(h2,out[2]);
+	swapBytes(h3,out[3]);
+	swapBytes(h4,out[4]);
+	swapBytes(h5,out[5]);
+	swapBytes(h6,out[6]);
+	swapBytes(h7,out[7]);
 }
 	
 
