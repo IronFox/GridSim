@@ -5,18 +5,13 @@
 
 Universal visual language-interface and rendering related definitions
 
-This file is part of Delta-Works
-Copyright (C) 2006-2008 Stefan Elsen, University of Trier, Germany.
-http://www.delta-works.org/forge/
-http://informatik.uni-trier.de/
-
 ********************************************************************/
 
 
 namespace Engine
 {
 
-	TVisualConfig         	default_buffer_config={24,16,0,0,4,0,0,0};
+	TVisualConfig         	default_buffer_config={24,24,0,0,8,0,0,0};
 	TMatrix4<float>         environment_matrix={1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1};
 	bool                    erase_unused_textures(true);
 	Mutex                  VisualInterface::vs_mutex;

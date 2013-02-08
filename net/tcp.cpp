@@ -234,29 +234,6 @@ namespace TCP
 
 	
 
-
-
-
-
-
-	bool	Peer::createSocket(int af, int type, int protocol)
-	{
-		if (socket_handle!=INVALID_SOCKET)
-			return true;
-		owner->block_events = 0;
-		socket_handle = socket(af,type,protocol); //and create a new socket
-		if (socket_handle != INVALID_SOCKET)
-		{
-			int i = 1;
-			if (setsockopt( socket_handle, IPPROTO_TCP, TCP_NODELAY, (const char *)&i, sizeof(i)) == SOCKET_ERROR )
-			{
-				closesocket(socket_handle);
-				return false;
-			}
-		}
-		return socket_handle != INVALID_SOCKET;
-	}
-	
 	
 	
 	void ConnectionAttempt::ThreadMain()
@@ -315,9 +292,23 @@ namespace TCP
 
 		String host = "";
 
+		SOCKET socketHandle = INVALID_SOCKET;
+
 		while (actual_address != NULL)
 		{
-			if (!client->createSocket(actual_address->ai_family,actual_address->ai_socktype,actual_address->ai_protocol))	//create socket if it hasn't been created alnetReady (the method returns if it has been previously created)
+			socketHandle = socket(actual_address->ai_family,actual_address->ai_socktype,actual_address->ai_protocol); //and create a new socket
+			if (socketHandle != INVALID_SOCKET)
+			{
+				int i = 1;
+				if (setsockopt( socketHandle, IPPROTO_TCP, TCP_NODELAY, (const char *)&i, sizeof(i)) == SOCKET_ERROR )
+				{
+					closesocket(socketHandle);
+					socketHandle = INVALID_SOCKET;
+				}
+			}
+
+
+			if (socketHandle == INVALID_SOCKET)
 			{
 				client->fail("Socket creation failed");
 				if (verbose)
@@ -325,11 +316,11 @@ namespace TCP
 				return;
 			}
 
-			if (connect(client->socket_handle,actual_address->ai_addr,(int)actual_address->ai_addrlen) == 0)
+			if (connect(socketHandle,actual_address->ai_addr,(int)actual_address->ai_addrlen) == 0)
 				break;
 			host += " "+addressToString(*actual_address);
 			actual_address = actual_address->ai_next;
-			swapCloseSocket(client->socket_handle);
+			swapCloseSocket(socketHandle);
 		}
 
 		if (actual_address == NULL)
@@ -345,10 +336,19 @@ namespace TCP
 			freeaddrinfo(client->root_address);
 		client->root_address = remote_address;
 		client->actual_address = actual_address;
+		try
+		{
+			client->socketAccess->SetSocket(socketHandle);
+		}
+		catch (const std::exception&exception)
+		{
+			client->setError("Socket set operation to '"+host+"' failed: "+exception.what());
+			client->handleEvent(Event::ConnectionFailed,client);
+			if (verbose)
+				cout << "ConnectionAttempt::ThreadMain() exit: connection failed"<<endl;
+			return;
+		}
 
-		//String host = client->toString();
-
-	
 
 		if (verbose)
 			cout << "ConnectionAttempt::ThreadMain(): sending 'connection established' event"<<endl;
@@ -367,12 +367,12 @@ namespace TCP
 		if (attempt.isActive())
 		{
 			attempt.awaitCompletion();
-			return socket_handle != INVALID_SOCKET;
+			return !socketAccess->IsClosed();
 		}
 		connectAsync(url);
 		attempt.awaitCompletion();
 		ASSERT__(!attempt.isActive());
-		return socket_handle != INVALID_SOCKET;
+		return !socketAccess->IsClosed();
 	}
 	
 	void	Client::connectAsync(const String&url)
@@ -389,7 +389,7 @@ namespace TCP
 	{
 		if (!result || result == SOCKET_ERROR)
 		{
-			if (socket_handle == INVALID_SOCKET)
+			if (socketAccess->IsClosed())
 			{
 				if (verbose)
 					cout << "Peer::succeeded() exit: socket handle reset by remote operation"<<endl;
@@ -397,20 +397,20 @@ namespace TCP
 			}
 			owner->setError("");
 			owner->handleEvent(Event::ConnectionClosed,this);
-			swapCloseSocket(socket_handle);
+			socketAccess->CloseSocket();
 			owner->onDisconnect(this,Event::ConnectionClosed);
 			if (verbose)
 				cout << "Peer::succeeded() exit: result is 0"<<endl;
 			return;
 		}
-		if (socket_handle == INVALID_SOCKET)
+		if (socketAccess->IsClosed())
 		{
 			if (verbose)
 				cout << "Peer::succeeded() exit: socket handle reset by remote operation"<<endl;
 			return;
 		}
 		owner->setError("Connection lost to "+toString()+" ("+lastSocketError()+")");
-		swapCloseSocket(socket_handle);
+		socketAccess->CloseSocket();
 		owner->handleEvent(Event::ConnectionLost,this);
 		owner->onDisconnect(this,Event::ConnectionLost);
 		if (verbose)
@@ -433,16 +433,17 @@ namespace TCP
 	
 	bool	Peer::sendData(UINT32 channel_id, const void*data, size_t size)
 	{
-		if (socket_handle == INVALID_SOCKET)
+		if (socketAccess->IsClosed())
 			return false;
 		UINT32 size32 = (UINT32)size;
 		synchronized(write_mutex)
 		{
-			if (send(socket_handle,(const char*)&channel_id,4,0)!=4)
+
+			if (socketAccess->Write(&channel_id,4)!=4)
 				return false;
-			if (send(socket_handle,(const char*)&size32,4,0)!=4)
+			if (socketAccess->Write(&size32,4)!=4)
 				return false;
-			if (send(socket_handle,(const char*)data,int(size),0)!=(int)size)
+			if (socketAccess->Write(data,size)!=(int)size)
 				return false;
 		}
 		return true;
@@ -456,16 +457,16 @@ namespace TCP
 		BYTE*end = current+size;
 		while (current < end)
 		{
-			int size = recv(socket_handle,(char*)current,end-current,0);
+			int size = socketAccess->Read(current,end-current);
 			if (size == SOCKET_ERROR)
 			{
-				if (socket_handle == INVALID_SOCKET)
+				if (socketAccess->IsClosed())
 				{
 					if (verbose)
 						cout << "Peer::netRead() exit: socket handle reset by remote operation"<<endl;
 					return false;
 				}
-				swapCloseSocket(socket_handle);
+				socketAccess->CloseSocket();
 				owner->setError("Connection lost to "+toString()+" ("+lastSocketError()+")");
 				owner->handleEvent(Event::ConnectionLost,this);
 				owner->onDisconnect(this,Event::ConnectionLost);
@@ -475,13 +476,13 @@ namespace TCP
 			}
 			if (!size)
 			{
-				if (socket_handle == INVALID_SOCKET)
+				if (socketAccess->IsClosed())
 				{
 					if (verbose)
 						cout << "Peer::netRead() exit: socket handle reset by remote operation"<<endl;
 					return false;
 				}
-				swapCloseSocket(socket_handle);
+				socketAccess->CloseSocket();
 				owner->setError("");
 				owner->handleEvent(Event::ConnectionClosed,this);
 				owner->onDisconnect(this,Event::ConnectionClosed);
@@ -520,7 +521,7 @@ namespace TCP
 		{
 			FATAL__("Send-size ("+String(size)+" byte(s)) exceeds remaining available write size ("+String(remaining_write_size)+" byte(s))");
 		}
-		if (!succeeded(send(socket_handle,(const char*)target,int(size),0),size))
+		if (!succeeded(socketAccess->Write(target,size),size))
 		{
 			if (verbose)
 				cout << "Peer::write(): failed to write data to socket"<<endl;
@@ -537,7 +538,7 @@ namespace TCP
 	{
 		if (verbose)
 			cout << "Peer::sendObject() enter: channel_id="<<channel_id<<endl;
-		if (socket_handle == INVALID_SOCKET)
+		if (socketAccess->IsClosed())
 		{
 			if (verbose)
 				cout << "Peer::sendObject() exit: socket handle reset by remote operation"<<endl;
@@ -548,20 +549,6 @@ namespace TCP
 			cout << "Peer::sendObject() exit: package size determined as "<<size32<<" byte(s)"<<endl;
 		softsync(write_mutex)
 		{
-			//if (!succeeded(send(socket_handle,(const char*)&channel_id,4,0),4))
-			//{
-			//	if (verbose)
-			//		cout << "Peer::sendObject() exit: failed to send channel id"<<endl;
-			//	return false;
-			//}
-			//if (!succeeded(send(socket_handle,(const char*)&size32,4,0),4))
-			//{
-			//	if (verbose)
-			//		cout << "Peer::sendObject() exit: failed to send package size"<<endl;
-			//	return false;
-			//}
-			//remaining_write_size = (size_t)size32;
-			//bool did_serialize = object.serialize(*this,false);
 			serial_buffer.reset();
 			serial_buffer << (UINT32)channel_id;
 			serial_buffer << (UINT32)0;
@@ -571,20 +558,17 @@ namespace TCP
 			{
 				UINT32*data = (UINT32*)serial_buffer.data();
 				data[1] = (UINT32)(serial_buffer.fillLevel() - 8);
-				const char* at = (const char*)serial_buffer.data(),
-						* end = at + serial_buffer.fillLevel();
-				while (at < end)
+
+				int rs = socketAccess->Write(serial_buffer.data(),serial_buffer.fillLevel());
+				if (rs <= 0)
 				{
-					int sent = send(socket_handle,at,end-at,0);
-					if (sent <= 0)
-					{
-						if (verbose)
-							cout << "Peer::sendObject() exit: failed to send package chunk"<<endl;
-						handleUnexpectedSendResult(sent);
-						return false;
-					}
-					at += sent;
+					if (verbose)
+						cout << "Peer::sendObject() exit: failed to send package chunk"<<endl;
+					handleUnexpectedSendResult(rs);
+					return false;
 				}
+
+
 			}
 			//this->write(serial_buffer.data(),(serial_size_t)serial_buffer.fillLevel());
 
@@ -601,19 +585,16 @@ namespace TCP
 	{
 		if (verbose)
 			cout << "Peer::sendSignal() enter: channel_id="<<channel_id<<endl;
-		UINT32 size32 = 0;
 		synchronized(write_mutex)
 		{
-			if (!succeeded(send(socket_handle,(const char*)&channel_id,4,0),4))
+			UINT32 packet[2];
+			packet[0] = channel_id;
+			packet[1] = 0;
+
+			if (!succeeded(socketAccess->Write(packet,sizeof(packet)),sizeof(packet)))
 			{
 				if (verbose)
 					cout << "Peer::sendSignal() exit: failed to send channel id"<<endl;
-				return false;
-			}
-			if (!succeeded(send(socket_handle,(const char*)&size32,4,0),4))
-			{
-				if (verbose)
-					cout << "Peer::sendSignal() exit: failed to send package size"<<endl;
 				return false;
 			}
 			if (verbose)
@@ -628,13 +609,14 @@ namespace TCP
 	{
 		if (verbose)
 			cout << "Peer::ThreadMain() enter"<<endl;
-		while (socket_handle != INVALID_SOCKET)
+
+		while (!socketAccess->IsClosed())
 		{
 			UINT32	header[2];
 			if (!netRead((BYTE*)header,sizeof(header)))
 			{
 				if (verbose)
-					if (socket_handle == INVALID_SOCKET)
+					if (socketAccess->IsClosed())
 						cout << "Peer::ThreadMain() exit: socket handle reset by remote operation"<<endl;
 					else
 						cout << "Peer::ThreadMain() exit: netRead() invocation failed"<<endl;
@@ -646,13 +628,13 @@ namespace TCP
 			remaining_size = (serial_size_t)header[1];
 			if (remaining_size > owner->safe_package_size)
 			{
-				if (socket_handle == INVALID_SOCKET)
+				if (socketAccess->IsClosed())
 				{
 					if (verbose)
 						cout << "Peer::ThreadMain() exit: socket handle reset by remote operation"<<endl;
 					return;
 				}
-				swapCloseSocket(socket_handle);
+				socketAccess->CloseSocket();
 				owner->setError("Maximum safe package size ("+String(owner->safe_package_size/1024)+"KB) exceeded by "+String((remaining_size-owner->safe_package_size)/1024)+"KB");
 				owner->handleEvent(Event::ConnectionClosed,this);
 				owner->onDisconnect(this,Event::ConnectionClosed);
@@ -721,13 +703,13 @@ namespace TCP
 	{
 		if (verbose)
 			cout << "Peer::disconnect() enter"<<endl;
-		if (socket_handle != INVALID_SOCKET)
+		if (!socketAccess->IsClosed())
 		{
 			if (verbose)
 				cout << "Peer::disconnect(): graceful shutdown: invoking handlers and closing socket"<<endl;
 			owner->setError("");
 			owner->handleEvent(Event::ConnectionClosed,this);
-			swapCloseSocket(socket_handle);
+			socketAccess->CloseSocket();
 			awaitCompletion();
 			owner->onDisconnect(this,Event::ConnectionClosed);
 			
@@ -766,7 +748,9 @@ namespace TCP
 			}
 			Peer*peer = SHIELDED(new Peer(this));
 			peer->address = addr;
-			peer->socket_handle = handle;
+			peer->SetCloneOfSocketAccess(socketAccess);
+			peer->socketAccess->SetSocket(handle);
+
 			if (verbose)
 				cout << "Server::ThreadMain(): acquiring write lock for client create"<<endl;
 			client_mutex.signalWrite();
@@ -968,7 +952,7 @@ namespace TCP
 			for (unsigned i = 0; i < clients; i++)
 			{
 				Peer*peer = clients[i];
-				if (peer->socket_handle == INVALID_SOCKET)
+				if (peer->socketAccess->IsClosed())
 					continue;	//we assume this case is already handled
 				if (!peer->sendData(channel,out_buffer.pointer(),size))
 				{
@@ -1026,7 +1010,7 @@ namespace TCP
 				Peer*peer = clients[i];
 				if (peer == exclude)
 					continue;
-				if (peer->socket_handle == INVALID_SOCKET)
+				if (peer->socketAccess->IsClosed())
 					continue;	//we assume this case is already handled
 				if (!peer->sendData(channel,out_buffer.pointer(),size))
 				{

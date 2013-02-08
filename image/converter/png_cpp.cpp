@@ -33,7 +33,7 @@ namespace
 
 	void writeSectionToStream(png_structp png, png_bytep data, png_size_t size)
 	{
-		if (!out_stream->write(data,size))
+		if (!out_stream->write(data,(serial_size_t)size))
 			throw IO::DriveAccess::DataWriteFault("Stream refused to accept streaming data");
 	}
 

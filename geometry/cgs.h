@@ -1459,7 +1459,10 @@ namespace CGS	//! Compiled Geometrical Structure
 				Buffer<Float,0>	vertex_data;
 				Buffer<Index,0>	index_data,
 								quad_data;
-				Index			voffset,normals_from_vertex,normals_from_triangle,normals_from_quad;
+				Index			voffset;
+				index_t			normals_from_vertex,
+								normals_from_triangle,
+								normals_from_quad;
 				VConfig			config;
 				TMatrix4<typename Def::SystemType>	system;
 			public:

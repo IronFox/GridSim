@@ -26,6 +26,70 @@ namespace TCP
 	String	addressToString(const addrinfo&address);
 	
 
+
+
+	class SocketAccess
+	{
+	public:
+		virtual					~SocketAccess()	{};
+		virtual void			SetSocket(SOCKET socket) = 0;
+		virtual void			CloseSocket() = 0;
+		virtual bool			IsClosed() const = 0;
+		virtual SocketAccess*	CloneClass() const = 0;
+
+		virtual	int				Read(void*data, size_t dataSize) = 0;
+		virtual int				Write(const void*data, size_t dataSize) = 0;
+	};
+
+
+	class DefaultSocketAccess : public SocketAccess
+	{
+	public:
+		SOCKET			socketHandle;
+
+		/**/			DefaultSocketAccess():socketHandle(INVALID_SOCKET){}
+
+		virtual SocketAccess*	CloneClass() const
+		{
+			return new DefaultSocketAccess();
+		}
+
+		virtual bool	IsClosed() const override
+		{
+			return socketHandle == INVALID_SOCKET;
+		}
+
+		virtual void	CloseSocket() override
+		{
+			swapCloseSocket(socketHandle);
+		}
+		
+		virtual void	SetSocket(SOCKET socket)	override
+		{
+			socketHandle = socket;
+		}
+
+		virtual	int		Read(void*data, size_t dataSize) override
+		{
+			return recv(socketHandle,(char*)data,dataSize,0);
+		}
+
+		virtual int		Write(const void*data, size_t dataSize) override
+		{
+			const char* at = (const char*)data,
+					* end = at + dataSize;
+			while (at < end)
+			{
+				int sent = send(socketHandle,at,end-at,0);
+				if (sent <= 0)
+					return sent;
+				at += sent;
+			}
+			return (int)dataSize;
+		}
+	};
+
+
 	extern bool			verbose;	//!< Set true to automatically print events to the console. false by default
 
 	namespace User	//! User level definitions for use by the client application
@@ -356,73 +420,88 @@ namespace TCP
 	class Peer:public ThreadObject, protected IReadStream, protected IWriteStream, public Destination //, public IToString
 	{
 	protected:
-			Connection					*owner;			//!< Pointer to the owning connection to handle incoming packages and report errors to
-			Mutex						write_mutex,	//!< Mutex to synchronize socket write operations
-										counter_mutex;	//!< Currently not in use
-			volatile SOCKET				socket_handle;	//!< Handle to the occupied socket
-			serial_size_t				remaining_size,			//!< Size remaining for reading streams 
-										remaining_write_size;	//!< Size remaining for writing streams in the announced memory frame
-			ByteStream					serial_buffer;		//!< Buffer used to serialize package data
+		Connection					*owner;			//!< Pointer to the owning connection to handle incoming packages and report errors to
+		Mutex						write_mutex,	//!< Mutex to synchronize socket write operations
+									counter_mutex;	//!< Currently not in use
+		//volatile SOCKET				socket_handle;	//!< Handle to the occupied socket
+		serial_size_t				remaining_size,			//!< Size remaining for reading streams 
+									remaining_write_size;	//!< Size remaining for writing streams in the announced memory frame
+		ByteStream					serial_buffer;		//!< Buffer used to serialize package data
+		SocketAccess				*socketAccess;
 
-			friend class Server;
-			friend class RootChannel;
+		friend class Server;
+		friend class RootChannel;
 			
-			bool						createSocket(int af, int type, int protocol);			//!< Creates a new socket object (if not already existing) @return true if socket connection was successful
-			void						ThreadMain();			//!< Socket read thread main
-			bool						sendData(UINT32 channel_id, const void*data, size_t size);	//!< Sends raw data to the TCP stream
-			bool						succeeded(int result, size_t desired);							//!< Handles the result of a TCP socket send operation. @param result Actual value returned by send() @param desired Valued expected to be returned by send() @return true if both values match, false otherwise. The connection is automatically closed, events triggered and error values set if the operation failed.
-			void						handleUnexpectedSendResult(int result);
-			bool						read(void*target, serial_size_t size);								//!< IInStream override for direct TCP stream input
-			bool						write(const void*target, serial_size_t size);						//!< IOutStream override for direct TCP stream output
-			bool						netRead(BYTE*current, size_t size);							//!< Continuously reads a sequence of bytes from the TCP stream. The method does not return until either the requested amount of bytes was received or an error occured
-			bool						sendObject(UINT32 channel, const ISerializable&object);		//!< Sends a serializable object to the TCP stream on the specified channel
+		void						ThreadMain();			//!< Socket read thread main
+		bool						sendData(UINT32 channel_id, const void*data, size_t size);	//!< Sends raw data to the TCP stream
+		bool						succeeded(int result, size_t desired);							//!< Handles the result of a TCP socket send operation. @param result Actual value returned by send() @param desired Valued expected to be returned by send() @return true if both values match, false otherwise. The connection is automatically closed, events triggered and error values set if the operation failed.
+		void						handleUnexpectedSendResult(int result);
+		bool						read(void*target, serial_size_t size);								//!< IInStream override for direct TCP stream input
+		bool						write(const void*target, serial_size_t size);						//!< IOutStream override for direct TCP stream output
+		bool						netRead(BYTE*current, size_t size);							//!< Continuously reads a sequence of bytes from the TCP stream. The method does not return until either the requested amount of bytes was received or an error occured
+		bool						sendObject(UINT32 channel, const ISerializable&object);		//!< Sends a serializable object to the TCP stream on the specified channel
 			
 	public:
-			/**
-				@brief Abstract peer attachment class
-			*/
-			class Attachment
-			{
-			public:
-			virtual						~Attachment()	{};
-			};
-			/**
-				@brief Peer attachment
+		/**
+			@brief Abstract peer attachment class
+		*/
+		class Attachment
+		{
+		public:
+		virtual						~Attachment()	{};
+		};
+		/**
+			@brief Peer attachment
 				
-				Useful to attach client data to a peer. If @a delete_attachment_on_disconnect is set true then the attached data structure will be erased automatically before this peer object is deleted.
+			Useful to attach client data to a peer. If @a delete_attachment_on_disconnect is set true then the attached data structure will be erased automatically before this peer object is deleted.
 				
-			*/
-			shared_ptr<Attachment>		attachment;
-			addrinfo					*root_address,					//!< Remote peer address set (root pointer to linked list describing the remote address)
-										*actual_address;					//!< Part of the @a root_address linked list that actually describes the remote address
-			unsigned					user_level;							//!< Current user level. Anonymous by default
+		*/
+		shared_ptr<Attachment>		attachment;
+		addrinfo					*root_address,					//!< Remote peer address set (root pointer to linked list describing the remote address)
+									*actual_address;					//!< Part of the @a root_address linked list that actually describes the remote address
+		unsigned					user_level;							//!< Current user level. Anonymous by default
 			
-			
+		
 				
-										Peer(Connection*connection):owner(connection),socket_handle(INVALID_SOCKET),root_address(NULL),actual_address(NULL),user_level(User::Anonymous)
-										{
-											ASSERT_NOT_NULL__(owner);
-										}
-	virtual								~Peer()
-										{
-											disconnect();
-											if (root_address)
-												freeaddrinfo(root_address);
-										}
+		/**/						Peer(Connection*connection):owner(connection),socketAccess(new DefaultSocketAccess()),root_address(NULL),actual_address(NULL),user_level(User::Anonymous)
+									{
+										ASSERT_NOT_NULL__(owner);
+									}
+		virtual						~Peer()
+									{
+										disconnect();
+										if (root_address)
+											freeaddrinfo(root_address);
+										delete socketAccess;
+									}
 
-			void						disconnect();			//!< Disconnects the local peer. If this peer is element of a peer collection (ie. a Server instance) then the owner is automatically notified that the client on this peer is no longer available. The local data is erased immediately if the respective dispatcher is set to @b async, or when its resolve() method is next executed.
-			bool						isConnected()	const	//! Queries whether or not the local peer is currently connected @return true if the local peer is currently connected, false otherwise
-										{
-											return socket_handle != INVALID_SOCKET;
-										}
-			String						toString()	const	//! Converts the local address into a string. If the local object is NULL then the string "NULL" is returned instead.
-										{
-											return this&&actual_address?addressToString(*actual_address):"NULL";
-										}
-			bool						sendSignal(UINT32 channel);		//!< Sends a data-less package to the other end of this peer
+		template <class SocketAccessClass>
+			void					SetSocketAccess()
+									{
+										ASSERT__(socketAccess->IsClosed());
+										delete socketAccess;
+										socketAccess = new SocketAccessClass();
+									}
+		void						SetCloneOfSocketAccess(SocketAccess*access)
+									{
+										ASSERT__(socketAccess->IsClosed());
+										delete socketAccess;
+										socketAccess = access->CloneClass();
+									}
+
+		void						disconnect();			//!< Disconnects the local peer. If this peer is element of a peer collection (ie. a Server instance) then the owner is automatically notified that the client on this peer is no longer available. The local data is erased immediately if the respective dispatcher is set to @b async, or when its resolve() method is next executed.
+		bool						isConnected()	const	//! Queries whether or not the local peer is currently connected @return true if the local peer is currently connected, false otherwise
+									{
+										return !socketAccess->IsClosed();
+									}
+		String						toString()	const	//! Converts the local address into a string. If the local object is NULL then the string "NULL" is returned instead.
+									{
+										return this&&actual_address?addressToString(*actual_address):"NULL";
+									}
+		bool						sendSignal(UINT32 channel);		//!< Sends a data-less package to the other end of this peer
 			
-			bool						validHandle()	const	{return socket_handle!=INVALID_SOCKET;}
-			SOCKET						handle()	const	{return socket_handle;}
+		bool						validHandle()	const	{return !socketAccess->IsClosed();}
+		//SOCKET						handle()	const	{return socket_handle;}
 	};
 
 	class Client;
@@ -447,26 +526,26 @@ namespace TCP
 	class Client:public Connection, public Peer
 	{
 	protected:
-			ConnectionAttempt	attempt;
-			bool				is_connected;	//!< True if the client has an active connection to a server
-			
-			friend class ConnectionAttempt;
+		ConnectionAttempt	attempt;
+		bool				is_connected;	//!< True if the client has an active connection to a server
 
-			void				fail(const String&message);
+		friend class ConnectionAttempt;
+
+		void				fail(const String&message);
 	public:
 					
-								Client():Peer(this),is_connected(false)
+		/**/					Client():Peer(this),is_connected(false)
 								{}
-	virtual						~Client()
+		virtual					~Client()
 								{
 									attempt.awaitCompletion();
 									disconnect();
 									awaitCompletion();
 								}
-			bool				connect(const String&url);		//!< Attempts to connect to a remote server and waits until a connection was established (or not establishable). Depending on the local connection this may lag for a few seconds. @return true if a connection could be established, false otherwise.
-			void				connectAsync(const String&url);	//!< Starts the process of connecting to a remote host. Due to the asynchronous nature of this method, No immediate result is available. Hook a function into the local object's inherited @a onEvent callback pointer to receive information about success or failure
+		bool					connect(const String&url);		//!< Attempts to connect to a remote server and waits until a connection was established (or not establishable). Depending on the local connection this may lag for a few seconds. @return true if a connection could be established, false otherwise.
+		void					connectAsync(const String&url);	//!< Starts the process of connecting to a remote host. Due to the asynchronous nature of this method, No immediate result is available. Hook a function into the local object's inherited @a onEvent callback pointer to receive information about success or failure
 			
-			bool				isAttemptingToConnect()	const	//!< Queries whether or not the client is currently attempting to connect
+		bool					isAttemptingToConnect()	const	//!< Queries whether or not the client is currently attempting to connect
 								{
 									return attempt.isActive();
 								}
@@ -485,6 +564,8 @@ namespace TCP
 			volatile bool		clients_locked,
 								is_shutting_down;
 
+		SocketAccess		*socketAccess;
+
 			//Array<BYTE>		out_buffer;
 			
 			void				ThreadMain();
@@ -500,7 +581,7 @@ namespace TCP
 			List::Vector<Peer>	clients;		//!< List of all currently connected clients
 			USHORT				port;			//!< Read only variable which is updated during startService()
 	
-								Server():socket_handle(INVALID_SOCKET),clients_locked(false),is_shutting_down(false)
+								Server():socket_handle(INVALID_SOCKET),clients_locked(false),is_shutting_down(false),socketAccess(new DefaultSocketAccess())
 								{}
 	virtual						~Server()
 								{
@@ -509,6 +590,7 @@ namespace TCP
 											DISCARD(clients[i]);
 										clients.flush();
 									client_mutex.exitWrite();
+									delete socketAccess;
 								}
 		template <typename F>
 			void				forEachPeerAttachment(const F&f)
@@ -522,6 +604,14 @@ namespace TCP
 									}
 									client_mutex.exitRead();
 								}
+		template <class SocketAccessClass>
+			void				SetSocketAccess()
+								{
+									ASSERT__(socketAccess->IsClosed());
+									delete socketAccess;
+									socketAccess = new SocketAccessClass();
+								}
+
 			/**
 				@brief Starts the local service on the specified port
 				
