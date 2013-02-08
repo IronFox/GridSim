@@ -318,14 +318,16 @@ namespace TCP
 
 			if (connect(socketHandle,actual_address->ai_addr,(int)actual_address->ai_addrlen) == 0)
 				break;
-			host += " "+addressToString(*actual_address);
+			if (host.isNotEmpty())
+				host += '/';
+			host += addressToString(*actual_address);
 			actual_address = actual_address->ai_next;
 			swapCloseSocket(socketHandle);
 		}
 
 		if (actual_address == NULL)
 		{
-			client->setError("Connection to '"+host+"' failed ("+lastSocketError()+")");
+			client->setError("'"+host+"' does not answer on port "+s_port);
 			client->handleEvent(Event::ConnectionFailed,client);
 			if (verbose)
 				cout << "ConnectionAttempt::ThreadMain() exit: connection failed"<<endl;

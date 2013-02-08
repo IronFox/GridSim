@@ -38,7 +38,7 @@ public:
 	{}
 
 
-	float	operator()()	{return float(Super::operator()()) / 4294967295.f;}
+	float	operator()()	{return float(Super::operator()()) / float(Super::max());}
 
 
 };
