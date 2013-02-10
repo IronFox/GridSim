@@ -23,7 +23,7 @@ namespace Engine
 			if (!wglChoosePixelFormat(context,attribs,NULL,ARRAYSIZE(formats),formats,&nof) || !nof)
 			{
 				attribs[13] = 24;
-				attribs[17] = 16;
+				attribs[17] = 24;
 				attribs[19] = 8;
 				attribs[20] = 0; //zero terminate here
 				attribs[21] = 0;

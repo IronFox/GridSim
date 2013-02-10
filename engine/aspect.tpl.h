@@ -944,6 +944,17 @@ template <class C> MF_DECLARE(VectorCamera<C>) AngularCamera<C>::toVectorCamera(
 	VectorCamera<C> result(*this);
 	result.direction = system.z;
 	result.vertical = system.y;
+
+	if (GlobalAspectConfiguration::world_z_is_up)
+	{
+		result.direction.y =-result.direction.y;
+		result.direction.x =-result.direction.x;
+		std::swap(result.direction.y,result.direction.z);
+		result.vertical.y =-result.vertical.y;
+		result.vertical.x =-result.vertical.x;
+		std::swap(result.vertical.y,result.vertical.z);
+	}
+
 	return result;
 }
 
@@ -1031,13 +1042,32 @@ template <class C>
 
 template <class C> MF_DECLARE (void) VectorCamera<C>::build()
 {
-	system.z = direction;
-	Vec::cross(vertical,direction,system.x);
-	Vec::cross(direction,system.x,system.y);
+	if (GlobalAspectConfiguration::world_z_is_up)
+	{
+		TVec3<C> direction = this->direction;
+		TVec3<C> vertical = this->vertical;
+		std::swap(direction.y,direction.z);	direction.y =-direction.y;direction.x =-direction.x;
+		std::swap(vertical.y,vertical.z);vertical.y =-vertical.y;vertical.x =-vertical.x;
 
-	vsystem.y = vertical;
-	Vec::cross(vertical,direction,vsystem.x);
-	Vec::cross(vsystem.x,vertical,vsystem.z);
+		system.z = direction;
+		Vec::cross(vertical,direction,system.x);
+		Vec::cross(direction,system.x,system.y);
+
+		vsystem.y = vertical;
+		Vec::cross(vertical,direction,vsystem.x);
+		Vec::cross(vsystem.x,vertical,vsystem.z);
+	}
+	else
+	{
+		system.z = direction;
+		Vec::cross(vertical,direction,system.x);
+		Vec::cross(direction,system.x,system.y);
+
+		vsystem.y = vertical;
+		Vec::cross(vertical,direction,vsystem.x);
+		Vec::cross(vsystem.x,vertical,vsystem.z);
+	}
+
 
 	Vec::normalize(system.x);
 	Vec::normalize(system.y);

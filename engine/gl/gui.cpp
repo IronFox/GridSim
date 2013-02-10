@@ -2486,7 +2486,7 @@ namespace Engine
 					owns_mouse_down = true;
 					dragging = (rs >= Window::ClickResult::DragWindow ? window : shared_ptr<Window>());
 					drag_type = rs;
-					return true;
+					return rs != Window::ClickResult::Ignored;	//lets see if this is good
 				}
 				elif (window->is_modal)
 					return false;
