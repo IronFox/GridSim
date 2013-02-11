@@ -252,7 +252,7 @@ template <class C=float>
 class	VectorCamera:public Camera<C>	//! Camera object using vectors to determine the viewing direction
 {
 private:
-		MF_DECLARE(void)	adjustVertical();
+		MF_DECLARE(void)	adjustUpAxis();
 
 public:
 	#ifdef __GNUC__
@@ -271,18 +271,18 @@ public:
 	#endif
 
 		TVec3<C>			direction,				//!< Current viewing direction
-							vertical;				//!< Vertical orientation vector
+							upAxis;				//!< Vertical orientation vector
 		TMatrix3<C>			vsystem;					//!< Vector system matrix
 
 MF_CONSTRUCTOR				VectorCamera();
 MF_CONSTRUCTOR				VectorCamera(const Camera<C>&);
 MF_DECLARE(void)			build();													//!< (Re)assembles the view matrix using the local vectors. Also updates the view invert.
-MFUNC3	(void)				translatePlanar(const C0&x, const C1&y, const C2&z);		//!< Moves the camera depending on its current viewing direction. Any up or down orientation of the direction vector is ignored. Auto updates view_invert. \param x Translation in X-direction (horizontal) \param y Translation in Y-direction (vertical) \param Translation in Z-direction (depth)
+MFUNC3	(void)				translatePlanar(const C0&x, const C1&y, const C2&z);		//!< Moves the camera depending on its current viewing direction. Any up or down orientation of the direction vector is ignored. Auto updates view_invert. \param x Translation in X-direction (horizontal) \param y Translation in Y-direction (upAxis) \param Translation in Z-direction (depth)
 MFUNC1	(void)				translatePlanar(const TVec3<C0>&delta);							//!< Moves the camera depending on its current viewing direction. Any up or down orientation of the direction vector is ignored. Auto updates view_invert. \param delta Translation delta vector
 MFUNC2	(void)				rotatePlanar(const C0&alpha, const C1&beta);				//!< Rotates the local camera object to the left/right(beta) and up/down(alpha) and rebuilds. \param alpha Angle to rotate up or down  \param beta Angle to rotate about the vertical axis (to the left/right)
 MFUNC1	(void)				rotateDirectional(const C0&alpha, bool rebuild=true);		//!< Rotates the local camera object clockwise around the current viewing direction and rebuilds. \param alpha Angle to rotate about the viewing axis \param rebuild Rebuild the local camera object after rotation
 MFUNC1	(void)				setDirection(const TVec3<C0>&dir,bool do_build=true);			//!< Modifies the direction vector to match the specified one and rebuilds. \param dir New direction vector
-MFUNC1	(void)				setVertical(const TVec3<C0>&vert,bool do_build=true);			//!< Modifies the vertical vector to match the specified one and rebuilds. \param vert New vertical orientation vector.
+MFUNC1	(void)				setUpAxis(const TVec3<C0>&vert,bool do_build=true);			//!< Modifies the vertical vector to match the specified one and rebuilds. \param vert New vertical orientation vector.
 MFUNC2	(void)				align(const TVec3<C0>&dir, const TVec3<C1>&vert);					//!< Modifies both the direction and vertical vectors and rebuilds.  \param dir New direction vector \param vert New vertical orientation vector.
 MF_DECLARE	(AngularCamera<C>)	toAngularCamera();											//!< Converts the local vector camera to an angular camera. <b>Not implemented yet. Do not use</b>
 };

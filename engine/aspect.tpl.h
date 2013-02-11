@@ -943,16 +943,16 @@ template <class C> MF_DECLARE(VectorCamera<C>) AngularCamera<C>::toVectorCamera(
 {
 	VectorCamera<C> result(*this);
 	result.direction = system.z;
-	result.vertical = system.y;
+	result.upAxis = system.y;
 
 	if (GlobalAspectConfiguration::world_z_is_up)
 	{
-		result.direction.y =-result.direction.y;
-		result.direction.x =-result.direction.x;
+		result.direction.z =-result.direction.z;
+		//result.direction.x =-result.direction.x;
 		std::swap(result.direction.y,result.direction.z);
-		result.vertical.y =-result.vertical.y;
-		result.vertical.x =-result.vertical.x;
-		std::swap(result.vertical.y,result.vertical.z);
+		result.upAxis.z = -result.upAxis.z;
+		//result.upAxis.x = -result.upAxis.x;
+		std::swap(result.upAxis.y,result.upAxis.z);
 	}
 
 	return result;
@@ -962,7 +962,7 @@ template <class C>
 	MF_CONSTRUCTOR VectorCamera<C>::VectorCamera(const Camera<C>&c):Camera<C>(c)
 	{
 		Vec::def(direction,0,0,-1);
-		Vec::def(vertical,0,1,0);
+		Vec::def(upAxis,0,1,0);
 		vsystem = system;
 	}
 
@@ -970,7 +970,7 @@ template <class C>
 template <class C> MF_CONSTRUCTOR VectorCamera<C>::VectorCamera()
 {
 	Vec::def(direction,0,0,-1);
-	Vec::def(vertical,0,1,0);
+	Vec::def(upAxis,0,1,0);
 	vsystem = system;
 }
 
@@ -996,22 +996,22 @@ template <class C>
 MFUNC2 (void) VectorCamera<C>::align(const TVec3<C0>&dir, const TVec3<C1>&vert)
 {
 	Vec::copy(dir,direction);
-	Vec::copy(vert,vertical);
+	Vec::copy(vert,upAxis);
 	build();
 }
 
 
 template <class C>
-	MF_DECLARE (void) VectorCamera<C>::adjustVertical()
+	MF_DECLARE (void) VectorCamera<C>::adjustUpAxis()
 	{
 		TVec3<C>	n0,n1;
-		Vec::cross(direction,vertical,n0);
+		Vec::cross(direction,upAxis,n0);
 		Vec::cross(n0,direction,n1);
 		Vec::normalize0(n1);
-		if (Vec::dot(n1,vertical)>0)
-			vertical = n1;
+		if (Vec::dot(n1,upAxis)>0)
+			upAxis = n1;
 		else
-			Vec::mult(n1,-1,vertical);
+			Vec::mult(n1,-1,upAxis);
 	}
 
 template <class C>
@@ -1019,18 +1019,18 @@ template <class C>
 		MF_DECLARE (void) VectorCamera<C>::setDirection(const TVec3<T>&d, bool do_build)
 		{
 			Vec::copy(d,direction);
-			/*C	intensity = vabs(_intensity(vertical,direction));
+			/*C	intensity = vabs(_intensity(upAxis,direction));
 			if (intensity > 0.9)
-				adjustVertical();*/
+				adjustUpAxis();*/
 			if (do_build)
 				build();
 		}
 
 template <class C>
 	template <typename T>
-		MF_DECLARE (void) VectorCamera<C>::setVertical(const TVec3<T>&v,bool do_build)
+		MF_DECLARE (void) VectorCamera<C>::setUpAxis(const TVec3<T>&v,bool do_build)
 		{
-			Vec::copy(v,vertical);
+			Vec::copy(v,upAxis);
 			/*C	intensity = vabs(_intensity(v,direction));
 			if (intensity > 0.99)
 				return;*/
@@ -1045,27 +1045,27 @@ template <class C> MF_DECLARE (void) VectorCamera<C>::build()
 	if (GlobalAspectConfiguration::world_z_is_up)
 	{
 		TVec3<C> direction = this->direction;
-		TVec3<C> vertical = this->vertical;
-		std::swap(direction.y,direction.z);	direction.y =-direction.y;direction.x =-direction.x;
-		std::swap(vertical.y,vertical.z);vertical.y =-vertical.y;vertical.x =-vertical.x;
+		TVec3<C> upAxis = this->upAxis;
+		std::swap(direction.y,direction.z);	direction.z =-direction.z;
+		std::swap(upAxis.y,upAxis.z); upAxis.z =-upAxis.z;
 
 		system.z = direction;
-		Vec::cross(vertical,direction,system.x);
+		Vec::cross(upAxis,direction,system.x);
 		Vec::cross(direction,system.x,system.y);
 
-		vsystem.y = vertical;
-		Vec::cross(vertical,direction,vsystem.x);
-		Vec::cross(vsystem.x,vertical,vsystem.z);
+		vsystem.y = upAxis;
+		Vec::cross(upAxis,direction,vsystem.x);
+		Vec::cross(vsystem.x,upAxis,vsystem.z);
 	}
 	else
 	{
 		system.z = direction;
-		Vec::cross(vertical,direction,system.x);
+		Vec::cross(upAxis,direction,system.x);
 		Vec::cross(direction,system.x,system.y);
 
-		vsystem.y = vertical;
-		Vec::cross(vertical,direction,vsystem.x);
-		Vec::cross(vsystem.x,vertical,vsystem.z);
+		vsystem.y = upAxis;
+		Vec::cross(upAxis,direction,vsystem.x);
+		Vec::cross(vsystem.x,upAxis,vsystem.z);
 	}
 
 
@@ -1082,7 +1082,7 @@ MFUNC2 (void) VectorCamera<C>::rotatePlanar(const C0&alpha, const C1&beta)
 {
 	TVec3<C>	axis0;
 	TMatrix3<C>	matrix,temp;
-	Vec::cross(vertical,direction,axis0);
+	Vec::cross(upAxis,direction,axis0);
 	Vec::normalize0(axis0);
 	//_v3(axis0,-1,0,0);
 	Mat::rotationMatrix(-alpha,axis0,matrix);
@@ -1090,7 +1090,7 @@ MFUNC2 (void) VectorCamera<C>::rotatePlanar(const C0&alpha, const C1&beta)
 	Mat::mult(matrix,direction,axis0);
 	//__mult3(matrix,orientation,temp);
 
-	Mat::rotationMatrix(beta,vertical,matrix);
+	Mat::rotationMatrix(beta,upAxis,matrix);
 	Mat::mult(matrix,axis0,direction);
 	//__mult3(matrix,temp,orientation);
 	
@@ -1107,7 +1107,7 @@ MFUNC1 (void) VectorCamera<C>::rotateDirectional(const C0&alpha, bool rebuild)
 	Vec::normalize0(v);
 	Mat::rotationMatrix(alpha,v,matrix);
     //__rotationMatrix(alpha, matrix, 3);
-	Mat::mult(matrix,vertical);
+	Mat::mult(matrix,upAxis);
 	//__mult3(matrix,orientation,tempm);
 	//_c9(tempm,orientation);
 	if (rebuild)

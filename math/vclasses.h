@@ -429,6 +429,39 @@ namespace Math
 
 
 	template <typename T>
+		inline Vec2<T>	operator/(const TVec2<T>&a, const T&f)
+		{
+			return Vec2<T>(a.x /f, a.y /f);
+		}
+	template <typename T>
+		inline Vec3<T>	operator/(const TVec3<T>&a, const T&f)
+		{
+			return Vec3<T>(a.x / f, a.y / f, a.z / f);
+		}
+	template <typename T>
+		inline Vec4<T>	operator/(const TVec4<T>&a, const T&f)
+		{
+			return Vec4<T>(a.x / f, a.y / f, a.z / f, a.w / f);
+		}
+
+	template <typename T>
+		inline Vec2<T> operator-(const TVec2<T>&v)
+		{
+			return Vec2<T>(-v.x,-v.y);
+		}
+	template <typename T>
+		inline Vec3<T> operator-(const TVec3<T>&v)
+		{
+			return Vec3<T>(-v.x,-v.y,-v.z);
+		}
+	template <typename T>
+		inline Vec4<T> operator-(const TVec4<T>&v)
+		{
+			return Vec4<T>(-v.x,-v.y,-v.z,-v.w);
+		}
+
+
+	template <typename T>
 		inline TVec2<T>&	operator-=(TVec2<T>&a, const TVec2<T>&b)
 		{
 			a.x -= b.x;
