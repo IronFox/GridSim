@@ -172,7 +172,7 @@ public:
 
 		TMatrix3<C>			orientation;
 		
-MF_CONSTRUCTOR				OrthographicAspect();
+	MF_CONSTRUCTOR			OrthographicAspect(VisualEnum::eDepthTest depthTest = VisualEnum::NoDepthTest);
 
 MF_DECLARE(void)			make(const C&pixel_aspect, const C&zoom, const C&zNear, const C&zFar); 							//!< Create the local projection matrix via aspect, zoom, znear and zfar. Also updates the projection invert. \param pixel_aspect Global pixel aspect. Should not contain the local region aspect. \param zoom Aspect zoom. \param zNear Near z plane. \param zFar Far z plane.
 MF_DECLARE(void)			make(const C&left, const C&bottom, const C&right, const C&top,const C&zNear, const C&zFar);	//!< Create the local projection matrix via borders. Also updates the projection invert. \param left Left border. \param bottom Bottom border. \param right Right border. \param top Top border. \param zNear Near z plane. \param zFar Far z plane.

@@ -1528,6 +1528,37 @@ namespace Engine
 
 
 	}
+
+	template <class GL, class Def>
+	void Scenery<GL,Def>::RenderIgnoreMaterials(unsigned detail)
+	{
+		if (!renderer)
+		{
+			setRenderer(GL::global_instance,false);
+			if (!renderer)
+				FATAL__("trying to render without renderer");
+		}
+	
+		
+
+
+	    structures.reset();
+	    while (StructureEntity<Def>*entity = structures.each())
+	    {
+			entity->visible = true;
+			entity->detail = detail;
+			for (auto it = entity->object_entities.begin(); it != entity->object_entities.end(); ++it)
+				it->visible = true;
+		}
+		
+		foreach (opaque_materials,my_material)
+			(*my_material)->render(true);
+		foreach (transparent_materials,my_material)
+			(*my_material)->render(true);
+
+	    renderer->unbindAll();
+		PostRenderCleanup();
+	}
 	
 	template <class GL, class Def>
 	template <class C0>

@@ -523,6 +523,7 @@ namespace Engine
 				inline void				RenderIgnoreMaterials(const Aspect<C0>&aspect)	{renderIgnoreMaterials(aspect);}
 			void						render(unsigned detail=0);									//!< Renders the entire scenery in the specified detail disregarding of visibility
 			inline void					Render(unsigned detail=0)	{render(detail);}
+			inline void					RenderIgnoreMaterials(unsigned detail=0);
 			void						renderOpaqueMaterials();										//!< Renders non-transparent materials. Required to be embedded between resolve() and postRenderCleanup()
 			inline void					RenderOpaqueMaterials()	{renderOpaqueMaterials();}
 			void						renderTransparentMaterials();									//!< Renders transparent materials. Required to be embedded between resolve() and postRenderCleanup()
