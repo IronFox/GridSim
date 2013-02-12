@@ -948,10 +948,8 @@ template <class C> MF_DECLARE(VectorCamera<C>) AngularCamera<C>::toVectorCamera(
 	if (GlobalAspectConfiguration::world_z_is_up)
 	{
 		result.direction.z =-result.direction.z;
-		//result.direction.x =-result.direction.x;
 		std::swap(result.direction.y,result.direction.z);
 		result.upAxis.z = -result.upAxis.z;
-		//result.upAxis.x = -result.upAxis.x;
 		std::swap(result.upAxis.y,result.upAxis.z);
 	}
 

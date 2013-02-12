@@ -830,6 +830,24 @@ namespace Engine
 		
 			return glGetError() == GL_NO_ERROR;
 		}
+		bool			Variable::set2i(int x, int y)
+		{
+			if (handle == -1)
+				return false;
+			bool was_installed = instance->installed();
+			if (!was_installed && assert_is_installed)
+				FATAL__("trying to update variable '"+name+"' while shader is NOT installed");
+			if (!was_installed && (lock_uninstalled || !instance->install()))
+				return false;
+		
+			glGetError();//flush errors
+			glUniform2i(handle, x,y);
+		
+			if (!was_installed)
+				instance->uninstall();
+		
+			return glGetError() == GL_NO_ERROR;
+		}
 	
 		bool Variable::lock_uninstalled(false);
 		bool Variable::assert_is_installed(false);
@@ -3464,7 +3482,7 @@ namespace Engine
 		return result;
 	}
 	
-	bool			Extension::copyFrameBuffer(const TFrameBuffer&from, const TFrameBuffer&to, bool copy_color, bool copy_depth)
+	/*static*/	bool			Extension::copyFrameBuffer(const TFrameBuffer&from, const TFrameBuffer&to, const Resolution&res, bool copy_color /*= true*/, bool copy_depth/*=true*/)
 	{
 		if (!copy_color && !copy_depth)
 			return true;
@@ -3473,18 +3491,26 @@ namespace Engine
 			mask |= GL_COLOR_BUFFER_BIT;
 		if (copy_depth)
 			mask |= GL_DEPTH_BUFFER_BIT;
-		if (!from.frame_buffer || !to.frame_buffer || from.resolution != to.resolution)
+		if (!from.frame_buffer || !to.frame_buffer)
 			return false;
+		glGetError();
         glBindFramebuffer(GL_READ_FRAMEBUFFER_EXT, from.frame_buffer);
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER_EXT, to.frame_buffer);
-        glBlitFramebuffer(0, 0, from.resolution.width, from.resolution.height,
-                          0, 0, from.resolution.width, from.resolution.height,
+        glBlitFramebuffer(0, 0, res.width, res.height,
+                          0, 0, res.width, res.height,
                           mask,
                           GL_NEAREST);
 
         glBindFramebuffer(GL_READ_FRAMEBUFFER_EXT, 0);
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER_EXT, 0);
-		return true;
+		return glGetError() == GL_NO_ERROR;
+	}
+
+	/*static*/	bool			Extension::copyFrameBuffer(const TFrameBuffer&from, const TFrameBuffer&to, bool copy_color, bool copy_depth)
+	{
+		if (from.resolution != to.resolution)
+			return false;
+		return copyFrameBuffer(from,to,from.resolution,copy_color,copy_depth);
 	}
 	
 	

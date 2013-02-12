@@ -55,36 +55,31 @@ namespace Engine
 		struct TTexture
 		{
 		public:
-				float					width,	//!< Width of the texture (in scaled pixels)
-										height;	//!< Height of the texture (in scaled pixels)
-				OpenGL::Texture			color,	//!< Color map of the texture
-										normal;	//!< Normal map of the texture
-		static	void					load(XML::Node*node, const char*aname, FileSystem::Folder&folder, TTexture&out, float scale);
-				void					adoptData(TTexture&other)
-										{
-											width = other.width;
-											height = other.height;
-											color.adoptData(other.color);
-											normal.adoptData(other.normal);
-											other.width = 0;
-											other.height = 0;
-										}
+			float					width,	//!< Width of the texture (in scaled pixels)
+									height;	//!< Height of the texture (in scaled pixels)
+			OpenGL::Texture			color,	//!< Color map of the texture
+									normal;	//!< Normal map of the texture
+			static void				load(XML::Node*node, const char*aname, FileSystem::Folder&folder, TTexture&out, float scale);
+			void					adoptData(TTexture&other)
+									{
+										width = other.width;
+										height = other.height;
+										color.adoptData(other.color);
+										normal.adoptData(other.normal);
+										other.width = 0;
+										other.height = 0;
+									}
 		};
 		
 				
 		struct TFreeCell	//! Free component layout cell
 		{
-				Rect<float>				region;			//!< Effective cell region
-				BYTE					orientation;	//!< Cell orientation. Rotation is 90 degress times orientation
-				const OpenGL::Texture	*color,			//!< Cell color texture
-										*normal;			//!< Cell normal texture
+			Rect<float>				region;			//!< Effective cell region
+			BYTE					orientation;	//!< Cell orientation. Rotation is 90 degress times orientation
+			const OpenGL::Texture	*color,			//!< Cell color texture
+									*normal;			//!< Cell normal texture
 
-										TFreeCell():color(NULL),normal(NULL)
-										{}
-										
-		static	void					paintColor(Display<OpenGL>&display, const TFreeCell&);
-		static	void					paintNormal(Display<OpenGL>&display, const TFreeCell&, bool);
-									
+			/**/					TFreeCell():color(NULL),normal(NULL)	{}
 		};
 		
 		
@@ -96,35 +91,35 @@ namespace Engine
 		struct TCell
 		{
 		private:
-				TCell&					operator=(const TCell&other);
+			TCell&					operator=(const TCell&other);
 		public:
-				float 					width;			//!< Cell width. Constant if @b variable_width is false. Otherwise updated by WindowLoayout::locateCells()
-				bool					variable_width;	//!< Indicates whether or not this cell has a fixed or variable width
-				OpenGL::Texture			color_texture,	//!< Texture of this cell affecting plain color
-										normal_texture;	//!< Texture of this cell affecting normals
+			float 					width;			//!< Cell width. Constant if @b variable_width is false. Otherwise updated by WindowLoayout::locateCells()
+			bool					variable_width;	//!< Indicates whether or not this cell has a fixed or variable width
+			OpenGL::Texture			color_texture,	//!< Texture of this cell affecting plain color
+									normal_texture;	//!< Texture of this cell affecting normals
 				
-				void					adoptData(TCell&other)
-										{
-											width = other.width;
-											variable_width = other.variable_width;
-											color_texture.adoptData(other.color_texture);
-											normal_texture.adoptData(other.normal_texture);
-											other.width = 0;
-											other.variable_width = false;
-										}
+			void					adoptData(TCell&other)
+									{
+										width = other.width;
+										variable_width = other.variable_width;
+										color_texture.adoptData(other.color_texture);
+										normal_texture.adoptData(other.normal_texture);
+										other.width = 0;
+										other.variable_width = false;
+									}
 		};
 		
 		struct TIOCell	//! Simplified io layout cell used during layout loading
 		{
-				Image					normal,	//!< Raw normal image
-										color;	//!< Raw color image
-				bool					variable_width;	//!< Cell is of variable width
+			Image					normal,	//!< Raw normal image
+									color;	//!< Raw color image
+			bool					variable_width;	//!< Cell is of variable width
 		};
 		
 		struct TIORow	//!< Simplified io layout row used during layout loading
 		{
-				List::Vector<TIOCell>	cells;	//!< Cell container
-				bool					variable_height;	//!< Row is of variable height
+			List::Vector<TIOCell>	cells;	//!< Cell container
+			bool					variable_height;	//!< Row is of variable height
 		};
 
 
@@ -136,13 +131,13 @@ namespace Engine
 		struct TRow
 		{
 		protected:
-				TRow&					operator=(const TRow&other) {return *this;}
+			TRow&					operator=(const TRow&other) {return *this;}
 		public:
-				Array<TCell>			cells;	//!< Layout cell container
-				float					height;	//!< Row height
-				bool					variable_height;	//!< True if this row is of variable height
-				count_t					variable_cells;		//!< Number of cells with non-fixed widths. Always at least 1
-				float					fixed_width;		//!< Summed width of all cells with fixed widths in this row
+			Array<TCell>			cells;	//!< Layout cell container
+			float					height;	//!< Row height
+			bool					variable_height;	//!< True if this row is of variable height
+			count_t					variable_cells;		//!< Number of cells with non-fixed widths. Always at least 1
+			float					fixed_width;		//!< Summed width of all cells with fixed widths in this row
 		};
 		
 		/**
@@ -153,34 +148,32 @@ namespace Engine
 		class Layout
 		{
 		protected:
-		static	void					applyArea(Rect<float>&target, const Rect<float>&window, const Rect<float>&relative);
-				Layout&					operator=(const Layout&other) {return *this;}
+			static void				applyArea(Rect<float>&target, const Rect<float>&window, const Rect<float>&relative);
+			Layout&					operator=(const Layout&other) {return *this;}
 		public:
-				Array<TRow>				rows;				//!< Collection of rows
-				Rect<float>				title_position;		//!< Title position.	Negative values are interpreted relative to the right/top edges, positive ones to the left, bottom edges
-				Quad<float>				border_edge,		//!< Distance from the window/component edge to the effective (visual) edge of the layout. All values are >= 0
-										client_edge;		//!< Distance from the window/component edge to the client edge of the layout. All values are >= 0
-				float					min_width,			//!< Minimum width of this layout
-										min_height;			//!< Minimum height of this layout
-				count_t					variable_rows,		//!< Number of rows with non-fixed heights. Always at least 1
-										cell_count;			//!< Total number of cells in this layout
-				Layout					*override;			//!< Layout override
+			Array<TRow>				rows;				//!< Collection of rows
+			Rect<float>				title_position;		//!< Title position.	Negative values are interpreted relative to the right/top edges, positive ones to the left, bottom edges
+			Quad<float>				border_edge,		//!< Distance from the window/component edge to the effective (visual) edge of the layout. All values are >= 0
+									client_edge;		//!< Distance from the window/component edge to the client edge of the layout. All values are >= 0
+			float					min_width,			//!< Minimum width of this layout
+									min_height;			//!< Minimum height of this layout
+			count_t					variable_rows,		//!< Number of rows with non-fixed heights. Always at least 1
+									cell_count;			//!< Total number of cells in this layout
+			Layout					*override;			//!< Layout override
 
-										Layout();
+			/**/					Layout();
 
-				/**
-					@brief Loads a layout from the specified xml file.
+			/**
+			@brief Loads a layout from the specified xml file.
 					
-					The method requires a valid OpenGL context
+			The method requires a valid OpenGL context
 					
-					@param filename Filename  of the xml file to load
-					@param scale Relative scale that should be applied to the loaded layout
-				*/
-				void					loadFromFile(const String&filename, float scale=1.0f);	
-				
-				void					updateCells(const Rect<float>&window_location, TCellLayout&layout)	const;		//!< Updates the final layout of a window or component depending on the window's location
-				
-				Layout*				reference()	{return override!=NULL?override:this;}
+			@param filename Filename  of the xml file to load
+			@param scale Relative scale that should be applied to the loaded layout
+			*/
+			void					loadFromFile(const String&filename, float scale=1.0f);	
+			void					updateCells(const Rect<float>&window_location, TCellLayout&layout)	const;		//!< Updates the final layout of a window or component depending on the window's location
+			Layout*					reference()	{return override!=NULL?override:this;}
 		};
 		
 		
@@ -192,13 +185,12 @@ namespace Engine
 		*/
 		struct TCellInstance
 		{
-				Rect<float>				region;			//!< Effective cell region (in pixels)
-				const OpenGL::Texture	*color_texture,	//!< Color texture to fill the cell with
-										*normal_texture;	//!< Normal texture to fill the cell with
-				//float					width;			//!< Effective width of the cell.
+			Rect<float>				region;			//!< Effective cell region (in pixels)
+			const OpenGL::Texture	*color_texture,	//!< Color texture to fill the cell with
+									*normal_texture;	//!< Normal texture to fill the cell with
+			//float					width;			//!< Effective width of the cell.
 				
-										TCellInstance():color_texture(NULL),normal_texture(NULL)
-										{}
+			/**/					TCellInstance():color_texture(NULL),normal_texture(NULL){}
 		};
 
 		/**
@@ -208,14 +200,139 @@ namespace Engine
 		*/
 		struct TCellLayout
 		{
-				Array<TCellInstance>	cells;				//!< Container for all cell instances (generally unsorted)
-				Rect<float>				title,				//!< Effective (absolute) title region
-										border,				//!< Effective (absolute) region of the visual border. Mouse clicks outside this border are generally applied to the next lower window
-										client;				//!< Effective (absolute) region of the client area of the layout.
+			Array<TCellInstance>	cells;				//!< Container for all cell instances (generally unsorted)
+			Rect<float>				title,				//!< Effective (absolute) title region
+									border,				//!< Effective (absolute) region of the visual border. Mouse clicks outside this border are generally applied to the next lower window
+									client;				//!< Effective (absolute) region of the client area of the layout.
 		};
 		
 		
-		
+
+		class Renderer
+		{
+		private:
+			static GLShader::Instance	layerMerger;
+			Buffer<Rect<int>,0>		clipStack;
+			TVec3<>					clearColor;
+			Resolution				subRes;
+			TFrameBuffer			stackedTargets[2],
+									layerTarget;
+			bool					targetingFinal;
+			count_t					layerCounter;
+			void					_Apply(const Rect<int>&port);
+			void					_Swap();
+			void					_SetView(const Rect<int>&port);
+		protected:
+
+			bool					layerIsDirty;
+			Display<OpenGL>			&display;
+			/**/					Renderer(Display<OpenGL>&display, float clearColorR, float clearColorG, float clearColorB) : layerIsDirty(false), display(display)	{Vec::def(clearColor,clearColorR,clearColorG,clearColorB);}
+
+			const Resolution&		GetTargetResolution()	const	{return subRes;}
+
+			void					FillRect(const Rect<>&rect);
+			void					FillQuad(const TVec2<>&p0, const TVec2<>&p1, const TVec2<>&p2, const TVec2<>&p3);
+			void					TextureRect(const Rect<>&rect);
+			void					TextureRect(const Rect<>&rect, const Rect<>&texCoordRect);
+			void					TextureQuad(const TVec2<>&p0, const TVec2<>&p1, const TVec2<>&p2, const TVec2<>&p3);
+
+			void					Configure(const TFrameBuffer&, const Resolution& usage);
+			void					Finish();
+			void					MarkNewLayer();
+		public:
+			virtual					~Renderer();
+
+			void					Clip(const Rect<float>&region);	//!< Focuses on an area by applying the current viewport and translation to the specified region and further limiting the viewport. The existing translation will be modified by dx and dy
+			void					Unclip();	//!< Reverts the focus process by jumping back to the next upper focus
+			
+			//inline void				ResetFocus()	{focusStack.clear();}
+		};
+
+		class ColorRenderer : public Renderer
+		{
+		private:
+			TVec4<>					color;
+			Buffer<TVec4<>,0>		colorStack;
+			void					_UpdateState();
+			void					_UpdateState(const GL::Texture::Reference&);
+			void					_UpdateState(const GL::Texture::Reference&,const GL::Texture::Reference&);
+		public:
+			static Textout<GLTextureFont2>		textout;		//!< Global textout used to render text
+			/**/					ColorRenderer(Display<OpenGL>&display) : Renderer(display,0,0,0)	{}
+			void					ModulateColor(const TVec4<>&);
+			void					ModulateColor(const TVec3<>&, float alpha=1.f);
+			void					ModulateColor(float greyTone, float alpha=1.f);
+			void					ModulateColor(float r, float g, float b, float a = 1.f);
+
+			void					SetTextPosition(float x, float y);
+			void					WriteText(const String&);
+			void					WriteText(const char*text, count_t numChars);
+			float					GetUnscaledWidth(const char*text, count_t numChars);
+
+			void					Paint(const TFreeCell&);
+			void					SetPointSize(float size);
+			void					PaintPoint(float x, float y);
+			void					RenderLine(float x0, float y0, float x1, float y1);
+
+			void					FillRect(const Rect<>&rect);
+			void					TextureRect(const Rect<>&rect,const GL::Texture::Reference&);
+			void					TextureRect(const Rect<>&rect, const Rect<>&texCoordRect,const GL::Texture::Reference&);
+			void					TextureRect(const Rect<>&rect,const GL::Texture::Reference&,const GL::Texture::Reference&);
+			void					TextureRect(const Rect<>&rect, const Rect<>&texCoordRect,const GL::Texture::Reference&,const GL::Texture::Reference&);
+			void					TextureQuad(const TVec2<>&p0, const TVec2<>&p1, const TVec2<>&p2, const TVec2<>&p3, const GL::Texture::Reference&);
+			void					TextureQuad(const TVec2<>&p0, const TVec2<>&p1, const TVec2<>&p2, const TVec2<>&p3, const GL::Texture::Reference&, const GL::Texture::Reference&);
+
+			void					PushColor();
+			void					PopColor();
+			void					PeekColor();
+
+			void					MarkNewLayer();
+
+			GLTextureFont2&			GetFont()	const	{return textout.getFont();}
+
+
+			void					Configure(const TFrameBuffer&, const Resolution& usage);
+			void					Finish();
+
+
+			//void					ResetColor();
+		};
+
+		class NormalRenderer : public Renderer
+		{
+		private:
+			static GLShader::Instance	normalRenderer;
+			static GLShader::Variable	normalScaleVariable;
+			TVec3<>					normalScale;
+			Buffer<TVec3<>,0>		normalScaleStack;
+
+			void					_UpdateState(const GL::Texture::Reference&);
+		public:
+			/**/					NormalRenderer(Display<OpenGL>&display) : Renderer(display,0.5f,0.5f,1.f)	{}
+
+			void					ScaleNormals(float x, float y);
+			void					ScaleNormals(const TVec2<>&);
+			void					ScaleNormals(float x, float y, float z);
+			void					ScaleNormals(const TVec3<>&);
+
+			void					PushNormalScale();
+			void					PopNormalScale();
+			void					PeekNormalScale();
+
+			void					Paint(const TFreeCell&, bool invertNormals);
+
+			void					TextureRect(const Rect<>&rect,const GL::Texture::Reference&);
+			void					TextureRect(const Rect<>&rect, const Rect<>&texCoordRect,const GL::Texture::Reference&);
+			void					TextureQuad(const TVec2<>&p0, const TVec2<>&p1, const TVec2<>&p2, const TVec2<>&p3, const GL::Texture::Reference&);
+
+			void					MarkNewLayer();
+	
+			void					Configure(const TFrameBuffer&, const Resolution& usage);
+			void					Finish();
+
+		};
+
+	
 		class Window;
 		typedef shared_ptr<Window>	PWindow;
 		
@@ -261,7 +378,6 @@ namespace Engine
 			const String						type_name;		//!< Constant type name of this component. Assigned during construction (usually the class name without the leading 'C')
 			TCellLayout							cell_layout;	//!< Effective applied cell layout. This variable is updated even if this component has no layout
 			Layout*								layout;			//!< Layout attached to this component or NULL if this component has no layout
-			static	Textout<GLTextureFont2>		textout;		//!< Global textout used to render text
 			float								tick_interval;	//!< Interval (in seconds) between executions of the onTick() method
 
 
@@ -275,8 +391,8 @@ namespace Engine
 			virtual	float						clientMinHeight()	const	{return 0;}			//!< Queries the minimum height of the inner content of this component (excluding the minimum size of the layout)
 			virtual	float						minWidth(bool include_offsets)	const;			//!< Queries the effective minimum width of this component	@param include_offsets Set true to also include anchor offsets @return Minimum width of this component
 			virtual	float						minHeight(bool include_offsets)	const;			//!< Queries the effective minimum height of this component 	@param include_offsets Set true to also include anchor offsets @return Minimum height of this component
-			virtual	void						onColorPaint();						//!< Causes this component to repaint its color components
-			virtual	void						onNormalPaint();						//!< Causes this component to repaint its normal components
+			virtual	void						OnColorPaint(ColorRenderer&);			//!< Causes this component to repaint its color components
+			virtual	void						OnNormalPaint(NormalRenderer&);						//!< Causes this component to repaint its normal components
 			virtual	shared_ptr<Component>		getFocused()					{return shared_from_this();};	//!< Retrieves the actually focused element from the component returned by onMouseDown(). Returns this by default
 			virtual	eEventResult				onMouseDown(float x, float y, TExtEventResult&)		{return Unsupported;};	//!< Triggered if the primary mouse button was pressed over this component @param x Window space x coordinate of the mouse cursor @param y Window space y coordinate of the mouse cursor @return Event result
 			virtual	eEventResult				onMouseHover(float x, float y, TExtEventResult&)	{return Unsupported;};	//!< Triggered if the mouse was moved while above this component @param x Window space x coordinate of the mouse cursor @param y Window space y coordinate of the mouse cursor @return Event result
@@ -315,6 +431,7 @@ namespace Engine
 		};
 
 		typedef shared_ptr<Component>	PComponent;
+		typedef shared_ptr<const Component>	PConstComponent;
 		
 		/**
 			@brief Icon container
@@ -504,6 +621,9 @@ namespace Engine
 
 		class Operator: public enable_shared_from_this<Operator>	//! GUI Instance
 		{
+		public:
+			ColorRenderer				colorRenderer;
+			NormalRenderer				normalRenderer;
 		protected:
 			bool						owns_mouse_down;		//!< True if the currently pressed mouse button is handled by the window system
 			Display<OpenGL>				*display;
@@ -514,10 +634,8 @@ namespace Engine
 										stack_changed;
 			Buffer<PWindow>				window_stack;
 			Buffer<weak_ptr<Window> >	menu_stack;
-			OrthographicAspect<>		window_space,
-										texture_space;
+			OrthographicAspect<>		window_space;
 			Camera<>					projected_space;
-			Buffer<Rect<int> >			focus_stack;
 			GLuint						layer_texture;
 
 
@@ -540,7 +658,6 @@ namespace Engine
 			void						render(const PWindow&window, float w, float h, bool is_menu);//!< Renders this window given the current display dimensions @param w Display width @param h Display Height @param is_menu True if this window is rendered as a menu, false otherwise
 			void						renderBox(const PWindow&window, float w, float h, bool is_menu);
 			float						radiusOf(index_t stack_layer)	const;
-			void						apply(const Rect<int>&port);
 
 			void						bind(Key::Name key);
 
@@ -595,12 +712,6 @@ namespace Engine
 			inline void					HideMenus()	{hideMenus();}
 
 
-			void						focus(const Rect<float>&region);	//!< Focuses on an area by applying the current viewport and translation to the specified region and further limiting the viewport. The existing translation will be modified by dx and dy
-			inline void					Focus(const Rect<float>&region)	{focus(region);}
-			void						unfocus();	//!< Reverts the focus process by jumping back to the next upper focus
-			inline void					Unfocus()	{unfocus();}
-			inline void					resetFocus()	{focus_stack.reset();}
-			inline void					ResetFocus()	{focus_stack.reset();}
 		};
 
 		void							loadBump(const String&filename, OpenGL::Texture&target);	//!< Loads a bump texture

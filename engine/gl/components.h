@@ -40,14 +40,14 @@ namespace Engine
 											setup();
 										}
 
-			virtual	float				clientMinWidth()	const;	
-			virtual	float				clientMinHeight()	const;
-			virtual	void				onColorPaint();
+			virtual	float				clientMinWidth()	const	override;
+			virtual	float				clientMinHeight()	const	override;
+			virtual	void				OnColorPaint(ColorRenderer&)	override;
 			const String&				text() const	{return caption;}	//!< Retrieves the current caption
 			Label*						setText(const String&text);		//!< Updates label caption
 			Label*						setColor(const TVec4<>&color);	//!< Updates label text color
 			String						toString()	const	{return caption;}	//!< Simple CSObject toString() override
-			virtual	void				updateLayout(const Rect<float>&parent_region);
+			virtual	void				updateLayout(const Rect<float>&parent_region)	override;
 		};
 		
 		typedef shared_ptr<Label>		PLabel;
@@ -55,15 +55,15 @@ namespace Engine
 		class SliderLayout
 		{
 		public:
-				TTexture				bar_left,
+			TTexture					bar_left,
 										bar_center,
 										slider;
 				
-				float					min_width,
+			float						min_width,
 										min_height;
-		static 	SliderLayout			global;	//!< Global slider layout, applied by default to the appearance of a new slider
+			static  SliderLayout		global;	//!< Global slider layout, applied by default to the appearance of a new slider
 		
-				void					loadFromFile(const String&filename, float scale=1.0f);
+			void						loadFromFile(const String&filename, float scale=1.0f);
 		};
 		
 		/**
@@ -77,27 +77,24 @@ namespace Engine
 		class ScrollBarLayout
 		{
 		public:
-				TTexture				back_center,	//!< Center fragment of the background
+			TTexture					back_center,	//!< Center fragment of the background
 										back_bottom,	//!< Bottom fragment of the background
 										cursor_center,	//!< Center fragment of the cursor
 										cursor_bottom,	//!< Bottom fragment of the cursor
 										bottom_button;	//!< Down button
-				float					button_indent,	//!< Upper space of the button that is both used by the cursor and the button. Sort of like an overlapping if the shape between button and cursor is not straight
+			float						button_indent,	//!< Upper space of the button that is both used by the cursor and the button. Sort of like an overlapping if the shape between button and cursor is not straight
 										min_width,		//!< Minimum width of the scrollbar. This is in fact the same as the maximum width since the width of a vertical scrollbar is usually static.
 										min_height;		//!< Minimum height of the scrollbar
+			/**
+			@brief Loads the local scrollbar layout from an xml file
+			@param filename Path to the xml file
+			@param scale Scale to apply to the loaded layout
+			@param error_out String to store an error description in (in case of an error) or NULL if the error output should be ignored.
+			@return true on success
+			*/
+			void						loadFromFile(const String&filename, float scale=1.0f);
 				
-				/**
-					@brief Loads the local scrollbar layout from an xml file
-					@param filename Path to the xml file
-					@param scale Scale to apply to the loaded layout
-					@param error_out String to store an error description in (in case of an error) or NULL if the error output should be ignored.
-					@return true on success
-				*/
-				void					loadFromFile(const String&filename, float scale=1.0f);
-				
-				
-				
-		static 	ScrollBarLayout		global;	//!< Global scrollbar layout, applied by default to the appearance of a new scrollbar
+			static  ScrollBarLayout		global;	//!< Global scrollbar layout, applied by default to the appearance of a new scrollbar
 		};
 		
 		
@@ -111,8 +108,7 @@ namespace Engine
 										window,		//!< Window covered by the scrollbar view (effectivly defines the length of the bar)
 										current;	//!< Scroll window position ranging 0 to 1
 										
-										TScrollData():min(0),max(0),window(100),current(0)
-										{}
+				/**/					TScrollData():min(0),max(0),window(100),current(0){}
 		};
 
 		/**
@@ -123,13 +119,13 @@ namespace Engine
 		class Scrollable
 		{
 		public:
-				TScrollData				horizontal,	//!< Horizontal scrolldata
+			TScrollData					horizontal,	//!< Horizontal scrolldata
 										vertical;	//!< Vertical scrolldata
 				
-		virtual							~Scrollable()	{};
-		virtual	void					onScroll()				{}
-		virtual	void					onHorizontalScroll()	{onScroll();}	//!< Triggered if a horizontal scrollbar - that this scrollable component has been attached to - was scrolled
-		virtual	void					onVerticalScroll()		{onScroll();}	//!< Triggered if a vertical scrollbar - that this scrollable component has been attached to - was scrolled
+			virtual						~Scrollable()	{};
+			virtual	void				onScroll()				{}
+			virtual	void				onHorizontalScroll()	{onScroll();}	//!< Triggered if a horizontal scrollbar - that this scrollable component has been attached to - was scrolled
+			virtual	void				onVerticalScroll()		{onScroll();}	//!< Triggered if a vertical scrollbar - that this scrollable component has been attached to - was scrolled
 		};
 		
 		
@@ -142,35 +138,35 @@ namespace Engine
 		class ScrollBar: public Component
 		{
 		protected:
-				float						cursor_hook[2],
-											cursor_range;
-				bool						up_pressed,
-											down_pressed,
-											cursor_grabbed;
-				TFreeCell					background_top,
-											background_center,
-											background_bottom,
-											cursor_top,
-											cursor_center,
-											cursor_bottom,
-											up_button,
-											down_button;
-				Rect<float>				cursor_region;
+			float						cursor_hook[2],
+										cursor_range;
+			bool						up_pressed,
+										down_pressed,
+										cursor_grabbed;
+			TFreeCell					background_top,
+										background_center,
+										background_bottom,
+										cursor_top,
+										cursor_center,
+										cursor_bottom,
+										up_button,
+										down_button;
+			Rect<float>					cursor_region;
 				
-				void						setup();
-		static	void						paintColor(const TCell&);
-		static	void						paintNormal(const TCell&, bool);
+			void						setup();
+			static void					paintColor(const TCell&);
+			static void					paintNormal(const TCell&, bool);
 		public:
-				weak_ptr<Scrollable>		scrollable;
-				bool						horizontal,		//!< Indicates that the scrollbar is horizontal rather than vertical
-											auto_visibility;	//!< Indicates that the governing structure (ie a scrollbox) should attempt to determine and update the visibility of this scrollbar automatically
-				FunctionalEvent				on_scroll;		//!< Event that is fired if the scrollbar changes
-				TScrollData					scroll_data;		//!< Current scrollbar state
-				ScrollBarLayout*			scroll_layout;		//!< Inner scrollbar layout. Functionality is undetermined if the scrollbar has no inner layout
+			weak_ptr<Scrollable>		scrollable;
+			bool						horizontal,		//!< Indicates that the scrollbar is horizontal rather than vertical
+										auto_visibility;	//!< Indicates that the governing structure (ie a scrollbox) should attempt to determine and update the visibility of this scrollbar automatically
+			FunctionalEvent				on_scroll;		//!< Event that is fired if the scrollbar changes
+			TScrollData					scroll_data;		//!< Current scrollbar state
+			ScrollBarLayout*			scroll_layout;		//!< Inner scrollbar layout. Functionality is undetermined if the scrollbar has no inner layout
 										
 										
 				
-										ScrollBar():Component("ScrollBar")
+			/**/						ScrollBar():Component("ScrollBar")
 										{
 											setup();
 											anchored.set(false,true,true,true);
@@ -178,7 +174,7 @@ namespace Engine
 											height = minHeight(false);
 											scroll_data.window = height;
 										}
-										ScrollBar(bool horizontal_):Component("ScrollBar")
+			/**/						ScrollBar(bool horizontal_):Component("ScrollBar")
 										{
 											setup();
 											horizontal = horizontal_;
@@ -196,16 +192,16 @@ namespace Engine
 											}
 										}
 			void						scrollTo(float v);
-		virtual	void					onScroll();	//!< Triggered if the scrollbar changes. Invokes the local event container and notifies the linked scrollable by default
-		virtual	void					updateLayout(const Rect<float>&parent_region);
-		virtual	float					clientMinWidth()	const;
-		virtual	float					clientMinHeight()	const;
-		virtual	void					onColorPaint();
-		virtual	void					onNormalPaint();
-		virtual	eEventResult			onMouseDrag(float x, float y);
-		virtual	eEventResult			onMouseDown(float x, float y, TExtEventResult&);
-		virtual	eEventResult			onMouseUp(float x, float y);
-		virtual	eEventResult			onMouseWheel(float x, float y, short delta);
+			virtual	void				onScroll();	//!< Triggered if the scrollbar changes. Invokes the local event container and notifies the linked scrollable by default
+			virtual	void				updateLayout(const Rect<float>&parent_region) override;
+			virtual	float				clientMinWidth()	const override;
+			virtual	float				clientMinHeight()	const override;
+			virtual	void				OnColorPaint(ColorRenderer&) override;
+			virtual	void				OnNormalPaint(NormalRenderer&) override;
+			virtual	eEventResult		onMouseDrag(float x, float y) override;
+			virtual	eEventResult		onMouseDown(float x, float y, TExtEventResult&) override;
+			virtual	eEventResult		onMouseUp(float x, float y) override;
+			virtual	eEventResult		onMouseWheel(float x, float y, short delta) override;
 		};
 		typedef shared_ptr<ScrollBar>		PScrollBar;
 		
@@ -241,7 +237,7 @@ namespace Engine
 										
 										
 				
-										Slider():Component("Slider")
+			/**/						Slider():Component("Slider")
 										{
 											setup();
 											anchored.set(true,false,true,true);
@@ -249,15 +245,15 @@ namespace Engine
 											height = minHeight(false);
 										}
 			virtual	void				onSlide();	//!< Triggered if the slider changes. Invokes the local event container by default
-			virtual	void				updateLayout(const Rect<float>&parent_region);
-			virtual	float				clientMinWidth()	const;
-			virtual	float				clientMinHeight()	const;
-			virtual	void				onColorPaint();
-			virtual	void				onNormalPaint();
-			virtual	eEventResult		onMouseDrag(float x, float y);
-			virtual	eEventResult		onMouseDown(float x, float y, TExtEventResult&);
-			virtual	eEventResult		onMouseUp(float x, float y);
-			virtual	eEventResult		onMouseWheel(float x, float y, short delta);
+			virtual	void				updateLayout(const Rect<float>&parent_region) override;
+			virtual	float				clientMinWidth()	const override;
+			virtual	float				clientMinHeight()	const override;
+			virtual	void				OnColorPaint(ColorRenderer&) override;
+			virtual	void				OnNormalPaint(NormalRenderer&) override;
+			virtual	eEventResult		onMouseDrag(float x, float y) override;
+			virtual	eEventResult		onMouseDown(float x, float y, TExtEventResult&) override;
+			virtual	eEventResult		onMouseUp(float x, float y) override;
+			virtual	eEventResult		onMouseWheel(float x, float y, short delta) override;
 		
 			inline float				getMax()const {return max;}
 			inline float				getCurrent() const {return current;}
@@ -276,44 +272,42 @@ namespace Engine
 		class Panel:public Component
 		{
 		protected:
-				Buffer<shared_ptr<Component>,4 >		children;
+			Buffer<shared_ptr<Component>,4 >		children;
 
-										Panel(const String&type_name):Component("Panel/"+type_name)	//!< Creates a derivative panel
+			/**/						Panel(const String&type_name):Component("Panel/"+type_name)	//!< Creates a derivative panel
 										{
 											layout = global_layout.reference();
 											anchored.setAll(true);
 										}
 		public:
-		
-		static	Layout					global_layout;	//!< Default panel layout
+			static Layout				global_layout;	//!< Default panel layout
 				
-										Panel():Component("Panel")	//!< Creates a plain panel
+			/**/						Panel():Component("Panel")	//!< Creates a plain panel
 										{
 											layout = global_layout.reference();
 											anchored.setAll(true);
 										}
-		virtual	void					updateLayout(const Rect<float>&parent_region);
-		virtual	float					clientMinWidth()	const;
-		virtual	float					clientMinHeight()	const;
-		virtual	void					onColorPaint();
-		virtual	void					onNormalPaint();
-		virtual	eEventResult			onMouseHover(float x, float y, TExtEventResult&);
-		virtual	eEventResult			onMouseDown(float x, float y, TExtEventResult&);
-		virtual	eEventResult			onMouseWheel(float x, float y, short delta);
-				bool					getChildSpace(Rect<float>&out_rect)	const;	//!< Retrieves the space currently occupied by the children of this panel @param out_rect Rectangle container to store the child space in @return true if the local panel has at least one child, false otherwise
+			virtual	void				updateLayout(const Rect<float>&parent_region) override;
+			virtual	float				clientMinWidth()	const override;
+			virtual	float				clientMinHeight()	const override;
+			virtual	void				OnColorPaint(ColorRenderer&) override;
+			virtual	void				OnNormalPaint(NormalRenderer&) override;
+			virtual	eEventResult		onMouseHover(float x, float y, TExtEventResult&) override;
+			virtual	eEventResult		onMouseDown(float x, float y, TExtEventResult&) override;
+			virtual	eEventResult		onMouseWheel(float x, float y, short delta) override;
+			bool						getChildSpace(Rect<float>&out_rect)	const;	//!< Retrieves the space currently occupied by the children of this panel @param out_rect Rectangle container to store the child space in @return true if the local panel has at least one child, false otherwise
 		
-				void					append(const shared_ptr<Component>&component);	//!< Appends  the specified component beneath the last member component of the local panel
-				void					appendRight(const shared_ptr<Component>&component);	//!< Appends the specified component to the right of the last member component of the local panel
-				/**
-					@brief Adds a row in the form "[caption][tab][component]" to the end of the panel
+			void						append(const shared_ptr<Component>&component);	//!< Appends  the specified component beneath the last member component of the local panel
+			void						appendRight(const shared_ptr<Component>&component);	//!< Appends the specified component to the right of the last member component of the local panel
+			/**
+			@brief Adds a row in the form "[caption][tab][component]" to the end of the panel
 					
-					addRow() adds a new label with the specified caption as well as the specified GUI to the bottom end of the local panel's elements
-					
-					@param caption Caption to assign to the created label object. The label object is located at the left edge underneath the last child component
-					@param caption_width Minimal width to allocate for the caption label
-					@param component Component object to add. The component is located to the right of the newly created caption, at least @a caption_width to right of the left edge of the label.
-					@return @a component
-				*/
+			addRow() adds a new label with the specified caption as well as the specified GUI to the bottom end of the local panel's elements
+			@param caption Caption to assign to the created label object. The label object is located at the left edge underneath the last child component
+			@param caption_width Minimal width to allocate for the caption label
+			@param component Component object to add. The component is located to the right of the newly created caption, at least @a caption_width to right of the left edge of the label.
+			@return @a component
+			*/
 			template <class Component>
 				shared_ptr<Component>	addRow(const String&caption, float caption_width, const shared_ptr<Component>&component)
 				{
@@ -343,22 +337,22 @@ namespace Engine
 				}
 				
 				
-		virtual	bool					add(const shared_ptr<Component>&component);		//!< Adds a component to the panel. The added panel is drawn last 	@return true on success
-		virtual	bool					erase(const shared_ptr<Component>&component);	//!< Erases a component from the panel.		@return true on success
-		virtual	bool					erase(index_t index);			//!< Erases a component by index from the panel		@return true on success
-		virtual	bool					moveUp(const shared_ptr<Component>&component);	//!< Moves a component further up in the order of child GUI			@return true on success
-		virtual	bool					moveUp(index_t index);			//!< Moves a component by index further up in the order of child GUI	@return true on success
-		virtual	bool					moveDown(const shared_ptr<Component>&component);	//!< Moves a component further down in the order of child GUI		@return true on success
-		virtual	bool					moveDown(index_t index);		//!< Moves a component by index further down in the order of child GUI	@return true on success
-		virtual	bool					moveTop(const shared_ptr<Component>&component);	//!< Moves a component to the top of the order of child GUI			@return true on success
-		virtual	bool					moveTop(index_t index);		//!< Moves a component by index to the top of the order of child GUI	@return true on success
-		virtual	bool					moveBottom(const shared_ptr<Component>&component);	//!< Moves a component to the bottom of the order of child GUI	@return true on success
-		virtual	bool					moveBottom(index_t index);			//!< Moves a component by index to the bottom of the order of child GUI	@return true on success
-		virtual	shared_ptr<const Component>		child(index_t index) const	{return children[index];}
-		virtual	shared_ptr<Component>		child(index_t index)	{return children[index];}
-		virtual	count_t					countChildren() const {return children.count();}
-		virtual	index_t					indexOf(const shared_ptr<Component>&child)const	{return children.indexOf(child)+1;}	//!< Queries the index of a child +1. @return Index+1 or 0 if the child could not be found
-		virtual	void					clear()	{children.reset();}
+			virtual	bool				add(const shared_ptr<Component>&component);		//!< Adds a component to the panel. The added panel is drawn last 	@return true on success
+			virtual	bool				erase(const shared_ptr<Component>&component);	//!< Erases a component from the panel.		@return true on success
+			virtual	bool				erase(index_t index);			//!< Erases a component by index from the panel		@return true on success
+			virtual	bool				moveUp(const shared_ptr<Component>&component);	//!< Moves a component further up in the order of child GUI			@return true on success
+			virtual	bool				moveUp(index_t index);			//!< Moves a component by index further up in the order of child GUI	@return true on success
+			virtual	bool				moveDown(const shared_ptr<Component>&component);	//!< Moves a component further down in the order of child GUI		@return true on success
+			virtual	bool				moveDown(index_t index);		//!< Moves a component by index further down in the order of child GUI	@return true on success
+			virtual	bool				moveTop(const shared_ptr<Component>&component);	//!< Moves a component to the top of the order of child GUI			@return true on success
+			virtual	bool				moveTop(index_t index);		//!< Moves a component by index to the top of the order of child GUI	@return true on success
+			virtual	bool				moveBottom(const shared_ptr<Component>&component);	//!< Moves a component to the bottom of the order of child GUI	@return true on success
+			virtual	bool				moveBottom(index_t index);			//!< Moves a component by index to the bottom of the order of child GUI	@return true on success
+			virtual	PConstComponent		child(index_t index) const override	{return children[index];}
+			virtual	PComponent			child(index_t index) override	{return children[index];}
+			virtual	count_t				countChildren() const override {return children.count();}
+			virtual	index_t				indexOf(const shared_ptr<Component>&child)const	{return children.indexOf(child)+1;}	//!< Queries the index of a child +1. @return Index+1 or 0 if the child could not be found
+			virtual	void				clear() {children.reset();}
 		};
 		typedef shared_ptr<Panel>		PPanel;
 		
@@ -370,47 +364,47 @@ namespace Engine
 		class ScrollBox: public Panel, public Scrollable
 		{
 		protected:
-				Rect<float>						effective_client_region;
-				Buffer<shared_ptr<Component>,4>	visible_children;
+			Rect<float>						effective_client_region;
+			Buffer<shared_ptr<Component>,4>	visible_children;
 				
 
-				void								createBars()
-				{
-					horizontal_bar.reset(new ScrollBar(true));
-					vertical_bar.reset(new ScrollBar(false));
-				}
-										ScrollBox(const String&sub_type_name):Panel("ScrollBox/"+sub_type_name)
+			void						createBars()
+										{
+											horizontal_bar.reset(new ScrollBar(true));
+											vertical_bar.reset(new ScrollBar(false));
+										}
+			/**/						ScrollBox(const String&sub_type_name):Panel("ScrollBox/"+sub_type_name)
 										{
 											createBars();
 										}
 		public:
-				shared_ptr<ScrollBar>	horizontal_bar,	//!< Horizontal scrollbar
+			shared_ptr<ScrollBar>		horizontal_bar,	//!< Horizontal scrollbar
 										vertical_bar;	//!< Vertical scrollbar
 		
-										ScrollBox():Panel("ScrollBox")
+			/**/						ScrollBox():Panel("ScrollBox")
 										{
 											createBars();
 										}
-				shared_ptr<Scrollable>	toScrollable()
+			shared_ptr<Scrollable>		toScrollable()
 										{
 											return static_pointer_cast<Scrollable, ScrollBox>(static_pointer_cast<ScrollBox, Component>(shared_from_this()));
 										}
-		//virtual	void					onScroll();
-		virtual	void					updateLayout(const Rect<float>&parent_region);
-		virtual	float					clientMinWidth()	const;
-		virtual	float					clientMinHeight()	const;
-		virtual	void					onColorPaint();
-		virtual	void					onNormalPaint();
-		virtual	eEventResult			onMouseHover(float x, float y, TExtEventResult&);
-		virtual	eEventResult			onMouseDown(float x, float y, TExtEventResult&);
-		virtual	eEventResult			onMouseWheel(float x, float y, short delta);
-				void					append(const shared_ptr<Component>&component);
-		virtual	shared_ptr<const Component>	child(index_t index) const;
-		virtual	shared_ptr<Component>			child(index_t index);
-		virtual	size_t					countChildren() const;
-		virtual	bool					erase(const shared_ptr<Component>&component);
-		virtual	bool					erase(index_t index);
-		virtual	void					clear()	{children.reset();visible_children.reset();}
+		//virtual	void				onScroll();
+			virtual	void				updateLayout(const Rect<float>&parent_region) override;
+			virtual	float				clientMinWidth()	const override;
+			virtual	float				clientMinHeight()	const override;
+			virtual	void				OnColorPaint(ColorRenderer&) override;
+			virtual	void				OnNormalPaint(NormalRenderer&) override;
+			virtual	eEventResult		onMouseHover(float x, float y, TExtEventResult&) override;
+			virtual	eEventResult		onMouseDown(float x, float y, TExtEventResult&) override;
+			virtual	eEventResult		onMouseWheel(float x, float y, short delta) override;
+			void						append(const shared_ptr<Component>&component);
+			virtual	PConstComponent		child(index_t index) const override;
+			virtual	PComponent			child(index_t index) override;
+			virtual	size_t				countChildren() const override;
+			virtual	bool				erase(const shared_ptr<Component>&component) override;
+			virtual	bool				erase(index_t index) override;
+			virtual	void				clear() override	{children.reset();visible_children.reset();}
 
 			void						scrollTo(float x, float y);
 			void						scrollToX(float x);
@@ -446,8 +440,8 @@ namespace Engine
 											width = minWidth(false);
 											height = minHeight(false);
 										}
-			virtual	void				onColorPaint()	override;
-			virtual	void				onNormalPaint()	override;
+			virtual	void				OnColorPaint(ColorRenderer&)	override;
+			virtual	void				OnNormalPaint(NormalRenderer&)	override;
 			virtual	float				clientMinWidth()	const	override;
 			virtual	float				clientMinHeight()	const	override;
 			virtual	eEventResult		onMouseDrag(float x, float y)	override;
@@ -481,36 +475,36 @@ namespace Engine
 		class Edit:public Component
 		{
 		protected:
-				bool					go_left,	//!< Indicates that during the next onTick() invocation the view should move to the left
-										go_right,	//!< Indicates that during the next onTick() invocation the view should move to the right
-										view_right_most;	//!< Indicates that the view cannot move any further to the right
-				count_t					cursor_ticks;		//!< Tick counter for cursor visibility
-				float					cursor_offset,
-										cursor_length;
+			bool					go_left,	//!< Indicates that during the next onTick() invocation the view should move to the left
+									go_right,	//!< Indicates that during the next onTick() invocation the view should move to the right
+									view_right_most;	//!< Indicates that the view cannot move any further to the right
+			count_t					cursor_ticks;		//!< Tick counter for cursor visibility
+			float					cursor_offset,
+									cursor_length;
 										
 
-				void					setup();
-				void					updateView();
+			void					setup();
+			void					updateView();
 
-										Edit(const String&type):Component("Edit/"+type),text(8)	//!< Creates an edit derivative
-										{
-											setup();
-										}
-				inline float			charWidth(char c)
-										{
-											if (mask_input)
-												return textout.getFont().getHeight()*0.75f;
-											return textout.getFont().getWidth(c);
-										}
+									Edit(const String&type):Component("Edit/"+type),text(8)	//!< Creates an edit derivative
+									{
+										setup();
+									}
+			inline float			charWidth(char c)
+									{
+										if (mask_input)
+											return ColorRenderer::textout.getFont().getHeight()*0.75f;
+										return ColorRenderer::textout.getFont().getWidth(c);
+									}
 										
 				
-				inline float			textWidth(const char*str, size_t num_chars)
-										{
-											if (mask_input)
-												return textout.getFont().getHeight()*0.75*num_chars;
-											return textout.unscaledLength(str,num_chars);
-										}
-				StringBuffer			text;			//!< Edit buffer
+			inline float			textWidth(const char*str, size_t num_chars)
+									{
+										if (mask_input)
+											return ColorRenderer::textout.getFont().getHeight()*0.75*num_chars;
+										return ColorRenderer::textout.unscaledLength(str,num_chars);
+									}
+			StringBuffer			text;			//!< Edit buffer
 		public:
 			union
 			{
@@ -523,18 +517,18 @@ namespace Engine
 				bool					masked_input;	//!< Mapping to mask_input
 				bool					masked_view;	//!< Mapping to mask_input
 			};
-				size_t					cursor,			//!< Current cursor location
+			size_t						cursor,			//!< Current cursor location
 										sel_start,		//!< Selection start. This can be before or after the cursor location
 										view_begin,		//!< First visible character
 										view_end;		//!< One past the last visible character
-				FunctionalEvent			on_change,	//!< Event that is fired if the local input is changed
+			FunctionalEvent				on_change,	//!< Event that is fired if the local input is changed
 										on_enter;	//!< Event that is fired if the user pressed enter or return on this edit field
-				bool					(*acceptChar)(char);	//!< Pointer to a char filter. Only if the function returns true then the character is inserted
+			bool						(*acceptChar)(char);	//!< Pointer to a char filter. Only if the function returns true then the character is inserted
 				
 
-		static	Layout					global_layout;	//!< Global default edit layout
+			static Layout				global_layout;	//!< Global default edit layout
 				
-										Edit():Component("Edit"),readonly(false),mask_input(false),text(8),acceptChar(NULL)	//!< Creates a standard edit
+			/**/						Edit():Component("Edit"),readonly(false),mask_input(false),text(8),acceptChar(NULL)	//!< Creates a standard edit
 										{
 											setup();
 										}
@@ -548,8 +542,8 @@ namespace Engine
 			virtual	eEventResult		onFocusGained()	override				{cursor_ticks = 0; return RequestingRepaint;}
 			virtual	eEventResult		onFocusLost()	override					{return RequestingRepaint;}
 			virtual	float				clientMinWidth()	const	override		{return 50;}
-			virtual	float				clientMinHeight()	const	override		{return textout.getFont().getHeight();}
-			virtual	void				onColorPaint()	override;
+			virtual	float				clientMinHeight()	const	override		{return ColorRenderer::textout.getFont().getHeight();}
+			virtual	void				OnColorPaint(ColorRenderer&)	override;
 			virtual	eEventResult		onKeyDown(Key::Name key)	override;
 			virtual	eEventResult		onKeyUp(Key::Name key)	override;
 			virtual	eEventResult		onChar(char c)	override;
@@ -600,15 +594,15 @@ namespace Engine
 				shared_ptr<Menu>		menu();			//!< Retrieves (and possibly creates) the sub menu of this entry
 				shared_ptr<const Menu>	menu()	const;	//!< @overload
 				void							discardMenu();	//!< Discards that local sub menu
-		virtual	void							onColorPaint();	
-		virtual	eEventResult					onMouseDown(float x, float y, TExtEventResult&);
-		virtual	eEventResult					onMouseHover(float x, float y, TExtEventResult&);
-		virtual	eEventResult					onFocusGained();
-		virtual	eEventResult					onFocusLost();
-		virtual	eEventResult					onMouseExit();
-		virtual	eEventResult					onKeyDown(Key::Name key);
+		virtual	void							OnColorPaint(ColorRenderer&) override;	
+		virtual	eEventResult					onMouseDown(float x, float y, TExtEventResult&) override;
+		virtual	eEventResult					onMouseHover(float x, float y, TExtEventResult&) override;
+		virtual	eEventResult					onFocusGained() override;
+		virtual	eEventResult					onFocusLost() override;
+		virtual	eEventResult					onMouseExit() override;
+		virtual	eEventResult					onKeyDown(Key::Name key) override;
 		virtual	void							onMenuClose(const shared_ptr<MenuEntry>&child);
-		virtual	void							updateLayout(const Rect<float>&parent_region);
+		virtual	void							updateLayout(const Rect<float>&parent_region) override;
 		};
 		typedef shared_ptr<MenuEntry>		PMenuEntry;
 		
@@ -643,22 +637,22 @@ namespace Engine
 											setup();
 										}
 		virtual	shared_ptr<MenuEntry>	add(const String&caption);	//!< Adds a new simple menu entry to this menu @param caption Caption of the menu entry @return Pointer to the newly created menu entry
-		virtual	bool					add(const shared_ptr<Component>&component);	//!< Adds a component to this menu. Must of a MenuEntry of derivative class. @param component Menu entry to add. The method fails if the passed pointer is NULL or not of type MenuEntry @return true on success
-		virtual	bool					erase(const shared_ptr<Component>&component);
-		virtual	bool					erase(index_t index);
-		virtual	bool					moveUp(const shared_ptr<Component>&component);
-		virtual	bool					moveUp(index_t index);
-		virtual	bool					moveDown(const shared_ptr<Component>&component);
-		virtual	bool					moveDown(index_t index);
-		virtual	bool					moveTop(const shared_ptr<Component>&component);
-		virtual	bool					moveTop(index_t index);
-		virtual	bool					moveBottom(const shared_ptr<Component>&component);
-		virtual	bool					moveBottom(index_t index);
+		virtual	bool					add(const shared_ptr<Component>&component) override;	//!< Adds a component to this menu. Must of a MenuEntry of derivative class. @param component Menu entry to add. The method fails if the passed pointer is NULL or not of type MenuEntry @return true on success
+		virtual	bool					erase(const shared_ptr<Component>&component) override;
+		virtual	bool					erase(index_t index) override;
+		virtual	bool					moveUp(const shared_ptr<Component>&component) override;
+		virtual	bool					moveUp(index_t index) override;
+		virtual	bool					moveDown(const shared_ptr<Component>&component) override;
+		virtual	bool					moveDown(index_t index) override;
+		virtual	bool					moveTop(const shared_ptr<Component>&component) override;
+		virtual	bool					moveTop(index_t index) override;
+		virtual	bool					moveBottom(const shared_ptr<Component>&component) override;
+		virtual	bool					moveBottom(index_t index) override;
 		
 		virtual	float					idealHeight()	const;		//!< Retrieves the ideal height of this menu
 
-		virtual	eEventResult			onKeyDown(Key::Name key);
-		virtual	eEventResult			onMouseHover(float x, float y, TExtEventResult&);
+		virtual	eEventResult			onKeyDown(Key::Name key) override;
+		virtual	eEventResult			onMouseHover(float x, float y, TExtEventResult&) override;
 		};
 		typedef shared_ptr<Menu>		PMenu;
 		
@@ -687,19 +681,19 @@ namespace Engine
 										{
 											setup();
 										}
-		virtual	float					minWidth(bool include_offsets)	const;
-		virtual	void					updateLayout(const Rect<float>&parent_space);
+		virtual	float					minWidth(bool include_offsets)	const override;
+		virtual	void					updateLayout(const Rect<float>&parent_space) override;
 				void					select(index_t index);
 				index_t					selected()	const	{return selected_entry;}
 		
-		virtual	void					onMenuClose(const shared_ptr<MenuEntry>&child);			
-		virtual	eEventResult			onMouseHover(float x, float y, TExtEventResult&ext);
+		virtual	void					onMenuClose(const shared_ptr<MenuEntry>&child) override;
+		virtual	eEventResult			onMouseHover(float x, float y, TExtEventResult&ext) override;
 		
 		};
 		typedef shared_ptr<ComboBox>		PComboBox;
 		
 		/**
-			@brief Checkbox component
+		@brief Checkbox component
 		*/
 		class CheckBox:public Component
 		{
@@ -729,13 +723,13 @@ namespace Engine
 											width = minWidth(false);
 											height = minHeight(false);
 										}
-			virtual	void				onColorPaint();
-			virtual	void				onNormalPaint();
-			virtual	float				minWidth(bool include_offsets)	const;
-			virtual	float				minHeight(bool include_offsets)	const;
-			virtual	eEventResult		onMouseDrag(float x, float y);
-			virtual	eEventResult		onMouseDown(float x, float y, TExtEventResult&);
-			virtual	eEventResult		onMouseUp(float x, float y);
+			virtual	void				OnColorPaint(ColorRenderer&) override;
+			virtual	void				OnNormalPaint(NormalRenderer&) override;
+			virtual	float				minWidth(bool include_offsets)	const override;
+			virtual	float				minHeight(bool include_offsets)	const override;
+			virtual	eEventResult		onMouseDrag(float x, float y) override;
+			virtual	eEventResult		onMouseDown(float x, float y, TExtEventResult&) override;
+			virtual	eEventResult		onMouseUp(float x, float y) override;
 
 			inline bool					isChecked()	const	{return checked;}
 			void						setChecked(bool b)	{if (checked == b) return; checked = b; signalVisualChange();}
@@ -749,6 +743,17 @@ namespace Engine
 											return this;
 										}
 			inline float				boxSize()	const	{return 16.f;}
+
+
+			Rect<>						GetBoxRect() const
+										{
+											Rect<> rect=cell_layout.client;
+											float cy = rect.y.center();
+											float size = boxSize();
+											rect.x.max = rect.x.min + size;
+											rect.y.setCenter(cy,size/2);
+											return rect;
+										}
 		};
 		typedef shared_ptr<CheckBox>		PCheckBox;
 		

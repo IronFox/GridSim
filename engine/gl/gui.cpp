@@ -13,7 +13,7 @@ namespace Engine
 		static InputProfile	my_profile(true,false);
 		
 
-		Operator::Operator(Display<OpenGL>&display_, const Mouse&mouse_, InputMap&input_, mode_t mode_):owns_mouse_down(false),display(&display_),mouse(&mouse_),input(&input_),mode(mode_),created(false),stack_changed(false),layer_texture(0)
+		Operator::Operator(Display<OpenGL>&display_, const Mouse&mouse_, InputMap&input_, mode_t mode_):colorRenderer(display_),normalRenderer(display_),owns_mouse_down(false),display(&display_),mouse(&mouse_),input(&input_),mode(mode_),created(false),stack_changed(false),layer_texture(0)
 		{}
 
 		namespace
@@ -99,10 +99,7 @@ namespace Engine
 						"#if bump_mapping||refract||blur\n"	//need normal alpha for blur
 							"vec4 normal = texture2D(normal_map,gl_TexCoord[0].xy);\n"
 							"#if bump_mapping||refract\n"
-								"if (normal.a == 0.0)\n"
-									"normal.xyz = tangent_space[2];\n"
-								"else\n"
-									"normal.xyz = tangent_space*(normal.xyz*2.0-1.0);\n"
+								"normal.xyz = normalize(tangent_space*(normal.xyz*2.0-1.0));\n"
 							"#endif\n"
 						"#endif\n"
 						"vec4 color_sample = texture2D(color_map,gl_TexCoord[0].xy);\n"
@@ -223,7 +220,7 @@ namespace Engine
 			}
 		}
 
-			Textout<GLTextureFont2>			Component::textout;
+		Textout<GLTextureFont2>				ColorRenderer::textout;
 
 
 
@@ -287,12 +284,13 @@ namespace Engine
 			}
 			menu_stack.reset();
 		}
+
 		
-		void		TFreeCell::paintColor(Display<OpenGL>&display,const TFreeCell&cell)
+		void		ColorRenderer::Paint(const TFreeCell&cell)
 		{
-			if (cell.color->isEmpty())	//NULL-pointer sensitive
+			if (cell.color->IsEmpty())	//NULL-pointer sensitive
 				return;
-			display.useTexture(cell.color,true);
+			_UpdateState(cell.color);
 			switch (cell.orientation)
 			{
 				case 0:
@@ -328,17 +326,18 @@ namespace Engine
 					glEnd();
 				break;
 			}
+			layerIsDirty = true;
 		}
-		
-		void		TFreeCell::paintNormal(Display<OpenGL>&display,const TFreeCell&cell, bool pressed)
+
+		void		NormalRenderer::Paint(const TFreeCell&cell, bool invertNormals)
 		{
 			if (cell.normal->isEmpty())	//NULL-pointer sensitive
 				return;
-			display.useTexture(cell.normal,true);
-			glMatrixMode(GL_TEXTURE);
-				glPushMatrix();
-					if (pressed)
-						glScalef(-1,-1,1);
+			_UpdateState(cell.normal);
+			PushNormalScale();
+			if (invertNormals)
+				ScaleNormals(-1,-1,1);
+
 			switch (cell.orientation)
 			{
 				case 0:
@@ -377,9 +376,8 @@ namespace Engine
 					glEnd();
 				break;
 			}
-				glPopMatrix();
-			glMatrixMode(GL_MODELVIEW);
-			
+			PopNormalScale();
+			layerIsDirty = true;
 		}
 				
 		
@@ -538,6 +536,7 @@ namespace Engine
 				glNormal3f(-radial/r,0,h/r); 
 				glTangent3f(0,1,0);
 				glTexCoord2f(tx,ty);
+			//glVertex3f(px*2.f,py*2.f,-h);	//magnified
 			glVertex3f(px,py,-h);
 		}
 		
@@ -1489,62 +1488,596 @@ namespace Engine
 		{
 			return 0.9+0.1*(window_stack.count()-stack_layer);
 		}
+
+
+		/*static*/ GLShader::Instance	Renderer::layerMerger;
+		/*static*/ GLShader::Instance	NormalRenderer::normalRenderer;
+		/*static*/ GLShader::Variable	NormalRenderer::normalScaleVariable;
+
+
+		void		Renderer::_SetView(const Rect<int>&port)
+		{
+			static const float zFar = 1.f;
+			static const float zNear = -1.f;
+			TMatrix4<>	projection;
+			float	xscale = 1.f/float(port.width())*2.f,
+					yscale = 1.f/float(port.height())*2.f,
+					zscale = 1.f/(zFar-zNear)*2.f,
+					xoffset = -float(port.x.min)*xscale-1.f,
+					yoffset = -float(port.y.min)*yscale-1.f,
+					zoffset = -(zNear+zFar)/2.f*zscale;
+
+			Vec::def(projection.x,	xscale,0,0,0);
+			Vec::def(projection.y, 0,yscale,0,0);
+			Vec::def(projection.z, 0,0,-zscale,0);
+			Vec::def(projection.w, xoffset,yoffset,zoffset,1);
+
+			glMatrixMode(GL_PROJECTION);
+			glLoadMatrixf(projection.v);
+			glMatrixMode(GL_MODELVIEW);
+		}
+
 		
 		
-		void		Operator::apply(const Rect<int>&port)
+		void		Renderer::_Apply(const Rect<int>&port)
 		{
 			glViewport(port.x.min,port.y.min,port.width(),port.height());
-			texture_space.make(port.x.min,port.y.min,
-								port.x.max,port.y.max,
-								-1,1);
-			display->pick(texture_space);
+			_SetView(port);
 		}
 		
-		void		Operator::focus(const Rect<float>&region)	//!< Focuses on an area by applying the current viewport and translation to the specified region and further limiting the viewport. The existing translation will be modified by dx and dy
+		void		Renderer::Clip(const Rect<float>&region)	//!< Focuses on an area by applying the current viewport and translation to the specified region and further limiting the viewport. The existing translation will be modified by dx and dy
 		{
-			Rect<int>&next = focus_stack.append();
+			Rect<int>&next = clipStack.append();
 			//next = region;
 			next.x.min = (int)floor(region.x.min);
 			next.y.min = (int)floor(region.y.min);
 			next.x.max = (int)ceil(region.x.max);
 			next.y.max = (int)ceil(region.y.max);
-			if (focus_stack.count() > 1)
+			if (clipStack.count() > 1)
 			{
-				const Rect<int>&prev = focus_stack[focus_stack.count()-2];
+				const Rect<int>&prev = clipStack.fromEnd(1);
 				next.constrainBy(prev);
 			}
-			apply(next);
+			_Apply(next);
 		}
 		
-		void		Operator::unfocus()	//!< Reverts the focus process by jumping back to the next upper focus
+		void		Renderer::Unclip()	//!< Reverts the focus process by jumping back to the next upper focus
 		{
-			ASSERT__(focus_stack.length()>0);
-			focus_stack.pop();
-			apply(focus_stack.last());
+			ASSERT__(clipStack.isNotEmpty());
+			clipStack.eraseLast();
+			if (clipStack.isNotEmpty())
+				_Apply(clipStack.last());
+			else
+				_Apply(Rect<int>(0,0,subRes.width,subRes.height));
 		}
-		
-		/*
-		static inline Viewport	viewport(const Viewport&port)
+
+		void		Renderer::TextureRect(const Rect<>&rect)
 		{
-			static Viewport	current(Rect<float>(0,0,1,1));
-			Viewport rs = current;
-			current = port;
-			int l = (int)floor(port.x.min),
-				b = (int)floor(port.y.min),
-				r = (int)ceil(port.x.max),
-				t = (int)ceil(port.y.max);
-			
-			glViewport(l+(int)port.absolute_dx,b+(int)port.absolute_dy,r-l,t-b);
-			texture_space.make(l,b,
-								r,t,
-								-1,1);
-			display->pick(texture_space);
-			glTranslatef(port.relative_dx,port.relative_dy,0);
-			
-			return rs;
+			glBegin(GL_QUADS);
+				glTexCoord2f(0,0); glVertex2f(rect.x.min,rect.y.min);
+				glTexCoord2f(1,0); glVertex2f(rect.x.max,rect.y.min);
+				glTexCoord2f(1,1); glVertex2f(rect.x.max,rect.y.max);
+				glTexCoord2f(0,1); glVertex2f(rect.x.min,rect.y.max);
+			glEnd();
+			layerIsDirty = true;
 		}
-		*/
+		void		Renderer::TextureRect(const Rect<>&rect,const Rect<>&texCoordRect)
+		{
+			glBegin(GL_QUADS);
+				glTexCoord2f(texCoordRect.x.min,texCoordRect.y.min); glVertex2f(rect.x.min,rect.y.min);
+				glTexCoord2f(texCoordRect.x.max,texCoordRect.y.min); glVertex2f(rect.x.max,rect.y.min);
+				glTexCoord2f(texCoordRect.x.max,texCoordRect.y.max); glVertex2f(rect.x.max,rect.y.max);
+				glTexCoord2f(texCoordRect.x.min,texCoordRect.y.max); glVertex2f(rect.x.min,rect.y.max);
+			glEnd();
+			layerIsDirty = true;
+		}
+		void		Renderer::TextureQuad(const TVec2<>&p0, const TVec2<>&p1, const TVec2<>&p2, const TVec2<>&p3)
+		{
+			glBegin(GL_QUADS);
+				glTexCoord2f(0,0); glVertex2fv(p0.v);
+				glTexCoord2f(1,0); glVertex2fv(p1.v);
+				glTexCoord2f(1,1); glVertex2fv(p2.v);
+				glTexCoord2f(0,1); glVertex2fv(p3.v);
+			glEnd();
+			layerIsDirty = true;
+		}
+
+		void		Renderer::FillRect(const Rect<>&rect)
+		{
+			glBegin(GL_QUADS);
+				glVertex2f(rect.x.min,rect.y.min);
+				glVertex2f(rect.x.max,rect.y.min);
+				glVertex2f(rect.x.max,rect.y.max);
+				glVertex2f(rect.x.min,rect.y.max);
+			glEnd();
+			layerIsDirty = true;
+		}
+
+		void		Renderer::FillQuad(const TVec2<>&p0, const TVec2<>&p1, const TVec2<>&p2, const TVec2<>&p3)
+		{
+			glBegin(GL_QUADS);
+				glVertex2fv(p0.v);
+				glVertex2fv(p1.v);
+				glVertex2fv(p2.v);
+				glVertex2fv(p3.v);
+			glEnd();
+			layerIsDirty = true;
+		}
+
+		void		Renderer::Configure(const TFrameBuffer&buffer, const Resolution& usage)
+		{
+			stackedTargets[1] = buffer;
+			if (layerTarget.frame_buffer == 0)
+			{
+				layerTarget = gl_extensions.createFrameBuffer(buffer.resolution,Engine::DepthStorage::NoDepthStencil,1,&GLType<GLbyte>::rgba_type_constant);
+				stackedTargets[0] = gl_extensions.createFrameBuffer(buffer.resolution,Engine::DepthStorage::NoDepthStencil,1,&GLType<GLbyte>::rgba_type_constant);
+			}
+			else
+			{
+				bool resize = false;
+				Resolution res = layerTarget.resolution;
+				if (usage.width > res.width)
+				{
+					res.width = buffer.resolution.width;
+					resize = true;
+				}
+				if (usage.height > res.height)
+				{
+					res.height = buffer.resolution.height;
+					resize = true;
+				}
+				if (resize)
+				{
+					gl_extensions.resizeFrameBuffer(layerTarget,res);
+					gl_extensions.resizeFrameBuffer(stackedTargets[0],res);
+				}
+			}
+			layerCounter = 0;
+			targetingFinal = true;
+			layerIsDirty = false;
+			clipStack.clear();
+			subRes = usage;
+			glPushAttrib(GL_COLOR_BUFFER_BIT | GL_ENABLE_BIT | GL_VIEWPORT_BIT);
+			gl_extensions.bindFrameBuffer(buffer);
+			glViewport(0,0,subRes.width,subRes.height);
+			glClearColor(clearColor.r,clearColor.g,clearColor.b,0);
+			glClear(GL_COLOR_BUFFER_BIT);
+			glDisable(GL_BLEND);
+
+			glMatrixMode(GL_PROJECTION);
+			glPushMatrix();
+			glMatrixMode(GL_MODELVIEW);
+			glPushMatrix();
+			glLoadIdentity();
+			_SetView(Rect<int>(0,0,subRes.width,subRes.height));
+
+			if (layerMerger.isEmpty())
+			{
+				ASSERT1__(layerMerger.loadComposition(
+					"vertex{void main(){gl_Position=gl_Vertex;gl_TexCoord[0]=gl_MultiTexCoord0;gl_TexCoord[1]=gl_MultiTexCoord1;}}"
+					"fragment{"
+						"uniform sampler2D lowerLayer,upperLayer;"
+						"void main(){"
+							"vec4 lowerSample = texture2DLod(lowerLayer,gl_TexCoord[0].xy,0.0);"
+							"vec4 upperSample = texture2DLod(upperLayer,gl_TexCoord[1].xy,0.0);"
+							"float div = lowerSample.a + upperSample.a - lowerSample.a * upperSample.a;"
+							"gl_FragColor.a = div;"
+							"if (div == 0.0) div = 1.0;"
+							"gl_FragColor.rgb = (lowerSample.rgb * lowerSample.a + upperSample.rgb * upperSample.a - lowerSample.rgb * lowerSample.a * upperSample.a) / div;"
+							//"if (gl_FragColor.a > 0 && length(gl_FragColor.rgb) > 0.0) gl_FragColor.rgb = normalize(gl_FragColor.rgb*2.0 - 1.0)*0.5 + 0.5; else gl_FragColor.rgb = vec3(0.5,0.5,1.0);"
+						"}"
+					"}"
+					),layerMerger.report());
+
+				layerMerger.locate("upperLayer").SetInt(1);
+			}
+
+		}
+
+		void		Renderer::MarkNewLayer()
+		{
+			if (!layerIsDirty)
+				return;
+			layerIsDirty = false;
+			
+			gl_extensions.unbindFrameBuffer();
+
+			if (layerCounter == 0)
+			{
+				targetingFinal = false;
+			}
+			else
+			{
+				//if (layerCounter <= 2)
+				{
+					TVec2<>	targetUsage = {float(subRes.width) / float(stackedTargets[!targetingFinal].resolution.width),
+										float(subRes.height) / float(stackedTargets[!targetingFinal].resolution.height)};
+					TVec2<>	layerUsage = {float(subRes.width) / float(layerTarget.resolution.width),
+										float(subRes.height) / float(layerTarget.resolution.height)};
+
+					glBindTexture(GL_TEXTURE_2D,stackedTargets[!targetingFinal].color_target[0].texture_handle);
+					glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+					glActiveTexture(GL_TEXTURE1);
+					glBindTexture(GL_TEXTURE_2D,layerTarget.color_target[0].texture_handle);
+					glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+					gl_extensions.bindFrameBuffer(stackedTargets[targetingFinal]);
+					glViewport(0,0,subRes.width,subRes.height);
+					layerMerger.install();
+					glBegin(GL_QUADS);
+						glTexCoord2f(0,0); glMultiTexCoord2f(GL_TEXTURE1,0,0); glVertex2f(-1,-1);
+						glTexCoord2f(targetUsage.x,0); glMultiTexCoord2f(GL_TEXTURE1,layerUsage.x,0); glVertex2f(1,-1);
+						glTexCoord2f(targetUsage.x,targetUsage.y); glMultiTexCoord2f(GL_TEXTURE1,layerUsage.x,layerUsage.y); glVertex2f(1,1);
+						glTexCoord2f(0,targetUsage.y); glMultiTexCoord2f(GL_TEXTURE1,0,layerUsage.y); glVertex2f(-1,1);
+					glEnd();
+					layerMerger.uninstall();
+					gl_extensions.unbindFrameBuffer();
+					glBindTexture(GL_TEXTURE_2D,0);
+					glActiveTexture(GL_TEXTURE0);
+					glBindTexture(GL_TEXTURE_2D,0);
+					targetingFinal = !targetingFinal;
+				}
+			}
+			layerCounter++;
+			gl_extensions.bindFrameBuffer(layerTarget);
+			glViewport(0,0,subRes.width,subRes.height);
+			glClearColor(clearColor.r,clearColor.g,clearColor.b,0);
+			glClear(GL_COLOR_BUFFER_BIT);
+
+
+			if (clipStack.isNotEmpty())
+				_Apply(clipStack.last());
+			else
+				_Apply(Rect<int>(0,0,subRes.width,subRes.height));
+		}
+
+
+		void		Renderer::Finish()
+		{
+			ASSERT__(clipStack.isEmpty());
+
+			MarkNewLayer();
+			bool mustCopy = layerCounter > 0 && targetingFinal;
+
+			gl_extensions.unbindFrameBuffer();
+
+
+			if (mustCopy)
+				ASSERT__(gl_extensions.copyFrameBuffer(stackedTargets[0],stackedTargets[1],subRes,true,false));
+
+			glPopAttrib();
+			glMatrixMode(GL_PROJECTION);
+			glPopMatrix();
+			glMatrixMode(GL_MODELVIEW);
+			glPopMatrix();
+
+			glBindTexture(GL_TEXTURE_2D,stackedTargets[1].color_target[0].texture_handle);
+			glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+			//glGenerateMipmap(GL_TEXTURE_2D);
+			glBindTexture(GL_TEXTURE_2D,0);
+		}
+
+
+		/*virtual*/					Renderer::~Renderer()
+		{
+			if (layerTarget.frame_buffer != 0)
+			{
+				gl_extensions.destroyFrameBuffer(layerTarget);
+				gl_extensions.destroyFrameBuffer(stackedTargets[0]);
+			}
+		}
+
+
+
+
+		void					ColorRenderer::_UpdateState()
+		{
+			glActiveTexture(GL_TEXTURE1);
+				glDisable(GL_TEXTURE_2D);
+				glBindTexture(GL_TEXTURE_2D,0);
+			glActiveTexture(GL_TEXTURE0);
+				glDisable(GL_TEXTURE_2D);
+				glBindTexture(GL_TEXTURE_2D,0);
+		}
+
+		void					ColorRenderer::_UpdateState(const GL::Texture::Reference&ref)
+		{
+			glActiveTexture(GL_TEXTURE1);
+				glDisable(GL_TEXTURE_2D);
+				glBindTexture(GL_TEXTURE_2D,0);
+			glActiveTexture(GL_TEXTURE0);
+				glEnable(GL_TEXTURE_2D);
+				glBindTexture(GL_TEXTURE_2D,ref.GetHandle());
+		}
+		void					ColorRenderer::_UpdateState(const GL::Texture::Reference&ref0,const GL::Texture::Reference&ref1)
+		{
+			glActiveTexture(GL_TEXTURE1);
+				glEnable(GL_TEXTURE_2D);
+				glBindTexture(GL_TEXTURE_2D,ref1.GetHandle());
+			glActiveTexture(GL_TEXTURE0);
+				glEnable(GL_TEXTURE_2D);
+				glBindTexture(GL_TEXTURE_2D,ref0.GetHandle());
+		}
 		
+
+		void					ColorRenderer::ModulateColor(const TVec4<>&color)
+		{
+			ModulateColor(color.red,color.green,color.blue,color.alpha);
+		}
+		
+		void					ColorRenderer::ModulateColor(const TVec3<>&color, float alpha/*=1.f*/)
+		{
+			ModulateColor(color.red,color.green,color.blue,alpha);
+		}
+		void					ColorRenderer::ModulateColor(float greyTone, float alpha/*=1.f*/)
+		{
+			ModulateColor(greyTone,greyTone,greyTone,alpha);
+		}
+		
+		void					ColorRenderer::ModulateColor(float r, float g, float b, float a /*= 1.f*/)
+		{
+			color.red *= r;
+			color.green *= g;
+			color.blue *= b;
+			color.alpha *= a;
+			glColor4fv(color.v);
+		}
+
+		void					ColorRenderer::SetTextPosition(float x, float y)
+		{
+			textout.locate(x,y);
+		}
+
+		void					ColorRenderer::WriteText(const String&text)
+		{
+			textout.color(color);
+			textout.write(text);
+			layerIsDirty = true;
+		}
+
+		void					ColorRenderer::WriteText(const char*text, count_t numChars)
+		{
+			textout.color(color);
+			textout.write(text,numChars);
+			layerIsDirty = true;
+		}
+
+		float					ColorRenderer::GetUnscaledWidth(const char*text, count_t numChars)
+		{
+			return textout.unscaledLength(text,numChars);
+		}
+
+		void					ColorRenderer::SetPointSize(float size)
+		{
+			glPointSize(size);
+		}
+		void					ColorRenderer::PaintPoint(float x, float y)
+		{
+			glBegin(GL_POINTS);
+				glVertex2f(x,y);
+			glEnd();
+			layerIsDirty = true;
+		}
+		void					ColorRenderer::RenderLine(float x0, float y0, float x1, float y1)
+		{
+			glBegin(GL_LINES);
+				glVertex2f(x0,y0);
+				glVertex2f(x1,y1);
+			glEnd();
+			layerIsDirty = true;
+		}
+
+		void					ColorRenderer::FillRect(const Rect<>&rect)
+		{
+			_UpdateState();
+			Renderer::FillRect(rect);
+		}
+		void					ColorRenderer::TextureRect(const Rect<>&rect,const GL::Texture::Reference&ref)
+		{
+			_UpdateState(ref);
+			Renderer::TextureRect(rect);
+		}
+
+		void					ColorRenderer::TextureRect(const Rect<>&rect, const Rect<>&texCoordRect,const GL::Texture::Reference&ref)
+		{
+			_UpdateState(ref);
+			Renderer::TextureRect(rect,texCoordRect);
+		}
+		
+		void					ColorRenderer::TextureRect(const Rect<>&rect,const GL::Texture::Reference&ref0,const GL::Texture::Reference&ref1)
+		{
+			_UpdateState(ref0,ref1);
+			glBegin(GL_QUADS);
+				glTexCoord2f(0,0); glMultiTexCoord2f(GL_TEXTURE1,0,0); glVertex2f(rect.x.min,rect.y.min);
+				glTexCoord2f(1,0); glMultiTexCoord2f(GL_TEXTURE1,1,0); glVertex2f(rect.x.max,rect.y.min);
+				glTexCoord2f(1,1); glMultiTexCoord2f(GL_TEXTURE1,1,1); glVertex2f(rect.x.max,rect.y.max);
+				glTexCoord2f(0,1); glMultiTexCoord2f(GL_TEXTURE1,0,1); glVertex2f(rect.x.min,rect.y.max);
+			glEnd();
+			layerIsDirty = true;
+		}
+		
+		void					ColorRenderer::TextureRect(const Rect<>&rect, const Rect<>&texCoordRect,const GL::Texture::Reference&ref0,const GL::Texture::Reference&ref1)
+		{
+			_UpdateState(ref0,ref1);
+			glBegin(GL_QUADS);
+				glTexCoord2f(texCoordRect.x.min,texCoordRect.y.min); glMultiTexCoord2f(GL_TEXTURE1,texCoordRect.x.min,texCoordRect.y.min); glVertex2f(rect.x.min,rect.y.min);
+				glTexCoord2f(texCoordRect.x.max,texCoordRect.y.min); glMultiTexCoord2f(GL_TEXTURE1,texCoordRect.x.max,texCoordRect.y.min); glVertex2f(rect.x.max,rect.y.min);
+				glTexCoord2f(texCoordRect.x.max,texCoordRect.y.max); glMultiTexCoord2f(GL_TEXTURE1,texCoordRect.x.max,texCoordRect.y.max); glVertex2f(rect.x.max,rect.y.max);
+				glTexCoord2f(texCoordRect.x.min,texCoordRect.y.max); glMultiTexCoord2f(GL_TEXTURE1,texCoordRect.x.min,texCoordRect.y.max); glVertex2f(rect.x.min,rect.y.max);
+			glEnd();
+			layerIsDirty = true;
+		}
+
+		void					ColorRenderer::TextureQuad(const TVec2<>&p0, const TVec2<>&p1, const TVec2<>&p2, const TVec2<>&p3, const GL::Texture::Reference&ref)
+		{
+			_UpdateState(ref);
+			Renderer::TextureQuad(p0,p1,p2,p3);
+		}
+		void					ColorRenderer::TextureQuad(const TVec2<>&p0, const TVec2<>&p1, const TVec2<>&p2, const TVec2<>&p3, const GL::Texture::Reference&ref0, const GL::Texture::Reference&ref1)
+		{
+			_UpdateState(ref0,ref1);
+			glBegin(GL_QUADS);
+				glTexCoord2f(0,0); glMultiTexCoord2f(GL_TEXTURE1,0,0); glVertex2fv(p0.v);
+				glTexCoord2f(1,0); glMultiTexCoord2f(GL_TEXTURE1,1,0); glVertex2fv(p1.v);
+				glTexCoord2f(1,1); glMultiTexCoord2f(GL_TEXTURE1,1,1); glVertex2fv(p2.v);
+				glTexCoord2f(0,1); glMultiTexCoord2f(GL_TEXTURE1,0,1); glVertex2fv(p3.v);
+			glEnd();
+			layerIsDirty = true;
+		}
+
+		void					ColorRenderer::PushColor()
+		{
+			colorStack << color;
+		}
+
+		void					ColorRenderer::PopColor()
+		{
+			color = colorStack.pop();
+			glColor4fv(color.v);
+		}
+		
+		void					ColorRenderer::PeekColor()
+		{
+			color = colorStack.last();
+			glColor4fv(color.v);
+		}
+
+
+		void					ColorRenderer::MarkNewLayer()
+		{
+			_UpdateState();
+			Renderer::MarkNewLayer();
+		}
+
+
+		void					ColorRenderer::Configure(const TFrameBuffer&buffer, const Resolution& usage)
+		{
+			Vec::set(color,1);
+			glWhite();
+			colorStack.clear();
+			glEnable(GL_POINT_SMOOTH);
+			Renderer::Configure(buffer,usage);
+		}
+
+		void					ColorRenderer::Finish()
+		{
+			_UpdateState();
+			ASSERT__(colorStack.isEmpty());
+			Renderer::Finish();
+		}
+
+
+		void					NormalRenderer::ScaleNormals(float x, float y)
+		{
+			normalScale.x *= x;
+			normalScale.y *= y;
+			DBG_VERIFY__(normalScaleVariable.Set(normalScale));
+		}
+
+		void					NormalRenderer::ScaleNormals(const TVec2<>&v)
+		{
+			ScaleNormals(v.x,v.y);
+		}
+
+		void					NormalRenderer::ScaleNormals(float x, float y, float z)
+		{
+			normalScale.x *= x;
+			normalScale.y *= y;
+			normalScale.z *= z;
+			DBG_VERIFY__(normalScaleVariable.Set(normalScale));
+		}
+
+		void					NormalRenderer::ScaleNormals(const TVec3<>&v)
+		{
+			ScaleNormals(v.x,v.y,v.z);
+		}
+
+		void					NormalRenderer::PushNormalScale()
+		{
+			normalScaleStack << normalScale;
+		}
+
+		void					NormalRenderer::PopNormalScale()
+		{
+			normalScale = normalScaleStack.pop();
+			DBG_VERIFY__(normalScaleVariable.Set(normalScale));
+		}
+
+		void					NormalRenderer::PeekNormalScale()
+		{
+			normalScale = normalScaleStack.last();
+			DBG_VERIFY__(normalScaleVariable.Set(normalScale));
+		}
+
+
+		void					NormalRenderer::TextureRect(const Rect<>&rect,const GL::Texture::Reference&ref)
+		{
+			_UpdateState(ref);
+			Renderer::TextureRect(rect);
+		}
+
+		void					NormalRenderer::TextureRect(const Rect<>&rect, const Rect<>&texCoordRect,const GL::Texture::Reference&ref)
+		{
+			_UpdateState(ref);
+			Renderer::TextureRect(rect,texCoordRect);
+		}
+
+		void					NormalRenderer::TextureQuad(const TVec2<>&p0, const TVec2<>&p1, const TVec2<>&p2, const TVec2<>&p3, const GL::Texture::Reference&ref)
+		{
+			_UpdateState(ref);
+			Renderer::TextureQuad(p0,p1,p2,p3);
+		}
+
+		void					NormalRenderer::MarkNewLayer()
+		{
+			normalRenderer.uninstall();
+			glBindTexture(GL_TEXTURE_2D,0);
+			Renderer::MarkNewLayer();
+			normalRenderer.install();
+		}
+
+		void					NormalRenderer::_UpdateState(const GL::Texture::Reference&ref)
+		{
+			glBindTexture(GL_TEXTURE_2D,ref.GetHandle());
+		}
+	
+		void					NormalRenderer::Configure(const TFrameBuffer&buffer, const Resolution& usage)
+		{
+			if (normalRenderer.isEmpty())
+			{
+				ASSERT1__(normalRenderer.loadComposition(
+					"vertex{void main(){gl_Position=ftransform();gl_TexCoord[0]=gl_MultiTexCoord0;}}"
+					"fragment{"
+						"uniform sampler2D texture;"
+						"uniform vec3 normalScale;"
+						"void main(){"
+							"vec4 normalSample = texture2D(texture,gl_TexCoord[0].xy);"
+							"gl_FragColor.a = normalSample.a;"
+							"gl_FragColor.rgb = normalize((normalSample.xyz*2.0 - 1.0) * normalScale) * 0.5 + 0.5;"
+						"}"
+					"}"
+					),normalRenderer.report());
+				normalScaleVariable = normalRenderer.locate("normalScale");
+			}
+
+			Renderer::Configure(buffer,usage);
+
+			normalRenderer.install();
+			Vec::set(normalScale,1);
+			DBG_VERIFY__(normalScaleVariable.Set(normalScale));
+		}
+
+		void					NormalRenderer::Finish()
+		{
+			normalRenderer.uninstall();
+			ASSERT__(normalScaleStack.isEmpty());
+
+			Renderer::Finish();
+			glDisable(GL_TEXTURE_2D);
+		}
+
+
+
+
 
 		Component::Component(const String&type_name_):current_region(0,0,1,1),offset(0,0,0,0),anchored(false,false,false,false),width(1),height(1),type_name(type_name_),layout(NULL),tick_interval(0.2),enabled(true),visible(true)
 		{}
@@ -1742,88 +2275,75 @@ namespace Engine
 			
 			glWhite();
 		
-			display.lockRegion();
-			
-			normal_shader.install();
-			glMatrixMode(GL_TEXTURE);
-			glLoadIdentity();
-			glMatrixMode(GL_MODELVIEW);
-			
-			Rect<float>	view(0,0,iwidth,iheight);
-			
-			
-			
-			ASSERT__(gl_extensions.bindFrameBuffer(normal_buffer));
-			glClearColor(0,0,0,0);
-			glClear(GL_COLOR_BUFFER_BIT);
-			glDisable(GL_BLEND);
+			//normal renderer:
+			//display.lockRegion();
+			//
+			//normal_shader.install();
+			//glMatrixMode(GL_TEXTURE);
+			//glLoadIdentity();
+			//glMatrixMode(GL_MODELVIEW);
+			//
+			//Rect<float>	view(0,0,iwidth,iheight);
+				//ASSERT__(gl_extensions.bindFrameBuffer(normal_buffer));
+				//glClearColor(0,0,0,0);
+				//glClear(GL_COLOR_BUFFER_BIT);
+				//glDisable(GL_BLEND);
+				//op->resetFocus();
+				//op->focus(view);
 
+			//finish:
+			//	normal_shader.uninstall();
+			//ASSERT__(gl_extensions.bindFrameBuffer(color_buffer));
+			//glClearColor(0,0,0,0);
+			//glClear(GL_COLOR_BUFFER_BIT);
+			//glDisable(GL_BLEND);
+
+			//color renderer:
+			//			ASSERT__(gl_extensions.bindFrameBuffer(color_buffer));
+			//glClearColor(0,0,0,0);
+			//glClear(GL_COLOR_BUFFER_BIT);
+			//glDisable(GL_BLEND);
+			//all finish:
+			//display.unlockRegion();
+			//gl_extensions.unbindFrameBuffer();
+
+
+			
 			shared_ptr<Operator> op = operator_link.lock();
-
 			if (op)
 			{
-				op->resetFocus();
-				op->focus(view);
+				op->normalRenderer.Configure(normal_buffer,Resolution(iwidth,iheight));
+
+				for (index_t j = 0; j < cell_layout.cells.count(); j++)
+				{
+					const TCellInstance&cell = cell_layout.cells[j];
+					op->normalRenderer.TextureRect(cell.region,cell.normal_texture);
+				}
+				if (component_link && component_link->visible)
+				{
+					component_link->OnNormalPaint(op->normalRenderer);
+				}
+				op->normalRenderer.Finish();
+		
+
+				op->colorRenderer.Configure(color_buffer,Resolution(iwidth,iheight));
+				for (index_t j = 0; j < cell_layout.cells.count(); j++)
+				{
+					const TCellInstance&cell = cell_layout.cells[j];
+					op->colorRenderer.TextureRect(cell.region,cell.color_texture);
+				}
+				if (cell_layout.title.width()>0)
+				{
+					op->colorRenderer.MarkNewLayer();
+					op->colorRenderer.SetTextPosition(cell_layout.title.x.min,cell_layout.title.y.center()-ColorRenderer::textout.getFont().getHeight()/2+font_offset);
+					op->colorRenderer.WriteText(title);
+				}
+				if (component_link && component_link->visible)
+					component_link->OnColorPaint(op->colorRenderer);
+			
+				op->colorRenderer.Finish();
 			}
 			
-			for (index_t j = 0; j < cell_layout.cells.count(); j++)
-			{
-				const TCellInstance&cell = cell_layout.cells[j];
-				display.useTexture(cell.normal_texture,true);
-				Rect<float>	rect(cell.region);
-				//rect.translate(-region.x.min,-region.y.min);
-				glBegin(GL_QUADS);
-					glTexCoord2f(0,0); glVertex2f(rect.x.min,rect.y.min);
-					glTexCoord2f(1,0); glVertex2f(rect.x.max,rect.y.min);
-					glTexCoord2f(1,1); glVertex2f(rect.x.max,rect.y.max);
-					glTexCoord2f(0,1); glVertex2f(rect.x.min,rect.y.max);
-				glEnd();
-			}
-			glEnable(GL_BLEND);
-			if (component_link && component_link->visible)
-			{
-				component_link->onNormalPaint();
-			}
-			normal_shader.uninstall();
-			ASSERT__(gl_extensions.bindFrameBuffer(color_buffer));
-			glClearColor(0,0,0,0);
-			glClear(GL_COLOR_BUFFER_BIT);
-			glDisable(GL_BLEND);
-
-			if (op)
-			{
-				op->resetFocus();
-				op->focus(view);
-			}
-			for (index_t j = 0; j < cell_layout.cells.count(); j++)
-			{
-				const TCellInstance&cell = cell_layout.cells[j];
-				display.useTexture(cell.color_texture,true);
-				const Rect<float>	&rect(cell.region);
-				//rect.translate(-region.x.min,-region.y.min);
-
-				glBegin(GL_QUADS);
-					glTexCoord2f(0,0); glVertex2f(rect.x.min,rect.y.min);
-					glTexCoord2f(1,0); glVertex2f(rect.x.max,rect.y.min);
-					glTexCoord2f(1,1); glVertex2f(rect.x.max,rect.y.max);
-					glTexCoord2f(0,1); glVertex2f(rect.x.min,rect.y.max);
-				glEnd();
-			}
-			glEnable(GL_BLEND);
-			if (cell_layout.title.width()>0)
-			{
-				Component::textout.locate(cell_layout.title.x.min,cell_layout.title.y.center()-Component::textout.getFont().getHeight()/2+font_offset);
-				Component::textout.color(1,1,1);
-				Component::textout.print(title);
-			}			
-			if (component_link && component_link->visible)
-				component_link->onColorPaint();
-			
-
-
-			
-			display.unlockRegion();
-			gl_extensions.unbindFrameBuffer();
 			
 		}
 
@@ -1861,56 +2381,30 @@ namespace Engine
 		}
 		
 		
-		void			Component::onColorPaint()
+		void			Component::OnColorPaint(ColorRenderer&renderer)
 		{
+			renderer.MarkNewLayer();
 			if (!layout)
 				return;
-			glDisable(GL_BLEND);
-			glEnable(GL_ALPHA_TEST);
-			glAlphaFunc(GL_GREATER,0.0f);
-
-			shared_ptr<Operator> op = requireOperator();
-
-			Display<OpenGL>&display = op->getDisplay();
-
 			for (index_t j = 0; j < cell_layout.cells.count(); j++)
 			{
 				const TCellInstance&cell = cell_layout.cells[j];
-				display.useTexture(cell.color_texture,true);
-				const Rect<float>&rect = cell.region;
-
-				glBegin(GL_QUADS);
-					glTexCoord2f(0,0); glVertex2f(rect.x.min,rect.y.min);
-					glTexCoord2f(1,0); glVertex2f(rect.x.max,rect.y.min);
-					glTexCoord2f(1,1); glVertex2f(rect.x.max,rect.y.max);
-					glTexCoord2f(0,1); glVertex2f(rect.x.min,rect.y.max);
-				glEnd();
+				renderer.TextureRect(cell.region,cell.color_texture);
 			}
-			glDisable(GL_ALPHA_TEST);
-			glEnable(GL_BLEND);
-			//display->setDefaultBlendFunc();			
+			renderer.MarkNewLayer();
 		}
 		
-		void			Component::onNormalPaint()
+		void			Component::OnNormalPaint(NormalRenderer&renderer)
 		{
+			renderer.MarkNewLayer();
 			if (!layout)
 				return;
-			shared_ptr<Operator> op = requireOperator();
-
-			Display<OpenGL>&display = op->getDisplay();
 			for (index_t j = 0; j < cell_layout.cells.count(); j++)
 			{
 				const TCellInstance&cell = cell_layout.cells[j];
-				display.useTexture(cell.normal_texture,true);
-				const Rect<float>&rect = cell.region;
-
-				glBegin(GL_QUADS);
-					glTexCoord2f(0,0); glVertex2f(rect.x.min,rect.y.min);
-					glTexCoord2f(1,0); glVertex2f(rect.x.max,rect.y.min);
-					glTexCoord2f(1,1); glVertex2f(rect.x.max,rect.y.max);
-					glTexCoord2f(0,1); glVertex2f(rect.x.min,rect.y.max);
-				glEnd();
+				renderer.TextureRect(cell.region,cell.normal_texture);
 			}
+			renderer.MarkNewLayer();
 		}
 		
 		static void setCursor(Mouse::eCursor cursor)

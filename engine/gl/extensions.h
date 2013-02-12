@@ -187,6 +187,8 @@
 				inline bool				Set(const TMatrix4<>&m)	{return set(m);}
 				bool					seti(int value);
 				inline bool				SetInt(int value)		{return seti(value);}
+				bool					set2i(int x, int y);
+				inline bool				SetInt(int x, int y)		{return set2i(x,y);}
 				
 				static	void			lockUninstalledShaderVariables()
 										{
@@ -1153,6 +1155,7 @@
 					@return true on success
 				*/
 		static	bool			copyFrameBuffer(const TFrameBuffer&from, const TFrameBuffer&to, bool copy_color = true, bool copy_depth=true);
+		static	bool			copyFrameBuffer(const TFrameBuffer&from, const TFrameBuffer&to, const Resolution&res, bool copy_color = true, bool copy_depth=true);
 			#if SYSTEM==WINDOWS
 				void			initialize(HDC hDC);
 			#elif SYSTEM==UNIX

@@ -18,16 +18,6 @@ namespace Engine
 		SliderLayout						SliderLayout::global;
 
 	
-		static void fillRect(const Rect<float>&rect)
-		{
-			glBegin(GL_QUADS);
-				glVertex2f(rect.x.min,rect.y.min);
-				glVertex2f(rect.x.max,rect.y.min);
-				glVertex2f(rect.x.max,rect.y.max);
-				glVertex2f(rect.x.min,rect.y.max);
-			glEnd();
-		}
-
 	
 	
 		bool		Panel::getChildSpace(Rect<float>&out_rect)	const
@@ -226,28 +216,35 @@ namespace Engine
 			return rs;
 		}
 		
-		void		Panel::onColorPaint()
+		/*virtual override*/ void		Panel::OnColorPaint(ColorRenderer&renderer)
 		{
-			Component::onColorPaint();
-			shared_ptr<Operator>	op = requireOperator();
-
-			op->focus(cell_layout.client);
+			renderer.PushColor();
+			Component::OnColorPaint(renderer);
+			renderer.Clip(cell_layout.client);
 			for (index_t i = 0; i < children.count(); i++)
 				if (children[i]->isVisible())
-					children[i]->onColorPaint();
-			op->unfocus();
+				{
+					renderer.PeekColor();
+					children[i]->OnColorPaint(renderer);
+				}
+			renderer.Unclip();
+			renderer.PopColor();
 		}
 		
-		void		Panel::onNormalPaint()
+		/*virtual override*/ void		Panel::OnNormalPaint(NormalRenderer&renderer)
 		{
-			Component::onNormalPaint();
-			shared_ptr<Operator>	op = requireOperator();
+			renderer.PushNormalScale();
+				Component::OnNormalPaint(renderer);
 			
-			op->focus(cell_layout.client);
-			for (index_t i = 0; i < children.count(); i++)
-				if (children[i]->isVisible())
-					children[i]->onNormalPaint();
-			op->unfocus();
+				renderer.Clip(cell_layout.client);
+					for (index_t i = 0; i < children.count(); i++)
+						if (children[i]->isVisible())
+						{
+							renderer.PeekNormalScale();
+							children[i]->OnNormalPaint(renderer);
+						}
+				renderer.Unclip();
+			renderer.PopNormalScale();
 		}
 		
 		Component::eEventResult		Panel::onMouseHover(float x, float y, TExtEventResult&ext)
@@ -467,37 +464,27 @@ namespace Engine
 		
 		
 
-		void		Slider::onColorPaint()
+		void		Slider::OnColorPaint(ColorRenderer&renderer)
 		{
-			glDisable(GL_BLEND);
-			glWhite();
-			Component::onColorPaint();
+			Component::OnColorPaint(renderer);
 
-			Display<OpenGL>&display = requireOperator()->getDisplay();
-			glWhite();
-			TFreeCell::paintColor(display,bar_left);
-			TFreeCell::paintColor(display,bar_center);
-			TFreeCell::paintColor(display,bar_right);
-			
-			/*if (cursor_grabbed)
-				glWhite(0.7);
-			else
-				glWhite();*/
-			
-			TFreeCell::paintColor(display,slider);
-			
+			renderer.Paint(bar_left);
+			renderer.Paint(bar_center);
+			renderer.Paint(bar_right);
+			renderer.MarkNewLayer();
+			renderer.Paint(slider);
 		}
 		
-		void		Slider::onNormalPaint()
+		void		Slider::OnNormalPaint(NormalRenderer&renderer)
 		{
-			Component::onNormalPaint();
+			Component::OnNormalPaint(renderer);
 
-			Display<OpenGL>&display = requireOperator()->getDisplay();
-			TFreeCell::paintNormal(display,bar_left,false);
-			TFreeCell::paintNormal(display,bar_center,false);
-			TFreeCell::paintNormal(display,bar_right,false);
-			
-			TFreeCell::paintNormal(display,slider,cursor_grabbed);
+			//Display<OpenGL>&display = requireOperator()->getDisplay();
+			renderer.Paint(bar_left,false);
+			renderer.Paint(bar_center,false);
+			renderer.Paint(bar_right,false);
+			renderer.MarkNewLayer();
+			renderer.Paint(slider,cursor_grabbed);
 		}
 		
 		Component::eEventResult	Slider::onMouseDrag(float x, float y)
@@ -768,59 +755,43 @@ namespace Engine
 		
 		
 
-		void		ScrollBar::onColorPaint()
+		/*virtual override*/	void		ScrollBar::OnColorPaint(ColorRenderer&renderer)
 		{
-			glWhite();
-			Component::onColorPaint();
-			glEnable(GL_BLEND);
-
-
-			//display->setDefaultBlendFunc();
-			Display<OpenGL>&display = requireOperator()->getDisplay();
+			Component::OnColorPaint(renderer);
+			renderer.Paint(background_top);
+			renderer.Paint(background_center);
+			renderer.Paint(background_bottom);
 			
-			TFreeCell::paintColor(display,background_top);
-			TFreeCell::paintColor(display,background_center);
-			TFreeCell::paintColor(display,background_bottom);
-			
+			renderer.MarkNewLayer();
+			renderer.PushColor();
 			if (cursor_grabbed)
-				glWhite(0.7);
-			else
-				glWhite();
-			TFreeCell::paintColor(display,cursor_top);
-			TFreeCell::paintColor(display,cursor_center);
-			TFreeCell::paintColor(display,cursor_bottom);
+				renderer.ModulateColor(0.7f);
+			renderer.Paint(cursor_top);
+			renderer.Paint(cursor_center);
+			renderer.Paint(cursor_bottom);
+			renderer.PopColor();
+			renderer.MarkNewLayer();
 			
-			//if (up_pressed)
-				glWhite();
-			/*else
-				glWhite(0.7);*/
-			TFreeCell::paintColor(display,up_button);
-			
-			/*if (down_pressed)
-				glWhite();
-			else
-				glWhite(0.7);*/
-			TFreeCell::paintColor(display,down_button);
+			renderer.Paint(up_button);
+			renderer.Paint(down_button);
 		}
 		
-		void		ScrollBar::onNormalPaint()
+		/*virtual override*/	void		ScrollBar::OnNormalPaint(NormalRenderer&renderer)
 		{
-			Component::onNormalPaint();
+			Component::OnNormalPaint(renderer);
 
-			Display<OpenGL>&display = requireOperator()->getDisplay();
-
-
-			TFreeCell::paintNormal(display,background_top,false);
-			TFreeCell::paintNormal(display,background_center,false);
-			TFreeCell::paintNormal(display,background_bottom,false);
+			renderer.Paint(background_top,false);
+			renderer.Paint(background_center,false);
+			renderer.Paint(background_bottom,false);
+			renderer.MarkNewLayer();
 			
-			TFreeCell::paintNormal(display,cursor_top,cursor_grabbed);
-			TFreeCell::paintNormal(display,cursor_center,cursor_grabbed);
-			TFreeCell::paintNormal(display,cursor_bottom,cursor_grabbed);
+			renderer.Paint(cursor_top,cursor_grabbed);
+			renderer.Paint(cursor_center,cursor_grabbed);
+			renderer.Paint(cursor_bottom,cursor_grabbed);
 			
-			TFreeCell::paintNormal(display,up_button,false);
-			TFreeCell::paintNormal(display,down_button,false);
-		
+			renderer.MarkNewLayer();
+			renderer.Paint(up_button,false);
+			renderer.Paint(down_button,false);
 		}
 		
 		Component::eEventResult	ScrollBar::onMouseDrag(float x, float y)
@@ -1208,42 +1179,63 @@ namespace Engine
 			return h;
 		}
 		
-		void		ScrollBox::onColorPaint()
+		/*virtual override*/ void		ScrollBox::OnColorPaint(ColorRenderer&renderer)
 		{
-			
-			Component::onColorPaint();
+			renderer.PushColor();
+			Component::OnColorPaint(renderer);
 
-			shared_ptr<Operator> op = requireOperator();
-
-			op->focus(effective_client_region);
+			renderer.Clip(effective_client_region);
 			
 			for (index_t i = 0; i < visible_children.count(); i++)
-				visible_children[i]->onColorPaint();
-			op->unfocus();
+			{
+				renderer.PeekColor();
+				visible_children[i]->OnColorPaint(renderer);
+			}
+			renderer.Unclip();
+			//renderer.MarkNewLayer();
 			
 			if (horizontal_bar->isVisible())
-				horizontal_bar->onColorPaint();
+			{
+				renderer.PeekColor();
+				horizontal_bar->OnColorPaint(renderer);
+			}
 			if (vertical_bar->isVisible())
-				vertical_bar->onColorPaint();
+			{
+				renderer.PeekColor();
+				vertical_bar->OnColorPaint(renderer);
+			}
+			renderer.PopColor();
 		}
 		
-		void		ScrollBox::onNormalPaint()
+		/*virtual override*/ void		ScrollBox::OnNormalPaint(NormalRenderer&renderer)
 		{
-			
-			Component::onNormalPaint();
+			renderer.PushNormalScale();
+			Component::OnNormalPaint(renderer);
 			shared_ptr<Operator> op = requireOperator();
 
-			op->focus(effective_client_region);
+			renderer.Clip(effective_client_region);
 			
 			
 			for (index_t i = 0; i < visible_children.count(); i++)
-				visible_children[i]->onNormalPaint();
-			op->unfocus();
+			{
+				renderer.PeekNormalScale();
+				visible_children[i]->OnNormalPaint(renderer);
+			}
+			renderer.Unclip();
+			//renderer.MarkNewLayer();
 
 			if (horizontal_bar->isVisible())
-				horizontal_bar->onNormalPaint();
+			{
+				renderer.PeekNormalScale();
+				horizontal_bar->OnNormalPaint(renderer);
+			}
 			if (vertical_bar->isVisible())
-				vertical_bar->onNormalPaint();
+			{
+				renderer.PeekNormalScale();
+				vertical_bar->OnNormalPaint(renderer);
+			}
+			renderer.PopNormalScale();
+
 		}
 
 		
@@ -1363,106 +1355,74 @@ namespace Engine
 		}
 
 
-		void						Edit::onColorPaint()
+		/*virtual override*/ void			Edit::OnColorPaint(ColorRenderer&renderer)
 		{
+			const float fontHeight = renderer.GetFont().getHeight();
+			renderer.PushColor();
 			if (readonly || !enabled)
-				glGrey(0.5);
-			else
-				glWhite();
+				renderer.ModulateColor(0.5f);
 			
-			shared_ptr<Operator> op = requireOperator();
+			Component::OnColorPaint(renderer);
 
-			Component::onColorPaint();
-			glWhite();
+			renderer.PeekColor();
+
 			size_t end = vmin(view_end,text.length());
 			if (end>view_begin)
 			{
-				op->focus(cell_layout.client);
-				textout.color(1,1,1);
-				float	bottom = cell_layout.client.y.center()-textout.getFont().getHeight()/2+font_offset,
-						top = cell_layout.client.y.center()+textout.getFont().getHeight()/2;
-				glDisable(GL_BLEND);
+				renderer.Clip(cell_layout.client);
+				float	bottom = cell_layout.client.y.center()-fontHeight/2+font_offset,
+						top = cell_layout.client.y.center()+fontHeight/2;
 				if (mask_input)
 				{
-					float psize;
-					glGetFloatv(GL_POINT_SIZE,&psize);
-					float csize = textout.getFont().getHeight()*0.75;
-					glPointSize(csize*0.8);
-					glEnable(GL_POINT_SMOOTH);
-					glWhite();
-					glDisable(GL_TEXTURE_2D);
-					glBegin(GL_POINTS);
+					float csize = fontHeight*0.75;
+					renderer.SetPointSize(csize*0.8);
 					for (size_t i = view_begin; i < end; i++)
-						glVertex2f(cell_layout.client.left()+csize*(0.5+i),cell_layout.client.y.center());
-					glEnd();
-					glPointSize(psize);
+						renderer.PaintPoint(cell_layout.client.left()+csize*(0.5+i),cell_layout.client.y.center());
 				}
 				else
 				{
-					textout.locate(cell_layout.client.left(),bottom);
-					textout.print(text.root()+view_begin,end-view_begin);
+					renderer.SetTextPosition(cell_layout.client.left(),bottom);
+					renderer.WriteText(text.root()+view_begin,end-view_begin);
 				}
 				if (sel_start != cursor)
 				{
-					glDisable(GL_BLEND);
-					glDisable(GL_TEXTURE_2D);
-					glBegin(GL_QUADS);
-						size_t	sel_begin = sel_start,
-								sel_end = cursor;
-						if (sel_begin > sel_end)
-							swp(sel_begin,sel_end);
-						if (sel_begin < view_begin)
-							sel_begin = view_begin;
-						if (sel_end < view_begin)
-							sel_end = view_begin;
-						float	left = cell_layout.client.left()+textWidth(text.root()+view_begin,sel_begin-view_begin),
-								right = cell_layout.client.left()+textWidth(text.root()+view_begin,sel_end-view_begin);
+					renderer.ModulateColor(0.2,0.3,0.5,0.7);
+					size_t	sel_begin = sel_start,
+							sel_end = cursor;
+					if (sel_begin > sel_end)
+						swp(sel_begin,sel_end);
+					if (sel_begin < view_begin)
+						sel_begin = view_begin;
+					if (sel_end < view_begin)
+						sel_end = view_begin;
+					float	left = cell_layout.client.left()+textWidth(text.root()+view_begin,sel_begin-view_begin),
+							right = cell_layout.client.left()+textWidth(text.root()+view_begin,sel_end-view_begin);
 						//glColor4f(0.4,0.6,1,0.7);
-						glColor4f(0.2,0.3,0.5,0.7);
-						glVertex2f(left-2,bottom);
-						glVertex2f(right+2,bottom);
-						glVertex2f(right+2,top);
-						glVertex2f(left-2,top);
-					glEnd();
-					glEnable(GL_BLEND);
-					//display->setDefaultBlendFunc();
+					renderer.FillRect(Rect<>(left-2,bottom,right+2,top));
+					renderer.PeekColor();
 					
 					if (mask_input)
 					{
-						float psize;
-						glGetFloatv(GL_POINT_SIZE,&psize);
-						float csize = textout.getFont().getHeight()*0.75;
-						glPointSize(csize*0.8);
-						glEnable(GL_POINT_SMOOTH);
-						glDisable(GL_TEXTURE_2D);
-						glWhite();
-						glBegin(GL_POINTS);
+						float csize = fontHeight*0.75;
+						renderer.SetPointSize(csize*0.8);
 						for (index_t i = sel_begin; i < sel_end; i++)
-							glVertex2f(cell_layout.client.left()+csize*(0.5+i),cell_layout.client.y.center());
-						glEnd();
-						glPointSize(psize);
+							renderer.PaintPoint(cell_layout.client.left()+csize*(0.5+i),cell_layout.client.y.center());
 					}
 					else
 					{
-						textout.color(1,1,1,1);
-						textout.locate(cell_layout.client.left()+textout.unscaledLength(text.root()+view_begin,sel_begin-view_begin),bottom);
-						textout.print(text.root()+sel_begin,sel_end-sel_begin);
+						renderer.SetTextPosition(cell_layout.client.left()+renderer.GetUnscaledWidth(text.root()+view_begin,sel_begin-view_begin),bottom);
+						renderer.WriteText(text.root()+sel_begin,sel_end-sel_begin);
 					}
 				}
 					
-				glEnable(GL_BLEND);
-				
-				op->unfocus();
+				renderer.Unclip();
 			}
-			if (isFocused() && cursor_ticks < 5)
+			if (isFocused() && enabled && cursor_ticks < 5)
 			{
-				glWhite();
-				op->getDisplay().useTexture(NULL);
-				glBegin(GL_LINES);
-					glVertex2f(cursor_offset,cell_layout.client.y.center()-textout.getFont().getHeight()/2);
-					glVertex2f(cursor_offset,cell_layout.client.y.center()+textout.getFont().getHeight()/2+font_offset);
-				glEnd();
+				renderer.RenderLine(cursor_offset,cell_layout.client.y.center()-fontHeight/2,
+									cursor_offset,cell_layout.client.y.center()+fontHeight/2+font_offset);
 			}
+			renderer.PopColor();
 		}
 		
 		Component::eEventResult		Edit::onTick()
@@ -1824,46 +1784,40 @@ namespace Engine
 		
 		
 
-		void		Button::onNormalPaint()
+		/*virtual override*/ void		Button::OnNormalPaint(NormalRenderer&renderer)
 		{
-			glMatrixMode(GL_TEXTURE);
-				glPushMatrix();
+			renderer.PushNormalScale();
 				if (!enabled)
-					glScalef(0.1,0.1,1);
+					renderer.ScaleNormals(0.1,0.1,1);
 				elif (AppearsPressed())
-					glScalef(-1,-1,1);
-			glMatrixMode(GL_MODELVIEW);
+					renderer.ScaleNormals(-1,-1,1);
 			
-			Component::onNormalPaint();
-			
-			glMatrixMode(GL_TEXTURE);
-				glPopMatrix();
-			glMatrixMode(GL_MODELVIEW);
+				Component::OnNormalPaint(renderer);
+
+			renderer.PopNormalScale();
 		}
 		
-		void		Button::onColorPaint()
+		/*virtual override*/ void		Button::OnColorPaint(ColorRenderer&renderer)
 		{
 			bool pressed = AppearsPressed();
+			renderer.PushColor();
 			if (pressed || !enabled)
-				glGrey(0.5);
-			else
-				glWhite();
-			
-			Component::onColorPaint();
+				renderer.ModulateColor(0.5f);
+			Component::OnColorPaint(renderer);
+			renderer.PopColor();
+
 			if (caption.isNotEmpty())
 			{
-				glWhite();
 				const Rect<float>&rect=cell_layout.client;
-			
-				glDisable(GL_BLEND);
-				textout.locate(rect.x.center()-textout.unscaledLength(caption)*0.5+pressed,rect.y.center()-textout.getFont().getHeight()/2+font_offset);//textout.getFont().getHeight()*0.5);
-				textout.color(1.0-0.2*(pressed||!enabled),1.0-0.2*(pressed||!enabled),1.0-0.2*(pressed||!enabled));
-				textout.print(caption);
-				glEnable(GL_BLEND);
-			}			
+				renderer.SetTextPosition(rect.x.center()-ColorRenderer::textout.unscaledLength(caption)*0.5+pressed,rect.y.center()-ColorRenderer::textout.getFont().getHeight()/2+font_offset);
+				renderer.PushColor();
+				renderer.ModulateColor(1.0-0.2*(pressed||!enabled));
+				renderer.WriteText(caption);
+				renderer.PopColor();
+			}		
 		}
 		
-		Component::eEventResult	Button::onMouseDrag(float x, float y)
+		/*virtual override*/ Component::eEventResult	Button::onMouseDrag(float x, float y)
 		{
 			bool new_pressed = down && current_region.contains(x,y);
 			bool changed = pressed != new_pressed;
@@ -1917,87 +1871,49 @@ namespace Engine
 		
 		float		Button::clientMinWidth()	const
 		{
-			return textout.unscaledLength(caption);
+			return ColorRenderer::textout.unscaledLength(caption);
 		}
 		
 		float		Button::clientMinHeight()	const
 		{
 
-			return textout.getFont().getHeight();
+			return ColorRenderer::textout.getFont().getHeight();
 		}
 		
-		void		CheckBox::onNormalPaint()
+		/*virtual override*/void		CheckBox::OnNormalPaint(NormalRenderer&renderer)
 		{
-			Component::onNormalPaint();
+			Component::OnNormalPaint(renderer);
 			if (style && !style->box_normal.isEmpty())
 			{
-				const Rect<float>&rect=cell_layout.client;
-
-				shared_ptr<Operator> op = requireOperator();
-
-				op->getDisplay().useTexture(style->box_normal);
-				float cy = rect.y.center();
-				float size = boxSize();
-				glBegin(GL_QUADS);
-					glTexCoord2f(0,0); glVertex2f(rect.left(),cy-size/2);
-					glTexCoord2f(1,0); glVertex2f(rect.left()+size,cy-size/2);
-					glTexCoord2f(1,1); glVertex2f(rect.left()+size,cy+size/2);
-					glTexCoord2f(0,1); glVertex2f(rect.left(),cy+size/2);
-				glEnd();
+				renderer.TextureRect(GetBoxRect(),style->box_normal);
 			}
 		}
 		
-		void		CheckBox::onColorPaint()
+		/*virtual override*/void		CheckBox::OnColorPaint(ColorRenderer&renderer)
 		{
-			Component::onColorPaint();
+			renderer.PushColor();
+			Component::OnColorPaint(renderer);
 			
-			const Rect<float>&rect=cell_layout.client;
-			float cy = rect.y.center();
-			float size = boxSize();
-			shared_ptr<Operator> op = requireOperator();
-			Engine::Display<OpenGL>&display = op->getDisplay();
+			const Rect<> rect=GetBoxRect();
 			if (style && !style->box_color.isEmpty())
-			{
-
-				display.useTexture(style->box_color);
-				glBegin(GL_QUADS);
-					glTexCoord2f(0,0); glVertex2f(rect.left(),cy-size/2);
-					glTexCoord2f(1,0); glVertex2f(rect.left()+size,cy-size/2);
-					glTexCoord2f(1,1); glVertex2f(rect.left()+size,cy+size/2);
-					glTexCoord2f(0,1); glVertex2f(rect.left(),cy+size/2);
-				glEnd();
-			}
+				renderer.TextureRect(rect,style->box_color);
 			
 			if (checked && style && !style->check_mark.isEmpty())
-			{
-				display.useTexture(style->check_mark);
-				glBlack();
-				glBegin(GL_QUADS);
-					glTexCoord2f(0,0); glVertex2f(rect.left(),cy-size/2);
-					glTexCoord2f(1,0); glVertex2f(rect.left()+size,cy-size/2);
-					glTexCoord2f(1,1); glVertex2f(rect.left()+size,cy+size/2);
-					glTexCoord2f(0,1); glVertex2f(rect.left(),cy+size/2);
-				glEnd();
-			}
+				renderer.TextureRect(rect,style->check_mark);
 			
 			if (pressed && style && !style->highlight_mark.isEmpty())
 			{
-				display.useTexture(style->highlight_mark);
-				glColor3f(1,0.6,0);
-				glBegin(GL_QUADS);
-					glTexCoord2f(0,0); glVertex2f(rect.left(),cy-size/2);
-					glTexCoord2f(1,0); glVertex2f(rect.left()+size,cy-size/2);
-					glTexCoord2f(1,1); glVertex2f(rect.left()+size,cy+size/2);
-					glTexCoord2f(0,1); glVertex2f(rect.left(),cy+size/2);
-				glEnd();
+				renderer.ModulateColor(1,0.6,0);
+				renderer.TextureRect(rect,style->highlight_mark);
+				renderer.PeekColor();
 			}
 		
-			glDisable(GL_BLEND);
-			textout.locate(rect.left()+size+textout.getFont().getHeight()*0.2,rect.y.center()-textout.getFont().getHeight()/2+font_offset);//textout.getFont().getHeight()*0.5);
-			textout.color(1.0-0.2*(!enabled),1.0-0.2*(!enabled),1.0-0.2*(!enabled));
-			textout.print(caption);
-			glEnable(GL_BLEND);
-			glWhite();
+			const float h= ColorRenderer::textout.getFont().getHeight();
+			const float size = boxSize();
+			renderer.SetTextPosition(rect.left()+size+h*0.2f,rect.y.center()-h/2.f+font_offset);//textout.getFont().getHeight()*0.5);
+			renderer.ModulateColor(1.0-0.2*(!enabled));
+			renderer.WriteText(caption);
+			renderer.PopColor();
 		}
 
 
@@ -2041,7 +1957,7 @@ namespace Engine
 		{
 			float rs;
 			{
-				rs = textout.unscaledLength(caption)+0.2*textout.getFont().getHeight()+boxSize();
+				rs = ColorRenderer::textout.unscaledLength(caption)+0.2*ColorRenderer::textout.getFont().getHeight()+boxSize();
 				if (anchored.right && include_offsets)
 					rs -= offset.right;
 				if (anchored.left && include_offsets)
@@ -2060,7 +1976,7 @@ namespace Engine
 		{
 			float rs;
 			{
-				rs = textout.getFont().getHeight();
+				rs = ColorRenderer::textout.getFont().getHeight();
 				if (anchored.top && include_offsets)
 					rs -= offset.top;
 				if (anchored.bottom && include_offsets)
@@ -2117,15 +2033,15 @@ namespace Engine
 		float			Label::clientMinWidth()	const
 		{
 			if (!wrap_text)
-				return textout.unscaledLength(caption);
+				return ColorRenderer::textout.unscaledLength(caption);
 			return 30;
 		}
 		
 		float			Label::clientMinHeight()	const
 		{
 			if (!wrap_text)
-				return textout.getFont().getHeight();
-			return textout.getFont().getHeight()*lines.count();
+				return ColorRenderer::textout.getFont().getHeight();
+			return ColorRenderer::textout.getFont().getHeight()*lines.count();
 		
 		}
 		
@@ -2147,50 +2063,51 @@ namespace Engine
 
 		float		Label::charLen(char c)
 		{
-			return textout.unscaledLength(&c,1);
+			return ColorRenderer::textout.unscaledLength(&c,1);
 		}
 		
-		void			Label::onColorPaint()
+		void			Label::OnColorPaint(ColorRenderer&renderer)
 		{
+			renderer.PushColor();
 			if (!enabled)
-				glGrey(0.5);
-			else
-				glWhite();
+				renderer.ModulateColor(0.5);
 			
-			Component::onColorPaint();
-			if (!fill_background && !caption.length())
+			Component::OnColorPaint(renderer);
+
+			if (!fill_background && caption.isEmpty())
+			{
+				renderer.PopColor();
 				return;
+			}
 			
 			if (fill_background)
 			{
-				glDisable(GL_TEXTURE_2D);
-				glColor3fv(background_color.v);
-				fillRect(cell_layout.client);
+				renderer.ModulateColor(background_color);
+				renderer.FillRect(cell_layout.client);
+				renderer.PeekColor();
+				renderer.MarkNewLayer();
 			}
-			if (caption.length())
+			if (caption.isNotEmpty())
 			{
-				shared_ptr<Operator> op = requireOperator();
-				op->focus(cell_layout.client);
-				textout.color(text_color);
-				if (!fill_background)
-					glDisable(GL_BLEND);
+				renderer.Clip(cell_layout.client);
+				renderer.ModulateColor(text_color);
 				if (!wrap_text)
 				{
-					float	bottom = cell_layout.client.y.center()-textout.getFont().getHeight()/2+font_offset;
-					textout.locate(cell_layout.client.left(),bottom);
-					textout.print(caption);
+					float	bottom = cell_layout.client.y.center()-ColorRenderer::textout.getFont().getHeight()/2+font_offset;
+					renderer.SetTextPosition(cell_layout.client.left(),bottom);
+					renderer.WriteText(caption);
 				}
 				else
 				{
 					for (index_t i = 0; i < lines.count(); i++)
 					{
-						textout.locate(cell_layout.client.left(),cell_layout.client.top()-(textout.getFont().getHeight()*(i+1)));
-						textout.print(lines[i]);
+						renderer.SetTextPosition(cell_layout.client.left(),cell_layout.client.top()-(ColorRenderer::textout.getFont().getHeight()*(i+1)));
+						renderer.WriteText(lines[i]);
 					}
 				}
-				glEnable(GL_BLEND);
-				op->unfocus();
+				renderer.Unclip();
 			}
+			renderer.PopColor();
 		}
 		
 		void	ComboBox::setup()
@@ -2464,12 +2381,12 @@ namespace Engine
 		}
 		
 		
-		void	MenuEntry::onColorPaint()
+		void	MenuEntry::OnColorPaint(ColorRenderer&renderer)
 		{
 			Label::fill_background = isFocused();
 			if (object && object.get() != this)
 				Label::caption = object->toString();
-			Label::onColorPaint();
+			Label::OnColorPaint(renderer);
 		}
 		
 		void	MenuEntry::onMenuClose(const shared_ptr<MenuEntry>&child)
@@ -2795,7 +2712,7 @@ namespace Engine
 				if (!node->query("file",string))
 					throw IO::DriveAccess::FileFormatFault("XML Font node lacks file attribute");
 				if (folder.findFile(string,file))
-					Component::textout.getFont().loadFromFile(file.getLocation(),scale*outer_scale);
+					ColorRenderer::textout.getFont().loadFromFile(file.getLocation(),scale*outer_scale);
 						//FAIL("Failed to load font from font file '"+file.getLocation()+"'");
 			}
 			else
