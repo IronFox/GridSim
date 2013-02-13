@@ -212,6 +212,7 @@ namespace Engine
 		{
 		private:
 			static GLShader::Instance	layerMerger;
+			static GLShader::Variable	clearColorVariable;
 			Buffer<Rect<int>,0>		clipStack;
 			TVec3<>					clearColor;
 			Resolution				subRes;
@@ -563,6 +564,8 @@ namespace Engine
 									visual_changed,	//!< Indicates that the window should be repainted
 									fixed_position;	//!< Window is fixed to its current location and may neither be resized nor moved
 			SizeChange				sizeChange;
+			bool					toneBackground,	//!< Indicates that overly bright background colors behind this window should be toned down. True by default
+									appearsFocused;	//!< Indicates that this window should always look focused, even when it is not. False by default
 
 			const bool				is_modal;		//!< True if this window does not allow events to pass further down.
 			Timer::Time				hidden;			//!< Time stamp when this window was hidden

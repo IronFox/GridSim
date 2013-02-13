@@ -1419,6 +1419,7 @@ namespace Engine
 			}
 			if (isFocused() && enabled && cursor_ticks < 5)
 			{
+				renderer.MarkNewLayer();
 				renderer.RenderLine(cursor_offset,cell_layout.client.y.center()-fontHeight/2,
 									cursor_offset,cell_layout.client.y.center()+fontHeight/2+font_offset);
 			}

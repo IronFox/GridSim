@@ -61,9 +61,11 @@ namespace Engine
 
 				window_shader.clear();
 				if (!window_shader.loadComposition(
-					"[vertex]\n"
+					"[shared]\n"
 					"varying vec2 eye;\n"
-					"varying mat3 tangent_space;\n"
+					
+					"varying vec3 interpolatedNormal, interpolatedTangent, interpolatedBinormal;\n"
+					"[vertex]\n"
 					"void main()\n"
 					"{\n"
 						"gl_Position = ftransform();\n"
@@ -71,12 +73,12 @@ namespace Engine
 						"eye = gl_Position.xy/gl_Position.w/2.0+0.5;\n"
 						"vec3	tangent = normalize(gl_NormalMatrix*gl_MultiTexCoord1.xyz),\n"
 						"		normal = normalize(gl_NormalMatrix*gl_Normal);\n"
+						"interpolatedNormal = normal;\n"
 						"gl_FrontColor = gl_Color;\n"
-						"#if bump_mapping||refract\n"
-							"tangent_space[0] = -normalize(cross(normal,tangent));\n"
-							"tangent_space[1] = cross(normal,tangent_space[0]);\n"
-							"tangent_space[2] = normal;\n"
-						"#endif\n"
+						//"#if bump_mapping||refract\n"
+							"interpolatedBinormal = -normalize(cross(normal,tangent));\n"
+							"interpolatedTangent = cross(normal,interpolatedBinormal);\n"
+						//"#endif\n"
 					"}\n"
 					"[fragment]\n"
 					"uniform sampler2D background;\n"
@@ -86,20 +88,20 @@ namespace Engine
 					//"const vec3 light = {0.57735026918962576450914878050196,0.57735026918962576450914878050196,0.57735026918962576450914878050196};\n"
 					//"const vec3 light = {0,0.70710678118654752440084436210485,0.70710678118654752440084436210485};\n"
 					"const vec3 light = vec3(0,0.70710678118654752440084436210485,0.70710678118654752440084436210485);\n"
-					"varying vec2 eye;\n"
-					"varying mat3 tangent_space;\n"
+					"float sqr(vec2 vec)	{return dot(vec,vec);}\n"
 					"vec3 toneBackground(vec3 color)\n"
 					"{\n"
 						"float brightness = dot(color,vec3(0.35,0.5,0.15));\n"
-						"return color / (1.0 + pow(brightness,4.0)*0.35);\n"
+						"return color / (1.0 + gl_Color.r * pow(brightness,4.0)*0.35);\n"
 					"}\n"
 					"void main()\n"
 					"{\n"
 						"vec3 color = vec3(0.0);\n"
 						"#if bump_mapping||refract||blur\n"	//need normal alpha for blur
 							"vec4 normal = texture2D(normal_map,gl_TexCoord[0].xy);\n"
+							"vec3 rawNormal = (normal.xyz*2.0-1.0);\n"
 							"#if bump_mapping||refract\n"
-								"normal.xyz = normalize(tangent_space*(normal.xyz*2.0-1.0));\n"
+								"normal.xyz = normalize(gl_Color.a * interpolatedBinormal*rawNormal.x + gl_Color.a * interpolatedTangent*rawNormal.y + interpolatedNormal*rawNormal.z);\n"
 							"#endif\n"
 						"#endif\n"
 						"vec4 color_sample = texture2D(color_map,gl_TexCoord[0].xy);\n"
@@ -116,50 +118,68 @@ namespace Engine
 						"#else\n"
 							"vec2 sample = 0.5+(eye-0.5)*0.98;\n"
 						"#endif\n"
+						"vec4 overlayColor;\n"
+						"vec4 bumpColor;\n"
 						"#if blur\n"
+							"vec4 accumulated = vec4(0);\n"
 							"for (int x = -2; x <= 2; x++)\n"
 								"for (int y = -2; y <= 2; y++)\n"
 								"{\n"
+									"float w = mix(1.0,gl_Color.a,max(abs(float(x)),abs(float(y)))/2.0);\n"
 									"vec2 coord = (sample+vec2(float(x)*1.3/1280.0,float(y)*1.3/1024.0f));\n"
-									"color += texture2D(background,coord).rgb;\n"
+									"accumulated.rgb += texture2D(background,coord).rgb*w;\n"
+									"accumulated.a += w;\n"
 								"}\n"
-								"color /= 25.0;\n"
-								"color = toneBackground(color);\n"
+							"color = accumulated.rgb / accumulated.w;\n"
+							"color = toneBackground(color);\n"
+							"bumpColor = vec4(color,normal.a);\n"
+							"overlayColor = color_sample;\n"
 							"#if bump_mapping\n"
 								"float intensity = pow(max(dot(reflected,light),0.0),7.0)*0.5*gl_Color.a+0.05;\n"
-								"gl_FragColor.rgb = mix(color+intensity,color_sample.rgb*(1.0+intensity),color_sample.a+(1.0-color_sample.a)*(1.0-normal.a));\n"
-								//"gl_FragColor.rgb = mix(color.rgb/25.0+intensity,color_sample.rgb*(1.0+intensity),1.0);\n"
-							"#else\n"
-								"gl_FragColor.rgb = mix(color,color_sample.rgb,color_sample.a+(1.0-color_sample.a)*(1.0-normal.a));\n"
+								"bumpColor.rgb += intensity;\n"
+								"overlayColor.rgb *= (1.0+intensity);\n"
 							"#endif\n"
-							"gl_FragColor.a = color_sample.a+(1.0-color_sample.a)*normal.a;\n"
 						"#elif refract\n"
 							"color = texture2D(background,sample).rgb;\n"
 							"color = toneBackground(color);\n"
+							"bumpColor = vec4(color,normal.a);\n"
+							"overlayColor = color_sample;\n"
 							"#if bump_mapping\n"
 								"float intensity = pow(max(dot(reflected,light),0.0),7.0)*0.5*gl_Color.a+0.05;\n"
-								"gl_FragColor.xyz = mix(color+intensity,color_sample.rgb*(1.0+intensity),color_sample.a+(1.0-color_sample.a)*(1.0-normal.a));\n"
-							"#else\n"
-								"gl_FragColor.xyz = mix(color,color_sample.rgb,color_sample.a+(1.0-color_sample.a)*(1.0-normal.a));\n"
+								"bumpColor.rgb += intensity;\n"
+								"overlayColor.rgb *= (1.0+intensity);\n"
 							"#endif\n"
-							"gl_FragColor.a = color_sample.a+(1.0-color_sample.a)*normal.a;\n"
 						"#else\n"
+							"bumpColor = vec4(0);\n"
+							"overlayColor = color_sample;\n"
 							"#if bump_mapping\n"
 								"float intensity = pow(max(dot(reflected,light),0.0),7.0)*0.5*gl_Color.a+0.05;\n"
-								"gl_FragColor.xyz = clamp(color_sample.rgb+intensity,0.0,1.0);\n"
-								"gl_FragColor.a = color_sample.a+intensity*normal.a;\n"
-							"#else\n"
-								"gl_FragColor = color_sample;\n"
+								"overlayColor.rgb += intensity;\n"
 							"#endif\n"
 						"#endif\n"
-						"gl_FragColor.a *= 0.75+0.25*gl_Color.a;\n"
+						"overlayColor.a *= (0.75 + 0.25 * gl_Color.a);"
+						"float div = bumpColor.a + overlayColor.a - bumpColor.a * overlayColor.a;\n"
+						"gl_FragColor.a = div;\n"
+						"if (div == 0.0) gl_FragColor.rgb = vec3(1.0,0.0,1.0);\n"
+						"else gl_FragColor.rgb = (bumpColor.rgb * bumpColor.a + overlayColor.rgb * overlayColor.a - bumpColor.rgb * bumpColor.a * overlayColor.a) / div;"
+
+						//"gl_FragColor.a *= 0.75+0.25*gl_Color.a;\n"
 						//"gl_FragColor = vec4(0.0,1.0,0.0,1.0);\n"
 
 						//"gl_FragColor.a *= 0.9+0.1*gl_Color.a;\n"
 						/*"gl_FragColor.xy = sample;\n"
-						"gl_FragColor.z = 0;\n"
-						"gl_FragColor.a = 1;\n"*/
+						"gl_FragColor.z = 0;\n"*/
+						//"gl_FragColor.xyz = mix(vec3(1),gl_FragColor.rgb,gl_FragColor.a);\n"
+						//"gl_FragColor.xyz = vec3(1.0-gl_FragColor.a);\n"
+						//"gl_FragColor.a = 1;\n"
+						//"gl_FragColor.xyz = vec3(0.0);\n"
+						//"gl_FragColor.xyz = color_sample.rgb;\n"
+						//"gl_FragColor = color_sample;\n"
 						//"gl_FragColor.xyz = normal.xyz*0.5+0.5;\n"
+						//"gl_FragColor.xyz = rawNormal.xyz*0.5+0.5;\n"
+						//"gl_FragColor.xyz = interpolatedBinormal*0.5+0.5;\n"
+						//"gl_FragColor.xyz = vec3(length(interpolatedNormal));\n"
+						
 						//"gl_FragColor = color_sample;\n"
 					"}\n"
 				))
@@ -1027,7 +1047,7 @@ namespace Engine
 		}
 
 
-		Window::Window(bool modal, Layout*style):is_modal(modal),exp_x(0),exp_y(0),iwidth(1),iheight(1),progress(0),fwidth(1),fheight(1),usage_x(0),usage_y(0),layout(style),title(""),size_changed(true),layout_changed(true),visual_changed(true),fixed_position(false),hidden(timer.now())
+		Window::Window(bool modal, Layout*style):is_modal(modal),toneBackground(true),appearsFocused(false),exp_x(0),exp_y(0),iwidth(1),iheight(1),progress(0),fwidth(1),fheight(1),usage_x(0),usage_y(0),layout(style),title(""),size_changed(true),layout_changed(true),visual_changed(true),fixed_position(false),hidden(timer.now())
 		{
 			#ifdef DEEP_GUI
 				_clear(destination.coord);
@@ -1107,10 +1127,7 @@ namespace Engine
 			glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_CLAMP_TO_EDGE);
 			glActiveTexture(GL_TEXTURE0);
 			
-			if (is_menu)
-				glWhite();
-			else
-				glBlack(window_stack.last()==window);
+			glColor4f(window->toneBackground,0,0,is_menu || window->appearsFocused || window_stack.last()==window);
 
 
 			//ASSERT__(current_window_shader->isInstalled());
@@ -1491,6 +1508,7 @@ namespace Engine
 
 
 		/*static*/ GLShader::Instance	Renderer::layerMerger;
+		/*static*/ GLShader::Variable	Renderer::clearColorVariable;
 		/*static*/ GLShader::Instance	NormalRenderer::normalRenderer;
 		/*static*/ GLShader::Variable	NormalRenderer::normalScaleVariable;
 
@@ -1651,26 +1669,32 @@ namespace Engine
 			glLoadIdentity();
 			_SetView(Rect<int>(0,0,subRes.width,subRes.height));
 
+
+
+
 			if (layerMerger.isEmpty())
 			{
 				ASSERT1__(layerMerger.loadComposition(
 					"vertex{void main(){gl_Position=gl_Vertex;gl_TexCoord[0]=gl_MultiTexCoord0;gl_TexCoord[1]=gl_MultiTexCoord1;}}"
 					"fragment{"
 						"uniform sampler2D lowerLayer,upperLayer;"
+						"uniform vec3 clearColor;"
 						"void main(){"
 							"vec4 lowerSample = texture2DLod(lowerLayer,gl_TexCoord[0].xy,0.0);"
 							"vec4 upperSample = texture2DLod(upperLayer,gl_TexCoord[1].xy,0.0);"
 							"float div = lowerSample.a + upperSample.a - lowerSample.a * upperSample.a;"
 							"gl_FragColor.a = div;"
-							"if (div == 0.0) div = 1.0;"
-							"gl_FragColor.rgb = (lowerSample.rgb * lowerSample.a + upperSample.rgb * upperSample.a - lowerSample.rgb * lowerSample.a * upperSample.a) / div;"
+							"if (div == 0.0) gl_FragColor.rgb = clearColor;"
+							"else gl_FragColor.rgb = (lowerSample.rgb * lowerSample.a + upperSample.rgb * upperSample.a - lowerSample.rgb * lowerSample.a * upperSample.a) / div;"
 							//"if (gl_FragColor.a > 0 && length(gl_FragColor.rgb) > 0.0) gl_FragColor.rgb = normalize(gl_FragColor.rgb*2.0 - 1.0)*0.5 + 0.5; else gl_FragColor.rgb = vec3(0.5,0.5,1.0);"
 						"}"
 					"}"
 					),layerMerger.report());
-
 				layerMerger.locate("upperLayer").SetInt(1);
+				clearColorVariable = layerMerger.locate("clearColor");
 			}
+
+			clearColorVariable.Set(clearColor);
 
 		}
 
@@ -1728,6 +1752,8 @@ namespace Engine
 				_Apply(clipStack.last());
 			else
 				_Apply(Rect<int>(0,0,subRes.width,subRes.height));
+
+
 		}
 
 
@@ -1946,6 +1972,7 @@ namespace Engine
 		{
 			_UpdateState();
 			Renderer::MarkNewLayer();
+			glColor4fv(color.v);
 		}
 
 
