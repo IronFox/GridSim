@@ -368,7 +368,7 @@ namespace Engine
 			struct TExtEventResult	//! Struct to hold additional event results of certain event methods
 			{
 				Mouse::eCursor					custom_cursor;	//!< Cursor to replace the current one with
-				shared_ptr<Component>			caught_by;		//!< Component that actually caught the event
+				//shared_ptr<Component>			caught_by;		//!< Component that actually caught the event
 			};
 
 			Rect<float>							current_region;	//!< Current component region. This rectangle completely surrounds the component including all cells of its layout (if any)
@@ -394,19 +394,21 @@ namespace Engine
 			virtual	float						minHeight(bool include_offsets)	const;			//!< Queries the effective minimum height of this component 	@param include_offsets Set true to also include anchor offsets @return Minimum height of this component
 			virtual	void						OnColorPaint(ColorRenderer&);			//!< Causes this component to repaint its color components
 			virtual	void						OnNormalPaint(NormalRenderer&);						//!< Causes this component to repaint its normal components
-			virtual	shared_ptr<Component>		getFocused()					{return shared_from_this();};	//!< Retrieves the actually focused element from the component returned by onMouseDown(). Returns this by default
-			virtual	eEventResult				onMouseDown(float x, float y, TExtEventResult&)		{return Unsupported;};	//!< Triggered if the primary mouse button was pressed over this component @param x Window space x coordinate of the mouse cursor @param y Window space y coordinate of the mouse cursor @return Event result
-			virtual	eEventResult				onMouseHover(float x, float y, TExtEventResult&)	{return Unsupported;};	//!< Triggered if the mouse was moved while above this component @param x Window space x coordinate of the mouse cursor @param y Window space y coordinate of the mouse cursor @return Event result
-			virtual	eEventResult				onMouseExit()					{return Unsupported;};						//!< Triggered if the mouse has left the area of this component @return Event result
-			virtual	eEventResult				onMouseDrag(float x, float y)	{return Unsupported;};						//!< Triggered if the mouse was moved while the primary mouse button is down and this component is the currently clicked component @param x Window space x coordinate of the mouse cursor @param y Window space y coordinate of the mouse cursor @return Event result
-			virtual	eEventResult				onMouseUp(float x, float y)		{return Unsupported;};						//!< Triggered if the primary mouse button was released and this component was the clicked component
-			virtual	eEventResult				onMouseWheel(float x, float y, short delta)		{return Unsupported;};		//!< Triggered if the mouse wheel was used while the mouse cursor is above this component
-			virtual	eEventResult				onFocusGained()					{return Unsupported;}						//!< Triggered if this component has gained the input focus
-			virtual	eEventResult				onFocusLost()					{return Unsupported;}						//!< Triggered if this component has lost the input focus
-			virtual	eEventResult				onKeyDown(Key::Name key)		{return Unsupported;}						//!< Triggered if the user has pressed a supported key while this component had the focus. This event may fire multiple times before the user releases the key and the onKeyUp() event method is triggered.
-			virtual	eEventResult				onKeyUp(Key::Name key)			{return Unsupported;}						//!< Triggered if the user has released a supported key while this component had the focus.
-			virtual	eEventResult				onChar(char c)					{return Unsupported;}						//!< Triggered if the user has pressed a character key while this component had the focus.
-			virtual	eEventResult				onTick()						{return Unsupported;}						//!< Triggered each time the counter hit @b tick_interval seconds while this component has the focus
+			//virtual	shared_ptr<Component>		getFocused()					{return shared_from_this();};	//!< Retrieves the actually focused element from the component returned by onMouseDown(). Returns this by default
+			virtual shared_ptr<Component>		GetEnabledComponent(float x, float y)	{return shared_from_this();};
+			virtual bool						IsEventTranslucent() const		{return false;}
+			virtual	eEventResult				OnMouseDown(float x, float y, TExtEventResult&)		{return Unsupported;};	//!< Triggered if the primary mouse button was pressed over this component @param x Window space x coordinate of the mouse cursor @param y Window space y coordinate of the mouse cursor @return Event result
+			virtual	eEventResult				OnMouseHover(float x, float y, TExtEventResult&)	{return Unsupported;};	//!< Triggered if the mouse was moved while above this component @param x Window space x coordinate of the mouse cursor @param y Window space y coordinate of the mouse cursor @return Event result
+			virtual	eEventResult				OnMouseExit()					{return Unsupported;};						//!< Triggered if the mouse has left the area of this component @return Event result
+			virtual	eEventResult				OnMouseDrag(float x, float y)	{return Unsupported;};						//!< Triggered if the mouse was moved while the primary mouse button is down and this component is the currently clicked component @param x Window space x coordinate of the mouse cursor @param y Window space y coordinate of the mouse cursor @return Event result
+			virtual	eEventResult				OnMouseUp(float x, float y)		{return Unsupported;};						//!< Triggered if the primary mouse button was released and this component was the clicked component
+			virtual	eEventResult				OnMouseWheel(float x, float y, short delta)		{return Unsupported;};		//!< Triggered if the mouse wheel was used while the mouse cursor is above this component
+			virtual	eEventResult				OnFocusGained()					{return Unsupported;}						//!< Triggered if this component has gained the input focus
+			virtual	eEventResult				OnFocusLost()					{return Unsupported;}						//!< Triggered if this component has lost the input focus
+			virtual	eEventResult				OnKeyDown(Key::Name key)		{return Unsupported;}						//!< Triggered if the user has pressed a supported key while this component had the focus. This event may fire multiple times before the user releases the key and the onKeyUp() event method is triggered.
+			virtual	eEventResult				OnKeyUp(Key::Name key)			{return Unsupported;}						//!< Triggered if the user has released a supported key while this component had the focus.
+			virtual	eEventResult				OnChar(char c)					{return Unsupported;}						//!< Triggered if the user has pressed a character key while this component had the focus.
+			virtual	eEventResult				OnTick()						{return Unsupported;}						//!< Triggered each time the counter hit @b tick_interval seconds while this component has the focus
 			virtual	bool						tabFocusable() const			{return false;}								//!< Queries whether or not this entry is focusable via the tab key
 			void								setWindow(const weak_ptr<Window>&wnd);						//!< Updates the local window link variable as well as that of all children (recursively)
 			bool								isFocused()	const;															//!< Queries whether or not this component currently has the input focus
@@ -714,7 +716,9 @@ namespace Engine
 			void						hideMenus();
 			inline void					HideMenus()	{hideMenus();}
 
-
+			PComponent					HoveringOver()	const;
+			PComponent					GetComponentUnderMouse()	const;
+			PWindow						GetWindowUnderMouse()	const;
 		};
 
 		void							loadBump(const String&filename, OpenGL::Texture&target);	//!< Loads a bump texture

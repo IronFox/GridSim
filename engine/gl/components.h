@@ -250,10 +250,10 @@ namespace Engine
 			virtual	float				clientMinHeight()	const override;
 			virtual	void				OnColorPaint(ColorRenderer&) override;
 			virtual	void				OnNormalPaint(NormalRenderer&) override;
-			virtual	eEventResult		onMouseDrag(float x, float y) override;
-			virtual	eEventResult		onMouseDown(float x, float y, TExtEventResult&) override;
-			virtual	eEventResult		onMouseUp(float x, float y) override;
-			virtual	eEventResult		onMouseWheel(float x, float y, short delta) override;
+			virtual	eEventResult		OnMouseDrag(float x, float y) override;
+			virtual	eEventResult		OnMouseDown(float x, float y, TExtEventResult&) override;
+			virtual	eEventResult		OnMouseUp(float x, float y) override;
+			virtual	eEventResult		OnMouseWheel(float x, float y, short delta) override;
 		
 			inline float				getMax()const {return max;}
 			inline float				getCurrent() const {return current;}
@@ -292,9 +292,7 @@ namespace Engine
 			virtual	float				clientMinHeight()	const override;
 			virtual	void				OnColorPaint(ColorRenderer&) override;
 			virtual	void				OnNormalPaint(NormalRenderer&) override;
-			virtual	eEventResult		onMouseHover(float x, float y, TExtEventResult&) override;
-			virtual	eEventResult		onMouseDown(float x, float y, TExtEventResult&) override;
-			virtual	eEventResult		onMouseWheel(float x, float y, short delta) override;
+			virtual PComponent			GetEnabledComponent(float x, float y) override;
 			bool						getChildSpace(Rect<float>&out_rect)	const;	//!< Retrieves the space currently occupied by the children of this panel @param out_rect Rectangle container to store the child space in @return true if the local panel has at least one child, false otherwise
 		
 			void						append(const shared_ptr<Component>&component);	//!< Appends  the specified component beneath the last member component of the local panel
@@ -395,9 +393,8 @@ namespace Engine
 			virtual	float				clientMinHeight()	const override;
 			virtual	void				OnColorPaint(ColorRenderer&) override;
 			virtual	void				OnNormalPaint(NormalRenderer&) override;
-			virtual	eEventResult		onMouseHover(float x, float y, TExtEventResult&) override;
-			virtual	eEventResult		onMouseDown(float x, float y, TExtEventResult&) override;
-			virtual	eEventResult		onMouseWheel(float x, float y, short delta) override;
+			virtual PComponent			GetEnabledComponent(float x, float y) override;
+			virtual	eEventResult		OnMouseWheel(float x, float y, short delta) override;
 			void						append(const shared_ptr<Component>&component);
 			virtual	PConstComponent		child(index_t index) const override;
 			virtual	PComponent			child(index_t index) override;

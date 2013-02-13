@@ -246,47 +246,26 @@ namespace Engine
 				renderer.Unclip();
 			renderer.PopNormalScale();
 		}
-		
-		Component::eEventResult		Panel::onMouseHover(float x, float y, TExtEventResult&ext)
+
+		/*virtual override*/ PComponent			Panel::GetEnabledComponent(float x, float y)
 		{
-			for (index_t i = children.count()-1; i < children.count(); i--)
-			{
-				const shared_ptr<Component>&child = children[i];
-				if (child->isVisible() && child->cell_layout.border.contains(x,y))
-				{
-					if (!child->isEnabled())
-						return Unsupported;
-					return child->onMouseHover(x,y,ext);
-				}
-			}
-			return Unsupported;
-		}
-		
-		Component::eEventResult		Panel::onMouseDown(float x, float y, TExtEventResult&ext)
-		{
+			if (!isEnabled())
+				return PComponent();
 			for (index_t i = children.count()-1; i < children.count(); i--)
 			{
 				const shared_ptr<Component>&child = children[i];
 				if (child->isVisible() && child->cell_layout.border.contains(x,y))
 				{
 					if (child->isEnabled())
-						return child->onMouseDown(x,y,ext);
-					return Unsupported;
+						return child->GetEnabledComponent(x,y);
+					else
+						return PComponent();
 				}
 			}
-			return Unsupported;
+			return shared_from_this();
 		}
+
 		
-		Component::eEventResult	Panel::onMouseWheel(float x, float y, short delta)
-		{
-			for (index_t i = children.count()-1; i < children.count(); i--)
-			{
-				const shared_ptr<Component>&child = children[i];
-				if (child->isVisible() && child->isEnabled() && child->current_region.contains(x,y))
-					return child->onMouseWheel(x,y,delta);
-			}
-			return Unsupported;
-		}
 		
 
 		
@@ -1109,7 +1088,7 @@ namespace Engine
 			}
 		}
 		
-		Component::eEventResult		ScrollBox::onMouseWheel(float x, float y, short delta)
+		Component::eEventResult		ScrollBox::OnMouseWheel(float x, float y, short delta)
 		{
 			if (horizontal_bar->isVisible() && horizontal_bar->isEnabled() && horizontal_bar->current_region.contains(x,y))
 			{

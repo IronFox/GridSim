@@ -240,6 +240,11 @@ namespace Engine
 			}
 		}
 
+		PComponent Operator::HoveringOver()	const
+		{
+			return hovered;
+		}
+
 		Textout<GLTextureFont2>				ColorRenderer::textout;
 
 
@@ -439,7 +444,7 @@ namespace Engine
 			eEventResult rs = Unsupported;
 			if (focused)
 			{
-				rs = focused->onChar(c);
+				rs = focused->OnChar(c);
 				focused->window()->apply(rs);
 			}
 			if (rs == Unsupported && old_read)
@@ -518,7 +523,7 @@ namespace Engine
 			time_since_last_tick = 0;
 			if (focused)
 			{
-				eEventResult result = focused->onFocusLost();
+				eEventResult result = focused->OnFocusLost();
 				shared_ptr<Window> wnd = focused->window();
 				if (wnd)
 					wnd->apply(result);
@@ -544,7 +549,7 @@ namespace Engine
 			focused = component;
 			if (focused)
 			{
-				focused->window()->apply(focused->onFocusGained());
+				focused->window()->apply(focused->OnFocusGained());
 			}
 		}
 
@@ -1423,7 +1428,7 @@ namespace Engine
 			
 			x += fwidth*0.5;
 			y += fheight*0.5;
-			apply(clicked->onMouseUp(x,y));
+			apply(clicked->OnMouseUp(x,y));
 		}
 		
 
@@ -2115,7 +2120,7 @@ namespace Engine
 			eEventResult rs = Unsupported;
 			if (focused)
 			{
-				rs = focused->onKeyDown((Key::Name)key);
+				rs = focused->OnKeyDown((Key::Name)key);
 				if (focused && !focused->window_link.expired())	//key down may do all sorts of things, unset focused or remove it from its window
 					focused->window_link.lock()->apply(rs);
 				if (focused && rs == Unsupported && key == Key::Tab)
@@ -2139,7 +2144,7 @@ namespace Engine
 			eEventResult rs = Unsupported;
 			if (focused)
 			{
-				rs = focused->onKeyUp((Key::Name)key);
+				rs = focused->OnKeyUp((Key::Name)key);
 				focused->window_link.lock()->apply(rs);
 			}
 			if (rs == Unsupported)
@@ -2452,31 +2457,62 @@ namespace Engine
 			
 			@return true if the mouse has been set, false otherwise
 		*/
-		static bool mouseHover(const shared_ptr<Window>&window, float x, float y)
+		static bool mouseHover(const shared_ptr<Window>&window, const PComponent&component, float x, float y)
 		{
+			if (!component || !component->isEnabled())
+				return false;
 			handling_event = true;
 			ext.custom_cursor = Mouse::CursorType::Default;
-			ext.caught_by.reset();
-			Component::eEventResult rs = window->component_link->onMouseHover(x,y,ext);
+			Component::eEventResult rs = component->OnMouseHover(x,y,ext);
 			if (rs != Component::Unsupported)
 			{
 				window->apply(rs);
 				setCursor(ext.custom_cursor);
 			}
-			else
-				ext.caught_by.reset();
 			
-			if (hovered != ext.caught_by)
+			if (hovered != component)
 			{
 				if (hovered)
-					hovered->window()->apply(hovered->onMouseExit());
-				hovered = ext.caught_by;
+					hovered->window()->apply(hovered->OnMouseExit());
+				hovered = component;
 			}
 			handling_event = false;
 			return rs != Component::Unsupported;
 		}
 		
+
+		PComponent					Operator::GetComponentUnderMouse()	const
+		{
+			TVec2<float> m;
+			unprojectMouse(m);
 		
+			for (index_t i = window_stack.count()-1; i < window_stack.count(); i--)
+			{
+				const shared_ptr<Window>&window = window_stack[i];
+				float rx,ry;
+				Window::ClickResult::value_t rs = window->resolve(m.x,m.y,rx,ry);
+				if (rs != Window::ClickResult::Missed)
+					return window->component_link->GetEnabledComponent(rx,ry);
+			}
+			return PComponent();
+		}
+		PWindow			Operator::GetWindowUnderMouse()	const
+		{
+			TVec2<float> m;
+			unprojectMouse(m);
+		
+			for (index_t i = window_stack.count()-1; i < window_stack.count(); i--)
+			{
+				const shared_ptr<Window>&window = window_stack[i];
+				float rx,ry;
+				Window::ClickResult::value_t rs = window->resolve(m.x,m.y,rx,ry);
+				if (rs != Window::ClickResult::Missed)
+					return window;
+			}
+			return PWindow();
+		}
+
+
 		void			Operator::render()
 		{
 			if (!display)
@@ -2499,7 +2535,7 @@ namespace Engine
 				if (time_since_last_tick > focused->tick_interval)
 				{
 					time_since_last_tick = 0;
-					focused->window()->apply(focused->onTick());
+					focused->window()->apply(focused->OnTick());
 				}
 			}
 				
@@ -2558,7 +2594,7 @@ namespace Engine
 					rx += window->fwidth*0.5;
 					ry += window->fheight*0.5;
 					ASSERT_NOT_NULL1__(clicked->window(),clicked->type_name);
-					clicked->window()->apply(clicked->onMouseDrag(rx,ry));
+					clicked->window()->apply(clicked->OnMouseDrag(rx,ry));
 					cursor_mode = Window::ClickResult::Component;
 				}
 				elif (cursor_mode == Window::ClickResult::Missed)
@@ -2582,8 +2618,11 @@ namespace Engine
 						
 							cursor_mode = rs;
 							if (rs == Window::ClickResult::Component)
-								if (!mouseHover(window,rx,ry))
+							{
+								PComponent component = window->component_link->GetEnabledComponent(rx,ry);
+								if (!mouseHover(window,component,rx,ry))
 									cursor_mode = Window::ClickResult::DragWindow;
+							}
 							is_modal = true;
 						break;
 						}
@@ -2607,8 +2646,11 @@ namespace Engine
 								#endif
 								cursor_mode = rs;
 								if (rs == Window::ClickResult::Component)
-									if (!mouseHover(window,rx,ry))
+								{
+									PComponent component = window->component_link->GetEnabledComponent(rx,ry);
+									if (!mouseHover(window,component, rx,ry))
 										cursor_mode = Window::ClickResult::DragWindow;
+								}
 								#ifdef DEEP_GUI
 									for (unsigned j = i-1; j < window_stack.count(); j--)
 										window_stack[j]->setShellDestination(radiusOf(j));
@@ -2658,7 +2700,7 @@ namespace Engine
 				if (cursor_mode == Window::ClickResult::Missed)
 				{
 					if (hovered)
-						hovered->window()->apply(hovered->onMouseExit());
+						hovered->window()->apply(hovered->OnMouseExit());
 					hovered.reset();
 				}
 			}
@@ -2925,18 +2967,23 @@ namespace Engine
 		{
 			handling_event = true;
 			ext.custom_cursor = Mouse::CursorType::Default;
-			ext.caught_by.reset();
-			Component::eEventResult rs = window->component_link->onMouseDown(x,y,ext);
-			clicked.reset();
-			if (rs != Component::Unsupported)
+			//ext.caught_by.reset();
+			PComponent component = window->component_link->GetEnabledComponent(x,y);
+			if (component && component->isEnabled())
 			{
-				window->apply(rs);
-				clicked = ext.caught_by;
-				setCursor(ext.custom_cursor);
+				Component::eEventResult rs = component->OnMouseDown(x,y,ext);
+				clicked.reset();
+				if (rs != Component::Unsupported)
+				{
+					window->apply(rs);
+					clicked = component;
+					setCursor(ext.custom_cursor);
+				}
+				Component::setFocused(clicked);
+				handling_event = false;
+				return rs != Component::Unsupported;
 			}
-			Component::setFocused(clicked?clicked->getFocused():shared_ptr<Component>());
-			handling_event = false;
-			return rs != Component::Unsupported;
+			return false;
 		}		
 		
 		bool			Operator::mouseDown()
@@ -3045,10 +3092,15 @@ namespace Engine
 				
 				if (window->component_link && window->component_link->isVisible() && window->component_link->isEnabled())
 				{
-					Component::eEventResult rs = window->component_link->onMouseWheel(x,y,delta);
-					window->apply(rs);
-					if (rs != Component::Unsupported)
-						mouseHover(window,x,y);
+					PComponent component = window->component_link->GetEnabledComponent(x,y);
+					bool passOn = false;
+					if (component && component->isEnabled())
+					{
+						Component::eEventResult rs = component->OnMouseWheel(x,y,delta);
+						window->apply(rs);
+						if (rs != Component::Unsupported)
+							mouseHover(window,component,x,y);
+					}
 				}
 				return true;
 			}
@@ -3068,10 +3120,14 @@ namespace Engine
 				
 				if (window->component_link && window->component_link->isVisible() && window->component_link->isEnabled())
 				{
-					Component::eEventResult rs = window->component_link->onMouseWheel(x,y,delta);
-					window->apply(rs);
-					if (rs != Component::Unsupported)
-						mouseHover(window,x,y);
+					PComponent component = window->component_link->GetEnabledComponent(x,y);
+					if (component && component->isEnabled())
+					{
+						Component::eEventResult rs = component->OnMouseWheel(x,y,delta);
+						window->apply(rs);
+						if (rs != Component::Unsupported)
+							mouseHover(window,component,x,y);
+					}
 				}
 				if (i+1 != window_stack.count())
 				{

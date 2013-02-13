@@ -178,7 +178,7 @@ namespace Engine
 		#endif
 	}
 	
-	Mouse::Mouse(InputMap&map_):map(map_),locked(false),focus(true),cursor_visible(true),force_invisible(false),wheel_link(NULL)
+	Mouse::Mouse(InputMap&map_):map(map_),locked(false),focus(true),cursor_visible(true),force_invisible(false),wheel_link(NULL),custom_loaded(false)
 	#if SYSTEM==UNIX
 	    ,blank_cursor((Cursor)0)
 	#endif
@@ -568,6 +568,31 @@ namespace Engine
 				#error stub
 			#endif
 			loaded_cursor = cursor_reference[cursor];
+			custom_loaded = false;
+		}
+	}
+
+	void	Mouse::setCustomCursor(HCURSOR cursor)
+	{
+		if (!cursor_visible)
+			showCursor(false);
+		
+		if (loaded_cursor == cursor)
+			return;
+		
+		if (cursor_visible)
+		{
+			#if SYSTEM==WINDOWS
+				SetCursor(cursor);
+			#elif SYSTEM_VARIANCE==LINUX
+				//cout << "setting cursor "<<cursorToString(cursor)<<endl;
+				setCursor(cursor);	//for some reason this may fail occasionally, during startup at least. it does work most of the time though
+				//ASSERT2__(setCursor(cursor_reference[cursor]),cursorToString(cursor),cursor_reference[cursor]); //so, no assertion here
+			#else
+				#error stub
+			#endif
+			loaded_cursor = cursor;
+			custom_loaded = true;
 		}
 	}
 	

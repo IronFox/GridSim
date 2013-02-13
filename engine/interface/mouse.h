@@ -186,6 +186,7 @@ namespace Engine
 	private:
 			HCURSOR		cursor_reference[CursorType::Count],
 						loaded_cursor;
+			bool		custom_loaded;
 	public:
 	
 
@@ -200,7 +201,9 @@ namespace Engine
 
 								Mouse(InputMap&map);
 			BYTE				getButton()							const;				//!< Queries the id of the button who's handler (down/up) is currently evoked.  \return id of the button being pressed or released (0=left button, 1=middle button, etc). The result is undefined if this method is not called as an immidiate result of a button event
+			void				setCustomCursor(HCURSOR cursor);
 			void				setCursor(eCursor cursor);								//!< Changes the mouse cursor appearance
+			bool				customCursorBound()	const	{return custom_loaded;}
 			void				bindWheel(wheelLink WLink);								//!< Unbinds/binds the specified wheel event handler to the mouse wheel. \param WLink Mouse wheel event handler or NULL to unbind the mouse wheel event.
 			bool				hideCursor(bool force=true);							//!< Hides the mouse cursor while above the active window. @param force Set true to disallow subsequent setCursor() invokations to alter show the cursor \return true if the mouse cursor could be hidden, false otherwise.
 			void				showCursor(bool override=true);							//!< Shows the mouse cursor again. @param override Set true to override (and clear) the forced flag
