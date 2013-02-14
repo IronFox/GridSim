@@ -88,7 +88,7 @@ namespace CLI	//! Command line interpretor
 		public:
 				T			content;	//!< Scalar content
 				
-							SimpleVariable(const String&name, const String&type_name, const T&content_=0.0,unsigned protection=NoProtection):Variable(name,type_name,1,protection),content(content_)
+							SimpleVariable(const String&name, const String&typeName, const T&content_=0.0,unsigned protection=NoProtection):Variable(name,typeName,1,protection),content(content_)
 							{}
 		virtual String		toString()			const
 							{

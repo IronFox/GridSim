@@ -93,19 +93,19 @@ namespace Engine
 		private:
 			TCell&					operator=(const TCell&other);
 		public:
-			float 					width;			//!< Cell width. Constant if @b variable_width is false. Otherwise updated by WindowLoayout::locateCells()
-			bool					variable_width;	//!< Indicates whether or not this cell has a fixed or variable width
-			OpenGL::Texture			color_texture,	//!< Texture of this cell affecting plain color
-									normal_texture;	//!< Texture of this cell affecting normals
+			float 					width;			//!< Cell width. Constant if @b variableWidth is false. Otherwise updated by WindowLoayout::locateCells()
+			bool					variableWidth;	//!< Indicates whether or not this cell has a fixed or variable width
+			OpenGL::Texture			colorTexture,	//!< Texture of this cell affecting plain color
+									normalTexture;	//!< Texture of this cell affecting normals
 				
 			void					adoptData(TCell&other)
 									{
 										width = other.width;
-										variable_width = other.variable_width;
-										color_texture.adoptData(other.color_texture);
-										normal_texture.adoptData(other.normal_texture);
+										variableWidth = other.variableWidth;
+										colorTexture.adoptData(other.colorTexture);
+										normalTexture.adoptData(other.normalTexture);
 										other.width = 0;
-										other.variable_width = false;
+										other.variableWidth = false;
 									}
 		};
 		
@@ -113,7 +113,7 @@ namespace Engine
 		{
 			Image					normal,	//!< Raw normal image
 									color;	//!< Raw color image
-			bool					variable_width;	//!< Cell is of variable width
+			bool					variableWidth;	//!< Cell is of variable width
 		};
 		
 		struct TIORow	//!< Simplified io layout row used during layout loading
@@ -152,13 +152,13 @@ namespace Engine
 			Layout&					operator=(const Layout&other) {return *this;}
 		public:
 			Array<TRow>				rows;				//!< Collection of rows
-			Rect<float>				title_position;		//!< Title position.	Negative values are interpreted relative to the right/top edges, positive ones to the left, bottom edges
-			Quad<float>				border_edge,		//!< Distance from the window/component edge to the effective (visual) edge of the layout. All values are >= 0
-									client_edge;		//!< Distance from the window/component edge to the client edge of the layout. All values are >= 0
-			float					min_width,			//!< Minimum width of this layout
-									min_height;			//!< Minimum height of this layout
-			count_t					variable_rows,		//!< Number of rows with non-fixed heights. Always at least 1
-									cell_count;			//!< Total number of cells in this layout
+			Rect<float>				titlePosition;		//!< Title position.	Negative values are interpreted relative to the right/top edges, positive ones to the left, bottom edges
+			Quad<float>				borderEdge,		//!< Distance from the window/component edge to the effective (visual) edge of the layout. All values are >= 0
+									clientEdge;		//!< Distance from the window/component edge to the client edge of the layout. All values are >= 0
+			float					minWidth,			//!< Minimum width of this layout
+									minHeight;			//!< Minimum height of this layout
+			count_t					variableRows,		//!< Number of rows with non-fixed heights. Always at least 1
+									cellCount;			//!< Total number of cells in this layout
 			Layout					*override;			//!< Layout override
 
 			/**/					Layout();
@@ -171,9 +171,9 @@ namespace Engine
 			@param filename Filename  of the xml file to load
 			@param scale Relative scale that should be applied to the loaded layout
 			*/
-			void					loadFromFile(const String&filename, float scale=1.0f);	
-			void					updateCells(const Rect<float>&window_location, TCellLayout&layout)	const;		//!< Updates the final layout of a window or component depending on the window's location
-			Layout*					reference()	{return override!=NULL?override:this;}
+			void					LoadFromFile(const String&filename, float scale=1.0f);	
+			void					UpdateCells(const Rect<float>&window_location, TCellLayout&layout)	const;		//!< Updates the final layout of a window or component depending on the window's location
+			Layout*					Refer()	{return override!=NULL?override:this;}
 		};
 		
 		
@@ -186,11 +186,11 @@ namespace Engine
 		struct TCellInstance
 		{
 			Rect<float>				region;			//!< Effective cell region (in pixels)
-			const OpenGL::Texture	*color_texture,	//!< Color texture to fill the cell with
-									*normal_texture;	//!< Normal texture to fill the cell with
+			const OpenGL::Texture	*colorTexture,	//!< Color texture to fill the cell with
+									*normalTexture;	//!< Normal texture to fill the cell with
 			//float					width;			//!< Effective width of the cell.
 				
-			/**/					TCellInstance():color_texture(NULL),normal_texture(NULL){}
+			/**/					TCellInstance():colorTexture(NULL),normalTexture(NULL){}
 		};
 
 		/**
@@ -226,8 +226,8 @@ namespace Engine
 		protected:
 
 			bool					layerIsDirty;
-			Display<OpenGL>			&display;
-			/**/					Renderer(Display<OpenGL>&display, float clearColorR, float clearColorG, float clearColorB) : layerIsDirty(false), display(display)	{Vec::def(clearColor,clearColorR,clearColorG,clearColorB);}
+			//Display<OpenGL>			&display;
+			/**/					Renderer(float clearColorR, float clearColorG, float clearColorB) : layerIsDirty(false) {Vec::def(clearColor,clearColorR,clearColorG,clearColorB);}
 
 			const Resolution&		GetTargetResolution()	const	{return subRes;}
 
@@ -259,7 +259,7 @@ namespace Engine
 			void					_UpdateState(const GL::Texture::Reference&,const GL::Texture::Reference&);
 		public:
 			static Textout<GLTextureFont2>		textout;		//!< Global textout used to render text
-			/**/					ColorRenderer(Display<OpenGL>&display) : Renderer(display,0,0,0)	{}
+			/**/					ColorRenderer() : Renderer(0,0,0)	{}
 			void					ModulateColor(const TVec4<>&);
 			void					ModulateColor(const TVec3<>&, float alpha=1.f);
 			void					ModulateColor(float greyTone, float alpha=1.f);
@@ -309,7 +309,7 @@ namespace Engine
 
 			void					_UpdateState(const GL::Texture::Reference&);
 		public:
-			/**/					NormalRenderer(Display<OpenGL>&display) : Renderer(display,0.5f,0.5f,1.f)	{}
+			/**/					NormalRenderer() : Renderer(0.5f,0.5f,1.f)	{}
 
 			void					ScaleNormals(float x, float y);
 			void					ScaleNormals(const TVec2<>&);
@@ -345,16 +345,16 @@ namespace Engine
 		class Component: public enable_shared_from_this<Component>
 		{
 		private:
-			static	void 						charRead(char c);
+			static	void 						ReadChar(char c);
 		protected:
-			weak_ptr<Window>					window_link;	//!< Link to the owning window. Not NULL if this component is part of any window.
+			weak_ptr<Window>					windowLink;	//!< Link to the owning window. Not NULL if this component is part of any window.
 			friend class Window;
 			bool								enabled;		//!< Indicates that this item may receive events
 			bool								visible;		//!< Indicates that this item is visible. Invisible items are automatically treated as disabled.
 											
 		public:
-			static	void						keyDown(int key);	//!< Key down event linked to the keyboard interface
-			static	void						keyUp(int key);		//!< Key up event linked to the keyboard interface
+			static	void						SignalKeyDown(int key);	//!< Key down event linked to the keyboard interface
+			static	void						SignalKeyUp(int key);		//!< Key up event linked to the keyboard interface
 		
 		
 			enum eEventResult		//! Generic event result
@@ -365,37 +365,46 @@ namespace Engine
 				RequestingReshape	//!< The invoked event has been handled and the component requests a complete window layout update and repaint
 			};
 
+			enum ePurpose
+			{
+				GenericRequest,
+				HoverRequest,
+				ClickRequest,
+				MouseWheelRequest
+			};
+
+
 			struct TExtEventResult	//! Struct to hold additional event results of certain event methods
 			{
-				Mouse::eCursor					custom_cursor;	//!< Cursor to replace the current one with
+				Mouse::eCursor					customCursor;	//!< Cursor to replace the current one with
 				//shared_ptr<Component>			caught_by;		//!< Component that actually caught the event
 			};
 
-			Rect<float>							current_region;	//!< Current component region. This rectangle completely surrounds the component including all cells of its layout (if any)
+			Rect<float>							currentRegion;	//!< Current component region. This rectangle completely surrounds the component including all cells of its layout (if any)
 			Quad<float>							offset;			//!< Signed offset from the parent region. Effective only if @b anchored.coord[x] is true. should be negative for right/top offset
 			Quad<bool>							anchored;		//!< Indicates that the respective coordinates of the final component region is calculated relative to the respective parent edge.
 			float								width,			//!< Fixed component width if either anchored.left or anchored.right is false. Has no effect if both anchored.left and anchored.right are true
 												height;			//!< Fixed component height if either anchored.bottom or anchored.top is false. Has no effect if both anchored.bottom and anchored.top are true
-			const String						type_name;		//!< Constant type name of this component. Assigned during construction (usually the class name without the leading 'C')
-			TCellLayout							cell_layout;	//!< Effective applied cell layout. This variable is updated even if this component has no layout
+			const String						typeName;		//!< Constant type name of this component. Assigned during construction (usually the class name without the leading 'C')
+			TCellLayout							cellLayout;		//!< Effective applied cell layout. This variable is updated even if this component has no layout
 			Layout*								layout;			//!< Layout attached to this component or NULL if this component has no layout
-			float								tick_interval;	//!< Interval (in seconds) between executions of the onTick() method
+			float								tickInterval;	//!< Interval (in seconds) between executions of the onTick() method
 
 
 		
 				
 				
-												Component(const String&type_name);	//!< Constructs a new component. Requires a type_name
+												Component(const String&typeName);	//!< Constructs a new component. Requires a typeName
 			virtual								~Component();
-			virtual	void						updateLayout(const Rect<float>&parent_region);	//!< Updates the applied layout and possibly existing other components to the changed parent region rectangle. Also updates @b current_region @param parent_region Absolute location of the respective parent component or window
-			virtual	float						clientMinWidth()	const	{return 0;}			//!< Queries the minimum width of the inner content of this component (excluding the minimum size of the layout)
-			virtual	float						clientMinHeight()	const	{return 0;}			//!< Queries the minimum height of the inner content of this component (excluding the minimum size of the layout)
-			virtual	float						minWidth(bool include_offsets)	const;			//!< Queries the effective minimum width of this component	@param include_offsets Set true to also include anchor offsets @return Minimum width of this component
-			virtual	float						minHeight(bool include_offsets)	const;			//!< Queries the effective minimum height of this component 	@param include_offsets Set true to also include anchor offsets @return Minimum height of this component
-			virtual	void						OnColorPaint(ColorRenderer&);			//!< Causes this component to repaint its color components
-			virtual	void						OnNormalPaint(NormalRenderer&);						//!< Causes this component to repaint its normal components
+			virtual	void						UpdateLayout(const Rect<float>&parentRegion);	//!< Updates the applied layout and possibly existing other components to the changed parent region rectangle. Also updates @b current_region @param parent_region Absolute location of the respective parent component or window
+			virtual	float						GetClientMinWidth()	const	{return 0;}			//!< Queries the minimum width of the inner content of this component (excluding the minimum size of the layout)
+			virtual	float						GetClientMinHeight()	const	{return 0;}			//!< Queries the minimum height of the inner content of this component (excluding the minimum size of the layout)
+			virtual	float						GetMinWidth(bool includeOffsets)	const;			//!< Queries the effective minimum width of this component	@param includeOffsets Set true to also include anchor offsets @return Minimum width of this component
+			virtual	float						GetMinHeight(bool includeOffsets)	const;			//!< Queries the effective minimum height of this component 	@param includeOffsets Set true to also include anchor offsets @return Minimum height of this component
+			virtual	void						OnColorPaint(ColorRenderer&, bool parentIsEnabled);			//!< Causes this component to repaint its color components
+			virtual	void						OnNormalPaint(NormalRenderer&, bool parentIsEnabled);		//!< Causes this component to repaint its normal components
 			//virtual	shared_ptr<Component>		getFocused()					{return shared_from_this();};	//!< Retrieves the actually focused element from the component returned by onMouseDown(). Returns this by default
-			virtual shared_ptr<Component>		GetEnabledComponent(float x, float y)	{return shared_from_this();};
+			virtual shared_ptr<Component>		GetComponent(float x, float y, ePurpose purpose, bool&outIsEnabled)	{outIsEnabled &= IsEnabled(); return shared_from_this();};
 			virtual bool						IsEventTranslucent() const		{return false;}
 			virtual	eEventResult				OnMouseDown(float x, float y, TExtEventResult&)		{return Unsupported;};	//!< Triggered if the primary mouse button was pressed over this component @param x Window space x coordinate of the mouse cursor @param y Window space y coordinate of the mouse cursor @return Event result
 			virtual	eEventResult				OnMouseHover(float x, float y, TExtEventResult&)	{return Unsupported;};	//!< Triggered if the mouse was moved while above this component @param x Window space x coordinate of the mouse cursor @param y Window space y coordinate of the mouse cursor @return Event result
@@ -409,28 +418,29 @@ namespace Engine
 			virtual	eEventResult				OnKeyUp(Key::Name key)			{return Unsupported;}						//!< Triggered if the user has released a supported key while this component had the focus.
 			virtual	eEventResult				OnChar(char c)					{return Unsupported;}						//!< Triggered if the user has pressed a character key while this component had the focus.
 			virtual	eEventResult				OnTick()						{return Unsupported;}						//!< Triggered each time the counter hit @b tick_interval seconds while this component has the focus
-			virtual	bool						tabFocusable() const			{return false;}								//!< Queries whether or not this entry is focusable via the tab key
-			void								setWindow(const weak_ptr<Window>&wnd);						//!< Updates the local window link variable as well as that of all children (recursively)
-			bool								isFocused()	const;															//!< Queries whether or not this component currently has the input focus
-			PWindow								window()	const				{return window_link.lock();}						//!< Retrieves the super window of this component (if any)
-			virtual	shared_ptr<const Component>	child(index_t) const			{return shared_ptr<const Component>();}							//!< Queries the nth child of this component (if any)
-			virtual	shared_ptr<Component>		child(index_t)	{return shared_ptr<Component>();}									//!< @overload
-			virtual	count_t						countChildren()	const {return 0;}								//!< Queries the number of children of this component (if any) @return Number of children
-			virtual	index_t						indexOfChild(const shared_ptr<Component>&child) const;						//!< Determines the index of the specified child or 0xFFFFFFFF if the specified component is no child of this component.
-			shared_ptr<Component>				successorOf(const shared_ptr<Component>&child);									//!< Queries the successor element of the specified one @return successor or NULL if no successor could be found
-			void								locate(const Rect<float>&parent_region,Rect<float>&region)	const;	//!< Resolves the absolute location of the local item based on the specified parent region.
-			virtual void						setEnabled(bool enabled);				//!< Enables/disables the ability of this component to receive events. Disabled components may have a different style. A redraw is automatically issued
-			bool								isEnabled()	const	{return enabled;}
-			virtual void						setVisible(bool visible);				//!< Changes the visibility of this component. A redraw is automatically issued
-			bool								isVisible()	const	{return visible;}
-			void								signalLayoutChange() const;					//!< Signals that the layout of the local component has changed in such a way that all components must be re-arranged
-			void								signalVisualChange() const;					//!< Signals that the local component must be redrawn
+			virtual	bool						IsTabFocusable() const			{return false;}								//!< Queries whether or not this entry is focusable via the tab key
+			virtual bool						CanHandleMouseWheel() const		{return false;}
+			void								SetWindow(const weak_ptr<Window>&wnd);						//!< Updates the local window link variable as well as that of all children (recursively)
+			bool								IsFocused()	const;															//!< Queries whether or not this component currently has the input focus
+			PWindow								GetWindow()	const				{return windowLink.lock();}						//!< Retrieves the super window of this component (if any)
+			virtual	shared_ptr<const Component>	GetChild(index_t) const			{return shared_ptr<const Component>();}							//!< Queries the nth child of this component (if any)
+			virtual	shared_ptr<Component>		GetChild(index_t)	{return shared_ptr<Component>();}									//!< @overload
+			virtual	count_t						CountChildren()	const {return 0;}								//!< Queries the number of children of this component (if any) @return Number of children
+			virtual	index_t						GetIndexOfChild(const shared_ptr<Component>&child) const;						//!< Determines the index of the specified child or 0xFFFFFFFF if the specified component is no child of this component.
+			shared_ptr<Component>				GetSuccessorOfChild(const shared_ptr<Component>&child);									//!< Queries the successor element of the specified one @return successor or NULL if no successor could be found
+			void								Locate(const Rect<float>&parentRegion,Rect<float>&region)	const;	//!< Resolves the absolute location of the local item based on the specified parent region.
+			virtual void						SetEnabled(bool enabled);				//!< Enables/disables the ability of this component to receive events. Disabled components may have a different style. A redraw is automatically issued
+			bool								IsEnabled()	const	{return enabled;}
+			virtual void						SetVisible(bool visible);				//!< Changes the visibility of this component. A redraw is automatically issued
+			bool								IsVisible()	const	{return visible;}
+			void								SignalLayoutChange() const;					//!< Signals that the layout of the local component has changed in such a way that all components must be re-arranged
+			void								SignalVisualChange() const;					//!< Signals that the local component must be redrawn
 			
-			static void							resetFocused();																	//!< Unsets the currently focused component. Identical to passing an empty (null) pointer to setFocused()
-			static void 						setFocused(const shared_ptr<Component>&component);								//!< Changes the currently focused component
+			static void							ResetFocused();																	//!< Unsets the currently focused component. Identical to passing an empty (null) pointer to SetFocused()
+			static void 						SetFocused(const shared_ptr<Component>&component);								//!< Changes the currently focused component
 
-			POperator							getOperator()	const;
-			POperator							requireOperator()	const;
+			POperator							GetOperator()	const;
+			POperator							RequireOperator()	const;
 		};
 
 		typedef shared_ptr<Component>	PComponent;
@@ -445,7 +455,7 @@ namespace Engine
 		struct TIcon
 		{
 			float								aspect;	//!< Pixel aspect (width/height) of the icon
-			Rect<float>						texcoords;	//!< Texture coordinates of the icon in the specified texture
+			Rect<float>							texcoords;	//!< Texture coordinates of the icon in the specified texture
 			OpenGL::Texture						texture;	//!< Effective (color) texture
 		};
 
@@ -463,9 +473,9 @@ namespace Engine
 			{
 				struct
 				{
-					float						x,		//!< X coordinates of the window in pixels. This value is multiplied by @b shell_radius to retrieve the absolute coordinates
-												y,		//!< Y coordinates of the window in pixels. This value is multiplied by @b shell_radius to retrieve the absolute coordinates
-												shell_radius;	//!< Effective shell radius (distance of the window from the screen). A higher shell radius will result in a smaller window
+					float						x,		//!< X coordinates of the window in pixels. This value is multiplied by @b shellRadius to retrieve the absolute coordinates
+												y,		//!< Y coordinates of the window in pixels. This value is multiplied by @b shellRadius to retrieve the absolute coordinates
+												shellRadius;	//!< Effective shell radius (distance of the window from the screen). A higher shell radius will result in a smaller window
 				};
 				float							coord[3];	//!< Vector mapping of the above attributes
 			};
@@ -506,16 +516,16 @@ namespace Engine
 		class Window: public enable_shared_from_this<Window>
 		{
 		protected:
-				friend class Component;
-				friend void	 render();
+			friend class Component;
+			friend void	 render();
 				//friend bool	 mouseWheel(short delta);
 		public:
-			shared_ptr<Component>		component_link;
-			weak_ptr<Operator>			operator_link;
+			shared_ptr<Component>		rootComponent;
+			weak_ptr<Operator>			operatorLink;
 				
 			struct ClickResult
 			{
-				enum value_t	//! Click result returned by the resolve() method
+				enum value_t	//! Click result returned by the Resolve() method
 				{
 					Missed,			//!< The mouse cursor is not above the window
 					Ignored,		//!< The mouse cursor is above the window but a click would have no effect
@@ -541,35 +551,32 @@ namespace Engine
 				float				x,				//!< Central window X position (center point) in the range [-display.clientWidth()/2, display.clientWidth()/2]
 									y;				//!< Central window Y position (center point) in the range [-display.clientHeight()/2, display.clientHeight()/2]
 			#endif
-			size_t					exp_x,			//!< Current texture exponent along the x axis
-									exp_y,			//!< Current texture exponent along the y axis
-									iwidth,			//!< Effective (applied) integer width
-									iheight;		//!< Effective (applied) integer height
-			float					progress,		//!< Animation progress from @b origin to @b destination (0-1)
-									fwidth,			//!< Float window width
-									fheight,		//!< Float window height
-									usage_x,		//!< Usage of the texture buffers in x direction (0-1)
-									usage_y;		//!< Usage of the texture buffers in y direction (0-1)
+			TVec2<UINT>				exp;			//!< Current texture exponent along the respective axis
+			Resolution				size;			//!< Window size
+			TVec2<>					fsize,			//!< Window size as float
+									usage;			//!< Usage of the texture buffers in the respective direction (0-1)
+
+			float					progress;		//!< Animation progress from @b origin to @b destination (0-1)
 				
 			Layout					*layout;		//!< Used layout (if any) or NULL. Unmanaged at this point.
-			static	Layout			common_style,	//!< Common window style
-									menu_style,		//!< Menu window
-									hint_style;		//!< Hint display window
-			TCellLayout				cell_layout;	//!< Active layout as applied by the active layout.
+			static	Layout			commonStyle,	//!< Common window style
+									menuStyle,		//!< Menu window
+									hintStyle;		//!< Hint display window
+			TCellLayout				cellLayout;	//!< Active layout as applied by the active layout.
 			String					title;			//!< Window title. Empty by default
 			/*EClickResult			click_result,	//!< Result of the last click event that was caught (or not caught) by this window
 									hover_result;	//!< Result of the last mouse hover event that was processed by this window*/
-			TFrameBuffer			color_buffer,	//!< Texture buffer to store the color components of the window in
-									normal_buffer;	//!< Texture buffer to store the normal components of the window in
-			bool					size_changed,	//!< Indicates that the window size has changed and onResize needs to be triggered after the next layout update
-									layout_changed,	//!< Indicates that the general window content has changed and requires a layout and render update into the respective color and normal buffers
-									visual_changed,	//!< Indicates that the window should be repainted
-									fixed_position;	//!< Window is fixed to its current location and may neither be resized nor moved
+			TFrameBuffer			colorBuffer,	//!< Texture buffer to store the color components of the window in
+									normalBuffer;	//!< Texture buffer to store the normal components of the window in
+			bool					sizeChanged,	//!< Indicates that the window size has changed and onResize needs to be triggered after the next layout update
+									layoutChanged,	//!< Indicates that the general window content has changed and requires a layout and render update into the respective color and normal buffers
+									visualChanged,	//!< Indicates that the window should be repainted
+									fixedPosition;	//!< Window is fixed to its current location and may neither be resized nor moved
 			SizeChange				sizeChange;
 			bool					toneBackground,	//!< Indicates that overly bright background colors behind this window should be toned down. True by default
 									appearsFocused;	//!< Indicates that this window should always look focused, even when it is not. False by default
 
-			const bool				is_modal;		//!< True if this window does not allow events to pass further down.
+			const bool				isModal;		//!< True if this window does not allow events to pass further down.
 			Timer::Time				hidden;			//!< Time stamp when this window was hidden
 				
 
@@ -577,27 +584,27 @@ namespace Engine
 									onFocusLost,	//!< Triggered whenever this window loses the focus (also, if it has just been removed)
 									onResize;		//!< Triggered whenever this window is resized (new size has been adapted when this event is fired, but more updates may follow)
 
-			/**/					Window(bool modal, Layout*style=&common_style);	//!< Creates a new window using the specified style
+			/**/					Window(bool modal, Layout*style=&commonStyle);	//!< Creates a new window using the specified style
 			virtual					~Window()
 									{}
 				
-			void					setSize(float width, float height);				//!< Updates window dimensions
-			void					setWidth(float width);							//!< Updates window width
-			void					setHeight(float height);						//!< Updates window height
-			void					drag(const TVec2<float>&d);								//!< Causes the window to move by the specified delta vector. The specified vector is modifable to allow the method to reduce it if dragging is not possible
-			void					dragResize(TVec2<float>&d,ClickResult::value_t resolved);	//!< Causes the window to be resized by the specified delta vector.  The specified vector is modifable to allow the method to reduce it if resizing is not possible
-			void					mouseUp(float x, float y);						//!< Signals that the mouse has been released
-			ClickResult::value_t	resolve(float x_, float y_, float&inner_x, float&inner_y);	//!< Resolves how a click would be handled given the current mouse position @param x_ Mouse x coordinate @param y_ Mouse y coordinate @param inner_x X coordinate of the resulting window relative mouse position @param inner_y Y coordinate of the resulting window relative mouse position @return Resolve result
-			void					renderBuffers(Display<OpenGL>&display);							//!< Rerenders the window content into the buffers
+			void					SetSize(float width, float height);				//!< Updates window dimensions
+			void					SetWidth(float width);							//!< Updates window width
+			void					SetHeight(float height);						//!< Updates window height
+			void					Drag(const TVec2<float>&d);								//!< Causes the window to move by the specified delta vector. The specified vector is modifable to allow the method to reduce it if dragging is not possible
+			void					DragResize(TVec2<float>&d,ClickResult::value_t resolved);	//!< Causes the window to be resized by the specified delta vector.  The specified vector is modifable to allow the method to reduce it if resizing is not possible
+			void					SignalMouseUp(float x, float y);						//!< Signals that the mouse has been released
+			ClickResult::value_t	Resolve(float x_, float y_, float&inner_x, float&inner_y);	//!< Resolves how a click would be handled given the current mouse position @param x_ Mouse x coordinate @param y_ Mouse y coordinate @param inner_x X coordinate of the resulting window relative mouse position @param inner_y Y coordinate of the resulting window relative mouse position @return Resolve result
+			void					RenderBuffers(Display<OpenGL>&display);							//!< Rerenders the window content into the buffers
 			#ifdef DEEP_GUI
 				void					setShellDestination(float new_shell_radius);				//!< Changes the window animation target
 			#endif
 		
-			float					minHeight()	const;									//!< Resolves the minimum height of this window in pixels
-			float					minWidth()	const;									//!< Resolves the minimum width of this window in pixels
-			void					updateLayout();										//!< Updates the layout and component layout if existing
-			void					setComponent(const shared_ptr<Component>&component);					//!< Changes the primary component of this window @param discardable Set true if the assigned component may be erased when the window is deleted or another component assigned
-			void					apply(Component::eEventResult rs);	//!< Applies the result of a component event to the local state variables
+			float					GetMinHeight()	const;								//!< Resolves the minimum height of this window in pixels
+			float					GetMinWidth()	const;								//!< Resolves the minimum width of this window in pixels
+			void					UpdateLayout();										//!< Updates the layout and component layout if existing
+			void					SetComponent(const shared_ptr<Component>&component);					//!< Changes the primary component of this window @param discardable Set true if the assigned component may be erased when the window is deleted or another component assigned
+			void					Apply(Component::eEventResult rs);	//!< Applies the result of a component event to the local state variables
 			
 			bool					Hide();	//!< Attempts to remove the local window from its operator
 			/**
@@ -637,7 +644,7 @@ namespace Engine
 			mode_t						mode;
 			bool						created,
 										stack_changed;
-			Buffer<PWindow>				window_stack;
+			Buffer<PWindow>				windowStack;
 			Buffer<weak_ptr<Window> >	menu_stack;
 			OrthographicAspect<>		window_space;
 			Camera<>					projected_space;
@@ -685,7 +692,7 @@ namespace Engine
 			inline bool					ShowingModalWindows()	const	{return showingModalWindows();}
 			PWindow						getTopWindow() const;	//!< Retrieves the top-most window
 			inline PWindow				GetTopWindow() const	{return getTopWindow();}
-			void						ShowWindow(const PWindow&window);	//!< Appends a window to the local window stack as new top level window. If the window is already inserted then it will simply be moved to the top position @param window Window to append @param managed Set true to also add the window to the local container, automatically deleting it if no longer necessary
+			void						ShowWindow(const PWindow&window);	//!< Appends a window to the local window stack as new top level window. If the window is already inserted then it will simply be moved to the top position @param window Window to append @param managed Set true to also Add the window to the local container, automatically deleting it if no longer necessary
 			bool						HideWindow(const PWindow&window);				//!< Removes a window from the window stack (does not delete the window)
 			bool						windowIsVisible(const PWindow&window)	const;
 			inline bool					WindowIsVisible(const PWindow&window)	const	{return windowIsVisible(window);}
@@ -711,13 +718,13 @@ namespace Engine
 			bool						mouseWheel(short delta);	//!< Signals that the mouse wheel has been used
 			inline bool					SignalMouseWheel(short delta)	{mouseWheel(delta);}
 
-			void						showMenu(const PWindow&menu_window);
+			void						showMenu(const PWindow&menuWindow);
 			inline void					ShowMenu(const PWindow&menuWindow)	{showMenu(menuWindow);}
 			void						hideMenus();
 			inline void					HideMenus()	{hideMenus();}
 
 			PComponent					HoveringOver()	const;
-			PComponent					GetComponentUnderMouse()	const;
+			PComponent					GetComponentUnderMouse(bool*enabledOut=NULL)	const;
 			PWindow						GetWindowUnderMouse()	const;
 		};
 

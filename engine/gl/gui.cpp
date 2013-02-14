@@ -7,23 +7,23 @@ namespace Engine
 	{
 
 		#ifdef DEEP_GUI
-			MAKE_SORT_CLASS(DepthSort,current_center.shell_radius);
+			MAKE_SORT_CLASS(DepthSort,current_center.shellRadius);
 		#endif
 		
 		static InputProfile	my_profile(true,false);
 		
 
-		Operator::Operator(Display<OpenGL>&display_, const Mouse&mouse_, InputMap&input_, mode_t mode_):colorRenderer(display_),normalRenderer(display_),owns_mouse_down(false),display(&display_),mouse(&mouse_),input(&input_),mode(mode_),created(false),stack_changed(false),layer_texture(0)
+		Operator::Operator(Display<OpenGL>&display_, const Mouse&mouse_, InputMap&input_, mode_t mode_):owns_mouse_down(false),display(&display_),mouse(&mouse_),input(&input_),mode(mode_),created(false),stack_changed(false),layer_texture(0)
 		{}
 
 		namespace
 		{
 
-			bool 							setting_changed(true),
-											blur_effect(true),
-											refract_effect(true),
-											bump_effect(true),
-											handling_event(false);
+			bool 							settingChanged(true),
+											blurEffect(true),
+											refractEffect(true),
+											bumpEffect(true),
+											handlingEvent(false);
 			Component::TExtEventResult		ext;
 
 
@@ -36,20 +36,20 @@ namespace Engine
 		
 			TVec2<float>					last;
 			shared_ptr<Window>				dragging;
-			Window::ClickResult::value_t		drag_type = Window::ClickResult::Missed;
+			Window::ClickResult::value_t		dragType = Window::ClickResult::Missed;
 		
 
-			GLShader::Template				window_shader;
-			GLShader::Instance				normal_shader,
-											*current_window_shader(NULL);
-			index_t							blur_effect_switch,
-											refract_effect_switch,
-											bump_effect_switch;
+			GLShader::Template				windowShader;
+			GLShader::Instance				normalShader,
+											*currentWindowShader(NULL);
+			index_t							blurEffectSwitch,
+											refractEffectSwitch,
+											bumpEffectSwitch;
 
 		
 
 
-			void							initialize(bool force = false)
+			void							Initialize(bool force = false)
 			{
 				static bool initialized = false;
 				if (initialized || force)
@@ -59,8 +59,8 @@ namespace Engine
 				if (!gl_extensions.init(EXT_SHADER_OBJECTS_BIT))
 					FATAL__("Failed to initialized shader objects");
 
-				window_shader.clear();
-				if (!window_shader.loadComposition(
+				windowShader.clear();
+				if (!windowShader.loadComposition(
 					"[shared]\n"
 					"varying vec2 eye;\n"
 					
@@ -184,19 +184,19 @@ namespace Engine
 					"}\n"
 				))
 				{
-					FATAL__("GUI Window shader compilation exception:\n"+window_shader.report());
+					FATAL__("GUI Window shader compilation exception:\n"+windowShader.report());
 				}
 				else
 				{
-					blur_effect_switch = window_shader.map()->locate("blur");
-					refract_effect_switch = window_shader.map()->locate("refract");
-					bump_effect_switch = window_shader.map()->locate("bump_mapping");
-					window_shader.predefineUniformi("normal_map",1);
-					window_shader.predefineUniformi("color_map",2);
+					blurEffectSwitch = windowShader.map()->locate("blur");
+					refractEffectSwitch = windowShader.map()->locate("refract");
+					bumpEffectSwitch = windowShader.map()->locate("bump_mapping");
+					windowShader.predefineUniformi("normal_map",1);
+					windowShader.predefineUniformi("color_map",2);
 				}
 			
-				normal_shader.clear();
-				if (!normal_shader.loadComposition(
+				normalShader.clear();
+				if (!normalShader.loadComposition(
 					"[vertex]\n"
 					"varying float h;\n"
 					"void main()\n"
@@ -221,15 +221,15 @@ namespace Engine
 					"}\n"
 				))
 				{
-					FATAL__("GUI Normal shader compilation exception:\n"+normal_shader.report());
+					FATAL__("GUI Normal shader compilation exception:\n"+normalShader.report());
 				}
 			
 				/*Image	image;
-				if (Magic::loadFromFile(image,"sky.png"))
+				if (Magic::LoadFromFile(image,"sky.png"))
 					sky_texture = display->textureObject(image);*/
 	 
-				//window_shader.suppressWarnings();
-				//window_shader.locate("sky_map").seti(3);
+				//windowShader.suppressWarnings();
+				//windowShader.locate("sky_map").seti(3);
 			
 			
 			
@@ -250,15 +250,15 @@ namespace Engine
 
 
 
-		Layout								Window::common_style,
-											Window::menu_style,
-											Window::hint_style;
+		Layout								Window::commonStyle,
+											Window::menuStyle,
+											Window::hintStyle;
 
 		//static Log							logfile("gui.log",true);
 
 		
-		static Keyboard::charReader		old_reader=NULL;
-		static	bool						old_read = false;
+		static Keyboard::charReader		oldReader=NULL;
+		static	bool						oldRead = false;
 		
 		//Display<OpenGL>					*display(NULL);
 		
@@ -266,8 +266,8 @@ namespace Engine
 		{
 			if (display)
 			{
-				display->discardObject(normal_texture);
-				display->discardObject(color_texture);
+				display->discardObject(normalTexture);
+				display->discardObject(colorTexture);
 			}
 		}*/
 
@@ -276,24 +276,24 @@ namespace Engine
 			return *this;
 		}
 
-		void						Operator::showMenu(const shared_ptr<Window>&menu_window)
+		void						Operator::showMenu(const shared_ptr<Window>&menuWindow)
 		{
 			/*			result->x = region.x.center()-display->clientWidth()/2;
 				result->y = region.y.center()-display->clientHeight()/2;*/
 
 			float	w = display->clientWidth()/2,
 					h = display->clientHeight()/2;
-			if (menu_window->x - menu_window->fwidth/2 < -w)
-				menu_window->x = -w+menu_window->fwidth/2;
-			if (menu_window->x + menu_window->fwidth/2 > w)
-				menu_window->x = w-menu_window->fwidth/2;
+			if (menuWindow->x - menuWindow->fsize.x/2 < -w)
+				menuWindow->x = -w+menuWindow->fsize.x/2;
+			if (menuWindow->x + menuWindow->fsize.x/2 > w)
+				menuWindow->x = w-menuWindow->fsize.x/2;
 			
-			if (menu_window->y - menu_window->fheight/2 < -h)
-				menu_window->y = -h+menu_window->fheight/2;
-			if (menu_window->y + menu_window->fheight/2 > h)
-				menu_window->y = h-menu_window->fheight/2;
+			if (menuWindow->y - menuWindow->fsize.y/2 < -h)
+				menuWindow->y = -h+menuWindow->fsize.y/2;
+			if (menuWindow->y + menuWindow->fsize.y/2 > h)
+				menuWindow->y = h-menuWindow->fsize.y/2;
 			
-			menu_stack << menu_window;
+			menu_stack << menuWindow;
 		}
 		
 		void						Operator::hideMenus()
@@ -418,7 +418,7 @@ namespace Engine
 			out.height = 0;
 			if (folder.findFile("color/"+attrib,file))
 			{
-				Magic::loadFromFile(image,file.getLocation());
+				Magic::LoadFromFile(image,file.getLocation());
 				out.color.load(image,global_anisotropy,true);
 				out.width = image.width();
 				out.height = image.height();
@@ -439,84 +439,84 @@ namespace Engine
 			out.height *= scale;
 		}
 		
-		void Component::charRead(char c)
+		/*static*/ void Component::ReadChar(char c)
 		{
 			eEventResult rs = Unsupported;
 			if (focused)
 			{
 				rs = focused->OnChar(c);
-				focused->window()->apply(rs);
+				focused->GetWindow()->Apply(rs);
 			}
-			if (rs == Unsupported && old_read)
-				old_reader(c);
+			if (rs == Unsupported && oldRead)
+				oldReader(c);
 		}
 
-		void					Component::signalLayoutChange()	const
+		void					Component::SignalLayoutChange()	const
 		{
-			shared_ptr<Window>	wnd = window();
+			shared_ptr<Window>	wnd = GetWindow();
 			if (wnd)
-				wnd->layout_changed = wnd->visual_changed = true;
+				wnd->layoutChanged = wnd->visualChanged = true;
 		}
-		void					Component::signalVisualChange()	const
+		void					Component::SignalVisualChange()	const
 		{
-			shared_ptr<Window>	wnd = window();
+			shared_ptr<Window>	wnd = GetWindow();
 			if (wnd)
-				wnd->visual_changed = true;
+				wnd->visualChanged = true;
 		}
 
 
-		/*virtual*/	void					Component::setEnabled(bool enabled)
+		/*virtual*/	void					Component::SetEnabled(bool enabled)
 		{
 			if (this->enabled != enabled)
 			{
 				this->enabled = enabled;
-				signalVisualChange();
+				SignalVisualChange();
 			}
 		}
 	
-		/*virtual*/	void					Component::setVisible(bool visible)
+		/*virtual*/	void					Component::SetVisible(bool visible)
 		{
 			if (this->visible != visible)
 			{
 				this->visible = visible;
-				signalVisualChange();
+				SignalVisualChange();
 			}
 		}
 	
-		shared_ptr<Operator>	Component::getOperator() const
+		shared_ptr<Operator>	Component::GetOperator() const
 		{
-			if (window_link.expired())
+			if (windowLink.expired())
 				return shared_ptr<Operator>();
-			return window_link.lock()->operator_link.lock();
+			return windowLink.lock()->operatorLink.lock();
 		}
 
-		shared_ptr<Operator>	Component::requireOperator() const
+		shared_ptr<Operator>	Component::RequireOperator() const
 		{
-			if (window_link.expired())
+			if (windowLink.expired())
 			{
-				FATAL__("Operator required! Window link not set to component of type "+type_name);
+				FATAL__("Operator required! Window link not set to component of type "+typeName);
 				return shared_ptr<Operator>();
 			}
-			shared_ptr<Operator> rs = window_link.lock()->operator_link.lock();
+			shared_ptr<Operator> rs = windowLink.lock()->operatorLink.lock();
 			if (!rs)
 				FATAL__("Operator required! Window link set but operator link not set");
 			return rs;
 		}
 
-		/*virtual*/ void			Component::setWindow(const weak_ptr<Window>&wnd)
+		/*virtual*/ void			Component::SetWindow(const weak_ptr<Window>&wnd)
 		{
-			window_link = wnd;
+			windowLink = wnd;
 
-			for (index_t i = 0; i < countChildren(); i++)
-				child(i)->setWindow(wnd);
+			for (index_t i = 0; i < CountChildren(); i++)
+				GetChild(i)->SetWindow(wnd);
 		}
 		
-		void Component::resetFocused()
+		void Component::ResetFocused()
 		{
-			setFocused(shared_ptr<Component>());
+			SetFocused(shared_ptr<Component>());
 		}
 
-		void Component::setFocused(const shared_ptr<Component>&component)
+		void Component::SetFocused(const shared_ptr<Component>&component)
 		{
 			if (focused == component)
 				return;
@@ -524,21 +524,21 @@ namespace Engine
 			if (focused)
 			{
 				eEventResult result = focused->OnFocusLost();
-				shared_ptr<Window> wnd = focused->window();
+				shared_ptr<Window> wnd = focused->GetWindow();
 				if (wnd)
-					wnd->apply(result);
+					wnd->Apply(result);
 				if (!component)
 				{
 					input.popProfile();
-					keyboard.reader = old_reader;
-					keyboard.read = old_read;
+					keyboard.reader = oldReader;
+					keyboard.read = oldRead;
 				}
 			}
 			elif (component)
 			{
-				old_reader = keyboard.reader;
-				old_read = keyboard.read;
-				keyboard.reader = charRead;
+				oldReader = keyboard.reader;
+				oldRead = keyboard.read;
+				keyboard.reader = ReadChar;
 				keyboard.read = true;
 				if (!focused)
 				{
@@ -549,7 +549,7 @@ namespace Engine
 			focused = component;
 			if (focused)
 			{
-				focused->window()->apply(focused->OnFocusGained());
+				focused->GetWindow()->Apply(focused->OnFocusGained());
 			}
 		}
 
@@ -568,13 +568,13 @@ namespace Engine
 		void Operator::cylindricVertex(Window*window, float x, float y)	const
 		{
 			#ifdef DEEP_GUI
-				float	px = (window->current_center.x*window->current_center.shell_radius+window->fwidth*x/2)/display->clientWidth()*2,
-						py = (window->current_center.y*window->current_center.shell_radius+window->fheight*y/2)/display->clientHeight()*2;
-				project(px,py,(x*0.5+0.5)*window->usage_x,(y*0.5+0.5)*window->usage_y,window->current_center.shell_radius);
+				float	px = (window->current_center.x*window->current_center.shellRadius+window->fsize.x*x/2)/display->clientWidth()*2,
+						py = (window->current_center.y*window->current_center.shellRadius+window->fsize.y*y/2)/display->clientHeight()*2;
+				project(px,py,(x*0.5+0.5)*window->usage.x,(y*0.5+0.5)*window->usage.y,window->current_center.shellRadius);
 			#else
-				float	px = (window->x+window->fwidth*x/2)/display->clientWidth()*2,
-						py = (window->y+window->fheight*y/2)/display->clientHeight()*2;
-				cylindricVertex(px,py,(x*0.5+0.5)*window->usage_x,(y*0.5+0.5)*window->usage_y);
+				float	px = (window->x+window->fsize.x*x/2)/display->clientWidth()*2,
+						py = (window->y+window->fsize.y*y/2)/display->clientHeight()*2;
+				cylindricVertex(px,py,(x*0.5f+0.5f)*window->usage.x,(y*0.5f+0.5f)*window->usage.y);
 			#endif
 		}
 
@@ -587,9 +587,9 @@ namespace Engine
 		
 		void Operator::planarVertex(Window*window, float x, float y)	const
 		{
-			float	px = (window->x+window->fwidth*x/2)/display->clientWidth()*2,
-					py = (window->y+window->fheight*y/2)/display->clientHeight()*2;
-			planarVertex(px,py,(x*0.5+0.5)*window->usage_x,(y*0.5+0.5)*window->usage_y);
+			float	px = (window->x+window->fsize.x*x/2)/display->clientWidth()*2,
+					py = (window->y+window->fsize.y*y/2)/display->clientHeight()*2;
+			planarVertex(px,py,(x*0.5f+0.5f)*window->usage.x,(y*0.5f+0.5f)*window->usage.y);
 		}
 		
 		
@@ -597,22 +597,22 @@ namespace Engine
 		{
 			/*cout << "x="<<x<<endl;
 			cout << "y="<<y<<endl;
-			cout << "shell.r="<<window->current_center.shell_radius<<endl;
+			cout << "shell.r="<<window->current_center.shellRadius<<endl;
 			cout << "shell.x="<<window->current_center.x<<endl;
 			cout << "shell.y="<<window->current_center.y<<endl;
-			cout << "fwidth="<<window->fwidth<<endl;
-			cout << "fheight="<<window->fheight<<endl;
+			cout << "fsize.x="<<window->fsize.x<<endl;
+			cout << "fsize.y="<<window->fsize.y<<endl;
 			cout << "client width="<<display->clientWidth()<<endl;
 			cout << "client height="<<display->clientHeight()<<endl;*/
 			#ifdef DEEP_GUI
-				float	r = window->current_center.shell_radius,
-						px = (window->current_center.x*r+window->fwidth*x/2)/display->clientWidth()*2,
-						py = (window->current_center.y*r+window->fheight*y/2)/display->clientHeight()*2,
+				float	r = window->current_center.shellRadius,
+						px = (window->current_center.x*r+window->fsize.x*x/2)/display->clientWidth()*2,
+						py = (window->current_center.y*r+window->fsize.y*y/2)/display->clientHeight()*2,
 						radial = px/3,
 						h = sqrt(r*r-sqr(radial));
 			#else
-				float	px = (window->x+window->fwidth*x/2)/display->clientWidth()*2,
-						py = (window->y+window->fheight*y/2)/display->clientHeight()*2,
+				float	px = (window->x+window->fsize.x*x/2)/display->clientWidth()*2,
+						py = (window->y+window->fsize.y*y/2)/display->clientHeight()*2,
 						radial = px/3,
 						h = sqrt(1.0f-sqr(radial));
 			#endif
@@ -719,23 +719,23 @@ namespace Engine
 		}
 
 		
-		Layout::Layout():min_width(1),min_height(1),variable_rows(1),cell_count(0),override(NULL)
+		Layout::Layout():minWidth(1),minHeight(1),variableRows(1),cellCount(0),override(NULL)
 		{}
 		
 	
-		void	Layout::loadFromFile(const String&filename, float scale)
+		void	Layout::LoadFromFile(const String&filename, float scale)
 		{
 			rows.free();
 			
 			
 			FileSystem::Folder	folder(FileSystem::extractFilePath(filename));
 			
-			title_position.setAll(0);
+			titlePosition.setAll(0);
 			
 			List::Vector<TIORow>	iorows;
 			
 			XML::Container	xml;
-			xml.loadFromFile(filename);
+			xml.LoadFromFile(filename);
 				
 			const XML::Node*xlayout = xml.find("layout");
 			if (!xlayout)
@@ -749,17 +749,17 @@ namespace Engine
 				if (segments.count() != 4)
 					throw IO::DriveAccess::FileFormatFault(globalString("'title_position' attribute of XML 'layout' node does not contain 4 comma-separated segments"));
 
-				if (!convert(segments[0].c_str(),title_position.x.min)
+				if (!convert(segments[0].c_str(),titlePosition.x.min)
 					||
-					!convert(segments[1].c_str(),title_position.y.min)
+					!convert(segments[1].c_str(),titlePosition.y.min)
 					||
-					!convert(segments[2].c_str(),title_position.x.max)
+					!convert(segments[2].c_str(),titlePosition.x.max)
 					||
-					!convert(segments[3].c_str(),title_position.y.max))
+					!convert(segments[3].c_str(),titlePosition.y.max))
 				{
 					throw IO::DriveAccess::FileFormatFault(globalString("One or more segments of 'title_position' attribute of XML 'layout' node could not be converted to float"));
 				}
-				title_position *= scale;
+				titlePosition *= scale;
 			}
 			{
 				if (!xlayout->query("border_edge",attrib))
@@ -770,17 +770,17 @@ namespace Engine
 				if (segments.count() != 4)
 					throw IO::DriveAccess::FileFormatFault(globalString("'border_edge' attribute of XML 'layout' node does not contain 4 comma-separated segments"));
 
-				if (!convert(segments[0].c_str(),border_edge.left)
+				if (!convert(segments[0].c_str(),borderEdge.left)
 					||
-					!convert(segments[1].c_str(),border_edge.bottom)
+					!convert(segments[1].c_str(),borderEdge.bottom)
 					||
-					!convert(segments[2].c_str(),border_edge.right)
+					!convert(segments[2].c_str(),borderEdge.right)
 					||
-					!convert(segments[3].c_str(),border_edge.top))
+					!convert(segments[3].c_str(),borderEdge.top))
 				{
 					throw IO::DriveAccess::FileFormatFault(globalString("One or more segments of 'border_edge' attribute of XML 'layout' node could not be converted to float"));
 				}
-				border_edge *= scale;
+				borderEdge *= scale;
 			}
 			{
 				if (!xlayout->query("client_edge",attrib))
@@ -791,17 +791,17 @@ namespace Engine
 				if (segments.count() != 4)
 					throw IO::DriveAccess::FileFormatFault(globalString("'client_edge' attribute of XML 'layout' node does not contain 4 comma-separated segments"));
 
-				if (!convert(segments[0].c_str(),client_edge.left)
+				if (!convert(segments[0].c_str(),clientEdge.left)
 					||
-					!convert(segments[1].c_str(),client_edge.bottom)
+					!convert(segments[1].c_str(),clientEdge.bottom)
 					||
-					!convert(segments[2].c_str(),client_edge.right)
+					!convert(segments[2].c_str(),clientEdge.right)
 					||
-					!convert(segments[3].c_str(),client_edge.top))
+					!convert(segments[3].c_str(),clientEdge.top))
 				{
 					throw IO::DriveAccess::FileFormatFault(globalString("One or more segments of 'client_edge' attribute of XML 'layout' node could not be converted to float"));
 				}
-				client_edge *= scale;
+				clientEdge *= scale;
 			}
 			
 			XML::Node*xrows = xml.find("layout/rows");
@@ -835,7 +835,7 @@ namespace Engine
 								continue;
 							}
 							TIOCell*cell = row->cells.append();
-							cell->variable_width = attrib == "stretch";
+							cell->variableWidth = attrib == "stretch";
 							
 							String error;
 							if (xcell.query("background",attrib))
@@ -866,10 +866,10 @@ namespace Engine
 				}
 			}
 			
-			min_width = 0;
-			min_height = 0;
-			variable_rows = 0;
-			cell_count = 0;
+			minWidth = 0;
+			minHeight = 0;
+			variableRows = 0;
+			cellCount = 0;
 			rows.setSize(iorows);
 			for (unsigned i = 0; i < iorows; i++)
 			{
@@ -880,35 +880,35 @@ namespace Engine
 				row.variable_cells = 0;
 				row.fixed_width = 0;
 				
-				cell_count += row.cells.count();
+				cellCount += row.cells.count();
 				
 				for (unsigned j = 0; j < row.cells.count(); j++)
 				{
 					TIOCell*icell = iorows[i]->cells[j];
 					TCell&cell = row.cells[j];
 					cell.width = icell->normal.width()*scale;
-					cell.variable_width = icell->variable_width;
+					cell.variableWidth = icell->variableWidth;
 					
-					cell.normal_texture.load(icell->normal,global_anisotropy,true,TextureFilter::Trilinear,false);
-					cell.color_texture.load(icell->color,global_anisotropy,true,TextureFilter::Trilinear,false);
+					cell.normalTexture.load(icell->normal,global_anisotropy,true,TextureFilter::Trilinear,false);
+					cell.colorTexture.load(icell->color,global_anisotropy,true,TextureFilter::Trilinear,false);
 					if (icell->normal.height()*scale>rows[i].height)
 						row.height = icell->normal.height()*scale;
-					if (cell.variable_width)
+					if (cell.variableWidth)
 						row.variable_cells++;
 					else
 						row.fixed_width += cell.width;
 				}
-				if (row.fixed_width > min_width)
-					min_width = row.fixed_width;
+				if (row.fixed_width > minWidth)
+					minWidth = row.fixed_width;
 				if (!row.variable_height)
-					min_height += row.height;
+					minHeight += row.height;
 				else
-					variable_rows ++;
+					variableRows ++;
 				if (!row.variable_cells)
 					row.variable_cells++;
 			}
-			if (!variable_rows)
-				variable_rows++;
+			if (!variableRows)
+				variableRows++;
 		}
 		
 		void	Layout::applyArea(Rect<float>&target, const Rect<float>&window, const Rect<float>&relative)
@@ -922,16 +922,16 @@ namespace Engine
 			}
 		}
 		
-		void	Layout::updateCells(const Rect<float>&window_location, TCellLayout&layout)	const
+		void	Layout::UpdateCells(const Rect<float>&window_location, TCellLayout&layout)	const
 		{
-			layout.cells.setSize(cell_count);
+			layout.cells.setSize(cellCount);
 			
 			//applyArea(layout.body,window_location,body_location);
 			//applyArea(layout.title,window_location,title_location);
 			float	width = window_location.width(),
 				height = window_location.height();
 
-			float variable_height = (height-min_height)/variable_rows;
+			float variable_height = (height-minHeight)/variableRows;
 			if (variable_height < 0)
 				variable_height = 0;
 			
@@ -939,11 +939,11 @@ namespace Engine
 			
 			unsigned cell_index = 0;
 			
-			layout.title.x.min = title_position.x.min>=0?window_location.x.min + title_position.x.min:window_location.x.max+title_position.x.min;
-			layout.title.x.max = title_position.x.max>=0?window_location.x.min + title_position.x.max:window_location.x.max+title_position.x.max;
+			layout.title.x.min = titlePosition.x.min>=0?window_location.x.min + titlePosition.x.min:window_location.x.max+titlePosition.x.min;
+			layout.title.x.max = titlePosition.x.max>=0?window_location.x.min + titlePosition.x.max:window_location.x.max+titlePosition.x.max;
 			
-			layout.title.y.min = title_position.y.min>=0?window_location.y.min + title_position.y.min:window_location.y.max+title_position.y.min;
-			layout.title.y.max = title_position.y.max>=0?window_location.y.min + title_position.y.max:window_location.y.max+title_position.y.max;
+			layout.title.y.min = titlePosition.y.min>=0?window_location.y.min + titlePosition.y.min:window_location.y.max+titlePosition.y.min;
+			layout.title.y.max = titlePosition.y.max>=0?window_location.y.min + titlePosition.y.max:window_location.y.max+titlePosition.y.max;
 			
 			
 			
@@ -954,17 +954,17 @@ namespace Engine
 				
 				float row_height = row.variable_height?variable_height:row.height;
 				
-				float variable_width = (width-row.fixed_width)/row.variable_cells;
-				if (variable_width < 0)
-					variable_width = 0;
+				float variableWidth = (width-row.fixed_width)/row.variable_cells;
+				if (variableWidth < 0)
+					variableWidth = 0;
 				float x = window_location.x.min;
 				for (unsigned j = 0; j < row.cells.count(); j++)
 				{
 
 					const TCell&cell = row.cells[j];
-					float cell_width = cell.variable_width?variable_width:cell.width;
+					float cell_width = cell.variableWidth?variableWidth:cell.width;
 					
-					ASSERT2__(cell_index < cell_count,cell_index,cell_count);
+					ASSERT2__(cell_index < cellCount,cell_index,cellCount);
 					TCellInstance&instance = layout.cells[cell_index++];
 					
 					instance.region.x.min = x;
@@ -972,8 +972,8 @@ namespace Engine
 					instance.region.y.max = y;
 					instance.region.y.min = y-row_height;
 					//instance.width = cell.width;
-					instance.color_texture = &cell.color_texture;
-					instance.normal_texture = &cell.normal_texture;
+					instance.colorTexture = &cell.colorTexture;
+					instance.normalTexture = &cell.normalTexture;
 					x+= cell_width;
 					
 					
@@ -981,14 +981,14 @@ namespace Engine
 				y-=row_height;
 			}
 			ASSERT_EQUAL__(cell_index,layout.cells.count());
-			layout.client.x.min = /* floor */round(window_location.x.min+client_edge.left);
-			layout.client.x.max = /* ceil */round(window_location.x.max-client_edge.right);
-			layout.client.y.min = /* floor */round(window_location.y.min+client_edge.bottom);
-			layout.client.y.max = /* ceil */round(window_location.y.max-client_edge.top);
-			layout.border.x.min = window_location.x.min+border_edge.left;
-			layout.border.x.max = window_location.x.max-border_edge.right;
-			layout.border.y.min = window_location.y.min+border_edge.bottom;
-			layout.border.y.max = window_location.y.max-border_edge.top;
+			layout.client.x.min = /* floor */round(window_location.x.min+clientEdge.left);
+			layout.client.x.max = /* ceil */round(window_location.x.max-clientEdge.right);
+			layout.client.y.min = /* floor */round(window_location.y.min+clientEdge.bottom);
+			layout.client.y.max = /* ceil */round(window_location.y.max-clientEdge.top);
+			layout.border.x.min = window_location.x.min+borderEdge.left;
+			layout.border.x.max = window_location.x.max-borderEdge.right;
+			layout.border.y.min = window_location.y.min+borderEdge.bottom;
+			layout.border.y.max = window_location.y.max-borderEdge.top;
 		}
 		
 
@@ -997,7 +997,7 @@ namespace Engine
 		
 		/*static*/ PWindow			Window::CreateNew(const NewWindowConfig&config, const shared_ptr<Component>&component/*=shared_ptr<Component>()*/)
 		{
-			return CreateNew(config,&Window::common_style,component);
+			return CreateNew(config,&Window::commonStyle,component);
 		}
 		/*static*/ PWindow			Window::CreateNew(const NewWindowConfig&config, Layout*layout,const shared_ptr<Component>&component)
 		{
@@ -1007,14 +1007,14 @@ namespace Engine
 				result->destination.x = config.initialPosition.center.x;
 				result->destination.y = config.initialPosition.center.y;
 				
-				for (index_t i = 0; i < window_stack.count(); i++)
-					window_stack[i]->destination.shell_radius = radiusOf(i);
-				//result->destination.shell_radius = radiusOf(window_stack.count()-1);
-				//result->destination.x *= result->destination.shell_radius;
-				//result->destination.y *= result->destination.shell_radius;
+				for (index_t i = 0; i < windowStack.count(); i++)
+					windowStack[i]->destination.shellRadius = radiusOf(i);
+				//result->destination.shellRadius = radiusOf(windowStack.count()-1);
+				//result->destination.x *= result->destination.shellRadius;
+				//result->destination.y *= result->destination.shellRadius;
 				result->origin.x = 0;
 				result->origin.y = 0;
-				result->origin.shell_radius = 1000;
+				result->origin.shellRadius = 1000;
 				result->origin = result->destination;
 				result->current_center = result->origin;
 			#else
@@ -1023,19 +1023,19 @@ namespace Engine
 			#endif
 			ASSERT_GREATER__(config.initialPosition.size.x,0);
 			ASSERT_GREATER__(config.initialPosition.size.y,0);
-			result->fwidth = config.initialPosition.size.x;
-			result->fheight = config.initialPosition.size.y;
-			result->iwidth = (unsigned)round(result->fwidth);
-			result->iheight = (unsigned)round(result->fheight);
-			result->setComponent(component);
+			result->fsize.x = config.initialPosition.size.x;
+			result->fsize.y = config.initialPosition.size.y;
+			result->size.width = (unsigned)round(result->fsize.x);
+			result->size.height = (unsigned)round(result->fsize.y);
+			result->SetComponent(component);
 			result->title = config.windowName;
 			result->sizeChange = config.initialPosition.sizeChange;
-			result->fixed_position = config.initialPosition.fixedPosition;
-			Rect<float> reg(0,0,result->iwidth,result->iheight);
+			result->fixedPosition = config.initialPosition.fixedPosition;
+			Rect<float> reg(0,0,result->size.width,result->size.height);
 			if (layout)
-				layout->updateCells(reg,result->cell_layout);
+				layout->UpdateCells(reg,result->cellLayout);
 			else
-				result->cell_layout.border = result->cell_layout.client = reg;
+				result->cellLayout.border = result->cellLayout.client = reg;
 			return result;
 		}
 
@@ -1043,7 +1043,7 @@ namespace Engine
 		
 		bool	Window::Hide()
 		{
-			shared_ptr<Operator>	op = operator_link.lock();
+			shared_ptr<Operator>	op = operatorLink.lock();
 			if (op)
 			{
 				return op->HideWindow(shared_from_this());
@@ -1052,7 +1052,7 @@ namespace Engine
 		}
 
 
-		Window::Window(bool modal, Layout*style):is_modal(modal),toneBackground(true),appearsFocused(false),exp_x(0),exp_y(0),iwidth(1),iheight(1),progress(0),fwidth(1),fheight(1),usage_x(0),usage_y(0),layout(style),title(""),size_changed(true),layout_changed(true),visual_changed(true),fixed_position(false),hidden(timer.now())
+		Window::Window(bool modal, Layout*style):isModal(modal),toneBackground(true),appearsFocused(false),exp(Vector2<UINT>::zero),size(1,1),progress(0),fsize(Vector2<>::one),usage(Vector2<>::zero),layout(style),title(""),sizeChanged(true),layoutChanged(true),visualChanged(true),fixedPosition(false),hidden(timer.now())
 		{
 			#ifdef DEEP_GUI
 				_clear(destination.coord);
@@ -1069,7 +1069,7 @@ namespace Engine
 			#ifdef DEEP_GUI
 				ASSERT_IS_CONSTRAINED__(window->current_center.x,-100000,100000);
 				ASSERT_IS_CONSTRAINED__(window->current_center.y,-100000,100000);
-				ASSERT_IS_CONSTRAINED__(window->current_center.shell_radius,-100000,100000);
+				ASSERT_IS_CONSTRAINED__(window->current_center.shellRadius,-100000,100000);
 			#else
 				ASSERT_IS_CONSTRAINED__(window->x,-100000,100000);
 				ASSERT_IS_CONSTRAINED__(window->y,-100000,100000);
@@ -1084,7 +1084,7 @@ namespace Engine
 			project(window.get(),-1,1,p);
 			rect.include(p);
 			
-			if (window == window_stack.last())	//top most window also copies for menu windows, which override the parent window rather than blurring over it
+			if (window == windowStack.last())	//top most window also copies for menu windows, which override the parent window rather than blurring over it
 				for (index_t i = 0; i < menu_stack.count(); i++)
 				{
 					shared_ptr<Window> menu_ = menu_stack[i].lock();
@@ -1110,7 +1110,7 @@ namespace Engine
 			if (rect.width() <= 0 || rect.height() <= 0)
 				return;
 			
-			if ((blur_effect || refract_effect) && !is_menu)	//menu reuses the copy before the top most non-menu window
+			if ((blurEffect || refractEffect) && !is_menu)	//menu reuses the copy before the top most non-menu window
 			{
 				glGetError();
 				glCopyTexSubImage2D(GL_TEXTURE_2D, 0, (int)rect.x.min, (int)rect.y.min, (int)rect.x.min, (int)rect.y.min,  (int)rect.width(), (int)rect.height());
@@ -1122,34 +1122,34 @@ namespace Engine
 			}
 			
 			glActiveTexture(GL_TEXTURE1);
-			glBindTexture(GL_TEXTURE_2D,window->normal_buffer.color_target[0].texture_handle);
+			glBindTexture(GL_TEXTURE_2D,window->normalBuffer.color_target[0].texture_handle);
 			glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_CLAMP_TO_EDGE);
 			glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_CLAMP_TO_EDGE);
 			
 			glActiveTexture(GL_TEXTURE2);
-			glBindTexture(GL_TEXTURE_2D,window->color_buffer.color_target[0].texture_handle);
+			glBindTexture(GL_TEXTURE_2D,window->colorBuffer.color_target[0].texture_handle);
 			glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_CLAMP_TO_EDGE);
 			glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_CLAMP_TO_EDGE);
 			glActiveTexture(GL_TEXTURE0);
 			
-			glColor4f(window->toneBackground,0,0,is_menu || window->appearsFocused || window_stack.last()==window);
+			glColor4f(window->toneBackground,0,0,is_menu || window->appearsFocused || windowStack.last()==window);
 
 
-			//ASSERT__(current_window_shader->isInstalled());
+			//ASSERT__(currentWindowShader->isInstalled());
 			glThrowError();
 
 			switch (mode)
 			{
 				case Cylindrical:
 				{
-					//float r = 1.0f+((float)window_stack.count()-window->has_depth)*0.1;
+					//float r = 1.0f+((float)windowStack.count()-window->has_depth)*0.1;
 					#ifdef DEEP_GUI
-						unsigned res = (unsigned)((float)window->iwidth/window->current_center.shell_radius/50);
+						unsigned res = (unsigned)((float)window->size.width/window->current_center.shellRadius/50);
 					#else
-						unsigned res = (unsigned)((float)window->iwidth/50);
+						unsigned res = (unsigned)((float)window->size.width/50);
 					#endif
 				
-					//ShowMessage(String(fwidth)+" => "+String(iwidth)+" => "+String(res));
+					//ShowMessage(String(fsize.x)+" => "+String(size.width)+" => "+String(res));
 					ASSERT1__(res < 1000,res);
 			
 					if (res<1)
@@ -1191,14 +1191,14 @@ namespace Engine
 			{
 				case Cylindrical:
 				{
-					//float r = 1.0f+((float)window_stack.count()-window->has_depth)*0.1;
+					//float r = 1.0f+((float)windowStack.count()-window->has_depth)*0.1;
 					#ifdef DEEP_GUI
-						unsigned res = (unsigned)((float)window->iwidth/window->current_center.shell_radius/50);
+						unsigned res = (unsigned)((float)window->size.width/window->current_center.shellRadius/50);
 					#else
-						unsigned res = (unsigned)((float)window->iwidth/50);
+						unsigned res = (unsigned)((float)window->size.width/50);
 					#endif
 				
-					//ShowMessage(String(fwidth)+" => "+String(iwidth)+" => "+String(res));
+					//ShowMessage(String(fsize.x)+" => "+String(size.width)+" => "+String(res));
 					ASSERT1__(res < 1000,res);
 			
 					if (res<1)
@@ -1237,15 +1237,15 @@ namespace Engine
 		}
 		
 		
-		void	Window::setComponent(const shared_ptr<Component>&component)
+		void	Window::SetComponent(const shared_ptr<Component>&component)
 		{
-			component_link = component;
+			rootComponent = component;
 			if (component)
-				component->setWindow(shared_from_this());
-			layout_changed = visual_changed = true;
+				component->SetWindow(shared_from_this());
+			layoutChanged = visualChanged = true;
 		}
 		
-		void	Window::drag(const TVec2<float>&d)
+		void	Window::Drag(const TVec2<float>&d)
 		{
 			#ifdef DEEP_GUI
 				destination.x += d.x;
@@ -1260,7 +1260,7 @@ namespace Engine
 			#endif
 		}
 		
-		void	Window::dragResize(TVec2<float>&d,ClickResult::value_t click_result)
+		void	Window::DragResize(TVec2<float>&d,ClickResult::value_t click_result)
 		{
 			float	dx = d.x,
 					dy = d.y;
@@ -1294,23 +1294,23 @@ namespace Engine
 				break;
 			}
 			
-			float	mw = minWidth(),
-					mh = minHeight();
-			if (fwidth + dx < mw && dx != 0)
+			float	mw = GetMinWidth(),
+					mh = GetMinHeight();
+			if (fsize.x + dx < mw && dx != 0)
 			{
-				d.x *= (mw-fwidth)/dx;
-				dx = mw-fwidth;
+				d.x *= (mw-fsize.x)/dx;
+				dx = mw-fsize.x;
 			}
-			if (fheight + dy < mh && dy != 0)
+			if (fsize.y + dy < mh && dy != 0)
 			{
-				d.y *= (mh-fheight)/dy;
-				dy = mh-fheight;
+				d.y *= (mh-fsize.y)/dy;
+				dy = mh-fsize.y;
 			}
 			
 			if (d.x)
-				fwidth  += dx;
+				fsize.x  += dx;
 			if (d.y)
-				fheight += dy;
+				fsize.y += dy;
 			#ifdef DEEP_GUI
 				current_center.x += d.x/2;
 				current_center.y += d.y/2;
@@ -1322,84 +1322,84 @@ namespace Engine
 				x += d.x /2;
 				y += d.y /2;
 			#endif
-			size_changed = layout_changed = visual_changed = true;
-			iwidth = (unsigned)round(fwidth);
-			iheight = (unsigned)round(fheight);
-			//updateLayout();
+			sizeChanged = layoutChanged = visualChanged = true;
+			size.width = (unsigned)round(fsize.x);
+			size.height = (unsigned)round(fsize.y);
+			//UpdateLayout();
 		}
 		
 		
-		void	Window::updateLayout()
+		void	Window::UpdateLayout()
 		{
-			Rect<float>	reg(0,0,/*ceil*/(iwidth),/*ceil*/(iheight));
+			Rect<float>	reg(0,0,/*ceil*/(size.width),/*ceil*/(size.height));
 			if (layout)
-				layout->updateCells(reg,cell_layout);
+				layout->UpdateCells(reg,cellLayout);
 			else
-				cell_layout.client = cell_layout.border = reg;
-			const Rect<float>&client = cell_layout.client;
-			if (component_link)
-				component_link->updateLayout(client);
-			layout_changed = false;			
+				cellLayout.client = cellLayout.border = reg;
+			const Rect<float>&client = cellLayout.client;
+			if (rootComponent)
+				rootComponent->UpdateLayout(client);
+			layoutChanged = false;			
 		}
 		
-		float	Window::minWidth()	const
+		float	Window::GetMinWidth()	const
 		{
 			float rs=0;
-			if (component_link)
-				rs = component_link->minWidth(true);
+			if (rootComponent)
+				rs = rootComponent->GetMinWidth(true);
 			if (layout)
 			{
-				rs += layout->client_edge.left+layout->client_edge.right;
-				if (rs < layout->min_width)
-					rs = layout->min_width;
+				rs += layout->clientEdge.left+layout->clientEdge.right;
+				if (rs < layout->minWidth)
+					rs = layout->minWidth;
 			}
 			return rs;
 		}
 		
-		void	Window::setSize(float width, float height)
+		void	Window::SetSize(float width, float height)
 		{
-			fwidth = width;
-			iwidth = (unsigned)round(fwidth);
-			fheight = height;
-			iheight = (unsigned)round(fheight);
-			size_changed = layout_changed = visual_changed = true;
+			fsize.x = width;
+			size.width = (unsigned)round(fsize.x);
+			fsize.y = height;
+			size.height = (unsigned)round(fsize.y);
+			sizeChanged = layoutChanged = visualChanged = true;
 		}
 		
-		void	Window::setHeight(float height)
+		void	Window::SetHeight(float height)
 		{
 			unsigned heighti = (unsigned)round(height);
 			{
-				fheight = height;
-				if (iheight != heighti)
+				fsize.y = height;
+				if (size.height != heighti)
 				{
-					iheight = heighti;
-					size_changed = layout_changed = visual_changed = true;
+					size.height = heighti;
+					sizeChanged = layoutChanged = visualChanged = true;
 				}
 			}
 
 		}
 		
-		void	Window::setWidth(float width)
+		void	Window::SetWidth(float width)
 		{
 			unsigned widthi = (unsigned)round(width);
-			fwidth = width;
-			if (widthi != iwidth)
+			fsize.x = width;
+			if (widthi != size.width)
 			{
-				iwidth = widthi;
-				size_changed = layout_changed = visual_changed = true;
+				size.width = widthi;
+				sizeChanged = layoutChanged = visualChanged = true;
 			}
 		}
 		
-		float	Window::minHeight()	const
+		float	Window::GetMinHeight()	const
 		{
 			float rs=0;
-			if (component_link)
-				rs = component_link->minHeight(true);
+			if (rootComponent)
+				rs = rootComponent->GetMinHeight(true);
 			if (layout)
 			{
-				rs += layout->client_edge.bottom+layout->client_edge.top;
-				if (rs < layout->min_height)
-					rs = layout->min_height;
+				rs += layout->clientEdge.bottom+layout->clientEdge.top;
+				if (rs < layout->minHeight)
+					rs = layout->minHeight;
 			}
 			return rs;
 		}
@@ -1407,68 +1407,68 @@ namespace Engine
 		#ifdef DEEP_GUI
 			void	Window::setShellDestination(float new_shell_radius)
 			{
-				if (destination.shell_radius == new_shell_radius)
+				if (destination.shellRadius == new_shell_radius)
 					return;
 				origin = current_center;
-				destination.shell_radius = new_shell_radius;
+				destination.shellRadius = new_shell_radius;
 				progress = 0;
 			}
 		#endif
 		
 		
-		void			Window::mouseUp(float x, float y)
+		void			Window::SignalMouseUp(float x, float y)
 		{
 			#ifdef DEEP_GUI
-				x = (x-current_center.x)*current_center.shell_radius;
-				y = (y-current_center.y)*current_center.shell_radius;
+				x = (x-current_center.x)*current_center.shellRadius;
+				y = (y-current_center.y)*current_center.shellRadius;
 			#else
 				x = (x-this->x);
 				y = (y-this->y);
 			#endif
 			
-			x += fwidth*0.5;
-			y += fheight*0.5;
-			apply(clicked->OnMouseUp(x,y));
+			x += fsize.x*0.5;
+			y += fsize.y*0.5;
+			Apply(clicked->OnMouseUp(x,y));
 		}
 		
 
-		Window::ClickResult::value_t			Window::resolve(float x_, float y_, float&inner_x, float&inner_y)
+		Window::ClickResult::value_t			Window::Resolve(float x_, float y_, float&inner_x, float&inner_y)
 		{
 			#ifdef DEEP_GUI
-				float x = (x_-current_center.x)*current_center.shell_radius+fwidth/2;
-				float y = (y_-current_center.y)*current_center.shell_radius+fheight/2;
+				float x = (x_-current_center.x)*current_center.shellRadius+fsize.x/2;
+				float y = (y_-current_center.y)*current_center.shellRadius+fsize.y/2;
 			#else
-				float x = (x_-this->x)+fwidth/2;
-				float y = (y_-this->y)+fheight/2;
+				float x = (x_-this->x)+fsize.x/2;
+				float y = (y_-this->y)+fsize.y/2;
 			#endif
 			inner_x = x;
 			inner_y = y;
 			
-			if (!cell_layout.border.contains(x,y))
+			if (!cellLayout.border.contains(x,y))
 				return ClickResult::Missed;
 			
-			if (!fixed_position)
+			if (!fixedPosition)
 			{
 				if (sizeChange == SizeChange::Free || sizeChange == SizeChange::FixedHeight)
 				{
-					if (x > cell_layout.border.x.max-BorderWidth)
+					if (x > cellLayout.border.x.max-BorderWidth)
 					{
 						if (sizeChange != SizeChange::FixedHeight)
 						{
-							if (y > cell_layout.border.y.max-BorderWidth)
+							if (y > cellLayout.border.y.max-BorderWidth)
 								return ClickResult::ResizeTopRight;
-							if (y < cell_layout.border.y.min+BorderWidth)
+							if (y < cellLayout.border.y.min+BorderWidth)
 								return ClickResult::ResizeBottomRight;
 						}
 						return ClickResult::ResizeRight;
 					}
-					if (x < cell_layout.border.x.min+BorderWidth)
+					if (x < cellLayout.border.x.min+BorderWidth)
 					{
 						if (sizeChange != SizeChange::FixedHeight)
 						{
-							if (y > cell_layout.border.y.max-BorderWidth)
+							if (y > cellLayout.border.y.max-BorderWidth)
 								return ClickResult::ResizeTopLeft;
-							if (y < cell_layout.border.y.min+BorderWidth)
+							if (y < cellLayout.border.y.min+BorderWidth)
 								return ClickResult::ResizeBottomLeft;
 						}
 						return ClickResult::ResizeLeft;
@@ -1477,29 +1477,29 @@ namespace Engine
 				
 				if (sizeChange != SizeChange::FixedHeight && sizeChange != SizeChange::Fixed)
 				{
-					if (y > cell_layout.border.y.max-BorderWidth)
+					if (y > cellLayout.border.y.max-BorderWidth)
 						return ClickResult::ResizeTop;
-					if (y < cell_layout.border.y.min+BorderWidth)
+					if (y < cellLayout.border.y.min+BorderWidth)
 						return ClickResult::ResizeBottom;
 				}
 			}
 				
-			if (component_link && (!layout || cell_layout.client.contains(x,y))&&component_link->visible&&component_link->enabled&&component_link->cell_layout.border.contains(x,y))
+			if (rootComponent && (!layout || cellLayout.client.contains(x,y))&&rootComponent->visible&&rootComponent->enabled&&rootComponent->cellLayout.border.contains(x,y))
 				return ClickResult::Component;
-			if (fixed_position)
+			if (fixedPosition)
 				return ClickResult::Ignored;
 			return ClickResult::DragWindow;
 		}
 
 		
-		void	Window::apply(Component::eEventResult rs)
+		void	Window::Apply(Component::eEventResult rs)
 		{
 			switch (rs)
 			{
 				case Component::RequestingReshape:
-					layout_changed = true;
+					layoutChanged = true;
 				case Component::RequestingRepaint:
-					visual_changed = true;
+					visualChanged = true;
 				break;
 			}
 		}
@@ -1508,7 +1508,7 @@ namespace Engine
 		
 		float Operator::radiusOf(index_t stack_layer)	const
 		{
-			return 0.9+0.1*(window_stack.count()-stack_layer);
+			return 0.9+0.1*(windowStack.count()-stack_layer);
 		}
 
 
@@ -2111,24 +2111,24 @@ namespace Engine
 
 
 
-		Component::Component(const String&type_name_):current_region(0,0,1,1),offset(0,0,0,0),anchored(false,false,false,false),width(1),height(1),type_name(type_name_),layout(NULL),tick_interval(0.2),enabled(true),visible(true)
+		Component::Component(const String&type_name_):currentRegion(0,0,1,1),offset(0,0,0,0),anchored(false,false,false,false),width(1),height(1),typeName(type_name_),layout(NULL),tickInterval(0.2),enabled(true),visible(true)
 		{}
 		
-		void	Component::keyDown(int key)
+		void	Component::SignalKeyDown(int key)
 		{
 			//cout << "caught "<<key<<endl;
 			eEventResult rs = Unsupported;
 			if (focused)
 			{
 				rs = focused->OnKeyDown((Key::Name)key);
-				if (focused && !focused->window_link.expired())	//key down may do all sorts of things, unset focused or remove it from its window
-					focused->window_link.lock()->apply(rs);
+				if (focused && !focused->windowLink.expired())	//key down may do all sorts of things, unset focused or remove it from its window
+					focused->windowLink.lock()->Apply(rs);
 				if (focused && rs == Unsupported && key == Key::Tab)
 				{
 					shared_ptr<Component> next=focused;
-					while ((next = focused->window_link.lock()->component_link->successorOf(next)) && !next->tabFocusable());
+					while ((next = focused->windowLink.lock()->rootComponent->GetSuccessorOfChild(next)) && !next->IsTabFocusable());
 					if (next)
-						setFocused(next);
+						SetFocused(next);
 					return;
 				}
 			}
@@ -2139,13 +2139,13 @@ namespace Engine
 			}
 		}
 		
-		void	Component::keyUp(int key)
+		void	Component::SignalKeyUp(int key)
 		{
 			eEventResult rs = Unsupported;
 			if (focused)
 			{
 				rs = focused->OnKeyUp((Key::Name)key);
-				focused->window_link.lock()->apply(rs);
+				focused->windowLink.lock()->Apply(rs);
 			}
 			if (rs == Unsupported)
 				input.cascadeKeyUp((Key::Name)key);
@@ -2157,7 +2157,7 @@ namespace Engine
 		Component::~Component()
 		{
 			/*auto shared_this = shared_from_this();
-			if (handling_event && ext.caught_by == shared_this)
+			if (handlingEvent && ext.caught_by == shared_this)
 				ext.caught_by.reset();
 			if (focused == shared_this)
 				focused.reset();
@@ -2168,12 +2168,12 @@ namespace Engine
 			//stupid, because destructor will only be invoked once no shared reference exists
 		}
 		
-		bool		Component::isFocused()	const
+		bool		Component::IsFocused()	const
 		{
 			return focused.get() == this;
 		}
 		
-		void		Component::locate(const Rect<float>&parent_region,Rect<float>&region)	const
+		void		Component::Locate(const Rect<float>&parent_region,Rect<float>&region)	const
 		{
 			float	w = parent_region.width(),
 					h = parent_region.height();
@@ -2206,45 +2206,45 @@ namespace Engine
 		
 		}
 		
-		void		Component::updateLayout(const Rect<float>&parent_region)
+		void		Component::UpdateLayout(const Rect<float>&parent_region)
 		{
-			locate(parent_region,current_region);
+			Locate(parent_region,currentRegion);
 			
 			if (layout)
-				layout->updateCells(current_region,cell_layout);
+				layout->UpdateCells(currentRegion,cellLayout);
 			else
-				cell_layout.border = cell_layout.client = current_region;
+				cellLayout.border = cellLayout.client = currentRegion;
 		
 		}
 		
-		float		Component::minWidth(bool include_offsets)	const
+		float		Component::GetMinWidth(bool includeOffsets)	const
 		{
-			float rs = clientMinWidth();
-			if (anchored.right && include_offsets)
+			float rs = GetClientMinWidth();
+			if (anchored.right && includeOffsets)
 				rs -= offset.right;
-			if (anchored.left && include_offsets)
+			if (anchored.left && includeOffsets)
 				rs += offset.left;
 			if (layout)
 			{
-				rs += layout->client_edge.left+layout->client_edge.right;
-				if (rs < layout->min_width)
-					rs = layout->min_width;
+				rs += layout->clientEdge.left+layout->clientEdge.right;
+				if (rs < layout->minWidth)
+					rs = layout->minWidth;
 			}
 			return rs;
 		}
 		
-		float		Component::minHeight(bool include_offsets)	const
+		float		Component::GetMinHeight(bool includeOffsets)	const
 		{
-			float rs = clientMinHeight();
-			if (anchored.top && include_offsets)
+			float rs = GetClientMinHeight();
+			if (anchored.top && includeOffsets)
 				rs -= offset.top;
-			if (anchored.bottom && include_offsets)
+			if (anchored.bottom && includeOffsets)
 				rs += offset.bottom;
 			if (layout)
 			{
-				rs += layout->client_edge.bottom+layout->client_edge.top;
-				if (rs < layout->min_height)
-					rs = layout->min_height;
+				rs += layout->clientEdge.bottom+layout->clientEdge.top;
+				if (rs < layout->minHeight)
+					rs = layout->minHeight;
 			}
 			return rs;
 		}
@@ -2258,51 +2258,51 @@ namespace Engine
 		
 
 		
-		void			Window::renderBuffers(Display<OpenGL>&display)
+		void			Window::RenderBuffers(Display<OpenGL>&display)
 		{
-			//cout << "rendering window "<<x<<", "<<y<<" / "<<fwidth<<", "<<fheight<<endl;
-			if (layout_changed)
-				updateLayout();
-			layout_changed = false;
-			visual_changed = false;
-			if (size_changed)
+			//cout << "rendering window "<<x<<", "<<y<<" / "<<fsize.x<<", "<<fsize.y<<endl;
+			if (layoutChanged)
+				UpdateLayout();
+			layoutChanged = false;
+			visualChanged = false;
+			if (sizeChanged)
 				onResize();
-			size_changed = false;
-			ASSERT_GREATER__(fwidth,0);
-			ASSERT_GREATER__(fheight,0);
-			unsigned	ex = (unsigned)ceil(log((float)iwidth)/M_LN2),
-						ey = (unsigned)ceil(log((float)iheight)/M_LN2);
+			sizeChanged = false;
+			ASSERT_GREATER__(fsize.x,0);
+			ASSERT_GREATER__(fsize.y,0);
+			unsigned	ex = (unsigned)ceil(log((float)size.width)/M_LN2),
+						ey = (unsigned)ceil(log((float)size.height)/M_LN2);
 			if (!ex || !ey)
 				return;
-			bool do_resize = ex > exp_x || ey > exp_y || ex+1 < exp_x || ey+1 < exp_y;
+			bool do_resize = ex > exp.x || ey > exp.y || ex+1 < exp.x || ey+1 < exp.y;
 
 			Resolution target_resolution (1<<ex,1<<ey);
 			
-			if (!color_buffer.color_target[0].texture_handle)
+			if (!colorBuffer.color_target[0].texture_handle)
 			{
-				color_buffer = gl_extensions.createFrameBuffer(target_resolution,Engine::DepthStorage::NoDepthStencil,1,&GLType<GLbyte>::rgba_type_constant);
-				normal_buffer = gl_extensions.createFrameBuffer(target_resolution,Engine::DepthStorage::NoDepthStencil,1,&GLType<GLbyte>::rgba_type_constant);
-				exp_x = ex;
-				exp_y = ey;
+				colorBuffer = gl_extensions.createFrameBuffer(target_resolution,Engine::DepthStorage::NoDepthStencil,1,&GLType<GLbyte>::rgba_type_constant);
+				normalBuffer = gl_extensions.createFrameBuffer(target_resolution,Engine::DepthStorage::NoDepthStencil,1,&GLType<GLbyte>::rgba_type_constant);
+				exp.x = ex;
+				exp.y = ey;
 			}
 			elif (do_resize)
 			{
-				ASSERT__(gl_extensions.resizeFrameBuffer(color_buffer,target_resolution));
-				ASSERT__(gl_extensions.resizeFrameBuffer(normal_buffer,target_resolution));
-				exp_x = ex;
-				exp_y = ey;
+				ASSERT__(gl_extensions.resizeFrameBuffer(colorBuffer,target_resolution));
+				ASSERT__(gl_extensions.resizeFrameBuffer(normalBuffer,target_resolution));
+				exp.x = ex;
+				exp.y = ey;
 			}
 			
-			unsigned	resx = (1<<exp_x),
-						resy = (1<<exp_y);
-			ASSERT__(color_buffer.color_target[0].texture_handle != 0);
-			ASSERT__(normal_buffer.color_target[0].texture_handle != 0);
-			ASSERT2__(iwidth <= resx,iwidth,resx);
-			ASSERT2__(iheight <= resy,iheight,resy);
+			unsigned	resx = (1<<exp.x),
+						resy = (1<<exp.y);
+			ASSERT__(colorBuffer.color_target[0].texture_handle != 0);
+			ASSERT__(normalBuffer.color_target[0].texture_handle != 0);
+			ASSERT2__(size.width <= resx,size.width,resx);
+			ASSERT2__(size.height <= resy,size.height,resy);
 			
 			//height = ceil(height);
-			usage_x = /*ceil*/(float)(iwidth)/(float)resx;
-			usage_y = /*ceil*/(float)(iheight)/(float)resy;
+			usage.x = /*ceil*/(float)(size.width)/(float)resx;
+			usage.y = /*ceil*/(float)(size.height)/(float)resy;
 			
 			
 			glWhite();
@@ -2310,13 +2310,13 @@ namespace Engine
 			//normal renderer:
 			//display.lockRegion();
 			//
-			//normal_shader.install();
+			//normalShader.install();
 			//glMatrixMode(GL_TEXTURE);
 			//glLoadIdentity();
 			//glMatrixMode(GL_MODELVIEW);
 			//
-			//Rect<float>	view(0,0,iwidth,iheight);
-				//ASSERT__(gl_extensions.bindFrameBuffer(normal_buffer));
+			//Rect<float>	view(0,0,size.width,size.height);
+				//ASSERT__(gl_extensions.bindFrameBuffer(normalBuffer));
 				//glClearColor(0,0,0,0);
 				//glClear(GL_COLOR_BUFFER_BIT);
 				//glDisable(GL_BLEND);
@@ -2324,14 +2324,14 @@ namespace Engine
 				//op->focus(view);
 
 			//finish:
-			//	normal_shader.uninstall();
-			//ASSERT__(gl_extensions.bindFrameBuffer(color_buffer));
+			//	normalShader.uninstall();
+			//ASSERT__(gl_extensions.bindFrameBuffer(colorBuffer));
 			//glClearColor(0,0,0,0);
 			//glClear(GL_COLOR_BUFFER_BIT);
 			//glDisable(GL_BLEND);
 
 			//color renderer:
-			//			ASSERT__(gl_extensions.bindFrameBuffer(color_buffer));
+			//			ASSERT__(gl_extensions.bindFrameBuffer(colorBuffer));
 			//glClearColor(0,0,0,0);
 			//glClear(GL_COLOR_BUFFER_BIT);
 			//glDisable(GL_BLEND);
@@ -2341,37 +2341,37 @@ namespace Engine
 
 
 			
-			shared_ptr<Operator> op = operator_link.lock();
+			shared_ptr<Operator> op = operatorLink.lock();
 			if (op)
 			{
-				op->normalRenderer.Configure(normal_buffer,Resolution(iwidth,iheight));
+				op->normalRenderer.Configure(normalBuffer,Resolution(size.width,size.height));
 
-				for (index_t j = 0; j < cell_layout.cells.count(); j++)
+				for (index_t j = 0; j < cellLayout.cells.count(); j++)
 				{
-					const TCellInstance&cell = cell_layout.cells[j];
-					op->normalRenderer.TextureRect(cell.region,cell.normal_texture);
+					const TCellInstance&cell = cellLayout.cells[j];
+					op->normalRenderer.TextureRect(cell.region,cell.normalTexture);
 				}
-				if (component_link && component_link->visible)
+				if (rootComponent && rootComponent->visible)
 				{
-					component_link->OnNormalPaint(op->normalRenderer);
+					rootComponent->OnNormalPaint(op->normalRenderer,true);
 				}
 				op->normalRenderer.Finish();
 		
 
-				op->colorRenderer.Configure(color_buffer,Resolution(iwidth,iheight));
-				for (index_t j = 0; j < cell_layout.cells.count(); j++)
+				op->colorRenderer.Configure(colorBuffer,Resolution(size.width,size.height));
+				for (index_t j = 0; j < cellLayout.cells.count(); j++)
 				{
-					const TCellInstance&cell = cell_layout.cells[j];
-					op->colorRenderer.TextureRect(cell.region,cell.color_texture);
+					const TCellInstance&cell = cellLayout.cells[j];
+					op->colorRenderer.TextureRect(cell.region,cell.colorTexture);
 				}
-				if (cell_layout.title.width()>0)
+				if (cellLayout.title.width()>0)
 				{
 					op->colorRenderer.MarkNewLayer();
-					op->colorRenderer.SetTextPosition(cell_layout.title.x.min,cell_layout.title.y.center()-ColorRenderer::textout.getFont().getHeight()/2+font_offset);
+					op->colorRenderer.SetTextPosition(cellLayout.title.x.min,cellLayout.title.y.center()-ColorRenderer::textout.getFont().getHeight()/2+font_offset);
 					op->colorRenderer.WriteText(title);
 				}
-				if (component_link && component_link->visible)
-					component_link->OnColorPaint(op->colorRenderer);
+				if (rootComponent && rootComponent->visible)
+					rootComponent->OnColorPaint(op->colorRenderer,true);
 			
 				op->colorRenderer.Finish();
 			}
@@ -2379,63 +2379,74 @@ namespace Engine
 			
 		}
 
-		shared_ptr<Component>		Component::successorOf(const shared_ptr<Component>&child_link)
+		shared_ptr<Component>		Component::GetSuccessorOfChild(const shared_ptr<Component>&child_link)
 		{
-			count_t num_children = countChildren();
+			count_t num_children = CountChildren();
 			for (index_t i = 0; i < num_children; i++)
 			{
-				shared_ptr<Component> link = child(i);
+				shared_ptr<Component> link = GetChild(i);
 				if (link == child_link)
 				{
 					if (i < num_children-1)
 					{
-						shared_ptr<Component> next = child(i+1);
-						while (next->countChildren())
-							next = next->child(0);
+						shared_ptr<Component> next = GetChild(i+1);
+						while (next->CountChildren())
+							next = next->GetChild(0);
 						return next;
 					}
 					return shared_from_this();
 				}
-				shared_ptr<Component> successor = link->successorOf(child_link);
+				shared_ptr<Component> successor = link->GetSuccessorOfChild(child_link);
 				if (successor)
 					return successor;
 			}
 			return shared_ptr<Component>();
 		}
 		
-		index_t		Component::indexOfChild(const shared_ptr<Component>&child_) const
+		index_t		Component::GetIndexOfChild(const shared_ptr<Component>&child_) const
 		{
-			count_t num_children = countChildren();
+			count_t num_children = CountChildren();
 			for (index_t i = 0; i < num_children; i++)
-				if (child(i) == child_)
+				if (GetChild(i) == child_)
 					return i;
 			return TypeInfo<index_t>::max;
 		}
 		
 		
-		void			Component::OnColorPaint(ColorRenderer&renderer)
+		void			Component::OnColorPaint(ColorRenderer&renderer, bool parentIsEnabled)
 		{
 			renderer.MarkNewLayer();
 			if (!layout)
 				return;
-			for (index_t j = 0; j < cell_layout.cells.count(); j++)
-			{
-				const TCellInstance&cell = cell_layout.cells[j];
-				renderer.TextureRect(cell.region,cell.color_texture);
-			}
+			renderer.PushColor();
+				if (!enabled || !parentIsEnabled)
+					renderer.ModulateColor(0.5);
+
+				for (index_t j = 0; j < cellLayout.cells.count(); j++)
+				{
+					const TCellInstance&cell = cellLayout.cells[j];
+					renderer.TextureRect(cell.region,cell.colorTexture);
+				}
+			renderer.PopColor();
 			renderer.MarkNewLayer();
 		}
 		
-		void			Component::OnNormalPaint(NormalRenderer&renderer)
+		void			Component::OnNormalPaint(NormalRenderer&renderer, bool parentIsEnabled)
 		{
 			renderer.MarkNewLayer();
 			if (!layout)
 				return;
-			for (index_t j = 0; j < cell_layout.cells.count(); j++)
-			{
-				const TCellInstance&cell = cell_layout.cells[j];
-				renderer.TextureRect(cell.region,cell.normal_texture);
-			}
+			
+			renderer.PushNormalScale();
+				if (!enabled || !parentIsEnabled)
+					renderer.ScaleNormals(0.1f,0.1f,1.f);
+
+				for (index_t j = 0; j < cellLayout.cells.count(); j++)
+				{
+					const TCellInstance&cell = cellLayout.cells[j];
+					renderer.TextureRect(cell.region,cell.normalTexture);
+				}
+			renderer.PopNormalScale();
 			renderer.MarkNewLayer();
 		}
 		
@@ -2457,42 +2468,47 @@ namespace Engine
 			
 			@return true if the mouse has been set, false otherwise
 		*/
-		static bool mouseHover(const shared_ptr<Window>&window, const PComponent&component, float x, float y)
+		static bool MouseHover(const shared_ptr<Window>&window, const PComponent&component, float x, float y)
 		{
-			if (!component || !component->isEnabled())
+			if (!component || !component->IsEnabled())
 				return false;
-			handling_event = true;
-			ext.custom_cursor = Mouse::CursorType::Default;
+			handlingEvent = true;
+			ext.customCursor = Mouse::CursorType::Default;
 			Component::eEventResult rs = component->OnMouseHover(x,y,ext);
 			if (rs != Component::Unsupported)
 			{
-				window->apply(rs);
-				setCursor(ext.custom_cursor);
+				window->Apply(rs);
+				setCursor(ext.customCursor);
 			}
 			
 			if (hovered != component)
 			{
 				if (hovered)
-					hovered->window()->apply(hovered->OnMouseExit());
+					hovered->GetWindow()->Apply(hovered->OnMouseExit());
 				hovered = component;
 			}
-			handling_event = false;
+			handlingEvent = false;
 			return rs != Component::Unsupported;
 		}
 		
 
-		PComponent					Operator::GetComponentUnderMouse()	const
+		PComponent					Operator::GetComponentUnderMouse(bool*enabledOut/*=NULL*/)	const
 		{
 			TVec2<float> m;
 			unprojectMouse(m);
 		
-			for (index_t i = window_stack.count()-1; i < window_stack.count(); i--)
+			for (index_t i = windowStack.count()-1; i < windowStack.count(); i--)
 			{
-				const shared_ptr<Window>&window = window_stack[i];
+				const shared_ptr<Window>&window = windowStack[i];
 				float rx,ry;
-				Window::ClickResult::value_t rs = window->resolve(m.x,m.y,rx,ry);
+				Window::ClickResult::value_t rs = window->Resolve(m.x,m.y,rx,ry);
 				if (rs != Window::ClickResult::Missed)
-					return window->component_link->GetEnabledComponent(rx,ry);
+				{
+					bool IsEnabled = true;
+					if (enabledOut)
+						*enabledOut = true;
+					return window->rootComponent->GetComponent(rx,ry,Component::GenericRequest,enabledOut?*enabledOut:IsEnabled);
+				}
 			}
 			return PComponent();
 		}
@@ -2501,11 +2517,11 @@ namespace Engine
 			TVec2<float> m;
 			unprojectMouse(m);
 		
-			for (index_t i = window_stack.count()-1; i < window_stack.count(); i--)
+			for (index_t i = windowStack.count()-1; i < windowStack.count(); i--)
 			{
-				const shared_ptr<Window>&window = window_stack[i];
+				const shared_ptr<Window>&window = windowStack[i];
 				float rx,ry;
-				Window::ClickResult::value_t rs = window->resolve(m.x,m.y,rx,ry);
+				Window::ClickResult::value_t rs = window->Resolve(m.x,m.y,rx,ry);
 				if (rs != Window::ClickResult::Missed)
 					return window;
 			}
@@ -2532,10 +2548,10 @@ namespace Engine
 			if (focused)
 			{
 				time_since_last_tick += timing.delta;
-				if (time_since_last_tick > focused->tick_interval)
+				if (time_since_last_tick > focused->tickInterval)
 				{
 					time_since_last_tick = 0;
-					focused->window()->apply(focused->OnTick());
+					focused->GetWindow()->Apply(focused->OnTick());
 				}
 			}
 				
@@ -2547,19 +2563,19 @@ namespace Engine
 				stack_changed = false;
 				last_m = m;
 				Window::ClickResult::value_t cursor_mode = Window::ClickResult::Missed;
-				if (mouse->buttons.down[0] && owns_mouse_down && (window_stack.isNotEmpty() || menu_stack.isNotEmpty()))
+				if (mouse->buttons.down[0] && owns_mouse_down && (windowStack.isNotEmpty() || menu_stack.isNotEmpty()))
 				{
 					if (dragging)
 					{
-						cursor_mode = drag_type;
+						cursor_mode = dragType;
 						TVec2<float>	d =	{m.x-last.x,
 											m.y-last.y};
 						if (d.x || d.y)
 						{
-							if (drag_type == Window::ClickResult::DragWindow)
-								dragging->drag(d);
+							if (dragType == Window::ClickResult::DragWindow)
+								dragging->Drag(d);
 							else
-								dragging->dragResize(d,drag_type);
+								dragging->DragResize(d,dragType);
 							last.x += d.x;
 							last.y += d.y;
 						}
@@ -2568,7 +2584,7 @@ namespace Engine
 					{
 					/*	if (last_x != mouse.location.fx || last_y != mouse.location.fy)
 						{
-							window_stack.last()->mouseMove((float)(mouse.location.fx*display->clientWidth()),(float)(mouse.location.fy*display->clientHeight()));
+							windowStack.last()->mouseMove((float)(mouse.location.fx*display->clientWidth()),(float)(mouse.location.fy*display->clientHeight()));
 							last_x = mouse.location.fx;
 							last_y = mouse.location.fy;
 						}*/
@@ -2576,30 +2592,30 @@ namespace Engine
 				}
 				if (clicked)
 				{
-					shared_ptr<Window>	window = menu_stack.isNotEmpty()?menu_stack.last().lock():window_stack.last();
+					shared_ptr<Window>	window = menu_stack.isNotEmpty()?menu_stack.last().lock():windowStack.last();
 
 					if (!window && menu_stack.isNotEmpty())	//last window has been erased
 					{
 						hideMenus();
-						window = window_stack.last();
+						window = windowStack.last();
 					}
 
 					#ifdef DEEP_GUI
-						float	rx = (m.x-window->current_center.x)*window->current_center.shell_radius,
-								ry = (m.y-window->current_center.y)*window->current_center.shell_radius;
+						float	rx = (m.x-window->current_center.x)*window->current_center.shellRadius,
+								ry = (m.y-window->current_center.y)*window->current_center.shellRadius;
 					#else
 						float	rx = (m.x-window->x),
 								ry = (m.y-window->y);
 					#endif
-					rx += window->fwidth*0.5;
-					ry += window->fheight*0.5;
-					ASSERT_NOT_NULL1__(clicked->window(),clicked->type_name);
-					clicked->window()->apply(clicked->OnMouseDrag(rx,ry));
+					rx += window->fsize.x*0.5;
+					ry += window->fsize.y*0.5;
+					ASSERT_NOT_NULL1__(clicked->GetWindow(),clicked->typeName);
+					clicked->GetWindow()->Apply(clicked->OnMouseDrag(rx,ry));
 					cursor_mode = Window::ClickResult::Component;
 				}
 				elif (cursor_mode == Window::ClickResult::Missed)
 				{
-					bool is_modal = false;
+					bool isModal = false;
 					for (index_t i = menu_stack.count()-1; i < menu_stack.count(); i--)
 					{
 						shared_ptr<Window> window = menu_stack[i].lock();
@@ -2608,52 +2624,54 @@ namespace Engine
 							menu_stack.erase(i);
 							continue;
 						}
-						window->fixed_position = true;
+						window->fixedPosition = true;
 						float rx,ry;
-						Window::ClickResult::value_t rs = window->resolve(m.x,m.y,rx,ry);
+						Window::ClickResult::value_t rs = window->Resolve(m.x,m.y,rx,ry);
 						if (rs != Window::ClickResult::Missed)
 						{
-							if (is_modal)
+							if (isModal)
 								rs = Window::ClickResult::Ignored;
 						
 							cursor_mode = rs;
 							if (rs == Window::ClickResult::Component)
 							{
-								PComponent component = window->component_link->GetEnabledComponent(rx,ry);
-								if (!mouseHover(window,component,rx,ry))
+								bool IsEnabled = true;
+								PComponent component = window->rootComponent->GetComponent(rx,ry, Component::HoverRequest, IsEnabled);
+								if (IsEnabled && !MouseHover(window,component,rx,ry))
 									cursor_mode = Window::ClickResult::DragWindow;
 							}
-							is_modal = true;
+							isModal = true;
 						break;
 						}
-						is_modal = true;
+						isModal = true;
 					}
-					for (index_t i = window_stack.count()-1; i < window_stack.count(); i--)
+					for (index_t i = windowStack.count()-1; i < windowStack.count(); i--)
 					{
-						const shared_ptr<Window>&window = window_stack[i];
+						const shared_ptr<Window>&window = windowStack[i];
 						float rx,ry;
-						Window::ClickResult::value_t rs = window->resolve(m.x,m.y,rx,ry);
+						Window::ClickResult::value_t rs = window->Resolve(m.x,m.y,rx,ry);
 						if (rs != Window::ClickResult::Missed)
 						{
-							if (is_modal)
+							if (isModal)
 								rs = Window::ClickResult::Ignored;
 							else
 							{
 								#ifdef DEEP_GUI
 									window->setShellDestination(1.00001);
 								#else
-									//window_stack.append(window_stack.drop(window));
+									//windowStack.append(windowStack.drop(window));
 								#endif
 								cursor_mode = rs;
 								if (rs == Window::ClickResult::Component)
 								{
-									PComponent component = window->component_link->GetEnabledComponent(rx,ry);
-									if (!mouseHover(window,component, rx,ry))
+									bool IsEnabled = true;
+									PComponent component = window->rootComponent->GetComponent(rx,ry, Component::HoverRequest, IsEnabled);
+									if (IsEnabled && !MouseHover(window,component, rx,ry))
 										cursor_mode = Window::ClickResult::DragWindow;
 								}
 								#ifdef DEEP_GUI
-									for (unsigned j = i-1; j < window_stack.count(); j--)
-										window_stack[j]->setShellDestination(radiusOf(j));
+									for (unsigned j = i-1; j < windowStack.count(); j--)
+										windowStack[j]->setShellDestination(radiusOf(j));
 								#endif
 							}
 							break;
@@ -2662,7 +2680,7 @@ namespace Engine
 							else
 								window->setShellDestination(radiusOf(i));
 						#endif
-						is_modal |= window->is_modal;
+						isModal |= window->isModal;
 					}
 				}
 				switch (cursor_mode)
@@ -2700,7 +2718,7 @@ namespace Engine
 				if (cursor_mode == Window::ClickResult::Missed)
 				{
 					if (hovered)
-						hovered->window()->apply(hovered->OnMouseExit());
+						hovered->GetWindow()->Apply(hovered->OnMouseExit());
 					hovered.reset();
 				}
 			}
@@ -2714,18 +2732,18 @@ namespace Engine
 					menu_stack.erase(i--);
 					continue;
 				}
-				if (window->visual_changed)
+				if (window->visualChanged)
 				{
-					if (window->operator_link.expired())
-						window->operator_link = shared_from_this();	//I'm tired
-					window->renderBuffers(*display);
+					if (window->operatorLink.expired())
+						window->operatorLink = shared_from_this();	//I'm tired
+					window->RenderBuffers(*display);
 				}
 			}
-			for (index_t i = 0; i < window_stack.count(); i++)
+			for (index_t i = 0; i < windowStack.count(); i++)
 			{
-				const shared_ptr<Window>&window = window_stack[i];
-				if (window->visual_changed)
-					window->renderBuffers(*display);
+				const shared_ptr<Window>&window = windowStack[i];
+				if (window->visualChanged)
+					window->RenderBuffers(*display);
 				#ifdef DEEP_GUI
 					float delta = timing.delta;
 					if (delta > 0.05)
@@ -2742,8 +2760,8 @@ namespace Engine
 			}
 			
 			#ifdef DEEP_GUI
-				Sort<DepthSort>::quickSortRAL(window_stack);
-				window_stack.revert();
+				Sort<DepthSort>::quickSortRAL(windowStack);
+				windowStack.revert();
 			#endif
 
 			display->pick(projected_space);
@@ -2754,26 +2772,26 @@ namespace Engine
 			glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_CLAMP_TO_EDGE);
 			glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_CLAMP_TO_EDGE);
 			
-			if (setting_changed)
+			if (settingChanged)
 			{
-				window_shader.userConfig()->set(blur_effect_switch,blur_effect);
-				window_shader.userConfig()->set(refract_effect_switch,refract_effect);
-				window_shader.userConfig()->set(bump_effect_switch,bump_effect);
-				//logfile << window_shader.assembleSource()<<nl<<nl;
-				current_window_shader = window_shader.buildShader();
-				if (!current_window_shader)
-					ErrMessage(window_shader.report());
-				setting_changed = false;
+				windowShader.userConfig()->set(blurEffectSwitch,blurEffect);
+				windowShader.userConfig()->set(refractEffectSwitch,refractEffect);
+				windowShader.userConfig()->set(bumpEffectSwitch,bumpEffect);
+				//logfile << windowShader.assembleSource()<<nl<<nl;
+				currentWindowShader = windowShader.buildShader();
+				if (!currentWindowShader)
+					ErrMessage(windowShader.report());
+				settingChanged = false;
 			}
 
 			
-			ASSERT__(current_window_shader->install());
+			ASSERT__(currentWindowShader->install());
 			float	w = display->clientWidth(),
 					h = display->clientHeight();
 			glWhite();
-			for (index_t i = 0; i < window_stack.count(); i++)
+			for (index_t i = 0; i < windowStack.count(); i++)
 			{
-				const shared_ptr<Window>&window = window_stack[i];
+				const shared_ptr<Window>&window = windowStack[i];
 				
 				render(window,w,h,false);
 
@@ -2810,13 +2828,13 @@ namespace Engine
 				glLoadIdentity();
 				glMatrixMode(GL_MODELVIEW);
 			glBindTexture(GL_TEXTURE_2D,0);
-			current_window_shader->uninstall();
+			currentWindowShader->uninstall();
 		
 			/*
 
-			for (index_t i = 0; i < window_stack.count(); i++)
+			for (index_t i = 0; i < windowStack.count(); i++)
 			{
-				const shared_ptr<Window>&window = window_stack[i];
+				const shared_ptr<Window>&window = windowStack[i];
 				
 				renderBox(window,w,h,false);
 
@@ -2871,7 +2889,7 @@ namespace Engine
 		*/
 		bool			Operator::windowIsVisible(const shared_ptr<Window>&window)	const
 		{
-			return window_stack.contains(window);
+			return windowStack.contains(window);
 		}
 		
 		/**
@@ -2880,9 +2898,9 @@ namespace Engine
 		*/
 		shared_ptr<Window>	Operator::getTopWindow() const
 		{
-			if (window_stack.isEmpty())
+			if (windowStack.isEmpty())
 				return shared_ptr<Window>();
-			return window_stack.last();
+			return windowStack.last();
 		}
 
 		/**
@@ -2890,71 +2908,71 @@ namespace Engine
 		*/
 		bool				Operator::showingModalWindows()	const
 		{
-			return window_stack.isNotEmpty() && window_stack.last()->is_modal;
+			return windowStack.isNotEmpty() && windowStack.last()->isModal;
 		}
 
 
 		
 		void			Operator::ShowWindow(const shared_ptr<Window>&window)
 		{
-			if (!window->operator_link.expired())
+			if (!window->operatorLink.expired())
 			{
-				shared_ptr<Operator>	op = window->operator_link.lock();
+				shared_ptr<Operator>	op = window->operatorLink.lock();
 				if (op && op.get() != this)
 				{
 					op->HideWindow(window);
-					window->operator_link = shared_from_this();
+					window->operatorLink = shared_from_this();
 				}
 			}
 			else
-				window->operator_link = shared_from_this();
-			if (window_stack.isNotEmpty() && window_stack.last() == window)
+				window->operatorLink = shared_from_this();
+			if (windowStack.isNotEmpty() && windowStack.last() == window)
 				return;
-			window_stack.findAndErase(window);
+			windowStack.findAndErase(window);
 
-			if (!window->is_modal && window_stack.isNotEmpty() && window_stack.last()->is_modal)
+			if (!window->isModal && windowStack.isNotEmpty() && windowStack.last()->isModal)
 			{
-				index_t at = window_stack.size()-2;
-				while (at != InvalidIndex && window_stack[at]->is_modal)
+				index_t at = windowStack.size()-2;
+				while (at != InvalidIndex && windowStack[at]->isModal)
 					at--;
-				window_stack.insert(at+1,window);
+				windowStack.insert(at+1,window);
 			}
 			else
 			{
-				if (window_stack.isNotEmpty())
-					window_stack.last()->onFocusLost();
-				window_stack << window;
-				Component::resetFocused();
+				if (windowStack.isNotEmpty())
+					windowStack.last()->onFocusLost();
+				windowStack << window;
+				Component::ResetFocused();
 				window->onFocusGained();
 			}
 			#ifdef DEEP_GUI
-				window->current_center.shell_radius = window->destination.shell_radius = window->origin.shell_radius = radiusOf(window_stack-1);
+				window->current_center.shellRadius = window->destination.shellRadius = window->origin.shellRadius = radiusOf(windowStack-1);
 			#endif
 
 			#ifdef DEEP_GUI
-				for (unsigned j = 0; j < window_stack.count(); j++)
-					window_stack[j]->setShellDestination(radiusOf(j));
+				for (unsigned j = 0; j < windowStack.count(); j++)
+					windowStack[j]->setShellDestination(radiusOf(j));
 			#endif
 			stack_changed=true;
 		}
 		
 		bool			Operator::HideWindow(const shared_ptr<Window>&window)
 		{
-			bool was_top = window_stack.isNotEmpty() && window_stack.last() == window;
+			bool was_top = windowStack.isNotEmpty() && windowStack.last() == window;
 				
-			if (window_stack.findAndErase(window))
+			if (windowStack.findAndErase(window))
 			{
 				if (was_top)
 				{
 					window->onFocusLost();
-					Component::resetFocused();
-					if (window_stack.isNotEmpty())
-						window_stack.last()->onFocusGained();
+					Component::ResetFocused();
+					if (windowStack.isNotEmpty())
+						windowStack.last()->onFocusGained();
 				}
-				window->operator_link.reset();
+				window->operatorLink.reset();
 				#ifdef DEEP_GUI
-					for (index_t j = 0; j < window_stack.count(); j++)
-						window_stack[j]->setShellDestination(radiusOf(j));
+					for (index_t j = 0; j < windowStack.count(); j++)
+						windowStack[j]->setShellDestination(radiusOf(j));
 				#endif
 				stack_changed=true;
 				return true;
@@ -2965,22 +2983,23 @@ namespace Engine
 		
 		static bool mouseDown(const shared_ptr<Window>&window, float x, float y)
 		{
-			handling_event = true;
-			ext.custom_cursor = Mouse::CursorType::Default;
+			handlingEvent = true;
 			//ext.caught_by.reset();
-			PComponent component = window->component_link->GetEnabledComponent(x,y);
-			if (component && component->isEnabled())
+			bool IsEnabled = true;
+			PComponent component = window->rootComponent->GetComponent(x,y, Component::ClickRequest, IsEnabled);
+			if (IsEnabled && component)
 			{
+				ext.customCursor = Mouse::CursorType::Default;
 				Component::eEventResult rs = component->OnMouseDown(x,y,ext);
 				clicked.reset();
 				if (rs != Component::Unsupported)
 				{
-					window->apply(rs);
+					window->Apply(rs);
 					clicked = component;
-					setCursor(ext.custom_cursor);
+					setCursor(ext.customCursor);
 				}
-				Component::setFocused(clicked);
-				handling_event = false;
+				Component::SetFocused(clicked);
+				handlingEvent = false;
 				return rs != Component::Unsupported;
 			}
 			return false;
@@ -3001,10 +3020,10 @@ namespace Engine
 					continue;
 				}
 			
-				window->fixed_position = true;
+				window->fixedPosition = true;
 
 				float rx, ry;
-				Window::ClickResult::value_t rs = window->resolve(m.x,m.y,rx,ry);
+				Window::ClickResult::value_t rs = window->Resolve(m.x,m.y,rx,ry);
 				
 				
 				if (rs != Window::ClickResult::Missed)
@@ -3013,9 +3032,9 @@ namespace Engine
 					dragging.reset();
 					if (rs == Window::ClickResult::Component)
 						if (!GUI::mouseDown(window,rx,ry))
-							rs = window->fixed_position?Window::ClickResult::Ignored:Window::ClickResult::DragWindow;
+							rs = window->fixedPosition?Window::ClickResult::Ignored:Window::ClickResult::DragWindow;
 					if (rs != Window::ClickResult::Component)
-						Component::setFocused(shared_ptr<Component>());
+						Component::SetFocused(shared_ptr<Component>());
 					return true;
 				}
 				else
@@ -3025,41 +3044,41 @@ namespace Engine
 				}
 			}
 			
-			for (index_t i = window_stack.count()-1; i < window_stack.count(); i--)
+			for (index_t i = windowStack.count()-1; i < windowStack.count(); i--)
 			{
-				shared_ptr<Window> window = window_stack[i];
+				shared_ptr<Window> window = windowStack[i];
 			
 				float rx, ry;
-				Window::ClickResult::value_t rs = window->resolve(m.x,m.y,rx,ry);
+				Window::ClickResult::value_t rs = window->Resolve(m.x,m.y,rx,ry);
 				
 				if (rs != Window::ClickResult::Missed)
 				{
 					if (rs == Window::ClickResult::Component)
 						if (!GUI::mouseDown(window,rx,ry))
-							rs = window->fixed_position?Window::ClickResult::Ignored:Window::ClickResult::DragWindow;
+							rs = window->fixedPosition?Window::ClickResult::Ignored:Window::ClickResult::DragWindow;
 					if (rs != Window::ClickResult::Component)
-						Component::resetFocused();
-					if (i+1 != window_stack.count())
+						Component::ResetFocused();
+					if (i+1 != windowStack.count())
 					{
-						window_stack.last()->onFocusLost();
-						window_stack.erase(i);
-						Component::resetFocused();
-						window_stack << window;
+						windowStack.last()->onFocusLost();
+						windowStack.erase(i);
+						Component::ResetFocused();
+						windowStack << window;
 						window->onFocusGained();
 						#ifdef DEEP_GUI
-							for (unsigned j = 0; j < window_stack.count(); j++)
-								window_stack[j]->setShellDestination(radiusOf(j));
+							for (unsigned j = 0; j < windowStack.count(); j++)
+								windowStack[j]->setShellDestination(radiusOf(j));
 						#endif
 					}
 					owns_mouse_down = true;
 					dragging = (rs >= Window::ClickResult::DragWindow ? window : shared_ptr<Window>());
-					drag_type = rs;
+					dragType = rs;
 					return rs != Window::ClickResult::Ignored;	//lets see if this is good
 				}
-				elif (window->is_modal)
+				elif (window->isModal)
 					return false;
 			}
-			Component::setFocused(shared_ptr<Component>());
+			Component::SetFocused(shared_ptr<Component>());
 			return false;
 		}
 		
@@ -3077,69 +3096,70 @@ namespace Engine
 				}
 				
 				#ifdef DEEP_GUI
-					float x = (m.x-window->current_center.x)*window->current_center.shell_radius+window->fwidth/2;
-					float y = (m.y-window->current_center.y)*window->current_center.shell_radius+window->fheight/2;
+					float x = (m.x-window->current_center.x)*window->current_center.shellRadius+window->fsize.x/2;
+					float y = (m.y-window->current_center.y)*window->current_center.shellRadius+window->fsize.y/2;
 				#else
-					float x = (m.x-window->x)+window->fwidth/2;
-					float y = (m.y-window->y)+window->fheight/2;
+					float x = (m.x-window->x)+window->fsize.x/2;
+					float y = (m.y-window->y)+window->fsize.y/2;
 				#endif
-				if (!window->cell_layout.border.contains(x,y))
+				if (!window->cellLayout.border.contains(x,y))
 				{
 					window->hidden = timing.now64;
 					menu_stack.erase(i);
 					continue;
 				}
 				
-				if (window->component_link && window->component_link->isVisible() && window->component_link->isEnabled())
+				if (window->rootComponent && window->rootComponent->IsVisible() && window->rootComponent->IsEnabled())
 				{
-					PComponent component = window->component_link->GetEnabledComponent(x,y);
-					bool passOn = false;
-					if (component && component->isEnabled())
+					bool IsEnabled = true;
+					PComponent component = window->rootComponent->GetComponent(x,y,Component::MouseWheelRequest, IsEnabled);
+					if (IsEnabled && component)
 					{
 						Component::eEventResult rs = component->OnMouseWheel(x,y,delta);
-						window->apply(rs);
+						window->Apply(rs);
 						if (rs != Component::Unsupported)
-							mouseHover(window,component,x,y);
+							MouseHover(window,component,x,y);
 					}
 				}
 				return true;
 			}
-			for (index_t i = window_stack.count()-1; i < window_stack.count(); i--)
+			for (index_t i = windowStack.count()-1; i < windowStack.count(); i--)
 			{
-				shared_ptr<Window> window = window_stack[i];
+				shared_ptr<Window> window = windowStack[i];
 				
 				#ifdef DEEP_GUI
-					float x = (m.x-window->current_center.x)*window->current_center.shell_radius+window->fwidth/2;
-					float y = (m.y-window->current_center.y)*window->current_center.shell_radius+window->fheight/2;
+					float x = (m.x-window->current_center.x)*window->current_center.shellRadius+window->fsize.x/2;
+					float y = (m.y-window->current_center.y)*window->current_center.shellRadius+window->fsize.y/2;
 				#else
-					float x = (m.x-window->x)+window->fwidth/2;
-					float y = (m.y-window->y)+window->fheight/2;
+					float x = (m.x-window->x)+window->fsize.x/2;
+					float y = (m.y-window->y)+window->fsize.y/2;
 				#endif
-				if (!window->cell_layout.border.contains(x,y))
+				if (!window->cellLayout.border.contains(x,y))
 					continue;
 				
-				if (window->component_link && window->component_link->isVisible() && window->component_link->isEnabled())
+				if (window->rootComponent && window->rootComponent->IsVisible() && window->rootComponent->IsEnabled())
 				{
-					PComponent component = window->component_link->GetEnabledComponent(x,y);
-					if (component && component->isEnabled())
+					bool IsEnabled = true;
+					PComponent component = window->rootComponent->GetComponent(x,y,Component::HoverRequest,IsEnabled);
+					if (component && IsEnabled)
 					{
 						Component::eEventResult rs = component->OnMouseWheel(x,y,delta);
-						window->apply(rs);
+						window->Apply(rs);
 						if (rs != Component::Unsupported)
-							mouseHover(window,component,x,y);
+							MouseHover(window,component,x,y);
 					}
 				}
-				if (i+1 != window_stack.count())
+				if (i+1 != windowStack.count())
 				{
-					window_stack.last()->onFocusLost();
-					window_stack.erase(i);
-					Component::resetFocused();
-					window_stack << window;
+					windowStack.last()->onFocusLost();
+					windowStack.erase(i);
+					Component::ResetFocused();
+					windowStack << window;
 					window->onFocusGained();
 				}
 				#ifdef DEEP_GUI
-					for (unsigned j = 0; j < window_stack.count(); j++)
-						window_stack[j]->setShellDestination(radiusOf(j));
+					for (unsigned j = 0; j < windowStack.count(); j++)
+						windowStack[j]->setShellDestination(radiusOf(j));
 				#endif
 				return true;
 			}
@@ -3150,22 +3170,22 @@ namespace Engine
 		{
 			if (!owns_mouse_down)
 				return;
-			handling_event = true;
+			handlingEvent = true;
 			if (clicked)
 			{
 				TVec2<float> m;
 				unprojectMouse(m);
-				clicked->window()->mouseUp(m.x,m.y);
+				clicked->GetWindow()->SignalMouseUp(m.x,m.y);
 			}
 			clicked.reset();
-			handling_event = false;
+			handlingEvent = false;
 		}
 		
 
 		
 		shared_ptr<Window>		Operator::ShowNewWindow(const NewWindowConfig&config, const shared_ptr<Component>&component /*=shared_ptr<Component>()*/)
 		{
-			return ShowNewWindow(config,&Window::common_style,component);
+			return ShowNewWindow(config,&Window::commonStyle,component);
 		}
 		
 		shared_ptr<Window>		Operator::ShowNewWindow(const NewWindowConfig&config,Layout*layout,const shared_ptr<Component>&component)
@@ -3177,8 +3197,8 @@ namespace Engine
 		
 		void Operator::bind(Key::Name key)
 		{
-			input->bind(key,std::bind(Component::keyDown,key),std::bind(Component::keyUp,key));
-			input->bindCtrl(key,std::bind(Component::keyDown,key));
+			input->bind(key,std::bind(Component::SignalKeyDown,key),std::bind(Component::SignalKeyUp,key));
+			input->bindCtrl(key,std::bind(Component::SignalKeyDown,key));
 		}
 
 		
@@ -3228,7 +3248,7 @@ namespace Engine
 			GlobalAspectConfiguration::load_as_projection = aspect_was_in_projection;
 			GlobalAspectConfiguration::world_z_is_up = world_z_was_up;
 		
-			GUI::initialize();
+			GUI::Initialize();
 			return rs;
 		}
 
@@ -3253,30 +3273,30 @@ namespace Engine
 					max_x = w/2,
 					min_y = -h/2,
 					max_y = h/2;
-			for (index_t i = 0; i < window_stack.size(); i++)
+			for (index_t i = 0; i < windowStack.size(); i++)
 			{
-				window_stack[i]->x = clamped(window_stack[i]->x,min_x,max_x);
-				window_stack[i]->y = clamped(window_stack[i]->y,min_y,max_y-window_stack[i]->fheight/2.f);
+				windowStack[i]->x = clamped(windowStack[i]->x,min_x,max_x);
+				windowStack[i]->y = clamped(windowStack[i]->y,min_y,max_y-windowStack[i]->fsize.y/2.f);
 			}
 		}
 	
 	
 		void	setBlurEffect(bool setting)
 		{
-			setting_changed |= blur_effect != setting;
-			blur_effect = setting;
+			settingChanged |= blurEffect != setting;
+			blurEffect = setting;
 		}
 			
 		void	setRefractEffect(bool setting)
 		{
-			setting_changed |= refract_effect != setting;
-			refract_effect = setting;
+			settingChanged |= refractEffect != setting;
+			refractEffect = setting;
 		}
 			
 		void	setBumpEffect(bool setting)
 		{
-			setting_changed |= bump_effect != setting;
-			bump_effect = setting;
+			settingChanged |= bumpEffect != setting;
+			bumpEffect = setting;
 		}
 	
 	

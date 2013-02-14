@@ -8,34 +8,34 @@ namespace Engine
 	namespace GUI
 	{
 	
-		Layout								Button::global_layout,
-											Panel::global_layout,
-											Edit::global_layout,
-											ComboBox::global_layout,
-											Menu::global_layout;
+		Layout								Button::globalLayout,
+											Panel::globalLayout,
+											Edit::globalLayout,
+											ComboBox::globalLayout,
+											Menu::globalLayout;
 		ScrollBarLayout						ScrollBarLayout::global;
-		CheckBox::TStyle					CheckBox::global_style;
+		CheckBox::TStyle					CheckBox::globalStyle;
 		SliderLayout						SliderLayout::global;
 
 	
 	
 	
-		bool		Panel::getChildSpace(Rect<float>&out_rect)	const
+		bool		Panel::GetChildSpace(Rect<float>&outRect)	const
 		{
 			if (children.isEmpty())
 				return false;
 			const shared_ptr<Component>&first = children.first();
-			out_rect = first->current_region;
+			outRect = first->currentRegion;
 				
 			for (index_t i = 1; i < children.count(); i++)
 			{
 				const shared_ptr<Component>&child = children[i];
-				out_rect.include(child->current_region);
+				outRect.include(child->currentRegion);
 			}
 			return true;
 		}
 		
-		void			Panel::append(const shared_ptr<Component>&component)
+		void			Panel::Append(const shared_ptr<Component>&component)
 		{
 			DBG_ASSERT__(!children.contains(component));
 			component->anchored.set(true,false,false,true);
@@ -44,13 +44,13 @@ namespace Engine
 			else
 				component->offset.top = 0;
 			component->offset.left = 0;
-			component->setWindow(window_link);
+			component->SetWindow(windowLink);
 			children << component;
 
-			signalLayoutChange();
+			SignalLayoutChange();
 		}
 		
-		void			Panel::appendRight(const shared_ptr<Component>&component)
+		void			Panel::AppendRight(const shared_ptr<Component>&component)
 		{
 			DBG_ASSERT__(!children.contains(component));
 			if (children.isNotEmpty())
@@ -65,202 +65,198 @@ namespace Engine
 				component->offset.top = 0;
 				component->offset.left = 0;
 			}
-			component->setWindow(window_link);
+			component->SetWindow(windowLink);
 			children << component;
 
-			signalLayoutChange();
+			SignalLayoutChange();
 		}
 		
-		bool					Panel::add(const shared_ptr<Component>&component)
+		bool					Panel::Add(const shared_ptr<Component>&component)
 		{
 			if (!component || children.contains(component))
 				return false;
 			children << component;
-			component->setWindow(window_link);
-			signalLayoutChange();
+			component->SetWindow(windowLink);
+			SignalLayoutChange();
 			return true;
 		}
 		
-		bool					Panel::erase(const shared_ptr<Component>&component)
+		bool					Panel::Erase(const shared_ptr<Component>&component)
 		{
 			if (children.findAndErase(component))
 			{
-				component->setWindow(shared_ptr<Window>());
-				signalLayoutChange();
+				component->SetWindow(shared_ptr<Window>());
+				SignalLayoutChange();
 				return true;
 			}
 			return false;
 		}
 		
-		bool					Panel::erase(index_t index)
+		bool					Panel::Erase(index_t index)
 		{
 			if (index < children.count())
 			{
-				children[index]->setWindow(shared_ptr<Window>());
+				children[index]->SetWindow(shared_ptr<Window>());
 				children.erase(index);
-				signalLayoutChange();
+				SignalLayoutChange();
 				return true;
 			}
 			return false;
 		}
 		
 		
-		bool					Panel::moveUp(const shared_ptr<Component>&component)
+		bool					Panel::MoveChildUp(const shared_ptr<Component>&component)
 		{
 			index_t index;
 			if ((index = children.indexOf(component)) != -1)
-				return moveUp(index);
+				return MoveChildUp(index);
 			return false;
 		}
 		
-		bool					Panel::moveUp(index_t index)
+		bool					Panel::MoveChildUp(index_t index)
 		{
 			if (index+1 >= children.count())
 				return false;
 			Buffer<shared_ptr<Component>,4>::AppliedStrategy::swap(children[index],children[index+1]);
-			signalVisualChange();
+			SignalVisualChange();
 			return true;
 		}
 		
 
 		
-		bool					Panel::moveDown(const shared_ptr<Component>&component)
+		bool					Panel::MoveChildDown(const shared_ptr<Component>&component)
 		{
 			index_t index;
 			if ((index = children.indexOf(component)) != -1)
-				return moveDown(index);
+				return MoveChildDown(index);
 			return false;
 		}
 		
-		bool					Panel::moveDown(index_t index)
+		bool					Panel::MoveChildDown(index_t index)
 		{
 			if (!index || index >= children.count())
 				return false;
 			Buffer<shared_ptr<Component>,4>::AppliedStrategy::swap(children[index-1],children[index]);
-			signalVisualChange();
+			SignalVisualChange();
 			return true;
 		}
 
-		bool					Panel::moveTop(const shared_ptr<Component>&component)
+		bool					Panel::MoveChildToTop(const shared_ptr<Component>&component)
 		{
 			index_t index;
 			if ((index = children.indexOf(component))!=-1)
-				return moveTop(index);
+				return MoveChildToTop(index);
 			return false;
 		}
 		
-		bool					Panel::moveTop(index_t index)
+		bool					Panel::MoveChildToTop(index_t index)
 		{
 			if (index+1 < children.count())
 			{
 				shared_ptr<Component> cmp = children[index];
 				children.erase(index);
 				children << cmp;
-				signalVisualChange();
+				SignalVisualChange();
 				return true;
 			}
 			return false;
 		}
 		
-		bool					Panel::moveBottom(const shared_ptr<Component>&component)
+		bool					Panel::MoveChildToBottom(const shared_ptr<Component>&component)
 		{
 			index_t index;
 			if ((index = children.indexOf(component)) != -1)
-				return moveBottom(index);
+				return MoveChildToBottom(index);
 			return false;
 		}
 		
-		bool					Panel::moveBottom(index_t index)
+		bool					Panel::MoveChildToBottom(index_t index)
 		{
 			if (index && index < children.count())
 			{
 				shared_ptr<Component> cmp = children[index];
 				children.erase(index);
 				children.insert(0,cmp);
-				signalVisualChange();
+				SignalVisualChange();
 				return true;
 			}
 			return false;
 		}
 		
-		void		Panel::updateLayout(const Rect<float>&parent_region)
+		void		Panel::UpdateLayout(const Rect<float>&parent_region)
 		{
-			Component::updateLayout(parent_region);
+			Component::UpdateLayout(parent_region);
 			for (index_t i = 0; i < children.count(); i++)
-				children[i]->updateLayout(cell_layout.client);
+				children[i]->UpdateLayout(cellLayout.client);
 		}
 		
-		float		Panel::clientMinWidth()	const
+		float		Panel::GetClientMinWidth()	const
 		{
 			float rs = 0;
 			
 			for (index_t i = 0; i < children.count(); i++)
 			{
-				float c = children[i]->minWidth(true);
+				float c = children[i]->GetMinWidth(true);
 				if (c > rs)
 					rs = c;
 			}
 			return rs;
 		}
 		
-		float		Panel::clientMinHeight()	const
+		float		Panel::GetClientMinHeight()	const
 		{
 			float rs = 0;
 			
 			for (index_t i = 0; i < children.count(); i++)
 			{
-				float c = children[i]->minHeight(true);
+				float c = children[i]->GetMinHeight(true);
 				if (c > rs)
 					rs = c;
 			}
 			return rs;
 		}
 		
-		/*virtual override*/ void		Panel::OnColorPaint(ColorRenderer&renderer)
+		/*virtual override*/ void		Panel::OnColorPaint(ColorRenderer&renderer, bool parentIsEnabled)
 		{
 			renderer.PushColor();
-			Component::OnColorPaint(renderer);
-			renderer.Clip(cell_layout.client);
-			for (index_t i = 0; i < children.count(); i++)
-				if (children[i]->isVisible())
-				{
-					renderer.PeekColor();
-					children[i]->OnColorPaint(renderer);
-				}
-			renderer.Unclip();
+				Component::OnColorPaint(renderer,parentIsEnabled);
+				bool subEnabled = parentIsEnabled && IsEnabled();
+				renderer.Clip(cellLayout.client);
+					for (index_t i = 0; i < children.count(); i++)
+						if (children[i]->IsVisible())
+						{
+							renderer.PeekColor();
+							children[i]->OnColorPaint(renderer,subEnabled);
+						}
+				renderer.Unclip();
 			renderer.PopColor();
 		}
 		
-		/*virtual override*/ void		Panel::OnNormalPaint(NormalRenderer&renderer)
+		/*virtual override*/ void		Panel::OnNormalPaint(NormalRenderer&renderer, bool parentIsEnabled)
 		{
 			renderer.PushNormalScale();
-				Component::OnNormalPaint(renderer);
+				Component::OnNormalPaint(renderer,parentIsEnabled);
+				bool subEnabled = parentIsEnabled && IsEnabled();
 			
-				renderer.Clip(cell_layout.client);
+				renderer.Clip(cellLayout.client);
 					for (index_t i = 0; i < children.count(); i++)
-						if (children[i]->isVisible())
+						if (children[i]->IsVisible())
 						{
 							renderer.PeekNormalScale();
-							children[i]->OnNormalPaint(renderer);
+							children[i]->OnNormalPaint(renderer,subEnabled);
 						}
 				renderer.Unclip();
 			renderer.PopNormalScale();
 		}
 
-		/*virtual override*/ PComponent			Panel::GetEnabledComponent(float x, float y)
+		/*virtual override*/ PComponent			Panel::GetComponent(float x, float y, ePurpose purpose, bool&outIsEnabled)
 		{
-			if (!isEnabled())
-				return PComponent();
+			outIsEnabled &= IsEnabled();
 			for (index_t i = children.count()-1; i < children.count(); i--)
 			{
 				const shared_ptr<Component>&child = children[i];
-				if (child->isVisible() && child->cell_layout.border.contains(x,y))
-				{
-					if (child->isEnabled())
-						return child->GetEnabledComponent(x,y);
-					else
-						return PComponent();
-				}
+				if (child->IsVisible() && child->cellLayout.border.contains(x,y))
+					return child->GetComponent(x,y,purpose,outIsEnabled);
 			}
 			return shared_from_this();
 		}
@@ -269,21 +265,21 @@ namespace Engine
 		
 
 		
-		void	ScrollBarLayout::loadFromFile(const String&filename, float scale)
+		void	ScrollBarLayout::LoadFromFile(const String&filename, float scale)
 		{
 			/*
-				TTexture				back_center,
-										back_bottom,
-										cursor_center,
-										cursor_bottom,
-										bottom_button;
-				float					button_indent;
+				TTexture				backCenter,
+										backBottom,
+										cursorCenter,
+										cursorBottom,
+										bottomButton;
+				float					buttonIndent;
 			*/
 			
 			FileSystem::Folder	folder(FileSystem::extractFilePath(filename));
 			
 			XML::Container	xml;
-			xml.loadFromFile(filename);
+			xml.LoadFromFile(filename);
 				
 
 			String attrib;
@@ -294,39 +290,39 @@ namespace Engine
 			if (!xback || !xcursor || !xbutton)
 				throw IO::DriveAccess::FileFormatFault(globalString(__func__": Required XML nodes scrollbar/background, scrollbar/cursor, and/or scrollbar/button not found"));
 
-			TTexture::load(xback,"center",folder,back_center,scale);
+			TTexture::load(xback,"center",folder,backCenter,scale);
 
-			TTexture::load(xback,"bottom",folder,back_bottom,scale);
-			TTexture::load(xcursor,"center",folder,cursor_center,scale);
-			TTexture::load(xcursor,"bottom",folder,cursor_bottom,scale);
-			TTexture::load(xbutton,"background",folder,bottom_button,scale);
+			TTexture::load(xback,"bottom",folder,backBottom,scale);
+			TTexture::load(xcursor,"center",folder,cursorCenter,scale);
+			TTexture::load(xcursor,"bottom",folder,cursorBottom,scale);
+			TTexture::load(xbutton,"background",folder,bottomButton,scale);
 
-			if (!xbutton->query("indent",attrib) || !convert(attrib.c_str(),button_indent))
+			if (!xbutton->query("indent",attrib) || !convert(attrib.c_str(),buttonIndent))
 				throw IO::DriveAccess::FileFormatFault(globalString(__func__": Failed to find or parse scrollbar/button attribute 'indent'"));
 			
 			
-			button_indent *= scale;
-			min_width = vmax(vmax(vmax(back_center.width,back_bottom.width),vmax(cursor_center.width,cursor_bottom.width)),bottom_button.width);
-			min_height = 2*(bottom_button.height-button_indent+back_bottom.height);
+			buttonIndent *= scale;
+			minWidth = vmax(vmax(vmax(backCenter.width,backBottom.width),vmax(cursorCenter.width,cursorBottom.width)),bottomButton.width);
+			minHeight = 2*(bottomButton.height-buttonIndent+backBottom.height);
 		}
 		
 		
 		
-		void	SliderLayout::loadFromFile(const String&filename, float scale)
+		void	SliderLayout::LoadFromFile(const String&filename, float scale)
 		{
 			/*
-				TTexture				back_center,
-										back_bottom,
-										cursor_center,
-										cursor_bottom,
-										bottom_button;
-				float					button_indent;
+				TTexture				backCenter,
+										backBottom,
+										cursorCenter,
+										cursorBottom,
+										bottomButton;
+				float					buttonIndent;
 			*/
 			
 			FileSystem::Folder	folder(FileSystem::extractFilePath(filename));
 			
 			XML::Container	xml;
-			xml.loadFromFile(filename);
+			xml.LoadFromFile(filename);
 				
 
 			String attrib;
@@ -336,12 +332,12 @@ namespace Engine
 			if (!xbar || !xslider)
 				throw IO::DriveAccess::FileFormatFault(globalString(__func__": Required XML nodes slider/bar and/or slider/slider not found"));
 
-			TTexture::load(xbar,"left",folder,bar_left,scale);
-			TTexture::load(xbar,"center",folder,bar_center,scale);
+			TTexture::load(xbar,"left",folder,barLeft,scale);
+			TTexture::load(xbar,"center",folder,barCenter,scale);
 			TTexture::load(xslider,"background",folder,slider,scale);
 
-			min_width = vmax(2*bar_left.width+bar_center.width,slider.width);
-			min_height = vmax(vmax(bar_left.height,bar_center.height),slider.height);
+			minWidth = vmax(2*barLeft.width+barCenter.width,slider.width);
+			minHeight = vmax(vmax(barLeft.height,barCenter.height),slider.height);
 		}
 		
 		
@@ -352,168 +348,167 @@ namespace Engine
 		
 		
 				
-		void		Slider::setup()
+		void		Slider::_Setup()
 		{
-			cursor_grabbed = false;
-			slider_layout = &SliderLayout::global;
+			cursorGrabbed = false;
+			sliderLayout = &SliderLayout::global;
 			current = 0;
 			max = 1;
 		}
 		
 
-		void		Slider::onSlide()
+		void		Slider::OnSlide()
 		{
-			on_slide();
+			onSlide();
 		}
 		
 		
 		
 		
-		void		Slider::updateCursorRegion()
+		void		Slider::_UpdateCursorRegion()
 		{
-			if (!slider_layout)
+			if (!sliderLayout)
 				return;
-			float width = slider_layout->slider.width;
-			slide_from = cell_layout.client.left()+width/2;
-			slide_range = cell_layout.client.x.max-cell_layout.client.left()-width;
-			float center = slide_from+current/max*slide_range;
-			cursor_region.left() = center-width/2;
-			cursor_region.x.max = center+width/2;
-			cursor_region.top() = cell_layout.client.y.center()+slider_layout->slider.height/2;
-			cursor_region.bottom() = cursor_region.top()-slider_layout->slider.height;
-			slider.region = cursor_region;			
+			float width = sliderLayout->slider.width;
+			slideFrom = cellLayout.client.left()+width/2;
+			slideRange = cellLayout.client.x.max-cellLayout.client.left()-width;
+			float center = slideFrom+current/max*slideRange;
+			cursorRegion.left() = center-width/2;
+			cursorRegion.x.max = center+width/2;
+			cursorRegion.top() = cellLayout.client.y.center()+sliderLayout->slider.height/2;
+			cursorRegion.bottom() = cursorRegion.top()-sliderLayout->slider.height;
+			slider.region = cursorRegion;			
 		}
 		
 		
 		
-		void		Slider::updateLayout(const Rect<float>&parent_region)
+		void		Slider::UpdateLayout(const Rect<float>&parent_region)
 		{
-			Component::updateLayout(parent_region);
-			updateCursorRegion();
-			if (slider_layout)
+			Component::UpdateLayout(parent_region);
+			_UpdateCursorRegion();
+			if (sliderLayout)
 			{
-				bar_left.region = cell_layout.client;
-				bar_left.region.x.max = bar_left.region.left()+slider_layout->bar_left.width;
-				bar_left.region.top() = cell_layout.client.y.center()+slider_layout->bar_left.height/2;
-				bar_left.region.bottom() = bar_left.region.top()-slider_layout->bar_left.height;
-				bar_left.color = &slider_layout->bar_left.color;
-				bar_left.normal = &slider_layout->bar_left.normal;
-				bar_left.orientation = 0;
+				barLeft.region = cellLayout.client;
+				barLeft.region.x.max = barLeft.region.left()+sliderLayout->barLeft.width;
+				barLeft.region.top() = cellLayout.client.y.center()+sliderLayout->barLeft.height/2;
+				barLeft.region.bottom() = barLeft.region.top()-sliderLayout->barLeft.height;
+				barLeft.color = &sliderLayout->barLeft.color;
+				barLeft.normal = &sliderLayout->barLeft.normal;
+				barLeft.orientation = 0;
 				
-				bar_right.region = cell_layout.client;
-				bar_right.region.left() = bar_right.region.x.max-slider_layout->bar_left.width;
-				bar_right.region.top() = cell_layout.client.y.center()+slider_layout->bar_left.height/2;
-				bar_right.region.bottom() = bar_right.region.top()-slider_layout->bar_left.height;
-				bar_right.color = &slider_layout->bar_left.color;
-				bar_right.normal = &slider_layout->bar_left.normal;
-				bar_right.orientation = 2;
+				barRight.region = cellLayout.client;
+				barRight.region.left() = barRight.region.x.max-sliderLayout->barLeft.width;
+				barRight.region.top() = cellLayout.client.y.center()+sliderLayout->barLeft.height/2;
+				barRight.region.bottom() = barRight.region.top()-sliderLayout->barLeft.height;
+				barRight.color = &sliderLayout->barLeft.color;
+				barRight.normal = &sliderLayout->barLeft.normal;
+				barRight.orientation = 2;
 				
 				
-				bar_center.region = cell_layout.client;
-				bar_center.region.left() = bar_left.region.x.max;
-				bar_center.region.x.max = bar_right.region.left();
-				bar_center.region.top() = cell_layout.client.y.center()+slider_layout->bar_center.height/2;
-				bar_center.region.bottom() = bar_center.region.top()-slider_layout->bar_center.height;
-				bar_center.color = &slider_layout->bar_center.color;
-				bar_center.normal = &slider_layout->bar_center.normal;
-				bar_center.orientation = 0;
+				barCenter.region = cellLayout.client;
+				barCenter.region.left() = barLeft.region.x.max;
+				barCenter.region.x.max = barRight.region.left();
+				barCenter.region.top() = cellLayout.client.y.center()+sliderLayout->barCenter.height/2;
+				barCenter.region.bottom() = barCenter.region.top()-sliderLayout->barCenter.height;
+				barCenter.color = &sliderLayout->barCenter.color;
+				barCenter.normal = &sliderLayout->barCenter.normal;
+				barCenter.orientation = 0;
 				
-				//ShowMessage(bar_center.region.toString());
+				//ShowMessage(barCenter.region.toString());
 				
-				slider.region = cursor_region;
-				slider.color = &slider_layout->slider.color;
-				slider.normal = &slider_layout->slider.normal;
+				slider.region = cursorRegion;
+				slider.color = &sliderLayout->slider.color;
+				slider.normal = &sliderLayout->slider.normal;
 				slider.orientation = 0;
 			}
 		}
 		
-		float		Slider::clientMinWidth()	const
+		float		Slider::GetClientMinWidth()	const
 		{
-			if (!slider_layout)
+			if (!sliderLayout)
 				return 0;
-			return slider_layout->min_width;
+			return sliderLayout->minWidth;
 		}
 		
-		float		Slider::clientMinHeight()	const
+		float		Slider::GetClientMinHeight()	const
 		{
-			if (!slider_layout)
+			if (!sliderLayout)
 				return 0;
-			return slider_layout->min_height;
+			return sliderLayout->minHeight;
 		}
 		
 		
 
-		void		Slider::OnColorPaint(ColorRenderer&renderer)
+		void		Slider::OnColorPaint(ColorRenderer&renderer, bool parentIsEnabled)
 		{
-			Component::OnColorPaint(renderer);
+			Component::OnColorPaint(renderer,parentIsEnabled);
 
-			renderer.Paint(bar_left);
-			renderer.Paint(bar_center);
-			renderer.Paint(bar_right);
+			renderer.Paint(barLeft);
+			renderer.Paint(barCenter);
+			renderer.Paint(barRight);
 			renderer.MarkNewLayer();
 			renderer.Paint(slider);
 		}
 		
-		void		Slider::OnNormalPaint(NormalRenderer&renderer)
+		void		Slider::OnNormalPaint(NormalRenderer&renderer, bool parentIsEnabled)
 		{
-			Component::OnNormalPaint(renderer);
+			Component::OnNormalPaint(renderer,parentIsEnabled);
 
 			//Display<OpenGL>&display = requireOperator()->getDisplay();
-			renderer.Paint(bar_left,false);
-			renderer.Paint(bar_center,false);
-			renderer.Paint(bar_right,false);
+			renderer.Paint(barLeft,false);
+			renderer.Paint(barCenter,false);
+			renderer.Paint(barRight,false);
 			renderer.MarkNewLayer();
-			renderer.Paint(slider,cursor_grabbed);
+			renderer.Paint(slider,cursorGrabbed);
 		}
 		
-		Component::eEventResult	Slider::onMouseDrag(float x, float y)
+		Component::eEventResult	Slider::OnMouseDrag(float x, float y)
 		{
-			if (cursor_grabbed)
+			if (cursorGrabbed)
 			{
-				float	relative = x-cursor_region.left(),
-						delta = (relative-cursor_hook[0])*max/slide_range;
+				float	relative = x-cursorRegion.left(),
+						delta = (relative-cursorHook[0])*max/slideRange;
 				current = clamped(current+delta,0,max);
 				
-				updateCursorRegion();
+				_UpdateCursorRegion();
 				
-				onSlide();
+				OnSlide();
 				return RequestingRepaint;
 			}
 			return Handled;
 		}
 		
-		Component::eEventResult	Slider::onMouseDown(float x, float y, TExtEventResult&ext)
+		Component::eEventResult	Slider::OnMouseDown(float x, float y, TExtEventResult&ext)
 		{
 			if (!enabled)
 				return Unsupported;
-			ext.caught_by = shared_from_this();
-			if (cursor_region.contains(x,y) && max > 0)
+			if (cursorRegion.contains(x,y) && max > 0)
 			{
-				cursor_hook[0] = x-cursor_region.left();
-				cursor_hook[1] = y-cursor_region.bottom();
-				cursor_grabbed = true;
+				cursorHook[0] = x-cursorRegion.left();
+				cursorHook[1] = y-cursorRegion.bottom();
+				cursorGrabbed = true;
 				return RequestingRepaint;
 			}
 			return Unsupported;
 				
 		}
 		
-		Component::eEventResult		Slider::onMouseUp(float x, float y)
+		Component::eEventResult		Slider::OnMouseUp(float x, float y)
 		{
-			bool changed =  cursor_grabbed;
-			cursor_grabbed = false;
+			bool changed =  cursorGrabbed;
+			cursorGrabbed = false;
 			return changed?RequestingRepaint:Handled;
 		}
 		
-		Component::eEventResult		Slider::onMouseWheel(float x, float y, short delta)
+		Component::eEventResult		Slider::OnMouseWheel(float x, float y, short delta)
 		{
 			float new_current = clamped(current + delta/max,0,1);
 
 			if (current != new_current)
 			{
 				current = new_current;
-				updateCursorRegion();
-				onSlide();
+				_UpdateCursorRegion();
+				OnSlide();
 				return RequestingRepaint;
 			}
 			return Handled;
@@ -530,324 +525,321 @@ namespace Engine
 		
 				
 		
-		void		ScrollBar::setup()
+		void		ScrollBar::_Setup()
 		{
 			scrollable.reset();
 			horizontal = false;
-			up_pressed = false;
-			down_pressed = false;
-			cursor_grabbed = false;
-			scroll_layout = &ScrollBarLayout::global;
-			auto_visibility = false;
+			upPressed = false;
+			downPressed = false;
+			cursorGrabbed = false;
+			scrollLayout = &ScrollBarLayout::global;
+			autoVisibility = false;
 		}
 
-		void		ScrollBar::scrollTo(float v)
+		void		ScrollBar::ScrollTo(float v)
 		{
-			scroll_data.current = v;
-			onScroll();
+			scrollData.current = v;
+			OnScroll();
 		}
 		
-		void		ScrollBar::onScroll()
+		void		ScrollBar::OnScroll()
 		{
 			if (shared_ptr<Scrollable> scrollable_ = scrollable.lock())
 			{
 				if (horizontal)
 				{
-					scrollable_->horizontal = scroll_data;
-					scrollable_->onHorizontalScroll();
+					scrollable_->horizontal = scrollData;
+					scrollable_->OnHorizontalScroll();
 				}
 				else
 				{
-					scrollable_->vertical = scroll_data;
-					scrollable_->onVerticalScroll();
+					scrollable_->vertical = scrollData;
+					scrollable_->OnVerticalScroll();
 				}
 			}
-			on_scroll();
+			onScroll();
 		}
 		
 		
 		
-		void		ScrollBar::updateLayout(const Rect<float>&parent_region)
+		void		ScrollBar::UpdateLayout(const Rect<float>&parent_region)
 		{
-			Component::updateLayout(parent_region);
-			if (scroll_layout)
+			Component::UpdateLayout(parent_region);
+			if (scrollLayout)
 			{
-				float 	current = clamped(scroll_data.current,0,1);
+				float 	current = clamped(scrollData.current,0,1);
 				if (!horizontal)
 				{
-					up_button.region = cell_layout.client;
-					up_button.region.bottom() = up_button.region.top()-scroll_layout->bottom_button.height;
-					up_button.color = &scroll_layout->bottom_button.color;
-					up_button.normal = &scroll_layout->bottom_button.normal;
-					up_button.orientation = 2;
+					upButton.region = cellLayout.client;
+					upButton.region.bottom() = upButton.region.top()-scrollLayout->bottomButton.height;
+					upButton.color = &scrollLayout->bottomButton.color;
+					upButton.normal = &scrollLayout->bottomButton.normal;
+					upButton.orientation = 2;
 					
-					down_button.region = cell_layout.client;
-					down_button.region.top() = down_button.region.bottom()+scroll_layout->bottom_button.height;
-					down_button.color = &scroll_layout->bottom_button.color;
-					down_button.normal = &scroll_layout->bottom_button.normal;
-					down_button.orientation = 0;
+					downButton.region = cellLayout.client;
+					downButton.region.top() = downButton.region.bottom()+scrollLayout->bottomButton.height;
+					downButton.color = &scrollLayout->bottomButton.color;
+					downButton.normal = &scrollLayout->bottomButton.normal;
+					downButton.orientation = 0;
 				
-					background_top.region = cell_layout.client;
-					background_top.region.bottom() = background_top.region.top()-scroll_layout->back_bottom.height;
-					background_top.color = &scroll_layout->back_bottom.color;
-					background_top.normal = &scroll_layout->back_bottom.normal;
-					background_top.orientation = 2;
+					backgroundTop.region = cellLayout.client;
+					backgroundTop.region.bottom() = backgroundTop.region.top()-scrollLayout->backBottom.height;
+					backgroundTop.color = &scrollLayout->backBottom.color;
+					backgroundTop.normal = &scrollLayout->backBottom.normal;
+					backgroundTop.orientation = 2;
 					
 					
-					background_bottom.region = cell_layout.client;
-					background_bottom.region.top() = background_bottom.region.bottom()+scroll_layout->back_bottom.height;
-					background_bottom.color = &scroll_layout->back_bottom.color;
-					background_bottom.normal = &scroll_layout->back_bottom.normal;
-					background_bottom.orientation = 0;
+					backgroundBottom.region = cellLayout.client;
+					backgroundBottom.region.top() = backgroundBottom.region.bottom()+scrollLayout->backBottom.height;
+					backgroundBottom.color = &scrollLayout->backBottom.color;
+					backgroundBottom.normal = &scrollLayout->backBottom.normal;
+					backgroundBottom.orientation = 0;
 					
-					background_center.region = cell_layout.client;
-					background_center.region.top() = background_top.region.bottom();
-					background_center.region.bottom() = background_bottom.region.top();
-					background_center.color = &scroll_layout->back_center.color;
-					background_center.normal = &scroll_layout->back_center.normal;
-					background_center.orientation = 0;
+					backgroundCenter.region = cellLayout.client;
+					backgroundCenter.region.top() = backgroundTop.region.bottom();
+					backgroundCenter.region.bottom() = backgroundBottom.region.top();
+					backgroundCenter.color = &scrollLayout->backCenter.color;
+					backgroundCenter.normal = &scrollLayout->backCenter.normal;
+					backgroundCenter.orientation = 0;
 
 					
-					cursor_range = cell_layout.client.height()-2*scroll_layout->bottom_button.height+2*scroll_layout->button_indent;
-					float	display_range = scroll_data.max-scroll_data.min,
-							cursor_length = display_range>scroll_data.window?cursor_range*scroll_data.window/display_range:cursor_range;
+					cursorRange = cellLayout.client.height()-2*scrollLayout->bottomButton.height+2*scrollLayout->buttonIndent;
+					float	display_range = scrollData.max-scrollData.min,
+							cursorLength = display_range>scrollData.window?cursorRange*scrollData.window/display_range:cursorRange;
 					
-					if (cursor_length < 2*scroll_layout->cursor_bottom.height)
-						cursor_length = 2*scroll_layout->cursor_bottom.height;
-					cursor_range -= cursor_length;
-					cursor_top.region.left() = cell_layout.client.left();
-					cursor_top.region.x.max = cell_layout.client.x.max;
-					cursor_top.region.top() = cell_layout.client.top()-scroll_layout->bottom_button.height+scroll_layout->button_indent-cursor_range*current;
-					cursor_top.region.bottom() = cursor_top.region.top()-scroll_layout->cursor_bottom.height;
-					cursor_top.color = &scroll_layout->cursor_bottom.color;
-					cursor_top.normal = &scroll_layout->cursor_bottom.normal;
-					cursor_top.orientation = 2;
+					if (cursorLength < 2*scrollLayout->cursorBottom.height)
+						cursorLength = 2*scrollLayout->cursorBottom.height;
+					cursorRange -= cursorLength;
+					cursorTop.region.left() = cellLayout.client.left();
+					cursorTop.region.x.max = cellLayout.client.x.max;
+					cursorTop.region.top() = cellLayout.client.top()-scrollLayout->bottomButton.height+scrollLayout->buttonIndent-cursorRange*current;
+					cursorTop.region.bottom() = cursorTop.region.top()-scrollLayout->cursorBottom.height;
+					cursorTop.color = &scrollLayout->cursorBottom.color;
+					cursorTop.normal = &scrollLayout->cursorBottom.normal;
+					cursorTop.orientation = 2;
 					
-					cursor_center.region.left() = cell_layout.client.left();
-					cursor_center.region.x.max = cell_layout.client.x.max;
-					cursor_center.region.top() = cursor_top.region.bottom();
-					cursor_center.region.bottom() = cursor_center.region.top()-cursor_length+2*scroll_layout->cursor_bottom.height;
-					cursor_center.color = &scroll_layout->cursor_center.color;
-					cursor_center.normal = &scroll_layout->cursor_center.normal;
-					cursor_center.orientation = 0;
+					cursorCenter.region.left() = cellLayout.client.left();
+					cursorCenter.region.x.max = cellLayout.client.x.max;
+					cursorCenter.region.top() = cursorTop.region.bottom();
+					cursorCenter.region.bottom() = cursorCenter.region.top()-cursorLength+2*scrollLayout->cursorBottom.height;
+					cursorCenter.color = &scrollLayout->cursorCenter.color;
+					cursorCenter.normal = &scrollLayout->cursorCenter.normal;
+					cursorCenter.orientation = 0;
 					
-					cursor_bottom.region.left() = cell_layout.client.left();
-					cursor_bottom.region.x.max = cell_layout.client.x.max;
-					cursor_bottom.region.top() = cursor_center.region.bottom();
-					cursor_bottom.region.bottom() = cursor_bottom.region.top()-scroll_layout->cursor_bottom.height;
-					cursor_bottom.color = &scroll_layout->cursor_bottom.color;
-					cursor_bottom.normal = &scroll_layout->cursor_bottom.normal;
-					cursor_bottom.orientation = 0;
+					cursorBottom.region.left() = cellLayout.client.left();
+					cursorBottom.region.x.max = cellLayout.client.x.max;
+					cursorBottom.region.top() = cursorCenter.region.bottom();
+					cursorBottom.region.bottom() = cursorBottom.region.top()-scrollLayout->cursorBottom.height;
+					cursorBottom.color = &scrollLayout->cursorBottom.color;
+					cursorBottom.normal = &scrollLayout->cursorBottom.normal;
+					cursorBottom.orientation = 0;
 					
-					cursor_region.set(cell_layout.client.left(),cursor_bottom.region.bottom(),cell_layout.client.x.max,cursor_top.region.top());
+					cursorRegion.set(cellLayout.client.left(),cursorBottom.region.bottom(),cellLayout.client.x.max,cursorTop.region.top());
 				}
 				else
 				{
 					current = 1.0f-current;
-					down_button.region = cell_layout.client;
-					down_button.region.left() = down_button.region.x.max-scroll_layout->bottom_button.height;
-					down_button.color = &scroll_layout->bottom_button.color;
-					down_button.normal = &scroll_layout->bottom_button.normal;
-					down_button.orientation = 3;
+					downButton.region = cellLayout.client;
+					downButton.region.left() = downButton.region.x.max-scrollLayout->bottomButton.height;
+					downButton.color = &scrollLayout->bottomButton.color;
+					downButton.normal = &scrollLayout->bottomButton.normal;
+					downButton.orientation = 3;
 					
-					up_button.region = cell_layout.client;
-					up_button.region.x.max = up_button.region.left()+scroll_layout->bottom_button.height;
-					up_button.color = &scroll_layout->bottom_button.color;
-					up_button.normal = &scroll_layout->bottom_button.normal;
-					up_button.orientation = 1;
+					upButton.region = cellLayout.client;
+					upButton.region.x.max = upButton.region.left()+scrollLayout->bottomButton.height;
+					upButton.color = &scrollLayout->bottomButton.color;
+					upButton.normal = &scrollLayout->bottomButton.normal;
+					upButton.orientation = 1;
 				
-					background_top.region = cell_layout.client;
-					background_top.region.left() = background_top.region.x.max-scroll_layout->back_bottom.height;
-					background_top.color = &scroll_layout->back_bottom.color;
-					background_top.normal = &scroll_layout->back_bottom.normal;
-					background_top.orientation = 3;
+					backgroundTop.region = cellLayout.client;
+					backgroundTop.region.left() = backgroundTop.region.x.max-scrollLayout->backBottom.height;
+					backgroundTop.color = &scrollLayout->backBottom.color;
+					backgroundTop.normal = &scrollLayout->backBottom.normal;
+					backgroundTop.orientation = 3;
 					
 					
-					background_bottom.region = cell_layout.client;
-					background_bottom.region.x.max = background_bottom.region.left()+scroll_layout->back_bottom.height;
-					background_bottom.color = &scroll_layout->back_bottom.color;
-					background_bottom.normal = &scroll_layout->back_bottom.normal;
-					background_bottom.orientation = 1;
+					backgroundBottom.region = cellLayout.client;
+					backgroundBottom.region.x.max = backgroundBottom.region.left()+scrollLayout->backBottom.height;
+					backgroundBottom.color = &scrollLayout->backBottom.color;
+					backgroundBottom.normal = &scrollLayout->backBottom.normal;
+					backgroundBottom.orientation = 1;
 					
-					background_center.region = cell_layout.client;
-					background_center.region.x.max = background_top.region.left();
-					background_center.region.left() = background_bottom.region.x.max;
-					background_center.color = &scroll_layout->back_center.color;
-					background_center.normal = &scroll_layout->back_center.normal;
-					background_center.orientation = 1;
+					backgroundCenter.region = cellLayout.client;
+					backgroundCenter.region.x.max = backgroundTop.region.left();
+					backgroundCenter.region.left() = backgroundBottom.region.x.max;
+					backgroundCenter.color = &scrollLayout->backCenter.color;
+					backgroundCenter.normal = &scrollLayout->backCenter.normal;
+					backgroundCenter.orientation = 1;
 					
 					
-					cursor_range = cell_layout.client.width()-2*scroll_layout->bottom_button.height+2*scroll_layout->button_indent;
-					float	display_range = scroll_data.max-scroll_data.min,
-							cursor_length = display_range>scroll_data.window?cursor_range*scroll_data.window/display_range:cursor_range;
+					cursorRange = cellLayout.client.width()-2*scrollLayout->bottomButton.height+2*scrollLayout->buttonIndent;
+					float	display_range = scrollData.max-scrollData.min,
+							cursorLength = display_range>scrollData.window?cursorRange*scrollData.window/display_range:cursorRange;
 					
-					if (cursor_length < 2*scroll_layout->cursor_bottom.height)
-						cursor_length = 2*scroll_layout->cursor_bottom.height;
-					cursor_range -= cursor_length;
-					cursor_top.region.top() = cell_layout.client.top();
-					cursor_top.region.bottom() = cell_layout.client.bottom();
-					cursor_top.region.x.max = cell_layout.client.x.max-scroll_layout->bottom_button.height+scroll_layout->button_indent-cursor_range*current;
-					cursor_top.region.left() = cursor_top.region.x.max-scroll_layout->cursor_bottom.height;
-					cursor_top.color = &scroll_layout->cursor_bottom.color;
-					cursor_top.normal = &scroll_layout->cursor_bottom.normal;
-					cursor_top.orientation = 3;
+					if (cursorLength < 2*scrollLayout->cursorBottom.height)
+						cursorLength = 2*scrollLayout->cursorBottom.height;
+					cursorRange -= cursorLength;
+					cursorTop.region.top() = cellLayout.client.top();
+					cursorTop.region.bottom() = cellLayout.client.bottom();
+					cursorTop.region.x.max = cellLayout.client.x.max-scrollLayout->bottomButton.height+scrollLayout->buttonIndent-cursorRange*current;
+					cursorTop.region.left() = cursorTop.region.x.max-scrollLayout->cursorBottom.height;
+					cursorTop.color = &scrollLayout->cursorBottom.color;
+					cursorTop.normal = &scrollLayout->cursorBottom.normal;
+					cursorTop.orientation = 3;
 					
-					cursor_center.region.bottom() = cell_layout.client.bottom();
-					cursor_center.region.top() = cell_layout.client.top();
-					cursor_center.region.x.max = cursor_top.region.left();
-					cursor_center.region.left() = cursor_center.region.x.max-cursor_length+2*scroll_layout->cursor_bottom.height;
-					cursor_center.color = &scroll_layout->cursor_center.color;
-					cursor_center.normal = &scroll_layout->cursor_center.normal;
-					cursor_center.orientation = 1;
+					cursorCenter.region.bottom() = cellLayout.client.bottom();
+					cursorCenter.region.top() = cellLayout.client.top();
+					cursorCenter.region.x.max = cursorTop.region.left();
+					cursorCenter.region.left() = cursorCenter.region.x.max-cursorLength+2*scrollLayout->cursorBottom.height;
+					cursorCenter.color = &scrollLayout->cursorCenter.color;
+					cursorCenter.normal = &scrollLayout->cursorCenter.normal;
+					cursorCenter.orientation = 1;
 					
-					cursor_bottom.region.bottom() = cell_layout.client.bottom();
-					cursor_bottom.region.top() = cell_layout.client.top();
-					cursor_bottom.region.x.max = cursor_center.region.left();
-					cursor_bottom.region.left() = cursor_bottom.region.x.max-scroll_layout->cursor_bottom.height;
-					cursor_bottom.color = &scroll_layout->cursor_bottom.color;
-					cursor_bottom.normal = &scroll_layout->cursor_bottom.normal;
-					cursor_bottom.orientation = 1;
+					cursorBottom.region.bottom() = cellLayout.client.bottom();
+					cursorBottom.region.top() = cellLayout.client.top();
+					cursorBottom.region.x.max = cursorCenter.region.left();
+					cursorBottom.region.left() = cursorBottom.region.x.max-scrollLayout->cursorBottom.height;
+					cursorBottom.color = &scrollLayout->cursorBottom.color;
+					cursorBottom.normal = &scrollLayout->cursorBottom.normal;
+					cursorBottom.orientation = 1;
 					
-					cursor_region.set(cursor_bottom.region.left(),cell_layout.client.bottom(),cursor_top.region.x.max,cell_layout.client.top());
+					cursorRegion.set(cursorBottom.region.left(),cellLayout.client.bottom(),cursorTop.region.x.max,cellLayout.client.top());
 				}
 			
 			}
 		}
 		
-		float		ScrollBar::clientMinWidth()	const
+		float		ScrollBar::GetClientMinWidth()	const
 		{
-			if (!scroll_layout)
+			if (!scrollLayout)
 				return 0;
 			if (horizontal)
-				return scroll_layout->min_height;
-			return scroll_layout->min_width;
+				return scrollLayout->minHeight;
+			return scrollLayout->minWidth;
 		}
 		
-		float		ScrollBar::clientMinHeight()	const
+		float		ScrollBar::GetClientMinHeight()	const
 		{
-			if (!scroll_layout)
+			if (!scrollLayout)
 				return 0;
 			if (horizontal)
-				return scroll_layout->min_width;
-			return scroll_layout->min_height;
+				return scrollLayout->minWidth;
+			return scrollLayout->minHeight;
 		}
 		
 		
 
-		/*virtual override*/	void		ScrollBar::OnColorPaint(ColorRenderer&renderer)
+		/*virtual override*/	void		ScrollBar::OnColorPaint(ColorRenderer&renderer, bool parentIsEnabled)
 		{
-			Component::OnColorPaint(renderer);
-			renderer.Paint(background_top);
-			renderer.Paint(background_center);
-			renderer.Paint(background_bottom);
+			Component::OnColorPaint(renderer,parentIsEnabled);
+			renderer.Paint(backgroundTop);
+			renderer.Paint(backgroundCenter);
+			renderer.Paint(backgroundBottom);
 			
 			renderer.MarkNewLayer();
 			renderer.PushColor();
-			if (cursor_grabbed)
+			if (cursorGrabbed)
 				renderer.ModulateColor(0.7f);
-			renderer.Paint(cursor_top);
-			renderer.Paint(cursor_center);
-			renderer.Paint(cursor_bottom);
+			renderer.Paint(cursorTop);
+			renderer.Paint(cursorCenter);
+			renderer.Paint(cursorBottom);
 			renderer.PopColor();
 			renderer.MarkNewLayer();
 			
-			renderer.Paint(up_button);
-			renderer.Paint(down_button);
+			renderer.Paint(upButton);
+			renderer.Paint(downButton);
 		}
 		
-		/*virtual override*/	void		ScrollBar::OnNormalPaint(NormalRenderer&renderer)
+		/*virtual override*/	void		ScrollBar::OnNormalPaint(NormalRenderer&renderer, bool parentIsEnabled)
 		{
-			Component::OnNormalPaint(renderer);
+			Component::OnNormalPaint(renderer,parentIsEnabled);
 
-			renderer.Paint(background_top,false);
-			renderer.Paint(background_center,false);
-			renderer.Paint(background_bottom,false);
+			renderer.Paint(backgroundTop,false);
+			renderer.Paint(backgroundCenter,false);
+			renderer.Paint(backgroundBottom,false);
 			renderer.MarkNewLayer();
 			
-			renderer.Paint(cursor_top,cursor_grabbed);
-			renderer.Paint(cursor_center,cursor_grabbed);
-			renderer.Paint(cursor_bottom,cursor_grabbed);
+			renderer.Paint(cursorTop,cursorGrabbed);
+			renderer.Paint(cursorCenter,cursorGrabbed);
+			renderer.Paint(cursorBottom,cursorGrabbed);
 			
 			renderer.MarkNewLayer();
-			renderer.Paint(up_button,false);
-			renderer.Paint(down_button,false);
+			renderer.Paint(upButton,false);
+			renderer.Paint(downButton,false);
 		}
 		
-		Component::eEventResult	ScrollBar::onMouseDrag(float x, float y)
+		/*virtual override*/	Component::eEventResult	ScrollBar::OnMouseDrag(float x, float y)
 		{
-			if (cursor_grabbed && cursor_range > 0)
+			if (cursorGrabbed && cursorRange > 0)
 			{
 				if (horizontal)
 				{
-					float	relative = x-cursor_region.left(),
-							delta = (relative-cursor_hook[0])/cursor_range;
-					scroll_data.current+=delta;
-					scroll_data.current = clamped(scroll_data.current,0,1);
+					float	relative = x-cursorRegion.left(),
+							delta = (relative-cursorHook[0])/cursorRange;
+					scrollData.current+=delta;
+					scrollData.current = clamped(scrollData.current,0,1);
 				}
 				else
 				{
-					float	relative = y-cursor_region.bottom(),
-							delta = (relative-cursor_hook[1])/cursor_range;
-					scroll_data.current-=delta;
-					scroll_data.current = clamped(scroll_data.current,0,1);
+					float	relative = y-cursorRegion.bottom(),
+							delta = (relative-cursorHook[1])/cursorRange;
+					scrollData.current-=delta;
+					scrollData.current = clamped(scrollData.current,0,1);
 				}
-				onScroll();
+				OnScroll();
 				return RequestingReshape;
 			}
 			return Handled;
 		}
 		
-		Component::eEventResult	ScrollBar::onMouseDown(float x, float y, TExtEventResult&ext)
+		/*virtual override*/	Component::eEventResult	ScrollBar::OnMouseDown(float x, float y, TExtEventResult&ext)
 		{
-			if (!enabled)
-				return Unsupported;
-			ext.caught_by = shared_from_this();
-			if (cursor_region.contains(x,y) && cursor_range > 0)
+			if (cursorRegion.contains(x,y) && cursorRange > 0)
 			{
-				cursor_hook[0] = x-cursor_region.left();
-				cursor_hook[1] = y-cursor_region.bottom();
-				cursor_grabbed = true;
+				cursorHook[0] = x-cursorRegion.left();
+				cursorHook[1] = y-cursorRegion.bottom();
+				cursorGrabbed = true;
 			}
-			elif (up_button.region.contains(x,y))
+			elif (upButton.region.contains(x,y))
 			{
-				up_pressed = true;
-				if ((scroll_data.max-scroll_data.min) > 0)
+				upPressed = true;
+				if ((scrollData.max-scrollData.min) > 0)
 				{
-					scroll_data.current = clamped(scroll_data.current - 20/(scroll_data.max-scroll_data.min),0,1);
-					onScroll();
+					scrollData.current = clamped(scrollData.current - 20/(scrollData.max-scrollData.min),0,1);
+					OnScroll();
 				}
 			}
-			elif (down_button.region.contains(x,y))
+			elif (downButton.region.contains(x,y))
 			{
-				down_pressed = true;
-				if ((scroll_data.max-scroll_data.min) > 0)
+				downPressed = true;
+				if ((scrollData.max-scrollData.min) > 0)
 				{
-					scroll_data.current = clamped(scroll_data.current + 20/(scroll_data.max-scroll_data.min),0,1);
-					onScroll();
+					scrollData.current = clamped(scrollData.current + 20/(scrollData.max-scrollData.min),0,1);
+					OnScroll();
 				}
 			}
 				
 			return RequestingReshape;
 		}
 		
-		Component::eEventResult		ScrollBar::onMouseUp(float x, float y)
+		/*virtual override*/	Component::eEventResult		ScrollBar::OnMouseUp(float x, float y)
 		{
-			bool changed =  cursor_grabbed;
-			up_pressed = false;
-			down_pressed = false;
-			cursor_grabbed = false;
+			bool changed =  cursorGrabbed;
+			upPressed = false;
+			downPressed = false;
+			cursorGrabbed = false;
 			return changed?RequestingRepaint:Handled;
 		}
 		
-		Component::eEventResult		ScrollBar::onMouseWheel(float x, float y, short delta)
+		/*virtual override*/	Component::eEventResult		ScrollBar::OnMouseWheel(float x, float y, short delta)
 		{
 			float new_current = horizontal?
-									clamped(scroll_data.current + delta/(scroll_data.max-scroll_data.min),0,1):
-									clamped(scroll_data.current - delta/(scroll_data.max-scroll_data.min),0,1);
-			if (scroll_data.current != new_current)
+									clamped(scrollData.current + delta/(scrollData.max-scrollData.min),0,1):
+									clamped(scrollData.current - delta/(scrollData.max-scrollData.min),0,1);
+			if (scrollData.current != new_current)
 			{
-				scroll_data.current = new_current;
-				onScroll();
+				scrollData.current = new_current;
+				OnScroll();
 				return RequestingReshape;
 			}
 			return Handled;
@@ -857,7 +849,7 @@ namespace Engine
 			/*
 					if (!enabled)
 				return NULL;
-			bool new_pressed = down && current_region.contains(x,y);
+			bool new_pressed = down && currentRegion.contains(x,y);
 			requests_update |= new_pressed != pressed;
 			pressed = new_pressed;
 			return down?this:NULL;
@@ -880,85 +872,85 @@ namespace Engine
 			down = false;
 */
 
-		void					ScrollBox::scrollTo(float x, float y)
+		void					ScrollBox::ScrollTo(float x, float y)
 		{
-			horizontal_bar->scrollTo(x);
-			vertical_bar->scrollTo(y);
+			horizontalBar->ScrollTo(x);
+			verticalBar->ScrollTo(y);
 		}
 		
 		void					ScrollBox::scrollToX(float x)
 		{
-			horizontal_bar->scrollTo(x);
+			horizontalBar->ScrollTo(x);
 		}
 
 		void					ScrollBox::scrollToY(float y)
 		{
-			vertical_bar->scrollTo(y);
+			verticalBar->ScrollTo(y);
 		}
 
 		
-		bool					ScrollBox::erase(const shared_ptr<Component>&component)
+		/*virtual override*/	bool					ScrollBox::Erase(const shared_ptr<Component>&component)
 		{
 			if (children.findAndErase(component))
 			{
 				visible_children.findAndErase(component);
-				signalLayoutChange();
-				component->setWindow(shared_ptr<Window>());
+				SignalLayoutChange();
+				component->SetWindow(shared_ptr<Window>());
 				return true;
 			}
 			return false;
 		}
 		
-		bool					ScrollBox::erase(index_t index)
+		/*virtual override*/	bool					ScrollBox::Erase(index_t index)
 		{
 			if (index >= children.count())
 				return false;
 			visible_children.findAndErase(children[index]);
-			children[index]->setWindow(shared_ptr<Window>());
+			children[index]->SetWindow(shared_ptr<Window>());
 			children.erase(index);
-			signalLayoutChange();
+			SignalLayoutChange();
 			return true;
 		}
 		
-		shared_ptr<const Component>		ScrollBox::child(index_t index) const
+		/*virtual override*/	shared_ptr<const Component>		ScrollBox::GetChild(index_t index) const
 		{
 			if (index < children.count())
 				return children[index];
 			index -= children.count();
 			if (index == 0)
-				return horizontal_bar;
+				return horizontalBar;
 			if (index == 1)
-				return vertical_bar;
+				return verticalBar;
 			return shared_ptr<const Component>();
 		}
 		
-		shared_ptr<Component>		ScrollBox::child(index_t index)
+		/*virtual override*/	shared_ptr<Component>		ScrollBox::GetChild(index_t index)
 		{
 			if (index < children.count())
 				return children[index];
 			index -= children.count();
 			if (index == 0)
-				return horizontal_bar;
+				return horizontalBar;
 			if (index == 1)
-				return vertical_bar;
+				return verticalBar;
 			return shared_ptr<Component>();
 		}
 
-		count_t	ScrollBox::countChildren() const
+		/*virtual override*/	count_t	ScrollBox::CountChildren() const
 		{
 			return children.count()+2;
 		}
 		
 
 		
-		void		ScrollBox::updateLayout(const Rect<float>&parent_region)
+		/*virtual override*/	void		ScrollBox::UpdateLayout(const Rect<float>&parent_region)
 		{
-			Component::updateLayout(parent_region);
+			Component::UpdateLayout(parent_region);
 			
-			if (horizontal_bar->scrollable.expired())
-				horizontal_bar->scrollable = toScrollable();
-			if (vertical_bar->scrollable.expired())
-				vertical_bar->scrollable = toScrollable();
+			if (horizontalBar->scrollable.expired())
+				horizontalBar->scrollable = toScrollable();
+			if (verticalBar->scrollable.expired())
+				verticalBar->scrollable = toScrollable();
 
 			Rect<float>	current;
 			if (children.isEmpty())
@@ -969,26 +961,26 @@ namespace Engine
 			}
 			else
 			{
-				float	w = cell_layout.client.width(),
-						h = cell_layout.client.height();
+				float	w = cellLayout.client.width(),
+						h = cellLayout.client.height();
 				Rect<float>	region(0,0,w,h);
 				for (index_t i = 0; i < children.count(); i++)
 				{
-					//children[i]->updateLayout(cell_layout.client);
+					//children[i]->UpdateLayout(cellLayout.client);
 					Rect<float>	child_region;
 					const shared_ptr<Component>&child = children[i];
-					if (vertical_bar->isVisible())
+					if (verticalBar->IsVisible())
 					{
 						child->anchored.top = true;
 						child->anchored.bottom = false;
 					}
-					if (horizontal_bar->isVisible())
+					if (horizontalBar->IsVisible())
 					{
 						child->anchored.left = true;
 						child->anchored.right = false;
 					}
 					
-					child->locate(region,child_region);
+					child->Locate(region,child_region);
 					
 
 					if (!i)
@@ -1004,284 +996,263 @@ namespace Engine
 			vertical.max = current.height();
 			
 			
-			/*	horizontal.min -= cell_layout.client.left();
-				horizontal.max -= cell_layout.client.left();
-				vertical.min -= cell_layout.client.top();
-				vertical.max -= cell_layout.client.top();*/
+			/*	horizontal.min -= cellLayout.client.left();
+				horizontal.max -= cellLayout.client.left();
+				vertical.min -= cellLayout.client.top();
+				vertical.max -= cellLayout.client.top();*/
 			
-			horizontal.window = cell_layout.client.width();
-			vertical.window = cell_layout.client.height();
+			horizontal.window = cellLayout.client.width();
+			vertical.window = cellLayout.client.height();
 			
-			if (horizontal_bar->auto_visibility)
-				horizontal_bar->setVisible(horizontal.max>horizontal.window);
-			if (vertical_bar->auto_visibility)
-				vertical_bar->setVisible(vertical.max>vertical.window);
+			if (horizontalBar->autoVisibility)
+				horizontalBar->SetVisible(horizontal.max>horizontal.window);
+			if (verticalBar->autoVisibility)
+				verticalBar->SetVisible(vertical.max>vertical.window);
 			
-			if (vertical_bar->isVisible())
-				horizontal.window-=vertical_bar->width;
-			if (horizontal_bar->isVisible())
-				vertical.window-=horizontal_bar->height;
+			if (verticalBar->IsVisible())
+				horizontal.window-=verticalBar->width;
+			if (horizontalBar->IsVisible())
+				vertical.window-=horizontalBar->height;
 			
-			if (!horizontal_bar->isVisible() && horizontal_bar->auto_visibility)
+			if (!horizontalBar->IsVisible() && horizontalBar->autoVisibility)
 			{
-				horizontal_bar->setVisible(horizontal.max>horizontal.window);
-				if (horizontal_bar->isVisible())
-					vertical.window-=horizontal_bar->height;
+				horizontalBar->SetVisible(horizontal.max>horizontal.window);
+				if (horizontalBar->IsVisible())
+					vertical.window-=horizontalBar->height;
 			}
-			if (!vertical_bar->isVisible() && vertical_bar->auto_visibility)
+			if (!verticalBar->IsVisible() && verticalBar->autoVisibility)
 			{
-				vertical_bar->setVisible(vertical.max>vertical.window);
-				if (vertical_bar->isVisible())
+				verticalBar->SetVisible(vertical.max>vertical.window);
+				if (verticalBar->IsVisible())
 				{
-					horizontal.window-=vertical_bar->height;
-					if (!horizontal_bar->isVisible() && horizontal_bar->auto_visibility)
+					horizontal.window-=verticalBar->height;
+					if (!horizontalBar->IsVisible() && horizontalBar->autoVisibility)
 					{
-						horizontal_bar->setVisible(horizontal.max>horizontal.window);
-						if (horizontal_bar->isVisible())
-							vertical.window-=horizontal_bar->height;
+						horizontalBar->SetVisible(horizontal.max>horizontal.window);
+						if (horizontalBar->IsVisible())
+							vertical.window-=horizontalBar->height;
 					}
 				}
 			}
 
-			horizontal_bar->scroll_data = horizontal;
-			vertical_bar->scroll_data = vertical;
-			horizontal_bar->anchored.set(true,true,true,false);
-			horizontal_bar->offset.set(0,0,vertical_bar->isVisible()?-vertical_bar->minWidth(false):0,0);
-			vertical_bar->anchored.set(false,true,true,true);
-			vertical_bar->offset.set(0,horizontal_bar->isVisible()?horizontal_bar->minHeight(false):0,0,0);
-			horizontal_bar->updateLayout(cell_layout.client);
-			vertical_bar->updateLayout(cell_layout.client);
-			effective_client_region.set(cell_layout.client.left(),
-										horizontal_bar->isVisible()?/*floor*/(horizontal_bar->current_region.top()):cell_layout.client.bottom(),
-										vertical_bar->isVisible()?/*ceil*/(vertical_bar->current_region.left()):cell_layout.client.x.max,
-										cell_layout.client.top());
-			//effective_client_region = cell_layout.client;
+			horizontalBar->scrollData = horizontal;
+			verticalBar->scrollData = vertical;
+			horizontalBar->anchored.set(true,true,true,false);
+			horizontalBar->offset.set(0,0,verticalBar->IsVisible()?-verticalBar->GetMinWidth(false):0,0);
+			verticalBar->anchored.set(false,true,true,true);
+			verticalBar->offset.set(0,horizontalBar->IsVisible()?horizontalBar->GetMinHeight(false):0,0,0);
+			horizontalBar->UpdateLayout(cellLayout.client);
+			verticalBar->UpdateLayout(cellLayout.client);
+			effectiveClientRegion.set(cellLayout.client.left(),
+										horizontalBar->IsVisible()?/*floor*/(horizontalBar->currentRegion.top()):cellLayout.client.bottom(),
+										verticalBar->IsVisible()?/*ceil*/(verticalBar->currentRegion.left()):cellLayout.client.x.max,
+										cellLayout.client.top());
+			//effectiveClientRegion = cellLayout.client;
 			
-			float	hrange = (horizontal.max-effective_client_region.width()),
-					vrange = (vertical.max-effective_client_region.height());
+			float	hrange = (horizontal.max-effectiveClientRegion.width()),
+					vrange = (vertical.max-effectiveClientRegion.height());
 			if (hrange < 0)
 			{
 				hrange = 0;
-				horizontal.current = horizontal_bar->scroll_data.current = 0;
+				horizontal.current = horizontalBar->scrollData.current = 0;
 			}
 			if (vrange < 0)
 			{
 				vrange = 0;
-				vertical.current = vertical_bar->scroll_data.current = 0;
+				vertical.current = verticalBar->scrollData.current = 0;
 			}
 
-			float	offset_x = horizontal_bar->isVisible()?-(horizontal.current * hrange):0,
-					offset_y = vertical_bar->isVisible()?(vertical.current * vrange):0;
+			float	offset_x = horizontalBar->IsVisible()?-(horizontal.current * hrange):0,
+					offset_y = verticalBar->IsVisible()?(vertical.current * vrange):0;
 			
-			Rect<float>	space = effective_client_region;
+			Rect<float>	space = effectiveClientRegion;
 			space.translate(offset_x,offset_y);
 			
 			visible_children.reset();
 			for (index_t i = 0; i < children.count(); i++)
 			{
 				const shared_ptr<Component>&child = children[i];
-				if (!child->isVisible())
+				if (!child->IsVisible())
 					continue;
-				child->updateLayout(space);
-				if (effective_client_region.intersects(child->current_region))
+				child->UpdateLayout(space);
+				if (effectiveClientRegion.intersects(child->currentRegion))
 					visible_children << child;
 			}
 		}
-		
-		Component::eEventResult		ScrollBox::OnMouseWheel(float x, float y, short delta)
+
+		/*virtual override*/	bool		ScrollBox::CanHandleMouseWheel()	const
 		{
-			if (horizontal_bar->isVisible() && horizontal_bar->isEnabled() && horizontal_bar->current_region.contains(x,y))
+			return (horizontalBar->IsVisible() && horizontalBar->IsEnabled()) || (verticalBar->IsVisible() && horizontalBar->IsEnabled());
+		}
+
+		/*virtual override*/	Component::eEventResult		ScrollBox::OnMouseWheel(float x, float y, short delta)
+		{
+			if (horizontalBar->IsVisible() && horizontalBar->IsEnabled() && horizontalBar->currentRegion.contains(x,y))
 			{
-				if (horizontal_bar->scrollable.expired())
-					horizontal_bar->scrollable = toScrollable();
-				return horizontal_bar->onMouseWheel(x,y,delta);
+				if (horizontalBar->scrollable.expired())
+					horizontalBar->scrollable = toScrollable();
+				return horizontalBar->OnMouseWheel(x,y,delta);
 			}
-			if (vertical_bar->isVisible() && horizontal_bar->isEnabled() && vertical_bar->current_region.contains(x,y))
+			if (verticalBar->IsVisible() && horizontalBar->IsEnabled() && verticalBar->currentRegion.contains(x,y))
 			{
-				if (vertical_bar->scrollable.expired())
-					vertical_bar->scrollable = toScrollable();
-				return vertical_bar->onMouseWheel(x,y,delta);
+				if (verticalBar->scrollable.expired())
+					verticalBar->scrollable = toScrollable();
+				return verticalBar->OnMouseWheel(x,y,delta);
 			}
-			if (effective_client_region.contains(x,y))
+			if (effectiveClientRegion.contains(x,y))
 			{
 				
 				for (index_t i = visible_children.count()-1; i < visible_children.count(); i--)
 				{
 					const shared_ptr<Component>&child = visible_children[i];
-					if (child->current_region.contains(x,y))
+					if (child->currentRegion.contains(x,y))
 					{
-						if (!child->isEnabled())
+						if (!child->IsEnabled())
 							break;
-						eEventResult rs = child->onMouseWheel(x,y,delta);
+						eEventResult rs = child->OnMouseWheel(x,y,delta);
 						if (rs == Unsupported)
 							break;
 						return rs;
 					}
 				}
 			}
-			if (vertical_bar->isVisible() && vertical_bar->isEnabled())
+			if (verticalBar->IsVisible() && verticalBar->IsEnabled())
 			{
-				if (vertical_bar->scrollable.expired())
-					vertical_bar->scrollable = toScrollable();
-				return vertical_bar->onMouseWheel(x,y,delta);
+				if (verticalBar->scrollable.expired())
+					verticalBar->scrollable = toScrollable();
+				return verticalBar->OnMouseWheel(x,y,delta);
 			}
-			if (horizontal_bar->isVisible() && horizontal_bar->isEnabled())
+			if (horizontalBar->IsVisible() && horizontalBar->IsEnabled())
 			{
-				if (horizontal_bar->scrollable.expired())
-					horizontal_bar->scrollable = toScrollable();
-				return horizontal_bar->onMouseWheel(x,y,delta);
+				if (horizontalBar->scrollable.expired())
+					horizontalBar->scrollable = toScrollable();
+				return horizontalBar->OnMouseWheel(x,y,delta);
 			}
 			return Unsupported;
 		}
 		
-		float		ScrollBox::clientMinWidth()	const
+		/*virtual override*/	float		ScrollBox::GetClientMinWidth()	const
 		{
-			float w = horizontal_bar->isVisible() || horizontal_bar->auto_visibility?horizontal_bar->minWidth(false):Panel::clientMinWidth();
-			if (vertical_bar->isVisible())
-				w += vertical_bar->minWidth(false);
+			float w = horizontalBar->IsVisible() || horizontalBar->autoVisibility?horizontalBar->GetMinWidth(false):Panel::GetClientMinWidth();
+			if (verticalBar->IsVisible())
+				w += verticalBar->GetMinWidth(false);
 			return w;
 		}
 		
-		float		ScrollBox::clientMinHeight()	const
+		/*virtual override*/	float		ScrollBox::GetClientMinHeight()	const
 		{
 			float h;
-			if (vertical_bar->isVisible() || vertical_bar->auto_visibility)
-				h = vertical_bar->minHeight(false);
+			if (verticalBar->IsVisible() || verticalBar->autoVisibility)
+				h = verticalBar->GetMinHeight(false);
 			else
 			{
 				h = 0;
 				for (index_t i = 0; i < children.count(); i++)
-					h = std::max(children[i]->minHeight(true),h);
+					h = std::max(children[i]->GetMinHeight(true),h);
 			}
-			if (horizontal_bar->isVisible())
-				h += horizontal_bar->minHeight(false);
+			if (horizontalBar->IsVisible())
+				h += horizontalBar->GetMinHeight(false);
 			return h;
 		}
 		
-		/*virtual override*/ void		ScrollBox::OnColorPaint(ColorRenderer&renderer)
+		/*virtual override*/ void		ScrollBox::OnColorPaint(ColorRenderer&renderer, bool parentIsEnabled)
 		{
 			renderer.PushColor();
-			Component::OnColorPaint(renderer);
+			Component::OnColorPaint(renderer,parentIsEnabled);
 
-			renderer.Clip(effective_client_region);
+			renderer.Clip(effectiveClientRegion);
 			
+			bool subEnabled = parentIsEnabled && IsEnabled();
+
 			for (index_t i = 0; i < visible_children.count(); i++)
 			{
 				renderer.PeekColor();
-				visible_children[i]->OnColorPaint(renderer);
+				visible_children[i]->OnColorPaint(renderer,subEnabled);
 			}
 			renderer.Unclip();
 			//renderer.MarkNewLayer();
 			
-			if (horizontal_bar->isVisible())
+			if (horizontalBar->IsVisible())
 			{
 				renderer.PeekColor();
-				horizontal_bar->OnColorPaint(renderer);
+				horizontalBar->OnColorPaint(renderer,subEnabled);
 			}
-			if (vertical_bar->isVisible())
+			if (verticalBar->IsVisible())
 			{
 				renderer.PeekColor();
-				vertical_bar->OnColorPaint(renderer);
+				verticalBar->OnColorPaint(renderer,subEnabled);
 			}
 			renderer.PopColor();
 		}
 		
-		/*virtual override*/ void		ScrollBox::OnNormalPaint(NormalRenderer&renderer)
+		/*virtual override*/ void		ScrollBox::OnNormalPaint(NormalRenderer&renderer, bool parentIsEnabled)
 		{
 			renderer.PushNormalScale();
-			Component::OnNormalPaint(renderer);
-			shared_ptr<Operator> op = requireOperator();
-
-			renderer.Clip(effective_client_region);
+			Component::OnNormalPaint(renderer,parentIsEnabled);
 			
+			renderer.Clip(effectiveClientRegion);
+			
+			bool subEnabled = parentIsEnabled && IsEnabled();
 			
 			for (index_t i = 0; i < visible_children.count(); i++)
 			{
 				renderer.PeekNormalScale();
-				visible_children[i]->OnNormalPaint(renderer);
+				visible_children[i]->OnNormalPaint(renderer,subEnabled);
 			}
 			renderer.Unclip();
 			//renderer.MarkNewLayer();
 
-			if (horizontal_bar->isVisible())
+			if (horizontalBar->IsVisible())
 			{
 				renderer.PeekNormalScale();
-				horizontal_bar->OnNormalPaint(renderer);
+				horizontalBar->OnNormalPaint(renderer,subEnabled);
 			}
-			if (vertical_bar->isVisible())
+			if (verticalBar->IsVisible())
 			{
 				renderer.PeekNormalScale();
-				vertical_bar->OnNormalPaint(renderer);
+				verticalBar->OnNormalPaint(renderer,subEnabled);
 			}
 			renderer.PopNormalScale();
 
 		}
 
-		
-		
-		
-		Component::eEventResult		ScrollBox::onMouseHover(float x, float y, TExtEventResult&ext)
+		/*virtual override*/ PComponent			ScrollBox::GetComponent(float x, float y, ePurpose purpose, bool&outIsEnabled)
 		{
-	 		if (horizontal_bar->isVisible() && horizontal_bar->cell_layout.border.contains(x,y))
+			outIsEnabled &= IsEnabled();
+		
+			PComponent result;
+			if (horizontalBar->IsVisible() && horizontalBar->IsEnabled() && horizontalBar->currentRegion.contains(x,y) && (result = horizontalBar->GetComponent(x,y,purpose,outIsEnabled)))
 			{
-				if (horizontal_bar->scrollable.expired())
-					horizontal_bar->scrollable = toScrollable();
-				return horizontal_bar->isEnabled()?horizontal_bar->onMouseHover(x,y,ext):Unsupported;
+				if (horizontalBar->scrollable.expired())
+					horizontalBar->scrollable = toScrollable();
+				return result;
 			}
-			if (vertical_bar->isVisible() && vertical_bar->cell_layout.border.contains(x,y))
+			if (verticalBar->IsVisible() && verticalBar->IsEnabled() && verticalBar->currentRegion.contains(x,y) && (result = verticalBar->GetComponent(x,y,purpose,outIsEnabled)))
 			{
-				if (vertical_bar->scrollable.expired())
-					vertical_bar->scrollable = toScrollable();
-				return vertical_bar->isEnabled()?vertical_bar->onMouseHover(x,y,ext):Unsupported;
+				if (verticalBar->scrollable.expired())
+					verticalBar->scrollable = toScrollable();
+				return result;
 			}
-			if (effective_client_region.contains(x,y))
+			if (effectiveClientRegion.contains(x,y))
 			{
 				for (index_t i = visible_children.count()-1; i < visible_children.count(); i--)
 				{
 					const shared_ptr<Component>&child = visible_children[i];
-					if (child->cell_layout.border.contains(x,y))
+					if (child->cellLayout.border.contains(x,y))
 					{
-						if (!child->isEnabled())
-							return Unsupported;
-						return child->onMouseHover(x,y,ext);
+						bool subEnabled = outIsEnabled;
+						result = child->GetComponent(x,y,purpose,subEnabled);
+						if (purpose == MouseWheelRequest && CanHandleMouseWheel() && outIsEnabled && (!subEnabled || !result || !result->CanHandleMouseWheel()))
+							return shared_from_this();	//override child if it cannot or will not handle mouse wheel
+						outIsEnabled = subEnabled;
+						return result;
 					}
 				}
 			}
-	 		return Unsupported;
+			return shared_from_this();
 		}
 		
-		Component::eEventResult		ScrollBox::onMouseDown(float x, float y, TExtEventResult&ext)
-		{
-			Component::eEventResult result;
-			if (horizontal_bar->isVisible() && horizontal_bar->isEnabled() && horizontal_bar->current_region.contains(x,y) && (result = horizontal_bar->onMouseDown(x,y,ext)))
-			{
-				if (horizontal_bar->scrollable.expired())
-					horizontal_bar->scrollable = toScrollable();
-				return result;
-			}
-			if (vertical_bar->isVisible() && vertical_bar->isEnabled() && vertical_bar->current_region.contains(x,y) && (result = vertical_bar->onMouseDown(x,y,ext)))
-			{
-				if (vertical_bar->scrollable.expired())
-					vertical_bar->scrollable = toScrollable();
-				return result;
-			}
-			if (effective_client_region.contains(x,y))
-			{
-				for (index_t i = visible_children.count()-1; i < visible_children.count(); i--)
-				{
-					const shared_ptr<Component>&child = visible_children[i];
-					if (child->cell_layout.border.contains(x,y))
-					{
-						if (!child->isEnabled())
-							return Unsupported;
-						return child->onMouseDown(x,y,ext);
-					}
-				}
-			}
-			return Unsupported;
-		}
-		
-		void			ScrollBox::append(const shared_ptr<Component>&component)
+		void			ScrollBox::Append(const shared_ptr<Component>&component)
 		{
 			component->anchored.set(true,false,false,true);
 			if (children.isNotEmpty())
@@ -1289,213 +1260,211 @@ namespace Engine
 			else
 				component->offset.top = 0;
 			component->offset.left = 0;
-			component->setWindow(window_link);
+			component->SetWindow(windowLink);
 			children << component;
-			signalLayoutChange();
+			SignalLayoutChange();
 		}
 		
 		
-		void	Edit::setup()
+		void	Edit::_Setup()
 		{
-			go_left = 0;
-			go_right = 0;
-			tick_interval = 0.1;
+			goLeft = 0;
+			goRight = 0;
+			tickInterval = 0.1;
 			readonly = false;
-			mask_input = false;
+			maskInput = false;
 			cursor = 0;
-			sel_start = 0;
-			view_begin = view_end = 0;
-			layout = global_layout.reference();
-			width = minWidth(false);
-			height = minHeight(false);
+			selectionStart = 0;
+			viewBegin = viewEnd = 0;
+			layout = globalLayout.Refer();
+			width = GetMinWidth(false);
+			height = GetMinHeight(false);
 		}
 
-		void Edit::setText(const String&new_text)
+		void Edit::SetText(const String&new_text)
 		{
 			text = new_text;
-			sel_start = 0;
+			selectionStart = 0;
 			cursor = 0;
-			view_begin = view_end = 0;
-			updateView();
-			signalVisualChange();
+			viewBegin = viewEnd = 0;
+			_UpdateView();
+			SignalVisualChange();
 		}
-		void Edit::setText(const ReferenceExpression<char>&new_text)
+		void Edit::SetText(const ReferenceExpression<char>&new_text)
 		{
 			text = new_text;
-			sel_start = 0;
-			view_begin = view_end = 0;
-			updateView();
-			signalVisualChange();
+			selectionStart = 0;
+			viewBegin = viewEnd = 0;
+			_UpdateView();
+			SignalVisualChange();
 		}
 
-		void						Edit::setText(const char*new_text)
+		void						Edit::SetText(const char*new_text)
 		{
-			setText(ReferenceExpression<char>(new_text));
+			SetText(ReferenceExpression<char>(new_text));
 		}
 
 
-		/*virtual override*/ void			Edit::OnColorPaint(ColorRenderer&renderer)
+		/*virtual override*/ void			Edit::OnColorPaint(ColorRenderer&renderer, bool parentIsEnabled)
 		{
 			const float fontHeight = renderer.GetFont().getHeight();
 			renderer.PushColor();
-			if (readonly || !enabled)
-				renderer.ModulateColor(0.5f);
+			if (readonly && enabled && parentIsEnabled)
+				renderer.ModulateColor(0.5f);	//if not enabled, will be toned by Component::OnColorPaint
 			
-			Component::OnColorPaint(renderer);
+			Component::OnColorPaint(renderer,parentIsEnabled);
 
 			renderer.PeekColor();
 
-			size_t end = vmin(view_end,text.length());
-			if (end>view_begin)
+			size_t end = vmin(viewEnd,text.length());
+			if (end>viewBegin)
 			{
-				renderer.Clip(cell_layout.client);
-				float	bottom = cell_layout.client.y.center()-fontHeight/2+font_offset,
-						top = cell_layout.client.y.center()+fontHeight/2;
-				if (mask_input)
+				renderer.Clip(cellLayout.client);
+				float	bottom = cellLayout.client.y.center()-fontHeight/2+font_offset,
+						top = cellLayout.client.y.center()+fontHeight/2;
+				if (maskInput)
 				{
 					float csize = fontHeight*0.75;
 					renderer.SetPointSize(csize*0.8);
-					for (size_t i = view_begin; i < end; i++)
-						renderer.PaintPoint(cell_layout.client.left()+csize*(0.5+i),cell_layout.client.y.center());
+					for (size_t i = viewBegin; i < end; i++)
+						renderer.PaintPoint(cellLayout.client.left()+csize*(0.5+i),cellLayout.client.y.center());
 				}
 				else
 				{
-					renderer.SetTextPosition(cell_layout.client.left(),bottom);
-					renderer.WriteText(text.root()+view_begin,end-view_begin);
+					renderer.SetTextPosition(cellLayout.client.left(),bottom);
+					renderer.WriteText(text.root()+viewBegin,end-viewBegin);
 				}
-				if (sel_start != cursor)
+				if (selectionStart != cursor)
 				{
 					renderer.ModulateColor(0.2,0.3,0.5,0.7);
-					size_t	sel_begin = sel_start,
+					size_t	sel_begin = selectionStart,
 							sel_end = cursor;
 					if (sel_begin > sel_end)
 						swp(sel_begin,sel_end);
-					if (sel_begin < view_begin)
-						sel_begin = view_begin;
-					if (sel_end < view_begin)
-						sel_end = view_begin;
-					float	left = cell_layout.client.left()+textWidth(text.root()+view_begin,sel_begin-view_begin),
-							right = cell_layout.client.left()+textWidth(text.root()+view_begin,sel_end-view_begin);
+					if (sel_begin < viewBegin)
+						sel_begin = viewBegin;
+					if (sel_end < viewBegin)
+						sel_end = viewBegin;
+					float	left = cellLayout.client.left()+_GetTextWidth(text.root()+viewBegin,sel_begin-viewBegin),
+							right = cellLayout.client.left()+_GetTextWidth(text.root()+viewBegin,sel_end-viewBegin);
 						//glColor4f(0.4,0.6,1,0.7);
 					renderer.FillRect(Rect<>(left-2,bottom,right+2,top));
 					renderer.PeekColor();
 					
-					if (mask_input)
+					if (maskInput)
 					{
 						float csize = fontHeight*0.75;
 						renderer.SetPointSize(csize*0.8);
 						for (index_t i = sel_begin; i < sel_end; i++)
-							renderer.PaintPoint(cell_layout.client.left()+csize*(0.5+i),cell_layout.client.y.center());
+							renderer.PaintPoint(cellLayout.client.left()+csize*(0.5+i),cellLayout.client.y.center());
 					}
 					else
 					{
-						renderer.SetTextPosition(cell_layout.client.left()+renderer.GetUnscaledWidth(text.root()+view_begin,sel_begin-view_begin),bottom);
+						renderer.SetTextPosition(cellLayout.client.left()+renderer.GetUnscaledWidth(text.root()+viewBegin,sel_begin-viewBegin),bottom);
 						renderer.WriteText(text.root()+sel_begin,sel_end-sel_begin);
 					}
 				}
 					
 				renderer.Unclip();
 			}
-			if (isFocused() && enabled && cursor_ticks < 5)
+			if (IsFocused() && enabled && parentIsEnabled && cursorTicks < 5)
 			{
 				renderer.MarkNewLayer();
-				renderer.RenderLine(cursor_offset,cell_layout.client.y.center()-fontHeight/2,
-									cursor_offset,cell_layout.client.y.center()+fontHeight/2+font_offset);
+				renderer.RenderLine(cursorOffset,cellLayout.client.y.center()-fontHeight/2,
+									cursorOffset,cellLayout.client.y.center()+fontHeight/2+font_offset);
 			}
 			renderer.PopColor();
 		}
 		
-		Component::eEventResult		Edit::onTick()
+		Component::eEventResult		Edit::OnTick()
 		{
-			count_t new_ticks = (cursor_ticks+1)%10;
-			bool refresh = new_ticks < 5 != cursor_ticks < 5;
-			cursor_ticks  = new_ticks;
+			count_t new_ticks = (cursorTicks+1)%10;
+			bool refresh = new_ticks < 5 != cursorTicks < 5;
+			cursorTicks  = new_ticks;
 
 			
-			if (go_right && !view_right_most)
+			if (goRight && !viewRightMost)
 			{
-				view_begin++;
+				viewBegin++;
 				if (cursor < text.length())
 					cursor++;
-				updateView();
+				_UpdateView();
 				return RequestingRepaint;
 			}
-			if (go_left && view_begin)
+			if (goLeft && viewBegin)
 			{
-				view_begin--;
+				viewBegin--;
 				if (cursor)
 					cursor--;
-				updateView();
+				_UpdateView();
 				return RequestingRepaint;
 			}
 			return refresh?RequestingRepaint:Handled;
 		}
 
 		
-		Component::eEventResult		Edit::onMouseHover(float x, float y, TExtEventResult&ext)
+		Component::eEventResult		Edit::OnMouseHover(float x, float y, TExtEventResult&ext)
 		{
-			ext.caught_by = shared_from_this();
-			if (cell_layout.client.contains(x,y))
-				ext.custom_cursor = Mouse::CursorType::EditText;
+			if (cellLayout.client.contains(x,y))
+				ext.customCursor = Mouse::CursorType::EditText;
 			return Handled;
 		}
 		
-		Component::eEventResult		Edit::onMouseDown(float x, float y, TExtEventResult&ext)
+		Component::eEventResult		Edit::OnMouseDown(float x, float y, TExtEventResult&ext)
 		{
-			ext.caught_by = shared_from_this();
-			if (cell_layout.client.contains(x,y))
+			if (cellLayout.client.contains(x,y))
 			{
-				//ShowMessage(String(x)+", "+String(y)+" is in "+cell_layout.client.toString());
-				float rx = x - cell_layout.client.left();
-				size_t end = vmin(view_end-1+view_right_most,text.length());
-				index_t index=view_begin;
+				//ShowMessage(String(x)+", "+String(y)+" is in "+cellLayout.client.toString());
+				float rx = x - cellLayout.client.left();
+				size_t end = vmin(viewEnd-1+viewRightMost,text.length());
+				index_t index=viewBegin;
 				for (; index < end; index++)
 				{
-					float width = charWidth(text[index]);
+					float width = _GetCharWidth(text[index]);
 					if (rx < width/2)
 						break;
 					rx -= width;
 				}
 				cursor = index;
 				if (!input.pressed[Key::Shift])
-					sel_start = cursor;
-				ext.custom_cursor = Mouse::CursorType::EditText;
+					selectionStart = cursor;
+				ext.customCursor = Mouse::CursorType::EditText;
 				
-				cursor_offset = cell_layout.client.left()+textWidth(text.root()+view_begin,cursor-view_begin);			
+				cursorOffset = cellLayout.client.left()+_GetTextWidth(text.root()+viewBegin,cursor-viewBegin);			
 				return RequestingRepaint;
 			}
 			return Handled;
 		}
 		
-		Component::eEventResult	Edit::onMouseDrag(float x, float y)
+		Component::eEventResult	Edit::OnMouseDrag(float x, float y)
 		{
-			float rx = x - cell_layout.client.left();
-			go_left = rx < 0;
-			size_t end = vmin(view_end-1+view_right_most,text.length());
-			index_t index=view_begin;
+			float rx = x - cellLayout.client.left();
+			goLeft = rx < 0;
+			size_t end = vmin(viewEnd-1+viewRightMost,text.length());
+			index_t index=viewBegin;
 			for (; index < end; index++)
 			{
-				float width = charWidth(text[index]);
+				float width = _GetCharWidth(text[index]);
 				if (rx < width/2)
 					break;
 				rx -= width;
 			}
-			go_right = index == end && rx > 0;
+			goRight = index == end && rx > 0;
 			cursor = index;
-			cursor_offset = cell_layout.client.left()+textWidth(text.root()+view_begin,cursor-view_begin);			
+			cursorOffset = cellLayout.client.left()+_GetTextWidth(text.root()+viewBegin,cursor-viewBegin);			
 			return RequestingRepaint;
 		}
 		
-		Component::eEventResult	Edit::onMouseUp(float x, float y)
+		Component::eEventResult	Edit::OnMouseUp(float x, float y)
 		{
-			go_left = false;
-			go_right = false;
+			goLeft = false;
+			goRight = false;
 		
 			return Handled;
 		}
 
 		
-		Component::eEventResult	Edit::onKeyDown(Key::Name key)
+		Component::eEventResult	Edit::OnKeyDown(Key::Name key)
 		{
 			switch (key)
 			{
@@ -1516,8 +1485,8 @@ namespace Engine
 								cursor++;
 						}
 						if (!input.pressed[Key::Shift])
-							sel_start = cursor;
-						updateView();
+							selectionStart = cursor;
+						_UpdateView();
 						return RequestingRepaint;
 					}
 				break;
@@ -1536,8 +1505,8 @@ namespace Engine
 						}
 						
 						if (!input.pressed[Key::Shift])
-							sel_start = cursor;
-						updateView();
+							selectionStart = cursor;
+						_UpdateView();
 						return RequestingRepaint;
 					}
 				break;
@@ -1546,94 +1515,94 @@ namespace Engine
 					{
 						cursor = 0;
 						if (!input.pressed[Key::Shift])
-							sel_start = cursor;
-						updateView();
+							selectionStart = cursor;
+						_UpdateView();
 						return RequestingRepaint;
 					}
 				break;
 				case Key::End:
-					if (cursor<text.length() && !read_only)
+					if (cursor<text.length() && !readOnly)
 					{
 						cursor = text.length();
 						if (!input.pressed[Key::Shift])
-							sel_start = cursor;
-						updateView();
+							selectionStart = cursor;
+						_UpdateView();
 						return RequestingRepaint;
 					}
 				break;
 				case Key::BackSpace:
-					if ((cursor || sel_start)  && !read_only)
+					if ((cursor || selectionStart)  && !readOnly)
 					{
-						if (sel_start == cursor)
+						if (selectionStart == cursor)
 						{
-							sel_start--;
+							selectionStart--;
 							if (text.erase(--cursor,1))
 							{
-								updateView();
-								on_change();
+								_UpdateView();
+								onChange();
 								return RequestingRepaint;
 							}
 							
 						}
 						else
-							if (sel_start > cursor)
+							if (selectionStart > cursor)
 							{
-								if (text.erase(cursor,sel_start-cursor))
+								if (text.erase(cursor,selectionStart-cursor))
 								{
-									sel_start = cursor;
-									updateView();
-									on_change();
+									selectionStart = cursor;
+									_UpdateView();
+									onChange();
 									return RequestingRepaint;
 								}
 							}
 							else
-								if (text.erase(sel_start,cursor-sel_start))
+								if (text.erase(selectionStart,cursor-selectionStart))
 								{
-									cursor = sel_start;
-									updateView();
-									on_change();
+									cursor = selectionStart;
+									_UpdateView();
+									onChange();
 									return RequestingRepaint;
 								}
 					}
 				break;
 				case Key::Delete:
-					if (!read_only)
+					if (!readOnly)
 					{
-						if (sel_start == cursor)
+						if (selectionStart == cursor)
 						{
 							if (text.erase(cursor,1))
 							{
-								updateView();
-								on_change();
+								_UpdateView();
+								onChange();
 								return RequestingRepaint;
 							}
 							
 						}
 						else
-							if (sel_start > cursor)
+							if (selectionStart > cursor)
 							{
-								if (text.erase(cursor,sel_start-cursor))
+								if (text.erase(cursor,selectionStart-cursor))
 								{
-									sel_start = cursor;
-									updateView();
-									on_change();
+									selectionStart = cursor;
+									_UpdateView();
+									onChange();
 									return RequestingRepaint;
 								}
 							}
 							else
-								if (text.erase(sel_start,cursor-sel_start))
+								if (text.erase(selectionStart,cursor-selectionStart))
 								{
-									cursor = sel_start;
-									updateView();
-									on_change();
+									cursor = selectionStart;
+									_UpdateView();
+									onChange();
 									return RequestingRepaint;
 								}
 					}
 				break;
 				case Key::C:
-					if (input.pressed[Key::Ctrl] && sel_start != cursor && !masked_view)
+					if (input.pressed[Key::Ctrl] && selectionStart != cursor && !maskedView)
 					{
-						size_t	begin = sel_start,
+						size_t	begin = selectionStart,
 								end = cursor;
 						if (begin > end)
 							swp(begin,end);
@@ -1643,54 +1612,54 @@ namespace Engine
 					}
 				break;
 				case Key::X:
-					if (input.pressed[Key::Ctrl] && sel_start != cursor && !masked_view)
+					if (input.pressed[Key::Ctrl] && selectionStart != cursor && !maskedView)
 					{
-						size_t	begin = sel_start,
+						size_t	begin = selectionStart,
 								end = cursor;
 						if (begin > end)
 							swp(begin,end);
 						String sub = String(text.root()+begin,end-begin);
-						if (System::copyToClipboard(NULL,sub.c_str()) && !read_only)
+						if (System::copyToClipboard(NULL,sub.c_str()) && !readOnly)
 						{
 							text.erase(begin,end-begin);
 							if (cursor > begin)
 								cursor = begin;
-							sel_start = cursor;
-							updateView();
-							on_change();
+							selectionStart = cursor;
+							_UpdateView();
+							onChange();
 							return RequestingRepaint;
 						}
 					}
 				break;
 				case Key::V:
-					if (input.pressed[Key::Ctrl] && !read_only)
+					if (input.pressed[Key::Ctrl] && !readOnly)
 					{
 						char buffer[0x1000];
 						if (System::getFromClipboardIfText(NULL,buffer,sizeof(buffer)))
 						{
-							if (cursor!=sel_start)
+							if (cursor!=selectionStart)
 							{
-								if (cursor > sel_start)
+								if (cursor > selectionStart)
 								{
-									text.erase(sel_start,cursor-sel_start);
-									cursor = sel_start;
+									text.erase(selectionStart,cursor-selectionStart);
+									cursor = selectionStart;
 								}
 								else
-									text.erase(cursor,sel_start-cursor);
+									text.erase(cursor,selectionStart-cursor);
 							}
 							size_t len = strlen(buffer);
 							text.insert(cursor,buffer,len);
 							cursor+=len;
-							sel_start = cursor;
-							updateView();
-							on_change();
+							selectionStart = cursor;
+							_UpdateView();
+							onChange();
 							return RequestingRepaint;
 						}
 					}
 				break;
 				case Key::Enter:
 				case Key::Return:
-					on_enter();
+					onEnter();
 				return Handled;
 				default:
 					{
@@ -1703,59 +1672,59 @@ namespace Engine
 			return Handled;
 		}
 		
-		Component::eEventResult	Edit::onKeyUp(Key::Name key)
+		Component::eEventResult	Edit::OnKeyUp(Key::Name key)
 		{
 		
 			return Unsupported;
 		}
 		
-		void	Edit::updateView()
+		void	Edit::_UpdateView()
 		{
 			if (cursor > text.length())
 				cursor = text.length();
-			if (view_begin >= text.length())
-				view_begin = text.length()?text.length()-1:0;
-			if (cursor < view_begin)
-				view_begin = cursor;
+			if (viewBegin >= text.length())
+				viewBegin = text.length()?text.length()-1:0;
+			if (cursor < viewBegin)
+				viewBegin = cursor;
 			else
-				while (textWidth(text.root()+view_begin,cursor-view_begin)>cell_layout.client.width())
-					view_begin++;
-			view_end = view_begin+1;
-			while (view_end < text.length() && textWidth(text.root()+view_begin,view_end-view_begin)<cell_layout.client.width())
-				view_end++;
-			view_right_most = textWidth(text.root()+view_begin,view_end-view_begin)<cell_layout.client.width();
-			//if (textout.unscaledLength(text.root()+view_begin,view_end-view_begin)>=cell_layout.client.width())
-				//view_end--;
-			cursor_offset = cell_layout.client.left()+textWidth(text.root()+view_begin,cursor-view_begin);
+				while (_GetTextWidth(text.root()+viewBegin,cursor-viewBegin)>cellLayout.client.width())
+					viewBegin++;
+			viewEnd = viewBegin+1;
+			while (viewEnd < text.length() && _GetTextWidth(text.root()+viewBegin,viewEnd-viewBegin)<cellLayout.client.width())
+				viewEnd++;
+			viewRightMost = _GetTextWidth(text.root()+viewBegin,viewEnd-viewBegin)<cellLayout.client.width();
+			//if (textout.unscaledLength(text.root()+viewBegin,viewEnd-viewBegin)>=cellLayout.client.width())
+				//viewEnd--;
+			cursorOffset = cellLayout.client.left()+_GetTextWidth(text.root()+viewBegin,cursor-viewBegin);
 		}
 		
-		void	Edit::updateLayout(const Rect<float>&parent_region)
+		void	Edit::UpdateLayout(const Rect<float>&parent_region)
 		{
-			Component::updateLayout(parent_region);
-			updateView();
+			Component::UpdateLayout(parent_region);
+			_UpdateView();
 		}
 		
 		
 		
-		Component::eEventResult	Edit::onChar(char c)
+		Component::eEventResult	Edit::OnChar(char c)
 		{
-			if (read_only || (acceptChar && !acceptChar(c)))
+			if (readOnly || (acceptChar && !acceptChar(c)))
 				return Unsupported;
-			if (cursor!=sel_start)
+			if (cursor!=selectionStart)
 			{
-				if (cursor > sel_start)
+				if (cursor > selectionStart)
 				{
-					text.erase(sel_start,cursor-sel_start);
-					cursor = sel_start;
+					text.erase(selectionStart,cursor-selectionStart);
+					cursor = selectionStart;
 				}
 				else
-					text.erase(cursor,sel_start-cursor);
+					text.erase(cursor,selectionStart-cursor);
 			}
 
 			text.insert(cursor++,c);
-			sel_start = cursor;
-			updateView();
-			on_change();
+			selectionStart = cursor;
+			_UpdateView();
+			onChange();
 			return RequestingRepaint;
 		}
 		
@@ -1764,31 +1733,29 @@ namespace Engine
 		
 		
 
-		/*virtual override*/ void		Button::OnNormalPaint(NormalRenderer&renderer)
+		/*virtual override*/ void		Button::OnNormalPaint(NormalRenderer&renderer, bool parentIsEnabled)
 		{
 			renderer.PushNormalScale();
-				if (!enabled)
-					renderer.ScaleNormals(0.1,0.1,1);
-				elif (AppearsPressed())
+				if (AppearsPressed())
 					renderer.ScaleNormals(-1,-1,1);
 			
-				Component::OnNormalPaint(renderer);
+				Component::OnNormalPaint(renderer,parentIsEnabled);
 
 			renderer.PopNormalScale();
 		}
 		
-		/*virtual override*/ void		Button::OnColorPaint(ColorRenderer&renderer)
+		/*virtual override*/ void		Button::OnColorPaint(ColorRenderer&renderer, bool parentIsEnabled)
 		{
 			bool pressed = AppearsPressed();
 			renderer.PushColor();
-			if (pressed || !enabled)
-				renderer.ModulateColor(0.5f);
-			Component::OnColorPaint(renderer);
+				if (pressed && enabled && parentIsEnabled)
+					renderer.ModulateColor(0.5f);
+			Component::OnColorPaint(renderer,parentIsEnabled);
 			renderer.PopColor();
 
 			if (caption.isNotEmpty())
 			{
-				const Rect<float>&rect=cell_layout.client;
+				const Rect<float>&rect=cellLayout.client;
 				renderer.SetTextPosition(rect.x.center()-ColorRenderer::textout.unscaledLength(caption)*0.5+pressed,rect.y.center()-ColorRenderer::textout.getFont().getHeight()/2+font_offset);
 				renderer.PushColor();
 				renderer.ModulateColor(1.0-0.2*(pressed||!enabled));
@@ -1797,99 +1764,93 @@ namespace Engine
 			}		
 		}
 		
-		/*virtual override*/ Component::eEventResult	Button::onMouseDrag(float x, float y)
+		/*virtual override*/ Component::eEventResult	Button::OnMouseDrag(float x, float y)
 		{
-			bool new_pressed = down && current_region.contains(x,y);
+			bool new_pressed = down && currentRegion.contains(x,y);
 			bool changed = pressed != new_pressed;
 			pressed = new_pressed;
 			return changed?RequestingRepaint:Handled;
 		}
 		
-		Component::eEventResult	Button::onMouseDown(float x, float y, TExtEventResult&ext)
+		Component::eEventResult	Button::OnMouseDown(float x, float y, TExtEventResult&ext)
 		{
-			if (!enabled)
-				return Unsupported;
-			ext.caught_by = shared_from_this();
-			/*if (!current_region.contains(x,y))
-				return NULL;*/
 			bool changed = !down;
 			down = true;
 			pressed = true;
 			return changed?RequestingRepaint:Handled;
 		}
 		
-		Component::eEventResult	Button::onMouseUp(float x, float y)
+		Component::eEventResult	Button::OnMouseUp(float x, float y)
 		{
 			if (pressed)
-				onExecute();
+				OnExecute();
 			bool changed = pressed;
 			pressed = false;
 			down = false;
 			return changed?RequestingRepaint:Handled;
 		}
 		
-		Component::eEventResult	Button::onKeyDown(Key::Name key)
+		Component::eEventResult	Button::OnKeyDown(Key::Name key)
 		{
 			switch (key)
 			{
 				case Key::Space:
 				case Key::Enter:
 				case Key::Return:
-					on_execute();
+					onExecute();
 				return Handled;
 			}
 			return Unsupported;
 		}
 		
-		Component::eEventResult	Button::onKeyUp(Key::Name key)
+		Component::eEventResult	Button::OnKeyUp(Key::Name key)
 		{
-		
 			return Unsupported;
 		}
 		
 		
 		
-		float		Button::clientMinWidth()	const
+		float		Button::GetClientMinWidth()	const
 		{
 			return ColorRenderer::textout.unscaledLength(caption);
 		}
 		
-		float		Button::clientMinHeight()	const
+		float		Button::GetClientMinHeight()	const
 		{
 
 			return ColorRenderer::textout.getFont().getHeight();
 		}
 		
-		/*virtual override*/void		CheckBox::OnNormalPaint(NormalRenderer&renderer)
+		/*virtual override*/void		CheckBox::OnNormalPaint(NormalRenderer&renderer, bool parentIsEnabled)
 		{
-			Component::OnNormalPaint(renderer);
-			if (style && !style->box_normal.isEmpty())
+			Component::OnNormalPaint(renderer,parentIsEnabled);
+			if (style && !style->boxNormal.isEmpty())
 			{
-				renderer.TextureRect(GetBoxRect(),style->box_normal);
+				renderer.TextureRect(GetBoxRect(),style->boxNormal);
 			}
 		}
 		
-		/*virtual override*/void		CheckBox::OnColorPaint(ColorRenderer&renderer)
+		/*virtual override*/void		CheckBox::OnColorPaint(ColorRenderer&renderer, bool parentIsEnabled)
 		{
 			renderer.PushColor();
-			Component::OnColorPaint(renderer);
+			Component::OnColorPaint(renderer,parentIsEnabled);
 			
 			const Rect<> rect=GetBoxRect();
-			if (style && !style->box_color.isEmpty())
-				renderer.TextureRect(rect,style->box_color);
+			if (style && !style->boxColor.isEmpty())
+				renderer.TextureRect(rect,style->boxColor);
 			
-			if (checked && style && !style->check_mark.isEmpty())
-				renderer.TextureRect(rect,style->check_mark);
+			if (checked && style && !style->checkMark.isEmpty())
+				renderer.TextureRect(rect,style->checkMark);
 			
-			if (pressed && style && !style->highlight_mark.isEmpty())
+			if (pressed && style && !style->highlightMark.isEmpty())
 			{
 				renderer.ModulateColor(1,0.6,0);
-				renderer.TextureRect(rect,style->highlight_mark);
+				renderer.TextureRect(rect,style->highlightMark);
 				renderer.PeekColor();
 			}
 		
 			const float h= ColorRenderer::textout.getFont().getHeight();
-			const float size = boxSize();
+			const float size = GetBoxSize();
 			renderer.SetTextPosition(rect.left()+size+h*0.2f,rect.y.center()-h/2.f+font_offset);//textout.getFont().getHeight()*0.5);
 			renderer.ModulateColor(1.0-0.2*(!enabled));
 			renderer.WriteText(caption);
@@ -1900,31 +1861,28 @@ namespace Engine
 		
 
 
-		Component::eEventResult	CheckBox::onMouseDrag(float x, float y)
+		Component::eEventResult	CheckBox::OnMouseDrag(float x, float y)
 		{
-			bool new_pressed = down && current_region.contains(x,y);
+			bool new_pressed = down && currentRegion.contains(x,y);
 			bool changed = new_pressed != pressed;
 			pressed = new_pressed;
 			return changed?RequestingRepaint:Handled;
 		}
 		
-		Component::eEventResult	CheckBox::onMouseDown(float x, float y, TExtEventResult&ext)
+		Component::eEventResult	CheckBox::OnMouseDown(float x, float y, TExtEventResult&ext)
 		{
-			if (!enabled)
-				return Unsupported;
-			ext.caught_by = shared_from_this();
 			bool changed = !down;
 			down = true;
 			pressed = true;
 			return changed?RequestingRepaint:Handled;
 		}
 		
-		Component::eEventResult	CheckBox::onMouseUp(float x, float y)
+		Component::eEventResult	CheckBox::OnMouseUp(float x, float y)
 		{
 			if (pressed)
 			{
 				checked = !checked;
-				on_change();
+				onChange();
 			}
 			bool changed = pressed;
 			pressed = false;
@@ -1933,40 +1891,40 @@ namespace Engine
 		}
 		
 		
-		float		CheckBox::minWidth(bool include_offsets)	const
+		float		CheckBox::GetMinWidth(bool includeOffsets)	const
 		{
 			float rs;
 			{
-				rs = ColorRenderer::textout.unscaledLength(caption)+0.2*ColorRenderer::textout.getFont().getHeight()+boxSize();
-				if (anchored.right && include_offsets)
+				rs = ColorRenderer::textout.unscaledLength(caption)+0.2*ColorRenderer::textout.getFont().getHeight()+GetBoxSize();
+				if (anchored.right && includeOffsets)
 					rs -= offset.right;
-				if (anchored.left && include_offsets)
+				if (anchored.left && includeOffsets)
 					rs += offset.left;
 			}
 			if (layout)
 			{
-				rs += layout->client_edge.left+layout->client_edge.right;
-				if (rs < layout->min_width)
-					rs = layout->min_width;
+				rs += layout->clientEdge.left+layout->clientEdge.right;
+				if (rs < layout->minWidth)
+					rs = layout->minWidth;
 			}
 			return rs;
 		}
 		
-		float		CheckBox::minHeight(bool include_offsets)	const
+		float		CheckBox::GetMinHeight(bool includeOffsets)	const
 		{
 			float rs;
 			{
 				rs = ColorRenderer::textout.getFont().getHeight();
-				if (anchored.top && include_offsets)
+				if (anchored.top && includeOffsets)
 					rs -= offset.top;
-				if (anchored.bottom && include_offsets)
+				if (anchored.bottom && includeOffsets)
 					rs += offset.bottom;
 			}
 			if (layout)
 			{
-				rs += layout->client_edge.bottom+layout->client_edge.top;
-				if (rs < layout->min_height)
-					rs = layout->min_height;
+				rs += layout->clientEdge.bottom+layout->clientEdge.top;
+				if (rs < layout->minHeight)
+					rs = layout->minHeight;
 			}
 			return rs;
 		}
@@ -1975,20 +1933,20 @@ namespace Engine
 		
 		
 		
-		void			Label::updateLayout(const Rect<float>&parent_space)
+		void			Label::UpdateLayout(const Rect<float>&parent_space)
 		{
-			Component::updateLayout(parent_space);
-			if (wrap_text)
+			Component::UpdateLayout(parent_space);
+			if (wrapText)
 			{
-				float w = cell_layout.client.width();
-				if (w != last_width || text_changed)
+				float w = cellLayout.client.width();
+				if (w != lastWidth || textChanged)
 				{
-					text_changed = false;
-					last_width = w;
-					wrapf(caption,w,charLen,lines);
+					textChanged = false;
+					lastWidth = w;
+					wrapf(caption,w,_CharLen,lines);
 					//for (index_t i = 0; i < lines.count(); i++)
 					//	cout << "'"<<lines[i]<<"'"<<endl;
-					height = minHeight(false);
+					height = GetMinHeight(false);
 				}
 			}
 					
@@ -1997,91 +1955,89 @@ namespace Engine
 		
 		
 		
-		void			Label::setup()
+		void			Label::_Setup()
 		{
-			last_width = -1;
+			lastWidth = -1;
 			caption = "Label";
-			wrap_text = false;
-			text_changed = true;
-			fill_background = false;
-			Vec::set(background_color,1);
-			Vec::set(text_color,1);
-			height = minHeight(false);
-			width = minWidth(false);
+			wrapText = false;
+			textChanged = true;
+			fillBackground = false;
+			Vec::set(backgroundColor,1);
+			Vec::set(textColor,1);
+			height = GetMinHeight(false);
+			width = GetMinWidth(false);
 		}
 		
-		float			Label::clientMinWidth()	const
+		float			Label::GetClientMinWidth()	const
 		{
-			if (!wrap_text)
+			if (!wrapText)
 				return ColorRenderer::textout.unscaledLength(caption);
 			return 30;
 		}
 		
-		float			Label::clientMinHeight()	const
+		float			Label::GetClientMinHeight()	const
 		{
-			if (!wrap_text)
+			if (!wrapText)
 				return ColorRenderer::textout.getFont().getHeight();
 			return ColorRenderer::textout.getFont().getHeight()*lines.count();
 		
 		}
 		
-		Label*			Label::setText(const String&text)
+		Label*			Label::SetText(const String&text)
 		{
 			caption = text;
-			text_changed = true;
-			if (!wrap_text)
-				width = minWidth(false);
-			signalLayoutChange();
+			textChanged = true;
+			if (!wrapText)
+				width = GetMinWidth(false);
+			SignalLayoutChange();
 			return this;
 		}
-		Label*			Label::setColor(const TVec4<>&color)
+		Label*			Label::SetColor(const TVec4<>&color)
 		{
-			text_color = color;
-			signalVisualChange();
+			textColor = color;
+			SignalVisualChange();
 			return this;
 		}
 
-		float		Label::charLen(char c)
+		float		Label::_CharLen(char c)
 		{
 			return ColorRenderer::textout.unscaledLength(&c,1);
 		}
 		
-		void			Label::OnColorPaint(ColorRenderer&renderer)
+		void			Label::OnColorPaint(ColorRenderer&renderer, bool parentIsEnabled)
 		{
 			renderer.PushColor();
-			if (!enabled)
-				renderer.ModulateColor(0.5);
 			
-			Component::OnColorPaint(renderer);
+			Component::OnColorPaint(renderer, parentIsEnabled);
 
-			if (!fill_background && caption.isEmpty())
+			if (!fillBackground && caption.isEmpty())
 			{
 				renderer.PopColor();
 				return;
 			}
 			
-			if (fill_background)
+			if (fillBackground)
 			{
-				renderer.ModulateColor(background_color);
-				renderer.FillRect(cell_layout.client);
+				renderer.ModulateColor(backgroundColor);
+				renderer.FillRect(cellLayout.client);
 				renderer.PeekColor();
 				renderer.MarkNewLayer();
 			}
 			if (caption.isNotEmpty())
 			{
-				renderer.Clip(cell_layout.client);
-				renderer.ModulateColor(text_color);
-				if (!wrap_text)
+				renderer.Clip(cellLayout.client);
+				renderer.ModulateColor(textColor);
+				if (!wrapText)
 				{
-					float	bottom = cell_layout.client.y.center()-ColorRenderer::textout.getFont().getHeight()/2+font_offset;
-					renderer.SetTextPosition(cell_layout.client.left(),bottom);
+					float	bottom = cellLayout.client.y.center()-ColorRenderer::textout.getFont().getHeight()/2+font_offset;
+					renderer.SetTextPosition(cellLayout.client.left(),bottom);
 					renderer.WriteText(caption);
 				}
 				else
 				{
 					for (index_t i = 0; i < lines.count(); i++)
 					{
-						renderer.SetTextPosition(cell_layout.client.left(),cell_layout.client.top()-(ColorRenderer::textout.getFont().getHeight()*(i+1)));
+						renderer.SetTextPosition(cellLayout.client.left(),cellLayout.client.top()-(ColorRenderer::textout.getFont().getHeight()*(i+1)));
 						renderer.WriteText(lines[i]);
 					}
 				}
@@ -2090,434 +2046,422 @@ namespace Engine
 			renderer.PopColor();
 		}
 		
-		void	ComboBox::setup()
+		void	ComboBox::_Setup()
 		{
-			//MenuEntry::menu();	//don't create menu (called from constructor)
-			selected_object.reset();
-			selected_entry = 0;
-			open_down = true;
-			layout = global_layout.reference();
-			width = minWidth(false);
-			height = minHeight(false);
+			//MenuEntry::GetMenu();	//don't create menu (called from constructor)
+			selectedObject.reset();
+			selectedEntry = 0;
+			openDown = true;
+			layout = globalLayout.Refer();
+			width = GetMinWidth(false);
+			height = GetMinHeight(false);
 			//ShowMessage(width);
 		}
 		
-		void	ComboBox::updateLayout(const Rect<float>&parent_space)
+		void	ComboBox::UpdateLayout(const Rect<float>&parent_space)
 		{
-			if (!selected_object && menu()->countChildren()>2)
+			if (!selectedObject && GetMenu()->CountChildren()>2)
 			{
-				selected_entry = 0;
-				selected_object = ((MenuEntry*)(menu()->child(selected_entry).get()))->object;
-				setText(selected_object->toString());
+				selectedEntry = 0;
+				selectedObject = ((MenuEntry*)(GetMenu()->GetChild(selectedEntry).get()))->object;
+				SetText(selectedObject->toString());
 			}
-			height = Label::minHeight(false);
-			MenuEntry::updateLayout(parent_space);
+			height = Label::GetMinHeight(false);
+			MenuEntry::UpdateLayout(parent_space);
 		}
 		
 		
-		void	MenuEntry::correctMenuWindowSize()	const
+		void	MenuEntry::CorrectMenuWindowSize()	const
 		{
 			bool changed = false;
-			float mw = menu_window->minWidth();
-			if (menu_window->fwidth != mw)
+			float mw = menuWindow->GetMinWidth();
+			if (menuWindow->fsize.x != mw)
 			{
-				menu_window->fwidth = mw;
-				menu_window->iwidth = (size_t)round(menu_window->fwidth);
+				menuWindow->fsize.x = mw;
+				menuWindow->size.width = (size_t)round(menuWindow->fsize.x);
 				changed = true;
 			}
-			Menu*	menu = (Menu*)menu_window->component_link.get();
-			float mh = menu->idealHeight();
-			if (menu_window->layout)
-				mh += menu_window->layout->client_edge.top+menu_window->layout->client_edge.bottom;
+			Menu*	menu = (Menu*)menuWindow->rootComponent.get();
+			float mh = menu->GetIdealHeight();
+			if (menuWindow->layout)
+				mh += menuWindow->layout->clientEdge.top+menuWindow->layout->clientEdge.bottom;
 			float h = vmin(150,mh);
-			if (menu_window->fheight != h)
+			if (menuWindow->fsize.y != h)
 			{
-				menu_window->fheight = h;
-				menu_window->iheight = (size_t)round(menu_window->fheight);
+				menuWindow->fsize.y = h;
+				menuWindow->size.height = (size_t)round(menuWindow->fsize.y);
 				changed = true;
 			}
 					
-			if (menu_window->layout_changed || changed)
+			if (menuWindow->layoutChanged || changed)
 			{
-				menu_window->updateLayout();
+				menuWindow->UpdateLayout();
 			}
 		}
 
 		
-		float	ComboBox::minWidth(bool include_offsets)	const
+		float	ComboBox::GetMinWidth(bool includeOffsets)	const
 		{
-			if (menu_window)
+			PWindow menuWindow = GetMenuWindow();
+			if (menuWindow)
 			{
-				if (menu_window->layout_changed)
-					menu_window->updateLayout();
-				correctMenuWindowSize();
-				return vmax(MenuEntry::minWidth(include_offsets),menu_window->minWidth());
+				if (menuWindow->layoutChanged)
+					menuWindow->UpdateLayout();
+				CorrectMenuWindowSize();
+				return vmax(MenuEntry::GetMinWidth(includeOffsets),menuWindow->GetMinWidth());
 			}
-			return MenuEntry::minWidth(include_offsets);
-		}
-		
-		Component::eEventResult			ComboBox::onMouseHover(float x, float y, TExtEventResult&ext)
-		{
-			return Unsupported;
-		}
-		
-		
-		void	ComboBox::onMenuClose(const shared_ptr<MenuEntry>&child)
-		{
-			selected_entry = menu()->indexOf(child);
-			if (selected_entry)
-			{
-				selected_entry--;
-				selected_object = child->object;
-			}
-			else
-			{
-				selected_object.reset();
-			}
-			if (selected_object)
-				setText(selected_object->toString());
-			else
-				setText("");
-			window()->apply(RequestingReshape);
-			on_change();
-		}
-		
-		void	ComboBox::select(index_t index)
-		{
-			selected_entry = index;
-			if (selected_entry >= menu()->countChildren())
-				selected_object.reset();
-			else
-				selected_object = ((MenuEntry*)menu()->child(selected_entry).get())->object;
-			if (selected_object)
-				setText(selected_object->toString());
-			else
-				setText("");
-			window()->apply(RequestingReshape);
+			return MenuEntry::GetMinWidth(includeOffsets);
 		}
 
 		
-		void	MenuEntry::updateLayout(const Rect<float>&parent_space)
+		void	ComboBox::OnMenuClose(const shared_ptr<MenuEntry>&child)
 		{
-			Label::updateLayout(parent_space);
+			selectedEntry = GetMenu()->GetIndexOfChild(child);
+			if (selectedEntry)
+			{
+				selectedEntry--;
+				selectedObject = child->object;
+			}
+			else
+			{
+				selectedObject.reset();
+			}
+			if (selectedObject)
+				SetText(selectedObject->toString());
+			else
+				SetText("");
+			SignalLayoutChange();
+			onChange();
+		}
+		
+		void	ComboBox::Select(index_t index)
+		{
+			selectedEntry = index;
+			if (selectedEntry >= GetMenu()->CountChildren())
+				selectedObject.reset();
+			else
+				selectedObject = ((MenuEntry*)GetMenu()->GetChild(selectedEntry).get())->object;
+			if (selectedObject)
+				SetText(selectedObject->toString());
+			else
+				SetText("");
+			SignalLayoutChange();
+		}
+
+		
+		void	MenuEntry::UpdateLayout(const Rect<float>&parent_space)
+		{
+			Label::UpdateLayout(parent_space);
 			
 		}
 		
-		Component::eEventResult			MenuEntry::onMouseDown(float x, float y, TExtEventResult&ext)
+		Component::eEventResult			MenuEntry::OnMouseDown(float x, float y, TExtEventResult&ext)
 		{
-			ext.caught_by = shared_from_this();
-			on_execute();
+			onExecute();
 			
-			if (menu_window)
+			if (menuWindow)
 			{
-				shared_ptr<Operator> op = requireOperator();
-				float delta = timer.toSecondsf(timing.now64-menu_window->hidden);
+				shared_ptr<Operator> op = RequireOperator();
+				float delta = timer.toSecondsf(timing.now64-menuWindow->hidden);
 				if (delta >= 0 && delta<0.1f)
 				{
-					op->hideMenus();
+					op->HideMenus();
 					//Window::hideMenus();
 				}
 				else
 				{
-					ASSERT_NOT_NULL__(menu_window->component_link);
+					ASSERT_NOT_NULL__(menuWindow->rootComponent);
 					
-					Rect<float>	absolute = cell_layout.border;
-					shared_ptr<Window> parent = window();
+					Rect<float>	absolute = cellLayout.border;
+					shared_ptr<Window> parent = GetWindow();
 					ASSERT__(parent);
 					
 					#ifdef DEEP_GUI
-						absolute.translate(parent->current_center.x-parent->fwidth/2,parent->current_center.y-parent->fheight/2);
+						absolute.translate(parent->current_center.x-parent->fsize.x/2,parent->current_center.y-parent->fsize.y/2);
 					#else
-						absolute.translate(parent->x-parent->fwidth/2,parent->y-parent->fheight/2);
+						absolute.translate(parent->x-parent->fsize.x/2,parent->y-parent->fsize.y/2);
 					#endif
 						
 
-					correctMenuWindowSize();
+					CorrectMenuWindowSize();
 					
 					#ifdef DEEP_GUI
-						if (open_down)
+						if (openDown)
 						{
-							menu_window->current_center.x = absolute.left()+menu_window->fwidth/2;
-							menu_window->current_center.y = absolute.bottom()-menu_window->fheight/2;
+							menuWindow->current_center.x = absolute.left()+menuWindow->fsize.x/2;
+							menuWindow->current_center.y = absolute.bottom()-menuWindow->fsize.y/2;
 						}
 						else
 						{
-							menu_window->current_center.x = absolute.x.max+menu_window->fwidth/2;
-							menu_window->current_center.y = absolute.top()-menu_window->fheight/2;
+							menuWindow->current_center.x = absolute.x.max+menuWindow->fsize.x/2;
+							menuWindow->current_center.y = absolute.top()-menuWindow->fsize.y/2;
 						}
-						menu_window->current_center.x -= (menu_window->cell_layout.border.left());
-						menu_window->current_center.y += (menu_window->fheight-menu_window->cell_layout.border.top());
+						menuWindow->current_center.x -= (menuWindow->cellLayout.border.left());
+						menuWindow->current_center.y += (menuWindow->fsize.y-menuWindow->cellLayout.border.top());
 						
-						menu_window->current_center.shell_radius = 1;
+						menuWindow->current_center.shellRadius = 1;
 						
-						menu_window->origin = menu_window->destination = menu_window->current_center;
+						menuWindow->origin = menuWindow->destination = menuWindow->current_center;
 					#else
-						if (open_down)
+						if (openDown)
 						{
-							menu_window->x = absolute.left()+menu_window->fwidth/2;
-							menu_window->y = absolute.bottom()-menu_window->fheight/2;
+							menuWindow->x = absolute.left()+menuWindow->fsize.x/2;
+							menuWindow->y = absolute.bottom()-menuWindow->fsize.y/2;
 						}
 						else
 						{
-							menu_window->x = absolute.x.max+menu_window->fwidth/2;
-							menu_window->y = absolute.top()-menu_window->fheight/2;
+							menuWindow->x = absolute.x.max+menuWindow->fsize.x/2;
+							menuWindow->y = absolute.top()-menuWindow->fsize.y/2;
 						}
-						menu_window->x -= (menu_window->cell_layout.border.left());
-						menu_window->y += (menu_window->fheight-menu_window->cell_layout.border.top());
+						menuWindow->x -= (menuWindow->cellLayout.border.left());
+						menuWindow->y += (menuWindow->fsize.y-menuWindow->cellLayout.border.top());
 					#endif
 						
-					requireOperator()->showMenu(menu_window);
+					RequireOperator()->ShowMenu(menuWindow);
 				}
 			}
 			else
 			{
-				requireOperator()->hideMenus();
-				onMenuClose(static_pointer_cast<MenuEntry,Component>(shared_from_this()));
+				RequireOperator()->HideMenus();
+				OnMenuClose(static_pointer_cast<MenuEntry,Component>(shared_from_this()));
 			}
 			
 			return Handled;
 		}
 		
-		Component::eEventResult			MenuEntry::onMouseHover(float x, float y, TExtEventResult&ext)
-		{
-			ext.caught_by = shared_from_this();
-			bool changed = !Label::fill_background;
-			Label::fill_background = true;
-			return changed?RequestingRepaint:Handled;
-		}
 		
-		Component::eEventResult			MenuEntry::onMouseExit()
+		Component::eEventResult			MenuEntry::OnMouseExit()
 		{
-			bool changed = Label::fill_background;
-			Label::fill_background = false;
+			bool changed = Label::fillBackground;
+			Label::fillBackground = false;
 			return changed?RequestingRepaint:Handled;
 		}
 		
 
-		Component::eEventResult			MenuEntry::onFocusGained()
+		Component::eEventResult			MenuEntry::OnFocusGained()
 		{
-			Label::fill_background = true;
+			Label::fillBackground = true;
 			return RequestingRepaint;
 		}
 		
-		Component::eEventResult			MenuEntry::onFocusLost()
+		Component::eEventResult			MenuEntry::OnFocusLost()
 		{
-			Label::fill_background = false;
+			Label::fillBackground = false;
 			return RequestingRepaint;
 		}
 		
-		Component::eEventResult			MenuEntry::onKeyDown(Key::Name key)
+		Component::eEventResult			MenuEntry::OnKeyDown(Key::Name key)
 		{
-			return parent.expired()?Unsupported:parent.lock()->onKeyDown(key);
+			return parent.expired()?Unsupported:parent.lock()->OnKeyDown(key);
 		}
 		
 		
-		const shared_ptr<Window>&	MenuEntry::menuWindow()
+		const shared_ptr<Window>&	MenuEntry::RetrieveMenuWindow()
 		{
-			if (!menu_window)
+			if (!menuWindow)
 			{
-				menu_window.reset(new Window(false, &Window::menu_style));
+				menuWindow.reset(new Window(false, &Window::menuStyle));
 				shared_ptr<Menu> menu = shared_ptr<Menu>(new Menu());
-				menu_window->setComponent(menu);
+				menuWindow->SetComponent(menu);
 				menu->parent = static_pointer_cast<MenuEntry,Component>(shared_from_this());
 				//menu->level = level+1;
 
 			}
-			return menu_window;
+			return menuWindow;
 		}
 		
-		shared_ptr<Menu>		MenuEntry::menu()
+		shared_ptr<Menu>		MenuEntry::GetMenu()
 		{
-			return static_pointer_cast<Menu, Component>(menuWindow()->component_link);
+			return static_pointer_cast<Menu, Component>(RetrieveMenuWindow()->rootComponent);
 		}
 
-		shared_ptr<const Menu>	MenuEntry::menu()	const
+		shared_ptr<const Menu>	MenuEntry::GetMenu()	const
 		{
-			return menu_window?static_pointer_cast<const Menu, const Component>(menu_window->component_link):shared_ptr<const Menu>();
+			return menuWindow?static_pointer_cast<const Menu, const Component>(menuWindow->rootComponent):shared_ptr<const Menu>();
 		}
 		
-		void		MenuEntry::discardMenu()
+		void		MenuEntry::DiscardMenu()
 		{
-			if (menu_window)
+			if (menuWindow)
 			{
-				shared_ptr<Operator> op = getOperator();
+				shared_ptr<Operator> op = GetOperator();
 				if (op)	//might, in fact, be null
-					op->hideMenus();
-				menu_window.reset();
+					op->HideMenus();
+				menuWindow.reset();
 			}
 		}
 		
-		void		MenuEntry::setup()
+		void		MenuEntry::_Setup()
 		{
 			parent.reset();
-			menu_window.reset();
+			menuWindow.reset();
 			object.reset();
-			open_down = false;
-			Label::wrap_text = false;
+			openDown = false;
+			Label::wrapText = false;
 			//level = 0;
-			Vec::def(Label::background_color,0.5,0.5,1);
-			height = minHeight(false);
-			width = minWidth(false);
+			Vec::def(Label::backgroundColor,0.5,0.5,1);
+			height = GetMinHeight(false);
+			width = GetMinWidth(false);
 		}
 		
 		
-		void	MenuEntry::OnColorPaint(ColorRenderer&renderer)
+		void	MenuEntry::OnColorPaint(ColorRenderer&renderer, bool parentIsEnabled)
 		{
-			Label::fill_background = isFocused();
+			Label::fillBackground = IsFocused();
 			if (object && object.get() != this)
-				Label::caption = object->toString();
-			Label::OnColorPaint(renderer);
+				Label::SetText(object->toString());
+			Label::OnColorPaint(renderer,parentIsEnabled);
 		}
 		
-		void	MenuEntry::onMenuClose(const shared_ptr<MenuEntry>&child)
+		void	MenuEntry::OnMenuClose(const shared_ptr<MenuEntry>&child)
 		{
 			if (!parent.expired())
 			{
 				shared_ptr<Menu>	p = parent.lock();
 				if (!p->parent.expired())
-					p->parent.lock()->onMenuClose(static_pointer_cast<MenuEntry, Component>(shared_from_this()));
+					p->parent.lock()->OnMenuClose(static_pointer_cast<MenuEntry, Component>(shared_from_this()));
 			}
 		}
 		
 		MenuEntry::~MenuEntry()
 		{
-			//discardMenu();	//only hides menu in the operator, but i suspect even if the case happens where a menu is still visible when the root is erased, the operator should now be able to handle that
+			//DiscardMenu();	//only hides menu in the operator, but i suspect even if the case happens where a menu is still visible when the root is erased, the operator should now be able to handle that
 		}
 		
 		
-		float		Menu::idealHeight()	const
+		float		Menu::GetIdealHeight()	const
 		{
 			float h = 0;
 			for (index_t i = 0; i < children.count(); i++)
 				h += children[i]->height;
 			if (layout)
-				h += layout->client_edge.top+layout->client_edge.bottom;
+				h += layout->clientEdge.top+layout->clientEdge.bottom;
 			return h;
 		}
 		
-		shared_ptr<MenuEntry>		Menu::add(const String&caption)
+		shared_ptr<MenuEntry>		Menu::Add(const String&caption)
 		{
 			shared_ptr<MenuEntry> entry = shared_ptr<MenuEntry>(new MenuEntry());
-			entry->setText(caption);
+			entry->SetText(caption);
 			entry->object = entry;
 			entry->parent = static_pointer_cast<Menu,Component>(shared_from_this());
-			ASSERT__(add(entry));
+			ASSERT__(Add(entry));
 			return entry;
 		}
 		
-		bool		Menu::add(const shared_ptr<Component>&component)
+		bool		Menu::Add(const shared_ptr<Component>&component)
 		{
-			if (!component->type_name.beginsWith("Label/MenuEntry") || !ScrollBox::add(component))
+			if (!component->typeName.beginsWith("Label/MenuEntry") || !ScrollBox::Add(component))
 				return false;
 			static_pointer_cast<MenuEntry,Component>(component)->parent = static_pointer_cast<Menu,Component>(shared_from_this());
 			//((MenuEntry*)component)->level = level;
-			component->setWindow(window_link);		
-			arrangeItems();
-			signalLayoutChange();
+			component->SetWindow(windowLink);		
+			_ArrangeItems();
+			SignalLayoutChange();
 			return true;
 		}
 		
-		bool		Menu::erase(const shared_ptr<Component>&component)
+		bool		Menu::Erase(const shared_ptr<Component>&component)
 		{
-			if (ScrollBox::erase(component))
+			if (ScrollBox::Erase(component))
 			{
-				arrangeItems();
+				_ArrangeItems();
 				return true;
 			}
 			return false;
 		}
 		
-		bool		Menu::erase(index_t index)
+		bool		Menu::Erase(index_t index)
 		{
-			if (ScrollBox::erase(index))
+			if (ScrollBox::Erase(index))
 			{
-				arrangeItems();
+				_ArrangeItems();
 				return true;
 			}
 			return false;
 		}
 		
-		bool		Menu::moveUp(const shared_ptr<Component>&component)
+		bool		Menu::MoveChildUp(const shared_ptr<Component>&component)
 		{
-			if (ScrollBox::moveUp(component))
+			if (ScrollBox::MoveChildUp(component))
 			{
-				arrangeItems();
+				_ArrangeItems();
 				return true;
 			}
 			return false;
 		}
 
-		bool		Menu::moveUp(index_t index)
+		bool		Menu::MoveChildUp(index_t index)
 		{
-			if (ScrollBox::moveUp(index))
+			if (ScrollBox::MoveChildUp(index))
 			{
-				arrangeItems();
+				_ArrangeItems();
 				return true;
 			}
 			return false;
 		}
 
-		bool		Menu::moveDown(const shared_ptr<Component>&component)
+		bool		Menu::MoveChildDown(const shared_ptr<Component>&component)
 		{
-			if (ScrollBox::moveDown(component))
+			if (ScrollBox::MoveChildDown(component))
 			{
-				arrangeItems();
+				_ArrangeItems();
 				return true;
 			}
 			return false;
 		}
 		
-		bool		Menu::moveDown(index_t index)
+		bool		Menu::MoveChildDown(index_t index)
 		{
-			if (ScrollBox::moveDown(index))
+			if (ScrollBox::MoveChildDown(index))
 			{
-				arrangeItems();
+				_ArrangeItems();
 				return true;
 			}
 			return false;
 		}
 		
-		bool		Menu::moveTop(const shared_ptr<Component>&component)
+		bool		Menu::MoveChildToTop(const shared_ptr<Component>&component)
 		{
-			if (ScrollBox::moveTop(component))
+			if (ScrollBox::MoveChildToTop(component))
 			{
-				arrangeItems();
+				_ArrangeItems();
 				return true;
 			}
 			return false;
 		}
 
-		bool		Menu::moveTop(index_t index)
+		bool		Menu::MoveChildToTop(index_t index)
 		{
-			if (ScrollBox::moveTop(index))
+			if (ScrollBox::MoveChildToTop(index))
 			{
-				arrangeItems();
+				_ArrangeItems();
 				return true;
 			}
 			return false;
 		}
 
-		bool		Menu::moveBottom(const shared_ptr<Component>&component)
+		bool		Menu::MoveChildToBottom(const shared_ptr<Component>&component)
 		{
-			if (ScrollBox::moveBottom(component))
+			if (ScrollBox::MoveChildToBottom(component))
 			{
-				arrangeItems();
+				_ArrangeItems();
 				return true;
 			}
 			return false;
 		}
 
-		bool		Menu::moveBottom(index_t index)
+		bool		Menu::MoveChildToBottom(index_t index)
 		{
-			if (ScrollBox::moveBottom(index))
+			if (ScrollBox::MoveChildToBottom(index))
 			{
-				arrangeItems();
+				_ArrangeItems();
 				return true;
 			}
 			return false;
 		}
 		
-		void		Menu::arrangeItems()
+		void		Menu::_ArrangeItems()
 		{
 			float current=0;
 			for (index_t i = 0; i < children.count(); i++)
@@ -2532,34 +2476,34 @@ namespace Engine
 			}
 		}
 
-		void	Menu::setup()
+		void	Menu::_Setup()
 		{
-			ScrollBox::horizontal_bar->setVisible(false);
-			ScrollBox::vertical_bar->auto_visibility = true;
+			ScrollBox::horizontalBar->SetVisible(false);
+			ScrollBox::verticalBar->autoVisibility = true;
 			parent.reset();
 			//level = 0;
-			selected_entry = 0;
-			layout = global_layout.reference();
+			selectedEntry = 0;
+			layout = globalLayout.Refer();
 		}
 		
 		
-		Component::eEventResult			Menu::onKeyDown(Key::Name key)
+		Component::eEventResult			Menu::OnKeyDown(Key::Name key)
 		{
 			switch (key)
 			{
 				case Key::Up:
-					if (selected_entry)
+					if (selectedEntry)
 					{
-						selected_entry--;
-						setFocused(children[selected_entry]);
+						selectedEntry--;
+						SetFocused(children[selectedEntry]);
 						return RequestingRepaint;
 					}
 					return Handled;
 				case Key::Down:
-					if (selected_entry+1<children.count())
+					if (selectedEntry+1<children.count())
 					{
-						selected_entry++;
-						setFocused(children[selected_entry]);
+						selectedEntry++;
+						SetFocused(children[selectedEntry]);
 						return RequestingRepaint;
 					}
 				
@@ -2567,25 +2511,37 @@ namespace Engine
 			return Unsupported;
 		}
 		
-		Component::eEventResult			Menu::onMouseHover(float x, float y, TExtEventResult&ext)
+		
+		Component::eEventResult		MenuEntry::OnMouseHover(float x, float y, TExtEventResult&)
 		{
-			eEventResult	rs=ScrollBox::onMouseHover(x,y,ext);
-			if (rs != Unsupported)
+			bool changed = !Label::fillBackground;
+			Label::fillBackground = true;
+			if (changed)
 			{
-				index_t index = Panel::children.indexOf(ext.caught_by);
-				if (index != -1)
-				{
-					selected_entry = index;
-					setFocused(children[selected_entry]);
-					return RequestingRepaint;
-				}
-				return rs;
+				PMenu menu = parent.lock();
+				if (menu)
+					menu->_SelectMenuEntry(shared_from_this());
+				return RequestingRepaint;
 			}
-			return Unsupported;
+			return Handled;
+		}
+
+		void			Menu::_SelectMenuEntry(const PComponent&c)
+		{
+			if (selectedComponent == c)
+				return;
+			index_t index = Panel::children.indexOf(c);
+			if (index != InvalidIndex)
+			{
+				selectedEntry = index;
+				selectedComponent = c;
+				SetFocused(children[selectedEntry]);
+				SignalVisualChange();
+			}
 		}
 
 
-		static void	loadLayout(XML::Node*xtheme, FileSystem::Folder&folder, const String&path, Layout&layout, float outer_scale)
+		static void	LoadLayout(XML::Node*xtheme, FileSystem::Folder&folder, const String&path, Layout&layout, float outer_scale)
 		{
 			XML::Node*node = xtheme->find(path);
 			if (!node)
@@ -2599,29 +2555,29 @@ namespace Engine
 			if (node->query("file",string))
 				if (folder.findFile(string,file))
 				{
-					layout.loadFromFile(file.getLocation(),scale*outer_scale);
+					layout.LoadFromFile(file.getLocation(),scale*outer_scale);
 					return;
 				}
 			if (node->query("copy",string))
 			{
 				if (string == "button")
-					layout.override = &Button::global_layout;
+					layout.override = &Button::globalLayout;
 				elif (string == "panel")
-					layout.override = &Panel::global_layout;
+					layout.override = &Panel::globalLayout;
 				elif (string == "scrollbox")
-					layout.override = &ScrollBox::global_layout;
+					layout.override = &ScrollBox::globalLayout;
 				elif (string == "window/common")
-					layout.override = &Window::common_style;
+					layout.override = &Window::commonStyle;
 				elif (string == "window/menu")
-					layout.override = &Window::menu_style;
+					layout.override = &Window::menuStyle;
 				elif (string == "window/hint")
-					layout.override = &Window::hint_style;
+					layout.override = &Window::hintStyle;
 				else
 					throw Program::UnsupportedRequest("Unknown resource layout '"+string+"'");
 			}
 		}
 		
-		static void loadLayout(XML::Node*xtheme, FileSystem::Folder&folder, const String&path, ScrollBarLayout&layout, float outer_scale)
+		static void LoadLayout(XML::Node*xtheme, FileSystem::Folder&folder, const String&path, ScrollBarLayout&layout, float outer_scale)
 		{
 			XML::Node*node = xtheme->find(path);
 			if (!node)
@@ -2634,10 +2590,10 @@ namespace Engine
 			FileSystem::File	file;
 			if (node->query("file",string))
 				if (folder.findFile(string,file))
-					layout.loadFromFile(file.getLocation(),scale*outer_scale);
+					layout.LoadFromFile(file.getLocation(),scale*outer_scale);
 		}
 		
-		static void loadLayout(XML::Node*xtheme, FileSystem::Folder&folder, const String&path, SliderLayout&layout, float outer_scale)
+		static void LoadLayout(XML::Node*xtheme, FileSystem::Folder&folder, const String&path, SliderLayout&layout, float outer_scale)
 		{
 			XML::Node*node = xtheme->find(path);
 			if (!node)
@@ -2650,10 +2606,10 @@ namespace Engine
 			FileSystem::File	file;
 			if (node->query("file",string))
 				if (folder.findFile(string,file))
-					layout.loadFromFile(file.getLocation(),scale*outer_scale);
+					layout.LoadFromFile(file.getLocation(),scale*outer_scale);
 		}
 		
-		static void loadLayout(XML::Node*xtheme, FileSystem::Folder&folder, const String&path, CheckBox::TStyle&layout, float outer_scale)
+		static void LoadLayout(XML::Node*xtheme, FileSystem::Folder&folder, const String&path, CheckBox::TStyle&layout, float outer_scale)
 		{
 			XML::Node*node = xtheme->find(path);
 			if (!node)
@@ -2663,20 +2619,20 @@ namespace Engine
 			FileSystem::File	file;
 			
 			if (node->query("color",string) && folder.findFile(string,file))
-				loadColor(file.getLocation(),layout.box_color);
+				loadColor(file.getLocation(),layout.boxColor);
 			if (node->query("bump",string) && folder.findFile(string,file))
-				loadBump(file.getLocation(),layout.box_normal);
+				loadBump(file.getLocation(),layout.boxNormal);
 			if (node->query("check",string) && folder.findFile(string,file))
-				loadColor(file.getLocation(),layout.check_mark);
+				loadColor(file.getLocation(),layout.checkMark);
 			if (node->query("highlight",string) && folder.findFile(string,file))
-				loadColor(file.getLocation(),layout.highlight_mark);
+				loadColor(file.getLocation(),layout.highlightMark);
 		}
 		
 		
-		void		loadTheme(const String&filename,float outer_scale)
+		void		LoadTheme(const String&filename,float outer_scale)
 		{
 			XML::Container	xml;
-			xml.loadFromFile(filename);
+			xml.LoadFromFile(filename);
 			FileSystem::Folder	folder(FileSystem::extractFilePath(filename));
 			String	string;
 			XML::Node*xtheme = xml.find("theme");
@@ -2698,42 +2654,42 @@ namespace Engine
 			else
 				throw IO::DriveAccess::FileFormatFault(globalString("XML theme file lacks theme/font node"));
 			
-			loadLayout(xtheme,folder,"button",Button::global_layout,outer_scale);
-			loadLayout(xtheme,folder,"panel",Panel::global_layout,outer_scale);
-			loadLayout(xtheme,folder,"combobox",ComboBox::global_layout,outer_scale);
-			loadLayout(xtheme,folder,"edit",Edit::global_layout,outer_scale);
-			loadLayout(xtheme,folder,"scrollbox",ScrollBox::global_layout,outer_scale);
-			loadLayout(xtheme,folder,"scrollbar/style",ScrollBarLayout::global,outer_scale);
-			loadLayout(xtheme,folder,"window/common",Window::common_style,outer_scale);
-			loadLayout(xtheme,folder,"window/menu",Window::menu_style,outer_scale);
-			loadLayout(xtheme,folder,"window/hint",Window::hint_style,outer_scale);
-			loadLayout(xtheme,folder,"checkbox/style",CheckBox::global_style,outer_scale);
-			loadLayout(xtheme,folder,"slider/style",SliderLayout::global,outer_scale);
+			LoadLayout(xtheme,folder,"button",Button::globalLayout,outer_scale);
+			LoadLayout(xtheme,folder,"panel",Panel::globalLayout,outer_scale);
+			LoadLayout(xtheme,folder,"combobox",ComboBox::globalLayout,outer_scale);
+			LoadLayout(xtheme,folder,"edit",Edit::globalLayout,outer_scale);
+			LoadLayout(xtheme,folder,"scrollbox",ScrollBox::globalLayout,outer_scale);
+			LoadLayout(xtheme,folder,"scrollbar/style",ScrollBarLayout::global,outer_scale);
+			LoadLayout(xtheme,folder,"window/common",Window::commonStyle,outer_scale);
+			LoadLayout(xtheme,folder,"window/menu",Window::menuStyle,outer_scale);
+			LoadLayout(xtheme,folder,"window/hint",Window::hintStyle,outer_scale);
+			LoadLayout(xtheme,folder,"checkbox/style",CheckBox::globalStyle,outer_scale);
+			LoadLayout(xtheme,folder,"slider/style",SliderLayout::global,outer_scale);
 			
 			/*
-			if (Button::global_layout.copy_from)
-				Button::global_layout = *Button::global_layout.copy_from;
-			if (Panel::global_layout.copy_from)
-				Panel::global_layout = *Panel::global_layout.copy_from;
-			if (ComboBox::global_layout.copy_from)
-				ComboBox::global_layout = *ComboBox::global_layout.copy_from;
-			if (Edit::global_layout.copy_from)
-				Edit::global_layout = *Edit::global_layout.copy_from;
-			if (ScrollBox::global_layout.copy_from)
-				ScrollBox::global_layout = *ScrollBox::global_layout.copy_from;
-			if (Window::common_style.copy_from)
-				Window::common_style = *Window::common_style.copy_from;
-			if (Window::menu_style.copy_from)
-				Window::menu_style = *Window::menu_style.copy_from;
-			if (Window::hint_style.copy_from)
-				Window::hint_style = *Window::hint_style.copy_from;
+			if (Button::globalLayout.copy_from)
+				Button::globalLayout = *Button::globalLayout.copy_from;
+			if (Panel::globalLayout.copy_from)
+				Panel::globalLayout = *Panel::globalLayout.copy_from;
+			if (ComboBox::globalLayout.copy_from)
+				ComboBox::globalLayout = *ComboBox::globalLayout.copy_from;
+			if (Edit::globalLayout.copy_from)
+				Edit::globalLayout = *Edit::globalLayout.copy_from;
+			if (ScrollBox::globalLayout.copy_from)
+				ScrollBox::globalLayout = *ScrollBox::globalLayout.copy_from;
+			if (Window::commonStyle.copy_from)
+				Window::commonStyle = *Window::commonStyle.copy_from;
+			if (Window::menuStyle.copy_from)
+				Window::menuStyle = *Window::menuStyle.copy_from;
+			if (Window::hintStyle.copy_from)
+				Window::hintStyle = *Window::hintStyle.copy_from;
 			*/
 			
 
 		}
 		
 		
-		void			showChoice(Operator&op, const String&title, const String&query, const Array<String>&choices, const function<void(index_t)>&onSelect)
+		void			ShowChoice(Operator&op, const String&title, const String&query, const Array<String>&choices, const function<void(index_t)>&onSelect)
 		{
 			if (choices.isEmpty())
 				return;
@@ -2744,124 +2700,123 @@ namespace Engine
 			{
 				buttons[i] = shared_ptr<Button>(new Button());
 				buttons[i]->anchored.set(true,true,false,false);
-				buttons[i]->setCaption(choices[i]);
+				buttons[i]->SetCaption(choices[i]);
 				buttons[i]->width = std::max(buttons[i]->width,100.f);
 			}
-				//message_button->on_execute += hideMessage;
+				//message_button->on_execute += HideMessage;
 			
-			message_label->wrap_text = true;
-			message_label->setText(query);
+			message_label->wrapText = true;
+			message_label->SetText(query);
 			message_label->anchored.set(true,true,true,true);
-			panel->add(message_label);
-			panel->add(buttons.first());
+			panel->Add(message_label);
+			panel->Add(buttons.first());
 			buttons.first()->anchored.set(true,true,false,false);
 
 			for (index_t i = 1; i < buttons.count(); i++)
-				panel->appendRight(buttons[i]);
+				panel->AppendRight(buttons[i]);
 
 			message_label->offset.bottom = buttons.first()->height;
 
 			shared_ptr<GUI::Window>	window = Window::CreateNew(NewWindowConfig(title,WindowPosition(0,0,400,200,SizeChange::Fixed),true),panel);
-			window->iheight = (size_t)(window->fheight = window->minHeight());
-			window->layout_changed = true;
-			window->visual_changed = true;
-			window->updateLayout();
-			window->iheight = (size_t)(window->fheight = window->minHeight());
-			message_label->setText(query);
-			window->updateLayout();
-			window->iheight = (size_t)(window->fheight = window->minHeight());
+			window->size.height = (size_t)(window->fsize.y = window->GetMinHeight());
+			window->layoutChanged = true;
+			window->visualChanged = true;
+			window->UpdateLayout();
+			window->size.height = (size_t)(window->fsize.y = window->GetMinHeight());
+			message_label->SetText(query);
+			window->UpdateLayout();
+			window->size.height = (size_t)(window->fsize.y = window->GetMinHeight());
 
 			op.ShowWindow(window);
-			Component::setFocused(buttons[0]);
+			Component::SetFocused(buttons[0]);
 			
 			weak_ptr<GUI::Window>	weak_window = window;
 			for (index_t i = 0; i < buttons.count(); i++)
-				buttons[i]->on_execute += [weak_window,i,onSelect]()
+				buttons[i]->onExecute += [weak_window,i,onSelect]()
 				{
 					shared_ptr<GUI::Window>	window = weak_window.lock();
 					if (window)
-					{
-						shared_ptr<GUI::Operator>&op = window->operator_link.lock();
-						if (op)
-							op->HideWindow(window);
-					}
+						window->Hide();
 					onSelect(i);
 				};
 		}
 
 
-		static shared_ptr<Window>	message_window;
-		static shared_ptr<Label>	message_label;
-		static shared_ptr<Button>	message_button;
+		static shared_ptr<Window>	messageWindow;
+		static shared_ptr<Label>	messageLabel;
+		static shared_ptr<Button>	messageButton;
 		static void createMessageWindow(Operator&op)
 		{
-			if (message_window)
+			if (messageWindow)
 				return;
 			
-			message_label = shared_ptr<Label>(new Label());
+			messageLabel = shared_ptr<Label>(new Label());
 			shared_ptr<Panel>	panel = shared_ptr<Panel>(new Panel());
-			message_button = shared_ptr<Button>(new Button());
+			messageButton = shared_ptr<Button>(new Button());
 			
-			message_button->anchored.set(false,true,false,false);
-			message_button->setCaption("OK");
-			message_button->width = 100;
-			message_button->on_execute += hideMessage;
+			messageButton->anchored.set(false,true,false,false);
+			messageButton->SetCaption("OK");
+			messageButton->width = 100;
+			messageButton->onExecute += HideMessage;
 			
-			message_label->setText("message");
-			message_label->wrap_text = true;
-			message_label->anchored.set(true,true,true,true);
-			panel->add(message_label);
-			panel->add(message_button);
-			message_label->offset.bottom = message_button->height;
+			messageLabel->SetText("message");
+			messageLabel->wrapText = true;
+			messageLabel->anchored.set(true,true,true,true);
+			panel->Add(messageLabel);
+			panel->Add(messageButton);
+			messageLabel->offset.bottom = messageButton->height;
 
 			//float	mx = op.getDisplay().clientWidth()/2,
 			//		my = op.getDisplay().clientHeight()/2;
-			message_window = Window::CreateNew(NewWindowConfig("Message",WindowPosition(0,0,400,200,SizeChange::Fixed),true),panel);
+			messageWindow = Window::CreateNew(NewWindowConfig("Message",WindowPosition(0,0,400,200,SizeChange::Fixed),true),panel);
 		}
 		
 		
-		void	showMessage(Operator&op, const String&title, const String&message)
+		void	ShowMessage(Operator&op, const String&title, const String&message)
 		{
 			createMessageWindow(op);
-			message_window->title = title;
+			messageWindow->title = title;
 			
-			//message_window->updateLayout();
-			message_label->setText(message);
+			//message_window->UpdateLayout();
+			messageLabel->SetText(message);
 			
-			message_window->updateLayout();
-			message_window->iheight = (size_t)(message_window->fheight = message_window->minHeight());
-			message_window->layout_changed = true;
-			message_window->visual_changed = true;
+			messageWindow->UpdateLayout();
+			messageWindow->size.height = (size_t)(messageWindow->fsize.y = messageWindow->GetMinHeight());
+			messageWindow->layoutChanged = true;
+			messageWindow->visualChanged = true;
 			
 			#ifdef DEEP_GUI
 				message_window->current_center.x = message_window->origin.x = message_window->destination.x = 0;
 				message_window->current_center.y = message_window->origin.y = message_window->destination.y = 0;
-				message_window->current_center.shell_radius = 1;
-				message_window->origin.shell_radius = 1;
-				message_window->destination.shell_radius = 1;
+				message_window->current_center.shellRadius = 1;
+				message_window->origin.shellRadius = 1;
+				message_window->destination.shellRadius = 1;
 			#else
-				message_window->x = 0;
-				message_window->y = 0;
+				messageWindow->x = 0;
+				messageWindow->y = 0;
 			#endif
 			//ShowMessage("inserting window");
-			op.ShowWindow(message_window);
-			Component::setFocused(message_button);
+			op.ShowWindow(messageWindow);
+			Component::SetFocused(messageButton);
 		}
 		
-		void	showMessage(Operator&op, const String&message)
+		void	ShowMessage(Operator&op, const String&message)
 		{
-			showMessage(op,"Message",message);
+			ShowMessage(op,"Message",message);
 		}
 		
-		bool	showingMessage()
+		bool	ShowingMessage()
 		{
-			return message_window && !message_window->operator_link.expired() && message_window->operator_link.lock()->windowIsVisible(message_window);
+			if (!messageWindow)
+				return false;
+			shared_ptr<Operator> op = messageWindow->operatorLink.lock();
+			return op && op->WindowIsVisible(messageWindow);
 		}
 		
-		void	hideMessage()
+		void	HideMessage()
 		{
-			if (message_window && !message_window->operator_link.expired())
-				message_window->operator_link.lock()->HideWindow(message_window);
+			if (messageWindow)
+				messageWindow->Hide();
 		}
 		
 	}

@@ -5,11 +5,6 @@
 
 Auto-Format handler.
 
-This file is part of Delta-Works
-Copyright (C) 2006-2008 Stefan Elsen, University of Trier, Germany.
-http://www.delta-works.org/forge/
-http://informatik.uni-trier.de/
-
 ******************************************************************/
 
 #include "bitmap.h"
@@ -43,6 +38,7 @@ namespace Magic //! Multi format image access namespace
 			\return true on success
 		*/
 		void			loadFromFile(Image&target, const String&filename);
+		inline void		LoadFromFile(Image&target, const String&filename)	{loadFromFile(target,filename);}
 		/**
 			@brief Extension specific version of the above.
 			
