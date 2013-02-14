@@ -43,10 +43,6 @@ namespace Math
 				};
 				struct
 				{
-					T			a;//!< Polynomial accessor
-				};
-				struct
-				{
 					T			alpha;	//!< Color accessor
 				};
 			};
@@ -68,10 +64,6 @@ namespace Math
 				struct
 				{
 					T			lower,upper;	//!< TRange accessors
-				};
-				struct
-				{
-					T			a,b;	//!< Polynomial accessors
 				};
 				struct
 				{
@@ -135,10 +127,6 @@ namespace Math
 				{
 					T			x_;
 					TVec3<T>	yzw; //!< yzw accessor
-				};
-				struct
-				{
-					T			a,b,c,d;//!< Possibly incomplete polynomial accessors
 				};
 				struct
 				{

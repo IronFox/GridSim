@@ -985,7 +985,7 @@ namespace Math
 
     template <class C> MF_DECLARE (Line<C>) Line<C>::operator-()                    const
     {
-        Line<C>  result(position,-direction);
+        return Line<C>(position,-direction);
     }
 
 
