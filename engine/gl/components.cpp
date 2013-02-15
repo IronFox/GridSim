@@ -234,7 +234,7 @@ namespace Engine
 		
 		/*virtual override*/ void		Panel::OnNormalPaint(NormalRenderer&renderer, bool parentIsEnabled)
 		{
-			renderer.PushNormalScale();
+			renderer.PushNormalMatrix();
 				Component::OnNormalPaint(renderer,parentIsEnabled);
 				bool subEnabled = parentIsEnabled && IsEnabled();
 			
@@ -242,11 +242,11 @@ namespace Engine
 					for (index_t i = 0; i < children.count(); i++)
 						if (children[i]->IsVisible())
 						{
-							renderer.PeekNormalScale();
+							renderer.PeekNormalMatrix();
 							children[i]->OnNormalPaint(renderer,subEnabled);
 						}
 				renderer.Unclip();
-			renderer.PopNormalScale();
+			renderer.PopNormalMatrix();
 		}
 
 		/*virtual override*/ PComponent			Panel::GetComponent(float x, float y, ePurpose purpose, bool&outIsEnabled)
@@ -1187,7 +1187,7 @@ namespace Engine
 		
 		/*virtual override*/ void		ScrollBox::OnNormalPaint(NormalRenderer&renderer, bool parentIsEnabled)
 		{
-			renderer.PushNormalScale();
+			renderer.PushNormalMatrix();
 			Component::OnNormalPaint(renderer,parentIsEnabled);
 			
 			renderer.Clip(effectiveClientRegion);
@@ -1196,7 +1196,7 @@ namespace Engine
 			
 			for (index_t i = 0; i < visible_children.count(); i++)
 			{
-				renderer.PeekNormalScale();
+				renderer.PeekNormalMatrix();
 				visible_children[i]->OnNormalPaint(renderer,subEnabled);
 			}
 			renderer.Unclip();
@@ -1204,15 +1204,15 @@ namespace Engine
 
 			if (horizontalBar->IsVisible())
 			{
-				renderer.PeekNormalScale();
+				renderer.PeekNormalMatrix();
 				horizontalBar->OnNormalPaint(renderer,subEnabled);
 			}
 			if (verticalBar->IsVisible())
 			{
-				renderer.PeekNormalScale();
+				renderer.PeekNormalMatrix();
 				verticalBar->OnNormalPaint(renderer,subEnabled);
 			}
-			renderer.PopNormalScale();
+			renderer.PopNormalMatrix();
 
 		}
 
@@ -1349,6 +1349,7 @@ namespace Engine
 							right = cellLayout.client.left()+_GetTextWidth(text.root()+viewBegin,sel_end-viewBegin);
 						//glColor4f(0.4,0.6,1,0.7);
 					renderer.FillRect(Rect<>(left-2,bottom,right+2,top));
+					renderer.MarkNewLayer();
 					renderer.PeekColor();
 					
 					if (maskInput)
@@ -1735,13 +1736,13 @@ namespace Engine
 
 		/*virtual override*/ void		Button::OnNormalPaint(NormalRenderer&renderer, bool parentIsEnabled)
 		{
-			renderer.PushNormalScale();
+			renderer.PushNormalMatrix();
 				if (AppearsPressed())
 					renderer.ScaleNormals(-1,-1,1);
 			
 				Component::OnNormalPaint(renderer,parentIsEnabled);
 
-			renderer.PopNormalScale();
+			renderer.PopNormalMatrix();
 		}
 		
 		/*virtual override*/ void		Button::OnColorPaint(ColorRenderer&renderer, bool parentIsEnabled)

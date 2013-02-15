@@ -150,11 +150,13 @@ namespace Engine
 								"overlayColor.rgb *= (1.0+intensity);\n"
 							"#endif\n"
 						"#else\n"
-							"bumpColor = vec4(0);\n"
+							"bumpColor = vec4(0.6,0.6,0.6,normal.a*0.5);\n"
 							"overlayColor = color_sample;\n"
 							"#if bump_mapping\n"
 								"float intensity = pow(max(dot(reflected,light),0.0),7.0)*0.5*gl_Color.a+0.05;\n"
 								"overlayColor.rgb += intensity;\n"
+								"overlayColor.a *= (1.0 + intensity);\n"
+								"bumpColor.rgb += intensity;\n"
 							"#endif\n"
 						"#endif\n"
 						"overlayColor.a *= (0.75 + 0.25 * gl_Color.a);"
@@ -359,7 +361,7 @@ namespace Engine
 			if (cell.normal->isEmpty())	//NULL-pointer sensitive
 				return;
 			_UpdateState(cell.normal);
-			PushNormalScale();
+			PushNormalMatrix();
 			if (invertNormals)
 				ScaleNormals(-1,-1,1);
 
@@ -374,34 +376,44 @@ namespace Engine
 					glEnd();
 				break;
 				case 1:
-					glRotatef(-90,0,0,1);
+				{
+					//-90 degrees z
+					TMatrix3<> rotation = {Vector<>::negative_y_axis,Vector<>::x_axis,Vector<>::z_axis};
+					TransformNormals(rotation);
 					glBegin(GL_QUADS);
 						glTexCoord2f(1,0); glVertex2f(cell.region.x.min,cell.region.y.min);
 						glTexCoord2f(1,1); glVertex2f(cell.region.x.max,cell.region.y.min);
 						glTexCoord2f(0,1); glVertex2f(cell.region.x.max,cell.region.y.max);
 						glTexCoord2f(0,0); glVertex2f(cell.region.x.min,cell.region.y.max);
 					glEnd();
+				}
 				break;
 				case 2:
-					glRotatef(-180,0,0,1);
+				{
+					TMatrix3<> rotation = {Vector<>::negative_x_axis,Vector<>::negative_y_axis,Vector<>::z_axis};
+					TransformNormals(rotation);
 					glBegin(GL_QUADS);
 						glTexCoord2f(1,1); glVertex2f(cell.region.x.min,cell.region.y.min);
 						glTexCoord2f(0,1); glVertex2f(cell.region.x.max,cell.region.y.min);
 						glTexCoord2f(0,0); glVertex2f(cell.region.x.max,cell.region.y.max);
 						glTexCoord2f(1,0); glVertex2f(cell.region.x.min,cell.region.y.max);
 					glEnd();
+				}
 				break;
 				case 3:
-					glRotatef(-270,0,0,1);
+				{
+					TMatrix3<> rotation = {Vector<>::y_axis,Vector<>::negative_x_axis,Vector<>::z_axis};
+					TransformNormals(rotation);
 					glBegin(GL_QUADS);
 						glTexCoord2f(0,1); glVertex2f(cell.region.x.min,cell.region.y.min);
 						glTexCoord2f(0,0); glVertex2f(cell.region.x.max,cell.region.y.min);
 						glTexCoord2f(1,0); glVertex2f(cell.region.x.max,cell.region.y.max);
 						glTexCoord2f(1,1); glVertex2f(cell.region.x.min,cell.region.y.max);
 					glEnd();
+				}
 				break;
 			}
-			PopNormalScale();
+			PopNormalMatrix();
 			layerIsDirty = true;
 		}
 				
@@ -1515,7 +1527,7 @@ namespace Engine
 		/*static*/ GLShader::Instance	Renderer::layerMerger;
 		/*static*/ GLShader::Variable	Renderer::clearColorVariable;
 		/*static*/ GLShader::Instance	NormalRenderer::normalRenderer;
-		/*static*/ GLShader::Variable	NormalRenderer::normalScaleVariable;
+		/*static*/ GLShader::Variable	NormalRenderer::normalSystemVariable;
 
 
 		void		Renderer::_SetView(const Rect<int>&port)
@@ -2000,9 +2012,9 @@ namespace Engine
 
 		void					NormalRenderer::ScaleNormals(float x, float y)
 		{
-			normalScale.x *= x;
-			normalScale.y *= y;
-			DBG_VERIFY__(normalScaleVariable.Set(normalScale));
+			Vec::mult(normalSystem.x,x);
+			Vec::mult(normalSystem.y,y);
+			DBG_VERIFY__(normalSystemVariable.Set(normalSystem));
 		}
 
 		void					NormalRenderer::ScaleNormals(const TVec2<>&v)
@@ -2012,10 +2024,10 @@ namespace Engine
 
 		void					NormalRenderer::ScaleNormals(float x, float y, float z)
 		{
-			normalScale.x *= x;
-			normalScale.y *= y;
-			normalScale.z *= z;
-			DBG_VERIFY__(normalScaleVariable.Set(normalScale));
+			Vec::mult(normalSystem.x,x);
+			Vec::mult(normalSystem.y,y);
+			Vec::mult(normalSystem.z,z);
+			DBG_VERIFY__(normalSystemVariable.Set(normalSystem));
 		}
 
 		void					NormalRenderer::ScaleNormals(const TVec3<>&v)
@@ -2023,22 +2035,31 @@ namespace Engine
 			ScaleNormals(v.x,v.y,v.z);
 		}
 
-		void					NormalRenderer::PushNormalScale()
+		void					NormalRenderer::PushNormalMatrix()
 		{
-			normalScaleStack << normalScale;
+			normalSystemStack << normalSystem;
 		}
 
-		void					NormalRenderer::PopNormalScale()
+		void					NormalRenderer::PopNormalMatrix()
 		{
-			normalScale = normalScaleStack.pop();
-			DBG_VERIFY__(normalScaleVariable.Set(normalScale));
+			normalSystem = normalSystemStack.pop();
+			DBG_VERIFY__(normalSystemVariable.Set(normalSystem));
 		}
 
-		void					NormalRenderer::PeekNormalScale()
+		void					NormalRenderer::PeekNormalMatrix()
 		{
-			normalScale = normalScaleStack.last();
-			DBG_VERIFY__(normalScaleVariable.Set(normalScale));
+			normalSystem = normalSystemStack.last();
+			DBG_VERIFY__(normalSystemVariable.Set(normalSystem));
 		}
+
+		void					NormalRenderer::TransformNormals(const TMatrix3<>&m)
+		{
+			TMatrix3<> temp;
+			Mat::mult(m,normalSystem,temp);
+			normalSystem = temp;
+			DBG_VERIFY__(normalSystemVariable.Set(normalSystem));
+		}
+
 
 
 		void					NormalRenderer::TextureRect(const Rect<>&rect,const GL::Texture::Reference&ref)
@@ -2080,28 +2101,28 @@ namespace Engine
 					"vertex{void main(){gl_Position=ftransform();gl_TexCoord[0]=gl_MultiTexCoord0;}}"
 					"fragment{"
 						"uniform sampler2D texture;"
-						"uniform vec3 normalScale;"
+						"uniform mat3 normalSystem;"
 						"void main(){"
 							"vec4 normalSample = texture2D(texture,gl_TexCoord[0].xy);"
 							"gl_FragColor.a = normalSample.a;"
-							"gl_FragColor.rgb = normalize((normalSample.xyz*2.0 - 1.0) * normalScale) * 0.5 + 0.5;"
+							"gl_FragColor.rgb = normalize(normalSystem * (normalSample.xyz*2.0 - 1.0)) * 0.5 + 0.5;"
 						"}"
 					"}"
 					),normalRenderer.report());
-				normalScaleVariable = normalRenderer.locate("normalScale");
+				normalSystemVariable = normalRenderer.locate("normalSystem");
 			}
 
 			Renderer::Configure(buffer,usage);
 
 			normalRenderer.install();
-			Vec::set(normalScale,1);
-			DBG_VERIFY__(normalScaleVariable.Set(normalScale));
+			Mat::eye(normalSystem);
+			DBG_VERIFY__(normalSystemVariable.Set(normalSystem));
 		}
 
 		void					NormalRenderer::Finish()
 		{
 			normalRenderer.uninstall();
-			ASSERT__(normalScaleStack.isEmpty());
+			ASSERT__(normalSystemStack.isEmpty());
 
 			Renderer::Finish();
 			glDisable(GL_TEXTURE_2D);
@@ -2437,7 +2458,7 @@ namespace Engine
 			if (!layout)
 				return;
 			
-			renderer.PushNormalScale();
+			renderer.PushNormalMatrix();
 				if (!enabled || !parentIsEnabled)
 					renderer.ScaleNormals(0.1f,0.1f,1.f);
 
@@ -2446,7 +2467,7 @@ namespace Engine
 					const TCellInstance&cell = cellLayout.cells[j];
 					renderer.TextureRect(cell.region,cell.normalTexture);
 				}
-			renderer.PopNormalScale();
+			renderer.PopNormalMatrix();
 			renderer.MarkNewLayer();
 		}
 		

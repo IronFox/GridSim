@@ -303,9 +303,9 @@ namespace Engine
 		{
 		private:
 			static GLShader::Instance	normalRenderer;
-			static GLShader::Variable	normalScaleVariable;
-			TVec3<>					normalScale;
-			Buffer<TVec3<>,0>		normalScaleStack;
+			static GLShader::Variable	normalSystemVariable;
+			TMatrix3<>				normalSystem;
+			Buffer<TMatrix3<>,0>	normalSystemStack;
 
 			void					_UpdateState(const GL::Texture::Reference&);
 		public:
@@ -315,10 +315,11 @@ namespace Engine
 			void					ScaleNormals(const TVec2<>&);
 			void					ScaleNormals(float x, float y, float z);
 			void					ScaleNormals(const TVec3<>&);
+			void					TransformNormals(const TMatrix3<>&);
 
-			void					PushNormalScale();
-			void					PopNormalScale();
-			void					PeekNormalScale();
+			void					PushNormalMatrix();
+			void					PopNormalMatrix();
+			void					PeekNormalMatrix();
 
 			void					Paint(const TFreeCell&, bool invertNormals);
 
