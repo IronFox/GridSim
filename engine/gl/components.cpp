@@ -1837,23 +1837,32 @@ namespace Engine
 			
 			const Rect<> rect=GetBoxRect();
 			if (style && !style->boxColor.isEmpty())
+			{
 				renderer.TextureRect(rect,style->boxColor);
-			
+				renderer.MarkNewLayer();
+			}
 			if (checked && style && !style->checkMark.isEmpty())
+			{
 				renderer.TextureRect(rect,style->checkMark);
+				renderer.MarkNewLayer();
+			}
 			
 			if (pressed && style && !style->highlightMark.isEmpty())
 			{
 				renderer.ModulateColor(1,0.6,0);
 				renderer.TextureRect(rect,style->highlightMark);
 				renderer.PeekColor();
+				renderer.MarkNewLayer();
 			}
 		
-			const float h= ColorRenderer::textout.getFont().getHeight();
-			const float size = GetBoxSize();
-			renderer.SetTextPosition(rect.left()+size+h*0.2f,rect.y.center()-h/2.f+font_offset);//textout.getFont().getHeight()*0.5);
-			renderer.ModulateColor(1.0-0.2*(!enabled));
-			renderer.WriteText(caption);
+			if (caption.isNotEmpty())
+			{
+				const float h= ColorRenderer::textout.getFont().getHeight();
+				const float size = GetBoxSize();
+				renderer.SetTextPosition(rect.left()+size+h*0.2f,rect.y.center()-h/2.f+font_offset);//textout.getFont().getHeight()*0.5);
+				renderer.ModulateColor(1.0-0.2*(!enabled));
+				renderer.WriteText(caption);
+			}
 			renderer.PopColor();
 		}
 

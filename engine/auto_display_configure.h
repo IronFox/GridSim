@@ -15,17 +15,19 @@ namespace Engine
 
 	namespace Detail
 	{
-	template <typename GL>
-		void	UpdateXML(Display<GL>&display, const String&filename)
-		{
-			XML::Container xconfig;
-			XML::Node&xdisplay = xconfig.create("config/display");
-			xdisplay.set("width",display.width());
-			xdisplay.set("height",display.height());
-			FileSystem::createFolder("config");
-			xconfig.saveToFile("./config/"+filename+".xml");
-		}
+		template <typename GL>
+			void	UpdateXML(Display<GL>&display, const String&filename)
+			{
+				XML::Container xconfig;
+				XML::Node&xdisplay = xconfig.create("config/display");
+				xdisplay.set("width",display.width());
+				xdisplay.set("height",display.height());
+				FileSystem::createFolder("config");
+				xconfig.saveToFile("./config/"+filename+".xml");
+			}
 	}
+
+
 
 	template <typename GL>
 		void	CreateDisplay(Display<GL>&display, const String&name, Resolution resolution, DisplayConfig::f_on_resize onResize)

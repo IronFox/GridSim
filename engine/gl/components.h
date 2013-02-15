@@ -437,6 +437,8 @@ namespace Engine
 											width = GetMinWidth(false);
 											height = GetMinHeight(false);
 										}
+			void						SetConstantlyDown(bool b)	{constantlyDown = b; SignalVisualChange();}
+			bool						IsConstantlyDown()	const	{return constantlyDown;}
 			virtual	void				OnColorPaint(ColorRenderer&, bool parentIsEnabled)	override;
 			virtual	void				OnNormalPaint(NormalRenderer&, bool parentIsEnabled)	override;
 			virtual	float				GetClientMinWidth()	const	override;
