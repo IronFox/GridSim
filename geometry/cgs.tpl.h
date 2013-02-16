@@ -3049,7 +3049,7 @@ template <class Def>void	Geometry<Def>::adoptData(Geometry<Def>&other)
 	CGS_POINT
 	if (this == &other)
 		return;
-	storeTargetNames();
+	other.storeTargetNames();
 
 	object_field.adoptData(other.object_field);
 	material_field.adoptData(other.material_field);

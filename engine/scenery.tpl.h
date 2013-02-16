@@ -426,7 +426,7 @@ namespace Engine
 			for (index_t i = 0; i < info.layer_field.length(); i++)
 			{
 				texture_table->retrieve(info.layer_field[i].source,material.textures[i],material.layers[i]);
-				SCENERY_LOG("extracted texture is of dimension #"+String(material.textures[i].target()->dimension()));
+				SCENERY_LOG("extracted texture is of dimension #"+String(material.textures[i].target() ? String(material.textures[i].target()->dimension()) : String("???")));
 			}
 			typename GL::Shader::SourceCode	code;
 			ASSERT__(GL::Shader::compose(material,code));
