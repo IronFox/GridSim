@@ -382,7 +382,7 @@ namespace Engine
 		void					callEmbedded(void (*embedded)());
 		void					callEmbedded(void (*embedded)(void*), void*);
 		template <typename F>
-		void					embed(const F&function)
+		inline void				embed(F function)
 								{
 									ContextHandle prev;
 									if (bindContext(prev))

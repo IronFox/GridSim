@@ -662,14 +662,14 @@ namespace Converter
 					if (!name.length())
 						name = "unnamend";
 					
-					current_group->name = str2name(name);
-					while (object_name_table64.isSet(name2str(current_group->name)))
-						incrementName(current_group->name);
-					logMessage("starting new group '"+name2str(current_group->name)+"'");
-					object_name_table64.set(name2str(current_group->name));
+					current_group->name = name;
+					while (object_name_table64.isSet(current_group->name))
+						current_group->name+='0';
+					logMessage("starting new group '"+current_group->name+"'");
+					object_name_table64.set(current_group->name);
 				}
 				else
-					logMessage("continuing existing group '"+name2str(current_group->name)+"'");
+					logMessage("continuing existing group '"+current_group->name+"'");
 				if (current_material)
 					logMessage("using material '"+current_material->name+"'");
 			}
@@ -819,7 +819,7 @@ namespace Converter
 		while (ObjFaceGroup*group = group_buffer.each())
 			if (!group->face_buffer.fillLevel())
 			{
-				logMessage("Group '"+name2str(group->name)+"' has no faces. Erasing...");
+				logMessage("Group '"+group->name+"' has no faces. Erasing...");
 				group_buffer.erase();
 			}
 		
@@ -927,7 +927,7 @@ namespace Converter
 			for (index_t i = 0; i < group_buffer.count(); i++)
 			{
 				ObjFaceGroup*group = group_buffer[i];
-				logMessage("calculating normals of group '"+name2str(group->name)+"'");
+				logMessage("calculating normals of group '"+group->name+"'");
 				for (index_t j = 0; j < group->face_buffer.fillLevel(); j++)
 				{
 					TObjFace&face = group->face_buffer[j];
@@ -994,10 +994,11 @@ namespace Converter
 		for (index_t i = 0; i < group_buffer.count(); i++)
 		{
 			ObjFaceGroup*group = group_buffer[i];
-			logMessage("mapping group '"+name2str(group->name)+"'");
+			logMessage("mapping group '"+group->name+"'");
 			group->target = target.object_field+i;
 			
 			target.object_field[i].name = group->name;
+			target.object_table.set(group->name).set(1,i);
 			for (index_t j = 0; j < group->face_buffer.fillLevel(); j++)
 			{
 				const TObjFace&face = group->face_buffer[j];
@@ -1069,7 +1070,7 @@ namespace Converter
 					}
 				}
 			}
-			logMessage("group '"+name2str(group->name)+"' mapped");
+			logMessage("group '"+group->name+"' mapped");
 			
 		}
 		
@@ -1121,7 +1122,7 @@ namespace Converter
 			for (index_t j = 0; j < mt.data.object_field.length(); j++)
 			{
 				ObjMaterialSection*s = material->sections[j];
-				logMessage(" Writing section '"+name2str(s->target->name)+"'");
+				logMessage(" Writing section '"+s->target->name+"'");
 				CGS::RenderObjectA<>&ro = mt.data.object_field[j];
 				ro.target = s->target->target;
 				ro.tname = s->target->target->name;
@@ -1223,7 +1224,7 @@ namespace Converter
 			update_step = 1;
 		
 		count_t vertices = render_vertices;//vertex_buffer.fillLevel()/3;	//3 floats per vertex
-		Array<UINT32>	history(vertices);
+		Array<UINT32>	history(vertex_buffer.fillLevel());
 		
 		//PointerTable<bool>	inversion_field;	//map of all objects with negative volume
 

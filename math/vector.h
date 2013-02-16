@@ -975,11 +975,11 @@ namespace Math
 			/**
 			@brief Updates all values of the local rectangle
 			*/
-			MF_DECLARE(void)		set(const TVec3<T>&min_and_max)
+			MFUNC(void)				set(const TVec3<C>&min_and_max)
 									{
-										x.setAll(min_and_max.x);
-										y.setAll(min_and_max.y);
-										z.setAll(min_and_max.z);
+										x.setAll((T)min_and_max.x);
+										y.setAll((T)min_and_max.y);
+										z.setAll((T)min_and_max.z);
 									}
 			/**
 			@brief Relocates the center of the local box.

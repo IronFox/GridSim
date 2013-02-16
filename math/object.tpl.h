@@ -1330,27 +1330,27 @@ namespace ObjectMath
 			{
 				BYTE	i = (k+1)%3,
 						j = (k+2)%3;
-				C2 f = (box.lower.v[k]-b.v[k])/(d.v[k]),x,y;
+				C2 f = (box.axis[k].min-b.v[k])/(d.v[k]),x,y;
 				if (f >= -Math::getError<C2>() && f < distance)
 				{
 					x = b.v[i]+(d.v[i])*f;
 					y = b.v[j]+(d.v[j])*f;
-					if (x >= box.lower.v[i] && x <= box.upper.v[i]
+					if (box.axis[i].contains(x)
 						&&
-						y >= box.lower.v[j] && y <= box.upper.v[j])
+						box.axis[j].contains(y))
 					{
 						distance = f;
 						result = true;
 					}
 				}
-				f = (box.upper.v[k]-b.v[k])/(d.v[k]);
+				f = (box.axis[k].max-b.v[k])/(d.v[k]);
 				if (f >= 0 && f < distance)
 				{
 					x = b.v[i]+(d.v[i])*f;
 					y = b.v[j]+(d.v[j])*f;
-					if (x >= box.lower.v[i] && x <= box.upper.v[i]
+					if (box.axis[i].contains(x)
 						&&
-						y >= box.lower.v[j] && y <= box.upper.v[j])
+						box.axis[j].contains(y))
 					{
 						distance = f;
 						result = true;
@@ -1362,12 +1362,7 @@ namespace ObjectMath
 	
 	MFUNC3 (bool)		_oIntersectsBox(const TVec3<C0>&p0, const TVec3<C1>&p1, const Box<C2>&box)
 	{
-		TVec3<C2>	min = box.min(),
-					max = box.max();
-		if (
-			(!Vec::oneLess(p0,min) && !Vec::oneGreater(p0,max))
-			||
-			(!Vec::oneLess(p1,min) && !Vec::oneGreater(p1,max)))
+		if (box.contains(p0) || box.contains(p1))
 			return true;
 
 		for (BYTE k = 0; k < 3; k++)
@@ -1375,24 +1370,24 @@ namespace ObjectMath
 			{
 				BYTE	i = (k+1)%3,
 						j = (k+2)%3;
-				C2 f = (min.v[k]-p0.v[k])/(p1.v[k]-p0.v[k]),x,y;
+				C2 f = (box.axis[k].min-p0.v[k])/(p1.v[k]-p0.v[k]),x,y;
 				if (f >= -Math::getError<C2>() && f <= (C2)1+Math::getError<C2>())
 				{
 					x = p0.v[i]+(p1.v[i]-p0.v[i])*f;
 					y = p0.v[j]+(p1.v[j]-p0.v[j])*f;
-					if (x >= min.v[i] && x <= max.v[i]
+					if (box.axis[i].contains(x)
 						&&
-						y >= min.v[j] && y <= max.v[j])
+						box.axis[j].contains(y))
 						return true;
 				}
-				f = (max.v[k]-p0.v[k])/(p1.v[k]-p0.v[k]);
+				f = (box.axis[k].max-p0.v[k])/(p1.v[k]-p0.v[k]);
 				if (f >= 0 && f <= 1)
 				{
 					x = p0.v[i]+(p1.v[i]-p0.v[i])*f;
 					y = p0.v[j]+(p1.v[j]-p0.v[j])*f;
-					if (x >= min.v[i] && x <= max.v[i]
+					if (box.axis[i].contains(x)
 						&&
-						y >= min.v[j] && y <= max.v[j])
+						box.axis[j].contains(y))
 						return true;
 				}
 			}

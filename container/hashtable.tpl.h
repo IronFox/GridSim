@@ -186,7 +186,7 @@ inline hash_t StdHash::hash(long ident)	//identity
 
 inline hash_t StdHash::hash(long long ident)	//identity
 	{
-		return (hash_t)ident;
+		return (hash_t)ident;	//need to fix this
 	}
 
 

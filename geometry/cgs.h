@@ -488,6 +488,7 @@ namespace CGS	//! Compiled Geometrical Structure
 													MaterialColors();
 		bool										similar(const MaterialColors&other)	const;	//!< Determines whether or not the local material info is similar to the specified other material info. This method may return false where the finally loaded appearance is in fact similar, however never the other way around. \param other Material info to compare to \return true if the local material info is similar to the specified material info, false otherwise.
 		bool										operator==(const MaterialColors&other) const;
+		bool										operator!=(const MaterialColors&other) const	{return !operator==(other);}
 
 	};
 
@@ -506,6 +507,7 @@ namespace CGS	//! Compiled Geometrical Structure
 													MaterialInfo();
 		bool										similar(const MaterialInfo&other)	const;	//!< Determines whether or not the local material info is similar to the specified other material info. This method may return false where the finally loaded appearance is in fact similar, however never the other way around. \param other Material info to compare to \return true if the local material info is similar to the specified material info, false otherwise.
 		bool										operator==(const MaterialInfo&other) const;
+		bool										operator!=(const MaterialInfo&other) const	{return !operator==(other);}
 		MaterialInfo&								operator=(const MaterialColors&other);
 		count_t										countCoordLayers()	const;					//!< Retrieves the number of 2 component texture coordinates, this material requires (not all layers do require texture coordinates).
 		void										postCopyLink(TextureResource*);				//!< Relinks texture resources if a CGS geometry has been copied (automatically evoked)

@@ -49,7 +49,10 @@ template <class Def0> MaterialData<Def>& MaterialData<Def>::operator=(const Mate
 template <class Def> void MaterialData<Def>::postCopyLink(Geometry<Def>*domain)
 {
 	for (index_t i = 0; i < object_field.length(); i++)
+	{
 		object_field[i].target = domain->lookupObject(object_field[i].tname);
+		ASSERT_NOT_NULL__(object_field[i].target);
+	}
 }
 
 template <class Def> void MaterialA<Def>::storeTargetNames()

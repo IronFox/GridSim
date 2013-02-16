@@ -252,7 +252,7 @@ namespace Converter
 	{
 	public:
 			CGS::SubGeometryA<>							*target;
-			name64_t									name;
+			String										name;
 			Buffer<TObjFace>							face_buffer;
 	};
 
