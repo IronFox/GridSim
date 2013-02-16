@@ -208,12 +208,12 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\..\general\system.cpp" />
-    <ClCompile Include="..\..\general\thread_granularity_optimizer.cpp" />
     <ClCompile Include="..\..\general\thread_system.cpp" />
     <ClCompile Include="..\..\general\timer.cpp" />
     <ClCompile Include="..\..\geometry\cgs.cpp" />
     <ClCompile Include="..\..\geometry\cgs_archive.cpp" />
     <ClCompile Include="..\..\geometry\cgs_track_segment.cpp" />
+    <ClCompile Include="..\..\geometry\converter\lwo.cpp" />
     <ClCompile Include="..\..\geometry\converter\obj.cpp" />
     <ClCompile Include="..\..\geometry\coordinates.cpp" />
     <ClCompile Include="..\..\geometry\entity_tree.cpp" />
@@ -240,11 +240,9 @@
     <ClCompile Include="..\..\io\file_system.cpp" />
     <ClCompile Include="..\..\io\log.cpp" />
     <ClCompile Include="..\..\io\log_stream.cpp" />
-    <ClCompile Include="..\..\io\lwo.cpp" />
     <ClCompile Include="..\..\io\mutex_log.cpp" />
     <ClCompile Include="..\..\io\random_access_file.cpp" />
     <ClCompile Include="..\..\io\riff_handler.cpp" />
-    <ClCompile Include="..\..\io\shared_memory.cpp" />
     <ClCompile Include="..\..\io\string_file.cpp" />
     <ClCompile Include="..\..\io\texture_archive.cpp" />
     <ClCompile Include="..\..\io\texture_compression.cpp" />
@@ -480,7 +478,6 @@
     <ClInclude Include="..\..\general\root.h" />
     <ClInclude Include="..\..\general\system.h" />
     <ClInclude Include="..\..\general\testable.h" />
-    <ClInclude Include="..\..\general\thread_granularity_optimizer.h" />
     <ClInclude Include="..\..\general\thread_system.h" />
     <ClInclude Include="..\..\general\thread_system.tpl.h" />
     <ClInclude Include="..\..\general\timer.h" />
@@ -494,6 +491,8 @@
     <ClInclude Include="..\..\geometry\cgs_track_segment.h" />
     <ClInclude Include="..\..\geometry\collada.h" />
     <ClInclude Include="..\..\geometry\converter.h" />
+    <ClInclude Include="..\..\geometry\converter\lwo.h" />
+    <ClInclude Include="..\..\geometry\converter\lwo.tpl.h" />
     <ClInclude Include="..\..\geometry\converter\obj.h" />
     <ClInclude Include="..\..\geometry\coordinates.h" />
     <ClInclude Include="..\..\geometry\entity_tree.h" />
@@ -543,15 +542,12 @@
     <ClInclude Include="..\..\io\file_system.h" />
     <ClInclude Include="..\..\io\log.h" />
     <ClInclude Include="..\..\io\log_stream.h" />
-    <ClInclude Include="..\..\io\lwo.h" />
-    <ClInclude Include="..\..\io\lwo.tpl.h" />
     <ClInclude Include="..\..\io\mutex_log.h" />
     <ClInclude Include="..\..\io\mutex_log.tpl.h" />
     <ClInclude Include="..\..\io\random_access_file.h" />
     <ClInclude Include="..\..\io\random_access_file.tpl.h" />
     <ClInclude Include="..\..\io\riff_handler.h" />
     <ClInclude Include="..\..\io\riff_handler.tpl.h" />
-    <ClInclude Include="..\..\io\shared_memory.h" />
     <ClInclude Include="..\..\io\string_file.h" />
     <ClInclude Include="..\..\io\str_stream.h" />
     <ClInclude Include="..\..\io\tcp.h" />

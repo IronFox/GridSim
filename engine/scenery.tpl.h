@@ -1578,7 +1578,7 @@ namespace Engine
 			(*my_material)->render();
 
 	    renderer->unbindAll();
-		postRenderCleanup();
+		PostRenderCleanup();
 
 	}
 

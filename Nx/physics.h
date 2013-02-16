@@ -584,7 +584,7 @@ namespace Physics
 			float3							center_of_gravity;	//!< Center of gravity. @b Not scaled by env.system_unit_size
 			Buffer<WheelPrototype,0>		wheels;				//!< Wheels associated with this vehicle
 			EnginePrototype					wheel_drive;		//!< Wheel drive prototype
-			TBox<>							dimensions;			//!< Vehicle dimensions
+			Box<>							dimensions;			//!< Vehicle dimensions
 			
 			NxBodyDesc						body_desc;			//!< General body description. @b Not scaled by env.system_unit_size
 			NxActorDesc 					actor_desc;			//!< Nx description of this vehicle @b Not scaled by env.system_unit_size

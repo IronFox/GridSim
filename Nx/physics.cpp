@@ -739,10 +739,10 @@ namespace Physics
 			
 		logfile << "extracting dimensions"<<nl;
 		{
-			Vec::center(dimensions.min,dimensions.max,center_of_gravity);
-			center_of_gravity.y = dimensions.min.y+config.center_height*(dimensions.max.y-dimensions.min.y);
+			dimensions.getCenter(center_of_gravity);
+			center_of_gravity.y = dimensions.y.min+config.center_height*(dimensions.y.extend());
 		}
-		logfile << " = "<<Vec::toString(dimensions.min)<<" - "<<Vec::toString(dimensions.max)<<nl;
+		logfile << " = "<<Vec::toString(dimensions.min())<<" - "<<Vec::toString(dimensions.max())<<nl;
 		
 		ConvexHullBuilder<PhFloat>	builder;
 		
@@ -752,8 +752,8 @@ namespace Physics
 		memset(sector_map,false,sizeof(sector_map));
 		
 		float3 range,base;
-		Vec::sub(dimensions.max,dimensions.min,range);
-		base = dimensions.min;
+		dimensions.getExtend(range);
+		base = dimensions.min();
 		
 		if (base.y < range.y/5)	//cut off lower 20% of the height range, to reduce risk of collisions between the vehicle body and uneven ground
 		{
