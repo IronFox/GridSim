@@ -633,7 +633,7 @@ namespace Engine
 			cout << "equation=sqrt("<<r<<"*"<<r<<"-sqr("<<radial<<"))"<<endl;*/
 			TVec3<float>	mp = {px,py,-h};
 			//cout << "mp="<<_toString(mp)<<endl;
-			projected_space.pointToScreen(mp,p);
+			projected_space.PointToScreen(mp,p);
 			p.x = (p.x*0.5+0.5)*(float)display->clientWidth();
 			p.y = (p.y*0.5+0.5)*(float)display->clientHeight();
 		}
@@ -654,7 +654,7 @@ namespace Engine
 		void	Operator::unprojectMouse(TVec2<float>&p)	const
 		{
 			TVec3<float> f;
-			projected_space.screenToVector(mouse->location.fx*2-1,mouse->location.fy*2-1,Vector<>::dummy,f);
+			projected_space.ScreenToVector(mouse->location.fx*2-1,mouse->location.fy*2-1,Vector<>::dummy,f);
 			Vec::normalize0(f);
 			unproject(f,p);
 		}
@@ -2557,10 +2557,10 @@ namespace Engine
 			
 			
 			//backup aspect configuration
-			bool aspect_was_in_projection = GlobalAspectConfiguration::load_as_projection;
-			GlobalAspectConfiguration::load_as_projection = false;
-			bool world_z_was_up = GlobalAspectConfiguration::world_z_is_up;
-			GlobalAspectConfiguration::world_z_is_up = false;
+			bool aspect_was_in_projection = GlobalAspectConfiguration::loadAsProjection;
+			GlobalAspectConfiguration::loadAsProjection = false;
+			bool world_z_was_up = GlobalAspectConfiguration::worldZIsUp;
+			GlobalAspectConfiguration::worldZIsUp = false;
 			display->storeCamera();
 
 
@@ -2898,8 +2898,8 @@ namespace Engine
 			
 			drawRect(rect);
 			*/
-			GlobalAspectConfiguration::load_as_projection = aspect_was_in_projection;
-			GlobalAspectConfiguration::world_z_is_up = world_z_was_up;
+			GlobalAspectConfiguration::loadAsProjection = aspect_was_in_projection;
+			GlobalAspectConfiguration::worldZIsUp = world_z_was_up;
 			display->restoreCamera();
 
 		}
@@ -3255,19 +3255,19 @@ namespace Engine
 			input.popProfile();
 		
 
-			bool aspect_was_in_projection = GlobalAspectConfiguration::load_as_projection;
-			GlobalAspectConfiguration::load_as_projection = false;
-			bool world_z_was_up = GlobalAspectConfiguration::world_z_is_up;
-			GlobalAspectConfiguration::world_z_is_up = false;
+			bool aspect_was_in_projection = GlobalAspectConfiguration::loadAsProjection;
+			GlobalAspectConfiguration::loadAsProjection = false;
+			bool world_z_was_up = GlobalAspectConfiguration::worldZIsUp;
+			GlobalAspectConfiguration::worldZIsUp = false;
 
 			rs->updateDisplaySize();
-			rs->projected_space.make(1.0f,0.1,100,92);
+			rs->projected_space.UpdateProjection(1.0f,0.1,100,92);
 			//projected_space.retraction[2] = -1;
-			rs->projected_space.build();
-			rs->projected_space.depth_test = NoDepthTest;
+			rs->projected_space.UpdateView();
+			rs->projected_space.depthTest = NoDepthTest;
 
-			GlobalAspectConfiguration::load_as_projection = aspect_was_in_projection;
-			GlobalAspectConfiguration::world_z_is_up = world_z_was_up;
+			GlobalAspectConfiguration::loadAsProjection = aspect_was_in_projection;
+			GlobalAspectConfiguration::worldZIsUp = world_z_was_up;
 		
 			GUI::Initialize();
 			return rs;
@@ -3277,7 +3277,7 @@ namespace Engine
 		{
 			float	w = display->clientWidth(),
 					h = display->clientHeight();
-			window_space.make(0,0,
+			window_space.UpdateProjection(0,0,
 								w,h,
 								-1,
 								1);

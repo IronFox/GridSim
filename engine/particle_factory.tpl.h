@@ -130,7 +130,7 @@ namespace Engine
 				Vec::def(c2.coord,1,1);
 				Vec::def(c3.coord,0,1);
 
-				Mat::copyOrientation(aspect.view_invert,matrix);
+				Mat::copyOrientation(aspect.viewInvert,matrix);
 				Vec::clear(matrix.w.xyz);
 				matrix.w.w = 1.f;
 				GL::enterSubSystem(matrix);
@@ -221,7 +221,7 @@ namespace Engine
 				Vec::def(c3.coord,0,1);
 
 
-				Mat::copyOrientation(aspect.modelview_invert,matrix);
+				Mat::copyOrientation(aspect.modelviewInvert,matrix);
 				Vec::clear(matrix.w.xyz);
 				matrix.w.w = 1.f;
 				GL::enterSubSystem(matrix);
@@ -272,7 +272,7 @@ namespace Engine
 				Vec::def(c3.coord,0,1);
 
 
-				Mat::copyOrientation(aspect.modelview_invert,matrix);
+				Mat::copyOrientation(aspect.modelviewInvert,matrix);
 				Vec::clear(matrix.w.xyz);
 				matrix.w.w = 1.f;
 				GL::enterSubSystem(matrix);

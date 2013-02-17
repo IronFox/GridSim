@@ -1355,7 +1355,7 @@ namespace Engine
 
 								menu.render(this);
 
-		/*                        textout.locate(5,client_height+x_menu_height/3);
+		/*                        textout.SetPosition(5,client_height+x_menu_height/3);
 								textout.print("File   Edit");*/
 
 							glPopMatrix();
@@ -1630,10 +1630,10 @@ namespace Engine
 		//glViewport((GLint)(aspect.region.left*(float)client_width),(GLint)(aspect.region.bottom*(float)client_height),(GLint)(aspect.region.width()*(float)client_width),(GLint)(aspect.region.height()*(float)client_height));
 		display.loadProjection(aspect.projection);
 		display.loadModelview(aspect.view);
-		display.setDepthTest(aspect.depth_test);
-		Engine::environment_matrix.x.xyz = aspect.view_invert.x.xyz;
-		Engine::environment_matrix.y.xyz = aspect.view_invert.y.xyz;
-		Engine::environment_matrix.z.xyz = aspect.view_invert.z.xyz;
+		display.setDepthTest(aspect.depthTest);
+		Engine::environment_matrix.x.xyz = aspect.viewInvert.x.xyz;
+		Engine::environment_matrix.y.xyz = aspect.viewInvert.y.xyz;
+		Engine::environment_matrix.z.xyz = aspect.viewInvert.z.xyz;
 	}
 
 	void Window::clearMenu()
@@ -1890,21 +1890,21 @@ namespace Engine
 		return created;
 	}
 	
-	bool	Window::make(const String&name)
+	bool	Window::UpdateProjection(const String&name)
 	{
 		if (created)
 			destroy();
 		return create(location.left,location.top,location.right-location.left,location.bottom-location.top,name,config);
 	}
 	
-	bool	Window::make(int x, int y, int width, int height, const String&name)
+	bool	Window::UpdateProjection(int x, int y, int width, int height, const String&name)
 	{
 		if (created)
 			destroy();
 		return create(x,y,width,height,name,config);
 	}
 	
-	bool	Window::make(int x, int y, int width, int height, const String&name, const Engine::TVisualConfig&config)
+	bool	Window::UpdateProjection(int x, int y, int width, int height, const String&name, const Engine::TVisualConfig&config)
 	{
 		if (created)
 			destroy();
@@ -2111,7 +2111,7 @@ namespace Engine
 	                config.auxiliary_buffer_bits,       //auxiliary_buffer_bits (whatever that buffer can be used for)
 	                PFD_MAIN_PLANE,                     //draw to first layer only (would need to enable PFD_SWAP_LAYER_BUFFERS to use multible layers)
 	                0,                                  //reserved (for whatever)
-	                0,0,0                               //"Layer-Masks ignored" - maybe this is to reduce the ammount of colors displayed... would make sense somehow - each bit ignored would half the number
+	                0,0,0                               //"Layer-Masks ignored" - maybe this is to reduce the ammount of colors displayed... would UpdateProjection sense somehow - each bit ignored would half the number
 	            };
 	            GLint PixelFormat;
 	            local_context.device_context = GetDC(window);
@@ -2360,7 +2360,7 @@ namespace Engine
 	    glViewport(0,0,width,height);
 	    Engine::timing.initialize();
 
-	   // pixel_aspect = application.pixelAspectf(width,height);
+	   // pixelAspect = application.pixelAspectf(width,height);
 		display.initDefaultExtensions();
 	    //initGL();
 		focused = true;
@@ -2649,7 +2649,7 @@ namespace Engine
 						if (req->parent)
 							req->window->makeAsChild(*req->parent,req->x,req->y,req->width,req->height,req->name,req->config);
 						else
-							req->window->make(req->x,req->y,req->width,req->height,req->name,req->config);
+							req->window->UpdateProjection(req->x,req->y,req->width,req->height,req->name,req->config);
 					}
 					break;
 					case WM_ERASEBKGND: return 1;													break;

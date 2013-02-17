@@ -955,22 +955,22 @@ namespace Engine
 
 		void				Composition::clear()
 		{
-			shared_source = "";
-			vertex_source = "";
-			fragment_source = "";
-			geometry_source = "";
+			sharedSource = "";
+			vertexSource = "";
+			fragmentSource = "";
+			geometrySource = "";
 		}
 
 		void				Composition::adoptData(Composition&other)
 		{
-			shared_source.adoptData(other.shared_source);
-			vertex_source.adoptData(other.vertex_source);
-			fragment_source.adoptData(other.fragment_source);
-			geometry_source.adoptData(other.geometry_source);
+			sharedSource.adoptData(other.sharedSource);
+			vertexSource.adoptData(other.vertexSource);
+			fragmentSource.adoptData(other.fragmentSource);
+			geometrySource.adoptData(other.geometrySource);
 		}
 
 
-		Composition&			Composition::load(const String&source)
+		Composition&			Composition::Load(const String&source)
 		{
 			if (source.contains("[vertex]"))
 			{
@@ -1005,16 +1005,16 @@ namespace Engine
 					switch (current-type)
 					{
 						case 1:
-							shared_source = segment;
+							sharedSource = segment;
 						break;
 						case 2:
-							fragment_source	= segment;
+							fragmentSource	= segment;
 						break;
 						case 3:
-							vertex_source = segment;
+							vertexSource = segment;
 						break;
 						case 4:
-							geometry_source = segment;
+							geometrySource = segment;
 						break;
 					}
 					current	= item;
@@ -1040,13 +1040,13 @@ namespace Engine
 					const String&group = tokens[i];
 					{
 						if (group == "shared")
-							source_target = &shared_source;
+							source_target = &sharedSource;
 						elif (group == "vertex")
-							source_target = &vertex_source;
+							source_target = &vertexSource;
 						elif (group == "fragment")
-							source_target = &fragment_source;
+							source_target = &fragmentSource;
 						elif (group == "geometry")
-							source_target = &geometry_source;
+							source_target = &geometrySource;
 					}
 					i++;
 					if (!source_target)
@@ -1076,33 +1076,33 @@ namespace Engine
 			return *this;
 		}
 
-		bool				Composition::loadFromFiles(const String&shared_file, const String&vertex_file, const String&fragment_file)
+		bool				Composition::LoadFromFiles(const String&shared_file, const String&vertex_file, const String&fragment_file)
 		{
-			geometry_source = "";
-			return	Engine::GLShader::extractFileContent(shared_file,shared_source)
+			geometrySource = "";
+			return	Engine::GLShader::extractFileContent(shared_file,sharedSource)
 					&&
-					Engine::GLShader::extractFileContent(vertex_file,vertex_source)
+					Engine::GLShader::extractFileContent(vertex_file,vertexSource)
 					&&
-					Engine::GLShader::extractFileContent(fragment_file,fragment_source);
+					Engine::GLShader::extractFileContent(fragment_file,fragmentSource);
 		}
 
-		bool				Composition::loadFromFiles(const String&shared_file, const String&vertex_file, const String&fragment_file, const String&geometry_file)
+		bool				Composition::LoadFromFiles(const String&shared_file, const String&vertex_file, const String&fragment_file, const String&geometry_file)
 		{
-			return	Engine::GLShader::extractFileContent(shared_file,shared_source)
+			return	Engine::GLShader::extractFileContent(shared_file,sharedSource)
 					&&
-					Engine::GLShader::extractFileContent(vertex_file,vertex_source)
+					Engine::GLShader::extractFileContent(vertex_file,vertexSource)
 					&&
-					Engine::GLShader::extractFileContent(fragment_file,fragment_source)
+					Engine::GLShader::extractFileContent(fragment_file,fragmentSource)
 					&&
-					Engine::GLShader::extractFileContent(geometry_file,geometry_source);
+					Engine::GLShader::extractFileContent(geometry_file,geometrySource);
 		}
 
-		bool				Composition::loadFromFile(const String&object_file)
+		bool				Composition::LoadFromFile(const String&object_file)
 		{
 			String content;
 			if (!Engine::GLShader::extractFileContent(object_file,content))
 				return false;
-			load(content);
+			Load(content);
 			return true;
 		}
 
@@ -1211,25 +1211,25 @@ namespace Engine
 			clear();
 			this->composition = composition;
 			glGetError();//flush errors
-			vertex_shader	= loadShader(composition.shared_source+composition.vertex_source,GL_VERTEX_SHADER_ARB);
-			fragment_shader	= loadShader(composition.shared_source+composition.fragment_source,GL_FRAGMENT_SHADER_ARB);
+			vertex_shader	= loadShader(composition.sharedSource+composition.vertexSource,GL_VERTEX_SHADER_ARB);
+			fragment_shader	= loadShader(composition.sharedSource+composition.fragmentSource,GL_FRAGMENT_SHADER_ARB);
 			#ifdef GL_GEOMETRY_SHADER_EXT
-				bool has_geometry_shader = composition.geometry_source.indexOf("main")!=0;
+				bool has_geometry_shader = composition.geometrySource.indexOf("main")!=0;
 				if (has_geometry_shader)
 				{
 					String full_source;
-					index_t p = composition.geometry_source.indexOf('#');
+					index_t p = composition.geometrySource.indexOf('#');
 					if (!p)
 						full_source = 
 						"#version 120 \n"
 						"#extension GL_EXT_geometry_shader4 : enable	\n"
-						+composition.shared_source+composition.geometry_source;
+						+composition.sharedSource+composition.geometrySource;
 					else
 					{
-						const char*c = composition.geometry_source.c_str()+p;
+						const char*c = composition.geometrySource.c_str()+p;
 						while (*c && *c != '\n')
 							c++;
-						full_source = composition.geometry_source.subString(0,c-composition.geometry_source.c_str()+1)+composition.shared_source+(c+1);
+						full_source = composition.geometrySource.subString(0,c-composition.geometrySource.c_str()+1)+composition.sharedSource+(c+1);
 					}
 				
 				
@@ -1378,7 +1378,7 @@ namespace Engine
 
 		bool		Instance::loadComposition(const String&object_source, GLenum input_type, GLenum output_type, unsigned max_vertices)
 		{
-			return load(Composition().load(object_source),input_type,output_type,max_vertices);
+			return load(Composition().Load(object_source),input_type,output_type,max_vertices);
 		}
 
 
@@ -3107,28 +3107,28 @@ namespace Engine
 				if (loaded_)
 				{
 					log << "-------- scanning shared source --------"<<nl;
-					loaded_ = shared_template.scan(composition.shared_source,*current_map,log,line);
+					loaded_ = shared_template.scan(composition.sharedSource,*current_map,log,line);
 					if (!loaded_)
 						log << "  failed.\n";
 				}
 				if (loaded_)
 				{
 					log << "-------- scanning vertex shader --------"<<nl;
-					loaded_ = vertex_template.scan(composition.vertex_source,*current_map,log,line);
+					loaded_ = vertex_template.scan(composition.vertexSource,*current_map,log,line);
 					if (!loaded_)
 						log << "  failed.\n";
 				}
 				if (loaded_)
 				{
 					log << "-------- scanning fragment shader --------"<<nl;
-					loaded_ = fragment_template.scan(composition.fragment_source,*current_map,log,line);
+					loaded_ = fragment_template.scan(composition.fragmentSource,*current_map,log,line);
 					if (!loaded_)
 						log << "  failed.\n";
 				}
 				if (loaded_)
 				{
 					log << "-------- scanning geometry shader --------"<<nl;
-					loaded_ = geometry_template.scan(composition.geometry_source,*current_map,log,line);
+					loaded_ = geometry_template.scan(composition.geometrySource,*current_map,log,line);
 					if (!loaded_)
 						log << "  failed.\n";
 				}
@@ -3152,7 +3152,7 @@ namespace Engine
 
 			bool				Template::loadComposition(const String&object_source, GLenum geometry_type_, GLenum output_type_, unsigned max_vertices_)
 			{
-				return load(Composition().load(object_source),geometry_type_,output_type_,max_vertices_);
+				return load(Composition().Load(object_source),geometry_type_,output_type_,max_vertices_);
 			}
 
 			void		Template::setConfig(UserConfig*config, bool update)
@@ -3240,10 +3240,10 @@ namespace Engine
 				const RenderConfig&render_config = *current_config->renderConfig();
 				const UserConfig&user_config = *current_config->userConfig();
 
-				composition.shared_source = shared_template.assemble(render_config, user_config,true);
-				composition.vertex_source = vertex_template.assemble(render_config, user_config,false);
-				composition.fragment_source = fragment_template.assemble(render_config, user_config,false);
-				composition.geometry_source = geometry_template.assemble(render_config, user_config,false);
+				composition.sharedSource = shared_template.assemble(render_config, user_config,true);
+				composition.vertexSource = vertex_template.assemble(render_config, user_config,false);
+				composition.fragmentSource = fragment_template.assemble(render_config, user_config,false);
+				composition.geometrySource = geometry_template.assemble(render_config, user_config,false);
 				if (local.load(composition,geometry_type,output_type,max_vertices))
 				{
 					if (is_new)

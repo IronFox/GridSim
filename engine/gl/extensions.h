@@ -210,19 +210,19 @@
 			class Composition
 			{
 			public:
-				String					shared_source,
-										vertex_source,
-										fragment_source, 
-										geometry_source;
+				String					sharedSource,
+										vertexSource,
+										fragmentSource, 
+										geometrySource;
 
 				void					adoptData(Composition&other);
 				void					clear();
-				bool					isEmpty()	const	{return shared_source.isEmpty() && vertex_source.isEmpty() && fragment_source.isEmpty() && geometry_source.isEmpty();}
-				bool					isNotEmpty()const	{return !isEmpty();}
-				Composition&			load(const String&object_source);
-				bool					loadFromFiles(const String&shared_file, const String&vertex_file, const String&fragment_file);
-				bool					loadFromFiles(const String&shared_file, const String&vertex_file, const String&fragment_file, const String&geometry_file);
-				bool					loadFromFile(const String&object_file);
+				bool					IsEmpty()	const	{return sharedSource.isEmpty() && vertexSource.isEmpty() && fragmentSource.isEmpty() && geometrySource.isEmpty();}
+				bool					IsNotEmpty()const	{return !IsEmpty();}
+				Composition&			Load(const String&objectSource);
+				bool					LoadFromFiles(const String&sharedFile, const String&vertexFile, const String&fragmentFile);
+				bool					LoadFromFiles(const String&sharedFile, const String&vertexFile, const String&fragmentFile, const String&geometryFile);
+				bool					LoadFromFile(const String&objectFile);
 			};
 
 

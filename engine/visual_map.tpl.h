@@ -298,7 +298,7 @@ namespace Engine
 						renderer->enterSubSystem(object->system);
 							Aspect<T>	sub=camera;
 							__transformSystem(object->inverse,camera.modelview,sub.modelview);
-							__invertSystem(sub.modelview,sub.modelview_invert);
+							__invertSystem(sub.modelview,sub.modelviewInvert);
 							((VisualMap<GL,Def>*)object->source->composition.pointer())->render(sub,lighted);
 						renderer->exitSubSystem();
 					}
@@ -320,7 +320,7 @@ namespace Engine
 					{
 						//renderer->castPointQuery(flare_query,light->position);
 						//bool visible = renderer->resolveObjectSize(flare_query)>0;
-						light->visible = camera.pointToScreen(light->position,light->projected);
+						light->visible = camera.PointToScreen(light->position,light->projected);
 						if (light->query_object.isEmpty())
 							light->query_object = renderer->queryObject();
 						
@@ -335,7 +335,7 @@ namespace Engine
 						}
 						else
 							light->visibility = vmax(light->visibility-2*tdelta,0);
-						light->distance = _distance(light->position,camera.absoluteLocation());
+						light->distance = Vec::distance(light->position,camera.GetAbsoluteLocation());
 						/*if (visible)
 							ShowMessage(_toString(light->projected,2));*/
 					}
@@ -474,7 +474,7 @@ namespace Engine
 
 		
 	template <class GL, class Def>
-		void		VisualMap<GL,Def>::renderFlares(float pixel_aspect)
+		void		VisualMap<GL,Def>::renderFlares(float pixelAspect)
 		{
 			if (!renderer)
 			{
@@ -535,7 +535,7 @@ namespace Engine
 						continue;
 					typename GL::FloatType at[2];
 					_mult2(light->projected,1.0-sprites[i].position,at);
-					float w = sprites[i].width/2/pixel_aspect,
+					float w = sprites[i].width/2/pixelAspect,
 							h = sprites[i].height/2;
 					if (true) //sprites[i].distance_dependent)
 					{
@@ -583,7 +583,7 @@ namespace Engine
 			config.hide_items_on_collision = true;
 			config.friction_model = Configuration::ExponentialFriction;
 		
-			system.make(1,0.1,600,45);
+			system.UpdateProjection(1,0.1,600,45);
 			reset(x,y,z);
 		}
 		
@@ -601,7 +601,7 @@ namespace Engine
 			config.hide_items_on_collision = true;
 			config.friction_model = Configuration::ExponentialFriction;
 
-			system.make(1,0.1,600,45);
+			system.UpdateProjection(1,0.1,600,45);
 			reset(x,y,z);
 		}
 
@@ -620,7 +620,7 @@ namespace Engine
 			_v3(system.location,x,y,z);
 			_v3(system.direction,0,0,1);
 			_v3(system.vertical,0,1,0);
-			system.build();
+			system.UpdateView();
 			
 			last_stationary_collision.detected = false;
 			last_stationary_collision.remote_vehicle = NULL;
@@ -662,7 +662,7 @@ namespace Engine
 			_c3(pos->y_align,system.vertical);
 			_mult(pos->direction,-1,system.direction);
 			_c3(pos->position,system.location);
-			system.build();
+			system.UpdateView();
 		}
 		
 		
@@ -758,7 +758,7 @@ namespace Engine
 				}
 				if (config.friction_model != Configuration::NoFriction)
 				{
-					__rotate(system.modelview_invert,friction,global_friction);
+					__rotate(system.modelviewInvert,friction,global_friction);
 					_sub(velocity,global_friction);
 				}
 			}
@@ -794,19 +794,19 @@ namespace Engine
 			rotation_velocity_z += z_rotation*time_delta;
 			
 			processFriction(vdelta,time_delta);
-			__rotate(system.modelview_invert,vdelta,global_delta);
+			__rotate(system.modelviewInvert,vdelta,global_delta);
 			_mad(velocity,global_delta,time_delta);
-			//__rotate(system.modelview_invert,local_velocity,velocity);
+			//__rotate(system.modelviewInvert,local_velocity,velocity);
 			
 			_mad(system.location,velocity,time_delta);
-			system.rotateDirectional(rotation_velocity_z*time_delta,false);
-			system.rotatePlanar(rotation_velocity_y,rotation_velocity_x);
+			system.RotateDirectional(rotation_velocity_z*time_delta,false);
+			system.RotatePlanar(rotation_velocity_y,rotation_velocity_x);
 			_normalize(system.direction);
 			_normalize(system.vertical);
 			_c3(system.system+3,system.vertical);
 			if (instance)
 			{
-				_c16(system.modelview_invert,instance->matrix);
+				_c16(system.modelviewInvert,instance->matrix);
 				instance->update();
 			}
 		}
@@ -843,20 +843,20 @@ namespace Engine
 				energy_level -= config.acceleration_energy_drain * _dot(vdelta) * time_delta;
 				
 			processFriction(vdelta,time_delta);
-			__rotate(system.modelview_invert,vdelta,global_delta);
+			__rotate(system.modelviewInvert,vdelta,global_delta);
 			_mad(velocity,global_delta,time_delta);
-			//__rotate(system.modelview_invert,local_velocity,velocity);
+			//__rotate(system.modelviewInvert,local_velocity,velocity);
 			
 			_mad(system.location,velocity,time_delta);
 			
-			system.rotateDirectional(rotation_velocity_z*time_delta,false);
-			system.rotatePlanar(rotation_velocity_y*time_delta,rotation_velocity_x*time_delta);
+			system.RotateDirectional(rotation_velocity_z*time_delta,false);
+			system.RotatePlanar(rotation_velocity_y*time_delta,rotation_velocity_x*time_delta);
 			_normalize(system.direction);
 			_normalize(system.vertical);
 			_c3(system.system+3,system.vertical);
 			if (instance)
 			{
-				_c16(system.modelview_invert,instance->matrix);
+				_c16(system.modelviewInvert,instance->matrix);
 				instance->update();
 			}
 		}

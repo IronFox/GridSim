@@ -173,9 +173,9 @@ namespace Engine
 											return setPosition((float)p.x,(float)p.y,(float)p.z);
 										}
 			
-			Light*						setDirection(float x, float y, float z);			//!< Set spot direction if spot or negative position otherwise (auto normalized) @return this
-			Light*						setDirection(const TVec3<float>&c);				//!< Set spot direction if spot or negative position otherwise (auto normalized) @return this
-			Light*						setDirection(const TVec3<double>&c);				//!< Set spot direction if spot or negative position otherwise (auto normalized) @return this
+			Light*						SetDirection(float x, float y, float z);			//!< Set spot direction if spot or negative position otherwise (auto normalized) @return this
+			Light*						SetDirection(const TVec3<float>&c);				//!< Set spot direction if spot or negative position otherwise (auto normalized) @return this
+			Light*						SetDirection(const TVec3<double>&c);				//!< Set spot direction if spot or negative position otherwise (auto normalized) @return this
 			Light*						setNegativeDirection(float x, float y, float z);	//!< Set negative spot direction if spot or positive position otherwise (auto normalized) @return this
 			Light*						setNegativeDirection(const TVec3<float>&c);		//!< Set negative spot direction if spot or positive position otherwise (auto normalized) @return this
 			Light*						setNegativeDirection(const TVec3<double>&c);		//!< Set negative spot direction if spot or positive position otherwise (auto normalized) @return this

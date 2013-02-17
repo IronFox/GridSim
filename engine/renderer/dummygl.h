@@ -123,7 +123,7 @@ namespace Engine
 						bool			queryGeometryUploadLock()	{return false;}			//!< Queries whether or not changes to the geometry upload state are currently locked \return true if upload is currently locked
 		
 
-						bool			queryBegin(bool depth_test=true)	{return false;}											//!< Set up query environment (disable rendering etc.) \param depth_test if set true then rendered pixels may be occluded by objects \return true if the query-environment could be set up
+						bool			queryBegin(bool depthTest=true)	{return false;}											//!< Set up query environment (disable rendering etc.) \param depthTest if set true then rendered pixels may be occluded by objects \return true if the query-environment could be set up
 						void			queryEnd()	{}																//!< Ends querying and returns the original state.
 						void			castQuery(const Query&query)	{}										//!< Renders the linked object. To extract the number of pixels on the screen call 'resolveObjectSize(query)' \param query Handle of the respective query object
 						void			castPointQuery(const Query&query, const float point[3])	{}				//!< Dynamically renders one point. To extract the number of pixels on the screen call 'resolveObjectSize(query)' \param query Handle of the respective query object \param point Pointer to a location array in R
@@ -133,7 +133,7 @@ namespace Engine
 		static inline	void			cullAll()		{}			//!< Sets face cull mode to all (no faces will be rendered)
 		static inline	void			cullNone()		{}		//!< Sets face cull mode to none (all faces will be rendered)
 		static inline	void			depthMask(bool mask)	{}	//!< Sets depth mask
-		static inline	void			setDepthTest(eDepthTest depth_test)	{}	//!< Sets depth test to use
+		static inline	void			setDepthTest(eDepthTest depthTest)	{}	//!< Sets depth test to use
 		
 		static inline	void			setFog(const Fog&fog,bool enabled=true)	{}							//!< Applies given fog configuration \param fog Fog configuration \param enabled Set true to enable fog
 		static inline	void			setFog(bool enabled)	{}													//!< Dynamically enables or disables fog \param enabled Set true to enable fog

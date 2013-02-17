@@ -13,8 +13,8 @@ namespace Engine
 
 	namespace GlobalAspectConfiguration
 	{
-	bool					world_z_is_up = false,
-							load_as_projection = false;
+	bool					worldZIsUp = false,
+							loadAsProjection = false;
 	};
 
 }

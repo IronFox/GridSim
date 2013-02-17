@@ -141,7 +141,7 @@ namespace Engine
 	}
 
 
-	Light*			Light::setDirection(float x, float y, float z)
+	Light*			Light::SetDirection(float x, float y, float z)
 	{
 		if (type == Spot)
 			setSpotDirection(x,y,z);
@@ -150,7 +150,7 @@ namespace Engine
 		return this;
 	}
 
-	Light*			Light::setDirection(const TVec3<float>&c)
+	Light*			Light::SetDirection(const TVec3<float>&c)
 	{
 		if (type == Spot)
 			setSpotDirection(c);
@@ -160,7 +160,7 @@ namespace Engine
 	}
 
 
-	Light*			Light::setDirection(const TVec3<double>&c)
+	Light*			Light::SetDirection(const TVec3<double>&c)
 	{
 		if (type == Spot)
 			setSpotDirection(c);

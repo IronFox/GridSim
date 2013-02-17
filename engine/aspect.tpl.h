@@ -331,84 +331,84 @@ template <class C>
 		}
 
 
-template <class C> MF_CONSTRUCTOR Aspect<C>::Aspect():region(0,0,1,1),depth_test(NormalDepthTest)
+template <class C> MF_CONSTRUCTOR Aspect<C>::Aspect():region(0,0,1,1),depthTest(NormalDepthTest)
 {
-	loadIdentity();
+	LoadIdentity();
 }
 
-template <class C> MF_CONSTRUCTOR Aspect<C>::Aspect(VisualEnum::eDepthTest dtest):region(0,0,1,1),depth_test(dtest)
+template <class C> MF_CONSTRUCTOR Aspect<C>::Aspect(VisualEnum::eDepthTest dtest):region(0,0,1,1),depthTest(dtest)
 {
-	loadIdentity();
+	LoadIdentity();
 }
 
 
-template <class C> MF_DECLARE(void)	Aspect<C>::loadIdentity()
+template <class C> MF_DECLARE(void)	Aspect<C>::LoadIdentity()
 {
 	view = Matrix<C>::eye4;
-	view_invert = Matrix<C>::eye4;
-	projection_invert = Matrix<C>::eye4;
+	viewInvert = Matrix<C>::eye4;
+	projectionInvert = Matrix<C>::eye4;
 	projection = Matrix<C>::eye4;
 	Vec::clear(location);
 }
 
-template <class C> MF_DECLARE(void) Aspect<C>::updateInvert()
+template <class C> MF_DECLARE(void) Aspect<C>::UpdateInvert()
 {
-	Mat::invertSystem(view,view_invert);
-	Mat::invert(projection,projection_invert);
+	Mat::invertSystem(view,viewInvert);
+	Mat::invert(projection,projectionInvert);
 }
 
-template <class C> MF_DECLARE(const TVec3<C>&) Aspect<C>::absoluteLocation()	const
+template <class C> MF_DECLARE(const TVec3<C>&) Aspect<C>::GetAbsoluteLocation()	const
 {
-	return view_invert.w.xyz;
+	return viewInvert.w.xyz;
 }
 
 
 template <class C>
-MFUNC3 (void) Aspect<C>::translate(const C0&x, const C1&y, const C2&z)
+MFUNC3 (void) Aspect<C>::Translate(const C0&x, const C1&y, const C2&z)
 {
 	TVec3<C> vec={x,y,z},out;
 	Mat::rotate(view,vec,out);
 	Vec::add(ref3(view+12),out);
-	Mat::invertSystem(view,view_invert);
+	Mat::invertSystem(view,viewInvert);
 }
 
 
 template <class C>
-MFUNC1 (void) Aspect<C>::translate(const TVec3<C0>&delta)
+MFUNC1 (void) Aspect<C>::Translate(const TVec3<C0>&delta)
 {
 	TVec3<C> out;
 	Mat::rotate(view,delta,out);
 	Vec::add(ref3(view+12),out);
-	Mat::invertSystem(view,view_invert);
+	Mat::invertSystem(view,viewInvert);
 }
 
 template <class C>
-MFUNC4 (void) Aspect<C>::rotate(const C0&angle, const C1&x, const C2&y, const C3&z)
+MFUNC4 (void) Aspect<C>::Rotate(const C0&angle, const C1&x, const C2&y, const C3&z)
 {
 	TVec4<C> a = {x,y,z,angle},q[4];
 	Vec::normalize0(a);	//normalize first 3 components
 	_q2Quaternion(a,q);
-	rotate(q);
+	Rotate(q);
 }
 
 template <class C>
-MFUNC2 (void) Aspect<C>::rotate(const C0&angle, const TVec3<C1>&v)
+MFUNC2 (void) Aspect<C>::Rotate(const C0&angle, const TVec3<C1>&v)
 {
 	TVec4<C> a = {v.x,v.y,v.z,angle},q[4];
 	Vec::normalize0(a);	//normalize first 3 components
 	_q2Quaternion(a,q);
-	rotate(q);
+	Rotate(q);
 }
 
 template <class C>
-MFUNC1 (void) Aspect<C>::rotate(const TVec4<C0>&quaternion)
+MFUNC1 (void) Aspect<C>::Rotate(const TVec4<C0>&quaternion)
 {
 	_qRotateSystemCW(quaternion,view);
-	Mat::invertSystem(view,view_invert);
+	Mat::invertSystem(view,viewInvert);
 }
 
 template <class C>
-MFUNC2 (bool) Aspect<C>::pointToScreen(const TVec3<C0>&point, TVec2<C1>&screen_point)	const
+MFUNC2 (bool) Aspect<C>::PointToScreen(const TVec3<C0>&point, TVec2<C1>&screenPoint)	const
 {
 	TVec4<C>	temp0,temp1;
 	Mat::transform(view,point,temp0.xyz);
@@ -416,11 +416,11 @@ MFUNC2 (bool) Aspect<C>::pointToScreen(const TVec3<C0>&point, TVec2<C1>&screen_p
 	Mat::mult(projection,temp0,temp1);
 	if (vabs(temp1.w) <= TypeInfo<C>::error)
 		return false;
-	Vec::divide(temp1.xy,temp1.w,screen_point);
+	Vec::divide(temp1.xy,temp1.w,screenPoint);
 	return temp1.z >= -temp1.w && temp1.z <= temp1.w;	//[-1,+1]
 }
 template <class C>
-MFUNC2 (bool) Aspect<C>::project(const TVec3<C0>&point, TVec3<C1>&projected)	const
+MFUNC2 (bool) Aspect<C>::Project(const TVec3<C0>&point, TVec3<C1>&projected)	const
 {
 	TVec4<C>	temp0,temp1;
 	Mat::transform(view,point,temp0.xyz);
@@ -433,7 +433,7 @@ MFUNC2 (bool) Aspect<C>::project(const TVec3<C0>&point, TVec3<C1>&projected)	con
 }
 
 template <class C>
-MFUNC2 (bool) Aspect<C>::vectorToScreen(const TVec3<C0>&vector, TVec2<C1>&screen_point)	const
+MFUNC2 (bool) Aspect<C>::VectorToScreen(const TVec3<C0>&vector, TVec2<C1>&screenPoint)	const
 {
 	TVec4<C>	temp0,temp1;
 	Mat::rotate(view,vector,temp0.xyz);
@@ -441,78 +441,78 @@ MFUNC2 (bool) Aspect<C>::vectorToScreen(const TVec3<C0>&vector, TVec2<C1>&screen
 	Mat::mult(projection,temp0,temp1);
 	if (vabs(temp1.w) < getError<C>())
 		return false;
-	Vec::divide(temp1.xy,temp1.w,screen_point);
+	Vec::divide(temp1.xy,temp1.w,screenPoint);
 	return temp1.w >= 0;
 }
 
 template <class C>
-	MFUNC4 (void)				Aspect<C>::screenToVector(const C0&x, const C1&y, TVec3<C2>&position, TVec3<C3>&direction)	const
+	MFUNC4 (void)				Aspect<C>::ScreenToVector(const C0&x, const C1&y, TVec3<C2>&position, TVec3<C3>&direction)	const
 		{
 			TVec2<C>	point = {x,y};
-			screenToVector(point,position,direction);
+			ScreenToVector(point,position,direction);
 		}
 
 template <class C>
-MFUNC3 (void) Aspect<C>::screenToVector(const TVec2<C0>&point, TVec3<C1>&position, TVec3<C2>&direction)	const
+MFUNC3 (void) Aspect<C>::ScreenToVector(const TVec2<C0>&point, TVec3<C1>&position, TVec3<C2>&direction)	const
 {
-	//_c3(&view_invert[12],position);
+	//_c3(&viewInvert[12],position);
 	TVec4<C>	p0 = {point.x,point.y,-1,1},
 				temp;
-	Mat::mult(projection_invert,p0,temp);
+	Mat::mult(projectionInvert,p0,temp);
 	if (vabs(temp.w) > getError<C>())
 		Vec::div(temp.xyz,temp.w);
-	Mat::rotate(view_invert,temp.xyz,direction);
-	Mat::transform(view_invert,temp.xyz,position);
+	Mat::rotate(viewInvert,temp.xyz,direction);
+	Mat::transform(viewInvert,temp.xyz,position);
 }
 
 template <class C>
-MFUNC2 (void)				Aspect<C>::reverseProject(const TVec3<C0>&point, TVec3<C1>&position)					const
+MFUNC2 (void)				Aspect<C>::ReverseProject(const TVec3<C0>&point, TVec3<C1>&position)					const
 	{
 		TVec4<C>		p0 = {point.x,point.y,point.z,1},
 						temp;
-		Mat::mult(projection_invert,p0,temp);
+		Mat::mult(projectionInvert,p0,temp);
 		if (vabs(temp.w) > getError<C>())
 			Vec::div(temp.xyz,temp.w);
-		Mat::transform(view_invert,temp.xyz,position);
+		Mat::transform(viewInvert,temp.xyz,position);
 	}
 
 
 template <class C>
-	MF_DECLARE (const Frustum<C>&)	Aspect<C>::resolveFrustum() const
+	MF_DECLARE (const Frustum<C>&)	Aspect<C>::ResolveFrustum() const
 	{
-		return resolveVolume();
+		return ResolveVolume();
 	}
 
 template <class C>
-	MF_DECLARE (const Frustum<C>&)	Aspect<C>::getFrustrum() const
+	MF_DECLARE (const Frustum<C>&)	Aspect<C>::GetFrustrum() const
 	{
-		return resolveVolume();
+		return ResolveVolume();
 	}
 	
 
 template <class C>
-	MF_DECLARE (const Frustum<C>&) Aspect<C>::resolveVolume() const
+	MF_DECLARE (const Frustum<C>&) Aspect<C>::ResolveVolume() const
 	{
-		resolveVolume(result);
+		ResolveVolume(result);
 		return result;
 	}
 
 
 template <class C>
-	MF_DECLARE (void) Aspect<C>::resolveFrustum(Volume&result) const
+	MF_DECLARE (void) Aspect<C>::ResolveFrustum(Volume&result) const
 	{
-		resolveVolume(result);
+		ResolveVolume(result);
 	}
 
 template <class C>
-	MF_DECLARE (void) Aspect<C>::getFrustrum(Volume&result) const
+	MF_DECLARE (void) Aspect<C>::GetFrustrum(Volume&result) const
 	{
-		resolveVolume(result);
+		ResolveVolume(result);
 	}
 
 template <class C>
 	template <typename SubType>
-		MF_DECLARE (void) Aspect<C>::resolveVolumeST(Volume&result_) const
+		MF_DECLARE (void) Aspect<C>::ResolveVolumeST(Volume&result_) const
 		{
 			Frustum<SubType>	result;
 
@@ -520,99 +520,99 @@ template <class C>
 
 			TVec4<SubType>	p = {-1,-1,-1,1};
 
-							Mat::mult(projection_invert,p,temp);
+							Mat::mult(projectionInvert,p,temp);
 							if (temp.w)
 								Vec::divide(temp.xyz,temp.w);
-							Mat::transform(view_invert,temp.xyz,result.corner[0]);
+							Mat::transform(viewInvert,temp.xyz,result.corner[0]);
 			Vec::def(p.xy,1,-1);
-							Mat::mult(projection_invert,p,temp);
+							Mat::mult(projectionInvert,p,temp);
 							if (temp.w)
 								Vec::divide(temp.xyz,temp.w);
-							Mat::transform(view_invert,temp.xyz,result.corner[1]);
+							Mat::transform(viewInvert,temp.xyz,result.corner[1]);
 			Vec::def(p.xy,1,1);
-							Mat::mult(projection_invert,p,temp);
+							Mat::mult(projectionInvert,p,temp);
 							if (temp.w)
 								Vec::divide(temp.xyz,temp.w);
-							Mat::transform(view_invert,temp.xyz,result.corner[2]);
+							Mat::transform(viewInvert,temp.xyz,result.corner[2]);
 			Vec::def(p.xy,-1,1);
-							Mat::mult(projection_invert,p,temp);
+							Mat::mult(projectionInvert,p,temp);
 							if (temp.w)
 								Vec::divide(temp.xyz,temp.w);
-							Mat::transform(view_invert,temp.xyz,result.corner[3]);
+							Mat::transform(viewInvert,temp.xyz,result.corner[3]);
 
 
 			Vec::def(p.xyz,-1,-1,1);
-							Mat::mult(projection_invert,p,temp);
+							Mat::mult(projectionInvert,p,temp);
 							if (temp.w)
 								Vec::divide(temp.xyz,temp.w);
-							Mat::transform(view_invert,temp.xyz,result.corner[4]);
+							Mat::transform(viewInvert,temp.xyz,result.corner[4]);
 			Vec::def(p.xy,1,-1);
-							Mat::mult(projection_invert,p,temp);
+							Mat::mult(projectionInvert,p,temp);
 							if (temp.w)
 								Vec::divide(temp.xyz,temp.w);
-							Mat::transform(view_invert,temp.xyz,result.corner[5]);
+							Mat::transform(viewInvert,temp.xyz,result.corner[5]);
 			Vec::def(p.xy,1,1);
-							Mat::mult(projection_invert,p,temp);
+							Mat::mult(projectionInvert,p,temp);
 							if (temp.w)
 								Vec::divide(temp.xyz,temp.w);
-							Mat::transform(view_invert,temp.xyz,result.corner[6]);
+							Mat::transform(viewInvert,temp.xyz,result.corner[6]);
 			Vec::def(p.xy,-1,1);
-							Mat::mult(projection_invert,p,temp);
+							Mat::mult(projectionInvert,p,temp);
 							if (temp.w)
 								Vec::divide(temp.xyz,temp.w);
-							Mat::transform(view_invert,temp.xyz,result.corner[7]);
+							Mat::transform(viewInvert,temp.xyz,result.corner[7]);
 
 			result.updateNormalsP();
 			result_ = result;
 		}
 
 template <class C>
-	MF_DECLARE (void) Aspect<C>::resolveVolume(Volume&result) const
+	MF_DECLARE (void) Aspect<C>::ResolveVolume(Volume&result) const
 	{
 		TVec4<C>	temp;
 
 		TVec4<C>	p = {-1,-1,-1,1};
-						Mat::mult(projection_invert,p,temp);
+						Mat::mult(projectionInvert,p,temp);
 						if (temp.w)
 							Vec::divide(temp.xyz,temp.w);
-						Mat::transform(view_invert,temp.xyz,result.corner[0]);
+						Mat::transform(viewInvert,temp.xyz,result.corner[0]);
 		Vec::def(p.xy,1,-1);
-						Mat::mult(projection_invert,p,temp);
+						Mat::mult(projectionInvert,p,temp);
 						if (temp.w)
 							Vec::divide(temp.xyz,temp.w);
-						Mat::transform(view_invert,temp.xyz,result.corner[1]);
+						Mat::transform(viewInvert,temp.xyz,result.corner[1]);
 		Vec::def(p.xy,1,1);
-						Mat::mult(projection_invert,p,temp);
+						Mat::mult(projectionInvert,p,temp);
 						if (temp.w)
 							Vec::divide(temp.xyz,temp.w);
-						Mat::transform(view_invert,temp.xyz,result.corner[2]);
+						Mat::transform(viewInvert,temp.xyz,result.corner[2]);
 		Vec::def(p.xy,-1,1);
-						Mat::mult(projection_invert,p,temp);
+						Mat::mult(projectionInvert,p,temp);
 						if (temp.w)
 							Vec::divide(temp.xyz,temp.w);
-						Mat::transform(view_invert,temp.xyz,result.corner[3]);
+						Mat::transform(viewInvert,temp.xyz,result.corner[3]);
 
 
 		Vec::def(p.xyz,-1,-1,1);
-						Mat::mult(projection_invert,p,temp);
+						Mat::mult(projectionInvert,p,temp);
 						if (temp.w)
 							Vec::divide(temp.xyz,temp.w);
-						Mat::transform(view_invert,temp.xyz,result.corner[4]);
+						Mat::transform(viewInvert,temp.xyz,result.corner[4]);
 		Vec::def(p.xy,1,-1);
-						Mat::mult(projection_invert,p,temp);
+						Mat::mult(projectionInvert,p,temp);
 						if (temp.w)
 							Vec::divide(temp.xyz,temp.w);
-						Mat::transform(view_invert,temp.xyz,result.corner[5]);
+						Mat::transform(viewInvert,temp.xyz,result.corner[5]);
 		Vec::def(p.xy,1,1);
-						Mat::mult(projection_invert,p,temp);
+						Mat::mult(projectionInvert,p,temp);
 						if (temp.w)
 							Vec::divide(temp.xyz,temp.w);
-						Mat::transform(view_invert,temp.xyz,result.corner[6]);
+						Mat::transform(viewInvert,temp.xyz,result.corner[6]);
 		Vec::def(p.xy,-1,1);
-						Mat::mult(projection_invert,p,temp);
+						Mat::mult(projectionInvert,p,temp);
 						if (temp.w)
 							Vec::divide(temp.xyz,temp.w);
-						Mat::transform(view_invert,temp.xyz,result.corner[7]);
+						Mat::transform(viewInvert,temp.xyz,result.corner[7]);
 
 		result.updateNormals();
 	}
@@ -628,11 +628,11 @@ template <class C> MF_CONSTRUCTOR OrthographicAspect<C>::OrthographicAspect(Visu
 {
 	Vec::clear(location);
 	Mat::eye(orientation);
-	depth_test = depthTest;
+	depthTest = depthTest;
 }
 
 
-MFUNC (void) OrthographicAspect<C>::make(const C&aspect, const C&zoom, const C&zNear, const C&zFar)
+MFUNC (void) OrthographicAspect<C>::UpdateProjection(const C&aspect, const C&zoom, const C&zNear, const C&zFar)
 {
 	C	scale = (C)1/(zFar-zNear),		//endless 0
 		offset = -(zNear+zFar)/2*scale,	//endless -0.5
@@ -642,25 +642,25 @@ MFUNC (void) OrthographicAspect<C>::make(const C&aspect, const C&zoom, const C&z
 	Vec::def(projection.y,	0,zoom,0,0);
 	Vec::def(projection.z,	0,0,-scale,0);
 	Vec::def(projection.w,	0,0,offset,1);
-	Mat::invert(projection,projection_invert);
+	Mat::invert(projection,projectionInvert);
 }
 
 template <class C>
-MFUNC2 (void) OrthographicAspect<C>::alterDepthRange(const C0&zNear, const C1&zFar)
+MFUNC2 (void) OrthographicAspect<C>::AlterDepthRange(const C0&zNear, const C1&zFar)
 {
 	projection.z.z = (C)-1/(zFar-zNear);
 	projection.w.z = (zNear+zFar)/2*projection[10];
-	Mat::invert(projection,projection_invert);
+	Mat::invert(projection,projectionInvert);
 }
 
 
 template <class C>
-MFUNC1 (void) OrthographicAspect<C>::make(const Rect<C0>&area, const C&zNear, const C&zFar)
+MFUNC1 (void) OrthographicAspect<C>::UpdateProjection(const Rect<C0>&area, const C&zNear, const C&zFar)
 {
-	make(area.left,area.bottom,area.right,area.top,zNear,zFar);
+	UpdateProjection(area.left,area.bottom,area.right,area.top,zNear,zFar);
 }
 
-MFUNC (void) OrthographicAspect<C>::make(const C&left, const C&bottom, const C&right, const C&top,const C&zNear, const C&zFar)
+MFUNC (void) OrthographicAspect<C>::UpdateProjection(const C&left, const C&bottom, const C&right, const C&top,const C&zNear, const C&zFar)
 {
 	C	xscale = (C)1/(right-left)*2,
 		yscale = (C)1/(top-bottom)*2,
@@ -675,26 +675,26 @@ MFUNC (void) OrthographicAspect<C>::make(const C&left, const C&bottom, const C&r
 	Vec::def(projection.w, xoffset,yoffset,zoffset,1);
 
 
-	Mat::invert(projection,projection_invert);
+	Mat::invert(projection,projectionInvert);
 }
 
 
 
-template <class C> MF_DECLARE (void) OrthographicAspect<C>::build()
+template <class C> MF_DECLARE (void) OrthographicAspect<C>::UpdateView()
 {
-	view_invert.x.xyz = orientation.x;
-	view_invert.y.xyz = orientation.y;
-	view_invert.z.xyz = orientation.z;
-	view_invert.w.xyz = location;
-	Mat::invertSystem(view_invert,view);
+	viewInvert.x.xyz = orientation.x;
+	viewInvert.y.xyz = orientation.y;
+	viewInvert.z.xyz = orientation.z;
+	viewInvert.w.xyz = location;
+	Mat::invertSystem(viewInvert,view);
 }
-template <class C> MF_DECLARE (void) OrthographicAspect<C>::buildScaled()
+template <class C> MF_DECLARE (void) OrthographicAspect<C>::UpdateScaledView()
 {
-	view_invert.x.xyz = orientation.x;
-	view_invert.y.xyz = orientation.y;
-	view_invert.z.xyz = orientation.z;
-	view_invert.w.xyz = location;
-	Mat::invert(view_invert,view);
+	viewInvert.x.xyz = orientation.x;
+	viewInvert.y.xyz = orientation.y;
+	viewInvert.z.xyz = orientation.z;
+	viewInvert.w.xyz = location;
+	Mat::invert(viewInvert,view);
 }
 
 
@@ -708,7 +708,7 @@ template <class C> MF_CONSTRUCTOR Camera<C>::Camera()
 	vfov = 90;
 }
 
-template <class C> MF_DECLARE (void) Camera<C>::make(const C&aspect, const C&zNear, const C&zFar, const C&vFov)
+template <class C> MF_DECLARE (void) Camera<C>::UpdateProjection(const C&aspect, const C&zNear, const C&zFar, const C&vFov)
 {
 	vfov = vFov;
 	C	extend = (C)1.0/vtan(vfov*M_PI/180/2),
@@ -718,11 +718,11 @@ template <class C> MF_DECLARE (void) Camera<C>::make(const C&aspect, const C&zNe
 	Vec::def(projection.y,	0,extend,0,0);
 	Vec::def(projection.z,	0,0,(C)((C)zNear+zFar)/((C)zNear-zFar),-1);	//endless -1, -1
 	Vec::def(projection.w,	0,0,(C)2.0*zNear*zFar/(zNear-zFar),0);	//endless 0
-	Mat::invert(projection,projection_invert);
+	Mat::invert(projection,projectionInvert);
 }
 
 template <class C>
-MFUNC2 (void) Camera<C>::extractDepthRange(C0&zNear, C1&zFar)	const
+MFUNC2 (void) Camera<C>::ExtractDepthRange(C0&zNear, C1&zFar)	const
 {
 	C	z0 = projection.z.z,	// = (zNear+zFar)/(zNear-zFar)
 		z1 = projection.w.z;	// = 2*zNear*zFar/(zNear-zFar)
@@ -758,17 +758,17 @@ MFUNC2 (void) Camera<C>::extractDepthRange(C0&zNear, C1&zFar)	const
 
 
 template <class C>
-MFUNC2 (void) Camera<C>::alterDepthRange(const C0&zNear, const C1&zFar)
+MFUNC2 (void) Camera<C>::AlterDepthRange(const C0&zNear, const C1&zFar)
 {
 	projection.z.z = (C)((C)zNear+zFar)/((C)zNear-zFar);
 	projection.w.z = (C)2.0*zNear*zFar/(zNear-zFar);
-	Mat::invert(projection,projection_invert);
+	Mat::invert(projection,projectionInvert);
 }
 
 
-template <class C> MF_DECLARE (void) Camera<C>::build()
+template <class C> MF_DECLARE (void) Camera<C>::UpdateView()
 {
-	if (GlobalAspectConfiguration::world_z_is_up)
+	if (GlobalAspectConfiguration::worldZIsUp)
 	{
 		view.x.xyz = orientation.x;
 		view.y.xyz = orientation.z;
@@ -787,54 +787,54 @@ template <class C> MF_DECLARE (void) Camera<C>::build()
 	Mat::rotate(view,location,temp);
 	Vec::subtract(view.w.xyz,temp);
 
-	Mat::invertSystem(view,view_invert);
+	Mat::invertSystem(view,viewInvert);
 }
 
 template <class C>
-	MF_DECLARE (TVec3<C>&)			Aspect<C>::viewingDirection()
+	MF_DECLARE (TVec3<C>&)			Aspect<C>::GetViewingDirection()
 	{
-		return view_invert.z.xyz;
+		return viewInvert.z.xyz;
 	}
 	
 template <class C>
-	MF_DECLARE (const TVec3<C>&)	Aspect<C>::viewingDirection()		const
+	MF_DECLARE (const TVec3<C>&)	Aspect<C>::GetViewingDirection()		const
 	{
-		return view_invert.z.xyz;
+		return viewInvert.z.xyz;
 	}
 
 template <class C>
-MFUNC3 (void) Camera<C>::translate(const C0&x, const C1&y, const C2&z)
+MFUNC3 (void) Camera<C>::Translate(const C0&x, const C1&y, const C2&z)
 {
 	TVec3<C>	vec = {x,y,z},out;
-	Mat::rotate(view_invert,vec,out);
+	Mat::Rotate(viewInvert,vec,out);
 	Vec::add(location,out);
-	Vec::add(view_invert.w.xyz,out);
+	Vec::add(viewInvert.w.xyz,out);
 	Vec::subtract(view.w.xyz,vec);
 }
 
 template <class C>
-MFUNC1 (void) Camera<C>::translate(const TVec3<C0>& delta)
+MFUNC1 (void) Camera<C>::Translate(const TVec3<C0>& delta)
 {
 	TVec3<C>	out;
-	Mat::rotate(view_invert,delta,out);
+	Mat::rotate(viewInvert,delta,out);
 	Vec::add(location,out);
-	Vec::add(view_invert.w.xyz,out);
+	Vec::add(viewInvert.w.xyz,out);
 	Vec::subtract(view.w.xyz,delta);
 }
 
 
 template <class C>
-MFUNC3 (void) Camera<C>::locate(const C0&x, const C1&y, const C2&z)
+MFUNC3 (void) Camera<C>::SetPosition(const C0&x, const C1&y, const C2&z)
 {
 	Vec::def(location,x,y,z);
-	build();
+	UpdateView();
 }
 
 template <class C>
-MFUNC1 (void) Camera<C>::locate(const TVec3<C0>&position)
+MFUNC1 (void) Camera<C>::SetPosition(const TVec3<C0>&position)
 {
 	Vec::copy(position,location);
-	build();			//could be removed
+	UpdateView();			//could be removed
 }
 
 template <class C> MF_CONSTRUCTOR AngularCamera<C>::AngularCamera()
@@ -842,12 +842,12 @@ template <class C> MF_CONSTRUCTOR AngularCamera<C>::AngularCamera()
 	Vec::clear(angle);
 }
 
-template <class C> MF_DECLARE (void) AngularCamera<C>::build()
+template <class C> MF_DECLARE (void) AngularCamera<C>::UpdateView()
 {
 	C	a0 = angle.x*M_PI/180,
 		a1 = angle.y*M_PI/180,
 		a2 = angle.z*M_PI/180;
-	if (GlobalAspectConfiguration::world_z_is_up)
+	if (GlobalAspectConfiguration::worldZIsUp)
 	{
 		swp(a1,a2);
 	}
@@ -874,45 +874,45 @@ template <class C> MF_DECLARE (void) AngularCamera<C>::build()
 
 
 	Mat::transpose(system,orientation);
-	Camera<C>::build();
+	Camera<C>::UpdateView();
 }
 
 template <class C>
-MFUNC3 (void) AngularCamera<C>::translatePlanar(const C0&x, const C1&y, const C2&z)
+MFUNC3 (void) AngularCamera<C>::TranslatePlanar(const C0&x, const C1&y, const C2&z)
 {
 	TVec3<C>	delta = {vcos(angle.y*M_PI/180)*x+vsin(angle.y*M_PI/180)*z,y,-vsin(angle.y*M_PI/180)*x+vcos(angle.y*M_PI/180)*z};
 	Vec::add(location,delta);
-	build(); //could be removed...
+	UpdateView(); //could be removed...
 }
 
 template <class C>
-MFUNC1 (void) AngularCamera<C>::translatePlanar(const TVec3<C0>&delta)
+MFUNC1 (void) AngularCamera<C>::TranslatePlanar(const TVec3<C0>&delta)
 {
-	translatePlanar(delta.x,delta.y,delta.z);
+	TranslatePlanar(delta.x,delta.y,delta.z);
 }
 
 template <class C>
-MFUNC3 (void) AngularCamera<C>::alterAngles(const C0&alpha, const C1&beta, const C2&gamma)
+MFUNC3 (void) AngularCamera<C>::AlterAngles(const C0&alpha, const C1&beta, const C2&gamma)
 {
 	angle.x += alpha;
 	angle.y += beta;
 	angle.z += gamma;
-	build();
+	UpdateView();
 }
 
 template <class C>
-MFUNC1 (void) AngularCamera<C>::lookAtPlanar(const TVec3<C0>&vector)
+MFUNC1 (void) AngularCamera<C>::LookAtPlanar(const TVec3<C0>&vector)
 {
 	angle.y = Vec::angle360(location.x-vector.x,location.z-vector.z);
-	build();
+	UpdateView();
 }
 
 template <class C>
-MFUNC1 (void) AngularCamera<C>::lookAt(const TVec3<C0>&vector)
+MFUNC1 (void) AngularCamera<C>::LookAt(const TVec3<C0>&vector)
 {
 	TVec3<C>	delta;
 	Vec::sub(location,vector,delta);
-	if (GlobalAspectConfiguration::world_z_is_up)
+	if (GlobalAspectConfiguration::worldZIsUp)
 	{
 		angle.z = 90.f + Vec::angle360(delta.x,delta.y);
 		angle.x = vatan2(delta.z,vsqrt(sqr(delta.x)+sqr(delta.y)))*(C)180/M_PI;
@@ -924,28 +924,28 @@ MFUNC1 (void) AngularCamera<C>::lookAt(const TVec3<C0>&vector)
 		angle.x = vatan2(delta.y,vsqrt(sqr(delta.x)+sqr(delta.z)))*(C)180/M_PI;
 		angle.z = 0;
 	}
-	build();
+	UpdateView();
 
-	//const TVec3<>&	view = viewingDirection();
+	//const TVec3<>&	view = GetViewingDirection();
 	//if (!Vec::similar(view,delta))
 	//	FATAL__("Expected similarity");
 }
 
 
 template <class C>
-MFUNC1 (void) AngularCamera<C>::alterAngles(const TVec3<C0>&delta)
+MFUNC1 (void) AngularCamera<C>::AlterAngles(const TVec3<C0>&delta)
 {
 	Vec::add(angle,delta);
-	build();
+	UpdateView();
 }
 
-template <class C> MF_DECLARE(VectorCamera<C>) AngularCamera<C>::toVectorCamera()
+template <class C> MF_DECLARE(VectorCamera<C>) AngularCamera<C>::ToVectorCamera()
 {
 	VectorCamera<C> result(*this);
 	result.direction = system.z;
 	result.upAxis = system.y;
 
-	if (GlobalAspectConfiguration::world_z_is_up)
+	if (GlobalAspectConfiguration::worldZIsUp)
 	{
 		result.direction.z =-result.direction.z;
 		std::swap(result.direction.y,result.direction.z);
@@ -973,34 +973,34 @@ template <class C> MF_CONSTRUCTOR VectorCamera<C>::VectorCamera()
 }
 
 template <class C>
-MFUNC3 (void) VectorCamera<C>::translatePlanar(const C0&x, const C1&y, const C2&z)
+MFUNC3 (void) VectorCamera<C>::TranslatePlanar(const C0&x, const C1&y, const C2&z)
 {
 	TVec3<C>	temp = {x,y,z};
-	translatePlanar(temp);
+	TranslatePlanar(temp);
 }
 
 template <class C>
-MFUNC1 (void) VectorCamera<C>::translatePlanar(const TVec3<C0>&delta)
+MFUNC1 (void) VectorCamera<C>::TranslatePlanar(const TVec3<C0>&delta)
 {
 	TVec3<C>	temp0,temp1;
 	Mat::mult(vsystem,delta,temp0);
 	Mat::rotate(view,temp0,temp1);
 	Vec::add(location,temp1);
 	view.w.xyz = location;
-	Mat::invertSystem(view,view_invert);
+	Mat::invertSystem(view,viewInvert);
 }
 
 template <class C>
-MFUNC2 (void) VectorCamera<C>::align(const TVec3<C0>&dir, const TVec3<C1>&vert)
+MFUNC2 (void) VectorCamera<C>::Align(const TVec3<C0>&dir, const TVec3<C1>&vert)
 {
 	Vec::copy(dir,direction);
 	Vec::copy(vert,upAxis);
-	build();
+	UpdateView();
 }
 
 
 template <class C>
-	MF_DECLARE (void) VectorCamera<C>::adjustUpAxis()
+	MF_DECLARE (void) VectorCamera<C>::AdjustUpAxis()
 	{
 		TVec3<C>	n0,n1;
 		Vec::cross(direction,upAxis,n0);
@@ -1014,19 +1014,19 @@ template <class C>
 
 template <class C>
 	template <typename T>
-		MF_DECLARE (void) VectorCamera<C>::setDirection(const TVec3<T>&d, bool do_build)
+		MF_DECLARE (void) VectorCamera<C>::SetDirection(const TVec3<T>&d, bool doUpdate)
 		{
 			Vec::copy(d,direction);
 			/*C	intensity = vabs(_intensity(upAxis,direction));
 			if (intensity > 0.9)
-				adjustUpAxis();*/
-			if (do_build)
-				build();
+				AdjustUpAxis();*/
+			if (doUpdate)
+				UpdateView();
 		}
 
 template <class C>
 	template <typename T>
-		MF_DECLARE (void) VectorCamera<C>::setUpAxis(const TVec3<T>&v,bool do_build)
+		MF_DECLARE (void) VectorCamera<C>::SetUpAxis(const TVec3<T>&v,bool doUpdate)
 		{
 			Vec::copy(v,upAxis);
 			/*C	intensity = vabs(_intensity(v,direction));
@@ -1034,13 +1034,13 @@ template <class C>
 				return;*/
 			/*if (intensity>0.9)
 				adjustVertical();*/
-			if (do_build)
-				build();
+			if (doUpdate)
+				UpdateView();
 		}
 
-template <class C> MF_DECLARE (void) VectorCamera<C>::build()
+template <class C> MF_DECLARE (void) VectorCamera<C>::UpdateView()
 {
-	if (GlobalAspectConfiguration::world_z_is_up)
+	if (GlobalAspectConfiguration::worldZIsUp)
 	{
 		TVec3<C> direction = this->direction;
 		TVec3<C> upAxis = this->upAxis;
@@ -1072,11 +1072,11 @@ template <class C> MF_DECLARE (void) VectorCamera<C>::build()
 	Vec::normalize(system.z);
 
 	Mat::transpose(system,orientation);
-	Camera<C>::build();
+	Camera<C>::UpdateView();
 }
 
 template <class C>
-MFUNC2 (void) VectorCamera<C>::rotatePlanar(const C0&alpha, const C1&beta)
+MFUNC2 (void) VectorCamera<C>::RotatePlanar(const C0&alpha, const C1&beta)
 {
 	TVec3<C>	axis0;
 	TMatrix3<C>	matrix,temp;
@@ -1093,11 +1093,11 @@ MFUNC2 (void) VectorCamera<C>::rotatePlanar(const C0&alpha, const C1&beta)
 	//__mult3(matrix,temp,orientation);
 	
 	
-	build();
+	UpdateView();
 }
 
 template <class C>
-MFUNC1 (void) VectorCamera<C>::rotateDirectional(const C0&alpha, bool rebuild)
+MFUNC1 (void) VectorCamera<C>::RotateDirectional(const C0&alpha, bool rebuild)
 {
 	TMatrix3<C>		matrix,tempm;
 	TVec3<C>		v=direction;
@@ -1109,10 +1109,10 @@ MFUNC1 (void) VectorCamera<C>::rotateDirectional(const C0&alpha, bool rebuild)
 	//__mult3(matrix,orientation,tempm);
 	//_c9(tempm,orientation);
 	if (rebuild)
-		build();
+		UpdateView();
 }
 
-template <class C> MF_DECLARE (AngularCamera<C>) VectorCamera<C>::toAngularCamera()
+template <class C> MF_DECLARE (AngularCamera<C>) VectorCamera<C>::ToAngularCamera()
 {
 //tbc - complicated ...
 

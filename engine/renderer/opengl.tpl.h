@@ -852,9 +852,9 @@ namespace Engine
 	    glDepthMask(mask);
 	}
 
-	inline	void OpenGL::setDepthTest(eDepthTest depth_test)
+	inline	void OpenGL::setDepthTest(eDepthTest depthTest)
 	{
-		switch (depth_test)
+		switch (depthTest)
 		{
 			case NoDepthTest:
 				glDisable(GL_DEPTH_TEST);

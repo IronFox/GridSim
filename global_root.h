@@ -210,7 +210,7 @@ SYSTEM specifies the general system (eg. UNIX) while SYSTEM_VARIANCE characteriz
     #include "general/memory_shield.h"
 
 
-    #define SHIELD                      mem_shield.locate(__FILE__,__func__,__LINE__)
+    #define SHIELD                      mem_shield.SetPosition(__FILE__,__func__,__LINE__)
 
     #define DISCARD(item)               {SHIELD.release(item); delete item;}
     #define DISCARD_ARRAY(item)         {SHIELD.release(item); delete[] item;}
@@ -347,7 +347,7 @@ gcc-error-messages and what they mean:
     :exchange '.' with '->' or the other way around.
 
 * passing `const x' as `this' argument of `y' discards qualifiers
-    :make function y non const
+    :UpdateProjection function y non const
 
 
 */

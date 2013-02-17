@@ -1388,7 +1388,8 @@ namespace Engine
 	template <class C0>
 	void Scenery<GL,Def>::resolve(const Aspect<C0>&aspect)
 	{
-		const Frustum<C0>&volume = aspect.resolveVolume();
+		Frustum<C0> volume;
+		aspect.ResolveVolume(volume);
 		
 
 	    //C0   matrix[16],path[16],cage[8][4],box0[3]={-1,-1,-1},box1[3]={1,1,1},center[3],lower[3],upper[3];
@@ -2513,7 +2514,8 @@ namespace Engine
 					}
 				return;
 			}
-			const Frustum<C0>&volume = aspect.resolveVolume();
+			Frustum<C0> volume;
+			aspect.ResolveVolume(volume);
 			
 
 		    //C0   matrix[16],path[16],cage[8][4],box0[3]={-1,-1,-1},box1[3]={1,1,1},center[3],lower[3],upper[3];

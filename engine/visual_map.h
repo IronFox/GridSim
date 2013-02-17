@@ -189,9 +189,9 @@ namespace Engine
 					The flare sprites will be rendered additive, meaning they will sum up with underlieing sprites or light geometry.
 					This method should be called with depth test disabled.
 					
-					\param pixel_aspect Pixel aspect of the current rendering region
+					\param pixelAspect Pixel aspect of the current rendering region
 				*/
-				void							renderFlares(float pixel_aspect);
+				void							renderFlares(float pixelAspect);
 				
 		};
 		

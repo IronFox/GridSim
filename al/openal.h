@@ -90,8 +90,10 @@ namespace OpenAL
 		inline void		GetVelocity(TVec3<>&velocityOut)	const	{getVelocity(velocityOut);}
 		void			locate(float x, float y, float z, bool relative=false);
 		inline void		Locate(float x, float y, float z, bool relative=false)	{locate(x,y,z,relative);}
+		inline void		SetPosition(float x, float y, float z, bool relative=false)	{locate(x,y,z,relative);}
 		void			locate(const TVec3<>&position, bool relative=false);
 		inline void		Locate(const TVec3<>&position, bool relative=false)	{locate(position,relative);}
+		inline void		SetPosition(const TVec3<>&position, bool relative=false)	{locate(position,relative);}
 		void			getLocation(TVec3<>&position_out);
 		inline void		GetLocation(TVec3<>&positionOut)	{getLocation(positionOut);}
 		void			getPosition(TVec3<>&position_out);

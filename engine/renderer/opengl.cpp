@@ -1664,7 +1664,7 @@ namespace Engine
 	
 	#endif
 	
-	bool OpenGL::queryBegin(bool depth_test)
+	bool OpenGL::queryBegin(bool depthTest)
 	{
 		GL_BEGIN
 		state.in_query = glBeginQuery!=NULL;
@@ -1684,7 +1684,7 @@ namespace Engine
 		glDisable(GL_BLEND);
 		glColorMask(GL_FALSE,GL_FALSE,GL_FALSE,GL_FALSE);
 		glDepthMask(GL_FALSE);
-		if (depth_test)
+		if (depthTest)
 			glEnable(GL_DEPTH_TEST);
 		else
 			glDisable(GL_DEPTH_TEST);
@@ -2017,7 +2017,7 @@ namespace Engine
 	                config.auxiliary_buffer_bits,       //auxiliary_buffer_bits (whatever that buffer can be used for)
 	                0/*PFD_MAIN_PLANE*/,                     //draw to first layer only (would need to enable PFD_SWAP_LAYER_BUFFERS to use multible layers)
 	                0,                                  //reserved (for whatever)
-	                0,0,0                               //"Layer-Masks ignored" - maybe this is to reduce the ammount of colors displayed... would make sense somehow - each bit ignored would half the number
+	                0,0,0                               //"Layer-Masks ignored" - maybe this is to reduce the ammount of colors displayed... would UpdateProjection sense somehow - each bit ignored would half the number
 	            };
 	            GLint PixelFormat;
 	            device_context = GetDC(window);
@@ -2138,7 +2138,7 @@ namespace Engine
 			}
 			glViewport(0,0,width,height);
 
-		   // pixel_aspect = window_context.pixelAspectf(width,height);
+		   // pixelAspect = window_context.pixelAspectf(width,height);
 			initDefaultExtensions();
 		    initGL();
 			return window;
@@ -2176,7 +2176,7 @@ namespace Engine
 				config.auxiliary_buffer_bits,		//auxiliary_buffer_bits (whatever that buffer can be used for)
 				0/*PFD_MAIN_PLANE*/,						//draw to first layer only (would need to enable PFD_SWAP_LAYER_BUFFERS to use multible layers)
 				0,									//reserved (for whatever)
-				0,0,0								//"Layer-Masks ignored" - maybe this is to reduce the ammount of colors displayed... would make sense somehow - each bit ignored would half the number
+				0,0,0								//"Layer-Masks ignored" - maybe this is to reduce the ammount of colors displayed... would UpdateProjection sense somehow - each bit ignored would half the number
 			};
 			GLint PixelFormat;
 			device_context = GetDC(hWnd);

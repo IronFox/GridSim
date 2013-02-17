@@ -328,11 +328,11 @@ void	Engine::ConsoleWindow::onPaint()
 	double now = timer.toSecondsd(timer.now());
 	unsigned	width = clientWidth(),
 				height = clientHeight();
-	aspect.make(	0,0,		//create the internal overlay (hud) projection matrix using 0,0 as lower left corner
+	aspect.UpdateProjection(	0,0,		//create the internal overlay (hud) projection matrix using 0,0 as lower left corner
 				width,height,		//1,1 as upper right corner
 				-1,			//-1 as near z plane
 				1);			//1 as far z plane
-	aspect.build();
+	aspect.UpdateView();
 	//self->pick(self->aspect);
 	glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
@@ -528,11 +528,11 @@ void	Engine::ConsoleWindow::init()
 
 	input_handler = NULL;
 
-	aspect.make(	0,0,		//create the internal overlay (hud) projection matrix using 0,0 as lower left corner
+	aspect.UpdateProjection(	0,0,		//create the internal overlay (hud) projection matrix using 0,0 as lower left corner
 				Window::clientWidth(),Window::clientHeight(),		//1,1 as upper right corner
 				-1,			//-1 as near z plane
 				1);			//1 as far z plane
-	aspect.build();
+	aspect.UpdateView();
 
 
 	context = "console";

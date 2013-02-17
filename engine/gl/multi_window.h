@@ -360,9 +360,9 @@ namespace Engine
 		void					updateIfRequired();
 		void					destroy();
 		bool					remake();
-		bool					make(const String&name);
-		bool					make(int x, int y, int width, int height, const String&name);
-		bool					make(int x, int y, int width, int height, const String&name, const Engine::TVisualConfig&config);
+		bool					UpdateProjection(const String&name);
+		bool					UpdateProjection(int x, int y, int width, int height, const String&name);
+		bool					UpdateProjection(int x, int y, int width, int height, const String&name, const Engine::TVisualConfig&config);
 		bool					makeAsChild(const Window&parent, const String&name);
 		bool					makeAsChild(const Window&parent, int x, int y, int width, int height, const String&name);
 		bool					makeAsChild(const Window&parent, int x, int y, int width, int height, const String&name, const Engine::TVisualConfig&config);

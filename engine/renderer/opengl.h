@@ -974,7 +974,7 @@ namespace Engine
 						void						updateLighting(bool force=false);	//!< Completely refreshs the current lighting scenery
 						
 
-		static			bool						queryBegin(bool depth_test=true);											//!< Set up query environment (disable rendering etc.) \param depth_test if set true then rendered pixels may be occluded by objects \return true if the query-environment could be set up
+		static			bool						queryBegin(bool depthTest=true);											//!< Set up query environment (disable rendering etc.) \param depthTest if set true then rendered pixels may be occluded by objects \return true if the query-environment could be set up
 		static			void						queryEnd();																//!< Ends querying and returns the original state.
 		static			void						castQuery(const Query&query);										//!< Renders the linked object. To extract the number of pixels on the screen call resolveObjectSize(const OpenGL::QueryObject&) \param query Handle of the respective query object
 		static			void						castPointQuery(const Query&query, const TVec3<>&point);				//!< Dynamically renders one point. To extract the number of pixels on the screen call resolveObjectSize(const OpenGL::QueryObject&) \param query Handle of the respective query object \param point Pointer to a location array in R
@@ -985,7 +985,7 @@ namespace Engine
 		static inline	void						cullAll();			//!< Sets face cull mode to all (no faces will be rendered)
 		static inline	void						cullNone();		//!< Sets face cull mode to none (all faces will be rendered)
 		static inline	void						depthMask(bool mask);	//!< Sets depth mask
-		static inline	void						setDepthTest(eDepthTest depth_test);	//!< Sets depth test to use
+		static inline	void						setDepthTest(eDepthTest depthTest);	//!< Sets depth test to use
 
 		static inline	void						setDefaultBlendFunc();	//!< Sets default alpha blend function
 		static inline	void						setDefaultBlendMode();	//!< Sets default alpha blend function

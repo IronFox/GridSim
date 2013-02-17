@@ -35,7 +35,7 @@ namespace Flare
 	void			map(const Camera<float>&camera, bool check_occlusion, bool (*isOccluded)(const Engine::Light*))
 	{
 		float zNear,zFar;
-		camera.extractDepthRange(zNear,zFar);
+		camera.ExtractDepthRange(zNear,zFar);
 		
 		float barrier = zNear + (zFar-zNear)*0.99;
 		
@@ -85,34 +85,34 @@ namespace Flare
 				switch (light->getType())
 				{
 					case Light::Omni:
-						info->clipped = !camera.pointToScreen(light->getPosition(),info->projected);
+						info->clipped = !camera.PointToScreen(light->getPosition(),info->projected);
 						info->intensity = 1;
-						info->distance = Vec::distance(camera.absoluteLocation(),light->getPosition());
+						info->distance = Vec::distance(camera.GetAbsoluteLocation(),light->getPosition());
 						sample_point = light->getPosition();
 					break;
 					case Light::Direct:
 					{
-						info->clipped = !camera.vectorToScreen(light->getPosition(),info->projected);	//the direction of a direct light is actually the position. But it's a direction, not a point
+						info->clipped = !camera.VectorToScreen(light->getPosition(),info->projected);	//the direction of a direct light is actually the position. But it's a direction, not a point
 						info->intensity = 1;
 						info->distance = 0.5*info->size;
 						if (!info->clipped)
 						{
-							Vec::mad(camera.absoluteLocation(),light->getPosition(),barrier,sample_point);
+							Vec::mad(camera.GetAbsoluteLocation(),light->getPosition(),barrier,sample_point);
 							/*float projected[3];
 							_c2(info->projected,projected);
 							projected[2] = 0.95;
-							camera.reverseProject(projected,sample_point);*/
-							//ShowMessage(_distance(sample_point,camera.absoluteLocation()));
+							camera.ReverseProject(projected,sample_point);*/
+							//ShowMessage(_distance(sample_point,camera.GetAbsoluteLocation()));
 						}
 					}
 					break;
 					case Light::Spot:
 					{
 						TVec3<> projected_direction;
-						info->clipped = !camera.pointToScreen(light->getPosition(),info->projected);
+						info->clipped = !camera.PointToScreen(light->getPosition(),info->projected);
 						Mat::rotate(camera.view,light->getSpotDirection(),projected_direction);
 						info->intensity = vpow(vmax(projected_direction.z,0),light->getSpotExponent());
-						info->distance = Vec::distance(camera.absoluteLocation(),light->getPosition());
+						info->distance = Vec::distance(camera.GetAbsoluteLocation(),light->getPosition());
 						sample_point = light->getPosition();
 					}
 					break;
@@ -144,7 +144,7 @@ namespace Flare
 	void			recheckOcclusion(const Camera<>&camera)
 	{
 		float zNear,zFar;
-		camera.extractDepthRange(zNear,zFar);
+		camera.ExtractDepthRange(zNear,zFar);
 		
 		float barrier = zNear + (zFar-zNear)*0.99;
 		
@@ -174,7 +174,7 @@ namespace Flare
 					sample_point = light->getPosition();
 				break;
 				case Light::Direct:
-					Vec::mad(camera.absoluteLocation(),light->getPosition(),barrier,sample_point);
+					Vec::mad(camera.GetAbsoluteLocation(),light->getPosition(),barrier,sample_point);
 				break;
 				case Light::Spot:
 					sample_point = light->getPosition();
@@ -258,7 +258,7 @@ namespace Flare
 		_addValue2(at,1);
 		_div2(at,2);
 		display.useTexture(texture);
-		float	w = size/display.pixel_aspect,
+		float	w = size/display.pixelAspect(),
 				h = size;
 		glWhite(intensity*sun_intensity);
 		glBegin(GL_QUADS);
@@ -291,7 +291,7 @@ namespace Flare
 		_addValue2(at,1);
 		_div2(at,2);
 		display.useTexture(texture);
-		float	w = size/display.pixel_aspect,
+		float	w = size/display.pixelAspect(),
 				h = size;
 		glColor4f(r,g,b,a*sun_intensity);
 		glBegin(GL_QUADS);
@@ -596,10 +596,10 @@ namespace Flare
 			{
 				case Light::Omni:
 				case Light::Spot:
-					camera.pointToScreen(light->getPosition(),info->projected);
+					camera.PointToScreen(light->getPosition(),info->projected);
 				break;
 				case Light::Direct:
-					camera.vectorToScreen(light->getPosition(),info->projected);	//the direction of a direct light is actually the position. But it's a direction, not a point
+					camera.VectorToScreen(light->getPosition(),info->projected);	//the direction of a direct light is actually the position. But it's a direction, not a point
 				break;
 			}
 		}

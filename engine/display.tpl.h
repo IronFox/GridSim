@@ -771,7 +771,7 @@ namespace Engine
 	{
 	    if (!region_locked)
 	        GL::setRegion(transform(aspect.region));
-		if (GlobalAspectConfiguration::load_as_projection)
+		if (GlobalAspectConfiguration::loadAsProjection)
 		{
 			TMatrix4<>	view_projection;
 			Mat::mult(aspect.projection,aspect.view,view_projection);
@@ -783,11 +783,11 @@ namespace Engine
 			GL::loadModelview(aspect.view);
 			GL::loadProjection(aspect.projection);
 		}
-		GL::setDepthTest(aspect.depth_test);
-		environment_matrix.x.xyz = aspect.view_invert.x.xyz;
-		environment_matrix.y.xyz = aspect.view_invert.y.xyz;
-		environment_matrix.z.xyz = aspect.view_invert.z.xyz;
-		camera_location = aspect.view_invert.w.xyz;
+		GL::setDepthTest(aspect.depthTest);
+		environment_matrix.x.xyz = aspect.viewInvert.x.xyz;
+		environment_matrix.y.xyz = aspect.viewInvert.y.xyz;
+		environment_matrix.z.xyz = aspect.viewInvert.z.xyz;
+		camera_location = aspect.viewInvert.w.xyz;
 	}
 
 	template <class GL>
@@ -801,14 +801,24 @@ namespace Engine
 		view.z = aspect.view.z;
 	    Vec::def(view.w,0,0,0,1);
 
-	    GL::loadModelview(view);
-	    GL::loadProjection(aspect.projection);
-		GL::setDepthTest(aspect.depth_test);
+		if (GlobalAspectConfiguration::loadAsProjection)
+		{
+			TMatrix4<>	view_projection;
+			Mat::mult(aspect.projection,view,view_projection);
+			GL::loadModelview(Matrix<>::eye4);
+			GL::loadProjection(view_projection);
+		}
+		else
+		{
+			GL::loadModelview(view);
+			GL::loadProjection(aspect.projection);
+		}
+		GL::setDepthTest(aspect.depthTest);
 
-		environment_matrix.x.xyz = aspect.view_invert.x.xyz;
-		environment_matrix.y.xyz = aspect.view_invert.y.xyz;
-		environment_matrix.z.xyz = aspect.view_invert.z.xyz;
-		camera_location = aspect.view_invert.w.xyz;
+		environment_matrix.x.xyz = aspect.viewInvert.x.xyz;
+		environment_matrix.y.xyz = aspect.viewInvert.y.xyz;
+		environment_matrix.z.xyz = aspect.viewInvert.z.xyz;
+		camera_location = aspect.viewInvert.w.xyz;
 	}
 
 	template <class GL>
@@ -824,8 +834,8 @@ namespace Engine
 			framebuffer_bound = true;
 	        target_buffer_resolution = pobj.size();
 			framebuffer_alpha = pobj.primaryHasAlpha();
-	        //pixel_aspect = current_target_resolution.aspect();
-			//ShowMessage("pbuffer bound. region is "+String(region_size.x)+", "+String(region_size.y)+". aspect is "+String(pixel_aspect));
+	        //pixelAspect = current_target_resolution.aspect();
+			//ShowMessage("pbuffer bound. region is "+String(region_size.x)+", "+String(region_size.y)+". aspect is "+String(pixelAspect));
 	        return true;
 	    }
 	    unbindFrameBuffer();
@@ -844,7 +854,7 @@ namespace Engine
 	    //current_target_resolution = window_client_resolution;
 		//const RECT&window = context.windowLocation();
 		/*GL::setRegion(rect(0,0,window.right-window.left,window.bottom-window.top));*/	//so if i set region here everything goes boom..... guess stranger things happen
-		//ShowMessage("pbuffer unbound. region is "+String(region_size.x)+", "+String(region_size.y)+". aspect is "+String(pixel_aspect));
+		//ShowMessage("pbuffer unbound. region is "+String(region_size.x)+", "+String(region_size.y)+". aspect is "+String(pixelAspect));
 	}
 
 
