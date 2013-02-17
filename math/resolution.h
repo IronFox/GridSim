@@ -41,6 +41,12 @@ public:
 									{
 										return Resolution(std::max<UINT32>(1,width/div),std::max<UINT32>(1,height/div));
 									}
+		Resolution&					operator/=(int div)
+									{
+										width = std::max<UINT32>(1,width/div);
+										height = std::max<UINT32>(1,height/div);
+										return *this;
+									}
 
 };
 
