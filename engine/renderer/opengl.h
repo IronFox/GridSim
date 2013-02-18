@@ -931,6 +931,7 @@ namespace Engine
 
 
 	public:
+		static			void				BuildMipMaps(const GL::FBO&, unsigned target, const GLShader::Instance&mipMapShader);
 
 	/*thread-safe methods are:
 		all textureObject/discardTexture-methods

@@ -1114,6 +1114,11 @@
 					@param format Pointer to a field of internal formats to use for the texture targets
 				*/
 		static	TFrameBuffer	createFrameBuffer(const Resolution&res, DepthStorage depth_storage, BYTE num_color_targets, const GLenum*format);
+		/**
+		@brief Tests the currently bound frame buffer for frame-buffer-complete status
+		A fatal exception is raised if the frame buffer is not frame-buffer-complete.
+		*/
+		static	bool			TestCurrentFrameBuffer();
 
 				/**
 					@brief Frees all associated data and resets all internal variables

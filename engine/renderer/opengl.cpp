@@ -1207,7 +1207,78 @@ namespace Engine
 			glXMakeCurrent(OpenGL::created_contexts.first().display,None,NULL);
 		#endif
 	}
-	
+
+
+	/*static*/ void	OpenGL::BuildMipMaps(const GL::FBO&fbo, unsigned target, const GLShader::Instance&mipMapShader)
+	{
+		ASSERT_LESS__(target, 4);
+		const GLuint texHandle = fbo.config.color_target[target].texture_handle;
+		const GLenum texFormat = fbo.config.color_target[target].texture_format;
+		ASSERT__(texHandle != 0);
+		
+		glDisable(GL_BLEND);
+		glDisable(GL_CULL_FACE);
+		glDisable(GL_DEPTH_TEST);
+		glDisable(GL_ALPHA_TEST);
+		glColorMask(true,true,true,true);
+
+		glGetError();
+		static GLuint	subFBO = 0;
+		if (!subFBO)
+		{
+			GLenum status;
+			
+			ASSERT__(glGenFramebuffers);
+
+			glGenFramebuffers( 1, &subFBO );
+		}
+
+		glBindFramebuffer(GL_FRAMEBUFFER, subFBO);
+		GLenum	draw_buffers[GL_MAX_COLOR_ATTACHMENTS] = {GL_COLOR_ATTACHMENT0};
+		glDrawBuffers(1,draw_buffers);
+
+		glEnable(GL_TEXTURE_2D);
+		glBindTexture(GL_TEXTURE_2D,texHandle);
+		ASSERT__(mipMapShader.install());
+
+		Resolution res = fbo.GetResolution();
+		unsigned layer = 0;
+		do
+		{
+			float sx = 1.f / float(res.width);
+			float sy = 1.f / float(res.height);
+			
+			res/= 2;
+			layer++;
+			glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_BASE_LEVEL,layer-1);
+			glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAX_LEVEL,layer-1);
+			glTexImage2D(GL_TEXTURE_2D,layer,texFormat,res.width,res.height,0,GL_RGBA,GL_BYTE,NULL);
+			glFramebufferTexture2D( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texHandle, layer );
+			glViewport(0,0,res.width,res.height);
+			//glClearColor(0,1,0,1);
+			//glClear(GL_COLOR_BUFFER_BIT);
+
+			gl_extensions.TestCurrentFrameBuffer();
+
+			glBegin(GL_QUADS);
+				glTexCoord4f(0,0, sx, sy);	glVertex2f(-1,-1);
+				glTexCoord4f(1,0, sx, sy);	glVertex2f(1,-1);
+				glTexCoord4f(1,1, sx, sy);	glVertex2f(1,1);
+				glTexCoord4f(0,1, sx, sy);	glVertex2f(-1,1);
+			glEnd();
+			glThrowError();
+		}
+		while (res.width > 1 || res.height > 1);
+		
+		mipMapShader.uninstall();
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_BASE_LEVEL,0);
+		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAX_LEVEL,1000);
+		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
+		glBindTexture(GL_TEXTURE_2D,0);
+		glDisable(GL_TEXTURE_2D);
+		glThrowError();
+	}
 	
 
 	void	OpenGL::capture(Image&target)

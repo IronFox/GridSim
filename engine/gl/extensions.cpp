@@ -2265,6 +2265,7 @@ namespace Engine
 									<< '{'<<nl
 									<< shadow_attachments[i].fragment_shadow_code
 									<< '}'<<nl;
+							FATAL__("Unsupported");
 						}
 					for (index_t i = shadow_attachments.count(); i < render_config.lights.fillLevel(); i++)
 							buffer << "float fragmentShadow"<<i<<"(vec3 position)"<<nl
@@ -2272,14 +2273,14 @@ namespace Engine
 									<< "return 1.0;"<<nl
 									<< '}'<<nl;
 
-					buffer << nl << "void vertexShadow()\n{\n";
-					for (index_t i = 0; i < shadow_attachments.size(); i++)
-						if (!shadow_attachments[i].isEmpty())
-						{
-							if (shadow_attachments[i].vertex_shader_attachment.isNotEmpty())
-								buffer << shadow_attachments[i].vertex_shader_attachment<<nl;
-						}
-					buffer << "}\n";
+					//buffer << nl << "void vertexShadow()\n{\n";
+					//for (index_t i = 0; i < shadow_attachments.size(); i++)
+					//	if (!shadow_attachments[i].isEmpty())
+					//	{
+					//		if (shadow_attachments[i].vertex_shader_attachment.isNotEmpty())
+					//			buffer << shadow_attachments[i].vertex_shader_attachment<<nl;
+					//	}
+					//buffer << "}\n";
 				}
 				if (shade_invoked)
 				{
@@ -3351,6 +3352,40 @@ namespace Engine
 	#endif
 
 
+	/*static*/ bool			Extension::TestCurrentFrameBuffer()
+	{
+		GLenum status = glCheckFramebufferStatus( GL_FRAMEBUFFER );
+		if (status == GL_FRAMEBUFFER_COMPLETE_EXT)
+			return true;
+		const char* error = "Undescribed and/or unsupported error";
+		switch (status)
+		{
+			case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
+				error = "Not all framebuffer attachment points are framebuffer attachment complete.";
+			break;
+			case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT:
+				error = "Not all attached images have the same width and height.";
+			break;
+			case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:
+				error = "Draw buffer is incomplete.";
+			break;
+			case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER:
+				error = "Read buffer is incomplete.";
+			break;
+			case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
+				error = "No images are attached to the framebuffer.";
+			break;
+			case GL_FRAMEBUFFER_UNSUPPORTED:
+				error = "The combination of internal formats of the attached images violates an implementation-dependent set of restrictions.";
+			break;
+                    
+			default:
+			break;
+		}
+		FATAL__("Frame buffer construction failed: OpenGL reports: \""+String(error)+"\"");
+		return false;
+					
+	}
 
 	
 
@@ -3450,41 +3485,14 @@ namespace Engine
 	
 					}
 
-					
-					status = glCheckFramebufferStatus( GL_FRAMEBUFFER );
-					if (status != GL_FRAMEBUFFER_COMPLETE_EXT)
+					if (!TestCurrentFrameBuffer())
 					{
-						const char* error = "Undescribed and/or unsupported error";
-						switch (status)
-						{
-							case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
-								error = "Not all framebuffer attachment points are framebuffer attachment complete.";
-							break;
-							case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT:
-								error = "Not all attached images have the same width and height.";
-							break;
-							case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:
-								error = "Draw buffer is incomplete.";
-							break;
-							case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER:
-								error = "Read buffer is incomplete.";
-							break;
-							case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
-								error = "No images are attached to the framebuffer.";
-							break;
-							case GL_FRAMEBUFFER_UNSUPPORTED:
-								error = "The combination of internal formats of the attached images violates an implementation-dependent set of restrictions.";
-							break;
-                    
-							default:
-							break;
-						}
-						FATAL__("Frame buffer construction failed: OpenGL reports: \""+String(error)+"\"");
+						glBindFramebuffer(GL_FRAMEBUFFER, 0);
 						destroyFrameBuffer(result);
+						result.frame_buffer = 0;
 						return result;
 					}					
-					glBindFramebuffer(GL_FRAMEBUFFER, 0);
-					
+
 			}
 		#endif
 		return result;
