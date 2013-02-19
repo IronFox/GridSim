@@ -624,11 +624,10 @@ template <class C> MF_DECLARE (String) Aspect<C>::toString() const
 
 
 
-template <class C> MF_CONSTRUCTOR OrthographicAspect<C>::OrthographicAspect(VisualEnum::eDepthTest depthTest /*= VisualEnum::NoDepthTest*/)
+template <class C> MF_CONSTRUCTOR OrthographicAspect<C>::OrthographicAspect(VisualEnum::eDepthTest depthTest /*= VisualEnum::NoDepthTest*/):Aspect<C>(depthTest)
 {
 	Vec::clear(location);
 	Mat::eye(orientation);
-	depthTest = depthTest;
 }
 
 

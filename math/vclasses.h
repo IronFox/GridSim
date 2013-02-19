@@ -194,7 +194,8 @@ namespace Math
 
 		MF_CONSTRUCTOR					Vec4();
 		MF_CONSTRUCTOR					Vec4(const C&value);
-		MF_CONSTRUCTOR3					Vec4(const TVec2<C0>&other,const C1&z, const C2&w);
+		MF_CONSTRUCTOR3					Vec4(const TVec2<C0>&xy,const C1&z, const C2&w);
+		MF_CONSTRUCTOR2					Vec4(const TVec2<C0>&xy,const TVec2<C1>&zw);
 		MF_CONSTRUCTOR2					Vec4(const TVec3<C0>&other, const C1&w);
 		MF_CONSTRUCTOR1					Vec4(const TVec4<C0>&other);
 		MF_CONSTRUCTOR4					Vec4(const C0&x, const C1&y, const C2&z, const C3&a);

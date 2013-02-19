@@ -1446,7 +1446,7 @@ namespace Engine
 				{
 					std::cout << "unable to locate uniform variable '"<<name<<"'."<<std::endl;
 					__debugbreak();
-					ErrMessage("unable to locate uniform variable '"+name+"'.");
+					//ErrMessage("unable to locate uniform variable '"+name+"'.");
 				}
 				else
 					log << nl<<"Unable to locate uniform variable '"<<name<<"'"<<nl;
