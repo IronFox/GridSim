@@ -2,6 +2,7 @@
 #define gl_gui_componentsH
 
 #include "gui.h"
+#undef GetObject
 
 namespace Engine
 {
@@ -15,12 +16,13 @@ namespace Engine
 		*/
 		class Label:public Component, public IToString
 		{
-		private:
+			typedef Component			Parent;
 			String						caption;	//!< Single line (complete) caption of the label
 			Array<String>				lines;			//!< Split (wrapped) caption
 			bool						textChanged;	//!< Indicates that the text changed and the text should be re-wrapped before printing it the next time
 			TVec4<GLfloat>				textColor;			//!< Label text color (solid white by default)
 			float						lastWidth;
+			Quad<float>					textMargin;	//!< Distance between text and the respective edge. All positive values (even up and right)
 				
 			void						_Setup();
 			static	float				_CharLen(char c);
@@ -38,7 +40,10 @@ namespace Engine
 			virtual	void				OnColorPaint(ColorRenderer&, bool parentIsEnabled)	override;
 			const String&				GetText() const	{return caption;}	//!< Retrieves the current caption
 			Label*						SetText(const String&text);		//!< Updates label caption
+			inline Label*				SetTextColor(const TVec4<>&color)	{return SetColor(color);}
 			Label*						SetColor(const TVec4<>&color);	//!< Updates label text color
+			void						SetTextMargin(const Quad<float>&margin);
+			const Quad<float>&			GetTextMargin() const	{return textMargin;}
 			String						toString()	const	{return caption;}	//!< Simple CSObject toString() override
 			virtual	void				UpdateLayout(const Rect<float>&parent_region)	override;
 		};
@@ -130,7 +135,7 @@ namespace Engine
 		*/
 		class ScrollBar: public Component
 		{
-		protected:
+			typedef Component			Parent;
 			float						cursorHook[2],
 										cursorRange;
 			bool						upPressed,
@@ -209,7 +214,7 @@ namespace Engine
 		*/
 		class Slider: public Component
 		{
-		protected:
+			typedef Component			Parent;
 			float						cursorHook[2];
 			bool						cursorGrabbed;
 			TFreeCell					barLeft,
@@ -268,6 +273,7 @@ namespace Engine
 		*/
 		class Panel:public Component
 		{
+			typedef Component			Parent;
 		protected:
 			Buffer<PComponent,4>		children;
 
@@ -359,7 +365,8 @@ namespace Engine
 		*/
 		class ScrollBox: public Panel, public Scrollable
 		{
-		protected:
+			typedef Panel				Super;
+
 			Rect<float>						effectiveClientRegion;
 			Buffer<shared_ptr<Component>,4>	visible_children;
 				
@@ -369,6 +376,7 @@ namespace Engine
 											horizontalBar.reset(new ScrollBar(true));
 											verticalBar.reset(new ScrollBar(false));
 										}
+		protected:
 			/**/						ScrollBox(const String&sub_type_name):Panel("ScrollBox/"+sub_type_name)
 										{
 											createBars();
@@ -415,7 +423,7 @@ namespace Engine
 		*/
 		class Button:public Component
 		{
-		private:
+			typedef Component			Super;
 			bool						down,
 										pressed;
 			String						caption;		//!< Button caption
@@ -480,7 +488,7 @@ namespace Engine
 		*/
 		class Edit:public Component
 		{
-		private:
+			typedef Component			Super;
 			bool						goLeft,	//!< Indicates that during the next onTick() invocation the view should move to the left
 										goRight,	//!< Indicates that during the next onTick() invocation the view should move to the right
 										viewRightMost;	//!< Indicates that the view cannot move any further to the right
@@ -567,21 +575,25 @@ namespace Engine
 		*/
 		class MenuEntry:public Label
 		{
-		private:
+			typedef Label				Super;
+			bool						menuIsOpen;
 			weak_ptr<Menu>				parent;		//!< Pointer to the menu that contains this entry. NULL by default, indicating no parent.
 			shared_ptr<Window>			menuWindow;	//!< Pointer to the window containing a sub menu (if any). NULL if no sub menu has been created, automatically deleted on destruction
+			shared_ptr<IToString>		object;	//!< Link to the object used to dynamically retrieve the local entry caption. NULL by default @b Not automatically deleted.
 			friend class Menu;
 			void						_Setup();
+			void						OnMenuHide();
 		protected:
 			/**/						MenuEntry(const String&sub_type_name):Label("MenuEntry/"+sub_type_name)	{_Setup();}
 			void						CorrectMenuWindowSize()	const;
 		public:
-			shared_ptr<IToString>		object;	//!< Link to the object used to dynamically retrieve the local entry caption. NULL by default @b Not automatically deleted.
 			FunctionalEvent				onExecute;		//!< Event fired if this menu entry is executed
 			bool						openDown;	//!< Indicates that the sub menu of this item (if any) opens down, rather than to the right.
 				
 			/**/						MenuEntry():Label("MenuEntry")	{_Setup();}
 			virtual						~MenuEntry();
+			void						SetObject(const shared_ptr<IToString>&object);
+			const shared_ptr<IToString>&GetObject() const	{return object;}
 			const PWindow&				RetrieveMenuWindow();	//!< Retrieves (and possibly creates) the window containing the sub menu entries
 			const PWindow&				GetMenuWindow() const	{return menuWindow;}
 			shared_ptr<Menu>			GetMenu();			//!< Retrieves (and possibly creates) the sub menu of this entry
@@ -609,10 +621,14 @@ namespace Engine
 		*/
 		class Menu:public ScrollBox
 		{
-		private:
+			typedef ScrollBox			Super;
+
 			weak_ptr<MenuEntry>			parent;	//!< Parent menu entry. NULL by default
 			index_t						selectedEntry;	//!< Currently GetSelected menu entry
 			PComponent					selectedComponent;
+			bool						horizontal,autoResize;
+			TVec4<>						leftBackgroundColor,rightBackgroundColor,entryTextColor;
+			TVec3<>						entryBackgroundColor;
 			friend class MenuEntry;
 			ScrollBox::Append;
 			void						_Setup();
@@ -624,6 +640,19 @@ namespace Engine
 			static	Layout				globalLayout;	//!< Global standard menu layout
 		
 			/**/						Menu():ScrollBox("Menu"){_Setup();}
+			inline bool					IsHorizontal()	const {return horizontal;}
+			void						SetHorizontal(bool b);
+			inline bool					DoesAutoResize() const { return autoResize;}
+			inline void					SetAutoResize(bool b)	{autoResize = b; _ArrangeItems();}
+			inline void					SetBackgroundColor(const TVec4<>&color)	{leftBackgroundColor = rightBackgroundColor = color; SignalVisualChange();}
+			inline void					SetBackgroundColor(const TVec4<>&left, const TVec4<>&right)	{leftBackgroundColor = left; rightBackgroundColor = right; SignalVisualChange();}
+			inline const TVec4<>&		GetLeftBackgroundColor()	const	{return leftBackgroundColor;}
+			inline const TVec4<>&		GetRightBackgroundColor()	const	{return rightBackgroundColor;}
+			void						SetEntryTextColor(const TVec4<>&);
+			inline const TVec4<>&		GetEntryTextColor() const	{return entryTextColor;}
+			void						SetEntryBackgroundColor(const TVec3<>&color);
+			inline const TVec3<>&		GetEntryBackgroundColor() const {return entryBackgroundColor;}
+
 			virtual	PMenuEntry			Add(const String&caption);	//!< Adds a new simple menu entry to this menu @param caption Caption of the menu entry @return Pointer to the newly created menu entry
 			virtual	bool				Add(const shared_ptr<Component>&component) override;	//!< Adds a component to this menu. Must of a MenuEntry of derivative class. @param component Menu entry to Add. The method fails if the passed pointer is NULL or not of type MenuEntry @return true on success
 			virtual	bool				Erase(const shared_ptr<Component>&component) override;
@@ -636,8 +665,9 @@ namespace Engine
 			virtual	bool				MoveChildToTop(index_t index) override;
 			virtual	bool				MoveChildToBottom(const shared_ptr<Component>&component) override;
 			virtual	bool				MoveChildToBottom(index_t index) override;
+			virtual	void				OnColorPaint(ColorRenderer&, bool parentIsEnabled) override;	
 		
-			virtual	float				GetIdealHeight()	const;		//!< Retrieves the ideal height of this menu
+			virtual	TVec2<>				GetIdealSize()	const;		//!< Retrieves the ideal width/height of this menu
 
 			virtual	eEventResult		OnKeyDown(Key::Name key) override;
 		};

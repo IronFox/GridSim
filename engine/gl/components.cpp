@@ -1974,6 +1974,7 @@ namespace Engine
 			fillBackground = false;
 			Vec::set(backgroundColor,1);
 			Vec::set(textColor,1);
+			textMargin.setAll(0.f);
 			height = GetMinHeight(false);
 			width = GetMinWidth(false);
 		}
@@ -1981,15 +1982,15 @@ namespace Engine
 		float			Label::GetClientMinWidth()	const
 		{
 			if (!wrapText)
-				return ColorRenderer::textout.unscaledLength(caption);
+				return ColorRenderer::textout.unscaledLength(caption) + textMargin.left + textMargin.right;
 			return 30;
 		}
 		
 		float			Label::GetClientMinHeight()	const
 		{
 			if (!wrapText)
-				return ColorRenderer::textout.getFont().getHeight();
-			return ColorRenderer::textout.getFont().getHeight()*lines.count();
+				return ColorRenderer::textout.getFont().getHeight() + textMargin.bottom + textMargin.top;
+			return ColorRenderer::textout.getFont().getHeight()*lines.count() + textMargin.bottom + textMargin.top;
 		
 		}
 		
@@ -2040,14 +2041,14 @@ namespace Engine
 				if (!wrapText)
 				{
 					float	bottom = cellLayout.client.y.center()-ColorRenderer::textout.getFont().getHeight()/2+font_offset;
-					renderer.SetTextPosition(cellLayout.client.left(),bottom);
+					renderer.SetTextPosition(cellLayout.client.left() + textMargin.left,bottom + textMargin.bottom);
 					renderer.WriteText(caption);
 				}
 				else
 				{
 					for (index_t i = 0; i < lines.count(); i++)
 					{
-						renderer.SetTextPosition(cellLayout.client.left(),cellLayout.client.top()-(ColorRenderer::textout.getFont().getHeight()*(i+1)));
+						renderer.SetTextPosition(cellLayout.client.left() + textMargin.left,cellLayout.client.top()-(ColorRenderer::textout.getFont().getHeight()*(i+1))-textMargin.top);
 						renderer.WriteText(lines[i]);
 					}
 				}
@@ -2055,12 +2056,22 @@ namespace Engine
 			}
 			renderer.PopColor();
 		}
+
+		void	Label::SetTextMargin(const Quad<float>&margin)
+		{
+			ASSERT_GREATER_OR_EQUAL__(margin.right,0.f);
+			ASSERT_GREATER_OR_EQUAL__(margin.top,0.f);
+			textMargin = margin;
+			if (!wrapText)
+				width = GetMinWidth(false);
+			SignalLayoutChange();
+		}
 		
 		void	ComboBox::_Setup()
 		{
 			//MenuEntry::GetMenu();	//don't create menu (called from constructor)
 			selectedObject.reset();
-			selectedEntry = 0;
+			selectedEntry = InvalidIndex;
 			openDown = true;
 			layout = globalLayout.Refer();
 			width = GetMinWidth(false);
@@ -2073,8 +2084,11 @@ namespace Engine
 			if (!selectedObject && GetMenu()->CountChildren()>2)
 			{
 				selectedEntry = 0;
-				selectedObject = ((MenuEntry*)(GetMenu()->GetChild(selectedEntry).get()))->object;
-				SetText(selectedObject->toString());
+				selectedObject = ((MenuEntry*)(GetMenu()->GetChild(selectedEntry).get()))->GetObject();
+				if (selectedObject)
+					SetText(selectedObject->toString());
+				else
+					SetText("<error>");
 			}
 			height = Label::GetMinHeight(false);
 			MenuEntry::UpdateLayout(parent_space);
@@ -2084,22 +2098,23 @@ namespace Engine
 		void	MenuEntry::CorrectMenuWindowSize()	const
 		{
 			bool changed = false;
-			float mw = menuWindow->GetMinWidth();
-			if (menuWindow->fsize.x != mw)
+			//float mw = menuWindow->GetMinWidth();
+			Menu*	menu = (Menu*)menuWindow->rootComponent.get();
+			TVec2<> size = menu->GetIdealSize();
+			if (menuWindow->layout)	//this is NOT included in the result of GetIdealSize(), since it cannot know the window layout (only component layouts)
 			{
-				menuWindow->fsize.x = mw;
-				menuWindow->size.width = (size_t)round(menuWindow->fsize.x);
+				size.y += menuWindow->layout->clientEdge.top+menuWindow->layout->clientEdge.bottom;
+				size.x += menuWindow->layout->clientEdge.left+menuWindow->layout->clientEdge.right;
+			}
+			if (menuWindow->fsize.x != size.x)
+			{
+				menuWindow->SetWidth(size.x);
 				changed = true;
 			}
-			Menu*	menu = (Menu*)menuWindow->rootComponent.get();
-			float mh = menu->GetIdealHeight();
-			if (menuWindow->layout)
-				mh += menuWindow->layout->clientEdge.top+menuWindow->layout->clientEdge.bottom;
-			float h = vmin(150,mh);
+			float h = vmin(150,size.y);
 			if (menuWindow->fsize.y != h)
 			{
-				menuWindow->fsize.y = h;
-				menuWindow->size.height = (size_t)round(menuWindow->fsize.y);
+				menuWindow->SetHeight(h);
 				changed = true;
 			}
 					
@@ -2130,10 +2145,11 @@ namespace Engine
 			if (selectedEntry)
 			{
 				selectedEntry--;
-				selectedObject = child->object;
+				selectedObject = child->GetObject();
 			}
 			else
 			{
+				selectedEntry = InvalidIndex;
 				selectedObject.reset();
 			}
 			if (selectedObject)
@@ -2148,13 +2164,20 @@ namespace Engine
 		{
 			selectedEntry = index;
 			if (selectedEntry >= GetMenu()->CountChildren())
+			{
+				DBG_ASSERT_EQUAL__(selectedEntry,InvalidIndex);
+				selectedEntry = InvalidIndex;
 				selectedObject.reset();
-			else
-				selectedObject = ((MenuEntry*)GetMenu()->GetChild(selectedEntry).get())->object;
-			if (selectedObject)
-				SetText(selectedObject->toString());
-			else
 				SetText("");
+			}
+			else
+			{
+				selectedObject = ((MenuEntry*)GetMenu()->GetChild(selectedEntry).get())->GetObject();
+				if (selectedObject)
+					SetText(selectedObject->toString());
+				else
+					SetText("<error>");
+			}
 			SignalLayoutChange();
 		}
 
@@ -2227,7 +2250,8 @@ namespace Engine
 						menuWindow->y += (menuWindow->fsize.y-menuWindow->cellLayout.border.top());
 					#endif
 						
-					RequireOperator()->ShowMenu(menuWindow);
+					op->ShowMenu(menuWindow);
+					menuIsOpen = true;
 				}
 			}
 			else
@@ -2242,9 +2266,17 @@ namespace Engine
 		
 		Component::eEventResult			MenuEntry::OnMouseExit()
 		{
-			bool changed = Label::fillBackground;
-			Label::fillBackground = false;
-			return changed?RequestingRepaint:Handled;
+			//bool changed = Label::fillBackground;
+			//Label::fillBackground = false;
+			if (IsFocused())
+			{
+				PMenu menu = parent.lock();
+				if (menu)
+					menu->_SelectMenuEntry(PComponent());
+				ResetFocused();
+				return RequestingRepaint;
+			}
+			return Handled;
 		}
 		
 
@@ -2256,7 +2288,7 @@ namespace Engine
 		
 		Component::eEventResult			MenuEntry::OnFocusLost()
 		{
-			Label::fillBackground = false;
+			Label::fillBackground = menuIsOpen;
 			return RequestingRepaint;
 		}
 		
@@ -2273,6 +2305,7 @@ namespace Engine
 				menuWindow.reset(new Window(false, &Window::menuStyle));
 				shared_ptr<Menu> menu = shared_ptr<Menu>(new Menu());
 				menuWindow->SetComponent(menu);
+				menuWindow->onHide += bind(&MenuEntry::OnMenuHide,this);
 				menu->parent = static_pointer_cast<MenuEntry,Component>(shared_from_this());
 				//menu->level = level+1;
 
@@ -2307,30 +2340,48 @@ namespace Engine
 			menuWindow.reset();
 			object.reset();
 			openDown = false;
+			menuIsOpen = false;
 			Label::wrapText = false;
 			//level = 0;
-			Vec::def(Label::backgroundColor,0.5,0.5,1);
 			height = GetMinHeight(false);
 			width = GetMinWidth(false);
 		}
 		
-		
-		void	MenuEntry::OnColorPaint(ColorRenderer&renderer, bool parentIsEnabled)
+		void	MenuEntry::SetObject(const shared_ptr<IToString>&object_)
 		{
-			Label::fillBackground = IsFocused();
+			if (object == object_)
+				return;
+			object = object_;
 			if (object && object.get() != this)
 				Label::SetText(object->toString());
+			//SignalVisualChange();
+		}
+		
+
+		void	MenuEntry::OnColorPaint(ColorRenderer&renderer, bool parentIsEnabled)
+		{
+			//Label::fillBackground = IsFocused();
 			Label::OnColorPaint(renderer,parentIsEnabled);
+		}
+
+		void	MenuEntry::OnMenuHide()
+		{
+			menuIsOpen = false;
+			Label::fillBackground = IsFocused();
+			SignalVisualChange();
 		}
 		
 		void	MenuEntry::OnMenuClose(const shared_ptr<MenuEntry>&child)
 		{
+			menuIsOpen = false;
+			Label::fillBackground = IsFocused();
 			if (!parent.expired())
 			{
 				shared_ptr<Menu>	p = parent.lock();
 				if (!p->parent.expired())
 					p->parent.lock()->OnMenuClose(static_pointer_cast<MenuEntry, Component>(shared_from_this()));
 			}
+			SignalVisualChange();
 		}
 		
 		MenuEntry::~MenuEntry()
@@ -2338,16 +2389,64 @@ namespace Engine
 			//DiscardMenu();	//only hides menu in the operator, but i suspect even if the case happens where a menu is still visible when the root is erased, the operator should now be able to handle that
 		}
 		
-		
-		float		Menu::GetIdealHeight()	const
+		/*virtual override*/	void				Menu::OnColorPaint(ColorRenderer&renderer, bool parentIsEnabled)
 		{
-			float h = 0;
-			for (index_t i = 0; i < children.count(); i++)
-				h += children[i]->height;
-			if (layout)
-				h += layout->clientEdge.top+layout->clientEdge.bottom;
-			return h;
+			if (leftBackgroundColor.a != 0 || rightBackgroundColor.a != 0)
+			{
+				//renderer.PushColor();
+					//renderer.ModulateColor(backgroundColor);
+				TVec2<>	p0 = {cellLayout.client.x.min,cellLayout.client.y.min},
+						p1 = {cellLayout.client.x.max,cellLayout.client.y.min},
+						p2 = {cellLayout.client.x.max,cellLayout.client.y.max},
+						p3 = {cellLayout.client.x.min,cellLayout.client.y.max};
+				
+				renderer.FillQuad(p0,leftBackgroundColor,p1,rightBackgroundColor,p2,rightBackgroundColor,p3,leftBackgroundColor);
+				//renderer.PopColor();
+			}
+			Super::OnColorPaint(renderer,parentIsEnabled);
 		}
+
+		
+		TVec2<>		Menu::GetIdealSize()	const
+		{
+			TVec2<> res = {0,0};
+			if (horizontal)
+			{
+				for (index_t i = 0; i < children.count(); i++)
+					res.x += children[i]->width;
+				if (layout)
+					res.x += layout->clientEdge.left+layout->clientEdge.right;
+				res.y = GetMinHeight(true);
+			}
+			else
+			{
+				for (index_t i = 0; i < children.count(); i++)
+					res.y += children[i]->height;
+				if (layout)
+					res.y += layout->clientEdge.top+layout->clientEdge.bottom;
+				res.x = GetMinWidth(true);
+			}
+			return res;
+		}
+
+		void					Menu::SetHorizontal(bool b)
+		{
+			if (horizontal == b)
+				return;
+			horizontal = b; 
+			ScrollBox::horizontalBar->SetVisible(false);
+			ScrollBox::verticalBar->SetVisible(false);
+			ScrollBox::verticalBar->autoVisibility = !b;
+			ScrollBox::horizontalBar->autoVisibility = b;
+			foreach(children,c)
+			{
+				PMenuEntry entry = dynamic_pointer_cast<MenuEntry,Component>(*c);
+				if (entry)
+					entry->openDown = horizontal;
+			}
+			_ArrangeItems();
+		}
+						
 		
 		shared_ptr<MenuEntry>		Menu::Add(const String&caption)
 		{
@@ -2361,14 +2460,43 @@ namespace Engine
 		
 		bool		Menu::Add(const shared_ptr<Component>&component)
 		{
-			if (!component->typeName.beginsWith("Label/MenuEntry") || !ScrollBox::Add(component))
+			PMenuEntry entry = dynamic_pointer_cast<MenuEntry,Component>(component);
+			if (!entry || !ScrollBox::Add(component))
 				return false;
-			static_pointer_cast<MenuEntry,Component>(component)->parent = static_pointer_cast<Menu,Component>(shared_from_this());
+			entry->parent = static_pointer_cast<Menu,Component>(shared_from_this());
+			entry->SetTextColor(entryTextColor);
+			entry->backgroundColor = entryBackgroundColor;
+			entry->SetTextMargin(Quad<float>(5,0,5,0));
+			entry->openDown = horizontal;
 			//((MenuEntry*)component)->level = level;
 			component->SetWindow(windowLink);		
 			_ArrangeItems();
-			SignalLayoutChange();
+			PMenuEntry parent = this->parent.lock();
+			//if (parent)
+			//	parent->CorrectMenuWindowSize();
 			return true;
+		}
+
+		void		Menu::SetEntryTextColor(const TVec4<>&color)
+		{
+			entryTextColor = color;
+			foreach(children,c)
+			{
+				PMenuEntry entry = dynamic_pointer_cast<MenuEntry,Component>(*c);
+				if (entry)
+					entry->SetTextColor(color);
+			}
+		}
+
+		void		Menu::SetEntryBackgroundColor(const TVec3<>&color)
+		{
+			entryBackgroundColor = color;
+			foreach(children,c)
+			{
+				PMenuEntry entry = dynamic_pointer_cast<MenuEntry,Component>(*c);
+				if (entry)
+					entry->backgroundColor = entryBackgroundColor;
+			}
 		}
 		
 		bool		Menu::Erase(const shared_ptr<Component>&component)
@@ -2476,14 +2604,33 @@ namespace Engine
 			float current=0;
 			for (index_t i = 0; i < children.count(); i++)
 			{
-				const shared_ptr<Component>&component = children[i];
+				const PComponent&component = children[i];
 				
-				component->anchored.set(true,false,true,true);
-				component->offset.top = current;
-				current -= component->height;
-				component->offset.left = 0;
-				component->offset.right = 0;
+				if (horizontal)
+				{
+					component->anchored.set(true,true,false,true);
+
+					component->offset.left = current;
+					current += component->width;
+					component->offset.top = 0;
+					component->offset.bottom = 0;
+				}
+				else
+				{
+					component->anchored.set(true,false,true,true);
+					component->offset.top = current;
+					current -= component->height;
+					component->offset.left = 0;
+					component->offset.right = 0;
+				}
 			}
+			if (autoResize)
+			{
+				TVec2<> size = GetIdealSize();
+				width = size.x;
+				height = size.y;
+			}
+			SignalLayoutChange();
 		}
 
 		void	Menu::_Setup()
@@ -2492,7 +2639,14 @@ namespace Engine
 			ScrollBox::verticalBar->autoVisibility = true;
 			parent.reset();
 			//level = 0;
-			selectedEntry = 0;
+			horizontal = false;
+			autoResize = true;
+			Vec::clear(leftBackgroundColor);
+			Vec::clear(rightBackgroundColor);
+			Vec::set(entryTextColor,1);
+			Vec::def(entryBackgroundColor,0.5,0.5,1);
+
+			selectedEntry = InvalidIndex;
 			layout = globalLayout.Refer();
 		}
 		
@@ -2502,7 +2656,7 @@ namespace Engine
 			switch (key)
 			{
 				case Key::Up:
-					if (selectedEntry)
+					if (selectedEntry > 0 && selectedEntry != InvalidIndex)
 					{
 						selectedEntry--;
 						SetFocused(children[selectedEntry]);
@@ -2524,8 +2678,8 @@ namespace Engine
 		
 		Component::eEventResult		MenuEntry::OnMouseHover(float x, float y, TExtEventResult&)
 		{
-			bool changed = !Label::fillBackground;
-			Label::fillBackground = true;
+			bool changed = !IsFocused();
+			//Label::fillBackground = true;
 			if (changed)
 			{
 				PMenu menu = parent.lock();
@@ -2541,13 +2695,19 @@ namespace Engine
 			if (selectedComponent == c)
 				return;
 			index_t index = Panel::children.indexOf(c);
+			selectedEntry = index;
 			if (index != InvalidIndex)
 			{
-				selectedEntry = index;
 				selectedComponent = c;
 				SetFocused(children[selectedEntry]);
-				SignalVisualChange();
 			}
+			else
+			{
+				if (selectedComponent->IsFocused())
+					ResetFocused();
+				selectedComponent.reset();
+			}
+			SignalVisualChange();
 		}
 
 

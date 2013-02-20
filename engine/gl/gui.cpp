@@ -1639,6 +1639,8 @@ namespace Engine
 			layerIsDirty = true;
 		}
 
+
+
 		void		Renderer::Configure(const TFrameBuffer&buffer, const Resolution& usage)
 		{
 			stackedTargets[1] = buffer;
@@ -1913,6 +1915,24 @@ namespace Engine
 		{
 			_UpdateState();
 			Renderer::FillRect(rect);
+		}
+
+
+		void		ColorRenderer::FillQuad(const TVec2<>&p0, const TVec4<>&color0, const TVec2<>&p1, const TVec4<>&color1, const TVec2<>&p2, const TVec4<>&color2, const TVec2<>&p3,const TVec4<>&color3)
+		{
+			_UpdateState();
+			glBegin(GL_QUADS);
+				glColor4f(color0.r * color.r, color0.g * color.g, color0.b * color.b, color0.a * color.a);
+				glVertex2fv(p0.v);
+				glColor4f(color1.r * color.r, color1.g * color.g, color1.b * color.b, color1.a * color.a);
+				glVertex2fv(p1.v);
+				glColor4f(color2.r * color.r, color2.g * color.g, color2.b * color.b, color2.a * color.a);
+				glVertex2fv(p2.v);
+				glColor4f(color3.r * color.r, color3.g * color.g, color3.b * color.b, color3.a * color.a);
+				glVertex2fv(p3.v);
+			glEnd();
+			glColor4fv(color.v);
+			layerIsDirty = true;
 		}
 		void					ColorRenderer::TextureRect(const Rect<>&rect,const GL::Texture::Reference&ref)
 		{
@@ -2995,6 +3015,7 @@ namespace Engine
 					for (index_t j = 0; j < windowStack.count(); j++)
 						windowStack[j]->setShellDestination(radiusOf(j));
 				#endif
+				window->onHide();
 				stack_changed=true;
 				return true;
 			}
@@ -3061,6 +3082,7 @@ namespace Engine
 				else
 				{
 					window->hidden = timing.now64;
+					window->onHide();
 					menu_stack.erase(i);
 				}
 			}

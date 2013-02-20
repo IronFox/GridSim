@@ -37,14 +37,10 @@ namespace Math
 			union
 			{
 				T				v[1];	//!< Standard accessor
-				struct
-				{
-					T			x;	//!< 1D coordinate accessor
-				};
-				struct
-				{
-					T			alpha;	//!< Color accessor
-				};
+				T				x;	//!< 1D coordinate accessor
+				T				alpha;	//!< Color accessor
+				T				r;	//!< Color accessor
+				T				red;	//!< Color accessor
 			};
 		};
 
@@ -63,14 +59,18 @@ namespace Math
 				};
 				struct
 				{
-					T			lower,upper;	//!< TRange accessors
+					T			r,g;	//!< Color accessors
+				};
+				struct
+				{
+					T			red,green;	//!< Color accessors
 				};
 				struct
 				{
 					T			luminance, alpha;	//!< Color accessors
 				};
 				//T				xy[2];	//!< Named accessor
-				T				la[2];	//!< Color accessor
+				//T				la[2];	//!< Color accessor
 			};
 		};
 
@@ -132,6 +132,10 @@ namespace Math
 				{
 					T			red, green, blue, alpha;	//!< Color accessors
 				};
+				struct
+				{
+					T			r, g, b, a;	//!< Color accessors
+				};
 				TVec3<T>		rgb;		//!< Color accessor
 				TVec3<T>		xyz;		//!< Color accessor
 				T				rgba[4];	//!< Color accessor
@@ -167,11 +171,11 @@ namespace Math
 				};
 				struct
 				{
-					T			a,b,c,d;//!< Possibly incomplete polynomial accessors
+					T			red, green, blue, alpha;	//!< Color accessors
 				};
 				struct
 				{
-					T			red, green, blue, alpha;	//!< Color accessors
+					T			r, g, b, a;	//!< Color accessors
 				};
 				TVec3<T>		rgb;		//!< Color accessor
 				TVec4<T>		rgba;	//!< Color accessor

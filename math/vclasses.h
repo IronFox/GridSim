@@ -154,10 +154,6 @@ namespace Math
 		MF_DECLARE(Vec2<C>)				Flipped()								const	{return Vec2<C>(y,x);}
 		MF_DECLARE(Vec2<C>)				normal()								const	{return Vec2<C>(-y,x);}	//!< Returns a vector normal to this one
 		MF_DECLARE(Vec2<C>)				Normal()								const	{return Vec2<C>(-y,x);}	//!< Returns a vector normal to this one
-		MF_DECLARE(bool)				contains(const C&value)					const	{return value >= lower-getError<C>() && value <= upper+getError<C>();}	//!< Interprets the local vector as a range and determines whether the specified value is within that range (including error tolerance)
-		MF_DECLARE(bool)				Contains(const C&value)					const	{return value >= lower-getError<C>() && value <= upper+getError<C>();}	//!< Interprets the local vector as a range and determines whether the specified value is within that range (including error tolerance)
-		MF_DECLARE(const C&)			clamped(const C&value)					const	{return value < lower?lower: (value > upper?upper: value);}						//!< Returns the specified value, clamped in the range between x and y
-		MF_DECLARE(const C&)			Clamped(const C&value)					const	{return value < lower?lower: (value > upper?upper: value);}						//!< Returns the specified value, clamped in the range between x and y
 		MFUNC1 (Vec2<C>)				operator+(const TVec2<C0>&other)		const;
 		MF_DECLARE(Vec2<C>)				operator+(const C&value)				const;
 		MFUNC1 (void)					operator+=(const TVec2<C0>&other);

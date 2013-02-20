@@ -276,6 +276,7 @@ namespace Engine
 			void					RenderLine(float x0, float y0, float x1, float y1);
 
 			void					FillRect(const Rect<>&rect);
+			void					FillQuad(const TVec2<>&p0, const TVec4<>&color0, const TVec2<>&p1, const TVec4<>&color1, const TVec2<>&p2, const TVec4<>&color2, const TVec2<>&p3,const TVec4<>&color3);
 			void					TextureRect(const Rect<>&rect,const GL::Texture::Reference&);
 			void					TextureRect(const Rect<>&rect, const Rect<>&texCoordRect,const GL::Texture::Reference&);
 			void					TextureRect(const Rect<>&rect,const GL::Texture::Reference&,const GL::Texture::Reference&);
@@ -583,6 +584,7 @@ namespace Engine
 
 			FunctionalEvent			onFocusGained,	//!< Triggered whenever this window gains the focus (also, if it has just become visible)
 									onFocusLost,	//!< Triggered whenever this window loses the focus (also, if it has just been removed)
+									onHide,			//!< Triggered shortly before a window (or menu) is removed from the window/menu stack
 									onResize;		//!< Triggered whenever this window is resized (new size has been adapted when this event is fired, but more updates may follow)
 
 			/**/					Window(bool modal, Layout*style=&commonStyle);	//!< Creates a new window using the specified style
