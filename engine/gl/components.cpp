@@ -2734,6 +2734,8 @@ namespace Engine
 					layout.override = &Button::globalLayout;
 				elif (string == "panel")
 					layout.override = &Panel::globalLayout;
+				elif (string == "edit")
+					layout.override = &Edit::globalLayout;
 				elif (string == "scrollbox")
 					layout.override = &ScrollBox::globalLayout;
 				elif (string == "window/common")
