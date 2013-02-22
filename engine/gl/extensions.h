@@ -974,7 +974,8 @@
 			static	void					suppressWarnings();
 			static	void					enableFailureWarning();
 			static	void					disableFailureWarning();
-					Variable				locate(const String&name, bool warn_on_fail=true);
+				Variable					locate(const String&name, bool warn_on_fail=true);
+				inline Variable				FindVariable(const String&name, bool warnOnFail=true)	{return locate(name,warnOnFail);};
 					bool					getContent(GLint name, float*out_field);
 					bool					loaded()	const;								//!< Checks whether ot not the local shader is loaded and ready for installation. NULL-pointer sensitive
 					bool					isLoaded()	const	{return loaded();}			//!< @overload
