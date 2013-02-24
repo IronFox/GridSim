@@ -220,6 +220,9 @@ template <class Carrier>
 			inline	void					clear();									//!< Resizes back to the initial set size and un-occupies all carriers. If no resizing took place then the respective objects are not reinitialized.
 			inline	bool					isEmpty()							const;	//!< Checks if the local table is empty
 			inline	bool					isNotEmpty()						const;	//!< Checks if the local table contains at least one element
+			inline	void					Clear()										/** @copydoc clear() */ {clear();}
+			inline	bool					IsEmpty()							const	/** @copydoc isEmpty() */ {return isEmpty();}
+			inline	bool					IsNotEmpty()						const	/** @copydoc isNotEmpty() */ {return isNotEmpty();}
 			inline	void					import(GenericHashBase<Carrier>&list);		//!< Imports the content of the specified other hashset/hashtable in addition to the already contained entries. Existing entries are overwritten. \param list Hashset to import entries from.
 		template <class Key>
 			inline	void					exportKeys(ArrayData<Key>&keys)	const;			//!< Exports the keys to the specified array. \param keys Reference to an array containing all associated keys after execution. 
@@ -400,6 +403,7 @@ template <class K, class C,class Hash=StdHash, typename KeyStrategy = typename S
 			inline	void					importAndFlush(GenericHashContainer<K,C,Hash,KeyStrategy>&list);		//!< Imports the content of the specified other hashcontainer and flushs it. \param list Hashcontainer to import entries from.
 
 			inline	void					clear();									//!< Resets the internal table to the initial size, deletes all contained entries and sets their pointers to NULL.
+			inline	void					Clear()	/**@copydoc clear()*/	{clear();}
 			inline	void					flush();									//!< Resets the internal table to the initial size and sets all contained entries to NULL (does not delete the objects).
 
 		template <class Key>

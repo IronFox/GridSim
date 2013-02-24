@@ -1332,7 +1332,7 @@ namespace Engine
 				else
 				{
 					renderer.SetTextPosition(cellLayout.client.left(),bottom);
-					renderer.WriteText(text.root()+viewBegin,end-viewBegin);
+					renderer.WriteText(text.pointer()+viewBegin,end-viewBegin);
 				}
 				if (selectionStart != cursor)
 				{
@@ -1345,8 +1345,8 @@ namespace Engine
 						sel_begin = viewBegin;
 					if (sel_end < viewBegin)
 						sel_end = viewBegin;
-					float	left = cellLayout.client.left()+_GetTextWidth(text.root()+viewBegin,sel_begin-viewBegin),
-							right = cellLayout.client.left()+_GetTextWidth(text.root()+viewBegin,sel_end-viewBegin);
+					float	left = cellLayout.client.left()+_GetTextWidth(text.pointer()+viewBegin,sel_begin-viewBegin),
+							right = cellLayout.client.left()+_GetTextWidth(text.pointer()+viewBegin,sel_end-viewBegin);
 						//glColor4f(0.4,0.6,1,0.7);
 					renderer.FillRect(Rect<>(left-2,bottom,right+2,top));
 					renderer.MarkNewLayer();
@@ -1361,8 +1361,8 @@ namespace Engine
 					}
 					else
 					{
-						renderer.SetTextPosition(cellLayout.client.left()+renderer.GetUnscaledWidth(text.root()+viewBegin,sel_begin-viewBegin),bottom);
-						renderer.WriteText(text.root()+sel_begin,sel_end-sel_begin);
+						renderer.SetTextPosition(cellLayout.client.left()+renderer.GetUnscaledWidth(text.pointer()+viewBegin,sel_begin-viewBegin),bottom);
+						renderer.WriteText(text.pointer()+sel_begin,sel_end-sel_begin);
 					}
 				}
 					
@@ -1431,7 +1431,7 @@ namespace Engine
 					selectionStart = cursor;
 				ext.customCursor = Mouse::CursorType::EditText;
 				
-				cursorOffset = cellLayout.client.left()+_GetTextWidth(text.root()+viewBegin,cursor-viewBegin);			
+				cursorOffset = cellLayout.client.left()+_GetTextWidth(text.pointer()+viewBegin,cursor-viewBegin);			
 				return RequestingRepaint;
 			}
 			return Handled;
@@ -1452,7 +1452,7 @@ namespace Engine
 			}
 			goRight = index == end && rx > 0;
 			cursor = index;
-			cursorOffset = cellLayout.client.left()+_GetTextWidth(text.root()+viewBegin,cursor-viewBegin);			
+			cursorOffset = cellLayout.client.left()+_GetTextWidth(text.pointer()+viewBegin,cursor-viewBegin);			
 			return RequestingRepaint;
 		}
 		
@@ -1537,7 +1537,7 @@ namespace Engine
 						if (selectionStart == cursor)
 						{
 							selectionStart--;
-							if (text.erase(--cursor,1))
+							text.erase(--cursor);
 							{
 								_UpdateView();
 								onChange();
@@ -1548,7 +1548,7 @@ namespace Engine
 						else
 							if (selectionStart > cursor)
 							{
-								if (text.erase(cursor,selectionStart-cursor))
+								text.erase(cursor,selectionStart-cursor);
 								{
 									selectionStart = cursor;
 									_UpdateView();
@@ -1557,7 +1557,7 @@ namespace Engine
 								}
 							}
 							else
-								if (text.erase(selectionStart,cursor-selectionStart))
+								text.erase(selectionStart,cursor-selectionStart);
 								{
 									cursor = selectionStart;
 									_UpdateView();
@@ -1571,7 +1571,7 @@ namespace Engine
 					{
 						if (selectionStart == cursor)
 						{
-							if (text.erase(cursor,1))
+							text.erase(cursor);
 							{
 								_UpdateView();
 								onChange();
@@ -1582,7 +1582,7 @@ namespace Engine
 						else
 							if (selectionStart > cursor)
 							{
-								if (text.erase(cursor,selectionStart-cursor))
+								text.erase(cursor,selectionStart-cursor);
 								{
 									selectionStart = cursor;
 									_UpdateView();
@@ -1591,7 +1591,7 @@ namespace Engine
 								}
 							}
 							else
-								if (text.erase(selectionStart,cursor-selectionStart))
+								text.erase(selectionStart,cursor-selectionStart);
 								{
 									cursor = selectionStart;
 									_UpdateView();
@@ -1607,7 +1607,7 @@ namespace Engine
 								end = cursor;
 						if (begin > end)
 							swp(begin,end);
-						String sub = String(text.root()+begin,end-begin);
+						String sub = String(text.pointer()+begin,end-begin);
 						if (!System::copyToClipboard(NULL,sub.c_str()))
 							ErrMessage("failed to copy");
 					}
@@ -1619,7 +1619,7 @@ namespace Engine
 								end = cursor;
 						if (begin > end)
 							swp(begin,end);
-						String sub = String(text.root()+begin,end-begin);
+						String sub = String(text.pointer()+begin,end-begin);
 						if (System::copyToClipboard(NULL,sub.c_str()) && !readOnly)
 						{
 							text.erase(begin,end-begin);
@@ -1649,7 +1649,7 @@ namespace Engine
 									text.erase(cursor,selectionStart-cursor);
 							}
 							size_t len = strlen(buffer);
-							text.insert(cursor,buffer,len);
+							text.Insert(cursor,buffer,len);
 							cursor+=len;
 							selectionStart = cursor;
 							_UpdateView();
@@ -1688,15 +1688,15 @@ namespace Engine
 			if (cursor < viewBegin)
 				viewBegin = cursor;
 			else
-				while (_GetTextWidth(text.root()+viewBegin,cursor-viewBegin)>cellLayout.client.width())
+				while (_GetTextWidth(text.pointer()+viewBegin,cursor-viewBegin)>cellLayout.client.width())
 					viewBegin++;
 			viewEnd = viewBegin+1;
-			while (viewEnd < text.length() && _GetTextWidth(text.root()+viewBegin,viewEnd-viewBegin)<cellLayout.client.width())
+			while (viewEnd < text.length() && _GetTextWidth(text.pointer()+viewBegin,viewEnd-viewBegin)<cellLayout.client.width())
 				viewEnd++;
-			viewRightMost = _GetTextWidth(text.root()+viewBegin,viewEnd-viewBegin)<cellLayout.client.width();
+			viewRightMost = _GetTextWidth(text.pointer()+viewBegin,viewEnd-viewBegin)<cellLayout.client.width();
 			//if (textout.unscaledLength(text.root()+viewBegin,viewEnd-viewBegin)>=cellLayout.client.width())
 				//viewEnd--;
-			cursorOffset = cellLayout.client.left()+_GetTextWidth(text.root()+viewBegin,cursor-viewBegin);
+			cursorOffset = cellLayout.client.left()+_GetTextWidth(text.pointer()+viewBegin,cursor-viewBegin);
 		}
 		
 		void	Edit::UpdateLayout(const Rect<float>&parent_region)

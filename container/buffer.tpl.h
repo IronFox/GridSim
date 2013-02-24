@@ -541,6 +541,76 @@ template <typename T, typename Strategy>
 		}
 	}
 
+template <typename T, typename Strategy>
+	inline T*				BasicBuffer<T, Strategy>::insertRow(index_t before, count_t length)
+	{
+		if (usage_end+length > storage_end)
+		{
+			count_t	current_fill_level = usage_end-storage_begin;
+			count_t	len = (storage_end-storage_begin);
+			if (!len)
+				len = 4;
+			while (len < current_fill_level + length)
+			{
+				len <<= 1;
+				if (len < current_fill_level)
+					throw new std::bad_alloc();
+			}
+
+			try
+			{
+				T	*new_field = allocateNotEmpty(len),//alloc<T>(len),
+					*write = new_field,
+					*read = storage_begin;
+
+				count_t construct_before = std::min(before,current_fill_level),	//elements to construct before the inserted elements
+						construct_after = current_fill_level - construct_before;	//elements to construct after the inserted elements
+					//*barrier = vmin(storage_begin+before,usage_end);
+
+				Strategy::constructRangeFromFleetingData(write, write+construct_before, read); write+= construct_before; read+= construct_before;
+				Strategy::constructRange(write,write+length);	 write+= length;
+				Strategy::constructRangeFromFleetingData(write, write+construct_after, read);
+
+				destructAndFree(storage_begin,usage_end);
+
+				storage_begin = new_field;
+				storage_end = storage_begin+len;
+				usage_end = storage_begin+current_fill_level+length;
+				#if defined(_DEBUG) && __BUFFER_DBG_FILL_STATE__
+					fill_state+=length;
+					CHK_FILLSTATE
+				#endif
+
+				return std::min(storage_begin+before,usage_end-length);
+					//*(storage_begin+before);
+			}
+			catch (std::bad_alloc& exception)
+			{
+				storage_begin = storage_end = usage_end = NULL;
+				#if defined(_DEBUG) && __BUFFER_DBG_FILL_STATE__
+					fill_state = 0;
+					CHK_FILLSTATE
+				#endif
+				throw;
+			}
+		}
+		else
+		{
+			Strategy::constructRange(usage_end,usage_end + length);
+			T*el = std::min(storage_begin+before,usage_end);
+			for (T*c = usage_end+length-1; c >= el+length; c--)
+				Strategy::move(*(c-length),*c);
+			usage_end+=length;
+			#if defined(_DEBUG) && __BUFFER_DBG_FILL_STATE__
+				fill_state+=length;
+				CHK_FILLSTATE
+			#endif
+
+			return el;
+		}
+
+	}
+
 
 
 template <typename T, typename Strategy>

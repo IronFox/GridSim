@@ -586,6 +586,8 @@ template <typename T>
 		StringTemplate<T>::StringTemplate(const ArrayData<T>&array)
 		{
 			size_t len = array.length();
+			if (len > 0 && array.last() == (T)0)
+				len --;
 			field = allocate(len);
 			string_length = len;
 			for (size_t i = 0; i < len; i++)
@@ -3095,12 +3097,15 @@ template <typename T>
 	{
 		//ASSERT_NOT_NULL__(field);
 		STRING_METHOD_BEGIN("(const ArrayData<T>&string)",string.pointer());
-		if (!string.length())
+		count_t length = string.length();
+		if (length > 0 && string.last() == (T)0)
+			length--;
+		if (!length)
 			resize(0);
 		else
 		{
 			const T	*first = string.pointer(),
-					*last = first+string.count()-1;
+					*last = first+length-1;
 			while (last >= first && !*last)
 				last--;
 			resize(last-first+1);

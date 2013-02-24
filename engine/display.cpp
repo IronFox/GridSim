@@ -491,7 +491,7 @@ namespace Engine
 			{
 				_location = info.rcWindow;
 				client_area = info.rcClient;
-				mouse.redefineWindow(client_area);
+				mouse.redefineWindow(client_area,hWnd);
 			}
 		#elif SYSTEM==UNIX
 			client_area.left = 0;
@@ -516,7 +516,7 @@ namespace Engine
 			{
 				_location = info.rcWindow;
 				client_area = info.rcClient;
-				mouse.redefineWindow(client_area);
+				mouse.redefineWindow(client_area,hWnd);
 				if (onResize)
 					onResize(client_area.right - client_area.left,client_area.bottom - client_area.top,is_final,is_full_screen);
 			}
@@ -1286,13 +1286,32 @@ namespace Engine
 				{
 					context._location = info.rcWindow;
 					context.client_area = info.rcClient;
-					mouse.redefineWindow(context.client_area);
+					mouse.redefineWindow(context.client_area,context.hWnd);
 				}
 			}
 			break;
 			//case WM_PAINT:	DefWindowProc(hWnd, Msg, wParam, lParam);						return 0;
 			case WM_DESTROY:
 			case WM_CLOSE:	  context.eventClose();								   			return 0;
+			case WM_INPUT:
+			{
+				RAWINPUT input;
+				UINT dwSize = sizeof(input);
+			    if (GetRawInputData((HRAWINPUT)lParam, RID_INPUT, &input, &dwSize, sizeof(RAWINPUTHEADER)))
+				{
+					if (input.header.dwType == RIM_TYPEMOUSE) 
+					{
+						if (input.data.mouse.usFlags & MOUSE_MOVE_ABSOLUTE)
+							mouse.RecordAbsoluteMouseMovement(input.data.mouse.lLastX, input.data.mouse.lLastY);
+						else
+							mouse.RecordRelativeMouseMovement(input.data.mouse.lLastX, input.data.mouse.lLastY);
+					}
+					PRAWINPUT pinput = &input;
+					return DefRawInputProc(&pinput,1,sizeof(RAWINPUTHEADER));
+				}
+
+			}
+			break;
 			default:
 				return DefWindowProc(hWnd, Msg, wParam, lParam);
 		}

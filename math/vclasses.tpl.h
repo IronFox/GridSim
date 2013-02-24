@@ -411,13 +411,13 @@ namespace Math
     template <class C>
     template <class C0> MF_DECLARE  (bool)        Vec3<C>::operator==(const TVec3<C0>&other)   const
     {
-        return Math::sqr(x-other.x)+Math::sqr(y-other.y)+Math::sqr(z-other.z) < getError<C>()*getError<C0>();
+        return Math::sqr(x-other.x)+Math::sqr(y-other.y)+Math::sqr(z-other.z) <= getError<C>()*getError<C0>();
     }
 
     template <class C>
     template <class C0> MF_DECLARE  (bool)        Vec3<C>::operator!=(const TVec3<C0>&other)   const
     {
-        return Math::sqr(x-other.x)+Math::sqr(y-other.y)+Math::sqr(z-other.z) >= getError<C>()*getError<C0>();
+        return Math::sqr(x-other.x)+Math::sqr(y-other.y)+Math::sqr(z-other.z) > getError<C>()*getError<C0>();
     }
 	
     template <class C>
@@ -605,7 +605,7 @@ namespace Math
     template <class C>
     MFUNC1  (bool)        Vec2<C>::operator!=(const TVec2<C0>&other)   const
     {
-        return Math::sqr(x-other.x)+Math::sqr(y-other.y) >= getError<C>()*getError<C0>();
+        return Math::sqr(x-other.x)+Math::sqr(y-other.y) > getError<C>()*getError<C0>();
     }
 
     template <class C>
@@ -853,13 +853,13 @@ namespace Math
     template <class C>
     MFUNC1  (bool)        Vec4<C>::operator==(const TVec4<C0>&other)   const
     {
-        return Math::sqr(x-other.x)+Math::sqr(y-other.y)+Math::sqr(z-other.z)+Math::sqr(w-other.w) < getError<C>()*getError<C0>();
+        return Math::sqr(x-other.x)+Math::sqr(y-other.y)+Math::sqr(z-other.z)+Math::sqr(w-other.w) <= getError<C>()*getError<C0>();
     }
 
     template <class C>
     MFUNC1  (bool)        Vec4<C>::operator!=(const TVec4<C0>&other)   const
     {
-        return Math::sqr(x-other.x)+Math::sqr(y-other.y)+Math::sqr(z-other.z)+Math::sqr(w-other.w) >= getError<C>()*getError<C0>();
+        return Math::sqr(x-other.x)+Math::sqr(y-other.y)+Math::sqr(z-other.z)+Math::sqr(w-other.w) > getError<C>()*getError<C0>();
     }
 
     template <class C>

@@ -9,16 +9,16 @@ whose functions are derived in groups.
 
 ******************************************************************/
 
-	bool						Engine::GLShader::Instance::forget_on_destruct=false;
-	const Engine::GLShader::Instance	*Engine::GLShader::Instance::installed_instance(NULL);
-	Engine::GLShader::Template::RenderConfiguration		Engine::GLShader::Template::global_render_config;
+	bool						Engine::GLShader::Instance::forgetOnDestruct=false;
+	const Engine::GLShader::Instance	*Engine::GLShader::Instance::installedInstance(NULL);
+	Engine::GLShader::Template::RenderConfiguration		Engine::GLShader::Template::globalRenderConfig;
 
-	Buffer<Engine::GLShader::Template::LightShadowAttachment,0,Swap>		Engine::GLShader::Template::shadow_attachments;
+	Buffer<Engine::GLShader::Template::LightShadowAttachment,0,Swap>		Engine::GLShader::Template::shadowAttachments;
 
 
 	#define EXT_CONTEXT(name)					{group	= #name;}
-	#define EXT_GET_EXTENSION(var)				Extension::read(var,String(#var)+group)
-	#define EXT_GET_EXTENSION_NO_CHECK(var)		Extension::readSilent(var,String(#var)+group)
+	#define EXT_GET_EXTENSION(var)				Extension::Read(var,String(#var)+group)
+	#define EXT_GET_EXTENSION_NO_CHECK(var)		Extension::ReadSilent(var,String(#var)+group)
 
 	#undef glBlendFuncSeparate
 	#undef glGenBuffers
@@ -327,68 +327,63 @@ namespace Engine
 
 
 
-	GLTextureFactory::GLTextureFactory():frame_buffer(0),result_texture(0),/*color_buffer(0),*/depth_buffer(0),width(0),height(0),alpha(false),mipmapping(false)
+	GLTextureFactory::GLTextureFactory():frameBuffer(0),resultTexture(0),depthBuffer(0),resolution(0,0),alpha(false),mipmapping(false)
 	{}
 	
-	GLTextureFactory::GLTextureFactory(unsigned width_, unsigned height_,bool alpha_,bool mipmapping_):frame_buffer(0),result_texture(0),/*color_buffer(0),*/depth_buffer(0),width(0),height(0),alpha(false),mipmapping(false)
+	GLTextureFactory::GLTextureFactory(const Resolution&res,bool alpha_,bool mipmapping_):frameBuffer(0),resultTexture(0),depthBuffer(0),resolution(0,0),alpha(false),mipmapping(false)
 	{
-		create(width_,height_,alpha_,mipmapping_);
+		Create(res,alpha_,mipmapping_);
 	}
 	
 	GLTextureFactory::~GLTextureFactory()
 	{
-		clear();
+		Clear();
 	}
 	
-	void	GLTextureFactory::clear()
+	void	GLTextureFactory::Clear()
 	{
 		#ifdef GL_ARB_framebuffer_object
 			if (glDeleteFramebuffers)
 			{
-				if (frame_buffer)
-					glDeleteFramebuffers(1, &frame_buffer);
-				if (depth_buffer)
-					glDeleteRenderbuffers(1, &depth_buffer);
-				/*if (color_buffer)
-					glDeleteRenderbuffers(1, &color_buffer);*/
+				if (frameBuffer)
+					glDeleteFramebuffers(1, &frameBuffer);
+				if (depthBuffer)
+					glDeleteRenderbuffers(1, &depthBuffer);
 			}
 		#endif
-		frame_buffer = 0;
-		depth_buffer = 0;
-/* 		color_buffer = 0; */
+		frameBuffer = 0;
+		depthBuffer = 0;
 	}
 	
 	
 	
 	
 	
-	bool				GLTextureFactory::checkFormat(unsigned width_, unsigned height_, bool alpha_, bool mipmapping_)
+	bool				GLTextureFactory::CheckFormat(const Resolution&res, bool alpha_, bool mipmapping_)
 	{
-		if (width == width_ && height == height_ && alpha == alpha_ && mipmapping == mipmapping_)
+		if (resolution == res && alpha == alpha_ && mipmapping == mipmapping_)
 			return true;
-		return create(width_,height_,alpha_,mipmapping_);
+		return Create(res,alpha_,mipmapping_);
 	}
 	
-	bool				GLTextureFactory::create(unsigned width_, unsigned height_,bool alpha_, bool mipmapping_)
+	bool				GLTextureFactory::Create(const Resolution&res,bool alpha_, bool mipmapping_)
 	{
-		width = width_;
-		height = height_;
+		resolution = res;
 		alpha = alpha_;
 		mipmapping = mipmapping_;
 		//samples = samples_;
 		
-		clear();
+		Clear();
 		
 		#ifdef GL_ARB_framebuffer_object
 			if (glGenFramebuffers)
 			{
-					glGenFramebuffers( 1, &frame_buffer );
-					glGenRenderbuffers( 1, &depth_buffer );
-					//glGenRenderbuffers( 1, &color_buffer );
+					glGenFramebuffers( 1, &frameBuffer );
+					glGenRenderbuffers( 1, &depthBuffer );
 
-					glBindRenderbuffer( GL_RENDERBUFFER, depth_buffer );
+					glBindRenderbuffer( GL_RENDERBUFFER, depthBuffer );
 					//if (!samples)
-						glRenderbufferStorage( GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, width, height );
+						glRenderbufferStorage( GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, resolution.width, resolution.height );
 					/*else
 						glRenderbufferStorageMultisample(GL_RENDERBUFFER,samples, GL_DEPTH_COMPONENT24, width, height);*/
 /* 
@@ -399,16 +394,16 @@ namespace Engine
 					GLenum status = glCheckFramebufferStatus( GL_FRAMEBUFFER );
 					if (status != GL_FRAMEBUFFER_COMPLETE_EXT)
 					{
-						clear();
+						Clear();
 						return false;
 					}
 
 					
 				
-					glBindFramebuffer(GL_FRAMEBUFFER, frame_buffer);
+					glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
 
 
-					glFramebufferRenderbuffer( GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depth_buffer );
+					glFramebufferRenderbuffer( GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthBuffer );
 					//glFramebufferRenderbuffer( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, color_buffer );
 					glBindFramebuffer(GL_FRAMEBUFFER, 0);
 					
@@ -419,22 +414,22 @@ namespace Engine
 		return false;
 	}
 	
-	bool				GLTextureFactory::begin()
+	bool				GLTextureFactory::Begin()
 	{
 		#ifdef GL_ARB_framebuffer_object
-			if (glBindFramebuffer && frame_buffer)
+			if (glBindFramebuffer && frameBuffer)
 			{
 				glGetError();//flush errors
-				glGetIntegerv(GL_FRAMEBUFFER_BINDING_EXT,&previous_frame_buffer);		
-				glGetFloatv(GL_COLOR_CLEAR_VALUE,previous_clear_color);
+				glGetIntegerv(GL_FRAMEBUFFER_BINDING_EXT,&previousFrameBuffer);		
+				glGetFloatv(GL_COLOR_CLEAR_VALUE,previousClearColor.v);
 				glGetIntegerv(GL_VIEWPORT, viewport); 
 								
-				glGenTextures( 1, &result_texture );
+				glGenTextures( 1, &resultTexture );
 
-				glBindTexture( GL_TEXTURE_2D, result_texture );
+				glBindTexture( GL_TEXTURE_2D, resultTexture );
 
 				glTexImage2D( GL_TEXTURE_2D, 0, alpha?GL_RGBA:GL_RGB, 
-						    width, height, 
+						    resolution.width, resolution.height, 
 						    0, alpha?GL_RGBA:GL_RGB, GL_UNSIGNED_BYTE, 0 );
 
 				glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
@@ -442,15 +437,15 @@ namespace Engine
 				glTexParameteri( GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
 				glBindTexture(GL_TEXTURE_2D,0);
 				
-				glBindFramebuffer(GL_FRAMEBUFFER, frame_buffer);
-				glFramebufferTexture2D( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, result_texture, 0 );
+				glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
+				glFramebufferTexture2D( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, resultTexture, 0 );
 				if (!glGetError()==GL_NO_ERROR)
 				{
-					glDeleteTextures(1,&result_texture);
-					result_texture = 0;
+					glDeleteTextures(1,&resultTexture);
+					resultTexture = 0;
 					return false;
 				}
-				glViewport(0,0,width,height);
+				glViewport(0,0,resolution.width,resolution.height);
 				glClearColor(0,0,0,0);
 				glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 
@@ -463,30 +458,30 @@ namespace Engine
 
 	
 	
-	GLuint				GLTextureFactory::end()
+	GLuint				GLTextureFactory::End()
 	{
 		#ifdef GL_ARB_framebuffer_object
-			if (glBindFramebuffer && frame_buffer)
+			if (glBindFramebuffer && frameBuffer)
 			{
-				glBindFramebuffer(GL_FRAMEBUFFER, previous_frame_buffer);
-				glViewport(viewport[0],viewport[1],viewport[2],viewport[3]);				
-				glClearColor(previous_clear_color[0],previous_clear_color[1],previous_clear_color[2],previous_clear_color[3]);
+				glBindFramebuffer(GL_FRAMEBUFFER, previousFrameBuffer);
+				glViewport(viewport[0],viewport[1],viewport[2],viewport[3]);
+				glClearColor(previousClearColor.r,previousClearColor.g,previousClearColor.b,previousClearColor.a);
 				/*glBindTexture(GL_TEXTURE_2D,result_texture);
 				glGenerateMipmap(GL_TEXTURE_2D);
 				glBindTexture(GL_TEXTURE_2D,0);*/
-				GLuint result = result_texture;
+				GLuint result = resultTexture;
 
 				if (mipmapping)
 				{
 					ASSERT_NOT_NULL__(glGenerateMipmap);
-					glBindTexture(GL_TEXTURE_2D,result_texture);
+					glBindTexture(GL_TEXTURE_2D,resultTexture);
 						glGenerateMipmap(GL_TEXTURE_2D);
 						glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 
 					glBindTexture(GL_TEXTURE_2D,0);
 				}
 
-				result_texture = 0;
+				resultTexture = 0;
 				return result;
 			}
 			
@@ -494,7 +489,7 @@ namespace Engine
 		return 0;
 	}
 	
-	void				GLTextureFactory::test()
+	void				GLTextureFactory::Test()
 	{
 		#ifdef GL_ARB_framebuffer_object
 			
@@ -507,7 +502,7 @@ namespace Engine
 				glBindTexture( GL_TEXTURE_2D, test_texture );
 
 				glTexImage2D( GL_TEXTURE_2D, 0, alpha?GL_RGBA:GL_RGB, 
-						    width, height, 
+						    resolution.width, resolution.height, 
 						    0, alpha?GL_RGBA:GL_RGB, GL_UNSIGNED_BYTE, 0 );
 
 				glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
@@ -515,18 +510,18 @@ namespace Engine
 			}
 
 			
-			if (glBindFramebuffer && frame_buffer)
+			if (glBindFramebuffer && frameBuffer)
 			{
-				glGetIntegerv(GL_FRAMEBUFFER_BINDING_EXT,&previous_frame_buffer);		
-				glGetFloatv(GL_COLOR_CLEAR_VALUE,previous_clear_color);
+				glGetIntegerv(GL_FRAMEBUFFER_BINDING_EXT,&previousFrameBuffer);		
+				glGetFloatv(GL_COLOR_CLEAR_VALUE,previousClearColor.v);
 				glGetIntegerv(GL_VIEWPORT, viewport); 
 								
 				
-				glBindFramebuffer(GL_FRAMEBUFFER, frame_buffer);
+				glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
 				glFramebufferTexture2D( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, test_texture, 0 );
 				if (!glGetError()==GL_NO_ERROR)
 					return;
-				glViewport(0,0,width,height);
+				glViewport(0,0,resolution.width,resolution.height);
 				glClearColor(0,0,0,0);
 				glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 				
@@ -534,35 +529,35 @@ namespace Engine
 				
 				glBindFramebuffer(GL_FRAMEBUFFER, 0);
 				glViewport(viewport[0],viewport[1],viewport[2],viewport[3]);
-				glClearColor(previous_clear_color[0],previous_clear_color[1],previous_clear_color[2],previous_clear_color[3]);
-				result_texture = 0;
+				glClearColor(previousClearColor.r,previousClearColor.g,previousClearColor.b,previousClearColor.a);
+				resultTexture = 0;
 			}
 			
 		#endif
 	}
 	
-	void				GLTextureFactory::abort()
+	void				GLTextureFactory::Abort()
 	{
 		#ifdef GL_ARB_framebuffer_object
-			if (glBindFramebuffer && frame_buffer)
+			if (glBindFramebuffer && frameBuffer)
 			{
-				glBindFramebuffer(GL_FRAMEBUFFER, previous_frame_buffer);
-				glDeleteTextures(1,&result_texture);
-				result_texture = 0;
+				glBindFramebuffer(GL_FRAMEBUFFER, previousFrameBuffer);
+				glDeleteTextures(1,&resultTexture);
+				resultTexture = 0;
 				glViewport(viewport[0],viewport[1],viewport[2],viewport[3]);				
-				glClearColor(previous_clear_color[0],previous_clear_color[1],previous_clear_color[2],previous_clear_color[3]);
+				glClearColor(previousClearColor.r,previousClearColor.g,previousClearColor.b,previousClearColor.a);
 			}
 		#endif
 	}
 
-	bool				GLTextureFactory::isActive()	const
+	bool				GLTextureFactory::IsActive()	const
 	{
-		return result_texture != 0;
+		return resultTexture != 0;
 	}
 	
-	bool				GLTextureFactory::isCreated()	const
+	bool				GLTextureFactory::IsCreated()	const
 	{
-		return frame_buffer != 0;
+		return frameBuffer != 0;
 	}
 
 
@@ -615,7 +610,7 @@ namespace Engine
 		return false;
 	}
 
-
+#if 0
 	GLuint Extension::loadProgram(const char*source, GLenum type)
 	{
 		#ifdef GL_ARB_vertex_program
@@ -672,6 +667,7 @@ namespace Engine
 
 
 	}
+#endif /*0*/
 
 	#ifdef GL_ARB_shader_objects
 	
@@ -688,17 +684,17 @@ namespace Engine
 		{
 			if (handle == -1)
 				return false;
-			bool was_installed = instance->installed();
-			if (!was_installed && assert_is_installed)
+			bool wasInstalled = instance->IsInstalled();
+			if (!wasInstalled && assertIsInstalled)
 				FATAL__("trying to update variable '"+name+"' while shader is NOT installed");
-			if (!was_installed && (lock_uninstalled || !instance->install()))
+			if (!wasInstalled && (lockUninstalled || !instance->Install()))
 				return false;
 			
 			glGetError();//flush errors
 			glUniform1f(handle, value);
 		
-			if (!was_installed)
-				instance->uninstall();
+			if (!wasInstalled)
+				instance->Uninstall();
 		
 			return glGetError() == GL_NO_ERROR;
 		}
@@ -707,17 +703,17 @@ namespace Engine
 		{
 			if (handle == -1)
 				return false;
-			bool was_installed = instance->installed();
-			if (!was_installed && assert_is_installed)
+			bool wasInstalled = instance->IsInstalled();
+			if (!wasInstalled && assertIsInstalled)
 				FATAL__("trying to update variable '"+name+"' while shader is NOT installed");
-			if (!was_installed && (lock_uninstalled || !instance->install()))
+			if (!wasInstalled && (lockUninstalled || !instance->Install()))
 				return false;
 
 			glGetError();//flush errors
 			glUniform3f(handle, vector.x,vector.y,vector.z);
 		
-			if (!was_installed)
-				instance->uninstall();
+			if (!wasInstalled)
+				instance->Uninstall();
 		
 			return glGetError() == GL_NO_ERROR;
 
@@ -727,17 +723,17 @@ namespace Engine
 		{
 			if (handle == -1)
 				return false;
-			bool was_installed = instance->installed();
-			if (!was_installed && assert_is_installed)
+			bool wasInstalled = instance->IsInstalled();
+			if (!wasInstalled && assertIsInstalled)
 				FATAL__("trying to update variable '"+name+"' while shader is NOT installed");
-			if (!was_installed && (lock_uninstalled || !instance->install()))
+			if (!wasInstalled && (lockUninstalled || !instance->Install()))
 				return false;
 
 			glGetError();//flush errors
 			glUniform2f(handle, vector.x,vector.y);
 		
-			if (!was_installed)
-				instance->uninstall();
+			if (!wasInstalled)
+				instance->Uninstall();
 		
 			return glGetError() == GL_NO_ERROR;
 		}
@@ -747,17 +743,17 @@ namespace Engine
 		{
 			if (handle == -1)
 				return false;
-			bool was_installed = instance->installed();
-			if (!was_installed && assert_is_installed)
+			bool wasInstalled = instance->IsInstalled();
+			if (!wasInstalled && assertIsInstalled)
 				FATAL__("trying to update variable '"+name+"' while shader is NOT installed");
-			if (!was_installed && (lock_uninstalled || !instance->install()))
+			if (!wasInstalled && (lockUninstalled || !instance->Install()))
 				return false;
 			
 			glGetError();//flush errors
 			glUniform4f(handle, x,y,z,w);
 
-			if (!was_installed)
-				instance->uninstall();
+			if (!wasInstalled)
+				instance->Uninstall();
 			return glGetError() == GL_NO_ERROR;
 		}
 
@@ -766,17 +762,17 @@ namespace Engine
 		{
 			if (handle == -1)
 				return false;
-			bool was_installed = instance->installed();
-			if (!was_installed && assert_is_installed)
+			bool wasInstalled = instance->IsInstalled();
+			if (!wasInstalled && assertIsInstalled)
 				FATAL__("trying to update variable '"+name+"' while shader is NOT installed");
-			if (!was_installed && (lock_uninstalled || !instance->install()))
+			if (!wasInstalled && (lockUninstalled || !instance->Install()))
 				return false;
 			
 			glGetError();//flush errors
 			glUniform4f(handle, vector.x,vector.y,vector.z,vector.w);
 
-			if (!was_installed)
-				instance->uninstall();
+			if (!wasInstalled)
+				instance->Uninstall();
 			return glGetError() == GL_NO_ERROR;
 		}
 	
@@ -784,15 +780,15 @@ namespace Engine
 		{
 			if (handle == -1)
 				return false;
-			bool was_installed = instance->installed();
-			if (!was_installed && assert_is_installed)
+			bool wasInstalled = instance->IsInstalled();
+			if (!wasInstalled && assertIsInstalled)
 				FATAL__("trying to update variable '"+name+"' while shader is NOT installed");
-			if (!was_installed && (lock_uninstalled || !instance->install()))
+			if (!wasInstalled && (lockUninstalled || !instance->Install()))
 				return false;
 			glGetError();//flush errors
 			glUniformMatrix3fv(handle,1,false,matrix.v);
-			if (!was_installed)
-				instance->uninstall();
+			if (!wasInstalled)
+				instance->Uninstall();
 			return glGetError() == GL_NO_ERROR;
 		}
 	
@@ -800,15 +796,15 @@ namespace Engine
 		{
 			if (handle == -1)
 				return false;
-			bool was_installed = instance->installed();
-			if (!was_installed && assert_is_installed)
+			bool wasInstalled = instance->IsInstalled();
+			if (!wasInstalled && assertIsInstalled)
 				FATAL__("trying to update variable '"+name+"' while shader is NOT installed");
-			if (!was_installed && (lock_uninstalled || !instance->install()))
+			if (!wasInstalled && (lockUninstalled || !instance->Install()))
 				return false;
 			glGetError();//flush errors
 			glUniformMatrix4fv(handle,1,false,matrix.v);
-			if (!was_installed)
-				instance->uninstall();
+			if (!wasInstalled)
+				instance->Uninstall();
 			return glGetError() == GL_NO_ERROR;
 		}
 	
@@ -816,17 +812,17 @@ namespace Engine
 		{
 			if (handle == -1)
 				return false;
-			bool was_installed = instance->installed();
-			if (!was_installed && assert_is_installed)
+			bool wasInstalled = instance->IsInstalled();
+			if (!wasInstalled && assertIsInstalled)
 				FATAL__("trying to update variable '"+name+"' while shader is NOT installed");
-			if (!was_installed && (lock_uninstalled || !instance->install()))
+			if (!wasInstalled && (lockUninstalled || !instance->Install()))
 				return false;
 		
 			glGetError();//flush errors
 			glUniform1i(handle, value);
 		
-			if (!was_installed)
-				instance->uninstall();
+			if (!wasInstalled)
+				instance->Uninstall();
 		
 			return glGetError() == GL_NO_ERROR;
 		}
@@ -834,92 +830,92 @@ namespace Engine
 		{
 			if (handle == -1)
 				return false;
-			bool was_installed = instance->installed();
-			if (!was_installed && assert_is_installed)
+			bool wasInstalled = instance->IsInstalled();
+			if (!wasInstalled && assertIsInstalled)
 				FATAL__("trying to update variable '"+name+"' while shader is NOT installed");
-			if (!was_installed && (lock_uninstalled || !instance->install()))
+			if (!wasInstalled && (lockUninstalled || !instance->Install()))
 				return false;
 		
 			glGetError();//flush errors
 			glUniform2i(handle, x,y);
 		
-			if (!was_installed)
-				instance->uninstall();
+			if (!wasInstalled)
+				instance->Uninstall();
 		
 			return glGetError() == GL_NO_ERROR;
 		}
 	
-		bool Variable::lock_uninstalled(false);
-		bool Variable::assert_is_installed(false);
-		bool Instance::warn_on_failure(true);
+		bool Variable::lockUninstalled(false);
+		bool Variable::assertIsInstalled(false);
+		bool Instance::warnOnError(true);
 	
-		Instance::Instance():program_handle(0),vertex_shader(0),fragment_shader(0),geometry_shader(0)
+		Instance::Instance():programHandle(0),vertexShader(0),fragmentShader(0),geometryShader(0)
 		{}
 
 		Instance::~Instance()
 		{
-			if (!application_shutting_down && !forget_on_destruct)
-				clear();
+			if (!application_shutting_down && !forgetOnDestruct)
+				Clear();
 		}
 
-		bool	Instance::loaded()	const
+		bool	Instance::IsLoaded()	const
 		{
-			return this != NULL && program_handle != 0;
+			return this != NULL && programHandle != 0;
 		}
 
 
-		void	Instance::clear()
+		void	Instance::Clear()
 		{
-			if (program_handle && glGetHandle(GL_PROGRAM_OBJECT_ARB) == program_handle)
-				deInstall();
-			if (vertex_shader)
-				glDeleteObject(vertex_shader);
-			if (fragment_shader)
-				glDeleteObject(fragment_shader);
-			if (geometry_shader)
-				glDeleteObject(geometry_shader);
-			if (program_handle)
-				glDeleteObject(program_handle);
-			vertex_shader	= 0;
-			fragment_shader	= 0;
-			geometry_shader = 0;
-			program_handle	= 0;
-			composition.clear();
+			if (programHandle && glGetHandle(GL_PROGRAM_OBJECT_ARB) == programHandle)
+				Uninstall();
+			if (vertexShader)
+				glDeleteObject(vertexShader);
+			if (fragmentShader)
+				glDeleteObject(fragmentShader);
+			if (geometryShader)
+				glDeleteObject(geometryShader);
+			if (programHandle)
+				glDeleteObject(programHandle);
+			vertexShader	= 0;
+			fragmentShader	= 0;
+			geometryShader = 0;
+			programHandle	= 0;
+			composition.Clear();
 			//log.reset();
 		}
 	
 		void	Instance::adoptData(Instance&other)
 		{
-			bool reinstall = other.isInstalled();
+			bool reinstall = other.IsInstalled();
 			if (reinstall)
-				other.uninstall();
-			elif (installed())
-				uninstall();
+				other.Uninstall();
+			elif (IsInstalled())
+				Uninstall();
 
-			clear();
+			Clear();
 			composition.adoptData(other.composition);
-			vertex_shader = other.vertex_shader;
-			fragment_shader = other.fragment_shader;
-			geometry_shader = other.geometry_shader;
-			program_handle = other.program_handle;
+			vertexShader = other.vertexShader;
+			fragmentShader = other.fragmentShader;
+			geometryShader = other.geometryShader;
+			programHandle = other.programHandle;
 			log.adoptData(other.log);
-			other.vertex_shader = 0;
-			other.fragment_shader = 0;
-			other.geometry_shader = 0;
-			other.program_handle = 0;
+			other.vertexShader = 0;
+			other.fragmentShader = 0;
+			other.geometryShader = 0;
+			other.programHandle = 0;
 
 			if (reinstall)
-				install();
+				Install();
 		}
 	
 
 
-		bool		extractFileContent(const String&filename, String&target, StringBuffer&log_out)
+		bool		_ExtractFileContent(const String&filename, String&target, StringBuffer&logOut)
 		{
 			FileStream	file(filename.c_str(),FileStream::StandardRead);
 			if (!file.isOpen())
 			{
-				log_out << "Unable to read from '"<<filename<<"'\n";
+				logOut << "Unable to read from '"<<filename<<"'\n";
 				target = "";
 				return false;
 			}
@@ -933,7 +929,7 @@ namespace Engine
 			return true;
 		}
 
-		bool		extractFileContent(const String&filename, String&target)
+		bool		_ExtractFileContent(const String&filename, String&target)
 		{
 			FileStream	file(filename.c_str(),FileStream::StandardRead);
 			if (!file.isOpen())
@@ -953,7 +949,7 @@ namespace Engine
 
 
 
-		void				Composition::clear()
+		void				Composition::Clear()
 		{
 			sharedSource = "";
 			vertexSource = "";
@@ -988,12 +984,12 @@ namespace Engine
 					
 					for (unsigned k	= 0; k < ARRAYSIZE(type); k++)
 					{
-						const char*my_at = ::Template::strstr(at,type[k].c_str());
-						if (!my_at)
+						const char*myAt = ::Template::strstr(at,type[k].c_str());
+						if (!myAt)
 							continue;
-						if (!min || my_at < min)
+						if (!min || myAt < min)
 						{
-							min	= my_at;
+							min	= myAt;
 							item = type+k;
 						}
 					}
@@ -1036,20 +1032,20 @@ namespace Engine
 
 				for (index_t i = 0; i+1 < tokens.count();)
 				{
-					String*source_target = NULL;
+					String*sourceTarget = NULL;
 					const String&group = tokens[i];
 					{
 						if (group == "shared")
-							source_target = &sharedSource;
+							sourceTarget = &sharedSource;
 						elif (group == "vertex")
-							source_target = &vertexSource;
+							sourceTarget = &vertexSource;
 						elif (group == "fragment")
-							source_target = &fragmentSource;
+							sourceTarget = &fragmentSource;
 						elif (group == "geometry")
-							source_target = &geometrySource;
+							sourceTarget = &geometrySource;
 					}
 					i++;
-					if (!source_target)
+					if (!sourceTarget)
 					{
 						if (group.trimRef().length() > 0)
 							ErrMessage("Warning: unexpected code token(s) encountered: '"+group+"'");
@@ -1064,11 +1060,11 @@ namespace Engine
 						if (source.pointer()[0] != '{' || source.pointer()[source.length()-1] != '}')
 							continue;
 						
-						*source_target = ReferenceExpression<char>(source.pointer() + 1, source.length()-2);
-						source_target = NULL;
+						*sourceTarget = ReferenceExpression<char>(source.pointer() + 1, source.length()-2);
+						sourceTarget = NULL;
 						break;
 					}
-					if (source_target != NULL)
+					if (sourceTarget != NULL)
 						ErrMessage("Warning: Unable to find body for group '"+group+"'");
 				}
 
@@ -1076,58 +1072,58 @@ namespace Engine
 			return *this;
 		}
 
-		bool				Composition::LoadFromFiles(const String&shared_file, const String&vertex_file, const String&fragment_file)
+		bool				Composition::LoadFromFiles(const String&sharedFile, const String&vertexFile, const String&fragmentFile)
 		{
 			geometrySource = "";
-			return	Engine::GLShader::extractFileContent(shared_file,sharedSource)
+			return	Engine::GLShader::_ExtractFileContent(sharedFile,sharedSource)
 					&&
-					Engine::GLShader::extractFileContent(vertex_file,vertexSource)
+					Engine::GLShader::_ExtractFileContent(vertexFile,vertexSource)
 					&&
-					Engine::GLShader::extractFileContent(fragment_file,fragmentSource);
+					Engine::GLShader::_ExtractFileContent(fragmentFile,fragmentSource);
 		}
 
-		bool				Composition::LoadFromFiles(const String&shared_file, const String&vertex_file, const String&fragment_file, const String&geometry_file)
+		bool				Composition::LoadFromFiles(const String&sharedFile, const String&vertexFile, const String&fragmentFile, const String&geometryFile)
 		{
-			return	Engine::GLShader::extractFileContent(shared_file,sharedSource)
+			return	Engine::GLShader::_ExtractFileContent(sharedFile,sharedSource)
 					&&
-					Engine::GLShader::extractFileContent(vertex_file,vertexSource)
+					Engine::GLShader::_ExtractFileContent(vertexFile,vertexSource)
 					&&
-					Engine::GLShader::extractFileContent(fragment_file,fragmentSource)
+					Engine::GLShader::_ExtractFileContent(fragmentFile,fragmentSource)
 					&&
-					Engine::GLShader::extractFileContent(geometry_file,geometrySource);
+					Engine::GLShader::_ExtractFileContent(geometryFile,geometrySource);
 		}
 
-		bool				Composition::LoadFromFile(const String&object_file)
+		bool				Composition::LoadFromFile(const String&objectFile)
 		{
 			String content;
-			if (!Engine::GLShader::extractFileContent(object_file,content))
+			if (!Engine::GLShader::_ExtractFileContent(objectFile,content))
 				return false;
 			Load(content);
 			return true;
 		}
 
 	
-		bool	Instance::extractFileContent(const String&filename, String&target)
+		bool	Instance::_ExtractFileContent(const String&filename, String&target)
 		{
-			return Engine::GLShader::extractFileContent(filename,target,log);
+			return Engine::GLShader::_ExtractFileContent(filename,target,log);
 
 		}
 
-		static String	glProgramTypeName(GLenum program_type)
+		static String	glProgramTypeName(GLenum programType)
 		{
 			#undef ecase
 			#define ecase(type)	case type:	return #type;
 		
-			switch (program_type)
+			switch (programType)
 			{
 				ecase(GL_VERTEX_SHADER_ARB)
 				ecase(GL_FRAGMENT_SHADER_ARB)
 				ecase(GL_GEOMETRY_SHADER_EXT)
 			}
-			return "Unkown shader type ("+String(program_type)+")";
+			return "Unkown shader type ("+String(programType)+")";
 		}
 
-		GLhandleARB Instance::loadShader(const String&source, GLenum program_type)
+		GLhandleARB Instance::_LoadShader(const String&source, GLenum programType)
 		{
 			if (!glCreateShaderObject)
 			{
@@ -1136,34 +1132,34 @@ namespace Engine
 			}
 			glGetError();//flush previous errors
 			const char*str	= source.c_str();
-			GLhandleARB shader	= glCreateShaderObject(program_type);
+			GLhandleARB shader	= glCreateShaderObject(programType);
 			glShaderSource(shader,1,&str, NULL);
 			glCompileShader(shader);
 			GLenum glErr	= glGetError();
 			while (glErr != GL_NO_ERROR)
 			{
-				log<<"error while compiling shader("<<glProgramTypeName(program_type)<<"): \""<<glGetErrorName(glErr)<<"\"\n";
+				log<<"error while compiling shader("<<glProgramTypeName(programType)<<"): \""<<glGetErrorName(glErr)<<"\"\n";
 				glDeleteObject(shader);
 				return 0;
 			}
 			int compiled;
 			glGetObjectParameteriv(shader,GL_OBJECT_COMPILE_STATUS_ARB,&compiled);
 
-			int log_len	= 0;
-			glGetObjectParameteriv(shader, GL_OBJECT_INFO_LOG_LENGTH_ARB, &log_len);
-			if (log_len > 1)
+			int logLen	= 0;
+			glGetObjectParameteriv(shader, GL_OBJECT_INFO_LOG_LENGTH_ARB, &logLen);
+			if (logLen > 1)
 			{
-				Array<char,Primitive>	log_str(log_len);
+				Array<char,Primitive>	logStr(logLen);
 				int		written(0);
-				glGetInfoLog(shader, log_len, &written, log_str.pointer());
-				if (strstr(log_str.pointer(),"was successfully compiled to run on hardware") && log_len < 64)//maybe some spaces and newlines and stuff
+				glGetInfoLog(shader, logLen, &written, logStr.pointer());
+				if (strstr(logStr.pointer(),"was successfully compiled to run on hardware") && logLen < 64)//maybe some spaces and newlines and stuff
 				{
-					log_len = 0;
+					logLen = 0;
 				}
 				else
 				{
-					log<<"\n-- shader("<<glProgramTypeName(program_type)<<") construction --\n";
-					log<<log_str.pointer();
+					log<<"\n-- shader("<<glProgramTypeName(programType)<<") construction --\n";
+					log<<logStr.pointer();
 				}
 			}
 			if (!compiled)
@@ -1173,7 +1169,7 @@ namespace Engine
 				glDeleteObject(shader);
 				shader = 0;
 			}
-			if (log_len > 1)
+			if (logLen > 1)
 			{
 				log<<"\noriginal source was:\n--------------------------------";
 				String copy	= source;
@@ -1199,28 +1195,28 @@ namespace Engine
 			return shader;
 		}
 
-		void		Instance::loadRequired(const Composition&composition, GLenum geometry_type, GLenum output_type, unsigned max_vertices)
+		void		Instance::LoadRequired(const Composition&composition, GLenum geometryType, GLenum outputType, unsigned maxVertices)
 		{
-			if (!load(composition,geometry_type,output_type,max_vertices))
-				FATAL__(report());
+			if (!Load(composition,geometryType,outputType,maxVertices))
+				FATAL__(Report());
 		}
 
 
-		bool		Instance::load(const Composition&composition, GLenum geometry_type, GLenum output_type, unsigned max_vertices)
+		bool		Instance::Load(const Composition&composition, GLenum geometryType, GLenum outputType, unsigned maxVertices)
 		{
-			clear();
+			Clear();
 			this->composition = composition;
 			glGetError();//flush errors
-			vertex_shader	= loadShader(composition.sharedSource+composition.vertexSource,GL_VERTEX_SHADER_ARB);
-			fragment_shader	= loadShader(composition.sharedSource+composition.fragmentSource,GL_FRAGMENT_SHADER_ARB);
+			vertexShader	= _LoadShader(composition.sharedSource+composition.vertexSource,GL_VERTEX_SHADER_ARB);
+			fragmentShader	= _LoadShader(composition.sharedSource+composition.fragmentSource,GL_FRAGMENT_SHADER_ARB);
 			#ifdef GL_GEOMETRY_SHADER_EXT
-				bool has_geometry_shader = composition.geometrySource.indexOf("main")!=0;
-				if (has_geometry_shader)
+				bool hasGeometryShader = composition.geometrySource.indexOf("main")!=0;
+				if (hasGeometryShader)
 				{
-					String full_source;
+					String fullSource;
 					index_t p = composition.geometrySource.indexOf('#');
 					if (!p)
-						full_source = 
+						fullSource = 
 						"#version 120 \n"
 						"#extension GL_EXT_geometry_shader4 : enable	\n"
 						+composition.sharedSource+composition.geometrySource;
@@ -1229,12 +1225,12 @@ namespace Engine
 						const char*c = composition.geometrySource.c_str()+p;
 						while (*c && *c != '\n')
 							c++;
-						full_source = composition.geometrySource.subString(0,c-composition.geometrySource.c_str()+1)+composition.sharedSource+(c+1);
+						fullSource = composition.geometrySource.subString(0,c-composition.geometrySource.c_str()+1)+composition.sharedSource+(c+1);
 					}
 				
 				
-					geometry_shader = loadShader(full_source,GL_GEOMETRY_SHADER_EXT);
-					if (geometry_shader && !glProgramParameteri)
+					geometryShader = _LoadShader(fullSource,GL_GEOMETRY_SHADER_EXT);
+					if (geometryShader && !glProgramParameteri)
 					{
 						String group;
 						EXT_CONTEXT(EXT);
@@ -1242,126 +1238,125 @@ namespace Engine
 						if (!glProgramParameteri)
 						{
 							log << "(glProgramParameteri not available)\n";
-							clear();
+							Clear();
 							return false;
 						}
 					}
-					if (has_geometry_shader && !geometry_shader)
+					if (hasGeometryShader && !geometryShader)
 					{
 						log<<"(geometry shader not set)\n";
-						clear();
+						Clear();
 						return false;
 					}
 				}
 				else
-					geometry_shader = 0;
+					geometryShader = 0;
 			#endif
-			if (!vertex_shader || !fragment_shader)
+			if (!vertexShader || !fragmentShader)
 			{
 				log<<"(shader-fragment(s) not set)\n";
-				clear();
+				Clear();
 				return false;
 			}
-			program_handle	= glCreateProgramObject();
-			glAttachObject(program_handle, vertex_shader);
-			glAttachObject(program_handle, fragment_shader);
-			if (geometry_shader)
+			programHandle	= glCreateProgramObject();
+			glAttachObject(programHandle, vertexShader);
+			glAttachObject(programHandle, fragmentShader);
+			if (geometryShader)
 			{
-				glAttachObject(program_handle, geometry_shader);
+				glAttachObject(programHandle, geometryShader);
 
-				glProgramParameteri(program_handle, GL_GEOMETRY_INPUT_TYPE_EXT, geometry_type);
-				glProgramParameteri(program_handle, GL_GEOMETRY_OUTPUT_TYPE_EXT, output_type);
-				glProgramParameteri(program_handle, GL_GEOMETRY_VERTICES_OUT_EXT, max_vertices);
+				glProgramParameteri(programHandle, GL_GEOMETRY_INPUT_TYPE_EXT, geometryType);
+				glProgramParameteri(programHandle, GL_GEOMETRY_OUTPUT_TYPE_EXT, outputType);
+				glProgramParameteri(programHandle, GL_GEOMETRY_VERTICES_OUT_EXT, maxVertices);
 			}
 
 
-			glLinkProgram(program_handle);
+			glLinkProgram(programHandle);
 
 			GLenum glErr	= glGetError();
 			while (glErr != GL_NO_ERROR)
 			{
 				log<<"error while linking program: \""<<glGetErrorName(glErr)<<"\"\n";
-				clear();
+				Clear();
 				return false;
 			}
 			int linked;
-			glGetObjectParameteriv(program_handle,GL_OBJECT_LINK_STATUS_ARB, &linked);
-			int log_len	= 0;
-			glGetObjectParameteriv(program_handle, GL_OBJECT_INFO_LOG_LENGTH_ARB, &log_len);
-			if (log_len > 0)
+			glGetObjectParameteriv(programHandle,GL_OBJECT_LINK_STATUS_ARB, &linked);
+			int logLen	= 0;
+			glGetObjectParameteriv(programHandle, GL_OBJECT_INFO_LOG_LENGTH_ARB, &logLen);
+			if (logLen > 0)
 			{
-				char	*log_str	= SHIELDED_ARRAY(new char[log_len],log_len);
+				Array<char>	logStr(logLen);
 				int		written(0);
-				glGetInfoLog(program_handle, log_len, &written, log_str);
+				glGetInfoLog(programHandle, logLen, &written, logStr.pointer());
 				log<<"\n-- program construction --\n";
-				log<<log_str;
+				log<<logStr;
 				log<<nl;
-				DISCARD_ARRAY(log_str);
 			}
 			if (!linked)
 			{
-				log<<"program link failed\n";
-				clear();
+				log<<"program Link failed\n";
+				Clear();
 				return false;
 			}
 #if 0
-			glValidateProgram(program_handle);
-			log_len	= 0;
-			glGetObjectParameteriv(program_handle, GL_OBJECT_INFO_LOG_LENGTH_ARB, &log_len);
-			if (log_len > 0)
+			glValidateProgram(programHandle);
+			logLen	= 0;
+			glGetObjectParameteriv(programHandle, GL_OBJECT_INFO_LOG_LENGTH_ARB, &logLen);
+			if (logLen > 0)
 			{
-				char	*log_str	= SHIELDED_ARRAY(new char[log_len],log_len);
+				char	*logStr	= SHIELDED_ARRAY(new char[logLen],logLen);
 				int		written(0);
-				glGetInfoLog(program_handle, log_len, &written, log_str);
+				glGetInfoLog(programHandle, logLen, &written, logStr);
 				log<<"\n-- program validation --\n";
-				log<<log_str;
+				log<<logStr;
 				log<<nl;
-				DISCARD_ARRAY(log_str);
+				DISCARD_ARRAY(logStr);
 			}
 
 			int validated;
-			glGetObjectParameteriv(program_handle, GL_OBJECT_VALIDATE_STATUS_ARB,&validated);
+			glGetObjectParameteriv(programHandle, GL_OBJECT_VALIDATE_STATUS_ARB,&validated);
 			if (!validated)
 			{
 				log << "validation failed\n";
-				clear();
+				Clear();
 				return false;
 			}
 #endif /*9*/
 			return true;
 		}
 
-		bool			Instance::validate()
+		bool			Instance::Validate()
 		{
 			log	<< "validating program...\n";
-			if (!program_handle)
+			if (!programHandle)
 			{
 				log << "no program present\n";
 				return false;
 			}
 			glGetError();//flush errors
-			glValidateProgram(program_handle);
+			glValidateProgram(programHandle);
 			if (GLenum err	= glGetError())
 				if (err != GL_NO_ERROR)
 				{
 					log << "GL: "<<glGetErrorName(err);
 					return false;
 				}
-			int log_len	= 0;
-			glGetObjectParameteriv(program_handle, GL_OBJECT_INFO_LOG_LENGTH_ARB, &log_len);
-			if (log_len > 0)
+			int logLen	= 0;
+			glGetObjectParameteriv(programHandle, GL_OBJECT_INFO_LOG_LENGTH_ARB, &logLen);
+			if (logLen > 0)
 			{
-				char	*log_str	= SHIELDED_ARRAY(new char[log_len],log_len);
+				char	*logStr	= SHIELDED_ARRAY(new char[logLen],logLen);
 				int		written(0);
-				glGetInfoLog(program_handle, log_len, &written, log_str);
+				glGetInfoLog(programHandle, logLen, &written, logStr);
 				log<<"\n-- program validation --\n";
-				log<<log_str;
+				log<<logStr;
 				log<<nl;
-				DISCARD_ARRAY(log_str);
+				DISCARD_ARRAY(logStr);
 			}
 
 			int validated;
-			glGetObjectParameteriv(program_handle, GL_OBJECT_VALIDATE_STATUS_ARB,&validated);
+			glGetObjectParameteriv(programHandle, GL_OBJECT_VALIDATE_STATUS_ARB,&validated);
 			if (!validated)
 			{
 				log << "validation failed\n";
@@ -1370,49 +1365,49 @@ namespace Engine
 			return true;
 		}
 
-		void		Instance::loadRequiredComposition(const String&object_source, GLenum input_type, GLenum output_type, unsigned max_vertices)
+		void		Instance::LoadRequiredComposition(const String&objectSource, GLenum inputType, GLenum outputType, unsigned maxVertices)
 		{
-			if (!loadComposition(object_source,input_type,output_type,max_vertices))
-				FATAL__(report());
+			if (!LoadComposition(objectSource,inputType,outputType,maxVertices))
+				FATAL__(Report());
 		}
 
-		bool		Instance::loadComposition(const String&object_source, GLenum input_type, GLenum output_type, unsigned max_vertices)
+		bool		Instance::LoadComposition(const String&objectSource, GLenum inputType, GLenum outputType, unsigned maxVertices)
 		{
-			return load(Composition().Load(object_source),input_type,output_type,max_vertices);
+			return Load(Composition().Load(objectSource),inputType,outputType,maxVertices);
 		}
 
 
 
-		String	Instance::report()
+		String	Instance::Report()
 		{
-			String rs	= log.toString();
+			String rs	= log.ToStringRef();
 			log.reset();
 			return rs;
 		}
 
-		void			Instance::enableFailureWarning()
+		void			Instance::EnableErrorWarning()
 		{
-			warn_on_failure	= true;
+			warnOnError	= true;
 		}
 
-		void			Instance::disableFailureWarning()
+		void			Instance::DisableErrorWarning()
 		{
-			warn_on_failure	= false;
+			warnOnError	= false;
 		}
 
-		void			Instance::suppressLocationFailureWarning()
+		void			Instance::SuppressFindVariableFailureWarning()
 		{
-			warn_on_failure	= false;
+			warnOnError	= false;
 		}
 	
-		void			Instance::suppressWarnings()
+		void			Instance::SuppressWarnings()
 		{
-			warn_on_failure	= false;
+			warnOnError	= false;
 		}
 
-		bool			Instance::getContent(GLint name, float*out_field)
+		bool			Instance::GetContent(GLint name, float*outField)
 		{
-			if (!program_handle)
+			if (!programHandle)
 			{
 				log	<< "Program not created"<<nl;
 				return false;
@@ -1422,17 +1417,17 @@ namespace Engine
 				log	<< "The requested variable does not exist"<<nl;
 				return false;
 			}
-			glGetUniformfv(program_handle,name,out_field);
+			glGetUniformfv(programHandle,name,outField);
 			return true;
 		}
 
 
-		Variable Instance::locate(const String&name, bool warn_on_fail)
+		Variable Instance::FindVariable(const String&name, bool warnOnFail)
 		{
-			if (!program_handle)
+			if (!programHandle)
 			{
 				log	<< "Program not created"<<nl;
-				if (warn_on_failure && warn_on_fail)
+				if (warnOnError && warnOnFail)
 				{
 					std::cout << "unable to locate uniform variable '"<<name<<"' - no object present."<<std::endl;
 					__debugbreak();
@@ -1440,9 +1435,9 @@ namespace Engine
 				}
 				return Variable();
 			}
-			GLint result	= glGetUniformLocation(program_handle,name.c_str());
+			GLint result	= glGetUniformLocation(programHandle,name.c_str());
 			if (result	== -1)
-				if (warn_on_failure && warn_on_fail)
+				if (warnOnError && warnOnFail)
 				{
 					std::cout << "unable to locate uniform variable '"<<name<<"'."<<std::endl;
 					__debugbreak();
@@ -1453,25 +1448,25 @@ namespace Engine
 			return Variable(this,result,name);
 		}
 
-		bool			Instance::install(/*const TCodeLocation&location*/)
+		bool			Instance::Install(/*const TCodeLocation&location*/)
 		{
-			if (!loaded())
+			if (!IsLoaded())
 				return false;
 
 			glGetError();	//flush previous errors
-			if (installed_instance)
+			if (installedInstance)
 			{
-				FATAL__("overriding previously installed shader object 0x"+PointerToHex(installed_instance)/*+". Remote shader was installed in:\n"+String(installed_object->installed_in.toString())*/);
-				installed_instance->uninstall();
+				FATAL__("overriding previously installed shader object 0x"+PointerToHex(installedInstance)/*+". Remote shader was installed in:\n"+String(installed_object->installed_in.toString())*/);
+				installedInstance->Uninstall();
 			}
 			//installed_in = location;
-			glUseProgramObject(program_handle);
+			glUseProgramObject(programHandle);
 			GLenum error	= glGetError();
-			bool is_installed = error	== GL_NO_ERROR;
-			if (!is_installed)
+			bool isInstalled = error	== GL_NO_ERROR;
+			if (!isInstalled)
 			{
 				log.reset();
-				log << "Shader installation of object #"<<program_handle<<" failed"<<nl;
+				log << "Shader installation of object #"<<programHandle<<" failed"<<nl;
 				log	<< glGetErrorName(error)<<nl;
 				if (glGetHandle(GL_PROGRAM_OBJECT_ARB) != 0)
 				{
@@ -1480,71 +1475,71 @@ namespace Engine
 				}
 			}
 
-			if (is_installed)
-				installed_instance = this;
+			if (isInstalled)
+				installedInstance = this;
 			else
-				installed_instance = NULL;
+				installedInstance = NULL;
 
-			return is_installed;
+			return isInstalled;
 		}
 
-		bool			Instance::install(/*const TCodeLocation&location*/)	const
+		bool			Instance::Install(/*const TCodeLocation&location*/)	const
 		{
 			if (!this)
 				return true;
-			if (!program_handle)
+			if (!programHandle)
 				return false;
 			glGetError();	//flush previous errors
-			if (installed_instance)
+			if (installedInstance)
 			{
-				FATAL__("overriding previously installed shader object 0x"+PointerToHex(installed_instance)/*+". Remote shader was installed in:\n"+String(installed_object->installed_in.toString())*/);
-				installed_instance->uninstall();
+				FATAL__("overriding previously installed shader object 0x"+PointerToHex(installedInstance)/*+". Remote shader was installed in:\n"+String(installed_object->installed_in.toString())*/);
+				installedInstance->Uninstall();
 			}
 			//installed_in = location;
-			glUseProgramObject(program_handle);
+			glUseProgramObject(programHandle);
 			GLenum error	= glGetError();
-			bool is_installed = error	== GL_NO_ERROR;
-			if (!is_installed)
+			bool isInstalled = error	== GL_NO_ERROR;
+			if (!isInstalled)
 				glUseProgramObject(0);
 
-			if (is_installed)
-				installed_instance = this;
+			if (isInstalled)
+				installedInstance = this;
 			else
-				installed_instance = NULL;
-			return is_installed;
+				installedInstance = NULL;
+			return isInstalled;
 		}
 
 
 
-		bool			Instance::permissiveInstall(/*const TCodeLocation&location*/)
+		bool			Instance::PermissiveInstall(/*const TCodeLocation&location*/)
 		{
-			if (!loaded())
+			if (!IsLoaded())
 			{
-				if (installed_instance)
+				if (installedInstance)
 				{
-					installed_instance->uninstall();
-					installed_instance = NULL;
+					installedInstance->Uninstall();
+					installedInstance = NULL;
 				}
 				return true;
 			}
-			if (installed_instance == this)
+			if (installedInstance == this)
 				return true;
 
 
-			if (installed_instance)
-				installed_instance->uninstall();
+			if (installedInstance)
+				installedInstance->Uninstall();
 
 			glGetError();	//flush previous errors
 			//installed_in = location;
 
-			glUseProgramObject(program_handle);
+			glUseProgramObject(programHandle);
 			GLenum error	= glGetError();
 
-			bool is_installed = (error == GL_NO_ERROR);
-			if (!is_installed)
+			bool isInstalled = (error == GL_NO_ERROR);
+			if (!isInstalled)
 			{
 				log.reset();
-				log << "Shader installation of object #"<<program_handle<<" failed"<<nl;
+				log << "Shader installation of object #"<<programHandle<<" failed"<<nl;
 				log	<< glGetErrorName(error)<<nl;
 				if (glGetHandle(GL_PROGRAM_OBJECT_ARB) != 0)
 				{
@@ -1552,48 +1547,48 @@ namespace Engine
 					glUseProgramObject(0);
 				}
 			}
-			if (is_installed)
-				installed_instance = this;
+			if (isInstalled)
+				installedInstance = this;
 			else
-				installed_instance = NULL;
-			return is_installed;
+				installedInstance = NULL;
+			return isInstalled;
 		}
 
 
 
-		bool			Instance::permissiveInstall(/*const TCodeLocation&location*/)	const
+		bool			Instance::PermissiveInstall(/*const TCodeLocation&location*/)	const
 		{
-			if (!loaded())
+			if (!IsLoaded())
 			{
-				if (installed_instance)
+				if (installedInstance)
 				{
-					installed_instance->uninstall();
-					installed_instance = NULL;
+					installedInstance->Uninstall();
+					installedInstance = NULL;
 				}
 				return true;
 			}
-			if (installed_instance == this)
+			if (installedInstance == this)
 				return true;
 
 
-			if (installed_instance)
-				installed_instance->uninstall();
+			if (installedInstance)
+				installedInstance->Uninstall();
 
 			glGetError();	//flush previous errors
 			//installed_in = location;
 
-			glUseProgramObject(program_handle);
+			glUseProgramObject(programHandle);
 			GLenum error	= glGetError();
 
-			bool is_installed = (error == GL_NO_ERROR);
-			if (!is_installed)
+			bool isInstalled = (error == GL_NO_ERROR);
+			if (!isInstalled)
 				glUseProgramObject(0);
 
-			if (is_installed)
-				installed_instance = this;
+			if (isInstalled)
+				installedInstance = this;
 			else
-				installed_instance = NULL;
-			return is_installed;
+				installedInstance = NULL;
+			return isInstalled;
 		}
 
 
@@ -1601,27 +1596,23 @@ namespace Engine
 
 
 
-		void			Instance::deInstall()	const
-		{
-			uninstall();
-		}
 
-		void			Instance::uninstall()	const
+		void			Instance::Uninstall()	const
 		{
 			if (!this)
 				return;
-			if (installed_instance != this)
+			if (installedInstance != this)
 				FATAL__("Uninstalling but installed pointer is not this");
-			if (glGetHandle(GL_PROGRAM_OBJECT_ARB) != program_handle)
+			if (glGetHandle(GL_PROGRAM_OBJECT_ARB) != programHandle)
 				FATAL__("UnInstalling but installed handle is not mine");
-			installed_instance = NULL;
+			installedInstance = NULL;
 			if (glUseProgramObject)
 				glUseProgramObject(0);
 		}
 
-		/*static*/	void	Instance::permissiveUninstall()
+		/*static*/	void	Instance::PermissiveUninstall()
 		{
-			installed_instance = NULL;
+			installedInstance = NULL;
 			if (glUseProgramObject)
 				glUseProgramObject(0);
 		}
@@ -1633,81 +1624,81 @@ namespace Engine
 	
 	
 	
-			int Template::VariableExpression::evaluate(const UserConfiguration&status, Light::Type)
+			int Template::VariableExpression::Evaluate(const UserConfiguration&status, Light::Type)
 			{
-				return status.value(index);
+				return status.GetValue(index);
 			}
 
-			bool	Template::Block::usesLighting() const
+			bool	Template::Block::UsesLighting() const
 			{
 				if (type == LightLoop)
 					return true;
 				for (index_t i = 0; i < children; i++)
-					if (children[i]->usesLighting())
+					if (children[i]->UsesLighting())
 						return true;
 				return false;
 			}
 
-			void	Template::Block::assemble(StringBuffer&target, const UserConfiguration&user_config, const RenderConfiguration&render_config, Light::Type type, index_t light_index)
+			void	Template::Block::Assemble(StringBuffer&target, const UserConfiguration&userConfig, const RenderConfiguration&renderConfig, Light::Type type, index_t lightIndex)
 			{
-				for (index_t i = 0; i < inner_lines.count(); i++)
-					if (inner_lines[i].segments.count())
+				for (index_t i = 0; i < innerLines.count(); i++)
+					if (innerLines[i].segments.count())
 					{
-						const Array<String,Adopt>&segments = inner_lines[i].segments;
+						const Array<String,Adopt>&segments = innerLines[i].segments;
 						for (index_t j = 0; j < segments.count()-1; j++)
 						{
-							target << segments[j] << light_index;
+							target << segments[j] << lightIndex;
 						}
 						target << segments.last()<<nl;
-						/*if (inner_lines[i].includes)
-							inner_lines[i].includes->Block::assemble(target,user_config,render_config,type,light_index);*/
+						/*if (innerLines[i].includes)
+							innerLines[i].includes->Block::Assemble(target,userConfig,renderConfig,type,lightIndex);*/
 					}
-				bool is_else = false;
+				bool isElse = false;
 				for (index_t i = 0; i < children; i++)
 				{
 					Block*child = children[i];
-					bool do_assemble=false;
+					bool doAssemble=false;
 					switch (child->type)
 					{
 						case Any:
-							do_assemble = true;
-							is_else = false;
+							doAssemble = true;
+							isElse = false;
 						break;
 						case Conditional:
-							do_assemble = child->condition && child->condition->evaluate(user_config,type);
-							is_else = !do_assemble;
+							doAssemble = child->condition && child->condition->Evaluate(userConfig,type);
+							isElse = !doAssemble;
 						break;
 						case ElseConditional:
-							do_assemble = is_else && child->condition && child->condition->evaluate(user_config,type);
-							is_else = is_else && !do_assemble;
+							doAssemble = isElse && child->condition && child->condition->Evaluate(userConfig,type);
+							isElse = isElse && !doAssemble;
 						break;
 						case Else:
-							do_assemble = is_else;
-							is_else = false;
+							doAssemble = isElse;
+							isElse = false;
 						break;
 						case LightLoop:
-							do_assemble = true;
-							is_else = false;
+							doAssemble = true;
+							isElse = false;
 						break;
 					}
-					if (do_assemble)
+					if (doAssemble)
 					{
 						if (child->type == LightLoop)
 						{
-							for (index_t j = 0; j < render_config.lights.fillLevel(); j++)
-								if (render_config.lights[j] != Light::None)
-									child->assemble(target,user_config,render_config,render_config.lights[j],j);
+							for (index_t j = 0; j < renderConfig.lights.fillLevel(); j++)
+								if (renderConfig.lights[j] != Light::None)
+									child->Assemble(target,userConfig,renderConfig,renderConfig.lights[j],j);
 						}
 						else
-							child->assemble(target,user_config,render_config,type,light_index);
+							child->Assemble(target,userConfig,renderConfig,type,lightIndex);
 					}
-					for (index_t k = 0; k < child->trailing_lines.count(); k++)
-						if (child->trailing_lines[k].segments.count())
+					for (index_t k = 0; k < child->trailingLines.count(); k++)
+						if (child->trailingLines[k].segments.count())
 						{
-							const Array<String,Adopt>&segments = child->trailing_lines[k].segments;
+							const Array<String,Adopt>&segments = child->trailingLines[k].segments;
 							for (index_t j = 0; j < segments.count()-1; j++)
 							{
-								target << segments[j] << light_index;
+								target << segments[j] << lightIndex;
 							}
 							target << segments.last()<<nl;
 						}
@@ -1715,10 +1706,10 @@ namespace Engine
 			}
 	
 	
-			Template::Expression*	Template::RootBlock::processLayer(TokenList&tokens,VariableMap&map, index_t begin, index_t end, String&error)
+			Template::Expression*	Template::RootBlock::_ProcessLayer(TokenList&tokens,VariableMap&map, index_t begin, index_t end, String&error)
 			{
 				index_t level = 0,
-						block_begin;
+						blockBegin;
 
 		/* 		cout << "symbol chain is";
 				for (unsigned i = begin; i < end; i++)
@@ -1736,14 +1727,14 @@ namespace Engine
 					{
 						case Token::PUp:
 							if (!level)
-								block_begin = i+1;
+								blockBegin = i+1;
 							level++;
 						break;
 						case Token::PDown:
 							level--;
 							if (!level)
 							{
-								expression = processLayer(tokens,map,block_begin,i,error);
+								expression = _ProcessLayer(tokens,map,blockBegin,i,error);
 								if (!expression)
 									return NULL;
 							}
@@ -1797,7 +1788,7 @@ namespace Engine
 									{
 										expression = SHIELDED(new VariableExpression());
 										((VariableExpression*)expression)->name = token.content;
-										((VariableExpression*)expression)->index = map.define(token.content);
+										((VariableExpression*)expression)->index = map.Define(token.content);
 									}
 								}
 							}
@@ -1846,9 +1837,9 @@ namespace Engine
 						Expression*expression = expressions[i];
 						if (expression->level == level*0x1000)
 						{
-							if (expression->adoptRight(expressions[i+1]))
+							if (expression->AdoptRight(expressions[i+1]))
 								expressions.drop(i+1);
-							if (expression->adoptLeft(expressions[i-1]))
+							if (expression->AdoptLeft(expressions[i-1]))
 							{
 								if (expressions.drop(i-1))
 									i--;
@@ -1864,7 +1855,7 @@ namespace Engine
 				return expressions.drop(TypeInfo<index_t>::zero);
 			}
 	
-			Template::Expression*	Template::RootBlock::parseCondition(const char*condition, VariableMap&map, String&error)
+			Template::Expression*	Template::RootBlock::_ParseCondition(const char*condition, VariableMap&map, String&error)
 			{
 				static StringTokenizer	tokenizer;
 				static bool				initialized = false;
@@ -1905,8 +1896,8 @@ namespace Engine
 		
 				tokenizer.parse(condition,tokens);
 		
-				Expression*result = processLayer(tokens,map,0,tokens.count(),error);
-				if (result && !result->validate())
+				Expression*result = _ProcessLayer(tokens,map,0,tokens.count(),error);
+				if (result && !result->Validate())
 				{
 					error = "Expression '"+result->toString()+"' failed to validate";
 					DISCARD(result);
@@ -1917,28 +1908,28 @@ namespace Engine
 				return result;
 			}
 	
-			static void stripComments(String&line, bool&in_comment)
+			static void StripComments(String&line, bool&inComment)
 			{
 				const char	*c = line.c_str(),
-							*comment_start = line.c_str();
+							*commentStart = line.c_str();
 
 				unsigned count = 0;
 				while (*c)
 				{
-					if (in_comment)
+					if (inComment)
 					{
 						c = ::Template::strstr(c,"*/");
 						if (c)
 						{
-							unsigned index = comment_start-line.c_str();
-							line.erase(comment_start-line.c_str(),c-comment_start+2);
+							unsigned index = commentStart-line.c_str();
+							line.erase(commentStart-line.c_str(),c-commentStart+2);
 							c = line.c_str();
 							c+=index;
-							in_comment = false;
+							inComment = false;
 						}
 						else
 						{
-							line.erase(comment_start-line.c_str());
+							line.erase(commentStart-line.c_str());
 							return;
 						}
 					}
@@ -1955,56 +1946,56 @@ namespace Engine
 					}
 					if (*c == '*')
 					{
-						comment_start = c-1;
-						in_comment = true;
+						commentStart = c-1;
+						inComment = true;
 					}
 				}
 			}
 	
-			static void		logLine(const Array<String,Adopt>&lines,index_t index, StringBuffer&log_out)
+			static void		LogLine(const Array<String,Adopt>&lines,index_t index, StringBuffer&logOut)
 			{
 				index_t begin = index >= 2?index-2:0,
 						end = index+3 < lines.count()?index+3:lines.count();
-				//log_out << "-------- context --------"<<nl;
-				log_out << nl;
+				//logOut << "-------- context --------"<<nl;
+				logOut << nl;
 				if (begin)
-					log_out << "     ..."<<nl;
+					logOut << "     ..."<<nl;
 				for (index_t i = begin; i < end; i++)
 				{
 					if (i == index)
-						log_out << " >>> ";
+						logOut << " >>> ";
 					else
-						log_out << "     ";
-					log_out << lines[i];
+						logOut << "     ";
+					logOut << lines[i];
 			
-					log_out<<nl;
+					logOut<<nl;
 				}
 				if (end < lines.count())
-					log_out << "     ..."<<nl;
+					logOut << "     ..."<<nl;
 			}
 	
-			bool			Template::RootBlock::scan(const String&source, VariableMap&map, StringBuffer&log_out, index_t&line)
+			bool			Template::RootBlock::Scan(const String&source, VariableMap&map, StringBuffer&logOut, index_t&line)
 			{
-				shade_invoked = source.findWord("shade")!=0;
-				shade2_invoked = source.findWord("shade2")!=0;
-				custom_shade_invoked = source.findWord("customShade")!=0;
-				spotlight_invoked = source.findWord("spotLight")!=0;
-				omnilight_invoked = source.findWord("omniLight")!=0;
-				directlight_invoked = source.findWord("directLight")!=0;
+				shadeInvoked = source.findWord("shade")!=0;
+				shade2Invoked = source.findWord("shade2")!=0;
+				customShadeInvoked = source.findWord("customShade")!=0;
+				spotlightInvoked = source.findWord("spotLight")!=0;
+				omnilightInvoked = source.findWord("omniLight")!=0;
+				directlightInvoked = source.findWord("directLight")!=0;
 
-				clear();
+				Clear();
 				Block*current = this;
-				index_t block_begin = 0;
+				index_t blockBegin = 0;
 				Array<String,Adopt>	lines;
 		
-				bool in_comment = false;
+				bool inComment = false;
 				explode('\n',source,lines);
 		
 		
 		
 				for (index_t i = 0; i < lines.count(); i++)
 				{
-					stripComments(lines[i],in_comment);
+					StripComments(lines[i],inComment);
 					lines[i].trimThis();
 
 					if (lines[i].beginsWith("#include"))
@@ -2012,19 +2003,19 @@ namespace Engine
 						String file = lines[i].subString(8).trimThis();
 						if (!file.length())
 						{
-							log_out << "#include directive broken in line "<<(i+1)<<nl;
-							logLine(lines,i,log_out);					
+							logOut << "#include directive broken in line "<<(i+1)<<nl;
+							LogLine(lines,i,logOut);					
 							return false;
 						}
 						if ((file.firstChar() == '"' && file.lastChar() == '"')
 							||
 							(file.firstChar() == '<' && file.lastChar() == '>'))
 							file = file.subString(1,file.length()-2).trimThis();
-						String*include = locateShaderIncludable(file);
+						String*include = FindShaderIncludable(file);
 						if (!include)
 						{
-							log_out << "Unable to find '"<<file<<"' for inclusion in line "<<(i+1)<<nl;
-							logLine(lines,i,log_out);					
+							logOut << "Unable to find '"<<file<<"' for inclusion in line "<<(i+1)<<nl;
+							LogLine(lines,i,logOut);					
 							return false;
 						}
 						Array<String,AdoptStrategy>	temp;
@@ -2056,20 +2047,20 @@ namespace Engine
 			
 			
 					Array<Line,Adopt>&target = current->children
-												? current->children.last()->trailing_lines
-												: current->inner_lines;
+												? current->children.last()->trailingLines
+												: current->innerLines;
 			
 		/* 			if (current->children)
-						cout << "appending "<<(i-block_begin)<<" line(s):"<<endl; */
-					target.setSize(i-block_begin);
+						cout << "appending "<<(i-blockBegin)<<" line(s):"<<endl; */
+					target.setSize(i-blockBegin);
 					for (index_t j = 0; j < target.size(); j++)
 					{
-						explode(current->light_loop_constant,lines[block_begin+j],target[j].segments);
+						explode(current->lightLoopConstant,lines[blockBegin+j],target[j].segments);
 		/* 				if (current->children)
-							cout << "  "<<lines[block_begin+j]<<endl; */
+							cout << "  "<<lines[blockBegin+j]<<endl; */
 					}
 			
-					block_begin = i+1;
+					blockBegin = i+1;
 			
 
 					if (word=="endlight")
@@ -2078,10 +2069,10 @@ namespace Engine
 							current = current->parent;
 						else
 						{
-							log_out << "misplaced #"<<word<<" in line "<<(line+i+1)<<nl;
+							logOut << "misplaced #"<<word<<" in line "<<(line+i+1)<<nl;
 							if (current->parent && (current->type == Conditional || current->type == ElseConditional || current->type == Else))
-								log_out << "    (expected #endif)"<<nl;
-							logLine(lines,i,log_out);
+								logOut << "    (expected #endif)"<<nl;
+							LogLine(lines,i,logOut);
 							return false;
 						}
 					}
@@ -2091,10 +2082,10 @@ namespace Engine
 							current = current->parent;
 						else
 						{
-							log_out << "misplaced #"<<word<<" in line "<<(line+i+1)<<nl;
+							logOut << "misplaced #"<<word<<" in line "<<(line+i+1)<<nl;
 							if (current->parent && (current->type == LightLoop))
-								log_out << "    (expected #endlight)"<<nl;
-							logLine(lines,i,log_out);
+								logOut << "    (expected #endlight)"<<nl;
+							LogLine(lines,i,logOut);
 							return false;
 						}
 					}
@@ -2106,14 +2097,14 @@ namespace Engine
 						Block*parent = current;
 						current = current->children.append();
 						current->parent = parent;
-						current->light_loop_constant = parent->light_loop_constant;
+						current->lightLoopConstant = parent->lightLoopConstant;
 						current->type = Conditional;
 						String error;
-						current->condition = parseCondition(c,map,error);
+						current->condition = _ParseCondition(c,map,error);
 						if (!current->condition)
 						{
-							log_out << "Condition parse error '"<<error <<"' in line "<< (line+i+1)<<nl;
-							logLine(lines,i,log_out);
+							logOut << "Condition parse error '"<<error <<"' in line "<< (line+i+1)<<nl;
+							LogLine(lines,i,logOut);
 							return false;
 						}
 			
@@ -2124,8 +2115,8 @@ namespace Engine
 							c++;
 						if (!current->parent)
 						{
-							log_out << "misplaced #"<<word<<" in line "<<(line+i+1)<<nl;
-							logLine(lines,i,log_out);
+							logOut << "misplaced #"<<word<<" in line "<<(line+i+1)<<nl;
+							LogLine(lines,i,logOut);
 							return false;
 						}
 				
@@ -2133,22 +2124,22 @@ namespace Engine
 							Block*predecessor = current->parent->children.last();
 							if (!predecessor || (predecessor->type != Conditional && predecessor->type != ElseConditional))
 							{
-								log_out << "misplaced #"<<word<<" in line "<<(line+i+1)<<nl;
-								logLine(lines,i,log_out);
+								logOut << "misplaced #"<<word<<" in line "<<(line+i+1)<<nl;
+								LogLine(lines,i,logOut);
 								return false;
 							}
 						}
 						Block*parent = current->parent;
 						current = current->parent->children.append();
 						current->parent = parent;
-						current->light_loop_constant = parent->light_loop_constant;
+						current->lightLoopConstant = parent->lightLoopConstant;
 						current->type = ElseConditional;
 						String  error;
-						current->condition = parseCondition(c,map,error);
+						current->condition = _ParseCondition(c,map,error);
 						if (!current->condition)
 						{
-							log_out << "Condition parse error '"<<error <<"' in line "<< (line+i+1)<<nl;
-							logLine(lines,i,log_out);
+							logOut << "Condition parse error '"<<error <<"' in line "<< (line+i+1)<<nl;
+							LogLine(lines,i,logOut);
 							return false;
 						}
 							
@@ -2157,8 +2148,8 @@ namespace Engine
 					{
 						if (!current->parent)
 						{
-							log_out << "misplaced #"<<word<<" in line "<<(line+i+1)<<nl;
-							logLine(lines,i,log_out);
+							logOut << "misplaced #"<<word<<" in line "<<(line+i+1)<<nl;
+							LogLine(lines,i,logOut);
 							return false;
 						}
 				
@@ -2166,15 +2157,15 @@ namespace Engine
 							Block*predecessor = current->parent->children.last();
 							if (!predecessor || (predecessor->type != Conditional && predecessor->type != ElseConditional))
 							{
-								log_out << "misplaced #"<<word<<" in line "<<(line+i+1)<<nl;
-								logLine(lines,i,log_out);
+								logOut << "misplaced #"<<word<<" in line "<<(line+i+1)<<nl;
+								LogLine(lines,i,logOut);
 								return false;
 							}
 						}
 						Block*parent = current->parent;
 						current = current->parent->children.append();
 						current->parent = parent;
-						current->light_loop_constant = parent->light_loop_constant;
+						current->lightLoopConstant = parent->lightLoopConstant;
 						current->type = Else;
 					}
 					elif (word.beginsWith("light"))
@@ -2185,38 +2176,38 @@ namespace Engine
 						current = current->children.append();
 						current->parent = parent;
 						current->type = LightLoop;
-						current->light_loop_constant = c;
-						current->light_loop_constant.trimThis();
-						if (current->light_loop_constant.firstChar() != '<' || current->light_loop_constant.lastChar() != '>')
+						current->lightLoopConstant = c;
+						current->lightLoopConstant.trimThis();
+						if (current->lightLoopConstant.firstChar() != '<' || current->lightLoopConstant.lastChar() != '>')
 						{
-							log_out << "illformatted lightloop variable '"<<current->light_loop_constant<<"' found in line "<<(line+i+1)<<". Variables must be formatted '<NAME>'."<<nl;
-							logLine(lines,i,log_out);
+							logOut << "illformatted lightloop variable '"<<current->lightLoopConstant<<"' found in line "<<(line+i+1)<<". Variables must be formatted '<NAME>'."<<nl;
+							LogLine(lines,i,logOut);
 							return false;
 						}
 					}
 					else
 					{
-						log_out << "unsupported precompiler directive '#"<<word<<"' found in line "<<(line+i+1)<<nl;
-						logLine(lines,i,log_out);
+						logOut << "unsupported precompiler directive '#"<<word<<"' found in line "<<(line+i+1)<<nl;
+						LogLine(lines,i,logOut);
 						return false;
 					}
 				}
 				if (current != this)
 				{
-					log_out << "missing #endif directive at line "<<lines.count()<<nl;
-					logLine(lines,lines.count()-1,log_out);
+					logOut << "missing #endif directive at line "<<lines.count()<<nl;
+					LogLine(lines,lines.count()-1,logOut);
 					return false;
 				}
 		
 				{
 					Array<Line,Adopt>&target = current->children
-												? current->children.last()->trailing_lines
-												: current->inner_lines;
+												? current->children.last()->trailingLines
+												: current->innerLines;
 			
-					target.setSize(lines.count()-block_begin);
+					target.setSize(lines.count()-blockBegin);
 					for (unsigned j = 0; j < target.size(); j++)
 					{
-						explode(current->light_loop_constant,lines[block_begin+j],target[j].segments);
+						explode(current->lightLoopConstant,lines[blockBegin+j],target[j].segments);
 					}
 				}
 		
@@ -2227,73 +2218,73 @@ namespace Engine
 	
 	
 	
-			String			Template::RootBlock::assemble(const RenderConfiguration&render_config,const UserConfiguration&user_config, bool is_shared)
+			String			Template::RootBlock::Assemble(const RenderConfiguration&renderConfig,const UserConfiguration&userConfig, bool isShared)
 			{
 				static StringBuffer	buffer;
 				buffer.reset();
-				assemble(render_config, user_config,buffer,is_shared);
-				return buffer.toString();
+				Assemble(renderConfig, userConfig,buffer,isShared);
+				return buffer.ToStringRef();
 			}
 	
 
-			bool			Template::RootBlock::usesLighting()	const
+			bool			Template::RootBlock::UsesLighting()	const
 			{
-				if (shade_invoked || shade2_invoked || custom_shade_invoked)
+				if (shadeInvoked || shade2Invoked || customShadeInvoked)
 					return true;
-				return Block::usesLighting();
+				return Block::UsesLighting();
 			}
 		
-			/*static*/ void		Template::RootBlock::shadowFunction(index_t level,StringBuffer&buffer)
+			/*static*/ void		Template::RootBlock::_ShadowFunction(index_t level,StringBuffer&buffer)
 			{
-				if (level >= shadow_attachments.size() || shadow_attachments[level].isEmpty())
+				if (level >= shadowAttachments.size() || shadowAttachments[level].IsEmpty())
 					buffer << "1.0";
 				else
 					buffer << "fragmentShadow"<<level<<"(position)";
 			}
 
-			void			Template::RootBlock::assemble(const RenderConfiguration&render_config, const UserConfiguration&user_config,StringBuffer&buffer, bool is_shared/*=false*/)
+			void			Template::RootBlock::Assemble(const RenderConfiguration&renderConfig, const UserConfiguration&userConfig,StringBuffer&buffer, bool isShared/*=false*/)
 			{
-				if (is_shared)
+				if (isShared)
 				{
-					for (index_t i = 0; i < shadow_attachments.count(); i++)
-						if (!shadow_attachments[i].isEmpty())
+					for (index_t i = 0; i < shadowAttachments.count(); i++)
+						if (!shadowAttachments[i].IsEmpty())
 						{
 							buffer << nl;
-							if (shadow_attachments[i].shared_attachment.isNotEmpty())
-								buffer << shadow_attachments[i].shared_attachment<<nl;
+							if (shadowAttachments[i].sharedAttachment.isNotEmpty())
+								buffer << shadowAttachments[i].sharedAttachment<<nl;
 							buffer << "float fragmentShadow"<<i<<"(vec3 position)"<<nl
 									<< '{'<<nl
-									<< shadow_attachments[i].fragment_shadow_code
+									<< shadowAttachments[i].fragmentShadowCode
 									<< '}'<<nl;
 							FATAL__("Unsupported");
 						}
-					for (index_t i = shadow_attachments.count(); i < render_config.lights.fillLevel(); i++)
+					for (index_t i = shadowAttachments.count(); i < renderConfig.lights.fillLevel(); i++)
 							buffer << "float fragmentShadow"<<i<<"(vec3 position)"<<nl
 									<< '{'<<nl
 									<< "return 1.0;"<<nl
 									<< '}'<<nl;
 
 					//buffer << nl << "void vertexShadow()\n{\n";
-					//for (index_t i = 0; i < shadow_attachments.size(); i++)
-					//	if (!shadow_attachments[i].isEmpty())
+					//for (index_t i = 0; i < shadowAttachments.size(); i++)
+					//	if (!shadowAttachments[i].IsEmpty())
 					//	{
-					//		if (shadow_attachments[i].vertex_shader_attachment.isNotEmpty())
-					//			buffer << shadow_attachments[i].vertex_shader_attachment<<nl;
+					//		if (shadowAttachments[i].vertex_shader_attachment.isNotEmpty())
+					//			buffer << shadowAttachments[i].vertex_shader_attachment<<nl;
 					//	}
 					//buffer << "}\n";
 				}
-				if (shade_invoked)
+				if (shadeInvoked)
 				{
 					buffer << nl <<
 					"vec4 shade(vec3 position, vec3 normal, vec3 reflected)\n"
 					"{\n";
-					if (render_config.lighting_enabled)
+					if (renderConfig.lightingEnabled)
 					{
 						buffer <<
 						"	vec3 result = vec3(0.0);\n"
 						"	float fresnel = 1.0-abs(normal.z)*0.5;\n";
-						for (index_t i = 0; i < render_config.lights.fillLevel(); i++)
-							switch (render_config.lights[i])
+						for (index_t i = 0; i < renderConfig.lights.fillLevel(); i++)
+							switch (renderConfig.lights[i])
 							{
 								case Light::Omni:
 									buffer << 
@@ -2302,7 +2293,7 @@ namespace Engine
 									"		float distance = length(ldir);\n"
 									"		ldir /= distance;\n"
 									"		float shadow = ";
-									shadowFunction(i,buffer);
+									_ShadowFunction(i,buffer);
 									buffer <<";\n"
 									"		float attenuation = 1.0 / (gl_LightSource["<<i<<"].constantAttenuation + gl_LightSource["<<i<<"].linearAttenuation * distance + gl_LightSource["<<i<<"].quadraticAttenuation * distance*distance);\n"
 									"		result += max(dot(normal,ldir),0.0)*gl_FrontLightProduct["<<i<<"].diffuse.rgb*attenuation*shadow;\n"
@@ -2316,7 +2307,7 @@ namespace Engine
 									"	{\n"
 									"		vec3 ldir = gl_LightSource["<<i<<"].position.xyz;\n"
 									"		float shadow = ";
-													shadowFunction(i,buffer);
+													_ShadowFunction(i,buffer);
 													buffer <<";\n"
 									"		result += max(dot(normal,ldir),0.0)*gl_FrontLightProduct["<<i<<"].diffuse.rgb*shadow;\n"
 									"		if (gl_FrontMaterial.shininess > 0.0)\n"
@@ -2339,7 +2330,7 @@ namespace Engine
 									"				general_intensity /= distance;\n"
 									"				diffuse /= distance;\n"
 									"				float shadow = ";
-														shadowFunction(i,buffer);
+														_ShadowFunction(i,buffer);
 														buffer <<";\n"
 									"				float attenuation = 1.0 / (gl_LightSource["<<i<<"].constantAttenuation + gl_LightSource["<<i<<"].linearAttenuation * distance + gl_LightSource["<<i<<"].quadraticAttenuation * distance*distance);\n"
 									"				float cone_intensity = pow(general_intensity,gl_LightSource["<<i<<"].spotExponent)*attenuation;\n"
@@ -2364,18 +2355,18 @@ namespace Engine
 				}
 
 
-				if (shade2_invoked)
+				if (shade2Invoked)
 				{
 					buffer << nl <<
 					"vec4 shade2(vec3 position, vec3 eye_direction, vec3 normal, vec3 reflected)\n"
 					"{\n";
-					if (render_config.lighting_enabled)
+					if (renderConfig.lightingEnabled)
 					{
 						buffer <<
 						"	vec3 result = vec3(0.0);\n"
 						"	float fresnel = 1.0-abs(dot(normal,eye_direction))*0.5;\n";
-						for (index_t i = 0; i < render_config.lights.fillLevel(); i++)
-							switch (render_config.lights[i])
+						for (index_t i = 0; i < renderConfig.lights.fillLevel(); i++)
+							switch (renderConfig.lights[i])
 							{
 								case Light::Omni:
 									buffer << 
@@ -2384,7 +2375,7 @@ namespace Engine
 									"		float distance = length(ldir);\n"
 									"		ldir /= distance;\n"
 									"		float shadow = ";
-									shadowFunction(i,buffer);
+									_ShadowFunction(i,buffer);
 									buffer <<";\n"
 									"		float attenuation = 1.0 / (gl_LightSource["<<i<<"].constantAttenuation + gl_LightSource["<<i<<"].linearAttenuation * distance + gl_LightSource["<<i<<"].quadraticAttenuation * distance*distance);\n"
 									"		result += max(dot(normal,ldir),0.0)*gl_FrontLightProduct["<<i<<"].diffuse.rgb*attenuation*shadow;\n"
@@ -2398,7 +2389,7 @@ namespace Engine
 									"	{\n"
 									"		vec3 ldir = gl_LightSource["<<i<<"].position.xyz;\n"
 									"		float shadow = ";
-													shadowFunction(i,buffer);
+													_ShadowFunction(i,buffer);
 													buffer <<";\n"
 									"		result += max(dot(normal,ldir),0.0)*gl_FrontLightProduct["<<i<<"].diffuse.rgb*shadow;\n"
 									"		if (gl_FrontMaterial.shininess > 0.0)\n"
@@ -2421,7 +2412,7 @@ namespace Engine
 									"				general_intensity /= distance;\n"
 									"				diffuse /= distance;\n"
 									"				float shadow = ";
-														shadowFunction(i,buffer);
+														_ShadowFunction(i,buffer);
 														buffer <<";\n"
 									"				float attenuation = 1.0 / (gl_LightSource["<<i<<"].constantAttenuation + gl_LightSource["<<i<<"].linearAttenuation * distance + gl_LightSource["<<i<<"].quadraticAttenuation * distance*distance);\n"
 									"				float cone_intensity = pow(general_intensity,gl_LightSource["<<i<<"].spotExponent)*attenuation;\n"
@@ -2446,18 +2437,18 @@ namespace Engine
 				}
 		
 		
-				if (custom_shade_invoked)
+				if (customShadeInvoked)
 				{
 					buffer << nl <<
 					"vec4 customShade(vec3 position, vec3 normal, vec3 reflected, vec3 ambient, vec3 diffuse, vec3 specular)\n"
 					"{\n";
-					if (render_config.lighting_enabled)
+					if (renderConfig.lightingEnabled)
 					{
 						buffer <<
 						"	vec3 result = vec3(0.0);\n"
 						"	float fresnel = 1.0-abs(normal.z)*0.5;\n";
-						for (index_t i = 0; i < render_config.lights.fillLevel(); i++)
-							switch (render_config.lights[i])
+						for (index_t i = 0; i < renderConfig.lights.fillLevel(); i++)
+							switch (renderConfig.lights[i])
 							{
 								case Light::Omni:
 									buffer << 
@@ -2466,7 +2457,7 @@ namespace Engine
 									"		float distance = length(ldir);\n"
 									"		ldir /= distance;\n"
 									"		float shadow = ";
-													shadowFunction(i,buffer);
+													_ShadowFunction(i,buffer);
 													buffer <<";\n"
 									"		float attenuation = 1.0 / (gl_LightSource["<<i<<"].constantAttenuation + gl_LightSource["<<i<<"].linearAttenuation * distance + gl_LightSource["<<i<<"].quadraticAttenuation * distance*distance);\n"
 									"		result += max(dot(normal,ldir),0.0)*gl_LightSource["<<i<<"].diffuse.rgb*diffuse*attenuation*shadow;\n"
@@ -2480,7 +2471,7 @@ namespace Engine
 									"	{\n"
 									"		vec3 ldir = gl_LightSource["<<i<<"].position.xyz;\n"
 									"		float shadow = ";
-													shadowFunction(i,buffer);
+													_ShadowFunction(i,buffer);
 													buffer <<";\n"
 									"		result += max(dot(normal,ldir),0.0)*gl_LightSource["<<i<<"].diffuse.rgb*diffuse*shadow;\n"
 									"		if (gl_FrontMaterial.shininess > 0.0)\n"
@@ -2496,7 +2487,7 @@ namespace Engine
 									"		if (general_intensity > 0.0)\n"
 									"		{\n"
 									"			float shadow = ";
-													shadowFunction(i,buffer);
+													_ShadowFunction(i,buffer);
 													buffer <<";\n"
 									"			float diff = dot(normal,ldir);\n"
 									"			if (diff > 0.0)\n"
@@ -2528,7 +2519,7 @@ namespace Engine
 				}
 		
 		
-				if (spotlight_invoked)
+				if (spotlightInvoked)
 				buffer <<
 					"vec4 spotLight(int index, vec3 position, vec3 normal, vec3 reflected, float shadow)\n"
 					"{\n"
@@ -2560,7 +2551,7 @@ namespace Engine
 					"	return result;\n"
 					"}\n\n";				
 
-				if (directlight_invoked)
+				if (directlightInvoked)
 				buffer <<
 					"vec4 directLight(int index, vec3 position, vec3 normal, vec3 reflected, float shadow)\n"
 					"{\n"
@@ -2574,7 +2565,7 @@ namespace Engine
 					"	return result;\n"
 					"}\n\n";				
 
-				if (omnilight_invoked)
+				if (omnilightInvoked)
 				buffer <<
 					"vec4 omniLight(int index, vec3 position, vec3 normal, vec3 reflected, float shadow)\n"
 					"{\n"
@@ -2593,7 +2584,7 @@ namespace Engine
 
 	
 	
-				Block::assemble(buffer,user_config,render_config,Light::None,0);
+				Block::Assemble(buffer,userConfig,renderConfig,Light::None,0);
 			}
 	
 	
@@ -2601,14 +2592,14 @@ namespace Engine
 	
 			Template::VariableMap::VariableMap():changed(true)
 			{
-				clear();
+				Clear();
 			}
 			
-			void					Template::VariableMap::clear()
+			void					Template::VariableMap::Clear()
 			{
-				variable_map.clear();
-				variable_map.set("fog",FogVariableIndex);
-				variable_map.set("lighting",LightingVariableIndex);
+				variableMap.Clear();
+				variableMap.set("fog",FogVariableIndex);
+				variableMap.set("lighting",LightingVariableIndex);
 				changed = true;
 			}
 
@@ -2616,8 +2607,8 @@ namespace Engine
 			{
 				if (!application_shutting_down)
 				{
-					for (index_t i = 0; i < attached_configurations.count(); i++)
-						attached_configurations[i]->signalMapDestruction();
+					for (index_t i = 0; i < attachedConfigurations.count(); i++)
+						attachedConfigurations[i]->SignalMapDestruction();
 				}
 
 			}
@@ -2636,7 +2627,7 @@ namespace Engine
 					target[i+lights.fillLevel()] = values[i];
 			}*/
 	
-			void		Template::RenderConfiguration::setLights(count_t count,...)
+			void		Template::RenderConfiguration::SetLights(count_t count,...)
 			{
 				va_list vl;
 				va_start(vl,count);
@@ -2647,66 +2638,66 @@ namespace Engine
 					lights << (Light::Type)val;
 				}
 				va_end(vl);
-				signalHasChanged();
+				SignalHasChanged();
 			}
 	
-			void		Template::RenderConfiguration::setLighting(bool lighting)
+			void		Template::RenderConfiguration::SetLighting(bool lighting)
 			{
-				if (lighting_enabled != lighting)
+				if (lightingEnabled != lighting)
 				{
-					lighting_enabled = lighting;
-					signalHasChanged();
+					lightingEnabled = lighting;
+					SignalHasChanged();
 				}
 			}
 
 
-			Template::RenderConfiguration::RenderConfiguration():lighting_enabled(false),fog_enabled(false)
+			Template::RenderConfiguration::RenderConfiguration():lightingEnabled(false),fogEnabled(false)
 			{}
 	
 			Template::UserConfiguration::UserConfiguration():map(NULL)
 			{
-				reset();
+				ResetAllValues();
 			}
 
-			void Template::RenderConfiguration::clear()
+			void Template::RenderConfiguration::Clear()
 			{
-				if (lights.count()!=0 || lighting_enabled || fog_enabled)
+				if (lights.count()!=0 || lightingEnabled || fogEnabled)
 				{
 					lights.reset();
-					lighting_enabled = false;
-					fog_enabled = false;
-					signalHasChanged();
+					lightingEnabled = false;
+					fogEnabled = false;
+					SignalHasChanged();
 				}
 			}
 
 	
-			void	Template::UserConfiguration::clear()
+			void	Template::UserConfiguration::Clear()
 			{
 				if (map)
-					map->unreg(this);
+					map->Unreg(this);
 				map = NULL;
 				if (values.count() != 2 || values[0] != 0 || values[1] != 0)
 				{
 					values.setSize(2);
 					values[0] = 0;
 					values[1] = 0;
-					signalHasChanged();
+					SignalHasChanged();
 				}
 			}
 
-			void		Template::UserConfiguration::signalMapDestruction()
+			void		Template::UserConfiguration::SignalMapDestruction()
 			{
 				map = NULL;
 			}
 
 	
-			void		Template::RenderConfiguration::redetect()
+			void		Template::RenderConfiguration::ReDetect()
 			{
 				lights.reset();
-				lighting_enabled = glIsEnabled(GL_LIGHTING)!=0;
-				fog_enabled = glIsEnabled(GL_FOG)!=0;
-				if (lighting_enabled)
-					for (GLint i = 0; i < gl_extensions.max_lights; i++)
+				lightingEnabled = glIsEnabled(GL_LIGHTING)!=0;
+				fogEnabled = glIsEnabled(GL_FOG)!=0;
+				if (lightingEnabled)
+					for (GLint i = 0; i < glExtensions.maxLights; i++)
 					{
 						GLint index = GL_LIGHT0+i;
 						if (glIsEnabled(index))
@@ -2728,58 +2719,58 @@ namespace Engine
 						else
 							lights << Light::None;
 					}
-				signalHasChanged();
+				SignalHasChanged();
 			}
 
-			void	Template::UserConfiguration::updateRenderVariables(const RenderConfiguration&config)
+			void	Template::UserConfiguration::UpdateRenderVariables(const RenderConfiguration&config)
 			{
-				if (values.isEmpty())
+				if (values.IsEmpty())
 					return;
-				if (values[0] != (int)config.fog_enabled || (values.count() > 1 && values[1] != (int)config.lighting_enabled))
+				if (values[0] != (int)config.fogEnabled || (values.count() > 1 && values[1] != (int)config.lightingEnabled))
 				{
-					values[FogVariableIndex-1] = config.fog_enabled;
+					values[FogVariableIndex-1] = config.fogEnabled;
 					if (values.count() > 1)
-						values[LightingVariableIndex-1] = config.lighting_enabled;
-					signalHasChanged();
+						values[LightingVariableIndex-1] = config.lightingEnabled;
+					SignalHasChanged();
 				}
 			}
 
-			void	Template::UserConfiguration::updateRenderVariables()
+			void	Template::UserConfiguration::UpdateRenderVariables()
 			{
-				updateRenderVariables(global_render_config);
+				UpdateRenderVariables(globalRenderConfig);
 			}
 
-			void	Template::VariableMap::submitChanges()
+			void	Template::VariableMap::SubmitChanges()
 			{
 				if (changed)
 				{
-					for (index_t i = 0; i < attached_configurations; i++)
-						attached_configurations[i]->adapt();
+					for (index_t i = 0; i < attachedConfigurations; i++)
+						attachedConfigurations[i]->Adapt();
 					changed = false;
 				}
 			}
 	
-			index_t	Template::VariableMap::locate(const String&var_name)	const
+			index_t	Template::VariableMap::Lookup(const String&varName)	const
 			{
 				index_t result;
-				if (variable_map.query(var_name,result))
+				if (variableMap.query(varName,result))
 					return result;
 				return 0;
 			}
 	
-			index_t	Template::VariableMap::define(const String&variable_name)
+			index_t	Template::VariableMap::Define(const String&varName)
 			{
 				index_t result;
-				if (variable_map.query(variable_name,result))
+				if (variableMap.query(varName,result))
 					return result;
-				result = variable_map.count()+1;
-				variable_map.set(variable_name,result);
+				result = variableMap.count()+1;
+				variableMap.set(varName,result);
 				changed = true;
 				return result;
 			}
 
 	
-			bool		Template::UserConfiguration::set(index_t variable, int value)
+			bool		Template::UserConfiguration::Set(index_t variable, int value)
 			{
 				index_t index = variable-1;
 				if (index >= values.count())
@@ -2787,27 +2778,27 @@ namespace Engine
 				if (values[index] != value)
 				{
 					values[index] = value;
-					signalHasChanged();
+					SignalHasChanged();
 				}
 				return true;
 			}
 		
-			bool		Template::UserConfiguration::setByName(const String&variable_name, int value)
+			bool		Template::UserConfiguration::SetByName(const String&varName, int value)
 			{
 				if (!map)
 					return false;
-				index_t index = map->locate(variable_name)-1;
+				index_t index = map->Lookup(varName)-1;
 				if (index >= values.count())
 					return false;
 				if (values[index] != value)
 				{
 					values[index] = value;
-					signalHasChanged();
+					SignalHasChanged();
 				}
 				return true;
 			}
 	
-			int			Template::UserConfiguration::value(index_t variable)	const
+			int			Template::UserConfiguration::GetValue(index_t variable)	const
 			{
 				index_t index = variable-1;
 				if (index >= values.count())
@@ -2815,11 +2806,11 @@ namespace Engine
 				return values[index];
 			}
 
-			int			Template::UserConfiguration::valueByName(const String&variable_name)	const
+			int			Template::UserConfiguration::GetValueByName(const String&varName)	const
 			{
 				if (!map)
 					return 0;
-				index_t index = map->locate(variable_name)-1;
+				index_t index = map->Lookup(varName)-1;
 				if (index >= values.count())
 					return 0;
 				return values[index];
@@ -2827,7 +2818,7 @@ namespace Engine
 	
 
 	
-			void		Template::UserConfiguration::reset()
+			void		Template::UserConfiguration::ResetAllValues()
 			{
 				values.fill(0);
 			}
@@ -2837,406 +2828,406 @@ namespace Engine
 			Template::UserConfiguration::~UserConfiguration()
 			{
 				if (!application_shutting_down && map)
-					map->unreg(this);
+					map->Unreg(this);
 			}
 
 
-			Template::VariableMap*	Template::UserConfiguration::variableMap()
+			Template::VariableMap*	Template::UserConfiguration::GetVariableMap()
 			{
 				return map;
 			}
 		
-			const Template::VariableMap*		Template::UserConfiguration::variableMap() const								//!< Retrieves the map currently associated with this configuration, if any @return variable map or NULL if no such exists
+			const Template::VariableMap*		Template::UserConfiguration::GetVariableMap() const								//!< Retrieves the map currently associated with this configuration, if any @return variable map or NULL if no such exists
 			{
 				return map;
 			}
 
-			void					Template::UserConfiguration::adapt()
+			void					Template::UserConfiguration::Adapt()
 			{
 				if (!map)
 				{
-					clear();
+					Clear();
 					return;
 				}
 
 				count_t old = values.count();
-				values.resizePreserveContent(map->variable_map.count());
+				values.resizePreserveContent(map->variableMap.count());
 				for (index_t i = old; i < values.count(); i++)
 					values[i] = 0;
 				if (old != values.count())
-					signalHasChanged();
+					SignalHasChanged();
 			}
 
-			void					Template::UserConfiguration::link(VariableMap*new_map, bool adapt)
+			void					Template::UserConfiguration::Link(VariableMap*newMap, bool Adapt)
 			{
 				if (!this)
 					return;
-				if (!new_map)
+				if (!newMap)
 				{
-					clear();
+					Clear();
 					return;
 				}
-				if (map == new_map)
+				if (map == newMap)
 				{
-					if (adapt)
+					if (Adapt)
 					{
 						count_t old = values.count();
-						values.resizePreserveContent(map->variable_map.count());
+						values.resizePreserveContent(map->variableMap.count());
 						for (index_t i = old; i < values.count(); i++)
 							values[i] = 0;
 						if (old != values.count())
-							signalHasChanged();
+							SignalHasChanged();
 					}
 
 					return;
 				}
 				if (map)
-					map->unreg(this);
-				map = new_map;
+					map->Unreg(this);
+				map = newMap;
 				if (map)
-					map->reg(this);
-				values.setSize(map->variable_map.count());
+					map->Reg(this);
+				values.setSize(map->variableMap.count());
 				values.fill(0);
 
-				signalHasChanged();
+				SignalHasChanged();
 			}
 
 	
-			static HashContainer<String>	global_shader_includables;
+			static HashContainer<String>	globalShaderIncludables;
 
 
 
 			Template::ConfigurationComponent::~ConfigurationComponent()
 			{
 				if (!application_shutting_down)
-					for (index_t i = 0; i < linked_configs; i++)
-						linked_configs[i]->signalComponentDestroyed(this);
+					for (index_t i = 0; i < linkedConfigs; i++)
+						linkedConfigs[i]->SignalComponentDestroyed(this);
 			}
 
-			void	Template::ConfigurationComponent::unreg(Configuration*config)
+			void	Template::ConfigurationComponent::Unreg(Configuration*config)
 			{
-				linked_configs.drop(config);
+				linkedConfigs.drop(config);
 			}
 
-			void	Template::ConfigurationComponent::reg(Configuration*config)
+			void	Template::ConfigurationComponent::Reg(Configuration*config)
 			{
-				linked_configs.append(config);
+				linkedConfigs.append(config);
 			}
 
-			void	Template::ConfigurationComponent::signalHasChanged()
+			void	Template::ConfigurationComponent::SignalHasChanged()
 			{
 				version++;
 			}
 
 
-			bool	Template::Configuration::requiresUpdate()	const
+			bool	Template::Configuration::RequiresUpdate()	const
 			{
-				return structure_changed || (user_config!=NULL && user_config_version != user_config->version) || (render_config!=NULL && render_config_version != render_config->version);
+				return structureChanged || (userConfig!=NULL && userConfigVersion != userConfig->version) || (renderConfig!=NULL && renderConfigVersion != renderConfig->version);
 			}
 
-			bool	Template::Configuration::update()
+			bool	Template::Configuration::Update()
 			{
 
-				if (valid && requiresUpdate())
+				if (valid && RequiresUpdate())
 				{
 					if (!registered)
 					{
-						user_config->reg(this);
-						render_config->reg(this);
+						userConfig->Reg(this);
+						renderConfig->Reg(this);
 						registered = true;
 					}
-					setSize(render_config->lights.fillLevel()+user_config->values.count());
-					for (unsigned i = 0; i < render_config->lights.fillLevel(); i++)
-						data[i] = render_config->lights[i];
-					for (unsigned i = 0; i < user_config->values.count(); i++)
-						data[i+render_config->lights.fillLevel()] = user_config->values[i];
-					structure_changed = false;
-					user_config_version = user_config->version;
-					render_config_version = render_config->version;
+					setSize(renderConfig->lights.fillLevel()+userConfig->values.count());
+					for (unsigned i = 0; i < renderConfig->lights.fillLevel(); i++)
+						data[i] = renderConfig->lights[i];
+					for (unsigned i = 0; i < userConfig->values.count(); i++)
+						data[i+renderConfig->lights.fillLevel()] = userConfig->values[i];
+					structureChanged = false;
+					userConfigVersion = userConfig->version;
+					renderConfigVersion = renderConfig->version;
 					return true;
 				}
 				return false;
 
 			}
 
-			void	Template::Configuration::signalComponentDestroyed(ConfigurationComponent*component)
+			void	Template::Configuration::SignalComponentDestroyed(ConfigurationComponent*component)
 			{
-				if (component == user_config)
-					user_config = NULL;
-				elif (component == render_config)
-					render_config = NULL;
-				unlink();
+				if (component == userConfig)
+					userConfig = NULL;
+				elif (component == renderConfig)
+					renderConfig = NULL;
+				Unlink();
 			}
 
 			Template::Configuration::~Configuration()
 			{
 				if (!application_shutting_down)
-					unlink();
+					Unlink();
 			}
 
-			void Template::Configuration::unlink()
+			void Template::Configuration::Unlink()
 			{
-				if (user_config)
+				if (userConfig)
 				{
 					if (registered)
-						user_config->unreg(this);
-					user_config = NULL;
+						userConfig->Unreg(this);
+					userConfig = NULL;
 				}
-				if (render_config)
+				if (renderConfig)
 				{
 					if (registered)
-						render_config->unreg(this);
-					render_config = NULL;
+						renderConfig->Unreg(this);
+					renderConfig = NULL;
 				}
 				valid = false;
-				structure_changed = true;
+				structureChanged = true;
 			}
 
-			void	Template::Configuration::link(RenderConfiguration&new_render_config, UserConfiguration&new_user_config)
+			void	Template::Configuration::Link(RenderConfiguration&newRenderConfig, UserConfiguration&newUserConfig)
 			{
-				if (&new_render_config == render_config && &new_user_config == user_config)
+				if (&newRenderConfig == renderConfig && &newUserConfig == userConfig)
 					return;
-				unlink();
-				user_config = &new_user_config;
-				render_config = &new_render_config;
-				user_config->reg(this);
-				render_config->reg(this);
+				Unlink();
+				userConfig = &newUserConfig;
+				renderConfig = &newRenderConfig;
+				userConfig->Reg(this);
+				renderConfig->Reg(this);
 				valid = true;
-				structure_changed = true;
-				user_config_version = user_config->version;
-				render_config_version = render_config->version;
+				structureChanged = true;
+				userConfigVersion = userConfig->version;
+				renderConfigVersion = renderConfig->version;
 				registered = true;
 			}
 
-			void	Template::Configuration::link(RenderConfiguration&new_render_config)
+			void	Template::Configuration::Link(RenderConfiguration&newRenderConfig)
 			{
-				if (render_config == &new_render_config)
+				if (renderConfig == &newRenderConfig)
 					return;
-				if (registered && render_config!=NULL)
-					render_config->unreg(this);
-				render_config = &new_render_config;
+				if (registered && renderConfig!=NULL)
+					renderConfig->Unreg(this);
+				renderConfig = &newRenderConfig;
 				if (registered)
-					render_config->reg(this);
-				valid = user_config != NULL;
-				render_config_version = render_config->version;
-				structure_changed = true;
+					renderConfig->Reg(this);
+				valid = userConfig != NULL;
+				renderConfigVersion = renderConfig->version;
+				structureChanged = true;
 			}
 
-			void	Template::Configuration::link(UserConfiguration&new_user_config)
+			void	Template::Configuration::Link(UserConfiguration&newUserConfig)
 			{
-				if (user_config == &new_user_config)
+				if (userConfig == &newUserConfig)
 					return;
-				if (registered && user_config!=NULL)
-					user_config->unreg(this);
-				user_config = &new_user_config;
+				if (registered && userConfig!=NULL)
+					userConfig->Unreg(this);
+				userConfig = &newUserConfig;
 				if (registered)
-					user_config->reg(this);
-				valid = render_config != NULL;
-				user_config_version = user_config->version;
-				structure_changed = true;
+					userConfig->Reg(this);
+				valid = renderConfig != NULL;
+				userConfigVersion = userConfig->version;
+				structureChanged = true;
 			}
 
 				
-			/*static*/ String*		Template::locateShaderIncludable(const String&filename)
+			/*static*/ String*		Template::FindShaderIncludable(const String&filename)
 			{
-				String*result = global_shader_includables.lookup(filename);
+				String*result = globalShaderIncludables.lookup(filename);
 				if (result)
 					return result;
 				static StringBuffer	dummy;
 				dummy.reset();
 				String content;
-				if (!extractFileContent(filename,content,dummy))
+				if (!_ExtractFileContent(filename,content,dummy))
 					return NULL;
-				result = global_shader_includables.define(filename);
+				result = globalShaderIncludables.define(filename);
 				(*result) = content;
 				return result;
 			}
 	
-			/*static*/ void		Template::defineShaderIncludable(const String&filename, const String&block_code)
+			/*static*/ void		Template::DefineShaderIncludable(const String&filename, const String&blockCode)
 			{
-				(*global_shader_includables.define(filename)) = block_code;
+				(*globalShaderIncludables.define(filename)) = blockCode;
 			}
 	
-			void				Template::clear()
+			void				Template::Clear()
 			{
-				local_map.clear();
-				local_user_config.link(current_map);
-				uses_lighting = false;
+				localMap.Clear();
+				localUserConfig.Link(currentMap);
+				usesLighting = false;
 				
 
-				shared_template.clear();
-				vertex_template.clear();
-				fragment_template.clear();
-				geometry_template.clear();
-				container.clear();
-				loaded_ = false;
-				uniform_init.reset();
+				sharedTemplate.Clear();
+				vertexTemplate.Clear();
+				fragmentTemplate.Clear();
+				geometryTemplate.Clear();
+				container.Clear();
+				isLoaded = false;
+				uniformInit.reset();
 			}
 	
 
 	
-			Template&				Template::predefineUniformi(const String&name, int value)
+			Template&				Template::PredefineUniformInt(const String&name, int value)
 			{
-				TUniformInit&init = uniform_init.append();
+				TUniformInit&init = uniformInit.append();
 				init.name = name;
 				init.type = TUniformInit::Int;
 				init.ival = value;
 				return *this;
 			}
 	
-			Template&				Template::predefineUniformf(const String&name, float value)
+			Template&				Template::PredefineUniformFloat(const String&name, float value)
 			{
-				TUniformInit&init = uniform_init.append();
+				TUniformInit&init = uniformInit.append();
 				init.name = name;
 				init.type = TUniformInit::Float;
 				init.fval = value;
 				return *this;
 			}
 
-			Template&				Template::predefineUniform3f(const String&name, const float value[3])
+			Template&				Template::PredefineUniformVec(const String&name, const TVec3<>&value)
 			{
-				TUniformInit&init = uniform_init.append();
+				TUniformInit&init = uniformInit.append();
 				init.name = name;
 				init.type = TUniformInit::Float3;
-				init.f3val = Vec::ref3(value);
+				init.f3val = value;
 				return *this;
 			}
 
-			void				Template::loadRequired(const Composition&composition, GLenum geometry_type_, GLenum output_type_, unsigned max_vertices_)
+			void				Template::LoadRequired(const Composition&composition, GLenum geometryType, GLenum outputType, unsigned maxVertices)
 			{
-				if (!load(composition,geometry_type_,output_type_,max_vertices_))
-					FATAL__(report());
+				if (!Load(composition,geometryType,outputType,maxVertices))
+					FATAL__(Report());
 			}
 	
-			bool				Template::load(const Composition&composition, GLenum geometry_type_, GLenum output_type_, unsigned max_vertices_)
+			bool				Template::Load(const Composition&composition, GLenum geometryType, GLenum outputType, unsigned maxVertices)
 			{
-				clear();
-				loaded_ = true;
+				Clear();
+				isLoaded = true;
 				index_t line = 0;
-				if (loaded_)
+				if (isLoaded)
 				{
 					log << "-------- scanning shared source --------"<<nl;
-					loaded_ = shared_template.scan(composition.sharedSource,*current_map,log,line);
-					if (!loaded_)
+					isLoaded = sharedTemplate.Scan(composition.sharedSource,*currentMap,log,line);
+					if (!isLoaded)
 						log << "  failed.\n";
 				}
-				if (loaded_)
+				if (isLoaded)
 				{
 					log << "-------- scanning vertex shader --------"<<nl;
-					loaded_ = vertex_template.scan(composition.vertexSource,*current_map,log,line);
-					if (!loaded_)
+					isLoaded = vertexTemplate.Scan(composition.vertexSource,*currentMap,log,line);
+					if (!isLoaded)
 						log << "  failed.\n";
 				}
-				if (loaded_)
+				if (isLoaded)
 				{
 					log << "-------- scanning fragment shader --------"<<nl;
-					loaded_ = fragment_template.scan(composition.fragmentSource,*current_map,log,line);
-					if (!loaded_)
+					isLoaded = fragmentTemplate.Scan(composition.fragmentSource,*currentMap,log,line);
+					if (!isLoaded)
 						log << "  failed.\n";
 				}
-				if (loaded_)
+				if (isLoaded)
 				{
 					log << "-------- scanning geometry shader --------"<<nl;
-					loaded_ = geometry_template.scan(composition.geometrySource,*current_map,log,line);
-					if (!loaded_)
+					isLoaded = geometryTemplate.Scan(composition.geometrySource,*currentMap,log,line);
+					if (!isLoaded)
 						log << "  failed.\n";
 				}
-				current_config->userConfig()->link(current_map,false);
-				current_map->submitChanges();	//this indirectly triggers an adapt() call. since the above link() call makes sure that our user config is linked to current_map, this will update our user config as well (just as any other linked user config)
-				geometry_type = geometry_type_;
-				output_type = output_type_;
-				max_vertices = max_vertices_;
+				currentConfig->GetUserConfig()->Link(currentMap,false);
+				currentMap->SubmitChanges();	//this indirectly triggers an Adapt() call. since the above Link() call makes sure that our user config is linked to currentMap, this will update our user config as well (just as any other linked user config)
+				this->geometryType = geometryType;
+				this->outputType = outputType;
+				this->maxVertices = maxVertices;
 
-				uses_lighting = shared_template.usesLighting() || vertex_template.usesLighting() || fragment_template.usesLighting() || geometry_template.usesLighting();
-				if (loaded_)
+				usesLighting = sharedTemplate.UsesLighting() || vertexTemplate.UsesLighting() || fragmentTemplate.UsesLighting() || geometryTemplate.UsesLighting();
+				if (isLoaded)
 					log << "  loading process finished gracefully.\n";
-				return loaded_;
+				return isLoaded;
 			}
 	
-			void				Template::loadRequiredComposition(const String&object_source, GLenum geometry_type_, GLenum output_type_, unsigned max_vertices_)
+			void				Template::LoadRequiredComposition(const String&objectSource, GLenum geometryType, GLenum outputType, unsigned maxVertices)
 			{
-				if (!loadComposition(object_source,geometry_type_,output_type_,max_vertices_))
-					FATAL__(report());
+				if (!LoadComposition(objectSource,geometryType,outputType,maxVertices))
+					FATAL__(Report());
 			}
 
-			bool				Template::loadComposition(const String&object_source, GLenum geometry_type_, GLenum output_type_, unsigned max_vertices_)
+			bool				Template::LoadComposition(const String&objectSource, GLenum geometryType, GLenum outputType, unsigned maxVertices)
 			{
-				return load(Composition().Load(object_source),geometry_type_,output_type_,max_vertices_);
+				return Load(Composition().Load(objectSource),geometryType,outputType,maxVertices);
 			}
 
-			void		Template::setConfig(UserConfig*config, bool update)
+			void		Template::SetConfig(UserConfig*config, bool update)
 			{
 				if (config)
-					current_config->link(*config);
+					currentConfig->Link(*config);
 				else
-					current_config->link(local_user_config);
+					currentConfig->Link(localUserConfig);
 				if (update)
-					current_config->userConfig()->link(current_map);
+					currentConfig->GetUserConfig()->Link(currentMap);
 			}
 
-			void		Template::setConfig(RenderConfig*config)
+			void		Template::SetConfig(RenderConfig*config)
 			{
 				if (config)
-					current_config->link(*config);
+					currentConfig->Link(*config);
 				else
-					current_config->link(local_user_config);
+					currentConfig->Link(localUserConfig);
 			}
 
-			void		Template::setConfig(Configuration*config)
+			void		Template::SetConfig(Configuration*config)
 			{
 				if (config)
-					current_config = config;
+					currentConfig = config;
 				else
-					current_config = &local_config;
+					currentConfig = &localConfig;
 			}
 
 
-			void		Template::setMap(VariableMap*new_map, bool adjust)
+			void		Template::SetVariableMap(VariableMap*newMap, bool adjust)
 			{
-				if (new_map)
-					current_map = new_map;
+				if (newMap)
+					currentMap = newMap;
 				else
-					current_map = &local_map;
+					currentMap = &localMap;
 				if (adjust)
-					current_config->userConfig()->link(current_map);
+					currentConfig->GetUserConfig()->Link(currentMap);
 			}
 
 
 	
 	
 	
-			String		Template::report()
+			String		Template::Report()
 			{
-				String rs	= log.toString();
+				String rs	= log.ToStringRef();
 				log.reset();
 				return rs;
 			}
 	
-			bool		Template::loaded()	const
+			bool		Template::IsLoaded()	const
 			{
-				return this!=NULL && loaded_;
+				return this!=NULL && isLoaded;
 			}
 	
 	
-			GLShader::Instance*	Template::buildShader(bool auto_update_render_variables,bool*is_new)
+			GLShader::Instance*	Template::BuildShader(bool autoUpdateRenderVariables,bool*isNew)
 			{
 				if (!this)
 					return NULL;
-				if (auto_update_render_variables /*&& uses_lighting*/)
-					current_config->updateRenderVariables();
+				if (autoUpdateRenderVariables /*&& usesLighting*/)
+					currentConfig->UpdateRenderVariables();
 				log.reset();
-				if (is_new)
-					*is_new = false;
+				if (isNew)
+					*isNew = false;
 				GLShader::Instance*result;
 
 				const Array<int,Primitive>*key;
-				if (uses_lighting)
+				if (usesLighting)
 				{
-					current_config->update();
-					key = current_config;
+					currentConfig->Update();
+					key = currentConfig;
 				}
 				else
-					key = &current_config->userConfig()->values;
+					key = &currentConfig->GetUserConfig()->values;
 
 				if (container.query(*key,result))
 				{
@@ -3246,76 +3237,76 @@ namespace Engine
 				GLShader::Instance	local;
 				Composition	composition;
 
-				const RenderConfig&render_config = *current_config->renderConfig();
-				const UserConfig&user_config = *current_config->userConfig();
+				const RenderConfig&renderConfig = *currentConfig->GetRenderConfig();
+				const UserConfig&userConfig = *currentConfig->GetUserConfig();
 
-				composition.sharedSource = shared_template.assemble(render_config, user_config,true);
-				composition.vertexSource = vertex_template.assemble(render_config, user_config,false);
-				composition.fragmentSource = fragment_template.assemble(render_config, user_config,false);
-				composition.geometrySource = geometry_template.assemble(render_config, user_config,false);
-				if (local.load(composition,geometry_type,output_type,max_vertices))
+				composition.sharedSource = sharedTemplate.Assemble(renderConfig, userConfig,true);
+				composition.vertexSource = vertexTemplate.Assemble(renderConfig, userConfig,false);
+				composition.fragmentSource = fragmentTemplate.Assemble(renderConfig, userConfig,false);
+				composition.geometrySource = geometryTemplate.Assemble(renderConfig, userConfig,false);
+				if (local.Load(composition,geometryType,outputType,maxVertices))
 				{
-					if (is_new)
-						*is_new = true;
+					if (isNew)
+						*isNew = true;
 					result = container.define(*key);
 					result->adoptData(local);
-					log << local.report();
+					log << local.Report();
 			
-					GLuint current_program = glGetHandle(GL_PROGRAM_OBJECT_ARB);
-					glUseProgramObject(result->program_handle);
+					GLuint currentProgram = glGetHandle(GL_PROGRAM_OBJECT_ARB);
+					glUseProgramObject(result->programHandle);
 			
-					for (index_t i = 0; i < uniform_init.fillLevel(); i++)
+					for (index_t i = 0; i < uniformInit.fillLevel(); i++)
 					{
 			
-						GLint var	= glGetUniformLocation(result->program_handle,uniform_init[i].name.c_str());
+						GLint var	= glGetUniformLocation(result->programHandle,uniformInit[i].name.c_str());
 						if (var == -1)
 							continue;
 
-						switch (uniform_init[i].type)
+						switch (uniformInit[i].type)
 						{
 							case TUniformInit::Int:
-								glUniform1i(var,uniform_init[i].ival);
+								glUniform1i(var,uniformInit[i].ival);
 							break;
 							case TUniformInit::Float:
-								glUniform1f(var,uniform_init[i].fval);
+								glUniform1f(var,uniformInit[i].fval);
 							break;
 							case TUniformInit::Float3:
-								glUniform3fv(var,1,uniform_init[i].f3val.v);
+								glUniform3fv(var,1,uniformInit[i].f3val.v);
 							break;
 						}
 					}
-					foreach (shadow_attachments,attachment)
-						foreach (attachment->sampler_assignments, a)
+					foreach (shadowAttachments,attachment)
+						foreach (attachment->samplerAssignments, a)
 						{
-							GLint var	= glGetUniformLocation(result->program_handle,a->sampler_name.c_str());
-							glUniform1i(var,a->sampler_level);
+							GLint var	= glGetUniformLocation(result->programHandle,a->samplerName.c_str());
+							glUniform1i(var,a->samplerLevel);
 						}
-					glUseProgramObject(current_program);
+					glUseProgramObject(currentProgram);
 					return result;
 				}
-				log << local.report();
+				log << local.Report();
 				return NULL;
 			}
 	
-			String				Template::assembleSource(bool auto_update_render_variables)
+			String				Template::AssembleSource(bool autoUpdateRenderVariables)
 			{
-				if (auto_update_render_variables && uses_lighting)
-					current_config->updateRenderVariables();
+				if (autoUpdateRenderVariables && usesLighting)
+					currentConfig->UpdateRenderVariables();
 
-				const RenderConfig&render_config = *current_config->renderConfig();
-				const UserConfig&user_config = *current_config->userConfig();
+				const RenderConfig&renderConfig = *currentConfig->GetRenderConfig();
+				const UserConfig&userConfig = *currentConfig->GetUserConfig();
 
-				static StringBuffer	out_buffer;
-				out_buffer.reset();
-				out_buffer << "[shared]";
-				shared_template.assemble(render_config, user_config,out_buffer,true);
-				out_buffer << "[vertex]";
-				vertex_template.assemble(render_config, user_config,out_buffer);
-				out_buffer << nl<<"[geometry]";
-				geometry_template.assemble(render_config, user_config,out_buffer);
-				out_buffer << nl<<"[fragment]";
-				fragment_template.assemble(render_config, user_config,out_buffer);
-				return out_buffer.toString();
+				static StringBuffer	outBuffer;
+				outBuffer.reset();
+				outBuffer << "[shared]";
+				sharedTemplate.Assemble(renderConfig, userConfig,outBuffer,true);
+				outBuffer << "[vertex]";
+				vertexTemplate.Assemble(renderConfig, userConfig,outBuffer);
+				outBuffer << nl<<"[geometry]";
+				geometryTemplate.Assemble(renderConfig, userConfig,outBuffer);
+				outBuffer << nl<<"[fragment]";
+				fragmentTemplate.Assemble(renderConfig, userConfig,outBuffer);
+				return outBuffer.ToStringRef();
 			}
 
 		
@@ -3324,17 +3315,17 @@ namespace Engine
 	
 	
 	
-	/*static*/	Extension::ResolutionTable	Extension::depth_buffer_table;
+	/*static*/	Extension::ResolutionTable	Extension::depthBufferTable;
 
-	/*static*/ GLuint		Extension::allocateDepthBuffer(const Resolution&res)
+	/*static*/ GLuint		Extension::AllocateDepthBuffer(const Resolution&res)
 	{
 		GLuint	result;
-		if (!depth_buffer_table.query(res,result))
+		if (!depthBufferTable.query(res,result))
 		{
 			glGenRenderbuffers( 1, &result );
 			glBindRenderbuffer( GL_RENDERBUFFER, result );
 			glRenderbufferStorage( GL_RENDERBUFFER, GL_DEPTH_COMPONENT, res.width, res.height );
-			depth_buffer_table.set(res,result);
+			depthBufferTable.set(res,result);
 		}
 		return result;
 	}
@@ -3389,44 +3380,44 @@ namespace Engine
 
 	
 
-	/*static*/	TFrameBuffer	Extension::createFrameBuffer(const Resolution&res, DepthStorage depth_storage, BYTE num_color_targets, const GLenum*format)
+	/*static*/	TFrameBuffer	Extension::CreateFrameBuffer(const Resolution&res, DepthStorage depthStorage, BYTE numColorTargets, const GLenum*format)
 	{
 		glGetError();
 		TFrameBuffer result;
-		result.depth_target.storage_type = depth_storage;
-		result.num_color_targets = num_color_targets;
-		ASSERT_LESS__(num_color_targets,ARRAYSIZE(result.color_target));
-		if (depth_storage != DepthStorage::Texture)
-			ASSERT_GREATER__(num_color_targets,0);
-		for (BYTE k = 0; k < num_color_targets; k++)
-			result.color_target[k].texture_handle = 0;
+		result.depthTarget.storageType = depthStorage;
+		result.numColorTargets = numColorTargets;
+		ASSERT_LESS__(numColorTargets,ARRAYSIZE(result.colorTarget));
+		if (depthStorage != DepthStorage::Texture)
+			ASSERT_GREATER__(numColorTargets,0);
+		for (BYTE k = 0; k < numColorTargets; k++)
+			result.colorTarget[k].textureHandle = 0;
 		result.resolution = res;
 		#ifdef GL_ARB_framebuffer_object
 			GLenum status;
 			
 			if (glGenFramebuffers)
 			{
-					glGenFramebuffers( 1, &result.frame_buffer );
+					glGenFramebuffers( 1, &result.frameBuffer );
 
 					// Initialize the render-buffer for usage as a depth buffer.
 					// We don't really need this to render things into the frame-buffer object,
 					// but without it the geometry will not be sorted properly.
 
-					switch (depth_storage)
+					switch (depthStorage)
 					{
 						case DepthStorage::SharedBuffer:
-							result.depth_target.handle = allocateDepthBuffer(res);
+							result.depthTarget.handle = AllocateDepthBuffer(res);
 						break;
 						case DepthStorage::PrivateBuffer:
-							glGenRenderbuffers( 1, &result.depth_target.handle );
-							glBindRenderbuffer( GL_RENDERBUFFER, result.depth_target.handle );
+							glGenRenderbuffers( 1, &result.depthTarget.handle );
+							glBindRenderbuffer( GL_RENDERBUFFER, result.depthTarget.handle );
 							glRenderbufferStorage( GL_RENDERBUFFER, GL_DEPTH_COMPONENT, res.width, res.height );
 						break;
 						case DepthStorage::Texture:
 						{
-							glGenTextures( 1, &result.depth_target.handle );
+							glGenTextures( 1, &result.depthTarget.handle );
 
-							glBindTexture( GL_TEXTURE_2D, result.depth_target.handle );
+							glBindTexture( GL_TEXTURE_2D, result.depthTarget.handle );
 							glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_NONE );
 							glTexParameteri( GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE, GL_LUMINANCE );
 
@@ -3445,33 +3436,33 @@ namespace Engine
 						break;
 					}
 					
-					ASSERT__(depth_storage == DepthStorage::NoDepthStencil || result.depth_target.handle != 0);
+					ASSERT__(depthStorage == DepthStorage::NoDepthStencil || result.depthTarget.handle != 0);
 
-					glBindFramebuffer(GL_FRAMEBUFFER, result.frame_buffer);
+					glBindFramebuffer(GL_FRAMEBUFFER, result.frameBuffer);
 					GLenum	draw_buffers[GL_MAX_COLOR_ATTACHMENTS];
-					for (BYTE k = 0; k < num_color_targets; k++)
+					for (BYTE k = 0; k < numColorTargets; k++)
 					{
 						draw_buffers[k] = GL_COLOR_ATTACHMENT0+k;
 					}
-					if (!num_color_targets)
+					if (!numColorTargets)
 						glDrawBuffers(0,draw_buffers);
 					else
-						glDrawBuffers(num_color_targets,draw_buffers);
+						glDrawBuffers(numColorTargets,draw_buffers);
 					//glReadBuffer(GL_NONE);
 					
-					if (depth_storage != DepthStorage::NoDepthStencil)
-						if (depth_storage != DepthStorage::Texture)
-							glFramebufferRenderbuffer( GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, result.depth_target.handle );
+					if (depthStorage != DepthStorage::NoDepthStencil)
+						if (depthStorage != DepthStorage::Texture)
+							glFramebufferRenderbuffer( GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, result.depthTarget.handle );
 						else
-							glFramebufferTexture2D( GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, result.depth_target.handle, 0 );						
+							glFramebufferTexture2D( GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, result.depthTarget.handle, 0 );						
 
 
-					for (BYTE k = 0; k < num_color_targets; k++)
+					for (BYTE k = 0; k < numColorTargets; k++)
 					{
-						glGenTextures( 1, &result.color_target[k].texture_handle );
+						glGenTextures( 1, &result.colorTarget[k].textureHandle );
 
-						glBindTexture( GL_TEXTURE_2D, result.color_target[k].texture_handle );
-						result.color_target[k].texture_format = format[k];
+						glBindTexture( GL_TEXTURE_2D, result.colorTarget[k].textureHandle );
+						result.colorTarget[k].textureFormat = format[k];
 
 						glTexImage2D( GL_TEXTURE_2D, 0, format[k], 
 									  res.width, res.height, 
@@ -3480,7 +3471,7 @@ namespace Engine
 						glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
 						glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
 					
-						glFramebufferTexture2D( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0+k, GL_TEXTURE_2D, result.color_target[k].texture_handle, 0 );
+						glFramebufferTexture2D( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0+k, GL_TEXTURE_2D, result.colorTarget[k].textureHandle, 0 );
 						glBindTexture( GL_TEXTURE_2D, 0);
 	
 					}
@@ -3488,8 +3479,8 @@ namespace Engine
 					if (!TestCurrentFrameBuffer())
 					{
 						glBindFramebuffer(GL_FRAMEBUFFER, 0);
-						destroyFrameBuffer(result);
-						result.frame_buffer = 0;
+						DestroyFrameBuffer(result);
+						result.frameBuffer = 0;
 						return result;
 					}					
 
@@ -3498,20 +3489,20 @@ namespace Engine
 		return result;
 	}
 	
-	/*static*/	bool			Extension::copyFrameBuffer(const TFrameBuffer&from, const TFrameBuffer&to, const Resolution&res, bool copy_color /*= true*/, bool copy_depth/*=true*/)
+	/*static*/	bool			Extension::CopyFrameBuffer(const TFrameBuffer&from, const TFrameBuffer&to, const Resolution&res, bool copyColor /*= true*/, bool copyDepth/*=true*/)
 	{
-		if (!copy_color && !copy_depth)
+		if (!copyColor && !copyDepth)
 			return true;
 		GLenum mask = 0;
-		if (copy_color)
+		if (copyColor)
 			mask |= GL_COLOR_BUFFER_BIT;
-		if (copy_depth)
+		if (copyDepth)
 			mask |= GL_DEPTH_BUFFER_BIT;
-		if (!from.frame_buffer || !to.frame_buffer)
+		if (!from.frameBuffer || !to.frameBuffer)
 			return false;
 		glGetError();
-        glBindFramebuffer(GL_READ_FRAMEBUFFER_EXT, from.frame_buffer);
-        glBindFramebuffer(GL_DRAW_FRAMEBUFFER_EXT, to.frame_buffer);
+        glBindFramebuffer(GL_READ_FRAMEBUFFER_EXT, from.frameBuffer);
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER_EXT, to.frameBuffer);
         glBlitFramebuffer(0, 0, res.width, res.height,
                           0, 0, res.width, res.height,
                           mask,
@@ -3522,57 +3513,57 @@ namespace Engine
 		return glGetError() == GL_NO_ERROR;
 	}
 
-	/*static*/	bool			Extension::copyFrameBuffer(const TFrameBuffer&from, const TFrameBuffer&to, bool copy_color, bool copy_depth)
+	/*static*/	bool			Extension::CopyFrameBuffer(const TFrameBuffer&from, const TFrameBuffer&to, bool copyColor, bool copyDepth)
 	{
 		if (from.resolution != to.resolution)
 			return false;
-		return copyFrameBuffer(from,to,from.resolution,copy_color,copy_depth);
+		return CopyFrameBuffer(from,to,from.resolution,copyColor,copyDepth);
 	}
 	
 	
 	
-	bool			Extension::resizeFrameBuffer(TFrameBuffer&buffer,const Resolution&res)
+	bool			Extension::ResizeFrameBuffer(TFrameBuffer&buffer,const Resolution&res)
 	{
 		if (buffer.resolution == res)
 			return true;
-		glBindFramebuffer(GL_FRAMEBUFFER, buffer.frame_buffer);
+		glBindFramebuffer(GL_FRAMEBUFFER, buffer.frameBuffer);
 		glFramebufferTexture2D( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, 0, 0 );
 			
-		for (BYTE k = 0; k < buffer.num_color_targets; k++)
+		for (BYTE k = 0; k < buffer.numColorTargets; k++)
 		{
-			if (!buffer.color_target[k].texture_handle)
-				glGenTextures( 1, &buffer.color_target[k].texture_handle );
+			if (!buffer.colorTarget[k].textureHandle)
+				glGenTextures( 1, &buffer.colorTarget[k].textureHandle );
 		
-			glBindTexture(GL_TEXTURE_2D,buffer.color_target[k].texture_handle);
-			glTexImage2D( GL_TEXTURE_2D, 0, buffer.color_target[k].texture_format,
+			glBindTexture(GL_TEXTURE_2D,buffer.colorTarget[k].textureHandle);
+			glTexImage2D( GL_TEXTURE_2D, 0, buffer.colorTarget[k].textureFormat,
 				res.width, res.height, 
 				0, GL_RGBA, GL_UNSIGNED_BYTE, 0 );
 			glBindTexture(GL_TEXTURE_2D,0);
-			glFramebufferTexture2D( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0+k, GL_TEXTURE_2D, buffer.color_target[k].texture_handle, 0 );
+			glFramebufferTexture2D( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0+k, GL_TEXTURE_2D, buffer.colorTarget[k].textureHandle, 0 );
 		}
 
-		switch (buffer.depth_target.storage_type)
+		switch (buffer.depthTarget.storageType)
 		{
 			case DepthStorage::SharedBuffer:
-				buffer.depth_target.handle = allocateDepthBuffer(res);
-				glFramebufferRenderbuffer( GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, buffer.depth_target.handle );
+				buffer.depthTarget.handle = AllocateDepthBuffer(res);
+				glFramebufferRenderbuffer( GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, buffer.depthTarget.handle );
 			break;
 			case DepthStorage::PrivateBuffer:
-				if (!buffer.depth_target.handle)
-					glGenRenderbuffers( 1, &buffer.depth_target.handle );
+				if (!buffer.depthTarget.handle)
+					glGenRenderbuffers( 1, &buffer.depthTarget.handle );
 				
-				glBindRenderbuffer( GL_RENDERBUFFER, buffer.depth_target.handle );
+				glBindRenderbuffer( GL_RENDERBUFFER, buffer.depthTarget.handle );
 				glRenderbufferStorage( GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, res.width, res.height );
 			
-				glFramebufferRenderbuffer( GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, buffer.depth_target.handle );
+				glFramebufferRenderbuffer( GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, buffer.depthTarget.handle );
 			break;
 			case DepthStorage::Texture:
-				glBindTexture(GL_TEXTURE_2D,buffer.depth_target.handle);
+				glBindTexture(GL_TEXTURE_2D,buffer.depthTarget.handle);
 				glTexImage2D( GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, 
 					res.width, res.height, 
 					0, GL_LUMINANCE, GL_FLOAT, 0 );
 				glBindTexture(GL_TEXTURE_2D,0);
-				glFramebufferTexture2D( GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, buffer.depth_target.handle, 0 );
+				glFramebufferTexture2D( GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, buffer.depthTarget.handle, 0 );
 			break;
 			case DepthStorage::NoDepthStencil:
 			break;
@@ -3588,7 +3579,7 @@ namespace Engine
 	}
 
 
-	/*static*/	bool			Extension::formatHasAlpha(GLenum format)
+	/*static*/	bool			Extension::FormatHasAlpha(GLenum format)
 	{
 		switch (format)
 		{
@@ -3614,14 +3605,14 @@ namespace Engine
 
 	
 	
-	bool			Extension::bindFrameBuffer(const TFrameBuffer&buffer)
+	bool			Extension::BindFrameBuffer(const TFrameBuffer&buffer)
 	{
-		if (!buffer.frame_buffer)
+		if (!buffer.frameBuffer)
 			return false;
 		#ifdef GL_ARB_framebuffer_object
 			if (glBindFramebuffer)
 			{
-				glBindFramebuffer(GL_FRAMEBUFFER, buffer.frame_buffer);
+				glBindFramebuffer(GL_FRAMEBUFFER, buffer.frameBuffer);
 				glViewport(0,0,buffer.resolution.width,buffer.resolution.height);
 				//glBindRenderbufferEXT( GL_RENDERBUFFER, g_depthRenderBuffer );
 				//glFramebufferTexture2D( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, buffer.texture, 0 );
@@ -3636,7 +3627,7 @@ namespace Engine
 		return false;
 	}
 	
-	/*static*/ void			Extension::unbindFrameBuffer()
+	/*static*/ void			Extension::UnbindFrameBuffer()
 	{
 		#ifdef GL_ARB_framebuffer_object
 			if (glBindFramebuffer)
@@ -3646,29 +3637,29 @@ namespace Engine
 		#endif
 	}
 	
-	/*static*/ void			Extension::destroyFrameBuffer(const TFrameBuffer&buffer)
+	/*static*/ void			Extension::DestroyFrameBuffer(const TFrameBuffer&buffer)
 	{
 		#ifdef GL_ARB_framebuffer_object
 			if (glDeleteFramebuffers)
 			{
-				if (buffer.frame_buffer)
-					glDeleteFramebuffers(1, &buffer.frame_buffer);
+				if (buffer.frameBuffer)
+					glDeleteFramebuffers(1, &buffer.frameBuffer);
 
-				if (buffer.depth_target.storage_type == DepthStorage::PrivateBuffer && buffer.depth_target.handle)
-					glDeleteRenderbuffers(1, &buffer.depth_target.handle);
+				if (buffer.depthTarget.storageType == DepthStorage::PrivateBuffer && buffer.depthTarget.handle)
+					glDeleteRenderbuffers(1, &buffer.depthTarget.handle);
 			}
 		#endif
-		for (BYTE k = 0; k < buffer.num_color_targets; k++)
-			if (buffer.color_target[k].texture_handle)
-				glDeleteTextures(1,&buffer.color_target[k].texture_handle);
-		if (buffer.depth_target.storage_type == DepthStorage::Texture && buffer.depth_target.handle)
-			glDeleteTextures(1,&buffer.depth_target.handle);
+		for (BYTE k = 0; k < buffer.numColorTargets; k++)
+			if (buffer.colorTarget[k].textureHandle)
+				glDeleteTextures(1,&buffer.colorTarget[k].textureHandle);
+		if (buffer.depthTarget.storageType == DepthStorage::Texture && buffer.depthTarget.handle)
+			glDeleteTextures(1,&buffer.depthTarget.handle);
 	}
 
 	
 	
 	#ifdef WGL_ARB_pbuffer
-
+#if 0
 	TPBuffer Extension::createPBuffer(unsigned width, unsigned height, ePBufferType type, BYTE fsaa)
 	{
 
@@ -3778,6 +3769,7 @@ namespace Engine
 		wglDestroyPbuffer(buffer.buffer);
 		glDeleteTextures(1,&buffer.texture);
 	}
+#endif /*0*/
 
 	#elif defined(GLX_VERSION_1_3)
 
@@ -3863,7 +3855,7 @@ namespace Engine
 
 
 
-	static bool resolveArray(GLenum main_, GLenum size_, GLenum stride_, GLenum type_, GLenum pntr_, String&result)
+	static bool _ResolveArray(GLenum main_, GLenum size_, GLenum stride_, GLenum type_, GLenum pntr_, String&result)
 	{
 		if (!glIsEnabled(main_))
 		{
@@ -3886,14 +3878,14 @@ namespace Engine
 		result = "(num: "+IntToStr(components)+"; stride: "+IntToStr(stride)+"; type: "+getTypeName(type)+"; pntr: 0x"+PointerToHex(pntr)+")";
 		return true;
 	}
-	static String resolveArray(GLenum main_, GLenum size_, GLenum stride_, GLenum type_, GLenum pntr_)
+	static String _ResolveArray(GLenum main_, GLenum size_, GLenum stride_, GLenum type_, GLenum pntr_)
 	{
 		String rs;
-		resolveArray(main_,size_,stride_,type_,pntr_,rs);
+		_ResolveArray(main_,size_,stride_,type_,pntr_,rs);
 		return rs;
 	}
 	
-	static const char*	filterToString(GLint filter)
+	static const char*	_FilterToString(GLint filter)
 	{
 		#undef ECASE
 		#define ECASE(_CASE_)	case _CASE_: return #_CASE_;
@@ -4002,7 +3994,7 @@ namespace Engine
 		return "unknown ("+String(filter)+")";
 	}
 
-	String	Extension::renderState()
+	String	Extension::QueryRenderState()
 	{
 		#undef BSTR
 		#define BSTR(b)		String(b?"enabled":"disabled")
@@ -4138,12 +4130,12 @@ namespace Engine
   Element Array Buffer Binding: "+String(element_array_buffer_binding)+"\n\
   Pixel Pack Buffer Binding: "+String(pixel_pack_buffer_binding)+"\n\
   Pixel Unpack Buffer Binding: "+String(pixel_unpack_buffer_binding)+"\n\
-  VertexArray: "+resolveArray(GL_VERTEX_ARRAY,GL_VERTEX_ARRAY_SIZE,GL_VERTEX_ARRAY_STRIDE,GL_VERTEX_ARRAY_TYPE,GL_VERTEX_ARRAY_POINTER)+"\n\
-  ColorArray: "+resolveArray(GL_COLOR_ARRAY,GL_COLOR_ARRAY_SIZE,GL_COLOR_ARRAY_STRIDE,GL_COLOR_ARRAY_TYPE,GL_COLOR_ARRAY_POINTER)+"\n\
-  NormalArray: "+resolveArray(GL_NORMAL_ARRAY,0,GL_NORMAL_ARRAY_STRIDE,GL_NORMAL_ARRAY_TYPE,GL_NORMAL_ARRAY_POINTER)+"\n";
+  VertexArray: "+_ResolveArray(GL_VERTEX_ARRAY,GL_VERTEX_ARRAY_SIZE,GL_VERTEX_ARRAY_STRIDE,GL_VERTEX_ARRAY_TYPE,GL_VERTEX_ARRAY_POINTER)+"\n\
+  ColorArray: "+_ResolveArray(GL_COLOR_ARRAY,GL_COLOR_ARRAY_SIZE,GL_COLOR_ARRAY_STRIDE,GL_COLOR_ARRAY_TYPE,GL_COLOR_ARRAY_POINTER)+"\n\
+  NormalArray: "+_ResolveArray(GL_NORMAL_ARRAY,0,GL_NORMAL_ARRAY_STRIDE,GL_NORMAL_ARRAY_TYPE,GL_NORMAL_ARRAY_POINTER)+"\n";
 		if (glActiveTexture)
 		{
-			for (unsigned i	= 0; i < (unsigned)max_texcoord_layers; i++)
+			for (unsigned i	= 0; i < (unsigned)maxTexcoordLayers; i++)
 			{
 				glActiveTexture(GL_TEXTURE0+i);
 				glClientActiveTexture(GL_TEXTURE0+i);
@@ -4151,7 +4143,7 @@ namespace Engine
 				glGetFloatv(GL_CURRENT_TEXTURE_COORDS,coords.v);
 				
 				String texture,array,texture_info;
-				bool has_array = resolveArray(GL_TEXTURE_COORD_ARRAY,GL_TEXTURE_COORD_ARRAY_SIZE,GL_TEXTURE_COORD_ARRAY_STRIDE,GL_TEXTURE_COORD_ARRAY_TYPE,GL_TEXTURE_COORD_ARRAY_POINTER,array);
+				bool has_array = _ResolveArray(GL_TEXTURE_COORD_ARRAY,GL_TEXTURE_COORD_ARRAY_SIZE,GL_TEXTURE_COORD_ARRAY_STRIDE,GL_TEXTURE_COORD_ARRAY_TYPE,GL_TEXTURE_COORD_ARRAY_POINTER,array);
 				GLint	value;
 				GLenum target,face_target;
 				if (glIsEnabled(GL_TEXTURE_1D))
@@ -4194,9 +4186,9 @@ namespace Engine
 				{
 					{
 						glGetTexParameteriv(target,GL_TEXTURE_MIN_FILTER,&value);
-						texture_info += "   Min-Filter: "+String(filterToString(value))+"\n";
+						texture_info += "   Min-Filter: "+String(_FilterToString(value))+"\n";
 						glGetTexParameteriv(target,GL_TEXTURE_MAG_FILTER,&value);
-						texture_info += "   Mag-Filter: "+String(filterToString(value))+"\n";
+						texture_info += "   Mag-Filter: "+String(_FilterToString(value))+"\n";
 						glGetError();
 						glGetTexLevelParameteriv(face_target,0,GL_TEXTURE_INTERNAL_FORMAT,&value);
 						glThrowError();
@@ -4214,7 +4206,7 @@ namespace Engine
 				}
 				
 				
-				rs += "Layer "+IntToStr(i)+"/"+String(max_texcoord_layers) +"\n";
+				rs += "Layer "+IntToStr(i)+"/"+String(maxTexcoordLayers) +"\n";
 				rs += "  Texture: "+texture+"\n"+texture_info;
 				rs += "  CoordArray: "+array+"\n";
 				rs += "  Coords: "+Vec::toString(coords)+"\n";
@@ -4232,7 +4224,7 @@ namespace Engine
 		#undef BSTR
 	}
 
-	bool Extension::init(GLuint index)
+	bool Extension::Init(GLuint index)
 	{
 		#define set(group_name)	EXT_CONTEXT(group_name)
 		#define get(var)			EXT_GET_EXTENSION(var)
@@ -4251,7 +4243,7 @@ namespace Engine
 		if (index&EXT_MULTITEXTURE_BIT)
 		{
 			#ifdef GL_ARB_multitexture
-				if (available("GL_ARB_multitexture"))
+				if (IsAvailable("GL_ARB_multitexture"))
 				{
 					set(ARB);
 					get(glMultiTexCoord1f);
@@ -4290,7 +4282,7 @@ namespace Engine
 		if (index&EXT_REGISTER_COMBINERS_BIT)
 		{
 			#ifdef GL_NV_register_combiners
-				if (available("GL_NV_register_combiners"))
+				if (IsAvailable("GL_NV_register_combiners"))
 				{
 					set(NV);
 					get(glCombinerParameterfv);
@@ -4316,7 +4308,7 @@ namespace Engine
 		if (index&EXT_VERTEX_PROGRAM_BIT)
 		{
 			#ifdef GL_ARB_vertex_program
-				if (available("GL_ARB_vertex_program"))
+				if (IsAvailable("GL_ARB_vertex_program"))
 				{
 					set(ARB);
 					get(glVertexAttrib2f);
@@ -4371,7 +4363,7 @@ namespace Engine
 		if (index&EXT_VERTEX_BUFFER_OBJECT_BIT)
 		{
 			#ifdef GL_ARB_vertex_buffer_object
-				if (available("GL_ARB_vertex_buffer_object"))
+				if (IsAvailable("GL_ARB_vertex_buffer_object"))
 				{
 					set(ARB);
 					get(glBindBuffer);
@@ -4395,7 +4387,7 @@ namespace Engine
 		if (index&EXT_COMPILED_ARRAYS_BIT)
 		{
 			#ifdef GL_EXT_compiled_vertex_array
-				if (available("GL_EXT_compiled_vertex_array"))
+				if (IsAvailable("GL_EXT_compiled_vertex_array"))
 				{
 					set(EXT);
 					get(glLockArrays);
@@ -4410,7 +4402,7 @@ namespace Engine
 		if (index&EXT_SHADER_OBJECTS_BIT)
 		{
 			#ifdef GL_ARB_shader_objects
-				if (available("GL_ARB_shader_objects"))
+				if (IsAvailable("GL_ARB_shader_objects"))
 				{
 					set(ARB);
 					get(glDeleteObject);
@@ -4487,7 +4479,7 @@ namespace Engine
 			#if SYSTEM	==WINDOWS
 				#ifdef WGL_ARB_pbuffer
 					set(ARB);
-					if (available("WGL_ARB_pbuffer"))
+					if (IsAvailable("WGL_ARB_pbuffer"))
 					{
 						get(wglCreatePbuffer);
 						get(wglGetPbufferDC);
@@ -4505,7 +4497,7 @@ namespace Engine
 		if (index&EXT_RENDER_TEXTURE_BIT)
 		{
 			#ifdef WGL_ARB_render_texture
-				if (available("WGL_ARB_render_texture"))
+				if (IsAvailable("WGL_ARB_render_texture"))
 				{
 					set(ARB);
 					get(wglBindTexImage);
@@ -4522,7 +4514,7 @@ namespace Engine
 		if (index&EXT_OCCLUSION_QUERY_BIT)
 		{
 			#ifdef GL_ARB_occlusion_query
-				if (available("GL_ARB_occlusion_query"))
+				if (IsAvailable("GL_ARB_occlusion_query"))
 				{
 					set(ARB);
 					get(glGenQueries);
@@ -4544,7 +4536,7 @@ namespace Engine
 		if (index&EXT_MAKE_CURRENT_READ_BIT)
 		{
 			#ifdef WGL_ARB_make_current_read
-				if (available("WGL_ARB_make_current_read"))
+				if (IsAvailable("WGL_ARB_make_current_read"))
 				{
 					set(ARB);
 					get(wglMakeContextCurrent);
@@ -4560,7 +4552,7 @@ namespace Engine
 		if (index&EXT_WINDOW_POS_BIT)
 		{
 			#ifdef GL_ARB_window_pos
-				if (available("GL_ARB_window_pos"))
+				if (IsAvailable("GL_ARB_window_pos"))
 				{
 					set(ARB);
 					get(glWindowPos2d);
@@ -4589,7 +4581,7 @@ namespace Engine
 		if (index&EXT_FRAME_BUFFER_OBJECT_BIT)
 		{
 			#ifdef GL_ARB_framebuffer_object
-				if (available("GL_ARB_framebuffer_object"))
+				if (IsAvailable("GL_ARB_framebuffer_object"))
 				{
 					//set(ARB);
 					group = "";
@@ -4624,7 +4616,7 @@ namespace Engine
 		if (index&EXT_BLEND_FUNC_SEPARATE_BIT)
 		{
 			#ifdef GL_EXT_blend_func_separate
-				if (available("GL_EXT_blend_func_separate"))
+				if (IsAvailable("GL_EXT_blend_func_separate"))
 				{
 					set(EXT);
 					get(glBlendFuncSeparate);
@@ -4648,9 +4640,9 @@ namespace Engine
 		#undef set
 	}
 
-	bool Extension::available(const String&extension_name)
+	bool Extension::IsAvailable(const String&extension_name)
 	{
-		return gl_ext.lookup(extension_name) || sysgl_ext.lookup(extension_name);
+		return glExt.lookup(extension_name) || sysglExt.lookup(extension_name);
 	}
 
 
@@ -4704,7 +4696,7 @@ namespace Engine
 		return rs;
 	}
 
-	void Extension::initialize(
+	void Extension::Initialize(
 	#if SYSTEM	==WINDOWS
 		HDC hDC
 	#elif SYSTEM	==UNIX
@@ -4727,32 +4719,33 @@ namespace Engine
 			#endif
 		#endif
 
-		sysgl_ext.divide(sysgl_str);
+		sysglExt.divide(sysgl_str);
 		String line	= (char*)glGetString(GL_EXTENSIONS);
-		gl_ext.divide(line);
+		glExt.divide(line);
 
 
-		max_lights = 8;
-		glGetIntegerv(GL_MAX_LIGHTS,&max_lights);
-		max_texture_max_anisotropy = 2.0;
+		maxLights = 8;
+		glGetIntegerv(GL_MAX_LIGHTS,&maxLights);
+		maxTextureMaxAnisotropy = 1.0f;
 		#ifdef GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT
-			glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT,&max_texture_max_anisotropy);
+			glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT,&maxTextureMaxAnisotropy);
 		#endif
-		max_texture_layers	= 0;
-		max_texcoord_layers	= 0;
+		maxTextureLayers	= 0;
+		maxTexcoordLayers	= 0;
 		#ifdef GL_MAX_TEXTURE_UNITS_ARB
-			glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS_ARB,&max_texture_layers);
-			glGetIntegerv(GL_MAX_TEXTURE_COORDS_ARB,&max_texcoord_layers);
+			glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS_ARB,&maxTextureLayers);
+			glGetIntegerv(GL_MAX_TEXTURE_COORDS_ARB,&maxTexcoordLayers);
 		#endif
-		max_register_combiners	= 0;
+		maxRegisterCombiners	= 0;
 		#ifdef GL_MAX_GENERAL_COMBINERS_NV
-			glGetIntegerv(GL_MAX_GENERAL_COMBINERS_NV,&max_register_combiners);
+			glGetIntegerv(GL_MAX_GENERAL_COMBINERS_NV,&maxRegisterCombiners);
 		#endif
-		max_cube_texture_size	= 0;
+		maxCubeTextureSize	= 0;
 		#ifdef GL_MAX_CUBE_MAP_TEXTURE_SIZE
-			glGetIntegerv(GL_MAX_CUBE_MAP_TEXTURE_SIZE,&max_cube_texture_size);
+			glGetIntegerv(GL_MAX_CUBE_MAP_TEXTURE_SIZE,&maxCubeTextureSize);
 		#endif
 
+#if 0
 		initial_total = 1;
 		if (available("GL_NVX_gpu_memory_info"))
 		{
@@ -4776,12 +4769,13 @@ namespace Engine
 			cout << "No supported VRAM info available!"<<endl;
 			query_method = VRAMQueryMethod::None;
 		}
-
+#endif /*0*/
 
 		
 
 	}
 
+#if 0
 	bool			Extension::deviceMemoryState(size_t&free,size_t&total)	const
 	{
 		switch (query_method)
@@ -4817,8 +4811,8 @@ namespace Engine
 		}
 		return false;
 	}
+#endif /*0*/
 
 
-
-	Extension gl_extensions;
+	Extension glExtensions;
 }

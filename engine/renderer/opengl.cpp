@@ -69,41 +69,41 @@ namespace Engine
 	
 		GLShader::Template::VariableMap		Shader::globalMap;
 		GLShader::Template::UserConfig		Shader::globalUserConfig;
-		GLShader::Template::Configuration	Shader::globalConfig(GLShader::Template::global_render_config,globalUserConfig,false);
+		GLShader::Template::Configuration	Shader::globalConfig(GLShader::Template::globalRenderConfig,globalUserConfig,false);
 		Texture::Reference					Shader::globalSkyTexture;
 
 		
-		bool	Shader::install()	const
+		bool	Shader::Install()	const
 		{
 			if (!handle)
 			{
-				uninstall();
+				Uninstall();
 				return false;
 			}
 			
-			GLShader::Template::global_render_config.redetect();
-			localShaderIsBound = handle->buildShader()->permissiveInstall();
+			GLShader::Template::globalRenderConfig.ReDetect();
+			localShaderIsBound = handle->BuildShader()->PermissiveInstall();
 			return localShaderIsBound;
 		}
 
 		/*static*/ bool Shader::_Install(const GLShader::Instance*instance)
 		{
-			localShaderIsBound = instance->permissiveInstall();
+			localShaderIsBound = instance->PermissiveInstall();
 			return localShaderIsBound;
 		}
 		
-		/*static*/ void	Shader::uninstall()
+		/*static*/ void	Shader::Uninstall()
 		{
 			if (localShaderIsBound)	//we didn't install it, we don't uninstall it
-				GLShader::Instance::permissiveUninstall();
+				GLShader::Instance::PermissiveUninstall();
 			localShaderIsBound= false;
 		}
 		
-		String			Shader::report()	const
+		String			Shader::Report()	const
 		{
 			if (!handle)
 				return "No Handle set";
-			return handle->report();
+			return handle->Report();
 		}
 		
 		bool	Shader::create(const SourceCode&code,bool use_global_status)
@@ -114,24 +114,24 @@ namespace Engine
 		
 			if (use_global_status)
 			{
-				handle->setMap(&globalMap);
-				handle->setConfig(&globalConfig);
+				handle->SetVariableMap(&globalMap);
+				handle->SetConfig(&globalConfig);
 			}
 			else
 			{
-				handle->resetMap();
-				handle->resetConfig();	//private status
+				handle->ResetVariableMap();
+				handle->ResetConfig();	//private status
 			}
 			
 			((TExtShaderConfiguration&)*this) = code;
-			bool success = handle->loadComposition(code.code);
+			bool success = handle->LoadComposition(code.code);
 
 			if (!success)
 				return false;
 			for (index_t i = 0; i < code.num_samplers; i++)
-				handle->predefineUniformi("sampler"+String(i),(int)i);
+				handle->PredefineUniformInt("sampler"+String(i),(int)i);
 			if (code.sky_lighting)
-				handle->predefineUniformi("sky",(int)code.num_samplers);
+				handle->PredefineUniformInt("sky",(int)code.num_samplers);
 
 			return true;
 		}
@@ -383,7 +383,7 @@ namespace Engine
 				<< fragment_code
 				<< "}\n";
 
-			code_out.code = code.toStringRef();
+			code_out.code = code.ToStringRef();
 			return true;
 		}
 
@@ -878,42 +878,42 @@ namespace Engine
 
 		bool	FBO::exportColorTo(FloatImage&target,BYTE target_index/*=0*/)	const
 		{
-			if (target_index >= config.num_color_targets || !config.color_target[target_index].texture_handle)
+			if (target_index >= config.numColorTargets || !config.colorTarget[target_index].textureHandle)
 				return false;
 			target.setSize(config.resolution.width,config.resolution.height,getChannelsOfTarget(target_index));
 			ContextLock	context_lock;
 
 			glPushAttrib(GL_TEXTURE_BIT);
-				glBindTexture(GL_TEXTURE_2D,config.color_target[target_index].texture_handle);
-				glGetTexImage(GL_TEXTURE_2D,0,formatToOrder(config.color_target[target_index].texture_format),GL_FLOAT,target.getData());
+				glBindTexture(GL_TEXTURE_2D,config.colorTarget[target_index].textureHandle);
+				glGetTexImage(GL_TEXTURE_2D,0,formatToOrder(config.colorTarget[target_index].textureFormat),GL_FLOAT,target.getData());
 			glPopAttrib();
 			return true;
 		}
 
 		bool	FBO::exportColorTo(UnclampedFloatImage&target,BYTE target_index/*=0*/)	const
 		{
-			if (target_index >= config.num_color_targets || !config.color_target[target_index].texture_handle)
+			if (target_index >= config.numColorTargets || !config.colorTarget[target_index].textureHandle)
 				return false;
 			target.setSize(config.resolution.width,config.resolution.height,getChannelsOfTarget(target_index));
 			ContextLock	context_lock;
 
 			glPushAttrib(GL_TEXTURE_BIT);
-				glBindTexture(GL_TEXTURE_2D,config.color_target[target_index].texture_handle);
-				glGetTexImage(GL_TEXTURE_2D,0,formatToOrder(config.color_target[target_index].texture_format),GL_FLOAT,target.getData());
+				glBindTexture(GL_TEXTURE_2D,config.colorTarget[target_index].textureHandle);
+				glGetTexImage(GL_TEXTURE_2D,0,formatToOrder(config.colorTarget[target_index].textureFormat),GL_FLOAT,target.getData());
 			glPopAttrib();
 			return true;
 		}
 
 		bool	FBO::exportColorTo(Image&target,BYTE target_index/*=0*/)	const
 		{
-			if (target_index >= config.num_color_targets || !config.color_target[target_index].texture_handle)
+			if (target_index >= config.numColorTargets || !config.colorTarget[target_index].textureHandle)
 				return false;
 			target.setSize(config.resolution.width,config.resolution.height,getChannelsOfTarget(target_index));
 			ContextLock	context_lock;
 
 			glPushAttrib(GL_TEXTURE_BIT);
-				glBindTexture(GL_TEXTURE_2D,config.color_target[target_index].texture_handle);
-				glGetTexImage(GL_TEXTURE_2D,0,formatToOrder(config.color_target[target_index].texture_format),GL_UNSIGNED_BYTE,target.getData());
+				glBindTexture(GL_TEXTURE_2D,config.colorTarget[target_index].textureHandle);
+				glGetTexImage(GL_TEXTURE_2D,0,formatToOrder(config.colorTarget[target_index].textureFormat),GL_UNSIGNED_BYTE,target.getData());
 			glPopAttrib();
 			return true;
 		}
@@ -931,7 +931,7 @@ namespace Engine
 			{
 				ContextLock	context_lock;
 
-				Extension::destroyFrameBuffer(TFrameBuffer(handle,config));
+				Extension::DestroyFrameBuffer(TFrameBuffer(handle,config));
 			}
 			flush();
 		}
@@ -953,8 +953,8 @@ namespace Engine
 			ContextLock	context_lock;
 			TFrameBuffer	buffer;
 			((TFBOConfig&)buffer) = config;
-			buffer.frame_buffer = handle;
-			Extension::resizeFrameBuffer(buffer,res);
+			buffer.frameBuffer = handle;
+			Extension::ResizeFrameBuffer(buffer,res);
 			config = buffer; //handle should stay the same
 		}
 		
@@ -964,17 +964,17 @@ namespace Engine
 			ContextLock	context_lock;
 
 			clear();
-			TFrameBuffer	buffer = Extension::createFrameBuffer(config.resolution, config.depth_storage,config.num_color_targets, config.format);
-			if (!buffer.frame_buffer)
+			TFrameBuffer	buffer = Extension::CreateFrameBuffer(config.resolution, config.depthStorage,config.numColorTargets, config.format);
+			if (!buffer.frameBuffer)
 				return false;
-			handle = buffer.frame_buffer;
+			handle = buffer.frameBuffer;
 			this->config = buffer;
 			if (!config.filtered)	//defaults to filtered
 			{
 				for (int i = 0; i < 4; i++)
-					if (this->config.color_target[i].texture_handle)
+					if (this->config.colorTarget[i].textureHandle)
 					{
-						glBindTexture(GL_TEXTURE_2D,this->config.color_target[i].texture_handle);
+						glBindTexture(GL_TEXTURE_2D,this->config.colorTarget[i].textureHandle);
 						glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
 						glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
 					}
@@ -1094,7 +1094,7 @@ namespace Engine
 		Texture::Reference		FBO::reference(UINT target/*=0*/)	const
 		{
 			Texture t;
-			t.overrideSetHandle(config.color_target[target].texture_handle,config.resolution.width,config.resolution.height,formatToChannels(config.color_target[target].texture_format),false);
+			t.overrideSetHandle(config.colorTarget[target].textureHandle,config.resolution.width,config.resolution.height,formatToChannels(config.colorTarget[target].textureFormat),false);
 			Texture::Reference result(t.reference());
 			t.flush();
 			return result;
@@ -1107,7 +1107,7 @@ namespace Engine
 				return;
 			ContextLock	context_lock;
 
-			glBindTexture(GL_TEXTURE_2D,config.color_target[target].texture_handle);
+			glBindTexture(GL_TEXTURE_2D,config.colorTarget[target].textureHandle);
 				glGenerateMipmap(GL_TEXTURE_2D);
 				glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 			glBindTexture(GL_TEXTURE_2D,0);
@@ -1212,8 +1212,8 @@ namespace Engine
 	/*static*/ void	OpenGL::BuildMipMaps(const GL::FBO&fbo, unsigned target, const GLShader::Instance&mipMapShader)
 	{
 		ASSERT_LESS__(target, 4);
-		const GLuint texHandle = fbo.config.color_target[target].texture_handle;
-		const GLenum texFormat = fbo.config.color_target[target].texture_format;
+		const GLuint texHandle = fbo.config.colorTarget[target].textureHandle;
+		const GLenum texFormat = fbo.config.colorTarget[target].textureFormat;
 		ASSERT__(texHandle != 0);
 		
 		glDisable(GL_BLEND);
@@ -1239,7 +1239,7 @@ namespace Engine
 
 		glEnable(GL_TEXTURE_2D);
 		glBindTexture(GL_TEXTURE_2D,texHandle);
-		ASSERT__(mipMapShader.install());
+		ASSERT__(mipMapShader.Install());
 
 		Resolution res = fbo.GetResolution();
 		unsigned layer = 0;
@@ -1258,7 +1258,7 @@ namespace Engine
 			//glClearColor(0,1,0,1);
 			//glClear(GL_COLOR_BUFFER_BIT);
 
-			gl_extensions.TestCurrentFrameBuffer();
+			glExtensions.TestCurrentFrameBuffer();
 
 			glBegin(GL_QUADS);
 				glTexCoord4f(0,0, sx, sy);	glVertex2f(-1,-1);
@@ -1270,7 +1270,7 @@ namespace Engine
 		}
 		while (res.width > 1 || res.height > 1);
 		
-		mipMapShader.uninstall();
+		mipMapShader.Uninstall();
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_BASE_LEVEL,0);
 		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAX_LEVEL,1000);
@@ -1802,7 +1802,7 @@ namespace Engine
 
 	String OpenGL::renderState()
 	{
-		return gl_extensions.renderState();
+		return glExtensions.QueryRenderState();
 	}
 
 	/*static*/			OpenGL::GLBinding			OpenGL::getCurrentContext()
@@ -1842,11 +1842,11 @@ namespace Engine
 			wnd = glXGetCurrentDrawable();
 			gl_context = glXGetCurrentContext();
 			display = glXGetCurrentDisplay();
-			gl_extensions.initialize(display,DefaultScreen(display));
+			glExtensions.Initialize(display,DefaultScreen(display));
 		#elif SYSTEM==WINDOWS
 			device_context = wglGetCurrentDC();
 			gl_context = wglGetCurrentContext();
-			gl_extensions.initialize(device_context);
+			glExtensions.Initialize(device_context);
 		#endif
 	}
 
@@ -1864,7 +1864,7 @@ namespace Engine
 	void OpenGL::unbindFrameBufferObject(const Resolution&new_resolution)
 	{
 		GL_BEGIN
-			gl_extensions.unbindFrameBuffer();
+			glExtensions.UnbindFrameBuffer();
 			glViewport(0,0,new_resolution.width,new_resolution.height);
 		GL_END
 	}
@@ -1874,7 +1874,7 @@ namespace Engine
 	{
 		GL_BEGIN
 			Shader::Instance*instance = shader.construct();
-			ASSERT1__(shader.isEmpty() || instance!=NULL,shader.report());
+			ASSERT1__(shader.isEmpty() || instance!=NULL,shader.Report());
 			genericBindMaterial(config,list,instance != NULL);
 			Shader::_Install(instance);
 		GL_END
@@ -1884,7 +1884,7 @@ namespace Engine
 	{
 		GL_BEGIN
 			Shader::Instance*instance = shader.construct();
-			ASSERT1__(shader.isEmpty() || instance!=NULL,shader.report());
+			ASSERT1__(shader.isEmpty() || instance!=NULL,shader.Report());
 
 			genericBindMaterial(config,list,instance != NULL);
 			Shader::_Install(instance);
@@ -1894,7 +1894,7 @@ namespace Engine
 	void OpenGL::bindMaterial(const MaterialConfiguration&config, const Texture *const * list, const Shader::Instance*shader)
 	{
 		GL_BEGIN
-			genericBindMaterial(config,list,shader->isLoaded());
+			genericBindMaterial(config,list,shader->IsLoaded());
 			Shader::_Install(shader);
 			
 		GL_END
@@ -1902,7 +1902,7 @@ namespace Engine
 	void OpenGL::bindMaterial(const MaterialConfiguration&config, const Texture::Reference*list, const Shader::Instance*shader)
 	{
 		GL_BEGIN
-			genericBindMaterial(config,list,shader->isLoaded());
+			genericBindMaterial(config,list,shader->IsLoaded());
 			Shader::_Install(shader);
 		GL_END
 	}
@@ -1930,7 +1930,7 @@ namespace Engine
 	{
 		GL_BEGIN
 
-		Shader::uninstall();
+		Shader::Uninstall();
 
 		state.render_setup.material = NULL;
 		state.indices_bound = false;
@@ -2010,7 +2010,7 @@ namespace Engine
 		void	 OpenGL::initDefaultExtensions()
 		{
 			GL_BEGIN
-		    gl_extensions.init(EXT_WIN_CONTROL_BIT
+		    glExtensions.Init(EXT_WIN_CONTROL_BIT
 								|EXT_MULTITEXTURE_BIT
 								|EXT_OCCLUSION_QUERY_BIT
 								|EXT_VERTEX_BUFFER_OBJECT_BIT
@@ -2018,8 +2018,8 @@ namespace Engine
 								|EXT_SHADER_OBJECTS_BIT
 								|EXT_FRAME_BUFFER_OBJECT_BIT
 								|EXT_BLEND_FUNC_SEPARATE_BIT);
-			//state.dot3_available = gl_extensions.available("GL_ARB_texture_env_dot3");
-			state.render_setup.enabled_light_field.setSize(gl_extensions.max_lights);
+			//state.dot3_available = glExtensions.available("GL_ARB_texture_env_dot3");
+			state.render_setup.enabled_light_field.setSize(glExtensions.maxLights);
 
 			glPixelStorei(GL_UNPACK_ALIGNMENT,1);
 			glPixelStorei(GL_PACK_ALIGNMENT,1);
@@ -2186,8 +2186,8 @@ namespace Engine
 	                return NULL;
 	            }
 	            //GetClientRect(window, &Screen);
-	            gl_extensions.initialize(device_context);
-	            gl_extensions.init(EXT_WIN_CONTROL_BIT|EXT_MULTITEXTURE_BIT|EXT_OCCLUSION_QUERY_BIT|EXT_VERTEX_BUFFER_OBJECT_BIT|EXT_FRAME_BUFFER_OBJECT_BIT);
+	            glExtensions.Initialize(device_context);
+	            glExtensions.Init(EXT_WIN_CONTROL_BIT|EXT_MULTITEXTURE_BIT|EXT_OCCLUSION_QUERY_BIT|EXT_VERTEX_BUFFER_OBJECT_BIT|EXT_FRAME_BUFFER_OBJECT_BIT);
 
 	            if (retry && wglChoosePixelFormat != NULL)
 				{
@@ -2326,7 +2326,7 @@ namespace Engine
 			}
 			GetClientRect(hWnd, &Screen);
 			window = hWnd;
-			gl_extensions.initialize(device_context);
+			glExtensions.Initialize(device_context);
 			initDefaultExtensions();
 			if (wglSwapInterval)
 				wglSwapInterval(config.vertical_sync);
@@ -2443,7 +2443,7 @@ namespace Engine
 				return false;
 			}
 			wnd = window;
-			gl_extensions.initialize(display,visual->screen);
+			glExtensions.Initialize(display,visual->screen);
 			initDefaultExtensions();
 
 			initGL();
@@ -2606,7 +2606,7 @@ namespace Engine
 		GL_BEGIN
 		if (state.render_setup.bound_texture_layers && !override_safety)
 			FATAL__("illegal operation");
-		if (!object.config.num_color_targets || !object.config.color_target[0].texture_handle)
+		if (!object.config.numColorTargets || !object.config.colorTarget[0].textureHandle)
 		{
 			glDisable(GL_TEXTURE_1D);	glBindTexture(GL_TEXTURE_1D,0);
 			glDisable(GL_TEXTURE_2D);	glBindTexture(GL_TEXTURE_2D,0);
@@ -2620,7 +2620,7 @@ namespace Engine
 		glDisable(GL_TEXTURE_3D);	glBindTexture(GL_TEXTURE_3D,0);
 		glDisable(GL_TEXTURE_CUBE_MAP);	glBindTexture(GL_TEXTURE_CUBE_MAP,0);
 		glEnable(GL_TEXTURE_2D);
-		glBindTexture(GL_TEXTURE_2D,object.config.color_target[0].texture_handle);
+		glBindTexture(GL_TEXTURE_2D,object.config.colorTarget[0].textureHandle);
 		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,clamp?GL_CLAMP_TO_EDGE:GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,clamp?GL_CLAMP_TO_EDGE:GL_REPEAT);
 		
@@ -3085,7 +3085,7 @@ namespace Engine
 		else
 			glDisableClientState(GL_COLOR_ARRAY);
 
-		count_t texcoords = std::min((count_t)gl_extensions.max_texcoord_layers,binding.texcoords.count());
+		count_t texcoords = std::min((count_t)glExtensions.maxTexcoordLayers,binding.texcoords.count());
 
 		for (index_t i = texcoords; i < state.render_setup.bound_texcoord_layers; i++)
 		{
@@ -3134,7 +3134,7 @@ namespace Engine
 			}
 		}
 
-		if (binding.tangent.isset() && texcoords < (count_t)gl_extensions.max_texcoord_layers)
+		if (binding.tangent.isset() && texcoords < (count_t)glExtensions.maxTexcoordLayers)
 		{
 			index_t i = texcoords++;
 			glClientActiveTexture(GL_TEXTURE0+GLuint(i));

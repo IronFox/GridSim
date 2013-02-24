@@ -1,18 +1,14 @@
 #include "../../global_root.h"
 #include "mouse.h"
+#include "../../general/system.h"
 
-    #include <iostream>
-    using namespace std;
+    //#include <iostream>
+    //using namespace std;
 
 
 /******************************************************************
 
 engine mouse-interface.
-
-This file is part of Delta-Works
-Copyright (C) 2006-2008 Stefan Elsen, University of Trier, Germany.
-http://www.delta-works.org/forge/
-http://informatik.uni-trier.de/
 
 ******************************************************************/
 
@@ -187,8 +183,8 @@ namespace Engine
 	    buttons.middle_down = false;
 	    buttons.right_down  = false;
 	    buttons.pressed     = false;
-	    speed[0] = 100;
-	    speed[1] = 100;
+	    speed.x = 1;
+	    speed.y = 1;
 		memset(cursor_reference,0,sizeof(cursor_reference));
 		loaded_cursor = NULL;
 
@@ -199,7 +195,12 @@ namespace Engine
 		    my = (screen_clip.top+screen_clip.bottom)/2;		
 			
 	        updateNoClip();
-			
+
+
+
+			lastPosition.x = 0;
+			lastPosition.y = 0;
+			hasLastPosition = false;
 		
 	    #else
 	        window.left = window.top = window.right = window.bottom = 0;
@@ -211,11 +212,21 @@ namespace Engine
 	}
 
 
-	void Mouse::redefineWindow(RECT window_)
+	void Mouse::redefineWindow(RECT window_, HWND hwnd)
 	{
 	    window = window_;
 		mx = (window.left+window.right)/2;
 		my = (window.top+window.bottom)/2;		
+
+		RAWINPUTDEVICE dev;
+        
+		dev.usUsagePage = 0x01; 
+		dev.usUsage = 0x02; 
+		dev.dwFlags = 0;//RIDEV_INPUTSINK;//RIDEV_INPUTSINK;//RIDEV_NOLEGACY;   // adds HID mouse and also ignores legacy mouse messages
+		dev.hwndTarget = hwnd;
+		if (!RegisterRawInputDevices(&dev,1,sizeof(dev)))
+			FATAL__(System::getLastError());
+			
 	    //ShowMessage("window set to "+IntToStr(window.left)+", "+IntToStr(window.top)+" - "+IntToStr(window.right)+", "+IntToStr(window.bottom));
 	}
 
@@ -231,7 +242,7 @@ namespace Engine
 	    #if SYSTEM==WINDOWS
 	        updateNoClip();
 	        if (locked)
-	            ClipCursor(&no_clip);
+	            ClipCursor(&window);
 	        else
 	            ClipCursor(NULL);
 	    #endif
@@ -252,7 +263,7 @@ namespace Engine
 	    #if SYSTEM==WINDOWS
 	        updateNoClip();
 	        if (locked)
-	            ClipCursor(&no_clip);
+	            ClipCursor(&window);
 	        else
 	            ClipCursor(NULL);
 	    #endif
@@ -260,31 +271,60 @@ namespace Engine
 	
 	void Mouse::regAnalogInputs()
 	{
-		map.regAnalog("MouseX",location.fx,0,1);
-		map.regAnalog("MouseY",location.fy,0,1);
+		map.regAnalog("MouseX",location.windowRelative.x,0,1);
+		map.regAnalog("MouseY",location.windowRelative.y,0,1);
+	}
+
+	void	Mouse::RecordAbsoluteMouseMovement(long x, long y)
+	{
+		if (!hasLastPosition)
+		{
+			hasLastPosition = true;
+			lastPosition.x = x;
+			lastPosition.y = y;
+			return;
+		}
+		RecordRelativeMouseMovement(x - lastPosition.x, y - lastPosition.y);
+		lastPosition.x = x;
+		lastPosition.y = y;
+	}
+	void	Mouse::RecordRelativeMouseMovement(long x, long y)
+	{
+		delta.x = float(x)*0.01f * speed.x;
+		delta.y = float(y)*0.01f * speed.y;
 	}
 
 
 	void Mouse::update()
 	{
-	    previous_location = location;
-	    delta.x = 0;
-	    delta.y = 0;
-	    if (locked&&focus)
-	    {
-	        POINT mp;
-	        GetCursorPos(&mp);
-	        short delta_x = mp.x-mx,
-	              delta_y = my-mp.y;
-	        SetCursorPos(mx,my);
-	        delta.x = speed[0]*delta_x/(screen_clip.right-screen_clip.left);
-	        delta.y = speed[1]*delta_y/(screen_clip.bottom-screen_clip.top);
-	        return;
-	    }
-	    GetCursorPos(&location.p);
-		//ShowMessage(String(location.x)+", "+String(location.y)+" / "+String(window.left)+", "+String(window.top)+", "+String(window.right)+", "+String(window.bottom));
-	    location.fx = ((float)location.x-window.left)/(window.right-window.left);
-	    location.fy = (1-((float)location.y-window.top)/(window.bottom-window.top));
+		#if SYSTEM!=WINDOWS
+			previous_location = location;
+			delta.x = 0;
+			delta.y = 0;
+			if (locked&&focus)
+			{
+				POINT mp;
+				GetCursorPos(&mp);
+				short delta_x = mp.x-mx,
+					  delta_y = my-mp.y;
+				SetCursorPos(mx,my);
+				delta.x = speed[0]*delta_x/(screen_clip.right-screen_clip.left);
+				delta.y = speed[1]*delta_y/(screen_clip.bottom-screen_clip.top);
+				return;
+			}
+			GetCursorPos(&location.p);
+			//ShowMessage(String(location.x)+", "+String(location.y)+" / "+String(window.left)+", "+String(window.top)+", "+String(window.right)+", "+String(window.bottom));
+			location.fx = ((float)location.x-window.left)/(window.right-window.left);
+			location.fy = (1-((float)location.y-window.top)/(window.bottom-window.top));
+		#else
+			delta.x = 0;
+			delta.y = 0;
+			if (!locked || !focus)
+			{
+				previous_location = location;
+				_Feed();
+			}
+		#endif
 		
 #if 0
 		#if SYSTEM==WINDOWS
@@ -307,7 +347,7 @@ namespace Engine
 	    if (!locked)
 	        return;
 	    
-	    SetCursorPos(location.x,location.y);
+	    SetCursorPos(location.absolute.x,location.absolute.y);
 	    
 	    locked = false;
 	    #if SYSTEM==WINDOWS
@@ -319,16 +359,17 @@ namespace Engine
 	{
 	    if (locked)
 	        return;
-	    GetCursorPos(&location.p);
-	    location.fx = ((float)location.x-window.left)/(window.right-window.left);
-	    location.fy = 1-((float)location.y-window.top)/(window.bottom-window.top);
+		_Feed();
 	    mx = (window.right+window.left)/2;
 	    my = (window.bottom+window.top)/2;
-	    SetCursorPos(mx,my);
+	    #if SYSTEM!=WINDOWS
+		    SetCursorPos(mx,my);
+		#endif
 	 
 	    locked = true;
 	    #if SYSTEM==WINDOWS
-	        ClipCursor(&no_clip);
+	        //ClipCursor(&no_clip);
+			ClipCursor(&window);
 	    #endif
 	}
 
@@ -351,7 +392,7 @@ namespace Engine
 	    if (!focus)
 	        return;
 	    if (locked)
-	        SetCursorPos(location.x,location.y);
+			SetCursorPos(location.absolute.x,location.absolute.y);
 		if (!cursor_visible)
 		{
 		    #if SYSTEM==WINDOWS
@@ -365,19 +406,29 @@ namespace Engine
 	    focus = false;
 	}
 
+	void	Mouse::_Feed()
+	{
+		POINT p;
+		GetCursorPos(&p);
+		location.absolute.x = p.x;
+		location.absolute.y = p.y;
+	    location.windowRelative.x = ((float)p.x-window.left)/(window.right-window.left);
+	    location.windowRelative.y = 1-((float)p.y-window.top)/(window.bottom-window.top);
+	}
+
+
 	void Mouse::restoreFocus()
 	{
 	    if (focus)
 	        return;
-	    GetCursorPos(&location.p);
-	    location.fx = ((float)location.x-window.left)/(window.right-window.left);
-	    location.fy = 1-((float)location.y-window.top)/(window.bottom-window.top);
+		_Feed();
 	    if (locked)
 	    {
 	        #if SYSTEM==WINDOWS
-	            ClipCursor(&no_clip);
-	        #endif
-	        SetCursorPos(mx,my);
+	            ClipCursor(&window);
+	        #else
+				SetCursorPos(mx,my);
+			#endif
 	    }
 		if (!cursor_visible)
 		{
@@ -396,21 +447,17 @@ namespace Engine
 
 	bool Mouse::in(float left, float bottom, float right, float top)
 	{
-	    return location.fx >= left && location.fy >= bottom && location.fx <= right && location.fy <= top;
+		return location.windowRelative.x >= left && location.windowRelative.y >= bottom && location.windowRelative.x <= right && location.windowRelative.y <= top;
 	}
 
 	void Mouse::lock()
 	{
 	    if (locked)
 	        return;
-	    GetCursorPos(&location.p);
-	    location.fx = ((float)location.x-window.left)/(window.right-window.left);
-	    location.fy = 1-((float)location.y-window.top)/(window.bottom-window.top);
-	    mx = location.x;
-	    my = location.y;
+		_Feed();
 	    locked = true;
 	    #if SYSTEM==WINDOWS
-	        ClipCursor(&no_clip);
+	        ClipCursor(&window);
 	    #endif
 	}
 

@@ -832,14 +832,14 @@ bool	XML::Scanner::read(char until, StringBuffer&to, FILE*f)
 			char*offset = strnchr(buffer,buffer_fill_state,until);
 			if (offset)
 			{
-				to.write(buffer,offset-buffer);
+				to.Write(buffer,offset-buffer);
 				memcpy(buffer,offset+1,buffer_fill_state-(offset-buffer)-1);
 				buffer_fill_state -= (offset-buffer)+1;
 				return true;
 			}
 			else
 			{
-				to.write(buffer,(unsigned)buffer_fill_state);
+				to.Write(buffer,buffer_fill_state);
 				buffer_fill_state = 0;
 			}
 		}
@@ -959,7 +959,7 @@ bool	XML::Scanner::scan(const String&filename)
 			error_string = "Unexpected end of file.";
 		}
 		
-		char*field = buffer.root(),						//extract working buffer
+		char*field = buffer.pointer(),						//extract working buffer
 			*c = field,
 			*end = field+buffer.length();
 		while (!IS_WHITESPACE(*c) && c != end)	//find end of name
@@ -1064,7 +1064,7 @@ bool	XML::Scanner::scan(const String&filename)
 				working = false;
 				error_string = "Unexpected end of file.";
 			}
-			inner->content = decode(buffer.toString());
+			inner->content = decode(buffer.ToStringRef());
 		}
 		else
 			if (!skip('<',f))

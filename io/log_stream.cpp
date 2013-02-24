@@ -13,7 +13,7 @@ LogSession::~LogSession()
 	(*counter)--;
 	if (!(*counter))
 	{
-		parent->redirectTarget(parent->segment.toString());
+		parent->redirectTarget(parent->segment.ToStringRef());
 		parent->mutex.release();
 		DISCARD(counter);
 	}
@@ -32,7 +32,7 @@ LogSession&	LogSession::operator=(const LogSession&other)
 	(*counter)--;
 	if (!(*counter))
 	{
-		parent->redirectTarget(parent->segment.toString());
+		parent->redirectTarget(parent->segment.ToStringRef());
 		parent->mutex.release();
 		DISCARD(counter);
 	}

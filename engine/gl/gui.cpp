@@ -56,11 +56,11 @@ namespace Engine
 					return;
 				initialized = true;
 
-				if (!gl_extensions.init(EXT_SHADER_OBJECTS_BIT))
+				if (!glExtensions.Init(EXT_SHADER_OBJECTS_BIT))
 					FATAL__("Failed to initialized shader objects");
 
-				windowShader.clear();
-				if (!windowShader.loadComposition(
+				windowShader.Clear();
+				if (!windowShader.LoadComposition(
 					"[shared]\n"
 					"varying vec2 eye;\n"
 					
@@ -186,19 +186,19 @@ namespace Engine
 					"}\n"
 				))
 				{
-					FATAL__("GUI Window shader compilation exception:\n"+windowShader.report());
+					FATAL__("GUI Window shader compilation exception:\n"+windowShader.Report());
 				}
 				else
 				{
-					blurEffectSwitch = windowShader.map()->locate("blur");
-					refractEffectSwitch = windowShader.map()->locate("refract");
-					bumpEffectSwitch = windowShader.map()->locate("bump_mapping");
-					windowShader.predefineUniformi("normal_map",1);
-					windowShader.predefineUniformi("color_map",2);
+					blurEffectSwitch = windowShader.FindVariable("blur");
+					refractEffectSwitch = windowShader.FindVariable("refract");
+					bumpEffectSwitch = windowShader.FindVariable("bump_mapping");
+					windowShader.PredefineUniformInt("normal_map",1);
+					windowShader.PredefineUniformInt("color_map",2);
 				}
 			
-				normalShader.clear();
-				if (!normalShader.loadComposition(
+				normalShader.Clear();
+				if (!normalShader.LoadComposition(
 					"[vertex]\n"
 					"varying float h;\n"
 					"void main()\n"
@@ -223,7 +223,7 @@ namespace Engine
 					"}\n"
 				))
 				{
-					FATAL__("GUI Normal shader compilation exception:\n"+normalShader.report());
+					FATAL__("GUI Normal shader compilation exception:\n"+normalShader.Report());
 				}
 			
 				/*Image	image;
@@ -654,7 +654,7 @@ namespace Engine
 		void	Operator::unprojectMouse(TVec2<float>&p)	const
 		{
 			TVec3<float> f;
-			projected_space.ScreenToVector(mouse->location.fx*2-1,mouse->location.fy*2-1,Vector<>::dummy,f);
+			projected_space.ScreenToVector(mouse->location.windowRelative.x*2.f-1.f,mouse->location.windowRelative.y*2.f-1.f,Vector<>::dummy,f);
 			Vec::normalize0(f);
 			unproject(f,p);
 		}
@@ -1134,12 +1134,12 @@ namespace Engine
 			}
 			
 			glActiveTexture(GL_TEXTURE1);
-			glBindTexture(GL_TEXTURE_2D,window->normalBuffer.color_target[0].texture_handle);
+			glBindTexture(GL_TEXTURE_2D,window->normalBuffer.colorTarget[0].textureHandle);
 			glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_CLAMP_TO_EDGE);
 			glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_CLAMP_TO_EDGE);
 			
 			glActiveTexture(GL_TEXTURE2);
-			glBindTexture(GL_TEXTURE_2D,window->colorBuffer.color_target[0].texture_handle);
+			glBindTexture(GL_TEXTURE_2D,window->colorBuffer.colorTarget[0].textureHandle);
 			glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_CLAMP_TO_EDGE);
 			glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_CLAMP_TO_EDGE);
 			glActiveTexture(GL_TEXTURE0);
@@ -1644,10 +1644,10 @@ namespace Engine
 		void		Renderer::Configure(const TFrameBuffer&buffer, const Resolution& usage)
 		{
 			stackedTargets[1] = buffer;
-			if (layerTarget.frame_buffer == 0)
+			if (layerTarget.frameBuffer == 0)
 			{
-				layerTarget = gl_extensions.createFrameBuffer(buffer.resolution,Engine::DepthStorage::NoDepthStencil,1,&GLType<GLbyte>::rgba_type_constant);
-				stackedTargets[0] = gl_extensions.createFrameBuffer(buffer.resolution,Engine::DepthStorage::NoDepthStencil,1,&GLType<GLbyte>::rgba_type_constant);
+				layerTarget = glExtensions.CreateFrameBuffer(buffer.resolution,Engine::DepthStorage::NoDepthStencil,1,&GLType<GLbyte>::rgba_type_constant);
+				stackedTargets[0] = glExtensions.CreateFrameBuffer(buffer.resolution,Engine::DepthStorage::NoDepthStencil,1,&GLType<GLbyte>::rgba_type_constant);
 			}
 			else
 			{
@@ -1665,8 +1665,8 @@ namespace Engine
 				}
 				if (resize)
 				{
-					gl_extensions.resizeFrameBuffer(layerTarget,res);
-					gl_extensions.resizeFrameBuffer(stackedTargets[0],res);
+					glExtensions.ResizeFrameBuffer(layerTarget,res);
+					glExtensions.ResizeFrameBuffer(stackedTargets[0],res);
 				}
 			}
 			layerCounter = 0;
@@ -1675,7 +1675,7 @@ namespace Engine
 			clipStack.clear();
 			subRes = usage;
 			glPushAttrib(GL_COLOR_BUFFER_BIT | GL_ENABLE_BIT | GL_VIEWPORT_BIT);
-			gl_extensions.bindFrameBuffer(buffer);
+			glExtensions.BindFrameBuffer(buffer);
 			glViewport(0,0,subRes.width,subRes.height);
 			glClearColor(clearColor.r,clearColor.g,clearColor.b,0);
 			glClear(GL_COLOR_BUFFER_BIT);
@@ -1691,9 +1691,9 @@ namespace Engine
 
 
 
-			if (layerMerger.isEmpty())
+			if (layerMerger.IsEmpty())
 			{
-				ASSERT1__(layerMerger.loadComposition(
+				ASSERT1__(layerMerger.LoadComposition(
 					"vertex{void main(){gl_Position=gl_Vertex;gl_TexCoord[0]=gl_MultiTexCoord0;gl_TexCoord[1]=gl_MultiTexCoord1;}}"
 					"fragment{"
 						"uniform sampler2D lowerLayer,upperLayer;"
@@ -1708,9 +1708,9 @@ namespace Engine
 							//"if (gl_FragColor.a > 0 && length(gl_FragColor.rgb) > 0.0) gl_FragColor.rgb = normalize(gl_FragColor.rgb*2.0 - 1.0)*0.5 + 0.5; else gl_FragColor.rgb = vec3(0.5,0.5,1.0);"
 						"}"
 					"}"
-					),layerMerger.report());
-				layerMerger.locate("upperLayer").SetInt(1);
-				clearColorVariable = layerMerger.locate("clearColor");
+					),layerMerger.Report());
+				layerMerger.FindVariable("upperLayer").SetInt(1);
+				clearColorVariable = layerMerger.FindVariable("clearColor");
 			}
 
 			clearColorVariable.Set(clearColor);
@@ -1723,7 +1723,7 @@ namespace Engine
 				return;
 			layerIsDirty = false;
 			
-			gl_extensions.unbindFrameBuffer();
+			glExtensions.UnbindFrameBuffer();
 
 			if (layerCounter == 0)
 			{
@@ -1738,22 +1738,22 @@ namespace Engine
 					TVec2<>	layerUsage = {float(subRes.width) / float(layerTarget.resolution.width),
 										float(subRes.height) / float(layerTarget.resolution.height)};
 
-					glBindTexture(GL_TEXTURE_2D,stackedTargets[!targetingFinal].color_target[0].texture_handle);
+					glBindTexture(GL_TEXTURE_2D,stackedTargets[!targetingFinal].colorTarget[0].textureHandle);
 					glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
 					glActiveTexture(GL_TEXTURE1);
-					glBindTexture(GL_TEXTURE_2D,layerTarget.color_target[0].texture_handle);
+					glBindTexture(GL_TEXTURE_2D,layerTarget.colorTarget[0].textureHandle);
 					glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-					gl_extensions.bindFrameBuffer(stackedTargets[targetingFinal]);
+					glExtensions.BindFrameBuffer(stackedTargets[targetingFinal]);
 					glViewport(0,0,subRes.width,subRes.height);
-					layerMerger.install();
+					layerMerger.Install();
 					glBegin(GL_QUADS);
 						glTexCoord2f(0,0); glMultiTexCoord2f(GL_TEXTURE1,0,0); glVertex2f(-1,-1);
 						glTexCoord2f(targetUsage.x,0); glMultiTexCoord2f(GL_TEXTURE1,layerUsage.x,0); glVertex2f(1,-1);
 						glTexCoord2f(targetUsage.x,targetUsage.y); glMultiTexCoord2f(GL_TEXTURE1,layerUsage.x,layerUsage.y); glVertex2f(1,1);
 						glTexCoord2f(0,targetUsage.y); glMultiTexCoord2f(GL_TEXTURE1,0,layerUsage.y); glVertex2f(-1,1);
 					glEnd();
-					layerMerger.uninstall();
-					gl_extensions.unbindFrameBuffer();
+					layerMerger.Uninstall();
+					glExtensions.UnbindFrameBuffer();
 					glBindTexture(GL_TEXTURE_2D,0);
 					glActiveTexture(GL_TEXTURE0);
 					glBindTexture(GL_TEXTURE_2D,0);
@@ -1761,7 +1761,7 @@ namespace Engine
 				}
 			}
 			layerCounter++;
-			gl_extensions.bindFrameBuffer(layerTarget);
+			glExtensions.BindFrameBuffer(layerTarget);
 			glViewport(0,0,subRes.width,subRes.height);
 			glClearColor(clearColor.r,clearColor.g,clearColor.b,0);
 			glClear(GL_COLOR_BUFFER_BIT);
@@ -1783,11 +1783,11 @@ namespace Engine
 			MarkNewLayer();
 			bool mustCopy = layerCounter > 0 && targetingFinal;
 
-			gl_extensions.unbindFrameBuffer();
+			glExtensions.UnbindFrameBuffer();
 
 
 			if (mustCopy)
-				ASSERT__(gl_extensions.copyFrameBuffer(stackedTargets[0],stackedTargets[1],subRes,true,false));
+				ASSERT__(glExtensions.CopyFrameBuffer(stackedTargets[0],stackedTargets[1],subRes,true,false));
 
 			glPopAttrib();
 			glMatrixMode(GL_PROJECTION);
@@ -1795,7 +1795,7 @@ namespace Engine
 			glMatrixMode(GL_MODELVIEW);
 			glPopMatrix();
 
-			glBindTexture(GL_TEXTURE_2D,stackedTargets[1].color_target[0].texture_handle);
+			glBindTexture(GL_TEXTURE_2D,stackedTargets[1].colorTarget[0].textureHandle);
 			glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
 			//glGenerateMipmap(GL_TEXTURE_2D);
 			glBindTexture(GL_TEXTURE_2D,0);
@@ -1804,10 +1804,10 @@ namespace Engine
 
 		/*virtual*/					Renderer::~Renderer()
 		{
-			if (layerTarget.frame_buffer != 0)
+			if (layerTarget.frameBuffer != 0)
 			{
-				gl_extensions.destroyFrameBuffer(layerTarget);
-				gl_extensions.destroyFrameBuffer(stackedTargets[0]);
+				glExtensions.DestroyFrameBuffer(layerTarget);
+				glExtensions.DestroyFrameBuffer(stackedTargets[0]);
 			}
 		}
 
@@ -2102,10 +2102,10 @@ namespace Engine
 
 		void					NormalRenderer::MarkNewLayer()
 		{
-			normalRenderer.uninstall();
+			normalRenderer.Uninstall();
 			glBindTexture(GL_TEXTURE_2D,0);
 			Renderer::MarkNewLayer();
-			normalRenderer.install();
+			normalRenderer.Install();
 		}
 
 		void					NormalRenderer::_UpdateState(const GL::Texture::Reference&ref)
@@ -2115,9 +2115,9 @@ namespace Engine
 	
 		void					NormalRenderer::Configure(const TFrameBuffer&buffer, const Resolution& usage)
 		{
-			if (normalRenderer.isEmpty())
+			if (normalRenderer.IsEmpty())
 			{
-				ASSERT1__(normalRenderer.loadComposition(
+				ASSERT1__(normalRenderer.LoadComposition(
 					"vertex{void main(){gl_Position=ftransform();gl_TexCoord[0]=gl_MultiTexCoord0;}}"
 					"fragment{"
 						"uniform sampler2D texture;"
@@ -2128,20 +2128,20 @@ namespace Engine
 							"gl_FragColor.rgb = normalize(normalSystem * (normalSample.xyz*2.0 - 1.0)) * 0.5 + 0.5;"
 						"}"
 					"}"
-					),normalRenderer.report());
-				normalSystemVariable = normalRenderer.locate("normalSystem");
+					),normalRenderer.Report());
+				normalSystemVariable = normalRenderer.FindVariable("normalSystem");
 			}
 
 			Renderer::Configure(buffer,usage);
 
-			normalRenderer.install();
+			normalRenderer.Install();
 			Mat::eye(normalSystem);
 			DBG_VERIFY__(normalSystemVariable.Set(normalSystem));
 		}
 
 		void					NormalRenderer::Finish()
 		{
-			normalRenderer.uninstall();
+			normalRenderer.Uninstall();
 			ASSERT__(normalSystemStack.isEmpty());
 
 			Renderer::Finish();
@@ -2319,25 +2319,25 @@ namespace Engine
 
 			Resolution target_resolution (1<<ex,1<<ey);
 			
-			if (!colorBuffer.color_target[0].texture_handle)
+			if (!colorBuffer.colorTarget[0].textureHandle)
 			{
-				colorBuffer = gl_extensions.createFrameBuffer(target_resolution,Engine::DepthStorage::NoDepthStencil,1,&GLType<GLbyte>::rgba_type_constant);
-				normalBuffer = gl_extensions.createFrameBuffer(target_resolution,Engine::DepthStorage::NoDepthStencil,1,&GLType<GLbyte>::rgba_type_constant);
+				colorBuffer = glExtensions.CreateFrameBuffer(target_resolution,Engine::DepthStorage::NoDepthStencil,1,&GLType<GLbyte>::rgba_type_constant);
+				normalBuffer = glExtensions.CreateFrameBuffer(target_resolution,Engine::DepthStorage::NoDepthStencil,1,&GLType<GLbyte>::rgba_type_constant);
 				exp.x = ex;
 				exp.y = ey;
 			}
 			elif (do_resize)
 			{
-				ASSERT__(gl_extensions.resizeFrameBuffer(colorBuffer,target_resolution));
-				ASSERT__(gl_extensions.resizeFrameBuffer(normalBuffer,target_resolution));
+				ASSERT__(glExtensions.ResizeFrameBuffer(colorBuffer,target_resolution));
+				ASSERT__(glExtensions.ResizeFrameBuffer(normalBuffer,target_resolution));
 				exp.x = ex;
 				exp.y = ey;
 			}
 			
 			unsigned	resx = (1<<exp.x),
 						resy = (1<<exp.y);
-			ASSERT__(colorBuffer.color_target[0].texture_handle != 0);
-			ASSERT__(normalBuffer.color_target[0].texture_handle != 0);
+			ASSERT__(colorBuffer.colorTarget[0].textureHandle != 0);
+			ASSERT__(normalBuffer.colorTarget[0].textureHandle != 0);
 			ASSERT2__(size.width <= resx,size.width,resx);
 			ASSERT2__(size.height <= resy,size.height,resy);
 			
@@ -2357,7 +2357,7 @@ namespace Engine
 			//glMatrixMode(GL_MODELVIEW);
 			//
 			//Rect<float>	view(0,0,size.width,size.height);
-				//ASSERT__(gl_extensions.bindFrameBuffer(normalBuffer));
+				//ASSERT__(glExtensions.bindFrameBuffer(normalBuffer));
 				//glClearColor(0,0,0,0);
 				//glClear(GL_COLOR_BUFFER_BIT);
 				//glDisable(GL_BLEND);
@@ -2366,19 +2366,19 @@ namespace Engine
 
 			//finish:
 			//	normalShader.uninstall();
-			//ASSERT__(gl_extensions.bindFrameBuffer(colorBuffer));
+			//ASSERT__(glExtensions.bindFrameBuffer(colorBuffer));
 			//glClearColor(0,0,0,0);
 			//glClear(GL_COLOR_BUFFER_BIT);
 			//glDisable(GL_BLEND);
 
 			//color renderer:
-			//			ASSERT__(gl_extensions.bindFrameBuffer(colorBuffer));
+			//			ASSERT__(glExtensions.bindFrameBuffer(colorBuffer));
 			//glClearColor(0,0,0,0);
 			//glClear(GL_COLOR_BUFFER_BIT);
 			//glDisable(GL_BLEND);
 			//all finish:
 			//display.unlockRegion();
-			//gl_extensions.unbindFrameBuffer();
+			//glExtensions.unbindFrameBuffer();
 
 
 			
@@ -2815,18 +2815,18 @@ namespace Engine
 			
 			if (settingChanged)
 			{
-				windowShader.userConfig()->set(blurEffectSwitch,blurEffect);
-				windowShader.userConfig()->set(refractEffectSwitch,refractEffect);
-				windowShader.userConfig()->set(bumpEffectSwitch,bumpEffect);
+				windowShader.SetVariable(blurEffectSwitch,blurEffect);
+				windowShader.SetVariable(refractEffectSwitch,refractEffect);
+				windowShader.SetVariable(bumpEffectSwitch,bumpEffect);
 				//logfile << windowShader.assembleSource()<<nl<<nl;
-				currentWindowShader = windowShader.buildShader();
+				currentWindowShader = windowShader.BuildShader();
 				if (!currentWindowShader)
-					ErrMessage(windowShader.report());
+					ErrMessage(windowShader.Report());
 				settingChanged = false;
 			}
 
 			
-			ASSERT__(currentWindowShader->install());
+			ASSERT__(currentWindowShader->Install());
 			float	w = display->clientWidth(),
 					h = display->clientHeight();
 			glWhite();
@@ -2869,7 +2869,7 @@ namespace Engine
 				glLoadIdentity();
 				glMatrixMode(GL_MODELVIEW);
 			glBindTexture(GL_TEXTURE_2D,0);
-			currentWindowShader->uninstall();
+			currentWindowShader->Uninstall();
 		
 			/*
 

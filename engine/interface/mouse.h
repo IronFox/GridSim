@@ -14,6 +14,7 @@ eve mouse-interface.
 #endif
 
 #include "input.h"
+#include "../../math/vector.h"
 
 namespace Engine
 {
@@ -21,41 +22,12 @@ namespace Engine
 
 
 
-
-	struct TMouseDelta	//! Mouse movement vector
-	{
-		union
-		{
-			struct
-			{
-				float	x;		//!< Movement in horizontal (x) direction
-				float	y;		//!< Movement in vertical (y) direction
-			};
-			float		d[2];	//!< Delta vector
-		};
-	};
+	typedef TVec2<>	TMouseDelta;	//! Mouse movement vector
 
 	struct TMousePosition	//! Mouse position container
 	{
-		union
-		{
-			struct
-			{
-				float	fx,		//!< Horizontal (x) position relative to the window (0 = left window border, 1=right window border). Can be smaller than 0 or greater than 1.
-						fy;		//!< Vertical (y) position relative to the window (0 = bottom window border, 1=top window border). Can be smaller than 0 or greater than 1.
-			};
-			float		fv[2];	//!< Relative position vector. The components can be smaller than 0 or greater than 1.
-		};
-		union
-		{
-			struct
-			{
-				int	 	x,		//!< Absolute horizontal (x) position in pixels.
-						y;		//!< Absolute vertical (y) position in pixels. The y-coordinate is facing downwards from the top border of the screen.
-			};
-			int	 		iv[2];	//!< Absolute position vector.
-			POINT		p;
-		};
+		TVec2<>			windowRelative;
+		TVec2<int>		absolute;
 	};
 
 	struct TMouseButtons	//! Mouse button state
@@ -94,17 +66,19 @@ namespace Engine
 		#elif SYSTEM==WINDOWS
 			RECT			 	initial_clip, no_clip;
 		#endif
-			POINT				sp;
-			float				sx,sy;
-			bool				locked,focus,cursor_visible,force_invisible;
-			unsigned			mx,my;
-			RECT			 	screen_clip,window;
-			BYTE				button_id;
+		POINT					sp;
+		float					sx,sy;
+		bool					locked,focus,cursor_visible,force_invisible;
+		unsigned				mx,	my;
+		RECT			 		screen_clip,window;
+		BYTE					button_id;
+		TVec2<long>				lastPosition;
+		bool					hasLastPosition;
 				
 			
 		friend	class			Context;
 		#if SYSTEM==UNIX
-		friend	void			ExecuteEvent(XEvent&event);
+			friend void			ExecuteEvent(XEvent&event);
 		
 			void				GetCursorPos(POINT*target);
 			void				SetCursorPos(int x, int y);
@@ -112,6 +86,8 @@ namespace Engine
 			void				updateNoClip();
 		friend LRESULT CALLBACK WndProc(HWND hWnd, UINT Msg, WPARAM wParam,LPARAM lParam);
 		#endif
+
+		void					_Feed();
 
 			void				looseFocus();
 			void				restoreFocus();
@@ -132,13 +108,16 @@ namespace Engine
 			bool				buttonUp(BYTE id, bool update_if_bound=false);					//!< Evokes a button up event for the specified mouse button. Invoked by the working context - should not be invoked by the client application. \param id Button id (0=left button, 1=middle button, 2=right button) \param update_if_bound Forces the mouse handler to update before evoking the bound event \return true if an event handler was executed
 			void				setRegion(int width, int height);
 			void				setRegion(RECT region);
-			void				redefineWindow(RECT window);
+			void				redefineWindow(RECT window, HWND);
 			void				update();							//< Evokes the per frame update. Invoked by the working context - should not be invoked by the client application.
 			void				regAnalogInputs();			//!< Registers analog input types to the input map
 
+			void				RecordAbsoluteMouseMovement(long x, long y);
+			void				RecordRelativeMouseMovement(long x, long y);
+
 
 	public:
-			float				speed[2];			//!< The speed vector (x,y) scales the delta vector while the mouse is caught or locked (the unscaled delta vector is very small). \b speed is usually (100,100). 
+			TVec2<>				speed;			//!< The speed vector (x,y) scales the delta vector while the mouse is caught or locked (the unscaled delta vector is very small). \b speed is usually (100,100). 
 			
 			TMouseDelta			delta;				//!< Delta vector containing the mouse movement during the previous frame. Only updated while the mouse is caught or locked.
 			TMousePosition		location,			//!< Current cursor location. Only updated while the mouse is not caught or locked.

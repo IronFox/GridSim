@@ -2118,7 +2118,7 @@ namespace Fractal
 			optimizer.end(num_iterations,CLOCATION);*/
 			
 			
-			segment.texture.load(write_buffer.pointer(),image_width,image_width,num_channels,PixelType::Color,Engine::gl_extensions.max_texture_max_anisotropy, true, generate_mipmap?Engine::TextureFilter::Trilinear:Engine::TextureFilter::Linear,compress_textures);
+			segment.texture.load(write_buffer.pointer(),image_width,image_width,num_channels,PixelType::Color,Engine::glExtensions.maxTextureMaxAnisotropy, true, generate_mipmap?Engine::TextureFilter::Trilinear:Engine::TextureFilter::Linear,compress_textures);
 
 			#if 0
 			{

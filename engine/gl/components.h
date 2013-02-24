@@ -545,8 +545,8 @@ namespace Engine
 			void						SetText(const ReferenceExpression<char>&new_text);
 			StringBuffer&				GetBuffer()			{SignalVisualChange(); return text;}
 			const StringBuffer&			GetBuffer() const	{return text;}
-			String						GetText()		const{return text.toString();}
-			ReferenceExpression<char>	GetTextRef()	const {return text.toStringRef();}
+			String						GetText()		const{return text.ToStringRef();}
+			StringRef					GetTextRef()	const {return text.ToStringRef();}
 			virtual	eEventResult		OnFocusGained()	override				{cursorTicks = 0; return RequestingRepaint;}
 			virtual	eEventResult		OnFocusLost()	override					{return RequestingRepaint;}
 			virtual	float				GetClientMinWidth()	const	override		{return 50;}

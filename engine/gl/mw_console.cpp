@@ -48,8 +48,8 @@ void Engine::ConsoleWindow::onKeyDown(Key::Name key)
 				int		ilower = bar_lower + (int)(sector_lower*(float)bar_height),
 						iupper = bar_lower + (int)(sector_upper*(float)bar_height);
 
-				int rx = mouse.location.x-originX()-clientOffsetX(),
-					ry = clientHeight() - (mouse.location.y-originY()-clientOffsetY());
+				int rx = mouse.location.absolute.x-originX()-clientOffsetX(),
+					ry = clientHeight() - (mouse.location.absolute.y-originY()-clientOffsetY());
 				if (rx > (int)clientWidth()-spacing-15
 					&&
 					rx < (int)clientWidth()-spacing
@@ -264,7 +264,7 @@ void Engine::ConsoleWindow::onMouseMove()
 	int		ilower = bar_lower + (int)(sector_lower*(float)bar_height),
 			iupper = bar_lower + (int)(sector_upper*(float)bar_height);
 
-	int ry = clientHeight() - (mouse.location.y-originY()-clientOffsetY()),
+	int ry = clientHeight() - (mouse.location.absolute.y-originY()-clientOffsetY()),
 		new_ilower = ry-grab_delta,
 		delta = (int)((float)(new_ilower - ilower)*(float)history/(float)bar_height);
 	if (delta > 0)

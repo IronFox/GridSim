@@ -1300,7 +1300,7 @@ namespace Engine
 	    glViewport(0,0,client_width,client_height);
 
 	    Engine::timing.update();
-		mouse.redefineWindow(region);
+		mouse.redefineWindow(region,window);
 		mouse.update();
 		
 		display.overrideSetClientResolution(Resolution(client_width,client_height));
@@ -1492,7 +1492,7 @@ namespace Engine
 		ContextHandle previous_handle;
 		if (bindContext(previous_handle))
 		{
-			bool result = Engine::gl_extensions.init(extensions);
+			bool result = Engine::glExtensions.Init(extensions);
 			releaseContext(previous_handle);
 			return result;
 		}
@@ -1850,7 +1850,7 @@ namespace Engine
 
 		RECT region;
 		assembleClientRect(region);
-		mouse.redefineWindow(region);
+		mouse.redefineWindow(region,window);
 
 
 		if (application.active_screen != screen)
@@ -2210,8 +2210,8 @@ namespace Engine
 	                return false;
 	            }
 	            GetClientRect(window, &Screen);
-	            Engine::gl_extensions.initialize(local_context.device_context);
-	            Engine::gl_extensions.init(EXT_WIN_CONTROL_BIT|EXT_MULTITEXTURE_BIT|EXT_OCCLUSION_QUERY_BIT|EXT_VERTEX_BUFFER_OBJECT_BIT);
+	            Engine::glExtensions.Initialize(local_context.device_context);
+	            Engine::glExtensions.Init(EXT_WIN_CONTROL_BIT|EXT_MULTITEXTURE_BIT|EXT_OCCLUSION_QUERY_BIT|EXT_VERTEX_BUFFER_OBJECT_BIT);
 
 	            if (retry && wglChoosePixelFormat != NULL)
 				{

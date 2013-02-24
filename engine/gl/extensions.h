@@ -76,44 +76,27 @@
 
 				void					divide(String line);
 				bool					lookup(const String&element);
-				String					listExtensions(const String&plank="", count_t max_chars_per_line=0);
+				String					listExtensions(const String&plank="", count_t maxCharsPerLine=0);
 				String					listColumns(const String&plank="", BYTE columns = 4);
 		};
 
-		struct TPBuffer
-		{
-			#if SYSTEM==WINDOWS && defined(WGL_ARB_pbuffer)
-				HDC			device_context;
-				HPBUFFERARB buffer;
-				HGLRC		buffer_context;
-			#elif SYSTEM==UNIX && defined(GLX_SGIX_pbuffer)
-				GLXPbuffer	buffer;
-				GLXContext	buffer_context;
-				Display	*display;
-				//to be continued...
-
-			#endif
-				GLuint		texture;
-				int			width,height;
-				bool		enabled;
-		};
 		
 		/**
 			@brief Individual color target configuration
 		*/
 		struct TFBOColorTarget
 		{
-			GLuint			texture_handle;		//!< Render target texture handle
-			GLenum			texture_format;		//!< Internal texture format
+			GLuint			textureHandle;		//!< Render target texture handle
+			GLenum			textureFormat;		//!< Internal texture format
 
-							TFBOColorTarget():texture_handle(0),texture_format(0)
+							TFBOColorTarget():textureHandle(0),textureFormat(0)
 							{}
 		};
 
 		struct TFBODepthTarget
 		{
-			GLuint			handle;					//!< Handle of the texture or depth buffer, depending on is_texture
-			DepthStorage	storage_type;			//!< Storage type for depth information
+			GLuint			handle;					//!< Handle of the texture or depth buffer, depending on storageType
+			DepthStorage	storageType;			//!< Storage type for depth information
 
 
 							TFBODepthTarget():handle(0)
@@ -127,23 +110,23 @@
 		*/
 		struct TFBOConfig
 		{
-			TFBOColorTarget	color_target[4];	//!< Color texture references. References beyond num_color_targets are undefined
-			TFBODepthTarget	depth_target;		//!< Points to a depth buffer or depth texture, depending on depth_is_texture
+			TFBOColorTarget	colorTarget[4];	//!< Color texture references. References beyond numColorTargets are undefined
+			TFBODepthTarget	depthTarget;		//!< Points to a depth buffer or depth texture, depending on depthIsTexture
 			Resolution		resolution;			//!< Resolution in pixels of all render targets and the depth buffer/texture
-			BYTE			num_color_targets;	//!< Number of targets in color_target to actually use
+			BYTE			numColorTargets;	//!< Number of targets in colorTarget to actually use
 		
 		
-							TFBOConfig():num_color_targets(0)
+							TFBOConfig():numColorTargets(0)
 							{}
 		};
 		
 		struct TFrameBuffer:public TFBOConfig
 		{
-			GLuint		frame_buffer;	//!< General rendering target (frame buffer)
+			GLuint		frameBuffer;	//!< General rendering target (frame buffer)
 						
-						TFrameBuffer():frame_buffer(0)
+						TFrameBuffer():frameBuffer(0)
 						{}
-						TFrameBuffer(GLuint buffer, const TFBOConfig&attachment):frame_buffer(buffer),TFBOConfig(attachment)
+						TFrameBuffer(GLuint buffer, const TFBOConfig&attachment):frameBuffer(buffer),TFBOConfig(attachment)
 						{}
 		};
 
@@ -161,13 +144,13 @@
 			private:
 				Instance				*instance;
 				GLint					handle;
-				static	bool			lock_uninstalled,	//less strict
-										assert_is_installed;//strict
+				static	bool			lockUninstalled,	//less strict
+										assertIsInstalled;//strict
 				String					name;
 				
 				friend class GLShader::Instance;
 				
-				/**/					Variable(Instance*,GLint,const String&name_);
+				/**/					Variable(Instance*,GLint,const String&name);
 			public:
 				/**/					Variable();
 
@@ -190,21 +173,21 @@
 				bool					set2i(int x, int y);
 				inline bool				SetInt(int x, int y)		{return set2i(x,y);}
 				
-				static	void			lockUninstalledShaderVariables()
+				static	void			LockUninstalledShaderVariables()
 										{
-											lock_uninstalled = true;
+											lockUninstalled = true;
 										}
-				static	void			assertShaderIsInstalled()
+				static	void			AssertShaderIsInstalled()
 										{
-											assert_is_installed = true;
+											assertIsInstalled = true;
 										}
 				
-				bool					exists()	const {return handle != -1;}
+				bool					Exists()	const {return handle != -1;}
 				operator				bool()	const {return handle != -1;}
 			};
 
-			bool		extractFileContent(const String&filename, String&target, StringBuffer&log_out);
-			bool		extractFileContent(const String&filename, String&target);
+			bool		ExtractFileContent(const String&filename, String&target, StringBuffer&logOut);
+			bool		ExtractFileContent(const String&filename, String&target);
 
 
 			class Composition
@@ -216,7 +199,7 @@
 										geometrySource;
 
 				void					adoptData(Composition&other);
-				void					clear();
+				void					Clear();
 				bool					IsEmpty()	const	{return sharedSource.isEmpty() && vertexSource.isEmpty() && fragmentSource.isEmpty() && geometrySource.isEmpty();}
 				bool					IsNotEmpty()const	{return !IsEmpty();}
 				Composition&			Load(const String&objectSource);
@@ -326,10 +309,10 @@
 					unsigned					level;
 		
 					virtual						~Expression()	{}
-					virtual	int					evaluate(const UserConfiguration&, Light::Type)=0;			//!< Evaluate the value of the local expression
-					virtual	bool				adoptLeft(Expression*)		{return false;}	//!< Attempts to adopt the next expression to the left as a sub expression @return true if the expression has been adopted, false otherwise
-					virtual	bool				adoptRight(Expression*)	{return false;}	//!< Attempts to adopt the next expression to the right as a sub expression @return true if the expression has been adopted, false otherwise
-					virtual	bool				validate()	{return true;}					//!< Check the integrity of the local expression and all its children
+					virtual	int					Evaluate(const UserConfiguration&, Light::Type)=0;			//!< Evaluate the value of the local expression
+					virtual	bool				AdoptLeft(Expression*)		{return false;}	//!< Attempts to adopt the next expression to the left as a sub expression @return true if the expression has been adopted, false otherwise
+					virtual	bool				AdoptRight(Expression*)	{return false;}	//!< Attempts to adopt the next expression to the right as a sub expression @return true if the expression has been adopted, false otherwise
+					virtual	bool				Validate()	{return true;}					//!< Check the integrity of the local expression and all its children
 				};
 		
 		
@@ -354,21 +337,21 @@
 												if (second)
 													DISCARD(second);
 											}
-					virtual	bool			adoptLeft(Expression*exp)
+					virtual	bool			AdoptLeft(Expression*exp)	override
 											{
 												first = exp;
 												return true;
 											}
-					virtual	bool			adoptRight(Expression*exp)
+					virtual	bool			AdoptRight(Expression*exp)	override
 											{
 												second = exp;
 												return true;
 											}
-					virtual	String			toString()	const
+					virtual	String			toString()	const	override
 											{
 												return "<"+(first?first->toString():String("NULL"))+", "+(second?second->toString():String("NULL"))+">";
 											}
-					virtual	bool			validate()	{return first!=NULL && second!=NULL && first->validate() && second->validate();}
+					virtual	bool			Validate()	override	{return first!=NULL && second!=NULL && first->Validate() && second->Validate();}
 				};
 
 				#undef DEFINE_GL_TEMPLATE_OPERATOR_EXPRESSION
@@ -376,9 +359,9 @@
 					class _CLASS_NAME_:public BinaryExpression\
 					{\
 					public:\
-						virtual	int			evaluate(const UserConfiguration&status, Light::Type type)\
+						virtual	int			Evaluate(const UserConfiguration&status, Light::Type type)	override\
 											{\
-												return first->evaluate(status,type) _OPERATOR_ second->evaluate(status,type);\
+												return first->Evaluate(status,type) _OPERATOR_ second->Evaluate(status,type);\
 											}\
 					};
 
@@ -413,21 +396,21 @@
 												if (inner)
 													DISCARD(inner);
 											}
-					virtual	int				evaluate(const UserConfiguration&status, Light::Type type)
+					virtual	int				Evaluate(const UserConfiguration&status, Light::Type type)	override
 											{
 												ASSERT_NOT_NULL__(inner);
-												return !inner->evaluate(status,type);
+												return !inner->Evaluate(status,type);
 											}
-					virtual	bool			adoptRight(Expression*exp)
+					virtual	bool			AdoptRight(Expression*exp)	override
 											{
 												inner = exp;
 												return true;
 											}
-					virtual	bool			validate()
+					virtual	bool			Validate()	override
 											{
-												return inner && inner->validate();
+												return inner && inner->Validate();
 											}
-					virtual	String			toString()	const
+					virtual	String			toString()	const	override
 											{
 												return "!<"+(inner?inner->toString():String("NULL"))+">";
 											}
@@ -441,10 +424,10 @@
 				public:
 					int						value;
 				
-					virtual	int				evaluate(const UserConfiguration&, Light::Type)	{return value;}
-					virtual	String			toString()	const
+					virtual	int				Evaluate(const UserConfiguration&, Light::Type)	override	{return value;}
+					virtual	String			toString()	const	override
 											{
-												return "constant<"+String(value)+">";
+												return "Constant<"+String(value)+">";
 											}
 				};
 		
@@ -459,10 +442,10 @@
 				
 				
 					VariableExpression()	:index(0)	{}
-					virtual	int				evaluate(const UserConfiguration&values, Light::Type);
-					virtual	String			toString()	const
+					virtual	int				Evaluate(const UserConfiguration&values, Light::Type)	override;
+					virtual	String			toString()	const	override
 											{
-												return "variable<"+name+"@"+String(index)+">";
+												return "Variable<"+name+"@"+String(index)+">";
 											}
 				};
 		
@@ -475,13 +458,13 @@
 					Light::Type				type;	//!< Stored light type
 								
 					LightTypeExpression()	:type(Light::None){}
-					virtual	int				evaluate(const UserConfiguration&, Light::Type light_type)
+					virtual	int				Evaluate(const UserConfiguration&, Light::Type lightType)	override
 											{
-												return light_type == type;
+												return lightType == type;
 											}
-					virtual	String			toString()	const
+					virtual	String			toString()	const	override
 											{
-												return "light_type<"+String(type)+">";
+												return "LightType<"+String(type)+">";
 											}
 								
 				};
@@ -494,40 +477,40 @@
 				public:
 					struct SamplerAssignment
 					{
-						String				sampler_name;
-						GLint				sampler_level;
+						String				samplerName;
+						GLint				samplerLevel;
 
 						void				swap(SamplerAssignment&other)
 											{
-												swp(sampler_level,other.sampler_level);
-												sampler_name.swap(other.sampler_name);
+												swp(samplerLevel,other.samplerLevel);
+												samplerName.swap(other.samplerName);
 											}
 
 					};
-					String					shared_attachment,
-											vertex_shader_attachment,
-											fragment_shadow_code;
+					String					sharedAttachment,
+											vertexShaderAttachment,
+											fragmentShadowCode;
 					Buffer<SamplerAssignment,0,Swap>
-											sampler_assignments;
+											samplerAssignments;
 
 					void					swap(LightShadowAttachment&other)
 											{
-												shared_attachment.swap(other.shared_attachment);
-												vertex_shader_attachment.swap(other.vertex_shader_attachment);
-												fragment_shadow_code.swap(other.fragment_shadow_code);
-												sampler_assignments.swap(other.sampler_assignments);
+												sharedAttachment.swap(other.sharedAttachment);
+												vertexShaderAttachment.swap(other.vertexShaderAttachment);
+												fragmentShadowCode.swap(other.fragmentShadowCode);
+												samplerAssignments.swap(other.samplerAssignments);
 											}
-					bool					isEmpty()	const	{return fragment_shadow_code.isEmpty();}
+					bool					IsEmpty()	const	{return fragmentShadowCode.isEmpty();}
 
-					void					predefineSampler(const char*sampler_name, GLint sampler_level)
+					void					PredefineSampler(const char*samplerName, GLint samplerLevel)
 											{
-												SamplerAssignment&a = sampler_assignments.append();
-												a.sampler_name = sampler_name;
-												a.sampler_level = sampler_level;
+												SamplerAssignment&a = samplerAssignments.append();
+												a.samplerName = samplerName;
+												a.samplerLevel = samplerLevel;
 											}
 				};
 
-				static	Buffer<LightShadowAttachment,0,Swap>		shadow_attachments;
+				static	Buffer<LightShadowAttachment,0,Swap>		shadowAttachments;
 
 
 				/**
@@ -563,10 +546,10 @@
 			
 					Type					type;					//!< Local block type
 					Expression				*condition;				//!< Condition expression. May be NULL. The condition expression is automatically deleted on object destruction.
-					String					light_loop_constant;	//!< Constant expression used to address the current light loop iteration (typically something like "<i>"). Unless overriden, this expression is inherited from the respective parent block during construction.
+					String					lightLoopConstant;	//!< Constant expression used to address the current light loop iteration (typically something like "<i>"). Unless overriden, this expression is inherited from the respective parent block during construction.
 			
-					Array<Line,Adopt>		inner_lines,	//!< Inner lines preceeding any conditional sub block. Lines following condition blocks are found in the @a trailing_lines member of sub blocks
-											trailing_lines;	//!< Lines trailing the local block. They lie, in fact, outside this block on the next parent layer
+					Array<Line,Adopt>		innerLines,	//!< Inner lines preceeding any conditional sub block. Lines following condition blocks are found in the @a trailingLines member of sub blocks
+											trailingLines;	//!< Lines trailing the local block. They lie, in fact, outside this block on the next parent layer
 					List::Vector<Block>		children;		//!< Child blocks
 					Block					*parent;		//!< Parent block (if any). may be NULL
 				
@@ -576,26 +559,26 @@
 												if (condition)
 													DISCARD(condition);
 											}
-					void					clear()
+					void					Clear()
 											{
 												if (condition)
 													DISCARD(condition);
 												condition = NULL;
-												inner_lines.free();
-												trailing_lines.free();
+												innerLines.free();
+												trailingLines.free();
 												children.clear();
 												type = Any;
-												light_loop_constant = "";
+												lightLoopConstant = "";
 											}
-					void					assemble(StringBuffer&target, const UserConfiguration&values, const RenderConfiguration&render_config, Light::Type type, index_t light_index);
-					bool					usesLighting()	const;		//!< Recursive check if lighting functions are used
+					void					Assemble(StringBuffer&target, const UserConfiguration&values, const RenderConfiguration&renderConfig, Light::Type type, index_t lightIndex);
+					bool					UsesLighting()	const;		//!< Recursive check if lighting functions are used
 					void					adoptData(Block&other)
 											{
 												type = other.type;
 												condition = other.condition;
-												light_loop_constant.adoptData(other.light_loop_constant);
-												inner_lines.adoptData(other.inner_lines);
-												trailing_lines.adoptData(other.trailing_lines);
+												lightLoopConstant.adoptData(other.lightLoopConstant);
+												innerLines.adoptData(other.innerLines);
+												trailingLines.adoptData(other.trailingLines);
 												children.adoptData(other.children);
 												parent = other.parent;
 
@@ -653,47 +636,47 @@
 						};
 					};
 				
-					Expression*					parseCondition(const char*condition, VariableMap&map, String&error);
-					Expression*					processLayer(TokenList&tokens,VariableMap&map, index_t begin, index_t end, String&error);
-					static	void				shadowFunction(index_t level,StringBuffer&buffer);
+					Expression*					_ParseCondition(const char*condition, VariableMap&map, String&error);
+					Expression*					_ProcessLayer(TokenList&tokens,VariableMap&map, index_t begin, index_t end, String&error);
+					static	void				_ShadowFunction(index_t level,StringBuffer&buffer);
 
 				public:
-					bool 						shade_invoked,				//!< Specifies that the shade() function is called in this block
-												shade2_invoked,
-												custom_shade_invoked,		//!< Specifies that the customShade() function is called in this block
-												spotlight_invoked,			//!< Specifies that the spotLight() function is called in this block
-												omnilight_invoked,			//!< Specifies that the omniLight() function is called in this block
-												directlight_invoked;		//!< Specifies that the directLight() function is called in this block
+					bool 						shadeInvoked,				//!< Specifies that the shade() function is called in this block
+												shade2Invoked,
+												customShadeInvoked,		//!< Specifies that the customShade() function is called in this block
+												spotlightInvoked,			//!< Specifies that the spotLight() function is called in this block
+												omnilightInvoked,			//!< Specifies that the omniLight() function is called in this block
+												directlightInvoked;		//!< Specifies that the directLight() function is called in this block
 				
 				
-					bool						scan(const String&source, VariableMap&map, StringBuffer&log_out, index_t&line_offset);
-					String						assemble(const RenderConfiguration&,const UserConfiguration&, bool is_shared);
-					void						assemble(const RenderConfiguration&,const UserConfiguration&,StringBuffer&target, bool is_shared=false);
-					bool						usesLighting()	const;		//!< Queries whether or not lighting-relevant constants will be queried during assembly. If this value is false then RenderConfiguration will not be queried
+					bool						Scan(const String&source, VariableMap&map, StringBuffer&logOut, index_t&lineOffset);
+					String						Assemble(const RenderConfiguration&,const UserConfiguration&, bool isShared);
+					void						Assemble(const RenderConfiguration&,const UserConfiguration&,StringBuffer&target, bool isShared=false);
+					bool						UsesLighting()	const;		//!< Queries whether or not lighting-relevant constants will be queried during assembly. If this value is false then RenderConfiguration will not be queried
 				};
 		
 				class VariableMap
 				{
 				protected:
-					HashTable<index_t>			variable_map;
+					HashTable<index_t>			variableMap;
 					List::ReferenceVector<UserConfiguration>
-												attached_configurations;
+												attachedConfigurations;
 					bool						changed;
 
 					friend class				RootBlock;
 					friend class				Instance;
 					friend class				UserConfiguration;
 
-					void						reg(UserConfiguration*config)	{attached_configurations.append(config);}
-					void						unreg(UserConfiguration*config){attached_configurations.drop(config);}
+					void						Reg(UserConfiguration*config)	{attachedConfigurations.append(config);}
+					void						Unreg(UserConfiguration*config){attachedConfigurations.drop(config);}
 
-					index_t						define(const String&variable_name);
+					index_t						Define(const String&variableName);
 				public:
 					VariableMap();
 					virtual						~VariableMap();
-					index_t						locate(const String&var_name)	const;
-					void						clear();		//!< Clears all local variables and redefines standard variables
-					void						submitChanges();	//!< Notifies attached user configurations of changes to the map. The method has no effect if no changes have been made
+					index_t						Lookup(const String&varName)	const;
+					void						Clear();		//!< Clears all local variables and redefines standard variables
+					void						SubmitChanges();	//!< Notifies attached user configurations of changes to the map. The method has no effect if no changes have been made
 				};
 		
 				class Configuration;
@@ -702,15 +685,15 @@
 				{
 				private:
 					List::ReferenceVector<Configuration>
-												linked_configs;
+												linkedConfigs;
 				protected:
 					friend class				Configuration;
 
 					index_t						version;
 
-					void						unreg(Configuration*config);	//!< Unlinks a registered configuration
-					void						reg(Configuration*config);		//!< Links a configuration
-					void						signalHasChanged();				//!< Notifies linked components that local data has changed
+					void						Unreg(Configuration*config);	//!< Unlinks a registered configuration
+					void						Reg(Configuration*config);		//!< Links a configuration
+					void						SignalHasChanged();				//!< Notifies linked components that local data has changed
 				public:
 					ConfigurationComponent()	:version(0)	{}
 					virtual						~ConfigurationComponent();
@@ -720,8 +703,8 @@
 				{
 				protected:
 					Buffer<Light::Type,8>		lights;		//!< Known light types
-					bool						lighting_enabled,
-												fog_enabled;
+					bool						lightingEnabled,
+												fogEnabled;
 					friend class				UserConfiguration;
 					friend class				RootBlock;
 					friend class				Block;
@@ -730,14 +713,14 @@
 
 				public:
 					RenderConfiguration();
-					void						redetect();							//!< Updates lights and fog variable
-					void						setLights(count_t count,...);		//!< Manually sets light types. The first parameter must specify how many light sources are to be considered enabled. Subsequent parameters must provide at least @a count values of type Light::Type
-					void						setLighting(bool lighting);			//!< Globally enables or disables lighting
-					void						clear();							//!< Clears all light sources and resets configuration to default
+					void						ReDetect();							//!< Updates lights and fog variable
+					void						SetLights(count_t count,...);		//!< Manually sets light types. The first parameter must specify how many light sources are to be considered enabled. Subsequent parameters must provide at least @a count values of type Light::Type
+					void						SetLighting(bool lighting);			//!< Globally enables or disables lighting
+					void						Clear();							//!< Clears all light sources and resets configuration to default
 				};
 				typedef RenderConfiguration		RenderConfig;
 
-				static RenderConfiguration		global_render_config;		//!< Global configuration that keeps track of shader-relevant pipeline settings
+				static RenderConfiguration		globalRenderConfig;		//!< Global configuration that keeps track of shader-relevant pipeline settings
 
 				/**
 				@brief Variable values associated with an instance of VariableMap
@@ -756,23 +739,23 @@
 					friend class				Configuration;
 					friend class				VariableMap;
 				
-					void						adapt();
-					void						signalMapDestruction();
+					void						Adapt();
+					void						SignalMapDestruction();
 				public:
 					/**/						UserConfiguration();
 					virtual						~UserConfiguration();
-					bool						set(index_t variable, int value);					//!< Sets the value of a specific variable by index. @param variable Index of the variable to update @param value Value to set @return true on success
-					bool						setByName(const String&variable_name, int value);	//!< Sets the value of a specific variable by name. The local configuration must be linked with a variable map for this method to succeed. @param variable_name Name of the variable to update @param value Value to set @return true on success
-					int							value(index_t variable)	const;						//!< Queries the current value of a variable by index @param variable Variable index starting at 1 @return Current variable value or 0 if the specified index is invalid
-					int							valueByName(const String&variable_name) const;		//!< Queries the current value of a variable by namex @param variable_name Name of the variable to query @return Current variable value or 0 if the specified name is invalid
-					void						reset();											//!< Resets all local variables to 0.
-					void						clear();											//!< Clears the local structure (also unlinks it from any VariableMap instance)
-					void						link(VariableMap*map, bool adapt=true);			//!< Updates map link and registration. Potentially updates variable field length. Checks and aborts if @a this is NULL
-					VariableMap*				variableMap();										//!< Retrieves the map currently associated with this configuration, if any @return variable map or NULL if no such exists
-					const VariableMap*			variableMap() const;								//!< Retrieves the map currently associated with this configuration, if any @return variable map or NULL if no such exists
+					bool						Set(index_t variable, int value);					//!< Sets the value of a specific variable by index. @param variable Index of the variable to update @param value Value to set @return true on success
+					bool						SetByName(const String&variableName, int value);	//!< Sets the value of a specific variable by name. The local configuration must be linked with a variable map for this method to succeed. @param variableName Name of the variable to update @param value Value to set @return true on success
+					int							GetValue(index_t variable)	const;					//!< Queries the current value of a variable by index @param variable Variable index starting at 1 @return Current variable value or 0 if the specified index is invalid
+					int							GetValueByName(const String&variableName) const;	//!< Queries the current value of a variable by namex @param variableName Name of the variable to query @return Current variable value or 0 if the specified name is invalid
+					void						ResetAllValues();									//!< Resets all local variables to 0.
+					void						Clear();											//!< Clears the local structure (also unlinks it from any VariableMap instance)
+					void						Link(VariableMap*map, bool adapt=true);				//!< Updates map link and registration. Potentially updates variable field length. Checks and aborts if @a this is NULL
+					VariableMap*				GetVariableMap();									//!< Retrieves the map currently associated with this configuration, if any @return variable map or NULL if no such exists
+					const VariableMap*			GetVariableMap() const;								//!< Retrieves the map currently associated with this configuration, if any @return variable map or NULL if no such exists
 
-					void						updateRenderVariables(const RenderConfiguration&);	//!< Updates the local rendering-related variables based on the specified render configuration
-					void						updateRenderVariables();							//!< Identical to the above but queries @b global_render_config instead
+					void						UpdateRenderVariables(const RenderConfiguration&);	//!< Updates the local rendering-related variables based on the specified render configuration
+					void						UpdateRenderVariables();							//!< Identical to the above but queries @b globalRenderConfig instead
 				};
 
 				typedef UserConfiguration		UserConfig;
@@ -780,68 +763,70 @@
 				class Configuration:public Array<int,Primitive>
 				{
 				protected:
-					UserConfiguration			*user_config;
-					RenderConfiguration			*render_config;
+					UserConfiguration			*userConfig;
+					RenderConfiguration			*renderConfig;
 
-					index_t						user_config_version,
-												render_config_version;
+					index_t						userConfigVersion,
+												renderConfigVersion;
 
 					bool						valid,				//!< All configuration components are linked
-												registered,			//!< The configurations know of this instance. Initially set to false if components are passed as constructor parameters and @a register_now is false
-												structure_changed;	//!< Indicates that at least one configuration pointer has changed since the last update() call
+												registered,			//!< The configurations know of this instance. Initially set to false if components are passed as constructor parameters and @a registerRow is false
+												structureChanged;	//!< Indicates that at least one configuration pointer has changed since the last update() call
 
 					friend class				Template;
 				public:
-					Configuration()				:user_config(NULL),render_config(NULL),valid(false),registered(false),structure_changed(false)	{}
-					/**/						Configuration(RenderConfiguration&new_render_config,UserConfiguration&new_user_config,bool register_now=true):user_config(&new_user_config),render_config(&new_render_config),valid(true),registered(register_now),structure_changed(false)
+					Configuration()				:userConfig(NULL),renderConfig(NULL),valid(false),registered(false),structureChanged(false)	{}
+					/**/						Configuration(RenderConfiguration&newRenderConfig,UserConfiguration&newUserConfig,bool registerNow=true)
+												:userConfig(&newUserConfig),renderConfig(&newRenderConfig),valid(true),registered(registerNow),
+												structureChanged(false)
 												{
-													if (register_now)
+													if (registerNow)
 													{
-														user_config->reg(this);
-														render_config->reg(this);
+														userConfig->Reg(this);
+														renderConfig->Reg(this);
 													}
 												}
 												
 					virtual						~Configuration();
-					bool						update();										//!< Updates the local key if needed
-					bool						requiresUpdate()	const;						//!< Checks if the local structure or any of the linked components have changed
+					bool						Update();										//!< Updates the local key if needed
+					bool						RequiresUpdate()	const;						//!< Checks if the local structure or any of the linked components have changed
 
-					void						unlink();		//!< Unlinks linked configurations
-					void						link(RenderConfiguration&render_config, UserConfiguration&user_config);
-					void						link(RenderConfiguration&render_config);
-					void						link(UserConfiguration&user_config);
+					void						Unlink();		//!< Unlinks linked configurations
+					void						Link(RenderConfiguration&renderConfig, UserConfiguration&userConfig);
+					void						Link(RenderConfiguration&renderConfig);
+					void						Link(UserConfiguration&userConfig);
 
-					void						updateRenderVariables()
+					void						UpdateRenderVariables()
 												{
 													if (valid)
-														user_config->updateRenderVariables(*render_config);	//should trigger the whole changed cascade automatically
+														userConfig->UpdateRenderVariables(*renderConfig);	//should trigger the whole changed cascade automatically
 												}
-					void						signalComponentDestroyed(ConfigurationComponent*component);		//!< Notifies this structure that a linked component was destroyed
-					void						signalComponentHasChanged();		//!< Notifies this structure that a linked component has changed
-					inline	UserConfiguration*	userConfig()			{return user_config;}
-					inline	const UserConfig*	userConfig() const		{return user_config;}
-					inline	RenderConfiguration*renderConfig()			{return render_config;}
-					inline	const RenderConfig*	renderConfig() const	{return render_config;}
+					void						SignalComponentDestroyed(ConfigurationComponent*component);		//!< Notifies this structure that a linked component was destroyed
+					void						SignalComponentHasChanged();		//!< Notifies this structure that a linked component has changed
+					inline	UserConfiguration*	GetUserConfig()			{return userConfig;}
+					inline	const UserConfig*	GetUserConfig() const		{return userConfig;}
+					inline	RenderConfiguration*GetRenderConfig()			{return renderConfig;}
+					inline	const RenderConfig*	GetRenderConfig() const	{return renderConfig;}
 				};
 
 				typedef Configuration			Config;
 		
 			protected:
-				RootBlock					shared_template,
-											vertex_template,
-											geometry_template,
-											fragment_template;
-				GLenum 						geometry_type,
-											output_type;
-				unsigned					max_vertices;
-				bool						loaded_,
-											uses_lighting;			//!< True if any shading-related functionality is used by the shader
-				VariableMap					local_map,				//!< Locally stored variable name map. This would be the standard variable map
-											*current_map;			//!< Actually used variable name map. Usually maps to @a local_map. Using the same variable map on different template instances, though, can be useful when working with just one huge user config
-				UserConfiguration			local_user_config;		//!< Locally stored user variable config. Contains all user variable values that may be referenced during shader assembly
-				Configuration				local_config,
-											*current_config;
-				StringBuffer				log;
+				RootBlock						sharedTemplate,
+												vertexTemplate,
+												geometryTemplate,
+												fragmentTemplate;
+				GLenum 							geometryType,
+												outputType;
+				unsigned						maxVertices;
+				bool							isLoaded,
+												usesLighting;			//!< True if any shading-related functionality is used by the shader
+				VariableMap						localMap,				//!< Locally stored variable name map. This would be the standard variable map
+												*currentMap;			//!< Actually used variable name map. Usually maps to @a localMap. Using the same variable map on different template instances, though, can be useful when working with just one huge user config
+				UserConfiguration				localUserConfig;		//!< Locally stored user variable config. Contains all user variable values that may be referenced during shader assembly
+				Configuration					localConfig,
+												*currentConfig;
+				StringBuffer					log;
 				GenericHashContainer<Array<int,Primitive>,GLShader::Instance>	container;	//!< All assembled shaders mapped to their respective keys
 				
 
@@ -854,73 +839,72 @@
 						Float3		//!< 3d float type
 					};
 					
-					String					name;	//!< Name of the variable to predefine
+					String						name;	//!< Name of the variable to predefine
 					union
 					{
-						int					ival;	//!< Integer value
-						float				fval;	//!< Float value
-						TVec3<>				f3val;
+						int						ival;	//!< Integer value
+						float					fval;	//!< Float value
+						TVec3<>					f3val;
 					};
-					Type					type;	//!< Contained type
+					Type						type;	//!< Contained type
 				};
 				
-				Buffer<TUniformInit,4>		uniform_init;	//!< Predefined variables
+				Buffer<TUniformInit,4>			uniformInit;	//!< Predefined variables
 				
 			public:
 		
-				Template()					:geometry_type(GL_TRIANGLES),output_type(GL_TRIANGLE_STRIP),max_vertices(12),loaded_(false),uses_lighting(false),current_map(&local_map),local_config(global_render_config,local_user_config,false),current_config(&local_config)	{}
-				void						clear();
-				bool						load(const Composition&composition, GLenum geometry_type=GL_TRIANGLES, GLenum output_type=GL_TRIANGLE_STRIP, unsigned max_vertices=12);
-				bool						loadComposition(const String&object_source, GLenum geometry_type=GL_TRIANGLES, GLenum output_type=GL_TRIANGLE_STRIP, unsigned max_vertices=12);
-				void						loadRequired(const Composition&composition, GLenum geometry_type=GL_TRIANGLES, GLenum output_type=GL_TRIANGLE_STRIP, unsigned max_vertices=12);
-				void						loadRequiredComposition(const String&object_source, GLenum geometry_type=GL_TRIANGLES, GLenum output_type=GL_TRIANGLE_STRIP, unsigned max_vertices=12);
-				String						report();
-				bool						loaded()	const;
-				inline	bool				isLoaded()	const	{return this && loaded();}
+				Template()						:geometryType(GL_TRIANGLES),outputType(GL_TRIANGLE_STRIP),maxVertices(12),isLoaded(false),usesLighting(false),currentMap(&localMap),localConfig(globalRenderConfig,localUserConfig,false),currentConfig(&localConfig)	{}
+				void							Clear();
+				bool							Load(const Composition&composition, GLenum geometryType=GL_TRIANGLES, GLenum outputType=GL_TRIANGLE_STRIP, unsigned maxVertices=12);
+				bool							LoadComposition(const String&objectSource, GLenum geometryType=GL_TRIANGLES, GLenum outputType=GL_TRIANGLE_STRIP, unsigned maxVertices=12);
+				void							LoadRequired(const Composition&composition, GLenum geometryType=GL_TRIANGLES, GLenum outputType=GL_TRIANGLE_STRIP, unsigned maxVertices=12);
+				void							LoadRequiredComposition(const String&objectSource, GLenum geometryType=GL_TRIANGLES, GLenum outputType=GL_TRIANGLE_STRIP, unsigned maxVertices=12);
+				String							Report();
+				bool							IsLoaded()	const;
 
-				inline	VariableMap*		map()				{return current_map;}
-				inline	const VariableMap*	map()		const	{return current_map;}
-				inline	UserConfiguration*	userConfig()			{return current_config->userConfig();}
-				inline	const UserConfig*	userConfig()	const	{return current_config->userConfig();}
-				inline	RenderConfiguration*renderConfig()			{return current_config->renderConfig();}
-				inline	const RenderConfig*	renderConfig()	const	{return current_config->renderConfig();}
+				inline	VariableMap*			GetVariableMap()			{return currentMap;}
+				inline	const VariableMap*		GetVariableMap()	const	{return currentMap;}
+				inline	UserConfiguration*		GetUserConfig()				{return currentConfig->GetUserConfig();}
+				inline	const UserConfig*		GetUserConfig()		const	{return currentConfig->GetUserConfig();}
+				inline	RenderConfiguration*	GetRenderConfig()			{return currentConfig->GetRenderConfig();}
+				inline	const RenderConfig*		GetRenderConfig()	const	{return currentConfig->GetRenderConfig();}
 						
-				void						setMap(VariableMap*map, bool adjust_user_config=true);	//!< Changes the variable map to use. Should not be changed before loading data into the local object @param 
-				void						setConfig(UserConfiguration*config, bool adjust=true);	//!< Changes the user configuration storage object to the specified one. @param config New configuration storage. May be NULL reverting the storage object to default @param adjust Update the length of the storage's variable field to the local map
-				void						setConfig(RenderConfiguration*config);
-				void						setConfig(Configuration*config);
+				void							SetVariableMap(VariableMap*map, bool adjustUserConfig=true);	//!< Changes the variable map to use. Should not be changed before loading data into the local object @param 
+				void							SetConfig(UserConfiguration*config, bool adjust=true);	//!< Changes the user configuration storage object to the specified one. @param config New configuration storage. May be NULL reverting the storage object to default @param adjust Update the length of the storage's variable field to the local map
+				void							SetConfig(RenderConfiguration*config);
+				void							SetConfig(Configuration*config);
 
-				void						resetConfig()		{setConfig((Configuration*)NULL);}
-				void						resetUserConfig()	{setConfig(NULL,true);}
-				void						resetRenderConfig()	{setConfig((RenderConfiguration*)NULL);}
-				void						resetMap()			{setMap(NULL);}
+				void							ResetConfig()		{SetConfig((Configuration*)NULL);}
+				void							ResetUserConfig()	{SetConfig(NULL,true);}
+				void							ResetRenderConfig()	{SetConfig((RenderConfiguration*)NULL);}
+				void							ResetVariableMap()	{SetVariableMap(NULL);}
 				
-				inline	index_t				locate(const String&variable_name) const		{return current_map->locate(variable_name);}	//! Locates a template variable. See VariableMap::locate() for details
-				inline	bool				setVariable(index_t variable, int value)				{return current_config->valid && current_config->userConfig()->set(variable,value);}	//!< Updates the value of a variable. See UserConfiguration::set() for details
+				inline	index_t					FindVariable(const String&variableName) const		{return currentMap->Lookup(variableName);}	//! Locates a template variable. See VariableMap::locate() for details
+				inline	bool					SetVariable(index_t variable, int value)			{return currentConfig->valid && currentConfig->GetUserConfig()->Set(variable,value);}	//!< Updates the value of a variable. See UserConfiguration::set() for details
 				/**
 				@brief Constructs a shader instance based on the current render and user configurations
 							
 				NULL-pointer sensitive
 
-				@param auto_update_render_variables Auto-update renderpipeline-derived user variables (e.g. 'lighting'). Does not automatically redetect such
-				@param is_new [out] Filled with true if a previously undefined shader instance was constructed. Filled with false if an existing matching shader instance was found. May be NULL
+				@param autoUpdateRenderVariables Auto-update renderpipeline-derived user variables (e.g. 'lighting'). Does not automatically redetect such
+				@param[out] isNew  Filled with true if a previously undefined shader instance was constructed. Filled with false if an existing matching shader instance was found. May be NULL
 				@return Pointer to a new or existing shader instance, or NULL if compilation failed. Use report() to determine a user readable cause if compilation failed for some reason
 				*/
-				GLShader::Instance*			buildShader(bool auto_update_render_variables=true, bool*is_new=NULL);
+				GLShader::Instance*				BuildShader(bool autoUpdateRenderVariables=true, bool*isNew=NULL);
 
 				/**
 				@brief Assembles a full shader as it could be loaded by an external shader instance
-				@param auto_update_render_variables Auto-update renderpipeline-derived user variables (e.g. 'lighting'). Does not automatically redetect such
+				@param autoUpdateRenderVariables Auto-update renderpipeline-derived user variables (e.g. 'lighting'). Does not automatically redetect such
 				@return Shader composition featuring all four sections 'vertex', 'fragment', 'geometry', and 'shared'
 				*/
-				String						assembleSource(bool auto_update_render_variables=true);
+				String							AssembleSource(bool autoUpdateRenderVariables=true);
 				
 				
-				Template&					predefineUniformi(const String&name, int value);	//!< Presets the specified uniform variable to the specified value on construction
-				Template&					predefineUniformf(const String&name, float value);	//!< Presets the specified uniform variable to the specified value on construction
-				Template&					predefineUniform3f(const String&name, const float value[3]);	//!< Presets the specified uniform variable to the specified value on construction
-				static String*				locateShaderIncludable(const String&filename);	//!< Attempts to locate or load a block template described by the specified filename. @return Existing or loaded block or NULL if loading failed
-				static void					defineShaderIncludable(const String&filename, const String&block_code);	//!< Defines a new or overwrites an existing includable block template
+				Template&						PredefineUniformInt(const String&name, int value);	//!< Presets the specified uniform variable to the specified value on construction
+				Template&						PredefineUniformFloat(const String&name, float value);	//!< Presets the specified uniform variable to the specified value on construction
+				Template&						PredefineUniformVec(const String&name, const TVec3<>& value);	//!< Presets the specified uniform variable to the specified value on construction
+				static String*					FindShaderIncludable(const String&filename);	//!< Attempts to locate or load a block template described by the specified filename. @return Existing or loaded block or NULL if loading failed
+				static void						DefineShaderIncludable(const String&filename, const String&blockCode);	//!< Defines a new or overwrites an existing includable block template
 			};
 
 	
@@ -934,68 +918,55 @@
 			class	Instance
 			{
 			private:
-					GLhandleARB				program_handle,
-											vertex_shader,
-											fragment_shader,
-											geometry_shader;
-					StringBuffer			log;
-			static	const Instance			*installed_instance;
-			static	bool					warn_on_failure;
-					//TCodeLocation		installed_in;
+				GLhandleARB						programHandle,
+												vertexShader,
+												fragmentShader,
+												geometryShader;
+				StringBuffer					log;
+				static const Instance			*installedInstance;
+				static bool						warnOnError;
 				
-					friend class Template;
+				friend class Template;
 
-					bool					extractFileContent(const String&filename, String&target);
-					GLhandleARB				loadShader(const String&source, GLenum program_type);
+				bool							_ExtractFileContent(const String&filename, String&target);
+				GLhandleARB						_LoadShader(const String&source, GLenum programType);
 				
-											Instance(const Instance&other)
-											{}
-					void					operator=(const Instance&other)
-											{}
-					void					resetVariables();
+				/**/							Instance(const Instance&other){}
+				void							operator=(const Instance&other){}
+				void							_ResetVariables();
 			public:
-					Composition				composition;		//!< Shader source code
+				Composition						composition;		//!< Shader source code
 
-			static	bool					forget_on_destruct;	//!< If set true the underlying GL objects are not deleted if the destructor of shader objects is invoked
+				static bool						forgetOnDestruct;	//!< If set true the underlying GL objects are not deleted if the destructor of shader objects is invoked
 		
-											Instance();
-			virtual							~Instance();
-		
-					void					adoptData(Instance&other);
+				/**/							Instance();
+				virtual							~Instance();
+				void							adoptData(Instance&other);
+				void							Clear();
+				bool							Load(const Composition&composition, GLenum geometryTpe=GL_TRIANGLES, GLenum outputTpe=GL_TRIANGLE_STRIP, unsigned maxVertices=12);
+				bool							LoadComposition(const String&objectSource, GLenum geometryType=GL_TRIANGLES, GLenum outputType=GL_TRIANGLE_STRIP, unsigned maxVertices=12);
+				void							LoadRequired(const Composition&composition, GLenum geometryType=GL_TRIANGLES, GLenum outputType=GL_TRIANGLE_STRIP, unsigned maxVertices=12);
+				void							LoadRequiredComposition(const String&objectSource, GLenum geometryType=GL_TRIANGLES, GLenum outputType=GL_TRIANGLE_STRIP, unsigned maxVertices=12);
+				String							Report();
 
-					void					clear();
-					bool					load(const Composition&composition, GLenum geometry_type=GL_TRIANGLES, GLenum output_type=GL_TRIANGLE_STRIP, unsigned max_vertices=12);
-					bool					loadComposition(const String&object_source, GLenum geometry_type=GL_TRIANGLES, GLenum output_type=GL_TRIANGLE_STRIP, unsigned max_vertices=12);
-					void					loadRequired(const Composition&composition, GLenum geometry_type=GL_TRIANGLES, GLenum output_type=GL_TRIANGLE_STRIP, unsigned max_vertices=12);
-					void					loadRequiredComposition(const String&object_source, GLenum geometry_type=GL_TRIANGLES, GLenum output_type=GL_TRIANGLE_STRIP, unsigned max_vertices=12);
-					String					report();
-
-			static	void					suppressLocationFailureWarning();
-			static	void					suppressWarnings();
-			static	void					enableFailureWarning();
-			static	void					disableFailureWarning();
-				Variable					locate(const String&name, bool warn_on_fail=true);
-				inline Variable				FindVariable(const String&name, bool warnOnFail=true)	{return locate(name,warnOnFail);};
-					bool					getContent(GLint name, float*out_field);
-					bool					loaded()	const;								//!< Checks whether ot not the local shader is loaded and ready for installation. NULL-pointer sensitive
-					bool					isLoaded()	const	{return loaded();}			//!< @overload
-					bool					isEmpty()	const	{return !loaded();}			//!< Not isLoaded()
-
-
-					bool					installed()		const	{return installed_instance == this;}
-					bool					isInstalled()	const	{return installed_instance == this;}
-
-			static	bool					anyIsInstalled()	{return installed_instance != NULL;}
-
-					bool					validate();
-
-					bool					install();				//!< Installs this shader. Installation fails if the local shader instance is NULL or not loaded
-					bool					install()		const;	//!< const shader installation. Does not write to log
-					bool					permissiveInstall();		//!< Installs the local shader, replacing any currently installed shader. Any installed shader will be uninstalled if the local shader instance is NULL or not loaded
-					bool					permissiveInstall()	const;	//!< const variant. Does not write to log
-					void					deInstall()		const;
-					void					uninstall()		const;
-			static	void					permissiveUninstall();
+				static void						SuppressFindVariableFailureWarning();
+				static void						SuppressWarnings();
+				static void						EnableErrorWarning();
+				static void						DisableErrorWarning();
+				Variable						FindVariable(const String&name, bool warnOnFail=true);
+				bool							GetContent(GLint name, float*outField);
+				bool							IsLoaded()	const;
+				bool							IsNotEmpty()const	{return IsLoaded();}
+				bool							IsEmpty()	const	{return !IsLoaded();}			//!< Not IsLoaded()
+				bool							IsInstalled()	const	{return installedInstance == this;}
+				static bool						AnyIsInstalled()	{return installedInstance != NULL;}
+				bool							Validate();
+				bool							Install();				//!< Installs this shader. Installation fails if the local shader instance is NULL or not loaded
+				bool							Install()		const;	//!< const shader installation. Does not write to log
+				bool							PermissiveInstall();		//!< Installs the local shader, replacing any currently installed shader. Any installed shader will be uninstalled if the local shader instance is NULL or not loaded
+				bool							PermissiveInstall()	const;	//!< const variant. Does not write to log
+				void							Uninstall()		const;
+				static void						PermissiveUninstall();
 			};
 		
 
@@ -1004,54 +975,46 @@
 		
 			class Installation	//! Automatic localized shader installation. The class prevents double installation or deinstallation and automatically installs/uninstalls on construction/destruction.
 			{
-			protected:
-					Instance			*object_reference;
-					Template			*template_reference;
-					bool				installed;
-
-									//SyncLock(const SyncLock&other)	{}
-					Installation&		operator=(const Installation&)	{return *this;}
-				
-									Installation()
-									{}
+			private:
+				Instance						*objectReference;
+				Template						*templateReference;
+				bool							installed;
+				Installation&					operator=(const Installation&)	{return *this;}
+				/**/							Installation()	{}
 			public:
-									Installation(Instance&object):object_reference(&object),template_reference(NULL),installed(false) {install();}
-									Installation(Template&templ):object_reference(NULL),template_reference(&templ),installed(false) {install();}
+				/**/							Installation(Instance&object):objectReference(&object),templateReference(NULL),installed(false) {Install();}
+				/**/							Installation(Template&templ):objectReference(NULL),templateReference(&templ),installed(false) {Install();}
 
-									~Installation()
-									{
-										uninstall();
-									}
-					void			install()	//!< Installs the shader object if it hasn't been installed
-									{
-										if (!installed)
-										{
-											if (template_reference)
-											{
-												//template_reference->status()->redetect();
-												object_reference = template_reference->buildShader();
-												if (!object_reference)
-													FATAL__(template_reference->report());
-											}
-											object_reference->install();
-											installed = true;
-										}
-									}
-					void			uninstall()	//!< Uninstalls the shader object if it is installed
-									{
-										if (installed)
-										{
-											object_reference->uninstall();
-											installed = false;
-										}
-									}
-					operator bool()	{install(); return true;}	//!< Installs if not already done
-		
+				/**/							~Installation(){Uninstall();}
+				void							Install()	//!< Installs the shader object if it hasn't been installed
+												{
+													if (!installed)
+													{
+														if (templateReference)
+														{
+															//template_reference->status()->redetect();
+															objectReference = templateReference->BuildShader();
+															if (!objectReference)
+																FATAL__(templateReference->Report());
+														}
+														ASSERT__(objectReference->Install());
+														installed = true;
+													}
+												}
+				void							Uninstall()	//!< Uninstalls the shader object if it is installed
+												{
+													if (installed)
+													{
+														objectReference->Uninstall();
+														installed = false;
+													}
+												}
+				operator bool()					{Install(); return true;}	//!< Installs if not already done
 			};
 		
 		
 
-			#define glsl(shader)		if (Engine::GLShader::Installation __shader_installation__ = shader)
+			#define glsl(shader)				if (Engine::GLShader::Installation __shader_installation__ = shader)
 		
 		}
 		
@@ -1060,117 +1023,101 @@
 		class Extension
 		{
 		private:
-				String		group;
+			String								group;
 			#if SYSTEM==WINDOWS
-				HDC			hDC;
+				HDC								hDC;
 			#elif SYSTEM==UNIX
-				Display	*display;
-				int			screen;
+				Display							*display;
+				int								screen;
 			#endif
-		static GLuint		Extension::allocateDepthBuffer(const Resolution&res);
+			static GLuint						AllocateDepthBuffer(const Resolution&res);
 
 		public:
-				CONSTRUCT_ENUMERATION3(VRAMQueryMethod,None, NVIDIA,ATI);
-				typedef GenericHashTable<Resolution,GLuint,Resolution::Hash>	ResolutionTable;
+			CONSTRUCT_ENUMERATION3(VRAMQueryMethod,None, NVIDIA,ATI);
+			typedef GenericHashTable<Resolution,GLuint,Resolution::Hash>	ResolutionTable;
 
 
-		static	ResolutionTable	depth_buffer_table;
+			static ResolutionTable				depthBufferTable;
 
-				VRAMQueryMethod	query_method;
+			GLint								maxTextureLayers,
+												maxTexcoordLayers,
+												maxLights,
+												maxCubeTextureSize,
+												maxRegisterCombiners;
+			GLfloat								maxTextureMaxAnisotropy;
+			ExtCont								glExt,
+												sysglExt;
+			//StringBuffer						compileLog;
+			//size_t							initialTotal;
 
-				GLint			max_texture_layers,
-								max_texcoord_layers,
-								max_lights,
-								max_cube_texture_size,
-								max_register_combiners;
-				GLfloat			max_texture_max_anisotropy;
-				ExtCont		gl_ext,sysgl_ext;
-				StringBuffer	compile_log;
-				size_t			initial_total;
+			bool								IsAvailable(const String&extension);
+			template <class C>
+				static void						Read(C&target, const String&name);
+			template <class C>
+				static void						ReadSilent(C&target, const String&name);
 
-				bool			available(const String&extension);
-		template <class C>
-		static	void			read(C&target, const String&name);
-		template <class C>
-		static	void			readSilent(C&target, const String&name);
-
-				bool			init(GLuint);
-				GLuint 			loadVertexProgram(const char*source);
-				GLuint 			loadFragmentProgram(const char*source);
-				GLuint 			loadGeometryProgram(const char*source);
-				GLuint 			loadProgram(const char*source, GLenum type);
-			#if defined(WGL_ARB_pbuffer) || defined(GLX_SGIX_pbuffer)
-				TPBuffer		createPBuffer(unsigned width, unsigned height, ePBufferType type, BYTE fsaa);
-				void			destroyPBuffer(const TPBuffer&buffer);
-			#endif
-				String			renderState();
+			bool								Init(GLuint);
+			String								QueryRenderState();
 				
-				/**
-					@brief Creates a new frame buffer object
+			/**
+			@brief Creates a new frame buffer object
 					
-					@param width Width of the frame buffer object in pixels
-					@param height Height of the frame buffer object in pixels
-					@param depth_storage Type of depth storage to use for depth components
-					@param num_color_targets Number of color targets
-					@param format Pointer to a field of internal formats to use for the texture targets
-				*/
-		static	TFrameBuffer	createFrameBuffer(const Resolution&res, DepthStorage depth_storage, BYTE num_color_targets, const GLenum*format);
-		/**
-		@brief Tests the currently bound frame buffer for frame-buffer-complete status
-		A fatal exception is raised if the frame buffer is not frame-buffer-complete.
-		*/
-		static	bool			TestCurrentFrameBuffer();
+			@param width Width of the frame buffer object in pixels
+			@param height Height of the frame buffer object in pixels
+			@param depthStorage Type of depth storage to use for depth components
+			@param numColorTargets Number of color targets
+			@param format Pointer to a field of internal formats to use for the texture targets
+			*/
+			static TFrameBuffer					CreateFrameBuffer(const Resolution&res, DepthStorage depthStorage, BYTE numColorTargets, const GLenum*format);
+			/**
+			@brief Tests the currently bound frame buffer for frame-buffer-complete status
+			A fatal exception is raised if the frame buffer is not frame-buffer-complete.
+			*/
+			static bool							TestCurrentFrameBuffer();
 
-				/**
-					@brief Frees all associated data and resets all internal variables
+			/**
+			@brief Frees all associated data and resets all internal variables
 					
-					The buffer must not currently be bound.
-					
-					@param buffer Buffer to free
-				*/
-		static	void			destroyFrameBuffer(const TFrameBuffer&buffer);
+			The buffer must not currently be bound.
+			@param buffer Buffer to free
+			*/
+			static void							DestroyFrameBuffer(const TFrameBuffer&buffer);
 		
-				/**
-					@brief Binds the specified framebuffer as rendering target
+			/**
+			@brief Binds the specified framebuffer as rendering target
+			@param buffer Buffer to bind
+			@return true on success, false otherwise
+			*/
+			static bool							BindFrameBuffer(const TFrameBuffer&buffer);
+			/**
+			@brief Unbinds any currently bound frame buffer object.
 					
-					@param buffer Buffer to bind
-					@return true on success, false otherwise
-				*/
-		static	bool			bindFrameBuffer(const TFrameBuffer&buffer);
-				/**
-					@brief Unbinds any currently bound frame buffer object.
+			The method has no effect if no FBO is currently bound
+			*/
+			static void							UnbindFrameBuffer();
+			/**
+			@brief Tests, whether or not the specified format provides an alpha channel
+			*/
+			static bool							FormatHasAlpha(GLenum format);
+			/**
+			@brief Attempts to resize the specified buffer to match the new width and height
+			*/
+			static bool							ResizeFrameBuffer(TFrameBuffer&buffer, const Resolution&res);
+			/**
+			@brief Copies the content (color and/or depth values) from one frame buffer object to another
 					
-					The method has no effect if no FBO is currently bound
-				*/
-		static	void			unbindFrameBuffer();
-
-				/**
-					@brief Tests, whether or not the specified format provides an alpha channel
-				*/
-		static	bool			formatHasAlpha(GLenum format);
-				/**
-					@brief Attempts to resize the specified buffer to match the new width and height
-
-				*/
-		static	bool			resizeFrameBuffer(TFrameBuffer&buffer, const Resolution&res);
-				/**
-					@brief Copies the content (color and/or depth values) from one frame buffer object to another
-					
-					Typically the first FBO (from) is a multisampled one, while the second (to) is non-multisampled.
-					
-					@return true on success
-				*/
-		static	bool			copyFrameBuffer(const TFrameBuffer&from, const TFrameBuffer&to, bool copy_color = true, bool copy_depth=true);
-		static	bool			copyFrameBuffer(const TFrameBuffer&from, const TFrameBuffer&to, const Resolution&res, bool copy_color = true, bool copy_depth=true);
+			Typically the first FBO (from) is a multisampled one, while the second (to) is non-multisampled.
+			@return true on success
+			*/
+			static bool							CopyFrameBuffer(const TFrameBuffer&from, const TFrameBuffer&to, bool copyColor = true, bool copyDepth=true);
+			static bool							CopyFrameBuffer(const TFrameBuffer&from, const TFrameBuffer&to, const Resolution&res, bool copyColor = true, bool copyDepth=true);
 			#if SYSTEM==WINDOWS
-				void			initialize(HDC hDC);
+				void							Initialize(HDC hDC);
 			#elif SYSTEM==UNIX
-				void			initialize(Display*display,int screen);
+				void							Initialize(Display*display,int screen);
 			#else
-				void			initialize();
+				void							Initialize();
 			#endif
-
-				bool			deviceMemoryState(size_t&free,size_t&total)	const;
 		};
 
 		
@@ -1180,62 +1127,55 @@
 		*/
 		class GLTextureFactory
 		{
-		protected:
-				GLint				previous_frame_buffer,
-									viewport[4];
-				GLuint				frame_buffer,
-									result_texture,
-									//color_buffer,
-									depth_buffer;
-				GLfloat				previous_clear_color[4];
-				unsigned			width,height;
-				bool				alpha,mipmapping;
+		private:
+			GLint								previousFrameBuffer,
+												viewport[4];
+			GLuint								frameBuffer,
+												resultTexture,
+												depthBuffer;	
+			TVec4<GLfloat>						previousClearColor;
+			Resolution							resolution;
+			bool								alpha,mipmapping;
 		
-		
-									GLTextureFactory(const GLTextureFactory&)	{}
-				GLTextureFactory&	operator=(const GLTextureFactory&)	{return *this;}
+			/**/								GLTextureFactory(const GLTextureFactory&)	{}
+			GLTextureFactory&					operator=(const GLTextureFactory&)	{return *this;}
 		public:
-									GLTextureFactory();
-									GLTextureFactory(unsigned width, unsigned height, bool alpha, bool mipmapping);	//!< Directly creates the local factory
-		virtual						~GLTextureFactory();
+			/**/								GLTextureFactory();
+			/**/								GLTextureFactory(const Resolution&, bool alpha, bool mipmapping);	//!< Directly creates the local factory
+			virtual								~GLTextureFactory();
 		
-									/**
-										@brief (re)creates the local texture factory to the specified dimensions
+			/**
+			@brief (re)creates the local texture factory to the specified dimensions
 										
-										The texture factory will initiate buffers and create textures of the specified dimensions
-										
-										@return true on success
-									*/
-				bool				create(unsigned width, unsigned height, bool alpha, bool mipmapping);
-				bool				checkFormat(unsigned width, unsigned height, bool alpha, bool mipmapping);	//!< Checks if the specified dimensions match the local ones and updates if that should not be the case			bool				checkFormat(unsigned width, unsigned height, bool alpha);	//!< Checks if the specified dimensions match the local ones and updates if that should not be the case
-				
-				void				clear();	//!< Destroys the local texture factory
-		
-									/**
-										@brief Begins rendering to the off screen source
+			The texture factory will initiate buffers and create textures of the specified dimensions
+			@return true on success
+			*/
+			bool								Create(const Resolution&, bool alpha, bool mipmapping);
+			bool								CheckFormat(const Resolution&, bool alpha, bool mipmapping);	//!< Checks if the specified dimensions match the local ones and updates if that should not be the case			bool				checkFormat(unsigned width, unsigned height, bool alpha);	//!< Checks if the specified dimensions match the local ones and updates if that should not be the case
+			void								Clear();	//!< Destroys the local texture factory
+			/**
+			@brief Begins rendering to the off screen source
 									
-										Any previously bound frame buffer is backuped
+			Any previously bound frame buffer is backuped
+			@return true on success
+			*/
+			bool								Begin();
+			void								Test();
+			/**
+			@brief Ends offscreen rendering and copies the rendered content into a texture
 										
-										@return true on success
-									*/
-				bool				begin();
-				void				test();
-									/**
-										@brief Ends offscreen rendering and copies the rendered content into a texture
-										
-										Any previously bound frame buffer is restored
-										
-										@return Reference to a new OpenGL texture. The returned texture is not further managed. The client application is responsible for its destruction if no longer needed
-									*/
-				GLuint				end();
+			Any previously bound frame buffer is restored
+			@return Reference to a new OpenGL texture. The returned texture is not further managed. The client application is responsible for its destruction if no longer needed
+			*/
+			GLuint								End();
 				
-				void				abort();	//!< Aborts rendering and deletes the created texture
+			void								Abort();	//!< Aborts rendering and deletes the created texture
 		
-				bool				isActive()	const;	//!< Checks if the texture factory is currently bound
-				bool				isCreated()	const;	//!< True if this factory has been created
+			bool								IsActive()	const;	//!< Checks if the texture factory is currently bound
+			bool								IsCreated()	const;	//!< True if this factory has been created
 		};
 		
-		extern Extension gl_extensions;
+		extern Extension glExtensions;
 		
 		
 		
@@ -1522,7 +1462,7 @@ using namespace OpenGLExtPointer;
 	namespace Engine
 	{
 		template <class C>
-		void Extension::read(C&target, const String&name)
+		void Extension::Read(C&target, const String&name)
 		{
 			#if SYSTEM==WINDOWS
 				target = (C)wglGetProcAddress(name.c_str());
@@ -1536,7 +1476,7 @@ using namespace OpenGLExtPointer;
 		}
 
 		template <class C>
-		void Extension::readSilent(C&target, const String&name)
+		void Extension::ReadSilent(C&target, const String&name)
 		{
 			#if SYSTEM==WINDOWS
 				target = (C)wglGetProcAddress(name.c_str());

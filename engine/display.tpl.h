@@ -626,9 +626,9 @@ namespace Engine
 					context.checkFocus();
 			}
 	        timing.update();
-	        mouse.update();
 	        exec_loop = !context.shutting_down && exec_target();
 
+	        mouse.update();	//set here to reset motion
 			interruptCheckEvents();
 	        GL::nextFrame();
 	    }
@@ -654,8 +654,9 @@ namespace Engine
 					context.checkFocus();
 			}
 	        timing.update();
-	        mouse.update();
 	        exec_loop = !context.shutting_down && exec_target();
+
+	        mouse.update();
 
 	        #if SYSTEM==WINDOWS
 	            MSG msg;

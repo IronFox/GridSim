@@ -401,7 +401,7 @@ namespace Engine
 
 			count_t layer_count = 
 								std::min<count_t>(
-									gl_extensions.max_texture_layers
+									glExtensions.maxTextureLayers
 									,
 									(	
 										glActiveTexture!=NULL

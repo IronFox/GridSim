@@ -419,21 +419,18 @@ namespace Engine
 		
 			Instance*								construct()	const
 													{
-														GLShader::Template::global_render_config.redetect();
-														return handle->buildShader();
+														GLShader::Template::globalRenderConfig.ReDetect();
+														return handle->BuildShader();
 													}
 			inline Instance*						Construct()	const	{return construct();}
 
 			bool									create(const SourceCode&code,bool use_global_status=true);
 			inline bool								Create(const SourceCode&code,bool useGlobalStatus=true)	{return create(code,useGlobalStatus);}
-			String									report()	const;
-			inline String							Report()	const	{return report();}
+			String									Report()	const;
 			static bool								compose(const MaterialComposition<Texture::Reference>&config, SourceCode&code_out);
 			inline static bool						Compose(const MaterialComposition<Texture::Reference>&config, SourceCode&codeOut)	{return compose(config,codeOut);}
-			bool									install()	const;
-			inline bool								Install()	const	{return install();}
-			static void								uninstall();
-			inline static void						Uninstall()	{uninstall();}
+			inline bool								Install()	const;
+			static void								Uninstall();
 		};
 
 		
@@ -691,13 +688,13 @@ namespace Engine
 		public:
 			struct BaseConfiguration
 			{
-				DepthStorage		depth_storage;
-				BYTE				num_color_targets;
+				DepthStorage		depthStorage;
+				BYTE				numColorTargets;
 				const GLenum		*format;
 				bool				filtered;
 
-				/**/				BaseConfiguration(DepthStorage depth_storage, BYTE num_color_targets, const GLenum*format, bool filtered=true) 
-									: depth_storage(depth_storage), num_color_targets(num_color_targets),
+				/**/				BaseConfiguration(DepthStorage depthStorage, BYTE numColorTargets, const GLenum*format, bool filtered=true) 
+									: depthStorage(depthStorage), numColorTargets(numColorTargets),
 									format(format),filtered(filtered){}
 
 			};
@@ -705,8 +702,8 @@ namespace Engine
 			{
 				Resolution			resolution;
 
-				/**/				Configuration(Resolution resolution, DepthStorage depth_storage, BYTE num_color_targets, const GLenum*format, bool filtered=true) 
-									: resolution(resolution), BaseConfiguration(depth_storage,num_color_targets,format,filtered){}
+				/**/				Configuration(Resolution resolution, DepthStorage depthStorage, BYTE numColorTargets, const GLenum*format, bool filtered=true) 
+									: resolution(resolution), BaseConfiguration(depthStorage,numColorTargets,format,filtered){}
 				/**/				Configuration(Resolution resolution, BaseConfiguration config) 
 									: resolution(resolution), BaseConfiguration(config){}
 			};
@@ -720,15 +717,15 @@ namespace Engine
 		
 			void					resize(const Resolution&res);
 			inline void				Resize(const Resolution&res)	{resize(res);}
-			inline bool				create(const Resolution&res, DepthStorage depth_storage, BYTE num_color_targets, const GLenum*format, bool filtered=true)	{return create(Configuration(res,depth_storage,num_color_targets,format,filtered));}
+			inline bool				create(const Resolution&res, DepthStorage depthStorage, BYTE numColorTargets, const GLenum*format, bool filtered=true)	{return create(Configuration(res,depthStorage,numColorTargets,format,filtered));}
 			inline bool				Create(const Resolution&res, DepthStorage depthStorage, BYTE numColorTargets, const GLenum*format, bool filtered=true)	{return create(Configuration(res,depthStorage,numColorTargets,format,filtered));}
 			bool					create(const Configuration&config);
 			inline bool				Create(const Configuration&config)	{return create(config);}
 			inline bool				create(const Resolution&res, const BaseConfiguration&config)	{return create(Configuration(res,config));}
 			inline bool				Create(const Resolution&res, const BaseConfiguration&config)	{return create(Configuration(res,config));}
-			inline bool				primaryHasAlpha()	const	{return config.num_color_targets > 0 && Extension::formatHasAlpha(config.color_target[0].texture_format);}
+			inline bool				primaryHasAlpha()	const	{return config.numColorTargets > 0 && Extension::FormatHasAlpha(config.colorTarget[0].textureFormat);}
 			inline bool				PrimaryHasAlpha()	const	{return primaryHasAlpha();}
-			unsigned				getChannelsOfTarget(BYTE target) const {return target < config.num_color_targets ? formatToChannels(config.color_target[target].texture_format) : 0;}
+			unsigned				getChannelsOfTarget(BYTE target) const {return target < config.numColorTargets ? formatToChannels(config.colorTarget[target].textureFormat) : 0;}
 			inline unsigned			GetChannelsOfTarget(BYTE target) const {return getChannelsOfTarget(target);}
 			inline const Resolution&size() const
 									{
@@ -743,13 +740,13 @@ namespace Engine
 			inline const Resolution&GetResolution()	const	{return config.resolution;}
 			inline GLuint			getTextureHandle(BYTE target)	const
 									{
-										ASSERT_LESS__(target,config.num_color_targets);
-										return config.color_target[target].texture_handle;
+										ASSERT_LESS__(target,config.numColorTargets);
+										return config.colorTarget[target].textureHandle;
 									}
 			inline	GLuint			GetTextureHandle(BYTE target)	const	{return getTextureHandle(target);}
 			inline	GLuint			getDepthTextureHandle()	const
 									{
-										return config.depth_target.storage_type == DepthStorage::Texture ? config.depth_target.handle : 0;
+										return config.depthTarget.storageType == DepthStorage::Texture ? config.depthTarget.handle : 0;
 									}
 			inline	GLuint			GetDepthTextureHandle()	const	{return getDepthTextureHandle();}
 			bool					exportColorTo(Image&out_image,BYTE target=0)	const;

@@ -193,21 +193,37 @@ template <class C>
 	class ArrayData: public SerializableObject, public Arrays
 	{
 	protected:
-			C*				data;
-			count_t			elements;
+		C*				data;
+		count_t			elements;
 
-							ArrayData(count_t length=0):data(alloc<C>(length)),elements(length)	//!< Creates a new array \param length Length of the new array object
-							{}
+		/**/				ArrayData(count_t length=0):data(alloc<C>(length)),elements(length)	{}
+		/**/				ArrayData(const C&e0, const C&e1):data(alloc<C>(2)),elements(2)
+							{
+								data[0] = c0;
+								data[1] = c1;
+							}
+		/**/				ArrayData(const C&e0, const C&e1, const C&e2):data(alloc<C>(3)),elements(3)
+							{
+								data[0] = c0;
+								data[1] = c1;
+								data[2] = c2;
+							}
+		/**/				ArrayData(const C&e0, const C&e1, const C&e2, const C&e3):data(alloc<C>(4)),elements(4)
+							{
+								data[0] = c0;
+								data[1] = c1;
+								data[2] = c2;
+								data[3] = c3;
+							}
 	private:
-			typedef C*		iterator;
-			typedef const C*const_iterator;
+		typedef C*			iterator;
+		typedef const C*	const_iterator;
 
-
-							ArrayData(const ArrayData<C>&){}
-			void			operator=(const ArrayData<C>&){}
+		/**/				ArrayData(const ArrayData<C>&){}
+		void				operator=(const ArrayData<C>&){}
 	public:
 		#if __ARRAY_RVALUE_REFERENCES__
-							ArrayData(ArrayData<C>&&rvalue):data(rvalue.data),elements(rvalue.elements)
+			/**/			ArrayData(ArrayData<C>&&rvalue):data(rvalue.data),elements(rvalue.elements)
 							{
 								rvalue.data = NULL;
 								rvalue.elements = 0;
@@ -218,539 +234,526 @@ template <class C>
 								return *this;
 							}
 		#endif
-			virtual			~ArrayData()
-			{
-				dealloc(data);
-			}
+		virtual				~ArrayData()
+							{
+								dealloc(data);
+							}
 
 		template <typename I>
-			inline	C*			operator+(I rel)	//!< Retrieves a pointer to the nth element @param rel Relative index. 0 points to the first element in the array. 	@return Pointer to the requested element for sub array access
-			{
-				return data+rel;
-			}
+			inline	C*		operator+(I rel)	//! Retrieves a pointer to the nth element @param rel Relative index. 0 points to the first element in the array. 	@return Pointer to the requested element for sub array access
+							{
+								return data+rel;
+							}
 				
 		template <typename I>
-			inline const C*		operator+(I rel) const	//!< @overload
-			{
-				return data+rel;
-			}
+			inline const C*	operator+(I rel) const	//! @copydoc operator+()
+							{
+								return data+rel;
+							}
 
 		template <typename I>
-			inline	C*			operator-(I rel)	//!< Retrieves a pointer to the nth element @param rel Relative index. 0 points to the first element in the array. 	@return Pointer to the requested element for sub array access
-			{
-				return data-rel;
-			}
+			inline	C*		operator-(I rel)	//! Retrieves a pointer to the nth element @param rel Relative index. 0 points to the first element in the array. 	@return Pointer to the requested element for sub array access
+							{
+								return data-rel;
+							}
 				
 		template <typename I>
-			inline const C*		operator-(I rel) const	//!< @overload
-			{
-				return data-rel;
-			}
+			inline const C*	operator-(I rel) const	//! @copydoc operator-()
+							{
+								return data-rel;
+							}
 
 
 		template <class T>
-			inline char			compareTo(const ArrayData<T>&other) const	//! Compares the local array with the remote array. The objects of the local array must implement a compareTo method that accepts objects of the remote array
-			{
-				count_t len = elements < other.length()?elements:other.length();
-				for (count_t i = 0; i < len; i++)
-				{
-					char val = data[i].compareTo(other[i]);
-					if (val != 0)
-						return val;
-				}
+			inline int		compareTo(const ArrayData<T>&other) const	//! Compares the local array with the remote array. The objects of the local array must implement a compareTo method that accepts objects of the remote array
+							{
+								count_t len = elements < other.length()?elements:other.length();
+								for (count_t i = 0; i < len; i++)
+								{
+									char val = data[i].compareTo(other[i]);
+									if (val != 0)
+										return val;
+								}
 
-				if (elements > other.length())
-					return 1;
-				if (elements < other.length())
-					return -1;
-				return 0;
-			}
+								if (elements > other.length())
+									return 1;
+								if (elements < other.length())
+									return -1;
+								return 0;
+							}
 
 
 		template <class T>
-			inline bool			operator==(const ArrayData<T>&other) const //! Equality query \return true if all elements of the local array are identical to their respective counter parts in \b other. Equality is queried via the = operator.
-			{
-				if (elements != other.length())
-					return false;
-				for (count_t i = 0; i < elements; i++)
-					if (data[i] != other[i])
-						return false;
-				return true;
-			}
+			inline bool		operator==(const ArrayData<T>&other) const //! Equality query \return true if all elements of the local array are identical to their respective counter parts in \b other. Equality is queried via the = operator.
+							{
+								if (elements != other.length())
+									return false;
+								for (count_t i = 0; i < elements; i++)
+									if (data[i] != other[i])
+										return false;
+								return true;
+							}
 				
 		template <class T>
-			inline bool			operator!=(const ArrayData<T>&other) const //! Equality query
-			{
-				if (elements != other.length())
-					return true;
-				for (count_t i = 0; i < elements; i++)
-					if (data[i] != other[i])
-						return true;
-				return false;
-			}
+			inline bool		operator!=(const ArrayData<T>&other) const //! Equality query
+							{
+								if (elements != other.length())
+									return true;
+								for (count_t i = 0; i < elements; i++)
+									if (data[i] != other[i])
+										return true;
+								return false;
+							}
 
 		template <class T>
-			inline bool			operator>(const ArrayData<T>&other) const //! Dictionary comparison
-			{
-				count_t len = elements < other.length()?elements:other.length();
-				for (count_t i = 0; i < len; i++)
-					if (data[i] > other[i])
-						return true;
-					else
-						if (data[i] < other[i])
-							return false;
-				return elements > other.length();
-			}
+			inline bool		operator>(const ArrayData<T>&other) const //! Dictionary comparison
+							{
+								count_t len = elements < other.length()?elements:other.length();
+								for (count_t i = 0; i < len; i++)
+									if (data[i] > other[i])
+										return true;
+									else
+										if (data[i] < other[i])
+											return false;
+								return elements > other.length();
+							}
 
 		template <class T>
-			inline bool			operator<(const ArrayData<T>&other) const //! Dictionary comparison
-			{
-				count_t len = elements < other.length()?elements:other.length();
-				for (count_t i = 0; i < len; i++)
-					if (data[i] > other[i])
-						return false;
-					else
-						if (data[i] < other[i])
-							return true;
-				return elements < other.length();
-			}
+			inline bool		operator<(const ArrayData<T>&other) const //! Dictionary comparison
+							{
+								count_t len = elements < other.length()?elements:other.length();
+								for (count_t i = 0; i < len; i++)
+									if (data[i] > other[i])
+										return false;
+									else
+										if (data[i] < other[i])
+											return true;
+								return elements < other.length();
+							}
 
 		template <class T>
-			inline bool			operator>=(const ArrayData<T>&other) const //! Dictionary comparison
-			{
-				count_t len = elements < other.length()?elements:other.length();
-				for (count_t i = 0; i < len; i++)
-					if (data[i] > other[i])
-						return true;
-					else
-						if (data[i] < other[i])
-							return false;
-				return true;
-			}
+			inline bool		operator>=(const ArrayData<T>&other) const //! Dictionary comparison
+							{
+								count_t len = elements < other.length()?elements:other.length();
+								for (count_t i = 0; i < len; i++)
+									if (data[i] > other[i])
+										return true;
+									else
+										if (data[i] < other[i])
+											return false;
+								return true;
+							}
 
 		template <class T>
-			inline bool			operator<=(const ArrayData<T>&other) const //! Dictionary comparison
-			{
-				count_t len = elements < other.length()?elements:other.length();
-				for (count_t i = 0; i < len; i++)
-					if (data[i] > other[i])
-						return false;
-					else
-						if (data[i] < other[i])
-							return true;
-				return true;
-			}
+			inline bool		operator<=(const ArrayData<T>&other) const //! Dictionary comparison
+							{
+								count_t len = elements < other.length()?elements:other.length();
+								for (count_t i = 0; i < len; i++)
+									if (data[i] > other[i])
+										return false;
+									else
+										if (data[i] < other[i])
+											return true;
+								return true;
+							}
 				
-			inline	void	free()		//! Frees the contained data and resets the local array length to 0
-			{
-				dealloc(data);
-				elements = 0;
-				data = NULL;
-			}
+		inline	void		free()		//! Frees the contained data and resets the local array length to 0
+							{
+								dealloc(data);
+								elements = 0;
+								data = NULL;
+							}
+		inline	void		clear()		/** @copydoc free() */{free();}
+		inline	void		Clear()		/** @copydoc free() */{free();}
+		inline	void		Free()		/** @copydoc free() */{free();}
 			
-			#if 0
-				inline	operator C*()		//! Implicit type conversion to a native array of the contained type
-				{
-					return data;
-				}
-				inline operator const C*() const		//! @overload
-				{
-					return data;
-				}
-			#endif /*0*/
 
-			inline	C*		pointer()			//! Explicit type conversion to a native array of the contained type \return Pointer to the first contained element or NULL if the local array is empty.
-			{
-				return data;
-			}
-			inline const C* pointer() const		//! @overload
-			{
-				return data;
-			}
+		inline	C*			pointer()			//! Explicit type conversion to a native array of the contained type \return Pointer to the first contained element or NULL if the local array is empty.
+							{
+								return data;
+							}
+		inline const C*		pointer() const		//! @copydoc pointer()
+							{
+								return data;
+							}
 
-			inline	C&		operator[](index_t index)		//! Sub-element access \param index Index of the requested element (0 = first element) \return Reference to the requested element
-			{
-				#if defined(_DEBUG) && __ARRAY_DBG_RANGE_CHECK__
-					if (index >= elements)
-						FATAL__("Index out of bounds");
-				#endif
-				return data[index];
-			}
-			inline	const C&		operator[](index_t index) const	//! @copydoc operator[]()
-			{
-				#if defined(_DEBUG) && __ARRAY_DBG_RANGE_CHECK__
-					if (index >= elements)
-						FATAL__("Index out of bounds");
-				#endif
-				return data[index];
-			}
-			inline	C&		at(index_t index)		//! @copydoc operator[]()
-			{
-				#if defined(_DEBUG) && __ARRAY_DBG_RANGE_CHECK__
-					if (index >= elements)
-						FATAL__("Index out of bounds");
-				#endif
-				return data[index];
-			}
-			inline	const C&		at(index_t index) const	//! @copydoc at()
-			{
-				#if defined(_DEBUG) && __ARRAY_DBG_RANGE_CHECK__
-					if (index >= elements)
-						FATAL__("Index out of bounds");
-				#endif
-				return data[index];
-			}
-			inline	C&				fromEnd(index_t index)					//! Retrieves the nth element from the end of the array. fromEnd(0) is identical to last()
-			{
-				index = elements - index - 1;
-				#if defined(_DEBUG) && __ARRAY_DBG_RANGE_CHECK__
-					if (index >= elements)
-						FATAL__("Index out of bounds");
-				#endif
-				return data[index];
-			}
-			inline	const C&		fromEnd(index_t index)			const	//! @copydoc fromEnd()
-			{
-				index = elements - index - 1;
-				#if defined(_DEBUG) && __ARRAY_DBG_RANGE_CHECK__
-					if (index >= elements)
-						FATAL__("Index out of bounds");
-				#endif
-				return data[index];
-			}
+		inline	C&			operator[](index_t index)		//! Sub-element access \param index Index of the requested element (0 = first element) \return Reference to the requested element
+							{
+								#if defined(_DEBUG) && __ARRAY_DBG_RANGE_CHECK__
+									if (index >= elements)
+										FATAL__("Index out of bounds");
+								#endif
+								return data[index];
+							}
+		inline	const C&	operator[](index_t index) const	//! @copydoc operator[]()
+							{
+								#if defined(_DEBUG) && __ARRAY_DBG_RANGE_CHECK__
+									if (index >= elements)
+										FATAL__("Index out of bounds");
+								#endif
+								return data[index];
+							}
+		inline	C&			at(index_t index)		//! @copydoc operator[]()
+							{
+								#if defined(_DEBUG) && __ARRAY_DBG_RANGE_CHECK__
+									if (index >= elements)
+										FATAL__("Index out of bounds");
+								#endif
+								return data[index];
+							}
+		inline	const C&	at(index_t index) const	//! @copydoc at()
+							{
+								#if defined(_DEBUG) && __ARRAY_DBG_RANGE_CHECK__
+									if (index >= elements)
+										FATAL__("Index out of bounds");
+								#endif
+								return data[index];
+							}
+		inline	C&			fromEnd(index_t index)					//! Retrieves the nth element from the end of the array. fromEnd(0) is identical to last()
+							{
+								index = elements - index - 1;
+								#if defined(_DEBUG) && __ARRAY_DBG_RANGE_CHECK__
+									if (index >= elements)
+										FATAL__("Index out of bounds");
+								#endif
+								return data[index];
+							}
+		inline	const C&	fromEnd(index_t index)			const	//! @copydoc fromEnd()
+							{
+								index = elements - index - 1;
+								#if defined(_DEBUG) && __ARRAY_DBG_RANGE_CHECK__
+									if (index >= elements)
+										FATAL__("Index out of bounds");
+								#endif
+								return data[index];
+							}
 
 
 
 		template <typename T>
 			inline	void	fill(const T&element, count_t offset=0, count_t max=Undefined)	//! Sets up to \b max elements starting from @b offset of the local array to \b element \param element Element to repeat @param offset First index \param max If specified: Maximum number of elements to set to \b element
-			{
-				if (!elements)
-					return;
-				if (offset >= elements)
-					offset = elements-1;
-				if (max > elements)
-					max = elements;
-				for (register count_t i = offset; i < max; i++)
-					data[i] = (C)element;
-			}
+							{
+								if (!elements)
+									return;
+								if (offset >= elements)
+									offset = elements-1;
+								if (max > elements)
+									max = elements;
+								for (register count_t i = offset; i < max; i++)
+									data[i] = (C)element;
+							}
 
 
-			inline	void	set(count_t num_values, ...)	//! Resizes the local array and fills it with the specified elements. The elements must be specified in the type of the local array's data
-			{
-				setSize(num_values);
-				va_list vl;
-				va_start( vl, num_values );
-				for (index_t i = 0; i < num_values; i++)
-					data[i] = va_arg( vl, C );
-			}
+		inline	void		set(count_t num_values, ...)	//! Resizes the local array and fills it with the specified elements. The elements must be specified in the type of the local array's data
+							{
+								setSize(num_values);
+								va_list vl;
+								va_start( vl, num_values );
+								for (index_t i = 0; i < num_values; i++)
+									data[i] = va_arg( vl, C );
+							}
 
 		template <typename T>
 			inline	void	set2(const T&x, const T&y)	//! Resizes the local array and fills it with the specified elements. The elements must be specified in the type of the local array's data
-			{
-				setSize(2);
-				data[0] = C(x);
-				data[1] = C(y);
-			}
+							{
+								setSize(2);
+								data[0] = C(x);
+								data[1] = C(y);
+							}
 
 		template <typename T>
 			inline	void	set3(const T&x, const T&y, const T&z)	//! Resizes the local array and fills it with the specified elements. The elements must be specified in the type of the local array's data
-			{
-				setSize(3);
-				data[0] = C(x);
-				data[1] = C(y);
-				data[2] = C(z);
-			}
+							{
+								setSize(3);
+								data[0] = C(x);
+								data[1] = C(y);
+								data[2] = C(z);
+							}
 
 		template <typename T>
 			inline	void	set4(const T&x, const T&y, const T&z, const T&w)	//! Resizes the local array and fills it with the specified elements. The elements must be specified in the type of the local array's data
-			{
-				setSize(4);
-				data[0] = C(x);
-				data[1] = C(y);
-				data[2] = C(z);
-				data[3] = C(w);
-			}
+							{
+								setSize(4);
+								data[0] = C(x);
+								data[1] = C(y);
+								data[2] = C(z);
+								data[3] = C(w);
+							}
 
-			inline	bool	isEmpty()	const	//! Checks if the local array is empty
-			{
-				return elements == 0;
-			}
-			inline	bool	isNotEmpty()	const	//! Checks if the local array is not empty (contains at least one element)
-			{
-				return elements != 0;
-			}
+		inline	bool		isEmpty()	const	//! Checks if the local array is empty
+							{
+								return elements == 0;
+							}
+		inline	bool		isNotEmpty()	const	//! Checks if the local array is not empty (contains at least one element)
+							{
+								return elements != 0;
+							}
+		inline	bool		IsEmpty()	const	//! Checks if the local array is empty
+							{
+								return elements == 0;
+							}
+		inline	bool		IsNotEmpty()	const	//! Checks if the local array is not empty (contains at least one element)
+							{
+								return elements != 0;
+							}
 
-			inline	void	adoptData(ArrayData<C>&other)	//! Clears any existing local data, adopts pointer and size and sets both NULL of the specified origin array.
-			{
-				if (this == &other)
-					return;
-				free();
-				data = other.data;
-				elements = other.elements;
-				other.data = NULL;
-				other.elements = 0;
-			}
+		inline	void		adoptData(ArrayData<C>&other)	//! Clears any existing local data, adopts pointer and size and sets both NULL of the specified origin array.
+							{
+								if (this == &other)
+									return;
+								free();
+								data = other.data;
+								elements = other.elements;
+								other.data = NULL;
+								other.elements = 0;
+							}
 
-			inline	void	swap(ArrayData<C>&other)
-			{
-				swp(data,other.data);
-				swp(elements,other.elements);
-			}
+		inline	void		swap(ArrayData<C>&other)
+							{
+								swp(data,other.data);
+								swp(elements,other.elements);
+							}
 
 
-			inline bool concludedBy(const C*element)	const	//! Queries if the specified entry pointer points exactly one past the last element.
-			{
-				return element == data+elements;
-			}
+		inline bool			concludedBy(const C*element)	const	//! Queries if the specified entry pointer points exactly one past the last element.
+							{
+								return element == data+elements;
+							}
 
-			inline bool owns(const C*element)	const	//! Queries if the specified entry pointer was taken from the local array. Actual pointer address is checked, not what it points to.
-			{
-				return element >= data && element < data+elements;
-			}
+		inline bool			owns(const C*element)	const	//! Queries if the specified entry pointer was taken from the local array. Actual pointer address is checked, not what it points to.
+							{
+								return element >= data && element < data+elements;
+							}
 
-			inline count_t indexOf(const C*element)	const	//! Queries the index of the specifed element with 0 being the first element. To determine whether ot not the specified element is member of this array use the owns() method.
-			{
-				return element-data;
-			}				
+		inline count_t		indexOf(const C*element)	const	//! Queries the index of the specifed element with 0 being the first element. To determine whether ot not the specified element is member of this array use the owns() method.
+							{
+								return element-data;
+							}				
 
-			inline	void	setSize(count_t new_size)	//! Resizes the array. The new array's content is constructed but uninitialized. \param new_size New array size in elements (may be 0)
-			{
-				reloc(data,elements,new_size);
-			}
+		inline	void		setSize(count_t new_size)	//! Resizes the array. The new array's content is constructed but uninitialized. \param new_size New array size in elements (may be 0)
+							{
+								reloc(data,elements,new_size);
+							}
 			
 
 		template <class T>
-			inline count_t findFirst(const T&entry) const	//!< Finds the index of the first occurance of the specified entry. Entries are compared via the == operator. @param entry Entry to look for @return Index of the found match plus one or 0 if no match was found
-			{
-				for (count_t i = 0; i < elements; i++)
-					if (data[i] == entry)
-						return i+1;
-				return 0;
-			}
+			inline count_t	findFirst(const T&entry) const	//!< Finds the index of the first occurance of the specified entry. Entries are compared via the == operator. @param entry Entry to look for @return Index of the found match plus one or 0 if no match was found
+							{
+								for (count_t i = 0; i < elements; i++)
+									if (data[i] == entry)
+										return i+1;
+								return 0;
+							}
 
 		template <class T>
 			inline count_t	findFirst(const T*field, count_t length) const
-			{
-				if (length > elements)
-					return 0;
-				for (count_t i = 0; i <= elements-length; i++)
-				{
-					bool match(true);
-					for (count_t j = 0; j < length; j++)
-						if (data[i+j] != field[j])
-						{
-							match = false;
-							break;
-						}
-						if (match)
-							return i+1;
-				}
-				return 0;
-			}
+							{
+								if (length > elements)
+									return 0;
+								for (count_t i = 0; i <= elements-length; i++)
+								{
+									bool match(true);
+									for (count_t j = 0; j < length; j++)
+										if (data[i+j] != field[j])
+										{
+											match = false;
+											break;
+										}
+										if (match)
+											return i+1;
+								}
+								return 0;
+							}
 
 		template <class T>
-			inline count_t findLast(const T&entry) const
-			{
-				for (count_t i = elements-1; i < elements; i--)
-					if (data[i] == entry)
-						return i+1;
-				return 0;
-			}
+			inline count_t	findLast(const T&entry) const
+							{
+								for (count_t i = elements-1; i < elements; i--)
+									if (data[i] == entry)
+										return i+1;
+								return 0;
+							}
 
 		template <class T>
 			inline count_t	findLast(const T*field, count_t length) const
-			{
-				if (length > elements)
-					return 0;
-				for (count_t i = elements-length; i<elements; i--)
-				{
-					bool match(true);
-					for (count_t j = 0; j < length; j++)
-						if (data[i+j] != field[j])
-						{
-							match = false;
-							break;
-						}
-						if (match)
-							return i+1;
-				}
-				return 0;
-			}
+							{
+								if (length > elements)
+									return 0;
+								for (count_t i = elements-length; i<elements; i--)
+								{
+									bool match(true);
+									for (count_t j = 0; j < length; j++)
+										if (data[i+j] != field[j])
+										{
+											match = false;
+											break;
+										}
+										if (match)
+											return i+1;
+								}
+								return 0;
+							}
 
 		template <class T>
 			inline count_t	findFirst(const T*string) const
-			{
-				const T*terminator(string);
-				while (*terminator++);
-				return findFirst(string,terminator-string-1);
-			}
+							{
+								const T*terminator(string);
+								while (*terminator++);
+								return findFirst(string,terminator-string-1);
+							}
 
 		template <class T>
 			inline count_t	findLast(const T*string) const
-			{
-				const T*terminator(string);
-				while (*terminator++);
-				return findLast(string,terminator-string-1);
-			}
+							{
+								const T*terminator(string);
+								while (*terminator++);
+								return findLast(string,terminator-string-1);
+							}
 
 		template <class T>
 			inline count_t	findFirst(const ArrayData<T>&other) const
-			{
-				return findFirst(other.data,other.elements);
-			}
+							{
+								return findFirst(other.data,other.elements);
+							}
 
 		template <class T>
 			inline count_t	findLast(const ArrayData<T>&other) const
-			{
-				return findLast(other.data,other.elements);
-			}
+							{
+								return findLast(other.data,other.elements);
+							}
 
-			inline iterator begin()
-			{
-				return data;
-			}
-			inline const_iterator begin() const
-			{
-				return data;
-			}
-			inline iterator end()
-			{
-				return data+elements;
-			}
-			inline const_iterator end() const
-			{
-				return data+elements;
-			}
+		inline iterator		begin()			{return data;}
+		inline const_iterator begin() const	{return data;}
+		inline iterator		end()			{return data+elements;}
+		inline const_iterator end() const	{return data+elements;}
 
+		inline C&			first()	//!< Retrieves a reference to the first element in the field. The method will return an undefined result if the local array is empty
+							{
+								#if defined(_DEBUG) && __ARRAY_DBG_RANGE_CHECK__
+									if (!elements)
+										FATAL__("Array is empty - cannot retrieve first()");
+								#endif
+								return data[0];
+							}
 
+		inline const C&		first()	const
+							{
+								#if defined(_DEBUG) && __ARRAY_DBG_RANGE_CHECK__
+									if (!elements)
+										FATAL__("Array is empty - cannot retrieve first()");
+								#endif
 
-			inline C&	first()	//!< Retrieves a reference to the first element in the field. The method will return an undefined result if the local array is empty
-			{
-				#if defined(_DEBUG) && __ARRAY_DBG_RANGE_CHECK__
-					if (!elements)
-						FATAL__("Array is empty - cannot retrieve first()");
-				#endif
-				return data[0];
-			}
+								return data[0];
+							}
 
-			inline const C& first()	const
-			{
-				#if defined(_DEBUG) && __ARRAY_DBG_RANGE_CHECK__
-					if (!elements)
-						FATAL__("Array is empty - cannot retrieve first()");
-				#endif
+		inline C&			last()
+							{
+								#if defined(_DEBUG) && __ARRAY_DBG_RANGE_CHECK__
+									if (!elements)
+										FATAL__("Array is empty - cannot retrieve last()");
+								#endif
 
-				return data[0];
-			}
+								return data[elements-1];
+							}
 
-			inline C&	last()
-			{
-				#if defined(_DEBUG) && __ARRAY_DBG_RANGE_CHECK__
-					if (!elements)
-						FATAL__("Array is empty - cannot retrieve last()");
-				#endif
+		inline const C&		last()	const
+							{
+								#if defined(_DEBUG) && __ARRAY_DBG_RANGE_CHECK__
+									if (!elements)
+										FATAL__("Array is empty - cannot retrieve last()");
+								#endif
+								return data[elements-1];
+							}
 
-				return data[elements-1];
-			}
-
-			inline const C& last()	const
-			{
-				#if defined(_DEBUG) && __ARRAY_DBG_RANGE_CHECK__
-					if (!elements)
-						FATAL__("Array is empty - cannot retrieve last()");
-				#endif
-				return data[elements-1];
-			}
-
-			inline count_t length()	const		//! Queries the current array size in elements \return Number of elements 
-			{
-				return elements;
-			}
-			inline count_t count()	const		//! Queries the current array size in elements \return Number of elements 
-			{
-				return elements;
-			}
-			inline count_t size()	const		//! Queries the current array size in elements \return Number of elements 
-			{
-				return elements;
-			}
-			inline size_t contentSize()	const		//! Returns the summarized size of all contained elements in bytes \return Size of all elements
-			{
-				return elements*sizeof(C);
-			}
-			inline bool isTerminated()	const		//! Queries whether or not the local data ends with an object resolvable to bool that returns false (i.e. a char array with the last character being zero).
-			{
-				return elements && !data[elements-1];
-			}
+		inline count_t		length()	const		//! Queries the current array size in elements \return Number of elements 
+							{
+								return elements;
+							}
+		inline count_t		count()	const		//! Queries the current array size in elements \return Number of elements 
+							{
+								return elements;
+							}
+		inline count_t		size()	const		//! Queries the current array size in elements \return Number of elements 
+							{
+								return elements;
+							}
+		inline size_t		contentSize()	const		//! Returns the summarized size of all contained elements in bytes \return Size of all elements
+							{
+								return elements*sizeof(C);
+							}
+		inline bool			isTerminatedBy(const C&element)	const
+							{
+								return elements && data[elements-1] == element;
+							}
 
 
-			virtual	serial_size_t		serialSize(bool export_size) const
-			{
-				serial_size_t result = export_size?serialSizeOfSize((serial_size_t)elements):0;
-				for (index_t i = 0; i < elements; i++)
-					result += serialSizeOf((const C*)data+i,sizeof(C),true);//must pass true here because the individual object size cannot be restored from the global data size
-				return result;
-			}
+		virtual	serial_size_t	serialSize(bool export_size) const
+							{
+								serial_size_t result = export_size?serialSizeOfSize((serial_size_t)elements):0;
+								for (index_t i = 0; i < elements; i++)
+									result += serialSizeOf((const C*)data+i,sizeof(C),true);//must pass true here because the individual object size cannot be restored from the global data size
+								return result;
+							}
 
-			virtual	bool			serialize(IWriteStream&out_stream, bool export_size) const
-			{
-				if (export_size || isISerializable(data))
-					if (!out_stream.writeSize(elements))
-						return false;
-				if (!isISerializable(data))
-				{
-					return out_stream.write(data,(serial_size_t)contentSize());
-				}
+		virtual	bool		serialize(IWriteStream&out_stream, bool export_size) const
+							{
+								if (export_size || isISerializable(data))
+									if (!out_stream.writeSize(elements))
+										return false;
+								if (!isISerializable(data))
+								{
+									return out_stream.write(data,(serial_size_t)contentSize());
+								}
 
-				for (index_t i = 0; i < elements; i++)
-				{
-					if (!serializeObject(data+i,sizeof(C),out_stream,true))
-						return false;
-				}
-				return true;
-			}
+								for (index_t i = 0; i < elements; i++)
+								{
+									if (!serializeObject(data+i,sizeof(C),out_stream,true))
+										return false;
+								}
+								return true;
+							}
 
-			virtual	bool			deserialize(IReadStream&in_stream, serial_size_t fixed_size)
-			{
-				count_t size;
-				if (fixed_size == EmbeddedSize)
-				{
-					//cout << "reading embedded size "<<endl;
-					if (!in_stream.readSize(size))
-						return false;
-					//cout << "deciphered "<<size<<" elements"<<endl;
-				}
-				else
-				{
-					//cout << "using fixed size "<<endl;
-					if (!isISerializable(data))
-						size = (count_t)(fixed_size/sizeof(C));
-					else
-						if (!in_stream.readSize(size))
-							return false;
+		virtual	bool		deserialize(IReadStream&in_stream, serial_size_t fixed_size)
+							{
+								count_t size;
+								if (fixed_size == EmbeddedSize)
+								{
+									//cout << "reading embedded size "<<endl;
+									if (!in_stream.readSize(size))
+										return false;
+									//cout << "deciphered "<<size<<" elements"<<endl;
+								}
+								else
+								{
+									//cout << "using fixed size "<<endl;
+									if (!isISerializable(data))
+										size = (count_t)(fixed_size/sizeof(C));
+									else
+										if (!in_stream.readSize(size))
+											return false;
 						
-						//FATAL__("trying to deserialize an array containing serializable objects from a fixed size stream data section not including any element count");
-				}
+										//FATAL__("trying to deserialize an array containing serializable objects from a fixed size stream data section not including any element count");
+								}
 
-				setSize(size);
-				if (!isISerializable(data))
-				{
-					//cout << "data is not of i-serializable type. reading plain"<<endl;
-					return in_stream.read(data,(serial_size_t)contentSize());
-				}
+								setSize(size);
+								if (!isISerializable(data))
+								{
+									//cout << "data is not of i-serializable type. reading plain"<<endl;
+									return in_stream.read(data,(serial_size_t)contentSize());
+								}
 
-				//cout << "data is of i-serializable type. invoking deserializers"<<endl;
-				for (index_t i = 0; i < elements; i++)
-				{
-					if (!deserializeObject(data+i,sizeof(C),in_stream,EmbeddedSize))
-					{
-						//cout << "deserialization of element "<<i<<" with embedded size failed"<<endl;
-						return false;
-					}
-				}
+								//cout << "data is of i-serializable type. invoking deserializers"<<endl;
+								for (index_t i = 0; i < elements; i++)
+								{
+									if (!deserializeObject(data+i,sizeof(C),in_stream,EmbeddedSize))
+									{
+										//cout << "deserialization of element "<<i<<" with embedded size failed"<<endl;
+										return false;
+									}
+								}
 
-				return true;
-			}
+								return true;
+							}
 	};
 
 template <class C>
@@ -891,9 +894,10 @@ template <class C, class Strategy=typename StrategySelector<C>::Default>
 
 				typedef ArrayData<C>	Data;
 
-		explicit	Array(count_t length=0):Data(length)	//!< Creates a new array \param length Length of the new array object
-					{}
-
+		explicit	Array(count_t length=0):Data(length)	/** Creates a new array \param length Length of the new array object */ {}
+		explicit	Array(const C&e0, const C&e1):Data(e0,e1)	/** Creates a new 2-element array @param e0 First element to fill into the array @param e1 Second element to fill into the array*/ {}
+		explicit	Array(const C&e0, const C&e1, const C&e2):Data(e0,e1,e2)	/** Creates a new 3-element array @param e0 First element to fill into the array @param e1 Second element to fill into the array @param e2 Third element to fill into the array*/ {}
+		explicit	Array(const C&e0, const C&e1, const C&e2, const C&e3):Data(e0,e1,e2,e3)	/** Creates a new 4-element array @param e0 First element to fill into the array @param e1 Second element to fill into the array @param e2 Third element to fill into the array @param e3 Fourth element to fill into the array*/ {}
 				
 					inline Array(const C*string)
 					{
