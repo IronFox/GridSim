@@ -290,8 +290,11 @@ namespace Engine
 	}
 	void	Mouse::RecordRelativeMouseMovement(long x, long y)
 	{
-		delta.x = float(x)*0.01f * speed.x;
-		delta.y = float(y)*0.01f * speed.y;
+		if (locked)
+		{
+			delta.x += float(x)*0.01f * speed.x;
+			delta.y += float(y)*0.01f * speed.y;
+		}
 	}
 
 

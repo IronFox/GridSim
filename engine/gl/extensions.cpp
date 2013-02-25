@@ -1430,7 +1430,9 @@ namespace Engine
 				if (warnOnError && warnOnFail)
 				{
 					std::cout << "unable to locate uniform variable '"<<name<<"' - no object present."<<std::endl;
-					__debugbreak();
+					#ifdef _DEBUG
+						__debugbreak();
+					#endif
 					ErrMessage("unable to locate uniform variable '"+name+"' - no object present.");
 				}
 				return Variable();
@@ -1440,7 +1442,9 @@ namespace Engine
 				if (warnOnError && warnOnFail)
 				{
 					std::cout << "unable to locate uniform variable '"<<name<<"'."<<std::endl;
-					__debugbreak();
+					#ifdef _DEBUG
+						__debugbreak();
+					#endif
 					//ErrMessage("unable to locate uniform variable '"+name+"'.");
 				}
 				else

@@ -1542,6 +1542,7 @@ namespace CGS	//! Compiled Geometrical Structure
 				count_t			countQuads()	const {return quad_data.length()/4;}
 				count_t			countFloats()	const {return vertex_data.length();}
 				count_t			countVertices()	const {return vertex_data.length() / config.vsize;}
+				Box<Float>		getBoundingBox()const;
 
 				void			verifyIntegrity(bool verify_all_vertices_are_used)	const;
 

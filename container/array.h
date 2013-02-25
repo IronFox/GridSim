@@ -199,21 +199,21 @@ template <class C>
 		/**/				ArrayData(count_t length=0):data(alloc<C>(length)),elements(length)	{}
 		/**/				ArrayData(const C&e0, const C&e1):data(alloc<C>(2)),elements(2)
 							{
-								data[0] = c0;
-								data[1] = c1;
+								data[0] = e0;
+								data[1] = e1;
 							}
 		/**/				ArrayData(const C&e0, const C&e1, const C&e2):data(alloc<C>(3)),elements(3)
 							{
-								data[0] = c0;
-								data[1] = c1;
-								data[2] = c2;
+								data[0] = e0;
+								data[1] = e1;
+								data[2] = e2;
 							}
 		/**/				ArrayData(const C&e0, const C&e1, const C&e2, const C&e3):data(alloc<C>(4)),elements(4)
 							{
-								data[0] = c0;
-								data[1] = c1;
-								data[2] = c2;
-								data[3] = c3;
+								data[0] = e0;
+								data[1] = e1;
+								data[2] = e2;
+								data[3] = e3;
 							}
 	private:
 		typedef C*			iterator;

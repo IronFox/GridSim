@@ -5894,6 +5894,22 @@ template <class Def>
 	}
 
 
+template <class Def>
+	Box<typename Constructor<Def>::Float>			Constructor<Def>::Object::getBoundingBox()const
+	{
+		Float	min = std::numeric_limits<Float>::max(),	//no error
+				max = std::numeric_limits<Float>::min();
+		Box<Float>	result(min,min,min,max,max,max);
+		count_t numVertices = vertex_data.length()/config.vsize;
+		for (index_t i = 0; i < numVertices; i++)
+		{
+			const Float*vtx = vertex_data + i*config.vsize;
+			result.include(Vec::ref3(vtx));
+		}
+		return result;
+	}
+
+
 
 
 
