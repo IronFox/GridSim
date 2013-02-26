@@ -147,7 +147,7 @@ template <class K, class C, class KeyStrategy, class DataStrategy>
 										}
 			void						occupy()
 										{
-											new (entry_data) C();
+											new (entry_data) C;
 											occupied = true;
 										}
 	};

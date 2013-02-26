@@ -637,6 +637,7 @@ namespace TCP
 					return;
 				}
 				socketAccess->CloseSocket();
+				FATAL__("Maximum safe package size ("+String(owner->safe_package_size/1024)+"KB) exceeded by "+String((remaining_size-owner->safe_package_size)/1024)+"KB");
 				owner->setError("Maximum safe package size ("+String(owner->safe_package_size/1024)+"KB) exceeded by "+String((remaining_size-owner->safe_package_size)/1024)+"KB");
 				owner->handleEvent(Event::ConnectionClosed,this);
 				owner->onDisconnect(this,Event::ConnectionClosed);
@@ -669,12 +670,19 @@ namespace TCP
 							cout << "Peer::ThreadMain(): deserialization succeeded, dispatching object"<<endl;
 						owner->handleObject(receiver,this,object);
 					}
-					elif (verbose)
-						cout << "Peer::ThreadMain(): deserialization failed, or refuses to return an object"<<endl;
+					else
+					{
+						FATAL__("deserialization failed");	//for now, this is appropriate
+					}
+					//elif (verbose)
+					//{
+					//	cout << "Peer::ThreadMain(): deserialization failed, or refuses to return an object"<<endl;
+					//}
 
 				}
 				elif (owner->onIgnorePackage)
 				{
+					FATAL__("ignoring packet");	//for now, this is appropriate
 					if (verbose)
 						cout << "Peer::ThreadMain(): no receiver available (nothing installed on this channel). ignoring package"<<endl;
 					owner->onIgnorePackage(channel_index,UINT32(remaining_size),this);
