@@ -465,7 +465,7 @@ template <typename T>
 
 */
 template <class Nature>
-	class GenericImage:public ImageTemplate<typename Nature::channel_value_t>
+	class GenericImage:public ImageTemplate<typename Nature::channel_value_t>, public Nature
 	{
 	protected:
 		typedef size_t	Size;
