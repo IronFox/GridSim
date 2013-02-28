@@ -805,7 +805,7 @@ namespace Engine
 				upPressed = true;
 				if ((scrollData.max-scrollData.min) > 0)
 				{
-					scrollData.current = clamped(scrollData.current - 20/(scrollData.max-scrollData.min),0,1);
+					scrollData.current = clamped(scrollData.current - scrollData.window,0,1);
 					OnScroll();
 				}
 			}
@@ -814,7 +814,7 @@ namespace Engine
 				downPressed = true;
 				if ((scrollData.max-scrollData.min) > 0)
 				{
-					scrollData.current = clamped(scrollData.current + 20/(scrollData.max-scrollData.min),0,1);
+					scrollData.current = clamped(scrollData.current + scrollData.window,0,1);
 					OnScroll();
 				}
 			}
