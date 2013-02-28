@@ -367,7 +367,8 @@ namespace System
     bool        Thread::isSelf()
     {
         #if SYSTEM==WINDOWS
-            return false; //no idea how to do this yet
+			return GetCurrentThreadId() == GetThreadId(handle);
+            //return false; //no idea how to do this yet
         #elif SYSTEM==UNIX
             return operation.executing && pthread_equal(pthread_self(),handle);
         #endif

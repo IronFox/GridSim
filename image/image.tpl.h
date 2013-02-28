@@ -795,7 +795,7 @@ template <typename T>
 		{
 			for (dimension_t y = 0; y < image_height; y++)
 			{
-				get(x,y)[target_channel] = source_image.get(x,y)[source_channel];
+				this->get(x,y)[target_channel] = source_image.get(x,y)[source_channel];
 			};
 		});
 	}

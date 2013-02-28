@@ -379,6 +379,7 @@ namespace TCP
 	
 	void	Client::connectAsync(const String&url)
 	{
+		ASSERT__(!isSelf());
 		if (attempt.isActive())
 			return;
 			
@@ -611,7 +612,7 @@ namespace TCP
 	{
 		if (verbose)
 			cout << "Peer::ThreadMain() enter"<<endl;
-
+		ASSERT__(isSelf());	//this should really be implied
 		while (!socketAccess->IsClosed())
 		{
 			UINT32	header[2];
@@ -720,7 +721,8 @@ namespace TCP
 			owner->setError("");
 			owner->handleEvent(Event::ConnectionClosed,this);
 			socketAccess->CloseSocket();
-			awaitCompletion();
+			if (!isSelf())
+				awaitCompletion();	//can't wait for self.
 			owner->onDisconnect(this,Event::ConnectionClosed);
 			
 			/*if (!owner->block_events)	//i really can't recall why i did this
