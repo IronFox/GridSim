@@ -47,7 +47,16 @@ public:
 										height = std::max<UINT32>(1,height/div);
 										return *this;
 									}
-
+		Resolution					operator*(int factor) const
+									{
+										return Resolution(std::max<UINT32>(1,width*factor),std::max<UINT32>(1,height*factor));
+									}
+		Resolution&					operator*=(int factor)
+									{
+										width = std::max<UINT32>(1,width*factor);
+										height = std::max<UINT32>(1,height*factor);
+										return *this;
+									}
 };
 
 

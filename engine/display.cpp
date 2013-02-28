@@ -1278,7 +1278,7 @@ namespace Engine
 				//cout << wParam<<" / "<<HIWORD (wParam)<<" == "<<VK_XBUTTON1<<endl;
 				mouse.buttonDown(HIWORD (wParam)==1?3:4); installHook();	return 0;
 			case WM_XBUTTONUP:	mouse.buttonUp(HIWORD (wParam)==1?3:4);			return 0;
-			case WM_MOUSEWHEEL: if (mouse.wheel_link) mouse.wheel_link(GET_WHEEL_DELTA_WPARAM(wParam));	return 0;
+			case WM_MOUSEWHEEL: if (mouse.wheel_link) mouse.wheel_link(GET_WHEEL_DELTA_WPARAM(wParam)/ WHEEL_DELTA);	return 0;
 			case WM_MOVE:
 			{
 				WINDOWINFO	info;
@@ -1591,7 +1591,7 @@ namespace Engine
 					mouse.buttonDown(id-2);
 				}
 				elif (mouse.wheel_link)
-					mouse.wheel_link((1-(id-3)*2)*30);
+					mouse.wheel_link((1-(id-3)*2));
 			}
 			break;
 			case ButtonRelease:
