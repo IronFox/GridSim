@@ -3,7 +3,8 @@
 
 #include "textout.h"
 #include "aspect.h"
-#include "../container/lvector.h"
+#include "../container/buffer.h"
+#include "../math/resolution.h"
 
 namespace Engine
 {
@@ -27,24 +28,24 @@ namespace Engine
 		Control()			:cluster(NULL){}
 		virtual				~Control(){}
 							
-		virtual	bool		onKeyDown(Key::Name)						{return false;};	//!< Sends a key down event to the local control
-		virtual	bool		onKeyUp(Key::Name)							{return false;};	//!< Sends a key up event to the local control 
-		virtual	bool		onMouseWheel(short delta)					{return false;};	//!< Sends a mouse wheel event to the local control
+		virtual	bool		OnKeyDown(Key::Name)						{return false;};	//!< Sends a key down event to the local control
+		virtual	bool		OnKeyUp(Key::Name)							{return false;};	//!< Sends a key up event to the local control 
+		virtual	bool		OnMouseWheel(short delta)					{return false;};	//!< Sends a mouse wheel event to the local control
 	
-		virtual	void		advance(float delta)						{};					//!< Advances the frame. @param Last frames frame length. The control is encouraged to use this delta value rather than the global timing variable if slowmotion effects should be possible
+		virtual	void		Advance(float delta)						{};					//!< Advances the frame. @param Last frames frame length. The control is encouraged to use this delta value rather than the global timing variable if slowmotion effects should be possible
 	
-		virtual	void		renderShaded(const Aspect<>&)				{};					//!< Triggers fully shaded rendering. No shader is bound at this time but layer0 textures may be bound. Lighting and depth test are enabled
-		virtual	void		renderShadedReflection(const Aspect<>&aspect){renderShaded(aspect);};					//!< Triggers fully shaded rendering. No shader is bound at this time but layer0 textures may be bound. Lighting and depth test are enabled
-		virtual	void		renderSchematics(const Aspect<>&)			{};					//!< Triggers schematic rendering. No shader or texture is bound at this time. Lighting and depth test are disabled
-		virtual	void		renderShadow(const Aspect<>&)				{};					//!< Triggers shadow rendering. No shader or texture is bound at this time. Lighting is disabled, depth test is enabled
-		virtual	void		renderHUD()									{};					//!< Triggers HUD rendering. The bound aspect is always orthographic from 0,0 to 1,1. Layer0 textures may be bound, shaders and depth test are disabled
-		virtual	bool		detectNearestGroundHeight(const TVec3<>&reference_position,float&out_height)	{return false;};
-		virtual void		onResolutionChange(UINT new_width, UINT new_height, bool is_final)		{};
-		virtual void		shutdown()									{};					//!< Signals that the applications is being shut down
+		virtual	void		RenderShaded(const Aspect<>&, const Resolution&)				{};					//!< Triggers fully shaded rendering. No shader is bound at this time but layer0 textures may be bound. Lighting and depth test are enabled
+		virtual	void		RenderShadedReflection(const Aspect<>&aspect, const Resolution&res){RenderShaded(aspect,res);};					//!< Triggers fully shaded rendering. No shader is bound at this time but layer0 textures may be bound. Lighting and depth test are enabled
+		virtual	void		RenderSchematics(const Aspect<>&, const Resolution&)			{};					//!< Triggers schematic rendering. No shader or texture is bound at this time. Lighting and depth test are disabled
+		virtual	void		RenderShadow(const Aspect<>&, const Resolution&)				{};					//!< Triggers shadow rendering. No shader or texture is bound at this time. Lighting is disabled, depth test is enabled
+		virtual	void		RenderHUD(const Resolution&)									{};					//!< Triggers HUD rendering. The bound aspect is always orthographic from 0,0 to 1,1. Layer0 textures may be bound, shaders and depth test are disabled
+		virtual	bool		DetectNearestGroundHeight(const TVec3<>&referencePosition,float&outHeight)	{return false;};
+		virtual void		OnResolutionChange(const Resolution&newResolution, bool isFinal)		{};
+		virtual void		Shutdown()									{};					//!< Signals that the applications is being shut down
 
-		virtual	void		onInstall()									{};					//!< Invoked once this control module is installed on the specified control cluster
-		virtual	void		onUninstall()								{};					//!< Invoked once this control module is installed on the specified control cluster
-		ControlCluster*		getCluster()	const						{return cluster;}
+		virtual	void		OnInstall()									{};					//!< Invoked once this control module is installed on the specified control cluster
+		virtual	void		OnUninstall()								{};					//!< Invoked once this control module is installed on the specified control cluster
+		ControlCluster*		GetCluster()	const						{return cluster;}
 	};
 	
 	/**
@@ -55,30 +56,30 @@ namespace Engine
 	class ControlCluster
 	{
 	protected:
-		List::ReferenceVector<Control>		control_stack;
+		Buffer<Control*,0>	controlStack;
 	public:
 		VirtualTextout		*textout;
 	
 		ControlCluster()	:textout(NULL)	{}
 		virtual				~ControlCluster();
 	
-		bool				onKeyDown(Key::Name);					//!< Invokes onKeyDown() methods of all contained control instances. Walks backwards through the list and stops at the first that returns true @return true if any contained instance returned true, false otherwise
-		bool				onKeyUp(Key::Name);						//!< Invokes onKeyUp() methods of all contained control instances. Walks backwards through the list and stops at the first that returns true @return true if any contained instance returned true, false otherwise
-		bool				onMouseWheel(short delta);				//!< Invokes onMouseWheel() methods of all contained control instances. Walks backwards through the list and stops at the first that returns true @return true if any contained instance returned true, false otherwise
+		bool				OnKeyDown(Key::Name);					//!< Invokes onKeyDown() methods of all contained control instances. Walks backwards through the list and stops at the first that returns true @return true if any contained instance returned true, false otherwise
+		bool				OnKeyUp(Key::Name);						//!< Invokes onKeyUp() methods of all contained control instances. Walks backwards through the list and stops at the first that returns true @return true if any contained instance returned true, false otherwise
+		bool				OnMouseWheel(short delta);				//!< Invokes onMouseWheel() methods of all contained control instances. Walks backwards through the list and stops at the first that returns true @return true if any contained instance returned true, false otherwise
 	
-		void				advance(float delta);					//!< Invokes advance() methods of all contained control instances. Walks forward through the list
+		void				Advance(float delta);					//!< Invokes advance() methods of all contained control instances. Walks forward through the list
 			
-		void				renderShadow(const Aspect<>&);
-		void				renderShaded(const Aspect<>&);			//!< Invokes renderShaded() methods of all contained control instances. Walks forward through the list
-		void				renderShadedReflection(const Aspect<>&);			//!< Invokes renderShadedReflection() methods of all contained control instances. Walks forward through the list
-		void				renderSchematics(const Aspect<>&);		//!< Invokes renderSchematics() methods of all contained control instances. Walks forward through the list
-		void				renderHUD();							//!< Invokes renderHUD() methods of all contained control instances. Walks forward through the list
-		void				shutdown();								//!< Signals that the application is being shut down
+		void				RenderShadow(const Aspect<>&, const Resolution&);
+		void				RenderShaded(const Aspect<>&, const Resolution&);			//!< Invokes renderShaded() methods of all contained control instances. Walks forward through the list
+		void				RenderShadedReflection(const Aspect<>&, const Resolution&);			//!< Invokes renderShadedReflection() methods of all contained control instances. Walks forward through the list
+		void				RenderSchematics(const Aspect<>&, const Resolution&);		//!< Invokes renderSchematics() methods of all contained control instances. Walks forward through the list
+		void				RenderHUD(const Resolution&);							//!< Invokes renderHUD() methods of all contained control instances. Walks forward through the list
+		void				Shutdown();								//!< Signals that the application is being shut down
 
-		void				install(Control*);
-		void				uninstall(Control*);
-		bool				detectNearestGroundHeight(const TVec3<>&reference_position,float&out_height);
-		void				signalResolutionChange(UINT new_width, UINT new_height, bool is_final);
+		void				Install(Control*);
+		void				Uninstall(Control*);
+		bool				DetectNearestGroundHeight(const TVec3<>&referencePosition,float&outHeight);
+		void				SignalResolutionChange(const Resolution&newResolution, bool isFinal);
 	};
 
 

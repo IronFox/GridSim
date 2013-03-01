@@ -8,11 +8,6 @@ The DummyGL interface can be used to immitate the existence of a GL interface to
 Eve modules in order to use them without such.
 Most methods return success if invoked. No objects are ever empty (except textures).
 
-This file is part of Delta-Works
-Copyright (C) 2006-2008 Stefan Elsen, University of Trier, Germany.
-http://www.delta-works.org/forge/
-http://informatik.uni-trier.de/
-
 ***************************************************************************************/
 
 
@@ -154,7 +149,7 @@ namespace Engine
 		static inline	void			setDefaultBlendFunc()	{};	//!< Sets default alpha blend function
 		static inline	void			setFlareBlendFunc()		{};	//!< Sets additive alpha weighted blend function
 
-						void			bindMaterial(CGS::MaterialInfo*info,unsigned coord_dimensions, UINT32 vertex_flags, const Texture*const *list,bool treat_empty_as_planar=false)	{}
+						void			bindMaterial(CGS::MaterialInfo*info,unsigned coord_dimensions, UINT32 vertexFlags, const Texture*const *list,bool treat_empty_as_planar=false)	{}
 						void			bindMaterial(const MaterialConfiguration&config, const Texture *const * list)					{}
 						void			bindMaterial(const Material&material)														{}
 	T					void			bindVertices(C*vdata, const VBO&vobj, unsigned band, const TCodeLocation&location)		{}

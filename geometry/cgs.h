@@ -923,7 +923,16 @@ namespace CGS	//! Compiled Geometrical Structure
 			void									clearFlags(UINT32 clear_mask=0xFFFFFFFF, bool geometries=true, bool wheels=true, bool accelerators=true, bool constructs=true);	//!< Recursivly clears the specified flags. @param clear_mask Mask to limit clearing of flags. Only bits in this value are cleared @param geometries Apply to sub geometries @param wheels Apply to wheels @param accelerators Apply to accelerators @param constructs Apply to constructs
 			void									flagAnimationTargets(UINT32 flag=AnimationTargetFlag);	//!< Recursivly adds the specified flag to targeted sub geometries, wheels, and accelerators
 			
-	//		String								difference(SubGeometry&other, const String&intend);
+
+	private:
+		template<typename T0, typename T1>
+			static inline void						_IncludeEdgeLength(T0&edgeLen, const T1&newEdgeLen)
+													{
+														if (newEdgeLen > TypeInfo<T1>::error)
+															edgeLen = vmin(edgeLen,newEdgeLen);
+													}
+
+													//		String								difference(SubGeometry&other, const String&intend);
 	};
 		CGS_DECLARE_ADOPTING_DEF(SubGeometryA);
 
@@ -1445,112 +1454,138 @@ namespace CGS	//! Compiled Geometrical Structure
 		public:
 			typedef typename Def::FloatType	Float;
 			typedef typename Def::IndexType	Index;
+			typedef typename Def::SystemType SysFloat;
 
 			struct VConfig
 			{
-				count_t			vsize;
-				count_t			num_texture_layers;
-				UINT			vertex_flags;
+				count_t				vsize;
+				count_t				numTextureLayers;
+				UINT				vertexFlags;
 			};
 
 			class Object
 			{
+			public:
+				struct LOD
+				{
+					Buffer<Float,0>	vertexData;
+					Buffer<Index,0>	triangleIndices,
+									quadIndices;
+					void			swap(LOD&other)
+									{
+										vertexData.swap(other.vertexData);
+										triangleIndices.swap(other.triangleIndices);
+										quadIndices.swap(other.quadIndices);
+									}
+					void			Clear()	{vertexData.clear();triangleIndices.clear();quadIndices.clear();}
+				};
 			private:
 				friend class Constructor<Def>;
 
-				Buffer<Float,0>	vertex_data;
-				Buffer<Index,0>	index_data,
-								quad_data;
-				Index			voffset;
-				index_t			normals_from_vertex,
-								normals_from_triangle,
-								normals_from_quad;
-				VConfig			config;
-				TMatrix4<typename Def::SystemType>	system;
+				Buffer<LOD,2,Swap>	lods;
+				index_t				normalsFromVertex,
+									normalsFromTriangle,
+									normalsFromQuad;
+				Index				voffset;
+				VConfig				config;
+				TMatrix4<SysFloat>	system;
+				LOD					*currentLOD;
+
+				void				_OnActiveLODChange()
+									{
+										voffset = 0;
+										normalsFromTriangle = 0;
+										normalsFromQuad = 0;
+										normalsFromVertex = 0;
+									}
 			public:
-				/**/			Object():voffset(0),normals_from_vertex(0),normals_from_triangle(0),normals_from_quad(0), system(Matrix<typename Def::SystemType>::eye4)	{}
-				void			clear()
-								{
-									vertex_data.clear();
-									index_data.clear();
-									quad_data.clear();
-									voffset = 0;
-									normals_from_vertex = 0;
-									normals_from_triangle = 0;
-									normals_from_quad = 0;
-								}
-				void			swap(Object&other)
-								{
-									vertex_data.swap(other.vertex_data);
-									index_data.swap(other.index_data);
-									quad_data.swap(other.quad_data);
-									swp(config,other.config);
-									swp(system,other.system);
-									swp(voffset,other.voffset);
-									swp(normals_from_vertex,other.normals_from_vertex);
-									swp(normals_from_triangle,other.normals_from_triangle);
-									swp(normals_from_quad,other.normals_from_quad);
-								}
-				void			adoptData(Object&other)
-								{
-									vertex_data.adoptData(other.vertex_data);
-									index_data.adoptData(other.index_data);
-									quad_data.adoptData(other.quad_data);
-									config = other.config;
-									system = other.system;
-									voffset = other.voffset;
-									normals_from_vertex = other.normals_from_vertex;
-									normals_from_triangle = other.normals_from_triangle;
-									normals_from_quad = other.normals_from_quad;
-								}
-			template <typename T>
-				void			setSystem(const TMatrix4<T>&m)
-				{
-					Mat::copy(m,system);
-				}
-				const TMatrix4<typename Def::SystemType>& getSystem()	const {return system;}
-				count_t			countTextureLayers()	const	{return config.num_texture_layers;}
-				UINT			getVertexFlags()		const	{return config.vertex_flags;}
-				count_t			getVertexSize()			const	{return config.vsize;}
-				void			setVertexOffset(Index offset)	{voffset = offset;}
-				void			setVertexOffsetToCurrent()		{voffset = (Index)(vertex_data.length() / config.vsize);}
-				void			setComputeNormalsBegin();
-				void			computeNormals();
+				/**/				Object():voffset(0),normalsFromVertex(0),normalsFromTriangle(0),normalsFromQuad(0), system(Matrix<typename Def::SystemType>::eye4)	{currentLOD = &lods.append();}
+				void				Clear()
+									{
+										lods.truncate(1);
+										lods.last().Clear();
+										currentLOD = lods.pointer();
+										_OnActiveLODChange();
+									}
+				void				swap(Object&other)
+									{
+										lods.swap(other.lods);
+										swp(currentLOD,other.currentLOD);
+										swp(config,other.config);
+										swp(system,other.system);
+										swp(voffset,other.voffset);
+										swp(normalsFromVertex,other.normalsFromVertex);
+										swp(normalsFromTriangle,other.normalsFromTriangle);
+										swp(normalsFromQuad,other.normalsFromQuad);
+									}
+				void				adoptData(Object&other)
+									{
+										lods.adoptData(other.lods);
+										currentLOD = other.currentLOD;
+										other.currentLOD = NULL;
+										config = other.config;
+										system = other.system;
+										voffset = other.voffset;
+										normalsFromVertex = other.normalsFromVertex;
+										normalsFromTriangle = other.normalsFromTriangle;
+										normalsFromQuad = other.normalsFromQuad;
+									}
+				void				AppendAndActivateNewLOD()
+									{
+										index_t result = lods.count();
+										currentLOD = &lods.append();
+										_OnActiveLODChange();
+									}
+				count_t				CountLODs()	const	{return lods.count();}
+				void				SetActiveLOD(index_t lodIndex)	{ASSERT_LESS__(lodIndex,lods.count()); currentLOD = lods + lodIndex;_OnActiveLODChange();}
+				index_t				GetActiveLOD() const	{return currentLOD - lods.pointer();}
 				template <typename T>
-					void		triangle(T v0, T v1, T v2)
-								{
-									Index*t = index_data.appendRow(3);
-									t[0] = (Index)(v0 + voffset);
-									t[1] = (Index)(v1 + voffset);
-									t[2] = (Index)(v2 + voffset);
-								}
+					void			SetSystem(const TMatrix4<T>&m){Mat::copy(m,system);}
+				const TMatrix4<SysFloat>& GetSystem()	const {return system;}
+				count_t				CountTextureLayers()	const	{return config.numTextureLayers;}
+				UINT				GetVertexFlags()		const	{return config.vertexFlags;}
+				count_t				GetVertexSize()			const	{return config.vsize;}
+				void				SetVertexOffset(Index offset)	{voffset = offset;}
+				void				SetVertexOffsetToCurrent()		{voffset = (Index)(currentLOD->vertexData.length() / config.vsize);}
+				void				SetComputeNormalsBegin();
+				void				ComputeNormals();
 				template <typename T>
-					void		quad(T v0, T v1, T v2, T v3)
-								{
-									Index*t = quad_data.appendRow(4);
-									t[0] = (Index)(v0 + voffset);
-									t[1] = (Index)(v1 + voffset);
-									t[2] = (Index)(v2 + voffset);
-									t[3] = (Index)(v3 + voffset);
-								}
-				const Index*	getIndices()	const {return index_data.pointer();}
-				const Index*	getQuadIndices()const {return quad_data.pointer();}
-				const Float*	getVertices()	const {return vertex_data.pointer();}
-				count_t			countIndices()	const {return index_data.length();}
-				count_t			countQuadIndices()	const {return quad_data.length();}
-				count_t			countTriangles()const {return index_data.length()/3;}
-				count_t			countQuads()	const {return quad_data.length()/4;}
-				count_t			countFloats()	const {return vertex_data.length();}
-				count_t			countVertices()	const {return vertex_data.length() / config.vsize;}
-				Box<Float>		getBoundingBox()const;
+					Object&			MakeTriangle(T v0, T v1, T v2)
+									{
+										Index*t = currentLOD->triangleIndices.appendRow(3);
+										t[0] = (Index)(v0 + voffset);
+										t[1] = (Index)(v1 + voffset);
+										t[2] = (Index)(v2 + voffset);
+										return *this;
+									}
+				template <typename T>
+					Object&			MakeQuad(T v0, T v1, T v2, T v3)
+									{
+										Index*t = currentLOD->quadIndices.appendRow(4);
+										t[0] = (Index)(v0 + voffset);
+										t[1] = (Index)(v1 + voffset);
+										t[2] = (Index)(v2 + voffset);
+										t[3] = (Index)(v3 + voffset);
+										return *this;
+									}
+				const Index*		GetTriangleIndices(index_t lod)	const {return lods[lod].triangleIndices.pointer();}
+				const Index*		GetQuadIndices(index_t lod)		const {return lods[lod].quadIndices.pointer();}
+				const Float*		GetVertices(index_t lod)			const {return lods[lod].vertexData.pointer();}
+				count_t				CountTriangleIndices(index_t lod)	const {return lods[lod].triangleIndices.length();}
+				count_t				CountQuadIndices(index_t lod)		const {return lods[lod].quadIndices.length();}
+				count_t				CountTriangles(index_t lod)	const {return CountTriangleIndices(lod)/3;}
+				count_t				CountQuads(index_t lod)		const {return CountQuadIndices(lod)/4;}
+				count_t				CountFloats(index_t lod)	const {return lods[lod].vertexData.length();}
+				count_t				CountVertices(index_t lod)	const {return CountFloats(lod) / config.vsize;}
+				Box<Float>			GetBoundingBox(index_t lod=0)const;
 
-				void			verifyIntegrity(bool verify_all_vertices_are_used)	const;
+				void				VerifyIntegrity(bool verifyAllVerticesAreUsed)	const;
 
 				template <typename T>
-					Index		vertex(const TVec3<T>&location)
+					Index			MakeVertex(const TVec3<T>&location)
 					{
-						Index result = (Index)vertex_data.length() / config.vsize;
-						Float*out = vertex_data.appendRow(config.vsize);
+						Index result = (Index)currentLOD->vertexData.length() / config.vsize;
+						Float*out = currentLOD->vertexData.appendRow(config.vsize);
 						Float*end = out + config.vsize;
 						Vec::copy(location,Vec::ref3(out)); out+=3;
 						for (;out != end; ++out)
@@ -1558,25 +1593,25 @@ namespace CGS	//! Compiled Geometrical Structure
 						return result;
 					}
 				template <typename T>
-					Index		vertex(const TVec3<T>&location, const TVec2<T>&texcoords0)
+					Index			MakeVertex(const TVec3<T>&location, const TVec2<T>&texcoords0)
 					{
-						Index result = (Index)vertex_data.length() / config.vsize;
-						Float*out = vertex_data.appendRow(config.vsize);
+						Index result = (Index)currentLOD->vertexData.length() / config.vsize;
+						Float*out = currentLOD->vertexData.appendRow(config.vsize);
 						Float*end = out + config.vsize;
 						Vec::copy(location,Vec::ref3(out)); out+=3;
-						if (config.vertex_flags&HasNormalFlag)
+						if (config.vertexFlags&HasNormalFlag)
 						{
 							Vec::clear(Vec::ref3(out)); out+=3;
 						}
-						if (config.vertex_flags&HasTangentFlag)
+						if (config.vertexFlags&HasTangentFlag)
 						{
 							Vec::clear(Vec::ref3(out)); out+=3;
 						}
-						if (config.vertex_flags&HasColorFlag)
+						if (config.vertexFlags&HasColorFlag)
 						{
 							Vec::clear(Vec::ref4(out)); out+=4;
 						}
-						if (config.num_texture_layers > 0)
+						if (config.numTextureLayers > 0)
 						{
 							Vec::copy(texcoords0,Vec::ref2(out)); out+=2;
 						}
@@ -1585,29 +1620,29 @@ namespace CGS	//! Compiled Geometrical Structure
 						return result;
 					}
 				template <typename T>
-					Index		vertex(const TVec3<T>&location, const TVec2<T>&texcoords0, const TVec2<T>&texcoords1)
+					Index			MakeVertex(const TVec3<T>&location, const TVec2<T>&texcoords0, const TVec2<T>&texcoords1)
 					{
-						Index result = (Index)vertex_data.length() / config.vsize;
-						Float*out = vertex_data.appendRow(config.vsize);
+						Index result = (Index)currentLOD->vertexData.length() / config.vsize;
+						Float*out = currentLOD->vertexData.appendRow(config.vsize);
 						Float*end = out + config.vsize;
 						Vec::copy(location,Vec::ref3(out)); out+=3;
-						if (config.vertex_flags&HasNormalFlag)
+						if (config.vertexFlags&HasNormalFlag)
 						{
 							Vec::clear(Vec::ref3(out)); out+=3;
 						}
-						if (config.vertex_flags&HasTangentFlag)
+						if (config.vertexFlags&HasTangentFlag)
 						{
 							Vec::clear(Vec::ref3(out)); out+=3;
 						}
-						if (config.vertex_flags&HasColorFlag)
+						if (config.vertexFlags&HasColorFlag)
 						{
 							Vec::clear(Vec::ref4(out)); out+=4;
 						}
-						if (config.num_texture_layers > 0)
+						if (config.numTextureLayers > 0)
 						{
 							Vec::copy(texcoords0,Vec::ref2(out)); out+=2;
 						}
-						if (config.num_texture_layers > 1)
+						if (config.numTextureLayers > 1)
 						{
 							Vec::copy(texcoords1,Vec::ref2(out)); out+=2;
 						}
@@ -1616,33 +1651,33 @@ namespace CGS	//! Compiled Geometrical Structure
 						return result;
 					}
 				template <typename T>
-					Index		vertex(const TVec3<T>&location, const TVec2<T>&texcoords0, const TVec2<T>&texcoords1, const TVec2<T>&texcoords2)
+					Index			MakeVertex(const TVec3<T>&location, const TVec2<T>&texcoords0, const TVec2<T>&texcoords1, const TVec2<T>&texcoords2)
 					{
-						Index result = (Index)vertex_data.length() / config.vsize;
-						Float*out = vertex_data.appendRow(config.vsize);
+						Index result = (Index)currentLOD->vertexData.length() / config.vsize;
+						Float*out = currentLOD->vertexData.appendRow(config.vsize);
 						Float*end = out + config.vsize;
 						Vec::copy(location,Vec::ref3(out)); out+=3;
-						if (config.vertex_flags&HasNormalFlag)
+						if (config.vertexFlags&HasNormalFlag)
 						{
 							Vec::clear(Vec::ref3(out)); out+=3;
 						}
-						if (config.vertex_flags&HasTangentFlag)
+						if (config.vertexFlags&HasTangentFlag)
 						{
 							Vec::clear(Vec::ref3(out)); out+=3;
 						}
-						if (config.vertex_flags&HasColorFlag)
+						if (config.vertexFlags&HasColorFlag)
 						{
 							Vec::clear(Vec::ref4(out)); out+=4;
 						}
-						if (config.num_texture_layers > 0)
+						if (config.numTextureLayers > 0)
 						{
 							Vec::copy(texcoords0,Vec::ref2(out)); out+=2;
 						}
-						if (config.num_texture_layers > 1)
+						if (config.numTextureLayers > 1)
 						{
 							Vec::copy(texcoords1,Vec::ref2(out)); out+=2;
 						}
-						if (config.num_texture_layers > 2)
+						if (config.numTextureLayers > 2)
 						{
 							Vec::copy(texcoords2,Vec::ref2(out)); out+=2;
 						}
@@ -1653,13 +1688,13 @@ namespace CGS	//! Compiled Geometrical Structure
 
 
 				template <typename T>
-					Index		vertex(const TVec3<T>&location, const TVec3<T>&normal)
+					Index			MakeVertex(const TVec3<T>&location, const TVec3<T>&normal)
 					{
-						Index result = (Index)(vertex_data.length() / config.vsize);
-						Float*out = vertex_data.appendRow(config.vsize);
+						Index result = (Index)(currentLOD->vertexData.length() / config.vsize);
+						Float*out = currentLOD->vertexData.appendRow(config.vsize);
 						Float*end = out + config.vsize;
 						Vec::copy(location,Vec::ref3(out)); out+=3;
-						if (config.vertex_flags&HasNormalFlag)
+						if (config.vertexFlags&HasNormalFlag)
 						{
 							Vec::copy(normal,Vec::ref3(out)); out+=3;
 						}
@@ -1668,25 +1703,25 @@ namespace CGS	//! Compiled Geometrical Structure
 						return result;
 					}
 				template <typename T>
-					Index		vertex(const TVec3<T>&location, const TVec3<T>&normal, const TVec2<T>&texcoords0)
+					Index		MakeVertex(const TVec3<T>&location, const TVec3<T>&normal, const TVec2<T>&texcoords0)
 					{
-						Index result = (Index)(vertex_data.length() / config.vsize);
-						Float*out = vertex_data.appendRow(config.vsize);
+						Index result = (Index)(currentLOD->vertexData.length() / config.vsize);
+						Float*out = currentLOD->vertexData.appendRow(config.vsize);
 						Float*end = out + config.vsize;
 						Vec::copy(location,Vec::ref3(out)); out+=3;
-						if (config.vertex_flags&HasNormalFlag)
+						if (config.vertexFlags&HasNormalFlag)
 						{
 							Vec::copy(normal,Vec::ref3(out)); out+=3;
 						}
-						if (config.vertex_flags&HasTangentFlag)
+						if (config.vertexFlags&HasTangentFlag)
 						{
 							Vec::clear(Vec::ref3(out)); out+=3;
 						}
-						if (config.vertex_flags&HasColorFlag)
+						if (config.vertexFlags&HasColorFlag)
 						{
 							Vec::clear(Vec::ref4(out)); out+=4;
 						}
-						if (config.num_texture_layers > 0)
+						if (config.numTextureLayers > 0)
 						{
 							Vec::copy(texcoords0,Vec::ref2(out)); out+=2;
 						}
@@ -1695,29 +1730,29 @@ namespace CGS	//! Compiled Geometrical Structure
 						return result;
 					}
 				template <typename T>
-					Index		vertex(const TVec3<T>&location, const TVec3<T>&normal, const TVec2<T>&texcoords0, const TVec2<T>&texcoords1)
+					Index			MakeVertex(const TVec3<T>&location, const TVec3<T>&normal, const TVec2<T>&texcoords0, const TVec2<T>&texcoords1)
 					{
-						Index result = (Index)(vertex_data.length() / config.vsize);
-						Float*out = vertex_data.appendRow(config.vsize);
+						Index result = (Index)(currentLOD->vertexData.length() / config.vsize);
+						Float*out = currentLOD->vertexData.appendRow(config.vsize);
 						Float*end = out + config.vsize;
 						Vec::copy(location,Vec::ref3(out)); out+=3;
-						if (config.vertex_flags&HasNormalFlag)
+						if (config.vertexFlags&HasNormalFlag)
 						{
 							Vec::copy(normal,Vec::ref3(out)); out+=3;
 						}
-						if (config.vertex_flags&HasTangentFlag)
+						if (config.vertexFlags&HasTangentFlag)
 						{
 							Vec::clear(Vec::ref3(out)); out+=3;
 						}
-						if (config.vertex_flags&HasColorFlag)
+						if (config.vertexFlags&HasColorFlag)
 						{
 							Vec::clear(Vec::ref4(out)); out+=4;
 						}
-						if (config.num_texture_layers > 0)
+						if (config.numTextureLayers > 0)
 						{
 							Vec::copy(texcoords0,Vec::ref2(out)); out+=2;
 						}
-						if (config.num_texture_layers > 1)
+						if (config.numTextureLayers > 1)
 						{
 							Vec::copy(texcoords1,Vec::ref2(out)); out+=2;
 						}
@@ -1726,33 +1761,33 @@ namespace CGS	//! Compiled Geometrical Structure
 						return result;
 					}
 				template <typename T>
-					Index		vertex(const TVec3<T>&location, const TVec3<T>&normal, const TVec2<T>&texcoords0, const TVec2<T>&texcoords1, const TVec2<T>&texcoords2)
+					Index			MakeVertex(const TVec3<T>&location, const TVec3<T>&normal, const TVec2<T>&texcoords0, const TVec2<T>&texcoords1, const TVec2<T>&texcoords2)
 					{
-						Index result = (Index)(vertex_data.length() / config.vsize);
-						Float*out = vertex_data.appendRow(config.vsize);
+						Index result = (Index)(currentLOD->vertexData.length() / config.vsize);
+						Float*out = currentLOD->vertexData.appendRow(config.vsize);
 						Float*end = out + config.vsize;
 						Vec::copy(location,Vec::ref3(out)); out+=3;
-						if (config.vertex_flags&HasNormalFlag)
+						if (config.vertexFlags&HasNormalFlag)
 						{
 							Vec::copy(normal,Vec::ref3(out)); out+=3;
 						}
-						if (config.vertex_flags&HasTangentFlag)
+						if (config.vertexFlags&HasTangentFlag)
 						{
 							Vec::clear(Vec::ref3(out)); out+=3;
 						}
-						if (config.vertex_flags&HasColorFlag)
+						if (config.vertexFlags&HasColorFlag)
 						{
 							Vec::clear(Vec::ref4(out)); out+=4;
 						}
-						if (config.num_texture_layers > 0)
+						if (config.numTextureLayers > 0)
 						{
 							Vec::copy(texcoords0,Vec::ref2(out)); out+=2;
 						}
-						if (config.num_texture_layers > 1)
+						if (config.numTextureLayers > 1)
 						{
 							Vec::copy(texcoords1,Vec::ref2(out)); out+=2;
 						}
-						if (config.num_texture_layers > 2)
+						if (config.numTextureLayers > 2)
 						{
 							Vec::copy(texcoords2,Vec::ref2(out)); out+=2;
 						}
@@ -1769,21 +1804,21 @@ namespace CGS	//! Compiled Geometrical Structure
 
 
 				template <typename T>
-					Index		vertex(const TVec3<T>&location, const TVec4<T>&color)
+					Index		MakeVertex(const TVec3<T>&location, const TVec4<T>&color)
 					{
-						Index result = (Index)(vertex_data.length() / config.vsize);
-						Float*out = vertex_data.appendRow(config.vsize);
+						Index result = (Index)(currentLOD->vertexData.length() / config.vsize);
+						Float*out = currentLOD->vertexData.appendRow(config.vsize);
 						Float*end = out + config.vsize;
 						Vec::copy(location,Vec::ref3(out)); out+=3;
-						if (config.vertex_flags&HasNormalFlag)
+						if (config.vertexFlags&HasNormalFlag)
 						{
 							Vec::clear(Vec::ref3(out)); out+=3;
 						}
-						if (config.vertex_flags&HasTangentFlag)
+						if (config.vertexFlags&HasTangentFlag)
 						{
 							Vec::clear(Vec::ref3(out)); out+=3;
 						}
-						if (config.vertex_flags&HasColorFlag)
+						if (config.vertexFlags&HasColorFlag)
 						{
 							Vec::copy(color,Vec::ref4(out)); out+=4;
 						}
@@ -1792,25 +1827,25 @@ namespace CGS	//! Compiled Geometrical Structure
 						return result;
 					}
 				template <typename T>
-					Index		vertex(const TVec3<T>&location, const TVec4<T>&color, const TVec2<T>&texcoords0)
+					Index			MakeVertex(const TVec3<T>&location, const TVec4<T>&color, const TVec2<T>&texcoords0)
 					{
-						Index result = (Index)(vertex_data.length() / config.vsize);
-						Float*out = vertex_data.appendRow(config.vsize);
+						Index result = (Index)(currentLOD->vertexData.length() / config.vsize);
+						Float*out = currentLOD->vertexData.appendRow(config.vsize);
 						Float*end = out + config.vsize;
 						Vec::copy(location,Vec::ref3(out)); out+=3;
-						if (config.vertex_flags&HasNormalFlag)
+						if (config.vertexFlags&HasNormalFlag)
 						{
 							Vec::clear(Vec::ref3(out)); out+=3;
 						}
-						if (config.vertex_flags&HasTangentFlag)
+						if (config.vertexFlags&HasTangentFlag)
 						{
 							Vec::clear(Vec::ref3(out)); out+=3;
 						}
-						if (config.vertex_flags&HasColorFlag)
+						if (config.vertexFlags&HasColorFlag)
 						{
 							Vec::copy(color,Vec::ref4(out)); out+=4;
 						}
-						if (config.num_texture_layers > 0)
+						if (config.numTextureLayers > 0)
 						{
 							Vec::copy(texcoords0,Vec::ref2(out)); out+=2;
 						}
@@ -1819,29 +1854,29 @@ namespace CGS	//! Compiled Geometrical Structure
 						return result;
 					}
 				template <typename T>
-					Index		vertex(const TVec3<T>&location, const TVec4<T>&color, const TVec2<T>&texcoords0, const TVec2<T>&texcoords1)
+					Index			MakeVertex(const TVec3<T>&location, const TVec4<T>&color, const TVec2<T>&texcoords0, const TVec2<T>&texcoords1)
 					{
-						Index result = (Index)(vertex_data.length() / config.vsize);
-						Float*out = vertex_data.appendRow(config.vsize);
+						Index result = (Index)(currentLOD->vertexData.length() / config.vsize);
+						Float*out = currentLOD->vertexData.appendRow(config.vsize);
 						Float*end = out + config.vsize;
 						Vec::copy(location,Vec::ref3(out)); out+=3;
-						if (config.vertex_flags&HasNormalFlag)
+						if (config.vertexFlags&HasNormalFlag)
 						{
 							Vec::clear(Vec::ref3(out)); out+=3;
 						}
-						if (config.vertex_flags&HasTangentFlag)
+						if (config.vertexFlags&HasTangentFlag)
 						{
 							Vec::clear(Vec::ref3(out)); out+=3;
 						}
-						if (config.vertex_flags&HasColorFlag)
+						if (config.vertexFlags&HasColorFlag)
 						{
 							Vec::copy(color,Vec::ref4(out)); out+=4;
 						}
-						if (config.num_texture_layers > 0)
+						if (config.numTextureLayers > 0)
 						{
 							Vec::copy(texcoords0,Vec::ref2(out)); out+=2;
 						}
-						if (config.num_texture_layers > 1)
+						if (config.numTextureLayers > 1)
 						{
 							Vec::copy(texcoords1,Vec::ref2(out)); out+=2;
 						}
@@ -1850,33 +1885,33 @@ namespace CGS	//! Compiled Geometrical Structure
 						return result;
 					}
 				template <typename T>
-					Index		vertex(const TVec3<T>&location, const TVec4<T>&color, const TVec2<T>&texcoords0, const TVec2<T>&texcoords1, const TVec2<T>&texcoords2)
+					Index			MakeVertex(const TVec3<T>&location, const TVec4<T>&color, const TVec2<T>&texcoords0, const TVec2<T>&texcoords1, const TVec2<T>&texcoords2)
 					{
-						Index result = (Index)(vertex_data.length() / config.vsize);
-						Float*out = vertex_data.appendRow(config.vsize);
+						Index result = (Index)(currentLOD->vertexData.length() / config.vsize);
+						Float*out = currentLOD->vertexData.appendRow(config.vsize);
 						Float*end = out + config.vsize;
 						Vec::copy(location,Vec::ref3(out)); out+=3;
-						if (config.vertex_flags&HasNormalFlag)
+						if (config.vertexFlags&HasNormalFlag)
 						{
 							Vec::clear(Vec::ref3(out)); out+=3;
 						}
-						if (config.vertex_flags&HasTangentFlag)
+						if (config.vertexFlags&HasTangentFlag)
 						{
 							Vec::clear(Vec::ref3(out)); out+=3;
 						}
-						if (config.vertex_flags&HasColorFlag)
+						if (config.vertexFlags&HasColorFlag)
 						{
 							Vec::copy(color,Vec::ref4(out)); out+=4;
 						}
-						if (config.num_texture_layers > 0)
+						if (config.numTextureLayers > 0)
 						{
 							Vec::copy(texcoords0,Vec::ref2(out)); out+=2;
 						}
-						if (config.num_texture_layers > 1)
+						if (config.numTextureLayers > 1)
 						{
 							Vec::copy(texcoords1,Vec::ref2(out)); out+=2;
 						}
-						if (config.num_texture_layers > 2)
+						if (config.numTextureLayers > 2)
 						{
 							Vec::copy(texcoords2,Vec::ref2(out)); out+=2;
 						}
@@ -1887,21 +1922,21 @@ namespace CGS	//! Compiled Geometrical Structure
 
 
 				template <typename T>
-					Index		vertex(const TVec3<T>&location, const TVec3<T>&normal, const TVec4<T>&color)
+					Index			MakeVertex(const TVec3<T>&location, const TVec3<T>&normal, const TVec4<T>&color)
 					{
-						Index result = (Index)(vertex_data.length() / config.vsize);
-						Float*out = vertex_data.appendRow(config.vsize);
+						Index result = (Index)(currentLOD->vertexData.length() / config.vsize);
+						Float*out = currentLOD->vertexData.appendRow(config.vsize);
 						Float*end = out + config.vsize;
 						Vec::copy(location,Vec::ref3(out)); out+=3;
-						if (config.vertex_flags&HasNormalFlag)
+						if (config.vertexFlags&HasNormalFlag)
 						{
 							Vec::copy(normal,Vec::ref3(out)); out+=3;
 						}
-						if (config.vertex_flags&HasTangentFlag)
+						if (config.vertexFlags&HasTangentFlag)
 						{
 							Vec::clear(Vec::ref3(out)); out+=3;
 						}
-						if (config.vertex_flags&HasColorFlag)
+						if (config.vertexFlags&HasColorFlag)
 						{
 							Vec::copy(color,Vec::ref4(out)); out+=4;
 						}
@@ -1910,25 +1945,25 @@ namespace CGS	//! Compiled Geometrical Structure
 						return result;
 					}
 				template <typename T>
-					Index		vertex(const TVec3<T>&location, const TVec3<T>&normal, const TVec4<T>&color, const TVec2<T>&texcoords0)
+					Index			MakeVertex(const TVec3<T>&location, const TVec3<T>&normal, const TVec4<T>&color, const TVec2<T>&texcoords0)
 					{
-						Index result = (Index)(vertex_data.length() / config.vsize);
-						Float*out = vertex_data.appendRow(config.vsize);
+						Index result = (Index)(currentLOD->vertexData.length() / config.vsize);
+						Float*out = currentLOD->vertexData.appendRow(config.vsize);
 						Float*end = out + config.vsize;
 						Vec::copy(location,Vec::ref3(out)); out+=3;
-						if (config.vertex_flags&HasNormalFlag)
+						if (config.vertexFlags&HasNormalFlag)
 						{
 							Vec::copy(normal,Vec::ref3(out)); out+=3;
 						}
-						if (config.vertex_flags&HasTangentFlag)
+						if (config.vertexFlags&HasTangentFlag)
 						{
 							Vec::clear(Vec::ref3(out)); out+=3;
 						}
-						if (config.vertex_flags&HasColorFlag)
+						if (config.vertexFlags&HasColorFlag)
 						{
 							Vec::copy(color,Vec::ref4(out)); out+=4;
 						}
-						if (config.num_texture_layers > 0)
+						if (config.numTextureLayers > 0)
 						{
 							Vec::copy(texcoords0,Vec::ref2(out)); out+=2;
 						}
@@ -1937,29 +1972,29 @@ namespace CGS	//! Compiled Geometrical Structure
 						return result;
 					}
 				template <typename T>
-					Index		vertex(const TVec3<T>&location, const TVec3<T>&normal, const TVec4<T>&color, const TVec2<T>&texcoords0, const TVec2<T>&texcoords1)
+					Index			MakeVertex(const TVec3<T>&location, const TVec3<T>&normal, const TVec4<T>&color, const TVec2<T>&texcoords0, const TVec2<T>&texcoords1)
 					{
-						Index result = (Index)(vertex_data.length() / config.vsize);
-						Float*out = vertex_data.appendRow(config.vsize);
+						Index result = (Index)(currentLOD->vertexData.length() / config.vsize);
+						Float*out = currentLOD->vertexData.appendRow(config.vsize);
 						Float*end = out + config.vsize;
 						Vec::copy(location,Vec::ref3(out)); out+=3;
-						if (config.vertex_flags&HasNormalFlag)
+						if (config.vertexFlags&HasNormalFlag)
 						{
 							Vec::copy(normal,Vec::ref3(out)); out+=3;
 						}
-						if (config.vertex_flags&HasTangentFlag)
+						if (config.vertexFlags&HasTangentFlag)
 						{
 							Vec::clear(Vec::ref3(out)); out+=3;
 						}
-						if (config.vertex_flags&HasColorFlag)
+						if (config.vertexFlags&HasColorFlag)
 						{
 							Vec::copy(color,Vec::ref4(out)); out+=4;
 						}
-						if (config.num_texture_layers > 0)
+						if (config.numTextureLayers > 0)
 						{
 							Vec::copy(texcoords0,Vec::ref2(out)); out+=2;
 						}
-						if (config.num_texture_layers > 1)
+						if (config.numTextureLayers > 1)
 						{
 							Vec::copy(texcoords1,Vec::ref2(out)); out+=2;
 						}
@@ -1968,33 +2003,33 @@ namespace CGS	//! Compiled Geometrical Structure
 						return result;
 					}
 				template <typename T>
-					Index		vertex(const TVec3<T>&location, const TVec3<T>&normal, const TVec4<T>&color, const TVec2<T>&texcoords0, const TVec2<T>&texcoords1, const TVec2<T>&texcoords2)
+					Index			MakeVertex(const TVec3<T>&location, const TVec3<T>&normal, const TVec4<T>&color, const TVec2<T>&texcoords0, const TVec2<T>&texcoords1, const TVec2<T>&texcoords2)
 					{
-						Index result = (Index)(vertex_data.length() / config.vsize);
-						Float*out = vertex_data.appendRow(config.vsize);
+						Index result = (Index)(currentLOD->vertex_data.length() / config.vsize);
+						Float*out = currentLOD->vertex_data.appendRow(config.vsize);
 						Float*end = out + config.vsize;
 						Vec::copy(location,Vec::ref3(out)); out+=3;
-						if (config.vertex_flags&HasNormalFlag)
+						if (config.vertexFlags&HasNormalFlag)
 						{
 							Vec::copy(normal,Vec::ref3(out)); out+=3;
 						}
-						if (config.vertex_flags&HasTangentFlag)
+						if (config.vertexFlags&HasTangentFlag)
 						{
 							Vec::clear(Vec::ref3(out)); out+=3;
 						}
-						if (config.vertex_flags&HasColorFlag)
+						if (config.vertexFlags&HasColorFlag)
 						{
 							Vec::copy(color,Vec::ref4(out)); out+=4;
 						}
-						if (config.num_texture_layers > 0)
+						if (config.numTextureLayers > 0)
 						{
 							Vec::copy(texcoords0,Vec::ref2(out)); out+=2;
 						}
-						if (config.num_texture_layers > 1)
+						if (config.numTextureLayers > 1)
 						{
 							Vec::copy(texcoords1,Vec::ref2(out)); out+=2;
 						}
-						if (config.num_texture_layers > 2)
+						if (config.numTextureLayers > 2)
 						{
 							Vec::copy(texcoords2,Vec::ref2(out)); out+=2;
 						}
@@ -2006,17 +2041,17 @@ namespace CGS	//! Compiled Geometrical Structure
 
 
 				template <typename T>
-					Index		vertex(const TVec3<T>&location, const TVec3<T>&normal, const TVec3<T>&tangent)
+					Index			MakeVertex(const TVec3<T>&location, const TVec3<T>&normal, const TVec3<T>&tangent)
 					{
-						Index result = (Index)(vertex_data.length() / config.vsize);
-						Float*out = vertex_data.appendRow(config.vsize);
+						Index result = (Index)(currentLOD->vertexData.length() / config.vsize);
+						Float*out = currentLOD->vertexData.appendRow(config.vsize);
 						Float*end = out + config.vsize;
 						Vec::copy(location,Vec::ref3(out)); out+=3;
-						if (config.vertex_flags&HasNormalFlag)
+						if (config.vertexFlags&HasNormalFlag)
 						{
 							Vec::copy(normal,Vec::ref3(out)); out+=3;
 						}
-						if (config.vertex_flags&HasTangentFlag)
+						if (config.vertexFlags&HasTangentFlag)
 						{
 							Vec::copy(tangent,Vec::ref3(out)); out+=3;
 						}
@@ -2025,25 +2060,25 @@ namespace CGS	//! Compiled Geometrical Structure
 						return result;
 					}
 				template <typename T>
-					Index		vertex(const TVec3<T>&location, const TVec3<T>&normal, const TVec3<T>&tangent, const TVec2<T>&texcoords0)
+					Index			MakeVertex(const TVec3<T>&location, const TVec3<T>&normal, const TVec3<T>&tangent, const TVec2<T>&texcoords0)
 					{
-						Index result = (Index)(vertex_data.length() / config.vsize);
-						Float*out = vertex_data.appendRow(config.vsize);
+						Index result = (Index)(currentLOD->vertexData.length() / config.vsize);
+						Float*out = currentLOD->vertexData.appendRow(config.vsize);
 						Float*end = out + config.vsize;
 						Vec::copy(location,Vec::ref3(out)); out+=3;
-						if (config.vertex_flags&HasNormalFlag)
+						if (config.vertexFlags&HasNormalFlag)
 						{
 							Vec::copy(normal,Vec::ref3(out)); out+=3;
 						}
-						if (config.vertex_flags&HasTangentFlag)
+						if (config.vertexFlags&HasTangentFlag)
 						{
 							Vec::copy(tangent,Vec::ref3(out)); out+=3;
 						}
-						if (config.vertex_flags&HasColorFlag)
+						if (config.vertexFlags&HasColorFlag)
 						{
 							Vec::clear(Vec::ref4(out)); out+=4;
 						}
-						if (config.num_texture_layers > 0)
+						if (config.numTextureLayers > 0)
 						{
 							Vec::copy(texcoords0,Vec::ref2(out)); out+=2;
 						}
@@ -2052,29 +2087,29 @@ namespace CGS	//! Compiled Geometrical Structure
 						return result;
 					}
 				template <typename T>
-					Index		vertex(const TVec3<T>&location, const TVec3<T>&normal, const TVec3<T>&tangent, const TVec2<T>&texcoords0, const TVec2<T>&texcoords1)
+					Index			MakeVertex(const TVec3<T>&location, const TVec3<T>&normal, const TVec3<T>&tangent, const TVec2<T>&texcoords0, const TVec2<T>&texcoords1)
 					{
-						Index result = (Index)(vertex_data.length() / config.vsize);
-						Float*out = vertex_data.appendRow(config.vsize);
+						Index result = (Index)(currentLOD->vertexData.length() / config.vsize);
+						Float*out = currentLOD->vertexData.appendRow(config.vsize);
 						Float*end = out + config.vsize;
 						Vec::copy(location,Vec::ref3(out)); out+=3;
-						if (config.vertex_flags&HasNormalFlag)
+						if (config.vertexFlags&HasNormalFlag)
 						{
 							Vec::copy(normal,Vec::ref3(out)); out+=3;
 						}
-						if (config.vertex_flags&HasTangentFlag)
+						if (config.vertexFlags&HasTangentFlag)
 						{
 							Vec::copy(tangent,Vec::ref3(out)); out+=3;
 						}
-						if (config.vertex_flags&HasColorFlag)
+						if (config.vertexFlags&HasColorFlag)
 						{
 							Vec::clear(Vec::ref4(out)); out+=4;
 						}
-						if (config.num_texture_layers > 0)
+						if (config.numTextureLayers > 0)
 						{
 							Vec::copy(texcoords0,Vec::ref2(out)); out+=2;
 						}
-						if (config.num_texture_layers > 1)
+						if (config.numTextureLayers > 1)
 						{
 							Vec::copy(texcoords1,Vec::ref2(out)); out+=2;
 						}
@@ -2083,33 +2118,33 @@ namespace CGS	//! Compiled Geometrical Structure
 						return result;
 					}
 				template <typename T>
-					Index		vertex(const TVec3<T>&location, const TVec3<T>&normal, const TVec3<T>&tangent, const TVec2<T>&texcoords0, const TVec2<T>&texcoords1, const TVec2<T>&texcoords2)
+					Index			MakeVertex(const TVec3<T>&location, const TVec3<T>&normal, const TVec3<T>&tangent, const TVec2<T>&texcoords0, const TVec2<T>&texcoords1, const TVec2<T>&texcoords2)
 					{
-						Index result = (Index)(vertex_data.length() / config.vsize);
-						Float*out = vertex_data.appendRow(config.vsize);
+						Index result = (Index)(currentLOD->vertexData.length() / config.vsize);
+						Float*out = currentLOD->vertexData.appendRow(config.vsize);
 						Float*end = out + config.vsize;
 						Vec::copy(location,Vec::ref3(out)); out+=3;
-						if (config.vertex_flags&HasNormalFlag)
+						if (config.vertexFlags&HasNormalFlag)
 						{
 							Vec::copy(normal,Vec::ref3(out)); out+=3;
 						}
-						if (config.vertex_flags&HasTangentFlag)
+						if (config.vertexFlags&HasTangentFlag)
 						{
 							Vec::copy(tangent,Vec::ref3(out)); out+=3;
 						}
-						if (config.vertex_flags&HasColorFlag)
+						if (config.vertexFlags&HasColorFlag)
 						{
 							Vec::clear(Vec::ref4(out)); out+=4;
 						}
-						if (config.num_texture_layers > 0)
+						if (config.numTextureLayers > 0)
 						{
 							Vec::copy(texcoords0,Vec::ref2(out)); out+=2;
 						}
-						if (config.num_texture_layers > 1)
+						if (config.numTextureLayers > 1)
 						{
 							Vec::copy(texcoords1,Vec::ref2(out)); out+=2;
 						}
-						if (config.num_texture_layers > 2)
+						if (config.numTextureLayers > 2)
 						{
 							Vec::copy(texcoords2,Vec::ref2(out)); out+=2;
 						}
@@ -2126,11 +2161,11 @@ namespace CGS	//! Compiled Geometrical Structure
 			MaterialColors	colors;
 
 
-			/**/			Constructor(count_t num_layers=0, UINT vertex_flags=0)
+			/**/			Constructor(count_t num_layers=0, UINT vertexFlags=0)
 							{
-								config.num_texture_layers = num_layers;
-								config.vertex_flags = vertex_flags;
-								config.vsize = VSIZE(num_layers,vertex_flags);
+								config.numTextureLayers = num_layers;
+								config.vertexFlags = vertexFlags;
+								config.vsize = VSIZE(num_layers,vertexFlags);
 							}
 			void			swap(Constructor<Def>&other)
 							{
@@ -2142,15 +2177,16 @@ namespace CGS	//! Compiled Geometrical Structure
 								objects.adoptData(other.objects);
 								config = other.config;
 							}
-			count_t			countTextureLayers()	const	{return config.num_texture_layers;}
-			UINT			getVertexFlags()		const	{return config.vertex_flags;}
-			count_t			getVertexSize()			const	{return config.vsize;}
-			count_t			countObjects()			const	{return objects.count();}
-			Object&			getObject(index_t index)		{return objects[index];}
-			const Object&	getObject(index_t index)const	{return objects[index];}
-			Object&			appendObject()	{Object&result = objects.append(); result.config = config; return result;}
-			void			clear()			{objects.reset();}
-			void			verifyIntegrity(bool verify_all_vertices_are_used)	const;
+			count_t			CountTextureLayers()	const	{return config.numTextureLayers;}
+			UINT			GetVertexFlags()		const	{return config.vertexFlags;}
+			count_t			GetVertexSize()			const	{return config.vsize;}
+			count_t			CountObjects()			const	{return objects.count();}
+			count_t			CountLODs()				const;
+			Object&			GetObject(index_t index)		{return objects[index];}
+			const Object&	GetObject(index_t index)const	{return objects[index];}
+			Object&			AppendObject()	{Object&result = objects.append(); result.config = config; return result;}
+			void			Clear()			{objects.reset();}
+			void			VerifyIntegrity(bool verifyAllVerticesAreUsed)	const;
 		};
 	CGS_DECLARE_ADOPTING_T(Constructor)
 

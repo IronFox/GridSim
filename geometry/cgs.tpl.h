@@ -2397,7 +2397,7 @@ template <class Def>
 					for (index_t i = 0; i < mesh.edge_field.length(); i++)
 					{
 						const typename Mesh<VsDef>::Edge&edge = mesh.edge_field[i];
-						length = vmin(length,Vec::quadraticDistance(edge.v0->position,edge.v1->position));
+						_IncludeEdgeLength(length,Vec::quadraticDistance(edge.v0->position,edge.v1->position));
 					}
 				}
 				else
@@ -2405,25 +2405,18 @@ template <class Def>
 					for (index_t i = 0; i < mesh.triangle_field.length(); i++)
 					{
 						const typename Mesh<VsDef>::Triangle&t = mesh.triangle_field[i];
-						length = vmin(
-									vmin(length,
-										Vec::quadraticDistance(t.v0->position,t.v1->position)),
-									vmin(Vec::quadraticDistance(t.v1->position,t.v2->position),
-										Vec::quadraticDistance(t.v2->position,t.v0->position))
-								);
+						_IncludeEdgeLength(length,Vec::quadraticDistance(t.v0->position,t.v1->position));
+						_IncludeEdgeLength(length,Vec::quadraticDistance(t.v1->position,t.v2->position));
+						_IncludeEdgeLength(length,Vec::quadraticDistance(t.v2->position,t.v0->position));
 					}
 
 					for (index_t i = 0; i < mesh.quad_field.length(); i++)
 					{
 						const typename Mesh<VsDef>::Quad&q = mesh.quad_field[i];
-						length = vmin(length,
-									vmin(
-										vmin(Vec::quadraticDistance(q.v0->position,q.v1->position),
-											Vec::quadraticDistance(q.v1->position,q.v2->position)),
-										vmin(Vec::quadraticDistance(q.v2->position,q.v3->position),
-											Vec::quadraticDistance(q.v3->position,q.v0->position))
-										)
-								);
+						_IncludeEdgeLength(length,Vec::quadraticDistance(q.v0->position,q.v1->position));
+						_IncludeEdgeLength(length,Vec::quadraticDistance(q.v1->position,q.v2->position));
+						_IncludeEdgeLength(length,Vec::quadraticDistance(q.v2->position,q.v3->position));
+						_IncludeEdgeLength(length,Vec::quadraticDistance(q.v3->position,q.v0->position));
 					}
 				}
 
@@ -4426,68 +4419,77 @@ template <class Def>
 	void	Geometry<Def>::makeFromConstructor(const Constructor<Def>&ctr)
 	{
 		clear();
-		setSize(ctr.countObjects(),1,0,0);
-		ASSERT__(object_field.length()==ctr.countObjects());
-		material_field[0].data.object_field.setSize(ctr.countObjects());
-		material_field[0].data.coord_layers = (unsigned)(ctr.countTextureLayers());
-		for (index_t i = 0; i < ctr.countObjects(); i++)
-		{
-			RenderObjectA<Def>&robj = material_field[0].data.object_field[i];
-			robj.target = object_field.pointer() + i;
-			ASSERT_LESS__(ctr.countTextureLayers(),0x10000);
-			const typename Constructor<Def>::Object&cobj = ctr.getObject(i);
-			robj.vpool.setSize(cobj.countVertices(),(UINT16)ctr.countTextureLayers(),ctr.getVertexFlags());
-	
-			robj.vpool.vdata.copyFrom(cobj.getVertices());
-			robj.detail=0;
-			robj.ipool.idata.setSize(cobj.countIndices() + cobj.countQuadIndices());
-			robj.ipool.triangles = unsigned(cobj.countTriangles());
-			robj.ipool.quads = unsigned(cobj.countQuads());
-			robj.ipool.idata.copyFrom(cobj.getIndices(),cobj.countIndices());
-			robj.ipool.idata.copyFrom(cobj.countIndices(),cobj.getQuadIndices(),cobj.countQuadIndices());
-			object_field[i].vs_hull_field.setSize(1);
-			typedef Mesh<typename SubGeometryA<Def>::VsDef>	VsMesh;
-			VsMesh	&obj = object_field[i].vs_hull_field[0];
-			obj.vertex_field.setSize(cobj.countVertices());
-			obj.triangle_field.setSize(cobj.countTriangles());
-			obj.edge_field.free();
-			obj.quad_field.setSize(cobj.countQuads());
-			UINT32 band = (UINT32)cobj.getVertexSize();
-			const count_t vertices = cobj.countVertices();
-			const Float*vertex = cobj.getVertices();
-			for (index_t j = 0; j < vertices; j++)
-			{
-				Vec::clear(obj.vertex_field[j].position);
-				copy3(vertex+j*band,obj.vertex_field[j].position.v);
-				obj.vertex_field[j].index = j;
-				obj.vertex_field[j].marked = false;
-			}
-			const count_t triangles = cobj.countTriangles();
-			const Index*index = cobj.getIndices();
-			for (index_t j = 0; j < triangles; j++)
-			{
-				obj.triangle_field[j].vertex[0] = obj.vertex_field+index[j*3];
-				obj.triangle_field[j].vertex[1] = obj.vertex_field+index[j*3+1];
-				obj.triangle_field[j].vertex[2] = obj.vertex_field+index[j*3+2];
-				obj.triangle_field[j].index = j;
-				obj.triangle_field[j].marked = false;
-			}
-			const count_t quads = cobj.countQuads();
-			index = cobj.getQuadIndices();
-			for (index_t j = 0; j < quads; j++)
-			{
-				obj.quad_field[j].vertex[0] = obj.vertex_field+index[j*4];
-				obj.quad_field[j].vertex[1] = obj.vertex_field+index[j*4+1];
-				obj.quad_field[j].vertex[2] = obj.vertex_field+index[j*4+2];
-				obj.quad_field[j].vertex[3] = obj.vertex_field+index[j*4+3];
-				obj.quad_field[j].index = j;
-				obj.quad_field[j].marked = false;
-			}
-			ASSERT1__(obj.valid(),obj.errorStr());
+		setSize(ctr.CountObjects(),1,0,0);
+		ASSERT__(object_field.length()==ctr.CountObjects());
+		material_field[0].data.object_field.setSize(ctr.CountLODs());
+		material_field[0].data.coord_layers = (unsigned)(ctr.CountTextureLayers());
 
+		ASSERT_LESS__(ctr.CountTextureLayers(),0x10000);
+
+		RenderObjectA<Def>*robjects = material_field[0].data.object_field.pointer();
+		for (index_t i = 0; i < ctr.CountObjects(); i++)
+		{
+			const typename Constructor<Def>::Object&cobj = ctr.GetObject(i);
 			object_field[i].name = str2name("child"+String(i));
+			object_field[i].vs_hull_field.setSize(cobj.CountLODs());
+
+			for (index_t l = 0; l < cobj.CountLODs(); l++)
+			{
+				RenderObjectA<Def>&robj = *(robjects++);
+				robj.target = object_field.pointer() + i;
+				robj.tname = object_field[i].name;
+				robj.vpool.setSize(cobj.CountVertices(l),(UINT16)ctr.CountTextureLayers(),ctr.GetVertexFlags());
+	
+				robj.vpool.vdata.copyFrom(cobj.GetVertices(l));
+				robj.detail=l;
+				robj.ipool.idata.setSize(cobj.CountTriangleIndices(l) + cobj.CountQuadIndices(l));
+				robj.ipool.triangles = unsigned(cobj.CountTriangles(l));
+				robj.ipool.quads = unsigned(cobj.CountQuads(l));
+				robj.ipool.idata.copyFrom(cobj.GetTriangleIndices(l),cobj.CountTriangleIndices(l));
+				robj.ipool.idata.copyFrom(cobj.CountTriangleIndices(l),cobj.GetQuadIndices(l),cobj.CountQuadIndices(l));
+			
+				typedef Mesh<typename SubGeometryA<Def>::VsDef>	VsMesh;
+				VsMesh	&obj = object_field[i].vs_hull_field[l];
+				obj.vertex_field.setSize(cobj.CountVertices(l));
+				obj.triangle_field.setSize(cobj.CountTriangles(l));
+				obj.edge_field.free();
+				obj.quad_field.setSize(cobj.CountQuads(l));
+				UINT32 band = (UINT32)cobj.GetVertexSize();
+				const count_t vertices = cobj.CountVertices(l);
+				const Float*vertex = cobj.GetVertices(l);
+				for (index_t j = 0; j < vertices; j++)
+				{
+					Vec::clear(obj.vertex_field[j].position);
+					copy3(vertex+j*band,obj.vertex_field[j].position.v);
+					obj.vertex_field[j].index = j;
+					obj.vertex_field[j].marked = false;
+				}
+				const count_t triangles = cobj.CountTriangles(l);
+				const Index*index = cobj.GetTriangleIndices(l);
+				for (index_t j = 0; j < triangles; j++)
+				{
+					obj.triangle_field[j].vertex[0] = obj.vertex_field+index[j*3];
+					obj.triangle_field[j].vertex[1] = obj.vertex_field+index[j*3+1];
+					obj.triangle_field[j].vertex[2] = obj.vertex_field+index[j*3+2];
+					obj.triangle_field[j].index = j;
+					obj.triangle_field[j].marked = false;
+				}
+				const count_t quads = cobj.CountQuads(l);
+				index = cobj.GetQuadIndices(l);
+				for (index_t j = 0; j < quads; j++)
+				{
+					obj.quad_field[j].vertex[0] = obj.vertex_field+index[j*4];
+					obj.quad_field[j].vertex[1] = obj.vertex_field+index[j*4+1];
+					obj.quad_field[j].vertex[2] = obj.vertex_field+index[j*4+2];
+					obj.quad_field[j].vertex[3] = obj.vertex_field+index[j*4+3];
+					obj.quad_field[j].index = j;
+					obj.quad_field[j].marked = false;
+				}
+				ASSERT1__(obj.valid(),obj.errorStr());
+			}
+
 			//Mat::eye(object_field[i].meta.system);
-			object_field[i].meta.system = cobj.getSystem();
+			object_field[i].meta.system = cobj.GetSystem();
 			Vec::clear(object_field[i].meta.center);
 			object_field[i].meta.radius = 1;
 			object_field[i].meta.volume = 1;
@@ -4496,18 +4498,14 @@ template <class Def>
 			object_field[i].path = object_field[i].meta.system;
 			//Mat::eye(object_field[i].path);
 			object_field[i].system_link = &object_field[i].path;
-			robj.tname = object_field[i].name;
 		}
 		material_field[0].info = ctr.colors;
-		material_field[0].info.layer_field.setSize(ctr.countTextureLayers());
-		for (index_t i = 0; i < ctr.countTextureLayers(); i++)
+		material_field[0].info.layer_field.setSize(ctr.CountTextureLayers());
+		for (index_t i = 0; i < ctr.CountTextureLayers(); i++)
 		{
 			material_field[0].info.layer_field[i].combiner = 0x2100;
 			material_field[0].info.layer_field[i].source = NULL;
 		}
-	
-	
-
 	}
 
 
@@ -5141,6 +5139,7 @@ template <class Def> void StaticSubInstanceA<Def>::linkObjects()
 template <class Def> void StaticSubInstanceA<Def>::updatePath(const TMatrix4<typename Def::SystemType>&parent)
 {
 	Mat::transformSystem(parent,SubGeometryInstance<Def>::system,SubGeometryInstance<Def>::path);
+	DBG_ASSERT_LESS__(Vec::dot(SubGeometryInstance<Def>::path.x.xyz),10000);
 	for (index_t i = 0; i < child_field.length(); i++)
 		child_field[i].updatePath(SubGeometryInstance<Def>::path);
 }
@@ -5792,49 +5791,61 @@ template <class Def> bool RenderObjectA<Def>::equal;
 template <class Def> String Geometry<Def>::error;
 template <class Def> String SubGeometryA<Def>::error;
 
+template <class Def> 
+	count_t			Constructor<Def>::CountLODs()				const
+	{
+		count_t result = 0;
+		foreach (objects,obj)
+			result += obj->CountLODs();
+		return result;
+	}
+
 
 template <class Def> 
-	void			Constructor<Def>::Object::setComputeNormalsBegin()
+	void			Constructor<Def>::Object::SetComputeNormalsBegin()
 	{
-		if (!(config.vertex_flags & HasNormalFlag))
+		if (!(config.vertexFlags & HasNormalFlag))
 			return;
-		normals_from_quad = quad_data.fillLevel();
-		normals_from_triangle = index_data.fillLevel();
-		normals_from_vertex = countVertices();
+		normalsFromQuad = currentLOD->quadIndices.fillLevel();
+		normalsFromTriangle = currentLOD->triangleIndices.fillLevel();
+		normalsFromVertex = currentLOD->vertexData.length() / config.vsize;
 	}
 
 template <class Def> 
-	void			Constructor<Def>::Object::computeNormals()
+	void			Constructor<Def>::Object::ComputeNormals()
 	{
-		if (!(config.vertex_flags & HasNormalFlag))
+		if (!(config.vertexFlags & HasNormalFlag))
 			return;
-		const count_t num_vertices = countVertices();
-		const count_t num_quad_indices = countQuadIndices();
-		const count_t num_tri_indices = countIndices();
-		for (index_t i = normals_from_vertex; i < num_vertices; i++)
+		const count_t numVertices = currentLOD->vertexData.length() / config.vsize;
+		const count_t numQuadIndices = currentLOD->quadIndices.count();
+		const count_t numTriIndices = currentLOD->triangleIndices.count();
+		Float*vertexData = currentLOD->vertexData.pointer();
+		for (index_t i = normalsFromVertex; i < numVertices; i++)
 		{
-			Float*nrm = vertex_data.pointer() + i * config.vsize + 3;
+			Float*nrm = vertexData + i * config.vsize + 3;
 			Vec::clear(Vec::ref3(nrm));
 		}
-		for (index_t i = normals_from_triangle; i < num_tri_indices; i+=3)
+		const Index*indexData = currentLOD->triangleIndices.pointer();
+		for (index_t i = normalsFromTriangle; i < numTriIndices; i+=3)
 		{
 			TVec3<Float>	normal;
-			Float	*v0 = vertex_data.pointer() + index_data[i] * config.vsize,
-					*v1 = vertex_data.pointer() + index_data[i+1] * config.vsize,
-					*v2 = vertex_data.pointer() + index_data[i+2] * config.vsize;
+			Float	*v0 = vertexData + indexData[i] * config.vsize,
+					*v1 = vertexData + indexData[i+1] * config.vsize,
+					*v2 = vertexData + indexData[i+2] * config.vsize;
 
 			Obj::triangleNormal(Vec::ref3(v0),Vec::ref3(v1),Vec::ref3(v2),normal);
 			Vec::add(Vec::ref3(v0+3),normal);
 			Vec::add(Vec::ref3(v1+3),normal);
 			Vec::add(Vec::ref3(v2+3),normal);
 		}
-		for (index_t i = normals_from_quad; i < num_quad_indices; i+=4)
+		const Index*quadData = currentLOD->quadIndices.pointer();
+		for (index_t i = normalsFromQuad; i < numQuadIndices; i+=4)
 		{
 			TVec3<Float>	normal,normal2;
-			Float	*v0 = vertex_data.pointer() + quad_data[i] * config.vsize,
-					*v1 = vertex_data.pointer() + quad_data[i+1] * config.vsize,
-					*v2 = vertex_data.pointer() + quad_data[i+2] * config.vsize,
-					*v3 = vertex_data.pointer() + quad_data[i+3] * config.vsize;
+			Float	*v0 = vertexData + quadData[i] * config.vsize,
+					*v1 = vertexData + quadData[i+1] * config.vsize,
+					*v2 = vertexData + quadData[i+2] * config.vsize,
+					*v3 = vertexData + quadData[i+3] * config.vsize;
 
 			Obj::triangleNormal(Vec::ref3(v0),Vec::ref3(v1),Vec::ref3(v2),normal);
 			Obj::triangleNormal(Vec::ref3(v0),Vec::ref3(v2),Vec::ref3(v3),normal2);
@@ -5844,66 +5855,71 @@ template <class Def>
 			Vec::add(Vec::ref3(v2+3),normal);
 			Vec::add(Vec::ref3(v3+3),normal);
 		}
-		for (index_t i = normals_from_vertex; i < num_vertices; i++)
+		for (index_t i = normalsFromVertex; i < numVertices; i++)
 		{
-			Float*nrm = vertex_data.pointer() + i * config.vsize + 3;
+			Float*nrm = vertexData + i * config.vsize + 3;
 			Vec::normalize0(Vec::ref3(nrm));
 		}
-		setComputeNormalsBegin();
+		SetComputeNormalsBegin();
 	}
 
 
 template <class Def> 
-	void			Constructor<Def>::Object::verifyIntegrity(bool verify_all_vertices_are_used)	const
+	void			Constructor<Def>::Object::VerifyIntegrity(bool verifyAllVerticesAreUsed)	const
 	{
-		ASSERT__(!(vertex_data.length()%config.vsize));
-		ASSERT__(!(index_data.length()%3));
-		ASSERT__(!(quad_data.length()%4));
-		for (index_t i = 0; i < index_data.length(); i++)
+		for (index_t l = 0; l < lods.count(); l++)
 		{
-			ASSERT_LESS__(index_data[i],vertex_data.length()/config.vsize);
-		}
-		for (index_t i = 0; i < quad_data.length(); i++)
-		{
-			ASSERT_LESS__(quad_data[i],vertex_data.length()/config.vsize);
-		}
-
-		if (verify_all_vertices_are_used)
-		{
-			Array<bool>	used(vertex_data.length()/config.vsize);
-			used.fill(false);
-			for (index_t i = 0; i < index_data.length(); i++)
-				used[index_data[i]] = true;
-			for (index_t i = 0; i < quad_data.length(); i++)
-				used[quad_data[i]] = true;
-			for (index_t i = 0; i < used.length(); i++)
-				ASSERT1__(used[i],i);
+			const LOD&lod = lods[l];
+			ASSERT__(!(lod.vertexData.length()%config.vsize));
+			const count_t numVertices = lod.vertexData.length()/config.vsize;
+			ASSERT__(!(lod.triangleIndices.count()%3));
+			ASSERT__(!(lod.quadIndices.count()%4));
+			for (index_t i = 0; i < lod.triangleIndices.count(); i++)
+			{
+				ASSERT_LESS__(lod.triangleIndices[i],numVertices);
+			}
+			for (index_t i = 0; i < lod.quadIndices.count(); i++)
+			{
+				ASSERT_LESS__(lod.quadIndices[i],numVertices);
+			}
+			if (verifyAllVerticesAreUsed)
+			{
+				Array<bool>	used(numVertices);
+				used.fill(false);
+				for (index_t i = 0; i < lod.triangleIndices.length(); i++)
+					used[lod.triangleIndices[i]] = true;
+				for (index_t i = 0; i < lod.quadIndices.length(); i++)
+					used[lod.quadIndices[i]] = true;
+				for (index_t i = 0; i < used.length(); i++)
+					ASSERT1__(used[i],i);
+			}
 		}
 	}
 
 template <class Def> 
-	void			Constructor<Def>::verifyIntegrity(bool verify_all_vertices_are_used)	const
+	void			Constructor<Def>::VerifyIntegrity(bool verifyAllVerticesAreUsed)	const
 	{
 		for (index_t i = 0; i < objects.count(); i++)
 		{
 			ASSERT_EQUAL__(config.vsize,objects[i].config.vsize);
-			ASSERT_EQUAL__(config.num_texture_layers,objects[i].config.num_texture_layers);
-			ASSERT_EQUAL__(config.vertex_flags,objects[i].config.vertex_flags);
-			objects[i].verifyIntegrity(verify_all_vertices_are_used);
+			ASSERT_EQUAL__(config.numTextureLayers,objects[i].config.numTextureLayers);
+			ASSERT_EQUAL__(config.vertexFlags,objects[i].config.vertexFlags);
+			objects[i].VerifyIntegrity(verifyAllVerticesAreUsed);
 		}
 	}
 
 
 template <class Def>
-	Box<typename Constructor<Def>::Float>			Constructor<Def>::Object::getBoundingBox()const
+	Box<typename Constructor<Def>::Float>			Constructor<Def>::Object::GetBoundingBox(index_t lod /*=0*/)const
 	{
 		Float	min = std::numeric_limits<Float>::max(),	//no error
 				max = std::numeric_limits<Float>::min();
 		Box<Float>	result(min,min,min,max,max,max);
-		count_t numVertices = vertex_data.length()/config.vsize;
+		const count_t numVertices = lods[lod].vertexData.length()/config.vsize;
+		const Float*vdata = lods[lod].vertexData.pointer();
 		for (index_t i = 0; i < numVertices; i++)
 		{
-			const Float*vtx = vertex_data + i*config.vsize;
+			const Float*vtx = vdata + i*config.vsize;
 			result.include(Vec::ref3(vtx));
 		}
 		return result;

@@ -8,121 +8,121 @@ namespace Engine
 	{
 		if (!application_shutting_down)
 		{
-			for (unsigned i = 0; i < control_stack.count(); i++)
+			for (unsigned i = 0; i < controlStack.size(); i++)
 			{
-				control_stack[i]->onUninstall();
-				control_stack[i]->cluster = NULL;
+				controlStack[i]->OnUninstall();
+				controlStack[i]->cluster = NULL;
 			}
 		}
-		control_stack.flush();
+		controlStack.clear();
 	}
 	
 	
-	bool		ControlCluster::onKeyDown(Key::Name key)
+	bool		ControlCluster::OnKeyDown(Key::Name key)
 	{
-		for (index_t i = control_stack.count()-1; i < control_stack.count(); i--)
-			if (control_stack[i]->onKeyDown(key))
+		for (index_t i = controlStack.size()-1; i < controlStack.size(); i--)
+			if (controlStack[i]->OnKeyDown(key))
 				return true;
 		return false;
 	}
 	
-	bool		ControlCluster::onKeyUp(Key::Name key)
+	bool		ControlCluster::OnKeyUp(Key::Name key)
 	{
-		for (index_t i = control_stack.count()-1; i < control_stack.count(); i--)
-			if (control_stack[i]->onKeyUp(key))
+		for (index_t i = controlStack.size()-1; i < controlStack.size(); i--)
+			if (controlStack[i]->OnKeyUp(key))
 				return true;
 		return false;
 	}
 	
-	bool		ControlCluster::onMouseWheel(short delta)
+	bool		ControlCluster::OnMouseWheel(short delta)
 	{
-		for (index_t i = control_stack.count()-1; i < control_stack.count(); i--)
-			if (control_stack[i]->onMouseWheel(delta))
+		for (index_t i = controlStack.size()-1; i < controlStack.size(); i--)
+			if (controlStack[i]->OnMouseWheel(delta))
 				return true;
 		return false;
 	}
 	
 	
-	void		ControlCluster::advance(float delta)
+	void		ControlCluster::Advance(float delta)
 	{
-		for (index_t i = 0; i < control_stack.count(); i++)
-			control_stack[i]->advance(delta);
+		for (index_t i = 0; i < controlStack.size(); i++)
+			controlStack[i]->Advance(delta);
 	}
 	
 			
-	void		ControlCluster::renderShaded(const Aspect<>&aspect)
+	void		ControlCluster::RenderShaded(const Aspect<>&aspect, const Resolution&res)
 	{
-		for (index_t i = 0; i < control_stack.count(); i++)
-			control_stack[i]->renderShaded(aspect);
+		for (index_t i = 0; i < controlStack.size(); i++)
+			controlStack[i]->RenderShaded(aspect,res);
 	}
-	void		ControlCluster::renderShadedReflection(const Aspect<>&aspect)
+	void		ControlCluster::RenderShadedReflection(const Aspect<>&aspect, const Resolution&res)
 	{
-		for (index_t i = 0; i < control_stack.count(); i++)
-			control_stack[i]->renderShadedReflection(aspect);
-	}
-
-	void		ControlCluster::renderShadow(const Aspect<>&aspect)
-	{
-		for (index_t i = 0; i < control_stack.count(); i++)
-			control_stack[i]->renderShadow(aspect);
+		for (index_t i = 0; i < controlStack.size(); i++)
+			controlStack[i]->RenderShadedReflection(aspect,res);
 	}
 
-	void		ControlCluster::renderSchematics(const Aspect<>&aspect)
+	void		ControlCluster::RenderShadow(const Aspect<>&aspect, const Resolution&res)
 	{
-		for (index_t i = 0; i < control_stack.count(); i++)
-			control_stack[i]->renderSchematics(aspect);
-	}
-	
-	void		ControlCluster::renderHUD()
-	{
-		for (index_t i = 0; i < control_stack.count(); i++)
-			control_stack[i]->renderHUD();
+		for (index_t i = 0; i < controlStack.size(); i++)
+			controlStack[i]->RenderShadow(aspect,res);
 	}
 
-	void		ControlCluster::shutdown()
+	void		ControlCluster::RenderSchematics(const Aspect<>&aspect, const Resolution&res)
 	{
-		for (index_t i = 0; i < control_stack.count(); i++)
-			control_stack[i]->shutdown();
+		for (index_t i = 0; i < controlStack.size(); i++)
+			controlStack[i]->RenderSchematics(aspect,res);
+	}
+	
+	void		ControlCluster::RenderHUD(const Resolution&res)
+	{
+		for (index_t i = 0; i < controlStack.size(); i++)
+			controlStack[i]->RenderHUD(res);
+	}
+
+	void		ControlCluster::Shutdown()
+	{
+		for (index_t i = 0; i < controlStack.size(); i++)
+			controlStack[i]->Shutdown();
 	}
 	
 	
-	void		ControlCluster::install(Control*control)
+	void		ControlCluster::Install(Control*control)
 	{
 		if (!this || !control || control->cluster == this)
 			return;
 		if (control->cluster)
-			control->onUninstall();
+			control->OnUninstall();
 		control->cluster = this;
-		control->onInstall();
-		control_stack.append(control);
+		control->OnInstall();
+		controlStack.append(control);
 	}
 	
-	void		ControlCluster::uninstall(Control*control)
+	void		ControlCluster::Uninstall(Control*control)
 	{
 		if (!this || !control || control->cluster != this)
 			return;
-		control->onUninstall();
+		control->OnUninstall();
 		control->cluster = NULL;
-		control_stack.drop(control);
+		controlStack.findAndErase(control);
 	}
 
-	bool		ControlCluster::detectNearestGroundHeight(const TVec3<>&reference_position,float&out_height)
+	bool		ControlCluster::DetectNearestGroundHeight(const TVec3<>&reference_position,float&out_height)
 	{
 		out_height = std::numeric_limits<float>::min();
 		bool result = false;
-		for (index_t i = 0; i < control_stack.count(); i++)
+		for (index_t i = 0; i < controlStack.size(); i++)
 		{
-			Control*control = control_stack[i];
-			result |= control->detectNearestGroundHeight(reference_position,out_height);
+			Control*control = controlStack[i];
+			result |= control->DetectNearestGroundHeight(reference_position,out_height);
 		}
 		return result;
 	}
 
-	void		ControlCluster::signalResolutionChange(UINT new_width, UINT new_height, bool is_final)
+	void		ControlCluster::SignalResolutionChange(const Resolution&newResolution, bool isFinal)
 	{
-		for (index_t i = 0; i < control_stack.count(); i++)
+		for (index_t i = 0; i < controlStack.size(); i++)
 		{
-			control_stack[i]->onResolutionChange(new_width, new_height, is_final);
+			controlStack[i]->OnResolutionChange(newResolution, isFinal);
 		}
 	}
 

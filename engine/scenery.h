@@ -318,7 +318,7 @@ namespace Engine
 			CGS::MaterialInfo										info;						//!< Copy of the original material info. Only the first merged material information is used for rendering.
 			UINT16													coord_layers,				//!< Number of layers requiring 2 component texture coordinates
 																	additional;					//!< Number of additional non-used floats per vertex
-			UINT32													vertex_flags;				//!< Vertex flags (has normal, has tangent, etc)
+			UINT32													vertexFlags;				//!< Vertex flags (has normal, has tangent, etc)
 			RenderBuffer<GL>										buffer;						//!< Vertex/index data upload buffer
 			bool													locked,			//!< Set true if this visual should not be erased if empty. Non-locked materials will be erased when they do no longer host any rendering data.
 																	requires_rebuild;	//!< Set true if materials were merged or structure entities unmapped with false passed as \b rebuild
@@ -362,6 +362,10 @@ namespace Engine
 			StringList					warnings;		//!< Scenery warning list
 
 			GL							*renderer;		//!< Link to the active renderer. The scenery will attempt to automatically retrieve a renderer once if this pointer is NULL. If renderer remains NULL, then Scenery will throw an exception.
+
+			template <typename F0, typename F1, typename F2, typename F3>
+				unsigned				EstimateLOD(const Aspect<F0>&aspect, const F1&distance, const F2&scaledEdgeLength, const F3&resolutionModifier);
+
 		public:
 			typedef StructureEntity<Def>MyStructureEntity;
 				
@@ -490,44 +494,18 @@ namespace Engine
 			The determined structure detail is stored in the StructureEntity::detail member variables, object visibility in the ObjectEntity::visible member variables.
 			Structures or objects exceeding the specified maximum visual range are classified invisible.
 			\param aspect Camera to test visibily against
-			\param visual_range Maximum viewing distance from the camera center
 			*/
 			template <class C0, class C1>
-				void 					resolve(const Aspect<C0>&aspect, const C1&visual_range);
-			template <class C0, class C1>
-				inline void 			Resolve(const Aspect<C0>&aspect, const C1&visualRange)	{resolve(aspect,visualRange);}
+				void 					Resolve(const Aspect<C0>&aspect, const C1&resolutionModifier);
 		
-			/*!
-			\brief Determines the detail of all structure entities and the visibility of their respective object entities using visual volume extraction and sphere tests.
-					
-			The determined structure detail is stored in the StructureEntity::detail member variables, the respective object visibility in the ObjectEntity::visible member variables.
-			Object entities whoes sphere does not at least intersect the visual volume of \b aspect are classified invisible.
-			\param aspect Camera to test visibily against
-			*/
-			template <class C0>
-				void 					resolve(const Aspect<C0>&aspect);
-			template <class C0>
-				inline void 			Resolve(const Aspect<C0>&aspect)	{resolve(aspect);}
-
 			template <class C0, class C1>
-				void					render(const Aspect<C0>&aspect, const C1&max_range);		//!< Invokes resolve() using the specified parameters and renders the scenery. Invokes postRenderCleanup() after render \param aspect Camera that is currently loaded the rendering context (The scenery does not load this camera) \param max_range Maximum viewing distance
+				void					Render(const Aspect<C0>&aspect, const C1&resolutionModifier);		//!< Invokes Resolve() using the specified parameters and renders the scenery. Invokes postRenderCleanup() after render \param aspect Camera that is currently loaded the rendering context (The scenery does not load this camera)
 			template <class C0, class C1>
-				inline void				Render(const Aspect<C0>&aspect, const C1&maxRange)	{render(aspect,maxRange);}
-			template <class C0>
-				void					render(const Aspect<C0>&aspect);							//!< Invokes resolve() using the specified parameters and renders the scenery. Invokes postRenderCleanup() after render \param aspect Camera that is currently loaded the rendering context (The scenery does not load this camera)
-			template <class C0>
-				inline void				Render(const Aspect<C0>&aspect)	{render(aspect);}
-			template <class C0>
-				void					renderIgnoreMaterials(const Aspect<C0>&aspect);				//!< Invokes resolve() using the specified parameters and renders the scenery. Does not bind any shaders. Invokes postRenderCleanup() after render \param aspect Camera that is currently loaded the rendering context (The scenery does not load this camera)
-			template <class C0>
-				inline void				RenderIgnoreMaterials(const Aspect<C0>&aspect)	{renderIgnoreMaterials(aspect);}
-			void						render(unsigned detail=0);									//!< Renders the entire scenery in the specified detail disregarding of visibility
-			inline void					Render(unsigned detail=0)	{render(detail);}
+				void					RenderIgnoreMaterials(const Aspect<C0>&aspect, const C1&resolutionModifier);				//!< Invokes Resolve() using the specified parameters and renders the scenery. Does not bind any shaders. Invokes postRenderCleanup() after render \param aspect Camera that is currently loaded the rendering context (The scenery does not load this camera)
+			void						Render(unsigned detail=0);									//!< Renders the entire scenery in the specified detail disregarding of visibility
 			inline void					RenderIgnoreMaterials(unsigned detail=0);
-			void						renderOpaqueMaterials();										//!< Renders non-transparent materials. Required to be embedded between resolve() and postRenderCleanup()
-			inline void					RenderOpaqueMaterials()	{renderOpaqueMaterials();}
-			void						renderTransparentMaterials();									//!< Renders transparent materials. Required to be embedded between resolve() and postRenderCleanup()
-			inline void					RenderTransparentMaterials()	{renderTransparentMaterials();}
+			void						RenderOpaqueMaterials();										//!< Renders non-transparent materials. Required to be embedded between Resolve() and postRenderCleanup()
+			void						RenderTransparentMaterials();									//!< Renders transparent materials. Required to be embedded between Resolve() and postRenderCleanup()
 		
 		protected:
 			virtual void				PostRenderCleanup()	{};										//!< Automatically invoked by render(). Derivative classes such as MappedScenery<> require post rendering cleanups.
@@ -655,13 +633,9 @@ namespace Engine
 					
 					\param aspect Camera to test visibily against
 				*/
-			template <class C0>
-				void 								resolve(const Aspect<C0>&aspect);
-		// template <class C0, class C1>
-				// void								render(const Aspect<C0>&aspect, const C1&max_range);
-			template <class C0>
-				void								render(const Aspect<C0>&aspect);			//!< Invokes resolve() using the specified parameters and renders the scenery \param aspect Camera that is currently loaded the rendering context (The scenery does not load this camera)
-
+			template <class C0, class C1>
+				void 								Resolve(const Aspect<C0>&aspect, const C1&resolutionModifier);
+	
 
 			template <class C0, class C1, class C2, class C3>
 				ObjectEntity<Def>*					lookupClosest(const TVec3<C0>&center, const C1&radius, TVec3<C2>&position_out, TVec3<C3>&normal_out);	//!< Determines the closest hull point approximately inside the specified sphere. Invisible entities are ignored. The method does not miss points that should be inside but may return a point that lies outside the specified radius. \param center Sphere center \param radius Sphere radius, \param position_out 3 component out vector for the closest hull point \param normal_out 3 component out vector for the normal of the closest hull point \return Pointer to the closest object entity or NULL if no object is close enough to the sphere center.

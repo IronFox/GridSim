@@ -10,6 +10,9 @@ to provide a simplified interface.
 
 ******************************************************************/
 
+#undef EDGE_SCALE
+#define EDGE_SCALE 3000.0
+
 namespace Engine
 {
 
@@ -403,7 +406,7 @@ namespace Engine
 
 
 
-	template <class GL, class Def> Material<GL,Def>::Material(Scenery<GL,Def>*parent, GL*renderer_,CGS::MaterialInfo&source,TextureTable<GL>*table):owner(parent), renderer(renderer_),info(source),vertex_flags(0),texture_table(table),locked(false),requires_rebuild(false),initialized(false),additional(0)
+	template <class GL, class Def> Material<GL,Def>::Material(Scenery<GL,Def>*parent, GL*renderer_,CGS::MaterialInfo&source,TextureTable<GL>*table):owner(parent), renderer(renderer_),info(source),vertexFlags(0),texture_table(table),locked(false),requires_rebuild(false),initialized(false),additional(0)
 	{
 	    SCENERY_LOG("creating visual");
 	    coord_layers = UINT32(source.countCoordLayers());
@@ -419,8 +422,8 @@ namespace Engine
 		{
 			ASSERT_NOT_NULL__(texture_table);
 
-			material.read(info,vertex_flags);
-			binding.read(info,vertex_flags);
+			material.read(info,vertexFlags);
+			binding.read(info,vertexFlags);
 
 			SCENERY_LOG("texture field resized to "+String(material.textures.count()));
 			for (index_t i = 0; i < info.layer_field.length(); i++)
@@ -482,7 +485,7 @@ namespace Engine
 		
 		count_t	vlen = 0,
 				ilen = 0,
-				vertex_size = VSIZE(coord_layers,vertex_flags);
+				vertex_size = VSIZE(coord_layers,vertexFlags);
 		groups.reset();
 		while (RenderGroup<Def>*group = groups.each())
 		{
@@ -538,29 +541,29 @@ namespace Engine
 							vfrom += 3;
 							vto += 3;
 							
-							if (!!(vertex_flags&CGS::HasNormalFlag) && !!(robj->vpool.vflags&CGS::HasNormalFlag))
+							if (!!(vertexFlags&CGS::HasNormalFlag) && !!(robj->vpool.vflags&CGS::HasNormalFlag))
 							{
 								copy3(vfrom,vto);
 								vfrom += 3;
 								vto += 3;
 							}
-							elif (!!(vertex_flags&CGS::HasNormalFlag))
+							elif (!!(vertexFlags&CGS::HasNormalFlag))
 								vto += 3;
-							if (!!(vertex_flags&CGS::HasTangentFlag) && !!(robj->vpool.vflags&CGS::HasTangentFlag))
+							if (!!(vertexFlags&CGS::HasTangentFlag) && !!(robj->vpool.vflags&CGS::HasTangentFlag))
 							{
 								copy3(vfrom,vto);
 								vfrom += 3;
 								vto += 3;
 							}
-							elif (!!(vertex_flags&CGS::HasTangentFlag))
+							elif (!!(vertexFlags&CGS::HasTangentFlag))
 								vto += 3;
-							if (!!(vertex_flags&CGS::HasColorFlag) && !!(robj->vpool.vflags&CGS::HasColorFlag))
+							if (!!(vertexFlags&CGS::HasColorFlag) && !!(robj->vpool.vflags&CGS::HasColorFlag))
 							{
 								copy4(vfrom,vto);
 								vfrom += 4;
 								vto += 4;
 							}
-							elif (!!(vertex_flags&CGS::HasColorFlag))
+							elif (!!(vertexFlags&CGS::HasColorFlag))
 								vto += 4;
 							unsigned min = vmin(coord_layers,robj->vpool.vlyr);
 							for (unsigned i = 0; i < min; i++)
@@ -610,7 +613,7 @@ namespace Engine
 		{
 		    SCENERY_LOG("errors encountered. disabling");
 			initialized = false;
-			vertex_flags = 0;
+			vertexFlags = 0;
 		    return;
 		}
 	    SCENERY_LOG("done writing sections");
@@ -678,7 +681,7 @@ namespace Engine
 		{
 			SCENERY_LOG("entity already mapped.");
 			
-			group->merge(material,entity,vertex_flags);
+			group->merge(material,entity,vertexFlags);
 			if (!initialized)
 				init();
 		    if (rebuild_)
@@ -693,7 +696,7 @@ namespace Engine
 		{
 			group = groups.add(&material);
 			
-			group->merge(material,entity,vertex_flags);
+			group->merge(material,entity,vertexFlags);
 			if (!initialized)
 				init();
 		    if (rebuild_)
@@ -1321,10 +1324,21 @@ namespace Engine
 	    return structures.isEmpty() && all_materials.isEmpty();
 	}
 
-
 	template <class GL, class Def>
-	template <class C0, class C1>
-	void Scenery<GL,Def>::resolve(const Aspect<C0>&aspect, const C1&visual_range)
+		template <typename F0, typename F1, typename F2, typename F3>
+			unsigned	Scenery<GL,Def>::EstimateLOD(const Aspect<F0>&aspect, const F1&distance, const F2&scaledEdgeLength, const F3&resolutionModifier)
+			{
+				F2 edgeLengthInPixels = scaledEdgeLength * resolutionModifier;
+	            //C0  edge = entity->shortest_edge_length*entity->sys_scale * EDGE_SCALE,
+	            F1 relative = distance/edgeLengthInPixels;//r;
+	            if (relative < 1)
+	                relative = 1;
+				return (unsigned)(log(relative)/M_LN2);
+			}
+/*
+	template <class GL, class Def>
+	template <class C0, class C1, class C2>
+	void Scenery<GL,Def>::Resolve(const Aspect<C0>&aspect, const C1&visual_range,const C2&resolutionModifier)
 	{
 	    TMatrix4<C0>	matrix,path;
 		TVec4<C0>		cage[8];
@@ -1346,13 +1360,7 @@ namespace Engine
 	        Mat::transform(aspect.view,entity->system->w.xyz,center);
 	        C0   distance = clamped(Vec::length(center)-entity->radius,0,100000);
 	        if (!(entity->config & StructureConfig::AlwaysHighestDetail))
-	        {
-	            C0  r = entity->radius*entity->sys_scale,
-	                relative = distance*entity->shortest_edge_length/r;
-	            if (relative < 1)
-	                relative = 1;
-	            entity->detail = (unsigned)(log(relative)/M_LN2);
-	        }
+	            entity->detail = EstimateLOD(aspect,distance,entity->shortest_edge_length*entity->sys_scale,resolutionModifier);
 	        else
 	            entity->detail = 0;
 			entity->visible = true;
@@ -1382,11 +1390,11 @@ namespace Engine
 			}
 		}
 	}
-
+*/
 
 	template <class GL, class Def>
-	template <class C0>
-	void Scenery<GL,Def>::resolve(const Aspect<C0>&aspect)
+	template <class C0, class C1>
+	void Scenery<GL,Def>::Resolve(const Aspect<C0>&aspect, const C1&resolutionModifier)
 	{
 		Frustum<C0> volume;
 		aspect.ResolveVolume(volume);
@@ -1406,13 +1414,7 @@ namespace Engine
 	        Mat::transform(aspect.view,entity->system->w.xyz,center);
 	        C0   distance = clamped(Vec::length(center)-entity->radius,0,100000);
 	        if (!(entity->config & StructureConfig::AlwaysHighestDetail))
-	        {
-	            C0  r = entity->radius*entity->sys_scale,
-	                relative = distance*entity->shortest_edge_length/r;
-	            if (relative < 1)
-	                relative = 1;
-	            entity->detail = (unsigned)(log(relative)/M_LN2);
-	        }
+	            entity->detail = EstimateLOD(aspect,distance,entity->shortest_edge_length*entity->sys_scale,resolutionModifier);
 	        else
 	            entity->detail = 0;
 			if (entity->detail > entity->max_detail)
@@ -1425,110 +1427,71 @@ namespace Engine
 				if (it->visible && !(entity->config & StructureConfig::AlwaysVisible))
 				{
 					it->visible = volume.visible(it->system->w.xyz,it->radius);
-				// if (!entity->visible)
-				// {
-					// SCENERY_LOG("entity '"+name2str(entity->object_name)+"' fails visibility check at "+_toString(entity->name+12)+"/r"+FloatToStr(entity->radius));
-					// SCENERY_LOG(volume.toString());
-					// SCENERY_LOG(aspect.toString());
-				// }
 				}
 			}
 		}
 	}
 
 	template <class GL, class Def>
-	void Scenery<GL,Def>::renderOpaqueMaterials()
-	{
-		foreach (opaque_materials,my_material)
-			(*my_material)->render();
-	}
-
-	template <class GL, class Def>
-	void Scenery<GL,Def>::renderTransparentMaterials()
-	{
-		foreach (transparent_materials,my_material)
-			(*my_material)->render();
-	}
-
-
-	template <class GL, class Def>
-	template <class C0, class C1>
-	void Scenery<GL,Def>::render(const Aspect<C0>&aspect, const C1&visual_range)
-	{
-		if (!renderer)
+		void Scenery<GL,Def>::RenderOpaqueMaterials()
 		{
-			setRenderer(GL::global_instance,false);
-			if (!renderer)
-				FATAL__("trying to render without renderer");
+			foreach (opaque_materials,my_material)
+				(*my_material)->render();
 		}
-			resolve(aspect,visual_range);
-
-		foreach (opaque_materials,my_material)
-			(*my_material)->render();
-		foreach (transparent_materials,my_material)
-			(*my_material)->render();
-	    renderer->unbindAll();
-		postRenderCleanup();
-	    
-
-	/*
-	    glDisable(GL_TEXTURE_2D);
-	    glDisable(GL_DEPTH_TEST);
-	    glDisable(GL_LIGHTING);
-	    objects.reset();
-	    while (ObjectEntity<Def>*entity = objects.each())
-	        if (entity->visible)
-	        {
-	            glPushMatrix();
-	                glMultMatrix(entity->name);
-	                glBegin(GL_LINES);
-	                    glColor3f(1,1,1);
-	                    glVertex3f(0,0,0);
-	                    glVertex3f(1,0,0);
-	                    glVertex3f(0,0,1);
-	                    glVertex3f(0,0,0);
-	                    glVertex3f(0,0,0);
-	                    glColor3f(1,0,0);
-	                    glVertex3f(0,1,0);
-	                glEnd();
-	            glPopMatrix();
-	        }
-	    glEnable(GL_DEPTH_TEST);
-	    glEnable(GL_LIGHTING);*/
-	}
 
 	template <class GL, class Def>
-	void Scenery<GL,Def>::render(unsigned detail)
-	{
-		if (!renderer)
+		void Scenery<GL,Def>::RenderTransparentMaterials()
 		{
-			setRenderer(GL::global_instance,false);
-			if (!renderer)
-				FATAL__("trying to render without renderer");
+			foreach (transparent_materials,my_material)
+				(*my_material)->render();
 		}
+
+
+	template <class GL, class Def>
+		template <class C0, class C1>
+			void Scenery<GL,Def>::Render(const Aspect<C0>&aspect, const C1&resolutionModifier)
+			{
+				if (!renderer)
+				{
+					setRenderer(GL::global_instance,false);
+					if (!renderer)
+						FATAL__("trying to render without renderer");
+				}
+				Resolve(aspect,resolutionModifier);
+				RenderOpaqueMaterials();
+				RenderTransparentMaterials();
+				renderer->unbindAll();
+				PostRenderCleanup();
+			}
+
+	template <class GL, class Def>
+		void Scenery<GL,Def>::Render(unsigned detail)
+		{
+			if (!renderer)
+			{
+				setRenderer(GL::global_instance,false);
+				if (!renderer)
+					FATAL__("trying to render without renderer");
+			}
 	
 		
 
 
-	    structures.reset();
-	    while (StructureEntity<Def>*entity = structures.each())
-	    {
-			entity->visible = true;
-			entity->detail = detail;
-			for (auto it = entity->object_entities.begin(); it != entity->object_entities.end(); ++it)
-				it->visible = true;
+			structures.reset();
+			while (StructureEntity<Def>*entity = structures.each())
+			{
+				entity->visible = true;
+				entity->detail = detail;
+				for (auto it = entity->object_entities.begin(); it != entity->object_entities.end(); ++it)
+					it->visible = true;
+			}
+			RenderOpaqueMaterials();
+			RenderTransparentMaterials();
+			renderer->unbindAll();
+			PostRenderCleanup();
+
+
 		}
-		
-		foreach (opaque_materials,my_material)
-			(*my_material)->render();
-		foreach (transparent_materials,my_material)
-			(*my_material)->render();
-
-	    renderer->unbindAll();
-		PostRenderCleanup();
-
-
-	}
 
 	template <class GL, class Def>
 	void Scenery<GL,Def>::RenderIgnoreMaterials(unsigned detail)
@@ -1561,9 +1524,10 @@ namespace Engine
 		PostRenderCleanup();
 	}
 	
+
 	template <class GL, class Def>
-	template <class C0>
-	void Scenery<GL,Def>::render(const Aspect<C0>&aspect)
+	template <class C0, class C1>
+	void Scenery<GL,Def>::RenderIgnoreMaterials(const Aspect<C0>&aspect,const C1&resolutionModifier)
 	{
 		if (!renderer)
 		{
@@ -1571,37 +1535,12 @@ namespace Engine
 			if (!renderer)
 				FATAL__("trying to render without renderer");
 		}
-			resolve(aspect);
-
-		foreach (opaque_materials,my_material)
-			(*my_material)->render();
-		foreach (transparent_materials,my_material)
-			(*my_material)->render();
-
-	    renderer->unbindAll();
-		PostRenderCleanup();
-
-	}
-
-	template <class GL, class Def>
-	template <class C0>
-	void Scenery<GL,Def>::renderIgnoreMaterials(const Aspect<C0>&aspect)
-	{
-		if (!renderer)
-		{
-			setRenderer(GL::global_instance,false);
-			if (!renderer)
-				FATAL__("trying to render without renderer");
-		}
-			resolve(aspect);
-
+		Resolve(aspect,resolutionModifier);
 		foreach (opaque_materials,my_material)
 			(*my_material)->render(true);
 		foreach (transparent_materials,my_material)
 			(*my_material)->render(true);
-
 		PostRenderCleanup();
-
 	}
 
 
@@ -2491,15 +2430,15 @@ namespace Engine
 		}
 
 
-	template <class GL, class Def> template <class C0>
-		void 			MappedScenery<GL,Def>::resolve(const Aspect<C0>&aspect)
+	template <class GL, class Def> template <class C0, class C1>
+		void 			MappedScenery<GL,Def>::Resolve(const Aspect<C0>&aspect, const C1&resolutionModifier)
 		{
 		
 			if (!Scenery::structures)
 				return;
 			if (Scenery::structures < 5)	// Don't use expensive tree lookup for few structures
 			{
-				Scenery::resolve(aspect);
+				Scenery::Resolve(aspect);
 				structure_buffer.reset();
 				object_buffer.reset();
 				Scenery::structures.reset();
@@ -2538,11 +2477,7 @@ namespace Engine
 		        C0   distance = clamped(_length(center)-entity->radius,0,100000);
 		        if (!(entity->config & StructureConfig::AlwaysHighestDetail))
 		        {
-		            C0  r = entity->radius*entity->sys_scale,
-		                relative = distance*entity->shortest_edge_length/r;
-		            if (relative < 1)
-		                relative = 1;
-		            entity->detail = (unsigned)(log(relative)/M_LN2);
+		            entity->detail = EstimateLOD(aspect,distance,entity->shortest_edge_length*entity->sys_scale,resolutionModifier);
 		        }
 		        else
 		            entity->detail = 0;
@@ -2572,25 +2507,6 @@ namespace Engine
 			Super::PostRenderCleanup();
 		}
 
-	template <class GL, class Def> template <class C0>
-		void 			MappedScenery<GL,Def>::render(const Aspect<C0>&aspect)
-		{
-			if (!Scenery::renderer)
-			{
-				Scenery::renderer = GL::global_instance;
-				if (!Scenery::renderer)
-					FATAL__("trying to render without renderer");
-			}
-				resolve(aspect);
-
-			foreach (Scenery::opaque_materials,my_material)
-				(*my_material)->render();
-			foreach (Scenery::transparent_materials,my_material)
-				(*my_material)->render();
-
-		    Scenery::renderer->unbindAll();
-			postRenderCleanup();
-		}
 		
 	template <class GL, class Def> template <class C0, class C1, class C2, class C3>
 		ObjectEntity<Def>*	MappedScenery<GL,Def>::lookupClosest(const TVec3<C0>&center, const C1&radius, TVec3<C2>&position_out, TVec3<C3>&normal_out)
