@@ -348,9 +348,6 @@
     <ClCompile Include="..\..\structure\plant.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="..\..\structure\structure_simulation.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
     <ClCompile Include="..\..\structure\texture_buffer.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -653,8 +650,6 @@
     <ClInclude Include="..\..\structure\map.h" />
     <ClInclude Include="..\..\structure\mapping.h" />
     <ClInclude Include="..\..\structure\plant.h" />
-    <ClInclude Include="..\..\structure\structure_simulation.h" />
-    <ClInclude Include="..\..\structure\structure_simulation.tpl.h" />
     <ClInclude Include="..\..\structure\texture_buffer.h" />
     <ClInclude Include="..\..\windows\wnd_manager.h" />
   </ItemGroup>
