@@ -52,7 +52,7 @@ namespace Math
 		typedef Vec3<C>					Self;
 
 		MF_CONSTRUCTOR					Vec3();
-		MF_CONSTRUCTOR					Vec3(const C&value);
+		explicit MF_CONSTRUCTOR			Vec3(const C&value);
 		MF_CONSTRUCTOR2					Vec3(const TVec2<C0>&other,const C1&z);
 		MF_CONSTRUCTOR1					Vec3(const TVec3<C0>&other);
 		MF_CONSTRUCTOR3					Vec3(const C0&x, const C1&y, const C2&z);
@@ -120,15 +120,15 @@ namespace Math
 		typedef Vec2<C>					Self;
 
 		MF_CONSTRUCTOR					Vec2();
-		MF_CONSTRUCTOR					Vec2(const C&value);
+		explicit MF_CONSTRUCTOR			Vec2(const C&value);
 		MF_CONSTRUCTOR1					Vec2(const TVec2<C0>&other);
 		MF_CONSTRUCTOR2					Vec2(const C0&x, const C1&y);
 		MF_CONSTRUCTOR1					Vec2(const C0 field[2]);
 
-		static MF_DECLARE(Self&)		reinterpret(TVec3<C>&vec)	{return reinterpret_cast<Self&>(vec);}
-		static MF_DECLARE(Self&)		Reinterpret(TVec3<C>&vec)	{return reinterpret_cast<Self&>(vec);}
-		static MF_DECLARE(const Self&)	reinterpret(const TVec3<C>&vec)	{return reinterpret_cast<const Self&>(vec);}
-		static MF_DECLARE(const Self&)	Reinterpret(const TVec3<C>&vec)	{return reinterpret_cast<const Self&>(vec);}
+		static MF_DECLARE(Self&)		reinterpret(TVec2<C>&vec)	{return reinterpret_cast<Self&>(vec);}
+		static MF_DECLARE(Self&)		Reinterpret(TVec2<C>&vec)	{return reinterpret_cast<Self&>(vec);}
+		static MF_DECLARE(const Self&)	reinterpret(const TVec2<C>&vec)	{return reinterpret_cast<const Self&>(vec);}
+		static MF_DECLARE(const Self&)	Reinterpret(const TVec2<C>&vec)	{return reinterpret_cast<const Self&>(vec);}
 
 		MFUNC2 (void)					set(const C0&x, const C1&y)				{Vec::def(*this,x,y);}
 		MFUNC2 (void)					Set(const C0&x, const C1&y)				{Vec::def(*this,x,y);}
@@ -189,7 +189,7 @@ namespace Math
 		typedef Vec4<C>					Self;
 
 		MF_CONSTRUCTOR					Vec4();
-		MF_CONSTRUCTOR					Vec4(const C&value);
+		explicit MF_CONSTRUCTOR			Vec4(const C&value);
 		MF_CONSTRUCTOR3					Vec4(const TVec2<C0>&xy,const C1&z, const C2&w);
 		MF_CONSTRUCTOR2					Vec4(const TVec2<C0>&xy,const TVec2<C1>&zw);
 		MF_CONSTRUCTOR2					Vec4(const TVec3<C0>&other, const C1&w);

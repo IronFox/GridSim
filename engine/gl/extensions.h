@@ -149,6 +149,10 @@
 				String					name;
 				
 				friend class GLShader::Instance;
+
+				static bool				wasInstalled;
+				bool					_PrepareUpdate();
+				bool					_FinishUpdate();
 				
 				/**/					Variable(Instance*,GLint,const String&name);
 			public:
@@ -172,6 +176,7 @@
 				inline bool				SetInt(int value)		{return seti(value);}
 				bool					set2i(int x, int y);
 				inline bool				SetInt(int x, int y)		{return set2i(x,y);}
+				bool					SetBool(bool value);
 				
 				static	void			LockUninstalledShaderVariables()
 										{

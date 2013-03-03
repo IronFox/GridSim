@@ -1209,11 +1209,10 @@ namespace Engine
 	}
 
 
-	/*static*/ void	OpenGL::BuildMipMaps(const GL::FBO&fbo, unsigned target, const GLShader::Instance&mipMapShader)
+	/*static*/ void	OpenGL::BuildMipMaps(const GL::Texture::Reference&ref, const GLShader::Instance&mipMapShader, GLenum format)
 	{
-		ASSERT_LESS__(target, 4);
-		const GLuint texHandle = fbo.config.colorTarget[target].textureHandle;
-		const GLenum texFormat = fbo.config.colorTarget[target].textureFormat;
+		const GLuint texHandle = ref.GetHandle();
+		const GLenum texFormat = format;
 		ASSERT__(texHandle != 0);
 		
 		glDisable(GL_BLEND);
@@ -1241,7 +1240,7 @@ namespace Engine
 		glBindTexture(GL_TEXTURE_2D,texHandle);
 		ASSERT__(mipMapShader.Install());
 
-		Resolution res = fbo.GetResolution();
+		Resolution res = Resolution(ref.width(),ref.height());
 		unsigned layer = 0;
 		do
 		{
@@ -1278,6 +1277,13 @@ namespace Engine
 		glBindTexture(GL_TEXTURE_2D,0);
 		glDisable(GL_TEXTURE_2D);
 		glThrowError();
+
+	}
+
+	/*static*/ void	OpenGL::BuildMipMaps(const GL::FBO&fbo, unsigned target, const GLShader::Instance&mipMapShader)
+	{
+		ASSERT_LESS__(target, 4);
+		BuildMipMaps(fbo.Refer(target),mipMapShader, fbo.config.colorTarget[target].textureFormat);
 	}
 	
 

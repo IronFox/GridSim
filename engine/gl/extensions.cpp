@@ -807,42 +807,52 @@ namespace Engine
 				instance->Uninstall();
 			return glGetError() == GL_NO_ERROR;
 		}
-	
-		bool			Variable::seti(int value)
+
+		/*static*/	bool	Variable::wasInstalled = false;
+		bool			Variable::_PrepareUpdate()
 		{
 			if (handle == -1)
 				return false;
-			bool wasInstalled = instance->IsInstalled();
+			wasInstalled = instance->IsInstalled();
 			if (!wasInstalled && assertIsInstalled)
 				FATAL__("trying to update variable '"+name+"' while shader is NOT installed");
 			if (!wasInstalled && (lockUninstalled || !instance->Install()))
 				return false;
 		
 			glGetError();//flush errors
-			glUniform1i(handle, value);
-		
+			return true;
+		}
+
+		bool			Variable::_FinishUpdate()
+		{
 			if (!wasInstalled)
 				instance->Uninstall();
 		
 			return glGetError() == GL_NO_ERROR;
 		}
+		bool			Variable::seti(int value)
+		{
+			if (!_PrepareUpdate())
+				return false;
+			glUniform1i(handle, value);
+		
+			return _FinishUpdate();
+		}
+		bool			Variable::SetBool(bool value)
+		{
+			if (!_PrepareUpdate())
+				return false;
+			glUniform1i(handle, value);	//lame, no bool set operation
+		
+			return _FinishUpdate();
+		}
 		bool			Variable::set2i(int x, int y)
 		{
-			if (handle == -1)
+			if (!_PrepareUpdate())
 				return false;
-			bool wasInstalled = instance->IsInstalled();
-			if (!wasInstalled && assertIsInstalled)
-				FATAL__("trying to update variable '"+name+"' while shader is NOT installed");
-			if (!wasInstalled && (lockUninstalled || !instance->Install()))
-				return false;
-		
-			glGetError();//flush errors
 			glUniform2i(handle, x,y);
 		
-			if (!wasInstalled)
-				instance->Uninstall();
-		
-			return glGetError() == GL_NO_ERROR;
+			return _FinishUpdate();
 		}
 	
 		bool Variable::lockUninstalled(false);
