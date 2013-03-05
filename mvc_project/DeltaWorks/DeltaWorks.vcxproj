@@ -249,6 +249,7 @@
     <ClCompile Include="..\..\io\xml.cpp" />
     <ClCompile Include="..\..\math\basic.cpp" />
     <ClCompile Include="..\..\math\expression.cpp" />
+    <ClCompile Include="..\..\math\graph.cpp" />
     <ClCompile Include="..\..\math\neuronal_network.cpp" />
     <ClCompile Include="..\..\math\resolution.cpp" />
     <ClCompile Include="..\..\net\node.cpp" />

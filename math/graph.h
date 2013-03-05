@@ -6,74 +6,92 @@
 
 Collection of graph-algorithms.
 
-This file is part of Delta-Works
-Copyright (C) 2006-2008 Stefan Elsen, University of Trier, Germany.
-http://www.delta-works.org/forge/
-http://informatik.uni-trier.de/
-
 ******************************************************************/
 
+#include <memory>
 
-#include <list/queue.h>
+#include "../container/queue.h"
+#include "../container/buffer.h"
 
-
-template <class>    class Graph;
-template <class>    class CGNode;
-template <class>    class CGEdge;
-
-struct TGPlain
-{};
-
-
-template <class Entry=TGPlain>  class CGNode:public Entry
+namespace Math
 {
-private:
-        bool            selected;
-        int             my_indeg;
+	class Graph;
 
-        friend class Graph<Entry>;
-        friend class CGEdge<Entry>;
-public:
-        ReferenceVector<CGNode<Entry> >    in,out;
-        ReferenceVector<CGEdge<Entry> >    edge_in,edge_out;
-        unsigned        dfs_in,dfs_out,index;
+	namespace GraphDef
+	{
+		struct BaseAttachment
+		{
+			virtual				~BaseAttachment()	{}
+		};
+		typedef std::shared_ptr<BaseAttachment>	PBaseAttachment;
 
-                        CGNode(unsigned index);
-        unsigned        scan(unsigned);
-};
+		class Node;
+		class Edge;
 
-
-template <class Entry=TGPlain> class CGEdge
-{
-private:
-        friend class Graph<Entry>;
-
-public:
-        CGNode<Entry>   *from,*to;
-        
-                        CGEdge(CGNode<Entry>*from, CGNode<Entry>*to);
-virtual                ~CGEdge();
-};
+		typedef std::weak_ptr<Node>		WNode;
+		typedef std::weak_ptr<Edge>		WEdge;
+		typedef std::shared_ptr<Node>	PNode;
+		typedef std::shared_ptr<Edge>	PEdge;
 
 
+		class Node
+		{
+		private:
+			bool            isSelected;
+			int             inDegree;
+			Buffer<WNode,0>	in,
+							out;
+			Buffer<WEdge,0>	inEdges,
+							outEdges;
+			count_t			dfsIn,
+							dfsOut;
 
-template <class Entry=TGPlain>  class Graph
-{
-public:
-        Vector<CGNode<Entry> >   nodes;
-        Vector<CGEdge<Entry> >   edges;
-        
-        void            addNodes(unsigned count);
-        CGEdge<Entry>*  addEdge(unsigned index0, unsigned index1);
-        CGEdge<Entry>*  addEdge(CGNode<Entry>*node0, CGNode<Entry>*node1);
-        bool            createTopologicalOrder(ReferenceVector<CGNode<Entry> >&out);
-        void            performDepthFirstSearch();
-};
+			friend class	Edge;
+			friend class	Graph;
+		public:
+			const index_t	index;
+			PBaseAttachment	attachment;
+			/**/			Node(index_t index);
+			index_t			Scan(index_t dfsIn);
+		};
+
+		class Edge : public std::enable_shared_from_this<Edge>
+		{
+		private:
+			PNode			from,
+							to;
+		public:
+			void			LinkTo(const PNode&from, const PNode&to);
+			virtual			~Edge();
+		};
+
+
+	}
+
+	class Graph
+	{
+	public:
+		typedef GraphDef::PNode	PNode;
+		typedef GraphDef::PEdge	PEdge;
+	private:
+		Buffer<PNode,0>		nodes;
+		Buffer<PEdge,0>		edges;
+	public:
+		count_t				CountNodes()	const	{return nodes.count();}
+		count_t				CountEdge()		const	{return edges.count();}
+		void				Clear()	{nodes.clear(); edges.clear();}
+		void				AddNodes(count_t count);
+		const PNode&		GetNode(index_t index)	{return nodes[index];}
+		PEdge				AddEdge(index_t index0, index_t index1);
+		PEdge				AddEdge(const PNode&node0, const PNode&node1);
+		bool				CreateTopologicalOrder(BasicBuffer<PNode>&out);
+		void				PerformDepthFirstSearch();
+	};
+
+}
 
 
 
-
-#include "graph.tpl.h"
 
 
 #endif

@@ -4,6 +4,7 @@
 #include "textout.h"
 #include "aspect.h"
 #include "../container/buffer.h"
+#include "../container/hashtable.h"
 #include "../math/resolution.h"
 
 namespace Engine
@@ -11,14 +12,69 @@ namespace Engine
 
 	class ControlCluster;
 
-	
+	typedef void(*FRenderInstruction)(const Aspect<>&, const Resolution&);
+
+
+
+	/*abstract*/ class RenderInstructionWrapper
+	{
+	public:
+		index_t				orderIndex;
+		FRenderInstruction	instruction;
+		/**/				RenderInstructionWrapper():orderIndex(InvalidIndex),instruction(NULL)	{}
+		/**/				RenderInstructionWrapper(index_t id, FRenderInstruction instruction):
+							orderIndex(orderIndex),instruction(instruction)	{}
+
+		int					compareTo(const RenderInstructionWrapper&other)
+							{
+								if (orderIndex < other.orderIndex)
+									return -1;
+								if (orderIndex > other.orderIndex)
+									return 1;
+								return 0;
+							}
+	};
+
+	/**
+	@brief Sequence of renderable objects
+	*/
+	class RenderSequence
+	{
+	private:
+		typedef Buffer<RenderInstructionWrapper,0>	WrapperList;
+		WrapperList			wrappers;
+		bool				isSealed;
+	public:
+		/**/				RenderSequence():isSealed(false)	{}
+		void				swap(RenderSequence&other)
+							{
+								wrappers.swap(other.wrappers);
+								std::swap(isSealed,other.isSealed);
+							}
+		void				Insert(FRenderInstruction instruction, index_t orderIndex);
+		void				Seal();
+		bool				IsSealed()	const	{return isSealed;}
+		void				Execute(const Aspect<>&aspect, const Resolution&resolution)	const
+							{
+								WrapperList::const_iterator	at = wrappers.begin(),
+															end = wrappers.end();
+								for (;at != end; ++at)
+									at->instruction(aspect,resolution);
+							}
+	};
+
+	typedef IndexTable<RenderSequence,Swap>	RenderSequenceMap;
+
+
+
+
 	
 	/**
-		@brief Pure abstract control module class for sequential game cores
+	@brief Abstract control module class for sequential game cores
 		
-		A Control instance describes an input hook for user input reaction as well as standardized rendering methods.
+	A Control instance describes an input hook for user input reaction as well as standardized rendering methods.
 	*/
-	class Control
+	/*abstract*/ class Control
 	{
 	private:
 		friend class		ControlCluster;			
@@ -34,16 +90,11 @@ namespace Engine
 	
 		virtual	void		Advance(float delta)						{};					//!< Advances the frame. @param Last frames frame length. The control is encouraged to use this delta value rather than the global timing variable if slowmotion effects should be possible
 	
-		virtual	void		RenderShaded(const Aspect<>&, const Resolution&)				{};					//!< Triggers fully shaded rendering. No shader is bound at this time but layer0 textures may be bound. Lighting and depth test are enabled
-		virtual	void		RenderShadedReflection(const Aspect<>&aspect, const Resolution&res){RenderShaded(aspect,res);};					//!< Triggers fully shaded rendering. No shader is bound at this time but layer0 textures may be bound. Lighting and depth test are enabled
-		virtual	void		RenderSchematics(const Aspect<>&, const Resolution&)			{};					//!< Triggers schematic rendering. No shader or texture is bound at this time. Lighting and depth test are disabled
-		virtual	void		RenderShadow(const Aspect<>&, const Resolution&)				{};					//!< Triggers shadow rendering. No shader or texture is bound at this time. Lighting is disabled, depth test is enabled
-		virtual	void		RenderHUD(const Resolution&)									{};					//!< Triggers HUD rendering. The bound aspect is always orthographic from 0,0 to 1,1. Layer0 textures may be bound, shaders and depth test are disabled
 		virtual	bool		DetectNearestGroundHeight(const TVec3<>&referencePosition,float&outHeight)	{return false;};
 		virtual void		OnResolutionChange(const Resolution&newResolution, bool isFinal)		{};
 		virtual void		Shutdown()									{};					//!< Signals that the applications is being shut down
 
-		virtual	void		OnInstall()									{};					//!< Invoked once this control module is installed on the specified control cluster
+		virtual	void		OnInstall(RenderSequenceMap&sequenceMap)	{};					//!< Invoked once this control module is installed on the specified control cluster
 		virtual	void		OnUninstall()								{};					//!< Invoked once this control module is installed on the specified control cluster
 		ControlCluster*		GetCluster()	const						{return cluster;}
 	};
@@ -59,6 +110,7 @@ namespace Engine
 		Buffer<Control*,0>	controlStack;
 	public:
 		VirtualTextout		*textout;
+		RenderSequenceMap	sequenceMap;
 	
 		ControlCluster()	:textout(NULL)	{}
 		virtual				~ControlCluster();
@@ -69,11 +121,6 @@ namespace Engine
 	
 		void				Advance(float delta);					//!< Invokes advance() methods of all contained control instances. Walks forward through the list
 			
-		void				RenderShadow(const Aspect<>&, const Resolution&);
-		void				RenderShaded(const Aspect<>&, const Resolution&);			//!< Invokes renderShaded() methods of all contained control instances. Walks forward through the list
-		void				RenderShadedReflection(const Aspect<>&, const Resolution&);			//!< Invokes renderShadedReflection() methods of all contained control instances. Walks forward through the list
-		void				RenderSchematics(const Aspect<>&, const Resolution&);		//!< Invokes renderSchematics() methods of all contained control instances. Walks forward through the list
-		void				RenderHUD(const Resolution&);							//!< Invokes renderHUD() methods of all contained control instances. Walks forward through the list
 		void				Shutdown();								//!< Signals that the application is being shut down
 
 		void				Install(Control*);

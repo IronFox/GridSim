@@ -1,9 +1,28 @@
 #include "../global_root.h"
 #include "control.h"
-
+//#include "../math/graph.h"
+#include "../container/sorter.h"
 
 namespace Engine
 {
+	void		RenderSequence::Insert(FRenderInstruction instruction, index_t orderIndex)
+	{
+		ASSERT__(!isSealed);
+		wrappers.append(RenderInstructionWrapper(orderIndex,instruction));
+	}
+
+	void		RenderSequence::Seal()
+	{
+		ASSERT__(!isSealed);
+		isSealed = true;
+
+		Sorting::ByMethod::quickSort(wrappers);
+	}
+
+
+
+
+
 	ControlCluster::~ControlCluster()
 	{
 		if (!application_shutting_down)
@@ -50,35 +69,6 @@ namespace Engine
 	}
 	
 			
-	void		ControlCluster::RenderShaded(const Aspect<>&aspect, const Resolution&res)
-	{
-		for (index_t i = 0; i < controlStack.size(); i++)
-			controlStack[i]->RenderShaded(aspect,res);
-	}
-	void		ControlCluster::RenderShadedReflection(const Aspect<>&aspect, const Resolution&res)
-	{
-		for (index_t i = 0; i < controlStack.size(); i++)
-			controlStack[i]->RenderShadedReflection(aspect,res);
-	}
-
-	void		ControlCluster::RenderShadow(const Aspect<>&aspect, const Resolution&res)
-	{
-		for (index_t i = 0; i < controlStack.size(); i++)
-			controlStack[i]->RenderShadow(aspect,res);
-	}
-
-	void		ControlCluster::RenderSchematics(const Aspect<>&aspect, const Resolution&res)
-	{
-		for (index_t i = 0; i < controlStack.size(); i++)
-			controlStack[i]->RenderSchematics(aspect,res);
-	}
-	
-	void		ControlCluster::RenderHUD(const Resolution&res)
-	{
-		for (index_t i = 0; i < controlStack.size(); i++)
-			controlStack[i]->RenderHUD(res);
-	}
-
 	void		ControlCluster::Shutdown()
 	{
 		for (index_t i = 0; i < controlStack.size(); i++)
@@ -93,7 +83,7 @@ namespace Engine
 		if (control->cluster)
 			control->OnUninstall();
 		control->cluster = this;
-		control->OnInstall();
+		control->OnInstall(sequenceMap);
 		controlStack.append(control);
 	}
 	
