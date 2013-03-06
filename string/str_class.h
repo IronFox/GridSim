@@ -1648,19 +1648,22 @@ String			binaryToHex(const void*data, size_t data_size);					//!< @overload
 
 
 template <typename T0, typename T1, typename T2>
-	void	explode(const StringTemplate<T0>&delimiter, const StringTemplate<T1>&string, ArrayData<StringTemplate<T2> >&result);
+	void	explode(const StringTemplate<T0>&delimiter, const StringTemplate<T1>&string, ArrayData<T2>&result);
 template <typename T0, typename T1, typename T2>
-	void	explode(const T0*delimiter, const StringTemplate<T1>&string, ArrayData<StringTemplate<T2> >&result);
+	void	explode(const T0*delimiter, const StringTemplate<T1>&string, ArrayData<T2>&result);
 template <typename T0, typename T1, typename T2>
-	void	explode(const T0*delimiter, const T1*string, ArrayData<StringTemplate<T2> >&result);
+	void	explode(const T0*delimiter, const T1*string, ArrayData<T2>&result);
 template <typename T0, typename T1>
-	void	explode(T0 delimiter, const T0*string, ArrayData<StringTemplate<T1> >&result);
+	void	explode(T0 delimiter, const T0*string, ArrayData<T1>&result);
 template <typename T0, typename T1>
-	void	explode(T0 delimiter, const StringTemplate<T0>&string, ArrayData<StringTemplate<T1> >&result);
+	void	explode(T0 delimiter, const StringTemplate<T0>&string, ArrayData<T1>&result);
 template <typename T0, typename T1>
-	void	explodeCallback(bool isDelimiter(T0), const T0*string, ArrayData<StringTemplate<T1> >&result);
+	void	explodeCallback(bool isDelimiter(T0), const T0*string, ArrayData<T1>&result);
 template <typename T0, typename T1>
-	void	explodeCallback(bool isDelimiter(T0), const StringTemplate<T0>&string, ArrayData<StringTemplate<T1> >&result);
+	void	explodeCallback(bool isDelimiter(T0), const StringTemplate<T0>&string, ArrayData<T1>&result);
+
+
+
 
 template <typename T0, typename T1>
 	StringTemplate<T1>		implode(const StringTemplate<T0>&glue, const ArrayData<StringTemplate<T1> >&pieces);

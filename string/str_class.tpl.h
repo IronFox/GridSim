@@ -3896,7 +3896,7 @@ template <typename T>
 
 	
 template <typename T0, typename T1, typename T2>
-	void	explode(const T0*delimiter, size_t delimiter_length, const T1*string, ArrayData<StringTemplate<T2> >&result)
+	void	explode(const T0*delimiter, size_t delimiter_length, const T1*string, ArrayData<T2>&result)
 	{
 		if (!string || !delimiter)
 			return;
@@ -3928,7 +3928,7 @@ template <typename T0, typename T1, typename T2>
 		{
 			if (const T1*found = Template::strstr<T1,T0>(at,delimiter))
 			{
-				result[count++] = StringTemplate<T2>(at,found-at);
+				result[count++] = T2(at,found-at);
 				/*(*found) = 0;
 				result[count++] = at;*/
 				at = found + delimiter_length;
@@ -3942,7 +3942,7 @@ template <typename T0, typename T1, typename T2>
 	}
 
 template <typename T0, typename T1, typename T2>
-	void	explode(const T0*delimiter, size_t delimiter_length, const StringTemplate<T1>&string, ArrayData<StringTemplate<T2> >&result)
+	void	explode(const T0*delimiter, size_t delimiter_length, const StringTemplate<T1>&string, ArrayData<T2>&result)
 	{
 		if (!delimiter)
 			return;
@@ -3976,7 +3976,7 @@ template <typename T0, typename T1, typename T2>
 			{
 				/*(*found) = 0;
 				result[count++] = at;*/
-				result[count++] = StringTemplate<T2>(at,found-at);
+				result[count++] = T2(at,found-at);
 				at = found + delimiter_length;
 			}
 			else
@@ -3992,27 +3992,27 @@ template <typename T0, typename T1, typename T2>
 
 
 template <typename T0, typename T1, typename T2>
-	void	explode(const StringTemplate<T0>&delimiter, const StringTemplate<T1>&string, ArrayData<StringTemplate<T2> >&result)
+	void	explode(const StringTemplate<T0>&delimiter, const StringTemplate<T1>&string, ArrayData<T2>&result)
 	{
 		explode(delimiter.c_str(),delimiter.length(),string,result);
 	}
 
 
 template <typename T0, typename T1, typename T2>
-	void	explode(const T0*delimiter, const StringTemplate<T1>&string, ArrayData<StringTemplate<T2> >&result)
+	void	explode(const T0*delimiter, const StringTemplate<T1>&string, ArrayData<T2>&result)
 	{
 		explode(delimiter,Template::strlen(delimiter),string,result);
 	}
 
 
 template <typename T0, typename T1, typename T2>
-	void	explode(const T0*delimiter, const T1*string, ArrayData<StringTemplate<T2> >&result)
+	void	explode(const T0*delimiter, const T1*string, ArrayData<T2>&result)
 	{
 		explode(delimiter,Template::strlen(delimiter),string,result);
 	}
 
 template <typename T0, typename T1>
-	void	explode(T0 delimiter, const T0*string, ArrayData<StringTemplate<T1> >&result)
+	void	explode(T0 delimiter, const T0*string, ArrayData<T1>&result)
 	{
 		if (!string)
 			return;
@@ -4038,7 +4038,7 @@ template <typename T0, typename T1>
 			{
 				/*(*found) = 0;
 				result[count++] = at;*/
-				result[count++] = StringTemplate<T1>(at,found-at);
+				result[count++] = T1(at,found-at);
 				at = found + 1;
 			}
 			else
@@ -4050,9 +4050,9 @@ template <typename T0, typename T1>
 	}
 
 template <typename T0, typename T1>
-	void	explode(T0 delimiter, const StringTemplate<T0>&string, ArrayData<StringTemplate<T1> >&result)
+	void	explode(T0 delimiter, const StringTemplate<T0>&string, ArrayData<T1>&result)
 	{
-		const T1*at = string.c_str();
+		const T0*at = string.c_str();
 		size_t count = 0;
 		while (*at)
 		{
@@ -4072,7 +4072,7 @@ template <typename T0, typename T1>
 		{
 			if (const T0*found = Template::strchr(at,delimiter))
 			{
-				result[count++] = StringTemplate<T1>(at,found-at);
+				result[count++] = T1(at,found-at);
 				at = found + 1;
 			}
 			else
@@ -4084,7 +4084,7 @@ template <typename T0, typename T1>
 	}
 
 template <typename T0, typename T1>
-	void	explodeCallback(bool isDelimiter(T0), const T0*string, ArrayData<StringTemplate<T1> >&result)
+	void	explodeCallback(bool isDelimiter(T0), const T0*string, ArrayData<T1>&result)
 	{
 		if (!string)
 			return;
@@ -4110,7 +4110,7 @@ template <typename T0, typename T1>
 			{
 				/*(*found) = 0;
 				result[count++] = at;*/
-				result[count++] = StringTemplate<T1>(at,found-at);
+				result[count++] = T1(at,found-at);
 				at = found + 1;
 			}
 			else
@@ -4122,7 +4122,7 @@ template <typename T0, typename T1>
 	}
 
 template <typename T0, typename T1>
-	void	explodeCallback(bool isDelimiter(T0), const StringTemplate<T0>&string, ArrayData<StringTemplate<T1> >&result)
+	void	explodeCallback(bool isDelimiter(T0), const StringTemplate<T0>&string, ArrayData<T1>&result)
 	{
 		const T0*at = string.c_str();
 		size_t count = 0;
@@ -4144,7 +4144,7 @@ template <typename T0, typename T1>
 		{
 			if (const T0*found = Template::strchr(at,isDelimiter))
 			{
-				result[count++] = StringTemplate<T1>(at,found-at);
+				result[count++] = T1(at,found-at);
 				at = found + 1;
 			}
 			else
@@ -4154,6 +4154,14 @@ template <typename T0, typename T1>
 			}
 		}
 	}
+
+
+
+
+
+
+
+
 
 
 template <typename T0, typename T1>
@@ -4239,8 +4247,8 @@ template <typename T0, typename T1>
 template <typename T0, typename T1, typename T2>
 	static void twrap(const T0*string, T1 max_line_length, T1 (*lengthFunction)(T0 character),ArrayData<StringTemplate<T2> >&result)
 	{
-		T1			line_length = 0,
-					word_length = 0;
+		T1			line_width = 0,
+					word_width = 0;
 		const T0	*at = string,
 					*word_begin=string,
 					*line_begin=string;
@@ -4250,20 +4258,32 @@ template <typename T0, typename T1, typename T2>
 		while (*at)
 		{
 			T1 len = lengthFunction(*at);
-			line_length += len;
-			word_length += len;
-			if (line_length >= max_line_length)
+			line_width += len;
+			word_width += len;
+			if (line_width >= max_line_length)
 			{
 				//cout << "passed length barrier of "<<max_line_length<<" at "<<(at-string)<<endl;
 				lines++;
 				if (word_begin == line_begin)
 				{
+					ASSERT_EQUAL__(word_width,line_width);
 					T1 current = 0;
-					while (current < max_line_length)
-						current += lengthFunction(*word_begin++);
+					for(;;)
+					{
+						ASSERT_LESS_OR_EQUAL__(word_begin,at);
+						T1 chrWidth = lengthFunction(*word_begin);
+						if (current == 0 || current + chrWidth <= max_line_length)
+						{
+							word_begin++;
+							current += chrWidth;
+							word_width -= chrWidth;
+						}
+						else
+							break;
+					}
 				}
 				line_begin = word_begin;
-				line_length = word_length;
+				line_width = word_width;
 				//length = len;
 			}
 		
@@ -4272,7 +4292,10 @@ template <typename T0, typename T1, typename T2>
 			{
 				//*at = ' ';
 				if (line_begin == at)
+				{
 					line_begin++;
+					word_begin++;
+				}
 				word_ended = true;
 			}
 			else
@@ -4280,7 +4303,7 @@ template <typename T0, typename T1, typename T2>
 				{
 					word_ended = false;
 					word_begin = at;
-					word_length = 0;
+					word_width = 0;
 				}
 			at++;
 		}
@@ -4292,29 +4315,40 @@ template <typename T0, typename T1, typename T2>
 		at = string;
 		word_begin=string;
 		line_begin=string;
-		line_length = 0;
-		word_length = 0;
+		line_width = 0;
+		word_width = 0;
 		word_ended = false;
 		lines = 0;
 		while (*at)
 		{
 			T1 len = lengthFunction(*at);
-			line_length += len;
-			word_length += len;
-			if (line_length >= max_line_length)
+			line_width += len;
+			word_width += len;
+			if (line_width >= max_line_length)
 			{
 				
 				if (word_begin == line_begin)
 				{
 					T1 current = 0;
-					while (current < max_line_length)
-						current += lengthFunction(*word_begin++);
+					for(;;)
+					{
+						ASSERT_LESS_OR_EQUAL__(word_begin,at);
+						T1 chrWidth = lengthFunction(*word_begin);
+						if (current == 0 || current + chrWidth <= max_line_length)
+						{
+							word_begin++;
+							current += chrWidth;
+							word_width -= chrWidth;
+						}
+						else
+							break;
+					}
 						
 				}
 				result[lines] = StringTemplate<T2>(line_begin,word_begin-line_begin);
 				result[lines].replaceCharacters(isWhitespace<T2>,(T2)' ');
 				line_begin = word_begin;
-				line_length = word_length;
+				line_width = word_width;
 				
 				lines++;
 			}
@@ -4323,7 +4357,10 @@ template <typename T0, typename T1, typename T2>
 			{
 				//*at = ' ';
 				if (line_begin == at)
+				{
 					line_begin++;
+					word_begin++;
+				}
 				word_ended = true;
 			}
 			else
@@ -4331,14 +4368,14 @@ template <typename T0, typename T1, typename T2>
 				{
 					word_ended = false;
 					word_begin = at;
-					word_length = 0;
+					word_width = 0;
 				}
 
 			at++;
 		}
-		if (at > word_begin)
+		if (at > line_begin)
 		{
-			result[lines] = line_begin;
+			result[lines] = StringTemplate<T2>(line_begin, at - line_begin);
 			result[lines].replaceCharacters(isWhitespace<T2>,(T2)' ');
 		}
 			
