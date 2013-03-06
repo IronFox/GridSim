@@ -2361,7 +2361,11 @@ namespace Engine
 		void	MenuEntry::OnColorPaint(ColorRenderer&renderer, bool parentIsEnabled)
 		{
 			//Label::fillBackground = IsFocused();
+			renderer.PushColor();
+			if (!IsEnabled())
+				renderer.ModulateColor(1.f,0.5f);
 			Label::OnColorPaint(renderer,parentIsEnabled);
+			renderer.PopColor();
 		}
 
 		void	MenuEntry::OnMenuHide()
