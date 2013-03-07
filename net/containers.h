@@ -11,7 +11,7 @@ namespace Package
 		protected:
 		static	bool			validChar(char c)
 				{
-					return isgraph(c) || isspace(c);
+					return isgraph((BYTE)c) || isspace((BYTE)c);
 				}
 		public:
 								NetString()
