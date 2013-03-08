@@ -666,9 +666,13 @@ namespace Map	//! Geometrical scenario composition
 			bool					findClosestSegment(const TVec3<>&reference_position, index_t&out_index, TVec2<>&out_factor, float&out_distance, SurfaceDescription::InterpolatedSlice&out_slice)	const;
 
 			void					parse(const XML::Node&node,float scale, const FileSystem::Folder&loading_context);	//!< Parses the local track configuration from the specified XML node
+
+
+	//semi-public:
+			void					recompileGeometry(float scale);
+
 	private:
 	static	void					parseConnector(const XML::Node&xnode, SurfaceNetwork::Segment::Connector&connector);
-			void					recompileGeometry(float scale);
 
 	};
 
