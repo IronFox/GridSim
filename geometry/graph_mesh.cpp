@@ -2,8 +2,8 @@
 #include "graph_mesh.h"
 
 
-/*static*/	count_t								SurfaceNetwork::num_lods=4;
-/*static*/	float								SurfaceNetwork::min_tolerance=0.05f;
+/*static*/	count_t								SurfaceNetwork::numLODs=4;
+/*static*/	float								SurfaceNetwork::minTolerance=0.05f;
 
 
 
@@ -538,10 +538,10 @@ bool		Graph::defineSurface(const Profile::Node&p0,const Profile::Node&p1,index_t
 			if (z && x)
 			{
 				ASSERT_EQUAL__(voffset+z*res_x+x,desc.vertices.count()-1);
-				desc.quad_indices << UINT32(voffset+z*res_x+x);
-				desc.quad_indices << UINT32(voffset+z*res_x+x-1);
-				desc.quad_indices << UINT32(voffset+(z-1)*res_x+x-1);
-				desc.quad_indices << UINT32(voffset+(z-1)*res_x+x);
+				desc.quadIndices << UINT32(voffset+z*res_x+x);
+				desc.quadIndices << UINT32(voffset+z*res_x+x-1);
+				desc.quadIndices << UINT32(voffset+(z-1)*res_x+x-1);
+				desc.quadIndices << UINT32(voffset+(z-1)*res_x+x);
 			}
 		}
 	}
@@ -739,12 +739,12 @@ namespace MeshGraphDetail
 {
 		static Buffer<UINT32> iout2;
 		iout2.reset();
-		for (index_t i = 0; i < desc_out.quad_indices.fillLevel(); i+=4)
+		for (index_t i = 0; i < desc_out.quadIndices.fillLevel(); i+=4)
 		{
-			const UINT32		v_i[4] = {	desc_out.quad_indices[i],
-											desc_out.quad_indices[i+1],
-											desc_out.quad_indices[i+2],
-											desc_out.quad_indices[i+3]};
+			const UINT32		v_i[4] = {	desc_out.quadIndices[i],
+											desc_out.quadIndices[i+1],
+											desc_out.quadIndices[i+2],
+											desc_out.quadIndices[i+3]};
 			const SurfaceDescription::TVertex v[4] = {	desc_out.vertices [v_i[0]],
 														desc_out.vertices [v_i[1]],
 														desc_out.vertices [v_i[2]],
@@ -752,7 +752,7 @@ namespace MeshGraphDetail
 				
 			if (v[0].position.x >= -TypeInfo<float>::error && v[1].position.x >= -TypeInfo<float>::error && v[2].position.x >= -TypeInfo<float>::error && v[3].position.x >= -TypeInfo<float>::error)
 			{
-				iout2.append(desc_out.quad_indices+i,4);
+				iout2.append(desc_out.quadIndices+i,4);
 			}
 			elif (v[0].position.x < 0 && v[1].position.x < 0 && v[2].position.x < 0 && v[3].position.x < 0)
 			{
@@ -785,12 +785,12 @@ namespace MeshGraphDetail
 									new_v1 = insertInterpolatedVertex(desc_out.vertices,v_i[(k+1)%4],v_i[(k+2)%4],fc[(k+1)%4]);
 							if (v[(k+1)%4].position.x > 0)
 							{
-								desc_out.triangle_indices << new_v0 << v_i[(k+1)%4] << new_v1;
+								desc_out.triangleIndices << new_v0 << v_i[(k+1)%4] << new_v1;
 							}
 							else
 							{
 								iout2 << new_v0 << new_v1 << v_i[(k+2)%4] << v_i[(k+3)%4];
-								desc_out.triangle_indices << new_v0 << v_i[(k+3)%4] << v_i[k];
+								desc_out.triangleIndices << new_v0 << v_i[(k+3)%4] << v_i[k];
 							}
 							done = true;
 							break;
@@ -798,7 +798,7 @@ namespace MeshGraphDetail
 			}
 
 		}
-		desc_out.quad_indices.swap(iout2);
+		desc_out.quadIndices.swap(iout2);
 		//iout.reset();	//temporarily disable quads
 
 		static Buffer<SurfaceDescription::TVertex,0,POD>	vout2;
@@ -810,15 +810,15 @@ namespace MeshGraphDetail
 			else
 			{
 				index_t degrade_after = vout2.fillLevel();
-				Concurrency::parallel_for(index_t(0), desc_out.quad_indices.fillLevel(), [degrade_after,&desc_out](index_t j)
+				Concurrency::parallel_for(index_t(0), desc_out.quadIndices.fillLevel(), [degrade_after,&desc_out](index_t j)
 				{
-					if (desc_out.quad_indices[j] > degrade_after)
-						desc_out.quad_indices[j]--;
+					if (desc_out.quadIndices[j] > degrade_after)
+						desc_out.quadIndices[j]--;
 				});
-				Concurrency::parallel_for(index_t(0), desc_out.triangle_indices.fillLevel(), [degrade_after,&desc_out](index_t j)
+				Concurrency::parallel_for(index_t(0), desc_out.triangleIndices.fillLevel(), [degrade_after,&desc_out](index_t j)
 				{
-					if (desc_out.triangle_indices[j] > degrade_after)
-						desc_out.triangle_indices[j]--;
+					if (desc_out.triangleIndices[j] > degrade_after)
+						desc_out.triangleIndices[j]--;
 				});
 
 			}
@@ -845,22 +845,22 @@ namespace MeshGraphDetail
 			duplicate.tcoord.x = 1.0f-duplicate.tcoord.x;
 		}
 
-		count_t duplicate_quad_to = desc_out.quad_indices.fillLevel();
+		count_t duplicate_quad_to = desc_out.quadIndices.fillLevel();
 		for (index_t i = 0; i < duplicate_quad_to; i+=4)
 		{
-			UINT32*duplicate = desc_out.quad_indices.appendRow(4);
-			const UINT32*original = desc_out.quad_indices+i;
+			UINT32*duplicate = desc_out.quadIndices.appendRow(4);
+			const UINT32*original = desc_out.quadIndices+i;
 
 			duplicate[0] = static_cast<UINT32>(original[3] + duplicate_to);
 			duplicate[1] = static_cast<UINT32>(original[2] + duplicate_to);
 			duplicate[2] = static_cast<UINT32>(original[1] + duplicate_to);
 			duplicate[3] = static_cast<UINT32>(original[0] + duplicate_to);
 		}
-		count_t duplicate_triangles_to = desc_out.triangle_indices.fillLevel();
+		count_t duplicate_triangles_to = desc_out.triangleIndices.fillLevel();
 		for (index_t i = 0; i < duplicate_triangles_to; i+=3)
 		{
-			UINT32*duplicate = desc_out.triangle_indices.appendRow(3);
-			const UINT32*original = desc_out.triangle_indices+i;
+			UINT32*duplicate = desc_out.triangleIndices.appendRow(3);
+			const UINT32*original = desc_out.triangleIndices+i;
 
 			duplicate[0] = static_cast<UINT32>(original[2] + duplicate_to);
 			duplicate[1] = static_cast<UINT32>(original[1] + duplicate_to);
@@ -989,8 +989,8 @@ template <typename Hull>
 static void	convertDescriptionToHull(const SurfaceDescription&desc, Hull&hull)
 {
 	hull.clear();
-	hull.quad_field.setSize(desc.quad_indices.count()/4);
-	hull.triangle_field.setSize(desc.triangle_indices.count()/3);
+	hull.quad_field.setSize(desc.quadIndices.count()/4);
+	hull.triangle_field.setSize(desc.triangleIndices.count()/3);
 	
 	static VertexTable		vertex_table;
 	static Array<index_t>	vertex_map;
@@ -1007,15 +1007,15 @@ static void	convertDescriptionToHull(const SurfaceDescription&desc, Hull&hull)
 	for (index_t i = 0; i < vertex_table.vertices(); i++)
 		Vec::copy(vertex_table.vertex(i),hull.vertex_field[i].position);
 
-	const UINT32*iat = desc.triangle_indices.pointer();
-	for (UINT32 i = 0; i < desc.triangle_indices.count()/3; i++)
+	const UINT32*iat = desc.triangleIndices.pointer();
+	for (UINT32 i = 0; i < desc.triangleIndices.count()/3; i++)
 	{
 		hull.triangle_field[i].v0 = hull.vertex_field+vertex_map[*iat++];
 		hull.triangle_field[i].v1 = hull.vertex_field+vertex_map[*iat++];
 		hull.triangle_field[i].v2 = hull.vertex_field+vertex_map[*iat++];
 	}
-	iat = desc.quad_indices.pointer();
-	for (UINT32 i = 0; i < desc.quad_indices.count()/4; i++)
+	iat = desc.quadIndices.pointer();
+	for (UINT32 i = 0; i < desc.quadIndices.count()/4; i++)
 	{
 		hull.quad_field[i].v0 = hull.vertex_field+vertex_map[*iat++];
 		hull.quad_field[i].v1 = hull.vertex_field+vertex_map[*iat++];
@@ -1089,7 +1089,7 @@ count_t		GraphMesh::createGeometry(CGS::Geometry<>&target, float step, float tex
 	static Buffer<SurfaceDescription,0,Swap>	visual_hulls;
 	static SurfaceDescription					physical_hull;
 	visual_hulls.reset();
-	physical_hull.reset();
+	physical_hull.Clear();
 
 	
 	//static Buffer<Graph::TVertex>			visual_vout,hull_vout;
@@ -1109,7 +1109,7 @@ count_t		GraphMesh::createGeometry(CGS::Geometry<>&target, float step, float tex
 		robj.tname = target.object_field.pointer()->name;
 
 		SurfaceDescription&visual_hull = visual_hulls.append();
-		visual_hull.reset();
+		visual_hull.Clear();
 		
 		can_reduce = false;
 		for (index_t l = 0; l+1 < visual_profile.nodes.count(); l++)
@@ -1149,11 +1149,11 @@ count_t		GraphMesh::createGeometry(CGS::Geometry<>&target, float step, float tex
 				//vtx += 2;
 			//vtx += 8;
 		}
-		ASSERT__(!(visual_hull.quad_indices.count()%4));
-		ASSERT__(!(visual_hull.triangle_indices.count()%3));
-		robj.ipool.setSize(UINT32(visual_hull.triangle_indices.count()/3),UINT32(visual_hull.quad_indices.count()/4));
-		memcpy(robj.ipool.idata.pointer(),visual_hull.triangle_indices.pointer(),visual_hull.triangle_indices.count()*sizeof(UINT32));
-		memcpy(robj.ipool.idata.pointer()+visual_hull.triangle_indices.count(),visual_hull.quad_indices.pointer(),visual_hull.quad_indices.count()*sizeof(UINT32));
+		ASSERT__(!(visual_hull.quadIndices.count()%4));
+		ASSERT__(!(visual_hull.triangleIndices.count()%3));
+		robj.ipool.setSize(UINT32(visual_hull.triangleIndices.count()/3),UINT32(visual_hull.quadIndices.count()/4));
+		memcpy(robj.ipool.idata.pointer(),visual_hull.triangleIndices.pointer(),visual_hull.triangleIndices.count()*sizeof(UINT32));
+		memcpy(robj.ipool.idata.pointer()+visual_hull.triangleIndices.count(),visual_hull.quadIndices.pointer(),visual_hull.quadIndices.count()*sizeof(UINT32));
 		//robj.ipool.idata.copyFrom
 			//copyFrom(iout.pointer(),iout.length());
 		this_step*=2;
@@ -1173,8 +1173,8 @@ count_t		GraphMesh::createGeometry(CGS::Geometry<>&target, float step, float tex
 
 	cout << "Physical hull complexity:"<<endl;
 	cout << " Vertices: "<<physical_hull.vertices.count()<<endl;
-	cout << " Triangles: "<<physical_hull.triangle_indices.count()<<endl;
-	cout << " Quads: "<<physical_hull.quad_indices.count()<<endl;
+	cout << " Triangles: "<<physical_hull.triangleIndices.count()<<endl;
+	cout << " Quads: "<<physical_hull.quadIndices.count()<<endl;
 
 
 	if (layout == Graph::Split)
@@ -1203,7 +1203,7 @@ count_t		GraphMesh::createGeometry(CGS::Geometry<>&target, float step, float tex
 			vs_hull.clear();
 	}
 
-	convertDescriptionToHull(physical_hull,obj.ph_hull);
+	convertDescriptionToHull(physical_hull,obj.phHull);
 	
 	obj.meta.shortest_edge_length = step * z_factor;
 	//ShowMessage("generated "+String(robjs.count())+" sub defail level(s)");
@@ -1487,12 +1487,12 @@ void		GraphMesh::saveToFile(const String&filename)	const
 
 /*static*/	void				GraphMesh::buildStub(Graph::layout_t layout, float step, SurfaceDescription&desc)
 {
-	desc.reset();
+	desc.Clear();
 	if (layout == Graph::Plain)
 		return;
 }
 
-float				SurfaceDescription::InterpolatedSlice::texExtend()	const
+float				SurfaceDescription::InterpolatedSlice::GetTexExtend()	const
 {
 	float len = 0;
 	float3	last_p;
@@ -1513,24 +1513,24 @@ float				SurfaceDescription::InterpolatedSlice::texExtend()	const
 	return len / (texcoord1 - texcoord0);
 }
 
-count_t				SurfaceDescription::InterpolatedSlice::calculateSteps(float tolerance)	const
+count_t				SurfaceDescription::InterpolatedSlice::CalculateSteps(float tolerance)	const
 {
 	return vmax((count_t)ceil((angle1 - angle0)*M_PI*(fabs(scale.x)+fabs(scale.y))/tolerance/8),2);
 }
 
-count_t				SurfaceDescription::InterpolatedSlice::calculateSteps(float tolerance0, float tolerance1)	const
+count_t				SurfaceDescription::InterpolatedSlice::CalculateSteps(float tolerance0, float tolerance1)	const
 {
 	float tolerance = tolerance0 + (tolerance1-tolerance0)*t;
-	return calculateSteps(tolerance);
+	return CalculateSteps(tolerance);
 }
 
-bool				SurfaceDescription::InterpolatedSlice::isClosedLoop()		const
+bool				SurfaceDescription::InterpolatedSlice::IsClosedLoop()		const
 {
 	return (angle1 - angle0) >= 2.f - getError<float>();
 }
 
 
-float				SurfaceDescription::InterpolatedSlice::estimateLength()	const
+float				SurfaceDescription::InterpolatedSlice::EstimateLength()	const
 {
 	float rs = 0;
 
@@ -1568,136 +1568,149 @@ float				SurfaceDescription::InterpolatedSlice::estimateLength()	const
 
 
 
-void			SurfaceDescription::InterpolatedSlice::makeVertex(float x, TVertex&vtx)	const
+void			SurfaceDescription::InterpolatedSlice::MakeVertex(float x, TVertex&vtx)	const
 {
-	float angle = x * (angle1 - angle0) + angle0;
-	
-	TVec2<>	factor = {scale.y != 0? fabs(scale.x/scale.y) : 1 , scale.x != 0 ? scale.y / scale.x : 1};
-	const float	cs = cos(angle*M_PI),
-				sn = sin(angle*M_PI);
-	//vtx.position = float3::reinterpret(position) + float3::reinterpret(up) * (1.f -cs) * scale.y + right*sn*scale.x;
-	Vec::mad(position,up,(1.f -cs) * scale.y,vtx.position);
-	Vec::mad(vtx.position,right,sn*scale.x);
-
-	//vtx.normal = (float3::reinterpret(up) * cs * factor.x + right*-sn*factor.y).normalized();
-	Vec::mult(up,cs*factor.x,vtx.normal);
-	Vec::mad(vtx.normal,right,-sn*factor.y);
-	Vec::normalize(vtx.normal);
-
-	//vtx.tangent = (float3::reinterpret(up) * sn * scale.y + right*cs*scale.x).normalized();
-	Vec::mult(up,sn*scale.y,vtx.tangent);
-	Vec::mad(vtx.tangent,right,cs*scale.x);
-	Vec::normalize(vtx.tangent);
-
+	MakePoint(x,vtx.position,vtx.normal,vtx.tangent);
 	vtx.tcoord.x = x * (texcoord1 - texcoord0) + texcoord0;
-	vtx.tcoord.y = texcoord_y;
+	vtx.tcoord.y = texcoordY;
 	vtx.tx = x;
 }
 
-void			SurfaceDescription::InterpolatedSlice::makePoint(float x, TVec3<>&pt)	const
+void			SurfaceDescription::InterpolatedSlice::MakePoint(float x, TVec3<>&pt)	const
 {
 	float angle = x * (angle1 - angle0) + angle0;
 	
 	TVec2<>	factor = {scale.y != 0? fabs(scale.x/scale.y) : 1 , scale.x != 0 ? scale.y / scale.x : 1};
 	const float	cs = cos(angle*M_PI),
 				sn = sin(angle*M_PI);
-	//pt = float3::reinterpret(position) + float3::reinterpret(up) * (1.f -cs) * scale.y + right*sn*scale.x;
-	Vec::mad(position,up,(1.f -cs) * scale.y,pt);
-	Vec::mad(pt,right,sn*scale.x);
+	if (buildLocal)
+	{
+		Vec::def(pt, sn*scale.x,0,(1.f -cs) * scale.y);
+	}
+	else
+	{
+		//pt = float3::reinterpret(position) + float3::reinterpret(up) * (1.f -cs) * scale.y + right*sn*scale.x;
+		Vec::mad(position,up,(1.f -cs) * scale.y,pt);
+		Vec::mad(pt,right,sn*scale.x);
+	}
 }
 
-void			SurfaceDescription::InterpolatedSlice::makePoint(float x, TVec3<>&pt, TVec3<>&normal)	const
+void			SurfaceDescription::InterpolatedSlice::MakePoint(float x, TVec3<>&pt, TVec3<>&normal)	const
 {
 	float angle = x * (angle1 - angle0) + angle0;
 	
 	TVec2<>	factor = {scale.y != 0? fabs(scale.x/scale.y) : 1 , scale.x != 0 ? scale.y / scale.x : 1};
 	const float	cs = cos(angle*M_PI),
 				sn = sin(angle*M_PI);
-	//pt = float3::reinterpret(position) + float3::reinterpret(up) * (1.f -cs) * scale.y + right*sn*scale.x;
-	Vec::mad(position,up,(1.f -cs) * scale.y,pt);
-	Vec::mad(pt,right,sn*scale.x);
+	if (buildLocal)
+	{
+		Vec::def(pt, sn*scale.x,0,(1.f -cs) * scale.y);
+		Vec::def(normal, -sn*factor.y, 0, cs*factor.x);
+	}
+	else
+	{
+		//pt = float3::reinterpret(position) + float3::reinterpret(up) * (1.f -cs) * scale.y + right*sn*scale.x;
+		Vec::mad(position,up,(1.f -cs) * scale.y,pt);
+		Vec::mad(pt,right,sn*scale.x);
 
-	//normal = (float3::reinterpret(up) * cs * factor.x + right*-sn*factor.y).normalized();
-	Vec::mult(up,cs*factor.x,normal);
-	Vec::mad(normal,right,-sn*factor.y);
+		//normal = (float3::reinterpret(up) * cs * factor.x + right*-sn*factor.y).normalized();
+		Vec::mult(up,cs*factor.x,normal);
+		Vec::mad(normal,right,-sn*factor.y);
+	}
 	Vec::normalize(normal);
 
 }
 
-void			SurfaceDescription::InterpolatedSlice::makePoint(float x, TVec3<>&pt, TVec3<>&normal, TVec3<>&tangent)	const
+void			SurfaceDescription::InterpolatedSlice::MakePoint(float x, TVec3<>&pt, TVec3<>&normal, TVec3<>&tangent)	const
 {
 	float angle = x * (angle1 - angle0) + angle0;
 	
 	TVec2<>	factor = {scale.y != 0? fabs(scale.x/scale.y) : 1 , scale.x != 0 ? scale.y / scale.x : 1};
 	const float	cs = cos(angle*M_PI),
 				sn = sin(angle*M_PI);
-	//pt = float3::reinterpret(position) + float3::reinterpret(up) * (1.f -cs) * scale.y + right*sn*scale.x;
-	Vec::mad(position,up,(1.f -cs) * scale.y,pt);
-	Vec::mad(pt,right,sn*scale.x);
 
-	//normal = (float3::reinterpret(up) * cs * factor.x + right*-sn*factor.y).normalized();
-	Vec::mult(up,cs*factor.x,normal);
-	Vec::mad(normal,right,-sn*factor.y);
+	if (buildLocal)
+	{
+		Vec::def(pt, sn*scale.x,0,(1.f -cs) * scale.y);
+		Vec::def(normal, -sn*factor.y, 0, cs*factor.x);
+		Vec::def(tangent, cs*scale.x, 0, sn*scale.y);
+	}
+	else
+	{
+		//pt = float3::reinterpret(position) + float3::reinterpret(up) * (1.f -cs) * scale.y + right*sn*scale.x;
+		Vec::mad(position,up,(1.f -cs) * scale.y,pt);
+		Vec::mad(pt,right,sn*scale.x);
+
+		//normal = (float3::reinterpret(up) * cs * factor.x + right*-sn*factor.y).normalized();
+		Vec::mult(up,cs*factor.x,normal);
+		Vec::mad(normal,right,-sn*factor.y);
+
+		//tangent = (float3::reinterpret(up) * sn * scale.y + right*cs*scale.x).normalized();
+		Vec::mult(up,sn*scale.y,tangent);
+		Vec::mad(tangent,right,cs*scale.x);
+	}
 	Vec::normalize(normal);
-
-	//tangent = (float3::reinterpret(up) * sn * scale.y + right*cs*scale.x).normalized();
-	Vec::mult(up,sn*scale.y,tangent);
-	Vec::mad(tangent,right,cs*scale.x);
 	Vec::normalize(tangent);
 
 }
 
-/*static*/	void		SurfaceDescription::buildArc(OutVertexContainer&arc_out, const TControl&control, float tolerance, bool flipped)
+/*static*/	void		SurfaceDescription::BuildArcFromSlice(OutVertexContainer&arc_out, InterpolatedSlice&slice, float tolerance, bool flipped)
 {
-	InterpolatedSlice	slice(control,0);
 	if (flipped)
 	{
 		slice.angle0 *= -1.f;
 		slice.angle1 *= -1.f;
 		swp(slice.angle0,slice.angle1);
 	}
-	const count_t steps = slice.calculateSteps(tolerance);
+	const count_t steps = slice.CalculateSteps(tolerance);
 	//arc_out.setSize(steps);
 	arc_out.reset();
 	for (index_t i = 0; i < steps; i++)
 	{
 		TVertex&vtx = arc_out.append();
 		float fi = float(i) / float(steps-1);
-		slice.makeVertex(fi,vtx);
+		slice.MakeVertex(fi,vtx);
 	}
+}
+
+/*static*/	void		SurfaceDescription::BuildArc(OutVertexContainer&arc_out, const TControl&control, float tolerance, bool flipped, bool global)
+{
+	InterpolatedSlice	slice(control,0);
+	slice.buildLocal = !global;
+	BuildArcFromSlice(arc_out,slice,tolerance,flipped);
 }
 
 
 
 
-void				SurfaceDescription::buildSegment(const SurfaceDescription::TConnector&begin_, const SurfaceDescription::TConnector&end_, const SurfaceDescription::TControl control_points[2], float tolerance0, float tolerance1)
+void				SurfaceDescription::BuildSegment(const SurfaceDescription::TConnector&begin_, const SurfaceDescription::TConnector&end_, const SurfaceDescription::TControl control_points[2], float tolerance0, float tolerance1)
 {
-	this->reset();
+	this->Clear();
 
 	Buffer<InterpolatedSlice,256,POD>	steps;
 	InterpolatedSlice	begin(begin_.state,0),
 						end(end_.state,1);
 	steps << begin;
-	subdivide(begin_,end_,control_points,sqr(vmax(tolerance0,tolerance1)),begin,end,0,1,steps,1);
+	Subdivide(begin_,end_,control_points,sqr(vmax(tolerance0,tolerance1)),begin,end,0,1,steps,1);
 	steps << end;
 
 	float length = 0;
 	for (index_t i = 1; i < steps.count(); i++)
 	{
 		float delta = Vec::distance(steps[i-1].position,steps[i].position);
-		float tlen = 1.0f/(steps[i-1].texExtend() * 0.5f + steps[i].texExtend()*0.5f);
+		float tlen = 1.0f/(steps[i-1].GetTexExtend() * 0.5f + steps[i].GetTexExtend()*0.5f);
 		length += tlen * delta;
 	}
-	texture_repetitions = round(length); 
-	float factor = float(texture_repetitions) / length;
+	textureRepetitions = round(length); 
+	float factor = float(textureRepetitions) / length;
 	length = 0;
-	steps.first().texcoord_y = 0;
+	steps.first().texcoordY = 0;
 	for (index_t i = 1; i < steps.count(); i++)
 	{
 		float delta = Vec::distance(steps[i-1].position,steps[i].position);
-		float tlen = 1.0f/(steps[i-1].texExtend() * 0.5f + steps[i].texExtend()*0.5f);
+		float tlen = 1.0f/(steps[i-1].GetTexExtend() * 0.5f + steps[i].GetTexExtend()*0.5f);
 		length += tlen * delta;
-		steps[i].texcoord_y = length * factor;
+		steps[i].texcoordY = length * factor;
 	}
 
 
@@ -1707,18 +1720,18 @@ void				SurfaceDescription::buildSegment(const SurfaceDescription::TConnector&be
 	if (!closed0 || !closed1)
 	{
 		edges = this->edges.appendRow(2);
-		edges[0].left_edge = true;
-		edges[1].left_edge = false;
+		edges[0].leftEdge = true;
+		edges[1].leftEdge = false;
 	}
 
 	{
 		const InterpolatedSlice	&next = steps.first();
-		const count_t	next_resolution = next.calculateSteps(tolerance0,tolerance1)+1;
+		const count_t	next_resolution = next.CalculateSteps(tolerance0,tolerance1)+1;
 		for (index_t i = 0; i < next_resolution; i++)
 		{
 			TVertex&vtx = this->vertices.append();
 			float fi = float(i) / float(next_resolution-1);
-			next.makeVertex(fi,vtx);
+			next.MakeVertex(fi,vtx);
 		}
 		if (edges)
 		{
@@ -1732,8 +1745,8 @@ void				SurfaceDescription::buildSegment(const SurfaceDescription::TConnector&be
 	{
 		const InterpolatedSlice	&prev = steps[i],
 								&next = steps[i+1];
-		const count_t	prev_resolution = prev.calculateSteps(tolerance0,tolerance1)+1,
-						next_resolution = next.calculateSteps(tolerance0,tolerance1)+1,
+		const count_t	prev_resolution = prev.CalculateSteps(tolerance0,tolerance1)+1,
+						next_resolution = next.CalculateSteps(tolerance0,tolerance1)+1,
 						core_resolution = std::min(prev_resolution,next_resolution);
 
 		float3	right;
@@ -1742,24 +1755,24 @@ void				SurfaceDescription::buildSegment(const SurfaceDescription::TConnector&be
 		{
 			TVertex&vtx = this->vertices.append();
 			float fi = float(i) / float(next_resolution-1);
-			next.makeVertex(fi,vtx);
+			next.MakeVertex(fi,vtx);
 		}
 
 		for (index_t i = 0; i+1 < core_resolution; i++)
 		{
-			this->quad_indices	<< (UINT32)(vtx_offset+i) << (UINT32)(vtx_offset+i+1)
+			this->quadIndices	<< (UINT32)(vtx_offset+i) << (UINT32)(vtx_offset+i+1)
 								<< (UINT32)(vtx_offset+prev_resolution+i+1) << (UINT32)(vtx_offset+prev_resolution+i);
 		}
 
 		for (index_t i = prev_resolution-1; i+1 < next_resolution; i++)
 		{
-			this->triangle_indices	<< (UINT32)(vtx_offset+prev_resolution-1)
+			this->triangleIndices	<< (UINT32)(vtx_offset+prev_resolution-1)
 									<< (UINT32)(vtx_offset+prev_resolution+i+1)<< (UINT32)(vtx_offset+prev_resolution+i);
 		}
 
 		for (index_t i = next_resolution-1; i+1 < prev_resolution; i++)
 		{
-			this->triangle_indices	<< (UINT32)(vtx_offset+i) << (UINT32)(vtx_offset+i+1)
+			this->triangleIndices	<< (UINT32)(vtx_offset+i) << (UINT32)(vtx_offset+i+1)
 									<< (UINT32)(vtx_offset+prev_resolution+next_resolution-1);
 		}
 
@@ -1777,13 +1790,13 @@ void				SurfaceDescription::buildSegment(const SurfaceDescription::TConnector&be
 
 }
 
-/*static*/	void				SurfaceDescription::subdivide(const SurfaceDescription::TConnector&begin, const SurfaceDescription::TConnector&end,const SurfaceDescription::TControl control_points[2], float tolerance, const InterpolatedSlice&ref0, const InterpolatedSlice&ref1, float t0, float t1, Buffer<InterpolatedSlice,256,POD>&outIntersections, int force)
+/*static*/	void				SurfaceDescription::Subdivide(const SurfaceDescription::TConnector&begin, const SurfaceDescription::TConnector&end,const SurfaceDescription::TControl control_points[2], float tolerance, const InterpolatedSlice&ref0, const InterpolatedSlice&ref1, float t0, float t1, Buffer<InterpolatedSlice,256,POD>&outIntersections, int force)
 {
 	bool subdiv;
 
 	InterpolatedSlice	interpolated;
 	float t = t0*0.5+t1*0.5;
-	interpolate(begin,end,control_points,t,interpolated);
+	Interpolate(begin,end,control_points,t,interpolated);
 
 	if (force > 0)
 		subdiv = true;
@@ -1805,14 +1818,14 @@ void				SurfaceDescription::buildSegment(const SurfaceDescription::TConnector&be
 			reference.angle1 = ref0.angle1*0.5 + ref1.angle1*0.5;
 			Vec::center(ref0.scale,ref1.scale,reference.scale);
 			TVertex	p0,p1;
-			reference.makeVertex(0,p0);
-			interpolated.makeVertex(0,p1);
+			reference.MakeVertex(0,p0);
+			interpolated.MakeVertex(0,p1);
 			
 			subdiv = Vec::quadraticDistance(p0.position,p1.position) > tolerance;
 			if (!subdiv)
 			{
-				reference.makeVertex(1,p0);
-				interpolated.makeVertex(1,p1);
+				reference.MakeVertex(1,p0);
+				interpolated.MakeVertex(1,p1);
 
 				subdiv = Vec::quadraticDistance(p0.position,p1.position) > tolerance;
 
@@ -1821,15 +1834,15 @@ void				SurfaceDescription::buildSegment(const SurfaceDescription::TConnector&be
 	}
 
 	if (subdiv)
-		subdivide(begin,end,control_points,tolerance,ref0,interpolated,t0,t,outIntersections,force-1);
+		Subdivide(begin,end,control_points,tolerance,ref0,interpolated,t0,t,outIntersections,force-1);
 	outIntersections << interpolated;
 	if (subdiv)
-		subdivide(begin,end,control_points,tolerance,interpolated,ref1,t,t1,outIntersections,force-1);
+		Subdivide(begin,end,control_points,tolerance,interpolated,ref1,t,t1,outIntersections,force-1);
 }
 
 
 
-/*static*/	void				SurfaceDescription::interpolate(const SurfaceDescription::TConnector&begin, const SurfaceDescription::TConnector&end,const SurfaceDescription::TControl control_points[2], float t, InterpolatedSlice&out)
+/*static*/	void				SurfaceDescription::Interpolate(const SurfaceDescription::TConnector&begin, const SurfaceDescription::TConnector&end,const SurfaceDescription::TControl control_points[2], float t, InterpolatedSlice&out)
 {
 	static const count_t	NumFloats = SurfaceDescription::TControl::NumFloats;
 	VecUnroll<NumFloats>::resolveBezierCurvePoint(begin.state.field, control_points[0].field, control_points[1].field, end.state.field, t, out.field);
@@ -1857,7 +1870,7 @@ void				SurfaceDescription::buildSegment(const SurfaceDescription::TConnector&be
 }
 
 
-/*static*/	void				SurfaceDescription::updateSlope(const TControl&predecessor, const TControl&successor, bool smooth_direction, TConnector&connector)
+/*static*/	void				SurfaceDescription::UpdateSlope(const TControl&predecessor, const TControl&successor, bool smooth_direction, TConnector&connector)
 {
 	VecUnroll<TControl::NumFloats>::sub(successor.field,predecessor.field,connector.slope.field);
 	VecUnroll<TControl::NumFloats>::mult(connector.slope.field,0.5f);
@@ -1870,7 +1883,7 @@ void				SurfaceDescription::buildSegment(const SurfaceDescription::TConnector&be
 		Vec::mult(connector.state.direction,Vec::distance(successor.position,predecessor.position)*0.5,connector.slope.position);
 }
 
-/*static*/	void				SurfaceDescription::updateRightSlope(const SurfaceDescription::TControl&predecessor, bool smooth_direction, TConnector&connector)
+/*static*/	void				SurfaceDescription::UpdateRightSlope(const SurfaceDescription::TControl&predecessor, bool smooth_direction, TConnector&connector)
 {
 	VecUnroll<TControl::NumFloats>::sub(connector.state.field,predecessor.field,connector.slope.field);
 	if (smooth_direction)
@@ -1882,7 +1895,7 @@ void				SurfaceDescription::buildSegment(const SurfaceDescription::TConnector&be
 		Vec::mult(connector.state.direction,Vec::distance(predecessor.position,connector.state.position),connector.slope.position);
 }
 
-/*static*/	void				SurfaceDescription::updateLeftSlope(const SurfaceDescription::TControl&successor, bool smooth_direction, TConnector&connector)
+/*static*/	void				SurfaceDescription::UpdateLeftSlope(const SurfaceDescription::TControl&successor, bool smooth_direction, TConnector&connector)
 {
 	VecUnroll<TControl::NumFloats>::sub(successor.field,connector.state.field,connector.slope.field);
 	if (smooth_direction)
@@ -1896,7 +1909,7 @@ void				SurfaceDescription::buildSegment(const SurfaceDescription::TConnector&be
 
 
 
-/*static*/	void				SurfaceDescription::buildControlPoints(const SurfaceDescription::TConnector&begin, const SurfaceDescription::TConnector&end, SurfaceDescription::TControl control_points[2], float control_factor0/*=0.39*/, float control_factor1/*=0.39*/)
+/*static*/	void				SurfaceDescription::BuildControlPoints(const SurfaceDescription::TConnector&begin, const SurfaceDescription::TConnector&end, SurfaceDescription::TControl control_points[2], float control_factor0/*=0.39*/, float control_factor1/*=0.39*/)
 {
 	TVec2<>	sd;
 	
@@ -1911,44 +1924,63 @@ void				SurfaceDescription::buildSegment(const SurfaceDescription::TConnector&be
 	VecUnroll<NumFloats>::mad(end.state.field,end.slope.field,-control_factor1,control_points[1].field);
 }
 
-void				SurfaceNetwork::compact(Compacted&target)
+void				SurfaceNetwork::Compact(Compacted&target)
 {
 	target.nodes.setSize(nodes.count());
+	target.segments.setSize(segments.count());
+	target.nodeIsFlipped.setSize(nodes.count());
+
+	bool*node_flipped_to = target.nodeIsFlipped.pointer();
+	nodes.visitAllEntries([this,&target,&node_flipped_to](index_t key, Node&node)
+	{
+		(*node_flipped_to++) = NodeIsFlipped(key);
+	});
+	ASSERT_CONCLUSION(target.nodeIsFlipped,node_flipped_to);
+
 	Node*node_to = target.nodes.pointer();
+
 	nodes.visitAllEntries([this,&target,&node_to](index_t key, Node&node)
 	{
-		node.node_id = node_to - target.nodes.pointer();
+		node.nodeID = node_to - target.nodes.pointer();
 		(*node_to++) = node;
 	});
 	ASSERT_CONCLUSION(target.nodes,node_to);
 
-	segments.exportTo(target.segments);
-	for (index_t i = 0; i < target.segments.count(); i++)
+	Segment*seg_to = target.segments.pointer();
+	segments.visitAllEntries([this,&target,&seg_to](index_t key, Segment&segment)
 	{
-		target.segments[i].connector[0].node = nodes.queryPointer(target.segments[i].connector[0].node)->node_id;
-		target.segments[i].connector[1].node = nodes.queryPointer(target.segments[i].connector[1].node)->node_id;
-	}
-	FATAL__("Missing feature: subdiv segment index map back. Postponed.");
+		segment.segID = seg_to - target.segments.pointer();
+		(*seg_to) = segment;
+		
+		seg_to->connector[0].node = nodes.require(seg_to->connector[0].node).nodeID;
+		seg_to->connector[1].node = nodes.require(seg_to->connector[1].node).nodeID;
+		DBG_ASSERT_LESS__(seg_to->connector[0].node,target.nodes.size());
+		target.nodes[seg_to->connector[0].node].segments[seg_to->connector[0].outbound][seg_to->connector[0].subdivisionStep] = seg_to - target.segments.pointer();
+		DBG_ASSERT_LESS__(seg_to->connector[1].node,target.nodes.size());
+		target.nodes[seg_to->connector[1].node].segments[seg_to->connector[1].outbound][seg_to->connector[1].subdivisionStep] = seg_to - target.segments.pointer();
+		seg_to++;
+	});
+	ASSERT_CONCLUSION(target.segments,seg_to);
 }
 
-void				SurfaceNetwork::moveCompact(Compacted&target)
+void				SurfaceNetwork::MoveCompact(Compacted&target)
 {
 	target.nodes.setSize(nodes.count());
 	target.segments.setSize(segments.count());
-	target.node_is_flipped.setSize(nodes.count());
+	target.nodeIsFlipped.setSize(nodes.count());
 
-	bool*node_flipped_to = target.node_is_flipped.pointer();
+	bool*node_flipped_to = target.nodeIsFlipped.pointer();
 	nodes.visitAllEntries([this,&target,&node_flipped_to](index_t key, Node&node)
 	{
-		(*node_flipped_to++) = nodeIsFlipped(key);
+		(*node_flipped_to++) = NodeIsFlipped(key);
 	});
-	ASSERT_CONCLUSION(target.node_is_flipped,node_flipped_to);
+	ASSERT_CONCLUSION(target.nodeIsFlipped,node_flipped_to);
 
 	Node*node_to = target.nodes.pointer();
 
 	nodes.visitAllEntries([this,&target,&node_to](index_t key, Node&node)
 	{
-		node.node_id = node_to - target.nodes.pointer();
+		node.nodeID = node_to - target.nodes.pointer();
 		(*node_to++).adoptData(node);
 	});
 	ASSERT_CONCLUSION(target.nodes,node_to);
@@ -1956,15 +1988,15 @@ void				SurfaceNetwork::moveCompact(Compacted&target)
 	Segment*seg_to = target.segments.pointer();
 	segments.visitAllEntries([this,&target,&seg_to](index_t key, Segment&segment)
 	{
-		segment.seg_id = seg_to - target.segments.pointer();
+		segment.segID = seg_to - target.segments.pointer();
 		(*seg_to).adoptData(segment);
 		
-		seg_to->connector[0].node = nodes.queryPointer(seg_to->connector[0].node)->node_id;
-		seg_to->connector[1].node = nodes.queryPointer(seg_to->connector[1].node)->node_id;
+		seg_to->connector[0].node = nodes.queryPointer(seg_to->connector[0].node)->nodeID;
+		seg_to->connector[1].node = nodes.queryPointer(seg_to->connector[1].node)->nodeID;
 		DBG_ASSERT_LESS__(seg_to->connector[0].node,target.nodes.size());
-		target.nodes[seg_to->connector[0].node].segments[seg_to->connector[0].outbound][seg_to->connector[0].subdivision_step] = seg_to - target.segments.pointer();
+		target.nodes[seg_to->connector[0].node].segments[seg_to->connector[0].outbound][seg_to->connector[0].subdivisionStep] = seg_to - target.segments.pointer();
 		DBG_ASSERT_LESS__(seg_to->connector[1].node,target.nodes.size());
-		target.nodes[seg_to->connector[1].node].segments[seg_to->connector[1].outbound][seg_to->connector[1].subdivision_step] = seg_to - target.segments.pointer();
+		target.nodes[seg_to->connector[1].node].segments[seg_to->connector[1].outbound][seg_to->connector[1].subdivisionStep] = seg_to - target.segments.pointer();
 		seg_to++;
 	});
 	ASSERT_CONCLUSION(target.segments,seg_to);
@@ -1993,7 +2025,7 @@ float							SurfaceNetwork::Segment::getMinimalDistanceTo(const TVec3<>&referenc
 }
 #endif /*0*/
 		
-index_t								SurfaceNetwork::link(const Segment::Connector&slot0, const Segment::Connector&slot1, bool update_controls, bool build)
+index_t								SurfaceNetwork::Link(const Segment::Connector&slot0, const Segment::Connector&slot1, bool update_controls, bool build)
 {
 	Node*n0 = nodes.queryPointer(slot0.node),
 		*n1 = nodes.queryPointer(slot1.node);
@@ -2001,36 +2033,36 @@ index_t								SurfaceNetwork::link(const Segment::Connector&slot0, const Segmen
 	if (n0 == n1 || !n0 || !n1)
 		return InvalidIndex;
 	
-	if (!n0->available(slot0.outbound,slot0.subdivision_step)
+	if (!n0->IsAvailable(slot0.outbound,slot0.subdivisionStep)
 		||
-		!n1->available(slot1.outbound,slot1.subdivision_step))
+		!n1->IsAvailable(slot1.outbound,slot1.subdivisionStep))
 		return InvalidIndex;
 
 
 	index_t result;
-	Segment&seg = segments.create(result);
+	Segment&seg = segments.Create(result);
 
-	n0->segments[slot0.outbound][slot0.subdivision_step] = result;
-	n1->segments[slot1.outbound][slot1.subdivision_step] = result;
+	n0->segments[slot0.outbound][slot0.subdivisionStep] = result;
+	n1->segments[slot1.outbound][slot1.subdivisionStep] = result;
 	seg.connector[0] = slot0;
 	seg.connector[1] = slot1;
 
 	if (update_controls)
 	{
-		updateControls(seg,build);
+		UpdateControls(seg,build);
 	}
 	return result;
 }
 
-void								SurfaceNetwork::updateSlopes(index_t node_index, bool update_connected_segments, bool rebuild_segments)
+void								SurfaceNetwork::UpdateSlopes(index_t node_index, bool update_connected_segments, bool rebuild_segments, IndexSet*affectedSegments)
 {
 	Node*node = nodes.queryPointer(node_index);
 	DBG_ASSERT_NOT_NULL__(node);
 	if (node)
-		updateSlopes(*node,update_connected_segments,rebuild_segments);
+		UpdateSlopes(*node,update_connected_segments,rebuild_segments,affectedSegments);
 }
 
-void								SurfaceNetwork::updateSlopes(Node&node, bool update_connected_segments, bool rebuild_segments)
+void								SurfaceNetwork::UpdateSlopes(Node&node, bool update_connected_segments, bool rebuild_segments, IndexSet*affectedSegments)
 {
 	static const count_t NumFloats = SurfaceDescription::TControl::NumFloats;
 
@@ -2047,6 +2079,9 @@ void								SurfaceNetwork::updateSlopes(Node&node, bool update_connected_segmen
 			index_t seg_index = node.segments[k][i];
 			if (seg_index != InvalidIndex)
 			{
+				if (affectedSegments)
+					affectedSegments->set(seg_index);
+
 				Segment*seg = segments.queryPointer(node.segments[k][i]);
 				DBG_ASSERT_NOT_NULL__(seg);
 				if (!seg)
@@ -2075,9 +2110,9 @@ void								SurfaceNetwork::updateSlopes(Node&node, bool update_connected_segmen
 
 				if (other)
 				{
-					if (node.buildState(k!=0,i,false,local_state)
+					if (node.BuildState(k!=0,i,false,local_state)
 						&&
-						other->buildState(c.outbound,c.subdivision_step,true,remote_state))
+						other->BuildState(c.outbound,c.subdivisionStep,true,remote_state))
 					{
 						distance += Vec::distance(local_state.position,remote_state.position);
 						if (k)
@@ -2104,13 +2139,91 @@ void								SurfaceNetwork::updateSlopes(Node&node, bool update_connected_segmen
 			for (index_t i = 0; i < node.segments[k].count(); i++)
 				if (node.segments[k][i] != InvalidIndex)
 				{
-					updateControls(node.segments[k][i],rebuild_segments);
+					UpdateControls(node.segments[k][i],rebuild_segments);
 				}
 		}
 	}
 }
 
-SurfaceNetwork::Node&	SurfaceNetwork::Node::splitEvenly(bool outbound, count_t num_slots)
+
+/**
+@brief Performans a managed removal of the specified node.
+
+All segments currently connected to this node are erased automatically.
+@param nodeIndex Index of the node to erase. Must exist or a fatal is raised.
+@param updateConnectedSlopes Updates the slopes of all nodes that have lost a segment this way
+@param updateConnectedSegmentControls Updates all controls of all segments that were affected by this operation
+@param build Rebuilds the surface description of all segments that were affected by this operation
+@param[out] removedSegments Optional outbuffer to catch any removed segments. Cleared automatically
+@param[out] affectedSegments Optional outmap to catch any affected segments that still exist. Cleared automatically
+*/
+void		SurfaceNetwork::ManagedRemoveNode(index_t nodeIndex, bool updateConnectedSlopes, bool updateConnectedSegmentControls, bool build, BasicBuffer<std::pair<index_t,PAttachment> >*removedSegments, IndexSet*affectedSegments)
+{
+	if (removedSegments)
+		removedSegments->clear();
+	
+	static IndexSet	localAffected;
+	if (!affectedSegments && updateConnectedSegmentControls)
+		affectedSegments = &localAffected;
+
+	if (affectedSegments)
+		affectedSegments->clear();
+	static Buffer<index_t>	affectedNodes;
+	if (updateConnectedSlopes)
+		affectedNodes.clear();
+
+	SurfaceNetwork::Node&node = nodes.require(nodeIndex);
+
+
+	for (BYTE k = 0; k < 2; k++)
+	{
+		foreach (node.segments[k],segID)
+		{
+			SurfaceNetwork::Segment&seg = segments.require(*segID);
+			int otherEnd = !seg.GetEndIndex(nodeIndex);
+			if (updateConnectedSlopes)
+				affectedNodes << seg.connector[otherEnd].node;
+
+			if (removedSegments)
+				removedSegments->append(std::make_pair(*segID,seg.attachment));
+			
+			{
+				const Segment::Connector&c = seg.connector[otherEnd];
+				Node&n = nodes.require(c.node);
+				ASSERT_LESS__(c.subdivisionStep,n.segments[c.outbound].count());
+
+				n.segments[c.outbound].erase(c.subdivisionStep);
+				for (index_t i = c.subdivisionStep; i < n.segments[c.outbound].count(); i++)
+					if (n.segments[c.outbound][i] != InvalidIndex)
+					{
+						Segment&seg = segments.require(n.segments[c.outbound][i]);
+						seg.connector[seg.GetEndIndex(c.node)].subdivisionStep--;
+					}
+				n.subdivision[c.outbound].setSize(n.subdivision[c.outbound].length()-1);
+				MakeEven(n.subdivision[c.outbound]);
+			}
+			segments.unset(*segID);
+		}
+	}
+	if (updateConnectedSlopes)
+		foreach (affectedNodes, nodeID)
+		{
+			SurfaceNetwork::Node*node = nodes.queryPointer(*nodeID);
+			if (node)
+				UpdateSlopes(*node,false,false,affectedSegments);
+		}
+	nodes.unset(nodeIndex);
+
+	if (updateConnectedSegmentControls)
+		affectedSegments->visitAllKeys([this,build](index_t segID)
+		{
+			SurfaceNetwork::Segment*seg = segments.queryPointer(segID);
+			if (seg)
+				UpdateControls(*seg,build);
+		});
+}
+
+SurfaceNetwork::Node&	SurfaceNetwork::Node::SplitEvenly(bool outbound, count_t num_slots)
 {
 	ASSERT__(num_slots > 0);
 	ASSERT_EQUAL__(segments[outbound].count(),1);
@@ -2119,11 +2232,11 @@ SurfaceNetwork::Node&	SurfaceNetwork::Node::splitEvenly(bool outbound, count_t n
 	segments[outbound].setSize(num_slots);
 	segments[outbound].fill(InvalidIndex); 
 	subdivision[outbound].setSize(num_slots-1);
-	SurfaceNetwork::even(subdivision[outbound]);
+	SurfaceNetwork::MakeEven(subdivision[outbound]);
 	return *this;
 }
 
-/*static*/ void SurfaceNetwork::even(Array<float>&subdivison_field)
+/*static*/ void SurfaceNetwork::MakeEven(Array<float>&subdivison_field)
 {
 	for (index_t i = 0; i < subdivison_field.length(); i++)
 	{
@@ -2131,7 +2244,7 @@ SurfaceNetwork::Node&	SurfaceNetwork::Node::splitEvenly(bool outbound, count_t n
 	}
 }
 
-bool								SurfaceNetwork::Node::buildState(bool outbound, index_t subdiv, bool second_node, SurfaceDescription::TControl&out_state)	const
+bool								SurfaceNetwork::Node::BuildState(bool outbound, index_t subdiv, bool second_node, SurfaceDescription::TControl&out_state)	const
 {
 	DBG_ASSERT_LESS_OR_EQUAL__(subdiv,this->subdivision[outbound].count());
 
@@ -2193,9 +2306,9 @@ bool								SurfaceNetwork::Node::buildState(bool outbound, index_t subdiv, bool
 }
 
 
-bool								SurfaceNetwork::Node::buildConnector(bool outbound, index_t subdiv, bool second_node, SurfaceDescription::TConnector&out)	const
+bool								SurfaceNetwork::Node::BuildConnector(bool outbound, index_t subdiv, bool second_node, SurfaceDescription::TConnector&out)	const
 {
-	if (!buildState(outbound,subdiv,second_node,out.state))
+	if (!BuildState(outbound,subdiv,second_node,out.state))
 		return false;
 
 
@@ -2214,32 +2327,32 @@ bool								SurfaceNetwork::Node::buildConnector(bool outbound, index_t subdiv, 
 
 
 
-void								SurfaceNetwork::updateAllSlopes(bool update_all_controls, bool rebuild_segments)
+void								SurfaceNetwork::UpdateAllSlopes(bool update_all_controls, bool rebuild_segments)
 {
 	nodes.visitAllElements([this](Node&n)
 	{
-		updateSlopes(n,false,false);
+		UpdateSlopes(n,false,false,NULL);
 	});
 
 	if (update_all_controls)
 		segments.visitAllElements([this,rebuild_segments](Segment&s)
 		{
-			updateControls(s,rebuild_segments);
+			UpdateControls(s,rebuild_segments);
 		});
 }
 
 
-void								SurfaceNetwork::updateControls(index_t segment, bool rebuild)
+void								SurfaceNetwork::UpdateControls(index_t segment, bool rebuild)
 {
 	if (segment == InvalidIndex)
 		return;
 	Segment*seg = segments.queryPointer(segment);
 	DBG_ASSERT_NOT_NULL__(seg);
 	if (seg)
-		updateControls(*seg,rebuild);
+		UpdateControls(*seg,rebuild);
 }
 
-void								SurfaceNetwork::updateControls(Segment&segment, bool rebuild)
+void								SurfaceNetwork::UpdateControls(Segment&segment, bool rebuild)
 {
 	const Node	*n0 = nodes.queryPointer(segment.connector[0].node),
 				*n1 = nodes.queryPointer(segment.connector[1].node);
@@ -2248,34 +2361,35 @@ void								SurfaceNetwork::updateControls(Segment&segment, bool rebuild)
 	SurfaceDescription::TConnector	c0,
 									c1;
 
-	DBG_VERIFY__(n0->buildConnector(segment.connector[0].outbound,segment.connector[0].subdivision_step,false,c0));
-	DBG_VERIFY__(n1->buildConnector(segment.connector[1].outbound,segment.connector[1].subdivision_step,true,c1));
+	DBG_VERIFY__(n0->BuildConnector(segment.connector[0].outbound,segment.connector[0].subdivisionStep,false,c0));
+	DBG_VERIFY__(n1->BuildConnector(segment.connector[1].outbound,segment.connector[1].subdivisionStep,true,c1));
 
-	SurfaceDescription::buildControlPoints(c0,c1,segment.controls,segment.connector[0].control_factor,segment.connector[1].control_factor);
+	SurfaceDescription::BuildControlPoints(c0,c1,segment.controls,segment.connector[0].controlFactor,segment.connector[1].controlFactor);
 
 	if (rebuild)
-		rebuildSegment(segment);
+		RebuildSegment(segment);
 }
 
-void								SurfaceNetwork::rebuildSegment(index_t segment)
+void								SurfaceNetwork::RebuildSegment(index_t segment)
 {
 	if (segment == InvalidIndex)
 		return;
 	Segment*seg = segments.queryPointer(segment);
 	DBG_ASSERT_NOT_NULL__(seg);
 	if (seg)
-		rebuildSegment(*seg);
+		RebuildSegment(*seg);
 }
 
 
-void							SurfaceNetwork::Node::buildArc(BasicBuffer<SurfaceDescription::TVertex>&arc_out, index_t lod, bool flipped)	const
+void							SurfaceNetwork::Node::BuildArc(BasicBuffer<SurfaceDescription::TVertex>&arc_out, index_t lod, bool flipped, bool global)	const
 {
-	float tolerance = min_tolerance*(1<<lod);
-	SurfaceDescription::buildArc(arc_out,*this,tolerance,flipped);
+	float tolerance = minTolerance*(1<<lod);
+	SurfaceDescription::BuildArc(arc_out,*this,tolerance,flipped, global);
 }
 
 
-void								SurfaceNetwork::rebuildSegment(Segment&segment)
+
+void								SurfaceNetwork::RebuildSegment(Segment&segment)
 {
 	const Node	*n0 = nodes.queryPointer(segment.connector[0].node),
 				*n1 = nodes.queryPointer(segment.connector[1].node);
@@ -2285,23 +2399,23 @@ void								SurfaceNetwork::rebuildSegment(Segment&segment)
 		return;
 
 	SurfaceDescription::TConnector	c0,c1;
-	DBG_VERIFY__(n0->buildConnector(segment.connector[0].outbound,segment.connector[0].subdivision_step,false,c0));
-	DBG_VERIFY__(n1->buildConnector(segment.connector[1].outbound,segment.connector[1].subdivision_step,true,c1));
+	DBG_VERIFY__(n0->BuildConnector(segment.connector[0].outbound,segment.connector[0].subdivisionStep,false,c0));
+	DBG_VERIFY__(n1->BuildConnector(segment.connector[1].outbound,segment.connector[1].subdivisionStep,true,c1));
 
-	segment.compiled_surfaces.setSize(num_lods*3);
-	float tolerance = min_tolerance;
-	for (index_t i = 0; i < num_lods; i++)
+	segment.compiledSurfaces.setSize(numLODs*3);
+	float tolerance = minTolerance;
+	for (index_t i = 0; i < numLODs; i++)
 	{
-		segment.compiled_surfaces[i*3].buildSegment(c0,c1,segment.controls,tolerance*2.0f,tolerance);
-		segment.compiled_surfaces[i*3+1].buildSegment(c0,c1,segment.controls,tolerance,tolerance*2.0f);
-		segment.compiled_surfaces[i*3+2].buildSegment(c0,c1,segment.controls,tolerance,tolerance);
+		segment.compiledSurfaces[i*3].BuildSegment(c0,c1,segment.controls,tolerance*2.0f,tolerance);
+		segment.compiledSurfaces[i*3+1].BuildSegment(c0,c1,segment.controls,tolerance,tolerance*2.0f);
+		segment.compiledSurfaces[i*3+2].BuildSegment(c0,c1,segment.controls,tolerance,tolerance);
 
 		tolerance *= 2.0f;
 	}
 }
 
 
-index_t							SurfaceNetwork::smartMakeRoom(Node&node,index_t node_index,bool outbound,const Node&opposing_node)
+index_t							SurfaceNetwork::SmartMakeRoom(Node&node,index_t node_index,bool outbound,const Node&opposing_node)
 {
 	count_t	need_slots = 1;
 	for (index_t i = 0; i < node.segments[outbound].count(); i++)
@@ -2344,7 +2458,7 @@ index_t							SurfaceNetwork::smartMakeRoom(Node&node,index_t node_index,bool ou
 			{
 				out->segment_index = node.segments[outbound][i];
 				const Segment&seg = *segments.queryPointer(node.segments[outbound][i]);
-				out->segment_end_index = seg.getEndIndex(node_index);
+				out->segment_end_index = seg.GetEndIndex(node_index);
 				out->remote_node_index = seg.connector[!out->segment_end_index].node;
 				DBG_ASSERT_NOT_EQUAL__(out->remote_node_index,node_index);
 				out->remote_node_position = nodes.queryPointer(out->remote_node_index)->position;
@@ -2381,7 +2495,7 @@ index_t							SurfaceNetwork::smartMakeRoom(Node&node,index_t node_index,bool ou
 		if (entry.segment_index != InvalidIndex)
 		{
 			Segment&seg = *segments.queryPointer(entry.segment_index);
-			seg.connector[entry.segment_end_index].subdivision_step = i;
+			seg.connector[entry.segment_end_index].subdivisionStep = i;
 			node.segments[outbound][i] = entry.segment_index;
 			cout << "mapped segment "<<entry.segment_index<<" ("<<seg.connector[0].node<<" to "<<seg.connector[1].node<<") connector["<<(int)entry.segment_end_index<<"] to slot "<<i<<endl;
 		}
@@ -2401,10 +2515,10 @@ index_t							SurfaceNetwork::smartMakeRoom(Node&node,index_t node_index,bool ou
 }
 
 
-index_t							SurfaceNetwork::smartLink(index_t node0, index_t node1, bool manage_slots, bool update_controls, bool build)
+index_t							SurfaceNetwork::SmartLink(index_t node0, index_t node1, bool manage_slots, bool update_controls, bool build, IndexSet*affectedSegments)
 {
 	#ifdef _DEBUG
-		verifyIntegrity();
+		VerifyIntegrity();
 	#endif
 
 	Node*n0 = nodes.queryPointer(node0),
@@ -2416,27 +2530,29 @@ index_t							SurfaceNetwork::smartLink(index_t node0, index_t node1, bool manag
 
 
 	bool outbound0 = Vec::dot(n0->direction,delta)>0.0f;
-	if (!manage_slots && !n0->anyAvailable(outbound0))
+	if (!manage_slots && !n0->AnyAvailable(outbound0))
 	{
 		outbound0 = !outbound0;
-		if (!n0->anyAvailable(outbound0))
+		if (!n0->AnyAvailable(outbound0))
 			return InvalidIndex;
 	}
 	bool outbound1 = Vec::dot(n1->direction,delta)<0.0f;
-	if (!manage_slots && !n1->anyAvailable(outbound1))
+	if (!manage_slots && !n1->AnyAvailable(outbound1))
 	{
 		outbound1 = !outbound1;
-		if (!n1->anyAvailable(outbound1))
+		if (!n1->AnyAvailable(outbound1))
 			return InvalidIndex;
 	}
 
 	index_t result;
-	Segment&seg = segments.create(result);
+	Segment&seg = segments.Create(result);
+	if (affectedSegments)
+		affectedSegments->set(result);
 	//DBG_ASSERT_EQUAL__(segments.queryPointer(result),&seg);
-	index_t	subdiv0 = manage_slots ? smartMakeRoom(*n0,node0,outbound0,*n1) : n0->firstAvailable(outbound0);
+	index_t	subdiv0 = manage_slots ? SmartMakeRoom(*n0,node0,outbound0,*n1) : n0->GetFirstAvailable(outbound0);
 	//DBG_ASSERT_EQUAL__(segments.queryPointer(result),&seg);
 
-	index_t	subdiv1 = manage_slots ? smartMakeRoom(*n1,node1,outbound1,*n0) : n1->firstAvailable(outbound1);
+	index_t	subdiv1 = manage_slots ? SmartMakeRoom(*n1,node1,outbound1,*n0) : n1->GetFirstAvailable(outbound1);
 
 	DBG_ASSERT_EQUAL__(segments.queryPointer(result),&seg);
 	n0->segments[outbound0][subdiv0] = result;
@@ -2450,8 +2566,8 @@ index_t							SurfaceNetwork::smartLink(index_t node0, index_t node1, bool manag
 		if (n0->segments[outbound0][i] != InvalidIndex)
 		{
 			const Segment&seg = segments.require(n0->segments[outbound0][i]);
-			BYTE end_point = seg.getEndIndex(node0);
-			DBG_ASSERT_EQUAL__(seg.connector[end_point].subdivision_step ,i);
+			BYTE end_point = seg.GetEndIndex(node0);
+			DBG_ASSERT_EQUAL__(seg.connector[end_point].subdivisionStep ,i);
 		}
 	}
 	for (index_t i = 0; i < n1->segments[outbound1].count(); i++)
@@ -2459,8 +2575,8 @@ index_t							SurfaceNetwork::smartLink(index_t node0, index_t node1, bool manag
 		if (n1->segments[outbound1][i] != InvalidIndex)
 		{
 			const Segment&seg = segments.require(n1->segments[outbound1][i]);
-			BYTE end_point = seg.getEndIndex(node1);
-			DBG_ASSERT_EQUAL__(seg.connector[end_point].subdivision_step ,i);
+			BYTE end_point = seg.GetEndIndex(node1);
+			DBG_ASSERT_EQUAL__(seg.connector[end_point].subdivisionStep ,i);
 		}
 	}
 
@@ -2468,23 +2584,40 @@ index_t							SurfaceNetwork::smartLink(index_t node0, index_t node1, bool manag
 
 	if (update_controls)
 	{
-		updateSlopes(*n0,false,false);
-		updateSlopes(*n1,false,false);
-		updateControls(seg,build);
-		for (index_t i = 0; i < n0->segments[outbound0].count(); i++)
-			if (n0->segments[outbound0][i] != result)
-				updateControls(n0->segments[outbound0][i],build);
-		for (index_t i = 0; i < n1->segments[outbound1].count(); i++)
-			if (n1->segments[outbound1][i] != result)
-				updateControls(n1->segments[outbound1][i],build);
-		for (index_t i = 0; i < n0->segments[!outbound0].count(); i++)
-			updateControls(n0->segments[!outbound0][i],build);
-		for (index_t i = 0; i < n1->segments[!outbound1].count(); i++)
-			updateControls(n1->segments[!outbound1][i],build);
+		UpdateSlopes(*n0,false,false,NULL);
+		UpdateSlopes(*n1,false,false,NULL);
+		UpdateControls(seg,build);
+		foreach (n0->segments[outbound0],seg)
+			if (*seg != result)
+			{
+				if (affectedSegments)
+					affectedSegments->set(*seg);
+				UpdateControls(*seg,build);
+			}
+		foreach (n1->segments[outbound1],seg)
+			if (*seg != result)
+			{
+				if (affectedSegments)
+					affectedSegments->set(*seg);
+				UpdateControls(*seg,build);
+			}
+
+		foreach (n0->segments[!outbound0],seg)
+		{
+			if (affectedSegments)
+				affectedSegments->set(*seg);
+			UpdateControls(*seg,build);
+		}
+		foreach (n1->segments[!outbound1],seg)
+		{
+			if (affectedSegments)
+				affectedSegments->set(*seg);
+			UpdateControls(*seg,build);
+		}
 	}
 
 	#ifdef _DEBUG
-		verifyIntegrity();
+		VerifyIntegrity();
 	#endif
 
 
@@ -2492,7 +2625,7 @@ index_t							SurfaceNetwork::smartLink(index_t node0, index_t node1, bool manag
 }
 
 
-void							SurfaceNetwork::verifyIntegrity()	const
+void							SurfaceNetwork::VerifyIntegrity()	const
 {
 	cout << "Verifying integrity"<<endl;
 	nodes.visitAllEntries([this](index_t id, const Node&n)
@@ -2514,7 +2647,7 @@ void							SurfaceNetwork::verifyIntegrity()	const
 						FATAL__("Targeted segment does not exist");
 						continue;
 					}
-					seg->getEndIndex(id);	//trigger verification
+					seg->GetEndIndex(id);	//trigger verification
 				}
 			}
 		}
@@ -2525,7 +2658,7 @@ void							SurfaceNetwork::verifyIntegrity()	const
 		cout << " Segment "<<id<<": "<<seg.connector[0].node<<" to "<<seg.connector[1].node<<endl;
 		for (int k = 0; k < 2; k++)
 		{
-			cout << "  Checking connector "<<k<<": node "<<seg.connector[k].node<<" "<<(seg.connector[k].outbound?"outbound":"inbound")<<" subdiv "<<seg.connector[k].subdivision_step<<endl;
+			cout << "  Checking connector "<<k<<": node "<<seg.connector[k].node<<" "<<(seg.connector[k].outbound?"outbound":"inbound")<<" subdiv "<<seg.connector[k].subdivisionStep<<endl;
 			const Node	*n = nodes.queryPointer(seg.connector[k].node);
 			if (!n)
 			{
@@ -2533,33 +2666,33 @@ void							SurfaceNetwork::verifyIntegrity()	const
 				continue;	//shit happens
 			}
 
-			if (seg.connector[k].subdivision_step >= n->segments[seg.connector[k].outbound].count())
+			if (seg.connector[k].subdivisionStep >= n->segments[seg.connector[k].outbound].count())
 			{
-				FATAL__("Targeted subdivison "+String(seg.connector[k].subdivision_step)+" points beyond node capacity "+String(n->segments[seg.connector[k].outbound].count()));
+				FATAL__("Targeted subdivison "+String(seg.connector[k].subdivisionStep)+" points beyond node capacity "+String(n->segments[seg.connector[k].outbound].count()));
 				continue;
 			}
-			cout << "   Subdiv at "<<(seg.connector[k].subdivision_step == 0 ? 0.f : n->subdivision[seg.connector[k].outbound][seg.connector[k].subdivision_step-1])<<endl;
-			ASSERT_EQUAL__(n->segments[seg.connector[k].outbound][seg.connector[k].subdivision_step],id);
+			cout << "   Subdiv at "<<(seg.connector[k].subdivisionStep == 0 ? 0.f : n->subdivision[seg.connector[k].outbound][seg.connector[k].subdivisionStep-1])<<endl;
+			ASSERT_EQUAL__(n->segments[seg.connector[k].outbound][seg.connector[k].subdivisionStep],id);
 		}
 	});
 }
 
-void SurfaceDescription::buildBarriers(const SurfaceDescription&source, float barrierPosition, float barrierHeight0, float barrierHeight1)
+void SurfaceDescription::BuildBarriers(const SurfaceDescription&source, float barrierPosition, float barrierHeight0, float barrierHeight1, const TVec3<>&relativeTo)
 {
 	vertices.reset();
-	quad_indices.reset();
-	triangle_indices.reset();
+	quadIndices.reset();
+	triangleIndices.reset();
 
 	foreach (source.edges,edge)
 	{
 		index_t vertex_offset = vertices.count();
 		TVertex*const vfield = vertices.appendRow(2*edge->length());
-		Concurrency::parallel_for(index_t(0),edge->length(),[vfield,&source,edge,barrierPosition,barrierHeight0,barrierHeight1](index_t i)
+		Concurrency::parallel_for(index_t(0),edge->length(),[vfield,&source,edge,barrierPosition,barrierHeight0,barrierHeight1,relativeTo](index_t i)
 		{
 			const TVertex&v = source.vertices[edge->at(i)];
 			TVertex*vout = vfield + i*2;
 			vout[0] = v;
-			if (!edge->left_edge)
+			if (!edge->leftEdge)
 				vout[0].position += v.tangent * barrierPosition + v.normal * barrierHeight0;
 			else
 				vout[0].position += v.tangent * -barrierPosition + v.normal * barrierHeight0;
@@ -2567,6 +2700,7 @@ void SurfaceDescription::buildBarriers(const SurfaceDescription&source, float ba
 			vout[0].tcoord.x = 0;
 			vout[1] = vout[0];
 			vout[1].position += v.normal * (barrierHeight1 - barrierHeight0);
+			vout[1].position -= relativeTo;
 			vout[1].tcoord.y = v.tcoord.y;
 			vout[1].tcoord.x = 1.f;
 		});
@@ -2575,7 +2709,7 @@ void SurfaceDescription::buildBarriers(const SurfaceDescription&source, float ba
 		{
 			const UINT32	t = static_cast<UINT32>(vertex_offset+i*2),
 							n = static_cast<UINT32>(vertex_offset+(i+1)*2);
-			quad_indices	<< t   << t+1 << n+1 << n
+			quadIndices		<< t   << t+1 << n+1 << n
 							<< t+1 << t << n << n+1;
 		}
 	}
@@ -2583,21 +2717,22 @@ void SurfaceDescription::buildBarriers(const SurfaceDescription&source, float ba
 }
 
 
-void SurfaceDescription::buildRails(const SurfaceDescription&source, float innerExtend, float outerExtend, float upperExtend, float lowerExtend)
+void SurfaceDescription::BuildRails(const SurfaceDescription&source, float innerExtend, float outerExtend, float upperExtend, float lowerExtend, const TVec3<>&relativeTo)
 {
 	vertices.reset();
-	quad_indices.reset();
-	triangle_indices.reset();
+	quadIndices.reset();
+	triangleIndices.reset();
 
 	foreach (source.edges,edge)
 	{
 		index_t vertex_offset = vertices.count();
 		TVertex*const vfield = vertices.appendRow(8*edge->length()+8);	//top, top, left, left, bottom, bottom, right, right. two caps
-		if (edge->left_edge)
+		if (edge->leftEdge)
 		{
-			Concurrency::parallel_for(index_t(0),edge->length(),[vfield,&source,edge,innerExtend,upperExtend,outerExtend,lowerExtend](index_t i)
+			Concurrency::parallel_for(index_t(0),edge->length(),[vfield,&source,edge,innerExtend,upperExtend,outerExtend,lowerExtend,relativeTo](index_t i)
 			{
-				const TVertex&v = source.vertices[edge->at(i)];
+				TVertex v = source.vertices[edge->at(i)];
+				v.position -= relativeTo;
 				TVertex*vout = vfield + i*8;
 				vout[0] = v;
 				vout[0].position += v.tangent * innerExtend + v.normal * upperExtend;
@@ -2629,7 +2764,8 @@ void SurfaceDescription::buildRails(const SurfaceDescription&source, float inner
 			});
 
 			{
-				const TVertex&v = source.vertices[edge->first()];
+				TVertex v = source.vertices[edge->first()];
+				v.position -= relativeTo;
 				TVertex*vout = vfield + 8*edge->length();
 				vout[0] = v;
 				vout[0].normal = v.normal | v.tangent;
@@ -2647,7 +2783,8 @@ void SurfaceDescription::buildRails(const SurfaceDescription&source, float inner
 				vout[3].tcoord = float2(1,0);
 			}
 			{
-				const TVertex&v = source.vertices[edge->last()];
+				TVertex v = source.vertices[edge->last()];
+				v.position -= relativeTo;
 				TVertex*vout = vfield + 8*edge->length() +4;
 				vout[0] = v;
 				vout[0].normal = v.tangent | v.normal;
@@ -2667,23 +2804,24 @@ void SurfaceDescription::buildRails(const SurfaceDescription&source, float inner
 			{
 				const UINT32	t = static_cast<UINT32>(vertex_offset+i*8),
 								n = static_cast<UINT32>(vertex_offset+(i+1)*8);
-				quad_indices	<< t   << t+1 << n+1 << n
+				quadIndices	<< t   << t+1 << n+1 << n
 								<< t+2 << t+3 << n+3 << n+2
 								<< t+4 << t+5 << n+5 << n+4
 								<< t+6 << t+7 << n+7 << n+6;
 			}
 			{
 				const UINT32	t = static_cast<UINT32>(vertex_offset+edge->length()*8);
-				quad_indices	<< t+3 << t+2 << t+1 << t+0
+				quadIndices	<< t+3 << t+2 << t+1 << t+0
 								<< t+4 << t+5 << t+6 << t+7
 								;
 			}
 		}
 		else
 		{
-			Concurrency::parallel_for(index_t(0),edge->length(),[vfield,&source,edge,innerExtend,upperExtend,outerExtend,lowerExtend](index_t i)
+			Concurrency::parallel_for(index_t(0),edge->length(),[vfield,&source,edge,innerExtend,upperExtend,outerExtend,lowerExtend,relativeTo](index_t i)
 			{
-				const TVertex&v = source.vertices[edge->at(i)];
+				TVertex v = source.vertices[edge->at(i)];
+				v.position -= relativeTo;
 				TVertex*vout = vfield + i*8;
 				vout[0] = v;
 				vout[0].position += v.tangent * -innerExtend + v.normal * upperExtend;
@@ -2714,7 +2852,8 @@ void SurfaceDescription::buildRails(const SurfaceDescription&source, float inner
 				vout[7].tcoord.x = 1;
 			});
 			{
-				const TVertex&v = source.vertices[edge->first()];
+				TVertex v = source.vertices[edge->first()];
+				v.position -= relativeTo;
 				TVertex*vout = vfield + 8*edge->length();
 				vout[0] = v;
 				vout[0].normal = v.tangent | v.normal;
@@ -2732,7 +2871,8 @@ void SurfaceDescription::buildRails(const SurfaceDescription&source, float inner
 				vout[3].tcoord = float2(1,0);
 			}
 			{
-				const TVertex&v = source.vertices[edge->last()];
+				TVertex v = source.vertices[edge->last()];
+				v.position -= relativeTo;
 				TVertex*vout = vfield + 8*edge->length() +4;
 				vout[0] = v;
 				vout[0].normal = v.normal | v.tangent;
@@ -2752,14 +2892,14 @@ void SurfaceDescription::buildRails(const SurfaceDescription&source, float inner
 			{
 				const UINT32	t = static_cast<UINT32>(vertex_offset+i*8),
 								n = static_cast<UINT32>(vertex_offset+(i+1)*8);
-				quad_indices	<< t   << t+1 << n+1 << n
+				quadIndices	<< t   << t+1 << n+1 << n
 								<< t+2 << t+3 << n+3 << n+2
 								<< t+4 << t+5 << n+5 << n+4
 								<< t+6 << t+7 << n+7 << n+6;
 			}
 			{
 				const UINT32	t = static_cast<UINT32>(vertex_offset+edge->length()*8);
-				quad_indices	<< t+3 << t+2 << t+1 << t+0
+				quadIndices	<< t+3 << t+2 << t+1 << t+0
 								<< t+4 << t+5 << t+6 << t+7
 								;
 			}
@@ -2767,22 +2907,22 @@ void SurfaceDescription::buildRails(const SurfaceDescription&source, float inner
 	}
 }
 
-void	SurfaceDescription::generateNormals()
+void	SurfaceDescription::GenerateNormals()
 {
 	for (index_t i = 0; i < vertices.count(); i++)
 		Vec::clear(vertices[i].normal);
 	float3	normal,normal1;
-	for (index_t i = 0; i < triangle_indices.count(); i+=3)
+	for (index_t i = 0; i < triangleIndices.count(); i+=3)
 	{
-		const UINT32*t = triangle_indices+i;
+		const UINT32*t = triangleIndices+i;
 		Obj::triangleNormal(vertices[t[0]].position,vertices[t[1]].position,vertices[t[2]].position,normal);
 		Vec::add(vertices[t[0]].normal,normal);
 		Vec::add(vertices[t[1]].normal,normal);
 		Vec::add(vertices[t[2]].normal,normal);
 	}
-	for (index_t i = 0; i < quad_indices.count(); i+=4)
+	for (index_t i = 0; i < quadIndices.count(); i+=4)
 	{
-		const UINT32*q = quad_indices+i;
+		const UINT32*q = quadIndices+i;
 		Obj::triangleNormal(vertices[q[0]].position,vertices[q[1]].position,vertices[q[2]].position,normal);
 		Obj::triangleNormal(vertices[q[0]].position,vertices[q[2]].position,vertices[q[3]].position,normal1);
 		normal += normal1;
@@ -2798,7 +2938,7 @@ void	SurfaceDescription::generateNormals()
 }
 
 
-void SurfaceDescription::buildArc(const OutVertexContainer&arc_vertices, float near_distance, float far_distance, float extend_along_track)
+void SurfaceDescription::BuildArc(const OutVertexContainer&arc_vertices, float near_distance, float far_distance, float extend_along_track)
 {
 	vertices.reset();
 	for (index_t i = 0; i < arc_vertices.count(); i++)
@@ -3019,14 +3159,14 @@ void SurfaceDescription::buildArc(const OutVertexContainer&arc_vertices, float n
 			vtx.tcoord.y = 1.f;
 		}
 	}
-	triangle_indices.reset();
-	quad_indices.reset();
+	triangleIndices.reset();
+	quadIndices.reset();
 	edges.reset();
 	for (index_t i = 0; i+1 < arc_vertices.count(); i++)
 	{
 		const UINT32	t = static_cast<UINT32>(i*8),
 						n = static_cast<UINT32>((i+1)*8);
-		quad_indices
+		quadIndices
 				<< t << t+1 << n+1 << n		//upper plate
 				<< t+3 << t+2 << n+2 << n+3	//lower plate	
 				<< t+5 << t+4 << n+4 << n+5	//front plate
@@ -3036,7 +3176,7 @@ void SurfaceDescription::buildArc(const OutVertexContainer&arc_vertices, float n
 
 	{
 		const UINT32 offset = static_cast<UINT32>(arc_vertices.count()*8);
-		quad_indices
+		quadIndices
 				<< offset << offset+1 << offset+2 << offset+3
 				<< offset+7 << offset+6 << offset+5 << offset+4
 				;
@@ -3044,7 +3184,7 @@ void SurfaceDescription::buildArc(const OutVertexContainer&arc_vertices, float n
 }
 
 
-bool	SurfaceNetwork::nodeIsFlipped(index_t node_id)	const
+bool	SurfaceNetwork::NodeIsFlipped(index_t node_id)	const
 {
 	const Node&node = *nodes.queryPointer(node_id);
 	for (BYTE outbound = 0; outbound < 2; outbound++)
@@ -3062,72 +3202,93 @@ bool	SurfaceNetwork::nodeIsFlipped(index_t node_id)	const
 	return false;
 }
 
-/*static*/	void		SurfaceNetwork::compileBarrierGeometry(CGS::Geometry<>&target,const Segment&segment, float position,float height0,float height1,name64_t texture, CGS::TextureResource*resource/*=NULL*/)
+/*static*/	void		SurfaceNetwork::CompileBarrierGeometry(CGS::Geometry<>&target,const Segment&segment, float position,float height0,float height1,name64_t texture, CGS::TextureResource*resource/*=NULL*/)
 {
-	if (segment.compiled_surfaces.count() < 3*SurfaceNetwork::num_lods)
+	if (segment.compiledSurfaces.count() < 3*SurfaceNetwork::numLODs)
 	{
 		FATAL__("Unable to compile barrier: insufficient compiled surfaces");
 		return;
 	}
 	static Array<SurfaceDescription>					lods;
 
-	lods.setSize(SurfaceNetwork::num_lods);
+	lods.setSize(SurfaceNetwork::numLODs);
 
-	for (index_t i = 0; i < SurfaceNetwork::num_lods; i++)
+	TVec3<>	center = {0,0,0};
+	count_t counter = 0;
+	foreach (segment.compiledSurfaces.first().edges, edge)
+		foreach (*edge,index)
+		{
+			Vec::add(center,segment.compiledSurfaces.first().vertices[*index].position);
+			counter++;
+		}
+	Vec::div(center,counter);
+	
+
+	for (index_t i = 0; i < SurfaceNetwork::numLODs; i++)
 	{
-		lods[i].buildBarriers(segment.compiled_surfaces[3*i+2],position, height0, height1 );
+		lods[i].BuildBarriers(segment.compiledSurfaces[3*i+2],position, height0, height1, center );
 	}
 	float shortest_edge = height1-height0;
 
 
-	compileFromDescriptions(target,lods,shortest_edge,texture,0,resource);
+	CompileFromDescriptions(target,lods,shortest_edge,texture,0,resource);
 
 	target.material_field.first().info.ambient.rgb = float3(1.f);
 	target.material_field.first().info.diffuse.rgb = float3(0.f);
 	target.material_field.first().info.specular.rgb = float3(0.f);
+	target.root_system.moveTo(center);
 }
 
 
-/*static*/	void		SurfaceNetwork::compileRailGeometry(CGS::Geometry<>&target, const Segment&segment, float innerExtend, float outerExtend, float upperExtend, float lowerExtend, name64_t texture, name64_t normal_texture, CGS::TextureResource*resource /*=NULL*/)
+/*static*/	void		SurfaceNetwork::CompileRailGeometry(CGS::Geometry<>&target, const Segment&segment, float innerExtend, float outerExtend, float upperExtend, float lowerExtend, name64_t texture, name64_t normal_texture, CGS::TextureResource*resource /*=NULL*/)
 {
-	if (segment.compiled_surfaces.count() < 3*SurfaceNetwork::num_lods)
+	if (segment.compiledSurfaces.count() < 3*SurfaceNetwork::numLODs)
 	{
 		FATAL__("Unable to compile rail: insufficient compiled surfaces");
 		return;
 	}
 	static Array<SurfaceDescription>					lods;
 
-	lods.setSize(SurfaceNetwork::num_lods);
+	lods.setSize(SurfaceNetwork::numLODs);
 
-	for (index_t i = 0; i < SurfaceNetwork::num_lods; i++)
+	TVec3<>	center = {0,0,0};
+	count_t counter = 0;
+	foreach (segment.compiledSurfaces.first().edges, edge)
+		foreach (*edge,index)
+		{
+			Vec::add(center,segment.compiledSurfaces.first().vertices[*index].position);
+			counter++;
+		}
+	Vec::div(center,counter);
+
+	for (index_t i = 0; i < SurfaceNetwork::numLODs; i++)
 	{
-		lods[i].buildRails(segment.compiled_surfaces[3*i+2],innerExtend, outerExtend, upperExtend, lowerExtend );
+		lods[i].BuildRails(segment.compiledSurfaces[3*i+2],innerExtend, outerExtend, upperExtend, lowerExtend, center );
 	}
 	float shortest_edge = innerExtend+outerExtend;
 
 
-	compileFromDescriptions(target,lods,shortest_edge,texture,normal_texture,resource);
+	CompileFromDescriptions(target,lods,shortest_edge,texture,normal_texture,resource);
+
+	target.root_system.moveTo(center);
 
 }
 
-/*static*/ void SurfaceNetwork::compileArcGeometry(CGS::Geometry<>&target, const Node&node, float near_distance, float far_distance, float extend_along_track,name64_t texture, name64_t normal_texture, bool node_is_flipped, CGS::TextureResource*resource /*=NULL*/)
+/*static*/ void SurfaceNetwork::CompileArcGeometry(CGS::Geometry<>&target, const Node&node, float near_distance, float far_distance, float extend_along_track,name64_t texture, name64_t normal_texture, bool nodeIsFlipped, CGS::TextureResource*resource /*=NULL*/)
 {
 
 	static Array<Buffer<SurfaceDescription::TVertex> >	arc_vertices;
 	static Array<SurfaceDescription>					arc_descriptions;
 
-	arc_vertices.setSize(SurfaceNetwork::num_lods);
-	arc_descriptions.setSize(SurfaceNetwork::num_lods);
+	arc_vertices.setSize(SurfaceNetwork::numLODs);
+	arc_descriptions.setSize(SurfaceNetwork::numLODs);
 
 
-
-
-
-	for (index_t i = 0; i < SurfaceNetwork::num_lods; i++)
+	for (index_t i = 0; i < SurfaceNetwork::numLODs; i++)
 	{
 
-		node.buildArc(arc_vertices[i],i, node_is_flipped);
-		arc_descriptions[i].buildArc(arc_vertices[i], near_distance, far_distance, extend_along_track);
+		node.BuildArc(arc_vertices[i],i, nodeIsFlipped, false);
+		arc_descriptions[i].BuildArc(arc_vertices[i], near_distance, far_distance, extend_along_track);
 	}
 
 	float shortest_edge = std::numeric_limits<float>::max();
@@ -3136,12 +3297,21 @@ bool	SurfaceNetwork::nodeIsFlipped(index_t node_id)	const
 	shortest_edge = sqrt(shortest_edge);
 
 
-	compileFromDescriptions(target,arc_descriptions,shortest_edge,texture,normal_texture,resource);
+	CompileFromDescriptions(target,arc_descriptions,shortest_edge,texture,normal_texture,resource);
+
+	Vec::copy(node.position,target.root_system.matrix.w.xyz);
+	Vec::copy(node.direction,target.root_system.matrix.y.xyz);
+	Vec::normalize0(target.root_system.matrix.y.xyz);
+	Vec::cross(target.root_system.matrix.y.xyz,node.up,target.root_system.matrix.x.xyz);
+	Vec::normalize0(target.root_system.matrix.x.xyz);
+	Vec::cross(target.root_system.matrix.x.xyz,target.root_system.matrix.y.xyz,target.root_system.matrix.z.xyz);
+	Mat::resetBottomRow(target.root_system.matrix);
+	target.root_system.update();
 }
 
 
 
-/*static*/ void SurfaceNetwork::compileFromDescriptions(CGS::Geometry<>&target, const Array<SurfaceDescription>&lods, float shortest_edge, name64_t texture, name64_t normal_texture, CGS::TextureResource*resource /*=NULL*/)
+/*static*/ void SurfaceNetwork::CompileFromDescriptions(CGS::Geometry<>&target, const Array<SurfaceDescription>&lods, float shortest_edge, name64_t texture, name64_t normal_texture, CGS::TextureResource*resource /*=NULL*/)
 {
 	target.object_field.setSize(1);
 	target.object_field[0].name = str2name("object");
@@ -3222,11 +3392,11 @@ bool	SurfaceNetwork::nodeIsFlipped(index_t node_id)	const
 			Vec::ref2(vtx+9) = hull.vertices[i].tcoord;
 			vtx += 11;
 		}*/
-		ASSERT__(!(hull.quad_indices.count()%4));
-		ASSERT__(!(hull.triangle_indices.count()%3));
-		robj.ipool.setSize(UINT32(hull.triangle_indices.count()/3),UINT32(hull.quad_indices.count()/4));
-		memcpy(robj.ipool.idata.pointer(),hull.triangle_indices.pointer(),hull.triangle_indices.count()*sizeof(UINT32));
-		memcpy(robj.ipool.idata.pointer()+hull.triangle_indices.count(),hull.quad_indices.pointer(),hull.quad_indices.count()*sizeof(UINT32));
+		ASSERT__(!(hull.quadIndices.count()%4));
+		ASSERT__(!(hull.triangleIndices.count()%3));
+		robj.ipool.setSize(UINT32(hull.triangleIndices.count()/3),UINT32(hull.quadIndices.count()/4));
+		memcpy(robj.ipool.idata.pointer(),hull.triangleIndices.pointer(),hull.triangleIndices.count()*sizeof(UINT32));
+		memcpy(robj.ipool.idata.pointer()+hull.triangleIndices.count(),hull.quadIndices.pointer(),hull.quadIndices.count()*sizeof(UINT32));
 		//robj.ipool.idata.copyFrom
 			//copyFrom(iout.pointer(),iout.length());
 	}
@@ -3252,7 +3422,7 @@ bool	SurfaceNetwork::nodeIsFlipped(index_t node_id)	const
 			vs_hull.clear();
 	}
 
-	//convertDescriptionToHull(physical_hull,obj.ph_hull);
+	//convertDescriptionToHull(physical_hull,obj.phHull);
 	
 	obj.meta.shortest_edge_length = shortest_edge*0.2f;
 	//ShowMessage("generated "+String(robjs.count())+" sub defail level(s)");
@@ -3272,7 +3442,7 @@ bool	SurfaceNetwork::nodeIsFlipped(index_t node_id)	const
 
 
 
-/*static*/ void SurfaceNetwork::compileFromDescriptions(CGS::Geometry<>&target, const Array<SurfaceDescription>&lods, const SurfaceDescription&ph_hull, float shortest_edge, name64_t texture, name64_t normal_texture, CGS::TextureResource*resource /*=NULL*/)
+/*static*/ void SurfaceNetwork::CompileFromDescriptions(CGS::Geometry<>&target, const Array<SurfaceDescription>&lods, const SurfaceDescription&phHull, float shortest_edge, name64_t texture, name64_t normal_texture, CGS::TextureResource*resource /*=NULL*/)
 {
 	target.object_field.setSize(1);
 	target.object_field[0].name = str2name("object");
@@ -3353,11 +3523,11 @@ bool	SurfaceNetwork::nodeIsFlipped(index_t node_id)	const
 			Vec::ref2(vtx+9) = hull.vertices[i].tcoord;
 			vtx += 11;
 		}*/
-		ASSERT__(!(hull.quad_indices.count()%4));
-		ASSERT__(!(hull.triangle_indices.count()%3));
-		robj.ipool.setSize(UINT32(hull.triangle_indices.count()/3),UINT32(hull.quad_indices.count()/4));
-		memcpy(robj.ipool.idata.pointer(),hull.triangle_indices.pointer(),hull.triangle_indices.count()*sizeof(UINT32));
-		memcpy(robj.ipool.idata.pointer()+hull.triangle_indices.count(),hull.quad_indices.pointer(),hull.quad_indices.count()*sizeof(UINT32));
+		ASSERT__(!(hull.quadIndices.count()%4));
+		ASSERT__(!(hull.triangleIndices.count()%3));
+		robj.ipool.setSize(UINT32(hull.triangleIndices.count()/3),UINT32(hull.quadIndices.count()/4));
+		memcpy(robj.ipool.idata.pointer(),hull.triangleIndices.pointer(),hull.triangleIndices.count()*sizeof(UINT32));
+		memcpy(robj.ipool.idata.pointer()+hull.triangleIndices.count(),hull.quadIndices.pointer(),hull.quadIndices.count()*sizeof(UINT32));
 		//robj.ipool.idata.copyFrom
 			//copyFrom(iout.pointer(),iout.length());
 	}
@@ -3383,7 +3553,7 @@ bool	SurfaceNetwork::nodeIsFlipped(index_t node_id)	const
 			vs_hull.clear();
 	}
 
-	convertDescriptionToHull(ph_hull,obj.ph_hull);
+	convertDescriptionToHull(phHull,obj.phHull);
 	
 	obj.meta.shortest_edge_length = shortest_edge*0.2f;
 	//ShowMessage("generated "+String(robjs.count())+" sub defail level(s)");
@@ -3402,23 +3572,23 @@ bool	SurfaceNetwork::nodeIsFlipped(index_t node_id)	const
 }
 
 
-index_t							SurfaceNetwork::findSegment(const Segment::Connector&slot0, const Segment::Connector&slot1)	const
+index_t							SurfaceNetwork::FindSegment(const Segment::Connector&slot0, const Segment::Connector&slot1)	const
 {
 	const Node	*n0 = nodes.queryPointer(slot0.node),
 				*n1 = nodes.queryPointer(slot1.node);
 	if (n0 == n1 || !n0 || !n1)
 		return InvalidIndex;
-	if (slot0.subdivision_step >= n0->segments[slot0.outbound].count())
+	if (slot0.subdivisionStep >= n0->segments[slot0.outbound].count())
 		return InvalidIndex;
-	if (slot1.subdivision_step >= n1->segments[slot1.outbound].count())
+	if (slot1.subdivisionStep >= n1->segments[slot1.outbound].count())
 		return InvalidIndex;
-	if (n0->segments[slot0.outbound][slot0.subdivision_step] == n1->segments[slot1.outbound][slot1.subdivision_step])
-		return n0->segments[slot0.outbound][slot0.subdivision_step];
+	if (n0->segments[slot0.outbound][slot0.subdivisionStep] == n1->segments[slot1.outbound][slot1.subdivisionStep])
+		return n0->segments[slot0.outbound][slot0.subdivisionStep];
 	return InvalidIndex;
 }
 
 
-void							SurfaceNetwork::unlink(index_t segment_index)
+void							SurfaceNetwork::Unlink(index_t segment_index)
 {
 	if (segment_index == InvalidIndex)
 		return;
@@ -3432,14 +3602,14 @@ void							SurfaceNetwork::unlink(index_t segment_index)
 		const Segment::Connector&c = seg->connector[k];
 		Node*n = nodes.queryPointer(c.node);
 		ASSERT_NOT_NULL__(n);
-		ASSERT_LESS__(c.subdivision_step,n->segments[c.outbound].count());
-		n->segments[c.outbound][c.subdivision_step] = InvalidIndex;
+		ASSERT_LESS__(c.subdivisionStep,n->segments[c.outbound].count());
+		n->segments[c.outbound][c.subdivisionStep] = InvalidIndex;
 	}
 
 	segments.unSet(segment_index);
 }
 
-void							SurfaceNetwork::managedUnlink(index_t segment_index,bool update_controls, bool build)
+void							SurfaceNetwork::ManagedUnlink(index_t segment_index,bool update_controls, bool build, IndexSet*affectedSegments)
 {
 	if (segment_index == InvalidIndex)
 		return;
@@ -3454,23 +3624,23 @@ void							SurfaceNetwork::managedUnlink(index_t segment_index,bool update_contr
 		const Segment::Connector&c = seg->connector[k];
 		Node*n = nodes_[k] = nodes.queryPointer(c.node);
 		ASSERT_NOT_NULL__(n);
-		ASSERT_LESS__(c.subdivision_step,n->segments[c.outbound].count());
+		ASSERT_LESS__(c.subdivisionStep,n->segments[c.outbound].count());
 
-		n->segments[c.outbound].erase(c.subdivision_step);
-		for (index_t i = c.subdivision_step; i < n->segments[c.outbound].count(); i++)
+		n->segments[c.outbound].erase(c.subdivisionStep);
+		for (index_t i = c.subdivisionStep; i < n->segments[c.outbound].count(); i++)
 			if (n->segments[c.outbound][i] != InvalidIndex)
 			{
 				Segment*seg = segments.queryPointer(n->segments[c.outbound][i]);
 				ASSERT_NOT_NULL__(seg);
-				seg->connector[seg->getEndIndex(c.node)].subdivision_step--;
+				seg->connector[seg->GetEndIndex(c.node)].subdivisionStep--;
 			}
 		n->subdivision[c.outbound].setSize(n->subdivision[c.outbound].length()-1);
-		even(n->subdivision[c.outbound]);
+		MakeEven(n->subdivision[c.outbound]);
 	}
 	segments.unSet(segment_index);
 
-	updateSlopes(*nodes_[0],update_controls,build);
-	updateSlopes(*nodes_[1],update_controls,build);
+	UpdateSlopes(*nodes_[0],update_controls,build,affectedSegments);
+	UpdateSlopes(*nodes_[1],update_controls,build,affectedSegments);
 }
 
 

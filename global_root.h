@@ -60,7 +60,7 @@ namespace DW
 {
 
 	/**
-		@brief Base object that only provides a constructor and the character of an object, rather than a void pointer
+		@brief Base object that only provides a destructor and the character of an object, rather than a void pointer
 	*/
 	class Object
 	{
@@ -70,8 +70,8 @@ namespace DW
 
 	inline bool isLittleEndian()
 	{
-		static const int	__one = 1;
-		return (((unsigned char*)(&__one))[0]==1);
+		static const int	one = 1;
+		return (((unsigned char*)(&one))[0]==1);
 	}
 
 }

@@ -586,12 +586,12 @@ namespace Map	//! Geometrical scenario composition
 
 			IndexTable<index_t>		node_table;
 			Buffer<index_t,0>		start_nodes;
-			index_t					goal_node;
+			index_t					goalNode;
 
 
-									XTrack():Entity("XTrack",Entity::MetaEntity),goal_node(InvalidIndex)
+									XTrack():Entity("XTrack",Entity::MetaEntity),goalNode(InvalidIndex)
 									{}
-									XTrack(Composition*composition):Entity("XTrack",Entity::MetaEntity,composition),goal_node(InvalidIndex)
+									XTrack(Composition*composition):Entity("XTrack",Entity::MetaEntity,composition),goalNode(InvalidIndex)
 									{}
 			void					adoptData(XTrack&other)
 									{
@@ -599,7 +599,7 @@ namespace Map	//! Geometrical scenario composition
 										segments.swap(other.segments);
 										node_table.swap(other.node_table);
 										start_nodes.swap(other.start_nodes);
-										goal_node = other.goal_node;
+										goalNode = other.goalNode;
 										Entity::adoptData(other);
 										for (index_t i = 0; i < segments.count(); i++)
 											segments[i].link(*this);
@@ -615,7 +615,7 @@ namespace Map	//! Geometrical scenario composition
 	class SplineTrack:public Entity
 	{
 	public:
-			SurfaceNetwork::Compact	network;
+			SurfaceNetwork::Compacted	network;
 
 			struct StartSegment
 			{
@@ -627,9 +627,9 @@ namespace Map	//! Geometrical scenario composition
 			};
 			struct SegmentLOD
 			{
-				index_t					triangle_index_offset,
-										quad_index_offset,
-										quad_index_count;
+				index_t					triangleIndexOffset,
+										quadIndexOffset,
+										quadIndexCount;
 			};
 			ALIGN4
 				struct Vertex
@@ -641,25 +641,25 @@ namespace Map	//! Geometrical scenario composition
 				};
 
 
-			Buffer<StartSegment,0>	start_segments;
-			index_t					goal_node;
-			Buffer<Vertex,0>		vertex_buffer;	//!< Vertex data needed by all segments of the local structure
-			Buffer<UINT32,0>		index_buffer;	//!< Index data needed by all segments of the local structure. Each all triangles of one LOD are grouped.
+			Buffer<StartSegment,0>	startSegments;
+			index_t					goalNode;
+			Buffer<Vertex,0>		vertexBuffer;	//!< Vertex data needed by all segments of the local structure
+			Buffer<UINT32,0>		indexBuffer;	//!< Index data needed by all segments of the local structure. Each all triangles of one LOD are grouped.
 
-			Array<Array<SegmentLOD> >	segment_lods;	//!< Primary order in this list is segments, secondary is LODs. Each three LODs are used per actual LOD, to adapt to neighboring lower level of detail
-			Array<float4>			segment_bounding_sphere;
+			Array<Array<SegmentLOD> >	segmentLODs;	//!< Primary order in this list is segments, secondary is LODs. Each three LODs are used per actual LOD, to adapt to neighboring lower level of detail
+			Array<float4>			segmentBoundingSphere;
 
-			ObjectMath::Mesh<CGS::SubGeometryA<>::PhDef>	ph_hull;
+			ObjectMath::Mesh<CGS::SubGeometryA<>::PhDef>	phHull;
 
-									SplineTrack():Entity("SplineTrack",Entity::MetaEntity),goal_node(InvalidIndex)
+									SplineTrack():Entity("SplineTrack",Entity::MetaEntity),goalNode(InvalidIndex)
 									{}
-									SplineTrack(Composition*composition):Entity("SplineTrack",Entity::MetaEntity,composition),goal_node(InvalidIndex)
+									SplineTrack(Composition*composition):Entity("SplineTrack",Entity::MetaEntity,composition),goalNode(InvalidIndex)
 									{}
 			void					adoptData(SplineTrack&other)
 									{
 										network.adoptData(other.network);
-										start_segments.adoptData(other.start_segments);
-										goal_node = other.goal_node;
+										startSegments.adoptData(other.startSegments);
+										goalNode = other.goalNode;
 										Entity::adoptData(other);
 									}
 

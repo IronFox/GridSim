@@ -244,7 +244,12 @@ template <class Carrier, class Hash>
 		template <class Key>
 			inline	bool					isSet(const Key&ident)				const;	//!< Queries whether ot not data is associated with the specified key without setting it. \param ident Key to look for \return True if the specified key could be found, false otherwise.
 		template <class Key>
+			inline	bool					unset(const Key&ident)						/** @copydoc unSet() */{return unSet(ident);}
+		template <class Key>
 			inline	bool					unSet(const Key&ident);						//!< Un-sets any data associated with the specifed key. Potentially resizes the internal set. \param ident Key to look for \return True if the specified key could be found and un-set, false otherwise.
+		template <typename F>
+			inline	void					visitAllKeys(const F&f) const;	//!< Passes each occupied element to the specified functor of type <tt>void f(const Key&)</tt>.
+
 	};
 
 /*!
@@ -321,6 +326,8 @@ template <class K, class C, class Hash=StdHash, typename KeyStrategy = typename 
 		template <class Key>
 			inline	bool					queryAndUnSet(const Key&ident, DataType&target);	//!< Requests the content associated with the specified key and un-sets it. \param ident Key to look for \param target Out reference to copy the respective content to \return True if an entry matching the specified key could be found, false otherwise. \b target remains unchanged if \b key could not be found.
 		template <class Key>
+			inline	bool					queryAndUnset(const Key&ident, DataType&target)	/** @copydoc queryAndUnSet() */ {return queryAndUnSet(ident,target);}
+		template <class Key>
 			inline	DataType*				queryPointer(const Key&ident);				//!< Requests the content associated with the specified key without setting it. The method returns a pointer to the element ot NULL if no such could be found. \param ident Key to look for \return Pointer to the object matching the specified key or NULL if no such could be found
 		template <class Key>
 			inline	const DataType*			queryPointer(const Key&ident)		const;	//!< Requests the content associated with the specified key without setting it. The method returns a pointer to the element ot NULL if no such could be found. \param ident Key to look for \return Pointer to the object matching the specified key or NULL if no such could be found
@@ -329,6 +336,8 @@ template <class K, class C, class Hash=StdHash, typename KeyStrategy = typename 
 			inline	DataType*				setNew(const Key&ident);					//!< Sets the specified key if it is currently not set and returns the pointer its content. If the key is already set then NULL is returned @param ident Key to set @return Pointer to the set content associated with the specified key, or NULL if the key was previously set
 		template <class Entry>
 			inline	bool					unSetEntry(const Entry&entry);				//!< Un-sets the key associated with the specified entry. Potentially resizes the internal table. \param entry Entry to look for \return True if the specified entry could be found and un-set, false otherwise.
+		template <class Entry>
+			inline	bool					unsetEntry(const Entry&ident)				/** @copydoc unSetEntry() */{return unSetEntry(entry);}
 		template <class Key>
 			inline	void					set(const Key&ident, const DataType&v);		//!< Sets the specified key (if not set already) and assigns \b v to the associated data. Identical to <table>[ident] = v; \param ident Key to set \param v Value to assign to the associated data.
 		template <class Key>

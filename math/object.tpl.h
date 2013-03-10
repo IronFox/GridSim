@@ -5806,7 +5806,7 @@ namespace ObjectMath
 
 	template <class Def>MF_DECLARE	(void) ObjMap<Def>::map(Mesh<Def>&object, BYTE tag)
 	{
-		/*ObjBuffer<MeshVertex<Def> >vertex_buffer[8];
+		/*ObjBuffer<MeshVertex<Def> >vertexBuffer[8];
 		ObjBuffer<MeshEdge<Def> >	edge_buffer[8];
 		ObjBuffer<ObjFace<Def> >	face_buffer[8];*/
 

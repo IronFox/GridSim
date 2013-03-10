@@ -869,11 +869,11 @@ namespace CGS	//! Compiled Geometrical Structure
 
 	public:
 			typedef TVsDef<typename Def::FloatType>			VsDef;		//!< Visual definition for the vs_hull_field object array
-			typedef TVsDef<typename Def::PhHullFloatType>	PhDef;		//!< Physical definition for the ph_hull object. VsDef suffices in what is needed these days
+			typedef TVsDef<typename Def::PhHullFloatType>	PhDef;		//!< Physical definition for the phHull object. VsDef suffices in what is needed these days
 			//typedef TPhFileDef<typename Def::PhFloatType>	PhFileDef;
 
 			Array<SubGeometryA<Def>,Adopt>					child_field;		//!< Children
-			Mesh<PhDef>										ph_hull;			//!< Physical hull
+			Mesh<PhDef>										phHull;			//!< Physical hull
 			Array<Mesh<VsDef>,Adopt>						vs_hull_field;		//!< Visual hulls (one for each detail level with 0 being the highest detail)
 			Array<Tracks<Def>,Adopt>						tracks_field;		//!< Chained wheels
 			Array<TAccelerator<Def> >						accelerator_field;	//!< Accelerators

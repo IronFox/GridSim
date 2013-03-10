@@ -1,17 +1,6 @@
 #ifndef hashtableTplH
 #define hashtableTplH
 
-/******************************************************************
-
-E:\include\list\hashtable.tpl.h
-
-This file is part of Delta-Works
-Copyright (C) 2006-2008 Stefan Elsen, University of Trier, Germany.
-http://www.delta-works.org/forge/
-http://informatik.uni-trier.de/
-
-******************************************************************/
-
 template <typename Tfrom, typename Tto>
 	static inline Tto	force_cast(const Tfrom&value)
 	{
@@ -452,6 +441,16 @@ template <class Carrier, class Hash>
 	
 
 
+template <class Carrier, class Hash>
+	template <typename F>
+		inline	void		ExtendedHashBase<Carrier,Hash>::visitAllKeys(const F&f) const
+		{
+			//index_t at = 0;
+			for (index_t i = 0; i < Base::array.length(); i++)
+				if (Base::array[i].occupied)
+					f(Base::array[i].key);
+		}
+
 
 
 
@@ -480,7 +479,6 @@ template <class K, class C, class Hash, class KeyStrategy, class DataStrategy>
 	template <typename F>
 		inline	void					GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::visitAllEntries(const F&f)
 		{
-			index_t at = 0;
 			for (index_t i = 0; i < Base::array.length(); i++)
 				if (Base::array[i].occupied)
 					f((const K&)Base::array[i].key, Base::array[i].cast());
@@ -490,7 +488,6 @@ template <class K, class C, class Hash, class KeyStrategy, class DataStrategy>
 	template <typename F>
 		inline	void					GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::visitAllEntries(const F&f)	const
 		{
-			index_t at = 0;
 			for (index_t i = 0; i < Base::array.length(); i++)
 				if (Base::array[i].occupied)
 					f((const K&)Base::array[i].key, Base::array[i].cast());

@@ -787,10 +787,10 @@ void		Map::HexGrid::updateHull()
 	const float cell_width = cell_height / sin(M_PI/3.f),
 				cell_indent = cell_width * 3.f/4.f;
 	static Array<SurfaceDescription>	lods(1);
-	static SurfaceDescription			ph_hull;
+	static SurfaceDescription			phHull;
 	SurfaceDescription&desc = lods.first();
-	desc.clear();
-	ph_hull.clear();
+	desc.Clear();
+	phHull.Clear();
 
 	TMatrix4<>	system = this->system;
 	Vec::mad(system.w.xyz,system.x.xyz,cell_indent * grid_offset.x);
@@ -807,7 +807,7 @@ void		Map::HexGrid::updateHull()
 			{
 				getCornersOfCell(out_corners,x,y);
 				const UINT32	v_offset = (UINT32)desc.vertices.count(),
-								pv_offset = (UINT32)ph_hull.vertices.count();
+								pv_offset = (UINT32)phHull.vertices.count();
 				SurfaceDescription::TVertex	vtx,vtx_p0,vtx_p1;
 
 				float2	center(cell_indent * x + cell_width*0.5f,cell_height*y + (x%2)*cell_height*0.5f + cell_height*1.5f);
@@ -839,15 +839,15 @@ void		Map::HexGrid::updateHull()
 					p = desc.vertices.fromEnd(5).position;
 					desc.vertices.append().position = p;
 
-					ph_hull.vertices << vtx_p0 << vtx_p1;
+					phHull.vertices << vtx_p0 << vtx_p1;
 
 					UINT32	t = (UINT32)(v_offset+i*11+6),
 							n = (UINT32)(v_offset+((i+1)%6)*11),
 							pt = (UINT32)(pv_offset+i*2),
 							pn = (UINT32)(pv_offset+((i+1)%6)*2);
-					desc.quad_indices	<< t << t+1 << n+1 << n
+					desc.quadIndices	<< t << t+1 << n+1 << n
 										<< t+2 << t+3 << n+3 << n+2;
-					ph_hull.quad_indices << pt << pt+1 << pn+1 << pn;
+					phHull.quadIndices << pt << pt+1 << pn+1 << pn;
 				}
 
 				for (unsigned i = 1; i < 5; i++)
@@ -856,8 +856,8 @@ void		Map::HexGrid::updateHull()
 							n = (UINT32)(v_offset+((i+1)%6)*11),
 							pt = (UINT32)(pv_offset+i*2),
 							pn = (UINT32)(pv_offset+((i+1)%6)*2);
-					desc.triangle_indices << v_offset+4 << n+4 << t+4;
-					ph_hull.triangle_indices << pv_offset << pn << pt;
+					desc.triangleIndices << v_offset+4 << n+4 << t+4;
+					phHull.triangleIndices << pv_offset << pn << pt;
 				}
 
 			}
@@ -865,8 +865,8 @@ void		Map::HexGrid::updateHull()
 
 		}
 
-	desc.generateNormals();
-	SurfaceNetwork::compileFromDescriptions(hull,lods,ph_hull,1.f,0,0);
+	desc.GenerateNormals();
+	SurfaceNetwork::CompileFromDescriptions(hull,lods,phHull,1.f,0,0);
 	hull.material_field.first().info.fully_reflective = true;
 	hull.material_field.first().info.specular = float4(0.9,0.9,1,1);
 
@@ -1069,7 +1069,7 @@ void	Map::XTrack::parse(const XML::Node&node,float scale, const FileSystem::Fold
 {
 	Entity::parse(node,scale,loading_context);
 	
-	query(node,"goal",goal_node);
+	query(node,"goal",goalNode);
 	
 	if (const XML::Node*xnodes = node.find("nodes"))
 	{
@@ -1211,7 +1211,7 @@ void Map::XSegment::link(XTrack&track)
 /*static*/	void	Map::SplineTrack::parseConnector(const XML::Node&xnode, SurfaceNetwork::Segment::Connector&connector)
 {
 	ASSERT__(query(xnode,"id",connector.node));
-	ASSERT__(query(xnode,"slot",connector.subdivision_step));
+	ASSERT__(query(xnode,"slot",connector.subdivisionStep));
 	ASSERT__(query(xnode,"outbound",connector.outbound));
 }
 
@@ -1225,7 +1225,7 @@ bool	Map::SplineTrack::findClosestSegment(const TVec3<>&reference_position, inde
 
 	for (index_t i = 0; i < network.segments.count(); i++)
 	{
-		if (Vec::quadraticDistance(reference_position,segment_bounding_sphere[i].xyz) > sqr(segment_bounding_sphere[i].w*1.2f))
+		if (Vec::quadraticDistance(reference_position,segmentBoundingSphere[i].xyz) > sqr(segmentBoundingSphere[i].w*1.2f))
 			continue;
 
 		const SurfaceNetwork::Segment&seg = network.segments[i];
@@ -1236,11 +1236,11 @@ bool	Map::SplineTrack::findClosestSegment(const TVec3<>&reference_position, inde
 									&n1 = network.nodes[seg.connector[1].node];
 		SurfaceDescription::TConnector	c0,
 										c1;
-		DBG_VERIFY__(n0.buildConnector(seg.connector[0].outbound,seg.connector[0].subdivision_step,false,c0));
-		DBG_VERIFY__(n1.buildConnector(seg.connector[1].outbound,seg.connector[1].subdivision_step,true,c1));
+		DBG_VERIFY__(n0.BuildConnector(seg.connector[0].outbound,seg.connector[0].subdivisionStep,false,c0));
+		DBG_VERIFY__(n1.BuildConnector(seg.connector[1].outbound,seg.connector[1].subdivisionStep,true,c1));
 
-		SurfaceDescription::interpolate(c0, c1,seg.controls, lower, lower_slice);
-		SurfaceDescription::interpolate(c0, c1,seg.controls, upper, upper_slice);
+		SurfaceDescription::Interpolate(c0, c1,seg.controls, lower, lower_slice);
+		SurfaceDescription::Interpolate(c0, c1,seg.controls, upper, upper_slice);
 		float3	delta;
 		Vec::sub(reference_position,lower_slice.position,delta);
 		if (Vec::dot(lower_slice.direction,delta) < 0)
@@ -1253,7 +1253,7 @@ bool	Map::SplineTrack::findClosestSegment(const TVec3<>&reference_position, inde
 		for (index_t j = 0; j < 10; j++)
 		{
 			float pivot = (upper+lower)*0.5f;
-			SurfaceDescription::interpolate(c0, c1,seg.controls, pivot, pivot_slice);
+			SurfaceDescription::Interpolate(c0, c1,seg.controls, pivot, pivot_slice);
 			float3	delta;
 			Vec::cross(pivot_slice.right,pivot_slice.up,pivot_normal);
 			Vec::sub(reference_position,pivot_slice.position,delta);
@@ -1279,7 +1279,7 @@ bool	Map::SplineTrack::findClosestSegment(const TVec3<>&reference_position, inde
 			{
 				float fj = (float(j)+0.5f)/3.f;
 				TVec3<>	p,n,d;
-				pivot_slice.makePoint(fj,p,n);
+				pivot_slice.MakePoint(fj,p,n);
 				float dist = Vec::quadraticDistance(p,projected_ref);
 				Vec::sub(projected_ref,p,d);
 				//float3 delta = projected_ref - p;
@@ -1297,7 +1297,7 @@ bool	Map::SplineTrack::findClosestSegment(const TVec3<>&reference_position, inde
 					for (float f = center-extend; f <= center+extend; f+= step)
 					{
 						TVec3<>	p,n,d;
-						pivot_slice.makePoint(f,p,n);
+						pivot_slice.MakePoint(f,p,n);
 						Vec::sub(projected_ref,p,d);
 						float dist = Vec::quadraticDistance(p,projected_ref);
 						if (dist < closest_distance && Vec::dot(n,d)>-0.1)
@@ -1335,8 +1335,8 @@ void	Map::SplineTrack::parse(const XML::Node&node,float scale, const FileSystem:
 	
 	index_t	node_id;
 
-	query(node,"goal",goal_node);
-	SurfaceNetwork::min_tolerance *= scale/4;
+	query(node,"goal",goalNode);
+	SurfaceNetwork::minTolerance *= scale/4;
 	
 	if (const XML::Node*xnodes = node.find("nodes"))
 	{
@@ -1407,15 +1407,15 @@ void	Map::SplineTrack::parse(const XML::Node&node,float scale, const FileSystem:
 				SurfaceNetwork::Segment::Connector	from,to;
 				parseConnector(*xfrom,from);
 				parseConnector(*xto,to);
-				index_t	seg_id = network.link(from,to,false,false);
+				index_t	seg_id = network.Link(from,to,false,false);
 
 				String	function;
 				if (sub.query("start_position",function))
 				{
 					if (function == "forward")
-						start_segments << StartSegment(seg_id,true);
+						startSegments << StartSegment(seg_id,true);
 					elif (function == "backward")
-						start_segments << StartSegment(seg_id,false);
+						startSegments << StartSegment(seg_id,false);
 					else
 						FATAL__("Unexpected start_position string encountered: '"+function+"'");
 				}
@@ -1423,58 +1423,58 @@ void	Map::SplineTrack::parse(const XML::Node&node,float scale, const FileSystem:
 		}
 	}
 
-	network.updateAllSlopes(true,true);
+	network.UpdateAllSlopes(true,true);
 
-	network.moveCompact(this->network);
+	network.MoveCompact(this->network);
 
-	foreach(start_segments,seg)
-		seg->segment_id = network.segments[seg->segment_id].seg_id;
+	foreach(startSegments,seg)
+		seg->segment_id = network.segments[seg->segment_id].segID;
 
 	recompileGeometry(scale);
 }
 
 void Map::SplineTrack::recompileGeometry(float scale)
 {
-	vertex_buffer.reset();
-	index_buffer.reset();
+	vertexBuffer.reset();
+	indexBuffer.reset();
 
-	segment_lods.setSize(network.segments.count());
-	segment_bounding_sphere.setSize(network.segments.count());
+	segmentLODs.setSize(network.segments.count());
+	segmentBoundingSphere.setSize(network.segments.count());
 
 
 
 	count_t	ph_vertex_count = 0;
 
-	for (index_t i = 0; i < SurfaceNetwork::num_lods*3; i++)
+	for (index_t i = 0; i < SurfaceNetwork::numLODs*3; i++)
 	{
 		if (i == 1)
-			ph_vertex_count = vertex_buffer.size();
+			ph_vertex_count = vertexBuffer.size();
 		for (index_t j = 0; j < network.segments.count(); j++)
 		{
 			const SurfaceNetwork::Segment&	seg = network.segments[j];
 
-			if (segment_lods[j].isEmpty())
-				segment_lods[j].setSize(seg.compiled_surfaces.count());
-			DBG_ASSERT_EQUAL__(seg.compiled_surfaces.count(),SurfaceNetwork::num_lods*3);
-			SegmentLOD&lod = segment_lods[j][i];
+			if (segmentLODs[j].isEmpty())
+				segmentLODs[j].setSize(seg.compiledSurfaces.count());
+			DBG_ASSERT_EQUAL__(seg.compiledSurfaces.count(),SurfaceNetwork::numLODs*3);
+			SegmentLOD&lod = segmentLODs[j][i];
 
 			static Buffer<index_t>	vertex_map;
 
-			const SurfaceDescription&surf = seg.compiled_surfaces[i];
-			//foreach (seg.compiled_surfaces,surf)
+			const SurfaceDescription&surf = seg.compiledSurfaces[i];
+			//foreach (seg.compiledSurfaces,surf)
 			{
-				const UINT32 voffset = (UINT32)vertex_buffer.size();
-				lod.triangle_index_offset = index_buffer.count();
+				const UINT32 voffset = (UINT32)vertexBuffer.size();
+				lod.triangleIndexOffset = indexBuffer.count();
 				foreach(surf.vertices,vert)
 				{
-					Vertex&vtx = vertex_buffer.append();
+					Vertex&vtx = vertexBuffer.append();
 					vtx.position = vert->position;
 					vtx.normal = vert->normal;
 					vtx.tangent = vert->tangent;
 					vtx.texcoords = vert->tcoord;
 				}
-				const UINT32 vdown_offset = (UINT32)vertex_buffer.size();
-				Vertex*const vtx_field = vertex_buffer.appendRow(surf.vertices.count());
+				const UINT32 vdown_offset = (UINT32)vertexBuffer.size();
+				Vertex*const vtx_field = vertexBuffer.appendRow(surf.vertices.count());
 				Concurrency::parallel_for(index_t(0),surf.vertices.count(),[vtx_field,&surf,scale](index_t i)
 				{
 					Vertex&vtx = vtx_field[i];
@@ -1486,44 +1486,44 @@ void Map::SplineTrack::recompileGeometry(float scale)
 				});
 
 
-				if (i+1 == SurfaceNetwork::num_lods*3)
+				if (i+1 == SurfaceNetwork::numLODs*3)
 				{
-					Box<>	box(vertex_buffer[voffset].position);
-					for (index_t k = voffset+1; k < vertex_buffer.fillLevel(); k++)
-						_oDetDimension(vertex_buffer[k].position,box);
+					Box<>	box(vertexBuffer[voffset].position);
+					for (index_t k = voffset+1; k < vertexBuffer.fillLevel(); k++)
+						_oDetDimension(vertexBuffer[k].position,box);
 					float3 center = box.center();
 					float radius = 0;
-					for (index_t k = voffset; k < vertex_buffer.fillLevel(); k++)
+					for (index_t k = voffset; k < vertexBuffer.fillLevel(); k++)
 					{
-						float r = Vec::quadraticDistance(center,vertex_buffer[k].position);
+						float r = Vec::quadraticDistance(center,vertexBuffer[k].position);
 						if (r > radius)
 							radius = r;
 					}
-					segment_bounding_sphere[j].xyz = center;
-					segment_bounding_sphere[j].w = sqrt(radius);
+					segmentBoundingSphere[j].xyz = center;
+					segmentBoundingSphere[j].w = sqrt(radius);
 				}
 
 
 
-				foreach(surf.triangle_indices,tri)
-					index_buffer << (UINT32)((*tri) + voffset);
-				for (index_t i = 0; i < surf.triangle_indices.size(); i+=3)
+				foreach(surf.triangleIndices,tri)
+					indexBuffer << (UINT32)((*tri) + voffset);
+				for (index_t i = 0; i < surf.triangleIndices.size(); i+=3)
 				{
-					index_buffer << (UINT32)(surf.triangle_indices[i] + vdown_offset);
-					index_buffer << (UINT32)(surf.triangle_indices[i+2] + vdown_offset);
-					index_buffer << (UINT32)(surf.triangle_indices[i+1] + vdown_offset);
+					indexBuffer << (UINT32)(surf.triangleIndices[i] + vdown_offset);
+					indexBuffer << (UINT32)(surf.triangleIndices[i+2] + vdown_offset);
+					indexBuffer << (UINT32)(surf.triangleIndices[i+1] + vdown_offset);
 				}
 
-				lod.quad_index_offset = index_buffer.count();
-				foreach(surf.quad_indices,quad)
-					index_buffer << (UINT32)((*quad)+voffset);
+				lod.quadIndexOffset = indexBuffer.count();
+				foreach(surf.quadIndices,quad)
+					indexBuffer << (UINT32)((*quad)+voffset);
 
-				for (index_t i = 0; i < surf.quad_indices.size(); i+=4)
+				for (index_t i = 0; i < surf.quadIndices.size(); i+=4)
 				{
-					index_buffer << surf.quad_indices[i+3] + vdown_offset;
-					index_buffer << surf.quad_indices[i+2] + vdown_offset;
-					index_buffer << surf.quad_indices[i+1] + vdown_offset;
-					index_buffer << surf.quad_indices[i] + vdown_offset;
+					indexBuffer << surf.quadIndices[i+3] + vdown_offset;
+					indexBuffer << surf.quadIndices[i+2] + vdown_offset;
+					indexBuffer << surf.quadIndices[i+1] + vdown_offset;
+					indexBuffer << surf.quadIndices[i] + vdown_offset;
 				}
 
 				vertex_map.reset();
@@ -1541,29 +1541,29 @@ void Map::SplineTrack::recompileGeometry(float scale)
 						index_t vertex_index = vertex_map[vindex];
 						if (vertex_index == InvalidIndex)
 						{
-							vertex_map[vindex] = vertex_index = vertex_buffer.size();
+							vertex_map[vindex] = vertex_index = vertexBuffer.size();
 							const SurfaceDescription::TVertex&vert = surf.vertices[vindex];
 							{
-								Vertex&vtx = vertex_buffer.append();
+								Vertex&vtx = vertexBuffer.append();
 								vtx.position = vert.position;
 								vtx.normal = vert.tangent;
 								Vec::mul(vert.normal,-1.f,vtx.tangent);
 								vtx.texcoords = vert.tcoord;
 
-								if (edge->left_edge)
+								if (edge->leftEdge)
 								{
 									Vec::mult(vtx.tangent,-1.f);
 									Vec::mult(vtx.normal,-1.f);
 								}
 							}
 							{
-								Vertex&vtx = vertex_buffer.append();
+								Vertex&vtx = vertexBuffer.append();
 								Vec::mad(vert.position,vert.normal,-0.1f*scale,vtx.position);
 								vtx.normal = vert.tangent;
 								Vec::mul(vert.normal,-1.f,vtx.tangent);
 								vtx.texcoords = vert.tcoord;
 								vtx.texcoords.x += 0.1f;
-								if (edge->left_edge)
+								if (edge->leftEdge)
 								{
 									Vec::mult(vtx.tangent,-1.f);
 									Vec::mult(vtx.normal,-1.f);
@@ -1573,7 +1573,7 @@ void Map::SplineTrack::recompileGeometry(float scale)
 
 						if (i > 0)
 						{
-							index_buffer << (UINT32)last_vertex_index << (UINT32)(last_vertex_index+1) << (UINT32)(vertex_index+1) << (UINT32)vertex_index;
+							indexBuffer << (UINT32)last_vertex_index << (UINT32)(last_vertex_index+1) << (UINT32)(vertex_index+1) << (UINT32)vertex_index;
 						}
 
 						last_vertex_index = vertex_index;
@@ -1581,7 +1581,7 @@ void Map::SplineTrack::recompileGeometry(float scale)
 				}
 
 
-				lod.quad_index_count = index_buffer.count() - lod.quad_index_offset;
+				lod.quadIndexCount = indexBuffer.count() - lod.quadIndexOffset;
 			}
 
 
@@ -1592,44 +1592,44 @@ void Map::SplineTrack::recompileGeometry(float scale)
 			num_quads = 0;
 	for (index_t i = 0; i < network.segments.count(); i++)
 	{
-		num_triangles += (segment_lods[i].first().quad_index_offset - segment_lods[i].first().triangle_index_offset)/3;
-		num_quads += segment_lods[i].first().quad_index_count / 4;
+		num_triangles += (segmentLODs[i].first().quadIndexOffset - segmentLODs[i].first().triangleIndexOffset)/3;
+		num_quads += segmentLODs[i].first().quadIndexCount / 4;
 	}
 	
-	ph_hull.resize(ph_vertex_count,0,num_triangles,num_quads);
+	phHull.resize(ph_vertex_count,0,num_triangles,num_quads);
 	for (index_t i = 0; i < ph_vertex_count; i++)
 	{
-		const Vertex&from = vertex_buffer[i];
-		auto&to = ph_hull.vertex_field[i];
+		const Vertex&from = vertexBuffer[i];
+		auto&to = phHull.vertex_field[i];
 		to.normal = from.normal;
 		to.position = from.position;
 	}
 
-	auto triangle_out = ph_hull.triangle_field.pointer();
-	auto quad_out = ph_hull.quad_field.pointer();
-	const UINT32*index_field = index_buffer.pointer();
+	auto triangle_out = phHull.triangle_field.pointer();
+	auto quad_out = phHull.quad_field.pointer();
+	const UINT32*index_field = indexBuffer.pointer();
 	for (index_t i = 0; i < network.segments.count(); i++)
 	{
-		count_t local_triangle_count = (segment_lods[i].first().quad_index_offset - segment_lods[i].first().triangle_index_offset)/3;
+		count_t local_triangle_count = (segmentLODs[i].first().quadIndexOffset - segmentLODs[i].first().triangleIndexOffset)/3;
 		for (index_t j = 0; j < local_triangle_count; j++)
 		{
-			triangle_out->v0 = ph_hull.vertex_field + (*index_field++);
-			triangle_out->v1 = ph_hull.vertex_field + (*index_field++);
-			triangle_out->v2 = ph_hull.vertex_field + (*index_field++);
+			triangle_out->v0 = phHull.vertex_field + (*index_field++);
+			triangle_out->v1 = phHull.vertex_field + (*index_field++);
+			triangle_out->v2 = phHull.vertex_field + (*index_field++);
 			triangle_out++;
 		}
-		count_t local_quad_count = segment_lods[i].first().quad_index_count / 4;
+		count_t local_quad_count = segmentLODs[i].first().quadIndexCount / 4;
 		for (index_t j = 0; j < local_quad_count; j++)
 		{
-			quad_out->v0 = ph_hull.vertex_field + (*index_field++);
-			quad_out->v1 = ph_hull.vertex_field + (*index_field++);
-			quad_out->v2 = ph_hull.vertex_field + (*index_field++);
-			quad_out->v3 = ph_hull.vertex_field + (*index_field++);
+			quad_out->v0 = phHull.vertex_field + (*index_field++);
+			quad_out->v1 = phHull.vertex_field + (*index_field++);
+			quad_out->v2 = phHull.vertex_field + (*index_field++);
+			quad_out->v3 = phHull.vertex_field + (*index_field++);
 			quad_out++;
 		}
 	}
-	ASSERT_EQUAL__(index_field - index_buffer.pointer(),segment_lods.first()[1].triangle_index_offset);
-	ASSERT_CONCLUSION(ph_hull.triangle_field,triangle_out);
-	ASSERT_CONCLUSION(ph_hull.quad_field,quad_out);
+	ASSERT_EQUAL__(index_field - indexBuffer.pointer(),segmentLODs.first()[1].triangleIndexOffset);
+	ASSERT_CONCLUSION(phHull.triangle_field,triangle_out);
+	ASSERT_CONCLUSION(phHull.quad_field,quad_out);
 }
 

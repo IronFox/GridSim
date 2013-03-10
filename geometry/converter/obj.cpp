@@ -81,7 +81,7 @@ namespace Converter
 		t = set[1]?index[1]:0;
 		n = set[2]?index[2]:0;
 		
-		if ((index_t)abs(v) > vertex_buffer.fillLevel())
+		if ((index_t)abs(v) > vertexBuffer.fillLevel())
 		{
 			broken_vertex_links++;
 			v = 0;
@@ -113,7 +113,7 @@ namespace Converter
 			(*seg_end) = 0;
 			int v,n,t;
 			parseObjFaceVertex(start,seg_end,v,n,t);
-			v = positiveIndex(v,vertex_buffer.fillLevel());
+			v = positiveIndex(v,vertexBuffer.fillLevel());
 			if (!ibuffer.fillLevel() || ibuffer[ibuffer.fillLevel()-3]!= v)
 			{
 				ASSERT1__(v != 0,v);
@@ -644,7 +644,7 @@ namespace Converter
 				if (end-start>3)
 				{
 					if (start[1] == ' ')
-						parseObjPoint(vertex_buffer,start+2,end);
+						parseObjPoint(vertexBuffer,start+2,end);
 					elif (start[1] == 'n')
 						parseObjPoint(normal_buffer,start+3,end);
 					elif (start[1] == 't')
@@ -711,7 +711,7 @@ namespace Converter
 
 	void			ObjConverter::resetImport()
 	{
-		vertex_buffer.reset();
+		vertexBuffer.reset();
 		normal_buffer.reset();
 		texcoord_buffer.reset();
 		group_buffer.clear();
@@ -839,13 +839,13 @@ namespace Converter
 				
 		#define GETN(vindex,nindex,vertex)\
 				{\
-					GETC(vertex_buffer,vindex,vertex.p);\
+					GETC(vertexBuffer,vindex,vertex.p);\
 					GETC(normal_buffer,nindex,vertex.n);\
 				}
 					
 		#define GETNT(vindex,nindex,tindex,vertex)\
 				{\
-					GETC(vertex_buffer,vindex,vertex.p);\
+					GETC(vertexBuffer,vindex,vertex.p);\
 					GETC(normal_buffer,nindex,vertex.n);\
 					GETC(texcoord_buffer,tindex,vertex.t);\
 				}
@@ -918,7 +918,7 @@ namespace Converter
 		{
 			sendMessage("Provided normals are non-existing or not properly generated.");
 			sendMessage("Generating normals");
-			normal_buffer.setSize(vertex_buffer.fillLevel()*smooth_groups,true);
+			normal_buffer.setSize(vertexBuffer.fillLevel()*smooth_groups,true);
 			normal_buffer.fill(Vector<>::null);
 			index_t index = 0;
 			update_step = total/100;
@@ -933,19 +933,19 @@ namespace Converter
 					TObjFace&face = group->face_buffer[j];
 					if (!(index++%update_step))
 						setProgress((float)index/(float)total);
-					int		i0 = VINDEX(face.v[0],vertex_buffer),
-							i1 = VINDEX(face.v[1],vertex_buffer),
-							i2 = VINDEX(face.v[2],vertex_buffer),
-							i3 = VINDEX(face.v[3],vertex_buffer);
-					//ASSERT_LESS__((index_t)i0,vertex_buffer.size());
-					//ASSERT_LESS__((index_t)i1,vertex_buffer.size());
-					//ASSERT_LESS__((index_t)i2,vertex_buffer.size());
+					int		i0 = VINDEX(face.v[0],vertexBuffer),
+							i1 = VINDEX(face.v[1],vertexBuffer),
+							i2 = VINDEX(face.v[2],vertexBuffer),
+							i3 = VINDEX(face.v[3],vertexBuffer);
+					//ASSERT_LESS__((index_t)i0,vertexBuffer.size());
+					//ASSERT_LESS__((index_t)i1,vertexBuffer.size());
+					//ASSERT_LESS__((index_t)i2,vertexBuffer.size());
 					//if (face.v[3] != 0)
-					//	ASSERT_LESS__((index_t)i3,vertex_buffer.size());
-					TVec3<>	*t0 = vertex_buffer+i0,
-							*t1 = vertex_buffer+i1,
-							*t2 = vertex_buffer+i2,
-							*t3 = face.v[3]?vertex_buffer+i3:NULL,
+					//	ASSERT_LESS__((index_t)i3,vertexBuffer.size());
+					TVec3<>	*t0 = vertexBuffer+i0,
+							*t1 = vertexBuffer+i1,
+							*t2 = vertexBuffer+i2,
+							*t3 = face.v[3]?vertexBuffer+i3:NULL,
 							normal;
 					_oTriangleNormal(*t0,*t1,*t2,normal);
 					if (face.v[3])
@@ -961,14 +961,14 @@ namespace Converter
 					face.n[3] = face.v[3]?i3*smooth_groups+face.smooth_group+1:0;
 				}
 			}
-			for (index_t i = 0; i < vertex_buffer.fillLevel()*smooth_groups; i++)
+			for (index_t i = 0; i < vertexBuffer.fillLevel()*smooth_groups; i++)
 				if (Vec::dot(normal_buffer[i])>0)
 					Vec::normalize(normal_buffer[i]);
 		}
 				
 
 		current_callback->hideConverterProgressBar();
-		sendMessage("Extracted "+String(vertex_buffer.fillLevel())+" vertices, "+String(total)+" faces, "+String(group_buffer.count())+" groups, and "+String(material_list.count())+" materials");
+		sendMessage("Extracted "+String(vertexBuffer.fillLevel())+" vertices, "+String(total)+" faces, "+String(group_buffer.count())+" groups, and "+String(material_list.count())+" materials");
 		if (broken_vertex_links)
 			sendMessage("Broken vertex links encountered: "+String(broken_vertex_links));
 		if (broken_normal_links)
@@ -1223,8 +1223,8 @@ namespace Converter
 		if (!update_step)
 			update_step = 1;
 		
-		count_t vertices = render_vertices;//vertex_buffer.fillLevel()/3;	//3 floats per vertex
-		Array<UINT32>	history(vertex_buffer.fillLevel());
+		count_t vertices = render_vertices;//vertexBuffer.fillLevel()/3;	//3 floats per vertex
+		Array<UINT32>	history(vertexBuffer.fillLevel());
 		
 		//PointerTable<bool>	inversion_field;	//map of all objects with negative volume
 
@@ -1264,7 +1264,7 @@ namespace Converter
 						ASSERT3__(vi < vertices,vi,vertices,face.v[k]);
 						UINT32	v = history[vi];
 						if (v == invalid_index)
-							v = history[vi] = pool.add(vertex_buffer[vi]);
+							v = history[vi] = pool.add(vertexBuffer[vi]);
 						q.v[k] = v;
 					}
 				}
@@ -1273,10 +1273,10 @@ namespace Converter
 					TPoolTriangle&q = triangle_buffer.append();
 					for (BYTE k = 0; k < 3; k++)
 					{
-						index_t	vi = face.v[k]<0?vertex_buffer.fillLevel()-face.v[k]:face.v[k]-1;
+						index_t	vi = face.v[k]<0?vertexBuffer.fillLevel()-face.v[k]:face.v[k]-1;
 						UINT32 v = history[vi];
 						if (v == invalid_index)
-							v = history[vi] = pool.add(vertex_buffer[vi]);
+							v = history[vi] = pool.add(vertexBuffer[vi]);
 						q.v[k] = v;
 					}
 				}
@@ -1401,7 +1401,7 @@ namespace Converter
 		sendMessage("Done");
 		
 		/*
-			Buffer<Def::FloatType>				vertex_buffer,normal_buffer,texcoord_buffer;
+			Buffer<Def::FloatType>				vertexBuffer,normal_buffer,texcoord_buffer;
 			CFSFolder							object_system;
 			Vector<ObjFaceGroup>				group_buffer;
 			ObjFaceGroup						*current_group;

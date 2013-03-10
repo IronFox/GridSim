@@ -379,7 +379,7 @@ namespace Converter
 	{
 	protected:
 
-			Buffer<TVec3<Def::FloatType> >		vertex_buffer,
+			Buffer<TVec3<Def::FloatType> >		vertexBuffer,
 												normal_buffer;
 			Buffer<TVec2<Def::FloatType> >		texcoord_buffer;
 			CFSFolder							object_system;
@@ -445,7 +445,7 @@ namespace Converter
 								{
 									if (!index)
 										return NULL;
-									return vertex_buffer+(index-1);
+									return vertexBuffer+(index-1);
 								}
 	inline TVec3<Def::FloatType>*getNormal(int index) throw()
 								{

@@ -962,8 +962,8 @@ namespace CGS
 
 			typedef CGS::SubGeometryA<>::PhDef Def;
 				
-			const Mesh<Def>	&source_hull = source_objects[i]->ph_hull;
-			Mesh<Def>	&target_hull = objects[i]->ph_hull;
+			const Mesh<Def>	&source_hull = source_objects[i]->phHull;
+			Mesh<Def>	&target_hull = objects[i]->phHull;
 
 			bendHull(source_hull,target_hull,repeat,source.dim.z.min, zrange, segment_length, stretch, path, center);
 		}
