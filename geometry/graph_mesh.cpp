@@ -2179,7 +2179,9 @@ void		SurfaceNetwork::ManagedRemoveNode(index_t nodeIndex, bool updateConnectedS
 	{
 		foreach (node.segments[k],segID)
 		{
-			SurfaceNetwork::Segment&seg = segments.require(*segID);
+			SurfaceNetwork::Segment&seg = *segments.queryPointer(*segID);
+			if (&seg == NULL)
+				continue;
 			int otherEnd = !seg.GetEndIndex(nodeIndex);
 			if (updateConnectedSlopes)
 				affectedNodes << seg.connector[otherEnd].node;
@@ -2696,11 +2698,11 @@ void SurfaceDescription::BuildBarriers(const SurfaceDescription&source, float ba
 				vout[0].position += v.tangent * barrierPosition + v.normal * barrierHeight0;
 			else
 				vout[0].position += v.tangent * -barrierPosition + v.normal * barrierHeight0;
+			vout[0].position -= relativeTo;
 			vout[0].tcoord.y = v.tcoord.y;
 			vout[0].tcoord.x = 0;
 			vout[1] = vout[0];
 			vout[1].position += v.normal * (barrierHeight1 - barrierHeight0);
-			vout[1].position -= relativeTo;
 			vout[1].tcoord.y = v.tcoord.y;
 			vout[1].tcoord.x = 1.f;
 		});
@@ -2723,13 +2725,15 @@ void SurfaceDescription::BuildRails(const SurfaceDescription&source, float inner
 	quadIndices.reset();
 	triangleIndices.reset();
 
+	float2 texExt = float2(fabs(outerExtend - innerExtend), fabs(upperExtend - lowerExtend))*2.0f;
+
 	foreach (source.edges,edge)
 	{
 		index_t vertex_offset = vertices.count();
 		TVertex*const vfield = vertices.appendRow(8*edge->length()+8);	//top, top, left, left, bottom, bottom, right, right. two caps
 		if (edge->leftEdge)
 		{
-			Concurrency::parallel_for(index_t(0),edge->length(),[vfield,&source,edge,innerExtend,upperExtend,outerExtend,lowerExtend,relativeTo](index_t i)
+			Concurrency::parallel_for(index_t(0),edge->length(),[texExt,vfield,&source,edge,innerExtend,upperExtend,outerExtend,lowerExtend,relativeTo](index_t i)
 			{
 				TVertex v = source.vertices[edge->at(i)];
 				v.position -= relativeTo;
@@ -2739,28 +2743,28 @@ void SurfaceDescription::BuildRails(const SurfaceDescription&source, float inner
 				vout[0].tcoord.x = 0;
 				vout[1] = v;
 				vout[1].position += v.tangent * -outerExtend + v.normal * upperExtend;
-				vout[1].tcoord.x = 1;
+				vout[1].tcoord.x = texExt.x;
 				vout[2] = vout[1];
 				vout[2].normal = -v.tangent;
 				vout[2].tangent = v.normal;
 				vout[2].tcoord.x = 0;
 				vout[3] = vout[2];
 				vout[3].position -= v.normal * (upperExtend+lowerExtend);
-				vout[3].tcoord.x = 1;
+				vout[3].tcoord.x = texExt.x;
 				vout[4] = vout[3];
 				vout[4].normal = -v.normal;
 				vout[4].tangent = -v.tangent;
 				vout[4].tcoord.x = 0;
 				vout[5] = vout[4];
 				vout[5].position += v.tangent * (innerExtend+outerExtend);
-				vout[5].tcoord.x = 1;
+				vout[5].tcoord.x = texExt.x;
 				vout[6] = vout[5];
 				vout[6].normal = v.tangent;
 				vout[6].tangent = -v.normal;
 				vout[6].tcoord.x = 0;
 				vout[7] = vout[6];
 				vout[7].position = vout[0].position;
-				vout[7].tcoord.x = 1;
+				vout[7].tcoord.x = texExt.x;
 			});
 
 			{
@@ -2777,10 +2781,10 @@ void SurfaceDescription::BuildRails(const SurfaceDescription&source, float inner
 				vout[1].tcoord = float2(0,1);
 				vout[2] = vout[1];
 				vout[2].position -= v.normal * (upperExtend+lowerExtend);
-				vout[2].tcoord = float2(1,1);
+				vout[2].tcoord = float2(texExt.y,1);
 				vout[3] = vout[2];
 				vout[3].position += v.tangent * (innerExtend+outerExtend);
-				vout[3].tcoord = float2(1,0);
+				vout[3].tcoord = float2(texExt.y,0);
 			}
 			{
 				TVertex v = source.vertices[edge->last()];
@@ -2795,10 +2799,10 @@ void SurfaceDescription::BuildRails(const SurfaceDescription&source, float inner
 				vout[1].tcoord = float2(0,1);
 				vout[2] = vout[1];
 				vout[2].position -= v.normal * (upperExtend+lowerExtend);
-				vout[2].tcoord = float2(1,1);
+				vout[2].tcoord = float2(texExt.y,1);
 				vout[3] = vout[2];
 				vout[3].position += v.tangent * (innerExtend+outerExtend);
-				vout[3].tcoord = float2(1,0);
+				vout[3].tcoord = float2(texExt.y,0);
 			}
 			for (index_t i = 0; i+1 < edge->length(); i++)
 			{
@@ -2818,7 +2822,7 @@ void SurfaceDescription::BuildRails(const SurfaceDescription&source, float inner
 		}
 		else
 		{
-			Concurrency::parallel_for(index_t(0),edge->length(),[vfield,&source,edge,innerExtend,upperExtend,outerExtend,lowerExtend,relativeTo](index_t i)
+			Concurrency::parallel_for(index_t(0),edge->length(),[texExt,vfield,&source,edge,innerExtend,upperExtend,outerExtend,lowerExtend,relativeTo](index_t i)
 			{
 				TVertex v = source.vertices[edge->at(i)];
 				v.position -= relativeTo;
@@ -2828,28 +2832,28 @@ void SurfaceDescription::BuildRails(const SurfaceDescription&source, float inner
 				vout[0].tcoord.x = 0;
 				vout[1] = v;
 				vout[1].position += v.tangent * outerExtend + v.normal * upperExtend;
-				vout[1].tcoord.x = 1;
+				vout[1].tcoord.x = texExt.x;
 				vout[2] = vout[1];
 				vout[2].normal = v.tangent;
 				vout[2].tangent = v.normal;
 				vout[2].tcoord.x = 0;
 				vout[3] = vout[2];
 				vout[3].position -= v.normal * (upperExtend+lowerExtend);
-				vout[3].tcoord.x = 1;
+				vout[3].tcoord.x = texExt.x;
 				vout[4] = vout[3];
 				vout[4].normal = -v.normal;
 				vout[4].tangent = -v.tangent;
 				vout[4].tcoord.x = 0;
 				vout[5] = vout[4];
 				vout[5].position -= v.tangent * (innerExtend+outerExtend);
-				vout[5].tcoord.x = 1;
+				vout[5].tcoord.x = texExt.x;
 				vout[6] = vout[5];
 				vout[6].normal = -v.tangent;
 				vout[6].tangent = -v.normal;
 				vout[6].tcoord.x = 0;
 				vout[7] = vout[6];
 				vout[7].position = vout[0].position;
-				vout[7].tcoord.x = 1;
+				vout[7].tcoord.x = texExt.x;
 			});
 			{
 				TVertex v = source.vertices[edge->first()];
@@ -2865,10 +2869,10 @@ void SurfaceDescription::BuildRails(const SurfaceDescription&source, float inner
 				vout[1].tcoord = float2(0,1);
 				vout[2] = vout[1];
 				vout[2].position -= v.normal * (upperExtend+lowerExtend);
-				vout[2].tcoord = float2(1,1);
+				vout[2].tcoord = float2(texExt.y,1);
 				vout[3] = vout[2];
 				vout[3].position -= v.tangent * (innerExtend+outerExtend);
-				vout[3].tcoord = float2(1,0);
+				vout[3].tcoord = float2(texExt.y,0);
 			}
 			{
 				TVertex v = source.vertices[edge->last()];
@@ -2883,10 +2887,10 @@ void SurfaceDescription::BuildRails(const SurfaceDescription&source, float inner
 				vout[1].tcoord = float2(0,1);
 				vout[2] = vout[1];
 				vout[2].position -= v.normal * (upperExtend+lowerExtend);
-				vout[2].tcoord = float2(1,1);
+				vout[2].tcoord = float2(texExt.y,1);
 				vout[3] = vout[2];
 				vout[3].position -= v.tangent * (innerExtend+outerExtend);
-				vout[3].tcoord = float2(1,0);
+				vout[3].tcoord = float2(texExt.y,0);
 			}
 			for (index_t i = 0; i+1 < edge->length(); i++)
 			{

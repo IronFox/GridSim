@@ -375,7 +375,7 @@ namespace Engine
 				<< "{\n"
 				<< "gl_Position = ftransform();\n"
 				<< vertex_transformations
-				<< "vertexShadow();\n"
+				//<< "vertexShadow();\n"
 				<< "}\n"
 				<< "[fragment]\n"
 				<< "void main()\n"
