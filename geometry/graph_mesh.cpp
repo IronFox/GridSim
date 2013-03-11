@@ -2745,6 +2745,149 @@ void	SurfaceDescription::GetEdgeExtend(const TMatrix4<>&transformBy, Box<>&resul
 		}
 }
 
+void SurfaceDescription::BuildRails(const SurfaceDescription&source, const BasicBuffer<float2>&profile, const TVec3<>&relativeTo)
+{
+	vertices.reset();
+	quadIndices.reset();
+	triangleIndices.reset();
+
+	//float2 texExt = float2(fabs(outerExtend - innerExtend), fabs(upperExtend - lowerExtend))*2.0f;
+
+	const count_t numVerticesPerSlice = (profile.count()-1)*2;
+
+	Array<float>	texcoord(profile.count());
+	Array<float2>	tangent(profile.count()-1);
+	Array<float2>	normal(profile.count()-1);
+	float2 center(0);
+	{
+		float at = 0.f;
+		texcoord[0] = 0;
+		center += profile[0];
+
+		for (index_t i = 1; i < profile.count(); i++)
+		{
+			at += Vec::distance(profile[i-1],profile[i]);
+			texcoord[i] = at;
+			tangent[i-1] = (profile[i] - profile[i-1]).Normalize();
+			normal[i-1] = tangent[i-1].Normal();
+			center += profile[i];
+		}
+	}
+	center /= profile.count();
+
+
+	foreach (source.edges,edge)
+	{
+		index_t vertex_offset = vertices.count();
+		TVertex*const vfield = vertices.appendRow(numVerticesPerSlice*edge->length()+numVerticesPerSlice*2+2);	//top, top, left, left, bottom, bottom, right, right. two caps
+		//if (edge->leftEdge)
+		{
+			float xFactor = edge->leftEdge ? -1.f : 1.f;
+			Concurrency::parallel_for(index_t(0),edge->length(),[xFactor,numVerticesPerSlice,vfield,&source,edge,&profile,&texcoord,&tangent,&normal,relativeTo](index_t i)
+			{
+				TVertex v = source.vertices[edge->at(i)];
+				v.position -= relativeTo;
+				TVertex*vout = vfield + i*numVerticesPerSlice;
+
+				for (index_t i = 1; i < profile.length(); i++)
+				{
+					const index_t v0 = (i-1)*2,
+									v1 = v0 +1;
+					vout[v0].position = v.position +  v.tangent * xFactor * profile[i-1].x + v.normal * profile[i-1].y;
+					vout[v0].tcoord.x = texcoord[i-1] * 2.f;
+					vout[v0].normal =  v.tangent * normal[i-1].x * xFactor + v.normal * normal[i-1].y;
+					vout[v0].tangent = - v.tangent * tangent[i-1].x - v.normal * tangent[i-1].y * xFactor;
+					vout[v0].tcoord.y = v.tcoord.y;
+					vout[v0].tx = v.tx;
+
+					vout[v1].position = v.position + v.tangent * profile[i].x * xFactor + v.normal * profile[i].y;
+					vout[v1].tcoord.x = texcoord[i] * 2.f;
+					vout[v1].tangent = vout[v0].tangent;
+					vout[v1].normal = vout[v0].normal;
+					vout[v1].tcoord.y = v.tcoord.y;
+					vout[v1].tx = v.tx;
+				}
+			});
+
+			//front cap:
+			{
+				TVertex v = source.vertices[edge->first()];
+				v.position -= relativeTo;
+				TVertex*vout = vfield + numVerticesPerSlice*edge->length();
+				vout[0].position = v.position + v.tangent * center.x * xFactor + v.normal * center.y;
+				vout[0].tangent = -v.tangent;
+				vout[0].normal = v.normal | v.tangent;
+				vout[0].tcoord = center * 2.f;
+				vout[0].tx = v.tx;
+				for (index_t i = 1; i < profile.length(); i++)
+				{
+					const index_t	v0 = (i-1)*2+1,
+									v1 = v0 +1;
+					vout[v0].position = v.position + v.tangent * profile[i-1].x * xFactor + v.normal * profile[i-1].y;
+					vout[v0].tangent = vout[0].tangent;
+					vout[v0].normal = vout[0].normal;
+					vout[v0].tcoord = profile[i-1] * 2.f;
+					vout[v0].tx = vout[0].tx;
+
+					vout[v1].position = v.position + v.tangent * profile[i].x * xFactor + v.normal * profile[i].y;
+					vout[v1].tangent = vout[0].tangent;
+					vout[v1].normal = vout[0].normal;
+					vout[v1].tcoord = profile[i] * 2.f;
+					vout[v1].tx = vout[0].tx;
+				}
+			}
+			//rear cap:
+			{
+				TVertex v = source.vertices[edge->last()];
+				v.position -= relativeTo;
+				TVertex*vout = vfield + numVerticesPerSlice*edge->length() + numVerticesPerSlice + 1;
+				vout[0].position = v.position + v.tangent * center.x * xFactor + v.normal * center.y;
+				vout[0].tangent = v.tangent;
+				vout[0].normal = v.tangent | v.normal;
+				vout[0].tcoord = center * 2.f;
+				vout[0].tx = v.tx;
+				for (index_t i = 1; i < profile.length(); i++)
+				{
+					const index_t	v0 = (i-1)*2+1,
+									v1 = v0 +1;
+					vout[v0].position = v.position + v.tangent * profile[i-1].x * xFactor + v.normal * profile[i-1].y;
+					vout[v0].tangent = vout[0].tangent;
+					vout[v0].normal = vout[0].normal;
+					vout[v0].tcoord = profile[i-1] * 2.f;
+					vout[v0].tx = vout[0].tx;
+
+					vout[v1].position = v.position + v.tangent * profile[i].x * xFactor + v.normal * profile[i].y;
+					vout[v1].tangent = vout[0].tangent;
+					vout[v1].normal = vout[0].normal;
+					vout[v1].tcoord = profile[i] * 2.f;
+					vout[v1].tx = vout[0].tx;
+				}
+			}
+			for (index_t i = 0; i+1 < edge->length(); i++)
+			{
+				const UINT32	t = static_cast<UINT32>(vertex_offset+i*numVerticesPerSlice),
+								n = static_cast<UINT32>(vertex_offset+(i+1)*numVerticesPerSlice);
+
+				for (index_t j = 1; j < profile.length(); j++)
+				{
+					quadIndices << t + (j-1)*2 << t + (j-1)*2 + 1
+								<< n + (j-1)*2 + 1 << n + (j-1)*2;
+				}
+
+
+			}
+			{
+				const UINT32	front = static_cast<UINT32>(vertex_offset+numVerticesPerSlice*edge->length()),
+								rear = static_cast<UINT32>(vertex_offset+numVerticesPerSlice*edge->length() + numVerticesPerSlice + 1);
+				for (index_t j = 1; j < profile.length(); j++)
+					triangleIndices << front << front + (((j-1)*2 + 1) % numVerticesPerSlice) + 1 << front + (j-1)*2+1;
+				for (index_t j = 1; j < profile.length(); j++)
+					triangleIndices << rear << rear + (j-1)*2+1 << rear + (((j-1)*2 + 1) % numVerticesPerSlice) + 1;
+			}
+		}
+
+	}
+}
 
 void SurfaceDescription::BuildRails(const SurfaceDescription&source, float innerExtend, float outerExtend, float upperExtend, float lowerExtend, const TVec3<>&relativeTo)
 {
@@ -3290,6 +3433,34 @@ bool	SurfaceNetwork::NodeIsFlipped(index_t node_id)	const
 	}
 	float shortest_edge = innerExtend+outerExtend;
 
+
+	CompileFromDescriptions(target,lods,shortest_edge,texture,normal_texture,resource);
+
+	target.root_system.moveTo(center);
+
+}
+
+/*static*/	void		SurfaceNetwork::CompileRailGeometry(CGS::Geometry<>&target, const Segment&segment, const BasicBuffer<float2>&profile, name64_t texture, name64_t normal_texture, CGS::TextureResource*resource /*=NULL*/)
+{
+	if (segment.compiledSurfaces.count() < 3*SurfaceNetwork::numLODs)
+	{
+		FATAL__("Unable to compile rail: insufficient compiled surfaces");
+		return;
+	}
+	static Array<SurfaceDescription>					lods;
+
+	lods.setSize(SurfaceNetwork::numLODs);
+
+	TVec3<>	center = segment.compiledSurfaces[2].GetEdgeCenter();
+
+	for (index_t i = 0; i < SurfaceNetwork::numLODs; i++)
+	{
+		lods[i].BuildRails(segment.compiledSurfaces[3*i+2],profile, center );
+	}
+	float shortest_edge = std::numeric_limits<float>::max();
+	for (index_t i = 1; i < profile.length(); i++)
+		shortest_edge = std::min(shortest_edge,Vec::quadraticDistance(profile[i-1],profile[i]));
+	shortest_edge = sqrt(shortest_edge);
 
 	CompileFromDescriptions(target,lods,shortest_edge,texture,normal_texture,resource);
 
