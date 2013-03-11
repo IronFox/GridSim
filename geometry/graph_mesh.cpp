@@ -2815,8 +2815,8 @@ void SurfaceDescription::BuildRails(const SurfaceDescription&source, const Basic
 				v.position -= relativeTo;
 				TVertex*vout = vfield + numVerticesPerSlice*edge->length();
 				vout[0].position = v.position + v.tangent * center.x * xFactor + v.normal * center.y;
-				vout[0].tangent = -v.tangent;
-				vout[0].normal = v.normal | v.tangent;
+				vout[0].tangent = v.tangent* xFactor;
+				vout[0].normal = -(v.normal | v.tangent) * xFactor;
 				vout[0].tcoord = center * 2.f;
 				vout[0].tx = v.tx;
 				for (index_t i = 1; i < profile.length(); i++)
@@ -2842,8 +2842,8 @@ void SurfaceDescription::BuildRails(const SurfaceDescription&source, const Basic
 				v.position -= relativeTo;
 				TVertex*vout = vfield + numVerticesPerSlice*edge->length() + numVerticesPerSlice + 1;
 				vout[0].position = v.position + v.tangent * center.x * xFactor + v.normal * center.y;
-				vout[0].tangent = v.tangent;
-				vout[0].normal = v.tangent | v.normal;
+				vout[0].tangent = -v.tangent* xFactor;
+				vout[0].normal = -(v.tangent | v.normal)* xFactor;
 				vout[0].tcoord = center * 2.f;
 				vout[0].tx = v.tx;
 				for (index_t i = 1; i < profile.length(); i++)
@@ -2880,9 +2880,13 @@ void SurfaceDescription::BuildRails(const SurfaceDescription&source, const Basic
 				const UINT32	front = static_cast<UINT32>(vertex_offset+numVerticesPerSlice*edge->length()),
 								rear = static_cast<UINT32>(vertex_offset+numVerticesPerSlice*edge->length() + numVerticesPerSlice + 1);
 				for (index_t j = 1; j < profile.length(); j++)
+				{
 					triangleIndices << front << front + (((j-1)*2 + 1) % numVerticesPerSlice) + 1 << front + (j-1)*2+1;
+				}
+				triangleIndices << front << front + 1 << front + (profile.length()-1)*2;
 				for (index_t j = 1; j < profile.length(); j++)
 					triangleIndices << rear << rear + (j-1)*2+1 << rear + (((j-1)*2 + 1) % numVerticesPerSlice) + 1;
+				triangleIndices << rear << rear + (profile.length()-1)*2 << rear + 1;
 			}
 		}
 
