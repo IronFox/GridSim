@@ -2718,6 +2718,33 @@ void SurfaceDescription::BuildBarriers(const SurfaceDescription&source, float ba
 
 }
 
+float3 SurfaceDescription::GetEdgeCenter() const
+{
+	float3 result(0);
+	count_t counter = 0;
+	foreach (edges, edge)
+		foreach (*edge,index)
+		{
+			result += vertices[*index].position;
+			counter++;
+		}
+	result /= counter;
+	return result;
+}
+
+void	SurfaceDescription::GetEdgeExtend(const TMatrix4<>&transformBy, Box<>&result)	const
+{
+	result.setAllMax(std::numeric_limits<float>::min());
+	result.setAllMin(std::numeric_limits<float>::max());
+	foreach (edges, edge)
+		foreach (*edge,index)
+		{
+			TVec3<> rotated;
+			Mat::transform(transformBy,vertices[*index].position,rotated);
+			result.include(rotated);
+		}
+}
+
 
 void SurfaceDescription::BuildRails(const SurfaceDescription&source, float innerExtend, float outerExtend, float upperExtend, float lowerExtend, const TVec3<>&relativeTo)
 {
@@ -3255,15 +3282,7 @@ bool	SurfaceNetwork::NodeIsFlipped(index_t node_id)	const
 
 	lods.setSize(SurfaceNetwork::numLODs);
 
-	TVec3<>	center = {0,0,0};
-	count_t counter = 0;
-	foreach (segment.compiledSurfaces.first().edges, edge)
-		foreach (*edge,index)
-		{
-			Vec::add(center,segment.compiledSurfaces.first().vertices[*index].position);
-			counter++;
-		}
-	Vec::div(center,counter);
+	TVec3<>	center = segment.compiledSurfaces[2].GetEdgeCenter();
 
 	for (index_t i = 0; i < SurfaceNetwork::numLODs; i++)
 	{

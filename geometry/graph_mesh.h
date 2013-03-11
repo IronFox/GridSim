@@ -136,6 +136,8 @@ public:
 	void								BuildArc(const OutVertexContainer&arc_vertices, float near_distance, float far_distance, float extend_along_track);
 	void								BuildRails(const SurfaceDescription&source, float innerExtend, float outerExtend, float upperExtend, float lowerExtend, const TVec3<>&relativeTo);
 	void								BuildBarriers(const SurfaceDescription&source, float barrierPosition, float barrierHeight0, float barrierHeight1, const TVec3<>&relativeTo);
+	float3								GetEdgeCenter()	const;
+	void								GetEdgeExtend(const TMatrix4<>&transformBy, Box<>&result)	const;
 
 	static void							Interpolate(const SurfaceDescription::TConnector&begin, const SurfaceDescription::TConnector&end,const SurfaceDescription::TControl control_points[2], float t, InterpolatedSlice&out);
 	static void							BuildControlPoints(const SurfaceDescription::TConnector&begin, const SurfaceDescription::TConnector&end,SurfaceDescription::TControl control_points[2], float control_factor0=COMMON_CONTROL_FACTOR, float control_factor1=COMMON_CONTROL_FACTOR);
