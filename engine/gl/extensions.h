@@ -916,9 +916,9 @@
 
 
 			/**
-				@brief Compiled GLSL instance
+			@brief Compiled GLSL instance
 
-				Contrary to templtes, instances have no switches and hold only ever one shader to install.
+			Contrary to templtes, instances have no switches and hold only ever one shader to install.
 			*/
 			class	Instance
 			{
@@ -947,6 +947,7 @@
 				/**/							Instance();
 				virtual							~Instance();
 				void							adoptData(Instance&other);
+				GLhandleARB						GetHandle()	const	{return programHandle;}
 				void							Clear();
 				bool							Load(const Composition&composition, GLenum geometryTpe=GL_TRIANGLES, GLenum outputTpe=GL_TRIANGLE_STRIP, unsigned maxVertices=12);
 				bool							LoadComposition(const String&objectSource, GLenum geometryType=GL_TRIANGLES, GLenum outputType=GL_TRIANGLE_STRIP, unsigned maxVertices=12);
