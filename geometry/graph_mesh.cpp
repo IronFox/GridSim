@@ -1717,11 +1717,17 @@ void				SurfaceDescription::BuildSegment(const SurfaceDescription::TConnector&be
 	const bool	closed0 = begin.angle1 - begin.angle0 >= 2.f - getError<float>(),
 				closed1 = end.angle1 - end.angle0 >= 2.f - getError<float>();
 	Edge*edges = NULL;
+	this->edges.appendRow(2);
 	if (!closed0 || !closed1)
 	{
 		edges = this->edges.appendRow(2);
-		edges[0].leftEdge = true;
-		edges[1].leftEdge = false;
+		edges[0].direction = Edge::Left;
+		edges[1].direction = Edge::Right;
+	}
+	Edge*endEdges = this->edges.pointer();
+	{
+		endEdges[0].direction = Edge::Node0;
+		endEdges[1].direction = Edge::Node1;
 	}
 
 	{
@@ -1729,10 +1735,12 @@ void				SurfaceDescription::BuildSegment(const SurfaceDescription::TConnector&be
 		const count_t	next_resolution = next.CalculateSteps(tolerance0,tolerance1)+1;
 		for (index_t i = 0; i < next_resolution; i++)
 		{
+			endEdges[0] << (UINT32)(next_resolution - i -1);
 			TVertex&vtx = this->vertices.append();
 			float fi = float(i) / float(next_resolution-1);
 			next.MakeVertex(fi,vtx);
 		}
+
 		if (edges)
 		{
 			edges[0] << 0;
@@ -1751,11 +1759,13 @@ void				SurfaceDescription::BuildSegment(const SurfaceDescription::TConnector&be
 
 		float3	right;
 		Vec::cross(next.direction,next.up,right);
-		for (index_t i = 0; i < next_resolution; i++)
+		for (index_t j = 0; j < next_resolution; j++)
 		{
 			TVertex&vtx = this->vertices.append();
-			float fi = float(i) / float(next_resolution-1);
+			float fi = float(j) / float(next_resolution-1);
 			next.MakeVertex(fi,vtx);
+			if (i+2 == steps.count())
+				endEdges[1] << (UINT32)(vtx_offset+prev_resolution+j);
 		}
 
 		for (index_t i = 0; i+1 < core_resolution; i++)
@@ -2687,6 +2697,8 @@ void SurfaceDescription::BuildBarriers(const SurfaceDescription&source, float ba
 
 	foreach (source.edges,edge)
 	{
+		if (edge->direction != Edge::Left && edge->direction != Edge::Right)
+			continue;
 		index_t vertex_offset = vertices.count();
 		TVertex*const vfield = vertices.appendRow(2*edge->length());
 		Concurrency::parallel_for(index_t(0),edge->length(),[vfield,&source,edge,barrierPosition,barrierHeight0,barrierHeight1,relativeTo](index_t i)
@@ -2694,7 +2706,7 @@ void SurfaceDescription::BuildBarriers(const SurfaceDescription&source, float ba
 			const TVertex&v = source.vertices[edge->at(i)];
 			TVertex*vout = vfield + i*2;
 			vout[0] = v;
-			if (!edge->leftEdge)
+			if (edge->direction == SurfaceDescription::Edge::Right)
 				vout[0].position += v.tangent * barrierPosition + v.normal * barrierHeight0;
 			else
 				vout[0].position += v.tangent * -barrierPosition + v.normal * barrierHeight0;
@@ -2778,11 +2790,15 @@ void SurfaceDescription::BuildRails(const SurfaceDescription&source, const Basic
 
 	foreach (source.edges,edge)
 	{
+		if (edge->direction != Edge::Left && edge->direction != Edge::Right)
+			continue;
+
+		bool isLeftEdge = edge->direction == SurfaceDescription::Edge::Left;
 		index_t vertex_offset = vertices.count();
 		TVertex*const vfield = vertices.appendRow(numVerticesPerSlice*edge->length()+numVerticesPerSlice*2+2);	//top, top, left, left, bottom, bottom, right, right. two caps
 		//if (edge->leftEdge)
 		{
-			float xFactor = edge->leftEdge ? -1.f : 1.f;
+			float xFactor = isLeftEdge ? -1.f : 1.f;
 			Concurrency::parallel_for(index_t(0),edge->length(),[xFactor,numVerticesPerSlice,vfield,&source,edge,&profile,&texcoord,&tangent,&normal,relativeTo](index_t i)
 			{
 				TVertex v = source.vertices[edge->at(i)];
@@ -2903,9 +2919,13 @@ void SurfaceDescription::BuildRails(const SurfaceDescription&source, float inner
 
 	foreach (source.edges,edge)
 	{
+		if (edge->direction != Edge::Left && edge->direction != Edge::Right)
+			continue;
+
+		bool isLeftEdge = edge->direction == SurfaceDescription::Edge::Left;
 		index_t vertex_offset = vertices.count();
 		TVertex*const vfield = vertices.appendRow(8*edge->length()+8);	//top, top, left, left, bottom, bottom, right, right. two caps
-		if (edge->leftEdge)
+		if (isLeftEdge)
 		{
 			Concurrency::parallel_for(index_t(0),edge->length(),[texExt,vfield,&source,edge,innerExtend,upperExtend,outerExtend,lowerExtend,relativeTo](index_t i)
 			{

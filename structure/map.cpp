@@ -1530,6 +1530,9 @@ void Map::SplineTrack::recompileGeometry(float scale)
 
 				foreach(surf.edges, edge)
 				{
+					if (edge->direction != SurfaceDescription::Edge::Left && edge->direction != SurfaceDescription::Edge::Right)
+						continue;
+					bool isLeftEdge = edge->direction == SurfaceDescription::Edge::Left;
 					index_t last_vertex_index = InvalidIndex;
 					for (index_t i = 0; i < edge->length(); i++)
 					{
@@ -1550,7 +1553,7 @@ void Map::SplineTrack::recompileGeometry(float scale)
 								Vec::mul(vert.normal,-1.f,vtx.tangent);
 								vtx.texcoords = vert.tcoord;
 
-								if (edge->leftEdge)
+								if (isLeftEdge)
 								{
 									Vec::mult(vtx.tangent,-1.f);
 									Vec::mult(vtx.normal,-1.f);
@@ -1563,7 +1566,7 @@ void Map::SplineTrack::recompileGeometry(float scale)
 								Vec::mul(vert.normal,-1.f,vtx.tangent);
 								vtx.texcoords = vert.tcoord;
 								vtx.texcoords.x += 0.1f;
-								if (edge->leftEdge)
+								if (isLeftEdge)
 								{
 									Vec::mult(vtx.tangent,-1.f);
 									Vec::mult(vtx.normal,-1.f);

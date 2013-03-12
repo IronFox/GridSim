@@ -29,11 +29,11 @@ class SurfaceDescription
 public:
 	struct TVertex
 	{
-		float3							position,
-										normal,
-										tangent;	//!< Vertex tangent, perpendicular to the track's direction, and the normal (pointing to the right, when looking along track)
-		float2							tcoord;
-		float							tx;			//!< In the range [0,1], describes the t-position from the left to the right edge of the track
+		float3					position,
+								normal,
+								tangent;	//!< Vertex tangent, perpendicular to the track's direction, and the normal (pointing to the right, when looking along track)
+		float2					tcoord;
+		float					tx;			//!< In the range [0,1], describes the t-position from the left to the right edge of the track
 	};
 
 	struct TControl
@@ -43,115 +43,122 @@ public:
 		{
 			struct
 			{
-				TVec3<>					position,
-										direction,
-										up;				//!< Up axis. Must be normalized and orthogonal to @a direction
-				TVec2<>					scale;
-				float					angle0,
-										angle1,
-										texcoord0,
-										texcoord1;
+				TVec3<>			position,
+								direction,
+								up;				//!< Up axis. Must be normalized and orthogonal to @a direction
+				TVec2<>			scale;
+				float			angle0,
+								angle1,
+								texcoord0,
+								texcoord1;
 			};
-			float						field[NumFloats];
+			float				field[NumFloats];
 		};
 	};
 
 	struct InterpolatedSlice : public TControl
 	{
-		bool							buildLocal;
-		float3							right;
-		float							t,
-										texcoordY;
+		bool					buildLocal;
+		float3					right;
+		float					t,
+								texcoordY;
 
-		/**/							InterpolatedSlice():buildLocal(false)	{}
-		/**/							InterpolatedSlice(const TControl&slice, float t_):TControl(slice),t(t_),buildLocal(false){Vec::cross(direction,up,right);}
+		/**/					InterpolatedSlice():buildLocal(false)	{}
+		/**/					InterpolatedSlice(const TControl&slice, float t_):TControl(slice),t(t_),buildLocal(false){Vec::cross(direction,up,right);}
 
-		void							MakeVertex(float x, TVertex&vtx)	const;
-		void							MakePoint(float x, TVec3<>&pt)	const;
-		void							MakePoint(float x, TVec3<>&pt, TVec3<>&normal)	const;
-		void							MakePoint(float x, TVec3<>&pt, TVec3<>&normal, TVec3<>&tangent)	const;
-		count_t							CalculateSteps(float tolerance0,float tolerance1)	const;
-		count_t							CalculateSteps(float tolerance)	const;
-		float							EstimateLength()	const;
-		bool							IsClosedLoop()		const;
-		float							GetTexExtend()		const;
+		void					MakeVertex(float x, TVertex&vtx)	const;
+		void					MakePoint(float x, TVec3<>&pt)	const;
+		void					MakePoint(float x, TVec3<>&pt, TVec3<>&normal)	const;
+		void					MakePoint(float x, TVec3<>&pt, TVec3<>&normal, TVec3<>&tangent)	const;
+		count_t					CalculateSteps(float tolerance0,float tolerance1)	const;
+		count_t					CalculateSteps(float tolerance)	const;
+		float					EstimateLength()	const;
+		bool					IsClosedLoop()		const;
+		float					GetTexExtend()		const;
 
 	};
 
 	struct TConnector
 	{
-		TControl						state,
-										slope;
+		TControl				state,
+								slope;
 	};
 
 	typedef Buffer<UINT32,0>				IndexContainer;
 	typedef Buffer<TVertex,0,Primitive>		VertexContainer;
 	typedef BasicBuffer<TVertex,Primitive>	OutVertexContainer;
 
-	VertexContainer						vertices;
-	IndexContainer						triangleIndices,
-										quadIndices;
+	VertexContainer				vertices;
+	IndexContainer				triangleIndices,
+								quadIndices;
 
 	struct Edge : public IndexContainer
 	{
-		bool							leftEdge;
+		enum direction_t
+		{
+			Node0,
+			Node1,
+			Left,
+			Right
+		};
+
+		direction_t				direction;
 	};
+	Buffer<Edge,0>				edges;
+	Buffer<TConnector,0>		subConnectors;
 
-	Buffer<Edge,0>						edges;
-	Buffer<TConnector,0,Primitive>		subConnectors;
-
-	unsigned							textureRepetitions;
+	unsigned					textureRepetitions;
 
 
-	void								swap(SurfaceDescription&other)
-										{
-											vertices.swap(other.vertices);
-											triangleIndices.swap(other.triangleIndices);
-											quadIndices.swap(other.quadIndices);
-											edges.swap(other.edges);
-											subConnectors.swap(other.subConnectors);
-											swp(textureRepetitions,other.textureRepetitions);
-										}
-	void								Compact()
-										{
-											vertices.compact();
-											triangleIndices.compact();
-											quadIndices.compact();
-											edges.compact();
-											subConnectors.compact();
-										}
-	void								Clear()
-										{
-											vertices.clear();
-											triangleIndices.clear();
-											quadIndices.clear();
-											edges.clear();
-											subConnectors.clear();
-											textureRepetitions = 1;
-										}
+	void						swap(SurfaceDescription&other)
+								{
+									vertices.swap(other.vertices);
+									triangleIndices.swap(other.triangleIndices);
+									quadIndices.swap(other.quadIndices);
+									edges.swap(other.edges);
+									subConnectors.swap(other.subConnectors);
+									swp(textureRepetitions,other.textureRepetitions);
+								}
+	void						Compact()
+								{
+									vertices.compact();
+									triangleIndices.compact();
+									quadIndices.compact();
+									edges.compact();
+									subConnectors.compact();
+								}
+	void						Clear()
+								{
+									vertices.clear();
+									triangleIndices.clear();
+									quadIndices.clear();
+									edges.clear();
+									subConnectors.clear();
+									textureRepetitions = 1;
+								}
 
-	void								GenerateNormals();
+	void						GenerateNormals();
 
-	void								BuildSegment(const SurfaceDescription::TConnector&begin, const SurfaceDescription::TConnector&end,const SurfaceDescription::TControl control_points[2], float tolerance0, float tolerance1);
-	void								BuildArc(const OutVertexContainer&arc_vertices, float near_distance, float far_distance, float extend_along_track);
-	void								BuildRails(const SurfaceDescription&source, const BasicBuffer<float2>&profile, const TVec3<>&relativeTo);
-	void								BuildRails(const SurfaceDescription&source, float innerExtend, float outerExtend, float upperExtend, float lowerExtend, const TVec3<>&relativeTo);
-	void								BuildBarriers(const SurfaceDescription&source, float barrierPosition, float barrierHeight0, float barrierHeight1, const TVec3<>&relativeTo);
-	float3								GetEdgeCenter()	const;
-	void								GetEdgeExtend(const TMatrix4<>&transformBy, Box<>&result)	const;
+	void						BuildSegment(const SurfaceDescription::TConnector&begin, const SurfaceDescription::TConnector&end,const SurfaceDescription::TControl control_points[2], float tolerance0, float tolerance1);
+	void						BuildArc(const OutVertexContainer&arc_vertices, float near_distance, float far_distance, float extend_along_track);
+	void						BuildRails(const SurfaceDescription&source, const BasicBuffer<float2>&profile, const TVec3<>&relativeTo);
+	void						BuildRails(const SurfaceDescription&source, float innerExtend, float outerExtend, float upperExtend, float lowerExtend, const TVec3<>&relativeTo);
+	void						BuildBarriers(const SurfaceDescription&source, float barrierPosition, float barrierHeight0, float barrierHeight1, const TVec3<>&relativeTo);
+	float3						GetEdgeCenter()	const;
+	void						GetEdgeExtend(const TMatrix4<>&transformBy, Box<>&result)	const;
 
-	static void							Interpolate(const SurfaceDescription::TConnector&begin, const SurfaceDescription::TConnector&end,const SurfaceDescription::TControl control_points[2], float t, InterpolatedSlice&out);
-	static void							BuildControlPoints(const SurfaceDescription::TConnector&begin, const SurfaceDescription::TConnector&end,SurfaceDescription::TControl control_points[2], float control_factor0=COMMON_CONTROL_FACTOR, float control_factor1=COMMON_CONTROL_FACTOR);
-	static void							UpdateSlope(const TControl&predecessor, const TControl&successor, bool smooth_direction, TConnector&slice);
-	static void							UpdateRightSlope(const TControl&predecessor, bool smooth_direction, TConnector&slice);
-	static void							UpdateLeftSlope(const TControl&successor, bool smooth_direction, TConnector&slice);
+	static void					Interpolate(const SurfaceDescription::TConnector&begin, const SurfaceDescription::TConnector&end,const SurfaceDescription::TControl control_points[2], float t, InterpolatedSlice&out);
+	static void					BuildControlPoints(const SurfaceDescription::TConnector&begin, const SurfaceDescription::TConnector&end,SurfaceDescription::TControl control_points[2], float control_factor0=COMMON_CONTROL_FACTOR, float control_factor1=COMMON_CONTROL_FACTOR);
+	static void					UpdateSlope(const TControl&predecessor, const TControl&successor, bool smooth_direction, TConnector&slice);
+	static void					UpdateRightSlope(const TControl&predecessor, bool smooth_direction, TConnector&slice);
+	static void					UpdateLeftSlope(const TControl&successor, bool smooth_direction, TConnector&slice);
 	/**
 	@brief Generates vertices along the track arc surrounding the specified control. The number of generated vertices depends on the specified tolerance and the curvature of the local node
 	*/
-	static void							BuildArc(OutVertexContainer&arc_out, const TControl&control, float tolerance, bool flipped, bool global);
+	static void					BuildArc(OutVertexContainer&arc_out, const TControl&control, float tolerance, bool flipped, bool global);
 private:
-	static void							Subdivide(const SurfaceDescription::TConnector&begin, const SurfaceDescription::TConnector&end,const SurfaceDescription::TControl control_points[2], float tolerance, const InterpolatedSlice&ref0, const InterpolatedSlice&ref1, float t0, float t1, Buffer<InterpolatedSlice,256,POD>&outIntersections, int force);
-	static void							BuildArcFromSlice(OutVertexContainer&arc_out, InterpolatedSlice&slice, float tolerance, bool flipped);
+	static void					Subdivide(const SurfaceDescription::TConnector&begin, const SurfaceDescription::TConnector&end,const SurfaceDescription::TControl control_points[2], float tolerance, const InterpolatedSlice&ref0, const InterpolatedSlice&ref1, float t0, float t1, Buffer<InterpolatedSlice,256,POD>&outIntersections, int force);
+	static void					BuildArcFromSlice(OutVertexContainer&arc_out, InterpolatedSlice&slice, float tolerance, bool flipped);
 
 };
 DECLARE__(SurfaceDescription,Swappable);
@@ -165,22 +172,22 @@ public:
 		class Container : public IndexTable<Adoptable,AdoptStrategy>
 		{
 		private:
-			index_t						counter;
+			index_t				counter;
 		public:
 			typedef IndexTable<Adoptable,AdoptStrategy>	Super;
 
 			typedef typename Super::DataType	DataType;
 
-			/**/						Container():counter(0) {}
-			DataType&					Create(index_t&index)
-										{
-											DataType*rs;
-											while (counter == InvalidIndex || (rs = setNew(counter))==NULL)
-												counter++;
-											index = counter++;
-											DBG_ASSERT_EQUAL__(rs,queryPointer(index));
-											return *rs;
-										}
+			/**/				Container():counter(0) {}
+			DataType&			Create(index_t&index)
+								{
+									DataType*rs;
+									while (counter == InvalidIndex || (rs = setNew(counter))==NULL)
+										counter++;
+									index = counter++;
+									DBG_ASSERT_EQUAL__(rs,queryPointer(index));
+									return *rs;
+								}
 		};
 
 	struct Attachment
