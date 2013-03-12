@@ -90,7 +90,7 @@ namespace Engine
 	
 		virtual	void		Advance(float delta)						{};					//!< Advances the frame. @param Last frames frame length. The control is encouraged to use this delta value rather than the global timing variable if slowmotion effects should be possible
 	
-		virtual	bool		DetectNearestGroundHeight(const TVec3<>&referencePosition,float&outHeight)	{return false;};
+		virtual	bool		DetectNearestGroundHeight(const TVec3<>&referencePosition,float&outHeight, TVec3<>&outNormal)	{return false;};
 		virtual void		OnResolutionChange(const Resolution&newResolution, bool isFinal)		{};
 		virtual void		Shutdown()									{};					//!< Signals that the applications is being shut down
 
@@ -125,7 +125,7 @@ namespace Engine
 
 		void				Install(Control*);
 		void				Uninstall(Control*);
-		bool				DetectNearestGroundHeight(const TVec3<>&referencePosition,float&outHeight);
+		bool				DetectNearestGroundHeight(const TVec3<>&referencePosition,float&outHeight, TVec3<>&outNormal);
 		void				SignalResolutionChange(const Resolution&newResolution, bool isFinal);
 	};
 

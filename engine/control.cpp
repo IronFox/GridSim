@@ -96,14 +96,14 @@ namespace Engine
 		controlStack.findAndErase(control);
 	}
 
-	bool		ControlCluster::DetectNearestGroundHeight(const TVec3<>&reference_position,float&out_height)
+	bool		ControlCluster::DetectNearestGroundHeight(const TVec3<>&reference_position,float&out_height, TVec3<>&outNormal)
 	{
 		out_height = std::numeric_limits<float>::min();
 		bool result = false;
 		for (index_t i = 0; i < controlStack.size(); i++)
 		{
 			Control*control = controlStack[i];
-			result |= control->DetectNearestGroundHeight(reference_position,out_height);
+			result |= control->DetectNearestGroundHeight(reference_position,out_height, outNormal);
 		}
 		return result;
 	}
