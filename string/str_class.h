@@ -245,45 +245,44 @@ template <typename T>
 			const T		*reference;
 			size_t		len;
 	public:
-						ReferenceExpression(const T*str):reference(str),len(Template::strlen(str))
-						{}
-						ReferenceExpression(const T*str, size_t length):reference(str),len(length)
-						{}
-	inline	size_t		length()	const	//! Retrieves the length of the reference character segment (excluding any trailing zero) @return Length in characters
+		/**/			ReferenceExpression():reference(NULL),len(0) {}
+		/**/			ReferenceExpression(const T*str):reference(str),len(Template::strlen(str)) {}
+		/**/			ReferenceExpression(const T*str, size_t length):reference(str),len(length) {}
+		inline size_t	length()	const	//! Retrieves the length of the reference character segment (excluding any trailing zero) @return Length in characters
 						{
 							return len;
 						}
-	inline	const T*	pointer()	const
+		inline const T*	pointer()	const
 						{
 							return reference;
 						}
-	inline	StringTemplate<char>		toString()			const;	//!< Converts the expression architecture including data to a string for debug output
-	inline	void		print(ostream&stream)			const;	//!< Prints the local expression content to the specified stream @param stream Stream to print to
-	#ifdef WCOUT
-		inline	void	print(wostream&stream)			const;	//!< Prints the local expression content to the specified wide character stream @param stream Stream to print to
-	#endif
-	template <class Stream>
-		inline	void	printArchitecture(Stream&stream)			const
+		inline StringTemplate<char>		toString()			const;	//!< Converts the expression architecture including data to a string for debug output
+		inline void		print(ostream&stream)			const;	//!< Prints the local expression content to the specified stream @param stream Stream to print to
+		#ifdef WCOUT
+			inline void	print(wostream&stream)			const;	//!< Prints the local expression content to the specified wide character stream @param stream Stream to print to
+		#endif
+		template <class Stream>
+			inline void	printArchitecture(Stream&stream)			const
 						{
 							stream << "reference<\"";
 							print(stream);
 							stream << "\", "<<length()<<">";
 						}
 	
-	inline	T*			writeTo(T*target)	const				//! Writes the local expression content to a character array. The array must be sufficiently large since the operation does not perform any length checks. @param target Character array to write to @return Array position once the operation is completed. The returned pointer points one character past the last written character
+		inline T*		writeTo(T*target)	const				//! Writes the local expression content to a character array. The array must be sufficiently large since the operation does not perform any length checks. @param target Character array to write to @return Array position once the operation is completed. The returned pointer points one character past the last written character
 						{
 							memcpy(target,reference,len*sizeof(T));
 							return target+len;
 						}
-	template <typename T2>
-		inline	T2*		writeTo(T2*target)	const				//! Type variant version of the above. @overload
+		template <typename T2>
+			inline	T2*	writeTo(T2*target)	const				//! Type variant version of the above. @overload
 						{
 							for (size_t i = 0; i < len; i++)
 								(*target++) = reference[i];
 							return target;
 						}
 						
-	inline	T*			writeTo(T*target, T*end)	const		//! Writes the local expression content to a character array of constrained size. @param target Character array to write to @param end Pointer to one past the last writable character. @return Array position once the operation is completed. The returned pointer points one character past the last written character. The returned pointer will not point further than @a end
+		inline T*		writeTo(T*target, T*end)	const		//! Writes the local expression content to a character array of constrained size. @param target Character array to write to @param end Pointer to one past the last writable character. @return Array position once the operation is completed. The returned pointer points one character past the last written character. The returned pointer will not point further than @a end
 						{
 							size_t cpy = end-target;
 							if (len < cpy)
@@ -292,16 +291,16 @@ template <typename T>
 							return target+cpy;
 						}
 						
-	template <typename T2>
-		inline	T2*		writeTo(T2*target, T2*end)	const				//! Type variant version of the above. @overload
+		template <typename T2>
+			inline T2*	writeTo(T2*target, T2*end)	const				//! Type variant version of the above. @overload
 						{
 							for (size_t i = 0; i < len && target < end; i++)
 								(*target++) = reference[i];
 							return target;
 						}
 
-	template <typename T2>
-		inline	int		compareSegment(const T2*string, size_t string_length)	const	//! Nested compare method
+		template <typename T2>
+			inline int	compareSegment(const T2*string, size_t string_length)	const	//! Nested compare method
 						{
 							int result = Template::strncmp(reference,string,string_length<len?string_length:len);
 							if (result)
@@ -310,16 +309,16 @@ template <typename T>
 								return 1;
 							return 0;
 						}
-	template <typename T2>
-		inline	int		compareTo(const T2*string, size_t string_length)	const	//! Expression comparison. Allows to orthographically compare the local string to the specified character segment @param string String to compare to @param string_length Number of characters that the specified string is in length @return -1 if the local expression is orthographically smaller than the specified string, 0 if it is equal, +1 if it is orthographically larger
+		template <typename T2>
+			inline int	compareTo(const T2*string, size_t string_length)	const	//! Expression comparison. Allows to orthographically compare the local string to the specified character segment @param string String to compare to @param string_length Number of characters that the specified string is in length @return -1 if the local expression is orthographically smaller than the specified string, 0 if it is equal, +1 if it is orthographically larger
 						{
 							int result = compareSegment(string,string_length);
 							if (!result && string_length > len)
 								result = -1;
 							return result;
 						}
-	template <typename T2>
-		inline	int		compareSegmentIgnoreCase(const T2*string, size_t string_length)	const	//! Nested compare method (case ignore)
+		template <typename T2>
+			inline int	compareSegmentIgnoreCase(const T2*string, size_t string_length)	const	//! Nested compare method (case ignore)
 						{
 							int result = Template::strncmpi(reference,string,string_length<len?string_length:len);
 							if (result)
@@ -328,44 +327,44 @@ template <typename T>
 								return 1;
 							return 0;
 						}
-	template <typename T2>
-		inline	int		compareToIgnoreCase(const T2*string, size_t string_length)	const	//! Expression comparison. Allows to orthographically compare the local string to the specified character segment @param string String to compare to @param string_length Number of characters that the specified string is in length @return -1 if the local expression is orthographically smaller than the specified string, 0 if it is equal, +1 if it is orthographically larger
+		template <typename T2>
+			inline int	compareToIgnoreCase(const T2*string, size_t string_length)	const	//! Expression comparison. Allows to orthographically compare the local string to the specified character segment @param string String to compare to @param string_length Number of characters that the specified string is in length @return -1 if the local expression is orthographically smaller than the specified string, 0 if it is equal, +1 if it is orthographically larger
 						{
 							int result = compareSegmentIgnoreCase(string,string_length);
 							if (!result && string_length > len)
 								result = -1;
 							return result;
 						}
-	template <typename T2>
-		inline	bool	references(const T2*field)	const	//! Checks whether this expression references the specified field @param field Pointer to the field to look for @return true if the pointer was found, false otherwise
+		template <typename T2>
+			inline bool	references(const T2*field)	const	//! Checks whether this expression references the specified field @param field Pointer to the field to look for @return true if the pointer was found, false otherwise
 						{
 							return (const T*)field == reference;
 						}
-	template <typename T2>
-		inline ConcatExpression<ReferenceExpression<T>,ReferenceExpression<T2> >
+		template <typename T2>
+			inline ConcatExpression<ReferenceExpression<T>,ReferenceExpression<T2> >
 						operator+(const ReferenceExpression<T2>&expression)	const;
-	template <typename T2>
-		inline ConcatExpression<ReferenceExpression<T>,StringExpression<T2> >
+		template <typename T2>
+			inline ConcatExpression<ReferenceExpression<T>,StringExpression<T2> >
 						operator+(const StringExpression<T2>&expression)	const;
-	template <typename T2, typename T3>
-		inline ConcatExpression<ReferenceExpression<T>,ConcatExpression<T2,T3> >
+		template <typename T2, typename T3>
+			inline ConcatExpression<ReferenceExpression<T>,ConcatExpression<T2,T3> >
 						operator+(const ConcatExpression<T2,T3>&expression)	const;
-	template <typename T2>
-		inline ConcatExpression<ReferenceExpression<T>,CharacterExpression<T2> >
+		template <typename T2>
+			inline ConcatExpression<ReferenceExpression<T>,CharacterExpression<T2> >
 						operator+(const CharacterExpression<T2>&expression)	const;
 	
-	template <typename T2>
-		bool			operator<(const StringTemplate<T2>&other)	const;
-	template <typename T2>
-		bool			operator<=(const StringTemplate<T2>&other)	const;
-	template <typename T2>
-		bool			operator>(const StringTemplate<T2>&other)	const;
-	template <typename T2>
-		bool			operator>=(const StringTemplate<T2>&other)	const;
-	template <typename T2>
-		bool			operator!=(const StringTemplate<T2>&other)	const;
-	template <typename T2>
-		bool			operator==(const StringTemplate<T2>&other)	const;
+		template <typename T2>
+			bool		operator<(const StringTemplate<T2>&other)	const;
+		template <typename T2>
+			bool		operator<=(const StringTemplate<T2>&other)	const;
+		template <typename T2>
+			bool		operator>(const StringTemplate<T2>&other)	const;
+		template <typename T2>
+			bool		operator>=(const StringTemplate<T2>&other)	const;
+		template <typename T2>
+			bool		operator!=(const StringTemplate<T2>&other)	const;
+		template <typename T2>
+			bool		operator==(const StringTemplate<T2>&other)	const;
 						
 	};
 
@@ -1666,11 +1665,24 @@ template <typename T0, typename T1>
 
 
 template <typename T0, typename T1>
+	StringTemplate<T1>		implode(const StringTemplate<T0>&glue, const ArrayData<ReferenceExpression<T1> >&pieces);
+template <typename T>
+	StringTemplate<T>		implode(T glue, const ArrayData<ReferenceExpression<T> >&pieces);
+template <typename T0, typename T1>
+	StringTemplate<T1>		implode(const T0*glue, const ArrayData<ReferenceExpression<T1> >&pieces);
+
+template <typename T0, typename T1>
 	StringTemplate<T1>		implode(const StringTemplate<T0>&glue, const ArrayData<StringTemplate<T1> >&pieces);
 template <typename T>
 	StringTemplate<T>		implode(T glue, const ArrayData<StringTemplate<T> >&pieces);
 template <typename T0, typename T1>
 	StringTemplate<T1>		implode(const T0*glue, const ArrayData<StringTemplate<T1> >&pieces);
+template <typename T0, typename T1>
+	StringTemplate<T1>		implode(const StringTemplate<T0>&glue, const StringTemplate<T1>*pieces, count_t numPieces);
+template <typename T>
+	StringTemplate<T>		implode(T glue, const StringTemplate<T>*pieces, count_t numPieces);
+template <typename T0, typename T1>
+	StringTemplate<T1>		implode(const T0*glue, const StringTemplate<T1>*pieces, count_t numPieces);
 
 
 template <typename T0, typename T1>

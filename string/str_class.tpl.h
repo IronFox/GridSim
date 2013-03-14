@@ -4077,7 +4077,7 @@ template <typename T0, typename T1>
 			}
 			else
 			{
-				result[count++] = at;
+				result[count++] = T1(at,string.c_str() + string.length() - at);
 				return;
 			}
 		}
@@ -4158,11 +4158,166 @@ template <typename T0, typename T1>
 
 
 
+	
+
+
+
+template <typename T0, typename T1>
+	StringTemplate<T1>		implode(const StringTemplate<T0>&glue, const ReferenceExpression<T1>*pieces, count_t numPieces)
+	{
+		if (!numPieces)
+			return "";
+		size_t len = 0;
+		for (size_t i = 0; i < numPieces; i++)
+			len += pieces[i].length();
+		const T0*glue_str = glue.c_str();
+		size_t glue_len = glue.length();
+		len += (numPieces-1)*glue_len;
+		StringTemplate<T1> result = TStringLength(len);
+		T1*out = result.mutablePointer();
+		for (size_t i = 0; i < numPieces-1;i++)
+		{
+			Template::strncpy(out,pieces[i].pointer(),pieces[i].length());
+			out+=pieces[i].length();
+			Template::strncpy(out,glue_str,glue_len);
+			out+=glue_len;
+		}
+		Template::strncpy(out,pieces[numPieces-1].pointer(),pieces[numPieces-1].length());
+		//out+=pieces[numPieces-1].length();
+		//(*out) = 0;
+		//ASSERT_EQUAL__(out, (result.c_str()+result.length()));
+		return result;
+	}
+
+template <typename T>
+	StringTemplate<T>		implode(T glue, const ReferenceExpression<T>*pieces, count_t numPieces)
+	{
+		if (!numPieces)
+			return "";
+		size_t len = 0;
+		for (size_t i = 0; i < numPieces; i++)
+			len += pieces[i].length();
+		len += (numPieces-1);
+		StringTemplate<T> result = TStringLength(len);
+		T*out = result.mutablePointer();
+		for (size_t i = 0; i < numPieces-1;i++)
+		{
+			Template::strncpy(out,pieces[i].pointer(),pieces[i].length());
+			out+=pieces[i].length();
+			(*out++) = glue;
+		}
+		Template::strncpy(out,pieces[numPieces-1].pointer(),pieces[numPieces-1].length());
+		//out+=pieces.last().length();
+		//(*out) = 0;
+		//ASSERT_EQUAL__(out, (result.c_str()+result.length()));
+		return result;
+	}
+	
+template <typename T0, typename T1>
+	StringTemplate<T1>		implode(const T0*glue_str, const ReferenceExpression<T1>*pieces, count_t numPieces)
+	{
+		if (!numPieces)
+			return "";
+		size_t len = 0;
+		for (size_t i = 0; i < numPieces; i++)
+			len += pieces[i].length();
+		size_t glue_len = Template::strlen(glue_str);
+		len += (numPieces-1)*glue_len;
+		StringTemplate<T1> result = TStringLength(len);
+		T1*out = result.mutablePointer();
+		for (size_t i = 0; i < numPieces-1;i++)
+		{
+			Template::strncpy(out,pieces[i].pointer(),pieces[i].length());
+			out+=pieces[i].length();
+			Template::strncpy(out,glue_str,glue_len);
+			out+=glue_len;
+		}
+		Template::strncpy(out,pieces[numPieces-1].pointer(),pieces[numPieces-1].length());
+		//out+=pieces.last().length();
+		//(*out) = 0;
+		//ASSERT_EQUAL__(out, (result.c_str()+result.length()));
+		return result;
+	}
 
 
 
 
+template <typename T0, typename T1>
+	StringTemplate<T1>		implode(const StringTemplate<T0>&glue, const StringTemplate<T1>*pieces, count_t numPieces)
+	{
+		if (!numPieces)
+			return "";
+		size_t len = 0;
+		for (size_t i = 0; i < numPieces; i++)
+			len += pieces[i].length();
+		const T0*glue_str = glue.c_str();
+		size_t glue_len = glue.length();
+		len += (numPieces-1)*glue_len;
+		StringTemplate<T1> result = TStringLength(len);
+		T1*out = result.mutablePointer();
+		for (size_t i = 0; i < numPieces-1;i++)
+		{
+			Template::strncpy(out,pieces[i].c_str(),pieces[i].length());
+			out+=pieces[i].length();
+			Template::strncpy(out,glue_str,glue_len);
+			out+=glue_len;
+		}
+		Template::strncpy(out,pieces[numPieces-1].c_str(),pieces[numPieces-1].length());
+		//out+=pieces[numPieces-1].length();
+		//(*out) = 0;
+		//ASSERT_EQUAL__(out, (result.c_str()+result.length()));
+		return result;
+	}
 
+template <typename T>
+	StringTemplate<T>		implode(T glue, const StringTemplate<T>*pieces, count_t numPieces)
+	{
+		if (!numPieces)
+			return "";
+		size_t len = 0;
+		for (size_t i = 0; i < numPieces; i++)
+			len += pieces[i].length();
+		len += (numPieces-1);
+		StringTemplate<T> result = TStringLength(len);
+		T*out = result.mutablePointer();
+		for (size_t i = 0; i < numPieces-1;i++)
+		{
+			Template::strncpy(out,pieces[i].c_str(),pieces[i].length());
+			out+=pieces[i].length();
+			(*out++) = glue;
+		}
+		Template::strncpy(out,pieces[numPieces-1].c_str(),pieces[numPieces-1].length());
+		//out+=pieces.last().length();
+		//(*out) = 0;
+		//ASSERT_EQUAL__(out, (result.c_str()+result.length()));
+		return result;
+	}
+	
+template <typename T0, typename T1>
+	StringTemplate<T1>		implode(const T0*glue_str, const StringTemplate<T1>*pieces, count_t numPieces)
+	{
+		if (!numPieces)
+			return "";
+		size_t len = 0;
+		for (size_t i = 0; i < numPieces; i++)
+			len += pieces[i].length();
+		size_t glue_len = Template::strlen(glue_str);
+		len += (numPieces-1)*glue_len;
+		StringTemplate<T1> result = TStringLength(len);
+		T1*out = result.mutablePointer();
+		for (size_t i = 0; i < numPieces-1;i++)
+		{
+			Template::strncpy(out,pieces[i].c_str(),pieces[i].length());
+			out+=pieces[i].length();
+			Template::strncpy(out,glue_str,glue_len);
+			out+=glue_len;
+		}
+		Template::strncpy(out,pieces[numPieces-1].c_str(),pieces[numPieces-1].length());
+		//out+=pieces.last().length();
+		//(*out) = 0;
+		//ASSERT_EQUAL__(out, (result.c_str()+result.length()));
+		return result;
+	}
 
 template <typename T0, typename T1>
 	StringTemplate<T1>		implode(const StringTemplate<T0>&glue, const ArrayData<StringTemplate<T1> >&pieces)
@@ -4185,7 +4340,7 @@ template <typename T0, typename T1>
 			out+=glue_len;
 		}
 		Template::strncpy(out,pieces.last().c_str(),pieces.last().length());
-		out+=pieces.last().length();
+		//out+=pieces.last().length();
 		//(*out) = 0;
 		//ASSERT_EQUAL__(out, (result.c_str()+result.length()));
 		return result;
@@ -4209,7 +4364,7 @@ template <typename T>
 			(*out++) = glue;
 		}
 		Template::strncpy(out,pieces.last().c_str(),pieces.last().length());
-		out+=pieces.last().length();
+		//out+=pieces.last().length();
 		//(*out) = 0;
 		//ASSERT_EQUAL__(out, (result.c_str()+result.length()));
 		return result;
@@ -4235,7 +4390,7 @@ template <typename T0, typename T1>
 			out+=glue_len;
 		}
 		Template::strncpy(out,pieces.last().c_str(),pieces.last().length());
-		out+=pieces.last().length();
+		//out+=pieces.last().length();
 		//(*out) = 0;
 		//ASSERT_EQUAL__(out, (result.c_str()+result.length()));
 		return result;

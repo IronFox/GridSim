@@ -48,10 +48,10 @@ namespace Math
 
 		/*virtual*/ Edge::~Edge()
 		{
-			_EraseIn(from->out,to);
-			_EraseIn(to->in,from);
-			_EraseIn(to->inEdges,shared_from_this());
-			_EraseIn(from->outEdges,shared_from_this());
+			//_EraseIn(from->out,to);
+			//_EraseIn(to->in,from);
+			//_EraseIn(to->inEdges,shared_from_this());
+			//_EraseIn(from->outEdges,shared_from_this());
 		}
 	}
 
