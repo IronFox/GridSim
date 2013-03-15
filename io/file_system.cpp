@@ -1189,6 +1189,26 @@ namespace FileSystem
 		return fileTime(name);
 	}
 
+	fsize_t		fileSize(const String&name)
+	{
+		#if SYSTEM==WINDOWS
+			WIN32_FILE_ATTRIBUTE_DATA	data;
+			if (!GetFileAttributesExA(name.c_str(),GetFileExInfoStandard,&data))
+			{
+				return 0;
+			}
+			return ((fsize_t)data.nFileSizeHigh) << 32 | (fsize_t)data.nFileSizeLow;
+		#elif SYSTEM==UNIX
+			struct ::stat s;
+			if (stat(name.c_str(),&s))
+				return 0;
+			return s.st_size;
+		#else
+			#error not supported
+		#endif
+	}
+
+
 	ftime_t fileTime(const String&name)
 	{
 		#if SYSTEM==WINDOWS

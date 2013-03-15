@@ -92,8 +92,7 @@ public:
 						}
 virtual					~FileStream()
 						{
-							if (handle != -1)
-								_close(handle);
+							close();
 						}
 		
 		bool			open(const char*filename, int flags);	//!< Opens a file in the specified mode. @param filename Filename to open @return true on success
@@ -108,6 +107,14 @@ virtual					~FileStream()
 							return handle != -1;
 						}
 
+		void			close()
+						{
+							if (handle != -1)
+							{
+								_close(handle);
+								handle = -1;
+							}
+						}
 	
 		uint64_t		size()	const
 						{

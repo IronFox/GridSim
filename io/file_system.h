@@ -33,6 +33,7 @@ namespace FileSystem
 
 	
 	typedef unsigned long long ftime_t;	//!< File time type
+	typedef unsigned long long fsize_t;
 	
 	
 	#if SYSTEM==WINDOWS
@@ -50,6 +51,7 @@ namespace FileSystem
 	
 	ftime_t			fileTime(const String&name);												//!< Returns the unix timestamp of the specified file \param name File name \return Unix timestamp
 	ftime_t			fileDate(const String&name);												//!< Identical to fileTime()
+	fsize_t			fileSize(const String&name);												//!< Returns the size (in bytes) of the specified file
 	bool			doesExist(const String&path);												//!< Checks if the specified file or folder exists \param path File/folder name \return true if the specified file/folder exists, false otherwise
 	bool			isFile(const String&path);													//!< Checks if the specified file exists \param path Filename \return true if the entry exists in the file system and is a file, false otherwise
 	bool			isFolder(const String&path);												//!< Checks if the specified folder/directory exists (identical to isDirectory()) \param path Folder name \return true if the entry exists in the file system and is a folder, false otherwise
