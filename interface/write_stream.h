@@ -33,9 +33,10 @@ template <>
 interface IWriteStream
 {
 protected:
-virtual			~IWriteStream()	{};
+	virtual			~IWriteStream()	{};
 public:
-virtual	bool	write(const void*data, serial_size_t size)=0;	//!< Writes a chunk of binary data to the stream @param data Pointer to the memory section that should be written @param size Number of bytes that should be written @return true if the specified amount of bytes could be written to the stream, false otherwise
+	virtual	bool	write(const void*data, serial_size_t size)=0;	//!< Writes a chunk of binary data to the stream @param data Pointer to the memory section that should be written @param size Number of bytes that should be written @return true if the specified amount of bytes could be written to the stream, false otherwise
+	virtual bool	write(const volatile void*data, serial_size_t size)	{return write(const_cast<const void*>(data),size);}
 
 	template <typename T>
 		bool	writePrimitive(const T&element)

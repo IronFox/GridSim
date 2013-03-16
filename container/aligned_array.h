@@ -40,7 +40,7 @@ template <class C, size_t A> class AlignedArray: public SerializableObject, publ
 					root = SHIELDED_ARRAY(new BYTE[sizeof(C0)*elements+A0-1],sizeof(C0)*elements+A0-1);
 					BYTE*data_root = root;
 					#ifndef __GNUC__
-						while (((__int64)data_root)&(A0-1))
+						while (((size_t)data_root)&(A0-1))
 							data_root++;
 					#else
 						while (((long)data_root)&(A0-1))
@@ -394,6 +394,8 @@ template <class C, size_t A> class AlignedArray: public SerializableObject, publ
 					for (register count_t i = offset; i < max; i++)
 						data[i] = (C)element;
 				}
+
+
 			
 			template <class T>
 				inline void	copyFrom(const T*origin, count_t max=Undefined) //! Copies all elements from \b origin via the = operator \param origin Array to copy from (may be of a different entry type) \param max Maximum number of elements to read
@@ -623,7 +625,7 @@ template <class C, size_t A> class AlignedArray: public SerializableObject, publ
 					return element-data;
 				}				
 				
-				inline	void	resize(count_t new_size)	//! Resizes the array. The new array's content is uninitialized. \param new_size New array size in elements (may be 0)
+				inline	void	setSize(count_t new_size)	//! Resizes the array. The new array's content is uninitialized. \param new_size New array size in elements (may be 0)
 				{
 					relocAligned<C,A>(root,data,elements,new_size);
 				}
@@ -825,7 +827,7 @@ template <class C, size_t A> class AlignedArray: public SerializableObject, publ
 				else
 					FATAL__("trying to deserialize an array containing serializable objects from a fixed size stream data section not including any element count");
 
-			resize(size);
+			setSize(size);
 			if (!isISerializable(data))
 				return in_stream.read(data,(serial_size_t)contentSize());
 

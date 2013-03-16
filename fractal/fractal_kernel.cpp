@@ -1641,7 +1641,7 @@ namespace Fractal
 			
 			if (segment.crater_field.length() > static_crater_field.length())
 			{
-				static_crater_field.resize(segment.crater_field.length());
+				static_crater_field.setSize(segment.crater_field.length());
 
 			}
 			for (unsigned i = 0; i < segment.crater_field.length(); i++)
@@ -1719,7 +1719,7 @@ namespace Fractal
 
 			if (segment.crater_field.length() > static_crater_field.length())
 			{
-				static_crater_field.resize(segment.crater_field.length());
+				static_crater_field.setSize(segment.crater_field.length());
 
 			}
 			for (unsigned i = 0; i < segment.crater_field.length(); i++)
@@ -1809,7 +1809,7 @@ namespace Fractal
 
 			if (segment.crater_field.length() > static_crater_field.length())
 			{
-				static_crater_field.resize(segment.crater_field.length());
+				static_crater_field.setSize(segment.crater_field.length());
 
 			}
 			for (unsigned i = 0; i < segment.crater_field.length(); i++)

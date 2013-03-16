@@ -36,9 +36,10 @@ template <>
 interface IReadStream
 {
 protected:
-virtual			~IReadStream()	{};
+	virtual			~IReadStream()	{};
 public:
-virtual	bool	read(void*target_data, serial_size_t size)=0;	//!< Loads a chunk of binary data from the stream @param target_data Pointer to the memory section that read data should be written to @param size Number of bytes that should be read @return true if the requested amount of bytes could be read from the stream, false otherwise
+	virtual	bool	read(void*target_data, serial_size_t size)=0;	//!< Loads a chunk of binary data from the stream @param target_data Pointer to the memory section that read data should be written to @param size Number of bytes that should be read @return true if the requested amount of bytes could be read from the stream, false otherwise
+	virtual bool	read(volatile void*data, serial_size_t size)	{return read(const_cast<void*>(data),size);}
 
 	template <typename T>
 		bool	readPrimitive(T&element)
