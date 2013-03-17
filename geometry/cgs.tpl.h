@@ -4441,7 +4441,7 @@ template <class Def>
 				robj.vpool.setSize(cobj.CountVertices(l),(UINT16)ctr.CountTextureLayers(),ctr.GetVertexFlags());
 	
 				robj.vpool.vdata.copyFrom(cobj.GetVertices(l));
-				robj.detail=l;
+				robj.detail=(unsigned)l;
 				robj.ipool.idata.setSize(cobj.CountTriangleIndices(l) + cobj.CountQuadIndices(l));
 				robj.ipool.triangles = unsigned(cobj.CountTriangles(l));
 				robj.ipool.quads = unsigned(cobj.CountQuads(l));

@@ -2886,8 +2886,8 @@ void SurfaceDescription::BuildRails(const SurfaceDescription&source, const Basic
 
 				for (index_t j = 1; j < profile.length(); j++)
 				{
-					quadIndices << t + (j-1)*2 << t + (j-1)*2 + 1
-								<< n + (j-1)*2 + 1 << n + (j-1)*2;
+					quadIndices << static_cast<UINT32>(t + (j-1)*2) << static_cast<UINT32>(t + (j-1)*2 + 1)
+								<< static_cast<UINT32>(n + (j-1)*2 + 1) << static_cast<UINT32>(n + (j-1)*2);
 				}
 
 
@@ -2897,12 +2897,12 @@ void SurfaceDescription::BuildRails(const SurfaceDescription&source, const Basic
 								rear = static_cast<UINT32>(vertex_offset+numVerticesPerSlice*edge->length() + numVerticesPerSlice + 1);
 				for (index_t j = 1; j < profile.length(); j++)
 				{
-					triangleIndices << front << front + (((j-1)*2 + 1) % numVerticesPerSlice) + 1 << front + (j-1)*2+1;
+					triangleIndices << front << front + static_cast<UINT32>(((j-1)*2 + 1) % numVerticesPerSlice) + 1 << front + static_cast<UINT32>(j-1)*2+1;
 				}
-				triangleIndices << front << front + 1 << front + (profile.length()-1)*2;
+				triangleIndices << front << front + 1 << front + static_cast<UINT32>(profile.length()-1)*2;
 				for (index_t j = 1; j < profile.length(); j++)
-					triangleIndices << rear << rear + (j-1)*2+1 << rear + (((j-1)*2 + 1) % numVerticesPerSlice) + 1;
-				triangleIndices << rear << rear + (profile.length()-1)*2 << rear + 1;
+					triangleIndices << rear << rear + static_cast<UINT32>(j-1)*2+1 << rear + static_cast<UINT32>(((j-1)*2 + 1) % numVerticesPerSlice) + 1;
+				triangleIndices << rear << rear + static_cast<UINT32>(profile.length()-1)*2 << rear + 1;
 			}
 		}
 

@@ -71,7 +71,7 @@ namespace TCP
 
 		virtual	int		Read(void*data, size_t dataSize) override
 		{
-			return recv(socketHandle,(char*)data,dataSize,0);
+			return recv(socketHandle,(char*)data,(int)dataSize,0);
 		}
 
 		virtual int		Write(const void*data, size_t dataSize) override

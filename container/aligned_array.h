@@ -168,61 +168,16 @@ template <class C, size_t A> class AlignedArray: public SerializableObject, publ
 					return result;
 				}
 				
-				inline C*			operator+(INT64 rel)	//!< Retrieves a pointer to the nth element @param rel Relative index. 0 points to the first element in the array. 	@return Pointer to the requested element for sub array access
+				inline C*			operator+(signed_index_t rel)	//!< Retrieves a pointer to the nth element @param rel Relative index. 0 points to the first element in the array. 	@return Pointer to the requested element for sub array access
 				{
 					return data+rel;
 				}
 				
-				inline const C*			operator+(INT64 rel) const	//!< @overload
+				inline const C*			operator+(signed_index_t rel) const	//!< @overload
 				{
 					return data+rel;
 				}
-				
-				inline C*			operator+(UINT64 rel)	//!< @overload
-				{
-					return data+rel;
-				}
-				
-				inline const C*			operator+(UINT64 rel) const	//!< @overload
-				{
-					return data+rel;
-				}
-				inline C*			operator+(int rel)	//!< @overload
-				{
-					return data+rel;
-				}
-				
-				inline const C*			operator+(int rel) const	//!< @overload
-				{
-					return data+rel;
-				}
-				inline C*			operator+(unsigned rel)	//!< @overload
-				{
-					return data+rel;
-				}
-				
-				inline const C*			operator+(unsigned rel) const	//!< @overload
-				{
-					return data+rel;
-				}
-				inline C*			operator+(long rel)	//!< @overload
-				{
-					return data+rel;
-				}
-				
-				inline const C*			operator+(long rel) const	//!< @overload
-				{
-					return data+rel;
-				}
-				inline C*			operator+(unsigned long rel)	//!< @overload
-				{
-					return data+rel;
-				}
-				
-				inline const C*			operator+(unsigned long rel) const	//!< @overload
-				{
-					return data+rel;
-				}
+			
 								
 			template <class T, size_t A1>
 				inline bool			operator==(const AlignedArray<T,A1>&other) const //! Equality query \return true if all elements of the local array are identical to their respective counter parts in \b other. Equality is queried via the = operator.
@@ -305,14 +260,6 @@ template <class C, size_t A> class AlignedArray: public SerializableObject, publ
 					data = NULL;
 					root = NULL;
 				}
-				inline	operator C*()		//! Implict type conversion to a native array of the contained type
-				{
-					return data;
-				}
-				inline operator const C*() const		//! @overload
-				{
-					return data;
-				}
 				inline	C*		pointer()			//! Explict type conversion to a native array of the contained type \return Pointer to the first contained element or NULL if the local array is empty.
 				{
 					return data;
@@ -321,46 +268,15 @@ template <class C, size_t A> class AlignedArray: public SerializableObject, publ
 				{
 					return data;
 				}				
-				inline	C&		operator[](int index)		//! Sub-element access \param index Index of the requested element (0 = first element) \return Reference to the requested element
+				inline	C&		operator[](index_t index)		//! Sub-element access \param index Index of the requested element (0 = first element) \return Reference to the requested element
 				{
 					return data[index];
 				}
-				inline	const C&		operator[](int index) const	//!< @overload
+				inline	const C&		operator[](index_t index) const	//!< @overload
 				{
 					return data[index];
 				}
-				inline	C&		operator[](unsigned index)		//!< @overload
-				{
-					return data[index];
-				}
-				inline	const C&		operator[](unsigned index) const	//!< @overload
-				{
-					return data[index];
-				}
-				inline	C&		operator[](long index)		//!< @overload
-				{
-					return data[index];
-				}
-				inline	const C&		operator[](long index) const	//!< @overload
-				{
-					return data[index];
-				}
-				inline	C&		operator[](unsigned long index)		//!< @overload
-				{
-					return data[index];
-				}
-				inline	const C&		operator[](unsigned long index) const	//!< @overload
-				{
-					return data[index];
-				}
-				inline	C&		operator[](BYTE index)		//!< @overload
-				{
-					return data[index];
-				}
-				inline	const C&		operator[](BYTE index) const	//!< @overload
-				{
-					return data[index];
-				}
+
 			
 				inline	C		shiftLeft()	//!< Moves all array elements down, starting with the first, finishing with one before the last element. Elements are copied via the = operator. The original first element of the array will be removed from the array, the last one duplicated. @return Original (dropped) first element
 				{
