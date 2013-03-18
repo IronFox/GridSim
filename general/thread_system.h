@@ -653,7 +653,7 @@ namespace System
 			
 			long_t						value;
 	public:
-										AtomicLong(long value_):value(value_)
+										AtomicLong(long value_=0):value(value_)
 										{}
 			
 			long						operator=(long value);

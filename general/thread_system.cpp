@@ -1258,7 +1258,7 @@ namespace System
 	
 	long			AtomicLong::operator++(int)
 	{
-		return InterlockedIncrement(&value)-1;
+		return InterlockedIncrement(&value);
 	}
 	
 	long			AtomicLong::operator--()
@@ -1268,7 +1268,7 @@ namespace System
 	
 	long			AtomicLong::operator--(int)
 	{
-		return InterlockedDecrement(&value)-1;
+		return InterlockedDecrement(&value);
 	}
 	
 	long			AtomicLong::operator+=(long value_)
