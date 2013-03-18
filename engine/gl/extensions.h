@@ -864,6 +864,7 @@
 				bool							LoadComposition(const String&objectSource, GLenum geometryType=GL_TRIANGLES, GLenum outputType=GL_TRIANGLE_STRIP, unsigned maxVertices=12);
 				void							LoadRequired(const Composition&composition, GLenum geometryType=GL_TRIANGLES, GLenum outputType=GL_TRIANGLE_STRIP, unsigned maxVertices=12);
 				void							LoadRequiredComposition(const String&objectSource, GLenum geometryType=GL_TRIANGLES, GLenum outputType=GL_TRIANGLE_STRIP, unsigned maxVertices=12);
+				void							LoadFromFile(const String&filename, GLenum geometryType=GL_TRIANGLES, GLenum outputType=GL_TRIANGLE_STRIP, unsigned maxVertices=12);
 				String							Report();
 				bool							IsLoaded()	const;
 
@@ -953,6 +954,7 @@
 				bool							LoadComposition(const String&objectSource, GLenum geometryType=GL_TRIANGLES, GLenum outputType=GL_TRIANGLE_STRIP, unsigned maxVertices=12);
 				void							LoadRequired(const Composition&composition, GLenum geometryType=GL_TRIANGLES, GLenum outputType=GL_TRIANGLE_STRIP, unsigned maxVertices=12);
 				void							LoadRequiredComposition(const String&objectSource, GLenum geometryType=GL_TRIANGLES, GLenum outputType=GL_TRIANGLE_STRIP, unsigned maxVertices=12);
+				void							LoadFromFile(const String&filename, GLenum geometryType=GL_TRIANGLES, GLenum outputType=GL_TRIANGLE_STRIP, unsigned maxVertices=12);
 				String							Report();
 
 				static void						SuppressFindVariableFailureWarning();

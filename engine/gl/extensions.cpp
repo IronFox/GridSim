@@ -1211,6 +1211,16 @@ namespace Engine
 				FATAL__(Report());
 		}
 
+		void				Instance::LoadFromFile(const String&filename, GLenum geometryType/*=GL_TRIANGLES*/, GLenum outputType/*=GL_TRIANGLE_STRIP*/, unsigned maxVertices/*=12*/)
+		{
+			Composition composition;
+			if (!composition.LoadFromFile(filename))
+				throw IO::DriveAccess::FileOpenFault("Unable to open file \""+filename+"\"");
+			if (!Load(composition,geometryType,outputType,maxVertices))
+				throw Renderer::ShaderRejected(Report());
+		}
+
+
 
 		bool		Instance::Load(const Composition&composition, GLenum geometryType, GLenum outputType, unsigned maxVertices)
 		{
@@ -3111,6 +3121,15 @@ namespace Engine
 			{
 				if (!Load(composition,geometryType,outputType,maxVertices))
 					FATAL__(Report());
+			}
+
+			void				Template::LoadFromFile(const String&filename, GLenum geometryType/*=GL_TRIANGLES*/, GLenum outputType/*=GL_TRIANGLE_STRIP*/, unsigned maxVertices/*=12*/)
+			{
+				Composition composition;
+				if (!composition.LoadFromFile(filename))
+					throw IO::DriveAccess::FileOpenFault("Unable to open file \""+filename+"\"");
+				if (!Load(composition,geometryType,outputType,maxVertices))
+					throw Renderer::ShaderRejected(Report());
 			}
 	
 			bool				Template::Load(const Composition&composition, GLenum geometryType, GLenum outputType, unsigned maxVertices)
