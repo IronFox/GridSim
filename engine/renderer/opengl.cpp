@@ -950,6 +950,8 @@ namespace Engine
 
 		void		FBO::resize(const ::Resolution&res)
 		{
+			if (res == config.resolution)
+				return;
 			ContextLock	context_lock;
 			TFrameBuffer	buffer;
 			((TFBOConfig&)buffer) = config;
@@ -1144,7 +1146,7 @@ namespace Engine
 				for (unsigned i = 0; i < num_enabled_lights; i++)
 				{
 					Light*light = enabled_light_field[i];
-					target << '&' << (unsigned)light->getType();
+					target << '&' << (unsigned)light->GetType();
 				}
 		}
 
@@ -1274,6 +1276,7 @@ namespace Engine
 		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_BASE_LEVEL,0);
 		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAX_LEVEL,1000);
 		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
+		glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
 		glBindTexture(GL_TEXTURE_2D,0);
 		glDisable(GL_TEXTURE_2D);
 		glThrowError();
@@ -1451,17 +1454,17 @@ namespace Engine
 
 		GLenum	l = GL_LIGHT0+GLenum(index);
 		glEnable(l);
-		glLightfv(l,GL_DIFFUSE,light->getDiffuse().v);
-		glLightfv(l,GL_AMBIENT,light->getAmbient().v);
-		glLightfv(l,GL_SPECULAR,light->getSpecular().v);
+		glLightfv(l,GL_DIFFUSE,light->GetDiffuse().v);
+		glLightfv(l,GL_AMBIENT,light->GetAmbient().v);
+		glLightfv(l,GL_SPECULAR,light->GetSpecular().v);
 		if (verbose)
-			log_file << "updateLight("<<index<<"): color set to diffuse: "<<Vec::toString(light->getDiffuse())<<" ambient: "<<Vec::toString(light->getAmbient())<<" specular: "<<Vec::toString(light->getSpecular())<<nl;
-		if (light->getType() == Light::Spot)
+			log_file << "updateLight("<<index<<"): color set to diffuse: "<<Vec::toString(light->GetDiffuse())<<" ambient: "<<Vec::toString(light->GetAmbient())<<" specular: "<<Vec::toString(light->GetSpecular())<<nl;
+		if (light->GetType() == Light::Spot)
 		{
-			glLightf(l,GL_SPOT_CUTOFF,light->getSpotCutoff());
-			glLighti(l,GL_SPOT_EXPONENT,light->getSpotExponent());
+			glLightf(l,GL_SPOT_CUTOFF,light->GetSpotCutoff());
+			glLighti(l,GL_SPOT_EXPONENT,light->GetSpotExponent());
 			if (verbose)
-				log_file << "updateLight("<<index<<"): light type is spot (cutoff: "<<light->getSpotCutoff()<<"; exponent: "<<light->getSpotExponent()<<")"<<nl;
+				log_file << "updateLight("<<index<<"): light type is spot (cutoff: "<<light->GetSpotCutoff()<<"; exponent: "<<light->GetSpotExponent()<<")"<<nl;
 		}
 		else
 		{
@@ -1471,10 +1474,10 @@ namespace Engine
 				log_file << "updateLight("<<index<<"): light type is direct or omni (no cutoff or exponent)"<<nl;
 		}
 		if (verbose)
-			log_file << "updateLight("<<index<<"): update attenuation to: const: "<<light->getConstantAttenuation()<<" linear: "<<light->getLinearAttenuation()<<" quad: "<<light->getQuadraticAttenuation()<<nl;
-		glLightf(l,GL_LINEAR_ATTENUATION,light->getLinearAttenuation());
-		glLightf(l,GL_QUADRATIC_ATTENUATION,light->getQuadraticAttenuation());
-		glLightf(l, GL_CONSTANT_ATTENUATION,light->getConstantAttenuation());
+			log_file << "updateLight("<<index<<"): update attenuation to: const: "<<light->GetConstantAttenuation()<<" linear: "<<light->GetLinearAttenuation()<<" quad: "<<light->GetQuadraticAttenuation()<<nl;
+		glLightf(l,GL_LINEAR_ATTENUATION,light->GetLinearAttenuation());
+		glLightf(l,GL_QUADRATIC_ATTENUATION,light->GetQuadraticAttenuation());
+		glLightf(l, GL_CONSTANT_ATTENUATION,light->GetConstantAttenuation());
 
 		if (lighting_enabled)
 		{
@@ -1492,14 +1495,14 @@ namespace Engine
 		GL_BEGIN
 		index_t index = getIndexOf(light);
 		TVec4<> p;
-		p.xyz = light->getPosition();
-		p.w = light->getType() == Light::Direct?0.0f:1.0f;
+		p.xyz = light->GetPosition();
+		p.w = light->GetType() == Light::Direct?0.0f:1.0f;
 		glEnable(GL_LIGHT0+GLenum(index));	//just in case
 		glLightfv(GL_LIGHT0+GLenum(index),GL_POSITION,p.v);
 			if (verbose)
 				log_file<<"updateLightPosition(): light position ("<<index<<") updated to "<<Vec::toString(p)<<nl;
-		if (light->getType() == Light::Spot)
-			glLightfv(GL_LIGHT0+GLenum(index),GL_SPOT_DIRECTION,light->getSpotDirection().v);
+		if (light->GetType() == Light::Spot)
+			glLightfv(GL_LIGHT0+GLenum(index),GL_SPOT_DIRECTION,light->GetSpotDirection().v);
 		setHasMoved(light,false);
 		GL_END
 	}

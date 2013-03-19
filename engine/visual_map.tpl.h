@@ -43,8 +43,8 @@ namespace Engine
 			}
 			
 			light->setPosition(Entity::position);
-			light->setAttenuation(constant_attenuation,linear_attenuation,quadratic_attenuation);
-			light->setSpotExponent(spot_exponent);
+			light->setAttenuation(constantAttenuation,linearAttenuation,quadraticAttenuation);
+			light->setSpotExponent(spotExponent);
 
 			if (light->getType() != Engine::Light::Omni)
 			{
@@ -53,7 +53,7 @@ namespace Engine
 			light->setDiffuse(color);
 			light->setAmbient(color);
 			light->setSpecular(color);
-			light->setSpotCutoff(spot_cutoff);
+			light->setSpotCutoff(spotCutoff);
 		}
 
 
@@ -539,7 +539,7 @@ namespace Engine
 							h = sprites[i].height/2;
 					if (true) //sprites[i].distance_dependent)
 					{
-						float size = base_size/(light->constant_attenuation+light->linear_attenuation*light->distance+light->quadratic_attenuation*sqr(light->distance));
+						float size = base_size/(light->constantAttenuation+light->linearAttenuation*light->distance+light->quadraticAttenuation*sqr(light->distance));
 						w*=size;
 						h*=size;
 					}

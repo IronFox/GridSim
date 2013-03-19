@@ -207,19 +207,19 @@ namespace Map	//! Geometrical scenario composition
 				Types		//!< Number of light types
 			};
 			Type					type;			//!< Light type
-			float					spot_cutoff;	//!< Light spot cutoff
+			float					spotCutoff;	//!< Light spot cutoff
 			TVec3<>					color;			//!< General light color
 			union
 			{
 				struct
 				{
-					float			constant_attenuation,	//!< Light constant attenuation (1 by default)
-									linear_attenuation,		//!< Light linear attenuation (0 by default)
-									quadratic_attenuation;	//!< Light quadratic attenuation (0 by default)
+					float			constantAttenuation,	//!< Light constant attenuation (1 by default)
+									linearAttenuation,		//!< Light linear attenuation (0 by default)
+									quadraticAttenuation;	//!< Light quadratic attenuation (0 by default)
 				};
 				TVec3<>				attenuation;
 			};
-			BYTE					spot_exponent;			//!< Light spot exponent (if type is Spot, 0...128)
+			BYTE					spotExponent;			//!< Light spot exponent (if type is Spot, 0...128)
 			
 									Light();
 									Light(Composition*composition);

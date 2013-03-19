@@ -990,14 +990,14 @@ bool	Map::Volume::cast(const TVec3<>&from, const TVec3<>&direction, float&distan
 
 
 
-Map::Light::Light():Entity("Light",Entity::Directional|Entity::NoOrder),type(Omni),spot_cutoff(45),constant_attenuation(1),linear_attenuation(0),quadratic_attenuation(0), spot_exponent(5)
+Map::Light::Light():Entity("Light",Entity::Directional|Entity::NoOrder),type(Omni),spotCutoff(45),constantAttenuation(1),linearAttenuation(0),quadraticAttenuation(0), spotExponent(5)
 {
 	color = Vector<>::one;
 	sub_line = "type omni";
 }
 
 
-Map::Light::Light(Composition*composition):Entity("Light",Entity::Directional|Entity::NoOrder,composition),type(Omni),spot_cutoff(45),constant_attenuation(1),linear_attenuation(0),quadratic_attenuation(0), spot_exponent(5)
+Map::Light::Light(Composition*composition):Entity("Light",Entity::Directional|Entity::NoOrder,composition),type(Omni),spotCutoff(45),constantAttenuation(1),linearAttenuation(0),quadraticAttenuation(0), spotExponent(5)
 {
 	color = Vector<>::one;
 	sub_line = "type omni";
@@ -1017,9 +1017,9 @@ void	Map::Light::parse(const XML::Node&node,float scale, const FileSystem::Folde
 		type = Spot;
 
 	queryVector(node,"color",color);
-	query(node,"spot_cutoff",spot_cutoff);
+	query(node,"spotCutoff",spotCutoff);
 	queryVector(node,"attenuation",attenuation);
-	query(node,"spot_exponent",spot_exponent);
+	query(node,"spotExponent",spotExponent);
 	
 	sub_line = "type "+string;
 	

@@ -5,12 +5,34 @@
 
 namespace Flare
 {
-	static PointerTable<LightInfo*>			light_map;
-	static List::Vector<LightInfo>			lights;
+	class CustomLightSource : public Engine::LightData
+	{
+	public:
+		/**/		CustomLightSource(const FlareCenter&center)
+		{
+			Update(center);
+		}
+		/**/		CustomLightSource()	{}
+		void		Update(const FlareCenter&center)
+		{
+			position = center.coordinates;
+			diffuse.rgb = center.color;
+			specular.rgb = center.color;
+			ambient.rgb = center.color;
+			size = center.size;
+		}
+	};
+
+
+
+
+	static PointerTable<index_t>			light_map;
+	static Buffer<LightInfo,0>				lights;
+	static Array<CustomLightSource>			customLights;
 
 	static bool								lights_changed = true,
 											occlusion_queried = false;
-	static Array<Engine::Light*>			light_field;
+	static Array<Engine::LightData*>		light_field;
 	static Buffer<OpenGL::Query,32,AdoptStrategy>	query_objects;
 	static OpenGL::Texture					sun_flare,
 											hex_flare,
@@ -21,8 +43,22 @@ namespace Flare
 											blue_dot_flare,
 											dot_flare,
 											sharper_dot_flare;
-	static Buffer<TFlareSprite>			sprites;
+	static Buffer<TFlareSprite>				sprites;
 	
+
+	void _FetchFromDisplay()
+	{
+		display.getSceneLights(light_field,false);
+	}
+	void _FetchCustom()
+	{
+		light_field.setSize(customLights.count());
+		for (index_t i = 0; i < customLights.count(); i++)
+			light_field[i] = customLights + i;
+	}
+	static void (*_FetchLightSources)()	= _FetchFromDisplay;
+
+
 
 	void			signalLightsChanged()
 	{
@@ -32,7 +68,7 @@ namespace Flare
 
 
 
-	void			map(const Camera<float>&camera, bool check_occlusion, bool (*isOccluded)(const Engine::Light*))
+	void			Map(const Camera<float>&camera, bool check_occlusion, bool (*isOccluded)(const Engine::LightData*))
 	{
 		float zNear,zFar;
 		camera.ExtractDepthRange(zNear,zFar);
@@ -42,31 +78,32 @@ namespace Flare
 		
 		if (lights_changed)
 		{
-			display.getSceneLights(light_field,false);
+			_FetchLightSources();
 			//if (!info->clipped)
 				//ShowMessage(light_field.length());
 			
-			for (index_t i = 0; i < lights; i++)
-				lights[i]->tagged = false;
+			foreach (lights,light)
+				light->tagged = false;
 			
-			LightInfo*light;
+			index_t lightIndex;
 			for (index_t i = 0; i < light_field.length(); i++)
-				if (light_map.query(light_field[i],light))
-					light->tagged = true;
+				if (light_map.query(light_field[i],lightIndex))
+					lights[lightIndex].tagged = true;
 				else
 				{
-					light = lights.append(SHIELDED(new LightInfo(light_field[i])));
-					light->tagged = true;
-					light_map.set(light_field[i],light);
+					lightIndex = lights.count();
+					LightInfo&light = lights.append();
+					light.reference = light_field[i];
+					light.tagged = true;
+					light_map.set(light_field[i],lightIndex);
 				}
-			lights.reset();
-			while (light = lights.each())
-				if (!light->tagged)
+			for (index_t i = 0; i < lights.count(); i++)
+				if (!lights[i].tagged)
 				{
-					light_map.unSet(light->reference);
-					lights.erase();
+					light_map.unSet(lights[i].reference);
+					lights.erase(i--);
 				}
-			while (lights > query_objects.fillLevel())
+			while (lights.count() > query_objects.fillLevel())
 				query_objects.append().create();
 			
 			lights_changed = false;
@@ -75,29 +112,29 @@ namespace Flare
 		{
 			if (check_occlusion)
 				display.queryBegin();
-			for (index_t i = 0; i < lights; i++)
+			for (index_t i = 0; i < lights.count(); i++)
 			{
-				LightInfo*info = lights[i];
-				Light*light = info->reference;
-				info->occluded = false;
+				LightInfo&info = lights[i];
+				LightData*light = info.reference;
+				info.occluded = false;
 				TVec3<> sample_point;
-				info->was_clipped=info->clipped;
-				switch (light->getType())
+				info.was_clipped=info.clipped;
+				switch (light->GetType())
 				{
 					case Light::Omni:
-						info->clipped = !camera.PointToScreen(light->getPosition(),info->projected);
-						info->intensity = 1;
-						info->distance = Vec::distance(camera.GetAbsoluteLocation(),light->getPosition());
-						sample_point = light->getPosition();
+						info.clipped = !camera.PointToScreen(light->GetPosition(),info.projected);
+						info.intensity = 1;
+						info.distance = Vec::distance(camera.GetAbsoluteLocation(),light->GetPosition());
+						sample_point = light->GetPosition();
 					break;
 					case Light::Direct:
 					{
-						info->clipped = !camera.VectorToScreen(light->getPosition(),info->projected);	//the direction of a direct light is actually the position. But it's a direction, not a point
-						info->intensity = 1;
-						info->distance = 0.5*info->size;
-						if (!info->clipped)
+						info.clipped = !camera.VectorToScreen(light->GetPosition(),info.projected);	//the direction of a direct light is actually the position. But it's a direction, not a point
+						info.intensity = 1;
+						info.distance = 0.5*info.GetSize();
+						if (!info.clipped)
 						{
-							Vec::mad(camera.GetAbsoluteLocation(),light->getPosition(),barrier,sample_point);
+							Vec::mad(camera.GetAbsoluteLocation(),light->GetPosition(),barrier,sample_point);
 							/*float projected[3];
 							_c2(info->projected,projected);
 							projected[2] = 0.95;
@@ -109,27 +146,27 @@ namespace Flare
 					case Light::Spot:
 					{
 						TVec3<> projected_direction;
-						info->clipped = !camera.PointToScreen(light->getPosition(),info->projected);
-						Mat::rotate(camera.view,light->getSpotDirection(),projected_direction);
-						info->intensity = vpow(vmax(projected_direction.z,0),light->getSpotExponent());
-						info->distance = Vec::distance(camera.GetAbsoluteLocation(),light->getPosition());
-						sample_point = light->getPosition();
+						info.clipped = !camera.PointToScreen(light->GetPosition(),info.projected);
+						Mat::rotate(camera.view,light->GetSpotDirection(),projected_direction);
+						info.intensity = vpow(vmax(projected_direction.z,0),light->GetSpotExponent());
+						info.distance = Vec::distance(camera.GetAbsoluteLocation(),light->GetPosition());
+						sample_point = light->GetPosition();
 					}
 					break;
 					default:
-						info->clipped = true;
+						info.clipped = true;
 				}
-				if (!info->clipped)
-					info->clipped = info->projected.x < -1.1 || info->projected.x > 1.1 || info->projected.y < -1.1 || info->projected.y > 1.1;
-				info->intensity *= vmin(Vec::sum(light->getDiffuse())/2.0f,1);
+				if (!info.clipped)
+					info.clipped = info.projected.x < -1.1 || info.projected.x > 1.1 || info.projected.y < -1.1 || info.projected.y > 1.1;
+				info.intensity *= vmin(Vec::sum(light->GetDiffuse())/2.0f,1);
 					
-				if (!info->clipped && info->intensity > 0)
+				if (!info.clipped && info.intensity > 0)
 				{
 					if (isOccluded)
-						info->occluded = isOccluded(info->reference);
+						info.occluded = isOccluded(info.reference);
 					else
-						info->occluded = false;
-					if (check_occlusion && !info->occluded)
+						info.occluded = false;
+					if (check_occlusion && !info.occluded)
 						display.castPointQuery(query_objects[i],sample_point);
 					/*else
 						info->occluded = false;*/
@@ -141,7 +178,7 @@ namespace Flare
 		occlusion_queried = check_occlusion;
 	}
 	
-	void			recheckOcclusion(const Camera<>&camera)
+	void			RecheckOcclusion(const Camera<>&camera)
 	{
 		float zNear,zFar;
 		camera.ExtractDepthRange(zNear,zFar);
@@ -149,35 +186,35 @@ namespace Flare
 		float barrier = zNear + (zFar-zNear)*0.99;
 		
 		if (occlusion_queried)
-			for (index_t i = 0; i < lights; i++)
+			for (index_t i = 0; i < lights.count(); i++)
 			{
-				LightInfo*light = lights[i];
-				if (!light->clipped && !light->occluded && light->intensity > 0)
+				LightInfo&light = lights[i];
+				if (!light.clipped && !light.occluded && light.intensity > 0)
 				{
-					light->occluded = !display.resolveQuery(query_objects[i]);
+					light.occluded = !display.resolveQuery(query_objects[i]);
 					//cout << "resolved occlusion ("<<(light->occluded?"true":"false")<<")"<<endl;
 				}
 			}
 		
 	
 		display.queryBegin();
-		for (index_t i = 0; i < lights; i++)
+		for (index_t i = 0; i < lights.count(); i++)
 		{
-			LightInfo*info = lights[i];
-			Light*light = info->reference;
-			if (info->clipped || info->occluded || info->intensity<=0)
+			LightInfo&info = lights[i];
+			LightData*light = info.reference;
+			if (info.clipped || info.occluded || info.intensity<=0)
 				continue;
 			TVec3<> sample_point;
-			switch (light->getType())
+			switch (light->GetType())
 			{
 				case Light::Omni:
-					sample_point = light->getPosition();
+					sample_point = light->GetPosition();
 				break;
 				case Light::Direct:
-					Vec::mad(camera.GetAbsoluteLocation(),light->getPosition(),barrier,sample_point);
+					Vec::mad(camera.GetAbsoluteLocation(),light->GetPosition(),barrier,sample_point);
 				break;
 				case Light::Spot:
-					sample_point = light->getPosition();
+					sample_point = light->GetPosition();
 				break;
 			}
 			display.castPointQuery(query_objects[i],sample_point);
@@ -339,7 +376,7 @@ namespace Flare
 	}
 	
 	
-	void			render(float ambient_light, float delta_t)
+	void			Render(float ambient_light, float delta_t)
 	{
 	
 		if (!sprites.fillLevel())
@@ -468,14 +505,15 @@ namespace Flare
 			glPushMatrix();
 			glLoadIdentity();
 		
-		for (unsigned i = 0; i < lights; i++)
+		index_t i = 0;
+		foreach (lights,light)
 		{
-			LightInfo*light = lights[i];
 			if (!light->clipped && !light->occluded && light->intensity > 0 && occlusion_queried)
 			{
 				light->occluded = !display.resolveQuery(query_objects[i]);
 				//cout << "resolved occlusion ("<<(light->occluded?"true":"false")<<")"<<endl;
 			}
+			i++;
 			
 			if (!light->occluded)
 			{
@@ -503,7 +541,7 @@ namespace Flare
 			if (light->clipped || light->visibility*light->intensity <= getError<float>())
 				continue;
 			float intensity = vmax(light->visibility*light->intensity*(1.5f-Vec::length(light->projected)),0)/2;
-			c0.color.rgb = light->reference->getDiffuse();
+			c0.color.rgb = light->reference->GetDiffuse();
 			TVec3<> base_color;
 			TVec4<>	color;
 			
@@ -513,16 +551,16 @@ namespace Flare
 			//_mult(c0.color,1.2);
 			//_clamp(c0.color,0,1);
 			//cout << _toString(base_color)<<endl;
-			float base_size = light->visibility*light->intensity*vmin(Vec::dot(c0.color.rgb)*light->size/light->distance,2.0);//(light->reference->getConstantAttenuation()+light->reference->getLinearAttenuation()*light->distance+light->reference->getQuadraticAttenuation()*sqr(light->distance));
-			for (unsigned i = 0; i < sprites.fillLevel(); i++)
+			float base_size = light->visibility*light->intensity*vmin(Vec::dot(c0.color.rgb)*light->GetSize()/light->distance,2.0);//(light->reference->getConstantAttenuation()+light->reference->getLinearAttenuation()*light->distance+light->reference->getQuadraticAttenuation()*sqr(light->distance));
+			for (index_t j = 0; j < sprites.fillLevel(); j++)
 			{
-				if (sprites[i].texture->isEmpty())
+				if (sprites[j].texture->isEmpty() || !sprites[j].primary)
 					continue;
 				TVec2<OpenGL::FloatType> at;
-				Vec::mult(light->projected,sprites[i].position,at);
-				float	w = sprites[i].width/display.pixelAspect(),
-						h = sprites[i].height;
-				if (true) //sprites[i].distance_dependent)
+				Vec::mult(light->projected,sprites[j].position,at);
+				float	w = sprites[j].width/display.pixelAspect(),
+						h = sprites[j].height;
+				if (true) //sprites[j].distance_dependent)
 				{
 					w*=base_size;
 					h*=base_size;
@@ -533,16 +571,16 @@ namespace Flare
 				Vec::def(c1.xy,at.x+w,at.y-h);
 				Vec::def(c2.xy,at.x+w,at.y+h);
 				Vec::def(c3.xy,at.x-w,at.y+h);
-				//*vmax(1.2f-_length2(light->projected)*(float)!sprites[i].primary,0)/1.2
-				color.alpha = light->visibility*light->intensity*sprites[i].intensity;
-				if (sprites[i].sensitive)
+				//*vmax(1.2f-_length2(light->projected)*(float)!sprites[j].primary,0)/1.2
+				color.alpha = light->visibility*light->intensity*sprites[j].intensity;
+				if (sprites[j].sensitive)
 				{
 					color.alpha *= clamped((1.2-ambient_light),0,1.2);
 				}
-				Vec::stretch(base_color,sprites[i].color,color.rgb);
+				Vec::stretch(base_color,sprites[j].color,color.rgb);
 				glColor4fv(color.v);
-				display.useTexture(sprites[i].texture);
-				/*if (!i)
+				display.useTexture(sprites[j].texture);
+				/*if (!j)
 					cout << display.renderState()<<endl;*/
 				glBegin(GL_QUADS);
 					glTexCoord2f(0,0); glVertex2fv(c0.v);
@@ -569,7 +607,7 @@ namespace Flare
 	
 	}
 
-	void			rerender(const Camera<float>&camera, float screen_center_x, float screen_center_y, float screen_scale,float ambient_light)
+	void			Rerender(const Camera<float>&camera, float screen_center_x, float screen_center_y, float screen_scale,float ambient_light)
 	{
 	
 		if (!sprites.fillLevel())
@@ -587,19 +625,17 @@ namespace Flare
 		
 		
 		
-		
-		for (unsigned i = 0; i < lights; i++)
+		foreach (lights,info)
 		{
-			LightInfo*info = lights[i];
-			Light*light = info->reference;
-			switch (light->getType())
+			LightData*light = info->reference;
+			switch (light->GetType())
 			{
 				case Light::Omni:
 				case Light::Spot:
-					camera.PointToScreen(light->getPosition(),info->projected);
+					camera.PointToScreen(light->GetPosition(),info->projected);
 				break;
 				case Light::Direct:
-					camera.VectorToScreen(light->getPosition(),info->projected);	//the direction of a direct light is actually the position. But it's a direction, not a point
+					camera.VectorToScreen(light->GetPosition(),info->projected);	//the direction of a direct light is actually the position. But it's a direction, not a point
 				break;
 			}
 		}
@@ -629,14 +665,12 @@ namespace Flare
 			glLoadIdentity();
 		
 		
-
-		for (unsigned i = 0; i < lights; i++)
+		foreach (lights,light)
 		{
-			LightInfo*light = lights[i];
 			if (light->clipped || light->visibility*light->intensity <= getError<float>())
 				continue;
 			float intensity = vmax(light->visibility*light->intensity*(1.5f-Vec::distance(light->projected,screen_center)*screen_scale),0)/2;
-			c0.color.rgb = light->reference->getDiffuse();
+			c0.color.rgb = light->reference->GetDiffuse();
 			TVec3<> base_color;
 			TVec4<>	color;
 			
@@ -645,17 +679,17 @@ namespace Flare
 			base_color.blue = 1.0-((1.0-c0.color.blue)*0.7);
 			//_mult(c0.color,1.2);
 			//_clamp(c0.color,0,1);
-			float base_size = light->visibility*light->intensity*vmin(Vec::dot(c0.color.rgb)*light->size/light->distance,2.0);//(light->reference->getConstantAttenuation()+light->reference->getLinearAttenuation()*light->distance+light->reference->getQuadraticAttenuation()*sqr(light->distance));
-			for (unsigned i = 0; i < sprites.fillLevel(); i++)
+			float base_size = light->visibility*light->intensity*vmin(Vec::dot(c0.color.rgb)*light->GetSize()/light->distance,2.0);//(light->reference->getConstantAttenuation()+light->reference->getLinearAttenuation()*light->distance+light->reference->getQuadraticAttenuation()*sqr(light->distance));
+			for (index_t j = 0; j < sprites.fillLevel(); j++)
 			{
-				if (sprites[i].texture->isEmpty())
+				if (sprites[j].texture->isEmpty())
 					continue;
 				TVec2<OpenGL::FloatType> at,vec;
 				Vec::sub(light->projected,screen_center,vec);
-				Vec::mad(screen_center,vec,sprites[i].position,at);
-				float	w = sprites[i].width/display.pixelAspect()/screen_scale,
-						h = sprites[i].height/screen_scale;
-				if (true) //sprites[i].distance_dependent)
+				Vec::mad(screen_center,vec,sprites[j].position,at);
+				float	w = sprites[j].width/display.pixelAspect()/screen_scale,
+						h = sprites[j].height/screen_scale;
+				if (true) //sprites[j].distance_dependent)
 				{
 					w*=base_size;
 					h*=base_size;
@@ -666,15 +700,15 @@ namespace Flare
 				Vec::def(c1.xy,at.x+w,at.y-h);
 				Vec::def(c2.xy,at.x+w,at.y+h);
 				Vec::def(c3.xy,at.x-w,at.y+h);
-				//*vmax(1.2f-_length2(light->projected)*(float)!sprites[i].primary,0)/1.2
-				color.alpha = light->visibility*light->intensity*sprites[i].intensity;
-				if (sprites[i].sensitive)
+				//*vmax(1.2f-_length2(light->projected)*(float)!sprites[j].primary,0)/1.2
+				color.alpha = light->visibility*light->intensity*sprites[j].intensity;
+				if (sprites[j].sensitive)
 				{
 					color.alpha *= clamped((1.2-ambient_light),0,1.2);
 				}
-				Vec::stretch(base_color,sprites[i].color,color.rgb);
+				Vec::stretch(base_color,sprites[j].color,color.rgb);
 				glColor4fv(color.v);
-				display.useTexture(sprites[i].texture);
+				display.useTexture(sprites[j].texture);
 				glBegin(GL_QUADS);
 					glTexCoord2f(0,0); glVertex2fv(c0.v);
 					glTexCoord2f(1,0); glVertex2fv(c1.v);
@@ -698,5 +732,17 @@ namespace Flare
 	
 	
 	}
+
+
+
+	void			SetFlareSequence(const FlareCenter*centers, count_t numCenters)
+	{
+		customLights.setSize(numCenters);
+		for (index_t i = 0; i < numCenters; i++)
+			customLights[i].Update(centers[i]);
+		_FetchLightSources = _FetchCustom;
+		lights_changed = true;
+	}
+
 
 }

@@ -110,20 +110,20 @@ namespace Engine
 			
 			
 		}
-		for (unsigned i = 0; i < lights.count(); i++)
+		for (index_t i = 0; i < lights.count(); i++)
 		{
 		
-			switch (lights[i]->getType())
+			switch (lights[i]->GetType())
 			{
 				case Light::Spot:
 				{
-					float scale = Vec::distance(camera_location,lights[i]->getPosition())/5;
+					float scale = Vec::distance(camera_location,lights[i]->GetPosition())/5;
 					TMatrix4<> system;
-					float angle = pow(0.94,lights[i]->getSpotExponent());
+					float angle = pow(0.94,lights[i]->GetSpotExponent());
 					/*if (angle*45 > lights[i]->getSpotCutoff())
 						angle = lights[i]->getSpotCutoff()/45;*/
 					float z_scale = 1.0/clamped(angle,0.1,1);
-					Mat::makeAxisSystem(lights[i]->getPosition(),lights[i]->getSpotDirection(),2,system);
+					Mat::makeAxisSystem(lights[i]->GetPosition(),lights[i]->GetSpotDirection(),2,system);
 					Vec::mult(system.x.xyz,scale/z_scale);
 					Vec::mult(system.y.xyz,scale/z_scale);
 					Vec::mult(system.z.xyz,scale*z_scale);
@@ -137,10 +137,10 @@ namespace Engine
 				break;
 				case Light::Omni:
 				{
-					float scale = Vec::distance(camera_location,lights[i]->getPosition())/10;
+					float scale = Vec::distance(camera_location,lights[i]->GetPosition())/10;
 					TMatrix4<> system;
 					Mat::eye(system);
-					Vec::copy(lights[i]->getPosition(),system.w.xyz);
+					Vec::copy(lights[i]->GetPosition(),system.w.xyz);
 					Vec::mult(system.x.xyz,scale);
 					Vec::mult(system.y.xyz,scale);
 					Vec::mult(system.z.xyz,scale);
@@ -154,8 +154,8 @@ namespace Engine
 					float scale = Vec::length(camera_location)/4;
 					TMatrix4<> system;
 					TVec3<>	offset;
-					Vec::mult(lights[i]->getPosition(),scale,offset);
-					Mat::makeAxisSystem(offset,lights[i]->getPosition(),2,system);
+					Vec::mult(lights[i]->GetPosition(),scale,offset);
+					Mat::makeAxisSystem(offset,lights[i]->GetPosition(),2,system);
 					Vec::mult(system.x.xyz,scale);
 					Vec::mult(system.y.xyz,scale);
 					Vec::mult(system.z.xyz,scale*2);

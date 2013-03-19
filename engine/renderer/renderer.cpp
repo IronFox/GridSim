@@ -23,20 +23,8 @@ namespace Engine
 
 
 	
-	Light::Light(LightScene*scene_,VisualInterface*interface_):origin(scene_->count()),scene(scene_),parent_interface(interface_),moved(false),modified(false),type(Omni)
-	{
-		index = InvalidIndex;
-	    Vec::clear(position);
-	    Vec::set(diffuse,1);
-	    Vec::set(ambient,1);
-	    Vec::set(specular,1);
-	    Vec::def(spot_direction,1,0,0);
-	    spot_cutoff = 180;
-	    spot_exponent = 0;
-	    linear_attenuation = 0;
-	    quadratic_attenuation = 0;
-	    constant_attenuation = 1;
-	}
+	Light::Light(LightScene*scene_,VisualInterface*interface_):origin(scene_->count()),scene(scene_),parent_interface(interface_),moved(false),modified(false),index(InvalidIndex)
+	{}
 
 
 	Light::~Light()
@@ -50,10 +38,6 @@ namespace Engine
 			modified = true;
 	}
 
-	Light::Type Light::getType()	const
-	{
-		return type;
-	}
 
 	Light*		Light::setType(Type type_)
 	{
@@ -112,12 +96,6 @@ namespace Engine
 		return this;
 	}
 
-
-
-	const TVec3<float>&	Light::getPosition()	const
-	{
-		return position;
-	}
 
 	
 	Light*			Light::moveTo(float x, float y, float z)
@@ -199,39 +177,32 @@ namespace Engine
 	}
 
 
-	const TVec3<float>&	Light::getSpotDirection()	const
-	{
-		return spot_direction;
-	}
+
 
 	Light*			Light::setSpotDirection(const TVec3<float>&c)
 	{
-		spot_direction = c;
-		Vec::normalize0(spot_direction);
+		spotDirection = c;
+		Vec::normalize0(spotDirection);
 		update();
 		return this;
 	}
 	
 	Light*			Light::setSpotDirection(const TVec3<double>&c)
 	{
-		Vec::copy(c,spot_direction);
-		Vec::normalize0(spot_direction);
+		Vec::copy(c,spotDirection);
+		Vec::normalize0(spotDirection);
 		update();
 		return this;
 	}
 
 	Light*			Light::setSpotDirection(float x, float y, float z)
 	{
-		Vec::def(spot_direction,x,y,z);
-		Vec::normalize0(spot_direction);
+		Vec::def(spotDirection,x,y,z);
+		Vec::normalize0(spotDirection);
 		update();
 		return this;
 	}
 
-	const TVec3<float>&	Light::getDiffuse()	const
-	{
-		return diffuse.rgb;
-	}
 
 	Light*			Light::setDiffuse(const TVec3<float>&c)
 	{
@@ -279,10 +250,6 @@ namespace Engine
 	}
 
 
-	const TVec3<float>&	Light::getAmbient()	const
-	{
-		return ambient.rgb;
-	}
 
 	Light*			Light::setAmbient(const TVec3<float>&c)
 	{
@@ -330,10 +297,6 @@ namespace Engine
 		return this;
 	}
 
-	const TVec3<float>&	Light::getSpecular()	const
-	{
-		return specular.rgb;
-	}
 
 	Light*			Light::setSpecular(const TVec3<float>&c)
 	{
@@ -381,62 +344,35 @@ namespace Engine
 		return this;
 	}
 
-			
-	float			Light::getSpotCutoff()	const
-	{
-		return spot_cutoff;
-	}
 
 	Light*			Light::setSpotCutoff(float angle)
 	{
 		//if (type == Spot)
 		{
-			spot_cutoff = angle;
+			spotCutoff = angle;
 			if (type == Spot)
 				update();
 		}
 		return this;
 	}
 
-	BYTE			Light::getSpotExponent()	const
-	{
-		return spot_exponent;
-	}
 
 	Light*			Light::setSpotExponent(BYTE exponent)
 	{
-		spot_exponent = exponent;
+		spotExponent = exponent;
 		update();
 		return this;
 	}
 	
 	Light*			Light::setExponent(BYTE exponent)
 	{
-		spot_exponent = exponent;
+		spotExponent = exponent;
 		update();
 		return this;
 	}
 
 			
-	const TVec3<float>&	Light::getAttenuation()	const
-	{
-		return attenuation;
-	}
 
-	float			Light::getConstantAttenuation()	const
-	{
-		return attenuation.x;
-	}
-
-	float			Light::getLinearAttenuation()		const
-	{
-		return attenuation.y;
-	}
-
-	float			Light::getQuadraticAttenuation()	const
-	{
-		return attenuation.z;
-	}
 
 
 	Light*			Light::setAttenuation(float constant, float linear, float quadratic)
@@ -953,4 +889,8 @@ namespace Engine
 				array[count++] = active_scene->get(i);
 	}
 	
+	void			VisualInterface::getSceneLights(ArrayData<LightData*>&array, bool enabled_only)
+	{
+		getSceneLights(*(ArrayData<Light*>*)&array,enabled_only);	//this is ugly but works because the array only contains pointers, which are the same size and Light inherits LightData
+	}
 }
