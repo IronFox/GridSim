@@ -567,8 +567,8 @@ template <class C>
 							}
 			
 
-		template <class T>
-			inline count_t	findFirst(const T&entry) const	//!< Finds the index of the first occurance of the specified entry. Entries are compared via the == operator. @param entry Entry to look for @return Index of the found match plus one or 0 if no match was found
+		//template <class T>
+		inline count_t		findFirst(const C&entry) const	//!< Finds the index of the first occurance of the specified entry. Entries are compared via the == operator. @param entry Entry to look for @return Index of the found match plus one or 0 if no match was found
 							{
 								for (count_t i = 0; i < elements; i++)
 									if (data[i] == entry)
@@ -581,7 +581,7 @@ template <class C>
 							{
 								if (length > elements)
 									return 0;
-								for (count_t i = 0; i <= elements-length; i++)
+								for (count_t i = 0; i+length <= elements; i++)
 								{
 									bool match(true);
 									for (count_t j = 0; j < length; j++)
@@ -596,8 +596,7 @@ template <class C>
 								return 0;
 							}
 
-		template <class T>
-			inline count_t	findLast(const T&entry) const
+		inline count_t		findLast(const C&entry) const
 							{
 								for (count_t i = elements-1; i < elements; i--)
 									if (data[i] == entry)
