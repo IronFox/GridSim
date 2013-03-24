@@ -192,31 +192,37 @@ template <typename T>
 		glBegin(GL_QUADS);
 			#undef _POINT_
 			#define _POINT_(x,y,z)	glTexCoord3f(x,y,z); glVertex3f(x,y,z);
+			glNormal3f(0,0,-1);
 			_POINT_(p0[0],p0[1],p0[2]);
 			_POINT_(p0[0],p1[1],p0[2]);
 			_POINT_(p1[0],p1[1],p0[2]);
 			_POINT_(p1[0],p0[1],p0[2]);
 		
+			glNormal3f(0,0,1);
 			_POINT_(p0[0],p1[1],p1[2]);
 			_POINT_(p0[0],p0[1],p1[2]);
 			_POINT_(p1[0],p0[1],p1[2]);
 			_POINT_(p1[0],p1[1],p1[2]);
 		
+			glNormal3f(-1,0,0);
 			_POINT_(p0[0],p0[1],p0[2]);
 			_POINT_(p0[0],p0[1],p1[2]);
 			_POINT_(p0[0],p1[1],p1[2]);
 			_POINT_(p0[0],p1[1],p0[2]);
 		
+			glNormal3f(1,0,0);
 			_POINT_(p1[0],p0[1],p1[2]);
 			_POINT_(p1[0],p0[1],p0[2]);
 			_POINT_(p1[0],p1[1],p0[2]);
 			_POINT_(p1[0],p1[1],p1[2]);
 		
+			glNormal3f(0,-1,0);
 			_POINT_(p0[0],p0[1],p0[2]);
 			_POINT_(p1[0],p0[1],p0[2]);
 			_POINT_(p1[0],p0[1],p1[2]);
 			_POINT_(p0[0],p0[1],p1[2]);
 		
+			glNormal3f(0,1,0);
 			_POINT_(p1[0],p1[1],p0[2]);
 			_POINT_(p0[0],p1[1],p0[2]);
 			_POINT_(p0[0],p1[1],p1[2]);

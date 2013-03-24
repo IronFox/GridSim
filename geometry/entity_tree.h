@@ -16,68 +16,63 @@
 class EntityTree
 {
 public:
-		typedef Box<>	Volume;
+	typedef Box<>	Volume;
 		
-		class Entity
-		{
-		public:
-				Volume						volume;		//!< Entity volume
-				const char*					type;
-				//bool							added;
+	class Entity
+	{
+	public:
+		Volume						volume;		//!< Entity volume
+		const char*					type;
 				
-				
-											Entity(const char*type_):type(type_)//,added(false)
-											{}
-		virtual								~Entity()
-											{}
-		};
+		Entity(const char*type_)	:type(type_)	{}
+		virtual						~Entity(){}
+	};
 		
 
 	
 protected:
-		Buffer<Entity*>						entities;		//!< Entities mapped to the local tree node
-		Volume								volume;			//!< Effective volume of the local tree node
-		TVec3<>								split;			//!< Composite used to split the local volume into up to 8 child volumes.
-		EntityTree							*child[8];		//!< Pointer to the respective children (up to 8). Any of these may be NULL.
-		unsigned							level;			//!< Recursive level with 0 being the bottom-most level.
-		bool								has_children;	//!< True if at least one SceneryTree::child pointer is not NULL
+	Buffer<Entity*>					entities;		//!< Entities mapped to the local tree node
+	Volume							volume;			//!< Effective volume of the local tree node
+	TVec3<>							split;			//!< Composite used to split the local volume into up to 8 child volumes.
+	EntityTree						*child[8];		//!< Pointer to the respective children (up to 8). Any of these may be NULL.
+	unsigned						level;			//!< Recursive level with 0 being the bottom-most level.
+	bool							hasChildren;	//!< True if at least one SceneryTree::child pointer is not NULL
 
-		void								recursiveRemap(const Buffer<Entity*>&source);		//!< Recursivly maps the elements of the specified list to the local tree node overwriting any existing mapped object entities.
-		count_t								recursiveLookup(const Volume&space, Buffer<Entity*>&buffer);	//!< Volume based recursive lookup call \param space Volume to lookup \param exclude Structure entity to exclude the objects of during lookup or NULL to not exclude any object entities \param buffer Outbuffer for found object entities. The same object entity may be listed multiple times
-		count_t								recursiveLookup(const TVec3<>&edge_point0, const TVec3<>&edge_point1, Buffer<Entity*>&buffer);
-		count_t								recursionEnd(const TVec3<>&edge_point0, const TVec3<>&edge_point1, Buffer<Entity*>&buffer);
+	void							_RecursiveRemap(const Buffer<Entity*>&source);		//!< Recursivly maps the elements of the specified list to the local tree node overwriting any existing mapped object entities.
+	count_t							_RecursiveLookup(const Volume&space, Buffer<Entity*>&buffer);	//!< Volume based recursive lookup call \param space Volume to lookup \param exclude Structure entity to exclude the objects of during lookup or NULL to not exclude any object entities \param buffer Outbuffer for found object entities. The same object entity may be listed multiple times
+	count_t							_RecursiveLookup(const TVec3<>&edge_point0, const TVec3<>&edge_point1, Buffer<Entity*>&buffer);
+	count_t							_RecursionEnd(const TVec3<>&edge_point0, const TVec3<>&edge_point1, Buffer<Entity*>&buffer);
 public:
-static	bool								verbose;		//!< Print events to the console
+	static	bool					verbose;		//!< Print events to the console
 
-											EntityTree(const Volume&space, unsigned level);	//!< Child node constructor \param space Volume this node should occupy. \param level Recursion level. A node on level 0 may not have child nodes.
-											EntityTree(const EntityTree&other);				//!< Copy constructor
-											EntityTree();										//!< Empty constructor
-virtual										~EntityTree();
-		void								remap(const Buffer<Entity*>&source, unsigned depth=0);				//!< Clears the local map and maps the object entities of the specified source \param source List of object entities to map @param depth Maximum tree depth. Set 0 to determine depth automatically
-		void								remap(List::Vector<Entity>&source, unsigned depth=0);				//!< Clears the local map and maps the object entities of the specified source \param source List of object entities to map @param depth Maximum tree depth. Set 0 to determine depth automatically
-		void								clear();											//!< Clears the local map
+									EntityTree(const Volume&space, unsigned level);	//!< Child node constructor \param space Volume this node should occupy. \param level Recursion level. A node on level 0 may not have child nodes.
+									EntityTree(const EntityTree&other);				//!< Copy constructor
+									EntityTree();										//!< Empty constructor
+	virtual							~EntityTree();
+	void							Remap(const Buffer<Entity*>&source, unsigned depth=0);				//!< Clears the local map and maps the object entities of the specified source \param source List of object entities to map @param depth Maximum tree depth. Set 0 to determine depth automatically
+	void							Remap(List::Vector<Entity>&source, unsigned depth=0);				//!< Clears the local map and maps the object entities of the specified source \param source List of object entities to map @param depth Maximum tree depth. Set 0 to determine depth automatically
+	void							Clear();											//!< Clears the local map
 		
-		/**
-			@brief Volume based lookup call
+	/**
+	@brief Volume based lookup call
 			
-			Determines all object entities that lie inside or on the border of the specified volume 
-			
-			\param space Volume to lookup
-			\param out Outbuffer for found object entities. The out buffer may contain the same entry multiple times
-		*/
-		void 								lookup(const Volume&space, Buffer<Entity*>&out);
-		void								lookup(const TVec3<>&edge_point0, const TVec3<>&edge_point1, Buffer<Entity*>&out);
-		EntityTree&						operator=(const EntityTree&other);				//!< Copy operator
+	Determines all object entities that lie inside or on the border of the specified volume 
+	@param space Volume to lookup
+	@param out Outbuffer for found object entities. The out buffer may contain the same entry multiple times
+	*/
+	void 								Lookup(const Volume&space, Buffer<Entity*>&out);
+	void								Lookup(const TVec3<>&edge_point0, const TVec3<>&edge_point1, Buffer<Entity*>&out);
+	EntityTree&							operator=(const EntityTree&other);				//!< Copy operator
 		
-		EntityTree*						getChild(BYTE index);			//!< Retrieves the tree child associated with the respective index, \param index Index of the child to retrieve in the range [0,7]. \return Pointer to the respective child or NULL if the child does not exist or the specified index is greater than 7
-		const EntityTree*					getChild(BYTE index)const;			//!< Retrieves the tree child associated with the respective index, \param index Index of the child to retrieve in the range [0,7]. \return Pointer to the respective child or NULL if the child does not exist or the specified index is greater than 7
-		bool								hasChildren()		const;		//!< Returns true if the node has at least one child, false otherwise
-		unsigned							getLevel()			const;		//!< Retrieves the recursive level of the local tree node (0 = bottom most node/leaf).
-		const TVec3<>&						getSplitVector()	const;		//!< Retrieves the split point (3 components) used to determine the volumes of the local children. The returned vector is undefined if the local node has no children.
-		const Volume&						getVolume()			const;		//!< Retrieves the actual volume of the local tree node
-		count_t								countElements()		const;		//!< Retrieves the number of elements mapped in this node
-		void								getElements(Buffer<Entity*>&out)	const;//!< Copies the pointers of all locally mapped object entities to the target list.
-		const Buffer<Entity*>&				getElementList()	const;		//!< Retrieves a link to the local element list containing all mapped entities
+	EntityTree*							GetChild(BYTE index);			//!< Retrieves the tree child associated with the respective index, \param index Index of the child to retrieve in the range [0,7]. \return Pointer to the respective child or NULL if the child does not exist or the specified index is greater than 7
+	const EntityTree*					GetChild(BYTE index)const;			//!< Retrieves the tree child associated with the respective index, \param index Index of the child to retrieve in the range [0,7]. \return Pointer to the respective child or NULL if the child does not exist or the specified index is greater than 7
+	bool								HasChildren()		const;		//!< Returns true if the node has at least one child, false otherwise
+	unsigned							GetLevel()			const;		//!< Retrieves the recursive level of the local tree node (0 = bottom most node/leaf).
+	const TVec3<>&						GetSplitVector()	const;		//!< Retrieves the split point (3 components) used to determine the volumes of the local children. The returned vector is undefined if the local node has no children.
+	const Volume&						GetVolume()			const;		//!< Retrieves the actual volume of the local tree node
+	count_t								CountElements()		const;		//!< Retrieves the number of elements mapped in this node
+	void								GetElements(Buffer<Entity*>&out)	const;//!< Copies the pointers of all locally mapped object entities to the target list.
+	const Buffer<Entity*>&				GetElementList()	const;		//!< Retrieves a link to the local element list containing all mapped entities
 };
 
 

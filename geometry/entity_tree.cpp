@@ -650,7 +650,7 @@ const Buffer<CompositeEntityTree::Entity*>& 	CompositeEntityTree::getElementList
 
 
 
-void		EntityTree::recursiveRemap(const Buffer<Entity*>&source)
+void		EntityTree::_RecursiveRemap(const Buffer<Entity*>&source)
 {
 	if (verbose)
 		cout << "now processing node on level "<<level<<" with "<<source.length()<<" input entities"<<endl;
@@ -658,7 +658,7 @@ void		EntityTree::recursiveRemap(const Buffer<Entity*>&source)
 	bool self = &source == &entities;
 	if (!self)
 		entities.reset();
-	if (has_children)
+	if (hasChildren)
 	{
 		for (BYTE k = 0; k < 8; k++)
 			if (child[k])
@@ -666,7 +666,7 @@ void		EntityTree::recursiveRemap(const Buffer<Entity*>&source)
 				DISCARD(child[k]);
 				child[k] = NULL;
 			}
-		has_children = false;
+		hasChildren = false;
 	}
 	Vec::clear(split);
 
@@ -874,12 +874,12 @@ void		EntityTree::recursiveRemap(const Buffer<Entity*>&source)
 		else
 			child[k] = NULL;
 	}
-	has_children = true;
+	hasChildren = true;
 	
 	for (BYTE k = 0; k < 8; k++)
 		if (child[k])
 		{
-			child[k]->recursiveRemap(entities);
+			child[k]->_RecursiveRemap(entities);
 			if (!child[k]->entities.count())
 			{
 				DISCARD(child[k]);
@@ -892,15 +892,15 @@ void		EntityTree::recursiveRemap(const Buffer<Entity*>&source)
 					
 			}
 		}
-	if (num_children==1 && !child[unary_child]->has_children)
+	if (num_children==1 && !child[unary_child]->hasChildren)
 	{
 		DISCARD(child[unary_child]);
 		child[unary_child] = NULL;
-		has_children = false;
+		hasChildren = false;
 	}
 }
 
-count_t EntityTree::recursionEnd(const TVec3<>&edge_point0, const TVec3<>&edge_point1, Buffer<Entity*>&buffer)
+count_t EntityTree::_RecursionEnd(const TVec3<>&edge_point0, const TVec3<>&edge_point1, Buffer<Entity*>&buffer)
 {
 	count_t c = 0;
 	for (index_t i = 0; i < entities.count(); i++)
@@ -915,13 +915,13 @@ count_t EntityTree::recursionEnd(const TVec3<>&edge_point0, const TVec3<>&edge_p
 	return c;
 }
 
-count_t	EntityTree::recursiveLookup(const TVec3<>&p0, const TVec3<>&p1, Buffer<Entity*>&buffer)
+count_t	EntityTree::_RecursiveLookup(const TVec3<>&p0, const TVec3<>&p1, Buffer<Entity*>&buffer)
 {
 	const count_t cnt = entities.count();
 	if (!cnt)
 		return 0;
 	if (!level)
-		return recursionEnd(p0,p1,buffer);
+		return _RecursionEnd(p0,p1,buffer);
 	const TVec3<>	edge[2] = {p0,p1};
 	//TVec3<>			half;
 	//Vec::center(volume.min,volume.max,half);
@@ -975,17 +975,17 @@ count_t	EntityTree::recursiveLookup(const TVec3<>&p0, const TVec3<>&p1, Buffer<E
 	index_t at = buffer.fillLevel();
 	for (BYTE k = 0; k < 8; k++)
 		if (set[k] && child[k]!=NULL)
-			if (child[k]->recursiveLookup(p0,p1,buffer) == cnt)
+			if (child[k]->_RecursiveLookup(p0,p1,buffer) == cnt)
 			{
 				buffer.truncate(at);
-				return recursionEnd(p0,p1,buffer);
+				return _RecursionEnd(p0,p1,buffer);
 			}
 	return 0;
 }
 
 
 
-count_t	EntityTree::recursiveLookup(const Volume&space, Buffer<Entity*>&buffer)
+count_t	EntityTree::_RecursiveLookup(const Volume&space, Buffer<Entity*>&buffer)
 {
 	const count_t cnt = entities.count();
 	
@@ -993,10 +993,10 @@ count_t	EntityTree::recursiveLookup(const Volume&space, Buffer<Entity*>&buffer)
 	{
 		return 0;
 	}
-	if (!level || 8*level > cnt || !has_children)
+	if (!level || 8*level > cnt || !hasChildren)
 	{
 		count_t c = 0;
-		for (unsigned i = 0; i < cnt; i++)
+		for (index_t i = 0; i < cnt; i++)
 		{
 			Entity*object = entities[i];
 			if (!intersect(space,object->volume))
@@ -1009,7 +1009,7 @@ count_t	EntityTree::recursiveLookup(const Volume&space, Buffer<Entity*>&buffer)
 	
 	count_t at = buffer.fillLevel();
 	for (BYTE k = 0; k < 8; k++)
-		if (child[k] && child[k]->recursiveLookup(space,buffer) == cnt)
+		if (child[k] && child[k]->_RecursiveLookup(space,buffer) == cnt)
 		{
 			if (buffer.fillLevel()-at > cnt)
 			{
@@ -1027,7 +1027,7 @@ EntityTree::EntityTree(const Volume&space, unsigned level_):volume(space),level(
 {
 	for (BYTE k = 0; k < 8; k++)
 		child[k] = NULL;
-	has_children = false;
+	hasChildren = false;
 }
 
 EntityTree::EntityTree(const EntityTree&other)
@@ -1039,13 +1039,13 @@ EntityTree::EntityTree(const EntityTree&other)
 	{
 		for (BYTE k = 0; k < 8; k++)
 			child[k] = SHIELDED(new EntityTree(*other.child[k]));
-		has_children = true;
+		hasChildren = true;
 	}
 	else
 	{
 		for (BYTE k = 0; k < 8; k++)
 			child[k] = NULL; //we will see if we actually need this
-		has_children = false;
+		hasChildren = false;
 	}
 }
 
@@ -1053,7 +1053,7 @@ EntityTree::EntityTree():level(1)
 {
 	for (BYTE k = 0; k < 8; k++)
 		child[k] = NULL;
-	has_children = false;
+	hasChildren = false;
 }
 
 
@@ -1064,7 +1064,7 @@ EntityTree::~EntityTree()
 			DISCARD(child[k]);
 }
 
-void		EntityTree::clear()
+void		EntityTree::Clear()
 {
 	for (BYTE k = 0; k < 8; k++)
 		if (child[k])
@@ -1073,13 +1073,13 @@ void		EntityTree::clear()
 			child[k] = NULL;
 		}
 	entities.reset();
-	has_children = false;
+	hasChildren = false;
 }
 
-void		EntityTree::remap(const Buffer<Entity*>&source, unsigned depth)
+void		EntityTree::Remap(const Buffer<Entity*>&source, unsigned depth)
 {
 
-	clear();
+	Clear();
 	if (!source.count())
 		return;
 
@@ -1096,12 +1096,12 @@ void		EntityTree::remap(const Buffer<Entity*>&source, unsigned depth)
 
 		volume.include(entity->volume);
 	}
-	recursiveRemap(source);
+	_RecursiveRemap(source);
 }
 
-void		EntityTree::remap(List::Vector<Entity>&source, unsigned depth)
+void		EntityTree::Remap(List::Vector<Entity>&source, unsigned depth)
 {
-	clear();
+	Clear();
 	if (!source.count())
 		return;
 
@@ -1121,18 +1121,18 @@ void		EntityTree::remap(List::Vector<Entity>&source, unsigned depth)
 
 		entities << entity;
 	}
-	recursiveRemap(entities);
+	_RecursiveRemap(entities);
 }
 
-void	EntityTree::lookup(const TVec3<>&edge_point0, const TVec3<>&edge_point1, Buffer<Entity*>&out)
+void	EntityTree::Lookup(const TVec3<>&edge_point0, const TVec3<>&edge_point1, Buffer<Entity*>&out)
 {
-	recursiveLookup(edge_point0,edge_point1, out);
+	_RecursiveLookup(edge_point0,edge_point1, out);
 }
 
 
-void	EntityTree::lookup(const Volume&space, Buffer<Entity*>&out)
+void	EntityTree::Lookup(const Volume&space, Buffer<Entity*>&out)
 {
-	recursiveLookup(space,out);
+	_RecursiveLookup(space,out);
 	
 	/*
 	Buffer<Entity*>					buffer;
@@ -1156,7 +1156,7 @@ EntityTree&	EntityTree::operator=(const EntityTree&other)
 		if (child[k])
 			DISCARD(child[k]);
 	entities.reset();
-	for (unsigned i = 0; i < other.entities.count(); i++)
+	for (index_t i = 0; i < other.entities.count(); i++)
 		entities << other.entities[i];
 
 	if (level && entities.count())
@@ -1168,54 +1168,52 @@ EntityTree&	EntityTree::operator=(const EntityTree&other)
 	return *this;
 }
 
-EntityTree*						EntityTree::getChild(BYTE c)
+EntityTree*						EntityTree::GetChild(BYTE c)
 {
-	if (c >= 8)
-		return NULL;
+	DBG_ASSERT_LESS__(c,8);
 	return child[c];
 }
-const EntityTree*						EntityTree::getChild(BYTE c) const
+const EntityTree*						EntityTree::GetChild(BYTE c) const
 {
-	if (c >= 8)
-		return NULL;
+	DBG_ASSERT_LESS__(c,8);
 	return child[c];
 }
 
-bool										EntityTree::hasChildren()	const
+bool										EntityTree::HasChildren()	const
 {
-	return has_children;
+	return hasChildren;
 }
 
 
-unsigned									EntityTree::getLevel()	const
+unsigned									EntityTree::GetLevel()	const
 {
 	return level;
 }
 
-const TVec3<>&								EntityTree::getSplitVector()	const
+const TVec3<>&								EntityTree::GetSplitVector()	const
 {
 	return split;
 }
 
-const EntityTree::Volume&					EntityTree::getVolume()	const
+const EntityTree::Volume&					EntityTree::GetVolume()	const
 {
 	return volume;
 }
 
 
-count_t					EntityTree::countElements()	const
+count_t					EntityTree::CountElements()	const
 {
 	return entities.count();
 }
 
-void										EntityTree::getElements(Buffer<Entity*>&out)	const
+void										EntityTree::GetElements(Buffer<Entity*>&out)	const
 {
 	out.reset();
-	for (unsigned i = 0; i < entities.count(); i++)
+	for (index_t i = 0; i < entities.count(); i++)
 		out << entities[i];
 }
 
-const Buffer<EntityTree::Entity*>& 	EntityTree::getElementList() const
+const Buffer<EntityTree::Entity*>& 	EntityTree::GetElementList() const
 {
 	return entities;
 }

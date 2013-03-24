@@ -627,6 +627,9 @@
     <ClCompile Include="..\..\math\graph.cpp">
       <Filter>Source Files\math</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\geometry\bvh.cpp">
+      <Filter>Source Files\geometry</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\io\config.h">
@@ -1531,6 +1534,9 @@
     </ClInclude>
     <ClInclude Include="..\..\geometry\converter\lwo.tpl.h">
       <Filter>Header Files\geometry\converter</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\geometry\bvh.h">
+      <Filter>Header Files\geometry</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

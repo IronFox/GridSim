@@ -210,6 +210,7 @@
     <ClCompile Include="..\..\general\system.cpp" />
     <ClCompile Include="..\..\general\thread_system.cpp" />
     <ClCompile Include="..\..\general\timer.cpp" />
+    <ClCompile Include="..\..\geometry\bvh.cpp" />
     <ClCompile Include="..\..\geometry\cgs.cpp" />
     <ClCompile Include="..\..\geometry\cgs_archive.cpp" />
     <ClCompile Include="..\..\geometry\cgs_track_segment.cpp" />
@@ -482,6 +483,7 @@
     <ClInclude Include="..\..\general\typedefs.h" />
     <ClInclude Include="..\..\general\undef.h" />
     <ClInclude Include="..\..\general\xportal.h" />
+    <ClInclude Include="..\..\geometry\bvh.h" />
     <ClInclude Include="..\..\geometry\cgs.h" />
     <ClInclude Include="..\..\geometry\cgs.tpl.h" />
     <ClInclude Include="..\..\geometry\cgs_archive.h" />

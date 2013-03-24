@@ -32,6 +32,9 @@ namespace Engine
 	template <typename GL>
 		void	CreateDisplay(Display<GL>&display, const String&name, Resolution resolution, DisplayConfig::f_on_resize onResize)
 		{
+			Resolution screenRes = display.getScreenSize();
+			resolution.width = std::min(resolution.width,screenRes.width);
+			resolution.height = std::min(resolution.height,screenRes.height);
 			String fileName = name;
 			fileName.eraseCharacters(validFileNameChar,false);
 			fileName.convertToLowerCase();

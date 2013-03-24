@@ -1193,6 +1193,11 @@ namespace Math
 									{
 										return z.extend();
 									}
+			MF_DECLARE(T)			volume()	const
+									{
+										return width() * height() * depth();
+									}
+
 									
 			template <typename T0, typename T1, typename T2>
 				MF_DECLARE(void)	translate(const T0&delta_x, const T1&delta_y, const T2&delta_z)

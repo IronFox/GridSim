@@ -1338,11 +1338,19 @@ template <class C, class Strategy=typename StrategySelector<C>::Default>
 		
 	inline	C&			get(Arrays::count_t x, Arrays::count_t y)	//! Retrieves a singular element at the specified position	\param x X coordinate. Must be less than width() \param y Y coordinate. Must be less than height() \return Reference to the requested element
 			{
+				#if defined(_DEBUG) && __ARRAY_DBG_RANGE_CHECK__
+					if (x >= w || y >= height())
+						FATAL__("Index out of bounds");
+				#endif
 				return Array<C,Strategy>::data[y*w+x];
 			}
 	
 	inline	const C&	get(Arrays::count_t x, Arrays::count_t y)	const	//! Retrieves a singular element at the specified position \param x X coordinate. Must be less than width() \param y Y coordinate. Must be less than height() \return Reference to the requested element
 			{
+				#if defined(_DEBUG) && __ARRAY_DBG_RANGE_CHECK__
+					if (x >= w || y >= height())
+						FATAL__("Index out of bounds");
+				#endif
 				return Array<C>::data[y*w+x];
 			}
 	inline	void	adoptData(Array2D<C,Strategy>&other)	//! Adopts pointer and size and sets both NULL of the specified origin array.
