@@ -5,7 +5,9 @@
 #include "../math/vector.h"
 #include "../container/buffer.h"
 
-template <typename Object, typename Float = float>
+struct NoBVHAttachment	{};
+
+template <typename Object, typename Float = float, typename Attachment = NoBVHAttachment>
     class BVH
     {
 	public:
@@ -22,22 +24,23 @@ template <typename Object, typename Float = float>
 			/**/			Entry(Object*element, const Box<Float>&box) : element(element),boundingBox(box)	{}
         };
 
+	private:
         class Node
         {
 		public:
             const bool		isLeaf;
             const Box<Float>boundingBox;
+			Attachment		attachment;
 
 
 			/**/			Node(bool isLeaf, const Box<Float>&boundingBox) : isLeaf(isLeaf),boundingBox(boundingBox)	{}
 			virtual			~Node()	{}
         };
 
-	private:
         class LeafNode : public Node
         {
 		public:
-            Buffer<Entry,0> elements;
+            Array<Entry>	elements;
 
             /**/			LeafNode(const Box<Float>&boundingBox) : Node(true, boundingBox) { }
         };
@@ -69,6 +72,24 @@ template <typename Object, typename Float = float>
         }
 
 	public:
+		class Accessor
+		{
+		private:
+			Node*			_GetNode()	{return reinterpret_cast<Node*>(this);}
+			const Node*		_GetNode()	const {return reinterpret_cast<const Node*>(this);}
+		public:
+			count_t			CountObjects()	const	{const Node*n = _GetNode(); return n->isLeaf ? ((LeafNode*)n)->elements.count() : 0;}
+			void			GetObjects(Object**)	const;
+			bool			IsLeaf() const	{return _GetNode()->isLeaf;}
+			Accessor*		GetFirstChild() const {const Node*n = _GetNode(); return n->isLeaf ? NULL : reinterpret_cast<Accessor*>(((InnerNode*)n)->child0);}
+			Accessor*		GetSecondChild() const {const Node*n = _GetNode(); return n->isLeaf ? NULL : reinterpret_cast<Accessor*>(((InnerNode*)n)->child1);}
+			const Box<Float>&GetBoundingBox() const {return _GetNode()->boundingBox;}
+			Attachment&		GetAttachment()	{return _GetNode()->attachment;}
+		};
+
+		typedef Accessor*	iterator;
+
+
 		/**/				BVH():_root(NULL),_locked(false)	{}
 		/**/				~BVH()	{if (_root) delete _root;}
 
@@ -134,9 +155,9 @@ template <typename Object, typename Float = float>
         class Bucket
         {
 		public:
-            Buffer<Entry,0>		elements;
+			count_t				numElements;
             Box<Float>			boundingBox;;
-            Float				volumeUntilThis,
+            float				volumeUntilThis,
 								volumeFromThis;
 
 			/**/				Bucket()	{Reset();}
@@ -147,24 +168,24 @@ template <typename Object, typename Float = float>
                 boundingBox.setAllMax(std::numeric_limits<Float>::min());
                 volumeUntilThis = 0;
                 volumeFromThis = 0;
-				elements.clear();
+				numElements = 0;
             }
 
         };
 
 
-        static Node*		_BuildNode(BasicBuffer<Entry>&elements, ArrayData<Bucket>&buckets)
+        static Node*		_BuildNode(Entry*const elements, const count_t numElements, ArrayData<Bucket>&buckets)
         {
             Box<Float> boundingBox;
             boundingBox.setAllMin(std::numeric_limits<Float>::max());
             boundingBox.setAllMax(std::numeric_limits<Float>::min());
-				
-			foreach (elements,e)
-                boundingBox.include(e->boundingBox);
-            if (elements.count() <= 4)
+
+			for (index_t i = 0; i < numElements; i++)
+                boundingBox.include(elements[i].boundingBox);
+            if (numElements <= 4)
             {
                 LeafNode*leaf = new LeafNode(boundingBox);
-                leaf->elements.swap(elements);
+                leaf->elements.resizeAndCopy(elements, numElements);
                 return leaf;
             }
 
@@ -172,11 +193,11 @@ template <typename Object, typename Float = float>
             Box<Float> centerVolume;
             centerVolume.setAllMin(std::numeric_limits<Float>::max());
             centerVolume.setAllMax(std::numeric_limits<Float>::min());
-            foreach (elements, e)
-                centerVolume.include(e->boundingBox.center());
+			for (index_t i = 0; i < numElements; i++)
+                centerVolume.include(elements[i].boundingBox.center());
 
 
-            Float minVolume = std::numeric_limits<Float>::max();
+            float minVolume = std::numeric_limits<float>::max();
             int useAxis = -1;
             index_t splitAtBucket = 0;
 
@@ -187,35 +208,45 @@ template <typename Object, typename Float = float>
                 if (extend == 0)
                     continue;
                     //extend = 1.0f;
-                foreach (elements,e)
+				for (index_t i = 0; i < numElements; i++)
                 {
-                    Bucket&bucket = buckets[std::min(buckets.count() - 1, (index_t)((e->boundingBox.axis[axis].center() - axisRange.min) / extend * buckets.count()))];
-                    bucket.elements << *e;
-                    bucket.boundingBox.include(e->boundingBox);
+					const Entry&e = elements[i];
+					index_t bucketIndex = std::min(buckets.count() - 1, (index_t)(float(e.boundingBox.axis[axis].center() - axisRange.min) / extend * buckets.count()));
+                    Bucket&bucket = buckets[bucketIndex];
+                    bucket.numElements ++;
+                    bucket.boundingBox.include(e.boundingBox);
                 }
+				if (buckets.first().numElements == 0 || buckets.last().numElements == 0)
+				{
+					foreach (buckets,b)
+						b->Reset();
+					continue;
+				}
+				
                 Box<Float> bounds = buckets[0].boundingBox;
-                Float volume = bounds.volume();
+                float volume;
+				bounds.getVolume(volume);
                 buckets[0].volumeUntilThis = volume;
                 for (index_t i = 1; i < buckets.count(); i++)
                 {
-                    if (buckets[i].elements.isNotEmpty())
+                    if (buckets[i].numElements > 0)
                     {
                         bounds.include(buckets[i].boundingBox);
-                        volume = bounds.volume();
+                        bounds.getVolume(volume);
                     }
                     buckets[i].volumeUntilThis = volume;
                    // Debug.WriteLine("volumeUntil(axis " + axis + ", bucket " + i + ") = " + volume);
 
                 }
                 bounds = buckets.last().boundingBox;
-                volume = bounds.volume();
+                bounds.getVolume(volume);
                 buckets.last().volumeFromThis = volume;
                 for (index_t i = buckets.count() - 2; i < buckets.count(); i--)
                 {
-                    if (buckets[i].elements.isNotEmpty())
+                    if (buckets[i].numElements > 0)
                     {
                         bounds.include(buckets[i].boundingBox);
-                        volume = bounds.volume();
+                        bounds.getVolume(volume);
                     }
                     buckets[i].volumeFromThis = volume;
                     //Debug.WriteLine("volumeFrom(axis " + axis + ", bucket " + i + ") = " + volume);
@@ -238,7 +269,7 @@ template <typename Object, typename Float = float>
             if (useAxis == -1)
             {
                 LeafNode*leaf = new LeafNode(boundingBox);
-                leaf->elements.swap(elements);
+                leaf->elements.resizeAndCopy(elements,numElements);
                 return leaf;
             }
 
@@ -246,20 +277,39 @@ template <typename Object, typename Float = float>
             Float extend2 = axisRange2.extend();
             DBG_ASSERT__(extend2 != 0);
 
-            Buffer<Entry,4> lower,
-							upper;
-            foreach (elements,e)
-            {
-                index_t bucketIndex = std::min(buckets.count() - 1, (index_t)((e->boundingBox.axis[useAxis].center() - axisRange2.min) / extend2 * buckets.count()));
-                if (bucketIndex >= splitAtBucket)
-                    upper << *e;
-                else
-                    lower << *e;
-            }
+			//ASSERT__(numElements < 300000);
+
+
+			Entry	*i0 = elements,
+					*i1 = elements + numElements -1;
+			do
+			{
+				while (i0 < i1)
+				{
+
+	                index_t bucketIndex = std::min(buckets.count() - 1, (index_t)(float(i0->boundingBox.axis[useAxis].center() - axisRange2.min) / extend2 * buckets.count()));
+						//std::min(buckets.count() - 1, (index_t)((i0->boundingBox.axis[useAxis].center() - axisRange2.min) / extend2 * buckets.count()));
+					if (bucketIndex >= splitAtBucket)
+						break;
+					i0++;
+				}
+				while (i0 < i1)
+				{
+	                index_t bucketIndex = std::min(buckets.count() - 1, (index_t)(float(i1->boundingBox.axis[useAxis].center() - axisRange2.min) / extend2 * buckets.count()));
+					if (bucketIndex < splitAtBucket)
+						break;
+					i1--;
+				}
+
+				if (i0 < i1)
+					swp(*i0,*i1);
+			}
+			while (i0 < i1);
+
             InnerNode*innerNode = new InnerNode(boundingBox);
             innerNode->axis = useAxis;
-            innerNode->child0 = _BuildNode(lower,buckets);
-            innerNode->child1 = _BuildNode(upper,buckets);
+            innerNode->child0 = _BuildNode(elements, i0-elements, buckets);
+            innerNode->child1 = _BuildNode(i0, elements + numElements - i0, buckets);
             return innerNode;
         }
 
@@ -364,13 +414,14 @@ template <typename Object, typename Float = float>
                     return;
                 }
 				Array<Bucket>	buckets(16);
-                _root = _BuildNode(_allItems,buckets);
+                _root = _BuildNode(_allItems.pointer(),_allItems.count(),buckets);
                 //if (verbose)
                   //  printNode(_root,0);
             }
         }
 
-
+		bool	IsEmpty() const	{return _allItems.isEmpty();}
+		bool	IsNotEmpty() const {return _allItems.isNotEmpty();}
 
         void Lookup(const Box<Float>&space, BasicBuffer<Object*>&found)	const
         {
@@ -413,7 +464,29 @@ template <typename Object, typename Float = float>
                 _root = NULL;
             }
         }
+
+
+		iterator	GetRoot()	const
+		{
+			return reinterpret_cast<Accessor*>(_root);
+		}
 	};
+
+
+
+template <typename Object, typename Float, typename Attachment>
+	void			BVH<Object,Float,Attachment>::Accessor::GetObjects(Object**rs)	const
+	{
+		const Node*n = _GetNode();
+		if (!n->isLeaf)
+			return;
+		const LeafNode*l = (LeafNode*)n;
+		foreach (l->elements,e)
+		{
+			(*rs++) = e->element;
+		}
+	}
+
 
 
 #endif

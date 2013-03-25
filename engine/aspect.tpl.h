@@ -47,17 +47,17 @@ template <class C> MFUNC2 (typename Frustum<C>::Visibility) Frustum<C>::checkSph
 	{
 		const TVec3<C>* base[6] =
 			{
-				near_bottom_left,
-				far_bottom_left,
-				near_bottom_left,
-				near_bottom_right,
-				near_top_right,
-				near_top_left
+				&near_bottom_left,
+				&far_bottom_left,
+				&near_bottom_left,
+				&near_bottom_right,
+				&near_top_right,
+				&near_top_left
 			};
 		bool fully_visible = true;
 		for (BYTE k = 0; k < 6; k++)
 		{
-			C0 dist = Vec::planePointDistance(base[k],normal[k],center);
+			C0 dist = Vec::planePointDistance(* (base[k]),normal[k],center);
 			if (dist > -radius)
 				fully_visible = false;
 			if (dist > radius)

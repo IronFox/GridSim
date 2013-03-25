@@ -6,11 +6,6 @@
 
 Global list interface specifications and classes.
 
-This file is part of Delta-Works
-Copyright (C) 2006-2008 Stefan Elsen, University of Trier, Germany.
-http://www.delta-works.org/forge/
-http://informatik.uni-trier.de/
-
 ******************************************************************/
 
 template <class Iterator, class Type, class Class> static void mergeLists(const Iterator&lower, const Iterator&center, const Iterator&upper, Type*buffer, Class&sort)

@@ -208,6 +208,29 @@ namespace Math
 		struct TVec<T,4>:public TVec4<T>
 		{};
 
+	template <typename T>
+		inline T	GetExtendOf(const T&min, const T&max)
+		{
+			return max - min + 1;	//min == max in ints still means it has an extend of 1
+		}
+
+	template <>
+		inline float	GetExtendOf(const float&min, const float&max)
+		{
+			return max - min;	//float min == max means no extend
+		}
+	template <>
+		inline double	GetExtendOf(const double&min, const double&max)
+		{
+			return max - min;
+		}
+	template <>
+		inline long double	GetExtendOf(const long double&min, const long double&max)
+		{
+			return max - min;
+		}
+
+
 
 	template <typename T=float>
 		class TRange
@@ -280,7 +303,7 @@ namespace Math
 									}
 			MF_DECLARE(T)			extend()	const	//! Retrieves the difference between max and min
 									{
-										return max - min;
+										return GetExtendOf(min,max);
 									}
 			template<typename T0>
 				MF_DECLARE(bool)	contains(const T0&value)	const //! Checks if the specified value lies within the local range
@@ -1196,6 +1219,11 @@ namespace Math
 			MF_DECLARE(T)			volume()	const
 									{
 										return width() * height() * depth();
+									}
+			template <typename T0>
+				MF_DECLARE(void)	getVolume(T0&result)	const
+									{
+										result = (T0)width() * (T0)height() * (T0)depth();
 									}
 
 									

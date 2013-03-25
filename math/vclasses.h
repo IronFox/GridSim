@@ -513,6 +513,67 @@ namespace Math
 		}
 
 
+
+
+
+
+	template <typename T>
+		inline TVec2<T>&	operator-=(TVec2<T>&a, const T&b)
+		{
+			a.x -= b;
+			a.y -= b;
+			return a;
+		}
+
+	template <typename T>
+		inline TVec3<T>&	operator-=(TVec3<T>&a, const T&b)
+		{
+			a.x -= b;
+			a.y -= b;
+			a.z -= b;
+			return a;
+		}
+
+	template <typename T>
+		inline TVec4<T>&	operator-=(TVec4<T>&a, const T&b)
+		{
+			a.x -= b;
+			a.y -= b;
+			a.z -= b;
+			a.w -= b;
+			return a;
+		}
+
+	template <typename T>
+		inline TVec2<T>&	operator+=(TVec2<T>&a, const T&b)
+		{
+			a.x += b;
+			a.y += b;
+			return a;
+		}
+
+	template <typename T>
+		inline TVec3<T>&	operator+=(TVec3<T>&a, const T&b)
+		{
+			a.x += b;
+			a.y += b;
+			a.z += b;
+			return a;
+		}
+
+	template <typename T>
+		inline TVec4<T>&	operator+=(TVec4<T>&a, const T&b)
+		{
+			a.x += b;
+			a.y += b;
+			a.z += b;
+			a.w += b;
+			return a;
+		}
+
+
+
+
 	template <typename T>
 		inline TVec2<T>&	operator*=(TVec2<T>&a, const T&b)
 		{

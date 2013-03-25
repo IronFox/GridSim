@@ -95,7 +95,7 @@ namespace Math
 		Queue<PNode>	queue;
 		foreach (nodes,n)
 		{
-			(*n)->inDegree = (*n)->in.count();
+			(*n)->inDegree = (int)(*n)->in.count();
 			if (!(*n)->inDegree)
 				queue.push(*n);
 		}
