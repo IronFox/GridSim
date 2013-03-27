@@ -22,7 +22,7 @@ namespace CLI
 	}
 
 
-	Command::Command():callback([](Command*command, const StringList&arguments, const Tokenizer::Config&config) {})
+	Command::Command():callback([](const PCommand&command, const StringList&arguments, const Tokenizer::Config&config) {})
 	{
 		construct("", "", NoCompletion);
 	}
@@ -33,44 +33,44 @@ namespace CLI
 		construct(name,description,completion);
 	}
 	Command::Command(const String&name, const String&description, const function0_t&f, eCommandCompletion completion):
-					callback([f](Command*command, const StringList&arguments, const Tokenizer::Config&config){f();})
+					callback([f](const PCommand&command, const StringList&arguments, const Tokenizer::Config&config){f();})
 	{
 		construct(name,description,completion);
 
 	}
 	Command::Command(const String&name, const String&description, const function1_t&f, eCommandCompletion completion):
-					callback([f](Command*command, const StringList&arguments, const Tokenizer::Config&config){f(Tokenizer::dequote(arguments[1],config));})
+					callback([f](const PCommand&command, const StringList&arguments, const Tokenizer::Config&config){f(Tokenizer::dequote(arguments[1],config));})
 
 	{
 		construct(name,description,completion);
 	}
 	Command::Command(const String&name, const String&description, const function2_t&f, eCommandCompletion completion):
-					callback([f](Command*command, const StringList&arguments, const Tokenizer::Config&config){f(Tokenizer::dequote(arguments[1],config),Tokenizer::dequote(arguments[2],config));})
+					callback([f](const PCommand&command, const StringList&arguments, const Tokenizer::Config&config){f(Tokenizer::dequote(arguments[1],config),Tokenizer::dequote(arguments[2],config));})
 
 	{
 		construct(name,description,completion);
 	}
 	Command::Command(const String&name, const String&description, const function3_t&f, eCommandCompletion completion):
-					callback([f](Command*command, const StringList&arguments, const Tokenizer::Config&config){f(Tokenizer::dequote(arguments[1],config),Tokenizer::dequote(arguments[2],config),Tokenizer::dequote(arguments[3],config));})
+					callback([f](const PCommand&command, const StringList&arguments, const Tokenizer::Config&config){f(Tokenizer::dequote(arguments[1],config),Tokenizer::dequote(arguments[2],config),Tokenizer::dequote(arguments[3],config));})
 
 	{
 		construct(name,description,completion);
 	}
 	Command::Command(const String&name, const String&description, const function4_t&f, eCommandCompletion completion):
-					callback([f](Command*command, const StringList&arguments, const Tokenizer::Config&config){f(Tokenizer::dequote(arguments[1],config),Tokenizer::dequote(arguments[2],config),Tokenizer::dequote(arguments[3],config),Tokenizer::dequote(arguments[4],config));})
+					callback([f](const PCommand&command, const StringList&arguments, const Tokenizer::Config&config){f(Tokenizer::dequote(arguments[1],config),Tokenizer::dequote(arguments[2],config),Tokenizer::dequote(arguments[3],config),Tokenizer::dequote(arguments[4],config));})
 
 	{
 		construct(name,description,completion);
 	}
 
 	Command::Command(const String&name, const String&description, const function5_t&f, eCommandCompletion completion):
-					callback([f](Command*command, const StringList&arguments, const Tokenizer::Config&config){f(Tokenizer::dequote(arguments[1],config),Tokenizer::dequote(arguments[2],config),Tokenizer::dequote(arguments[3],config),Tokenizer::dequote(arguments[4],config),Tokenizer::dequote(arguments[5],config));})
+					callback([f](const PCommand&command, const StringList&arguments, const Tokenizer::Config&config){f(Tokenizer::dequote(arguments[1],config),Tokenizer::dequote(arguments[2],config),Tokenizer::dequote(arguments[3],config),Tokenizer::dequote(arguments[4],config),Tokenizer::dequote(arguments[5],config));})
 
 	{
 		construct(name,description,completion);
 	}
 	Command::Command(const String&name, const String&description, const function6_t&f, eCommandCompletion completion):
-					callback([f](Command*command, const StringList&arguments, const Tokenizer::Config&config){f(Tokenizer::dequote(arguments[1],config),Tokenizer::dequote(arguments[2],config),Tokenizer::dequote(arguments[3],config),Tokenizer::dequote(arguments[4],config),Tokenizer::dequote(arguments[5],config),Tokenizer::dequote(arguments[6],config));})
+					callback([f](const PCommand&command, const StringList&arguments, const Tokenizer::Config&config){f(Tokenizer::dequote(arguments[1],config),Tokenizer::dequote(arguments[2],config),Tokenizer::dequote(arguments[3],config),Tokenizer::dequote(arguments[4],config),Tokenizer::dequote(arguments[5],config),Tokenizer::dequote(arguments[6],config));})
 
 	{
 		construct(name,description,completion);
@@ -83,44 +83,44 @@ namespace CLI
 		construct(name,description,completion);
 	}
 	Command::Command(const String&name, const String&description, const func0_t&f, eCommandCompletion completion):
-					callback([f](Command*command, const StringList&arguments, const Tokenizer::Config&config){f();})
+					callback([f](const PCommand&command, const StringList&arguments, const Tokenizer::Config&config){f();})
 	{
 		construct(name,description,completion);
 
 	}
 	Command::Command(const String&name, const String&description, const func1_t&f, eCommandCompletion completion):
-					callback([f](Command*command, const StringList&arguments, const Tokenizer::Config&config){f(Tokenizer::dequote(arguments[1],config));})
+					callback([f](const PCommand&command, const StringList&arguments, const Tokenizer::Config&config){f(Tokenizer::dequote(arguments[1],config));})
 
 	{
 		construct(name,description,completion);
 	}
 	Command::Command(const String&name, const String&description, const func2_t&f, eCommandCompletion completion):
-					callback([f](Command*command, const StringList&arguments, const Tokenizer::Config&config){f(Tokenizer::dequote(arguments[1],config),Tokenizer::dequote(arguments[2],config));})
+					callback([f](const PCommand&command, const StringList&arguments, const Tokenizer::Config&config){f(Tokenizer::dequote(arguments[1],config),Tokenizer::dequote(arguments[2],config));})
 
 	{
 		construct(name,description,completion);
 	}
 	Command::Command(const String&name, const String&description, const func3_t&f, eCommandCompletion completion):
-					callback([f](Command*command, const StringList&arguments, const Tokenizer::Config&config){f(Tokenizer::dequote(arguments[1],config),Tokenizer::dequote(arguments[2],config),Tokenizer::dequote(arguments[3],config));})
+					callback([f](const PCommand&command, const StringList&arguments, const Tokenizer::Config&config){f(Tokenizer::dequote(arguments[1],config),Tokenizer::dequote(arguments[2],config),Tokenizer::dequote(arguments[3],config));})
 
 	{
 		construct(name,description,completion);
 	}
 	Command::Command(const String&name, const String&description, const func4_t&f, eCommandCompletion completion):
-					callback([f](Command*command, const StringList&arguments, const Tokenizer::Config&config){f(Tokenizer::dequote(arguments[1],config),Tokenizer::dequote(arguments[2],config),Tokenizer::dequote(arguments[3],config),Tokenizer::dequote(arguments[4],config));})
+					callback([f](const PCommand&command, const StringList&arguments, const Tokenizer::Config&config){f(Tokenizer::dequote(arguments[1],config),Tokenizer::dequote(arguments[2],config),Tokenizer::dequote(arguments[3],config),Tokenizer::dequote(arguments[4],config));})
 
 	{
 		construct(name,description,completion);
 	}
 
 	Command::Command(const String&name, const String&description, const func5_t&f, eCommandCompletion completion):
-					callback([f](Command*command, const StringList&arguments, const Tokenizer::Config&config){f(Tokenizer::dequote(arguments[1],config),Tokenizer::dequote(arguments[2],config),Tokenizer::dequote(arguments[3],config),Tokenizer::dequote(arguments[4],config),Tokenizer::dequote(arguments[5],config));})
+					callback([f](const PCommand&command, const StringList&arguments, const Tokenizer::Config&config){f(Tokenizer::dequote(arguments[1],config),Tokenizer::dequote(arguments[2],config),Tokenizer::dequote(arguments[3],config),Tokenizer::dequote(arguments[4],config),Tokenizer::dequote(arguments[5],config));})
 
 	{
 		construct(name,description,completion);
 	}
 	Command::Command(const String&name, const String&description, const func6_t&f, eCommandCompletion completion):
-					callback([f](Command*command, const StringList&arguments, const Tokenizer::Config&config){f(Tokenizer::dequote(arguments[1],config),Tokenizer::dequote(arguments[2],config),Tokenizer::dequote(arguments[3],config),Tokenizer::dequote(arguments[4],config),Tokenizer::dequote(arguments[5],config),Tokenizer::dequote(arguments[6],config));})
+					callback([f](const PCommand&command, const StringList&arguments, const Tokenizer::Config&config){f(Tokenizer::dequote(arguments[1],config),Tokenizer::dequote(arguments[2],config),Tokenizer::dequote(arguments[3],config),Tokenizer::dequote(arguments[4],config),Tokenizer::dequote(arguments[5],config),Tokenizer::dequote(arguments[6],config));})
 
 	{
 		construct(name,description,completion);
@@ -134,9 +134,9 @@ namespace CLI
 		this->completion = completion;
 	}
 
-	void		Command::invoke(const StringList&arguments, const Tokenizer::Config&config)
+	void		Command::Invoke(const StringList&arguments, const Tokenizer::Config&config)
 	{
-		callback(this,arguments,config);
+		callback(shared_from_this(),arguments,config);
 	}
 
 
@@ -149,99 +149,100 @@ namespace CLI
 
 	
 
-	Interpretor::Interpretor():Folder(NULL,""),exec_on_variable_call(NULL),focused(this),executing(NULL),executing_folder(NULL)
+	Interpretor::Interpretor():root(new Folder(PFolder(),""))
 	{
-		lookup.path_config.main_separator="/";
-		lookup.segment_config.quotations = "\"'";
-		lookup.segment_config.main_separator = " ";
-		lookup.segment_config.quotation_escape_character = '\\';
-		lookup.segment_config.recursion_break = false;
-		lookup.line_config.quotations = "\"'";
-		lookup.line_config.main_separator = "\n";
-		lookup.line_config.quotation_escape_character = '\\';
-		lookup.line_config.recursion_break = false;
+		focused = root;
+		lookup.pathConfig.main_separator="/";
+		lookup.segmentConfig.quotations = "\"'";
+		lookup.segmentConfig.main_separator = " ";
+		lookup.segmentConfig.quotation_escape_character = '\\';
+		lookup.segmentConfig.recursion_break = false;
+		lookup.lineConfig.quotations = "\"'";
+		lookup.lineConfig.main_separator = "\n";
+		lookup.lineConfig.quotation_escape_character = '\\';
+		lookup.lineConfig.recursion_break = false;
 		
 	}
 	
 	
-	Command*	Interpretor::defineCommand(const String& def, Command*cmd)
+	PCommand	Interpretor::DefineCommand(const String& def, const PCommand&cmd)
 	{
 		if (!cmd)
-			return NULL;
-		Tokenizer::tokenize(def,lookup.path_config,lookup.path_segments);
-		if (!lookup.path_segments)
-			return NULL;
-		Folder*parent = resolve(def.beginsWith('/'));
+			return PCommand();
+		Tokenizer::tokenize(def,lookup.pathConfig,lookup.pathSegments);
+		if (!lookup.pathSegments)
+			return PCommand();
+		PFolder parent = _Resolve(def.beginsWith('/'));
 		if (!parent)
-			return NULL;
+			return PCommand();
 		
-		StringList	items(lookup.path_segments.last());
+		StringList	items(lookup.pathSegments.last());
 		if (!items)
-			return NULL;
+			return PCommand();
 		detail::makeValidName(items.first());
-		Command*result = parent->commands.lookup(items.first());
+		PCommand result = parent->commands.Query(items.first());
 		if (result)
-			return NULL;
+			return PCommand();
 		cmd->description = items.first();
 		if (items > 1)
 			cmd->description += " <"+items.fuse(1,"> <")+">";
 		
 		cmd->name = items.first();
-		parent->commands.insert(cmd);
+		parent->commands.Set(cmd->name, cmd);
 		return cmd;
 	}
 	
-	Command*	Interpretor::defineGlobalCommand(const String& def, Command*cmd)
+	PCommand	Interpretor::DefineGlobalCommand(const String& def, const PCommand&cmd)
 	{
 		if (!cmd)
-			return NULL;
+			return PCommand();
 		StringList	items(def);
 		if (!items)
-			return NULL;
+			return PCommand();
 		detail::makeValidName(items.first());
-		Command*result = global_commands.lookup(items.first());
+		PCommand result = globalCommands.Query(items.first());
 		if (result)
-			return NULL;
+			return PCommand();
 		cmd->description = items.first();
 		if (items > 1)
 			cmd->description += " <"+items.fuse(1,"> <")+">";
 		
 		cmd->name = items.first();
 		
-		global_commands.insert(cmd);
+		globalCommands.Set(cmd->name, cmd);
 		return cmd;
 	}
 	
 
-	bool	Interpretor::entryLookup(const String&name, bool may_exist)
+	bool	Interpretor::_EntryLookup(const String&name, bool may_exist)
 	{
-		lookup.folder = NULL;
-		lookup.variable = NULL;
-		lookup.command = NULL;
-		Tokenizer::tokenize(name,lookup.path_config,lookup.path_segments);
-		if (!lookup.path_segments)
+		lookup.folder.reset();
+		lookup.variable.reset();
+		lookup.command.reset();
+		Tokenizer::tokenize(name,lookup.pathConfig,lookup.pathSegments);
+		if (!lookup.pathSegments)
 		{
 			error = "Path empty";
 			return false;
 		}
-		detail::makeValidName(lookup.path_segments.last());
-		lookup.folder = resolve(name.beginsWith('/'));
+		detail::makeValidName(lookup.pathSegments.last());
+		lookup.folder = _Resolve(name.beginsWith('/'));
 		if (!lookup.folder)
 		{
-			error = "Unable to resolve parent folder";
+			error = "Unable to _Resolve parent folder";
 			return false;
 		}
-		lookup.variable = lookup.folder->variables.lookup(lookup.path_segments.last());
-		lookup.command = lookup.folder->commands.lookup(lookup.path_segments.last());
+		lookup.variable = lookup.folder->variables.Query(lookup.pathSegments.last());
+		lookup.command = lookup.folder->commands.Query(lookup.pathSegments.last());
 		if (!may_exist)
 			if (lookup.variable)
 			{
-				error = "Variable '"+lookup.path_segments.last()+"' already defined";
+				error = "Variable '"+lookup.pathSegments.last()+"' already defined";
 				return false;
 			}
 			elif (lookup.command)
 			{
-				error = "Command '"+lookup.path_segments.last()+"' already defined";
+				error = "Command '"+lookup.pathSegments.last()+"' already defined";
 				return false;
 			
 			}
@@ -249,186 +250,187 @@ namespace CLI
 			
 	}
 
-	Interpretor::Variable*	Interpretor::setString(const String& name,	unsigned protection)
+	PVariable	Interpretor::SetString(const String& name,	unsigned protection)
 	{
-		if (!entryLookup(name,false))
-			return NULL;
+		if (!_EntryLookup(name,false))
+			return PVariable();
 		ASSERT_IS_NULL__(lookup.variable);
 		ASSERT_IS_NULL__(lookup.command);
-		return lookup.folder->variables.insert(SHIELDED(new StringVariable(lookup.path_segments.last(),"",protection)));
+		return lookup.folder->variables.InsertNew(lookup.pathSegments.last(), new StringVariable(lookup.pathSegments.last(),"",protection));
 		
 	}
 
-	Interpretor::Variable*	Interpretor::setString(const String& name, const String& value, unsigned protection, bool allow_overwrite)
+	PVariable	Interpretor::SetString(const String& name, const String& value, unsigned protection, bool allow_overwrite)
 	{
-		if (!entryLookup(name,allow_overwrite))
-			return NULL;
+		if (!_EntryLookup(name,allow_overwrite))
+			return PVariable();
 
 		if (lookup.command)
 		{
-			error = "A command of that name ('"+lookup.path_segments.last()+"') already exists";
-			return NULL;
+			error = "A command of that name ('"+lookup.pathSegments.last()+"') already exists";
+			return PVariable();
 		}
 		
 		if (!lookup.variable)
 		{
-			return lookup.folder->variables.insert(SHIELDED(new StringVariable(lookup.path_segments.last(),value,protection)));
+			return lookup.folder->variables.InsertNew(lookup.pathSegments.last(),new StringVariable(lookup.pathSegments.last(),value,protection));
 		}
 		else
 		{
-			return lookup.variable->set(value)?lookup.variable:NULL;
+			return lookup.variable->Set(value)?lookup.variable:PVariable();
 		}
 	}
 
 
-	Interpretor::Variable*	Interpretor::setFloat(const String& name,	unsigned protection)
+	PVariable	Interpretor::SetFloat(const String& name,	unsigned protection)
 	{
-		if (!entryLookup(name,false))
-			return NULL;
-		ASSERT_IS_NULL__(lookup.variable);
-		ASSERT_IS_NULL__(lookup.command);
+		if (!_EntryLookup(name,false))
+			return PVariable();
+		ASSERT__(lookup.variable);
+		ASSERT__(lookup.command);
 		
-		return lookup.folder->variables.insert(SHIELDED(new FloatVariable(lookup.path_segments.last(),0,protection)));
+		return lookup.folder->variables.InsertNew(lookup.pathSegments.last(),new FloatVariable(lookup.pathSegments.last(),0,protection));
 	}
 
-	Interpretor::Variable*	Interpretor::setFloat(const String& name, float value, unsigned protection)
+	PVariable	Interpretor::SetFloat(const String& name, float value, unsigned protection)
 	{
-		if (!entryLookup(name,false))
-			return NULL;
+		if (!_EntryLookup(name,false))
+			return PVariable();
 		ASSERT_IS_NULL__(lookup.variable);
 		ASSERT_IS_NULL__(lookup.command);
-		return lookup.folder->variables.insert(SHIELDED(new FloatVariable(lookup.path_segments.last(),value,protection)));
-	}
-
-	
-	Interpretor::Variable*	Interpretor::setInt(const String& name,	unsigned protection)
-	{
-	
-		if (!entryLookup(name,false))
-			return NULL;
-		ASSERT_IS_NULL__(lookup.variable);
-		ASSERT_IS_NULL__(lookup.command);
-		return lookup.folder->variables.insert(SHIELDED(new IntVariable(lookup.path_segments.last(),0,protection)));
-	}
-
-	Interpretor::Variable*	Interpretor::setInt(const String& name, int value, unsigned protection)
-	{
-		if (!entryLookup(name,false))
-			return NULL;
-		ASSERT_IS_NULL__(lookup.variable);
-		ASSERT_IS_NULL__(lookup.command);
-		return lookup.folder->variables.insert(SHIELDED(new IntVariable(lookup.path_segments.last(),value,protection)));
-	}
-
-	Interpretor::Variable*	Interpretor::setBool(const String& name,	unsigned protection)
-	{
-		if (!entryLookup(name,false))
-			return NULL;
-		ASSERT_IS_NULL__(lookup.variable);
-		ASSERT_IS_NULL__(lookup.command);
-		return lookup.folder->variables.insert(SHIELDED(new BoolVariable(lookup.path_segments.last(),false,protection)));
-	}
-
-	Interpretor::Variable*	Interpretor::setBool(const String& name, bool value, unsigned protection)
-	{
-		if (!entryLookup(name,false))
-			return NULL;
-		ASSERT_IS_NULL__(lookup.variable);
-		ASSERT_IS_NULL__(lookup.command);
-		return lookup.folder->variables.insert(SHIELDED(new BoolVariable(lookup.path_segments.last(),value,protection)));
+		return lookup.folder->variables.InsertNew(lookup.pathSegments.last(),new FloatVariable(lookup.pathSegments.last(),value,protection));
 	}
 
 	
-	
-	Interpretor::Variable*	Interpretor::setVector3f(const String& name, unsigned protection)
+	PVariable	Interpretor::SetInt(const String& name,	unsigned protection)
 	{
-		if (!entryLookup(name,false))
-			return NULL;
+	
+		if (!_EntryLookup(name,false))
+			return PVariable();
 		ASSERT_IS_NULL__(lookup.variable);
 		ASSERT_IS_NULL__(lookup.command);
-		return lookup.folder->variables.insert(SHIELDED(new VectorVariable<3>(lookup.path_segments.last(),NULL,protection)));
+		return lookup.folder->variables.InsertNew(lookup.pathSegments.last(),new IntVariable(lookup.pathSegments.last(),0,protection));
+	}
+
+	PVariable	Interpretor::SetInt(const String& name, int value, unsigned protection)
+	{
+		if (!_EntryLookup(name,false))
+			return PVariable();
+		ASSERT_IS_NULL__(lookup.variable);
+		ASSERT_IS_NULL__(lookup.command);
+		return lookup.folder->variables.InsertNew(lookup.pathSegments.last(),new IntVariable(lookup.pathSegments.last(),value,protection));
+	}
+
+	PVariable	Interpretor::SetBool(const String& name,	unsigned protection)
+	{
+		if (!_EntryLookup(name,false))
+			return PVariable();
+		ASSERT_IS_NULL__(lookup.variable);
+		ASSERT_IS_NULL__(lookup.command);
+		return lookup.folder->variables.InsertNew(lookup.pathSegments.last(),new BoolVariable(lookup.pathSegments.last(),false,protection));
+	}
+
+	PVariable	Interpretor::SetBool(const String& name, bool value, unsigned protection)
+	{
+		if (!_EntryLookup(name,false))
+			return PVariable();
+		ASSERT_IS_NULL__(lookup.variable);
+		ASSERT_IS_NULL__(lookup.command);
+		return lookup.folder->variables.InsertNew(lookup.pathSegments.last(),new BoolVariable(lookup.pathSegments.last(),value,protection));
+	}
+
+	
+	
+	PVariable	Interpretor::SetVector3f(const String& name, unsigned protection)
+	{
+		if (!_EntryLookup(name,false))
+			return PVariable();
+		ASSERT_IS_NULL__(lookup.variable);
+		ASSERT_IS_NULL__(lookup.command);
+		return lookup.folder->variables.InsertNew(lookup.pathSegments.last(),new VectorVariable<3>(lookup.pathSegments.last(),NULL,protection));
 	}
 	
-	Interpretor::Variable*	Interpretor::setVector4f(const String& name, unsigned protection)
+	PVariable	Interpretor::SetVector4f(const String& name, unsigned protection)
 	{
-		if (!entryLookup(name,false))
-			return NULL;
+		if (!_EntryLookup(name,false))
+			return PVariable();
 		ASSERT_IS_NULL__(lookup.variable);
 		ASSERT_IS_NULL__(lookup.command);
-		return lookup.folder->variables.insert(SHIELDED(new VectorVariable<4>(lookup.path_segments.last(),NULL,protection)));
+		return lookup.folder->variables.InsertNew(lookup.pathSegments.last(),new VectorVariable<4>(lookup.pathSegments.last(),NULL,protection));
 	}
 	
-	Interpretor::Variable*	Interpretor::setVector3d(const String& name, unsigned protection)
+	PVariable	Interpretor::SetVector3d(const String& name, unsigned protection)
 	{
-		if (!entryLookup(name,false))
-			return NULL;
+		if (!_EntryLookup(name,false))
+			return PVariable();
 		ASSERT_IS_NULL__(lookup.variable);
 		ASSERT_IS_NULL__(lookup.command);
-		return lookup.folder->variables.insert(SHIELDED(new DoubleVectorVariable<3>(lookup.path_segments.last(),NULL,protection)));
+		return lookup.folder->variables.InsertNew(lookup.pathSegments.last(),new DoubleVectorVariable<3>(lookup.pathSegments.last(),NULL,protection));
 	}
 	
-	Interpretor::Variable*	Interpretor::setVector4d(const String& name, unsigned protection)
+	PVariable	Interpretor::SetVector4d(const String& name, unsigned protection)
 	{
-		if (!entryLookup(name,false))
-			return NULL;
+		if (!_EntryLookup(name,false))
+			return PVariable();
 		ASSERT_IS_NULL__(lookup.variable);
 		ASSERT_IS_NULL__(lookup.command);
-		return lookup.folder->variables.insert(SHIELDED(new DoubleVectorVariable<4>(lookup.path_segments.last(),NULL,protection)));
+		return lookup.folder->variables.InsertNew(lookup.pathSegments.last(),new DoubleVectorVariable<4>(lookup.pathSegments.last(),NULL,protection));
 	}
 	
 	
-	Interpretor::Variable*	Interpretor::setVector3f(const String& name, float value[3], unsigned protection)
+	PVariable	Interpretor::SetVector3f(const String& name, float value[3], unsigned protection)
 	{
-		if (!entryLookup(name,false))
-			return NULL;
+		if (!_EntryLookup(name,false))
+			return PVariable();
 		ASSERT_IS_NULL__(lookup.variable);
 		ASSERT_IS_NULL__(lookup.command);
-		return lookup.folder->variables.insert(SHIELDED(new VectorVariable<3>(lookup.path_segments.last(),value,protection)));
+		return lookup.folder->variables.InsertNew(lookup.pathSegments.last(),new VectorVariable<3>(lookup.pathSegments.last(),value,protection));
 	}
 	
-	Interpretor::Variable*	Interpretor::setVector4f(const String& name, float value[4], unsigned protection)
+	PVariable	Interpretor::SetVector4f(const String& name, float value[4], unsigned protection)
 	{
-		if (!entryLookup(name,false))
-			return NULL;
+		if (!_EntryLookup(name,false))
+			return PVariable();
 		ASSERT_IS_NULL__(lookup.variable);
 		ASSERT_IS_NULL__(lookup.command);
-		return lookup.folder->variables.insert(SHIELDED(new VectorVariable<4>(lookup.path_segments.last(),value,protection)));
+		return lookup.folder->variables.InsertNew(lookup.pathSegments.last(),new VectorVariable<4>(lookup.pathSegments.last(),value,protection));
 	}
 	
-	Interpretor::Variable*	Interpretor::setVector3d(const String& name, double value[3], unsigned protection)
+	PVariable	Interpretor::SetVector3d(const String& name, double value[3], unsigned protection)
 	{
-		if (!entryLookup(name,false))
-			return NULL;
+		if (!_EntryLookup(name,false))
+			return PVariable();
 		ASSERT_IS_NULL__(lookup.variable);
 		ASSERT_IS_NULL__(lookup.command);
-		return lookup.folder->variables.insert(SHIELDED(new DoubleVectorVariable<3>(lookup.path_segments.last(),value,protection)));
+		return lookup.folder->variables.InsertNew(lookup.pathSegments.last(),new DoubleVectorVariable<3>(lookup.pathSegments.last(),value,protection));
 	}
 	
-	Interpretor::Variable*	Interpretor::setVector4d(const String& name, double value[3], unsigned protection)
+	PVariable	Interpretor::SetVector4d(const String& name, double value[3], unsigned protection)
 	{
-		if (!entryLookup(name,false))
-			return NULL;
+		if (!_EntryLookup(name,false))
+			return PVariable();
 		ASSERT_IS_NULL__(lookup.variable);
 		ASSERT_IS_NULL__(lookup.command);
-		return lookup.folder->variables.insert(SHIELDED(new DoubleVectorVariable<4>(lookup.path_segments.last(),value,protection)));
+		return lookup.folder->variables.InsertNew(lookup.pathSegments.last(),new DoubleVectorVariable<4>(lookup.pathSegments.last(),value,protection));
 	}
 	
 
-	Interpretor::Variable*	Interpretor::setVariable(Variable*v)
+	PVariable	Interpretor::SetVariable(const PVariable&v)
 	{
-		return focused->setVariable(v);
+		return focused->SetVariable(v);
 	}
 
 
-	Interpretor::Variable*	Folder::setVariable(Variable*v)
+	PVariable	Folder::SetVariable(const PVariable&v)
 	{
 		for (index_t i = 0; i < v->name.length(); i++)
 			if (!isAllowedCharacter(v->name.get(i)))
 				throw Program::ParameterFault("Character 0x"+IntToHex((int)v->name.get(i),2)+" ('"+v->name.get(i)+"') of variable '"+v->name+"' not allowed");
 
-		if (variables.lookup(v->name))
-			throw Program::UniquenessViolation("Variable '"+v->name+"' already defined in context '"+path()+"'");
-		return variables.insert(v);
+		if (variables.IsSet(v->name))
+			throw Program::UniquenessViolation("Variable '"+v->name+"' already defined in context '"+GetPath()+"'");
+		variables.Insert(v->name, v);
+		return v;
 	}
 	
 	
@@ -439,15 +441,15 @@ namespace CLI
 	
 	
 	
-	Interpretor::Variable*	Interpretor::set(const String& name, const String& value)
+	PVariable	Interpretor::Set(const String& name, const String& value)
 	{
-		if (!entryLookup(name,true))
-			return NULL;
+		if (!_EntryLookup(name,true))
+			return PVariable();
 			
-		if (lookup.command || global_commands.lookup(lookup.path_segments.last()))
+		if (lookup.command || globalCommands.IsSet(lookup.pathSegments.last()))
 		{
-			error = "The requested variable name ('"+lookup.path_segments.last()+"') is already assigned to a command";
-			return NULL;
+			error = "The requested variable name ('"+lookup.pathSegments.last()+"') is already assigned to a command";
+			return PVariable();
 		}
 		
 		if (lookup.variable)
@@ -455,12 +457,12 @@ namespace CLI
 			if (lookup.variable->protection&WriteProtection)
 			{
 				error = "Variable '"+name+"' is write-protected";
-				return	NULL;
+				return	PVariable();
 			}
-			if (!lookup.variable->set(value))
+			if (!lookup.variable->Set(value))
 			{
 				error = "Assigment failed";
-				return NULL;
+				return PVariable();
 			}
 			return lookup.variable;
 		}
@@ -470,20 +472,20 @@ namespace CLI
 		
 		
 		if (convertToInt(value.c_str(),ival))
-			return lookup.folder->variables.insert(SHIELDED(new IntVariable(lookup.path_segments.last(),ival)));
+			return lookup.folder->variables.InsertNew(lookup.pathSegments.last(),(new IntVariable(lookup.pathSegments.last(),ival)));
 		
 		if (convertToFloat(value.c_str(),vval))
-			return lookup.folder->variables.insert(SHIELDED(new FloatVariable(lookup.path_segments.last(),vval)));
+			return lookup.folder->variables.InsertNew(lookup.pathSegments.last(),(new FloatVariable(lookup.pathSegments.last(),vval)));
 		
-		VectorVariable<3>	f3(lookup.path_segments.last());
-		VectorVariable<4>	f4(lookup.path_segments.last());
+		VectorVariable<3>	f3(lookup.pathSegments.last());
+		VectorVariable<4>	f4(lookup.pathSegments.last());
 		
-		if (f3.set(value))
-			return lookup.folder->variables.insert(SHIELDED(new VectorVariable<3>(f3)));
-		if (f4.set(value))
-			return lookup.folder->variables.insert(SHIELDED(new VectorVariable<4>(f4)));
+		if (f3.Set(value))
+			return lookup.folder->variables.InsertNew(lookup.pathSegments.last(),(new VectorVariable<3>(f3)));
+		if (f4.Set(value))
+			return lookup.folder->variables.InsertNew(lookup.pathSegments.last(),(new VectorVariable<4>(f4)));
 			
-		return lookup.folder->variables.insert(SHIELDED(new StringVariable(lookup.path_segments.last(),value)));
+		return lookup.folder->variables.InsertNew(lookup.pathSegments.last(),(new StringVariable(lookup.pathSegments.last(),value)));
 	}
 
 	
@@ -491,46 +493,46 @@ namespace CLI
 	
 	
 
-	Folder*	Interpretor::resolve(bool from_root)
+	PFolder	Interpretor::_Resolve(bool from_root)
 	{
-		if (!lookup.path_segments)
+		if (!lookup.pathSegments)
 		{
 			error = "Missing argument";
-			return NULL;
+			return PFolder();
 		}
 		
-		Folder*current = from_root?this:focused;
+		PFolder current = from_root?root:focused;
 
-		for	(index_t i = 0; i < lookup.path_segments-1; i++)
+		for	(index_t i = 0; i < lookup.pathSegments-1; i++)
 		{
-			if	(lookup.path_segments[i] == '.')
+			if	(lookup.pathSegments[i] == '.')
 				continue;
-			if	(lookup.path_segments[i] == "..")
+			if	(lookup.pathSegments[i] == "..")
 			{
-				if	(!current->parent)
+				if	(!current->parent.lock())
 				{
 					error = "Can't exit folder. Folder is root";
-					return	NULL;
+					return	PFolder();
 				}
-				current = current->parent;
+				current = current->parent.lock();
 			}
-			elif (lookup.path_segments[i] == '~' || lookup.path_segments[i] == '-')
+			elif (lookup.pathSegments[i] == '~' || lookup.pathSegments[i] == '-')
 			{
-				if	(!current->parent)
+				if	(!current->parent.lock())
 				{
 					error = "Can't exit folder. Folder is root";
-					return	NULL;
+					return	PFolder();
 				}
-				while (current->parent->parent)
-					current = current->parent;
+				while (current->parent.lock()->parent.lock())
+					current = current->parent.lock();
 			}
 			else
 			{
-				Folder*folder = current->folders.lookup(lookup.path_segments[i]);
+				PFolder folder = current->folders.Query(lookup.pathSegments[i]);
 				if	(!folder)
 				{
-					error = "Folder does not exist: '"+lookup.path_segments[i]+"'";
-					return	NULL;
+					error = "Folder does not exist: '"+lookup.pathSegments[i]+"'";
+					return	PFolder();
 				}
 				current = folder;
 			}
@@ -538,46 +540,46 @@ namespace CLI
 		return	current;
 	}
 	
-	Folder*	Interpretor::resolveFull(bool from_root)
+	PFolder	Interpretor::_ResolveFull(bool from_root)
 	{
-		if (!lookup.path_segments)
+		if (!lookup.pathSegments)
 		{
 			error = "Missing argument";
-			return NULL;
+			return PFolder();
 		}
 		
-		Folder*current = from_root?this:focused;
+		PFolder current = from_root?root:focused;
 
-		for	(index_t i = 0; i < lookup.path_segments; i++)
+		for	(index_t i = 0; i < lookup.pathSegments; i++)
 		{
-			if	(lookup.path_segments[i] == '.')
+			if	(lookup.pathSegments[i] == '.')
 				continue;
-			if	(lookup.path_segments[i] == "..")
+			if	(lookup.pathSegments[i] == "..")
 			{
-				if	(!current->parent)
+				if	(!current->parent.lock())
 				{
 					error = "Can't exit folder. Folder is root";
-					return	NULL;
+					return	PFolder();
 				}
-				current = current->parent;
+				current = current->parent.lock();
 			}
-			elif (lookup.path_segments[i] == '~' || lookup.path_segments[i] == '-')
+			elif (lookup.pathSegments[i] == '~' || lookup.pathSegments[i] == '-')
 			{
-				if	(!current->parent)
+				if	(!current->parent.lock())
 				{
 					error = "Can't exit folder. Folder is root";
-					return	NULL;
+					return	PFolder();
 				}
-				while (current->parent->parent)
-					current = current->parent;
+				while (current->parent.lock()->parent.lock())
+					current = current->parent.lock();
 			}
 			else
 			{
-				Folder*folder = current->folders.lookup(lookup.path_segments[i]);
+				PFolder folder = current->folders.Query(lookup.pathSegments[i]);
 				if	(!folder)
 				{
-					error = "Folder does not exist: '"+lookup.path_segments[i]+"'";
-					return	NULL;
+					error = "Folder does not exist: '"+lookup.pathSegments[i]+"'";
+					return	PFolder();
 				}
 				current = folder;
 			}
@@ -585,13 +587,13 @@ namespace CLI
 		return	current;
 	}
 
-	bool	Interpretor::unset(const String&	name)
+	bool	Interpretor::Unset(const String&	name)
 	{
-		if (!entryLookup(name,true))
+		if (!_EntryLookup(name,true))
 			return false;
 		if (!lookup.variable)
 		{
-			error = "Variable not defined: '"+lookup.path_segments.last()+"'";
+			error = "Variable not defined: '"+lookup.pathSegments.last()+"'";
 			return false;
 		}
 	
@@ -603,37 +605,30 @@ namespace CLI
 			error = "Variable '"+name+"' is protected";
 			return false;
 		}
-		index_t index = lookup.folder->variables.getIndexOf(lookup.variable);
-		ASSERT__(index>0);
-		
-		lookup.folder->variables.erase(index-1);
+		lookup.folder->variables.Unset(lookup.variable->name);
 		return true;
 	}
 
 
-	void	Interpretor::unsetIgnoreProtection(const String&	name)
+	void	Interpretor::UnsetIgnoreProtection(const String&	name)
 	{
-		if (!entryLookup(name,true) || !lookup.variable)
+		if (!_EntryLookup(name,true) || !lookup.variable)
 			return;
 		
 		
-		index_t	index = lookup.folder->variables.getIndexOf(lookup.variable);
-		if	(!index)
-			return;
-		
-		lookup.folder->variables.erase(index-1);
+		lookup.folder->variables.Unset(lookup.variable->name);
 	}
 
-	bool	Interpretor::unset(Folder*folder, Variable*var, bool ignore_protection)
+	bool	Interpretor::Unset(const PFolder&folder, const PVariable&var, bool ignore_protection)
 	{
-		if (!var || !folder || !folder->variables(var))
+		if (!var || !folder || !folder->variables.IsSet(var->name))
 		{
 			error = "Parameters invalid";
 			return false;
 		}
 		if (ignore_protection || !(var->protection&EraseProtection))
 		{
-			folder->variables.erase(var);
+			folder->variables.Unset(var->name);
 			return true;
 		}
 		error = "'"+var->name+"' is protected";
@@ -642,229 +637,229 @@ namespace CLI
 
 
 
-	unsigned	Interpretor::getAsUnsigned(const String&	name,	unsigned	exception)
+	unsigned	Interpretor::GetAsUnsigned(const String&	name,	unsigned	exception)
 	{
-		Variable*v = findVar(name);
+		PVariable v = FindVar(name);
 		if (!v)
 			return exception;
 		if (v->type == "Integer")
-			return (unsigned)((IntVariable*)v)->content;
+			return (unsigned)((IntVariable*)v.get())->content;
 		if (v->type == "Float")
-			return (unsigned)((FloatVariable*)v)->content;
+			return (unsigned)((FloatVariable*)v.get())->content;
 
 		unsigned val;
-		if (!convert(v->toString().c_str(),val))
+		if (!convert(v->ToString().c_str(),val))
 			return exception;
 		return val;
 	}
 
-	int	Interpretor::getAsInt(const String&	name,	int	exception)
+	int	Interpretor::GetAsInt(const String&	name,	int	exception)
 	{
-		Variable*v = findVar(name);
+		PVariable v = FindVar(name);
 		if (!v)
 			return exception;
 		if (v->type == "Integer")
-			return (int)((IntVariable*)v)->content;
+			return (int)((IntVariable*)v.get())->content;
 		if (v->type == "Float")
-			return (int)((FloatVariable*)v)->content;
+			return (int)((FloatVariable*)v.get())->content;
 		int val;
-		if (!convert(v->toString().c_str(),val))
+		if (!convert(v->ToString().c_str(),val))
 			return exception;
 		return val;
 	}
 
-	float	Interpretor::getAsFloat(const String&	name,	float	exception)
+	float	Interpretor::GetAsFloat(const String&	name,	float	exception)
 	{
-		Variable*v = findVar(name);
+		PVariable v = FindVar(name);
 		if (!v)
 			return exception;
 		if (v->type == "Integer")
-			return ((IntVariable*)v)->content;
+			return ((IntVariable*)v.get())->content;
 		if (v->type == "Float")
-			return ((FloatVariable*)v)->content;
+			return ((FloatVariable*)v.get())->content;
 		float val;
-		if (!convert(v->toString().c_str(),val))
+		if (!convert(v->ToString().c_str(),val))
 			return exception;
 		return val;
 	}
 
-	Key::Name	Interpretor::getAsKey(const String&	name,	Key::Name	exception)
+	Key::Name	Interpretor::GetAsKey(const String&	name,	Key::Name	exception)
 	{
-		Variable*v = findVar(name);
+		PVariable v = FindVar(name);
 		if (!v)
 			return exception;
 		Key::Name val;
-		if (!convert(v->toString().c_str(),val))
+		if (!convert(v->ToString().c_str(),val))
 			return exception;
 		return val;
 	}
 
-	bool	Interpretor::getAsBool(const String&	name,	bool	exception)
+	bool	Interpretor::GetAsBool(const String&	name,	bool	exception)
 	{
-		Variable*v = findVar(name);
+		PVariable v = FindVar(name);
 		if (!v)
 			return exception;
 		if (v->type == "Integer")
-			return ((IntVariable*)v)->content!=0;
+			return ((IntVariable*)v.get())->content!=0;
 		if (v->type == "Float")
-			return ((FloatVariable*)v)->content!=0;
+			return ((FloatVariable*)v.get())->content!=0;
 		bool val;
-		if (!convert(v->toString().c_str(),val))
+		if (!convert(v->ToString().c_str(),val))
 			return exception;
 		return val;
 	}
 
 
-	const String& Interpretor::getAsString(const String& name, const String& exception)
+	const String& Interpretor::GetAsString(const String& name, const String& exception)
 	{
 		static String content;
-		Variable*v = findVar(name);
+		PVariable v = FindVar(name);
 		if (!v)
 			return exception;
-		content = v->toString();
+		content = v->ToString();
 		return content;
 	}
 
-	const	String&	Interpretor::getErrorStr()	const
+	const	String&	Interpretor::GetErrorStr()	const
 	{
 		return	error;
 	}
 
-	const	String&	Interpretor::getError()	const
+	const	String&	Interpretor::GetError()	const
 	{
 		return	error;
 	}
 
 
-	Interpretor::Command*Interpretor::find(const String&name,Folder**folder_out/*=NULL*/)
+	PCommand Interpretor::Find(const String&name,PFolder*folder_out/*=NULL*/)
 	{
-		Tokenizer::tokenize(name,lookup.path_config,lookup.path_segments);
+		Tokenizer::tokenize(name,lookup.pathConfig,lookup.pathSegments);
 		
-		if (!lookup.path_segments)
-			return NULL;
-		Folder*folder = resolve(name.beginsWith('/'));
+		if (!lookup.pathSegments)
+			return PCommand();
+		PFolder folder = _Resolve(name.beginsWith('/'));
 		if (!folder)
-			return NULL;
-		Command*rs= folder->commands.lookup(lookup.path_segments.last());
+			return PCommand();
+		PCommand rs= folder->commands.Query(lookup.pathSegments.last());
 		if (rs)
 		{
 			if (folder_out)
 				(*folder_out) = folder;
 			return rs;
 		}
-		if (lookup.path_segments==1)
+		if (lookup.pathSegments==1)
 		{
 			if (folder_out)
-				(*folder_out) = this;
-			return global_commands.lookup(lookup.path_segments.first());
+				(*folder_out) = root;
+			return globalCommands.Query(lookup.pathSegments.first());
 		}
-		return NULL;
+		return PCommand();
 	}
 
-	Interpretor::Command*Interpretor::find(const char*name,Folder**folder_out/*=NULL*/)
+	PCommand Interpretor::Find(const char*name,PFolder*folder_out/*=NULL*/)
 	{
-		return find(String(name),folder_out);
+		return Find(String(name),folder_out);
 	}
 
-	Interpretor::Variable*Interpretor::findVar(const String&name,Folder**folder_out/*=NULL*/)
+	PVariable Interpretor::FindVar(const String&name,PFolder*folder_out/*=NULL*/)
 	{
-		Tokenizer::tokenize(name,lookup.path_config,lookup.path_segments);
-		if (!lookup.path_segments)
-			return NULL;
-		Folder*folder = resolve(name.beginsWith('/'));
+		Tokenizer::tokenize(name,lookup.pathConfig,lookup.pathSegments);
+		if (!lookup.pathSegments)
+			return PVariable();
+		PFolder folder = _Resolve(name.beginsWith('/'));
 		if (!folder)
-			return NULL;
+			return PVariable();
 		if (folder_out)
 			(*folder_out) = folder;
-		return folder->variables.lookup(lookup.path_segments.last());
+		return folder->variables.Query(lookup.pathSegments.last());
 	}
 
-	Interpretor::Variable*Interpretor::findVar(const char*name,Folder**folder_out/*=NULL*/)
+	PVariable Interpretor::FindVar(const char*name,PFolder *folder_out/*=NULL*/)
 	{
-		Tokenizer::tokenize(name,lookup.path_config,lookup.path_segments);
-		if (!lookup.path_segments)
-			return NULL;
-		Folder*folder = resolve(name[0]=='/');
+		Tokenizer::tokenize(name,lookup.pathConfig,lookup.pathSegments);
+		if (!lookup.pathSegments)
+			return PVariable();
+		PFolder folder = _Resolve(name[0]=='/');
 		if (!folder)
-			return NULL;
+			return PVariable();
 		if (folder_out)
 			(*folder_out) = folder;
-		return folder->variables.lookup(lookup.path_segments.last());
+		return folder->variables.Query(lookup.pathSegments.last());
 	}
 
-	Folder*		Interpretor::findFolder(const String&path)
+	PFolder 		Interpretor::FindFolder(const String&path)
 	{
-		Tokenizer::tokenize(path,lookup.path_config,lookup.path_segments);
-		if (!lookup.path_segments)
+		Tokenizer::tokenize(path,lookup.pathConfig,lookup.pathSegments);
+		if (!lookup.pathSegments)
 		{
 			if (path == '/')
-				return this;
+				return root;
 			error = "No segments given in '"+path+"'";
-			return NULL;
+			return PFolder();
 		}
-		lookup.path_segments<<".";
-		return resolve(path.beginsWith('/'));
+		lookup.pathSegments<<".";
+		return _Resolve(path.beginsWith('/'));
 	}
 
 
-	bool	Interpretor::interpret(const String&line, bool allow_global_commands/*=true*/)
+	bool	Interpretor::Interpret(const String&line, bool allow_global_commands/*=true*/)
 	{
-		return	parse(line.c_str(),allow_global_commands);
+		return	Parse(line.c_str(),allow_global_commands);
 	}
 	
-	bool	Interpretor::interpret(const char*line, bool allow_global_commands/*=true*/)
+	bool	Interpretor::Interpret(const char*line, bool allow_global_commands/*=true*/)
 	{
-		return	parse(line,allow_global_commands);
+		return	Parse(line,allow_global_commands);
 	}
 
-	bool	Interpretor::parse(const String&line, bool allow_global_commands/*=true*/)
+	bool	Interpretor::Parse(const String&line, bool allow_global_commands/*=true*/)
 	{
-		return	parse(line.c_str(),allow_global_commands);
+		return	Parse(line.c_str(),allow_global_commands);
 	}
 
-	Interpretor::Command*		Interpretor::getExecutingCommand()	const
+	PCommand		Interpretor::GetExecutingCommand()	const
 	{
 		return executing;
 	}
 
-	Folder*		Interpretor::getExecutionContext()	const
+	PFolder 		Interpretor::GetExecutionContext()	const
 	{
-		return executing_folder;
+		return executingFolder;
 	}
 
-	String Interpretor::complete(const String&line, StringList&out)
+	String Interpretor::Complete(const String&line, StringList&out)
 	{
 		out.clear();
 		String longest_common;
-		Tokenizer::tokenize(line,lookup.path_config,lookup.path_segments);
+		Tokenizer::tokenize(line,lookup.pathConfig,lookup.pathSegments);
 		
-		if (!lookup.path_segments)
+		if (!lookup.pathSegments)
 			return "";
 			
-		Folder*parent = resolve(line.beginsWith('/'));
+		PFolder parent = _Resolve(line.beginsWith('/'));
 		if (!parent)
 			return "";
 		
-		String prefix = lookup.path_segments.fuse(0,lookup.path_segments-1,'/'),
-				inner = lookup.path_segments.last();
+		String prefix = lookup.pathSegments.fuse(0,lookup.pathSegments-1,'/'),
+				inner = lookup.pathSegments.last();
 		if (prefix.length())
 			prefix+= "/";
 				
 		if (line.beginsWith('/'))
 			prefix = "/"+prefix;
 		
-		if (lookup.path_segments==1)
-			for (index_t i = 0; i < global_commands; i++)
-				if (global_commands[i]->name.beginsWith(inner))
-					out << prefix+global_commands[i]->name;
+		if (lookup.pathSegments==1)
+			for (index_t i = 0; i < globalCommands.count(); i++)
+				if (globalCommands[i]->name.beginsWith(inner))
+					out << prefix+globalCommands[i]->name;
 		
-		for (index_t i = 0; i < parent->commands; i++)
+		for (index_t i = 0; i < parent->commands.count(); i++)
 			if (parent->commands[i]->name.beginsWith(inner))
 				out << prefix+parent->commands[i]->name;
-		for (index_t i = 0; i < parent->variables; i++)
+		for (index_t i = 0; i < parent->variables.count(); i++)
 			if (parent->variables[i]->name.beginsWith(inner))
 				out << prefix+parent->variables[i]->name;
-		for (index_t i = 0; i < parent->folders; i++)
+		for (index_t i = 0; i < parent->folders.count(); i++)
 			if (parent->folders[i]->name.beginsWith(inner))
 				out << prefix+parent->folders[i]->name+"/";
 
@@ -893,30 +888,30 @@ namespace CLI
 		return longest_common;
 	}
 
-	String Interpretor::completeVariables(const String&line,StringList&out)
+	String Interpretor::CompleteVariables(const String&line,StringList&out)
 	{
 		out.clear();
 		String longest_common;
-		Tokenizer::tokenize(line,lookup.path_config,lookup.path_segments);
+		Tokenizer::tokenize(line,lookup.pathConfig,lookup.pathSegments);
 		
-		if (!lookup.path_segments)
+		if (!lookup.pathSegments)
 			return "";
 			
-		Folder*parent = resolve(line.beginsWith('/'));
+		PFolder parent = _Resolve(line.beginsWith('/'));
 		if (!parent)
 			return "";
 		
-		String prefix = lookup.path_segments.fuse(0,lookup.path_segments-1,'/'),
-				inner = lookup.path_segments.last();
+		String prefix = lookup.pathSegments.fuse(0,lookup.pathSegments-1,'/'),
+				inner = lookup.pathSegments.last();
 		if (prefix.length())
 			prefix+= "/";
 		if (line.beginsWith('/'))
 			prefix = "/"+prefix;
 		
-		for (index_t i = 0; i < parent->variables; i++)
+		for (index_t i = 0; i < parent->variables.count(); i++)
 			if (parent->variables[i]->name.beginsWith(inner))
 				out << prefix+parent->variables[i]->name;
-		for (index_t i = 0; i < parent->folders; i++)
+		for (index_t i = 0; i < parent->folders.count(); i++)
 			if (parent->folders[i]->name.beginsWith(inner))
 				out << prefix+parent->folders[i]->name+'/';
 		
@@ -947,28 +942,28 @@ namespace CLI
 
 
 
-	String Interpretor::completeFolders(const String&line, StringList&out)
+	String Interpretor::CompleteFolders(const String&line, StringList&out)
 	{
 		out.clear();
 		String longest_common;
-		Tokenizer::tokenize(line,lookup.path_config,lookup.path_segments);
+		Tokenizer::tokenize(line,lookup.pathConfig,lookup.pathSegments);
 		
-		if (!lookup.path_segments)
+		if (!lookup.pathSegments)
 			return "";
 			
-		Folder*parent = resolve(line.beginsWith('/'));
+		PFolder parent = _Resolve(line.beginsWith('/'));
 		if (!parent)
 			return "";
 		
-		String prefix = lookup.path_segments.fuse(0,lookup.path_segments-1,'/'),
-				inner = lookup.path_segments.last();
+		String prefix = lookup.pathSegments.fuse(0,lookup.pathSegments-1,'/'),
+				inner = lookup.pathSegments.last();
 		if (prefix.length())
 			prefix+= "/";
 
 		if (line.beginsWith('/'))
 			prefix = "/"+prefix;
 		
-		for (index_t i = 0; i < parent->folders; i++)
+		for (index_t i = 0; i < parent->folders.count(); i++)
 			if (parent->folders[i]->name.beginsWith(inner))
 				out << prefix+parent->folders[i]->name+"/";
 		
@@ -997,203 +992,199 @@ namespace CLI
 		return longest_common;
 	}
 
-	const StringList&	Interpretor::getExecutionSegments()		const
+	const StringList&	Interpretor::GetExecutionSegments()		const
 	{
-		return lookup.cmd_segments;
+		return lookup.cmdSegments;
 	}
 	
-	bool	Interpretor::parseLine(const char*line,bool allow_global_commands)
+	bool	Interpretor::_ParseLine(const char*line,bool allow_global_commands)
 	{
 		//cout << "parse("<<line<<")"<<endl;
-		Tokenizer::tokenize(line,lookup.segment_config,lookup.cmd_segments);
-		if (!lookup.cmd_segments)
+		Tokenizer::tokenize(line,lookup.segmentConfig,lookup.cmdSegments);
+		if (!lookup.cmdSegments)
 			return true;
 			
-		Tokenizer::tokenize(lookup.cmd_segments[0],lookup.path_config,lookup.path_segments);
-		if	(!lookup.path_segments)
+		Tokenizer::tokenize(lookup.cmdSegments[0],lookup.pathConfig,lookup.pathSegments);
+		if	(!lookup.pathSegments)
 			return	true;	//this would be rather odd...
 			
-		executing_folder = resolve(line[0]=='/');
-		if	(!executing_folder)
+		executingFolder = _Resolve(line[0]=='/');
+		if	(!executingFolder)
 			return	false;
 		
-		//cout << "cmd_segments:"<<endl;
-		//lookup.cmd_segments.printLines(cout," ");
-		//cout << "path_segments:"<<endl;
-		//lookup.path_segments.printLines(cout," ");
+		//cout << "cmdSegments:"<<endl;
+		//lookup.cmdSegments.printLines(cout," ");
+		//cout << "pathSegments:"<<endl;
+		//lookup.pathSegments.printLines(cout," ");
 
-		if	(lookup.cmd_segments == 1)
-			if (Variable*v = executing_folder->variables.lookup(lookup.path_segments.last()))
+		if	(lookup.cmdSegments == 1)
+			if (PVariable v = executingFolder->variables.Query(lookup.pathSegments.last()))
 			{
-				if (exec_on_variable_call)
-					exec_on_variable_call(v);
+				if (onVariableCall)
+					onVariableCall(v);
 				return true;
 			}
 		
-		executing = executing_folder->commands.lookup(lookup.path_segments.last());
+		executing = executingFolder->commands.Query(lookup.pathSegments.last());
 		if (!executing && allow_global_commands)
-			executing = global_commands.lookup(lookup.path_segments.last());
+			executing = globalCommands.Query(lookup.pathSegments.last());
 		
 		if (executing)
 		{
-			executing->invoke(lookup.cmd_segments, lookup.segment_config);
-			executing = NULL;
-			executing_folder = NULL;
+			executing->Invoke(lookup.cmdSegments, lookup.segmentConfig);
+			executing.reset();
+			executingFolder.reset();
 			return true;
 		}
 		
-		executing_folder = NULL;
-		error = "Command or Variable unknown: '"+lookup.path_segments.last()+"'";
+		executingFolder.reset();
+		error = "Command or Variable unknown: '"+lookup.pathSegments.last()+"'";
 		return false;
 	}
 
-	bool	Interpretor::parse(const char*line, bool allow_global_commands /*=true*/)
+	bool	Interpretor::Parse(const char*line, bool allow_global_commands /*=true*/)
 	{
 		StringList	lines;
-		Tokenizer::tokenize(line,lookup.line_config,lines);
+		Tokenizer::tokenize(line,lookup.lineConfig,lines);
 		for	(index_t i = 0; i < lines;	i++)
-			if	(!parseLine(lines[i].c_str(),allow_global_commands))
+			if	(!_ParseLine(lines[i].c_str(),allow_global_commands))
 				return	false;
 		return	true;
 	}
 	
-	void			Folder::attach(Attachable*attachable,const Signature&signature)
-	{
-		attachment.reference = attachable;
-		attachment.signature = &signature;
-	}
-	
-	
-	Attachable*	Folder::getAttachment(const Signature&signature)
-	{
-		if (attachment.signature == &signature)
-			return attachment.reference;
-		return NULL;
-	}
 
 
-	count_t	Folder::countCommands() const
+	count_t	Folder::CountCommands() const
 	{
 		count_t rs = commands.count();
-		for (index_t i = 0; i < folders; i++)
-			rs += folders[i]->countCommands();
+		for (index_t i = 0; i < folders.count(); i++)
+			rs += folders[i]->CountCommands();
 		return	rs;
 	}
 
-	count_t	Folder::countVariables() const
+	count_t	Folder::CountVariables() const
 	{
 		count_t rs = variables.count();
-		for (index_t i = 0; i < folders; i++)
-			rs += folders[i]->countVariables();
+		for (index_t i = 0; i < folders.count(); i++)
+			rs += folders[i]->CountVariables();
 		return	rs;
 	}
 
 
-	Folder::Folder(Folder*p,const String&n):parent(p),name(n),custom_flags(0)
+	Folder::Folder(const PFolder&p,const String&n):parent(p),name(n),customFlags(0)
 	{}
 
-	String Folder::path()	const
+	String Folder::GetPath()	const
 	{
 		String rs = name;
-		const Folder*folder = parent;
+		PFolder folder = parent.lock();
 		while (folder)
 		{
-			if (folder->parent || folder->name.length())
+			if (folder->parent.lock() || folder->name.length())
 				rs = folder->name+'/'+rs;
-			folder = folder->parent;
+			folder = folder->parent.lock();
 		}
 		return rs;
 	}
 	
-	String Folder::path(unsigned max_depth)	const
+	String Folder::GetPath(unsigned max_depth)	const
 	{
 		String rs = name;
-		const Folder*folder = parent;
+		PFolder folder = parent.lock();
 		unsigned depth(0);
 		while (folder && ++depth<max_depth)
 		{
-			if (folder->parent || folder->name.length())
+			if (folder->parent.lock() || folder->name.length())
 			{
 				//cout << "////concatenating '"<<folder->name<<"' and '"<<rs<<"'"<<endl;
 				rs = folder->name+'/'+rs;
 				//cout << "////rs now '"<<rs<<"'"<<endl;
 			}
-			folder = folder->parent;
+			folder = folder->parent.lock();
 		}
-		if (folder && (folder->parent || folder->name.length()))
+		if (folder && (folder->parent.lock() || folder->name.length()))
 			rs = "(...)/"+rs;
 		return rs;
 	}
 	
-	bool Folder::isChildOf(const Folder*other)	const
+	bool Folder::IsChildOf(const PFolder&other)	const
 	{
 		if (!other)
 			return false;
-		if (other == this)
+		if (other.get() == this)
 			return true;
-		const Folder*folder = this;
-		while (folder->parent && folder->parent != other)
-			folder = folder->parent;
-		return folder->parent == other;
+		const Folder* folder = this;
+		for (;;)
+		{
+			PFolder parent = folder->parent.lock();
+			if (parent == other)
+				return true;
+			if (!parent)
+				return false;
+			folder = parent.get();
+		}
+		//return false;
 	}
 
 
-	Folder*		Interpretor::enterNewFolder(const String& name, bool enter_existing)
+	PFolder 		Interpretor::EnterNewFolder(const String& name, bool enter_existing)
 	{
-		Tokenizer::tokenize(name,lookup.path_config,lookup.path_segments);
-		if (!lookup.path_segments)
-			return NULL;
+		Tokenizer::tokenize(name,lookup.pathConfig,lookup.pathSegments);
+		if (!lookup.pathSegments)
+			return PFolder();
 		
-		Folder*parent = resolve(name.beginsWith('/'));
+		PFolder parent = _Resolve(name.beginsWith('/'));
 		if (!parent)
-			return NULL;
+			return PFolder();
 			
-		Folder*result = parent->folders.lookup(lookup.path_segments.last());
+		PFolder result = parent->folders.Query(lookup.pathSegments.last());
 		if (result)
 		{
 			if (enter_existing)
 				focused = result;
-			return NULL;
+			return PFolder();
 		}
 			
-		result = SHIELDED(new Folder(parent,lookup.path_segments.last()));
-		parent->folders.insert(result);
+		result.reset(new Folder(parent,lookup.pathSegments.last()));
+		parent->folders.Insert(result->name,result);
 		focused = result;
 		return result;
 	}
 
-	void				Interpretor::eraseFolder(Folder*folder)
+	void				Interpretor::EraseFolder(const PFolder&folder)
 	{
 		if (!folder)
 			return;
-		Folder*parent = folder->parent;
+		PFolder parent = folder->parent.lock();
+		if (!parent)
+			return;
 		
-		if (focused->isChildOf(parent))
+		if (focused->IsChildOf(parent))
 			focused = parent;
 		
-		parent->folders.erase(folder);
+		parent->folders.Unset(folder->name);
 	}
 	
-	void				Interpretor::eraseFolder(const String& name)
+	void				Interpretor::EraseFolder(const String& name)
 	{
-		Tokenizer::tokenize(name,lookup.path_config,lookup.path_segments);
-		if (!lookup.path_segments)
+		Tokenizer::tokenize(name,lookup.pathConfig,lookup.pathSegments);
+		if (!lookup.pathSegments)
 			return;
 			
-		if (Folder*parent = resolve(name.beginsWith('/')))
+		if (PFolder parent = _Resolve(name.beginsWith('/')))
 		{
-			if (focused->isChildOf(parent))
+			if (focused->IsChildOf(parent))
 				focused = parent;
-			parent->folders.eraseByIdent(lookup.path_segments.last());
+			parent->folders.Unset(lookup.pathSegments.last());
 		}
 	}
 
 
-	bool	Interpretor::moveFocus(const String&context)
+	bool	Interpretor::MoveFocus(const String&context)
 	{
-		Tokenizer::tokenize(context,lookup.path_config,lookup.path_segments);
-		lookup.path_segments << ".";	//dummy
-		Folder*new_focus = resolve(context.beginsWith('/'));
+		Tokenizer::tokenize(context,lookup.pathConfig,lookup.pathSegments);
+		lookup.pathSegments << ".";	//dummy
+		PFolder new_focus = _Resolve(context.beginsWith('/'));
 		if (new_focus)
 		{
 			focused = new_focus;
@@ -1202,69 +1193,66 @@ namespace CLI
 		return false;
 	}
 
-	bool	Interpretor::exitFolder()
+	bool	Interpretor::ExitFolder()
 	{
-		return exitFocus();
+		return ExitFocus();
 	}
 	
-	bool	Interpretor::exitFocus()
+	bool	Interpretor::ExitFocus()
 	{
-		if (focused->parent)
+		PFolder parent = focused->parent.lock();
+		if (parent)
 		{
-			focused = focused->parent;
+			focused = parent;
 			return true;
 		}
 		return false;
 	}
 
-	void	Interpretor::resetFocus()
+	void	Interpretor::ResetFocus()
 	{
-		focused = this;
+		focused = root;
 	}
 
-	Folder*	Interpretor::getFocus()
+	PFolder 	Interpretor::GetFocus()	const
 	{
 		return focused;
 	}
 	
-	void		Interpretor::setFocus(Folder*folder)
+	void		Interpretor::SetFocus(const PFolder&folder)
 	{
 		focused = folder;
 	}
 
-	void		Interpretor::pushFocus()
+	void		Interpretor::PushFocus()
 	{
-		focus_stack << focused;
+		focusStack << focused;
 	}
 
-	void		Interpretor::pushAndReplaceFocus(Folder*new_focus)
+	void		Interpretor::PushAndReplaceFocus(const PFolder&new_focus)
 	{
-		pushFocus();
+		PushFocus();
 		if (new_focus)
-			setFocus(new_focus);
+			SetFocus(new_focus);
 	}
 
 
-	void		Interpretor::popFocus()
+	void		Interpretor::PopFocus()
 	{
-		ASSERT__(focus_stack.isNotEmpty());
-		setFocus(focus_stack.pop());
+		ASSERT__(focusStack.isNotEmpty());
+		SetFocus(focusStack.pop());
 	}
 
 
-	const Folder*	Interpretor::getFocus() const
-	{
-		return focused;
-	}
 	
-	String			Interpretor::getContext(unsigned depth)	const
+	String			Interpretor::GetContext(unsigned depth)	const
 	{
-		return focused->path(depth);
+		return focused->GetPath(depth);
 	}
 
-	const Tokenizer::Config&	Interpretor::getSegmentizerConfig()	const
+	const Tokenizer::Config&	Interpretor::GetSegmentizerConfig()	const
 	{
-		return lookup.segment_config;
+		return lookup.segmentConfig;
 	}
 
 
@@ -1351,7 +1339,7 @@ namespace CLI
 		if	(!script)
 			return	false;
 		for	(index_t i = 0;	i < script->count(); i++)
-			parser->parse(script->get(i));
+			parser->Parse(script->get(i));
 		return	true;
 	}
 }

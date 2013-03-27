@@ -25,32 +25,32 @@ namespace CLI
 
 	
 	/**
-		@brief Initializes all standard functions to the specified target interpretor
+	@brief Initializes all standard functions to the specified target interpretor
 		
-		Currently only one interpretor may use the standard interface at a time.
-		@param target Target interpretor to register standard commands to
-		@param println Pointer to a print line function that will be used to print results to a console
-		@param onFocusChange Function pointer to execute if the cd command was successfuly executed
+	Currently only one interpretor may use the standard interface at a time.
+	@param target Target interpretor to register standard commands to
+	@param println Pointer to a print line function that will be used to print results to a console
+	@param onFocusChange Function pointer to execute if the cd command was successfuly executed
 	*/
-	void			initDefaults(Interpretor&target, pPrintln println, pOnFocusChange onFocusChange=NULL, bool echoSetOperation = true);
+	void			InitDefaults(Interpretor&target, pPrintln println, pOnFocusChange onFocusChange=NULL, bool echoSetOperation = true);
 
 
 	/**
-		@brief Registers a help entry for a command or variable
+	@brief Registers a help entry for a command or variable
 		
-		registerHelp() registers the specified message as help message for the specified command or variable. This message will be print out upon invocation of
-		the internal 'help <command/variable>' command. Any previously registered help message for the specified object is overwritten.
+	registerHelp() registers the specified message as help message for the specified command or variable. This message will be print out upon invocation of
+	the internal 'help <command/variable>' command. Any previously registered help message for the specified object is overwritten.
 		
-		@param pointer Pointer to the command or variable object. May technically be of any type but should be registered to the main interpretor
-		@param message String message to be passed to println if the respective command or variable is queried
+	@param pointer Pointer to the command or variable object. May technically be of any type but should be registered to the main interpretor
+	@param message String message to be passed to println if the respective command or variable is queried
 	
 	*/
-	void	registerHelp(void*pointer,const String&message);
+	void	RegisterHelp(void*pointer,const String&message);
 	
 	/**
-		@brief Unregisters a help entry.
+	@brief Unregisters a help entry.
 	*/
-	void	unregisterHelp(void*pointer);
+	void	UnregisterHelp(void*pointer);
 	
 
 

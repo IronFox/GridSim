@@ -6,20 +6,15 @@
 
 E:\include\string\cli.tpl.h
 
-This file is part of Delta-Works
-Copyright (C) 2006-2008 Stefan Elsen, University of Trier, Germany.
-http://www.delta-works.org/forge/
-http://informatik.uni-trier.de/
-
 ******************************************************************/
 
 template <typename F>
-	CLI::Command*				CLI::Interpretor::defineCommand(const String& def, const F&f, eCommandCompletion completion/*=NoCompletion*/)
+	CLI::PCommand				CLI::Interpretor::DefineCommand(const String& def, const F&f, eCommandCompletion completion/*=NoCompletion*/)
 	{
 		Tokenizer::tokenize(def,lookup.path_config,lookup.path_segments);
 		if (!lookup.path_segments)
 			return NULL;
-		Folder*parent = resolve(def.beginsWith('/'));
+		PFolder parent = _Resolve(def.beginsWith('/'));
 		if (!parent)
 			return NULL;
 		
@@ -27,41 +22,41 @@ template <typename F>
 		if (!items)
 			return NULL;
 		detail::makeValidName(items.first());
-		Command*result = parent->commands.lookup(items.first());
+		PCommand result = parent->commands.Query(items.first());
 		if (result)
 			return result;
 		String description = items.first();
 		if (items > 1)
 			description += " <"+items.fuse(1,"> <")+">";
 		
-		Command*command = SHIELDED(new Command(items.first(),description,f, completion));
-		parent->commands.insert(command);
+		PCommand command (new Command(items.first(),description,f, completion));
+		parent->commands.Insert(command->name, command);
 		return command;
 	}
 
 template <typename F>
-	CLI::Command*				CLI::Interpretor::defineGlobalCommand(const String& def, const F&f, eCommandCompletion completion/*=NoCompletion*/)
+	CLI::PCommand				CLI::Interpretor::DefineGlobalCommand(const String& def, const F&f, eCommandCompletion completion/*=NoCompletion*/)
 	{
 		StringList	items(def);
 		if (!items)
 			return NULL;
 		detail::makeValidName(items.first());
-		Command*result = global_commands.lookup(items.first());
+		PCommand result = globalCommands.Query(items.first());
 		if (result)
 			return result;
 		String description = items.first();
 		if (items > 1)
 			description += " <"+items.fuse(1,"> <")+">";
 		
-		Command*command = SHIELDED(new Command(items.first(),description,f, completion));
+		PCommand command (new Command(items.first(),description,f, completion));
 			
-		global_commands.insert(command);
+		globalCommands.Insert(command->name, command);
 		return command;
 	}
 
 
-template <typename T, unsigned Components>
-	bool				setVectorVariableContent(T*content, const String&component, const String&value)
+template <typename T, count_t Components>
+	bool				SetVectorVariableContent(T*content, const String&component, const String&value)
 	{
 		T temp[Components];
 		
@@ -160,8 +155,8 @@ template <typename T, unsigned Components>
 	}
 	
 
-template <typename T, unsigned Components>
-	bool				setVectorVariableContent(T*content, const String&value)
+template <typename T, count_t Components>
+	bool				SetVectorVariableContent(T*content, const String&value)
 	{
 		index_t		begin = value.indexOf('('),
 					end = value.indexOf(')');
@@ -217,33 +212,33 @@ template <typename T, unsigned Components>
 
 	
 	
-template <unsigned Components>
+template <count_t Components>
 	VectorVariable<Components>::VectorVariable(const String&name, float content_[Components], unsigned protection):Variable(name,"FloatVector",Components,protection)
 	{
 		if (content_)
 			VecUnroll<Components>::copy(content_,content);
 	}
 	
-template <unsigned Components>
-	String			VectorVariable<Components>::toString()					const
+template <count_t Components>
+	String			VectorVariable<Components>::ToString()					const
 	{
 		return VecUnroll<Components>::toString(content);
 	}
 	
-template <unsigned Components>
-	bool			VectorVariable<Components>::set(const String&value)
+template <count_t Components>
+	bool			VectorVariable<Components>::Set(const String&value)
 	{
-		return setVectorVariableContent<float,Components>(content,value);
+		return SetVectorVariableContent<float,Components>(content,value);
 	}
 
-template <unsigned Components>	
-	bool	VectorVariable<Components>::set(const String&component, const String&value)
+template <count_t Components>	
+	bool	VectorVariable<Components>::Set(const String&component, const String&value)
 	{
-		return setVectorVariableContent<float,Components>(content,component,value);
+		return SetVectorVariableContent<float,Components>(content,component,value);
 	}
 
 
-template <unsigned Components>
+template <count_t Components>
 	DoubleVectorVariable<Components>::DoubleVectorVariable(const String&name, double content_[Components], unsigned protection):Variable(name,"DoubleVector",Components,protection)
 	{
 		if (content_)
@@ -251,21 +246,21 @@ template <unsigned Components>
 	}
 	
 template <unsigned Components>
-	String		DoubleVectorVariable<Components>::toString()					const
+	String		DoubleVectorVariable<Components>::ToString()					const
 	{
 		return VecUnroll<Components>::toString(content);
 	}
 
 template <unsigned Components>	
-	bool		DoubleVectorVariable<Components>::set(const String&value)
+	bool		DoubleVectorVariable<Components>::Set(const String&value)
 	{
-		return setVectorVariableContent<double,Components>(content,value);
+		return SetVectorVariableContent<double,Components>(content,value);
 	}
 
 template <unsigned Components>	
-	bool		DoubleVectorVariable<Components>::set(const String&component, const String&value)
+	bool		DoubleVectorVariable<Components>::Set(const String&component, const String&value)
 	{
-		return setVectorVariableContent<double,Components>(content,component,value);
+		return SetVectorVariableContent<double,Components>(content,component,value);
 	}	
 
 

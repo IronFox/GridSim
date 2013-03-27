@@ -805,7 +805,7 @@ template <class C>
 MFUNC3 (void) Camera<C>::Translate(const C0&x, const C1&y, const C2&z)
 {
 	TVec3<C>	vec = {x,y,z},out;
-	Mat::Rotate(viewInvert,vec,out);
+	Mat::rotate(viewInvert,vec,out);
 	Vec::add(location,out);
 	Vec::add(viewInvert.w.xyz,out);
 	Vec::subtract(view.w.xyz,vec);
