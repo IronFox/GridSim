@@ -576,6 +576,9 @@ template <class C>
 								return 0;
 							}
 
+		inline bool			contains(const C&entry) const	{	return findFirst(entry) != 0;	}
+		inline bool			Contains(const C&entry) const	{	return findFirst(entry) != 0;	}
+
 		template <class T>
 			inline count_t	findFirst(const T*field, count_t length) const
 							{
