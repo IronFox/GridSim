@@ -28,6 +28,7 @@ public:
 	static	void		compressToStream(const Image&image, IWriteStream&stream);
 	static	void		decompressArray(Image&image, const Array<BYTE>&data);
 	static	void		decompressData(Image&image, const void*data, size_t data_size);
+	static	void		decompressStream(Image&out_image, IReadStream&stream);
 };
 
 extern PNG		png;

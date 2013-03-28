@@ -253,6 +253,7 @@
     <ClCompile Include="..\..\math\graph.cpp" />
     <ClCompile Include="..\..\math\neuronal_network.cpp" />
     <ClCompile Include="..\..\math\resolution.cpp" />
+    <ClCompile Include="..\..\math\vector.cpp" />
     <ClCompile Include="..\..\net\node.cpp" />
     <ClCompile Include="..\..\net\tcp.cpp" />
     <ClCompile Include="..\..\remote\bz2\blocksort.c" />

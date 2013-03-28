@@ -424,6 +424,28 @@ namespace Math
 			return result;
 		}
 
+
+	template <typename T>
+		inline TRange<T>	MaxInvalidRange()
+		{
+			return Range(std::numeric_limits<T>::max(), std::numeric_limits<T>::min());
+		}
+	template <>
+		inline TRange<float>	MaxInvalidRange<float>()
+		{
+			return Range(std::numeric_limits<float>::max(), -std::numeric_limits<float>::max());
+		}
+	template <>
+		inline TRange<double>	MaxInvalidRange<double>()
+		{
+			return Range(std::numeric_limits<double>::max(), -std::numeric_limits<double>::max());
+		}
+	template <>
+		inline TRange<long double>	MaxInvalidRange<long double>()
+		{
+			return Range(std::numeric_limits<long double>::max(), -std::numeric_limits<long double>::max());
+		}
+
 	template <typename T>
 		class Quad
 		{
@@ -572,13 +594,20 @@ namespace Math
 										this->y.setCenter(y,ext);
 									}
 			/**
-			@brief Updates all values of the local rectangle to the specified value
+			@brief Updates all values of the local rect to the specified value
 			*/
-			template <typename T0>
-				MF_DECLARE(void)	setAll(const T0&value)
+			MF_DECLARE(void)		setAll(const T&value)
 									{
 										x.setAll(value);
 										y.setAll(value);
+									}
+			/**
+			@brief Updates all values of the local rect to the specified value
+			*/
+			MF_DECLARE(void)		setAll(const TRange<T>&range)
+									{
+										x = range;
+										y = range;
 									}
 			/**
 			@brief Updates all min values of the local rectangle to the specified value
@@ -1045,12 +1074,20 @@ namespace Math
 			/**
 			@brief Updates all values of the local box to the specified value
 			*/
-			template <typename T0>
-				MF_DECLARE(void)	setAll(const T0&value)
+			MF_DECLARE(void)		setAll(const T&value)
 									{
 										x.setAll(value);
 										y.setAll(value);
 										z.setAll(value);
+									}
+			/**
+			@brief Updates all values of the local box to the specified value
+			*/
+			MF_DECLARE(void)		setAll(const TRange<T>&range)
+									{
+										x = range;
+										y = range;
+										z = range;
 									}
 			/**
 			@brief Updates all min values of the local box to the specified value

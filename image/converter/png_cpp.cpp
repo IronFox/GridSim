@@ -6,6 +6,29 @@ PNG	png;
 
 namespace 
 {
+
+	png_byte	_GetColorType(BYTE numChannels)
+	{
+		switch (numChannels)
+		{
+			case 1:
+				return PNG_COLOR_TYPE_GRAY;
+			break;
+			case 2:
+				return PNG_COLOR_TYPE_GRAY_ALPHA;
+			break;
+			case 3:
+				return PNG_COLOR_TYPE_RGB;
+			break;
+			case 4:
+				return PNG_COLOR_TYPE_RGB_ALPHA;
+			break;
+			default:
+				throw IO::DriveAccess::FileFormatFault(globalString("Unexpected number of channels"));
+			break;
+		}
+	}
+
 	void pngError()
 	{}
 
@@ -22,6 +45,7 @@ namespace
 
 	Buffer<BYTE>	out_buffer;
 	IWriteStream	*out_stream = NULL;
+	IReadStream		*inStream = NULL;
 	const	BYTE	*global_source = NULL;
 	index_t			global_at = 0;
 	size_t			global_size = 0;
@@ -50,6 +74,12 @@ namespace
 				BYTE v = global_source[global_at++];
 				data[i] = v;
 			}
+	}
+
+	void readSectionFromStream(png_structp png, png_bytep data, png_size_t size)
+	{
+		if (!inStream->read(data,size))
+			throw IO::DriveAccess::DataReadFault("Stream refused to read requested amount of bytes");
 	}
 }
 
@@ -86,7 +116,7 @@ void PNG::saveToFileQ(const Image&resource, const String&filename)
 	info->num_palette = 0;
 	info->num_trans = 0;
 	info->bit_depth = 8;
-	info->color_type = resource.getChannels()==3?PNG_COLOR_TYPE_RGB:PNG_COLOR_TYPE_RGBA;
+	info->color_type = _GetColorType(resource.getChannels());
 	info->compression_type = PNG_COMPRESSION_TYPE_BASE;
 	info->filter_type = PNG_FILTER_TYPE_BASE;
 	info->interlace_type = PNG_INTERLACE_NONE;
@@ -149,7 +179,7 @@ void PNG::saveToFilePointer(const Image&resource, FILE*f)
 	info->num_palette = 0;
 	info->num_trans = 0;
 	info->bit_depth = 8;
-	info->color_type = resource.getChannels()==3?PNG_COLOR_TYPE_RGB:PNG_COLOR_TYPE_RGBA;
+	info->color_type = _GetColorType(resource.getChannels());
 	info->compression_type = PNG_COMPRESSION_TYPE_BASE;
 	info->filter_type = PNG_FILTER_TYPE_BASE;
 	info->interlace_type = PNG_INTERLACE_NONE;
@@ -260,6 +290,8 @@ void PNG::loadFromFilePointer(Image&target, FILE*f)
 }
 
 
+
+
 /*static*/	void		PNG::compressToStream(const Image&source_image, IWriteStream&stream)
 {
 	out_stream = &stream;
@@ -268,63 +300,66 @@ void PNG::loadFromFilePointer(Image&target, FILE*f)
 	png_set_compression_level(png,9);	//maximum compression
 	png_set_write_fn(png,NULL,writeSectionToStream,flushSection);
 
-	info->width = source_image.getWidth();
-	info->height = source_image.getHeight();
-	info->valid = 0;
-	info->rowbytes = source_image.getWidth()*source_image.getChannels();
-	info->palette = NULL;
-	info->num_palette = 0;
-	info->num_trans = 0;
-	info->bit_depth = 8;
-	switch (source_image.getChannels())
+	png_bytepp image = NULL;
+	try
 	{
-		case 1:
-			info->color_type = PNG_COLOR_TYPE_GRAY;
-		break;
-		case 2:
-			info->color_type = PNG_COLOR_TYPE_GRAY_ALPHA;
-		break;
-		case 3:
-			info->color_type = PNG_COLOR_TYPE_RGB;
-		break;
-		case 4:
-			info->color_type = PNG_COLOR_TYPE_RGB_ALPHA;
-		break;
-		default:
-			throw IO::DriveAccess::FileFormatFault(globalString("Unexpected number of channels"));
-		break;
-	}
-	info->compression_type = PNG_COMPRESSION_TYPE_BASE;
-	info->filter_type = PNG_FILTER_TYPE_BASE;
-	info->interlace_type = PNG_INTERLACE_NONE;
-	info->channels = source_image.getChannels();
-	info->pixel_depth = source_image.getChannels()*8;
-	info->spare_byte = 0;
-	memcpy(info->signature,"PNG     ",8);
+		info->width = source_image.getWidth();
+		info->height = source_image.getHeight();
+		info->valid = 0;
+		info->rowbytes = source_image.getWidth()*source_image.getChannels();
+		info->palette = NULL;
+		info->num_palette = 0;
+		info->num_trans = 0;
+		info->bit_depth = 8;
+		info->color_type = _GetColorType(source_image.getChannels());
+		info->compression_type = PNG_COMPRESSION_TYPE_BASE;
+		info->filter_type = PNG_FILTER_TYPE_BASE;
+		info->interlace_type = PNG_INTERLACE_NONE;
+		info->channels = source_image.getChannels();
+		info->pixel_depth = source_image.getChannels()*8;
+		info->spare_byte = 0;
+		memcpy(info->signature,"PNG     ",8);
 		
-	png_bytepp image = new png_bytep[source_image.getHeight()];
-	for (UINT32 i = 0; i < source_image.getHeight(); i++)
-	{
-		image[i] = new png_byte[source_image.getWidth()*source_image.getChannels()];
-		for (UINT32 j = 0; j < source_image.getWidth(); j++)
+		image = new png_bytep[source_image.getHeight()];
+		for (UINT32 i = 0; i < source_image.getHeight(); i++)
 		{
-			const BYTE*pixel = source_image.get(j,i);
-			for (BYTE k = 0; k < info->channels; k++)
-				image[i][j*info->channels+k] = pixel[k];
+			image[i] = new png_byte[source_image.getWidth()*source_image.getChannels()];
+			for (UINT32 j = 0; j < source_image.getWidth(); j++)
+			{
+				const BYTE*pixel = source_image.get(j,i);
+				for (BYTE k = 0; k < info->channels; k++)
+					image[i][j*info->channels+k] = pixel[k];
+			}
 		}
+			
+		png_set_rows(png,info,image);
+		png_write_png(png,info,PNG_TRANSFORM_IDENTITY,NULL);
+		png_destroy_info_struct(png,&info);
+		png_destroy_write_struct(&png,NULL);
+			
+			
+		for (UINT32 i = 0; i < source_image.getHeight(); i++)
+		{
+			delete[] image[i];
+		}
+		delete[] image;
 	}
-			
-	png_set_rows(png,info,image);
-	png_write_png(png,info,PNG_TRANSFORM_IDENTITY,NULL);
-	png_destroy_info_struct(png,&info);
-	png_destroy_write_struct(&png,NULL);
-			
-			
-	for (UINT32 i = 0; i < source_image.getHeight(); i++)
+	catch (const std::exception&)
 	{
-		delete[] image[i];
+		png_destroy_info_struct(png,&info);
+		png_destroy_write_struct(&png,NULL);
+			
+			
+		if (image)
+		{
+			for (UINT32 i = 0; i < source_image.getHeight(); i++)
+			{
+				delete[] image[i];
+			}
+			delete[] image;
+		}
+		throw;
 	}
-	delete[] image;
 	
 	//log_file << "copying compressed image ("<<out_buffer.fillLevel()<<" byte(s))...\r\n";
 }
@@ -337,67 +372,69 @@ void PNG::loadFromFilePointer(Image&target, FILE*f)
 	png_infop info= png_create_info_struct(png);
 	png_set_compression_level(png,9);	//maximum compression
 	png_set_write_fn(png,NULL,writeSection,flushSection);
-
-	info->width = source_image.getWidth();
-	info->height = source_image.getHeight();
-	info->valid = 0;
-	info->rowbytes = source_image.getWidth()*source_image.getChannels();
-	info->palette = NULL;
-	info->num_palette = 0;
-	info->num_trans = 0;
-	info->bit_depth = 8;
-	switch (source_image.getChannels())
+	png_bytepp image = NULL;
+	try
 	{
-		case 1:
-			info->color_type = PNG_COLOR_TYPE_GRAY;
-		break;
-		case 2:
-			info->color_type = PNG_COLOR_TYPE_GRAY_ALPHA;
-		break;
-		case 3:
-			info->color_type = PNG_COLOR_TYPE_RGB;
-		break;
-		case 4:
-			info->color_type = PNG_COLOR_TYPE_RGB_ALPHA;
-		break;
-		default:
-			throw IO::DriveAccess::FileFormatFault(globalString("Unexpected number of channels"));
-		break;
-	}
-	info->compression_type = PNG_COMPRESSION_TYPE_BASE;
-	info->filter_type = PNG_FILTER_TYPE_BASE;
-	info->interlace_type = PNG_INTERLACE_NONE;
-	info->channels = source_image.getChannels();
-	info->pixel_depth = source_image.getChannels()*8;
-	info->spare_byte = 0;
-	memcpy(info->signature,"PNG     ",8);
+		info->width = source_image.getWidth();
+		info->height = source_image.getHeight();
+		info->valid = 0;
+		info->rowbytes = source_image.getWidth()*source_image.getChannels();
+		info->palette = NULL;
+		info->num_palette = 0;
+		info->num_trans = 0;
+		info->bit_depth = 8;
+		info->color_type = _GetColorType(source_image.getChannels());
+		info->compression_type = PNG_COMPRESSION_TYPE_BASE;
+		info->filter_type = PNG_FILTER_TYPE_BASE;
+		info->interlace_type = PNG_INTERLACE_NONE;
+		info->channels = source_image.getChannels();
+		info->pixel_depth = source_image.getChannels()*8;
+		info->spare_byte = 0;
+		memcpy(info->signature,"PNG     ",8);
 		
-	png_bytepp image = new png_bytep[source_image.getHeight()];
-	for (UINT32 i = 0; i < source_image.getHeight(); i++)
-	{
-		image[i] = new png_byte[source_image.getWidth()*source_image.getChannels()];
-		for (UINT32 j = 0; j < source_image.getWidth(); j++)
+		image = new png_bytep[source_image.getHeight()];
+		for (UINT32 i = 0; i < source_image.getHeight(); i++)
 		{
-			const BYTE*pixel = source_image.get(j,i);
-			for (BYTE k = 0; k < info->channels; k++)
-				image[i][j*info->channels+k] = pixel[k];
+			image[i] = new png_byte[source_image.getWidth()*source_image.getChannels()];
+			for (UINT32 j = 0; j < source_image.getWidth(); j++)
+			{
+				const BYTE*pixel = source_image.get(j,i);
+				for (BYTE k = 0; k < info->channels; k++)
+					image[i][j*info->channels+k] = pixel[k];
+			}
 		}
-	}
 			
-	png_set_rows(png,info,image);
-	png_write_png(png,info,PNG_TRANSFORM_IDENTITY,NULL);
-	png_destroy_info_struct(png,&info);
-	png_destroy_write_struct(&png,NULL);
+		png_set_rows(png,info,image);
+		png_write_png(png,info,PNG_TRANSFORM_IDENTITY,NULL);
+		png_destroy_info_struct(png,&info);
+		png_destroy_write_struct(&png,NULL);
 			
-			
-	for (UINT32 i = 0; i < source_image.getHeight(); i++)
-	{
-		delete[] image[i];
-	}
-	delete[] image;
+
+
+		for (UINT32 i = 0; i < source_image.getHeight(); i++)
+		{
+			delete[] image[i];
+		}
+		delete[] image;
 	
-	//log_file << "copying compressed image ("<<out_buffer.fillLevel()<<" byte(s))...\r\n";
-	out_buffer.copyToArray(data);
+		//log_file << "copying compressed image ("<<out_buffer.fillLevel()<<" byte(s))...\r\n";
+		out_buffer.copyToArray(data);
+	}
+	catch (const std::exception&)
+	{
+		png_destroy_info_struct(png,&info);
+		png_destroy_write_struct(&png,NULL);
+			
+		if (image)
+		{
+			for (UINT32 i = 0; i < source_image.getHeight(); i++)
+			{
+				delete[] image[i];
+			}
+			delete[] image;
+		}
+		throw;
+	}
 }
 
 
@@ -410,23 +447,32 @@ void PNG::loadFromFilePointer(Image&target, FILE*f)
 	global_source = reinterpret_cast<const BYTE*>(data);
 	global_at = 0;
 	global_size = data_size;
+	
+	try
+	{
+		png_read_png(png,info,PNG_TRANSFORM_IDENTITY,NULL);
 			
-	png_read_png(png,info,PNG_TRANSFORM_IDENTITY,NULL);
-			
-	png_bytepp image = png_get_rows(png,info);
-	bool palette = info->color_type&PNG_COLOR_MASK_PALETTE;
-	out_image.setDimensions(info->width,info->height,palette?3:info->channels);
-	out_image.setContentType(PixelType::Color);
+		png_bytepp image = png_get_rows(png,info);
+		bool palette = info->color_type&PNG_COLOR_MASK_PALETTE;
+		out_image.setDimensions(info->width,info->height,palette?3:info->channels);
+		out_image.setContentType(PixelType::Color);
 
-	for (UINT32 x = 0; x < info->width; x++)
-		for (UINT32 y = 0; y < info->height; y++)
-		    if (palette)
-		        out_image.set(x,y,&info->palette[image[y][x]*info->channels].red);
-		    else
-		        out_image.set(x,y,&image[y][x*info->channels]);
+		for (UINT32 x = 0; x < info->width; x++)
+			for (UINT32 y = 0; y < info->height; y++)
+				if (palette)
+					out_image.set(x,y,&info->palette[image[y][x]*info->channels].red);
+				else
+					out_image.set(x,y,&image[y][x*info->channels]);
 
-	png_destroy_info_struct(png,&info);
-	png_destroy_read_struct(&png,NULL,NULL);
+		png_destroy_info_struct(png,&info);
+		png_destroy_read_struct(&png,NULL,NULL);
+	}
+	catch (std::exception&)
+	{
+		png_destroy_info_struct(png,&info);
+		png_destroy_read_struct(&png,NULL,NULL);
+		throw;
+	}
 }
 
 /*static*/	void		PNG::decompressArray(Image&out_image, const Array<BYTE>&data)
@@ -435,3 +481,38 @@ void PNG::loadFromFilePointer(Image&target, FILE*f)
 
 }
 
+
+/*static*/	void		PNG::decompressStream(Image&out_image, IReadStream&stream)
+{
+	inStream = &stream;
+
+	png_structp png = png_create_read_struct(PNG_LIBPNG_VER_STRING,(void*)pngError,readError,handleWarning);
+	png_infop info= png_create_info_struct(png);
+	png_set_read_fn(png,NULL,readSectionFromStream);
+	
+	try
+	{
+		png_read_png(png,info,PNG_TRANSFORM_IDENTITY,NULL);
+			
+		png_bytepp image = png_get_rows(png,info);
+		bool palette = info->color_type&PNG_COLOR_MASK_PALETTE;
+		out_image.setDimensions(info->width,info->height,palette?3:info->channels);
+		out_image.setContentType(PixelType::Color);
+
+		for (UINT32 x = 0; x < info->width; x++)
+			for (UINT32 y = 0; y < info->height; y++)
+				if (palette)
+					out_image.set(x,y,&info->palette[image[y][x]*info->channels].red);
+				else
+					out_image.set(x,y,&image[y][x*info->channels]);
+
+		png_destroy_info_struct(png,&info);
+		png_destroy_read_struct(&png,NULL,NULL);
+	}
+	catch (const std::exception&)
+	{
+		png_destroy_info_struct(png,&info);
+		png_destroy_read_struct(&png,NULL,NULL);
+		throw;
+	}
+}

@@ -60,7 +60,7 @@ namespace Flare
 
 
 
-	void			signalLightsChanged()
+	void			SignalLightsChanged()
 	{
 		lights_changed = true;
 	}

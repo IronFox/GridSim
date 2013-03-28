@@ -164,8 +164,7 @@ template <typename Object, typename Float = float, typename Attachment = NoBVHAt
 
             void				Reset()
             {
-                boundingBox.setAllMin(std::numeric_limits<Float>::max());
-                boundingBox.setAllMax(std::numeric_limits<Float>::min());
+                boundingBox.setAll(MaxInvalidRange<Float>());
                 volumeUntilThis = 0;
                 volumeFromThis = 0;
 				numElements = 0;
@@ -177,8 +176,7 @@ template <typename Object, typename Float = float, typename Attachment = NoBVHAt
         static Node*		_BuildNode(Entry*const elements, const count_t numElements, ArrayData<Bucket>&buckets)
         {
             Box<Float> boundingBox;
-            boundingBox.setAllMin(std::numeric_limits<Float>::max());
-            boundingBox.setAllMax(std::numeric_limits<Float>::min());
+			boundingBox.setAll(MaxInvalidRange<Float>());
 
 			for (index_t i = 0; i < numElements; i++)
                 boundingBox.include(elements[i].boundingBox);
@@ -191,8 +189,7 @@ template <typename Object, typename Float = float, typename Attachment = NoBVHAt
 
 
             Box<Float> centerVolume;
-            centerVolume.setAllMin(std::numeric_limits<Float>::max());
-            centerVolume.setAllMax(std::numeric_limits<Float>::min());
+			centerVolume.setAll(MaxInvalidRange<Float>());
 			for (index_t i = 0; i < numElements; i++)
                 centerVolume.include(elements[i].boundingBox.center());
 
