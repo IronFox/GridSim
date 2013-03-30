@@ -44,7 +44,7 @@ namespace CGS
 				Vec::mult(end_point.direction,-1);
 			
 			segment->changed = true;
-			segment->onChanged(final);
+			segment->OnChanged(final);
 			return;
 		}
 		if (!stub)
@@ -121,7 +121,7 @@ namespace CGS
 					Vec::mult(end_point.direction,-1);
 				//lout << "  final end point direction is "<<Vec::toString(end_point.direction)<<nl;
 				connectors[i].segment->changed = true;
-				connectors[i].segment->onChanged(final);
+				connectors[i].segment->OnChanged(final);
 			}
 		}
 	}

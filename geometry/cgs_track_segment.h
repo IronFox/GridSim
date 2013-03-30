@@ -286,7 +286,7 @@ namespace CGS
 			
 	virtual	void							onDisconnectFrom(TrackConnector*);
 	virtual	void							onConnectTo(TrackConnector*)		{};
-	virtual	void							onChanged(bool final)				{};
+	virtual	void							OnChanged(bool final)				{};
 
 	private:
 		template <typename Def>

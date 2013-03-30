@@ -360,11 +360,11 @@ public:
 	@param manage_slots Set true to automatically adjust node slot count and occupation as needed. Compares distances.
 	@return Index of the new connection, or InvalidIndex, if creation was impossible
 	*/
-	index_t								SmartLink(index_t node0, index_t node1, bool manageSlots,bool updateControls, bool build, IndexSet*affectedSegments);
+	index_t								SmartLink(index_t node0, index_t node1, bool manageSlots,bool updateControls, bool build, IndexSet*affectedSegments=NULL);
 	index_t								FindSegment(const Segment::Connector&slot0, const Segment::Connector&slot1)	const;
 	void								Unlink(index_t segmentIndex);
-	void								ManagedUnlink(index_t segmentIndex,bool updateControls, bool build, IndexSet*affectedSegments);
-	void								ManagedRemoveNode(index_t nodeIndex, bool updateConnectedSlopes, bool updateConnectedSegmentControls, bool build, BasicBuffer<std::pair<index_t,PAttachment> >*removedSegments, IndexSet*affectedSegments);
+	void								ManagedUnlink(index_t segmentIndex,bool updateControls, bool build, IndexSet*affectedSegments = NULL);
+	void								ManagedRemoveNode(index_t nodeIndex, bool updateConnectedSlopes, bool updateConnectedSegmentControls, bool build, BasicBuffer<std::pair<index_t,PAttachment> >*removedSegments, IndexSet*affectedSegments=NULL);
 	/**
 	@brief Copies all local data into a more compact form with no unused memory inbetwen
 	*/
@@ -374,8 +374,8 @@ public:
 	*/
 	void								MoveCompact(Compacted&target);
 
-	void								UpdateSlopes(index_t node, bool updateConnectedSegmentControls, bool rebuildSegments, IndexSet*affectedSegments);
-	void								UpdateSlopes(Node&node, bool updateConnectedSegmentControls, bool rebuildSegments, IndexSet*affectedSegments);
+	void								UpdateSlopes(index_t node, bool updateConnectedSegmentControls, bool rebuildSegments, IndexSet*affectedSegments=NULL);
+	void								UpdateSlopes(Node&node, bool updateConnectedSegmentControls, bool rebuildSegments, IndexSet*affectedSegments=NULL);
 	void								UpdateControls(index_t segment, bool rebuild);
 	void								UpdateControls(Segment&segment, bool rebuild);
 	void								RebuildSegment(index_t segment);
