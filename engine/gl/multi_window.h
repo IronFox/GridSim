@@ -114,7 +114,10 @@ namespace Engine
 		};
 			
 		class	Attachment		//!< Menu entry attachment
-		{};
+		{
+		public:
+			virtual			~Attachment()	{}
+		};
 			
 		typedef 	void	(Window::*pEntryCallback)(MenuEntry*);
 		typedef 	void	(Window::*pCallback)();
@@ -126,7 +129,7 @@ namespace Engine
 		pSimpleCallback				simple_callback;	//!< Plain handler function that requires no menu entry as parameter
 		pSimpleEntryCallback		simple_entry_callback;	//!< Plain handler function that requires the menu entry as parameter
 			
-		Reference<Attachment>		attachment;		//!< Custom menu entry attachment
+		shared_ptr<Attachment>		attachment;		//!< Custom menu entry attachment
 			
 		#if SYSTEM==WINDOWS
 			HMENU					menu_handle;	//!< Handle to windows menu (if any)

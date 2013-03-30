@@ -190,7 +190,10 @@ namespace CLI	//! Command line interpretor
 
 
 	class Attachable	//! Base class for Folder and Command attachments
-	{};
+	{
+	public:
+		virtual					~Attachable()	{};
+	};
 
 	typedef std::shared_ptr<Attachable>	PAttachment;
 
@@ -440,6 +443,7 @@ namespace CLI	//! Command line interpretor
 		PVariable 					FindVar(const String&path,PFolder*folder_out=NULL);	//!< Attempts to find a variable matching \b path @param path Path of the variable to look for \return Pointer to a matching variable or NULL if no such variable exists
 		PVariable					FindVar(const char*path,PFolder*folder_out=NULL);		//!< Identical to findVar(const String&)
 		PFolder						FindFolder(const String&path);	//!< Attempts to find a folder matching \b path @param path Path of the folder to look for \return Pointer to a matching folder or NULL if no such folder exists
+		const PFolder&				GetRoot() const	{return root;}
 		/*!
 		\brief Interprets one or more lines
 				

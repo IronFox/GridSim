@@ -45,7 +45,10 @@ namespace CLI
 	@param message String message to be passed to println if the respective command or variable is queried
 	
 	*/
-	void	RegisterHelp(void*pointer,const String&message);
+	void			RegisterHelp(void*pointer,const String&message);
+	inline void		RegisterHelp(const CLI::PCommand&cmd,const String&message)	{RegisterHelp((void*)cmd.get(),message);}
+	inline void		RegisterHelp(const CLI::PFolder&fld,const String&message)	{RegisterHelp((void*)fld.get(),message);}
+	inline void		RegisterHelp(const CLI::PVariable&var,const String&message)	{RegisterHelp((void*)var.get(),message);}
 	
 	/**
 	@brief Unregisters a help entry.

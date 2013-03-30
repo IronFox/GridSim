@@ -11,14 +11,14 @@ E:\include\string\cli.tpl.h
 template <typename F>
 	CLI::PCommand				CLI::Interpretor::DefineCommand(const String& def, const F&f, eCommandCompletion completion/*=NoCompletion*/)
 	{
-		Tokenizer::tokenize(def,lookup.path_config,lookup.path_segments);
-		if (!lookup.path_segments)
+		Tokenizer::tokenize(def,lookup.pathConfig,lookup.pathSegments);
+		if (!lookup.pathSegments)
 			return NULL;
 		PFolder parent = _Resolve(def.beginsWith('/'));
 		if (!parent)
 			return NULL;
 		
-		StringList	items(lookup.path_segments.last());
+		StringList	items(lookup.pathSegments.last());
 		if (!items)
 			return NULL;
 		detail::makeValidName(items.first());
