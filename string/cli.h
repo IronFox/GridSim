@@ -263,7 +263,7 @@ namespace CLI	//! Command line interpretor
 
 	class Folder;
 	typedef std::shared_ptr<Folder>	PFolder;
-	typedef std::weak_ptr<Folder>	WPFolder;
+	typedef std::weak_ptr<Folder>	WFolder;
 
 	template <typename T>
 		class ItemTable : private Buffer<shared_ptr<T> >
@@ -314,7 +314,7 @@ namespace CLI	//! Command line interpretor
 		ItemTable<Variable>			variables;		//!< Variables stored in this folder
 		ItemTable<Command>			commands;		//!< Commands in this folder
 		ItemTable<Folder>			folders;		//!< Sub folders
-		const WPFolder				parent;	//!< Parent folder or NULL if this folder has no parent
+		const WFolder				parent;	//!< Parent folder or NULL if this folder has no parent
 		const String				name;			//!< Folder name
 			
 		/**/						Folder(const PFolder&,const String&);
