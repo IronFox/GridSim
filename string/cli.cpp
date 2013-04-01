@@ -1221,7 +1221,13 @@ namespace CLI
 	
 	void		Interpretor::SetFocus(const PFolder&folder)
 	{
-		focused = folder;
+		if (folder)
+			focused = folder;
+		else
+		{
+			FATAL__("Trying to set NULL focus");
+			//focused = root;
+		}
 	}
 
 	void		Interpretor::PushFocus()
@@ -1232,7 +1238,7 @@ namespace CLI
 	void		Interpretor::PushAndReplaceFocus(const PFolder&new_focus)
 	{
 		PushFocus();
-		if (new_focus)
+		//if (new_focus)
 			SetFocus(new_focus);
 	}
 
