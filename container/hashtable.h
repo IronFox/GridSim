@@ -50,6 +50,9 @@ static inline hash_t			hash(const IHashable*hashable);
 template <typename T>
 static inline hash_t 			hash(const ArrayData<T>&ident);
 
+template <typename T0, typename T1>
+static inline hash_t 			hash(const std::pair<T0,T1>&ident);
+
 
 
 };

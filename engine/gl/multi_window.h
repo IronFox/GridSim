@@ -154,7 +154,6 @@ namespace Engine
 		MenuEntry*					setChecked(bool checked);		//!< Updates the checked-state of the local menu entry. The local object may be NULL \return this
 		MenuEntry*					setRadio(bool is_radio=true);	//!< Changes the appearance of the local menu entry. The local object may be NULL \return this
 		MenuEntry*					unsetRadio();					//!< Changes the appearance of the local menu entry. The local object may be NULL \return this
-		MenuEntry*					attach(Attachment*attachment, const Signature&signature);	//!< Attaches the specified attachment to this menu entry. The local object may be NULL
 		bool						hasCallback()	const;			//!< Queries whether or not this menu entry has a callback method/function pointer attached
 		const String&				getCaption()	const;			//!< Retrieves the local menu entry caption
 		MenuEntry*					getParent()		const	{return parent;}

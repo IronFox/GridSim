@@ -789,12 +789,7 @@ template <class C>
 							}
 	};
 
-template <class C>
-	class StrategySelector<ArrayData<C> >
-	{
-	public:
-			typedef	AdoptStrategy		Default;
-	};
+DECLARE_T__(ArrayData,SwapStrategy);
 
 
 	/*
@@ -1270,13 +1265,7 @@ template <>
 	}
 			
 			
-template <class C, class Strategy>
-	class StrategySelector<Array<C, Strategy> >
-	{
-	public:
-			typedef	SwapStrategy		Default;
-	};
-
+DECLARE_T2__(Array,class,class,SwapStrategy);
 
 
 template <typename T>
@@ -1290,7 +1279,7 @@ template <typename T>
 	
 	The Array2D class maps 2d access to a single-dimensional field. Internally it behaves like a normal Array instance, but it provides some 2d access helper method.
 */
-template <class C, class Strategy=typename StrategySelector<C>::Default>
+template <class C, class Strategy=typename Strategy::StrategySelector<C>::Default>
 	class Array2D:public Array<C,Strategy>
 	{
 	protected:
@@ -1370,12 +1359,7 @@ template <class C, class Strategy=typename StrategySelector<C>::Default>
 	};
 
 
-template <class C, class Strategy>
-	class StrategySelector<Array2D<C, Strategy> >
-	{
-	public:
-			typedef	SwapStrategy		Default;
-	};
+DECLARE_T2__(Array2D,class,class,SwapStrategy);
 
 
 

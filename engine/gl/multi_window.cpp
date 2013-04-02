@@ -386,13 +386,7 @@ namespace Engine
 		return enabled?enable():disable();
 	}
 	
-	MenuEntry*					MenuEntry::attach(Attachment*attachment_, const Signature&signature)
-	{
-		if (!this)
-			return this;
-		attachment.set(attachment_,signature);
-		return this;
-	}
+
 
 
 

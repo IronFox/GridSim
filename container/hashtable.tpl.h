@@ -39,6 +39,16 @@ template <typename T>
 		return result;
 	}
 
+template <typename T0, typename T1>
+	static inline hash_t 	StdHash::hash(const std::pair<T0,T1>&ident)
+	{
+		hash_t	result = hash(ident.first);
+		result *= 17;
+		result += hash(ident.second);
+		return result;
+	}
+
+
 template <>
 	inline hash_t 			StdHash::hash(const ArrayData<const void*>&field)
 	{
