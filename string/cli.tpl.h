@@ -245,19 +245,19 @@ template <count_t Components>
 			VecUnroll<Components>::copy(content_,content);
 	}
 	
-template <unsigned Components>
+template <count_t Components>
 	String		DoubleVectorVariable<Components>::ToString()					const
 	{
 		return VecUnroll<Components>::toString(content);
 	}
 
-template <unsigned Components>	
+template <count_t Components>	
 	bool		DoubleVectorVariable<Components>::Set(const String&value)
 	{
 		return SetVectorVariableContent<double,Components>(content,value);
 	}
 
-template <unsigned Components>	
+template <count_t Components>	
 	bool		DoubleVectorVariable<Components>::Set(const String&component, const String&value)
 	{
 		return SetVectorVariableContent<double,Components>(content,component,value);
