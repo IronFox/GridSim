@@ -445,7 +445,7 @@ namespace ComplexMath
 		return Complex<C>(re,-im);
 	}
 	
-	MFUNC (String)		 Complex<C>::toString()
+	MFUNC (String)		 Complex<C>::ToString()
 	{
 		unsigned len = v2len(re)+1,l;
 		if (im)

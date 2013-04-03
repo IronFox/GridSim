@@ -234,7 +234,7 @@ namespace FileSystem
 
 
 
-	String File::toString() const
+	String File::ToString() const
 	{
 		return is_folder?"Folder: "+location:"File: "+location;
 	}
@@ -367,7 +367,7 @@ namespace FileSystem
 		return root;
 	}
 
-	String Drive::toString() const
+	String Drive::ToString() const
 	{
 		return name+" ("+root+")";
 	}
@@ -849,12 +849,12 @@ namespace FileSystem
 		return find(folder_str,out) && !out.is_folder;
 	}
 
-	bool	 Folder::findFolder(const String&folder_str, File&out)	const
+	bool	 Folder::FindFolder(const String&folder_str, File&out)	const
 	{
 		return find(folder_str,out) && out.is_folder;
 	}
 
-	const Folder::File*	 Folder::findFolder(const String&folder_str)	const
+	const Folder::File*	 Folder::FindFolder(const String&folder_str)	const
 	{
 		const File*rs = find(folder_str);
 		if (!rs || !rs->is_folder)
@@ -888,7 +888,7 @@ namespace FileSystem
 
 
 
-	String		 Folder::toString() const
+	String		 Folder::ToString() const
 	{
 		if (!valid_location)
 			return "Folder: "+absolute_folder+"(invalid)";

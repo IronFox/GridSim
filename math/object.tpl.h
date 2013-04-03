@@ -1592,11 +1592,11 @@ namespace ObjectMath
 	
 	
 	template <class Def>
-		MF_DECLARE (String)		TMeshFaceLink<Def>::toString(bool full)	const
+		MF_DECLARE (String)		TMeshFaceLink<Def>::ToString(bool full)	const
 		{
 			if (!triangle)
 				return "NULL";
-			return is_quad?quad->toString(full):triangle->toString(full);
+			return is_quad?quad->ToString(full):triangle->ToString(full);
 		}
 	
 	template <class Def>
@@ -2470,7 +2470,7 @@ namespace ObjectMath
 			{
 				char index1 = face.indexOf((MeshVertex<TFaceGraphDef<Def> >*)this);
 				if (index1 == -1)	//path lost
-					FATAL__("path lost. "+face.toString()+" does not contain v"+IntToStr(((MeshVertex<TFaceGraphDef<Def> >*)this)->index));
+					FATAL__("path lost. "+face.ToString()+" does not contain v"+IntToStr(((MeshVertex<TFaceGraphDef<Def> >*)this)->index));
 
 				fbuffer[fcnt++] = face;
 				face.mark();
@@ -2510,11 +2510,11 @@ namespace ObjectMath
 			Link current = first;	//try to find islands
 			while (current)
 			{
-// 				cout << "linked: "<<current.toString()<<endl;
+// 				cout << "linked: "<<current.ToString()<<endl;
 				BYTE vindex = current.requireIndexOf((Vertex*)this);
 				if (!current.marked() && !current.neighbor(vindex))	//left oriented edge
 				{
-// 					cout << "open: "<<current.toString()<<endl;
+// 					cout << "open: "<<current.ToString()<<endl;
 					fbuffer[offset+fentries++] = current;
 				}
 				current = current.getNextAround(vindex);
@@ -2523,7 +2523,7 @@ namespace ObjectMath
 			for (index_t i = 0; i < fentries; i++)
 			{
 				current = fbuffer[offset+i];
-// 				cout << "processing "<<current.toString()<<endl;
+// 				cout << "processing "<<current.ToString()<<endl;
 				char vindex = current.indexOf((Vertex*)this);
 				if (vindex < 0 || current.marked())
 					continue;
@@ -2534,7 +2534,7 @@ namespace ObjectMath
 // 				{
 // 					cout << "faces found: "<<endl;
 // 					for (unsigned i = 0; i < fcnt; i++)
-// 						cout << " - "<<fbuffer[i].toString()<<endl;
+// 						cout << " - "<<fbuffer[i].ToString()<<endl;
 // 				}
 				if (fcnt)
 				{
@@ -2542,7 +2542,7 @@ namespace ObjectMath
 					if (fbuffer[0].is_quad)
 					{
 						Quad*q = fbuffer[0].quad;
-// 						cout << q->toString()<<" unset in "<<__LINE__<<endl;
+// 						cout << q->ToString()<<" unset in "<<__LINE__<<endl;
 						
 						BYTE me = q->requireIndexOf((Vertex*)this);
 						pivot = q->vertex[(me+1)%4];
@@ -2562,8 +2562,8 @@ namespace ObjectMath
 						t->n2.replaceNeighbor(q,t);
 						q->n[me].unsetNeighbor(q);
 						
-// 						cout << t->toString()<<" created in "<<__LINE__<<" replacing "<<q->toString()<<endl;
-// 						cout << "  neighbors: \n    "<<t->n0.toString()<<"\n    "<<t->n1.toString()<<"\n    "<<t->n2.toString()<<endl;
+// 						cout << t->ToString()<<" created in "<<__LINE__<<" replacing "<<q->ToString()<<endl;
+// 						cout << "  neighbors: \n    "<<t->n0.ToString()<<"\n    "<<t->n1.ToString()<<"\n    "<<t->n2.ToString()<<endl;
 						
 						_oUnlinkFromVertices(q,(Vertex*)this);
 						_oLinkToVertices(t);
@@ -2572,7 +2572,7 @@ namespace ObjectMath
 					else
 					{
 						Triangle*t = fbuffer[0].triangle;
-// 						cout << t->toString()<<" unset in "<<__LINE__<<endl;
+// 						cout << t->ToString()<<" unset in "<<__LINE__<<endl;
 						BYTE me = t->requireIndexOf((Vertex*)this);
 						t->n[(me+2)%3].replaceNeighbor(t,t->n[(me+1)%3]);
 						t->n[(me+1)%3].replaceNeighbor(t,t->n[(me+2)%3]);
@@ -2587,7 +2587,7 @@ namespace ObjectMath
 						if (fbuffer[i].is_quad)
 						{
 							Quad*q = fbuffer[i].quad;
-// 							cout << q->toString()<<" processed in "<<__LINE__<<endl;
+// 							cout << q->ToString()<<" processed in "<<__LINE__<<endl;
 							BYTE index = q->requireIndexOf((Vertex*)this);
 							q->vertex[index]->unlink(q);
 							q->vertex[index] = pivot;
@@ -2597,7 +2597,7 @@ namespace ObjectMath
 						else
 						{
 							Triangle*t = fbuffer[i].triangle;
-// 							cout << t->toString()<<" processed in "<<__LINE__<<endl;
+// 							cout << t->ToString()<<" processed in "<<__LINE__<<endl;
 							BYTE index = t->requireIndexOf((Vertex*)this);
 							t->vertex[index]->unlink(t);
 							t->vertex[index] = pivot;
@@ -2650,7 +2650,7 @@ namespace ObjectMath
 					if (fbuffer[begin].is_quad)
 					{
 						Quad*q = fbuffer[begin].quad;
-// 						cout << q->toString()<<" processed in "<<__LINE__<<endl;
+// 						cout << q->ToString()<<" processed in "<<__LINE__<<endl;
 						BYTE me = q->requireIndexOf((Vertex*)this);
 						pivot = q->vertex[(me+1)%4];
 						Triangle*t = object.triangles.append();
@@ -2669,7 +2669,7 @@ namespace ObjectMath
 						t->n2.replaceNeighbor(q,t);
 						q->n[me].unsetNeighbor(q);
 					
-// 						cout << t->toString()<<" created in "<<__LINE__<<" replacing "<<q->toString()<<endl;
+// 						cout << t->ToString()<<" created in "<<__LINE__<<" replacing "<<q->ToString()<<endl;
 						
 						_oUnlinkFromVertices(q,(Vertex*)this);
 						_oLinkToVertices(t);
@@ -2677,7 +2677,7 @@ namespace ObjectMath
 					else
 					{
 						Triangle*t = fbuffer[begin].triangle;
-// 						cout << t->toString()<<" unset in "<<__LINE__<<endl;
+// 						cout << t->ToString()<<" unset in "<<__LINE__<<endl;
 						BYTE me = t->requireIndexOf((Vertex*)this);
 						t->n[(me+2)%3].replaceNeighbor(t,t->n[(me+1)%3]);
 						t->n[(me+1)%3].replaceNeighbor(t,t->n[(me+2)%3]);
@@ -2693,7 +2693,7 @@ namespace ObjectMath
 						if (fbuffer[i].is_quad)
 						{
 							Quad*q = fbuffer[i].quad;
-// 							cout << q->toString()<<" processed in "<<__LINE__<<endl;
+// 							cout << q->ToString()<<" processed in "<<__LINE__<<endl;
 							BYTE index = q->requireIndexOf((Vertex*)this);
 							q->vertex[index]->unlink(q);
 							q->vertex[index] = pivot;
@@ -2703,7 +2703,7 @@ namespace ObjectMath
 						else
 						{
 							Triangle*t = fbuffer[i].triangle;
-// 							cout << t->toString()<<" processed in "<<__LINE__<<endl;
+// 							cout << t->ToString()<<" processed in "<<__LINE__<<endl;
 							BYTE index = t->requireIndexOf((Vertex*)this);
 							t->vertex[index]->unlink(t);
 							t->vertex[index] = pivot;
@@ -2715,7 +2715,7 @@ namespace ObjectMath
 					if (fbuffer[end].is_quad)
 					{
 						Quad*q = fbuffer[end].quad;
-// 						cout << q->toString()<<" processed in "<<__LINE__<<endl;
+// 						cout << q->ToString()<<" processed in "<<__LINE__<<endl;
 						BYTE me = q->requireIndexOf((Vertex*)this);
 						Triangle*t = object.triangles.append();
 						t->index = object.triangles-1;
@@ -2733,7 +2733,7 @@ namespace ObjectMath
 						t->n2.replaceNeighbor(q,t);
 						q->n[(me+3)%4].unsetNeighbor(q);
 					
-// 						cout << t->toString()<<" created in "<<__LINE__<<" replacing "<<q->toString()<<endl;
+// 						cout << t->ToString()<<" created in "<<__LINE__<<" replacing "<<q->ToString()<<endl;
 
 						
 						_oUnlinkFromVertices(q,(Vertex*)this);
@@ -2742,7 +2742,7 @@ namespace ObjectMath
 					else
 					{
 						Triangle*t = fbuffer[end].triangle;
-// 						cout << t->toString()<<" unset in "<<__LINE__<<endl;
+// 						cout << t->ToString()<<" unset in "<<__LINE__<<endl;
 						BYTE me = t->requireIndexOf((Vertex*)this);
 						t->n[me].replaceNeighbor(t,t->n[(me+1)%3]);
 						t->n[(me+1)%3].replaceNeighbor(t,t->n[me]);
@@ -2761,7 +2761,7 @@ namespace ObjectMath
 	#endif
 	
 	template <class Def>
-		MF_DECLARE	(String)		TFaceGraphDefTriangle<Def>::toString(bool full)	const
+		MF_DECLARE	(String)		TFaceGraphDefTriangle<Def>::ToString(bool full)	const
 		{
  			typedef MeshVertex<TFaceGraphDef<Def> >		Vertex;
  			typedef MeshTriangle<TFaceGraphDef<Def> >	Triangle;
@@ -2769,11 +2769,11 @@ namespace ObjectMath
  			const Triangle*t = (const Triangle*)this;
  			if (!full)
  				return "t"+IntToStr(t->index);
- 			return "t"+IntToStr(t->index)+" {v"+IntToStr(t->v0->index)+", v"+IntToStr(t->v1->index)+", v"+IntToStr(t->v2->index)+"} {"+n0.toString(false)+", "+n1.toString(false)+", "+n2.toString(false)+"}";
+ 			return "t"+IntToStr(t->index)+" {v"+IntToStr(t->v0->index)+", v"+IntToStr(t->v1->index)+", v"+IntToStr(t->v2->index)+"} {"+n0.ToString(false)+", "+n1.ToString(false)+", "+n2.ToString(false)+"}";
 		}
 	
 	template <class Def>
-		MF_DECLARE	(String)		TFaceGraphDefQuad<Def>::toString(bool full)	const
+		MF_DECLARE	(String)		TFaceGraphDefQuad<Def>::ToString(bool full)	const
 		{
  			typedef MeshVertex<TFaceGraphDef<Def> >		Vertex;
  			typedef MeshTriangle<TFaceGraphDef<Def> >	Triangle;
@@ -2781,7 +2781,7 @@ namespace ObjectMath
  			const Quad*t = (const Quad*)this;
  			if (!full)
  				return "q"+IntToStr(t->index);
- 			return "q"+IntToStr(t->index)+" {v"+IntToStr(t->v0->index)+", v"+IntToStr(t->v1->index)+", v"+IntToStr(t->v2->index)+", v"+IntToStr(t->v3->index)+"} {"+n0.toString(false)+", "+n1.toString(false)+", "+n2.toString(false)+", "+n3.toString(false)+"}";
+ 			return "q"+IntToStr(t->index)+" {v"+IntToStr(t->v0->index)+", v"+IntToStr(t->v1->index)+", v"+IntToStr(t->v2->index)+", v"+IntToStr(t->v3->index)+"} {"+n0.ToString(false)+", "+n1.ToString(false)+", "+n2.ToString(false)+", "+n3.ToString(false)+"}";
 		}
 
 	
@@ -3127,7 +3127,7 @@ namespace ObjectMath
 	
 	
 	template <class Def>
-		MF_DECLARE	(String)		TGraphDefTriangle<Def>::toString(bool full)	const
+		MF_DECLARE	(String)		TGraphDefTriangle<Def>::ToString(bool full)	const
 		{
  			typedef MeshVertex<TFaceGraphDef<Def> >		Vertex;
  			typedef MeshTriangle<TFaceGraphDef<Def> >	Triangle;
@@ -3135,11 +3135,11 @@ namespace ObjectMath
  			const Triangle*t = (const Triangle*)this;
  			if (!full)
  				return "t"+IntToStr(t->index);
- 			return "t"+IntToStr(t->index)+" {v"+IntToStr(t->v0->index)+", v"+IntToStr(t->v1->index)+", v"+IntToStr(t->v2->index)+"} {"+n0.toString(false)+", "+n1.toString(false)+", "+n2.toString(false)+"} {e"+IntToStr(e0.index)+", e"+IntToStr(e1.index)+", e"+IntToStr(e2.index)+"}";
+ 			return "t"+IntToStr(t->index)+" {v"+IntToStr(t->v0->index)+", v"+IntToStr(t->v1->index)+", v"+IntToStr(t->v2->index)+"} {"+n0.ToString(false)+", "+n1.ToString(false)+", "+n2.ToString(false)+"} {e"+IntToStr(e0.index)+", e"+IntToStr(e1.index)+", e"+IntToStr(e2.index)+"}";
 		}
 	
 	template <class Def>
-		MF_DECLARE	(String)		TGraphDefQuad<Def>::toString(bool full)	const
+		MF_DECLARE	(String)		TGraphDefQuad<Def>::ToString(bool full)	const
 		{
  			typedef MeshVertex<TFaceGraphDef<Def> >		Vertex;
  			typedef MeshTriangle<TFaceGraphDef<Def> >	Triangle;
@@ -3147,7 +3147,7 @@ namespace ObjectMath
  			const Quad*t = (const Quad*)this;
  			if (!full)
  				return "q"+IntToStr(t->index);
- 			return "q"+IntToStr(t->index)+" {v"+IntToStr(t->v0->index)+", v"+IntToStr(t->v1->index)+", v"+IntToStr(t->v2->index)+", v"+IntToStr(t->v3->index)+"} {"+n0.toString(false)+", "+n1.toString(false)+", "+n2.toString(false)+", "+n3.toString(false)+" {e"+IntToStr(e0.index)+", e"+IntToStr(e1.index)+", e"+IntToStr(e2.index)+", e"+IntToStr(e3.index)+"}";
+ 			return "q"+IntToStr(t->index)+" {v"+IntToStr(t->v0->index)+", v"+IntToStr(t->v1->index)+", v"+IntToStr(t->v2->index)+", v"+IntToStr(t->v3->index)+"} {"+n0.ToString(false)+", "+n1.ToString(false)+", "+n2.ToString(false)+", "+n3.ToString(false)+" {e"+IntToStr(e0.index)+", e"+IntToStr(e1.index)+", e"+IntToStr(e2.index)+", e"+IntToStr(e3.index)+"}";
 		}
 
 	
@@ -5506,7 +5506,7 @@ namespace ObjectMath
 	}
 
 	
-	template <class Def>MF_DECLARE	 (String) Mesh<Def>::toString() const
+	template <class Def>MF_DECLARE	 (String) Mesh<Def>::ToString() const
 	{
 		return "Mesh (vertices: "+String(vertex_field.length())+"; edges: "+String(edge_field.length())+"; triangles: "+String(triangle_field.length())+"; quads: "+String(quad_field.length())+"; valid: "+String((int)valid())+")";
 	}
@@ -7546,7 +7546,7 @@ namespace ObjectMath
 		MF_DECLARE	(bool) AbstractHull<FloatType>::detectMaximumIndentation(const AbstractHull<Float>&remote, TVec3<float>&indentation_out, bool verbose)	const
 		{
 			if (verbose)
-				ShowMessage("local: "+toString()+"\nremote: "+remote.toString());
+				ShowMessage("local: "+ToString()+"\nremote: "+remote.ToString());
 			float indentation(0);
 
 			for (index_t j = 0; j < remote.spheres.count(); j++)
@@ -7561,7 +7561,7 @@ namespace ObjectMath
 		}
 	
 	template <class FloatType>
-		MF_DECLARE	(String) AbstractHull<FloatType>::toString() const
+		MF_DECLARE	(String) AbstractHull<FloatType>::ToString() const
 		{
 			String rs;
 			for (index_t i = 0; i < spheres.count(); i++)

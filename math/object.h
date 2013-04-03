@@ -591,7 +591,7 @@ namespace ObjectMath	//! Collection of geometry related mathematical functions a
 				MF_DECLARE(bool)					marked()	const;										//!< Queries whether ot not the target face is marked
 				MF_DECLARE(void)					mark();													//!< Marks the target face
 			
-				MF_DECLARE(String)					toString(bool full=true)	const;						//!< Generates a string representation of the target face (if any)
+				MF_DECLARE(String)					ToString(bool full=true)	const;						//!< Generates a string representation of the target face (if any)
 		
 				MFUNC1 (void)						setNeighbor(MeshVertex<Def>*v,C0*face);					//TGraphDef and TFaceGraphDef
 				MF_DECLARE(void)					set(MeshQuad<Def>*q);									//!< Sets the local face target to the specified quad
@@ -653,7 +653,7 @@ namespace ObjectMath	//! Collection of geometry related mathematical functions a
 			MF_DECLARE	(char)					replace(MeshTriangle<TGraphDef<Def> >*neighbor, MeshQuad<TGraphDef<Def> >*with);
 			MF_DECLARE	(char)					replace(MeshEdge<TGraphDef<Def> >*e, MeshEdge<TGraphDef<Def> >*with);			
 			
-			MF_DECLARE	(String)				toString(bool full=true)	const;		//!< Generates a string representation of the local triangle
+			MF_DECLARE	(String)				ToString(bool full=true)	const;		//!< Generates a string representation of the local triangle
 		};
 
 	template <class Def>
@@ -694,7 +694,7 @@ namespace ObjectMath	//! Collection of geometry related mathematical functions a
 			MF_DECLARE	(char)					replace(MeshTriangle<TGraphDef<Def> >*v, MeshQuad<TGraphDef<Def> >*with);
 			MF_DECLARE	(char)					replace(MeshEdge<TGraphDef<Def> >*e, MeshEdge<TGraphDef<Def> >*with);
 			
-			MF_DECLARE	(String)				toString(bool full=true)	const;		//!< Generates a string representation of the local quad
+			MF_DECLARE	(String)				ToString(bool full=true)	const;		//!< Generates a string representation of the local quad
 		};
 
 	/*!
@@ -798,7 +798,7 @@ namespace ObjectMath	//! Collection of geometry related mathematical functions a
 			MF_DECLARE	(char)					replace(MeshTriangle<TFaceGraphDef<Def> >*neighbor, MeshTriangle<TFaceGraphDef<Def> >*with);
 			MF_DECLARE	(char)					replace(MeshTriangle<TFaceGraphDef<Def> >*neighbor, MeshQuad<TFaceGraphDef<Def> >*with);
 			
-			MF_DECLARE	(String)					toString(bool full=true)	const;		//!< Generates a string representation of the local triangle
+			MF_DECLARE	(String)					ToString(bool full=true)	const;		//!< Generates a string representation of the local triangle
 		};
 
 	template <class Def>
@@ -836,7 +836,7 @@ namespace ObjectMath	//! Collection of geometry related mathematical functions a
 			MF_DECLARE	(char)					replace(MeshTriangle<TFaceGraphDef<Def> >*v, MeshTriangle<TFaceGraphDef<Def> >*with);
 			MF_DECLARE	(char)					replace(MeshTriangle<TFaceGraphDef<Def> >*v, MeshQuad<TFaceGraphDef<Def> >*with);
 		
-			MF_DECLARE	(String)					toString(bool full=true)	const;		//!< Generates a string representation of the local quad
+			MF_DECLARE	(String)					ToString(bool full=true)	const;		//!< Generates a string representation of the local quad
 		};
 
 	/*!
@@ -1150,7 +1150,7 @@ namespace ObjectMath	//! Collection of geometry related mathematical functions a
 		MF_DECLARE	(void)						scale(const T&factor);									//!< Scales the local geometry by the specified factor.
 
 		MF_DECLARE	(String)					difference(Mesh<Def>&other, const String&intend);	//!< Depreciated. Attempts to form a string presentation of the difference between the local and the remote mesh.
-		MF_DECLARE	(String)					toString()	const;										//!< Retrieves a string representation of the local mesh. Does not contain any actual components.
+		MF_DECLARE	(String)					ToString()	const;										//!< Retrieves a string representation of the local mesh. Does not contain any actual components.
 				
 		MF_DECLARE	(void)						join(const Mesh<Def>*others, count_t count);		//!< Adds a number of mesh objects to the local mesh
 		MF_DECLARE	(void)						join(const Array<Mesh<Def> >&others);				//!< Adds a number of mesh objects to the local mesh
@@ -1245,7 +1245,7 @@ namespace ObjectMath	//! Collection of geometry related mathematical functions a
 			MF_CONSTRUCTOR				Point(const TVec3<Float>&position);
 			MFUNC	(bool)				operator>(const TVec3<C>&other)	const;	//!< Vector order priorizing x over y and y over z
 			MFUNC	(bool)				operator<(const TVec3<C>&other)	const;	//!< Vector order priorizing x over y and y over z
-			MF_DECLARE	(String)		toString()	const
+			MF_DECLARE	(String)		ToString()	const
 										{
 											return Vec::toString(*this);
 										}
@@ -1285,9 +1285,9 @@ namespace ObjectMath	//! Collection of geometry related mathematical functions a
 			MFUNC(void)					include(const TVec3<C>& point, Float radius);		//!< Extends radius so that the local sphere includes the specified sphere
 			MFUNC(void)					include(const AbstractSphere<C>&sphere);	//!< Extends radius so that the local sphere includes the specified sphere
 			MFUNC(bool)					contains(const TVec3<C>&point)	const;
-			MF_DECLARE	(String)		toString()	const
+			MF_DECLARE	(String)		ToString()	const
 										{
-											return "sphere: "+center.toString()+" r"+String(radius);
+											return "sphere: "+center.ToString()+" r"+String(radius);
 										}
 		};
 	
@@ -1333,7 +1333,7 @@ namespace ObjectMath	//! Collection of geometry related mathematical functions a
 			MF_DECLARE(void)			resolveIndentation(const AbstractCylinder<Float>&remote, Float&indentation, TVec3<Float>& indentation_vector, bool verbose)	const;//!< Attempts to determine the direction and intensity of an intersection between the local and a remote abstract geometry  \param remote Geometry to determine the indentation/intersection of \param indentation_vector Out vector that the local cylinder would have to be moved by to deintersect the two geometries. The resulting vector is of length 0 if the two geometries don't intersect.
 			MF_DECLARE(bool)			detectMaximumIndentation(const AbstractHull<Float>&remote, TVec3<>&indentation_out, bool verbose)	const;	//!< Detects the maximum indentation/intersection vector of the local and a remote abstract hull \param remote Hull to determine the indentation/intersection of \param indentation_out Out vector that the local hull would have to be moved by to deintersect the two hulls. The resulting vector is of length 0 if the two hulls don't intersect.
 			MFUNC(void)					translate(const TVec3<C>&delta);	//!< Translates the entire hull (all spheres and cylinders)
-			MF_DECLARE	(String)		toString()	const;				//!< Generates a string representation of the local hull
+			MF_DECLARE	(String)		ToString()	const;				//!< Generates a string representation of the local hull
 			void						adoptData(AbstractHull<Float>&other)	{spheres.adoptData(other.spheres); cylinders.adoptData(other.cylinders);}
 			void						swap(AbstractHull<Float>&other)			{spheres.swap(other.spheres); cylinders.swap(other.cylinders);}
 		};

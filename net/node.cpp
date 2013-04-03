@@ -38,7 +38,7 @@ namespace Net
 
 
 #if 0
-	String Name::toString() const
+	String Name::ToString() const
 	{
 		char str[INET6_ADDRSTRLEN];
 		switch (ss_family)
@@ -887,7 +887,7 @@ namespace Net
 				event(OnTick,origin,0);
 			#endif
 
-			checkTimeouts(); //interpret as tick
+			checkTimeouts(); //Interpret as tick
 			return true; //return because no other data is present (localhost only sends ticks)
 		}
 		if ((size_t)received < sizeof(TPackageHead))
@@ -1600,7 +1600,7 @@ namespace Net
 		#endif
 		target_addr.sin_addr.s_addr = 0;											  //reset all 4 bytes, so we don't get funny things later because...
 		memcpy(&target_addr.sin_addr.s_addr,server->h_addr_list[0],server->h_length); //I don't know why, but addresses returned by getHostByName are not necessarily 4-byte addresses. They can be of lesser length, so we use memcpy, to transfer the address
-	//	ShowMessage(String(addr)+" resolved to "+Name(target_addr).toString());
+	//	ShowMessage(String(addr)+" resolved to "+Name(target_addr).ToString());
 		return connectTo(target_addr);												//and connect to the target.
 #endif
 		return false;

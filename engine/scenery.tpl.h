@@ -207,7 +207,7 @@ namespace Engine
 		target->extractRadius(radius);
 		if (!radius)
 			radius = 1;
-		SCENERY_LOG(" dim = "+dim.toString());
+		SCENERY_LOG(" dim = "+dim.ToString());
 		SCENERY_LOG(" radius = "+String(radius));
 		//target->extractAverageVisualEdgeLength(0,average_edge_length);
 	    rescale();
@@ -823,7 +823,7 @@ namespace Engine
 	        if (material.textures[i].isEmpty())
 	            rs+="(empty)";
 	        else
-				rs += TextureDimension::toString(material.textures[i].dimension());
+				rs += TextureDimension::ToString(material.textures[i].dimension());
 	        rs+="\n";
 	    }
 	    rs+= " "+String(groups.count())+" group(s)\n";

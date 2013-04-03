@@ -69,7 +69,6 @@ namespace Math
 		MFUNC1 (void)					Set(const C0&v)							{Vec::set(*this,v);}
 		MF_DECLARE(void)				clear()									{Vec::clear(*this);}
 		MF_DECLARE(void)				Clear()									{Vec::clear(*this);}
-		MF_DECLARE(String)				toString()								const	{return Vec::toString(*this);}
 		MF_DECLARE(String)				ToString()								const	{return Vec::toString(*this);}
 		MF_DECLARE(C)					length()								const	{return Vec::length(*this);}
 		MF_DECLARE(C)					Length()								const	{return Vec::length(*this);}
@@ -134,7 +133,6 @@ namespace Math
 		MFUNC2 (void)					Set(const C0&x, const C1&y)				{Vec::def(*this,x,y);}
 		MF_DECLARE(void)				clear()									{Vec::clear(*this);}
 		MF_DECLARE(void)				Clear()									{Vec::clear(*this);}
-		MF_DECLARE(String)				toString()								const	{return Vec::toString(*this);}
 		MF_DECLARE(String)				ToString()								const	{return Vec::toString(*this);}
 		MF_DECLARE(C)					length()								const	{return Vec::length(*this);}
 		MF_DECLARE(C)					Length()								const	{return Vec::length(*this);}
@@ -201,7 +199,6 @@ namespace Math
 		MFUNC4 (void)					Set(const C0&x, const C1&y, const C2&z, const C3&w)	{Vec::def(*this,x,y,z,w);}
 		MF_DECLARE(void)				clear()									{Vec::clear(*this);}
 		MF_DECLARE(void)				Clear()									{Vec::clear(*this);}
-		MF_DECLARE(String)				toString()								const	{return Vec::toString(*this);}
 		MF_DECLARE(String)				ToString()								const	{return Vec::toString(*this);}
 		MF_DECLARE(C)					length()								const	{return Vec::length(*this);}
 		MF_DECLARE(C)					Length()								const	{return Vec::length(*this);}
@@ -257,7 +254,7 @@ namespace Math
 		MF_CONSTRUCTOR				Line(const Line<C>&);
 		MF_CONSTRUCTOR1				Line(const Line<C0>&);
 		MF_CONSTRUCTOR2				Line(const TVec3<C0>&, const TVec3<C1>&);
-		MF_DECLARE(String)			toString();
+		MF_DECLARE(String)			ToString();
 		MFUNC1 (Vec3<C>)			resolvePoint(const C0&);
 		MFUNC1 (void)				operator+=(const Line<C0>&);
 		MFUNC1 (void)				operator-=(const Line<C0>&);
@@ -303,7 +300,7 @@ namespace Math
 			MF_CONSTRUCTOR1					VecN(C x, C y, C z, C a)				{v[0] = x; v[1] = y; v[2] = z; v[3] = a;};
 			MF_CONSTRUCTOR1					VecN(const C0 field[Len])				{_copyV<C0,C,Len>(field,v);};
 			MF_DECLARE(void)				clear();											//sets all values to 0
-			MF_DECLARE(String)				toString()								const;		//returns string of vector-content
+			MF_DECLARE(String)				ToString()								const;		//returns string of vector-content
 			MF_DECLARE(C)					length()								const;		//calculates norm of the vector
 			MF_DECLARE(C)					sqr()							 		const;		//calculates square of the vector
 			MF_DECLARE(C)					summary()								const;		//calculates sum of all vector-components

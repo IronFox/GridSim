@@ -97,7 +97,7 @@ struct TCodeLocation
 						char buffer[0x100];
 						//std::cin.getline(buffer,sizeof(buffer));
 					};
-	const char*		toString()	const
+	const char*		ToString()	const
                     {
 						return formatted;
 					}
@@ -166,7 +166,7 @@ template <class C>  FatalDescriptor(const TCodeLocation&location, const C&msg):T
                     {
 						return formatted;
                     }
-	const char*		toString()	const throw()
+	const char*		ToString()	const throw()
 					{
 						return formatted;
 					}
@@ -187,9 +187,9 @@ namespace Except
 	class Fatal:public ::FatalDescriptor, public std::exception
 	{
 	public:
-						Fatal(const TCodeLocation&location, const char*msg):FatalDescriptor(location,msg),std::exception(toString(),1)
+						Fatal(const TCodeLocation&location, const char*msg):FatalDescriptor(location,msg),std::exception(ToString(),1)
 						{}
-	template <class C>  Fatal(const TCodeLocation&location, const C&msg):FatalDescriptor(location,msg),std::exception(toString(),1)
+	template <class C>  Fatal(const TCodeLocation&location, const C&msg):FatalDescriptor(location,msg),std::exception(ToString(),1)
 						{}
 
 	};

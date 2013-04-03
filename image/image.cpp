@@ -117,12 +117,12 @@ PixelType		BaseImage::contentType()													const
 
 String					BaseImage::contentTypeString()												const
 {
-	return content_type.toString();
+	return content_type.ToString();
 }
 
 String					BaseImage::getContentTypeString()												const
 {
-	return content_type.toString();
+	return content_type.ToString();
 }
 
 
@@ -187,9 +187,9 @@ bool	BaseImage::isNormalMap() const
 }
 
 
-String BaseImage::toString()                                                             const
+String BaseImage::ToString()                                                             const
 {
-	return "Image<"+String(content_type.toString())+"> ("+IntToStr(image_width)+"*"+IntToStr(image_height)+"*"+IntToStr(image_channels)+")";
+	return "Image<"+String(content_type.ToString())+"> ("+IntToStr(image_width)+"*"+IntToStr(image_height)+"*"+IntToStr(image_channels)+")";
 }
 
 

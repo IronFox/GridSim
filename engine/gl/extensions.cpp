@@ -1480,7 +1480,7 @@ namespace Engine
 			glGetError();	//flush previous errors
 			if (installedInstance)
 			{
-				FATAL__("overriding previously installed shader object 0x"+PointerToHex(installedInstance)/*+". Remote shader was installed in:\n"+String(installed_object->installed_in.toString())*/);
+				FATAL__("overriding previously installed shader object 0x"+PointerToHex(installedInstance)/*+". Remote shader was installed in:\n"+String(installed_object->installed_in.ToString())*/);
 				installedInstance->Uninstall();
 			}
 			//installed_in = location;
@@ -1516,7 +1516,7 @@ namespace Engine
 			glGetError();	//flush previous errors
 			if (installedInstance)
 			{
-				FATAL__("overriding previously installed shader object 0x"+PointerToHex(installedInstance)/*+". Remote shader was installed in:\n"+String(installed_object->installed_in.toString())*/);
+				FATAL__("overriding previously installed shader object 0x"+PointerToHex(installedInstance)/*+". Remote shader was installed in:\n"+String(installed_object->installed_in.ToString())*/);
 				installedInstance->Uninstall();
 			}
 			//installed_in = location;
@@ -1923,12 +1923,12 @@ namespace Engine
 				Expression*result = _ProcessLayer(tokens,map,0,tokens.count(),error);
 				if (result && !result->Validate())
 				{
-					error = "Expression '"+result->toString()+"' failed to validate";
+					error = "Expression '"+result->ToString()+"' failed to validate";
 					DISCARD(result);
 					return NULL;
 				}
 		/* 		if (result)
-					cout << result->toString()<<endl; */
+					cout << result->ToString()<<endl; */
 				return result;
 			}
 	

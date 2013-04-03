@@ -65,7 +65,7 @@ namespace Math
 			MF_INIT VariableMatrix<C,Rows,Cols> MF_CC			invert();
 			MF_INIT VariableMatrix<C,Cols,Rows> MF_CC			transpose();
 			MF_DECLARE(C)								determinant();
-			MF_DECLARE(String)							toString();
+			MF_DECLARE(String)							ToString();
 			MFUNC1 (void)								operator=(const VariableMatrix<C0,Rows,Cols>&m);
 		template <class C0>
 			MF_INIT VariableMatrix<C,Rows,Cols> MF_CC			operator+(const VariableMatrix<C0,Rows,Cols>&m)							const;
@@ -100,7 +100,7 @@ namespace Math
 		MF_DECLARE(void)						normalize();							//normalizes v0,v1 und v2
 		MF_DECLARE(SystemMatrix<C>&)			invertThis();
 		MF_DECLARE(SystemMatrix<C>)				invert()								const;
-		MF_DECLARE(String)						toString()								const;
+		MF_DECLARE(String)						ToString()								const;
 		//faster operators:
 		MFUNC1 (void)							operator+=(const SystemMatrix<C0>&);			//adds all coords from the given system to the local data
 		MFUNC1 (void)							operator+=(const TVec3<C0>&);			//translates the system

@@ -115,7 +115,7 @@ void	Graph::saveToFile(const String&filename)	const
 
 
 
-/*static*/	const char*			Graph::toString(layout_t layout)
+/*static*/	const char*			Graph::ToString(layout_t layout)
 {
 #undef ECASE
 #define ECASE(CASE)	case CASE: return #CASE;

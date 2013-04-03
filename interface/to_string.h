@@ -16,7 +16,7 @@ interface IToString
 protected:
 virtual								~IToString()	{};
 public:
-virtual	StringTemplate<char>		toString()	const=0;	//!< Converts the local object into a string to display to the user
+virtual	StringTemplate<char>		ToString()	const=0;	//!< Converts the local object into a string to display to the user
 };
 
 #include "../string/str_class.h"

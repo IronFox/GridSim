@@ -139,7 +139,7 @@ namespace Math
 		VecUnroll<Rows*Cols>::copy(temp,field);
     }
 
-    template <class C, unsigned Rows, unsigned Cols>    MF_DECLARE  (String)                VariableMatrix<C,Rows,Cols>::toString()
+    template <class C, unsigned Rows, unsigned Cols>    MF_DECLARE  (String)                VariableMatrix<C,Rows,Cols>::ToString()
     {
         return __toString(field,Rows,Cols);
     }
@@ -357,7 +357,7 @@ namespace Math
         return *this;
     }
 
-    template <class C>  MF_DECLARE(String)    SystemMatrix<C>::toString()                        const
+    template <class C>  MF_DECLARE(String)    SystemMatrix<C>::ToString()                        const
     {
         return __toString(v,4,4);
     }

@@ -68,7 +68,7 @@ namespace Plant	//! Natural plant namespace
 	virtual	const int*			getAsIntArray()		const {return NULL;};	//!< Retrieves the current attribute value as an array of integers or NULL if not applicable
 	virtual	float				getAsFloat()		const {return 0;};		//!< Retrieves the current attribute value as a single float or 0 if not applicable
 	virtual	const float*		getAsFloatArray()	const {return NULL;};	//!< Retrieves the current attribute value as an array of floats or NULL if not applicable
-	virtual	String				toString()			const {return "";};		//!< Converts the current attribute value to a string
+	virtual	String				ToString()			const {return "";};		//!< Converts the current attribute value to a string
 	
 	virtual	bool				setAsString(const char*)	{return false;};	//!< Attempts to update the local attribute value from the specified string
 	virtual	bool				setAsInt(int)				{return false;};	//!< Attempts to update the local attribute value from the specified integer
@@ -89,7 +89,7 @@ namespace Plant	//! Natural plant namespace
 	virtual	int					getAsInt()			const {return value;};
 	virtual	const int*			getAsIntArray()		const {return &value;};
 	virtual	float				getAsFloat()		const {return value;};
-	virtual	String				toString()			const {return String(value);};
+	virtual	String				ToString()			const {return String(value);};
 	
 	virtual	bool				setAsString(const char*str)	{return convert(str,value);};
 	virtual	bool				setAsInt(int val)			{value = val; return true;};
@@ -110,7 +110,7 @@ namespace Plant	//! Natural plant namespace
 	virtual	int					getAsInt()			const {return (int)value;};
 	virtual	float				getAsFloat()		const {return value;};
 	virtual	const float*		getAsFloatArray()	const {return &value;};
-	virtual	String				toString()			const {return String(value);};
+	virtual	String				ToString()			const {return String(value);};
 	
 	virtual	bool				setAsString(const char*str)	{return convert(str,value);};
 	virtual	bool				setAsInt(int val)			{value = val; return true;};
@@ -130,7 +130,7 @@ namespace Plant	//! Natural plant namespace
 	
 	virtual	int					getAsInt()			const {int temp(0); convert(value.c_str(),temp); return temp;};
 	virtual	float				getAsFloat()		const {float temp(0); convert(value.c_str(),temp); return temp;};
-	virtual	String				toString()			const {return value;};
+	virtual	String				ToString()			const {return value;};
 	
 	virtual	bool				setAsString(const char*str)	{value = str; return true;};
 	virtual	bool				setAsInt(int val)			{value = String(val); return true;};

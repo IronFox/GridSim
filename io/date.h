@@ -11,8 +11,8 @@ class Date
 private:
 		char			buffer[0x100];
 public:
-		const char*		toString(const char*format);
-		const char*		toString();
+		const char*		ToString(const char*format);
+		const char*		ToString();
 };
 extern Date  date;
 

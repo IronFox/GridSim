@@ -133,8 +133,8 @@ inline		bool					enter(const tName&folder);							//!< Attempts to enter the spe
 inline		bool					enter(const String&folder);						//!< Attempts to enter the specified sub folder from the current working directory \param folder Name of the sub folder to enter. If the folder exists then the current working directory will move to the specified sub folder. \return true if the specified sub folder exists and could be made the current working directory, false otherwise.
 inline		bool					dropBack();											//!< Returns to the next superior folder of the working directory. The method fails if no such exists. \return true if a superior folder existed and could be made the current working directory, false otherwise.
 inline		void					dropToRoot();										//!< Returns to the archive root folder
-inline		void					getPath(Array<tName>&path)					const;	//!< Writes the name path to the current working directory to the specified name array. \param path Name array to write to. 
-inline		void					getPath(Array<String>&path)				const;	//!< Writes the name path to the current working directory to the specified name array. \param path Name array to write to. 
+inline		void					GetPath(Array<tName>&path)					const;	//!< Writes the name path to the current working directory to the specified name array. \param path Name array to write to. 
+inline		void					GetPath(Array<String>&path)				const;	//!< Writes the name path to the current working directory to the specified name array. \param path Name array to write to. 
 inline		String					getLocationString()							const;	//!< Queries a string representation of the path to the current working directory. \return String containg the path to the current working directory. The folder names are trimmed and separated via '/'
 inline		BYTE					pathDepth()									const;	//!< Queries the recursive folder depth of the current working directory. \return Current folder depth (1 = root folder) or 0 if no archive is currently loaded.
 virtual		String					errorStr()									const;	//!< Queries a string representation of the last occured error (if any). \return Error string.

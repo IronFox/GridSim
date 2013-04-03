@@ -301,7 +301,7 @@ namespace Engine
 	{
 	    if (context_error)
 	        return "Context returns ("+IntToStr(context.errorCode())+"): "+String(context.errorStr());
-	    return "System "+String(GL::name())+" returns ("+IntToStr(GL::getErrorCode())+"): "+String(GL::getErrorStr());
+	    return "System "+String(GL::name())+" returns ("+IntToStr(GL::getErrorCode())+"): "+String(GL::GetErrorStr());
 	}
 
 

@@ -116,7 +116,7 @@
 
 	namespace SSE
 	{
-		inline String toString(const __m128&val);
+		inline String ToString(const __m128&val);
 		
 	
 		inline SSE_VECTOR	load(volatile float v0, volatile float v1, volatile float v2, volatile float v3)
@@ -302,15 +302,15 @@
 		{
 			__m128	fc0 = _mm_shuffle_ps(v, v, _MM_SHUFFLE(1, 3, 2, 0)),
 					fc1 = _mm_shuffle_ps(w, w, _MM_SHUFFLE(2, 1, 3, 0));
-			/*cout << "fc0="<<toString(fc0)<<endl;
-			cout << "fc1="<<toString(fc1)<<endl;*/
+			/*cout << "fc0="<<ToString(fc0)<<endl;
+			cout << "fc1="<<ToString(fc1)<<endl;*/
 
 			__m128 product0 = _mm_mul_ps(fc0, fc1);
 
 			fc0 = _mm_shuffle_ps(v, v, _MM_SHUFFLE(2, 1, 3, 0));
 			fc1 = _mm_shuffle_ps(w, w, _MM_SHUFFLE(1, 3, 2, 0));
-			/*cout << "fc0="<<toString(fc0)<<endl;
-			cout << "fc1="<<toString(fc1)<<endl;*/
+			/*cout << "fc0="<<ToString(fc0)<<endl;
+			cout << "fc1="<<ToString(fc1)<<endl;*/
 
 			__m128 product1 = _mm_mul_ps(fc0, fc1);
 			
@@ -337,8 +337,8 @@
 
 			__m128	v = _mm_sub_ps(p1,p0),
 					w = _mm_sub_ps(p2,p0);
-			/*cout << "v="<<toString(v)<<endl;
-			cout << "w="<<toString(w)<<endl;*/
+			/*cout << "v="<<ToString(v)<<endl;
+			cout << "w="<<ToString(w)<<endl;*/
 
 			/*
 				out[0] = v[1]*w[2] - v[2]*w[1];
@@ -347,15 +347,15 @@
 			*/
 			__m128	fc0 = _mm_shuffle_ps(v, v, _MM_SHUFFLE(1, 3, 2, 0)),
 					fc1 = _mm_shuffle_ps(w, w, _MM_SHUFFLE(2, 1, 3, 0));
-			/*cout << "fc0="<<toString(fc0)<<endl;
-			cout << "fc1="<<toString(fc1)<<endl;*/
+			/*cout << "fc0="<<ToString(fc0)<<endl;
+			cout << "fc1="<<ToString(fc1)<<endl;*/
 
 			__m128 product0 = _mm_mul_ps(fc0, fc1);
 
 			fc0 = _mm_shuffle_ps(v, v, _MM_SHUFFLE(2, 1, 3, 0));
 			fc1 = _mm_shuffle_ps(w, w, _MM_SHUFFLE(1, 3, 2, 0));
-			/*cout << "fc0="<<toString(fc0)<<endl;
-			cout << "fc1="<<toString(fc1)<<endl;*/
+			/*cout << "fc0="<<ToString(fc0)<<endl;
+			cout << "fc1="<<ToString(fc1)<<endl;*/
 
 			__m128 product1 = _mm_mul_ps(fc0, fc1);
 			
@@ -383,8 +383,8 @@
 
 			__m128	v = _mm_sub_ps(p1,p0),
 					w = _mm_sub_ps(p2,p0);
-			/*cout << "v="<<toString(v)<<endl;
-			cout << "w="<<toString(w)<<endl;*/
+			/*cout << "v="<<ToString(v)<<endl;
+			cout << "w="<<ToString(w)<<endl;*/
 
 			/*
 				out[0] = v[1]*w[2] - v[2]*w[1];
@@ -393,15 +393,15 @@
 			*/
 			__m128	fc0 = _mm_shuffle_ps(v, v, _MM_SHUFFLE(1, 3, 2, 0)),
 					fc1 = _mm_shuffle_ps(w, w, _MM_SHUFFLE(2, 1, 3, 0));
-			/*cout << "fc0="<<toString(fc0)<<endl;
-			cout << "fc1="<<toString(fc1)<<endl;*/
+			/*cout << "fc0="<<ToString(fc0)<<endl;
+			cout << "fc1="<<ToString(fc1)<<endl;*/
 
 			__m128 product0 = _mm_mul_ps(fc0, fc1);
 
 			fc0 = _mm_shuffle_ps(v, v, _MM_SHUFFLE(2, 1, 3, 0));
 			fc1 = _mm_shuffle_ps(w, w, _MM_SHUFFLE(1, 3, 2, 0));
-			/*cout << "fc0="<<toString(fc0)<<endl;
-			cout << "fc1="<<toString(fc1)<<endl;*/
+			/*cout << "fc0="<<ToString(fc0)<<endl;
+			cout << "fc1="<<ToString(fc1)<<endl;*/
 
 			__m128 product1 = _mm_mul_ps(fc0, fc1);
 			
@@ -718,7 +718,7 @@
 			
 			@return Converted strin
 		*/
-		inline String toString(const __m128&val)
+		inline String ToString(const __m128&val)
 		{
 			ALIGNED16 TVec4<> out;// = (float*) _aligned_malloc(4 * sizeof(float), 16);
 			_mm_store_ps(out.v, val);

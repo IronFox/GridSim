@@ -352,9 +352,9 @@
 												second = exp;
 												return true;
 											}
-					virtual	String			toString()	const	override
+					virtual	String			ToString()	const	override
 											{
-												return "<"+(first?first->toString():String("NULL"))+", "+(second?second->toString():String("NULL"))+">";
+												return "<"+(first?first->ToString():String("NULL"))+", "+(second?second->ToString():String("NULL"))+">";
 											}
 					virtual	bool			Validate()	override	{return first!=NULL && second!=NULL && first->Validate() && second->Validate();}
 				};
@@ -415,9 +415,9 @@
 											{
 												return inner && inner->Validate();
 											}
-					virtual	String			toString()	const	override
+					virtual	String			ToString()	const	override
 											{
-												return "!<"+(inner?inner->toString():String("NULL"))+">";
+												return "!<"+(inner?inner->ToString():String("NULL"))+">";
 											}
 				};
 		
@@ -430,7 +430,7 @@
 					int						value;
 				
 					virtual	int				Evaluate(const UserConfiguration&, Light::Type)	override	{return value;}
-					virtual	String			toString()	const	override
+					virtual	String			ToString()	const	override
 											{
 												return "Constant<"+String(value)+">";
 											}
@@ -448,7 +448,7 @@
 				
 					VariableExpression()	:index(0)	{}
 					virtual	int				Evaluate(const UserConfiguration&values, Light::Type)	override;
-					virtual	String			toString()	const	override
+					virtual	String			ToString()	const	override
 											{
 												return "Variable<"+name+"@"+String(index)+">";
 											}
@@ -467,7 +467,7 @@
 											{
 												return lightType == type;
 											}
-					virtual	String			toString()	const	override
+					virtual	String			ToString()	const	override
 											{
 												return "LightType<"+String(type)+">";
 											}

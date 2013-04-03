@@ -3,7 +3,7 @@
 
 Date	date;
 
-const char*		Date::toString(const char*format)
+const char*		Date::ToString(const char*format)
 {
     time_t tt = time(NULL);
     const tm*t = localtime(&tt);
@@ -11,8 +11,8 @@ const char*		Date::toString(const char*format)
 	return buffer;
 }
 
-const char*		Date::toString()
+const char*		Date::ToString()
 {
-	return toString("%Y %B %d. %H:%M:%S");
+	return ToString("%Y %B %d. %H:%M:%S");
 }
 

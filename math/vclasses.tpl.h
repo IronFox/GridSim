@@ -10,9 +10,9 @@ namespace Math
         VecUnroll<Len>::clear(*this);
     }
 
-    template <class C, count_t Len> MF_DECLARE(String) VecN<C,Len>::toString()       const
+    template <class C, count_t Len> MF_DECLARE(String) VecN<C,Len>::ToString()       const
     {
-        return VecUnroll<Len>::toString(*this);
+        return VecUnroll<Len>::ToString(*this);
     }
 
     template <class C, count_t Len>MF_DECLARE (C) VecN<C,Len>::length()                const
@@ -916,9 +916,9 @@ namespace Math
     template <class C> MF_CONSTRUCTOR1 Line<C>::Line(const Line<C0>&line):position(line.position),direction(line.direction)
     {}
     
-    template <class C> MF_DECLARE(String)             Line<C>::toString()
+    template <class C> MF_DECLARE(String)             Line<C>::ToString()
     {
-        return position.toString()+" -> "+direction.toString();
+        return position.ToString()+" -> "+direction.ToString();
     }
     
     template <class C> MFUNC1 (Vec3<C>) Line<C>::resolvePoint(const C0&scalar)

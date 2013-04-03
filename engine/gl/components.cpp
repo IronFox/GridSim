@@ -414,7 +414,7 @@ namespace Engine
 				barCenter.normal = &sliderLayout->barCenter.normal;
 				barCenter.orientation = 0;
 				
-				//ShowMessage(barCenter.region.toString());
+				//ShowMessage(barCenter.region.ToString());
 				
 				slider.region = cursorRegion;
 				slider.color = &sliderLayout->slider.color;
@@ -1415,7 +1415,7 @@ namespace Engine
 		{
 			if (cellLayout.client.contains(x,y))
 			{
-				//ShowMessage(String(x)+", "+String(y)+" is in "+cellLayout.client.toString());
+				//ShowMessage(String(x)+", "+String(y)+" is in "+cellLayout.client.ToString());
 				float rx = x - cellLayout.client.left();
 				size_t end = vmin(viewEnd-1+viewRightMost,text.length());
 				index_t index=viewBegin;
@@ -2086,7 +2086,7 @@ namespace Engine
 				selectedEntry = 0;
 				selectedObject = ((MenuEntry*)(GetMenu()->GetChild(selectedEntry).get()))->GetObject();
 				if (selectedObject)
-					SetText(selectedObject->toString());
+					SetText(selectedObject->ToString());
 				else
 					SetText("<error>");
 			}
@@ -2153,7 +2153,7 @@ namespace Engine
 				selectedObject.reset();
 			}
 			if (selectedObject)
-				SetText(selectedObject->toString());
+				SetText(selectedObject->ToString());
 			else
 				SetText("");
 			SignalLayoutChange();
@@ -2174,7 +2174,7 @@ namespace Engine
 			{
 				selectedObject = ((MenuEntry*)GetMenu()->GetChild(selectedEntry).get())->GetObject();
 				if (selectedObject)
-					SetText(selectedObject->toString());
+					SetText(selectedObject->ToString());
 				else
 					SetText("<error>");
 			}
@@ -2353,7 +2353,7 @@ namespace Engine
 				return;
 			object = object_;
 			if (object && object.get() != this)
-				Label::SetText(object->toString());
+				Label::SetText(object->ToString());
 			//SignalVisualChange();
 		}
 		

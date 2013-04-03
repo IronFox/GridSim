@@ -1429,7 +1429,7 @@ namespace Math
 
 		if (el_count)
 		{
-			if (!v)//interpret first 128 elements following NULL as NULL, too (for nested vectors of NULL structures). seems unnecessary: the compiler changes those pointers to NULL automatically. interesting.
+			if (!v)//Interpret first 128 elements following NULL as NULL, too (for nested vectors of NULL structures). seems unnecessary: the compiler changes those pointers to NULL automatically. interesting.
 				rs += "NULL";
 			else
 			{

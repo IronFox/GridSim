@@ -169,7 +169,7 @@ namespace VectorMath
         return _length(v);
     }
 
-    template <class C> inline  String OpVec<C>::toString()                  const
+    template <class C> inline  String OpVec<C>::ToString()                  const
     {
         return _toString(v);
     }

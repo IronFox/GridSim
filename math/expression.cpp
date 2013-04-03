@@ -39,7 +39,7 @@ namespace Expression
 	}
 	
 
-	String		Element::toString(bool show_markers)	const
+	String		Element::ToString(bool show_markers)	const
 	{
 		if (component)
 			return *this + '.'+component;
@@ -535,7 +535,7 @@ namespace Expression
 	}
 	
 			
-	String		Group::toString(bool show_markers)	const
+	String		Group::ToString(bool show_markers)	const
 	{
 		String result;
 		if (show_markers)
@@ -570,7 +570,7 @@ namespace Expression
 				
 			if (members[i]->type == Type::SumGroup)
 				result += '(';
-			result += members[i]->toString(show_markers);
+			result += members[i]->ToString(show_markers);
 			if (members[i]->type == Type::SumGroup)
 				result += ')';
 		}
@@ -618,7 +618,7 @@ namespace Expression
 							continue;
 						if ((x0->negated^group->negated) == (x1->negated^other->negated))
 						{
-							//cout << "group "<<group->toString()<<" sign matches "<<other->toString()<<endl;
+							//cout << "group "<<group->ToString()<<" sign matches "<<other->ToString()<<endl;
 							continue;
 						}
 						if ((*(String*)x0 != *(String*)y0) || (*(String*)y1 != *(String*)x1) || (*(String*)x0 == *(String*)x1))
@@ -734,7 +734,7 @@ namespace Expression
 
 								
 								
-								cout << "new expression is "<<det->toString(true)<<". discarding unused expressions"<<endl;
+								cout << "new expression is "<<det->ToString(true)<<". discarding unused expressions"<<endl;
 								if (test != det->evaluate())
 								{
 									cout << "result mismatch. expected "<<test<<" but got "<<det->evaluate()<<endl;
@@ -885,12 +885,12 @@ namespace Expression
 		return Group::parse(expression,variables);
 	}
 	
-	String				Determinant2::toString(bool show_markers)	const
+	String				Determinant2::ToString(bool show_markers)	const
 	{
 		if (!x0 || !x1)
 			return "||";
 		if (show_markers)
-			return "|"+x0->toString()+","+y0->toString()+" "+x1->toString()+","+y1->toString()+"|";
+			return "|"+x0->ToString()+","+y0->ToString()+" "+x1->ToString()+","+y1->ToString()+"|";
 		return "|"+*x0+" "+*x1+"|";
 	}
 	
@@ -922,12 +922,12 @@ namespace Expression
 				&& ((!y1 && !d->y1) || y1->equals(d->y1));
 	}
 	
-	String				Determinant3Const::toString(bool show_markers)	const
+	String				Determinant3Const::ToString(bool show_markers)	const
 	{
 		if (!x0 || !x1 || !x2)
 			return "||";
 		if (show_markers)
-			return "|"+String(c0)+","+x0->toString()+","+y0->toString()+" "+String(c1)+","+x1->toString()+","+y1->toString()+" "+String(c2)+","+x2->toString()+","+y2->toString()+"|";
+			return "|"+String(c0)+","+x0->ToString()+","+y0->ToString()+" "+String(c1)+","+x1->ToString()+","+y1->ToString()+" "+String(c2)+","+x2->ToString()+","+y2->ToString()+"|";
 		return "|"+String(c0)+","+*x0+" "+String(c1)+","+*x1+" "+String(c2)+","+*x2+"|";
 	}
 	
@@ -970,7 +970,7 @@ namespace Expression
 				&& c2 == d->c2;
 	}
 	
-	String				Determinant2x3::toString(bool show_markers)	const
+	String				Determinant2x3::ToString(bool show_markers)	const
 	{
 		if (!x0 || !x1 || !x2)
 			return "||";

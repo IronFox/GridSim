@@ -441,7 +441,7 @@ namespace Engine
 
 				if (out.width != 0 && (out.width != image.width() || out.height != image.height()))
 				{
-					throw IO::StructureCompositionFault("Trying to match bump texture of different size (color image was "+String(out.width)+"*"+String(out.height)+", bump texture is "+image.toString()+")");
+					throw IO::StructureCompositionFault("Trying to match bump texture of different size (color image was "+String(out.width)+"*"+String(out.height)+", bump texture is "+image.ToString()+")");
 				}
 				out.normal.load(image,global_anisotropy,true);
 				out.width = image.width();
@@ -1128,7 +1128,7 @@ namespace Engine
 				glCopyTexSubImage2D(GL_TEXTURE_2D, 0, (int)rect.x.min, (int)rect.y.min, (int)rect.x.min, (int)rect.y.min,  (int)rect.width(), (int)rect.height());
 				if (glGetError())
 				{
-					//FATAL__("Failed to copy "+rect.toString());
+					//FATAL__("Failed to copy "+rect.ToString());
 					return;
 				}
 			}

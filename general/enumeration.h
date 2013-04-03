@@ -22,7 +22,7 @@ struct NAME\
 #undef CONSTRUCT_ENUM_TRANSITION
 #define CONSTRUCT_ENUM_TRANSITION(NAME)\
 		};\
-		static const char*		toString(value_t type)\
+		static const char*		ToString(value_t type)\
 		{\
 			switch (type)\
 			{\
@@ -33,17 +33,13 @@ struct NAME\
 			}\
 			return "<Invalid Enumeration Value>";\
 		}\
-		static inline const char*		ToString(value_t type)	{return toString(type);}\
 		value_t			value;	/*!< Current enumeration value */ \
 		NAME():value(DEFAULT_VALUE)				{}\
 		NAME(value_t val):value(val)			{}\
 		NAME(const NAME&val):value(val.value)	{}\
-		inline const char*	toString() const	/** Converts the current enumeration value to a string*/		{return toString(value);} \
-		inline const char*	ToString() const	/** @copydoc toString()*/		{return toString(value);}	 \
-		template <typename T> bool	load(const T&v)	{index_t val = (index_t)(v); if (val < NumberOfPossibilities) {value = (value_t)val; return true;} return false;}\
-		template <typename T> inline bool	Load(const T&v)	{return load(v);}\
-		template <typename T> static NAME		reinterpret(const T&v)	{index_t val = (index_t)(v); if (val < NumberOfPossibilities) return NAME((value_t)val); return NAME();}\
-		template <typename T> static inline NAME	Reinterpret(const T&v)	{return reinterpret(v);}\
+		inline const char*	ToString() const	/** @copydoc ToString()*/		{return ToString(value);}	 \
+		template <typename T> bool	Load(const T&v)	{index_t val = (index_t)(v); if (val < NumberOfPossibilities) {value = (value_t)val; return true;} return false;}\
+		template <typename T> static NAME		Reinterpret(const T&v)	{index_t val = (index_t)(v); if (val < NumberOfPossibilities) return NAME((value_t)val); return NAME();}\
 		NAME&	operator=(value_t value_)		{value = value_; return *this;}\
 		NAME&	operator=(const NAME&value_)	{value = value_.value; return *this;}\
 		bool	operator==(value_t value_)		{return value == value_;}\

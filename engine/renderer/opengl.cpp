@@ -2585,7 +2585,7 @@ namespace Engine
 		glViewport(region.left,region.bottom,region.right-region.left,region.top-region.bottom);
 	}
 
-	const char*OpenGL::getErrorStr()
+	const char*OpenGL::GetErrorStr()
 	{
 		#define ecase(token)	case token: return #token;
 		switch (error_code)

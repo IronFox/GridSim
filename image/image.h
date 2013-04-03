@@ -129,7 +129,7 @@ static	PixelType				getContentType(const THeader&header);										//!< Extracts
 		bool					writeHeader(THeader&header)											const;	//!< Generates a header from the local image data \return true if the local image coordinates could be transformed into exponents, false otherwise. The resulting header will contain approximated exponents if false is returned
 		THeader					header()															const;	//!< Generates a header from the local image data
 		THeader					getHeader()															const;	//!< Generates a header from the local image data
-		String					toString()															const;		//!< Generates a string representation of the local image (width, height, channels, type, etc)
+		String					ToString()															const;		//!< Generates a string representation of the local image (width, height, channels, type, etc)
 		bool					isColorMap()														const;	//!< Checks if the local map contains color pixels
 		bool					isNormalMap()														const;	//!< Checks if the local map contains normal pixels
 };

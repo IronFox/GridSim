@@ -1312,7 +1312,7 @@ namespace Converter
 					_oDetDimension(vs_hull.vertex_field[j].position,dim);
 				}
 
-				logMessage("extracted dimensions of '"+child.name+"': "+dim.toString());
+				logMessage("extracted dimensions of '"+child.name+"': "+dim.ToString());
 				
 				dim.getCenter(child.meta.system.w.xyz);
 				for (index_t j = 0; j < vs_hull.vertex_field.length(); j++)

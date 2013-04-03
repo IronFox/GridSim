@@ -89,7 +89,7 @@ MF_DECLARE(void)			updateNormals();								//!< Recalculate normals from the mod
 MF_DECLARE(void)			updateNormalsP();								
 template <typename SubType>
 MF_DECLARE(void)			updateNormalsST();								
-MF_DECLARE(String)			toString()	const;
+MF_DECLARE(String)			ToString()	const;
 MF_DECLARE(void)			flipNormals();
 
 MFUNC1	(Frustum<C>&)		operator=(const Frustum<C0>&other);
@@ -146,7 +146,7 @@ public:
 	MF_DECLARE(void)			GetFrustrum(Volume&v)												const;	//!< Identical to ResolveVolume()
 	template <typename SubType>
 		MF_DECLARE(void)		ResolveVolumeST(Volume&v)											const;	//!< Similar however potential more precise version of ResolveVolume(). Normal calculation is done using the specified sub type instead (double recommended here)
-	MF_DECLARE(String)			toString()															const;	//!< Creates a string representation of the local aspect. \return String representation.
+	MF_DECLARE(String)			ToString()															const;	//!< Creates a string representation of the local aspect. \return String representation.
 	MF_DECLARE(const TVec3<C>&)	GetAbsoluteLocation()													const;	//!< Returns the absolute realworld coordinates of the local aspect object
 	MF_DECLARE(void)			LoadIdentity();														//!< Resets all matrices and vectors to identity. New aspects automatically load identity into every matrix.
 	MF_DECLARE(TVec3<C>&)		GetViewingDirection();													//!< Retrieves the vector describing the local camera's viewing direction

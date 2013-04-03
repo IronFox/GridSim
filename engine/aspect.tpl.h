@@ -219,7 +219,7 @@ template <class C> MFUNC2 (typename Frustum<C>::Visibility) Frustum<C>::checkBox
 
 
 template <class C>
-	MF_DECLARE(String)		Frustum<C>::toString()	const
+	MF_DECLARE(String)		Frustum<C>::ToString()	const
 	{
 		String rs = "volume:\r\nnear: "+Vec::toString(near_bottom_left)+", "+Vec::toString(near_bottom_right)+", "+Vec::toString(near_top_right)+", "+Vec::toString(near_top_left)+"\r\n";
 		rs += "far: "+Vec::toString(far_bottom_left)+", "+Vec::toString(far_bottom_right)+", "+Vec::toString(far_top_right)+", "+Vec::toString(far_top_left)+"\r\n";
@@ -617,7 +617,7 @@ template <class C>
 		result.updateNormals();
 	}
 
-template <class C> MF_DECLARE (String) Aspect<C>::toString() const
+template <class C> MF_DECLARE (String) Aspect<C>::ToString() const
 {
 	return "view\n"+__toString(view)+"\nprojection\n"+__toString(projection);
 }

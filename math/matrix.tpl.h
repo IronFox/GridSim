@@ -574,11 +574,11 @@ namespace Math
 	        return __invertMatrix<C0,C1,3>(sys.v,result.v);
 		}
 
-		MFUNC(String)		toString(const TMatrix4<C>&matrix)
+		MFUNC(String)		ToString(const TMatrix4<C>&matrix)
 		{
 			return __toString(matrix.v,4,4);
 		}
-		MFUNC(String)		toString(const TMatrix3<C>&matrix)
+		MFUNC(String)		ToString(const TMatrix3<C>&matrix)
 		{
 			return __toString(matrix.v,3,3);
 		}

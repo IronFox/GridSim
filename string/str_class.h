@@ -256,7 +256,7 @@ template <typename T>
 						{
 							return reference;
 						}
-		inline StringTemplate<char>		toString()			const;	//!< Converts the expression architecture including data to a string for debug output
+		inline StringTemplate<char>		ToString()			const;	//!< Converts the expression architecture including data to a string for debug output
 		inline void		print(ostream&stream)			const;	//!< Prints the local expression content to the specified stream @param stream Stream to print to
 		#ifdef WCOUT
 			inline void	print(wostream&stream)			const;	//!< Prints the local expression content to the specified wide character stream @param stream Stream to print to
@@ -385,7 +385,7 @@ template <typename T>
 						{
 							return 1;
 						}
-	inline	StringTemplate<char>		toString()			const;
+	inline	StringTemplate<char>		ToString()			const;
 	inline	void		print(ostream&stream)			const	//! Prints the local expression content to the specified stream @param stream Stream to print to
 						{
 							stream << (char)ch;
@@ -533,7 +533,7 @@ template <typename T>
 		inline	int		compareSegmentIgnoreCase(const T2*string, size_t string_length)	const;	//! Nested compare method
 	template <typename T2>
 		inline	int		compareToIgnoreCase(const T2*string, size_t string_length)	const;	//! Expression comparison. Allows to orthographically compare the local string to the specified character segment @param string String to compare to @param string_length Number of characters that the specified string is in length @return -1 if the local expression is orthographically smaller than the specified string, 0 if it is equal, +1 if it is orthographically larger
-	inline	StringTemplate<char>		toString()			const;
+	inline	StringTemplate<char>		ToString()			const;
 		
 
 	template <typename T2>
@@ -601,7 +601,7 @@ template <typename T0, typename T1>
 						}
 						
 						
-	inline	StringTemplate<char>		toString()			const;
+	inline	StringTemplate<char>		ToString()			const;
 
 	template <class Stream>
 		inline	void	print(Stream&stream)			const	//! Prints the local expression content to the specified stream @param stream Stream to print to

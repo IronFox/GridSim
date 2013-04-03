@@ -412,7 +412,7 @@ namespace TCP
 				cout << "Peer::succeeded() exit: socket handle reset by remote operation"<<endl;
 			return;
 		}
-		owner->setError("Connection lost to "+toString()+" ("+lastSocketError()+")");
+		owner->setError("Connection lost to "+ToString()+" ("+lastSocketError()+")");
 		socketAccess->CloseSocket();
 		owner->handleEvent(Event::ConnectionLost,this);
 		owner->onDisconnect(this,Event::ConnectionLost);
@@ -470,7 +470,7 @@ namespace TCP
 					return false;
 				}
 				socketAccess->CloseSocket();
-				owner->setError("Connection lost to "+toString()+" ("+lastSocketError()+")");
+				owner->setError("Connection lost to "+ToString()+" ("+lastSocketError()+")");
 				owner->handleEvent(Event::ConnectionLost,this);
 				owner->onDisconnect(this,Event::ConnectionLost);
 				if (verbose)
@@ -977,7 +977,7 @@ namespace TCP
 					client_mutex.signalWrite();
 						clients_locked = true;
 						if (verbose)
-							cout << "Server::sendObject(): erasing peer "<<peer->toString()<<endl;
+							cout << "Server::sendObject(): erasing peer "<<peer->ToString()<<endl;
 						clients.erase(peer);
 						clients_locked = false;
 					client_mutex.exitWrite();
@@ -1003,7 +1003,7 @@ namespace TCP
 	bool		Server::sendObject(UINT32 channel, Peer*exclude, const ISerializable&object)
 	{
 		if (verbose)
-			cout << "Server::sendObject() enter: channel="<<channel<<", exclude="<<exclude->toString()<<endl;
+			cout << "Server::sendObject() enter: channel="<<channel<<", exclude="<<exclude->ToString()<<endl;
 		if (is_shutting_down)
 		{
 			if (verbose)
@@ -1035,7 +1035,7 @@ namespace TCP
 					client_mutex.signalWrite();
 						clients_locked = true;
 						if (verbose)
-							cout << "Server::sendObject(): erasing peer "<<peer->toString()<<endl;
+							cout << "Server::sendObject(): erasing peer "<<peer->ToString()<<endl;
 						clients.erase(peer);
 						clients_locked = false;
 					client_mutex.exitWrite();

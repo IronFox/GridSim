@@ -453,7 +453,7 @@ namespace CGS	//! Compiled Geometrical Structure
 				count_t									countTriangles(unsigned detail_layer)	const;	//!< Returns the total number of triangles of the local render object if the specified detail layer matches the local detail layer, 0 otherwise
 				count_t									countQuads(unsigned detail_layer)		const;	//!< Returns the total number of quads of the local render object if the specified detail layer matches the local detail layer, 0 otherwise
 			
-				String									toString(const String&intend="")		const;	//!< Generates a string representation of the local data (not containing any actual vertex or index data).
+				String									ToString(const String&intend="")		const;	//!< Generates a string representation of the local data (not containing any actual vertex or index data).
 			template <class Def1>
 				RenderObjectA<Def>&						operator=(const RenderObjectA<Def1>&other);		//!< Copy operator
 				bool									operator>(const RenderObjectA<Def>&other) const;	//!< Greater operator to create a linear order among render objects. The greater operator must be called before the respective less-operator is invoked,
@@ -569,7 +569,7 @@ namespace CGS	//! Compiled Geometrical Structure
 			void									setSize(count_t layers, count_t objects);	//!< Mostly depreciated. Used to setSize the respective info.layer_field and data.object_field arrays.
 			void									adoptData(MaterialA<Def>&other);
 			void									linkTextures(TextureResource*res);				//!< Links referenced textures via their name to loaded texture resources provided by the specified texture resource. \param res Texture resource to retrieve textures from.
-			String									toString(const String&intend="")		const;	//!< Creates a string representation of the local material \param intend Intendation string put before each new line of the returned string.
+			String									ToString(const String&intend="")		const;	//!< Creates a string representation of the local material \param intend Intendation string put before each new line of the returned string.
 			count_t									countFaces()							const;	//!< Counts all faces (quads and triangles)  of all detail levels of this material
 			count_t									countTriangles()						const;	//!< Counts all triangles of all detail levels of this material
 			count_t									countQuads()							const;	//!< Counts all quads of all detail levels of this material
@@ -657,7 +657,7 @@ namespace CGS	//! Compiled Geometrical Structure
 			AnimatorA<Def>&							operator=(const AnimatorA<Def1>&other);	//!< Copy operator
 			void									adoptData(AnimatorA<Def>&other);
 			void									setSize(count_t obj_count, count_t acc_count, count_t whl_traces);	//!< Mostly depreciated setSize method. Resizes the local trace arrays. The content of an array is lost if it is resized.
-			String									toString(const String&intend="")	const;	//!< Generates a string representation of the local animation \param intend Intendation string put before each new line of the resulting string.
+			String									ToString(const String&intend="")	const;	//!< Generates a string representation of the local animation \param intend Intendation string put before each new line of the resulting string.
 			bool									valid(Geometry<Def>*structure);			//!< Determines whether or not all trace links are valid. This procedure is very slow. Use only when debugging.
 			double									executionTime()						const;	//!< Determines the number of seconds this animation takes
 			
@@ -857,7 +857,7 @@ namespace CGS	//! Compiled Geometrical Structure
 			void									toInstance(AnimatableSubInstanceA<Def>&tree);
 			void									defLinkageStr(String&rs, const String&intend);
 			count_t									countVertices(unsigned detail=0);
-			String									toString(const String&intend="")	const;
+			String									ToString(const String&intend="")	const;
 			void									verifyIntegrity(Geometry<Def>*super, const String&path ="");
 			bool									checkIntegrity(Geometry<Def>*super, const String&path="");
 
@@ -1140,7 +1140,7 @@ namespace CGS	//! Compiled Geometrical Structure
 			
 			count_t									countVertices(unsigned detail=0);					//!< Counts all vertices on the specified detail levle
 			String									getLinkageString();
-			String									toString(bool details=false)			const;
+			String									ToString(bool details=false)			const;
 			count_t									countVertices()							const;		//!< Counts all vertices on all detail levels
 			count_t									countFaces()							const;		//!< Counts all faces (quads and triangles) on all detail levels
 			count_t									countTriangles()						const;		//!< Counts all triangles on all detail levels
@@ -1239,7 +1239,7 @@ namespace CGS	//! Compiled Geometrical Structure
 														SubGeometryInstance();
 		virtual											~SubGeometryInstance()	{}
 
-				TMatrix4<typename Def::SystemType>*		getPath()	{return&path;}
+				TMatrix4<typename Def::SystemType>*		GetPath()	{return&path;}
 		};
 		
 	template <class Def=StdDef>

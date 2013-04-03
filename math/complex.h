@@ -83,7 +83,7 @@ namespace ComplexMath
 
 	MF_DECLARE(C)				length();
 	MF_DECLARE(Complex<C>)		conjugate();
-	MF_DECLARE(String)			toString();
+	MF_DECLARE(String)			ToString();
 	};
 
 	template <class C> class Quaternion

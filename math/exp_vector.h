@@ -359,7 +359,7 @@ namespace VectorMath
     inline  OpVec<C>               normalized()                const;  //returns normalized vector
     inline  OpVec<C>               normalized0()               const;
     inline  C                       length()                    const;
-    inline  String                 toString()                  const;
+    inline  String                 ToString()                  const;
     };
 
 

@@ -165,13 +165,13 @@ template <class Def> void	MaterialA<Def>::postCopyLink(Geometry<Def>*domain, Tex
 	info.postCopyLink(resource);
 }
 
-template <class Def> String MaterialA<Def>::toString(const String&intend)	const
+template <class Def> String MaterialA<Def>::ToString(const String&intend)	const
 {
 	String rs = "Material\n"+intend;
 	rs+="Layers: "+String(info.layer_field.length())+"\n"+intend;
 	rs+="Objects: "+String(data.object_field.length())+"\n";
 	for (index_t i = 0; i < data.object_field.length(); i++)
-		rs+=intend+" ("+String(i)+") "+data.object_field[i].toString(intend+"	")+"\n";
+		rs+=intend+" ("+String(i)+") "+data.object_field[i].ToString(intend+"	")+"\n";
 	return rs;
 }
 
@@ -508,7 +508,7 @@ template <class Def> template <class C>
 	}
 
 
-template <class Def> String RenderObjectA<Def>::toString(const String&intend)	const
+template <class Def> String RenderObjectA<Def>::ToString(const String&intend)	const
 {
 	String result = "Object (Vertices: "+String(vpool.vcnt)+"; Detail: "+String(detail)+"; ";
 	result += "Indices("+String(detail)+"): "+String(ipool.idata.length())+"; ";
@@ -1222,19 +1222,19 @@ template <class Def>	template <class C>
 	}
 
 
-template <class Def> String SubGeometryA<Def>::toString(const String&intend)	const
+template <class Def> String SubGeometryA<Def>::ToString(const String&intend)	const
 {
 
 	String rs = "<"+name+">\n"+intend;
 	rs+="Wheels: "+String(wheel_field.length())+"\n"+intend;
 	rs+="Accelerators: "+String(accelerator_field.length())+"\n"+intend;
 	rs+="Mountings: "+String(mounting_field.length())+"\n"+intend;
-	rs+="Hull: "+phHull.toString()+"\n"+intend;
+	rs+="Hull: "+phHull.ToString()+"\n"+intend;
 	for (index_t i = 0; i < vs_hull_field.length(); i++)
-		rs+="VHull("+String(i)+"): "+vs_hull_field[i].toString()+"\n"+intend;
+		rs+="VHull("+String(i)+"): "+vs_hull_field[i].ToString()+"\n"+intend;
 	rs+="Children: "+String(child_field.length())+"\n";
 	for (index_t i = 0; i < child_field.length(); i++)
-		rs+=intend+" ("+String(i)+") "+child_field[i].toString(intend+"	")+"\n";
+		rs+=intend+" ("+String(i)+") "+child_field[i].ToString(intend+"	")+"\n";
 
 	return rs;
 }
@@ -2987,7 +2987,7 @@ template <class Def>
 
 
 
-template <class Def> String Geometry<Def>::toString(bool details)	const
+template <class Def> String Geometry<Def>::ToString(bool details)	const
 {
 	String rs = "Geometry\n";
 	rs+=" Vertices: "+String(countVertices())+"\n";
@@ -2995,15 +2995,15 @@ template <class Def> String Geometry<Def>::toString(bool details)	const
 	rs+=" Objects: "+String(object_field.length())+"\n";
 	if (details)
 		for (index_t i = 0; i < object_field.length(); i++)
-			rs+="	("+String(i)+") "+object_field[i].toString("	");
+			rs+="	("+String(i)+") "+object_field[i].ToString("	");
 	rs+=" Materials: "+String(material_field.length())+"\n";
 	if (details)
 		for (index_t i = 0; i < material_field.length(); i++)
-			rs+="	("+String(i)+") "+material_field[i].toString("	");
+			rs+="	("+String(i)+") "+material_field[i].ToString("	");
 	rs+=" Animators: "+String(animator_field.length())+"\n";
 	if (details)
 		for (index_t i = 0; i < animator_field.length(); i++)
-			rs+="	("+String(i)+") "+animator_field[i].toString("	");
+			rs+="	("+String(i)+") "+animator_field[i].ToString("	");
 	rs+=" Connectors: "+String(connector_field.length())+"\n";
 	if (details)
 		for (index_t i = 0; i < connector_field.length(); i++)
@@ -5198,7 +5198,7 @@ template <class Def>
 template <class Def> void AnimatableSubInstanceA<Def>::linkObjects()
 {
 	if (SubGeometryInstance<Def>::target)
-		SubGeometryInstance<Def>::target->system_link = Super::getPath();
+		SubGeometryInstance<Def>::target->system_link = Super::GetPath();
 	else
 		FATAL__("target not found");
 	for (index_t i = 0; i < child_field.length(); i++)
@@ -5411,7 +5411,7 @@ template <class Def> bool AnimatorA<Def>::valid(Geometry<Def>*structure)
 	return true;
 }
 
-template <class Def> String AnimatorA<Def>::toString(const String&intend)	const
+template <class Def> String AnimatorA<Def>::ToString(const String&intend)	const
 {
 	return "Animator (ObjecCTraces: "+String(obj_trace_field.length())+"; AcceleratorTraces: "+String(acc_trace_field.length())+"; WheelTraces: "+String(whl_trace_field.length())+")";
 }

@@ -168,7 +168,7 @@ namespace Net
 	void sysmessage(Node*node, const String&str);
 	//#define sysmessage(node,str) {}
 
-	//#define sysmessage(node,str) {cout << node->self_.toString().c_str()<<": "<<String(str).c_str()<<endl;}
+	//#define sysmessage(node,str) {cout << node->self_.ToString().c_str()<<": "<<String(str).c_str()<<endl;}
 
 
 	/* package v2.0
@@ -281,7 +281,7 @@ namespace Net
 	//						{
 	//							return compareTo(other) == 0;
 	//						}
-	//		String			toString() const;		//!< Converts a network address into a string of the form 192.168.0.1:2048 \return String representation of the address
+	//		String			ToString() const;		//!< Converts a network address into a string of the form 192.168.0.1:2048 \return String representation of the address
 	//};
 
 

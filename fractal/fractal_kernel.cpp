@@ -1026,7 +1026,7 @@ namespace Fractal
 				
 				//if (!this_info.grid_vertex)
 				{
-					//ASSERT3__(SSE::floatDistance(source_v.position-parameter.copyEdge.edge_transition,destination_v.position)<parameter.context->variance*2,SSE::toString(source_v.position),SSE::toString(parameter.copyEdge.edge_transition),SSE::toString(destination_v.position));
+					//ASSERT3__(SSE::floatDistance(source_v.position-parameter.copyEdge.edge_transition,destination_v.position)<parameter.context->variance*2,SSE::ToString(source_v.position),SSE::ToString(parameter.copyEdge.edge_transition),SSE::ToString(destination_v.position));
 					destination_v.channel = source_v.channel;
 					destination_v.height = source_v.height;
 					

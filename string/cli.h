@@ -432,22 +432,22 @@ namespace CLI	//! Command line interpretor
 		float						GetAsFloat(const String& path, float exception = 0);				//!< Attempts to retrieve the specified variable as a float @param path Variable path @param exception Value to return if the specified variable could not be found or its value not converted to a float
 		Key::Name					GetAsKey(const String& path, Key::Name exception = (Key::Name)0);		//!< Attempts to retrieve the specified variable as a key name @param path Variable path @param exception Value to return if the specified variable could not be found or its value not converted to a key name
 		bool						GetAsBool(const String& path, bool exception = false);			//!< Attempts to retrieve the specified variable as a boolean @param path Variable path @param exception Value to return if the specified variable could not be found or its value not converted to a bool
-		const String&				GetAsString(const String& path, const String& exception = "");					//!< Attempts to retrieve the specified variable as a string. All variables inherently provide a toString() method so the only reason for this method to fail is if the requested variable does not exist @param path Variable path @param exception Value to return if the specified variable could not be found
+		const String&				GetAsString(const String& path, const String& exception = "");					//!< Attempts to retrieve the specified variable as a string. All variables inherently provide a ToString() method so the only reason for this method to fail is if the requested variable does not exist @param path Variable path @param exception Value to return if the specified variable could not be found
 		const String&				GetErrorStr()	const;						//!< Retrieves an error description of the last occured error
-		const String&				GetError()		const;						//!< Identical to getErrorStr()
+		const String&				GetError()		const;						//!< Identical to GetErrorStr()
 		String						Complete(const String&line, StringList&out);			//!< Attempts to complete an incomplete line towards a command or folder. @param line Line to complete @param out Reference list to store all possibilities in \return Longest common string among all possibilities or a complete command line if there is just one possibility. The returned string is empty if no matching possibility was found.
 		String						CompleteFolders(const String&line, StringList&out);		//!< Attempts to complete an incomplete line towards a folder. @param line Line to complete @param out Reference list to store all possibilities in \return Longest common string among all possibilities or a complete command line if there is just one possibility. The returned string is empty if no matching possibility was found.
 		String						CompleteVariables(const String&line, StringList&out);		//!< Attempts to complete an incomplete line towards a variable or folder. @param line Line to complete @param out Reference list to store all possibilities in \return Longest common string among all possibilities or a complete command line if there is just one possibility. The returned string is empty if no matching possibility was found.
 		PCommand 					Find(const String&path,PFolder*folder_out=NULL);	//!< Attempts to find a command matching \b path @param path Path of the command to look for \return Pointer to a matching command or NULL if no such command exists
 		PCommand 					Find(const char*path,PFolder*folder_out=NULL);		//!< Identical to find(const String&)
 		PVariable 					FindVar(const String&path,PFolder*folder_out=NULL);	//!< Attempts to find a variable matching \b path @param path Path of the variable to look for \return Pointer to a matching variable or NULL if no such variable exists
-		PVariable					FindVar(const char*path,PFolder*folder_out=NULL);		//!< Identical to findVar(const String&)
+		PVariable					FindVar(const char*path,PFolder*folder_out=NULL);		//!< Identical to FindVar(const String&)
 		PFolder						FindFolder(const String&path);	//!< Attempts to find a folder matching \b path @param path Path of the folder to look for \return Pointer to a matching folder or NULL if no such folder exists
 		const PFolder&				GetRoot() const	{return root;}
 		/*!
 		\brief Interprets one or more lines
 				
-		interpret() attempts to parse and execute the specified line(s).
+		Interpret() attempts to parse and execute the specified line(s).
 		Commands should be of the form '[command] [parameter0] ... [parameterN]'.<br />
 		[command] like all paths may be preceeded by paths relative to the currently active folder (i.e. 'myFolder/doSomething')
 		or absolute paths with a slash at the beginning (i.e. '/myTopmostFolder/mySubFolder/mySubSubFolder/myCommand').<br />
@@ -458,12 +458,12 @@ namespace CLI	//! Command line interpretor
 				
 		@param line Line(s) to parse. Multiple lines may be separated by ';'. Separators in strings or parenthesis are ignored.
 		@param allow_global_commands Set false to disallow the execution of global commands
-		\return true if all commands could be executed, false otherwise. Use getError() to retrieve an error description if interpret() returned false
+		\return true if all commands could be executed, false otherwise. Use getError() to retrieve an error description if Interpret() returned false
 		*/
 		bool						Interpret(const String&line, bool allow_global_commands=true);
-		bool						Interpret(const char*line, bool allow_global_commands=true);		//!< Identical to interpret(const String&)
-		bool						Parse(const String&line, bool allow_global_commands=true);		//!< Identical to interpret(const String&)
-		bool						Parse(const char*line, bool allow_global_commands=true);		//!< Identical to interpret(const String&)
+		bool						Interpret(const char*line, bool allow_global_commands=true);		//!< Identical to Interpret(const String&)
+		bool						Parse(const String&line, bool allow_global_commands=true);		//!< Identical to Interpret(const String&)
+		bool						Parse(const char*line, bool allow_global_commands=true);		//!< Identical to Interpret(const String&)
 		bool						MoveFocus(const String&path);	//!< Attempts to move the active folder to the specified path @param path Path pointing to a folder \return true on success, false otherwise. The active folder stays the same if the method fails.
 		PFolder						EnterNewFolder(const String&path, bool enter_existing=false);		//!< Attempts to create a new folder and enter it. All but the last segment of \b path must already exist @param path Path of the new folder \return Pointer to the newly or already existing folder on success, NULL otherwise. The active folder stays the same of the method fails, unless @a enter_existing is specified.
 		bool						ExitFolder();			//!< Attempts to drop out of the currently active folder to its immediate parent \return true on success

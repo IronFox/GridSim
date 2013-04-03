@@ -837,7 +837,7 @@ namespace Engine
 	#endif
 						void			destroyContext();
 						void			setRegion(const RECT&region);
-						const char*		getErrorStr();
+						const char*		GetErrorStr();
 						int				getErrorCode();
 						const char*		name();
 	#if SYSTEM==WINDOWS

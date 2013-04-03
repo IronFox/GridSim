@@ -790,7 +790,7 @@ namespace CGS
 		//::lout << "bending segment with"<<nl;
 		//lout << " dim="<<Vec::toString(source.dim.lower)<<'-'<<Vec::toString(source.dim.upper)<<nl;
 		#undef REPORT
-		#define REPORT(CON)	{}	//lout << " "#CON":"<<nl<<"  .coordinates="<<CON.coordinates.toString()<<nl<<"  .position_control="<<Vec::toString(CON.position_control)<<nl<<"  .scale="<<Vec::toString(CON.scale)<<nl<<"  .scale_control="<<Vec::toString(CON.scale_control)<<nl;
+		#define REPORT(CON)	{}	//lout << " "#CON":"<<nl<<"  .coordinates="<<CON.coordinates.ToString()<<nl<<"  .position_control="<<Vec::toString(CON.position_control)<<nl<<"  .scale="<<Vec::toString(CON.scale)<<nl<<"  .scale_control="<<Vec::toString(CON.scale_control)<<nl;
 		REPORT(end_point[0])
 		REPORT(end_point[1])
 		

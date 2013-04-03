@@ -10,7 +10,7 @@ namespace Except
 {
 	static void defaultFatal(const FatalDescriptor&discriptor)
 	{
-		DISPLAY__(discriptor.toString());
+		DISPLAY__(discriptor.ToString());
 	}
 
 	void (*onFatal)(const FatalDescriptor&exception) = defaultFatal;

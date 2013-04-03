@@ -944,7 +944,7 @@ namespace Math
 										return x.intersects(other.x) && y.intersects(other.y);
 									}
 			
-			virtual String			toString()	const	override
+			virtual String			ToString()	const	override
 									{
 										return	"("+String(x.min)+", "+String(y.min)+") - ("+String(x.max)+", "+String(y.max)+")";
 									}
@@ -1400,7 +1400,7 @@ namespace Math
 										return x.intersects(other.x) && y.intersects(other.y) && z.intersects(other.z);
 									}
 			
-			virtual String			toString()	const	override
+			virtual String			ToString()	const	override
 									{
 										return	"("+String(x.min)+", "+String(y.min)+", "+String(z.min)+") - ("+String(x.max)+", "+String(y.max)+", "+String(z.max)+")";
 									}

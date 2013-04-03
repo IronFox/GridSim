@@ -204,14 +204,14 @@ template <class Entry> inline void Archive<Entry>::dropToRoot()
 	depth = 0;
 }
 
-template <class Entry> inline void Archive<Entry>::getPath(Array<tName>&path)  const
+template <class Entry> inline void Archive<Entry>::GetPath(Array<tName>&path)  const
 {
 	path.resize(depth);
     for (BYTE k = 0; k < depth; k++)
 		path[k] = str2name(name_path[k]);
 }
 
-template <class Entry> inline void Archive<Entry>::getPath(Array<String>&path)  const
+template <class Entry> inline void Archive<Entry>::GetPath(Array<String>&path)  const
 {
 	path.resize(depth);
     for (BYTE k = 0; k < depth; k++)

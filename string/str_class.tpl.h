@@ -4017,7 +4017,7 @@ template <typename T0, typename T1>
 		if (!string)
 			return;
 		//ArrayData<T0>	buffer(string);
-		const T1*at = string;
+		const T0*at = string;
 		size_t count = 0;
 		while (*at)
 		{
@@ -4585,7 +4585,7 @@ template <typename T0, typename T1>
 
 	
 template <typename T>
-	inline	StringTemplate<char>		ReferenceExpression<T>::toString()			const
+	inline	StringTemplate<char>		ReferenceExpression<T>::ToString()			const
 						{
 							return StringTemplate<char>("Reference<")+StringTemplate<char>(len)+">";
 						}
@@ -4622,9 +4622,9 @@ template <typename T>
 #endif						
 
 template <typename E0, typename E1>
-	inline	StringTemplate<char>		ConcatExpression<E0,E1>::toString()			const
+	inline	StringTemplate<char>		ConcatExpression<E0,E1>::ToString()			const
 						{
-							return StringTemplate<char>("Concat<")+exp0.toString()+", "+exp1.toString()+">";
+							return StringTemplate<char>("Concat<")+exp0.ToString()+", "+exp1.ToString()+">";
 						}
 						
 						
@@ -4633,7 +4633,7 @@ template <typename E0, typename E1>
 
 
 template <typename T>
-	inline	StringTemplate<char>		StringExpression<T>::toString()			const
+	inline	StringTemplate<char>		StringExpression<T>::ToString()			const
 						{
 							return StringTemplate<char>("Temporary<")+StringTemplate<char>(StringTemplate<T>::string_length)+">";
 						}

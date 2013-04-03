@@ -128,7 +128,7 @@ namespace FileSystem
 			bool				isExtension(const char*ext)			const;		//!< Checks if the specified extension equals the local file's extension. Comparison is case insensitive. \return true if the specified extension matches the extension of the local file
 			bool				isFolder()							const;		//!< Returns true if the local entry is a folder/directory (identical to isDirectory())	\return true if folder
 			bool				isDirectory()						const;		//!< Returns true if the local entry is a folder/directory (identical to isFolder()) \return true if folder
-			String				toString()							const;		//!< Creates a string representation of the local entry \return String representation
+			String				ToString()							const;		//!< Creates a string representation of the local entry \return String representation
 			bool				doesExist()							const;		//!< Queries existence of the local file or folder
 
 			bool				unlink()							const;		//!< Unlinks (erases) the local file/folder (making the local handle invalid) \return true on success
@@ -193,7 +193,7 @@ namespace FileSystem
 	public:
 			String			getName()			const;
 			String			getRoot()			const;
-			String			toString()			const;
+			String			ToString()			const;
 			File			toFile()			const;
 	};
 
@@ -262,12 +262,12 @@ namespace FileSystem
 			bool				find(const String&path, File&out)			const;	//!< Locates the specified file or folder starting from the current folder location. \param path Path to the file or folder that should be located \param out Out File structure reference. \return true if the entry could be located
 			const File*			findFile(const String&path)					const;	//!< Locates the specified file starting from the current folder location \param path Path to the file that should be located \return Pointer to a file container pointing to the specified file or NULL if the file could not be located
 			bool				findFile(const String&path, File&out)		const;	//!< Locates the specified file starting from the current folder location. \param path Path to the file or folder that should be located \param out Out File structure reference. \return true if the entry could be located
-			const File*			findFolder(const String&path)				const;	//!< Locates the specified folder starting from the current folder location \param path Path to the folder that should be located \return Pointer to a file container pointing to the specified folder or NULL if the folder could not be located
-			bool				findFolder(const String&path, File&out)		const;	//!< Locates the specified folder starting from the current folder location. \param path Path to the file or folder that should be located \param out Out File structure reference. \return true if the entry could be located
+			const File*			FindFolder(const String&path)				const;	//!< Locates the specified folder starting from the current folder location \param path Path to the folder that should be located \return Pointer to a file container pointing to the specified folder or NULL if the folder could not be located
+			bool				FindFolder(const String&path, File&out)		const;	//!< Locates the specified folder starting from the current folder location. \param path Path to the file or folder that should be located \param out Out File structure reference. \return true if the entry could be located
 			const File*			createFolder(const String&name)				const;	//!< Creates the specified sub folder \param name Name of the sub folder to create \return Pointer to a file container pointing to the newly created folder or NULL if the folder could not be created
 			bool				createFolder(const String&name, File&out)	const;	//!< Creates the specified sub folder \param name Name of the sub folder to create \param out Out File structure reference. \return true if the new folder could be created, false otherwise.
 			
-			String				toString()		const;						//!< Creates a string representation of the local folder
+			String				ToString()		const;						//!< Creates a string representation of the local folder
 			
 			bool				operator<(const Folder&other)	const;
 			bool				operator>(const Folder&other)	const;

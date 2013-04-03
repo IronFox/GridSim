@@ -494,7 +494,7 @@ namespace TCP
 									{
 										return !socketAccess->IsClosed();
 									}
-		String						toString()	const	//! Converts the local address into a string. If the local object is NULL then the string "NULL" is returned instead.
+		String						ToString()	const	//! Converts the local address into a string. If the local object is NULL then the string "NULL" is returned instead.
 									{
 										return this&&actual_address?addressToString(*actual_address):"NULL";
 									}

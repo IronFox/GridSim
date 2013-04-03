@@ -202,7 +202,7 @@ namespace Engine
 
 						void			setVerbose(bool)	{}
 						void			setRegion(const RECT&region)	{}																//!< Sets a new rendering region	\param region Rectangle specifying the new rendering region in the active window
-		static			const char*		getErrorStr()		{return "DummyGL does not provide any functionality";}																					//!< Returns a string-representation of the last occured error \return String-representation of the last occured error
+		static			const char*		GetErrorStr()		{return "DummyGL does not provide any functionality";}																					//!< Returns a string-representation of the last occured error \return String-representation of the last occured error
 		static			int				getErrorCode()		{return ERR_GENERAL_FAULT;}																				//!< Returns an index representation of the last occured error \return Error code of the last occured error
 						const char*		name()				{return "DummyGL";}																						//!< Returns identity \return "OpenGL"
 	};

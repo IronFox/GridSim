@@ -531,7 +531,7 @@ public:
 		};
 
 		
-static	const char*			toString(layout_t);
+static	const char*			ToString(layout_t);
 static	bool				decode(const String&string, layout_t&);
 protected:
 static	void				splitHull(SurfaceDescription&desc_out);

@@ -134,12 +134,12 @@ namespace Composite
 								return compareComposites(this->sector,this->remainder,other.sector,other.remainder,sector_size);
 							}
 							
-			String			toString(float sector_size)	const
+			String			ToString(float sector_size)	const
 							{
 								return "["+String(sector)+"] "+String(remainder)+" (="+String(sector*sector_size+remainder)+")";
 							}
 							
-			String			toString()	const
+			String			ToString()	const
 							{
 								return "["+String(sector)+"] "+String(remainder);
 							}
@@ -346,12 +346,12 @@ namespace Composite
 								Vec::copy(other_sector,sector);
 							}
 			
-			String			toString()	const	//! Converts the local space coordinates to a string representation
+			String			ToString()	const	//! Converts the local space coordinates to a string representation
 							{
 								return "["+String(sector.x)+", "+String(sector.y)+", "+String(sector.z)+"] "+String(remainder.x)+", "+String(remainder.y)+", "+String(remainder.z);
 							}
 			
-			String			toString(float sector_size)	const	//! Converts the local space coordinates to a string representation
+			String			ToString(float sector_size)	const	//! Converts the local space coordinates to a string representation
 							{
 								return "["+String(sector.x)+", "+String(sector.y)+", "+String(sector.z)+"] "+String(remainder.x)+", "+String(remainder.y)+", "+String(remainder.z)+" (="+String(sector.x*sector_size+remainder.x)+", "+String(sector.y*sector_size+remainder.y)+", "+String(sector.z*sector_size+remainder.z)+")";
 							}

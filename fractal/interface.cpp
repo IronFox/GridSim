@@ -650,7 +650,7 @@ namespace Fractal
 			return true;
 		if (c0.z < c1.z)
 			return false;
-		FATAL__("Requesting order of collapsed edge (edge="+String(edge)+", c0="+c0.toString()+", c1="+c1.toString()+")");
+		FATAL__("Requesting order of collapsed edge (edge="+String(edge)+", c0="+c0.ToString()+", c1="+c1.ToString()+")");
 		return false;
 	}
 		
@@ -786,8 +786,8 @@ namespace Fractal
 			fractal_log<<" num_vertices="<<num_vertices<<endl;
 			fractal_log<<" offset="<<offset<<endl;
 			fractal_log<<" transition="<<_toString(transition)<<endl;
-			fractal_log<<" parent_edge_begin="<<((SurfaceSegment*)parent)->corner[edge].toString()<<endl;
-			fractal_log<<" parent_edge_end="<<((SurfaceSegment*)parent)->corner[(edge+1)%3].toString()<<endl;*/
+			fractal_log<<" parent_edge_begin="<<((SurfaceSegment*)parent)->corner[edge].ToString()<<endl;
+			fractal_log<<" parent_edge_end="<<((SurfaceSegment*)parent)->corner[(edge+1)%3].ToString()<<endl;*/
 			vbo_edge[edge][i].setSize(num_floats);
 
 			ASSERT_EQUAL__(parent->vbo_edge[edge][i-1].length(),2*num_floats-floats_per_vbo_vertex);

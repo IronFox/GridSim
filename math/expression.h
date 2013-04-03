@@ -49,14 +49,14 @@ namespace Expression
 								Entity(Type::EVal t):negated(false),inverted(false),type(t)
 								{}
 	virtual						~Entity()	{};
-	virtual	String				toString(bool show_markers=false)	const=0;	//!< Recursively assembles the local formula into a mathematical expression.
+	virtual	String				ToString(bool show_markers=false)	const=0;	//!< Recursively assembles the local formula into a mathematical expression.
 	virtual	Entity*				clone()		const=0;
 	virtual	float				evaluate()	const=0;
 	virtual	bool				equals(const Entity*other)	const=0;		//!< Tests for inner equality. Does not heed negated and/or inverted flags
 	
 			String				signedToString()	const
 								{
-									return (negated?"-":"")+toString();
+									return (negated?"-":"")+ToString();
 								}
 								
 	
@@ -77,7 +77,7 @@ namespace Expression
 								{
 									(*(String*)this) = v;
 								}
-	virtual	String				toString(bool show_markers=false)	const;	//!< Recursively assembles the local formula into a mathematical expression.
+	virtual	String				ToString(bool show_markers=false)	const;	//!< Recursively assembles the local formula into a mathematical expression.
 	virtual	Entity*				clone()		const;
 	virtual	float				evaluate()	const;
 	virtual	bool				equals(const Entity*other)	const;
@@ -105,7 +105,7 @@ namespace Expression
 			count_t				countOccurrences(const Variable*variable) const;	//!< Counts the number of times an element by the specified name is located in this group. Not recursive
 			index_t				find(const Variable*variable)	const;				//!< Returns the first element that matches the specified element name or InvalidIndex if the element was not found
 			
-	virtual	String				toString(bool show_markers=false)	const;	//!< Recursively assembles the local formula into a mathematical expression.
+	virtual	String				ToString(bool show_markers=false)	const;	//!< Recursively assembles the local formula into a mathematical expression.
 			bool				parse(const String&expression, VarContainer&var_container);	//!< Reconfigures the local group to match the given expression. Any data currently held by this group is lost. @param expression Expression to parse @return true on success, false otherwise.
 	virtual	Entity*				clone()		const;
 	virtual	float				evaluate()	const;
@@ -140,7 +140,7 @@ namespace Expression
 								}
 	
 	
-	virtual	String				toString(bool show_markers=false)	const;	//!< Recursively assembles the local formula into a mathematical expression.
+	virtual	String				ToString(bool show_markers=false)	const;	//!< Recursively assembles the local formula into a mathematical expression.
 	virtual	Entity*				clone()		const;
 	virtual	float				evaluate()	const;
 	virtual	bool				equals(const Entity*other)	const;		//!< Tests for inner equality. Does not heed negated and/or inverted flags
@@ -185,7 +185,7 @@ namespace Expression
 										DISCARD(y2);
 								}
 
-	virtual	String				toString(bool show_markers=false)	const;	//!< Recursively assembles the local formula into a mathematical expression.
+	virtual	String				ToString(bool show_markers=false)	const;	//!< Recursively assembles the local formula into a mathematical expression.
 	virtual	Entity*				clone()		const;
 	virtual	float				evaluate()	const;
 	virtual	bool				equals(const Entity*other)	const;		//!< Tests for inner equality. Does not heed negated and/or inverted flags
@@ -199,7 +199,7 @@ namespace Expression
 								
 								Determinant3Const():Determinant2x3(Type::Determinant3Const),c0(1),c1(1),c2(1)
 								{}
-	virtual	String				toString(bool show_markers=false)	const;	//!< Recursively assembles the local formula into a mathematical expression.
+	virtual	String				ToString(bool show_markers=false)	const;	//!< Recursively assembles the local formula into a mathematical expression.
 	virtual	Entity*				clone()		const;
 	virtual	float				evaluate()	const;
 	virtual	bool				equals(const Entity*other)	const;		//!< Tests for inner equality. Does not heed negated and/or inverted flags

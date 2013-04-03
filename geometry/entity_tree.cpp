@@ -101,7 +101,7 @@ void		CompositeEntityTree::recursiveRemap(const Buffer<Entity*>&source, float se
 	}
 	split.divInt(int(entities.count()),sector_size);
 	if (verbose)
-		cout << " center is "<<split.toString(sector_size)<<endl;
+		cout << " center is "<<split.ToString(sector_size)<<endl;
 	
 	
 	BYTE greatest(0),collapsed(0);
@@ -153,8 +153,8 @@ void		CompositeEntityTree::recursiveRemap(const Buffer<Entity*>&source, float se
 				{
 					if (verbose)
 					{
-						cout << "  entity "<<i<<" intersects new split at "<<val.toString(sector_size)<<endl;
-						cout << "   entity range is "<<lower.toString(sector_size)<<" - "<<upper.toString(sector_size)<<endl;
+						cout << "  entity "<<i<<" intersects new split at "<<val.ToString(sector_size)<<endl;
+						cout << "   entity range is "<<lower.ToString(sector_size)<<" - "<<upper.ToString(sector_size)<<endl;
 					}
 				
 					if (val.compareTo(original_split,sector_size)>0)
@@ -194,7 +194,7 @@ void		CompositeEntityTree::recursiveRemap(const Buffer<Entity*>&source, float se
 			}
 		}
 		if (verbose)
-			cout << " split vector component determined at "<<val.toString(sector_size)<<endl;
+			cout << " split vector component determined at "<<val.ToString(sector_size)<<endl;
 	
 		if (val.compareTo(volume.lower.axis(k),sector_size)<0)
 			val = volume.lower.axis(k);
@@ -203,7 +203,7 @@ void		CompositeEntityTree::recursiveRemap(const Buffer<Entity*>&source, float se
 			val = volume.upper.axis(k);
 
 		if (verbose)
-			cout << " split vector component clamped to "<<val.toString(sector_size)<<endl;
+			cout << " split vector component clamped to "<<val.ToString(sector_size)<<endl;
 
 		delta.divInt(2,sector_size);
 		
@@ -224,7 +224,7 @@ void		CompositeEntityTree::recursiveRemap(const Buffer<Entity*>&source, float se
 		
 		new_split.setAxis(k,val);
 		if (verbose)
-			cout << " final split vector component determined at "<<val.toString(sector_size)<<endl;
+			cout << " final split vector component determined at "<<val.ToString(sector_size)<<endl;
 		
 		if (delta.compareTo(greatest_range,sector_size)>0)
 		{
@@ -507,7 +507,7 @@ void		CompositeEntityTree::remap(const Buffer<Entity*>&source, float sector_size
 		Composite::max(volume.upper,entity->volume.upper,volume.upper,sector_size);
 	}
 	if (verbose)
-		cout << "remapping entities from buffer. volume is "<<volume.lower.toString(sector_size)<<" <-> "<<volume.upper.toString(sector_size)<<endl;
+		cout << "remapping entities from buffer. volume is "<<volume.lower.ToString(sector_size)<<" <-> "<<volume.upper.ToString(sector_size)<<endl;
 	
 	recursiveRemap(source,sector_size);
 }
@@ -537,7 +537,7 @@ void		CompositeEntityTree::remap(List::Vector<Entity>&source, float sector_size,
 		entities << entity;
 	}
 	if (verbose)
-		cout << "remapping entities from vector. volume is "<<volume.lower.toString(sector_size)<<" <-> "<<volume.upper.toString(sector_size)<<endl;
+		cout << "remapping entities from vector. volume is "<<volume.lower.ToString(sector_size)<<" <-> "<<volume.upper.ToString(sector_size)<<endl;
 	
 	recursiveRemap(entities,sector_size);
 }
