@@ -23,12 +23,12 @@ namespace CLI
 	PointerTable<String>	help_map;
 	
 	
-	void	registerHelp(void*pointer,const String&message)
+	void	RegisterHelp(void*pointer,const String&message)
 	{
 		help_map.set(pointer,message);
 	}
 	
-	void	unregisterHelp(void*pointer)
+	void	UnregisterHelp(void*pointer)
 	{
 		help_map.unSet(pointer);
 	}
@@ -234,17 +234,17 @@ namespace CLI
 		
 		main_interpretor = &parser;
 		PCommand help = parser.DefineGlobalCommand("help command/variable/folder",printHelp,CLI::CommandCompletion);
-		registerHelp(parser.DefineGlobalCommand("ls",list).get(),list_help);
-		registerHelp(parser.DefineGlobalCommand("list",list).get(),list_help);
+		RegisterHelp(parser.DefineGlobalCommand("ls",list).get(),list_help);
+		RegisterHelp(parser.DefineGlobalCommand("list",list).get(),list_help);
 		//parser.defineGlobalCommand("list",list);
 
-		registerHelp(parser.DefineGlobalCommand("set variable value",set,CLI::VariableCompletion).get(),set_help);
-		registerHelp(parser.DefineGlobalCommand("unset variable",unset,CLI::VariableCompletion).get(),unset_help);
-		registerHelp(parser.DefineGlobalCommand("cd folder",cd,CLI::FolderCompletion).get(),cd_help);
-		registerHelp(parser.DefineGlobalCommand("typeof variable",showTypeof,CLI::VariableCompletion).get(),typeof_help);
+		RegisterHelp(parser.DefineGlobalCommand("set variable value",set,CLI::VariableCompletion).get(),set_help);
+		RegisterHelp(parser.DefineGlobalCommand("unset variable",unset,CLI::VariableCompletion).get(),unset_help);
+		RegisterHelp(parser.DefineGlobalCommand("cd folder",cd,CLI::FolderCompletion).get(),cd_help);
+		RegisterHelp(parser.DefineGlobalCommand("typeof variable",showTypeof,CLI::VariableCompletion).get(),typeof_help);
 		parser.onVariableCall = variableCallBack;
 		
-		registerHelp(help.get(),general_help);
+		RegisterHelp(help.get(),general_help);
 	}
 
 }
