@@ -25,7 +25,7 @@ Image-class used to store and process textures
 #define		COS_RESIZE
 
 
-CONSTRUCT_ENUMERATION6(PixelType, None, Color, StrictColor, Depth,ObjectSpaceNormal, TangentSpaceNormal);
+CONSTRUCT_ENUMERATION7(PixelType, None, Color, StrictColor, BGRA, Depth,ObjectSpaceNormal, TangentSpaceNormal);
 //StrictColor enforces loading 1 and 2 channel images as R and RG texturesk, respectively. Effective only when loading images into VRAM, mostly identical to Color otherwise
 
 

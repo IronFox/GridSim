@@ -178,7 +178,7 @@ BaseImage::THeader					BaseImage::getHeader()															const
 
 bool	BaseImage::isColorMap()	const
 {
-	return content_type == PixelType::Color || content_type == PixelType::StrictColor;
+	return content_type == PixelType::Color || content_type == PixelType::StrictColor || content_type == PixelType::BGRA;
 }
 
 bool	BaseImage::isNormalMap() const

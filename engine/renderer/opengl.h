@@ -261,6 +261,8 @@ namespace Engine
 				/**/					Reference(const Texture*parent):Super(parent),readonly(true)			{};
 				/**/					Reference(Texture&parent):Super(&parent),readonly(false)			{};
 				/**/					Reference(const Texture&parent):Super(&parent),readonly(true)			{};
+				template <typename data_t>
+					void				RawUpdate(const data_t*data,TextureFilter filter, float anisotropy)	{update(data,filter,anisotropy);}
 
 				template <typename Nature>
 					void				update(const GenericImage<Nature>&image,TextureFilter filter=TextureFilter::Trilinear, float anisotropy=1.f)
@@ -333,20 +335,20 @@ namespace Engine
 			@param anisotropy Max anisotropy value associated with this texture. Applied only if @a filter is either Bilinear or Trilinear
 			*/
 			template <typename data_t>
-				void					load(const data_t*data, GLuint width, GLuint height, BYTE channels, PixelType type, float anisotropy=1.0f, bool clamp_texcoords=true, TextureFilter filter = TextureFilter::Trilinear, bool compress=false);
+				void					loadPixels(const data_t*data, GLuint width, GLuint height, BYTE channels, PixelType type, float anisotropy=1.0f, bool clamp_texcoords=true, TextureFilter filter = TextureFilter::Trilinear, bool compress=false);
 			template <typename data_t>
-				void					Load(const data_t*data, GLuint width, GLuint height, BYTE channels, PixelType type, float anisotropy=1.0f, bool clampTexcoords=true, TextureFilter filter = TextureFilter::Trilinear, bool compress=false)
-										{load(data,width,height,channels,type,anisotropy,clampTexcoords,filter,compress);}
+				void					LoadPixels(const data_t*data, GLuint width, GLuint height, BYTE channels, PixelType type, float anisotropy=1.0f, bool clampTexcoords=true, TextureFilter filter = TextureFilter::Trilinear, bool compress=false)
+										{loadPixels(data,width,height,channels,type,anisotropy,clampTexcoords,filter,compress);}
 				
 			template <typename Nature>
 				inline void				load(const GenericImage<Nature>&image, float anisotropy=1.0f, bool clamp_texcoords=true, TextureFilter filter=TextureFilter::Trilinear, bool compress=false)
 										{
-											load(image.getData(), image.width(), image.height(), image.channels(), image.getContentType(), anisotropy, clamp_texcoords, filter, compress);
+											loadPixels(image.getData(), image.width(), image.height(), image.channels(), image.getContentType(), anisotropy, clamp_texcoords, filter, compress);
 										}
 			template <typename Nature>
 				inline void				Load(const GenericImage<Nature>&image, float anisotropy=1.0f, bool clamp_texcoords=true, TextureFilter filter=TextureFilter::Trilinear, bool compress=false)
 										{
-											load(image.getData(), image.width(), image.height(), image.channels(), image.getContentType(), anisotropy, clamp_texcoords, filter, compress);
+											loadPixels(image.getData(), image.width(), image.height(), image.channels(), image.getContentType(), anisotropy, clamp_texcoords, filter, compress);
 										}
 								
 			/**

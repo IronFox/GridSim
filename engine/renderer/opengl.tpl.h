@@ -29,11 +29,17 @@ namespace Engine
 				break;
 				case 3:
 					internal_format = compress ? GL_COMPRESSED_RGB : GLType::rgb_type_constant;
-					import_format = GL_RGB;
+					if (type == PixelType::BGRA)
+						import_format = GL_BGR;
+					else
+						import_format = GL_RGB;
 				break;
 				case 4:
 					internal_format = compress?GL_COMPRESSED_RGBA : GLType::rgba_type_constant;
-					import_format = GL_RGBA;
+					if (type == PixelType::BGRA)
+						import_format = GL_BGRA;
+					else
+						import_format = GL_RGBA;
 				break;
 				default:
 					FATAL__("Unsupported channel count: "+String(channels));
@@ -102,9 +108,11 @@ namespace Engine
 			else
 			{
 				if (texture_dimension == TextureDimension::Linear)
-					glTexImage1D( target, 0, internal_format, texture_width, 0, import_format, GLType<data_t>::constant, data);
+					//glTexImage1D( target, 0, internal_format, texture_width, 0, import_format, GLType<data_t>::constant, data);
+					glTexSubImage1D(target,0,0,texture_width,import_format, GLType<data_t>::constant, data);
 				else
-					glTexImage2D( target, 0, internal_format, texture_width, texture_height, 0, import_format, GLType<data_t>::constant, data);
+					//glTexImage2D( target, 0, internal_format, texture_width, texture_height, 0, import_format, GLType<data_t>::constant, data);
+					glTexSubImage2D(target,0,0,0,texture_width,texture_height,import_format, GLType<data_t>::constant, data);
 				GLenum error = glGetError();
 				if (error != GL_NO_ERROR)
 				{
@@ -127,7 +135,7 @@ namespace Engine
 
 
 	template <typename data_t>
-		void	GL::Texture::load(const data_t*data, GLuint width_, GLuint height_, BYTE channels_, PixelType type, float anisotropy, bool clamp_texcoords, TextureFilter filter, bool compress)
+		void	GL::Texture::loadPixels(const data_t*data, GLuint width_, GLuint height_, BYTE channels_, PixelType type, float anisotropy, bool clamp_texcoords, TextureFilter filter, bool compress)
 		{
 			if (!width_ || !height_ || !channels_ || channels_ > 4)
 			{
@@ -182,7 +190,7 @@ namespace Engine
 
 
 			formatAt<GLType<data_t> >(texture_channels,type,compress, internal_format, import_format);
-			if (mipmap && (compress || !glGenerateMipmap)) //glGenerateMipmap apparently doesn't like compression
+			if (data && mipmap && (compress || !glGenerateMipmap)) //glGenerateMipmap apparently doesn't like compression
 			{
 				if (is_1D)
 					gluBuild1DMipmaps(target,internal_format,texture_width,import_format,GLType<data_t>::constant,data);
@@ -202,7 +210,7 @@ namespace Engine
 					throw Renderer::TextureTransfer::GeneralFault("First chance: OpenGL reports general fault while trying to load texture ("+String(glGetErrorName(error))+") using internal format 0x"+IntToHex((int)internal_format,4)+" and import format 0x"+IntToHex((int)import_format,4));
 					return;
 				}
-				if (mipmap)
+				if (mipmap && data != NULL)
 				{
 					ASSERT_NOT_NULL__(glGenerateMipmap);	//this should be redundant
 					glGenerateMipmap(target);

@@ -1317,7 +1317,7 @@ namespace Engine
 			return;
 		DBG_ASSERT__(hasCurrentContext());
 		if (target.width() != width || target.height() != height || target.channels() != 3)
-			target.load<GLbyte>(NULL, width, height, 3, PixelType::Color,1.0f, true, TextureFilter::Linear);
+			target.loadPixels<GLbyte>(NULL, width, height, 3, PixelType::Color,1.0f, true, TextureFilter::Linear);
 		glGetError();
 		glBindTexture(GL_TEXTURE_2D,target.getHandle());
 			glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0,  width, height);
@@ -1332,7 +1332,7 @@ namespace Engine
 			return;
 		DBG_ASSERT__(hasCurrentContext());
 		if (target.width() != width || target.height() != height || target.channels() != 3)
-			target.load<GLDepthComponent>(NULL, width, height, 1, PixelType::Depth,1.0f, true, TextureFilter::Linear);
+			target.loadPixels<GLDepthComponent>(NULL, width, height, 1, PixelType::Depth,1.0f, true, TextureFilter::Linear);
 		glGetError();
 		glBindTexture(GL_TEXTURE_2D,target.getHandle());
 			glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_NONE );
