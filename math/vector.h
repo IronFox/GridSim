@@ -1299,14 +1299,14 @@ namespace Math
 			
 
 			template <typename T0,typename T1>
-				MF_DECLARE(void)	derelativate(const TVec3<T0>& relative, TVec3<T0>&absolute_out)	const
+				MF_DECLARE(void)	derelativate(const TVec3<T0>& relative, TVec3<T1>&absolute_out)	const
 									{
 										x.makeAbsolute(relative.x,absolute_out.x);
 										y.makeAbsolute(relative.y,absolute_out.y);
 										z.makeAbsolute(relative.z,absolute_out.z);
 									}
 			template <typename T0,typename T1>
-				MF_DECLARE(void)	makeAbsolute(const TVec3<T0>& relative, TVec3<T0>&absolute_out)	const
+				MF_DECLARE(void)	makeAbsolute(const TVec3<T0>& relative, TVec3<T1>&absolute_out)	const
 									{
 										x.makeAbsolute(relative.x,absolute_out.x);
 										y.makeAbsolute(relative.y,absolute_out.y);
