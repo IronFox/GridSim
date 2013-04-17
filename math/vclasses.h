@@ -72,6 +72,8 @@ namespace Math
 		MF_DECLARE(String)				ToString()								const	{return Vec::toString(*this);}
 		MF_DECLARE(C)					length()								const	{return Vec::length(*this);}
 		MF_DECLARE(C)					Length()								const	{return Vec::length(*this);}
+		MF_DECLARE(C)					quadraticLength()						const	{return Vec::dot(*this);}
+		MF_DECLARE(C)					QuadraticLength()						const	{return Vec::dot(*this);}
 		MF_DECLARE(C)					sqr()							 		const	{return Vec::dot(*this);}
 		MF_DECLARE(C)					Sqr()							 		const	{return Vec::dot(*this);}
 		MF_DECLARE(C)					summary()								const	{return x+y+z;}

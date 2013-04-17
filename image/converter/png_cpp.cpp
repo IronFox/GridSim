@@ -78,7 +78,7 @@ namespace
 
 	void readSectionFromStream(png_structp png, png_bytep data, png_size_t size)
 	{
-		if (!inStream->read(data,size))
+		if (!inStream->read(data,(serial_size_t)size))
 			throw IO::DriveAccess::DataReadFault("Stream refused to read requested amount of bytes");
 	}
 }
