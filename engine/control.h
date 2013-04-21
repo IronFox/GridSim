@@ -89,6 +89,7 @@ namespace Engine
 		virtual	bool		OnMouseWheel(short delta)					{return false;};	//!< Sends a mouse wheel event to the local control
 	
 		virtual	void		Advance(float delta)						{};					//!< Advances the frame. @param Last frames frame length. The control is encouraged to use this delta value rather than the global timing variable if slowmotion effects should be possible
+		virtual void		FixedUpdate(float delta)					{};					//!< Called with a fixed frame delta
 	
 		virtual	bool		DetectNearestGroundHeight(const TVec3<>&referencePosition,float&outHeight, TVec3<>&outNormal)	{return false;};
 		virtual void		OnResolutionChange(const Resolution&newResolution, bool isFinal)		{};
@@ -100,19 +101,22 @@ namespace Engine
 	};
 	
 	/**
-		@brief Sequential collection of Control instances
+	@brief Sequential collection of Control instances
 		
-		ControlCluster manages a series of controls.
+	ControlCluster manages a series of controls.
 	*/
 	class ControlCluster
 	{
-	protected:
+	private:
 		Buffer<Control*,0>	controlStack;
+		float				accumulatedTime,
+							fixedFrameDelta;
 	public:
 		VirtualTextout		*textout;
 		RenderSequenceMap	sequenceMap;
 	
-		ControlCluster()	:textout(NULL)	{}
+		/**/				ControlCluster(unsigned fixedUpdateFrequency = 80)
+							:accumulatedTime(0),fixedFrameDelta(1.f / float(fixedUpdateFrequency)), textout(NULL)	{}
 		virtual				~ControlCluster();
 	
 		bool				OnKeyDown(Key::Name);					//!< Invokes onKeyDown() methods of all contained control instances. Walks backwards through the list and stops at the first that returns true @return true if any contained instance returned true, false otherwise

@@ -66,6 +66,14 @@ namespace Engine
 	{
 		for (index_t i = 0; i < controlStack.size(); i++)
 			controlStack[i]->Advance(delta);
+
+		accumulatedTime += delta;
+		while (accumulatedTime > fixedFrameDelta)
+		{
+			accumulatedTime -= fixedFrameDelta;
+			for (index_t i = 0; i < controlStack.size(); i++)
+				controlStack[i]->FixedUpdate(fixedFrameDelta);
+		}
 	}
 	
 			

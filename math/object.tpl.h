@@ -5008,7 +5008,7 @@ namespace ObjectMath
 								*end = &volume_field.last();
 			while (begin < end)	//sort field so that it begins with positive volumes and ends with negative volumes
 			{
-				while (*begin > 0 && begin <=end)
+				while (*begin >= 0 && begin <=end)
 					begin++;
 				while (*end < 0 && end >= begin)
 					end--;
