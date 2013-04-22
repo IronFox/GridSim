@@ -106,7 +106,7 @@ namespace Engine
 
 	bool		ControlCluster::DetectNearestGroundHeight(const TVec3<>&reference_position,float&out_height, TVec3<>&outNormal)
 	{
-		out_height = std::numeric_limits<float>::min();
+		out_height = -std::numeric_limits<float>::max();
 		bool result = false;
 		for (index_t i = 0; i < controlStack.size(); i++)
 		{

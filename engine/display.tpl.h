@@ -476,6 +476,28 @@ namespace Engine
 			return context.isCurrent(screen);
 		}
 
+	template <class GL>
+		/*static*/ inline void						Display<GL>::AcceptFileDrop()
+		{
+			context.AcceptFileDrop();
+		}
+	template <class GL>
+		/*static*/ inline void						Display<GL>::OnFileDrop(const Array<String>&files)
+		{
+			context.OnFileDrop(files);
+		}
+	template <class GL>
+		/*static*/ inline void						Display<GL>::AcceptFileDrop(void (*handler)(const Array<String>&files))
+		{
+			context.AcceptFileDrop(handler);
+		}
+	template <class GL>
+		/*static*/ inline void						Display<GL>::BlockFileDrop()
+		{
+			context.BlockFileDrop();
+		}
+
+
 	#elif SYSTEM==UNIX
 
 	template <class GL> inline  int Display<GL>::findScreen(DWORD width, DWORD height, DWORD&refresh_rate)

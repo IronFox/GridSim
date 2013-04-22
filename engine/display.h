@@ -217,6 +217,11 @@ namespace Engine
 	FORWARD bool						getScreen(DEVMODE&mode);
 	FORWARD bool						getScreen(DEVMODE*mode);
 	FORWARD bool						isCurrent(const DEVMODE&screen);
+	FORWARD void						AcceptFileDrop();
+	FORWARD void						OnFileDrop(const Array<String>&files);
+	FORWARD void						AcceptFileDrop(void (*handler)(const Array<String>&files));
+	FORWARD void						BlockFileDrop();
+
 	#elif SYSTEM==UNIX
 	FORWARD int							findScreen(DWORD width, DWORD height, DWORD&refresh_rate);
 	/*FORWARD const XRRScreenSize&		getScreen(unsigned index);
@@ -266,6 +271,9 @@ namespace Engine
 	private:
 			pEngineExec					exec_target;
 	#if SYSTEM==WINDOWS
+			void (*fileDropHandler)(const Array<String>&files);
+			bool						acceptDroppedFiles;
+
 			HINSTANCE					hInstance;
 			HWND						hWnd;
 	static	HHOOK						hHook;
@@ -354,6 +362,12 @@ namespace Engine
 			Resolution					getScreenSize();
 			short						getRefreshRate();
 	#if SYSTEM==WINDOWS
+			void						AcceptFileDrop();
+			void						OnFileDrop(const Array<String>&files);
+			void						AcceptFileDrop(void (*handler)(const Array<String>&files));
+			void						BlockFileDrop();
+
+
 			DEVMODE*					getScreen(unsigned index);
 			bool						isCurrent(const DEVMODE&screen);
 			bool						getScreen(DEVMODE*mode);

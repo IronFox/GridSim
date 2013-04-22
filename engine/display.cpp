@@ -10,6 +10,201 @@ template Engine::Display<Engine::OpenGL>;
 
 #if SYSTEM==WINDOWS
 
+#undef NEAR
+#ifndef NEAR
+#define NEAR
+#endif
+
+#include <ole2.h> 
+#include <shlobj.h>
+
+
+#define WM_OLEDROP WM_USER + 1 
+
+class CtxDropTarget : public IDropTarget 
+{ 
+private: 
+	unsigned long references; 
+	bool acceptFormat; 
+
+	// helper function 
+	void __fastcall HandleDrop(HDROP HDrop);
+
+protected: 
+	// IUnknown methods 
+	STDMETHOD(QueryInterface)(REFIID riid, void FAR* FAR* ppvObj); 
+	STDMETHOD_(ULONG, AddRef)(); 
+	STDMETHOD_(ULONG, Release)();
+
+	// IDropTarget methods 
+	STDMETHOD(DragEnter)(LPDATAOBJECT pDataObj, DWORD grfKeyState, 
+											POINTL pt, LPDWORD pdwEffect); 
+	STDMETHOD(DragOver)(DWORD grfKeyState, POINTL pt, LPDWORD pdwEffect); 
+	STDMETHOD(DragLeave)(); 
+	STDMETHOD(Drop)(LPDATAOBJECT pDataObj, DWORD grfKeyState, 
+					POINTL pt, LPDWORD pdwEffect);
+
+public: 
+	CtxDropTarget(); 
+	~CtxDropTarget();
+}; 
+
+
+
+CtxDropTarget::CtxDropTarget() 
+        : IDropTarget() 
+{ 
+    references = 1; 
+    acceptFormat = false; 
+} 
+//---------------------------------------------------------------------------
+CtxDropTarget::~CtxDropTarget() 
+{ 
+} 
+//---------------------------------------------------------------------------
+
+// helper routine to notify Form of drop on target 
+void __fastcall CtxDropTarget::HandleDrop(HDROP HDrop) 
+{ 
+	ShowMessage("dropped");
+    //SendMessage(windowHandle, WM_OLEDROP, (WPARAM)HDrop, 0); 
+} 
+//---------------------------------------------------------------------------
+
+// IUnknown Interface has three member functions: 
+// QueryInterface, AddRef, and Release.
+
+STDMETHODIMP CtxDropTarget::QueryInterface(REFIID iid, void FAR* FAR* ppv) 
+{ 
+   // tell other objects about our capabilities 
+   if (iid == IID_IUnknown || iid == IID_IDropTarget) 
+   { 
+       *ppv = this; 
+       AddRef(); 
+       return NOERROR; 
+   } 
+   *ppv = NULL; 
+   return ResultFromScode(E_NOINTERFACE); 
+} 
+//---------------------------------------------------------------------------
+
+STDMETHODIMP_(ULONG) CtxDropTarget::AddRef() 
+{ 
+   return ++references; 
+} 
+//---------------------------------------------------------------------------
+
+STDMETHODIMP_(ULONG) CtxDropTarget::Release() 
+{ 
+   if (--references == 0) 
+   { 
+       delete this; 
+       return 0; 
+   } 
+   return references; 
+} 
+//---------------------------------------------------------------------------
+
+// IDropTarget Interface handles the Drag and Drop 
+// implementation
+
+// Drag Enter is called first 
+STDMETHODIMP CtxDropTarget::DragEnter(LPDATAOBJECT pDataObj, DWORD grfKeyState, 
+    POINTL pt, LPDWORD pdwEffect) 
+{ 
+    FORMATETC fmtetc;
+
+    fmtetc.cfFormat = CF_HDROP; 
+    fmtetc.ptd      = NULL; 
+    fmtetc.dwAspect = DVASPECT_CONTENT; 
+    fmtetc.lindex   = -1; 
+    fmtetc.tymed    = TYMED_HGLOBAL;
+
+   // does the drag source provide CF_HDROP, 
+    // which is the only format we accept 
+   if (pDataObj->QueryGetData(&fmtetc) == NOERROR) 
+        acceptFormat = true; 
+   else acceptFormat = false;
+
+   return NOERROR; 
+} 
+//---------------------------------------------------------------------------
+
+// implement visual feedback if required 
+STDMETHODIMP CtxDropTarget::DragOver(DWORD grfKeyState, POINTL pt,  
+    LPDWORD pdwEffect) 
+{ 
+   return NOERROR; 
+} 
+//---------------------------------------------------------------------------
+
+// remove visual feedback 
+STDMETHODIMP CtxDropTarget::DragLeave() 
+{ 
+    acceptFormat = false; 
+   return NOERROR; 
+} 
+//---------------------------------------------------------------------------
+
+// source has sent the DRAGDROP_DROP message indicating 
+// a drop has a occurred 
+STDMETHODIMP CtxDropTarget::Drop(LPDATAOBJECT pDataObj, DWORD grfKeyState, 
+    POINTL pt, LPDWORD pdwEffect) 
+{ 
+    FORMATETC fmtetc; 
+    fmtetc.cfFormat = CF_HDROP; 
+    fmtetc.ptd = NULL; 
+    fmtetc.dwAspect = DVASPECT_CONTENT; 
+    fmtetc.lindex = -1; 
+    fmtetc.tymed = TYMED_HGLOBAL;
+
+   // user has dropped on us -- get the CF_HDROP data from drag source 
+    STGMEDIUM medium; 
+    HRESULT hr = pDataObj->GetData(&fmtetc, &medium);
+
+   if (!FAILED(hr)) 
+    { 
+       // grab a pointer to the data 
+        HGLOBAL HFiles = medium.hGlobal; 
+        HDROP HDrop = (HDROP)GlobalLock(HFiles);
+
+       // call the helper routine which will notify the Form 
+        // of the drop 
+        HandleDrop(HDrop);
+
+       // release the pointer to the memory 
+        GlobalUnlock(HFiles); 
+        ReleaseStgMedium(&medium); 
+    } 
+   else 
+    { 
+        *pdwEffect = DROPEFFECT_NONE; 
+       return hr; 
+    } 
+   return NOERROR; 
+} 
+//--------------------------------------------------------------------------- 
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #elif SYSTEM==UNIX
 
 	//private include to prevent name violations
@@ -92,6 +287,7 @@ namespace Engine
 	Context::Context():exec_target(NULL),
 	#if SYSTEM==WINDOWS
 		hInstance(NULL),hWnd(NULL),class_created(false),
+		acceptDroppedFiles(false),fileDropHandler(NULL),
 	#elif SYSTEM==UNIX
 		display(NULL),window(0),colormap(0),
 	#endif
@@ -108,6 +304,7 @@ namespace Engine
 		client_area.bottom = 600;
 
 	#if SYSTEM==WINDOWS
+		OleInitialize(NULL);
 		_initial.dmSize = sizeof(_initial);
 		_initial.dmDriverExtra = 0;
 		if (!EnumDisplaySettings(NULL,ENUM_REGISTRY_SETTINGS,&_initial))
@@ -157,6 +354,51 @@ namespace Engine
 
 	#if SYSTEM==WINDOWS
 
+	CtxDropTarget	dropHandler;
+
+	void Context::AcceptFileDrop()
+	{
+		acceptDroppedFiles = true;
+		if (hWnd)
+		{
+			RegisterDragDrop(hWnd,&dropHandler);
+			//DragAcceptFiles(hWnd,TRUE);
+		}
+	}
+	void Context::OnFileDrop(const Array<String>&files)
+	{
+		if (fileDropHandler)
+			fileDropHandler(files);
+	}
+	
+	void Context::AcceptFileDrop(void (*handler)(const Array<String>&files))
+	{
+		fileDropHandler = handler;
+		acceptDroppedFiles = handler != NULL;
+		if (hWnd)
+		{
+			HRESULT rs = RegisterDragDrop(hWnd,&dropHandler);
+			if (rs != S_OK)
+			{
+				ShowMessage(rs == DRAGDROP_E_INVALIDHWND);
+				ShowMessage(rs == DRAGDROP_E_ALREADYREGISTERED);
+				ShowMessage(rs == E_OUTOFMEMORY);
+			}
+			//ShowMessage();
+
+			//DragAcceptFiles(hWnd,acceptDroppedFiles);
+		}
+	}
+
+	void Context::BlockFileDrop()
+	{
+		acceptDroppedFiles = false;
+		if (hWnd)
+		{
+			RevokeDragDrop(hWnd);
+			//DragAcceptFiles(hWnd,FALSE);
+		}
+	}
 	
 	String Context::createClass()
 	{
@@ -1207,6 +1449,17 @@ namespace Engine
 	#if SYSTEM==WINDOWS
 
 	
+
+
+
+
+
+
+
+
+
+
+
 	LRESULT CALLBACK Context::mouseHook(
 		    int nCode,
 		    WPARAM wParam,
@@ -1288,6 +1541,27 @@ namespace Engine
 					context.client_area = info.rcClient;
 					mouse.redefineWindow(context.client_area,context.hWnd);
 				}
+			}
+			break;
+			case WM_DROPFILES:
+			if (context.acceptDroppedFiles)
+			{
+				HDROP hDrop = (HDROP)wParam;
+				UINT cnt = DragQueryFile(hDrop,0xFFFFFFFF,NULL,0);
+				if (cnt)
+				{
+					Array<String>	files(cnt);
+					for (unsigned i = 0; i < cnt; i++)
+					{
+						unsigned len = DragQueryFile(hDrop,i,NULL,0);
+						files[i].resize(len);
+						DragQueryFileA(hDrop,i,files[i].mutablePointer(),len+1);
+						if (strlen(files[i].c_str()) != files[i].length())
+							FATAL__("File drop read error");
+					}
+					context.OnFileDrop(files);
+				}
+				DragFinish(hDrop);
 			}
 			break;
 			//case WM_PAINT:	DefWindowProc(hWnd, Msg, wParam, lParam);						return 0;
