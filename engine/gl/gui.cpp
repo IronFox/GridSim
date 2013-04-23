@@ -92,14 +92,16 @@ namespace Engine
 					"vec3 toneBackground(vec3 color)\n"
 					"{\n"
 						"float brightness = dot(color,vec3(0.35,0.5,0.15));\n"
-						"return color / (1.0 + gl_Color.r * pow(brightness,4.0)*0.35);\n"
+						"return color / (1.0 + gl_Color.r * pow(brightness,4.0)*0.25);\n"
 					"}\n"
 					"void main()\n"
 					"{\n"
 						"vec3 color = vec3(0.0);\n"
+						"float edge = 0.0;\n"
 						"#if bump_mapping||refract||blur\n"	//need normal alpha for blur
 							"vec4 normal = texture2D(normal_map,gl_TexCoord[0].xy);\n"
 							"vec3 rawNormal = (normal.xyz*2.0-1.0);\n"
+							"edge = 1.0 - pow(rawNormal.z,2);\n"
 							"#if bump_mapping||refract\n"
 								"normal.xyz = normalize(gl_Color.a * interpolatedBinormal*rawNormal.x + gl_Color.a * interpolatedTangent*rawNormal.y + interpolatedNormal*rawNormal.z);\n"
 							"#endif\n"
@@ -164,7 +166,8 @@ namespace Engine
 						"gl_FragColor.a = div;\n"
 						"if (div == 0.0) gl_FragColor.rgb = vec3(1.0,0.0,1.0);\n"
 						"else gl_FragColor.rgb = (bumpColor.rgb * bumpColor.a + overlayColor.rgb * overlayColor.a - bumpColor.rgb * bumpColor.a * overlayColor.a) / div;"
-
+						"float brightness = dot(color,vec3(0.35,0.5,0.15));\n"
+						"gl_FragColor.rgb *= 1.0 - edge*pow(brightness,4);"
 						//"gl_FragColor.a *= 0.75+0.25*gl_Color.a;\n"
 						//"gl_FragColor = vec4(0.0,1.0,0.0,1.0);\n"
 

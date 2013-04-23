@@ -482,14 +482,9 @@ namespace Engine
 			context.AcceptFileDrop();
 		}
 	template <class GL>
-		/*static*/ inline void						Display<GL>::OnFileDrop(const Array<String>&files)
+		/*static*/ inline void						Display<GL>::AcceptFileDrop(const DragEventHandler&dragHandler, const DropEventHandler&dropHandler)
 		{
-			context.OnFileDrop(files);
-		}
-	template <class GL>
-		/*static*/ inline void						Display<GL>::AcceptFileDrop(void (*handler)(const Array<String>&files))
-		{
-			context.AcceptFileDrop(handler);
+			context.AcceptFileDrop(dragHandler, dropHandler);
 		}
 	template <class GL>
 		/*static*/ inline void						Display<GL>::BlockFileDrop()

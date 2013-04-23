@@ -114,6 +114,9 @@ namespace Engine
 
 	};
 
+	typedef function<bool(const Array<String>&)>	DragEventHandler;
+	typedef function<void(const Array<String>&)>	DropEventHandler;
+
 	/*!
 		\brief	Display root interface
 
@@ -218,8 +221,7 @@ namespace Engine
 	FORWARD bool						getScreen(DEVMODE*mode);
 	FORWARD bool						isCurrent(const DEVMODE&screen);
 	FORWARD void						AcceptFileDrop();
-	FORWARD void						OnFileDrop(const Array<String>&files);
-	FORWARD void						AcceptFileDrop(void (*handler)(const Array<String>&files));
+	FORWARD void						AcceptFileDrop(const DragEventHandler&, const DropEventHandler&);
 	FORWARD void						BlockFileDrop();
 
 	#elif SYSTEM==UNIX
@@ -271,8 +273,6 @@ namespace Engine
 	private:
 			pEngineExec					exec_target;
 	#if SYSTEM==WINDOWS
-			void (*fileDropHandler)(const Array<String>&files);
-			bool						acceptDroppedFiles;
 
 			HINSTANCE					hInstance;
 			HWND						hWnd;
@@ -363,8 +363,7 @@ namespace Engine
 			short						getRefreshRate();
 	#if SYSTEM==WINDOWS
 			void						AcceptFileDrop();
-			void						OnFileDrop(const Array<String>&files);
-			void						AcceptFileDrop(void (*handler)(const Array<String>&files));
+			void						AcceptFileDrop(const DragEventHandler&, const DropEventHandler&);
 			void						BlockFileDrop();
 
 
