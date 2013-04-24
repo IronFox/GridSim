@@ -71,6 +71,8 @@ template <class Entry, class Strategy=typename StrategySelector<Entry>::Default>
 
 			bool			isEmpty()					const;	//!< Identical to length()==0
 			bool			isNotEmpty()				const;	//!< Identical to length()!=0
+	inline 	bool			IsEmpty()					const	{return isEmpty();}
+	inline 	bool			IsNotEmpty()				const	{return isNotEmpty();}
 			count_t			length()					const;	//!< Returns the current number of element stored in the queue
 	inline	count_t			size()						const {return length();}		//!< Identical to length()
 			bool			operator>>(Entry&entry);			//!< Identical to pop()
