@@ -368,7 +368,8 @@ virtual					~RiffChunk();
 
 		RIFF_SIZE		get(void*out)	const;				//extracts data
 		RIFF_SIZE		get(void*out,size_t max)	const;//extracts data but not more than max - returns FULL size
-template <typename T>
+		const BYTE*		pointer()	const	/** @brief Retrieves the pointer to the beginning of the data of the local chunk*/	{return _data;}
+	template <typename T>
 		unsigned		get(ArrayData<T>&out)	const;
 		void			setID(RIFF_INDEX_ID ID);
 		void			setID(RIFF_STRING_ID ID);
@@ -379,9 +380,9 @@ template <typename T>
 		RIFF_SIZE		size()	const;						//returns this chunk's data-size
 		bool			multipleOf(size_t size)	const; //returns true if size_ is multiple of size
 		void			openStream();
-template <class C>
+	template <class C>
 		bool			stream(C&obj);
-template <class C>
+	template <class C>
 		bool			stream(C*obj, count_t num);
 		bool			streamPointer(void*target, size_t data_size);
 		void			closeStream();
