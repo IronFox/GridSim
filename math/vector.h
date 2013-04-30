@@ -336,7 +336,12 @@ namespace Math
 			template <typename T0,typename T1>
 				MF_DECLARE(void)	relativate(const T0& absolute, T1&relative_out)	const
 									{
-										relative_out = (T1)((absolute-min)/extend());
+										relative_out = (T1)(((T)absolute-min)/extend());
+									}
+			template <typename T0>
+				MF_DECLARE(T)		relativate(const T0& absolute)	const
+									{
+										return (T)(((T)absolute-min)/extend());
 									}
 			template <typename T0,typename T1>
 				MF_DECLARE(void)	relativateRange(const TRange<T0>& absolute, TRange<T1>&relative_out)	const
@@ -348,6 +353,11 @@ namespace Math
 				MF_DECLARE(void)	derelativate(const T0& relative, T1&absolute_out)	const
 									{
 										absolute_out = (T1)(min + relative*extend());
+									}
+			template <typename T0>
+				MF_DECLARE(T)		derelativate(const T0& relative)	const
+									{
+										return (T)(min + (T)relative*extend());
 									}
 			template <typename T0,typename T1>
 				MF_DECLARE(void)	derelativateRange(const TRange<T0>& relative, TRange<T1>&absolute_out)	const

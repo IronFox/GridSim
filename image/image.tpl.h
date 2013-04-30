@@ -298,6 +298,27 @@ template <typename T>
 
 	}
 
+template <class Nature>
+	void		GenericImage<Nature>::addRect(dimension_t left, dimension_t bottom, dimension_t width, dimension_t height, T r, T g, T b)
+	{
+		if (image_channels != 3)
+			return;
+		Concurrency::parallel_for(left,left+width,[this,bottom,height,r,g,b](dimension_t x)
+		{
+			for (dimension_t y = bottom; y < bottom + height; y++)
+			{
+				if (x < image_width && y < image_height)
+				{
+					T*pixel = this->get(x,y);
+					
+					pixel[0] = GenericImage<Nature>::ImageNature::clamp((F)pixel[0] + r);
+					pixel[1] = GenericImage<Nature>::ImageNature::clamp((F)pixel[1] + g);
+					pixel[2] = GenericImage<Nature>::ImageNature::clamp((F)pixel[2] + b);
+				}
+			}
+		});
+	}
+
 
 template <typename T>
 	void		ImageTemplate<T>::noiseFillChannel(BYTE channel, T min_value, T max_value)

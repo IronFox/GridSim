@@ -468,6 +468,7 @@ template <class Nature>
 	class GenericImage:public ImageTemplate<typename Nature::channel_value_t>, public Nature
 	{
 	protected:
+		typedef ImageTemplate<typename Nature::channel_value_t>	Super;
 		typedef size_t	Size;
 		typedef Nature	ImageNature;
 
@@ -526,6 +527,7 @@ template <class Nature>
 			void					crop(dimension_t offset_x, dimension_t offset_y, dimension_t width, dimension_t height);	//!< Crops the local image to the specified region
 			void					truncate(dimension_t width, dimension_t height);										//!< Truncates the image to not be larger than the specified dimensions. The method has no effect if the picture is already that small or smaller
 			void					changeSaturation(float scale_by);														//!< Alters the saturation among the first three channels of the local image
+			void					addRect(dimension_t left, dimension_t bottom, dimension_t width, dimension_t height, T r, T g, T b);
 			void					power(BYTE channel, float exponent);																	//!< Apply the specified exponent too all pixels (only the specified channel, however)
 									/*!
 										\brief Draws a remote image into the pixel data of the local image
