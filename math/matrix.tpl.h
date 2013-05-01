@@ -541,6 +541,13 @@ namespace Math
 			Vec::copy(from.z.xyz,to.z);
 		}
 
+		MFUNC2(void)	copyOrientation(const TMatrix3<C0>&from,TMatrix4<C1>&to)
+		{
+			Vec::copy(from.x,to.x.xyz);
+			Vec::copy(from.y,to.y.xyz);
+			Vec::copy(from.z,to.z.xyz);
+		}
+
 		MFUNC2(void)		cast(const TMatrix4<C0>&from, TMatrix4<C1>&to)
 		{
 			Vec::copy(from.x,to.x);

@@ -239,6 +239,7 @@ namespace Math
 		MFUNC(void)			resetBottomRow(TMatrix4<C>&matrix);																			//!< Resets the final row of the specified matrix to (0, 0, 0, 1)
 		MFUNC2(void)		copyOrientation(const TMatrix4<C0>&from,TMatrix4<C1>&to);													//!< Copies the x, y, and z components of the first three axes to @b target. both the final row and final column of @b to are left unchanged
 		MFUNC2(void)		copyOrientation(const TMatrix4<C0>&from,TMatrix3<C1>&to);													//!< Copies the x, y, and z components of the first three axes to @b target
+		MFUNC2(void)		copyOrientation(const TMatrix3<C0>&from,TMatrix4<C1>&to);													//!< Copies the x, y, and z components of the first three axes to @b target
 		MFUNC4(void)		buildSystem(const TVec3<C0>&base,const TVec3<C1>&x,const TVec3<C2>&y, TMatrix4<C3>&out);						//!< Creates a system matrix based on base, x and y axes. The x axis is primary and used exactly as it is (though normalized). The y axis is normalized and used as close as it is orthogonal to x. @param base 3d vector to the base of the system @param x X axis of the system (any length > 0) @param y Y axis of the system (any length > 0) @param out Out matrix for the finished 4x4 system matrix
 
 		MFUNC(String)		ToString(const TMatrix4<C>&matrix);
