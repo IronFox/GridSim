@@ -1884,21 +1884,21 @@ namespace Engine
 		return created;
 	}
 	
-	bool	Window::UpdateProjection(const String&name)
+	bool	Window::make(const String&name)
 	{
 		if (created)
 			destroy();
 		return create(location.left,location.top,location.right-location.left,location.bottom-location.top,name,config);
 	}
 	
-	bool	Window::UpdateProjection(int x, int y, int width, int height, const String&name)
+	bool	Window::make(int x, int y, int width, int height, const String&name)
 	{
 		if (created)
 			destroy();
 		return create(x,y,width,height,name,config);
 	}
 	
-	bool	Window::UpdateProjection(int x, int y, int width, int height, const String&name, const Engine::TVisualConfig&config)
+	bool	Window::make(int x, int y, int width, int height, const String&name, const Engine::TVisualConfig&config)
 	{
 		if (created)
 			destroy();
@@ -2643,7 +2643,7 @@ namespace Engine
 						if (req->parent)
 							req->window->makeAsChild(*req->parent,req->x,req->y,req->width,req->height,req->name,req->config);
 						else
-							req->window->UpdateProjection(req->x,req->y,req->width,req->height,req->name,req->config);
+							req->window->make(req->x,req->y,req->width,req->height,req->name,req->config);
 					}
 					break;
 					case WM_ERASEBKGND: return 1;													break;

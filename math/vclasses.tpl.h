@@ -489,7 +489,7 @@ namespace Math
 	template <class C>
 	MFUNC1 (C)			Vec2<C>::operator()(const C0&x)					const
 	{
-		return a*x + b;
+		return this->x*x + y;
 	}
 
 

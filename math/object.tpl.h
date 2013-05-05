@@ -147,17 +147,6 @@ namespace ObjectMath
 	}
 	
 
-	MFUNC4 (C0) _oTetrahedronVolume(const C0 p0[3], const C1 p1[3], const C2 p2[3], const C3 p3[3])
-	{
-		C0	n[3],vn;
-		_oTriangleNormal(p0,p1,p2,n);
-		vn = _dot(n);
-		if (vabs(vn) <= Math::getError<C0>())
-			return 0;
-		return (_dot(p0,n)-_dot(p3,n)) / (vn*6);
-	}
-
-
 
 
 	MFUNC5 (C4)			_oIntersectPoint(const C0 base[3], const C1 normal[3], const C2 vbase[3], const C3 vdir[3], C4 out[3])
@@ -7632,7 +7621,7 @@ namespace ObjectMath
 		MF_DECLARE	(void)			ConvexHullBuilder<Float>::updateNormal(TTriangle&triangle)	const
 		{
 			_oTriangleNormal(vertices[triangle.v0].vector,vertices[triangle.v1].vector,vertices[triangle.v2].vector,triangle.normal);
-			_normalize0(triangle.normal);
+			Vec::normalize0(triangle.normal);
 		}
 	
 	template <typename Float>
@@ -7645,14 +7634,14 @@ namespace ObjectMath
 				for (index_t j = i+1; j < buffer.length()-1; j++)
 					for (index_t k = j+1; k < buffer.length(); k++)
 					{
-						Float vol = _oTetrahedronVolume(buffer[0].vector,buffer[i].vector,buffer[j].vector,buffer[k].vector);
+						Float vol = Obj::TetrahedronVolume(buffer[0].vector,buffer[i].vector,buffer[j].vector,buffer[k].vector);
 						/*if (vabs(vol) <= vmax(_distance(buffer[0].vector,buffer[i].vector),_distance(buffer[j].vector,buffer[k].vector))/2)
 							continue;*/
 						vertices << buffer[0] << buffer[i] << buffer[j] << buffer[k];
 						buffer.erase(k);
 						buffer.erase(j);
 						buffer.erase(i);
-						buffer.erase(0);
+						buffer.erase(index_t(0));
 						if (vol > 0)
 						{
 							updateNormal(triangles.append().set(0,1,2,1,2,3));
@@ -7673,7 +7662,7 @@ namespace ObjectMath
 		}
 	
 	template <typename Float> template <typename T>
-		MF_DECLARE	(void)			ConvexHullBuilder<Float>::include(const T point[3])
+		MF_DECLARE	(void)			ConvexHullBuilder<Float>::include(const TVec3<T>&point)
 		{
 			//static Log	logfile("include.log",true);
 			ASSERT2__((triangles.count()>0)==(vertices.count()>0),triangles.count(),vertices.count());
@@ -7702,17 +7691,17 @@ namespace ObjectMath
 				
 				logfile<< "attempting to include point ("<<_toString(point)<<")"<<nl;*/
 				ASSERT__(triangles.count()>2);
-				Float axis[3],plane_normal[3],c[3];
-				_center(vertices[triangles.first().v0].vector,vertices[triangles.first().v1].vector,vertices[triangles.first().v2].vector,c);
-				_sub(point,c,axis);
-				_cross(triangles.first().normal,axis,plane_normal);
-				if (_similar(plane_normal,Vector<Float>::zero))
+				TVec3<Float> axis,plane_normal,c;
+				Vec::center(vertices[triangles.first().v0].vector,vertices[triangles.first().v1].vector,vertices[triangles.first().v2].vector,c);
+				Vec::sub(point,c,axis);
+				Vec::cross(triangles.first().normal,axis,plane_normal);
+				if (Vec::similar(plane_normal,Vector<Float>::zero))
 				{
-					Float v2[3];
-					_v3(v2,vabs(axis[1])+1,axis[2],axis[0]);
-					_cross(v2,axis,plane_normal);
+					TVec3<Float> v2;
+					Vec::def(v2,vabs(axis.y)+1,axis.z,axis.x);
+					Vec::cross(v2,axis,plane_normal);
 				}
-				_normalize0(plane_normal);
+				Vec::normalize0(plane_normal);
 				//logfile<< "plane is "<<_toString(plane_normal)<<nl;
 				
 				UINT32 face = 0,first=0,prev=UNSIGNED_UNDEF;
@@ -7722,8 +7711,8 @@ namespace ObjectMath
 					//logfile<< " now analysing face "<<face<<"/"<<triangles.count()<<nl;
 					ASSERT__(steps++<=triangles.count());
 					const TTriangle&t = triangles[face];
-					Float axis[3];
-					_sub(point,vertices[t.v0].vector,axis);
+					TVec3<Float> axis;
+					Vec::sub(point,vertices[t.v0].vector,axis);
 					if (Vec::dot(axis,t.normal)>0)
 					{
 						//logfile<< " found viewing triangle"<<nl;
@@ -7739,12 +7728,12 @@ namespace ObjectMath
 							//logfile<< "   edge leads back "<<nl;
 							continue;
 						}
-						const Float	*p0 = vertices[t.v[k]].vector,
-									*p1 = vertices[t.v[(k+1)%3]].vector;
-						Float		dif[3],
-									vdir[3];
-						_sub(p1,p0,vdir);
-						_sub(point,p0,dif);
+						const TVec3<Float>	&p0 = vertices[t.v[k]].vector,
+											&p1 = vertices[t.v[(k+1)%3]].vector;
+						TVec3<Float>		dif,
+											vdir;
+						Vec::sub(p1,p0,vdir);
+						Vec::sub(point,p0,dif);
 						Float alpha = Vec::dot(plane_normal,vdir);
 						if (vabs(alpha)<=0)
 							continue;
@@ -7802,11 +7791,11 @@ namespace ObjectMath
 						const TTriangle&n = triangles[t.n[k]];
 
 					
-						Float axis[3];
-						_sub(point,vertices[n.v0].vector,axis);
-						ASSERT__(!_similar(point,vertices[n.v0].vector));
-						ASSERT__(!_similar(point,vertices[n.v1].vector));
-						ASSERT__(!_similar(point,vertices[n.v2].vector));
+						TVec3<Float> axis;
+						Vec::sub(point,vertices[n.v0].vector,axis);
+						ASSERT__(!Vec::similar(point,vertices[n.v0].vector));
+						ASSERT__(!Vec::similar(point,vertices[n.v1].vector));
+						ASSERT__(!Vec::similar(point,vertices[n.v2].vector));
 						if (Vec::dot(axis,n.normal)<=0)	//got shadow edge
 						{
 							//logfile<< " shadow edge found"<<nl;
@@ -7862,7 +7851,7 @@ namespace ObjectMath
 					//ASSERT__(!triangles[edge.t1].flagged);
 					updateNormal(new_triangles.append().set(edge.v0,edge.v1,new_index,edge.t1,UNSIGNED_UNDEF,UNSIGNED_UNDEF));
 					
-					triangles[edge.t0].link[edge.index] = new_triangles.count()-1;
+					triangles[edge.t0].link.v[edge.index] = new_triangles.count()-1;
 					
 					/*ASSERT__(vertices[edge.v0].index0 == UNSIGNED_UNDEF);
 					ASSERT__(vertices[edge.v1].index1 == UNSIGNED_UNDEF);*/
@@ -7888,10 +7877,10 @@ namespace ObjectMath
 					if (!triangles[i].flagged)
 					{
 						//logfile<< " copying preserved face "<<i<<"/"<<triangles.count()<<nl;
-						_set(triangles[i].link,new_triangles.count());
+						Vec::set(triangles[i].link,new_triangles.count());
 						new_triangles << triangles[i];
 						new_triangles.last().flagged = false;
-						new_triangles.last().link[0] = i;
+						new_triangles.last().link.x = i;
 					}
 				for (index_t i = 0; i < edges.count(); i++)
 					if (new_triangles[i].n0 != UNSIGNED_UNDEF)
@@ -7899,7 +7888,7 @@ namespace ObjectMath
 						{
 							if (triangles[new_triangles[i].n0].v[(j+1)%3] == new_triangles[i].v0)
 							{
-								new_triangles[i].n0 = triangles[new_triangles[i].n0].link[j];
+								new_triangles[i].n0 = triangles[new_triangles[i].n0].link.v[j];
 								break;
 							}
 						}
@@ -7911,7 +7900,7 @@ namespace ObjectMath
 								if (triangles[new_triangles[i].n[k]].v[(j+1)%3] == new_triangles[i].v[k])
 								{
 									//logfile<< " replacing neighbor "<<k<<" of triangle "<<i<<"/"<<triangles.count()<<" with link "<<j<<" of old triangle "<<new_triangles[i].n[k]<<nl;
-									new_triangles[i].n[k] = triangles[new_triangles[i].n[k]].link[j];
+									new_triangles[i].n[k] = triangles[new_triangles[i].n[k]].link.v[j];
 									break;
 								}
 					}

@@ -46,6 +46,20 @@ functions:
 		}
 		return false;
 	
+	
+	tetrahedronVolume,TetrahedronVolume(const [3] p0, const [3] p1, const [3] p2, const [3] p3) -> :float {signed volume}
+		{
+			Calculates the signed volume of the specified tetrahedron
+		}
+		:vector(n);
+		:float vn;
+		:<triangleNormal>(p0,p1,p2,n);
+		vn = :<dot>(n);
+		if (vabs(vn) <= Math::getError<:float>())
+			return 0;
+		return (:<dot>(p0,n)-:<dot>(p3,n)) / (vn*6);		
+
+	
 
 	detectOpticalQuadIntersection(const [3] p0, const [3] p1, const [3] p2, const [3] b, const [3] d, &distance) -> bool
 		{

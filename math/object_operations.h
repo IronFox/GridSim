@@ -2,10 +2,8 @@
 #define object_operationsH
 /*
 
-Warning: date(): It is not safe to rely on the system's timezone settings. You are *required* to use the date.timezone setting or the date_default_timezone_set() function. In case you used any of those methods and you are still getting this warning, you most likely misspelled the timezone identifier. We selected 'Europe/Paris' for '2.0/DST' instead in E:\include\math\update.php on line 1656
-
-Warning: date(): It is not safe to rely on the system's timezone settings. You are *required* to use the date.timezone setting or the date_default_timezone_set() function. In case you used any of those methods and you are still getting this warning, you most likely misspelled the timezone identifier. We selected 'Europe/Paris' for '2.0/DST' instead in E:\include\math\update.php on line 1656
-This file was generated from template definition 'object.template.php' on 2011 July 7th 00:14:46
+Warning: date(): It is not safe to rely on the system's timezone settings. You are *required* to use the date.timezone setting or the date_default_timezone_set() function. In case you used any of those methods and you are still getting this warning, you most likely misspelled the timezone identifier. We selected the timezone 'UTC' for now, but please set date.timezone to select your timezone. in E:\include\math\update.php on line 1656
+This file was generated from template definition 'object.template.php' on 2013 May 5th 11:27:40
 Do not edit
 */
 
@@ -115,9 +113,107 @@ namespace Obj
 			return false;
 		}
 
+	//now implementing template definition 'T0 tetrahedronVolume|TetrahedronVolume (<const [3] p0>, <const [3] p1>, <const [3] p2>, <const [3] p3>) direct='
+	/**
+		@brief Calculates the signed volume of the specified tetrahedron<br>
+		<br>
+		tetrahedronVolume() requires vector objects to operate on, rather than raw pointers. Use ref*() to create a temporary reference object to existing array pointers<br>
+	
+		@param[in] p0 
+		@param[in] p1 
+		@param[in] p2 
+		@param[in] p3 
+		@return signed volume 
+	*/
+	template <typename T0, typename T1, typename T2, typename T3>
+		inline	T0	__fastcall	tetrahedronVolume(const TVec3<T0>& p0, const TVec3<T1>& p1, const TVec3<T2>& p2, const TVec3<T3>& p3)throw()
+		{
+			TVec3<T0> n;
+			T0 vn;
+			
+			//block inlining void triangleNormal (<const [3] p0>, <const [3] p1>, <const [3] p2>, <[3] result>) direct= for dimensions=3, assembly_mode='Objects', parameters={p0, p1, p2, n}...
+			{
+				TVec3<T0> v, w;
+				
+				//block inlining void subtract|sub (2..4) (<const [*] v>, <const [*] w>, <[*] n>) direct=1 for dimensions=3, assembly_mode='Objects', parameters={p1, p0, v}...
+				{
+					v.x = p1.x - p0.x;
+					v.y = p1.y - p0.y;
+					v.z = p1.z - p0.z;
+				};
+				
+				//block inlining void subtract|sub (2..4) (<const [*] v>, <const [*] w>, <[*] n>) direct=1 for dimensions=3, assembly_mode='Objects', parameters={p2, p0, w}...
+				{
+					w.x = p2.x - p0.x;
+					w.y = p2.y - p0.y;
+					w.z = p2.z - p0.z;
+				};
+				
+				//block inlining void cross (<const [3] v>, <const [3] w>, <[3] n>) direct= for dimensions=3, assembly_mode='Objects', parameters={v, w, n}...
+				{
+					n.x = v.y*w.z - v.z*w.y;
+					n.y = v.z*w.x - v.x*w.z;
+					n.z = v.x*w.y - v.y*w.x;
+				};
+			};
+			vn = (n.x*n.x + n.y*n.y + n.z*n.z);
+			if (vabs(vn) <= Math::getError<T0>())
+				return 0;
+			return ((p0.x*n.x + p0.y*n.y + p0.z*n.z)-(p3.x*n.x + p3.y*n.y + p3.z*n.z)) / (vn*6);
+		}
+
+	/**
+		@brief Calculates the signed volume of the specified tetrahedron<br>
+		<br>
+		TetrahedronVolume() requires vector objects to operate on, rather than raw pointers. Use ref*() to create a temporary reference object to existing array pointers<br>
+	
+		@param[in] p0 
+		@param[in] p1 
+		@param[in] p2 
+		@param[in] p3 
+		@return signed volume 
+	*/
+	template <typename T0, typename T1, typename T2, typename T3>
+		inline	T0	__fastcall	TetrahedronVolume(const TVec3<T0>& p0, const TVec3<T1>& p1, const TVec3<T2>& p2, const TVec3<T3>& p3)throw()
+		{
+			TVec3<T0> n;
+			T0 vn;
+			
+			//block inlining void triangleNormal (<const [3] p0>, <const [3] p1>, <const [3] p2>, <[3] result>) direct= for dimensions=3, assembly_mode='Objects', parameters={p0, p1, p2, n}...
+			{
+				TVec3<T0> v, w;
+				
+				//block inlining void subtract|sub (2..4) (<const [*] v>, <const [*] w>, <[*] n>) direct=1 for dimensions=3, assembly_mode='Objects', parameters={p1, p0, v}...
+				{
+					v.x = p1.x - p0.x;
+					v.y = p1.y - p0.y;
+					v.z = p1.z - p0.z;
+				};
+				
+				//block inlining void subtract|sub (2..4) (<const [*] v>, <const [*] w>, <[*] n>) direct=1 for dimensions=3, assembly_mode='Objects', parameters={p2, p0, w}...
+				{
+					w.x = p2.x - p0.x;
+					w.y = p2.y - p0.y;
+					w.z = p2.z - p0.z;
+				};
+				
+				//block inlining void cross (<const [3] v>, <const [3] w>, <[3] n>) direct= for dimensions=3, assembly_mode='Objects', parameters={v, w, n}...
+				{
+					n.x = v.y*w.z - v.z*w.y;
+					n.y = v.z*w.x - v.x*w.z;
+					n.z = v.x*w.y - v.y*w.x;
+				};
+			};
+			vn = (n.x*n.x + n.y*n.y + n.z*n.z);
+			if (vabs(vn) <= Math::getError<T0>())
+				return 0;
+			return ((p0.x*n.x + p0.y*n.y + p0.z*n.z)-(p3.x*n.x + p3.y*n.y + p3.z*n.z)) / (vn*6);
+		}
+
 	//now implementing template definition 'bool detectOpticalQuadIntersection (<const [3] p0>, <const [3] p1>, <const [3] p2>, <const [3] b>, <const [3] d>, <&distance>) direct='
 	/**
 		@brief Checks if there is a valid closer intersection of the specified quad and ray.<br />
+		The unspecified fourth point is implied to be opposite of p0, reflected along the edge between p1 and p2.<br />
 		detectOpticalQuadIntersection() calculates the intersection distance (if any) of the specified quad and ray.<br />
 		If such an intersection occurs and it's closer than the specified<br />
 		distance then the distance variable will be updated and the result be true.<br />

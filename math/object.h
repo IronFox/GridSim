@@ -99,19 +99,7 @@ namespace ObjectMath	//! Collection of geometry related mathematical functions a
 	MFUNC6	(void)			_oTriangleCoord(const C0 v0[3], const C1 v1[3], const C2 v2[3], const C3&x, const C4&y, C5 out[3]);
 	
 	
-	/*!
-		\brief Calculates the signed volume of the specified tetrahedron
-		
-		_oTetrahedronVolume() calculates the signed volume of the specified tetrahedron. Faster than using matrix dominant calculation but still considerably slower than _oZeroTetrahedronVolume().
-		
-		\param p0 First tetrahedron vertex
-		\param p1 Second tetrahedron vertex
-		\param p2 Third tetrahedron vertex
-		\param p3 Fourth tetrahedron vertex
-		\return signed volume
-	*/
-	MFUNC4	(C0)			_oTetrahedronVolume(const C0 p0[3], const C1 p1[3], const C2 p2[3], const C3 p3[3]);
-	
+
 	/*!
 		\brief Checks if there is a valid intersection of the specified triangle and ray
 		
@@ -1370,9 +1358,9 @@ namespace ObjectMath	//! Collection of geometry related mathematical functions a
 											n[3];
 						};
 					};
-					Float					normal[3];
+					TVec3<Float>			normal;
 					bool					flagged;
-					UINT32					link[3];
+					TVec3<UINT32>			link;
 					
 					MF_DECLARE (TTriangle&)		set(UINT32 v0_, UINT32 v1_, UINT32 v2_, UINT32 n0_, UINT32 n1_, UINT32 n2_)
 											{
@@ -1423,7 +1411,7 @@ namespace ObjectMath	//! Collection of geometry related mathematical functions a
 				
 				MF_DECLARE (void)				reset();						//!< Resets the local hull building process
 			template <typename T>
-				MF_DECLARE (void)				include(const T point[3]);		//!< Includes a point into the convex hull.
+				MF_DECLARE (void)				include(const TVec3<T>&point);		//!< Includes a point into the convex hull.
 			template <typename T>
 				MF_DECLARE (void)				include(const Point<T>&point);	//!< Includes a point into the convex hull.
 				
