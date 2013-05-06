@@ -1180,6 +1180,24 @@ template <typename T, typename Strategy>
 		if (reset_buffer)
 			reset();
 	}
+
+template <typename T, typename Strategy>
+	inline bool				BasicBuffer<T, Strategy>::operator==(const BasicBuffer<T,Strategy>&other) const
+	{
+		count_t len = usage_end - storage_begin;
+		if (len != other.usage_end - other.storage_begin)
+			return false;
+		for (index_t i = 0; i < len; i++)
+			if (storage_begin[i] != other.storage_begin[i])
+				return false;
+		return true;
+	}
+template <typename T, typename Strategy>
+	inline bool				BasicBuffer<T, Strategy>::operator!=(const BasicBuffer<T,Strategy>&other) const
+	{
+		return !operator==(other);
+	}
+
 	
 template <typename T, typename Strategy>
 	template <typename T2>

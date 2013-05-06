@@ -128,6 +128,8 @@ template <typename T, typename Strategy=typename StrategySelector<T>::Default>
 		inline T&				at(index_t);
 		inline const T&			at(index_t)			const;
 
+		inline bool				operator==(const BasicBuffer<T,Strategy>&other) const;
+		inline bool				operator!=(const BasicBuffer<T,Strategy>&other) const;
 
 		inline T&				fromEnd(index_t);					//!< Retrieves the nth element from the end of the consumed buffer space. fromEnd(0) is identical to last()
 		inline const T&			fromEnd(index_t)			const;	//!< @copydoc fromEnd()
@@ -171,8 +173,7 @@ template <typename T, count_t InitialLength=128, typename Strategy=typename Stra
 
 		explicit			Buffer(count_t len=InitialLength):BasicBuffer<T,Strategy>(len)
 							{}
-		template<count_t Len>
-							Buffer(const Buffer<T,Len,Strategy>&other):BasicBuffer<T,Strategy>(other)
+							Buffer(const BasicBuffer<T,Strategy>&other):BasicBuffer<T,Strategy>(other)
 							{}
 		#if __BUFFER_RVALUE_REFERENCES__
 			template<count_t Len>
