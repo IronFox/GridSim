@@ -109,7 +109,7 @@ template <class K, class C, class KeyStrategy, class DataStrategy>
 											if (occupied)
 											{
 												if (other.occupied)
-													reinterpret_cast<C*>(entry_data)->operator=(*reinterpret_cast<const C*>(other.entry_data));
+													(*reinterpret_cast<C*>(entry_data)) =  (*reinterpret_cast<const C*>(other.entry_data));
 												else
 													reinterpret_cast<C*>(entry_data)->~C();
 											}

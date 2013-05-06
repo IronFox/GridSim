@@ -63,7 +63,6 @@ template <typename T, typename Strategy=typename StrategySelector<T>::Default>
 		void					setSize(count_t len, bool occupy);		//!< Resizes the local buffer size @param len New length (in elements) that the buffer storage should hold @param occupy Pass true to call the constructor on all unconstructed elements and set fill state to the specified size, false to clear all data and set fill state to 0
 		void					resizePreserveContent(count_t len);		//!< Resizes the local buffer size but preserves the old content and fill state where possible. If the old fill state exceeds the new size then all new elements will be occupied and initialized
 		void					fill(const T&pattern);					//!< Copies \b pattern to each element of the local buffer
-
 		template <typename Strategy2>
 			Self&				moveAppend(BasicBuffer<T,Strategy2>&buffer, bool clearSourceOnCompletion=true);	//!< Appends all elements in the specified other buffer to the end of the local buffer. The elements will be moved, leaving the parameter buffer empty upon completion.
 		Self&					moveAppend(ArrayData<T>&array, bool clearSourceOnCompletion=true);					//!< Appends all elements in the specified array to the end of the local buffer. The elements will be moved, leaving the parameter array empty upon completion.
