@@ -1225,7 +1225,17 @@ template <class C, class Strategy=typename StrategySelector<C>::Default>
 						dealloc(data);
 						data = new_field;
 					}
-			
+				template <class T>
+					inline bool	 FindAndErase (const T &element)
+					{
+						index_t index = findFirst (element);
+						if (index)
+						{
+							erase(index-1);
+							return true;
+						}
+						return false;		
+					}
 				
 					inline void revert()	//!< Reverses the order of elements in the local field
 					{
