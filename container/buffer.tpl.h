@@ -1044,6 +1044,12 @@ template <typename T, typename Strategy>
 	}
 
 template <typename T, typename Strategy>
+	inline bool	BasicBuffer<T, Strategy>::Owns(const T*element)	const
+	{
+		return element >= storage_begin && element < usage_end;
+	}
+
+template <typename T, typename Strategy>
 	inline T&			BasicBuffer<T, Strategy>::at(index_t index)
 	{
 		BUFFER_CHECK_RANGE(index);

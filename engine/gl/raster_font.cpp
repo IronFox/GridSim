@@ -166,7 +166,7 @@ namespace Engine
 	{
 	    float result(0);
 	    for (index_t i = 0; i < len; i++)
-	        result+= width[(unsigned)*str++];
+	        result+= width[(BYTE)*str++];
 	    return result;
 	}
 

@@ -128,6 +128,8 @@ template <typename T, typename Strategy=typename StrategySelector<T>::Default>
 		inline T&				at(index_t);
 		inline const T&			at(index_t)			const;
 
+		inline bool				Owns(const T*element)	const;	//! Queries if the specified entry pointer was taken from the local buffer. Actual pointer address is checked, not what it points to.
+
 		inline bool				operator==(const BasicBuffer<T,Strategy>&other) const;
 		inline bool				operator!=(const BasicBuffer<T,Strategy>&other) const;
 

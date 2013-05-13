@@ -555,6 +555,10 @@ template <class C>
 							{
 								return element >= data && element < data+elements;
 							}
+		inline bool			Owns(const C*element)	const	//! Queries if the specified entry pointer was taken from the local array. Actual pointer address is checked, not what it points to.
+							{
+								return owns(element);
+							}
 
 		inline count_t		indexOf(const C*element)	const	//! Queries the index of the specifed element with 0 being the first element. To determine whether ot not the specified element is member of this array use the owns() method.
 							{
