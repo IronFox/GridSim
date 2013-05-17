@@ -67,8 +67,8 @@ namespace Engine
 	class DisplayConfig
 	{
 	public:
-		typedef function<void(UINT,UINT, bool, bool)>	FOnResize;
-		typedef void (*f_on_resize)(UINT new_width, UINT new_height, bool is_final, bool is_full_screen);
+		typedef function<void(const Resolution&, bool, bool)>	FOnResize;
+		typedef void (*f_on_resize)(const Resolution&newRes, bool is_final, bool is_full_screen);
 
 		enum border_style_t
 		{

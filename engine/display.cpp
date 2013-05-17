@@ -787,7 +787,7 @@ namespace Engine
 				client_area = info.rcClient;
 				mouse.redefineWindow(client_area,hWnd);
 				if (onResize)
-					onResize(client_area.right - client_area.left,client_area.bottom - client_area.top,is_final,is_full_screen);
+					onResize(Resolution(client_area.right - client_area.left,client_area.bottom - client_area.top),is_final,is_full_screen);
 			}
 		#elif SYSTEM==UNIX
 			#error not defined

@@ -59,18 +59,19 @@ namespace Engine
 				updateFile = true;
 			}
 			
-			DisplayConfig config(name,[fileName,onResize,&display](UINT width, UINT height, bool is_final, bool is_full_screen){
+			DisplayConfig config(name,[fileName,onResize,&display](const Resolution&newRes, bool is_final, bool is_full_screen){
 				if (is_final && !is_full_screen)
 				{
 					Detail::UpdateXML(display,fileName);
 				}
-				onResize(width,height,is_final,is_full_screen);
+				onResize(newRes,is_final,is_full_screen);
 			});
 			display.setSize(resolution.width, resolution.height, DisplayConfig::ResizableBorder);
 			if (!display.create(config))
 				FATAL__("Unable to create window (" + display.errorStr() + ")");
 			if (updateFile)
 				Detail::UpdateXML(display,fileName);
+			onResize(resolution,true,false);
 		}
 		
 		
