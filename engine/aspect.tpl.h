@@ -656,7 +656,7 @@ MFUNC2 (void) OrthographicAspect<C>::AlterDepthRange(const C0&zNear, const C1&zF
 template <class C>
 MFUNC1 (void) OrthographicAspect<C>::UpdateProjection(const Rect<C0>&area, const C&zNear, const C&zFar)
 {
-	UpdateProjection(area.left,area.bottom,area.right,area.top,zNear,zFar);
+	UpdateProjection(area.x.min,area.y.min,area.x.max,area.y.max,zNear,zFar);
 }
 
 MFUNC (void) OrthographicAspect<C>::UpdateProjection(const C&left, const C&bottom, const C&right, const C&top,const C&zNear, const C&zFar)

@@ -270,10 +270,13 @@ namespace Engine
 
 	class Context
 	{
+	public:
+		typedef LRESULT (*EventHook)(HWND window, UINT Msg, WPARAM wParam,LPARAM lParam);
 	private:
 			pEngineExec					exec_target;
 	#if SYSTEM==WINDOWS
 
+			EventHook					eventHook;
 			HINSTANCE					hInstance;
 			HWND						hWnd;
 	static	HHOOK						hHook;
@@ -313,7 +316,19 @@ namespace Engine
 
 										Context();
 
+		template <typename T>
+			void						GetAbsoluteClientRegion(Rect<T>&rect)		const
+			{
+				rect.x.min = client_area.left;
+				rect.y.min = client_area.top;
+				rect.x.max = client_area.right;
+				rect.y.max = client_area.bottom;
+			}
+
+			
+
 	#if SYSTEM==WINDOWS
+			void						RegisterEventHook(EventHook hook)	{eventHook = hook;}
 			HWND						window()	const;
 			HWND						getWindow()	const
 										{
@@ -322,7 +337,7 @@ namespace Engine
 			HWND						createWindow(const String&window_name, DisplayConfig::border_style_t border_style, const DisplayConfig::FOnResize&onResize, const String&icon_filename);
 			HWND 						createChildWindow(HWND parent, bool enabled);
 			void						setWindow(HWND);
-			String						createClass();
+			WString						createClass();
 			void						destroyClass();
 	#elif SYSTEM==UNIX
 			Display*					connect();

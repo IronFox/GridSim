@@ -268,7 +268,7 @@ namespace Engine
 										_focused=false;
 	
 
-	#define ENGINE_CLASS_NAME "Engine Display Class"
+	#define ENGINE_CLASS_NAME L"Engine Display Class"
 
 	
 	#if SYSTEM==WINDOWS
@@ -318,7 +318,7 @@ namespace Engine
 
 	Context::Context():exec_target(NULL),
 	#if SYSTEM==WINDOWS
-		hInstance(NULL),hWnd(NULL),class_created(false),
+		eventHook(NULL),hInstance(NULL),hWnd(NULL),class_created(false),
 	#elif SYSTEM==UNIX
 		display(NULL),window(0),colormap(0),
 	#endif
@@ -427,14 +427,14 @@ namespace Engine
 		}
 	}
 	
-	String Context::createClass()
+	WString Context::createClass()
 	{
 		if (class_created)
 			return ENGINE_CLASS_NAME;
 
 		//hInstance = getInstance();
 		hInstance = GetModuleHandle(NULL);
-        WNDCLASSA wc;
+        WNDCLASSW wc;
         wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
         wc.lpfnWndProc = (WNDPROC) WndProc;
         wc.cbClsExtra = 0;
@@ -445,7 +445,7 @@ namespace Engine
         wc.hbrBackground = NULL;
         wc.lpszMenuName = NULL;
         wc.lpszClassName = ENGINE_CLASS_NAME;
-        if (!RegisterClassA(&wc))
+        if (!RegisterClassW(&wc))
         {
             _error = ERR_CLASS_REGISTRATION_FAILED;
             return "";
@@ -459,7 +459,7 @@ namespace Engine
 		if (!class_created)
 			return;
 		hInstance = getInstance();
-		UnregisterClassA(ENGINE_CLASS_NAME,hInstance);
+		UnregisterClassW(ENGINE_CLASS_NAME,hInstance);
 		class_created = false;
 	}
 
@@ -503,7 +503,7 @@ namespace Engine
 		_error = ERR_NO_ERROR;
 		hInstance = getInstance();
 
-		WNDCLASSEXA wc;
+		WNDCLASSEXW wc;
 		wc.cbSize = sizeof (wc);
 		wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
 		wc.lpfnWndProc = (WNDPROC) WndProc;
@@ -522,24 +522,24 @@ namespace Engine
 		}
 		else
 			wc.hIconSm = wc.hIcon = NULL;//LoadIcon (NULL, IDI_APPLICATION);
-		if (!RegisterClassExA(&wc))
+		if (!RegisterClassExW(&wc))
 		{
 			_error = ERR_CLASS_REGISTRATION_FAILED;
 			return NULL;
 		}
 
 
-		#ifdef _UNICODE
-			Array<USHORT>	w_name;
-			w_name.resize(window_name.length()+1);
-			for (unsigned i = 0; i < window_name.length(); i++)
-				w_name[i] = (USHORT)(BYTE)window_name.get(i);
+		//#ifdef _UNICODE
+			Array<wchar_t>	w_name;
+			w_name.setSize(window_name.length()+1);
+			for (index_t i = 0; i < window_name.length(); i++)
+				w_name[i] = (wchar_t)window_name.get(i);
 			w_name.last() = 0;
 				
 			
-			hWnd = CreateWindowExA(
+			hWnd = CreateWindowExW(
 				0,
-				ENGINE_CLASS_NAME,(const char*)w_name.pointer(),
+				ENGINE_CLASS_NAME,w_name.pointer(),
 				style,
 				_location.left,_location.top, //Position
 				_location.right-_location.left,_location.bottom-_location.top, //Dimensionen
@@ -547,18 +547,18 @@ namespace Engine
 				NULL,
 				hInstance, //Application
 				NULL);
-		#else
-			hWnd = CreateWindowExA(
-				0,
-				ENGINE_CLASS_NAME,window_name.c_str(),
-				style,
-				_location.left,_location.top, //Position
-				_location.right-_location.left,_location.bottom-_location.top, //Dimensionen
-				/*HWND_DESKTOP*/NULL,
-				NULL,
-				hInstance, //Application
-				NULL);
-		#endif
+		//#else
+		//	hWnd = CreateWindowExA(
+		//		0,
+		//		ENGINE_CLASS_NAME,window_name.c_str(),
+		//		style,
+		//		_location.left,_location.top, //Position
+		//		_location.right-_location.left,_location.bottom-_location.top, //Dimensionen
+		//		/*HWND_DESKTOP*/NULL,
+		//		NULL,
+		//		hInstance, //Application
+		//		NULL);
+		//#endif
 
 
 
@@ -566,7 +566,7 @@ namespace Engine
 		if (!hWnd)
 		{
 			_error = ERR_WINDOW_CREATION_FAILED;
-			UnregisterClassA(ENGINE_CLASS_NAME,hInstance);
+			UnregisterClassW(ENGINE_CLASS_NAME,hInstance);
 			return NULL;
 		}
 		ShowWindow(hWnd, SW_SHOW);
@@ -603,7 +603,7 @@ namespace Engine
 		_error = ERR_NO_ERROR;
 		hInstance = getInstance();
 
-		WNDCLASSEXA wc;
+		WNDCLASSEXW wc;
 		wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
 		wc.lpfnWndProc = (WNDPROC) WndProc;
 		wc.cbClsExtra = 0;
@@ -617,7 +617,7 @@ namespace Engine
 		wc.cbClsExtra = 0;
 		wc.cbWndExtra = 0; 
 		wc.hIconSm = wc.hIcon = LoadIcon (NULL, IDI_APPLICATION);
-		if (!RegisterClassExA(&wc))
+		if (!RegisterClassExW(&wc))
 		{
 			_error = ERR_CLASS_REGISTRATION_FAILED;
 			return NULL;
@@ -625,9 +625,9 @@ namespace Engine
 
 
 
-		hWnd = CreateWindowExA(
+		hWnd = CreateWindowExW(
 			0,
-			ENGINE_CLASS_NAME,"",
+			ENGINE_CLASS_NAME,L"",
 			style,
 			_location.left,_location.top, //Position
 			_location.right-_location.left,_location.bottom-_location.top, //Dimensionen
@@ -639,7 +639,7 @@ namespace Engine
 		if (!hWnd)
 		{
 			_error = ERR_WINDOW_CREATION_FAILED;
-			UnregisterClassA(ENGINE_CLASS_NAME,hInstance);
+			UnregisterClassW(ENGINE_CLASS_NAME,hInstance);
 			return NULL;
 		}
 		ShowWindow(hWnd, SW_SHOW);
@@ -652,7 +652,7 @@ namespace Engine
 		initAnalogs();
 		
 		mouse.cursor_visible = true;
-		UnregisterClassA(ENGINE_CLASS_NAME,hInstance);
+		UnregisterClassW(ENGINE_CLASS_NAME,hInstance);
 		
 				
 		
@@ -925,7 +925,7 @@ namespace Engine
 			ShowWindow(hWnd,SW_HIDE);
 			DestroyWindow(hWnd);
 			hWnd = NULL;
-			UnregisterClassA(ENGINE_CLASS_NAME,hInstance);
+			UnregisterClassW(ENGINE_CLASS_NAME,hInstance);
 		#elif SYSTEM==UNIX
 			if (!window || !display)
 				return;
@@ -1614,9 +1614,10 @@ namespace Engine
 			}
 			break;
 			default:
-				return DefWindowProc(hWnd, Msg, wParam, lParam);
+				return context.eventHook ? context.eventHook(hWnd,Msg,wParam,lParam) : DefWindowProc(hWnd, Msg, wParam, lParam);
 		}
-		return DefWindowProc(hWnd,Msg,wParam,lParam);
+		return context.eventHook ? context.eventHook(hWnd,Msg,wParam,lParam) : DefWindowProc(hWnd, Msg, wParam, lParam);
+		//return DefWindowProc(hWnd,Msg,wParam,lParam);
 	}
 
 	#elif SYSTEM==UNIX
