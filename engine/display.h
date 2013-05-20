@@ -249,7 +249,7 @@ namespace Engine
 			void						assign(pEngineExec target);		//!< Assigns a new loop-function \param target Callback function of the form bool func(). The function may return false causing execute() to return
 			void						execute();					  	//!< Executes the assigned loop-function
 			void						executeNoClr();				 //!< Executes the assigned loop-function without clearing the screen per loop
-			void						close();					//!< Terminates eve execution
+			void						destroy();					//!< Terminates engine execution
 			void						terminate();				//!< \deprecated {use close() instead}
 			String						errorStr();					 //!< Returns a string representation of the last occured error. \return String representation of the last occured error
 

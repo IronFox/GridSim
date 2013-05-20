@@ -703,7 +703,7 @@ namespace Engine
 	    template <class GL>inline void Display<GL>::process(const MSG&msg)
 	    {
 	        if ((msg.message == WM_DESTROY || msg.message == WM_CLOSE || msg.message == WM_QUIT) && !context.shutting_down)
-	            close();
+	            destroy();
 	        else
 	            DispatchMessage(&msg);
 	    }
@@ -713,14 +713,14 @@ namespace Engine
 	    template <class GL>inline void Display<GL>::process(XEvent&event)
 	    {
 	        if (event.type == DestroyNotify && !context.shutting_down)
-	            close();
+	            destroy();
 	        else
 	            Engine::ExecuteEvent(event);
 	    }
 
 	#endif
 
-	template <class GL>void Display<GL>::close()
+	template <class GL>void Display<GL>::destroy()
 	{
 	    unbindFrameBuffer();
 	    GL::destroyContext();
@@ -730,7 +730,7 @@ namespace Engine
 	template <class GL>
 		void Display<GL>::terminate()
 		{
-			close();
+			destroy();
 		}
 
 	template <class GL> void Display<GL>::lockRegion()
