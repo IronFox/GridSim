@@ -27,7 +27,7 @@ void Engine::ConsoleWindow::onChar(char c)
 			cursor++;
 		}
 		sel_start = cursor;
-		signalWindowContentChange();
+		SignalWindowContentChange();
 	}
 }
 
@@ -69,7 +69,7 @@ void Engine::ConsoleWindow::onKeyDown(Key::Name key)
 				input_history_position = input_history.count();
 				keyboard.replaceInputSection(--cursor,1,"");
 				sel_start = cursor;
-				signalWindowContentChange();
+				SignalWindowContentChange();
 			}
 		break;
 		case Key::Up:
@@ -78,7 +78,7 @@ void Engine::ConsoleWindow::onKeyDown(Key::Name key)
 				input_history_position--;
 				
 				fillLine(input_history[input_history_position]);
-				signalWindowContentChange();
+				SignalWindowContentChange();
 			}
 		break;
 		case Key::Down:
@@ -86,7 +86,7 @@ void Engine::ConsoleWindow::onKeyDown(Key::Name key)
 			{
 				input_history_position++;
 				fillLine(input_history[input_history_position]);
-				signalWindowContentChange();
+				SignalWindowContentChange();
 			}
 		break;
 		case Key::Left:
@@ -95,7 +95,7 @@ void Engine::ConsoleWindow::onKeyDown(Key::Name key)
 				cursor--;
 				if (!input.pressed[Key::Shift])
 					sel_start = cursor;
-				signalWindowContentChange();
+				SignalWindowContentChange();
 			}
 		break;
 		case Key::Right:
@@ -104,7 +104,7 @@ void Engine::ConsoleWindow::onKeyDown(Key::Name key)
 				cursor++;
 				if (!input.pressed[Key::Shift])
 					sel_start = cursor;
-				signalWindowContentChange();
+				SignalWindowContentChange();
 			}
 		break;
 		case Key::Enter:
@@ -136,7 +136,7 @@ void Engine::ConsoleWindow::onKeyDown(Key::Name key)
 			sel_start = 0;
 			show_command_line = command_line;
 			show_progress_bar = show_progress_bar && !command_line;
-			signalWindowContentChange();
+			SignalWindowContentChange();
 		}
 		break;
 		case Key::Del:
@@ -155,30 +155,30 @@ void Engine::ConsoleWindow::onKeyDown(Key::Name key)
 					keyboard.replaceInputSection(cursor,sel_start-cursor,"");
 				sel_start = cursor;
 			}
-			signalWindowContentChange();
+			SignalWindowContentChange();
 		break;
 		case Key::PageUp:
 			retro_perspective+=visible_lines;
-			signalWindowContentChange();
+			SignalWindowContentChange();
 		break;
 		case Key::PageDown:
 			if (retro_perspective >= visible_lines)
 				retro_perspective-=visible_lines;
 			else
 				retro_perspective = 0;
-			signalWindowContentChange();
+			SignalWindowContentChange();
 		break;
 		case Key::Home:
 			cursor = 0;
 			if (!input.pressed[Key::Shift])
 				sel_start = cursor;
-			signalWindowContentChange();
+			SignalWindowContentChange();
 		break;
 		case Key::End:
 			cursor = keyboard.getInputLen();
 			if (!input.pressed[Key::Shift])
 				sel_start = cursor;
-			signalWindowContentChange();
+			SignalWindowContentChange();
 		break;
 		case Key::C:
 			if (input.pressed[Key::Ctrl])
@@ -202,7 +202,7 @@ void Engine::ConsoleWindow::onKeyDown(Key::Name key)
 					else
 						keyboard.replaceInputSection(cursor,sel_start-cursor,"");
 					sel_start = cursor;
-					signalWindowContentChange();
+					SignalWindowContentChange();
 				}
 			}
 		break;
@@ -224,7 +224,7 @@ void Engine::ConsoleWindow::onKeyDown(Key::Name key)
 						cursor+=(BYTE)strlen(buffer);
 					}
 					sel_start = cursor;
-					signalWindowContentChange();
+					SignalWindowContentChange();
 				}
 			}
 		break;
@@ -275,7 +275,7 @@ void Engine::ConsoleWindow::onMouseMove()
 		else
 			retro_perspective += delta;
 
-	signalWindowContentChange();
+	SignalWindowContentChange();
 }
 
 void Engine::ConsoleWindow::onKeyUp(Key::Name key)
@@ -283,7 +283,7 @@ void Engine::ConsoleWindow::onKeyUp(Key::Name key)
 	if (key != Key::LeftMouseButton || busy || !slider_grabbed)
 		return;
 	slider_grabbed = false;
-	signalWindowContentChange();
+	SignalWindowContentChange();
 }
 
 void Engine::ConsoleWindow::onMouseWheel(short delta)
@@ -303,7 +303,7 @@ void Engine::ConsoleWindow::onMouseWheel(short delta)
 		else
 			retro_perspective = 0;
 	}
-	signalWindowContentChange();
+	SignalWindowContentChange();
 }
 
 
@@ -580,7 +580,7 @@ void		Engine::ConsoleWindow::print(const String&line)
 		for (index_t j = 0; j < wrapped.count(); j++)
 			history << wrapped[j];
 	}
-	signalWindowContentChange();
+	SignalWindowContentChange();
 }
 
 void		Engine::ConsoleWindow::printDirect(const String&line)
@@ -593,7 +593,7 @@ void		Engine::ConsoleWindow::printDirect(const String&line)
 	
 	if (timer.toSecondsf(t-last_check)>0.1f)
 	{
-		application.interruptCheckEvents();
+		application.InterruptCheckEvents();
 		//ASSERT_EQUAL__(wglGetCurrentContext(),h.gl_context);
 		last_check = t;
 	}
@@ -609,7 +609,7 @@ void		Engine::ConsoleWindow::clearHistory()
 
 	retro_perspective = 0;
 	history.clear();
-	signalWindowContentChange();
+	SignalWindowContentChange();
 }
 
 StringList*Engine::ConsoleWindow::getHistory()
@@ -661,7 +661,7 @@ void	Engine::ConsoleWindow::setProgress(float progress_)
 	Timer::Time t = timer.now();
 	if (timer.toSecondsf(t-last_check)>0.1f)
 	{
-		application.interruptCheckEvents();
+		application.InterruptCheckEvents();
 		last_check = t;
 	}
 
@@ -673,21 +673,21 @@ void	Engine::ConsoleWindow::showProgress()
 {
 	retro_perspective = 0;
 	show_progress_bar = true;
-	signalWindowContentChange();
+	SignalWindowContentChange();
 }
 
 void	Engine::ConsoleWindow::showProgress(bool b)
 {
 	retro_perspective = 0;
 	show_progress_bar = b;
-	signalWindowContentChange();
+	SignalWindowContentChange();
 }
 
 void	Engine::ConsoleWindow::hideProgress()
 {
 	retro_perspective = 0;
 	show_progress_bar = false;
-	signalWindowContentChange();
+	SignalWindowContentChange();
 }
 
 
@@ -696,7 +696,7 @@ void Engine::ConsoleWindow::setContext(const String&context_)
 	MutexLock	lock(mutex);
 
 	context = context_;
-	signalWindowContentChange();
+	SignalWindowContentChange();
 }
 
 void Engine::ConsoleWindow::fillLine(const String&line)
@@ -705,6 +705,6 @@ void Engine::ConsoleWindow::fillLine(const String&line)
 
 	keyboard.fillInput(line);
 	sel_start = cursor = BYTE(line.length());
-	signalWindowContentChange();
+	SignalWindowContentChange();
 }
 

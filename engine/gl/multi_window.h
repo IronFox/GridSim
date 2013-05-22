@@ -27,7 +27,7 @@ namespace Engine
 	#define	MW_CREATE_WINDOW_REQUEST	0x1001
 
 
-	#define WINDOW_CONTEXT_CLASS_NAME   "Hive Window Class"
+	#define WINDOW_CONTEXT_CLASS_NAME   L"Multi Window Class"
 	
 	#define X_MENU_BACKGROUND  0.92,0.92,0.92
 
@@ -271,6 +271,7 @@ namespace Engine
 	private:
 		Image							desktop_background;
 		Mutex							update_mutex;
+		bool							showingBorder;
 		volatile int					in_mutex;
 		volatile bool					ignoring_events;
 			
@@ -293,8 +294,10 @@ namespace Engine
 		void							forceUpdate();
 		void							detailBeginUpdate(ContextHandle&previous_handle);
 
+
+
 		template <typename T>
-		MenuEntry*						createMenuEntryT(const String&path, T callback)
+			MenuEntry*					createMenuEntryT(const String&path, T callback)
 		{
 			CAString buffer(path.c_str());
 			//ShowMessage("'"+path+"' => '"+buffer+"'");
@@ -349,6 +352,7 @@ namespace Engine
 		virtual	void			onKeyDown(Key::Name key)						{};
 		virtual	void			onKeyUp(Key::Name key)						{};
 
+		HDC						GetDC()	const	{return local_context.device_context;}
 
 		/**
 			@brief Set whether or not system-events (such as redraw or button events) should be ignored
@@ -368,7 +372,11 @@ namespace Engine
 		bool					makeAsChild(const Window&parent, const String&name);
 		bool					makeAsChild(const Window&parent, int x, int y, int width, int height, const String&name);
 		bool					makeAsChild(const Window&parent, int x, int y, int width, int height, const String&name, const Engine::TVisualConfig&config);
-			
+
+		void					ShowBorder(bool);
+		bool					ShowingBorder()	const	{return showingBorder;}
+
+
 		HWND					getWindow()			const;
 		String					getTitle()				const;
 		void					setTitle(const String&);
@@ -396,8 +404,8 @@ namespace Engine
 									FATAL__("Unable to embed");
 								}
 
-		void					signalWindowContentChange(bool);
-		void					signalWindowContentChange();
+		void					SignalWindowContentChange(bool);
+		void					SignalWindowContentChange();
 
 		bool					require(unsigned extensions);
 		const Image*			getDesktop();
@@ -417,13 +425,13 @@ namespace Engine
 		void					getRelativeMouse(float&x, float&y)	const;
 		void					relativate(const POINT&p, float&x, float &y)	const;
 		template <typename T>
-		void					getAbsoluteClientRegion(Rect<T>&rect)		const
-		{
-			rect.left = location.left+client_offset_x;
-			rect.top = location.top+client_offset_y;
-			rect.right = rect.left + client_width;
-			rect.bottom = rect.top + client_height;
-		}
+			void				GetAbsoluteClientRegion(Rect<T>&rect)		const
+			{
+				rect.x.min = location.left+client_offset_x;
+				rect.y.min = location.top+client_offset_y;
+				rect.x.max = rect.x.min + client_width;
+				rect.y.max = rect.y.min + client_height;
+			}
 		bool					hasMouse()			const;
 
 		void					acceptFileDrop();
@@ -506,27 +514,27 @@ namespace Engine
 		friend class	Menu;
 		friend class	Window;
 	public:
-		Application();
+		/**/			Application();
 		virtual			~Application();
 
-		bool			create();
-		bool			create(const String&icon_name);
-		void			destroy();
+		bool			Create();
+		bool			Create(const String&icon_name);
+		void			Destroy();
 		#if SYSTEM==UNIX
-			bool		isFunctionKey(unsigned key);
+			bool		IsFunctionKey(unsigned key);
 		#endif
 
-		void			setFontName(const String&name);
-		void			interruptCheckEvents();
-		void			execute(bool(*callback)());
-		void			execute();
-		void			enterRealtimeMode();
-		void			enterLazyMode();
-		void			terminate();
-		Window*			findWindow(HWND handle);
-		Window*			getFocusedWindow();
-		void			registerEventHook(EventHook hook);
-		void			clearEventHook()	{registerEventHook(NULL);}
+		void			SetFontName(const String&name);
+		void			InterruptCheckEvents();
+		void			Execute(bool(*callback)());
+		void			Execute();
+		void			EnterRealtimeMode();
+		void			EnterLazyMode();
+		void			Terminate();
+		Window*			FindWindow(HWND handle);
+		Window*			GetFocusedWindow();
+		void			RegisterEventHook(EventHook hook);
+		void			ClearEventHook()	{RegisterEventHook(NULL);}
 	};
 
 

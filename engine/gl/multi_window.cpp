@@ -8,7 +8,7 @@ namespace Engine
 	#elif SYSTEM==WINDOWS
 		LRESULT emptyHook(Window*,HWND window, UINT Msg, WPARAM wParam,LPARAM lParam)
 		{
-			return DefWindowProc(window, Msg, wParam, lParam);
+			return DefWindowProcW(window, Msg, wParam, lParam);
 		}
 	#endif
 
@@ -40,17 +40,17 @@ namespace Engine
 
 //static const char*  eventToString(int event);
 
-	void	Application::setFontName(const String&name)
+	void	Application::SetFontName(const String&name)
 	{
 		x_menu_font = name;
 	}
 
-	void 	Application::execute()
+	void 	Application::Execute()
 	{
-		execute(NULL);
+		Execute(NULL);
 	}
 
-	void	Application::execute(bool(*callback)())
+	void	Application::Execute(bool(*callback)())
 	{
 		fatal_exception_caught = false;
 		shutting_down = false;
@@ -120,7 +120,7 @@ namespace Engine
 		}
 	}
 
-	void Application::interruptCheckEvents()
+	void Application::InterruptCheckEvents()
 	{
 		#if SYSTEM==WINDOWS
 			MSG msg;
@@ -146,29 +146,29 @@ namespace Engine
 				(*window)->forceUpdate();
 	}
 
-	void Application::terminate()
+	void Application::Terminate()
 	{
 		shutting_down = true;
 	}
 
 
-	void Application::enterRealtimeMode()
+	void Application::EnterRealtimeMode()
 	{
 		realtime = true;
 	}
 
-	void Application::enterLazyMode()
+	void Application::EnterLazyMode()
 	{
 		realtime = false;
 	}
 
 
-	Window*	Application::findWindow(HWND handle)
+	Window*	Application::FindWindow(HWND handle)
 	{
 		return windows.lookup(handle);
 	}
 
-	Window*	Application::getFocusedWindow()
+	Window*	Application::GetFocusedWindow()
 	{
 		#if SYSTEM==WINDOWS
 			return windows.lookup(GetFocus());
@@ -917,7 +917,7 @@ namespace Engine
 
 
 
-	void			Application::registerEventHook(EventHook hook)
+	void			Application::RegisterEventHook(EventHook hook)
 	{
 		if (hook)
 			event_hook = hook;
@@ -991,19 +991,19 @@ namespace Engine
 
 	Application::~Application()
 	{
-		terminate();
-		destroy();
+		Terminate();
+		Destroy();
 	}
 
 
-	bool    Application::create()
+	bool    Application::Create()
 	{
 	    error = NoError;
 	    if (built)
 	        return true;
 	    #if SYSTEM==WINDOWS
 			hInstance = getInstance();
-	        WNDCLASSA wc;
+	        WNDCLASSW wc;
 	        wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
 	        wc.lpfnWndProc = (WNDPROC) wExecuteEvent;
 	        wc.cbClsExtra = 0;
@@ -1014,7 +1014,7 @@ namespace Engine
 	        wc.hbrBackground = NULL;
 	        wc.lpszMenuName = NULL;
 	        wc.lpszClassName = WINDOW_CONTEXT_CLASS_NAME;
-	        if (!RegisterClassA(&wc))
+	        if (!RegisterClassW(&wc))
 	        {
 	            error = ClassRegistrationFailed;
 	            return false;
@@ -1033,14 +1033,14 @@ namespace Engine
 	    return true;
 	}
 
-	bool    Application::create(const String&icon_name)
+	bool    Application::Create(const String&icon_name)
 	{
 	    error = NoError;
 	    if (built)
 	        return true;
 	    #if SYSTEM==WINDOWS
 			hInstance = getInstance();
-	        WNDCLASSA wc;
+	        WNDCLASSW wc;
 	        wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
 	        wc.lpfnWndProc = (WNDPROC) wExecuteEvent;
 	        wc.cbClsExtra = 0;
@@ -1056,7 +1056,7 @@ namespace Engine
 	        wc.hbrBackground = NULL;
 	        wc.lpszMenuName = NULL;
 	        wc.lpszClassName = WINDOW_CONTEXT_CLASS_NAME;
-	        if (!RegisterClassA(&wc))
+	        if (!RegisterClassW(&wc))
 	        {
 	            error = ClassRegistrationFailed;
 	            return false;
@@ -1076,14 +1076,14 @@ namespace Engine
 	}
 
 
-	void Application::destroy()
+	void Application::Destroy()
 	{
 	    if (!built)
 	        return;
 	    while (windows)
 	        windows.last()->destroy();
 	    #if SYSTEM==WINDOWS
-	        UnregisterClassA(WINDOW_CONTEXT_CLASS_NAME,hInstance);
+	        UnregisterClassW(WINDOW_CONTEXT_CLASS_NAME,hInstance);
 	    #elif SYSTEM==UNIX
 
 	        glXMakeCurrent(display,None,NULL);
@@ -1150,7 +1150,7 @@ namespace Engine
 			// bitmap.
 	        ShowWindow(window, SW_HIDE);
 			Sleep(10);
-			HDC hdcScreen = 	GetDC(root),								//CreateDC("DISPLAY", NULL, NULL, NULL),
+			HDC hdcScreen = 	::GetDC(root),								//CreateDC("DISPLAY", NULL, NULL, NULL),
 				hdcCompatible = CreateCompatibleDC(hdcScreen);
 
 			// Create a compatible bitmap for hdcScreen.
@@ -1500,15 +1500,15 @@ namespace Engine
 	}
 
 
-	void Window::signalWindowContentChange(bool ru)
+	void Window::SignalWindowContentChange(bool ru)
 	{
 		if (ru)
-			signalWindowContentChange();
+			SignalWindowContentChange();
 		else
 			requires_update = ru;
 	}
 
-	void Window::signalWindowContentChange()
+	void Window::SignalWindowContentChange()
 	{
 		requires_update = true;
 	}
@@ -2019,7 +2019,7 @@ namespace Engine
 		is_new = true;
 		requires_update = true;
 	    error = NoError;
-	    if (!application.create())
+	    if (!application.Create())
 	    {
 	        error = ContextError;
 	        return false;
@@ -2036,34 +2036,21 @@ namespace Engine
 					style |=   WS_OVERLAPPEDWINDOW  | WS_SIZEBOX;
 
 				
-				#ifdef _UNICODE
-					Array<USHORT>	w_name;
-					w_name.resize(name.length()+1);
-					for (unsigned i = 0; i < name.length(); i++)
-						w_name[i] = (USHORT)(BYTE)name.get(i);
-					w_name.last() = 0;
+				Array<wchar_t>	w_name;
+				w_name.setSize(name.length()+1);
+				for (unsigned i = 0; i < name.length(); i++)
+					w_name[i] = (USHORT)(BYTE)name.get(i);
+				w_name.last() = 0;
 
-					window = CreateWindowA(
-						WINDOW_CONTEXT_CLASS_NAME,(const char*)w_name.pointer(),
-						style,
-						x,y, //Position
-						width,height, //Dimensionen
-						parent?parent->getWindow():HWND_DESKTOP,
-						NULL,
-						application.hInstance, //Application
-						NULL);						
-				#else
-					window = CreateWindowA(
-						WINDOW_CONTEXT_CLASS_NAME,name.c_str(),
-						style,
-						x,y, //Position
-						width,height, //Dimensionen
-						parent?parent->getWindow():HWND_DESKTOP,
-						NULL,
-						application.hInstance, //Application
-						NULL);
-				#endif				
-
+				window = CreateWindowW(
+					WINDOW_CONTEXT_CLASS_NAME,w_name.pointer(),
+					style,
+					x,y, //Position
+					width,height, //Dimensionen
+					parent?parent->getWindow():HWND_DESKTOP,
+					NULL,
+					application.hInstance, //Application
+					NULL);						
 
 	            if (!window)
 	            {
@@ -2108,7 +2095,7 @@ namespace Engine
 	                0,0,0                               //"Layer-Masks ignored" - maybe this is to reduce the ammount of colors displayed... would UpdateProjection sense somehow - each bit ignored would half the number
 	            };
 	            GLint PixelFormat;
-	            local_context.device_context = GetDC(window);
+	            local_context.device_context = ::GetDC(window);
 	            if (!local_context.device_context)
 	            {
 	                DestroyWindow(window);
@@ -2386,8 +2373,29 @@ namespace Engine
 	}
 
 
+	void							Window::ShowBorder(bool newShow)
+	{
+		if (newShow == showingBorder)
+			return;
+		showingBorder = newShow;
+
+		{
+			LONG lStyle = GetWindowLong(window, GWL_STYLE);
+			if (newShow)
+				lStyle |= WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MAXIMIZEBOX | WS_MINIMIZEBOX | WS_THICKFRAME;
+			else
+				lStyle &= ~(WS_CAPTION | WS_THICKFRAME | WS_MINIMIZE | WS_MAXIMIZE | WS_SYSMENU);
+			SetWindowLong(window, GWL_STYLE, lStyle);
+			SetWindowPos(window, NULL, 0,0,0,0, SWP_FRAMECHANGED | SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOOWNERZORDER);
+		}
+
+
+	}
+
+
 	void Window::init()
 	{
+		showingBorder = true;
 		accept_dropped_files = false;
 		file_drop_handler = NULL;
 		mouse.regAnalogInputs();
@@ -2630,12 +2638,12 @@ namespace Engine
 			if (window)
 			{
 				if (window->ignoring_events)
-					return DefWindowProc(hWnd, Msg, wParam, lParam);
+					return DefWindowProcW(hWnd, Msg, wParam, lParam);
 				window->bind();
 				switch (Msg)
 				{
 					case WM_SETCURSOR:
-						return (LOWORD(lParam) == HTCLIENT) && window->mouse.cursorIsNotDefault() ? 1 : DefWindowProc(hWnd, Msg, wParam, lParam);
+						return (LOWORD(lParam) == HTCLIENT) && window->mouse.cursorIsNotDefault() ? 1 : DefWindowProcW(hWnd, Msg, wParam, lParam);
 
 					case MW_CREATE_WINDOW_REQUEST:
 					{
@@ -2776,7 +2784,7 @@ namespace Engine
 
 			application.fatal_exception_caught = true;
 		}
-		return DefWindowProc(hWnd, Msg, wParam, lParam);
+		return DefWindowProcW(hWnd, Msg, wParam, lParam);
 	    //return 0;
 	}
 
@@ -2893,7 +2901,7 @@ namespace Engine
 					}
 				}
 				if (redraw)
-					window->signalWindowContentChange();
+					window->SignalWindowContentChange();
 			}
 			break;
 			case ButtonRelease:
@@ -2920,7 +2928,7 @@ namespace Engine
 					}
 				}
 				else
-					window->signalWindowContentChange();
+					window->SignalWindowContentChange();
 			}
 			break;
 			case ConfigureRequest:
@@ -2942,7 +2950,7 @@ namespace Engine
 					}
 					if (redraw)
 					{
-						window->signalWindowContentChange();
+						window->SignalWindowContentChange();
 					}
 					last_motion = timer.now();
 				}
