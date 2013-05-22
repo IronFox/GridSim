@@ -1536,7 +1536,7 @@ namespace Engine
 		switch (Msg)
 		{
 			case WM_SETCURSOR:
-				return (LOWORD(lParam) == HTCLIENT) && mouse.cursorIsNotDefault() ? 1 : DefWindowProc(hWnd, Msg, wParam, lParam);
+				return (LOWORD(lParam) == HTCLIENT) && mouse.cursorIsNotDefault() ? 1 : DefWindowProcW(hWnd, Msg, wParam, lParam);
 			case WM_SIZING:		context.signalResize(false,false);								return 0;
 			case WM_SIZE:		if (wParam != SIZE_MINIMIZED) context.signalResize(wParam == SIZE_MAXIMIZED || wParam == SIZE_RESTORED, wParam == SIZE_MAXIMIZED);		return 0;
 			case WM_EXITSIZEMOVE:context.signalResize(true,false);								return 0;
@@ -1614,9 +1614,9 @@ namespace Engine
 			}
 			break;
 			default:
-				return context.eventHook ? context.eventHook(hWnd,Msg,wParam,lParam) : DefWindowProc(hWnd, Msg, wParam, lParam);
+				return context.eventHook ? context.eventHook(hWnd,Msg,wParam,lParam) : DefWindowProcW(hWnd, Msg, wParam, lParam);
 		}
-		return context.eventHook ? context.eventHook(hWnd,Msg,wParam,lParam) : DefWindowProc(hWnd, Msg, wParam, lParam);
+		return context.eventHook ? context.eventHook(hWnd,Msg,wParam,lParam) : DefWindowProcW(hWnd, Msg, wParam, lParam);
 		//return DefWindowProc(hWnd,Msg,wParam,lParam);
 	}
 
