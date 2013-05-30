@@ -23,7 +23,7 @@ namespace Engine
 		FRenderInstruction	instruction;
 		/**/				RenderInstructionWrapper():orderIndex(InvalidIndex),instruction(NULL)	{}
 		/**/				RenderInstructionWrapper(index_t id, FRenderInstruction instruction):
-							orderIndex(orderIndex),instruction(instruction)	{}
+							orderIndex(id),instruction(instruction)	{}
 
 		int					compareTo(const RenderInstructionWrapper&other)
 							{
@@ -56,6 +56,7 @@ namespace Engine
 		bool				IsSealed()	const	{return isSealed;}
 		void				Execute(const Aspect<>&aspect, const Resolution&resolution)	const
 							{
+								DBG_ASSERT__(IsSealed());
 								WrapperList::const_iterator	at = wrappers.begin(),
 															end = wrappers.end();
 								for (;at != end; ++at)
