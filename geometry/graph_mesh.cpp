@@ -455,10 +455,10 @@ bool		Graph::defineSurface(const Profile::Node&p0,const Profile::Node&p1,index_t
 	{
 		float fc = (float)i/(res_x-1);
 		Node&node = profile.append();
-		Vec::ResolveBezierCurvePoint(n0.position,control[0],control[1],n1.position,fc,node.position);
-		Vec::ResolveBezierCurveAxis(n0.position,control[0],control[1],n1.position,fc,node.direction);
+		Vec::resolveBezierCurvePoint(n0.position,control[0],control[1],n1.position,fc,node.position);
+		Vec::resolveBezierCurveAxis(n0.position,control[0],control[1],n1.position,fc,node.direction);
 		if ((!i && !edge.control_dist[0]) || (i+1 == res_x && !edge.control_dist[1]))
-			Vec::ResolveBezierCurveAxis(n0.position,control[0],control[1],n1.position,(fc*0.9+0.5*0.1),node.direction);
+			Vec::resolveBezierCurveAxis(n0.position,control[0],control[1],n1.position,(fc*0.9+0.5*0.1),node.direction);
 		Vec::normalize0(node.direction);
 	}
 	
@@ -466,10 +466,10 @@ bool		Graph::defineSurface(const Profile::Node&p0,const Profile::Node&p1,index_t
 	{
 		float fz = (float)z/(res_z-1);
 		TVec2<> p,a,np;
-		Vec::ResolveBezierCurvePoint(p0.position,z_control0,z_control1,p1.position,fz,p);
-		Vec::ResolveBezierCurveAxis(p0.position,z_control0,z_control1,p1.position,fz,a);
+		Vec::resolveBezierCurvePoint(p0.position,z_control0,z_control1,p1.position,fz,p);
+		Vec::resolveBezierCurveAxis(p0.position,z_control0,z_control1,p1.position,fz,a);
 		if (Vec::zero(a))
-			Vec::ResolveBezierCurveAxis(p0.position,z_control0,z_control1,p1.position,(fz*0.9+0.5*0.1),a);
+			Vec::resolveBezierCurveAxis(p0.position,z_control0,z_control1,p1.position,(fz*0.9+0.5*0.1),a);
 		Vec::normalize0(a);
 		np = a;
 		swp(np.x,np.y);
@@ -606,10 +606,10 @@ bool		Graph::defineProfileLessSurface(index_t edge_index,float step,float textur
 	{
 		float fc = (float)i/(res_x-1);
 		Node&node = profile.append();
-		Vec::ResolveBezierCurvePoint(n0.position,control[0],control[1],n1.position,fc,node.position);
-		Vec::ResolveBezierCurveAxis(n0.position,control[0],control[1],n1.position,fc,node.direction);
+		Vec::resolveBezierCurvePoint(n0.position,control[0],control[1],n1.position,fc,node.position);
+		Vec::resolveBezierCurveAxis(n0.position,control[0],control[1],n1.position,fc,node.direction);
 		if ((!i && !edge.control_dist[0]) || (i+1 == res_x && !edge.control_dist[1]))
-			Vec::ResolveBezierCurveAxis(n0.position,control[0],control[1],n1.position,(fc*0.9+0.5*0.1),node.direction);
+			Vec::resolveBezierCurveAxis(n0.position,control[0],control[1],n1.position,(fc*0.9+0.5*0.1),node.direction);
 		Vec::normalize0(node.direction);
 	}
 	
@@ -617,10 +617,10 @@ bool		Graph::defineProfileLessSurface(index_t edge_index,float step,float textur
 	{
 		float fz = (float)z/(float)(res_z-1)*2-1;
 		//TVec2<> np = ;
-		//Vec::ResolveBezierCurvePoint(p0.position,z_control0,z_control1,p1.position,fz,p);
-		//Vec::ResolveBezierCurveAxis(p0.position,z_control0,z_control1,p1.position,fz,a);
+		//Vec::resolveBezierCurvePoint(p0.position,z_control0,z_control1,p1.position,fz,p);
+		//Vec::resolveBezierCurveAxis(p0.position,z_control0,z_control1,p1.position,fz,a);
 		//if (Vec::zero(a))
-		//	Vec::ResolveBezierCurveAxis(p0.position,z_control0,z_control1,p1.position,(fz*0.9+0.5*0.1),a);
+		//	Vec::resolveBezierCurveAxis(p0.position,z_control0,z_control1,p1.position,(fz*0.9+0.5*0.1),a);
 
 		//Vec::normalize0(a);
 		//np = a;
@@ -1855,8 +1855,8 @@ void				SurfaceDescription::BuildSegment(const SurfaceDescription::TConnector&be
 /*static*/	void				SurfaceDescription::Interpolate(const SurfaceDescription::TConnector&begin, const SurfaceDescription::TConnector&end,const SurfaceDescription::TControl control_points[2], float t, InterpolatedSlice&out)
 {
 	static const count_t	NumFloats = SurfaceDescription::TControl::NumFloats;
-	VecUnroll<NumFloats>::ResolveBezierCurvePoint(begin.state.field, control_points[0].field, control_points[1].field, end.state.field, t, out.field);
-	Vec::ResolveBezierCurveAxis(begin.state.position, control_points[0].position, control_points[1].position, end.state.position,t,out.direction);
+	VecUnroll<NumFloats>::resolveBezierCurvePoint(begin.state.field, control_points[0].field, control_points[1].field, end.state.field, t, out.field);
+	Vec::resolveBezierCurveAxis(begin.state.position, control_points[0].position, control_points[1].position, end.state.position,t,out.direction);
 
 	out.t = t;
 	
@@ -2024,7 +2024,7 @@ float							SurfaceNetwork::Segment::getMinimalDistanceTo(const TVec3<>&referenc
 	{
 		const float fi = float(i)/float(scan_resolution-1);
 
-		Vec::ResolveBezierCurvePoint(begin.
+		Vec::resolveBezierCurvePoint(begin.
 
 		VecUnroll<NumFloats>::ResolveBezierCurvePoint(begin.state.field, control_points[0].field, control_points[1].field, end.state.field, t, out.field);
 

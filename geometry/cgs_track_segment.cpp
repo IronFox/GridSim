@@ -707,11 +707,11 @@ namespace CGS
 	void	TrackSegment::interpolate(float fc, TFrame&rs)	const
 	{
 		//cout << _toString(end_point[0].scale,2)<<", "<<_toString(end_point[0].scale_control,2)<<", "<<_toString(end_point[1].scale_control,2)<<", "<<_toString(end_point[1].scale,2)<<" ("<<fc<<") => "<<rs.position
-		Vec::ResolveBezierCurvePoint(end_point[0].scale, end_point[0].scale_control, end_point[1].scale_control, end_point[1].scale, fc, rs.scale);
+		Vec::resolveBezierCurvePoint(end_point[0].scale, end_point[0].scale_control, end_point[1].scale_control, end_point[1].scale, fc, rs.scale);
 		
 		#if 1
-			Vec::ResolveBezierCurvePoint(end_point[0].coordinates.remainder, end_point[0].position_control, end_point[1].position_control, end_point[1].coordinates.remainder, fc, rs.position);
-			Vec::ResolveBezierCurveAxis(end_point[0].coordinates.remainder, end_point[0].position_control, end_point[1].position_control, end_point[1].coordinates.remainder, fc, rs.system.z);
+			Vec::resolveBezierCurvePoint(end_point[0].coordinates.remainder, end_point[0].position_control, end_point[1].position_control, end_point[1].coordinates.remainder, fc, rs.position);
+			Vec::resolveBezierCurveAxis(end_point[0].coordinates.remainder, end_point[0].position_control, end_point[1].position_control, end_point[1].coordinates.remainder, fc, rs.system.z);
 		#else
 			Vec::resolveUCBS(end_point[0].coordinates.remainder, end_point[0].position_control, end_point[1].position_control, end_point[1].coordinates.remainder, fc, rs.position);
 			Vec::resolveUCBSaxis(end_point[0].coordinates.remainder, end_point[0].position_control, end_point[1].position_control, end_point[1].coordinates.remainder, fc, rs.system.z);

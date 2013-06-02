@@ -1,7 +1,7 @@
 #ifndef vector_operationsH
 #define vector_operationsH
 /*
-This file was generated from template definition 'vector.template.php' on 2013 June 2nd 11:13:23
+This file was generated from template definition 'vector.template.php' on 2013 June 2nd 11:26:57
 Do not edit
 */
 
@@ -1209,11 +1209,11 @@ namespace Vec
 			}
 		}
 
-	//now implementing template definition 'void ResolveBezierCurvePoint (2..4) (<const [*] p0>, <const [*] p1>, <const [*] p2>, <const [*] p3>, <t>, <[*] result>) direct='
+	//now implementing template definition 'void resolveBezierCurvePoint (2..4) (<const [*] p0>, <const [*] p1>, <const [*] p2>, <const [*] p3>, <t>, <[*] result>) direct='
 	/**
 		@brief <br>
 		<br>
-		ResolveBezierCurvePoint() requires array pointers to operate on. Make sure all passed array pointers provide at least as many elements as required (@a dimensions in general for this version)<br>
+		resolveBezierCurvePoint() requires array pointers to operate on. Make sure all passed array pointers provide at least as many elements as required (@a dimensions in general for this version)<br>
 		Scalar values are passed as copies rather than by const reference. Use this version for primitive types only.<br>
 	
 		@param[in] p0 
@@ -1225,7 +1225,7 @@ namespace Vec
 		@param dimensions [in] Number of dimensions to process
 	*/
 	template <typename T0, typename T1, typename T2, typename T3, typename T4, typename T5>
-		inline	void	__fastcall	ResolveBezierCurvePointD(const T0 *p0, const T1 *p1, const T2 *p2, const T3 *p3, T4 t, T5 *result, count_t dimensions)throw()
+		inline	void	__fastcall	resolveBezierCurvePointD(const T0 *p0, const T1 *p1, const T2 *p2, const T3 *p3, T4 t, T5 *result, count_t dimensions)throw()
 		{
 			T5	i = 1-t,
 					f3 = t*t*t,
@@ -1238,11 +1238,11 @@ namespace Vec
 			}
 		}
 
-	//now implementing template definition 'void ResolveBezierCurveAxis (2..4) (<const [*] p0>, <const [*] p1>, <const [*] p2>, <const [*] p3>, <t>, <[*] result>) direct='
+	//now implementing template definition 'void resolveBezierCurveAxis (2..4) (<const [*] p0>, <const [*] p1>, <const [*] p2>, <const [*] p3>, <t>, <[*] result>) direct='
 	/**
 		@brief <br>
 		<br>
-		ResolveBezierCurveAxis() requires array pointers to operate on. Make sure all passed array pointers provide at least as many elements as required (@a dimensions in general for this version)<br>
+		resolveBezierCurveAxis() requires array pointers to operate on. Make sure all passed array pointers provide at least as many elements as required (@a dimensions in general for this version)<br>
 		Scalar values are passed as copies rather than by const reference. Use this version for primitive types only.<br>
 	
 		@param[in] p0 
@@ -1254,7 +1254,7 @@ namespace Vec
 		@param dimensions [in] Number of dimensions to process
 	*/
 	template <typename T0, typename T1, typename T2, typename T3, typename T4, typename T5>
-		inline	void	__fastcall	ResolveBezierCurveAxisD(const T0 *p0, const T1 *p1, const T2 *p2, const T3 *p3, T4 t, T5 *result, count_t dimensions)throw()
+		inline	void	__fastcall	resolveBezierCurveAxisD(const T0 *p0, const T1 *p1, const T2 *p2, const T3 *p3, T4 t, T5 *result, count_t dimensions)throw()
 		{
 			T5	i = 1-t,
 					f2 = t*t,
@@ -4987,12 +4987,12 @@ namespace Vec
 			result.w = (p1.w-p0.w)*f0 + (p2.w-p1.w)*f1 + (p3.w-p2.w)*f2;
 		}
 
-	//now implementing template definition 'void ResolveBezierCurvePoint (2..4) (<const [*] p0>, <const [*] p1>, <const [*] p2>, <const [*] p3>, <t>, <[*] result>) direct='
+	//now implementing template definition 'void resolveBezierCurvePoint (2..4) (<const [*] p0>, <const [*] p1>, <const [*] p2>, <const [*] p3>, <t>, <[*] result>) direct='
 	/**
 		@brief <br>
 		<br>
-		2 dimensional specialized version of ResolveBezierCurvePoint()<br>
-		ResolveBezierCurvePoint() requires vector objects to operate on, rather than raw pointers. Use ref*() to create a temporary reference object to existing array pointers<br>
+		2 dimensional specialized version of resolveBezierCurvePoint()<br>
+		resolveBezierCurvePoint() requires vector objects to operate on, rather than raw pointers. Use ref*() to create a temporary reference object to existing array pointers<br>
 		Scalar values are passed as copies rather than by const reference. Use this version for primitive types only.<br>
 	
 		@param[in] p0 
@@ -5003,7 +5003,7 @@ namespace Vec
 		@param[out] result 
 	*/
 	template <typename T0, typename T1, typename T2, typename T3, typename T4, typename T5>
-		inline	void	__fastcall	ResolveBezierCurvePoint(const TVec2<T0>& p0, const TVec2<T1>& p1, const TVec2<T2>& p2, const TVec2<T3>& p3, T4 t, TVec2<T5>& result)throw()
+		inline	void	__fastcall	resolveBezierCurvePoint(const TVec2<T0>& p0, const TVec2<T1>& p1, const TVec2<T2>& p2, const TVec2<T3>& p3, T4 t, TVec2<T5>& result)throw()
 		{
 			T5	i = 1-t,
 					f3 = t*t*t,
@@ -5017,8 +5017,8 @@ namespace Vec
 	/**
 		@brief <br>
 		<br>
-		3 dimensional specialized version of ResolveBezierCurvePoint()<br>
-		ResolveBezierCurvePoint() requires vector objects to operate on, rather than raw pointers. Use ref*() to create a temporary reference object to existing array pointers<br>
+		3 dimensional specialized version of resolveBezierCurvePoint()<br>
+		resolveBezierCurvePoint() requires vector objects to operate on, rather than raw pointers. Use ref*() to create a temporary reference object to existing array pointers<br>
 		Scalar values are passed as copies rather than by const reference. Use this version for primitive types only.<br>
 	
 		@param[in] p0 
@@ -5029,7 +5029,7 @@ namespace Vec
 		@param[out] result 
 	*/
 	template <typename T0, typename T1, typename T2, typename T3, typename T4, typename T5>
-		inline	void	__fastcall	ResolveBezierCurvePoint(const TVec3<T0>& p0, const TVec3<T1>& p1, const TVec3<T2>& p2, const TVec3<T3>& p3, T4 t, TVec3<T5>& result)throw()
+		inline	void	__fastcall	resolveBezierCurvePoint(const TVec3<T0>& p0, const TVec3<T1>& p1, const TVec3<T2>& p2, const TVec3<T3>& p3, T4 t, TVec3<T5>& result)throw()
 		{
 			T5	i = 1-t,
 					f3 = t*t*t,
@@ -5044,8 +5044,8 @@ namespace Vec
 	/**
 		@brief <br>
 		<br>
-		4 dimensional specialized version of ResolveBezierCurvePoint()<br>
-		ResolveBezierCurvePoint() requires vector objects to operate on, rather than raw pointers. Use ref*() to create a temporary reference object to existing array pointers<br>
+		4 dimensional specialized version of resolveBezierCurvePoint()<br>
+		resolveBezierCurvePoint() requires vector objects to operate on, rather than raw pointers. Use ref*() to create a temporary reference object to existing array pointers<br>
 		Scalar values are passed as copies rather than by const reference. Use this version for primitive types only.<br>
 	
 		@param[in] p0 
@@ -5056,7 +5056,7 @@ namespace Vec
 		@param[out] result 
 	*/
 	template <typename T0, typename T1, typename T2, typename T3, typename T4, typename T5>
-		inline	void	__fastcall	ResolveBezierCurvePoint(const TVec4<T0>& p0, const TVec4<T1>& p1, const TVec4<T2>& p2, const TVec4<T3>& p3, T4 t, TVec4<T5>& result)throw()
+		inline	void	__fastcall	resolveBezierCurvePoint(const TVec4<T0>& p0, const TVec4<T1>& p1, const TVec4<T2>& p2, const TVec4<T3>& p3, T4 t, TVec4<T5>& result)throw()
 		{
 			T5	i = 1-t,
 					f3 = t*t*t,
@@ -5069,12 +5069,12 @@ namespace Vec
 			result.w = p0.w*f0 + p1.w*f1 + p2.w*f2 + p3.w*f3;
 		}
 
-	//now implementing template definition 'void ResolveBezierCurveAxis (2..4) (<const [*] p0>, <const [*] p1>, <const [*] p2>, <const [*] p3>, <t>, <[*] result>) direct='
+	//now implementing template definition 'void resolveBezierCurveAxis (2..4) (<const [*] p0>, <const [*] p1>, <const [*] p2>, <const [*] p3>, <t>, <[*] result>) direct='
 	/**
 		@brief <br>
 		<br>
-		2 dimensional specialized version of ResolveBezierCurveAxis()<br>
-		ResolveBezierCurveAxis() requires vector objects to operate on, rather than raw pointers. Use ref*() to create a temporary reference object to existing array pointers<br>
+		2 dimensional specialized version of resolveBezierCurveAxis()<br>
+		resolveBezierCurveAxis() requires vector objects to operate on, rather than raw pointers. Use ref*() to create a temporary reference object to existing array pointers<br>
 		Scalar values are passed as copies rather than by const reference. Use this version for primitive types only.<br>
 	
 		@param[in] p0 
@@ -5085,7 +5085,7 @@ namespace Vec
 		@param[out] result 
 	*/
 	template <typename T0, typename T1, typename T2, typename T3, typename T4, typename T5>
-		inline	void	__fastcall	ResolveBezierCurveAxis(const TVec2<T0>& p0, const TVec2<T1>& p1, const TVec2<T2>& p2, const TVec2<T3>& p3, T4 t, TVec2<T5>& result)throw()
+		inline	void	__fastcall	resolveBezierCurveAxis(const TVec2<T0>& p0, const TVec2<T1>& p1, const TVec2<T2>& p2, const TVec2<T3>& p3, T4 t, TVec2<T5>& result)throw()
 		{
 			T5	i = 1-t,
 					f2 = t*t,
@@ -5112,8 +5112,8 @@ namespace Vec
 	/**
 		@brief <br>
 		<br>
-		3 dimensional specialized version of ResolveBezierCurveAxis()<br>
-		ResolveBezierCurveAxis() requires vector objects to operate on, rather than raw pointers. Use ref*() to create a temporary reference object to existing array pointers<br>
+		3 dimensional specialized version of resolveBezierCurveAxis()<br>
+		resolveBezierCurveAxis() requires vector objects to operate on, rather than raw pointers. Use ref*() to create a temporary reference object to existing array pointers<br>
 		Scalar values are passed as copies rather than by const reference. Use this version for primitive types only.<br>
 	
 		@param[in] p0 
@@ -5124,7 +5124,7 @@ namespace Vec
 		@param[out] result 
 	*/
 	template <typename T0, typename T1, typename T2, typename T3, typename T4, typename T5>
-		inline	void	__fastcall	ResolveBezierCurveAxis(const TVec3<T0>& p0, const TVec3<T1>& p1, const TVec3<T2>& p2, const TVec3<T3>& p3, T4 t, TVec3<T5>& result)throw()
+		inline	void	__fastcall	resolveBezierCurveAxis(const TVec3<T0>& p0, const TVec3<T1>& p1, const TVec3<T2>& p2, const TVec3<T3>& p3, T4 t, TVec3<T5>& result)throw()
 		{
 			T5	i = 1-t,
 					f2 = t*t,
@@ -5154,8 +5154,8 @@ namespace Vec
 	/**
 		@brief <br>
 		<br>
-		4 dimensional specialized version of ResolveBezierCurveAxis()<br>
-		ResolveBezierCurveAxis() requires vector objects to operate on, rather than raw pointers. Use ref*() to create a temporary reference object to existing array pointers<br>
+		4 dimensional specialized version of resolveBezierCurveAxis()<br>
+		resolveBezierCurveAxis() requires vector objects to operate on, rather than raw pointers. Use ref*() to create a temporary reference object to existing array pointers<br>
 		Scalar values are passed as copies rather than by const reference. Use this version for primitive types only.<br>
 	
 		@param[in] p0 
@@ -5166,7 +5166,7 @@ namespace Vec
 		@param[out] result 
 	*/
 	template <typename T0, typename T1, typename T2, typename T3, typename T4, typename T5>
-		inline	void	__fastcall	ResolveBezierCurveAxis(const TVec4<T0>& p0, const TVec4<T1>& p1, const TVec4<T2>& p2, const TVec4<T3>& p3, T4 t, TVec4<T5>& result)throw()
+		inline	void	__fastcall	resolveBezierCurveAxis(const TVec4<T0>& p0, const TVec4<T1>& p1, const TVec4<T2>& p2, const TVec4<T3>& p3, T4 t, TVec4<T5>& result)throw()
 		{
 			T5	i = 1-t,
 					f2 = t*t,
@@ -11418,7 +11418,7 @@ template <count_t Current, count_t Dimensions>
 			}
 
 		template <typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7>
-			static inline	void	__fastcall	User24_ResolveBezierCurveAxis(T0 __p0, T1 __p1, T2 __p2, const T3 __p3[Dimensions], const T4 __p4[Dimensions], const T5 __p5[Dimensions], const T6 __p6[Dimensions], T7 __p7[Dimensions])throw()
+			static inline	void	__fastcall	User24_resolveBezierCurveAxis(T0 __p0, T1 __p1, T2 __p2, const T3 __p3[Dimensions], const T4 __p4[Dimensions], const T5 __p5[Dimensions], const T6 __p6[Dimensions], T7 __p7[Dimensions])throw()
 			{
 				__p7[Current] = (__p4[Current] - __p3[Current])*__p0 + (__p5[Current] - __p4[Current])*__p1 + (__p6[Current] - __p5[Current])*__p2;
 			}
@@ -11550,7 +11550,7 @@ template <count_t Current, count_t Dimensions>
 			}
 
 		template <typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7>
-			static inline	void	__fastcall	User46_ResolveBezierCurveAxis(T0 __p0, T1 __p1, T2 __p2, const T3 __p3[Dimensions], const T4 __p4[Dimensions], const T5 __p5[Dimensions], const T6 __p6[Dimensions], T7 __p7[Dimensions])throw()
+			static inline	void	__fastcall	User46_resolveBezierCurveAxis(T0 __p0, T1 __p1, T2 __p2, const T3 __p3[Dimensions], const T4 __p4[Dimensions], const T5 __p5[Dimensions], const T6 __p6[Dimensions], T7 __p7[Dimensions])throw()
 			{
 				__p7[Current] = (__p4[Current] - __p3[Current])*__p0 + (__p5[Current] - __p4[Current])*__p1 + (__p6[Current] - __p5[Current])*__p2;
 			}
@@ -11726,10 +11726,10 @@ template <count_t Current, count_t Dimensions>
 
 		/* --- Now processing 'Pointers/User:|||||const [*]|const [*]|const [*]|const [*]|[*]|<>|__p7:i = (__p4:i - __p3:i)*__p0 + (__p5:i - __p4:i)*__p1 + (__p6:i - __p5:i)*__p2;' --- */
 		template <typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7>
-			static inline	void	__fastcall	User24_ResolveBezierCurveAxis(T0 __p0, T1 __p1, T2 __p2, const T3 __p3[Dimensions], const T4 __p4[Dimensions], const T5 __p5[Dimensions], const T6 __p6[Dimensions], T7 __p7[Dimensions])throw()
+			static inline	void	__fastcall	User24_resolveBezierCurveAxis(T0 __p0, T1 __p1, T2 __p2, const T3 __p3[Dimensions], const T4 __p4[Dimensions], const T5 __p5[Dimensions], const T6 __p6[Dimensions], T7 __p7[Dimensions])throw()
 			{
 				__p7[Current] = (__p4[Current] - __p3[Current])*__p0 + (__p5[Current] - __p4[Current])*__p1 + (__p6[Current] - __p5[Current])*__p2;
-				VecV_Include__<Current+1,Dimensions, GreaterOrEqual<Current+2,Dimensions>::eval>::User24_ResolveBezierCurveAxis(__p0,__p1,__p2,__p3,__p4,__p5,__p6,__p7);
+				VecV_Include__<Current+1,Dimensions, GreaterOrEqual<Current+2,Dimensions>::eval>::User24_resolveBezierCurveAxis(__p0,__p1,__p2,__p3,__p4,__p5,__p6,__p7);
 			}
 
 
@@ -11956,10 +11956,10 @@ template <count_t Current, count_t Dimensions>
 
 		/* --- Now processing 'Objects/User:|||||const [*]|const [*]|const [*]|const [*]|[*]|<>|__p7:i = (__p4:i - __p3:i)*__p0 + (__p5:i - __p4:i)*__p1 + (__p6:i - __p5:i)*__p2;' --- */
 		template <typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7>
-			static inline	void	__fastcall	User46_ResolveBezierCurveAxis(T0 __p0, T1 __p1, T2 __p2, const T3 __p3[Dimensions], const T4 __p4[Dimensions], const T5 __p5[Dimensions], const T6 __p6[Dimensions], T7 __p7[Dimensions])throw()
+			static inline	void	__fastcall	User46_resolveBezierCurveAxis(T0 __p0, T1 __p1, T2 __p2, const T3 __p3[Dimensions], const T4 __p4[Dimensions], const T5 __p5[Dimensions], const T6 __p6[Dimensions], T7 __p7[Dimensions])throw()
 			{
 				__p7[Current] = (__p4[Current] - __p3[Current])*__p0 + (__p5[Current] - __p4[Current])*__p1 + (__p6[Current] - __p5[Current])*__p2;
-				VecV_Include__<Current+1,Dimensions, GreaterOrEqual<Current+2,Dimensions>::eval>::User46_ResolveBezierCurveAxis(__p0,__p1,__p2,__p3,__p4,__p5,__p6,__p7);
+				VecV_Include__<Current+1,Dimensions, GreaterOrEqual<Current+2,Dimensions>::eval>::User46_resolveBezierCurveAxis(__p0,__p1,__p2,__p3,__p4,__p5,__p6,__p7);
 			}
 
 
@@ -14001,11 +14001,11 @@ template <count_t Current, count_t Dimensions>
 				VecV_Include__<0,Dimensions,false>::User23_resolveUCBSaxis(f0, f1, f2, p0, p1, p2, p3, result);
 			}
 
-		//now implementing template definition 'void ResolveBezierCurvePoint (2..4) (<const [*] p0>, <const [*] p1>, <const [*] p2>, <const [*] p3>, <t>, <[*] result>) direct='
+		//now implementing template definition 'void resolveBezierCurvePoint (2..4) (<const [*] p0>, <const [*] p1>, <const [*] p2>, <const [*] p3>, <t>, <[*] result>) direct='
 		/**
 			@brief <br>
 			<br>
-			ResolveBezierCurvePoint() requires array pointers to operate on. Make sure all passed array pointers provide at least as many elements as required (<Dimensions> in general for this version)<br>
+			resolveBezierCurvePoint() requires array pointers to operate on. Make sure all passed array pointers provide at least as many elements as required (<Dimensions> in general for this version)<br>
 			Scalar values are passed as copies rather than by const reference. Use this version for primitive types only.<br>
 		
 			@param[in] p0 
@@ -14016,7 +14016,7 @@ template <count_t Current, count_t Dimensions>
 			@param[out] result 
 		*/
 		template <typename T0, typename T1, typename T2, typename T3, typename T4, typename T5>
-			static	inline	void	__fastcall	ResolveBezierCurvePoint(const T0 p0[Dimensions], const T1 p1[Dimensions], const T2 p2[Dimensions], const T3 p3[Dimensions], T4 t, T5 result[Dimensions])throw()
+			static	inline	void	__fastcall	resolveBezierCurvePoint(const T0 p0[Dimensions], const T1 p1[Dimensions], const T2 p2[Dimensions], const T3 p3[Dimensions], T4 t, T5 result[Dimensions])throw()
 			{
 				T5	i = 1-t,
 						f3 = t*t*t,
@@ -14026,11 +14026,11 @@ template <count_t Current, count_t Dimensions>
 				VecV_Include__<0,Dimensions,false>::User22_resolveUCBS(f0, f1, f2, f3, p0, p1, p2, p3, result);
 			}
 
-		//now implementing template definition 'void ResolveBezierCurveAxis (2..4) (<const [*] p0>, <const [*] p1>, <const [*] p2>, <const [*] p3>, <t>, <[*] result>) direct='
+		//now implementing template definition 'void resolveBezierCurveAxis (2..4) (<const [*] p0>, <const [*] p1>, <const [*] p2>, <const [*] p3>, <t>, <[*] result>) direct='
 		/**
 			@brief <br>
 			<br>
-			ResolveBezierCurveAxis() requires array pointers to operate on. Make sure all passed array pointers provide at least as many elements as required (<Dimensions> in general for this version)<br>
+			resolveBezierCurveAxis() requires array pointers to operate on. Make sure all passed array pointers provide at least as many elements as required (<Dimensions> in general for this version)<br>
 			Scalar values are passed as copies rather than by const reference. Use this version for primitive types only.<br>
 		
 			@param[in] p0 
@@ -14041,13 +14041,13 @@ template <count_t Current, count_t Dimensions>
 			@param[out] result 
 		*/
 		template <typename T0, typename T1, typename T2, typename T3, typename T4, typename T5>
-			static	inline	void	__fastcall	ResolveBezierCurveAxis(const T0 p0[Dimensions], const T1 p1[Dimensions], const T2 p2[Dimensions], const T3 p3[Dimensions], T4 t, T5 result[Dimensions])throw()
+			static	inline	void	__fastcall	resolveBezierCurveAxis(const T0 p0[Dimensions], const T1 p1[Dimensions], const T2 p2[Dimensions], const T3 p3[Dimensions], T4 t, T5 result[Dimensions])throw()
 			{
 				T5	i = 1-t,
 						f2 = t*t,
 						f1 = t*i*2,
 						f0 = i*i;
-				VecV_Include__<0,Dimensions,false>::User24_ResolveBezierCurveAxis(f0, f1, f2, p0, p1, p2, p3, result);
+				VecV_Include__<0,Dimensions,false>::User24_resolveBezierCurveAxis(f0, f1, f2, p0, p1, p2, p3, result);
 				
 				//block inlining void normalize0 (2..4) (<[*] vector>) direct= for dimensions=3, assembly_mode='Pointers', parameters={result}...
 				{
@@ -14868,11 +14868,11 @@ template <count_t Current, count_t Dimensions>
 				VecV_Include__<0,Dimensions,false>::User45_resolveUCBSaxis(f0, f1, f2, p0.v, p1.v, p2.v, p3.v, result.v);
 			}
 
-		//now implementing template definition 'void ResolveBezierCurvePoint (2..4) (<const [*] p0>, <const [*] p1>, <const [*] p2>, <const [*] p3>, <t>, <[*] result>) direct='
+		//now implementing template definition 'void resolveBezierCurvePoint (2..4) (<const [*] p0>, <const [*] p1>, <const [*] p2>, <const [*] p3>, <t>, <[*] result>) direct='
 		/**
 			@brief <br>
 			<br>
-			ResolveBezierCurvePoint() requires vector objects to operate on, rather than raw pointers. Use ref*() to create a temporary reference object to existing array pointers<br>
+			resolveBezierCurvePoint() requires vector objects to operate on, rather than raw pointers. Use ref*() to create a temporary reference object to existing array pointers<br>
 			Scalar values are passed as copies rather than by const reference. Use this version for primitive types only.<br>
 		
 			@param[in] p0 
@@ -14883,7 +14883,7 @@ template <count_t Current, count_t Dimensions>
 			@param[out] result 
 		*/
 		template <typename T0, typename T1, typename T2, typename T3, typename T4, typename T5>
-			static	inline	void	__fastcall	ResolveBezierCurvePoint(const TVec<T0,Dimensions>& p0, const TVec<T1,Dimensions>& p1, const TVec<T2,Dimensions>& p2, const TVec<T3,Dimensions>& p3, T4 t, TVec<T5,Dimensions>& result)throw()
+			static	inline	void	__fastcall	resolveBezierCurvePoint(const TVec<T0,Dimensions>& p0, const TVec<T1,Dimensions>& p1, const TVec<T2,Dimensions>& p2, const TVec<T3,Dimensions>& p3, T4 t, TVec<T5,Dimensions>& result)throw()
 			{
 				T5	i = 1-t,
 						f3 = t*t*t,
@@ -14893,11 +14893,11 @@ template <count_t Current, count_t Dimensions>
 				VecV_Include__<0,Dimensions,false>::User44_resolveUCBS(f0, f1, f2, f3, p0.v, p1.v, p2.v, p3.v, result.v);
 			}
 
-		//now implementing template definition 'void ResolveBezierCurveAxis (2..4) (<const [*] p0>, <const [*] p1>, <const [*] p2>, <const [*] p3>, <t>, <[*] result>) direct='
+		//now implementing template definition 'void resolveBezierCurveAxis (2..4) (<const [*] p0>, <const [*] p1>, <const [*] p2>, <const [*] p3>, <t>, <[*] result>) direct='
 		/**
 			@brief <br>
 			<br>
-			ResolveBezierCurveAxis() requires vector objects to operate on, rather than raw pointers. Use ref*() to create a temporary reference object to existing array pointers<br>
+			resolveBezierCurveAxis() requires vector objects to operate on, rather than raw pointers. Use ref*() to create a temporary reference object to existing array pointers<br>
 			Scalar values are passed as copies rather than by const reference. Use this version for primitive types only.<br>
 		
 			@param[in] p0 
@@ -14908,13 +14908,13 @@ template <count_t Current, count_t Dimensions>
 			@param[out] result 
 		*/
 		template <typename T0, typename T1, typename T2, typename T3, typename T4, typename T5>
-			static	inline	void	__fastcall	ResolveBezierCurveAxis(const TVec<T0,Dimensions>& p0, const TVec<T1,Dimensions>& p1, const TVec<T2,Dimensions>& p2, const TVec<T3,Dimensions>& p3, T4 t, TVec<T5,Dimensions>& result)throw()
+			static	inline	void	__fastcall	resolveBezierCurveAxis(const TVec<T0,Dimensions>& p0, const TVec<T1,Dimensions>& p1, const TVec<T2,Dimensions>& p2, const TVec<T3,Dimensions>& p3, T4 t, TVec<T5,Dimensions>& result)throw()
 			{
 				T5	i = 1-t,
 						f2 = t*t,
 						f1 = t*i*2,
 						f0 = i*i;
-				VecV_Include__<0,Dimensions,false>::User46_ResolveBezierCurveAxis(f0, f1, f2, p0.v, p1.v, p2.v, p3.v, result.v);
+				VecV_Include__<0,Dimensions,false>::User46_resolveBezierCurveAxis(f0, f1, f2, p0.v, p1.v, p2.v, p3.v, result.v);
 				
 				//block inlining void normalize0 (2..4) (<[*] vector>) direct= for dimensions=3, assembly_mode='Objects', parameters={result}...
 				{

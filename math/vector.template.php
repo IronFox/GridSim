@@ -191,7 +191,7 @@ functions:
 			result:i = (p1:i-p0:i)*f0 + (p2:i-p1:i)*f1 + (p3:i-p2:i)*f2;
 
 
-	ResolveBezierCurvePoint(const[] p0, const[] p1, const[] p2, const[] p3, t, [] result)
+	resolveBezierCurvePoint(const[] p0, const[] p1, const[] p2, const[] p3, t, [] result)
 		:float	i = 1-t,
 				f3 = t*t*t,
 				f2 = t*t*i*3,
@@ -201,7 +201,7 @@ functions:
 			result:i = p0:i*f0 + p1:i*f1 + p2:i*f2 + p3:i*f3;
 
 			
-	ResolveBezierCurveAxis(const[] p0, const[] p1, const[] p2, const[] p3, t, [] result)
+	resolveBezierCurveAxis(const[] p0, const[] p1, const[] p2, const[] p3, t, [] result)
 		:float	i = 1-t,
 				f2 = t*t,
 				f1 = t*i*2,
