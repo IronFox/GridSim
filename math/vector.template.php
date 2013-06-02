@@ -191,7 +191,7 @@ functions:
 			result:i = (p1:i-p0:i)*f0 + (p2:i-p1:i)*f1 + (p3:i-p2:i)*f2;
 
 
-	resolveBezierCurvePoint(const[] p0, const[] p1, const[] p2, const[] p3, t, [] result)
+	ResolveBezierCurvePoint(const[] p0, const[] p1, const[] p2, const[] p3, t, [] result)
 		:float	i = 1-t,
 				f3 = t*t*t,
 				f2 = t*t*i*3,
@@ -201,7 +201,7 @@ functions:
 			result:i = p0:i*f0 + p1:i*f1 + p2:i*f2 + p3:i*f3;
 
 			
-	resolveBezierCurveAxis(const[] p0, const[] p1, const[] p2, const[] p3, t, [] result)
+	ResolveBezierCurveAxis(const[] p0, const[] p1, const[] p2, const[] p3, t, [] result)
 		:float	i = 1-t,
 				f2 = t*t,
 				f1 = t*i*2,
@@ -209,7 +209,21 @@ functions:
 		:iterate[f0,f1,f2,p0,p1,p2,p3,result]
 			result:i = (p1:i - p0:i)*f0 + (p2:i - p1:i)*f1 + (p3:i - p2:i)*f2;
 		:<normalize0>(result);
-	
+
+	SplitBezierCurveAxis(const[] p0, const[] p1, const[] p2, const[] p3, t, [] out0, [] out1, [] out2, [] out3)
+		:iterate[t,p0,p1,p2,p3,out0,out1,out2,out3]
+			{
+				:float x01 = (p1:i - p0:i)*t + p0:i;
+				:float x12 = (p2:i - p1:i)*t + p1:i;
+				:float x23 = (p3:i - p2:i)*t + p2:i;
+				:float x012 = (x12 - x01) * t + x01;
+				:float x123 = (x23 - x12) * t + x12;
+				:float x0123 = (x123 - x012) * t + x012;
+				out0:i = p0:i;
+				out1:i = x01;
+				out2:i = x012;
+				out3:i = x0123;
+			}
 	
 	compare<16>(const[] v0, const[] v1, tolerance) -> char {-1 if <paramref>v0</paramref> is lexicographically less than <paramref>v1</paramref>, 0 if they are identical, +1 if <paramref>v0</paramref> is lexicographically greater than <paramref>v1</paramref>}
 		{Compares two vectors for lexicographic order}
