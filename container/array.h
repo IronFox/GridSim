@@ -706,10 +706,12 @@ template <class C>
 							{
 								return elements;
 							}
+		inline count_t		GetLength()	const		/**@copydoc length()*/ {return length();}
 		inline count_t		count()	const		//! Queries the current array size in elements \return Number of elements 
 							{
 								return elements;
 							}
+		inline count_t		Count()	const		/**@copydoc length()*/ {return length();}
 		inline count_t		size()	const		//! Queries the current array size in elements \return Number of elements 
 							{
 								return elements;
@@ -718,10 +720,13 @@ template <class C>
 							{
 								return elements*sizeof(C);
 							}
+		inline count_t		GetContentSize()	const		/**@copydoc contentSize()*/ {return contentSize();}
+
 		inline bool			isTerminatedBy(const C&element)	const
 							{
 								return elements && data[elements-1] == element;
 							}
+		inline bool			IsTerminatedBy(const C&element)	const	/**@copydoc isTerminatedBy()*/ {return isTerminatedBy(element);}
 
 
 		virtual	serial_size_t	serialSize(bool export_size) const
