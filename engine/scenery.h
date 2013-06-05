@@ -337,7 +337,7 @@ namespace Engine
 			void								merge(StructureEntity<Def>*entity, CGS::MaterialA<Def>&material, bool rebuild,StringList&warn_out);	//!< Merges a CGS material with the local visual \param entity Super entity associated with the material data \param material Material to merge \param rebuild Rebuild the local visual when done merging. Passing false here will require explicit rebuilding later. \param warn_out Out string list to store merging warnings in
 			void								unmap(StructureEntity<Def>*entity, bool rebuild, StringList&warn_out);	//!< Unmaps the specified structure entity \param entity Structure entity to unmap \param rebuild Rebuild the local visual when done unmapping. Passing false here will require explicit rebuilding later. \param warn_out Out string list to store unmapping warnings in
 			void								Rebuild(StringList*warn_out, bool enforce=false);							//!< Explicitly rebuilds the local visual \param warn_out Out warning string list or NULL to not log warnings \param enforce Set true to enforce rebuild even if the local visual does not require rebuilding
-			void								render(bool ignore_material=false);						//!< Renders the local visual. render() automatically rebuilds the visual if \b requires_update is set true
+			void								render(bool ignore_material=false, bool ignoreShader = false);						//!< Renders the local visual. render() automatically rebuilds the visual if \b requires_update is set true
 			String								state();												//!< Queries a state string representation
 			bool								isOpaque();												//!< Returns true if the local visual fully visible (not transparent)
 			void								extractRenderPath(List::Vector<typename Def::FloatType>&);	//!< Deprecated
@@ -502,8 +502,11 @@ namespace Engine
 				void					Render(const Aspect<C0>&aspect, const C1&resolutionModifier);		//!< Invokes Resolve() using the specified parameters and renders the scenery. Invokes postRenderCleanup() after render \param aspect Camera that is currently loaded the rendering context (The scenery does not load this camera)
 			template <class C0, class C1>
 				void					RenderIgnoreMaterials(const Aspect<C0>&aspect, const C1&resolutionModifier);				//!< Invokes Resolve() using the specified parameters and renders the scenery. Does not bind any shaders. Invokes postRenderCleanup() after render \param aspect Camera that is currently loaded the rendering context (The scenery does not load this camera)
+			template <class C0, class C1>
+				void					RenderIgnoreShaders(const Aspect<C0>&aspect, const C1&resolutionModifier);				//!< Invokes Resolve() using the specified parameters and renders the scenery. Does not bind any shaders. Invokes postRenderCleanup() after render \param aspect Camera that is currently loaded the rendering context (The scenery does not load this camera)
 			void						Render(unsigned detail=0);									//!< Renders the entire scenery in the specified detail disregarding of visibility
 			inline void					RenderIgnoreMaterials(unsigned detail=0);
+			inline void					RenderIgnoreShaders(unsigned detail=0);
 			void						RenderOpaqueMaterials();										//!< Renders non-transparent materials. Required to be embedded between Resolve() and postRenderCleanup()
 			void						RenderTransparentMaterials();									//!< Renders transparent materials. Required to be embedded between Resolve() and postRenderCleanup()
 		

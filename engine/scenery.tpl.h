@@ -713,7 +713,7 @@ namespace Engine
 
 	}
 
-	template <class GL, class Def> void Material<GL,Def>::render(bool ignore_materials /*=false*/)
+	template <class GL, class Def> void Material<GL,Def>::render(bool ignore_materials /*=false*/, bool ignoreShaders /*= false*/)
 	{
 		if (!renderer)
 		{
@@ -727,7 +727,12 @@ namespace Engine
 	        return;
 
 		if (!ignore_materials)
-			renderer->bindMaterial(material,shader);
+		{
+			if (!ignoreShaders)
+				renderer->bindMaterial(material,shader);
+			else
+				renderer->bindMaterialIgnoreShader(material);
+		}
 
 	    renderer->bindVertices(vbo,binding);
 	    renderer->bindIndices(ibo);
@@ -1516,15 +1521,45 @@ namespace Engine
 		}
 		
 		foreach (opaque_materials,my_material)
-			(*my_material)->render(true);
+			(*my_material)->render(true,true);
 		foreach (transparent_materials,my_material)
-			(*my_material)->render(true);
+			(*my_material)->render(true,true);
 
 	    renderer->unbindAll();
 		PostRenderCleanup();
 	}
 	
+	template <class GL, class Def>
+	void Scenery<GL,Def>::RenderIgnoreShaders(unsigned detail)
+	{
+		if (!renderer)
+		{
+			setRenderer(GL::global_instance,false);
+			if (!renderer)
+				FATAL__("trying to render without renderer");
+		}
+	
+		
 
+
+	    structures.reset();
+	    while (StructureEntity<Def>*entity = structures.each())
+	    {
+			entity->visible = true;
+			entity->detail = detail;
+			for (auto it = entity->object_entities.begin(); it != entity->object_entities.end(); ++it)
+				it->visible = true;
+		}
+		
+		foreach (opaque_materials,my_material)
+			(*my_material)->render(false,true);
+		foreach (transparent_materials,my_material)
+			(*my_material)->render(false,true);
+
+	    renderer->unbindAll();
+		PostRenderCleanup();
+	}
+	
 	template <class GL, class Def>
 	template <class C0, class C1>
 	void Scenery<GL,Def>::RenderIgnoreMaterials(const Aspect<C0>&aspect,const C1&resolutionModifier)
@@ -1537,12 +1572,29 @@ namespace Engine
 		}
 		Resolve(aspect,resolutionModifier);
 		foreach (opaque_materials,my_material)
-			(*my_material)->render(true);
+			(*my_material)->render(true,true);
 		foreach (transparent_materials,my_material)
-			(*my_material)->render(true);
+			(*my_material)->render(true,true);
 		PostRenderCleanup();
 	}
 
+	template <class GL, class Def>
+	template <class C0, class C1>
+	void Scenery<GL,Def>::RenderIgnoreShaders(const Aspect<C0>&aspect,const C1&resolutionModifier)
+	{
+		if (!renderer)
+		{
+			setRenderer(GL::global_instance,false);
+			if (!renderer)
+				FATAL__("trying to render without renderer");
+		}
+		Resolve(aspect,resolutionModifier);
+		foreach (opaque_materials,my_material)
+			(*my_material)->render(false,true);
+		foreach (transparent_materials,my_material)
+			(*my_material)->render(false,true);
+		PostRenderCleanup();
+	}
 
 	template <class GL, class Def> Scenery<GL,Def>::Scenery(TextureTable<GL>*table):locked(0),renderer(GL::global_instance),textures(table?table:&local_textures)
 	{
