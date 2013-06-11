@@ -1092,6 +1092,7 @@ namespace Engine
 						void						initDefaultExtensions();
 						bool						linkCallingThread();																			//!< Links OpenGL to the calling thread - necessary to perform multi threaded rendering @return true on success
 						context_t					linkContextClone();				//!< Attempts to create a clone of the local context for multi-threaded processing and automatically binds it to the local thread
+						void						unlinkAndDestroyContextClone(context_t);
 						void						adoptCurrentContext();																			//!< Retrieves device and gl context from the current rendering environment overwriting and currently bound contexts
 						void						destroyContext();																				//!< Destroys the active rendering context
 						void						setRegion(const RECT&region);																//!< Sets a new rendering region	\param region Rectangle specifying the new rendering region in the active window

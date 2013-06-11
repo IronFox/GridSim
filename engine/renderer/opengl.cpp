@@ -2494,6 +2494,21 @@ namespace Engine
 		return result;
 	}
 
+
+	void						OpenGL::unlinkAndDestroyContextClone(context_t context)
+	{
+		GL_BEGIN
+		#if SYSTEM==UNIX
+			glXMakeCurrent(display,None,NULL);
+			glXDestroyContext(display,context);
+		#elif SYSTEM==WINDOWS
+			wglMakeCurrent(device_context, NULL);
+			wglDeleteContext(context);
+		#endif
+		GL_END
+	}
+
+
 	bool OpenGL::linkCallingThread()
 	{
 		GL_BEGIN
