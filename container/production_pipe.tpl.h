@@ -7,32 +7,29 @@
 
 E:\include\list\production_pipe.tpl.h
 
-This file is part of Delta-Works
-Copyright (C) 2006-2008 Stefan Elsen, University of Trier, Germany.
-http://www.delta-works.org/forge/
-http://informatik.uni-trier.de/
-
 ******************************************************************/
 
-template <class Type> inline void ProductionPipe<Type>::signalRead()
+template <class Type> inline void ProductionPipe<Type>::SignalRead()
 {
     mutex.lock();
-    Super::reset();
+	readAt = 0;
 }
 
-template <class Type> inline bool ProductionPipe<Type>::operator>>(Type*&out)
+template <class Type> inline bool ProductionPipe<Type>::operator>>(shared_ptr<Type>&out)
 {
-    out = Super::each();
-    return out!=NULL;
+	if (readAt >= Super::count())
+		return false;
+    out = Super::at(readAt++);
+    return true;
 }
 
-template <class Type> inline void                ProductionPipe<Type>::exitRead()
+template <class Type> inline void                ProductionPipe<Type>::ExitRead()
 {
-    Super::flush();
+    Super::clear();
     mutex.release();
 }
 
-template <class Type> inline ProductionPipe<Type>&    ProductionPipe<Type>::operator<<(Type*pntr)
+template <class Type> inline ProductionPipe<Type>&    ProductionPipe<Type>::operator<<(const shared_ptr<Type>&pntr)
 {
     mutex.lock();
     Super::append(pntr);
@@ -47,14 +44,6 @@ template <class Type> inline void ProductionPipe<Type>::clear()
     Super::clear();
     mutex.release();
 }
-
-template <class Type> inline void ProductionPipe<Type>::flush()
-{
-    mutex.lock();
-    Super::flush();
-    mutex.release();
-}
-
 
 
 #endif
