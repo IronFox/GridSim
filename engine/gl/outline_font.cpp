@@ -128,22 +128,22 @@ namespace Engine
 
 	void GLOutlineFont::write(const char*str)
 	{
-		glPushMatrix();
-			glTranslatef(-jitter,-jitter*0.5,0);
-	        glCallLists((GLsizei)strlen(str), GL_UNSIGNED_BYTE, str);
-		glPopMatrix();
-		glPushMatrix();
-			glTranslatef(jitter*0.5,-jitter,0);
-	        glCallLists((GLsizei)strlen(str), GL_UNSIGNED_BYTE, str);
-		glPopMatrix();
-		glPushMatrix();
-			glTranslatef(-jitter*0.5,jitter,0);
-	        glCallLists((GLsizei)strlen(str), GL_UNSIGNED_BYTE, str);
-		glPopMatrix();
-		glPushMatrix();
-			glTranslatef(jitter,jitter*0.5,0);
-	        glCallLists((GLsizei)strlen(str), GL_UNSIGNED_BYTE, str);
-		glPopMatrix();
+		//glPushMatrix();
+		//	glTranslatef(-jitter,-jitter*0.5,0);
+	 //       glCallLists((GLsizei)strlen(str), GL_UNSIGNED_BYTE, str);
+		//glPopMatrix();
+		//glPushMatrix();
+		//	glTranslatef(jitter*0.5,-jitter,0);
+	 //       glCallLists((GLsizei)strlen(str), GL_UNSIGNED_BYTE, str);
+		//glPopMatrix();
+		//glPushMatrix();
+		//	glTranslatef(-jitter*0.5,jitter,0);
+	 //       glCallLists((GLsizei)strlen(str), GL_UNSIGNED_BYTE, str);
+		//glPopMatrix();
+		//glPushMatrix();
+		//	glTranslatef(jitter,jitter*0.5,0);
+	 //       glCallLists((GLsizei)strlen(str), GL_UNSIGNED_BYTE, str);
+		//glPopMatrix();
 		/*glPushMatrix();
 	        glCallLists((GLsizei)strlen(str), GL_UNSIGNED_BYTE, str);
 		glPopMatrix();*/
@@ -152,22 +152,22 @@ namespace Engine
 
 	void GLOutlineFont::write(const char*str, size_t len)
 	{
-		glPushMatrix();
-			glTranslatef(-jitter,-jitter*0.5,0);
-	        glCallLists((GLsizei)len, GL_UNSIGNED_BYTE, str);
-		glPopMatrix();
-		glPushMatrix();
-			glTranslatef(jitter*0.5,-jitter,0);
-	        glCallLists((GLsizei)len, GL_UNSIGNED_BYTE, str);
-		glPopMatrix();
-		glPushMatrix();
-			glTranslatef(-jitter*0.5,jitter,0);
-	        glCallLists((GLsizei)len, GL_UNSIGNED_BYTE, str);
-		glPopMatrix();
-		glPushMatrix();
-			glTranslatef(jitter,jitter*0.5,0);
-	        glCallLists((GLsizei)len, GL_UNSIGNED_BYTE, str);
-		glPopMatrix();
+		//glPushMatrix();
+		//	glTranslatef(-jitter,-jitter*0.5,0);
+	 //       glCallLists((GLsizei)len, GL_UNSIGNED_BYTE, str);
+		//glPopMatrix();
+		//glPushMatrix();
+		//	glTranslatef(jitter*0.5,-jitter,0);
+	 //       glCallLists((GLsizei)len, GL_UNSIGNED_BYTE, str);
+		//glPopMatrix();
+		//glPushMatrix();
+		//	glTranslatef(-jitter*0.5,jitter,0);
+	 //       glCallLists((GLsizei)len, GL_UNSIGNED_BYTE, str);
+		//glPopMatrix();
+		//glPushMatrix();
+		//	glTranslatef(jitter,jitter*0.5,0);
+	 //       glCallLists((GLsizei)len, GL_UNSIGNED_BYTE, str);
+		//glPopMatrix();
 		/*glPushMatrix();
 	        glCallLists((GLsizei)len, GL_UNSIGNED_BYTE, str);
 		glPopMatrix();*/

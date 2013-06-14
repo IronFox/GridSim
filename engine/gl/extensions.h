@@ -929,7 +929,9 @@
 												fragmentShader,
 												geometryShader;
 				StringBuffer					log;
-				static const Instance			*installedInstance;
+				#ifdef INSTALLED_SHADER_INSTANCE
+					static const Instance			*installedInstance;
+				#endif
 				static bool						warnOnError;
 				
 				friend class Template;
@@ -966,8 +968,8 @@
 				bool							IsLoaded()	const;
 				bool							IsNotEmpty()const	{return IsLoaded();}
 				bool							IsEmpty()	const	{return !IsLoaded();}			//!< Not IsLoaded()
-				bool							IsInstalled()	const	{return installedInstance == this;}
-				static bool						AnyIsInstalled()	{return installedInstance != NULL;}
+				bool							IsInstalled()	const;
+				static bool						AnyIsInstalled();
 				bool							Validate();
 				bool							Install();				//!< Installs this shader. Installation fails if the local shader instance is NULL or not loaded
 				bool							Install()		const;	//!< const shader installation. Does not write to log

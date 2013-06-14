@@ -10,7 +10,10 @@ whose functions are derived in groups.
 ******************************************************************/
 
 	bool						Engine::GLShader::Instance::forgetOnDestruct=false;
-	const Engine::GLShader::Instance	*Engine::GLShader::Instance::installedInstance(NULL);
+
+	#ifdef INSTALLED_SHADER_INSTANCE
+		const Engine::GLShader::Instance	*Engine::GLShader::Instance::installedInstance(NULL);
+	#endif
 	Engine::GLShader::Template::RenderConfiguration		Engine::GLShader::Template::globalRenderConfig;
 
 	Buffer<Engine::GLShader::Template::LightShadowAttachment,0,Swap>		Engine::GLShader::Template::shadowAttachments;
@@ -1478,11 +1481,18 @@ namespace Engine
 				return false;
 
 			glGetError();	//flush previous errors
-			if (installedInstance)
-			{
-				FATAL__("overriding previously installed shader object 0x"+PointerToHex(installedInstance)/*+". Remote shader was installed in:\n"+String(installed_object->installed_in.ToString())*/);
-				installedInstance->Uninstall();
-			}
+			#ifdef INSTALLED_SHADER_INSTANCE
+				if (installedInstance)
+				{
+					FATAL__("overriding previously installed shader object 0x"+PointerToHex(installedInstance)/*+". Remote shader was installed in:\n"+String(installed_object->installed_in.ToString())*/);
+					installedInstance->Uninstall();
+				}
+			#else
+				if (glGetHandle(GL_PROGRAM_OBJECT_ARB)	!= 0)
+				{
+					FATAL__("overriding previously installed shader object "+String(glGetHandle(GL_PROGRAM_OBJECT_ARB)));
+				}
+			#endif
 			//installed_in = location;
 			glUseProgramObject(programHandle);
 			GLenum error	= glGetError();
@@ -1499,10 +1509,12 @@ namespace Engine
 				}
 			}
 
-			if (isInstalled)
-				installedInstance = this;
-			else
-				installedInstance = NULL;
+ 			#ifdef INSTALLED_SHADER_INSTANCE
+				if (isInstalled)
+					installedInstance = this;
+				else
+					installedInstance = NULL;
+			#endif
 
 			return isInstalled;
 		}
@@ -1514,11 +1526,18 @@ namespace Engine
 			if (!programHandle)
 				return false;
 			glGetError();	//flush previous errors
-			if (installedInstance)
-			{
-				FATAL__("overriding previously installed shader object 0x"+PointerToHex(installedInstance)/*+". Remote shader was installed in:\n"+String(installed_object->installed_in.ToString())*/);
-				installedInstance->Uninstall();
-			}
+			#ifdef INSTALLED_SHADER_INSTANCE
+				if (installedInstance)
+				{
+					FATAL__("overriding previously installed shader object 0x"+PointerToHex(installedInstance)/*+". Remote shader was installed in:\n"+String(installed_object->installed_in.ToString())*/);
+					installedInstance->Uninstall();
+				}
+			#else
+				if (glGetHandle(GL_PROGRAM_OBJECT_ARB)	!= 0)
+				{
+					FATAL__("overriding previously installed shader object "+String(glGetHandle(GL_PROGRAM_OBJECT_ARB)));
+				}
+			#endif
 			//installed_in = location;
 			glUseProgramObject(programHandle);
 			GLenum error	= glGetError();
@@ -1526,10 +1545,12 @@ namespace Engine
 			if (!isInstalled)
 				glUseProgramObject(0);
 
-			if (isInstalled)
-				installedInstance = this;
-			else
-				installedInstance = NULL;
+			#ifdef INSTALLED_SHADER_INSTANCE
+				if (isInstalled)
+					installedInstance = this;
+				else
+					installedInstance = NULL;
+			#endif
 			return isInstalled;
 		}
 
@@ -1539,19 +1560,26 @@ namespace Engine
 		{
 			if (!IsLoaded())
 			{
-				if (installedInstance)
-				{
-					installedInstance->Uninstall();
-					installedInstance = NULL;
-				}
+				#ifdef INSTALLED_SHADER_INSTANCE
+					if (installedInstance)
+					{
+						installedInstance->Uninstall();
+						installedInstance = NULL;
+					}
+				#else
+					glUseProgramObject(0);
+				#endif
+
 				return true;
 			}
-			if (installedInstance == this)
-				return true;
+			#ifdef INSTALLED_SHADER_INSTANCE
+				if (installedInstance == this)
+					return true;
 
 
-			if (installedInstance)
-				installedInstance->Uninstall();
+				if (installedInstance)
+					installedInstance->Uninstall();
+			#endif
 
 			glGetError();	//flush previous errors
 			//installed_in = location;
@@ -1571,10 +1599,12 @@ namespace Engine
 					glUseProgramObject(0);
 				}
 			}
-			if (isInstalled)
-				installedInstance = this;
-			else
-				installedInstance = NULL;
+			#ifdef INSTALLED_SHADER_INSTANCE
+				if (isInstalled)
+					installedInstance = this;
+				else
+					installedInstance = NULL;
+			#endif
 			return isInstalled;
 		}
 
@@ -1584,20 +1614,25 @@ namespace Engine
 		{
 			if (!IsLoaded())
 			{
-				if (installedInstance)
-				{
-					installedInstance->Uninstall();
-					installedInstance = NULL;
-				}
+				#ifdef INSTALLED_SHADER_INSTANCE
+					if (installedInstance)
+					{
+						installedInstance->Uninstall();
+						installedInstance = NULL;
+					}
+				#else
+					glUseProgramObject(0);
+				#endif
 				return true;
 			}
-			if (installedInstance == this)
-				return true;
+			#ifdef INSTALLED_SHADER_INSTANCE
+				if (installedInstance == this)
+					return true;
 
 
-			if (installedInstance)
-				installedInstance->Uninstall();
-
+				if (installedInstance)
+					installedInstance->Uninstall();
+			#endif
 			glGetError();	//flush previous errors
 			//installed_in = location;
 
@@ -1608,10 +1643,12 @@ namespace Engine
 			if (!isInstalled)
 				glUseProgramObject(0);
 
-			if (isInstalled)
-				installedInstance = this;
-			else
-				installedInstance = NULL;
+			#ifdef INSTALLED_SHADER_INSTANCE
+				if (isInstalled)
+					installedInstance = this;
+				else
+					installedInstance = NULL;
+			#endif
 			return isInstalled;
 		}
 
@@ -1625,25 +1662,47 @@ namespace Engine
 		{
 			if (!this)
 				return;
-			if (installedInstance != this)
-				FATAL__("Uninstalling but installed pointer is not this");
+			#ifdef INSTALLED_SHADER_INSTANCE
+				if (installedInstance != this)
+					FATAL__("Uninstalling but installed pointer is not this");
+			#endif
 			if (glGetHandle(GL_PROGRAM_OBJECT_ARB) != programHandle)
 				FATAL__("UnInstalling but installed handle is not mine");
-			installedInstance = NULL;
+			#ifdef INSTALLED_SHADER_INSTANCE
+				installedInstance = NULL;
+			#endif
 			if (glUseProgramObject)
 				glUseProgramObject(0);
 		}
 
 		/*static*/	void	Instance::PermissiveUninstall()
 		{
-			installedInstance = NULL;
+			#ifdef INSTALLED_SHADER_INSTANCE
+				installedInstance = NULL;
+			#endif
 			if (glUseProgramObject)
 				glUseProgramObject(0);
 		}
 
 	
 	
-	
+			bool							Instance::IsInstalled()	const
+			{
+				#ifdef INSTALLED_SHADER_INSTANCE
+					return installedInstance == this;
+				#else
+					return glGetHandle(GL_PROGRAM_OBJECT_ARB) == programHandle;
+				#endif
+			}
+			/*static*/ bool						Instance::AnyIsInstalled()
+			{
+				#ifdef INSTALLED_SHADER_INSTANCE
+					return installedInstance != NULL;
+				#else
+					return glGetHandle(GL_PROGRAM_OBJECT_ARB) != 0;
+				#endif
+			}
+
 	
 	
 	
