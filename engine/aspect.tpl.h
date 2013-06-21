@@ -879,7 +879,16 @@ template <class C> MF_DECLARE (void) AngularCamera<C>::UpdateView()
 template <class C>
 MFUNC3 (void) AngularCamera<C>::TranslatePlanar(const C0&x, const C1&y, const C2&z)
 {
-	TVec3<C>	delta = {vcos(angle.y*M_PI/180)*x+vsin(angle.y*M_PI/180)*z,y,-vsin(angle.y*M_PI/180)*x+vcos(angle.y*M_PI/180)*z};
+	C a =angle.y;
+	TVec3<C>	delta;
+	if (GlobalAspectConfiguration::worldZIsUp)
+	{
+		a = (C)180.0-angle.z;
+		Vec::def (delta ,vcos(a*M_PI/180)*x+vsin(a*M_PI/180)*y,-vsin(a*M_PI/180)*x+vcos(a*M_PI/180)*y, z);
+	}
+	else
+		Vec::def (delta ,vcos(a*M_PI/180)*x+vsin(a*M_PI/180)*z,y,-vsin(a*M_PI/180)*x+vcos(a*M_PI/180)*z);
+
 	Vec::add(location,delta);
 	UpdateView(); //could be removed...
 }

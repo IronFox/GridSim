@@ -683,179 +683,90 @@ namespace Engine
 		Variable::Variable():instance(NULL),handle(-1)
 		{}
 
+		#define INIT_VARIABLE_UPDATE \
+			if (handle == -1)\
+				return false;\
+			bool wasInstalled = instance->IsInstalled();\
+			if (!wasInstalled && assertIsInstalled)\
+				FATAL__("trying to update variable '"+name+"' while shader is NOT installed");\
+			if (!wasInstalled && (lockUninstalled || !instance->Install()))\
+				return false;\
+			glGetError();//flush errors
+
+		#define FINISH_VARIABLE_UPDATE	\
+			if (!wasInstalled)\
+				instance->Uninstall();\
+			return glGetError() == GL_NO_ERROR;
+
 		bool			Variable::setf(float value)
 		{
-			if (handle == -1)
-				return false;
-			bool wasInstalled = instance->IsInstalled();
-			if (!wasInstalled && assertIsInstalled)
-				FATAL__("trying to update variable '"+name+"' while shader is NOT installed");
-			if (!wasInstalled && (lockUninstalled || !instance->Install()))
-				return false;
-			
-			glGetError();//flush errors
+			INIT_VARIABLE_UPDATE
 			glUniform1f(handle, value);
-		
-			if (!wasInstalled)
-				instance->Uninstall();
-		
-			return glGetError() == GL_NO_ERROR;
+			FINISH_VARIABLE_UPDATE
 		}
 
 		bool					Variable::set(const TVec3<>&vector)
 		{
-			if (handle == -1)
-				return false;
-			bool wasInstalled = instance->IsInstalled();
-			if (!wasInstalled && assertIsInstalled)
-				FATAL__("trying to update variable '"+name+"' while shader is NOT installed");
-			if (!wasInstalled && (lockUninstalled || !instance->Install()))
-				return false;
-
-			glGetError();//flush errors
+			INIT_VARIABLE_UPDATE
 			glUniform3f(handle, vector.x,vector.y,vector.z);
-		
-			if (!wasInstalled)
-				instance->Uninstall();
-		
-			return glGetError() == GL_NO_ERROR;
-
+			FINISH_VARIABLE_UPDATE
 		}
 	
 		bool					Variable::set(const TVec2<>&vector)
 		{
-			if (handle == -1)
-				return false;
-			bool wasInstalled = instance->IsInstalled();
-			if (!wasInstalled && assertIsInstalled)
-				FATAL__("trying to update variable '"+name+"' while shader is NOT installed");
-			if (!wasInstalled && (lockUninstalled || !instance->Install()))
-				return false;
-
-			glGetError();//flush errors
+			INIT_VARIABLE_UPDATE
 			glUniform2f(handle, vector.x,vector.y);
-		
-			if (!wasInstalled)
-				instance->Uninstall();
-		
-			return glGetError() == GL_NO_ERROR;
+			FINISH_VARIABLE_UPDATE
 		}
 	
 
 		bool			Variable::set4f(float x, float y, float z, float w)
 		{
-			if (handle == -1)
-				return false;
-			bool wasInstalled = instance->IsInstalled();
-			if (!wasInstalled && assertIsInstalled)
-				FATAL__("trying to update variable '"+name+"' while shader is NOT installed");
-			if (!wasInstalled && (lockUninstalled || !instance->Install()))
-				return false;
-			
-			glGetError();//flush errors
+			INIT_VARIABLE_UPDATE
 			glUniform4f(handle, x,y,z,w);
-
-			if (!wasInstalled)
-				instance->Uninstall();
-			return glGetError() == GL_NO_ERROR;
+			FINISH_VARIABLE_UPDATE
 		}
 
 
 		bool			Variable::set(const TVec4<>&vector)
 		{
-			if (handle == -1)
-				return false;
-			bool wasInstalled = instance->IsInstalled();
-			if (!wasInstalled && assertIsInstalled)
-				FATAL__("trying to update variable '"+name+"' while shader is NOT installed");
-			if (!wasInstalled && (lockUninstalled || !instance->Install()))
-				return false;
-			
-			glGetError();//flush errors
+			INIT_VARIABLE_UPDATE
 			glUniform4f(handle, vector.x,vector.y,vector.z,vector.w);
-
-			if (!wasInstalled)
-				instance->Uninstall();
-			return glGetError() == GL_NO_ERROR;
+			FINISH_VARIABLE_UPDATE
 		}
 	
 		bool					Variable::set(const TMatrix3<>&matrix)
 		{
-			if (handle == -1)
-				return false;
-			bool wasInstalled = instance->IsInstalled();
-			if (!wasInstalled && assertIsInstalled)
-				FATAL__("trying to update variable '"+name+"' while shader is NOT installed");
-			if (!wasInstalled && (lockUninstalled || !instance->Install()))
-				return false;
-			glGetError();//flush errors
+			INIT_VARIABLE_UPDATE
 			glUniformMatrix3fv(handle,1,false,matrix.v);
-			if (!wasInstalled)
-				instance->Uninstall();
-			return glGetError() == GL_NO_ERROR;
+			FINISH_VARIABLE_UPDATE
 		}
 	
 		bool					Variable::set(const TMatrix4<>&matrix)
 		{
-			if (handle == -1)
-				return false;
-			bool wasInstalled = instance->IsInstalled();
-			if (!wasInstalled && assertIsInstalled)
-				FATAL__("trying to update variable '"+name+"' while shader is NOT installed");
-			if (!wasInstalled && (lockUninstalled || !instance->Install()))
-				return false;
-			glGetError();//flush errors
+			INIT_VARIABLE_UPDATE
 			glUniformMatrix4fv(handle,1,false,matrix.v);
-			if (!wasInstalled)
-				instance->Uninstall();
-			return glGetError() == GL_NO_ERROR;
+			FINISH_VARIABLE_UPDATE
 		}
 
-		/*static*/	bool	Variable::wasInstalled = false;
-		bool			Variable::_PrepareUpdate()
-		{
-			if (handle == -1)
-				return false;
-			wasInstalled = instance->IsInstalled();
-			if (!wasInstalled && assertIsInstalled)
-				FATAL__("trying to update variable '"+name+"' while shader is NOT installed");
-			if (!wasInstalled && (lockUninstalled || !instance->Install()))
-				return false;
-		
-			glGetError();//flush errors
-			return true;
-		}
 
-		bool			Variable::_FinishUpdate()
-		{
-			if (!wasInstalled)
-				instance->Uninstall();
-		
-			return glGetError() == GL_NO_ERROR;
-		}
 		bool			Variable::seti(int value)
 		{
-			if (!_PrepareUpdate())
-				return false;
+			INIT_VARIABLE_UPDATE
 			glUniform1i(handle, value);
-		
-			return _FinishUpdate();
+			FINISH_VARIABLE_UPDATE
 		}
 		bool			Variable::SetBool(bool value)
 		{
-			if (!_PrepareUpdate())
-				return false;
+			INIT_VARIABLE_UPDATE
 			glUniform1i(handle, value);	//lame, no bool set operation
-		
-			return _FinishUpdate();
+			FINISH_VARIABLE_UPDATE
 		}
 		bool			Variable::set2i(int x, int y)
 		{
-			if (!_PrepareUpdate())
-				return false;
+			INIT_VARIABLE_UPDATE
 			glUniform2i(handle, x,y);
-		
-			return _FinishUpdate();
+			FINISH_VARIABLE_UPDATE
 		}
 	
 		bool Variable::lockUninstalled(false);
@@ -1502,6 +1413,32 @@ namespace Engine
 				log.reset();
 				log << "Shader installation of object #"<<programHandle<<" failed"<<nl;
 				log	<< glGetErrorName(error)<<nl;
+
+				glValidateProgram(programHandle);
+				GLint logLen	= 0;
+				glGetObjectParameteriv(programHandle, GL_OBJECT_INFO_LOG_LENGTH_ARB, &logLen);
+				if (logLen > 0)
+				{
+					char	*logStr	= SHIELDED_ARRAY(new char[logLen],logLen);
+					int		written(0);
+					glGetInfoLog(programHandle, logLen, &written, logStr);
+					log<<"\n-- program validation --\n";
+					log<<logStr;
+					log<<nl;
+					DISCARD_ARRAY(logStr);
+				}
+
+				int validated;
+				glGetObjectParameteriv(programHandle, GL_OBJECT_VALIDATE_STATUS_ARB,&validated);
+				if (!validated)
+				{
+					log << "validation failed\n";
+					Clear();
+					return false;
+				}
+
+
+
 				if (glGetHandle(GL_PROGRAM_OBJECT_ARB) != 0)
 				{
 					log << "OpenGL reports error but shader is installed. Uninstalling shader and returning false."<<nl;

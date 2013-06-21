@@ -884,7 +884,7 @@ namespace Engine
 						Display				*display;			//!< Handle of the chosen display
 						Window				wnd;				//!< Handle of the active window
 		#endif
-						GLContext			gl_context;			//!< Handle of the OpenGL context
+						GLContext			gl_context,clone;			//!< Handle of the OpenGL context
 		static			Buffer<GLBinding,4>	created_contexts;		//!< All created contexts
 
 						bool				last_full_screen,			//!< specifies whether or not fullscreen was applied earlier
@@ -1091,6 +1091,8 @@ namespace Engine
 						void						setVerbose(bool);
 						void						initDefaultExtensions();
 						bool						linkCallingThread();																			//!< Links OpenGL to the calling thread - necessary to perform multi threaded rendering @return true on success
+						void						LinkContextClone (context_t);
+						context_t					CreateContextClone();
 						context_t					linkContextClone();				//!< Attempts to create a clone of the local context for multi-threaded processing and automatically binds it to the local thread
 						void						unlinkAndDestroyContextClone(context_t);
 						void						adoptCurrentContext();																			//!< Retrieves device and gl context from the current rendering environment overwriting and currently bound contexts

@@ -150,9 +150,9 @@
 				
 				friend class GLShader::Instance;
 
-				static bool				wasInstalled;
-				bool					_PrepareUpdate();
-				bool					_FinishUpdate();
+				//static bool				wasInstalled;
+				//bool					_PrepareUpdate();
+				//bool					_FinishUpdate();
 				
 				/**/					Variable(Instance*,GLint,const String&name);
 			public:
@@ -1007,7 +1007,7 @@
 															if (!objectReference)
 																FATAL__(templateReference->Report());
 														}
-														ASSERT__(objectReference->Install());
+														ASSERT1__(objectReference->Install(),objectReference->Report());
 														installed = true;
 													}
 												}

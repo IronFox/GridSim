@@ -2464,6 +2464,47 @@ namespace Engine
 
 	#endif
 
+
+	void						OpenGL::LinkContextClone (context_t  c)
+	{
+		GL_BEGIN
+		#if SYSTEM==UNIX
+			ASSERT__(glXMakeCurrent(display,wnd,c));
+		#elif SYSTEM==WINDOWS
+		    ASSERT__(wglMakeCurrent(device_context,c));
+		#endif
+		GL_END
+	}
+
+	OpenGL::context_t					OpenGL::CreateContextClone()
+	{
+		GL_BEGIN
+		#if SYSTEM==UNIX
+			context_t result = glXCreateContext(display,visual,gl_context,True);
+			if (!result)
+			{
+				FATAL__("Failed to create render context clone");
+				GL_END
+				return result;
+			}
+			if (!glXIsDirect(display,result))
+				ErrMessage("warning: OpenGL context clone renders indirect!");
+		#elif SYSTEM==WINDOWS
+			context_t result = wglCreateContext(device_context);
+			if (!result)
+			{
+				FATAL__("Failed to create render context clone");
+				GL_END
+				return result;
+			}
+	        wglShareLists(gl_context,result);
+	        //wglShareLists(result,gl_context);
+		#endif
+		GL_END
+		return result;
+	}
+
+
 	OpenGL::context_t		OpenGL::linkContextClone()
 	{
 		GL_BEGIN
@@ -2999,6 +3040,8 @@ namespace Engine
 
 	void OpenGL::renderExplicit(GLuint type, index_t vertex_offset, GLsizei vertex_count)
 	{
+			//ShowMessage(vertex_count);
+			glThrowError();
 		GL_BEGIN
 			if (state.indices_bound)
 				glDrawElements(type, vertex_count, GL_UNSIGNED_INT, state.index_reference + vertex_offset);
@@ -3059,8 +3102,12 @@ namespace Engine
 		GL_BEGIN
 		if (!iobj.isEmpty())
 		{
+			glGetError();
 			if (glBindBuffer)
 				glBindBuffer(GL_ELEMENT_ARRAY_BUFFER_ARB,iobj.getDeviceHandle());
+			glThrowError();
+			DBG_ASSERT__(glIsBuffer(iobj.getDeviceHandle()));
+			//ShowMessage(iobj.countPrimitives());
 			state.index_reference = iobj.getHostData();
 			state.indices_bound = true;
 		}
@@ -3089,7 +3136,8 @@ namespace Engine
 		const GLfloat*field = vobj.getHostData();
 		if (glBindBuffer)
 			glBindBuffer(GL_ARRAY_BUFFER_ARB,vobj.getDeviceHandle());
-		
+		DBG_ASSERT__(glIsBuffer(vobj.getDeviceHandle()));
+		//ShowMessage(vobj.countPrimitives());
 
 	    const GLuint stride = binding.floats_per_vertex*sizeof(GLfloat);
 		glEnableClientState(GL_VERTEX_ARRAY);
