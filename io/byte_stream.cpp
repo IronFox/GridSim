@@ -95,7 +95,7 @@ void ByteStream::resize(size_t len)
 	current = begin;
 }
 
-void ByteStream::assign(void*pntr, size_t size)
+void ByteStream::Assign(void*pntr, size_t size)
 {
     if (local)
         dealloc(begin);

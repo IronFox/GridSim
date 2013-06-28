@@ -23,8 +23,8 @@ public:
                     void        reset();
                     void        resize(size_t len);
 				template <typename T>
-					void		assign(Array<T>&array);
-                    void        assign(void*pntr, size_t size);
+					void		Assign(Array<T>&array);
+                    void        Assign(void*pntr, size_t size);
 					char*		pointer();
 					const char*	pointer()	const;
                     const void* data()	const;
@@ -38,8 +38,9 @@ template <class C>  void        push(const C*array, count_t count);
 template <class C>  ByteStream&operator<<(const C&object);
 template <class C>  bool        operator>>(C&object);
 
-	virtual	bool				write(const void*data, serial_size_t size)	override {pushData(data,size);return true;}
-	virtual	bool				read(void*target_data, serial_size_t size)	override {return getData(target_data,size);}
+	virtual	bool				Write(const void*data, serial_size_t size)	override {pushData(data,size);return true;}
+	virtual	bool				Read(void*target_data, serial_size_t size)	override {return getData(target_data,size);}
+	virtual serial_size_t		GetRemainingBytes() const override {return end - current;}
 };
 
 

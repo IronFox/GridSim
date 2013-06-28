@@ -35,53 +35,53 @@ interface IWriteStream
 protected:
 	virtual			~IWriteStream()	{};
 public:
-	virtual	bool	write(const void*data, serial_size_t size)=0;	//!< Writes a chunk of binary data to the stream @param data Pointer to the memory section that should be written @param size Number of bytes that should be written @return true if the specified amount of bytes could be written to the stream, false otherwise
-	virtual bool	write(const volatile void*data, serial_size_t size)	{return write(const_cast<const void*>(data),size);}
+	virtual	bool	Write(const void*data, serial_size_t size)=0;	//!< Writes a chunk of binary data to the stream @param data Pointer to the memory section that should be written @param size Number of bytes that should be written @return true if the specified amount of bytes could be written to the stream, false otherwise
+	virtual bool	Write(const volatile void*data, serial_size_t size)	{return Write(const_cast<const void*>(data),size);}
 
 	template <typename T>
-		bool	writePrimitive(const T&element)
+		bool		WritePrimitive(const T&element)
 		{
-			return write(&element,sizeof(element));
+			return Write(&element,sizeof(element));
 		}
 	template <typename T>
-		bool	writePrimitives(const T*elements, count_t num_elements)
+		bool		WritePrimitives(const T*elements, count_t num_elements)
 		{
-			return write(elements,sizeof(T)*num_elements);
+			return Write(elements,sizeof(T)*num_elements);
 		}
 
-		bool	writeSize(serial_size_t size)	//! Reads the content of a size variable in little endian 
+		bool		WriteSize(serial_size_t size)	//! Reads the content of a size variable in little endian 
 		{
 			BYTE b[4];
 			if (size <= 0x3F)
 			{
 				b[0] = ((BYTE)size);
-				return write(b,1);
+				return Write(b,1);
 			}
 			if (size <= 0x3FFF)
 			{
 				b[0] = (BYTE)((size >> 8)&0x3F) | 0x40;
 				b[1] = (BYTE)(size&0xFF);
-				return write(b,2);
+				return Write(b,2);
 			}
 			if (size <= 0x3FFFFF)
 			{
 				b[0] = (BYTE)((size >> 16)&0x3F) | 0x80;
 				b[1] = (BYTE)((size>>8)&0xFF);
 				b[2] = (BYTE)((size)&0xFF);
-				return write(b,3);
+				return Write(b,3);
 			}
 			b[0] = (BYTE)((size >> 24)&0x3F) | 0xC0;
 			b[1] = (BYTE)((size >> 16)&0xFF);
 			b[2] = (BYTE)((size >> 8)&0xFF);
 			b[3] = (BYTE)((size)&0xFF);
-			return write(b,4);
+			return Write(b,4);
 		}
 
-		bool	writeSize(UINT64 size)
+		bool	WriteSize(UINT64 size)
 		{
 			if (size > 0xFFFFFFFF)
 				throw Program::ParameterFault("Attempting to write serial size larger than can be expressed in 32 bit");
-			return writeSize((serial_size_t)size);
+			return WriteSize((serial_size_t)size);
 		}
 
 };
@@ -95,26 +95,26 @@ public:
 class MemWriteStream: public IWriteStream
 {
 protected:
-		BYTE	*field,	//!< Pointer to the current memory location that is next written to. Auto incremented as needed
-				*end;	//!< Pointer one past the last available byte of the out-buffer. Data can be written up to but not past this pointer.
+	BYTE			*field,	//!< Pointer to the current memory location that is next written to. Auto incremented as needed
+					*end;	//!< Pointer one past the last available byte of the out-buffer. Data can be written up to but not past this pointer.
 
 public:
-					MemWriteStream(void*data=NULL,serial_size_t size = 0)
+	/**/			MemWriteStream(void*data=NULL,serial_size_t size = 0)
 					{
-						assign(data,size);
+						Assign(data,size);
 					}
-		void		assign(void*data, serial_size_t size)	//!< Assigns a new field to the local memory stream
+	void			Assign(void*data, serial_size_t size)	//!< Assigns a new field to the local memory stream
 					{
 						field = (BYTE*)data;
 						end = field+size;
 					}
 		
-		BYTE*		current()	const
+	BYTE*			GetCurrent()	const
 					{
 						return field;
 					}
 				
-		bool		write(const void*data, serial_size_t size)
+	bool			Write(const void*data, serial_size_t size)	override
 					{
 						if (field+size > end)
 							return false;

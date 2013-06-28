@@ -845,7 +845,7 @@ namespace Engine
 			}
 			uint64_t size = file.size();
 			target.resize(static_cast<size_t>(size));
-			if (!file.read(target.mutablePointer(),size))
+			if (!file.Read(target.mutablePointer(),size))
 			{
 				target = "";
 				return false;
@@ -863,7 +863,7 @@ namespace Engine
 			}
 			uint64_t size = file.size();
 			target.resize(static_cast<size_t>(size));
-			if (!file.read(target.mutablePointer(),size))
+			if (!file.Read(target.mutablePointer(),size))
 			{
 				target = "";
 				return false;

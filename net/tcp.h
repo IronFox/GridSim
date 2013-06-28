@@ -123,12 +123,12 @@ namespace TCP
 				/**
 					@brief Deserializes data from an abstract stream source into the local object as defined by the abstract ISerializable interface.
 				*/
-		virtual	bool	deserialize(IReadStream&stream, serial_size_t fixed_size)	override
-						{
-							if (fixed_size > MaxSize)
-								return false;
-							return Serializable::deserialize(stream,fixed_size);
-						}
+			virtual	bool	Deserialize(IReadStream&stream, serial_size_t fixed_size)	override
+							{
+								if (fixed_size > MaxSize)
+									return false;
+								return Serializable::Deserialize(stream,fixed_size);
+							}
 		};
 	
 	
@@ -142,9 +142,9 @@ namespace TCP
 	class VoidSerializable:public SerializableObject
 	{
 	public:
-	virtual	serial_size_t	serialSize(bool) const	override	{return 0;};
-	virtual	bool			serialize(IWriteStream&stream,bool) const		override	{return true;}
-	virtual	bool			deserialize(IReadStream&stream,serial_size_t)	override	{return true;}
+		virtual	serial_size_t	GetSerialSize(bool) const	override	{return 0;};
+		virtual	bool			Serialize(IWriteStream&stream,bool) const		override	{return true;}
+		virtual	bool			Deserialize(IReadStream&stream,serial_size_t)	override	{return true;}
 	};
 	
 	/**
@@ -196,14 +196,14 @@ namespace TCP
 
 										This method is called asynchronously by the respective connection's worker thread.
 									*/
-	virtual	SerializableObject*		deserialize(IReadStream&stream,serial_size_t fixed_size,Peer*sender)
+	virtual	SerializableObject*		Deserialize(IReadStream&stream,serial_size_t fixed_size,Peer*sender)
 									{
 										return NULL;
 									}
 									/**
-										@brief Dispatches a successfully deserialized object (returned by deserialize() )
+										@brief Dispatches a successfully deserialized object (returned by Deserialize() )
 
-										The method is invoked only, if deserialize() returned a new non-NULL object.
+										The method is invoked only, if Deserialize() returned a new non-NULL object.
 										Depending on whether the connection is synchronous or asynchronous, this method is called my the main thread, or the connection's worker thread.
 									*/
 	virtual	void					handle(SerializableObject*serializable,Peer*sender)	{FATAL__("Channel failed to override handle()");};
@@ -218,7 +218,7 @@ namespace TCP
 		class ObjectSender:public RootChannel
 		{
 		protected:
-		virtual	SerializableObject*		deserialize(IReadStream&stream,serial_size_t fixed_size,Peer*sender)	override
+		virtual	SerializableObject*		Deserialize(IReadStream&stream,serial_size_t fixed_size,Peer*sender)	override
 										{
 											return NULL;
 										}
@@ -253,7 +253,7 @@ namespace TCP
 		class SignalSender:public RootChannel
 		{
 		protected:
-		virtual	SerializableObject*		deserialize(IReadStream&stream,serial_size_t fixed_size,Peer*sender)	override
+		virtual	SerializableObject*		Deserialize(IReadStream&stream,serial_size_t fixed_size,Peer*sender)	override
 										{
 											return NULL;
 										}
@@ -436,8 +436,9 @@ namespace TCP
 		bool						sendData(UINT32 channel_id, const void*data, size_t size);	//!< Sends raw data to the TCP stream
 		bool						succeeded(int result, size_t desired);							//!< Handles the result of a TCP socket send operation. @param result Actual value returned by send() @param desired Valued expected to be returned by send() @return true if both values match, false otherwise. The connection is automatically closed, events triggered and error values set if the operation failed.
 		void						handleUnexpectedSendResult(int result);
-		bool						read(void*target, serial_size_t size);								//!< IInStream override for direct TCP stream input
-		bool						write(const void*target, serial_size_t size);						//!< IOutStream override for direct TCP stream output
+		bool						Read(void*target, serial_size_t size) override;								//!< IInStream override for direct TCP stream input
+		bool						Write(const void*target, serial_size_t size) override;						//!< IOutStream override for direct TCP stream output
+		serial_size_t				GetRemainingBytes() const override;
 		bool						netRead(BYTE*current, size_t size);							//!< Continuously reads a sequence of bytes from the TCP stream. The method does not return until either the requested amount of bytes was received or an error occured
 		bool						sendObject(UINT32 channel, const ISerializable&object);		//!< Sends a serializable object to the TCP stream on the specified channel
 			
@@ -678,10 +679,10 @@ namespace TCP
 								}
 								
 								
-		virtual	SerializableObject*		deserialize(IReadStream&stream,serial_size_t fixed_size,Peer*sender)	override
+		virtual	SerializableObject*		Deserialize(IReadStream&stream,serial_size_t fixed_size,Peer*sender)	override
 										{
 											Object*result = create();
-											if (!result->deserialize(stream,fixed_size))
+											if (!result->Deserialize(stream,fixed_size))
 											{
 												discard(result);
 												return NULL;

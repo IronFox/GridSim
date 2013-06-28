@@ -707,48 +707,48 @@ template <class C, size_t A> class AlignedArray: public SerializableObject, publ
 				}
 				
 				
-		virtual	serial_size_t			serialSize(bool export_size) const
+		virtual	serial_size_t			GetSerialSize(bool export_size) const	override
 		{
-			serial_size_t result = export_size?serialSizeOfSize((serial_size_t)elements):0;
+			serial_size_t result = export_size?GetSerialSizeOfSize((serial_size_t)elements):0;
 			for (index_t i = 0; i < elements; i++)
-				result += serialSizeOf((const C*)data+i,sizeof(C),true);//must pass true here because the individual object size cannot be restored from the global data size
+				result += GetSerialSizeOf((const C*)data+i,sizeof(C),true);//must pass true here because the individual object size cannot be restored from the global data size
 			return result;
 		}
 		
-		virtual	bool			serialize(IWriteStream&out_stream, bool export_size) const
+		virtual	bool			Serialize(IWriteStream&out_stream, bool export_size) const	override
 		{
 			if (export_size)
-				if (!out_stream.writeSize(elements))
+				if (!out_stream.WriteSize(elements))
 					return false;
-			if (!isISerializable(data))
-				return out_stream.write(data,(serial_size_t)contentSize());
+			if (!IsISerializable(data))
+				return out_stream.Write(data,(serial_size_t)contentSize());
 
 			for (index_t i = 0; i < elements; i++)
-				if (!serializeObject(data+i,sizeof(C),out_stream,true))
+				if (!SerializeObject(data+i,sizeof(C),out_stream,true))
 					return false;
 			return true;
 		}
 		
-		virtual	bool			deserialize(IReadStream&in_stream, serial_size_t fixed_size)
+		virtual	bool			Deserialize(IReadStream&in_stream, serial_size_t fixed_size)	override
 		{
 			count_t size;
 			if (fixed_size == EmbeddedSize)
 			{
-				if (!in_stream.readSize(size))
+				if (!in_stream.ReadSize(size))
 					return false;
 			}
 			else
-				if (!isISerializable(data))
+				if (!IsISerializable(data))
 					size = (count_t)(fixed_size/sizeof(C));
 				else
-					FATAL__("trying to deserialize an array containing serializable objects from a fixed size stream data section not including any element count");
+					FATAL__("trying to Deserialize an array containing serializable objects from a fixed size stream data section not including any element count");
 
 			setSize(size);
-			if (!isISerializable(data))
-				return in_stream.read(data,(serial_size_t)contentSize());
+			if (!IsISerializable(data))
+				return in_stream.Read(data,(serial_size_t)contentSize());
 
 			for (index_t i = 0; i < elements; i++)
-				if (!deserializeObject(data+i,sizeof(C),in_stream,0))
+				if (!DeserializeObject(data+i,sizeof(C),in_stream,0))
 					return false;
 			return true;
 		}

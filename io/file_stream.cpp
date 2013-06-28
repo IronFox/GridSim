@@ -24,14 +24,14 @@ bool	FileStream::open(const wchar_t*filename, int flags)
 }
 
 
-bool	FileStream::write(const void*data, serial_size_t size)
+/*virtual override*/ bool	FileStream::Write(const void*data, serial_size_t size)
 {
 	if (handle == -1)
 		return false;
 	return _write(handle,data,(unsigned)size)==size;
 }
 
-bool	FileStream::read(void*data, serial_size_t size)
+/*virtual override*/ bool	FileStream::Read(void*data, serial_size_t size)
 {
 	if (handle == -1)
 		return false;

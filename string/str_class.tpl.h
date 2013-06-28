@@ -3311,37 +3311,37 @@ template <typename T>
 
 
 template <typename T>
-	serial_size_t			StringTemplate<T>::serialSize(bool export_size) const
+	/*virtual override*/ serial_size_t			StringTemplate<T>::GetSerialSize(bool export_size) const
 	{
-		return (serial_size_t)(string_length*sizeof(T))+(export_size?serialSizeOfSize((serial_size_t)string_length):0);
+		return (serial_size_t)(string_length*sizeof(T))+(export_size?GetSerialSizeOfSize((serial_size_t)string_length):0);
 	}
 
 template <typename T>
-	bool			StringTemplate<T>::serialize(IWriteStream&out_stream, bool export_size) const
+	/*virtual override*/ bool			StringTemplate<T>::Serialize(IWriteStream&out_stream, bool export_size) const
 	{
 		if (export_size)
 		{
 			//cout << "encoding string length "<<string_length<<endl;
-			if (!out_stream.writeSize(string_length))
+			if (!out_stream.WriteSize(string_length))
 				return false;
 		}
-		return out_stream.write(field,(serial_size_t)(string_length*sizeof(T)));
+		return out_stream.Write(field,(serial_size_t)(string_length*sizeof(T)));
 	}
 
 template <typename T>
-	bool			StringTemplate<T>::deserialize(IReadStream&in_stream, serial_size_t fixed_size)
+	/*virtual override*/ bool			StringTemplate<T>::Deserialize(IReadStream&in_stream, serial_size_t fixed_size)
 	{
 		if (fixed_size != EmbeddedSize)
 			setLength((fixed_size/sizeof(T)));
 		else
 		{
 			serial_size_t len;
-			if (!in_stream.readSize(len))
+			if (!in_stream.ReadSize(len))
 				return false;
 			//cout << "decoded string length "<<len<<endl;
 			setLength(len);
 		}
-		return in_stream.read(field,(serial_size_t)(string_length*sizeof(T)));
+		return in_stream.Read(field,(serial_size_t)(string_length*sizeof(T)));
 	}
 
 

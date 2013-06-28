@@ -500,7 +500,7 @@ namespace TCP
 		return true;
 	}
 
-	bool	Peer::read(void*target, serial_size_t size)
+	/*virtual override*/ bool	Peer::Read(void*target, serial_size_t size)
 	{
 		if (!size)
 			return true;
@@ -511,8 +511,14 @@ namespace TCP
 		remaining_size -= size;
 		return true;
 	}
+
+	/*virtual override*/ serial_size_t				Peer::GetRemainingBytes() const
+	{
+		return remaining_size;
+	}
+
 	
-	bool	Peer::write(const void*target, serial_size_t size)
+	/*virtual override*/ bool	Peer::Write(const void*target, serial_size_t size)
 	{
 		if (verbose)
 			cout << "Peer::write() enter"<<endl;
@@ -547,7 +553,7 @@ namespace TCP
 				cout << "Peer::sendObject() exit: socket handle reset by remote operation"<<endl;
 			return false;
 		}
-		UINT32 size32 = (UINT32)object.serialSize(false);
+		UINT32 size32 = (UINT32)object.GetSerialSize(false);
 		if (verbose)
 			cout << "Peer::sendObject() exit: package size determined as "<<size32<<" byte(s)"<<endl;
 		softsync(write_mutex)
@@ -555,7 +561,7 @@ namespace TCP
 			serial_buffer.reset();
 			serial_buffer << (UINT32)channel_id;
 			serial_buffer << (UINT32)0;
-			bool did_serialize = object.serialize(serial_buffer,false);
+			bool did_serialize = object.Serialize(serial_buffer,false);
 			bool did_write = false;
 			if (did_serialize)
 			{
@@ -664,7 +670,7 @@ namespace TCP
 					if (verbose)
 						cout << "Peer::ThreadMain(): deserializing"<<endl;
 				
-					SerializableObject*object = receiver->deserialize(*this,remaining_size,this);
+					SerializableObject*object = receiver->Deserialize(*this,remaining_size,this);
 					if (object)
 					{
 						if (verbose)
@@ -952,9 +958,9 @@ namespace TCP
 				cout << "Server::sendObject() exit: service is being shut down"<<endl;
 			return false;
 		}
-		serial_size_t size = object.serialSize(false);
+		serial_size_t size = object.GetSerialSize(false);
 		Array<BYTE>		out_buffer(size);
-		if (!serializeToMemory(object,out_buffer.pointer(),size,false))
+		if (!SerializeToMemory(object,out_buffer.pointer(),size,false))
 			return false;
 		if (verbose)
 			cout << "Server::sendObject(): acquiring read lock for message send"<<endl;
@@ -1010,9 +1016,9 @@ namespace TCP
 				cout << "Server::sendObject() exit: service is being shut down"<<endl;
 			return false;
 		}
-		serial_size_t size = object.serialSize(false);
+		serial_size_t size = object.GetSerialSize(false);
 		Array<BYTE>		out_buffer(size);
-		if (!serializeToMemory(object,out_buffer.pointer(),size,false))
+		if (!SerializeToMemory(object,out_buffer.pointer(),size,false))
 			return false;
 		if (verbose)
 			cout << "Server::sendObject(): acquiring read lock for message send"<<endl;

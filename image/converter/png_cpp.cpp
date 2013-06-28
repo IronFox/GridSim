@@ -57,7 +57,7 @@ namespace
 
 	void writeSectionToStream(png_structp png, png_bytep data, png_size_t size)
 	{
-		if (!out_stream->write(data,(serial_size_t)size))
+		if (!out_stream->Write(data,(serial_size_t)size))
 			throw IO::DriveAccess::DataWriteFault("Stream refused to accept streaming data");
 	}
 
@@ -78,7 +78,7 @@ namespace
 
 	void readSectionFromStream(png_structp png, png_bytep data, png_size_t size)
 	{
-		if (!inStream->read(data,(serial_size_t)size))
+		if (!inStream->Read(data,(serial_size_t)size))
 			throw IO::DriveAccess::DataReadFault("Stream refused to read requested amount of bytes");
 	}
 }
