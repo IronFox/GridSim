@@ -1399,7 +1399,16 @@ namespace FileSystem
 		#if SYSTEM==UNIX
 			return !::unlink(location.c_str());
 		#elif SYSTEM==WINDOWS
-			return !!DeleteFileA(location.c_str());
+			int retry = 0;
+			String loc = location;
+			loc.replace('/','\\');
+			while (!DeleteFileA(loc.c_str()))
+			{
+				if (++retry > 10)
+					return false;
+				Sleep(100);
+			}
+			return true;
 		#else
 			#error not supported
 		#endif
