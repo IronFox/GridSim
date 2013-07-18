@@ -301,11 +301,11 @@ namespace System //! Translation namespace for common system tasks
 	int						getConsoleWidth();		//!< Retrieves the visual width of the console in characters
 	
 	#if SYSTEM==WINDOWS
-		#define sleep(milsec)   Sleep(milsec)
+		inline void sleep(DWORD milsec)   {::Sleep(milsec);}
 		const char*			getLastError();
 
 	#elif SYSTEM==UNIX
-		#define sleep(milsec)   usleep(milsec*1000)
+		inline void sleep(unsigned milsec)   {usleep(milsec*1000);}
 	#endif
 	
 	

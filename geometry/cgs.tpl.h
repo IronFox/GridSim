@@ -4423,14 +4423,14 @@ template <class Def>
 		ASSERT__(object_field.length()==ctr.CountObjects());
 		material_field[0].data.object_field.setSize(ctr.CountLODs());
 		material_field[0].data.coord_layers = (unsigned)(ctr.CountTextureLayers());
-
+		material_field[0].name = "MainMaterial";
 		ASSERT_LESS__(ctr.CountTextureLayers(),0x10000);
 
 		RenderObjectA<Def>*robjects = material_field[0].data.object_field.pointer();
 		for (index_t i = 0; i < ctr.CountObjects(); i++)
 		{
 			const typename Constructor<Def>::Object&cobj = ctr.GetObject(i);
-			object_field[i].name = str2name("child"+String(i));
+			object_field[i].name = "Object"+String(i);
 			object_field[i].vs_hull_field.setSize(cobj.CountLODs());
 
 			for (index_t l = 0; l < cobj.CountLODs(); l++)

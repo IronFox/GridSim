@@ -1587,7 +1587,7 @@ namespace Converter
 					out << "f";
 					for (BYTE k = 0; k < 4; k++)
 						if (field[j].v.v[k])
-							out << " "<<field[j].v.v[k] <<"/"<<(field[j].t.v[k]?String(field[j].t.v[k]):"0")<< "/"<<(field[j].n.v[k]?String(field[j].n.v[k]):"");
+							out << " "<<field[j].v.v[k]->index <<"/"<<(field[j].t.v[k]?String(field[j].t.v[k]->index):"0")<< "/"<<(field[j].n.v[k]?String(field[j].n.v[k]->index):"");
 					out << nl;
 				}
 			}
@@ -1599,7 +1599,7 @@ namespace Converter
 	
 	bool	ObjConverter::write(const CGS::Geometry<>&geometry, const String&parameter)
 	{
-#if 0
+#if 1
 		String filename = parameter;
 		if (!filename.endsWith(".obj"))
 			filename+=".obj";
@@ -1651,7 +1651,7 @@ namespace Converter
 		
 		Array<PointerContainer<Array<TFace> > >	conversion_table(geometry.material_field.length());
 		
-		List::BinaryTree<PoolVertex,OperatorSort>	vertex_field, normal_field, texcoord_field;
+		List::BinaryTree<IndexedPoolVertex,OperatorSort>	vertex_field, normal_field, texcoord_field;
 		
 		for (unsigned i = 0; i < geometry.material_field.length(); i++)
 		{
@@ -1663,13 +1663,13 @@ namespace Converter
 			//console->update();
 
 			
-			for (unsigned j = 0; j < m.data.object_field.length(); j++)
+			for (index_t j = 0; j < m.data.object_field.length(); j++)
 			{
 				setProgress(((float)i + (float)j/(float)m.data.object_field.length())*step_size);
 				const CGS::RenderObjectA<>&robj = m.data.object_field[j];
 				if (!robj.target)
 				{
-					sendMessage("Warning: Render object target '"+name2str(robj.tname).trimThis()+"' not linked");
+					sendMessage("Warning: Render object target '"+robj.tname.trim()+"' not linked");
 					sendMessage(" Mapping vertices");
 					continue;
 				}
@@ -1684,7 +1684,7 @@ namespace Converter
 										nlink_map(robj.vpool.vcnt),
 										tlink_map(robj.vpool.vlyr>0?robj.vpool.vcnt:0);
 				unsigned vsize = robj.vpool.vsize();
-				const Def::FloatType*p = robj.vpool.vdata;
+				const Def::FloatType*p = robj.vpool.vdata.pointer();
 				TVec3<Def::FloatType>	transformed;
 				for (unsigned k = 0; k < robj.vpool.vcnt; k++)
 				{
@@ -1693,7 +1693,7 @@ namespace Converter
 					Mat::rotate(robj.target->path,Vec::ref3(p+3),transformed);
 					nlink_map[k] = normal_field.add(transformed);
 					if (robj.vpool.vlyr>0)
-						tlink_map[k] = texcoord_field.add(PoolVertex(p[6],p[7],0));
+						tlink_map[k] = texcoord_field.add(IndexedPoolVertex(p[6],p[7],(Def::FloatType)0));
 					p += vsize;
 				}
 				
@@ -1773,7 +1773,7 @@ namespace Converter
 			update_step = 1;
 
 		vertex_field.reset();
-		while (PoolVertex*vtx = vertex_field.each())
+		while (IndexedPoolVertex*vtx = vertex_field.each())
 		{
 			if (!(progress++%update_step))
 				setProgress((float)progress/(float)total);
@@ -1782,7 +1782,7 @@ namespace Converter
 		}
 		index = 1;
 		normal_field.reset();
-		while (PoolVertex*vtx = normal_field.each())
+		while (IndexedPoolVertex*vtx = normal_field.each())
 		{
 			if (!(progress++%update_step))
 				setProgress((float)progress/(float)total);
@@ -1791,7 +1791,7 @@ namespace Converter
 		}
 		index = 1;
 		texcoord_field.reset();
-		while (PoolVertex*vtx = texcoord_field.each())
+		while (IndexedPoolVertex*vtx = texcoord_field.each())
 		{
 			if (!(progress++%update_step))
 				setProgress((float)progress/(float)total);
@@ -1816,7 +1816,7 @@ namespace Converter
 		conversion_table.free();
 		return true;
 #endif
-		return false;
+		//return false;
 	}
 
 

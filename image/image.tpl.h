@@ -2254,11 +2254,14 @@ template <class Nature>
 				}
 			break;
 			case IC_COPY:
-					Concurrency::parallel_for(dimension_t(0),xext,[this,&other,x,y,yext,c_num](dimension_t X)
+				{
+					auto p = this;
+					Concurrency::parallel_for(dimension_t(0),xext,[this,p,&other,x,y,yext,c_num](dimension_t X)
 					{
 						for (dimension_t Y = 0; Y < yext; Y++)
-							set(x+X,y+Y,other->getPixel(X,Y),c_num);
+							p->set(x+X,y+Y,other->getPixel(X,Y),c_num);
 					});
+				}
 			break;
 			case IC_MULTIPLY:
 				Concurrency::parallel_for(dimension_t(0),xext,[this,&other,x,y,yext,c_num](dimension_t X)

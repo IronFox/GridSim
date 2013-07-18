@@ -5,11 +5,6 @@
 
 E:\include\importer\obj.h
 
-This file is part of Delta-Works
-Copyright (C) 2006-2008 Stefan Elsen, University of Trier, Germany.
-http://www.delta-works.org/forge/
-http://informatik.uni-trier.de/
-
 ******************************************************************/
 
 #include "../converter.h"
@@ -92,6 +87,42 @@ namespace Converter
 											.add(floatToHash(p.y))
 											.add(floatToHash(p.z));
 								}
+	};
+
+	class IndexedPoolVertex : public PoolVertex
+	{
+	public:
+			index_t				index;
+								IndexedPoolVertex() :index(InvalidIndex)
+								{
+									p = Vector<Def::FloatType>::zero;
+								}
+								IndexedPoolVertex(Def::FloatType x, Def::FloatType y, Def::FloatType z) :index(InvalidIndex)
+								{
+									Vec::def(p,x,y,z);
+								}
+								IndexedPoolVertex(const TVec3<Def::FloatType>&p_) :index(InvalidIndex)
+								{
+									p = p_;
+								}
+
+			bool				operator>(const PoolVertex&other)	const throw()
+								{
+									return Vec::compare(p,other.p)>0;
+								}
+			bool				operator<(const PoolVertex&other)	const throw()
+								{
+									return Vec::compare(p,other.p)<0;
+								}
+			bool				operator==(const PoolVertex&other) const throw()
+								{
+									return Vec::similar(p,other.p);
+								}
+			bool				operator!=(const PoolVertex&other) const throw()
+								{
+									return !Vec::similar(p,other.p);
+								}
+
 	};
 
 	class ObjVertexRoot
@@ -360,9 +391,9 @@ namespace Converter
 
 	struct TFace
 	{
-			TVec4<PoolVertex*>	v,
-								n,
-								t;
+			TVec4<IndexedPoolVertex*>	v,
+										n,
+										t;
 	};
 
 	struct TObjFace
