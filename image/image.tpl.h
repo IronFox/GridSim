@@ -280,8 +280,57 @@ template <typename T>
 	}
 
 template <typename T>
+	void		ImageTemplate<T>::paintRect(dimension_t left, dimension_t bottom, dimension_t width, dimension_t height, T r)
+	{
+		if (image_channels != 1)
+			return;
+		for (dimension_t x = left; x < left+width; x++)
+			for (dimension_t y = bottom; y < bottom + height; y++)
+			{
+				if (x < image_width && y < image_height)
+				{
+					T*pixel = get(x,y);
+					pixel[0] = r;
+				}
+			}
+	}
+
+template <typename T>
+	void		ImageTemplate<T>::paintRect(dimension_t left, dimension_t bottom, dimension_t width, dimension_t height, T r, T g)
+	{
+		switch (image_channels)
+		{
+			case 1:
+				paintRect(left,bottom,width,height,r);
+			break;
+		}
+		if (image_channels != 2)
+			return;
+		for (dimension_t x = left; x < left+width; x++)
+			for (dimension_t y = bottom; y < bottom + height; y++)
+			{
+				if (x < image_width && y < image_height)
+				{
+					T*pixel = get(x,y);
+					pixel[0] = r;
+					pixel[1] = g;
+				}
+			}
+	}
+
+
+template <typename T>
 	void		ImageTemplate<T>::paintRect(dimension_t left, dimension_t bottom, dimension_t width, dimension_t height, T r, T g, T b)
 	{
+		switch (image_channels)
+		{
+			case 1:
+				paintRect(left,bottom,width,height,r);
+			break;
+			case 2:
+				paintRect(left,bottom,width,height,r,g);
+			break;
+		}
 		if (image_channels != 3)
 			return;
 		for (dimension_t x = left; x < left+width; x++)
@@ -298,6 +347,37 @@ template <typename T>
 
 	}
 
+template <typename T>
+	void		ImageTemplate<T>::paintRect(dimension_t left, dimension_t bottom, dimension_t width, dimension_t height, T r, T g, T b, T a)
+	{
+		switch (image_channels)
+		{
+			case 1:
+				paintRect(left,bottom,width,height,r);
+			break;
+			case 2:
+				paintRect(left,bottom,width,height,r,g);
+			break;
+			case 3:
+				paintRect(left,bottom,width,height,r,g,b);
+			break;
+		}
+		if (image_channels != 4)
+			return;
+		for (dimension_t x = left; x < left+width; x++)
+			for (dimension_t y = bottom; y < bottom + height; y++)
+			{
+				if (x < image_width && y < image_height)
+				{
+					T*pixel = get(x,y);
+					pixel[0] = r;
+					pixel[1] = g;
+					pixel[2] = b;
+					pixel[3] = a;
+				}
+			}
+
+	}
 template <class Nature>
 	void		GenericImage<Nature>::addRect(dimension_t left, dimension_t bottom, dimension_t width, dimension_t height, T r, T g, T b)
 	{

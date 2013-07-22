@@ -28,9 +28,10 @@ static inline hash_t			memHash(const void*memory, size_t size);
 
 static inline hash_t 			hash(const String&ident);
 static inline hash_t 			hash(const StringW&ident);
+static inline hash_t 			hash(const StringRef&ident);
+static inline hash_t 			hash(const StringRefW&ident);
 static inline hash_t 			hash(const std::string&ident);
 static inline hash_t 			hash(const std::wstring&ident);
-static inline hash_t 			hash(const ReferenceExpression<char>&ident);
 static inline hash_t 			hash(const char*ident);
 static inline hash_t 			hash(const wchar_t*ident);
 static inline hash_t 			hash(const void*ident);

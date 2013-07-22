@@ -133,10 +133,6 @@ inline hash_t StdHash::hash(const wchar_t*ident)
 	return stdCharHash(ident,Template::strlen(ident));
 }
 
-inline hash_t 	StdHash::hash(const ReferenceExpression<char>&ident)
-{
-	return stdCharHash(ident.pointer(),ident.length());
-}
 
 
 inline hash_t StdHash::hash(const String&ident)
@@ -155,6 +151,16 @@ inline hash_t 			StdHash::hash(const std::wstring&ident)
 {
 	return stdCharHash(ident.c_str(),ident.length());
 }
+/*static*/ inline hash_t 			StdHash::hash(const StringRef&ident)
+{
+	return stdCharHash(ident.pointer(),ident.length());
+
+}
+/*static*/ inline hash_t 			StdHash::hash(const StringRefW&ident)
+{
+	return stdCharHash(ident.pointer(),ident.length());
+}
+
 
 
 inline hash_t StdHash::hash(const void*ident)

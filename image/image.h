@@ -186,7 +186,10 @@ template <typename T>
 		inline	void				setChannel(dimension_t X, dimension_t Y, BYTE channel, T newData);	//!< Alters the content of one color channel of one specific pixel.  \param X X-coordinate of the pixel (0 = left most pixel, must be valid) \param Y Y-coordinate of the pixel (usually 0 = bottom most pixel, must be valid) \param channel Target channel (must be valid) \param newData New value for the specified channel of the specified pixel.
 		void						setChannel(BYTE channel, T new_value);							//!< Alters the content of one color channel of all pixels  \param channel Target channel (must be valid) \param newData New value for the specified channel of all pixels.
 		void						copyChannel(const ImageTemplate<T>&source_image, BYTE source_channel, BYTE target_channel);
+		void						paintRect(dimension_t left, dimension_t bottom, dimension_t width, dimension_t height, T r);
+		void						paintRect(dimension_t left, dimension_t bottom, dimension_t width, dimension_t height, T r, T g);
 		void						paintRect(dimension_t left, dimension_t bottom, dimension_t width, dimension_t height, T r, T g, T b);
+		void						paintRect(dimension_t left, dimension_t bottom, dimension_t width, dimension_t height, T r, T g, T b, T a);
 		void						noiseFillChannel(BYTE channel, T min_value, T max_value);		//!< Alters the content of one color channel of all pixels to random values \param channel Target channel (must be valid) \param min_value Minimum channel value @param max_value maximum channel value
 		void						noiseFillChannel(BYTE channel, T min_value, T max_value, unsigned seed);		//!< Alters the content of one color channel of all pixels to random values \param channel Target channel (must be valid) \param min_value Minimum channel value @param max_value maximum channel value
 		void						blurChannel(BYTE channel, float radius, bool loop);					//!< Blurs the specified image channel (all other channels are left unchanged) @param channel Channel to blur @param radius Radius controling the blur intensity @param loop Image is seamless and blurring should loop around image borders
