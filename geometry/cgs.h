@@ -1548,7 +1548,9 @@ namespace CGS	//! Compiled Geometrical Structure
 				void				SetVertexOffset(Index offset)	{voffset = offset;}
 				void				SetVertexOffsetToCurrent()		{voffset = (Index)(currentLOD->vertexData.length() / config.vsize);}
 				void				SetComputeNormalsBegin();
+				void				SetGenerateNormalsBegin()		{SetComputeNormalsBegin();}
 				void				ComputeNormals();
+				void				GenerateNormals()				{ComputeNormals();}
 				template <typename T>
 					Object&			MakeTriangle(T v0, T v1, T v2)
 									{
