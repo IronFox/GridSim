@@ -304,9 +304,9 @@ template <class K, class C, class Hash=StdHash, typename KeyStrategy = typename 
 
 
 		template <typename F>
-			inline	void					visitAllElements(const F&f);	//!< Passes each occupied element to the specified functor of type <tt>void f(DataType&)</tt>. The functor may receive a copy, const, or non-const reference, even alter data if needed
+			inline	void					visitAllValues(const F&f);	//!< Passes each occupied element to the specified functor of type <tt>void f(DataType&)</tt>. The functor may receive a copy, const, or non-const reference, even alter data if needed
 		template <typename F>
-			inline	void					visitAllElements(const F&f)	const;	//!< Constant version of visitAllElements(). Only copies or const references may be received by the functor.
+			inline	void					visitAllValues(const F&f)	const;	//!< Constant version of visitAllValues(). Only copies or const references may be received by the functor.
 		template <typename F>
 			inline	void					visitAllEntries(const F&f);	//!< Passes each occupied element to the specified functor of type <tt>void f(const KeyType&, DataType&)</tt>. The functor may receive a copy, const, or non-const reference, even alter data if needed
 		template <typename F>

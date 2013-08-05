@@ -2341,13 +2341,13 @@ bool								SurfaceNetwork::Node::BuildConnector(bool outbound, index_t subdiv, 
 
 void								SurfaceNetwork::UpdateAllSlopes(bool update_all_controls, bool rebuild_segments)
 {
-	nodes.visitAllElements([this](Node&n)
+	nodes.visitAllValues([this](Node&n)
 	{
 		UpdateSlopes(n,false,false,NULL);
 	});
 
 	if (update_all_controls)
-		segments.visitAllElements([this,rebuild_segments](Segment&s)
+		segments.visitAllValues([this,rebuild_segments](Segment&s)
 		{
 			UpdateControls(s,rebuild_segments);
 		});

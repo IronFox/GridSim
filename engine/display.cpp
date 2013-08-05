@@ -1520,6 +1520,8 @@ namespace Engine
 		
 	}
 
+	static bool wasFullScreen = false;
+
 	LRESULT CALLBACK Context::WndProc(HWND hWnd, UINT Msg, WPARAM wParam,LPARAM lParam)
 	{
 
@@ -1538,8 +1540,17 @@ namespace Engine
 			case WM_SETCURSOR:
 				return (LOWORD(lParam) == HTCLIENT) && mouse.cursorIsNotDefault() ? 1 : DefWindowProcW(hWnd, Msg, wParam, lParam);
 			case WM_SIZING:		context.signalResize(false,false);								return 0;
-			case WM_SIZE:		if (wParam != SIZE_MINIMIZED) context.signalResize(wParam == SIZE_MAXIMIZED || wParam == SIZE_RESTORED, wParam == SIZE_MAXIMIZED);		return 0;
-			case WM_EXITSIZEMOVE:context.signalResize(true,false);								return 0;
+			case WM_SIZE:	
+			{
+				if (wParam != SIZE_MINIMIZED)
+				{
+					bool newMaximized = wParam == SIZE_MAXIMIZED;
+					context.signalResize(newMaximized != wasFullScreen, newMaximized);
+					wasFullScreen = newMaximized;
+				}
+			}
+			return 0;
+			case WM_EXITSIZEMOVE:context.signalResize(true,wasFullScreen);								return 0;
 			case WM_ERASEBKGND: 															return 1;
 			case WM_SETFOCUS:   context.restoreFocus();										return 0;
 			case WM_KILLFOCUS:  context.looseFocus();										return 0;

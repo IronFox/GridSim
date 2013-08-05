@@ -3344,19 +3344,68 @@ namespace Engine
 	
 	
 	
-	/*static*/	Extension::ResolutionTable	Extension::depthBufferTable;
+	/*static*/	Extension::ResolutionTable		Extension::depthBufferTable;
+	/*static*/ Buffer<Extension::DepthBuffer,0>	Extension::depthBufferList;
+	/*static*/ IndexTable<index_t>				Extension::depthBufferMap;
 
 	/*static*/ GLuint		Extension::AllocateDepthBuffer(const Resolution&res)
 	{
-		GLuint	result;
-		if (!depthBufferTable.query(res,result))
+		index_t	index;
+		if (depthBufferTable.query(res,index))
 		{
-			glGenRenderbuffers( 1, &result );
-			glBindRenderbuffer( GL_RENDERBUFFER, result );
-			glRenderbufferStorage( GL_RENDERBUFFER, GL_DEPTH_COMPONENT, res.width, res.height );
-			depthBufferTable.set(res,result);
+			DepthBuffer&buffer = depthBufferList[index];
+			buffer.referenceCount ++;
+			return buffer.handle;
 		}
-		return result;
+		{
+			index = depthBufferList.length();
+			DepthBuffer&buffer = depthBufferList.append();
+			buffer.resolution = res;
+			buffer.referenceCount = 1;
+			glGenRenderbuffers( 1, &buffer.handle );
+			glBindRenderbuffer( GL_RENDERBUFFER, buffer.handle );
+			glRenderbufferStorage( GL_RENDERBUFFER, GL_DEPTH_COMPONENT, res.width, res.height );
+			depthBufferTable.set(res,index);
+			depthBufferMap.set(buffer.handle,index);
+			return buffer.handle;
+		}
+	}
+
+	/*static*/ void 				Extension::ReleaseSharedDepthBuffer(GLuint handle)
+	{
+		if (!handle)
+			return;
+		index_t index;
+		if (!depthBufferMap.query(handle,index))
+		{
+			FATAL__("Depth buffer "+String(handle)+" is unknown");
+			return;
+		}
+
+		DepthBuffer&buffer = depthBufferList[index];
+
+		buffer.referenceCount --;
+		if (!buffer.referenceCount)
+		{
+			depthBufferMap.unset(handle);
+			depthBufferMap.visitAllValues([index](index_t&value)
+			{
+				if (value > index)
+					value--;
+			});
+
+			depthBufferTable.unset(buffer.resolution);
+			depthBufferTable.visitAllValues([index](index_t&value)
+			{
+				if (value > index)
+					value --;
+			});
+
+			glThrowError();
+			glDeleteRenderbuffers(1, &handle);
+			glThrowError();
+			depthBufferList.erase(index);
+		}
 	}
 
 	
@@ -3574,6 +3623,7 @@ namespace Engine
 		switch (buffer.depthTarget.storageType)
 		{
 			case DepthStorage::SharedBuffer:
+				ReleaseSharedDepthBuffer(buffer.depthTarget.handle);
 				buffer.depthTarget.handle = AllocateDepthBuffer(res);
 				glFramebufferRenderbuffer( GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, buffer.depthTarget.handle );
 			break;
@@ -3681,6 +3731,9 @@ namespace Engine
 		for (BYTE k = 0; k < buffer.numColorTargets; k++)
 			if (buffer.colorTarget[k].textureHandle)
 				glDeleteTextures(1,&buffer.colorTarget[k].textureHandle);
+		if (buffer.depthTarget.storageType == DepthStorage::SharedBuffer && buffer.depthTarget.handle)
+			ReleaseSharedDepthBuffer(buffer.depthTarget.handle);
+
 		if (buffer.depthTarget.storageType == DepthStorage::Texture && buffer.depthTarget.handle)
 			glDeleteTextures(1,&buffer.depthTarget.handle);
 	}

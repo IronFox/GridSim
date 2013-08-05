@@ -512,7 +512,7 @@ template <class K, class C, class Hash, class KeyStrategy, class DataStrategy>
 
 template <class K, class C, class Hash, class KeyStrategy, class DataStrategy>
 	template <typename F>
-		inline	void				GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::visitAllElements(const F&f)
+		inline	void				GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::visitAllValues(const F&f)
 		{
 			index_t at = 0;
 			for (index_t i = 0; i < Base::array.length(); i++)
@@ -522,7 +522,7 @@ template <class K, class C, class Hash, class KeyStrategy, class DataStrategy>
 
 template <class K, class C, class Hash, class KeyStrategy, class DataStrategy>
 	template <typename F>
-		inline	void				GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::visitAllElements(const F&f)	const
+		inline	void				GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::visitAllValues(const F&f)	const
 		{
 			index_t at = 0;
 			for (index_t i = 0; i < Base::array.length(); i++)

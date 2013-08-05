@@ -1041,13 +1041,23 @@
 				int								screen;
 			#endif
 			static GLuint						AllocateDepthBuffer(const Resolution&res);
+			static void 						ReleaseSharedDepthBuffer(GLuint);
+
 
 		public:
+			struct DepthBuffer
+			{
+				GLuint							handle;
+				count_t							referenceCount;
+				Resolution						resolution;
+			};
 			CONSTRUCT_ENUMERATION3(VRAMQueryMethod,None, NVIDIA,ATI);
-			typedef GenericHashTable<Resolution,GLuint,Resolution::Hash>	ResolutionTable;
-
+			typedef GenericHashTable<Resolution,index_t,Resolution::Hash>	ResolutionTable;
+			
 
 			static ResolutionTable				depthBufferTable;
+			static Buffer<DepthBuffer,0>		depthBufferList;
+			static IndexTable<index_t>			depthBufferMap;
 
 			GLint								maxTextureLayers,
 												maxTexcoordLayers,
