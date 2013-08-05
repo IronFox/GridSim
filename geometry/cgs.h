@@ -1586,7 +1586,7 @@ namespace CGS	//! Compiled Geometrical Structure
 				template <typename T>
 					Index			MakeVertex(const TVec3<T>&location)
 					{
-						Index result = (Index)currentLOD->vertexData.length() / config.vsize;
+						Index result = (Index)(currentLOD->vertexData.length() / config.vsize);
 						Float*out = currentLOD->vertexData.appendRow(config.vsize);
 						Float*end = out + config.vsize;
 						Vec::copy(location,Vec::ref3(out)); out+=3;

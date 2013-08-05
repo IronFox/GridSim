@@ -3373,7 +3373,7 @@ namespace Engine
 
 	/*static*/ void 				Extension::ReleaseSharedDepthBuffer(GLuint handle)
 	{
-		if (!handle)
+		if (!handle || application_shutting_down)
 			return;
 		index_t index;
 		if (!depthBufferMap.query(handle,index))
