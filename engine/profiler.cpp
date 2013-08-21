@@ -478,7 +478,7 @@ namespace Engine
 							
 							static float times[5] = {0,0,0,0,0};
 							float d = timer.toSecondsf(now-t);
-							for (unsigned i = 0; i < ARRAYSIZE(times)-1; i++)
+							for (index_t i = 0; i < ARRAYSIZE(times)-1; i++)
 								times[i] = times[i+1];
 							times[ARRAYSIZE(times)-1] = d;
 							float base = vmin(vmin(vmin(times[0],times[1]),vmin(times[2],times[3])),times[4]);

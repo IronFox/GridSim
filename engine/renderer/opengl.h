@@ -599,27 +599,29 @@ namespace Engine
 			/**/				}
 
 
-			inline	handle_t	getDeviceHandle() const
-								{
-									return on_device?device_handle:0;
-								}
-			inline	const void*	getHostData() const		//!< Retrieves a pointer to any internally stored host data, or NULL if no such is available. Also returns NULL if the buffered data resides in device space
+			inline	handle_t	getDeviceHandle() const {return on_device?device_handle:0;}
+			inline	handle_t	GetDeviceHandle() const {return on_device?device_handle:0;}
+			inline	const void*	getHostData() const		//! Retrieves a pointer to any internally stored host data, or NULL if no such is available. Also returns NULL if the buffered data resides in device space
 								{
 									return on_device?NULL:host_data;
 								}
+			inline	const void*	GetHostData() const		/** @copydoc getHostData() */	{return getHostData();}
 			inline	bool		isEmpty()	const	//! Determine whether or not the local object is empty. NULL-pointer sensitive @return true if the local object is NULL or the associated handle 0
 								{
 									return !this || !data_size;
 								}
+			inline	bool		IsEmpty()	const	/** @copydoc isEmpty() */ {return isEmpty();}
 			inline	bool		isNotEmpty()	const	//! Determine whether or not the local object is empty. NULL-pointer sensitive @return true if the local object is NULL or the associated handle 0
 								{
 									return this!=NULL && data_size>0;
 								}
+			inline	bool		IsNotEmpty()	const	/**@copydoc isNotEmpty() */ {return isNotEmpty();}
 
 			inline	size_t		size()	const			//!< Retrieves the current object size in bytes.
 								{
 									return data_size;
 								}
+
 							
 			/**
 			@brief Resizes the buffer

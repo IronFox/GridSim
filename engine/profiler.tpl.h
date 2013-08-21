@@ -55,7 +55,7 @@ namespace Engine
 		template <class GL, class Base>
 			void	RenderGraph<GL,Base>::renderGeometry()
 			{
-				if (!getRenderer())
+				if (!getRenderer() || ibo.IsEmpty())
 					return;
 				
 				renderer->bindMaterial(material,typename GL::Shader());
