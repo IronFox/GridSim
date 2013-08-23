@@ -196,10 +196,12 @@ namespace Engine
 												client_visible,	//!< Reserved for custom client application usage
 												added,			//!< Should be false at all times. Used to distinctly map object entities to the lookup buffer by SceneryTree
 												invert_set;		//!< True if the provided system invert is calculated (false by default. only makes sense if the local entity is mostly stationary)
-			Box<typename Def::FloatType>		dim;			//!< System relative bounding box of the local object (updated when the local entity is created)
+			Box<typename Def::FloatType>		src_dim,			//!< System relative bounding box of the local object (updated when the local entity is created)
+												scaled_dim;			//!< Scaled dimensions
 			TVec4<typename Def::FloatType>		cage[8];		//!< System relative cage for determining visibility (created using dim)
 			typename Def::FloatType				shortest_edge_length,	//!< Average edge length on maximum detail
-												radius,			//!< Radius of the local entity (distance between the furthest vertex and the local object center)
+												src_radius,			//!< Radius of the local entity (distance between the furthest vertex and the local object center)
+												radius, 			//!< Scaled radius
 												sys_scale;		//!< Local system scale. Should be 1.0
 			TMatrix4<typename Def::FloatType>	invert; 	//!< Invert of the specified system matrix.
 			Reference<Attachment>				attachment;		//!< Custom data attachment

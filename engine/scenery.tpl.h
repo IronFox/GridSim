@@ -200,14 +200,14 @@ namespace Engine
 
 	template <class Def> ObjectEntity<Def>::ObjectEntity(CGS::SubGeometryA<Def>*target, StructureEntity<Def>*super):system(target->system_link),
 	                                                                                  visible(false),client_visible(false),added(false),invert_set(false),structure(super),source(target),shortest_edge_length(target->meta.shortest_edge_length),
-																					  radius(0),sys_scale(1)
+																					  radius(0),src_radius(0),sys_scale(1)
 	{
 		SCENERY_LOG("extracting geometry information");
-	    target->extractDimensions(dim);
-		target->extractRadius(radius);
-		if (!radius)
-			radius = 1;
-		SCENERY_LOG(" dim = "+dim.ToString());
+	    target->extractDimensions(src_dim);
+		target->extractRadius(src_radius);
+		if (!src_radius)
+			src_radius = 1;
+		SCENERY_LOG(" dim = "+src_dim.ToString());
 		SCENERY_LOG(" radius = "+String(radius));
 		//target->extractAverageVisualEdgeLength(0,average_edge_length);
 	    rescale();
@@ -218,12 +218,24 @@ namespace Engine
 
 	template <class Def> void ObjectEntity<Def>::rescale()
 	{
-	    sys_scale = (typename Def::FloatType)(Vec::length(system->x.xyz)+Vec::length(system->y.xyz)+Vec::length(system->z.xyz))/3;
+		TVec3<typename Def::FloatType>	len = {	(typename Def::FloatType)Vec::length(system->x.xyz),
+												(typename Def::FloatType)Vec::length(system->y.xyz),
+												(typename Def::FloatType)Vec::length(system->z.xyz)};
+	    sys_scale = (len.x + len.y + len.z)/3;
+		typename Def::FloatType r_scale = std::max(std::max(len.x,len.y),len.z);
+	    radius = src_radius*r_scale;
+		scaled_dim = src_dim;
+		scaled_dim.x.scale(len.x);
+		scaled_dim.y.scale(len.y);
+		scaled_dim.z.scale(len.z);
+
+	    //sys_scale = (typename Def::FloatType)(Vec::length(system->x.xyz)+Vec::length(system->y.xyz)+Vec::length(system->z.xyz))/3;
 	    updateCage();
 	}
 
 	template <class Def> void ObjectEntity<Def>::updateCage()
 	{
+		const auto& dim = scaled_dim;
 	    Vec::def(cage[0],dim.x.min,dim.y.min,dim.z.min,1);
 	    Vec::def(cage[1],dim.x.min,dim.y.min,dim.z.max,1);
 	    Vec::def(cage[2],dim.x.min,dim.y.max,dim.z.min,1);
@@ -284,8 +296,14 @@ namespace Engine
 
 	template <class Def> void StructureEntity<Def>::rescale()
 	{
-	    sys_scale = (typename Def::FloatType)(Vec::length(system->x.xyz)+Vec::length(system->y.xyz)+Vec::length(system->z.xyz))/3;
-	    //radius = src_radius*sys_scale;
+		TVec3<typename Def::FloatType>	len = {	(typename Def::FloatType)Vec::length(system->x.xyz),
+												(typename Def::FloatType)Vec::length(system->y.xyz),
+												(typename Def::FloatType)Vec::length(system->z.xyz)};
+	    sys_scale = (len.x + len.y + len.z)/3;
+		typename Def::FloatType r_scale = std::max(std::max(len.x,len.y),len.z);
+	    radius = src_radius*r_scale;
+		foreach (object_entities,ent)
+			ent->rescale();
 	}
 
 

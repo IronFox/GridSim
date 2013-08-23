@@ -5139,7 +5139,7 @@ template <class Def> void StaticSubInstanceA<Def>::linkObjects()
 template <class Def> void StaticSubInstanceA<Def>::updatePath(const TMatrix4<typename Def::SystemType>&parent)
 {
 	Mat::transformSystem(parent,SubGeometryInstance<Def>::system,SubGeometryInstance<Def>::path);
-	DBG_ASSERT_LESS__(Vec::dot(SubGeometryInstance<Def>::path.x.xyz),10000);
+	//DBG_ASSERT_LESS__(Vec::dot(SubGeometryInstance<Def>::path.x.xyz),10000);
 	for (index_t i = 0; i < child_field.length(); i++)
 		child_field[i].updatePath(SubGeometryInstance<Def>::path);
 }
