@@ -5,11 +5,6 @@
 
 Collection of different queues.
 
-This file is part of Delta-Works
-Copyright (C) 2006-2008 Stefan Elsen, University of Trier, Germany.
-http://www.delta-works.org/forge/
-http://informatik.uni-trier.de/
-
 ******************************************************************/
 
 
@@ -87,6 +82,7 @@ template <class Entry, class Strategy=typename StrategySelector<Entry>::Default>
 			const Entry&	operator[](size_t index)	const;	//!< Returns the nth element from the queue. @param index Index of the element to return ranging [0, length()-1] @return Reference to the requested object
 			void			clear();							//!< Clears the local queue of all entries. No objects are actually erased
 			void			operator=(const Queue<Entry,Strategy>&other);	//!< Copies all elements from the remote queue to the local queue. The local buffer size is resized to match the remote buffer size but only actually used elements are copied
+			void			swap(Queue<Entry,Strategy>&other);
 			
 	inline 	size_t			count()						const	{return length();};	//!< Returns the current number of element stored in the queue
 	};

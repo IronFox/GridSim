@@ -5,11 +5,6 @@
 
 Collection of different queues.
 
-This file is part of Delta-Works
-Copyright (C) 2006-2008 Stefan Elsen, University of Trier, Germany.
-http://www.delta-works.org/forge/
-http://informatik.uni-trier.de/
-
 ******************************************************************/
 
 
@@ -122,6 +117,16 @@ template <class Entry,class Strategy>
 		for (index_t i = 0; i < other.count(); i++)
 			(*section_end++) = other[i];
 	}
+
+template <class Entry,class Strategy>
+	void Queue<Entry,Strategy>::swap(Queue<Entry,Strategy>&other)
+	{
+		Array::swap(other);
+		std::swap(section_begin,other.section_begin);
+		std::swap(section_end,other.section_end);
+		std::swap(field_end,other.field_end);
+	}
+
 
 
 template <class Entry,class Strategy>
