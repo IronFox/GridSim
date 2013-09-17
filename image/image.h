@@ -480,6 +480,7 @@ template <class Nature>
 
 	public:
 		typedef ImageTemplate<typename Nature::channel_value_t>	Parent;
+		typedef GenericImage<Nature>	Self;
 		#ifdef __GNUC__
 			using Parent::image_channels;
 			using Parent::image_width;
@@ -520,6 +521,7 @@ template <class Nature>
 			void					rotate90CW();																	//!< Rotates the local image 90 degrees clock wise.
 			void					rotate90CCW();																	//!< Rotates the local image 90 degrees counter clock wise.
 			bool					scaleHalf();																	//!< Scales the image to half its width and height. Normals will be renormalized if necessary. \return true if the local image could be halved, false otherwise.
+			bool					scaleHalf(const Self&source);													//!< Scales the suppied image to half its width and height. Normals will be renormalized if necessary. \return true if the local image could be halved, false otherwise.
 			bool					scaleXHalf();																	//!< Scales the image to half its width. Normals will be renormalized if necessary. \return true if the local image could be halved, false otherwise.
 			bool					scaleYHalf();																	//!< Scales the image to half its height. Normals will be renormalized if necessary. \return true if the local image could be halved, false otherwise.
 			void					scaleDouble(bool loop=false);																	//!< Scales the image to double its width and height. Normals will be renormalized if necessary.

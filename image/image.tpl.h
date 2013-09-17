@@ -1248,24 +1248,32 @@ template <class Nature>
 		GenericImage<Nature>	temp(image_width/2,image_height/2,image_channels);
 		temp.content_type = content_type;
 		temp.origin.adoptData(origin);
+		if (! temp.scaleHalf(*this))
+			return false;
+		adoptData(temp);
+		return true;
+	}
 
-		
+template <class Nature>
+	bool GenericImage<Nature>::scaleHalf(const Self&source)
+	{
+		setDimension(source.getWidth()/2,source.getHeight()/2,source.getChannels());
 		if (image_channels == 4)
 		{
-			Concurrency::parallel_for(dimension_t(0),image_width/2,[this,&temp](dimension_t x)
+			Concurrency::parallel_for(dimension_t(0),image_width,[this,&source](dimension_t x)
 			{
-				for (dimension_t y = 0; y < image_height/2; y++)
+				for (dimension_t y = 0; y < image_height; y++)
 					if (isNormalMap())
 					{
 						TVec3<F> norm0,norm1,norm2,norm3;
-						getNormal(x*2,y*2,norm0);
-						getNormal(x*2+1,y*2,norm1);
-						getNormal(x*2+1,y*2+1,norm2);
-						getNormal(x*2,y*2+1,norm3);
-						F a0 = toFloat(getPixel(x*2,y*2)[3]);
-						F a1 = toFloat(getPixel(x*2+1,y*2)[3]);
-						F a2 = toFloat(getPixel(x*2+1,y*2+1)[3]);
-						F a3 = toFloat(getPixel(x*2,y*2+1)[3]);
+						source.getNormal(x*2,y*2,norm0);
+						source.getNormal(x*2+1,y*2,norm1);
+						source.getNormal(x*2+1,y*2+1,norm2);
+						source.getNormal(x*2,y*2+1,norm3);
+						F a0 = toFloat(source.getPixel(x*2,y*2)[3]);
+						F a1 = toFloat(source.getPixel(x*2+1,y*2)[3]);
+						F a2 = toFloat(source.getPixel(x*2+1,y*2+1)[3]);
+						F a3 = toFloat(source.getPixel(x*2,y*2+1)[3]);
 						F aSum = a0 + a1 + a2 + a3;
 						if (aSum > 0)
 						{
@@ -1275,8 +1283,8 @@ template <class Nature>
 							Vec::mad(norm0,norm3,a3);
 							Vec::div(norm0,aSum);
 							Vec::normalize0(norm0);
-							temp.setNormal(x,y,norm0);
-							temp.getPixel(x,y)[3] = floatToChannel(aSum/(F)4);
+							this->setNormal(x,y,norm0);
+							this->getPixel(x,y)[3] = floatToChannel(aSum/(F)4);
 						}
 						else
 						{
@@ -1284,22 +1292,22 @@ template <class Nature>
 							Vec::add(norm0,norm2);
 							Vec::add(norm0,norm3);
 							Vec::normalize0(norm0);
-							temp.setNormal(x,y,norm0);
-							temp.getPixel(x,y)[3] = 0;
+							this->setNormal(x,y,norm0);
+							this->getPixel(x,y)[3] = 0;
 						}
 					}
 					else
 					{
-						const T	*p0 = getPixel(x*2,y*2),
-								*p1 = getPixel(x*2+1,y*2),
-								*p2 = getPixel(x*2+1,y*2+1),
-								*p3 = getPixel(x*2,y*2+1);
+						const T	*p0 = source.getPixel(x*2,y*2),
+								*p1 = source.getPixel(x*2+1,y*2),
+								*p2 = source.getPixel(x*2+1,y*2+1),
+								*p3 = source.getPixel(x*2,y*2+1);
 						F a0 = toFloat(p0[3]);
 						F a1 = toFloat(p1[3]);
 						F a2 = toFloat(p2[3]);
 						F a3 = toFloat(p3[3]);
 						F aSum = a0 + a1 + a2 + a3;
-						T*outPixel = temp.get(x,y);
+						T*outPixel = this->get(x,y);
 						if (aSum > 0)
 						{
 							F avg0 = ((F)p0[0] * a0 + (F)p1[0] * a1 + (F)p2[0] * a2 + (F)p3[0] * a3) / aSum;
@@ -1324,30 +1332,30 @@ template <class Nature>
 			});
 		}
 		else
-			Concurrency::parallel_for(dimension_t(0),image_width/2,[this,&temp](dimension_t x)
+			Concurrency::parallel_for(dimension_t(0),image_width,[this,&source](dimension_t x)
 			{
-				for (dimension_t y = 0; y < image_height/2; y++)
+				for (dimension_t y = 0; y < image_height; y++)
 					if (isNormalMap() && image_channels >= 3)
 					{
 						TVec3<F> norm0,norm1,norm2,norm3;
-						getNormal(x*2,y*2,norm0);
-						getNormal(x*2+1,y*2,norm1);
-						getNormal(x*2+1,y*2+1,norm2);
-						getNormal(x*2,y*2+1,norm3);
+						source.getNormal(x*2,y*2,norm0);
+						source.getNormal(x*2+1,y*2,norm1);
+						source.getNormal(x*2+1,y*2+1,norm2);
+						source.getNormal(x*2,y*2+1,norm3);
 						Vec::add(norm0,norm1);
 						Vec::add(norm0,norm2);
 						Vec::add(norm0,norm3);
 						Vec::normalize0(norm0);
-						temp.setNormal(x,y,norm0);
+						this->setNormal(x,y,norm0);
 						if (image_channels > 3)
 						{
 							for (BYTE c = 3; c < image_channels; c++)
 							{
-								F col = getPixel(x*2,y*2)[c];
-								col += getPixel(x*2+1,y*2)[c];
-								col += getPixel(x*2+1,y*2+1)[c];
-								col += getPixel(x*2,y*2+1)[c];
-								temp.setChannel(x,y,c,(T)(col/4));
+								F col = source.getPixel(x*2,y*2)[c];
+								col += source.getPixel(x*2+1,y*2)[c];
+								col += source.getPixel(x*2+1,y*2+1)[c];
+								col += source.getPixel(x*2,y*2+1)[c];
+								this->setChannel(x,y,c,(T)(col/4));
 							}
 						}
 					}
@@ -1355,18 +1363,17 @@ template <class Nature>
 					{
 						for (BYTE c = 0; c < image_channels; c++)
 						{
-							F col = getPixel(x*2,y*2)[c];
-							col += getPixel(x*2+1,y*2)[c];
-							col += getPixel(x*2+1,y*2+1)[c];
-							col += getPixel(x*2,y*2+1)[c];
-							temp.setChannel(x,y,c,(T)(col/4));
+							F col = source.getPixel(x*2,y*2)[c];
+							col += source.getPixel(x*2+1,y*2)[c];
+							col += source.getPixel(x*2+1,y*2+1)[c];
+							col += source.getPixel(x*2,y*2+1)[c];
+							this->setChannel(x,y,c,(T)(col/4));
 						}
 		/*                if (!x && !y)
 							ShowMessage(_toString(temp.getPixel(x,y),image_channels));*/
 					}
 			});
 
-		adoptData(temp);
 		return true;
 	}
 

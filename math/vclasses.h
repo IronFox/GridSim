@@ -352,6 +352,9 @@ namespace Math
 	typedef Vec2<int>		int2;
 	typedef Vec3<int>		int3;
 	typedef Vec4<int>		int4;
+	typedef Vec2<short>		short2;
+	typedef Vec3<short>		short3;
+	typedef Vec4<short>		short4;
 	typedef Vec2<bool>		bool2;
 	typedef Vec3<bool>		bool3;
 	typedef Vec4<bool>		bool4;

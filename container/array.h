@@ -246,9 +246,11 @@ template <class C>
 								data[2] = e2;
 								data[3] = e3;
 							}
-	private:
+
+	public:
 		typedef C*			iterator;
 		typedef const C*	const_iterator;
+	private:
 
 		/**/				ArrayData(const ArrayData<C>&){}
 		void				operator=(const ArrayData<C>&){}
