@@ -366,6 +366,8 @@ namespace Engine
 			bool						isTopWindow()							const;
 			void						focus();
 			bool						isFocused()								const;
+			bool						isMinimized()							const;
+
 			void						checkFocus();	//sends isFocused() to eveMouse.setFocused()
 
 			float						pixelAspectf()							const;

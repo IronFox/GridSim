@@ -894,6 +894,18 @@ namespace Engine
 	}
 
 
+	bool Context::isMinimized() const
+	{
+		#if SYSTEM==WINDOWS
+			return hWnd && IsIconic(hWnd);
+		#elif SYSTEM==UNIX
+			#error stub
+		#else
+			return false;
+		#endif
+
+	}
+
 	bool Context::isFocused()	const
 	{
 
