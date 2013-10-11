@@ -11,12 +11,14 @@ Collection of template matrix-math-functions.
 namespace Math
 {
 
-	template <typename T>
-		T			Matrix<T>::eye2[2*2] = {1,0, 0,1};
+	//template <typename T>
+	//	T			Matrix<T>::eye2[2*2] = {1,0, 0,1};
 	/*template <typename T>
 		T			Matrix<T>::eye3[3*3] = {1,0,0,0,1,0,0,0,1};
 	template <typename T>
 		T			Matrix<T>::eye4[4*4] = {1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1};*/
+	template <typename T>
+		const	TMatrix2<T>	Matrix<T>::eye2 = {1,0, 0,1};
 	template <typename T>
 		const	TMatrix3<T>	Matrix<T>::eye3 = {1,0,0, 0,1,0, 0,0,1};
 	template <typename T>

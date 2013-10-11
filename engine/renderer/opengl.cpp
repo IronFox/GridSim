@@ -3128,7 +3128,11 @@ namespace Engine
 
 
 
+	void OpenGL::bindVertices(const VBO::Reference&vobj, const VertexBinding&binding)
+	{
+		bindVertices(*vobj.GetTarget(),binding);
 
+	}
 
 	void OpenGL::bindVertices(const VBO&vobj, const VertexBinding&binding)
 	{
@@ -3137,6 +3141,7 @@ namespace Engine
 		if (glBindBuffer)
 			glBindBuffer(GL_ARRAY_BUFFER_ARB,vobj.getDeviceHandle());
 		DBG_ASSERT__(glIsBuffer(vobj.getDeviceHandle()));
+		glThrowError();
 		//ShowMessage(vobj.countPrimitives());
 
 	    const GLuint stride = binding.floats_per_vertex*sizeof(GLfloat);
@@ -3149,6 +3154,7 @@ namespace Engine
 		}
 		else
 			glDisableClientState(GL_NORMAL_ARRAY);
+		glThrowError();
 		if (binding.color.length)
 		{
 			glEnableClientState(GL_COLOR_ARRAY);
@@ -3157,6 +3163,7 @@ namespace Engine
 		else
 			glDisableClientState(GL_COLOR_ARRAY);
 
+		glThrowError();
 		count_t texcoords = std::min((count_t)glExtensions.maxTexcoordLayers,binding.texcoords.count());
 
 		for (index_t i = texcoords; i < state.render_setup.bound_texcoord_layers; i++)
@@ -3224,6 +3231,7 @@ namespace Engine
 
 		glClientActiveTexture(GL_TEXTURE0);
 		glActiveTexture(GL_TEXTURE0);
+		glThrowError();
 		GL_END
 	}
 

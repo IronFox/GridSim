@@ -177,8 +177,7 @@ namespace Math
 	class Matrix
 	{
 	public:
-	static	T	eye2[2*2];
-
+	static	const	TMatrix2<T>	eye2;
 	static	const	TMatrix3<T>	eye3;
 	static	const	TMatrix4<T>	eye4;
 	};

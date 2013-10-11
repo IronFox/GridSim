@@ -525,6 +525,9 @@ namespace Engine
 		public:
 			typedef GLuint		handle_t;
 
+			
+
+
 
 		private:
 			/**/				SmartBuffer(const SmartBuffer&other):data_size(0),host_data(NULL),on_device(false)
@@ -541,7 +544,9 @@ namespace Engine
 			/**/				SmartBuffer():data_size(0),host_data(NULL),on_device(false)				{}
 			virtual				~SmartBuffer()				{if (!application_shutting_down) clear();}
 			virtual	void		clear();
-			
+
+
+
 			void				adoptData(SmartBuffer&other)
 								{
 									clear();
@@ -598,6 +603,8 @@ namespace Engine
 			/**/					return compareTo(other) > 0;
 			/**/				}
 
+
+			inline	handle_t	getHandle() const {return getDeviceHandle();}
 
 			inline	handle_t	getDeviceHandle() const {return on_device?device_handle:0;}
 			inline	handle_t	GetDeviceHandle() const {return on_device?device_handle:0;}
@@ -663,6 +670,22 @@ namespace Engine
 				SmartBuffer::streamData;
 
 			public:
+
+
+
+				struct Data
+				{
+					/**/			Data()	{}
+					/**/			Data(const SmartGeometryBuffer<T>&)	{}
+				
+				};
+
+				typedef GL::Reference<SmartGeometryBuffer,Data> Reference;
+
+				Reference			Refer()	const			/** Creates a reference object to the local object*/ {return Reference(this);}
+
+
+
 				inline	void		load(const T*field, count_t num_units);	//!< Loads the specified data into the local buffer. @a field must be at least @a num_units units long but may be NULL if @a num_units is 0
 				inline	void		load(const ArrayData<T>&field)		{load(field.pointer(),field.length());}	
 				inline	void		load(const BasicBuffer<T>&field)	{load(field.pointer(),field.length());}
@@ -1034,6 +1057,7 @@ namespace Engine
 		static	inline	void						overrideEmission(const TVec4<>&emission_color);	//!< Overrides the emission color specified by the last bindMaterial() or bindMaterilIgnoreShader() call
 
 						void						bindVertices(const VBO&vobj, const VertexBinding&binding);
+						void						bindVertices(const VBO::Reference&vobj, const VertexBinding&binding);
 						void						bindIndices(const IBO&iobj);
 						void						unbindIndices();
 						void						renderExplicit(GLuint type, index_t vertex_offset, GLsizei vertex_count);	//!< Render with explicit given configuration \param type OpenGL primitive type (GL_TRIANGLES, GL_QUADS, etc.) \param vertex_offset First vertex to render \param vertex_count Number of vertices to render
