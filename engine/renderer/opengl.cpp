@@ -3128,22 +3128,11 @@ namespace Engine
 
 
 
-	void OpenGL::bindVertices(const VBO::Reference&vobj, const VertexBinding&binding)
-	{
-		bindVertices(*vobj.GetTarget(),binding);
 
-	}
 
-	void OpenGL::bindVertices(const VBO&vobj, const VertexBinding&binding)
+	void OpenGL::Bind(const VertexBinding&binding, const float*field)
 	{
 		GL_BEGIN
-		const GLfloat*field = vobj.getHostData();
-		if (glBindBuffer)
-			glBindBuffer(GL_ARRAY_BUFFER_ARB,vobj.getDeviceHandle());
-		DBG_ASSERT__(glIsBuffer(vobj.getDeviceHandle()));
-		glThrowError();
-		//ShowMessage(vobj.countPrimitives());
-
 	    const GLuint stride = binding.floats_per_vertex*sizeof(GLfloat);
 		glEnableClientState(GL_VERTEX_ARRAY);
 		glVertexPointer(binding.vertex.length,GL_FLOAT,stride,field+binding.vertex.offset);
@@ -3232,6 +3221,32 @@ namespace Engine
 		glClientActiveTexture(GL_TEXTURE0);
 		glActiveTexture(GL_TEXTURE0);
 		glThrowError();
+		GL_END
+
+	}
+
+
+	void OpenGL::bindVertices(const VBO::Reference&vobj, const VertexBinding&binding)
+	{
+		glBindBuffer(GL_ARRAY_BUFFER_ARB,vobj.GetHandle());
+		DBG_ASSERT__(glIsBuffer(vobj.GetHandle()));
+		glThrowError();
+		Bind(binding,NULL);
+
+	}
+
+
+	void OpenGL::bindVertices(const VBO&vobj, const VertexBinding&binding)
+	{
+		GL_BEGIN
+		const GLfloat*field = vobj.getHostData();
+		if (glBindBuffer)
+			glBindBuffer(GL_ARRAY_BUFFER_ARB,vobj.getDeviceHandle());
+		DBG_ASSERT__(glIsBuffer(vobj.getDeviceHandle()));
+		glThrowError();
+		//ShowMessage(vobj.countPrimitives());
+
+		Bind(binding,field);
 		GL_END
 	}
 

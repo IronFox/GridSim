@@ -928,6 +928,7 @@ namespace Engine
 		static			GLBinding			getCurrentContext();
 		static			bool				hasCurrentContext();
 		static			void				setCurrentContext(const GLBinding&);
+						void				Bind(const VertexBinding&binding, const float*field);
 
 	protected:
 		static			bool				bindFrameBufferObject(const GL::FBO&);

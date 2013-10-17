@@ -301,7 +301,7 @@ namespace Except
 										{
 										}
 		virtual	const char*				getType()	const {return staticGetName();}
-		virtual	const char*				what()		const	{static char buffer[0x1000]; sprintf_s<sizeof(buffer)>(buffer,"%s: %s",getType(),std::exception::what()); buffer[sizeof(buffer)-1] = 0; return buffer; };
+		virtual	const char*				what()		const	{static char buffer[0x4000]; sprintf_s<sizeof(buffer)>(buffer,"%s: %s",getType(),std::exception::what()); buffer[sizeof(buffer)-1] = 0; return buffer; };
 		static const Name&				staticGetName()	{static const Name	name = Name("Except"); return name;}
 
 				const std::exception&	c_str()	const	{return *this;}		//ok, this is close to a hack. let's forget i had to do this :P

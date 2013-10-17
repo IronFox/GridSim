@@ -951,6 +951,59 @@ template <typename T>
 		return static_cast<T>(i0 * (1.f - yf) + i1 * yf);
 	}
 
+
+template <typename T>
+	T				ImageTemplate<T>::smoothSampleChannelAt(float x, float y, BYTE channel, bool loop)	const
+	{
+		if (!image_width || !image_height || channel >= image_channels)
+			return 0;
+		if (loop)
+		{
+			x = x - floor(x),
+				//fmod(x,1.f);
+			y = y - floor(y);
+			//fmod(y,1.f);
+			x*=(image_width);
+			y*=(image_height);
+		}
+		else
+		{
+			x = clamped(x,0.f,1.f);
+			y = clamped(y,0.f,1.f);
+			x*=(image_width-1);
+			y*=(image_height-1);
+		}
+		dimension_t x0 = (dimension_t)floor(x),
+					y0 = (dimension_t)floor(y),
+					x1,
+					y1;
+
+		if (loop)
+		{
+			x1 = (x0+1) % image_width;
+			y1 = (y0+1) % image_height;
+		}
+		else
+		{
+			x1 = std::min(x0+1,image_width-1);
+			y1 = std::min(y0+1,image_height-1);
+		}
+		float	xf = cubicFactor(x - floor(x)),
+					//fmod(x,1.f),
+				yf = cubicFactor(y - floor(y));
+				//fmod(y,1.f);
+		float	s00 = (float)get(x0,y0)[channel],
+				s10 = (float)get(x1,y0)[channel],
+				s11 = (float)get(x1,y1)[channel],
+				s01 = (float)get(x0,y1)[channel],
+				i0 = s00 * (1.f - xf) + s10 * xf,
+				i1 = s01 * (1.f - xf) + s11 * xf;
+		//ShowMessage(String(s00)+"; "+String(s10)+"; "+String(s11)+"; "+String(s01));
+		return static_cast<T>(i0 * (1.f - yf) + i1 * yf);
+	}
+
+
+
 template <typename T>
 	inline T*		ImageTemplate<T>::getVerified(dimension_t X, dimension_t Y)
 	{
