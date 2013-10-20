@@ -73,6 +73,61 @@ namespace Engine
 		Texture::Reference					Shader::globalSkyTexture;
 
 		
+
+
+		/*static*/ count_t		V2::_texturesBound = 0;
+
+		/*static*/ GLuint		V2::_GetHandle(const Texture&t)	{return t.GetHandle();}
+		/*static*/ GLuint		V2::_GetHandle(const Texture*t)	{return t ? t->GetHandle() : 0;}
+		/*static*/ GLuint		V2::_GetHandle(const Texture::Reference&ref) {return ref.GetHandle();}
+		/*static*/ GLuint		V2::_GetHandle(const FBO&object) {return object.GetTextureHandle(0);}
+		/*static*/ void			V2::_BindTexture(GLuint handle)
+		{
+			glActiveTexture((GLuint)(GL_TEXTURE0 + _texturesBound)); _texturesBound++;
+			glBindTexture(GL_TEXTURE_2D,handle);
+		}
+		/*static*/ void			V2::_Configure(GLuint handle, bool clamp)
+		{
+			if (!handle)
+				return;
+			GLenum value = clamp ? GL_CLAMP_TO_EDGE : GL_REPEAT;
+			glBindTexture(GL_TEXTURE_2D,handle);
+				glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, value);
+				glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, value);
+			glBindTexture(GL_TEXTURE_2D,0);
+		}
+
+			
+		/*static*/ void			V2::_Done()
+		{
+			glActiveTexture(GL_TEXTURE0);
+		}
+		/*static*/ void			V2::_Reset()
+		{
+			count_t it = _texturesBound;
+			_texturesBound = 0;
+			for (index_t i = 0; i < it; i++)
+				_BindTexture(0);
+			_Done();
+			_texturesBound = 0;
+		}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 		bool	Shader::Install()	const
 		{
 			if (!handle)

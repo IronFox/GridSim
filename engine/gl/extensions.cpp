@@ -1134,13 +1134,65 @@ namespace Engine
 				throw Renderer::ShaderRejected(Report());
 		}
 
+		/*static*/ void				Instance::_ParseUniformVariableInitializers(String&source,BasicBuffer<Initializer,Strategy::Swap>& initializers)
+		{
+			const char*str = source.c_str(),*begin = NULL;
+			index_t offset = initializers.count();
+			while (begin = ::Template::strstr(str,"<:="))
+			{
+				const char*valueBegin = begin+3;
+				const char*foundAt = begin;
+				begin--;
+				while (begin > str && isWhitespace( *begin ) )
+					begin--;
+				const char*nameEnd = begin+1;
+				while (begin > str && (::Template::isalnum(*begin)))
+					begin--;
+				begin++;
+				Initializer&init = initializers.append();
+				init.variableName = String(begin,nameEnd-begin);
+
+				while (*valueBegin && isWhitespace( *valueBegin ))
+					valueBegin++;
+				const char*valueEnd = valueBegin;
+				while (*valueEnd && *valueEnd != '>' && !isWhitespace(*valueEnd))
+					valueEnd++;
+				ASSERT__(convert(valueBegin,valueEnd-valueBegin,init.intValue));
+				str = strchr(valueEnd,'>');
+				if (!str)
+					return;
+				str++;
+				init.start = foundAt - source.c_str();
+				init.length = str - foundAt;
+			}
+			if (offset == initializers.count())
+				return;
+			StringBuffer	buffer;
+			const char*from = source.c_str();
+			index_t current = 0;
+			foreach (initializers,init)
+			{
+				buffer.Write(from+current,init->start-current);
+				current += init->length + (init->start-current);
+			}
+			buffer.Write(from+current,source.length()-current);
+			source = buffer.ToStringRef();
+
+		}
 
 
-		bool		Instance::Load(const Composition&composition, GLenum geometryType, GLenum outputType, unsigned maxVertices)
+		bool		Instance::Load(const Composition&composition_, GLenum geometryType, GLenum outputType, unsigned maxVertices)
 		{
 			Clear();
-			this->composition = composition;
+			this->composition = composition_;
 			glGetError();//flush errors
+			Buffer<Initializer,0,Strategy::Swap>	initializers;
+			_ParseUniformVariableInitializers(composition.sharedSource,initializers);
+			_ParseUniformVariableInitializers(composition.vertexSource,initializers);
+			_ParseUniformVariableInitializers(composition.fragmentSource,initializers);
+			_ParseUniformVariableInitializers(composition.geometrySource,initializers);
+
+
 			vertexShader	= _LoadShader(composition.sharedSource+composition.vertexSource,GL_VERTEX_SHADER_ARB);
 			fragmentShader	= _LoadShader(composition.sharedSource+composition.fragmentSource,GL_FRAGMENT_SHADER_ARB);
 			#ifdef GL_GEOMETRY_SHADER_EXT
@@ -1233,6 +1285,18 @@ namespace Engine
 				Clear();
 				return false;
 			}
+
+			if (initializers.isNotEmpty())
+			{
+				ASSERT__(Install());
+				foreach (initializers,initializer)
+				{
+					Variable v= FindVariable(initializer->variableName);
+					v.SetInt(initializer->intValue);
+				}
+				Uninstall();
+			}
+
 #if 0
 			glValidateProgram(programHandle);
 			logLen	= 0;

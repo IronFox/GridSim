@@ -863,6 +863,44 @@ namespace Engine
 									~ContextLock();
 		};
 
+
+
+
+
+
+		class V2
+		{
+		private:
+			static count_t		_texturesBound;
+
+			static GLuint		_GetHandle(const Texture&);
+			static GLuint		_GetHandle(const Texture*);
+			static GLuint		_GetHandle(const Texture::Reference&);
+			static GLuint		_GetHandle(const FBO&object);
+			static void			_BindTexture(GLuint handle);
+			static void			_Configure(GLuint handle, bool clamp);
+			static void			_Done();
+			static void			_Reset();
+			template <typename T>
+				static void		_Bind(const T&texture)	{_BindTexture(_GetHandle(texture));}
+		public:
+			static void			BindTextures()	{_Reset();}
+			template <typename T>
+				static void		BindTextures(const T&texture)	{_Reset(); _Bind(texture); _Done();}
+			template <typename T0, typename T1>
+				static void		BindTextures(const T0&t0, const T1&t1)	{_Reset(); _Bind(t0); _Bind(t1); _Done();}
+			template <typename T0, typename T1, typename T2>
+				static void		BindTextures(const T0&t0, const T1&t1, const T2&t2)	{_Reset(); _Bind(t0); _Bind(t1); _Bind(t2); _Done();}
+			template <typename T0, typename T1, typename T2, typename T3>
+				static void		BindTextures(const T0&t0, const T1&t1, const T2&t2, const T3&t3)	{_Reset(); _Bind(t0); _Bind(t1); _Bind(t2); _Bind(t3); _Done();}
+			template <typename T0, typename T1, typename T2, typename T3, typename T4>
+				static void		BindTextures(const T0&t0, const T1&t1, const T2&t2, const T3&t3, const T4&t4)	{_Reset(); _Bind(t0); _Bind(t1); _Bind(t2); _Bind(t3); _Bind(t4); _Done();}
+			template <typename T>
+				static void		ConfigureTexture(T&texture, bool clamp)	{_Configure(_GetHandle(texture),clamp);}
+		};
+
+
+
 	}
 
 
@@ -1039,6 +1077,7 @@ namespace Engine
 						bool						useTexture(const Texture*, bool clamp = false, bool override_safety = false);
 						bool						useTexture(const Texture::Reference&, bool clamp = false, bool override_safety = false);
 						bool						useTexture(const FBO&object, bool clamp = false, bool override_safety = false);
+
 
 						void						bindMaterial(const MaterialConfiguration&config, const Texture *const * list, const Shader&shader);
 						void						bindMaterial(const MaterialConfiguration&config, const Texture::Reference*list, const Shader&shader);

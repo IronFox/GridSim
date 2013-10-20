@@ -934,11 +934,27 @@
 				#endif
 				static bool						warnOnError;
 				
+				class Initializer
+				{
+				public:
+					String						variableName;
+					int							intValue;
+					index_t						start,length;
+					void						swap(Initializer&other)
+					{
+						variableName.swap(other.variableName);
+						std::swap(intValue,other.intValue);
+						std::swap(start,other.start);
+						std::swap(length,other.length);
+					}
+				};
+
 				friend class Template;
 
 				bool							_ExtractFileContent(const String&filename, String&target);
 				GLhandleARB						_LoadShader(const String&source, GLenum programType);
-				
+				static void						_ParseUniformVariableInitializers(String&source,BasicBuffer<Initializer,Strategy::Swap>& initializers);
+
 				/**/							Instance(const Instance&other){}
 				void							operator=(const Instance&other){}
 				void							_ResetVariables();
