@@ -77,24 +77,31 @@ namespace Engine
 
 		/*static*/ count_t		V2::_texturesBound = 0;
 
-		/*static*/ GLuint		V2::_GetHandle(const Texture&t)	{return t.GetHandle();}
-		/*static*/ GLuint		V2::_GetHandle(const Texture*t)	{return t ? t->GetHandle() : 0;}
-		/*static*/ GLuint		V2::_GetHandle(const Texture::Reference&ref) {return ref.GetHandle();}
-		/*static*/ GLuint		V2::_GetHandle(const FBO&object) {return object.GetTextureHandle(0);}
-		/*static*/ void			V2::_BindTexture(GLuint handle)
+		/*static*/ V2::TInfo		V2::_GetInfo(const Texture&t)	{return std::make_pair(t.GetHandle(),t.dimension());}
+		/*static*/ V2::TInfo		V2::_GetInfo(const Texture*t)	{return t ? std::make_pair(t->GetHandle(),t->dimension()) : std::make_pair<GLuint,TextureDimension>(0,TextureDimension::None);}
+		/*static*/ V2::TInfo		V2::_GetInfo(const Texture::Reference&ref) {return std::make_pair(ref.GetHandle(),ref.dimension());}
+		/*static*/ V2::TInfo		V2::_GetInfo(const FBO&object) {return _GetInfo(object.Refer(0));}
+		/*static*/ void				V2::_BindTexture(const TInfo&handle)
 		{
 			glActiveTexture((GLuint)(GL_TEXTURE0 + _texturesBound)); _texturesBound++;
-			glBindTexture(GL_TEXTURE_2D,handle);
+			if (!handle.first)
+			{
+				FATAL__("Tyring to bind empty texture");
+				return;
+			}
+			glBindTexture(_Translate(handle.second),handle.first);
 		}
-		/*static*/ void			V2::_Configure(GLuint handle, bool clamp)
+		/*static*/ void			V2::_Configure(const TInfo&info, bool clamp)
 		{
-			if (!handle)
+			if (!info.first)
 				return;
 			GLenum value = clamp ? GL_CLAMP_TO_EDGE : GL_REPEAT;
-			glBindTexture(GL_TEXTURE_2D,handle);
-				glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, value);
-				glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, value);
-			glBindTexture(GL_TEXTURE_2D,0);
+			GLenum type = _Translate(info.second);
+			glBindTexture(type,info.first);
+				glTexParameteri( type, GL_TEXTURE_WRAP_S, value);
+				glTexParameteri( type, GL_TEXTURE_WRAP_T, value);
+				glTexParameteri( type, GL_TEXTURE_WRAP_R, value);
+			glBindTexture(type,0);
 		}
 
 			
@@ -104,10 +111,14 @@ namespace Engine
 		}
 		/*static*/ void			V2::_Reset()
 		{
-			count_t it = _texturesBound;
-			_texturesBound = 0;
-			for (index_t i = 0; i < it; i++)
-				_BindTexture(0);
+			for (index_t i = 0; i < _texturesBound; i++)
+			{
+				glActiveTexture((GLuint)(GL_TEXTURE0 + i));
+				glBindTexture(GL_TEXTURE_1D,0);
+				glBindTexture(GL_TEXTURE_2D,0);
+				glBindTexture(GL_TEXTURE_3D,0);
+				glBindTexture(GL_TEXTURE_CUBE_MAP,0);
+			}
 			_Done();
 			_texturesBound = 0;
 		}

@@ -372,7 +372,8 @@ namespace Engine
 	    locked = true;
 	    #if SYSTEM==WINDOWS
 	        //ClipCursor(&no_clip);
-			ClipCursor(&window);
+			if (focus)
+				ClipCursor(&window);
 	    #endif
 	}
 
@@ -395,7 +396,10 @@ namespace Engine
 	    if (!focus)
 	        return;
 	    if (locked)
+		{
+	        ClipCursor(NULL);
 			SetCursorPos(location.absolute.x,location.absolute.y);
+		}
 		if (!cursor_visible)
 		{
 		    #if SYSTEM==WINDOWS

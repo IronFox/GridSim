@@ -873,16 +873,34 @@ namespace Engine
 		private:
 			static count_t		_texturesBound;
 
-			static GLuint		_GetHandle(const Texture&);
-			static GLuint		_GetHandle(const Texture*);
-			static GLuint		_GetHandle(const Texture::Reference&);
-			static GLuint		_GetHandle(const FBO&object);
-			static void			_BindTexture(GLuint handle);
-			static void			_Configure(GLuint handle, bool clamp);
+			typedef std::pair<GLuint, TextureDimension>	TInfo;
+
+			inline static GLenum _Translate(TextureDimension t)
+			{
+				switch (t)
+				{
+					case TextureDimension::Linear:
+						return GL_TEXTURE_1D;
+					case TextureDimension::Planar:
+						return GL_TEXTURE_2D;
+					case TextureDimension::Volume:
+						return GL_TEXTURE_3D;
+					case TextureDimension::Cube:
+						return GL_TEXTURE_CUBE_MAP;
+					default:
+						return 0;
+				}
+			}
+			static TInfo		_GetInfo(const Texture&);
+			static TInfo		_GetInfo(const Texture*);
+			static TInfo		_GetInfo(const Texture::Reference&);
+			static TInfo		_GetInfo(const FBO&object);
+			static void			_BindTexture(const TInfo& handle);
+			static void			_Configure(const TInfo&, bool clamp);
 			static void			_Done();
 			static void			_Reset();
 			template <typename T>
-				static void		_Bind(const T&texture)	{_BindTexture(_GetHandle(texture));}
+				static void		_Bind(const T&texture)	{_BindTexture(_GetInfo(texture));}
 		public:
 			static void			BindTextures()	{_Reset();}
 			template <typename T>
@@ -896,7 +914,9 @@ namespace Engine
 			template <typename T0, typename T1, typename T2, typename T3, typename T4>
 				static void		BindTextures(const T0&t0, const T1&t1, const T2&t2, const T3&t3, const T4&t4)	{_Reset(); _Bind(t0); _Bind(t1); _Bind(t2); _Bind(t3); _Bind(t4); _Done();}
 			template <typename T>
-				static void		ConfigureTexture(T&texture, bool clamp)	{_Configure(_GetHandle(texture),clamp);}
+				static void		BindTextureArray(const T*field, count_t length)	{_Reset(); for (index_t i = 0; i < length; i++) _Bind(field[i]); _Done();}
+			template <typename T>
+				static void		ConfigureTexture(T&texture, bool clamp)	{_Configure(_GetInfo(texture),clamp);}
 		};
 
 

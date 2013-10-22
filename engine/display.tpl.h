@@ -725,6 +725,7 @@ namespace Engine
 	    unbindFrameBuffer();
 	    GL::destroyContext();
 	    context.close();
+		mouse.release();
 	}
 
 	template <class GL>
