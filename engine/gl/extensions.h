@@ -162,6 +162,8 @@
 				inline bool				Set(float value)		{return setf(value);}
 				bool					set4f(float x, float y, float z, float w);
 				inline bool				Set(float x, float y, float z, float w)		{return set4f(x,y,z,w);}
+				bool					Set(float x, float y, float z);
+				bool					Set(float x, float y);
 				bool					set(const TVec2<>&);
 				inline bool				Set(const TVec2<>&v)	{return set(v);}
 				bool					set(const TVec3<>&);

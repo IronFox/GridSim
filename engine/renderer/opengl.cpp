@@ -75,7 +75,8 @@ namespace Engine
 		
 
 
-		/*static*/ count_t		V2::_texturesBound = 0;
+		/*static*/ count_t		V2::_texturesBound = 0,
+								V2::_temporaryFallBackTo = 0;
 
 		/*static*/ V2::TInfo		V2::_GetInfo(const Texture&t)	{return std::make_pair(t.GetHandle(),t.dimension());}
 		/*static*/ V2::TInfo		V2::_GetInfo(const Texture*t)	{return t ? std::make_pair(t->GetHandle(),t->dimension()) : std::make_pair<GLuint,TextureDimension>(0,TextureDimension::None);}
@@ -111,7 +112,7 @@ namespace Engine
 		}
 		/*static*/ void			V2::_Reset()
 		{
-			for (index_t i = 0; i < _texturesBound; i++)
+			for (index_t i = _temporaryFallBackTo; i < _texturesBound; i++)
 			{
 				glActiveTexture((GLuint)(GL_TEXTURE0 + i));
 				glBindTexture(GL_TEXTURE_1D,0);
@@ -120,10 +121,28 @@ namespace Engine
 				glBindTexture(GL_TEXTURE_CUBE_MAP,0);
 			}
 			_Done();
-			_texturesBound = 0;
+			_texturesBound = _temporaryFallBackTo;
 		}
 
+		/**
+		@brief Defines that subsequent texture bind operations should be appended to any currently bound textures.
 
+		These temporarily bound textures will be reset each time new textures are bound. Textures that have been bound before
+		LockCurrentBinding() was called will be preserved until UnlockBinding() is called.
+		*/
+		/*static*/ void			V2::LockCurrentBinding()
+		{
+			_temporaryFallBackTo = _texturesBound;
+		}
+		/**
+		@brief Unlocks any texture layers that may have been locked during any previous LockCurrentBinding() call.
+
+		This method does not actually unbind any textures. To clear/redefine the current binding, invoke BindTextures().
+		*/
+		/*static*/ void			V2::UnlockBinding()
+		{
+			_temporaryFallBackTo = 0;
+		}
 
 
 

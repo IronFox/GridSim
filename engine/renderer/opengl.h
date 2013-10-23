@@ -871,7 +871,8 @@ namespace Engine
 		class V2
 		{
 		private:
-			static count_t		_texturesBound;
+			static count_t		_texturesBound,
+								_temporaryFallBackTo;
 
 			typedef std::pair<GLuint, TextureDimension>	TInfo;
 
@@ -902,6 +903,8 @@ namespace Engine
 			template <typename T>
 				static void		_Bind(const T&texture)	{_BindTexture(_GetInfo(texture));}
 		public:
+			static void			LockCurrentBinding();
+			static void			UnlockBinding();
 			static void			BindTextures()	{_Reset();}
 			template <typename T>
 				static void		BindTextures(const T&texture)	{_Reset(); _Bind(texture); _Done();}

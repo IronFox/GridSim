@@ -728,6 +728,21 @@ namespace Engine
 		}
 
 
+		bool			Variable::Set(float x, float y, float z)
+		{
+			INIT_VARIABLE_UPDATE
+			glUniform3f(handle, x,y,z);
+			FINISH_VARIABLE_UPDATE
+		}
+
+		bool			Variable::Set(float x, float y)
+		{
+			INIT_VARIABLE_UPDATE
+			glUniform2f(handle, x,y);
+			FINISH_VARIABLE_UPDATE
+		}
+
+
 		bool			Variable::set(const TVec4<>&vector)
 		{
 			INIT_VARIABLE_UPDATE
@@ -1291,7 +1306,7 @@ namespace Engine
 				ASSERT__(Install());
 				foreach (initializers,initializer)
 				{
-					Variable v= FindVariable(initializer->variableName);
+					Variable v= FindVariable(initializer->variableName,false);
 					v.SetInt(initializer->intValue);
 				}
 				Uninstall();
@@ -4281,54 +4296,59 @@ namespace Engine
   NormalArray: "+_ResolveArray(GL_NORMAL_ARRAY,0,GL_NORMAL_ARRAY_STRIDE,GL_NORMAL_ARRAY_TYPE,GL_NORMAL_ARRAY_POINTER)+"\n";
 		if (glActiveTexture)
 		{
-			for (unsigned i	= 0; i < (unsigned)maxTexcoordLayers; i++)
+			for (unsigned i	= 0; i < (unsigned)maxTextureLayers; i++)
 			{
 				glActiveTexture(GL_TEXTURE0+i);
-				glClientActiveTexture(GL_TEXTURE0+i);
-				glGetFloatv(GL_TEXTURE_MATRIX,modelview);
-				glGetFloatv(GL_CURRENT_TEXTURE_COORDS,coords.v);
 				
 				String texture,array,texture_info;
-				bool has_array = _ResolveArray(GL_TEXTURE_COORD_ARRAY,GL_TEXTURE_COORD_ARRAY_SIZE,GL_TEXTURE_COORD_ARRAY_STRIDE,GL_TEXTURE_COORD_ARRAY_TYPE,GL_TEXTURE_COORD_ARRAY_POINTER,array);
-				GLint	value;
+				GLint	value, handle;
 				GLenum target,face_target;
-				if (glIsEnabled(GL_TEXTURE_1D))
+				String dimension;
+				glGetIntegerv(GL_TEXTURE_BINDING_1D,&handle);
+				face_target = target = GL_TEXTURE_1D;
+				if (handle == 0)
 				{
-					texture = "1D";
-					glGetIntegerv(GL_TEXTURE_BINDING_1D,&value);
-					texture += " ("+String(value)+")";
-					face_target = target = GL_TEXTURE_1D;
-				}
-				elif (glIsEnabled(GL_TEXTURE_2D))
-				{
-					texture = "2D";
-					glGetIntegerv(GL_TEXTURE_BINDING_2D,&value);
-					texture += " ("+String(value)+")";
+					glGetIntegerv(GL_TEXTURE_BINDING_2D,&handle);
 					face_target = target = GL_TEXTURE_2D;
+					if (handle == 0)
+					{
+						glGetIntegerv(GL_TEXTURE_BINDING_3D,&handle);
+						face_target = target = GL_TEXTURE_3D;
+						if (handle == 0)
+						{
+							glGetIntegerv(GL_TEXTURE_BINDING_CUBE_MAP,&handle);
+							face_target = GL_TEXTURE_CUBE_MAP_POSITIVE_X;
+							target = GL_TEXTURE_BINDING_CUBE_MAP;
+							if (handle == 0)
+							{
+								texture = "disabled";
+								continue;
+							}
+						}
+					}
 				}
-				elif (glIsEnabled(GL_TEXTURE_3D))
+				switch (target)
 				{
-					texture = "3D";
-					glGetIntegerv(GL_TEXTURE_BINDING_3D,&value);
-					texture += " ("+String(value)+")";
-					face_target = target = GL_TEXTURE_3D;
+					case GL_TEXTURE_1D:
+						texture = "1D";
+					break;
+					case GL_TEXTURE_2D:
+						texture = "2D";
+					break;
+					case GL_TEXTURE_3D:
+						texture = "3D";
+					break;
+					case GL_TEXTURE_CUBE_MAP:
+						texture = "CUBE";
+					break;
 				}
-				elif (glIsEnabled(GL_TEXTURE_CUBE_MAP))
 				{
-					texture = "CUBE";
-					glGetIntegerv(GL_TEXTURE_BINDING_CUBE_MAP,&value);
-					texture += " ("+String(value)+")";
-					target = GL_TEXTURE_CUBE_MAP;
-					face_target = GL_TEXTURE_CUBE_MAP_POSITIVE_X;
+					texture += " ("+String(handle);
+					if (glIsEnabled(target))
+						texture += ",enabled";
+					texture += ")";
 				}
-				else
-				{
-					texture = "disabled";
-					if (!has_array)
-						continue;
-				}
-				
-				if (texture != "disabled")
+
 				{
 					{
 						glGetTexParameteriv(target,GL_TEXTURE_MIN_FILTER,&value);
@@ -4352,13 +4372,30 @@ namespace Engine
 				}
 				
 				
-				rs += "Layer "+IntToStr(i)+"/"+String(maxTexcoordLayers) +"\n";
+				rs += "TexLayer "+IntToStr(i)+"/"+String(maxTextureLayers) +"\n";
 				rs += "  Texture: "+texture+"\n"+texture_info;
+			}
+			glActiveTexture(active_texture);
+		}
+		if (glClientActiveTexture)
+		{
+			for (unsigned i	= 0; i < (unsigned)maxTexcoordLayers; i++)
+			{
+				glClientActiveTexture(GL_TEXTURE0+i);
+				glGetFloatv(GL_TEXTURE_MATRIX,modelview);
+				glGetFloatv(GL_CURRENT_TEXTURE_COORDS,coords.v);
+				
+				String texture,array,texture_info;
+				bool has_array = _ResolveArray(GL_TEXTURE_COORD_ARRAY,GL_TEXTURE_COORD_ARRAY_SIZE,GL_TEXTURE_COORD_ARRAY_STRIDE,GL_TEXTURE_COORD_ARRAY_TYPE,GL_TEXTURE_COORD_ARRAY_POINTER,array);
+				GLint	value, handle;
+				GLenum target,face_target;
+				
+				
+				rs += "CoordLayer "+IntToStr(i)+"/"+String(maxTexcoordLayers) +"\n";
 				rs += "  CoordArray: "+array+"\n";
 				rs += "  Coords: "+Vec::toString(coords)+"\n";
 				rs += "  Matrix "+Vec::toString(Vec::ref4(modelview))+"; "+Vec::toString(Vec::ref4(modelview+4))+"; "+Vec::toString(Vec::ref4(modelview+8))+"; "+Vec::toString(Vec::ref4(modelview+12))+"\n";
 			}
-			glActiveTexture(active_texture);
 			glClientActiveTexture(client_active_texture);
 		}
 		// glMatrixMode(GL_PROJECTION);

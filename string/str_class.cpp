@@ -187,13 +187,47 @@ void	 strFree(char*current)
 
 void ShowMessage(const char*line)
 {
-	displayMessage(NULL,line);
+	displayMessage("message",line);
 }
+
+
+static void _msgBox(const char*body, const char*head, UINT type)
+{
+	MessageBoxA (NULL,body,head,type);
+}
+
+static void _msgBox(const wchar_t*body, const wchar_t*head, UINT type)
+{
+	MessageBoxW (NULL,body,head,type);
+}
+
+template <typename T0, typename T1>
+	static void _displayMessage(const T0*head_, const T1&line)
+	{
+		Array<StringTemplate<T0> >	lines;
+		explode((T0)'\n',line,lines);
+		StringTemplate<T0> sum, head = head_;
+		head += (T0)' ';
+		count_t rounds = lines.count() / 40;
+		if (lines.count() % 40)
+			rounds ++;
+		for (index_t i = 0; i < lines.count(); i+= 40)
+		{
+			sum = implode((T0)'\n',lines + i,std::min<count_t>(40,lines.count() - i));
+			if (lines.count() > 40)
+			{
+				_msgBox(sum.c_str(),(head+ StringTemplate<T0>(i/40 +1)+(T0)'/'+ StringTemplate<T0>(rounds)).c_str(),MB_OK);
+			}
+			else
+				_msgBox(sum.c_str(),head.c_str(),MB_OK);
+		}
+	}
 
 void			displayMessage(const char*head, const char*line)
 {
 	#if SYSTEM==WINDOWS
-		MessageBoxA (NULL,line,head?head:"message",MB_OK);
+		_displayMessage(head,line);
+		//MessageBoxA (NULL,line,head?head:"message",MB_OK);
 	#elif SYSTEM==UNIX
 		if (head)
 			cout << head << ":"<<endl<<"  ";
@@ -204,7 +238,8 @@ void			displayMessage(const char*head, const char*line)
 void			displayMessage(const char*head, const String&line)
 {
 	#if SYSTEM==WINDOWS
-		MessageBoxA (NULL,line.c_str(),head?head:"message",MB_OK);
+		_displayMessage(head,line);
+		//MessageBoxA (NULL,line.c_str(),head?head:"message",MB_OK);
 	#elif SYSTEM==UNIX
 		if (head)
 			cout << head << ":"<<endl<<"  ";
@@ -220,7 +255,7 @@ void			displayMessage(const String&head, const String&line)
 
 void ShowMessage(const String&line)
 {
-	displayMessage(NULL,line);
+	displayMessage("message",line);
 }
 
 
@@ -237,7 +272,7 @@ void ErrMessage(const String&line)
 void			displayMessageW(const wchar_t*head, const wchar_t*line)
 {
 	#if SYSTEM==WINDOWS
-		MessageBoxW (NULL,line,head?head:(L"message"),MB_OK);
+		_displayMessage(head,line);
 	#elif SYSTEM==UNIX
 		if (head)
 			wcout << head << ":"<<endl<<"  ";
@@ -248,7 +283,7 @@ void			displayMessageW(const wchar_t*head, const wchar_t*line)
 void			displayMessageW(const wchar_t*head, const StringW&line)
 {
 	#if SYSTEM==WINDOWS
-		MessageBoxW (NULL,line.c_str(),head?head:L"message",MB_OK);
+		_displayMessage(head,line);
 	#elif SYSTEM==UNIX
 		if (head)
 			cout << head << ":"<<endl<<"  ";
@@ -264,7 +299,7 @@ void			displayMessageW(const StringW&head, const StringW&line)
 
 void ShowMessageW(const StringW&line)
 {
-	displayMessageW(NULL,line);
+	displayMessageW(L"message",line);
 }
 
 
