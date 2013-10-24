@@ -270,7 +270,7 @@ template <typename T>
 									*/
 		inline	void				set(dimension_t X, dimension_t Y, T red, T green, T blue); 
 
-		T							sampleChannelAt(float x, float y, BYTE channel,bool loop)	const;
+		float						sampleChannelAt(float x, float y, BYTE channel,bool loop)	const;
 		T							smoothSampleChannelAt(float x, float y, BYTE channel,bool loop)	const;
 		inline	T*					get(dimension_t X, dimension_t Y)														//! Retrieves a pointer to the color data of the specified pixel. Warning: The method behavior is undefined for invalid pixel coordinates. \param X X-coordinate of the pixel \param Y Y-coordinate of the pixel  \return Pointer to the color data of the specified pixel.
 									{

@@ -902,7 +902,7 @@ template <typename T>
 	}
 
 template <typename T>
-	T				ImageTemplate<T>::sampleChannelAt(float x, float y, BYTE channel, bool loop)	const
+	float				ImageTemplate<T>::sampleChannelAt(float x, float y, BYTE channel, bool loop)	const
 	{
 		if (!image_width || !image_height || channel >= image_channels)
 			return 0;
@@ -948,7 +948,7 @@ template <typename T>
 				i0 = s00 * (1.f - xf) + s10 * xf,
 				i1 = s01 * (1.f - xf) + s11 * xf;
 		//ShowMessage(String(s00)+"; "+String(s10)+"; "+String(s11)+"; "+String(s01));
-		return static_cast<T>(i0 * (1.f - yf) + i1 * yf);
+		return (i0 * (1.f - yf) + i1 * yf);
 	}
 
 
