@@ -916,6 +916,10 @@ namespace Engine
 				static void		BindTextures(const T0&t0, const T1&t1, const T2&t2, const T3&t3)	{_Reset(); _Bind(t0); _Bind(t1); _Bind(t2); _Bind(t3); _Done();}
 			template <typename T0, typename T1, typename T2, typename T3, typename T4>
 				static void		BindTextures(const T0&t0, const T1&t1, const T2&t2, const T3&t3, const T4&t4)	{_Reset(); _Bind(t0); _Bind(t1); _Bind(t2); _Bind(t3); _Bind(t4); _Done();}
+			template <typename T0, typename T1, typename T2, typename T3, typename T4, typename T5>
+				static void		BindTextures(const T0&t0, const T1&t1, const T2&t2, const T3&t3, const T4&t4, const T5&t5)	{_Reset(); _Bind(t0); _Bind(t1); _Bind(t2); _Bind(t3); _Bind(t4); _Bind(t5); _Done();}
+			template <typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6>
+				static void		BindTextures(const T0&t0, const T1&t1, const T2&t2, const T3&t3, const T4&t4, const T5&t5, const T6&t6)	{_Reset(); _Bind(t0); _Bind(t1); _Bind(t2); _Bind(t3); _Bind(t4); _Bind(t5); _Bind(t6); _Done();}
 			template <typename T>
 				static void		BindTextureArray(const T*field, count_t length)	{_Reset(); for (index_t i = 0; i < length; i++) _Bind(field[i]); _Done();}
 			template <typename T>

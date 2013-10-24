@@ -3640,6 +3640,7 @@ namespace Engine
 						result.frameBuffer = 0;
 						return result;
 					}					
+					glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 			}
 		#endif
@@ -4169,7 +4170,9 @@ namespace Engine
 					pixel_pack_buffer_binding = 0,
 					pixel_unpack_buffer_binding = 0,
 					active_texture = -1,
-					client_active_texture = -1;
+					client_active_texture = -1,
+					fbo = 0,
+					viewport[4] = {0,0,0,0};
 		GLboolean	raster_valid;
 			glGetFloatv(GL_PROJECTION_MATRIX,projection);
 			glGetFloatv(GL_MODELVIEW_MATRIX,modelview);
@@ -4180,7 +4183,7 @@ namespace Engine
 			glGetFloatv(GL_CURRENT_RASTER_TEXTURE_COORDS,raster_texcoords.v);
 			glGetFloatv(GL_CURRENT_COLOR,color.v);
 			glGetFloatv(GL_CURRENT_NORMAL,normal.v);
-		
+			glGetIntegerv(GL_VIEWPORT,viewport);
 		#ifdef GL_ACTIVE_TEXTURE_ARB
 			glGetIntegerv(GL_ACTIVE_TEXTURE_ARB,&active_texture);
 		#endif
@@ -4193,6 +4196,9 @@ namespace Engine
 		#ifdef GL_ARB_shader_objects
 			if (glGetHandle)
 				program = (GLuint)glGetHandle(GL_PROGRAM_OBJECT_ARB);
+		#endif
+		#ifdef GL_FRAMEBUFFER_BINDING
+			glGetIntegerv(GL_FRAMEBUFFER_BINDING,&fbo);
 		#endif
 		#ifdef GL_ARB_vertex_buffer_object
 			glGetIntegerv(GL_ARRAY_BUFFER_BINDING,&array_buffer_binding);
@@ -4207,6 +4213,8 @@ namespace Engine
   Projection:\n"+__toString(projection)+"\n\
   Modelview:\n"+__toString(modelview)+"\n\
   Program: "+String(program)+"\n\
+  FBO: "+String(fbo)+"\n\
+  Viewport: "+(Vec::toString(Vec::ref4(viewport)))+"\n\
   Active texture layer: "+String(active_texture!=-1?active_texture-GL_TEXTURE0:-1)+"\n\
   Client active texture layer: "+String(client_active_texture!=-1?client_active_texture-GL_TEXTURE0:-1)+"\n\
   Color: "+Vec::toString(color)+"\n\
