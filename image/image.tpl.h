@@ -922,8 +922,8 @@ template <typename T>
 			x*=(image_width-1);
 			y*=(image_height-1);
 		}
-		dimension_t x0 = (dimension_t)floor(x),
-					y0 = (dimension_t)floor(y),
+		dimension_t x0 = ((dimension_t)floor(x)) % image_width,
+					y0 = ((dimension_t)floor(y)) % image_height,
 					x1,
 					y1;
 
