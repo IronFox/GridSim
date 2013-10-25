@@ -285,6 +285,7 @@ MFUNC1(void)				SetDirection(const TVec3<C0>&dir,bool doUpdate=true);			//!< Mod
 MFUNC1(void)				SetUpAxis(const TVec3<C0>&vert,bool doUpdate=true);			//!< Modifies the vertical vector to match the specified one and rebuilds. \param vert New vertical orientation vector.
 MFUNC2(void)				Align(const TVec3<C0>&dir, const TVec3<C1>&vert);					//!< Modifies both the direction and vertical vectors and rebuilds.  \param dir New direction vector \param vert New vertical orientation vector.
 MF_DECLARE(AngularCamera<C>)ToAngularCamera();											//!< Converts the local vector camera to an angular camera. <b>Not implemented yet. Do not use</b>
+MF_DECLARE(const VectorCamera<C>&)	ToVectorCamera() const {return *this;};
 };
 
 }
