@@ -1303,31 +1303,35 @@ template <typename T>
 template <class C, class Strategy=typename Strategy::StrategySelector<C>::Default>
 	class Array2D:public Array<C,Strategy>
 	{
+	public:
+		typedef Array2D<C,Strategy>	Self;
+		typedef Array<C,Strategy>	Super;
 	protected:
 			
-			Arrays::count_t	w;
+		Arrays::count_t	w;
 			
-				Array<C,Strategy>::setSize;
-				Array<C,Strategy>::resizePreserveContent;
-				Array<C,Strategy>::erase;
-				Array<C,Strategy>::append;
+		Super::setSize;
+		Super::resizePreserveContent;
+		Super::erase;
+		Super::append;
 	public:
-				Array2D():w(0)
-				{}
-			template <class T, class OtherStrategy>
-				inline Array2D(const Array2D<T,OtherStrategy>&other):Array<C,Strategy>(other),w(other.w)
-				{}
-				
-				inline Array2D(const Array2D<C,Strategy>&other):Array<C,Strategy>(other),w(other.w)
-				{}
+		Array2D():w(0)
+		{}
+		Array2D(Arrays::count_t width, Arrays::count_t height):Super(width*height),w(width)
+		{}
 
-			#if __ARRAY_RVALUE_REFERENCES__
-				inline Array2D(Array2D<C,Strategy>&&other):Array<C,Strategy>(other),w(other.w)
-				{}
-			#endif
+		template <class T, class OtherStrategy>
+			Array2D(const Array2D<T,OtherStrategy>&other):Super(other),w(other.w)
+			{}
 				
-				inline Array2D(Arrays::count_t width, Arrays::count_t height):Array<C,Strategy>(width*height),w(width)
-				{}
+		//inline Array2D(const Self&other):Super(other),w(other.w)
+		//{};
+
+		//#if __ARRAY_RVALUE_REFERENCES__
+		//	Array2D(Self&&other):Super(other),w(other.w)
+		//	{}
+		//#endif
+				
 				
 			
 	inline	Arrays::count_t	width()	const	//! Retrieves this array's width \return width
@@ -1343,11 +1347,10 @@ template <class C, class Strategy=typename Strategy::StrategySelector<C>::Defaul
 				Array<C,Strategy>::setSize(width*height);
 				w = width;
 			}
-	template <typename T>
-		inline	void		set(Arrays::count_t x, Arrays::count_t y, const T&value)	//! Updates a singular element at the specified position	\param x X coordinate. Must be less than width() \param y Y coordinate. Must be less than height() @param value Value to set \return Reference to the requested element
-				{
-					Array<C,Strategy>::data[y*w+x] = value;
-				}
+	inline	void		set(Arrays::count_t x, Arrays::count_t y, const C&value)	//! Updates a singular element at the specified position	\param x X coordinate. Must be less than width() \param y Y coordinate. Must be less than height() @param value Value to set \return Reference to the requested element
+			{
+				Array<C,Strategy>::data[y*w+x] = value;
+			}
 		
 	inline	C&			get(Arrays::count_t x, Arrays::count_t y)	//! Retrieves a singular element at the specified position	\param x X coordinate. Must be less than width() \param y Y coordinate. Must be less than height() \return Reference to the requested element
 			{

@@ -1161,7 +1161,7 @@ namespace Engine
 				while (begin > str && isWhitespace( *begin ) )
 					begin--;
 				const char*nameEnd = begin+1;
-				while (begin > str && (::Template::isalnum(*begin)))
+				while (begin > str && (::Template::isalnum(*begin) || *begin == '_'))
 					begin--;
 				begin++;
 				Initializer&init = initializers.append();
