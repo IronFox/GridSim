@@ -1383,8 +1383,15 @@ namespace FileSystem
 			out.location.erase(out.location.length()-1);
 		out.is_folder = true;
 		#if SYSTEM==WINDOWS
-			if (!CreateDirectoryA(out.location.c_str(),NULL) && GetLastError() != ERROR_ALREADY_EXISTS)
-				return false;
+			out.location.replace('/','\\');
+			Array<String>	segments;
+			explode('\\',out.location,segments);
+			for (index_t i = 1; i <= segments.count(); i++)
+			{
+				String path = implode('\\',segments.pointer(),i);
+				if (!CreateDirectoryA(path.c_str(),NULL) && GetLastError() != ERROR_ALREADY_EXISTS)
+					return false;
+			}
 		#elif SYSTEM==UNIX
 			if (mkdir(out.location.c_str(), S_IRUSR|S_IWUSR|S_IXUSR|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH) && errno != EEXIST)
 				return false;
