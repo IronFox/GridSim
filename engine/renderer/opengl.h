@@ -46,7 +46,7 @@ namespace Engine
 	
 	namespace GL
 	{
-		BYTE formatToChannels(GLenum format);
+		//BYTE formatToChannels(GLenum format);
 		GLenum formatToOrder(GLenum format);
 
 
@@ -383,10 +383,10 @@ namespace Engine
 			inline bool					IsTransparent()	const	{return isTransparent();}
 			bool						isValid()	const;	//!< Checks if the local texture object is valid. A valid texture object contains a valid or 0 texture handle
 			inline bool					IsValid()	const		{return isValid();}
-			void						overrideSetHandle(GLuint h, UINT32 width, UINT32 height, BYTE num_channels, bool do_clear=true);	//!< Override method (use only to override the native OpenGL texture constructors). Sets the local handle. The method is kept explicit so that users are aware of this being rather unusual and potentially having undesired side-effects
-			void						OverrideSetHandle(GLuint h, UINT32 width, UINT32 height, BYTE numChannels, bool doClear=true)
+			void						overrideSetHandle(GLuint h, UINT32 width, UINT32 height, BYTE num_channels, PixelType type, bool do_clear=true);	//!< Override method (use only to override the native OpenGL texture constructors). Sets the local handle. The method is kept explicit so that users are aware of this being rather unusual and potentially having undesired side-effects
+			void						OverrideSetHandle(GLuint h, UINT32 width, UINT32 height, BYTE numChannels, PixelType type, bool doClear=true)
 										{
-											overrideSetHandle(h,width,height,numChannels,doClear);
+											overrideSetHandle(h,width,height,numChannels,type,doClear);
 										}
 		};
 
@@ -752,8 +752,8 @@ namespace Engine
 			inline bool				Create(const Resolution&res, const BaseConfiguration&config)	{return create(Configuration(res,config));}
 			inline bool				primaryHasAlpha()	const	{return config.numColorTargets > 0 && Extension::FormatHasAlpha(config.colorTarget[0].textureFormat);}
 			inline bool				PrimaryHasAlpha()	const	{return primaryHasAlpha();}
-			unsigned				getChannelsOfTarget(BYTE target) const {return target < config.numColorTargets ? formatToChannels(config.colorTarget[target].textureFormat) : 0;}
-			inline unsigned			GetChannelsOfTarget(BYTE target) const {return getChannelsOfTarget(target);}
+			//unsigned				getChannelsOfTarget(BYTE target) const;
+			//inline unsigned			GetChannelsOfTarget(BYTE target) const {return getChannelsOfTarget(target);}
 			inline const Resolution&size() const
 									{
 										return config.resolution;

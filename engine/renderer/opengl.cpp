@@ -66,6 +66,7 @@ namespace Engine
 	
 	namespace GL
 	{
+		void Decode(GLenum format, BYTE&channels, PixelType&pt);
 	
 		GLShader::Template::VariableMap		Shader::globalMap;
 		GLShader::Template::UserConfig		Shader::globalUserConfig;
@@ -662,7 +663,7 @@ namespace Engine
 			Container<GLuint>::flush();
 		}
 		
-		void			Texture::overrideSetHandle(GLuint h, unsigned width, unsigned height, BYTE num_channels, bool do_clear)
+		void			Texture::overrideSetHandle(GLuint h, unsigned width, unsigned height, BYTE num_channels, PixelType type, bool do_clear)
 		{
 			if (do_clear)
 				clear();
@@ -671,6 +672,7 @@ namespace Engine
 			texture_height = height;
 			texture_channels = num_channels;
 			texture_dimension = TextureDimension::Planar;
+			texture_type = type;
 		}
 		
 		
@@ -965,7 +967,12 @@ namespace Engine
 		{
 			if (target_index >= config.numColorTargets || !config.colorTarget[target_index].textureHandle)
 				return false;
-			target.setSize(config.resolution.width,config.resolution.height,getChannelsOfTarget(target_index));
+			BYTE channels;
+			PixelType pt;
+			Decode(config.colorTarget[target_index].textureFormat, channels,pt);
+			target.setSize(config.resolution.width,config.resolution.height,channels);
+			target.setContentType(pt);
+
 			ContextLock	context_lock;
 
 			glPushAttrib(GL_TEXTURE_BIT);
@@ -979,7 +986,12 @@ namespace Engine
 		{
 			if (target_index >= config.numColorTargets || !config.colorTarget[target_index].textureHandle)
 				return false;
-			target.setSize(config.resolution.width,config.resolution.height,getChannelsOfTarget(target_index));
+			BYTE channels;
+			PixelType pt;
+			Decode(config.colorTarget[target_index].textureFormat, channels,pt);
+			target.setSize(config.resolution.width,config.resolution.height,channels);
+			target.setContentType(pt);
+
 			ContextLock	context_lock;
 
 			glPushAttrib(GL_TEXTURE_BIT);
@@ -993,7 +1005,12 @@ namespace Engine
 		{
 			if (target_index >= config.numColorTargets || !config.colorTarget[target_index].textureHandle)
 				return false;
-			target.setSize(config.resolution.width,config.resolution.height,getChannelsOfTarget(target_index));
+			BYTE channels;
+			PixelType pt;
+			Decode(config.colorTarget[target_index].textureFormat, channels,pt);
+			target.setSize(config.resolution.width,config.resolution.height,channels);
+			target.setContentType(pt);
+
 			ContextLock	context_lock;
 
 			glPushAttrib(GL_TEXTURE_BIT);
@@ -1126,7 +1143,7 @@ namespace Engine
 
 		}
 
-		BYTE formatToChannels(GLenum format)
+		void Decode(GLenum format, BYTE&channels, PixelType&pt)
 		{
 			switch (format)
 			{
@@ -1137,7 +1154,9 @@ namespace Engine
 			case GL_RGBA16:
 			case GL_RGBA32I:
 			case GL_RGBA32UI:
-				return 4;
+				channels = 4;
+				pt = PixelType::Color;
+			break;
 			case GL_RGB:
 			case GL_RGB8:
 			case GL_RGB16:
@@ -1145,9 +1164,14 @@ namespace Engine
 			case GL_RGB32UI:
 			case GL_RGB16F:
 			case GL_RGB32F:
-				return 3;
+				channels = 3;
+				pt = PixelType::Color;
+			break;
 			case GL_LUMINANCE_ALPHA:
 			case GL_LUMINANCE8_ALPHA8:
+				channels = 2;
+				pt = PixelType::Color;
+			break;
 			case GL_RG:
 			case GL_RG8:
 			case GL_RG16:
@@ -1155,15 +1179,23 @@ namespace Engine
 			case GL_RG32I:
 			case GL_RG16F:
 			case GL_RG32F:
-				return 2;
+				channels = 2;
+				pt = PixelType::StrictColor;
+			break;
 			case GL_ALPHA:
-			case GL_LUMINANCE:
 			case GL_ALPHA8:
-			case GL_LUMINANCE8:
 			case GL_ALPHA16:
-			case GL_LUMINANCE16:
 			case GL_ALPHA16F_ARB:
+				channels = 1;
+				pt = PixelType::Color;
+			break;
+			case GL_LUMINANCE:
+			case GL_LUMINANCE8:
+			case GL_LUMINANCE16:
 			case GL_LUMINANCE16F_ARB:
+				channels = 1;
+				pt = PixelType::PureLuminance;
+			break;
 			case GL_R:
 			case GL_R8:
 			case GL_R16:
@@ -1171,17 +1203,24 @@ namespace Engine
 			case GL_R32UI:
 			case GL_R16F:
 			case GL_R32F:
-				return 1;
+				channels = 1;
+				pt = PixelType::StrictColor;
+			break;
 			default:
 				FATAL__("Unexpected opengl format enumeration value");
-				return 0;
+				channels = 0;
+				pt = PixelType::None;
+			break;
 			}
 
 		}
 		Texture::Reference		FBO::reference(UINT target/*=0*/)	const
 		{
 			Texture t;
-			t.overrideSetHandle(config.colorTarget[target].textureHandle,config.resolution.width,config.resolution.height,formatToChannels(config.colorTarget[target].textureFormat),false);
+			BYTE channels;
+			PixelType pt;
+			Decode(config.colorTarget[target].textureFormat,channels,pt);
+			t.overrideSetHandle(config.colorTarget[target].textureHandle,config.resolution.width,config.resolution.height,channels,pt,false);
 			Texture::Reference result(t.reference());
 			t.flush();
 			return result;

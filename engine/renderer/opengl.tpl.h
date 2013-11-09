@@ -367,7 +367,7 @@ namespace Engine
 				glDisable(GL_TEXTURE_3D);	glBindTexture(GL_TEXTURE_3D,0);
 				glDisable(GL_TEXTURE_CUBE_MAP);	glBindTexture(GL_TEXTURE_CUBE_MAP,0);
 			}
-
+			glThrowError();
 
 			glMaterial(GL_FRONT_AND_BACK,GL_AMBIENT,config.ambient.v);
 			glMaterial(GL_FRONT_AND_BACK,GL_DIFFUSE,config.diffuse.v);
@@ -375,12 +375,14 @@ namespace Engine
 			glMaterial(GL_FRONT_AND_BACK,GL_EMISSION,config.emission.v);
 			glMateriali(GL_FRONT_AND_BACK,GL_SHININESS,config.shininess_exponent);
 
+			glThrowError();
 
 			if (config.alpha_test)
 			{
 				glDisable(GL_BLEND);
 				glEnable(GL_ALPHA_TEST);
 				glAlphaFunc(GL_GEQUAL,config.alpha_threshold);
+				glThrowError();
 			}
 			else
 			{
@@ -389,6 +391,7 @@ namespace Engine
 				else
 					glDisable(GL_BLEND);
 				glDisable(GL_ALPHA_TEST);
+				glThrowError();
 			}
 
 			/*if (glClientActiveTexture)
@@ -432,6 +435,7 @@ namespace Engine
 					if (normal_map)
 						state.render_setup.expect_tangent_normals  |=  (layer.content_type == PixelType::TangentSpaceNormal);
 					glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,layer.combiner);
+					glThrowError();
 					if (!layer.enabled)
 					{
 						glDisable(GL_TEXTURE_1D);	glBindTexture(GL_TEXTURE_1D,0);
@@ -440,6 +444,7 @@ namespace Engine
 						glDisable(GL_TEXTURE_CUBE_MAP);	glBindTexture(GL_TEXTURE_CUBE_MAP,0);
 						state.render_setup.texture_type[source_layer] = TextureDimension::None;
 						state.render_setup.texcoord_type[source_layer] = TextureMapping::None;
+						glThrowError();
 
 					}
 					else
@@ -473,6 +478,7 @@ namespace Engine
 							}
 							break;
 						}
+						glThrowError();
 						state.render_setup.matrix_type[source_layer] = layer.system_type;
 
 
@@ -480,6 +486,7 @@ namespace Engine
 						{
 							glDisable(GL_TEXTURE_CUBE_MAP);
 							state.render_setup.texcoord_type[source_layer] = TextureMapping::Default;
+							glThrowError();
 
 							if (list && !list[source_layer]->isEmpty())
 							{
@@ -522,6 +529,8 @@ namespace Engine
 								glDisable(GL_TEXTURE_2D);	glBindTexture(GL_TEXTURE_2D,0);
 								glDisable(GL_TEXTURE_3D);	glBindTexture(GL_TEXTURE_3D,0);
 							}
+							glThrowError();
+
 						}
 						else
 						{
@@ -541,6 +550,7 @@ namespace Engine
 								glDisable(GL_TEXTURE_CUBE_MAP);
 								state.render_setup.texture_type[source_layer] = TextureDimension::None;
 							}
+							glThrowError();
 							/*if (config.texcoords[source_layer].isEmpty())
 							{
 								if (!has_shader)
@@ -603,6 +613,7 @@ namespace Engine
 					glDisable(GL_TEXTURE_3D);	glBindTexture(GL_TEXTURE_3D,0);
 					glEnable(GL_TEXTURE_CUBE_MAP);
 					glBindTexture(GL_TEXTURE_CUBE_MAP,Shader::globalSkyTexture.getHandle());
+					glThrowError();
 
 					layer_count++;
 				}
@@ -615,6 +626,7 @@ namespace Engine
 					glDisable(GL_TEXTURE_2D);	glBindTexture(GL_TEXTURE_2D,0);
 					glDisable(GL_TEXTURE_3D);	glBindTexture(GL_TEXTURE_3D,0);
 					glDisable(GL_TEXTURE_CUBE_MAP);	glBindTexture(GL_TEXTURE_CUBE_MAP,0);
+					glThrowError();
 					//glDisable(GL_TEXTURE_GEN_S);
 					//glDisable(GL_TEXTURE_GEN_T);
 					//glDisable(GL_TEXTURE_GEN_R);
@@ -625,6 +637,7 @@ namespace Engine
 						glMatrixMode(GL_MODELVIEW);
 						state.render_setup.matrix_type[index] = SystemType::Identity;
 					}
+					glThrowError();
 				}
 			}
 			//ASSERT__(shader.isEmpty() || shader.requires_tangents == state.render_setup.expect_tangent_normals);
