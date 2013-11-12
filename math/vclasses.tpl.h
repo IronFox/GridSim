@@ -921,7 +921,13 @@ namespace Math
         return position.ToString()+" -> "+direction.ToString();
     }
     
-    template <class C> MFUNC1 (Vec3<C>) Line<C>::resolvePoint(const C0&scalar)
+    template <class C> MFUNC1 (Vec3<C>) Line<C>::At(const C0&scalar) const
+    {
+        return Vec3<C>(position.x + direction.x * scalar,
+                        position.y + direction.y * scalar,
+                        position.z + direction.z * scalar);
+    }
+    template <class C> MFUNC1 (Vec3<C>) Line<C>::operator()(const C0&scalar) const
     {
         return Vec3<C>(position.x + direction.x * scalar,
                         position.y + direction.y * scalar,

@@ -257,7 +257,8 @@ namespace Math
 		MF_CONSTRUCTOR1				Line(const Line<C0>&);
 		MF_CONSTRUCTOR2				Line(const TVec3<C0>&, const TVec3<C1>&);
 		MF_DECLARE(String)			ToString();
-		MFUNC1 (Vec3<C>)			resolvePoint(const C0&);
+		MFUNC1 (Vec3<C>)			operator()(const C0&) const;
+		MFUNC1 (Vec3<C>)			At(const C0&) const;
 		MFUNC1 (void)				operator+=(const Line<C0>&);
 		MFUNC1 (void)				operator-=(const Line<C0>&);
 		MFUNC1 (void)				operator*=(const C0&);

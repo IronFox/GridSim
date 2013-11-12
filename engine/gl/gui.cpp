@@ -1912,6 +1912,7 @@ namespace Engine
 		}
 		void					ColorRenderer::RenderLine(float x0, float y0, float x1, float y1)
 		{
+			_UpdateState();
 			glBegin(GL_LINES);
 				glVertex2f(x0,y0);
 				glVertex2f(x1,y1);
