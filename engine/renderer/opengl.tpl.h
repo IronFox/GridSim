@@ -434,7 +434,7 @@ namespace Engine
 						glActiveTexture(GL_TEXTURE0+static_cast<GLenum>(source_layer));
 					if (normal_map)
 						state.render_setup.expect_tangent_normals  |=  (layer.content_type == PixelType::TangentSpaceNormal);
-					glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,layer.combiner);
+					//glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,layer.combiner);
 					glThrowError();
 					if (!layer.enabled)
 					{

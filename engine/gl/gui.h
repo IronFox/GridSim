@@ -204,6 +204,8 @@ namespace Engine
 			Rect<float>				title,				//!< Effective (absolute) title region
 									border,				//!< Effective (absolute) region of the visual border. Mouse clicks outside this border are generally applied to the next lower window
 									client;				//!< Effective (absolute) region of the client area of the layout.
+		
+			void					Clear(const Rect<>&windowLocation);
 		};
 		
 		
@@ -521,6 +523,9 @@ namespace Engine
 			friend class Component;
 			friend void	 render();
 				//friend bool	 mouseWheel(short delta);
+		private:
+			Layout					*layout;		//!< Used layout (if any) or NULL. Unmanaged at this point.
+			TCellLayout				cellLayout;	//!< Actual layout as applied by the active layout.
 		public:
 			shared_ptr<Component>		rootComponent;
 			weak_ptr<Operator>			operatorLink;
@@ -560,11 +565,9 @@ namespace Engine
 
 			float					progress;		//!< Animation progress from @b origin to @b destination (0-1)
 				
-			Layout					*layout;		//!< Used layout (if any) or NULL. Unmanaged at this point.
 			static	Layout			commonStyle,	//!< Common window style
 									menuStyle,		//!< Menu window
 									hintStyle;		//!< Hint display window
-			TCellLayout				cellLayout;	//!< Active layout as applied by the active layout.
 			String					title;			//!< Window title. Empty by default
 			/*EClickResult			click_result,	//!< Result of the last click event that was caught (or not caught) by this window
 									hover_result;	//!< Result of the last mouse hover event that was processed by this window*/
@@ -610,6 +613,11 @@ namespace Engine
 			void					Apply(Component::eEventResult rs);	//!< Applies the result of a component event to the local state variables
 			
 			bool					Hide();	//!< Attempts to remove the local window from its operator
+
+			void					SetLayout(Layout*layout);	//!< Changes the active window layout @param layout New layout. May be NULL.
+			Layout*					GetLayout() const {return layout;}
+
+			const TCellLayout&		GetCellLayout()	const {return cellLayout;}
 			/**
 			@brief Creates a new window without inserting it
 			@param config Initial window configuration

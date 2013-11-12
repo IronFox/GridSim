@@ -962,7 +962,7 @@ namespace Engine
 			
 			
 			
-			for (unsigned i = 0; i < rows.count(); i++)
+			for (index_t i = 0; i < rows.count(); i++)
 			{
 				const TRow&row = rows[i];
 				
@@ -1007,7 +1007,12 @@ namespace Engine
 		}
 		
 
-
+		void TCellLayout::Clear(const Rect<>&windowLocation)
+		{
+			border = client = windowLocation;
+			title = Rect<>(0,0,0,0);
+			cells.Free();
+		}
 		
 		
 		/*static*/ PWindow			Window::CreateNew(const NewWindowConfig&config, const shared_ptr<Component>&component/*=shared_ptr<Component>()*/)
@@ -1050,7 +1055,7 @@ namespace Engine
 			if (layout)
 				layout->UpdateCells(reg,result->cellLayout);
 			else
-				result->cellLayout.border = result->cellLayout.client = reg;
+				result->cellLayout.Clear(reg);//cellLayout.border = result->cellLayout.client = reg;
 			return result;
 		}
 
@@ -1350,7 +1355,7 @@ namespace Engine
 			if (layout)
 				layout->UpdateCells(reg,cellLayout);
 			else
-				cellLayout.client = cellLayout.border = reg;
+				cellLayout.Clear(reg);
 			const Rect<float>&client = cellLayout.client;
 			if (rootComponent)
 				rootComponent->UpdateLayout(client);
@@ -2257,8 +2262,7 @@ namespace Engine
 			if (layout)
 				layout->UpdateCells(currentRegion,cellLayout);
 			else
-				cellLayout.border = cellLayout.client = currentRegion;
-		
+				cellLayout.Clear(currentRegion);
 		}
 		
 		float		Component::GetMinWidth(bool includeOffsets)	const
@@ -2298,7 +2302,11 @@ namespace Engine
 		
 		
 		
-
+		void			Window::SetLayout(Layout*layout)
+		{
+			this->layout = layout;
+			UpdateLayout();
+		}
 		
 
 		
@@ -3148,7 +3156,7 @@ namespace Engine
 					float x = (m.x-window->x)+window->fsize.x/2;
 					float y = (m.y-window->y)+window->fsize.y/2;
 				#endif
-				if (!window->cellLayout.border.contains(x,y))
+				if (!window->GetCellLayout().border.contains(x,y))
 				{
 					window->hidden = timing.now64;
 					menu_stack.erase(i);
@@ -3180,7 +3188,7 @@ namespace Engine
 					float x = (m.x-window->x)+window->fsize.x/2;
 					float y = (m.y-window->y)+window->fsize.y/2;
 				#endif
-				if (!window->cellLayout.border.contains(x,y))
+				if (!window->GetCellLayout().border.contains(x,y))
 					continue;
 				
 				if (window->rootComponent && window->rootComponent->IsVisible() && window->rootComponent->IsEnabled())

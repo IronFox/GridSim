@@ -2101,10 +2101,10 @@ namespace Engine
 			//float mw = menuWindow->GetMinWidth();
 			Menu*	menu = (Menu*)menuWindow->rootComponent.get();
 			TVec2<> size = menu->GetIdealSize();
-			if (menuWindow->layout)	//this is NOT included in the result of GetIdealSize(), since it cannot know the window layout (only component layouts)
+			if (menuWindow->GetLayout())	//this is NOT included in the result of GetIdealSize(), since it cannot know the window layout (only component layouts)
 			{
-				size.y += menuWindow->layout->clientEdge.top+menuWindow->layout->clientEdge.bottom;
-				size.x += menuWindow->layout->clientEdge.left+menuWindow->layout->clientEdge.right;
+				size.y += menuWindow->GetLayout()->clientEdge.top+menuWindow->GetLayout()->clientEdge.bottom;
+				size.x += menuWindow->GetLayout()->clientEdge.left+menuWindow->GetLayout()->clientEdge.right;
 			}
 			if (menuWindow->fsize.x != size.x)
 			{
@@ -2246,8 +2246,8 @@ namespace Engine
 							menuWindow->x = absolute.x.max+menuWindow->fsize.x/2;
 							menuWindow->y = absolute.top()-menuWindow->fsize.y/2;
 						}
-						menuWindow->x -= (menuWindow->cellLayout.border.left());
-						menuWindow->y += (menuWindow->fsize.y-menuWindow->cellLayout.border.top());
+						menuWindow->x -= (menuWindow->GetCellLayout().border.left());
+						menuWindow->y += (menuWindow->fsize.y-menuWindow->GetCellLayout().border.top());
 					#endif
 						
 					op->ShowMenu(menuWindow);
