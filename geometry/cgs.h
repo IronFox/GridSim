@@ -1570,6 +1570,25 @@ namespace CGS	//! Compiled Geometrical Structure
 										t[3] = (Index)(v3 + voffset);
 										return *this;
 									}
+				template <typename T>
+					Object&			MakeTriangleInv(T v2, T v1, T v0)
+									{
+										Index*t = currentLOD->triangleIndices.appendRow(3);
+										t[0] = (Index)(v0 + voffset);
+										t[1] = (Index)(v1 + voffset);
+										t[2] = (Index)(v2 + voffset);
+										return *this;
+									}
+				template <typename T>
+					Object&			MakeQuadInv(T v1, T v0, T v3, T v2)
+									{
+										Index*t = currentLOD->quadIndices.appendRow(4);
+										t[0] = (Index)(v0 + voffset);
+										t[1] = (Index)(v1 + voffset);
+										t[2] = (Index)(v2 + voffset);
+										t[3] = (Index)(v3 + voffset);
+										return *this;
+									}
 				const Index*		GetTriangleIndices(index_t lod)	const {return lods[lod].triangleIndices.pointer();}
 				const Index*		GetQuadIndices(index_t lod)		const {return lods[lod].quadIndices.pointer();}
 				const Float*		GetVertices(index_t lod)			const {return lods[lod].vertexData.pointer();}
@@ -2184,6 +2203,7 @@ namespace CGS	//! Compiled Geometrical Structure
 			count_t			GetVertexSize()			const	{return config.vsize;}
 			count_t			CountObjects()			const	{return objects.count();}
 			count_t			CountLODs()				const;
+			#undef GetObject
 			Object&			GetObject(index_t index)		{return objects[index];}
 			const Object&	GetObject(index_t index)const	{return objects[index];}
 			Object&			AppendObject()	{Object&result = objects.append(); result.config = config; return result;}

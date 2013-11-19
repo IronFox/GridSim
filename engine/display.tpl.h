@@ -643,7 +643,10 @@ namespace Engine
 					context.checkFocus();
 			}
 	        timing.update();
-	        exec_loop = !context.shutting_down && exec_target();
+			if (context.isMinimized())
+				Sleep(50.f);
+			else
+		        exec_loop = !context.shutting_down && exec_target();
 
 	        mouse.update();	//set here to reset motion
 			interruptCheckEvents();
@@ -671,7 +674,10 @@ namespace Engine
 					context.checkFocus();
 			}
 	        timing.update();
-	        exec_loop = !context.shutting_down && exec_target();
+			if (context.isMinimized())
+				Sleep(50.f);
+			else
+		        exec_loop = !context.shutting_down && exec_target();
 
 	        mouse.update();
 
