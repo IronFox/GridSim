@@ -904,6 +904,22 @@ namespace Engine
 			geometrySource.adoptData(other.geometrySource);
 		}
 
+		void				Composition::Append(const Composition&other)
+		{
+			sharedSource += '\n' + other.sharedSource;
+			vertexSource += '\n' + other.vertexSource;
+			fragmentSource += '\n' + other.fragmentSource;
+			geometrySource += '\n' + other.geometrySource;
+		}
+		void				Composition::Prefix(const Composition&other)
+		{
+			sharedSource = other.sharedSource + '\n' + sharedSource;
+			vertexSource = other.vertexSource + '\n' + vertexSource;
+			fragmentSource = other.fragmentSource + '\n' + fragmentSource;
+			geometrySource = other.geometrySource + '\n' + geometrySource;
+		}
+
+
 
 		Composition&			Composition::Load(const String&source)
 		{

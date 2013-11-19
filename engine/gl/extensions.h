@@ -213,6 +213,9 @@
 				bool					LoadFromFiles(const String&sharedFile, const String&vertexFile, const String&fragmentFile);
 				bool					LoadFromFiles(const String&sharedFile, const String&vertexFile, const String&fragmentFile, const String&geometryFile);
 				bool					LoadFromFile(const String&objectFile);
+
+				void					Append(const Composition&other);	//!< Appends the specified other composition to the end of the local one
+				void					Prefix(const Composition&other);	//!< Adds the specified other composition before the local one
 			};
 
 
