@@ -188,6 +188,8 @@
 										{
 											assertIsInstalled = true;
 										}
+
+				GLint					GetHandle()	const	{return handle;}
 				
 				bool					Exists()	const {return handle != -1;}
 				operator				bool()	const {return handle != -1;}

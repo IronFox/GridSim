@@ -784,6 +784,7 @@ namespace Engine
 			inline bool				ExportColorTo(UnclampedFloatImage&outImage,BYTE target=0)	const	{return exportColorTo(outImage,target);}
 			Texture::Reference		reference(UINT target=0)	const;
 			Texture::Reference		Refer(UINT target=0)		const	{return reference(target);}
+			Texture::Reference		ReferDepth()	const;
 			void					generateMIPLayers(UINT target=0);
 			inline void				GenerateMIPLayers(UINT target=0)	{generateMIPLayers(target);}
 			bool					isValid()	const;	//!< Checks if the local frame buffer object is valid. A valid frame buffer object contains a valid or 0 handle
@@ -866,71 +867,86 @@ namespace Engine
 
 
 
-
-
-		class V2
+		namespace V2
 		{
-		private:
-			static count_t		_texturesBound,
-								_temporaryFallBackTo;
-
-			typedef std::pair<GLuint, TextureDimension>	TInfo;
-
-			inline static GLenum _Translate(TextureDimension t)
+			namespace Detail
 			{
-				switch (t)
-				{
-					case TextureDimension::Linear:
-						return GL_TEXTURE_1D;
-					case TextureDimension::Planar:
-						return GL_TEXTURE_2D;
-					case TextureDimension::Volume:
-						return GL_TEXTURE_3D;
-					case TextureDimension::Cube:
-						return GL_TEXTURE_CUBE_MAP;
-					default:
-						return 0;
-				}
-			}
-			static TInfo		_GetInfo(const Texture&);
-			static TInfo		_GetInfo(const Texture*);
-			static TInfo		_GetInfo(const Texture::Reference&);
-			static TInfo		_GetInfo(const FBO&object);
-			static void			_BindTexture(const TInfo& handle);
-			static void			_Configure(const TInfo&, bool clamp);
-			static void			_Done();
-			static void			_Reset();
-			template <typename T>
-				static void		_Bind(const T&texture)	{_BindTexture(_GetInfo(texture));}
-		public:
-			static void			LockCurrentBinding();
-			static void			UnlockBinding();
-			static void			BindTextures()	{_Reset();}
-			template <typename T>
-				static void		BindTextures(const T&texture)	{_Reset(); _Bind(texture); _Done();}
-			template <typename T0, typename T1>
-				static void		BindTextures(const T0&t0, const T1&t1)	{_Reset(); _Bind(t0); _Bind(t1); _Done();}
-			template <typename T0, typename T1, typename T2>
-				static void		BindTextures(const T0&t0, const T1&t1, const T2&t2)	{_Reset(); _Bind(t0); _Bind(t1); _Bind(t2); _Done();}
-			template <typename T0, typename T1, typename T2, typename T3>
-				static void		BindTextures(const T0&t0, const T1&t1, const T2&t2, const T3&t3)	{_Reset(); _Bind(t0); _Bind(t1); _Bind(t2); _Bind(t3); _Done();}
-			template <typename T0, typename T1, typename T2, typename T3, typename T4>
-				static void		BindTextures(const T0&t0, const T1&t1, const T2&t2, const T3&t3, const T4&t4)	{_Reset(); _Bind(t0); _Bind(t1); _Bind(t2); _Bind(t3); _Bind(t4); _Done();}
-			template <typename T0, typename T1, typename T2, typename T3, typename T4, typename T5>
-				static void		BindTextures(const T0&t0, const T1&t1, const T2&t2, const T3&t3, const T4&t4, const T5&t5)	{_Reset(); _Bind(t0); _Bind(t1); _Bind(t2); _Bind(t3); _Bind(t4); _Bind(t5); _Done();}
-			template <typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6>
-				static void		BindTextures(const T0&t0, const T1&t1, const T2&t2, const T3&t3, const T4&t4, const T5&t5, const T6&t6)	{_Reset(); _Bind(t0); _Bind(t1); _Bind(t2); _Bind(t3); _Bind(t4); _Bind(t5); _Bind(t6); _Done();}
-			template <typename T>
-				static void		BindTextureArray(const T*field, count_t length)	{_Reset(); for (index_t i = 0; i < length; i++) _Bind(field[i]); _Done();}
-			template <typename T>
-				static void		ConfigureTexture(T&texture, bool clamp)	{_Configure(_GetInfo(texture),clamp);}
-		};
+				typedef std::pair<GLuint, TextureDimension>	TTextureInfo;
 
+				inline GLenum Translate(TextureDimension t)
+				{
+					switch (t)
+					{
+						case TextureDimension::Linear:
+							return GL_TEXTURE_1D;
+						case TextureDimension::Planar:
+							return GL_TEXTURE_2D;
+						case TextureDimension::Volume:
+							return GL_TEXTURE_3D;
+						case TextureDimension::Cube:
+							return GL_TEXTURE_CUBE_MAP;
+						default:
+							return 0;
+					}
+				}
+				TTextureInfo		Describe(const Texture&);
+				TTextureInfo		Describe(const Texture*);
+				TTextureInfo		Describe(const Texture::Reference&);
+				TTextureInfo		Describe(const FBO&object);
+				void				BindTexture(index_t layer, const TTextureInfo& handle);
+				void				Configure(const TTextureInfo&, bool clamp);
+			}
+			template <typename T>
+				inline void			BindTexture(index_t layer, const T&texture)	{Detail::BindTexture(layer,Detail::Describe(texture));}
+				void				UnbindTexture(index_t layer);
+			template <typename T>
+				inline void			ConfigureTexture(T&texture, bool clamp)	{Detail::Configure(Detail::Describe(texture),clamp);}
+
+
+			class TextureState
+			{
+			private:
+				count_t		_texturesBound,
+							_temporaryFallBackTo;
+
+				inline void		_Done()	{glActiveTexture(GL_TEXTURE0);}
+				void			_Reset();
+				static inline void		_StreamBind(index_t layer, const Detail::TTextureInfo&info)
+				{
+					ASSERT__(info.first != 0);
+					glActiveTexture((GLuint)(GL_TEXTURE0 + layer));
+					glBindTexture(Detail::Translate(info.second),info.first);
+				}
+				template <typename T>
+					void		_Bind(const T&texture)	{_StreamBind(_texturesBound++,Detail::Describe(texture));}
+			public:
+				/**/			TextureState():_texturesBound(0),_temporaryFallBackTo(0)	{}
+				void			LockCurrentBinding();
+				void			UnlockBinding();
+				void			UnbindTextures()	{_Reset();}
+				template <typename T>
+					void		BindTextures(const T&texture)	{_Reset(); _Bind(texture); _Done();}
+				template <typename T0, typename T1>
+					void		BindTextures(const T0&t0, const T1&t1)	{_Reset(); _Bind(t0); _Bind(t1); _Done();}
+				template <typename T0, typename T1, typename T2>
+					void		BindTextures(const T0&t0, const T1&t1, const T2&t2)	{_Reset(); _Bind(t0); _Bind(t1); _Bind(t2); _Done();}
+				template <typename T0, typename T1, typename T2, typename T3>
+					void		BindTextures(const T0&t0, const T1&t1, const T2&t2, const T3&t3)	{_Reset(); _Bind(t0); _Bind(t1); _Bind(t2); _Bind(t3); _Done();}
+				template <typename T0, typename T1, typename T2, typename T3, typename T4>
+					void		BindTextures(const T0&t0, const T1&t1, const T2&t2, const T3&t3, const T4&t4)	{_Reset(); _Bind(t0); _Bind(t1); _Bind(t2); _Bind(t3); _Bind(t4); _Done();}
+				template <typename T0, typename T1, typename T2, typename T3, typename T4, typename T5>
+					void		BindTextures(const T0&t0, const T1&t1, const T2&t2, const T3&t3, const T4&t4, const T5&t5)	{_Reset(); _Bind(t0); _Bind(t1); _Bind(t2); _Bind(t3); _Bind(t4); _Bind(t5); _Done();}
+				template <typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6>
+					void		BindTextures(const T0&t0, const T1&t1, const T2&t2, const T3&t3, const T4&t4, const T5&t5, const T6&t6)	{_Reset(); _Bind(t0); _Bind(t1); _Bind(t2); _Bind(t3); _Bind(t4); _Bind(t5); _Bind(t6); _Done();}
+				template <typename T>
+					void		BindTextureArray(const T*field, count_t length)	{_Reset(); for (index_t i = 0; i < length; i++) _Bind(field[i]); _Done();}
+			};
+		}
 
 
 	}
 
-
+	namespace V2 = GL::V2;
 
 
 

@@ -76,42 +76,49 @@ namespace Engine
 		
 
 
-		/*static*/ count_t		V2::_texturesBound = 0,
-								V2::_temporaryFallBackTo = 0;
 
-		/*static*/ V2::TInfo		V2::_GetInfo(const Texture&t)	{return std::make_pair(t.GetHandle(),t.dimension());}
-		/*static*/ V2::TInfo		V2::_GetInfo(const Texture*t)	{return t ? std::make_pair(t->GetHandle(),t->dimension()) : std::make_pair<GLuint,TextureDimension>(0,TextureDimension::None);}
-		/*static*/ V2::TInfo		V2::_GetInfo(const Texture::Reference&ref) {return std::make_pair(ref.GetHandle(),ref.dimension());}
-		/*static*/ V2::TInfo		V2::_GetInfo(const FBO&object) {return _GetInfo(object.Refer(0));}
-		/*static*/ void				V2::_BindTexture(const TInfo&handle)
+		V2::Detail::TTextureInfo		V2::Detail::Describe(const Texture&t)	{return std::make_pair(t.GetHandle(),t.dimension());}
+		V2::Detail::TTextureInfo		V2::Detail::Describe(const Texture*t)	{return t ? std::make_pair(t->GetHandle(),t->dimension()) : std::make_pair<GLuint,TextureDimension>(0,TextureDimension::None);}
+		V2::Detail::TTextureInfo		V2::Detail::Describe(const Texture::Reference&ref) {return std::make_pair(ref.GetHandle(),ref.dimension());}
+		V2::Detail::TTextureInfo		V2::Detail::Describe(const FBO&object) {return Describe(object.Refer(0));}
+		void							V2::Detail::BindTexture(index_t layer, const TTextureInfo&handle)
 		{
-			glActiveTexture((GLuint)(GL_TEXTURE0 + _texturesBound)); _texturesBound++;
+			//glActiveTexture((GLuint)(GL_TEXTURE0 + _texturesBound)); _texturesBound++;
 			if (!handle.first)
 			{
 				FATAL__("Tyring to bind empty texture");
 				return;
 			}
-			glBindTexture(_Translate(handle.second),handle.first);
+			glActiveTexture((GLuint)(GL_TEXTURE0 + layer));
+			glBindTexture(Translate(handle.second),handle.first);
+			glActiveTexture(GL_TEXTURE0);
 		}
-		/*static*/ void			V2::_Configure(const TInfo&info, bool clamp)
+		void			V2::Detail::Configure(const TTextureInfo&info, bool clamp)
 		{
 			if (!info.first)
 				return;
+			glPushAttrib(GL_TEXTURE_BIT);
 			GLenum value = clamp ? GL_CLAMP_TO_EDGE : GL_REPEAT;
-			GLenum type = _Translate(info.second);
+			GLenum type = Translate(info.second);
 			glBindTexture(type,info.first);
 				glTexParameteri( type, GL_TEXTURE_WRAP_S, value);
 				glTexParameteri( type, GL_TEXTURE_WRAP_T, value);
 				glTexParameteri( type, GL_TEXTURE_WRAP_R, value);
-			glBindTexture(type,0);
+			glPopAttrib();
+		}
+
+		void	V2::UnbindTexture(index_t layer)
+		{
+			glActiveTexture((GLuint)(GL_TEXTURE0 + layer));
+			glBindTexture(GL_TEXTURE_1D,0);
+			glBindTexture(GL_TEXTURE_2D,0);
+			glBindTexture(GL_TEXTURE_3D,0);
+			glBindTexture(GL_TEXTURE_CUBE_MAP,0);
+			glActiveTexture(GL_TEXTURE0);
 		}
 
 			
-		/*static*/ void			V2::_Done()
-		{
-			glActiveTexture(GL_TEXTURE0);
-		}
-		/*static*/ void			V2::_Reset()
+		void			V2::TextureState::_Reset()
 		{
 			for (index_t i = _temporaryFallBackTo; i < _texturesBound; i++)
 			{
@@ -131,7 +138,7 @@ namespace Engine
 		These temporarily bound textures will be reset each time new textures are bound. Textures that have been bound before
 		LockCurrentBinding() was called will be preserved until UnlockBinding() is called.
 		*/
-		/*static*/ void			V2::LockCurrentBinding()
+		void			V2::TextureState::LockCurrentBinding()
 		{
 			_temporaryFallBackTo = _texturesBound;
 		}
@@ -140,7 +147,7 @@ namespace Engine
 
 		This method does not actually unbind any textures. To clear/redefine the current binding, invoke BindTextures().
 		*/
-		/*static*/ void			V2::UnlockBinding()
+		void			V2::TextureState::UnlockBinding()
 		{
 			_temporaryFallBackTo = 0;
 		}
@@ -1226,6 +1233,20 @@ namespace Engine
 			return result;
 
 		}
+
+		Texture::Reference		FBO::ReferDepth()	const
+		{
+			ASSERT_EQUAL__(config.depthTarget.storageType,DepthStorage::Texture);
+			Texture t;
+			BYTE channels = 1;
+			PixelType pt = PixelType::Depth;
+			t.overrideSetHandle(config.depthTarget.handle,config.resolution.width,config.resolution.height,channels,pt,false);
+			Texture::Reference result(t.reference());
+			t.flush();
+			return result;
+
+		}
+
 
 		void		FBO::generateMIPLayers(UINT target/*=0*/)
 		{
