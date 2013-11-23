@@ -285,6 +285,7 @@ namespace Converter
 			try
 			{
 				Magic::loadFromFile(color_image,color_map);
+	//			color_image.free();
 			}
 			catch (const Exception&except)
 			{
@@ -359,8 +360,9 @@ namespace Converter
 			}
 		Array<BYTE>	buffer;
 		sendMessage("Compressing...");
+		//color_image.free();
 		size_t out_size = TextureCompression::compress(color_image,buffer);
-
+		color_image.free();
 		if (!out_size)
 			logMessage("Compression failed of '"+key+"' ("+TextureCompression::getError()+")");
 		

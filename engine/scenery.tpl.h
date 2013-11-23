@@ -1288,7 +1288,7 @@ namespace Engine
 		
 	    SCENERY_LOG("embedding material '"+material.name+"'");
 		shared_ptr<Material<GL,Def> > my_material = dynamic_pointer_cast<Material<GL,Def>,CGS::MaterialObject>(material.info.attachment.lock());
-	    if (my_material && my_material->owner == this)
+	    if (my_material && my_material->owner == this && my_material->info.similar(material.info))
 	    {
 			SCENERY_LOG("similar material found. merging...");
 	        my_material->merge(entity,material,!locked,warnings);

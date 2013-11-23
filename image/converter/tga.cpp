@@ -28,19 +28,20 @@ CTGA	tga;
 
 
 
-static void tgaColor(BYTE*color, BYTE bpp, BYTE*out)
+static void tgaColor(const Array<BYTE>&color, index_t offset, BYTE bpp, BYTE*out)
 {
     if (bpp >= 24)
     {
-        out[0] = color[2];
-        out[1] = color[1];
-        out[2] = color[0];
+        out[0] = color[offset+2];
+        out[1] = color[offset+1];
+        out[2] = color[offset+0];
 		if (bpp>24)
-			out[3] = color[3];	//this will require testing
+			out[3] = color[offset+3];	//this will require testing
     }
     else
     {
-        USHORT col = *(USHORT*)color;
+		ASSERT_LESS__(offset+1,color.length());
+        USHORT col = *(USHORT*)(color + offset);
         out[0] = ((col>>10)&(0x1F))*255/0x1F;
         out[1] = ((col>>5)&(0x1F))*255/0x1F;
         out[2] = ((col & 0x1F))*255/0x1F;
@@ -58,7 +59,7 @@ static void tgaLinearPixel(unsigned index,Image&target,BYTE*color)
 {
     unsigned x = index % target.getWidth(),
              y = index / target.getWidth();
-    if (y > target.getHeight())
+    if (y >= target.getHeight())
         return;
     target.set(x,y,color);
 }
@@ -127,7 +128,7 @@ void	CTGA::loadFromFilePointer(Image&target, FILE*f)
         final_map.setSize(map_len);
         read(color_map.pointer(),map_size,f);
         for (unsigned i = 0; i < map_len; i++)
-            tgaColor(&color_map[i*3],map_bpp,&final_map[i*map_stride]);
+            tgaColor(color_map,i*3,map_bpp,&final_map[i*map_stride]);
     }
     else
         FILE_READ_ASSERT_ZERO__(fseek(f,map_size,SEEK_CUR));
@@ -163,7 +164,7 @@ void	CTGA::loadFromFilePointer(Image&target, FILE*f)
                 for (unsigned y = 0; y < height; y++)
                 {
                     BYTE color[4];
-                    tgaColor(&image[(y*width+x)*pixel_stride],image_bpp, color);
+                    tgaColor(image,(y*width+x)*pixel_stride,image_bpp, color);
                     target.set(x,y,color);
                 }
         break;
@@ -218,7 +219,7 @@ void	CTGA::loadFromFilePointer(Image&target, FILE*f)
                 {
                     if (offset + pixel_stride > size)
                         return;
-                    tgaColor(&image[offset],image_bpp,color);
+                    tgaColor(image,offset,image_bpp,color);
                     offset+=pixel_stride;
                     for (BYTE k = 0; k < count; k++)
                         tgaLinearPixel(pixel++,target,color);
@@ -229,7 +230,7 @@ void	CTGA::loadFromFilePointer(Image&target, FILE*f)
                         return;
                     for (BYTE k = 0; k < count; k++)
                     {
-                        tgaColor(&image[offset],image_bpp,color);
+                        tgaColor(image,offset,image_bpp,color);
                         offset+= pixel_stride;
                         tgaLinearPixel(pixel++,target,color);
                     }
