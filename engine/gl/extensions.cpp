@@ -2156,7 +2156,7 @@ namespace Engine
 						c++;
 					String	word(w,c-w);
 			
-					if (word == "version" || word == "extension" || word == "include")
+					if (word == "version" || word == "extension" || word == "include" || word == "define")
 						continue;
 			
 			

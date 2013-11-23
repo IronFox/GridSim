@@ -201,11 +201,31 @@ static void _msgBox(const wchar_t*body, const wchar_t*head, UINT type)
 	MessageBoxW (NULL,body,head,type);
 }
 
+template <typename T>
+	const T*	_empty()
+	{
+		return NULL;
+	}
+template <>
+	const char*	_empty<char>()
+	{
+		return "<empty string>";
+	}
+template <>
+	const wchar_t*	_empty<wchar_t>()
+	{
+		return L"<empty string>";
+	}
+
+
+
 template <typename T0, typename T1>
 	static void _displayMessage(const T0*head_, const T1&line)
 	{
 		Array<StringTemplate<T0> >	lines;
 		explode((T0)'\n',line,lines);
+		if (!lines.count())
+			_msgBox(_empty<T0>(),head_,MB_OK);
 		StringTemplate<T0> sum, head = head_;
 		head += (T0)' ';
 		count_t rounds = lines.count() / 40;
