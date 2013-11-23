@@ -91,7 +91,8 @@ namespace Engine
 	
 		virtual	void		Advance(float delta)						{};					//!< Advances the frame. @param Last frames frame length. The control is encouraged to use this delta value rather than the global timing variable if slowmotion effects should be possible
 		virtual void		FixedUpdate(float delta)					{};					//!< Called with a fixed frame delta
-	
+		virtual void		PostAdvance()								{};					//!< Called once Advance() and FixedUpdate() have been called for the frame
+
 		virtual	bool		DetectNearestGroundHeight(const TVec3<>&referencePosition,float&outHeight, TVec3<>&outNormal)	{return false;};
 		virtual void		OnResolutionChange(const Resolution&newResolution, bool isFinal)		{};
 		virtual void		Shutdown()									{};					//!< Signals that the applications is being shut down
