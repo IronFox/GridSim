@@ -82,13 +82,22 @@ bool MaterialInfo::similar(const MaterialInfo&other) const
 		return false;
 	if (!MaterialColors::similar(other))
 		return false;
-	for (unsigned i = 0; i < layer_field.length(); i++)
+	for (index_t i = 0; i < layer_field.length(); i++)
 	{
-		if (layer_field[i].combiner != other.layer_field[i].combiner)
+		const TLayer&a = layer_field[i],
+					&b = other.layer_field[i];
+		if (a.combiner != b.combiner)
 			return false;
-		bool cube = layer_field[i].source && layer_field[i].source->face_field.length() == 6;
-		if (cube && layer_field[i].mirror_map != other.layer_field[i].mirror_map)
+		if (a.cube_map != b.cube_map)
 			return false;
+		if (a.cube_map)
+		{
+			if (a.mirror_map != b.mirror_map)
+				return false;
+		}
+		else
+			if (a.clamp_x != b.clamp_x || a.clamp_y != b.clamp_y)
+				return false;
 	}
 	return true;
 }
