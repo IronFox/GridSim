@@ -1013,7 +1013,7 @@ namespace Engine
 
 	protected:
 		static			bool				bindFrameBufferObject(const GL::FBO&);
-						void				unbindFrameBufferObject(const Resolution&new_resolution);
+						void				TargetBackbuffer();
 		inline			void				onModelviewChange();
 
 		virtual			void				enableLight(Light*);
@@ -1064,7 +1064,7 @@ namespace Engine
 													Material;		//!< Material-Container
 		typedef		GL::ContextLock					ContextLock;
 
-		static		OpenGL							*global_instance;		//!< Global default instance (set by Eve<OpenGL>)
+		static		OpenGL							*globalInstance;		//!< Global default instance (set by Eve<OpenGL>)
 
 						void						enableLighting();					//!< Globally enables lighting.
 						void						disableLighting();					//!< Globally disables lighting.
@@ -1177,8 +1177,8 @@ namespace Engine
 		inline			void						storeCamera();																					//!< Pushes the current modelview and projection matrices to the stack
 		inline			void						restoreCamera();																				//!< Restores the modelview and projection matrices from the stack, overwriting the currently loaded modelview and projection matrices
 		
-						void						nextFrameNoClr();																				//!< Swaps buffers
-						void						nextFrame();																					//!< Swaps buffers and clears the back buffer
+						void						NextFrameNoClr();																				//!< Swaps buffers
+						void						NextFrame();																					//!< Swaps buffers and clears the back buffer
 
 		static			String						renderState();																					//!< Queries the current render state \return String containing the current OpenGL render state
 
@@ -1191,10 +1191,10 @@ namespace Engine
 
 	#if SYSTEM==WINDOWS
 						HWND						createWindow(const String&class_name, const String&window_name,int x, int y, unsigned width, unsigned height, bool hide_border, TVisualConfig&config);
-						bool						createContext(HWND hWnd, TVisualConfig&config);
+						bool						CreateContext(HWND hWnd, TVisualConfig&config);
 	#elif SYSTEM==UNIX
 		virtual										~OpenGL();
-						bool						createContext(Display*connection, TVisualConfig&config, TWindowAttributes&out_attributes);
+						bool						CreateContext(Display*connection, TVisualConfig&config, TWindowAttributes&out_attributes);
 						bool						bindContext(Window window);
 	#endif
 						void						setVerbose(bool);
@@ -1205,11 +1205,11 @@ namespace Engine
 						context_t					linkContextClone();				//!< Attempts to create a clone of the local context for multi-threaded processing and automatically binds it to the local thread
 						void						unlinkAndDestroyContextClone(context_t);
 						void						adoptCurrentContext();																			//!< Retrieves device and gl context from the current rendering environment overwriting and currently bound contexts
-						void						destroyContext();																				//!< Destroys the active rendering context
-						void						setRegion(const RECT&region);																//!< Sets a new rendering region	\param region Rectangle specifying the new rendering region in the active window
+						void						DestroyContext();																				//!< Destroys the active rendering context
+						void						SetViewport(const RECT&region, const Resolution&windowRes);																//!< Sets a new rendering region	\param region Rectangle specifying the new rendering region in the active window
 		static			const char*					GetErrorStr();																					//!< Returns a string-representation of the last occured error \return String-representation of the last occured error
-		static			int							getErrorCode();																				//!< Returns an index representation of the last occured error \return Error code of the last occured error
-						const char*					name();																						//!< Returns identity \return "OpenGL"
+		static			int							GetErrorCode();																				//!< Returns an index representation of the last occured error \return Error code of the last occured error
+						const char*					GetName();																						//!< Returns identity \return "OpenGL"
 	#if SYSTEM==WINDOWS
 						HDC							getDC();
 						HGLRC						getGLContext();
@@ -1413,7 +1413,6 @@ namespace Engine
 
 	*/
 
-	typedef OpenGL	OpenGL;	//!< Shortcut
 }
 
 #include "opengl.tpl.h"

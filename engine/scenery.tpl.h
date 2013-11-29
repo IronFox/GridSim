@@ -495,7 +495,7 @@ namespace Engine
 			return;
 		if (!renderer)
 		{
-			renderer = GL::global_instance;
+			renderer = GL::globalInstance;
 			if (!renderer)
 				FATAL__("renderer is NULL");
 		}
@@ -735,7 +735,7 @@ namespace Engine
 	{
 		if (!renderer)
 		{
-			renderer = GL::global_instance;
+			renderer = GL::globalInstance;
 			if (!renderer)
 				FATAL__("trying to load texture without renderer");
 		}
@@ -913,7 +913,7 @@ namespace Engine
 	        return;
 		if (!renderer)
 		{
-			setRenderer(GL::global_instance,false);
+			setRenderer(GL::globalInstance,false);
 			if (!renderer)
 				FATAL__("trying to rebuild scenery without renderer");
 		}
@@ -1281,7 +1281,7 @@ namespace Engine
 	{
 		if (!locked && !renderer)
 		{
-			setRenderer(GL::global_instance,false);
+			setRenderer(GL::globalInstance,false);
 			if (!renderer)
 				FATAL__("trying to embed material without renderer");
 		}
@@ -1476,7 +1476,7 @@ namespace Engine
 			{
 				if (!renderer)
 				{
-					setRenderer(GL::global_instance,false);
+					setRenderer(GL::globalInstance,false);
 					if (!renderer)
 						FATAL__("trying to render without renderer");
 				}
@@ -1492,7 +1492,7 @@ namespace Engine
 		{
 			if (!renderer)
 			{
-				setRenderer(GL::global_instance,false);
+				setRenderer(GL::globalInstance,false);
 				if (!renderer)
 					FATAL__("trying to render without renderer");
 			}
@@ -1521,7 +1521,7 @@ namespace Engine
 	{
 		if (!renderer)
 		{
-			setRenderer(GL::global_instance,false);
+			setRenderer(GL::globalInstance,false);
 			if (!renderer)
 				FATAL__("trying to render without renderer");
 		}
@@ -1552,7 +1552,7 @@ namespace Engine
 	{
 		if (!renderer)
 		{
-			setRenderer(GL::global_instance,false);
+			setRenderer(GL::globalInstance,false);
 			if (!renderer)
 				FATAL__("trying to render without renderer");
 		}
@@ -1584,7 +1584,7 @@ namespace Engine
 	{
 		if (!renderer)
 		{
-			setRenderer(GL::global_instance,false);
+			setRenderer(GL::globalInstance,false);
 			if (!renderer)
 				FATAL__("trying to render without renderer");
 		}
@@ -1602,7 +1602,7 @@ namespace Engine
 	{
 		if (!renderer)
 		{
-			setRenderer(GL::global_instance,false);
+			setRenderer(GL::globalInstance,false);
 			if (!renderer)
 				FATAL__("trying to render without renderer");
 		}
@@ -1614,7 +1614,7 @@ namespace Engine
 		PostRenderCleanup();
 	}
 
-	template <class GL, class Def> Scenery<GL,Def>::Scenery(TextureTable<GL>*table):locked(0),renderer(GL::global_instance),textures(table?table:&local_textures)
+	template <class GL, class Def> Scenery<GL,Def>::Scenery(TextureTable<GL>*table):locked(0),renderer(GL::globalInstance),textures(table?table:&local_textures)
 	{
 		merge_materials = true;
 		keep_unused_materials = false;

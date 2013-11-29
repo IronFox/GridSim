@@ -147,6 +147,7 @@ namespace Engine
 	inline  void						process(XEvent&event);
 	#endif
 			RECT						transform(const TFloatRect&rect);
+			RECT						transform(const TFloatRect&rect, const Resolution&res);
 
 	public:
 
@@ -208,7 +209,7 @@ namespace Engine
 	inline	float						pixelAspect()	const;	   //!< window pixel-aspect
 	FORWARD	Resolution					size();							//!< Queries the current window size
 	inline	Resolution					clientSize()			const;	//!< Queries the current window's inner size
-	inline	Resolution					currentRargetResolution()				const;
+	inline	Resolution					currentTargetResolution()				const;
 	FORWARD	Resolution					dimension();					//!< Identical to size()
 	FORWARD	Resolution					dimensions();					//!< Identical to size()
 	FORWARD void						queryScreen(ResolutionList*r_list, FrequencyList*f_list=NULL, DWORD w_min=0, DWORD h_min=0, DWORD f_min=0);
@@ -261,7 +262,7 @@ namespace Engine
 	template <class C>
 			void						pickCentered(const Aspect<C>&aspect);				//!< Picks aspect (i.e. a camera) as if it were located in the point of origin \param aspect Aspect that should be used from now on
 			bool						bindFrameBuffer(const typename GL::FBO&pobj);	 //!< Binds a pixel buffer object for rendering \param pobj Pixel buffer object that should be rendered to
-			void						unbindFrameBuffer();										//!< Unbinds bound pixel buffer object
+			void						TargetBackbuffer();										//!< Unbinds bound pixel buffer object
 
 			void						overrideSetClientResolution(const Resolution&res);
 
@@ -359,6 +360,7 @@ namespace Engine
 			UINT						clientWidth()							const;
 			UINT						clientHeight()							const;
 			RECT						transform(const TFloatRect&field)		const;
+			static RECT					transform(const TFloatRect&field, const Resolution&);
 			void						destroyWindow();
 
 			void						signalResize(bool is_final, bool is_maximized);

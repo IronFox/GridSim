@@ -1321,7 +1321,7 @@ namespace Engine
 	//CGLRenderState				OpenGL::state;
 	//ModularDataTable<GLuint>		OpenGL::texture_table;
 	int								OpenGL::error_code;					//error-code from the last operation
-	OpenGL							*OpenGL::global_instance(NULL);
+	OpenGL							*OpenGL::globalInstance(NULL);
 	/*static*/		Buffer<OpenGL::GLBinding,4>	OpenGL::created_contexts;		//!< All created contexts
 	
 	//HashContainer<CGLShader>		OpenGL::shader_cache;
@@ -2015,11 +2015,10 @@ namespace Engine
 		return true;
 	}
 
-	void OpenGL::unbindFrameBufferObject(const Resolution&new_resolution)
+	void OpenGL::TargetBackbuffer()
 	{
 		GL_BEGIN
 			glExtensions.UnbindFrameBuffer();
-			glViewport(0,0,new_resolution.width,new_resolution.height);
 		GL_END
 	}
 
@@ -2376,7 +2375,7 @@ namespace Engine
 
 
 
-		bool OpenGL::createContext(HWND hWnd, TVisualConfig&config)
+		bool OpenGL::CreateContext(HWND hWnd, TVisualConfig&config)
 		{
 			GL_BEGIN
 			error_code = ERR_NO_ERROR;
@@ -2514,7 +2513,7 @@ namespace Engine
 			GL_END
 		}
 
-		bool	OpenGL::createContext(Display*connection, TVisualConfig&config, TWindowAttributes&out_attributes)
+		bool	OpenGL::CreateContext(Display*connection, TVisualConfig&config, TWindowAttributes&out_attributes)
 		{
 			GL_BEGIN
 			display = connection;
@@ -2707,7 +2706,7 @@ namespace Engine
 		return result;
 	}
 
-	void OpenGL::destroyContext()
+	void OpenGL::DestroyContext()
 	{
 		GL_BEGIN
 		glFinish();
@@ -2748,13 +2747,13 @@ namespace Engine
 	}
 
 
-	const char*OpenGL::name()
+	const char*OpenGL::GetName()
 	{
 		return "OpenGL";
 	}
 
 
-	void OpenGL::nextFrameNoClr()
+	void OpenGL::NextFrameNoClr()
 	{
 		GL_BEGIN
 		glFinish();
@@ -2767,7 +2766,7 @@ namespace Engine
 		GL_END
 	}
 
-	void OpenGL::nextFrame()
+	void OpenGL::NextFrame()
 	{
 		GL_BEGIN
 		glFinish();
@@ -2781,7 +2780,7 @@ namespace Engine
 		GL_END
 	}
 
-	void OpenGL::setRegion(const RECT&region)
+	void OpenGL::SetViewport(const RECT&region, const Resolution&windowRes)
 	{
 		glViewport(region.left,region.bottom,region.right-region.left,region.top-region.bottom);
 	}
@@ -2806,7 +2805,7 @@ namespace Engine
 		return "undefined gl-error";
 	}
 
-	int OpenGL::getErrorCode()
+	int OpenGL::GetErrorCode()
 	{
 		return error_code;
 	}
@@ -3347,7 +3346,7 @@ namespace Engine
 			}
 		}
 
-		if (binding.tangent.isset() && texcoords < (count_t)glExtensions.maxTexcoordLayers)
+		if (binding.tangent.isSet() && texcoords < (count_t)glExtensions.maxTexcoordLayers)
 		{
 			index_t i = texcoords++;
 			glClientActiveTexture(GL_TEXTURE0+GLuint(i));

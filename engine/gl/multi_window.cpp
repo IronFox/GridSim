@@ -1620,7 +1620,8 @@ namespace Engine
 
 	void			Window::pick(const Engine::Aspect<float>&aspect)
 	{
-		display.setRegion(display.transformViewport(aspect.region,clientSize()));	//to allow FBO region
+		Resolution res = clientSize();
+		display.SetViewport(display.transformViewport(aspect.region,res),res);	//to allow FBO region
 		//glViewport((GLint)(aspect.region.left*(float)client_width),(GLint)(aspect.region.bottom*(float)client_height),(GLint)(aspect.region.width()*(float)client_width),(GLint)(aspect.region.height()*(float)client_height));
 		display.loadProjection(aspect.projection);
 		display.loadModelview(aspect.view);

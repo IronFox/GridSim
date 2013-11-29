@@ -306,7 +306,7 @@ namespace Engine
 										{
 											length = 0;
 										}
-			bool						isset() const
+			bool						isSet() const
 										{
 											return length > 0;
 										}

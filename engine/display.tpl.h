@@ -7,7 +7,7 @@ namespace Engine
 
 	template <class GL>Display<GL>::Display():exec_target(NULL),context_error(false),region_locked(false),framebuffer_bound(false),resolution_overridden(false),config(default_buffer_config)
 	{
-		GL::global_instance = this;
+		GL::globalInstance = this;
 	}
 
 
@@ -233,16 +233,18 @@ namespace Engine
 	            context_error = true;
 	            return false;
 	        }
-	        if (!GL::createContext(hWnd,config))
+	        if (!GL::CreateContext(hWnd,config))
 	        {
 	            context.destroyWindow();
-	            if (GL::getErrorCode() == ERR_RETRY)
+	            if (GL::GetErrorCode() == ERR_RETRY)
 	                continue;
 	            context_error = false;
 	            return false;
 	        }
 	        const RECT&window = context.windowLocation();
-	        GL::setRegion(rect(0,0,window.right-window.left,window.bottom-window.top));
+			UINT sx = window.right-window.left,
+				sy = window.bottom-window.top;
+	        GL::SetViewport(rect(0,0,sx,sy),Resolution(sx,sy));
 	        return true;
 	    }
 
@@ -260,9 +262,9 @@ namespace Engine
 	    while (true)
 	    {
 	        TWindowAttributes attributes;
-	        if (!GL::createContext(connection,config,attributes))
+	        if (!GL::CreateContext(connection,config,attributes))
 	        {
-	            if (GL::getErrorCode() == ERR_RETRY)
+	            if (GL::GetErrorCode() == ERR_RETRY)
 	                continue;
 	            context.disconnect();
 	            context_error = false;
@@ -271,22 +273,24 @@ namespace Engine
 	        Window wnd = context.createWindow(dconfig.window_name,attributes,dconfig.hide_border,dconfig.icon_filename);
 	        if (!wnd)
 	        {
-	            GL::destroyContext();
+	            GL::DestroyContext();
 	            context_error = true;
 	            context.disconnect();
 	            return false;
 	        }
-	        if (!GL::bindContext(wnd))
+	        if (!GL::BindContext(wnd))
 	        {
 	            context_error = false;
 	            context.destroyWindow();
-	            GL::destroyContext();
+	            GL::DestroyContext();
 	            context.disconnect();
 	            context_error = false;
 	            return false;
 	        }
 	        const RECT&window = context.windowLocation();
-	        GL::setRegion(rect(0,0,window.right-window.left,window.bottom-window.top));
+			UINT sx = window.right-window.left,
+				sy = window.bottom-window.top;
+	        GL::SetViewport(rect(0,0,sx,sy),Resolution(sx,sy));
 
 	        current_target_resolution = window_client_resolution = context.clientSize();
 			pixel_aspect = current_target_resolution.aspect();
@@ -301,7 +305,7 @@ namespace Engine
 	{
 	    if (context_error)
 	        return "Context returns ("+IntToStr(context.errorCode())+"): "+String(context.errorStr());
-	    return "System "+String(GL::name())+" returns ("+IntToStr(GL::getErrorCode())+"): "+String(GL::GetErrorStr());
+	    return "System "+String(GL::GetName())+" returns ("+IntToStr(GL::GetErrorCode())+"): "+String(GL::GetErrorStr());
 	}
 
 
@@ -396,7 +400,7 @@ namespace Engine
 		}
 		
 	template <class GL>
-		inline Resolution					Display<GL>::currentRargetResolution()	const
+		inline Resolution					Display<GL>::currentTargetResolution()	const
 		{
 			if (framebuffer_bound)
 				return target_buffer_resolution;
@@ -582,13 +586,13 @@ namespace Engine
 
 	template <class GL> inline	void	Display<GL>::capture(typename GL::Texture&target)
 	{
-		Resolution res = currentRargetResolution();
+		Resolution res = currentTargetResolution();
 		GL::capture(target,res.width,res.height);
 	}
 
 	template <class GL> inline	void	Display<GL>::captureDepth(typename GL::Texture&target)
 	{
-		Resolution res = currentRargetResolution();
+		Resolution res = currentTargetResolution();
 		GL::captureDepth(target,res.width,res.height);
 	}
 
@@ -650,7 +654,7 @@ namespace Engine
 
 	        mouse.update();	//set here to reset motion
 			interruptCheckEvents();
-	        GL::nextFrame();
+	        GL::NextFrame();
 	    }
 	}
 
@@ -701,7 +705,7 @@ namespace Engine
 	            }
 	        #endif
 
-	        GL::nextFrameNoClr();
+	        GL::NextFrameNoClr();
 	    }
 	}
 
@@ -728,8 +732,8 @@ namespace Engine
 
 	template <class GL>void Display<GL>::destroy()
 	{
-	    unbindFrameBuffer();
-	    GL::destroyContext();
+	    TargetBackbuffer();
+	    GL::DestroyContext();
 	    context.close();
 		mouse.release();
 	}
@@ -774,8 +778,12 @@ namespace Engine
 
 	template <class GL> RECT Display<GL>::transform(const TFloatRect&rect)
 	{
-		Resolution res = currentRargetResolution();
+		Resolution res = currentTargetResolution();
+		return transform(rect,res);
+	}
 
+	template <class GL> RECT Display<GL>::transform(const TFloatRect&rect, const Resolution&res)
+	{
 	    RECT result;
 	    result.left     = (LONG)(rect.x.min		*res.width);
 	    result.right    = (LONG)(rect.x.max		*res.width);
@@ -787,7 +795,8 @@ namespace Engine
 
 	template <class GL> void Display<GL>::pickRegion(const TFloatRect&rect)
 	{
-	    GL::setRegion(transform(rect));
+		Resolution res = currentTargetResolution();
+	    GL::SetViewport(transform(rect,res),res);
 	}
 
 
@@ -795,7 +804,10 @@ namespace Engine
 	template <class C>void Display<GL>::pick(const Aspect<C>&aspect)
 	{
 	    if (!region_locked)
-	        GL::setRegion(transform(aspect.region));
+		{
+			Resolution res = currentTargetResolution();
+	        GL::SetViewport(transform(aspect.region,res),res);
+		}
 		if (GlobalAspectConfiguration::loadAsProjection)
 		{
 			TMatrix4<>	view_projection;
@@ -819,7 +831,10 @@ namespace Engine
 	template <class C>void Display<GL>::pickCentered(const Aspect<C>&aspect)
 	{
 	    if (!region_locked)
-	        GL::setRegion(transform(aspect.region));
+		{
+			Resolution res = currentTargetResolution();
+	        GL::SetViewport(transform(aspect.region,res),res);
+		}
 	    TMatrix4<C>   view;
 		view.x = aspect.view.x;
 		view.y = aspect.view.y;
@@ -851,7 +866,7 @@ namespace Engine
 	{
 	    if (pobj.isEmpty())
 		{
-			unbindFrameBuffer();
+			TargetBackbuffer();
 	        return false;
 		}
 	    if (GL::bindFrameBufferObject(pobj))
@@ -863,23 +878,26 @@ namespace Engine
 			//ShowMessage("pbuffer bound. region is "+String(region_size.x)+", "+String(region_size.y)+". aspect is "+String(pixelAspect));
 	        return true;
 	    }
-	    unbindFrameBuffer();
+	    TargetBackbuffer();
 	    return false;
 	}
 
 
 	template <class GL>
-	void Display<GL>::unbindFrameBuffer()
+	void Display<GL>::TargetBackbuffer()
 	{
 	    if (!framebuffer_bound)
 			return;
 		
 	    framebuffer_bound = false;
-	    GL::unbindFrameBufferObject(clientSize());
-	    //current_target_resolution = window_client_resolution;
-		//const RECT&window = context.windowLocation();
-		/*GL::setRegion(rect(0,0,window.right-window.left,window.bottom-window.top));*/	//so if i set region here everything goes boom..... guess stranger things happen
-		//ShowMessage("pbuffer unbound. region is "+String(region_size.x)+", "+String(region_size.y)+". aspect is "+String(pixelAspect));
+	    GL::TargetBackbuffer();
+		Resolution res = clientSize();
+		RECT rect;
+		rect.left = 0;
+		rect.bottom = 0;
+		rect.right = res.width;
+		rect.top = res.height;
+		GL::SetViewport(rect,res);
 	}
 
 
