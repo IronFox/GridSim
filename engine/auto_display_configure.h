@@ -60,6 +60,7 @@ namespace Engine
 			}
 			
 			DisplayConfig config(name,[fileName,onResize,&display](const Resolution&newRes, bool is_final, bool is_full_screen){
+				display.SignalWindowResize(is_final);
 				if (is_final && !is_full_screen)
 				{
 					Detail::UpdateXML(display,fileName);

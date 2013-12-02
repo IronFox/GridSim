@@ -2375,7 +2375,7 @@ namespace Engine
 
 
 
-		bool OpenGL::CreateContext(HWND hWnd, TVisualConfig&config)
+		bool OpenGL::CreateContext(HWND hWnd, TVisualConfig&config, const Resolution&)
 		{
 			GL_BEGIN
 			error_code = ERR_NO_ERROR;

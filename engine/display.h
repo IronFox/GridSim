@@ -201,6 +201,8 @@ namespace Engine
 	inline	void						setDimensions(unsigned width, unsigned height, DisplayConfig::border_style_t style);	//!< @copydoc resizeWindow()
 	inline	void						setSize(unsigned width, unsigned height, DisplayConfig::border_style_t style);	//!< @copydoc resizeWindow()
 
+	void								SignalWindowResize(bool final);
+
 	FORWARD const RECT&					windowLocation();	//!< Retrieves the current window location and size \return RECT Struct containing the current window location.
 	FORWARD	unsigned					width();			//!< Queries the current window width
 	FORWARD	unsigned					height();				//!< Queries the current window height

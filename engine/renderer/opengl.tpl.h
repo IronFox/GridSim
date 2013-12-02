@@ -751,22 +751,16 @@ namespace Engine
 
 
 	template <class C>
-	void OpenGL::loadModelview(const TMatrix4<C>&matrix)
+	void					OpenGL::SetCameraMatrices(const TMatrix4<C>&view, const TMatrix4<C>&projection, const TMatrix4<C>&viewInvert)
 	{
 		GL_BEGIN
-	    glLoadMatrix(matrix.v);
-		onModelviewChange();
-	    GL_END
-	}
-
-	template <class C>
-	void OpenGL::loadProjection(const TMatrix4<C>&matrix)
-	{
-		GL_BEGIN
+	    glLoadMatrix(view.v);
 	    glMatrixMode(GL_PROJECTION);
-	    glLoadMatrix(matrix.v);
+	    glLoadMatrix(projection.v);
 	    glMatrixMode(GL_MODELVIEW);
+		onModelviewChange();
 		GL_END
+
 	}
 
 

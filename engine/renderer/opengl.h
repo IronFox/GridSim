@@ -1171,8 +1171,8 @@ namespace Engine
 	T_	static inline	void						enterSubSystem(const TMatrix4<C>&system);																	//!< Enters a sub-system affecting all following render-calls \param system Pointer to a 4x4 system matrix
 		static inline	void						exitSubSystem();																				//!< Returns from a sub-system to the next higher system
 						void						unbindAll();																					//!< Unbinds the currently bound material, all textures and all vertex/index objects
-	T_					void						loadModelview(const TMatrix4<C>&matrix);															//!< Loads the specified matrix as modelview matrix \param matrix Pointer to a 4x4 (system) matrix
-	T_					void						loadProjection(const TMatrix4<C>&matrix);															//!< Loads the specified matrix as projection matrix \param matrix Pointer to a 4x4 (projection) matrix
+	
+	T_ void					SetCameraMatrices(const TMatrix4<C>&view, const TMatrix4<C>&projection, const TMatrix4<C>&viewInvert);
 	T_					void						replaceCamera(const TMatrix4<C>&modelview, const TMatrix4<C>&projection);								//!< Pushes the current modelview and projection matrices to the stack and loads the specified ones. restoreCamera() must be called when done working with the replacement
 		inline			void						storeCamera();																					//!< Pushes the current modelview and projection matrices to the stack
 		inline			void						restoreCamera();																				//!< Restores the modelview and projection matrices from the stack, overwriting the currently loaded modelview and projection matrices
@@ -1191,7 +1191,7 @@ namespace Engine
 
 	#if SYSTEM==WINDOWS
 						HWND						createWindow(const String&class_name, const String&window_name,int x, int y, unsigned width, unsigned height, bool hide_border, TVisualConfig&config);
-						bool						CreateContext(HWND hWnd, TVisualConfig&config);
+						bool						CreateContext(HWND hWnd, TVisualConfig&config, const Resolution&res);
 	#elif SYSTEM==UNIX
 		virtual										~OpenGL();
 						bool						CreateContext(Display*connection, TVisualConfig&config, TWindowAttributes&out_attributes);
@@ -1207,9 +1207,10 @@ namespace Engine
 						void						adoptCurrentContext();																			//!< Retrieves device and gl context from the current rendering environment overwriting and currently bound contexts
 						void						DestroyContext();																				//!< Destroys the active rendering context
 						void						SetViewport(const RECT&region, const Resolution&windowRes);																//!< Sets a new rendering region	\param region Rectangle specifying the new rendering region in the active window
-		static			const char*					GetErrorStr();																					//!< Returns a string-representation of the last occured error \return String-representation of the last occured error
-		static			int							GetErrorCode();																				//!< Returns an index representation of the last occured error \return Error code of the last occured error
-						const char*					GetName();																						//!< Returns identity \return "OpenGL"
+		static const char*			GetErrorStr();																					//!< Returns a string-representation of the last occured error \return String-representation of the last occured error
+		static int					GetErrorCode();																				//!< Returns an index representation of the last occured error \return Error code of the last occured error
+		const char*					GetName();																						//!< Returns identity \return "OpenGL"
+		inline void					SignalWindowResize(const Resolution&)	{}
 	#if SYSTEM==WINDOWS
 						HDC							getDC();
 						HGLRC						getGLContext();

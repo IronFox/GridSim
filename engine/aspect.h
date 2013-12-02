@@ -206,6 +206,7 @@ public:
 
 MF_CONSTRUCTOR				Camera();
 MF_DECLARE(void)			UpdateProjection(const C&pixelAspect, const C&zNear=0.1, const C&zFar=100, const C&vFov=45);	//!< Create the local projection matrix via aspect, znear, zfar and vertical field of view. Also updates the projection invert. \param pixelAspect Global pixel aspect. Should not contain the local region aspect. \param zNear Near z plane. \param zFar Far z plane. \param vFov Vertical field of view in degrees.
+MF_DECLARE(void)			UpdateProjection2(const C&pixelAspect, const C&zNear=0.1, const C&zFar=100, const C&vFov=45);	//!< Create the local projection matrix via aspect, znear, zfar and vertical field of view. Also updates the projection invert. \param pixelAspect Global pixel aspect. Should not contain the local region aspect. \param zNear Near z plane. \param zFar Far z plane. \param vFov Vertical field of view in degrees.
 MFUNC2	(void)				AlterDepthRange(const C0&zNear, const C1&zFar);											//!< Changes the depth range of the local projection matrix. Also updates the projection invert. \param zNear New near z plane. \param zFar New far z plane.
 MF_DECLARE(void)			UpdateView();																				//!< (Re)assembles the view matrix using the local orientation matrix. Also updates the view invert.
 MFUNC3	(void)				Translate(const C0&x, const C1&y, const C2&z);						//!< Moves the camera depending on its current orientation. Auto updates viewInvert. \param x Translation in X-direction (horizontal) \param y Translation in Y-direction (vertical) \param Translation in Z-direction (depth)

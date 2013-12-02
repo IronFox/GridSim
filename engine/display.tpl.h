@@ -233,7 +233,7 @@ namespace Engine
 	            context_error = true;
 	            return false;
 	        }
-	        if (!GL::CreateContext(hWnd,config))
+			if (!GL::CreateContext(hWnd,config,context.clientSize()))
 	        {
 	            context.destroyWindow();
 	            if (GL::GetErrorCode() == ERR_RETRY)
@@ -241,10 +241,8 @@ namespace Engine
 	            context_error = false;
 	            return false;
 	        }
-	        const RECT&window = context.windowLocation();
-			UINT sx = window.right-window.left,
-				sy = window.bottom-window.top;
-	        GL::SetViewport(rect(0,0,sx,sy),Resolution(sx,sy));
+			Resolution res = context.clientSize();
+	        GL::SetViewport(rect(0,res.height,res.width,0),res);
 	        return true;
 	    }
 
@@ -287,12 +285,10 @@ namespace Engine
 	            context_error = false;
 	            return false;
 	        }
-	        const RECT&window = context.windowLocation();
-			UINT sx = window.right-window.left,
-				sy = window.bottom-window.top;
-	        GL::SetViewport(rect(0,0,sx,sy),Resolution(sx,sy));
+			Resolution res = context.clientSize();
+	        GL::SetViewport(rect(0,res.height,res.width,0),res);
 
-	        current_target_resolution = window_client_resolution = context.clientSize();
+	        current_target_resolution = window_client_resolution = res;
 			pixel_aspect = current_target_resolution.aspect();
 
 	        return true;
@@ -322,7 +318,7 @@ namespace Engine
 	template <class GL> inline  void  Display<GL>::locateWindow(unsigned left, unsigned top, unsigned width, unsigned height)
 	{
 	    context.locateWindow(left,top,width,height);
-		overrideSetClientResolution(context.clientSize());
+		SignalWindowResize(true);
 	}
 
 	template <class GL>	inline	void	Display<GL>::overrideSetClientResolution(const Resolution&region)
@@ -334,14 +330,28 @@ namespace Engine
 	template <class GL> inline  void Display<GL>::locateWindow(const RECT&rect)
 	{
 		context.locateWindow(rect);
-		overrideSetClientResolution(context.clientSize());
+		SignalWindowResize(true);
 	}
 
 	template <class GL> inline  void Display<GL>::resizeWindow(unsigned width, unsigned height, DisplayConfig::border_style_t style)
 	{
 	    context.resizeWindow(width,height,style);
-		overrideSetClientResolution(context.clientSize());
+		SignalWindowResize(true);
 	}
+
+	template <class GL> inline void Display<GL>::SignalWindowResize(bool final)
+	{
+		//overrideSetClientResolution(context.clientSize());
+		if (final)
+		{
+			Resolution res = currentTargetResolution();
+			GL::SignalWindowResize(res);
+			GL::SetViewport(rect(0,res.height,res.width,0),res);
+		}
+	}
+
+
+
 	template <class GL>
 		inline	void		Display<GL>::setDimension(unsigned width, unsigned height, DisplayConfig::border_style_t style)
 		{
@@ -812,13 +822,11 @@ namespace Engine
 		{
 			TMatrix4<>	view_projection;
 			Mat::mult(aspect.projection,aspect.view,view_projection);
-			GL::loadModelview(Matrix<>::eye4);
-			GL::loadProjection(view_projection);
+			GL::SetCameraMatrices(Matrix<>::eye4,view_projection,Matrix<>::eye4);
 		}
 		else
 		{
-			GL::loadModelview(aspect.view);
-			GL::loadProjection(aspect.projection);
+			GL::SetCameraMatrices(aspect.view,aspect.projection,aspect.viewInvert);
 		}
 		GL::setDepthTest(aspect.depthTest);
 		environment_matrix.x.xyz = aspect.viewInvert.x.xyz;
@@ -892,12 +900,7 @@ namespace Engine
 	    framebuffer_bound = false;
 	    GL::TargetBackbuffer();
 		Resolution res = clientSize();
-		RECT rect;
-		rect.left = 0;
-		rect.bottom = 0;
-		rect.right = res.width;
-		rect.top = res.height;
-		GL::SetViewport(rect,res);
+	    GL::SetViewport(rect(0,res.height,res.width,0),res);
 	}
 
 

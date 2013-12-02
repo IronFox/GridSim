@@ -1623,8 +1623,7 @@ namespace Engine
 		Resolution res = clientSize();
 		display.SetViewport(display.transformViewport(aspect.region,res),res);	//to allow FBO region
 		//glViewport((GLint)(aspect.region.left*(float)client_width),(GLint)(aspect.region.bottom*(float)client_height),(GLint)(aspect.region.width()*(float)client_width),(GLint)(aspect.region.height()*(float)client_height));
-		display.loadProjection(aspect.projection);
-		display.loadModelview(aspect.view);
+		display.SetCameraMatrices(aspect.view,aspect.projection,aspect.viewInvert);
 		display.setDepthTest(aspect.depthTest);
 		Engine::environment_matrix.x.xyz = aspect.viewInvert.x.xyz;
 		Engine::environment_matrix.y.xyz = aspect.viewInvert.y.xyz;
