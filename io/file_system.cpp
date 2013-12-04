@@ -5,11 +5,6 @@
 
 Plattform-independent file-browsing-module.
 
-This file is part of Delta-Works
-Copyright (C) 2006-2008 Stefan Elsen, University of Trier, Germany.
-http://www.delta-works.org/forge/
-http://informatik.uni-trier.de/
-
 ******************************************************************/
 
 
@@ -1100,6 +1095,8 @@ namespace FileSystem
 			return "";
 		index_t at = filename.length()-1;
 		while (filename.get(at) != '\\' && filename.get(at) != '/' && --at < filename.length());
+		if (at >= filename.length())
+			return ".";
 		/*if (at)
 			at--;*/
 		return filename.subString(0,at);
