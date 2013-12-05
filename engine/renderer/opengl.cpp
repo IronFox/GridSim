@@ -2004,7 +2004,7 @@ namespace Engine
 		#endif
 	}
 
-	bool OpenGL::bindFrameBufferObject(const FBO&pobj)
+	bool OpenGL::TargetFBO(const FBO&pobj)
 	{
 		if (!glBindFramebuffer || pobj.isEmpty())
 			return false;

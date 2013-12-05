@@ -870,18 +870,18 @@ namespace Engine
 	}
 
 	template <class GL>
-	bool Display<GL>::bindFrameBuffer(const typename GL::FBO&pobj)
+	bool Display<GL>::TargetFBO(const typename GL::FBO&pobj)
 	{
-	    if (pobj.isEmpty())
+	    if (pobj.IsEmpty())
 		{
 			TargetBackbuffer();
 	        return false;
 		}
-	    if (GL::bindFrameBufferObject(pobj))
+	    if (GL::TargetFBO(pobj))
 	    {
 			framebuffer_bound = true;
-	        target_buffer_resolution = pobj.size();
-			framebuffer_alpha = pobj.primaryHasAlpha();
+	        target_buffer_resolution = pobj.GetResolution();
+			framebuffer_alpha = pobj.PrimaryHasAlpha();
 	        //pixelAspect = current_target_resolution.aspect();
 			//ShowMessage("pbuffer bound. region is "+String(region_size.x)+", "+String(region_size.y)+". aspect is "+String(pixelAspect));
 	        return true;

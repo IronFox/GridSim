@@ -263,9 +263,8 @@ namespace Engine
 			void						pick(const Aspect<C>&aspect);	//!< Picks aspect (i.e. a camera) for rendering \param aspect Aspect that should be used from now on
 	template <class C>
 			void						pickCentered(const Aspect<C>&aspect);				//!< Picks aspect (i.e. a camera) as if it were located in the point of origin \param aspect Aspect that should be used from now on
-			bool						bindFrameBuffer(const typename GL::FBO&pobj);	 //!< Binds a pixel buffer object for rendering \param pobj Pixel buffer object that should be rendered to
+			bool						TargetFBO(const typename GL::FBO&pobj);	 //!< Binds a pixel buffer object for rendering \param pobj Pixel buffer object that should be rendered to
 			void						TargetBackbuffer();										//!< Unbinds bound pixel buffer object
-
 			void						overrideSetClientResolution(const Resolution&res);
 
 	};

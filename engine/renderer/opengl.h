@@ -1012,7 +1012,7 @@ namespace Engine
 						void				Bind(const VertexBinding&binding, const float*field);
 
 	protected:
-		static			bool				bindFrameBufferObject(const GL::FBO&);
+		static			bool				TargetFBO(const GL::FBO&);
 						void				TargetBackbuffer();
 		inline			void				onModelviewChange();
 
