@@ -222,8 +222,8 @@ template <class Carrier>
 			inline size_t					count()								const;	//!< Returns the number of entries currently stored in the set/table. \return Number of entries in the set/table.
 			inline operator 				size_t()							const;	//!< Implicit conversion to size_t. \return Returns the number of entries in the set/table.
 			inline	void					clear();									//!< Resizes back to the initial set size and un-occupies all carriers. If no resizing took place then the respective objects are not reinitialized.
-			inline	bool					isEmpty()							const;	//!< Checks if the local table is empty
-			inline	bool					isNotEmpty()						const;	//!< Checks if the local table contains at least one element
+			inline	bool					isEmpty()							const	/**!< Checks if the local table is empty**/	{return entries ==0;}
+			inline	bool					isNotEmpty()						const	/**!< Checks if the local table contains at least one element*/ 	{return entries !=0;}
 			inline	void					Clear()										/** @copydoc clear() */ {clear();}
 			inline	bool					IsEmpty()							const	/** @copydoc isEmpty() */ {return isEmpty();}
 			inline	bool					IsNotEmpty()						const	/** @copydoc isNotEmpty() */ {return isNotEmpty();}
