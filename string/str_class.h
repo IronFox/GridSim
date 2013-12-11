@@ -365,7 +365,7 @@ template <typename T>
 			bool		operator!=(const StringTemplate<T2>&other)	const;
 		template <typename T2>
 			bool		operator==(const StringTemplate<T2>&other)	const;
-						
+		bool			operator==(const T*str)	const	{size_t l = Template::strlen(str); return l == len && Template::strncmp(str,reference,len) == 0;}
 	};
 
 /**
