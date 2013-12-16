@@ -884,7 +884,9 @@ namespace Engine
 			framebuffer_alpha = pobj.PrimaryHasAlpha();
 	        //pixelAspect = current_target_resolution.aspect();
 			//ShowMessage("pbuffer bound. region is "+String(region_size.x)+", "+String(region_size.y)+". aspect is "+String(pixelAspect));
-	        return true;
+
+			GL::SetViewport(rect(0,target_buffer_resolution.height,target_buffer_resolution.width,0),target_buffer_resolution);	        
+			return true;
 	    }
 	    TargetBackbuffer();
 	    return false;
