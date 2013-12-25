@@ -394,7 +394,7 @@ namespace Engine
 			cout << " input: now active profile is "<<active_profile<<endl;
 	}
 	
-	void	InputMap::regAnalog(const String&name, float&resource, float min, float max)
+	void	InputMap::RegAnalog(const String&name, float&resource, float min, float max)
 	{
 		TAnalogSource&source = analog_sources.set(name.copyToLowerCase());
 		source.value = &resource;
@@ -404,7 +404,13 @@ namespace Engine
 		linear_analog_list << source;
 	}
 	
-	TAnalogSource*		InputMap::findAnalog(const String&name)
+	void	InputMap::UnregAnalog(const String&name)
+	{
+		analog_sources.unset(name);
+	}
+
+
+	TAnalogSource*		InputMap::FindAnalog(const String&name)
 	{
 		return analog_sources.queryPointer(name.copyToLowerCase());
 	}

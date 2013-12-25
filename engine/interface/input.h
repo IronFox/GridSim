@@ -157,8 +157,9 @@ namespace Engine
 			void				popProfile();						//!< Pops the most recently pushed profile from the stack, replacing the currently active one.
 			
 			
-			void				regAnalog(const String&name, float&resource, float min, float max);	//!< Registers a new analog resource by the given name \param name Name of the new resource \param resource Reference to the float variable containing the current resource status \param min Minimum value of this resource \param max Maximum value of this resource
-			TAnalogSource*		findAnalog(const String&name);											//!< Attempts to locate an analog input source by the specified name. \return Reference to a matching analog source or NULL if no such match was found
+			void				RegAnalog(const String&name, float&resource, float min, float max);	//!< Registers a new analog resource by the given name \param name Name of the new resource \param resource Reference to the float variable containing the current resource status \param min Minimum value of this resource \param max Maximum value of this resource
+			void				UnregAnalog(const String&name);
+			TAnalogSource*		FindAnalog(const String&name);											//!< Attempts to locate an analog input source by the specified name. \return Reference to a matching analog source or NULL if no such match was found
 	};
 	
 	

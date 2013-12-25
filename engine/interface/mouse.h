@@ -110,7 +110,7 @@ namespace Engine
 			void				setRegion(RECT region);
 			void				redefineWindow(RECT window, HWND);
 			void				update();							//< Evokes the per frame update. Invoked by the working context - should not be invoked by the client application.
-			void				regAnalogInputs();			//!< Registers analog input types to the input map
+			void				RegAnalogInputs();			//!< Registers analog input types to the input map
 
 			void				RecordAbsoluteMouseMovement(long x, long y);
 			void				RecordRelativeMouseMovement(long x, long y);

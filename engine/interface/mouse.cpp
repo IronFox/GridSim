@@ -269,10 +269,10 @@ namespace Engine
 	    #endif
 	}
 	
-	void Mouse::regAnalogInputs()
+	void Mouse::RegAnalogInputs()
 	{
-		map.regAnalog("MouseX",location.windowRelative.x,0,1);
-		map.regAnalog("MouseY",location.windowRelative.y,0,1);
+		map.RegAnalog("MouseX",location.windowRelative.x,0,1);
+		map.RegAnalog("MouseY",location.windowRelative.y,0,1);
 	}
 
 	void	Mouse::RecordAbsoluteMouseMovement(long x, long y)

@@ -1065,77 +1065,112 @@ namespace FileSystem
 	Folder::File  Folder::file;
 
 
+	template<typename T>
+		static StringTemplate<T>	_extractFileName(const StringTemplate<T>&filename)
+		{
+			index_t last_dot(filename.length()),last_slash(0);
+			for (index_t i = 0; i < filename.length(); i++)
+			{
+				if (filename.get(i) == (T)'/' || filename.get(i) == (T)'\\')
+					last_slash = i+1;
+				if (filename.get(i) == (T)'.')
+					last_dot = i;
+			}
+			if (last_dot < last_slash)
+				last_dot = filename.length();
+			return filename.subString(last_slash,last_dot-last_slash);
+		}
+
 	String	extractFileName(const String&filename)
 	{
-		index_t last_dot(filename.length()),last_slash(0);
-		for (index_t i = 0; i < filename.length(); i++)
-		{
-			if (filename.get(i) == '/' || filename.get(i) == '\\')
-				last_slash = i+1;
-			if (filename.get(i) == '.')
-				last_dot = i;
-		}
-		if (last_dot < last_slash)
-			last_dot = filename.length();
-		return filename.subString(last_slash,last_dot-last_slash);
+		return _extractFileName(filename);
 	}
+	WString	extractFileName(const WString&filename)
+	{
+		return _extractFileName(filename);
+	}
+
+	template <typename T>
+		static StringTemplate<T>	_extractFileExt(const StringTemplate<T>&filename)
+		{
+			index_t at(filename.length()-1);
+			while (filename.get(at) != (T)'/' && filename.get(at) != (T)'\\' && filename.get(at) != (T)'.' && --at < filename.length());
+			if (at >= filename.length() || filename.get(at) != (T)'.')
+				return StringTemplate<T>();
+			return filename.subString(at+1);
+		}
 
 	String	extractFileExt(const String&filename)
 	{
-		index_t at(filename.length()-1);
-		while (filename.get(at) != '/' && filename.get(at) != '\\' && filename.get(at) != '.' && --at < filename.length());
-		if (at >= filename.length() || filename.get(at) != '.')
-			return "";
-		return filename.subString(at+1);
+		return _extractFileExt(filename);
+	}
+	WString	extractFileExt(const WString&filename)
+	{
+		return _extractFileExt(filename);
 	}
 
-	String	extractFilePath(const String&filename)
-	{
-		if (!filename.length())
-			return "";
-		index_t at = filename.length()-1;
-		while (filename.get(at) != '\\' && filename.get(at) != '/' && --at < filename.length());
-		if (at >= filename.length())
-			return ".";
-		/*if (at)
-			at--;*/
-		return filename.subString(0,at);
-	}
-
-	String	 extractFilePathName(const String&filename)
-	{
-		index_t at(filename.length()-1);
-		if (at >= filename.length())
-			return "";
-		while (filename.get(at) != '/' && filename.get(at) != '\\' && filename.get(at) != '.' && --at < filename.length());
-		if (at >= filename.length() || filename.get(at) != '.')
-			return filename;
-		return filename.subString(0,at);
-	}
-
-	String	 extractFileNameExt(const String&filename)
-	{
-		index_t at = filename.length()-1;
-		if (at>= filename.length())
-			return "";
-		while (filename.get(at) != '/' && filename.get(at) != '\\' && --at < filename.length());
-		return filename.subString(at+1);
-	}
-
-
-	String	 escapeSpaces(String path)
-	{
-		while (index_t at = path.indexOf("\\"))
-			path.erase(at-1,1);
-		String final;
-		for (index_t i = 0; i < path.length(); i++)
+	template <typename T>
+		static StringTemplate<T>	_extractFilePath(const StringTemplate<T>&filename)
 		{
-			if (path.get(i) == ' ')
-				final += '\\';
-			final += path.get(i);
+			if (!filename.length())
+				return StringTemplate<T>();
+			index_t at = filename.length()-1;
+			while (filename.get(at) != (T)'\\' && filename.get(at) != (T)'/' && --at < filename.length());
+			if (at >= filename.length())
+				return (T)'.';
+			/*if (at)
+				at--;*/
+			return filename.subString(0,at);
 		}
-		return final;
-	}
+
+	String	extractFilePath(const String&filename)	{return _extractFilePath(filename);}
+	WString	extractFilePath(const WString&filename)	{return _extractFilePath(filename);}
+
+	template <typename T>
+		static StringTemplate<T>	 _extractFilePathName(const StringTemplate<T>&filename)
+		{
+			index_t at(filename.length()-1);
+			if (at >= filename.length())
+				return StringTemplate<T>();
+			while (filename.get(at) != (T)'/' && filename.get(at) != (T)'\\' && filename.get(at) != (T)'.' && --at < filename.length());
+			if (at >= filename.length() || filename.get(at) != (T)'.')
+				return filename;
+			return filename.subString(0,at);
+		}
+
+	String	 extractFilePathName(const String&filename)	{return _extractFilePathName(filename);}
+	WString	 extractFilePathName(const WString&filename)	{return _extractFilePathName(filename);}
+
+	template <typename T>
+		static StringTemplate<T>	 _extractFileNameExt(const StringTemplate<T>&filename)
+		{
+			index_t at = filename.length()-1;
+			if (at>= filename.length())
+				return StringTemplate<T>();
+			while (filename.get(at) != (T)'/' && filename.get(at) != (T)'\\' && --at < filename.length());
+			return filename.subString(at+1);
+		}
+
+	String	 extractFileNameExt(const String&filename)	{return _extractFileNameExt(filename);}
+	WString	 extractFileNameExt(const WString&filename)	{return _extractFileNameExt(filename);}
+
+
+	template <typename T>
+		static StringTemplate<T>	_escapeSpaces(StringTemplate<T> path)
+		{
+			while (index_t at = path.indexOf((T)"\\"))
+				path.erase(at-1,1);
+			StringTemplate<T> final;
+			for (index_t i = 0; i < path.length(); i++)
+			{
+				if (path.get(i) == (T)' ')
+					final += (T)'\\';
+				final += path.get(i);
+			}
+			return final;
+		}
+	String	 escapeSpaces(const String &path)	{return _escapeSpaces(path);}
+	WString	 escapeSpaces(const WString &path)	{return _escapeSpaces(path);}
 
 
 	bool isDirectory(const String&name)

@@ -5,11 +5,6 @@
 
 keycode-definitions.
 
-This file is part of Delta-Works
-Copyright (C) 2006-2008 Stefan Elsen, University of Trier, Germany.
-http://www.delta-works.org/forge/
-http://informatik.uni-trier.de/
-
 ******************************************************************/
 
 
@@ -57,6 +52,41 @@ http://informatik.uni-trier.de/
 #endif
 
 
+#define SET_JOYSTICK(INDEX)	\
+	Joystick##INDEX##Button0,\
+	Joystick##INDEX##Button1,\
+	Joystick##INDEX##Button2,\
+	Joystick##INDEX##Button3,\
+	Joystick##INDEX##Button4,\
+	Joystick##INDEX##Button5,\
+	Joystick##INDEX##Button6,\
+	Joystick##INDEX##Button7,\
+	Joystick##INDEX##Button8,\
+	Joystick##INDEX##Button9,\
+	Joystick##INDEX##Button10,\
+	Joystick##INDEX##Button11,\
+	Joystick##INDEX##Button12,\
+	Joystick##INDEX##Button13,\
+	Joystick##INDEX##Button14,\
+	Joystick##INDEX##Button15,\
+	Joystick##INDEX##Button16,\
+	Joystick##INDEX##Button17,\
+	Joystick##INDEX##Button18,\
+	Joystick##INDEX##Button19,\
+	Joystick##INDEX##Button20,\
+	Joystick##INDEX##Button21,\
+	Joystick##INDEX##Button22,\
+	Joystick##INDEX##Button23,\
+	Joystick##INDEX##Button24,\
+	Joystick##INDEX##Button25,\
+	Joystick##INDEX##Button26,\
+	Joystick##INDEX##Button27,\
+	Joystick##INDEX##Button28,\
+	Joystick##INDEX##Button29,\
+	Joystick##INDEX##Button30,\
+	Joystick##INDEX##Button31,
+
+
 namespace Key	//! Key code namespace
 {
 	enum Name	//! Key code name
@@ -93,47 +123,11 @@ namespace Key	//! Key code namespace
 		Capital		=	VK_CAPITAL,		//!< Caps lock
 		CapsLock	=	VK_CAPITAL,
 		
-		JoystickButton0	=	0x100,
-		JoystickButton1	=	0x101,
-		JoystickButton2	=	0x102,
-		JoystickButton3	=	0x103,
-		JoystickButton4	=	0x104,
-		JoystickButton5	=	0x105,
-		JoystickButton6	=	0x106,
-		JoystickButton7	=	0x107,
-		JoystickButton8	=	0x108,
-		JoystickButton9	=	0x109,
-		JoystickButton10	=	0x10A,
-		JoystickButton11	=	0x10B,
-		JoystickButton12	=	0x10C,
-		JoystickButton13	=	0x10D,
-		JoystickButton14	=	0x10E,
-		JoystickButton15	=	0x10F,
-		JoystickButton16	=	0x110,
-		JoystickButton17	=	0x111,
-		JoystickButton18	=	0x112,
-		JoystickButton19	=	0x113,
-		JoystickButton20	=	0x114,
-		JoystickButton21	=	0x115,
-		JoystickButton22	=	0x116,
-		JoystickButton23	=	0x117,
-		JoystickButton24	=	0x118,
-		JoystickButton25	=	0x119,
-		JoystickButton26	=	0x11A,
-		JoystickButton27	=	0x11B,
-		JoystickButton28	=	0x11C,
-		JoystickButton29	=	0x11D,
-		JoystickButton30	=	0x11E,
-		JoystickButton31	=	0x11F,
 
-		LeftMouseButton		=	0x120,
-		MiddleMouseButton	=	0x121,
-		RightMouseButton	=	0x122,
-		MouseButton0		=	LeftMouseButton,
-		MouseButton1		=	MiddleMouseButton,
-		MouseButton2		=	RightMouseButton,
-		MouseButton3		=	0x123,
-		MouseButton4		=	0x124,
+
+
+		
+
 
 	#if SYSTEM==WINDOWS
 		A		=	65,					//!< A character key
@@ -294,8 +288,35 @@ namespace Key	//! Key code namespace
 		F12		=	96,					//!< F12 control key
 
 	#endif
-	
-		Max		=	0x124				//!< Maximum key index
+		LeftMouseButton		=	0x100,
+		MiddleMouseButton	=	0x101,
+		RightMouseButton	=	0x102,
+		MouseButton0		=	LeftMouseButton,
+		MouseButton1		=	MiddleMouseButton,
+		MouseButton2		=	RightMouseButton,
+		MouseButton3		=	0x103,
+		MouseButton4		=	0x104,
+
+		SET_JOYSTICK(0)
+		SET_JOYSTICK(1)
+		SET_JOYSTICK(2)
+		SET_JOYSTICK(3)
+		SET_JOYSTICK(4)
+		SET_JOYSTICK(5)
+		SET_JOYSTICK(6)
+		SET_JOYSTICK(7)
+		SET_JOYSTICK(8)
+		SET_JOYSTICK(9)
+		SET_JOYSTICK(10)
+		SET_JOYSTICK(11)
+		SET_JOYSTICK(12)
+		SET_JOYSTICK(13)
+		SET_JOYSTICK(14)
+		SET_JOYSTICK(15)
+
+
+		Count,
+		Max		=	Count-1			//!< Maximum key index
 	};
 }
 

@@ -48,6 +48,12 @@ namespace FileSystem
 	String			extractFilePathName(const String&filename);								//!< Extracts folders and file name of \b filename but no trailing extension (or extension dot)
 	String			extractFileNameExt(const String&filename);									//!< Extracts the file name and extension of \b filename but no preceeding folders (or slashes)
 	String			escapeSpaces(String path);													//!< Inserts a backslash before every space character (for unix systems)
+	WString			extractFileExt(const WString&filename);										//!< Extracts the file extension of \b filename without preceeding '.'
+	WString			extractFilePath(const WString&filename);									//!< Extracts the file path of \b filename without trailing slash
+	WString			extractFileName(const WString&filename);									//!< Extracts the file name of \b filename without preceeding folder or succeeding extension (neither preceeding slashes or succeeding dots either)
+	WString			extractFilePathName(const WString&filename);								//!< Extracts folders and file name of \b filename but no trailing extension (or extension dot)
+	WString			extractFileNameExt(const WString&filename);									//!< Extracts the file name and extension of \b filename but no preceeding folders (or slashes)
+	WString			escapeSpaces(WString path);													//!< Inserts a backslash before every space character (for unix systems)
 	
 	ftime_t			fileTime(const String&name);												//!< Returns the unix timestamp of the specified file \param name File name \return Unix timestamp
 	ftime_t			fileDate(const String&name);												//!< Identical to fileTime()

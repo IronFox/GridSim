@@ -305,8 +305,8 @@ namespace Engine
 		static bool initialized = false;
 		if (!initialized)
 		{
-			mouse.regAnalogInputs();
-			joystick.regAnalogInputs();
+			mouse.RegAnalogInputs();
+			joystick.RegAnalogInputs();
 			initialized = true;
 		}
 	}

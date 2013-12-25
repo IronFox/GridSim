@@ -1,5 +1,6 @@
 #include "../global_root.h"
 #include "str_class.h"
+#include <io/file_system.h>
 
 /******************************************************************
 
@@ -217,6 +218,30 @@ template <>
 		return L"<empty string>";
 	}
 
+template <typename T>
+	StringTemplate<T>	_getApplicationName()
+	{
+		return StringTemplate<T>();
+	}
+
+template <>
+	StringTemplate<char>	_getApplicationName()
+	{
+		char szFileName[MAX_PATH];
+
+		GetModuleFileNameA( NULL, szFileName, MAX_PATH );
+
+		return FileSystem::extractFileName(StringTemplate<char>(szFileName))+": ";
+	}
+template <>
+	StringTemplate<wchar_t>	_getApplicationName()
+	{
+		wchar_t szFileName[MAX_PATH];
+
+		GetModuleFileNameW( NULL, szFileName, MAX_PATH );
+
+		return FileSystem::extractFileName(StringTemplate<wchar_t>(szFileName))+": ";
+	}
 
 
 template <typename T0, typename T1>
@@ -224,9 +249,10 @@ template <typename T0, typename T1>
 	{
 		Array<StringTemplate<T0> >	lines;
 		explode((T0)'\n',line,lines);
+		StringTemplate<T0> head = _getApplicationName<T0>() + head_;
 		if (!lines.count())
-			_msgBox(_empty<T0>(),head_,MB_OK);
-		StringTemplate<T0> sum, head = head_;
+			_msgBox(_empty<T0>(),head.c_str(),MB_OK);
+		StringTemplate<T0> sum;
 		head += (T0)' ';
 		count_t rounds = lines.count() / 40;
 		if (lines.count() % 40)

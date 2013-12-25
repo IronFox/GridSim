@@ -2398,7 +2398,7 @@ namespace Engine
 		showingBorder = true;
 		accept_dropped_files = false;
 		file_drop_handler = NULL;
-		mouse.regAnalogInputs();
+		mouse.RegAnalogInputs();
 		//joystick.regAnalogInputs();
 		created = false;
 		in_mutex = false;

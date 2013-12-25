@@ -64,6 +64,43 @@ static  const char  *Yes[] = {"YES","TRUE","ON","ENABLED","1"},
 
 #undef KN
 #define KN(key)	{Key::key,#key}
+
+#undef JK
+#define JK(INDEX)	\
+	KN(Joystick##INDEX##Button0),\
+	KN(Joystick##INDEX##Button1),\
+	KN(Joystick##INDEX##Button2),\
+	KN(Joystick##INDEX##Button3),\
+	KN(Joystick##INDEX##Button4),\
+	KN(Joystick##INDEX##Button5),\
+	KN(Joystick##INDEX##Button6),\
+	KN(Joystick##INDEX##Button7),\
+	KN(Joystick##INDEX##Button8),\
+	KN(Joystick##INDEX##Button9),\
+	KN(Joystick##INDEX##Button10),\
+	KN(Joystick##INDEX##Button11),\
+	KN(Joystick##INDEX##Button12),\
+	KN(Joystick##INDEX##Button13),\
+	KN(Joystick##INDEX##Button14),\
+	KN(Joystick##INDEX##Button15),\
+	KN(Joystick##INDEX##Button16),\
+	KN(Joystick##INDEX##Button17),\
+	KN(Joystick##INDEX##Button18),\
+	KN(Joystick##INDEX##Button19),\
+	KN(Joystick##INDEX##Button20),\
+	KN(Joystick##INDEX##Button21),\
+	KN(Joystick##INDEX##Button22),\
+	KN(Joystick##INDEX##Button23),\
+	KN(Joystick##INDEX##Button24),\
+	KN(Joystick##INDEX##Button25),\
+	KN(Joystick##INDEX##Button26),\
+	KN(Joystick##INDEX##Button27),\
+	KN(Joystick##INDEX##Button28),\
+	KN(Joystick##INDEX##Button29),\
+	KN(Joystick##INDEX##Button30),\
+	KN(Joystick##INDEX##Button31),
+
+
 static  TKeyName    K_ID[]=
 					{
 						KN(Undefined),
@@ -82,13 +119,25 @@ static  TKeyName    K_ID[]=
 						{Key::Period,"."},
 						{Key::N0,"0"},{Key::N1,"1"},{Key::N2,"2"},{Key::N3,"3"},{Key::N4,"4"},{Key::N5,"5"},{Key::N6,"6"},{Key::N7,"7"},{Key::N8,"8"},{Key::N9,"9"},
 						KN(Up),KN(Down),KN(Left),KN(Right),KN(PageUp),KN(PageDown),KN(Home),KN(End),KN(Insert),
-						KN(JoystickButton0),KN(JoystickButton1),KN(JoystickButton2),KN(JoystickButton3),KN(JoystickButton4),
-						KN(JoystickButton5),KN(JoystickButton6),KN(JoystickButton7),KN(JoystickButton8),KN(JoystickButton9),
-						KN(JoystickButton10),KN(JoystickButton11),KN(JoystickButton12),KN(JoystickButton13),KN(JoystickButton14),
-						KN(JoystickButton15),KN(JoystickButton16),KN(JoystickButton17),KN(JoystickButton18),KN(JoystickButton19),
-						KN(JoystickButton20),KN(JoystickButton21),KN(JoystickButton22),KN(JoystickButton23),KN(JoystickButton24),
-						KN(JoystickButton25),KN(JoystickButton26),KN(JoystickButton27),KN(JoystickButton28),KN(JoystickButton29),
-						KN(JoystickButton30),KN(JoystickButton31)
+
+
+
+						JK(0)
+						JK(1)
+						JK(2)
+						JK(3)
+						JK(4)
+						JK(5)
+						JK(6)
+						JK(7)
+						JK(8)
+						JK(9)
+						JK(10)
+						JK(11)
+						JK(12)
+						JK(13)
+						JK(14)
+						JK(15)
 					};
 #undef KN
 					
