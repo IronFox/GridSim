@@ -75,6 +75,16 @@ namespace Engine
 			map.UnregAnalog(name+".Rudder");
 		}
 	}
+
+	float Joystick::State::_ProcessAxis(float axisValue)	const
+	{
+		if (fabs(axisValue) < dead_zone)
+			return 0;
+		if (axisValue > 0)
+			return (axisValue - dead_zone) / (1.f - dead_zone);
+
+		return (axisValue + dead_zone) / (-1.f + dead_zone);
+	}
 	
 	void Joystick::State::Process()
 	{
@@ -85,12 +95,8 @@ namespace Engine
 		#if SYSTEM==WINDOWS
 			if (joyGetPosEx(index,&info) != JOYERR_NOERROR)
 				return;
-			x = (float)(info.dwXpos-caps.wXmin)/(float)(caps.wXmax-caps.wXmin)*2.f-1.f;
-			y = (float)(info.dwYpos-caps.wYmin)/(float)(caps.wYmax-caps.wYmin)*2.f-1.f;
-			if (fabs(x) < dead_zone)
-				x = 0;
-			if (fabs(y) < dead_zone)
-				y = 0;
+			x = _ProcessAxis((float)(info.dwXpos-caps.wXmin)/(float)(caps.wXmax-caps.wXmin)*2.f-1.f);
+			y = _ProcessAxis((float)(info.dwYpos-caps.wYmin)/(float)(caps.wYmax-caps.wYmin)*2.f-1.f);
 			if (caps.wCaps & JOYCAPS_HASZ)
 			{
 				throttle = -((float)(info.dwZpos-caps.wZmin)/(float)(caps.wZmax-caps.wZmin)*2.0f-1.0f);
@@ -98,9 +104,7 @@ namespace Engine
 			}
 			if (caps.wCaps & JOYCAPS_HASR)
 			{
-				r = (float)(info.dwRpos-caps.wRmin)/(float)(caps.wRmax-caps.wRmin)*2-1;
-				if (fabs(r) < dead_zone)
-					r = 0;
+				r = _ProcessAxis((float)(info.dwRpos-caps.wRmin)/(float)(caps.wRmax-caps.wRmin)*2.f-1.f);
 			}
 			for (unsigned i = 0; i < 32; i++)
 			{

@@ -35,6 +35,8 @@ namespace Engine
 
 		private:
 			void		Process();
+			float		_ProcessAxis(float axisValue)	const;
+
 			friend class Joystick;
 		};
 	private:
