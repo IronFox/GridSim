@@ -33,6 +33,9 @@ public:
 									{
 										return static_cast<float>(width) / static_cast<float>(height);
 									}
+		float						GetAspect()	const	{return aspect();}
+		count_t						CountPixels()	const	{return (count_t)width*(count_t)height;}
+
 		bool						operator==(const Resolution&other)	const
 									{
 										return width == other.width && height == other.height;
@@ -89,6 +92,7 @@ public:
 										height = height_;
 										depth = depth_;
 									}
+		count_t						CountPixels()	const	{return (count_t)width*(count_t)height*(count_t)depth;}
 
 		bool						operator==(const Resolution3D&other)	const
 									{
