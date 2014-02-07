@@ -407,6 +407,30 @@ namespace Math
 			result.z.z = t*z*z + c;
 		}
 
+		MFUNC2(void)	transpose(const TMatrix4<C0>&m, TMatrix4<C1>&out)
+		{
+			out.x.x = m.x.x;
+			out.x.y = m.y.x;
+			out.x.z = m.z.x;
+			out.x.w = m.w.x;
+
+			out.y.x = m.x.y;
+			out.y.y = m.y.y;
+			out.y.z = m.z.y;
+			out.y.w = m.w.y;
+
+			out.z.x = m.x.z;
+			out.z.y = m.y.z;
+			out.z.z = m.z.z;
+			out.z.w = m.w.z;
+
+			out.w.x = m.x.w;
+			out.w.y = m.y.w;
+			out.w.z = m.z.w;
+			out.w.w = m.w.w;
+		}
+
+
 
 		MFUNC2(void)	transpose(const TMatrix3<C0>&m, TMatrix3<C1>&out)
 		{
@@ -428,6 +452,18 @@ namespace Math
 			swp(m.y.z,m.z.y);
 		}
 
+		MFUNC(void)	transpose(TMatrix4<C>&m)
+		{
+			swp(m.x.y,m.y.x);
+			swp(m.x.z,m.z.x);
+			swp(m.x.w,m.w.x);
+
+			swp(m.y.z,m.z.y);
+			swp(m.y.w,m.w.y);
+
+			swp(m.z.w,m.w.z);
+		}
+
 		MFUNC(TMatrix3<C>)	transposed(const TMatrix3<C>&m)
 		{
 			TMatrix3<C>	tmp;
@@ -435,6 +471,12 @@ namespace Math
 			return tmp;
 		}
 
+		MFUNC(TMatrix4<C>)	transposed(const TMatrix4<C>&m)
+		{
+			TMatrix4<C>	tmp;
+			transpose(m,tmp);
+			return tmp;
+		}
 
 
 		MFUNC2(void)	transpose(const TMatrix2<C0>&m, TMatrix2<C1>&out)

@@ -204,6 +204,9 @@ namespace Math
 		MFUNC3(void)		rotationMatrix(C0 angle,const TVec3<C1>&axis,TMatrix3<C2>&result);
 		MFUNC5(void)		rotationMatrix(const C0&angle, const C1&ax, const C2&ay, const C3&az, TMatrix3<C4>&result);			//!< Generates a 3x3 rotation matrix to rotate about an arbitrary axis and stores the result in \b out. The component-wise defined axis can be of any length greater 0  \param angle Angle this rotation matrix should rotate when multiplied (-180 - +180) \param ax X-component of the rotation axis \param ay Y-component of the rotation axis \param az Z-component of the rotation axis \param out Target 3x3 matrix
 
+		MFUNC2(void)		transpose(const TMatrix4<C0>&m, TMatrix4<C1>&result);
+		MFUNC(void)			transpose(TMatrix4<C>&m);
+		MFUNC(TMatrix4<C>)	transposed(const TMatrix4<C>&m);
 		MFUNC2(void)		transpose(const TMatrix3<C0>&m, TMatrix3<C1>&result);
 		MFUNC(void)			transpose(TMatrix3<C>&m);
 		MFUNC(TMatrix3<C>)	transposed(const TMatrix3<C>&m);
