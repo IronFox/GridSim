@@ -48,12 +48,14 @@ namespace Engine
 			map.RegAnalog(a->name+".X",a->x,-1,1);
 			map.RegAnalog(a->name+".Y",a->y,-1,1);
 			map.RegAnalog(a->name+".Throttle",a->throttle,-1,1);
-			map.RegAnalog(a->name+".Rudder",a->r,-1,1);
+			if (a->caps.wCaps & JOYCAPS_HASR)
+				map.RegAnalog(a->name+".Rudder",a->r,-1,1);
 			String name = "Joystick"+String(a->index);
 			map.RegAnalog(name+".X",a->x,-1,1);
 			map.RegAnalog(name+".Y",a->y,-1,1);
 			map.RegAnalog(name+".Throttle",a->throttle,-1,1);
-			map.RegAnalog(name+".Rudder",a->r,-1,1);
+			if (a->caps.wCaps & JOYCAPS_HASR)
+				map.RegAnalog(name+".Rudder",a->r,-1,1);
 		}
 	}
 	
@@ -67,12 +69,14 @@ namespace Engine
 			map.UnregAnalog(a->name+".X");
 			map.UnregAnalog(a->name+".Y");
 			map.UnregAnalog(a->name+".Throttle");
-			map.UnregAnalog(a->name+".Rudder");
+			if (a->caps.wCaps & JOYCAPS_HASR)
+				map.UnregAnalog(a->name+".Rudder");
 			String name = "Joystick"+String(a->index);
 			map.UnregAnalog(name+".X");
 			map.UnregAnalog(name+".Y");
 			map.UnregAnalog(name+".Throttle");
-			map.UnregAnalog(name+".Rudder");
+			if (a->caps.wCaps & JOYCAPS_HASR)
+				map.UnregAnalog(name+".Rudder");
 		}
 	}
 
@@ -83,7 +87,7 @@ namespace Engine
 		if (axisValue > 0)
 			return (axisValue - dead_zone) / (1.f - dead_zone);
 
-		return (axisValue + dead_zone) / (-1.f + dead_zone);
+		return - ((-axisValue - dead_zone) / (1.f - dead_zone));
 	}
 	
 	void Joystick::State::Process()
