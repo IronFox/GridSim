@@ -86,11 +86,19 @@ public:
 									{}
 									Resolution3D(const Resolution&res, UINT depth):width(res.width),height(res.height),depth(depth)
 									{}
+		explicit					Resolution3D(UINT size):width(size),height(size),depth(size)	{}
+
 		void						Set(UINT width_, UINT height_, UINT depth_)
 									{
 										width = width_;
 										height = height_;
 										depth = depth_;
+									}
+		void						Set(UINT size)
+									{
+										width = size;
+										height = size;
+										depth = size;
 									}
 		count_t						CountPixels()	const	{return (count_t)width*(count_t)height*(count_t)depth;}
 
