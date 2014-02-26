@@ -275,24 +275,40 @@ template <class C>
 		template <typename I>
 			inline	C*		operator+(I rel)	//! Retrieves a pointer to the nth element @param rel Relative index. 0 points to the first element in the array. 	@return Pointer to the requested element for sub array access
 							{
+								//#if defined(_DEBUG) && __ARRAY_DBG_RANGE_CHECK__
+								//	if ((count_t)rel >= elements || rel < 0)
+								//		FATAL__("Index out of bounds");
+								//#endif
 								return data+rel;
 							}
 				
 		template <typename I>
 			inline const C*	operator+(I rel) const	//! @copydoc operator+()
 							{
+								//#if defined(_DEBUG) && __ARRAY_DBG_RANGE_CHECK__
+								//	if ((count_t)rel >= elements || rel < 0)
+								//		FATAL__("Index out of bounds");
+								//#endif
 								return data+rel;
 							}
 
 		template <typename I>
 			inline	C*		operator-(I rel)	//! Retrieves a pointer to the nth element @param rel Relative index. 0 points to the first element in the array. 	@return Pointer to the requested element for sub array access
 							{
+								//#if defined(_DEBUG) && __ARRAY_DBG_RANGE_CHECK__
+								//	if ((count_t)-rel >= elements || rel > 0)
+								//		FATAL__("Index out of bounds");
+								//#endif
 								return data-rel;
 							}
 				
 		template <typename I>
 			inline const C*	operator-(I rel) const	//! @copydoc operator-()
 							{
+								//#if defined(_DEBUG) && __ARRAY_DBG_RANGE_CHECK__
+								//	if ((count_t)-rel >= elements || rel > 0)
+								//		FATAL__("Index out of bounds");
+								//#endif
 								return data-rel;
 							}
 
