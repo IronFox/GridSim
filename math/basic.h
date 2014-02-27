@@ -100,6 +100,7 @@ namespace Math
 	MFUNC3	(C0)		linearStep(C0 v, C1 lower, C2 upper);		 					//!< Returns linear step \param v Value to examine \param lower Lower boundary \param upper Upper boundary \return 0 for v=lower, 1 for v=upper, and (v-lower)/(upper-lower) for lower<v<upper
 	MFUNC3	(C0)		cosStep(C0 v, C1 lower, C2 upper);								//!< Returns cos smoothed step \param v Value to examin \param lower Lower boundary \param upper Upper boundary \return cosFactor(linearStep(...))
 	MFUNC3	(C0)		cubicStep(C0 v, C1 lower, C2 upper);							//!< Returns cubic (x^3)  smoothed step \param v Value to examin \param lower Lower boundary \param upper Upper boundary \return cubicFactor(linearStep(...))
+	MFUNC3	(C0)		smoothstep(C1 lower, C2 upper,C0 v)	{return cubicStep(v,lower,upper);}
 	MFUNC3	(C0)		clamp(C0 v, C1 min, C2 max);									//!< Returns clamped value \param v Value to examine \param min Lower boundary \param max Upper boundary \return Value clamped to [min,max]
 	MFUNC3	(C0)		clamped(C0 v, C1 min, C2 max);									//!< Returns clamped value \param v Value to examine \param min Lower boundary \param max Upper boundary \return Value clamped to [min,max]
 	MFUNC2	(C0)		aligned(C0 i, C1 at);											//!< Aligns i to the upper step ceiling \param i Value to examine \param at Step \return ceil(i/at)*at
