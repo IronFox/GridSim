@@ -124,6 +124,8 @@ namespace Sorting
 			{
 				return isSorted(Accessor<Container>::resolve(container),container.size());
 			}
+		template <typename Container>
+			bool IsSorted(const Container&container)	{return isSorted(container);}
 
 		template <typename accessor_t, typename Strategy>
 			void	quickSort(accessor_t data, index_t lo, index_t hi)
@@ -158,6 +160,17 @@ namespace Sorting
 				typedef typename StrategySelector<decltype(data[index_t(0)])>::Default	Strategy;
 				quickSort<accessor_t,Strategy>(data,0,container.size()-1);
 			}
+		template <typename Container>
+			void	QuickSort(Container&container)	{quickSort(container);}
+
+		template <typename Type>
+			void	QuickSortField(Type*data, count_t numElements)
+			{
+				if (numElements<=1)
+					return;
+				typedef typename StrategySelector<Type>::Default	Strategy;
+				quickSort<Type*,Strategy>(data,0,numElements-1);
+			}
 	}
 
 
@@ -186,6 +199,8 @@ namespace Sorting
 			{
 				return isSorted(Accessor<Container>::resolve(container),container.size());
 			}
+		template <typename Container>
+			bool IsSorted(const Container&container)	{return isSorted(container);}
 
 		template <typename accessor_t, typename Strategy>
 			void	quickSort(accessor_t data, index_t lo, index_t hi)
@@ -220,6 +235,17 @@ namespace Sorting
 				typedef typename StrategySelector<decltype(data[0])>::Default	Strategy;
 				quickSort<accessor_t,Strategy>(data,0,container.size()-1);
 			}
+		template <typename Container>
+			void	QuickSort(Container&container)	{quickSort(container);}
+
+		template <typename Type>
+			void	QuickSortField(Type*data, count_t numElements)
+			{
+				if (numElements<=1)
+					return;
+				typedef typename StrategySelector<Type>::Default	Strategy;
+				quickSort<Type*,Strategy>(data,0,numElements-1);
+			}
 	}
 
 
@@ -245,6 +271,8 @@ namespace Sorting
 			{
 				return isSorted(Accessor<Container>::resolve(container),container.size(),comparator);
 			}
+		template <typename Container, typename Comparator>
+			bool IsSorted(const Container&container, const Comparator&comparator)	{return isSortted(container,comparator);}
 
 		template <typename accessor_t, typename Strategy, typename Comparator>
 			void	quickSort(accessor_t data, index_t lo, index_t hi,const Comparator&comparator)
@@ -278,6 +306,17 @@ namespace Sorting
 				accessor_t data = Accessor<Container>::resolve(container);
 				typedef typename StrategySelector<decltype(data[0])>::Default	Strategy;
 				quickSort<accessor_t,Strategy,Comparator>(data,0,container.size()-1,comparator);
+			}
+		template <typename Container, typename Comparator>
+			void	QuickSort(Container&container,const Comparator&comparator)	{quickSort(container,comparator);}
+
+		template <typename Type, typename Comparator>
+			void	QuickSortField(Type*data, count_t numElements,const Comparator&comparator)
+			{
+				if (numElements<=1)
+					return;
+				typedef typename StrategySelector<Type>::Default	Strategy;
+				quickSort<Type*,Strategy,Comparator>(data,0,numElements-1,comparator);
 			}
 	}
 }
