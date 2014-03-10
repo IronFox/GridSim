@@ -435,6 +435,26 @@ namespace Math
 		}
 
 
+	/**
+	@brief Constructs a new range
+	*/
+	template <typename T>
+		inline TRange<T>	maxInvalidRange()
+		{
+			return range(std::numeric_limits<T>::max(),-std::numeric_limits<T>::max());
+		}
+	
+	/**
+	@copydoc range()
+	*/
+	template <typename T>
+		inline TRange<T>	MaxInvalidRange(const T&min, const T&max)
+		{
+			return Range(std::numeric_limits<T>::max(),-std::numeric_limits<T>::max());
+		}
+
+
+
 	template <typename T>
 		inline TRange<T>	MaxInvalidRange()
 		{
