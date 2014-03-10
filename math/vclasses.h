@@ -379,6 +379,37 @@ namespace Math
 			return Vec4<T>(a.x - b.x, a.y - b.y, a.z - b.z, a.w - b.w);
 		}
 	template <typename T>
+		inline Vec2<T>	operator-(const TVec2<T>&a, const T&b)
+		{
+			return Vec2<T>(a.x - b, a.y - b);
+		}
+	template <typename T>
+		inline Vec3<T>	operator-(const TVec3<T>&a, const T&b)
+		{
+			return Vec3<T>(a.x - b, a.y - b.y, a.z - b);
+		}
+	template <typename T>
+		inline Vec4<T>	operator-(const TVec4<T>&a, const T&b)
+		{
+			return Vec4<T>(a.x - b, a.y - b, a.z - b, a.w - b);
+		}
+	template <typename T>
+		inline Vec2<T>	operator-(const T&a, const TVec2<T>&b)
+		{
+			return Vec2<T>(a - b.x, a - b.y);
+		}
+	template <typename T>
+		inline Vec3<T>	operator-(const T&a, const TVec3<T>&b)
+		{
+			return Vec3<T>(a - b.x, a - b.y, a - b.z);
+		}
+	template <typename T>
+		inline Vec4<T>	operator-(const T&a, const TVec4<T>&b)
+		{
+			return Vec4<T>(a - b.x, a - b.y, a - b.z, a - b.w);
+		}
+
+	template <typename T>
 		inline Vec2<T>	operator+(const TVec2<T>&a, const TVec2<T>&b)
 		{
 			return Vec2<T>(a.x + b.x, a.y + b.y);
@@ -629,6 +660,147 @@ namespace Math
 			a.w /= b;
 			return a;
 		}
+
+
+	template <typename T>
+		inline Vec2<bool>	operator<(const TVec2<T>&a, const TVec2<T>&b)
+		{
+			return Vec2<bool>(a.x < b.x, a.y < b.y);
+		}
+	template <typename T>
+		inline Vec3<bool>	operator<(const TVec3<T>&a, const TVec3<T>&b)
+		{
+			return Vec3<bool>(a.x < b.x, a.y < b.y, a.z < b.z);
+		}
+	template <typename T>
+		inline Vec4<bool>	operator<(const TVec4<T>&a, const TVec4<T>&b)
+		{
+			return Vec3<bool>(a.x < b.x, a.y < b.y, a.z < b.z, a.w < b.w);
+		}
+
+	template <typename T>
+		inline Vec2<bool>	operator>(const TVec2<T>&a, const TVec2<T>&b)
+		{
+			return Vec2<bool>(a.x > b.x, a.y > b.y);
+		}
+	template <typename T>
+		inline Vec3<bool>	operator>(const TVec3<T>&a, const TVec3<T>&b)
+		{
+			return Vec3<bool>(a.x > b.x, a.y > b.y, a.z > b.z);
+		}
+	template <typename T>
+		inline Vec4<bool>	operator>(const TVec4<T>&a, const TVec4<T>&b)
+		{
+			return Vec3<bool>(a.x > b.x, a.y > b.y, a.z > b.z, a.w > b.w);
+		}
+
+	template <typename T>
+		inline Vec2<bool>	operator<(const TVec2<T>&a, const T&b)
+		{
+			return Vec2<bool>(a.x < b, a.y < b);
+		}
+	template <typename T>
+		inline Vec3<bool>	operator<(const TVec3<T>&a, const T&b)
+		{
+			return Vec3<bool>(a.x < b, a < b, a.z < b);
+		}
+	template <typename T>
+		inline Vec4<bool>	operator<(const TVec4<T>&a, const T&b)
+		{
+			return Vec3<bool>(a.x < b, a.y < b, a.z < b, a.w < b);
+		}
+
+	template <typename T>
+		inline Vec2<bool>	operator>(const TVec2<T>&a, const T&b)
+		{
+			return Vec2<bool>(a.x > b, a.y > b);
+		}
+	template <typename T>
+		inline Vec3<bool>	operator>(const TVec3<T>&a, const T&b)
+		{
+			return Vec3<bool>(a.x > b, a.y > b, a.z > b);
+		}
+	template <typename T>
+		inline Vec4<bool>	operator>(const TVec4<T>&a, const T&b)
+		{
+			return Vec3<bool>(a.x > b, a.y > b, a.z > b, a.w > b);
+		}
+
+	template <typename T>
+		inline Vec2<bool>	operator<(const T&a, const TVec2<T>&b)
+		{
+			return Vec2<bool>(a < b.x, a < b.y);
+		}
+	template <typename T>
+		inline Vec3<bool>	operator<(const T&a, const TVec3<T>&b)
+		{
+			return Vec3<bool>(a < b.x, a < b.y, a < b.z);
+		}
+	template <typename T>
+		inline Vec4<bool>	operator<(const T&a, const TVec4<T>&b)
+		{
+			return Vec3<bool>(a < b.x, a < b.y, a < b.z, a < b.w);
+		}
+
+	template <typename T>
+		inline Vec2<bool>	operator>(const T&a, const TVec2<T>&b)
+		{
+			return Vec2<bool>(a > b.x, a > b.y);
+		}
+	template <typename T>
+		inline Vec3<bool>	operator>(const T&a, const TVec3<T>&b)
+		{
+			return Vec3<bool>(a > b.x, a > b.y, a > b.z);
+		}
+	template <typename T>
+		inline Vec4<bool>	operator>(const T&a, const TVec4<T>&b)
+		{
+			return Vec3<bool>(a > b.x, a > b.y, a > b.z, a > b.w);
+		}
+
+
+	template <typename T>
+		inline Vec2<T>	Abs(const TVec2<T>&v)
+		{
+			return Vec2<T>(vabs(v.x),vabs(v.y));
+		}
+	template <typename T>
+		inline Vec3<T>	Abs(const TVec3<T>&v)
+		{
+			return Vec3<T>(vabs(v.x),vabs(v.y),vabs(v.z));
+		}
+	template <typename T>
+		inline Vec4<T>	Abs(const TVec4<T>&v)
+		{
+			return Vec4<T>(vabs(v.x),vabs(v.y),vabs(v.z),vabs(v.w));
+		}
+
+
+
+	inline bool	Any(const TVec2<bool>&v)
+	{
+		return v.x || v.y;
+	}
+	inline bool	Any(const TVec3<bool>&v)
+	{
+		return v.x || v.y || v.z;
+	}
+	inline bool	Any(const TVec4<bool>&v)
+	{
+		return v.x || v.y || v.z || v.w;
+	}
+	inline bool	All(const TVec2<bool>&v)
+	{
+		return v.x && v.y;
+	}
+	inline bool	All(const TVec3<bool>&v)
+	{
+		return v.x && v.y && v.z;
+	}
+	inline bool	All(const TVec4<bool>&v)
+	{
+		return v.x && v.y && v.z && v.w;
+	}
 }
 
 
