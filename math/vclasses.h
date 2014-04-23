@@ -353,6 +353,9 @@ namespace Math
 	typedef Vec2<int>		int2;
 	typedef Vec3<int>		int3;
 	typedef Vec4<int>		int4;
+	typedef Vec2<unsigned int>		uint2;
+	typedef Vec3<unsigned int>		uint3;
+	typedef Vec4<unsigned int>		uint4;
 	typedef Vec2<short>		short2;
 	typedef Vec3<short>		short3;
 	typedef Vec4<short>		short4;
