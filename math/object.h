@@ -1093,6 +1093,7 @@ namespace ObjectMath	//! Collection of geometry related mathematical functions a
 		MF_DECLARE	(void)						buildFromFunction(const T&min_x, const T&max_x, count_t xres, const T&min_z, const T&max_z, count_t zres, T (*function)(const T&x, const T&z));
 
 		MF_DECLARE	(void)						buildCube();	//!< Rebuilds the local geometry as a cube in the range [-1,+1]³
+		MF_DECLARE	(void)						buildSphere(count_t resolution=50);	//!< Rebuilds the local geometry as a sphere of radius 1. @param resolution Number of vertices along the equador, twice the number of vertices from north to south pole. The total number of vertices is thus resolution*resolution/2
 
 			/*!
 				\brief Checks if there is a valid closer intersection of the local mesh and a ray

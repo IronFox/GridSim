@@ -5580,6 +5580,89 @@ namespace ObjectMath
 				Vec::normalize0(q.normal);
 			}
 		}
+
+	template <class Vertex, typename TX, typename TY, typename TZ>
+		static inline void _AddVertex(Buffer<Vertex>&buffer, const TX&x, const TY&y, const TZ&z)
+		{
+			Vertex&v = buffer.append();
+			v.index = buffer.count()-1;
+			v.marked = false;
+			Vec::def(v.position,x,y,z);
+		}
+
+	template <class Def>
+		MF_DECLARE	(void)						Mesh<Def>::buildSphere(count_t resolution/*=50*/)
+		{
+			typedef typename Def::Type Float;
+
+			flushMap();
+
+			Buffer<Vertex>	vertexBuffer;
+			Buffer<UINT32> triangleBuffer, quadBuffer;
+
+			count_t yres = std::max((count_t)1,resolution/2);
+			
+			_AddVertex(vertexBuffer,0,0,-1);
+			for (index_t iy = 1; iy < yres; iy++)
+			{
+				Float ay = Float(iy) / Float(yres) * (Float)M_PI - (Float)M_PI / (Float)2;
+				Float sny = vsin(ay);
+				Float csy = vcos(ay);
+				
+				index_t offset = vertexBuffer.count();
+
+				for (index_t ix = 0; ix < resolution; ix++)
+				{
+					Float ax = Float(ix) / Float(resolution) * Float(M_PI*2);
+					Float sn = vsin(ax);
+					Float cs = vcos(ax);
+
+					_AddVertex(vertexBuffer,cs * csy, sn * csy, sny);
+
+					if (iy == 1)
+						triangleBuffer << 0 << (UINT32)(offset + ix) << (UINT32)(offset + (ix + 1)%resolution);
+					else
+					{
+						index_t off0 = offset - resolution;
+						quadBuffer  << (UINT32)(off0 + (ix + 1)%resolution) << (UINT32)(off0 + ix) << (UINT32)(offset + ix) << (UINT32)(offset + (ix + 1)%resolution);
+					}
+				}
+
+			}
+
+			index_t end = vertexBuffer.count();
+
+			_AddVertex(vertexBuffer,0, 0, 1);
+
+			index_t off0 = end - resolution;
+			for (index_t ix = 0; ix < resolution; ix++)
+			{
+				triangleBuffer << (UINT32)(off0 + (ix + 1)%resolution) << (UINT32)(off0 + ix) << (UINT32)end;
+			}
+
+			vertexBuffer.copyToArray(vertex_field);
+			quad_field.setSize(quadBuffer.count()/4);
+			triangle_field.setSize(triangleBuffer.count()/3);
+			edge_field.setSize(0);
+			for (index_t i = 0; i < quad_field.count(); i++)
+			{
+				quad_field[i].v0 = vertex_field + quadBuffer[i*4];
+				quad_field[i].v1 = vertex_field + quadBuffer[i*4+1];
+				quad_field[i].v2 = vertex_field + quadBuffer[i*4+2];
+				quad_field[i].v3 = vertex_field + quadBuffer[i*4+3];
+			}
+			for (index_t i = 0; i < triangle_field.count(); i++)
+			{
+				triangle_field[i].v0 = vertex_field + triangleBuffer[i*3];
+				triangle_field[i].v1 = vertex_field + triangleBuffer[i*3+1];
+				triangle_field[i].v2 = vertex_field + triangleBuffer[i*3+2];
+			}
+			
+			#ifdef _DEBUG
+				verifyIntegrity();
+			#endif
+		}
+
 	
 	template <class Def>
 		MF_DECLARE	(void)		Mesh<Def>::buildCube()
