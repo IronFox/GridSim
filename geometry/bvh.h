@@ -13,13 +13,21 @@ template <typename Object, typename Float = float, typename Attachment = NoBVHAt
 	{
 	public:
 		typedef Box<Float>	Bounds;
-		static void IncludeIntoBox(Box<Float>&box, const Box<Float>&bounds)
+		static void ProgressiveInclude(Box<Float>&box, Box<Float>&, const Box<Float>&bounds)
 		{
             box.Include(bounds);
+		}
+		static void FinalizeEffectiveBounds(Bounds&effectiveBounds,const Box<Float>&boundingBox)
+		{
+			effectiveBounds = boundingBox;
 		}
 		static void IncludeCenterIntoBox(Box<Float>&box, const Box<Float>&bounds)
 		{
             box.Include(bounds.center());
+		}
+		static Float CenterOf(const Bounds&b, int axis)
+		{
+			return b.axis[axis].center();
 		}
 	};
 
@@ -28,15 +36,24 @@ template <typename Object, typename Float = float, typename Attachment = NoBVHAt
 	{
 	public:
 		typedef Sphere<Float>	Bounds;
-		static void IncludeIntoBox(Box<Float>&box, const Sphere<Float>&bounds)
+		static void ProgressiveInclude(Box<Float>&box, Sphere<Float>&outBounds, const Sphere<Float>&bounds)
 		{
 			static Box<Float>	b;
 			b.SetCenter(bounds.center,bounds.radius);
             box.Include(b);
+			outBounds.Include(bounds);
+		}
+		static void FinalizeEffectiveBounds(Bounds&effectiveBounds,const Box<Float>&boundingBox)
+		{
+			
 		}
 		static void IncludeCenterIntoBox(Box<Float>&box, const Sphere<Float>&bounds)
 		{
             box.Include(bounds.center);
+		}
+		static Float CenterOf(const Bounds&b, int axis)
+		{
+			return b.center.v[axis];
 		}
 	
 	};
@@ -56,10 +73,10 @@ template <typename Object, typename Float = float, typename Attachment = NoBVHAt
         struct Entry
         {
             Object*			element;
-            Bounds			boundingBox;
+            Bounds			bounds;
             
 			/**/			Entry():element(NULL)	{}
-			/**/			Entry(Object*element, const Bounds&box) : element(element),boundingBox(box)	{}
+			/**/			Entry(Object*element, const Bounds&box) : element(element),bounds(box)	{}
         };
 
 	private:
@@ -67,11 +84,11 @@ template <typename Object, typename Float = float, typename Attachment = NoBVHAt
         {
 		public:
             const bool		isLeaf;
-            const Bounds 	boundingBox;
+            const Bounds 	bounds;
 			Attachment		attachment;
 
 
-			/**/			Node(bool isLeaf, const Bounds&boundingBox) : isLeaf(isLeaf),boundingBox(boundingBox)	{}
+			/**/			Node(bool isLeaf, const Bounds&bounds) : isLeaf(isLeaf),bounds(bounds)	{}
 			virtual			~Node()	{}
         };
 
@@ -80,7 +97,7 @@ template <typename Object, typename Float = float, typename Attachment = NoBVHAt
 		public:
             Array<Entry>	elements;
 
-            /**/			LeafNode(const Bounds&boundingBox) : Node(true, boundingBox) { }
+            /**/			LeafNode(const Bounds&bounds) : Node(true, bounds) { }
         };
 
         class InnerNode : public Node
@@ -90,7 +107,7 @@ template <typename Object, typename Float = float, typename Attachment = NoBVHAt
 							*child1;
             int				axis;
 
-            /**/			InnerNode(const Bounds&boundingBox) : Node(false, boundingBox), child0(NULL),child1(NULL),axis(0) { }
+            /**/			InnerNode(const Bounds&bounds) : Node(false, bounds), child0(NULL),child1(NULL),axis(0) { }
 			virtual			~InnerNode()	{if (child0) delete child0; if (child1) delete child1;}
         };
 
@@ -121,7 +138,7 @@ template <typename Object, typename Float = float, typename Attachment = NoBVHAt
 			bool			IsLeaf() const	{return _GetNode()->isLeaf;}
 			Accessor*		GetFirstChild() const {const Node*n = _GetNode(); return n->isLeaf ? NULL : reinterpret_cast<Accessor*>(((InnerNode*)n)->child0);}
 			Accessor*		GetSecondChild() const {const Node*n = _GetNode(); return n->isLeaf ? NULL : reinterpret_cast<Accessor*>(((InnerNode*)n)->child1);}
-			const Bounds&GetBoundingBox() const {return _GetNode()->boundingBox;}
+			const Bounds&GetBoundingBox() const {return _GetNode()->bounds;}
 			Attachment&		GetAttachment()	{return _GetNode()->attachment;}
 		};
 
@@ -194,7 +211,7 @@ template <typename Object, typename Float = float, typename Attachment = NoBVHAt
         {
 		public:
 			count_t				numElements;
-            Bounds				boundingBox;;
+            Bounds				bounds;;
             float				volumeUntilThis,
 								volumeFromThis;
 
@@ -202,7 +219,7 @@ template <typename Object, typename Float = float, typename Attachment = NoBVHAt
 
             void				Reset()
             {
-                boundingBox = Bounds::Invalid();
+                bounds = Bounds::Invalid();
                 volumeUntilThis = 0;
                 volumeFromThis = 0;
 				numElements = 0;
@@ -214,12 +231,14 @@ template <typename Object, typename Float = float, typename Attachment = NoBVHAt
         static Node*		_BuildNode(Entry*const elements, const count_t numElements, ArrayData<Bucket>&buckets)
         {
             Box<Float> boundingBox = Box<Float>::Invalid();
+			Bounds	effectiveBounds = Bounds::Invalid();
 
 			for (index_t i = 0; i < numElements; i++)
-				Nature::IncludeIntoBox(boundingBox,elements[i].boundingBox);
+				Nature::ProgressiveInclude(boundingBox,effectiveBounds, elements[i].bounds);
+			Nature::FinalizeEffectiveBounds(effectiveBounds,boundingBox);
             if (numElements <= 4)
             {
-                LeafNode*leaf = new LeafNode(boundingBox);
+                LeafNode*leaf = new LeafNode(effectiveBounds);
                 leaf->elements.resizeAndCopy(elements, numElements);
                 return leaf;
             }
@@ -227,7 +246,7 @@ template <typename Object, typename Float = float, typename Attachment = NoBVHAt
 
             Box<Float> centerVolume = Box<Float>::Invalid();
 			for (index_t i = 0; i < numElements; i++)
-				Nature::IncludeCenterIntoBox(centerVolume,elements[i].boundingBox);
+				Nature::IncludeCenterIntoBox(centerVolume,elements[i].bounds);
 
 
 
@@ -245,10 +264,10 @@ template <typename Object, typename Float = float, typename Attachment = NoBVHAt
 				for (index_t i = 0; i < numElements; i++)
                 {
 					const Entry&e = elements[i];
-					index_t bucketIndex = std::min(buckets.count() - 1, (index_t)(float(e.boundingBox.axis[axis].center() - axisRange.min) / extend * buckets.count()));
+					index_t bucketIndex = std::min(buckets.count() - 1, (index_t)(float(Nature::CenterOf(e.bounds,axis) - axisRange.min) / extend * buckets.count()));
                     Bucket&bucket = buckets[bucketIndex];
                     bucket.numElements ++;
-                    bucket.boundingBox.Include(e.boundingBox);
+                    bucket.bounds.Include(e.bounds);
                 }
 				if (buckets.first().numElements == 0 || buckets.last().numElements == 0)
 				{
@@ -257,7 +276,7 @@ template <typename Object, typename Float = float, typename Attachment = NoBVHAt
 					continue;
 				}
 				
-                Bounds bounds = buckets[0].boundingBox;
+                Bounds bounds = buckets[0].bounds;
                 float volume;
 				bounds.GetVolume(volume);
                 buckets[0].volumeUntilThis = volume;
@@ -265,21 +284,21 @@ template <typename Object, typename Float = float, typename Attachment = NoBVHAt
                 {
                     if (buckets[i].numElements > 0)
                     {
-                        bounds.Include(buckets[i].boundingBox);
+                        bounds.Include(buckets[i].bounds);
                         bounds.GetVolume(volume);
                     }
                     buckets[i].volumeUntilThis = volume;
                    // Debug.WriteLine("volumeUntil(axis " + axis + ", bucket " + i + ") = " + volume);
 
                 }
-                bounds = buckets.last().boundingBox;
+                bounds = buckets.last().bounds;
                 bounds.GetVolume(volume);
                 buckets.last().volumeFromThis = volume;
                 for (index_t i = buckets.count() - 2; i < buckets.count(); i--)
                 {
                     if (buckets[i].numElements > 0)
                     {
-                        bounds.Include(buckets[i].boundingBox);
+                        bounds.Include(buckets[i].bounds);
                         bounds.GetVolume(volume);
                     }
                     buckets[i].volumeFromThis = volume;
@@ -302,7 +321,7 @@ template <typename Object, typename Float = float, typename Attachment = NoBVHAt
             }
             if (useAxis == -1)
             {
-                LeafNode*leaf = new LeafNode(boundingBox);
+                LeafNode*leaf = new LeafNode(effectiveBounds);
                 leaf->elements.resizeAndCopy(elements,numElements);
                 return leaf;
             }
@@ -321,7 +340,7 @@ template <typename Object, typename Float = float, typename Attachment = NoBVHAt
 				while (i0 < i1)
 				{
 
-	                index_t bucketIndex = std::min(buckets.count() - 1, (index_t)(float(i0->boundingBox.axis[useAxis].center() - axisRange2.min) / extend2 * buckets.count()));
+	                index_t bucketIndex = std::min(buckets.count() - 1, (index_t)(float(Nature::CenterOf(i0->bounds,useAxis) - axisRange2.min) / extend2 * buckets.count()));
 						//std::min(buckets.count() - 1, (index_t)((i0->boundingBox.axis[useAxis].center() - axisRange2.min) / extend2 * buckets.count()));
 					if (bucketIndex >= splitAtBucket)
 						break;
@@ -329,7 +348,7 @@ template <typename Object, typename Float = float, typename Attachment = NoBVHAt
 				}
 				while (i0 < i1)
 				{
-	                index_t bucketIndex = std::min(buckets.count() - 1, (index_t)(float(i1->boundingBox.axis[useAxis].center() - axisRange2.min) / extend2 * buckets.count()));
+	                index_t bucketIndex = std::min(buckets.count() - 1, (index_t)(float(Nature::CenterOf(i1->bounds,useAxis) - axisRange2.min) / extend2 * buckets.count()));
 					if (bucketIndex < splitAtBucket)
 						break;
 					i1--;
@@ -340,7 +359,7 @@ template <typename Object, typename Float = float, typename Attachment = NoBVHAt
 			}
 			while (i0 < i1);
 
-            InnerNode*innerNode = new InnerNode(boundingBox);
+            InnerNode*innerNode = new InnerNode(effectiveBounds);
             innerNode->axis = useAxis;
             innerNode->child0 = _BuildNode(elements, i0-elements, buckets);
             innerNode->child1 = _BuildNode(i0, elements + numElements - i0, buckets);
@@ -353,14 +372,14 @@ template <typename Object, typename Float = float, typename Attachment = NoBVHAt
             if (node->isLeaf)
             {
                 LeafNode*leaf = (LeafNode*)node;
-                if (space.Intersects(leaf->boundingBox))
+                if (space.Intersects(leaf->bounds))
                     foreach (leaf->elements,e)
-                        if (space.Intersects(e->boundingBox))
+                        if (space.Intersects(e->bounds))
                             found << e->element;
                 return;
             }
             InnerNode*n = (InnerNode*)node;
-            if (space.Intersects(n->boundingBox))
+            if (space.Intersects(n->bounds))
             {
                 _WalkNode(n->child0, space, found);
                 _WalkNode(n->child1, space, found);
@@ -372,14 +391,14 @@ template <typename Object, typename Float = float, typename Attachment = NoBVHAt
             {
 				count_t result = 0;
                 LeafNode*leaf = (LeafNode*)node;
-                if (space.Intersects(leaf->boundingBox))
+                if (space.Intersects(leaf->bounds))
                     foreach (leaf->elements,e)
-                        if (space.Intersects(e->boundingBox))
+                        if (space.Intersects(e->bounds))
 							result ++;
                 return result;
             }
             InnerNode*n = (InnerNode*)node;
-            if (space.Intersects(n->boundingBox))
+            if (space.Intersects(n->bounds))
             {
                 return _WalkNode(n->child0, space) + _WalkNode(n->child1, space);
             }
@@ -390,14 +409,14 @@ template <typename Object, typename Float = float, typename Attachment = NoBVHAt
             if (node->isLeaf)
             {
                 LeafNode*leaf = (LeafNode*)node;
-                if (leaf->boundingBox.Contains(point))
+                if (leaf->bounds.Contains(point))
                     foreach (leaf->elements,e)
-                        if (e->boundingBox.Contains(point))
+                        if (e->bounds.Contains(point))
                             found << e->element;
                 return;
             }
             InnerNode*n = (InnerNode*)node;
-            if (n->boundingBox.Contains(point))
+            if (n->bounds.Contains(point))
             {
                 _RecursivelyWalkNode(n->child0, point, found);
                 _RecursivelyWalkNode(n->child1, point, found);
@@ -410,11 +429,11 @@ template <typename Object, typename Float = float, typename Attachment = NoBVHAt
             {
 				TVec3<Float>	c;
                 LeafNode*leaf = (LeafNode*)node;
-                if (leaf->boundingBox.Contains(point))
+                if (leaf->bounds.Contains(point))
                     foreach (leaf->elements,e)
-                        if (e->boundingBox.Contains(point))
+                        if (e->bounds.Contains(point))
                         {
-							e->boundingBox.GetCenter(c);
+							e->bounds.GetCenter(c);
                             Float d = Vec::quadraticDistance(c, point);
                             if (d < distance)
                             {
@@ -425,7 +444,7 @@ template <typename Object, typename Float = float, typename Attachment = NoBVHAt
                 return;
             }
             InnerNode*n = (InnerNode*)node;
-            if (n->boundingBox.Contains(point))
+            if (n->bounds.Contains(point))
             {
                 _RecursivelyFindClosest(n->child0, point, closest, distance);
                 _RecursivelyFindClosest(n->child1, point, closest, distance);
