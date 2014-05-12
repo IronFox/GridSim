@@ -30,7 +30,7 @@ namespace Engine
 			for (index_t i = 1; i < children.count(); i++)
 			{
 				const shared_ptr<Component>&child = children[i];
-				outRect.include(child->currentRegion);
+				outRect.Include(child->currentRegion);
 			}
 			return true;
 		}
@@ -38,7 +38,7 @@ namespace Engine
 		void			Panel::Append(const shared_ptr<Component>&component)
 		{
 			DBG_ASSERT__(!children.contains(component));
-			component->anchored.set(true,false,false,true);
+			component->anchored.Set(true,false,false,true);
 			if (children.isNotEmpty())
 				component->offset.top = children.last()->offset.top-children.last()->height;
 			else
@@ -61,7 +61,7 @@ namespace Engine
 			}
 			else
 			{
-				component->anchored.set(true,false,false,true);
+				component->anchored.Set(true,false,false,true);
 				component->offset.top = 0;
 				component->offset.left = 0;
 			}
@@ -255,7 +255,7 @@ namespace Engine
 			for (index_t i = children.count()-1; i < children.count(); i--)
 			{
 				const shared_ptr<Component>&child = children[i];
-				if (child->IsVisible() && child->cellLayout.border.contains(x,y))
+				if (child->IsVisible() && child->cellLayout.border.Contains(x,y))
 					return child->GetComponent(x,y,purpose,outIsEnabled);
 			}
 			return shared_from_this();
@@ -482,7 +482,7 @@ namespace Engine
 		{
 			if (!enabled)
 				return Unsupported;
-			if (cursorRegion.contains(x,y) && max > 0)
+			if (cursorRegion.Contains(x,y) && max > 0)
 			{
 				cursorHook[0] = x-cursorRegion.left();
 				cursorHook[1] = y-cursorRegion.bottom();
@@ -634,7 +634,7 @@ namespace Engine
 					cursorBottom.normal = &scrollLayout->cursorBottom.normal;
 					cursorBottom.orientation = 0;
 					
-					cursorRegion.set(cellLayout.client.left(),cursorBottom.region.bottom(),cellLayout.client.x.max,cursorTop.region.top());
+					cursorRegion.Set(cellLayout.client.left(),cursorBottom.region.bottom(),cellLayout.client.x.max,cursorTop.region.top());
 				}
 				else
 				{
@@ -703,7 +703,7 @@ namespace Engine
 					cursorBottom.normal = &scrollLayout->cursorBottom.normal;
 					cursorBottom.orientation = 1;
 					
-					cursorRegion.set(cursorBottom.region.left(),cellLayout.client.bottom(),cursorTop.region.x.max,cellLayout.client.top());
+					cursorRegion.Set(cursorBottom.region.left(),cellLayout.client.bottom(),cursorTop.region.x.max,cellLayout.client.top());
 				}
 			
 			}
@@ -794,13 +794,13 @@ namespace Engine
 		
 		/*virtual override*/	Component::eEventResult	ScrollBar::OnMouseDown(float x, float y, TExtEventResult&ext)
 		{
-			if (cursorRegion.contains(x,y) && cursorRange > 0)
+			if (cursorRegion.Contains(x,y) && cursorRange > 0)
 			{
 				cursorHook[0] = x-cursorRegion.left();
 				cursorHook[1] = y-cursorRegion.bottom();
 				cursorGrabbed = true;
 			}
-			elif (upButton.region.contains(x,y))
+			elif (upButton.region.Contains(x,y))
 			{
 				upPressed = true;
 				if ((scrollData.max-scrollData.min) > 0)
@@ -809,7 +809,7 @@ namespace Engine
 					OnScroll();
 				}
 			}
-			elif (downButton.region.contains(x,y))
+			elif (downButton.region.Contains(x,y))
 			{
 				downPressed = true;
 				if ((scrollData.max-scrollData.min) > 0)
@@ -849,7 +849,7 @@ namespace Engine
 			/*
 					if (!enabled)
 				return NULL;
-			bool new_pressed = down && currentRegion.contains(x,y);
+			bool new_pressed = down && currentRegion.Contains(x,y);
 			requests_update |= new_pressed != pressed;
 			pressed = new_pressed;
 			return down?this:NULL;
@@ -955,7 +955,7 @@ namespace Engine
 			Rect<float>	current;
 			if (children.isEmpty())
 			{
-				current.set(0,0,1,1);
+				current.Set(0,0,1,1);
 				horizontal.current = 0.5;
 				vertical.current = 0.5;
 			}
@@ -986,7 +986,7 @@ namespace Engine
 					if (!i)
 						current = child_region;
 					else
-						current.include(child_region);
+						current.Include(child_region);
 				}
 			}
 			
@@ -1037,13 +1037,13 @@ namespace Engine
 
 			horizontalBar->scrollData = horizontal;
 			verticalBar->scrollData = vertical;
-			horizontalBar->anchored.set(true,true,true,false);
-			horizontalBar->offset.set(0,0,verticalBar->IsVisible()?-verticalBar->GetMinWidth(false):0,0);
-			verticalBar->anchored.set(false,true,true,true);
-			verticalBar->offset.set(0,horizontalBar->IsVisible()?horizontalBar->GetMinHeight(false):0,0,0);
+			horizontalBar->anchored.Set(true,true,true,false);
+			horizontalBar->offset.Set(0,0,verticalBar->IsVisible()?-verticalBar->GetMinWidth(false):0,0);
+			verticalBar->anchored.Set(false,true,true,true);
+			verticalBar->offset.Set(0,horizontalBar->IsVisible()?horizontalBar->GetMinHeight(false):0,0,0);
 			horizontalBar->UpdateLayout(cellLayout.client);
 			verticalBar->UpdateLayout(cellLayout.client);
-			effectiveClientRegion.set(cellLayout.client.left(),
+			effectiveClientRegion.Set(cellLayout.client.left(),
 										horizontalBar->IsVisible()?/*floor*/(horizontalBar->currentRegion.top()):cellLayout.client.bottom(),
 										verticalBar->IsVisible()?/*ceil*/(verticalBar->currentRegion.left()):cellLayout.client.x.max,
 										cellLayout.client.top());
@@ -1066,7 +1066,7 @@ namespace Engine
 					offset_y = verticalBar->IsVisible()?(vertical.current * vrange):0;
 			
 			Rect<float>	space = effectiveClientRegion;
-			space.translate(offset_x,offset_y);
+			space.Translate(offset_x,offset_y);
 			
 			visible_children.reset();
 			for (index_t i = 0; i < children.count(); i++)
@@ -1075,7 +1075,7 @@ namespace Engine
 				if (!child->IsVisible())
 					continue;
 				child->UpdateLayout(space);
-				if (effectiveClientRegion.intersects(child->currentRegion))
+				if (effectiveClientRegion.Intersects(child->currentRegion))
 					visible_children << child;
 			}
 		}
@@ -1087,25 +1087,25 @@ namespace Engine
 
 		/*virtual override*/	Component::eEventResult		ScrollBox::OnMouseWheel(float x, float y, short delta)
 		{
-			if (horizontalBar->IsVisible() && horizontalBar->IsEnabled() && horizontalBar->currentRegion.contains(x,y))
+			if (horizontalBar->IsVisible() && horizontalBar->IsEnabled() && horizontalBar->currentRegion.Contains(x,y))
 			{
 				if (horizontalBar->scrollable.expired())
 					horizontalBar->scrollable = toScrollable();
 				return horizontalBar->OnMouseWheel(x,y,delta);
 			}
-			if (verticalBar->IsVisible() && horizontalBar->IsEnabled() && verticalBar->currentRegion.contains(x,y))
+			if (verticalBar->IsVisible() && horizontalBar->IsEnabled() && verticalBar->currentRegion.Contains(x,y))
 			{
 				if (verticalBar->scrollable.expired())
 					verticalBar->scrollable = toScrollable();
 				return verticalBar->OnMouseWheel(x,y,delta);
 			}
-			if (effectiveClientRegion.contains(x,y))
+			if (effectiveClientRegion.Contains(x,y))
 			{
 				
 				for (index_t i = visible_children.count()-1; i < visible_children.count(); i--)
 				{
 					const shared_ptr<Component>&child = visible_children[i];
-					if (child->currentRegion.contains(x,y))
+					if (child->currentRegion.Contains(x,y))
 					{
 						if (!child->IsEnabled())
 							break;
@@ -1221,24 +1221,24 @@ namespace Engine
 			outIsEnabled &= IsEnabled();
 		
 			PComponent result;
-			if (horizontalBar->IsVisible() && horizontalBar->IsEnabled() && horizontalBar->currentRegion.contains(x,y) && (result = horizontalBar->GetComponent(x,y,purpose,outIsEnabled)))
+			if (horizontalBar->IsVisible() && horizontalBar->IsEnabled() && horizontalBar->currentRegion.Contains(x,y) && (result = horizontalBar->GetComponent(x,y,purpose,outIsEnabled)))
 			{
 				if (horizontalBar->scrollable.expired())
 					horizontalBar->scrollable = toScrollable();
 				return result;
 			}
-			if (verticalBar->IsVisible() && verticalBar->IsEnabled() && verticalBar->currentRegion.contains(x,y) && (result = verticalBar->GetComponent(x,y,purpose,outIsEnabled)))
+			if (verticalBar->IsVisible() && verticalBar->IsEnabled() && verticalBar->currentRegion.Contains(x,y) && (result = verticalBar->GetComponent(x,y,purpose,outIsEnabled)))
 			{
 				if (verticalBar->scrollable.expired())
 					verticalBar->scrollable = toScrollable();
 				return result;
 			}
-			if (effectiveClientRegion.contains(x,y))
+			if (effectiveClientRegion.Contains(x,y))
 			{
 				for (index_t i = visible_children.count()-1; i < visible_children.count(); i--)
 				{
 					const shared_ptr<Component>&child = visible_children[i];
-					if (child->cellLayout.border.contains(x,y))
+					if (child->cellLayout.border.Contains(x,y))
 					{
 						bool subEnabled = outIsEnabled;
 						result = child->GetComponent(x,y,purpose,subEnabled);
@@ -1254,7 +1254,7 @@ namespace Engine
 		
 		void			ScrollBox::Append(const shared_ptr<Component>&component)
 		{
-			component->anchored.set(true,false,false,true);
+			component->anchored.Set(true,false,false,true);
 			if (children.isNotEmpty())
 				component->offset.top = children.last()->offset.top-children.last()->height;
 			else
@@ -1406,14 +1406,14 @@ namespace Engine
 		
 		Component::eEventResult		Edit::OnMouseHover(float x, float y, TExtEventResult&ext)
 		{
-			if (cellLayout.client.contains(x,y))
+			if (cellLayout.client.Contains(x,y))
 				ext.customCursor = Mouse::CursorType::EditText;
 			return Handled;
 		}
 		
 		Component::eEventResult		Edit::OnMouseDown(float x, float y, TExtEventResult&ext)
 		{
-			if (cellLayout.client.contains(x,y))
+			if (cellLayout.client.Contains(x,y))
 			{
 				//ShowMessage(String(x)+", "+String(y)+" is in "+cellLayout.client.ToString());
 				float rx = x - cellLayout.client.left();
@@ -1767,7 +1767,7 @@ namespace Engine
 		
 		/*virtual override*/ Component::eEventResult	Button::OnMouseDrag(float x, float y)
 		{
-			bool new_pressed = down && currentRegion.contains(x,y);
+			bool new_pressed = down && currentRegion.Contains(x,y);
 			bool changed = pressed != new_pressed;
 			pressed = new_pressed;
 			return changed?RequestingRepaint:Handled;
@@ -1873,7 +1873,7 @@ namespace Engine
 
 		Component::eEventResult	CheckBox::OnMouseDrag(float x, float y)
 		{
-			bool new_pressed = down && currentRegion.contains(x,y);
+			bool new_pressed = down && currentRegion.Contains(x,y);
 			bool changed = new_pressed != pressed;
 			pressed = new_pressed;
 			return changed?RequestingRepaint:Handled;
@@ -1974,7 +1974,7 @@ namespace Engine
 			fillBackground = false;
 			Vec::set(backgroundColor,1);
 			Vec::set(textColor,1);
-			textMargin.setAll(0.f);
+			textMargin.SetAll(0.f);
 			height = GetMinHeight(false);
 			width = GetMinWidth(false);
 		}
@@ -2210,9 +2210,9 @@ namespace Engine
 					ASSERT__(parent);
 					
 					#ifdef DEEP_GUI
-						absolute.translate(parent->current_center.x-parent->fsize.x/2,parent->current_center.y-parent->fsize.y/2);
+						absolute.Translate(parent->current_center.x-parent->fsize.x/2,parent->current_center.y-parent->fsize.y/2);
 					#else
-						absolute.translate(parent->x-parent->fsize.x/2,parent->y-parent->fsize.y/2);
+						absolute.Translate(parent->x-parent->fsize.x/2,parent->y-parent->fsize.y/2);
 					#endif
 						
 
@@ -2612,7 +2612,7 @@ namespace Engine
 				
 				if (horizontal)
 				{
-					component->anchored.set(true,true,false,true);
+					component->anchored.Set(true,true,false,true);
 
 					component->offset.left = current;
 					current += component->width;
@@ -2621,7 +2621,7 @@ namespace Engine
 				}
 				else
 				{
-					component->anchored.set(true,false,true,true);
+					component->anchored.Set(true,false,true,true);
 					component->offset.top = current;
 					current -= component->height;
 					component->offset.left = 0;
@@ -2875,7 +2875,7 @@ namespace Engine
 			for (index_t i = 0; i < buttons.count(); i++)
 			{
 				buttons[i] = shared_ptr<Button>(new Button());
-				buttons[i]->anchored.set(true,true,false,false);
+				buttons[i]->anchored.Set(true,true,false,false);
 				buttons[i]->SetCaption(choices[i]);
 				buttons[i]->width = std::max(buttons[i]->width,100.f);
 			}
@@ -2883,10 +2883,10 @@ namespace Engine
 			
 			message_label->wrapText = true;
 			message_label->SetText(query);
-			message_label->anchored.set(true,true,true,true);
+			message_label->anchored.Set(true,true,true,true);
 			panel->Add(message_label);
 			panel->Add(buttons.first());
-			buttons.first()->anchored.set(true,true,false,false);
+			buttons.first()->anchored.Set(true,true,false,false);
 
 			for (index_t i = 1; i < buttons.count(); i++)
 				panel->AppendRight(buttons[i]);
@@ -2930,14 +2930,14 @@ namespace Engine
 			shared_ptr<Panel>	panel = shared_ptr<Panel>(new Panel());
 			messageButton = shared_ptr<Button>(new Button());
 			
-			messageButton->anchored.set(false,true,false,false);
+			messageButton->anchored.Set(false,true,false,false);
 			messageButton->SetCaption("OK");
 			messageButton->width = 100;
 			messageButton->onExecute += HideMessage;
 			
 			messageLabel->SetText("message");
 			messageLabel->wrapText = true;
-			messageLabel->anchored.set(true,true,true,true);
+			messageLabel->anchored.Set(true,true,true,true);
 			panel->Add(messageLabel);
 			panel->Add(messageButton);
 			messageLabel->offset.bottom = messageButton->height;

@@ -31,9 +31,9 @@ public:
 		
 									SphereSector();
 virtual								~SphereSector();
-		bool						isVisible(Sphere*super, double distance)		const;
-		void						build(double distance, Sphere*super, float resolution);
-		void						renderOutline(Sphere*super, float r, float g, float b, double distance);
+		bool						isVisible(::Sphere*super, double distance)		const;
+		void						build(double distance, ::Sphere*super, float resolution);
+		void						renderOutline(::Sphere*super, float r, float g, float b, double distance);
 };
 
 class SpherePhase
@@ -45,9 +45,9 @@ public:
 		SphereSector				sector[angular_sectors][radial_sectors];
 		
 									SpherePhase();
-		void						build(Sphere*super, float resolution);
-		void						render(Sphere*super);
-		void						renderOutline(Sphere*super, float r, float g, float b);
+		void						build(::Sphere*super, float resolution);
+		void						render(::Sphere*super);
+		void						renderOutline(::Sphere*super, float r, float g, float b);
 };
 
 class Sphere

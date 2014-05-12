@@ -98,7 +98,7 @@ namespace Engine
 				lowest = bottom;
 			if (chars[id].height > height)
 				height = chars[id].height;
-			chars[id].texcoords.set(left,bottom,right,top);
+			chars[id].texcoords.Set(left,bottom,right,top);
 			chars[id].texcoords.x /= (float)(image.width()-1);
 			chars[id].texcoords.y /= (float)(image.height()-1);
 		}
@@ -129,7 +129,7 @@ namespace Engine
 		{
 			TCharacter&space = chars[(BYTE)' '];
 			space.isset = true;
-			space.texcoords.setAll(0);
+			space.texcoords.SetAll(0);
 			space.width = chars[(BYTE)'i'].width;
 			space.height = 1;
 			space.yoffset = 0;

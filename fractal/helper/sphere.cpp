@@ -2,17 +2,17 @@
 #include "sphere.h"
 
 
-const double Sphere::relative_height_step = 2.36e-4;
+const double ::Sphere::relative_height_step = 2.36e-4;
 
-Sphere::Sphere():built(false)
+::Sphere::Sphere():built(false)
 {}
 
-Sphere::Sphere(const Frustum<>&frustum, double radius, double height, const TVec3<double>&delta)
+::Sphere::Sphere(const Frustum<>&frustum, double radius, double height, const TVec3<double>&delta)
 {
 	apply(frustum,radius,height, delta);
 }
 
-void			Sphere::apply(const Frustum<>&frustrum_, double radius_, double height_,const TVec3<double>&delta_)
+void			::Sphere::apply(const Frustum<>&frustrum_, double radius_, double height_,const TVec3<double>&delta_)
 {
 	frustum = frustrum_;
 	delta = delta_;
@@ -130,7 +130,7 @@ SphereSector::~SphereSector()
 	}
 }
 
-bool			SphereSector::isVisible(Sphere*super, double distance)		const
+bool			SphereSector::isVisible(::Sphere*super, double distance)		const
 {
 	float dist = (abegin+aend)/2-super->view_x;
 	if (dist > M_PI)
@@ -188,7 +188,7 @@ static inline unsigned xres(double r, double range)
 	return result;
 }
 
-void		SphereSector::renderOutline(Sphere*super, float r, float g, float b, double distance)
+void		SphereSector::renderOutline(::Sphere*super, float r, float g, float b, double distance)
 {
 	glColor3f(r,g,b);
 	glBegin(GL_LINE_LOOP);
@@ -212,7 +212,7 @@ void		SphereSector::renderOutline(Sphere*super, float r, float g, float b, doubl
 }
 
 
-void		SphereSector::build(double distance, Sphere*super, float resolution)
+void		SphereSector::build(double distance, ::Sphere*super, float resolution)
 {
 	//static const unsigned xres = 30;
 	unsigned yres = vmax((unsigned)(10*resolution),2);
@@ -269,7 +269,7 @@ void		SphereSector::build(double distance, Sphere*super, float resolution)
 SpherePhase::SpherePhase():dbegin(0),dend(1)
 {}
 
-void	SpherePhase::build(Sphere*super, float resolution)
+void	SpherePhase::build(::Sphere*super, float resolution)
 {
 	double horizon = asin((double)super->radius/((double)super->radius+dend)),
 			step = horizon*0.999/(double)radial_sectors;
@@ -293,7 +293,7 @@ void	SpherePhase::build(Sphere*super, float resolution)
 	}
 }
 
-void	SpherePhase::render(Sphere*super)
+void	SpherePhase::render(::Sphere*super)
 {
 	for (unsigned j = radial_sectors-1; j < radial_sectors; j--)
 		for (unsigned i = 0; i < angular_sectors; i++)
@@ -310,7 +310,7 @@ void	SpherePhase::render(Sphere*super)
 
 
 
-void	SpherePhase::renderOutline(Sphere*super, float r, float g, float b)
+void	SpherePhase::renderOutline(::Sphere*super, float r, float g, float b)
 {
 	for (unsigned j = radial_sectors-1; j < radial_sectors; j--)
 		for (unsigned i = 0; i < angular_sectors; i++)
@@ -330,7 +330,7 @@ void	SpherePhase::renderOutline(Sphere*super, float r, float g, float b)
 
 
 
-void			Sphere::checkDisplayLists(const String&domain)
+void			::Sphere::checkDisplayLists(const String&domain)
 {
 	for (unsigned i = 0; i < ARRAYSIZE(phase); i++)
 		for (unsigned j = 0; j < ARRAYSIZE(phase[i].sector); j++)
@@ -343,7 +343,7 @@ void			Sphere::checkDisplayLists(const String&domain)
 
 }
 
-void			Sphere::build(double root_step, float resolution)
+void			::Sphere::build(double root_step, float resolution)
 {
 	double distance = 0,
 			dstep = root_step;
@@ -359,14 +359,14 @@ void			Sphere::build(double root_step, float resolution)
 	built = true;
 }
 
-void			Sphere::buildFromRadius(double radius, float resolution)
+void			::Sphere::buildFromRadius(double radius, float resolution)
 {
 	this->radius = radius;
 	build(relative_height_step*radius, resolution);
 }
 
 
-void			Sphere::renderCircular(unsigned min_level)
+void			::Sphere::renderCircular(unsigned min_level)
 {
 	//glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
 	
@@ -396,7 +396,7 @@ void			Sphere::renderCircular(unsigned min_level)
 	
 }
 
-void			Sphere::renderOutline(float r, float g, float b)
+void			::Sphere::renderOutline(float r, float g, float b)
 {
 	double root_step = relative_height_step*radius;
 	

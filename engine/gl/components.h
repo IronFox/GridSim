@@ -167,7 +167,7 @@ namespace Engine
 			/**/						ScrollBar():Component("ScrollBar")
 										{
 											_Setup();
-											anchored.set(false,true,true,true);
+											anchored.Set(false,true,true,true);
 											width = GetMinWidth(false);
 											height = GetMinHeight(false);
 											scrollData.window = height;
@@ -180,12 +180,12 @@ namespace Engine
 											height = GetMinHeight(false);
 											if (horizontal)
 											{
-												anchored.set(true,true,true,false);
+												anchored.Set(true,true,true,false);
 												scrollData.window = width;
 											}
 											else
 											{
-												anchored.set(false,true,true,true);
+												anchored.Set(false,true,true,true);
 												scrollData.window = height;
 											}
 										}
@@ -240,7 +240,7 @@ namespace Engine
 			/**/						Slider():Component("Slider")
 										{
 											_Setup();
-											anchored.set(true,false,true,true);
+											anchored.Set(true,false,true,true);
 											width = GetMinWidth(false);
 											height = GetMinHeight(false);
 										}
@@ -280,7 +280,7 @@ namespace Engine
 			/**/						Panel(const String&typeName):Component("Panel/"+typeName)	//!< Creates a derivative panel
 										{
 											layout = globalLayout.Refer();
-											anchored.setAll(true);
+											anchored.SetAll(true);
 										}
 		public:
 			static Layout				globalLayout;	//!< Default panel layout
@@ -288,7 +288,7 @@ namespace Engine
 			/**/						Panel():Component("Panel")	//!< Creates a plain panel
 										{
 											layout = globalLayout.Refer();
-											anchored.setAll(true);
+											anchored.SetAll(true);
 										}
 			virtual	void				UpdateLayout(const Rect<float>&parent_region) override;
 			virtual	float				GetClientMinWidth()	const override;
@@ -752,7 +752,7 @@ namespace Engine
 											float cy = rect.y.center();
 											float size = GetBoxSize();
 											rect.x.max = rect.x.min + size;
-											rect.y.setCenter(cy,size/2);
+											rect.y.SetCenter(cy,size/2);
 											return rect;
 										}
 		};

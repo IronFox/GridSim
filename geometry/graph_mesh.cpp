@@ -2746,14 +2746,14 @@ float3 SurfaceDescription::GetEdgeCenter() const
 
 void	SurfaceDescription::GetEdgeExtend(const TMatrix4<>&transformBy, Box<>&result)	const
 {
-	result.setAllMax(std::numeric_limits<float>::min());
-	result.setAllMin(std::numeric_limits<float>::max());
+	result.SetAllMax(std::numeric_limits<float>::min());
+	result.SetAllMin(std::numeric_limits<float>::max());
 	foreach (edges, edge)
 		foreach (*edge,index)
 		{
 			TVec3<> rotated;
 			Mat::transform(transformBy,vertices[*index].position,rotated);
-			result.include(rotated);
+			result.Include(rotated);
 		}
 }
 

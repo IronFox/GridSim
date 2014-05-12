@@ -745,7 +745,7 @@ namespace Engine
 			
 			FileSystem::Folder	folder(FileSystem::extractFilePath(filename));
 			
-			titlePosition.setAll(0);
+			titlePosition.SetAll(0);
 			
 			List::Vector<TIORow>	iorows;
 			
@@ -1098,11 +1098,11 @@ namespace Engine
 			project(window.get(),-1,-1,p);
 			Rect<>	rect(p,p);
 			project(window.get(),1,-1,p);
-			rect.include(p);
+			rect.Include(p);
 			project(window.get(),1,1,p);
-			rect.include(p);
+			rect.Include(p);
 			project(window.get(),-1,1,p);
-			rect.include(p);
+			rect.Include(p);
 			
 			if (window == windowStack.last())	//top most window also copies for menu windows, which override the parent window rather than blurring over it
 				for (index_t i = 0; i < menu_stack.count(); i++)
@@ -1115,18 +1115,18 @@ namespace Engine
 					}
 					Window*menu = menu_.get();
 					project(menu,-1,-1,p);
-					rect.include(p);
+					rect.Include(p);
 					project(menu,1,-1,p);
-					rect.include(p);
+					rect.Include(p);
 					project(menu,1,1,p);
-					rect.include(p);
+					rect.Include(p);
 					project(menu,-1,1,p);
-					rect.include(p);
+					rect.Include(p);
 				}
 			
 			
-			rect.expand(5);
-			rect.constrainBy(Rect<float>(0,0,w,h));
+			rect.Expand(5);
+			rect.ConstrainBy(Rect<float>(0,0,w,h));
 			if (rect.width() <= 0 || rect.height() <= 0)
 				return;
 			
@@ -1464,7 +1464,7 @@ namespace Engine
 			inner_x = x;
 			inner_y = y;
 			
-			if (!cellLayout.border.contains(x,y))
+			if (!cellLayout.border.Contains(x,y))
 				return ClickResult::Missed;
 			
 			if (!fixedPosition)
@@ -1504,7 +1504,7 @@ namespace Engine
 				}
 			}
 				
-			if (rootComponent && (!layout || cellLayout.client.contains(x,y))&&rootComponent->visible&&rootComponent->enabled&&rootComponent->cellLayout.border.contains(x,y))
+			if (rootComponent && (!layout || cellLayout.client.Contains(x,y))&&rootComponent->visible&&rootComponent->enabled&&rootComponent->cellLayout.border.Contains(x,y))
 				return ClickResult::Component;
 			if (fixedPosition)
 				return ClickResult::Ignored;
@@ -1579,7 +1579,7 @@ namespace Engine
 			if (clipStack.count() > 1)
 			{
 				const Rect<int>&prev = clipStack.fromEnd(1);
-				next.constrainBy(prev);
+				next.ConstrainBy(prev);
 			}
 			_Apply(next);
 		}
@@ -3157,7 +3157,7 @@ namespace Engine
 					float x = (m.x-window->x)+window->fsize.x/2;
 					float y = (m.y-window->y)+window->fsize.y/2;
 				#endif
-				if (!window->GetCellLayout().border.contains(x,y))
+				if (!window->GetCellLayout().border.Contains(x,y))
 				{
 					window->hidden = timing.now64;
 					menu_stack.erase(i);
@@ -3189,7 +3189,7 @@ namespace Engine
 					float x = (m.x-window->x)+window->fsize.x/2;
 					float y = (m.y-window->y)+window->fsize.y/2;
 				#endif
-				if (!window->GetCellLayout().border.contains(x,y))
+				if (!window->GetCellLayout().border.Contains(x,y))
 					continue;
 				
 				if (window->rootComponent && window->rootComponent->IsVisible() && window->rootComponent->IsEnabled())

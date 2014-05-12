@@ -949,7 +949,7 @@ namespace Fractal
 	
 	void			SurfaceSegment::modifySphere(const AbstractSphere<float>&child_sphere)
 	{
-		global_sphere.include(child_sphere);
+		global_sphere.Include(child_sphere);
 		if (parent)
 			((SurfaceSegment*)parent)->modifySphere(global_sphere);
 	}
@@ -1806,7 +1806,7 @@ namespace Fractal
 		TVec3<> delta,center;
 		super->getTranslation(child->sector,this->sector,delta);
 		Vec::sub(child->global_sphere.center,delta,center);
-		global_sphere.include(center,child->global_sphere.radius);
+		global_sphere.Include(center,child->global_sphere.radius);
 	}
 	
 	void		SurfaceSegment::defaultDefineSphere(AbstractSphere<float>&sphere)

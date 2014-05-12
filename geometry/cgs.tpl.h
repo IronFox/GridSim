@@ -2341,14 +2341,14 @@ template <class C> bool SubGeometryA<Def>::extractDimensions(Box<C>&dim) const
 	if (vs_hull_field.length()&&vs_hull_field[0].vertex_field.length())
 	{
 		def = true;
-		dim.set(vs_hull_field[0].vertex_field[0].position);
+		dim.Set(vs_hull_field[0].vertex_field[0].position);
 
 		for (index_t i = 1; i < vs_hull_field[0].vertex_field.length(); i++)
-			dim.include(vs_hull_field[0].vertex_field[i].position);
+			dim.Include(vs_hull_field[0].vertex_field[i].position);
 	}
 	else
 	{
-		dim.setAll(0);
+		dim.SetAll(0);
 		def = false;
 	}
 	return def;
@@ -2741,10 +2741,10 @@ template <class C>
 template <class C0> void DimensionParser<C>::parse(const TVec3<C0>&point)
 {
 	if (set)
-		dimension.include(point);
+		dimension.Include(point);
 	else
 	{
-		dimension.set(point,point);
+		dimension.Set(point,point);
 		set = true;
 	}
 }
@@ -2754,7 +2754,7 @@ template <class C0> void DimensionParser<C>::parse(const Box<C0>&box)
 {
 	if (set)
 	{
-		dimension.include(box);
+		dimension.Include(box);
 	}
 	else
 	{
@@ -4514,8 +4514,8 @@ template <class Def> template <typename T0>
 	void	Geometry<Def>::makeBox(const Box<T0>&b)
 	{
 		TVec3<T0>	lv,uv;
-		b.getMin(lv);
-		b.getMax(uv);
+		b.GetMin(lv);
+		b.GetMax(uv);
 		const T0*l = lv.v,
 				*u = uv.v;
 		Float	vertex_path[] = {
@@ -5920,7 +5920,7 @@ template <class Def>
 		for (index_t i = 0; i < numVertices; i++)
 		{
 			const Float*vtx = vdata + i*config.vsize;
-			result.include(Vec::ref3(vtx));
+			result.Include(Vec::ref3(vtx));
 		}
 		return result;
 	}

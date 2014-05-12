@@ -36,7 +36,7 @@ static bool		intersect(const Composite::Coordinates&e0, const Composite::Coordin
 
 static bool		intersect(const EntityTree::Volume&a, const EntityTree::Volume&b)
 {
-	return a.intersects(b);
+	return a.Intersects(b);
 	//TVec3<> dif;
 	//if (Vec::oneGreater(a.lower,b.upper))
 	//	return false;
@@ -708,8 +708,8 @@ void		EntityTree::_RecursiveRemap(const Buffer<Entity*>&source)
 	float greatest_range(0);
 	
 	TVec3<> min,max;
-	volume.getMin(min);
-	volume.getMax(max);
+	volume.GetMin(min);
+	volume.GetMax(max);
 	TVec3<> new_split;
 	for (BYTE k = 0; k < 3; k++)
 	{
@@ -794,7 +794,7 @@ void		EntityTree::_RecursiveRemap(const Buffer<Entity*>&source)
 		if (verbose)
 			cout << " split vector component determined at "<<val<<endl;
 	
-		val = volume.axis[k].clamp(val);
+		val = volume.axis[k].Clamp(val);
 
 		if (verbose)
 			cout << " split vector component clamped to "<<val<<endl;
@@ -929,7 +929,7 @@ count_t	EntityTree::_RecursiveLookup(const TVec3<>&p0, const TVec3<>&p1, Buffer<
 	BYTE define[3];
 
 	for (BYTE j = 0; j < 2; j++)
-			if (volume.contains(edge[j]))
+			if (volume.Contains(edge[j]))
 			{
 				for (BYTE k = 0; k < 3; k++)
 					define[k] = edge[j].v[k] > split.v[k];
@@ -952,7 +952,7 @@ count_t	EntityTree::_RecursiveLookup(const TVec3<>&p0, const TVec3<>&p1, Buffer<
 					continue;
 				float	vx = p0.v[x] + dir.v[x] *alpha,
 						vy = p0.v[y] + dir.v[y] *alpha;
-				if (!volume.axis[x].contains(vx) || !volume.axis[y].contains(vy))
+				if (!volume.axis[x].Contains(vx) || !volume.axis[y].Contains(vy))
 					continue;
 				define[x] = vx > split.v[x];
 				define[y] = vy > split.v[y];
@@ -963,7 +963,7 @@ count_t	EntityTree::_RecursiveLookup(const TVec3<>&p0, const TVec3<>&p1, Buffer<
 				continue;
 			float	vx = p0.v[x] + dir.v[x] *alpha,
 					vy = p0.v[y] + dir.v[y] *alpha;
-			if (!volume.axis[x].contains(vx) || !volume.axis[y].contains(vy))
+			if (!volume.axis[x].Contains(vx) || !volume.axis[y].Contains(vy))
 				continue;
 			define[k] = 0;
 			define[x] = vx > split.v[x];
@@ -1094,7 +1094,7 @@ void		EntityTree::Remap(const Buffer<Entity*>&source, unsigned depth)
 	{
 		Entity*entity = source[i];
 
-		volume.include(entity->volume);
+		volume.Include(entity->volume);
 	}
 	_RecursiveRemap(source);
 }
@@ -1117,7 +1117,7 @@ void		EntityTree::Remap(List::Vector<Entity>&source, unsigned depth)
 	{
 		Entity*entity = source[i];
 		
-		volume.include(entity->volume);
+		volume.Include(entity->volume);
 
 		entities << entity;
 	}

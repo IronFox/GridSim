@@ -1256,28 +1256,15 @@ namespace ObjectMath	//! Collection of geometry related mathematical functions a
 	
 
 	template <class FloatType=float>
-		class AbstractSphere	//! Sphere definition
+		class AbstractSphere : public Sphere<FloatType>	//! Sphere definition
 		{
 		public:
 			typedef FloatType			Float;
-			Point<Float>				center;		//!< Sphere center (point)
-			Float						radius;		//!< Sphere radius (scalar)
 			
-			MF_CONSTRUCTOR				AbstractSphere(const Float&radius=1);
-			MF_CONSTRUCTOR				AbstractSphere(const TVec3<Float>&center, const Float&radius=1);
 			MF_DECLARE	(void)			resolveIndentation(const AbstractSphere<Float>&remote, Float&indentation, TVec3<Float>&indentation_vector, bool verbose)	const;	//!< Attempts to determine the direction and intensity of an intersection between the local sphere and a remote abstract geometry  \param remote Geometry to determine the indentation/intersection of \param indentation_vector Out vector that the local sphere would have to be moved by to deintersect the two geometries. The resulting vector is of length 0 if the two geometries don't intersect.
 			MF_DECLARE	(void)			resolveIndentation(const AbstractCylinder<Float>&remote, Float&indentation, TVec3<Float>&indentation_vector, bool verbose)	const;	//!< Attempts to determine the direction and intensity of an intersection between the local sphere and a remote abstract geometry  \param remote Geometry to determine the indentation/intersection of \param indentation_vector Out vector that the local sphere would have to be moved by to deintersect the two geometries. The resulting vector is of length 0 if the two geometries don't intersect.
 			MF_DECLARE(bool)			intersects(const AbstractSphere<Float>&remote)		const;
 			MF_DECLARE(bool)			intersects(const AbstractCylinder<Float>&remote)	const;
-			MFUNC(void)					includeSquare(const TVec3<C>&point);					//!< Extends radius so that the local sphere includes the specified point. The calculated distance from the local sphere center to the specified point is left squared thus increasing performance
-			MFUNC(void)					include(const TVec3<C>& point);					//!< Extends radius so that the local sphere includes the specified point
-			MFUNC(void)					include(const TVec3<C>& point, Float radius);		//!< Extends radius so that the local sphere includes the specified sphere
-			MFUNC(void)					include(const AbstractSphere<C>&sphere);	//!< Extends radius so that the local sphere includes the specified sphere
-			MFUNC(bool)					contains(const TVec3<C>&point)	const;
-			MF_DECLARE	(String)		ToString()	const
-										{
-											return "sphere: "+center.ToString()+" r"+String(radius);
-										}
 		};
 	
 	template <class FloatType=float>
@@ -1405,19 +1392,19 @@ namespace ObjectMath	//! Collection of geometry related mathematical functions a
 				Buffer<TTriangle>			triangles;
 				Buffer<TEdge>				edges;	//non-persistent
 				
-				MF_DECLARE (void)				updateNormal(TTriangle&triangle)	const;
+				MF_DECLARE (void)				UpdateNormal(TTriangle&triangle)	const;
 				
-				MF_DECLARE (void)				verifyIntegrity()	const;
-				MF_DECLARE (bool)				detectTedrahedron();			//!< Detects and creates a tedrahedron if possible
+				MF_DECLARE (void)				VerifyIntegrity()	const;
+				MF_DECLARE (bool)				DetectTedrahedron();			//!< Detects and creates a tedrahedron if possible
 				
-				MF_DECLARE (void)				reset();						//!< Resets the local hull building process
+				MF_DECLARE (void)				Reset();						//!< Resets the local hull building process
 			template <typename T>
-				MF_DECLARE (void)				include(const TVec3<T>&point);		//!< Includes a point into the convex hull.
+				MF_DECLARE (void)				Include(const TVec3<T>&point);		//!< Includes a point into the convex hull.
 			template <typename T>
-				MF_DECLARE (void)				include(const Point<T>&point);	//!< Includes a point into the convex hull.
+				MF_DECLARE (void)				Include(const Point<T>&point);	//!< Includes a point into the convex hull.
 				
 			template <class Def>
-				MF_DECLARE (void)				exportToMesh(Mesh<Def>&mesh)	const;	//!< Exports the current convex hull to a mesh
+				MF_DECLARE (void)				ExportToMesh(Mesh<Def>&mesh)	const;	//!< Exports the current convex hull to a mesh
 		};
 		
 	

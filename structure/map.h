@@ -129,8 +129,8 @@ namespace Map	//! Geometrical scenario composition
 										position = Vector<>::zero;
 										y_align = Vector<>::y_axis;
 										x_align = Vector<>::x_axis;
-										constraints.setAllMin(-1);
-										constraints.setAllMax(1);
+										constraints.SetAllMin(-1);
+										constraints.SetAllMax(1);
 									}
 									/*!
 										\brief Entity class constructor
@@ -145,8 +145,8 @@ namespace Map	//! Geometrical scenario composition
 										position = Vector<>::zero;
 										y_align = Vector<>::y_axis;
 										x_align = Vector<>::x_axis;
-										constraints.setAllMin(-1);
-										constraints.setAllMax(1);
+										constraints.SetAllMin(-1);
+										constraints.SetAllMax(1);
 									}
 									Entity(Entity&&other):sub_line(other.sub_line),position(other.position),y_align(other.y_align),constraints(other.constraints),system(other.system),inverse(other.inverse),
 															x_align(other.x_align),flags(other.flags),order(other.order),name(other.name),entity_class(other.entity_class),composition(other.composition)

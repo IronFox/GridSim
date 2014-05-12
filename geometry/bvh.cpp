@@ -2,3 +2,4 @@
 #include "bvh.h"
 
 template BVH<void>;
+template SphereBVH <void>;

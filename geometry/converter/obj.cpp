@@ -1316,7 +1316,7 @@ namespace Converter
 
 				logMessage("extracted dimensions of '"+child.name+"': "+dim.ToString());
 				
-				dim.getCenter(child.meta.system.w.xyz);
+				dim.GetCenter(child.meta.system.w.xyz);
 				for (index_t j = 0; j < vs_hull.vertex_field.length(); j++)
 					Vec::sub(vs_hull.vertex_field[j].position,child.meta.system.w.xyz);
 					

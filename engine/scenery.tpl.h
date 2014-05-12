@@ -225,9 +225,9 @@ namespace Engine
 		typename Def::FloatType r_scale = std::max(std::max(len.x,len.y),len.z);
 	    radius = src_radius*r_scale;
 		scaled_dim = src_dim;
-		scaled_dim.x.scale(len.x);
-		scaled_dim.y.scale(len.y);
-		scaled_dim.z.scale(len.z);
+		scaled_dim.x.Scale(len.x);
+		scaled_dim.y.Scale(len.y);
+		scaled_dim.z.Scale(len.z);
 
 	    //sys_scale = (typename Def::FloatType)(Vec::length(system->x.xyz)+Vec::length(system->y.xyz)+Vec::length(system->z.xyz))/3;
 	    updateCage();
@@ -1798,8 +1798,8 @@ namespace Engine
 	        while (Object*section = source->each())
 	        {
 				Box<Float> box;
-				box.setCenter(section->system->w.xyz,section->radius);
-				if (!volume.intersects(box))
+				box.SetCenter(section->system->w.xyz,section->radius);
+				if (!volume.Intersects(box))
 	                continue;
 
 				Vec::add(split,section->system->w.xyz);
@@ -1890,8 +1890,8 @@ namespace Engine
 							 k % 4 % 2};
 				bool collapsed(false);
 				TVec3<typename Def::FloatType>	min,max,out_min,out_max;
-				volume.getMin(min);
-				volume.getMax(max);
+				volume.GetMin(min);
+				volume.GetMax(max);
 
 				
 				for (BYTE j = 0; j < 3; j++)
@@ -1943,7 +1943,7 @@ namespace Engine
 		{
 			SCENERY_BEGIN
 	        const count_t cnt = elements.count();
-			if ((exclude && dominating == exclude) || !volume.intersects(space) || !cnt)
+			if ((exclude && dominating == exclude) || !volume.Intersects(space) || !cnt)
 			{
 				SCENERY_END
 	            return 0;
@@ -1957,8 +1957,8 @@ namespace Engine
 					if (object->structure == exclude)
 						continue;
 					Box<Float> box;
-					box.setCenter(object->system->w.xyz,object->radius);
-					if (!volume.intersects(box))
+					box.SetCenter(object->system->w.xyz,object->radius);
+					if (!volume.Intersects(box))
 	                    continue;
 					buffer << object;
 	                c++;
@@ -2112,7 +2112,7 @@ namespace Engine
 
 			{
 				Object*object = source->first();
-				volume.setCenter(object->system->w.xyz,object->radius);
+				volume.SetCenter(object->system->w.xyz,object->radius);
 			}
 	        dominating = source->first()->structure;
 	        source->reset();
@@ -2121,8 +2121,8 @@ namespace Engine
 				//elements.insert(object);
 				//_add(center,object->system+12);
 				Box<Float> box;
-				box.setCenter(object->system->w.xyz,object->radius);
-				volume.include(box);
+				box.SetCenter(object->system->w.xyz,object->radius);
+				volume.Include(box);
 				/*float absolute[3];
 				for (BYTE k = 0; k < 8; k++)
 				{
@@ -2667,7 +2667,7 @@ namespace Engine
 				}
 				Mat::transform(entity->invert,center,inner_center);
 				Box<typename VsDef::Type> inner_volume;
-				inner_volume.setCenter(inner_center,radius);
+				inner_volume.SetCenter(inner_center,radius);
 				//Vec::sub(inner_center,radius,inner_volume.lower);
 				//Vec::add(inner_center,radius,inner_volume.upper);
 				unsigned cnt = obj.map->lookup(inner_volume);

@@ -584,7 +584,7 @@ void	Map::Shape::updateTriangulation()
 	_oTriangulate(polygon_points.pointer(),polygon_points.count(),triangulation);
 	if (triangulation.vertex_field.length())
 	{
-		Entity::constraints.set(triangulation.vertex_field.first().position);
+		Entity::constraints.Set(triangulation.vertex_field.first().position);
 		
 		for (index_t i = 1; i < triangulation.vertex_field.length(); i++)
 			_oDetDimension(triangulation.vertex_field[i].position,Entity::constraints);
@@ -728,8 +728,8 @@ void					Map::HexGrid::updateConstraints()
 	const float cell_width = cell_height / sin(M_PI/3.f),
 				cell_indent = cell_width * 3.f/4.f;
 
-	constraints.setMin(float3(cell_indent*grid_offset.x,0,cell_height*grid_offset.y));
-	constraints.setMax(float3(cell_indent*(grid_offset.x+grid.width())+cell_width*0.25f,0,cell_height*(grid_offset.y+grid.height())+cell_height*0.5f));
+	constraints.SetMin(float3(cell_indent*grid_offset.x,0,cell_height*grid_offset.y));
+	constraints.SetMax(float3(cell_indent*(grid_offset.x+grid.width())+cell_width*0.25f,0,cell_height*(grid_offset.y+grid.height())+cell_height*0.5f));
 }
 
 
@@ -891,14 +891,14 @@ void 		Map::Volume::parse(const XML::Node&node,float scale, const FileSystem::Fo
 	if (string == "sphere")
 	{
 		type = Sphere;
-		Entity::constraints.setAllMin(-radius);
-		Entity::constraints.setAllMax(radius);
+		Entity::constraints.SetAllMin(-radius);
+		Entity::constraints.SetAllMax(radius);
 	}
 	else
 	{
 		type = Cylinder;
-		Entity::constraints.setMin(-radius,-height/2,-radius);
-		Entity::constraints.setMax(radius,height/2,radius);
+		Entity::constraints.SetMin(-radius,-height/2,-radius);
+		Entity::constraints.SetMax(radius,height/2,radius);
 	}
 	for (index_t i = 0; i < node.children.count(); i++)
 	{

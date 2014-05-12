@@ -446,7 +446,7 @@ namespace ObjectMath
 
 	MFUNC2 (void) _oDetDimension(const TVec3<C0>&vertex, Box<C1>&dimensions)
 	{
-		dimensions.include(vertex);
+		dimensions.Include(vertex);
 	}
 	
 	MFUNC3 (void) _oDetDimension(const TVec3<C0>&vertex, TVec3<C1>&lower, TVec3<C2>&upper)
@@ -1324,9 +1324,9 @@ namespace ObjectMath
 				{
 					x = b.v[i]+(d.v[i])*f;
 					y = b.v[j]+(d.v[j])*f;
-					if (box.axis[i].contains(x)
+					if (box.axis[i].Contains(x)
 						&&
-						box.axis[j].contains(y))
+						box.axis[j].Contains(y))
 					{
 						distance = f;
 						result = true;
@@ -1337,9 +1337,9 @@ namespace ObjectMath
 				{
 					x = b.v[i]+(d.v[i])*f;
 					y = b.v[j]+(d.v[j])*f;
-					if (box.axis[i].contains(x)
+					if (box.axis[i].Contains(x)
 						&&
-						box.axis[j].contains(y))
+						box.axis[j].Contains(y))
 					{
 						distance = f;
 						result = true;
@@ -1351,7 +1351,7 @@ namespace ObjectMath
 	
 	MFUNC3 (bool)		_oIntersectsBox(const TVec3<C0>&p0, const TVec3<C1>&p1, const Box<C2>&box)
 	{
-		if (box.contains(p0) || box.contains(p1))
+		if (box.Contains(p0) || box.Contains(p1))
 			return true;
 
 		for (BYTE k = 0; k < 3; k++)
@@ -1364,9 +1364,9 @@ namespace ObjectMath
 				{
 					x = p0.v[i]+(p1.v[i]-p0.v[i])*f;
 					y = p0.v[j]+(p1.v[j]-p0.v[j])*f;
-					if (box.axis[i].contains(x)
+					if (box.axis[i].Contains(x)
 						&&
-						box.axis[j].contains(y))
+						box.axis[j].Contains(y))
 						return true;
 				}
 				f = (box.axis[k].max-p0.v[k])/(p1.v[k]-p0.v[k]);
@@ -1374,9 +1374,9 @@ namespace ObjectMath
 				{
 					x = p0.v[i]+(p1.v[i]-p0.v[i])*f;
 					y = p0.v[j]+(p1.v[j]-p0.v[j])*f;
-					if (box.axis[i].contains(x)
+					if (box.axis[i].Contains(x)
 						&&
-						box.axis[j].contains(y))
+						box.axis[j].Contains(y))
 						return true;
 				}
 			}
@@ -1718,39 +1718,39 @@ namespace ObjectMath
 			{
 				if (quad->n0.triangle == (MeshTriangle<Def>*)t)
 				{
-					quad->n0.set(with);
+					quad->n0.Set(with);
 					return;
 				}
 				if (quad->n1.triangle == (MeshTriangle<Def>*)t)
 				{
-					quad->n1.set(with);
+					quad->n1.Set(with);
 					return;
 				}
 				if (quad->n2.triangle == (MeshTriangle<Def>*)t)
 				{
-					quad->n2.set(with);
+					quad->n2.Set(with);
 					return;
 				}
 				if (quad->n3.triangle == (MeshTriangle<Def>*)t)
 				{
-					quad->n3.set(with);
+					quad->n3.Set(with);
 					return;
 				}
 				return;
 			}
 			if (triangle->n0.triangle == (MeshTriangle<Def>*)t)
 			{
-				triangle->n0.set(with);
+				triangle->n0.Set(with);
 				return;
 			}
 			if (triangle->n1.triangle == (MeshTriangle<Def>*)t)
 			{
-				triangle->n1.set(with);
+				triangle->n1.Set(with);
 				return;
 			}
 			if (triangle->n2.triangle == (MeshTriangle<Def>*)t)
 			{
-				triangle->n2.set(with);
+				triangle->n2.Set(with);
 				return;
 			}
 		}
@@ -5395,15 +5395,15 @@ namespace ObjectMath
 			for (index_t i = 0; i < obj.edge_field.length(); i++)
 			{
 				if (obj.edge_field[i].n[0].is_quad)
-					eoffset[i].n[0].set(qoffset+(obj.edge_field[i].n[0].quad-obj.quad_field));
+					eoffset[i].n[0].Set(qoffset+(obj.edge_field[i].n[0].quad-obj.quad_field));
 				else
-					eoffset[i].n[0].set(toffset+(obj.edge_field[i].n[0].triangle-obj.triangle_field));
+					eoffset[i].n[0].Set(toffset+(obj.edge_field[i].n[0].triangle-obj.triangle_field));
 				
 				if (obj.edge_field[i].n[1])
 					if (obj.edge_field[i].n[1].is_quad)
-						eoffset[i].n[1].set(qoffset+(obj.edge_field[i].n[1].quad-obj.quad_field));
+						eoffset[i].n[1].Set(qoffset+(obj.edge_field[i].n[1].quad-obj.quad_field));
 					else
-						eoffset[i].n[1].set(toffset+(obj.edge_field[i].n[1].triangle-obj.triangle_field));
+						eoffset[i].n[1].Set(toffset+(obj.edge_field[i].n[1].triangle-obj.triangle_field));
 			}
 			
 			voffset += obj.vertex_field.length();
@@ -5730,65 +5730,65 @@ namespace ObjectMath
 
 			edge_field[0].v0 = vertex_field + 0;
 			edge_field[0].v1 = vertex_field + 1;
-			edge_field[0].n[0].set(quad_field+0);
-			edge_field[0].n[1].set(quad_field+4);
+			edge_field[0].n[0].Set(quad_field+0);
+			edge_field[0].n[1].Set(quad_field+4);
 
 			edge_field[1].v0 = vertex_field + 1;
 			edge_field[1].v1 = vertex_field + 2;
-			edge_field[1].n[0].set(quad_field+1);
-			edge_field[1].n[1].set(quad_field+4);
+			edge_field[1].n[0].Set(quad_field+1);
+			edge_field[1].n[1].Set(quad_field+4);
 
 			edge_field[2].v0 = vertex_field + 2;
 			edge_field[2].v1 = vertex_field + 3;
-			edge_field[2].n[0].set(quad_field+2);
-			edge_field[2].n[1].set(quad_field+4);
+			edge_field[2].n[0].Set(quad_field+2);
+			edge_field[2].n[1].Set(quad_field+4);
 
 			edge_field[3].v0 = vertex_field + 3;
 			edge_field[3].v1 = vertex_field + 0;
-			edge_field[3].n[0].set(quad_field+3);
-			edge_field[3].n[1].set(quad_field+4);
+			edge_field[3].n[0].Set(quad_field+3);
+			edge_field[3].n[1].Set(quad_field+4);
 
 
 			edge_field[4].v0 = vertex_field + 4;
 			edge_field[4].v1 = vertex_field + 5;
-			edge_field[4].n[0].set(quad_field+0);
-			edge_field[4].n[1].set(quad_field+5);
+			edge_field[4].n[0].Set(quad_field+0);
+			edge_field[4].n[1].Set(quad_field+5);
 
 			edge_field[5].v0 = vertex_field + 5;
 			edge_field[5].v1 = vertex_field + 6;
-			edge_field[5].n[0].set(quad_field+1);
-			edge_field[5].n[1].set(quad_field+5);
+			edge_field[5].n[0].Set(quad_field+1);
+			edge_field[5].n[1].Set(quad_field+5);
 
 			edge_field[6].v0 = vertex_field + 6;
 			edge_field[6].v1 = vertex_field + 7;
-			edge_field[6].n[0].set(quad_field+2);
-			edge_field[6].n[1].set(quad_field+5);
+			edge_field[6].n[0].Set(quad_field+2);
+			edge_field[6].n[1].Set(quad_field+5);
 
 			edge_field[7].v0 = vertex_field + 7;
 			edge_field[7].v1 = vertex_field + 4;
-			edge_field[7].n[0].set(quad_field+3);
-			edge_field[7].n[1].set(quad_field+5);
+			edge_field[7].n[0].Set(quad_field+3);
+			edge_field[7].n[1].Set(quad_field+5);
 
 
 			edge_field[8].v0 = vertex_field + 1;
 			edge_field[8].v1 = vertex_field + 5;
-			edge_field[8].n[0].set(quad_field+0);
-			edge_field[8].n[1].set(quad_field+1);
+			edge_field[8].n[0].Set(quad_field+0);
+			edge_field[8].n[1].Set(quad_field+1);
 
 			edge_field[9].v0 = vertex_field + 2;
 			edge_field[9].v1 = vertex_field + 6;
-			edge_field[9].n[0].set(quad_field+1);
-			edge_field[9].n[1].set(quad_field+2);
+			edge_field[9].n[0].Set(quad_field+1);
+			edge_field[9].n[1].Set(quad_field+2);
 
 			edge_field[10].v0 = vertex_field + 3;
 			edge_field[10].v1 = vertex_field + 7;
-			edge_field[10].n[0].set(quad_field+2);
-			edge_field[10].n[1].set(quad_field+3);
+			edge_field[10].n[0].Set(quad_field+2);
+			edge_field[10].n[1].Set(quad_field+3);
 
 			edge_field[11].v0 = vertex_field + 0;
 			edge_field[11].v1 = vertex_field + 4;
-			edge_field[11].n[0].set(quad_field+3);
-			edge_field[11].n[1].set(quad_field+0);
+			edge_field[11].n[0].Set(quad_field+3);
+			edge_field[11].n[1].Set(quad_field+0);
 
 			for (index_t i = 0; i < edge_field.length(); i++)
 			{
@@ -5887,30 +5887,30 @@ namespace ObjectMath
 			Box<C>	new_dim;
 			if ((tag & O_VERTICES) && object.vertex_field.length())
 			{
-				new_dim.set(object.vertex_field[0].position);
+				new_dim.Set(object.vertex_field[0].position);
 				for (index_t i = 1; i < object.vertex_field.length(); i++)
-					new_dim.include(object.vertex_field[i].position);
+					new_dim.Include(object.vertex_field[i].position);
 			}
 			elif ((tag & O_EDGES) && object.edge_field.length())
 			{
-				new_dim.set(object.edge_field[0].v0->position);
+				new_dim.Set(object.edge_field[0].v0->position);
 				for (BYTE k = 0; k < 2; k++)
 					for (index_t i = 0; i < object.edge_field.length(); i++)
-						new_dim.include(object.edge_field[i].vertex[k]->position);
+						new_dim.Include(object.edge_field[i].vertex[k]->position);
 			}
 			elif ((tag & O_TRIANGLES) && object.triangle_field.length())
 			{
-				new_dim.set(object.triangle_field[0].v0->position);
+				new_dim.Set(object.triangle_field[0].v0->position);
 				for (BYTE k = 0; k < 3; k++)
 					for (index_t i = 0; i < object.triangle_field.length(); i++)
-						new_dim.include(object.triangle_field[i].vertex[k]->position);
+						new_dim.Include(object.triangle_field[i].vertex[k]->position);
 			}
 			elif ((tag & O_QUADS) && object.quad_field.length())
 			{
-				new_dim.set(object.quad_field[0].v0->position);
+				new_dim.Set(object.quad_field[0].v0->position);
 				for (BYTE k = 0; k < 4; k++)
 					for (index_t i = 0; i < object.quad_field.length(); i++)
-						new_dim.include(object.quad_field[i].vertex[k]->position);
+						new_dim.Include(object.quad_field[i].vertex[k]->position);
 			}
 			else
 				return;
@@ -5935,7 +5935,7 @@ namespace ObjectMath
 					new_dim.axis[k].min-=range/50;
 				}
 				C dif = new_dim.axis[k].extend();
-				new_dim.axis[k].expand(dif/100);
+				new_dim.axis[k].Expand(dif/100);
 			}
 			dim = new_dim;
 
@@ -6094,29 +6094,29 @@ namespace ObjectMath
 				tbuffered[8] = {0,0,0,0, 0,0,0,0},
 				qbuffered[8] = {0,0,0,0, 0,0,0,0};
 		
-		bool set[8];
+		bool Set[8];
 		TVec3<C>	half = dim.center();
 
 		if (tag & O_VERTICES)
 			for (index_t i = 0; i < vertex_field.length(); i++)
 				for (BYTE k = 0; k < 8; k++)
-					if (child[k]->dim.contains(vertex_field[i]->position))
+					if (child[k]->dim.Contains(vertex_field[i]->position))
 						vbuffer[k][vbuffered[k]++] = vertex_field[i];
 
 		if (tag & O_EDGES)
 			for (index_t i = 0; i < edge_field.length(); i++)
 			{
-				VecUnroll<8>::clear(set);
+				VecUnroll<8>::clear(Set);
 				BYTE define[3];
 
 				for (BYTE j = 0; j < 2; j++)
-					if (dim.contains(edge_field[i]->vertex[j]->position))
+					if (dim.Contains(edge_field[i]->vertex[j]->position))
 					{
 						for (BYTE k = 0; k < 3; k++)
 							define[k] = edge_field[i]->vertex[j]->position.v[k] > half.v[k];
 	//					ShowMessage(_toString(define));
 						BYTE k = define[0] *4+ define[1] *2 + define[2];
-						set[k] = true;
+						Set[k] = true;
 
 					}
 				TVec3<C>	dir;
@@ -6135,45 +6135,45 @@ namespace ObjectMath
 								continue;
 							C		vx = edge_field[i]->v0->position.v[x] + dir.v[x] *alpha,
 									vy = edge_field[i]->v0->position.v[y] + dir.v[y] *alpha;
-							if (!dim.axis[x].contains(vx) || !dim.axis[y].contains(vy))
+							if (!dim.axis[x].Contains(vx) || !dim.axis[y].Contains(vy))
 								continue;
 							define[x] = vx > half.v[x];
 							define[y] = vy > half.v[y];
-							set[define[0]*4 + define[1]*2 + define[2]] = true;
+							Set[define[0]*4 + define[1]*2 + define[2]] = true;
 						}
 						C	alpha = (half.v[k] - edge_field[i]->v0->position.v[k]) / dir.v[k];
 						if (alpha > 1 || alpha < 0)
 							continue;
 						C	vx = edge_field[i]->v0->position.v[x] + dir.v[x] *alpha,
 							vy = edge_field[i]->v0->position.v[y] + dir.v[y] *alpha;
-						if (!dim.axis[x].contains(vx) || !dim.axis[y].contains(vy))
+						if (!dim.axis[x].Contains(vx) || !dim.axis[y].Contains(vy))
 							continue;
 						define[k] = 0;
 						define[x] = vx > half.v[x];
 						define[y] = vy > half.v[y];
-						set[define[0] *4 + define[1]*2 + define[2]] = true;
+						Set[define[0] *4 + define[1]*2 + define[2]] = true;
 						define[k] = 1;
-						set[define[0] *4 + define[1]*2 + define[2]] = true;
+						Set[define[0] *4 + define[1]*2 + define[2]] = true;
 					}
 				for (BYTE k = 0; k < 8; k++)
-					if (set[k])
+					if (Set[k])
 						ebuffer[k][ebuffered[k]++] = edge_field[i];
 			}
 
 		if (tag & O_TRIANGLES)
 			for (index_t i = 0; i < triangle_field.length(); i++)
 			{
-				memset(set,0,sizeof(set));
+				memset(Set,0,sizeof(Set));
 				BYTE define[3];
 
 				for (BYTE j = 0; j < 3; j++)
-					if (!dim.contains(triangle_field[i]->vertex[j]->position))
+					if (!dim.Contains(triangle_field[i]->vertex[j]->position))
 						continue;
 					else
 					{
 						for (BYTE k = 0; k < 3; k++)
 							define[k] = triangle_field[i]->vertex[j]->position.v[k] > half.v[k];
-						set[define[0] *4+ define[1] *2 + define[2]] = true;
+						Set[define[0] *4+ define[1] *2 + define[2]] = true;
 					}
 				for (BYTE h = 0; h < 3; h++)
 				{
@@ -6194,25 +6194,25 @@ namespace ObjectMath
 									continue;
 								C	vx = triangle_field[i]->vertex[h]->position.v[x] + dir.v[x] *alpha,
 									vy = triangle_field[i]->vertex[h]->position.v[y] + dir.v[y] *alpha;
-								if (!dim.axis[x].contains(vx) || !dim.axis[y].contains(vy))
+								if (!dim.axis[x].Contains(vx) || !dim.axis[y].Contains(vy))
 									continue;
 								define[x] = vx > half.v[x];
 								define[y] = vy > half.v[y];
-								set[define[0]*4 + define[1]*2 + define[2]] = true;
+								Set[define[0]*4 + define[1]*2 + define[2]] = true;
 							}
 							C	alpha = (half.v[k] - triangle_field[i]->vertex[h]->position.v[k]) / dir.v[k];
 							if (alpha > 1 || alpha < 0)
 								continue;
 							C	vx = triangle_field[i]->vertex[h]->position.v[x] + dir.v[x] *alpha,
 								vy = triangle_field[i]->vertex[h]->position.v[y] + dir.v[y] *alpha;
-							if (!dim.axis[x].contains(vx) || !dim.axis[y].contains(vy))
+							if (!dim.axis[x].Contains(vx) || !dim.axis[y].Contains(vy))
 								continue;
 							define[k] = 0;
 							define[x] = vx > half.v[x];
 							define[y] = vy > half.v[y];
-							set[define[0] *4 + define[1]*2 + define[2]] = true;
+							Set[define[0] *4 + define[1]*2 + define[2]] = true;
 							define[k] = 1;
-							set[define[0] *4 + define[1]*2 + define[2]] = true;
+							Set[define[0] *4 + define[1]*2 + define[2]] = true;
 						}
 				}
 
@@ -6256,11 +6256,11 @@ namespace ObjectMath
 									define[x] = fx -1+ix;
 									define[y] = fy -1+iy;
 									if (define[x] < 2 && define[y] < 2)
-										set[define[0] *4 + define[1] *2 + define[2]] = true;
+										Set[define[0] *4 + define[1] *2 + define[2]] = true;
 								}
 						}
 				for (BYTE k = 0; k < 8; k++)
-					if (set[k])
+					if (Set[k])
 						tbuffer[k][tbuffered[k]++] = triangle_field[i];
 
 			}
@@ -6269,17 +6269,17 @@ namespace ObjectMath
 		if (tag & O_QUADS)
 			for (index_t i = 0; i < quad_field.length(); i++)
 			{
-				memset(set,0,sizeof(set));
+				memset(Set,0,sizeof(Set));
 				BYTE define[3];
 
 				for (BYTE j = 0; j < 4; j++)
-					if (!dim.contains(quad_field[i]->vertex[j]->position))
+					if (!dim.Contains(quad_field[i]->vertex[j]->position))
 						continue;
 					else
 					{
 						for (BYTE k = 0; k < 3; k++)
 							define[k] = quad_field[i]->vertex[j]->position.v[k] > half.v[k];
-						set[define[0] *4+ define[1] *2 + define[2]] = true;
+						Set[define[0] *4+ define[1] *2 + define[2]] = true;
 					}
 				for (BYTE h = 0; h < 4; h++)
 				{
@@ -6300,25 +6300,25 @@ namespace ObjectMath
 									continue;
 								C	vx = quad_field[i]->vertex[h]->position.v[x] + dir.v[x] *alpha,
 									vy = quad_field[i]->vertex[h]->position.v[y] + dir.v[y] *alpha;
-								if (!dim.axis[x].contains(vx) || !dim.axis[y].contains(vy))
+								if (!dim.axis[x].Contains(vx) || !dim.axis[y].Contains(vy))
 									continue;
 								define[x] = vx > half.v[x];
 								define[y] = vy > half.v[y];
-								set[define[0]*4 + define[1]*2 + define[2]] = true;
+								Set[define[0]*4 + define[1]*2 + define[2]] = true;
 							}
 							C	alpha = (half.v[k] - quad_field[i]->vertex[h]->position.v[k]) / dir.v[k];
 							if (alpha > 1 || alpha < 0)
 								continue;
 							C	vx = quad_field[i]->vertex[h]->position.v[x] + dir.v[x] *alpha,
 								vy = quad_field[i]->vertex[h]->position.v[y] + dir.v[y] *alpha;
-							if (!dim.axis[x].contains(vx) || !dim.axis[y].contains(vy))
+							if (!dim.axis[x].Contains(vx) || !dim.axis[y].Contains(vy))
 								continue;
 							define[k] = 0;
 							define[x] = vx > half.v[x];
 							define[y] = vy > half.v[y];
-							set[define[0] *4 + define[1]*2 + define[2]] = true;
+							Set[define[0] *4 + define[1]*2 + define[2]] = true;
 							define[k] = 1;
-							set[define[0] *4 + define[1]*2 + define[2]] = true;
+							Set[define[0] *4 + define[1]*2 + define[2]] = true;
 						}
 				}
 
@@ -6363,7 +6363,7 @@ namespace ObjectMath
 										define[x] = fx -1+ix;
 										define[y] = fy -1+iy;
 										if (define[x] < 2 && define[y] < 2)
-											set[define[0] *4 + define[1] *2 + define[2]] = true;
+											Set[define[0] *4 + define[1] *2 + define[2]] = true;
 									}
 							}
 							
@@ -6405,12 +6405,12 @@ namespace ObjectMath
 										define[x] = fx -1+ix;
 										define[y] = fy -1+iy;
 										if (define[x] < 2 && define[y] < 2)
-											set[define[0] *4 + define[1] *2 + define[2]] = true;
+											Set[define[0] *4 + define[1] *2 + define[2]] = true;
 									}
 							}							
 				}
 				for (BYTE k = 0; k < 8; k++)
-					if (set[k])
+					if (Set[k])
 						qbuffer[k][qbuffered[k]++] = quad_field[i];
 
 			}
@@ -6822,7 +6822,7 @@ namespace ObjectMath
 		const C*edge[2] = {p0,p1};
 		C		half[3];
 		_center(dim,dim+3,half);
-		bool set[8] = {false,false,false,false,false,false,false,false};
+		bool Set[8] = {false,false,false,false,false,false,false,false};
 		BYTE define[3];
 
 		for (BYTE j = 0; j < 2; j++)
@@ -6831,7 +6831,7 @@ namespace ObjectMath
 					for (BYTE k = 0; k < 3; k++)
 						define[k] = edge[j][k] > half[k];
 					BYTE k = define[0] *4+ define[1] *2 + define[2];
-					set[k] = true;
+					Set[k] = true;
 				}
 		C	dir[3];
 		_subtract(p1, p0, dir);
@@ -6852,7 +6852,7 @@ namespace ObjectMath
 							continue;
 						define[x] = vx > half[x];
 						define[y] = vy > half[y];
-						set[define[0]*4 + define[1]*2 + define[2]] = true;
+						Set[define[0]*4 + define[1]*2 + define[2]] = true;
 				}
 				C	alpha = (half[k] - p0[k]) / dir[k];
 				if (alpha > 1 || alpha < 0)
@@ -6864,13 +6864,13 @@ namespace ObjectMath
 				define[k] = 0;
 				define[x] = vx > half[x];
 				define[y] = vy > half[y];
-				set[define[0] *4 + define[1]*2 + define[2]] = true;
+				Set[define[0] *4 + define[1]*2 + define[2]] = true;
 				define[k] = 1;
-				set[define[0] *4 + define[1]*2 + define[2]] = true;
+				Set[define[0] *4 + define[1]*2 + define[2]] = true;
 			}
 		index_t at = sector_map.fillLevel();
 		for (BYTE k = 0; k < 8; k++)
-			if (set[k])
+			if (Set[k])
 				if (child[k]->recursiveLookupEdge(p0,p1) == cnt)
 				{
 					sector_map.truncate(at);
@@ -6893,7 +6893,7 @@ namespace ObjectMath
 		
 		C		half[3];
 		_center(dim,dim+3,half);
-		bool set[8] = {false,false,false,false,false,false,false,false};
+		bool Set[8] = {false,false,false,false,false,false,false,false};
 		//BYTE define[3];
 		static const BYTE fc[3] = {4,2,1};
 		
@@ -6910,22 +6910,22 @@ namespace ObjectMath
 					BYTE	id = 0;
 					if (p[k] >= half[k])
 						id += fc[k];
-					set[id] = true;
+					Set[id] = true;
 				}
 				if (sqr(p[other0]-half[other0])+sqr(p[other1]-dim[other1])<= r*r)
 				{
 					BYTE	id = 0;
 					if (p[k] >= half[k])
 						id += fc[k];
-					set[id] = true;
-					set[id+fc[other0]] = true;
+					Set[id] = true;
+					Set[id+fc[other0]] = true;
 				}
 				if (sqr(p[other0]-dim[other0+3])+sqr(p[other1]-dim[other1])<= r*r)
 				{
 					BYTE	id = 0;
 					if (p[k] >= half[k])
 						id += fc[k];
-					set[id+fc[other0]] = true;
+					Set[id+fc[other0]] = true;
 				}
 				
 				if (sqr(p[other0]-dim[other0])+sqr(p[other1]-dim[other1+3])<= r*r)
@@ -6933,22 +6933,22 @@ namespace ObjectMath
 					BYTE	id = 0;
 					if (p[k] >= half[k])
 						id += fc[k];
-					set[id+fc[other1]] = true;
+					Set[id+fc[other1]] = true;
 				}
 				if (sqr(p[other0]-half[other0])+sqr(p[other1]-dim[other1+3])<= r*r)
 				{
 					BYTE	id = 0;
 					if (p[k] >= half[k])
 						id += fc[k];
-					set[id+fc[other1]] = true;
-					set[id+fc[other0]+fc[other1]] = true;
+					Set[id+fc[other1]] = true;
+					Set[id+fc[other0]+fc[other1]] = true;
 				}
 				if (sqr(p[other0]-dim[other0+3])+sqr(p[other1]-dim[other1+3])<= r*r)
 				{
 					BYTE	id = 0;
 					if (p[k] >= half[k])
 						id += fc[k];
-					set[id+fc[other0]+fc[other1]] = true;
+					Set[id+fc[other0]+fc[other1]] = true;
 				}
 				
 				if (sqr(p[other0]-dim[other0])+sqr(p[other1]-half[other1])<= r*r)
@@ -6956,26 +6956,26 @@ namespace ObjectMath
 					BYTE	id = 0;
 					if (p[k] >= half[k])
 						id += fc[k];
-					set[id] = true;
-					set[id+fc[other1]] = true;
+					Set[id] = true;
+					Set[id+fc[other1]] = true;
 				}
 				if (sqr(p[other0]-half[other0])+sqr(p[other1]-half[other1])<= r*r)
 				{
 					BYTE	id = 0;
 					if (p[k] >= half[k])
 						id += fc[k];
-					set[id] = true;
-					set[id+fc[other0]] = true;
-					set[id+fc[other1]] = true;
-					set[id+fc[other0]+fc[other1]] = true;
+					Set[id] = true;
+					Set[id+fc[other0]] = true;
+					Set[id+fc[other1]] = true;
+					Set[id+fc[other0]+fc[other1]] = true;
 				}
 				if (sqr(p[other0]-dim[other0+3])+sqr(p[other1]-half[other1])<= r*r)
 				{
 					BYTE	id = 0;
 					if (p[k] >= half[k])
 						id += fc[k];
-					set[id+fc[other0]] = true;
-					set[id+fc[other0]+fc[other1]] = true;
+					Set[id+fc[other0]] = true;
+					Set[id+fc[other0]+fc[other1]] = true;
 				}
 			}
 			
@@ -6993,7 +6993,7 @@ namespace ObjectMath
 						id += fc[other0];
 					if (u1)
 						id += fc[other1];
-					set[id] = true;
+					Set[id] = true;
 				}
 			}
 		
@@ -7010,8 +7010,8 @@ namespace ObjectMath
 						id += fc[other0];
 					if (u1)
 						id += fc[other1];
-					set[id] = true;
-					set[id+fc[k]] = true;
+					Set[id] = true;
+					Set[id+fc[k]] = true;
 				}
 			}
 			
@@ -7029,31 +7029,31 @@ namespace ObjectMath
 						id += fc[other0];
 					if (u1)
 						id += fc[other1];
-					set[id+fc[k]] = true;
+					Set[id+fc[k]] = true;
 				}
 			}
 		}
 		
 		//simple cases:
-		set[0] = set[0] || _distanceSquare(p,dim)<r*r;
+		Set[0] = Set[0] || _distanceSquare(p,dim)<r*r;
 		if (_distanceSquare(p,half)<r*r)
-			memset(set,true,sizeof(set));
-		set[7] = set[7] || _distanceSquare(p,dim+3)<r*r;
+			memset(Set,true,sizeof(Set));
+		Set[7] = Set[7] || _distanceSquare(p,dim+3)<r*r;
 
 		//lower cases
-		set[fc[0]] = set[fc[0]] || sqr(p[0]-dim[3])+sqr(p[1]-dim[1])+sqr(p[2]-dim[2]) < r*r;
-		set[fc[1]] = set[fc[1]] || sqr(p[0]-dim[0])+sqr(p[1]-dim[4])+sqr(p[2]-dim[2]) < r*r;
-		set[fc[2]] = set[fc[2]] || sqr(p[0]-dim[0])+sqr(p[1]-dim[1])+sqr(p[2]-dim[5]) < r*r;
+		Set[fc[0]] = Set[fc[0]] || sqr(p[0]-dim[3])+sqr(p[1]-dim[1])+sqr(p[2]-dim[2]) < r*r;
+		Set[fc[1]] = Set[fc[1]] || sqr(p[0]-dim[0])+sqr(p[1]-dim[4])+sqr(p[2]-dim[2]) < r*r;
+		Set[fc[2]] = Set[fc[2]] || sqr(p[0]-dim[0])+sqr(p[1]-dim[1])+sqr(p[2]-dim[5]) < r*r;
 		
 		//upper cases
-		set[fc[0]+fc[1]] = set[fc[0]+fc[1]] || sqr(p[0]-dim[3])+sqr(p[1]-dim[4])+sqr(p[2]-dim[2]) < r*r;
-		set[fc[0]+fc[2]] = set[fc[0]+fc[2]] || sqr(p[0]-dim[3])+sqr(p[1]-dim[1])+sqr(p[2]-dim[5]) < r*r;
-		set[fc[1]+fc[2]] = set[fc[1]+fc[2]] || sqr(p[0]-dim[0])+sqr(p[1]-dim[4])+sqr(p[2]-dim[5]) < r*r;
+		Set[fc[0]+fc[1]] = Set[fc[0]+fc[1]] || sqr(p[0]-dim[3])+sqr(p[1]-dim[4])+sqr(p[2]-dim[2]) < r*r;
+		Set[fc[0]+fc[2]] = Set[fc[0]+fc[2]] || sqr(p[0]-dim[3])+sqr(p[1]-dim[1])+sqr(p[2]-dim[5]) < r*r;
+		Set[fc[1]+fc[2]] = Set[fc[1]+fc[2]] || sqr(p[0]-dim[0])+sqr(p[1]-dim[4])+sqr(p[2]-dim[5]) < r*r;
 		
 
 		index_t at = sector_map.fillLevel();
 		for (BYTE k = 0; k < 8; k++)
-			if (set[k])
+			if (Set[k])
 				if (child[k]->recursiveLookupSphere(p,r) == cnt)
 				{
 					sector_map.truncate(at);
@@ -7302,14 +7302,6 @@ namespace ObjectMath
 			return Vec::compare(normal,other.normal)<0;
 		}
 
-	template <class FloatType>
-		MF_CONSTRUCTOR AbstractSphere<FloatType>::AbstractSphere(const Float&radius_):center(0,0,0),radius(radius_)
-		{}
-
-	
-	template <class FloatType>
-		MF_CONSTRUCTOR AbstractSphere<FloatType>::AbstractSphere(const TVec3<Float>&center_, const Float&radius_):center(center_),radius(radius_)
-		{}
 	
 
 	template <class FloatType>
@@ -7382,48 +7374,6 @@ namespace ObjectMath
 			}
 		}
 	
-	
-	template <class FloatType>
-		MFUNC(void) AbstractSphere<FloatType>::includeSquare(const TVec3<C>&point)
-		{
-			Float distance = (sqr(center.x-point.x)+sqr(center.y-point.y)+sqr(center.z-point.z));
-			if (distance > radius)
-				radius = distance;
-		}	
-	
-			
-	template <class FloatType>
-		MFUNC(bool)	AbstractSphere<FloatType>::contains(const TVec3<C>&point)	const
-		{
-			return Vec::quadraticDistance(center,point) <= radius*radius;
-		}
-	
-	
-	template <class FloatType>
-		MFUNC(void) AbstractSphere<FloatType>::include(const TVec3<C>&point)
-		{
-			Float distance2 = Vec::quadraticDistance(center,point);
-			if (distance2 > radius*radius)
-				radius = vsqrt(distance2);
-		}
-	
-	template <class FloatType>
-		MFUNC(void) AbstractSphere<FloatType>::include(const AbstractSphere<C>&sphere)
-		{
-			Float distance = Vec::distance(sphere.center,center)+sphere.radius;
-			if (distance > radius)
-				radius = distance;
-		}
-	
-	template <class FloatType>
-		MFUNC(void) AbstractSphere<FloatType>::include(const TVec3<C>& point, Float radius_)
-		{
-			Float distance = Vec::distance(point,center)+radius_;
-			if (distance > radius)
-				radius = distance;
-		}
-	
-
 	
 
 	template <class FloatType>
@@ -7693,7 +7643,7 @@ namespace ObjectMath
 	
 	
 	template <typename Float>
-		MF_DECLARE	(void)			ConvexHullBuilder<Float>::reset()
+		MF_DECLARE	(void)			ConvexHullBuilder<Float>::Reset()
 		{
 			buffer.reset();
 			vertices.reset();
@@ -7701,14 +7651,14 @@ namespace ObjectMath
 		}
 	
 	template <typename Float>
-		MF_DECLARE	(void)			ConvexHullBuilder<Float>::updateNormal(TTriangle&triangle)	const
+		MF_DECLARE	(void)			ConvexHullBuilder<Float>::UpdateNormal(TTriangle&triangle)	const
 		{
 			_oTriangleNormal(vertices[triangle.v0].vector,vertices[triangle.v1].vector,vertices[triangle.v2].vector,triangle.normal);
 			Vec::normalize0(triangle.normal);
 		}
 	
 	template <typename Float>
-		MF_DECLARE	(bool)			ConvexHullBuilder<Float>::detectTedrahedron()
+		MF_DECLARE	(bool)			ConvexHullBuilder<Float>::DetectTedrahedron()
 		{
 			if (buffer.length()<4)
 				return false;
@@ -7727,17 +7677,17 @@ namespace ObjectMath
 						buffer.erase(index_t(0));
 						if (vol > 0)
 						{
-							updateNormal(triangles.append().set(0,1,2,1,2,3));
-							updateNormal(triangles.append().set(1,0,3,0,3,2));
-							updateNormal(triangles.append().set(2,1,3,0,1,3));
-							updateNormal(triangles.append().set(0,2,3,0,2,1));
+							updateNormal(triangles.append().Set(0,1,2,1,2,3));
+							updateNormal(triangles.append().Set(1,0,3,0,3,2));
+							updateNormal(triangles.append().Set(2,1,3,0,1,3));
+							updateNormal(triangles.append().Set(0,2,3,0,2,1));
 						}
 						else
 						{
-							updateNormal(triangles.append().set(0,2,1,3,2,1));
-							updateNormal(triangles.append().set(1,3,0,2,3,0));
-							updateNormal(triangles.append().set(2,3,1,3,1,0));
-							updateNormal(triangles.append().set(0,3,2,1,2,0));
+							updateNormal(triangles.append().Set(0,2,1,3,2,1));
+							updateNormal(triangles.append().Set(1,3,0,2,3,0));
+							updateNormal(triangles.append().Set(2,3,1,3,1,0));
+							updateNormal(triangles.append().Set(0,3,2,1,2,0));
 						}
 						return true;
 					}
@@ -7745,19 +7695,19 @@ namespace ObjectMath
 		}
 	
 	template <typename Float> template <typename T>
-		MF_DECLARE	(void)			ConvexHullBuilder<Float>::include(const TVec3<T>&point)
+		MF_DECLARE	(void)			ConvexHullBuilder<Float>::Include(const TVec3<T>&point)
 		{
 			//static Log	logfile("include.log",true);
 			ASSERT2__((triangles.count()>0)==(vertices.count()>0),triangles.count(),vertices.count());
 			if (!vertices.count())
 			{
-				buffer.append().set(point,0,0);
+				buffer.append().Set(point,0,0);
 				if (!detectTedrahedron())
 				{
 					return;
 				}
 				for (index_t i = 0; i < buffer.length(); i++)
-					include(buffer[i].vector);
+					Include(buffer[i].vector);
 				buffer.reset();
 				ASSERT2__((triangles.count()>0)==(vertices.count()>0),triangles.count(),vertices.count());
 			}
@@ -7920,7 +7870,7 @@ namespace ObjectMath
 				
 				
 				UINT32 new_index = vertices.count();
-				vertices.append().set(point,0,0);
+				vertices.append().Set(point,0,0);
 				//logfile<< "new point inserted to a total of "<<vertices.count()<<" points"<<nl;
 				
 				/*for (unsigned i = 0; i < vertices.count(); i++)
@@ -7932,7 +7882,7 @@ namespace ObjectMath
 					//logfile<< " inserting new face for edge "<<i<<"/"<<edges.count()<<nl;
 					//logfile<< "  "<<edge.v0<<"-"<<edge.v1<<nl;
 					//ASSERT__(!triangles[edge.t1].flagged);
-					updateNormal(new_triangles.append().set(edge.v0,edge.v1,new_index,edge.t1,UNSIGNED_UNDEF,UNSIGNED_UNDEF));
+					updateNormal(new_triangles.append().Set(edge.v0,edge.v1,new_index,edge.t1,UNSIGNED_UNDEF,UNSIGNED_UNDEF));
 					
 					triangles[edge.t0].link.v[edge.index] = new_triangles.count()-1;
 					
@@ -7960,7 +7910,7 @@ namespace ObjectMath
 					if (!triangles[i].flagged)
 					{
 						//logfile<< " copying preserved face "<<i<<"/"<<triangles.count()<<nl;
-						Vec::set(triangles[i].link,new_triangles.count());
+						Vec::Set(triangles[i].link,new_triangles.count());
 						new_triangles << triangles[i];
 						new_triangles.last().flagged = false;
 						new_triangles.last().link.x = i;
@@ -8008,7 +7958,7 @@ namespace ObjectMath
 	
 	template <typename Float>
 	template <class Def>
-		MF_DECLARE	(void)			ConvexHullBuilder<Float>::exportToMesh(Mesh<Def>&object)	const
+		MF_DECLARE	(void)			ConvexHullBuilder<Float>::ExportToMesh(Mesh<Def>&object)	const
 		{
 			Array<UINT32>	vmap(vertices.count());
 			vmap.fill(UNSIGNED_UNDEF);
@@ -8042,7 +7992,7 @@ namespace ObjectMath
 
 	
 	template <typename Float>
-		MF_DECLARE	(void)			ConvexHullBuilder<Float>::verifyIntegrity()	const
+		MF_DECLARE	(void)			ConvexHullBuilder<Float>::VerifyIntegrity()	const
 		{
 			for (index_t i = 0; i < triangles.count(); i++)
 			{
@@ -8077,9 +8027,9 @@ namespace ObjectMath
 		}
 	
 	template <typename Float> template <typename T>
-		MF_DECLARE	(void)			ConvexHullBuilder<Float>::include(const Point<T>&point)
+		MF_DECLARE	(void)			ConvexHullBuilder<Float>::Include(const Point<T>&point)
 		{
-			include(point.vector);
+			Include(point.vector);
 		}
 	
 
