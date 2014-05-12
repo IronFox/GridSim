@@ -798,10 +798,15 @@ template <typename T, typename Strategy>
 	}
 
 template <typename T, typename Strategy>
-	inline	void			BasicBuffer<T,Strategy>::appendIfNotFound(const T&el)
+	inline	index_t			BasicBuffer<T,Strategy>::appendIfNotFound(const T&el)
 	{
-		if (!contains(el))
+		index_t index = indexOf(el);
+		if (index == InvalidIndex)
+		{
+			index = count();
 			append(el);
+		}
+		return index;
 	}
 
 

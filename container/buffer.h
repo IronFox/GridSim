@@ -59,60 +59,101 @@ template <typename T, typename Strategy=typename StrategySelector<T>::Default>
 		#endif
 		inline index_t			push_back(const T&element);				//!< @copydoc operator<<() @return Index of the appended element (buffer fill state prior to appending)
 		inline void				clear(count_t len);						//!< Reallocates the buffer to the specified size and resets the buffer cursor. Any stored data is destructed.
-		inline void				clear();								//!< Identical to reset()
+		inline void				clear();								//!< @copydoc reset()
+		inline void				Clear(count_t len)	/**@copydoc clear(count_t len)*/ {clear(len);}
+		inline void				Clear()				/**@copydoc clear()*/ {clear();}
 		void					setSize(count_t len, bool occupy);		//!< Resizes the local buffer size @param len New length (in elements) that the buffer storage should hold @param occupy Pass true to call the constructor on all unconstructed elements and set fill state to the specified size, false to clear all data and set fill state to 0
+		inline void				SetSize(count_t len, bool occupy)		/**@copydoc setSize()*/ {setSize(len,occupy);}
 		void					resizePreserveContent(count_t len);		//!< Resizes the local buffer size but preserves the old content and fill state where possible. If the old fill state exceeds the new size then all new elements will be occupied and initialized
+		inline void				ResizePreserveContent(count_t len)		/**@copydoc resizePreserveContent()*/ {resizePreserveContent(len);}
 		void					fill(const T&pattern);					//!< Copies \b pattern to each element of the local buffer
+		inline void				Fill(const T&pattern)					/**@copydoc fill()*/ {Fill(pattern);}
 		template <typename Strategy2>
 			Self&				moveAppend(BasicBuffer<T,Strategy2>&buffer, bool clearSourceOnCompletion=true);	//!< Appends all elements in the specified other buffer to the end of the local buffer. The elements will be moved, leaving the parameter buffer empty upon completion.
-		Self&					moveAppend(ArrayData<T>&array, bool clearSourceOnCompletion=true);					//!< Appends all elements in the specified array to the end of the local buffer. The elements will be moved, leaving the parameter array empty upon completion.
+		template <typename Strategy2>
+			inline Self&		MoveAppend(BasicBuffer<T,Strategy2>&buffer, bool clearSourceOnCompletion=true)	/**@copydoc moveAppend()*/ {return moveAppend(buffer,clearSourceOnCompletion);}
+		Self&					moveAppend(ArrayData<T>&array, bool clearSourceOnCompletion=true);					//!< Appends all elements in the specified array to the end of the local buffer. The elements will be moved, leaving the parameter array empty upon completion.	
+		inline Self&			MoveAppend(ArrayData<T>&array, bool clearSourceOnCompletion=true)	/**@copydoc moveAppend()*/ {return moveAppend(array,clearSourceOnCompletion);}
 		Self&					moveAppend(T*data, count_t elements);			//!< Appends all elements in the specified range to the end of the local buffer. The elements will be moved, leaving the individual objects of the parameter field empty upon completion.
+		inline Self&			MoveAppend(T*data, count_t elements)	/**@copydoc moveAppend()*/ {return moveAppend(data,elements);}
 		template <typename T2>
 			Self&				append(const T2*data, count_t elements);	//!< Appends a number of elements to the end of the buffer, advancing the buffer cursor by the specified number of elements. The buffer will automatically be resized if necessary.
 		template <typename T2>
+			inline Self&		Append(const T2*data, count_t elements)		/**@copydoc append()*/ {return append(data,elements);}
+		template <typename T2>
 			Self&				append(const ArrayData<T2>&array);				//!< Appends a number of elements to the end of the buffer, advancing the buffer cursor by the specified array's contained of elements. The buffer will automatically be resized if necessary.
+		template <typename T2>
+			inline Self&		Append(const ArrayData<T2>&array)			/**@copydoc append()*/ {return append(array);}
 		template <typename T2, typename Strategy2>
 			Self&				append(const BasicBuffer<T2,Strategy2>&buffer);	//!< Appends a number of elements to the end of the buffer, advancing the buffer cursor by the specified array's contained of elements. The buffer will automatically be resized if necessary.
+		template <typename T2, typename Strategy2>
+			inline Self&		Append(const BasicBuffer<T2,Strategy2>&buffer)	/**@copydoc append()*/ {return append(buffer);}
 		template <typename T2>
 			Self&				appendAddresses(T2*data, count_t elements);	//!< Appends the addresses of the specified elements to the end of the buffer (assuming T is a pointer type fo T2). The buffer will automatically be resized if necessary.
 		template <typename T2>
+			inline Self&		AppendAddresses(T2*data, count_t elements)	/**@copydoc appendAddresses()*/ {return appendAddresses(data,elements);}
+		template <typename T2>
 			Self&				appendAddresses(ArrayData<T2>&array);	//!< Appends the addresses of the specified array's elements to the end of the buffer (assuming T is a pointer type fo T2). The buffer will automatically be resized if necessary.
+		template <typename T2>
+			inline Self&		AppendAddresses(ArrayData<T2>&array)	/**@copydoc appendAddresses()*/ {return appendAddresses(array);}
 		template <typename T2>
 			Self&				appendVA(count_t elements, ...);		//!< Appends a number of elements to the buffer
 		inline void				reset();							//!< Resets the buffer cursor to the beginning. Does \b not resize the local buffer.
+		inline void				Reset()								/**@copydoc reset()*/	{reset();}
 		inline count_t			fillLevel()					const;	//!< Returns the current buffer cursor relative to the buffer beginning.
-		inline count_t			length()					const;	//!< @overload
-		inline count_t			size()						const;	//!< @overload
-		inline count_t			count()						const;	//!< @overload
-		inline count_t			operator()()	const	{return fillLevel();}
+		inline count_t			GetFillLevel()				const	/**@copydoc fillLevel()*/ {return fillLevel();}
+		inline count_t			length()					const;	//!< @copydoc fillLevel()
+		inline count_t			GetLength()					const	/**@copydoc fillLevel()*/ {return fillLevel();}
+		inline count_t			size()						const;	//!< @copydoc fillLevel()
+		inline count_t			count()						const;	//!< @copydoc fillLevel()
+		inline count_t			operator()()				const	{return fillLevel();}
 		inline count_t			storageSize()				const;	//!< Queries the number of elements held in total. This also includes unconstructed incremental storage
+		inline count_t			GetStorageSize()			const	/**@copydoc storageSize()*/ {return storageSize();}
 		inline bool				empty()						const;	//!< @copydoc isEmpty()
 		inline bool				isEmpty()					const;	//!< Returns true if the buffer holds no elements
+		inline bool				IsEmpty()					const	/**@copydoc isEmpty()*/ {return isEmpty();}
 		inline bool				isNotEmpty()				const;	//!< Returns true if the buffer holds at least one element
+		inline bool				IsNotEmpty()				const	/**@copydoc isNotEmpty()*/ {return isNotEmpty();}
 		bool					truncate(count_t fill_state);		//!< Decrements the local buffer counter to the specified fill state. The method fails if the local buffer fill state is less or equal the specified fill state. The actually allocated buffer size remains unchanged.
+		inline bool				Truncate(count_t fill_state)		/**@copydoc truncate()*/ {truncate(fill_state);}
 		inline T*				appendRow(count_t length);			//!< Appends a number of elements and returns a pointer to the first element. The method returns NULL, if length is 0 @param length Number of elements to append. Must be greater 0 @return Pointer to the first of the appended elements or NULL, if an error occured
+		inline T*				AppendRow(count_t length)			/**@copydoc appendRow()*/ {return appendRow(length);}
 		inline T*				appendRow(count_t length, const T&pattern);			//!< Appends a number of elements and returns a pointer to the first element. The method returns NULL, if length is 0 @param length Number of elements to append. Must be greater 0 @param pattern Data to fill newly appended elements with @return Pointer to the first of the appended elements or NULL, if an error occured
+		inline T*				AppendRow(count_t length, const T&pattern)			/**@copydoc appendRow()*/ {return appendRow(length,pattern);}
 		inline T&				append();							//!< Appends a single element and returns a reference to it
+		inline T&				Append()							/**@copydoc append()*/	{return append();}
 		inline T&				append(const T&);					//!< Appends a single element via copy, and returns a reference to it in buffer storage
-		inline void				appendIfNotFound(const T&);			//!< Appends a single element via copy, assuming an equal element does not already exist in the local buffer (compared via == operator)
+		inline T&				Append(const T&element)				/**@copydoc append()*/	{return append(element);}
+		inline index_t			appendIfNotFound(const T&);			//!< Appends a single element via copy, assuming an equal element does not already exist in the local buffer (compared via == operator) @return Index of the first found or the newly appended element
+		inline index_t			AppendIfNotFound(const T&element)	/**@copydoc appendIfNotFound()*/	{return appendIfNotFound(element);}
 		inline T&				moveAppend(T&);						//!< Appends a single element via move, and returns a reference to it in buffer storage
+		inline T&				MoveAppend(T&element)				/**@copydoc moveAppend()*/	{return moveAppend(element);}
 		#if __BUFFER_RVALUE_REFERENCES__
 			inline T&			append(T&&);						//!< Appends a single element via move, and returns a reference to it in buffer storage
+			inline T&			Append(T&&element)					/**@copydoc append()*/ {return append(element);}
 		#endif
 
-		inline T&				insert(index_t before_element);	//!< Inserts an element into the buffer and returns a reference to it
+		inline T&				insert(index_t before_element);		//!< Inserts an element into the buffer and returns a reference to it
+		inline T&				Insert(index_t before_element)		/**@copydoc insert()*/ {return insert(before_element);}
 		template <typename T2>
 			inline T&			insert(index_t before_element, const T2&init_data);	//!< Inserts an element into the buffer and returns a reference to it. @a init_data is passed to the constructor or assignment operator of the new element
-		inline T*				insertRow(index_t before_element, count_t length);			//!< Appends a number of elements and returns a pointer to the first element. The method returns NULL, if length is 0 @param length Number of elements to append. Must be greater 0 @return Pointer to the first of the appended elements or NULL, if an error occured
+		template <typename T2>
+			inline T&			Insert(index_t before_element, const T2&init_data)		/**@copydoc insert()*/ {return insert(before_element,init_data);}
+		inline T*				insertRow(index_t before_element, count_t length);		//!< Appends a number of elements and returns a pointer to the first element. The method returns NULL, if length is 0 @param length Number of elements to append. Must be greater 0 @return Pointer to the first of the appended elements or NULL, if an error occured
+		inline T*				InsertRow(index_t before_element, count_t length)		/**@copydoc insertRow()*/ {return insertRow(before_element,length);}
 
 		inline T				pop();								//!< Pops the last element from the buffer (the internally allocated memory section is not resized, only the local fill state decremented and the last object destructed). The method behavior is undefined if the buffer is empty.
+		inline T				Pop()								/**@copydoc pop()*/ {return pop();}
 		inline void				eraseLast();						//!< Simplified void-version of pop(). Can be more efficient if the contained type is complex and the returned object not used anyway. The method behavior is undefined if the buffer is empty.
+		inline void				EraseLast()							/**@copydoc eraseLast()*/ {eraseLast();}
 		inline T&				first();							//!< Retrieves a reference to the first element in the buffer. The behavior of this method is undefined if the local buffer is empty
 		inline const T&			first()	const;						//!< @overload
 		inline T&				last();								//!< Retrieves a reference to the last element in the buffer. The behavior of this method is undefined if the local buffer is empty
 		inline const T&			last()	const;						//!< @overload
 		inline void				erase(index_t index);				//!< Removes the specified element from the buffer. The buffer's contained element count decreases by one if the specified index is valid.
+		inline void				Erase(index_t index)				/**@copydoc erase()*/ {erase(index);}
 		inline void				erase(index_t index, index_t elements);		//!< Removes a range of elements from the buffer. The buffer's contained element count decreases by one if the specified index is valid. @a elements may be reduced if the range surpasses the end of the consumed buffer space
+		inline void				Erase(index_t index, index_t elements)		/**@copydoc erase()*/ {erase(index,elements);}
 
 		inline iterator			erase(iterator it);
 
@@ -121,6 +162,7 @@ template <typename T, typename Strategy=typename StrategySelector<T>::Default>
 		inline iterator			end()	{return usage_end;}
 		inline const_iterator	end() const {return usage_end;}
 		inline void				revert();
+		inline void				Revert()							/**@copydoc revert()*/	{revert();}
 		inline T*				pointer();							//!< Returns a pointer to the beginning of the buffer
 		inline const T*			pointer()					const;	//!< Returns a pointer to the beginning of the buffer
 		inline T&				operator[](index_t);
@@ -136,15 +178,25 @@ template <typename T, typename Strategy=typename StrategySelector<T>::Default>
 		inline T&				fromEnd(index_t);					//!< Retrieves the nth element from the end of the consumed buffer space. fromEnd(0) is identical to last()
 		inline const T&			fromEnd(index_t)			const;	//!< @copydoc fromEnd()
 		void					compact();							//!< Reduces the local buffer size to the exact fill state and copies all contained elements. Any succeeding push operation will automatically increase buffer size again. The method returns if the stack is already of compact size
+		inline void				Compact()							/**@copydoc compact()*/	{compact();}
 		Array<T,Strategy>		copyToArray()						const;	//!< Exports the local data up to the current fill state to the returned array.
+		inline Array<T,Strategy>CopyToArray()						const	/**@copydoc copyToArray()*/	{return copyToArray();}
 		void					copyToArray(ArrayData<T>&target)	const;	//!< Exports the local data up to the current fill state to the specified array. The target array will be resized if necessary
+		inline void				CopyToArray(ArrayData<T>&target)	const	/**@copydoc copyToArray()*/	{copyToArray(target);}
 		void					moveToArray(ArrayData<T>&target, bool reset_buffer=true);		//!< Moves local data up to the current fill state to the specified array. Move behavior is defined by the used Strategy class. @param reset_buffer Set true to automatically reset the buffer once element movement is completed
+		inline void				MoveToArray(ArrayData<T>&target, bool reset_buffer=true)	/**@copydoc mopyToArray()*/	{mopyToArray(target,reset_buffer);}
 		template <typename T2>
 			inline bool			contains(const T2&element)	const;	//!< Determines whether or not an equivalent to the specified element is currently stored in the active region of the buffer. Comparison is done via the ==operator.
 		template <typename T2>
+			inline bool			Contains(const T2&element)	const	/**@copydoc contains()*/	{return contains(element);}
+		template <typename T2>
 			inline index_t		indexOf(const T2&element)	const;	//!< Determines the index of the specified element via == operator. If no match was found then index_t(-1) is returned
 		template <typename T2>
+			inline index_t		GetIndexOf(const T2&element)const	/**@copydoc indexOf()*/	{return indexOf(element);}
+		template <typename T2>
 			bool				findAndErase(const T2&element);		//!< Attempts to find and erase the specified element @return true if the specified element could be found (via ==operator), false otherwise
+		template <typename T2>
+			inline bool			FindAndErase(const T2&element)		/**@copydoc findAndErase()*/	{return findAndErase(element);}
 
 		void					adoptData(BasicBuffer<T,Strategy>&other);	//!< Adopts all attributes of the specified other buffer leaving it empty. Any existing local data is deleted.
 		void					swap(BasicBuffer<T,Strategy>&other);			//!< Swaps data with the other buffer
