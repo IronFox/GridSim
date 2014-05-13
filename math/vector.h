@@ -1489,7 +1489,25 @@ namespace Math
 			*/
 			MFUNC(void)				IncludeSquare(const TVec3<C>&point)	{radius = std::max<T>(radius,Vec::quadraticDistance(center,point));}
 			MFUNC(void)				Include(const TVec3<C>& point)	/** @brief Extends radius so that the local sphere includes the specified point */ {if (radius < 0) Vec::copy(point,center); radius = std::max<T>(radius,Vec::distance(center,point));}
-			MFUNC(void)				Include(const TVec3<C>& point, T radius) /** @brief Extends radius so that the local sphere includes the specified sphere */ {if (radius < 0) Vec::copy(point,center); this->radius = std::max<T>(this->radius,Vec::distance(center,point) + radius);}
+			MFUNC(void)				Include(const TVec3<C>& point, T radius)
+			{
+				if (this->radius < 0)
+				{
+					Vec::copy(point,center); 
+					this->radius = radius;
+				}
+				else
+				{
+					TVec3<T>	d;
+					Vec::sub(point,center,d);
+					Vec::normalize0(d);
+					TVec3<T>	a,b;
+					Vec::mad(center,d,-this->radius,a);
+					Vec::mad(point,d,radius,b);
+					Vec::center(a,b,center);
+					this->radius = Vec::distance(a,b)/(T)2;
+				}
+			}
 			MFUNC(void)				Include(const Sphere<C>&sphere)	/** @brief Extends radius so that the local sphere includes the specified sphere */ {Include(sphere.center,sphere.radius);}
 			MFUNC(bool)				Contains(const TVec3<C>&point)	const	{return Vec::quadraticDistance(center,point) <= radius;}
 			MF_DECLARE(T)			volume()	const

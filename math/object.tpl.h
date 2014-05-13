@@ -5620,11 +5620,13 @@ namespace ObjectMath
 					_AddVertex(vertexBuffer,cs * csy, sn * csy, sny);
 
 					if (iy == 1)
-						triangleBuffer << 0 << (UINT32)(offset + ix) << (UINT32)(offset + (ix + 1)%resolution);
+						//triangleBuffer << 0 << (UINT32)(offset + ix) << (UINT32)(offset + (ix + 1)%resolution);
+						triangleBuffer << 0 << (UINT32)(offset + (ix + 1)%resolution) << (UINT32)(offset + ix);
 					else
 					{
 						index_t off0 = offset - resolution;
-						quadBuffer  << (UINT32)(off0 + (ix + 1)%resolution) << (UINT32)(off0 + ix) << (UINT32)(offset + ix) << (UINT32)(offset + (ix + 1)%resolution);
+						//quadBuffer  << (UINT32)(off0 + (ix + 1)%resolution) << (UINT32)(off0 + ix) << (UINT32)(offset + ix) << (UINT32)(offset + (ix + 1)%resolution);
+						quadBuffer  << (UINT32)(off0 + ix)<< (UINT32)(off0 + (ix + 1)%resolution)  << (UINT32)(offset + (ix + 1)%resolution)<< (UINT32)(offset + ix) ;
 					}
 				}
 
@@ -5637,7 +5639,8 @@ namespace ObjectMath
 			index_t off0 = end - resolution;
 			for (index_t ix = 0; ix < resolution; ix++)
 			{
-				triangleBuffer << (UINT32)(off0 + (ix + 1)%resolution) << (UINT32)(off0 + ix) << (UINT32)end;
+//				triangleBuffer << (UINT32)(off0 + (ix + 1)%resolution) << (UINT32)(off0 + ix) << (UINT32)end;
+				triangleBuffer << (UINT32)(off0 + ix)<< (UINT32)(off0 + (ix + 1)%resolution)  << (UINT32)end;
 			}
 
 			vertexBuffer.copyToArray(vertex_field);
