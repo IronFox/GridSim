@@ -491,6 +491,8 @@ template <class C>
 								for (register count_t i = offset; i < max; i++)
 									data[i] = (C)element;
 							}
+		template <typename T>
+			inline	void	Fill(const T&element, count_t offset=0, count_t max=Undefined)	/**@copydoc fill() */	{fill(element,offset,max);}
 
 
 		inline	void		set(count_t num_values, ...)	//! Resizes the local array and fills it with the specified elements. The elements must be specified in the type of the local array's data
@@ -583,7 +585,11 @@ template <class C>
 								return element-data;
 							}				
 
-		inline	void		setSize(count_t new_size)	//! Resizes the array. The new array's content is constructed but uninitialized. \param new_size New array size in elements (may be 0)
+		inline	void		setSize(count_t new_size)	/** @brief Resizes the array. The new array's content is constructed but uninitialized. \param new_size New array size in elements (may be 0) */
+							{
+								reloc(data,elements,new_size);
+							}
+		inline	void		SetSize(count_t new_size)	/** @copydoc setSize **/
 							{
 								reloc(data,elements,new_size);
 							}
