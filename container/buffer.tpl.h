@@ -873,6 +873,12 @@ template <typename T, typename Strategy> template <typename T2>
 template <typename T, typename Strategy> template <typename Strategy2>
 	BasicBuffer<T, Strategy>&		BasicBuffer<T, Strategy>::moveAppend(BasicBuffer<T,Strategy2>&buffer, bool clearSourceOnCompletion/*=true*/)
 	{
+		if (isEmpty() && clearSourceOnCompletion)
+		{
+			swap(buffer);
+			return *this;
+		}
+
 		moveAppend(buffer.pointer(),buffer.fillLevel());
 		if (clearSourceOnCompletion)
 			buffer.reset();
@@ -1148,16 +1154,17 @@ template <typename T, typename Strategy>
 	}
 
 template <typename T, typename Strategy>
-	void			BasicBuffer<T, Strategy>::swap(BasicBuffer<T,Strategy>&other)
-	{
-		swp(storage_begin,other.storage_begin);
-		swp(usage_end,other.usage_end);
-		swp(storage_end,other.storage_end);
-		#if defined(_DEBUG) && __BUFFER_DBG_FILL_STATE__
-			swp(fill_state,other.fill_state);
-			CHK_FILLSTATE
-		#endif
-	}
+	template <typename S2>
+		void			BasicBuffer<T, Strategy>::swap(BasicBuffer<T,S2>&other)
+		{
+			swp(storage_begin,other.storage_begin);
+			swp(usage_end,other.usage_end);
+			swp(storage_end,other.storage_end);
+			#if defined(_DEBUG) && __BUFFER_DBG_FILL_STATE__
+				swp(fill_state,other.fill_state);
+				CHK_FILLSTATE
+			#endif
+		}
 
 template <typename T, typename Strategy>
 	void			BasicBuffer<T, Strategy>::copyToArray(ArrayData<T>&target)	const

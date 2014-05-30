@@ -684,7 +684,7 @@ template <class K, class C, class Hash, class KeyStrategy, class DataStrategy> t
 	inline	C&					GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::require(const Key&ident)
 	{
 		C*ptr = queryPointer(ident);
-		ASSERT_NOT_NULL1__(ptr,ident);
+		ASSERT_NOT_NULL__(ptr/*,ident*/);	//not all 'ident' may be casted to string
 		return *ptr;
 	}
 template <class K, class C, class Hash, class KeyStrategy, class DataStrategy> template <class Key>

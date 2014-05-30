@@ -9,41 +9,69 @@ E:\include\list\production_pipe.tpl.h
 
 ******************************************************************/
 
-template <class Type> inline void ProductionPipe<Type>::SignalRead()
-{
-    mutex.lock();
-	readAt = 0;
-}
+template <typename T,typename Strategy>
+	inline void WorkPipe<T,Strategy>::SignalRead()
+	{
+		DBG_ASSERT__(!locked);
+		mutex.lock();
+		readAt = 0;
+		locked = true;
+	}
 
-template <class Type> inline bool ProductionPipe<Type>::operator>>(shared_ptr<Type>&out)
-{
-	if (readAt >= Super::count())
-		return false;
-    out = Super::at(readAt++);
-    return true;
-}
+template <typename T,typename Strategy>
+	inline bool WorkPipe<T,Strategy>::operator>>(T&out)
+	{
+		DBG_ASSERT__(locked);
+		if (readAt >= Super::count())
+			return false;
+		Strategy::move(Super::at(readAt++), out);
+		return true;
+	}
 
-template <class Type> inline void                ProductionPipe<Type>::ExitRead()
-{
-    Super::clear();
-    mutex.release();
-}
+template <typename T,typename Strategy>
+	inline void  WorkPipe<T,Strategy>::ExitRead()
+	{
+		DBG_ASSERT__(locked);
+		Super::clear();
+		locked = false;
+		mutex.release();
+	}
 
-template <class Type> inline ProductionPipe<Type>&    ProductionPipe<Type>::operator<<(const shared_ptr<Type>&pntr)
-{
-    mutex.lock();
-    Super::append(pntr);
-    mutex.release();
-    return *this;
-}
+template <typename T,typename Strategy>
+	inline WorkPipe<T,Strategy>&    WorkPipe<T,Strategy>::operator<<(const T&pntr)
+	{
+		mutex.lock();
+		Super::Append(pntr);
+		mutex.release();
+		return *this;
+	}
+template <typename T,typename Strategy>
+	inline WorkPipe<T,Strategy>&    WorkPipe<T,Strategy>::MoveAppend(T&pntr)
+	{
+		mutex.lock();
+		Super::MoveAppend(pntr);
+		mutex.release();
+		return *this;
+	}
+
+template <typename T,typename Strategy>
+	inline	WorkPipe<T,Strategy>&    WorkPipe<T,Strategy>::MoveAppend(BasicBuffer<T>&buffer)
+	{
+		mutex.lock();
+			Super::MoveAppend(buffer);
+		mutex.release();
+		return *this;
+	}
 
 
-template <class Type> inline void ProductionPipe<Type>::clear()
-{
-    mutex.lock();
-    Super::clear();
-    mutex.release();
-}
+
+template <typename T,typename Strategy>
+	inline void WorkPipe<T,Strategy>::clear()
+	{
+		mutex.lock();
+		Super::clear();
+		mutex.release();
+	}
 
 
 #endif

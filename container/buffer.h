@@ -199,7 +199,8 @@ template <typename T, typename Strategy=typename StrategySelector<T>::Default>
 			inline bool			FindAndErase(const T2&element)		/**@copydoc findAndErase()*/	{return findAndErase(element);}
 
 		void					adoptData(BasicBuffer<T,Strategy>&other);	//!< Adopts all attributes of the specified other buffer leaving it empty. Any existing local data is deleted.
-		void					swap(BasicBuffer<T,Strategy>&other);			//!< Swaps data with the other buffer
+		template <typename S2>
+			void				swap(BasicBuffer<T,S2>&other);			//!< Swaps data with the other buffer
 		template <typename IndexType>
 			inline T*			operator+(IndexType delta);				//!< Returns a pointer to the beginning of the buffer plus the specified delta
 		template <typename IndexType>
