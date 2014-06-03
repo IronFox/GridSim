@@ -126,6 +126,16 @@ template <class Entry,class Strategy>
 		std::swap(section_end,other.section_end);
 		std::swap(field_end,other.field_end);
 	}
+template <class Entry,class Strategy>
+	void Queue<Entry,Strategy>::adoptData(Queue<Entry,Strategy>&other)
+	{
+		Array::adoptData(other);
+		section_begin = other.section_begin;
+		section_end = other.section_end;
+		field_end = other.field_end;
+
+		other.field_end = other.section_begin = other.section_end = NULL;
+	}
 
 
 
@@ -251,27 +261,28 @@ template <class Entry, class Strategy>
 template <class Entry, class Strategy>
 	void	Queue<Entry,Strategy>::push(const Entry&data)
 	{
-		*section_end = data;
-		section_end++;
-		if (section_end >= field_end)
-			section_end = Array::pointer();
-		if (section_end == section_begin)
-		{
-			size_t old_len = Array::length();
-			Array	new_field(Array::length()*2);
-			Entry*out = new_field.pointer();
-			do
-			{
-				Strategy::move(*section_begin++,*out++);
-				if (section_begin >= field_end)
-					section_begin = Array::pointer();
-			}
-			while (section_begin != section_end);
-			Array::adoptData(new_field);
-			section_begin = Array::pointer();
-			section_end = section_begin+old_len;
-			field_end = section_begin+Array::length();
-		}
+		push() = data;
+		//*section_end = data;
+		//section_end++;
+		//if (section_end >= field_end)
+		//	section_end = Array::pointer();
+		//if (section_end == section_begin)
+		//{
+		//	size_t old_len = Array::length();
+		//	Array	new_field(Array::length()*2);
+		//	Entry*out = new_field.pointer();
+		//	do
+		//	{
+		//		Strategy::move(*section_begin++,*out++);
+		//		if (section_begin >= field_end)
+		//			section_begin = Array::pointer();
+		//	}
+		//	while (section_begin != section_end);
+		//	Array::adoptData(new_field);
+		//	section_begin = Array::pointer();
+		//	section_end = section_begin+old_len;
+		//	field_end = section_begin+Array::length();
+		//}
 	}
 
 template <class Entry, class Strategy>

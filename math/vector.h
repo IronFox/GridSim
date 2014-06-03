@@ -1346,7 +1346,7 @@ namespace Math
 									}			
 			
 			template <typename T0>
-				MF_DECLARE(void)	Relativate(const TVec2<T>&absolute, TVec2<T0>&relative_out)	const
+				MF_DECLARE(void)	Relativate(const TVec3<T>&absolute, TVec3<T0>&relative_out)	const
 									{
 										x.Relativate(absolute.x,relative_out.x);
 										y.Relativate(absolute.y,relative_out.y);

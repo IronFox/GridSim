@@ -389,7 +389,7 @@ namespace Math
 	template <typename T>
 		inline Vec3<T>	operator-(const TVec3<T>&a, const T&b)
 		{
-			return Vec3<T>(a.x - b, a.y - b.y, a.z - b);
+			return Vec3<T>(a.x - b, a.y - b, a.z - b);
 		}
 	template <typename T>
 		inline Vec4<T>	operator-(const TVec4<T>&a, const T&b)
@@ -427,6 +427,39 @@ namespace Math
 		{
 			return Vec4<T>(a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w);
 		}
+
+	template <typename T>
+		inline Vec2<T>	operator+(const TVec2<T>&a, const T&b)
+		{
+			return Vec2<T>(a.x + b, a.y + b);
+		}
+	template <typename T>
+		inline Vec3<T>	operator+(const TVec3<T>&a, const T&b)
+		{
+			return Vec3<T>(a.x + b, a.y + b, a.z + b);
+		}
+	template <typename T>
+		inline Vec4<T>	operator+(const TVec4<T>&a, const T&b)
+		{
+			return Vec4<T>(a.x + b, a.y + b, a.z + b, a.w + b);
+		}
+
+	template <typename T>
+		inline Vec2<T>	operator+(const T&a, const TVec2<T>&b)
+		{
+			return Vec2<T>(a + b.x, a + b.y);
+		}
+	template <typename T>
+		inline Vec3<T>	operator+(const T&a, const TVec3<T>&b)
+		{
+			return Vec3<T>(a + b.x, a + b.y, a + b.z);
+		}
+	template <typename T>
+		inline Vec4<T>	operator+(const T&a, const TVec4<T>&b)
+		{
+			return Vec4<T>(a + b.x, a + b.y, a + b.z, a + b.w);
+		}
+
 
 
 	template <typename T>
@@ -682,6 +715,22 @@ namespace Math
 		}
 
 	template <typename T>
+		inline Vec2<bool>	operator<=(const TVec2<T>&a, const TVec2<T>&b)
+		{
+			return Vec2<bool>(a.x <= b.x, a.y <= b.y);
+		}
+	template <typename T>
+		inline Vec3<bool>	operator<=(const TVec3<T>&a, const TVec3<T>&b)
+		{
+			return Vec3<bool>(a.x <= b.x, a.y <= b.y, a.z <= b.z);
+		}
+	template <typename T>
+		inline Vec4<bool>	operator<=(const TVec4<T>&a, const TVec4<T>&b)
+		{
+			return Vec3<bool>(a.x <= b.x, a.y <= b.y, a.z <= b.z, a.w <= b.w);
+		}
+
+	template <typename T>
 		inline Vec2<bool>	operator>(const TVec2<T>&a, const TVec2<T>&b)
 		{
 			return Vec2<bool>(a.x > b.x, a.y > b.y);
@@ -695,6 +744,22 @@ namespace Math
 		inline Vec4<bool>	operator>(const TVec4<T>&a, const TVec4<T>&b)
 		{
 			return Vec3<bool>(a.x > b.x, a.y > b.y, a.z > b.z, a.w > b.w);
+		}
+
+	template <typename T>
+		inline Vec2<bool>	operator>=(const TVec2<T>&a, const TVec2<T>&b)
+		{
+			return Vec2<bool>(a.x >= b.x, a.y >= b.y);
+		}
+	template <typename T>
+		inline Vec3<bool>	operator>=(const TVec3<T>&a, const TVec3<T>&b)
+		{
+			return Vec3<bool>(a.x >= b.x, a.y >= b.y, a.z >= b.z);
+		}
+	template <typename T>
+		inline Vec4<bool>	operator>=(const TVec4<T>&a, const TVec4<T>&b)
+		{
+			return Vec3<bool>(a.x >= b.x, a.y >= b.y, a.z >= b.z, a.w >= b.w);
 		}
 
 	template <typename T>
@@ -714,6 +779,22 @@ namespace Math
 		}
 
 	template <typename T>
+		inline Vec2<bool>	operator<=(const TVec2<T>&a, const T&b)
+		{
+			return Vec2<bool>(a.x <= b, a.y <= b);
+		}
+	template <typename T>
+		inline Vec3<bool>	operator<=(const TVec3<T>&a, const T&b)
+		{
+			return Vec3<bool>(a.x <= b, a <= b, a.z <= b);
+		}
+	template <typename T>
+		inline Vec4<bool>	operator<=(const TVec4<T>&a, const T&b)
+		{
+			return Vec3<bool>(a.x <= b, a.y <= b, a.z <= b, a.w <= b);
+		}
+
+	template <typename T>
 		inline Vec2<bool>	operator>(const TVec2<T>&a, const T&b)
 		{
 			return Vec2<bool>(a.x > b, a.y > b);
@@ -727,6 +808,22 @@ namespace Math
 		inline Vec4<bool>	operator>(const TVec4<T>&a, const T&b)
 		{
 			return Vec3<bool>(a.x > b, a.y > b, a.z > b, a.w > b);
+		}
+
+	template <typename T>
+		inline Vec2<bool>	operator>=(const TVec2<T>&a, const T&b)
+		{
+			return Vec2<bool>(a.x >= b, a.y >= b);
+		}
+	template <typename T>
+		inline Vec3<bool>	operator>=(const TVec3<T>&a, const T&b)
+		{
+			return Vec3<bool>(a.x >= b, a.y >= b, a.z >= b);
+		}
+	template <typename T>
+		inline Vec4<bool>	operator>=(const TVec4<T>&a, const T&b)
+		{
+			return Vec3<bool>(a.x >= b, a.y >= b, a.z >= b, a.w >= b);
 		}
 
 	template <typename T>
@@ -746,6 +843,23 @@ namespace Math
 		}
 
 	template <typename T>
+		inline Vec2<bool>	operator<=(const T&a, const TVec2<T>&b)
+		{
+			return Vec2<bool>(a <= b.x, a <= b.y);
+		}
+	template <typename T>
+		inline Vec3<bool>	operator<=(const T&a, const TVec3<T>&b)
+		{
+			return Vec3<bool>(a <= b.x, a <= b.y, a <= b.z);
+		}
+	template <typename T>
+		inline Vec4<bool>	operator<=(const T&a, const TVec4<T>&b)
+		{
+			return Vec3<bool>(a <= b.x, a <= b.y, a <= b.z, a <= b.w);
+		}
+
+
+	template <typename T>
 		inline Vec2<bool>	operator>(const T&a, const TVec2<T>&b)
 		{
 			return Vec2<bool>(a > b.x, a > b.y);
@@ -761,6 +875,21 @@ namespace Math
 			return Vec3<bool>(a > b.x, a > b.y, a > b.z, a > b.w);
 		}
 
+	template <typename T>
+		inline Vec2<bool>	operator>=(const T&a, const TVec2<T>&b)
+		{
+			return Vec2<bool>(a >= b.x, a >= b.y);
+		}
+	template <typename T>
+		inline Vec3<bool>	operator>=(const T&a, const TVec3<T>&b)
+		{
+			return Vec3<bool>(a >= b.x, a >= b.y, a >= b.z);
+		}
+	template <typename T>
+		inline Vec4<bool>	operator>=(const T&a, const TVec4<T>&b)
+		{
+			return Vec3<bool>(a >= b.x, a >= b.y, a >= b.z, a >= b.w);
+		}
 
 	template <typename T>
 		inline Vec2<T>	Abs(const TVec2<T>&v)

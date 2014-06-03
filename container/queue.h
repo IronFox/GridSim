@@ -83,6 +83,7 @@ template <class Entry, class Strategy=typename StrategySelector<Entry>::Default>
 			void			clear();							//!< Clears the local queue of all entries. No objects are actually erased
 			void			operator=(const Queue<Entry,Strategy>&other);	//!< Copies all elements from the remote queue to the local queue. The local buffer size is resized to match the remote buffer size but only actually used elements are copied
 			void			swap(Queue<Entry,Strategy>&other);
+			void			adoptData(Queue<Entry,Strategy>&other);
 			
 	inline 	size_t			count()						const	{return length();};	//!< Returns the current number of element stored in the queue
 	};
