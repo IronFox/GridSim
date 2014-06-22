@@ -434,8 +434,7 @@ namespace Math
 			return Vec2<T>(a.x + b, a.y + b);
 		}
 	template <typename T>
-		inline Vec3<T>	operator+(const TVec3<T>&a, const T&b)
-		{
+		inline Vec3<T>	operator+(const TVec3<T>&a, const T&b)		{
 			return Vec3<T>(a.x + b, a.y + b, a.z + b);
 		}
 	template <typename T>

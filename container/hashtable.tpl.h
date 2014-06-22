@@ -721,7 +721,8 @@ template <class K, class C, class Hash, class KeyStrategy, class DataStrategy> t
 		Carrier*c = Base::find(Hash::hash(ident),ident,false);
 		if (!c->occupied)
 			return false;
-		target = c->cast();
+		DataStrategy::move(c->cast(),target);
+		//target = c->cast();
 		Base::remove(c);
 		return true;
 	}
