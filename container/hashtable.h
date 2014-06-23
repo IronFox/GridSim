@@ -341,7 +341,7 @@ template <class K, class C, class Hash=StdHash, typename KeyStrategy = typename 
 		template <class Entry>
 			inline	bool					unSetEntry(const Entry&entry);				//!< Un-sets the key associated with the specified entry. Potentially resizes the internal table. \param entry Entry to look for \return True if the specified entry could be found and un-set, false otherwise.
 		template <class Entry>
-			inline	bool					unsetEntry(const Entry&ident)				/** @copydoc unSetEntry() */{return unSetEntry(entry);}
+			inline	bool					unsetEntry(const Entry&entry)				/** @copydoc unSetEntry() */{return unSetEntry(entry);}
 		template <class Key>
 			inline	void					set(const Key&ident, const DataType&v);		//!< Sets the specified key (if not set already) and assigns \b v to the associated data. Identical to <table>[ident] = v; \param ident Key to set \param v Value to assign to the associated data.
 		template <class Key>
