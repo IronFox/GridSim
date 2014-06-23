@@ -436,7 +436,7 @@ namespace Template
 
 
 template <typename T>
-	inline ostream& operator<<(ostream&stream, const StringTemplate<T>&string)
+	inline std::ostream& operator<<(std::ostream&stream, const StringTemplate<T>&string)
 	{
 		const T*c = string.c_str();
 		while (*c)
@@ -445,14 +445,14 @@ template <typename T>
 	}
 
 template <>
-	inline ostream& operator<<(ostream&stream, const StringTemplate<char>&string)
+	inline std::ostream& operator<<(std::ostream&stream, const StringTemplate<char>&string)
 	{
 		return stream << string.c_str();
 	}
 
 
 template <typename T>
-	inline ostream& operator<<(ostream&stream, const ReferenceExpression<T>&expression)
+	inline std::ostream& operator<<(std::ostream&stream, const ReferenceExpression<T>&expression)
 	{
 		expression.print(stream);
 		return stream;
@@ -460,7 +460,7 @@ template <typename T>
 
 
 template <typename E0, typename E1>
-	inline ostream& operator<<(ostream&stream, const ConcatExpression<E0, E1>&expression)
+	inline std::ostream& operator<<(std::ostream&stream, const ConcatExpression<E0, E1>&expression)
 	{
 		expression.print(stream);
 		return stream;
@@ -469,7 +469,7 @@ template <typename E0, typename E1>
 
 
 template <typename T>
-	inline ostream& operator<<(ostream&stream, const CharacterExpression<T>&expression)
+	inline std::ostream& operator<<(std::ostream&stream, const CharacterExpression<T>&expression)
 	{
 		expression.print(stream);
 		return stream;
@@ -480,7 +480,7 @@ template <typename T>
 #ifdef WCOUT
 
 	template <typename T>
-		inline wostream& operator<<(wostream&stream, const StringTemplate<T>&string)
+		inline std::wostream& operator<<(std::wostream&stream, const StringTemplate<T>&string)
 		{
 			const T*c = string.c_str();
 			while (*c)
@@ -489,13 +489,13 @@ template <typename T>
 		}
 
 	template <>
-		inline wostream& operator<<(wostream&stream, const StringTemplate<char>&string)
+		inline std::wostream& operator<<(std::wostream&stream, const StringTemplate<char>&string)
 		{
 			return stream << string.c_str();
 		}
 	
 	template <>
-		inline wostream& operator<<(wostream&stream, const StringTemplate<wchar_t>&string)
+		inline std::wostream& operator<<(std::wostream&stream, const StringTemplate<wchar_t>&string)
 		{
 			return stream << string.c_str();
 		}
@@ -503,7 +503,7 @@ template <typename T>
 
 
 	template <typename T>
-		inline wostream& operator<<(wostream&stream, const ReferenceExpression<T>&expression)
+		inline std::wostream& operator<<(std::wostream&stream, const ReferenceExpression<T>&expression)
 		{
 			expression.print(stream);
 			return stream;
@@ -511,7 +511,7 @@ template <typename T>
 
 
 	template <typename E0, typename E1>
-		inline wostream& operator<<(wostream&stream, const ConcatExpression<E0, E1>&expression)
+		inline std::wostream& operator<<(std::wostream&stream, const ConcatExpression<E0, E1>&expression)
 		{
 			expression.print(stream);
 			return stream;
@@ -520,7 +520,7 @@ template <typename T>
 
 
 	template <typename T>
-		inline wostream& operator<<(wostream&stream, const CharacterExpression<T>&expression)
+		inline std::wostream& operator<<(std::wostream&stream, const CharacterExpression<T>&expression)
 		{
 			expression.print(stream);
 			return stream;
@@ -4591,13 +4591,13 @@ template <typename T>
 						}
 						
 template <>
-	inline	void		ReferenceExpression<char>::print(ostream&stream)	const
+	inline	void		ReferenceExpression<char>::print(std::ostream&stream)	const
 						{
 							stream.write(reference,len);
 						}
 						
 template <typename T>
-	inline	void		ReferenceExpression<T>::print(ostream&stream)	const
+	inline	void		ReferenceExpression<T>::print(std::ostream&stream)	const
 						{
 							for (size_t i = 0; i < len; i++)
 								stream << (char)reference[i];
@@ -4606,14 +4606,14 @@ template <typename T>
 #ifdef WCOUT
 
 	template <>
-		inline	void		ReferenceExpression<wchar_t>::print(wostream&stream)	const
+		inline	void		ReferenceExpression<wchar_t>::print(std::wostream&stream)	const
 							{
 								stream.write(reference,len);
 							}
 
 							
 	template <typename T>
-		inline	void		ReferenceExpression<T>::print(wostream&stream)	const
+		inline	void		ReferenceExpression<T>::print(std::wostream&stream)	const
 							{
 								for (size_t i = 0; i < len; i++)
 									stream << (wchar_t)reference[i];

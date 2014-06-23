@@ -11,7 +11,7 @@
 #include <functional>
 #include <memory>
 
-using namespace std;
+//using namespace std;
 
 	template <>
 	inline bool convert(const char*cstr, String&target)
@@ -65,7 +65,7 @@ namespace CLI	//! Command line interpretor
 	A Variable instance describes a variable in the CLI interpretor tree. A variable derivative class must provide methods
 	to query or set the variable contents via strings.
 	*/
-	class Variable : public enable_shared_from_this<Variable>
+	class Variable : public std::enable_shared_from_this<Variable>
 	{
 	public:
 		const String		type,		//!< Type string (i.e. 'int')
@@ -81,7 +81,7 @@ namespace CLI	//! Command line interpretor
 		virtual bool		Set(const String&component, const String&value)	{return false;};	//!< Component-wise virtual conversion method. The method sets one or more components of the local variable value(s) as described by \b component to \b value @param component Description of one or more components to set @param value String containing the new value(s) \return true if the variable value(s) could be updated, false otherwise
 	};
 
-	typedef shared_ptr<Variable>	PVariable;
+	typedef std::shared_ptr<Variable>	PVariable;
 
 
 	template <typename T>
@@ -198,9 +198,9 @@ namespace CLI	//! Command line interpretor
 	typedef std::shared_ptr<Attachable>	PAttachment;
 
 	class Command;
-	typedef shared_ptr<Command>	PCommand;
+	typedef std::shared_ptr<Command>	PCommand;
 	
-	class Command : public enable_shared_from_this<Command>	//! CLI command container
+	class Command : public std::enable_shared_from_this<Command>	//! CLI command container
 	{
 	public:
 		typedef Attachable			Attachable;
@@ -221,14 +221,14 @@ namespace CLI	//! Command line interpretor
 		typedef void (*func5_t)(const String&, const String&, const String&, const String&, const String&);
 		typedef void (*func6_t)(const String&, const String&, const String&, const String&, const String&, const String&);
 
-		typedef function<void(const PCommand&,const StringList&arguments, const Tokenizer::Config&config)>					full_function_t;
-		typedef function<void()>																							function0_t;
-		typedef function<void(const String&)>																				function1_t;
-		typedef function<void(const String&, const String&)>																function2_t;
-		typedef function<void(const String&, const String&, const String&)>													function3_t;
-		typedef function<void(const String&, const String&, const String&, const String&)>									function4_t;
-		typedef function<void(const String&, const String&, const String&, const String&, const String&)>					function5_t;
-		typedef function<void(const String&, const String&, const String&, const String&, const String&, const String&)>	function6_t;
+		typedef std::function<void(const PCommand&,const StringList&arguments, const Tokenizer::Config&config)>					full_function_t;
+		typedef std::function<void()>																							function0_t;
+		typedef std::function<void(const String&)>																				function1_t;
+		typedef std::function<void(const String&, const String&)>																function2_t;
+		typedef std::function<void(const String&, const String&, const String&)>												function3_t;
+		typedef std::function<void(const String&, const String&, const String&, const String&)>									function4_t;
+		typedef std::function<void(const String&, const String&, const String&, const String&, const String&)>					function5_t;
+		typedef std::function<void(const String&, const String&, const String&, const String&, const String&, const String&)>	function6_t;
 
 			
 		full_function_t			callback;
@@ -266,10 +266,10 @@ namespace CLI	//! Command line interpretor
 	typedef std::weak_ptr<Folder>	WFolder;
 
 	template <typename T>
-		class ItemTable : private Buffer<shared_ptr<T> >
+		class ItemTable : private Buffer<std::shared_ptr<T> >
 		{
 		public:
-			typedef shared_ptr<T>	Type;
+			typedef std::shared_ptr<T>	Type;
 		private:
 			typedef Buffer<Type>	Super;
 			HashTable<index_t>		table;
@@ -356,7 +356,7 @@ namespace CLI	//! Command line interpretor
 	public:
 		//Sorted<List::Vector<Command>,NameSort>	global_commands;	//!< List of commands that work in all contexts
 		ItemTable<Command>			globalCommands;
-		function<void(PVariable)>	onVariableCall;	//!< Callback function invoked whenever a variable is executed (NULL by default)
+		std::function<void(PVariable)>	onVariableCall;	//!< Callback function invoked whenever a variable is executed (NULL by default)
 
 		/**/						Interpretor();
 		template <typename F>

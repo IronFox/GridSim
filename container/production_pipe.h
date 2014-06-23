@@ -54,9 +54,9 @@ template <typename T, typename Strategy=typename StrategySelector<T>::Default>
 	@brief Pointer queue for scenarios where many threads write and one reads
 */
 template <class T>
-	class ProductionPipe:public WorkPipe<shared_ptr<T> >
+	class ProductionPipe:public WorkPipe<std::shared_ptr<T> >
 	{
-		typedef WorkPipe<shared_ptr<T> >Super;
+		typedef WorkPipe<std::shared_ptr<T> >Super;
 	protected:
 	public:
 

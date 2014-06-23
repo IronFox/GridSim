@@ -52,7 +52,7 @@ static bool		intersect(const EntityTree::Volume&a, const EntityTree::Volume&b)
 void		CompositeEntityTree::recursiveRemap(const Buffer<Entity*>&source, float sector_size)
 {
 	if (verbose)
-		cout << "now processing node on level "<<level<<" with "<<source.length()<<" input entities"<<endl;
+		std::cout << "now processing node on level "<<level<<" with "<<source.length()<<" input entities"<<std::endl;
 	
 	bool self = &source == &entities;
 
@@ -71,7 +71,7 @@ void		CompositeEntityTree::recursiveRemap(const Buffer<Entity*>&source, float se
 	split.reset();
 
 	if (verbose)
-		cout << " determining center"<<endl;
+		std::cout << " determining center"<<std::endl;
 	for (unsigned i = 0; i < source.length(); i++)
 	{
 		Entity*entity = source[i];
@@ -90,18 +90,18 @@ void		CompositeEntityTree::recursiveRemap(const Buffer<Entity*>&source, float se
 	}
 	entities.compact();
 	if (verbose)
-		cout << " compactified. keeping "<<entities.count()<<" relevant entity/ies"<<endl;
+		std::cout << " compactified. keeping "<<entities.count()<<" relevant entity/ies"<<std::endl;
 	
 	if (!level || entities.count()<2)
 	{
 		if (verbose)
 			if (entities.count()<2)
-				cout << " insufficient entities given for further subdivision. terminating effort"<<endl;
+				std::cout << " insufficient entities given for further subdivision. terminating effort"<<std::endl;
 		return;
 	}
 	split.divInt(int(entities.count()),sector_size);
 	if (verbose)
-		cout << " center is "<<split.ToString(sector_size)<<endl;
+		std::cout << " center is "<<split.ToString(sector_size)<<std::endl;
 	
 	
 	BYTE greatest(0),collapsed(0);
@@ -111,7 +111,7 @@ void		CompositeEntityTree::recursiveRemap(const Buffer<Entity*>&source, float se
 	for (BYTE k = 0; k < 3; k++)
 	{
 		if (verbose)
-			cout << "  processing axis "<<(int)k<<endl;
+			std::cout << "  processing axis "<<(int)k<<std::endl;
 		Composite::Scalar				delta,delta2,lower,upper,val,original_split;
 	
 		Composite::sub(volume.upper.axis(k),volume.lower.axis(k),delta);
@@ -153,38 +153,38 @@ void		CompositeEntityTree::recursiveRemap(const Buffer<Entity*>&source, float se
 				{
 					if (verbose)
 					{
-						cout << "  entity "<<i<<" intersects new split at "<<val.ToString(sector_size)<<endl;
-						cout << "   entity range is "<<lower.ToString(sector_size)<<" - "<<upper.ToString(sector_size)<<endl;
+						std::cout << "  entity "<<i<<" intersects new split at "<<val.ToString(sector_size)<<std::endl;
+						std::cout << "   entity range is "<<lower.ToString(sector_size)<<" - "<<upper.ToString(sector_size)<<std::endl;
 					}
 				
 					if (val.compareTo(original_split,sector_size)>0)
 					{
 						if (verbose)
-							cout << "   moving new split to upper entity boundary"<<endl;
+							std::cout << "   moving new split to upper entity boundary"<<std::endl;
 						Composite::add(upper,separation,val);
 					}
 					elif (val.compareTo(original_split,sector_size)<0)
 					{
 						if (verbose)
-							cout << "   moving new split to lower entity boundary"<<endl;
+							std::cout << "   moving new split to lower entity boundary"<<std::endl;
 						Composite::sub(lower,separation,val);
 					}
 					else
 					{
 						if (verbose)
-							cout << "   rare case"<<endl;
+							std::cout << "   rare case"<<std::endl;
 						Composite::Scalar center;
 						Composite::center(object->volume.upper.axis(k),object->volume.lower.axis(k),center,sector_size);
 						if (center.compareTo(val,sector_size)>0)
 						{
 							if (verbose)
-								cout << "   moving new split to lower entity boundary"<<endl;
+								std::cout << "   moving new split to lower entity boundary"<<std::endl;
 							Composite::sub(lower,separation,val);
 						}
 						else
 						{
 							if (verbose)
-								cout << "   moving new split to upper entity boundary"<<endl;
+								std::cout << "   moving new split to upper entity boundary"<<std::endl;
 							Composite::add(upper,separation,val);
 						}
 					}
@@ -194,7 +194,7 @@ void		CompositeEntityTree::recursiveRemap(const Buffer<Entity*>&source, float se
 			}
 		}
 		if (verbose)
-			cout << " split vector component determined at "<<val.ToString(sector_size)<<endl;
+			std::cout << " split vector component determined at "<<val.ToString(sector_size)<<std::endl;
 	
 		if (val.compareTo(volume.lower.axis(k),sector_size)<0)
 			val = volume.lower.axis(k);
@@ -203,7 +203,7 @@ void		CompositeEntityTree::recursiveRemap(const Buffer<Entity*>&source, float se
 			val = volume.upper.axis(k);
 
 		if (verbose)
-			cout << " split vector component clamped to "<<val.ToString(sector_size)<<endl;
+			std::cout << " split vector component clamped to "<<val.ToString(sector_size)<<std::endl;
 
 		delta.divInt(2,sector_size);
 		
@@ -224,7 +224,7 @@ void		CompositeEntityTree::recursiveRemap(const Buffer<Entity*>&source, float se
 		
 		new_split.setAxis(k,val);
 		if (verbose)
-			cout << " final split vector component determined at "<<val.ToString(sector_size)<<endl;
+			std::cout << " final split vector component determined at "<<val.ToString(sector_size)<<std::endl;
 		
 		if (delta.compareTo(greatest_range,sector_size)>0)
 		{
@@ -236,12 +236,12 @@ void		CompositeEntityTree::recursiveRemap(const Buffer<Entity*>&source, float se
 	if (collapsed == 3)
 	{
 		if (verbose)
-			cout << " all collapsed"<<endl;
+			std::cout << " all collapsed"<<std::endl;
 	
 		if (entities.count() > 3)
 		{
 			if (verbose)
-				cout << "  but split required"<<endl;
+				std::cout << "  but split required"<<std::endl;
 			Composite::Scalar original = split.axis(greatest);
 			split = new_split;
 			split.setAxis(greatest,original);
@@ -507,7 +507,7 @@ void		CompositeEntityTree::remap(const Buffer<Entity*>&source, float sector_size
 		Composite::max(volume.upper,entity->volume.upper,volume.upper,sector_size);
 	}
 	if (verbose)
-		cout << "remapping entities from buffer. volume is "<<volume.lower.ToString(sector_size)<<" <-> "<<volume.upper.ToString(sector_size)<<endl;
+		std::cout << "remapping entities from buffer. volume is "<<volume.lower.ToString(sector_size)<<" <-> "<<volume.upper.ToString(sector_size)<<std::endl;
 	
 	recursiveRemap(source,sector_size);
 }
@@ -537,7 +537,7 @@ void		CompositeEntityTree::remap(List::Vector<Entity>&source, float sector_size,
 		entities << entity;
 	}
 	if (verbose)
-		cout << "remapping entities from vector. volume is "<<volume.lower.ToString(sector_size)<<" <-> "<<volume.upper.ToString(sector_size)<<endl;
+		std::cout << "remapping entities from vector. volume is "<<volume.lower.ToString(sector_size)<<" <-> "<<volume.upper.ToString(sector_size)<<std::endl;
 	
 	recursiveRemap(entities,sector_size);
 }
@@ -653,7 +653,7 @@ const Buffer<CompositeEntityTree::Entity*>& 	CompositeEntityTree::getElementList
 void		EntityTree::_RecursiveRemap(const Buffer<Entity*>&source)
 {
 	if (verbose)
-		cout << "now processing node on level "<<level<<" with "<<source.length()<<" input entities"<<endl;
+		std::cout << "now processing node on level "<<level<<" with "<<source.length()<<" input entities"<<std::endl;
 	
 	bool self = &source == &entities;
 	if (!self)
@@ -671,7 +671,7 @@ void		EntityTree::_RecursiveRemap(const Buffer<Entity*>&source)
 	Vec::clear(split);
 
 	if (verbose)
-		cout << " determining center"<<endl;
+		std::cout << " determining center"<<std::endl;
 	for (unsigned i = 0; i < source.length(); i++)
 	{
 		Entity*entity = source[i];
@@ -690,18 +690,18 @@ void		EntityTree::_RecursiveRemap(const Buffer<Entity*>&source)
 	}
 	entities.compact();
 	if (verbose)
-		cout << " compactified. keeping "<<entities.count()<<" relevant entity/ies"<<endl;
+		std::cout << " compactified. keeping "<<entities.count()<<" relevant entity/ies"<<std::endl;
 	if (!level || entities.count()<2)
 	{
 		if (verbose)
 			if (entities.count()<2)
-				cout << " insufficient entities given for further subdivision. terminating effort"<<endl;
+				std::cout << " insufficient entities given for further subdivision. terminating effort"<<std::endl;
 	
 		return;
 	}
 	Vec::div(split,entities.count());
 	if (verbose)
-		cout << " center is "<<Vec::toString(split)<<endl;
+		std::cout << " center is "<<Vec::toString(split)<<std::endl;
 	
 	
 	BYTE greatest(0),collapsed(0);
@@ -714,7 +714,7 @@ void		EntityTree::_RecursiveRemap(const Buffer<Entity*>&source)
 	for (BYTE k = 0; k < 3; k++)
 	{
 		if (verbose)
-			cout << "  processing axis "<<(int)k<<endl;
+			std::cout << "  processing axis "<<(int)k<<std::endl;
 		float				delta,delta2,lower,upper,val,original_split;
 	
 		delta = (max.v[k]-min.v[k])*0.2;
@@ -751,38 +751,38 @@ void		EntityTree::_RecursiveRemap(const Buffer<Entity*>&source)
 				{
 					if (verbose)
 					{
-						cout << "  entity "<<i<<" intersects new split at "<<val<<endl;
-						cout << "   entity range is "<<lower<<" <-> "<<upper<<endl;
+						std::cout << "  entity "<<i<<" intersects new split at "<<val<<std::endl;
+						std::cout << "   entity range is "<<lower<<" <-> "<<upper<<std::endl;
 					}
 				
 					if (val > original_split)
 					{
 						if (verbose)
-							cout << "   moving new split to upper entity boundary"<<endl;
+							std::cout << "   moving new split to upper entity boundary"<<std::endl;
 						val = upper+separation;
 					}
 					elif (val < original_split)
 					{
 						if (verbose)
-							cout << "   moving new split to lower entity boundary"<<endl;
+							std::cout << "   moving new split to lower entity boundary"<<std::endl;
 						val = lower-separation;
 					}
 					else
 					{
 						if (verbose)
-							cout << "   rare case"<<endl;
+							std::cout << "   rare case"<<std::endl;
 						float center;
 						center = object->volume.axis[k].center();
 						if (center > val)
 						{
 							if (verbose)
-								cout << "   moving new split to lower entity boundary"<<endl;
+								std::cout << "   moving new split to lower entity boundary"<<std::endl;
 							val = lower-separation;
 						}
 						else
 						{
 							if (verbose)
-								cout << "   moving new split to upper entity boundary"<<endl;
+								std::cout << "   moving new split to upper entity boundary"<<std::endl;
 							val = upper+separation;
 						}
 					}
@@ -792,12 +792,12 @@ void		EntityTree::_RecursiveRemap(const Buffer<Entity*>&source)
 			}
 		}
 		if (verbose)
-			cout << " split vector component determined at "<<val<<endl;
+			std::cout << " split vector component determined at "<<val<<std::endl;
 	
 		val = volume.axis[k].Clamp(val);
 
 		if (verbose)
-			cout << " split vector component clamped to "<<val<<endl;
+			std::cout << " split vector component clamped to "<<val<<std::endl;
 
 		delta /= 2;
 		
@@ -818,7 +818,7 @@ void		EntityTree::_RecursiveRemap(const Buffer<Entity*>&source)
 		
 		new_split.v[k] = val;
 		if (verbose)
-			cout << " final split vector component determined at "<<val<<endl;
+			std::cout << " final split vector component determined at "<<val<<std::endl;
 		
 		if (delta > greatest_range)
 		{
@@ -830,12 +830,12 @@ void		EntityTree::_RecursiveRemap(const Buffer<Entity*>&source)
 	if (collapsed == 3)
 	{
 		if (verbose)
-			cout << " all collapsed"<<endl;
+			std::cout << " all collapsed"<<std::endl;
 	
 		if (entities.count() > 3)
 		{
 			if (verbose)
-				cout << "  but split required"<<endl;
+				std::cout << "  but split required"<<std::endl;
 			float original = split.v[greatest];
 			split = new_split;
 			split.v[greatest] = original;
@@ -908,7 +908,7 @@ count_t EntityTree::_RecursionEnd(const TVec3<>&edge_point0, const TVec3<>&edge_
 		Entity*object = entities[i];
 		if (!_oIntersectsBox(edge_point0,edge_point1,object->volume))
 			continue;
-		//cout << "  writing object to buffer"<<endl;
+		//std::cout << "  writing object to buffer"<<std::endl;
 		buffer << object;
 		c++;
 	}

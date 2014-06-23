@@ -390,8 +390,8 @@ public:
 			size_t				countOccurrences(const String&expression)					const;
 			String				list()														const;
 			
-			ostream&			printLines(ostream&stream, const char*indent)					const;	//!< Prints the local list to the specified out stream (e.g. cout) @param stream Stream to print to (e.g. cout) @param indent Indent string that should be printed before each new line @return parameter stream
-			ostream&			printLines(ostream&stream, const String&indent)					const;	//!< Prints the local list to the specified out stream (e.g. cout) @param stream Stream to print to (e.g. cout) @param indent Indent string that should be printed before each new line @return parameter stream
+			std::ostream&		printLines(std::ostream&stream, const char*indent)					const;	//!< Prints the local list to the specified out stream (e.g. cout) @param stream Stream to print to (e.g. cout) @param indent Indent string that should be printed before each new line @return parameter stream
+			std::ostream&		printLines(std::ostream&stream, const String&indent)					const;	//!< Prints the local list to the specified out stream (e.g. cout) @param stream Stream to print to (e.g. cout) @param indent Indent string that should be printed before each new line @return parameter stream
 INLINE		String				fuse(size_t index, size_t count, const String&glue)	const;
 INLINE		String				fuse(size_t index, size_t count, const char*glue)		const;
 INLINE		String				fuse(size_t index, size_t count, char glue)				const;

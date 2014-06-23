@@ -67,7 +67,7 @@ namespace Engine
 	class DisplayConfig
 	{
 	public:
-		typedef function<void(const Resolution&, bool, bool)>	FOnResize;
+		typedef std::function<void(const Resolution&, bool, bool)>	FOnResize;
 		typedef void (*f_on_resize)(const Resolution&newRes, bool is_final, bool is_full_screen);
 
 		enum border_style_t
@@ -114,8 +114,8 @@ namespace Engine
 
 	};
 
-	typedef function<bool(const Array<String>&)>	DragEventHandler;
-	typedef function<void(const Array<String>&)>	DropEventHandler;
+	typedef std::function<bool(const Array<String>&)>	DragEventHandler;
+	typedef std::function<void(const Array<String>&)>	DropEventHandler;
 
 	/*!
 		\brief	Display root interface

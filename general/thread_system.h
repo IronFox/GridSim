@@ -15,7 +15,7 @@ Classes for platform-independent handling of Threads, Mutexes, and Thread Pools
 #include <iostream>
 #include <limits.h>
 
-using namespace std;
+//using namespace std;
 
 
 
@@ -47,7 +47,7 @@ namespace System
 		#endif
 	}
 
-	#define THREAD_REPORT(message)	if (System::report_kernel_activity){System::thread_report_mutex.lock(); cout << ((void*)System::thisThread())<<" (this="<<this<<")<"<<__func__<<">: "<<message<<endl;  System::thread_report_mutex.release();}
+	#define THREAD_REPORT(message)	if (System::report_kernel_activity){System::thread_report_mutex.lock(); std::cout << ((void*)System::thisThread())<<" (this="<<this<<")<"<<__func__<<">: "<<message<<std::endl;  System::thread_report_mutex.release();}
 	
 
 	class ThreadMainObject;

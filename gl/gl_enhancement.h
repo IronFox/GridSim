@@ -15,7 +15,7 @@ Collection of useful gl-functions and definitions.
 //#pragma comment(lib,"psapi.lib")
 
 
-using namespace std;
+//using namespace std;
 
 #define GL_FACE_CULL    GL_CULL_FACE
 

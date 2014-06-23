@@ -385,7 +385,7 @@ namespace Engine
 			StructureField<Def>			structures;													//!< List of embedded structure entities (object entities are managed by the respective structure entity)
 			TextureTable<GL>			local_textures,												//!< Local texture table to upload/retrieve texture references of CGS::Texture instances.
 										*textures;													//!< Effective texture table. By default this pointer points to \b local_textures.
-			Buffer<shared_ptr<Material<GL,Def> >,0,Swap>	opaque_materials,												//!< List of fully opaque materials. This also includes masked materials since those do not provide blended transparency.
+			Buffer<std::shared_ptr<Material<GL,Def> >,0,Swap>	opaque_materials,												//!< List of fully opaque materials. This also includes masked materials since those do not provide blended transparency.
 										transparent_materials,										//!< List of transparent materials that require blending.
 										all_materials;
 				
@@ -410,8 +410,8 @@ namespace Engine
 			inline MyStructureEntity*	Embed(CGS::Geometry<Def>&structure,unsigned detailType=StructureConfig::Default)			{return embed(structure,detailType);}
 			MyStructureEntity*			embed(CGS::Geometry<Def>*structure,unsigned detail_type=StructureConfig::Default);	//!< Embeds the currently linked system pointers of the specified geometry creating a new StructureEntity instance (if not already embedded). Subsequent embed() calls on the same geometry reuse loaded data. \param instance Instance to embed \param detail_type Detail type to use for this particular instance \return Newly embedded or already mapped StructureEntity
 			inline MyStructureEntity*	Embed(CGS::Geometry<Def>*structure,unsigned detailType=StructureConfig::Default)			{return embed(structure,detailType);}
-			shared_ptr<Material<GL,Def> >embed(MyStructureEntity*entity,CGS::MaterialA<Def>&material);	//!< Embeds a CGS material \param entity Parent structure entity (must not be NULL) \param material Material to embed
-			inline shared_ptr<Material<GL,Def> >Embed(MyStructureEntity*entity,CGS::MaterialA<Def>&material)						{return embed(entity,material);}
+			std::shared_ptr<Material<GL,Def> >embed(MyStructureEntity*entity,CGS::MaterialA<Def>&material);	//!< Embeds a CGS material \param entity Parent structure entity (must not be NULL) \param material Material to embed
+			inline std::shared_ptr<Material<GL,Def> >Embed(MyStructureEntity*entity,CGS::MaterialA<Def>&material)						{return embed(entity,material);}
 			void						embedDummyMaterial();												//!< Embeds an empty dummy material. When rendering large texture-less geometries this method may greatly increase rendering speed (due to whatever odd gpu related reasons)
 			inline void					EmbedDummyMaterial()	{embedDummyMaterial();}
 			void						remove(CGS::Geometry<Def>&structure);		//!< Removes the structure entity (and children) refering the currently linked structure system pointers of the specified structure. Non-locked materials refering to this structure that become empty as a result of this operation are automatically deleted 
@@ -483,8 +483,8 @@ namespace Engine
 				
 			typename Def::FloatType*	extractRenderPath(count_t&points);
 			inline typename Def::FloatType*	ExtractRenderPath(count_t&points)	{return extractRenderPath(points);}
-			shared_ptr<Material<GL,Def> > largestMaterial();
-			inline shared_ptr<Material<GL,Def> > GetLargestMaterial()	{return largestMaterial();}
+			std::shared_ptr<Material<GL,Def> > largestMaterial();
+			inline std::shared_ptr<Material<GL,Def> > GetLargestMaterial()	{return largestMaterial();}
 				
 			template <class Def2>
 				void					import(Scenery<GL,Def2>&scenery);	//!< Imports rendering data from another scenery (experimental)

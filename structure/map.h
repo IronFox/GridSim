@@ -292,7 +292,7 @@ namespace Map	//! Geometrical scenario composition
 			void						parse(const XML::Node&node,float scale, const FileSystem::Folder&loading_context);	//!< Parses the local effect configuration from the specified XML node
 	};
 	
-	typedef shared_ptr<CGS::StaticInstance<> >	Instance;
+	typedef std::shared_ptr<CGS::StaticInstance<> >	Instance;
 
 	/*!
 		\brief Object instantiation entity.

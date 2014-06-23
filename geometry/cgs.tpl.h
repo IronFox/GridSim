@@ -2388,7 +2388,7 @@ template <class Def>
 	template <typename T>
 		void SubGeometryA<Def>::extractShortestVisualEdgeLength(index_t layer, T&length)	const
 		{
-			length = numeric_limits<T>::max();
+			length = std::numeric_limits<T>::max();
 			if (layer < vs_hull_field.length())
 			{
 				const Mesh<VsDef>&mesh = vs_hull_field[layer];
@@ -4693,16 +4693,16 @@ template <class Def>
 
 
 
-template <class Def> shared_ptr<StaticInstance<Def> > Geometry<Def>::createInstance(bool copy_root_system/*=false*/)
+template <class Def> std::shared_ptr<StaticInstance<Def> > Geometry<Def>::createInstance(bool copy_root_system/*=false*/)
 {
-	shared_ptr<StaticInstance<Def> > result(new StaticInstance<Def>());
+	std::shared_ptr<StaticInstance<Def> > result(new StaticInstance<Def>());
 	adoptInstance(*result, copy_root_system);
 	return result;
 }
 
-template <class Def> shared_ptr<AnimatableInstance<Def> > Geometry<Def>::createAnimatableInstance(bool copy_root_system/*=false*/)
+template <class Def> std::shared_ptr<AnimatableInstance<Def> > Geometry<Def>::createAnimatableInstance(bool copy_root_system/*=false*/)
 {
-	shared_ptr<AnimatableInstance<Def> > result(new AnimatableInstance<Def>());
+	std::shared_ptr<AnimatableInstance<Def> > result(new AnimatableInstance<Def>());
 	adoptInstance(*result,copy_root_system);
 	return result;
 }

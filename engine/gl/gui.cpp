@@ -29,14 +29,14 @@ namespace Engine
 
 			float							time_since_last_tick=0;
 
-			shared_ptr<Component>			clicked,//component that caught the mouse down event
+			PComponent						clicked,//component that caught the mouse down event
 											focused,//last clicked component. unlike 'clicked' this variable will not be set to NULL if the mouse button is released
 											hovered;//last hovered component
 		
 		
 			TVec2<float>					last;
-			shared_ptr<Window>				dragging;
-			Window::ClickResult::value_t		dragType = Window::ClickResult::Missed;
+			PWindow							dragging;
+			Window::ClickResult::value_t	dragType = Window::ClickResult::Missed;
 		
 
 			GLShader::Template				windowShader;
@@ -281,7 +281,7 @@ namespace Engine
 			return *this;
 		}
 
-		void						Operator::showMenu(const shared_ptr<Window>&menuWindow)
+		void						Operator::showMenu(const PWindow&menuWindow)
 		{
 			/*			result->x = region.x.center()-display->clientWidth()/2;
 				result->y = region.y.center()-display->clientHeight()/2;*/
@@ -308,7 +308,7 @@ namespace Engine
 
 			for (index_t i = 0 ; i < menu_stack.count(); i++)
 			{
-				shared_ptr<Window>	window = menu_stack[i].lock();
+				PWindow	window = menu_stack[i].lock();
 				if (window)
 					window->hidden = timing.now64;
 			}
@@ -468,13 +468,13 @@ namespace Engine
 
 		void					Component::SignalLayoutChange()	const
 		{
-			shared_ptr<Window>	wnd = GetWindow();
+			PWindow	wnd = GetWindow();
 			if (wnd)
 				wnd->layoutChanged = wnd->visualChanged = true;
 		}
 		void					Component::SignalVisualChange()	const
 		{
-			shared_ptr<Window>	wnd = GetWindow();
+			PWindow	wnd = GetWindow();
 			if (wnd)
 				wnd->visualChanged = true;
 		}
@@ -498,27 +498,27 @@ namespace Engine
 			}
 		}
 	
-		shared_ptr<Operator>	Component::GetOperator() const
+		POperator	Component::GetOperator() const
 		{
 			if (windowLink.expired())
-				return shared_ptr<Operator>();
+				return POperator();
 			return windowLink.lock()->operatorLink.lock();
 		}
 
-		shared_ptr<Operator>	Component::RequireOperator() const
+		POperator	Component::RequireOperator() const
 		{
 			if (windowLink.expired())
 			{
 				FATAL__("Operator required! Window link not set to component of type "+typeName);
-				return shared_ptr<Operator>();
+				return POperator();
 			}
-			shared_ptr<Operator> rs = windowLink.lock()->operatorLink.lock();
+			POperator rs = windowLink.lock()->operatorLink.lock();
 			if (!rs)
 				FATAL__("Operator required! Window link set but operator link not set");
 			return rs;
 		}
 
-		/*virtual*/ void			Component::SetWindow(const weak_ptr<Window>&wnd)
+		/*virtual*/ void			Component::SetWindow(const std::weak_ptr<Window>&wnd)
 		{
 			windowLink = wnd;
 
@@ -528,10 +528,10 @@ namespace Engine
 		
 		void Component::ResetFocused()
 		{
-			SetFocused(shared_ptr<Component>());
+			SetFocused(PComponent());
 		}
 
-		void Component::SetFocused(const shared_ptr<Component>&component)
+		void Component::SetFocused(const PComponent&component)
 		{
 			if (focused == component)
 				return;
@@ -539,7 +539,7 @@ namespace Engine
 			if (focused)
 			{
 				eEventResult result = focused->OnFocusLost();
-				shared_ptr<Window> wnd = focused->GetWindow();
+				PWindow wnd = focused->GetWindow();
 				if (wnd)
 					wnd->Apply(result);
 				if (!component)
@@ -689,8 +689,8 @@ namespace Engine
 				for (unsigned y = 0; y < image.height(); y++)
 				{
 					const BYTE	*p = image.get(x,y),
-								*px1 = image.get(min(x+1,image.width()-1),y),
-								*py1 = image.get(x,min(y+1,image.height()-1)),
+								*px1 = image.get(std::min(x+1,image.width()-1),y),
+								*py1 = image.get(x,std::min(y+1,image.height()-1)),
 								*px0 = image.get(x?x-1:0,y),
 								*py0 = image.get(x,y?y-1:0);
 					if (image.channels())
@@ -1015,13 +1015,13 @@ namespace Engine
 		}
 		
 		
-		/*static*/ PWindow			Window::CreateNew(const NewWindowConfig&config, const shared_ptr<Component>&component/*=shared_ptr<Component>()*/)
+		/*static*/ PWindow			Window::CreateNew(const NewWindowConfig&config, const PComponent&component/*=PComponent()*/)
 		{
 			return CreateNew(config,&Window::commonStyle,component);
 		}
-		/*static*/ PWindow			Window::CreateNew(const NewWindowConfig&config, Layout*layout,const shared_ptr<Component>&component)
+		/*static*/ PWindow			Window::CreateNew(const NewWindowConfig&config, Layout*layout,const PComponent&component)
 		{
-			shared_ptr<Window> result(new Window(config.isModal,layout));
+			PWindow result(new Window(config.isModal,layout));
 		
 			#ifdef DEEP_GUI
 				result->destination.x = config.initialPosition.center.x;
@@ -1063,7 +1063,7 @@ namespace Engine
 		
 		bool	Window::Hide()
 		{
-			shared_ptr<Operator>	op = operatorLink.lock();
+			POperator	op = operatorLink.lock();
 			if (op)
 			{
 				return op->HideWindow(shared_from_this());
@@ -1084,7 +1084,7 @@ namespace Engine
 			#endif
 		}
 		
-		void	Operator::render(const shared_ptr<Window>&window, float w, float h, bool is_menu)
+		void	Operator::render(const PWindow&window, float w, float h, bool is_menu)
 		{
 			#ifdef DEEP_GUI
 				ASSERT_IS_CONSTRAINED__(window->current_center.x,-100000,100000);
@@ -1107,7 +1107,7 @@ namespace Engine
 			if (window == windowStack.last())	//top most window also copies for menu windows, which override the parent window rather than blurring over it
 				for (index_t i = 0; i < menu_stack.count(); i++)
 				{
-					shared_ptr<Window> menu_ = menu_stack[i].lock();
+					PWindow menu_ = menu_stack[i].lock();
 					if (!menu_)
 					{
 						menu_stack.erase(i--);
@@ -1204,7 +1204,7 @@ namespace Engine
 		}
 
 
-		void	Operator::renderBox(const shared_ptr<Window>&window, float w, float h, bool is_menu)
+		void	Operator::renderBox(const PWindow&window, float w, float h, bool is_menu)
 		{
 			glRed(0.5);
 			switch (mode)
@@ -1257,7 +1257,7 @@ namespace Engine
 		}
 		
 		
-		void	Window::SetComponent(const shared_ptr<Component>&component)
+		void	Window::SetComponent(const PComponent&component)
 		{
 			rootComponent = component;
 			if (component)
@@ -2175,7 +2175,7 @@ namespace Engine
 					focused->windowLink.lock()->Apply(rs);
 				if (focused && rs == Unsupported && key == Key::Tab)
 				{
-					shared_ptr<Component> next=focused;
+					PComponent next=focused;
 					while ((next = focused->windowLink.lock()->rootComponent->GetSuccessorOfChild(next)) && !next->IsTabFocusable());
 					if (next)
 						SetFocused(next);
@@ -2394,7 +2394,7 @@ namespace Engine
 
 
 			
-			shared_ptr<Operator> op = operatorLink.lock();
+			POperator op = operatorLink.lock();
 			if (op)
 			{
 				op->normalRenderer.Configure(normalBuffer,Resolution(size.width,size.height));
@@ -2432,31 +2432,31 @@ namespace Engine
 			
 		}
 
-		shared_ptr<Component>		Component::GetSuccessorOfChild(const shared_ptr<Component>&child_link)
+		PComponent		Component::GetSuccessorOfChild(const PComponent&child_link)
 		{
 			count_t num_children = CountChildren();
 			for (index_t i = 0; i < num_children; i++)
 			{
-				shared_ptr<Component> link = GetChild(i);
+				PComponent link = GetChild(i);
 				if (link == child_link)
 				{
 					if (i < num_children-1)
 					{
-						shared_ptr<Component> next = GetChild(i+1);
+						PComponent next = GetChild(i+1);
 						while (next->CountChildren())
 							next = next->GetChild(0);
 						return next;
 					}
 					return shared_from_this();
 				}
-				shared_ptr<Component> successor = link->GetSuccessorOfChild(child_link);
+				PComponent successor = link->GetSuccessorOfChild(child_link);
 				if (successor)
 					return successor;
 			}
-			return shared_ptr<Component>();
+			return PComponent();
 		}
 		
-		index_t		Component::GetIndexOfChild(const shared_ptr<Component>&child_) const
+		index_t		Component::GetIndexOfChild(const PComponent&child_) const
 		{
 			count_t num_children = CountChildren();
 			for (index_t i = 0; i < num_children; i++)
@@ -2521,7 +2521,7 @@ namespace Engine
 			
 			@return true if the mouse has been set, false otherwise
 		*/
-		static bool MouseHover(const shared_ptr<Window>&window, const PComponent&component, float x, float y)
+		static bool MouseHover(const PWindow&window, const PComponent&component, float x, float y)
 		{
 			if (!component || !component->IsEnabled())
 				return false;
@@ -2552,7 +2552,7 @@ namespace Engine
 		
 			for (index_t i = windowStack.count()-1; i < windowStack.count(); i--)
 			{
-				const shared_ptr<Window>&window = windowStack[i];
+				const PWindow&window = windowStack[i];
 				float rx,ry;
 				Window::ClickResult::value_t rs = window->Resolve(m.x,m.y,rx,ry);
 				if (rs != Window::ClickResult::Missed)
@@ -2572,7 +2572,7 @@ namespace Engine
 		
 			for (index_t i = windowStack.count()-1; i < windowStack.count(); i--)
 			{
-				const shared_ptr<Window>&window = windowStack[i];
+				const PWindow&window = windowStack[i];
 				float rx,ry;
 				Window::ClickResult::value_t rs = window->Resolve(m.x,m.y,rx,ry);
 				if (rs != Window::ClickResult::Missed)
@@ -2645,7 +2645,7 @@ namespace Engine
 				}
 				if (clicked)
 				{
-					shared_ptr<Window>	window = menu_stack.isNotEmpty()?menu_stack.last().lock():windowStack.last();
+					PWindow	window = menu_stack.isNotEmpty()?menu_stack.last().lock():windowStack.last();
 
 					if (!window && menu_stack.isNotEmpty())	//last window has been erased
 					{
@@ -2671,7 +2671,7 @@ namespace Engine
 					bool isModal = false;
 					for (index_t i = menu_stack.count()-1; i < menu_stack.count(); i--)
 					{
-						shared_ptr<Window> window = menu_stack[i].lock();
+						PWindow window = menu_stack[i].lock();
 						if (!window)
 						{
 							menu_stack.erase(i);
@@ -2700,7 +2700,7 @@ namespace Engine
 					}
 					for (index_t i = windowStack.count()-1; i < windowStack.count(); i--)
 					{
-						const shared_ptr<Window>&window = windowStack[i];
+						const PWindow&window = windowStack[i];
 						float rx,ry;
 						Window::ClickResult::value_t rs = window->Resolve(m.x,m.y,rx,ry);
 						if (rs != Window::ClickResult::Missed)
@@ -2779,7 +2779,7 @@ namespace Engine
 			
 			for (index_t i = 0; i < menu_stack.count(); i++)
 			{
-				shared_ptr<Window> window = menu_stack[i].lock();
+				PWindow window = menu_stack[i].lock();
 				if (!window)
 				{
 					menu_stack.erase(i--);
@@ -2794,7 +2794,7 @@ namespace Engine
 			}
 			for (index_t i = 0; i < windowStack.count(); i++)
 			{
-				const shared_ptr<Window>&window = windowStack[i];
+				const PWindow&window = windowStack[i];
 				if (window->visualChanged)
 					window->RenderBuffers(*display);
 				#ifdef DEEP_GUI
@@ -2844,7 +2844,7 @@ namespace Engine
 			glWhite();
 			for (index_t i = 0; i < windowStack.count(); i++)
 			{
-				const shared_ptr<Window>&window = windowStack[i];
+				const PWindow&window = windowStack[i];
 				
 				render(window,w,h,false);
 
@@ -2852,7 +2852,7 @@ namespace Engine
 			
 			for (index_t i = 0; i < menu_stack.count(); i++)
 			{
-				shared_ptr<Window> window = menu_stack[i].lock();
+				PWindow window = menu_stack[i].lock();
 				if (!window)
 				{
 					menu_stack.erase(i--);
@@ -2887,7 +2887,7 @@ namespace Engine
 
 			for (index_t i = 0; i < windowStack.count(); i++)
 			{
-				const shared_ptr<Window>&window = windowStack[i];
+				const PWindow&window = windowStack[i];
 				
 				renderBox(window,w,h,false);
 
@@ -2895,7 +2895,7 @@ namespace Engine
 			
 			for (index_t i = 0; i < menu_stack.count(); i++)
 			{
-				shared_ptr<Window> window = menu_stack[i].lock();
+				PWindow window = menu_stack[i].lock();
 				
 				renderBox(window,w,h,true);
 			}
@@ -2940,7 +2940,7 @@ namespace Engine
 		@brief Queries whether the specified window is currently part of the local window stack
 		@return true, if the specified window is contained in the local window stack, false otherwise.
 		*/
-		bool			Operator::windowIsVisible(const shared_ptr<Window>&window)	const
+		bool			Operator::windowIsVisible(const PWindow&window)	const
 		{
 			return windowStack.contains(window);
 		}
@@ -2949,10 +2949,10 @@ namespace Engine
 		@brief Queries the top-most window (if any)
 		@return Shared pointer to the top most window. May be empty, if the local window stack is empty.
 		*/
-		shared_ptr<Window>	Operator::getTopWindow() const
+		PWindow	Operator::getTopWindow() const
 		{
 			if (windowStack.isEmpty())
-				return shared_ptr<Window>();
+				return PWindow();
 			return windowStack.last();
 		}
 
@@ -2966,11 +2966,11 @@ namespace Engine
 
 
 		
-		void			Operator::ShowWindow(const shared_ptr<Window>&window)
+		void			Operator::ShowWindow(const PWindow&window)
 		{
 			if (!window->operatorLink.expired())
 			{
-				shared_ptr<Operator>	op = window->operatorLink.lock();
+				POperator	op = window->operatorLink.lock();
 				if (op && op.get() != this)
 				{
 					op->HideWindow(window);
@@ -3009,7 +3009,7 @@ namespace Engine
 			stack_changed=true;
 		}
 		
-		bool			Operator::HideWindow(const shared_ptr<Window>&window)
+		bool			Operator::HideWindow(const PWindow&window)
 		{
 			bool was_top = windowStack.isNotEmpty() && windowStack.last() == window;
 				
@@ -3035,7 +3035,7 @@ namespace Engine
 		}
 		
 		
-		static bool mouseDown(const shared_ptr<Window>&window, float x, float y)
+		static bool mouseDown(const PWindow&window, float x, float y)
 		{
 			handlingEvent = true;
 			//ext.caught_by.reset();
@@ -3067,7 +3067,7 @@ namespace Engine
 			owns_mouse_down = false;
 			for (index_t i = menu_stack.count()-1; i < menu_stack.count(); i--)
 			{
-				shared_ptr<Window> window = menu_stack[i].lock();
+				PWindow window = menu_stack[i].lock();
 				if (!window)
 				{
 					menu_stack.erase(i);
@@ -3088,7 +3088,7 @@ namespace Engine
 						if (!GUI::mouseDown(window,rx,ry))
 							rs = window->fixedPosition?Window::ClickResult::Ignored:Window::ClickResult::DragWindow;
 					if (rs != Window::ClickResult::Component)
-						Component::SetFocused(shared_ptr<Component>());
+						Component::SetFocused(PComponent());
 					return true;
 				}
 				else
@@ -3101,7 +3101,7 @@ namespace Engine
 			
 			for (index_t i = windowStack.count()-1; i < windowStack.count(); i--)
 			{
-				shared_ptr<Window> window = windowStack[i];
+				PWindow window = windowStack[i];
 			
 				float rx, ry;
 				Window::ClickResult::value_t rs = window->Resolve(m.x,m.y,rx,ry);
@@ -3126,14 +3126,14 @@ namespace Engine
 						#endif
 					}
 					owns_mouse_down = true;
-					dragging = (rs >= Window::ClickResult::DragWindow ? window : shared_ptr<Window>());
+					dragging = (rs >= Window::ClickResult::DragWindow ? window : PWindow());
 					dragType = rs;
 					return rs != Window::ClickResult::Ignored;	//lets see if this is good
 				}
 				elif (window->isModal)
 					return false;
 			}
-			Component::SetFocused(shared_ptr<Component>());
+			Component::SetFocused(PComponent());
 			return false;
 		}
 		
@@ -3143,7 +3143,7 @@ namespace Engine
 			unprojectMouse(m);
 			for (index_t i = menu_stack.count()-1; i < menu_stack.count(); i--)
 			{
-				shared_ptr<Window> window = menu_stack[i].lock();
+				PWindow window = menu_stack[i].lock();
 				if (!window)
 				{
 					menu_stack.erase(i);
@@ -3180,7 +3180,7 @@ namespace Engine
 			}
 			for (index_t i = windowStack.count()-1; i < windowStack.count(); i--)
 			{
-				shared_ptr<Window> window = windowStack[i];
+				PWindow window = windowStack[i];
 				
 				#ifdef DEEP_GUI
 					float x = (m.x-window->current_center.x)*window->current_center.shellRadius+window->fsize.x/2;
@@ -3238,14 +3238,14 @@ namespace Engine
 		
 
 		
-		shared_ptr<Window>		Operator::ShowNewWindow(const NewWindowConfig&config, const shared_ptr<Component>&component /*=shared_ptr<Component>()*/)
+		PWindow		Operator::ShowNewWindow(const NewWindowConfig&config, const PComponent&component /*=PComponent()*/)
 		{
 			return ShowNewWindow(config,&Window::commonStyle,component);
 		}
 		
-		shared_ptr<Window>		Operator::ShowNewWindow(const NewWindowConfig&config,Layout*layout,const shared_ptr<Component>&component)
+		PWindow		Operator::ShowNewWindow(const NewWindowConfig&config,Layout*layout,const PComponent&component)
 		{
-			shared_ptr<Window> result(Window::CreateNew(config,layout,component));
+			PWindow result(Window::CreateNew(config,layout,component));
 			ShowWindow(result);
 			return result;
 		}
@@ -3257,9 +3257,9 @@ namespace Engine
 		}
 
 		
-		/*static*/	shared_ptr<Operator>					Operator::create(Display<OpenGL>&display, const Mouse&mouse, InputMap&input, mode_t mode /*=Cylindrical*/)
+		/*static*/	POperator					Operator::create(Display<OpenGL>&display, const Mouse&mouse, InputMap&input, mode_t mode /*=Cylindrical*/)
 		{
-			shared_ptr<Operator> rs = shared_ptr<Operator>(new Operator(display,mouse,input,mode));
+			POperator rs = POperator(new Operator(display,mouse,input,mode));
 			input.pushProfile();
 			input.bindProfile(my_profile);
 				for (Key::Name k = (Key::Name)0; k <= Key::Max; k = (Key::Name)(k+1))

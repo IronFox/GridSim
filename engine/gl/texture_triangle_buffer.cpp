@@ -3,7 +3,7 @@
 
 #ifdef TT_DEBUG_MODE
     #include <iostream>
-    using namespace std;
+    //using namespace std;
 #endif
 
 namespace Engine

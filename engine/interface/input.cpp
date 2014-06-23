@@ -13,28 +13,28 @@ namespace Engine
 	void InputMap::cascadeKeyDown(unsigned index)
 	{
 		if (verbose)
-			cout << " input: forward down "<<index<<".";
+			std::cout << " input: forward down "<<index<<".";
 		if (index >= NumKeys || !binding_stack)
 		{
 			if (verbose)
-				cout << " index invalid or binding stack empty"<<endl;
+				std::cout << " index invalid or binding stack empty"<<std::endl;
 			return;
 		}
 		stack_forward_depth++;
 		if (verbose)
-			cout << " profile is "<<(binding_stack-stack_forward_depth)<<".";
+			std::cout << " profile is "<<(binding_stack-stack_forward_depth)<<".";
 		InputProfile*profile = binding_stack[binding_stack-stack_forward_depth];
 		if (!profile)
 		{
 			if (verbose)
-				cout << " undefined profile"<<endl;
+				std::cout << " undefined profile"<<std::endl;
 			stack_forward_depth--;
 			return;
 		}
 		if (pressed[VK_CONTROL])
 		{
 			if (verbose)
-				cout << " CTRL "<<profile->key[index].ctrl_pntr<<endl;
+				std::cout << " CTRL "<<profile->key[index].ctrl_pntr<<std::endl;
 			
 			if (profile->key[index].ctrl_pntr)
 				profile->key[index].ctrl_pntr();
@@ -42,7 +42,7 @@ namespace Engine
 		else
 		{
 			if (verbose)
-				cout << " "<<profile->key[index].down_pntr << endl;
+				std::cout << " "<<profile->key[index].down_pntr << std::endl;
 			if (profile->key[index].down_pntr)
 				profile->key[index].down_pntr();
 		}
@@ -52,27 +52,27 @@ namespace Engine
 	void InputMap::cascadeKeyUp(unsigned index)
 	{
 		if (verbose)
-			cout << " input: forward up "<<index<<".";
+			std::cout << " input: forward up "<<index<<".";
 		if (index >= NumKeys || !binding_stack)
 		{
 			if (verbose)
-				cout << " index invalid or binding stack empty"<<endl;
+				std::cout << " index invalid or binding stack empty"<<std::endl;
 			return;
 		}
 		stack_forward_depth++;
 		if (verbose)
-			cout << " profile is "<<(binding_stack-stack_forward_depth)<<".";
+			std::cout << " profile is "<<(binding_stack-stack_forward_depth)<<".";
 		
 		InputProfile*profile = binding_stack[binding_stack-stack_forward_depth];
 		if (!profile)
 		{
 			if (verbose)
-				cout << " undefined profile"<<endl;
+				std::cout << " undefined profile"<<std::endl;
 			stack_forward_depth--;
 			return;
 		}
 		if (verbose)
-			cout << " "<< profile->key[index].up_pntr << endl;
+			std::cout << " "<< profile->key[index].up_pntr << std::endl;
 		
 		if (profile->key[index].up_pntr)
 			profile->key[index].up_pntr();
@@ -95,13 +95,13 @@ namespace Engine
 			return false;
 		bool verbose = !pressed[index] && this->verbose;
 		if (verbose)
-			cout << " input: down "<<resolveKeyName((Key::Name)index)<<"("<<index<<")"<<".";
+			std::cout << " input: down "<<resolveKeyName((Key::Name)index)<<"("<<index<<")"<<".";
 		bool result;
 		if (pressed[VK_CONTROL])
 		{
 			if (verbose)
 			{
-				cout << " CTRL "<<key[index].ctrl_pntr << endl;
+				std::cout << " CTRL "<<key[index].ctrl_pntr << std::endl;
 			}
 			result = key[index].ctrl_pntr;
 			if (result)
@@ -111,7 +111,7 @@ namespace Engine
 		{
 			if (verbose)
 			{
-				cout << " "<<key[index].down_pntr << endl;
+				std::cout << " "<<key[index].down_pntr << std::endl;
 			}
 			result = key[index].down_pntr;
 			if (result)
@@ -124,22 +124,22 @@ namespace Engine
 	bool InputMap::keyUp(unsigned index)
 	{
 		if (verbose)
-			cout << " input: up "<<resolveKeyName((Key::Name)index)<<"("<<index<<")"<<".";
+			std::cout << " input: up "<<resolveKeyName((Key::Name)index)<<"("<<index<<")"<<".";
 		if (index >= NumKeys)
 		{
 			if (verbose)
-				cout << " index invalid"<<endl;
+				std::cout << " index invalid"<<std::endl;
 			return false;
 		}
 		pressed[index]=false;
 		if (index == VK_CONTROL)
 		{
 			if (verbose)
-				cout << " index is CTRL"<<endl;
+				std::cout << " index is CTRL"<<std::endl;
 			return false;
 		}
 		if (verbose)
-			cout << " "<<key[index].up_pntr << endl;
+			std::cout << " "<<key[index].up_pntr << std::endl;
 		if (!key[index].up_pntr)
 			return false;
 		key[index].up_pntr();
@@ -168,7 +168,7 @@ namespace Engine
 	void InputMap::resetKeys()
 	{
 		if (verbose)
-			cout << " input: reset keys"<<endl;
+			std::cout << " input: reset keys"<<std::endl;
 		for (unsigned i = 0; i < NumKeys; i++)
 		{
 			key[i].down_pntr = std::function<void()>();
@@ -181,7 +181,7 @@ namespace Engine
 	void InputMap::cascadeKeys	()
 	{
 		if (verbose)
-			cout << " input: cascade keys"<<endl;
+			std::cout << " input: cascade keys"<<std::endl;
 		for (unsigned i = 0; i < NumKeys; i++)
 		{
 			key[i].down_pntr = std::bind(&InputMap::cascadeKeyDown,this,i);
@@ -194,7 +194,7 @@ namespace Engine
 	void InputMap::bind(Key::Name name, const std::function<void()>& cmd)
 	{
 		if (verbose)
-			cout << " input: binding "<<resolveKeyName(name)<<"("<<name<<")"<<" to command "<<cmd<<endl;
+			std::cout << " input: binding "<<resolveKeyName(name)<<"("<<name<<")"<<" to command "<<cmd<<std::endl;
 		unsigned k = ((unsigned)name)%NumKeys;
 		key[k].down_pntr = cmd;
 		key[k].up_pntr = std::function<void()>();
@@ -204,7 +204,7 @@ namespace Engine
 	void InputMap::bind(Key::Name name, const std::function<void()>& cmd, const std::function<void()>& ucmd)
 	{
 		if (verbose)
-			cout << " input: binding "<<resolveKeyName(name)<<"("<<name<<")"<<" to commands "<<cmd<<"(down) and "<<ucmd<<"(up)"<<endl;
+			std::cout << " input: binding "<<resolveKeyName(name)<<"("<<name<<")"<<" to commands "<<cmd<<"(down) and "<<ucmd<<"(up)"<<std::endl;
 		unsigned k = ((unsigned)name)%NumKeys;
 		key[k].down_pntr = cmd;
 		key[k].up_pntr = ucmd;
@@ -214,7 +214,7 @@ namespace Engine
 	void InputMap::bindCtrl(Key::Name name, const std::function<void()>& cmd)
 	{
 		if (verbose)
-			cout << " input: binding ctrl+"<<resolveKeyName(name)<<"("<<name<<")"<<" to command "<<cmd<<endl;
+			std::cout << " input: binding ctrl+"<<resolveKeyName(name)<<"("<<name<<")"<<" to command "<<cmd<<std::endl;
 		unsigned k = ((unsigned)name)%NumKeys;
 		key[k].ctrl_pntr = cmd;
 	}
@@ -223,7 +223,7 @@ namespace Engine
 	void InputMap::unbind(Key::Name name)
 	{
 		if (verbose)
-			cout << " input: unbinding "<<resolveKeyName(name)<<"("<<name<<")"<<endl;
+			std::cout << " input: unbinding "<<resolveKeyName(name)<<"("<<name<<")"<<std::endl;
 		unsigned k = ((unsigned)name)%NumKeys;
 		key[k].down_pntr = std::function<void()>();
 		key[k].up_pntr = std::function<void()>();
@@ -233,7 +233,7 @@ namespace Engine
 	void InputMap::cascade(Key::Name name)
 	{
 		if (verbose)
-			cout << " input: cascading "<<resolveKeyName(name)<<"("<<name<<")"<<endl;
+			std::cout << " input: cascading "<<resolveKeyName(name)<<"("<<name<<")"<<std::endl;
 		unsigned k = ((unsigned)name)%NumKeys;
 		key[k].down_pntr = std::bind(&InputMap::cascadeKeyDown,this,k);
 		key[k].up_pntr = std::bind(&InputMap::cascadeKeyUp,this,k);
@@ -334,7 +334,7 @@ namespace Engine
 	void InputProfile::importFrom(InputMap*from)
 	{
 		if (from->verbose)
-			cout << " input: importing map "<<from<<" into profile "<<this<<endl;
+			std::cout << " input: importing map "<<from<<" into profile "<<this<<std::endl;
 		if (keyboard)
 			key.copyFrom(from->key.pointer(),0x100);
 		if (device_buttons)
@@ -344,7 +344,7 @@ namespace Engine
 	void InputProfile::exportTo(InputMap*to)
 	{
 		if (to->verbose)
-			cout << " input: exporting profile "<<this<<" to map "<<to<<endl;
+			std::cout << " input: exporting profile "<<this<<" to map "<<to<<std::endl;
 		if (keyboard)
 			to->key.copyFrom(key.pointer(),0x100);
 		if (device_buttons)
@@ -355,7 +355,7 @@ namespace Engine
 	void InputMap::chooseProfile(InputProfile&profile)
 	{
 		if (verbose)
-			cout << " input: choosing profile "<<&profile<<" over "<<active_profile<<endl;
+			std::cout << " input: choosing profile "<<&profile<<" over "<<active_profile<<std::endl;
 		if (active_profile == &profile)
 			return;
 		active_profile->importFrom(this);
@@ -376,7 +376,7 @@ namespace Engine
 	void InputMap::pushProfile()
 	{
 		if (verbose)
-			cout << " input: pushing profile "<<active_profile<<endl;
+			std::cout << " input: pushing profile "<<active_profile<<std::endl;
 		active_profile->importFrom(this);
 		binding_stack.append(active_profile);
 	}
@@ -386,12 +386,12 @@ namespace Engine
 		if (!binding_stack)
 			return;
 		if (verbose)
-			cout << " input: popping profile, thus overwriting "<<active_profile<<endl;
+			std::cout << " input: popping profile, thus overwriting "<<active_profile<<std::endl;
 		active_profile->importFrom(this);
 		active_profile = binding_stack.drop(binding_stack-1);
 		active_profile->exportTo(this);
 		if (verbose)
-			cout << " input: now active profile is "<<active_profile<<endl;
+			std::cout << " input: now active profile is "<<active_profile<<std::endl;
 	}
 	
 	void	InputMap::RegAnalog(const String&name, float&resource, float min, float max)

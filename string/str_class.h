@@ -110,7 +110,7 @@ template <typename T>
 
 
 #include <iostream>
-using namespace std;
+//using namespace std;
 
 
 
@@ -127,7 +127,7 @@ using namespace std;
 
 
 
-using namespace std;
+//using namespace std;
 
 #define STRING_DEBUG(_MSG_)	//cout << _MSG_<<endl; ::flush(cout);
 #define STRING_METHOD_BEGIN(_PARAMETER_, _OUTPUT_)	//cout << "function enter ("<<__LINE__<<"): "<<__func__<<_PARAMETER_<<" "<<#_OUTPUT_<<"='"<<_OUTPUT_<<"'"<<endl; ::flush(cout);
@@ -257,9 +257,9 @@ template <typename T>
 							return reference;
 						}
 		inline StringTemplate<char>		ToString()			const;	//!< Converts the expression architecture including data to a string for debug output
-		inline void		print(ostream&stream)			const;	//!< Prints the local expression content to the specified stream @param stream Stream to print to
+		inline void		print(std::ostream&stream)			const;	//!< Prints the local expression content to the specified stream @param stream Stream to print to
 		#ifdef WCOUT
-			inline void	print(wostream&stream)			const;	//!< Prints the local expression content to the specified wide character stream @param stream Stream to print to
+			inline void	print(std::wostream&stream)			const;	//!< Prints the local expression content to the specified wide character stream @param stream Stream to print to
 		#endif
 		template <class Stream>
 			inline void	printArchitecture(Stream&stream)			const
@@ -386,12 +386,12 @@ template <typename T>
 							return 1;
 						}
 	inline	StringTemplate<char>		ToString()			const;
-	inline	void		print(ostream&stream)			const	//! Prints the local expression content to the specified stream @param stream Stream to print to
+	inline	void		print(std::ostream&stream)			const	//! Prints the local expression content to the specified stream @param stream Stream to print to
 						{
 							stream << (char)ch;
 						}
 	#ifdef WCOUT
-		inline	void	print(wostream&stream)			const
+		inline	void	print(std::wostream&stream)			const
 						{
 							stream << (wchar_t)ch;
 						}
@@ -1706,24 +1706,24 @@ template <typename T0, typename T1>
 void			ShowString(const String&line);
 
 template <typename T>
-	inline ostream& operator<<(ostream&stream, const StringTemplate<T>&string);
+	inline std::ostream& operator<<(std::ostream&stream, const StringTemplate<T>&string);
 
 template <typename E0, typename E1>
-	inline ostream& operator<<(ostream&stream, const ConcatExpression<E0,E1>&expression);
+	inline std::ostream& operator<<(std::ostream&stream, const ConcatExpression<E0,E1>&expression);
 template <typename T>
-	inline ostream& operator<<(ostream&stream, const ReferenceExpression<T>&expression);
+	inline std::ostream& operator<<(std::ostream&stream, const ReferenceExpression<T>&expression);
 template <typename T>
-	inline ostream& operator<<(ostream&stream, const CharacterExpression<T>&expression);
+	inline std::ostream& operator<<(std::ostream&stream, const CharacterExpression<T>&expression);
 
 #ifdef WCOUT
 	template <typename T>
-		inline wostream& operator<<(wostream&stream, const StringTemplate<T>&string);
+		inline std::wostream& operator<<(std::wostream&stream, const StringTemplate<T>&string);
 	template <typename E0, typename E1>
-		inline wostream& operator<<(wostream&stream, const ConcatExpression<E0,E1>&expression);
+		inline std::wostream& operator<<(std::wostream&stream, const ConcatExpression<E0,E1>&expression);
 	template <typename T>
-		inline wostream& operator<<(wostream&stream, const ReferenceExpression<T>&expression);
+		inline std::wostream& operator<<(std::wostream&stream, const ReferenceExpression<T>&expression);
 	template <typename T>
-		inline wostream& operator<<(wostream&stream, const CharacterExpression<T>&expression);
+		inline std::wostream& operator<<(std::wostream&stream, const CharacterExpression<T>&expression);
 #endif
 
 

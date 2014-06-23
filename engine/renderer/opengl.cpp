@@ -38,7 +38,7 @@ namespace Engine
 			{
 				if (!DescribePixelFormat(context,formats[i],sizeof(desc),&desc))
 				{
-					cout << "Warning: Unable to retrieve pixel format descriptor at offset "<<i<<" ("<<formats[i]<<")"<<endl;
+					std::cout << "Warning: Unable to retrieve pixel format descriptor at offset "<<i<<" ("<<formats[i]<<")"<<std::endl;
 					continue;
 				}
 				if (desc.dwFlags & PFD_SUPPORT_COMPOSITION)

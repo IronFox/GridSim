@@ -31,7 +31,7 @@ namespace Engine
 	namespace GUI
 	{
 		class Operator;
-		typedef shared_ptr<Operator>	POperator;
+		typedef std::shared_ptr<Operator>	POperator;
 
 
 		struct TCellLayout;
@@ -339,19 +339,24 @@ namespace Engine
 
 	
 		class Window;
-		typedef shared_ptr<Window>	PWindow;
+		typedef std::shared_ptr<Window>	PWindow;
+
+
+		class Component;
+		typedef std::shared_ptr<Component>	PComponent;
+		typedef std::shared_ptr<const Component>	PConstComponent;
 		
 		/**
 			@brief Root component
 			
 			Visual components are the abstract foundation of the GUI system.
 		*/
-		class Component: public enable_shared_from_this<Component>
+		class Component: public std::enable_shared_from_this<Component>
 		{
 		private:
 			static	void 						ReadChar(char c);
 		protected:
-			weak_ptr<Window>					windowLink;	//!< Link to the owning window. Not NULL if this component is part of any window.
+			std::weak_ptr<Window>				windowLink;	//!< Link to the owning window. Not NULL if this component is part of any window.
 			friend class Window;
 			bool								enabled;		//!< Indicates that this item may receive events
 			bool								visible;		//!< Indicates that this item is visible. Invisible items are automatically treated as disabled.
@@ -408,7 +413,7 @@ namespace Engine
 			virtual	void						OnColorPaint(ColorRenderer&, bool parentIsEnabled);			//!< Causes this component to repaint its color components
 			virtual	void						OnNormalPaint(NormalRenderer&, bool parentIsEnabled);		//!< Causes this component to repaint its normal components
 			//virtual	shared_ptr<Component>		getFocused()					{return shared_from_this();};	//!< Retrieves the actually focused element from the component returned by onMouseDown(). Returns this by default
-			virtual shared_ptr<Component>		GetComponent(float x, float y, ePurpose purpose, bool&outIsEnabled)	{outIsEnabled &= IsEnabled(); return shared_from_this();};
+			virtual PComponent					GetComponent(float x, float y, ePurpose purpose, bool&outIsEnabled)	{outIsEnabled &= IsEnabled(); return shared_from_this();};
 			virtual bool						IsEventTranslucent() const		{return false;}
 			virtual	eEventResult				OnMouseDown(float x, float y, TExtEventResult&)		{return Unsupported;};	//!< Triggered if the primary mouse button was pressed over this component @param x Window space x coordinate of the mouse cursor @param y Window space y coordinate of the mouse cursor @return Event result
 			virtual	eEventResult				OnMouseHover(float x, float y, TExtEventResult&)	{return Unsupported;};	//!< Triggered if the mouse was moved while above this component @param x Window space x coordinate of the mouse cursor @param y Window space y coordinate of the mouse cursor @return Event result
@@ -424,14 +429,14 @@ namespace Engine
 			virtual	eEventResult				OnTick()						{return Unsupported;}						//!< Triggered each time the counter hit @b tick_interval seconds while this component has the focus
 			virtual	bool						IsTabFocusable() const			{return false;}								//!< Queries whether or not this entry is focusable via the tab key
 			virtual bool						CanHandleMouseWheel() const		{return false;}
-			void								SetWindow(const weak_ptr<Window>&wnd);						//!< Updates the local window link variable as well as that of all children (recursively)
+			void								SetWindow(const std::weak_ptr<Window>&wnd);						//!< Updates the local window link variable as well as that of all children (recursively)
 			bool								IsFocused()	const;															//!< Queries whether or not this component currently has the input focus
 			PWindow								GetWindow()	const				{return windowLink.lock();}						//!< Retrieves the super window of this component (if any)
-			virtual	shared_ptr<const Component>	GetChild(index_t) const			{return shared_ptr<const Component>();}							//!< Queries the nth child of this component (if any)
-			virtual	shared_ptr<Component>		GetChild(index_t)	{return shared_ptr<Component>();}									//!< @overload
-			virtual	count_t						CountChildren()	const {return 0;}								//!< Queries the number of children of this component (if any) @return Number of children
-			virtual	index_t						GetIndexOfChild(const shared_ptr<Component>&child) const;						//!< Determines the index of the specified child or 0xFFFFFFFF if the specified component is no child of this component.
-			shared_ptr<Component>				GetSuccessorOfChild(const shared_ptr<Component>&child);									//!< Queries the successor element of the specified one @return successor or NULL if no successor could be found
+			virtual	PConstComponent				GetChild(index_t) const			{return PConstComponent();}							//!< Queries the nth child of this component (if any)
+			virtual	PComponent					GetChild(index_t)	{return PComponent();}									//!< @overload
+			virtual	count_t						CountChildren()	const {return 0;}											//!< Queries the number of children of this component (if any) @return Number of children
+			virtual	index_t						GetIndexOfChild(const PComponent&child) const;							//!< Determines the index of the specified child or 0xFFFFFFFF if the specified component is no child of this component.
+			PComponent							GetSuccessorOfChild(const PComponent&child);									//!< Queries the successor element of the specified one @return successor or NULL if no successor could be found
 			void								Locate(const Rect<float>&parentRegion,Rect<float>&region)	const;	//!< Resolves the absolute location of the local item based on the specified parent region.
 			virtual void						SetEnabled(bool enabled);				//!< Enables/disables the ability of this component to receive events. Disabled components may have a different style. A redraw is automatically issued
 			bool								IsEnabled()	const	{return enabled;}
@@ -441,14 +446,12 @@ namespace Engine
 			void								SignalVisualChange() const;					//!< Signals that the local component must be redrawn
 			
 			static void							ResetFocused();																	//!< Unsets the currently focused component. Identical to passing an empty (null) pointer to SetFocused()
-			static void 						SetFocused(const shared_ptr<Component>&component);								//!< Changes the currently focused component
+			static void 						SetFocused(const PComponent&component);								//!< Changes the currently focused component
 
 			POperator							GetOperator()	const;
 			POperator							RequireOperator()	const;
 		};
 
-		typedef shared_ptr<Component>	PComponent;
-		typedef shared_ptr<const Component>	PConstComponent;
 		
 		/**
 			@brief Icon container
@@ -517,7 +520,7 @@ namespace Engine
 		/**
 			@brief GUI Window
 		*/
-		class Window: public enable_shared_from_this<Window>
+		class Window: public std::enable_shared_from_this<Window>
 		{
 		protected:
 			friend class Component;
@@ -527,8 +530,8 @@ namespace Engine
 			Layout					*layout;		//!< Used layout (if any) or NULL. Unmanaged at this point.
 			TCellLayout				cellLayout;	//!< Actual layout as applied by the active layout.
 		public:
-			shared_ptr<Component>		rootComponent;
-			weak_ptr<Operator>			operatorLink;
+			std::shared_ptr<Component>		rootComponent;
+			std::weak_ptr<Operator>			operatorLink;
 				
 			struct ClickResult
 			{
@@ -609,7 +612,7 @@ namespace Engine
 			float					GetMinHeight()	const;								//!< Resolves the minimum height of this window in pixels
 			float					GetMinWidth()	const;								//!< Resolves the minimum width of this window in pixels
 			void					UpdateLayout();										//!< Updates the layout and component layout if existing
-			void					SetComponent(const shared_ptr<Component>&component);					//!< Changes the primary component of this window @param discardable Set true if the assigned component may be erased when the window is deleted or another component assigned
+			void					SetComponent(const PComponent&component);					//!< Changes the primary component of this window @param discardable Set true if the assigned component may be erased when the window is deleted or another component assigned
 			void					Apply(Component::eEventResult rs);	//!< Applies the result of a component event to the local state variables
 			
 			bool					Hide();	//!< Attempts to remove the local window from its operator
@@ -623,14 +626,14 @@ namespace Engine
 			@param config Initial window configuration
 			@param component Root component of the new window
 			*/
-			static PWindow			CreateNew(const NewWindowConfig&config, const shared_ptr<Component>&component=shared_ptr<Component>());
+			static PWindow			CreateNew(const NewWindowConfig&config, const PComponent&component=PComponent());
 			/**
 			@brief Creates a new window with a custom layout without inserting it
 			@param config Initial window configuration
 			@param layout Custom layout to use for this window. May be NULL
 			@param component Root component of the new window
 			*/
-			static PWindow			CreateNew(const NewWindowConfig&config, Layout*layout,const shared_ptr<Component>&component);
+			static PWindow			CreateNew(const NewWindowConfig&config, Layout*layout,const PComponent&component);
 		};
 		
 		
@@ -642,7 +645,7 @@ namespace Engine
 
 
 
-		class Operator: public enable_shared_from_this<Operator>	//! GUI Instance
+		class Operator: public std::enable_shared_from_this<Operator>	//! GUI Instance
 		{
 		public:
 			ColorRenderer				colorRenderer;
@@ -656,7 +659,7 @@ namespace Engine
 			bool						created,
 										stack_changed;
 			Buffer<PWindow>				windowStack;
-			Buffer<weak_ptr<Window> >	menu_stack;
+			Buffer<std::weak_ptr<Window> >	menu_stack;
 			OrthographicAspect<>		window_space;
 			Camera<>					projected_space;
 			GLuint						layer_texture;
@@ -712,13 +715,13 @@ namespace Engine
 			@param config Initial window configuration
 			@param component Root component of the new window
 			*/
-			PWindow						ShowNewWindow(const NewWindowConfig&config, const shared_ptr<Component>&component=shared_ptr<Component>());
+			PWindow						ShowNewWindow(const NewWindowConfig&config, const PComponent&component=PComponent());
 			/**
 			@brief Creates a new window with a custom layout, and immediately shows it
 			@param config Initial window configuration
 			@param component Root component of the new window
 			*/
-			PWindow						ShowNewWindow(const NewWindowConfig&config, Layout*layout,const shared_ptr<Component>&component);
+			PWindow						ShowNewWindow(const NewWindowConfig&config, Layout*layout,const PComponent&component);
 
 
 

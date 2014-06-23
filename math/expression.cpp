@@ -61,7 +61,7 @@ namespace Expression
 	
 	void		Element::parse(const String&string, VarContainer&var_container)
 	{
-		cout << ">>>element.parse()"<<endl;
+		std::cout << ">>>element.parse()"<<std::endl;
 		if (!convert(string.c_str(),value))
 		{
 			reference = var_container.define(string);
@@ -77,7 +77,7 @@ namespace Expression
 		}
 		else
 			(*(String*)this) = string;
-		cout << ">>>element.parse() done"<<endl;
+		std::cout << ">>>element.parse() done"<<std::endl;
 	}
 	
 	
@@ -98,25 +98,25 @@ namespace Expression
 		{
 			const Entity*e = members[i];
 			bool found = false;
-			//cout << "  trying to match "<<e->signedToString()<<endl;
+			//std::cout << "  trying to match "<<e->signedToString()<<std::endl;
 			for (unsigned j = 0; j < members && !found; j++)
 			{
 				if (flag_array[j])
 				{
-					//cout<< "   flag set. continueing"<<endl;
+					//std::cout<< "   flag set. continueing"<<std::endl;
 					continue;
 				}
 				const Entity*o = ((const Group*)other)->members[j];
 				found = (e->inverted == o->inverted) && (e->negated == o->negated) && e->equals(o);
 				if (found)
 				{
-					//cout << "   equal to "<<o->signedToString()<<". setting flag"<<endl;
+					//std::cout << "   equal to "<<o->signedToString()<<". setting flag"<<std::endl;
 					flag_array[j] = true;
 				}
 			}
 			if (!found)
 			{
-				//cout << "  not found"<<endl;
+				//std::cout << "  not found"<<std::endl;
 				return false;
 			}
 		}
@@ -136,13 +136,13 @@ namespace Expression
 			for (unsigned i = 0; i+1 < members; i++)
 			{
 				Entity*e = members[i];
-				//cout << "looking for matches of #"<<i<<"/"<<members<<" '"<<e->signedToString()<<"'"<<endl;
+				//std::cout << "looking for matches of #"<<i<<"/"<<members<<" '"<<e->signedToString()<<"'"<<std::endl;
 				int counter=e->negated?-1:1;
 				for (unsigned j = i+1; j < members; j++)
 				{
 					if (e->inverted == members[j]->inverted && e->equals(members[j]))
 					{
-						//cout << " entry #"<<j<<"/"<<members<<" '"<<members[j]->signedToString()<<"' matches"<<endl;
+						//std::cout << " entry #"<<j<<"/"<<members<<" '"<<members[j]->signedToString()<<"' matches"<<std::endl;
 						if (members[j]->negated)
 							counter --;
 						else
@@ -153,14 +153,14 @@ namespace Expression
 				}
 				if (!counter)
 				{
-					//cout << " counter hit 0. erasing"<<endl;
+					//std::cout << " counter hit 0. erasing"<<std::endl;
 					members.erase(i--);
 				}
 				elif (counter != 1)
 				{
 					if (counter == -1)
 					{
-						//cout << " counter is -1. negating"<<endl;
+						//std::cout << " counter is -1. negating"<<std::endl;
 						e->negated = true;
 					}
 					else
@@ -180,7 +180,7 @@ namespace Expression
 							}
 							else
 							{
-								//cout << " inserting product group for counter "<<counter<<endl;
+								//std::cout << " inserting product group for counter "<<counter<<std::endl;
 								members.drop(i);
 								Group*sub = (Group*)members.insert(i,SHIELDED(new Group(Type::ProductGroup)));
 								
@@ -204,7 +204,7 @@ namespace Expression
 				}
 				else
 				{	
-					//cout << "counter is 1. un-negating"<<endl;
+					//std::cout << "counter is 1. un-negating"<<std::endl;
 
 					e->negated = false;
 				}
@@ -238,7 +238,7 @@ namespace Expression
 	{
 		if (type == Type::SumGroup)	//allready sum-group => little to do
 		{
-			//cout << "expanding sum-group with "<<members<<" element(s)"<<endl;
+			//std::cout << "expanding sum-group with "<<members<<" element(s)"<<std::endl;
 			bool changed = false;
 			for (index_t i = 0; i < members; i++)
 			{
@@ -260,22 +260,22 @@ namespace Expression
 					DISCARD(sub_group);
 				}
 			}
-			//cout << "done expanding sum-group. group now has "<<members<<" element(s)"<<endl;
+			//std::cout << "done expanding sum-group. group now has "<<members<<" element(s)"<<std::endl;
 			return changed;
 		}
 		
-		//cout << "expanding product-group with "<<members<<" element(s)"<<endl;
+		//std::cout << "expanding product-group with "<<members<<" element(s)"<<std::endl;
 		
 		for (index_t i = 0; i < members; i++)
 		{
 			if (!members[i]->isGroup())
 				continue;
-			//cout << " expanding sub-group #"<<i<<endl;
+			//std::cout << " expanding sub-group #"<<i<<std::endl;
 			Group*sub_group = (Group*)members[i];
 			sub_group->expandNext();
 		}
 		
-		//cout << "sub-groups expanded"<<endl;
+		//std::cout << "sub-groups expanded"<<std::endl;
 		
 		List::Vector<Entity>	pockets;
 		
@@ -283,12 +283,12 @@ namespace Expression
 		{
 			if (members[i]->type != Type::SumGroup || members[i]->inverted)
 				continue;
-			//cout << " now expanding sub-group #"<<i<<endl;
+			//std::cout << " now expanding sub-group #"<<i<<std::endl;
 			Group*sub_group = (Group*)members[i];
 			
 			for (index_t k = 0; k < sub_group->members; k++)
 			{
-				//cout << "  creating pocket #"<<k<<endl;
+				//std::cout << "  creating pocket #"<<k<<std::endl;
 				Group*pocket = (Group*)pockets.append(SHIELDED(new Group(Type::ProductGroup)));
 				for (index_t j = 0; j < i; j++)
 					pocket->members.append(members[j]->clone());
@@ -318,14 +318,14 @@ namespace Expression
 			}
 			break;	//only process one at a time
 		}
-		//cout << "created "<<pockets<<" pocket(s)"<<endl;
+		//std::cout << "created "<<pockets<<" pocket(s)"<<std::endl;
 		if (!pockets)	//no inner sum-groups, can't expand. let's check for product groups
 		{
 			for (index_t i = 0; i < members; i++)
 			{
 				if (members[i]->type != Type::ProductGroup)
 					continue;
-				//cout << " now expanding sub-group #"<<i<<endl;
+				//std::cout << " now expanding sub-group #"<<i<<std::endl;
 				Group*sub_group = (Group*)members.drop(i);
 				for (index_t j = 0; j < sub_group->members; j++)
 				{
@@ -412,7 +412,7 @@ namespace Expression
 	
 	bool		Group::factorOut(const Variable*variable, index_t power)
 	{
-		cout << "attempting to factor out "<<variable->name<<" at power "<<power<<endl;
+		std::cout << "attempting to factor out "<<variable->name<<" at power "<<power<<std::endl;
 		count_t num_groups = 0;
 		for (index_t i = 0; i < members; i++)
 		{
@@ -427,7 +427,7 @@ namespace Expression
 		}
 		if (num_groups <= 1)
 			return false;
-		cout << "detected "<<num_groups<<" group(s) that match the specified power"<<endl;
+		std::cout << "detected "<<num_groups<<" group(s) that match the specified power"<<std::endl;
 	
 		Group	*result_group = SHIELDED(new Group(Type::ProductGroup)),
 				*sum_group = (Group*)result_group->members.append(SHIELDED(new Group(Type::SumGroup)));
@@ -439,7 +439,7 @@ namespace Expression
 				Group*group = (Group*)members[i];
 				if (group->countOccurrences(variable) != power)
 					continue;
-				cout << "processing group #"<<i<<"/"<<members<<endl;
+				std::cout << "processing group #"<<i<<"/"<<members<<std::endl;
 				for (index_t j = 0; j < group->members; j++)
 					if (!group->members[j]->inverted && group->members[j]->type == Type::Element && ((Element*)group->members[j])->reference == variable)
 					{
@@ -618,7 +618,7 @@ namespace Expression
 							continue;
 						if ((x0->negated^group->negated) == (x1->negated^other->negated))
 						{
-							//cout << "group "<<group->ToString()<<" sign matches "<<other->ToString()<<endl;
+							//std::cout << "group "<<group->ToString()<<" sign matches "<<other->ToString()<<std::endl;
 							continue;
 						}
 						if ((*(String*)x0 != *(String*)y0) || (*(String*)y1 != *(String*)x1) || (*(String*)x0 == *(String*)x1))
@@ -684,7 +684,7 @@ namespace Expression
 								if (!d0->x1->equals(d2->x0) || !d1->x1->equals(d2->x1))
 									continue;
 								
-								cout << "found matching 2x2 determinant expressions: "<<d0->signedToString()<<", "<<d1->signedToString()<<", "<<d2->signedToString()<<endl;
+								std::cout << "found matching 2x2 determinant expressions: "<<d0->signedToString()<<", "<<d1->signedToString()<<", "<<d2->signedToString()<<std::endl;
 								
 								if (i > j)
 									swp(i,j);
@@ -734,10 +734,10 @@ namespace Expression
 
 								
 								
-								cout << "new expression is "<<det->ToString(true)<<". discarding unused expressions"<<endl;
+								std::cout << "new expression is "<<det->ToString(true)<<". discarding unused expressions"<<std::endl;
 								if (test != det->evaluate())
 								{
-									cout << "result mismatch. expected "<<test<<" but got "<<det->evaluate()<<endl;
+									std::cout << "result mismatch. expected "<<test<<" but got "<<det->evaluate()<<std::endl;
 								}
 								
 								DISCARD(d0);
@@ -772,21 +772,21 @@ namespace Expression
 	
 	bool		Group::parse(const String&expression, VarContainer&var_container)
 	{
-		cout << ">>>group.parse()"<<endl;
-		cout << ">>>members.clear()"<<endl;
+		std::cout << ">>>group.parse()"<<std::endl;
+		std::cout << ">>>members.clear()"<<std::endl;
 		members.clear();
 		type = Type::SumGroup;
 		
-		cout << ">>>Tokenizer::tokenize()"<<endl;
+		std::cout << ">>>Tokenizer::tokenize()"<<std::endl;
 		StringList	items;
 		if (!Tokenizer::tokenize(expression,parser_config,items))
 		{
-			cout << ">>>Tokenizer::tokenize() done -> false"<<endl;
-			flush(cout);
+			std::cout << ">>>Tokenizer::tokenize() done -> false"<<std::endl;
+			flush(std::cout);
 			return false;
 		}
-		cout << ">>>Tokenizer::tokenize() done -> true"<<endl;
-		flush(cout);
+		std::cout << ">>>Tokenizer::tokenize() done -> true"<<std::endl;
+		flush(std::cout);
 		
 		Group*last_product_group = NULL;
 		bool	inverted = false,
@@ -794,18 +794,18 @@ namespace Expression
 		
 		for (index_t i = 0; i < items; i++)
 		{
-			cout << ">>>item #"<<i<<"/"<<items<<".parse()"<<endl;
+			std::cout << ">>>item #"<<i<<"/"<<items<<".parse()"<<std::endl;
 			const String&item = items[i];
 			
 			if (item == '+' || item == '-')
 			{
 				last_product_group = NULL;
 				negated = item == '-';
-				cout << ">>>>secondary operator"<<endl;
+				std::cout << ">>>>secondary operator"<<std::endl;
 			}
 			elif (item == '*' || item == '/')
 			{
-				cout << ">>>>primary operator"<<endl;
+				std::cout << ">>>>primary operator"<<std::endl;
 				
 				if (!last_product_group)
 				{
@@ -818,11 +818,11 @@ namespace Expression
 					pre->negated = false;
 				}
 				inverted = item == '/';
-				cout << ">>>>primary operator done"<<endl;
+				std::cout << ">>>>primary operator done"<<std::endl;
 			}
 			elif (item.beginsWith('('))
 			{
-				cout << ">>>>item is group: '"<<item<<"'"<<endl;
+				std::cout << ">>>>item is group: '"<<item<<"'"<<std::endl;
 				Group*sub_group = SHIELDED(new Group(Type::ProductGroup));
 				if (!sub_group->parse(item.subString(1,item.length()-2),var_container))
 				{
@@ -837,11 +837,11 @@ namespace Expression
 					members.append(sub_group);
 				negated = false;
 				inverted = false;
-				cout << ">>>>item done"<<endl;
+				std::cout << ">>>>item done"<<std::endl;
 			}
 			else
 			{
-				cout << ">>>>other item"<<endl;
+				std::cout << ">>>>other item"<<std::endl;
 				Element*element = SHIELDED(new Element());
 				element->parse(item,var_container);
 				element->inverted = inverted;
@@ -852,13 +852,13 @@ namespace Expression
 					members.append(element);
 				negated = false;
 				inverted = false;
-				cout << ">>>>other item done"<<endl;
+				std::cout << ">>>>other item done"<<std::endl;
 					
 			}
 		}
 		if (members == 1 && members.first()->type == Type::ProductGroup)
 		{
-			cout << ">>>>collapsing"<<endl;
+			std::cout << ">>>>collapsing"<<std::endl;
 			Group*group = (Group*)members.drop(index_t(0));
 			members.adoptData(group->members);
 			
@@ -871,16 +871,16 @@ namespace Expression
 			}
 			
 			DISCARD(group);
-			cout << ">>>>collapsing done"<<endl;
+			std::cout << ">>>>collapsing done"<<std::endl;
 		}
 	
-		cout << ">>>group.parse() done"<<endl;
+		std::cout << ">>>group.parse() done"<<std::endl;
 		return true;
 	}
 	
 	bool				Expression::parse(const String&expression)
 	{
-		cout << "<<<variables.clear()"<<endl;
+		std::cout << "<<<variables.clear()"<<std::endl;
 		variables.clear();
 		return Group::parse(expression,variables);
 	}

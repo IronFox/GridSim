@@ -114,14 +114,14 @@ namespace Fractal
 		if (segment_table.isSet(segment))
 			FATAL__("Trying to reregister segment "+PointerToStr(segment));
 		
-		cout << "register "<<segment<<endl;
+		std::cout << "register "<<segment<<std::endl;
 		segment_table.set(segment);
 	}
 	
 	void		unregisterSegment(TSurfaceSegment*segment)
 	{
 		return;	//disabled
-		cout << "unregister "<<segment<<endl;
+		std::cout << "unregister "<<segment<<std::endl;
 		segment_table.unSet(segment);
 	}
 	

@@ -457,7 +457,7 @@ namespace TCP
 			Useful to attach client data to a peer. If @a delete_attachment_on_disconnect is set true then the attached data structure will be erased automatically before this peer object is deleted.
 				
 		*/
-		shared_ptr<Attachment>		attachment;
+		std::shared_ptr<Attachment>	attachment;
 		addrinfo					*root_address,					//!< Remote peer address set (root pointer to linked list describing the remote address)
 									*actual_address;					//!< Part of the @a root_address linked list that actually describes the remote address
 		unsigned					user_level;							//!< Current user level. Anonymous by default

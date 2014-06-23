@@ -194,7 +194,7 @@ public:
 	{
 		virtual	~Attachment()	{};
 	};
-	typedef shared_ptr<Attachment>		PAttachment;
+	typedef std::shared_ptr<Attachment>		PAttachment;
 
 
 	struct Node : public SurfaceDescription::TControl
@@ -204,9 +204,9 @@ public:
 		SurfaceDescription::TControl	slope;
 		UINT32							lodIndex;			//!< Strictly client variable that is merely provided but not used by the local structures
 		index_t							nodeID;			//!< Temporary variable used during compactification. Not used otherwise
-		shared_ptr<Attachment>			attachment;		//!< Custom attachment. Initialized with NULL, and moved if the container is resized, but not deleted automatically
+		PAttachment						attachment;		//!< Custom attachment. Initialized with NULL, and moved if the container is resized, but not deleted automatically
 
-		/**/							Node():attachment(NULL),lodIndex(0),nodeID(InvalidIndex)
+		/**/							Node():lodIndex(0),nodeID(InvalidIndex)
 										{
 											segments[0].setSize(1);
 											segments[1].setSize(1);
@@ -289,10 +289,10 @@ public:
 		Connector						connector[2];
 		Array<SurfaceDescription>		compiledSurfaces;	//three per lod: 0: stitched to fit lower resolution node[0], 1: stitched to fit lower resolution node[1], 2: not stitched (in case both nodes have reduced lod, use less detailed surface)
 
-		shared_ptr<Attachment>			attachment;		//!< Custom attachment. Initialized with NULL, and moved if the container is resized, but not deleted automatically
+		PAttachment						attachment;		//!< Custom attachment. Initialized with NULL, and moved if the container is resized, but not deleted automatically
 		index_t							segID;				//!< Temporary variable used during compactification. Not used otherwise, but valid afterwards
 
-		/**/							Segment():attachment(NULL),segID(InvalidIndex){}
+		/**/							Segment():segID(InvalidIndex){}
 
 		void							adoptData(Segment&other)
 										{

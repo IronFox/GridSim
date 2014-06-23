@@ -48,8 +48,8 @@ namespace Engine
 			virtual	void				UpdateLayout(const Rect<float>&parent_region)	override;
 		};
 		
-		typedef shared_ptr<Label>		PLabel;
-		typedef shared_ptr<const Label>	PConstLabel;
+		typedef std::shared_ptr<Label>		PLabel;
+		typedef std::shared_ptr<const Label>PConstLabel;
 
 		class SliderLayout
 		{
@@ -155,7 +155,7 @@ namespace Engine
 			static void					_PaintColor(const TCell&);
 			static void					_PaintNormal(const TCell&, bool);
 		public:
-			weak_ptr<Scrollable>		scrollable;
+			std::weak_ptr<Scrollable>	scrollable;
 			bool						horizontal,		//!< Indicates that the scrollbar is horizontal rather than vertical
 										autoVisibility;	//!< Indicates that the governing structure (ie a scrollbox) should attempt to determine and update the visibility of this scrollbar automatically
 			FunctionalEvent				onScroll;		//!< Event that is fired if the scrollbar changes
@@ -202,8 +202,8 @@ namespace Engine
 			virtual	eEventResult		OnMouseWheel(float x, float y, short delta) override;
 			virtual bool				CanHandleMouseWheel()	const override {return true;}
 		};
-		typedef shared_ptr<ScrollBar>		PScrollBar;
-		typedef shared_ptr<const ScrollBar>	PConstScrollBar;
+		typedef std::shared_ptr<ScrollBar>		PScrollBar;
+		typedef std::shared_ptr<const ScrollBar>PConstScrollBar;
 		
 
 
@@ -261,8 +261,8 @@ namespace Engine
 			void						SetMax(float max_)	{if (max_ != max) {max = max_; SignalLayoutChange();}}
 			void						SetCurrent(float current_)	{if (current_ != current) {current = current_; SignalLayoutChange();}}
 		};
-		typedef shared_ptr<Slider>		PSlider;
-		typedef shared_ptr<const Slider>PConstSlider;
+		typedef std::shared_ptr<Slider>		PSlider;
+		typedef std::shared_ptr<const Slider>PConstSlider;
 	
 
 
@@ -298,8 +298,8 @@ namespace Engine
 			virtual PComponent			GetComponent(float x, float y, ePurpose purpose, bool&outIsEnabled) override;
 			bool						GetChildSpace(Rect<float>&out_rect)	const;	//!< Retrieves the space currently occupied by the children of this panel @param out_rect Rectangle container to store the child space in @return true if the local panel has at least one child, false otherwise
 		
-			void						Append(const shared_ptr<Component>&component);	//!< Appends  the specified component beneath the last member component of the local panel
-			void						AppendRight(const shared_ptr<Component>&component);	//!< Appends the specified component to the right of the last member component of the local panel
+			void						Append(const PComponent&component);	//!< Appends  the specified component beneath the last member component of the local panel
+			void						AppendRight(const PComponent&component);	//!< Appends the specified component to the right of the last member component of the local panel
 			/**
 			@brief Adds a row in the form "[caption][tab][component]" to the end of the panel
 					
@@ -310,15 +310,15 @@ namespace Engine
 			@return @a component
 			*/
 			template <class Component>
-				shared_ptr<Component>	AddRow(const String&caption, float caption_width, const shared_ptr<Component>&component)
+				std::shared_ptr<Component>	AddRow(const String&caption, float caption_width, const std::shared_ptr<Component>&component)
 				{
 					if (!component)
-						return shared_ptr<Component>();
-					shared_ptr<GUI::Component> last = children.isNotEmpty()?children.last():shared_ptr<GUI::Component>();
+						return std::shared_ptr<Component>();
+					std::shared_ptr<GUI::Component> last = children.isNotEmpty()?children.last():std::shared_ptr<GUI::Component>();
 					float	y_offset = (last?last->offset.top-last->height:0),
 							x_offset = 0;
 
-					shared_ptr<GUI::Label> label(new GUI::Label());
+					std::shared_ptr<GUI::Label> label(new GUI::Label());
 					label->SetText(caption);
 					
 					float h = vmax(label->height,component->height);
@@ -338,25 +338,25 @@ namespace Engine
 				}
 				
 				
-			virtual	bool				Add(const shared_ptr<Component>&component);		//!< Adds a component to the panel. The added panel is drawn last 	@return true on success
-			virtual	bool				Erase(const shared_ptr<Component>&component);	//!< Erases a component from the panel.		@return true on success
+			virtual	bool				Add(const PComponent&component);		//!< Adds a component to the panel. The added panel is drawn last 	@return true on success
+			virtual	bool				Erase(const PComponent&component);	//!< Erases a component from the panel.		@return true on success
 			virtual	bool				Erase(index_t index);			//!< Erases a component by index from the panel		@return true on success
-			virtual	bool				MoveChildUp(const shared_ptr<Component>&component);	//!< Moves a component further up in the order of child GUI			@return true on success
+			virtual	bool				MoveChildUp(const PComponent&component);	//!< Moves a component further up in the order of child GUI			@return true on success
 			virtual	bool				MoveChildUp(index_t index);			//!< Moves a component by index further up in the order of child GUI	@return true on success
-			virtual	bool				MoveChildDown(const shared_ptr<Component>&component);	//!< Moves a component further down in the order of child GUI		@return true on success
+			virtual	bool				MoveChildDown(const PComponent&component);	//!< Moves a component further down in the order of child GUI		@return true on success
 			virtual	bool				MoveChildDown(index_t index);		//!< Moves a component by index further down in the order of child GUI	@return true on success
-			virtual	bool				MoveChildToTop(const shared_ptr<Component>&component);	//!< Moves a component to the top of the order of child GUI			@return true on success
+			virtual	bool				MoveChildToTop(const PComponent&component);	//!< Moves a component to the top of the order of child GUI			@return true on success
 			virtual	bool				MoveChildToTop(index_t index);		//!< Moves a component by index to the top of the order of child GUI	@return true on success
-			virtual	bool				MoveChildToBottom(const shared_ptr<Component>&component);	//!< Moves a component to the bottom of the order of child GUI	@return true on success
+			virtual	bool				MoveChildToBottom(const PComponent&component);	//!< Moves a component to the bottom of the order of child GUI	@return true on success
 			virtual	bool				MoveChildToBottom(index_t index);			//!< Moves a component by index to the bottom of the order of child GUI	@return true on success
 			virtual	PConstComponent		GetChild(index_t index) const override	{return children[index];}
 			virtual	PComponent			GetChild(index_t index) override	{return children[index];}
 			virtual	count_t				CountChildren() const override {return children.count();}
-			virtual	index_t				GetIndexOfChild(const shared_ptr<Component>&child)const	override {return children.indexOf(child)+1;}	//!< Queries the index of a child +1. @return Index+1 or 0 if the child could not be found
+			virtual	index_t				GetIndexOfChild(const PComponent&child)const	override {return children.indexOf(child)+1;}	//!< Queries the index of a child +1. @return Index+1 or 0 if the child could not be found
 			virtual	void				clear() {children.clear();}
 		};
-		typedef shared_ptr<Panel>		PPanel;
-		typedef shared_ptr<const Panel>	PConstPanel;
+		typedef std::shared_ptr<Panel>		PPanel;
+		typedef std::shared_ptr<const Panel>	PConstPanel;
 		
 		/**
 			@brief Scrollable panel
@@ -368,7 +368,7 @@ namespace Engine
 			typedef Panel				Super;
 
 			Rect<float>						effectiveClientRegion;
-			Buffer<shared_ptr<Component>,4>	visible_children;
+			Buffer<PComponent,4>	visible_children;
 				
 
 			void						createBars()
@@ -382,16 +382,16 @@ namespace Engine
 											createBars();
 										}
 		public:
-			shared_ptr<ScrollBar>		horizontalBar,	//!< Horizontal scrollbar
+			PScrollBar					horizontalBar,	//!< Horizontal scrollbar
 										verticalBar;	//!< Vertical scrollbar
 		
 			/**/						ScrollBox():Panel("ScrollBox")
 										{
 											createBars();
 										}
-			shared_ptr<Scrollable>		toScrollable()
+			std::shared_ptr<Scrollable>	toScrollable()
 										{
-											return static_pointer_cast<Scrollable, ScrollBox>(static_pointer_cast<ScrollBox, Component>(shared_from_this()));
+											return std::static_pointer_cast<Scrollable, ScrollBox>(std::static_pointer_cast<ScrollBox, Component>(shared_from_this()));
 										}
 		//virtual	void				OnScroll();
 			virtual	void				UpdateLayout(const Rect<float>&parent_region) override;
@@ -402,11 +402,11 @@ namespace Engine
 			virtual PComponent			GetComponent(float x, float y, ePurpose, bool&outIsEnabled) override;
 			virtual	eEventResult		OnMouseWheel(float x, float y, short delta) override;
 			virtual bool				CanHandleMouseWheel()	const override;
-			void						Append(const shared_ptr<Component>&component);
+			void						Append(const PComponent&component);
 			virtual	PConstComponent		GetChild(index_t index) const override;
 			virtual	PComponent			GetChild(index_t index) override;
 			virtual	size_t				CountChildren() const override;
-			virtual	bool				Erase(const shared_ptr<Component>&component) override;
+			virtual	bool				Erase(const PComponent&component) override;
 			virtual	bool				Erase(index_t index) override;
 			virtual	void				clear() override	{children.reset();visible_children.reset();}
 
@@ -415,8 +415,8 @@ namespace Engine
 			void						scrollToY(float y);
 
 		};
-		typedef shared_ptr<ScrollBox>		PScrollBox;
-		typedef shared_ptr<const ScrollBox>	PConstScrollBox;
+		typedef std::shared_ptr<ScrollBox>		PScrollBox;
+		typedef std::shared_ptr<const ScrollBox>PConstScrollBox;
 		
 		/**
 			@brief Button component
@@ -477,8 +477,8 @@ namespace Engine
 										}
 			inline bool					AppearsPressed()	const	{return pressed || constantlyDown;}
 		};
-		typedef shared_ptr<Button>		PButton;
-		typedef shared_ptr<const Button>PConstButton;
+		typedef std::shared_ptr<Button>		PButton;
+		typedef std::shared_ptr<const Button>PConstButton;
 		
 		
 		/**
@@ -563,12 +563,14 @@ namespace Engine
 			virtual	bool				IsTabFocusable()	const	override				{return true;}
 			virtual	void				UpdateLayout(const Rect<float>&parent_region)	override;
 		};
-		typedef shared_ptr<Edit>		PEdit;
-		typedef shared_ptr<const Edit>	PConstEdit;
+		typedef std::shared_ptr<Edit>		PEdit;
+		typedef std::shared_ptr<const Edit>	PConstEdit;
 		
 		typedef Edit	Input;
 		
 		class Menu;
+		typedef std::shared_ptr<Menu>		PMenu;
+		typedef std::shared_ptr<const Menu>	PConstMenu;
 		
 		/**
 		@brief Standardized menu entry component
@@ -577,9 +579,9 @@ namespace Engine
 		{
 			typedef Label				Super;
 			bool						menuIsOpen;
-			weak_ptr<Menu>				parent;		//!< Pointer to the menu that contains this entry. NULL by default, indicating no parent.
-			shared_ptr<Window>			menuWindow;	//!< Pointer to the window containing a sub menu (if any). NULL if no sub menu has been created, automatically deleted on destruction
-			shared_ptr<IToString>		object;	//!< Link to the object used to dynamically retrieve the local entry caption. NULL by default @b Not automatically deleted.
+			std::weak_ptr<Menu>			parent;		//!< Pointer to the menu that contains this entry. NULL by default, indicating no parent.
+			PWindow						menuWindow;	//!< Pointer to the window containing a sub menu (if any). NULL if no sub menu has been created, automatically deleted on destruction
+			std::shared_ptr<IToString>	object;	//!< Link to the object used to dynamically retrieve the local entry caption. NULL by default @b Not automatically deleted.
 			friend class Menu;
 			void						_Setup();
 			void						OnMenuHide();
@@ -592,12 +594,12 @@ namespace Engine
 				
 			/**/						MenuEntry():Label("MenuEntry")	{_Setup();}
 			virtual						~MenuEntry();
-			void						SetObject(const shared_ptr<IToString>&object);
-			const shared_ptr<IToString>&GetObject() const	{return object;}
+			void						SetObject(const std::shared_ptr<IToString>&object);
+			const std::shared_ptr<IToString>&GetObject() const	{return object;}
 			const PWindow&				RetrieveMenuWindow();	//!< Retrieves (and possibly creates) the window containing the sub menu entries
 			const PWindow&				GetMenuWindow() const	{return menuWindow;}
-			shared_ptr<Menu>			GetMenu();			//!< Retrieves (and possibly creates) the sub menu of this entry
-			shared_ptr<const Menu>		GetMenu()	const;	//!< @overload
+			PMenu						GetMenu();			//!< Retrieves (and possibly creates) the sub menu of this entry
+			PConstMenu					GetMenu()	const;	//!< @overload
 			void						DiscardMenu();	//!< Discards that local sub menu
 			virtual	void				OnColorPaint(ColorRenderer&, bool parentIsEnabled) override;	
 			virtual	eEventResult		OnMouseDown(float x, float y, TExtEventResult&) override;
@@ -607,11 +609,11 @@ namespace Engine
 			virtual	eEventResult		OnMouseExit() override;
 			virtual	eEventResult		OnKeyDown(Key::Name key) override;
 
-			virtual	void				OnMenuClose(const shared_ptr<MenuEntry>&child);
+			virtual	void				OnMenuClose(const std::shared_ptr<MenuEntry>&child);
 			virtual	void				UpdateLayout(const Rect<float>&parent_region) override;
 		};
-		typedef shared_ptr<MenuEntry>		PMenuEntry;
-		typedef shared_ptr<const MenuEntry>	PConstMenuEntry;
+		typedef std::shared_ptr<MenuEntry>		PMenuEntry;
+		typedef std::shared_ptr<const MenuEntry>	PConstMenuEntry;
 		
 		
 		/**
@@ -623,7 +625,7 @@ namespace Engine
 		{
 			typedef ScrollBox			Super;
 
-			weak_ptr<MenuEntry>			parent;	//!< Parent menu entry. NULL by default
+			std::weak_ptr<MenuEntry>	parent;	//!< Parent menu entry. NULL by default
 			index_t						selectedEntry;	//!< Currently GetSelected menu entry
 			PComponent					selectedComponent;
 			bool						horizontal,autoResize;
@@ -654,16 +656,16 @@ namespace Engine
 			inline const TVec3<>&		GetEntryBackgroundColor() const {return entryBackgroundColor;}
 
 			virtual	PMenuEntry			Add(const String&caption);	//!< Adds a new simple menu entry to this menu @param caption Caption of the menu entry @return Pointer to the newly created menu entry
-			virtual	bool				Add(const shared_ptr<Component>&component) override;	//!< Adds a component to this menu. Must of a MenuEntry of derivative class. @param component Menu entry to Add. The method fails if the passed pointer is NULL or not of type MenuEntry @return true on success
-			virtual	bool				Erase(const shared_ptr<Component>&component) override;
+			virtual	bool				Add(const PComponent&component) override;	//!< Adds a component to this menu. Must of a MenuEntry of derivative class. @param component Menu entry to Add. The method fails if the passed pointer is NULL or not of type MenuEntry @return true on success
+			virtual	bool				Erase(const PComponent&component) override;
 			virtual	bool				Erase(index_t index) override;
-			virtual	bool				MoveChildUp(const shared_ptr<Component>&component) override;
+			virtual	bool				MoveChildUp(const PComponent&component) override;
 			virtual	bool				MoveChildUp(index_t index) override;
-			virtual	bool				MoveChildDown(const shared_ptr<Component>&component) override;
+			virtual	bool				MoveChildDown(const PComponent&component) override;
 			virtual	bool				MoveChildDown(index_t index) override;
-			virtual	bool				MoveChildToTop(const shared_ptr<Component>&component) override;
+			virtual	bool				MoveChildToTop(const PComponent&component) override;
 			virtual	bool				MoveChildToTop(index_t index) override;
-			virtual	bool				MoveChildToBottom(const shared_ptr<Component>&component) override;
+			virtual	bool				MoveChildToBottom(const PComponent&component) override;
 			virtual	bool				MoveChildToBottom(index_t index) override;
 			virtual	void				OnColorPaint(ColorRenderer&, bool parentIsEnabled) override;	
 		
@@ -671,8 +673,6 @@ namespace Engine
 
 			virtual	eEventResult		OnKeyDown(Key::Name key) override;
 		};
-		typedef shared_ptr<Menu>		PMenu;
-		typedef shared_ptr<const Menu>	PConstMenu;
 		
 		/**
 		@brief Combobox component
@@ -687,7 +687,7 @@ namespace Engine
 		protected:
 			/**/					ComboBox(const String&sub_type_name):MenuEntry("ComboBox/"+sub_type_name){_Setup();}
 		public:
-			shared_ptr<IToString>	selectedObject;	//!< Currently GetSelected object (if any)
+			std::shared_ptr<IToString>	selectedObject;	//!< Currently GetSelected object (if any)
 			FunctionalEvent			onChange;		//!< Event that is fired if the GetSelected item changed
 			static Layout			globalLayout;
 				
@@ -696,10 +696,10 @@ namespace Engine
 			virtual	void			UpdateLayout(const Rect<float>&parent_space) override;
 			void					Select(index_t index);
 			index_t					GetSelected()	const	{return selectedEntry;}
-			virtual	void			OnMenuClose(const shared_ptr<MenuEntry>&child) override;
+			virtual	void			OnMenuClose(const PMenuEntry&child) override;
 		};
-		typedef shared_ptr<ComboBox>		PComboBox;
-		typedef shared_ptr<const ComboBox>	PConstComboBox;
+		typedef std::shared_ptr<ComboBox>		PComboBox;
+		typedef std::shared_ptr<const ComboBox>	PConstComboBox;
 		
 		/**
 		@brief Checkbox component
@@ -756,21 +756,21 @@ namespace Engine
 											return rect;
 										}
 		};
-		typedef shared_ptr<CheckBox>		PCheckBox;
-		typedef shared_ptr<const CheckBox>	PConstCheckBox;
+		typedef std::shared_ptr<CheckBox>		PCheckBox;
+		typedef std::shared_ptr<const CheckBox>	PConstCheckBox;
 		
 		
 		void			LoadTheme(const String&theme_file, float scale=1.0f);
 		void			ShowMessage(Operator&op, const String&title, const String&message);
 		void			ShowMessage(Operator&op, const String&message);
-		inline	void	ShowMessage(const shared_ptr<Operator>&op, const String&title, const String&message)	{if (!op)return; ShowMessage(*op,title,message);}
-		inline	void	ShowMessage(const shared_ptr<Operator>&op, const String&message)						{if (!op)return; ShowMessage(*op,message);}
+		inline	void	ShowMessage(const POperator&op, const String&title, const String&message)	{if (!op)return; ShowMessage(*op,title,message);}
+		inline	void	ShowMessage(const POperator&op, const String&message)						{if (!op)return; ShowMessage(*op,message);}
 		bool			ShowingMessage();
 		void			HideMessage();
-		void			ShowChoice(Operator&op, const String&title, const String&query, const Array<String>&choices, const function<void(index_t)>&onSelect);
-		inline void		ShowChoice(Operator&op, const String&query, const Array<String>&choices, const function<void(index_t)>&onSelect)	{ShowChoice(op,"Inquiry",query,choices,onSelect);}
-		inline void		ShowChoice(const shared_ptr<Operator>&op, const String&title, const String&query, const Array<String>&choices, const function<void(index_t)>&onSelect)	{ShowChoice(*op,title,query,choices,onSelect);}
-		inline void		ShowChoice(const shared_ptr<Operator>&op, const String&query, const Array<String>&choices, const function<void(index_t)>&onSelect)	{ShowChoice(*op,"Inquiry",query,choices,onSelect);}
+		void			ShowChoice(Operator&op, const String&title, const String&query, const Array<String>&choices, const std::function<void(index_t)>&onSelect);
+		inline void		ShowChoice(Operator&op, const String&query, const Array<String>&choices, const std::function<void(index_t)>&onSelect)	{ShowChoice(op,"Inquiry",query,choices,onSelect);}
+		inline void		ShowChoice(const POperator&op, const String&title, const String&query, const Array<String>&choices, const std::function<void(index_t)>&onSelect)	{ShowChoice(*op,title,query,choices,onSelect);}
+		inline void		ShowChoice(const POperator&op, const String&query, const Array<String>&choices, const std::function<void(index_t)>&onSelect)	{ShowChoice(*op,"Inquiry",query,choices,onSelect);}
 	}
 }
 

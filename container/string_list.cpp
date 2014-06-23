@@ -704,17 +704,17 @@ namespace Tokenizer
 		return as;
 	}
 
-	ostream&	StringList::printLines(ostream&stream, const char*indent)					const
+	std::ostream&	StringList::printLines(std::ostream&stream, const char*indent)					const
 	{
 		for (size_t i = 0; i < count(); i++)
-			stream << indent << "("<<i<<") "<<Super::at(i)<<endl;
+			stream << indent << "("<<i<<") "<<Super::at(i)<<std::endl;
 		return stream;
 	}
 
-	ostream&	StringList::printLines(ostream&stream, const String&indent)					const
+	std::ostream&	StringList::printLines(std::ostream&stream, const String&indent)					const
 	{
 		for (size_t i = 0; i < count(); i++)
-			stream << indent << "("<<i<<") "<<Super::at(i)<<endl;
+			stream << indent << "("<<i<<") "<<Super::at(i)<<std::endl;
 		return stream;
 	}
 

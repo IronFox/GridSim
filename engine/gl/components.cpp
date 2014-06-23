@@ -24,18 +24,18 @@ namespace Engine
 		{
 			if (children.isEmpty())
 				return false;
-			const shared_ptr<Component>&first = children.first();
+			const PComponent&first = children.first();
 			outRect = first->currentRegion;
 				
 			for (index_t i = 1; i < children.count(); i++)
 			{
-				const shared_ptr<Component>&child = children[i];
+				const PComponent&child = children[i];
 				outRect.Include(child->currentRegion);
 			}
 			return true;
 		}
 		
-		void			Panel::Append(const shared_ptr<Component>&component)
+		void			Panel::Append(const PComponent&component)
 		{
 			DBG_ASSERT__(!children.contains(component));
 			component->anchored.Set(true,false,false,true);
@@ -50,7 +50,7 @@ namespace Engine
 			SignalLayoutChange();
 		}
 		
-		void			Panel::AppendRight(const shared_ptr<Component>&component)
+		void			Panel::AppendRight(const PComponent&component)
 		{
 			DBG_ASSERT__(!children.contains(component));
 			if (children.isNotEmpty())
@@ -71,7 +71,7 @@ namespace Engine
 			SignalLayoutChange();
 		}
 		
-		bool					Panel::Add(const shared_ptr<Component>&component)
+		bool					Panel::Add(const PComponent&component)
 		{
 			if (!component || children.contains(component))
 				return false;
@@ -81,11 +81,11 @@ namespace Engine
 			return true;
 		}
 		
-		bool					Panel::Erase(const shared_ptr<Component>&component)
+		bool					Panel::Erase(const PComponent&component)
 		{
 			if (children.findAndErase(component))
 			{
-				component->SetWindow(shared_ptr<Window>());
+				component->SetWindow(PWindow());
 				SignalLayoutChange();
 				return true;
 			}
@@ -96,7 +96,7 @@ namespace Engine
 		{
 			if (index < children.count())
 			{
-				children[index]->SetWindow(shared_ptr<Window>());
+				children[index]->SetWindow(PWindow());
 				children.erase(index);
 				SignalLayoutChange();
 				return true;
@@ -105,7 +105,7 @@ namespace Engine
 		}
 		
 		
-		bool					Panel::MoveChildUp(const shared_ptr<Component>&component)
+		bool					Panel::MoveChildUp(const PComponent&component)
 		{
 			index_t index;
 			if ((index = children.indexOf(component)) != -1)
@@ -117,14 +117,14 @@ namespace Engine
 		{
 			if (index+1 >= children.count())
 				return false;
-			Buffer<shared_ptr<Component>,4>::AppliedStrategy::swap(children[index],children[index+1]);
+			Buffer<PComponent,4>::AppliedStrategy::swap(children[index],children[index+1]);
 			SignalVisualChange();
 			return true;
 		}
 		
 
 		
-		bool					Panel::MoveChildDown(const shared_ptr<Component>&component)
+		bool					Panel::MoveChildDown(const PComponent&component)
 		{
 			index_t index;
 			if ((index = children.indexOf(component)) != -1)
@@ -136,12 +136,12 @@ namespace Engine
 		{
 			if (!index || index >= children.count())
 				return false;
-			Buffer<shared_ptr<Component>,4>::AppliedStrategy::swap(children[index-1],children[index]);
+			Buffer<PComponent,4>::AppliedStrategy::swap(children[index-1],children[index]);
 			SignalVisualChange();
 			return true;
 		}
 
-		bool					Panel::MoveChildToTop(const shared_ptr<Component>&component)
+		bool					Panel::MoveChildToTop(const PComponent&component)
 		{
 			index_t index;
 			if ((index = children.indexOf(component))!=-1)
@@ -153,7 +153,7 @@ namespace Engine
 		{
 			if (index+1 < children.count())
 			{
-				shared_ptr<Component> cmp = children[index];
+				PComponent cmp = children[index];
 				children.erase(index);
 				children << cmp;
 				SignalVisualChange();
@@ -162,7 +162,7 @@ namespace Engine
 			return false;
 		}
 		
-		bool					Panel::MoveChildToBottom(const shared_ptr<Component>&component)
+		bool					Panel::MoveChildToBottom(const PComponent&component)
 		{
 			index_t index;
 			if ((index = children.indexOf(component)) != -1)
@@ -174,7 +174,7 @@ namespace Engine
 		{
 			if (index && index < children.count())
 			{
-				shared_ptr<Component> cmp = children[index];
+				PComponent cmp = children[index];
 				children.erase(index);
 				children.insert(0,cmp);
 				SignalVisualChange();
@@ -254,7 +254,7 @@ namespace Engine
 			outIsEnabled &= IsEnabled();
 			for (index_t i = children.count()-1; i < children.count(); i--)
 			{
-				const shared_ptr<Component>&child = children[i];
+				const PComponent&child = children[i];
 				if (child->IsVisible() && child->cellLayout.border.Contains(x,y))
 					return child->GetComponent(x,y,purpose,outIsEnabled);
 			}
@@ -544,7 +544,7 @@ namespace Engine
 		
 		void		ScrollBar::OnScroll()
 		{
-			if (shared_ptr<Scrollable> scrollable_ = scrollable.lock())
+			if (std::shared_ptr<Scrollable> scrollable_ = scrollable.lock())
 			{
 				if (horizontal)
 				{
@@ -889,13 +889,13 @@ namespace Engine
 		}
 
 		
-		/*virtual override*/	bool					ScrollBox::Erase(const shared_ptr<Component>&component)
+		/*virtual override*/	bool					ScrollBox::Erase(const PComponent&component)
 		{
 			if (children.findAndErase(component))
 			{
 				visible_children.findAndErase(component);
 				SignalLayoutChange();
-				component->SetWindow(shared_ptr<Window>());
+				component->SetWindow(PWindow());
 				return true;
 			}
 			return false;
@@ -906,13 +906,13 @@ namespace Engine
 			if (index >= children.count())
 				return false;
 			visible_children.findAndErase(children[index]);
-			children[index]->SetWindow(shared_ptr<Window>());
+			children[index]->SetWindow(PWindow());
 			children.erase(index);
 			SignalLayoutChange();
 			return true;
 		}
 		
-		/*virtual override*/	shared_ptr<const Component>		ScrollBox::GetChild(index_t index) const
+		/*virtual override*/	PConstComponent		ScrollBox::GetChild(index_t index) const
 		{
 			if (index < children.count())
 				return children[index];
@@ -921,10 +921,10 @@ namespace Engine
 				return horizontalBar;
 			if (index == 1)
 				return verticalBar;
-			return shared_ptr<const Component>();
+			return PConstComponent();
 		}
 		
-		/*virtual override*/	shared_ptr<Component>		ScrollBox::GetChild(index_t index)
+		/*virtual override*/	PComponent		ScrollBox::GetChild(index_t index)
 		{
 			if (index < children.count())
 				return children[index];
@@ -933,7 +933,7 @@ namespace Engine
 				return horizontalBar;
 			if (index == 1)
 				return verticalBar;
-			return shared_ptr<Component>();
+			return PComponent();
 		}
 
 		/*virtual override*/	count_t	ScrollBox::CountChildren() const
@@ -968,7 +968,7 @@ namespace Engine
 				{
 					//children[i]->UpdateLayout(cellLayout.client);
 					Rect<float>	child_region;
-					const shared_ptr<Component>&child = children[i];
+					const PComponent&child = children[i];
 					if (verticalBar->IsVisible())
 					{
 						child->anchored.top = true;
@@ -1071,7 +1071,7 @@ namespace Engine
 			visible_children.reset();
 			for (index_t i = 0; i < children.count(); i++)
 			{
-				const shared_ptr<Component>&child = children[i];
+				const PComponent&child = children[i];
 				if (!child->IsVisible())
 					continue;
 				child->UpdateLayout(space);
@@ -1104,7 +1104,7 @@ namespace Engine
 				
 				for (index_t i = visible_children.count()-1; i < visible_children.count(); i--)
 				{
-					const shared_ptr<Component>&child = visible_children[i];
+					const PComponent&child = visible_children[i];
 					if (child->currentRegion.Contains(x,y))
 					{
 						if (!child->IsEnabled())
@@ -1237,7 +1237,7 @@ namespace Engine
 			{
 				for (index_t i = visible_children.count()-1; i < visible_children.count(); i--)
 				{
-					const shared_ptr<Component>&child = visible_children[i];
+					const PComponent&child = visible_children[i];
 					if (child->cellLayout.border.Contains(x,y))
 					{
 						bool subEnabled = outIsEnabled;
@@ -1252,7 +1252,7 @@ namespace Engine
 			return shared_from_this();
 		}
 		
-		void			ScrollBox::Append(const shared_ptr<Component>&component)
+		void			ScrollBox::Append(const PComponent&component)
 		{
 			component->anchored.Set(true,false,false,true);
 			if (children.isNotEmpty())
@@ -2139,7 +2139,7 @@ namespace Engine
 		}
 
 		
-		void	ComboBox::OnMenuClose(const shared_ptr<MenuEntry>&child)
+		void	ComboBox::OnMenuClose(const PMenuEntry&child)
 		{
 			selectedEntry = GetMenu()->GetIndexOfChild(child);
 			if (selectedEntry)
@@ -2194,7 +2194,7 @@ namespace Engine
 			
 			if (menuWindow)
 			{
-				shared_ptr<Operator> op = RequireOperator();
+				POperator op = RequireOperator();
 				float delta = timer.toSecondsf(timing.now64-menuWindow->hidden);
 				if (delta >= 0 && delta<0.1f)
 				{
@@ -2206,7 +2206,7 @@ namespace Engine
 					ASSERT_NOT_NULL__(menuWindow->rootComponent);
 					
 					Rect<float>	absolute = cellLayout.border;
-					shared_ptr<Window> parent = GetWindow();
+					PWindow parent = GetWindow();
 					ASSERT__(parent);
 					
 					#ifdef DEEP_GUI
@@ -2257,7 +2257,7 @@ namespace Engine
 			else
 			{
 				RequireOperator()->HideMenus();
-				OnMenuClose(static_pointer_cast<MenuEntry,Component>(shared_from_this()));
+				OnMenuClose(std::static_pointer_cast<MenuEntry,Component>(shared_from_this()));
 			}
 			
 			return Handled;
@@ -2298,36 +2298,36 @@ namespace Engine
 		}
 		
 		
-		const shared_ptr<Window>&	MenuEntry::RetrieveMenuWindow()
+		const PWindow&	MenuEntry::RetrieveMenuWindow()
 		{
 			if (!menuWindow)
 			{
 				menuWindow.reset(new Window(false, &Window::menuStyle));
-				shared_ptr<Menu> menu = shared_ptr<Menu>(new Menu());
+				PMenu menu = PMenu(new Menu());
 				menuWindow->SetComponent(menu);
 				menuWindow->onHide += bind(&MenuEntry::OnMenuHide,this);
-				menu->parent = static_pointer_cast<MenuEntry,Component>(shared_from_this());
+				menu->parent = std::static_pointer_cast<MenuEntry,Component>(shared_from_this());
 				//menu->level = level+1;
 
 			}
 			return menuWindow;
 		}
 		
-		shared_ptr<Menu>		MenuEntry::GetMenu()
+		PMenu		MenuEntry::GetMenu()
 		{
-			return static_pointer_cast<Menu, Component>(RetrieveMenuWindow()->rootComponent);
+			return std::static_pointer_cast<Menu, Component>(RetrieveMenuWindow()->rootComponent);
 		}
 
-		shared_ptr<const Menu>	MenuEntry::GetMenu()	const
+		PConstMenu	MenuEntry::GetMenu()	const
 		{
-			return menuWindow?static_pointer_cast<const Menu, const Component>(menuWindow->rootComponent):shared_ptr<const Menu>();
+			return menuWindow?std::static_pointer_cast<const Menu, const Component>(menuWindow->rootComponent):PConstMenu();
 		}
 		
 		void		MenuEntry::DiscardMenu()
 		{
 			if (menuWindow)
 			{
-				shared_ptr<Operator> op = GetOperator();
+				POperator op = GetOperator();
 				if (op)	//might, in fact, be null
 					op->HideMenus();
 				menuWindow.reset();
@@ -2347,7 +2347,7 @@ namespace Engine
 			width = GetMinWidth(false);
 		}
 		
-		void	MenuEntry::SetObject(const shared_ptr<IToString>&object_)
+		void	MenuEntry::SetObject(const std::shared_ptr<IToString>&object_)
 		{
 			if (object == object_)
 				return;
@@ -2375,15 +2375,15 @@ namespace Engine
 			SignalVisualChange();
 		}
 		
-		void	MenuEntry::OnMenuClose(const shared_ptr<MenuEntry>&child)
+		void	MenuEntry::OnMenuClose(const PMenuEntry&child)
 		{
 			menuIsOpen = false;
 			Label::fillBackground = IsFocused();
 			if (!parent.expired())
 			{
-				shared_ptr<Menu>	p = parent.lock();
+				PMenu	p = parent.lock();
 				if (!p->parent.expired())
-					p->parent.lock()->OnMenuClose(static_pointer_cast<MenuEntry, Component>(shared_from_this()));
+					p->parent.lock()->OnMenuClose(std::static_pointer_cast<MenuEntry, Component>(shared_from_this()));
 			}
 			SignalVisualChange();
 		}
@@ -2444,7 +2444,7 @@ namespace Engine
 			ScrollBox::horizontalBar->autoVisibility = b;
 			foreach(children,c)
 			{
-				PMenuEntry entry = dynamic_pointer_cast<MenuEntry,Component>(*c);
+				PMenuEntry entry = std::dynamic_pointer_cast<MenuEntry,Component>(*c);
 				if (entry)
 					entry->openDown = horizontal;
 			}
@@ -2452,22 +2452,22 @@ namespace Engine
 		}
 						
 		
-		shared_ptr<MenuEntry>		Menu::Add(const String&caption)
+		PMenuEntry		Menu::Add(const String&caption)
 		{
-			shared_ptr<MenuEntry> entry = shared_ptr<MenuEntry>(new MenuEntry());
+			PMenuEntry entry = PMenuEntry(new MenuEntry());
 			entry->SetText(caption);
 			entry->object = entry;
-			entry->parent = static_pointer_cast<Menu,Component>(shared_from_this());
+			entry->parent = std::static_pointer_cast<Menu,Component>(shared_from_this());
 			ASSERT__(Add(entry));
 			return entry;
 		}
 		
-		bool		Menu::Add(const shared_ptr<Component>&component)
+		bool		Menu::Add(const PComponent&component)
 		{
-			PMenuEntry entry = dynamic_pointer_cast<MenuEntry,Component>(component);
+			PMenuEntry entry = std::dynamic_pointer_cast<MenuEntry,Component>(component);
 			if (!entry || !ScrollBox::Add(component))
 				return false;
-			entry->parent = static_pointer_cast<Menu,Component>(shared_from_this());
+			entry->parent = std::static_pointer_cast<Menu,Component>(shared_from_this());
 			entry->SetTextColor(entryTextColor);
 			entry->backgroundColor = entryBackgroundColor;
 			entry->SetTextMargin(Quad<float>(5,0,5,0));
@@ -2486,7 +2486,7 @@ namespace Engine
 			entryTextColor = color;
 			foreach(children,c)
 			{
-				PMenuEntry entry = dynamic_pointer_cast<MenuEntry,Component>(*c);
+				PMenuEntry entry = std::dynamic_pointer_cast<MenuEntry,Component>(*c);
 				if (entry)
 					entry->SetTextColor(color);
 			}
@@ -2497,13 +2497,13 @@ namespace Engine
 			entryBackgroundColor = color;
 			foreach(children,c)
 			{
-				PMenuEntry entry = dynamic_pointer_cast<MenuEntry,Component>(*c);
+				PMenuEntry entry = std::dynamic_pointer_cast<MenuEntry,Component>(*c);
 				if (entry)
 					entry->backgroundColor = entryBackgroundColor;
 			}
 		}
 		
-		bool		Menu::Erase(const shared_ptr<Component>&component)
+		bool		Menu::Erase(const PComponent&component)
 		{
 			if (ScrollBox::Erase(component))
 			{
@@ -2523,7 +2523,7 @@ namespace Engine
 			return false;
 		}
 		
-		bool		Menu::MoveChildUp(const shared_ptr<Component>&component)
+		bool		Menu::MoveChildUp(const PComponent&component)
 		{
 			if (ScrollBox::MoveChildUp(component))
 			{
@@ -2543,7 +2543,7 @@ namespace Engine
 			return false;
 		}
 
-		bool		Menu::MoveChildDown(const shared_ptr<Component>&component)
+		bool		Menu::MoveChildDown(const PComponent&component)
 		{
 			if (ScrollBox::MoveChildDown(component))
 			{
@@ -2563,7 +2563,7 @@ namespace Engine
 			return false;
 		}
 		
-		bool		Menu::MoveChildToTop(const shared_ptr<Component>&component)
+		bool		Menu::MoveChildToTop(const PComponent&component)
 		{
 			if (ScrollBox::MoveChildToTop(component))
 			{
@@ -2583,7 +2583,7 @@ namespace Engine
 			return false;
 		}
 
-		bool		Menu::MoveChildToBottom(const shared_ptr<Component>&component)
+		bool		Menu::MoveChildToBottom(const PComponent&component)
 		{
 			if (ScrollBox::MoveChildToBottom(component))
 			{
@@ -2865,16 +2865,16 @@ namespace Engine
 		}
 		
 		
-		void			ShowChoice(Operator&op, const String&title, const String&query, const Array<String>&choices, const function<void(index_t)>&onSelect)
+		void			ShowChoice(Operator&op, const String&title, const String&query, const Array<String>&choices, const std::function<void(index_t)>&onSelect)
 		{
 			if (choices.isEmpty())
 				return;
-			shared_ptr<Label>	message_label = shared_ptr<Label>(new Label());
-			shared_ptr<Panel>	panel = shared_ptr<Panel>(new Panel());
-			Array<shared_ptr<Button> >	buttons(choices.count());
+			PLabel	message_label = PLabel(new Label());
+			PPanel	panel = PPanel(new Panel());
+			Array<PButton >	buttons(choices.count());
 			for (index_t i = 0; i < buttons.count(); i++)
 			{
-				buttons[i] = shared_ptr<Button>(new Button());
+				buttons[i] = PButton(new Button());
 				buttons[i]->anchored.Set(true,true,false,false);
 				buttons[i]->SetCaption(choices[i]);
 				buttons[i]->width = std::max(buttons[i]->width,100.f);
@@ -2893,7 +2893,7 @@ namespace Engine
 
 			message_label->offset.bottom = buttons.first()->height;
 
-			shared_ptr<GUI::Window>	window = Window::CreateNew(NewWindowConfig(title,WindowPosition(0,0,400,200,SizeChange::Fixed),true),panel);
+			PWindow	window = Window::CreateNew(NewWindowConfig(title,WindowPosition(0,0,400,200,SizeChange::Fixed),true),panel);
 			window->size.height = (size_t)(window->fsize.y = window->GetMinHeight());
 			window->layoutChanged = true;
 			window->visualChanged = true;
@@ -2906,11 +2906,11 @@ namespace Engine
 			op.ShowWindow(window);
 			Component::SetFocused(buttons[0]);
 			
-			weak_ptr<GUI::Window>	weak_window = window;
+			std::weak_ptr<GUI::Window>	weak_window = window;
 			for (index_t i = 0; i < buttons.count(); i++)
 				buttons[i]->onExecute += [weak_window,i,onSelect]()
 				{
-					shared_ptr<GUI::Window>	window = weak_window.lock();
+					PWindow	window = weak_window.lock();
 					if (window)
 						window->Hide();
 					onSelect(i);
@@ -2918,17 +2918,17 @@ namespace Engine
 		}
 
 
-		static shared_ptr<Window>	messageWindow;
-		static shared_ptr<Label>	messageLabel;
-		static shared_ptr<Button>	messageButton;
+		static PWindow	messageWindow;
+		static PLabel	messageLabel;
+		static PButton	messageButton;
 		static void createMessageWindow(Operator&op)
 		{
 			if (messageWindow)
 				return;
 			
-			messageLabel = shared_ptr<Label>(new Label());
-			shared_ptr<Panel>	panel = shared_ptr<Panel>(new Panel());
-			messageButton = shared_ptr<Button>(new Button());
+			messageLabel = PLabel(new Label());
+			PPanel	panel = PPanel(new Panel());
+			messageButton = PButton(new Button());
 			
 			messageButton->anchored.Set(false,true,false,false);
 			messageButton->SetCaption("OK");
@@ -2985,7 +2985,7 @@ namespace Engine
 		{
 			if (!messageWindow)
 				return false;
-			shared_ptr<Operator> op = messageWindow->operatorLink.lock();
+			POperator op = messageWindow->operatorLink.lock();
 			return op && op->WindowIsVisible(messageWindow);
 		}
 		

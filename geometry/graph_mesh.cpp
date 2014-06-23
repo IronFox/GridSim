@@ -1171,10 +1171,10 @@ count_t		GraphMesh::createGeometry(CGS::Geometry<>&target, float step, float tex
 		}
 	}
 
-	cout << "Physical hull complexity:"<<endl;
-	cout << " Vertices: "<<physical_hull.vertices.count()<<endl;
-	cout << " Triangles: "<<physical_hull.triangleIndices.count()<<endl;
-	cout << " Quads: "<<physical_hull.quadIndices.count()<<endl;
+	std::cout << "Physical hull complexity:"<<std::endl;
+	std::cout << " Vertices: "<<physical_hull.vertices.count()<<std::endl;
+	std::cout << " Triangles: "<<physical_hull.triangleIndices.count()<<std::endl;
+	std::cout << " Quads: "<<physical_hull.quadIndices.count()<<std::endl;
 
 
 	if (layout == Graph::Split)
@@ -2499,7 +2499,7 @@ index_t							SurfaceNetwork::SmartMakeRoom(Node&node,index_t node_index,bool ou
 		node.subdivision[outbound][i] = float(i+1)/float(sort.count());
 	}
 
-	cout << "smart reorder of node "<<node_index<<" "<<(outbound?"outbound":"inbound")<<":"<<endl;
+	std::cout << "smart reorder of node "<<node_index<<" "<<(outbound?"outbound":"inbound")<<":"<<std::endl;
 	for (index_t i = 0; i < sort.count(); i++)
 	{
 
@@ -2509,14 +2509,14 @@ index_t							SurfaceNetwork::SmartMakeRoom(Node&node,index_t node_index,bool ou
 			Segment&seg = *segments.queryPointer(entry.segment_index);
 			seg.connector[entry.segment_end_index].subdivisionStep = i;
 			node.segments[outbound][i] = entry.segment_index;
-			cout << "mapped segment "<<entry.segment_index<<" ("<<seg.connector[0].node<<" to "<<seg.connector[1].node<<") connector["<<(int)entry.segment_end_index<<"] to slot "<<i<<endl;
+			std::cout << "mapped segment "<<entry.segment_index<<" ("<<seg.connector[0].node<<" to "<<seg.connector[1].node<<") connector["<<(int)entry.segment_end_index<<"] to slot "<<i<<std::endl;
 		}
 		else
 		{
 			DBG_ASSERT_EQUAL__(result,InvalidIndex);
 			node.segments[outbound][i] = InvalidIndex;
 			result = i;
-			cout << "mapped new segment to slot "<<i<<endl;
+			std::cout << "mapped new segment to slot "<<i<<std::endl;
 		}
 	}
 
@@ -2639,10 +2639,10 @@ index_t							SurfaceNetwork::SmartLink(index_t node0, index_t node1, bool manag
 
 void							SurfaceNetwork::VerifyIntegrity()	const
 {
-	cout << "Verifying integrity"<<endl;
+	std::cout << "Verifying integrity"<<std::endl;
 	nodes.visitAllEntries([this](index_t id, const Node&n)
 	{
-		cout << " Node "<<id<<": "<<endl;
+		std::cout << " Node "<<id<<": "<<std::endl;
 		for (int k = 0; k < 2; k++)
 		{
 			if (n.segments[k].isNotEmpty())
@@ -2664,13 +2664,13 @@ void							SurfaceNetwork::VerifyIntegrity()	const
 			}
 		}
 	});
-	cout << "Verifying integrity"<<endl;
+	std::cout << "Verifying integrity"<<std::endl;
 	segments.visitAllEntries([this](index_t id, const Segment&seg)
 	{
-		cout << " Segment "<<id<<": "<<seg.connector[0].node<<" to "<<seg.connector[1].node<<endl;
+		std::cout << " Segment "<<id<<": "<<seg.connector[0].node<<" to "<<seg.connector[1].node<<std::endl;
 		for (int k = 0; k < 2; k++)
 		{
-			cout << "  Checking connector "<<k<<": node "<<seg.connector[k].node<<" "<<(seg.connector[k].outbound?"outbound":"inbound")<<" subdiv "<<seg.connector[k].subdivisionStep<<endl;
+			std::cout << "  Checking connector "<<k<<": node "<<seg.connector[k].node<<" "<<(seg.connector[k].outbound?"outbound":"inbound")<<" subdiv "<<seg.connector[k].subdivisionStep<<std::endl;
 			const Node	*n = nodes.queryPointer(seg.connector[k].node);
 			if (!n)
 			{
@@ -2683,7 +2683,7 @@ void							SurfaceNetwork::VerifyIntegrity()	const
 				FATAL__("Targeted subdivison "+String(seg.connector[k].subdivisionStep)+" points beyond node capacity "+String(n->segments[seg.connector[k].outbound].count()));
 				continue;
 			}
-			cout << "   Subdiv at "<<(seg.connector[k].subdivisionStep == 0 ? 0.f : n->subdivision[seg.connector[k].outbound][seg.connector[k].subdivisionStep-1])<<endl;
+			std::cout << "   Subdiv at "<<(seg.connector[k].subdivisionStep == 0 ? 0.f : n->subdivision[seg.connector[k].outbound][seg.connector[k].subdivisionStep-1])<<std::endl;
 			ASSERT_EQUAL__(n->segments[seg.connector[k].outbound][seg.connector[k].subdivisionStep],id);
 		}
 	});

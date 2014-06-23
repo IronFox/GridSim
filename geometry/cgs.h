@@ -500,7 +500,7 @@ namespace CGS	//! Compiled Geometrical Structure
 	class MaterialInfo : public MaterialColors
 	{
 	public:
-		weak_ptr<MaterialObject>					attachment;
+		std::weak_ptr<MaterialObject>				attachment;
 
 		Array<TLayer>								layer_field;		//!< Array of texture layers. The number of texture layers must correspond to the number of texture coordinates provided by the vertex container of each rendering object (of this material)
 
@@ -1056,8 +1056,8 @@ namespace CGS	//! Compiled Geometrical Structure
 	inline	bool									usesLocalTextureResource()	const		{return texture_resource == &local_textures;}
 			void									clear();								//!< Clears the local structure, erasing all arrays and reseting all variables.
 			void									setSize(count_t objects, count_t materials, count_t animators, count_t connectors);
-			shared_ptr<StaticInstance<Def> >		createInstance(bool copy_root_system=false);				//!< Creates a new instance (a spawn) of the local geometry. The new instance refers to the local geometry but may be animated separatly.
-			shared_ptr<AnimatableInstance<Def> >	createAnimatableInstance(bool copy_root_system=false);		//!< Creates a new animatable instance (a spawn) of the local geometry. The new instance refers to the local geometry but may be animated separatly.
+			std::shared_ptr<StaticInstance<Def> >	createInstance(bool copy_root_system=false);				//!< Creates a new instance (a spawn) of the local geometry. The new instance refers to the local geometry but may be animated separatly.
+			std::shared_ptr<AnimatableInstance<Def> >createAnimatableInstance(bool copy_root_system=false);		//!< Creates a new animatable instance (a spawn) of the local geometry. The new instance refers to the local geometry but may be animated separatly.
 			void									adoptInstance(StaticInstance<Def>&instance,bool copy_root_system=false);		//!< Adopts an existing instance to the local geometry. The instance will refer to the local geometry but may be animated separatly.
 			void									adoptInstance(AnimatableInstance<Def>&instance,bool copy_root_system=false);		//!< Adopts an existing instance to the local geometry. The instance will refer to the local geometry but may be animated separatly.
 			void									resetLinkage();			//!< Resets the local system links to their defaults (pointing to local system variables rather than remote ones).

@@ -129,7 +129,7 @@ namespace Engine
 		pSimpleCallback				simple_callback;	//!< Plain handler function that requires no menu entry as parameter
 		pSimpleEntryCallback		simple_entry_callback;	//!< Plain handler function that requires the menu entry as parameter
 			
-		shared_ptr<Attachment>		attachment;		//!< Custom menu entry attachment
+		std::shared_ptr<Attachment>	attachment;		//!< Custom menu entry attachment
 			
 		#if SYSTEM==WINDOWS
 			HMENU					menu_handle;	//!< Handle to windows menu (if any)

@@ -4,7 +4,7 @@
 #include <cstdlib>
 #include <iostream>
  
-using namespace std;
+//using namespace std;
 
 namespace OpenAL
 {
@@ -276,32 +276,32 @@ namespace OpenAL
 		const char*defaultDeviceName = (const char *)alcGetString(NULL, ALC_DEFAULT_DEVICE_SPECIFIER);
 		if (!defaultDeviceName || !strlen(defaultDeviceName))
 		{
-			cout << "no default device available\n";
+			std::cout << "no default device available\n";
 			return false;
 		}
-		cout << "default device is '"<<defaultDeviceName<<"'"<<endl;
+		std::cout << "default device is '"<<defaultDeviceName<<"'"<<std::endl;
 			
 		
 		pDevice = alcOpenDevice(defaultDeviceName);
 		if (pDevice)
 		{
-			cout << "device opened\n";
+			std::cout << "device opened\n";
 			pContext = alcCreateContext(pDevice, NULL);
 			if (pContext)
 			{
-				cout << "context created\n";
+				std::cout << "context created\n";
 				alcMakeContextCurrent(pContext);
 				initialized = true;
-				cout << "all done\n";
+				std::cout << "all done\n";
 				return true;
 			}
 			else
 			{
-				cout << "context creation failed. closing device...\n";
+				std::cout << "context creation failed. closing device...\n";
 				alcCloseDevice(pDevice);
 			}
 		}
-		cout << "all done. initialization failed. returning\n";
+		std::cout << "all done. initialization failed. returning\n";
 		return false;
 	}
 

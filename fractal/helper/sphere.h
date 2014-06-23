@@ -105,7 +105,7 @@ inline	void			radialPoint(float angular, float radial, double dh, TVec3<>&positi
 							BYTE num_rs = solveSqrEquation(p,q,rs);
 							if (!num_rs)
 							{
-								cout << "No results for sqr("<<p<<", "<<q<<") with h="<<h<<", ca="<<ca<<", radial="<<radial*180/M_PI<<", dh="<<dh<<endl;
+								std::cout << "No results for sqr("<<p<<", "<<q<<") with h="<<h<<", ca="<<ca<<", radial="<<radial*180/M_PI<<", dh="<<dh<<std::endl;
 								FATAL__("equation fault");
 							}
 							double	x = smallestPositiveResult(rs,num_rs),
@@ -113,11 +113,11 @@ inline	void			radialPoint(float angular, float radial, double dh, TVec3<>&positi
 									beta = acos(v/radius);
 							if (x > h)
 							{
-								cout << "Faulty result x="<<x<<" for sqr("<<p<<", "<<q<<") with h="<<h<<", ca="<<ca<<", radial="<<radial*180/M_PI<<", dh="<<dh<<", num_res="<<(int)num_rs<<", rs={"<<rs[0]<<", "<<rs[1]<<"}"<<endl;
+								std::cout << "Faulty result x="<<x<<" for sqr("<<p<<", "<<q<<") with h="<<h<<", ca="<<ca<<", radial="<<radial*180/M_PI<<", dh="<<dh<<", num_res="<<(int)num_rs<<", rs={"<<rs[0]<<", "<<rs[1]<<"}"<<std::endl;
 								FATAL__("equation fault");
 							}
 							
-							//cout << radial << " => x="<<x<<" => v/radius="<<v/radius<<" => beta="<<beta<<endl;
+							//std::cout << radial << " => x="<<x<<" => v/radius="<<v/radius<<" => beta="<<beta<<std::endl;
 							float	sinr = sin(beta),
 									sina = sin(angular),
 									cosa = cos(angular),

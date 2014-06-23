@@ -82,10 +82,10 @@ Console::Console():profile(true,false),selected_input(0),parser(NULL),status(0),
 {
     input.pushProfile();
 		input.bindProfile(profile);
-        input.bind(Key::Return,bind(&Console::fetchInput,this));
-        input.bind(Key::Back,bind(&Console::back,this));
-        input.bind(Key::Up,bind(&Console::prevInput,this));
-        input.bind(Key::Down,bind(&Console::nextInput,this));
+        input.bind(Key::Return,std::bind(&Console::fetchInput,this));
+        input.bind(Key::Back,std::bind(&Console::back,this));
+        input.bind(Key::Up,std::bind(&Console::prevInput,this));
+        input.bind(Key::Down,std::bind(&Console::nextInput,this));
     input.popProfile();
 }
 
@@ -93,7 +93,7 @@ void	Console::bindCloseKey(Key::Name key)
 {
 	input.pushProfile();
 		input.bindProfile(profile);
-		input.bind(key,bind(&Console::closeEvent,this));
+		input.bind(key,std::bind(&Console::closeEvent,this));
 	input.popProfile();
 }
 

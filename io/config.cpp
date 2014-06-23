@@ -195,23 +195,23 @@ namespace Config
 				segments.erase(0U);
 			
 		}
-		//cout << "retrieving attribute '"+implode(", ",segments)+"' ("+mode+")"<<endl;
+		//std::cout << "retrieving attribute '"+implode(", ",segments)+"' ("+mode+")"<<std::endl;
 		Context*context = (segments.count()>1||mode.length())?getContext(segments.pointer(),segments.count()-1,mode):this;
 		if (!context)
 		{
-			//cout << " context could not be located"<<endl;
+			//std::cout << " context could not be located"<<std::endl;
 			return NULL;
 		}
 		Attribute*result;
 		if (context->attribute_map.query(segments.last(),result))
 			return result;
-		/*cout << " attribute '"+segments.last()+"' could not be located:"<<endl;
+		/*std::cout << " attribute '"+segments.last()+"' could not be located:"<<std::endl;
 		context->attributes.reset();
 		while (Attribute*a = context->attributes.each())
 		{
-			cout << "  "<<a->name<<endl;
+			std::cout << "  "<<a->name<<std::endl;
 			if (a->name == segments.last())
-				cout << "  ERROR: found unmapped attribute '"<<a->name<<"'!!!"<<endl;
+				std::cout << "  ERROR: found unmapped attribute '"<<a->name<<"'!!!"<<std::endl;
 		}*/
 
 		return NULL;
@@ -427,15 +427,15 @@ namespace Config
 			if (!isBool(attrib->value.c_str()) && !isFloat(attrib->value.c_str()))
 			{
 				String value = attrib->value;
-				//cout << "'"<<value<<"'"<<endl;
+				//std::cout << "'"<<value<<"'"<<std::endl;
 				for (index_t i = 0; i < value.length(); i++)
 					if (value.get(i) == '\"')
 					{
 						value.insert(i,'\\');
-						//cout << "'"<<value<<"'"<<endl;
+						//std::cout << "'"<<value<<"'"<<std::endl;
 						i++;
 					}
-				//cout << "'"<<value<<"'"<<endl;
+				//std::cout << "'"<<value<<"'"<<std::endl;
 				file << "\""<<value<<"\"";
 				len = value.length()+2;
 			}
@@ -767,7 +767,7 @@ namespace Config
 			if (!context)
 				return NULL;
 		}
-		cout << "checking for variable '"<<segments.last()<<"' among "<<context->variables.count()<<" variables"<<endl;
+		std::cout << "checking for variable '"<<segments.last()<<"' among "<<context->variables.count()<<" variables"<<std::endl;
 		return context->variables.lookup(segments.last());
 	}
 	
@@ -780,7 +780,7 @@ namespace Config
 			if (!context)
 				return NULL;
 		}
-		cout << "checking for variable '"<<segments.last()<<"' among "<<context->variables.count()<<" variables of "<<context->name<<endl;
+		std::cout << "checking for variable '"<<segments.last()<<"' among "<<context->variables.count()<<" variables of "<<context->name<<std::endl;
 		return context->variables.lookup(segments.last());
 	}
 	
@@ -886,7 +886,7 @@ namespace Config
 	
 	void	CXContext::parse(const String&content)
 	{
-		cout << "parsing content '"<<content<<"'"<<endl;
+		std::cout << "parsing content '"<<content<<"'"<<std::endl;
 		Array<String,Adopt>	lines,segments;
 		explode(';',content,lines);
 		if (!lines.count())
@@ -909,7 +909,7 @@ namespace Config
 			if (name.isEmpty() || !name.isValid(validNameChar))
 				throw IO::DriveAccess::FileDataFault("Name validation failed. '"+name+"' is no valid variable name");
 
-			cout << "defining variable '"<<name<<"' in "<<this->name<<endl;
+			std::cout << "defining variable '"<<name<<"' in "<<this->name<<std::endl;
 			Variable*var = variables.append(name);
 			
 			if (at = value.indexOf("($*)"))
@@ -932,7 +932,7 @@ namespace Config
 			throw IO::ParameterFault(globalString("Provided node is NULL"));
 
 
-		cout << "now processing node '"<<node->name<<"'"<<endl;
+		std::cout << "now processing node '"<<node->name<<"'"<<std::endl;
 		conditions.setSize(node->attributes.count());
 		for (index_t i = 0; i < conditions.count(); i++)
 			conditions[i] = *node->attributes.get(i);
@@ -941,7 +941,7 @@ namespace Config
 		
 		for (index_t i = 0; i < node->children.count(); i++)
 		{
-			cout << "processing child #"<<i<<" '"<<node->children[i].name<<"'"<<endl;
+			std::cout << "processing child #"<<i<<" '"<<node->children[i].name<<"'"<<std::endl;
 			const XML::Node&xchild = node->children[i];
 			CXContext*child = pre_finalize_children.append();
 			child->parent = this;
@@ -958,13 +958,13 @@ namespace Config
 			return;
 		for (StringMappedList<Variable>::iterator it = variables.begin(); it != variables.end(); ++it)
 		{
-			//cout << "rendering variable #"<<i<<endl;
+			//std::cout << "rendering variable #"<<i<<std::endl;
 			Variable*variable = *it;
 			ASSERT_NOT_NULL__(variable);
 			ASSERT__(variable->count() > 0);
 			String	value = variable->first();
 			String error;
-			cout << "finalizing variable = '"<<value<<"'"<<endl;
+			std::cout << "finalizing variable = '"<<value<<"'"<<std::endl;
 			if (!process(value,false,&error))
 				throw IO::DriveAccess::FileDataFault("Expression processing failed for expression '"+value+"' ("+error+")");
 			
@@ -1036,19 +1036,19 @@ namespace Config
 						target->variables.exportTo(names, variables);
 						for (index_t i = 0; i < names.count(); i++)
 						{
-							cout << "inheriting variable "<<names[i]<<" = '"<<implode("', '",*(variables[i]))<<"' into "<<child->name<<endl;
+							std::cout << "inheriting variable "<<names[i]<<" = '"<<implode("', '",*(variables[i]))<<"' into "<<child->name<<std::endl;
 							if (!child->variables.isSet(names[i]))
 								(*child->variables.append(names[i])) = *(variables[i]);
 							else
 							{
 								Variable*var = child->variables[names[i]];
 								ASSERT_NOT_NULL__(var);
-								cout <<" variable already exists with value '"<<implode("', '",*(var))<<"'"<<endl;
+								std::cout <<" variable already exists with value '"<<implode("', '",*(var))<<"'"<<std::endl;
 								index_t at;
 								for (index_t j = 0; j < var->count(); j++)
 									while (at = (*var)[j].indexOf("($*)"))
 									{
-										cout << "found ($*) in parameter #"<<j<<endl;
+										std::cout << "found ($*) in parameter #"<<j<<std::endl;
 										(*var)[j].replaceSubString(at-1,4,implode(',',*variables[i]));
 										Array<String,Adopt>	sub;
 										explode(',',(*var)[j],sub);
@@ -1166,12 +1166,12 @@ namespace Config
 	
 	void	CXContext::printToCOut(unsigned indent)	const
 	{
-		cout << tabSpace(indent)<<name<<endl;
+		std::cout << tabSpace(indent)<<name<<std::endl;
 		Array<String,Adopt>		names;
 		Array<const Variable*>	variables;
 		this->variables.exportTo(names, variables);
 		for (index_t i = 0; i < names.count(); i++)
-			cout << tabSpace(indent+1)<<names[i]<<" := '"<<implode("', '",*(variables[i]))<<"'"<<endl;
+			std::cout << tabSpace(indent+1)<<names[i]<<" := '"<<implode("', '",*(variables[i]))<<"'"<<std::endl;
 				
 		for (StringMappedList<CXContext>::const_iterator it = children.begin(); it != children.end(); ++it)
 			(*it)->printToCOut(indent+1);

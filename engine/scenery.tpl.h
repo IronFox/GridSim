@@ -1157,7 +1157,7 @@ namespace Engine
 	    SCENERY_LOG("unhooking.");
 	    for (index_t i = 0; i < structure.material_field.length(); i++)
 		{
-			shared_ptr<Material<GL,Def>	> m = dynamic_pointer_cast<Material<GL,Def>,CGS::MaterialObject>(structure.material_field[i].info.attachment.lock());
+			std::shared_ptr<Material<GL,Def>	> m = std::dynamic_pointer_cast<Material<GL,Def>,CGS::MaterialObject>(structure.material_field[i].info.attachment.lock());
 	        if (m && m->owner == this && !m->groups)
 	            structure.material_field[i].info.attachment.reset();
 		}
@@ -1211,7 +1211,7 @@ namespace Engine
 	        dummy_info.layer_field.setSize(1);
 	        dummy_info.layer_field[0].combiner = 0x2100;
 	        dummy_info.layer_field[0].source = &dummy_texture;
-			shared_ptr<Material<GL,Def> >	dummy(new Material<GL,Def>(this,renderer,dummy_info,textures));
+			std::shared_ptr<Material<GL,Def> >	dummy(new Material<GL,Def>(this,renderer,dummy_info,textures));
 	        opaque_materials.append(dummy);
 			all_materials.append(dummy);
 	    }
@@ -1233,7 +1233,7 @@ namespace Engine
 	template <class GL, class Def> void Scenery<GL,Def>::lockMaterial(CGS::MaterialA<Def>&material)
 	{
 	    SCENERY_LOG("locking material");
-		shared_ptr<Material<GL,Def> > my_material = dynamic_pointer_cast<Material<GL,Def>,CGS::MaterialObject>(material.info.attachment.lock());
+		std::shared_ptr<Material<GL,Def> > my_material = std::dynamic_pointer_cast<Material<GL,Def>,CGS::MaterialObject>(material.info.attachment.lock());
 	    if (my_material && my_material->owner == this)
 	    {
 	        my_material->locked = true;
@@ -1252,7 +1252,7 @@ namespace Engine
 	        }
 	    SCENERY_LOG("creating temporary visual");
 
-	    shared_ptr<Material<GL,Def> > vs = shared_ptr<Material<GL,Def> >(new Material<GL,Def>(this, renderer,material.info,textures));
+	    std::shared_ptr<Material<GL,Def> > vs = std::shared_ptr<Material<GL,Def> >(new Material<GL,Def>(this, renderer,material.info,textures));
 
 		foreach (all_materials,my_material)
 	        if ((*my_material)->similar(*vs))
@@ -1277,7 +1277,7 @@ namespace Engine
 
 
 
-	template <class GL, class Def> shared_ptr<Material<GL,Def> > Scenery<GL,Def>::embed(MyStructureEntity*entity,CGS::MaterialA<Def>&material)
+	template <class GL, class Def> std::shared_ptr<Material<GL,Def> > Scenery<GL,Def>::embed(MyStructureEntity*entity,CGS::MaterialA<Def>&material)
 	{
 		if (!locked && !renderer)
 		{
@@ -1287,7 +1287,7 @@ namespace Engine
 		}
 		
 	    SCENERY_LOG("embedding material '"+material.name+"'");
-		shared_ptr<Material<GL,Def> > my_material = dynamic_pointer_cast<Material<GL,Def>,CGS::MaterialObject>(material.info.attachment.lock());
+		std::shared_ptr<Material<GL,Def> > my_material = std::dynamic_pointer_cast<Material<GL,Def>,CGS::MaterialObject>(material.info.attachment.lock());
 	    if (my_material && my_material->owner == this && my_material->info.similar(material.info))
 	    {
 			SCENERY_LOG("similar material found. merging...");
@@ -1311,7 +1311,7 @@ namespace Engine
 		}
 		SCENERY_LOG("creating temporary visual.");
 		
-		shared_ptr<Material<GL,Def> > vs = shared_ptr<Material<GL,Def> >(new Material<GL,Def>(this,renderer,material.info,textures));
+		std::shared_ptr<Material<GL,Def> > vs = std::shared_ptr<Material<GL,Def> >(new Material<GL,Def>(this,renderer,material.info,textures));
 
 		if (merge_materials)
 		{
@@ -1717,9 +1717,9 @@ namespace Engine
 	}
 
 
-	template <class GL, class Def> shared_ptr<Material<GL,Def> > Scenery<GL,Def>::largestMaterial()
+	template <class GL, class Def> std::shared_ptr<Material<GL,Def> > Scenery<GL,Def>::largestMaterial()
 	{
-	    shared_ptr<Material<GL,Def> > result;
+	    std::shared_ptr<Material<GL,Def> > result;
 	    size_t size(0);
 		foreach (all_materials,my_material)
 			if ((*my_material)->buffer.index_field.length() > size)

@@ -55,7 +55,7 @@ public:
 
 static	void					standardRedirect(const String&segment)
 								{
-									cout << '>'<<segment;
+									std::cout << '>'<<segment;
 								}
 
 								LogStream():redirectTarget(standardRedirect)
