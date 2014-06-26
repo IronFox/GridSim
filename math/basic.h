@@ -217,6 +217,21 @@ namespace Math
 	}
 
 
+
+	/**
+	Logical storage class that distinguishes only two values: 0 and 1
+	*/
+	class Bit
+	{
+	private:
+		BYTE	value;
+	public:
+		/**/	Bit(int val = 0) : value(val ? 1 : 0)	{DBG_ASSERT__(val == 0 || val == 1);}
+		Bit&	operator=(int val) {DBG_ASSERT__(val == 0 || val == 1); value = val ? 1 : 0;}
+		operator int() const {return (int)value;}
+	};
+
+
 	template <typename T>
 		class TypeInfo
 		{
