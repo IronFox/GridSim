@@ -287,6 +287,11 @@ namespace Math
 										T	ext  = (max - c);
 										SetCenter(c,ext*by);
 									}
+			MF_DECLARE(void)		Scale(const T&scaleCenter, const T&by)	//! Scales the range from the specified center
+									{
+										min = (min - scaleCenter)*by + scaleCenter;
+										max = (max - scaleCenter)*by + scaleCenter;
+									}
 			MF_DECLARE(void)		Expand(const T& by)	//! Expands the range. @b min is expected to be less than @b max
 									{
 										min -= by;
@@ -704,6 +709,11 @@ namespace Math
 									{
 										x.Scale(by);
 										y.Scale(by);
+									}
+			MF_DECLARE(void)		Scale(const TVec2<T>&scaleCenter, const T&by)	//! Scales the rectangle from its central location
+									{
+										x.Scale(scaleCenter.x,by);
+										y.Scale(scaleCenter.y,by);
 									}
 			MF_DECLARE(void)		Expand(const T& by)	//! Expands the rectangle. @b bottom is expected to be less than @b top
 									{

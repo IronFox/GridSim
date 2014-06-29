@@ -269,7 +269,8 @@ template <class C>
 		#endif
 		virtual				~ArrayData()
 							{
-								dealloc(data);
+								if (!application_shutting_down)
+									dealloc(data);
 							}
 
 		template <typename I>
