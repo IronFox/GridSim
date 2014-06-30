@@ -835,6 +835,11 @@ template <typename T>
 	#endif
 
 	public:
+		typedef const T*	iterator, const_iterator;
+
+		inline iterator	begin() const {return field;}
+		inline iterator	end() const {return field + string_length;}
+
 	/**
 		@brief Writes a floating point value to the specified char field
 		
