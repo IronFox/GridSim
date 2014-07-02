@@ -499,7 +499,7 @@ namespace FileSystem
 			String step;
 			index_t	at0 = local.indexOf('/'),
 					at1 = local.indexOf('\\'),
-					at = !at0?at1:(!at1?at0:(min(at0,at1)));
+					at = !at0?at1:(!at1?at0:(std::min(at0,at1)));
 
 			
 			if (at)
@@ -1256,7 +1256,7 @@ namespace FileSystem
 
 			wtime = (wtime - 116444736000000000ULL) / 10000000ULL;
 			ctime = (ctime - 116444736000000000ULL) / 10000000ULL;
-			return max(wtime,ctime);
+			return std::max(wtime,ctime);
 		#elif SYSTEM==UNIX
 			struct ::stat s;
 			if (stat(name.c_str(),&s))
