@@ -31,6 +31,7 @@ template <UINT32 int32_count>
 	struct THash
 	{
 		static const count_t num_bytes = int32_count*4;
+		static const count_t numBytes = int32_count*4;
 		union
 		{
 			BYTE	bytes[num_bytes];
@@ -40,6 +41,10 @@ template <UINT32 int32_count>
 		bool	operator==(const THash<int32_count>&other)	const
 				{
 					return !memcmp(bytes,other.bytes,sizeof(bytes));
+				}
+		bool	operator!=(const THash<int32_count>&other)	const
+				{
+					return memcmp(bytes,other.bytes,sizeof(bytes)) != 0;
 				}
 	};
 
