@@ -24,6 +24,8 @@ http://informatik.uni-trier.de/
 
 #undef None
 
+#define NOMINMAX
+
 #ifndef global_constants_defined
 	#define global_constants_defined
 	const int None = 0;
