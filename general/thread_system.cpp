@@ -1135,8 +1135,8 @@ namespace System
 				THREAD_REPORT("counter incremented to "<<context->counter)
 			context->counter_mutex.release();
 			job_pipe.beginSequence();
-			for (unsigned i = 0; i < objects.count()/4; i++)
-				job_pipe.writeElement(Job(objects[i*4],objects[i*4+1],objects[i*4+2],objects[i*4+3],method,context),max(max(priorities[i*4],priorities[i*4+1]),max(priorities[i*4+2],priorities[i*4+3])));
+			for (index_t i = 0; i < objects.count()/4; i++)
+				job_pipe.writeElement(Job(objects[i*4],objects[i*4+1],objects[i*4+2],objects[i*4+3],method,context),std::max(std::max(priorities[i*4],priorities[i*4+1]),std::max(priorities[i*4+2],priorities[i*4+3])));
 			if (rest)
 			{
 				index_t offset = objects.count()-rest;
