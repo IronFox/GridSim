@@ -1127,11 +1127,12 @@ namespace Math
 			@param ext Extend in both directions along the respective axis. Equals half the resulting width/height/depth
 			*/
 			template<typename T0, typename T1>
-				MF_DECLARE(void)	SetCenter(const TVec3<T0>&center, const T1&ext)
+				MF_DECLARE(Box<T>&)	SetCenter(const TVec3<T0>&center, const T1&ext)
 									{
 										x.SetCenter(center.x,ext);
 										y.SetCenter(center.y,ext);
 										z.SetCenter(center.z,ext);
+										return *this;
 									}
 			/**
 			@brief Updates all values of the local box to the specified value
