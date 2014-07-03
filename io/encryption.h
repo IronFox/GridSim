@@ -125,6 +125,8 @@ public:
 	inline void		Reset()	{reset();}
     void			append(const void*source, size_t size);
 	inline void		Append(const void*source, size_t size)	{append(source,size);}
+	template <typename T>
+		inline void	AppendPOD(const T&object) {append(&object,sizeof(T));}
     void			finish(void*target);
 	inline void		Finish(void*target)	{finish(target);}
     void			finish(HashContainer&target);
