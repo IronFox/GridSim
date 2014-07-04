@@ -1211,24 +1211,27 @@ namespace Math
 										z.max = (T)max_z;
 									}
 
-			MF_DECLARE(void)		Scale(const T&by)	//! Scales the box from its central location
+			MF_DECLARE(Box<T>&)		Scale(const T&by)	//! Scales the box from its central location
 									{
 										x.Scale(by);
 										y.Scale(by);
 										z.Scale(by);
+										return *this;
 									}
-			MF_DECLARE(void)		Expand(const T& by)	//! Expands the box
+			MF_DECLARE(Box<T>&)		Expand(const T& by)	//! Expands the box
 									{
 										x.Expand(by);
 										y.Expand(by);
 										z.Expand(by);
+										return *this;
 									}
 									
-			MF_DECLARE(void)		ConstrainBy(const Box<T>&constraint)	//! Modifies the local box so that it lies within the specified constraint box
+			MF_DECLARE(Box<T>&)		ConstrainBy(const Box<T>&constraint)	//! Modifies the local box so that it lies within the specified constraint box
 									{
 										x.ConstrainBy(constraint.x);
 										y.ConstrainBy(constraint.y);
 										z.ConstrainBy(constraint.z);
+										return *this;
 									}
 			/*!
 			@brief	Determines whether or not the specified point lies within the local box
@@ -1247,7 +1250,7 @@ namespace Math
 			template <typename T0>
 				MF_DECLARE(bool)	Contains(const Box<T0>&b)	const
 									{
-										return x.Contains(b.x) && y.Contains(r.y) && z.Contains(r.z);
+										return x.Contains(b.x) && y.Contains(b.y) && z.Contains(b.z);
 									}
 		
 			/*!
