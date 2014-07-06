@@ -281,7 +281,8 @@ namespace Engine
 		friend struct WindowSort;
 
 		void							init();
-		bool 							create(int x, int y, int width, int height, const String&name, const Engine::TVisualConfig&config,const Window*parent=NULL);
+		//bool 							create(int x, int y, int width, int height, const String&name, const Engine::TVisualConfig&config,const Window*parent=NULL);
+		bool 							create(int x, int y, int width, int height, const String&name, const Engine::TVisualConfig&config, HWND parent = NULL);
 
 		bool							bindContext(ContextHandle&previous_handle);
 		void							releaseContext(ContextHandle previous_handle);
@@ -372,6 +373,9 @@ namespace Engine
 		bool					makeAsChild(const Window&parent, const String&name);
 		bool					makeAsChild(const Window&parent, int x, int y, int width, int height, const String&name);
 		bool					makeAsChild(const Window&parent, int x, int y, int width, int height, const String&name, const Engine::TVisualConfig&config);
+		bool					makeAsChild(HWND parent, const String&name);
+		bool					makeAsChild(HWND parent, int x, int y, int width, int height, const String&name);
+		bool					makeAsChild(HWND parent, int x, int y, int width, int height, const String&name, const Engine::TVisualConfig&config);
 
 		void					ShowBorder(bool);
 		bool					ShowingBorder()	const	{return showingBorder;}

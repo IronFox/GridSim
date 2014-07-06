@@ -1911,22 +1911,46 @@ namespace Engine
 	{
 		if (created)
 			destroy();
-		return create(location.left,location.top,location.right-location.left,location.bottom-location.top,name,config,&parent);
+		return create(location.left,location.top,location.right-location.left,location.bottom-location.top,name,config,parent.getWindow());
 	}
 	
 	bool	Window::makeAsChild(const Window&parent, int x, int y, int width, int height, const String&name)
 	{
 		if (created)
 			destroy();
-		return create(x,y,width,height,name,config,&parent);
+		return create(x, y, width, height, name, config, parent.getWindow());
 	}
 	
 	bool	Window::makeAsChild(const Window&parent, int x, int y, int width, int height, const String&name, const Engine::TVisualConfig&config)
 	{
 		if (created)
 			destroy();
-		return create(x,y,width,height,name,config,&parent);
+		return create(x, y, width, height, name, config, parent.getWindow());
 	}
+
+
+
+	bool	Window::makeAsChild(HWND parent, const String&name)
+	{
+		if (created)
+			destroy();
+		return create(location.left, location.top, location.right - location.left, location.bottom - location.top, name, config, parent);
+	}
+
+	bool	Window::makeAsChild(HWND parent, int x, int y, int width, int height, const String&name)
+	{
+		if (created)
+			destroy();
+		return create(x, y, width, height, name, config, parent);
+	}
+
+	bool	Window::makeAsChild(HWND parent, int x, int y, int width, int height, const String&name, const Engine::TVisualConfig&config)
+	{
+		if (created)
+			destroy();
+		return create(x, y, width, height, name, config, parent);
+	}
+
 
 
 	bool Window::remake()
@@ -2001,7 +2025,7 @@ namespace Engine
 		return true;
 	}
 
-	bool Window::create(int x, int y, int width, int height, const String&name_, const Engine::TVisualConfig&config_, const Window*parent/* = NULL*/)
+	bool Window::create(int x, int y, int width, int height, const String&name_, const Engine::TVisualConfig&config_, HWND  parent/* = NULL*/)
 	{
 		font_remake_counter = 2;
 		config = config_;
@@ -2029,11 +2053,12 @@ namespace Engine
 	        bool retry = false;
 
 	        #if SYSTEM==WINDOWS
-	            DWORD style = WS_POPUP|WS_CLIPCHILDREN|WS_CLIPSIBLINGS;
+	            DWORD style = WS_CLIPCHILDREN|WS_CLIPSIBLINGS;
 				if (parent != NULL)
-					style |= WS_CHILD | WS_BORDER | WS_CAPTION;
+					//style |= WS_CHILD | WS_BORDER | WS_CAPTION;
+					style |= WS_CHILD;
 				else
-					style |=   WS_OVERLAPPEDWINDOW  | WS_SIZEBOX;
+					style |= WS_POPUP | WS_OVERLAPPEDWINDOW | WS_SIZEBOX;
 
 				
 				Array<wchar_t>	w_name;
@@ -2047,7 +2072,7 @@ namespace Engine
 					style,
 					x,y, //Position
 					width,height, //Dimensionen
-					parent?parent->getWindow():HWND_DESKTOP,
+					parent?parent:HWND_DESKTOP,
 					NULL,
 					application.hInstance, //Application
 					NULL);						
