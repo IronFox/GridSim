@@ -343,7 +343,9 @@ template <class K, class C, class Hash=StdHash, typename KeyStrategy = typename 
 		template <class Entry>
 			inline	bool					unsetEntry(const Entry&entry)				/** @copydoc unSetEntry() */{return unSetEntry(entry);}
 		template <class Key>
-			inline	DataType&				set(const Key&ident, const DataType&v);		//!< Sets the specified key (if not set already) and assigns \b v to the associated data. Identical to <table>[ident] = v; \param ident Key to set \param v Value to assign to the associated data.
+			inline	DataType&				Reference(const Key&ident, const DataType&initValue);		//!< Sets the specified key (to the specified init value, if not set already) and returns the currently stored value as a reference. \param ident Key to set \param initValue Value to assign to the associated data if the specified key was not previously specified.
+		template <class Key>
+			inline	DataType&				set(const Key&ident, const DataType&v);		//!< Sets the specified key (if not set already) and assigns \b v to the associated data. \param ident Key to set \param v Value to assign to the associated data.
 		template <class Key>
 			inline	DataType&				set(const Key&ident);						//!< Sets the specified key if it is currently not set and returns a reference to it. No change occurs if the specified key is already set (merely returns a reference to it)
 		template <class Key>

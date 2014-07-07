@@ -685,7 +685,7 @@ namespace Math
 		x = (C)other.x;
 		y = (C)other.y;
 		z = (C)other.z;
-		w = w_;
+		w = (C)w_;
 	}
 	
     template <class C>
