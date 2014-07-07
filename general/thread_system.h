@@ -14,8 +14,13 @@ Classes for platform-independent handling of Threads, Mutexes, and Thread Pools
 #include <cstdlib>
 #include <iostream>
 #include <limits.h>
+#if defined _MSC_VER && _MSC_VER >= 1700
+	#define USE_ATOMIC
+	#include <atomic>
+#else
+	#undef USE_ATOMIC
+#endif
 
-//using namespace std;
 
 
 
@@ -223,7 +228,6 @@ namespace System
 	
 
 
-	
 
 	class Mutex //! System independent mutex handler
 	{
@@ -656,16 +660,54 @@ namespace System
 										AtomicLong(long value_=0):value(value_)
 										{}
 			
-			long						operator=(long value);
+			AtomicLong&					operator=(long value);
 			long						operator++();
 			long						operator++(int);
 			long						operator--();
 			long						operator--(int);
 			long						operator+=(long value);
 			long						operator-=(long value);
+
+			long						Set(long value);
 			
 			operator long() const		{return value;}
 	};
+
+
+	class SpinLock
+	{
+		//from http://en.cppreference.com/w/cpp/atomic/atomic_exchange
+
+		#ifdef USE_ATOMIC
+			std::atomic<bool> _lock; // holds true when locked
+		#else
+			AtomicLong		_lock;
+		#endif
+										// holds false when unlocked
+
+	public:
+
+		/**/		SpinLock():_lock(false)	{}
+
+		inline void lock()
+		{
+			#ifdef USE_ATOMIC
+				while(std::atomic_exchange_explicit(&_lock, true, std::memory_order_acquire));
+			#else
+				while (_lock.Set(1));
+			#endif
+		}
+
+		inline void unlock()
+		{
+			#ifdef USE_ATOMIC
+				std::atomic_store_explicit(&_lock, false, std::memory_order_release);
+			#else
+				_lock.Set(0);
+			#endif
+		}
+	};
+	
 	
 	
 	template <class Queue>

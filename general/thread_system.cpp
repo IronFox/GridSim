@@ -1244,11 +1244,16 @@ namespace System
 	}
 
 	
+	long				AtomicLong::Set(long value_)
+	{
+		return InterlockedExchange(&value,value_);
+	}
 
-	long			AtomicLong::operator=(long value_)
+
+	AtomicLong&			AtomicLong::operator=(long value_)
 	{
 		InterlockedExchange(&value,value_);
-		return value_;
+		return *this;
 	}
 	
 	long			AtomicLong::operator++()
