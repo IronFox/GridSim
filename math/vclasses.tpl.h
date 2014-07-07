@@ -666,8 +666,8 @@ namespace Math
 	{
 		x = (C)other.x;
 		y = (C)other.y;
-		z = z_;
-		w = w_;
+		z = (C)z_;
+		w = (C)w_;
 	}
 
     template <class C>
