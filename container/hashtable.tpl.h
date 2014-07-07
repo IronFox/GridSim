@@ -741,9 +741,11 @@ template <class Entry>
 		
 	
 template <class K, class C, class Hash, class KeyStrategy, class DataStrategy> template <class Key>
-	inline	void					GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::set(const Key&ident, const DataType&v)			//!< Sets the specified key (if not set already) and assigns \b v to the associated data. Identical to <table>[ident] = v; \param ident Key to set \param v Value to assign to the associated data.
+	inline	C&					GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::set(const Key&ident, const DataType&v)			//!< Sets the specified key (if not set already) and assigns \b v to the associated data. Identical to <table>[ident] = v; \param ident Key to set \param v Value to assign to the associated data.
 	{
-		Base::find(Hash::hash(ident),ident,true)->cast() = v;
+		C&rs = Base::find(Hash::hash(ident),ident,true)->cast();
+		rs = v;
+		return rs;
 	}
 
 template <class K, class C, class Hash, class KeyStrategy, class DataStrategy> template <class Key>
