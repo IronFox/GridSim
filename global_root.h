@@ -271,7 +271,26 @@ SYSTEM specifies the general system (eg. UNIX) while SYSTEM_VARIANCE characteriz
 #endif
 
 #define elif    else if
-    
+
+
+//http://stackoverflow.com/questions/1505582/determining-32-vs-64-bit-in-c
+#if _WIN32 || _WIN64
+	#if _WIN64
+		#define X64
+	#else
+		#undef X64
+	#endif
+#endif
+
+// Check GCC
+#if __GNUC__
+	#if __x86_64__ || __ppc64__
+		#define X64
+	#else
+		#undef X64
+	#endif
+#endif
+
 	
 #include "general/root.h"
 
