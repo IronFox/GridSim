@@ -161,8 +161,8 @@ namespace System
 	class ThreadObject:public ThreadMainObject, protected Thread 	//! Abstract object passed to a thread handler instead of a thread function
 	{
 	public:
-							ThreadObject();
-	virtual					~ThreadObject()		{};
+		/**/				ThreadObject();
+		virtual				~ThreadObject()		{};
 			
 			Thread::start;
 			Thread::isActive;

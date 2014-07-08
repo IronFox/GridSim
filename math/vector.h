@@ -1436,6 +1436,7 @@ namespace Math
 										out.y = (T0)y.center();
 										out.z = (T0)z.center();
 									}
+				TVec3<T>			GetCenter() const {TVec3<T> rs; GetCenter(rs); return rs;}
 			template <typename T0>
 				void				GetExtend(TVec3<T0>&out)	const
 									{
