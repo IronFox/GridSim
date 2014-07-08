@@ -31,7 +31,8 @@ template <UINT32 int32_count>
 	struct THash
 	{
 		static const count_t num_bytes = int32_count*4;
-		static const count_t numBytes = int32_count*4;
+		static const count_t NumBytes = int32_count*4;
+		static const count_t NumInts = int32_count;
 		union
 		{
 			BYTE	bytes[num_bytes];
@@ -81,7 +82,7 @@ public:
         void        finish(void*target);
 };
 
-class CSHA1
+class SHA1
 {
 private:
 	    UINT32      h0,h1,h2,h3,h4,
@@ -91,9 +92,17 @@ private:
         void        transform(UINT32*);
 
 public:
-                    CSHA1();
-        void        update(const void*source, size_t size);
-        void        finish(void*target);
+	typedef THash<5>HashContainer;
+
+                    SHA1();
+    void			Append(const void*source, size_t size);
+    void			Finish(void*target);
+    void			Finish(HashContainer&target);
+	template <typename T>
+		inline void	AppendPOD(const T&object) {Append(&object,sizeof(T));}
+
+	static void		Hash(const void*data, size_t size, HashContainer&out);
+	static void		Hash(const void*data, size_t size, void*out);
 };
 
 

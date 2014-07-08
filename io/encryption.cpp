@@ -5,11 +5,6 @@
 
 sha1, md4 and rc4 hashsum-calculators/encryptors.
 
-This file is part of Delta-Works
-Copyright (C) 2006-2008 Stefan Elsen, University of Trier, Germany.
-http://www.delta-works.org/forge/
-http://informatik.uni-trier.de/
-
 ******************************************************************/
 
 
@@ -215,12 +210,12 @@ void Encryption::hash48(const void*in, const void*salt, const void*pepper, BYTE 
 	for (BYTE k = 0; k < 3; k++)
 	{
 		memset(pad, base + k, k + 1);
-        CSHA1 sha;
-        sha.update(pad,k+1);
-        sha.update(in,48);
-        sha.update(salt,32);
-        sha.update(pepper,32);
-        sha.finish(shasig);
+        SHA1 sha;
+        sha.Append(pad,k+1);
+        sha.Append(in,48);
+        sha.Append(salt,32);
+        sha.Append(pepper,32);
+        sha.Finish(shasig);
 
         CMD5 md5;
         md5.update(in,48);
@@ -246,10 +241,10 @@ void Encryption::hash16(const void*in, const void*salt, const void*pepper, void*
 
 
 
-CSHA1::CSHA1():h0(0x67452301),h1(0xEFCDAB89),h2(0x98BADCFE),h3(0x10325476),h4(0xC3D2E1F0),sz0(0),sz1(0)
+SHA1::SHA1():h0(0x67452301),h1(0xEFCDAB89),h2(0x98BADCFE),h3(0x10325476),h4(0xC3D2E1F0),sz0(0),sz1(0)
 {}
 
-void CSHA1::transform(UINT32*data)
+void SHA1::transform(UINT32*data)
 {
     UINT32 temp, W[16], A, B, C, D, E;
     for (BYTE k = 0; k < 16; k++)
@@ -394,7 +389,21 @@ void CSHA1::transform(UINT32*data)
 }
 
 
-void CSHA1::update(const void*source_, size_t size)
+/*static*/ void		SHA1::Hash(const void*data, size_t size, SHA1::HashContainer&out)
+{
+	SHA1	obj;
+	obj.Append(data,size);
+	obj.Finish(out);
+}
+
+/*static*/ void		SHA1::Hash(const void*data, size_t size, void*out)
+{
+	SHA1	obj;
+	obj.Append(data,size);
+	obj.Finish(out);
+}
+
+void SHA1::Append(const void*source_, size_t size)
 {
     const BYTE*source = (const BYTE*)source_;
     size_t left, fill;
@@ -431,7 +440,7 @@ void CSHA1::update(const void*source_, size_t size)
         memcpy(&data[left],source,size);
 }
 
-void CSHA1::finish(void*target)
+void SHA1::Finish(void*target)
 {
     UINT32  last, padn;
     UINT32  high, low;
@@ -455,8 +464,8 @@ void CSHA1::finish(void*target)
     last = sz0 & 0x3F;
     padn = ( last < 56 ) ? ( 56 - last ) : ( 120 - last );
 
-    update(sha1_padding, padn );
-    update(msglen, 8 );
+    Append(sha1_padding, padn );
+    Append(msglen, 8 );
 
     UINT32*digest = (UINT32*)target;
     digest[0] = swap32(h0);
@@ -466,6 +475,39 @@ void CSHA1::finish(void*target)
     digest[4] = swap32(h4);
 }
 
+void SHA1::Finish(HashContainer&target)
+{
+    UINT32  last, padn;
+    UINT32  high, low;
+    UINT32  msglen[2];
+
+    high = ( sz0 >> 29 )
+         | ( sz1 <<  3 );
+    low  = ( sz0 <<  3 );
+
+    static BYTE sha1_padding[64] =
+    {
+     0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+    };
+
+    msglen[0] = swap32(high);
+    msglen[1] = swap32(low);
+
+    last = sz0 & 0x3F;
+    padn = ( last < 56 ) ? ( 56 - last ) : ( 120 - last );
+
+    Append(sha1_padding, padn );
+    Append(msglen, 8 );
+
+	target.ints[0] = swap32(h0);
+    target.ints[1] = swap32(h1);
+    target.ints[2] = swap32(h2);
+    target.ints[3] = swap32(h3);
+    target.ints[4] = swap32(h4);
+}
 
 
 void Encryption::sign(const void*key, size_t keylen, const void*data, size_t datalen, void*signature, BYTE signature_len)
@@ -486,15 +528,15 @@ void Encryption::sign(const void*key, size_t keylen, const void*data, size_t dat
     	92, 92, 92, 92, 92, 92, 92
     };
     CMD5   md5;
-    CSHA1  sha;
+    SHA1  sha;
 
     (*(UINT32*)lenhdr) = (UINT32)datalen;
 
-	sha.update(key, keylen);
-	sha.update(pad_54, 40);
-	sha.update(lenhdr, 4);
-	sha.update(data, datalen);
-	sha.finish(shasig);
+	sha.Append(key, keylen);
+	sha.Append(pad_54, 40);
+	sha.Append(lenhdr, 4);
+	sha.Append(data, datalen);
+	sha.Finish(shasig);
 
 	md5.update(key, keylen);
 	md5.update(pad_92, 48);
