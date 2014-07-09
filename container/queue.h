@@ -81,6 +81,10 @@ template <class Entry, class Strategy=typename StrategySelector<Entry>::Default>
 			Entry&			operator[](size_t index);			//!< Returns the nth element from the queue. @param index Index of the element to return ranging [0, length()-1] @return Reference to the requested object
 			const Entry&	operator[](size_t index)	const;	//!< Returns the nth element from the queue. @param index Index of the element to return ranging [0, length()-1] @return Reference to the requested object
 			void			clear();							//!< Clears the local queue of all entries. No objects are actually erased
+
+			bool			Contains(const Entry&entry)	const;	//!< Checks if the queue contains the specified element
+			bool			contains(const Entry&entry)	const	/** @copydoc Contains()*/ {return Contains(entry);}
+
 			void			operator=(const Queue<Entry,Strategy>&other);	//!< Copies all elements from the remote queue to the local queue. The local buffer size is resized to match the remote buffer size but only actually used elements are copied
 			void			swap(Queue<Entry,Strategy>&other);
 			void			adoptData(Queue<Entry,Strategy>&other);

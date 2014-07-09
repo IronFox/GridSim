@@ -164,6 +164,16 @@ template <class Entry,class Strategy>
 	}
 
 template <class Entry,class Strategy>
+	bool			Queue<Entry,Strategy>::Contains(const Entry&entry)	const
+	{
+		foreach (*this,it)
+			if (*it == entry)
+				return true;
+		return false;
+	}
+
+
+template <class Entry,class Strategy>
 	count_t	Queue<Entry,Strategy>::pop(Entry*out_field, count_t count)
 	{
 		count_t written = 0;
