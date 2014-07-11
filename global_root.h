@@ -170,7 +170,7 @@ SYSTEM specifies the general system (eg. UNIX) while SYSTEM_VARIANCE characteriz
     #ifdef _WIN32
         #undef _WIN32_WINNT //override
 		#define _WIN32_WINNT 0x1000
-		#define WIN32_LEAN_AND_MEAN
+		//#define WIN32_LEAN_AND_MEAN	removes some headers we would like to have
 		#include <WinSock2.h>
         #include <windows.h>
     #else
