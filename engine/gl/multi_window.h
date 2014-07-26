@@ -423,6 +423,7 @@ namespace Engine
 		unsigned				originY()			const;
 		unsigned				height()			const;
 		unsigned				width()				const;
+		void					setSize(UINT w, UINT h);
 		void					assembleClientRect(RECT&)	const;	//!< Fills the specified rect with the absolute location of the client region of this window
 		bool 					isFocused()			const;
 		POINT					getMouse(bool relative)	const;

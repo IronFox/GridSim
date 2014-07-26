@@ -1783,6 +1783,16 @@ namespace Engine
 	}
 
 
+	void	Window::setSize(UINT w, UINT h)
+	{
+		#if SYSTEM==WINDOWS
+			SetWindowPos(window, NULL, 0, 0, w, h, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOOWNERZORDER | SWP_NOZORDER);
+		#else
+			#error stub
+		#endif
+
+	}
+
 	void Window::bind()
 	{
 		if (!this || !created)
