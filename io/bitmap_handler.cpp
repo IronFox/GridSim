@@ -153,10 +153,10 @@ void _BMO_Slice(Image**IMG,en_Parameter_Type Type, float Left, float Bottom, flo
 {
     if (Type == PT_Percent)
     {
-        Left = round(Left/100*(float)(*IMG)->getWidth());
-        Top = round(Top/100*(float)(*IMG)->getHeight());
-        Right = round(Right/100*(float)(*IMG)->getWidth());
-        Bottom = round(Bottom/100*(float)(*IMG)->getHeight());
+        Left = Round(Left/100*(float)(*IMG)->getWidth());
+        Top = Round(Top/100*(float)(*IMG)->getHeight());
+        Right = Round(Right/100*(float)(*IMG)->getWidth());
+        Bottom = Round(Bottom/100*(float)(*IMG)->getHeight());
     }
     Image*New = SHIELDED(new Image((UINT32)(Right-Left),(UINT32)(Top-Bottom),(*IMG)->getChannels()));
 

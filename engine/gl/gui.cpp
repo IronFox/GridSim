@@ -1,5 +1,17 @@
 #include "../../global_root.h"
 #include "gui.h"
+#include <cmath>
+
+
+inline static float _Round(float x)
+{
+	#if _MSC_VER >= 1700	//vs11
+		return std::round(x);
+	#else
+		return Math::Round(x);
+	#endif
+}
+
 
 namespace Engine
 {
@@ -996,10 +1008,10 @@ namespace Engine
 				y-=row_height;
 			}
 			ASSERT_EQUAL__(cell_index,layout.cells.count());
-			layout.client.x.min = /* floor */std::round(window_location.x.min+clientEdge.left);
-			layout.client.x.max = /* ceil */std::round(window_location.x.max - clientEdge.right);
-			layout.client.y.min = /* floor */std::round(window_location.y.min + clientEdge.bottom);
-			layout.client.y.max = /* ceil */std::round(window_location.y.max - clientEdge.top);
+			layout.client.x.min = /* floor */_Round(window_location.x.min+clientEdge.left);
+			layout.client.x.max = /* ceil */_Round(window_location.x.max - clientEdge.right);
+			layout.client.y.min = /* floor */_Round(window_location.y.min + clientEdge.bottom);
+			layout.client.y.max = /* ceil */_Round(window_location.y.max - clientEdge.top);
 			layout.border.x.min = window_location.x.min+borderEdge.left;
 			layout.border.x.max = window_location.x.max-borderEdge.right;
 			layout.border.y.min = window_location.y.min+borderEdge.bottom;
@@ -1045,8 +1057,8 @@ namespace Engine
 			ASSERT_GREATER__(config.initialPosition.size.y,0);
 			result->fsize.x = config.initialPosition.size.x;
 			result->fsize.y = config.initialPosition.size.y;
-			result->size.width = (unsigned)round(result->fsize.x);
-			result->size.height = (unsigned)round(result->fsize.y);
+			result->size.width = (unsigned)_Round(result->fsize.x);
+			result->size.height = (unsigned)_Round(result->fsize.y);
 			result->SetComponent(component);
 			result->title = config.windowName;
 			result->sizeChange = config.initialPosition.sizeChange;
@@ -1343,8 +1355,8 @@ namespace Engine
 				y += d.y /2;
 			#endif
 			sizeChanged = layoutChanged = visualChanged = true;
-			size.width = (unsigned)round(fsize.x);
-			size.height = (unsigned)round(fsize.y);
+			size.width = (unsigned)_Round(fsize.x);
+			size.height = (unsigned)_Round(fsize.y);
 			//UpdateLayout();
 		}
 		
@@ -1379,15 +1391,15 @@ namespace Engine
 		void	Window::SetSize(float width, float height)
 		{
 			fsize.x = width;
-			size.width = (unsigned)round(fsize.x);
+			size.width = (unsigned)_Round(fsize.x);
 			fsize.y = height;
-			size.height = (unsigned)round(fsize.y);
+			size.height = (unsigned)_Round(fsize.y);
 			sizeChanged = layoutChanged = visualChanged = true;
 		}
 		
 		void	Window::SetHeight(float height)
 		{
-			unsigned heighti = (unsigned)round(height);
+			unsigned heighti = (unsigned)_Round(height);
 			{
 				fsize.y = height;
 				if (size.height != heighti)
@@ -1401,7 +1413,7 @@ namespace Engine
 		
 		void	Window::SetWidth(float width)
 		{
-			unsigned widthi = (unsigned)round(width);
+			unsigned widthi = (unsigned)_Round(width);
 			fsize.x = width;
 			if (widthi != size.width)
 			{

@@ -63,6 +63,11 @@ namespace Math
 			};
 
 
+		inline float	Round(float x)
+		{
+			return (float)floor(x + 0.5f);
+		}
+
 
 			template <typename T>
 				T		rnd(const T&val);

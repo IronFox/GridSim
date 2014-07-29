@@ -840,9 +840,9 @@ namespace Fractal
 
 			TVec3<sector_t> sdelta;
 			
-			sdelta.x = round(center.x/super->context->sector_size);
-			sdelta.y = round(center.y/super->context->sector_size);
-			sdelta.z = round(center.z/super->context->sector_size);
+			sdelta.x = Round(center.x/super->context->sector_size);
+			sdelta.y = Round(center.y/super->context->sector_size);
+			sdelta.z = Round(center.z/super->context->sector_size);
 			//Vec::div(center,super->context->sector_size,sdelta);
 			Vec::add(sector,sdelta);
 			

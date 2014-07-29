@@ -24,7 +24,7 @@ void	VertexTable::setTolerance(float new_tolerance)
 index_t	VertexTable::map(const float position[3])
 {
 	TVertexIntPosition ip;
-	Vec::def(ip,(__int64)round(position[0]/tolerance),(__int64)round(position[1]/tolerance),(__int64)round(position[2]/tolerance));
+	Vec::def(ip,(__int64)Round(position[0]/tolerance),(__int64)Round(position[1]/tolerance),(__int64)Round(position[2]/tolerance));
 	
 	
 	hash_t hashed = VertexHash::hash(ip);
@@ -48,7 +48,7 @@ index_t	VertexTable::map(const float position[3])
 index_t	VertexTable::map(const TPosition&position)
 {
 	TVertexIntPosition ip;
-	Vec::def(ip,(__int64)round(position.x/tolerance),(__int64)round(position.y/tolerance),(__int64)round(position.z/tolerance));
+	Vec::def(ip,(__int64)Round(position.x/tolerance),(__int64)Round(position.y/tolerance),(__int64)Round(position.z/tolerance));
 	
 	hash_t hashed = VertexHash::hash(ip);
 	

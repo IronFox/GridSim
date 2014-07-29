@@ -230,20 +230,20 @@ void		SphereSector::build(double distance, ::Sphere*super, float resolution)
 
 	//cout << "begin constructing segment "<<abegin<<", "<<aend<<" / "<<rbegin<<", "<<rend<<endl;
 	glNewList(display_list,GL_COMPILE);
-		unsigned res0= (unsigned)vmax(round(0.4*M_PI*r/rad_res*resolution),2);
+		unsigned res0= (unsigned)vmax(Round(0.4*M_PI*r/rad_res*resolution),2);
 		//xres(r,distance);
 		for (unsigned strip = 0; strip < yres; strip++)
 		{
 			double r2 = r+rstep;
 			{
 				unsigned	
-							res1 = (unsigned)vmax(round(0.4*M_PI*r2/rad_res*resolution),2);
+							res1 = (unsigned)vmax(Round(0.4*M_PI*r2/rad_res*resolution),2);
 				glBegin(GL_TRIANGLE_STRIP);
 					//float down_sample = (float)res1/res0;
 					for (unsigned i = 0; i < res1; i++)
 					{
 						float	fx1 = abegin+(float)i/(res1-1)*(aend-abegin),
-								fx0 = abegin+(float)round((float)i*res0/res1)/(res0-1)*(aend-abegin);
+								fx0 = abegin+(float)Round((float)i*res0/res1)/(res0-1)*(aend-abegin);
 						super->radialPoint(fx1,r2,distance);
 						super->radialPoint(fx0,r,distance);
 					}

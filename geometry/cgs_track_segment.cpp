@@ -805,7 +805,7 @@ namespace CGS
 		//lout << " stretch="<<stretch<<nl;
 		
 		
-		UINT repeat = repetitive?(UINT)round(spline_length/range.z/stretch):1;
+		UINT repeat = repetitive?(UINT)Round(spline_length/range.z/stretch):1;
 		if (!repeat)
 			repeat++;
 		//lout << " repeat="<<repeat<<nl;

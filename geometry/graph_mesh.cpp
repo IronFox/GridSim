@@ -220,7 +220,7 @@ static void generateCaps(Graph&xy_profile, Profile&zy_profile, float step, Buffe
 					float len = Vec::distance2(n0.position,n1.position);
 					Vec::mad2(n0.position,n0.direction,len*NURBS_CONST*edge.control_dist[0],edge.control[0]);
 					Vec::mad2(n1.position,n1.direction,-len*NURBS_CONST*edge.control_dist[1],edge.control[1]);
-					unsigned resolution = vmax((unsigned)round(len/step),2);
+					unsigned resolution = vmax((unsigned)Round(len/step),2);
 					for (unsigned j = 1; j < resolution; j++)
 					{
 						float fc = (float)j/(resolution-1);
@@ -306,7 +306,7 @@ void		Graph::generateOutline(float step, Outline&outline)
 				float len = Vec::distance2(n0.position,n1.position);
 				Vec::mad2(n0.position,n0.direction,len*NURBS_CONST*edge.control_dist[0],edge.control[0]);
 				Vec::mad2(n1.position,n1.direction,-len*NURBS_CONST*edge.control_dist[1],edge.control[1]);
-				unsigned resolution = vmax((unsigned)round(len/step),2);
+				unsigned resolution = vmax((unsigned)Round(len/step),2);
 				for (unsigned j = 1; j < resolution; j++)
 				{
 					float fc = (float)j/(resolution-1);
@@ -422,8 +422,8 @@ bool		Graph::defineSurface(const Profile::Node&p0,const Profile::Node&p1,index_t
 	if (layout == Graph::Ramp && !p0.control_dist[1] && !p1.control_dist[0])
 		z_step *= 10;	//either loading for split, in which case we need increased z-resolution anyway, or loading plain, in which case this geometry will be used for bending. only ramp has use of this setting
 	
-	unsigned	res_x = vmax((unsigned)round(dist_x/x_step),2),
-				res_z = vmax((unsigned)round(dist_z/z_step),2);
+	unsigned	res_x = vmax((unsigned)Round(dist_x/x_step),2),
+				res_z = vmax((unsigned)Round(dist_z/z_step),2);
 	
 	TVec2<>		control[2];
 
@@ -582,8 +582,8 @@ bool		Graph::defineProfileLessSurface(index_t edge_index,float step,float textur
 	if (layout == Graph::Ramp)
 		z_step *= 10;	//either loading for split, in which case we need increased z-resolution anyway, or loading plain, in which case this geometry will be used for bending. only ramp has use of this setting
 	
-	unsigned	res_x = vmax((unsigned)round(dist_x/x_step),2),
-				res_z = vmax((unsigned)round(2/z_step),2);
+	unsigned	res_x = vmax((unsigned)Round(dist_x/x_step),2),
+				res_z = vmax((unsigned)Round(2/z_step),2);
 	
 	TVec2<>		control[2];
 
@@ -1701,7 +1701,7 @@ void				SurfaceDescription::BuildSegment(const SurfaceDescription::TConnector&be
 		float tlen = 1.0f/(steps[i-1].GetTexExtend() * 0.5f + steps[i].GetTexExtend()*0.5f);
 		length += tlen * delta;
 	}
-	textureRepetitions = round(length); 
+	textureRepetitions = Round(length); 
 	float factor = float(textureRepetitions) / length;
 	length = 0;
 	steps.first().texcoordY = 0;
