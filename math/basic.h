@@ -5,11 +5,6 @@
 
 Collection of basic template functions.
 
-This file is part of Delta-Works
-Copyright (C) 2006-2008 Stefan Elsen, University of Trier, Germany.
-http://www.delta-works.org/forge/
-http://informatik.uni-trier.de/
-
 ******************************************************************/
 
 #include <stdlib.h>
@@ -18,6 +13,8 @@ http://informatik.uni-trier.de/
 	#include <math.hpp>
 #endif
 #include <limits.h>
+
+#include <cmath>
 
 #if defined(__GNUC__) || defined(__STDC__)
 	#define __STDC_LIMIT_MACROS
@@ -69,11 +66,11 @@ namespace Math
 
 			template <typename T>
 				T		rnd(const T&val);
-			#if defined(__BORLANDC__) || defined(_MSC_VER) || defined(__GNUC__)
-				float	round(float f);
-			#else
-				#define round(x)	std::round(x)
-			#endif
+			//#if defined(__BORLANDC__) || defined(_MSC_VER) || defined(__GNUC__)
+			//	float	round(float f);
+			//#else
+			//	#define round(x)	std::round(x)
+			//#endif
 			
 			#ifdef _MSC_VER
 				MF_DECLARE(float)	fmax(float a, float b);
@@ -470,7 +467,7 @@ namespace Math
 }
 
 using namespace Math;
-
+namespace M = Math;
 
 #include "basic.tpl.h"
 #endif

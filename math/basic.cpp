@@ -86,20 +86,20 @@ float Math::belowOne(float f)
     return f<=1?f:1;
 }
 
-
-
-#if defined(__BORLANDC__) || defined(_MSC_VER) || defined(__GNUC__)
-    float Math::round(float f)
-    {
-        float a = (float)floor(f);
-        if (a+0.5f < f)
-            a++;
-        return a;
-    }
-#endif
-
-
-
+//
+//
+//#if defined(__BORLANDC__) || defined(_MSC_VER) || defined(__GNUC__)
+//    float Math::round(float f)
+//    {
+//        float a = (float)floor(f);
+//        if (a+0.5f < f)
+//            a++;
+//        return a;
+//    }
+//#endif
+//
+//
+//
 
 double Math::dRound(double f)
 {

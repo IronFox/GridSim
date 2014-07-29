@@ -1,6 +1,19 @@
 #include "../../global_root.h"
 #include "input.h"
 
+
+static std::ostream& operator<<(std::ostream&str, const std::function<void()> &func)
+{
+	str << "function(";
+	if (func)
+		str << func.target<void()>();
+	else
+		str << "<empty>";
+	str << ")";
+	return str;
+}
+
+
 namespace Engine
 {
 	//std::function<void()>	unbound;
@@ -103,7 +116,7 @@ namespace Engine
 			{
 				std::cout << " CTRL "<<key[index].ctrl_pntr << std::endl;
 			}
-			result = key[index].ctrl_pntr;
+			result = key[index].ctrl_pntr ? true : false;
 			if (result)
 				key[index].ctrl_pntr();
 		}
@@ -113,7 +126,7 @@ namespace Engine
 			{
 				std::cout << " "<<key[index].down_pntr << std::endl;
 			}
-			result = key[index].down_pntr;
+			result = key[index].down_pntr ? true : false;
 			if (result)
 				key[index].down_pntr();
 		}

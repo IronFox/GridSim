@@ -2,7 +2,7 @@
 #define math_resolutionH
 
 #include "../interface/hashable.h"
-
+#include <algorithm>
 
 struct Resolution3D;
 

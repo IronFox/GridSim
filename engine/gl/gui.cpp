@@ -996,10 +996,10 @@ namespace Engine
 				y-=row_height;
 			}
 			ASSERT_EQUAL__(cell_index,layout.cells.count());
-			layout.client.x.min = /* floor */round(window_location.x.min+clientEdge.left);
-			layout.client.x.max = /* ceil */round(window_location.x.max-clientEdge.right);
-			layout.client.y.min = /* floor */round(window_location.y.min+clientEdge.bottom);
-			layout.client.y.max = /* ceil */round(window_location.y.max-clientEdge.top);
+			layout.client.x.min = /* floor */std::round(window_location.x.min+clientEdge.left);
+			layout.client.x.max = /* ceil */std::round(window_location.x.max - clientEdge.right);
+			layout.client.y.min = /* floor */std::round(window_location.y.min + clientEdge.bottom);
+			layout.client.y.max = /* ceil */std::round(window_location.y.max - clientEdge.top);
 			layout.border.x.min = window_location.x.min+borderEdge.left;
 			layout.border.x.max = window_location.x.max-borderEdge.right;
 			layout.border.y.min = window_location.y.min+borderEdge.bottom;

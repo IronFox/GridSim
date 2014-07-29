@@ -1,7 +1,7 @@
 #include "../global_root.h"
 #include "thread_system.h"
 #include <Windows.h>
-
+#include <algorithm>
 
 namespace System
 {

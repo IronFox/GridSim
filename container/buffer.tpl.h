@@ -1,6 +1,9 @@
 #ifndef bufferTplH
 #define bufferTplH
 
+#include <algorithm>
+
+
 #undef min
 
 #if defined(_DEBUG) && __BUFFER_DBG_FILL_STATE__

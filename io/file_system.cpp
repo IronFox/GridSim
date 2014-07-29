@@ -1,5 +1,6 @@
 #include "../global_root.h"
 #include "file_system.h"
+#include <algorithm>
 
 /******************************************************************
 
