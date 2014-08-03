@@ -61,7 +61,7 @@ namespace FileSystem
 
 	String	 File::getFolder()		 const
 	{
-		return extractFilePath(location);
+		return extractFileDir(location);
 	}
 
 	const char* File::getExtensionPointer()	const
@@ -574,7 +574,7 @@ namespace FileSystem
 
 		String current = absolute_folder,
 				dir = extractFileNameExt(absolute_folder),
-				super = extractFilePath(absolute_folder);
+				super = extractFileDir(absolute_folder);
 		#if SYSTEM!=UNIX
 			if (!super.length())
 				return false;
@@ -921,7 +921,7 @@ namespace FileSystem
 				return false;
 		#endif
 
-		String	 super = extractFilePath(absolute_folder);
+		String	 super = extractFileDir(absolute_folder);
 		#if SYSTEM==WINDOWS
 			if (!super.length())
 				return NULL;
@@ -1111,7 +1111,7 @@ namespace FileSystem
 	}
 
 	template <typename T>
-		static StringTemplate<T>	_extractFilePath(const StringTemplate<T>&filename)
+		static StringTemplate<T>	_extractFileDir(const StringTemplate<T>&filename)
 		{
 			if (!filename.length())
 				return StringTemplate<T>();
@@ -1124,11 +1124,11 @@ namespace FileSystem
 			return filename.subString(0,at);
 		}
 
-	String	extractFilePath(const String&filename)	{return _extractFilePath(filename);}
-	WString	extractFilePath(const WString&filename)	{return _extractFilePath(filename);}
+	String	extractFileDir(const String&filename)	{return _extractFileDir(filename);}
+	WString	extractFileDir(const WString&filename)	{return _extractFileDir(filename);}
 
 	template <typename T>
-		static StringTemplate<T>	 _extractFilePathName(const StringTemplate<T>&filename)
+		static StringTemplate<T>	 _extractFileDirName(const StringTemplate<T>&filename)
 		{
 			index_t at(filename.length()-1);
 			if (at >= filename.length())
@@ -1139,8 +1139,8 @@ namespace FileSystem
 			return filename.subString(0,at);
 		}
 
-	String	 extractFilePathName(const String&filename)	{return _extractFilePathName(filename);}
-	WString	 extractFilePathName(const WString&filename)	{return _extractFilePathName(filename);}
+	String	 extractFileDirName(const String&filename)	{return _extractFileDirName(filename);}
+	WString	 extractFileDirName(const WString&filename)	{return _extractFileDirName(filename);}
 
 	template <typename T>
 		static StringTemplate<T>	 _extractFileNameExt(const StringTemplate<T>&filename)

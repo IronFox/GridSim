@@ -43,15 +43,15 @@ namespace FileSystem
 	#endif
 
 	String			extractFileExt(const String&filename);										//!< Extracts the file extension of \b filename without preceeding '.'
-	String			extractFilePath(const String&filename);									//!< Extracts the file path of \b filename without trailing slash
+	String			extractFileDir(const String&filename);									//!< Extracts the file directory of \b filename without trailing slash
 	String			extractFileName(const String&filename);									//!< Extracts the file name of \b filename without preceeding folder or succeeding extension (neither preceeding slashes or succeeding dots either)
-	String			extractFilePathName(const String&filename);								//!< Extracts folders and file name of \b filename but no trailing extension (or extension dot)
+	String			extractFileDirName(const String&filename);								//!< Extracts folders and file name of \b filename but no trailing extension (or extension dot)
 	String			extractFileNameExt(const String&filename);									//!< Extracts the file name and extension of \b filename but no preceeding folders (or slashes)
 	String			escapeSpaces(String path);													//!< Inserts a backslash before every space character (for unix systems)
 	WString			extractFileExt(const WString&filename);										//!< Extracts the file extension of \b filename without preceeding '.'
-	WString			extractFilePath(const WString&filename);									//!< Extracts the file path of \b filename without trailing slash
+	WString			extractFileDir(const WString&filename);									//!< Extracts the file path of \b filename without trailing slash
 	WString			extractFileName(const WString&filename);									//!< Extracts the file name of \b filename without preceeding folder or succeeding extension (neither preceeding slashes or succeeding dots either)
-	WString			extractFilePathName(const WString&filename);								//!< Extracts folders and file name of \b filename but no trailing extension (or extension dot)
+	WString			extractFileDirName(const WString&filename);								//!< Extracts folders and file name of \b filename but no trailing extension (or extension dot)
 	WString			extractFileNameExt(const WString&filename);									//!< Extracts the file name and extension of \b filename but no preceeding folders (or slashes)
 	WString			escapeSpaces(WString path);													//!< Inserts a backslash before every space character (for unix systems)
 	
