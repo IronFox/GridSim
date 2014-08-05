@@ -186,7 +186,7 @@ namespace OpenAL
 		locate(v,relative);
 	}
 	
-	void	Source::getLocation(TVec3<>&position_out)
+	void	Source::GetLocation(TVec3<>&position_out)
 	{
 		alGetSourcefv(handle, AL_POSITION,position_out.v);
 	}

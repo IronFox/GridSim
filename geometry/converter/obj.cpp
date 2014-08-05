@@ -342,7 +342,7 @@ namespace Converter
 			return NULL;
 		}
 		result = texture_field.define(key);
-		result->data.name = str2name(FileSystem::extractFileName(color_map)+FileSystem::extractFileName(alpha_map));
+		result->data.name = str2name(FileSystem::ExtractFileName(color_map)+FileSystem::ExtractFileName(alpha_map));
 		while (texture_name_table64.isSet(result->data.name))
 			incrementName(result->data.name);
 		texture_name_table64.set(result->data.name);
@@ -412,7 +412,7 @@ namespace Converter
 		}
 		
 		result = texture_field.define(key);
-		result->data.name = str2name(FileSystem::extractFileName(normal_map));
+		result->data.name = str2name(FileSystem::ExtractFileName(normal_map));
 		while (texture_name_table64.isSet(result->data.name))
 			incrementName(result->data.name);
 		texture_name_table64.set(result->data.name);
@@ -469,11 +469,11 @@ namespace Converter
 			}
 			else
 			{
-				const CFSFile*f = folder.findFile(seg);
+				const CFSFile*f = folder.FindFile(seg);
 				if (f)
 				{
-					sendMessage("parsed map '"+f->getLocation()+"'");
-					return f->getLocation();
+					sendMessage("parsed map '"+f->GetLocation()+"'");
+					return f->GetLocation();
 				}
 				
 				sendMessage("unable to locate image '"+seg+"'");
@@ -487,13 +487,13 @@ namespace Converter
 	{
 		if (!file)
 			return;
-		CFSFolder	folder(file->getFolder());
-		if (!folder.validLocation())
+		CFSFolder	folder(file->GetFolder());
+		if (!folder.IsValidLocation())
 		{
 			FATAL__("unable to locate material folder");
 			return;
 		}
-		StringFile	in(file->getLocation());
+		StringFile	in(file->GetLocation());
 		if (!in.isActive())
 			return;
 		ObjMaterial*material(NULL);
@@ -706,7 +706,7 @@ namespace Converter
 			break;
 			case 'm':
 				if (!strncmp(start,"mtllib",6) && end-start>6)
-					loadObjMaterialLibrary(object_system.findFile(start+7));
+					loadObjMaterialLibrary(object_system.FindFile(start+7));
 			break;
 		}
 	}
@@ -746,8 +746,8 @@ namespace Converter
 
 	bool	ObjConverter::read(CGS::Geometry<>&target, const String&filename)
 	{
-		object_system = FileSystem::workingDirectory();
-		if (!object_system.moveTo(FileSystem::extractFilePath(filename)))
+		object_system = FileSystem::GetWorkingDirectory();
+		if (!object_system.MoveTo(FileSystem::ExtractFileDir(filename)))
 		{
 			last_error = "Unable to move to file folder";
 			return false;
@@ -1457,7 +1457,7 @@ namespace Converter
 		return;
 	}
 	
-	String base_name = FileSystem::extractFilePath(outname);
+	String base_name = FileSystem::ExtractFileDir(outname);
 	if (base_name.length())
 		base_name+=FOLDER_SLASH;
 	base_name+=tex_name;
@@ -1607,7 +1607,7 @@ namespace Converter
 			filename+=".obj";
 			
 		
-		String material_lib_file = FileSystem::extractFilePathName(filename)+".mtl";
+		String material_lib_file = FileSystem::ExtractFileDirName(filename)+".mtl";
 		
 		StringFile	out;
 		
@@ -1764,7 +1764,7 @@ namespace Converter
 		}
 		out << "# Object generated for "<<filename<<nl;
 		out << "#"<<nl;
-		out << "mtllib ./"<<FileSystem::extractFileName(filename)<<".mtl"<<nl;
+		out << "mtllib ./"<<FileSystem::ExtractFileName(filename)<<".mtl"<<nl;
 		
 		out << "g"<<nl;
 		index_t	index=1;

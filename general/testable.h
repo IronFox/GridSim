@@ -25,7 +25,7 @@ public:
         
 virtual unsigned    beginTest()=0;      //returns iterations (0 for unknown)
 virtual Result      test()=0;
-virtual String     getName()=0;
+virtual String     GetName()=0;
         const String&     getReport() {return report;};
 };
 

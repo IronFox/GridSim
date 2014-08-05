@@ -443,16 +443,16 @@ namespace Engine
 			Image image;
 			out.width = 0;
 			out.height = 0;
-			if (folder.findFile("color/"+attrib,file))
+			if (folder.FindFile("color/"+attrib,file))
 			{
-				Magic::LoadFromFile(image,file.getLocation());
+				Magic::LoadFromFile(image,file.GetLocation());
 				out.color.load(image,global_anisotropy,true);
 				out.width = image.width();
 				out.height = image.height();
 			}
-			if (folder.findFile("bump/"+attrib,file))
+			if (folder.FindFile("bump/"+attrib,file))
 			{
-				loadBump(file.getLocation(),image);
+				loadBump(file.GetLocation(),image);
 
 				if (out.width != 0 && (out.width != image.width() || out.height != image.height()))
 				{
@@ -755,7 +755,7 @@ namespace Engine
 			rows.free();
 			
 			
-			FileSystem::Folder	folder(FileSystem::extractFilePath(filename));
+			FileSystem::Folder	folder(FileSystem::ExtractFileDir(filename));
 			
 			titlePosition.SetAll(0);
 			
@@ -868,15 +868,15 @@ namespace Engine
 							if (xcell.query("background",attrib))
 							{
 								FileSystem::File	file;
-								if (folder.findFile("bump/"+attrib,file))
+								if (folder.FindFile("bump/"+attrib,file))
 								{
-									loadBump(file.getLocation(),cell->normal);
+									loadBump(file.GetLocation(),cell->normal);
 								}
 								else
 									ErrMessage("Failed to locate bump component of '"+attrib+"'");
-								if (folder.findFile("color/"+attrib,file))
+								if (folder.FindFile("color/"+attrib,file))
 								{
-									Magic::loadFromFile(cell->color,file.getLocation());
+									Magic::loadFromFile(cell->color,file.GetLocation());
 									if (cell->color.width() == 1)
 										cell->color.scaleTo(64,cell->color.height());
 									if (cell->color.height() == 1)

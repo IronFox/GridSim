@@ -276,7 +276,7 @@ namespace Engine
 				float					buttonIndent;
 			*/
 			
-			FileSystem::Folder	folder(FileSystem::extractFilePath(filename));
+			FileSystem::Folder	folder(FileSystem::ExtractFileDir(filename));
 			
 			XML::Container	xml;
 			xml.LoadFromFile(filename);
@@ -319,7 +319,7 @@ namespace Engine
 				float					buttonIndent;
 			*/
 			
-			FileSystem::Folder	folder(FileSystem::extractFilePath(filename));
+			FileSystem::Folder	folder(FileSystem::ExtractFileDir(filename));
 			
 			XML::Container	xml;
 			xml.LoadFromFile(filename);
@@ -2727,9 +2727,9 @@ namespace Engine
 			layout.override = NULL;
 			FileSystem::File	file;
 			if (node->query("file",string))
-				if (folder.findFile(string,file))
+				if (folder.FindFile(string,file))
 				{
-					layout.LoadFromFile(file.getLocation(),scale*outer_scale);
+					layout.LoadFromFile(file.GetLocation(),scale*outer_scale);
 					return;
 				}
 			if (node->query("copy",string))
@@ -2765,8 +2765,8 @@ namespace Engine
 			
 			FileSystem::File	file;
 			if (node->query("file",string))
-				if (folder.findFile(string,file))
-					layout.LoadFromFile(file.getLocation(),scale*outer_scale);
+				if (folder.FindFile(string,file))
+					layout.LoadFromFile(file.GetLocation(),scale*outer_scale);
 		}
 		
 		static void LoadLayout(XML::Node*xtheme, FileSystem::Folder&folder, const String&path, SliderLayout&layout, float outer_scale)
@@ -2781,8 +2781,8 @@ namespace Engine
 			
 			FileSystem::File	file;
 			if (node->query("file",string))
-				if (folder.findFile(string,file))
-					layout.LoadFromFile(file.getLocation(),scale*outer_scale);
+				if (folder.FindFile(string,file))
+					layout.LoadFromFile(file.GetLocation(),scale*outer_scale);
 		}
 		
 		static void LoadLayout(XML::Node*xtheme, FileSystem::Folder&folder, const String&path, CheckBox::TStyle&layout, float outer_scale)
@@ -2794,14 +2794,14 @@ namespace Engine
 
 			FileSystem::File	file;
 			
-			if (node->query("color",string) && folder.findFile(string,file))
-				loadColor(file.getLocation(),layout.boxColor);
-			if (node->query("bump",string) && folder.findFile(string,file))
-				loadBump(file.getLocation(),layout.boxNormal);
-			if (node->query("check",string) && folder.findFile(string,file))
-				loadColor(file.getLocation(),layout.checkMark);
-			if (node->query("highlight",string) && folder.findFile(string,file))
-				loadColor(file.getLocation(),layout.highlightMark);
+			if (node->query("color",string) && folder.FindFile(string,file))
+				loadColor(file.GetLocation(),layout.boxColor);
+			if (node->query("bump",string) && folder.FindFile(string,file))
+				loadBump(file.GetLocation(),layout.boxNormal);
+			if (node->query("check",string) && folder.FindFile(string,file))
+				loadColor(file.GetLocation(),layout.checkMark);
+			if (node->query("highlight",string) && folder.FindFile(string,file))
+				loadColor(file.GetLocation(),layout.highlightMark);
 		}
 		
 		
@@ -2809,7 +2809,7 @@ namespace Engine
 		{
 			XML::Container	xml;
 			xml.LoadFromFile(filename);
-			FileSystem::Folder	folder(FileSystem::extractFilePath(filename));
+			FileSystem::Folder	folder(FileSystem::ExtractFileDir(filename));
 			String	string;
 			XML::Node*xtheme = xml.find("theme");
 			if (!xtheme)
@@ -2823,9 +2823,9 @@ namespace Engine
 					convert(string.c_str(),scale);
 				if (!node->query("file",string))
 					throw IO::DriveAccess::FileFormatFault("XML Font node lacks file attribute");
-				if (folder.findFile(string,file))
-					ColorRenderer::textout.getFont().loadFromFile(file.getLocation(),scale*outer_scale);
-						//FAIL("Failed to load font from font file '"+file.getLocation()+"'");
+				if (folder.FindFile(string,file))
+					ColorRenderer::textout.getFont().loadFromFile(file.GetLocation(),scale*outer_scale);
+						//FAIL("Failed to load font from font file '"+file.GetLocation()+"'");
 			}
 			else
 				throw IO::DriveAccess::FileFormatFault(globalString("XML theme file lacks theme/font node"));

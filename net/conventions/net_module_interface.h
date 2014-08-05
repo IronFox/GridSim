@@ -50,7 +50,7 @@ virtual            ~NetUser()
                         realloc(name,len+1);
                         memcpy(name,new_name,len+1);
                     }
-    const char*     getName()
+    const char*     GetName()
                     {
                         return name;
                     }

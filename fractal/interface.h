@@ -1336,7 +1336,7 @@ corner-vertices:
 vertex hertiage
 
 p=parent
-s=sibling
+s=GetSibling
 
 		  . p0 .
 	. s0 _	|  _  s3 .

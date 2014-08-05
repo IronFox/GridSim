@@ -65,29 +65,31 @@ namespace Math
 
 		inline float	Round(float x)
 		{
-			return (float)floor(x + 0.5f);
+			#if _MSC_VER >= 1700	/*vs11*/ || (defined __GXX_EXPERIMENTAL_CXX0X__)
+				return std::round(x);
+			#else
+				if (x < 0.f)
+					return (int)(x - 0.5f);
+				else
+					return (int)(x + 0.5f);
+			#endif
 		}
 
 
-			template <typename T>
-				T		rnd(const T&val);
-			//#if defined(__BORLANDC__) || defined(_MSC_VER) || defined(__GNUC__)
-			//	float	round(float f);
-			//#else
-			//	#define round(x)	std::round(x)
-			//#endif
+		template <typename T>
+			T		rnd(const T&val);
 			
-			#ifdef _MSC_VER
-				MF_DECLARE(float)	fmax(float a, float b);
-			#endif
+		#ifdef _MSC_VER
+			MF_DECLARE(float)	fmax(float a, float b);
+		#endif
 
-			float		belowOne(float f);
+		float		belowOne(float f);
 
-			double		dRound(double f);
-			double		dSqr(double f);
+		double		dRound(double f);
+		double		dSqr(double f);
 
-			char*		makeStr(unsigned len);
-			void		dropStr();
+		char*		makeStr(unsigned len);
+		void		dropStr();
 			
 		#if 0
 			String	 float2str(double,BYTE precission);

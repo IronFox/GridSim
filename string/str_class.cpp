@@ -232,7 +232,7 @@ template <>
 
 		GetModuleFileNameA( NULL, szFileName, MAX_PATH );
 
-		return FileSystem::extractFileName(StringTemplate<char>(szFileName))+": ";
+		return FileSystem::ExtractFileName(StringTemplate<char>(szFileName))+": ";
 	}
 template <>
 	StringTemplate<wchar_t>	_getApplicationName()
@@ -241,7 +241,7 @@ template <>
 
 		GetModuleFileNameW( NULL, szFileName, MAX_PATH );
 
-		return FileSystem::extractFileName(StringTemplate<wchar_t>(szFileName))+": ";
+		return FileSystem::ExtractFileName(StringTemplate<wchar_t>(szFileName))+": ";
 	}
 
 

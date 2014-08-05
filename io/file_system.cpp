@@ -33,38 +33,38 @@ namespace FileSystem
 	File::File(const Drive&drive):name(drive.root),location(drive.root),is_folder(true)
 	{}
 
-	String	 File::getName()  const
+	String	 File::GetName()  const
 	{
 		return name;
 	}
 
-	String	 File::getInnerName()  const
+	String	 File::GetInnerName()  const
 	{
-		return extractFileName(name);
+		return ExtractFileName(name);
 	}
 	
-	String	 File::getLocation() const
+	String	 File::GetLocation() const
 	{
 		return location;
 	}
 
-	bool		File::isFolder() const
+	bool		File::IsFolder() const
 	{
 		return is_folder;
 	}
 
-	bool		File::isDirectory() const
+	bool		File::IsDirectory() const
 	{
 		return is_folder;
 	}
 
 
-	String	 File::getFolder()		 const
+	String	 File::GetFolder()		 const
 	{
-		return extractFileDir(location);
+		return ExtractFileDir(location);
 	}
 
-	const char* File::getExtensionPointer()	const
+	const char* File::GetExtensionPointer()	const
 	{
 		index_t at = name.length();
 		const char*field = name.c_str();
@@ -75,31 +75,31 @@ namespace FileSystem
 		return field+at+1;
 	}
 	
-	String  File::getExtension()	  const
+	String  File::GetExtension()	  const
 	{
-		return getExtensionPointer();
+		return GetExtensionPointer();
 	}
 	
-	bool	File::isExtension(const String&ext)		const
+	bool	File::IsExtension(const String&ext)		const
 	{
-		return !strcmpi(ext.c_str(),getExtensionPointer());
+		return !strcmpi(ext.c_str(),GetExtensionPointer());
 	}
 	
-	bool	File::isExtension(const char*ext)			const
+	bool	File::IsExtension(const char*ext)			const
 	{
-		return !strcmpi(ext,getExtensionPointer());
+		return !strcmpi(ext,GetExtensionPointer());
 	}
 
 
-	bool	File::doesExist()							const
+	bool	File::DoesExist()							const
 	{
-		return FileSystem::doesExist(location);
+		return FileSystem::DoesExist(location);
 	}
 
 
-	ftime_t				File::fileTime()				  const
+	ftime_t				File::GetModificationTime()				  const
 	{
-		return FileSystem::fileTime(location);
+		return FileSystem::GetModificationTime(location);
 	}
 
 	
@@ -216,13 +216,13 @@ namespace FileSystem
 
 	static File  fs_file_sibling;
 
-	const File*	  File::sibling(const String&ext)  const
+	const File*	  File::GetSibling(const String&ext)  const
 	{
-		String sibling_location = extractFileName(location)+"."+ext;
-		if (!FileSystem::doesExist(sibling_location))
+		String sibling_location = ExtractFileName(location)+"."+ext;
+		if (!FileSystem::DoesExist(sibling_location))
 			return NULL;
 		fs_file_sibling = *this;
-		fs_file_sibling.name = extractFileName(name)+"."+ext;
+		fs_file_sibling.name = ExtractFileName(name)+"."+ext;
 		fs_file_sibling.location = sibling_location;
 		return &fs_file_sibling;
 	}
@@ -235,7 +235,7 @@ namespace FileSystem
 		return is_folder?"Folder: "+location:"File: "+location;
 	}
 
-	bool File::unlink() const
+	bool File::Unlink() const
 	{
 		if (!this)
 			return false;
@@ -256,7 +256,7 @@ namespace FileSystem
 
 
 
-	TempFile::TempFile(bool docreate):created(docreate&&create())
+	TempFile::TempFile(bool docreate):created(docreate&&Create())
 	{}
 
 
@@ -264,14 +264,14 @@ namespace FileSystem
 	{
 		if (created)
 		{
-			unlinkFile(filename);
+			UnlinkFile(filename);
 	//		cout << " - "<<filename.c_str()<<endl;
 		}
 
 	}
 
 
-	bool				TempFile::create()
+	bool				TempFile::Create()
 	{
 		MutexLock	lock(mutex);
 		String tmp_folder = getTempFolder();
@@ -324,12 +324,12 @@ namespace FileSystem
 		return true;
 	}
 
-	bool	TempFile::destroy()
+	bool	TempFile::Destroy()
 	{
 		if (created)
 		{
 			MutexLock	lock(mutex);
-			unlinkFile(filename);
+			UnlinkFile(filename);
 			created = false;
 			return true;
 		}
@@ -337,28 +337,28 @@ namespace FileSystem
 	}
 
 
-	const String&	  TempFile::getLocation()
+	const String&	  TempFile::GetLocation()
 	{
-		if (!created && !create())
+		if (!created && !Create())
 			FATAL__("Unable to create temporary file");
 		return filename;
 	}
 
 	TempFile::operator const String& ()
 	{
-		if (!created && !create())
+		if (!created && !Create())
 			FATAL__("Unable to create temporary file");
 		return filename;
 	}
 
 
 
-	String Drive::getName()			const
+	String Drive::GetName()			const
 	{
 		return name;
 	}
 
-	String Drive::getRoot()			const
+	String Drive::GetRoot()			const
 	{
 		return root;
 	}
@@ -368,7 +368,7 @@ namespace FileSystem
 		return name+" ("+root+")";
 	}
 
-	File Drive::toFile()			const
+	File Drive::ToFile()			const
 	{
 		File result;
 		result.location = root;
@@ -379,12 +379,12 @@ namespace FileSystem
 
 
 
-	Folder::Folder():valid_location(true),absolute_folder(workingDirectory()),find_handle(NULL)
+	Folder::Folder():valid_location(true),absolute_folder(GetWorkingDirectory()),find_handle(NULL)
 	{}
 
-	Folder::Folder(const String&folder_string):valid_location(true),absolute_folder(workingDirectory()),find_handle(NULL)
+	Folder::Folder(const String&folder_string) : valid_location(true), absolute_folder(GetWorkingDirectory()), find_handle(NULL)
 	{
-		moveTo(folder_string);
+		MoveTo(folder_string);
 	}
 
 	Folder::Folder(const File&file):valid_location(false),find_handle(NULL)
@@ -434,7 +434,7 @@ namespace FileSystem
 	{
 		closeScan();
 		valid_location = false;
-		moveTo(folder_string);
+		MoveTo(folder_string);
 	    return *this;
 	}
 
@@ -470,7 +470,7 @@ namespace FileSystem
 			else
 				if (path_string.firstChar() == '\\')
 				{
-					absolute_folder = workingDirectory().subString(0,3);
+					absolute_folder = GetWorkingDirectory().subString(0, 3);
 					local = path_string.subString(1);
 					valid_location = true;
 				}
@@ -487,7 +487,7 @@ namespace FileSystem
 
 		if (!valid_location)
 		{
-			absolute_folder = workingDirectory();
+			absolute_folder = GetWorkingDirectory();
 			valid_location = true;
 		}
 
@@ -495,7 +495,7 @@ namespace FileSystem
 
 		while (local.length())
 		{
-			if (!isFolder(final))
+			if (!IsFolder(final))
 				return false;
 			String step;
 			index_t	at0 = local.indexOf('/'),
@@ -517,7 +517,7 @@ namespace FileSystem
 				continue;
 			if (step == "..")
 			{
-				if (!exit())
+				if (!Exit())
 					return false;
 				continue;
 			}
@@ -539,11 +539,11 @@ namespace FileSystem
 		absolute_folder = folder_string;
 		if (absolute_folder.length() > 1 && (absolute_folder.lastChar() == '/' || absolute_folder.lastChar() == '\\'))
 			absolute_folder.erase(absolute_folder.length()-1);
-		valid_location = isFolder(absolute_folder);
+		valid_location = IsFolder(absolute_folder);
 		return valid_location;
 	}
 
-	bool Folder::moveTo(const String&folder_string)
+	bool Folder::MoveTo(const String&folder_string)
 	{
 		closeScan();
 		String final;
@@ -551,19 +551,19 @@ namespace FileSystem
 		return valid_location;
 	}
 
-	bool Folder::moveTo(const File*file)
+	bool Folder::MoveTo(const File*file)
 	{
 		if (file)
 			return locate(file->location);
 		return false;
 	}
 
-	bool Folder::moveTo(const File&file)
+	bool Folder::MoveTo(const File&file)
 	{
 		return locate(file.location);
 	}
 
-	bool Folder::exit()
+	bool Folder::Exit()
 	{
 		if (!valid_location)
 			return false;
@@ -573,8 +573,8 @@ namespace FileSystem
 		#endif
 
 		String current = absolute_folder,
-				dir = extractFileNameExt(absolute_folder),
-				super = extractFileDir(absolute_folder);
+				dir = ExtractFileNameExt(absolute_folder),
+				super = ExtractFileDir(absolute_folder);
 		#if SYSTEM!=UNIX
 			if (!super.length())
 				return false;
@@ -594,7 +594,7 @@ namespace FileSystem
 		return true;
 	}
 
-	bool Folder::enter(const String&folder)
+	bool Folder::Enter(const String&folder)
 	{
 		if (!valid_location)
 			return false;
@@ -609,7 +609,7 @@ namespace FileSystem
 		return true;
 	}
 
-	bool Folder::enter(const File&file)
+	bool Folder::Enter(const File&file)
 	{
 		if (!valid_location)
 			return false;
@@ -623,17 +623,17 @@ namespace FileSystem
 		return true;
 	}
 
-	bool Folder::enter(const File*file)
+	bool Folder::Enter(const File*file)
 	{
-		return file && enter(*file);
+		return file && Enter(*file);
 	}
 
-	bool Folder::validLocation() const
+	bool Folder::IsValidLocation() const
 	{
 		return valid_location;
 	}
 
-	count_t  Folder::countEntries() const
+	count_t  Folder::CountEntries() const
 	{
 		if (!valid_location)
 			return 0;
@@ -668,7 +668,7 @@ namespace FileSystem
 		return count;
 	}
 
-	void		 Folder::reset()
+	void		 Folder::Reset()
 	{
 		#if SYSTEM==WINDOWS
 			if (find_handle)
@@ -684,19 +684,19 @@ namespace FileSystem
 		#endif
 	}
 
-	void 	Folder::rewind()
+	void 	Folder::Rewind()
 	{
-		reset();
+		Reset();
 	}
 
-	const Folder::File*  Folder::nextEntry()
+	const Folder::File*  Folder::NextEntry()
 	{
-		if (nextEntry(file))
+		if (NextEntry(file))
 			return &file;
 		return NULL;
 	}
 
-	bool Folder::nextEntry(File&file)
+	bool Folder::NextEntry(File&file)
 	{
 		if (!find_handle)
 			return false;
@@ -734,87 +734,87 @@ namespace FileSystem
 			#error not supported
 		#endif
 		if (retry || !file.name.length() || file.name.firstChar() == '.')
-			return nextEntry(file);
+			return NextEntry(file);
 		return true;
 	}
 
 
-	const Folder::File*	 Folder::nextFolder()
+	const Folder::File*	 Folder::NextFolder()
 	{
 		const File*file;
 		do
 		{
-			file = nextEntry();
+			file = NextEntry();
 		}
 		while (file && !file->is_folder);
 		return file;
 	}
 
-	bool	Folder::nextFolder(File&target)
+	bool	Folder::NextFolder(File&target)
 	{
-		while (nextEntry(target))
+		while (NextEntry(target))
 			if (target.is_folder)
 				return true;
 		return false;
 	}
 
-	const Folder::File*	 Folder::nextFile()
+	const Folder::File*	 Folder::NextFile()
 	{
 		const File*file;
 		do
 		{
-			file = nextEntry();
+			file = NextEntry();
 		}
 		while (file && file->is_folder);
 		return file;
 	}
 
-	bool	Folder::nextFile(File&target)
+	bool	Folder::NextFile(File&target)
 	{
-		while (nextEntry(target))
+		while (NextEntry(target))
 			if (!target.is_folder)
 				return true;
 		return false;
 	}
 
 
-	const Folder::File*	 Folder::nextFile(const String&extension)
+	const Folder::File*	 Folder::NextFile(const String&extension)
 	{
 		const char*ext = extension.c_str();
 		const File*file;
 		do
 		{
-			file = nextEntry();
+			file = NextEntry();
 		}
-		while (file && (file->is_folder || !file->getLocation().endsWith(extension)));
-		//while (file && (file->is_folder || strcmpi(file->getExtensionPointer(),ext)));
+		while (file && (file->is_folder || !file->GetLocation().endsWith(extension)));
+		//while (file && (file->is_folder || strcmpi(file->GetExtensionPointer(),ext)));
 		return file;
 	}
 
-	bool	Folder::nextFile(const String&extension, File&target)
+	bool	Folder::NextFile(const String&extension, File&target)
 	{
 		const char*ext = extension.c_str();
-		while (nextEntry(target))
-			if (!target.is_folder && target.getLocation().endsWith(extension))
+		while (NextEntry(target))
+			if (!target.is_folder && target.GetLocation().endsWith(extension))
 				return true;
 		return false;
 	}
 
 
 
-	const Folder::File*	 Folder::find(const String&folder_str)	const
+	const Folder::File*	 Folder::Find(const String&folder_str)	const
 	{
-		if (find(folder_str,file))
+		if (Find(folder_str,file))
 			return &file;
 		return NULL;
 	}
 
-	bool	 Folder::find(const String&folder_str, File&out)	const
+	bool	 Folder::Find(const String&folder_str, File&out)	const
 	{
 		Folder	temporary = *this;
 		if (!temporary.resolvePath(folder_str,out.location))
 			return false;
-		out.name = extractFileNameExt(out.location);
+		out.name = ExtractFileNameExt(out.location);
 
 		#if SYSTEM==WINDOWS
 			DWORD attributes = GetFileAttributesA(out.location.c_str());
@@ -832,33 +832,33 @@ namespace FileSystem
 		return true;
 	}
 
-	const Folder::File*	 Folder::findFile(const String&folder_str)	const
+	const Folder::File*	 Folder::FindFile(const String&folder_str)	const
 	{
-		const File*rs = find(folder_str);
+		const File*rs = Find(folder_str);
 		if (!rs || rs->is_folder)
 			return NULL;
 		return rs;
 	}
 
-	bool	 Folder::findFile(const String&folder_str, File&out)	const
+	bool	 Folder::FindFile(const String&folder_str, File&out)	const
 	{
-		return find(folder_str,out) && !out.is_folder;
+		return Find(folder_str,out) && !out.is_folder;
 	}
 
 	bool	 Folder::FindFolder(const String&folder_str, File&out)	const
 	{
-		return find(folder_str,out) && out.is_folder;
+		return Find(folder_str,out) && out.is_folder;
 	}
 
 	const Folder::File*	 Folder::FindFolder(const String&folder_str)	const
 	{
-		const File*rs = find(folder_str);
+		const File*rs = Find(folder_str);
 		if (!rs || !rs->is_folder)
 			return NULL;
 		return rs;
 	}
 
-	const Folder::File*	 Folder::createFolder(const String&name)	const
+	const Folder::File*	 Folder::CreateFolder(const String&name)	const
 	{
 		if (!valid_location)
 			return NULL;
@@ -866,10 +866,10 @@ namespace FileSystem
 		if (location.lastChar() != '/' && location.lastChar() != '\\')
 			location += FOLDER_SLASH;
 		location += name;
-		return FileSystem::createFolder(location);
+		return FileSystem::CreateFolder(location);
 	}
 
-	bool	 Folder::createFolder(const String&name, File&out)	const
+	bool	 Folder::CreateFolder(const String&name, File&out)	const
 	{
 		if (!valid_location)
 			return false;
@@ -877,7 +877,7 @@ namespace FileSystem
 		if (location.lastChar() != '/' && location.lastChar() != '\\')
 			location += FOLDER_SLASH;
 		location += name;
-		return FileSystem::createFolder(location, out);
+		return FileSystem::CreateFolder(location, out);
 	}
 
 
@@ -891,28 +891,28 @@ namespace FileSystem
 		return "Folder: "+absolute_folder;
 	}
 
-	const String&  Folder::locationStr() const
+	const String&  Folder::LocationStr() const
 	{
 		return absolute_folder;
 	}
 
-	const String&  Folder::getLocation() const
+	const String&  Folder::GetLocation() const
 	{
 		return absolute_folder;
 	}
 
 
-	const Folder::File* Folder::location() const
+	const Folder::File* Folder::Location() const
 	{
 		if (!valid_location)
 			return NULL;
-		file.name = extractFileNameExt(absolute_folder);
+		file.name = ExtractFileNameExt(absolute_folder);
 		file.location = absolute_folder;
 		file.is_folder = true;
 		return &file;
 	}
 
-	const Folder::File* Folder::parentLocation()	  const
+	const Folder::File* Folder::ParentLocation()	  const
 	{
 		if (!valid_location)
 			return NULL;
@@ -921,7 +921,7 @@ namespace FileSystem
 				return false;
 		#endif
 
-		String	 super = extractFileDir(absolute_folder);
+		String	 super = ExtractFileDir(absolute_folder);
 		#if SYSTEM==WINDOWS
 			if (!super.length())
 				return NULL;
@@ -937,7 +937,7 @@ namespace FileSystem
 			#error not supported
 		#endif
 		file.location = super;
-		file.name = extractFileNameExt(super);
+		file.name = ExtractFileNameExt(super);
 		file.is_folder = true;
 		return &file;
 	}
@@ -975,7 +975,7 @@ namespace FileSystem
 
 
 
-	String workingDirectory()
+	String WorkingDirectory()
 	{
 		char buffer[0x1000];
 		#if SYSTEM==WINDOWS
@@ -991,7 +991,7 @@ namespace FileSystem
 		#endif
 	}
 
-	String getWorkingDirectory()
+	String GetWorkingDirectory()
 	{
 		char buffer[0x1000];
 		#if SYSTEM==WINDOWS
@@ -1007,7 +1007,7 @@ namespace FileSystem
 		#endif
 	}
 
-	bool  setWorkingDirectory(const String&path)
+	bool  SetWorkingDirectory(const String&path)
 	{
 		#if SYSTEM==WINDOWS
 			return !!SetCurrentDirectoryA(path.c_str());
@@ -1018,18 +1018,18 @@ namespace FileSystem
 		#endif
 	}
 
-	bool  setWorkingDirectory(const Folder&folder)
+	bool  SetWorkingDirectory(const Folder&folder)
 	{
-		return setWorkingDirectory(folder.getLocation());
+		return SetWorkingDirectory(folder.GetLocation());
 	}
 
-	void		getDriveList(Array<Drive>&out)
+	void		GetDriveList(Array<Drive>&out)
 	{
-    	count_t cnt = getDriveList(NULL,0);
+    	count_t cnt = GetDriveList(NULL,0);
         out.setSize(cnt);
-        getDriveList(out.pointer(),out.length());
+        GetDriveList(out.pointer(),out.length());
 	}
-	count_t getDriveList(Drive*target, count_t max)
+	count_t GetDriveList(Drive*target, count_t max)
 	{
 		#if SYSTEM==UNIX
 			if (max)
@@ -1082,11 +1082,11 @@ namespace FileSystem
 			return filename.subString(last_slash,last_dot-last_slash);
 		}
 
-	String	extractFileName(const String&filename)
+	String	ExtractFileName(const String&filename)
 	{
 		return _extractFileName(filename);
 	}
-	WString	extractFileName(const WString&filename)
+	WString	ExtractFileName(const WString&filename)
 	{
 		return _extractFileName(filename);
 	}
@@ -1101,11 +1101,11 @@ namespace FileSystem
 			return filename.subString(at+1);
 		}
 
-	String	extractFileExt(const String&filename)
+	String	ExtractFileExt(const String&filename)
 	{
 		return _extractFileExt(filename);
 	}
-	WString	extractFileExt(const WString&filename)
+	WString	ExtractFileExt(const WString&filename)
 	{
 		return _extractFileExt(filename);
 	}
@@ -1124,8 +1124,8 @@ namespace FileSystem
 			return filename.subString(0,at);
 		}
 
-	String	extractFileDir(const String&filename)	{return _extractFileDir(filename);}
-	WString	extractFileDir(const WString&filename)	{return _extractFileDir(filename);}
+	String	ExtractFileDir(const String&filename)	{return _extractFileDir(filename);}
+	WString	ExtractFileDir(const WString&filename)	{return _extractFileDir(filename);}
 
 	template <typename T>
 		static StringTemplate<T>	 _extractFileDirName(const StringTemplate<T>&filename)
@@ -1139,8 +1139,8 @@ namespace FileSystem
 			return filename.subString(0,at);
 		}
 
-	String	 extractFileDirName(const String&filename)	{return _extractFileDirName(filename);}
-	WString	 extractFileDirName(const WString&filename)	{return _extractFileDirName(filename);}
+	String	 ExtractFileDirName(const String&filename)	{return _extractFileDirName(filename);}
+	WString	 ExtractFileDirName(const WString&filename)	{return _extractFileDirName(filename);}
 
 	template <typename T>
 		static StringTemplate<T>	 _extractFileNameExt(const StringTemplate<T>&filename)
@@ -1152,8 +1152,8 @@ namespace FileSystem
 			return filename.subString(at+1);
 		}
 
-	String	 extractFileNameExt(const String&filename)	{return _extractFileNameExt(filename);}
-	WString	 extractFileNameExt(const WString&filename)	{return _extractFileNameExt(filename);}
+	String	 ExtractFileNameExt(const String&filename)	{return _extractFileNameExt(filename);}
+	WString	 ExtractFileNameExt(const WString&filename)	{return _extractFileNameExt(filename);}
 
 
 	template <typename T>
@@ -1170,16 +1170,16 @@ namespace FileSystem
 			}
 			return final;
 		}
-	String	 escapeSpaces(const String &path)	{return _escapeSpaces(path);}
-	WString	 escapeSpaces(const WString &path)	{return _escapeSpaces(path);}
+	String	 EscapeSpaces(const String &path)	{return _escapeSpaces(path);}
+	WString	 EscapeSpaces(const WString &path)	{return _escapeSpaces(path);}
 
 
-	bool isDirectory(const String&name)
+	bool IsDirectory(const String&name)
 	{
-		return isFolder(name);
+		return IsFolder(name);
 	}
 
-	bool isFolder(const String&name)
+	bool IsFolder(const String&name)
 	{
 		#if SYSTEM==WINDOWS
 			DWORD attribs = GetFileAttributesA(name.c_str());
@@ -1205,7 +1205,7 @@ namespace FileSystem
 		#endif
 	}
 
-	bool doesExist(const String&name)
+	bool DoesExist(const String&name)
 	{
 		#if SYSTEM==WINDOWS
 			return GetFileAttributesA(name.c_str()) != INVALID_FILE_ATTRIBUTES;
@@ -1217,12 +1217,12 @@ namespace FileSystem
 		#endif
 	}
 
-	ftime_t	fileDate(const String&name)
+	ftime_t	FileDate(const String&name)
 	{
-		return fileTime(name);
+		return GetModificationTime(name);
 	}
 
-	fsize_t		fileSize(const String&name)
+	fsize_t		GetFileSize(const String&name)
 	{
 		#if SYSTEM==WINDOWS
 			WIN32_FILE_ATTRIBUTE_DATA	data;
@@ -1242,7 +1242,7 @@ namespace FileSystem
 	}
 
 
-	ftime_t fileTime(const String&name)
+	ftime_t GetModificationTime(const String&name)
 	{
 		#if SYSTEM==WINDOWS
 			WIN32_FILE_ATTRIBUTE_DATA	data;
@@ -1269,13 +1269,13 @@ namespace FileSystem
 	}
 
 
-	const File*  moveFile(const String&source, const String&destination)
+	const File*  MoveFile(const String&source, const String&destination)
 	{
-		return move(source,destination);
+		return Move(source, destination);
 	}
 
 
-	const File*  move(const String&source, const String&destination)
+	const File*  Move(const String&source, const String&destination)
 	{
 		#if SYSTEM==WINDOWS
 			if (!MoveFileA(source.c_str(),destination.c_str()))
@@ -1286,28 +1286,28 @@ namespace FileSystem
 		#else
 			#error not supported
 		#endif
-		fs_result.name = extractFileNameExt(destination);
+		fs_result.name = ExtractFileNameExt(destination);
 		fs_result.location = destination;
-		fs_result.is_folder = isFolder(destination);
+		fs_result.is_folder = IsFolder(destination);
 		return &fs_result;
 	}
 
-	const File*  copy(const String&source, const String&destination, bool overwrite_if_exist)
+	const File*  Copy(const String&source, const String&destination, bool overwrite_if_exist)
 	{
-		if (doesExist(destination) && !overwrite_if_exist)
+		if (DoesExist(destination) && !overwrite_if_exist)
 			return NULL;
 		#if SYSTEM==WINDOWS
 			String my_destination = destination;
-			if (isFolder(destination) && !isFolder(source))
-				my_destination += FOLDER_SLASH+extractFileNameExt(source);
+			if (IsFolder(destination) && !IsFolder(source))
+				my_destination += FOLDER_SLASH+ExtractFileNameExt(source);
 
 			if (!CopyFileA(source.c_str(),my_destination.c_str(),!overwrite_if_exist) && system("copy \""+addSlashes(source)+"\" \""+addSlashes(destination)+"\""))
 				return NULL;
 		#elif SYSTEM==UNIX
-			/*FILE*fsource = fopen(escapeSpaces(source),"rb");
+			/*FILE*fsource = fopen(EscapeSpaces(source),"rb");
 			if (!source)
 				return NULL;
-			FILE*ftarget = fopen(escapeSpaces(destination),"wb");
+			FILE*ftarget = fopen(EscapeSpaces(destination),"wb");
 			if (!ftarget)
 			{
 				fclose(fsource);
@@ -1327,87 +1327,87 @@ namespace FileSystem
 			fclose(ftarget);*/
 		
 			
-			String call = ("cp "+escapeSpaces(source)+" "+escapeSpaces(destination));
+			String call = ("cp "+EscapeSpaces(source)+" "+EscapeSpaces(destination));
 			if (system(call))
 				return NULL;
 			//sleep(500);
 		#else
 			#error not supported
 		#endif
-		fs_result.name = extractFileNameExt(destination);
+		fs_result.name = ExtractFileNameExt(destination);
 		fs_result.location = destination;
-		fs_result.is_folder = isFolder(destination);
+		fs_result.is_folder = IsFolder(destination);
 		return &fs_result;
 	}
 
-	const File*  copy(const File*source, const String&destination, bool overwrite)
+	const File*  Copy(const File*source, const String&destination, bool overwrite)
 	{
 		if (!source)
 			return NULL;
-		return copy(source->location,destination,overwrite);
+		return Copy(source->location,destination,overwrite);
 	}
 
-	const File*  copy(const File&source, const String&destination, bool overwrite)
+	const File*  Copy(const File&source, const String&destination, bool overwrite)
 	{
-		return copy(source.location,destination,overwrite);
-	}
-
-
-	const File*  copyFile(const String&source, const String&destination, bool overwrite_if_exist)
-	{
-		return copy(source,destination,overwrite_if_exist);
-	}
-
-	const File*  copyFile(const File*source, const String&destination, bool overwrite)
-	{
-		return copy(source,destination,overwrite);
-	}
-
-	const File*  copyFile(const File&source, const String&destination, bool overwrite)
-	{
-		return copy(source,destination,overwrite);
+		return Copy(source.location,destination,overwrite);
 	}
 
 
-	const File*  move(const File*source, const String&destination)
+	const File*  CopyFile(const String&source, const String&destination, bool overwrite_if_exist)
 	{
-		return move(source->getLocation(),destination);
+		return Copy(source,destination,overwrite_if_exist);
 	}
 
-	const File*  move(const File&source, const String&destination)
+	const File*  CopyFile(const File*source, const String&destination, bool overwrite)
 	{
-		return move(source.getLocation(),destination);
+		return Copy(source,destination,overwrite);
+	}
+
+	const File*  CopyFile(const File&source, const String&destination, bool overwrite)
+	{
+		return Copy(source,destination,overwrite);
 	}
 
 
-	const File*  moveFile(const File*source, const String&destination)
+	const File*  Move(const File*source, const String&destination)
 	{
-		return move(source->getLocation(),destination);
+		return Move(source->GetLocation(),destination);
 	}
 
-	const File*  moveFile(const File&source, const String&destination)
+	const File*  Move(const File&source, const String&destination)
 	{
-		return move(source.getLocation(),destination);
+		return Move(source.GetLocation(),destination);
 	}
 
-	const File*  createDirectory(const String&folder_name)
+
+	const File*  MoveFile(const File*source, const String&destination)
 	{
-		return createFolder(folder_name);
+		return Move(source->GetLocation(),destination);
 	}
 
-	const File*  createFolder(const String&folder_name)
+	const File*  MoveFile(const File&source, const String&destination)
 	{
-		if (createFolder(folder_name,fs_result))
+		return Move(source.GetLocation(),destination);
+	}
+
+	const File*  CreateDirectory(const String&folder_name)
+	{
+		return CreateFolder(folder_name);
+	}
+
+	const File*  CreateFolder(const String&folder_name)
+	{
+		if (CreateFolder(folder_name,fs_result))
 			return &fs_result;
 		return NULL;
 	}
 
-	bool  createDirectory(const String&folder_name, File&out)
+	bool  CreateDirectory(const String&folder_name, File&out)
 	{
-		return createFolder(folder_name,out);
+		return CreateFolder(folder_name,out);
 	}
 
-	bool  createFolder(const String&folder_name, File&out)
+	bool  CreateFolder(const String&folder_name, File&out)
 	{
 		if (!folder_name.length())
 			return false;
@@ -1434,7 +1434,7 @@ namespace FileSystem
 		return true;
 	}
 
-	bool			unlinkFile(const String&location)
+	bool			UnlinkFile(const String&location)
 	{
 		#if SYSTEM==UNIX
 			return !::unlink(location.c_str());
@@ -1456,7 +1456,7 @@ namespace FileSystem
 
 	}
 
-	bool			removeFolder(const String&location)
+	bool			RemoveFolder(const String&location)
 	{
 		#if SYSTEM==UNIX
 			return !rmdir(location.c_str());
@@ -1470,53 +1470,53 @@ namespace FileSystem
 	}
 
 
-	static const File* resolveLink(const File*file)
+	static const File* ResolveLink(const File*file)
 	{
 		#if SYSTEM==UNIX
 			if (!file)
 				return NULL;
 
 			char buffer[0x200];
-			int len = readlink(file->getLocation(),buffer,sizeof(buffer));
+			int len = readlink(file->GetLocation(),buffer,sizeof(buffer));
 			if (len == -1 || len ==sizeof(buffer))
 				return file;
 			buffer[len] = 0;	//appearingly readlink does not terminate the string by itself
 	//		ShowMessage("symlink pointing to "+String(buffer));
-			Folder folder(file->getFolder());
-			return folder.findFile(buffer);
+			Folder folder(file->GetFolder());
+			return folder.FindFile(buffer);
 		#else
 
 			return file;
 		#endif
 	}
 
-	static bool resolveLink(File&file)
+	static bool ResolveLink(File&file)
 	{
 		#if SYSTEM==UNIX
 			char buffer[0x200];
-			int len = readlink(file.getLocation(),buffer,sizeof(buffer));
+			int len = readlink(file.GetLocation(),buffer,sizeof(buffer));
 			if (len == -1 || len >= sizeof(buffer))
 				return true;
 			buffer[len] = 0;	//appearingly readlink does not terminate the string by itself
 	//		ShowMessage("symlink pointing to "+String(buffer));
-			Folder folder(file.getFolder());
-			return folder.findFile(buffer,file);
+			Folder folder(file.GetFolder());
+			return folder.FindFile(buffer,file);
 		#else
 
 			return true;
 		#endif
 	}
 
-	const File*  locateExecutable(const char*name)
+	const File*  LocateExecutable(const char*name)
 	{
-		if (locateExecutable(name,fs_result))
+		if (LocateExecutable(name,fs_result))
 			return &fs_result;
 		return NULL;
 	}
 
-	bool  locateExecutable(const char*name, File&target)
+	bool  LocateExecutable(const char*name, File&target)
 	{
-		String wd = workingDirectory();
+		String wd = GetWorkingDirectory();
 		Folder folder(wd);
 
 		String filename=name;
@@ -1526,19 +1526,19 @@ namespace FileSystem
 		#endif
 		{
 			#if SYSTEM==WINDOWS
-				if (folder.findFile(filename,target))
-					return resolveLink(target);
-				if (folder.findFile(filename+".exe",target))
-					return resolveLink(target);
-				if (folder.findFile(wd+FOLDER_SLASH_STR+filename,target))
-					return resolveLink(target);
-				if (folder.findFile(wd+FOLDER_SLASH_STR+filename+".exe",target))
-					return resolveLink(target);
+				if (folder.FindFile(filename,target))
+					return ResolveLink(target);
+				if (folder.FindFile(filename+".exe",target))
+					return ResolveLink(target);
+				if (folder.FindFile(wd+FOLDER_SLASH_STR+filename,target))
+					return ResolveLink(target);
+				if (folder.FindFile(wd+FOLDER_SLASH_STR+filename+".exe",target))
+					return ResolveLink(target);
 			#else
-				if (folder.findFile(filename,target))
-					return resolveLink(target);
-				if (folder.findFile(wd+FOLDER_SLASH_STR+filename,target))
-					return resolveLink(target);
+				if (folder.FindFile(filename,target))
+					return ResolveLink(target);
+				if (folder.FindFile(wd+FOLDER_SLASH_STR+filename,target))
+					return ResolveLink(target);
 			#endif
 		}
 
@@ -1552,18 +1552,18 @@ namespace FileSystem
 					if (field[i-1] == '/' || field[i-1] == '\\')
 						field[i-1] = 0;
 					filename = String(segment_begin)+FOLDER_SLASH_STR+name;
-					if (folder.findFile(filename,target))
-						return resolveLink(target);
-					if (folder.findFile(filename+".exe",target))
-						return resolveLink(target);
+					if (folder.FindFile(filename,target))
+						return ResolveLink(target);
+					if (folder.FindFile(filename+".exe",target))
+						return ResolveLink(target);
 					segment_begin = field+i+1;
 				}
 			{
 				filename = String(segment_begin)+FOLDER_SLASH_STR+name;
-				if (folder.findFile(filename,target))
-					return resolveLink(target);
-				if (folder.findFile(filename+".exe",target))
-					return resolveLink(target);
+				if (folder.FindFile(filename,target))
+					return ResolveLink(target);
+				if (folder.FindFile(filename+".exe",target))
+					return ResolveLink(target);
 			}
 		}
 		return false;
@@ -1571,10 +1571,10 @@ namespace FileSystem
 
 	String			getAbsolutePath(const String&relative_path)
 	{
-		Folder	folder(getWorkingDirectory());
+		Folder	folder(GetWorkingDirectory());
 		File file;
-		if (folder.find(relative_path,file))
-			return file.getLocation();
+		if (folder.Find(relative_path,file))
+			return file.GetLocation();
 		return relative_path;
 	}
 

@@ -88,7 +88,7 @@ void	Map::ObjectInstance::parse(const XML::Node&node,float scale, const FileSyst
 	{
 		Mat::copy(system,instance->matrix);
 		instance->update();
-		sub_line = "Object:"+FileSystem::extractFileName(source_name);
+		sub_line = "Object:"+FileSystem::ExtractFileName(source_name);
 	}
 }
 
@@ -216,8 +216,8 @@ void			Map::Composition::initObject(CGS::Child<>*child)
 
 CGS::Tile*		Map::Composition::loadGeometry(const String&filename, float scale, const FileSystem::Folder&load_context)
 {
-	//FileSystem::Folder	local_folder(FileSystem::workingDirectory());
-	const FileSystem::File*file = load_context.findFile(filename);
+	//FileSystem::Folder	local_folder(FileSystem::GetWorkingDirectory());
+	const FileSystem::File*file = load_context.FindFile(filename);
 	if (!file)
 	{
 		warnings << "Error: Unable to locate '"+filename+"'";
@@ -225,21 +225,21 @@ CGS::Tile*		Map::Composition::loadGeometry(const String&filename, float scale, c
 		return NULL;
 	}
 	CGS::Tile*geo;
-	if (geometries.query(file->getLocation(),geo))
+	if (geometries.query(file->GetLocation(),geo))
 		return geo;
 
 	CGS::Geometry<>	local;
 
 	texture_resource.signalNowLoading(local);
 
-	if (local.loadFromFile(file->getLocation().c_str(),&texture_resource))
+	if (local.loadFromFile(file->GetLocation().c_str(),&texture_resource))
 	{
 		if (!nearingOne(scale))
 			local.scale(scale);
-		geo = geometries.define(file->getLocation());
+		geo = geometries.define(file->GetLocation());
 		local.extractDimensions(geo->dim);
 		geo->geometry.adoptData(local);
-		geo->filename = file->getLocation();
+		geo->filename = file->GetLocation();
 
 		return geo;
 	}
@@ -260,8 +260,8 @@ Map::Instance	Map::Composition::loadGeometry(const String&filename, float scale,
 
 bool		Map::Composition::loadFromFile(const String&filename, float default_scale /*=1.0f*/, LoadContext*context/*=NULL*/)
 {
-	CFSFolder	folder(FileSystem::getWorkingDirectory());
-	return loadFromFile(folder.findFile(filename),default_scale, context);
+	CFSFolder	folder(FileSystem::GetWorkingDirectory());
+	return loadFromFile(folder.FindFile(filename),default_scale, context);
 }
 
 
@@ -273,7 +273,7 @@ bool		Map::Composition::loadFromFile(const CFSFile*file, float default_scale /*=
 		return false;
 	try
 	{
-		container.loadFromFile(file->getLocation());
+		container.loadFromFile(file->GetLocation());
 	}
 	catch (...)
 	{
@@ -282,12 +282,12 @@ bool		Map::Composition::loadFromFile(const CFSFile*file, float default_scale /*=
 	load_file = *file;
 	has_data = false;
 	
-	CFSFolder folder(load_file.getFolder());
+	CFSFolder folder(load_file.GetFolder());
 	
 	if (!context)
 		context = &void_context;
 	
-	context->printMessage("Reading file '"+load_file.getLocation()+"'");
+	context->printMessage("Reading file '"+load_file.GetLocation()+"'");
 	String string;
 	context->printMessage(" Clearing...");
 	clear();
@@ -1156,10 +1156,10 @@ void Map::XSegment::parse(const XML::Node&node,float scale, const FileSystem::Fo
 
 	String string;
 	FileSystem::File file;
-	if (query(node,"tile",string) && loading_context.findFile(string,file))
+	if (query(node,"tile",string) && loading_context.FindFile(string,file))
 	{
 		composition->texture_resource.signalNowLoading(bent_geometry);
-		ASSERT__(bent_geometry.loadFromFile(file.getLocation(),&composition->texture_resource));
+		ASSERT__(bent_geometry.loadFromFile(file.GetLocation(),&composition->texture_resource));
 		TVec3<>	center;
 		ASSERT__(queryVector(node,"tile_center",center));
 		Vec::mult(center,scale);

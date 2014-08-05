@@ -94,8 +94,8 @@ namespace OpenAL
 		void			locate(const TVec3<>&position, bool relative=false);
 		inline void		Locate(const TVec3<>&position, bool relative=false)	{locate(position,relative);}
 		inline void		SetPosition(const TVec3<>&position, bool relative=false)	{locate(position,relative);}
-		void			getLocation(TVec3<>&position_out);
-		inline void		GetLocation(TVec3<>&positionOut)	{getLocation(positionOut);}
+		void			GetLocation(TVec3<>&position_out);
+		inline void		getLocation(TVec3<>&positionOut)	{GetLocation(positionOut);}
 		void			getPosition(TVec3<>&position_out);
 		inline void		GetPosition(TVec3<>&positionOut)	{getPosition(positionOut);}
 		bool			relativeLocation()	const;
