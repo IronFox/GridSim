@@ -93,7 +93,7 @@ namespace Engine
 		{}
 		DisplayConfig(const String&window_name_):window_name(window_name_),border_style(FixedBorder)
 		{}
-		DisplayConfig(const String&window_name_, bool hide_border_):window_name(window_name_),border_style(FixedBorder)
+		DisplayConfig(const String&window_name_, bool hide_border_):window_name(window_name_),border_style(hide_border_ ? NoBorder : FixedBorder)
 		{}
 		DisplayConfig(border_style_t style, const FOnResize&resize):border_style(style),onResize(resize)
 		{}
