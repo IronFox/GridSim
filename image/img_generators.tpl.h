@@ -175,18 +175,27 @@ template <class Nature>
 	}
 
 template <class Nature>
-	void        igHorizontalSinus(GenericImage<Nature>&target, const CGColor&bottom, const CGColor&top)
+	void        igHorizontalCubic(GenericImage<Nature>&target, const CGColor&bottom, const CGColor&top)
+	{
+		igHorizontalCubic(target, bottom, top, 0, target.width());
+	}
+template <class Nature>
+	void        igHorizontalCubic(GenericImage<Nature>&target, const CGColor&bottom, const CGColor&top, UINT begin, UINT width)
 	{
 		typedef typename Nature::float_type_t	F;
-		F c[4];
+		TVec4<F> c;
 		target.setChannels(4);
-		for (UINT32 x = 0; x < target.getWidth(); x++)
+		for (UINT32 x = begin; x < begin + width; x++)
+		{
+			F fc = cubicStep<F, F, F>(x, begin, begin + width);
+			//sin((F)(x-begin) / width * 2 * M_PI)*0.5 + 0.5;
+			Vec::interpolate(bottom, top, fc, c);
+
 			for (UINT32 y = 0; y < target.getHeight(); y++)
 			{
-				F fc = sin((F)x/target.getWidth()*2*M_PI)*0.5+0.5;
-				_interpolate4(bottom.v,top.v,fc,c);
-				target.set4f(x,y,c);
+				target.set4f(x, y, c.v);
 			}
+		}
 	}
 
 template <class Nature>

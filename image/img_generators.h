@@ -59,7 +59,9 @@ template <class Nature>
 template <class Nature>
 	void        igHorizontal(GenericImage<Nature>&target, const CGColor&top, const CGColor&center, const CGColor&bottom, bool use_cos=true);	//!< \overload
 template <class Nature>
-	void        igHorizontalSinus(GenericImage<Nature>&target, const CGColor&bottom, const CGColor&top);	//!< \overload
+	void        igHorizontalCubic(GenericImage<Nature>&target, const CGColor&bottom, const CGColor&top);	//!< \overload
+template <class Nature>
+	void        igHorizontalCubic(GenericImage<Nature>&target, const CGColor&bottom, const CGColor&top, UINT begin, UINT width);	//!< \overload
 template <class Nature>
 	void        igVerticalSinus(GenericImage<Nature>&target, const CGColor&bottom, const CGColor&top);	//!< \overload
 template <class Nature>
