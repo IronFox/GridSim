@@ -22,52 +22,55 @@ namespace Math
 	template <typename T=float>
 		struct TVec0
 		{
-			typedef T				Type;
+			typedef typename TypeInfo<T>::UnionCompatibleBase
+									Type;
 			static	const count_t	Dimensions=0;
 
-			T						v[0];	//!< Standard accessor
+			Type				v[0];	//!< Standard accessor
 		};
 
 	template <typename T=float>
 		struct TVec1
 		{
-			typedef T				Type;
-			static	const count_t	Dimensions=1;
+			typedef typename TypeInfo<T>::UnionCompatibleBase
+				Type;
+			static	const count_t	Dimensions = 1;
 
 			union
 			{
-				T				v[1];	//!< Standard accessor
-				T				x;	//!< 1D coordinate accessor
-				T				alpha;	//!< Color accessor
-				T				r;	//!< Color accessor
-				T				red;	//!< Color accessor
+				Type			v[1];	//!< Standard accessor
+				Type			x;	//!< 1D coordinate accessor
+				Type			alpha;	//!< Color accessor
+				Type			r;	//!< Color accessor
+				Type			red;	//!< Color accessor
 			};
 		};
 
 	template <typename T=float>
 		struct TVec2
 		{
-			typedef T				Type;
-			static	const count_t	Dimensions=2;
+			typedef typename TypeInfo<T>::UnionCompatibleBase
+				Type;
+			static	const count_t	Dimensions = 2;
 
 			union
 			{
-				T				v[2];	//!< Standard accessor
+				Type			v[2];	//!< Standard accessor
 				struct
 				{
-					T			x,y;	//!< 2D coordinate accessors
+					Type		x, y;	//!< 2D coordinate accessors
 				};
 				struct
 				{
-					T			r,g;	//!< Color accessors
+					Type		r, g;	//!< Color accessors
 				};
 				struct
 				{
-					T			red,green;	//!< Color accessors
+					Type		red, green;	//!< Color accessors
 				};
 				struct
 				{
-					T			luminance, alpha;	//!< Color accessors
+					Type		luminance, alpha;	//!< Color accessors
 				};
 				//T				xy[2];	//!< Named accessor
 				//T				la[2];	//!< Color accessor
@@ -77,15 +80,16 @@ namespace Math
 	template <typename T=float>
 		struct TVec3
 		{
-			typedef T				Type;
-			static	const count_t	Dimensions=3;
+			typedef typename TypeInfo<T>::UnionCompatibleBase
+				Type;
+			static	const count_t	Dimensions = 3;
 
 			union
 			{
-				T				v[3];	//!< Standard accessor
+				Type			v[3];	//!< Standard accessor
 				struct
 				{
-					T			x,y,z;	//!< 3D coordinate accessors
+					Type		x, y, z;	//!< 3D coordinate accessors
 				};
 				struct
 				{
@@ -93,31 +97,32 @@ namespace Math
 				};
 				struct
 				{
-					T			x_;
+					Type		x_;
 					TVec2<T>	yz;
 				};
 				struct
 				{
-					T			red, green, blue;	//!< Color accessors
+					Type		red, green, blue;	//!< Color accessors
 				};
 				struct
 				{
-					T			r, g, b;	//!< Color accessors
+					Type		r, g, b;	//!< Color accessors
 				};
 			};
 		};
 	template <typename T=float>
 		struct TVec4
 		{
-			typedef T				Type;
-			static	const count_t	Dimensions=4;
+			typedef typename TypeInfo<T>::UnionCompatibleBase
+				Type;
+			static	const count_t	Dimensions = 4;
 
 			union
 			{
-				T				v[4];	//!< Standard accessor
+				Type			v[4];	//!< Standard accessor
 				struct
 				{
-					T			x,y,z,w;	//!< 4D coordinate accessors
+					Type		x,y,z,w;	//!< 4D coordinate accessors
 				};
 				struct
 				{
@@ -125,20 +130,20 @@ namespace Math
 				};
 				struct
 				{
-					T			x_;
+					Type		x_;
 					TVec3<T>	yzw; //!< yzw accessor
 				};
 				struct
 				{
-					T			red, green, blue, alpha;	//!< Color accessors
+					Type		red, green, blue, alpha;	//!< Color accessors
 				};
 				struct
 				{
-					T			r, g, b, a;	//!< Color accessors
+					Type		r, g, b, a;	//!< Color accessors
 				};
 				TVec3<T>		rgb;		//!< Color accessor
-				TVec3<T>		xyz;		//!< Color accessor
-				T				rgba[4];	//!< Color accessor
+				TVec3<T>		xyz;		//!< Vector accessor
+				Type			rgba[4];	//!< Color accessor
 			};
 		};
 
@@ -146,15 +151,16 @@ namespace Math
 	template <typename T, count_t D>	//due to subsequent specializations for D=0, D=1, D=2, D=3, and D=4, D must be > 4 here
 		struct TVec
 		{
-			typedef T				Type;
-			static	const count_t	Dimensions=D;
+			typedef typename TypeInfo<T>::UnionCompatibleBase
+				Type;
+			static	const count_t	Dimensions = D;
 
 			union
 			{
-				T				v[D];	//!< Standard accessor
+				Type			v[D];	//!< Standard accessor
 				struct
 				{
-					T			x,y,z,w;	//!< 4D coordinate accessors
+					Type		x, y, z, w;	//!< 4D coordinate accessors
 				};
 				struct
 				{
@@ -166,20 +172,20 @@ namespace Math
 				};
 				struct
 				{
-					T			x_;
+					Type		x_;
 					TVec3<T>	yzw; //!< yzw accessor
 				};
 				struct
 				{
-					T			red, green, blue, alpha;	//!< Color accessors
+					Type		red, green, blue, alpha;	//!< Color accessors
 				};
 				struct
 				{
-					T			r, g, b, a;	//!< Color accessors
+					Type		r, g, b, a;	//!< Color accessors
 				};
 				TVec3<T>		rgb;		//!< Color accessor
 				TVec4<T>		rgba;	//!< Color accessor
-				TVec4<T>		xyzw;	//!< Color accessor
+				TVec4<T>		xyzw;	//!< Vector accessor
 			};
 		};
 
@@ -229,20 +235,32 @@ namespace Math
 		{
 			return max - min;
 		}
-
+	template <>
+		inline THalf	GetExtendOf(const THalf&min, const THalf&max)
+		{
+			return half(max - min);	//float min == max means no extend
+		}
+	template <>
+		inline half	GetExtendOf(const half&min, const half&max)
+		{
+			return half(max - min);	//float min == max means no extend
+		}
 
 
 	template <typename T=float>
 		class TRange
 		{
 		public:
+			typedef typename TypeInfo<T>::UnionCompatibleBase
+				Type;
+
 			union
 			{
 				struct
 				{
-					T				min,max;
+					Type			min,max;
 				};
-				T					extreme[2];
+				Type				extreme[2];
 			};
 
 
@@ -493,16 +511,19 @@ namespace Math
 		class Quad
 		{
 		public:
+			typedef typename TypeInfo<T>::UnionCompatibleBase
+				Type;
+
 			union
 			{
 				struct
 				{
-					T				left,
+					Type			left,
 									bottom,
 									right,
 									top;
 				};
-				T					value[4];
+				Type				value[4];
 			};
 
 			Quad()					{}
@@ -546,6 +567,7 @@ namespace Math
 		class Rect: public IToString	//! General purpose rectangle
 		{
 		public:
+			typedef typename TRange<T>::Type	Type;	//union compatible. all references must use this
 			union
 			{
 				struct
@@ -902,46 +924,46 @@ namespace Math
 
 
 
-			MF_DECLARE(T&)			left()
+			MF_DECLARE(Type&)		left()
 									{
 										return x.min;
 									}
-			MF_DECLARE(T&)			right()
+			MF_DECLARE(Type&)		right()
 									{
 										return x.max;
 									}
-			MF_DECLARE(T&)			bottom()
+			MF_DECLARE(Type&)		bottom()
 									{
 										return y.min;
 									}
-			MF_DECLARE(T&)			top()
+			MF_DECLARE(Type&)		top()
 									{
 										return y.max;
 									}
 
-			MF_DECLARE(const T&)	left()	const
+			MF_DECLARE(const Type&)	left()	const
 									{
 										return x.min;
 									}
-			MF_DECLARE(const T&)	right()	const
+			MF_DECLARE(const Type&)	right()	const
 									{
 										return x.max;
 									}
-			MF_DECLARE(const T&)	bottom()	const
+			MF_DECLARE(const Type&)	bottom()	const
 									{
 										return y.min;
 									}
-			MF_DECLARE(const T&)	top()	const
+			MF_DECLARE(const Type&)	top()	const
 									{
 										return y.max;
 									}
 
-			MF_DECLARE(const T&)	operator[](index_t index)	const
+			MF_DECLARE(const Type&)	operator[](index_t index)	const
 									{
 										DBG_ASSERT_LESS__(index,4);
 										return axis[index%2].extreme[index/2];
 									}
-			MF_DECLARE(T&)			operator[](index_t index)
+			MF_DECLARE(Type&)		operator[](index_t index)
 									{
 										DBG_ASSERT_LESS__(index,4);
 										return axis[index%2].extreme[index/2];
@@ -1024,6 +1046,8 @@ namespace Math
 		class Box: public IToString	//! General purpose box
 		{
 		public:
+			typedef typename TRange<T>::Type	Type;	//union compatible. all references must use this
+
 			union
 			{
 				struct

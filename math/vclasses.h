@@ -50,6 +50,8 @@ namespace Math
 	{
 	public:
 		typedef Vec3<C>					Self;
+		typedef TVec<C, 3>				Super;
+		typedef typename Super::Type	Type;	//union-compatible
 
 		MF_CONSTRUCTOR					Vec3();
 		explicit MF_CONSTRUCTOR			Vec3(const C&value);
@@ -107,8 +109,8 @@ namespace Math
 		MFUNC1 (bool)					operator<(const TVec3<C0>&other)		const;		//!< Lexicographic order using _compare
 		MFUNC1 (int)					compareTo(const TVec3<C0>&other)		const	{return Vec::compare(*this,other);}
 		MFUNC1 (int)					CompareTo(const TVec3<C0>&other)		const	{return Vec::compare(*this,other);}
-		MF_DECLARE(C&)					operator[](index_t component);						//return component of the vector
-		MF_DECLARE(const C&)			operator[](index_t component)			const;
+		MF_DECLARE(Type&)				operator[](index_t component);						//return component of the vector
+		MF_DECLARE(const Type&)			operator[](index_t component)			const;
 
 		MFUNC1 (C)						operator()(const C0&x)					const;		//!< Evaluates the local vector as a polynomial ax² + bx + c
 
@@ -119,6 +121,8 @@ namespace Math
 	{
 	public:
 		typedef Vec2<C>					Self;
+		typedef TVec<C, 2>				Super;
+		typedef typename Super::Type	Type;	//union-compatible
 
 		MF_CONSTRUCTOR					Vec2();
 		explicit MF_CONSTRUCTOR			Vec2(const C&value);
@@ -176,8 +180,8 @@ namespace Math
 		MFUNC1 (bool)					operator<(const TVec2<C0>&other)		const;		//!< Lexicographic order using _compare
 		MFUNC1 (int)					compareTo(const TVec2<C0>&other)		const	{return Vec::compare(*this,other);}
 		MFUNC1 (int)					CompareTo(const TVec2<C0>&other)		const	{return Vec::compare(*this,other);}
-		MF_DECLARE(C&)					operator[](index_t component);						//return component of the vector
-		MF_DECLARE(const C&)			operator[](index_t component)			const;
+		MF_DECLARE(Type&)				operator[](index_t component);						//return component of the vector
+		MF_DECLARE(const Type&)			operator[](index_t component)			const;
 		MFUNC1 (C)						operator()(const C0&x)					const;		//!< Evaluates the local vector as a polynomial ax + b
 
 	};
@@ -187,6 +191,8 @@ namespace Math
 	{
 	public:
 		typedef Vec4<C>					Self;
+		typedef TVec<C, 4>				Super;
+		typedef typename Super::Type	Type;	//union-compatible
 
 		MF_CONSTRUCTOR					Vec4();
 		explicit MF_CONSTRUCTOR			Vec4(const C&value);
@@ -240,8 +246,8 @@ namespace Math
 		MFUNC1 (bool)					operator<(const TVec4<C0>&other)		const;		//!< Lexicographic order using _compare
 		MFUNC1 (int)					compareTo(const TVec4<C0>&other)		const	{return Vec::compare(*this,other);}
 		MFUNC1 (int)					CompareTo(const TVec4<C0>&other)		const	{return Vec::compare(*this,other);}
-		MF_DECLARE(C&)					operator[](index_t component);						//return component of the vector
-		MF_DECLARE(const C&)			operator[](index_t component)			const;
+		MF_DECLARE(Type&)				operator[](index_t component);						//return component of the vector
+		MF_DECLARE(const Type&)			operator[](index_t component)			const;
 	};
 
 
@@ -251,6 +257,7 @@ namespace Math
 	{
 	public:
 		Vec3<C>			position,direction;
+		typedef typename Vec3<C>::Type		Type;	//union-compatible
 
 		MF_CONSTRUCTOR				Line();
 		MF_CONSTRUCTOR				Line(const Line<C>&);
@@ -278,6 +285,10 @@ namespace Math
 	template <class C, count_t Len> class VecN:public TVec<C,Len>
 	{
 	public:
+		typedef VecN<C,Len>					Self;
+		typedef TVec<C, Len>				Super;
+		typedef typename Super::Type		Type;	//union-compatible
+
 
 			MF_CONSTRUCTOR1					VecN(const TVec2<C> &v)
 											{
@@ -336,8 +347,8 @@ namespace Math
 			MFUNC1 (bool)					operator>(const TVec<C0,Len>&other)		const;		//!< Lexicographic order using _compare
 			MFUNC1 (bool)					operator<(const TVec<C0,Len>&other)		const;		//!< Lexicographic order using _compare
 			MFUNC1 (char)					compareTo(const TVec<C0,Len>&other)		const;		//!< Lexicographic order using _compare
-			MF_DECLARE(C&)					operator[](index_t component);						//return component of the vector
-			MF_DECLARE(const C&)			operator[](index_t component)			const;
+			MF_DECLARE(Type&)				operator[](index_t component);						//return component of the vector
+			MF_DECLARE(const Type&)			operator[](index_t component)			const;
 	};
 
 
@@ -362,6 +373,9 @@ namespace Math
 	typedef Vec2<bool>		bool2;
 	typedef Vec3<bool>		bool3;
 	typedef Vec4<bool>		bool4;
+	typedef Vec2<half>		half2;
+	typedef Vec3<half>		half3;
+	typedef Vec4<half>		half4;
 
 
 

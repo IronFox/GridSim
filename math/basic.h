@@ -49,53 +49,262 @@ Collection of basic template functions.
 */
 namespace Math
 {
-		template <count_t Val0, count_t Val1>
-			struct Eval
-			{
-				static const count_t	Min = Val0 < Val1?Val0:Val1;
-				static const count_t	Max = Val0 > Val1?Val0:Val1;
-				static const bool		GreaterOrEqual=Val0>=Val1;
-				static const bool		Greater=Val0>Val1;
-				static const bool		Equal = Val0==Val1;
-				static const bool		NotEqual = Val0!=Val1;
-				static const bool		LessOrEqual=Val0<=Val1;
-				static const bool		Less=Val0<Val1;
-			};
-
-
-		inline float	Round(float x)
+	//taken from here:
+	//http://sourceforge.net/p/csharp-half/code/HEAD/tree/
+	ALIGN2
+	class THalf
+	{
+	protected:
+		struct Helper
 		{
-			#if _MSC_VER >= 1700	/*vs11*/ || (defined __GXX_EXPERIMENTAL_CXX0X__)
-				return std::round(x);
-			#else
-				if (x < 0.f)
-					return (int)(x - 0.5f);
-				else
-					return (int)(x + 0.5f);
-			#endif
+			UINT32 mantissaTable[2048];
+			UINT32 exponentTable[64];
+			USHORT offsetTable[64];
+			USHORT baseTable[512];
+			char shiftTable[512];
+
+			Helper()
+			{
+				FillMantissaTable();
+				FillExponentTable();
+				FillOffsetTable();
+				FillBaseTable();
+				FillShiftTable();
+			}
+
+			// Transforms the subnormal representation to a normalized one. 
+			UINT ConvertMantissa(UINT i);
+
+			void FillMantissaTable();
+			void FillExponentTable();
+			void FillOffsetTable();
+			void FillBaseTable();
+			void FillShiftTable();
+
+			float HalfToSingle(USHORT half)
+			{
+				UINT result = mantissaTable[offsetTable[half >> 10] + (half & 0x3ff)] + exponentTable[half >> 10];
+				return *((float*)&result);
+			}
+			USHORT SingleToHalf(float single)
+			{
+				UINT value = *((UINT*)&single);
+
+				USHORT result = (USHORT)(baseTable[(value >> 23) & 0x1ff] + ((value & 0x007fffff) >> shiftTable[value >> 23]));
+				return result;
+			}
+
+			USHORT Negate(USHORT half)
+			{
+				return (USHORT)(half ^ 0x8000);
+			}
+			USHORT Abs(USHORT half)
+			{
+				return (USHORT)(half & 0x7fff);
+			}
+
+			bool IsNaN(USHORT half)
+			{
+				return ((half & 0x7fff) > 0x7c00);
+			}
+			bool IsInfinity(USHORT half)
+			{
+				return ((half & 0x7fff) == 0x7c00);
+			}
+			bool IsPositiveInfinity(USHORT half)
+			{
+				return (half == 0x7c00);
+			}
+			bool IsNegativeInfinity(USHORT half)
+			{
+				return (half == 0xfc00);
+			}
+		};
+		static Helper	helper;
+
+
+		USHORT	value;
+	public:
+
+		static THalf	min,
+						max,
+						epsilon,
+						infinity,
+						negativeInfinity,
+						quietNaN,
+						signalingNaN;
+
+
+		operator float() const
+		{
+			return helper.HalfToSingle(value);
+		}
+
+		THalf& operator=(float v)
+		{
+			value = helper.SingleToHalf(v);
+			return *this;
+		}
+		THalf operator-() const
+		{
+			THalf rs;
+			rs.value = helper.Negate(value);
+			return rs;
+		}
+		THalf& operator-=(float v)
+		{
+			value = helper.SingleToHalf(helper.HalfToSingle(value) - v);
+			return *this;
+		}
+		THalf& operator+=(float v)
+		{
+			value = helper.SingleToHalf(helper.HalfToSingle(value) + v);
+			return *this;
+		}
+		THalf& operator*=(float v)
+		{
+			value = helper.SingleToHalf(helper.HalfToSingle(value) * v);
+			return *this;
+		}
+		THalf& operator/=(float v)
+		{
+			value = helper.SingleToHalf(helper.HalfToSingle(value) / v);
+			return *this;
+		}
+
+		static THalf Interpret(USHORT bits)
+		{
+			THalf rs;
+			rs.value = bits;
+			return rs;
+		}
+
+		static THalf Make(float v)
+		{
+			THalf rs;
+			rs = v;
+			return rs;
+		}
+
+		bool	IsNaN() const
+		{
+			return helper.IsNaN(value);
+		}
+
+		bool	IsInfinity()	const
+		{
+			return helper.IsInfinity(value);
+		}
+		bool IsPositiveInfinity()	const
+		{
+			return helper.IsPositiveInfinity(value);
+		}
+		bool IsNegativeInfinity()	const
+		{
+			return helper.IsNegativeInfinity(value);
+		}
+
+		void	CopyBits(USHORT v)
+		{
+			value = v;
+		}
+
+		THalf	Abs() const
+		{
+			return Interpret(helper.Abs(value));
+		}
+
+	};
+
+
+	ALIGN2
+	class half : public THalf
+	{
+	public:
+		/**/	half()	{}
+		/**/	half(float v)
+		{
+			value = (helper.SingleToHalf(v));
+		}
+		/**/	half(const THalf&h) : THalf(h){}
+		
+		operator float() const
+		{
+			return helper.HalfToSingle(value);
+		}
+
+		half& operator=(float v)
+		{
+			value = helper.SingleToHalf(v);
+			return *this;
+		}
+		half operator-() const
+		{
+			half rs;
+			rs.value = helper.Negate(value);
+			return rs;
+		}
+		half	Abs() const
+		{
+			half rs;
+			rs.value = (helper.Abs(value));
+			return rs;
 		}
 
 
-		template <typename T>
-			T		rnd(const T&val);
-			
-		#ifdef _MSC_VER
-			MF_DECLARE(float)	fmax(float a, float b);
+
+
+	};
+
+
+
+	template <count_t Val0, count_t Val1>
+		struct Eval
+		{
+			static const count_t	Min = Val0 < Val1?Val0:Val1;
+			static const count_t	Max = Val0 > Val1?Val0:Val1;
+			static const bool		GreaterOrEqual=Val0>=Val1;
+			static const bool		Greater=Val0>Val1;
+			static const bool		Equal = Val0==Val1;
+			static const bool		NotEqual = Val0!=Val1;
+			static const bool		LessOrEqual=Val0<=Val1;
+			static const bool		Less=Val0<Val1;
+		};
+
+
+	inline float	Round(float x)
+	{
+		#if _MSC_VER >= 1700	/*vs11*/ || (defined __GXX_EXPERIMENTAL_CXX0X__)
+			return std::round(x);
+		#else
+			if (x < 0.f)
+				return (int)(x - 0.5f);
+			else
+				return (int)(x + 0.5f);
 		#endif
+	}
 
-		float		belowOne(float f);
 
-		double		dRound(double f);
-		double		dSqr(double f);
-
-		char*		makeStr(unsigned len);
-		void		dropStr();
+	template <typename T>
+		T		rnd(const T&val);
 			
-		#if 0
-			String	 float2str(double,BYTE precission);
-			String	 doubleStr(double f, bool force);
-			String	 floatStr(float f, bool force=false);
-		#endif
+	#ifdef _MSC_VER
+		MF_DECLARE(float)	fmax(float a, float b);
+	#endif
+
+	float		belowOne(float f);
+
+	double		dRound(double f);
+	double		dSqr(double f);
+
+	char*		makeStr(unsigned len);
+	void		dropStr();
+			
+	#if 0
+		String	 float2str(double,BYTE precission);
+		String	 doubleStr(double f, bool force);
+		String	 floatStr(float f, bool force=false);
+	#endif
 
 
 	inline   __declspec(nothrow)	void	__fastcall test() ;
@@ -239,9 +448,11 @@ namespace Math
 	template <typename T>
 		class TypeInfo
 		{
+		public:
 			/*
 				A TypeInfo definition must provide the following definitions and static const variables:
 				typedef Type: Reflection to type T
+				typedef UnionCompatibleBase : constructor-less base type to use within unions
 				typedef SignedType: Typedef to a TypeInfo<*> that provides the signed variant of the local type. If no such exists or the local type already matches the specification then the typedef should link to this type
 				typedef UnsignedType: Typedef to a TypeInfo<*> that provides the unsigned variant of the local type. If no such exists or the local type already matches the specification then the typedef should link to this type
 				typedef GreaterType: Typedef to a TypeInfo<*> that provides a greater integer range. Floating point type infos should link to themselves.
@@ -254,6 +465,8 @@ namespace Math
 				const char*name: Name of this type
 			*/
 
+			typedef T			Type;
+			typedef T			UnionCompatibleBase;	//for pointers etc
 			typedef TFalse		IsPrimitive;
 		};
 
@@ -262,6 +475,7 @@ namespace Math
 		{
 		public:
 		typedef INT8		Type;
+		typedef Type		UnionCompatibleBase;
 		typedef TypeInfo<UINT8>	UnsignedType;
 		typedef TypeInfo<INT8>	SignedType;
 		typedef TypeInfo<INT16>	GreaterType;
@@ -281,6 +495,7 @@ namespace Math
 		{
 		public:
 		typedef INT16		Type;
+		typedef Type		UnionCompatibleBase;
 		typedef TypeInfo<UINT16>UnsignedType;
 		typedef TypeInfo<INT16>	SignedType;
 		typedef TypeInfo<INT32>	GreaterType;
@@ -300,6 +515,7 @@ namespace Math
 		{
 		public:
 		typedef INT32		Type;
+		typedef Type		UnionCompatibleBase;
 		typedef TypeInfo<UINT32>UnsignedType;
 		typedef TypeInfo<INT32>	SignedType;
 		typedef TypeInfo<INT64>	GreaterType;
@@ -315,10 +531,51 @@ namespace Math
 		};
 
 	template <>
+		class TypeInfo<LONG>
+		{
+		public:
+		typedef long		Type;
+		typedef Type		UnionCompatibleBase;
+		typedef TypeInfo<ULONG>UnsignedType;
+		typedef TypeInfo<LONG>	SignedType;
+		typedef TypeInfo<INT64>	GreaterType;
+		typedef TypeInfo<INT16>	LesserType;
+		typedef TTrue		IsPrimitive;
+		static const bool	is_signed=true,
+							is_float=false;
+		static const Type	zero = 0;
+		static const Type	max = (LONG)(((ULONG)((LONG)-1)) >> 1);  //0x7FFFFFFF;
+		static const Type	min = -max-1;
+		static const Type	error = 0;
+		static const char*	name;
+		};
+
+	template <>
+		class TypeInfo<ULONG>
+		{
+		public:
+		typedef long		Type;
+		typedef Type		UnionCompatibleBase;
+		typedef TypeInfo<ULONG>UnsignedType;
+		typedef TypeInfo<LONG>	SignedType;
+		typedef TypeInfo<INT64>	GreaterType;
+		typedef TypeInfo<INT16>	LesserType;
+		typedef TTrue		IsPrimitive;
+		static const bool	is_signed=false,
+							is_float=false;
+		static const Type	zero = 0;
+		static const Type	max = ((ULONG)((LONG)-1));  //0x7FFFFFFF;
+		static const Type	min = 0;
+		static const Type	error = 0;
+		static const char*	name;
+		};
+
+	template <>
 		class TypeInfo<INT64>
 		{
 		public:
 		typedef INT64		Type;
+		typedef Type		UnionCompatibleBase;
 		typedef TypeInfo<UINT64>UnsignedType;
 		typedef TypeInfo<INT64>	SignedType;
 		typedef TypeInfo<INT64>	GreaterType;
@@ -338,6 +595,7 @@ namespace Math
 		{
 		public:
 		typedef UINT8		Type;
+		typedef Type		UnionCompatibleBase;
 		typedef TypeInfo<UINT8>	UnsignedType;
 		typedef TypeInfo<INT8>	SignedType;
 		typedef TypeInfo<UINT16>GreaterType;
@@ -353,10 +611,31 @@ namespace Math
 		};
 
 	template <>
+		class TypeInfo<bool>
+		{
+		public:
+			typedef bool		Type;
+			typedef Type		UnionCompatibleBase;
+			typedef TypeInfo<bool>	UnsignedType;
+			typedef TypeInfo<bool>	SignedType;
+			typedef TypeInfo<bool>	GreaterType;
+			typedef TypeInfo<bool>	LesserType;
+			typedef TTrue		IsPrimitive;
+			static const bool	is_signed = false,
+				is_float = false;
+			static const Type	zero = false;
+			static const Type	max = true;
+			static const Type	min = false;
+			static const Type	error = 0;
+			static const char*	name;
+		};
+
+	template <>
 		class TypeInfo<UINT16>
 		{
 		public:
 		typedef UINT16		Type;
+		typedef Type		UnionCompatibleBase;
 		typedef TypeInfo<UINT16>UnsignedType;
 		typedef TypeInfo<INT16>	SignedType;
 		typedef TypeInfo<UINT32>GreaterType;
@@ -376,6 +655,7 @@ namespace Math
 		{
 		public:
 		typedef UINT32		Type;
+		typedef Type		UnionCompatibleBase;
 		typedef TypeInfo<UINT32>UnsignedType;
 		typedef TypeInfo<INT32>	SignedType;
 		typedef TypeInfo<UINT64>GreaterType;
@@ -395,6 +675,7 @@ namespace Math
 		{
 		public:
 		typedef UINT64		Type;
+		typedef Type		UnionCompatibleBase;
 		typedef TypeInfo<UINT64>UnsignedType;
 		typedef TypeInfo<INT64>	SignedType;
 		typedef TypeInfo<UINT64>GreaterType;
@@ -414,6 +695,7 @@ namespace Math
 		{
 		public:
 		typedef float		Type;
+		typedef Type		UnionCompatibleBase;
 		typedef TypeInfo<Type>	UnsignedType;
 		typedef TypeInfo<Type>	SignedType;
 		typedef TypeInfo<Type>	GreaterType;
@@ -433,6 +715,7 @@ namespace Math
 		{
 		public:
 		typedef double		Type;
+		typedef Type		UnionCompatibleBase;
 		typedef TypeInfo<Type>	UnsignedType;
 		typedef TypeInfo<Type>	SignedType;
 		typedef TypeInfo<Type>	GreaterType;
@@ -452,6 +735,7 @@ namespace Math
 		{
 		public:
 		typedef long double	Type;
+		typedef Type		UnionCompatibleBase;
 		typedef TypeInfo<Type>	UnsignedType;
 		typedef TypeInfo<Type>	SignedType;
 		typedef TypeInfo<Type>	GreaterType;
@@ -469,9 +753,162 @@ namespace Math
 
 
 
+	template <>
+		class TypeInfo<THalf>
+		{
+		public:
+			typedef THalf	Type;
+			typedef Type		UnionCompatibleBase;
+			typedef TypeInfo<Type>	UnsignedType;
+			typedef TypeInfo<Type>	SignedType;
+			typedef TypeInfo<Type>	GreaterType;
+			typedef TypeInfo<Type>	LesserType;
+			typedef TTrue		IsPrimitive;
+			static const bool	is_signed = true,
+				is_float = true;
+			static const Type	zero;
+			static const Type	max;
+			static const Type	min;
+			static const Type	undefined;
+			static const Type	error;
+			static const char*	name;
+		};
+
+		template <>
+		class TypeInfo<half> : public TypeInfo<THalf>
+		{};
+
 
 
 }
+
+namespace std
+{
+	template <>
+	class numeric_limits < Math::THalf >
+		: public _Num_float_base
+	{
+	public:
+		typedef Math::THalf _Ty;
+
+		static _Ty(min)() _THROW0()
+		{	// return minimum value
+			return Math::half::min;
+		}
+
+		static _Ty(max)() _THROW0()
+		{	// return maximum value
+			return Math::half::max;
+		}
+
+		static _Ty lowest() _THROW0()
+		{	// return most negative value
+			return (-(max)());
+		}
+
+		static _Ty epsilon() _THROW0()
+		{	// return smallest effective increment from 1.0
+			return Math::half::epsilon;
+		}
+
+		static _Ty round_error() _THROW0()
+		{	// return largest rounding error
+			return Math::half::Make(0.5f);
+		}
+
+
+		static _Ty infinity() _THROW0()
+		{	// return positive infinity
+			return Math::half::infinity;
+		}
+
+		static _Ty quiet_NaN() _THROW0()
+		{	// return non-signaling NaN
+			return Math::half::quietNaN;
+		}
+
+		static _Ty signaling_NaN() _THROW0()
+		{	// return signaling NaN
+			return Math::half::signalingNaN;
+		}
+
+		#define HLF_MANT_DIG 11
+		_STCONS(int, digits, HLF_MANT_DIG);
+		_STCONS(int, digits10, 3);
+
+		_STCONS(int, max_digits10, 2 + HLF_MANT_DIG * 301L / 1000);
+
+		_STCONS(int, max_exponent, (int)15);
+		_STCONS(int, max_exponent10, (int)4);
+		_STCONS(int, min_exponent, (int)-14);
+		_STCONS(int, min_exponent10, (int)-5);
+
+	};
+
+	template <>
+	class numeric_limits < Math::half >
+		: public numeric_limits<Math::THalf>
+	{
+	public:
+		typedef Math::half _Ty;
+
+		static _Ty(min)() _THROW0()
+		{	// return minimum value
+			return Math::half::min;
+		}
+
+		static _Ty(max)() _THROW0()
+		{	// return maximum value
+			return Math::half::max;
+		}
+
+		static _Ty lowest() _THROW0()
+		{	// return most negative value
+			return (-(max)());
+		}
+
+		static _Ty epsilon() _THROW0()
+		{	// return smallest effective increment from 1.0
+			return Math::half::epsilon;
+		}
+
+		static _Ty round_error() _THROW0()
+		{	// return largest rounding error
+			return Math::half::Make(0.5f);
+		}
+
+
+		static _Ty infinity() _THROW0()
+		{	// return positive infinity
+			return Math::half::infinity;
+		}
+
+		static _Ty quiet_NaN() _THROW0()
+		{	// return non-signaling NaN
+			return Math::half::quietNaN;
+		}
+
+		static _Ty signaling_NaN() _THROW0()
+		{	// return signaling NaN
+			return Math::half::signalingNaN;
+		}
+
+	};
+
+}
+
+inline Math::half fabs(Math::half v)
+{
+	return v.Abs();
+}
+inline Math::THalf fabs(Math::THalf v)
+{
+	return v.Abs();
+}
+
+
+
+
 
 using namespace Math;
 namespace M = Math;

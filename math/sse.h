@@ -25,6 +25,11 @@
 	#include "object.h"
 #endif
 #ifdef SSE__
+
+
+
+
+
 	
 	#ifndef __GNUC__
 		#define ALIGNED16	__declspec(align(16))
@@ -951,6 +956,28 @@
 
 	namespace Math
 	{
+
+		template <>
+		class TypeInfo < SSE_VECTOR >
+		{
+		public:
+			typedef SSE_VECTOR	Type;
+			typedef Type		UnionCompatibleBase;
+			typedef TypeInfo<Type>	UnsignedType;
+			typedef TypeInfo<Type>	SignedType;
+			typedef TypeInfo<Type>	GreaterType;
+			typedef TypeInfo<Type>	LesserType;
+			typedef TTrue		IsPrimitive;
+			static const bool	is_signed = true,
+				is_float = true;
+			//static const Type	zero;
+			//static const Type	max;
+			//static const Type	min;
+			//static const Type	undefined;
+			//static const Type	error;
+			//static const char*	name;
+		};
+
 		namespace Vec
 		{
 			template <>
@@ -998,6 +1025,10 @@
 	}
 
 
+	namespace Math
+	{
+
+	}
 
 #endif
 

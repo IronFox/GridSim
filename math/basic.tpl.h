@@ -128,7 +128,12 @@ namespace Math
 		{
 			return fabsl(v);
 		}
-		
+
+		MF_SPECIALIZED(half)  vabs<half>(const half&v)
+		{
+			return v.Abs();
+		}
+
 		MFUNC (C)             vsqrt(const C&v)
 		{
 			return sqrt(v);
@@ -566,23 +571,8 @@ namespace Math
 	
     MFUNC	(C)        getError()
     {
-        return 0;
-    }
-
-    MF_SPECIALIZED	(float)    getError<float>()
-    {
-        return 1e-6f;
-    }
-
-    MF_SPECIALIZED	(double)   getError<double>()
-    {
-        return 1e-12;
-    }
-
-    MF_SPECIALIZED	(long double)   getError<long double>()
-    {
-        return 1e-15;
-    }
+		return std::numeric_limits<C>::epsilon();
+	}
 
 
     MFUNC3	(C0)          clamped(C0 v, C1 min, C2 max)
@@ -655,6 +645,12 @@ namespace Math
         #endif
     }
 	
+
+	MF_SPECIALIZED(half)  vabs<half>(half v)
+	{
+		return v.Abs();
+	}
+
 
     MF_SPECIALIZED	(long double)  vabs<long double>(long double v)
     {

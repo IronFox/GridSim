@@ -204,12 +204,12 @@ namespace Math
         return _dotV<C,C0,Len0>(v,other.v);
     }
 */
-    template <class C, count_t Len> MF_DECLARE (C&) VecN<C,Len>::operator[](index_t component)
+	template <class C, count_t Len> MF_DECLARE(typename TypeInfo<C>::UnionCompatibleBase &) VecN<C, Len>::operator[](index_t component)
     {
         return v[component];
     }
     
-    template <class C, count_t Len> MF_DECLARE (const C&) VecN<C,Len>::operator[](index_t component) const
+	template <class C, count_t Len> MF_DECLARE(const typename TypeInfo<C>::UnionCompatibleBase&) VecN<C, Len>::operator[](index_t component) const
     {
         return v[component];
     }
@@ -433,12 +433,12 @@ namespace Math
     }
 
 
-    template <class C>  MF_DECLARE  (C&)          Vec3<C>::operator[](index_t component)
+	template <class C>  MF_DECLARE(typename Vec3<C>::Type&)          Vec3<C>::operator[](index_t component)
     {
         return v[component];
     }
     
-    template <class C>  MF_DECLARE  (const C&)          Vec3<C>::operator[](index_t component) const
+	template <class C>  MF_DECLARE(const typename Vec3<C>::Type&)          Vec3<C>::operator[](index_t component) const
     {
         return v[component];
     }
@@ -629,12 +629,12 @@ namespace Math
 	}
 
 
-    template <class C>  MF_DECLARE  (C&)          Vec2<C>::operator[](index_t component)
+	template <class C>  MF_DECLARE(typename Vec2<C>::Type&)          Vec2<C>::operator[](index_t component)
     {
         return v[component];
     }
 
-    template <class C>  MF_DECLARE  (const C&)          Vec2<C>::operator[](index_t component) const
+	template <class C>  MF_DECLARE(const typename Vec2<C>::Type&)          Vec2<C>::operator[](index_t component) const
     {
         return v[component];
     }
@@ -876,12 +876,12 @@ namespace Math
 
 
 
-    template <class C>  MF_DECLARE  (C&)          Vec4<C>::operator[](index_t component)
+	template <class C>  MF_DECLARE(typename Vec4<C>::Type&)          Vec4<C>::operator[](index_t component)
     {
         return v[component];
     }
 
-    template <class C>  MF_DECLARE  (const C&)          Vec4<C>::operator[](index_t component) const
+	template <class C>  MF_DECLARE(const typename Vec4<C>::Type&)          Vec4<C>::operator[](index_t component) const
     {
         return v[component];
     }
