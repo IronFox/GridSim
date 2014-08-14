@@ -96,7 +96,8 @@ template <class K, class C, class KeyStrategy, class DataStrategy>
 			typedef THashSetCarrier<K, KeyStrategy>	Super;
 			typedef C					Data;
 
-			ALIGN16 BYTE				entry_data[sizeof(C)];
+			//this align is a pain in the arse in x86 for SOME reason
+			/*ALIGN16*/ BYTE				entry_data[sizeof(C)];
 			//C							entry;		//!< Local copy of the inserted data
 
 										~THashTableCarrier()
