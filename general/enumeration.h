@@ -40,6 +40,7 @@ struct NAME\
 		inline const char*	ToString() const	/** @copydoc ToString()*/		{return ToString(value);}	 \
 		template <typename T> bool	Load(const T&v)	{index_t val = (index_t)(v); if (val < NumberOfPossibilities) {value = (value_t)val; return true;} return false;}\
 		template <typename T> static NAME		Reinterpret(const T&v)	{index_t val = (index_t)(v); if (val < NumberOfPossibilities) return NAME((value_t)val); return NAME();}\
+		bool	Decode(const char*str)			{for (index_t i = 0; i < NumberOfPossibilities; i++) if (!strcmp(str,ToString((value_t)i))) {value = (value_t)i; return true;} return false;}\
 		NAME&	operator=(value_t value_)		{value = value_; return *this;}\
 		NAME&	operator=(const NAME&value_)	{value = value_.value; return *this;}\
 		bool	operator==(value_t value_)		{return value == value_;}\
