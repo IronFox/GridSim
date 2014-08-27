@@ -3,7 +3,7 @@
 
 
 
-void ByteStream::pushData(const void*pntr, size_t size)
+void ByteStream::_PushData(const void*pntr, size_t size)
 {
 	if (current+size > end)
 	{
@@ -52,7 +52,7 @@ void ByteStream::pushZero(size_t size)
 
 
 
-bool ByteStream::getData(void*pntr, size_t size)
+bool ByteStream::_GetData(void*pntr, size_t size)
 {
     if (current+size > end)
         return false;
@@ -127,4 +127,13 @@ const void* ByteStream::data() const
 size_t    ByteStream::size()	const
 {
     return end-begin;
+}
+
+bool ByteReadStream::_GetData(void*pntr, size_t size)
+{
+	if (current + size > end)
+		return false;
+	memcpy(pntr, current, size);
+	current += size;
+	return true;
 }

@@ -11,34 +11,34 @@ template <typename T>
 
 template <class C> void ByteStream::push(const C&object)
 {
-    pushData(&object,sizeof(object));
+	_PushData(&object, sizeof(object));
 }
 
 template <class C> void ByteStream::push(const C*array, count_t count)
 {
-    pushData(array,sizeof(C)*count);
+	_PushData(array, sizeof(C)*count);
 }
 
 template <class C> ByteStream& ByteStream::operator<<(const C&object)
 {
-    pushData(&object,sizeof(object));
+    _PushData(&object,sizeof(object));
     return *this;
 }
 
 
 template <class C>  bool ByteStream::stream(C&out)
 {
-    return getData(&out,sizeof(out));
+    return _GetData(&out,sizeof(out));
 }
 
 template <class C>  bool ByteStream::stream(C*array, count_t count)
 {
-    return getData(array,sizeof(C)*count);
+	return _GetData(array, sizeof(C)*count);
 }
 
 template <class C> bool ByteStream::operator>>(C&object)
 {
-    return getData(&object,sizeof(object));
+	return _GetData(&object, sizeof(object));
 }
 
 #endif

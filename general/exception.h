@@ -505,6 +505,12 @@ namespace Except
 
 				DEFINE_MEMBER_EXCEPTION(ConnectionLost)
 
+				/**
+				@brief Network data not formatted as expected
+				*/
+				DEFINE_MEMBER_EXCEPTION(DataFormatFault)
+
+
 			END_EXCEPTION_GROUP
 
 			/**

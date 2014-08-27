@@ -136,6 +136,7 @@ public:
 	inline void		Append(const void*source, size_t size)	{append(source,size);}
 	template <typename T>
 		inline void	AppendPOD(const T&object) {append(&object,sizeof(T));}
+	inline void		Append(const ArrayData<BYTE>&data) {append(data.pointer(),data.GetLength());}
     void			finish(void*target);
 	inline void		Finish(void*target)	{finish(target);}
     void			finish(HashContainer&target);
