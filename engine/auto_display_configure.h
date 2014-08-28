@@ -22,7 +22,7 @@ namespace Engine
 				XML::Node&xdisplay = xconfig.create("config/display");
 				xdisplay.set("width",display.width());
 				xdisplay.set("height",display.height());
-				FileSystem::createFolder("config");
+				FileSystem::CreateFolder("config");
 				xconfig.saveToFile("./config/"+filename+".xml");
 			}
 	}
