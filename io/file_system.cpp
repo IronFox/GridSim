@@ -301,8 +301,8 @@ namespace FileSystem
 			{
 				filename = tmp_folder+"/generic."+IntToHex(rand(),4);
 			}
-			while (isFile(filename) && loops++ < 512);
-			if (isFile(filename))
+			while (IsFile(filename) && loops++ < 512);
+			if (IsFile(filename))
 				return false;
 			//filename = mktemp("/tmp/generic.XXXXXX");
 			//filename = mkstemp("/tmp/generic.XXXXXX");
@@ -1192,7 +1192,7 @@ namespace FileSystem
 		#endif
 	}
 
-	bool isFile(const String&name)
+	bool IsFile(const String&name)
 	{
 		#if SYSTEM==WINDOWS
 			DWORD attribs = GetFileAttributesA(name.c_str());
@@ -1217,10 +1217,6 @@ namespace FileSystem
 		#endif
 	}
 
-	ftime_t	FileDate(const String&name)
-	{
-		return GetModificationTime(name);
-	}
 
 	fsize_t		GetFileSize(const String&name)
 	{

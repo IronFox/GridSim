@@ -59,7 +59,6 @@ namespace FileSystem
 	WString			EscapeSpaces(WString path);													//!< Inserts a backslash before every space character (for unix systems)
 	
 	ftime_t			GetModificationTime(const String&name);												//!< Returns the unix timestamp of the specified file \param name File name \return Unix timestamp
-	ftime_t			FileDate(const String&name);												//!< Identical to GetModificationTime()
 	fsize_t			GetFileSize(const String&name);												//!< Returns the size (in bytes) of the specified file
 	bool			DoesExist(const String&path);												//!< Checks if the specified file or folder exists \param path File/folder name \return true if the specified file/folder exists, false otherwise
 	bool			IsFile(const String&path);													//!< Checks if the specified file exists \param path Filename \return true if the entry exists in the file system and is a file, false otherwise
