@@ -374,7 +374,7 @@ namespace Math
 	typedef Vec3<bool>		bool3;
 	typedef Vec4<bool>		bool4;
 	typedef Vec2<half>		half2;
-	typedef Vec3<half>		half3;
+	typedef ALIGN2 Vec3<half>		half3;
 	typedef Vec4<half>		half4;
 
 
