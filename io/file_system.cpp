@@ -1430,19 +1430,49 @@ namespace FileSystem
 		return true;
 	}
 
+#if SYSTEM==WINDOWS
+	void PrintLastError()
+	{
+		DWORD code = GetLastError();
+		LPVOID lpMsgBuf;
+		FormatMessage(
+			FORMAT_MESSAGE_ALLOCATE_BUFFER |
+			FORMAT_MESSAGE_FROM_SYSTEM |
+			FORMAT_MESSAGE_IGNORE_INSERTS,
+			NULL,
+			code,
+			MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
+			(LPTSTR)&lpMsgBuf,
+			0,
+			NULL
+			);
+		//unsigned len = strlen((char*)lpMsgBuf);
+		ErrMessage((const char*)lpMsgBuf);
+
+		LocalFree(lpMsgBuf);
+	}
+
+#endif
+
 	bool			UnlinkFile(const String&location)
 	{
 		#if SYSTEM==UNIX
 			return !::unlink(location.c_str());
 		#elif SYSTEM==WINDOWS
+			if (!IsFile(location))
+				return true;
 			int retry = 0;
 			String loc = location;
 			loc.replace('/','\\');
 			while (!DeleteFileA(loc.c_str()))
 			{
 				if (++retry > 10)
+				{
+					PrintLastError();
 					return false;
+				}
 				Sleep(100);
+				SetFileAttributesA(loc.c_str(), FILE_ATTRIBUTE_NORMAL);
 			}
 			return true;
 		#else

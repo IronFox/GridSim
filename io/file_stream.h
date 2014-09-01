@@ -114,14 +114,7 @@ virtual					~FileStream()
 							return handle != -1;
 						}
 
-		void			close()
-						{
-							if (handle != -1)
-							{
-								_close(handle);
-								handle = -1;
-							}
-						}
+		void			close();
 	
 		uint64_t		size()	const
 						{

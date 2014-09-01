@@ -1,20 +1,21 @@
 #include "../global_root.h"
 #include "file_stream.h"
-
+#include <sys/stat.h>
 
 
 bool	FileStream::open(const char*filename, int flags)
 {
 	if (handle != -1)
-		_close(handle);
-	handle = _open(filename,flags);
+		close();
+	handle = _open(filename, flags, _S_IREAD | _S_IWRITE);
+
 	return handle != -1;
 }
 
 bool	FileStream::open(const wchar_t*filename, int flags)
 {
 	if (handle != -1)
-		_close(handle);
+		close();
 	#if SYSTEM==WINDOWS
 		handle = _wopen(filename,flags);
 	#else
@@ -36,6 +37,15 @@ bool	FileStream::open(const wchar_t*filename, int flags)
 	if (handle == -1)
 		return false;
 	return _read(handle,data,(unsigned)size)==size;
+}
+
+void FileStream::close()
+{
+	if (handle != -1)
+	{
+		_close(handle);
+		handle = -1;
+	}
 }
 
 
