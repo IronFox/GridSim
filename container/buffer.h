@@ -106,7 +106,8 @@ template <typename T, typename Strategy=typename StrategySelector<T>::Default>
 		inline count_t			GetLength()					const	/**@copydoc fillLevel()*/ {return fillLevel();}
 		inline count_t			size()						const;	//!< @copydoc fillLevel()
 		inline count_t			count()						const;	//!< @copydoc fillLevel()
-		inline count_t			operator()()				const	{return fillLevel();}
+		inline count_t			Count()						const;	//!< @copydoc fillLevel()
+		inline count_t			operator()()				const	{ return fillLevel(); }
 		inline count_t			storageSize()				const;	//!< Queries the number of elements held in total. This also includes unconstructed incremental storage
 		inline count_t			GetStorageSize()			const	/**@copydoc storageSize()*/ {return storageSize();}
 		inline bool				empty()						const;	//!< @copydoc isEmpty()

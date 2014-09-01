@@ -215,6 +215,7 @@
     <ClCompile Include="..\..\general\system.cpp" />
     <ClCompile Include="..\..\general\thread_system.cpp" />
     <ClCompile Include="..\..\general\timer.cpp" />
+    <ClCompile Include="..\..\geometry\bvh.cpp" />
     <ClCompile Include="..\..\geometry\cgs.cpp" />
     <ClCompile Include="..\..\geometry\cgs_archive.cpp" />
     <ClCompile Include="..\..\geometry\cgs_track_segment.cpp" />

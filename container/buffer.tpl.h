@@ -1042,7 +1042,13 @@ template <typename T, typename Strategy>
 	{
 		return fillLevel();
 	}
-	
+
+template <typename T, typename Strategy>
+	inline count_t	BasicBuffer<T, Strategy>::Count()						const
+	{
+		return fillLevel();
+	}
+
 template <typename T, typename Strategy>
 	inline T&			BasicBuffer<T, Strategy>::operator[](index_t index)
 	{

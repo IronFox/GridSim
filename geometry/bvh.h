@@ -60,26 +60,80 @@ template <typename Object, typename Float = float, typename Attachment = NoBVHAt
 	
 	};
 
+	/// <summary>
+	/// Tuple that Contains both an element and its current bounding box.
+	/// Primarily used internally, but may be used to more efficiently pass new entries to the hierarchy.
+	/// </summary>
+template <typename Object, typename Bounds>
+	struct BVHEntry
+	{
+		Object*			element;
+		Bounds			bounds;
 
-template <typename Object, typename Float = float, typename Attachment = NoBVHAttachment, typename Nature=BoxBVH<Object,Float,Attachment> >
+		/**/			BVHEntry() :element(NULL)	{}
+		/**/			BVHEntry(Object*element, const Bounds&box) : element(element), bounds(box)	{}
+	};
+
+template <typename Object, typename Bounds, count_t MaxObjectsPerLeaf>
+	struct BVHStorage
+	{
+		Array<Object*>	objects;
+
+		void			Store(const BVHEntry<Object, Bounds>*elements, count_t numElements)
+		{
+			objects.SetSize(numElements);
+			for (index_t i = 0; i < numElements; i++)
+				objects[i] = elements[i].element;
+		}
+
+		Object*			Get(index_t object) const
+		{
+			return objects[object];
+		}
+
+		void			GetAll(BasicBuffer<Object*>&out) const
+		{
+			Object*row = out.AppendRow(objects.Count());
+			memcpy(row, objects.pointer(), objects.contentSize());
+		}
+
+		count_t			CountObjects() const { return objects.Count(); }
+	};
+
+template <typename Object, typename Bounds>
+	struct BVHStorage<Object,Bounds,1>
+	{
+		Object*			object;
+
+		void			Store(const BVHEntry<Object, Bounds>*elements, count_t numElements)
+		{
+			DBG_ASSERT__(numElements == 1);
+			object = elements[0].element;
+		}
+
+		Object*			Get(index_t objectIndex) const
+		{
+			DBG_ASSERT__(objectIndex == 0);
+			return object;
+		}
+		void			GetAll(BasicBuffer<Object*>&out) const
+		{
+			out << object;
+		}
+
+		count_t			CountObjects() const { return 1; }
+	};
+
+
+template <typename Object, count_t MaxObjectsPerLeaf, typename Float = float, typename Attachment = NoBVHAttachment, typename Nature = BoxBVH<Object, Float, Attachment> >
     class BVH
     {
 	public:
 		typedef typename Nature::Bounds		Bounds;
 	
 	
-        /// <summary>
-        /// Tuple that Contains both an element and its current bounding box.
-        /// Primarily used internally, but may be used to more efficiently pass new entries to the hierarchy.
-        /// </summary>
-        struct Entry
-        {
-            Object*			element;
-            Bounds			bounds;
-            
-			/**/			Entry():element(NULL)	{}
-			/**/			Entry(Object*element, const Bounds&box) : element(element),bounds(box)	{}
-        };
+
+		typedef BVHEntry<Object, Bounds>	Entry;
 
 
 		struct TCompactNode
@@ -111,8 +165,9 @@ template <typename Object, typename Float = float, typename Attachment = NoBVHAt
         class LeafNode : public Node
         {
 		public:
-            //Array<Entry>	elements;
-			Object*			object;
+			BVHStorage < Object, Bounds, MaxObjectsPerLeaf >
+							storage;
+			//Object*			object;
 			
 
             /**/			LeafNode(const Bounds&bounds) : Node(true, bounds) { }
@@ -152,8 +207,8 @@ template <typename Object, typename Float = float, typename Attachment = NoBVHAt
 			Node*			_GetNode()	{return reinterpret_cast<Node*>(this);}
 			const Node*		_GetNode()	const {return reinterpret_cast<const Node*>(this);}
 		public:
-			//count_t			CountObjects()	const	{const Node*n = _GetNode(); return n->isLeaf ? ((LeafNode*)n)->elements.count() : 0;}
-			void			GetObject(Object*&)	const;
+			count_t			CountObjects()	const	{const Node*n = _GetNode(); return n->isLeaf ? ((LeafNode*)n)->storage.CountObjects() : 0;}
+			void			GetObject(Object*&, index_t index=0)	const;
 			bool			IsLeaf() const	{return _GetNode()->isLeaf;}
 			Accessor*		GetFirstChild() const {const Node*n = _GetNode(); return n->isLeaf ? NULL : reinterpret_cast<Accessor*>(((InnerNode*)n)->child0);}
 			Accessor*		GetSecondChild() const {const Node*n = _GetNode(); return n->isLeaf ? NULL : reinterpret_cast<Accessor*>(((InnerNode*)n)->child1);}
@@ -252,7 +307,7 @@ template <typename Object, typename Float = float, typename Attachment = NoBVHAt
 			outField++;
 			if (node->isLeaf)
 			{
-				_this->object = ((LeafNode*)node)->object;
+				_this->object = ((LeafNode*)node)->storage.Get(0);
 				_this->axis = -1;
 				_this->bounds = node->bounds;
 				return _this;
@@ -266,158 +321,16 @@ template <typename Object, typename Float = float, typename Attachment = NoBVHAt
 
         static Node*		_BuildNode(Entry*const elements, const count_t numElements, ArrayData<Bucket>&buckets)
         {
-   //         Box<Float> boundingBox = Box<Float>::Invalid();
-			//Bounds	effectiveBounds = Bounds::Invalid();
-
-			//for (index_t i = 0; i < numElements; i++)
-			//	Nature::ProgressiveInclude(boundingBox,effectiveBounds, elements[i].bounds);
-			//Nature::FinalizeEffectiveBounds(effectiveBounds,boundingBox);
-   //         if (numElements <= 4)
-   //         {
-   //             LeafNode*leaf = new LeafNode(effectiveBounds);
-   //             leaf->elements.resizeAndCopy(elements, numElements);
-   //             return leaf;
-   //         }
-
-
-   //         Box<Float> centerVolume = Box<Float>::Invalid();
-			//for (index_t i = 0; i < numElements; i++)
-			//	Nature::IncludeCenterIntoBox(centerVolume,elements[i].bounds);
-
-
-
-   //         float minVolume = std::numeric_limits<float>::max();
-   //         int useAxis = -1;
-   //         index_t splitAtBucket = 0;
-
-   //         for (int axis = 0; axis < 3; axis++)
-   //         {
-   //             const TRange<Float>&axisRange = centerVolume.axis[axis];
-   //             Float extend = axisRange.extend();
-   //             if (extend == 0)
-   //                 continue;
-   //                 //extend = 1.0f;
-			//	for (index_t i = 0; i < numElements; i++)
-   //             {
-			//		const Entry&e = elements[i];
-			//		index_t bucketIndex = std::min(buckets.count() - 1, (index_t)(float(Nature::CenterOf(e.bounds,axis) - axisRange.min) / extend * buckets.count()));
-   //                 Bucket&bucket = buckets[bucketIndex];
-   //                 bucket.numElements ++;
-			//		DBG_ASSERT_GREATER__(e.bounds.GetVolume(),0);
-   //                 bucket.bounds.Include(e.bounds);
-			//		DBG_ASSERT_GREATER__(bucket.bounds.GetVolume(),0);
-   //             }
-			//	if (buckets.first().numElements == 0 || buckets.last().numElements == 0)
-			//	{
-			//		foreach (buckets,b)
-			//			b->Reset();
-			//		continue;
-			//	}
-			//	
-   //             Bounds bounds = buckets[0].bounds;
-   //             float volume;
-			//	bounds.GetVolume(volume);
-   //             buckets[0].volumeUntilThis = volume;
-   //             for (index_t i = 1; i < buckets.count(); i++)
-   //             {
-   //                 if (buckets[i].numElements > 0)
-   //                 {
-   //                     bounds.Include(buckets[i].bounds);
-   //                     bounds.GetVolume(volume);
-			//			DBG_ASSERT_GREATER__(volume,0);
-   //                 }
-   //                 buckets[i].volumeUntilThis = volume;
-   //                // Debug.WriteLine("volumeUntil(axis " + axis + ", bucket " + i + ") = " + volume);
-
-   //             }
-   //             bounds = buckets.last().bounds;
-   //             bounds.GetVolume(volume);
-			//	DBG_ASSERT_GREATER__(volume,0);
-   //             buckets.last().volumeFromThis = volume;
-   //             for (index_t i = buckets.count() - 2; i < buckets.count(); i--)
-   //             {
-   //                 if (buckets[i].numElements > 0)
-   //                 {
-   //                     bounds.Include(buckets[i].bounds);
-   //                     bounds.GetVolume(volume);
-			//			DBG_ASSERT_GREATER__(volume,0);
-   //                 }
-   //                 buckets[i].volumeFromThis = volume;
-   //                 //Debug.WriteLine("volumeFrom(axis " + axis + ", bucket " + i + ") = " + volume);
-   //             }
-
-   //             for (index_t b = 1; b < buckets.count(); b++)
-   //             {
-   //                 volume = buckets[b-1].volumeUntilThis + buckets[b].volumeFromThis;
-   //                 if (volume < minVolume)
-   //                 {
-   //                     minVolume = volume;
-   //                     useAxis = axis;
-   //                     splitAtBucket = b;
-   //                 }
-   //                 //Debug.WriteLine("volume(axis " + axis + ", split " + b + ") = " + volume);
-   //             }
-   //             foreach (buckets,b)
-   //                 b->Reset();
-   //         }
-   //         if (useAxis == -1)
-   //         {
-   //             LeafNode*leaf = new LeafNode(effectiveBounds);
-   //             leaf->elements.resizeAndCopy(elements,numElements);
-   //             return leaf;
-   //         }
-
-   //         TRange<Float> axisRange2 = centerVolume.axis[useAxis];
-   //         Float extend2 = axisRange2.extend();
-   //         DBG_ASSERT__(extend2 != 0);
-
-			////ASSERT__(numElements < 300000);
-
-
-			//Entry	*i0 = elements,
-			//		*i1 = elements + numElements -1;
-			//do
-			//{
-			//	while (i0 < i1)
-			//	{
-
-	  //              index_t bucketIndex = std::min(buckets.count() - 1, (index_t)(float(Nature::CenterOf(i0->bounds,useAxis) - axisRange2.min) / extend2 * buckets.count()));
-			//			//std::min(buckets.count() - 1, (index_t)((i0->boundingBox.axis[useAxis].center() - axisRange2.min) / extend2 * buckets.count()));
-			//		if (bucketIndex >= splitAtBucket)
-			//			break;
-			//		i0++;
-			//	}
-			//	while (i0 < i1)
-			//	{
-	  //              index_t bucketIndex = std::min(buckets.count() - 1, (index_t)(float(Nature::CenterOf(i1->bounds,useAxis) - axisRange2.min) / extend2 * buckets.count()));
-			//		if (bucketIndex < splitAtBucket)
-			//			break;
-			//		i1--;
-			//	}
-
-			//	if (i0 < i1)
-			//		swp(*i0,*i1);
-			//}
-			//while (i0 < i1);
-
-   //         InnerNode*innerNode = new InnerNode(effectiveBounds);
-   //         innerNode->axis = useAxis;
-   //         innerNode->child0 = _BuildNode(elements, i0-elements, buckets);
-   //         innerNode->child1 = _BuildNode(i0, elements + numElements - i0, buckets);
-   //         return innerNode;
-
-
-
-            Box<Float> boundingBox = Box<Float>::Invalid();
+			Box<Float> boundingBox = Box<Float>::Invalid();
 			Bounds	effectiveBounds = Bounds::Invalid();
 
 			for (index_t i = 0; i < numElements; i++)
 				Nature::ProgressiveInclude(boundingBox,effectiveBounds, elements[i].bounds);
 			Nature::FinalizeEffectiveBounds(effectiveBounds,boundingBox);
-            if (numElements == 1)
+            if (numElements <= MaxObjectsPerLeaf)
             {
                 LeafNode*leaf = new LeafNode(effectiveBounds);
-				leaf->object = elements[0].element;
+				leaf->storage.Store(elements, numElements);
      //           leaf->
 					//elements.resizeAndCopy(elements, numElements);
                 return leaf;
@@ -551,8 +464,10 @@ template <typename Object, typename Float = float, typename Attachment = NoBVHAt
             if (node->isLeaf)
             {
                 LeafNode*leaf = (LeafNode*)node;
-                if (space.Intersects(leaf->bounds))
-					found << leaf->object;
+				if (space.Intersects(leaf->bounds))
+				{
+					leaf->storage.GetAll(found);
+				}
                     //foreach (leaf->elements,e)
                     //    if (space.Intersects(e->bounds))
                     //        found << e->element;
@@ -590,10 +505,10 @@ template <typename Object, typename Float = float, typename Attachment = NoBVHAt
             if (node->isLeaf)
             {
                 LeafNode*leaf = (LeafNode*)node;
-                if (leaf->bounds.Contains(point))
-                    //foreach (leaf->elements,e)
-                    //    if (e->bounds.Contains(point))
-                            found << leaf->object;
+				if (leaf->bounds.Contains(point))
+					//foreach (leaf->elements,e)
+					//    if (e->bounds.Contains(point))
+					leaf->storage.GetAll(found);
                 return;
             }
             InnerNode*n = (InnerNode*)node;
@@ -619,7 +534,7 @@ template <typename Object, typename Float = float, typename Attachment = NoBVHAt
                             if (d < distance)
                             {
                                 distance = d;
-                                closest = leaf->object;
+                                closest = leaf->storage.Get(0);
                             }
                         }
                 return;
@@ -719,19 +634,19 @@ template <typename Object, typename Float = float, typename Attachment = NoBVHAt
 
 
 
-template <typename Object, typename Float, typename Attachment, typename Nature>
-	void			BVH<Object,Float,Attachment,Nature>::Accessor::GetObject(Object*&rs)	const
+template <typename Object, count_t MaxObjectsPerLeaf, typename Float, typename Attachment, typename Nature>
+	void			BVH<Object,MaxObjectsPerLeaf,Float,Attachment,Nature>::Accessor::GetObject(Object*&rs, index_t index /*=0*/)	const
 	{
 		const Node*n = _GetNode();
 		if (!n->isLeaf)
 			return;
 		const LeafNode*l = (LeafNode*)n;
-		rs = l->object;
+		rs = l->storage.Get(index);
 	}
 
 
-template <typename Object, typename Float, typename Attachment, typename Nature>
-	count_t			BVH<Object,Float,Attachment,Nature>::Node::RecursiveCount() const
+template <typename Object, count_t MaxObjectsPerLeaf, typename Float, typename Attachment, typename Nature>
+	count_t			BVH<Object,MaxObjectsPerLeaf,Float,Attachment,Nature>::Node::RecursiveCount() const
 	{
 		if (isLeaf)
 			return 1;
@@ -740,8 +655,8 @@ template <typename Object, typename Float, typename Attachment, typename Nature>
 	
 	
 	
-template <typename Object, typename Float = float, typename Attachment = NoBVHAttachment>
-    class SphereBVH : public BVH<Object,Float,Attachment,SphereBVHNature<Object,Float,Attachment> >
+template <typename Object, count_t MaxObjectsPerLeaf,  typename Float = float, typename Attachment = NoBVHAttachment>
+	class SphereBVH : public BVH<Object, MaxObjectsPerLeaf,Float, Attachment, SphereBVHNature<Object, Float, Attachment> >
 	{};
 	
 	

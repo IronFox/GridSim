@@ -41,12 +41,12 @@ public:
 	template <typename T>
 		bool		WritePrimitive(const T&element)
 		{
-			return Write(&element,sizeof(element));
+			return Write(&element, (serial_size_t)sizeof(element));
 		}
 	template <typename T>
 		bool		WritePrimitives(const T*elements, count_t num_elements)
 		{
-			return Write(elements,sizeof(T)*num_elements);
+			return Write(elements, (serial_size_t)(sizeof(T)*num_elements));
 		}
 
 		bool		WriteSize(serial_size_t size)	//! Reads the content of a size variable in little endian 

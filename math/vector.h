@@ -465,6 +465,16 @@ namespace Math
 			return result;
 		}
 
+	/**
+	@brief Constructs a new centered range
+	*/
+	template <typename T>
+		inline TRange<T>	CenterRange(const T&center, const T&extend)
+		{
+			TRange<T> result = {center-extend,center+extend};
+			return result;
+		}
+
 
 	/**
 	@brief Constructs a new range
@@ -1548,7 +1558,8 @@ namespace Math
 				}
 			}
 			MFUNC(void)				Include(const Sphere<C>&sphere)	/** @brief Extends radius so that the local sphere includes the specified sphere */ {Include(sphere.center,sphere.radius);}
-			MFUNC(bool)				Contains(const TVec3<C>&point)	const	{return Vec::quadraticDistance(center,point) <= radius;}
+			MFUNC(bool)				Contains(const TVec3<C>&point)	const	{return Vec::quadraticDistance(center,point) <= sqr(radius);}
+			MFUNC(bool)				Contains(const Sphere<C>&sphere)	const	{ return radius >= sphere.radius && Vec::quadraticDistance(center, sphere.center) <= sqr(radius-sphere.radius); }
 			MF_DECLARE(T)			volume()	const
 									{
 										return (T)4/(T)3 * (T)M_PI * radius * radius * radius;
