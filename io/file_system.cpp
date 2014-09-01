@@ -1466,13 +1466,16 @@ namespace FileSystem
 			loc.replace('/','\\');
 			while (!DeleteFileA(loc.c_str()))
 			{
-				if (++retry > 10)
+				if (retry > 10)
 				{
 					PrintLastError();
 					return false;
 				}
-				Sleep(100);
-				SetFileAttributesA(loc.c_str(), FILE_ATTRIBUTE_NORMAL);
+				if (retry == 0)
+					SetFileAttributesA(loc.c_str(), FILE_ATTRIBUTE_NORMAL);
+				else
+					Sleep(10);
+				retry++;
 			}
 			return true;
 		#else
