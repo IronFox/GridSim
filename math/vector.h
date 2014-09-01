@@ -1521,7 +1521,7 @@ namespace Math
 
 	
 	template <typename T=float>
-		class Sphere: public IToString	//! General purpose sphere
+		class Sphere/*: public IToString*/	//! General purpose sphere - better not implement IToString due to possible IO-problems
 		{
 		public:
 			TVec3<T>				center;		//!< Sphere center (point)
@@ -1578,7 +1578,7 @@ namespace Math
 										out.z = (T0)center.z;
 									}
 
-			String					ToString()	const override
+			String					ToString()	const /*override*/
 									{
 										return Vec::toString(center)+",r="+String(radius);
 									}

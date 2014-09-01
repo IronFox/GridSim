@@ -25,6 +25,58 @@ template <>
 			return encodeLittleEndian<false>(size);
 	}
 
+template<class T>
+struct GenericVTableTest
+{
+	class TestClass : public T
+	{
+		virtual void SomeVirtualMethod()
+		{}
+	};
+	static const bool HasVTable = (sizeof(T) == sizeof(TestClass));
+};
+
+#define PRIMITIVE_NO_VTABLE(TYPE)\
+	template<> struct GenericVTableTest<TYPE> {static const bool HasVTable = false;};
+
+PRIMITIVE_NO_VTABLE(char)
+PRIMITIVE_NO_VTABLE(unsigned char)
+PRIMITIVE_NO_VTABLE(signed char)
+PRIMITIVE_NO_VTABLE(short)
+PRIMITIVE_NO_VTABLE(unsigned short)
+PRIMITIVE_NO_VTABLE(int)
+PRIMITIVE_NO_VTABLE(unsigned int)
+PRIMITIVE_NO_VTABLE(long)
+PRIMITIVE_NO_VTABLE(unsigned long)
+PRIMITIVE_NO_VTABLE(long long)
+PRIMITIVE_NO_VTABLE(unsigned long long)
+PRIMITIVE_NO_VTABLE(float)
+PRIMITIVE_NO_VTABLE(double)
+PRIMITIVE_NO_VTABLE(long double)
+
+template <bool HasVTable>
+class VTableAssertion
+{
+public:
+	static inline void	AssertNot()
+	{
+	}
+
+};
+template <>
+class VTableAssertion<true>
+{
+public:
+	static inline void	AssertNot()
+	{
+		FATAL__("VTable detected. Cannot interpret this type as primitive.")
+	}
+
+};
+
+
+#define OBJECT_HAS_VTABLE(type) HasVTable<type>::Value
+
 /*!
 	@brief Generic data output stream
 	
@@ -41,11 +93,13 @@ public:
 	template <typename T>
 		bool		WritePrimitive(const T&element)
 		{
+			VTableAssertion<GenericVTableTest<T>::HasVTable>::AssertNot();
 			return Write(&element, (serial_size_t)sizeof(element));
 		}
 	template <typename T>
 		bool		WritePrimitives(const T*elements, count_t num_elements)
 		{
+			VTableAssertion<GenericVTableTest<T>::HasVTable>::AssertNot();
 			return Write(elements, (serial_size_t)(sizeof(T)*num_elements));
 		}
 

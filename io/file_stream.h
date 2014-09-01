@@ -27,8 +27,8 @@
 #else
 	#include <io.h>
 
-	#define __O_APPEND		_O_APPEND
-	#define	__O_CREAT		_O_CREAT
+	#define __O_APPEND		_O_APPEND|_O_BINARY
+	#define	__O_CREAT		_O_CREAT|_O_BINARY
 	#define __O_RDONLY		_O_RDONLY|_O_BINARY
 	#define __O_WRONLY		_O_WRONLY|_O_BINARY
 	#define __O_RDWR		_O_RDWR|_O_BINARY
@@ -97,6 +97,13 @@ virtual					~FileStream()
 		
 		bool			open(const char*filename, int flags);	//!< Opens a file in the specified mode. @param filename Filename to open @return true on success
 		bool			open(const wchar_t*filename, int flags);//!< Opens a file in the specified mode. @param filename Filename to open @return true on success
+		
+		bool			OpenCreate(const char*filename)	{ return open(filename, StandardWrite); }
+		bool			OpenAppend(const char*filename) { return open(filename, StandardAppend); }
+		bool			OpenRead(const char*filename) { return open(filename, StandardRead); }
+		bool			OpenCreate(const wchar_t*filename)	{ return open(filename, StandardWrite); }
+		bool			OpenAppend(const wchar_t*filename) { return open(filename, StandardAppend); }
+		bool			OpenRead(const wchar_t*filename) { return open(filename, StandardRead); }
 
 		bool			isOpen()	const	//!< Queries whether or not the local file is open for reading or writing
 						{
