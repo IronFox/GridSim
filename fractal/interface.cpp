@@ -949,7 +949,7 @@ namespace Fractal
 	
 	void			SurfaceSegment::modifySphere(const AbstractSphere<float>&child_sphere)
 	{
-		global_sphere.Include(child_sphere);
+		global_sphere.Merge(child_sphere);
 		if (parent)
 			((SurfaceSegment*)parent)->modifySphere(global_sphere);
 	}

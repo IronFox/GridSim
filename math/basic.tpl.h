@@ -571,7 +571,7 @@ namespace Math
 	
     MFUNC	(C)        getError()
     {
-		return std::numeric_limits<C>::epsilon();
+		return std::numeric_limits<C>::epsilon()*10;
 	}
 
 

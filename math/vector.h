@@ -1537,8 +1537,23 @@ namespace Math
 				@brief Extends radius so that the local sphere includes the specified point. The calculated distance from the local sphere center to the specified point is left squared thus increasing performance
 			*/
 			MFUNC(void)				IncludeSquare(const TVec3<C>&point)	{radius = std::max<T>(radius,Vec::quadraticDistance(center,point));}
-			MFUNC(void)				Include(const TVec3<C>& point)	/** @brief Extends radius so that the local sphere includes the specified point */ {if (radius < 0) Vec::copy(point,center); radius = std::max<T>(radius,Vec::distance(center,point));}
-			MFUNC(void)				Include(const TVec3<C>& point, T radius)
+			/**
+			@brief Expands the local radius to include the specified sphere, if necessary. Does not modify the local sphere's center
+			*/
+			MFUNC(void)				Include(const TVec3<C>&sphereCenter, const T&sphereRadius)
+			{
+				T dist2 = Vec::quadraticDistance(center, sphereCenter);
+
+				if (radius >= sphereRadius && dist2 <= sqr(radius - sphereRadius))
+					return;
+				radius = vsqrt(dist2) + sphereRadius;
+			}
+			/**
+			@brief Expands the local radius to include the specified sphere, if necessary. Does not modify the local sphere's center
+			*/
+			MFUNC(void)				Include(const Sphere<C>&sphere)	{ Include(sphere.center, sphere.radius); }
+			MFUNC(void)				Include(const TVec3<C>& point)	/** @brief Extends radius so that the local sphere includes the specified point */ { if (radius < 0) Vec::copy(point, center); radius = std::max<T>(radius, Vec::distance(center, point)); }
+			MFUNC(void)				Merge(const TVec3<C>& point, const T&radius)
 			{
 				if (this->radius < 0)
 				{
@@ -1557,7 +1572,7 @@ namespace Math
 					this->radius = Vec::distance(a,b)/(T)2;
 				}
 			}
-			MFUNC(void)				Include(const Sphere<C>&sphere)	/** @brief Extends radius so that the local sphere includes the specified sphere */ {Include(sphere.center,sphere.radius);}
+			MFUNC(void)				Merge(const Sphere<C>&sphere)	{Merge(sphere.center,sphere.radius);}
 			MFUNC(bool)				Contains(const TVec3<C>&point)	const	{return Vec::quadraticDistance(center,point) <= sqr(radius);}
 			MFUNC(bool)				Contains(const Sphere<C>&sphere)	const	{ return radius >= sphere.radius && Vec::quadraticDistance(center, sphere.center) <= sqr(radius-sphere.radius); }
 			MF_DECLARE(T)			volume()	const
@@ -2400,7 +2415,67 @@ namespace Math
 				ASSERT_EQUAL__((const T*)&ref1(t1.v),t1.v);
 			};
 
+
+		template <typename T>
+			void HSL2RGB(const TVec3<T>&hsl, TVec3<T>&outRGB)
+			{
+				outRGB.r = hsl.z;   // default to gray
+				outRGB.g = hsl.z;
+				outRGB.b = hsl.z;
+				T v = (hsl.z <= (T)0.5) ? (hsl.z * ((T)1.0 + hsl.y)) : (hsl.z + hsl.y - hsl.z * hsl.y);
+				if (v > 0)
+				{
+					T m;
+					T sv;
+					int sextant;
+					T fract, vsf, mid1, mid2;
+
+					m = hsl.z + hsl.z - v;
+					sv = (v - m) / v;
+					T h = hsl.x * (T)6.0;
+					sextant = (int)h;
+					fract = h - sextant;
+					vsf = v * sv * fract;
+					mid1 = m + vsf;
+					mid2 = v - vsf;
+					switch (sextant)
+					{
+					case 0:
+						outRGB.r = v;
+						outRGB.g = mid1;
+						outRGB.b = m;
+						break;
+					case 1:
+						outRGB.r = mid2;
+						outRGB.g = v;
+						outRGB.b = m;
+						break;
+					case 2:
+						outRGB.r = m;
+						outRGB.g = v;
+						outRGB.b = mid1;
+						break;
+					case 3:
+						outRGB.r = m;
+						outRGB.g = mid2;
+						outRGB.b = v;
+						break;
+					case 4:
+						outRGB.r = mid1;
+						outRGB.g = m;
+						outRGB.b = v;
+						break;
+					case 5:
+						outRGB.r = v;
+						outRGB.g = m;
+						outRGB.b = mid2;
+						break;
+					}
+				}
+
+			}
 	}
+
 
 
 
