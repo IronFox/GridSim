@@ -46,12 +46,15 @@ public:
 	template <typename T>
 		bool					ReadPrimitive(T&element)
 		{
-			return Read(&element,sizeof(element));
+			return Read(&element,(serial_size_t)sizeof(element));
 		}
 	template <typename T>
 		bool					ReadPrimitives(T*elements, count_t num_elements)
 		{
-			return Read(elements,sizeof(T)*num_elements);
+			#ifdef _M_X64
+				ASSERT_LESS__(sizeof(elements) * num_elements, 0x100000000ULL);
+			#endif
+			return Read(elements, (serial_size_t)(sizeof(T)*num_elements));
 		}
 	template <typename T>
 		bool					ReadSize(T&sizeOut)	//! Reads the content of a size variable in little endian 
