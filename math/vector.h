@@ -264,6 +264,7 @@ namespace Math
 			};
 
 
+			bool					IsValid() const { return max >= min; }
 
 			template <typename T1>
 				TRange<T>&			operator=(const TRange<T1>&other)
@@ -932,6 +933,7 @@ namespace Math
 										y.DerelativateRange(relative.y,absolute_out.y);
 									}			
 
+			bool					IsValid() const { return x.IsValid() && y.IsValid(); }
 
 
 			MF_DECLARE(Type&)		left()
@@ -1106,6 +1108,7 @@ namespace Math
 									}
 									
 			static Box<T>			Invalid()	{return Box(MaxInvalidRange<T>(),MaxInvalidRange<T>(),MaxInvalidRange<T>());}
+			bool					IsValid() const { return x.IsValid() && y.IsValid() && z.IsValid(); }
 			/**
 			@brief Updates all values of the local box
 			*/
