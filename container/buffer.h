@@ -116,7 +116,7 @@ template <typename T, typename Strategy=typename StrategySelector<T>::Default>
 		inline bool				isNotEmpty()				const;	//!< Returns true if the buffer holds at least one element
 		inline bool				IsNotEmpty()				const	/**@copydoc isNotEmpty()*/ {return isNotEmpty();}
 		bool					truncate(count_t fill_state);		//!< Decrements the local buffer counter to the specified fill state. The method fails if the local buffer fill state is less or equal the specified fill state. The actually allocated buffer size remains unchanged.
-		inline bool				Truncate(count_t fill_state)		/**@copydoc truncate()*/ {truncate(fill_state);}
+		inline bool				Truncate(count_t fill_state)		/**@copydoc truncate()*/ {return truncate(fill_state);}
 		inline T*				appendRow(count_t length);			//!< Appends a number of elements and returns a pointer to the first element. The method returns NULL, if length is 0 @param length Number of elements to append. Must be greater 0 @return Pointer to the first of the appended elements or NULL, if an error occured
 		inline T*				AppendRow(count_t length)			/**@copydoc appendRow()*/ {return appendRow(length);}
 		inline T*				appendRow(count_t length, const T&pattern);			//!< Appends a number of elements and returns a pointer to the first element. The method returns NULL, if length is 0 @param length Number of elements to append. Must be greater 0 @param pattern Data to fill newly appended elements with @return Pointer to the first of the appended elements or NULL, if an error occured
