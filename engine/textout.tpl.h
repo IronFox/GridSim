@@ -6,11 +6,6 @@
 Font-dependent textout-manager. The appearance of the
 resulting render depends on the used font.
 
-This file is part of Delta-Works
-Copyright (C) 2006-2008 Stefan Elsen, University of Trier, Germany.
-http://www.delta-works.org/forge/
-http://informatik.uni-trier.de/
-
 ******************************************************************/
 
 
@@ -127,6 +122,12 @@ namespace Engine
 	{
 	    return active_font->getWidth(line,len);
 	}
+
+	template <class Font> float Textout<Font>::getUnscaledHeight()
+	{
+		return active_font->getHeight();
+	}
+
 
 	template <class Font> float Textout<Font>::unscaledWidth(const String&line)
 	{

@@ -68,7 +68,7 @@ template <class C> inline void alloc(C*&target, size_t elements)
 */
 template <class C> inline void dealloc(C*array)
 {
-    if (array)
+    //if (array)	//as it turns out, deleting null is perfectly safe
         DISCARD_ARRAY(array);
 }
 
@@ -85,9 +85,9 @@ template <class C> inline void dealloc(C*array)
 */
 template <class C> inline void re_alloc(C*&array, size_t elements)
 {
-    if (array)
+    //if (array)	//as it turns out, deleting null is perfectly safe
         DISCARD_ARRAY(array);
-    array = elements? SHIELDED_ARRAY(new C[elements],elements):NULL;
+    array = elements? SHIELDED_ARRAY(new C[elements],elements):NULL;	//this test, however, is not redundant
 }
 
 /*!

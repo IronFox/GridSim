@@ -6,11 +6,6 @@
 Font-dependent textout-manager. The appearance of the
 resulting render depends on the used font.
 
-This file is part of Delta-Works
-Copyright (C) 2006-2008 Stefan Elsen, University of Trier, Germany.
-http://www.delta-works.org/forge/
-http://informatik.uni-trier.de/
-
 ******************************************************************/
 
 
@@ -118,11 +113,13 @@ namespace Engine
 				
 	virtual	float			getUnscaledWidth(const char*line, size_t len)=0;		//!< Determine the length of a string in its native (unscaled) size \param line Pointer to a field of characters containing the string to analyse \param len Number of characters to analyse out of line \return Unscaled length of the specified string
 	virtual	float			getUnscaledWidth(const char*line)=0;					//!< Determine the length of a string in its native (unscaled) size \param line Pointer to a zero terminated character array containing the string to analyse \return Unscaled length of the specified string
+	virtual	float			getUnscaledHeight() = 0;								//!< Determine the height of a string in its native (unscaled) size
 			float			getUnscaledWidth(const String&line);					//!< Determine the length of a string in its native (unscaled) size \param line String to analyse \return Unscaled length of the specified string
 			float			getScaledWidth(const char*line, size_t len);			//!< Determine the length of a string \param line Pointer to a field of characters containing the string to analyse \param len Number of characters to analyse out of line \return Scaled length of the specified string
 			float			getScaledWidth(const char*line);						//!< Determine the length of a string \param line Pointer to a zero terminated character array containing the string to analyse \return Scaled length of the specified string
 			float			getScaledWidth(const String&line);						//!< Determine the length of a string \param line String to analyse \return Scaled length of the specified string
-			
+			float			getScaledHeight();										//!< Determine the height of a string \return Scaled height of a single line
+
 			void			newLine();												//!< Increases line count and resets current line indentation to 0
 			void			move(float by_x, float by_y, float by_z=0);				//!< Move the out cursor. Also resets the active line to 0. \param by_x X-delta \param by_y Y-delta \param by_z Optional Z-delta
 			void			locate(float x, float y, float z=0);					//!< Position the out cursor at a new location. Also resets the active line to 0. \param x X-coordinate \param y Y-coordinate \param z Optional z coordinate
@@ -201,7 +198,8 @@ namespace Engine
 
 		virtual	float			getUnscaledWidth(const char*line, size_t len);		//!< Determine the length of a string in its native (unscaled) size \param line Pointer to a field of characters containing the string to analyse \param len Number of characters to analyse out of line \return Unscaled length of the specified string
 		virtual	float			getUnscaledWidth(const char*line);						//!< Determine the length of a string in its native (unscaled) size \param line Pointer to a zero terminated character array containing the string to analyse \return Unscaled length of the specified string
-				
+		virtual	float			getUnscaledHeight();									//!< Determine the height of a string in its native (unscaled) size
+
 				Textout<Font>&	operator<<(const String&);
 				Textout<Font>&	operator<<(const char*);
 				Textout<Font>&	operator<<(const TNewLine&);

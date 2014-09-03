@@ -6,11 +6,6 @@
 Font-dependent textout-manager. The appearance of the
 resulting render depends on the used font.
 
-This file is part of Delta-Works
-Copyright (C) 2006-2008 Stefan Elsen, University of Trier, Germany.
-http://www.delta-works.org/forge/
-http://informatik.uni-trier.de/
-
 ******************************************************************/
 
 namespace Engine
@@ -353,6 +348,14 @@ namespace Engine
 	{
 		return getUnscaledWidth(line.c_str(),line.length())*state.x_scale;
 	}
+
+	float VirtualTextout::getScaledHeight()
+	{
+		return getUnscaledHeight() * state.y_scale;
+	}
+
+	float			getScaledHeight();										//!< Determine the height of a string \return Scaled height of a single line
+
 
 
 BYTE hexChar(char c)
