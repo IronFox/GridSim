@@ -438,10 +438,19 @@ namespace Math
 	{
 	private:
 		BYTE	value;
+
+		struct DirectFeed
+		{
+			BYTE value;
+
+			DirectFeed(BYTE value) :value(value){}
+		};
+		/**/	Bit(const DirectFeed&feed) :value(feed.value)	{}
 	public:
 		/**/	Bit(int val = 0) : value(val ? 1 : 0)	{DBG_ASSERT__(val == 0 || val == 1);}
 		Bit&	operator=(int val) {DBG_ASSERT__(val == 0 || val == 1); value = val ? 1 : 0;return *this;}
 		operator int() const {return (int)value;}
+		Bit		operator!() const { return Bit(DirectFeed(value ? 0 : 1)); }
 	};
 
 
