@@ -39,6 +39,7 @@ struct GenericVTableTest
 #define PRIMITIVE_NO_VTABLE(TYPE)\
 	template<> struct GenericVTableTest<TYPE> {static const bool HasVTable = false;};
 
+PRIMITIVE_NO_VTABLE(bool)
 PRIMITIVE_NO_VTABLE(char)
 PRIMITIVE_NO_VTABLE(unsigned char)
 PRIMITIVE_NO_VTABLE(signed char)

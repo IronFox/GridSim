@@ -1055,7 +1055,7 @@ namespace Math
 
 
 	template <typename T=float>
-		class Box: public IToString	//! General purpose box
+		class Box //: public IToString	//! General purpose box
 		{
 		public:
 			typedef typename TRange<T>::Type	Type;	//union compatible. all references must use this
@@ -1508,7 +1508,7 @@ namespace Math
 										return x.Intersects(other.x) && y.Intersects(other.y) && z.Intersects(other.z);
 									}
 			
-			virtual String			ToString()	const	override
+			String					ToString()	const
 									{
 										return	"("+String(x.min)+", "+String(y.min)+", "+String(z.min)+") - ("+String(x.max)+", "+String(y.max)+", "+String(z.max)+")";
 									}
