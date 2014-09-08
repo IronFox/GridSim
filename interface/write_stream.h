@@ -67,7 +67,7 @@ public:
 template <>
 class VTableAssertion<true>
 {
-public:
+//public:	//private, so compilation will fail outright
 	static inline void	AssertNot()
 	{
 		FATAL__("VTable detected. Cannot interpret this type as primitive.")
