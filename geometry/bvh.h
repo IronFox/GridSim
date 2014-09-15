@@ -352,7 +352,7 @@ template <typename Object, count_t MaxObjectsPerLeaf, typename Float = float, ty
 					useAxis = i;
 				}
 			}
-            const TRange<Float> axisRange2 = centerVolume.axis[useAxis];
+			const TFloatRange<Float> axisRange2 = centerVolume.axis[useAxis];
             const Float extend2 = axisRange2.extend();
 
 

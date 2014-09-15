@@ -4,10 +4,10 @@
 
 namespace Math
 {
-	template TRange < float > ;
-	template TRange < int > ;
-	template TRange < double > ;
-	template TRange < half > ;
+	template TFloatRange < float > ;
+	template TIntRange < int > ;
+	template TFloatRange < double > ;
+	template TFloatRange < half > ;
 
 	template Rect < float > ;
 	template Rect < int > ;

@@ -214,41 +214,9 @@ namespace Math
 		struct TVec<T,4>:public TVec4<T>
 		{};
 
-	template <typename T>
-		inline T	GetExtendOf(const T&min, const T&max)
-		{
-			return max - min + 1;	//min == max in ints still means it has an extend of 1
-		}
-
-	template <>
-		inline float	GetExtendOf(const float&min, const float&max)
-		{
-			return max - min;	//float min == max means no extend
-		}
-	template <>
-		inline double	GetExtendOf(const double&min, const double&max)
-		{
-			return max - min;
-		}
-	template <>
-		inline long double	GetExtendOf(const long double&min, const long double&max)
-		{
-			return max - min;
-		}
-	template <>
-		inline THalf	GetExtendOf(const THalf&min, const THalf&max)
-		{
-			return half(max - min);	//float min == max means no extend
-		}
-	template <>
-		inline half	GetExtendOf(const half&min, const half&max)
-		{
-			return half(max - min);	//float min == max means no extend
-		}
-
 
 	template <typename T=float>
-		class TRange
+		class TFloatRange
 		{
 		public:
 			typedef typename TypeInfo<T>::UnionCompatibleBase
@@ -267,7 +235,7 @@ namespace Math
 			bool					IsValid() const { return max >= min; }
 
 			template <typename T1>
-				TRange<T>&			operator=(const TRange<T1>&other)
+				TFloatRange<T>&		operator=(const TFloatRange<T1>&other)
 									{
 										min = (T)other.min;
 										max = (T)other.max;
@@ -280,7 +248,7 @@ namespace Math
 										this->max = max;
 									}
 			template<typename T0>
-				MF_DECLARE(void)	Set(const TRange<T0>&other)
+				MF_DECLARE(void)	Set(const TFloatRange<T0>&other)
 									{
 										min = (T)other.min;
 										max = (T)other.max;
@@ -316,7 +284,7 @@ namespace Math
 										min -= by;
 										max += by;
 									}
-			MF_DECLARE(void)		ConstrainBy(const TRange<T>&constraint)	//! Modifies the local range so that it lies within the specified constraint range
+			MF_DECLARE(void)		ConstrainBy(const TFloatRange<T>&constraint)	//! Modifies the local range so that it lies within the specified constraint range
 									{
 										min = Math::clamp(min,constraint.min,constraint.max);
 										max = Math::clamp(max,constraint.min,constraint.max);
@@ -331,7 +299,7 @@ namespace Math
 									}
 			MF_DECLARE(T)			extend()	const	//! Retrieves the difference between max and min
 									{
-										return GetExtendOf(min,max);
+										return max - min;
 									}
 			MF_DECLARE(T)			GetExtend()	const	//! @copydoc extend()
 									{
@@ -343,7 +311,7 @@ namespace Math
 										return (T)value >= min && (T)value <= max;
 									}
 			template<typename T0>
-				MF_DECLARE(bool)	Contains(const TRange<T0>&range)	const //! Checks if the specified range lies within the local range
+				MF_DECLARE(bool)	Contains(const TFloatRange<T0>&range)	const //! Checks if the specified range lies within the local range
 									{
 										return (T)range.min >= min && (T)range.max <= max;
 									}
@@ -354,7 +322,7 @@ namespace Math
 										max = std::max<T>(max,value);
 									}
 			template<typename T0>
-				MF_DECLARE(void)	Include(const TRange<T0>&other)	//!< Expands the local range so that it includes the specified other range
+				MF_DECLARE(void)	Include(const TFloatRange<T0>&other)	//!< Expands the local range so that it includes the specified other range
 									{
 										min = std::min<T>(min,other.min);
 										max = std::max<T>(max,other.max);
@@ -376,7 +344,7 @@ namespace Math
 										return (T)(((T)absolute-min)/extend());
 									}
 			template <typename T0,typename T1>
-				MF_DECLARE(void)	RelativateRange(const TRange<T0>& absolute, TRange<T1>&relative_out)	const
+				MF_DECLARE(void)	RelativateRange(const TFloatRange<T0>& absolute, TFloatRange<T1>&relative_out)	const
 									{
 										Relativate(absolute.min,relative_out.min);
 										Relativate(absolute.max,relative_out.max);
@@ -392,7 +360,7 @@ namespace Math
 										return (T)(min + (T)relative*extend());
 									}
 			template <typename T0,typename T1>
-				MF_DECLARE(void)	DerelativateRange(const TRange<T0>& relative, TRange<T1>&absolute_out)	const
+				MF_DECLARE(void)	DerelativateRange(const TFloatRange<T0>& relative, TFloatRange<T1>&absolute_out)	const
 									{
 										Derelativate(relative.min,absolute_out.min);
 										Derelativate(relative.max,absolute_out.max);
@@ -405,7 +373,7 @@ namespace Math
 										relative_out = (T1)((absolute-min)/extend());
 									}
 			template <typename T0,typename T1>
-				MF_DECLARE(void)	MakeRangeRelative(const TRange<T0>& absolute, TRange<T1>&relative_out)	const
+				MF_DECLARE(void)	MakeRangeRelative(const TFloatRange<T0>& absolute, TFloatRange<T1>&relative_out)	const
 									{
 										Relativate(absolute.min,relative_out.min);
 										Relativate(absolute.max,relative_out.max);
@@ -416,7 +384,7 @@ namespace Math
 										absolute_out = (T1)(min + relative*extend());
 									}
 			template <typename T0,typename T1>
-				MF_DECLARE(void)	MakeRangeAbsolute(const TRange<T0>& relative, TRange<T1>&absolute_out)	const
+				MF_DECLARE(void)	MakeRangeAbsolute(const TFloatRange<T0>& relative, TFloatRange<T1>&absolute_out)	const
 									{
 										Derelativate(relative.min,absolute_out.min);
 										Derelativate(relative.max,absolute_out.max);
@@ -427,7 +395,7 @@ namespace Math
 									}
 				
 			template <typename T1>
-				MF_DECLARE(bool)	Intersects(const TRange<T1>&other)	const
+				MF_DECLARE(bool)	Intersects(const TFloatRange<T1>&other)	const
 									{
 										return min <= other.max && max >= other.min;
 									}
@@ -446,77 +414,159 @@ namespace Math
 
 		};
 
+
+	template <typename T=int>
+		class TIntRange
+		{
+		public:
+			typedef typename TypeInfo<T>::UnionCompatibleBase
+				Type;
+
+			union
+			{
+				struct
+				{
+					Type			start,
+									end;
+				};
+				Type				extreme[2];
+			};
+
+
+			bool					IsValid() const { return end >= start; }
+			bool					IsEmpty() const { return end == start; }
+			bool					IsNotEmpty() const { return end > start; }
+
+			template <typename T1>
+				TIntRange<T>&		operator=(const TIntRange<T1>&other)
+									{
+										start = (T)other.start;
+										max = (T)other.max;
+										return *this;
+									}
+									
+			MF_DECLARE(void)		Set(const T&start, const T& end)
+									{
+										this->start = start;
+										this->end = end;
+									}
+			template<typename T0>
+				MF_DECLARE(void)	Set(const TIntRange<T0>&other)
+									{
+										start = (T)other.start;
+										end = (T)other.end;
+									}
+			template <typename T0>
+				MF_DECLARE(void)	SetEmpty(const T0&offset)
+									{
+										start = end = (T)offset;
+									}
+			MF_DECLARE(void)		Expand(const T& by)	//! Expands the range. @b min is expected to be less than @b max
+									{
+										start -= by;
+										end += by;
+									}
+			MF_DECLARE(void)		ConstrainBy(const TIntRange<T>&constraint)	//! Modifies the local range so that it lies within the specified constraint range
+									{
+										start = Math::clamp(start,constraint.start,constraint.end);
+										end = Math::clamp(end,constraint.start,constraint.end);
+									}
+			MF_DECLARE(T)			GetExtend()	const	//! @copydoc extend()
+									{
+										return end - start;
+									}
+			template<typename T0>
+				MF_DECLARE(bool)	Contains(const T0&value)	const //! Checks if the specified value lies within the local range
+									{
+										return (T)value >= start && (T)value < end;
+									}
+			template<typename T0>
+				MF_DECLARE(bool)	Contains(const TIntRange<T0>&range)	const //! Checks if the specified range lies within the local range
+									{
+										return (T)range.start >= start && (T)range.end <= end;
+									}
+			template<typename T0>
+				MF_DECLARE(void)	Include(const T0&value)	//!< Expands the local range so that it includes the specified value
+									{
+										start = std::min<T>(start,value);
+										end = std::max<T>(end,value+1);
+									}
+			template<typename T0>
+				MF_DECLARE(void)	Include(const TIntRange<T0>&other)	//!< Expands the local range so that it includes the specified other range
+									{
+										start = std::min<T>(start,other.start);
+										end = std::max<T>(end,other.end);
+									}
+			template <typename T0>
+				MF_DECLARE(void)	Translate(const T0&delta)
+									{
+										start = (T)(start + delta);
+										end = (T)(end + delta);
+									}
+			template <typename T1>
+				MF_DECLARE(bool)	Intersects(const TIntRange<T1>&other)	const
+									{
+										return start < other.end && end > other.start;
+									}
+		};
+
+
+
+
+
+
 	/**
-	@brief Constructs a new range
+	@brief Constructs a new float range
 	*/
 	template <typename T>
-		inline TRange<T>	range(const T&min, const T&max)
+		inline TFloatRange<T>	FloatRange(const T&min, const T&max)
 		{
-			TRange<T> result = {min,max};
+			TFloatRange<T> result = {min,max};
 			return result;
 		}
-	
+
 	/**
-	@copydoc range()
+	@brief Constructs a new float range
 	*/
 	template <typename T>
-		inline TRange<T>	Range(const T&min, const T&max)
+		inline TIntRange<T>	IntRange(const T&start, const T&end)
 		{
-			TRange<T> result = {min,max};
+			TIntRange<T> result = {start,end};
 			return result;
 		}
+
+
+	#define DECLARE_FLOAT_RANGE_CONSTRUCTOR(_TYPE_)	inline TFloatRange<_TYPE_>	Range(const _TYPE_&min, const _TYPE_&max)	{TFloatRange<_TYPE_> result = {min,max}; return result;}
+	#define DECLARE_INT_RANGE_CONSTRUCTOR(_TYPE_)	inline TIntRange<_TYPE_>	Range(const _TYPE_&start, const _TYPE_&end)	{TIntRange<_TYPE_> result = {start,end}; return result;}
+
+	DECLARE_FLOAT_RANGE_CONSTRUCTOR(half);
+	DECLARE_FLOAT_RANGE_CONSTRUCTOR(float);
+	DECLARE_FLOAT_RANGE_CONSTRUCTOR(double);
+	DECLARE_FLOAT_RANGE_CONSTRUCTOR(long double);
+
+	DECLARE_INT_RANGE_CONSTRUCTOR(char);
+	DECLARE_INT_RANGE_CONSTRUCTOR(short);
+	DECLARE_INT_RANGE_CONSTRUCTOR(long);
+	DECLARE_INT_RANGE_CONSTRUCTOR(int);
+	DECLARE_INT_RANGE_CONSTRUCTOR(long long);
 
 	/**
 	@brief Constructs a new centered range
 	*/
 	template <typename T>
-		inline TRange<T>	CenterRange(const T&center, const T&extend)
+		inline TFloatRange<T>	CenterRange(const T&center, const T&extend)
 		{
-			TRange<T> result = {center-extend,center+extend};
+			TFloatRange<T> result = { center - extend, center + extend };
 			return result;
 		}
 
 
-	/**
-	@brief Constructs a new range
-	*/
 	template <typename T>
-		inline TRange<T>	maxInvalidRange()
+		inline TFloatRange<T>	MaxInvalidRange()
 		{
-			return range(std::numeric_limits<T>::max(),-std::numeric_limits<T>::max());
-		}
-	
-	/**
-	@copydoc range()
-	*/
-	template <typename T>
-		inline TRange<T>	MaxInvalidRange(const T&min, const T&max)
-		{
-			return Range(std::numeric_limits<T>::max(),-std::numeric_limits<T>::max());
+			return FloatRange(std::numeric_limits<T>::max(),-std::numeric_limits<T>::max());
 		}
 
-
-
-	template <typename T>
-		inline TRange<T>	MaxInvalidRange()
-		{
-			return Range(std::numeric_limits<T>::max(), std::numeric_limits<T>::min());
-		}
-	template <>
-		inline TRange<float>	MaxInvalidRange<float>()
-		{
-			return Range(std::numeric_limits<float>::max(), -std::numeric_limits<float>::max());
-		}
-	template <>
-		inline TRange<double>	MaxInvalidRange<double>()
-		{
-			return Range(std::numeric_limits<double>::max(), -std::numeric_limits<double>::max());
-		}
-	template <>
-		inline TRange<long double>	MaxInvalidRange<long double>()
-		{
-			return Range(std::numeric_limits<long double>::max(), -std::numeric_limits<long double>::max());
-		}
 
 	template <typename T>
 		class Quad
@@ -575,17 +625,17 @@ namespace Math
 
 	
 	template <typename T=float>
-		class Rect: public IToString	//! General purpose rectangle
+		class Rect	//! General purpose rectangle
 		{
 		public:
-			typedef typename TRange<T>::Type	Type;	//union compatible. all references must use this
+			typedef typename TFloatRange<T>::Type	Type;	//union compatible. all references must use this
 			union
 			{
 				struct
 				{
-					TRange<T>		x,y;
+					TFloatRange<T>	x,y;
 				};
-				TRange<T>			axis[2];
+				TFloatRange<T>		axis[2];
 			};
 
 			/**/					Rect(){}
@@ -680,7 +730,7 @@ namespace Math
 			/**
 			@brief Updates all values of the local rect to the specified value
 			*/
-			MF_DECLARE(void)		SetAll(const TRange<T>&range)
+			MF_DECLARE(void)		SetAll(const TFloatRange<T>&range)
 									{
 										x = range;
 										y = range;
@@ -1032,7 +1082,7 @@ namespace Math
 										return x.Intersects(other.x) && y.Intersects(other.y);
 									}
 			
-			virtual String			ToString()	const	override
+			String					ToString()	const
 									{
 										return	"("+String(x.min)+", "+String(y.min)+") - ("+String(x.max)+", "+String(y.max)+")";
 									}
@@ -1058,15 +1108,15 @@ namespace Math
 		class Box //: public IToString	//! General purpose box
 		{
 		public:
-			typedef typename TRange<T>::Type	Type;	//union compatible. all references must use this
+			typedef typename TFloatRange<T>::Type	Type;	//union compatible. all references must use this
 
 			union
 			{
 				struct
 				{
-					TRange<T>		x,y,z;
+					TFloatRange<T>	x, y, z;
 				};
-				TRange<T>			axis[3];
+				TFloatRange<T>		axis[3];
 			};
 
 			/**/					Box(){}
@@ -1083,7 +1133,7 @@ namespace Math
 									{
 										Set(min_and_max);
 									}
-			/**/					Box(const TRange<T>&x, const TRange<T>&y, const TRange<T>&z)
+			/**/					Box(const TFloatRange<T>&x, const TFloatRange<T>&y, const TFloatRange<T>&z)
 									{
 										this->x = x;
 										this->y = y;
@@ -1183,7 +1233,7 @@ namespace Math
 			/**
 			@brief Updates all values of the local box to the specified value
 			*/
-			MF_DECLARE(void)		SetAll(const TRange<T>&range)
+			MF_DECLARE(void)		SetAll(const TFloatRange<T>&range)
 									{
 										x = range;
 										y = range;
