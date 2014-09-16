@@ -243,9 +243,9 @@ namespace Engine
 	inline  bool						applyScreen();
 	inline  bool						applyWindowScreen(DWORD refresh_rate=0);
 	inline  void						resetScreen();
-	inline	void						capture(FloatImage&target);
-	inline	void						capture(Image&target);
-	inline	void						capture(typename GL::Texture&target);
+	inline	void						Capture(FloatImage&target);
+	inline	void						Capture(Image&target);
+	inline	void						Capture(typename GL::Texture&target);
 	inline	void						captureDepth(typename GL::Texture&target);
 
 			void						interruptCheckEvents();

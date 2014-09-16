@@ -567,7 +567,7 @@ namespace Engine
 		overrideSetClientResolution(context.clientSize());
 	}
 
-	template <class GL> inline	void	Display<GL>::capture(Image&target)
+	template <class GL> inline	void	Display<GL>::Capture(Image&target)
 	{
 		if (!framebuffer_bound)
 		{
@@ -578,9 +578,9 @@ namespace Engine
 		}
 		else
 			target.setDimension(target_buffer_resolution.width,target_buffer_resolution.height,framebuffer_alpha?4:3);
-		GL::capture(target);
+		GL::Capture(target);
 	}
-	template <class GL> inline	void	Display<GL>::capture(FloatImage&target)
+	template <class GL> inline	void	Display<GL>::Capture(FloatImage&target)
 	{
 		if (!framebuffer_bound)
 		{
@@ -591,13 +591,13 @@ namespace Engine
 		}
 		else
 			target.setDimension(target_buffer_resolution.width,target_buffer_resolution.height,framebuffer_alpha?4:3);
-		GL::capture(target);
+		GL::Capture(target);
 	}
 
-	template <class GL> inline	void	Display<GL>::capture(typename GL::Texture&target)
+	template <class GL> inline	void	Display<GL>::Capture(typename GL::Texture&target)
 	{
 		Resolution res = currentTargetResolution();
-		GL::capture(target,res.width,res.height);
+		GL::Capture(target,res.width,res.height);
 	}
 
 	template <class GL> inline	void	Display<GL>::captureDepth(typename GL::Texture&target)

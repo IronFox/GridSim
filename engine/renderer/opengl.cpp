@@ -1435,7 +1435,7 @@ namespace Engine
 	}
 	
 
-	void	OpenGL::capture(Image&target)
+	void	OpenGL::Capture(Image&target)
 	{
 		DBG_ASSERT__(hasCurrentContext());
 		if (target.getChannels() != 3 && target.getChannels() != 4)
@@ -1446,7 +1446,7 @@ namespace Engine
 		ASSERT_EQUAL__(glGetError(), GL_NO_ERROR);
 	}
 
-	void	OpenGL::capture(FloatImage&target)
+	void	OpenGL::Capture(FloatImage&target)
 	{
 		DBG_ASSERT__(hasCurrentContext());
 		if (target.getChannels() != 3 && target.getChannels() != 4)
@@ -1456,7 +1456,7 @@ namespace Engine
 		ASSERT_EQUAL__(glGetError(), GL_NO_ERROR);
 	}
 	
-	void	OpenGL::capture(Texture&target, unsigned width, unsigned height)
+	void	OpenGL::Capture(Texture&target, unsigned width, unsigned height)
 	{
 		if (width == 0 || height == 0)
 			return;

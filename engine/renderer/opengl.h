@@ -1182,9 +1182,9 @@ namespace Engine
 
 		static			String						renderState();																					//!< Queries the current render state \return String containing the current OpenGL render state
 
-		static			void						capture(Image&target);																			//!< Copies the current visible image to the specified image
-		static			void						capture(FloatImage&target);																			//!< Copies the current visible image to the specified image
-		static			void						capture(Texture&target, unsigned width, unsigned height);										//!< Captures the current back buffer content to the specified texture
+		static			void						Capture(Image&target);																			//!< Copies the current visible image to the specified image
+		static			void						Capture(FloatImage&target);																			//!< Copies the current visible image to the specified image
+		static			void						Capture(Texture&target, unsigned width, unsigned height);										//!< Captures the current back buffer content to the specified texture
 		static			void						captureDepth(Texture&target, unsigned width, unsigned height);									//!< Captures the current back buffer depth content to the specified texture
 
 													OpenGL();
