@@ -292,6 +292,15 @@ template <typename T, typename Strategy>
 			new ((storage_begin+i)) T(other.storage_begin[i]);
 		return *this;
 	}
+
+template <typename T, typename Strategy>
+	BasicBuffer<T, Strategy>&		BasicBuffer<T, Strategy>::operator=(const ArrayData<T>&other)
+	{
+		Clear();
+		T*field = AppendRow(other.Count());
+		Strategy::copyRange<const T,T>(other.begin(),other.end(),field);
+		return *this;
+	}
 	
 template <typename T, typename Strategy>
 	void	BasicBuffer<T, Strategy>::revert()

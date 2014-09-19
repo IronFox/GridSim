@@ -48,6 +48,7 @@ template <typename T, typename Strategy=typename StrategySelector<T>::Default>
 			/**/				BasicBuffer(BasicBuffer<T,Strategy>&&other);
 		#endif
 		virtual				   ~BasicBuffer();
+		Self&					operator=(const ArrayData<T>&array);
 		Self&					operator=(const BasicBuffer<T,Strategy>&other);
 		#if __BUFFER_RVALUE_REFERENCES__
 			Self&				operator=(BasicBuffer<T,Strategy>&&other);
@@ -223,23 +224,25 @@ template <typename T, count_t InitialLength=128, typename Strategy=typename Stra
 	class Buffer:public BasicBuffer<T,Strategy>
 	{
 	public:
+		typedef BasicBuffer<T,Strategy>				Super;
 		typedef Buffer<T,InitialLength,Strategy>	Self;
 		typedef	Strategy							AppliedStrategy;
 
 
-		explicit			Buffer(count_t len=InitialLength):BasicBuffer<T,Strategy>(len)
+		explicit			Buffer(count_t len=InitialLength):Super(len)
 							{}
-							Buffer(const BasicBuffer<T,Strategy>&other):BasicBuffer<T,Strategy>(other)
+							Buffer(const BasicBuffer<T,Strategy>&other):Super(other)
 							{}
 		#if __BUFFER_RVALUE_REFERENCES__
 			template<count_t Len>
-							Buffer(Buffer<T,Len,Strategy>&&other):BasicBuffer<T,Strategy>(other)
+							Buffer(Buffer<T,Len,Strategy>&&other):Super(other)
 							{}
 		#endif
+		Self&				operator=(const ArrayData<T>&array){Super::operator=(array); return *this;}
 
-		BasicBuffer<T,Strategy>::operator<<;
-		BasicBuffer<T,Strategy>::operator[];
-		BasicBuffer<T,Strategy>::operator+;
+		Super::operator<<;
+		Super::operator[];
+		Super::operator+;
 	};
 
 template <typename T, count_t InitialLength, typename Strategy>
