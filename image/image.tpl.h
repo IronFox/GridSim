@@ -1799,13 +1799,13 @@ template <typename T>
 			Concurrency::parallel_for(dimension_t(0),new_data.image_width,[this,&new_data,left,bottom](dimension_t x)
 			{
 				for (dimension_t y = 0; y < new_data.image_height; y++)
-					_c4(getPixel(left+x,bottom+y),new_data.getPixel(x,y));
+					VecUnroll<4>::copy(getPixel(left+x,bottom+y),new_data.getPixel(x,y));
 			});
 		else
 			Concurrency::parallel_for(dimension_t(0),new_data.image_width,[this,&new_data,left,bottom](dimension_t x)
 			{
 				for (dimension_t y = 0; y < new_data.image_height; y++)
-					_c2(getPixel(left+x,bottom+y),new_data.getPixel(x,y));
+					VecUnroll<2>::copy(getPixel(left+x,bottom+y),new_data.getPixel(x,y));
 			});
 		adoptData(new_data);
 		return true;
