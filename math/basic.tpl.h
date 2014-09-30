@@ -5,14 +5,9 @@
 
 Collection of basic template functions.
 
-This file is part of Delta-Works
-Copyright (C) 2006-2008 Stefan Elsen, University of Trier, Germany.
-http://www.delta-works.org/forge/
-http://informatik.uni-trier.de/
-
 ******************************************************************/
 
-
+#include <complex>
 
 namespace Math
 {
@@ -379,8 +374,10 @@ namespace Math
 
 		MFUNC (C)     cubicFactor(const C&f)
 		{
-			return -2*f*f*f + 3*f*f;
+			return f*f*((C)3 - (C)2*f)
 		}
+
+
 
 
 		MFUNC3 (C0)          linearStep(const C0&v, const C1&lower, const C2&upper)
@@ -951,7 +948,36 @@ namespace Math
 
 	MFUNC (C)     cubicFactor(C f)
 	{
-		return -2*f*f*f + 3*f*f;
+		return f*f*((C)3 - (C)2*f);
+	};
+
+	MFUNC (C)	ReverseCubicFactor(C y)
+	{
+		static const C a = C(-2);
+		static const C b = C(3);
+		const C d = -y;
+
+
+		static const C delta0 = b*b;
+		const C delta1 = C(2) * b * b * b + C(27) * a * a * d;
+
+		std::complex<C> c = std::complex<C>(delta1*delta1 - C(4) * delta0 * delta0 * delta0,0);
+
+		c = (delta1 + sqrt(c)) / C(2);
+
+		c = pow(c,C(1)/C(3));
+		
+		std::complex<C> u1 = std::complex<C>(1);
+		std::complex<C> u2 = std::complex<C>(C(-1),C(sqrt(3.0)))/C(2);
+		std::complex<C> u3 = std::complex<C>(C(-1),C(-sqrt(3.0)))/C(2);
+
+		std::complex<C> rs1 = -C(1) / (C(3) * a) * (b + u1*c + delta0 / (u1 * c));
+		std::complex<C> rs2 = -C(1) / (C(3) * a) * (b + u2*c + delta0 / (u2 * c));
+		std::complex<C> rs3 = -C(1) / (C(3) * a) * (b + u3*c + delta0 / (u3 * c));
+
+		float control = CubicFactor(rs3.real());
+
+		return rs3.real();
 	}
 	
 

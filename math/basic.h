@@ -319,6 +319,8 @@ namespace Math
 	MFUNC2	(C0)		aligned(C0 i, C1 at);											//!< Aligns i to the upper step ceiling \param i Value to examine \param at Step \return ceil(i/at)*at
 	MFUNC	(C)			cosFactor(C f);													//!< Smooths f using cos \param f Value to examine in the boundary [0,1] \return smoothed factor [0,1]
 	MFUNC	(C)			cubicFactor(C f);												//!< Smooths f using a cubic function \param f Value to examine in the boundary [0,1] \return smoothed factor [0,1]
+	MFUNC	(C)			CubicFactor(C x)	{return cubicFactor(x);}
+	MFUNC	(C)			ReverseCubicFactor(C y);
 	MFUNC2	(C0)		loop_exp(C0 b, C1 e);											//!< Returns b^e where C1 should be an integer type \param b Basis \param e Exponent \return b^e
 	MFUNC	(C)			notZero(C f);											 		//!< Insures that f is not zero. \param f Value to examine \return f if f is non-zero. Otherwise a small non-zero value
 	MFUNC3	(bool)		sqrEquationHasResults(C0 a, C1 b, C2 c); 						//!< Determines whether or not ax^2 + bx + c = 0 has at least one result. @return True if the equation has at least one result, false otherwise

@@ -942,13 +942,13 @@ namespace Math
 										this->y.MakeAbsolute(y,y_out);
 									}
 			template <typename T0,typename T1>
-				MF_DECLARE(void)	Derelativate(const TVec2<T0>& relative, TVec2<T0>&absolute_out)	const
+				MF_DECLARE(void)	Derelativate(const TVec2<T0>& relative, TVec2<T1>&absolute_out)	const
 									{
 										x.MakeAbsolute(relative.x,absolute_out.x);
 										y.MakeAbsolute(relative.y,absolute_out.y);
 									}
 			template <typename T0,typename T1>
-				MF_DECLARE(void)	MakeAbsolute(const TVec2<T0>& relative, TVec2<T0>&absolute_out)	const
+				MF_DECLARE(void)	MakeAbsolute(const TVec2<T0>& relative, TVec2<T1>&absolute_out)	const
 									{
 										x.MakeAbsolute(relative.x,absolute_out.x);
 										y.MakeAbsolute(relative.y,absolute_out.y);
@@ -1054,6 +1054,10 @@ namespace Math
 									{
 										out.x = (T0)x.extend();
 										out.y = (T0)y.extend();
+									}
+			MF_DECLARE(TVec2<T>)	GetExtend()	const
+									{
+										return extend();
 									}
 			MF_DECLARE(TVec2<T>)	min()	const
 									{
