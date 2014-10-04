@@ -64,8 +64,8 @@ PARALLEL_OPERATION subdivideVertexBlock(unsigned iteration,const UnifiedOperatio
 		p0[_INDEX_] = (const TVertex*)(field+info[_INDEX_]->parent0);\
 		p1[_INDEX_] = (const TVertex*)(field+info[_INDEX_]->parent1);\
 		p2[_INDEX_] = (const TVertex*)(field+info[_INDEX_]->parent2);\
-		p3[_INDEX_] = info[_INDEX_]->edge_index != -1?&empty_vertex:(const TVertex*)(field+info[_INDEX_]->parent3);\
-		p3_exists[_INDEX_] = info[_INDEX_]->edge_index == -1;
+		p3[_INDEX_] = info[_INDEX_]->borderDirection != -1?&empty_vertex:(const TVertex*)(field+info[_INDEX_]->parent3);\
+		p3_exists[_INDEX_] = info[_INDEX_]->borderDirection == -1;
 
 	FILL_PARENTS(0)
 	FILL_PARENTS(1)
@@ -78,10 +78,10 @@ PARALLEL_OPERATION subdivideVertexBlock(unsigned iteration,const UnifiedOperatio
 	
 	#define FILL_SEED(_INDEX_)\
 		{\
-			if (info[_INDEX_]->edge_index != -1)\
+			if (info[_INDEX_]->borderDirection != -1)\
 			{\
 				unsigned elinear;\
-				switch (info[_INDEX_]->edge_index)\
+				switch (info[_INDEX_]->borderDirection)\
 				{\
 					case 0:\
 						elinear = info[_INDEX_]->y;\
@@ -95,7 +95,7 @@ PARALLEL_OPERATION subdivideVertexBlock(unsigned iteration,const UnifiedOperatio
 				}\
 				if (xCoord(p0[_INDEX_]->position) > xCoord(p1[_INDEX_]->position))\
 					elinear = context.edge_length-elinear-1;\
-				seeds.v[_INDEX_] = segment.outer_int_seed[info[_INDEX_]->edge_index]+seedDelta(elinear);\
+				seeds.v[_INDEX_] = segment.outer_int_seed[info[_INDEX_]->borderDirection]+seedDelta(elinear);\
 			}\
 			else\
 				seeds.v[_INDEX_] = segment.inner_int_seed+seedDelta(index[_INDEX_]);\
@@ -358,10 +358,10 @@ PARALLEL_OPERATION subdivideVertexBlock(unsigned iteration,const UnifiedOperatio
 	SET_PARENT_HEIGHTS(2)
 	
 	((SSE_VECTOR&)h3) = _mm_setr_ps(
-			info[0]->edge_index == -1?p3[0]->FRACTAL_HEIGHT:(p0[0]->FRACTAL_HEIGHT+p1[0]->FRACTAL_HEIGHT+p2[0]->FRACTAL_HEIGHT)/3.0f,
-			info[1]->edge_index == -1?p3[1]->FRACTAL_HEIGHT:(p0[1]->FRACTAL_HEIGHT+p1[1]->FRACTAL_HEIGHT+p2[1]->FRACTAL_HEIGHT)/3.0f,
-			info[2]->edge_index == -1?p3[2]->FRACTAL_HEIGHT:(p0[2]->FRACTAL_HEIGHT+p1[2]->FRACTAL_HEIGHT+p2[2]->FRACTAL_HEIGHT)/3.0f,
-			info[3]->edge_index == -1?p3[3]->FRACTAL_HEIGHT:(p0[3]->FRACTAL_HEIGHT+p1[3]->FRACTAL_HEIGHT+p2[3]->FRACTAL_HEIGHT)/3.0f
+			info[0]->borderDirection == -1?p3[0]->FRACTAL_HEIGHT:(p0[0]->FRACTAL_HEIGHT+p1[0]->FRACTAL_HEIGHT+p2[0]->FRACTAL_HEIGHT)/3.0f,
+			info[1]->borderDirection == -1?p3[1]->FRACTAL_HEIGHT:(p0[1]->FRACTAL_HEIGHT+p1[1]->FRACTAL_HEIGHT+p2[1]->FRACTAL_HEIGHT)/3.0f,
+			info[2]->borderDirection == -1?p3[2]->FRACTAL_HEIGHT:(p0[2]->FRACTAL_HEIGHT+p1[2]->FRACTAL_HEIGHT+p2[2]->FRACTAL_HEIGHT)/3.0f,
+			info[3]->borderDirection == -1?p3[3]->FRACTAL_HEIGHT:(p0[3]->FRACTAL_HEIGHT+p1[3]->FRACTAL_HEIGHT+p2[3]->FRACTAL_HEIGHT)/3.0f
 		);
 
 	
@@ -399,7 +399,7 @@ PARALLEL_OPERATION subdivideVertexBlock(unsigned iteration,const UnifiedOperatio
 					norm3[4][3];
 
 			#define LOCATE_PARENT3(_INDEX_)\
-				if (info[_INDEX_]->edge_index != -1)\
+				if (info[_INDEX_]->borderDirection != -1)\
 				{\
 					float base[3],d[3],n0[3],n1[3];\
 					_center(p0[_INDEX_]->position,p1[_INDEX_]->position,base);\

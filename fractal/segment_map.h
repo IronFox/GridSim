@@ -14,7 +14,7 @@ namespace Fractal
 	struct TMapVertex:public TVertexDescriptor	//!< VertexMap information regarding one abstract vertex
 	{
 			unsigned				index,			//!< Index of this vertex in the vertex field
-									border_index;	//!< Index along the border (if along a border, 0 otherwise)
+									indexAlongBorder;	//!< Index along the border (if along a border, 0 otherwise)
 			BYTE					dir;			//!< Direction of the closest border (0xFF = NA)
 			union
 			{

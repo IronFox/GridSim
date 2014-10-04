@@ -218,11 +218,10 @@ namespace Fractal
 	public:
 			typedef TVec3<>	Vertex;
 
-			Array<Vertex>			vertex_field;	//!< Geometrical vertices
-			Array<unsigned>		index_field;	//!< Triangular index path. Each three indices form one triangle using the vertices stored in \b vertex_field
-	
-									Geometry(unsigned vertices=0, unsigned indices=0):vertex_field(vertices),index_field(indices)
-									{}
+			Array<Vertex>			vertexField;	//!< Geometrical vertices
+			Array<index_t>			triangleField,	//!< Triangular index path. Each three indices form one triangle using the vertices stored in \b vertex_field
+									edgeField;		//!< Edge index path. Each two indices form one edge, using the vertices stored in @b vertexField
+
 	};
 
 	

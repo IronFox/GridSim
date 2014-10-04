@@ -2425,8 +2425,8 @@ namespace Fractal
 	void		Body::rebuildFromGeometry(const Geometry&geometry, pInit init_function)
 	{
 		lout << "building shape from geometry"<<nl;
-		lout << " vertices="<<geometry.vertex_field.length()<<nl;
-		lout << " triangles="<<geometry.index_field.length()/3<<nl;
+		lout << " vertices="<<geometry.vertexField.length()<<nl;
+		lout << " triangles="<<geometry.triangleField.length()/3<<nl;
 		
 		context->sse_fertility = _mm_set1_ps(context->fertility);
 		context->sse_temperature = _mm_set1_ps(context->temperature);
@@ -2437,7 +2437,7 @@ namespace Fractal
 		
 		
 		clearFaces();
-		faces.setSize(geometry.index_field.length()/3);
+		faces.setSize(geometry.triangleField.length()/3);
 		for (index_t i = 0; i < faces.count(); i++)
 		{
 			faces[i] = makeFace();
@@ -2464,9 +2464,9 @@ namespace Fractal
 				
 			TVec3<> d,dx,dy;
 			
-			const Geometry::Vertex	&v0 = geometry.vertex_field[geometry.index_field[i*3+0]],
-									&v1 = geometry.vertex_field[geometry.index_field[i*3+1]],
-									&v2 = geometry.vertex_field[geometry.index_field[i*3+2]];
+			const Geometry::Vertex	&v0 = geometry.vertexField[geometry.triangleField[i*3+0]],
+									&v1 = geometry.vertexField[geometry.triangleField[i*3+1]],
+									&v2 = geometry.vertexField[geometry.triangleField[i * 3 + 2]];
 			
 			Vec::sub(v1,v0,dx);
 			Vec::sub(v2,v0,dy);
@@ -2506,8 +2506,8 @@ namespace Fractal
 		
 
 		
-		Array<TVertex>		vertex_field(geometry.vertex_field.length());
-		for (unsigned i = 0; i < geometry.vertex_field.length(); i++)
+		Array<TVertex>		vertex_field(geometry.vertexField.length());
+		for (index_t i = 0; i < geometry.vertexField.length(); i++)
 		{
 			init_function(vertex_field[i].channel,random,context);
 			vertex_field[i].height = height<CLAMP_HEIGHT>(vertex_field[i].channel,context->has_canyons);
@@ -2518,7 +2518,7 @@ namespace Fractal
 		typedef Mesh<TFaceGraphDef<TDef<float> > >	GraphMesh;
 		GraphMesh	graph;
 		
-		_oMakeGraph(graph,geometry.index_field,Array<unsigned>());
+		_oMakeGraph(graph,geometry.triangleField,Array<unsigned>());
 
 		for (index_t i = 0; i < faces.count(); i++)
 		{
@@ -2555,13 +2555,13 @@ namespace Fractal
 				}
 				//logfile << __LINE__<<nl;
 				
-				if (geometry.index_field[i*3+k]>=geometry.vertex_field.length())
+				if (geometry.triangleField[i * 3 + k] >= geometry.vertexField.length())
 					EXCEPTION("index exception");
 				//logfile << "0x"<<PointerToHex(faces[i]->root_map)<<nl;
 				//logfile << i<<"/"<<sector_count<<", "<<k<<nl;
 				TVertex&corner = *corner_field[k];
-				const Geometry::Vertex&vertex = geometry.vertex_field[geometry.index_field[i*3+k]];
-				corner = vertex_field[geometry.index_field[i*3+k]];
+				const Geometry::Vertex&vertex = geometry.vertexField[geometry.triangleField[i * 3 + k]];
+				corner = vertex_field[geometry.triangleField[i * 3 + k]];
 				
 				Vec::copy(vertex,(corner.position));
 				Vec::setLen((corner.position),context->base_heightf);
@@ -3096,9 +3096,9 @@ namespace Fractal
 	{
 		static const unsigned resolution = 20;
 	
-		geometry.vertex_field.setSize(resolution*2);
-		geometry.index_field.setSize(resolution*6);
-		unsigned *f = geometry.index_field.pointer();
+		geometry.vertexField.setSize(resolution*2);
+		geometry.triangleField.setSize(resolution*6);
+		unsigned *f = geometry.triangleField.pointer();
 		#undef t
 		#define t(i0,i1,i2)	{(*f++) = i0; (*f++) = i1; (*f++) = i2;}
 			for (unsigned i = 0; i < resolution; i++)
@@ -3107,16 +3107,16 @@ namespace Fractal
 				t((i+1)%resolution,(i+1)%resolution+resolution,i+resolution);
 			}
 		#undef t
-		ASSERT_CONCLUSION(geometry.index_field,f);
+		ASSERT_CONCLUSION(geometry.triangleField,f);
 
 		float step = 360.0f/resolution;
-		Geometry::Vertex*v = geometry.vertex_field.pointer();
+		Geometry::Vertex*v = geometry.vertexField.pointer();
 		for (unsigned i = 0; i < resolution; i++)
 			Vec::sphereCoords(step*i,-step/2,1,(*v++));
 		for (unsigned i = 0; i < resolution; i++)
 			Vec::sphereCoords(step*i+step/2,step/2,1,(*v++));
 		
-		ASSERT_CONCLUSION(geometry.vertex_field,v);
+		ASSERT_CONCLUSION(geometry.vertexField, v);
 	}
 	
 	Geometry			makeHaloGeometry()
@@ -3185,9 +3185,10 @@ namespace Fractal
 	
 		//20 sided:
 		
-		geometry.vertex_field.setSize(12);
-		geometry.index_field.setSize(60);
-		unsigned *f = geometry.index_field.pointer();
+		geometry.vertexField.setSize(12);
+		geometry.triangleField.setSize(60);
+		geometry.edgeField.setSize(60);
+		index_t *f = geometry.triangleField.pointer();
 		#undef t
 		#define t(i0,i1,i2)	{(*f++) = i0; (*f++) = i1; (*f++) = i2;}
 		    t(0,1,2);
@@ -3214,23 +3215,64 @@ namespace Fractal
 		    t(10,9,11);
 		    t(6,10,11);
 		#undef t
-		ASSERT_CONCLUSION(geometry.index_field,f);
+		ASSERT_CONCLUSION(geometry.triangleField,f);
 
-		Vec::sphereCoords(0,90,1,geometry.vertex_field[0]);
+		index_t *e = geometry.edgeField.pointer();
+		#undef E
+		#define E(i0,i1)	{(*e++) = i0; (*e++) = i1; }
+		    E(0,1);
+		    E(0,2);
+		    E(0,3);
+		    E(0,4);
+		    E(0,5);
+
+			E(5, 1);
+			E(1, 2);
+			E(2, 3);
+			E(3, 4);
+			E(4, 5);
+
+			E(1, 10);
+			E(1, 6);
+			E(2, 6);
+			E(2, 7);
+			E(3, 7);
+			E(3, 8);
+			E(4, 8);
+			E(4, 9);
+			E(5, 9);
+			E(5, 10);
+
+			E(10, 6);
+			E(6, 7);
+			E(7, 8);
+			E(8, 9);
+			E(9, 10);
+
+			E(6, 11);
+			E(7, 11);
+			E(8, 11);
+			E(9, 11);
+			E(10, 11);
+		#undef E
+		ASSERT_CONCLUSION(geometry.edgeField,e);
+
+
+		Vec::sphereCoords(0,90,1,geometry.vertexField[0]);
 	    
-		Vec::sphereCoords(0,30,1,geometry.vertex_field[1]);
-		Vec::sphereCoords(-72,30,1,geometry.vertex_field[2]);
-		Vec::sphereCoords(-144,30,1,geometry.vertex_field[3]);
-		Vec::sphereCoords(-216,30,1,geometry.vertex_field[4]);
-		Vec::sphereCoords(-288,30,1,geometry.vertex_field[5]);
+		Vec::sphereCoords(0, 30, 1, geometry.vertexField[1]);
+		Vec::sphereCoords(-72, 30, 1, geometry.vertexField[2]);
+		Vec::sphereCoords(-144, 30, 1, geometry.vertexField[3]);
+		Vec::sphereCoords(-216, 30, 1, geometry.vertexField[4]);
+		Vec::sphereCoords(-288, 30, 1, geometry.vertexField[5]);
 
-		Vec::sphereCoords(-36,-30,1,geometry.vertex_field[6]);
-		Vec::sphereCoords(-108,-30,1,geometry.vertex_field[7]);
-		Vec::sphereCoords(-180,-30,1,geometry.vertex_field[8]);
-		Vec::sphereCoords(-252,-30,1,geometry.vertex_field[9]);
-		Vec::sphereCoords(-324,-30,1,geometry.vertex_field[10]);
+		Vec::sphereCoords(-36, -30, 1, geometry.vertexField[6]);
+		Vec::sphereCoords(-108, -30, 1, geometry.vertexField[7]);
+		Vec::sphereCoords(-180, -30, 1, geometry.vertexField[8]);
+		Vec::sphereCoords(-252, -30, 1, geometry.vertexField[9]);
+		Vec::sphereCoords(-324, -30, 1, geometry.vertexField[10]);
 
-		Vec::sphereCoords(0,-90,1,geometry.vertex_field[11]);
+		Vec::sphereCoords(0, -90, 1, geometry.vertexField[11]);
 		
 	}
 	

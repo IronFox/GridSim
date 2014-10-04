@@ -410,11 +410,11 @@ namespace Fractal
 				/*for (unsigned i = 0; i < linear; i++)
 					getRandom(seed);*/
 				
-				if (info.edge_index != -1)
+				if (info.borderDirection != -1)
 				{
 					
 					unsigned elinear;
-					switch (info.edge_index)
+					switch (info.borderDirection)
 					{
 						case 0:
 							elinear = info.y;
@@ -429,7 +429,7 @@ namespace Fractal
 					if (xCoord(p0.position) > xCoord(p1.position))
 						elinear = context.edge_length-elinear-1;
 							
-					int seed = segment.outer_int_seed[info.edge_index]+seedDelta(elinear);
+					int seed = segment.outer_int_seed[info.borderDirection]+seedDelta(elinear);
 					generate3center(p0,p1,p2,result,seed,segment,context,parameter.generateVertex.crater_field,parameter.generateVertex.crater_count );
 				}
 				else
@@ -915,7 +915,7 @@ namespace Fractal
 					/*if (!forward)
 						edge_linear = edge_length-1-linear;*/
 					
-					int seed = this_surface.outer_int_seed[this_info.edge_index]+seedDelta(edge_linear);
+					int seed = this_surface.outer_int_seed[this_info.borderDirection]+seedDelta(edge_linear);
 					{
 						TVertex	&p0 = these_vertices[this_info.parent0],
 								&p0b = those_vertices[that_info.parent1],
@@ -982,7 +982,7 @@ namespace Fractal
 					/*if (!forward)
 						edge_linear = edge_length-1-linear;*/
 					
-					int seed = this_surface.outer_int_seed[this_info.edge_index]+seedDelta(edge_linear);
+					int seed = this_surface.outer_int_seed[this_info.borderDirection]+seedDelta(edge_linear);
 					{
 						TVertex	&n0 = these_vertices[this_info.child[0]],
 								&n1 = these_vertices[this_info.child[1]],

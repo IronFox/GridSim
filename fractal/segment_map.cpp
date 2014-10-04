@@ -23,28 +23,28 @@ namespace Fractal
 	
 				inf.x = x;
 				inf.y = y;
-				inf.edge_index = -1;
-				inf.border_index = 0;
+				inf.borderDirection = -1;
+				inf.indexAlongBorder = 0;
 				inf.index = index;
 				
 				inf.grid_vertex = !(x%2) && !(y%2);
 				
 				if (!x)
 				{
-					inf.edge_index = 0;
-					inf.border_index = y;
+					inf.borderDirection = 0;
+					inf.indexAlongBorder = y;
 				}
 				else
 					if (y == vertex_range-1)
 					{
-						inf.edge_index = 1;
-						inf.border_index = x;
+						inf.borderDirection = 1;
+						inf.indexAlongBorder = x;
 					}
 					else
 						if (x == y)
 						{
-							inf.edge_index = 2;
-							inf.border_index = vertex_range-x-1;
+							inf.borderDirection = 2;
+							inf.indexAlongBorder = vertex_range-x-1;
 						}
 	
 				if (!(y%2))
@@ -53,7 +53,7 @@ namespace Fractal
 						//grid vertex
 						inf.dir = 255;
 						inf.parent0 = inf.parent1 = inf.parent2 = inf.parent3 = UNSIGNED_UNDEF;
-						switch (inf.edge_index)
+						switch (inf.borderDirection)
 						{
 							case -1:
 								inf.child[0] = getIndex(x-1,y-1);
@@ -88,7 +88,7 @@ namespace Fractal
 								inf.child[5] = UNSIGNED_UNDEF;
 							break;
 							default:
-								FATAL__("Invalid edge index encountered: "+String((int)inf.edge_index));
+								FATAL__("Invalid edge index encountered: "+String((int)inf.borderDirection));
 						}
 					}
 					else
@@ -229,7 +229,7 @@ namespace Fractal
 		
 		current = inner_vertex_index;
 		for (unsigned i = 0; i < vertex_count; i++)
-			if (vertex_descriptor[i].edge_index == -1)
+			if (vertex_descriptor[i].borderDirection == -1)
 				(*current++) = i;
 		/*
 		for (unsigned y = 1; y < vertex_range; y++)
@@ -292,7 +292,7 @@ namespace Fractal
 		for (unsigned i = 0; i < parent_vertex_count; i++)
 		{
 			const TMapVertex&inf = vertex_descriptor[parent_vertex_info[i].index];
-			if (inf.edge_index == -1)
+			if (inf.borderDirection == -1)
 				(*ipvi++) = parent_vertex_info[i];
 		}
 		if (ipvi != inner_parent_vertex_info+inner_parent_vertex_count)
@@ -327,7 +327,7 @@ namespace Fractal
 					info.parent_space[k].parent0 = forward_map[info.parent0*4+k];
 					info.parent_space[k].parent1 = forward_map[info.parent1*4+k];
 					info.parent_space[k].parent2 = forward_map[info.parent2*4+k];
-					if (info.edge_index == -1)
+					if (info.borderDirection == -1)
 					{
 						ASSERT2__(info.parent3<vertex_count,info.parent3,vertex_count);
 						info.parent_space[k].parent3 = forward_map[info.parent3*4+k];
