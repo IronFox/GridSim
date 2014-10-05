@@ -670,6 +670,14 @@ namespace Math
 		w = (C)w_;
 	}
 
+	template <class C>
+	MF_CONSTRUCTOR3              Vec4<C>::Vec4(const C0&x_, const C1&y_, const TVec2<C2>&zw)
+	{
+		x = (C)x_;
+		y = (C)y_;
+		z = (C)zw.x;
+		w = (C)zw.y;
+	}
     template <class C>
     MF_CONSTRUCTOR2              Vec4<C>::Vec4(const TVec2<C0>&xy,const TVec2<C1>&zw)
 	{

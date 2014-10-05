@@ -201,6 +201,7 @@ namespace Math
 		MF_CONSTRUCTOR2					Vec4(const TVec3<C0>&other, const C1&w);
 		MF_CONSTRUCTOR1					Vec4(const TVec4<C0>&other);
 		MF_CONSTRUCTOR4					Vec4(const C0&x, const C1&y, const C2&z, const C3&a);
+		MF_CONSTRUCTOR3					Vec4(const C0&x, const C1&y, const TVec2<C2>&zw);
 		MF_CONSTRUCTOR1					Vec4(const C0 field[4]);
 
 		MFUNC4 (void)					set(const C0&x, const C1&y, const C2&z, const C3&w)	{Vec::def(*this,x,y,z,w);}

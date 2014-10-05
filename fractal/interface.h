@@ -179,7 +179,7 @@ namespace Fractal
 		class TemplateBody;
 
 	class VertexMap;
-	template <unsigned>
+	template <unsigned,unsigned =0>
 		class TemplateMap;
 	
 	class Geometry;

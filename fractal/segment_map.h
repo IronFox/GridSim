@@ -9,7 +9,10 @@
 
 namespace Fractal
 {
-	#define NUM_VERTICES(exponent) (((1LL<<(2*(exponent))) + 3LL*(1LL<<(exponent)) +2LL)/2LL)
+	#define NUM_VERTICES2(VMAX) ((((VMAX)*(VMAX)) + 3LL*((VMAX)) +2LL)/2LL)
+	//#define NUM_VERTICES(exponent) (((1LL<<(2*(exponent))) + 3LL*(1LL<<(exponent)) +2LL)/2LL)
+	#define NUM_VERTICES(exponent) NUM_VERTICES2((1LL<<(exponent)))
+	//(((1LL<<(2*(exponent))) + 3LL*(1LL<<(exponent)) +2LL)/2LL)
 	
 	struct TMapVertex:public TVertexDescriptor	//!< VertexMap information regarding one abstract vertex
 	{
@@ -111,13 +114,14 @@ namespace Fractal
 		
 		This derivative index map retrieves the required array sizes from the specified exponent parameter.
 	*/
-	template <unsigned Exponent>
+	template <unsigned Exponent, unsigned RangeReduction =0>
 		class TemplateMap:public VertexMap
 		{
 		public:
-		static	const unsigned			range		= (1<<Exponent)+1,					//!< Copied to \a VertexMap::vertex_range
-										vertices	= NUM_VERTICES(Exponent),			//!< Copied to \a VertexMap::vertex_count
-										child_border_vertices = (1<<(Exponent-1)),		//!< Copied to @a VertexMap::child_border_vertex_count
+		static	const unsigned			range		= (1<<Exponent)+1 - RangeReduction,					//!< Copied to \a VertexMap::vertex_range
+										vertexMax = (1 << Exponent) - RangeReduction,
+										vertices	= NUM_VERTICES2(vertexMax),			//!< Copied to \a VertexMap::vertex_count
+										child_border_vertices = (1 << (Exponent - 1)) - RangeReduction,		//!< Copied to @a VertexMap::child_border_vertex_count
 										parent_vertices	= NUM_VERTICES(Exponent-1),		//!< Copied to \a VertexMap::parent_vertex_count
 										child_vertices	= vertices-parent_vertices,		//!< Copied to \a VertexMap::child_vertex_count
 										inner_vertices = vertices - 3*(range-1),	//!< Copied to \a VertexMap::inner_vertex_count
@@ -143,18 +147,34 @@ namespace Fractal
 											VertexMap::vertex_range = range;
 											VertexMap::vertex_maximum = range-1;
 											VertexMap::vertex_count = vertices;
-											VertexMap::child_border_vertex_count = child_border_vertices;
-											VertexMap::child_border_index[0] = child_border[0];
-											VertexMap::child_border_index[1] = child_border[1];
-											VertexMap::child_border_index[2] = child_border[2];
-											VertexMap::child_vertex_count = child_vertices;
-											VertexMap::child_vertex_index = child_vertex;
+											if (RangeReduction == 0)
+											{
+												VertexMap::child_border_vertex_count = child_border_vertices;
+												VertexMap::child_border_index[0] = child_border[0];
+												VertexMap::child_border_index[1] = child_border[1];
+												VertexMap::child_border_index[2] = child_border[2];
+												VertexMap::child_vertex_count = child_vertices;
+												VertexMap::child_vertex_index = child_vertex;
+												VertexMap::parent_vertex_count = parent_vertices;
+												VertexMap::parent_vertex_info = parent_vertex;
+												VertexMap::inner_parent_vertex_count = inner_parent_vertices;
+												VertexMap::inner_parent_vertex_info = inner_parent_vertex;
+											}
+											else
+											{
+												VertexMap::child_border_vertex_count = 0;
+												VertexMap::child_border_index[0] = nullptr;
+												VertexMap::child_border_index[1] = nullptr;
+												VertexMap::child_border_index[2] = nullptr;
+												VertexMap::child_vertex_count = 0;
+												VertexMap::child_vertex_index = nullptr;
+												VertexMap::parent_vertex_count = 0;
+												VertexMap::parent_vertex_info = 0;
+												VertexMap::inner_parent_vertex_count = 0;
+												VertexMap::inner_parent_vertex_info = 0;
+											}
 											VertexMap::inner_vertex_count = inner_vertices;
 											VertexMap::inner_vertex_index = inner;
-											VertexMap::parent_vertex_count = parent_vertices;
-											VertexMap::parent_vertex_info = parent_vertex;
-											VertexMap::inner_parent_vertex_count = inner_parent_vertices;
-											VertexMap::inner_parent_vertex_info = inner_parent_vertex;
 											VertexMap::border_index[0] = border[0];
 											VertexMap::border_index[1] = border[1];
 											VertexMap::border_index[2] = border[2];
