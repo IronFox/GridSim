@@ -36,23 +36,25 @@
 		static  char    space_buffer[0x100];    //!< Space buffer for indentation
 		unsigned		indentation;			//!< Additional tabs following a newline
 		bool			indent_,				//!< True if the next output requires indention
-						make_clear;				//!< Valid only if do_open is true. Specifies whether or not a file opened in delayed mode should be cleared before writing to it
+						make_clear,				//!< Valid only if do_open is true. Specifies whether or not a file opened in delayed mode should be cleared before writing to it
+						closeWhenIdle;
 
 		bool			begin();
 		void			timeStamp();            //!< Writes a time stamp to the file
+		void			end();
 	public:
 		String			format;                 //!< Time stamp format
         
 		/**/			LogFile();
-		/**/			LogFile(const String&filename, bool makeclear);   //!< Creates a new log object. The specified file is opened in delayed mode, meaning it's actually opened the first time data is written to it \param filename Name of the file to write to \param makeclear Specifies whether or not the specified file should be cleared before writing
+		/**/			LogFile(const String&filename, bool makeclear, bool closeWhenIdle=true);   //!< Creates a new log object. The specified file is opened in delayed mode, meaning it's actually opened the first time data is written to it \param filename Name of the file to write to \param makeclear Specifies whether or not the specified file should be cleared before writing
 		virtual			~LogFile();
 
 		void			clear();                                        //!< Clears the content of the local log file
 		inline void		Clear()	{clear();}
-		bool			open(const String&filename, bool makeclear, bool delayed=false);   //!< Closes the active file and opens the specified file for write output \param filename Name of the file to write to  \param makeclear Specifies whether or not the specified file should be cleared before writing @param delayed Specifies that the file should not be opened immediately but rather when data is written to it the first time \return true on success
-		inline bool		Open(const String&filename, bool makeClear, bool delayed=false)	{return open(filename,makeClear,delayed);}
-		bool			create(const String&filename, bool delayed=false);					//!< Closes the active file and opens the specified file for write output \param filename Name of the file to write to  @param delayed Specifies that the file should not be opened immediately but rather when data is written to it the first time \return true on success
-		inline bool		Create(const String&filename, bool delayed=false)	{return create(filename,delayed);}
+		bool			open(const String&filename, bool makeclear, bool closeWhenIdle=true);   //!< Closes the active file and opens the specified file for write output \param filename Name of the file to write to  \param makeclear Specifies whether or not the specified file should be cleared before writing @param delayed Specifies that the file should not be opened immediately but rather when data is written to it the first time \return true on success
+		inline bool		Open(const String&filename, bool makeClear, bool closeWhenIdle=true)	{return open(filename,makeClear,closeWhenIdle);}
+		bool			create(const String&filename, bool closeWhenIdle=true);					//!< Closes the active file and opens the specified file for write output \param filename Name of the file to write to  @param delayed Specifies that the file should not be opened immediately but rather when data is written to it the first time \return true on success
+		inline bool		Create(const String&filename, bool closeWhenIdle=true)	{return create(filename,closeWhenIdle);}
 		void			close();                                        //!< Closes the active file
 		inline void		Close()	{close();}
 		bool			isActive();                                     //!< Queries log state \return true if the file is currently open

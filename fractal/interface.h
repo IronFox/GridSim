@@ -219,7 +219,7 @@ namespace Fractal
 			typedef TVec3<>	Vertex;
 
 			Array<Vertex>			vertexField;	//!< Geometrical vertices
-			Array<index_t>			triangleField,	//!< Triangular index path. Each three indices form one triangle using the vertices stored in \b vertex_field
+			Array<UINT32>			triangleField,	//!< Triangular index path. Each three indices form one triangle using the vertices stored in \b vertex_field
 									edgeField;		//!< Edge index path. Each two indices form one edge, using the vertices stored in @b vertexField
 
 	};

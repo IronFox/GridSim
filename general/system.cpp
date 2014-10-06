@@ -81,7 +81,8 @@ namespace System
 
     SharedLibrary::~SharedLibrary()
     {
-        close();
+		if (!application_shutting_down)
+			close();	//this can, apparently, freeze
     }
 	
 	void SharedLibrary::adoptData(SharedLibrary&other)

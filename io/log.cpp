@@ -15,10 +15,10 @@
 	char LogFile::space_buffer[0x100];
 
 
-	LogFile::LogFile():f(NULL),format("[%Y %B %d. %H:%M:%S] "),indentation(0),indent_(false)
+	LogFile::LogFile():f(NULL),format("[%Y %B %d. %H:%M:%S] "),indentation(0),indent_(false),closeWhenIdle(false)
 	{}
 
-	LogFile::LogFile(const String&filename, bool makeclear):f(NULL),do_open(true),last(filename),format("[%Y %B %d. %H:%M:%S] "),indentation(0),indent_(false),make_clear(makeclear)
+	LogFile::LogFile(const String&filename, bool makeclear, bool closeWhenIdle):f(NULL),do_open(true),last(filename),format("[%Y %B %d. %H:%M:%S] "),indentation(0),indent_(false),make_clear(makeclear),closeWhenIdle(closeWhenIdle)
 	{
 		memset(space_buffer,' ',sizeof(space_buffer));
 	}
@@ -42,20 +42,19 @@
 		return f != NULL;
 	}
 
-	bool LogFile::open(const String&filename, bool makeclear, bool delayed)
+	bool LogFile::open(const String&filename, bool makeclear, bool closeWhenIdle/*=true*/)
 	{
 		close();
+		this->closeWhenIdle = closeWhenIdle;
 		last = filename;
 		do_open = true;
 		make_clear = makeclear;
-		if (!delayed)
-			return begin();
 		return true;
 	}
 
-	bool LogFile::create(const String&filename, bool delayed)
+	bool LogFile::create(const String&filename, bool closeWhenIdle/*=true*/)
 	{
-		return open(filename,true,delayed);
+		return open(filename,true,closeWhenIdle);
 	}
 
 	bool LogFile::isActive()
@@ -90,6 +89,21 @@
 		ASSERT__(fwrite(output,1,len,f)==len);
 	}
 
+
+
+	void LogFile::end()
+	{
+		if (closeWhenIdle)
+		{
+			fclose(f);
+			f = nullptr;
+			do_open = true;
+			make_clear = false;
+		}
+		else
+			fflush(f);
+	}
+
 	bool LogFile::log(const char*line, bool time_)
 	{
 		if (!begin())
@@ -100,7 +114,10 @@
 			{
 				static const char c = '\t';
 				if (!fwrite(&c,1,1,f))
+				{
+					end();
 					return false;
+				}
 			}
 			indent_ = false;
 		}
@@ -110,17 +127,31 @@
 		if (nl)
 		{
 			if (fwrite(line,1,nl-line+1,f)!=nl-line+1)
+			{
+				end();
 				return false;
+			}
 			indent_ = true;
-			return !strlen(nl+1) || log(nl+1,false);
+			if (!strlen(nl+1))
+			{
+				end();
+				return true;
+			}
+			return log(nl+1,false);
 		}
 		size_t len = strlen(line);
 		if (fwrite(line,1,len,f)!=len)
+		{
+			end();
 			return false;
+		}
 		char nl_ = '\n';
 		if (fwrite(&nl_,1,1,f)!=1)
+		{
+			end();
 			return false;
-		fflush(f);
+		}
+		end();
 		return true;
 	}
 
@@ -135,7 +166,10 @@
 			{
 				static const char c = '\t';
 				if (fwrite(&c,1,1,f)!=1)
+				{
+					end();
 					return false;
+				}
 			}
 			indent_ = false;
 		}
@@ -144,16 +178,30 @@
 		if (index_t at = line.indexOf('\n'))
 		{
 			if (fwrite(line.c_str(),1,at,f)!=at)
+			{
+				end();
 				return false;
+			}
 			indent_ = true;
-			return at == line.length() || log(line.c_str()+at,false);
+			if (at == line.length())
+			{
+				end();
+				return true;
+			}
+			return log(line.c_str()+at,false);
 		}
 		if (fwrite(line.c_str(),1,line.length(),f)!=line.length())
+		{
+			end();
 			return false;
+		}
 		char nl_ = '\n';
 		if (fwrite(&nl_,1,1,f)!=1)
+		{
+			end();
 			return false;
-		fflush(f);
+		}
+		end();
 		return true;
 	}
 
@@ -169,7 +217,7 @@
 		static const char c = '\n';
 		size_t written = fwrite(&c,1,1,f);
 	
-		fflush(f);
+		end();
 		indent_ = true;
 	
 		return *this;
@@ -192,7 +240,7 @@
 		if (!begin())
 			return *this;
 		size_t written = fwrite(space_buffer,1,indent.length,f);
-		fflush(f);
+		end();
 		indent_ = false;
 		return *this;
 	}

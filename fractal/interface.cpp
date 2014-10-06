@@ -3188,7 +3188,7 @@ namespace Fractal
 		geometry.vertexField.setSize(12);
 		geometry.triangleField.setSize(60);
 		geometry.edgeField.setSize(60);
-		index_t *f = geometry.triangleField.pointer();
+		UINT32 *f = geometry.triangleField.pointer();
 		#undef t
 		#define t(i0,i1,i2)	{(*f++) = i0; (*f++) = i1; (*f++) = i2;}
 		    t(0,1,2);
@@ -3217,7 +3217,7 @@ namespace Fractal
 		#undef t
 		ASSERT_CONCLUSION(geometry.triangleField,f);
 
-		index_t *e = geometry.edgeField.pointer();
+		UINT32 *e = geometry.edgeField.pointer();
 		#undef E
 		#define E(i0,i1)	{(*e++) = i0; (*e++) = i1; }
 		    E(0,1);
