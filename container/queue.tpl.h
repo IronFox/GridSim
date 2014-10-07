@@ -215,12 +215,6 @@ template <class Entry,class Strategy>
 	}
 
 template <class Entry, class Strategy>
-	void	Queue<Entry,Strategy>::push(const ArrayData<Entry>&entries)
-	{
-		push(entries.pointer(),entries.count());
-	}
-
-template <class Entry, class Strategy>
 	void	Queue<Entry,Strategy>::increaseSize(count_t new_size)
 	{
 		size_t old_usage = length();
@@ -238,6 +232,12 @@ template <class Entry, class Strategy>
 		section_begin = Array::pointer();
 		section_end = section_begin+old_usage;
 		field_end = section_begin+Array::length();
+	}
+
+template <class Entry, class Strategy>
+	void	Queue<Entry,Strategy>::push(const ArrayData<Entry>&entries)
+	{
+		push(entries.pointer(),entries.count());
 	}
 
 template <class Entry, class Strategy>
@@ -272,27 +272,6 @@ template <class Entry, class Strategy>
 	void	Queue<Entry,Strategy>::push(const Entry&data)
 	{
 		push() = data;
-		//*section_end = data;
-		//section_end++;
-		//if (section_end >= field_end)
-		//	section_end = Array::pointer();
-		//if (section_end == section_begin)
-		//{
-		//	size_t old_len = Array::length();
-		//	Array	new_field(Array::length()*2);
-		//	Entry*out = new_field.pointer();
-		//	do
-		//	{
-		//		Strategy::move(*section_begin++,*out++);
-		//		if (section_begin >= field_end)
-		//			section_begin = Array::pointer();
-		//	}
-		//	while (section_begin != section_end);
-		//	Array::adoptData(new_field);
-		//	section_begin = Array::pointer();
-		//	section_end = section_begin+old_len;
-		//	field_end = section_begin+Array::length();
-		//}
 	}
 
 template <class Entry, class Strategy>
@@ -322,6 +301,76 @@ template <class Entry, class Strategy>
 			return *(section_end-1);
 		return *(Array::data+Array::elements-1);
 	}
+
+//
+//template <class Entry, class Strategy>
+//	void	Queue<Entry,Strategy>::push(const ArrayData<Entry>&entries)
+//	{
+//		push(entries.pointer(),entries.count());
+//	}
+//
+//template <class Entry, class Strategy>
+//	void	Queue<Entry,Strategy>::push(const Entry*data, count_t count)
+//	{
+//		if (!count)
+//			return;
+//		count_t target = Array::length(),
+//				need = length()+count;
+//				
+//		while (target < need)
+//			target <<= 1;
+//		if (target != Array::length())
+//		{
+//			increaseSize(target);
+//			Strategy::copyRange(data,data+count,section_end);	//easy case
+//			section_end += count;
+//		}
+//		else
+//		{
+//			while (count--)
+//			{
+//				(*section_end++) = (*data++);
+//				if (section_end >= field_end)
+//					section_end = Array::pointer();
+//			}
+//		}
+//	}
+//
+
+template <class Entry, class Strategy>
+	void	Queue<Entry,Strategy>::PushFront(const Entry&data)
+	{
+		PushFront() = data;
+	}
+
+template <class Entry, class Strategy>
+	Entry&	Queue<Entry,Strategy>::PushFront()
+	{
+		if (section_begin > Array::pointer())
+			section_begin --;
+		else
+			section_begin = Array::IsNotEmpty() ? field_end-1 : field_end;
+		if (section_end == section_begin)
+		{
+			size_t old_len = Array::length();
+			Array	new_field(Array::length()*2);
+			Entry*out = new_field.pointer();
+			do
+			{
+				Strategy::move(*section_begin++,*out++);
+				if (section_begin >= field_end)
+					section_begin = Array::pointer();
+			}
+			while (section_begin != section_end);
+			Array::adoptData(new_field);
+			section_begin = Array::pointer();
+			section_end = section_begin+old_len;
+			field_end = section_begin+Array::length();
+		}
+		return *section_begin;
+	}
+
+
 
 template <class Entry,class Strategy>
 	void	Queue<Entry,Strategy>::clear()

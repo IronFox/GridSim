@@ -64,6 +64,11 @@ template <class Entry, class Strategy=typename StrategySelector<Entry>::Default>
 			void			push(const Entry&data);				//!< Pushes an element into the queue, increasing the number of stored elements by one. The queue automatically increases the size of its data field if appropriate
 			Entry&			push();								//!< Pushes a new empty element into the queue.
 
+			//void			PushFront(const ArrayData<Entry>&entries);
+			//void			PushFront(const Entry*, count_t count);
+			void			PushFront(const Entry&data);
+			Entry&			PushFront();
+
 			bool			isEmpty()					const;	//!< Identical to length()==0
 			bool			isNotEmpty()				const;	//!< Identical to length()!=0
 	inline 	bool			IsEmpty()					const	{return isEmpty();}
