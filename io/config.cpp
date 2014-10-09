@@ -192,7 +192,7 @@ namespace Config
 			mode = segments.first().subString(0,at-1);
 			segments.first().erase(0,at).trimThis();
 			if (!segments.first().length())
-				segments.erase(0U);
+				segments.erase(index_t(0));
 			
 		}
 		//std::cout << "retrieving attribute '"+implode(", ",segments)+"' ("+mode+")"<<std::endl;
@@ -230,7 +230,7 @@ namespace Config
 			mode = segments.first().subString(0,at-1);
 			segments.first().erase(0,at).trimThis();
 			if (!segments.first().length())
-				segments.erase(0U);
+				segments.erase(index_t(0));
 			
 		}
 		const Context*context = (segments.count()>1||mode.length())?getContext(segments.pointer(),segments.count()-1,mode):this;
