@@ -1259,6 +1259,18 @@ template <class C, class Strategy=typename StrategySelector<C>::Default>
 						dealloc(data);
 						data = new_field;
 					}
+					inline iterator	erase(iterator position)
+					{
+						index_t index = position - begin();
+						erase(index);
+						return begin() + index;
+					}
+					inline iterator	erase(iterator first, iterator end)
+					{
+						index_t index = first - begin();
+						erase(index, end - first);
+						return begin() + index;
+					}
 				template <class T>
 					inline bool	 FindAndErase (const T &element)
 					{
