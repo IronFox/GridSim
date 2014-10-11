@@ -245,8 +245,40 @@ template <typename T, count_t InitialLength=128, typename Strategy=typename Stra
 		Super::operator+;
 	};
 
+template <typename T, typename Strategy=typename StrategySelector<T>::Default>
+	class Buffer0:public Buffer<T,0,Strategy>
+	{
+	public:
+		typedef Buffer<T, 0, Strategy>				Super;
+		typedef Buffer0<T,Strategy>					Self;
+		typedef	Strategy							AppliedStrategy;
+
+
+		explicit			Buffer0() :Super(0)
+							{}
+							Buffer0(const BasicBuffer<T,Strategy>&other):Super(other)
+							{}
+		#if __BUFFER_RVALUE_REFERENCES__
+			template<count_t Len>
+							Buffer0(Buffer0<T,Strategy>&&other):Super(other)
+							{}
+		#endif
+		Self&				operator=(const ArrayData<T>&array){Super::operator=(array); return *this;}
+
+		Super::operator<<;
+		Super::operator[];
+		Super::operator+;
+	};
+
 template <typename T, count_t InitialLength, typename Strategy>
 	class StrategySelector<Buffer<T, InitialLength, Strategy> >
+	{
+	public:
+		typedef	SwapStrategy		Default;
+	};
+
+template <typename T, typename Strategy>
+	class StrategySelector<Buffer0<T, Strategy> >
 	{
 	public:
 		typedef	SwapStrategy		Default;
