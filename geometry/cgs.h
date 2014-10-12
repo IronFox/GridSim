@@ -1507,6 +1507,16 @@ namespace CGS	//! Compiled Geometrical Structure
 										currentLOD = lods.pointer();
 										_OnActiveLODChange();
 									}
+				void				ClearCompletely()
+									{
+										lods.Clear();
+										currentLOD = NULL;
+										_OnActiveLODChange();
+									}
+				void				OverrideSetConfig(const VConfig&cfg)
+									{
+										config = cfg;
+									}
 				void				swap(Object&other)
 									{
 										lods.swap(other.lods);
@@ -1539,6 +1549,7 @@ namespace CGS	//! Compiled Geometrical Structure
 				count_t				CountLODs()	const	{return lods.count();}
 				void				SetActiveLOD(index_t lodIndex)	{ASSERT_LESS__(lodIndex,lods.count()); currentLOD = lods + lodIndex;_OnActiveLODChange();}
 				index_t				GetActiveLOD() const	{return currentLOD - lods.pointer();}
+				const LOD&			GetLOD(index_t lodIndex) const { return lods[lodIndex]; }
 				template <typename T>
 					void			SetSystem(const TMatrix4<T>&m){Mat::copy(m,system);}
 				const TMatrix4<SysFloat>& GetSystem()	const {return system;}
