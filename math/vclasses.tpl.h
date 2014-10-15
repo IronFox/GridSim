@@ -71,11 +71,11 @@ namespace Math
         return result;
     }
     
-    template <class C, count_t Len>
-    MF_VNT MF_DECLARE (C) VecN<C,Len>::operator*(const TVec<C0,Len0>&other) const
-    {
-		return VecUnroll<Eval<Len,Len0>::Min>::dot(v,other.v);
-    }
+  //  template <class C, count_t Len>
+  //  MF_VNT MF_DECLARE (C) VecN<C,Len>::operator*(const TVec<C0,Len0>&other) const
+  //  {
+		//return VecUnroll<Eval<Len,Len0>::Min>::dot(v,other.v);
+  //  }
     
     template <class C, count_t Len>
     template <class C0> MF_DECLARE (void)                VecN<C,Len>::operator*=(const C0&factor)
@@ -328,11 +328,11 @@ namespace Math
         z+=value;
     }
 
-    template <class C>
-    template <class C0> MF_DECLARE  (C)           Vec3<C>::operator*(const TVec3<C0>&other)    const
-    {
-        return x*other.x + y*other.y + z*other.z;
-    }
+    //template <class C>
+    //template <class C0> MF_DECLARE  (C)           Vec3<C>::operator*(const TVec3<C0>&other)    const
+    //{
+    //    return x*other.x + y*other.y + z*other.z;
+    //}
 
     template <class C>  MF_DECLARE  (Vec3<C>)   Vec3<C>::operator*(const C&factor)            const
     {
@@ -530,11 +530,11 @@ namespace Math
     }
 
 
-    template <class C>
-    MFUNC1  (C)           Vec2<C>::operator*(const TVec2<C0>&other)    const
-    {
-        return x*other.x+y*other.y;
-    }
+    //template <class C>
+    //MFUNC1  (C)           Vec2<C>::operator*(const TVec2<C0>&other)    const
+    //{
+    //    return x*other.x+y*other.y;
+    //}
 
     template <class C>  MF_DECLARE  (Vec2<C>)   Vec2<C>::operator*(const C&factor)            const
     {
@@ -764,11 +764,11 @@ namespace Math
     }
 
 
-    template <class C>
-    MFUNC1  (C)           Vec4<C>::operator*(const TVec4<C0>&other)    const
-    {
-        return x*other.x + y*other.y + z*other.z + w*other.w;
-    }
+    //template <class C>
+    //MFUNC1  (C)           Vec4<C>::operator*(const TVec4<C0>&other)    const
+    //{
+    //    return x*other.x + y*other.y + z*other.z + w*other.w;
+    //}
 
     template <class C>  MF_DECLARE  (Vec4<C>)   Vec4<C>::operator*(const C&factor)            const
     {

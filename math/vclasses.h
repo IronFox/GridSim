@@ -92,7 +92,7 @@ namespace Math
 		MF_DECLARE(Vec3<C>)				operator+(const C&value)				const;
 		MFUNC1 (void)					operator+=(const TVec3<C0>&other);
 		MF_DECLARE(void)				operator+=(const C&value);
-		MFUNC1 (C)						operator*(const TVec3<C0>&other)		const;
+		//MFUNC1 (C)					operator*(const TVec3<C0>&other)		const;
 		MF_DECLARE(Vec3<C>)				operator*(const C&factor)				const;
 		MF_DECLARE(void)				operator*=(const C&factor);
 		MFUNC1 (Vec3<C>)				operator/(const C0&factor)				const;
@@ -164,7 +164,7 @@ namespace Math
 		MF_DECLARE(Vec2<C>)				operator+(const C&value)				const;
 		MFUNC1 (void)					operator+=(const TVec2<C0>&other);
 		MF_DECLARE(void)				operator+=(const C&value);
-		MFUNC1 (C)						operator*(const TVec2<C0>&other)		const;
+		//MFUNC1 (C)						operator*(const TVec2<C0>&other)		const;
 		MF_DECLARE(Vec2<C>)				operator*(const C&factor)				const;
 		MF_DECLARE(void)				operator*=(const C&factor);
 		MFUNC1 (Vec2<C>)				operator/(const C0&factor)				const;
@@ -229,7 +229,7 @@ namespace Math
 		MF_DECLARE(Vec4<C>)				operator+(const C&value)				const;
 		MFUNC1 (void)					operator+=(const TVec4<C0>&other);
 		MF_DECLARE(void)				operator+=(const C&value);
-		MFUNC1 (C)						operator*(const TVec4<C0>&other)		const;
+		//MFUNC1 (C)						operator*(const TVec4<C0>&other)		const;
 		MF_DECLARE(Vec4<C>)				operator*(const C&factor)				const;
 		MF_DECLARE(void)				operator*=(const C&factor);
 		MFUNC1 (Vec4<C>)				operator/(const C0&factor)				const;
@@ -327,7 +327,7 @@ namespace Math
 			MF_INIT VecN<C,Len> MF_CC		operator+(const C&scalar)				const;
 			MFUNCV1_(void)					operator+=(const TVec<C0,Len0>&v);
 			MF_DECLARE(void)				operator+=(const C&scalar);
-			MFUNCV1_(C)						operator*(const TVec<C0,Len0>&v)		const;
+			//MFUNCV1_(C)						operator*(const TVec<C0,Len0>&v)		const;
 			MF_INIT VecN<C,Len> MF_CC		operator*(const C&factor)				const;
 			MFUNC1 (void)					operator*=(const C0&factor);
 			template <class C0>
