@@ -456,14 +456,21 @@ public:
 
 
 
+/**
+A profile defines a slice through through the graph track. The shape defined by a profile is always a closed loop
+
+*/
 class Profile
 {
 public:
+		/**
+		@brief single profile node
+		*/
 		class Node:public GraphNode
 		{
 		public:
-				float		control_dist[2];
-				TVec2<>		control[2];
+				float		control_dist[2];	//!< control point distances, both in the range [0,1], along GraphNode::direction. control_dist[0] is used for connections to the predecessor, control_dist[1] to the successor
+				TVec2<>		control[2];			//!< provided for convenience only. not used by the local system
 				
 				
 				Node&		reset()
