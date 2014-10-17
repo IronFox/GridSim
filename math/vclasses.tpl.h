@@ -650,7 +650,7 @@ namespace Math
 		x = 0;
 		y = 0;
 		z = 0;
-		w = 1;
+		w = 0;
 	}
 
     template <class C>  MF_CONSTRUCTOR              Vec4<C>::Vec4(const C&value)
