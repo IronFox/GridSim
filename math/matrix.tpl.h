@@ -268,7 +268,11 @@ namespace Math
 			Vec::def(result.axis[x].xyz,	vabs(axis.y)+1,axis.z,axis.x);
 			Vec::copy(axis,result.axis[d].xyz);
 			Vec::cross(result.axis[x].xyz,result.axis[d].xyz,result.axis[y].xyz);
-			Vec::cross(result.axis[d].xyz,result.axis[y].xyz,result.axis[x].xyz);
+			if (d == 2)
+				Vec::cross(result.axis[y].xyz, result.axis[d].xyz, result.axis[x].xyz);	//there seems to be an orientation problem with z
+			else
+				Vec::cross(result.axis[d].xyz, result.axis[y].xyz, result.axis[x].xyz);
+
 			Vec::normalize(result.x.xyz);
 			Vec::normalize(result.y.xyz);
 			Vec::normalize(result.z.xyz);
