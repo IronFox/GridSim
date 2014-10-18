@@ -1316,9 +1316,14 @@ namespace Converter
 
 				logMessage("extracted dimensions of '"+child.name+"': "+dim.ToString());
 				
-				dim.GetCenter(child.meta.system.w.xyz);
-				for (index_t j = 0; j < vs_hull.vertex_field.length(); j++)
-					Vec::sub(vs_hull.vertex_field[j].position,child.meta.system.w.xyz);
+				if (positionObjects)
+				{
+					dim.GetCenter(child.meta.system.w.xyz);
+					for (index_t j = 0; j < vs_hull.vertex_field.length(); j++)
+						Vec::sub(vs_hull.vertex_field[j].position, child.meta.system.w.xyz);
+				}
+				else
+					dim.GetCenter(child.meta.center);
 					
 			}
 			logMessage(__LINE__);
@@ -1375,24 +1380,25 @@ namespace Converter
 			update_step = 1;
 		index = 0;
 		
-		for (index_t i = 0; i < target.material_field.length(); i++)
-		{
-			for (index_t j = 0; j < target.material_field[i].data.object_field.length(); j++)
+		if (positionObjects)
+			for (index_t i = 0; i < target.material_field.length(); i++)
 			{
-				CGS::RenderObjectA<>&robj = target.material_field[i].data.object_field[j];
-				unsigned vsize = robj.vpool.vsize();
-				Def::FloatType*p = robj.vpool.vdata.pointer();
-				for (UINT32 k = 0; k < robj.vpool.vcnt; k++)
+				for (index_t j = 0; j < target.material_field[i].data.object_field.length(); j++)
 				{
-					Vec::sub(Vec::ref3(p),robj.target->meta.system.w.xyz);
-					if (!(index++%update_step))
-						setProgress((float)index/(float)render_vertices);
-					p += vsize;
+					CGS::RenderObjectA<>&robj = target.material_field[i].data.object_field[j];
+					unsigned vsize = robj.vpool.vsize();
+					Def::FloatType*p = robj.vpool.vdata.pointer();
+					for (UINT32 k = 0; k < robj.vpool.vcnt; k++)
+					{
+						Vec::sub(Vec::ref3(p),robj.target->meta.system.w.xyz);
+						if (!(index++%update_step))
+							setProgress((float)index/(float)render_vertices);
+						p += vsize;
+					}
+					/*if (inversion_field.isSet(robj.target))
+						robj.invert();*/
 				}
-				/*if (inversion_field.isSet(robj.target))
-					robj.invert();*/
 			}
-		}
 
 		
 		target.root_system.loadIdentity(false);

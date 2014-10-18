@@ -58,8 +58,9 @@ namespace Converter	//! Geometry converter namespace
 	virtual	bool				read(CGS::Geometry<>&target, const String&filename)=0;		//!< Virtual abstract load method (defined by the inheriting converter class)
 	virtual	bool				write(const CGS::Geometry<>&source, const String&filename)=0;	//!< Virtual abstract save method (defined by the inheriting converter class)
 	public:
+		bool				positionObjects;	//!< Indicates that loaded objects should be located in the center of the extracted vertices. True by default
 	
-								Root():current_callback(&default_callback)
+		/**/				Root() :current_callback(&default_callback), positionObjects(true)
 								{}
 								
 			bool            	loadFromFile(CGS::Geometry<>&structure, const String&filename, ProgressCallback*callback=NULL)	//! Attempts to import the specified geometrical file. \param structure Geometry to import into. Any existing geometrical data will be cleared \param filename Filename to load from \param callback Custom progress callback instance to report to or NULL to not generate any reports \return true on success, false otherwise
