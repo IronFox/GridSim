@@ -370,7 +370,7 @@ namespace Math
 			template <typename T0,typename T1>
 				MF_DECLARE(void)	MakeRelative(const T0& absolute, T1&relative_out)	const
 									{
-										relative_out = (T1)((absolute-min)/extend());
+										relative_out = (T1)(T)((absolute-min)/extend());
 									}
 			template <typename T0,typename T1>
 				MF_DECLARE(void)	MakeRangeRelative(const TFloatRange<T0>& absolute, TFloatRange<T1>&relative_out)	const
@@ -927,7 +927,12 @@ namespace Math
 									{
 										MakeRelative(absolute.x,absolute.y,relative_out.x,relative_out.y);
 									}			
-			
+			MF_DECLARE(TVec2<T>)	Relativate(const TVec2<T>&absolute)	const
+									{
+										TVec2<T>	relative_out;
+										MakeRelative(absolute.x,absolute.y,relative_out.x,relative_out.y);
+										return relative_out;
+									}					
 
 			template <typename T0,typename T1>
 				MF_DECLARE(void)	Derelativate(const T& x, const T& y, T0&x_out, T1&y_out)	const
