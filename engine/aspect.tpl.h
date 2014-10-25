@@ -644,6 +644,22 @@ MFUNC (void) OrthographicAspect<C>::UpdateProjection(const C&aspect, const C&zoo
 	Mat::invert(projection,projectionInvert);
 }
 
+//MFUNC (void) OrthographicAspect<C>::UpdateProjection2(const C&aspect, const C&zoom, const C&zNear, const C&zFar)
+//{
+//	C	scale = (C)1/(zFar-zNear),		//endless 0
+//		offset = -(zNear+zFar)/2*scale,	//endless -0.5
+//		pa = (C)1.0/region.aspect()/aspect;
+//
+//	Vec::def(projection.x,	pa*zoom,0,0,0);
+//	Vec::def(projection.y,	0,zoom,0,0);
+//	Vec::def(projection.z,	0,0,-scale*0.5f,0);
+//	Vec::def(projection.w,	0,0,offset+0.5f,1);
+//	Mat::invert(projection,projectionInvert);
+//}
+
+
+
+
 template <class C>
 MFUNC2 (void) OrthographicAspect<C>::AlterDepthRange(const C0&zNear, const C1&zFar)
 {
@@ -659,6 +675,13 @@ MFUNC1 (void) OrthographicAspect<C>::UpdateProjection(const Rect<C0>&area, const
 	UpdateProjection(area.x.min,area.y.min,area.x.max,area.y.max,zNear,zFar);
 }
 
+template <class C>
+MFUNC1 (void) OrthographicAspect<C>::UpdateProjection2(const Rect<C0>&area, const C&zNear, const C&zFar)
+{
+	UpdateProjection2(area.x.min,area.y.min,area.x.max,area.y.max,zNear,zFar);
+}
+
+
 MFUNC (void) OrthographicAspect<C>::UpdateProjection(const C&left, const C&bottom, const C&right, const C&top,const C&zNear, const C&zFar)
 {
 	C	xscale = (C)1/(right-left)*2,
@@ -672,6 +695,24 @@ MFUNC (void) OrthographicAspect<C>::UpdateProjection(const C&left, const C&botto
 	Vec::def(projection.y, 0,yscale,0,0);
 	Vec::def(projection.z, 0,0,-zscale,0);
 	Vec::def(projection.w, xoffset,yoffset,zoffset,1);
+
+
+	Mat::invert(projection,projectionInvert);
+}
+
+MFUNC (void) OrthographicAspect<C>::UpdateProjection2(const C&left, const C&bottom, const C&right, const C&top,const C&zNear, const C&zFar)
+{
+	C	xscale = (C)1/(right-left)*2,
+		yscale = (C)1/(top-bottom)*2,
+		zscale = (C)1/(zFar-zNear)*2,
+		xoffset = (C)-(left)*xscale-1,
+		yoffset = (C)-(bottom)*yscale-1,
+		zoffset = (C)-(zNear+zFar)/2*zscale;
+
+	Vec::def(projection.x,	xscale,0,0,0);
+	Vec::def(projection.y, 0,yscale,0,0);
+	Vec::def(projection.z, 0,0,-zscale*(C)0.5,0);
+	Vec::def(projection.w, xoffset,yoffset,zoffset+(C)0.5,1);
 
 
 	Mat::invert(projection,projectionInvert);
