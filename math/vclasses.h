@@ -83,7 +83,7 @@ namespace Math
 		MF_DECLARE(Vec3<C>)				normalized()							const;		//returns normalized vector
 		MF_DECLARE(Vec3<C>)				Normalized()							const	{ return normalized(); }
 		MF_DECLARE(Vec3<C>)				normalized0()							const;
-		MF_DECLARE(Vec3<C>)				Normalized0()							const	{ return Normalized(); }
+		MF_DECLARE(Vec3<C>)				Normalized0()							const	{ return normalized0(); }
 		MF_DECLARE(Self&)				normalize()								{ Vec::normalize(*this); return *this; }
 		MF_DECLARE(Self&)				Normalize()								{Vec::normalize(*this);return *this;}
 		MF_DECLARE(Self&)				normalize0()							{Vec::normalize0(*this);return *this;}
