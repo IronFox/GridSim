@@ -79,7 +79,8 @@ namespace Engine
 	{
 	protected:
 			TFontState		stack[0x100];
-			BYTE			stack_depth;
+			TFontColor		colorStack[0x100];
+			BYTE			stack_depth,colorStackDepth;
 			
 			
 	virtual	void			beginOutput()=0;
@@ -131,7 +132,9 @@ namespace Engine
 			void			setScale(float x, float y);								//!< Redefine character scale \param x Character width \param y Character height
 			void			scale(float by_x, float by_y);							//!< Alter the character scale \param by_x Width-factor \param by_y Height-factor
 			void			pushState();											//!< Pushes the current output status to the local stack
+			void			PushColorState();
 			void			popState();												//!< Restores the current output status from the local stack
+			void			PopColorState();
 			void			line(unsigned line_index);								//!< Changes the active line. \param line_index Line to change to (0=first line)
 			unsigned		line()	const;											//!< Queries the current line index
 

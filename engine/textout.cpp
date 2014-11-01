@@ -11,7 +11,7 @@ resulting render depends on the used font.
 namespace Engine
 {
 
-	VirtualTextout::VirtualTextout():stack_depth(0)
+	VirtualTextout::VirtualTextout():stack_depth(0),colorStackDepth(0)
 	{
 		Vec::set(state,1);
 	    state.left = 0;
@@ -173,6 +173,17 @@ namespace Engine
 	void VirtualTextout::popState()
 	{
 	    state = stack[--stack_depth];
+	}
+
+
+	void VirtualTextout::PushColorState()
+	{
+	    colorStack[colorStackDepth++] = state;
+	}
+
+	void VirtualTextout::PopColorState()
+	{
+	    ((TFontColor&) state) = colorStack[--colorStackDepth];
 	}
 	
 	void VirtualTextout::line(unsigned line_)
