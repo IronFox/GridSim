@@ -1668,6 +1668,6 @@ namespace System
 		
 		}
 
-	///*static*/	ParallelLoop						ParallelLoop::global_instance;
+	/*static*/	ParallelLoop						ParallelLoop::global_instance;
 
 }
