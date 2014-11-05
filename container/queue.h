@@ -86,7 +86,7 @@ template <class Entry, class Strategy=typename StrategySelector<Entry>::Default>
 			Entry&			operator[](size_t index);			//!< Returns the nth element from the queue. @param index Index of the element to return ranging [0, length()-1] @return Reference to the requested object
 			const Entry&	operator[](size_t index)	const;	//!< Returns the nth element from the queue. @param index Index of the element to return ranging [0, length()-1] @return Reference to the requested object
 			void			clear();							//!< Clears the local queue of all entries. No objects are actually erased
-
+		inline void			Clear()	{clear();}
 			bool			Contains(const Entry&entry)	const;	//!< Checks if the queue contains the specified element
 			bool			contains(const Entry&entry)	const	/** @copydoc Contains()*/ {return Contains(entry);}
 
@@ -94,7 +94,8 @@ template <class Entry, class Strategy=typename StrategySelector<Entry>::Default>
 			void			swap(Queue<Entry,Strategy>&other);
 			void			adoptData(Queue<Entry,Strategy>&other);
 			
-	inline 	size_t			count()						const	{return length();};	//!< Returns the current number of element stored in the queue
+		inline count_t		count()						const	{return length();};	//!< Returns the current number of element stored in the queue
+		inline count_t		Count()						const	{return length();}
 	};
 
 template <class Entry, class Priority, class EntryStrategy=typename StrategySelector<Entry>::Default>
