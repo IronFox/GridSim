@@ -10,79 +10,161 @@ Collection of different queues.
 
 #include "dynamic_elements.h"
 
-template <class Entry>
+
+template <class T, class Strategy>
+	class QueueElement
+	{
+	public:
+		char	data[sizeof(T)];
+		bool	isConstructed;
+
+		/**/	QueueElement():isConstructed(false)
+		{}
+		/**/	~QueueElement()
+		{
+			if (isConstructed)
+				Destruct();
+		}
+
+
+		void	Copy(const QueueElement<T,Strategy>&other)
+		{
+			if (!other.isConstructed)
+			{
+				if (isConstructed)
+					Destruct();
+				return;
+			}
+			Copy(other.Cast());
+		}
+
+		void	Copy(const T&data)
+		{
+			if (!isConstructed)
+				Construct();
+			Cast() = data;
+		}
+
+		T&		Cast()	{DBG_ASSERT__(isConstructed); return *(T*)data;}
+		const T&Cast() const {DBG_ASSERT__(isConstructed); return *(const T*)data;}
+		
+		void	Construct()
+		{
+			DBG_ASSERT__(!isConstructed);
+			new (data) T();
+			isConstructed = true;
+		}
+		void	Construct(const T&initData)
+		{
+			DBG_ASSERT__(!isConstructed);
+			new (data) T(initData);
+			isConstructed = true;
+		}
+		void	Destruct()
+		{
+			//DBG_ASSERT__(isConstructed);//in Cast()
+			Cast().~T();
+			isConstructed = false;
+		}
+
+		T&		ConstructAndCast()
+		{
+			Construct();
+			return Cast();
+		}
+
+		void	adoptData(QueueElement<T,Strategy>&other)
+		{
+			if (isConstructed)
+				Destruct();
+			if (other.isConstructed)
+				Strategy::move(*(T*)other.data,*(T*)data);
+			isConstructed = other.isConstructed;
+			other.isConstructed = false;
+		}
+
+	
+	};
+
+
+template <class Entry, class Element, class Strategy>
 	class QueueIterator
 	{
 	private:
-			Entry			*field_begin,
+			//typedef QueueElement<Entry,Strategy>	Element;
+
+			Element			*field_begin,
 							*current,
 							*field_end;
 	public:
-			typedef QueueIterator<Entry>	It;
+			typedef QueueIterator<Entry,Element,Strategy>	It;
 			
-							QueueIterator(Entry*begin,Entry*end,Entry*c);
+							QueueIterator(Element*begin,Element*end,Element*c);
 			It&				operator++();
 			It				operator++(int);
 			It				operator+(int delta)	const;
 			It&				operator--();
 			It				operator--(int);
 			It				operator-(int delta)	const;
-			bool			operator==(const It&other)	const;
-			bool			operator!=(const It&other)	const;
-			Entry&			operator*();
-			Entry*			operator->();
+			bool			operator==(const It&other)	const	{return current == other.current;}
+			bool			operator!=(const It&other)	const	{return current != other.current;}
+			Entry&			operator*()	{return current->Cast();}
+			Entry*			operator->()	{return &current->Cast();}
 			
 			size_t		index()	const;
 	};
 
+
 template <class Entry, class Strategy=typename StrategySelector<Entry>::Default>
-	class Queue:protected Array<Entry,Strategy>
+	class Queue:protected Array<QueueElement<Entry,Strategy>,::Strategy::Adopt>
 	{
 	protected:
-			Entry			*section_begin,
+			typedef QueueElement<Entry,Strategy>	Element;
+			Element			*section_begin,
 							*section_end,
 							*field_end;
-			typedef Array<Entry,Strategy>	Array;
+			typedef Array<Element,::Strategy::Adopt>	Array;
 
 			void			increaseSize(count_t new_size);
 	public:
-			typedef QueueIterator<Entry>	iterator;
-			typedef QueueIterator<const Entry>	const_iterator;
+			typedef QueueIterator<Entry,Element,Strategy>	iterator;
+			typedef QueueIterator<const Entry,const Element,Strategy>	const_iterator;
 			
 	
-							Queue(size_t size=1024);
+			/**/			Queue(size_t size=1024);
+			/**/			~Queue()	{clear();}
 
 			iterator		begin();
 			iterator		end();
 			const_iterator	begin()	const;
 			const_iterator	end() const;
-			bool			pop(Entry&out);						//!< Pops the oldest element from the queue, and writes it to @b out , decreasing the number of stored elements by one. Note that the stored object is not destroyed. @param out Target reference to write to @return true if the queue was not empty and an element was written to @b out , false otherwise
-			Entry&			pop();								//!< Pops the oldest element from the queue, decreasing the number of stored elements by one. Note that the stored object is not destroyed.
-			count_t			pop(Entry*out_field, count_t count);			//!< Pops up to @a count of the oldest elements to the specified out field @return Number of elements that were actually popped (which may be less than the resquested number if not enough elements are stored)
-			void			push(const ArrayData<Entry>&entries);	//!< Pushes multiple elements into the queue, increasing the number of stored elements by <em>entries.count()</em>. The queue automatically increases the size of its data field if appropriate
-			void			push(const Entry*, count_t count);	//!< Pushes multiple elements into the queue, increasing the number of stored elements by <em>count</em>. The queue automatically increases the size of its data field if appropriate
-			void			push(const Entry&data);				//!< Pushes an element into the queue, increasing the number of stored elements by one. The queue automatically increases the size of its data field if appropriate
-			Entry&			push();								//!< Pushes a new empty element into the queue.
+			bool			Pop(Entry&out);						//!< Pops the oldest element from the queue, and writes it to @b out , decreasing the number of stored elements by one. Note that the stored object IS destroyed. @param out Target reference to write to @return true if the queue was not empty and an element was written to @b out , false otherwise
+			Entry			Pop();								//!< Pops the oldest element from the queue, decreasing the number of stored elements by one. Note that the stored object IS destroyed.
+			count_t			Pop(Entry*out_field, count_t count);			//!< Pops up to @a count of the oldest elements to the specified out field @return Number of elements that were actually popped (which may be less than the resquested number if not enough elements are stored)
+			void			EraseFront();							//!< Erases the (oldest) element out-front. Identical to Pop() but without any copy constructors
+			void			Push(const ArrayData<Entry>&entries);	//!< Pushes multiple elements into the queue, increasing the number of stored elements by <em>entries.count()</em>. The queue automatically increases the size of its data field if appropriate
+			void			Push(const Entry*, count_t count);	//!< Pushes multiple elements into the queue, increasing the number of stored elements by <em>count</em>. The queue automatically increases the size of its data field if appropriate
+			void			Push(const Entry&data);				//!< Pushes an element into the queue, increasing the number of stored elements by one. The queue automatically increases the size of its data field if appropriate
+			Entry&			Push();								//!< Pushes a new empty element into the queue.
 
 			//void			PushFront(const ArrayData<Entry>&entries);
 			//void			PushFront(const Entry*, count_t count);
 			void			PushFront(const Entry&data);
 			Entry&			PushFront();
 
-			bool			isEmpty()					const;	//!< Identical to length()==0
-			bool			isNotEmpty()				const;	//!< Identical to length()!=0
-	inline 	bool			IsEmpty()					const	{return isEmpty();}
-	inline 	bool			IsNotEmpty()				const	{return isNotEmpty();}
+			bool			IsEmpty()					const;	//!< Identical to length()==0
+			bool			IsNotEmpty()				const;	//!< Identical to length()!=0
 			count_t			length()					const;	//!< Returns the current number of element stored in the queue
+	inline	count_t			CountEntries()				const {return length();}
 	inline	count_t			size()						const {return length();}		//!< Identical to length()
 			bool			operator>>(Entry&entry);			//!< Identical to pop()
 			Queue<Entry,Strategy>&	operator<<(const Entry&entry);		//!< Identical to push() @return *this
-			Entry&			peek();								//!< Returns a reference to the last (oldest) element in the queue @return last element in the queue
-			const Entry&	peek()						const;	//!< Returns a reference to the last (oldest) element in the queue @return last element in the queue
-			Entry&			oldest();							//!< Returns a reference to the last (oldest) element in the queue. Identical to peek() @return last element in the queue
-			const Entry&	oldest()					const;	//!< Returns a reference to the last (oldest) element in the queue. Identical to peek() @return last element in the queue
-			Entry&			newest();							//!< Returns a reference to the first (newest) element in the queue @return first element in the queue
-			const Entry&	newest()					const;	//!< Returns a reference to the first (newest) element in the queue @return first element in the queue
+			Entry&			Peek();								//!< Returns a reference to the last (oldest) element in the queue @return last element in the queue
+			const Entry&	Peek()						const;	//!< Returns a reference to the last (oldest) element in the queue @return last element in the queue
+			Entry&			GetOldest();							//!< Returns a reference to the last (oldest) element in the queue. Identical to peek() @return last element in the queue
+			const Entry&	GetOldest()					const;	//!< Returns a reference to the last (oldest) element in the queue. Identical to peek() @return last element in the queue
+			Entry&			GetNewest();							//!< Returns a reference to the first (newest) element in the queue @return first element in the queue
+			const Entry&	GetNewest()					const;	//!< Returns a reference to the first (newest) element in the queue @return first element in the queue
 			Entry&			operator[](size_t index);			//!< Returns the nth element from the queue. @param index Index of the element to return ranging [0, length()-1] @return Reference to the requested object
 			const Entry&	operator[](size_t index)	const;	//!< Returns the nth element from the queue. @param index Index of the element to return ranging [0, length()-1] @return Reference to the requested object
 			void			clear();							//!< Clears the local queue of all entries. No objects are actually erased
@@ -102,8 +184,10 @@ template <class Entry, class Priority, class EntryStrategy=typename StrategySele
 	class PriorityQueue
 	{
 	protected:
+			typedef QueueElement<Entry,EntryStrategy>	Element;
+
 			typedef	Array<Priority>			PriorityArray;
-			typedef Array<Entry,EntryStrategy>	EntryArray;
+			typedef Array<Element,::Strategy::Swap>	EntryArray;
 
 			EntryArray					entry_field;
 			PriorityArray				priority_field;
@@ -114,19 +198,23 @@ template <class Entry, class Priority, class EntryStrategy=typename StrategySele
 			void						eraseAddr(index_t index);				//!< Erases the specified element (0 pointing to the element with least priority and count()-1 to the element with the highest priority in the queue)
 
 	public:
-			typedef QueueIterator<Entry>	iterator;
+			typedef QueueIterator<Entry,Element,EntryStrategy>	iterator;
 	
 								PriorityQueue(size_t size=1024);
+			/**/				~PriorityQueue()	{clear();}
+
 			iterator			begin();
 			iterator			end();
 			bool				find(const Priority&priority, iterator&target);
 			bool				find(const Entry&data, const Priority&priority, iterator&target);
-			bool				pop(Entry&out, Priority&pout);		//!< Pops the element of greatest priority from the queue and writes it to @b out decreasing the number of stored elements by one. Note that the stored object is not destroyed. @param out Target reference to write to @param pout Priority of the popped element @return true if the queue was not empty and an element was written to @b out , false otherwise
-			bool				pop(Entry&out);						//!< Pops the element of greatest priority from the queue and writes it to @b out decreasing the number of stored elements by one. Note that the stored object is not destroyed. @param out Target reference to write to @return true if the queue was not empty and an element was written to @b out , false otherwise
-			Entry&				pop();								//!< Pops the element of greatest priority from the queue decreasing the number of stored elements by one. Note that the stored object is not destroyed
-			bool				popLeast(Entry&out, Priority&pout);	//!< Pops the element of least priority from the queue and writes it to @b out decreasing the number of stored elements by one. Note that the stored object is not destroyed. @param out Target reference to write to @param pout Priority of the popped element @return true if the queue was not empty and an element was written to @b out , false otherwise
-			bool				popLeast(Entry&out);				//!< Pops the element of least priority from the queue and writes it to @b out decreasing the number of stored elements by one. Note that the stored object is not destroyed. @param out Target reference to write to @return true if the queue was not empty and an element was written to @b out , false otherwise
-			Entry&				popLeast();							//!< Pops the element of least priority from the queue decreasing the number of stored elements by one. Note that the stored object is not destroyed
+			bool				pop(Entry&out, Priority&pout);		//!< Pops the element of greatest priority from the queue and writes it to @b out decreasing the number of stored elements by one. Note that the stored object IS destroyed. @param out Target reference to write to @param pout Priority of the popped element @return true if the queue was not empty and an element was written to @b out , false otherwise
+			bool				pop(Entry&out);						//!< Pops the element of greatest priority from the queue and writes it to @b out decreasing the number of stored elements by one. Note that the stored object IS destroyed. @param out Target reference to write to @return true if the queue was not empty and an element was written to @b out , false otherwise
+			Entry				Pop();								//!< Pops the element of greatest priority from the queue, decreasing the number of stored elements by one. Note that the stored object IS destroyed
+			void				EraseFront();						//!< Erases the element of greatest priority from the queue, decreasing the number of stored elements by one. Identical to Pop() but without copy constructors
+			bool				popLeast(Entry&out, Priority&pout);	//!< Pops the element of least priority from the queue and writes it to @b out decreasing the number of stored elements by one. Note that the stored object IS destroyed. @param out Target reference to write to @param pout Priority of the popped element @return true if the queue was not empty and an element was written to @b out , false otherwise
+			bool				popLeast(Entry&out);				//!< Pops the element of least priority from the queue and writes it to @b out decreasing the number of stored elements by one. Note that the stored object IS destroyed. @param out Target reference to write to @return true if the queue was not empty and an element was written to @b out , false otherwise
+			Entry				PopLeast();							//!< Pops the element of least priority from the queue decreasing the number of stored elements by one. Note that the stored object IS destroyed
+			void				EraseLeast();						//!< Erases the element of least priority from the queue, decreasing the number of stored elements by one. Identical to PopLeast() but without copy constructors
 			void				push(const Entry&data, const Priority&priority);		//!< Pushes an element into the queue increasing the number of stored elements by one. The queue automatically increases the size of its data field if appropriate @param data Element to push into the queue @param priority Priority of the newly inserted element
 			bool				alterPriority(const Entry&data, const Priority&old_priority, const Priority&new_priority);
 			bool				isEmpty()					const;	//!< Identical to length()==0

@@ -82,7 +82,7 @@ namespace Engine
 			#ifdef TT_DEBUG_MODE
 				cout << "Allocating texture half. Looking for free allocations"<<endl;
 			#endif
-			while (free_allocations.pop(result))
+			while (free_allocations.Pop(result))
 			{
 				#ifdef TT_DEBUG_MODE
 					cout << "Now looking at "<<result.texture_index<<"["<<(int)result.first_half<<"]..."<<endl;
@@ -116,7 +116,7 @@ namespace Engine
 			#endif
 			result.first_half = true;
 			
-			TAllocation&other = free_allocations.push();
+			TAllocation&other = free_allocations.Push();
 			other.texture_index = result.texture_index;
 			other.first_half = false;
 			return result;
@@ -184,7 +184,7 @@ namespace Engine
 					cout << "Texture is not final half of last texture. Unmapping allocation"<<endl;
 				#endif
 				allocated[index*2+allocation.first_half] = false;
-				free_allocations.push(allocation);
+				free_allocations.Push(allocation);
 			}
 			allocation.texture_index = 0;
 			#ifdef TT_DEBUG_MODE

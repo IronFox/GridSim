@@ -8,12 +8,12 @@ Collection of different queues.
 ******************************************************************/
 
 
-template <class Entry>
-	QueueIterator<Entry>::QueueIterator(Entry*begin,Entry*end,Entry*c):field_begin(begin),field_end(end),current(c)
+template <class Entry, class Element, class Strategy>
+	QueueIterator<Entry,Element,Strategy>::QueueIterator(Element*begin,Element*end,Element*c):field_begin(begin),field_end(end),current(c)
 	{}
 	
-template <class Entry>
-	QueueIterator<Entry>&	QueueIterator<Entry>::operator++()
+template <class Entry, class Element, class Strategy>
+	QueueIterator<Entry,Element,Strategy>&	QueueIterator<Entry,Element,Strategy>::operator++()
 	{
 		current++;
 		if (current == field_end)
@@ -21,18 +21,18 @@ template <class Entry>
 		return *this;
 	}
 	
-template <class Entry>
-	QueueIterator<Entry>	QueueIterator<Entry>::operator++(int)
+template <class Entry, class Element, class Strategy>
+	QueueIterator<Entry,Element,Strategy>	QueueIterator<Entry,Element,Strategy>::operator++(int)
 	{
-		QueueIterator<Entry> rs(*this);
+		It rs(*this);
 		operator++();
 		return rs;
 	}
 
-template <class Entry>
-	QueueIterator<Entry>	QueueIterator<Entry>::operator+(int delta)	const
+template <class Entry, class Element, class Strategy>
+	QueueIterator<Entry,Element,Strategy>	QueueIterator<Entry,Element,Strategy>::operator+(int delta)	const
 	{
-		QueueIterator<Entry> rs(*this);
+		It rs(*this);
 		rs.current += delta;
 		while (rs.current >= field_end)
 			rs.current -= (field_end-field_begin);
@@ -41,8 +41,8 @@ template <class Entry>
 		return rs;
 	}
 	
-template <class Entry>
-	QueueIterator<Entry>&	QueueIterator<Entry>::operator--()
+template <class Entry, class Element, class Strategy>
+	QueueIterator<Entry,Element,Strategy>&	QueueIterator<Entry,Element,Strategy>::operator--()
 	{
 		current--;
 		if (current < field_begin)
@@ -50,18 +50,18 @@ template <class Entry>
 		return *this;
 	}
 
-template <class Entry>
-	QueueIterator<Entry>	QueueIterator<Entry>::operator--(int)
+template <class Entry, class Element, class Strategy>
+	QueueIterator<Entry,Element,Strategy>	QueueIterator<Entry,Element,Strategy>::operator--(int)
 	{
-		QueueIterator<Entry> rs(*this);
+		It rs(*this);
 		operator--();
 		return rs;
 	}
 
-template <class Entry>
-	QueueIterator<Entry>	QueueIterator<Entry>::operator-(int delta)	const
+template <class Entry, class Element, class Strategy>
+	QueueIterator<Entry,Element,Strategy>	QueueIterator<Entry,Element,Strategy>::operator-(int delta)	const
 	{
-		QueueIterator<Entry> rs(*this);
+		It rs(*this);
 		rs.current -= delta;
 		while (rs.current >= field_end)
 			rs.current -= (field_end-field_begin);
@@ -71,35 +71,13 @@ template <class Entry>
 	}
 		
 	
-template <class Entry>
-	size_t		QueueIterator<Entry>::index()	const
+template <class Entry, class Element, class Strategy>
+	size_t		QueueIterator<Entry,Element,Strategy>::index()	const
 	{
 		return current-field_begin;
 	}
 	
-template <class Entry>
-	bool			QueueIterator<Entry>::operator==(const It&other)	const
-	{
-		return current == other.current;
-	}
-	
-template <class Entry>
-	bool			QueueIterator<Entry>::operator!=(const It&other)	const
-	{
-		return current != other.current;
-	}
-	
-template <class Entry>
-	Entry&			QueueIterator<Entry>::operator*()
-	{
-		return *current;
-	}
-	
-template <class Entry>
-	Entry*			QueueIterator<Entry>::operator->()
-	{
-		return current;
-	}
+
 
 template <class Entry,class Strategy>
 	Queue<Entry,Strategy>::Queue(size_t size):Array(size)
@@ -115,7 +93,7 @@ template <class Entry,class Strategy>
 		section_begin = section_end = Array::pointer();
 		field_end = section_begin + Array::length();
 		for (index_t i = 0; i < other.count(); i++)
-			(*section_end++) = other[i];
+			(*section_end++).Copy(other[i]);
 	}
 
 template <class Entry,class Strategy>
@@ -140,27 +118,27 @@ template <class Entry,class Strategy>
 
 
 template <class Entry,class Strategy>
-	QueueIterator<Entry>	Queue<Entry,Strategy>::begin()
+	typename Queue<Entry,Strategy>::iterator	Queue<Entry,Strategy>::begin()
 	{
-		return QueueIterator<Entry>(Array::data,field_end,section_begin);
+		return iterator(Array::data,field_end,section_begin);
 	}
 
 template <class Entry,class Strategy>
-	QueueIterator<Entry>	Queue<Entry,Strategy>::end()
+	typename Queue<Entry,Strategy>::iterator	Queue<Entry,Strategy>::end()
 	{
-		return QueueIterator<Entry>(Array::data,field_end,section_end);
+		return iterator(Array::data,field_end,section_end);
 	}
 
 template <class Entry,class Strategy>
-	QueueIterator<const Entry>	Queue<Entry,Strategy>::begin()	const
+	typename Queue<Entry,Strategy>::const_iterator	Queue<Entry,Strategy>::begin()	const
 	{
-		return QueueIterator<const Entry>(Array::data,field_end,section_begin);
+		return const_iterator(Array::data,field_end,section_begin);
 	}
 
 template <class Entry,class Strategy>
-	QueueIterator<const Entry>	Queue<Entry,Strategy>::end()	const
+	typename Queue<Entry,Strategy>::const_iterator	Queue<Entry,Strategy>::end()	const
 	{
-		return QueueIterator<const Entry>(Array::data,field_end,section_end);
+		return const_iterator(Array::data,field_end,section_end);
 	}
 
 template <class Entry,class Strategy>
@@ -174,12 +152,13 @@ template <class Entry,class Strategy>
 
 
 template <class Entry,class Strategy>
-	count_t	Queue<Entry,Strategy>::pop(Entry*out_field, count_t count)
+	count_t	Queue<Entry,Strategy>::Pop(Entry*out_field, count_t count)
 	{
 		count_t written = 0;
 		while (section_begin != section_end && count > 0)
 		{
-			Strategy::move(*section_begin,*out_field);
+			Strategy::move(section_begin->Cast(),*out_field);
+			section_begin->Destruct();
 			section_begin++;
 			out_field++;
 			if (section_begin >= field_end)
@@ -191,11 +170,12 @@ template <class Entry,class Strategy>
 	}
 
 template <class Entry,class Strategy>
-	bool	Queue<Entry,Strategy>::pop(Entry&out)
+	bool	Queue<Entry,Strategy>::Pop(Entry&out)
 	{
 		if (section_begin == section_end)
 			return false;
-		Strategy::move(*section_begin,out);
+		Strategy::move(section_begin->Cast(),out);
+		section_begin->Destruct();
 		section_begin++;
 		if (section_begin >= field_end)
 			section_begin = Array::pointer();
@@ -203,15 +183,28 @@ template <class Entry,class Strategy>
 	}
 
 template <class Entry,class Strategy>
-	Entry&	Queue<Entry,Strategy>::pop()
+	Entry	Queue<Entry,Strategy>::Pop()
 	{
 		if (section_begin == section_end)
-			return *section_begin;
-		Entry&rs = *section_begin;
+			return Entry();
+		Entry out;
+		Strategy::move(section_begin->Cast(),out);
+		section_begin->Destruct();
 		section_begin++;
 		if (section_begin >= field_end)
 			section_begin = Array::pointer();
-		return rs;
+		return out;
+	}
+
+template <class Entry,class Strategy>
+	void	Queue<Entry,Strategy>::EraseFront()
+	{
+		if (section_begin == section_end)
+			return;
+		section_begin->Destruct();
+		section_begin++;
+		if (section_begin >= field_end)
+			section_begin = Array::pointer();
 	}
 
 template <class Entry, class Strategy>
@@ -219,10 +212,13 @@ template <class Entry, class Strategy>
 	{
 		size_t old_usage = length();
 		Array	new_field(new_size);
-		Entry*out = new_field.pointer();
+		Element*out = new_field.pointer();
 		while (section_begin != section_end)
 		{
-			Strategy::move(*section_begin++,*out++);
+			out->adoptData(section_begin);
+			out++;
+			section_begin++;
+			//Strategy::move(*section_begin++,*out++);
 			if (section_begin >= field_end)
 				section_begin = Array::pointer();
 		}
@@ -235,13 +231,13 @@ template <class Entry, class Strategy>
 	}
 
 template <class Entry, class Strategy>
-	void	Queue<Entry,Strategy>::push(const ArrayData<Entry>&entries)
+	void	Queue<Entry,Strategy>::Push(const ArrayData<Entry>&entries)
 	{
-		push(entries.pointer(),entries.count());
+		Push(entries.pointer(),entries.count());
 	}
 
 template <class Entry, class Strategy>
-	void	Queue<Entry,Strategy>::push(const Entry*data, count_t count)
+	void	Queue<Entry,Strategy>::Push(const Entry*data, count_t count)
 	{
 		if (!count)
 			return;
@@ -253,14 +249,23 @@ template <class Entry, class Strategy>
 		if (target != Array::length())
 		{
 			increaseSize(target);
-			Strategy::copyRange(data,data+count,section_end);	//easy case
-			section_end += count;
+			for (index_t i = 0; i < count; i++)
+			{
+				section_end->Construct(data[i]);
+				//Strategy::move(data[i],section_end->Cast());
+				section_end++;
+			}
+			//::Strategy::Adopt::copyRange(data,data+count,section_end);	//easy case
+			//section_end += count;
 		}
 		else
 		{
 			while (count--)
 			{
-				(*section_end++) = (*data++);
+				section_end->Construct(*data);
+				data ++;
+				section_end++;
+				//(*section_end++) = (*data++);
 				if (section_end >= field_end)
 					section_end = Array::pointer();
 			}
@@ -269,13 +274,13 @@ template <class Entry, class Strategy>
 
 
 template <class Entry, class Strategy>
-	void	Queue<Entry,Strategy>::push(const Entry&data)
+	void	Queue<Entry,Strategy>::Push(const Entry&data)
 	{
-		push() = data;
+		Push() = data;
 	}
 
 template <class Entry, class Strategy>
-	Entry&	Queue<Entry,Strategy>::push()
+	Entry&	Queue<Entry,Strategy>::Push()
 	{
 		section_end++;
 		if (section_end >= field_end)
@@ -284,10 +289,12 @@ template <class Entry, class Strategy>
 		{
 			size_t old_len = Array::length();
 			Array	new_field(Array::length()*2);
-			Entry*out = new_field.pointer();
+			Element*out = new_field.pointer();
 			do
 			{
-				Strategy::move(*section_begin++,*out++);
+				out->adoptData(*section_begin);
+				section_begin++;
+				out++;
 				if (section_begin >= field_end)
 					section_begin = Array::pointer();
 			}
@@ -298,8 +305,8 @@ template <class Entry, class Strategy>
 			field_end = section_begin+Array::length();
 		}
 		if (section_end > Array::data)
-			return *(section_end-1);
-		return *(Array::data+Array::elements-1);
+			return (section_end-1)->ConstructAndCast();
+		return Array::data[Array::elements-1].ConstructAndCast();
 	}
 
 //
@@ -354,10 +361,13 @@ template <class Entry, class Strategy>
 		{
 			size_t old_len = Array::length();
 			Array	new_field(Array::length()*2);
-			Entry*out = new_field.pointer();
+			Element*out = new_field.pointer();
 			do
 			{
-				Strategy::move(*section_begin++,*out++);
+				out->adoptData(*section_begin);
+				section_begin++;
+				out++;
+				//Strategy::move(*section_begin++,*out++);
 				if (section_begin >= field_end)
 					section_begin = Array::pointer();
 			}
@@ -367,7 +377,7 @@ template <class Entry, class Strategy>
 			section_end = section_begin+old_len;
 			field_end = section_begin+Array::length();
 		}
-		return *section_begin;
+		return section_begin->ConstructAndCast();
 	}
 
 
@@ -375,17 +385,24 @@ template <class Entry, class Strategy>
 template <class Entry,class Strategy>
 	void	Queue<Entry,Strategy>::clear()
 	{
-		section_end = section_begin;
+		while (section_begin != section_end)
+		{
+			section_begin->Destruct();
+			section_begin++;
+			if (section_begin >= field_end)
+				section_begin = Array::pointer();
+		}
+		//section_end = section_begin;
 	}
 	
 
 template <class Entry,class Strategy>
-	bool	Queue<Entry,Strategy>::isEmpty()					const
+	bool	Queue<Entry,Strategy>::IsEmpty()					const
 	{
 		return section_begin == section_end;
 	}
 template <class Entry,class Strategy>
-	bool	Queue<Entry,Strategy>::isNotEmpty()					const
+	bool	Queue<Entry,Strategy>::IsNotEmpty()					const
 	{
 		return section_begin != section_end;
 	}
@@ -399,51 +416,51 @@ template <class Entry,class Strategy>
 template <class Entry,class Strategy>
 	bool		Queue<Entry,Strategy>::operator>>(Entry&entry)
 	{
-		return pop(entry);
+		return Pop(entry);
 	}
 	
 template <class Entry,class Strategy>
 	Queue<Entry,Strategy>&		Queue<Entry,Strategy>::operator<<(const Entry&entry)
 	{
-		push(entry);
+		Push(entry);
 		return *this;
 	}
 	
 template <class Entry,class Strategy>
-	Entry&			Queue<Entry,Strategy>::oldest()
+	Entry&			Queue<Entry,Strategy>::GetOldest()
 	{
-		return *section_begin;
+		return section_begin->Cast();
 	}
 	
 template <class Entry,class Strategy>
-	const Entry&	Queue<Entry,Strategy>::oldest()						const
+	const Entry&	Queue<Entry,Strategy>::GetOldest()						const
 	{
-		return *section_begin;
+		return section_begin->Cast();
 	}
 
 template <class Entry,class Strategy>
-	Entry&			Queue<Entry,Strategy>::peek()
+	Entry&			Queue<Entry,Strategy>::Peek()
 	{
-		return *section_begin;
+		return section_begin->Cast();
 	}
 
 template <class Entry,class Strategy>
-	const Entry&	Queue<Entry,Strategy>::peek()						const
+	const Entry&	Queue<Entry,Strategy>::Peek()						const
 	{
-		return *section_begin;
+		return section_begin->Cast();
 	}
 
 
 template <class Entry,class Strategy>
-	Entry&			Queue<Entry,Strategy>::newest()
+	Entry&			Queue<Entry,Strategy>::GetNewest()
 	{
-		return *(section_end!=Array::data?(section_end-1):field_end-1);
+		return (section_end!=Array::data?(section_end-1):field_end-1)->Cast();
 	}
 	
 template <class Entry,class Strategy>
-	const Entry&	Queue<Entry,Strategy>::newest()						const
+	const Entry&	Queue<Entry,Strategy>::GetNewest()						const
 	{
-		return *(section_end!=Array::data?(section_end-1):field_end-1);
+		return (section_end!=Array::data?(section_end-1):field_end-1)->Cast();
 	}
 	
 template <class Entry,class Strategy>
@@ -461,9 +478,9 @@ template <class Entry,class Strategy>
 	{
 		if (index > index_t(field_end-section_begin))
 		{
-			return Array::operator[](index- (field_end-section_begin));
+			return Array::at(index- (field_end-section_begin)).Cast();
 		}
-		return section_begin[index];
+		return section_begin[index].Cast();
 	}
 
 
@@ -472,13 +489,13 @@ template <class Entry, class Priority, class Strategy>
 	{}
 			
 template <class Entry, class Priority, class Strategy>
-	QueueIterator<Entry>			PriorityQueue<Entry, Priority, Strategy>::begin()
+	typename PriorityQueue<Entry,Priority,Strategy>::iterator	PriorityQueue<Entry, Priority, Strategy>::begin()
 	{
 		return iterator(entry_field.pointer(),entry_field.pointer()+entry_field.length(),entry_field+section_begin);
 	}
 		
 template <class Entry, class Priority, class Strategy>
-	QueueIterator<Entry>			PriorityQueue<Entry, Priority, Strategy>::end()
+	typename PriorityQueue<Entry,Priority,Strategy>::iterator	PriorityQueue<Entry, Priority, Strategy>::end()
 	{
 		return iterator(entry_field.pointer(),entry_field.pointer()+entry_field.length(),entry_field+section_end);
 	}
@@ -488,7 +505,8 @@ template <class Entry, class Priority, class Strategy>
 	{
 		if (section_begin == section_end)
 			return false;
-		Strategy::move(entry_field[section_begin],out);
+		Strategy::move(entry_field[section_begin].Cast(),out);
+		entry_field[section_begin].Destruct();
 		PriorityArray::AppliedStrategy::move(priority_field[section_begin],pout);
 		section_begin++;
 		if (section_begin >= entry_field.length())
@@ -501,7 +519,8 @@ template <class Entry, class Priority, class Strategy>
 	{
 		if (section_begin == section_end)
 			return false;
-		Strategy::move(entry_field[section_begin],out);
+		Strategy::move(entry_field[section_begin].Cast(),out);
+		entry_field[section_begin].Destruct();
 		section_begin++;
 		if (section_begin >= entry_field.length())
 			section_begin = 0;
@@ -509,17 +528,29 @@ template <class Entry, class Priority, class Strategy>
 	}
 	
 template <class Entry, class Priority, class Strategy>
-	Entry&				PriorityQueue<Entry, Priority, Strategy>::pop()
+	Entry				PriorityQueue<Entry, Priority, Strategy>::Pop()
 	{
 		if (section_begin == section_end)
-			return entry_field.first();
-		Entry&rs = entry_field[section_begin];
+			return Entry();
+		Entry rs = entry_field[section_begin].Cast();
+		entry_field[section_begin].Destruct();
 		section_begin++;
 		if (section_begin >= entry_field.length())
 			section_begin = 0;
 		return rs;
 	}
 
+template <class Entry, class Priority, class Strategy>
+	void				PriorityQueue<Entry, Priority, Strategy>::EraseFront()
+	{
+		if (section_begin == section_end)
+			return;
+		entry_field[section_begin].Destruct();
+		section_begin++;
+		if (section_begin >= entry_field.length())
+			section_begin = 0;
+		return rs;
+	}
 
 
 
@@ -547,16 +578,26 @@ template <class Entry, class Priority, class Strategy>
 	}
 	
 template <class Entry, class Priority, class Strategy>
-	Entry&				PriorityQueue<Entry, Priority, Strategy>::popLeast()
+	Entry				PriorityQueue<Entry, Priority, Strategy>::PopLeast()
 	{
 		if (section_begin == section_end)
-			return entry_field.first();
+			return Entry();
 		index_t index = section_end?section_end-1:entry_field.count()-1;
-		Entry&rs = entry_field[index];
+		Entry rs = entry_field[index].Cast();
+		entry_field[index].Destruct();
 		section_end = index;
 		return rs;
 	}
 
+template <class Entry, class Priority, class Strategy>
+	void				PriorityQueue<Entry, Priority, Strategy>::EraseLeast()
+	{
+		if (section_begin == section_end)
+			return;
+		index_t index = section_end?section_end-1:entry_field.count()-1;
+		entry_field[index].Destruct();
+		section_end = index;
+	}
 
 template <class Entry, class Priority, class Strategy>
 	inline void			PriorityQueue<Entry, Priority, Strategy>::dec(size_t&offset)
@@ -724,23 +765,28 @@ template <class Entry, class Priority, class Strategy>
 			PriorityArray	new_priority_field(len<<1);
 			//cout << "new fields have length "<<new_entry_field.length()<<endl;
 			//cout << "element is "<<l<<endl;
-			Entry*out = new_entry_field.pointer();
+			Element*out = new_entry_field.pointer();
 			Priority*pout = new_priority_field.pointer();
 			
 			while (section_begin != l)
 			{
 				//cout << "processing element "<<section_begin<<endl;
-				Strategy::move(entry_field[section_begin],*out++);
+				out->adoptData(entry_field[section_begin]);
+				out++;
 				PriorityArray::AppliedStrategy::move(priority_field[section_begin],*pout++);
 				section_begin++;
 				section_begin%=len;
 			}
-			(*out++) = data;
+			out->Construct(data);
+			out++;
+			//(*out++) = data;
 			(*pout++) = priority;
 			while (section_begin != section_end)
 			{
 				//cout << "processing element "<<section_begin<<endl;
-				Strategy::move(entry_field[section_begin],*out++);
+				out->adoptData(entry_field[section_begin]);
+				out++;
+//				Strategy::move(entry_field[section_begin],*out++);
 				PriorityArray::AppliedStrategy::move(priority_field[section_begin],*pout++);
 				section_begin++;
 				section_begin%=len;
@@ -759,12 +805,17 @@ template <class Entry, class Priority, class Strategy>
 			{
 				for (size_t i = end; i > lower; i--)
 				{
-					Strategy::move(entry_field[(i-1)%len],entry_field[i%len]);
+					entry_field[i%len].adoptData(entry_field[(i-1)%len]);
+					//Strategy::move(entry_field[(i-1)%len],entry_field[i%len]);
 					PriorityArray::AppliedStrategy::move(priority_field[(i-1)%len],priority_field[i%len]);
 				}
 				section_end++;
 				section_end%=len;
-				entry_field[lower%len] = data;
+
+				const index_t at = lower%len;
+				entry_field[at].Construct(data);
+
+				//entry_field[lower%len] = data;
 				priority_field[lower%len] = priority;
 			}
 			else
@@ -777,24 +828,28 @@ template <class Entry, class Priority, class Strategy>
 					//ShowMessage("copying first");
 					if (section_begin)
 					{
-						Strategy::move(entry_field[section_begin],entry_field[section_begin-1]);
+						entry_field[section_begin-1].adoptData(entry_field[section_begin]);
+						//Strategy::move(entry_field[section_begin],entry_field[section_begin-1]);
 						PriorityArray::AppliedStrategy::move(priority_field[section_begin],priority_field[section_begin-1]);
 					}
 					else
 					{
-						Strategy::move(entry_field.first(),entry_field.last());
+						entry_field.last().adoptData(entry_field.first());
+						//Strategy::move(entry_field.first(),entry_field.last());
 						PriorityArray::AppliedStrategy::move(priority_field.first(),priority_field.last());
 					}
 				}
 				for (size_t i = section_begin; i+1 < lower; i++)
 				{
-					Strategy::move(entry_field[(i+1)%len],entry_field[i%len]);
+					entry_field[i%len].adoptData(entry_field[(i+1)%len]);
+					//Strategy::move(entry_field[(i+1)%len],entry_field[i%len]);
 					PriorityArray::AppliedStrategy::move(priority_field[(i+1)%len],priority_field[i%len]);
 				}
 				dec(section_begin);
 				dec(lower);
-				entry_field[lower%len] = data;
-				priority_field[lower%len] = priority;
+				const index_t at = lower%len;
+				entry_field[at].Construct(data);
+				priority_field[at] = priority;
 			}
 			//cout << "section end now "<<section_end<<" (len="<<len<<")"<<endl;
 		}
@@ -817,7 +872,15 @@ template <class Entry, class Priority, class Strategy>
 template <class Entry, class Priority, class Strategy>
 	void	PriorityQueue<Entry, Priority, Strategy>::clear()
 	{
-		section_end = section_begin;
+		const count_t len = entry_field.length();
+		while (section_begin != section_end)
+		{
+			entry_field[section_begin].Destruct();
+			section_begin++;
+			section_begin%=len;
+		}
+
+		//section_end = section_begin;
 	}
 	
 template <class Entry, class Priority, class Strategy>

@@ -190,7 +190,7 @@ namespace System
 				THREAD_REPORT("semaphore not negative");
 				mutex.lock();
 					THREAD_REPORT("retrieving element");
-					bool success = Queue<Entry>::pop(out);
+					bool success = Queue<Entry>::Pop(out);
 				mutex.release();
 				if (success)
 				{
@@ -226,7 +226,7 @@ namespace System
 				//bool was_empty = begin == end;
 				//cout << "writing to "<<end<<endl;
 				THREAD_REPORT("writing element");
-				Queue<Entry>::push(data);
+				Queue<Entry>::Push(data);
 
 			mutex.release();
 			THREAD_REPORT("releasing semaphore by one");
@@ -245,7 +245,7 @@ namespace System
 	template <class Entry>
 		void	BlockingQueue<Entry>::writeElement(const Entry&data)
 		{
-			Queue<Entry>::push(data);
+			Queue<Entry>::Push(data);
 			sequence_counter++;
 		}
 		
@@ -270,7 +270,7 @@ namespace System
 				//cout << "writing to "<<end<<endl;
 				THREAD_REPORT("writing element");
 				for (size_t i = 0; i < count; i++)
-					Queue<Entry>::push(data);
+					Queue<Entry>::Push(data);
 
 			mutex.release();
 			THREAD_REPORT("releasing semaphore by one");
