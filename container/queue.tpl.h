@@ -213,7 +213,7 @@ template <class Entry,class Strategy>
 		if (section_begin == section_end)
 			return;
 		if (section_end == Array::pointer())
-			section_end = field_end;
+			section_end = field_end-1;
 		else
 			section_end--;
 		section_end->Destruct();
@@ -488,7 +488,7 @@ template <class Entry,class Strategy>
 template <class Entry,class Strategy>
 	const Entry&			Queue<Entry,Strategy>::operator[](size_t index)	const
 	{
-		if (index > index_t(field_end-section_begin))
+		if (index >= index_t(field_end-section_begin))
 		{
 			return Array::at(index- (field_end-section_begin)).Cast();
 		}
