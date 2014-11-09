@@ -207,6 +207,18 @@ template <class Entry,class Strategy>
 			section_begin = Array::pointer();
 	}
 
+template <class Entry,class Strategy>
+	void	Queue<Entry,Strategy>::EraseBack()
+	{
+		if (section_begin == section_end)
+			return;
+		if (section_end == Array::pointer())
+			section_end = field_end;
+		else
+			section_end--;
+		section_end->Destruct();
+	}
+
 template <class Entry, class Strategy>
 	void	Queue<Entry,Strategy>::increaseSize(count_t new_size)
 	{

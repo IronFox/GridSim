@@ -142,6 +142,7 @@ template <class Entry, class Strategy=typename StrategySelector<Entry>::Default>
 			Entry			Pop();								//!< Pops the oldest element from the queue, decreasing the number of stored elements by one. Note that the stored object IS destroyed.
 			count_t			Pop(Entry*out_field, count_t count);			//!< Pops up to @a count of the oldest elements to the specified out field @return Number of elements that were actually popped (which may be less than the resquested number if not enough elements are stored)
 			void			EraseFront();							//!< Erases the (oldest) element out-front. Identical to Pop() but without any copy constructors
+			void			EraseBack();							//!< Erases the (newest) element out-back
 			void			Push(const ArrayData<Entry>&entries);	//!< Pushes multiple elements into the queue, increasing the number of stored elements by <em>entries.count()</em>. The queue automatically increases the size of its data field if appropriate
 			void			Push(const Entry*, count_t count);	//!< Pushes multiple elements into the queue, increasing the number of stored elements by <em>count</em>. The queue automatically increases the size of its data field if appropriate
 			void			Push(const Entry&data);				//!< Pushes an element into the queue, increasing the number of stored elements by one. The queue automatically increases the size of its data field if appropriate
