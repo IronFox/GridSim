@@ -555,24 +555,26 @@ template <class Entry, class Priority, class Strategy>
 
 
 template <class Entry, class Priority, class Strategy>
-	bool	PriorityQueue<Entry, Priority, Strategy>::popLeast(Entry&out, Priority&pout)
+	bool	PriorityQueue<Entry, Priority, Strategy>::PopLeast(Entry&out, Priority&pout)
 	{
 		if (section_begin == section_end)
 			return false;
 		index_t index = section_end?section_end-1:entry_field.count()-1;
-		Strategy::move(entry_field[index],out);
+		Strategy::move(entry_field[index].Cast(),out);
 		PriorityArray::AppliedStrategy::move(priority_field[index],pout);
+		entry_field[index].Destruct();
 		section_end = index;
 		return true;
 	}
 	
 template <class Entry, class Priority, class Strategy>
-	bool	PriorityQueue<Entry, Priority, Strategy>::popLeast(Entry&out)
+	bool	PriorityQueue<Entry, Priority, Strategy>::PopLeast(Entry&out)
 	{
 		if (section_begin == section_end)
 			return false;
 		index_t index = section_end?section_end-1:entry_field.count()-1;
-		Strategy::move(entry_field[index],out);
+		Strategy::move(entry_field[index].Cast(),out);
+		entry_field[index].Destruct();
 		section_end = index;
 		return true;
 	}
@@ -731,7 +733,7 @@ template <class Entry, class Priority, class Strategy>
 
 
 template <class Entry, class Priority, class Strategy>
-	void				PriorityQueue<Entry, Priority, Strategy>::push(const Entry&data, const Priority&priority)
+	void				PriorityQueue<Entry, Priority, Strategy>::Push(const Entry&data, const Priority&priority)
 	{
 		
 		size_t len = entry_field.length();

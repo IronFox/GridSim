@@ -317,7 +317,7 @@ namespace System
 	template <class Entry>
 		void	BlockingPriorityQueue<Entry>::writeElement(const Entry&data, int priority)
 		{
-			PriorityQueue<Entry,int>::push(data,priority);
+			PriorityQueue<Entry,int>::Push(data,priority);
 			sequence_counter++;
 		}
 		
@@ -338,7 +338,7 @@ namespace System
 				//bool was_empty = begin == end;
 				//cout << "writing to "<<end<<endl;
 				THREAD_REPORT("writing element");
-				PriorityQueue<Entry,int>::push(data,priority);
+				PriorityQueue<Entry,int>::Push(data,priority);
 
 			mutex.release();
 			THREAD_REPORT("releasing semaphore by one");
@@ -358,7 +358,7 @@ namespace System
 				//cout << "writing to "<<end<<endl;
 				THREAD_REPORT("writing element");
 				for (size_t i = 0; i < count; i++)
-					PriorityQueue<Entry,int>::push(data,INT_MAX);
+					PriorityQueue<Entry,int>::Push(data,INT_MAX);
 			mutex.release();
 			THREAD_REPORT("releasing semaphore by one");
 			semaphore.release((unsigned)count);
