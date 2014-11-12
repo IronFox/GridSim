@@ -1571,6 +1571,8 @@ template <typename T>
 	inline	void					resizeCopy(size_t new_length);	//!< Resizes the local string length to match the specified number of characters (not including trailing zero). Any available string content is copied and the trailing zero set. If the local string length is increased then the new characters following the existing ones are left undefined.
 	inline	bool					isEmpty()	const	{return string_length==0;}
 	inline	bool					isNotEmpty()const	{return string_length!=0;}
+	inline	bool					IsEmpty()	const	{return string_length==0;}
+	inline	bool					IsNotEmpty()const	{return string_length!=0;}
 	inline	T*						writeTo(T*target)	const;
 	template <typename T2>
 		inline	T2*					writeTo(T2*target)	const;
