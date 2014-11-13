@@ -417,7 +417,7 @@ namespace TCP
 		A peer handles incoming and outgoing packages from/to a specific IP address over a specific socket handle. A server would manage one peer structure per client, a client would inherit from Peer.
 	
 	*/
-	class Peer:public ThreadObject, protected IReadStream, protected IWriteStream, public Destination //, public IToString
+	class Peer : public ThreadObject, protected IReadStream, protected IWriteStream, public Destination //, public IToString
 	{
 	protected:
 		Connection					*owner;			//!< Pointer to the owning connection to handle incoming packages and report errors to
@@ -440,7 +440,6 @@ namespace TCP
 		bool						Write(const void*target, serial_size_t size) override;						//!< IOutStream override for direct TCP stream output
 		serial_size_t				GetRemainingBytes() const override;
 		bool						netRead(BYTE*current, size_t size);							//!< Continuously reads a sequence of bytes from the TCP stream. The method does not return until either the requested amount of bytes was received or an error occured
-		bool						sendObject(UINT32 channel, const ISerializable&object);		//!< Sends a serializable object to the TCP stream on the specified channel
 			
 	public:
 		/**
@@ -503,6 +502,7 @@ namespace TCP
 			
 		bool						validHandle()	const	{return !socketAccess->IsClosed();}
 		//SOCKET						handle()	const	{return socket_handle;}
+		bool						sendObject(UINT32 channel, const ISerializable&object);		//!< Sends a serializable object to the TCP stream on the specified channel
 	};
 
 	class Client;

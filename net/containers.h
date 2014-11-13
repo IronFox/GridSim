@@ -246,7 +246,7 @@ namespace Package
 				if (result != decompressed_size)
 				{
 					if (TCP::verbose)
-						cout << "CompressedString::Deserialize(): decompression returned "<<result<<". expected "<<decompressed_size<<".ignoring package"<<endl;
+						std::cout << "CompressedString::Deserialize(): decompression returned "<<result<<". expected "<<decompressed_size<<".ignoring package"<<std::endl;
 					return false;
 				}
 				for (serial_size_t i = 0; i < decompressed_size; i++)
@@ -255,7 +255,7 @@ namespace Package
 					if (!isgraph(c) && !isspace(c))
 					{
 						if (TCP::verbose)
-							cout << "CompressedString::Deserialize(): encountered invalid character ("<<(int)c<<") at position "<<i<<"/"<<uncompressed.length()<<". ignoring package"<<endl;
+							std::cout << "CompressedString::Deserialize(): encountered invalid character ("<<(int)c<<") at position "<<i<<"/"<<uncompressed.length()<<". ignoring package"<<std::endl;
 						return false;
 					}
 				}
