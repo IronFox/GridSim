@@ -742,7 +742,7 @@ namespace TCP
 
 	void		Server::ThreadMain()
 	{
-#if 0
+#if 1
 		if (verbose)
 			std::cout << "Server::ThreadMain() enter"<<std::endl;
 		sockaddr_in	addr;
@@ -765,7 +765,7 @@ namespace TCP
 				return;
 			}
 			Peer*peer = SHIELDED(new Peer(this));
-			peer->address = addr;
+			//peer->actual_address = addr;
 			peer->SetCloneOfSocketAccess(socketAccess);
 			peer->socketAccess->SetSocket(handle);
 
