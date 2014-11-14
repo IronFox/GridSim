@@ -414,9 +414,9 @@ namespace TCP
 				return;
 			}
 			owner->setError("");
-			owner->HandleEvent(Event::ConnectionClosed,shared_from_this());
+			owner->HandleEvent(Event::ConnectionClosed,SharedFromThis());
 			socketAccess->CloseSocket();
-			owner->OnDisconnect(shared_from_this(),Event::ConnectionClosed);
+			owner->OnDisconnect(SharedFromThis(),Event::ConnectionClosed);
 			if (verbose)
 				std::cout << "Peer::succeeded() exit: result is 0"<<std::endl;
 			return;
@@ -429,8 +429,8 @@ namespace TCP
 		}
 		owner->setError("Connection lost to "+ToString()+" ("+lastSocketError()+")");
 		socketAccess->CloseSocket();
-		owner->HandleEvent(Event::ConnectionLost,shared_from_this());
-		owner->OnDisconnect(shared_from_this(),Event::ConnectionLost);
+		owner->HandleEvent(Event::ConnectionLost,SharedFromThis());
+		owner->OnDisconnect(SharedFromThis(),Event::ConnectionLost);
 		if (verbose)
 			std::cout << "Peer::succeeded() exit: result was unexpected. socket closed"<<std::endl;
 	}
@@ -486,8 +486,8 @@ namespace TCP
 				}
 				socketAccess->CloseSocket();
 				owner->setError("Connection lost to "+ToString()+" ("+lastSocketError()+")");
-				owner->HandleEvent(Event::ConnectionLost,shared_from_this());
-				owner->OnDisconnect(shared_from_this(),Event::ConnectionLost);
+				owner->HandleEvent(Event::ConnectionLost,SharedFromThis());
+				owner->OnDisconnect(SharedFromThis(),Event::ConnectionLost);
 				if (verbose)
 					std::cout << "Peer::netRead() exit: invalid size value received: "<<size<<std::endl;
 				return false;
@@ -502,8 +502,8 @@ namespace TCP
 				}
 				socketAccess->CloseSocket();
 				owner->setError("");
-				owner->HandleEvent(Event::ConnectionClosed,shared_from_this());
-				owner->OnDisconnect(shared_from_this(),Event::ConnectionClosed);
+				owner->HandleEvent(Event::ConnectionClosed,SharedFromThis());
+				owner->OnDisconnect(SharedFromThis(),Event::ConnectionClosed);
 				if (verbose)
 					std::cout << "Peer::netRead() exit: 0 size value received"<<std::endl;
 				return false;
@@ -661,8 +661,8 @@ namespace TCP
 				socketAccess->CloseSocket();
 				FATAL__("Maximum safe package size ("+String(owner->safe_package_size/1024)+"KB) exceeded by "+String((remaining_size-owner->safe_package_size)/1024)+"KB");
 				owner->setError("Maximum safe package size ("+String(owner->safe_package_size/1024)+"KB) exceeded by "+String((remaining_size-owner->safe_package_size)/1024)+"KB");
-				owner->HandleEvent(Event::ConnectionClosed,shared_from_this());
-				owner->OnDisconnect(shared_from_this(),Event::ConnectionClosed);
+				owner->HandleEvent(Event::ConnectionClosed,SharedFromThis());
+				owner->OnDisconnect(SharedFromThis(),Event::ConnectionClosed);
 				if (verbose)
 					std::cout << "Peer::ThreadMain() exit: received invalid package size"<<std::endl;
 				return;
@@ -673,7 +673,7 @@ namespace TCP
 			unsigned min_user_level;
 			if (!remaining_size && owner->signal_map.query(channel_index,min_user_level) && userLevel >= min_user_level)
 			{
-				owner->HandleSignal(channel_index,shared_from_this());
+				owner->HandleSignal(channel_index,SharedFromThis());
 			}
 			else
 			{
@@ -685,12 +685,12 @@ namespace TCP
 					if (verbose)
 						std::cout << "Peer::ThreadMain(): deserializing"<<std::endl;
 				
-					PSerializableObject object = receiver->Deserialize(*this,remaining_size,shared_from_this());
+					PSerializableObject object = receiver->Deserialize(*this,remaining_size,SharedFromThis());
 					if (object)
 					{
 						if (verbose)
 							std::cout << "Peer::ThreadMain(): deserialization succeeded, dispatching object"<<std::endl;
-						owner->HandleObject(receiver,shared_from_this(),object);
+						owner->HandleObject(receiver,SharedFromThis(),object);
 					}
 					else
 					{
@@ -707,7 +707,7 @@ namespace TCP
 					FATAL__("ignoring packet");	//for now, this is appropriate
 					if (verbose)
 						std::cout << "Peer::ThreadMain(): no receiver available (nothing installed on this channel). ignoring package"<<std::endl;
-					owner->onIgnorePackage(channel_index,UINT32(remaining_size),shared_from_this());
+					owner->onIgnorePackage(channel_index,UINT32(remaining_size),SharedFromThis());
 				}
 				
 				while (remaining_size > sizeof(dump_buffer))
@@ -740,11 +740,11 @@ namespace TCP
 			if (verbose)
 				std::cout << "Peer::disconnect(): graceful shutdown: invoking handlers and closing socket"<<std::endl;
 			owner->setError("");
-			owner->HandleEvent(Event::ConnectionClosed,shared_from_this());
+			owner->HandleEvent(Event::ConnectionClosed,SharedFromThis());
 			socketAccess->CloseSocket();
 			if (!isSelf())
 				awaitCompletion();	//can't wait for self.
-			owner->OnDisconnect(shared_from_this(),Event::ConnectionClosed);
+			owner->OnDisconnect(SharedFromThis(),Event::ConnectionClosed);
 			
 			/*if (!owner->block_events)	//i really can't recall why i did this
 				owner->block_events++;	*/
@@ -760,7 +760,7 @@ namespace TCP
 #if 1
 		if (verbose)
 			std::cout << "Server::ThreadMain() enter"<<std::endl;
-		sockaddr_in	addr;
+		sockaddr_storage	addr;
 		while (socket_handle != INVALID_SOCKET)
 		{
 			SOCKET handle;
@@ -779,8 +779,8 @@ namespace TCP
 					std::cout << "Server::ThreadMain() exit: accept() operation failed"<<std::endl;
 				return;
 			}
-			PPeer peer(new Peer(this));
-			//peer->actual_address = addr;
+			PPeer peer(new Peer(this,true));
+			peer->address = addr;
 			peer->SetCloneOfSocketAccess(socketAccess);
 			peer->socketAccess->SetSocket(handle);
 

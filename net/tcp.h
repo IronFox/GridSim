@@ -235,6 +235,8 @@ namespace TCP
 			}
 			bool					SendTo(const PDestination&destination, const SerializableObject&object)
 			{
+				if (!destination)
+					return false;
 				return SendObject(*destination,object);
 			}
 			/**
@@ -249,6 +251,8 @@ namespace TCP
 			*/
 			bool				SendTo(const PDestination&destination, const PPeer&exclude, const SerializableObject&object)
 			{
+				if (!destination)
+					return false;
 				return SendObject(*destination,exclude,object);
 			}
 			bool				SendTo(Destination&destination, const PPeer&exclude, const SerializableObject&object)
@@ -282,6 +286,8 @@ namespace TCP
 			}
 			bool				SendTo(const PDestination&destination)
 			{
+				if (!destination)
+					return false;
 				VoidSerializable object;
 				return SendObject(*destination,object);
 			}
@@ -297,6 +303,8 @@ namespace TCP
 			*/
 			bool				SendTo(const PDestination&destination, const PPeer&exclude)
 			{
+				if (!destination)
+					return false;
 				VoidSerializable object;
 				return SendObject(*destination,exclude,object);
 			}
@@ -450,7 +458,7 @@ namespace TCP
 									remaining_write_size;	//!< Size remaining for writing streams in the announced memory frame
 		ByteStream					serial_buffer;		//!< Buffer used to serialize package data
 		SocketAccess				*socketAccess;
-
+		const bool					canDoSharedFromThis;
 		friend class Server;
 		friend class RootChannel;
 			
@@ -463,6 +471,8 @@ namespace TCP
 		serial_size_t				GetRemainingBytes() const override;
 		bool						netRead(BYTE*current, size_t size);							//!< Continuously reads a sequence of bytes from the TCP stream. The method does not return until either the requested amount of bytes was received or an error occured
 			
+		PPeer						SharedFromThis() {return canDoSharedFromThis ? shared_from_this() : PPeer();}
+
 	public:
 		/**
 			@brief Abstract peer attachment class
@@ -484,7 +494,7 @@ namespace TCP
 			
 		
 				
-		/**/						Peer(Connection*connection):owner(connection),socketAccess(new DefaultSocketAccess()),userLevel(User::Anonymous)
+		/**/						Peer(Connection*connection, bool canDoSharedFromThis):owner(connection),socketAccess(new DefaultSocketAccess()),userLevel(User::Anonymous),canDoSharedFromThis(canDoSharedFromThis)
 									{
 										memset(&address,0,sizeof(address));
 										ASSERT_NOT_NULL__(owner);
@@ -558,7 +568,7 @@ namespace TCP
 		void				fail(const String&message);
 	public:
 					
-		/**/				Client():Peer(this),is_connected(false)
+		/**/				Client():Peer(this,false),is_connected(false)
 							{}
 		virtual				~Client()
 							{
@@ -699,7 +709,7 @@ namespace TCP
 				
 			virtual	void			Handle(const PSerializableObject&serializable,const PPeer&sender)	override
 			{
-				if (sender->userLevel >= MinUserLevel)
+				if (!sender || sender->userLevel >= MinUserLevel)
 					OnReceive((Object&)*serializable,sender);
 				//discard((Object*)serializable);
 			}
@@ -743,6 +753,8 @@ namespace TCP
 			*/
 			bool			SendTo(const PDestination&destination, const Object&object)
 			{
+				if (!destination)
+					return false;
 				return SendObject(*destination,object);
 			}
 			bool			SendTo(Destination&destination, const Object&object)
@@ -762,6 +774,8 @@ namespace TCP
 			*/
 			bool			SendTo(const PDestination&destination, const PPeer&exclude, const Object&object)
 			{
+				if (!destination)
+					return false;
 				return SendObject(*destination,exclude,object);
 			}
 				
