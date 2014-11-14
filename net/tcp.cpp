@@ -7,8 +7,13 @@ namespace TCP
 {
 	bool			verbose=false;
 
+	template class Channel<String,0,0>;
+	template class ObjectSender<String,0>;
+	template class ConstrainedObject<String,32>;
 
-	void	swapCloseSocket(volatile SOCKET&socket)
+
+
+	void	SwapCloseSocket(volatile SOCKET&socket)
 	{
 		if (socket == INVALID_SOCKET)
 			return;
@@ -16,8 +21,14 @@ namespace TCP
 		socket = INVALID_SOCKET;
 		closesocket(socket_to_close);
 	}
-	String	addressToString(const addrinfo&address)
+
+	String	ToString(const addrinfo&address)
 	{
+		sockaddr_storage temp;
+		memcpy(&temp, address.ai_addr, address.ai_addrlen);
+		return ToString(temp);
+/*
+
 		static char buffer[INET6_ADDRSTRLEN];
 		if (address.ai_addrlen == sizeof(sockaddr_in6))
 		{
@@ -33,7 +44,14 @@ namespace TCP
 			else
 				strcpy_s(buffer,sizeof(buffer),"[Unknown address type]");
 					
-		return buffer;
+		return buffer;*/
+	}
+
+	String	ToString(const sockaddr_storage&address)
+	{
+		char ipbuff[INET_ADDRSTRLEN];
+		inet_ntop(address.ss_family, &(((struct sockaddr_in *)&address)->sin_addr), ipbuff, INET_ADDRSTRLEN);
+		return String(ipbuff);
 	}
 
 
@@ -74,24 +92,24 @@ namespace TCP
 
 
 
-	bool RootChannel::sendObject(Destination*target, const ISerializable&object)
+	bool RootChannel::SendObject(Destination&target, const ISerializable&object)
 	{
-		return target?target->sendObject(id,object):false;
+		return target.SendObject(id,object);
 	}
 
-	bool RootChannel::sendObject(Destination*target, Peer*exclude, const ISerializable&object)
+	bool RootChannel::SendObject(Destination&target, const PPeer&exclude, const ISerializable&object)
 	{
-		return target?target->sendObject(id,exclude,object):false;
+		return target.SendObject(id,exclude,object);
 	}
 
 
-	void	Dispatcher::handleObject(RootChannel*receiver, Peer*sender, SerializableObject*object)
+	void	Dispatcher::HandleObject(RootChannel*receiver, const PPeer&sender, const PSerializableObject&object)
 	{
 		if (!object)
 			return;
 		if (async)
 		{
-			receiver->handle(object,sender);
+			receiver->Handle(object,sender);
 		}
 		else
 		{
@@ -105,23 +123,22 @@ namespace TCP
 		}
 	}
 	
-	void	Dispatcher::handlePeerDeletion(Peer*peer)
+	void	Dispatcher::HandlePeerDeletion(const PPeer&peer)
 	{
 		if (!peer)
 			return;
 		if (async)
 		{
-			DISCARD(peer);
 		}
 		else
 		{
 			mutex.lock();
-				erase_queue.append(peer);
+				wasteBucket.Append(peer);
 			mutex.release();
 		}
 	}
 	
-	void	Dispatcher::handleEvent(event_t event, Peer*peer)
+	void	Dispatcher::HandleEvent(event_t event, const PPeer&peer)
 	{
 		if (event == Event::None || block_events)
 			return;
@@ -145,7 +162,7 @@ namespace TCP
 		}
 	}
 
-	void	Dispatcher::handleSignal(UINT32 signal, Peer*peer)
+	void	Dispatcher::HandleSignal(UINT32 signal, const PPeer&peer)
 	{
 		if (async)
 		{
@@ -165,7 +182,7 @@ namespace TCP
 	}
 
 
-	void Dispatcher::resolve()
+	void Dispatcher::Resolve()
 	{
 		mutex.lock();
 			TSignal signal;
@@ -175,7 +192,7 @@ namespace TCP
 			TInbound	inbound;
 			while (object_queue>>inbound)
 			{
-				inbound.receiver->handle(inbound.object,inbound.sender);
+				inbound.receiver->Handle(inbound.object,inbound.sender);
 			}
 			TEvent		event;
 			while (event_queue>>event)
@@ -183,7 +200,7 @@ namespace TCP
 				if (onEvent)
 					onEvent(event.event,event.sender);
 			}
-			erase_queue.clear();
+			wasteBucket.Clear();
 		mutex.release();
 	}
 	
@@ -201,31 +218,31 @@ namespace TCP
 	
 	Dispatcher::~Dispatcher()
 	{
-		synchronized(mutex)
-		{
-			TInbound inbound;
-			while (object_queue >> inbound)
-				DISCARD(inbound.object);
-		}
+		//synchronized(mutex)
+		//{
+		//	TInbound inbound;
+		//	while (object_queue >> inbound)
+		//		DISCARD(inbound.object);
+		//}
 	}
 	
 	
-	void	Dispatcher::openSignalChannel(UINT32 id, unsigned min_user_level)
+	void	Dispatcher::OpenSignalChannel(UINT32 id, unsigned min_user_level)
 	{
 		signal_map.set(id,min_user_level);
 	}
 	
-	void	Dispatcher::closeSignalChannel(UINT32 id)
+	void	Dispatcher::CloseSignalChannel(UINT32 id)
 	{
 		signal_map.unSet(id);
 	}
 	
-	void	Dispatcher::installChannel(RootChannel&channel)
+	void	Dispatcher::InstallChannel(RootChannel&channel)
 	{
 		channel_map.set(channel.id,&channel);
 	}
 	
-	void	Dispatcher::uninstallChannel(RootChannel&channel)
+	void	Dispatcher::UninstallChannel(RootChannel&channel)
 	{
 		channel_map.unSet(channel.id);
 	}
@@ -241,11 +258,11 @@ namespace TCP
 
 		if (verbose)
 			std::cout << "ConnectionAttempt::ThreadMain() enter"<<std::endl;
-		client->disconnect();
+		client->Disconnect();
 		if (!Net::initNet())
 		{
 			client->setError("Failed to initialize network ("+String(lastSocketError())+")");
-			client->handleEvent(Event::ConnectionFailed,client);
+			client->HandleEvent(Event::ConnectionFailed,PPeer());
 			if (verbose)
 				std::cout << "ConnectionAttempt::ThreadMain() exit: failed to initialize network"<<std::endl;
 			return;
@@ -255,7 +272,7 @@ namespace TCP
 		if (!separator)
 		{
 			client->setError("Missing port in address line '"+url+"'");
-			client->handleEvent(Event::ConnectionFailed,client);
+			client->HandleEvent(Event::ConnectionFailed,PPeer());
 			if (verbose)
 				std::cout << "ConnectionAttempt::ThreadMain() exit: provided URL lacks port"<<std::endl;
 			return;
@@ -266,7 +283,7 @@ namespace TCP
 		if (!convert(s_port.c_str(),port))
 		{
 			client->setError("Failed to parse port number '"+s_port+"'");
-			client->handleEvent(Event::ConnectionFailed,client);
+			client->HandleEvent(Event::ConnectionFailed,PPeer());
 			if (verbose)
 				std::cout << "ConnectionAttempt::ThreadMain() exit: provided port is not parsable"<<std::endl;
 			return;
@@ -282,7 +299,7 @@ namespace TCP
 		if (getaddrinfo(addr.c_str(),s_port.c_str(),&hints,&remote_address) != 0)
 		{
 			client->setError("Unable to resolve address '"+String(addr)+"'");
-			client->handleEvent(Event::ConnectionFailed,client);
+			client->HandleEvent(Event::ConnectionFailed,PPeer());
 			if (verbose)
 				std::cout << "ConnectionAttempt::ThreadMain() exit: unable to decode IP address"<<std::endl;
 			return;
@@ -320,24 +337,22 @@ namespace TCP
 				break;
 			if (host.isNotEmpty())
 				host += '/';
-			host += addressToString(*actual_address);
+			host += ToString(*actual_address);
 			actual_address = actual_address->ai_next;
-			swapCloseSocket(socketHandle);
+			SwapCloseSocket(socketHandle);
 		}
 
 		if (actual_address == NULL)
 		{
+			freeaddrinfo(remote_address);
 			client->setError("'"+host+"' does not answer on port "+s_port);
-			client->handleEvent(Event::ConnectionFailed,client);
+			client->HandleEvent(Event::ConnectionFailed,PPeer());
 			if (verbose)
 				std::cout << "ConnectionAttempt::ThreadMain() exit: connection failed"<<std::endl;
 			return;
 		}
-
-		if (client->root_address)
-			freeaddrinfo(client->root_address);
-		client->root_address = remote_address;
-		client->actual_address = actual_address;
+		memcpy(&client->address, actual_address->ai_addr, actual_address->ai_addrlen);
+		freeaddrinfo(remote_address);
 		try
 		{
 			client->socketAccess->SetSocket(socketHandle);
@@ -345,7 +360,7 @@ namespace TCP
 		catch (const std::exception&exception)
 		{
 			client->setError("Socket set operation to '"+host+"' failed: "+exception.what());
-			client->handleEvent(Event::ConnectionFailed,client);
+			client->HandleEvent(Event::ConnectionFailed,PPeer());
 			if (verbose)
 				std::cout << "ConnectionAttempt::ThreadMain() exit: connection failed"<<std::endl;
 			return;
@@ -354,7 +369,7 @@ namespace TCP
 
 		if (verbose)
 			std::cout << "ConnectionAttempt::ThreadMain(): sending 'connection established' event"<<std::endl;
-		client->handleEvent(Event::ConnectionEstablished,client);
+		client->HandleEvent(Event::ConnectionEstablished,PPeer());
 		if (verbose)
 			std::cout << "ConnectionAttempt::ThreadMain(): starting client thread"<<std::endl;
 		client->start();
@@ -364,20 +379,20 @@ namespace TCP
 	}
 
 
-	bool	Client::connect(const String&url)
+	bool	Client::Connect(const String&url)
 	{
 		if (attempt.isActive())
 		{
 			attempt.awaitCompletion();
 			return !socketAccess->IsClosed();
 		}
-		connectAsync(url);
+		ConnectAsync(url);
 		attempt.awaitCompletion();
 		ASSERT__(!attempt.isActive());
 		return !socketAccess->IsClosed();
 	}
 	
-	void	Client::connectAsync(const String&url)
+	void	Client::ConnectAsync(const String&url)
 	{
 		ASSERT__(!isSelf());
 		if (attempt.isActive())
@@ -399,9 +414,9 @@ namespace TCP
 				return;
 			}
 			owner->setError("");
-			owner->handleEvent(Event::ConnectionClosed,this);
+			owner->HandleEvent(Event::ConnectionClosed,shared_from_this());
 			socketAccess->CloseSocket();
-			owner->onDisconnect(this,Event::ConnectionClosed);
+			owner->OnDisconnect(shared_from_this(),Event::ConnectionClosed);
 			if (verbose)
 				std::cout << "Peer::succeeded() exit: result is 0"<<std::endl;
 			return;
@@ -414,8 +429,8 @@ namespace TCP
 		}
 		owner->setError("Connection lost to "+ToString()+" ("+lastSocketError()+")");
 		socketAccess->CloseSocket();
-		owner->handleEvent(Event::ConnectionLost,this);
-		owner->onDisconnect(this,Event::ConnectionLost);
+		owner->HandleEvent(Event::ConnectionLost,shared_from_this());
+		owner->OnDisconnect(shared_from_this(),Event::ConnectionLost);
 		if (verbose)
 			std::cout << "Peer::succeeded() exit: result was unexpected. socket closed"<<std::endl;
 	}
@@ -471,8 +486,8 @@ namespace TCP
 				}
 				socketAccess->CloseSocket();
 				owner->setError("Connection lost to "+ToString()+" ("+lastSocketError()+")");
-				owner->handleEvent(Event::ConnectionLost,this);
-				owner->onDisconnect(this,Event::ConnectionLost);
+				owner->HandleEvent(Event::ConnectionLost,shared_from_this());
+				owner->OnDisconnect(shared_from_this(),Event::ConnectionLost);
 				if (verbose)
 					std::cout << "Peer::netRead() exit: invalid size value received: "<<size<<std::endl;
 				return false;
@@ -487,8 +502,8 @@ namespace TCP
 				}
 				socketAccess->CloseSocket();
 				owner->setError("");
-				owner->handleEvent(Event::ConnectionClosed,this);
-				owner->onDisconnect(this,Event::ConnectionClosed);
+				owner->HandleEvent(Event::ConnectionClosed,shared_from_this());
+				owner->OnDisconnect(shared_from_this(),Event::ConnectionClosed);
 				if (verbose)
 					std::cout << "Peer::netRead() exit: 0 size value received"<<std::endl;
 				return false;
@@ -543,7 +558,7 @@ namespace TCP
 	}
 	
 	static BYTE	dump_buffer[2048];
-	bool	Peer::sendObject(UINT32 channel_id, const ISerializable&object)
+	bool	Peer::SendObject(UINT32 channel_id, const ISerializable&object)
 	{
 		if (verbose)
 			std::cout << "Peer::sendObject() enter: channel_id="<<channel_id<<std::endl;
@@ -590,7 +605,7 @@ namespace TCP
 		return false;
 	}
 	
-	bool	Peer::sendSignal(UINT32 channel_id)
+	bool	Peer::SendSignal(UINT32 channel_id)
 	{
 		if (verbose)
 			std::cout << "Peer::sendSignal() enter: channel_id="<<channel_id<<std::endl;
@@ -646,8 +661,8 @@ namespace TCP
 				socketAccess->CloseSocket();
 				FATAL__("Maximum safe package size ("+String(owner->safe_package_size/1024)+"KB) exceeded by "+String((remaining_size-owner->safe_package_size)/1024)+"KB");
 				owner->setError("Maximum safe package size ("+String(owner->safe_package_size/1024)+"KB) exceeded by "+String((remaining_size-owner->safe_package_size)/1024)+"KB");
-				owner->handleEvent(Event::ConnectionClosed,this);
-				owner->onDisconnect(this,Event::ConnectionClosed);
+				owner->HandleEvent(Event::ConnectionClosed,shared_from_this());
+				owner->OnDisconnect(shared_from_this(),Event::ConnectionClosed);
 				if (verbose)
 					std::cout << "Peer::ThreadMain() exit: received invalid package size"<<std::endl;
 				return;
@@ -656,26 +671,26 @@ namespace TCP
 			//std::cout << "has package "<<channel_index<<"/"<<remaining_size<<std::endl;
 
 			unsigned min_user_level;
-			if (!remaining_size && owner->signal_map.query(channel_index,min_user_level) && user_level >= min_user_level)
+			if (!remaining_size && owner->signal_map.query(channel_index,min_user_level) && userLevel >= min_user_level)
 			{
-				owner->handleSignal(channel_index,this);
+				owner->HandleSignal(channel_index,shared_from_this());
 			}
 			else
 			{
 					
-				RootChannel*receiver = owner->getReceiver(channel_index,user_level);
+				RootChannel*receiver = owner->getReceiver(channel_index,userLevel);
 				
 				if (receiver)
 				{
 					if (verbose)
 						std::cout << "Peer::ThreadMain(): deserializing"<<std::endl;
 				
-					SerializableObject*object = receiver->Deserialize(*this,remaining_size,this);
+					PSerializableObject object = receiver->Deserialize(*this,remaining_size,shared_from_this());
 					if (object)
 					{
 						if (verbose)
 							std::cout << "Peer::ThreadMain(): deserialization succeeded, dispatching object"<<std::endl;
-						owner->handleObject(receiver,this,object);
+						owner->HandleObject(receiver,shared_from_this(),object);
 					}
 					else
 					{
@@ -692,7 +707,7 @@ namespace TCP
 					FATAL__("ignoring packet");	//for now, this is appropriate
 					if (verbose)
 						std::cout << "Peer::ThreadMain(): no receiver available (nothing installed on this channel). ignoring package"<<std::endl;
-					owner->onIgnorePackage(channel_index,UINT32(remaining_size),this);
+					owner->onIgnorePackage(channel_index,UINT32(remaining_size),shared_from_this());
 				}
 				
 				while (remaining_size > sizeof(dump_buffer))
@@ -716,7 +731,7 @@ namespace TCP
 			std::cout << "Peer::ThreadMain() exit: socket handle reset by remote operation"<<std::endl;
 	}
 	
-	void Peer::disconnect()
+	void Peer::Disconnect()
 	{
 		if (verbose)
 			std::cout << "Peer::disconnect() enter"<<std::endl;
@@ -725,11 +740,11 @@ namespace TCP
 			if (verbose)
 				std::cout << "Peer::disconnect(): graceful shutdown: invoking handlers and closing socket"<<std::endl;
 			owner->setError("");
-			owner->handleEvent(Event::ConnectionClosed,this);
+			owner->HandleEvent(Event::ConnectionClosed,shared_from_this());
 			socketAccess->CloseSocket();
 			if (!isSelf())
 				awaitCompletion();	//can't wait for self.
-			owner->onDisconnect(this,Event::ConnectionClosed);
+			owner->OnDisconnect(shared_from_this(),Event::ConnectionClosed);
 			
 			/*if (!owner->block_events)	//i really can't recall why i did this
 				owner->block_events++;	*/
@@ -759,25 +774,25 @@ namespace TCP
 						std::cout << "Server::ThreadMain() exit: socket handle reset by remote operation"<<std::endl;
 					return;
 				}
-				fail("accept() call failed");
+				Fail("accept() call failed");
 				if (verbose)
 					std::cout << "Server::ThreadMain() exit: accept() operation failed"<<std::endl;
 				return;
 			}
-			Peer*peer = SHIELDED(new Peer(this));
+			PPeer peer(new Peer(this));
 			//peer->actual_address = addr;
 			peer->SetCloneOfSocketAccess(socketAccess);
 			peer->socketAccess->SetSocket(handle);
 
 			if (verbose)
 				std::cout << "Server::ThreadMain(): acquiring write lock for client create"<<std::endl;
-			client_mutex.signalWrite();
-				clients.append(peer);
-			client_mutex.exitWrite();
+			clientMutex.signalWrite();
+				clientList << peer;
+			clientMutex.exitWrite();
 			if (verbose)
 				std::cout << "Server::ThreadMain(): released write lock"<<std::endl;
 			setError("");
-			handleEvent(Event::ConnectionEstablished,peer);
+			HandleEvent(Event::ConnectionEstablished,peer);
 			if (verbose)
 				std::cout << "Server::ThreadMain():	starting peer thread"<<std::endl;
 			peer->start();
@@ -792,10 +807,10 @@ namespace TCP
 		if (verbose)
 			std::cout << "Client::fail() invoked: "<<message<<std::endl;
 		Connection::setError(message+" ("+lastSocketError()+")");
-		Peer::disconnect();
+		Peer::Disconnect();
 	}
 	
-	void		Server::fail(const String&message)
+	void		Server::Fail(const String&message)
 	{
 		if (verbose)
 			std::cout << "Server::fail() enter: "<<message<<std::endl;
@@ -810,20 +825,20 @@ namespace TCP
 		{
 			if (verbose)
 				std::cout << "Server::fail(): closing listen socket"<<std::endl;
-			handleEvent(Event::ConnectionLost,NULL);
-			swapCloseSocket(socket_handle);
+			HandleEvent(Event::ConnectionLost,PPeer());
+			SwapCloseSocket(socket_handle);
 		}
 		if (verbose)
 			std::cout << "Server::fail(): terminating service"<<std::endl;
 		block_events++;
-			endService();
+			EndService();
 		block_events--;
 		if (verbose)
 			std::cout << "Server::fail() exit"<<std::endl;
 	}
 
 
-	bool		Server::startService(USHORT port)
+	bool		Server::StartService(USHORT port)
 	{
 		if (verbose)
 			std::cout << "Server::startService() enter"<<std::endl;
@@ -846,7 +861,7 @@ namespace TCP
 		socket_handle = socket(AF_INET,SOCK_STREAM,IPPROTO_TCP); //and create a new socket
 		if (socket_handle == INVALID_SOCKET)
 		{
-			fail("socket creation failed");
+			Fail("socket creation failed");
 			if (verbose)
 				std::cout << "Server::startService() exit: failed to create listen socket"<<std::endl;
 			return false;
@@ -859,14 +874,14 @@ namespace TCP
 		self.sin_port = htons(port);
 		if (bind(socket_handle, (sockaddr*)&self,sizeof(self)))
 		{
-			fail("socket bind failed");
+			Fail("socket bind failed");
 			if (verbose)
 				std::cout << "Server::startService() exit: failed to bind listen socket"<<std::endl;
 			return false;
 		}
 		if (listen(socket_handle,0))
 		{
-			fail("socket listen failed");
+			Fail("socket listen failed");
 			if (verbose)
 				std::cout << "Server::startService() exit: failed to start listen operation"<<std::endl;
 			return false;
@@ -879,7 +894,7 @@ namespace TCP
 		return true;
 	}
 	
-	void		Server::onDisconnect(Peer*peer, event_t event)
+	void		Server::OnDisconnect(const PPeer&peer, event_t event)
 	{
 		if (verbose)
 			std::cout << "Server::onDisconnect() enter"<<std::endl;
@@ -891,19 +906,19 @@ namespace TCP
 		}
 		if (verbose)
 			std::cout << "Server::onDisconnect(): acquiring write lock for client disconnect"<<std::endl;
-		client_mutex.signalWrite();
+		clientMutex.signalWrite();
 			if (verbose)
 				std::cout << "Server::onDisconnect(): lock acquired. dropping peer"<<std::endl;
-			clients.drop(peer);
-		client_mutex.exitWrite();
+			clientList.FindAndErase(peer);
+		clientMutex.exitWrite();
 		if (verbose)
 			std::cout << "Server::onDisconnect(): released write lock. discarding peer"<<std::endl;
-		handlePeerDeletion(peer);
+		HandlePeerDeletion(peer);
 		if (verbose)
 			std::cout << "Server::onDisconnect() exit"<<std::endl;
 	}
 
-	void		Server::endService()
+	void		Server::EndService()
 	{
 		if (verbose)
 			std::cout << "Server::endService() enter"<<std::endl;
@@ -917,13 +932,13 @@ namespace TCP
 		block_events++;
 			if (verbose)
 				std::cout << "Server::endService(): acquiring write lock for service termination"<<std::endl;
-			client_mutex.signalWrite();
+			clientMutex.signalWrite();
 				if (verbose)
 					std::cout << "Server::endService(): lock acquired. erasing client peers"<<std::endl;
 				clients_locked = true;
-				clients.clear();
+				clientList.Clear();
 				clients_locked = false;
-			client_mutex.exitWrite();
+			clientMutex.exitWrite();
 			if (verbose)
 				std::cout << "Server::endService(): released write lock"<<std::endl;
 			
@@ -931,7 +946,7 @@ namespace TCP
 			{
 				if (verbose)
 					std::cout << "Server::endService(): closing listen socket"<<std::endl;
-				swapCloseSocket(socket_handle);
+				SwapCloseSocket(socket_handle);
 			}
 			if (verbose)
 				std::cout << "Server::endService(): awaiting listen thread termination"<<std::endl;
@@ -941,13 +956,13 @@ namespace TCP
 			setError("");
 		if (verbose)
 			std::cout << "Server::endService(): sending connection closed event"<<std::endl;
-		handleEvent(Event::ConnectionClosed,NULL);
+		HandleEvent(Event::ConnectionClosed,PPeer());
 		if (verbose)
 			std::cout << "Server::endService() exit: service is offline"<<std::endl;
 	}
 	
 	
-	bool		Server::sendObject(UINT32 channel, const ISerializable&object)
+	bool		Server::SendObject(UINT32 channel, const ISerializable&object)
 	{
 		if (verbose)
 			std::cout << "Server::sendObject() enter: channel="<<channel<<std::endl;
@@ -964,39 +979,39 @@ namespace TCP
 			return false;
 		if (verbose)
 			std::cout << "Server::sendObject(): acquiring read lock for message send"<<std::endl;
-		client_mutex.signalRead();
+		clientMutex.signalRead();
 			if (verbose)
 				std::cout << "Server::sendObject(): lock acquired"<<std::endl;
-			for (unsigned i = 0; i < clients; i++)
+			for (index_t i = 0; i < clientList.Count(); i++)
 			{
-				Peer*peer = clients[i];
+				const PPeer peer = clientList[i];
 				if (peer->socketAccess->IsClosed())
 					continue;	//we assume this case is already handled
 				if (!peer->sendData(channel,out_buffer.pointer(),size))
 				{
-					client_mutex.exitRead();
+					clientMutex.exitRead();
 					if (verbose)
 					{
 						std::cout << "Server::sendObject(): released read lock"<<std::endl;
 						std::cout << "Server::sendObject(): acquiring write lock for peer termination"<<std::endl;
 					}
-					client_mutex.signalWrite();
+					clientMutex.signalWrite();
 						clients_locked = true;
 						if (verbose)
 							std::cout << "Server::sendObject(): erasing peer "<<peer->ToString()<<std::endl;
-						clients.erase(peer);
+						clientList.FindAndErase(peer);
 						clients_locked = false;
-					client_mutex.exitWrite();
+					clientMutex.exitWrite();
 					if (verbose)
 					{
 						std::cout << "Server::sendObject(): released write lock"<<std::endl;
 						std::cout << "Server::sendObject(): acquiring read lock for continued message send"<<std::endl;
 					}
-					client_mutex.signalRead();
+					clientMutex.signalRead();
 					i--;
 				}
 			}
-		client_mutex.exitRead();
+		clientMutex.exitRead();
 		if (verbose)
 		{
 			std::cout << "Server::sendObject(): released read lock"<<std::endl;
@@ -1006,7 +1021,7 @@ namespace TCP
 		return true;
 	}
 	
-	bool		Server::sendObject(UINT32 channel, Peer*exclude, const ISerializable&object)
+	bool		Server::SendObject(UINT32 channel, const PPeer&exclude, const ISerializable&object)
 	{
 		if (verbose)
 			std::cout << "Server::sendObject() enter: channel="<<channel<<", exclude="<<exclude->ToString()<<std::endl;
@@ -1022,39 +1037,39 @@ namespace TCP
 			return false;
 		if (verbose)
 			std::cout << "Server::sendObject(): acquiring read lock for message send"<<std::endl;
-		client_mutex.signalRead();
-			for (unsigned i = 0; i < clients; i++)
+		clientMutex.signalRead();
+			for (index_t i = 0; i < clientList.Count(); i++)
 			{
-				Peer*peer = clients[i];
+				const PPeer peer = clientList[i];
 				if (peer == exclude)
 					continue;
 				if (peer->socketAccess->IsClosed())
 					continue;	//we assume this case is already handled
 				if (!peer->sendData(channel,out_buffer.pointer(),size))
 				{
-					client_mutex.exitRead();
+					clientMutex.exitRead();
 					if (verbose)
 					{
 						std::cout << "Server::sendObject(): released read lock"<<std::endl;
 						std::cout << "Server::sendObject(): acquiring write lock for peer termination"<<std::endl;
 					}
-					client_mutex.signalWrite();
+					clientMutex.signalWrite();
 						clients_locked = true;
 						if (verbose)
 							std::cout << "Server::sendObject(): erasing peer "<<peer->ToString()<<std::endl;
-						clients.erase(peer);
+						clientList.FindAndErase(peer);
 						clients_locked = false;
-					client_mutex.exitWrite();
+					clientMutex.exitWrite();
 					if (verbose)
 					{
 						std::cout << "Server::sendObject(): released write lock"<<std::endl;
 						std::cout << "Server::sendObject(): acquiring read lock for continued message send"<<std::endl;
 					}
-					client_mutex.signalRead();
+					clientMutex.signalRead();
 					i--;
 				}
 			}
-		client_mutex.exitRead();
+		clientMutex.exitRead();
 		if (verbose)
 		{
 			std::cout << "Server::sendObject(): released read lock"<<std::endl;

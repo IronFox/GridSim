@@ -12,8 +12,10 @@
 #define SOCKET_ERROR -1
 #endif
 
+#undef StartService
+
 /**
-	@brief TCP/IP related constructs
+@brief TCP/IP related constructs
 */
 namespace TCP
 {
@@ -22,10 +24,11 @@ namespace TCP
 	#endif
 
 
-	void	swapCloseSocket(volatile SOCKET&socket);
-	String	addressToString(const addrinfo&address);
+	void	SwapCloseSocket(volatile SOCKET&socket);
+	String	ToString(const addrinfo&address);
+	String	ToString(const sockaddr_storage&address);
 	
-
+	typedef std::shared_ptr<SerializableObject>	PSerializableObject;
 
 
 	class SocketAccess
@@ -61,7 +64,7 @@ namespace TCP
 
 		virtual void	CloseSocket() override
 		{
-			swapCloseSocket(socketHandle);
+			SwapCloseSocket(socketHandle);
 		}
 		
 		virtual void	SetSocket(SOCKET socket)	override
@@ -109,6 +112,7 @@ namespace TCP
 
 
 	class Peer;
+	typedef std::shared_ptr<Peer>	PPeer;
 
 
 	/**
@@ -164,10 +168,10 @@ namespace TCP
 				@param serializable Data to send on the specified channel
 				@return true on success, false otherwise
 			*/
-	virtual	bool			sendObject(UINT32 channel, const ISerializable&serializable)=0;
-	virtual	bool			sendObject(UINT32 channel, Peer*exclude, const ISerializable&serializable)	{return sendObject(channel,serializable);};
+	virtual	bool			SendObject(UINT32 channel, const ISerializable&serializable)=0;
+	virtual	bool			SendObject(UINT32 channel, const PPeer&exclude, const ISerializable&serializable)	{return SendObject(channel,serializable);};
 	};
-
+	typedef std::shared_ptr<Destination>	PDestination;
 	/**
 		@brief Abstract channel installation to handle outgoing and incoming packages
 		
@@ -177,36 +181,36 @@ namespace TCP
 	class RootChannel
 	{
 	protected:
-			const UINT32	id;			//!< Channel id. Unmutable
-			friend class 	Peer;
-			friend class 	Dispatcher;
-			Mutex			send_mutex;	//!< Mutex used to shield outgoing serializations to the tcp socket
+		const UINT32		id;			//!< Channel id. Unmutable
+		friend class 		Peer;
+		friend class 		Dispatcher;
+		Mutex				sendMutex;	//!< Mutex used to shield outgoing serializations to the tcp socket
 			
-									RootChannel(UINT32 id_):id(id_)
-									{}
+							RootChannel(UINT32 id_):id(id_)
+							{}
 			
-			/**
-				@brief Sends an object to the specified destination
-			*/
-			bool					sendObject(Destination*destination, const ISerializable&object);
-			bool					sendObject(Destination*destination, Peer*exclude, const ISerializable&object);
+		/**
+		@brief Sends an object to the specified destination
+		*/
+		bool				SendObject(Destination&destination, const ISerializable&object);
+		bool				SendObject(Destination&destination, const PPeer&exclude, const ISerializable&object);
 							
-									/**
-										@brief Deserializes the stream into a new object
+		/**
+		@brief Deserializes the stream into a new object
 
-										This method is called asynchronously by the respective connection's worker thread.
-									*/
-	virtual	SerializableObject*		Deserialize(IReadStream&stream,serial_size_t fixed_size,Peer*sender)
-									{
-										return NULL;
-									}
-									/**
-										@brief Dispatches a successfully deserialized object (returned by Deserialize() )
+		This method is called asynchronously by the respective connection's worker thread.
+		*/
+		virtual	PSerializableObject	Deserialize(IReadStream&stream,serial_size_t fixed_size,const PPeer&sender)
+		{
+			return PSerializableObject();
+		}
+		/**
+		@brief Dispatches a successfully deserialized object (returned by Deserialize() )
 
-										The method is invoked only, if Deserialize() returned a new non-NULL object.
-										Depending on whether the connection is synchronous or asynchronous, this method is called my the main thread, or the connection's worker thread.
-									*/
-	virtual	void					handle(SerializableObject*serializable,Peer*sender)	{FATAL__("Channel failed to override handle()");};
+		The method is invoked only, if Deserialize() returned a new non-NULL object.
+		Depending on whether the connection is synchronous or asynchronous, this method is called my the main thread, or the connection's worker thread.
+		*/
+		virtual	void				Handle(const PSerializableObject&serializable,const PPeer&sender)	{FATAL__("Channel failed to override handle()");};
 	public:
 	};
 
@@ -218,31 +222,39 @@ namespace TCP
 		class ObjectSender:public RootChannel
 		{
 		protected:
-		virtual	SerializableObject*		Deserialize(IReadStream&stream,serial_size_t fixed_size,Peer*sender)	override
-										{
-											return NULL;
-										}
+			virtual	PSerializableObject	Deserialize(IReadStream&stream,serial_size_t fixed_size,const PPeer&sender)	override
+			{
+				return PSerializableObject();
+			}
 		public:
-								ObjectSender():RootChannel(Channel)
-								{}
-				bool			sendTo(Destination*destination, const SerializableObject&object)
-								{
-									return sendObject(destination,object);
-								}
-				/**
-					@brief Special overload form of sendTo for servers only
+			/**/					ObjectSender():RootChannel(Channel)
+									{}
+			bool					SendTo(Destination&destination, const SerializableObject&object)
+			{
+				return SendObject(destination,object);
+			}
+			bool					SendTo(const PDestination&destination, const SerializableObject&object)
+			{
+				return SendObject(*destination,object);
+			}
+			/**
+			@brief Special overload form of sendTo for servers only
 					
-					Allows to send objects to all clients except a specific client
+			Allows to send objects to all clients except a specific client
 					
-					@param destination Transfer destination. The method will fail if @a destination is NULL
-					@param exclude Peer to specifically exclude
-					@param object Serializable object to send
-					@return true on success, false otherwise. Note that a positive result only indicates that the object was successfuly serialized to the tcp stream. It does not mean that the package was received or accepted.
-				*/
-				bool			sendTo(Destination*destination, Peer*exclude, const SerializableObject&object)
-								{
-									return sendObject(destination,exclude,object);
-								}
+			@param destination Transfer destination. The method will fail if @a destination is NULL
+			@param exclude Peer to specifically exclude
+			@param object Serializable object to send
+			@return true on success, false otherwise. Note that a positive result only indicates that the object was successfuly serialized to the tcp stream. It does not mean that the package was received or accepted.
+			*/
+			bool				SendTo(const PDestination&destination, const PPeer&exclude, const SerializableObject&object)
+			{
+				return SendObject(*destination,exclude,object);
+			}
+			bool				SendTo(Destination&destination, const PPeer&exclude, const SerializableObject&object)
+			{
+				return SendObject(destination,exclude,object);
+			}
 												
 		};
 	
@@ -253,36 +265,46 @@ namespace TCP
 		class SignalSender:public RootChannel
 		{
 		protected:
-		virtual	SerializableObject*		Deserialize(IReadStream&stream,serial_size_t fixed_size,Peer*sender)	override
-										{
-											return NULL;
-										}
+			virtual	PSerializableObject	Deserialize(IReadStream&stream,serial_size_t fixed_size,const PPeer&sender)	override
+			{
+				return PSerializableObject();
+			}
 		public:
-								SignalSender():RootChannel(ChannelID)
+			/**/				SignalSender():RootChannel(ChannelID)
 								{}
-				/**
-					@brief Sends a signal (data-less package) to the specified destination
-				*/
-				bool			sendTo(Destination*destination)
-								{
-									VoidSerializable object;
-									return sendObject(destination,object);
-								}
-				/**
-					@brief Special overload form of sendTo for servers only
+			/**
+			@brief Sends a signal (data-less package) to the specified destination
+			*/
+			bool				SendTo(Destination&destination)
+			{
+				VoidSerializable object;
+				return SendObject(destination,object);
+			}
+			bool				SendTo(const PDestination&destination)
+			{
+				VoidSerializable object;
+				return SendObject(*destination,object);
+			}
+			/**
+			@brief Special overload form of sendTo for servers only
 					
-					Allows to send objects to all clients except a specific client
+			Allows to send objects to all clients except a specific client
 					
-					@param destination Transfer destination. The method will fail if @a destination is NULL
-					@param exclude Peer to specifically exclude
-					@param object Serializable object to send
-					@return true on success, false otherwise. Note that a positive result only indicates that the object was successfuly serialized to the tcp stream. It does not mean that the package was received or accepted.
-				*/
-				bool			sendTo(Destination*destination, Peer*exclude)
-								{
-									VoidSerializable object;
-									return sendObject(destination,exclude,object);
-								}
+			@param destination Transfer destination. The method will fail if @a destination is NULL
+			@param exclude Peer to specifically exclude
+			@param object Serializable object to send
+			@return true on success, false otherwise. Note that a positive result only indicates that the object was successfuly serialized to the tcp stream. It does not mean that the package was received or accepted.
+			*/
+			bool				SendTo(const PDestination&destination, const PPeer&exclude)
+			{
+				VoidSerializable object;
+				return SendObject(*destination,exclude,object);
+			}
+			bool				SendTo(Destination&destination, const PPeer&exclude)
+			{
+				VoidSerializable object;
+				return SendObject(destination,exclude,object);
+			}
 												
 		};
 
@@ -314,102 +336,102 @@ namespace TCP
 	class Dispatcher
 	{
 	protected:
+		struct TInbound
+		{
+			PSerializableObject		object;
+			PPeer					sender;
+			RootChannel				*receiver;
+		};
 			
-
-			struct TInbound
-			{
-				SerializableObject		*object;
-				Peer					*sender;
-				RootChannel				*receiver;
-			};
+		struct TEvent
+		{
+			event_t					event;
+			PPeer					sender;
+		};
 			
-			struct TEvent
-			{
-				event_t					event;
-				Peer					*sender;
-			};
+		struct TSignal
+		{
+			UINT32					channel;
+			PPeer					sender;
+		};
 			
-			struct TSignal
-			{
-				UINT32					channel;
-				Peer					*sender;
-			};
+		Queue<TInbound>				object_queue;
+		Queue<TEvent>				event_queue;
+		Queue<TSignal>				signal_queue;
+		Buffer0<PPeer>				wasteBucket;
+		Mutex						mutex;
+		bool						async;
+		volatile bool				is_locked;
+		volatile unsigned			block_events;
+		IndexTable<RootChannel*>	channel_map;
+		IndexTable<unsigned>		signal_map;
 			
-			Queue<TInbound>				object_queue;
-			Queue<TEvent>				event_queue;
-			Queue<TSignal>				signal_queue;
-			List::Vector<Peer>			erase_queue;
-			Mutex						mutex;
-			bool						async;
-			volatile bool				is_locked;
-			volatile unsigned			block_events;
-			IndexTable<RootChannel*>	channel_map;
-			IndexTable<unsigned>		signal_map;
+		friend class Peer;
 			
-			friend class Peer;
-			
-			void						handlePeerDeletion(Peer*);
-			void						handleSignal(UINT32 signal, Peer*sender);
-			void						handleObject(RootChannel*receiver, Peer*sender, SerializableObject*object);
-			void						handleEvent(event_t event, Peer*origin);
-			RootChannel*				getReceiver(UINT32 channel_id, unsigned user_level);
+		void						HandlePeerDeletion(const PPeer&);
+		void						HandleSignal(UINT32 signal, const PPeer&sender);
+		void						HandleObject(RootChannel*receiver, const PPeer&sender, const PSerializableObject&object);
+		void						HandleEvent(event_t event, const PPeer&origin);
+		RootChannel*				getReceiver(UINT32 channel_id, unsigned user_level);
 			
 	public:
-			void (*onEvent)(event_t event, Peer*origin);	//!< Callback hook for events (connection, disconnection, etc)	@param event Event that occured @param origin Event origin
-			void (*onSignal)(UINT32 signal, Peer*origin);	//!< Callback hook for signals (data-less packages) @param signal Channel that the data-less package was received on @param origin Origin of the signal
-			void (*onIgnorePackage)(UINT32 channel,UINT32 size,Peer*origin);	//!< Callback hook for ignored packages. Always async. @param channel Channel the package or signal was received on @param size Package size in bytes @param origin Receiving peer
+		void (*onEvent)(event_t event, const PPeer&origin);	//!< Callback hook for events (connection, disconnection, etc)	@param event Event that occured @param origin Event origin
+		void (*onSignal)(UINT32 signal, const PPeer&origin);	//!< Callback hook for signals (data-less packages) @param signal Channel that the data-less package was received on @param origin Origin of the signal
+		void (*onIgnorePackage)(UINT32 channel,UINT32 size,const PPeer&origin);	//!< Callback hook for ignored packages. Always async. @param channel Channel the package or signal was received on @param size Package size in bytes @param origin Receiving peer
 	
-										Dispatcher();
-	virtual								~Dispatcher();
-			void						resolve();		//!< Resolves all events that occured since the last resolve() invokation. The client application must call this method frequently if the local dispatcher is set to synchronous. Never otherwise.
-			void						installChannel(RootChannel&channel);	//!< Installs a channel in/out processor. If the used channel id is already in use then it will be overwritten with the provided channel handler
-			void						uninstallChannel(RootChannel&channel);		//!< Uninstalls a channel in/out processor. The used channel id will be closed
-			void						openSignalChannel(UINT32 id, unsigned min_user_level);	//!< Opens a signal channel for receiving	@param id Channel id to listen for signals on @param min_user_level Minimum required user level for this signal to be accepted
-			void						closeSignalChannel(UINT32 id);							//!< Closes a signal channel
+		/**/						Dispatcher();
+		virtual						~Dispatcher();
+		void						Resolve();		//!< Resolves all events that occured since the last resolve() invokation. The client application must call this method frequently if the local dispatcher is set to synchronous. Never otherwise.
+		void						InstallChannel(RootChannel&channel);	//!< Installs a channel in/out processor. If the used channel id is already in use then it will be overwritten with the provided channel handler
+		void						UninstallChannel(RootChannel&channel);		//!< Uninstalls a channel in/out processor. The used channel id will be closed
+		void						OpenSignalChannel(UINT32 id, unsigned minUserLevel);	//!< Opens a signal channel for receiving	@param id Channel id to listen for signals on @param min_user_level Minimum required user level for this signal to be accepted
+		void						CloseSignalChannel(UINT32 id);							//!< Closes a signal channel
 			
-			void						setAsync(bool is_async)		//! Changes the socket asynchronous status. Dispatchers run in async mode by default. @param is_async Set true if the dispatcher should perform operations asynchronously from this point on, false otherwise
-										{
-											async = is_async;
-										}
-			bool						isAsync()	const			//! Queries whether or not this dispatcher is currently asynchronously. Dispatchers run in async mode by default.
-										{
-											return async;
-										}
+		void						SetAsync(bool is_async)		//! Changes the socket asynchronous status. Dispatchers run in async mode by default. @param is_async Set true if the dispatcher should perform operations asynchronously from this point on, false otherwise
+									{
+										async = is_async;
+									}
+		bool						IsAsync()	const			//! Queries whether or not this dispatcher is currently asynchronously. Dispatchers run in async mode by default.
+									{
+										return async;
+									}
 	};
 	
 	
 	/**
-		@brief Abstract connection prototype
+	@brief Abstract connection prototype
 		
-		A connection represents the largest most abstract network structure. Only server/client objects qualify as Connection derivatives.
+	A connection represents the largest most abstract network structure. Only server/client objects qualify as Connection derivatives.
 	*/
 	class Connection:public Dispatcher
 	{
 	private:
-			String						last_error,
-										current_error;
-			Mutex						error_mutex;
-			friend class Peer;
+		String						last_error,
+									current_error;
+		Mutex						error_mutex;
+		friend class Peer;
 	protected:
-			serial_size_t				safe_package_size;	//!< Maximum allowed package size. ~64MB by default
+		serial_size_t				safe_package_size;	//!< Maximum allowed package size. ~64MB by default
 			
-										Connection():safe_package_size(64000000)
-										{}
+									Connection():safe_package_size(64000000)
+									{}
 			
-			void						setError(const String&message)	//!< Updates the local error string. The local structure maintains two string objects to reduce the risk of invalid pointer access
-										{
-											error_mutex.lock();
-												last_error.adoptData(current_error);
-												current_error = message;
-											error_mutex.release();
-										}
+		void						setError(const String&message)	//!< Updates the local error string. The local structure maintains two string objects to reduce the risk of invalid pointer access
+									{
+										error_mutex.lock();
+											last_error.adoptData(current_error);
+											current_error = message;
+										error_mutex.release();
+									}
 	public:
-	virtual	void						onDisconnect(Peer*peer, event_t event)	{};	//!< Abstract disconnection even called if the local connection has been lost or closed
-			const char*					error()	const	//! Queries the last occured error
-										{
-											return current_error.c_str();
-										}
+		virtual	void				OnDisconnect(const PPeer&peer, event_t event)	{};	//!< Abstract disconnection even called if the local connection has been lost or closed
+		const String&				GetError()	const	//! Queries the last occured error
+									{
+										return current_error;
+									}
 	};
+
+	typedef std::shared_ptr<Connection>	PConnection;
 	
 	/**
 		@brief TCP socket handler
@@ -417,7 +439,7 @@ namespace TCP
 		A peer handles incoming and outgoing packages from/to a specific IP address over a specific socket handle. A server would manage one peer structure per client, a client would inherit from Peer.
 	
 	*/
-	class Peer : public ThreadObject, protected IReadStream, protected IWriteStream, public Destination //, public IToString
+	class Peer : public ThreadObject, protected IReadStream, protected IWriteStream, public Destination, public std::enable_shared_from_this<Peer> //, public IToString
 	{
 	protected:
 		Connection					*owner;			//!< Pointer to the owning connection to handle incoming packages and report errors to
@@ -457,21 +479,21 @@ namespace TCP
 				
 		*/
 		std::shared_ptr<Attachment>	attachment;
-		addrinfo					*root_address,					//!< Remote peer address set (root pointer to linked list describing the remote address)
-									*actual_address;					//!< Part of the @a root_address linked list that actually describes the remote address
-		unsigned					user_level;							//!< Current user level. Anonymous by default
+		sockaddr_storage			address;
+		unsigned					userLevel;							//!< Current user level. Anonymous by default
 			
 		
 				
-		/**/						Peer(Connection*connection):owner(connection),socketAccess(new DefaultSocketAccess()),root_address(NULL),actual_address(NULL),user_level(User::Anonymous)
+		/**/						Peer(Connection*connection):owner(connection),socketAccess(new DefaultSocketAccess()),userLevel(User::Anonymous)
 									{
+										memset(&address,0,sizeof(address));
 										ASSERT_NOT_NULL__(owner);
 									}
 		virtual						~Peer()
 									{
-										disconnect();
-										if (root_address)
-											freeaddrinfo(root_address);
+										Disconnect();
+										//if (root_address)
+										//	freeaddrinfo(root_address);
 										delete socketAccess;
 									}
 
@@ -489,21 +511,22 @@ namespace TCP
 										socketAccess = access->CloneClass();
 									}
 
-		void						disconnect();			//!< Disconnects the local peer. If this peer is element of a peer collection (ie. a Server instance) then the owner is automatically notified that the client on this peer is no longer available. The local data is erased immediately if the respective dispatcher is set to @b async, or when its resolve() method is next executed.
-		bool						isConnected()	const	//! Queries whether or not the local peer is currently connected @return true if the local peer is currently connected, false otherwise
+		void						Disconnect();			//!< Disconnects the local peer. If this peer is element of a peer collection (ie. a Server instance) then the owner is automatically notified that the client on this peer is no longer available. The local data is erased immediately if the respective dispatcher is set to @b async, or when its resolve() method is next executed.
+		bool						IsConnected()	const	//! Queries whether or not the local peer is currently connected @return true if the local peer is currently connected, false otherwise
 									{
 										return !socketAccess->IsClosed();
 									}
 		String						ToString()	const	//! Converts the local address into a string. If the local object is NULL then the string "NULL" is returned instead.
 									{
-										return this&&actual_address?addressToString(*actual_address):"NULL";
+										return this?TCP::ToString(address):"NULL";
 									}
-		bool						sendSignal(UINT32 channel);		//!< Sends a data-less package to the other end of this peer
+		bool						SendSignal(UINT32 channel);		//!< Sends a data-less package to the other end of this peer
 			
-		bool						validHandle()	const	{return !socketAccess->IsClosed();}
-		//SOCKET						handle()	const	{return socket_handle;}
-		bool						sendObject(UINT32 channel, const ISerializable&object);		//!< Sends a serializable object to the TCP stream on the specified channel
+		bool						HandleIsValid()	const	{return !socketAccess->IsClosed();}
+		bool						SendObject(UINT32 channel, const ISerializable&object) override;		//!< Sends a serializable object to the TCP stream on the specified channel
 	};
+
+	typedef std::shared_ptr<Peer::Attachment>	PAttachment;
 
 	class Client;
 	
@@ -513,10 +536,10 @@ namespace TCP
 	class ConnectionAttempt:public ThreadObject
 	{
 	protected:
-			void				ThreadMain();
+		void				ThreadMain();
 	public:
-			String				connect_target;	//!< Target address
-			Client				*client;		//!< Client to connect
+		String				connect_target;	//!< Target address
+		Client				*client;		//!< Client to connect
 	};
 
 	/**
@@ -535,108 +558,120 @@ namespace TCP
 		void				fail(const String&message);
 	public:
 					
-		/**/					Client():Peer(this),is_connected(false)
-								{}
-		virtual					~Client()
-								{
-									attempt.awaitCompletion();
-									disconnect();
-									awaitCompletion();
-								}
-		bool					connect(const String&url);		//!< Attempts to connect to a remote server and waits until a connection was established (or not establishable). Depending on the local connection this may lag for a few seconds. @return true if a connection could be established, false otherwise.
-		void					connectAsync(const String&url);	//!< Starts the process of connecting to a remote host. Due to the asynchronous nature of this method, No immediate result is available. Hook a function into the local object's inherited @a onEvent callback pointer to receive information about success or failure
+		/**/				Client():Peer(this),is_connected(false)
+							{}
+		virtual				~Client()
+							{
+								attempt.awaitCompletion();
+								Disconnect();
+								awaitCompletion();
+							}
+		bool				Connect(const String&url);		//!< Attempts to connect to a remote server and waits until a connection was established (or not establishable). Depending on the local connection this may lag for a few seconds. @return true if a connection could be established, false otherwise.
+		void				ConnectAsync(const String&url);	//!< Starts the process of connecting to a remote host. Due to the asynchronous nature of this method, No immediate result is available. Hook a function into the local object's inherited @a onEvent callback pointer to receive information about success or failure
 			
-		bool					isAttemptingToConnect()	const	//!< Queries whether or not the client is currently attempting to connect
-								{
-									return attempt.isActive();
-								}
+		bool				IsAttemptingToConnect()	const	//!< Queries whether or not the client is currently attempting to connect
+							{
+								return attempt.isActive();
+							}
 	};
 	
 	/**
-		@brief Multi socket TCP connection server
+	@brief Multi socket TCP connection server
 		
-		The Server object sets up a local listen port and automatically accepts incoming connection requests.
-		Dispatcher for channel handling is inherited via Connection
+	The Server object sets up a local listen port and automatically accepts incoming connection requests.
+	Dispatcher for channel handling is inherited via Connection
 	*/
 	class Server: public Connection, public ThreadObject, public Destination
 	{
 	private:
-			volatile SOCKET		socket_handle;
-			volatile bool		clients_locked,
-								is_shutting_down;
+		volatile SOCKET		socket_handle;
+		volatile bool		clients_locked,
+							is_shutting_down;
 
 		SocketAccess		*socketAccess;
 
-			//Array<BYTE>		out_buffer;
+		//Array<BYTE>		out_buffer;
 			
-			void				ThreadMain();
-	
+		void				ThreadMain();
 	protected:
-			void				onDisconnect(Peer*peer, event_t event);	//!< Executed by a peer if its connection died
-			void				fail(const String&message);					//!< Executed if an operation failed
-			bool				sendObject(UINT32 channel, const ISerializable&object);
-			bool				sendObject(UINT32 channel, Peer*exclude, const ISerializable&object);
+		void				OnDisconnect(const PPeer&peer, event_t) override;	//!< Executed by a peer if its connection died
+		void				Fail(const String&message);					//!< Executed if an operation failed
+		bool				SendObject(UINT32 channel, const ISerializable&object) override;
+		bool				SendObject(UINT32 channel, const PPeer&exclude, const ISerializable&object) override;
 		
+		ReadWriteMutex		clientMutex;	//!< Mutex to shield operations on the client list. This mutex should be locked before clients are queried
+		Buffer0<PPeer>		clientList;		//!< List of all currently connected clients
+		USHORT				port;			//!< Read only variable which is updated during StartService()
 	public:
-			ReadWriteMutex		client_mutex;	//!< Mutex to shield operations on the client list. This mutex should be locked before clients are queried
-			List::Vector<Peer>	clients;		//!< List of all currently connected clients
-			USHORT				port;			//!< Read only variable which is updated during startService()
 	
-								Server():socket_handle(INVALID_SOCKET),clients_locked(false),is_shutting_down(false),socketAccess(new DefaultSocketAccess())
-								{}
-	virtual						~Server()
-								{
-									client_mutex.signalWrite();
-										for (index_t i = 0; i < clients.count(); i++)
-											DISCARD(clients[i]);
-										clients.flush();
-									client_mutex.exitWrite();
-									delete socketAccess;
-								}
+							Server():socket_handle(INVALID_SOCKET),clients_locked(false),is_shutting_down(false),socketAccess(new DefaultSocketAccess())
+							{}
+		virtual				~Server()
+							{
+								clientMutex.signalWrite();
+									clientList.Clear();
+								clientMutex.exitWrite();
+								delete socketAccess;
+							}
 		template <typename F>
-			void				forEachPeerAttachment(const F&f)
+			void			VisitAllPeerAttachments(const F&f)
+							{
+								clientMutex.signalRead();
 								{
-									client_mutex.signalRead();
+									foreach (clientList,client)
 									{
-										clients.reset();
-										while (Peer*p = clients.each())
-											if (p->attachment)
-												f(p->attachment);
+										const PPeer&p = *client;
+										if (p->attachment)
+											f(p->attachment);
 									}
-									client_mutex.exitRead();
 								}
+								clientMutex.exitRead();
+							}
+		template <typename F>
+			void			VisitAllPeers(const F&f)
+							{
+								clientMutex.signalRead();
+								{
+									foreach (clientList,client)
+									{
+										f(*client);
+									}
+								}
+								clientMutex.exitRead();
+							}
 		template <class SocketAccessClass>
-			void				SetSocketAccess()
-								{
-									ASSERT__(socketAccess->IsClosed());
-									delete socketAccess;
-									socketAccess = new SocketAccessClass();
-								}
+			void			SetSocketAccess()
+							{
+								ASSERT__(socketAccess->IsClosed());
+								delete socketAccess;
+								socketAccess = new SocketAccessClass();
+							}
 
-			/**
-				@brief Starts the local service on the specified port
+		UINT16				GetPort() const {return port;}
+		/**
+		@brief Starts the local service on the specified port
 				
-				This method attempts to bind the specified port to the local object and listen for any incoming
-				connections. Query the result of error() to retrieve a more detailed error discription in case
-				this method returns false.
-				@param port Port to bind this service to
-				@return true on success, false otherwise.
-			*/
-			bool				startService(USHORT port);
-			/**
-				@brief Terminates the service.
+		This method attempts to bind the specified port to the local object and listen for any incoming
+		connections. Query the result of error() to retrieve a more detailed error discription in case
+		this method returns false.
+		@param port Port to bind this service to
+		@return true on success, false otherwise.
+		*/
+		bool				StartService(USHORT port);
+		/**
+		@brief Terminates the service.
 				
-				Any currently connected clients are automatically disconnected.
-				This operation executes the ConnectionClosed event once for each remaining client and once for itself
-				passing NULL as @b peer parameter.
-			*/
-			void				endService();
-			void				stopService()	{endService();};	//!< @overload
-			void				shutdown()		{endService();};		//!< @overload
-			bool				isOnline()	const	//!< Queries the current execution status
-								{
-									return isActive();
-								}
+		Any currently connected clients are automatically disconnected.
+		This operation executes the ConnectionClosed event once for each remaining client and once for itself
+		passing NULL as @b peer parameter.
+		*/
+		void				EndService();
+		void				StopService()	{EndService();};	//!< @overload
+		void				Shutdown()		{EndService();};		//!< @overload
+		bool				IsOnline()	const	//!< Queries the current execution status
+							{
+								return isActive();
+							}
 	};
 
 
@@ -646,7 +681,7 @@ namespace TCP
 	/**
 		@brief Abstract template channel structure to handle all traffic on a specific channel
 		
-		Instances must override the onReceive() method or specify an onObjectReceive function pointer.
+		Instances must override the OnReceive() method or specify an onObjectReceive function pointer.
 		Otherwise incoming packages are ignored.
 		
 		@param Object the type of object being sent and received on this channel. Must be a derivative of @a ISerializable
@@ -657,85 +692,83 @@ namespace TCP
 		class Channel:public RootChannel
 		{
 		public:
-				void			(*onObjectReceive)(Object*object, Peer*sender);
-				void			(*onSimpleObjectReceive)(Object*object);
+			void					(*onObjectReceive)(Object&object, const PPeer&sender);
+			void					(*onSimpleObjectReceive)(Object&object);
 		protected:
 				
-		static	Object*			create()
-								{
-									return new Object();
-								}
-		static	void			discard(Object*object)
-								{
-									delete object;
-								}
 				
-				
-		virtual	void			handle(SerializableObject*serializable,Peer*sender)
-								{
-									if (sender->user_level >= MinUserLevel)
-										onReceive((Object*)serializable,sender);
-									discard((Object*)serializable);
-								}
+			virtual	void			Handle(const PSerializableObject&serializable,const PPeer&sender)	override
+			{
+				if (sender->userLevel >= MinUserLevel)
+					OnReceive((Object&)*serializable,sender);
+				//discard((Object*)serializable);
+			}
 								
 								
-		virtual	SerializableObject*		Deserialize(IReadStream&stream,serial_size_t fixed_size,Peer*sender)	override
-										{
-											Object*result = create();
-											if (!result->Deserialize(stream,fixed_size))
-											{
-												discard(result);
-												return NULL;
-											}
-											return result;
-										}
+			virtual	PSerializableObject	Deserialize(IReadStream&stream,serial_size_t fixed_size,const PPeer&sender)	override
+			{
+				PSerializableObject result (new Object());
+				if (!result->Deserialize(stream,fixed_size))
+				{
+					result.reset();
+				}
+				return result;
+			}
 								
-		virtual	void			onReceive(Object*object, Peer*sender)
-								{
-									if (onObjectReceive)
-										onObjectReceive(object,sender);
-									elif (onSimpleObjectReceive)
-										onSimpleObjectReceive(object);
-								}
+			virtual	void			OnReceive(Object&object, const PPeer&sender)
+			{
+				if (onObjectReceive)
+					onObjectReceive(object,sender);
+				elif (onSimpleObjectReceive)
+					onSimpleObjectReceive(object);
+			}
 		
 		public:
 					
-								Channel():RootChannel(ChannelID),onObjectReceive(NULL),onSimpleObjectReceive(NULL)
-								{}
+			/**/			Channel():RootChannel(ChannelID),onObjectReceive(NULL),onSimpleObjectReceive(NULL)
+							{}
 								
-								Channel(void(*onObjectReceive_)(Object*object, Peer*sender)):RootChannel(ChannelID),onObjectReceive(onObjectReceive_),onSimpleObjectReceive(NULL)
-								{}
-								Channel(void(*onObjectReceive_)(Object*object)):RootChannel(ChannelID),onObjectReceive(NULL),onSimpleObjectReceive(onObjectReceive_)
-								{}
+			/**/			Channel(void(*onObjectReceive_)(Object&object, const PPeer&sender)):RootChannel(ChannelID),onObjectReceive(onObjectReceive_),onSimpleObjectReceive(NULL)
+							{}
+			/**/			Channel(void(*onObjectReceive_)(Object&object)):RootChannel(ChannelID),onObjectReceive(NULL),onSimpleObjectReceive(onObjectReceive_)
+							{}
 								
 								
-				/**
-					@brief Sends an object to the specified destination
+			/**
+			@brief Sends an object to the specified destination
 					
-					@param destination Transfer destination. The method will fail if @a destination is NULL
-					@param object Serializable object to send
-					@return true on success, false otherwise. Note that a positive result only indicates that the object was successfuly serialized to the tcp stream. It does not mean that the package was received or accepted.
-				*/
-				bool			sendTo(Destination*destination, const Object&object)
-								{
-									return sendObject(destination,object);
-								}
+			@param destination Transfer destination. The method will fail if @a destination is NULL
+			@param object Serializable object to send
+			@return true on success, false otherwise. Note that a positive result only indicates that the object was successfuly serialized to the tcp stream. It does not mean that the package was received or accepted.
+			*/
+			bool			SendTo(const PDestination&destination, const Object&object)
+			{
+				return SendObject(*destination,object);
+			}
+			bool			SendTo(Destination&destination, const Object&object)
+			{
+				return SendObject(destination,object);
+			}
 												
-				/**
-					@brief Special overload form of sendTo for servers only
+			/**
+			@brief Special overload form of sendTo for servers only
 					
-					Allows to send objects to all clients except a specific client
+			Allows to send objects to all clients except a specific client
 					
-					@param destination Transfer destination. The method will fail if @a destination is NULL
-					@param exclude Peer to specifically exclude
-					@param object Serializable object to send
-					@return true on success, false otherwise. Note that a positive result only indicates that the object was successfuly serialized to the tcp stream. It does not mean that the package was received or accepted.
-				*/
-				bool			sendTo(Destination*destination, Peer*exclude, const Object&object)
-								{
-									return sendObject(destination,exclude,object);
-								}
+			@param destination Transfer destination. The method will fail if @a destination is NULL
+			@param exclude Peer to specifically exclude
+			@param object Serializable object to send
+			@return true on success, false otherwise. Note that a positive result only indicates that the object was successfuly serialized to the tcp stream. It does not mean that the package was received or accepted.
+			*/
+			bool			SendTo(const PDestination&destination, const PPeer&exclude, const Object&object)
+			{
+				return SendObject(*destination,exclude,object);
+			}
 				
+			bool			SendTo(Destination&destination, const PPeer&exclude, const Object&object)
+			{
+				return SendObject(destination,exclude,object);
+			}
 				
 
 		};
