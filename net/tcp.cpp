@@ -702,16 +702,18 @@ namespace TCP
 					//}
 
 				}
-				elif (owner->onIgnorePackage)
+				else
 				{
 					#ifdef _DEBUG
 						FATAL__("ignoring packet");	//for now, this is appropriate
 					#endif
 					if (verbose)
 						std::cout << "Peer::ThreadMain(): no receiver available (nothing installed on this channel). ignoring package"<<std::endl;
-					owner->onIgnorePackage(channel_index,UINT32(remaining_size),SharedFromThis());
+					if (owner->onIgnorePackage)
+					{
+						owner->onIgnorePackage(channel_index,UINT32(remaining_size),SharedFromThis());
+					}
 				}
-				
 				while (remaining_size > sizeof(dump_buffer))
 					if (netRead(dump_buffer,sizeof(dump_buffer)))
 						remaining_size -= sizeof(dump_buffer);
