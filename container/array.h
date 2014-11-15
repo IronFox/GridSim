@@ -756,7 +756,9 @@ template <class C>
 
 		virtual	serial_size_t	GetSerialSize(bool export_size) const	override
 							{
-								serial_size_t result = export_size?GetSerialSizeOfSize((serial_size_t)elements):0;
+								serial_size_t result = 0;
+								if (export_size || IsISerializable(data))
+									result = GetSerialSizeOfSize((serial_size_t)elements);
 								for (index_t i = 0; i < elements; i++)
 									result += GetSerialSizeOf((const C*)data+i,sizeof(C),true);//must pass true here because the individual object size cannot be restored from the global data size
 								return result;

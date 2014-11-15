@@ -119,6 +119,7 @@ inline ISerializable::serial_size_t			DeserializeFromMemory(ISerializable&serial
 		return 0;
 	return reader.GetCurrent()-(const BYTE*)data;
 }
-		
+
+
 
 #endif

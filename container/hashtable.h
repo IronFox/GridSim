@@ -249,11 +249,17 @@ template <class Carrier, class Hash>
 		template <class Key>
 			inline	bool					isSet(const Key&ident)				const;	//!< Queries whether ot not data is associated with the specified key without setting it. \param ident Key to look for \return True if the specified key could be found, false otherwise.
 		template <class Key>
+			inline	bool					IsSet(const Key&ident)				const	/** @copydoc IsSet() */{return isSet(ident);}
+		template <class Key>
 			inline	bool					unset(const Key&ident)						/** @copydoc unSet() */{return unSet(ident);}
+		template <class Key>
+			inline	bool					Unset(const Key&ident)						/** @copydoc unSet() */{return unSet(ident);}
 		template <class Key>
 			inline	bool					unSet(const Key&ident);						//!< Un-sets any data associated with the specifed key. Potentially resizes the internal set. \param ident Key to look for \return True if the specified key could be found and un-set, false otherwise.
 		template <typename F>
 			inline	void					visitAllKeys(const F&f) const;	//!< Passes each occupied element to the specified functor of type <tt>void f(const Key&)</tt>.
+		template <typename F>
+			inline	void					VisitAllKeys(const F&f) const				/** @copydoc visitAllKeys() */{visitAllKeys(f);}
 
 	};
 
@@ -335,7 +341,11 @@ template <class K, class C, class Hash=StdHash, typename KeyStrategy = typename 
 		template <class Key>
 			inline	DataType*				queryPointer(const Key&ident);				//!< Requests the content associated with the specified key without setting it. The method returns a pointer to the element ot NULL if no such could be found. \param ident Key to look for \return Pointer to the object matching the specified key or NULL if no such could be found
 		template <class Key>
+			inline	DataType*				QueryPointer(const Key&ident)				/** @copydoc queryPointer() */{return queryPointer(ident);}
+		template <class Key>
 			inline	const DataType*			queryPointer(const Key&ident)		const;	//!< Requests the content associated with the specified key without setting it. The method returns a pointer to the element ot NULL if no such could be found. \param ident Key to look for \return Pointer to the object matching the specified key or NULL if no such could be found
+		template <class Key>
+			inline	DataType*				QueryPointer(const Key&ident)		const	/** @copydoc queryPointer() */{return queryPointer(ident);}
 			inline	bool					owns(const DataType*data)	const;
 		template <class Key>
 			inline	DataType*				setNew(const Key&ident);					//!< Sets the specified key if it is currently not set and returns the pointer its content. If the key is already set then NULL is returned @param ident Key to set @return Pointer to the set content associated with the specified key, or NULL if the key was previously set
@@ -348,15 +358,27 @@ template <class K, class C, class Hash=StdHash, typename KeyStrategy = typename 
 		template <class Key>
 			inline	DataType&				set(const Key&ident, const DataType&v);		//!< Sets the specified key (if not set already) and assigns \b v to the associated data. \param ident Key to set \param v Value to assign to the associated data.
 		template <class Key>
+			inline	DataType&				Set(const Key&ident, const DataType&v)		{return set(ident,v);}
+		template <class Key>
 			inline	DataType&				set(const Key&ident);						//!< Sets the specified key if it is currently not set and returns a reference to it. No change occurs if the specified key is already set (merely returns a reference to it)
+		template <class Key>
+			inline	DataType&				Set(const Key&ident)						{return set(ident);}
 		template <class Key>
 			inline	DataType&				get(const Key&ident, DataType&except);		//!< Returns a (mutable) reference to the data associated with the specified key, or @a except if no such could be found.
 		template <class Key>
+			inline	DataType&				Get(const Key&ident, DataType&except)		{return get(ident,except);}
+		template <class Key>
 			inline	const C&				get(const Key&ident, const C&except)	const;			//!< Returns a (const) reference to the data associated with the specified key, or @a except if no such could be found.
+		template <class Key>
+			inline	const C&				Get(const Key&ident, const C&except)	const	{return get(ident,except);}
 		template <class Key>
 			inline	DataType&				require(const Key&ident);					//!< Returns a (mutable) reference to the data associated with the specified key. An assertion will fire, if the requested element does not exist
 		template <class Key>
+			inline	DataType&				Require(const Key&ident)					{return require(ident);}
+		template <class Key>
 			inline	const C&				require(const Key&ident)	const;			//!< Returns a (const) reference to the data associated with the specified key. An assertion will fire, if the requested element does not exist
+		template <class Key>
+			inline	const C&				Require(const Key&ident)	const			{return require(ident);}
 
 		template <class Key>
 			inline	DataType&				operator[](const Key&ident);				//!< Standard access. If the specified key could not be found then an exception of type Program::MemberNotFound will be triggered. \param ident Key to look for \return Reference to the data associated with the specified key.

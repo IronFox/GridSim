@@ -704,7 +704,9 @@ namespace TCP
 				}
 				elif (owner->onIgnorePackage)
 				{
-					FATAL__("ignoring packet");	//for now, this is appropriate
+					#ifdef _DEBUG
+						FATAL__("ignoring packet");	//for now, this is appropriate
+					#endif
 					if (verbose)
 						std::cout << "Peer::ThreadMain(): no receiver available (nothing installed on this channel). ignoring package"<<std::endl;
 					owner->onIgnorePackage(channel_index,UINT32(remaining_size),SharedFromThis());
@@ -976,7 +978,19 @@ namespace TCP
 		serial_size_t size = object.GetSerialSize(false);
 		Array<BYTE>		out_buffer(size);
 		if (!SerializeToMemory(object,out_buffer.pointer(),size,false))
+		{
+			#ifdef _DEBUG
+				Array<BYTE>	testBuffer(10000000);
+				ISerializable::serial_size_t rs = SerializeToMemory(object,testBuffer.pointer(),testBuffer.GetContentSize(),false);
+				if (rs)
+				{
+					FATAL__("Failed to serialize data structure on channel "+String(channel)+". Expected serial size "+String(size)+" but serialized to "+String(rs));
+				}
+				else
+					FATAL__("Failed to serialize data structure on channel "+String(channel));
+			#endif
 			return false;
+		}
 		if (verbose)
 			std::cout << "Server::sendObject(): acquiring read lock for message send"<<std::endl;
 		clientMutex.signalRead();
