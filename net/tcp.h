@@ -137,11 +137,45 @@ namespace TCP
 	
 	
 
+	template <typename T>
+		class Serial
+		{
+		private:
+			bool		sealed;
+			T			element;
+			Array<BYTE>	serialized;
+		public:
+			/**/		Serial():sealed(false)
+			{}
+
+			T&			Ref()
+			{
+				ASSERT__(!sealed);
+				return element;
+			}
+
+			void		Seal()
+			{
+				if (sealed)
+					return;
+				sealed = true;
+				serialized.SetSize(element.GetSerialSize(false));
+				ASSERT__(SerializeToMemory(element,serialized.pointer(),(serial_size_t)serialized.GetContentSize(),false) != 0);
+			}
+
+			const Array<BYTE>&	Get() const
+			{
+				ASSERT__(sealed);
+				return serialized;
+			}
+
+		};
+
 
 	/**
-		@brief Signal serializable that does not hold any actual data.
+	@brief Signal serializable that does not hold any actual data.
 		
-		VoidSerializable is always of size 0 and ommits any decoding or encoding but returns success upon doing so
+	VoidSerializable is always of size 0 and ommits any decoding or encoding but returns success upon doing so
 	*/
 	class VoidSerializable:public SerializableObject
 	{
@@ -258,6 +292,38 @@ namespace TCP
 			bool				SendTo(Destination&destination, const PPeer&exclude, const SerializableObject&object)
 			{
 				return SendObject(destination,exclude,object);
+			}
+
+
+			bool					SendTo(Destination&destination, const Serial<SerializableObject>&object)
+			{
+				return SendObject(destination,object.Get());
+			}
+			bool					SendTo(const PDestination&destination, const Serial<SerializableObject>&object)
+			{
+				if (!destination)
+					return false;
+				return SendObject(*destination,object.Get());
+			}
+			/**
+			@brief Special overload form of sendTo for servers only
+					
+			Allows to send objects to all clients except a specific client
+					
+			@param destination Transfer destination. The method will fail if @a destination is NULL
+			@param exclude Peer to specifically exclude
+			@param object Serializable object to send
+			@return true on success, false otherwise. Note that a positive result only indicates that the object was successfuly serialized to the tcp stream. It does not mean that the package was received or accepted.
+			*/
+			bool				SendTo(const PDestination&destination, const PPeer&exclude, const Serial<SerializableObject>&object)
+			{
+				if (!destination)
+					return false;
+				return SendObject(*destination,exclude,object.Get());
+			}
+			bool				SendTo(Destination&destination, const PPeer&exclude, const Serial<SerializableObject>&object)
+			{
+				return SendObject(destination,exclude,object.Get());
 			}
 												
 		};
@@ -699,9 +765,10 @@ namespace TCP
 		@param Channel Channel that this channel structure should operate on
 	*/
 	template <class Object, unsigned MinUserLevel, UINT32 ChannelID>
-		class Channel:public RootChannel
+		class Channel:public ObjectSender<Object,ChannelID>
 		{
 		public:
+			typedef ObjectSender<Object,ChannelID>	Super;
 			void					(*onObjectReceive)(Object&object, const PPeer&sender);
 			void					(*onSimpleObjectReceive)(Object&object);
 		protected:
@@ -735,56 +802,14 @@ namespace TCP
 		
 		public:
 					
-			/**/			Channel():RootChannel(ChannelID),onObjectReceive(NULL),onSimpleObjectReceive(NULL)
+			/**/			Channel():onObjectReceive(NULL),onSimpleObjectReceive(NULL)
 							{}
 								
-			/**/			Channel(void(*onObjectReceive_)(Object&object, const PPeer&sender)):RootChannel(ChannelID),onObjectReceive(onObjectReceive_),onSimpleObjectReceive(NULL)
+			/**/			Channel(void(*onObjectReceive_)(Object&object, const PPeer&sender)):onObjectReceive(onObjectReceive_),onSimpleObjectReceive(NULL)
 							{}
-			/**/			Channel(void(*onObjectReceive_)(Object&object)):RootChannel(ChannelID),onObjectReceive(NULL),onSimpleObjectReceive(onObjectReceive_)
+			/**/			Channel(void(*onObjectReceive_)(Object&object)):onObjectReceive(NULL),onSimpleObjectReceive(onObjectReceive_)
 							{}
-								
-								
-			/**
-			@brief Sends an object to the specified destination
-					
-			@param destination Transfer destination. The method will fail if @a destination is NULL
-			@param object Serializable object to send
-			@return true on success, false otherwise. Note that a positive result only indicates that the object was successfuly serialized to the tcp stream. It does not mean that the package was received or accepted.
-			*/
-			bool			SendTo(const PDestination&destination, const Object&object)
-			{
-				if (!destination)
-					return false;
-				return SendObject(*destination,object);
-			}
-			bool			SendTo(Destination&destination, const Object&object)
-			{
-				return SendObject(destination,object);
-			}
-												
-			/**
-			@brief Special overload form of sendTo for servers only
-					
-			Allows to send objects to all clients except a specific client
-					
-			@param destination Transfer destination. The method will fail if @a destination is NULL
-			@param exclude Peer to specifically exclude
-			@param object Serializable object to send
-			@return true on success, false otherwise. Note that a positive result only indicates that the object was successfuly serialized to the tcp stream. It does not mean that the package was received or accepted.
-			*/
-			bool			SendTo(const PDestination&destination, const PPeer&exclude, const Object&object)
-			{
-				if (!destination)
-					return false;
-				return SendObject(*destination,exclude,object);
-			}
-				
-			bool			SendTo(Destination&destination, const PPeer&exclude, const Object&object)
-			{
-				return SendObject(destination,exclude,object);
-			}
-				
-
+	
 		};
 
 
