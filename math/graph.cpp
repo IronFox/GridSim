@@ -97,13 +97,13 @@ namespace Math
 		{
 			(*n)->inDegree = (int)(*n)->in.count();
 			if (!(*n)->inDegree)
-				queue.push(*n);
+				queue.Push(*n);
 		}
     
 		out.clear();
-		while (queue.isNotEmpty())
+		while (queue.IsNotEmpty())
 		{
-			PNode node = queue.pop();
+			PNode node = queue.Pop();
 			if (node->inDegree > 0)
 				continue;
 			//node->inDegree--;
@@ -112,7 +112,7 @@ namespace Math
 			{
 				PNode n = out->lock();
 				if (!--n->inDegree)
-					queue.push(n);
+					queue.Push(n);
 			}
 		}
 		return out.count() == nodes.count();
