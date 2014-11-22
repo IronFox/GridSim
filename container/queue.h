@@ -51,7 +51,7 @@ template <class T, class Strategy>
 		void	Construct()
 		{
 			DBG_ASSERT__(!isConstructed);
-			new (data) T();
+			new (data) T;
 			isConstructed = true;
 		}
 		void	Construct(const T&initData)
