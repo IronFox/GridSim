@@ -75,12 +75,24 @@ template <class T, class Strategy>
 
 		void	adoptData(QueueElement<T,Strategy>&other)
 		{
-			if (isConstructed)
-				Destruct();
+			//if (isConstructed)
+				//Destruct();
 			if (other.isConstructed)
-				Strategy::move(*(T*)other.data,*(T*)data);
-			isConstructed = other.isConstructed;
-			other.isConstructed = false;
+			{
+				if (isConstructed)
+					Strategy::move(*(T*)other.data,*(T*)data);
+				else
+				{
+					Strategy::constructSingleFromFleetingData((T*)data,*(T*)other.data);
+					isConstructed = true;
+				}
+				other.Destruct();
+			}
+			else
+				if (isConstructed)
+					Destruct();
+			//isConstructed = other.isConstructed;
+			//other.isConstructed = false;
 		}
 
 	
