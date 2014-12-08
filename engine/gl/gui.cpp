@@ -757,7 +757,7 @@ namespace Engine
 			
 			FileSystem::Folder	folder(FileSystem::ExtractFileDir(filename));
 			
-			titlePosition.SetAll(0);
+			titlePosition.SetMinAndMax(0);
 			
 			List::Vector<TIORow>	iorows;
 			

@@ -264,7 +264,7 @@ namespace Math
 										max = center + ext;
 									}
 			template <typename T0>
-				MF_DECLARE(void)	SetAll(const T0&value)
+				MF_DECLARE(void)	SetMinAndMax(const T0&value)
 									{
 										min = max = (T)value;
 									}
@@ -649,7 +649,7 @@ namespace Math
 									}
 			/**/					Rect(const TVec2<T>&min_and_max)
 									{
-										Set(min_and_max);
+										SetMinAndMax(min_and_max);
 									}
 			template<typename T1>
 				/**/				Rect(const Rect<T1>&other)
@@ -682,10 +682,10 @@ namespace Math
 			/**
 			@brief Updates all values of the local rectangle
 			*/
-			MF_DECLARE(void)		Set(const TVec2<T>&min_and_max)
+			MF_DECLARE(void)		SetMinAndMax(const TVec2<T>&min_and_max)
 									{
-										x.SetAll(min_and_max.x);
-										y.SetAll(min_and_max.y);
+										x.SetMinAndMax(min_and_max.x);
+										y.SetMinAndMax(min_and_max.y);
 									}
 			/**
 			@brief Relocates the center of the local rectangle.
@@ -722,10 +722,10 @@ namespace Math
 			/**
 			@brief Updates all values of the local rect to the specified value
 			*/
-			MF_DECLARE(void)		SetAll(const T&value)
+			MF_DECLARE(void)		SetMinAndMax(const T&value)
 									{
-										x.SetAll(value);
-										y.SetAll(value);
+										x.SetMinAndMax(value);
+										y.SetMinAndMax(value);
 									}
 			/**
 			@brief Updates all values of the local rect to the specified value
@@ -1140,7 +1140,7 @@ namespace Math
 
 			/**/					Box(const TVec3<T>&min_and_max)
 									{
-										Set(min_and_max);
+										SetMinAndMax(min_and_max);
 									}
 			/**/					Box(const TFloatRange<T>&x, const TFloatRange<T>&y, const TFloatRange<T>&z)
 									{
@@ -1189,11 +1189,11 @@ namespace Math
 			/**
 			@brief Updates all values of the local rectangle
 			*/
-			MFUNC(void)				Set(const TVec3<C>&min_and_max)
+			MFUNC(void)				SetMinAndMax(const TVec3<C>&min_and_max)
 									{
-										x.SetAll((T)min_and_max.x);
-										y.SetAll((T)min_and_max.y);
-										z.SetAll((T)min_and_max.z);
+										x.SetMinAndMax((T)min_and_max.x);
+										y.SetMinAndMax((T)min_and_max.y);
+										z.SetMinAndMax((T)min_and_max.z);
 									}
 			/**
 			@brief Relocates the center of the local box.
@@ -1233,11 +1233,11 @@ namespace Math
 			/**
 			@brief Updates all values of the local box to the specified value
 			*/
-			MF_DECLARE(void)		SetAll(const T&value)
+			MF_DECLARE(void)		SetMinAndMax(const T&value)
 									{
-										x.SetAll(value);
-										y.SetAll(value);
-										z.SetAll(value);
+										x.SetMinAndMax(value);
+										y.SetMinAndMax(value);
+										z.SetMinAndMax(value);
 									}
 			/**
 			@brief Updates all values of the local box to the specified value

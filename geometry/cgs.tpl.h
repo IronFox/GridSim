@@ -2341,14 +2341,14 @@ template <class C> bool SubGeometryA<Def>::extractDimensions(Box<C>&dim) const
 	if (vs_hull_field.length()&&vs_hull_field[0].vertex_field.length())
 	{
 		def = true;
-		dim.Set(vs_hull_field[0].vertex_field[0].position);
+		dim.SetMinAndMax(vs_hull_field[0].vertex_field[0].position);
 
 		for (index_t i = 1; i < vs_hull_field[0].vertex_field.length(); i++)
 			dim.Include(vs_hull_field[0].vertex_field[i].position);
 	}
 	else
 	{
-		dim.SetAll(0);
+		dim.SetMinAndMax(0);
 		def = false;
 	}
 	return def;

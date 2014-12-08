@@ -5890,27 +5890,27 @@ namespace ObjectMath
 			Box<C>	new_dim;
 			if ((tag & O_VERTICES) && object.vertex_field.length())
 			{
-				new_dim.Set(object.vertex_field[0].position);
+				new_dim.SetMinAndMax(object.vertex_field[0].position);
 				for (index_t i = 1; i < object.vertex_field.length(); i++)
 					new_dim.Include(object.vertex_field[i].position);
 			}
 			elif ((tag & O_EDGES) && object.edge_field.length())
 			{
-				new_dim.Set(object.edge_field[0].v0->position);
+				new_dim.SetMinAndMax(object.edge_field[0].v0->position);
 				for (BYTE k = 0; k < 2; k++)
 					for (index_t i = 0; i < object.edge_field.length(); i++)
 						new_dim.Include(object.edge_field[i].vertex[k]->position);
 			}
 			elif ((tag & O_TRIANGLES) && object.triangle_field.length())
 			{
-				new_dim.Set(object.triangle_field[0].v0->position);
+				new_dim.SetMinAndMax(object.triangle_field[0].v0->position);
 				for (BYTE k = 0; k < 3; k++)
 					for (index_t i = 0; i < object.triangle_field.length(); i++)
 						new_dim.Include(object.triangle_field[i].vertex[k]->position);
 			}
 			elif ((tag & O_QUADS) && object.quad_field.length())
 			{
-				new_dim.Set(object.quad_field[0].v0->position);
+				new_dim.SetMinAndMax(object.quad_field[0].v0->position);
 				for (BYTE k = 0; k < 4; k++)
 					for (index_t i = 0; i < object.quad_field.length(); i++)
 						new_dim.Include(object.quad_field[i].vertex[k]->position);

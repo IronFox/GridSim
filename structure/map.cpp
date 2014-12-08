@@ -584,7 +584,7 @@ void	Map::Shape::updateTriangulation()
 	_oTriangulate(polygon_points.pointer(),polygon_points.count(),triangulation);
 	if (triangulation.vertex_field.length())
 	{
-		Entity::constraints.Set(triangulation.vertex_field.first().position);
+		Entity::constraints.SetMinAndMax(triangulation.vertex_field.first().position);
 		
 		for (index_t i = 1; i < triangulation.vertex_field.length(); i++)
 			_oDetDimension(triangulation.vertex_field[i].position,Entity::constraints);

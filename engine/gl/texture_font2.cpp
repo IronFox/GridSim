@@ -129,7 +129,7 @@ namespace Engine
 		{
 			TCharacter&space = chars[(BYTE)' '];
 			space.isset = true;
-			space.texcoords.SetAll(0);
+			space.texcoords.SetMinAndMax(0);
 			space.width = chars[(BYTE)'i'].width;
 			space.height = 1;
 			space.yoffset = 0;
