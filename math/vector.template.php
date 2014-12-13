@@ -370,7 +370,7 @@ functions:
 	
 	angle(const[] v{first vector; not required to be normalized, but must be non-0}, const[] w{second vector; not required to be normalized, but must be non-0}) -> :float {angle in the range [0,180]}
 		{Determines the angle between <paramref>v</paramref> and <paramref>w</paramref>}
-		return acos((:<dot>(v,w)/(:<length>(v)*:<length>(w))))*180/M_PI;
+		return acos(Math::clamp(:<dot>(v,w)/(:<length>(v)*:<length>(w)),-1,1))*180/M_PI;
 	
 	
 	isNAN(const[] v) -> bool

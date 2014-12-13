@@ -1,7 +1,11 @@
 #ifndef vector_operationsH
 #define vector_operationsH
 /*
-This file was generated from template definition 'vector.template.php' on 2013 June 2nd 11:26:57
+
+Warning: date(): It is not safe to rely on the system's timezone settings. You are *required* to use the date.timezone setting or the date_default_timezone_set() function. In case you used any of those methods and you are still getting this warning, you most likely misspelled the timezone identifier. We selected 'Europe/Paris' for '1.0/no DST' instead in E:\include\math\update.php on line 1656
+
+Warning: date(): It is not safe to rely on the system's timezone settings. You are *required* to use the date.timezone setting or the date_default_timezone_set() function. In case you used any of those methods and you are still getting this warning, you most likely misspelled the timezone identifier. We selected 'Europe/Paris' for '1.0/no DST' instead in E:\include\math\update.php on line 1656
+This file was generated from template definition 'vector.template.php' on 2014 December 13th 14:25:35
 Do not edit
 */
 
@@ -1688,7 +1692,7 @@ namespace Vec
 	template <typename T0, typename T1>
 		inline	T0	__fastcall	angleD(const T0 *v, const T1 *w, count_t dimensions)throw()
 		{
-			return acos(((Vec::Operator0_sumD(v, w, dimensions)/*v:i*w:i*/)/((vsqrt((Vec::Operator1_sumD(v, dimensions)/*v:i*v:i*/)))*(vsqrt((Vec::Operator1_sumD(w, dimensions)/*w:i*w:i*/))))))*180/M_PI;
+			return acos(Math::clamp((Vec::Operator0_sumD(v, w, dimensions)/*v:i*w:i*/)/((vsqrt((Vec::Operator1_sumD(v, dimensions)/*v:i*v:i*/)))*(vsqrt((Vec::Operator1_sumD(w, dimensions)/*w:i*w:i*/)))),-1,1))*180/M_PI;
 		}
 
 	//now implementing template definition 'bool isNAN (2..4) (<const [*] v>) direct='
@@ -7802,7 +7806,7 @@ namespace Vec
 	template <typename T0, typename T1>
 		inline	T0	__fastcall	angle(const TVec2<T0>& v, const TVec2<T1>& w)throw()
 		{
-			return acos(((v.x*w.x + v.y*w.y)/((vsqrt((v.x*v.x + v.y*v.y)))*(vsqrt((w.x*w.x + w.y*w.y))))))*180/M_PI;
+			return acos(Math::clamp((v.x*w.x + v.y*w.y)/((vsqrt((v.x*v.x + v.y*v.y)))*(vsqrt((w.x*w.x + w.y*w.y)))),-1,1))*180/M_PI;
 		}
 
 	/**
@@ -7818,7 +7822,7 @@ namespace Vec
 	template <typename T0, typename T1>
 		inline	T0	__fastcall	angle(const TVec3<T0>& v, const TVec3<T1>& w)throw()
 		{
-			return acos(((v.x*w.x + v.y*w.y + v.z*w.z)/((vsqrt((v.x*v.x + v.y*v.y + v.z*v.z)))*(vsqrt((w.x*w.x + w.y*w.y + w.z*w.z))))))*180/M_PI;
+			return acos(Math::clamp((v.x*w.x + v.y*w.y + v.z*w.z)/((vsqrt((v.x*v.x + v.y*v.y + v.z*v.z)))*(vsqrt((w.x*w.x + w.y*w.y + w.z*w.z)))),-1,1))*180/M_PI;
 		}
 
 	/**
@@ -7834,7 +7838,7 @@ namespace Vec
 	template <typename T0, typename T1>
 		inline	T0	__fastcall	angle(const TVec4<T0>& v, const TVec4<T1>& w)throw()
 		{
-			return acos(((v.x*w.x + v.y*w.y + v.z*w.z + v.w*w.w)/((vsqrt((v.x*v.x + v.y*v.y + v.z*v.z + v.w*v.w)))*(vsqrt((w.x*w.x + w.y*w.y + w.z*w.z + w.w*w.w))))))*180/M_PI;
+			return acos(Math::clamp((v.x*w.x + v.y*w.y + v.z*w.z + v.w*w.w)/((vsqrt((v.x*v.x + v.y*v.y + v.z*v.z + v.w*v.w)))*(vsqrt((w.x*w.x + w.y*w.y + w.z*w.z + w.w*w.w)))),-1,1))*180/M_PI;
 		}
 
 	//now implementing template definition 'bool isNAN (2..4) (<const [*] v>) direct='
@@ -14329,7 +14333,7 @@ template <count_t Current, count_t Dimensions>
 		template <typename T0, typename T1>
 			static	inline	T0	__fastcall	angle(const T0 v[Dimensions], const T1 w[Dimensions])throw()
 			{
-				return acos(((VecV_Include__<0,Dimensions,false>::Operator17_sum(v, w)/*v:i*w:i*/)/((vsqrt((VecV_Include__<0,Dimensions,false>::Operator18_sum(v)/*v:i*v:i*/)))*(vsqrt((VecV_Include__<0,Dimensions,false>::Operator18_sum(w)/*w:i*w:i*/))))))*180/M_PI;
+				return acos(Math::clamp((VecV_Include__<0,Dimensions,false>::Operator17_sum(v, w)/*v:i*w:i*/)/((vsqrt((VecV_Include__<0,Dimensions,false>::Operator18_sum(v)/*v:i*v:i*/)))*(vsqrt((VecV_Include__<0,Dimensions,false>::Operator18_sum(w)/*w:i*w:i*/)))),-1,1))*180/M_PI;
 			}
 
 		//now implementing template definition 'bool isNAN (2..4) (<const [*] v>) direct='
@@ -15196,7 +15200,7 @@ template <count_t Current, count_t Dimensions>
 		template <typename T0, typename T1>
 			static	inline	T0	__fastcall	angle(const TVec<T0,Dimensions>& v, const TVec<T1,Dimensions>& w)throw()
 			{
-				return acos(((VecV_Include__<0,Dimensions,false>::Operator39_sum(v.v, w.v)/*v:i*w:i*/)/((vsqrt((VecV_Include__<0,Dimensions,false>::Operator40_sum(v.v)/*v:i*v:i*/)))*(vsqrt((VecV_Include__<0,Dimensions,false>::Operator40_sum(w.v)/*w:i*w:i*/))))))*180/M_PI;
+				return acos(Math::clamp((VecV_Include__<0,Dimensions,false>::Operator39_sum(v.v, w.v)/*v:i*w:i*/)/((vsqrt((VecV_Include__<0,Dimensions,false>::Operator40_sum(v.v)/*v:i*v:i*/)))*(vsqrt((VecV_Include__<0,Dimensions,false>::Operator40_sum(w.v)/*w:i*w:i*/)))),-1,1))*180/M_PI;
 			}
 
 		//now implementing template definition 'bool isNAN (2..4) (<const [*] v>) direct='
