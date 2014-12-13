@@ -126,7 +126,7 @@ namespace OpenAL
 	typedef Source	Player;
 
 	bool				init();
-	inline bool			Init()	{init();}
+	inline bool			Init()	{return init();}
 	bool				isInitialized();
 	inline bool			IsInitialized()	{return isInitialized();}
 	
