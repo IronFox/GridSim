@@ -56,7 +56,7 @@ namespace OpenAL
 		bool			isCreated()	const;
 		inline bool		IsCreated() const	{return isCreated();}
 		void			destroy();
-		inline void		Destro()			{destroy();}
+		inline void		Destroy()			{destroy();}
 			
 		void			setWaveBuffer(const WaveBuffer&wbo);
 		inline void		SetWaveBuffer(const WaveBuffer&wbo)		{setWaveBuffer(wbo);}
@@ -69,7 +69,7 @@ namespace OpenAL
 		void			rewind();
 		inline void		Rewind()		{rewind();}
 		bool			play();
-		inline bool		Play()			{play();}
+		inline bool		Play()			{return play();}
 		void			stop();
 		inline void		Stop()			{stop();}
 		bool			isPlaying()	const;
