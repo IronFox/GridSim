@@ -694,7 +694,9 @@ namespace TCP
 					}
 					else
 					{
-						FATAL__("deserialization failed");	//for now, this is appropriate
+						#ifdef _DEBUG
+							FATAL__("deserialization failed");	//for now, this is appropriate
+						#endif
 					}
 					//elif (verbose)
 					//{
