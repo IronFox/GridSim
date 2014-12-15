@@ -293,28 +293,28 @@ namespace Math
 		typedef typename Super::Type		Type;	//union-compatible
 
 
-			MF_CONSTRUCTOR1					VecN(const TVec2<C> &v)
+			MF_CONSTRUCTOR					VecN(const TVec2<C> &v)
 											{
 												_copyV<C,C,Len<2?Len:2>(other.v,v);
 											}
-			MF_CONSTRUCTOR1					VecN(const TVec3<C> &v)
+			MF_CONSTRUCTOR					VecN(const TVec3<C> &v)
 											{
 												_copyV<C,C,Len<3?Len:3>(other.v,v);
 											}
 
-			MF_CONSTRUCTOR1					VecN(const TVec4<C> &v)
+			MF_CONSTRUCTOR					VecN(const TVec4<C> &v)
 											{
 												_copyV<C,C,Len<4?Len:4>(other.v,v);
 											}
-			MF_CONSTRUCTOR1					VecN(const TVec<C,Len> &v)
+			MF_CONSTRUCTOR					VecN(const TVec<C,Len> &v)
 											{
 												_copyV<C,C,Len>(other.v,v);
 											}
 
-			MF_CONSTRUCTOR1					VecN()									{}
-			MF_CONSTRUCTOR1					VecN(C x, C y)							{v[0] = x; v[1] = y;};
-			MF_CONSTRUCTOR1					VecN(C x, C y, C z)					{v[0] = x; v[1] = y; v[2] = z;};
-			MF_CONSTRUCTOR1					VecN(C x, C y, C z, C a)				{v[0] = x; v[1] = y; v[2] = z; v[3] = a;};
+			MF_CONSTRUCTOR					VecN()									{}
+			MF_CONSTRUCTOR					VecN(C x, C y)							{v[0] = x; v[1] = y;};
+			MF_CONSTRUCTOR					VecN(C x, C y, C z)					{v[0] = x; v[1] = y; v[2] = z;};
+			MF_CONSTRUCTOR					VecN(C x, C y, C z, C a)				{v[0] = x; v[1] = y; v[2] = z; v[3] = a;};
 			MF_CONSTRUCTOR1					VecN(const C0 field[Len])				{_copyV<C0,C,Len>(field,v);};
 			MF_DECLARE(void)				clear();											//sets all values to 0
 			MF_DECLARE(String)				ToString()								const;		//returns string of vector-content

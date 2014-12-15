@@ -12,7 +12,7 @@ namespace Math
 
     template <class C, count_t Len> MF_DECLARE(String) VecN<C,Len>::ToString()       const
     {
-        return VecUnroll<Len>::ToString(*this);
+        return VecUnroll<Len>::toString(*this);
     }
 
     template <class C, count_t Len>MF_DECLARE (C) VecN<C,Len>::length()                const
@@ -42,7 +42,7 @@ namespace Math
     MF_VNT MF_INIT VecN<C,Eval<Len,Len0>::Min> MF_CC VecN<C,Len>::operator+ (const TVec<C0,Len0>&other) const
     {
 	    VecN<C,Eval<Len,Len0>::Min> result;
-        VecUnroll<Eval<Len,Len0>::Min>::add(v,other.v,result);
+        VecUnroll<Eval<Len,Len0>::Min>::add(v,other.v,result.v);
 		return result;
     }
     
