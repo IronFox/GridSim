@@ -55,7 +55,7 @@ namespace Config
 											assignment_operator,
 											value,
 											comment;
-					bool					commented;	//indicates that the entire line is to be commented
+					bool					commented;	//indicates that the entire line Is to be commented
 				};
 			
 		protected:
@@ -65,7 +65,7 @@ namespace Config
 				HashTable<Attribute*>		attribute_map;
 				List::Vector<Context>		modes;
 				HashTable<Context*>			mode_map;
-				bool						is_mode;
+				bool						Is_mode;
 
 				Attribute*					protectedDefine(const String&name, const String&value="");
 				Context*					protectedDefineContext(const String&name);	//!< Defines a new context within this one if one of the specified name does not already exist
@@ -73,7 +73,7 @@ namespace Config
 		public:
 				String						name;	//!< Name 
 
-											Context():is_mode(false)	{};
+											Context():Is_mode(false)	{};
 											
 		virtual								~Context()	{};
 		
@@ -84,25 +84,26 @@ namespace Config
 				Context*					createModeContext(const String&mode_name, const String&context_name);
 				Context*					defineMode(const String&name);
 				
-				Attribute*					getAttrib(const String&path);
-				const Attribute*			getAttrib(const String&path)						const;
-				const String&				getOperator(const String&path)						const;
-				const String&				getComment(const String&path)						const;
-				const String&				get(const String&path, const String&except="")	const;
-				const String&				getString(const String&path, const String&except="")	const	{return get(path,except);}
-				int							getInt(const String&path, int except=0)			const;
-				unsigned					getUnsigned(const String&path, unsigned except=0)	const;
-				float						getFloat(const String&path, float except=0)		const;
-				bool						getBool(const String&path, bool except=false)		const;
-				Key::Name					getKey(const String&path, Key::Name except)		const;
-				Context*					getContext(const String&path);	//path of form: 'mode:folder/folder/folder' or 'folder/folder/folder'
-				Context*					getContext(const String*path, size_t path_len, const String&mode);
-				const Context*				getContext(const String&path)						const;
-				const Context*				getContext(const String*path, size_t path_len, const String&mode)	const;
+				Attribute*					GetAttrib(const String&path);
+				const Attribute*			GetAttrib(const String&path)						const;
+				const String&				GetOperator(const String&path)						const;
+				const String&				GetComment(const String&path)						const;
+				const String&				Get(const String&path, const String&except="")	const;
+				const String&				GetString(const String&path, const String&except="")	const	{return Get(path,except);}
+				bool						QueryString(const String&path, String&outResult)	const;
+				int							GetInt(const String&path, int except=0)			const;
+				unsigned					GetUnsigned(const String&path, unsigned except=0)	const;
+				float						GetFloat(const String&path, float except=0)		const;
+				bool						GetBool(const String&path, bool except=false)		const;
+				Key::Name					GetKey(const String&path, Key::Name except)		const;
+				Context*					GetContext(const String&path);	//path of form: 'mode:folder/folder/folder' or 'folder/folder/folder'
+				Context*					GetContext(const String*path, size_t path_len, const String&mode);
+				const Context*				GetContext(const String&path)						const;
+				const Context*				GetContext(const String*path, size_t path_len, const String&mode)	const;
 				
 				
-				bool						isMode() const	{return is_mode;};
-				bool						isEmpty() 											const;
+				bool						IsMode() const	{return Is_mode;};
+				bool						IsEmpty() 											const;
 				void						exportModes(ArrayData<Context*>&out);
 				void						exportModes(ArrayData<const Context*>&out)			const;
 				void						exportChildren(ArrayData<Context*>&out);
@@ -130,19 +131,19 @@ namespace Config
 				};
 		static	Config						configuration;
 		
-		static	unsigned					getDepth(const char*line);
+		static	unsigned					GetDepth(const char*line);
 		
 				
 		public:
 											Container();
 											Container(const String&filename);
 											
-		static	bool						isOperator(const String&string);
+		static	bool						IsOperator(const String&string);
 				bool						loadFromFile(const String&filename);
 				bool						saveToFile(const String&filename);
 				bool						hasErrors()	const;
-				const String&				getError()	const;
-				const String&				report() const {return getError();}
+				const String&				GetError()	const;
+				const String&				report() const {return GetError();}
 		virtual	void						clear();
 		};
 		
@@ -151,7 +152,7 @@ namespace Config
 			@brief XML based configuration context
 			
 			CXContext loads its configuration from XML nodes or entire files.
-			The general format is:<br>
+			The general format Is:<br>
 			<br>
 			&lt;some_config&gt;<br>
 			variable1 = value;<br>
@@ -180,7 +181,7 @@ namespace Config
 			@b Groups: <br>
 			Groups are defined as XML sub groups (<group>...</group>) and may be defined recursively.
 			All attributes with the exception of @a inherit are considered conditions where
-			name="value" equals <a>if (($name)=="value")</a>. A group is ignored if one or more conditions
+			name="value" equals <a>if (($name)=="value")</a>. A group Is ignored if one or more conditions
 			are not met.<br>
 			@a inherit specifies one or more other groups to inherit variables from. Only variables are
 			ever inherited. If the local group does already specify a variable of same name then the contents
@@ -194,7 +195,7 @@ namespace Config
 		protected:
 				bool						variables_finalized;	//!< True if variable contents of all local variables have been processed
 				Array<XML::TAttribute>		conditions;			//!< Context conditions to be evaluated during finalization
-				CXContext					*parent;			//!< Pointer to the next superior context. NULL if this context is the top most
+				CXContext					*parent;			//!< Pointer to the next superior context. NULL if this context Is the top most
 				List::Vector<CXContext>		pre_finalize_children;	//!< Sub contexts prior to finalization. Multiple contexts with the same name may co-exist if conditional variables are exclusive
 				
 				void						parse(const String&content);	//!< Parses a coherent variable block as extracted from XML inner and following content
@@ -204,11 +205,11 @@ namespace Config
 				const Variable*			innerFindVariable(const ArrayData<String>&segments) const;	//!< @overload
 				CXContext*					innerFindContext(const ArrayData<String>&segments);		//!< Recursively looks for a context via its path
 				const CXContext*			innerFindContext(const ArrayData<String>&segments) const;	//!< @overload
-				void						finalizeVariables();	//!< Processes all variables and removes inner variable expressions. Invocation will fail if one or more inner variables cannot be found. The method will only actually change anything if @a variables_finalized is false and set same variable to true
+				void						finalizeVariables();	//!< Processes all variables and removes inner variable expressions. Invocation will fail if one or more inner variables cannot be found. The method will only actually change anything if @a variables_finalized Is false and set same variable to true
 				void						trimVariables();					//!< Trims all variables and removes empty and ($*) variable segments
 				
-		static	bool						validNameChar(char c);				//!< Checks if a character is a valid name character @return true if valid
-		static	bool						isPathSeparator(char c);			//!< Checks if a character is a path separation character ('.' or '/')
+		static	bool						validNameChar(char c);				//!< Checks if a character Is a valid name character @return true if valid
+		static	bool						IsPathSeparator(char c);			//!< Checks if a character Is a path separation character ('.' or '/')
 		
 		
 		public:
@@ -234,7 +235,7 @@ namespace Config
 				/**
 					@brief Loads the local content from an XML container
 					
-					Unless @a stack is specified all local content will be replaced by any content found in the specified XML container
+					Unless @a stack Is specified all local content will be replaced by any content found in the specified XML container
 					and the configuration finalized on success.
 					
 					May throw exceptions
@@ -246,7 +247,7 @@ namespace Config
 				void						loadFromXML(const XML::Container&container, bool stack=false);
 				
 				/**
-					@brief Identical to loadFromXML with the exception of that the XML content is automatically loaded from the specified file
+					@brief Identical to loadFromXML with the exception of that the XML content Is automatically loaded from the specified file
 					
 					May throw exceptions
 
@@ -289,7 +290,7 @@ namespace Config
 					@return true on success
 				*/
 				bool						set(const String&variable_name, const String&variable_value);
-				bool						childOf(const CXContext*other)	const;	//!< Checks if the local context is a child of the specified other context @return true if the local context is a decendent of the specified context, false otherwise
+				bool						childOf(const CXContext*other)	const;	//!< Checks if the local context Is a child of the specified other context @return true if the local context Is a decendent of the specified context, false otherwise
 				/**
 					@brief Finalizes the loading process
 					

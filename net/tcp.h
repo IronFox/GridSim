@@ -212,7 +212,7 @@ namespace TCP
 		This structure is for inheritance only and does not provide public members.
 	*/
 
-	class RootChannel
+	class RootChannel 
 	{
 	protected:
 		const UINT32		id;			//!< Channel id. Unmutable
@@ -234,7 +234,7 @@ namespace TCP
 
 		This method is called asynchronously by the respective connection's worker thread.
 		*/
-		virtual	PSerializableObject	Deserialize(IReadStream&stream,serial_size_t fixed_size,const PPeer&sender)
+		virtual	PSerializableObject	Deserialize(IReadStream&stream,serial_size_t fixed_size,Peer&sender)
 		{
 			return PSerializableObject();
 		}
@@ -244,7 +244,7 @@ namespace TCP
 		The method is invoked only, if Deserialize() returned a new non-NULL object.
 		Depending on whether the connection is synchronous or asynchronous, this method is called my the main thread, or the connection's worker thread.
 		*/
-		virtual	void				Handle(const PSerializableObject&serializable,const PPeer&sender)	{FATAL__("Channel failed to override handle()");};
+		virtual	void				Handle(const PSerializableObject&serializable,Peer&sender)	{FATAL__("Channel failed to override handle()");};
 	public:
 	};
 
@@ -256,7 +256,7 @@ namespace TCP
 		class ObjectSender:public RootChannel
 		{
 		protected:
-			virtual	PSerializableObject	Deserialize(IReadStream&stream,serial_size_t fixed_size,const PPeer&sender)	override
+			virtual	PSerializableObject	Deserialize(IReadStream&stream,serial_size_t fixed_size,Peer&sender)	override
 			{
 				return PSerializableObject();
 			}
@@ -413,20 +413,20 @@ namespace TCP
 		struct TInbound
 		{
 			PSerializableObject		object;
-			PPeer					sender;
+			Peer					*sender;	//cannot avoid pointer here
 			RootChannel				*receiver;
 		};
 			
 		struct TEvent
 		{
 			event_t					event;
-			PPeer					sender;
+			Peer					*sender;
 		};
 			
 		struct TSignal
 		{
 			UINT32					channel;
-			PPeer					sender;
+			Peer					*sender;
 		};
 			
 		Queue<TInbound>				object_queue;
@@ -443,15 +443,15 @@ namespace TCP
 		friend class Peer;
 			
 		void						HandlePeerDeletion(const PPeer&);
-		void						HandleSignal(UINT32 signal, const PPeer&sender);
-		void						HandleObject(RootChannel*receiver, const PPeer&sender, const PSerializableObject&object);
-		void						HandleEvent(event_t event, const PPeer&origin);
+		void						HandleSignal(UINT32 signal, Peer&sender);
+		void						HandleObject(RootChannel*receiver, Peer&sender, const PSerializableObject&object);
+		void						HandleEvent(event_t event, Peer&origin);
 		RootChannel*				getReceiver(UINT32 channel_id, unsigned user_level);
 			
 	public:
-		void (*onEvent)(event_t event, const PPeer&origin);	//!< Callback hook for events (connection, disconnection, etc)	@param event Event that occured @param origin Event origin
-		void (*onSignal)(UINT32 signal, const PPeer&origin);	//!< Callback hook for signals (data-less packages) @param signal Channel that the data-less package was received on @param origin Origin of the signal
-		void (*onIgnorePackage)(UINT32 channel,UINT32 size,const PPeer&origin);	//!< Callback hook for ignored packages. Always async. @param channel Channel the package or signal was received on @param size Package size in bytes @param origin Receiving peer
+		void (*onEvent)(event_t event, Peer&origin);	//!< Callback hook for events (connection, disconnection, etc)	@param event Event that occured @param origin Event origin
+		void (*onSignal)(UINT32 signal, Peer&origin);	//!< Callback hook for signals (data-less packages) @param signal Channel that the data-less package was received on @param origin Origin of the signal
+		void (*onIgnorePackage)(UINT32 channel,UINT32 size,Peer&origin);	//!< Callback hook for ignored packages. Always async. @param channel Channel the package or signal was received on @param size Package size in bytes @param origin Receiving peer
 	
 		/**/						Dispatcher();
 		virtual						~Dispatcher();
@@ -615,7 +615,9 @@ namespace TCP
 		void				ThreadMain();
 	public:
 		String				connect_target;	//!< Target address
-		Client				*client;		//!< Client to connect
+		Client				*const client;		//!< Client to connect
+
+		/**/				ConnectionAttempt(Client*parent):client(parent)	{}
 	};
 
 	/**
@@ -623,7 +625,7 @@ namespace TCP
 		
 		The Client object establishes and maintains a connection to a server. Multiple connections to different servers require different instances of Client.
 	*/
-	class Client:public Connection, public Peer
+	class Client : public Connection, public Peer
 	{
 	protected:
 		ConnectionAttempt	attempt;
@@ -634,7 +636,7 @@ namespace TCP
 		void				fail(const String&message);
 	public:
 					
-		/**/				Client():Peer(this,false),is_connected(false)
+		/**/				Client():Peer(this,false),is_connected(false),attempt(this)
 							{}
 		virtual				~Client()
 							{
@@ -645,6 +647,8 @@ namespace TCP
 		bool				Connect(const String&url);		//!< Attempts to connect to a remote server and waits until a connection was established (or not establishable). Depending on the local connection this may lag for a few seconds. @return true if a connection could be established, false otherwise.
 		void				ConnectAsync(const String&url);	//!< Starts the process of connecting to a remote host. Due to the asynchronous nature of this method, No immediate result is available. Hook a function into the local object's inherited @a onEvent callback pointer to receive information about success or failure
 			
+		bool				IsConnected() const {return is_connected;}
+
 		bool				IsAttemptingToConnect()	const	//!< Queries whether or not the client is currently attempting to connect
 							{
 								return attempt.isActive();
@@ -664,6 +668,8 @@ namespace TCP
 		volatile bool		clients_locked,
 							is_shutting_down;
 
+		Peer				centralPeer;	//used for server-events to not pass null
+
 		SocketAccess		*socketAccess;
 
 		//Array<BYTE>		out_buffer;
@@ -680,7 +686,7 @@ namespace TCP
 		USHORT				port;			//!< Read only variable which is updated during StartService()
 	public:
 	
-							Server():socket_handle(INVALID_SOCKET),clients_locked(false),is_shutting_down(false),socketAccess(new DefaultSocketAccess())
+							Server():socket_handle(INVALID_SOCKET),clients_locked(false),is_shutting_down(false),socketAccess(new DefaultSocketAccess()),centralPeer(this,false)
 							{}
 		virtual				~Server()
 							{
@@ -769,20 +775,20 @@ namespace TCP
 		{
 		public:
 			typedef ObjectSender<Object,ChannelID>	Super;
-			void					(*onObjectReceive)(Object&object, const PPeer&sender);
+			void					(*onObjectReceive)(Object&object, Peer&sender);
 			void					(*onSimpleObjectReceive)(Object&object);
 		protected:
 				
 				
-			virtual	void			Handle(const PSerializableObject&serializable,const PPeer&sender)	override
+			virtual	void			Handle(const PSerializableObject&serializable,Peer&sender)	override
 			{
-				if (!sender || sender->userLevel >= MinUserLevel)
+				if (sender.userLevel >= MinUserLevel)
 					OnReceive((Object&)*serializable,sender);
 				//discard((Object*)serializable);
 			}
 								
 								
-			virtual	PSerializableObject	Deserialize(IReadStream&stream,serial_size_t fixed_size,const PPeer&sender)	override
+			virtual	PSerializableObject	Deserialize(IReadStream&stream,serial_size_t fixed_size,Peer&sender)	override
 			{
 				PSerializableObject result (new Object());
 				if (!result->Deserialize(stream,fixed_size))
@@ -792,7 +798,7 @@ namespace TCP
 				return result;
 			}
 								
-			virtual	void			OnReceive(Object&object, const PPeer&sender)
+			virtual	void			OnReceive(Object&object, Peer&sender)
 			{
 				if (onObjectReceive)
 					onObjectReceive(object,sender);
@@ -805,7 +811,7 @@ namespace TCP
 			/**/			Channel():onObjectReceive(NULL),onSimpleObjectReceive(NULL)
 							{}
 								
-			/**/			Channel(void(*onObjectReceive_)(Object&object, const PPeer&sender)):onObjectReceive(onObjectReceive_),onSimpleObjectReceive(NULL)
+			/**/			Channel(void(*onObjectReceive_)(Object&object, Peer&sender)):onObjectReceive(onObjectReceive_),onSimpleObjectReceive(NULL)
 							{}
 			/**/			Channel(void(*onObjectReceive_)(Object&object)):onObjectReceive(NULL),onSimpleObjectReceive(onObjectReceive_)
 							{}

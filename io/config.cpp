@@ -35,7 +35,7 @@ namespace Config
 
 	Context::Attribute*		Context::protectedDefine(const String&name, const String&value)
 	{
-		if (!this || name.isEmpty())
+		if (!this || name.IsEmpty())
 			return NULL;
 		Attribute*result;
 		if (attribute_map.query(name,result))
@@ -72,14 +72,14 @@ namespace Config
 	
 	Context*					Context::protectedDefineContext(const String&name)
 	{
-		if (!this || name.isEmpty())
+		if (!this || name.IsEmpty())
 			return NULL;
 		Context*result;
 		if (child_map.query(name,result))
 			return result;
 		result = children.append();
 		result->name = name;
-		result->is_mode = false;
+		result->Is_mode = false;
 		child_map.set(name,result);
 		return result;
 	}
@@ -99,7 +99,7 @@ namespace Config
 		Context*result;
 		result = children.append();
 		result->name = name;
-		result->is_mode = false;
+		result->Is_mode = false;
 		child_map.set(name,result);
 		return result;
 	}
@@ -111,7 +111,7 @@ namespace Config
 			return result;
 		result = modes.append();
 		result->name = name;
-		result->is_mode = true;
+		result->Is_mode = true;
 		mode_map.set(name,result);
 		return result;
 	}
@@ -180,7 +180,7 @@ namespace Config
 	}
 
 
-	Context::Attribute*					Context::getAttrib(const String&path)
+	Context::Attribute*					Context::GetAttrib(const String&path)
 	{
 		Array<String,Adopt>	segments;
 		explode('/',path,segments);
@@ -196,7 +196,7 @@ namespace Config
 			
 		}
 		//std::cout << "retrieving attribute '"+implode(", ",segments)+"' ("+mode+")"<<std::endl;
-		Context*context = (segments.count()>1||mode.length())?getContext(segments.pointer(),segments.count()-1,mode):this;
+		Context*context = (segments.count()>1||mode.length())?GetContext(segments.pointer(),segments.count()-1,mode):this;
 		if (!context)
 		{
 			//std::cout << " context could not be located"<<std::endl;
@@ -218,7 +218,7 @@ namespace Config
 	}
 
 
-	const Context::Attribute*				Context::getAttrib(const String&path)						const
+	const Context::Attribute*				Context::GetAttrib(const String&path)						const
 	{
 		Array<String,Adopt>	segments;
 		explode('/',path,segments);
@@ -233,7 +233,7 @@ namespace Config
 				segments.erase(index_t(0));
 			
 		}
-		const Context*context = (segments.count()>1||mode.length())?getContext(segments.pointer(),segments.count()-1,mode):this;
+		const Context*context = (segments.count()>1||mode.length())?GetContext(segments.pointer(),segments.count()-1,mode):this;
 		if (!context)
 			return NULL;
 		Attribute*result;
@@ -242,58 +242,68 @@ namespace Config
 		return NULL;
 	}
 	
-	const String&				Context::get(const String&path, const String&except)	const
+	const String&				Context::Get(const String&path, const String&except)	const
 	{
-		const Attribute*rs = getAttrib(path);
+		const Attribute*rs = GetAttrib(path);
 		return rs?rs->value:except;
 	}
-	
-	int							Context::getInt(const String&path, int except)			const
+	bool				Context::QueryString(const String&path, String&outResult)	const
 	{
-		const Attribute*rs = getAttrib(path);
+		const Attribute*rs = GetAttrib(path);
+		if (rs)
+		{
+			outResult = rs->value;
+			return true;
+		}
+		return false;
+	}
+	
+	int							Context::GetInt(const String&path, int except)			const
+	{
+		const Attribute*rs = GetAttrib(path);
 		int result;
 		if (!rs || !convert(rs->value.c_str(),result))
 			return except;
 		return result;
 	}
 	
-	unsigned					Context::getUnsigned(const String&path, unsigned except)	const
+	unsigned					Context::GetUnsigned(const String&path, unsigned except)	const
 	{
-		const Attribute*rs = getAttrib(path);
+		const Attribute*rs = GetAttrib(path);
 		unsigned result;
 		if (!rs || !convert(rs->value.c_str(),result))
 			return except;
 		return result;
 	}
 
-	float						Context::getFloat(const String&path, float except)		const
+	float						Context::GetFloat(const String&path, float except)		const
 	{
-		const Attribute*rs = getAttrib(path);
+		const Attribute*rs = GetAttrib(path);
 		float result;
 		if (!rs || !convert(rs->value.c_str(),result))
 			return except;
 		return result;
 	}
 
-	bool						Context::getBool(const String&path, bool except)		const
+	bool						Context::GetBool(const String&path, bool except)		const
 	{
-		const Attribute*rs = getAttrib(path);
+		const Attribute*rs = GetAttrib(path);
 		bool result;
 		if (!rs || !convert(rs->value.c_str(),result))
 			return except;
 		return result;
 	}
 
-	Key::Name					Context::getKey(const String&path, Key::Name except)		const
+	Key::Name					Context::GetKey(const String&path, Key::Name except)		const
 	{
-		const Attribute*rs = getAttrib(path);
+		const Attribute*rs = GetAttrib(path);
 		Key::Name result;
 		if (!rs || !convert(rs->value.c_str(),result))
 			return except;
 		return result;
 	}
 
-	Context*					Context::getContext(const String&path)
+	Context*					Context::GetContext(const String&path)
 	{
 		Array<String,Adopt>	segments;
 		explode('/',path,segments);
@@ -305,21 +315,21 @@ namespace Config
 			mode = segments.first().subString(0,at-1);
 			segments.first().erase(0,at);
 		}
-		return getContext(segments.pointer(),segments.count(),mode);
+		return GetContext(segments.pointer(),segments.count(),mode);
 	}
 	
-	Context*					Context::getContext(const String*path, size_t path_len, const String&mode)
+	Context*					Context::GetContext(const String*path, size_t path_len, const String&mode)
 	{
 		Context*n;
 		if (mode.length() && mode_map.query(mode,n))
-			if (Context*rs = n->getContext(path,path_len,""))
+			if (Context*rs = n->GetContext(path,path_len,""))
 				return rs;
 		if (path_len && child_map.query(*path,n))
-			return n->getContext(path+1,path_len-1,mode);
+			return n->GetContext(path+1,path_len-1,mode);
 		return path_len || mode.length()?NULL:this;
 	}
 	
-	const Context*					Context::getContext(const String&path) const
+	const Context*					Context::GetContext(const String&path) const
 	{
 		Array<String,Adopt>	segments;
 		explode('/',path,segments);
@@ -331,24 +341,24 @@ namespace Config
 			mode = segments.first().subString(0,at-1);
 			segments.first().erase(0,at);
 		}
-		return getContext(segments.pointer(),segments.count(),mode);
+		return GetContext(segments.pointer(),segments.count(),mode);
 	}
 	
-	const Context*					Context::getContext(const String*path, size_t path_len, const String&mode) const
+	const Context*					Context::GetContext(const String*path, size_t path_len, const String&mode) const
 	{
 		Context*n;
 		if (mode.length() && mode_map.query(mode,n))
-			if (const Context*rs = ((const Context*)n)->getContext(path,path_len,""))
+			if (const Context*rs = ((const Context*)n)->GetContext(path,path_len,""))
 				return rs;
 		if (path_len && child_map.query(*path,n))
-			return ((const Context*)n)->getContext(path+1,path_len-1,mode);
+			return ((const Context*)n)->GetContext(path+1,path_len-1,mode);
 		return path_len || mode.length()?NULL:this;
 	}
 	
-	const String&					Context::getOperator(const String&path)						const
+	const String&					Context::GetOperator(const String&path)						const
 	{
 		static String empty = "";
-		const Attribute*attrib = getAttrib(path);
+		const Attribute*attrib = GetAttrib(path);
 		if (!attrib)
 			return empty;
 		return attrib->assignment_operator;
@@ -360,7 +370,7 @@ namespace Config
 		while (Context*child = children.each())
 		{
 			child->cleanup();
-			if (child->isEmpty())
+			if (child->IsEmpty())
 			{
 				child_map.unSet(child->name);
 				children.erase();
@@ -371,7 +381,7 @@ namespace Config
 		while (Context*mode = modes.each())
 		{
 			mode->cleanup();
-			if (mode->isEmpty())
+			if (mode->IsEmpty())
 			{
 				mode_map.unSet(mode->name);
 				modes.erase();
@@ -379,7 +389,7 @@ namespace Config
 		}
 	}
 	
-	bool		Context::isEmpty() const
+	bool		Context::IsEmpty() const
 	{
 		return !children && !attributes && !modes;
 	}
@@ -486,7 +496,7 @@ namespace Config
 	
 	}
 	
-	bool	Container::isOperator(const String&string)
+	bool	Container::IsOperator(const String&string)
 	{
 		if (string == '=')
 			return true;
@@ -505,7 +515,7 @@ namespace Config
 		return false;
 	}
 	
-	unsigned	Container::getDepth(const char*line)
+	unsigned	Container::GetDepth(const char*line)
 	{
 		unsigned depth = 0;
 		for(;;)
@@ -551,7 +561,7 @@ namespace Config
 			if (!line.trim().length())
 				continue;
 			//logfile << ' '<<line<<nl;
-			unsigned depth = getDepth(line.c_str());
+			unsigned depth = GetDepth(line.c_str());
 			String group = line.getBetween('[',']').trimThis();
 			if (depth >= stack_elements)
 			{
@@ -585,7 +595,7 @@ namespace Config
 				bool exists = false;
 				stack_elements.reset();
 				while (Context*ctx = stack_elements.each())
-					if (ctx->isMode())
+					if (ctx->IsMode())
 					{
 						exists = true;
 						break;
@@ -615,9 +625,9 @@ namespace Config
 				Tokenizer::tokenize(line,configuration,tokens);
 				if (!tokens)
 					continue;
-				if (tokens != 3 || !isOperator(tokens[1]))
+				if (tokens != 3 || !IsOperator(tokens[1]))
 				{
-					error += "\nSyntax error in line "+String(file.root_line)+(isOperator(tokens[1])?"":" (invalid operator)")+":\n "+line;
+					error += "\nSyntax error in line "+String(file.root_line)+(IsOperator(tokens[1])?"":" (invalid operator)")+":\n "+line;
 					errors = true;
 					continue;
 				}
@@ -692,11 +702,11 @@ namespace Config
 	
 	bool						Container::hasErrors()	const
 	{
-		return error.isNotEmpty();
+		return error.IsNotEmpty();
 	
 	}
 	
-	const String&				Container::getError()	const
+	const String&				Container::GetError()	const
 	{
 		return error;
 	}
@@ -704,12 +714,12 @@ namespace Config
 	bool									CXContext::process(String&expression, bool singular, String*error_out)	const
 	{
 		Buffer<index_t>	segment_start(2);
-		Buffer<bool>		is_segment(2);
+		Buffer<bool>		Is_segment(2);
 		for (index_t i = 0; i < expression.length(); i++)
 		{
 			if (expression.get(i) == '(')
 			{
-				is_segment << !(i+1 == expression.length() || expression.get(i+1)!='$');
+				Is_segment << !(i+1 == expression.length() || expression.get(i+1)!='$');
 				segment_start << i;
 			}
 			elif (expression.get(i) == ')')
@@ -721,7 +731,7 @@ namespace Config
 					return false;
 				}
 				index_t start = segment_start.pop();
-				if (!is_segment.pop())
+				if (!Is_segment.pop())
 					continue;
 				String key = expression.subString(start+2,i-start-2);
 				if (key == '*')
@@ -787,7 +797,7 @@ namespace Config
 	CXContext::Variable*					CXContext::findVariable(const String&path)
 	{
 		Array<String,Adopt>	segments;
-		explodeCallback(isPathSeparator,path,segments);
+		explodeCallback(IsPathSeparator,path,segments);
 		CXContext*context = this;
 		while (context->parent)
 			context = context->parent;
@@ -797,7 +807,7 @@ namespace Config
 	const CXContext::Variable*					CXContext::findVariable(const String&path)	const
 	{
 		Array<String,Adopt>	segments;
-		explodeCallback(isPathSeparator,path,segments);
+		explodeCallback(IsPathSeparator,path,segments);
 		const CXContext*context = this;
 		while (context->parent)
 			context = context->parent;
@@ -832,7 +842,7 @@ namespace Config
 	CXContext*					CXContext::findContext(const String&path)
 	{
 		Array<String,Adopt>	segments;
-		explodeCallback(isPathSeparator,path,segments);
+		explodeCallback(IsPathSeparator,path,segments);
 		CXContext*context = this;
 		while (context->parent)
 			context = context->parent;
@@ -842,7 +852,7 @@ namespace Config
 	const CXContext*					CXContext::findContext(const String&path)	const
 	{
 		Array<String,Adopt>	segments;
-		explodeCallback(isPathSeparator,path,segments);
+		explodeCallback(IsPathSeparator,path,segments);
 		const CXContext*context = this;
 		while (context->parent)
 			context = context->parent;
@@ -892,7 +902,7 @@ namespace Config
 		if (!lines.count())
 			return;
 		lines.last().trimThis();
-		if (!lines.last().isEmpty())
+		if (!lines.last().IsEmpty())
 			throw IO::DriveAccess::FileDataFault("; expected at end of line '"+lines.last()+"'");
 		
 		if (lines.count() == 1)
@@ -906,8 +916,8 @@ namespace Config
 
 			String	name = lines[i].subString(0,at-1).trim(),
 					value = lines[i].subString(at).trim();
-			if (name.isEmpty() || !name.isValid(validNameChar))
-				throw IO::DriveAccess::FileDataFault("Name validation failed. '"+name+"' is no valid variable name");
+			if (name.IsEmpty() || !name.isValid(validNameChar))
+				throw IO::DriveAccess::FileDataFault("Name validation failed. '"+name+"' Is no valid variable name");
 
 			std::cout << "defining variable '"<<name<<"' in "<<this->name<<std::endl;
 			Variable*var = variables.append(name);
@@ -929,7 +939,7 @@ namespace Config
 	void	CXContext::loadStacked(const XML::Node*node)
 	{
 		if (!node)
-			throw IO::ParameterFault(globalString("Provided node is NULL"));
+			throw IO::ParameterFault(globalString("Provided node Is NULL"));
 
 
 		std::cout << "now processing node '"<<node->name<<"'"<<std::endl;
@@ -982,7 +992,7 @@ namespace Config
 			for (unsigned i = 0; i < (*it)->count(); i++)
 			{
 				(*(*it))[i].trimThis();
-				if ((*(*it))[i].isEmpty() || (*(*it))[i] == "($*)")
+				if ((*(*it))[i].IsEmpty() || (*(*it))[i] == "($*)")
 				{
 					(*it)->erase(i--);
 				}
@@ -1020,7 +1030,7 @@ namespace Config
 					for (index_t k = 0; k < inherit.count(); k++)
 					{
 						inherit[k].trimThis();
-						if (inherit[k].isEmpty())
+						if (inherit[k].IsEmpty())
 							continue;
 						CXContext*target = findContext(inherit[k]);
 						if (!target)
@@ -1129,7 +1139,7 @@ namespace Config
 		loadFromXML(container,stack);
 	}
 	
-	bool	CXContext::isPathSeparator(char c)
+	bool	CXContext::IsPathSeparator(char c)
 	{
 		return c == '.' || c == '/';
 	}
@@ -1137,7 +1147,7 @@ namespace Config
 	bool	CXContext::set(const String&variable_name, const String&variable_value)
 	{
 		Array<String,Adopt>	segments;
-		explodeCallback(isPathSeparator,variable_name,segments);
+		explodeCallback(IsPathSeparator,variable_name,segments);
 		CXContext*context = this;
 		CXContext*result;
 		String var_name = segments.last();
