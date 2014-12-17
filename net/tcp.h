@@ -86,7 +86,7 @@ namespace TCP
 				//Timer::Time t0 = timer.Now();
 				timeval tv;
 				tv.tv_sec = 0;
-				tv.tv_usec = 0;
+				tv.tv_usec = 100000;
 				FD_SET set;
 				FD_ZERO(&set);
 				FD_SET(socketHandle,&set);

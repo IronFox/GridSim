@@ -772,6 +772,17 @@ namespace TCP
 			SOCKET handle;
 			socklen_t size = (socklen_t)sizeof(addr);
 			handle = accept( socket_handle, (sockaddr*)&addr,&size);
+
+			if (handle != INVALID_SOCKET)
+			{
+				int i = 1;
+				if (setsockopt( handle, IPPROTO_TCP, TCP_NODELAY, (const char *)&i, sizeof(i)) == SOCKET_ERROR )
+				{
+					closesocket(handle);
+					handle = INVALID_SOCKET;
+				}
+			}
+
 			if (handle == INVALID_SOCKET)
 			{
 				if (socket_handle == INVALID_SOCKET)
