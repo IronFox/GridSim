@@ -83,19 +83,20 @@ namespace TCP
 					* end = at + dataSize;
 			while (at < end)
 			{
-				//Timer::Time t0 = timer.Now();
-				timeval tv;
-				tv.tv_sec = 0;
-				tv.tv_usec = 100000;
-				FD_SET set;
-				FD_ZERO(&set);
-				FD_SET(socketHandle,&set);
-				select(1,nullptr,&set,nullptr,&tv);
-				if (!FD_ISSET(socketHandle,&set))
-				{
-					return -1;
-				}
-				//ShowOnce(timer.GetSecondsSinceD(t0));	//seems harmless enough ... for now
+				#if 0
+					//this works ... a little too well:
+					timeval tv;
+					tv.tv_sec = 0;
+					tv.tv_usec = 100000;
+					FD_SET set;
+					FD_ZERO(&set);
+					FD_SET(socketHandle,&set);
+					select(1,nullptr,&set,nullptr,&tv);
+					if (!FD_ISSET(socketHandle,&set))
+					{
+						return -1;
+					}
+				#endif /*0*/
 
 				int sent = send(socketHandle,at,end-at,0);
 				if (sent <= 0)
