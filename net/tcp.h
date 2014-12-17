@@ -83,6 +83,20 @@ namespace TCP
 					* end = at + dataSize;
 			while (at < end)
 			{
+				//Timer::Time t0 = timer.Now();
+				timeval tv;
+				tv.tv_sec = 0;
+				tv.tv_usec = 0;
+				FD_SET set;
+				FD_ZERO(&set);
+				FD_SET(socketHandle,&set);
+				select(1,nullptr,&set,nullptr,&tv);
+				if (!FD_ISSET(socketHandle,&set))
+				{
+					return -1;
+				}
+				//ShowOnce(timer.GetSecondsSinceD(t0));	//seems harmless enough ... for now
+
 				int sent = send(socketHandle,at,end-at,0);
 				if (sent <= 0)
 					return sent;
@@ -647,7 +661,7 @@ namespace TCP
 		bool				Connect(const String&url);		//!< Attempts to connect to a remote server and waits until a connection was established (or not establishable). Depending on the local connection this may lag for a few seconds. @return true if a connection could be established, false otherwise.
 		void				ConnectAsync(const String&url);	//!< Starts the process of connecting to a remote host. Due to the asynchronous nature of this method, No immediate result is available. Hook a function into the local object's inherited @a onEvent callback pointer to receive information about success or failure
 			
-		bool				IsConnected() const {return is_connected;}
+		//bool				IsConnected() const {return is_connected;}	//implemented by Peer
 
 		bool				IsAttemptingToConnect()	const	//!< Queries whether or not the client is currently attempting to connect
 							{
