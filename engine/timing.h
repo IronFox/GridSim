@@ -21,9 +21,10 @@ namespace Engine
 	class Timing
 	{
 	public:
-	        Timer::Time	ticks_per_second,
+	        Timer::Time		ticks_per_second,
 							now64,
-			                delta64;
+			                delta64,
+							timerReference;
 	        float   		delta;
 			double			now;
 
