@@ -158,7 +158,26 @@ functions:
 		distance = alpha;
 		return true;
 
+	SphereContainsPoint(const [3] center, radius, const [3] p) -> bool
+		return :<quadraticDistance>(center,p) <= sqr(radius);
 	
+	
+	detectSphereEdgeIntersection,DetectSphereEdgeIntersection(const [3] center, radius, const [3] e0, const [3] e1) -> bool
+		if (:<SphereContainsPoint>(center,radius,e0) || :<SphereContainsPoint>(center,radius,e1))
+			return true;
+		:vector(d);
+		:<sub>(e1,e0,d);
+		:vector(delta);
+		:<sub>(e0,center,delta);
+		:float	pa = :<dot>(d,d),
+				pb = 2*:<dot>(d,delta),
+				pc = :<dot>(delta)-sqr(radius),
+				rs[2];
+		BYTE num_rs = solveSqrEquation(pa,pb,pc,rs);
+		if (!num_rs)
+			return false;
+		:float	alpha = smallestPositiveResult(rs,num_rs);
+		return alpha >= (:float)0 && alpha <= (:float)1;
 
 	detTriangleRayIntersection(const [3] t0, const [3] t1, const [3] t2, const [3] b, const [3] f {Ray direction vector: any length greater 0}, [3] result) -> bool { true if a point of intersection could be determined, false otherwise. The out array will remain unchanged if the function returns false.}
 		{Similar to _oDetTriangleEdgeIntersection(), _oDetTriangleRayIntersection() determines the factors (a, b, c) of the intersection of the specified triangle and ray (if any).<br>Unless the ray and triangle are parallel the resulting factors are written to the specified out array: out[0] = a, out[1] = b, out[2] = c.<br>The solved intersection equation is: x (point of intersection) = t0 + (t1-t0)*a + (t2-t0)*b = b + f*c}

@@ -2,8 +2,10 @@
 #define object_operationsH
 /*
 
-Warning: date(): It is not safe to rely on the system's timezone settings. You are *required* to use the date.timezone setting or the date_default_timezone_set() function. In case you used any of those methods and you are still getting this warning, you most likely misspelled the timezone identifier. We selected the timezone 'UTC' for now, but please set date.timezone to select your timezone. in E:\include\math\update.php on line 1656
-This file was generated from template definition 'object.template.php' on 2013 May 5th 11:27:40
+Warning: date(): It is not safe to rely on the system's timezone settings. You are *required* to use the date.timezone setting or the date_default_timezone_set() function. In case you used any of those methods and you are still getting this warning, you most likely misspelled the timezone identifier. We selected 'Europe/Paris' for '1.0/no DST' instead in E:\include\math\update.php on line 1656
+
+Warning: date(): It is not safe to rely on the system's timezone settings. You are *required* to use the date.timezone setting or the date_default_timezone_set() function. In case you used any of those methods and you are still getting this warning, you most likely misspelled the timezone identifier. We selected 'Europe/Paris' for '1.0/no DST' instead in E:\include\math\update.php on line 1656
+This file was generated from template definition 'object.template.php' on 2014 December 20th 16:08:03
 Do not edit
 */
 
@@ -490,6 +492,113 @@ namespace Obj
 				return false;
 			distance = alpha;
 			return true;
+		}
+
+	//now implementing template definition 'bool SphereContainsPoint (<const [3] center>, <radius>, <const [3] p>) direct='
+	/**
+		@brief <br>
+		<br>
+		SphereContainsPoint() requires vector objects to operate on, rather than raw pointers. Use ref*() to create a temporary reference object to existing array pointers<br>
+		Scalar values are passed as copies rather than by const reference. Use this version for primitive types only.<br>
+	
+		@param[in] center 
+		@param[in] radius 
+		@param[in] p 
+		@return  
+	*/
+	template <typename T0, typename T1, typename T2>
+		inline	bool	__fastcall	SphereContainsPoint(const TVec3<T0>& center, T1 radius, const TVec3<T2>& p)throw()
+		{
+			return (sqr(center.x - p.x) + sqr(center.y - p.y) + sqr(center.z - p.z)) <= sqr(radius);
+		}
+
+	//now implementing template definition 'bool detectSphereEdgeIntersection|DetectSphereEdgeIntersection (<const [3] center>, <radius>, <const [3] e0>, <const [3] e1>) direct='
+	/**
+		@brief <br>
+		<br>
+		detectSphereEdgeIntersection() requires vector objects to operate on, rather than raw pointers. Use ref*() to create a temporary reference object to existing array pointers<br>
+		Scalar values are passed as copies rather than by const reference. Use this version for primitive types only.<br>
+	
+		@param[in] center 
+		@param[in] radius 
+		@param[in] e0 
+		@param[in] e1 
+		@return  
+	*/
+	template <typename T0, typename T1, typename T2, typename T3>
+		inline	bool	__fastcall	detectSphereEdgeIntersection(const TVec3<T0>& center, T1 radius, const TVec3<T2>& e0, const TVec3<T3>& e1)throw()
+		{
+			if (((sqr(center.x - e0.x) + sqr(center.y - e0.y) + sqr(center.z - e0.z)) <= sqr(radius)) || ((sqr(center.x - e1.x) + sqr(center.y - e1.y) + sqr(center.z - e1.z)) <= sqr(radius)))
+				return true;
+			TVec3<T0> d;
+			
+			//block inlining void subtract|sub (2..4) (<const [*] v>, <const [*] w>, <[*] result>) direct=1 for dimensions=3, assembly_mode='Objects', parameters={e1, e0, d}...
+			{
+				d.x = e1.x - e0.x;
+				d.y = e1.y - e0.y;
+				d.z = e1.z - e0.z;
+			};
+			TVec3<T0> delta;
+			
+			//block inlining void subtract|sub (2..4) (<const [*] v>, <const [*] w>, <[*] result>) direct=1 for dimensions=3, assembly_mode='Objects', parameters={e0, center, delta}...
+			{
+				delta.x = e0.x - center.x;
+				delta.y = e0.y - center.y;
+				delta.z = e0.z - center.z;
+			};
+			T0	pa = (d.x*d.x + d.y*d.y + d.z*d.z),
+					pb = 2*(d.x*delta.x + d.y*delta.y + d.z*delta.z),
+					pc = (delta.x*delta.x + delta.y*delta.y + delta.z*delta.z)-sqr(radius),
+					rs[2];
+			BYTE num_rs = solveSqrEquation(pa,pb,pc,rs);
+			if (!num_rs)
+				return false;
+			T0	alpha = smallestPositiveResult(rs,num_rs);
+			return alpha >= (T0)0 && alpha <= (T0)1;
+		}
+
+	/**
+		@brief <br>
+		<br>
+		DetectSphereEdgeIntersection() requires vector objects to operate on, rather than raw pointers. Use ref*() to create a temporary reference object to existing array pointers<br>
+		Scalar values are passed as copies rather than by const reference. Use this version for primitive types only.<br>
+	
+		@param[in] center 
+		@param[in] radius 
+		@param[in] e0 
+		@param[in] e1 
+		@return  
+	*/
+	template <typename T0, typename T1, typename T2, typename T3>
+		inline	bool	__fastcall	DetectSphereEdgeIntersection(const TVec3<T0>& center, T1 radius, const TVec3<T2>& e0, const TVec3<T3>& e1)throw()
+		{
+			if (((sqr(center.x - e0.x) + sqr(center.y - e0.y) + sqr(center.z - e0.z)) <= sqr(radius)) || ((sqr(center.x - e1.x) + sqr(center.y - e1.y) + sqr(center.z - e1.z)) <= sqr(radius)))
+				return true;
+			TVec3<T0> d;
+			
+			//block inlining void subtract|sub (2..4) (<const [*] v>, <const [*] w>, <[*] result>) direct=1 for dimensions=3, assembly_mode='Objects', parameters={e1, e0, d}...
+			{
+				d.x = e1.x - e0.x;
+				d.y = e1.y - e0.y;
+				d.z = e1.z - e0.z;
+			};
+			TVec3<T0> delta;
+			
+			//block inlining void subtract|sub (2..4) (<const [*] v>, <const [*] w>, <[*] result>) direct=1 for dimensions=3, assembly_mode='Objects', parameters={e0, center, delta}...
+			{
+				delta.x = e0.x - center.x;
+				delta.y = e0.y - center.y;
+				delta.z = e0.z - center.z;
+			};
+			T0	pa = (d.x*d.x + d.y*d.y + d.z*d.z),
+					pb = 2*(d.x*delta.x + d.y*delta.y + d.z*delta.z),
+					pc = (delta.x*delta.x + delta.y*delta.y + delta.z*delta.z)-sqr(radius),
+					rs[2];
+			BYTE num_rs = solveSqrEquation(pa,pb,pc,rs);
+			if (!num_rs)
+				return false;
+			T0	alpha = smallestPositiveResult(rs,num_rs);
+			return alpha >= (T0)0 && alpha <= (T0)1;
 		}
 
 	//now implementing template definition 'bool detTriangleRayIntersection (<const [3] t0>, <const [3] t1>, <const [3] t2>, <const [3] b>, <const [3] f>, <[3] result>) direct='
