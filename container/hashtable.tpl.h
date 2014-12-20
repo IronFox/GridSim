@@ -484,7 +484,7 @@ template <class K, class Hash, class KeyStrategy>
 		{
 			bool did_occupy = false;
 			Base::find(Hash::hash(ident),ident,true,&did_occupy);
-			return !did_occupy;
+			return did_occupy;
 		}	
 
 	
