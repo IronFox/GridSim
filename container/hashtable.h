@@ -282,6 +282,10 @@ template <class K, class Hash=StdHash, typename KeyStrategy = typename StrategyS
 		template <class Key>
 			inline	void					set(const Key&ident);						//!< Sets the specified key (if not set already). \param ident Key to set
 		template <class Key>
+			inline	void					Set(const Key&ident)	/** @copydoc set()*/ {set(ident);}
+		template <class Key>
+			inline	bool					SetNew(const Key&ident);		//!< Attemps to insert the specified new identifier. @return true, if the key was not previously set, false otherwise
+		template <class Key>
 			inline	void					setAll(const ArrayData<Key>&idents);				//!< Sets the specified range of keys (if not set already). @param idents Array of keys to set
 	};
 

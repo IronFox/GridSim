@@ -477,6 +477,16 @@ template <class K, class Hash, class KeyStrategy>
 		{
 			Base::find(Hash::hash(ident),ident,true);
 		}	
+
+template <class K, class Hash, class KeyStrategy>
+	template <class Key>
+		inline	bool		GenericHashSet<K,Hash,KeyStrategy>::SetNew(const Key&ident)
+		{
+			bool did_occupy = false;
+			Base::find(Hash::hash(ident),ident,true,&did_occupy);
+			return !did_occupy;
+		}	
+
 	
 
 template <class K, class Hash, class KeyStrategy>
