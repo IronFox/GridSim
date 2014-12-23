@@ -478,11 +478,11 @@ template <class Entry,class Strategy>
 template <class Entry,class Strategy>
 	Entry&			Queue<Entry,Strategy>::operator[](size_t index)
 	{
-		if (index > index_t(field_end-section_begin))
+		if (index >= index_t(field_end-section_begin))
 		{
-			return Array::operator[](index- (field_end-section_begin));
+			return Array::at(index- (field_end-section_begin)).Cast();
 		}
-		return section_begin[index];
+		return section_begin[index].Cast();
 	}
 	
 template <class Entry,class Strategy>
