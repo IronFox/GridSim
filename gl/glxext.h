@@ -642,7 +642,7 @@ typedef Bool ( * PFNGLXWAITFORSBCOMLPROC) (Display *dpy, GLXDrawable drawable, i
 
 typedef struct {
     char    pipeName[GLX_HYPERPIPE_PIPE_NAME_LENGTH_SGIX];
-    int     networkId;
+    int     networkID;
 } GLXHyperpipeNetworkSGIX;
 
 typedef struct {
@@ -675,7 +675,7 @@ extern int glXHyperpipeAttribSGIX (Display *, int, int, int, void *);
 extern int glXQueryHyperpipeAttribSGIX (Display *, int, int, int, void *);
 #endif /* GLX_GLXEXT_PROTOTYPES */
 typedef GLXHyperpipeNetworkSGIX * ( * PFNGLXQUERYHYPERPIPENETWORKSGIXPROC) (Display *dpy, int *npipes);
-typedef int ( * PFNGLXHYPERPIPECONFIGSGIXPROC) (Display *dpy, int networkId, int npipes, GLXHyperpipeConfigSGIX *cfg, int *hpId);
+typedef int ( * PFNGLXHYPERPIPECONFIGSGIXPROC) (Display *dpy, int networkID, int npipes, GLXHyperpipeConfigSGIX *cfg, int *hpId);
 typedef GLXHyperpipeConfigSGIX * ( * PFNGLXQUERYHYPERPIPECONFIGSGIXPROC) (Display *dpy, int hpId, int *npipes);
 typedef int ( * PFNGLXDESTROYHYPERPIPECONFIGSGIXPROC) (Display *dpy, int hpId);
 typedef int ( * PFNGLXBINDHYPERPIPESGIXPROC) (Display *dpy, int hpId);
