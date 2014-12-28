@@ -273,9 +273,9 @@ public:
 		using	Camera<C>::system;
 	#endif
 
-		TVec3<C>			direction,				//!< Current viewing direction
-							upAxis;				//!< Vertical orientation vector
-		TMatrix3<C>			vsystem;					//!< Vector system matrix
+		TVec3<C>			direction,				//!< Current viewing direction (points backwards)
+							upAxis;					//!< Vertical orientation vector
+		TMatrix3<C>			vsystem;				//!< Vector system matrix
 
 MF_CONSTRUCTOR				VectorCamera();
 MF_CONSTRUCTOR				VectorCamera(const Camera<C>&);

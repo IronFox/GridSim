@@ -264,6 +264,7 @@ namespace Math
 
 
 
+
     template <class C>
     MF_CONSTRUCTOR1          Vec3<C>::Vec3(const C0 field[3])
 	{
@@ -285,6 +286,12 @@ namespace Math
 
 
 
+
+	template <class C>
+	MFUNC1 (Vec3<C>)		Vec3<C>::operator&(const TVec3<C0>&other)		const
+	{
+		return Vec3<C>(x * other.x, y * other.y, z * other.z);
+	}
 
 
     template <class C>  MF_DECLARE  (Vec3<C>)    Vec3<C>::normalized()                const
