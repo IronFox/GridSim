@@ -648,6 +648,7 @@ namespace Engine
 	            return;
 	    #endif
 		BYTE focus_check = 1;
+		BYTE callAnyway = 0;
 	    while (exec_loop)
 	    {
 			if (!--focus_check)
@@ -658,7 +659,14 @@ namespace Engine
 			}
 	        timing.update();
 			if (context.isMinimized())
+			{
 				Sleep(50.f);
+				if (++callAnyway > 10)
+				{
+					callAnyway = 0;
+					exec_loop = !context.shutting_down && exec_target();
+				}
+			}
 			else
 		        exec_loop = !context.shutting_down && exec_target();
 
