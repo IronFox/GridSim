@@ -707,7 +707,17 @@ namespace TCP
 				else
 				{
 					#ifdef _DEBUG
-						FATAL__("ignoring packet");	//for now, this is appropriate
+						String dbg;
+						bool found = false;
+						owner->channel_map.visitAllEntries([&dbg,&found,channel_index](index_t index, RootChannel*channel)
+						{
+							dbg += String(index)+", ";
+							if (index == channel_index)
+								found = true;
+						});
+						ASSERT__(!owner->channel_map.IsSet(channel_index));
+						ASSERT__(!found);
+						FATAL__("channel is not known "+String(channel_index)+" (known channels: "+dbg+")");	//for now, this is appropriate
 					#endif
 					if (verbose)
 						std::cout << "Peer::ThreadMain(): no receiver available (nothing installed on this channel). ignoring package"<<std::endl;
