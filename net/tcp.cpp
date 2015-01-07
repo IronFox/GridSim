@@ -633,7 +633,7 @@ namespace TCP
 	{
 		if (verbose)
 			std::cout << "Peer::ThreadMain() enter"<<std::endl;
-		ASSERT__(isSelf());	//this should really be implied
+		DBG_ASSERT__(isSelf());	//this should really be implied. as it turns out due to whatnot kind of errors, sometimes it hicks up
 		while (!socketAccess->IsClosed())
 		{
 			UINT32	header[2];
