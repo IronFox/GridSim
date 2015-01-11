@@ -343,6 +343,12 @@ template <class K, class C, class Hash=StdHash, typename KeyStrategy = typename 
 		template <class Key>
 			inline	bool					queryAndUnset(const Key&ident, DataType&target)	/** @copydoc queryAndUnSet() */ {return queryAndUnSet(ident,target);}
 		template <class Key>
+			inline	bool					Query(const Key&ident, DataType&target)	const /*@copydoc query()*/ {return query(ident,target);}
+		template <class Key>
+			inline	bool					QueryAndUnSet(const Key&ident, DataType&target)/*@copydoc queryAndUnset()*/ {return query(ident,target);}
+		template <class Key>
+			inline	bool					QueryAndUnset(const Key&ident, DataType&target)	/** @copydoc queryAndUnSet() */ {return queryAndUnSet(ident,target);}
+		template <class Key>
 			inline	DataType*				queryPointer(const Key&ident);				//!< Requests the content associated with the specified key without setting it. The method returns a pointer to the element ot NULL if no such could be found. \param ident Key to look for \return Pointer to the object matching the specified key or NULL if no such could be found
 		template <class Key>
 			inline	DataType*				QueryPointer(const Key&ident)				/** @copydoc queryPointer() */{return queryPointer(ident);}
