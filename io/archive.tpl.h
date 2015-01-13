@@ -15,7 +15,7 @@ http://informatik.uni-trier.de/
 
 
 
-template <class Entry> void Archive<Entry>::handleChunk(RiffFile&riff,Folder*current)
+template <class Entry> void Archive<Entry>::handleChunk(Riff::File&riff,Folder*current)
 {}
 
 template <class Entry> Archive<Entry>::Archive(UINT32 version):selected(NULL),depth(0),expected_version(version)
@@ -26,18 +26,18 @@ template <class Entry> Archive<Entry>::Archive(UINT32 version):selected(NULL),de
 template <class Entry> Archive<Entry>::~Archive()
 {}
 
-template <class Entry> void Archive<Entry>::scanFolder(RiffFile&riff)
+template <class Entry> void Archive<Entry>::scanFolder(Riff::File&riff)
 {
     Folder*fldr(NULL);
     String name;
-    if (riff.first())
+    if (riff.First())
         do
         {
-            switch (riff.getChunk().info.id)
+            switch (Riff::TID(riff.GetChunk().info.sid).Numeric())
             {
                 case RIFF_FLDR:
-					name.resize(riff.getSize());
-                    riff.get(name.mutablePointer());
+					name.resize(riff.GetSize());
+                    riff.Get(name.mutablePointer());
 					name.trimThis();
                     fldr = folder[depth]->add(name); //if two folders with the same name occurr they are fused
                 break;
@@ -45,9 +45,9 @@ template <class Entry> void Archive<Entry>::scanFolder(RiffFile&riff)
                     if (fldr)
                     {
                         folder[++depth] = fldr;
-                        riff.enter();
+                        riff.Enter();
                             scanFolder(riff);
-                        riff.dropBack();
+                        riff.DropBack();
                         depth--;
                         fldr = NULL;
                     }
@@ -58,31 +58,31 @@ template <class Entry> void Archive<Entry>::scanFolder(RiffFile&riff)
                 break;
             }
         }
-        while (riff.next());
+        while (riff.Next());
 }
 
 template <class Entry> bool Archive<Entry>::open(const String&filename)
 {
-    RiffFile  riff;
-    if (!riff.open(filename.c_str()))
+    Riff::File  riff;
+    if (!riff.Open(filename.c_str()))
     {
         error_ = ARCHIVE_ERROR_FILE_NOT_FOUND;
         return false;
     }
     UINT32   version = 0;
-    if (riff.findFirst("VERS") && riff.getSize() == sizeof(version))
-        riff.get(&version);
+    if (riff.FindFirst("VERS") && riff.GetSize() == sizeof(version))
+        riff.Get(&version);
     if (version != expected_version)
     {
-        riff.close();
+        riff.Close();
         error_ = ARCHIVE_ERROR_VERSION_MISMATCH;
         return false;
     }
 
-    if (riff.findFirst("CONT") || riff.findFirst("INFO"))
+    if (riff.FindFirst("CONT") || riff.FindFirst("INFO"))
     {
-		info.resize(riff.getSize());
-		riff.get(info.mutablePointer());
+		info.resize(riff.GetSize());
+		riff.Get(info.mutablePointer());
 		info.trimThis();
     }
     folder[0]->clear();
@@ -90,7 +90,7 @@ template <class Entry> bool Archive<Entry>::open(const String&filename)
     depth = 0;
     selected = NULL;
     scanFolder(riff);
-    riff.close();
+    riff.Close();
     error_ = ARCHIVE_ERROR_UNABLE_TO_REOPEN;
     return RandomAccessFile::open(filename.c_str());
 }
@@ -121,7 +121,7 @@ template <class Entry> inline Entry*Archive<Entry>::select(const String&name)
 
 template <class Entry> inline Entry*Archive<Entry>::select(unsigned index)
 {
-    selected = folder[depth]->files.get(index);
+    selected = folder[depth]->files.Get(index);
     return selected;
 }
 

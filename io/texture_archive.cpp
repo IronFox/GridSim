@@ -5,10 +5,6 @@
 
 Texture-archive.
 
-This file is part of Delta-Works
-Copyright (C) 2006-2008 Stefan Elsen, University of Trier, Germany.
-http://www.delta-works.org/forge/
-http://informatik.uni-trier.de/
 
 ******************************************************************/
 
@@ -34,15 +30,15 @@ TextureArchive::TextureArchive(const String&filename):Archive<STAentry>(0x0103)
     open(filename);
 }
 
-void TextureArchive::handleChunk(RiffFile&riff,ArchiveFolder<STAentry>*current)
+void TextureArchive::handleChunk(Riff::File&riff,ArchiveFolder<STAentry>*current)
 {
-    switch (riff.getChunk().info.id)
+    switch (Riff::TID(riff.GetChunk().info.sid).Numeric())
     {
         case RIFF_ID:
         {
             String name;
-			name.resize(riff.getSize());
-			riff.get(name.mutablePointer());
+			name.resize(riff.GetSize());
+			riff.Get(name.mutablePointer());
 			name.trimThis();
             selected = current->files.add(name);
             selected->faces = 0;
@@ -54,10 +50,10 @@ void TextureArchive::handleChunk(RiffFile&riff,ArchiveFolder<STAentry>*current)
             if (!selected)
                 return;
             STAface*face = &selected->face[selected->faces++];
-            face->location = riff.getAddr();
-            face->size = riff.getSize();
+            face->location = riff.GetAddr();
+            face->size = riff.GetSize();
             Image::THeader   head;
-            riff.get(&head,sizeof(head));
+            riff.Get(&head,sizeof(head));
             face->width = 0x1<<head.x_exp;
             face->height = 0x1<<head.y_exp;
             face->channels = head.channels;

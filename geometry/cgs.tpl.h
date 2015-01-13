@@ -1268,11 +1268,11 @@ template <class Def> String SubGeometryA<Def>::difference(SubGeometryA&other, co
 	return rs;
 }*/
 
-template <class Def> void SubGeometryA<Def>::saveToRiff(RiffChunk*riff)	const
+template <class Def> void SubGeometryA<Def>::saveToRiff(Riff::Chunk*riff)	const
 {
-	riff->appendBlock("OBJ ",name.c_str(),name.length());
+	riff->AppendBlock("OBJ ",name.c_str(),name.length());
 
-	RiffChunk*inner = riff->appendBlock(RIFF_LIST);
+	Riff::Chunk*inner = riff->AppendBlock(RIFF_LIST);
 		{
 			ByteStream	m;
 			//typename Def::SystemType	field[22];
@@ -1285,7 +1285,7 @@ template <class Def> void SubGeometryA<Def>::saveToRiff(RiffChunk*riff)	const
 			//field[19] = meta.radius;
 			//ield[20] = meta.volume;
 			//field[21] = meta.density;
-			inner->appendBlock("META",m.data(),m.fillLevel());
+			inner->AppendBlock("META",m.data(),m.fillLevel());
 		}
 		
 		for (index_t i = 0; i < vs_hull_field.length(); i++)
@@ -1296,7 +1296,7 @@ template <class Def> void SubGeometryA<Def>::saveToRiff(RiffChunk*riff)	const
 				Array<typename Def::FloatType> out(hull.vertex_field.length()*3);
 				for (index_t j = 0; j < hull.vertex_field.length(); j++)
 					Vec::copy(hull.vertex_field[j].position,Vec::ref3(out + j*3));
-				inner->appendBlock("VVX3",out);
+				inner->AppendBlock("VVX3",out);
     		}
 			{
 				Array<UINT32>	out(hull.triangle_field.length()*3);
@@ -1307,7 +1307,7 @@ template <class Def> void SubGeometryA<Def>::saveToRiff(RiffChunk*riff)	const
 					out[j*3 + 1] = static_cast<UINT32>(tri.vertex[1]-hull.vertex_field);
 					out[j*3 + 2] = static_cast<UINT32>(tri.vertex[2]-hull.vertex_field);
 				}
-				inner->appendBlock("VFC3",out);
+				inner->AppendBlock("VFC3",out);
 			}
 			{
 				Array<UINT32>	out(hull.quad_field.length()*4);
@@ -1319,7 +1319,7 @@ template <class Def> void SubGeometryA<Def>::saveToRiff(RiffChunk*riff)	const
 					out[j*4 + 2] = static_cast<UINT32>(quad.vertex[2]-hull.vertex_field);
 					out[j*4 + 3] = static_cast<UINT32>(quad.vertex[3]-hull.vertex_field);
 				}
-				inner->appendBlock("VFC4",out);
+				inner->AppendBlock("VFC4",out);
 			}			
 			{
 				Array<INT32>out(hull.edge_field.length()*4);	//2*vertex. 2*face. positive: triangle, negative: quad+1
@@ -1332,7 +1332,7 @@ template <class Def> void SubGeometryA<Def>::saveToRiff(RiffChunk*riff)	const
 					out[j*4 + 2] = static_cast<UINT32>(hull.linkToIndex(edge.n[0]));
 					out[j*4 + 3] = static_cast<UINT32>(hull.linkToIndex(edge.n[1]));
 				}
-				inner->appendBlock("VEDG",out);
+				inner->AppendBlock("VEDG",out);
 			}
 		}
 
@@ -1346,7 +1346,7 @@ template <class Def> void SubGeometryA<Def>::saveToRiff(RiffChunk*riff)	const
 					//ASSERT_IS_CONSTRAINED3__(out + j*3,-30,30);
 
 				}
-				inner->appendBlock("HVX3",out);
+				inner->AppendBlock("HVX3",out);
     		}
 		
 			ByteStream	out;	//3*vindex, group, name, grip, updrift
@@ -1357,7 +1357,7 @@ template <class Def> void SubGeometryA<Def>::saveToRiff(RiffChunk*riff)	const
 					<< (UINT32)(triangle.vertex[1]-phHull.vertex_field)
 					<< (UINT32)(triangle.vertex[2]-phHull.vertex_field);
 			}
-			inner->appendBlock("HTRI",out.data(),out.fillLevel());
+			inner->AppendBlock("HTRI",out.data(),out.fillLevel());
 		
 			out.reset();
 			for (index_t i = 0; i < phHull.quad_field.length(); i++)
@@ -1368,7 +1368,7 @@ template <class Def> void SubGeometryA<Def>::saveToRiff(RiffChunk*riff)	const
 					<< (UINT32)(quad.vertex[2]-phHull.vertex_field)
 					<< (UINT32)(quad.vertex[3]-phHull.vertex_field);
 			}
-			inner->appendBlock("HQAD",out.data(),out.fillLevel());
+			inner->AppendBlock("HQAD",out.data(),out.fillLevel());
 
 			{
 				Array<UINT32>out(phHull.edge_field.length()*4);	//2*vertex. 2*face
@@ -1381,7 +1381,7 @@ template <class Def> void SubGeometryA<Def>::saveToRiff(RiffChunk*riff)	const
 					out[j*4 + 2] = static_cast<UINT32>(phHull.linkToIndex(edge.n[0]));
 					out[j*4 + 3] = static_cast<UINT32>(phHull.linkToIndex(edge.n[1]));
 				}
-				inner->appendBlock("HEDG",out);
+				inner->AppendBlock("HEDG",out);
 			}
 		}
 		
@@ -1398,7 +1398,7 @@ template <class Def> void SubGeometryA<Def>::saveToRiff(RiffChunk*riff)	const
 				a << accelerator_field[i].flame_length << accelerator_field[i].flame_width;
 				a.push(accelerator_field[i].flame_color.v,3);
 				a.push(accelerator_field[i].name.c_str(),accelerator_field[i].name.length());
-				inner->appendBlock("ACC2", a.data(),a.fillLevel());
+				inner->AppendBlock("ACC2", a.data(),a.fillLevel());
 			}
 		}
 
@@ -1416,7 +1416,7 @@ template <class Def> void SubGeometryA<Def>::saveToRiff(RiffChunk*riff)	const
 				a.push(mounting_field[i].vertical.v,3);
 				a.push(mounting_field[i].dimension.v,3);
 				a.push(mounting_field[i].max_payload);
-				inner->appendBlock("MNT ", a.data(),a.fillLevel());
+				inner->AppendBlock("MNT ", a.data(),a.fillLevel());
 			}
 		}
 
@@ -1436,7 +1436,7 @@ template <class Def> void SubGeometryA<Def>::saveToRiff(RiffChunk*riff)	const
 				w.push(wheel_field[i].width);
 				w.push(wheel_field[i].parameter,ARRAYSIZE(wheel_field[i].parameter));
 				w.push(wheel_field[i].name.c_str(),wheel_field[i].name.length());
-				inner->appendBlock("WHL2",w.data(),w.fillLevel());
+				inner->AppendBlock("WHL2",w.data(),w.fillLevel());
 				wheel_field[i].suspension.saveToRiff(inner);
 				wheel_field[i].rotation.saveToRiff(inner);
 			}
@@ -1458,7 +1458,7 @@ template <class Def> void SubGeometryA<Def>::saveToRiff(RiffChunk*riff)	const
 
 				//for (index_t k = 0; k < tracks_field[i].entry_field.length(); k++)
 				//	c.push(tracks_field[i].entry_field[k]->name);
-				inner->appendBlock("TRK2",c.data(),c.fillLevel());
+				inner->AppendBlock("TRK2",c.data(),c.fillLevel());
 				//tracks_field[i].rotation.saveToRiff(inner);
 			}
 		}
@@ -1466,49 +1466,49 @@ template <class Def> void SubGeometryA<Def>::saveToRiff(RiffChunk*riff)	const
 			child_field[i].saveToRiff(inner);
 }
 
-template <class Def> void SubGeometryA<Def>::loadFromRiff(RiffFile&riff) //assume we're alread in the object-list, have name, smooth_groups, layers and materials set
+template <class Def> void SubGeometryA<Def>::loadFromRiff(Riff::File&riff) //assume we're alread in the object-list, have name, smooth_groups, layers and materials set
 {
 	clear();
 
-	if (riff.findFirst("META") /*&& riff.getSize() == sizeof(typename Def::SystemType)*22*/)
+	if (riff.FindFirst("META") /*&& riff.GetSize() == sizeof(typename Def::SystemType)*22*/)
 	{
-		riff.openStream();
-			riff.stream(meta.system.v,16);
-			riff.stream(meta.center.v,3);
-			riff.stream(meta.radius);
-			riff.stream(meta.volume);
-			riff.stream(meta.density);
-			if (!riff.stream(meta.shortest_edge_length))
+		riff.OpenStream();
+			riff.Stream(meta.system.v,16);
+			riff.Stream(meta.center.v,3);
+			riff.Stream(meta.radius);
+			riff.Stream(meta.volume);
+			riff.Stream(meta.density);
+			if (!riff.Stream(meta.shortest_edge_length))
 				meta.shortest_edge_length = 0.1f;
-		riff.closeStream();
+		riff.CloseStream();
 	}
 
 	count_t objects(0);
-	if (riff.findFirst("VVTX"))
+	if (riff.FindFirst("VVTX"))
 		do
-			if (riff.multipleOf(sizeof(typename Def::FloatType)*4))
+			if (riff.IsMultipleOf(sizeof(typename Def::FloatType)*4))
 				objects++;
-		while (riff.findNext("VVTX"));
+		while (riff.FindNext("VVTX"));
 	
-	if (riff.findFirst("VVX3"))
+	if (riff.FindFirst("VVX3"))
 		do
-			if (riff.multipleOf(sizeof(typename Def::FloatType)*3))
+			if (riff.IsMultipleOf(sizeof(typename Def::FloatType)*3))
 				objects++;
-		while (riff.findNext("VVX3"));
+		while (riff.FindNext("VVX3"));
 
 	vs_hull_field.setSize(objects);
 	count_t c(0);
 	
-	if (riff.findFirst("VVTX"))
+	if (riff.FindFirst("VVTX"))
 		do
-			if (riff.multipleOf(sizeof(typename Def::FloatType)*4))
+			if (riff.IsMultipleOf(sizeof(typename Def::FloatType)*4))
 			{
 				typedef Mesh<VsDef>	VsMesh;
 				VsMesh&hull = vs_hull_field[c];
 				hull.clear();
 				{
 					Array<typename Def::FloatType>	array;
-					riff.get(array);
+					riff.Get(array);
 					hull.vertex_field.setSize(array.length()/4);
 					for (index_t i = 0; i < hull.vertex_field.length(); i++)
 					{
@@ -1517,10 +1517,10 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(RiffFile&riff) //assum
 						hull.vertex_field[i].marked = false;
 					}
 				}
-				if (riff.findNext("VFCE") && riff.multipleOf(sizeof(UINT32)*4))
+				if (riff.FindNext("VFCE") && riff.IsMultipleOf(sizeof(UINT32)*4))
 				{
 					Array<UINT32>	array;
-					riff.get(array);
+					riff.Get(array);
 					hull.triangle_field.setSize(array.length()/4);
 					for (index_t i = 0; i < hull.triangle_field.length(); i++)
 					{
@@ -1532,10 +1532,10 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(RiffFile&riff) //assum
 						face.marked = false;
 					}
 				}
-				if (riff.findNext("VEDG") && riff.multipleOf(sizeof(UINT32)*4))
+				if (riff.FindNext("VEDG") && riff.IsMultipleOf(sizeof(UINT32)*4))
 				{
 					Array<UINT32>	array;
-					riff.get(array);
+					riff.Get(array);
 					hull.edge_field.setSize(array.length()/4);
 					for (index_t i = 0; i < hull.edge_field.length(); i++)
 					{
@@ -1551,18 +1551,18 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(RiffFile&riff) //assum
 				hull.correct();
 				c++;
 			}
-		while (riff.findNext("VVTX"));
+		while (riff.FindNext("VVTX"));
 
-	if (riff.findFirst("VVX3"))
+	if (riff.FindFirst("VVX3"))
 		do
-			if (riff.multipleOf(sizeof(typename Def::FloatType)*3))
+			if (riff.IsMultipleOf(sizeof(typename Def::FloatType)*3))
 			{
 				typedef Mesh<VsDef>	VsMesh;
 				VsMesh	&hull = vs_hull_field[c];
 				hull.clear();
 				{
 					Array<typename Def::FloatType>	array;
-					riff.get(array);
+					riff.Get(array);
 					hull.vertex_field.setSize(array.length()/3);
 					for (index_t i = 0; i < hull.vertex_field.length(); i++)
 					{
@@ -1571,10 +1571,10 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(RiffFile&riff) //assum
 						hull.vertex_field[i].marked = false;
 					}
 				}
-				if (riff.findNext("VFC3") && riff.multipleOf(sizeof(UINT32)*3))
+				if (riff.FindNext("VFC3") && riff.IsMultipleOf(sizeof(UINT32)*3))
 				{
 					Array<UINT32>	array;
-					riff.get(array);
+					riff.Get(array);
 					hull.triangle_field.setSize(array.length()/3);
 					for (index_t i = 0; i < hull.triangle_field.length(); i++)
 					{
@@ -1586,10 +1586,10 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(RiffFile&riff) //assum
 						face.marked = false;
 					}
 				}
-				if (riff.findNext("VFC4") && riff.multipleOf(sizeof(UINT32)*4))
+				if (riff.FindNext("VFC4") && riff.IsMultipleOf(sizeof(UINT32)*4))
 				{
 					Array<UINT32>	array;
-					riff.get(array);
+					riff.Get(array);
 					hull.quad_field.setSize(array.length()/4);
 					for (index_t i = 0; i < hull.quad_field.length(); i++)
 					{
@@ -1602,10 +1602,10 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(RiffFile&riff) //assum
 						face.marked = false;
 					}
 				}
-				if (riff.findNext("VEDG") && riff.multipleOf(sizeof(UINT32)*4))
+				if (riff.FindNext("VEDG") && riff.IsMultipleOf(sizeof(UINT32)*4))
 				{
 					Array<INT32>	array;
-					riff.get(array);
+					riff.Get(array);
 					hull.edge_field.setSize(array.length()/4);
 					for (index_t i = 0; i < hull.edge_field.length(); i++)
 					{
@@ -1621,15 +1621,15 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(RiffFile&riff) //assum
 				hull.correct();
 				c++;
 			}
-		while (riff.findNext("VVX3"));
+		while (riff.FindNext("VVX3"));
 		
 
 	phHull.clear();
-	if (riff.findFirst("HVTX") && riff.multipleOf(sizeof(typename Def::PhHullFloatType)*4))
+	if (riff.FindFirst("HVTX") && riff.IsMultipleOf(sizeof(typename Def::PhHullFloatType)*4))
 	{
 		{
 			Array<typename Def::PhHullFloatType>	array;
-			riff.get(array);
+			riff.Get(array);
 			phHull.vertex_field.setSize(array.length()/4);
 			for (index_t i = 0; i < phHull.vertex_field.length(); i++)
 			{
@@ -1644,36 +1644,36 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(RiffFile&riff) //assum
 		}
 		
 		static const size_t ph_face_size = sizeof(UINT32)*5+sizeof(typename Def::PhFloatType)*2+sizeof(uint64_t);
-		if (riff.findNext("HFCE") && riff.multipleOf(ph_face_size))
+		if (riff.FindNext("HFCE") && riff.IsMultipleOf(ph_face_size))
 		{
 			
-			unsigned cnt = riff.getSize()/ph_face_size;
+			unsigned cnt = riff.GetSize()/ph_face_size;
 			phHull.triangle_field.setSize(cnt);
 			
-			riff.openStream();
+			riff.OpenStream();
 			for (unsigned i = 0; i < cnt; i++)
 			{
 				Mesh<PhDef>::Triangle	&face = phHull.triangle_field[i];
 				UINT32	index[4];
-				riff.stream(index,4);
+				riff.Stream(index,4);
 				face.vertex[0] = phHull.vertex_field+index[0];
 				face.vertex[1] = phHull.vertex_field+index[1];
 				face.vertex[2] = phHull.vertex_field+index[2];
 				
-				riff.skip(sizeof(typename Def::PhFloatType)*2 + sizeof(name64_t) + sizeof(UINT32));
-				/*riff.stream(dummyf);
-				riff.stream(dummyf);
-				riff.stream(dummy_name);
-				riff.stream(dummy32);*/
-				riff.skip(4);
+				riff.Skip(sizeof(typename Def::PhFloatType)*2 + sizeof(name64_t) + sizeof(UINT32));
+				/*riff.Stream(dummyf);
+				riff.Stream(dummyf);
+				riff.Stream(dummy_name);
+				riff.Stream(dummy32);*/
+				riff.Skip(4);
 			}
-			riff.closeStream();
+			riff.CloseStream();
 		}
 		
-		if (riff.findNext("HEDG") && riff.multipleOf(sizeof(UINT32)*4))
+		if (riff.FindNext("HEDG") && riff.IsMultipleOf(sizeof(UINT32)*4))
 		{
 			Array<UINT32>	array;
-			riff.get(array);
+			riff.Get(array);
 			phHull.edge_field.setSize(array.length()/4);
 			for (index_t i = 0; i < phHull.edge_field.length(); i++)
 			{
@@ -1688,11 +1688,11 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(RiffFile&riff) //assum
 		}
 	}
 	else
-		if (riff.findFirst("HVX3") && riff.multipleOf(sizeof(typename Def::PhHullFloatType)*3))
+		if (riff.FindFirst("HVX3") && riff.IsMultipleOf(sizeof(typename Def::PhHullFloatType)*3))
 		{
 			{
 				Array<typename Def::PhHullFloatType>	array;
-				riff.get(array);
+				riff.Get(array);
 				phHull.vertex_field.setSize(array.length()/3);
 				for (index_t i = 0; i < phHull.vertex_field.length(); i++)
 				{
@@ -1709,54 +1709,54 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(RiffFile&riff) //assum
 			
 			static const size_t ph_face_size3 = sizeof(UINT32)*3,
 								ph_face_size4 = sizeof(UINT32)*4;
-			if (riff.findNext("HTRI"))
+			if (riff.FindNext("HTRI"))
 			{
 				
-				if ( riff.multipleOf(ph_face_size3))
+				if ( riff.IsMultipleOf(ph_face_size3))
 				{
-					count_t cnt = riff.getSize()/ph_face_size3;
+					count_t cnt = riff.GetSize()/ph_face_size3;
 					phHull.triangle_field.setSize(cnt);
 				
-					riff.openStream();
+					riff.OpenStream();
 					for (index_t i = 0; i < cnt; i++)
 					{
 						Mesh<PhDef>::Triangle	&face = phHull.triangle_field[i];
 						UINT32	index[3];
-						riff.stream(index,3);
+						riff.Stream(index,3);
 						face.vertex[0] = phHull.vertex_field+index[0];
 						face.vertex[1] = phHull.vertex_field+index[1];
 						face.vertex[2] = phHull.vertex_field+index[2];
 					}
-					riff.closeStream();
+					riff.CloseStream();
 				}
 			}
-			if (riff.findNext("HQAD"))
+			if (riff.FindNext("HQAD"))
 			{
-				if (riff.multipleOf(ph_face_size4))
+				if (riff.IsMultipleOf(ph_face_size4))
 				{
-					count_t cnt = riff.getSize()/ph_face_size4;
+					count_t cnt = riff.GetSize()/ph_face_size4;
 					phHull.quad_field.setSize(cnt);
 				
-					riff.openStream();
+					riff.OpenStream();
 					for (index_t i = 0; i < cnt; i++)
 					{
 						Mesh<PhDef>::Quad	&face = phHull.quad_field[i];
 						UINT32	index[4];
-						riff.stream(index,4);
+						riff.Stream(index,4);
 						face.vertex[0] = phHull.vertex_field+index[0];
 						face.vertex[1] = phHull.vertex_field+index[1];
 						face.vertex[2] = phHull.vertex_field+index[2];
 						face.vertex[3] = phHull.vertex_field+index[3];
 					}
-					riff.closeStream();
+					riff.CloseStream();
 				}
 			}
 						
 			
-			if (riff.findNext("HEDG") && riff.multipleOf(sizeof(UINT32)*4))
+			if (riff.FindNext("HEDG") && riff.IsMultipleOf(sizeof(UINT32)*4))
 			{
 				Array<UINT32>	array;
-				riff.get(array);
+				riff.Get(array);
 				phHull.edge_field.setSize(array.length()/4);
 				for (index_t i = 0; i < phHull.edge_field.length(); i++)
 				{
@@ -1874,122 +1874,122 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(RiffFile&riff) //assum
 						MountingSize = sizeof(UINT32)+sizeof(typename Def::FloatType)*13;
 
 	unsigned mountings = 0;
-	if (riff.findFirst("MNT "))
+	if (riff.FindFirst("MNT "))
 		do
 		{
-			if (riff.getSize() == MountingSize)
+			if (riff.GetSize() == MountingSize)
 				mountings++;
 		}
-		while (riff.findNext("MNT "));
+		while (riff.FindNext("MNT "));
 	
 	mounting_field.setSize(mountings);
 	mountings = 0;
 	
-	if (mounting_field.length() && riff.findFirst("MNT "))
+	if (mounting_field.length() && riff.FindFirst("MNT "))
 		do
 		{
-			if (riff.getSize() == MountingSize)
+			if (riff.GetSize() == MountingSize)
 			{
-				riff.openStream();
-					riff.stream(mounting_field[mountings].flags);
-					riff.stream(mounting_field[mountings].position.v,3);
-					riff.stream(mounting_field[mountings].direction.v,3);
-					riff.stream(mounting_field[mountings].vertical.v,3);
-					riff.stream(mounting_field[mountings].dimension.v,3);
-					riff.stream(mounting_field[mountings].max_payload);
-				riff.closeStream();
+				riff.OpenStream();
+					riff.Stream(mounting_field[mountings].flags);
+					riff.Stream(mounting_field[mountings].position.v,3);
+					riff.Stream(mounting_field[mountings].direction.v,3);
+					riff.Stream(mounting_field[mountings].vertical.v,3);
+					riff.Stream(mounting_field[mountings].dimension.v,3);
+					riff.Stream(mounting_field[mountings].max_payload);
+				riff.CloseStream();
 				mountings++;
 			}
 		}
-		while (riff.findNext("MNT "));
+		while (riff.FindNext("MNT "));
 	
 	count_t accelerators = 0;
 	index_t acc_version = 0;
 	const char*acc_key = "ACCL";
-	if (riff.findFirst("ACCL"))
+	if (riff.FindFirst("ACCL"))
 	{
 		do
 		{
-			if (riff.getSize() == AcceleratorSize || riff.getSize() == ExtAcceleratorSize)
+			if (riff.GetSize() == AcceleratorSize || riff.GetSize() == ExtAcceleratorSize)
 				accelerators++;
 		}
-		while (riff.findNext("ACCL"));
+		while (riff.FindNext("ACCL"));
 	}
 	else
-		if (riff.findFirst("ACC2"))
+		if (riff.FindFirst("ACC2"))
 		{
 			acc_version = 1;
 			acc_key = "ACC2";
 			do
 			{
-				if (riff.getSize() > MinAcceleratorSize)
+				if (riff.GetSize() > MinAcceleratorSize)
 					accelerators++;
 			}
-			while (riff.findNext("ACC2"));
+			while (riff.FindNext("ACC2"));
 		}
 	accelerator_field.setSize(accelerators);
 	accelerators = 0;
-	if (accelerator_field.isNotEmpty() && riff.findFirst(acc_key))
+	if (accelerator_field.isNotEmpty() && riff.FindFirst(acc_key))
 		do
 		{
 
 			switch (acc_version)
 			{
 				case 0:
-					if (riff.getSize() == AcceleratorSize)
+					if (riff.GetSize() == AcceleratorSize)
 					{
 
-						riff.openStream();
+						riff.OpenStream();
 							name64_t	name;
-							riff.stream(name);
+							riff.Stream(name);
 							accelerator_field[accelerators].name = name2str(name);
 
-							riff.stream(accelerator_field[accelerators].position.v,3);
-							riff.stream(accelerator_field[accelerators].direction.v,3);
-							riff.stream(accelerator_field[accelerators].power);
-							riff.stream(accelerator_field[accelerators].zero_efficiency);
-						riff.closeStream();
+							riff.Stream(accelerator_field[accelerators].position.v,3);
+							riff.Stream(accelerator_field[accelerators].direction.v,3);
+							riff.Stream(accelerator_field[accelerators].power);
+							riff.Stream(accelerator_field[accelerators].zero_efficiency);
+						riff.CloseStream();
 
 						accelerator_field[accelerators].flame_length = 0;
 						accelerator_field[accelerators].flame_width = 0;
 						Vec::def(accelerator_field[accelerators].flame_color,1,0.5,0);
 
 					}
-					elif (riff.getSize() == ExtAcceleratorSize)
+					elif (riff.GetSize() == ExtAcceleratorSize)
 					{
-						riff.openStream();
+						riff.OpenStream();
 							name64_t name;
-							riff.stream(name);
+							riff.Stream(name);
 							accelerator_field[accelerators].name = name2str(name);
 
-							riff.stream(accelerator_field[accelerators].position.v,3);
-							riff.stream(accelerator_field[accelerators].direction.v,3);
-							riff.stream(accelerator_field[accelerators].power);
-							riff.stream(accelerator_field[accelerators].zero_efficiency);
-							riff.stream(accelerator_field[accelerators].flame_length);
-							riff.stream(accelerator_field[accelerators].flame_width);
-							riff.stream(accelerator_field[accelerators].flame_color.v,3);
-						riff.closeStream();
+							riff.Stream(accelerator_field[accelerators].position.v,3);
+							riff.Stream(accelerator_field[accelerators].direction.v,3);
+							riff.Stream(accelerator_field[accelerators].power);
+							riff.Stream(accelerator_field[accelerators].zero_efficiency);
+							riff.Stream(accelerator_field[accelerators].flame_length);
+							riff.Stream(accelerator_field[accelerators].flame_width);
+							riff.Stream(accelerator_field[accelerators].flame_color.v,3);
+						riff.CloseStream();
 					}
 					else
 						continue;
 				break;
 				case 1:
-					if (riff.getSize() > MinAcceleratorSize)
+					if (riff.GetSize() > MinAcceleratorSize)
 					{
-						size_t name_length = riff.getSize() - MinAcceleratorSize;
+						size_t name_length = riff.GetSize() - MinAcceleratorSize;
 						accelerator_field[accelerators].name.setLength(name_length);
-						riff.openStream();
-							riff.stream(accelerator_field[accelerators].position.v,3);
-							riff.stream(accelerator_field[accelerators].direction.v,3);
-							riff.stream(accelerator_field[accelerators].power);
-							riff.stream(accelerator_field[accelerators].zero_efficiency);
-							riff.stream(accelerator_field[accelerators].flame_length);
-							riff.stream(accelerator_field[accelerators].flame_width);
-							riff.stream(accelerator_field[accelerators].flame_color.v,3);
+						riff.OpenStream();
+							riff.Stream(accelerator_field[accelerators].position.v,3);
+							riff.Stream(accelerator_field[accelerators].direction.v,3);
+							riff.Stream(accelerator_field[accelerators].power);
+							riff.Stream(accelerator_field[accelerators].zero_efficiency);
+							riff.Stream(accelerator_field[accelerators].flame_length);
+							riff.Stream(accelerator_field[accelerators].flame_width);
+							riff.Stream(accelerator_field[accelerators].flame_color.v,3);
 
-							riff.stream(accelerator_field[accelerators].name.mutablePointer(),name_length);
-						riff.closeStream();
+							riff.Stream(accelerator_field[accelerators].name.mutablePointer(),name_length);
+						riff.CloseStream();
 					}
 					else
 						continue;
@@ -2000,17 +2000,17 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(RiffFile&riff) //assum
 
 			accelerators++;
 		}
-		while (riff.findNext(acc_key));
+		while (riff.FindNext(acc_key));
 
 	count_t wheels = 0;
 	const char*whl_key = "WHEL";
 	index_t	whl_version = 0;
 		bool whl_begin = false;
-	if (riff.findFirst("WHEL"))
+	if (riff.FindFirst("WHEL"))
 	{
 		whl_begin= true;
 	}	//default
-	else if (riff.findFirst("WHL2"))
+	else if (riff.FindFirst("WHL2"))
 	{
 		whl_key = "WHL2";
 		whl_version = 1;
@@ -2021,47 +2021,47 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(RiffFile&riff) //assum
 		{
 			wheels++;
 		}
-		while (riff.findNext(whl_key));
+		while (riff.FindNext(whl_key));
 	
 
 	wheel_field.setSize(wheels);
 	wheels = 0;
-	if (wheel_field.isNotEmpty() && riff.findFirst(whl_key))
+	if (wheel_field.isNotEmpty() && riff.FindFirst(whl_key))
 		do
 		{
 			switch (whl_version)
 			{
 				case 0:
 				{
-					riff.openStream();
+					riff.OpenStream();
 						name64_t name;
-						riff.stream(name);
+						riff.Stream(name);
 						wheel_field[wheels].name = name2str(name);
-						riff.stream(name);	//ignore
-						riff.stream(name);	//ignore
-						riff.stream(wheel_field[wheels].position.v,3);
-						riff.stream(wheel_field[wheels].contraction.v,3);
-						riff.stream(wheel_field[wheels].axis.v,3);
-						riff.stream(wheel_field[wheels].radius);
-						riff.stream(wheel_field[wheels].width);
-						riff.stream(wheel_field[wheels].parameter,ARRAYSIZE(wheel_field[wheels].parameter));
-					riff.closeStream();
+						riff.Stream(name);	//ignore
+						riff.Stream(name);	//ignore
+						riff.Stream(wheel_field[wheels].position.v,3);
+						riff.Stream(wheel_field[wheels].contraction.v,3);
+						riff.Stream(wheel_field[wheels].axis.v,3);
+						riff.Stream(wheel_field[wheels].radius);
+						riff.Stream(wheel_field[wheels].width);
+						riff.Stream(wheel_field[wheels].parameter,ARRAYSIZE(wheel_field[wheels].parameter));
+					riff.CloseStream();
 				}
 				break;
 				case 1:
 				{
-					riff.openStream();
-						riff.stream(wheel_field[wheels].position.v,3);
-						riff.stream(wheel_field[wheels].contraction.v,3);
-						riff.stream(wheel_field[wheels].axis.v,3);
-						riff.stream(wheel_field[wheels].radius);
-						riff.stream(wheel_field[wheels].width);
-						riff.stream(wheel_field[wheels].parameter,ARRAYSIZE(wheel_field[wheels].parameter));
+					riff.OpenStream();
+						riff.Stream(wheel_field[wheels].position.v,3);
+						riff.Stream(wheel_field[wheels].contraction.v,3);
+						riff.Stream(wheel_field[wheels].axis.v,3);
+						riff.Stream(wheel_field[wheels].radius);
+						riff.Stream(wheel_field[wheels].width);
+						riff.Stream(wheel_field[wheels].parameter,ARRAYSIZE(wheel_field[wheels].parameter));
 
-						size_t name_length = riff.getSize() - riff.streamTell();
+						size_t name_length = riff.GetSize() - riff.StreamTell();
 						wheel_field[wheels].name.setLength(name_length);
-						riff.stream(wheel_field[wheels].name.mutablePointer(),name_length);
-					riff.closeStream();
+						riff.Stream(wheel_field[wheels].name.mutablePointer(),name_length);
+					riff.CloseStream();
 				}
 				break;
 				default:
@@ -2071,7 +2071,7 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(RiffFile&riff) //assum
 			wheel_field[wheels].rotation.loadFromRiff(riff,2);
 			wheels++;
 		}
-		while (riff.findNext(whl_key));
+		while (riff.FindNext(whl_key));
 
 	/*for (index_t i = 0; i < wheel_field.length(); i++)
 	{
@@ -2085,12 +2085,12 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(RiffFile&riff) //assum
 	index_t		trk_version = 0;
 	bool		trk_begin = false;
 
-	if (riff.findFirst("CNST"))
+	if (riff.FindFirst("CNST"))
 	{
 		trk_begin = true;
 	}
 	else
-		if (riff.findFirst("TRK2"))
+		if (riff.FindFirst("TRK2"))
 		{
 			trk_key = "TRK2";
 			trk_version = 1;
@@ -2101,91 +2101,91 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(RiffFile&riff) //assum
 		{
 			tracks++;
 		}
-		while (riff.findNext(trk_key));
+		while (riff.FindNext(trk_key));
 	tracks_field.setSize(tracks);
 	tracks = 0;
-	if (tracks_field.isNotEmpty() && riff.findFirst(trk_key))
+	if (tracks_field.isNotEmpty() && riff.FindFirst(trk_key))
 		do
 		{
 			switch (trk_version)
 			{
 				case 0:
-					if (riff.getSize() && riff.getSize() && !(riff.getSize()%8))
+					if (riff.GetSize() && riff.GetSize() && !(riff.GetSize()%8))
 					{
-						tracks_field[tracks].member_field.setSize(riff.getSize()/8);
+						tracks_field[tracks].member_field.setSize(riff.GetSize()/8);
 						name64_t	name;
-						riff.openStream();
+						riff.OpenStream();
 							for (index_t k = 0; k < tracks_field[tracks].member_field.length(); k++)
-								if (riff.stream(name))
+								if (riff.Stream(name))
 								{
 									tracks_field[tracks].member_field[k].wheel = NULL;
 									tracks_field[tracks].member_field[k].name = name2str(name);
 								}
-						riff.closeStream();
+						riff.CloseStream();
 					}
 					else
 						continue;
 				break;
 				case 1:
 					UINT32	member_count;
-					riff.openStream();
-						if (!riff.stream(member_count))
+					riff.OpenStream();
+						if (!riff.Stream(member_count))
 						{
-							riff.closeStream();
+							riff.CloseStream();
 							continue;
 						}
 						tracks_field[tracks].member_field.setSize(member_count);
 						for (UINT32 k = 0; k < member_count; k++)
 						{
 							UINT32	name_length;
-							if (!riff.stream(name_length) || !riff.canStreamBytes(name_length))
+							if (!riff.Stream(name_length) || !riff.CanStreamBytes(name_length))
 							{
-								riff.closeStream();
+								riff.CloseStream();
 								tracks_field[tracks].member_field.free();
 								continue;
 							}
 							tracks_field[tracks].member_field[k].name.setLength(name_length);
-							riff.stream(tracks_field[tracks].member_field[k].name.mutablePointer(),name_length);
+							riff.Stream(tracks_field[tracks].member_field[k].name.mutablePointer(),name_length);
 						}
-					riff.closeStream();
+					riff.CloseStream();
 
 				break;
 			}
 			//tracks_field[tracks].rotation.loadFromRiff(riff);
 			tracks++;
 		}
-		while (riff.findNext(trk_key));
+		while (riff.FindNext(trk_key));
 
 	count_t children = 0;
-	if (riff.findFirst("OBJ "))
+	if (riff.FindFirst("OBJ "))
 		do
 		{
-			if (riff.findNext("LIST"))
+			if (riff.FindNext("LIST"))
 				children++;
 		}
-		while (riff.findNext("OBJ "));
+		while (riff.FindNext("OBJ "));
 	child_field.setSize(children);
 	children = 0;
-	if (child_field.length() && riff.findFirst("OBJ "))
+	if (child_field.length() && riff.FindFirst("OBJ "))
 		do
 		{
-			child_field[children].name.setLength(riff.getSize());
-			riff.get(child_field[children].name.mutablePointer());
+			child_field[children].name.setLength(riff.GetSize());
+			riff.Get(child_field[children].name.mutablePointer());
 			child_field[children].name.trimThis();
 
-			//if (riff.getSize() == sizeof(name))
+			//if (riff.GetSize() == sizeof(name))
 			{
-				//riff.get(&child_field[children].name);
-				if (riff.findNext("LIST"))
+				//riff.Get(&child_field[children].name);
+				if (riff.FindNext("LIST"))
 				{
-					riff.enter();
+					riff.Enter();
 						child_field[children].loadFromRiff(riff);
-					riff.dropBack();
+					riff.DropBack();
 					children++;
 				}
 			}
 		}
-		while (riff.findNext("OBJ "));
+		while (riff.FindNext("OBJ "));
 		
 }
 
@@ -2800,7 +2800,7 @@ template <class Def>
 template <class Def> Geometry<Def>::Geometry():root_system(this),system_link(&root_system.matrix),texture_resource(&local_textures)
 {}
 
-template <class Def> Geometry<Def>::Geometry(RiffFile&source):root_system(this),system_link(&root_system.matrix),texture_resource(&local_textures)
+template <class Def> Geometry<Def>::Geometry(Riff::File&source):root_system(this),system_link(&root_system.matrix),texture_resource(&local_textures)
 {
 	loadFromRiff(source);
 }
@@ -3154,11 +3154,11 @@ template <class Def> bool Geometry<Def>::saveToFile(const String&filename)	const
 
 template <class Def> bool Geometry<Def>::saveToFile(const char*filename)	const
 {
-	RiffChunk	riff;
+	Riff::Chunk	riff;
 	UINT32 version = CGS_FILE_VERSION;
-	riff.appendBlock("VERS",&version,sizeof(version));
+	riff.AppendBlock("VERS",&version,sizeof(version));
 	saveEmbedded(riff,true);
-	return riff.saveToFile(filename);
+	return riff.SaveToFile(filename);
 }
 
 template <class Def> bool Geometry<Def>::loadFromFile(const String&filename,TextureResource*resource/*=NULL*/)
@@ -3168,15 +3168,15 @@ template <class Def> bool Geometry<Def>::loadFromFile(const String&filename,Text
 
 template <class Def> bool Geometry<Def>::loadFromFile(const char*filename,TextureResource*resource/*=NULL*/)//, bool post_strip, unsigned min_strip)
 {
-	RiffFile riff;
-	if (!riff.open(filename))
+	Riff::File riff;
+	if (!riff.Open(filename))
 		return false;
 	unsigned long version = 0;
-	if (riff.findFirst("VERS") && riff.getSize() == sizeof(version))
-		riff.get(&version);
+	if (riff.FindFirst("VERS") && riff.GetSize() == sizeof(version))
+		riff.Get(&version);
 	if (version > CGS_FILE_VERSION)
 	{
-		riff.close();
+		riff.Close();
 		return false;
 	}
 	loadFromRiff(riff,resource);//, post_strip,min_strip);
@@ -3202,35 +3202,35 @@ template <class Def> String Geometry<Def>::difference(Geometry*other)
 }*/
 
 
-template <class Def> void Geometry<Def>::saveEmbedded(RiffChunk&riff, bool embed_textures)	const
+template <class Def> void Geometry<Def>::saveEmbedded(Riff::Chunk&riff, bool embed_textures)	const
 {
 
 	if (info.length())
-		riff.appendBlock("INFO",info.c_str(),info.length());
+		riff.AppendBlock("INFO",info.c_str(),info.length());
 	if (xml.length())
 	{
 		Array<BYTE> buffer(xml.length()+4);
 		(*(UINT32*)buffer.pointer()) = (UINT32)xml.length();
 		size_t compressed = BZ2::compress(xml.c_str(),xml.length(),buffer.pointer()+4,buffer.contentSize()-4);
 		if (compressed)
-			riff.appendBlock("CXML",buffer.pointer(),compressed+4);
+			riff.AppendBlock("CXML",buffer.pointer(),compressed+4);
 	}
 	if (embed_textures)
 	{
-		RiffChunk*tlist = openBlock(riff,DATA_TEXTURES);
+		Riff::Chunk*tlist = openBlock(riff,DATA_TEXTURES);
 			for (index_t i = 0; i < local_textures.entry_field.length(); i++)
 			{
-				tlist->appendBlock("ID  ",&local_textures.entry_field[i].name,sizeof(tName));
+				tlist->AppendBlock("ID  ",&local_textures.entry_field[i].name,sizeof(tName));
 				for (BYTE k = 0; k < local_textures.entry_field[i].face_field.length(); k++)
-					tlist->appendBlock("FACE",local_textures.entry_field[i].face_field[k]);
+					tlist->AppendBlock("FACE",local_textures.entry_field[i].face_field[k]);
 			}
 	}
 	ByteStream	buffer;
 	
-	RiffChunk*mlist = openBlock(riff,DATA_MATERIAL);
+	Riff::Chunk*mlist = openBlock(riff,DATA_MATERIAL);
 		for (index_t i = 0; i < material_field.length(); i++)
 		{
-			RiffChunk*mout = mlist->appendBlock(RIFF_LIST);
+			Riff::Chunk*mout = mlist->AppendBlock(RIFF_LIST);
 			
 
 			buffer.reset();
@@ -3243,8 +3243,8 @@ template <class Def> void Geometry<Def>::saveEmbedded(RiffChunk&riff, bool embed
 			buffer << material_field[i].info.alpha_threshold;
 			
 
-			mout->appendBlock("MATR",buffer.pointer(),buffer.fillLevel());
-			mout->appendBlock("NAME",material_field[i].name.c_str(),material_field[i].name.length()+1);
+			mout->AppendBlock("MATR",buffer.pointer(),buffer.fillLevel());
+			mout->AppendBlock("NAME",material_field[i].name.c_str(),material_field[i].name.length()+1);
 			for (index_t j = 0; j < material_field[i].info.layer_field.length(); j++)
 			{
 				buffer.reset();
@@ -3259,15 +3259,15 @@ template <class Def> void Geometry<Def>::saveEmbedded(RiffChunk&riff, bool embed
 
 				buffer << flags;
 				buffer << (INT64)(material_field[i].info.layer_field[j].source?material_field[i].info.layer_field[j].source->name:0);
-				mout->appendBlock("TLYR",buffer.pointer(),buffer.fillLevel());
+				mout->AppendBlock("TLYR",buffer.pointer(),buffer.fillLevel());
 			}
 
 			const MaterialData<Def>&d = material_field[i].data;
-			mout->appendBlock("VCRD",&d.coord_layers,sizeof(UINT16));
+			mout->AppendBlock("VCRD",&d.coord_layers,sizeof(UINT16));
 			
 			for (index_t j = 0; j < d.object_field.length(); j++)
 			{
-				RiffChunk*obj = mout->appendBlock(RIFF_LIST);
+				Riff::Chunk*obj = mout->AppendBlock(RIFF_LIST);
 
 				ASSERT_EQUAL1__(d.object_field[j].vpool.vlyr,d.coord_layers,j);
 				
@@ -3277,34 +3277,34 @@ template <class Def> void Geometry<Def>::saveEmbedded(RiffChunk&riff, bool embed
 				buffer << (UINT32)d.object_field[j].detail;
 				buffer.push(d.object_field[j].target->name.c_str(),d.object_field[j].target->name.length());
 				
-				obj->appendBlock("ROB3",buffer.pointer(),buffer.fillLevel());
+				obj->AppendBlock("ROB3",buffer.pointer(),buffer.fillLevel());
 
-				obj->appendBlock("RVTX",d.object_field[j].vpool.vdata);
+				obj->AppendBlock("RVTX",d.object_field[j].vpool.vdata);
 
 				
 				//for (index_t k = 0; k < d.object_field[j].detail_layer_field.length(); k++)
 				{
 					const IndexContainerA<Def>&chunk = d.object_field[j].ipool;
-					obj->appendBlock("IOBJ",chunk.idata);
-					obj->appendBlock("ICMP",chunk.composition,8);
+					obj->AppendBlock("IOBJ",chunk.idata);
+					obj->AppendBlock("ICMP",chunk.composition,8);
 					
-					//obj->appendBlock("SOBJ",chunk.sdata,chunk.sdata.contentSize());
-					//obj->appendBlock("QOBJ",chunk.qdata,chunk.qdata.contentSize());
+					//obj->AppendBlock("SOBJ",chunk.sdata,chunk.sdata.contentSize());
+					//obj->AppendBlock("QOBJ",chunk.qdata,chunk.qdata.contentSize());
 				}
 			}
 		}
-	RiffChunk*olist = openBlock(riff,DATA_OBJECTS);
+	Riff::Chunk*olist = openBlock(riff,DATA_OBJECTS);
  	for (index_t i = 0; i < object_field.length(); i++)
 			object_field[i].saveToRiff(olist);
-	RiffChunk*alist = openBlock(riff,DATA_ANIMATOR);
+	Riff::Chunk*alist = openBlock(riff,DATA_ANIMATOR);
 		for (index_t i = 0; i < animator_field.length(); i++)
 			animator_field[i].saveToRiff(alist);
-	RiffChunk*clist = openBlock(riff,DATA_CONNECTR);
-		clist->appendBlock("CNCT",connector_field);
+	Riff::Chunk*clist = openBlock(riff,DATA_CONNECTR);
+		clist->AppendBlock("CNCT",connector_field);
 }
 
 
-template <class Def> void Geometry<Def>::loadMaterials(RiffFile&riff)//, bool post_strip, unsigned min_strip)
+template <class Def> void Geometry<Def>::loadMaterials(Riff::File&riff)//, bool post_strip, unsigned min_strip)
 {
 	Buffer<MaterialA<Def>,0,AdoptStrategy>		mbuffer;
 	Buffer<RenderObjectA<Def>,0,AdoptStrategy>	obuffer;
@@ -3318,40 +3318,40 @@ template <class Def> void Geometry<Def>::loadMaterials(RiffFile&riff)//, bool po
 	count_t total_indices(0);
 	
 
-	if (riff.findFirst(RIFF_LIST))
+	if (riff.FindFirst(RIFF_LIST))
 		do
 		{
-			riff.enter();
-				if (riff.findFirst("MATR"))
+			riff.Enter();
+				if (riff.FindFirst("MATR"))
 				{
 					MaterialA<Def>&material = mbuffer.append();
 					
-					riff.openStream();
+					riff.OpenStream();
 					UINT32 flags;
 					bool success = true;
-					success = success && riff.stream(flags);
-					success = success && riff.stream(material.info.ambient.v,4);
-					success = success && riff.stream(material.info.diffuse.v,4);
-					success = success && riff.stream(material.info.emission.v,4);
-					success = success && riff.stream(material.info.specular.v,4);
-					success = success && riff.stream(material.info.shininess);
-					success = success && riff.stream(material.info.alpha_threshold);
-					riff.closeStream();
+					success = success && riff.Stream(flags);
+					success = success && riff.Stream(material.info.ambient.v,4);
+					success = success && riff.Stream(material.info.diffuse.v,4);
+					success = success && riff.Stream(material.info.emission.v,4);
+					success = success && riff.Stream(material.info.specular.v,4);
+					success = success && riff.Stream(material.info.shininess);
+					success = success && riff.Stream(material.info.alpha_threshold);
+					riff.CloseStream();
 					if (!success)
 					{
 						mbuffer.eraseLast();
 						CGS_MSG("Stream errors while streaming material");
-						riff.exit();
+						riff.Exit();
 						continue;
 					}
 					
 					material.info.alpha_test = flags&AlphaTestFlag;
 					
 						
-					if (riff.findFirst("NAME"))
+					if (riff.FindFirst("NAME"))
 					{
-						Array<char> field(riff.getSize()+1);
-						riff.get(field.pointer());
+						Array<char> field(riff.GetSize()+1);
+						riff.Get(field.pointer());
 						field[field.size()-1] = 0;
 						material.name = field;
 					}
@@ -3360,22 +3360,22 @@ template <class Def> void Geometry<Def>::loadMaterials(RiffFile&riff)//, bool po
 					
 					
 
-					if (riff.findFirst("TLYR"))
+					if (riff.FindFirst("TLYR"))
 						do
 						{
 							TLayerIO	layr;
-							riff.openStream();
+							riff.OpenStream();
 							
-							if (!(riff.stream(layr.combiner))
+							if (!(riff.Stream(layr.combiner))
 								||
-								!(riff.stream(layr.flags))
+								!(riff.Stream(layr.flags))
 								||
-								!(riff.stream(layr.sname)))
+								!(riff.Stream(layr.sname)))
 							{
-								riff.closeStream();
+								riff.CloseStream();
 								continue;
 							}
-							riff.closeStream();
+							riff.CloseStream();
 							
 							TLayer&layer = lbuffer.append();
 							layer.source_name = layr.sname;
@@ -3385,109 +3385,109 @@ template <class Def> void Geometry<Def>::loadMaterials(RiffFile&riff)//, bool po
 							layer.clamp_y = !!(layr.flags&ClampYFlag);
 							layer.combiner = layr.combiner;
 						}
-						while (riff.findNext("TLYR"));
+						while (riff.FindNext("TLYR"));
 
 
 					bool valid = false;
-					if (riff.findFirst("VINF") && riff.getSize() == sizeof(UINT32)*2)
+					if (riff.FindFirst("VINF") && riff.GetSize() == sizeof(UINT32)*2)
 					{
 						UINT32 d;
-						riff.openStream();
-						riff.stream(d);	//ignored
-						riff.stream(d);	material.data.coord_layers = (UINT16)d;
-						riff.closeStream();
+						riff.OpenStream();
+						riff.Stream(d);	//ignored
+						riff.Stream(d);	material.data.coord_layers = (UINT16)d;
+						riff.CloseStream();
 						valid = true;
 					}
-					elif (riff.findFirst("VCRD") && riff.getSize() == sizeof(UINT16))
+					elif (riff.FindFirst("VCRD") && riff.GetSize() == sizeof(UINT16))
 					{
-						riff.get(&material.data.coord_layers);
+						riff.Get(&material.data.coord_layers);
 						valid = true;
 					}
 
 					if (valid)
 					{
-						if (riff.findFirst(RIFF_LIST))
+						if (riff.FindFirst(RIFF_LIST))
 							do
 							{
-								riff.enter();
+								riff.Enter();
 								{
 									RenderObjectA<Def>*object;
-									if (riff.findFirst("ROBJ"))
+									if (riff.FindFirst("ROBJ"))
 									{
-										if (riff.getSize() == sizeof(name64_t)+sizeof(rinf.vcnt)+sizeof(UINT32))
+										if (riff.GetSize() == sizeof(name64_t)+sizeof(rinf.vcnt)+sizeof(UINT32))
 										{
-											riff.openStream();
+											riff.OpenStream();
 												name64_t name;
-												riff.stream(name);
+												riff.Stream(name);
 												rinf.tname = name2str(name);
-												riff.stream(rinf.vcnt);
+												riff.Stream(rinf.vcnt);
 												UINT32 dummy;
-												riff.stream(dummy); //deprectaed additional unformated content
-											riff.closeStream();
+												riff.Stream(dummy); //deprectaed additional unformated content
+											riff.CloseStream();
 											rinf.detail = 0;
 											rinf.vflags = HasNormalFlag;
 										}
-										elif (riff.getSize() == sizeof(name64_t)+sizeof(rinf.vcnt)+sizeof(UINT32)+sizeof(rinf.detail))
+										elif (riff.GetSize() == sizeof(name64_t)+sizeof(rinf.vcnt)+sizeof(UINT32)+sizeof(rinf.detail))
 										{
-											riff.openStream();
+											riff.OpenStream();
 												name64_t name;
-												riff.stream(name);
+												riff.Stream(name);
 												rinf.tname = name2str(name);
-												riff.stream(rinf.vcnt);
+												riff.Stream(rinf.vcnt);
 												UINT32 dummy;
-												riff.stream(dummy);	//deprectaed additional unformated content
-												riff.stream(rinf.detail);
+												riff.Stream(dummy);	//deprectaed additional unformated content
+												riff.Stream(rinf.detail);
 												rinf.vflags = HasNormalFlag;
-											riff.closeStream();
+											riff.CloseStream();
 										}
 										else
 										{
-											CGS_MSG("ROBJ chunk is of unexpected size: "+String(riff.getSize()));
-												ShowMessage(riff.getSize());
-											riff.exit();
+											CGS_MSG("ROBJ chunk is of unexpected size: "+String(riff.GetSize()));
+												ShowMessage(riff.GetSize());
+											riff.Exit();
 											continue;
 										}
 									}
-									elif (riff.findFirst("ROB2"))
+									elif (riff.FindFirst("ROB2"))
 									{
-										if (riff.getSize() == sizeof(name64_t)+sizeof(rinf.vcnt)+sizeof(rinf.vflags)+sizeof(rinf.detail))
+										if (riff.GetSize() == sizeof(name64_t)+sizeof(rinf.vcnt)+sizeof(rinf.vflags)+sizeof(rinf.detail))
 										{
-											riff.openStream();
+											riff.OpenStream();
 												name64_t	name;
-												riff.stream(name);
+												riff.Stream(name);
 												rinf.tname = name2str(name);
-												riff.stream(rinf.vcnt);
-												riff.stream(rinf.vflags);
-												riff.stream(rinf.detail);
-											riff.closeStream();
+												riff.Stream(rinf.vcnt);
+												riff.Stream(rinf.vflags);
+												riff.Stream(rinf.detail);
+											riff.CloseStream();
 										}
 										else
 										{
-											CGS_MSG("ROB2 chunk is of unexpected size: "+String(riff.getSize()));
+											CGS_MSG("ROB2 chunk is of unexpected size: "+String(riff.GetSize()));
 		//										ShowMessage(sizeof(rinf));
-											riff.exit();
+											riff.Exit();
 											continue;
 										}
 									}
-									elif (riff.findFirst("ROB3"))
+									elif (riff.FindFirst("ROB3"))
 									{
-										if (riff.getSize() > sizeof(rinf.vcnt)+sizeof(rinf.vflags)+sizeof(rinf.detail))
+										if (riff.GetSize() > sizeof(rinf.vcnt)+sizeof(rinf.vflags)+sizeof(rinf.detail))
 										{
-											riff.openStream();
-												riff.stream(rinf.vcnt);
-												riff.stream(rinf.vflags);
-												riff.stream(rinf.detail);
+											riff.OpenStream();
+												riff.Stream(rinf.vcnt);
+												riff.Stream(rinf.vflags);
+												riff.Stream(rinf.detail);
 
-												size_t string_length = riff.getSize() - riff.streamTell();
+												size_t string_length = riff.GetSize() - riff.StreamTell();
 												rinf.tname.setLength(string_length);
-												riff.stream(rinf.tname.mutablePointer(),string_length);
-											riff.closeStream();
+												riff.Stream(rinf.tname.mutablePointer(),string_length);
+											riff.CloseStream();
 										}
 										else
 										{
-											CGS_MSG("ROB3 chunk is of unexpected size: "+String(riff.getSize()));
+											CGS_MSG("ROB3 chunk is of unexpected size: "+String(riff.GetSize()));
 		//										ShowMessage(sizeof(rinf));
-											riff.exit();
+											riff.Exit();
 											continue;
 										}
 									}
@@ -3495,65 +3495,65 @@ template <class Def> void Geometry<Def>::loadMaterials(RiffFile&riff)//, bool po
 									{
 										CGS_MSG("unable to find ROBJ, ROB2, or ROB3");
 	//										ShowMessage(sizeof(rinf));
-										riff.exit();
+										riff.Exit();
 										continue;
 									}
-									if (riff.findFirst("RVTX"))
+									if (riff.FindFirst("RVTX"))
 									{
-										if (riff.getSize() == rinf.vcnt*VSIZE(material.data.coord_layers,rinf.vflags)*sizeof(typename Def::FloatType))
+										if (riff.GetSize() == rinf.vcnt*VSIZE(material.data.coord_layers,rinf.vflags)*sizeof(typename Def::FloatType))
 										{
 											object = &obuffer.append();
 											object->tname = rinf.tname;
 											object->detail = rinf.detail;
 											object->vpool.setSize(rinf.vcnt,material.data.coord_layers,rinf.vflags);
-											riff.get(object->vpool.vdata);
+											riff.Get(object->vpool.vdata);
 											CGS_MSG("loaded "+String(object->vpool.vdata.length())+" floats for "+rinf.tname+". loading indices...");
 											object->vpool.updateCRC();
 										}
 										else
 										{
-											CGS_MSG("RVTX of wrong size ("+String(riff.getSize())+" != "+String(rinf.vcnt)+"*(3+3+2*"+String(material.data.coord_layers)+"+"+String(rinf.vflags)+")*"+String(sizeof(typename Def::FloatType))+" (="+String(rinf.vcnt*VSIZE(material.data.coord_layers,rinf.vflags)*sizeof(typename Def::FloatType))+"))");
-											riff.exit();
+											CGS_MSG("RVTX of wrong size ("+String(riff.GetSize())+" != "+String(rinf.vcnt)+"*(3+3+2*"+String(material.data.coord_layers)+"+"+String(rinf.vflags)+")*"+String(sizeof(typename Def::FloatType))+" (="+String(rinf.vcnt*VSIZE(material.data.coord_layers,rinf.vflags)*sizeof(typename Def::FloatType))+"))");
+											riff.Exit();
 											continue;
 										}
 									}
 									else
 									{
 										CGS_MSG("RVTX not found");
-										riff.exit();
+										riff.Exit();
 										continue;
 									}
-									if (riff.findFirst("IOBJ"))
+									if (riff.FindFirst("IOBJ"))
 										//do
 										{
-											if (riff.multipleOf(sizeof(typename Def::IndexType)))
+											if (riff.IsMultipleOf(sizeof(typename Def::IndexType)))
 											{
 												IndexContainerA<Def>*chunk = &object->ipool;
-												chunk->idata.setSize(riff.getSize()/sizeof(typename Def::IndexType));
-												riff.get(chunk->idata);
+												chunk->idata.setSize(riff.GetSize()/sizeof(typename Def::IndexType));
+												riff.Get(chunk->idata);
 												total_indices += chunk->idata.length();
 												CGS_MSG("loaded indices: "+String(chunk->idata.length())+" to a total of "+String(total_indices)+" indices");
-												if (riff.next())
+												if (riff.Next())
 												{
-													if (riff.isID("ICMP") && riff.getSize()==8)
+													if (riff.IsID("ICMP") && riff.GetSize()==8)
 													{
-														riff.get(chunk->composition);
+														riff.Get(chunk->composition);
 													}
-													elif (riff.isID("SOBJ") && riff.multipleOf(sizeof(typename Def::IndexType)))
+													elif (riff.IsID("SOBJ") && riff.IsMultipleOf(sizeof(typename Def::IndexType)))
 													{
 														typename Def::IndexType indices;
-														riff.openStream();
-															riff.stream(indices);
+														riff.OpenStream();
+															riff.Stream(indices);
 															chunk->triangles = indices/3;
-														riff.closeStream();
+														riff.CloseStream();
 														
-														if (riff.next() && riff.isID("QOBJ") && riff.multipleOf(sizeof(typename Def::IndexType)))
+														if (riff.Next() && riff.IsID("QOBJ") && riff.IsMultipleOf(sizeof(typename Def::IndexType)))
 														{
 															typename Def::IndexType indices;
-															riff.openStream();
-																riff.stream(indices);
+															riff.OpenStream();
+																riff.Stream(indices);
 																chunk->quads = indices/4;
-															riff.closeStream();
+															riff.CloseStream();
 															//CGS_MSG("got strip data: "+_toString(chunk->sdata.pointer(),chunk->sdata.length()));
 														}
 														else
@@ -3576,11 +3576,11 @@ template <class Def> void Geometry<Def>::loadMaterials(RiffFile&riff)//, bool po
 											else
 												CGS_MSG("odd shaped IOBJ");
 										}
-										//while (riff.findNext("IOBJ"));
+										//while (riff.FindNext("IOBJ"));
 								}
-								riff.exit();
+								riff.Exit();
 							}
-							while (riff.findNext(RIFF_LIST));
+							while (riff.FindNext(RIFF_LIST));
 						obuffer.moveToArray(material.data.object_field);
 						//material.data.object_field.adoptData(obuffer);
 						/*material->data.object_field.setSize(obuffer.count());
@@ -3599,9 +3599,9 @@ template <class Def> void Geometry<Def>::loadMaterials(RiffFile&riff)//, bool po
 						material->info.layer_field[i] = *lbuffer[i];
 					lbuffer.clear();*/
 				}
-			riff.exit();
+			riff.Exit();
 		}
-		while (riff.findNext(RIFF_LIST));
+		while (riff.FindNext(RIFF_LIST));
 	mbuffer.moveToArray(material_field);
 	//material_field.adoptData(mbuffer);
 	/*material_field.setSize(mbuffer.count());
@@ -3618,48 +3618,48 @@ template <class Def> void Geometry<Def>::loadMaterials(RiffFile&riff)//, bool po
 		CGS_MSG("material "+String(i)+" '"+material_field[i].name+"' has "+String(material_field[i].countFaces())+"("+String(material_field[i].countFaces(0))+") face(s) and "+String(material_field[i].countVertices())+" vertices in "+String(material_field[i].data.object_field.length())+" object(s)");
 }
 
-template <class Def> void Geometry<Def>::loadObjects(RiffFile&riff)
+template <class Def> void Geometry<Def>::loadObjects(Riff::File&riff)
 {
 	count_t object_count = 0;
-	if (riff.findFirst("OBJ "))
+	if (riff.FindFirst("OBJ "))
 		do
 		{
-			if (riff.next() && riff.isID(RIFF_LIST))
+			if (riff.Next() && riff.IsID(RIFF_LIST))
 				object_count++;
 		}
-		while (riff.findNext("OBJ "));
+		while (riff.FindNext("OBJ "));
 	object_field.setSize(object_count);
 	index_t at = 0;
 	//Buffer<index_t>	path;
-	if (riff.findFirst("OBJ "))
+	if (riff.FindFirst("OBJ "))
 		do
 		{
 			if (at < object_count)
 			{
-				object_field[at].name.setLength(riff.getSize());
-				riff.get(object_field[at].name.mutablePointer());
+				object_field[at].name.setLength(riff.GetSize());
+				riff.Get(object_field[at].name.mutablePointer());
 				object_field[at].name.trimThis();
-				//riff.get(&object_field[at].name);
-				if (riff.next() && riff.isID(RIFF_LIST))
+				//riff.Get(&object_field[at].name);
+				if (riff.Next() && riff.IsID(RIFF_LIST))
 				{
 					//path << at;
-					riff.enter();
+					riff.Enter();
 						object_field[at++].loadFromRiff(riff);
-					riff.dropBack();
+					riff.DropBack();
 					//path.eraseLast();
 				}
 			}
 		}
-		while (riff.findNext("OBJ "));
+		while (riff.FindNext("OBJ "));
 }
 
-template <class Def> void Geometry<Def>::loadAnimators(RiffFile&riff)
+template <class Def> void Geometry<Def>::loadAnimators(Riff::File&riff)
 {
 	count_t count = 0;
-	if (riff.findFirst("ANIM"))
+	if (riff.FindFirst("ANIM"))
 	do
 		count++;
-	while (riff.findNext("ANIM"));
+	while (riff.FindNext("ANIM"));
 	animator_field.setSize(count);
 
 	Buffer<index_t>	path;	//empty path
@@ -3668,41 +3668,41 @@ template <class Def> void Geometry<Def>::loadAnimators(RiffFile&riff)
 		animator_field[i].loadFromRiff(riff,i);
 }
 
-template <class Def> void Geometry<Def>::loadConnectors(RiffFile&riff)
+template <class Def> void Geometry<Def>::loadConnectors(Riff::File&riff)
 {
-	if (riff.findFirst("CNCT"))
+	if (riff.FindFirst("CNCT"))
 	{
-		count_t count = riff.getSize()/sizeof(TConnector<Def>);
+		count_t count = riff.GetSize()/sizeof(TConnector<Def>);
 		connector_field.setSize(count);
-		riff.get(connector_field);
+		riff.Get(connector_field);
 	}
 }
 
-template <class Def> void Geometry<Def>::loadTextures(RiffFile&riff)
+template <class Def> void Geometry<Def>::loadTextures(Riff::File&riff)
 {
 	CGS_POINT
 	count_t count = 0;
-	if (riff.findFirst(RIFF_ID))
+	if (riff.FindFirst(RIFF_ID))
 		do
-			if (riff.getSize() == 8)
+			if (riff.GetSize() == 8)
 				count++;
-		while (riff.findNext(RIFF_ID));
+		while (riff.FindNext(RIFF_ID));
 	CGS_POINT
 	local_textures.entry_field.setSize(count);
 	CGS_POINT
 	TextureA*texture = NULL;
 	index_t at = 0;
-	if (riff.first())
+	if (riff.First())
 		do
 		{
-			switch (riff.getChunk().info.id)
+			switch (Riff::TID(riff.GetChunk().info.sid).Numeric())
 			{
 				case RIFF_ID:
-					if (riff.getSize() == 8)
+					if (riff.GetSize() == 8)
 					{
 						CGS_POINT
 						texture = &local_textures.entry_field[at++];
-						riff.get(&texture->name);
+						riff.Get(&texture->name);
 						CGS_POINT
 					}
 				break;
@@ -3712,30 +3712,30 @@ template <class Def> void Geometry<Def>::loadTextures(RiffFile&riff)
 						CGS_POINT
 						index_t index = texture->face_field.length();
 						texture->face_field.resizePreserveContent(index+1);	//this has got to be the second most inefficient way to do this :S
-						texture->face_field[index].setSize(riff.getSize());
-						riff.get(texture->face_field[index].pointer());
+						texture->face_field[index].setSize(riff.GetSize());
+						riff.Get(texture->face_field[index].pointer());
 						CGS_POINT
 					}
 				break;
 			}
 		}
-		while (riff.next());
+		while (riff.Next());
 
 	for (index_t i = 0; i < local_textures.entry_field.length(); i++)
 		local_textures.entry_field[i].updateHash();
 	CGS_POINT
 }
 
-template <class Def> void Geometry<Def>::loadEmbedded(RiffFile&riff, TextureResource*resource)//, bool post_strip, unsigned min_strip)
+template <class Def> void Geometry<Def>::loadEmbedded(Riff::File&riff, TextureResource*resource)//, bool post_strip, unsigned min_strip)
 {
 	clear();
 	
 	CGS_POINT
 	
-	if (riff.findFirst("CXML") && riff.getSize())
+	if (riff.FindFirst("CXML") && riff.GetSize())
 	{
-		Array<BYTE> buffer(riff.getSize());
-		riff.get(buffer.pointer());
+		Array<BYTE> buffer(riff.GetSize());
+		riff.Get(buffer.pointer());
 		UINT32 extracted = (*(UINT32*)buffer.pointer());
 		Array<char> extracted_buffer(extracted+1);
 		size_t bz_result = BZ2::decompress(buffer.pointer()+4,buffer.contentSize()-4,extracted_buffer.pointer(),extracted_buffer.contentSize());
@@ -3751,27 +3751,27 @@ template <class Def> void Geometry<Def>::loadEmbedded(RiffFile&riff, TextureReso
 				CGS_MSG("Unable to extract XML content: "+String(BZ2::errorStr()));
 	}
 	
-	if (riff.findFirst("INFO") && riff.getSize())
+	if (riff.FindFirst("INFO") && riff.GetSize())
 	{
-		RIFF_SIZE size = riff.getSize();
+		Riff::RIFF_SIZE size = riff.GetSize();
 		char*buffer = SHIELDED_ARRAY(new char[size+1],size+1);
-		riff.get(buffer);
+		riff.Get(buffer);
 		buffer[size] = 0;
-		for (RIFF_SIZE i = 0; i < size; i++)
+		for (Riff::RIFF_SIZE i = 0; i < size; i++)
 			if (!buffer[i])
 				buffer[i] = '\n';
 		info = buffer;
 		DISCARD_ARRAY(buffer);
 	}
 	else
-		if (riff.findFirst("IDNT") && riff.getSize())
+		if (riff.FindFirst("IDNT") && riff.GetSize())
 		{
-			RIFF_SIZE size = riff.getSize();
+			Riff::RIFF_SIZE size = riff.GetSize();
 			char*buffer = SHIELDED_ARRAY(new char[size+1],size+1),
 				*first(buffer),*name(NULL),*cont(NULL);
-			riff.get(buffer);
+			riff.Get(buffer);
 			buffer[size] = 0;
-			for (RIFF_SIZE i = 0; i < size; i++)
+			for (Riff::RIFF_SIZE i = 0; i < size; i++)
 				if (!buffer[i])
 				{
 					if (!name)
@@ -3793,15 +3793,15 @@ template <class Def> void Geometry<Def>::loadEmbedded(RiffFile&riff, TextureReso
 	
 	CGS_POINT
 	
-	if (riff.findFirst(RIFF_DATA))
+	if (riff.FindFirst(RIFF_DATA))
 		do
-			if (riff.getSize() == sizeof(tName))
+			if (riff.GetSize() == sizeof(tName))
 			{
 				tName name;
-				riff.get(&name);
-				if (!riff.next() || !riff.isID(RIFF_LIST))
+				riff.Get(&name);
+				if (!riff.Next() || !riff.IsID(RIFF_LIST))
 					continue;
-				riff.enter();
+				riff.Enter();
 					switch (name)
 					{
 						case DATA_MATERIAL:
@@ -3830,9 +3830,9 @@ template <class Def> void Geometry<Def>::loadEmbedded(RiffFile&riff, TextureReso
 							CGS_POINT
 						break;
 					}
-				riff.dropBack();
+				riff.DropBack();
 			}
-		while (riff.findNext(RIFF_DATA));
+		while (riff.FindNext(RIFF_DATA));
 
 	remap(~RelinkBit);
 
@@ -3892,7 +3892,7 @@ template <class Def> void Geometry<Def>::loadEmbedded(RiffFile&riff, TextureReso
 }
 
 
-template <class Def> void Geometry<Def>::loadFromRiff(RiffFile&riff,TextureResource*resource/*=NULL*/)//, bool post_strip, unsigned min_strip)
+template <class Def> void Geometry<Def>::loadFromRiff(Riff::File&riff,TextureResource*resource/*=NULL*/)//, bool post_strip, unsigned min_strip)
 {
 	loadEmbedded(riff,resource);
 }
@@ -4776,7 +4776,7 @@ template <class Def> template <typename T0, typename T1, typename T2>
 			Mat::rotate(inverse,d_,d);
 			
 			typedef Mesh<typename SubGeometryA<Def>::VsDef>	VsMesh;
-			const VsMesh	&hull = SubGeometryInstance<Def>::target->vs_hull_field.first();
+			const VsMesh	&hull = SubGeometryInstance<Def>::target->vs_hull_field.First();
 			for (index_t i = 0; i < hull.triangle_field.length(); i++)
 				if (Obj::detectOpticalIntersection(hull.triangle_field[i].v0->position,hull.triangle_field[i].v1->position,hull.triangle_field[i].v2->position,b,d,distance))
 					return true;
@@ -5019,9 +5019,9 @@ template <class Def>
 template <class Def>
 	double*		AnimatableInstance<Def>::findStatusOfWheel(const ArrayData<index_t>&path)
 	{
-		if (!path.length() || path.first() >= child_field.length())
+		if (!path.length() || path.First() >= child_field.length())
 			return NULL;
-		AnimatableSubInstanceA<Def>*child = child_field+path.first();
+		AnimatableSubInstanceA<Def>*child = child_field+path.First();
 		for (index_t i = 1; i+1 < path.length(); i++)
 			if (path[i] >= child->child_field.length())
 				return NULL;
@@ -5035,9 +5035,9 @@ template <class Def>
 template <class Def>
 	double*		AnimatableInstance<Def>::findStatusOfAccelerator(const ArrayData<index_t>&path)
 	{
-		if (!path.length() || path.first() >= child_field.length())
+		if (!path.length() || path.First() >= child_field.length())
 			return NULL;
-		AnimatableSubInstanceA<Def>*child = child_field+path.first();
+		AnimatableSubInstanceA<Def>*child = child_field+path.First();
 		for (index_t i = 1; i+1 < path.length(); i++)
 			if (path[i] >= child->child_field.length())
 				return NULL;
@@ -5051,9 +5051,9 @@ template <class Def>
 template <class Def>
 	AnimatorInstanceA<Def>*		AnimatableInstance<Def>::findRotationAnimatorOfWheel(const ArrayData<index_t>&path)
 	{
-		if (!path.length() || path.first() >= child_field.length())
+		if (!path.length() || path.First() >= child_field.length())
 			return NULL;
-		AnimatableSubInstanceA<Def>*child = child_field+path.first();
+		AnimatableSubInstanceA<Def>*child = child_field+path.First();
 		for (index_t i = 1; i+1 < path.length(); i++)
 			if (path[i] >= child->child_field.length())
 				return NULL;
@@ -5067,9 +5067,9 @@ template <class Def>
 template <class Def>
 	AnimatorInstanceA<Def>*		AnimatableInstance<Def>::findSuspensionAnimatorOfWheel(const ArrayData<index_t>&path)
 	{
-		if (!path.length() || path.first() >= child_field.length())
+		if (!path.length() || path.First() >= child_field.length())
 			return NULL;
-		AnimatableSubInstanceA<Def>*child = child_field+path.first();
+		AnimatableSubInstanceA<Def>*child = child_field+path.First();
 		for (index_t i = 1; i+1 < path.length(); i++)
 			if (path[i] >= child->child_field.length())
 				return NULL;
@@ -5476,8 +5476,8 @@ template <class T, unsigned B>
 		if (!step_field.length())
 			return;
 		//CGS_MSG("Auto generating slopes for trace of length "+String(step_field.length()));
-		VecUnroll<B>::div(step_field.first().range,step_field.first().end-step_field.first().start,step_field.first().slope0);
-		//CGS_MSG("Initial slope calculated at "+_toString(step_field.first().slope0,B));
+		VecUnroll<B>::div(step_field.First().range,step_field.First().end-step_field.First().start,step_field.First().slope0);
+		//CGS_MSG("Initial slope calculated at "+_toString(step_field.First().slope0,B));
 		for (index_t i = 0; i < step_field.length(); i++)
 		{
 			double v0[B],v1[B],v2[B];
@@ -5500,7 +5500,7 @@ template <class T, unsigned B>
 	void	TraceA<T,B>::current(const double&time, double out[B])	const
 	{
 		VecUnroll<B>::clear(out);
-		if (!step_field.length() || time <= step_field.first().start)
+		if (!step_field.length() || time <= step_field.First().start)
 			return;
 	
 		for (index_t i = 0; i < step_field.length(); i++)
@@ -5556,7 +5556,7 @@ template <class T, unsigned B>
 
 template <class Def>
 template <class T, unsigned B>
-/*static*/	void AnimatorA<Def>::saveTraces(const ArrayData<TraceA<T,B> >&traces,RiffChunk*riff,const char*riff_name)
+/*static*/	void AnimatorA<Def>::saveTraces(const ArrayData<TraceA<T,B> >&traces,Riff::Chunk*riff,const char*riff_name)
 {
 	for (index_t i = 0; i < traces.count(); i++)
 	{
@@ -5572,7 +5572,7 @@ template <class T, unsigned B>
 			trace.push(traces[i].step_field[j].slope0,B);
 			trace.push(traces[i].step_field[j].slope1,B);
 		}
-		riff->appendBlock(riff_name,trace.data(),trace.fillLevel());
+		riff->AppendBlock(riff_name,trace.data(),trace.fillLevel());
 	}
 }
 
@@ -5580,18 +5580,18 @@ template <class T, unsigned B>
 
 template <class Def>
 template <class T, unsigned B>
-void AnimatorA<Def>::loadTraces(ArrayData<TraceA<T,B> >&array,RiffFile&riff,const char*riff_name0, const char*riff_name1)
+void AnimatorA<Def>::loadTraces(ArrayData<TraceA<T,B> >&array,Riff::File&riff,const char*riff_name0, const char*riff_name1)
 {
 	index_t format = 0;
 	const char* riff_name = riff_name0;
 	bool begin = false;
 	count_t cnt = 0;
-	if (riff.findFirst(riff_name))
+	if (riff.FindFirst(riff_name))
 	{
 		begin = true;
 	}
 	else
-		if (riff.findFirst(riff_name1))
+		if (riff.FindFirst(riff_name1))
 		{
 			format = 1;
 			begin = true;
@@ -5602,11 +5602,11 @@ void AnimatorA<Def>::loadTraces(ArrayData<TraceA<T,B> >&array,RiffFile&riff,cons
 		{
 			cnt++;
 		}
-		while (riff.findNext(riff_name));
+		while (riff.FindNext(riff_name));
 	array.setSize(cnt);
 	index_t at = 0;
 	if (begin)
-	if (riff.findFirst(riff_name))
+	if (riff.FindFirst(riff_name))
 		do
 		{
 			TraceA<T,B>&trace = array[at++];
@@ -5614,12 +5614,12 @@ void AnimatorA<Def>::loadTraces(ArrayData<TraceA<T,B> >&array,RiffFile&riff,cons
 			{
 				case 0:
 				{
-					if (riff.getSize() < sizeof(name64_t))
+					if (riff.GetSize() < sizeof(name64_t))
 						continue;
-					trace.step_field.setSize((riff.getSize()-sizeof(name64_t))/((1+B*3)*sizeof(double)));
-					riff.openStream();
+					trace.step_field.setSize((riff.GetSize()-sizeof(name64_t))/((1+B*3)*sizeof(double)));
+					riff.OpenStream();
 						name64_t	name64;
-						riff.stream(name64);
+						riff.Stream(name64);
 						trace.tname = name2str(name64);
 						trace.tname.trimThis();
 
@@ -5627,67 +5627,67 @@ void AnimatorA<Def>::loadTraces(ArrayData<TraceA<T,B> >&array,RiffFile&riff,cons
 						for (index_t i = 0; i < trace.step_field.length(); i++)
 						{
 							trace.step_field[i].start = time;
-							riff.stream(len);
+							riff.Stream(len);
 							time+=len;
 							trace.step_field[i].end = time;
-							riff.stream(trace.step_field[i].range,B);
-							riff.stream(trace.step_field[i].slope0,B);
-							riff.stream(trace.step_field[i].slope1,B);
+							riff.Stream(trace.step_field[i].range,B);
+							riff.Stream(trace.step_field[i].slope0,B);
+							riff.Stream(trace.step_field[i].slope1,B);
 						}
-					riff.closeStream();
+					riff.CloseStream();
 				}
 				break;
 				case 1:
 				{
-					riff.openStream();
+					riff.OpenStream();
 						UINT32 name_length;
-						if (!riff.stream(name_length) || !riff.canStreamBytes(name_length))
+						if (!riff.Stream(name_length) || !riff.CanStreamBytes(name_length))
 						{
-							riff.closeStream();
+							riff.CloseStream();
 							continue;
 						}
 						trace.tname.setLength(name_length);
-						riff.stream(trace.tname.mutablePointer(),name_length);
-						trace.step_field.setSize((riff.getSize()-riff.streamTell())/((1+B*3)*sizeof(double)));
+						riff.Stream(trace.tname.mutablePointer(),name_length);
+						trace.step_field.setSize((riff.GetSize()-riff.StreamTell())/((1+B*3)*sizeof(double)));
 						double time(0),len;
 						for (index_t i = 0; i < trace.step_field.length(); i++)
 						{
 							trace.step_field[i].start = time;
-							riff.stream(len);
+							riff.Stream(len);
 							time+=len;
 							trace.step_field[i].end = time;
-							riff.stream(trace.step_field[i].range,B);
-							riff.stream(trace.step_field[i].slope0,B);
-							riff.stream(trace.step_field[i].slope1,B);
+							riff.Stream(trace.step_field[i].range,B);
+							riff.Stream(trace.step_field[i].slope0,B);
+							riff.Stream(trace.step_field[i].slope1,B);
 						}
-					riff.closeStream();
+					riff.CloseStream();
 				}
 				break;
 			}
 		}
-		while (riff.findNext(riff_name));
+		while (riff.FindNext(riff_name));
 }
 
 
-template <class Def> void AnimatorA<Def>::loadFromRiff(RiffFile&riff, index_t index_in_context)
+template <class Def> void AnimatorA<Def>::loadFromRiff(Riff::File&riff, index_t index_in_context)
 {
 	bool first = index_in_context == 0;
 
-	if ((first && !riff.findFirst("ANIM")) || (!first && !riff.findNext("ANIM")))
+	if ((first && !riff.FindFirst("ANIM")) || (!first && !riff.FindNext("ANIM")))
 		return;
-	size_t name_length = riff.getSize();
+	size_t name_length = riff.GetSize();
 	name.setLength(name_length);
-	riff.get(name.mutablePointer());
+	riff.Get(name.mutablePointer());
 	name.trimThis();
 
 
-	if (!riff.findNext("LIST"))
+	if (!riff.FindNext("LIST"))
 		return;
-	riff.enter();
+	riff.Enter();
 		loadTraces(obj_trace_field,riff,"OTRC","OTR2");
 		loadTraces(acc_trace_field,riff,"ATRC","ATR2");
 		loadTraces(whl_trace_field,riff,"WTRC","WTR2");
-	riff.dropBack();
+	riff.DropBack();
 }
 
 template <class Def> double AnimatorA<Def>::executionTime()	const
@@ -5774,10 +5774,10 @@ template <class Def> void AnimatorA<Def>::link(Geometry<Def>*domain)
 	}
 }
 
-template <class Def> void AnimatorA<Def>::saveToRiff(RiffChunk*riff)	const
+template <class Def> void AnimatorA<Def>::saveToRiff(Riff::Chunk*riff)	const
 {
-	riff->appendBlock("ANIM",name.c_str(),name.length());
-	RiffChunk*list = riff->appendBlock("LIST");
+	riff->AppendBlock("ANIM",name.c_str(),name.length());
+	Riff::Chunk*list = riff->AppendBlock("LIST");
 		saveTraces(obj_trace_field,list,"OTR2");
 		saveTraces(acc_trace_field,list,"ATR2");
 		saveTraces(whl_trace_field,list,"WTR2");

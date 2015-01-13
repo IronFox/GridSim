@@ -95,7 +95,7 @@ template <class Entry> class Archive:protected RandomAccessFile
 {
 
 private:
-			void					scanFolder(RiffFile&riff);
+			void					scanFolder(Riff::File&riff);
 
 protected:
 
@@ -107,7 +107,7 @@ protected:
 			BYTE					depth;				//!< Folder stack depth
 			UINT32					expected_version;	//!< Version to expect when loading an archive file.
 
-virtual		void					handleChunk(RiffFile&riff,ArchiveFolder<Entry>*current);
+virtual		void					handleChunk(Riff::File&riff,ArchiveFolder<Entry>*current);
 
 public:
 			typedef ArchiveFolder<Entry>	Folder;		//!< Folder type

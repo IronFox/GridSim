@@ -80,29 +80,29 @@ void TextureBuffer::clear()
 
 bool TextureBuffer::write(const String&filename)
 {
-    RiffFile  riff;
-	if (comment.length() > TypeInfo<RIFF_SIZE>::max)
+    Riff::File  riff;
+	if (comment.length() > TypeInfo<Riff::RIFF_SIZE>::max)
 		return false;
-    if (!riff.create(filename.c_str()))
+    if (!riff.Create(filename.c_str()))
         return false;
     UINT32 version = 0x0103;
-    riff.appendBlock("VERS",&version,sizeof(version));
-    riff.appendBlock("CONT",comment.c_str(),RIFF_SIZE(comment.length()));
+    riff.AppendBlock("VERS",&version,sizeof(version));
+    riff.AppendBlock("CONT",comment.c_str(),Riff::RIFF_SIZE(comment.length()));
     reset();
     while (CGS::TextureA*texture = each())
     {
-        riff.appendBlock("ID  ",&texture->name,sizeof(texture->name));
+        riff.AppendBlock("ID  ",&texture->name,sizeof(texture->name));
         for (BYTE k = 0; k < texture->face_field.length(); k++)
 		{
-			if (texture->face_field[k].size() > TypeInfo<RIFF_SIZE>::max)
+			if (texture->face_field[k].size() > TypeInfo<Riff::RIFF_SIZE>::max)
 			{
-				riff.close();
+				riff.Close();
 				return false;
 			}
-            riff.appendBlock("FACE",texture->face_field[k].pointer(),RIFF_SIZE(texture->face_field[k].size()));
+            riff.AppendBlock("FACE",texture->face_field[k].pointer(),Riff::RIFF_SIZE(texture->face_field[k].size()));
 		}
     }
-    riff.close();
+    riff.Close();
     return true;
 }
 

@@ -118,7 +118,7 @@ namespace CGS	//! Compiled Geometrical Structure
 
 
 
-	static const RIFF_INDEX_ID		RIFF_DATA	= 0x41544144;
+	static const Riff::RIFF_INDEX_ID		RIFF_DATA	= 0x41544144;
 
 	static const long long 			DATA_OBJECTS	= 0x20535443454A424FLL,
 									DATA_TEXTURES	= 0x5345525554584554LL,
@@ -174,7 +174,7 @@ namespace CGS	//! Compiled Geometrical Structure
 	typedef BasicBuffer<index_t>			BuildPath;
 
 	TextureA* cloneTexture(TextureA*source);
-	RiffChunk*openBlock(RiffChunk&riff,tName name);
+	Riff::Chunk*openBlock(Riff::Chunk&riff,tName name);
 
 
 
@@ -639,9 +639,9 @@ namespace CGS	//! Compiled Geometrical Structure
 			void									operator=(const Animator<Def>&other) const {}*/
 			
 	template <class T, unsigned B>
-		static void 								loadTraces(ArrayData<TraceA<T,B> >&traces,RiffFile&riff,const char*riff_name0, const char*riff_name1);
+		static void 								loadTraces(ArrayData<TraceA<T,B> >&traces,Riff::File&riff,const char*riff_name0, const char*riff_name1);
 	template <class T, unsigned B>
-		static void									saveTraces(const ArrayData<TraceA<T,B> >&traces,RiffChunk*riff,const char*riff_name);
+		static void									saveTraces(const ArrayData<TraceA<T,B> >&traces,Riff::Chunk*riff,const char*riff_name);
 	template <class T, unsigned B>
 		static void 								storeTargetNames(ArrayData<TraceA<T,B> >&field);
 		
@@ -661,9 +661,9 @@ namespace CGS	//! Compiled Geometrical Structure
 			bool									valid(Geometry<Def>*structure);			//!< Determines whether or not all trace links are valid. This procedure is very slow. Use only when debugging.
 			double									executionTime()						const;	//!< Determines the number of seconds this animation takes
 			
-			void									loadFromRiff(RiffFile&riff, index_t index_in_context);	//!< Loads the local animator from the current context of a RIFF resource
+			void									loadFromRiff(Riff::File&riff, index_t index_in_context);	//!< Loads the local animator from the current context of a RIFF resource
 			void									link(Geometry<Def>*domain);					//!< Links the local traces via their respective target names.
-			void									saveToRiff(RiffChunk*riff)	const;					//!< Saves the local animator data to the specified riff chunk context
+			void									saveToRiff(Riff::Chunk*riff)	const;					//!< Saves the local animator data to the specified riff chunk context
 			
 			void									storeTargetNames();								//!< Retrieves and stores the respective trace target names
 			double									length()	const;								//!< Retrieves the length (in seconds) of this animation
@@ -835,8 +835,8 @@ namespace CGS	//! Compiled Geometrical Structure
 	private:
 			static String							error;
 
-			void									saveToRiff(RiffChunk*chunk)	const;
-			void									loadFromRiff(RiffFile&source);
+			void									saveToRiff(Riff::Chunk*chunk)	const;
+			void									loadFromRiff(Riff::File&source);
 			void									linkAnimators(Geometry<Def>*domain);
 			void									postCopyLink(Geometry<Def>*domain);
 
@@ -1012,11 +1012,11 @@ namespace CGS	//! Compiled Geometrical Structure
 	private:
 			static String							error;
 			
-			void									loadMaterials(RiffFile&riff);//, bool post_strip, unsigned min_strip);
-			void									loadObjects(RiffFile&riff);
-			void									loadAnimators(RiffFile&riff);
-			void									loadConnectors(RiffFile&riff);
-			void									loadTextures(RiffFile&riff);
+			void									loadMaterials(Riff::File&riff);//, bool post_strip, unsigned min_strip);
+			void									loadObjects(Riff::File&riff);
+			void									loadAnimators(Riff::File&riff);
+			void									loadConnectors(Riff::File&riff);
+			void									loadTextures(Riff::File&riff);
 
 			const SubGeometryA<Def>*				lookupChild(const index_t*path_begin, index_t path_length)	const;
 			SubGeometryA<Def>*						lookupChild(const index_t*path_begin, index_t path_length);
@@ -1050,7 +1050,7 @@ namespace CGS	//! Compiled Geometrical Structure
 			
 			
 													Geometry();
-													Geometry(RiffFile&source);
+													Geometry(Riff::File&source);
 													Geometry(const Geometry<Def>&other);
 			template <class Def0>					Geometry(const Geometry<Def0>&other);
 	inline	bool									usesLocalTextureResource()	const		{return texture_resource == &local_textures;}
@@ -1070,9 +1070,9 @@ namespace CGS	//! Compiled Geometrical Structure
 			bool									saveToFile(const String&fielanem)	const;	//!< @copydoc saveToFile()
 			bool									loadFromFile(const char*filename,TextureResource*resource=NULL);	//!< Loads the local geometry from the specified file overwriting any previously loaded local data. \return true on success
 			bool									loadFromFile(const String&filename,TextureResource*resource=NULL);	//!< @copydoc loadFromFile()
-			void									saveEmbedded(RiffChunk&target, bool embed_textures)	const;	//!< Saves the local geometry to an existing RIFF chunk. \param target RIFF chunk to save to \param embed_textures Set true to also save local textures to the specified RIFF chunk
-			void									loadFromRiff(RiffFile&source,TextureResource*resource=NULL);		//!< Loads the local geometry from the current context of the specified RIFF file.
-			void									loadEmbedded(RiffFile&riff, TextureResource*resource); 	//!< Similar to loadFromRiff() but using a remote texture resource instead.
+			void									saveEmbedded(Riff::Chunk&target, bool embed_textures)	const;	//!< Saves the local geometry to an existing RIFF chunk. \param target RIFF chunk to save to \param embed_textures Set true to also save local textures to the specified RIFF chunk
+			void									loadFromRiff(Riff::File&source,TextureResource*resource=NULL);		//!< Loads the local geometry from the current context of the specified RIFF file.
+			void									loadEmbedded(Riff::File&riff, TextureResource*resource); 	//!< Similar to loadFromRiff() but using a remote texture resource instead.
 
 			SubGeometryA<Def>*						lookupObject(const String&name);								//!< Attempts to recursivly find a sub geometry instance via its name \param name int64 name of the sub geometry instance to look for \return Pointer to the respective sub geometry instance or NULL if it could not be found.
 			const SubGeometryA<Def>*				lookupObject(const String&name)		const;					//!< Attempts to recursivly find a sub geometry instance via its name \param name int64 name of the sub geometry instance to look for \return Pointer to the respective sub geometry instance or NULL if it could not be found.

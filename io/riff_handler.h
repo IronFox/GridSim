@@ -3,9 +3,9 @@
 #include <stdio.h>
 
 
-class RiffFile;
-class RiffChunk;
-struct SRiffInfo;
+class File;
+class Chunk;
+struct TRiffInfo;
 struct SRiffChunk;
 
 #include "random_access_file.h"
@@ -90,11 +90,11 @@ or
 "RIFF"
 
 Usually the main-list is called "RIFF" but any name will be accepted.
-If you create a file using the RiffFile-object "RIFF" will be used.
+If you create a file using the File-object "RIFF" will be used.
 
 ****** USAGE ******
 
-1) create a new RiffFile object (you can directly open a file by supplying a file-name as parameter)
+1) create a new File object (you can directly open a file by supplying a file-name as parameter)
 2) (if you haven't already done so) create or open a file. 
 3) (...)
 4) call "close()" or delete the object (file will be closed automatically)
@@ -146,13 +146,13 @@ if you already are in the top-most context "dropBack()" will return false.
 
 Retrieving information from the selected chunk:
 
-isID(...)
+IsID(...)
 	returns true if the selected chunk's id matches the given type-id.
 	You can either check for an unsigned int or a string.
 	examples:
-		isID(65273)
+		IsID(65273)
 		or
-		isID("DATA")
+		IsID("DATA")
 
 getIndex()
 	returns selected chunk's index inside present 
@@ -183,7 +183,7 @@ insertBlock(ID, void*data, unsigned data_size)
 	
 	to insert a new list use
 		insertBlock("LIST",NULL,0);
-	Note that lists must be called "LIST" or "RIFF" or RiffFile-object
+	Note that lists must be called "LIST" or "RIFF" or File-object
 	will not recognize it as list but a file which cannot be entered.
 
 appendBlock(ID, void*data, unsigned data_size)
@@ -208,215 +208,261 @@ resizeBlock()	- UNTESTED!!
 */
 
 
-typedef UINT32				RIFF_INDEX_ID;
-typedef const char*			RIFF_STRING_ID;
-typedef UINT32				RIFF_ADDR;
-typedef UINT32				RIFF_SIZE;
-
-
-
-#define RIFF_CHUNK_HEAD_SIZE	(sizeof(RIFF_INDEX_ID)+sizeof(RIFF_SIZE))
-#define RIFF_LIST				0x5453494C
-#define RIFF_RIFF				0x46464952
-
-#ifdef DOUBLE_CHECK_DATA
-extern unsigned char check_buffer[1000000];
-#endif
-
-
-struct SRiffInfo
+namespace Riff
 {
-		RIFF_INDEX_ID			id;
-		RIFF_SIZE		size;
-};
 
-struct SRiffChunk
-{
-		SRiffInfo		info;
-		RIFF_ADDR		addr;
-		unsigned		index;
+
+	typedef UINT32				RIFF_INDEX_ID;
+	typedef const char*			RIFF_STRING_ID;
+	typedef UINT32				RIFF_ADDR;
+	typedef UINT32				RIFF_SIZE;
+
+	
+	struct TID
+	{
+		RIFF_INDEX_ID			value;
+
+		/**/					TID():value(0)	{}
+		/**/					TID(RIFF_INDEX_ID in):value(in)	{}
+		/**/					TID(RIFF_STRING_ID in);
+		bool					operator==(const TID&other)	const	{return value == other.value;}
+		bool					operator!=(const TID&other)	const	{return value != other.value;}
+		const char*				ToString() const;
+		RIFF_INDEX_ID			Numeric() const {return value;}
+		void					CopyTo(char out[4])	const;
+	};
+
+
+	static const TID			RIFF_NAME_CHUNK("NAME");
+
+
+	#define RIFF_CHUNK_HEAD_SIZE	(sizeof(RIFF_INDEX_ID)+sizeof(RIFF_SIZE))
+	#define RIFF_LIST				0x5453494C
+	#define RIFF_RIFF				0x46464952
+
+	#ifdef DOUBLE_CHECK_DATA
+	extern unsigned char check_buffer[1000000];
+	#endif
+
+
+	struct TRiffInfo
+	{
+			char			sid[4];
+			RIFF_SIZE		size;
+	};
+
+	struct SRiffChunk
+	{
+			TRiffInfo		info;
+			RIFF_ADDR		addr;
+			unsigned		index;
 		
-		RIFF_ADDR		blockEnd();
-		RIFF_ADDR		root();
-};
+			RIFF_ADDR		blockEnd();
+			RIFF_ADDR		root();
+	};
 
-class RiffFile:public RandomAccessFile
-{
-private:
-		SRiffChunk		mark_stack[256];
-		BYTE			mark_stacked;
+	class File
+	{
+	private:
+		SRiffChunk			mark_stack[256];
+		BYTE				mark_stacked;
 
-		SRiffChunk		history[256];
-		BYTE			husage;
+		SRiffChunk			history[256];
+		BYTE				husage;
 
-		SRiffChunk		now;
-		char			str_out[5];
-		bool			streaming;
-		RIFF_SIZE		streaming_at;
+		SRiffChunk			now;
+		char				str_out[5];
+		bool				streaming;
+		RIFF_SIZE			streaming_at;
 		
-#ifdef	RIFF_SENSITIVE
-		RIFF_INDEX_ID			sub_id;
-#endif
+		RandomAccessFile	file;
 
-protected:
+	#ifdef	RIFF_SENSITIVE
+		RIFF_INDEX_ID		sub_id;
+	#endif
+
+	protected:
 		void				mark();
 		void				recall();
 		void				forget();
 
-public:
+	public:
 		bool				ignore_main_size_;
 		
-							RiffFile();
-							RiffFile(const char*filename);
-virtual						~RiffFile();
+		/**/				File();
+		/**/				File(const char*filename);
+		virtual				~File();
 
-		bool				open(const char*filename);	//opens an existing archive - closes old if existing
-		void				assign(BYTE*data, ULONG size); //retrieves data from external data-field
-		bool				reopen();
-		const char*			mainID();
-#ifdef	RIFF_SENSITIVE
-		const char*			subID();
-#endif
+		bool				Open(const char*filename);	//opens an existing archive - closes old if existing
+		void				Assign(BYTE*data, ULONG size); //retrieves data from external data-field
+		bool				Reopen();
+		const char*			MainID();
+	#ifdef	RIFF_SENSITIVE
+		const char*			SubID();
+	#endif
 		RIFF_SIZE			mainSize();
-		bool				create(const char*filename);//creates a new archive
-		void				close();					//closes open archive
-		void				reset();					//resets cursor to file-start
-		bool				findFirst(RIFF_INDEX_ID ID);			//select riff-chunk via ID
-		bool				findFirst(RIFF_STRING_ID ID);			//same for string-id
-		bool				findNext(RIFF_INDEX_ID	ID);			//find next riff-block with this type-ID
-		bool				findNext(RIFF_STRING_ID	ID);
-		bool				select(unsigned index);		//select riff-chunk via context-index
-		bool				isID(RIFF_INDEX_ID ID);				//checks wether or not selected chunk's id is equal to given one
-		bool				isID(RIFF_STRING_ID ID);				//same for string_id
-		bool				next();						//increase cursor
-		bool				first();					//reset cursor in present context
-		bool				enter();					//enters an element if its type is "LIST" or "RIFF"
-		bool				dropBack();					//returns to the governing context
-inline	bool				exit();						//identical to dropBack
-		RIFF_SIZE			get(void*out);				//extrudes data
-		RIFF_SIZE			get(void*out,size_t max);//extrudes data but not more than max - returns FULL size
-template <class C>
-		unsigned			get(ArrayData<C>&out);			//extracts data into an array
-		const char*			getFileName();
-		const char*			getID();					//returns block's type-id
-		unsigned			getIndex();					//returns block's index (in present context)
-		RIFF_ADDR			getAddr();					//returns block's address
-		const SRiffChunk&	getChunk();
-		RIFF_SIZE			getSize();					//returns size of block
-		bool				multipleOf(size_t size); //returns true if getSize() is multiple of size
-		RIFF_ADDR			tell();						//returns present file-cursor-position
-		RIFF_SIZE			streamTell()	const	{return streaming?streaming_at:0;};			//!< Returns the number of bytes that have been read via stream so far
-		bool				canStreamBytes(size_t bytes)	const;								//!< Checks whether or not the specified number of bytes can be streamed by the next stream call, or if no such amount is left in the remaining block space
-		void				openStream();
-template <class C>
-		bool				stream(C&obj);
-template <class C>
-		bool				stream(C*obj, count_t num);
-		bool				streamPointer(void*target, size_t data_size);
-		bool				skip(size_t data_size);
-		void				closeStream();
+		bool				Create(const char*filename);//creates a new archive
+		void				Close();					//closes open archive
+		void				Reset();					//resets cursor to file-start
+		bool				FindFirst(TID ID);			//select riff-chunk via ID
+		bool				FindNext(TID ID);			//find next riff-block with this type-ID
+		bool				Select(unsigned index);		//select riff-chunk via context-index
+		bool				IsID(TID ID);				//checks wether or not selected chunk's id is equal to given one
+		bool				Next();						//increase cursor
+		bool				First();					//reset cursor in present context
+		bool				Enter();					//enters an element if its type is "LIST" or "RIFF"
+		bool				DropBack();					//returns to the governing context
+		inline bool			Exit();						//identical to dropBack
+		RIFF_SIZE			Get(void*out);				//extrudes data
+		RIFF_SIZE			Get(void*out,size_t max);//extrudes data but not more than max - returns FULL size
+	template <class C>
+		count_t				Get(ArrayData<C>&out);			//extracts data into an array
+		const char*			GetFileName();
+		const char*			GetID();					//returns block's type-id
+		unsigned			GetIndex();					//returns block's index (in present context)
+		RIFF_ADDR			GetAddr();					//returns block's address
+		const SRiffChunk&	GetChunk();
+		RIFF_SIZE			GetSize();					//returns size of block
+		bool				IsMultipleOf(size_t size); //returns true if getSize() is multiple of size
+		RIFF_ADDR			Tell();						//returns present file-cursor-position
+		RIFF_SIZE			StreamTell()	const	{return streaming?streaming_at:0;};			//!< Returns the number of bytes that have been read via stream so far
+		bool				CanStreamBytes(size_t bytes)	const;								//!< Checks whether or not the specified number of bytes can be streamed by the next stream call, or if no such amount is left in the remaining block space
+		void				OpenStream();
+	template <class C>
+		bool				Stream(C&obj);
+	template <class C>
+		bool				Stream(C*obj, count_t num);
+		bool				StreamPointer(void*target, size_t data_size);
+		bool				Skip(size_t data_size);
+		void				CloseStream();
 		
-		bool				insertBlock(RIFF_INDEX_ID ID, const void*data=NULL, size_t size=0);	//insert a new block between the previous and the present block. Works too if inside an empty list-block. DATA can be NULL.
-		bool				insertBlock(RIFF_STRING_ID ID, const void*data=NULL, size_t size=0);	//same for string_id
-template <typename ID, typename T>
-		bool				insertBlock(ID id, const ArrayData<T>&data);
-		bool				appendBlock(RIFF_INDEX_ID ID, const void*data=NULL, size_t size=0);	//append a new block behind the last block. Works too if inside an empty list-block. DATA can be NULL.
-		bool				appendBlock(RIFF_STRING_ID ID, const void*data=NULL, size_t size=0);	//same for string_id
-template <typename ID, typename T>
-		bool				appendBlock(ID id, const ArrayData<T>&data);
-		bool				appendBlocks(RiffFile&other);
-		bool				dropBlock();	//erase selected block (and all subblocks)
-		bool				overwrite(const void*data, size_t check_size);
-		bool				resizeBlock(size_t size);	//resizes selected block
-		bool				swapBlocks(unsigned index0, unsigned index1);
-		RandomAccessFile::size;
-		RandomAccessFile::isActive;
-};
+		bool				InsertBlock(TID ID, const void*data=NULL, size_t size=0);	//insert a new block between the previous and the present block. Works too if inside an empty list-block. DATA can be NULL.
+	template <typename T>
+		bool				InsertBlock(TID id, const ArrayData<T>&data);
+		bool				AppendBlock(TID ID, const void*data=NULL, size_t size=0);	//append a new block behind the last block. Works too if inside an empty list-block. DATA can be NULL.
+	template <typename T>
+		bool				AppendBlock(TID id, const ArrayData<T>&data);
+		bool				AppendBlocks(File&other);
+		bool				DropBlock();	//erase selected block (and all subblocks)
+		bool				Overwrite(const void*data, size_t check_size);
+		bool				ResizeBlock(size_t size);	//resizes selected block
+		bool				SwapBlocks(unsigned index0, unsigned index1);
+	private:
+	};
 
 
 
-class RiffChunk
-{
-protected:
-		RIFF_ADDR		_offset;
-		BYTE			*_data;
-		RiffChunk		*_first,*_next,*_current,*_previous,*_parent;
-		unsigned		_index;
-		SRiffInfo		_info;
-		bool			_streaming;
-static	char			str_out[5];
+	class Chunk
+	{
+	protected:
+			RIFF_ADDR		_offset;
+			BYTE			*_data;
+			Chunk		*_first,*_next,*_current,*_previous,*_parent;
+			unsigned		_index;
+			TRiffInfo		_info;
+			bool			_streaming;
+	static	char			str_out[5];
 
-public:
+	public:
 
-						RiffChunk();
-						RiffChunk(RiffChunk*parent);
-						RiffChunk(RiffChunk*parent, RIFF_INDEX_ID id, const void*data, size_t size);
-virtual					~RiffChunk();
+							Chunk();
+							Chunk(Chunk*parent);
+							Chunk(Chunk*parent, TID id, const void*data, size_t size);
+	virtual					~Chunk();
 
 	
-		bool			loadFromFile(const char*filename);
-		RIFF_SIZE		fromFile(FILE*f, size_t size, bool force_list=false);
-		void			loadFromData(const void*data, size_t size);
-		RIFF_SIZE		fromData(const BYTE*data, size_t size, bool force_list=false);
-		bool			saveToFile(const char*filename);
-		void			toFile(FILE*f, bool force_list=false);
-		RIFF_SIZE		saveToData(void*out);
-		void			toData(BYTE*out, bool force_list=false);
-		void			clear();
-		RIFF_SIZE		resolveSize(bool force_list=true);
+			bool			LoadFromFile(const char*filename);
+			RIFF_SIZE		FromFile(FILE*f, size_t size, bool force_list=false);
+			void			LoadFromData(const void*data, size_t size);
+			RIFF_SIZE		FromData(const BYTE*data, size_t size, bool force_list=false);
+			bool			SaveToFile(const char*filename);
+			void			ToFile(FILE*f, bool force_list=false);
+			RIFF_SIZE		SaveToData(void*out);
+			void			ToData(BYTE*out, bool force_list=false);
+			void			Clear();
+			RIFF_SIZE		ResolveSize(bool force_list=true);
 
 
-		RIFF_SIZE		get(void*out)	const;				//extracts data
-		RIFF_SIZE		get(void*out,size_t max)	const;//extracts data but not more than max - returns FULL size
-		const BYTE*		pointer()	const	/** @brief Retrieves the pointer to the beginning of the data of the local chunk*/	{return _data;}
-	template <typename T>
-		unsigned		get(ArrayData<T>&out)	const;
-		void			setID(RIFF_INDEX_ID ID);
-		void			setID(RIFF_STRING_ID ID);
-		RIFF_INDEX_ID	getID() const;
-		const char*		getIDString()	const;
-		bool			isID(RIFF_INDEX_ID ID)	const;				//checks wether or not this chunk's id is equal to given one
-		bool			isID(RIFF_STRING_ID ID)	const;				//same for string_id
-		RIFF_SIZE		size()	const;						//returns this chunk's data-size
-		bool			multipleOf(size_t size)	const; //returns true if size_ is multiple of size
-		void			openStream();
-	template <class C>
-		bool			stream(C&obj);
-	template <class C>
-		bool			stream(C*obj, count_t num);
-		bool			streamPointer(void*target, size_t data_size);
-		void			closeStream();
-		bool			overwrite(const void*data, size_t check_size);
+			RIFF_SIZE		Get(void*out)	const;				//extracts data
+			RIFF_SIZE		Get(void*out,size_t max)	const;//extracts data but not more than max - returns FULL size
+			const BYTE*		pointer()	const	/** @brief Retrieves the pointer to the beginning of the data of the local chunk*/	{return _data;}
+		template <typename T>
+			count_t			Get(ArrayData<T>&out)	const;
+			void			SetID(TID ID);
+			TID				GetID() const;
+			bool			IsID(TID id)	const;				//checks wether or not this chunk's id is equal to given one
+			RIFF_SIZE		size()	const;						//returns this chunk's data-size
+			bool			IsMultipleOf(size_t size)	const; //returns true if size_ is multiple of size
+			void			OpenStream();
+		template <class C>
+			bool			Stream(C&obj);
+		template <class C>
+			bool			Stream(C*obj, count_t num);
+			bool			StreamPointer(void*target, size_t data_size);
+			void			CloseStream();
+			bool			Overwrite(const void*data, size_t check_size);
 
 
+			bool			FindFirstNamedList(Chunk*&outNameChunk, Chunk*&outDataChunk)
+			{
+				for (;;)
+				{
+					outNameChunk = FindFirst(RIFF_NAME_CHUNK);
+					if (!outNameChunk)
+						return false;
+					outDataChunk = Next();
+					if (!outDataChunk)
+						return false;
+					if (outDataChunk->IsID(RIFF_NAME_CHUNK))
+						return true;
+				}
+			}
+			bool			FindNextNamedList(Chunk*&outNameChunk, Chunk*&outDataChunk)
+			{
+				for (;;)
+				{
+					outNameChunk = FindNext(RIFF_NAME_CHUNK);
+					if (!outNameChunk)
+						return false;
+					outDataChunk = Next();
+					if (!outDataChunk)
+						return false;
+					if (outDataChunk->IsID(RIFF_NAME_CHUNK))
+						return true;
+				}
+			}
+			Chunk*			FindFirst(TID ID);			//select riff-chunk via ID
+			Chunk*			FindNext(TID ID);			//find next riff-block with this type-ID
+			Chunk*			Select(unsigned index);		//select riff-chunk via context-index
+			Chunk*			Next();						//increase cursor
+			Chunk*			First();					//reset cursor in present context
+			unsigned		CurrentIndex()	const;					//returns block's index
+			Chunk*			Current();
+			bool			EraseCurrent();
+			bool			ResizeCurrent(size_t size);
+			Chunk*			InsertBlock(TID ID, const void*data=NULL, size_t size=0);	//insert a new block between the previous and the present block. Works too if inside an empty list-block. DATA can be NULL.
+			Chunk*			InsertBlock(RIFF_STRING_ID ID, const void*data=NULL, size_t size=0);	//same for string_id
+		template<typename T>
+			Chunk*			InsertBlock(TID id, const ArrayData<T>&data);
+			Chunk*			AppendBlock(TID ID, const void*data=NULL, size_t size=0);	//insert a new block between the previous and the present block. Works too if inside an empty list-block. DATA can be NULL.
+		template<typename T>
+			Chunk*			AppendBlock(TID id, const ArrayData<T>&data);
 
-		RiffChunk*		findFirst(RIFF_INDEX_ID ID);			//select riff-chunk via ID
-		RiffChunk*		findFirst(RIFF_STRING_ID ID);			//same for string-id
-		RiffChunk*		findNext(RIFF_INDEX_ID	ID);			//find next riff-block with this type-ID
-		RiffChunk*		findNext(RIFF_STRING_ID	ID);
-		RiffChunk*		select(unsigned index);		//select riff-chunk via context-index
-		RiffChunk*		next();						//increase cursor
-		RiffChunk*		first();					//reset cursor in present context
-		unsigned		currentIndex()	const;					//returns block's index
-		RiffChunk*		current();
-		bool			eraseCurrent();
-		bool			resizeCurrent(size_t size);
-		RiffChunk*		insertBlock(RIFF_INDEX_ID ID, const void*data=NULL, size_t size=0);	//insert a new block between the previous and the present block. Works too if inside an empty list-block. DATA can be NULL.
-		RiffChunk*		insertBlock(RIFF_STRING_ID ID, const void*data=NULL, size_t size=0);	//same for string_id
-template<typename ID, typename T>
-		RiffChunk*		insertBlock(ID id, const ArrayData<T>&data);
-		RiffChunk*		appendBlock(RIFF_INDEX_ID ID, const void*data=NULL, size_t size=0);	//insert a new block between the previous and the present block. Works too if inside an empty list-block. DATA can be NULL.
-		RiffChunk*		appendBlock(RIFF_STRING_ID ID, const void*data=NULL, size_t size=0);	//same for string_id
-template<typename ID, typename T>
-		RiffChunk*		appendBlock(ID id, const ArrayData<T>&data);
-};
+			Chunk*			AppendNamedList(const void*namePtr, size_t nameSize)
+			{
+				AppendBlock(RIFF_NAME_CHUNK,namePtr,nameSize);
+				return AppendBlock(RIFF_LIST);
+			}
+
+	};
 
 
+	typedef Chunk	Container;
 
 
+	#include "riff_handler.tpl.h"
 
-#include "riff_handler.tpl.h"
-
+}
 
 #endif
 

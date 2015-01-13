@@ -33,7 +33,7 @@ struct  TArchiveEntry;
 
 struct TArchiveEntry	//!< Customized archive entry class
 {
-        RIFF_ADDR           location;		//!< File offset
+        Riff::RIFF_ADDR     location;		//!< File offset
         UINT32              extracted_size,	//!< Extracted data size in bytes
 							size,			//!< Raw (compressed) data size in bytes
                             crc;			//!< Compressed crc32
@@ -67,9 +67,9 @@ template <class Def> class GeometryArchive:public Archive<TArchiveEntry>	//! Com
 protected:
         bool                _changed;
 
-        void                handleChunk(RiffFile&riff,ArchiveFolder<TArchiveEntry>*current);
+        void                handleChunk(Riff::File&riff,ArchiveFolder<TArchiveEntry>*current);
         void                makeVirtual(ArchiveFolder<TArchiveEntry>*folder);
-static  void                putToRiff(ArchiveFolder<TArchiveEntry>*folder, RiffFile&riff);
+static  void                putToRiff(ArchiveFolder<TArchiveEntry>*folder, Riff::File&riff);
 
 public:
         ArchiveResource    textures;		//!< Global archive textures

@@ -67,6 +67,7 @@ protected:
 public:
                     RandomAccessFile();
 virtual            ~RandomAccessFile();
+		const char*	getFilename() const {return filename;}
         bool        create(const char*filename, OpenMode mode=Direct);      //!< Closes if active and creates the specified file. \param filename specifies the name of the file to create \param mode specifies how the file should be handled. \return true if the file could be created and opened, false otherwise.
         bool        recreate(OpenMode mode=Direct);                         //!< Closes if active and recreates/overwrites the file specified by the stored filename. \param mode specifies how the file should be handled. \return true if the file could be created and opened, false otherwise.
         bool        open(const char*filename, OpenMode mode=Direct);        //!< Closes if active and opens the specified file in the specified mode. If \b mode is Buffered and the file is accessible, the entire data is read to a local buffer. \param filename specifies the name of the file to open \param mode specifies how the file should be handled. \return true if the file could be opened, false otherwise.

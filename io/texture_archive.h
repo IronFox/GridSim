@@ -37,8 +37,8 @@ struct STAentry;
 
 struct STAface	//! Texture archive face entry
 {
-        RIFF_SIZE           size;				//!< Size of this face in bytes in the file (may be compressed)
-        RIFF_ADDR           location;			//!< Absolute file offset of this face
+        Riff::RIFF_SIZE     size;				//!< Size of this face in bytes in the file (may be compressed)
+        Riff::RIFF_ADDR     location;			//!< Absolute file offset of this face
         UINT32              width,				//!< Width of this face in pixels
 							height,				//!< Height of this face in pixels
                             crc;				//!< crc32 checksum of this face
@@ -74,7 +74,7 @@ virtual						~STAentry()	{if (custom_attachment) DISCARD(custom_attachment);}
 class TextureArchive:public Archive<STAentry>
 {
 private:
-        void                handleChunk(RiffFile&riff,ArchiveFolder<STAentry>*current);
+        void                handleChunk(Riff::File&riff,ArchiveFolder<STAentry>*current);
 
 public:
                             TextureArchive();

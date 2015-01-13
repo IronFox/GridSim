@@ -39,7 +39,7 @@ template <class Def> void ArchiveResource::add(Geometry<Def>*structure)
 template <class Def> GeometryArchive<Def>::GeometryArchive(): ::Archive<TArchiveEntry>(VISUAL_VERSION),_changed(false)
 {}
 
-template <class Def> void GeometryArchive<Def>::handleChunk(RiffFile&riff,ArchiveFolder<TArchiveEntry>*current)
+template <class Def> void GeometryArchive<Def>::handleChunk(Riff::File&riff,ArchiveFolder<TArchiveEntry>*current)
 {
     switch (riff.getChunk().info.id)
     {
@@ -81,7 +81,7 @@ template <class Def> bool GeometryArchive<Def>::create(const String&filename_)
 {
     _changed = false;
     filename = filename_;
-    RiffFile riff;
+    Riff::File riff;
     if (!riff.create(String(filename+".va").c_str()))
         return false;
     UINT32  version = VISUAL_VERSION;
@@ -129,7 +129,7 @@ template <class Def> bool GeometryArchive<Def>::getData(Geometry<Def>&target)
         return false;
     }
     selected->extracted_size = extracted;
-    RiffFile riff;
+    Riff::File riff;
     riff.assign(fbuffer,selected->extracted_size);
     target.loadEmbedded(riff,&textures);
     DISCARD_ARRAY(fbuffer);
@@ -149,7 +149,7 @@ template <class Def> void GeometryArchive<Def>::add(Geometry<Def>*structure,__in
         incrementName(name);
     textures.add(structure);
     TArchiveEntry*entry = folder[depth]->files.add(name);
-    RiffChunk chunk;
+    Riff::Chunk chunk;
     structure->saveEmbedded(chunk,false);
     entry->extracted_size = chunk.resolveSize(true);
     BYTE*data = alloc<BYTE>(entry->extracted_size);
@@ -181,7 +181,7 @@ template <class Def> void GeometryArchive<Def>::makeVirtual(ArchiveFolder<TArchi
         makeVirtual(sub);
 }
 
-template <class Def> void GeometryArchive<Def>::putToRiff(ArchiveFolder<TArchiveEntry>*folder, RiffFile&riff)
+template <class Def> void GeometryArchive<Def>::putToRiff(ArchiveFolder<TArchiveEntry>*folder, Riff::File&riff)
 {
     struct
     {
@@ -213,7 +213,7 @@ template <class Def> bool GeometryArchive<Def>::update()
     if (!_changed)
         return true;
     makeVirtual(folder[0]);
-    RiffFile riff;
+    Riff::File riff;
     if (!riff.create(String(filename+".va").c_str()))
         return false;
     UINT32  version = VISUAL_VERSION;

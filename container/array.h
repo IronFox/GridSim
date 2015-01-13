@@ -727,6 +727,44 @@ template <class C>
 								return data[elements-1];
 							}
 
+		inline C&			First()	//!< Retrieves a reference to the first element in the field. The method will return an undefined result if the local array is empty
+							{
+								#if defined(_DEBUG) && __ARRAY_DBG_RANGE_CHECK__
+									if (!elements)
+										FATAL__("Array is empty - cannot retrieve first()");
+								#endif
+								return data[0];
+							}
+
+		inline const C&		First()	const
+							{
+								#if defined(_DEBUG) && __ARRAY_DBG_RANGE_CHECK__
+									if (!elements)
+										FATAL__("Array is empty - cannot retrieve first()");
+								#endif
+
+								return data[0];
+							}
+
+		inline C&			Last()
+							{
+								#if defined(_DEBUG) && __ARRAY_DBG_RANGE_CHECK__
+									if (!elements)
+										FATAL__("Array is empty - cannot retrieve last()");
+								#endif
+
+								return data[elements-1];
+							}
+
+		inline const C&		Last()	const
+							{
+								#if defined(_DEBUG) && __ARRAY_DBG_RANGE_CHECK__
+									if (!elements)
+										FATAL__("Array is empty - cannot retrieve last()");
+								#endif
+								return data[elements-1];
+							}
+
 		inline count_t		length()	const		//! Queries the current array size in elements \return Number of elements 
 							{
 								return elements;

@@ -168,15 +168,15 @@ TextureA* cloneTexture(TextureA*source)
 }
 
 
-RiffChunk*openBlock(RiffChunk&riff,__int64 name)
+Riff::Chunk*openBlock(Riff::Chunk&riff,__int64 name)
 {
-    riff.appendBlock(RIFF_DATA,&name,sizeof(name));
-    return riff.appendBlock(RIFF_LIST);
+    riff.AppendBlock(RIFF_DATA,&name,sizeof(name));
+    return riff.AppendBlock(RIFF_LIST);
 }
 
-void closeBlock(RiffFile&riff)
+void closeBlock(Riff::File&riff)
 {
-    riff.dropBack();
+    riff.DropBack();
 }
 
 

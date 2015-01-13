@@ -3,61 +3,61 @@
 
 
 template <class C>
-bool RiffChunk::stream(C&obj)
+bool Chunk::Stream(C&obj)
 {
-    return streamPointer(&obj,sizeof(obj));
+    return StreamPointer(&obj,sizeof(obj));
 }
 
 template <class C>
-bool RiffChunk::stream(C*obj, count_t num)
+bool Chunk::Stream(C*obj, count_t num)
 {
-    return streamPointer(obj,num*sizeof(C));
+    return StreamPointer(obj,num*sizeof(C));
 }
 
 template <class C>
-bool RiffFile::stream(C&obj)
+bool File::Stream(C&obj)
 {
-    return streamPointer(&obj,sizeof(obj));
+    return StreamPointer(&obj,sizeof(obj));
 }
 
 template <class C>
-bool RiffFile::stream(C*obj, count_t num)
+bool File::Stream(C*obj, count_t num)
 {
-    return streamPointer(obj,num*sizeof(C));
+    return StreamPointer(obj,num*sizeof(C));
 }
 
 template <class C>
-unsigned RiffFile::get(ArrayData<C>&out)
+count_t File::Get(ArrayData<C>&out)
 {
     if (streaming)
         FATAL__("get does not work during streaming-operation");
 	
-	unsigned count = now.info.size/sizeof(C);
+	count_t count = (size_t)now.info.size/sizeof(C);
 	out.setSize(count);
-	RandomAccessFile::extract(now.addr,out.pointer(),(unsigned)out.contentSize());
+	file.extract(now.addr,out.pointer(),(unsigned)out.contentSize());
     return count;
 }
 
 
-inline bool RiffFile::exit()
+inline bool File::Exit()
 {
-    return dropBack();
-}
-
-template <typename ID, typename T>
-bool	RiffFile::insertBlock(ID id, const ArrayData<T>&data)
-{
-	return insertBlock(id,data.pointer(),(RIFF_SIZE)data.contentSize());
-}
-
-template <typename ID, typename T>
-bool	RiffFile::appendBlock(ID id, const ArrayData<T>&data)
-{
-	return appendBlock(id,data.pointer(),(RIFF_SIZE)data.contentSize());
+    return DropBack();
 }
 
 template <typename T>
-unsigned	RiffChunk::get(ArrayData<T>&out) const
+bool	File::InsertBlock(TID id, const ArrayData<T>&data)
+{
+	return InsertBlock(id,data.pointer(),(RIFF_SIZE)data.contentSize());
+}
+
+template <typename T>
+bool	File::AppendBlock(TID id, const ArrayData<T>&data)
+{
+	return AppendBlock(id,data.pointer(),(RIFF_SIZE)data.contentSize());
+}
+
+template <typename T>
+unsigned	Chunk::Get(ArrayData<T>&out) const
 {
 	unsigned count = _info.size/sizeof(T);
 	out.setSize(count);
@@ -65,16 +65,16 @@ unsigned	RiffChunk::get(ArrayData<T>&out) const
     return count;
 }
 
-template<typename ID, typename T>
-RiffChunk*		RiffChunk::insertBlock(ID id, const ArrayData<T>&data)
+template<typename T>
+Chunk*		Chunk::InsertBlock(TID id, const ArrayData<T>&data)
 {
 	return insertBlock(id,data.pointer(),data.contentSize());
 }
 
-template<typename ID, typename T>
-RiffChunk*		RiffChunk::appendBlock(ID id, const ArrayData<T>&data)
+template<typename T>
+Chunk*		Chunk::AppendBlock(TID id, const ArrayData<T>&data)
 {
-	return appendBlock(id,data.pointer(),data.contentSize());
+	return AppendBlock(id,data.pointer(),data.contentSize());
 }
 
 

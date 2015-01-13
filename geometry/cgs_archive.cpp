@@ -49,29 +49,29 @@ bool ArchiveResource::readContent(const String&filename)
 {
     changed = false;
     clear();
-    RiffFile riff;
-    if (!riff.open(filename.c_str()))
+    Riff::File riff;
+    if (!riff.Open(filename.c_str()))
         return false;
-    if (!riff.findFirst("VERS") || riff.getSize() != sizeof(UINT32))
+    if (!riff.FindFirst("VERS") || riff.GetSize() != sizeof(UINT32))
         return false; //riff auto-closes
     UINT32 vers,crc_fails(0);
-    riff.get(&vers);
+    riff.Get(&vers);
     if (vers != 0x0103)
         return false;
     TextureA*selected(NULL);
-    if (riff.first())
+    if (riff.First())
         do
         {
-            switch (riff.getChunk().info.id)
+            switch (Riff::TID(riff.GetChunk().info.sid).Numeric())
             {
                 case RIFF_ID:
                     if (selected)
                         TextureBuffer::add(selected);
 
-                    if (riff.getSize() == sizeof(__int64))
+                    if (riff.GetSize() == sizeof(__int64))
                     {
                         __int64 name;
-                        riff.get(&name);
+                        riff.Get(&name);
                         selected = SHIELDED(new TextureA());
                         selected->name = name;
                     }
@@ -85,8 +85,8 @@ bool ArchiveResource::readContent(const String&filename)
 					index_t index = selected->face_field.length();
 					selected->face_field.resizePreserveContent(index+1);	//this has got to be the second most inefficient way to do this :S
 					Array<BYTE>&face = selected->face_field[index];
-					face.setSize(riff.getSize());
-					riff.get(face.pointer());
+					face.SetSize(riff.GetSize());
+					riff.Get(face.pointer());
 						
                     UINT32 crc0 = *(UINT32*)face.pointer(),
                            crc1 = CRC32::getChecksum(face+(unsigned)sizeof(UINT32),face.size()-sizeof(UINT32));
@@ -104,7 +104,7 @@ bool ArchiveResource::readContent(const String&filename)
                     selected = NULL;
             }
         }
-        while (riff.next());
+        while (riff.Next());
     if (selected)
         TextureBuffer::add(selected);
 
