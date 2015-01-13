@@ -233,7 +233,8 @@ namespace Riff
 	};
 
 
-	static const TID			RIFF_NAME_CHUNK("NAME");
+	static const TID			RIFF_NAME_CHUNK("NAME"),
+								RIFF_DATA_CHUNK("DATA");
 
 
 	#define RIFF_CHUNK_HEAD_SIZE	(sizeof(RIFF_INDEX_ID)+sizeof(RIFF_SIZE))
@@ -383,6 +384,12 @@ namespace Riff
 			RIFF_SIZE		ResolveSize(bool force_list=true);
 
 
+			void			SetData(const void*data, size_t dataSize);
+		template <typename T>
+			void			SetPODData(const T&podData) {SetData(&podData,sizeof(podData));}
+		template <typename T>
+			void			SetData(const ArrayData<T>&ar) {SetData(&ar.pointer(),ar.contentSize());}
+
 			RIFF_SIZE		Get(void*out)	const;				//extracts data
 			RIFF_SIZE		Get(void*out,size_t max)	const;//extracts data but not more than max - returns FULL size
 			const BYTE*		pointer()	const	/** @brief Retrieves the pointer to the beginning of the data of the local chunk*/	{return _data;}
@@ -454,6 +461,23 @@ namespace Riff
 				return AppendBlock(RIFF_LIST);
 			}
 
+		template <typename T>
+			Chunk*			AppendNamedList(const T&podIdentifier)
+			{
+				return AppendNamedList(&podIdentifier,sizeof(podIdentifier));
+			}
+
+			Chunk*			AppendNamedChunk(const void*namePtr, size_t nameSize)
+			{
+				AppendBlock(RIFF_NAME_CHUNK,namePtr,nameSize);
+				return AppendBlock(RIFF_DATA_CHUNK);
+			}
+
+		template <typename T>
+			Chunk*			AppendNamedChunk(const T&podIdentifier)
+			{
+				return AppendNamedChunk(&podIdentifier,sizeof(podIdentifier));
+			}
 	};
 
 

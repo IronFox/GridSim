@@ -566,6 +566,15 @@ namespace Riff
 		memcpy(_data,data,size);
 	}
 
+	void Chunk::SetData(const void*data, size_t dataSize)
+	{
+		dealloc(_data);
+		RIFF_SIZE i_size = castSize(dataSize + dataSize%2);
+		alloc(_data,i_size);
+		memcpy(_data,data,dataSize);
+		_info.size = castSize(dataSize);
+	}
+
 
 	Chunk::~Chunk()
 	{
