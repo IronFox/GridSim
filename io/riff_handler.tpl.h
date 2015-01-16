@@ -57,10 +57,10 @@ bool	File::AppendBlock(TID id, const ArrayData<T>&data)
 }
 
 template <typename T>
-unsigned	Chunk::Get(ArrayData<T>&out) const
+count_t	Chunk::Get(ArrayData<T>&out) const
 {
-	unsigned count = _info.size/sizeof(T);
-	out.setSize(count);
+	count_t count = count_t(_info.size)/sizeof(T);
+	out.SetSize(count);
 	memcpy(out.pointer(),_data,out.contentSize());
     return count;
 }
