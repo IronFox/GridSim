@@ -467,14 +467,14 @@ namespace Riff
 				return AppendNamedList(&podIdentifier,sizeof(podIdentifier));
 			}
 
-			Chunk*			AppendNamedChunk(const void*namePtr, size_t nameSize)
+			Chunk*			AppendNamedBlock(const void*namePtr, size_t nameSize)
 			{
 				AppendBlock(RIFF_NAME_CHUNK,namePtr,nameSize);
 				return AppendBlock(RIFF_DATA_CHUNK);
 			}
 
 		template <typename T>
-			Chunk*			AppendNamedChunk(const T&podIdentifier)
+			Chunk*			AppendNamedBlock(const T&podIdentifier)
 			{
 				return AppendNamedChunk(&podIdentifier,sizeof(podIdentifier));
 			}

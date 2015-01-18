@@ -204,6 +204,15 @@ namespace TCP
 		mutex.release();
 	}
 	
+	void Dispatcher::FlushPendingEvents()
+	{
+		mutex.lock();
+			signal_queue.Clear();
+			object_queue.Clear();
+			event_queue.Clear();
+			wasteBucket.Clear();
+		mutex.release();
+	}
 	
 	RootChannel*	Dispatcher::getReceiver(UINT32 channel_id, unsigned user_level)
 	{

@@ -470,7 +470,8 @@ namespace TCP
 	
 		/**/						Dispatcher();
 		virtual						~Dispatcher();
-		void						Resolve();		//!< Resolves all events that occured since the last resolve() invokation. The client application must call this method frequently if the local dispatcher is set to synchronous. Never otherwise.
+		void						Resolve();		//!< Resolves all events that occured since the last Resolve() invokation. The client application must call this method frequently if the local dispatcher is set to synchronous. Never otherwise.
+		void						FlushPendingEvents();	//!< Dumps all remaining, pending events without executing them. The client application may call this method if the local dispatcher is set to synchronous. Nothing happens otherwise.
 		void						InstallChannel(RootChannel&channel);	//!< Installs a channel in/out processor. If the used channel id is already in use then it will be overwritten with the provided channel handler
 		void						UninstallChannel(RootChannel&channel);		//!< Uninstalls a channel in/out processor. The used channel id will be closed
 		void						OpenSignalChannel(UINT32 id, unsigned minUserLevel);	//!< Opens a signal channel for receiving	@param id Channel id to listen for signals on @param min_user_level Minimum required user level for this signal to be accepted
