@@ -568,11 +568,17 @@ namespace Riff
 
 	void Chunk::SetData(const void*data, size_t dataSize)
 	{
+		memcpy(SetData(dataSize),data,dataSize);
+	}
+	void* Chunk::SetData(size_t dataSize)
+	{
 		dealloc(_data);
 		RIFF_SIZE i_size = castSize(dataSize + dataSize%2);
 		alloc(_data,i_size);
-		memcpy(_data,data,dataSize);
 		_info.size = castSize(dataSize);
+
+		return _data;
+
 	}
 
 
@@ -937,9 +943,10 @@ namespace Riff
 		return true;
 	}
 
-	void Chunk::CloseStream()
+	bool Chunk::CloseStream()
 	{
 		_streaming = false;
+		return _offset == _info.size;
 	}
         
 	bool Chunk::EraseCurrent()

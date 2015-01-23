@@ -386,7 +386,7 @@ namespace Riff
 			void			Clear();
 			RIFF_SIZE		ResolveSize(bool force_list=true);
 
-
+			void*			SetData(size_t dataSize);
 			void			SetData(const void*data, size_t dataSize);
 		template <typename T>
 			void			SetPODData(const T&podData) {SetData(&podData,sizeof(podData));}
@@ -409,9 +409,12 @@ namespace Riff
 		template <class C>
 			bool			Stream(C*obj, count_t num);
 			bool			StreamPointer(void*target, size_t data_size);
-			void			CloseStream();
+			bool			CloseStream();
 			bool			Overwrite(const void*data, size_t check_size);
 
+			bool			DataMatch(const void*compareTo, size_t compareToSize)	const;
+		template <typename T>
+			bool			DataMatch(const T&pod) const {return DataMatch(&pod,sizeof(T));}
 
 			bool			FindFirstNamedList(Chunk*&outNameChunk, Chunk*&outDataChunk)
 			{
