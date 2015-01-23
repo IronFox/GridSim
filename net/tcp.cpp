@@ -582,7 +582,7 @@ namespace TCP
 			std::cout << "Peer::sendObject() exit: package size determined as "<<size32<<" byte(s)"<<std::endl;
 		softsync(write_mutex)
 		{
-			serial_buffer.reset();
+			serial_buffer.Clear();
 			serial_buffer << (UINT32)channel_id;
 			serial_buffer << (UINT32)0;
 			bool did_serialize = object.Serialize(serial_buffer,false);
@@ -590,9 +590,9 @@ namespace TCP
 			if (did_serialize)
 			{
 				UINT32*data = (UINT32*)serial_buffer.data();
-				data[1] = (UINT32)(serial_buffer.fillLevel() - 8);
+				data[1] = (UINT32)(serial_buffer.GetFillLevel() - 8);
 
-				int rs = socketAccess->Write(serial_buffer.data(),serial_buffer.fillLevel());
+				int rs = socketAccess->Write(serial_buffer.data(),serial_buffer.GetFillLevel());
 				if (rs <= 0)
 				{
 					if (verbose)

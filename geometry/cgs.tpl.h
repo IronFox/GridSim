@@ -1276,8 +1276,8 @@ template <class Def> void SubGeometryA<Def>::saveToRiff(Riff::Chunk*riff)	const
 		{
 			ByteStream	m;
 			//typename Def::SystemType	field[22];
-			m.push(meta.system.v,16);
-			m.push(meta.center.v,3);
+			m.Append(meta.system.v,16);
+			m.Append(meta.center.v,3);
 			m << meta.radius
 				<< meta.volume
 				<< meta.density
@@ -1285,7 +1285,7 @@ template <class Def> void SubGeometryA<Def>::saveToRiff(Riff::Chunk*riff)	const
 			//field[19] = meta.radius;
 			//ield[20] = meta.volume;
 			//field[21] = meta.density;
-			inner->AppendBlock("META",m.data(),m.fillLevel());
+			inner->AppendBlock("META",m);
 		}
 		
 		for (index_t i = 0; i < vs_hull_field.length(); i++)
@@ -1357,9 +1357,9 @@ template <class Def> void SubGeometryA<Def>::saveToRiff(Riff::Chunk*riff)	const
 					<< (UINT32)(triangle.vertex[1]-phHull.vertex_field)
 					<< (UINT32)(triangle.vertex[2]-phHull.vertex_field);
 			}
-			inner->AppendBlock("HTRI",out.data(),out.fillLevel());
+			inner->AppendBlock("HTRI",out);
 		
-			out.reset();
+			out.Clear();
 			for (index_t i = 0; i < phHull.quad_field.length(); i++)
 			{
 				const Mesh<PhDef>::Quad	&quad = phHull.quad_field[i];
@@ -1368,7 +1368,7 @@ template <class Def> void SubGeometryA<Def>::saveToRiff(Riff::Chunk*riff)	const
 					<< (UINT32)(quad.vertex[2]-phHull.vertex_field)
 					<< (UINT32)(quad.vertex[3]-phHull.vertex_field);
 			}
-			inner->AppendBlock("HQAD",out.data(),out.fillLevel());
+			inner->AppendBlock("HQAD",out);
 
 			{
 				Array<UINT32>out(phHull.edge_field.length()*4);	//2*vertex. 2*face
@@ -1391,14 +1391,14 @@ template <class Def> void SubGeometryA<Def>::saveToRiff(Riff::Chunk*riff)	const
 			ByteStream	a;
 			for (index_t i = 0; i < accelerator_field.length(); i++)
 			{
-				a.reset();
-				a.push(accelerator_field[i].position.v,3);
-				a.push(accelerator_field[i].direction.v,3);
+				a.Clear();
+				a.Append(accelerator_field[i].position.v,3);
+				a.Append(accelerator_field[i].direction.v,3);
 				a << accelerator_field[i].power << accelerator_field[i].zero_efficiency;
 				a << accelerator_field[i].flame_length << accelerator_field[i].flame_width;
-				a.push(accelerator_field[i].flame_color.v,3);
-				a.push(accelerator_field[i].name.c_str(),accelerator_field[i].name.length());
-				inner->AppendBlock("ACC2", a.data(),a.fillLevel());
+				a.Append(accelerator_field[i].flame_color.v,3);
+				a.Append(accelerator_field[i].name.c_str(),accelerator_field[i].name.length());
+				inner->AppendBlock("ACC2", a);
 			}
 		}
 
@@ -1409,14 +1409,14 @@ template <class Def> void SubGeometryA<Def>::saveToRiff(Riff::Chunk*riff)	const
 			ByteStream	a(sizeof(UINT32)+13*sizeof(typename Def::FloatType));
 			for (index_t i = 0; i < mounting_field.length(); i++)
 			{
-				a.reset();
-				a.push(mounting_field[i].flags);
-				a.push(mounting_field[i].position.v,3);
-				a.push(mounting_field[i].direction.v,3);
-				a.push(mounting_field[i].vertical.v,3);
-				a.push(mounting_field[i].dimension.v,3);
-				a.push(mounting_field[i].max_payload);
-				inner->AppendBlock("MNT ", a.data(),a.fillLevel());
+				a.Clear();
+				a.Append(mounting_field[i].flags);
+				a.Append(mounting_field[i].position.v,3);
+				a.Append(mounting_field[i].direction.v,3);
+				a.Append(mounting_field[i].vertical.v,3);
+				a.Append(mounting_field[i].dimension.v,3);
+				a.Append(mounting_field[i].max_payload);
+				inner->AppendBlock("MNT ", a);
 			}
 		}
 
@@ -1425,18 +1425,18 @@ template <class Def> void SubGeometryA<Def>::saveToRiff(Riff::Chunk*riff)	const
 			ByteStream	w;
 			for (index_t i = 0; i < wheel_field.length(); i++)
 			{
-				w.reset();
+				w.Clear();
 				//w.push(wheel_field[i].name);
 				//w.push(wheel_field[i].next?wheel_field[i].next->name:(tName)0);
 				//w.push(wheel_field[i].prev?wheel_field[i].prev->name:(tName)0);
-				w.push(wheel_field[i].position.v,3);
-				w.push(wheel_field[i].contraction.v,3);
-				w.push(wheel_field[i].axis.v,3);
-				w.push(wheel_field[i].radius);
-				w.push(wheel_field[i].width);
-				w.push(wheel_field[i].parameter,ARRAYSIZE(wheel_field[i].parameter));
-				w.push(wheel_field[i].name.c_str(),wheel_field[i].name.length());
-				inner->AppendBlock("WHL2",w.data(),w.fillLevel());
+				w.Append(wheel_field[i].position.v,3);
+				w.Append(wheel_field[i].contraction.v,3);
+				w.Append(wheel_field[i].axis.v,3);
+				w.Append(wheel_field[i].radius);
+				w.Append(wheel_field[i].width);
+				w.Append(wheel_field[i].parameter,ARRAYSIZE(wheel_field[i].parameter));
+				w.Append(wheel_field[i].name.c_str(),wheel_field[i].name.length());
+				inner->AppendBlock("WHL2",w);
 				wheel_field[i].suspension.saveToRiff(inner);
 				wheel_field[i].rotation.saveToRiff(inner);
 			}
@@ -1447,18 +1447,18 @@ template <class Def> void SubGeometryA<Def>::saveToRiff(Riff::Chunk*riff)	const
 			for (index_t i = 0; i < tracks_field.length(); i++)
 			{
 				const Tracks<Def>&t = tracks_field[i];
-				c.reset();
+				c.Clear();
 				c << (UINT32)t.member_field.length();
 
 				for (index_t k = 0; k < t.member_field.length(); k++)
 				{
 					c << t.member_field[k].name.length();
-					c.push(t.member_field[k].name.c_str(),t.member_field[k].name.length());
+					c.Append(t.member_field[k].name.c_str(),t.member_field[k].name.length());
 				}
 
 				//for (index_t k = 0; k < tracks_field[i].entry_field.length(); k++)
 				//	c.push(tracks_field[i].entry_field[k]->name);
-				inner->AppendBlock("TRK2",c.data(),c.fillLevel());
+				inner->AppendBlock("TRK2",c);
 				//tracks_field[i].rotation.saveToRiff(inner);
 			}
 		}
@@ -3233,21 +3233,21 @@ template <class Def> void Geometry<Def>::saveEmbedded(Riff::Chunk&riff, bool emb
 			Riff::Chunk*mout = mlist->AppendBlock(RIFF_LIST);
 			
 
-			buffer.reset();
+			buffer.Clear();
 			buffer << (UINT32)AlphaTestFlag*material_field[i].info.alpha_test;
-			buffer.push(material_field[i].info.ambient.v,4);
-			buffer.push(material_field[i].info.diffuse.v,4);
-			buffer.push(material_field[i].info.emission.v,4);
-			buffer.push(material_field[i].info.specular.v,4);
+			buffer.Append(material_field[i].info.ambient.v,4);
+			buffer.Append(material_field[i].info.diffuse.v,4);
+			buffer.Append(material_field[i].info.emission.v,4);
+			buffer.Append(material_field[i].info.specular.v,4);
 			buffer << material_field[i].info.shininess;
 			buffer << material_field[i].info.alpha_threshold;
 			
 
-			mout->AppendBlock("MATR",buffer.pointer(),buffer.fillLevel());
+			mout->AppendBlock("MATR",buffer);
 			mout->AppendBlock("NAME",material_field[i].name.c_str(),material_field[i].name.length()+1);
 			for (index_t j = 0; j < material_field[i].info.layer_field.length(); j++)
 			{
-				buffer.reset();
+				buffer.Clear();
 				buffer << (UINT32)material_field[i].info.layer_field[j].combiner;
 				UINT32 flags = 0;
 				if (material_field[i].info.layer_field[j].mirror_map)
@@ -3259,7 +3259,7 @@ template <class Def> void Geometry<Def>::saveEmbedded(Riff::Chunk&riff, bool emb
 
 				buffer << flags;
 				buffer << (INT64)(material_field[i].info.layer_field[j].source?material_field[i].info.layer_field[j].source->name:0);
-				mout->AppendBlock("TLYR",buffer.pointer(),buffer.fillLevel());
+				mout->AppendBlock("TLYR",buffer);
 			}
 
 			const MaterialData<Def>&d = material_field[i].data;
@@ -3271,13 +3271,13 @@ template <class Def> void Geometry<Def>::saveEmbedded(Riff::Chunk&riff, bool emb
 
 				ASSERT_EQUAL1__(d.object_field[j].vpool.vlyr,d.coord_layers,j);
 				
-				buffer.reset();
+				buffer.Clear();
 				buffer << (UINT32)d.object_field[j].vpool.vcnt;
 				buffer << (UINT32)d.object_field[j].vpool.vflags;
 				buffer << (UINT32)d.object_field[j].detail;
-				buffer.push(d.object_field[j].target->name.c_str(),d.object_field[j].target->name.length());
+				buffer.Append(d.object_field[j].target->name.c_str(),d.object_field[j].target->name.length());
 				
-				obj->AppendBlock("ROB3",buffer.pointer(),buffer.fillLevel());
+				obj->AppendBlock("ROB3",buffer);
 
 				obj->AppendBlock("RVTX",d.object_field[j].vpool.vdata);
 
@@ -5562,17 +5562,17 @@ template <class T, unsigned B>
 	{
 		ByteStream trace;
 		trace << (UINT32)traces[i].target->name.length();
-		trace.push(traces[i].target->name.c_str(),traces[i].target->name.length());
+		trace.Append(traces[i].target->name.c_str(),traces[i].target->name.length());
 		double delta;
 		for (index_t j = 0; j < traces[i].step_field.length(); j++)
 		{
 			delta = traces[i].step_field[j].end - traces[i].step_field[j].start;
-			trace.push(delta);
-			trace.push(traces[i].step_field[j].range,B);
-			trace.push(traces[i].step_field[j].slope0,B);
-			trace.push(traces[i].step_field[j].slope1,B);
+			trace.Append(delta);
+			trace.Append(traces[i].step_field[j].range,B);
+			trace.Append(traces[i].step_field[j].slope0,B);
+			trace.Append(traces[i].step_field[j].slope1,B);
 		}
-		riff->AppendBlock(riff_name,trace.data(),trace.fillLevel());
+		riff->AppendBlock(riff_name,trace);
 	}
 }
 

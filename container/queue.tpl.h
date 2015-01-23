@@ -462,6 +462,15 @@ template <class Entry,class Strategy>
 		return section_begin->Cast();
 	}
 
+template <class Entry, class Strategy>
+	void		Queue<Entry,Strategy>::CopyToArray(ArrayData<Entry>&out) const
+	{
+		out.SetSize(CountEntries());
+		for (index_t i = 0; i < out.Count(); i++)
+			out[i] = operator[](i);
+	}
+
+
 
 template <class Entry,class Strategy>
 	Entry&			Queue<Entry,Strategy>::GetNewest()

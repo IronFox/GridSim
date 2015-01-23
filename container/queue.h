@@ -131,63 +131,63 @@ template <class Entry, class Strategy=typename StrategySelector<Entry>::Default>
 	class Queue:protected Array<QueueElement<Entry,Strategy>,::Strategy::Adopt>
 	{
 	protected:
-			typedef QueueElement<Entry,Strategy>	Element;
-			Element			*section_begin,
+		typedef QueueElement<Entry,Strategy>	Element;
+		Element				*section_begin,
 							*section_end,
 							*field_end;
-			typedef Array<Element,::Strategy::Adopt>	Array;
+		typedef Array<Element,::Strategy::Adopt>	Array;
 
-			void			increaseSize(count_t new_size);
+		void				increaseSize(count_t new_size);
 	public:
-			typedef QueueIterator<Entry,Element,Strategy>	iterator;
-			typedef QueueIterator<const Entry,const Element,Strategy>	const_iterator;
+		typedef QueueIterator<Entry,Element,Strategy>	iterator;
+		typedef QueueIterator<const Entry,const Element,Strategy>	const_iterator;
 			
 	
-			/**/			Queue(size_t size=1024);
-			/**/			~Queue()	{clear();}
+		/**/				Queue(size_t size=1024);
+		/**/				~Queue()	{clear();}
 
-			iterator		begin();
-			iterator		end();
-			const_iterator	begin()	const;
-			const_iterator	end() const;
-			bool			Pop(Entry&out);						//!< Pops the oldest element from the queue, and writes it to @b out , decreasing the number of stored elements by one. Note that the stored object IS destroyed. @param out Target reference to write to @return true if the queue was not empty and an element was written to @b out , false otherwise
-			Entry			Pop();								//!< Pops the oldest element from the queue, decreasing the number of stored elements by one. Note that the stored object IS destroyed.
-			count_t			Pop(Entry*out_field, count_t count);			//!< Pops up to @a count of the oldest elements to the specified out field @return Number of elements that were actually popped (which may be less than the resquested number if not enough elements are stored)
-			void			EraseFront();							//!< Erases the (oldest) element out-front. Identical to Pop() but without any copy constructors
-			void			EraseBack();							//!< Erases the (newest) element out-back
-			void			Push(const ArrayData<Entry>&entries);	//!< Pushes multiple elements into the queue, increasing the number of stored elements by <em>entries.count()</em>. The queue automatically increases the size of its data field if appropriate
-			void			Push(const Entry*, count_t count);	//!< Pushes multiple elements into the queue, increasing the number of stored elements by <em>count</em>. The queue automatically increases the size of its data field if appropriate
-			void			Push(const Entry&data);				//!< Pushes an element into the queue, increasing the number of stored elements by one. The queue automatically increases the size of its data field if appropriate
-			Entry&			Push();								//!< Pushes a new empty element into the queue.
+		iterator			begin();
+		iterator			end();
+		const_iterator		begin()	const;
+		const_iterator		end() const;
+		bool				Pop(Entry&out);						//!< Pops the oldest element from the queue, and writes it to @b out , decreasing the number of stored elements by one. Note that the stored object IS destroyed. @param out Target reference to write to @return true if the queue was not empty and an element was written to @b out , false otherwise
+		Entry				Pop();								//!< Pops the oldest element from the queue, decreasing the number of stored elements by one. Note that the stored object IS destroyed.
+		count_t				Pop(Entry*out_field, count_t count);			//!< Pops up to @a count of the oldest elements to the specified out field @return Number of elements that were actually popped (which may be less than the resquested number if not enough elements are stored)
+		void				EraseFront();							//!< Erases the (oldest) element out-front. Identical to Pop() but without any copy constructors
+		void				EraseBack();							//!< Erases the (newest) element out-back
+		void				Push(const ArrayData<Entry>&entries);	//!< Pushes multiple elements into the queue, increasing the number of stored elements by <em>entries.count()</em>. The queue automatically increases the size of its data field if appropriate
+		void				Push(const Entry*, count_t count);	//!< Pushes multiple elements into the queue, increasing the number of stored elements by <em>count</em>. The queue automatically increases the size of its data field if appropriate
+		void				Push(const Entry&data);				//!< Pushes an element into the queue, increasing the number of stored elements by one. The queue automatically increases the size of its data field if appropriate
+		Entry&				Push();								//!< Pushes a new empty element into the queue.
 
-			//void			PushFront(const ArrayData<Entry>&entries);
-			//void			PushFront(const Entry*, count_t count);
-			void			PushFront(const Entry&data);
-			Entry&			PushFront();
+		void				PushFront(const Entry&data);
+		Entry&				PushFront();
 
-			bool			IsEmpty()					const;	//!< Identical to length()==0
-			bool			IsNotEmpty()				const;	//!< Identical to length()!=0
-			count_t			length()					const;	//!< Returns the current number of element stored in the queue
-	inline	count_t			CountEntries()				const {return length();}
-	inline	count_t			size()						const {return length();}		//!< Identical to length()
-			bool			operator>>(Entry&entry);			//!< Identical to pop()
-			Queue<Entry,Strategy>&	operator<<(const Entry&entry);		//!< Identical to push() @return *this
-			Entry&			Peek();								//!< Returns a reference to the last (oldest) element in the queue @return last element in the queue
-			const Entry&	Peek()						const;	//!< Returns a reference to the last (oldest) element in the queue @return last element in the queue
-			Entry&			GetOldest();							//!< Returns a reference to the last (oldest) element in the queue. Identical to peek() @return last element in the queue
-			const Entry&	GetOldest()					const;	//!< Returns a reference to the last (oldest) element in the queue. Identical to peek() @return last element in the queue
-			Entry&			GetNewest();							//!< Returns a reference to the first (newest) element in the queue @return first element in the queue
-			const Entry&	GetNewest()					const;	//!< Returns a reference to the first (newest) element in the queue @return first element in the queue
-			Entry&			operator[](size_t index);			//!< Returns the nth element from the queue. @param index Index of the element to return ranging [0, length()-1] @return Reference to the requested object
-			const Entry&	operator[](size_t index)	const;	//!< Returns the nth element from the queue. @param index Index of the element to return ranging [0, length()-1] @return Reference to the requested object
-			void			clear();							//!< Clears the local queue of all entries. No objects are actually erased
+		bool				IsEmpty()					const;	//!< Identical to length()==0
+		bool				IsNotEmpty()				const;	//!< Identical to length()!=0
+		count_t				length()					const;	//!< Returns the current number of element stored in the queue
+		inline count_t		CountEntries()				const {return length();}
+		inline count_t		size()						const {return length();}		//!< Identical to length()
+		bool				operator>>(Entry&entry);			//!< Identical to pop()
+		Queue<Entry,Strategy>&	operator<<(const Entry&entry);		//!< Identical to push() @return *this
+		Entry&				Peek();								//!< Returns a reference to the last (oldest) element in the queue @return last element in the queue
+		const Entry&		Peek()						const;	//!< Returns a reference to the last (oldest) element in the queue @return last element in the queue
+		Entry&				GetOldest();							//!< Returns a reference to the last (oldest) element in the queue. Identical to peek() @return last element in the queue
+		const Entry&		GetOldest()					const;	//!< Returns a reference to the last (oldest) element in the queue. Identical to peek() @return last element in the queue
+		Entry&				GetNewest();							//!< Returns a reference to the first (newest) element in the queue @return first element in the queue
+		const Entry&		GetNewest()					const;	//!< Returns a reference to the first (newest) element in the queue @return first element in the queue
+		Entry&				operator[](size_t index);			//!< Returns the nth element from the queue. @param index Index of the element to return ranging [0, length()-1] @return Reference to the requested object
+		const Entry&		operator[](size_t index)	const;	//!< Returns the nth element from the queue. @param index Index of the element to return ranging [0, length()-1] @return Reference to the requested object
+		void				clear();							//!< Clears the local queue of all entries. No objects are actually erased
 		inline void			Clear()	{clear();}
-			bool			Contains(const Entry&entry)	const;	//!< Checks if the queue contains the specified element
-			bool			contains(const Entry&entry)	const	/** @copydoc Contains()*/ {return Contains(entry);}
+		bool				Contains(const Entry&entry)	const;	//!< Checks if the queue contains the specified element
+		bool				contains(const Entry&entry)	const	/** @copydoc Contains()*/ {return Contains(entry);}
 
-			void			operator=(const Queue<Entry,Strategy>&other);	//!< Copies all elements from the remote queue to the local queue. The local buffer size is resized to match the remote buffer size but only actually used elements are copied
-			void			swap(Queue<Entry,Strategy>&other);
-			void			adoptData(Queue<Entry,Strategy>&other);
+		void				operator=(const Queue<Entry,Strategy>&other);	//!< Copies all elements from the remote queue to the local queue. The local buffer size is resized to match the remote buffer size but only actually used elements are copied
+		void				swap(Queue<Entry,Strategy>&other);
+		void				adoptData(Queue<Entry,Strategy>&other);
+
+		void				CopyToArray(ArrayData<Entry>&out) const;
 			
 		inline count_t		count()						const	{return length();};	//!< Returns the current number of element stored in the queue
 		inline count_t		Count()						const	{return length();}

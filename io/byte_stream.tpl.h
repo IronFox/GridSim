@@ -9,12 +9,12 @@ template <typename T>
 	}
 
 
-template <class C> void ByteStream::push(const C&object)
+template <class C> void ByteStream::Append(const C&object)
 {
 	_PushData(&object, sizeof(object));
 }
 
-template <class C> void ByteStream::push(const C*array, count_t count)
+template <class C> void ByteStream::Append(const C*array, count_t count)
 {
 	_PushData(array, sizeof(C)*count);
 }
@@ -26,12 +26,12 @@ template <class C> ByteStream& ByteStream::operator<<(const C&object)
 }
 
 
-template <class C>  bool ByteStream::stream(C&out)
+template <class C>  bool ByteStream::ReadNext(C&out)
 {
     return _GetData(&out,sizeof(out));
 }
 
-template <class C>  bool ByteStream::stream(C*array, count_t count)
+template <class C>  bool ByteStream::ReadNext(C*array, count_t count)
 {
 	return _GetData(array, sizeof(C)*count);
 }

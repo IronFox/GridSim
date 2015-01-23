@@ -73,17 +73,17 @@ ByteStream::~ByteStream()
         dealloc(begin);
 }
 
-void ByteStream::reset()
+void ByteStream::Reset()
 {
     current = begin;
 }
 
-size_t	ByteStream::fillLevel()	const
+size_t	ByteStream::GetFillLevel()	const
 {
 	return current-begin;
 }
 
-void ByteStream::resize(size_t len)
+void ByteStream::Resize(size_t len)
 {
 	if ((size_t)(end-begin) ==len)
 	{
@@ -124,7 +124,7 @@ const void* ByteStream::data() const
     return begin;
 }
 
-size_t    ByteStream::size()	const
+size_t    ByteStream::GetStorageSize()	const
 {
     return end-begin;
 }

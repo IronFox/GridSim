@@ -9,6 +9,7 @@ struct TRiffInfo;
 struct SRiffChunk;
 
 #include "random_access_file.h"
+#include "byte_stream.h"
 #include <ctype.h>
 #define F_OPEN_CHECK	//undefine to disable file-open-checking
 #define RIFF_SENSITIVE	//undefine to disable MS-extended-type-checking
@@ -338,9 +339,11 @@ namespace Riff
 		void				CloseStream();
 		
 		bool				InsertBlock(TID ID, const void*data=NULL, size_t size=0);	//insert a new block between the previous and the present block. Works too if inside an empty list-block. DATA can be NULL.
+		bool				InsertBlock(TID ID, const ByteStream&data)	{return InsertBlock(ID,data.data(),data.GetFillLevel());}
 	template <typename T>
 		bool				InsertBlock(TID id, const ArrayData<T>&data);
 		bool				AppendBlock(TID ID, const void*data=NULL, size_t size=0);	//append a new block behind the last block. Works too if inside an empty list-block. DATA can be NULL.
+		bool				AppendBlock(TID ID, const ByteStream&data)	{return AppendBlock(ID,data.data(),data.GetFillLevel());}
 	template <typename T>
 		bool				AppendBlock(TID id, const ArrayData<T>&data);
 		bool				AppendBlocks(File&other);
@@ -448,10 +451,11 @@ namespace Riff
 			bool			EraseCurrent();
 			bool			ResizeCurrent(size_t size);
 			Chunk*			InsertBlock(TID ID, const void*data=NULL, size_t size=0);	//insert a new block between the previous and the present block. Works too if inside an empty list-block. DATA can be NULL.
-			Chunk*			InsertBlock(RIFF_STRING_ID ID, const void*data=NULL, size_t size=0);	//same for string_id
+			Chunk*			InsertBlock(TID ID, const ByteStream&data)	{return InsertBlock(ID,data.data(),data.GetFillLevel());}
 		template<typename T>
 			Chunk*			InsertBlock(TID id, const ArrayData<T>&data);
 			Chunk*			AppendBlock(TID ID, const void*data=NULL, size_t size=0);	//insert a new block between the previous and the present block. Works too if inside an empty list-block. DATA can be NULL.
+			Chunk*			AppendBlock(TID ID, const ByteStream&data)	{return AppendBlock(ID,data.data(),data.GetFillLevel());}
 		template<typename T>
 			Chunk*			AppendBlock(TID id, const ArrayData<T>&data);
 

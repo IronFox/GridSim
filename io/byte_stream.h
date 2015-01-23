@@ -19,25 +19,26 @@ public:
 	/**/			ByteStream(size_t size=1024);
 	virtual			~ByteStream();
        
-	void			reset();
-	void			resize(size_t len);
+	void			Reset();
+	void			Clear() {Reset();}
+	void			Resize(size_t len);
 	template <typename T>
 	void			Assign(Array<T>&array);
 	void			Assign(void*pntr, size_t size);
 	char*			pointer();
 	const char*		pointer()	const;
 	const void*		data()	const;
-    size_t			size()	const;
-	size_t			fillLevel()	const;
+    size_t			GetStorageSize()	const;
+	size_t			GetFillLevel()	const;
     void			pushZero(size_t count);
 	template <class C>
-	bool			stream(C&out);
+	bool			ReadNext(C&out);
 	template <class C>
-	bool			stream(C*array, count_t count);
+	bool			ReadNext(C*array, count_t count);
 	template <class C>
-	void			push(const C&object);
+	void			Append(const C&object);
 	template <class C>
-	void			push(const C*array, count_t count);
+	void			Append(const C*array, count_t count);
 	template <class C>
 	ByteStream&		operator<<(const C&object);
 	template <class C>
