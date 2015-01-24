@@ -388,6 +388,7 @@ namespace Riff
 
 			void*			SetData(size_t dataSize);
 			void			SetData(const void*data, size_t dataSize);
+			void			SetData(const ByteStream&stream)	{SetData(stream.pointer(),stream.GetFillLevel());}
 		template <typename T>
 			void			SetPODData(const T&podData) {SetData(&podData,sizeof(podData));}
 		template <typename T>
