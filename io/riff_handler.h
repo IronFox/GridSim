@@ -320,7 +320,7 @@ namespace Riff
 	template <class C>
 		count_t				Get(ArrayData<C>&out);			//extracts data into an array
 		const char*			GetFileName();
-		const char*			GetID();					//returns block's type-id
+		TID					GetID();					//returns block's type-id
 		unsigned			GetIndex();					//returns block's index (in present context)
 		RIFF_ADDR			GetAddr();					//returns block's address
 		const SRiffChunk&	GetChunk();
@@ -419,16 +419,17 @@ namespace Riff
 
 			bool			FindFirstNamedList(Chunk*&outNameChunk, Chunk*&outDataChunk)
 			{
+				outNameChunk = FindFirst(RIFF_NAME_CHUNK);
 				for (;;)
 				{
-					outNameChunk = FindFirst(RIFF_NAME_CHUNK);
 					if (!outNameChunk)
 						return false;
 					outDataChunk = Next();
 					if (!outDataChunk)
 						return false;
-					if (outDataChunk->IsID(RIFF_NAME_CHUNK))
+					if (outDataChunk->IsID(RIFF_LIST))
 						return true;
+					outNameChunk = FindNext(RIFF_NAME_CHUNK);
 				}
 			}
 			bool			FindNextNamedList(Chunk*&outNameChunk, Chunk*&outDataChunk)
@@ -441,7 +442,7 @@ namespace Riff
 					outDataChunk = Next();
 					if (!outDataChunk)
 						return false;
-					if (outDataChunk->IsID(RIFF_NAME_CHUNK))
+					if (outDataChunk->IsID(RIFF_LIST))
 						return true;
 				}
 			}

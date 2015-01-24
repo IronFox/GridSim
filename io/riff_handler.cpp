@@ -93,10 +93,9 @@ namespace Riff
 		return now.info.size;
 	}
 
-	const char*File::GetID()
+	TID File::GetID()
 	{
-		memcpy(str_out,&now.info.sid,4);
-		return str_out;
+		return now.info.sid;
 	}
 
 	const SRiffChunk& File::GetChunk()
@@ -1019,6 +1018,14 @@ namespace Riff
 			return false;
 		memcpy(_data,data,check_size);
 		return true;
+	}
+
+
+	bool Chunk::DataMatch(const void*compareTo, size_t compareToSize)	const
+	{
+		if (compareToSize != _info.size)
+			return false;
+		return !memcmp(_data,compareTo,_info.size);
 	}
 
 }
