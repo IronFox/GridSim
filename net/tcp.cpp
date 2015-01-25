@@ -973,6 +973,8 @@ namespace TCP
 				if (verbose)
 					std::cout << "Server::endService(): lock acquired. erasing client peers"<<std::endl;
 				clients_locked = true;
+				foreach (clientList,cl)
+					(*cl)->Destroy();
 				clientList.Clear();
 				clients_locked = false;
 			clientMutex.exitWrite();
@@ -987,6 +989,7 @@ namespace TCP
 			}
 			if (verbose)
 				std::cout << "Server::endService(): awaiting listen thread termination"<<std::endl;
+			FlushPendingEvents();
 			awaitCompletion();
 		block_events--;
 		if (!block_events)//...??? must have had something to do with the incrementation in Peer::diconnect()

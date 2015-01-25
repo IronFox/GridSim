@@ -583,6 +583,7 @@ namespace TCP
 									}
 		virtual						~Peer()
 									{
+										ASSERT_IS_NULL__(socketAccess);
 									}
 		void						Destroy()
 									{
