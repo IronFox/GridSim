@@ -488,7 +488,7 @@ namespace TCP
 			int size = socketAccess->Read(current,end-current);
 			if (size == SOCKET_ERROR)
 			{
-				if (socketAccess->IsClosed())
+				if (!socketAccess || socketAccess->IsClosed())
 				{
 					if (verbose)
 						std::cout << "Peer::netRead() exit: socket handle reset by remote operation"<<std::endl;
@@ -504,7 +504,7 @@ namespace TCP
 			}
 			if (!size)
 			{
-				if (socketAccess->IsClosed())
+				if (!socketAccess || socketAccess->IsClosed())
 				{
 					if (verbose)
 						std::cout << "Peer::netRead() exit: socket handle reset by remote operation"<<std::endl;
