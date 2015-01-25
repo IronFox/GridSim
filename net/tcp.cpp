@@ -127,6 +127,7 @@ namespace TCP
 	{
 		if (!peer)
 			return;
+		peer->Destroy();
 		if (async)
 		{
 		}
@@ -571,7 +572,7 @@ namespace TCP
 	{
 		if (verbose)
 			std::cout << "Peer::sendObject() enter: channel_id="<<channel_id<<std::endl;
-		if (socketAccess->IsClosed())
+		if (!socketAccess || socketAccess->IsClosed())
 		{
 			if (verbose)
 				std::cout << "Peer::sendObject() exit: socket handle reset by remote operation"<<std::endl;
@@ -760,7 +761,7 @@ namespace TCP
 	{
 		if (verbose)
 			std::cout << "Peer::disconnect() enter"<<std::endl;
-		if (!socketAccess->IsClosed())
+		if (socketAccess && !socketAccess->IsClosed())
 		{
 			if (verbose)
 				std::cout << "Peer::disconnect(): graceful shutdown: invoking handlers and closing socket"<<std::endl;

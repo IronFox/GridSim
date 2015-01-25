@@ -583,10 +583,16 @@ namespace TCP
 									}
 		virtual						~Peer()
 									{
+									}
+		void						Destroy()
+									{
 										Disconnect();
 										//if (root_address)
 										//	freeaddrinfo(root_address);
-										delete socketAccess;
+										SocketAccess*a = socketAccess;
+										socketAccess = nullptr;
+										if (a)
+											delete a;
 									}
 
 		template <class SocketAccessClass>
