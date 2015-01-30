@@ -488,7 +488,7 @@ namespace TCP
 			int size = socketAccess->Read(current,end-current);
 			if (size == SOCKET_ERROR)
 			{
-				if (!socketAccess || socketAccess->IsClosed())
+				if (socketAccess->IsClosed())
 				{
 					if (verbose)
 						std::cout << "Peer::netRead() exit: socket handle reset by remote operation"<<std::endl;
@@ -504,7 +504,7 @@ namespace TCP
 			}
 			if (!size)
 			{
-				if (!socketAccess || socketAccess->IsClosed())
+				if (socketAccess->IsClosed())
 				{
 					if (verbose)
 						std::cout << "Peer::netRead() exit: socket handle reset by remote operation"<<std::endl;
@@ -572,7 +572,7 @@ namespace TCP
 	{
 		if (verbose)
 			std::cout << "Peer::sendObject() enter: channel_id="<<channel_id<<std::endl;
-		if (!socketAccess || socketAccess->IsClosed())
+		if (socketAccess->IsClosed())
 		{
 			if (verbose)
 				std::cout << "Peer::sendObject() exit: socket handle reset by remote operation"<<std::endl;
@@ -680,10 +680,22 @@ namespace TCP
 			UINT32	channel_index = header[0];
 			//std::cout << "has package "<<channel_index<<"/"<<remaining_size<<std::endl;
 
-			unsigned min_user_level;
-			if (!remaining_size && owner->signal_map.query(channel_index,min_user_level) && userLevel >= min_user_level)
+			unsigned min_user_level=0;
+			if (!remaining_size && owner->signal_map.query(channel_index,min_user_level))
 			{
-				owner->HandleSignal(channel_index,*this);
+				if (userLevel >= min_user_level)
+				{
+					owner->HandleSignal(channel_index,*this);
+				}
+				else
+				{
+					if (verbose)
+						std::cout << "Peer::ThreadMain(): insufficient user level. ignoring package"<<std::endl;
+					if (owner->onIgnorePackage)
+					{
+						owner->onIgnorePackage(channel_index,0,*this);
+					}
+				}
 			}
 			else
 			{
@@ -727,6 +739,22 @@ namespace TCP
 						});
 						ASSERT__(!owner->channel_map.IsSet(channel_index));
 						ASSERT__(!found);
+						if (!remaining_size)
+						{
+							min_user_level = 0;
+							bool mapped = owner->signal_map.query(channel_index,min_user_level);
+							ASSERT__(!mapped);
+							ASSERT__(min_user_level == 0);
+							String dbg2;
+							owner->signal_map.visitAllEntries([&dbg2,&found,channel_index](index_t index, unsigned minLevel)
+							{
+								dbg2 += String(index)+", ";
+								if (index == channel_index)
+									found = true;
+							});
+							ASSERT__(!found);
+							FATAL__("channel/signal channel is not known "+String(channel_index)+" (known channels: "+dbg+", known signal channels: "+dbg2+")");	//for now, this is appropriate
+						}
 						FATAL__("channel is not known "+String(channel_index)+" (known channels: "+dbg+")");	//for now, this is appropriate
 					#endif
 					if (verbose)
@@ -761,7 +789,7 @@ namespace TCP
 	{
 		if (verbose)
 			std::cout << "Peer::disconnect() enter"<<std::endl;
-		if (socketAccess && !socketAccess->IsClosed())
+		if (!socketAccess->IsClosed())
 		{
 			if (verbose)
 				std::cout << "Peer::disconnect(): graceful shutdown: invoking handlers and closing socket"<<std::endl;

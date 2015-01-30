@@ -110,14 +110,28 @@ inline	ISerializable::serial_size_t			SerializeToMemory(const ISerializable&seri
 	return writer.GetCurrent()-(BYTE*)target_data;
 }
 
-inline ISerializable::serial_size_t			DeserializeFromMemory(ISerializable&serializable, const void*data, ISerializable::serial_size_t available_data, bool dynamic_size)	//!< Simplified interface to read from a loaded memory section. @param data Pointer to the memory section to read from @param available_data Size (in bytes) of the memory section that should be deserialized @param dynamic_size True if the object was serialized with @b export_size  set true @return Size (in bytes) read from the specified memory section or 0 if deserialization failed
+/**
+	Simplified interface to read from a loaded memory section.
+	@param data Pointer to the memory section to read from
+	@param dataSize Size (in bytes) of the memory section that should be deserialized
+	@param embeddedSize True if the object was serialized with @b export_size set true
+	@return true if Deserialization succeeded, false otherwise.
+*/
+inline bool			DeserializeFromMemory(ISerializable&serializable, const void*data, ISerializable::serial_size_t dataSize, bool embeddedSize)
 {
-	if (!data)
-		return 0;
-	MemReadStream	reader(data,available_data);
-	if (!serializable.Deserialize(reader,dynamic_size?ISerializable::EmbeddedSize:available_data))
-		return 0;
-	return reader.GetCurrent()-(const BYTE*)data;
+	if (!dataSize)
+	{
+		if (embeddedSize)
+		{
+			//impossible
+			return false;
+		}
+		MemReadStream	reader;
+		return serializable.Deserialize(reader,0);
+	}
+	ASSERT_NOT_NULL__(data);
+	MemReadStream	reader(data,dataSize);
+	return serializable.Deserialize(reader,embeddedSize?ISerializable::EmbeddedSize:dataSize);
 }
 
 
