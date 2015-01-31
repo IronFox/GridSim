@@ -100,14 +100,27 @@ public:
 };
 
 
-inline	ISerializable::serial_size_t			SerializeToMemory(const ISerializable&serializable, void*target_data, ISerializable::serial_size_t available_space, bool export_size)	//!< Simplified interface to write to a pre-allocated memory section.  @param target_data Pointer to the memory section to write to (may be NULL causing the method to fail) @param available_space Space (in bytes) available in the appointed memory section for serialization @param export_size True if the object is expected to export any dynamic size such as string or array length @return Size (in bytes) written to the specified memory section or 0 if serialization failed
+	//!< Simplified interface to write to a pre-allocated memory section.  @param target_data Pointer to the memory section to write to (may be NULL causing the method to fail) @param available_space Space (in bytes) available in the appointed memory section for serialization @param export_size True if the object is expected to export any dynamic size such as string or array length @return Size (in bytes) written to the specified memory section or 0 if serialization failed
+inline	bool			SerializeToMemory(const ISerializable&serializable, void*targetData, ISerializable::serial_size_t availableSpace, bool exportSize, serial_size_t*outUsedSize=nullptr)
 {
-	if (!target_data)
-		return 0;
-	MemWriteStream	writer(target_data,available_space);
-	if (!serializable.Serialize(writer, export_size))
-		return 0;
-	return writer.GetCurrent()-(BYTE*)target_data;
+	if (!availableSpace)
+	{
+		if (exportSize)
+			return false;
+		MemWriteStream	writer;
+		if (outUsedSize)
+			(*outUsedSize) = 0;
+		return serializable.Serialize(writer, exportSize);
+	}
+
+	if (!targetData)
+		return false;
+	MemWriteStream	writer(targetData,availableSpace);
+	if (!serializable.Serialize(writer, exportSize))
+		return false;
+	if (outUsedSize)
+		(*outUsedSize) = writer.GetCurrent()-(BYTE*)targetData;
+	return true;
 }
 
 /**
