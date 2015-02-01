@@ -5,7 +5,7 @@
 
 inline static float _Round(float x)
 {
-	#if _MSC_VER >= 1700	//vs11
+	#if _MSC_VER >= 1800	//vs12
 		return std::round(x);
 	#else
 		return Math::Round(x);

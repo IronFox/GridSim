@@ -274,7 +274,7 @@ namespace Math
 
 	inline float	Round(float x)
 	{
-		#if _MSC_VER >= 1700	/*vs11*/ || (defined __GXX_EXPERIMENTAL_CXX0X__)
+		#if _MSC_VER >= 1800	/*vs12*/ || (defined __GXX_EXPERIMENTAL_CXX0X__)
 			return std::round(x);
 		#else
 			if (x < 0.f)
