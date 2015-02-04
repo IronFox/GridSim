@@ -1630,8 +1630,9 @@ namespace System
 			num_jobs = 0;
 			(*aligned_offset) = 1;
 			job_semaphore.release(unsigned(workers.count()));
-			for (index_t i = 0; i < workers.count(); i++)
-				destruct_semaphore.enter();
+			if (!application_shutting_down)
+				for (index_t i = 0; i < workers.count(); i++)
+					destruct_semaphore.enter();
 		}
 
 	
