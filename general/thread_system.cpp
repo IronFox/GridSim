@@ -1560,6 +1560,8 @@ namespace System
 			
 				if ((unsigned)offset > parent->num_jobs)
 				{
+					if (application_shutting_down)
+						return;
 					parent->destruct_semaphore.release();
 					THREAD_REPORT("Job offset exceeds maximum. Exiting thread");
 					return;
