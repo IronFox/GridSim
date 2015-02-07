@@ -424,6 +424,34 @@ template <class Entry,class Strategy>
 	{
 		return section_end >= section_begin?section_end-section_begin:section_end+Array::length()-section_begin;
 	}
+
+template <class Entry,class Strategy>	
+	bool	Queue<Entry,Strategy>::operator==(const Self&other) const
+	{
+		auto i0 = other.begin();
+		auto i1 = begin();
+		while (i0 != other.end() && i1 != end())
+		{
+			if (*i0 != *i1)
+				return false;
+			++i0; ++i1;
+		}
+		return i0 == other.end() && i1 == end();
+	}
+template <class Entry,class Strategy>	
+	bool	Queue<Entry,Strategy>::operator!=(const Self&other) const
+	{
+		auto i0 = other.begin();
+		auto i1 = begin();
+		while (i0 != other.end() && i1 != end())
+		{
+			if (*i0 == *i1)
+				return false;
+			++i0; ++i1;
+		}
+		return i0 != other.end() || i1 != end();
+	}
+
 	
 template <class Entry,class Strategy>
 	bool		Queue<Entry,Strategy>::operator>>(Entry&entry)

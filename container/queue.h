@@ -139,6 +139,7 @@ template <class Entry, class Strategy=typename StrategySelector<Entry>::Default>
 
 		void				increaseSize(count_t new_size);
 	public:
+		typedef Queue<Entry,Strategy>	Self;
 		typedef QueueIterator<Entry,Element,Strategy>	iterator;
 		typedef QueueIterator<const Entry,const Element,Strategy>	const_iterator;
 			
@@ -191,6 +192,9 @@ template <class Entry, class Strategy=typename StrategySelector<Entry>::Default>
 			
 		inline count_t		count()						const	{return length();};	//!< Returns the current number of element stored in the queue
 		inline count_t		Count()						const	{return length();}
+
+		bool				operator==(const Self&other) const;
+		bool				operator!=(const Self&other) const;
 	};
 
 template <class Entry, class Priority, class EntryStrategy=typename StrategySelector<Entry>::Default>
