@@ -935,6 +935,18 @@ template <typename T, typename Strategy> template <typename T2>
 		return *this;
 	}
 
+template <typename T, typename Strategy> template <typename T2, typename Strategy2>
+	BasicBuffer<T, Strategy>&		BasicBuffer<T, Strategy>::AppendSubList(const BasicBuffer<T2,Strategy2>&other, index_t offset, count_t maxElements)
+	{
+		if (offset >= other.Count())
+			return *this;
+		maxElements = std::min(maxElements,other.Count() - offset);
+		if (!maxElements)
+			return *this;
+		return append(other.pointer()+offset,maxElements);
+	}
+
+
 template <typename T, typename Strategy> template <typename T2>
 	BasicBuffer<T, Strategy>&		BasicBuffer<T, Strategy>::append(const ArrayData<T2>&data)
 	{

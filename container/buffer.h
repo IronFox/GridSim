@@ -77,6 +77,8 @@ template <typename T, typename Strategy=typename StrategySelector<T>::Default>
 		inline Self&			MoveAppend(ArrayData<T>&array, bool clearSourceOnCompletion=true)	/**@copydoc moveAppend()*/ {return moveAppend(array,clearSourceOnCompletion);}
 		Self&					moveAppend(T*data, count_t elements);			//!< Appends all elements in the specified range to the end of the local buffer. The elements will be moved, leaving the individual objects of the parameter field empty upon completion.
 		inline Self&			MoveAppend(T*data, count_t elements)	/**@copydoc moveAppend()*/ {return moveAppend(data,elements);}
+		template <typename T2, typename Strategy2>
+			Self&				AppendSubList(const BasicBuffer<T2,Strategy2>&other, index_t offset, count_t maxElements);
 		template <typename T2>
 			Self&				append(const T2*data, count_t elements);	//!< Appends a number of elements to the end of the buffer, advancing the buffer cursor by the specified number of elements. The buffer will automatically be resized if necessary.
 		template <typename T2>
