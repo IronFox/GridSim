@@ -5,312 +5,296 @@
 
 Collection of template functions regarding complex math.
 
-This file is part of Delta-Works
-Copyright (C) 2006-2008 Stefan Elsen, University of Trier, Germany.
-http://www.delta-works.org/forge/
-http://informatik.uni-trier.de/
-
 ******************************************************************/
 
 
 namespace ComplexMath
 {
 
-	MFUNC5 (void) _q(C0 out[4],const C1&a,const C2&x,const C3&y,const C4&z)
+	MFUNC5 (void) _q(TVec4<C0>&out,const C1&a,const C2&x,const C3&y,const C4&z)
 	{
 		C0 s = vsin((C0)a*M_PI/360)/vsqrt((C0)x*x+(C0)y*y+(C0)z*z);
-		out[0] = vcos((C0)a*M_PI/360);
-		out[1] = s*x;
-		out[2] = s*y;
-		out[3] = s*z;
+		out.x = vcos((C0)a*M_PI/360);
+		out.y = s*x;
+		out.z = s*y;
+		out.w = s*z;
 	}
 
-	MFUNC3 (void)	_qRotateSystemCW(const C0 q[4], const C1 matrix[16], C2 m_out[16])
+	MFUNC3 (void)	_qRotateSystemCW(const TVec4<C0>&q, const TMatrix4<C1>&matrix, TMatrix4<C2>&m_out)
 	{
-		C1 m[9];
+		TMatrix3<C1> m;
 		_q2RotMatrixCW(q,m);
-		__multiply331(m,matrix,m_out);
-		__multiply331(m,&matrix[4],&m_out[4]);
-		__multiply331(m,&matrix[8],&m_out[8]);
-		__multiply331(m,&matrix[12],&m_out[12]);
-		m_out[3] = m_out[7] = m_out[11] = 0;
-		m_out[15] = 1;
+		Mat::mult(m,matrix.x.xyz,m_out.x.xyz);
+		Mat::mult(m,matrix.y.xyz,m_out.y.xyz);
+		Mat::mult(m,matrix.z.xyz,m_out.z.xyz);
+		Mat::mult(m,matrix.w.xyz,m_out.w.xyz);
+		Mat::resetBottomRow(m_out);
 	}
 
-	MFUNC2 (void)	_qRotateSystemCW(const C0 q[4], C1 matrix[16])
+	MFUNC2 (void)	_qRotateSystemCW(const TVec4<C0>&q, TMatrix4<C1>&matrix)
 	{
-		C1 m[9],t[12];
+		TMatrix3<C1> m;
 		_q2RotMatrixCW(q,m);
-		__multiply331(m,matrix,t);
-		__multiply331(m,&matrix[4],&t[3]);
-		__multiply331(m,&matrix[8],&t[6]);
-		__multiply331(m,&matrix[12],&t[9]);
-		_c3(t,matrix);
-		_c3(&t[3],&matrix[4]);
-		_c3(&t[6],&matrix[8]);
-		_c3(&t[9],&matrix[12]);
+		Mat::mult(m,matrix.x.xyz);
+		Mat::mult(m,matrix.y.xyz);
+		Mat::mult(m,matrix.z.xyz);
+		Mat::mult(m,matrix.w.xyz);
 	}
 
-	MFUNC3 (void)	_qRotateSystemCCW(const C0 q[4], const C1 matrix[16], C2 m_out[16])
+	MFUNC3 (void)	_qRotateSystemCCW(const TVec4<C0>&q, const TMatrix4<C1>&matrix, TMatrix4<C2>&m_out)
 	{
-		C1 m[9];
+		TMatrix3<C1> m;
 		_q2RotMatrixCCW(q,m);
-		__multiply331(m,matrix,m_out);
-		__multiply331(m,&matrix[4],&m_out[4]);
-		__multiply331(m,&matrix[8],&m_out[8]);
-		__multiply331(m,&matrix[12],&m_out[12]);
-		m_out[3] = m_out[7] = m_out[11] = 0;
-		m_out[15] = 1;
+		Mat::mult(m,matrix.x.xyz,m_out.x.xyz);
+		Mat::mult(m,matrix.y.xyz,m_out.y.xyz);
+		Mat::mult(m,matrix.z.xyz,m_out.z.xyz);
+		Mat::mult(m,matrix.w.xyz,m_out.w.xyz);
+		Mat::resetBottomRow(m_out);
 	}
 
-	MFUNC2 (void)	_qRotateSystemCCW(const C0 q[4], C1 matrix[16])
+	MFUNC2 (void)	_qRotateSystemCCW(const TVec4<C0>&q, TMatrix4<C1>&matrix)
 	{
-		C1 m[9],t[12];
+		TMatrix3<C1> m;
 		_q2RotMatrixCCW(q,m);
-		__multiply331(m,matrix,t);
-		__multiply331(m,&matrix[4],&t[3]);
-		__multiply331(m,&matrix[8],&t[6]);
-		__multiply331(m,&matrix[12],&t[9]);
-		_c3(t,matrix);
-		_c3(&t[3],&matrix[4]);
-		_c3(&t[6],&matrix[8]);
-		_c3(&t[9],&matrix[12]);
+		Mat::mult(m,matrix.x.xyz);
+		Mat::mult(m,matrix.y.xyz);
+		Mat::mult(m,matrix.z.xyz);
+		Mat::mult(m,matrix.w.xyz);
 	}
 
 
-	MFUNC3 (void)	_qRotateMatrix3x3CW(const C0 q[4], const C1 matrix[9], C2 m_out[9])
+	MFUNC3 (void)	_qRotateMatrix3x3CW(const TVec4<C0>&q, const TMatrix3<C1>&matrix, TMatrix3<C2>&m_out)
 	{
-		C1 m[9];
+		TMatrix3<C1> m;
 		_q2RotMatrixCW(q,m);
-		__multiply3(m,matrix,m_out);
+		Mat::mult(m,matrix,m_out);
 	}
 
-	MFUNC2 (void)	_qRotateMatrix3x3CW(const C0 q[4], C1 m_inout[9])
+	MFUNC2 (void)	_qRotateMatrix3x3CW(const TVec4<C0>&q, TMatrix3<C1>&m_inout)
 	{
-		C1 m[9],t[9];
+		TMatrix3<C1> m;
 		_q2RotMatrixCW(q,m);
-		__multiply3(m,m_inout,t);
-		_c9(t,m_inout);
+		Mat::mult(m,m_inout);
 	}
 
-	MFUNC3 (void)	_qRotateMatrix3x3CCW(const C0 q[4], const C1 matrix[9], C2 m_out[9])
+	MFUNC3 (void)	_qRotateMatrix3x3CCW(const TVec4<C0>&q, const TMatrix3<C1>&matrix, TMatrix3<C2>&m_out)
 	{
-		C1 m[9];
+		TMatrix3<C1> m;
 		_q2RotMatrixCCW(q,m);
-		__multiply3(m,matrix,m_out);
+		Mat::mult(m,matrix,m_out);
 	}
 
-	MFUNC2 (void)	_qRotateMatrix3x3CCW(const C0 q[4], C1 m_inout[9])
+	MFUNC2 (void)	_qRotateMatrix3x3CCW(const TVec4<C0>&q, TMatrix3<C1>&m_inout)
 	{
-		C1 m[9],t[9];
+		TMatrix3<C1> m;
 		_q2RotMatrixCCW(q,m);
-		__multiply3(m,m_inout,t);
-		_c9(t,m_inout);
+		Mat::mult(m,m_inout);
 	}
 
-	MFUNC4 (void)	_qMultiply(const C0 q0[4], const C1 q1[4], const C2 q2[4], C3 out[4])
+	MFUNC4 (void)	_qMultiply(const TVec4<C0>&q0, const TVec4<C1>&q1, const TVec4<C2>&q2, TVec4<C3>&out)
 	{
-		C0 buffer[4];
+		TVec4<C0> buffer;
 		_qMultiply(q0,q1,buffer);
 		_qMultiply(buffer,q2,out);
 	}
 
-	MFUNC3 (void) _qRotateCW(const C0 q[4], const C1 p[3], C2 out[3])
+	MFUNC3 (void) _qRotateCW(const TVec4<C0>&q, const TVec3<C1>&p, TVec3<C2>&out)
 	{
-		C0	t0 =	-q[1]*p[0] - q[2]*p[1] - q[3]*p[2],
-			t1 =	 q[0]*p[0] + q[2]*p[2] - q[3]*p[1],
-			t2 =	 q[0]*p[1] - q[1]*p[2] + q[3]*p[0],
-			t3 =	 q[0]*p[2] + q[1]*p[1] - q[2]*p[0];
+		C0	t0 =	-q.y*p.x - q.z*p.y - q.w*p.z,
+			t1 =	 q.x*p.x + q.z*p.z - q.w*p.y,
+			t2 =	 q.x*p.y - q.y*p.z + q.w*p.x,
+			t3 =	 q.x*p.z + q.y*p.y - q.z*p.x;
 
-		out[0] = -t0*q[1] + t1*q[0] - t2*q[3] + t3*q[2];
-		out[1] = -t0*q[2] + t1*q[3] + t2*q[0] - t3*q[1];
-		out[2] = -t0*q[3] - t1*q[2] + t2*q[1] + t3*q[0];
+		out.x = -t0*q.y + t1*q.x - t2*q.w + t3*q.z;
+		out.y = -t0*q.z + t1*q.w + t2*q.x - t3*q.y;
+		out.z = -t0*q.w - t1*q.z + t2*q.y + t3*q.x;
 	}
 
-	MFUNC2 (void) _qRotateCW(const C0 q[4], C1 p[3])
+	MFUNC2 (void) _qRotateCW(const TVec4<C0>&q, TVec3<C1>&p)
 	{
-		C0	t0 =	-q[1]*p[0] - q[2]*p[1] - q[3]*p[2],
-			t1 =	 q[0]*p[0] + q[2]*p[2] - q[3]*p[1],
-			t2 =	 q[0]*p[1] - q[1]*p[2] + q[3]*p[0],
-			t3 =	 q[0]*p[2] + q[1]*p[1] - q[2]*p[0];
+		C0	t0 =	-q.y*p.x - q.z*p.y - q.w*p.z,
+			t1 =	 q.x*p.x + q.z*p.z - q.w*p.y,
+			t2 =	 q.x*p.y - q.y*p.z + q.w*p.x,
+			t3 =	 q.x*p.z + q.y*p.y - q.z*p.x;
 
-		p[0] = -t0*q[1] + t1*q[0] - t2*q[3] + t3*q[2];
-		p[1] = -t0*q[2] + t1*q[3] + t2*q[0] - t3*q[1];
-		p[2] = -t0*q[3] - t1*q[2] + t2*q[1] + t3*q[0];
-	}
-	
-	MFUNC3 (void) _qRotateCCW(const C0 q[4], const C1 p[3], C2 out[3])
-	{
-		C0	t0 =	 q[1]*p[0] + q[2]*p[1] + q[3]*p[2],
-			t1 =	 q[0]*p[0] - q[2]*p[2] + q[3]*p[1],
-			t2 =	 q[0]*p[1] + q[1]*p[2] - q[3]*p[0],
-			t3 =	 q[0]*p[2] - q[1]*p[1] + q[2]*p[0];
-
-		out[0] = t0*q[1] + t1*q[0] + t2*q[3] - t3*q[2];
-		out[1] = t0*q[2] - t1*q[3] + t2*q[0] + t3*q[1];
-		out[2] = t0*q[3] + t1*q[2] - t2*q[1] + t3*q[0];
-	}
-
-	MFUNC2 (void) _qRotateCCW(const C0 q[4], C1 p[3])
-	{
-		C0	t0 =	 q[1]*p[0] + q[2]*p[1] + q[3]*p[2],
-			t1 =	 q[0]*p[0] - q[2]*p[2] + q[3]*p[1],
-			t2 =	 q[0]*p[1] + q[1]*p[2] - q[3]*p[0],
-			t3 =	 q[0]*p[2] - q[1]*p[1] + q[2]*p[0];
-
-		p[0] = t0*q[1] + t1*q[0] + t2*q[3] - t3*q[2];
-		p[1] = t0*q[2] - t1*q[3] + t2*q[0] + t3*q[1];
-		p[2] = t0*q[3] + t1*q[2] - t2*q[1] + t3*q[0];
-	}
-
-
-
-	MFUNC3 (void)	_qMultiply(const C0 q0[4], const C1 q1[4], C2 out[4])
-	{
-		out[0] = q0[0]*q1[0] - q0[1]*q1[1] - q0[2]*q1[2] - q0[3]*q1[3];
-		out[1] = q0[0]*q1[1] + q0[1]*q1[0] + q0[2]*q1[3] - q0[3]*q1[2];
-		out[2] = q0[0]*q1[2] - q0[1]*q1[3] + q0[2]*q1[0] + q0[3]*q1[1];
-		out[3] = q0[0]*q1[3] + q0[1]*q1[2] - q0[2]*q1[1] + q0[3]*q1[0];
-	}
-
-	MFUNC3 (void)	_qDivide(const C0 q0[4], const C1 q1[4], C2 out[4])
-	{
-		C0 div = q1[0]*q1[0]+q1[1]*q1[1]+q1[2]*q1[2]+q1[3]*q1[3];
-
-		out[0] = ( q0[0]*q1[0] + q0[1]*q1[1] + q0[2]*q1[2] + q0[3]*q1[3]) / div;
-		out[1] = (-q0[0]*q1[1] + q0[1]*q1[0] - q0[2]*q1[3] + q0[3]*q1[2]) / div;
-		out[2] = (-q0[0]*q1[2] + q0[1]*q1[3] + q0[2]*q1[0] - q0[3]*q1[1]) / div;
-		out[3] = (-q0[0]*q1[3] - q0[1]*q1[2] + q0[2]*q1[1] + q0[3]*q1[0]) / div;
-	}
-
-	MFUNC3 (void)	_qAdd(const C0 q0[4], const C1 q1[4], C2 out[4])
-	{
-		out[0] = q0[0]+q1[0];
-		out[1] = q0[1]+q1[1];
-		out[2] = q0[2]+q1[2];
-		out[3] = q0[3]+q1[3];
-	}
-
-	MFUNC2 (void)	_qAdd(C0 inout[4], const C1 q1[4])
-	{
-		inout[0]+=q1[0];
-		inout[1]+=q1[1];
-		inout[2]+=q1[2];
-		inout[3]+=q1[3];
-	}
-
-	MFUNC3 (void)	_qSubtract(const C0 q0[4], const C1 q1[4], C2 out[4])
-	{
-		out[0] = q0[0]-q1[0];
-		out[1] = q0[1]-q1[1];
-		out[2] = q0[2]-q1[2];
-		out[3] = q0[3]-q1[3];
-	}
-
-	MFUNC2 (void)	_qSubtract(C0 inout[4], const C1 q1[4])
-	{
-		inout[0]-=q1[0];
-		inout[1]-=q1[1];
-		inout[2]-=q1[2];
-		inout[3]-=q1[3];
-	}
-
-	MFUNC2 (void)	_qConjugate(const C0 q[4], C1 out[4])
-	{
-		out[0] = q[0];
-		out[1] = -q[1];
-		out[2] = -q[2];
-		out[3] = -q[3];
-	}
-
-	MFUNC (void)	_qConjugate(C inout[4])
-	{
-		inout[1] = -inout[1];
-		inout[2] = -inout[2];
-		inout[3] = -inout[3];
-	}
-
-	MFUNC2 (void)	_qInvert(const C0 q[4], C1 out[4])
-	{
-		C0 div = q[0]*q[0]+q[1]*q[1]+q[2]*q[2]+q[3]*q[3];
-		out[0] =	q[0]/div;
-		out[1] = -q[1]/div;
-		out[2] = -q[2]/div;
-		out[3] = -q[3]/div;
-	}
-
-	MFUNC2 (void)	_q2AxisRotation(const C0 q[4], C1 out[4])
-	{
-		out[3] = acos(q[0])*360 /M_PI;
-		_c3(&q[1],out);
-		_normalize0(out);
-	}
-
-	MFUNC2 (void) _q2Matrix(const C0 q[4], C1 out[16]) //untested
-	{
-		_v4(out,		q[0],	q[1],	q[2],	q[3]);
-		_v4(&out[4],	-q[1],	q[0],	-q[3],	q[2]);
-		_v4(&out[8],	-q[2],	q[3],	q[0],	-q[1]);
-		_v4(&out[12],	-q[3],	-q[2],	q[1],	q[0]);
+		p.x = -t0*q.y + t1*q.x - t2*q.w + t3*q.z;
+		p.y = -t0*q.z + t1*q.w + t2*q.x - t3*q.y;
+		p.z = -t0*q.w - t1*q.z + t2*q.y + t3*q.x;
 	}
 	
-	MFUNC2 (void) _q2RotMatrixCCW(const C0 q[4], C1 out[9])
+	MFUNC3 (void) _qRotateCCW(const TVec4<C0>&q, const TVec3<C1>&p, TVec3<C2>&out)
+	{
+		C0	t0 =	 q.y*p.x + q.z*p.y + q.w*p.z,
+			t1 =	 q.x*p.x - q.z*p.z + q.w*p.y,
+			t2 =	 q.x*p.y + q.y*p.z - q.w*p.x,
+			t3 =	 q.x*p.z - q.y*p.y + q.z*p.x;
+
+		out.x = t0*q.y + t1*q.x + t2*q.w - t3*q.z;
+		out.y = t0*q.z - t1*q.w + t2*q.x + t3*q.y;
+		out.z = t0*q.w + t1*q.z - t2*q.y + t3*q.x;
+	}
+
+	MFUNC2 (void) _qRotateCCW(const TVec4<C0>&q, TVec3<C1>&p)
+	{
+		C0	t0 =	 q.y*p.x + q.z*p.y + q.w*p.z,
+			t1 =	 q.x*p.x - q.z*p.z + q.w*p.y,
+			t2 =	 q.x*p.y + q.y*p.z - q.w*p.x,
+			t3 =	 q.x*p.z - q.y*p.y + q.z*p.x;
+
+		p.x = t0*q.y + t1*q.x + t2*q.w - t3*q.z;
+		p.y = t0*q.z - t1*q.w + t2*q.x + t3*q.y;
+		p.z = t0*q.w + t1*q.z - t2*q.y + t3*q.x;
+	}
+
+
+
+	MFUNC3 (void)	_qMultiply(const TVec4<C0>&q0, const TVec4<C1>&q1, TVec4<C2>&out)
+	{
+		out.x = q0.x*q1.x - q0.y*q1.y - q0.z*q1.z - q0.w*q1.w;
+		out.y = q0.x*q1.y + q0.y*q1.x + q0.z*q1.w - q0.w*q1.z;
+		out.z = q0.x*q1.z - q0.y*q1.w + q0.z*q1.x + q0.w*q1.y;
+		out.w = q0.x*q1.w + q0.y*q1.z - q0.z*q1.y + q0.w*q1.x;
+	}
+
+	MFUNC3 (void)	_qDivide(const TVec4<C0>&q0, const TVec4<C1>&q1, TVec4<C2>&out)
+	{
+		C0 div = q1.x*q1.x+q1.y*q1.y+q1.z*q1.z+q1.w*q1.w;
+
+		out.x = ( q0.x*q1.x + q0.y*q1.y + q0.z*q1.z + q0.w*q1.w) / div;
+		out.y = (-q0.x*q1.y + q0.y*q1.x - q0.z*q1.w + q0.w*q1.z) / div;
+		out.z = (-q0.x*q1.z + q0.y*q1.w + q0.z*q1.x - q0.w*q1.y) / div;
+		out.w = (-q0.x*q1.w - q0.y*q1.z + q0.z*q1.y + q0.w*q1.x) / div;
+	}
+
+	MFUNC3 (void)	_qAdd(const TVec4<C0>&q0, const TVec4<C1>&q1, TVec4<C2>&out)
+	{
+		out.x = q0.x+q1.x;
+		out.y = q0.y+q1.y;
+		out.z = q0.z+q1.z;
+		out.w = q0.w+q1.w;
+	}
+
+	MFUNC2 (void)	_qAdd(TVec4<C0>&inout, const TVec4<C1>&q1)
+	{
+		inout.x+=q1.x;
+		inout.y+=q1.y;
+		inout.z+=q1.z;
+		inout.w+=q1.w;
+	}
+
+	MFUNC3 (void)	_qSubtract(const TVec4<C0>&q0, const TVec4<C1>&q1, TVec4<C2>&out)
+	{
+		out.x = q0.x-q1.x;
+		out.y = q0.y-q1.y;
+		out.z = q0.z-q1.z;
+		out.w = q0.w-q1.w;
+	}
+
+	MFUNC2 (void)	_qSubtract(TVec4<C0>&inout, const TVec4<C1>&q1)
+	{
+		inout.x-=q1.x;
+		inout.y-=q1.y;
+		inout.z-=q1.z;
+		inout.w-=q1.w;
+	}
+
+	MFUNC2 (void)	_qConjugate(const TVec4<C0>&q, TVec4<C1>&out)
+	{
+		out.x = q.x;
+		out.y = -q.y;
+		out.z = -q.z;
+		out.w = -q.w;
+	}
+
+	MFUNC (void)	_qConjugate(TVec4<C>&inout)
+	{
+		inout.y = -inout.y;
+		inout.z = -inout.z;
+		inout.w = -inout.w;
+	}
+
+	MFUNC2 (void)	_qInvert(const TVec4<C0>&q, TVec4<C1>&out)
+	{
+		C0 div = q.x*q.x+q.y*q.y+q.z*q.z+q.w*q.w;
+		out.x =	q.x/div;
+		out.y = -q.y/div;
+		out.z = -q.z/div;
+		out.w = -q.w/div;
+	}
+
+	MFUNC2 (void)	_q2AxisRotation(const TVec4<C0>&q, TVec4<C1>&out)
+	{
+		out.w = acos(q.x)*360 /M_PI;
+		out.xyz = q.yzw;
+		//_c3(&q.y,out);
+		Vec::normalize(out.xyz);
+	}
+
+	MFUNC2 (void) _q2Matrix(const TVec4<C0>&q, TMatrix4<C1>&out) //untested
+	{
+		Vec::def(out.x,	q.x,	q.y,	q.z,	q.w);
+		Vec::def(out.y,	-q.y,	q.x,	-q.w,	q.z);
+		Vec::def(out.z,	-q.z,	q.w,	q.x,	-q.y);
+		Vec::def(out.w,	-q.w,	-q.z,	q.y,	q.x);
+	}
+	
+	MFUNC2 (void) _q2RotMatrixCCW(const TVec4<C0>&q, TMatrix3<C1>&out)
 	{
 			//ccw-version:
-			out[0] = q[0]*q[0] + q[1]*q[1] - q[2]*q[2] - q[3]*q[3];
-			out[1] = 2*q[1]*q[2] - 2*q[0]*q[3];
-			out[2] = 2*q[1]*q[3] + 2*q[0]*q[2];
+		out.x.x = q.x*q.x + q.y*q.y - q.z*q.z - q.w*q.w;
+		out.x.y = 2*q.y*q.z - 2*q.x*q.w;
+		out.x.z = 2*q.y*q.w + 2*q.x*q.z;
 
-			out[3] = 2*q[1]*q[2] + 2*q[0]*q[3];
-			out[4] = q[0]*q[0] - q[1]*q[1] + q[2]*q[2] - q[3]*q[3];
-			out[5] = 2*q[2]*q[3] - 2*q[0]*q[1];
+		out.y.x = 2*q.y*q.z + 2*q.x*q.w;
+		out.y.y = q.x*q.x - q.y*q.y + q.z*q.z - q.w*q.w;
+		out.y.z = 2*q.z*q.w - 2*q.x*q.y;
 
-			out[6] = 2*q[1]*q[3] - 2*q[0]*q[2];
-			out[7] = 2*q[2]*q[3] + 2*q[0]*q[1];
-			out[8] = q[0]*q[0] - q[1]*q[1] - q[2]*q[2] + q[3]*q[3];
+		out.z.x = 2*q.y*q.w - 2*q.x*q.z;
+		out.z.y = 2*q.z*q.w + 2*q.x*q.y;
+		out.z.z = q.x*q.x - q.y*q.y - q.z*q.z + q.w*q.w;
 	}
 
 	
-	MFUNC2 (void) _q2RotMatrixCW(const C0 q[4], C1 out[9])
+	MFUNC2 (void) _q2RotMatrixCW(const TVec4<C0>&q, TMatrix3<C1>&out)
 	{
 			//cw-version:
-			out[0] = q[0]*q[0] + q[1]*q[1] - q[2]*q[2] - q[3]*q[3];
-			out[1] = 2*q[1]*q[2] + 2*q[0]*q[3];
-			out[2] = 2*q[1]*q[3] - 2*q[0]*q[2];
+			out.x.x = q.x*q.x + q.y*q.y - q.z*q.z - q.w*q.w;
+			out.x.y = 2*q.y*q.z + 2*q.x*q.w;
+			out.x.z = 2*q.y*q.w - 2*q.x*q.z;
 
-			out[3] = 2*q[1]*q[2] - 2*q[0]*q[3];
-			out[4] = q[0]*q[0] - q[1]*q[1] + q[2]*q[2] - q[3]*q[3];
-			out[5] = 2*q[2]*q[3] + 2*q[0]*q[1];
+			out.y.x = 2*q.y*q.z - 2*q.x*q.w;
+			out.y.y = q.x*q.x - q.y*q.y + q.z*q.z - q.w*q.w;
+			out.y.z = 2*q.z*q.w + 2*q.x*q.y;
 
-			out[6] = 2*q[1]*q[3] + 2*q[0]*q[2];
-			out[7] = 2*q[2]*q[3] - 2*q[0]*q[1];
-			out[8] = q[0]*q[0] - q[1]*q[1] - q[2]*q[2] + q[3]*q[3];
+			out.z.x = 2*q.y*q.w + 2*q.x*q.z;
+			out.z.y = 2*q.z*q.w - 2*q.x*q.y;
+			out.z.z = q.x*q.x - q.y*q.y - q.z*q.z + q.w*q.w;
 	}
 	
-	MFUNC3 (void) _q2RotMatrixCCW(const C0& angle, const C1 axis[3], C2 out[9])
+	MFUNC3 (void) _q2RotMatrixCCW(const C0& angle, const TVec3<C1>&axis, TMatrix3<C2>&out)
 	{
-		C2	q[4];
+		TVec4<C2>	q;
 		_q2Quaternion(angle,axis,q);
 		_q2RotMatrixCCW(q,out);
 	}
 
-	MFUNC5 (void) _q2RotMatrixCCW(const C0& angle, const C1&x, const C2&y, const C3&z, C4 out[9])
+	MFUNC5 (void) _q2RotMatrixCCW(const C0& angle, const C1&x, const C2&y, const C3&z, TMatrix3<C4>&out)
 	{
-		C4	axis[] = {x,y,z};
-		_normalize(axis);
+		TVec3<C4>	axis = {x,y,z};
+		Vec::normalize(axis);
 		_q2RotMatrixCCW(angle,axis,out);
 	}
 
-	MFUNC3 (void) _q2RotMatrixCW(const C0& angle, const C1 axis[3], C2 out[9])
+	MFUNC3 (void) _q2RotMatrixCW(const C0& angle, const TVec3<C1>&axis, TMatrix3<C2>&out)
 	{
-		C2	q[4];
+		TVec4<C2>	q;
 		_q2Quaternion(angle,axis,q);
 		_q2RotMatrixCW(q,out);
 	}
 
-	MFUNC5 (void) _q2RotMatrixCW(const C0& angle, const C1&x, const C2&y, const C3&z, C4 out[9])
+	MFUNC5 (void) _q2RotMatrixCW(const C0& angle, const C1&x, const C2&y, const C3&z, TMatrix3<C4>&out)
 	{
-		C4	axis[] = {x,y,z};
+		TVec3<C4>	axis = {x,y,z};
 		_normalize(axis);
 		_q2RotMatrixCW(angle,axis,out);
 	}
@@ -318,32 +302,32 @@ namespace ComplexMath
 
 	
 
-	MFUNC2 (void)	_q2Quaternion(const C0 axis_rotation[4], C1 out[4])
+	MFUNC2 (void)	_q2Quaternion(const TVec4<C0>&axis_rotation, TVec4<C1>&out)
 	{
-		out[0] = cos((C1)axis_rotation[3]*M_PI/360);
-		C1 s = sin((C1)axis_rotation[3]*M_PI/360);
-		_multiply(axis_rotation,s,&out[1]);
+		out.x = cos((C1)axis_rotation.w*M_PI/360);
+		C1 s = sin((C1)axis_rotation.w*M_PI/360);
+		Vec::multiply(axis_rotation.xyz,s,out.yzw);
 	}
 
-	MFUNC3 (void)	_q2Quaternion(const C0&angle, const C1 axis[3], C2 out[4])
+	MFUNC3 (void)	_q2Quaternion(const C0&angle, const TVec3<C1>&axis, TVec4<C2>&out)
 	{
-		out[0] = cos((C2)angle*M_PI/360);
+		out.x = cos((C2)angle*M_PI/360);
 		C2 s = sin((C2)angle*M_PI/360);
-		_multiply(axis,s,&out[1]);
+		Vec::multiply(axis,s,out.yzw);
 	}
 
-	MFUNC5 (void)	_q2Quaternion(const C0&angle, const C1&x, const C2&y, const C3&z, C4 out[4])
+	MFUNC5 (void)	_q2Quaternion(const C0&angle, const C1&x, const C2&y, const C3&z, TVec4<C4>&out)
 	{
-		out[0] = cos((C4)angle*M_PI/360);
+		out.x = cos((C4)angle*M_PI/360);
 		C4 s = sin((C4)angle*M_PI/360) / vsqrt((C4)x*x + (C4)y*y + (C4)z*z);
-		out[1] = s * x;
-		out[2] = s * y;
-		out[3] = s * z;
+		out.y = s * x;
+		out.z = s * y;
+		out.w = s * z;
 	}
 
-	MFUNC (C)	 _qLength(const C q[4])
+	MFUNC (C)	 _qLength(const TVec4<C>&q)
 	{
-		return vsqrt(q[0]*q[0]+q[1]*q[1]+q[2]*q[2]+q[3]*q[3]);
+		return vsqrt(q.x*q.x+q.y*q.y+q.z*q.z+q.w*q.w);
 	}
 
 

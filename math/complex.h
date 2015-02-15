@@ -23,41 +23,41 @@ namespace ComplexMath
 	//quaternion-functions:
 
 
-	MFUNC5	(void)	_q(C0 out[4],const C1&a,const C2&x,const C3&y,const C4&z);				//creates a quaternion using a as angle (-360..360), (x, y, z) as axis (normalizes)
-	MFUNC3	(void)	_qRotateSystemCW(const C0 q[4], const C1 matrix[4*4], C2 m_out[4*4]);	//rotates a given 4x4 sys-matrix in clockwise direction using a quaternion (may not be normalized)
-	MFUNC2	(void)	_qRotateSystemCW(const C0 q[4], C1 m_inout[4*4]);					 //same for inout matrix
-	MFUNC3	(void)	_qRotateSystemCCW(const C0 q[4], const C1 matrix[4*4], C2 m_out[4*4]); //same for counter-clockwise direction
-	MFUNC2	(void)	_qRotateSystemCCW(const C0 q[4], C1 m_inout[4*4]);					//same for io-matrix
-	MFUNC3	(void)	_qRotateMatrix3x3CW(const C0 q[4], const C1 matrix[3*3], C2 m_out[3*3]);	//same for 3x3 matrices
-	MFUNC2	(void)	_qRotateMatrix3x3CW(const C0 q[4], C1 m_inout[3*3]);
-	MFUNC3	(void)	_qRotateMatrix3x3CCW(const C0 q[4], const C1 matrix[3*3], C2 m_out[3*3]);
-	MFUNC2	(void)	_qRotateMatrix3x3CCW(const C0 q[4], C1 m_inout[3*3]);
-	MFUNC3	(void)	_qRotateCW(const C0 q[4], const C1 p[3], C2 out[3]);					//rotates p using q clockwise (|q| must be 1)
-	MFUNC2	(void)	_qRotateCW(const C0 q[4], C1 p[3]);									 //same for io-p
-	MFUNC3	(void)	_qRotateCCW(const C0 q[4], const C1 p[3], C2 out[3]);					//same for counter-clockwise
-	MFUNC2	(void)	_qRotateCCW(const C0 q[4], C1 p[3]);									//same for io-p
-	MFUNC3	(void)	_qMultiply(const C0 q0[4], const C1 q1[4], C2 out[4]);					//q-product of q0 and q1: out = q0 * q1
-	MFUNC4	(void)	_qMultiply(const C0 q0[4], const C1 q1[4], const C2 q2[4], C3 out[4]);	//q-product of q0, q1 and q2: out = q0 * q1 * q2
-	MFUNC3	(void)	_qDivide(const C0 q0[4], const C1 q1[4], C2 out[4]);					//q-quotient of p0 and p1: out = q0 / q1
-	MFUNC3	(void)	_qAdd(const C0 q0[4], const C1 q1[4], C2 out[4]);						//out = q0 + q1
-	MFUNC2	(void)	_qAdd(C0 inout[4], const C1 q1[4]);									 //inout += q1
-	MFUNC3	(void)	_qSubtract(const C0 q0[4], const C1 q1[4], C2 out[4]);					//out = q0 - q1
-	MFUNC2	(void)	_qSubtract(C0 inout[4], const C1 q1[4]);								//inout -= q1
-	MFUNC2	(void)	_qConjugate(const C0 q[4], C1 out[4]);									//conjugates q
-	MFUNC	(void)	_qConjugate(C inout[4]);												//conjugates inout
-	MFUNC2	(void)	_qInvert(const C0 q[4], C1 out[4]);									 //inverts q
-	MFUNC2	(void)	_q2AxisRotation(const C0 q[4], C1 out[4]);								//extrapolates axis-rotation from quaternion
-	MFUNC2	(void)	_q2Matrix(const C0 q[4], C1 out[16]);									//creates matrix equivalent to the given quaternion
-	MFUNC2	(void)	_q2RotMatrixCCW(const C0 q[4], C1 out[9]);								//creates counter-clockwise rotation-matrix from quaternion
-	MFUNC2	(void)	_q2RotMatrixCW(const C0 q[4], C1 out[9]);								//creates clockwise rotation-matrix form quaternion
-	MFUNC3	(void)	_q2RotMatrixCCW(const C0& angle, const C1 axis[3], C2 out[3*3]);						//creates matrices from axes and angles rather than qs:
-	MFUNC5	(void)	_q2RotMatrixCCW(const C0& angle, const C1&x, const C2&y, const C3&z, C4 out[3*3]);
-	MFUNC3	(void)	_q2RotMatrixCW(const C0& angle, const C1 axis[3], C2 out[3*3]);
-	MFUNC5	(void)	_q2RotMatrixCW(const C0& angle, const C1&x, const C2&y, const C3&z, C4 out[3*3]);
-	MFUNC2	(void)	_q2Quaternion(const C0 axis_rotation[4], C1 out[4]);								//creates quaternion from axis. axis is expected: (x,y,z,a)
-	MFUNC3	(void)	_q2Quaternion(const C0&angle, const C1 axis[3], C2 out[4]);						 //creates quaternion from angle and axis
-	MFUNC5	(void)	_q2Quaternion(const C0&angle, const C1&x, const C2&y, const C3&z, C4 out[4]);		//creates quaternion from angle and axis-coords (axis is normalized)
-	MFUNC	(C)		_qLength(const C q[4]);															 //returns quaternion-norm
+	MFUNC5	(void)	_q(TVec4<C0>&out,const C1&a,const C2&x,const C3&y,const C4&z);				//creates a quaternion using a as angle (-360..360), (x, y, z) as axis (normalizes)
+	MFUNC3	(void)	_qRotateSystemCW(const TVec4<C0>&q, const TMatrix4<C1>&matrix, TMatrix4<C2>& m_out);	//rotates a given 4x4 sys-matrix in clockwise direction using a quaternion (may not be normalized)
+	MFUNC2	(void)	_qRotateSystemCW(const TVec4<C0>&q, TMatrix4<C1>&m_inout);					 //same for inout matrix
+	MFUNC3	(void)	_qRotateSystemCCW(const TVec4<C0>&q, const TMatrix4<C1>&matrix, TMatrix4<C2>& m_out); //same for counter-clockwise direction
+	MFUNC2	(void)	_qRotateSystemCCW(const TVec4<C0>&q, TMatrix4<C1>& m_inout);					//same for io-matrix
+	MFUNC3	(void)	_qRotateMatrix3x3CW(const TVec4<C0>&q, const TMatrix3<C1>&matrix, TMatrix3<C2>&m_out);	//same for 3x3 matrices
+	MFUNC2	(void)	_qRotateMatrix3x3CW(const TVec4<C0>&q, TMatrix3<C1>&m_inout);
+	MFUNC3	(void)	_qRotateMatrix3x3CCW(const TVec4<C0>&q, const TMatrix3<C1>&matrix, TMatrix3<C2>&m_out);
+	MFUNC2	(void)	_qRotateMatrix3x3CCW(const TVec4<C0>&q, TMatrix3<C1>& m_inout);
+	MFUNC3	(void)	_qRotateCW(const TVec4<C0>&q, const TVec3<C1>&p, TVec3<C2>&out);					//rotates p using q clockwise (|q| must be 1)
+	MFUNC2	(void)	_qRotateCW(const TVec4<C0>&q, TVec3<C1>&p);									 //same for io-p
+	MFUNC3	(void)	_qRotateCCW(const TVec4<C0>&q, const TVec3<C1>&p, TVec3<C2>&out);					//same for counter-clockwise
+	MFUNC2	(void)	_qRotateCCW(const TVec4<C0>&q, TVec3<C1>&p);									//same for io-p
+	MFUNC3	(void)	_qMultiply(const TVec4<C0>&q0, const TVec4<C1>&q1, TVec4<C2>&out);					//q-product of q0 and q1: out = q0 * q1
+	MFUNC4	(void)	_qMultiply(const TVec4<C0>&q0, const TVec4<C1>&q1, const TVec4<C2>&q2, TVec4<C3>&out);	//q-product of q0, q1 and q2: out = q0 * q1 * q2
+	MFUNC3	(void)	_qDivide(const TVec4<C0>&q0, const TVec4<C1>&q1, TVec4<C2>&out);					//q-quotient of p0 and p1: out = q0 / q1
+	MFUNC3	(void)	_qAdd(const TVec4<C0>&q0, const TVec4<C1>&q1, TVec4<C2>&out);						//out = q0 + q1
+	MFUNC2	(void)	_qAdd(TVec4<C0>&inout, const TVec4<C1>&q1);									 //inout += q1
+	MFUNC3	(void)	_qSubtract(const TVec4<C0>&q0, const TVec4<C1>&q1, TVec4<C2>&out);					//out = q0 - q1
+	MFUNC2	(void)	_qSubtract(TVec4<C0>&inout, const TVec4<C1>&q1);								//inout -= q1
+	MFUNC2	(void)	_qConjugate(const TVec4<C0>&q, TVec4<C1>&out);									//conjugates q
+	MFUNC	(void)	_qConjugate(TVec4<C>&inout);												//conjugates inout
+	MFUNC2	(void)	_qInvert(const TVec4<C0>&q, TVec4<C1>&out);									 //inverts q
+	MFUNC2	(void)	_q2AxisRotation(const TVec4<C0>&q, TVec4<C1>&out);								//extrapolates axis-rotation from quaternion
+	MFUNC2	(void)	_q2Matrix(const TVec4<C0>&q, TMatrix4<C1>&out);									//creates matrix equivalent to the given quaternion
+	MFUNC2	(void)	_q2RotMatrixCCW(const TVec4<C0>&q, TMatrix3<C1>&out);								//creates counter-clockwise rotation-matrix from quaternion
+	MFUNC2	(void)	_q2RotMatrixCW(const TVec4<C0>&q, TMatrix3<C1>&out);								//creates clockwise rotation-matrix form quaternion
+	MFUNC3	(void)	_q2RotMatrixCCW(const C0& angle, const TVec3<C1>&axis, TMatrix3<C2>&out);						//creates matrices from axes and angles rather than qs:
+	MFUNC5	(void)	_q2RotMatrixCCW(const C0& angle, const C1&x, const C2&y, const C3&z, TMatrix3<C4>&out);
+	MFUNC3	(void)	_q2RotMatrixCW(const C0& angle, const TVec3<C1>&axis, TMatrix3<C2>&out);
+	MFUNC5	(void)	_q2RotMatrixCW(const C0& angle, const C1&x, const C2&y, const C3&z, TMatrix3<C4>&out);
+	MFUNC2	(void)	_q2Quaternion(const TVec4<C0>&axis_rotation, TVec4<C1>&out);								//creates quaternion from axis. axis is expected: (x,y,z,a)
+	MFUNC3	(void)	_q2Quaternion(const C0&angle, const TVec3<C1>&axis, TVec4<C2>&out);						 //creates quaternion from angle and axis
+	MFUNC5	(void)	_q2Quaternion(const C0&angle, const C1&x, const C2&y, const C3&z, TVec4<C4>&out);		//creates quaternion from angle and axis-coords (axis is normalized)
+	MFUNC	(C)		_qLength(const TVec4<C>&q);															 //returns quaternion-norm
 
 
 
