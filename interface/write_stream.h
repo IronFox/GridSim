@@ -125,6 +125,8 @@ public:
 				b[2] = (BYTE)((size)&0xFF);
 				return Write(b,3);
 			}
+			if (size >= (1U<<29))
+				return false;
 			b[0] = (BYTE)((size >> 24)&0x3F) | 0xC0;
 			b[1] = (BYTE)((size >> 16)&0xFF);
 			b[2] = (BYTE)((size >> 8)&0xFF);
