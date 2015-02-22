@@ -573,10 +573,10 @@ namespace TCP
 		std::shared_ptr<Attachment>	attachment;
 		sockaddr_storage			address;
 		unsigned					userLevel;							//!< Current user level. Anonymous by default
-			
+		bool						destroyed;
 		
 				
-		/**/						Peer(Connection*connection, bool canDoSharedFromThis):owner(connection),socketAccess(new DefaultSocketAccess()),userLevel(User::Anonymous),canDoSharedFromThis(canDoSharedFromThis)
+		/**/						Peer(Connection*connection, bool canDoSharedFromThis):owner(connection),socketAccess(new DefaultSocketAccess()),userLevel(User::Anonymous),canDoSharedFromThis(canDoSharedFromThis),destroyed(false)
 									{
 										memset(&address,0,sizeof(address));
 										ASSERT_NOT_NULL__(owner);
@@ -593,6 +593,7 @@ namespace TCP
 									}
 		void						Destroy()
 									{
+										destroyed = true;
 										Disconnect();
 										//if (root_address)
 										//	freeaddrinfo(root_address);

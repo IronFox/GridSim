@@ -5,11 +5,6 @@
 
 Simplified string-file-handler.
 
-This file is part of Delta-Works
-Copyright (C) 2006-2008 Stefan Elsen, University of Trier, Germany.
-http://www.delta-works.org/forge/
-http://informatik.uni-trier.de/
-
 ******************************************************************/
 
 
@@ -19,12 +14,13 @@ http://informatik.uni-trier.de/
 
 
 
-#define CM_IDENTITY             0x0
-#define CM_STRIP_LINE_COMMENTS  0x1
-#define CM_STRIP_BLOCK_COMMENTS 0x2
-#define CM_STRING_SENSITIVE     0x4
-#define CM_RETURN_EMPTY_LINES   0x8
-#define CM_RECORD_COMMENTS		0x10
+#define CM_IDENTITY						0x0
+#define CM_STRIP_LINE_COMMENTS			0x1
+#define CM_STRIP_LINE_START_COMMENTS	0x2
+#define CM_STRIP_BLOCK_COMMENTS			0x4
+#define CM_STRING_SENSITIVE				0x8
+#define CM_RETURN_EMPTY_LINES			0x10
+#define CM_RECORD_COMMENTS				0x20
 
 #define CM_STRIP_COMMENTS       (CM_STRIP_LINE_COMMENTS|CM_STRIP_BLOCK_COMMENTS)
 #define CM_CODE                 (CM_STRIP_COMMENTS|CM_STRING_SENSITIVE)
@@ -48,9 +44,10 @@ const   char    *e;
         void    stripComments(String&str);
 
 public:
-        String	line_comment,	//!< Line comment string (i.e. "//")
-                comment_begin,	//!< Block comment begin string (i.e. "/*")
-                comment_end,	//!< Block comment end string (i.e. "*/")
+        String	lineComment,	//!< Line comment string (e.g. "//")
+				lineStartComment,	//!< Line comment that is valid only as the first non-whitespace character (e.g. "#")
+                comment_begin,	//!< Block comment begin string (e.g. "/*")
+                comment_end,	//!< Block comment end string (e.g. "*/")
 				comment;		//!< Most recently extracted comment (only available if CM_RECORD_COMMENTS is ORed to \b conversion_flags )
         UINT32	conversion_flags;	//!< String conversion configuration
         UINT    root_line;		//!< Beginning of the currently returned line (from the beginning of the file)

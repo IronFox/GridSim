@@ -547,8 +547,11 @@ namespace Config
 		stack_elements.append(this);
 		
 		//logfile << "Now processing file "<<filename<<nl;
-		StringFile file(filename,CM_STRIP_COMMENTS|CM_RECORD_COMMENTS);
-		if (!file.isActive())
+		StringFile file(CM_STRIP_COMMENTS|CM_RECORD_COMMENTS|CM_STRIP_LINE_START_COMMENTS);
+		file.lineStartComment = ";";
+
+
+		if (!file.open(filename))
 		{
 			error = "File not found: "+filename;
 			return false;

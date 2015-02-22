@@ -5,16 +5,7 @@
 
 Simplified string-file-handler.
 
-This file is part of Delta-Works
-Copyright (C) 2006-2008 Stefan Elsen, University of Trier, Germany.
-http://www.delta-works.org/forge/
-http://informatik.uni-trier.de/
-
 ******************************************************************/
-
-//#include "log.h"
-
-//LogFile	StringFile::log_file("stringfile.log",true);
 
 static inline void awrite(const void*data,size_t a,size_t b, FILE*f)
 {
@@ -49,20 +40,43 @@ void StringFile::stripComments(String&str)
                 return;
             }
         }
-        index_t lcomment(0),bcomment(0);
+        index_t lcomment(0),lscomment(0),bcomment(0);
         if (conversion_flags&CM_STRIP_LINE_COMMENTS)
-            lcomment = str.indexOf(line_comment);
+            lcomment = str.indexOf(lineComment);
+		if (conversion_flags&CM_STRIP_LINE_START_COMMENTS)
+		{
+			index_t candidate = str.indexOf(lineStartComment);
+			bool valid = candidate > 0;
+			for (index_t i = 0; i+1 < candidate; i++)
+			{
+				if (!isWhitespace(str.get(i)))
+				{
+					valid = false;
+					break;
+				}
+			}
+			if (valid)
+				lscomment = candidate;
+		}
         if (conversion_flags&CM_STRIP_BLOCK_COMMENTS)
             bcomment = str.indexOf(comment_begin);
-        if (!bcomment && !lcomment)
+        if (!bcomment && !lcomment && !lscomment)
 		{
+			//log_file << " => '"<<str<<"'"<<nl;
+            return;
+		}
+		if (lscomment)
+		{
+			if (conversion_flags&CM_RECORD_COMMENTS)
+				comment += " "+str.subString(lscomment+lineStartComment.length()-1);
+            str.erase(lscomment-1);
 			//log_file << " => '"<<str<<"'"<<nl;
             return;
 		}
         if (lcomment && (lcomment < bcomment || !bcomment))
         {
 			if (conversion_flags&CM_RECORD_COMMENTS)
-				comment += " "+str.subString(lcomment+line_comment.length()-1);
+				comment += " "+str.subString(lcomment+lineComment.length()-1);
             str.erase(lcomment-1);
 			//log_file << " => '"<<str<<"'"<<nl;
             return;
@@ -76,7 +90,7 @@ void StringFile::stripComments(String&str)
 
 
 StringFile::StringFile(const String&filename, unsigned flags, bool create_):active(false),write_mode(false),read_mode(false),had13(false),fclose_on_destruct(true),
-                f(NULL),e(&buffer[sizeof(buffer)-1]),line_comment("//"),comment_begin("/*"),comment_end("*/"),conversion_flags(flags),
+                f(NULL),e(&buffer[sizeof(buffer)-1]),lineComment("//"),lineStartComment("#"), comment_begin("/*"),comment_end("*/"),conversion_flags(flags),
                 root_line(1)
 {
     buffer[sizeof(buffer)-1] = 0;
@@ -87,7 +101,7 @@ StringFile::StringFile(const String&filename, unsigned flags, bool create_):acti
 }
 
 StringFile::StringFile(FILE*file, unsigned flags):active(false),write_mode(false),read_mode(false),had13(false),fclose_on_destruct(true),
-                f(NULL),e(&buffer[sizeof(buffer)-1]),line_comment("//"),comment_begin("/*"),comment_end("*/"),conversion_flags(flags),
+                f(NULL),e(&buffer[sizeof(buffer)-1]),lineComment("//"),lineStartComment("#"),comment_begin("/*"),comment_end("*/"),conversion_flags(flags),
                 root_line(1)
 {
     buffer[sizeof(buffer)-1] = 0;
@@ -95,7 +109,7 @@ StringFile::StringFile(FILE*file, unsigned flags):active(false),write_mode(false
 }
 
 StringFile::StringFile(unsigned flags):active(false),write_mode(false),read_mode(false),had13(false),fclose_on_destruct(true),
-                f(NULL),e(&buffer[sizeof(buffer)-1]),line_comment("//"),comment_begin("/*"),comment_end("*/"),conversion_flags(flags),
+                f(NULL),e(&buffer[sizeof(buffer)-1]),lineComment("//"),lineStartComment("#"),comment_begin("/*"),comment_end("*/"),conversion_flags(flags),
                 root_line(1)
 {
     buffer[sizeof(buffer)-1] = 0;

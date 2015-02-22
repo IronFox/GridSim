@@ -497,7 +497,8 @@ namespace TCP
 				socketAccess->CloseSocket();
 				owner->setError("Connection lost to "+ToString()+" ("+lastSocketError()+")");
 				owner->HandleEvent(Event::ConnectionLost,*this);
-				owner->OnDisconnect(SharedFromThis(),Event::ConnectionLost);
+				if (!destroyed)
+					owner->OnDisconnect(SharedFromThis(),Event::ConnectionLost);
 				if (verbose)
 					std::cout << "Peer::netRead() exit: invalid size value received: "<<size<<std::endl;
 				return false;
@@ -513,7 +514,8 @@ namespace TCP
 				socketAccess->CloseSocket();
 				owner->setError("");
 				owner->HandleEvent(Event::ConnectionClosed,*this);
-				owner->OnDisconnect(SharedFromThis(),Event::ConnectionClosed);
+				if (!destroyed)
+					owner->OnDisconnect(SharedFromThis(),Event::ConnectionClosed);
 				if (verbose)
 					std::cout << "Peer::netRead() exit: 0 size value received"<<std::endl;
 				return false;
