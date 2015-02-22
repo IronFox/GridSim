@@ -65,12 +65,10 @@ namespace Fractal
 									*inner_parent_vertex_info;		//!< Parent vertex information map covering only inner parents (parents that are not part of any edge)
 			
 	
+			void					build();
 			
 	protected:
 									//VertexMap(TMapVertex*const,unsigned, unsigned, unsigned, unsigned, unsigned, unsigned, unsigned*, unsigned*,unsigned*,  unsigned*,unsigned*,unsigned*, unsigned*,unsigned*,unsigned*, unsigned*const, unsigned*const, unsigned*const, TParentInfo*const);
-									VertexMap()
-									{}
-			void					build();
 	public:
 
 	/**
@@ -108,17 +106,16 @@ namespace Fractal
 									}
 			//void					assembleDeviceFields();
 	};
-	
-	/**
-		\brief Derivative exponential fractal index map
-		
-		This derivative index map retrieves the required array sizes from the specified exponent parameter.
-	*/
+
+
+
 	template <unsigned Exponent, unsigned RangeReduction =0>
-		class TemplateMap:public VertexMap
+		class BaseTemplateMap
 		{
 		public:
-		static	const unsigned			range		= (1<<Exponent)+1 - RangeReduction,					//!< Copied to \a VertexMap::vertex_range
+			typedef VertexMap::TParentInfo	TParentInfo;
+
+			static	const unsigned		range		= (1<<Exponent)+1 - RangeReduction,					//!< Copied to \a VertexMap::vertex_range
 										vertexMax = (1 << Exponent) - RangeReduction,
 										vertices	= NUM_VERTICES2(vertexMax),			//!< Copied to \a VertexMap::vertex_count
 										child_border_vertices = (1 << (Exponent - 1)) - RangeReduction,		//!< Copied to @a VertexMap::child_border_vertex_count
@@ -140,84 +137,106 @@ namespace Fractal
 										inner_parent_vertex[inner_parent_vertices>0?inner_parent_vertices:1];	//!< Mapped to @a VertexMap::inner_parent_vertex_info;
 
 				
+
+				void					Create(VertexMap&target)
+				{
+					target.vertex_descriptor = info;
+					target.exponent = Exponent;
+					target.vertex_range = range;
+					target.vertex_maximum = range-1;
+					target.vertex_count = vertices;
+					if (RangeReduction == 0)
+					{
+						target.child_border_vertex_count = child_border_vertices;
+						target.child_border_index[0] = child_border[0];
+						target.child_border_index[1] = child_border[1];
+						target.child_border_index[2] = child_border[2];
+						target.child_vertex_count = child_vertices;
+						target.child_vertex_index = child_vertex;
+						target.parent_vertex_count = parent_vertices;
+						target.parent_vertex_info = parent_vertex;
+						target.inner_parent_vertex_count = inner_parent_vertices;
+						target.inner_parent_vertex_info = inner_parent_vertex;
+					}
+					else
+					{
+						target.child_border_vertex_count = 0;
+						target.child_border_index[0] = nullptr;
+						target.child_border_index[1] = nullptr;
+						target.child_border_index[2] = nullptr;
+						target.child_vertex_count = 0;
+						target.child_vertex_index = nullptr;
+						target.parent_vertex_count = 0;
+						target.parent_vertex_info = 0;
+						target.inner_parent_vertex_count = 0;
+						target.inner_parent_vertex_info = 0;
+					}
+					target.inner_vertex_count = inner_vertices;
+					target.inner_vertex_index = inner;
+					target.border_index[0] = border[0];
+					target.border_index[1] = border[1];
+					target.border_index[2] = border[2];
+					target.inner_border_index[0] = inner_border[0];
+					target.inner_border_index[1] = inner_border[1];
+					target.inner_border_index[2] = inner_border[2];
+
+					target.build();				
+				
+				
+				}
+			/**
+				@brief Queries the absolute index of a vertex via its grid coordinates
+
+				Converts vertex grid coordinates (column, row) to a linear index.
+				Invokes a fatal exception if the specified coordinates are invalid.
+
+
+				@param col Column of the vertex in the range [0,row]
+				@param row Row of the vertex in the range [0,vertex_maximum]
+				@return Linear vertex index
+			*/
+			inline static unsigned			getIndex(unsigned col, unsigned row)
+											{
+												if (row >= range || col > row)
+													FATAL__("Index-Retrival-Error for ("+IntToStr(col)+", "+IntToStr(row)+") range="+IntToStr(range));
+												return row*(row+1)/2+col;
+											}
+			/**
+				@brief Queries the absolute index of a vertex via its grid coordinates
+
+				Converts vertex grid coordinates (column, row) to a linear index.
+				Returns 0xFFFFFFFF if the specified coordinates are invalid.
+
+				@param col Column of the vertex in the range [0,row]
+				@param row Row of the vertex in the range [0,vertex_maximum]
+				@return Linear vertex index or 0xFFFFFFFF if the specified grid coordinates are invalid
+			*/
+			inline static unsigned			getIndexC(unsigned col, unsigned row)
+											{
+												if (row >= range || col > row)
+													return UNSIGNED_UNDEF;
+												return row*(row+1)/2+col;
+											}
+		
+		};
+	
+	/**
+		\brief Derivative exponential fractal index map
+		
+		This derivative index map retrieves the required array sizes from the specified exponent parameter.
+	*/
+	template <unsigned Exponent, unsigned RangeReduction =0>
+		class TemplateMap:public VertexMap, public BaseTemplateMap<Exponent,RangeReduction>
+		{
+		public:
+		
 										TemplateMap()
 										{
-											VertexMap::vertex_descriptor = info;
-											VertexMap::exponent = Exponent;
-											VertexMap::vertex_range = range;
-											VertexMap::vertex_maximum = range-1;
-											VertexMap::vertex_count = vertices;
-											if (RangeReduction == 0)
-											{
-												VertexMap::child_border_vertex_count = child_border_vertices;
-												VertexMap::child_border_index[0] = child_border[0];
-												VertexMap::child_border_index[1] = child_border[1];
-												VertexMap::child_border_index[2] = child_border[2];
-												VertexMap::child_vertex_count = child_vertices;
-												VertexMap::child_vertex_index = child_vertex;
-												VertexMap::parent_vertex_count = parent_vertices;
-												VertexMap::parent_vertex_info = parent_vertex;
-												VertexMap::inner_parent_vertex_count = inner_parent_vertices;
-												VertexMap::inner_parent_vertex_info = inner_parent_vertex;
-											}
-											else
-											{
-												VertexMap::child_border_vertex_count = 0;
-												VertexMap::child_border_index[0] = nullptr;
-												VertexMap::child_border_index[1] = nullptr;
-												VertexMap::child_border_index[2] = nullptr;
-												VertexMap::child_vertex_count = 0;
-												VertexMap::child_vertex_index = nullptr;
-												VertexMap::parent_vertex_count = 0;
-												VertexMap::parent_vertex_info = 0;
-												VertexMap::inner_parent_vertex_count = 0;
-												VertexMap::inner_parent_vertex_info = 0;
-											}
-											VertexMap::inner_vertex_count = inner_vertices;
-											VertexMap::inner_vertex_index = inner;
-											VertexMap::border_index[0] = border[0];
-											VertexMap::border_index[1] = border[1];
-											VertexMap::border_index[2] = border[2];
-											VertexMap::inner_border_index[0] = inner_border[0];
-											VertexMap::inner_border_index[1] = inner_border[1];
-											VertexMap::inner_border_index[2] = inner_border[2];
+											Create(*this);
 
-											VertexMap::build();
 										}
 
-		/**
-			@brief Queries the absolute index of a vertex via its grid coordinates
-
-			Converts vertex grid coordinates (column, row) to a linear index.
-			Invokes a fatal exception if the specified coordinates are invalid.
-
-
-			@param col Column of the vertex in the range [0,row]
-			@param row Row of the vertex in the range [0,vertex_maximum]
-			@return Linear vertex index
-		*/
-		inline static unsigned			getIndex(unsigned col, unsigned row)
-										{
-											if (row >= range || col > row)
-												FATAL__("Index-Retrival-Error for ("+IntToStr(col)+", "+IntToStr(row)+") range="+IntToStr(range));
-											return row*(row+1)/2+col;
-										}
-		/**
-			@brief Queries the absolute index of a vertex via its grid coordinates
-
-			Converts vertex grid coordinates (column, row) to a linear index.
-			Returns 0xFFFFFFFF if the specified coordinates are invalid.
-
-			@param col Column of the vertex in the range [0,row]
-			@param row Row of the vertex in the range [0,vertex_maximum]
-			@return Linear vertex index or 0xFFFFFFFF if the specified grid coordinates are invalid
-		*/
-		inline static unsigned			getIndexC(unsigned col, unsigned row)
-										{
-											if (row >= range || col > row)
-												return UNSIGNED_UNDEF;
-											return row*(row+1)/2+col;
-										}
+		
 
 		};
 

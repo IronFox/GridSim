@@ -98,11 +98,12 @@ namespace Fractal
 						inf.parent1 = getIndex(x+1,y);
 
 						inf.parent2 = getIndex(x-1,y-2);
-						if (y < vertex_range-1)
+						if (y+2 < vertex_range)
 						{
 							inf.sibling[0] = getIndex(x,y+1);
 							inf.sibling[1] = getIndex(x+1,y+1);
 							inf.parent3 = getIndex(x+1,y+2);
+							ASSERT_LESS__(inf.parent3,vertex_count);
 						}
 						else
 						{
@@ -122,13 +123,22 @@ namespace Fractal
 					{
 						inf.dir = 0;
 						inf.parent0 = getIndex(x,y-1);
-						inf.parent1 = getIndex(x,y+1);
-						inf.parent2 = getIndex(x+2,y+1);
+						if (y+1 < vertex_range)
+						{
+							inf.parent1 = getIndex(x,y+1);
+							inf.parent2 = getIndex(x+2,y+1);
+						}
+						else
+						{
+							inf.parent1 = UNSIGNED_UNDEF;	//this can only happen if reduction is enabled
+							inf.parent2 = UNSIGNED_UNDEF;
+						}
 						if (x)
 						{
 							inf.sibling[0] = getIndex(x-1,y-1);
 							inf.sibling[1] = getIndex(x-1,y);
 							inf.parent3 = getIndex(x-2,y-1);
+							ASSERT_LESS__(inf.parent3,vertex_count);
 						}
 						else
 						{
@@ -136,7 +146,7 @@ namespace Fractal
 							inf.parent3 = UNSIGNED_UNDEF;
 						}
 	
-						if (y < vertex_range-1)
+						if (y+1 < vertex_range)
 							inf.sibling[2] = getIndex(x+1,y+1);
 						else
 							inf.sibling[2] = UNSIGNED_UNDEF;
@@ -148,9 +158,18 @@ namespace Fractal
 					else
 					{
 						inf.dir = 2;
-						inf.parent0 = getIndex(x+1,y+1);
 						inf.parent1 = getIndex(x-1,y-1);
-						inf.parent2 = getIndex(x-1,y+1);
+
+						if (y+1 < vertex_range)
+						{
+							inf.parent0 = getIndex(x+1,y+1);
+							inf.parent2 = getIndex(x-1,y+1);
+						}
+						else
+						{
+							inf.parent0 = UNSIGNED_UNDEF;	//this can only happen if reduction is enabled
+							inf.parent2 = UNSIGNED_UNDEF;
+						}
 	
 						
 						if (x != y)
@@ -158,6 +177,7 @@ namespace Fractal
 							inf.sibling[0] = getIndex(x+1,y);
 							inf.sibling[1] = getIndex(x,y-1);
 							inf.parent3 = getIndex(x+1,y-1);
+							ASSERT_LESS__(inf.parent3,vertex_count);
 						}
 						else
 						{
@@ -166,7 +186,10 @@ namespace Fractal
 						}
 
 						inf.sibling[2] = getIndex(x-1,y);
-						inf.sibling[3] = getIndex(x,y+1);
+						if (y+1 < vertex_range)
+							inf.sibling[3] = getIndex(x,y+1);
+						else
+							inf.sibling[3] = UNSIGNED_UNDEF;
 					}                    
 			}
 	
@@ -327,14 +350,14 @@ namespace Fractal
 				}
 				else
 				{
-					ASSERT2__(info.parent0<vertex_count,info.parent0,vertex_count);
-					ASSERT2__(info.parent1<vertex_count,info.parent1,vertex_count);
-					ASSERT2__(info.parent2<vertex_count,info.parent2,vertex_count);
+					ASSERT2__(info.parent0 == UNSIGNED_UNDEF || info.parent0<vertex_count,info.parent0,vertex_count);
+					ASSERT2__(info.parent1 == UNSIGNED_UNDEF || info.parent1<vertex_count,info.parent1,vertex_count);
+					ASSERT2__(info.parent2 == UNSIGNED_UNDEF || info.parent2<vertex_count,info.parent2,vertex_count);
 					info.parent_space[k].match = UNSIGNED_UNDEF;
-					info.parent_space[k].parent0 = forward_map[info.parent0*4+k];
-					info.parent_space[k].parent1 = forward_map[info.parent1*4+k];
-					info.parent_space[k].parent2 = forward_map[info.parent2*4+k];
-					if (info.borderDirection == -1)
+					info.parent_space[k].parent0 = info.parent0 != UNSIGNED_UNDEF ? forward_map[info.parent0*4+k] : UNSIGNED_UNDEF;
+					info.parent_space[k].parent1 = info.parent1 != UNSIGNED_UNDEF ? forward_map[info.parent1*4+k] : UNSIGNED_UNDEF;
+					info.parent_space[k].parent2 = info.parent2 != UNSIGNED_UNDEF ? forward_map[info.parent2*4+k] : UNSIGNED_UNDEF;
+					if (info.borderDirection == -1 && info.parent3 != UNSIGNED_UNDEF)
 					{
 						ASSERT2__(info.parent3<vertex_count,info.parent3,vertex_count);
 						info.parent_space[k].parent3 = forward_map[info.parent3*4+k];
