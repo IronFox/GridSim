@@ -17,13 +17,14 @@ class StringList;
 
 namespace Tokenizer
 {
-	class ItemSet:protected HashSet
+	class ItemSet:protected StringSet
 	{
 	protected:
-			size_t			max_len;
-			bool			first_char[0x100];
+		typedef	StringSet Super;
+		size_t			max_len;
+		bool			first_char[0x100];
 			
-			void			addTokens(const char*string);
+		void			addTokens(const char*string);
 	public:
 							ItemSet():max_len(0)
 							{
@@ -54,7 +55,7 @@ namespace Tokenizer
 							}
 			void			clear()
 							{
-								HashSet::clear();
+								Super::clear();
 								max_len = 0;
 								memset(first_char,false,sizeof(first_char));
 							}
@@ -66,7 +67,7 @@ namespace Tokenizer
 							{
 								return first_char[c];
 							}
-			HashSet::isSet;
+			Super::isSet;
 	};
 
 	class CharacterTable	//! Character table, providing the respective index for set characters and 0 for undefined characters

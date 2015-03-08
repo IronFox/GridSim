@@ -1416,7 +1416,7 @@ namespace Converter
 			ArrayList<TObjFace,512> 			*current_smooth_group;
 			unsigned							current_smooth_group_index;
 			Vector<CGS::Material<>	>		material_list;
-			HashTable<CGS::Material<>*>	material_table;
+			StringTable<CGS::Material<>*>	material_table;
 			CGS::Material<>*				current_material;
 			HashContainer<CGS::Texture>		texture_field;
 		*/		

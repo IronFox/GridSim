@@ -149,7 +149,7 @@ namespace Attrib
 	protected:
 	static	bool							finalized;
 	public:
-			HashTable<TAttribute>			name_map;
+			StringTable<TAttribute>			name_map;
 			Buffer<TAttribute>				index_map;
 			
 			void							clear();

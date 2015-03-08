@@ -60,11 +60,11 @@ namespace Config
 			
 		protected:
 				List::Vector<Context>		children;
-				HashTable<Context*>			child_map;
+				StringTable<Context*>		child_map;
 				List::Vector<Attribute>		attributes;
-				HashTable<Attribute*>		attribute_map;
+				StringTable<Attribute*>		attribute_map;
 				List::Vector<Context>		modes;
-				HashTable<Context*>			mode_map;
+				StringTable<Context*>		mode_map;
 				bool						Is_mode;
 
 				Attribute*					protectedDefine(const String&name, const String&value="");

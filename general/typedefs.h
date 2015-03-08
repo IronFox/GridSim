@@ -292,7 +292,7 @@ static const index_t		InvalidIndex = static_cast<index_t>(-1);
 
 
 typedef uint32_t	serial_size_t;	//!< Size type for serial IO operations
-
+static const serial_size_t MaxSerialSize = (1U << 29) - 1;	//first three bits can't be used
 
 
 

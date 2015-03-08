@@ -272,7 +272,7 @@ namespace CLI	//! Command line interpretor
 			typedef std::shared_ptr<T>	Type;
 		private:
 			typedef Buffer<Type>	Super;
-			HashTable<index_t>		table;
+			StringTable<index_t>		table;
 		public:
 			typedef typename Super::const_iterator	const_iterator;
 

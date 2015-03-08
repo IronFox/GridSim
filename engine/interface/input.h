@@ -96,7 +96,7 @@ namespace Engine
 			unsigned				//active_binding,
 									stack_forward_depth;
 			
-			HashTable<TAnalogSource>	analog_sources;
+			StringTable<TAnalogSource>	analog_sources;
 			TAnalogSource				empty_source;
 			Buffer<TAnalogSource,0>		linear_analog_list;
 

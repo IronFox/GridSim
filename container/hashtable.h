@@ -290,7 +290,7 @@ template <class K, class Hash=StdHash, typename KeyStrategy = typename StrategyS
 	};
 
 	
-typedef GenericHashSet<String>		HashSet;				//!< String based 'hash' set
+typedef GenericHashSet<String>		StringSet;				//!< String based 'hash' set
 typedef GenericHashSet<index_t>		IndexSet;				//!< Index set
 typedef GenericHashSet<const void*>	PointerSet;			//!< Pointer set
 
@@ -317,11 +317,19 @@ template <class K, class C, class Hash=StdHash, typename KeyStrategy = typename 
 		template <typename F>
 			inline	void					visitAllValues(const F&f);	//!< Passes each occupied element to the specified functor of type <tt>void f(DataType&)</tt>. The functor may receive a copy, const, or non-const reference, even alter data if needed
 		template <typename F>
-			inline	void					visitAllValues(const F&f)	const;	//!< Constant version of visitAllValues(). Only copies or const references may be received by the functor.
+			inline	void					VisitAllValues(const F&f)				/** @copydoc visitAllValues() */{visitAllValues(f);}
+		template <typename F>
+			inline	void					visitAllValues(const F&f) const;	//!< Constant version of visitAllValues(). Only copies or const references may be received by the functor.
+		template <typename F>
+			inline	void					VisitAllValues(const F&f) const				/** @copydoc visitAllValues() */{visitAllValues(f);}
 		template <typename F>
 			inline	void					visitAllEntries(const F&f);	//!< Passes each occupied element to the specified functor of type <tt>void f(const KeyType&, DataType&)</tt>. The functor may receive a copy, const, or non-const reference, even alter data if needed
 		template <typename F>
+			inline	void					VisitAllEntries(const F&f)				/** @copydoc visitAllEntries() */{visitAllEntries(f);}
+		template <typename F>
 			inline	void					visitAllEntries(const F&f)	const;	//!< Constant version of visitAllEntries(). Only copies or const references may be received by the functor.
+		template <typename F>
+			inline	void					VisitAllEntries(const F&f)	const		/** @copydoc visitAllEntries() */{visitAllEntries(f);}
 		template <class Key, class Entry>
 			inline	void					exportTo(ArrayData<Key>&keys, ArrayData<Entry>&values)	const;	//!< Exports keys and values to the respective arrays. \param keys Reference to an array containing all associated keys after execution. \param values Reference to an object array containing all contained data elements after execution. \b keys and \b values will be of the same size with each entry of \b keys associated with the entry in \b values of the same index.
 		template <class Entry>
@@ -398,12 +406,12 @@ template <class K, class C, class Hash=StdHash, typename KeyStrategy = typename 
 
 
 /*!
-	\brief Standard Hashtable
+\brief Standard String-mapped Hashtable
 
-	The hashtable stores copies of inserted objects mapped via strings. Anything that can be cast into a string can be used as a key.
+The hashtable stores copies of inserted objects mapped via strings. Anything that can be cast into a string can be used as a key.
 */
 template <class C, typename DataStrategy = typename StrategySelector<C>::Default>
-	class HashTable:public GenericHashTable<String,C,StdHash,SwapStrategy,DataStrategy>
+	class StringTable:public GenericHashTable<String,C,StdHash,SwapStrategy,DataStrategy>
 	{};
 
 

@@ -719,7 +719,8 @@ namespace TCP
 					else
 					{
 						#ifdef _DEBUG
-							FATAL__("deserialization failed");	//for now, this is appropriate
+							if (!this->destroyed && !this->socketAccess->IsClosed())
+								FATAL__("deserialization failed");	//for now, this is appropriate
 						#endif
 					}
 					//elif (verbose)

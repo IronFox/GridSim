@@ -618,6 +618,12 @@ namespace Except
 
 #define FATAL__(_MESSAGE_)					{if (Except::enterFatalPhase()) Except::finalizeFatalPhase(CLOCATION,(_MESSAGE_));}
 
+#ifdef _DEBUG
+	#define DBG_FATAL__(_MESSAGE_)			FATAL__(_MESSAGE_)
+#else
+	#define DBG_FATAL__(_MESSAGE_)
+#endif
+
 #define THROW_FATAL__(_message_)			throw Except::Fatal(CLOCATION,message);
 #define THROW_FATAL_EXCEPTION__(_message_)	THROW_FATAL__(_message_)
 

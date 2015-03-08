@@ -101,7 +101,7 @@ namespace Parser
 	public:
 			typedef Buffer<Sequence,0,Strategy::Swap>	Super;
 
-			HashTable<Buffer<index_t,0>,Strategy::Swap>	sequence_map;	//!< Maps state names to sequences
+			StringTable<Buffer<index_t,0>,Strategy::Swap>	sequence_map;	//!< Maps state names to sequences
 
 
 			void				swap(Stream&other)

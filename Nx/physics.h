@@ -866,7 +866,7 @@ namespace Physics
 	
 	extern Buffer<float4>						explosions;
 	extern LogFile								logfile;				//!< Log file to write events to
-	extern HashTable<EngineType*>				engine_type_map;		//!< Hashtable to find engine types by name (filled by init())
+	extern StringTable<EngineType*>				engine_type_map;		//!< Hashtable to find engine types by name (filled by init())
 	extern List::Vector<EngineType>				engine_types;			//!< Linear list of all supported engine types (filled by init())
 	extern List::ReferenceVector<Structure>		dynamic_structures,		//!< Linear list of all currently simulated dynamic structures (excluding vehicles)
 												static_structures;		//!< Linear list of all currently simulated static (inanimate) structures (excluding track segments)
@@ -874,9 +874,9 @@ namespace Physics
 	extern List::ReferenceVector<FirstPerson>	simulated_fps;			//!< Linear list of all currently simulated first person entities
 	extern Buffer<UniqueStaticStructure*>		installed_unique_static_structures;		//!< Linear list of all currently simulated simple structures
 	//extern MappedScenery<OpenGL>			scenery;
-	extern HashTable<VehiclePrototype*>	prototypes;				//!< Hashtable to find vehicle prototypes by filename. Maintained by loadPrototype()
+	extern StringTable<VehiclePrototype*>	prototypes;				//!< Hashtable to find vehicle prototypes by filename. Maintained by loadPrototype()
 	extern List::Vector<StructurePrototype>		structure_prototypes;		//!< Linear list of structure prototypes. Maintained by loadStructurePrototype()
-	extern HashTable<StructurePrototype*>		structure_prototype_map;	//!< Hashtable to find structure prototypes by filename. Maintained by loadStructurePrototype()
+	extern StringTable<StructurePrototype*>		structure_prototype_map;	//!< Hashtable to find structure prototypes by filename. Maintained by loadStructurePrototype()
 	extern Vehicle								*player_attached_to;		//!< Simulated vehicle that the player is currently attached to
 
 	NxScene*									init(bool generate_debug_info);						//!< Initializes physical simulation and returns a pointer to the active PhysX scenery or NULL if initialization failed. The function also initializes the available engine prototypes

@@ -421,9 +421,9 @@ namespace Converter
 			// ArrayList<TObjFace,512> 			*current_smooth_group;
 			// unsigned							current_smooth_group_index;
 			List::Vector<ObjMaterial>			material_list;
-			HashTable<ObjMaterial*>				material_table;
-			HashTable<ObjFaceGroup*>			object_name_table;
-			HashSet								object_name_table64, 
+			StringTable<ObjMaterial*>			material_table;
+			StringTable<ObjFaceGroup*>			object_name_table;
+			StringSet							object_name_table64, 
 												texture_name_table64;
 			ObjMaterial*						current_material;
 			HashContainer<ObjTexture>			texture_field;

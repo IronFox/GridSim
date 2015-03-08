@@ -140,7 +140,7 @@ namespace XML
 	public:
 			typedef void(*pNodeCallback)(TScannerNode*node);
 	protected:
-			HashTable<ScannerRule*>
+			StringTable<ScannerRule*>
 								connections;
 			Scanner				*parent;
 			String				name;

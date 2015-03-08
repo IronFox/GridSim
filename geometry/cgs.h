@@ -1043,7 +1043,7 @@ namespace CGS	//! Compiled Geometrical Structure
 			System<typename Def::SystemType>		root_system;		//!< Local system
 			
 
-			HashTable<Path>							object_table,
+			StringTable<Path>						object_table,
 													wheel_table,
 													accelerator_table,
 													animator_table;

@@ -670,7 +670,7 @@
 				class VariableMap
 				{
 				protected:
-					HashTable<index_t>			variableMap;
+					StringTable<index_t>			variableMap;
 					List::ReferenceVector<UserConfiguration>
 												attachedConfigurations;
 					bool						changed;
