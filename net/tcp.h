@@ -553,7 +553,17 @@ namespace TCP
 		serial_size_t				GetRemainingBytes() const override;
 		bool						netRead(BYTE*current, size_t size);							//!< Continuously reads a sequence of bytes from the TCP stream. The method does not return until either the requested amount of bytes was received or an error occured
 			
-		PPeer						SharedFromThis() {return canDoSharedFromThis ? shared_from_this() : PPeer();}
+		PPeer						SharedFromThis()
+		{
+			try
+			{
+				return canDoSharedFromThis ? shared_from_this() : PPeer();
+			}
+			catch (...)
+			{
+				return PPeer();	//weak ptr exception
+			}
+		}
 
 	public:
 		/**
