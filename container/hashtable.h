@@ -367,6 +367,10 @@ template <class K, class C, class Hash=StdHash, typename KeyStrategy = typename 
 			inline	bool					owns(const DataType*data)	const;
 		template <class Key>
 			inline	DataType*				setNew(const Key&ident);					//!< Sets the specified key if it is currently not set and returns the pointer its content. If the key is already set then NULL is returned @param ident Key to set @return Pointer to the set content associated with the specified key, or NULL if the key was previously set
+		template <class Key>
+			inline	DataType*				SetNew(const Key&ident)						/** @copydoc setNew()*/ { return setNew(ident); }
+		template <class Key>
+			inline	bool					SetNew(const Key&ident, const DataType&d)	{ DataType*into = setNew(ident); if (into) (*into) = d; return into != NULL;}
 		template <class Entry>
 			inline	bool					unSetEntry(const Entry&entry);				//!< Un-sets the key associated with the specified entry. Potentially resizes the internal table. \param entry Entry to look for \return True if the specified entry could be found and un-set, false otherwise.
 		template <class Entry>
