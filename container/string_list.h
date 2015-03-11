@@ -433,6 +433,8 @@ INLINE		void				clear()			{Super::reset();}
 			Super::moveAppend;
 			Super::moveToArray;
 			Super::copyToArray;
+			Super::begin;
+			Super::end;
 };
 
 

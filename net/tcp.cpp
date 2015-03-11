@@ -426,7 +426,7 @@ namespace TCP
 			owner->setError("");
 			owner->HandleEvent(Event::ConnectionClosed,*this);
 			socketAccess->CloseSocket();
-			owner->OnDisconnect(SharedFromThis(),Event::ConnectionClosed);
+			owner->OnDisconnect(this,Event::ConnectionClosed);
 			if (verbose)
 				std::cout << "Peer::succeeded() exit: result is 0"<<std::endl;
 			return;
@@ -440,7 +440,7 @@ namespace TCP
 		owner->setError("Connection lost to "+ToString()+" ("+lastSocketError()+")");
 		socketAccess->CloseSocket();
 		owner->HandleEvent(Event::ConnectionLost,*this);
-		owner->OnDisconnect(SharedFromThis(),Event::ConnectionLost);
+		owner->OnDisconnect(this, Event::ConnectionLost);
 		if (verbose)
 			std::cout << "Peer::succeeded() exit: result was unexpected. socket closed"<<std::endl;
 	}
@@ -498,7 +498,7 @@ namespace TCP
 				owner->setError("Connection lost to "+ToString()+" ("+lastSocketError()+")");
 				owner->HandleEvent(Event::ConnectionLost,*this);
 				if (!destroyed)
-					owner->OnDisconnect(SharedFromThis(),Event::ConnectionLost);
+					owner->OnDisconnect(this,Event::ConnectionLost);
 				if (verbose)
 					std::cout << "Peer::netRead() exit: invalid size value received: "<<size<<std::endl;
 				return false;
@@ -515,7 +515,7 @@ namespace TCP
 				owner->setError("");
 				owner->HandleEvent(Event::ConnectionClosed,*this);
 				if (!destroyed)
-					owner->OnDisconnect(SharedFromThis(),Event::ConnectionClosed);
+					owner->OnDisconnect(this, Event::ConnectionClosed);
 				if (verbose)
 					std::cout << "Peer::netRead() exit: 0 size value received"<<std::endl;
 				return false;
@@ -674,7 +674,7 @@ namespace TCP
 				FATAL__("Maximum safe package size ("+String(owner->safe_package_size/1024)+"KB) exceeded by "+String((remaining_size-owner->safe_package_size)/1024)+"KB");
 				owner->setError("Maximum safe package size ("+String(owner->safe_package_size/1024)+"KB) exceeded by "+String((remaining_size-owner->safe_package_size)/1024)+"KB");
 				owner->HandleEvent(Event::ConnectionClosed,*this);
-				owner->OnDisconnect(SharedFromThis(),Event::ConnectionClosed);
+				owner->OnDisconnect(this,Event::ConnectionClosed);
 				if (verbose)
 					std::cout << "Peer::ThreadMain() exit: received invalid package size"<<std::endl;
 				return;
@@ -801,7 +801,7 @@ namespace TCP
 			socketAccess->CloseSocket();
 			if (!isSelf())
 				awaitCompletion();	//can't wait for self.
-			owner->OnDisconnect(SharedFromThis(),Event::ConnectionClosed);
+			owner->OnDisconnect(this,Event::ConnectionClosed);
 			
 			/*if (!owner->block_events)	//i really can't recall why i did this
 				owner->block_events++;	*/
@@ -962,26 +962,42 @@ namespace TCP
 		return true;
 	}
 	
-	void		Server::OnDisconnect(const PPeer&peer, event_t event)
+	void		Server::OnDisconnect(const Peer*peer, event_t event)
 	{
 		if (verbose)
 			std::cout << "Server::onDisconnect() enter"<<std::endl;
-		if (clients_locked)
+		if (peer)
 		{
+			if (clients_locked)
+			{
+				if (verbose)
+					std::cout << "Server::onDisconnect() exit: clients are locked" << std::endl;
+				return;
+			}
 			if (verbose)
-				std::cout << "Server::onDisconnect() exit: clients are locked"<<std::endl;
-			return;
+				std::cout << "Server::onDisconnect(): acquiring write lock for client disconnect" << std::endl;
+			clientMutex.signalWrite();
+			if (verbose)
+				std::cout << "Server::onDisconnect(): lock acquired. dropping peer" << std::endl;
+			index_t at = InvalidIndex;
+			foreach(clientList, cl)
+				if (cl->get() == peer)
+				{
+					at = cl - clientList.pointer();
+					break;
+				}
+			PPeer p;
+			if (at != InvalidIndex)
+			{
+				p = clientList[at];
+				clientList.erase(at);
+			}
+			clientMutex.exitWrite();
+			if (verbose)
+				std::cout << "Server::onDisconnect(): released write lock. discarding peer" << std::endl;
+			if (p)
+				HandlePeerDeletion(p);
 		}
-		if (verbose)
-			std::cout << "Server::onDisconnect(): acquiring write lock for client disconnect"<<std::endl;
-		clientMutex.signalWrite();
-			if (verbose)
-				std::cout << "Server::onDisconnect(): lock acquired. dropping peer"<<std::endl;
-			clientList.FindAndErase(peer);
-		clientMutex.exitWrite();
-		if (verbose)
-			std::cout << "Server::onDisconnect(): released write lock. discarding peer"<<std::endl;
-		HandlePeerDeletion(peer);
 		if (verbose)
 			std::cout << "Server::onDisconnect() exit"<<std::endl;
 	}

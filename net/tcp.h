@@ -514,7 +514,7 @@ namespace TCP
 										error_mutex.release();
 									}
 	public:
-		virtual	void				OnDisconnect(const PPeer&peer, event_t event)	{};	//!< Abstract disconnection even called if the local connection has been lost or closed
+		virtual	void				OnDisconnect(const Peer*, event_t event)	{};	//!< Abstract disconnection even called if the local connection has been lost or closed
 		const String&				GetError()	const	//! Queries the last occured error
 									{
 										return current_error;
@@ -529,7 +529,7 @@ namespace TCP
 		A peer handles incoming and outgoing packages from/to a specific IP address over a specific socket handle. A server would manage one peer structure per client, a client would inherit from Peer.
 	
 	*/
-	class Peer : public ThreadObject, protected IReadStream, protected IWriteStream, public Destination, public std::enable_shared_from_this<Peer> //, public IToString
+	class Peer : public ThreadObject, protected IReadStream, protected IWriteStream, public Destination/*, public std::enable_shared_from_this<Peer>*/ //, public IToString
 	{
 	protected:
 		Connection					*owner;			//!< Pointer to the owning connection to handle incoming packages and report errors to
@@ -553,17 +553,17 @@ namespace TCP
 		serial_size_t				GetRemainingBytes() const override;
 		bool						netRead(BYTE*current, size_t size);							//!< Continuously reads a sequence of bytes from the TCP stream. The method does not return until either the requested amount of bytes was received or an error occured
 			
-		PPeer						SharedFromThis()
-		{
-			try
-			{
-				return canDoSharedFromThis ? shared_from_this() : PPeer();
-			}
-			catch (...)
-			{
-				return PPeer();	//weak ptr exception
-			}
-		}
+		//PPeer						SharedFromThis()
+		//{
+		//	try
+		//	{
+		//		return canDoSharedFromThis ? shared_from_this() : PPeer();
+		//	}
+		//	catch (...)
+		//	{
+		//		return PPeer();	//weak ptr exception
+		//	}
+		//}
 
 	public:
 		/**
@@ -603,8 +603,11 @@ namespace TCP
 									}
 		void						Destroy()
 									{
-										destroyed = true;
-										Disconnect();
+										if (!destroyed)
+										{
+											destroyed = true;
+											Disconnect();
+										}
 										//if (root_address)
 										//	freeaddrinfo(root_address);
 									}
@@ -712,7 +715,7 @@ namespace TCP
 			
 		void				ThreadMain();
 	protected:
-		void				OnDisconnect(const PPeer&peer, event_t) override;	//!< Executed by a peer if its connection died
+		void				OnDisconnect(const Peer*, event_t) override;	//!< Executed by a peer if its connection died
 		void				Fail(const String&message);					//!< Executed if an operation failed
 		bool				SendObject(UINT32 channel, const ISerializable&object) override;
 		bool				SendObject(UINT32 channel, const PPeer&exclude, const ISerializable&object) override;
