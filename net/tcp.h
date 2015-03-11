@@ -700,7 +700,7 @@ namespace TCP
 	The Server object sets up a local listen port and automatically accepts incoming connection requests.
 	Dispatcher for channel handling is inherited via Connection
 	*/
-	class Server: public Connection, public ThreadObject, public Destination
+	class Server : public Connection, public ThreadObject, public Destination
 	{
 	private:
 		volatile SOCKET		socket_handle;
@@ -793,6 +793,8 @@ namespace TCP
 							{
 								return isActive();
 							}
+
+		PPeer				GetSharedPointerOfClient(Peer*);
 	};
 
 

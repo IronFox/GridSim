@@ -961,6 +961,48 @@ namespace TCP
 			std::cout << "Server::startService() exit: service is online"<<std::endl;
 		return true;
 	}
+
+	PPeer		Server::GetSharedPointerOfClient(Peer*peer)
+	{
+		if (verbose)
+			std::cout << __func__ " enter" << std::endl;
+		if (peer)
+		{
+			if (clients_locked)
+			{
+				if (verbose)
+					std::cout << __func__ " exit: clients are locked" << std::endl;
+				return PPeer();
+			}
+			if (verbose)
+				std::cout << __func__": acquiring read lock for client lookup" << std::endl;
+			clientMutex.signalRead();
+			if (verbose)
+				std::cout << __func__ ": lock acquired. searching" << std::endl;
+			index_t at = InvalidIndex;
+			foreach(clientList, cl)
+				if (cl->get() == peer)
+				{
+					at = cl - clientList.pointer();
+					break;
+				}
+			PPeer p;
+			if (at != InvalidIndex)
+			{
+				if (verbose)
+					std::cout << __func__ " client found" << std::endl;
+				p = clientList[at];
+			}
+			clientMutex.exitRead();
+			if (verbose)
+				std::cout << __func__": released read lock. returning result" << std::endl;
+			return p;
+		}
+		if (verbose)
+			std::cout << __func__ " exit" << std::endl;
+		return PPeer();
+	}
+
 	
 	void		Server::OnDisconnect(const Peer*peer, event_t event)
 	{
