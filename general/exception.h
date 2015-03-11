@@ -301,7 +301,10 @@ namespace Except
 										{
 										}
 		virtual	const char*				getType()	const {return staticGetName();}
-		virtual	const char*				what()		const	{static char buffer[0x4000]; sprintf_s<sizeof(buffer)>(buffer,"%s: %s",getType(),std::exception::what()); buffer[sizeof(buffer)-1] = 0; return buffer; };
+		//virtual	const char*				what()		const
+		//{
+		//	static char buffer[0x4000]; sprintf_s<sizeof(buffer)>(buffer,"%s: %s",getType(),std::exception::what()); buffer[sizeof(buffer)-1] = 0; return buffer;
+		//};
 		static const Name&				staticGetName()	{static const Name	name = Name("Except"); return name;}
 
 				const std::exception&	c_str()	const	{return *this;}		//ok, this is close to a hack. let's forget i had to do this :P
@@ -317,26 +320,26 @@ namespace Except
 
 		#undef BEGIN_EXCEPTION_GROUP
 		#define BEGIN_EXCEPTION_GROUP(_name_)\
-			struct PreType##_name_: public Inherit\
+			struct _PreType##_name_: public Inherit\
 			{\
-													PreType##_name_()\
+													_PreType##_name_()\
 													{\
 													}\
-													PreType##_name_(const char*message):Inherit(message)\
+													_PreType##_name_(const char*message):Inherit(message)\
 													{\
 													}\
-													PreType##_name_(const globalString&string):Inherit(string)\
+													_PreType##_name_(const globalString&string):Inherit(string)\
 													{\
 													}\
-				template <class C>					PreType##_name_(const IString<C>&string):Inherit(string)\
+				template <class C>					_PreType##_name_(const IString<C>&string):Inherit(string)\
 													{\
 													}\
 				static const Name&					staticGetName()	{static const Name name=Name(Inherit::staticGetName(),"/"#_name_); return name;}\
 				virtual	const char*					getType()	const						{return staticGetName();}\
 			};\
-			struct _name_: public PreType##_name_\
+			struct _name_: public _PreType##_name_\
 			{\
-				typedef PreType##_name_	Inherit;\
+				typedef _PreType##_name_	Inherit;\
 													_name_()\
 													{\
 													}\
