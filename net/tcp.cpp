@@ -201,6 +201,8 @@ namespace TCP
 				if (onEvent)
 					onEvent(event.event,*event.sender);
 			}
+			foreach(wasteBucket, w)
+				(*w)->awaitCompletion();
 			wasteBucket.Clear();
 		mutex.release();
 	}
