@@ -1150,6 +1150,7 @@ namespace TCP
 						std::cout << "Server::sendObject(): released write lock"<<std::endl;
 						std::cout << "Server::sendObject(): acquiring read lock for continued message send"<<std::endl;
 					}
+					HandlePeerDeletion(peer);
 					clientMutex.signalRead();
 					i--;
 				}
