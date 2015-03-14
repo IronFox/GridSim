@@ -202,7 +202,7 @@ namespace TCP
 					onEvent(event.event,*event.sender);
 			}
 			foreach(wasteBucket, w)
-				(*w)->awaitCompletion();
+				(*w)->awaitCompletion(1000);
 			wasteBucket.Clear();
 		mutex.release();
 	}
@@ -801,8 +801,8 @@ namespace TCP
 			owner->setError("");
 			owner->HandleEvent(Event::ConnectionClosed,*this);
 			socketAccess->CloseSocket();
-			if (!isSelf())
-				awaitCompletion();	//can't wait for self.
+			//if (!isSelf())
+				//awaitCompletion();	//can't wait for self.
 			owner->OnDisconnect(this,Event::ConnectionClosed);
 			
 			/*if (!owner->block_events)	//i really can't recall why i did this
@@ -1081,7 +1081,7 @@ namespace TCP
 			if (verbose)
 				std::cout << "Server::endService(): awaiting listen thread termination"<<std::endl;
 			FlushPendingEvents();
-			awaitCompletion();
+			awaitCompletion(1000);
 		block_events--;
 		if (!block_events)//...??? must have had something to do with the incrementation in Peer::diconnect()
 			setError("");

@@ -149,7 +149,7 @@ namespace System
 	/*	  void				suspend();	  - pthread does not provide a suspend function
 			void			resume();*/
 			void			terminate();													//!< Terminates thread execution. A thread should rather return than self terminate
-			void			awaitCompletion();												 //!< Waits until thread has returned. Do not call from the thread itself
+			void			awaitCompletion(DWORD maxWaitMilliseconds=0xFFFFFFFF);												 //!< Waits until thread has returned. Do not call from the thread itself
 			bool			isActive()	const;											//!< Query thread status \return true, if the thread is currently running
 			bool			isSelf();													   //!< Checks if the calling thread matches the internal handle of the local object
 			handle_t		getHandle()	const	{return handle;}
