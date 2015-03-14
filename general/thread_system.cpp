@@ -206,6 +206,9 @@ namespace System
     {
         Thread*self = reinterpret_cast<Thread*>(self_);
 		self->operation.execute();
+		if (cancelSynchronousIo)
+			cancelSynchronousIo(self->handle);
+
         return (DWORD)0;
     }
     #endif
