@@ -5,6 +5,9 @@
 #include "../container/buffer.h"
 #include "../io/byte_stream.h"
 
+#include <thread>
+#include <sstream>
+
 #ifndef INVALID_SOCKET
 #define INVALID_SOCKET -1
 #endif
@@ -522,6 +525,66 @@ namespace TCP
 	};
 
 	typedef std::shared_ptr<Connection>	PConnection;
+
+
+	class TCPThreadObject
+	{
+	private:
+		std::thread			thread;
+		Semaphore			sem;
+
+		static void			_Start(TCPThreadObject*self)
+		{
+			self->sem.enter();
+			self->ThreadMain();
+		}
+	public:
+
+
+
+		virtual void		ThreadMain()=0;
+
+
+
+		void				Start()
+		{
+			thread.swap(std::thread(_Start,this));
+			sem.leave();
+		
+		}
+
+		bool				IsRunning() const
+		{
+			return thread.joinable();
+		}
+
+		bool				IsSelf() const
+		{
+			return std::this_thread::get_id() == thread.get_id();
+		}
+
+		void				AssertIsSelf()
+		{
+			std::thread::id self = std::this_thread::get_id();
+			std::thread::id local = thread.get_id();
+			std::stringstream ss;
+			ss << self<<"!="<<local;
+			//string mystring = ;
+			ASSERT1__(self == local,ss.str().c_str());
+		
+		}
+
+		void				Join()
+		{
+			try
+			{
+				thread.join();
+			}
+			catch (...)
+			{}	//dont care
+		}
+	};
+
 	
 	/**
 		@brief TCP socket handler
@@ -529,7 +592,7 @@ namespace TCP
 		A peer handles incoming and outgoing packages from/to a specific IP address over a specific socket handle. A server would manage one peer structure per client, a client would inherit from Peer.
 	
 	*/
-	class Peer : public ThreadObject, protected IReadStream, protected IWriteStream, public Destination/*, public std::enable_shared_from_this<Peer>*/ //, public IToString
+	class Peer : public TCPThreadObject, protected IReadStream, protected IWriteStream, public Destination/*, public std::enable_shared_from_this<Peer>*/ //, public IToString
 	{
 	protected:
 		Connection					*owner;			//!< Pointer to the owning connection to handle incoming packages and report errors to
@@ -544,7 +607,7 @@ namespace TCP
 		friend class Server;
 		friend class RootChannel;
 			
-		void						ThreadMain();			//!< Socket read thread main
+		void						ThreadMain() override;			//!< Socket read thread main
 		bool						sendData(UINT32 channel_id, const void*data, size_t size);	//!< Sends raw data to the TCP stream
 		bool						succeeded(int result, size_t desired);							//!< Handles the result of a TCP socket send operation. @param result Actual value returned by send() @param desired Valued expected to be returned by send() @return true if both values match, false otherwise. The connection is automatically closed, events triggered and error values set if the operation failed.
 		void						handleUnexpectedSendResult(int result);
@@ -648,7 +711,7 @@ namespace TCP
 	/**
 		@brief Asynchronous connection attempt
 	*/
-	class ConnectionAttempt:public ThreadObject
+	class ConnectionAttempt:public TCPThreadObject
 	{
 	protected:
 		void				ThreadMain();
@@ -679,9 +742,9 @@ namespace TCP
 							{}
 		virtual				~Client()
 							{
-								attempt.awaitCompletion();
+								attempt.Join();
 								Disconnect();
-								awaitCompletion();
+								Join();
 							}
 		bool				Connect(const String&url);		//!< Attempts to connect to a remote server and waits until a connection was established (or not establishable). Depending on the local connection this may lag for a few seconds. @return true if a connection could be established, false otherwise.
 		void				ConnectAsync(const String&url);	//!< Starts the process of connecting to a remote host. Due to the asynchronous nature of this method, No immediate result is available. Hook a function into the local object's inherited @a onEvent callback pointer to receive information about success or failure
@@ -690,7 +753,7 @@ namespace TCP
 
 		bool				IsAttemptingToConnect()	const	//!< Queries whether or not the client is currently attempting to connect
 							{
-								return attempt.isActive();
+								return attempt.IsRunning();
 							}
 	};
 	
@@ -700,7 +763,7 @@ namespace TCP
 	The Server object sets up a local listen port and automatically accepts incoming connection requests.
 	Dispatcher for channel handling is inherited via Connection
 	*/
-	class Server : public Connection, public ThreadObject, public Destination
+	class Server : public Connection, public TCPThreadObject, public Destination
 	{
 	private:
 		volatile SOCKET		socket_handle;
@@ -713,7 +776,7 @@ namespace TCP
 
 		//Array<BYTE>		out_buffer;
 			
-		void				ThreadMain();
+		void				ThreadMain() override;
 	protected:
 		void				OnDisconnect(const Peer*, event_t) override;	//!< Executed by a peer if its connection died
 		void				Fail(const String&message);					//!< Executed if an operation failed
@@ -791,7 +854,7 @@ namespace TCP
 		void				Shutdown()		{EndService();};		//!< @overload
 		bool				IsOnline()	const	//!< Queries the current execution status
 							{
-								return isActive();
+								return IsRunning();
 							}
 
 		PPeer				GetSharedPointerOfClient(Peer*);

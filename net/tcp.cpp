@@ -128,10 +128,11 @@ namespace TCP
 		if (!peer)
 			return;
 		peer->Destroy();
-		if (async)
-		{
-		}
-		else
+		//if (async)
+		//{
+		//	peer->Join();
+		//}
+		//else
 		{
 			mutex.lock();
 				wasteBucket.Append(peer);
@@ -202,7 +203,7 @@ namespace TCP
 					onEvent(event.event,*event.sender);
 			}
 			foreach(wasteBucket, w)
-				(*w)->awaitCompletion(1000);
+				(*w)->Join(/*1000*/);
 			wasteBucket.Clear();
 		mutex.release();
 	}
@@ -384,7 +385,7 @@ namespace TCP
 		client->HandleEvent(Event::ConnectionEstablished,*client);
 		if (verbose)
 			std::cout << "ConnectionAttempt::ThreadMain(): starting client thread"<<std::endl;
-		client->start();
+		client->Start();
 		if (verbose)
 			std::cout << "ConnectionAttempt::ThreadMain() exit: connection established"<<std::endl;
 
@@ -393,26 +394,26 @@ namespace TCP
 
 	bool	Client::Connect(const String&url)
 	{
-		if (attempt.isActive())
+		if (attempt.IsRunning())
 		{
-			attempt.awaitCompletion();
+			attempt.Join();
 			return !socketAccess->IsClosed();
 		}
 		ConnectAsync(url);
-		attempt.awaitCompletion();
-		ASSERT__(!attempt.isActive());
+		attempt.Join();
+		ASSERT__(!attempt.IsRunning());
 		return !socketAccess->IsClosed();
 	}
 	
 	void	Client::ConnectAsync(const String&url)
 	{
-		ASSERT__(!isSelf());
-		if (attempt.isActive())
+		ASSERT__(!IsSelf());
+		if (attempt.IsRunning())
 			return;
 			
 		attempt.connect_target = url;
 //		attempt.client = this;
-		attempt.start();
+		attempt.Start();
 	}
 
 	void	Peer::handleUnexpectedSendResult(int result)
@@ -647,7 +648,7 @@ namespace TCP
 	{
 		if (verbose)
 			std::cout << "Peer::ThreadMain() enter"<<std::endl;
-		DBG_ASSERT__(isSelf());	//this should really be implied. as it turns out due to whatnot kind of errors, sometimes it hicks up
+		AssertIsSelf();	//this should really be implied. as it turns out due to whatnot kind of errors, sometimes it hicks up
 		while (!socketAccess->IsClosed())
 		{
 			UINT32	header[2];
@@ -822,6 +823,16 @@ namespace TCP
 		sockaddr_storage	addr;
 		while (socket_handle != INVALID_SOCKET)
 		{
+			if (async)
+			{
+				mutex.lock();
+					foreach(wasteBucket, w)
+						(*w)->Join(/*1000*/);
+					wasteBucket.Clear();
+				mutex.release();
+			}
+
+
 			SOCKET handle;
 			socklen_t size = (socklen_t)sizeof(addr);
 			handle = accept( socket_handle, (sockaddr*)&addr,&size);
@@ -865,7 +876,7 @@ namespace TCP
 			HandleEvent(Event::ConnectionEstablished,*peer);
 			if (verbose)
 				std::cout << "Server::ThreadMain():	starting peer thread"<<std::endl;
-			peer->start();
+			peer->Start();
 		}
 		if (verbose)
 			std::cout << "Server::ThreadMain() exit: socket handle reset by remote operation"<<std::endl;
@@ -912,7 +923,7 @@ namespace TCP
 	{
 		if (verbose)
 			std::cout << "Server::startService() enter"<<std::endl;
-		if (isActive())
+		if (IsRunning())
 		{
 			setError("connection already active");
 			if (verbose)
@@ -958,7 +969,7 @@ namespace TCP
 		}
 		if (verbose)
 			std::cout << "Server::startService(): socket created, bound, and now listening. starting thread"<<std::endl;
-		start();
+		Start();
 		if (verbose)
 			std::cout << "Server::startService() exit: service is online"<<std::endl;
 		return true;
@@ -1081,7 +1092,7 @@ namespace TCP
 			if (verbose)
 				std::cout << "Server::endService(): awaiting listen thread termination"<<std::endl;
 			FlushPendingEvents();
-			awaitCompletion(1000);
+			Join(/*1000*/);
 		block_events--;
 		if (!block_events)//...??? must have had something to do with the incrementation in Peer::diconnect()
 			setError("");
