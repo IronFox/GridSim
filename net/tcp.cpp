@@ -272,6 +272,7 @@ namespace TCP
 		if (verbose)
 			std::cout << "ConnectionAttempt::ThreadMain() enter"<<std::endl;
 		client->Disconnect();
+		client->Join();
 		if (!Net::initNet())
 		{
 			client->setError("Failed to initialize network ("+String(lastSocketError())+")");
