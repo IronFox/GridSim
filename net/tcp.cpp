@@ -410,7 +410,11 @@ namespace TCP
 	{
 		ASSERT__(!IsSelf());
 		if (attempt.IsRunning())
-			return;
+		{
+			if (!attempt.IsDone())
+				return;
+			attempt.Join();
+		}
 			
 		attempt.connect_target = url;
 //		attempt.client = this;
@@ -926,10 +930,14 @@ namespace TCP
 			std::cout << "Server::startService() enter"<<std::endl;
 		if (IsRunning())
 		{
-			setError("connection already active");
-			if (verbose)
-				std::cout << "Server::startService() exit: service is already online"<<std::endl;
-			return false;
+			if (!IsDone())
+			{
+				setError("connection already active");
+				if (verbose)
+					std::cout << "Server::startService() exit: service is already online"<<std::endl;
+				return false;
+			}
+			Join();
 		}
 		is_shutting_down = false;
 		if (!Net::initNet())
@@ -1077,7 +1085,10 @@ namespace TCP
 					std::cout << "Server::endService(): lock acquired. erasing client peers"<<std::endl;
 				clients_locked = true;
 				foreach (clientList,cl)
+				{
 					(*cl)->Destroy();
+					(*cl)->Join();
+				}
 				clientList.Clear();
 				clients_locked = false;
 			clientMutex.exitWrite();

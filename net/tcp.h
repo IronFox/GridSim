@@ -531,12 +531,15 @@ namespace TCP
 	{
 	private:
 		std::thread			thread;
+		volatile bool		done = true;
 		Semaphore			sem;
 
-		static void			_Start(TCPThreadObject*self)
+
+		static void			_Start(TCPThreadObject*self, Semaphore*sem)
 		{
-			self->sem.enter();
+			sem->enter();
 			self->ThreadMain();
+			self->done = true;
 		}
 	public:
 
@@ -548,9 +551,15 @@ namespace TCP
 
 		void				Start()
 		{
-			thread.swap(std::thread(_Start,this));
+			done = false;
+			//Semaphore			sem;	//perhaps better not to have this in stack
+			thread.swap(std::thread(_Start,this,&sem));
 			sem.leave();
-		
+		}
+
+		bool				IsDone() const
+		{
+			return done;
 		}
 
 		bool				IsRunning() const
@@ -753,7 +762,8 @@ namespace TCP
 
 		bool				IsAttemptingToConnect()	const	//!< Queries whether or not the client is currently attempting to connect
 							{
-								return attempt.IsRunning();
+								
+								return attempt.IsRunning() && !attempt.IsDone();
 							}
 	};
 	
@@ -854,7 +864,7 @@ namespace TCP
 		void				Shutdown()		{EndService();};		//!< @overload
 		bool				IsOnline()	const	//!< Queries the current execution status
 							{
-								return IsRunning();
+								return IsRunning() && !IsDone();
 							}
 
 		PPeer				GetSharedPointerOfClient(Peer*);
