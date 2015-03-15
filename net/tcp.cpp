@@ -125,18 +125,17 @@ namespace TCP
 	
 	void	Dispatcher::HandlePeerDeletion(const PPeer&peer)
 	{
-		if (!peer)
+		if (!peer || !peer->Destroy())
 			return;
-		peer->Destroy();
 		//if (async)
 		//{
 		//	peer->Join();
 		//}
 		//else
 		{
-			mutex.lock();
+			wasteMutex.lock();
 				wasteBucket.Append(peer);
-			mutex.release();
+			wasteMutex.release();
 		}
 	}
 	
@@ -202,19 +201,26 @@ namespace TCP
 				if (onEvent)
 					onEvent(event.event,*event.sender);
 			}
+		mutex.release();
+		FlushWaste();
+	}
+
+	void Dispatcher::FlushWaste()
+	{
+		wasteMutex.lock();
 			foreach(wasteBucket, w)
 				(*w)->Join(/*1000*/);
 			wasteBucket.Clear();
-		mutex.release();
+		wasteMutex.release();
 	}
 	
 	void Dispatcher::FlushPendingEvents()
 	{
+		FlushWaste();
 		mutex.lock();
 			signal_queue.Clear();
 			object_queue.Clear();
 			event_queue.Clear();
-			wasteBucket.Clear();
 		mutex.release();
 	}
 	
@@ -830,11 +836,7 @@ namespace TCP
 		{
 			if (async)
 			{
-				mutex.lock();
-					foreach(wasteBucket, w)
-						(*w)->Join(/*1000*/);
-					wasteBucket.Clear();
-				mutex.release();
+				FlushWaste();
 			}
 
 

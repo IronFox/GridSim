@@ -451,7 +451,7 @@ namespace TCP
 		Queue<TEvent>				event_queue;
 		Queue<TSignal>				signal_queue;
 		Buffer0<PPeer>				wasteBucket;
-		Mutex						mutex;
+		Mutex						mutex,wasteMutex;
 		bool						async;
 		volatile bool				is_locked;
 		volatile unsigned			block_events;
@@ -466,6 +466,7 @@ namespace TCP
 		void						HandleEvent(event_t event, Peer&origin);
 		RootChannel*				getReceiver(UINT32 channel_id, unsigned user_level);
 			
+		void						FlushWaste();
 	public:
 		void (*onEvent)(event_t event, Peer&origin);	//!< Callback hook for events (connection, disconnection, etc)	@param event Event that occured @param origin Event origin
 		void (*onSignal)(UINT32 signal, Peer&origin);	//!< Callback hook for signals (data-less packages) @param signal Channel that the data-less package was received on @param origin Origin of the signal
@@ -673,13 +674,15 @@ namespace TCP
 											delete a;
 
 									}
-		void						Destroy()
+		bool						Destroy()
 									{
 										if (!destroyed)
 										{
 											destroyed = true;
 											Disconnect();
+											return true;
 										}
+										return false;
 										//if (root_address)
 										//	freeaddrinfo(root_address);
 									}
