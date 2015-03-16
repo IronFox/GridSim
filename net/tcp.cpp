@@ -103,7 +103,7 @@ namespace TCP
 	}
 
 
-	void	Dispatcher::HandleObject(RootChannel*receiver, Peer&sender, const PSerializableObject&object)
+	void	Dispatcher::HandleObject(RootChannel*receiver, const TDualLink&sender, const PSerializableObject&object)
 	{
 		if (!object)
 			return;
@@ -115,7 +115,7 @@ namespace TCP
 		{
 			TInbound inbound;
 			inbound.object = object;
-			inbound.sender = &sender;
+			inbound.sender = sender;
 			inbound.receiver = receiver;
 			mutex.lock();
 				object_queue << inbound;
@@ -139,7 +139,7 @@ namespace TCP
 		}
 	}
 	
-	void	Dispatcher::HandleEvent(event_t event, Peer&peer)
+	void	Dispatcher::HandleEvent(event_t event, const TDualLink&peer)
 	{
 		if (event == Event::None || block_events)
 			return;
@@ -148,14 +148,14 @@ namespace TCP
 			if (onEvent)
 			{
 				//std::cout << "sending event "<<event2str(event)<<" | "<<(void*)peer<<" to "<<(void*)onEvent<<std::endl;
-				onEvent(event,peer);
+				onEvent(event,peer.Reference());
 			}
 		}
 		else
 		{
 			TEvent sevent;
 			sevent.event = event;
-			sevent.sender = &peer;
+			sevent.sender = peer;
 			synchronized(mutex)
 			{
 				event_queue << sevent;
@@ -163,18 +163,18 @@ namespace TCP
 		}
 	}
 
-	void	Dispatcher::HandleSignal(UINT32 signal, Peer&peer)
+	void	Dispatcher::HandleSignal(UINT32 signal, const TDualLink&peer)
 	{
 		if (async)
 		{
 			if (onSignal)
-				onSignal(signal,peer);
+				onSignal(signal,peer.Reference());
 		}
 		else
 		{
 			TSignal tsignal;
 			tsignal.channel = signal;
-			tsignal.sender = &peer;
+			tsignal.sender = peer;
 			synchronized(mutex)
 			{
 				signal_queue << tsignal;
@@ -189,17 +189,17 @@ namespace TCP
 			TSignal signal;
 			while (signal_queue >> signal)
 				if (onSignal)
-					onSignal(signal.channel,*signal.sender);
+					onSignal(signal.channel,signal.sender.Reference());
 			TInbound	inbound;
 			while (object_queue>>inbound)
 			{
-				inbound.receiver->Handle(inbound.object,*inbound.sender);
+				inbound.receiver->Handle(inbound.object,inbound.sender);
 			}
 			TEvent		event;
 			while (event_queue>>event)
 			{
 				if (onEvent)
-					onEvent(event.event,*event.sender);
+					onEvent(event.event,event.sender.Reference());
 			}
 		mutex.release();
 		FlushWaste();
@@ -282,7 +282,7 @@ namespace TCP
 		if (!Net::initNet())
 		{
 			client->setError("Failed to initialize network ("+String(lastSocketError())+")");
-			client->HandleEvent(Event::ConnectionFailed,*client);
+			client->HandleEvent(Event::ConnectionFailed,TDualLink(client));
 			if (verbose)
 				std::cout << "ConnectionAttempt::ThreadMain() exit: failed to initialize network"<<std::endl;
 			return;
@@ -292,7 +292,7 @@ namespace TCP
 		if (!separator)
 		{
 			client->setError("Missing port in address line '"+url+"'");
-			client->HandleEvent(Event::ConnectionFailed,*client);
+			client->HandleEvent(Event::ConnectionFailed,TDualLink(client));
 			if (verbose)
 				std::cout << "ConnectionAttempt::ThreadMain() exit: provided URL lacks port"<<std::endl;
 			return;
@@ -303,7 +303,7 @@ namespace TCP
 		if (!convert(s_port.c_str(),port))
 		{
 			client->setError("Failed to parse port number '"+s_port+"'");
-			client->HandleEvent(Event::ConnectionFailed,*client);
+			client->HandleEvent(Event::ConnectionFailed,TDualLink(client));
 			if (verbose)
 				std::cout << "ConnectionAttempt::ThreadMain() exit: provided port is not parsable"<<std::endl;
 			return;
@@ -319,7 +319,7 @@ namespace TCP
 		if (getaddrinfo(addr.c_str(),s_port.c_str(),&hints,&remote_address) != 0)
 		{
 			client->setError("Unable to resolve address '"+String(addr)+"'");
-			client->HandleEvent(Event::ConnectionFailed,*client);
+			client->HandleEvent(Event::ConnectionFailed,TDualLink(client));
 			if (verbose)
 				std::cout << "ConnectionAttempt::ThreadMain() exit: unable to decode IP address"<<std::endl;
 			return;
@@ -366,7 +366,7 @@ namespace TCP
 		{
 			freeaddrinfo(remote_address);
 			client->setError("'"+host+"' does not answer on port "+s_port);
-			client->HandleEvent(Event::ConnectionFailed,*client);
+			client->HandleEvent(Event::ConnectionFailed,TDualLink(client));
 			if (verbose)
 				std::cout << "ConnectionAttempt::ThreadMain() exit: connection failed"<<std::endl;
 			return;
@@ -380,7 +380,7 @@ namespace TCP
 		catch (const std::exception&exception)
 		{
 			client->setError("Socket set operation to '"+host+"' failed: "+exception.what());
-			client->HandleEvent(Event::ConnectionFailed,*client);
+			client->HandleEvent(Event::ConnectionFailed,TDualLink(client));
 			if (verbose)
 				std::cout << "ConnectionAttempt::ThreadMain() exit: connection failed"<<std::endl;
 			return;
@@ -389,7 +389,7 @@ namespace TCP
 
 		if (verbose)
 			std::cout << "ConnectionAttempt::ThreadMain(): sending 'connection established' event"<<std::endl;
-		client->HandleEvent(Event::ConnectionEstablished,*client);
+		client->HandleEvent(Event::ConnectionEstablished,TDualLink(client));
 		if (verbose)
 			std::cout << "ConnectionAttempt::ThreadMain(): starting client thread"<<std::endl;
 		client->Start();
@@ -438,7 +438,7 @@ namespace TCP
 				return;
 			}
 			owner->setError("");
-			owner->HandleEvent(Event::ConnectionClosed,*this);
+			owner->HandleEvent(Event::ConnectionClosed,LinkFromThis());
 			socketAccess->CloseSocket();
 			owner->OnDisconnect(this,Event::ConnectionClosed);
 			if (verbose)
@@ -453,7 +453,7 @@ namespace TCP
 		}
 		owner->setError("Connection lost to "+ToString()+" ("+lastSocketError()+")");
 		socketAccess->CloseSocket();
-		owner->HandleEvent(Event::ConnectionLost,*this);
+		owner->HandleEvent(Event::ConnectionLost,LinkFromThis());
 		owner->OnDisconnect(this, Event::ConnectionLost);
 		if (verbose)
 			std::cout << "Peer::succeeded() exit: result was unexpected. socket closed"<<std::endl;
@@ -510,7 +510,7 @@ namespace TCP
 				}
 				socketAccess->CloseSocket();
 				owner->setError("Connection lost to "+ToString()+" ("+lastSocketError()+")");
-				owner->HandleEvent(Event::ConnectionLost,*this);
+				owner->HandleEvent(Event::ConnectionLost,LinkFromThis());
 				if (!destroyed)
 					owner->OnDisconnect(this,Event::ConnectionLost);
 				if (verbose)
@@ -527,7 +527,7 @@ namespace TCP
 				}
 				socketAccess->CloseSocket();
 				owner->setError("");
-				owner->HandleEvent(Event::ConnectionClosed,*this);
+				owner->HandleEvent(Event::ConnectionClosed,LinkFromThis());
 				if (!destroyed)
 					owner->OnDisconnect(this, Event::ConnectionClosed);
 				if (verbose)
@@ -687,7 +687,7 @@ namespace TCP
 				socketAccess->CloseSocket();
 				FATAL__("Maximum safe package size ("+String(owner->safe_package_size/1024)+"KB) exceeded by "+String((remaining_size-owner->safe_package_size)/1024)+"KB");
 				owner->setError("Maximum safe package size ("+String(owner->safe_package_size/1024)+"KB) exceeded by "+String((remaining_size-owner->safe_package_size)/1024)+"KB");
-				owner->HandleEvent(Event::ConnectionClosed,*this);
+				owner->HandleEvent(Event::ConnectionClosed,LinkFromThis());
 				owner->OnDisconnect(this,Event::ConnectionClosed);
 				if (verbose)
 					std::cout << "Peer::ThreadMain() exit: received invalid package size"<<std::endl;
@@ -701,7 +701,7 @@ namespace TCP
 			{
 				if (userLevel >= min_user_level)
 				{
-					owner->HandleSignal(channel_index,*this);
+					owner->HandleSignal(channel_index,LinkFromThis());
 				}
 				else
 				{
@@ -728,7 +728,7 @@ namespace TCP
 					{
 						if (verbose)
 							std::cout << "Peer::ThreadMain(): deserialization succeeded, dispatching object"<<std::endl;
-						owner->HandleObject(receiver,*this,object);
+						owner->HandleObject(receiver,LinkFromThis(),object);
 					}
 					else
 					{
@@ -811,7 +811,7 @@ namespace TCP
 			if (verbose)
 				std::cout << "Peer::disconnect(): graceful shutdown: invoking handlers and closing socket"<<std::endl;
 			owner->setError("");
-			owner->HandleEvent(Event::ConnectionClosed,*this);
+			owner->HandleEvent(Event::ConnectionClosed,LinkFromThis());
 			socketAccess->CloseSocket();
 			//if (!isSelf())
 				//awaitCompletion();	//can't wait for self.
@@ -868,6 +868,7 @@ namespace TCP
 				return;
 			}
 			PPeer peer(new Peer(this,true));
+			peer->self = peer;
 			peer->address = addr;
 			peer->SetCloneOfSocketAccess(socketAccess);
 			peer->socketAccess->SetSocket(handle);
@@ -880,7 +881,7 @@ namespace TCP
 			if (verbose)
 				std::cout << "Server::ThreadMain(): released write lock"<<std::endl;
 			setError("");
-			HandleEvent(Event::ConnectionEstablished,*peer);
+			HandleEvent(Event::ConnectionEstablished,TDualLink(peer));
 			if (verbose)
 				std::cout << "Server::ThreadMain():	starting peer thread"<<std::endl;
 			peer->Start();
@@ -913,7 +914,7 @@ namespace TCP
 		{
 			if (verbose)
 				std::cout << "Server::fail(): closing listen socket"<<std::endl;
-			HandleEvent(Event::ConnectionLost,centralPeer);
+			HandleEvent(Event::ConnectionLost,TDualLink(&centralPeer));
 			SwapCloseSocket(socket_handle);
 		}
 		if (verbose)
@@ -1112,7 +1113,7 @@ namespace TCP
 			setError("");
 		if (verbose)
 			std::cout << "Server::endService(): sending connection closed event"<<std::endl;
-		HandleEvent(Event::ConnectionClosed,centralPeer);
+		HandleEvent(Event::ConnectionClosed,TDualLink(&centralPeer));
 		if (verbose)
 			std::cout << "Server::endService() exit: service is offline"<<std::endl;
 	}

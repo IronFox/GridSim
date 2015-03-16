@@ -132,6 +132,22 @@ namespace TCP
 	class Peer;
 	typedef std::shared_ptr<Peer>	PPeer;
 
+	struct TDualLink
+	{
+		Peer					*p;	//cannot avoid pointer sometimes
+		PPeer					s;
+
+		/**/					TDualLink():p(NULL){}
+		explicit				TDualLink(Peer*_p):p(_p)	{}
+		explicit				TDualLink(const PPeer&_s):p(NULL),s(_s)	{}
+
+		Peer&					Reference() const
+		{
+			DBG_ASSERT__(s || p);
+			return s ? *s : *p;
+		}
+	};
+
 
 	/**
 		@brief Size constrained serializable
@@ -229,7 +245,6 @@ namespace TCP
 		
 		This structure is for inheritance only and does not provide public members.
 	*/
-
 	class RootChannel 
 	{
 	protected:
@@ -262,7 +277,7 @@ namespace TCP
 		The method is invoked only, if Deserialize() returned a new non-NULL object.
 		Depending on whether the connection is synchronous or asynchronous, this method is called my the main thread, or the connection's worker thread.
 		*/
-		virtual	void				Handle(const PSerializableObject&serializable,Peer&sender)	{FATAL__("Channel failed to override handle()");};
+		virtual	void				Handle(const PSerializableObject&serializable,const TDualLink&sender)	{FATAL__("Channel failed to override handle()");};
 	public:
 	};
 
@@ -428,23 +443,24 @@ namespace TCP
 	class Dispatcher
 	{
 	protected:
+
 		struct TInbound
 		{
 			PSerializableObject		object;
-			Peer					*sender;	//cannot avoid pointer here
 			RootChannel				*receiver;
+			TDualLink				sender;
 		};
 			
 		struct TEvent
 		{
 			event_t					event;
-			Peer					*sender;
+			TDualLink				sender;
 		};
 			
 		struct TSignal
 		{
 			UINT32					channel;
-			Peer					*sender;
+			TDualLink				sender;
 		};
 			
 		Queue<TInbound>				object_queue;
@@ -461,9 +477,9 @@ namespace TCP
 		friend class Peer;
 			
 		void						HandlePeerDeletion(const PPeer&);
-		void						HandleSignal(UINT32 signal, Peer&sender);
-		void						HandleObject(RootChannel*receiver, Peer&sender, const PSerializableObject&object);
-		void						HandleEvent(event_t event, Peer&origin);
+		void						HandleSignal(UINT32 signal, const TDualLink&sender);
+		void						HandleObject(RootChannel*receiver, const TDualLink&sender, const PSerializableObject&object);
+		void						HandleEvent(event_t event, const TDualLink&sender);
 		RootChannel*				getReceiver(UINT32 channel_id, unsigned user_level);
 			
 		void						FlushWaste();
@@ -602,7 +618,7 @@ namespace TCP
 		A peer handles incoming and outgoing packages from/to a specific IP address over a specific socket handle. A server would manage one peer structure per client, a client would inherit from Peer.
 	
 	*/
-	class Peer : public TCPThreadObject, protected IReadStream, protected IWriteStream, public Destination/*, public std::enable_shared_from_this<Peer>*/ //, public IToString
+	class Peer : public TCPThreadObject, protected IReadStream, protected IWriteStream, public Destination //, public IToString
 	{
 	protected:
 		Connection					*owner;			//!< Pointer to the owning connection to handle incoming packages and report errors to
@@ -613,6 +629,7 @@ namespace TCP
 									remaining_write_size;	//!< Size remaining for writing streams in the announced memory frame
 		ByteStream					serial_buffer;		//!< Buffer used to serialize package data
 		SocketAccess				*socketAccess;
+		std::weak_ptr<Peer>			self;
 		const bool					canDoSharedFromThis;
 		friend class Server;
 		friend class RootChannel;
@@ -626,7 +643,13 @@ namespace TCP
 		serial_size_t				GetRemainingBytes() const override;
 		bool						netRead(BYTE*current, size_t size);							//!< Continuously reads a sequence of bytes from the TCP stream. The method does not return until either the requested amount of bytes was received or an error occured
 			
-		//PPeer						SharedFromThis()
+		TDualLink					LinkFromThis()
+		{
+			PPeer p = self.lock();
+			if (p)
+				return TDualLink(p);
+			return TDualLink(this);
+		}
 		//{
 		//	try
 		//	{
@@ -897,10 +920,10 @@ namespace TCP
 		protected:
 				
 				
-			virtual	void			Handle(const PSerializableObject&serializable,Peer&sender)	override
+			virtual	void			Handle(const PSerializableObject&serializable,const TDualLink&sender)	override
 			{
-				if (sender.userLevel >= MinUserLevel)
-					OnReceive((Object&)*serializable,sender);
+				if (sender.Reference().userLevel >= MinUserLevel)
+					OnReceive((Object&)*serializable,sender.Reference());
 				//discard((Object*)serializable);
 			}
 								
