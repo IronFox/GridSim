@@ -660,7 +660,7 @@ namespace TCP
 		if (verbose)
 			std::cout << "Peer::ThreadMain() enter"<<std::endl;
 		AssertIsSelf();	//this should really be implied. as it turns out due to whatnot kind of errors, sometimes it hicks up
-		while (!socketAccess->IsClosed())
+		while (socketAccess && !socketAccess->IsClosed())
 		{
 			UINT32	header[2];
 			if (!netRead((BYTE*)header,sizeof(header)))
