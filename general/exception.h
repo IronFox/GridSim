@@ -624,7 +624,7 @@ namespace Except
 #ifdef _DEBUG
 	#define DBG_FATAL__(_MESSAGE_)			FATAL__(_MESSAGE_)
 #else
-	#define DBG_FATAL__(_MESSAGE_)
+	#define DBG_FATAL__(_MESSAGE_)			{}
 #endif
 
 #define THROW_FATAL__(_message_)			throw Except::Fatal(CLOCATION,message);
