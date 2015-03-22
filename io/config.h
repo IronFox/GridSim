@@ -112,39 +112,42 @@ namespace Config
 				void						exportAttributes(ArrayData<const Attribute*>&out)		const;
 
 		virtual	void						clear();
-				void						writeContent(StringFile&file, size_t max_name_len, size_t max_value_len, const String&indent="") const;
+				void						writeContent(StringBuffer&, size_t max_name_len, size_t max_value_len, const String&indent="") const;
 				void						cleanup();	//!< Recursivly erases all empty sub contexts and modes
 				
 				void						retrieveMaxNameValueLength(size_t&name_len, size_t&value_len, size_t indent=0)	const;
 				
 		};
 		
-		class Container:public Context
+		class Container : public Context
 		{
 		protected:
-				String						error;
+			String							error;
 				
-				class Config:public Tokenizer::Configuration
-				{
-				public:
-											Config();
-				};
-		static	Config						configuration;
+			class Config:public Tokenizer::Configuration
+			{
+			public:
+				/**/						Config();
+			};
+			static Config					configuration;
 		
-		static	unsigned					GetDepth(const char*line);
+			static unsigned					GetDepth(const char*line);
 		
 				
 		public:
-											Container();
-											Container(const String&filename);
+			/**/							Container();
+			/**/							Container(const String&filename);
 											
-		static	bool						IsOperator(const String&string);
-				bool						loadFromFile(const String&filename);
-				bool						saveToFile(const String&filename);
-				bool						hasErrors()	const;
-				const String&				GetError()	const;
-				const String&				report() const {return GetError();}
-		virtual	void						clear();
+			static bool						IsOperator(const String&string);
+			bool							LoadFromFile(const String&filename);
+			bool							LoadFromFile(StringFile&file);
+			bool							SaveToFile(const String&filename);
+			void							SaveToFile(StringFile&file);
+			void							SaveToStringBuffer(StringBuffer&);
+			bool							HasErrors()	const;
+			const String&					GetError()	const;
+			const String&					Report() const {return GetError();}
+			virtual	void					Clear();
 		};
 		
 		

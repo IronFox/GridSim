@@ -417,21 +417,21 @@ namespace Config
 	}
 
 
-	void		Context::writeContent(StringFile&file, size_t name_len, size_t value_len, const String&indent) const
+	void		Context::writeContent(StringBuffer&buffer, size_t name_len, size_t value_len, const String&indent) const
 	{
 		for (index_t i = 0; i < attributes.count(); i++)
 		{
 			const Attribute*attrib = attributes[i];
 			if (attrib->commented)
-				file << "//";
-			file << indent << attrib->name;
+				buffer << "//";
+			buffer << indent << attrib->name;
 			count_t tabs = (name_len-attrib->name.length()-indent.length()*4)/4;
 			if ((name_len-attrib->name.length()-indent.length()*4)%4)
 				tabs++;
 			for (index_t i = 0; i <= tabs; i++)
-				file << '\t';
+				buffer << '\t';
 			
-			file<<attrib->assignment_operator<<"\t";
+			buffer<<attrib->assignment_operator<<"\t";
 			
 			size_t len = attrib->value.length();
 			if (!isBool(attrib->value.c_str()) && !isFloat(attrib->value.c_str()))
@@ -446,11 +446,11 @@ namespace Config
 						i++;
 					}
 				//std::cout << "'"<<value<<"'"<<std::endl;
-				file << "\""<<value<<"\"";
+				buffer << "\""<<value<<"\"";
 				len = value.length()+2;
 			}
 			else
-				file << attrib->value;
+				buffer << attrib->value;
 			
 			if (attrib->comment.length())
 			{
@@ -458,30 +458,30 @@ namespace Config
 				if ((value_len - len)%4)
 					tabs++;
 				for (index_t i = 0; i <= tabs; i++)
-					file << '\t';
-				file << "\t//"<<attrib->comment;
+					buffer << '\t';
+				buffer << "\t//"<<attrib->comment;
 			}
-			file << nl;
+			buffer << nl;
 		}
 		for (index_t i = 0; i < modes.count(); i++)
 		{
 			const Context*mode = modes[i];
 			if (mode->children == 1 && !mode->attributes.count() && !mode->modes.count())
 			{
-				file << indent << "["<<mode->name<<":"<<mode->children.first()->name<<"]"<<nl;
-				mode->children.first()->writeContent(file,name_len,value_len,indent+"\t");
+				buffer << indent << "["<<mode->name<<":"<<mode->children.first()->name<<"]"<<nl;
+				mode->children.first()->writeContent(buffer,name_len,value_len,indent+"\t");
 			}
 			else
 			{
-				file << indent << mode->name<<":"<<nl;
-				mode->writeContent(file,name_len,value_len,indent+"\t");
+				buffer << indent << mode->name<<":"<<nl;
+				mode->writeContent(buffer,name_len,value_len,indent+"\t");
 			}
 		}
 		for (index_t i = 0; i < children.count(); i++)
 		{
 			const Context*child = children[i];
-			file << indent << "["<<child->name<<"]"<<nl;
-			child->writeContent(file,name_len,value_len,indent+"\t");
+			buffer << indent << "["<<child->name<<"]"<<nl;
+			child->writeContent(buffer,name_len,value_len,indent+"\t");
 		}
 	}
 	
@@ -492,7 +492,7 @@ namespace Config
 	
 	Container::Container(const String&filename)
 	{
-		loadFromFile(filename);
+		LoadFromFile(filename);
 	
 	}
 	
@@ -532,7 +532,7 @@ namespace Config
 	}
 	
 	
-	void	Container::clear()
+	void	Container::Clear()
 	{
 		Context::clear();
 		error = "";
@@ -540,22 +540,27 @@ namespace Config
 	
 	LogFile	logfile("configuration.log",true);
 	
-	bool	Container::loadFromFile(const String&filename)
+	bool	Container::LoadFromFile(const String&filename)
+	{
+		StringFile file(CM_STRIP_COMMENTS|CM_RECORD_COMMENTS|CM_STRIP_LINE_START_COMMENTS);
+		if (!file.open(filename))
+		{
+			error = "File not found: "+filename;
+			return false;
+		}
+		return LoadFromFile(file);
+	}
+
+	bool	Container::LoadFromFile(StringFile&file)
 	{
 		clear();
 		List::ReferenceVector<Context>	stack_elements;
 		stack_elements.append(this);
 		
 		//logfile << "Now processing file "<<filename<<nl;
-		StringFile file(CM_STRIP_COMMENTS|CM_RECORD_COMMENTS|CM_STRIP_LINE_START_COMMENTS);
 		file.lineStartComment = ";";
 
 
-		if (!file.open(filename))
-		{
-			error = "File not found: "+filename;
-			return false;
-		}
 		bool errors = false;
 		String line;
 		StringList		tokens;
@@ -650,7 +655,7 @@ namespace Config
 	}
 	
 	
-	bool						Container::saveToFile(const String&filename)
+	bool						Container::SaveToFile(const String&filename)
 	{
 		StringFile	file;
 		if (!file.create(filename))
@@ -660,6 +665,13 @@ namespace Config
 		}
 		error = "";
 
+		SaveToFile(file);
+		return true;
+	}
+
+
+	void						Container::SaveToStringBuffer(StringBuffer&buffer)
+	{
 		time_t tt = time(NULL);
 		const tm*t = localtime(&tt);
 		char time_buffer[256];
@@ -684,11 +696,11 @@ namespace Config
 			}
 		}
 		
-		file << "/*";
-		file << nl;
+		buffer << "/*";
+		buffer << nl;
 		for (index_t i = 0; i < comments.count(); i++)
-			file << "; "<<comments[i]<<nl;
-		file << "*/"<<nl<<nl;
+			buffer << "; "<<comments[i]<<nl;
+		buffer << "*/"<<nl<<nl;
 		
 		size_t	name_len = 0,
 				value_len = 0;
@@ -698,12 +710,19 @@ namespace Config
 		if (value_len%4)
 			value_len += 4-(value_len%4);
 
-		Context::writeContent(file,name_len,value_len);
-		
-		return true;
+		Context::writeContent(buffer,name_len,value_len);
+	}
+
+
+	void						Container::SaveToFile(StringFile&file)
+	{
+		StringBuffer buffer;
+		SaveToStringBuffer(buffer);
+		file << buffer.ToStringRef();
+		//return true;
 	}
 	
-	bool						Container::hasErrors()	const
+	bool						Container::HasErrors()	const
 	{
 		return error.IsNotEmpty();
 	

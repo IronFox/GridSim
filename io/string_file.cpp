@@ -21,7 +21,7 @@ void StringFile::stripComments(String&str)
     index_t comment_start(1);
     while (true)
     {
-        if ((conversion_flags&CM_RECORD_COMMENTS) && in_comment)
+        if (/*(conversion_flags&CM_RECORD_COMMENTS) && */in_comment)
         {
             index_t at = str.indexOf(comment_end);
             if (at)
@@ -172,6 +172,8 @@ void StringFile::close()
 {
     if (f && fclose_on_destruct)
         fclose(f);
+    string = buffer;
+    end = string;
     f = NULL;
 }
 
@@ -207,9 +209,8 @@ bool StringFile::operator>>(String&target)
         if (string >= end)
         {
 			//log_file << "reached buffer end. reading "<<(e-buffer)<<" more bytes"<<nl;
-
             string = buffer;
-            end = string + fread(string,1,e-string,f);
+            end = string + (f != NULL ? fread(string,1,e-string,f) : 0);
             (*end) = 0;
             if (end <= string)
             {
@@ -276,6 +277,14 @@ StringFile& StringFile::operator<< (const String&line)
     if (!write_mode)
         return *this;
     awrite(line.c_str(),1,line.length(),f);
+    return *this;
+}
+
+StringFile& StringFile::operator<< (const StringRef&line)
+{
+    if (!write_mode)
+        return *this;
+    awrite(line.pointer(),1,line.length(),f);
     return *this;
 }
 

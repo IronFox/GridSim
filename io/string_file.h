@@ -65,12 +65,25 @@ virtual        ~StringFile();
         bool    isActive();							//!< Queries the current file state. \return true if a file is currently opened.
         bool    reset();							//!< Resets the file pointer to the beginning of the file. \return true on success.
 
+		/**
+		Loads temporary data into the local file for stream-processing.
+		@param data String data to parse. The specified string must be preserved until reading has finished
+		*/
+		void			LinkSourceData(String&data)
+		{
+			close();
+			string = data.mutablePointer();
+			end = string + data.length();
+			read_mode = true;
+		}
+
         StringFile&    operator<<(const char*);
         StringFile&    operator<<(const TNewLine&);
         StringFile&    operator<<(const TEndLine&);
         StringFile&    operator<<(const TSpace&);
         StringFile&    operator<<(const TTabSpace&);
         StringFile&    operator<<(const String&);
+        StringFile&    operator<<(const StringRef&);
         //StringFile&    operator<<(const String&);
         StringFile&    operator<<(char);
         StringFile&    operator<<(BYTE);
