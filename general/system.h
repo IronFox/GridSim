@@ -108,6 +108,7 @@ namespace System //! Translation namespace for common system tasks
 	public:
 							Pipe(DWORD size=0);						//!< Constructs a new pipe. \param size Pipe size in bytes. Only applicable when using windows. Set 0 for default.
 	virtual					~Pipe();
+
 			bool			write(const void*data, unsigned bytes);	 //!< Writes unformated data to the pipe \param data Pointer to the data to read from \param bytes Number of bytes to write to the pipe
 			bool			read(void*target, unsigned bytes);		  //!< Reads unformated data from the stream \param target Pointer to the data to write to \param bytes Number of bytes to read from the pipe
 		template <class C>
@@ -151,6 +152,9 @@ namespace System //! Translation namespace for common system tasks
 		#elif SYSTEM==UNIX
 			int				writeHandle()	const	{return handle[1];}
 		#endif
+
+		size_t				PeekReadBytes(void *target, size_t bytes);
+
 
 			bool			write(const void*data, unsigned bytes);	  //!< Writes unformated data to the pipe \param data Pointer to the data to read from \param bytes Number of bytes to write to the pipe
 			/*!
@@ -259,22 +263,22 @@ namespace System //! Translation namespace for common system tasks
 	class NamedPipeClient:public BlockingPipe //! System independent (blocking) named pipe handler
 	{
 	public:
-							NamedPipeClient();			   			//!< Constructs a new (blocking) named pipe client. The pipe is not automatically connected.
+		/**/				NamedPipeClient();			   			//!< Constructs a new (blocking) named pipe client. The pipe is not automatically connected.
 	
-			bool			connectTo(const char*pipe_name, unsigned timeout=500);
+		bool				ConnectTo(const char*pipe_name, unsigned timeout=500);
 	
-			bool			isActive()			const;					//!< Queries the current status of the named pipe
-			bool			isConnected()		const;					//!< Queries the current status of the named pipe
+		bool				IsActive()			const;					//!< Queries the current status of the named pipe
+		bool				IsConnected()		const;					//!< Queries the current status of the named pipe
 	};
 	class NamedPipeServer:public BlockingPipe //! System independent (blocking) named pipe handler
 	{
 	public:
-							NamedPipeServer();			   			//!< Constructs a new (blocking) named pipe client. The pipe is not automatically connected.
+		/**/				NamedPipeServer();			   			//!< Constructs a new (blocking) named pipe client. The pipe is not automatically connected.
 	
-			bool			start(const char*pipe_name);
-			void			acceptClient();								//!< Checks and connects any pending connection request. Blocks until a client has connected	
-			bool			isActive()			const;					//!< Queries the current status of the named pipe
-			bool			isConnected()		const;					//!< Queries the current status of the named pipe
+		bool				Start(const char*pipe_name);
+		void				AcceptClient();								//!< Checks and connects any pending connection request. Blocks until a client has connected	
+		bool				IsActive()			const;					//!< Queries the current status of the named pipe
+		bool				IsConnected()		const;					//!< Queries the current status of the named pipe
 	};
 
 	const char*				getFirstEnv(const char**field, unsigned len, const char*except);	//!< Returns the first non-NULL environment variable or \b except if no such could be found \param field Field containing key-names to check for \param len Number of entries in the name field \param except String to return if no matching key was found \return First non-NULL result of getenv(...) or \b except if none was found

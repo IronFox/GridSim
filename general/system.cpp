@@ -283,6 +283,19 @@ namespace System
         #endif
     }
 
+	size_t	BlockingPipe::PeekReadBytes(void *target, size_t bytes)
+	{
+		#if SYSTEM==WINDOWS
+			DWORD rs = 0;
+			BOOL rc = PeekNamedPipe(read_handle,target,bytes,&rs,NULL,NULL);
+			if (!rc)
+				return 0;
+			return rs;
+		#else
+			#error stub
+		#endif
+	}
+
     bool    BlockingPipe::read(void*target, unsigned bytes)
     {
         #if SYSTEM==WINDOWS
@@ -310,7 +323,7 @@ namespace System
 	}
 
 	
-	bool		NamedPipeClient::connectTo(const char*pipe_name, unsigned timeout)
+	bool		NamedPipeClient::ConnectTo(const char*pipe_name, unsigned timeout)
 	{
 		#if SYSTEM==WINDOWS
 			if (!WaitNamedPipeA(pipe_name , timeout))
@@ -327,7 +340,7 @@ namespace System
 	}
 	
 	
-	bool		NamedPipeClient::isActive()			const
+	bool		NamedPipeClient::IsActive()			const
 	{
 		#if SYSTEM==WINDOWS
 			return read_handle!=INVALID_HANDLE_VALUE;
@@ -336,9 +349,9 @@ namespace System
 		#endif
 	}
 	
-	bool		NamedPipeClient::isConnected()		const
+	bool		NamedPipeClient::IsConnected()		const
 	{
-		return isActive();
+		return IsActive();
 	}
 	
 	NamedPipeServer::NamedPipeServer():BlockingPipe(true)
@@ -347,7 +360,7 @@ namespace System
 	}
 
 	
-	bool		NamedPipeServer::start(const char*pipe_name)
+	bool		NamedPipeServer::Start(const char*pipe_name)
 	{
 		#if SYSTEM==WINDOWS
 			//read_handle = write_handle = CreateFileA(pipe_name , GENERIC_READ|GENERIC_WRITE ,  FILE_SHARE_WRITE|FILE_SHARE_READ , NULL , CREATE_NEW, FILE_ATTRIBUTE_NORMAL|FILE_FLAG_DELETE_ON_CLOSE, NULL); 
@@ -361,14 +374,14 @@ namespace System
 			return false;
 		#endif
 	}
-	void		NamedPipeServer::acceptClient()
+	void		NamedPipeServer::AcceptClient()
 	{
 		#if SYSTEM==WINDOWS
 			ConnectNamedPipe(read_handle,NULL);
 		#endif	
 	}
 	
-	bool		NamedPipeServer::isActive()			const
+	bool		NamedPipeServer::IsActive()			const
 	{
 		#if SYSTEM==WINDOWS
 			return read_handle!=INVALID_HANDLE_VALUE;
@@ -377,9 +390,9 @@ namespace System
 		#endif
 	}
 	
-	bool		NamedPipeServer::isConnected()		const
+	bool		NamedPipeServer::IsConnected()		const
 	{
-		return isActive();
+		return IsActive();
 	}
 
 
