@@ -287,7 +287,7 @@ namespace System
 	{
 		#if SYSTEM==WINDOWS
 			DWORD rs = 0;
-			BOOL rc = PeekNamedPipe(read_handle,target,bytes,&rs,NULL,NULL);
+			BOOL rc = PeekNamedPipe(read_handle,target,(DWORD)bytes,&rs,NULL,NULL);
 			if (!rc)
 				return 0;
 			return rs;
