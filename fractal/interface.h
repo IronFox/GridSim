@@ -213,7 +213,7 @@ namespace Fractal
 	
 		The fractal geometry is used to describe the rough geometry of a fractal shape. It may consist of only a singular triangle, or a sphere, or any shape as required.
 	*/
-	class	Geometry
+	class Geometry 
 	{
 	public:
 			typedef TVec3<>	Vertex;

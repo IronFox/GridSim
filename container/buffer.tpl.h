@@ -263,7 +263,7 @@ template <typename T, typename Strategy>
 	{
 		Strategy::destructRange(storage_begin,usage_end);
 		count_t	fill = other.usage_end-other.storage_begin;
-		if (storage_end-storage_begin != fill)
+		if (count_t(storage_end-storage_begin) < fill)
 		{
 			free(storage_begin);
 			try
@@ -279,10 +279,13 @@ template <typename T, typename Strategy>
 				#endif
 				throw;
 			}
+			storage_end = usage_end = storage_begin+fill;
 		}
+		else
+			usage_end = storage_begin+fill;
+
 		//	deloc(storage_begin);
 			//alloc(storage_begin,fill);
-		storage_end = usage_end = storage_begin+fill;
 		#if defined(_DEBUG) && __BUFFER_DBG_FILL_STATE__
 			fill_state = fill;
 			CHK_FILLSTATE
