@@ -1179,6 +1179,11 @@ namespace FileSystem
 		return IsFolder(name);
 	}
 
+	bool IsDirectory(const StringW&name)
+	{
+		return IsFolder(name);
+	}
+
 	bool IsFolder(const String&name)
 	{
 		#if SYSTEM==WINDOWS
@@ -1192,6 +1197,20 @@ namespace FileSystem
 		#endif
 	}
 
+	bool IsFolder(const StringW&name)
+	{
+		#if SYSTEM==WINDOWS
+			DWORD attribs = GetFileAttributesW(name.c_str());
+			return attribs != INVALID_FILE_ATTRIBUTES && (attribs&FILE_ATTRIBUTE_DIRECTORY);
+		#elif SYSTEM==UNIX
+			#error stub
+//			struct ::stat s;
+	//		return !stat(name.c_str(),&s) && (s.st_mode&S_IFDIR);
+		#else
+			#error not supported
+		#endif
+	}
+
 	bool IsFile(const String&name)
 	{
 		#if SYSTEM==WINDOWS
@@ -1200,6 +1219,20 @@ namespace FileSystem
 		#elif SYSTEM==UNIX
 			struct ::stat s;
 			return !stat(name.c_str(),&s) && !(s.st_mode&S_IFDIR);
+		#else
+			#error not supported
+		#endif
+	}
+
+	bool IsFile(const StringW&name)
+	{
+		#if SYSTEM==WINDOWS
+			DWORD attribs = GetFileAttributesW(name.c_str());
+			return attribs != INVALID_FILE_ATTRIBUTES && !(attribs&FILE_ATTRIBUTE_DIRECTORY);
+		#elif SYSTEM==UNIX
+			#error stub
+			//struct ::stat s;
+			//return !stat(name.c_str(),&s) && !(s.st_mode&S_IFDIR);
 		#else
 			#error not supported
 		#endif

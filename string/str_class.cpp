@@ -349,6 +349,11 @@ void ShowMessageW(const StringW&line)
 	displayMessageW(L"message",line);
 }
 
+void ShowMessageW(const wchar_t*line)
+{
+	displayMessageW(L"message",line);
+}
+
 
 void ErrMessageW(const wchar_t*line)
 {
