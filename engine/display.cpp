@@ -1516,14 +1516,20 @@ namespace Engine
 			return CallNextHookEx(hHook,nCode,wParam,lParam);
 		if (nCode == HC_ACTION)
 		{
+			bool uninstall = false;
 			switch (wParam)
 			{
-				case WM_LBUTTONUP:	uninstallHook();	mouse.buttonUp(0);				break;
-				case WM_MBUTTONUP:  uninstallHook();	mouse.buttonUp(1);				break;
-				case WM_RBUTTONUP:  uninstallHook();	mouse.buttonUp(2);				break;
-				case WM_XBUTTONUP:	uninstallHook();	mouse.buttonUp(HIWORD (wParam)==1?3:4);	break;
+				case WM_LBUTTONUP:	uninstall=true;	mouse.buttonUp(0);				break;
+				case WM_MBUTTONUP:  uninstall=true;	mouse.buttonUp(1);				break;
+				case WM_RBUTTONUP:  uninstall=true;	mouse.buttonUp(2);				break;
+				case WM_XBUTTONUP:	uninstall=true;	mouse.buttonUp(HIWORD (wParam)==1?3:4);	break;
 			}
-			return CallNextHookEx(hHook,nCode,wParam,lParam);
+			LRESULT rs = CallNextHookEx(hHook,nCode,wParam,lParam);
+
+			if (uninstall)
+				uninstallHook();
+
+			return rs;
 		
 		}
 		else
