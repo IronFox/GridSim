@@ -387,6 +387,11 @@ namespace FileSystem
 		MoveTo(folder_string);
 	}
 
+	Folder::Folder(const StringW&folder_string) : valid_location(true), absolute_folder(GetWorkingDirectory()), find_handle(NULL)
+	{
+		MoveTo(String(folder_string.c_str()));	//feeling lazy
+	}
+
 	Folder::Folder(const File&file):valid_location(false),find_handle(NULL)
 	{
 		locate(file.location);
@@ -1002,6 +1007,18 @@ namespace FileSystem
 			if (!getcwd(buffer,sizeof(buffer)))
 				return "";
 			return buffer;
+		#else
+			#error not supported
+		#endif
+	}
+
+	bool	SetWorkingDirectory(const StringW&path)
+	{
+		#if SYSTEM==WINDOWS
+			return !!SetCurrentDirectoryW(path.c_str());
+		#elif SYSTEM==UNIX
+			//return !chdir(path.c_str());
+			#error stub
 		#else
 			#error not supported
 		#endif

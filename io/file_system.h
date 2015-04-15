@@ -70,6 +70,7 @@ namespace FileSystem
 	String			WorkingDirectory(); 														//!< Returns the current working directory without trailing slash
 	String			GetWorkingDirectory(); 														//!< Identical to GetWorkingDirectory()
 	bool			SetWorkingDirectory(const String&path); 									//!< Sets the current working directory \param path new working directory
+	bool			SetWorkingDirectory(const StringW&path); 									//!< Sets the current working directory \param path new working directory
 	bool			SetWorkingDirectory(const Folder&folder); 										//!< Sets the current working directory \param folder new working directory
 	count_t			GetDriveList(Drive*target,count_t max);											//!< Queries system drives \param target Pointer to a drive field to write to \param max Number of entries in the drive field \return Total number of drives in the system
 	void			GetDriveList(Array<Drive>&out);													//!< Queries system drives \param target Reference to an array to write to
@@ -212,7 +213,7 @@ namespace FileSystem
 	/**
 		\brief Folder handle
 	*/
-	class Folder
+	class Folder 
 	{
 	public:
 			typedef File	File;			//!< File entry
@@ -237,6 +238,7 @@ namespace FileSystem
 
 								Folder();
 								Folder(const String&folder_string);
+								Folder(const StringW&folder_string);
 								Folder(const File&file);
 								Folder(const File*file);
 								Folder(const Folder&other);
