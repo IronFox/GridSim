@@ -226,7 +226,7 @@ template <class Nature>
 			{
 				F		fx = fabs(((F)x-half_width)/half_width),
 						fy = fabs(((F)y-half_height)/half_height),
-						fc = (fmax(fx,fy)+frame_width-1.0f)/frame_width;
+						fc = (std::max(fx,fy)+frame_width-1.0f)/frame_width;
 				if (fc < 0)
 					target.set4f(x,y,inner.v);
 				else

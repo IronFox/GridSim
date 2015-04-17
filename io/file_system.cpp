@@ -1648,7 +1648,7 @@ namespace FileSystem
 		return false;
 	}
 
-	String			getAbsolutePath(const String&relative_path)
+	String			GetAbsolutePath(const String&relative_path)
 	{
 		Folder	folder(GetWorkingDirectory());
 		File file;
@@ -1657,7 +1657,7 @@ namespace FileSystem
 		return relative_path;
 	}
 
-	String			getRelativePath(const String&origin, const String&destination)
+	String			GetRelativePath(const String&origin, const String&destination)
 	{
 		const char	*o = origin.c_str(),
 					*d = destination.c_str(),

@@ -227,7 +227,7 @@ template <class Entry, class Strategy>
 		Element*out = new_field.pointer();
 		while (section_begin != section_end)
 		{
-			out->adoptData(section_begin);
+			out->adoptData(*section_begin);
 			out++;
 			section_begin++;
 			//Strategy::move(*section_begin++,*out++);
