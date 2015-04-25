@@ -913,8 +913,8 @@ template <typename T, typename Strategy>
 	BasicBuffer<T, Strategy>&		BasicBuffer<T, Strategy>::moveAppend(T*data, count_t elements)
 	{
 		ensureHasSpace(elements);
-		for (index_t i = 0; i < elements; i++)
-			Strategy::move(data[i],*usage_end++);
+		Strategy::constructRangeFromFleetingData(usage_end,usage_end+elements,data);
+		usage_end += elements;
 		#if defined(_DEBUG) && __BUFFER_DBG_FILL_STATE__
 			fill_state+=elements;
 			CHK_FILLSTATE

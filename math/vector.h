@@ -663,6 +663,7 @@ namespace Math
 									{
 										SetMinAndMax(min_and_max);
 									}
+			/**/					Rect(const TFloatRange<T>&_x, const TFloatRange<T>&_y):x(_x),y(_y)	{}
 			template<typename T1>
 				/**/				Rect(const Rect<T1>&other)
 										:x(other.x),y(other.y)	{}
@@ -1124,7 +1125,7 @@ namespace Math
 	typedef Rect<float>	TFloatRect;
 
 	template <typename T>
-		Rect<T>			Rect<T>::Invalid = {TFloatRange<T>::Invalid, TFloatRange<T>::Invalid};
+		Rect<T>			Rect<T>::Invalid = Rect<T>(TFloatRange<T>::Invalid, TFloatRange<T>::Invalid);
 
 
 
