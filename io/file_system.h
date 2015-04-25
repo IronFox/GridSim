@@ -61,6 +61,7 @@ namespace FileSystem
 	ftime_t			GetModificationTime(const String&name);												//!< Returns the unix timestamp of the specified file \param name File name \return Unix timestamp
 	fsize_t			GetFileSize(const String&name);												//!< Returns the size (in bytes) of the specified file
 	bool			DoesExist(const String&path);												//!< Checks if the specified file or folder exists \param path File/folder name \return true if the specified file/folder exists, false otherwise
+	bool			IsFile(const char*path);													//!< Checks if the specified file exists \param path Filename \return true if the entry exists in the file system and is a file, false otherwise
 	bool			IsFile(const String&path);													//!< Checks if the specified file exists \param path Filename \return true if the entry exists in the file system and is a file, false otherwise
 	bool			IsFile(const StringW&path);													//!< Checks if the specified file exists \param path Filename \return true if the entry exists in the file system and is a file, false otherwise
 	bool			IsFolder(const String&path);												//!< Checks if the specified folder/directory exists (identical to IsDirectory()) \param path Folder name \return true if the entry exists in the file system and is a folder, false otherwise

@@ -1230,12 +1230,17 @@ namespace FileSystem
 
 	bool IsFile(const String&name)
 	{
+		return IsFile(name.c_str());
+	}
+
+	bool IsFile(const char*name)
+	{
 		#if SYSTEM==WINDOWS
-			DWORD attribs = GetFileAttributesA(name.c_str());
+			DWORD attribs = GetFileAttributesA(name);
 			return attribs != INVALID_FILE_ATTRIBUTES && !(attribs&FILE_ATTRIBUTE_DIRECTORY);
 		#elif SYSTEM==UNIX
 			struct ::stat s;
-			return !stat(name.c_str(),&s) && !(s.st_mode&S_IFDIR);
+			return !stat(name,&s) && !(s.st_mode&S_IFDIR);
 		#else
 			#error not supported
 		#endif
