@@ -232,6 +232,9 @@ namespace Math
 			};
 
 
+			static TFloatRange<T>	Invalid;
+
+
 			bool					IsValid() const { return max >= min; }
 
 			template <typename T1>
@@ -414,6 +417,9 @@ namespace Math
 
 		};
 
+	template <typename T=float>
+		TFloatRange<T>	TFloatRange<T>::Invalid = {TypeInfo<T>::max, TypeInfo<T>::min};
+
 
 	template <typename T=int>
 		class TIntRange
@@ -431,6 +437,8 @@ namespace Math
 				};
 				Type				extreme[2];
 			};
+
+			static TIntRange<T>		Invalid;
 
 
 			bool					IsValid() const { return end >= start; }
@@ -510,6 +518,8 @@ namespace Math
 									}
 		};
 
+	template <typename T=float>
+		TIntRange<T>	TIntRange<T>::Invalid = {TypeInfo<T>::max, TypeInfo<T>::min};
 
 
 
@@ -637,6 +647,8 @@ namespace Math
 				};
 				TFloatRange<T>		axis[2];
 			};
+
+			static Rect<T>			Invalid;
 
 			/**/					Rect(){}
 			/**/					Rect(const T&left, const T& bottom, const T& right, const T& top)
@@ -1110,6 +1122,9 @@ namespace Math
 		};
 	
 	typedef Rect<float>	TFloatRect;
+
+	template <typename T>
+		Rect<T>			Rect<T>::Invalid = {TFloatRange<T>::Invalid, TFloatRange<T>::Invalid};
 
 
 
