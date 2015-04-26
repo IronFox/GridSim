@@ -20,6 +20,17 @@ namespace Package
 								{}
 			/**/				NetString(const char*string):String(string)
 								{}
+
+			static bool			IsValid(const String&str)
+			{
+				for (index_t i = 0; i < str.length(); i++)
+					if (!validChar(str.get(i)))
+					{
+						//cout << "invalid char '"<<
+						return false;
+					}
+				return true;
+			}
 		
 			virtual	bool		Deserialize(IReadStream&in_stream, serial_size_t fixed_size)	override
 								{
@@ -37,13 +48,7 @@ namespace Package
 									bool result = String::Deserialize(in_stream,fixed_size);
 									if (!result)
 										return false;
-									for (index_t i = 0; i < length(); i++)
-										if (!validChar(get(i)))
-										{
-											//cout << "invalid char '"<<
-											return false;
-										}
-									return true;
+									return IsValid(*this);
 								}
 				
 				

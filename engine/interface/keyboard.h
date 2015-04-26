@@ -59,9 +59,11 @@ namespace Engine
 	public:
 			typedef void	(*charReader)	(char);
 			
+			
 			InputMap			&map;
 			bool				read;					//!< Species whether or not character inputs should be handled.
-			charReader			reader;					//!< Pointer to an external character handling function. Set NULL to internally handle character input (if \b read is set true)
+			charReader			reader,					//!< Pointer to an external character handling function. Set NULL to internally handle character input (if \b read is set true)
+								onCharHandled;			//!< Pointer to be notified when a char has been handled. Effective only if @a reader is NULL.
 
 
 								Keyboard(InputMap&map);

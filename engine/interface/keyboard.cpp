@@ -50,7 +50,11 @@ namespace Engine
 					if (reader)
 						reader(c);
 					else
+					{
 						buffer[buffer_len++] = c;
+						if (onCharHandled)
+							onCharHandled(c);
+					}
 				}
 			}
 		}
@@ -175,7 +179,7 @@ namespace Engine
 
 
 
-	Keyboard::Keyboard(InputMap&map_):block(false),buffer_len(0),map(map_),read(false),reader(NULL)
+	Keyboard::Keyboard(InputMap&map_):block(false),buffer_len(0),map(map_),read(false),reader(NULL),onCharHandled(NULL)
 	{
 		buffer[256] = 0;
 		resetTranslation();

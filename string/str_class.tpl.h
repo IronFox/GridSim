@@ -4421,7 +4421,7 @@ template <typename T0, typename T1, typename T2>
 				lines++;
 				if (word_begin == line_begin)
 				{
-					ASSERT_EQUAL__(word_width,line_width);
+					//ASSERT_EQUAL__(word_width,line_width);
 					T1 current = 0;
 					for(;;)
 					{
