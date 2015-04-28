@@ -113,12 +113,13 @@ namespace TCP
 		}
 		else
 		{
-			TInbound inbound;
+			TCommonEvent inbound;
+			inbound.type = TCommonEvent::Object;
 			inbound.object = object;
 			inbound.sender = sender;
 			inbound.receiver = receiver;
 			mutex.lock();
-				object_queue << inbound;
+				queue << inbound;
 			mutex.release();
 		}
 	}
@@ -153,12 +154,13 @@ namespace TCP
 		}
 		else
 		{
-			TEvent sevent;
+			TCommonEvent  sevent;
+			sevent.type = TCommonEvent::NetworkEvent;
 			sevent.event = event;
 			sevent.sender = peer;
 			synchronized(mutex)
 			{
-				event_queue << sevent;
+				queue << sevent;
 			}
 		}
 	}
@@ -172,12 +174,13 @@ namespace TCP
 		}
 		else
 		{
-			TSignal tsignal;
+			TCommonEvent tsignal;
+			tsignal.type = TCommonEvent::Signal;
 			tsignal.channel = signal;
 			tsignal.sender = peer;
 			synchronized(mutex)
 			{
-				signal_queue << tsignal;
+				queue << tsignal;
 			}
 		}
 	}
@@ -186,20 +189,24 @@ namespace TCP
 	void Dispatcher::Resolve()
 	{
 		mutex.lock();
-			TSignal signal;
-			while (signal_queue >> signal)
-				if (onSignal)
-					onSignal(signal.channel,signal.sender.Reference());
-			TInbound	inbound;
-			while (object_queue>>inbound)
+			TCommonEvent ev;
+			//TSignal signal;
+			while (queue >> ev)
 			{
-				inbound.receiver->Handle(inbound.object,inbound.sender);
-			}
-			TEvent		event;
-			while (event_queue>>event)
-			{
-				if (onEvent)
-					onEvent(event.event,event.sender.Reference());
+				switch (ev.type)
+				{
+					case TCommonEvent::NetworkEvent:
+						if (onEvent)
+							onEvent(ev.event,ev.sender.Reference());
+					break;
+					case TCommonEvent::Signal:
+						if (onSignal)
+							onSignal(ev.channel,ev.sender.Reference());
+					break;
+					case TCommonEvent::Object:
+						ev.receiver->Handle(ev.object,ev.sender);
+					break;
+				}
 			}
 		mutex.release();
 		FlushWaste();
@@ -218,9 +225,7 @@ namespace TCP
 	{
 		FlushWaste();
 		mutex.lock();
-			signal_queue.Clear();
-			object_queue.Clear();
-			event_queue.Clear();
+			queue.Clear();
 		mutex.release();
 	}
 	

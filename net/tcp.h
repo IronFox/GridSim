@@ -444,28 +444,53 @@ namespace TCP
 	{
 	protected:
 
-		struct TInbound
+		//struct TInbound
+		//{
+		//	PSerializableObject		object;
+		//	RootChannel				*receiver;
+		//	TDualLink				sender;
+		//};
+		//	
+		//struct TEvent
+		//{
+		//	event_t					event;
+		//	TDualLink				sender;
+		//};
+		//	
+		//struct TSignal
+		//{
+		//	UINT32					channel;
+		//	TDualLink				sender;
+		//};
+
+		struct TCommonEvent
 		{
-			PSerializableObject		object;
-			RootChannel				*receiver;
+			enum type_t
+			{
+				NetworkEvent,
+				Signal,
+				Object
+			};
+
+			type_t					type;
+
+			event_t					event;	//only if type==NetworkEvent
+
+			UINT32					channel;	//only if type==Signal
+
+			PSerializableObject		object;		//only if type==Object
+			RootChannel				*receiver;	//only if type==Object
+			
 			TDualLink				sender;
 		};
+
 			
-		struct TEvent
-		{
-			event_t					event;
-			TDualLink				sender;
-		};
-			
-		struct TSignal
-		{
-			UINT32					channel;
-			TDualLink				sender;
-		};
-			
-		Queue<TInbound>				object_queue;
-		Queue<TEvent>				event_queue;
-		Queue<TSignal>				signal_queue;
+		//Queue<TInbound>				object_queue;
+		//Queue<TEvent>				event_queue;
+		//Queue<TSignal>				signal_queue;
+		Queue<TCommonEvent>			queue;
+
+
 		Buffer0<PPeer>				wasteBucket;
 		Mutex						mutex,wasteMutex;
 		bool						async;
