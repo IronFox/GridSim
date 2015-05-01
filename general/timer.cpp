@@ -6,11 +6,6 @@
 Theoretically plattform independent time-query-class.
 Works under linux and windows so far.
 
-This file is part of Delta-Works
-Copyright (C) 2006-2008 Stefan Elsen, University of Trier, Germany.
-http://www.delta-works.org/forge/
-http://informatik.uni-trier.de/
-
 ******************************************************************/
 
 
@@ -22,13 +17,27 @@ Timer::Timer()
 {
     #if SYSTEM==WINDOWS
     
-        DWORD oldmask=SetThreadAffinityMask(GetCurrentThread(), 1);
+		DWORD_PTR	processMask,
+					systemMask;
+		GetProcessAffinityMask(GetCurrentProcess(),&processMask,&systemMask);
+		
+		if (processMask == 0)
+			processMask = 1;
+		int bit = 0;
+		if (((processMask>>bit)&1) == 0 && bit < 32)
+			bit++;
+		timerAffinityMask = 1<<bit;
+
+
+
+		HANDLE localThread = GetCurrentThread();
+        DWORD oldmask=SetThreadAffinityMask(localThread, timerAffinityMask);
         if (!QueryPerformanceFrequency((LARGE_INTEGER*)&frequency))
         {
             MessageBoxA(NULL,"not available", "timer-error",MB_OK);
             return;
         }
-        SetThreadAffinityMask(GetCurrentThread(), oldmask);
+        SetThreadAffinityMask(localThread, oldmask);
         dresolution = 1.0/(double)frequency;
         fresolution = (float)dresolution;
     #elif SYSTEM==UNIX
@@ -48,9 +57,10 @@ float Timer::getDeltaf()
 {
     Time   time,delta;
     #if SYSTEM==WINDOWS
-        DWORD oldmask=SetThreadAffinityMask(GetCurrentThread(), 1);
+		HANDLE localThread = GetCurrentThread();
+        DWORD oldmask=SetThreadAffinityMask(localThread, timerAffinityMask);
         QueryPerformanceCounter((LARGE_INTEGER*)&time);
-        SetThreadAffinityMask(GetCurrentThread(), oldmask);
+        SetThreadAffinityMask(localThread, oldmask);
     #elif SYSTEM==UNIX
         timeval t;
         gettimeofday(&t,NULL);

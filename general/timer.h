@@ -24,6 +24,9 @@ private:
 	double					dresolution;
 	UINT64					frequency,
 							lastcall;
+	#if SYSTEM==WINDOWS
+		DWORD				timerAffinityMask;
+	#endif
 public:
 	typedef UINT64			Time;				//!< Time container. Currently using unsigned 64 bit integers
 
