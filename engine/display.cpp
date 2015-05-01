@@ -1599,6 +1599,8 @@ namespace Engine
 				}
 			}
 			break;
+			case WM_QUERYENDSESSION:
+				return TRUE;
 			//case WM_DROPFILES:
 			//if (context.acceptDroppedFiles)
 			//{
@@ -1622,7 +1624,10 @@ namespace Engine
 			//break;
 			//case WM_PAINT:	DefWindowProc(hWnd, Msg, wParam, lParam);						return 0;
 			case WM_DESTROY:
-			case WM_CLOSE:	  context.eventClose();								   			return 0;
+			case WM_CLOSE:	  
+			case WM_ENDSESSION:
+				context.eventClose();								   			
+			return 0;
 			case WM_INPUT:
 			{
 				RAWINPUT input;
