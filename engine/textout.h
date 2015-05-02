@@ -53,7 +53,7 @@ namespace Engine
 						scale_y;			//!< Current font scale (height)
 			};
 		};
-			unsigned	line;				//!< Current line
+			float		lineOffset;				//!< Current line
 	};
 
 	/*
@@ -135,8 +135,9 @@ namespace Engine
 			void			PushColorState();
 			void			popState();												//!< Restores the current output status from the local stack
 			void			PopColorState();
-			void			line(unsigned line_index);								//!< Changes the active line. \param line_index Line to change to (0=first line)
-			unsigned		line()	const;											//!< Queries the current line index
+			void			SetLineOffset(float offset);
+			void			SetLine(int line_index);								//!< Changes the active line. \param line_index Line to change to (0=first line)
+			float			GetLineOffset()	const;									//!< Queries the current line offset (increased by newlines)
 
 			void			write(const char*str, size_t len);					//!< Prints a string segment with a predefined length @param str Pointer to an array of characters containing at least @b len characters @param len Number of characters to print
 			void			write(const char*str);

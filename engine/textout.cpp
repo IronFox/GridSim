@@ -19,14 +19,14 @@ namespace Engine
 		state.depth = 0;
 	    state.x_scale = 1;
 	    state.y_scale = 1;
-	    state.line = 0;
+	    state.lineOffset = 0;
 		state.indent = 0;
 	}
 
 	void VirtualTextout::newLine()
 	{
 		state.indent = 0;
-		state.line++;
+		state.lineOffset += getScaledHeight();
 	}
 
 	void	VirtualTextout::color(const TVec3<>&color)
@@ -116,7 +116,7 @@ namespace Engine
 	    state.left += x;
 	    state.top += y;
 		state.depth += z;
-		state.line = 0;
+		state.lineOffset = 0;
 		state.indent = 0;
 	}
 
@@ -126,7 +126,7 @@ namespace Engine
 	    state.left = x;
 	    state.top = y;
 		state.depth = z;
-		state.line = 0;
+		state.lineOffset = 0;
 		state.indent = 0;
 	}
 
@@ -186,14 +186,19 @@ namespace Engine
 	    ((TFontColor&) state) = colorStack[--colorStackDepth];
 	}
 	
-	void VirtualTextout::line(unsigned line_)
+	void VirtualTextout::SetLine(int line_)
 	{
-	    state.line = line_;
+	    state.lineOffset = float(line_) * getScaledHeight();
 	}
 
-	unsigned VirtualTextout::line()	const
+	void VirtualTextout::SetLineOffset(float offset)
 	{
-	    return state.line;
+	    state.lineOffset = offset;
+	}
+
+	float VirtualTextout::GetLineOffset()	const
+	{
+	    return state.lineOffset;
 	}
 
 	
@@ -215,7 +220,7 @@ namespace Engine
 			at+=len;
 			if (at<end)
 			{
-				state.line++;
+				state.lineOffset += getScaledHeight();
 				endOutput();
 				beginOutput();
 				at++;
@@ -239,7 +244,7 @@ namespace Engine
 	        at+=len;
 	        if (*at)
 	        {
-	            state.line++;
+	            state.lineOffset+=getScaledHeight();
 	            endOutput();
 	            beginOutput();
 	            at++;
@@ -272,7 +277,7 @@ namespace Engine
 	        at+=l;
 	        if ((*at) == '\n')
 	        {
-	            state.line++;
+	            state.lineOffset += getScaledHeight();
 	            endOutput();
 	            beginOutput();
 	            alterColor(color_state);
@@ -319,25 +324,25 @@ namespace Engine
 	void VirtualTextout::writeln(const char*str)
 	{
 		write(str);
-		state.line++;
+		state.lineOffset += getScaledHeight();
 	}
 
 	void VirtualTextout::writeln(const String&str)
 	{
 		write(str);
-		state.line++;
+		state.lineOffset += getScaledHeight();
 	}
 
 	void VirtualTextout::writeTaggedLine(const char*str, char tag)
 	{
 		writeTagged(str,tag);
-		state.line++;
+		state.lineOffset += getScaledHeight();
 	}
 
 	void VirtualTextout::writeTaggedLine(const String&str, char tag)
 	{
 		writeTagged(str,tag);
-		state.line++;
+		state.lineOffset += getScaledHeight();
 	}
 	
 	float VirtualTextout::getUnscaledWidth(const String&line)

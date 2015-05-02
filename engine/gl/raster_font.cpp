@@ -183,7 +183,13 @@ namespace Engine
 	    glDisable(GL_TEXTURE_2D);
 	    glPushMatrix();
 	        // glTranslatef(state.left,state.top-(float)(state.line*font_size),state.depth);
-	        glTranslatef(state.left+state.indent,state.top-(float)(state.line*state.y_scale*height),state.depth);
+	        glTranslatef(state.left+state.indent,state.top
+			-
+			
+			//(float)(state.line*state.y_scale*height)
+			state.lineOffset
+			
+			,state.depth);
 	        glColor4fv(state.v);
 	        glRasterPos2f(0,0);
 	        glPushAttrib(GL_LIST_BIT|GL_POLYGON_BIT);

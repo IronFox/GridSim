@@ -106,7 +106,11 @@ namespace Engine
 	    glDisable(GL_TEXTURE_2D);
 	    glPushMatrix();
 	    
-	        glTranslatef(state.left+state.indent,state.top-(float)(state.line*state.y_scale*internal_scale*font_size),state.depth);
+	        glTranslatef(state.left+state.indent,
+			state.top-
+			state.lineOffset,
+			//(float)(state.line*state.y_scale*internal_scale*font_size),
+			state.depth);
 			//glTranslatef(0.5,0.5,0);
 	        //glTranslatef(state.left+state.indent,state.top,state.depth);
 	        glScalef(state.x_scale * internal_scale* font_size,state.y_scale * internal_scale*font_size,1);

@@ -83,8 +83,10 @@ namespace Engine
 	{
 	    glPushMatrix();
 	        glTranslatef(state.left+state.indent,state.top,state.depth);
+	        glTranslatef(0,-state.lineOffset,0);
 	        glScalef(state.x_scale,state.y_scale,1);
-	        glTranslatef(0,-(float)state.line-1,0);
+	        glTranslatef(0,-1,0);
+//	        glTranslatef(0,-(float)state.line-1,0);
 	        glColor4fv(state.v);
 	        glPushAttrib(GL_LIST_BIT);
 	    	glListBase(base);
