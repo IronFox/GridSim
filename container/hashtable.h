@@ -221,6 +221,7 @@ template <class Carrier>
 			inline size_t					totalSize()							const;	//!< Returns the total size of the set/table in bytes. \return Total size of the local set/table in bytes.
 			inline GenericHashBase<Carrier>&operator=(const GenericHashBase<Carrier>&other);
 			inline size_t					count()								const;	//!< Returns the number of entries currently stored in the set/table. \return Number of entries in the set/table.
+			inline size_t					Count()								const	/**@copydoc count()*/	{return count();}
 			inline operator 				size_t()							const;	//!< Implicit conversion to size_t. \return Returns the number of entries in the set/table.
 			inline	void					clear();									//!< Resizes back to the initial set size and un-occupies all carriers. If no resizing took place then the respective objects are not reinitialized.
 			inline	bool					isEmpty()							const	/**!< Checks if the local table is empty**/	{return entries ==0;}
