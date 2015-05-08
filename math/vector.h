@@ -97,6 +97,10 @@ namespace Math
 				};
 				struct
 				{
+					TVec2<T>	rg;
+				};
+				struct
+				{
 					Type		x_;
 					TVec2<T>	yz;
 				};
@@ -127,6 +131,10 @@ namespace Math
 				struct
 				{
 					TVec2<T>	xy,zw;
+				};
+				struct
+				{
+					TVec2<T>	rg,ba;
 				};
 				struct
 				{
