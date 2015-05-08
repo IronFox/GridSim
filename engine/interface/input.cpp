@@ -22,6 +22,14 @@ namespace Engine
 	
 	
 	
+	void InputMap::ReleasePressedKeys()
+	{
+		for (unsigned i = 0; i < NumKeys; i++)
+			if (pressed[i])
+				keyUp((Key::Name)i);
+	}
+
+
 	
 	void InputMap::cascadeKeyDown(unsigned index)
 	{

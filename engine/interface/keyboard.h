@@ -39,7 +39,7 @@ namespace Engine
 			char				buffer[0x100],
 								translation[0x100];
 			bool				block;
-			Timer::Time		block_start;
+			Timer::Time			block_start;
 			float				block_len;
 			BYTE				buffer_len,
 								on_char_input;
@@ -84,6 +84,7 @@ namespace Engine
 			void				allow(const char*characters);		//!< Modifies the internal input character translation to allow the specified characters. \param characters Characters to allow. Non-specified character translations are not modified.
 			void				disallow(const char*characters);			//!< Modifies the internal input character translation to disallow the specified characters. \param characters Characters to block. Non-specified character translations are not modified.
 			void				translate(const char*from, const char*to);	//!< Modifies the internal input character translation. \param from Character field to translate from \param to Character field to translate to. Must be of the same length as \b from.
+	
 	};
 
 

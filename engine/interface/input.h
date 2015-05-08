@@ -122,44 +122,45 @@ namespace Engine
 			
 	public:
 								InputMap();
-	virtual						~InputMap();
+		virtual					~InputMap();
 
-			void				bind(Key::Name key, const std::function<void()>& down_handler);						//!< Binds the specified event handler to the specified key. \param key Index of the key to bind. \param down_handler Pointer to a function to execute if the specified key has been pressed
-			void				bind(Key::Name key, const std::function<void()>& down_handler, const std::function<void()>& up_handler);				//!< Binds the specified event handlers to the specified key. \param key Index of the key to bind. \param down_handler Pointer to a function to execute if the specified key has been pressed. \param up_handler Pointer to a function to execute if the specified key has been released.
-			void				bindCtrl(Key::Name key, const std::function<void()>& ctrl_handler);									//!< Binds the specified event handler to the specified key (+ctrl). \param key Index of the key to bind. \param ctrl_handler Pointer to a function to execute if the specified key has been pressed in combination with the ctrl key.
-			void				unbind(Key::Name key);																//!< Removes all bound event handlers from the specified key. \param key Index of the key to unbind.
-			void				cascade(Key::Name key);																//!< Sets the key to auto cascade incoming key down and up events to stacked profiles. \param key Index of the key to cascade.
-			void				resetKeys();																		//!< Unbinds all keys.
-			void				cascadeKeys();																		//!< Binds all keys so that their event is forwarded to the profile stack
-			void				regInit();																			//!< Resets key registration
-			void				regKey(const String&name, const std::function<void()>& down_handler, Key::Name key);						//!< Registers a key command for import. \param name Name of the command. \param down_handler Pointer to a function to execute if the specified key has been pressed. \param key Index of the key to default to if the command is not bound.
-			void				regKey(const String&name, const std::function<void()>& down_handler, const std::function<void()>& up_handler, Key::Name key);				//!< Registers a key command for import. \param name Name of the command. \param down_handler Pointer to a function to execute if the specified key has been pressed. \param up_handler Pointer to a function to execute if the specified key has been released. \param key Index of the key to default to if the command is not bound.
-			void				linkKey(const String&name, Key::Name key);																//!< Link a registered command to the specified key. The method returns if the specified command was not registered. After execution the specified key will be bound to registered function pointer(s). \param name Name of the command to link. \param key Index of the key to link to.
-			void				linkOthers();								//!< Links all non linked commands to their respective default keys
-								/*!
-									\brief Links all commands/keys found in the specified group in the currently loaded configuration file.
-									\param group_name Configuration group name to scan for key binds.
+		void					bind(Key::Name key, const std::function<void()>& down_handler);						//!< Binds the specified event handler to the specified key. \param key Index of the key to bind. \param down_handler Pointer to a function to execute if the specified key has been pressed
+		void					bind(Key::Name key, const std::function<void()>& down_handler, const std::function<void()>& up_handler);				//!< Binds the specified event handlers to the specified key. \param key Index of the key to bind. \param down_handler Pointer to a function to execute if the specified key has been pressed. \param up_handler Pointer to a function to execute if the specified key has been released.
+		void					bindCtrl(Key::Name key, const std::function<void()>& ctrl_handler);									//!< Binds the specified event handler to the specified key (+ctrl). \param key Index of the key to bind. \param ctrl_handler Pointer to a function to execute if the specified key has been pressed in combination with the ctrl key.
+		void					unbind(Key::Name key);																//!< Removes all bound event handlers from the specified key. \param key Index of the key to unbind.
+		void					cascade(Key::Name key);																//!< Sets the key to auto cascade incoming key down and up events to stacked profiles. \param key Index of the key to cascade.
+		void					resetKeys();																		//!< Unbinds all keys.
+		void					cascadeKeys();																		//!< Binds all keys so that their event is forwarded to the profile stack
+		void					regInit();																			//!< Resets key registration
+		void					regKey(const String&name, const std::function<void()>& down_handler, Key::Name key);						//!< Registers a key command for import. \param name Name of the command. \param down_handler Pointer to a function to execute if the specified key has been pressed. \param key Index of the key to default to if the command is not bound.
+		void					regKey(const String&name, const std::function<void()>& down_handler, const std::function<void()>& up_handler, Key::Name key);				//!< Registers a key command for import. \param name Name of the command. \param down_handler Pointer to a function to execute if the specified key has been pressed. \param up_handler Pointer to a function to execute if the specified key has been released. \param key Index of the key to default to if the command is not bound.
+		void					linkKey(const String&name, Key::Name key);																//!< Link a registered command to the specified key. The method returns if the specified command was not registered. After execution the specified key will be bound to registered function pointer(s). \param name Name of the command to link. \param key Index of the key to link to.
+		void					linkOthers();								//!< Links all non linked commands to their respective default keys
+							/*!
+								\brief Links all commands/keys found in the specified group in the currently loaded configuration file.
+								\param group_name Configuration group name to scan for key binds.
 
-									readFromCFG() attempts to read key command bindings from the currently loaded ConfigFile class 'config'.
-								*/
-			void				readFromCFG(const String&group_name);
+								readFromCFG() attempts to read key command bindings from the currently loaded ConfigFile class 'config'.
+							*/
+		void					readFromCFG(const String&group_name);
 			
 			
 								/*!	\brief Activates the specified profile
 									\param profile Reference to the binding profile to use.
 									
 									 Activates the specified binding profile. Any succeeding bind() or linkKey() calls will affect the now active profile.	*/
-			void				chooseProfile(InputProfile&profile);			
-			void				bindProfile(InputProfile&profile);		//!< Identical to chooseProfile()
-			void				activateProfile(InputProfile&profile);	//!< Identical to chooseProfile()
-			InputProfile*		currentProfile();					//!< Retrieves the currently bound profile
-			void				pushProfile();						//!< Pushes the currently active profile to the stack.
-			void				popProfile();						//!< Pops the most recently pushed profile from the stack, replacing the currently active one.
+		void					chooseProfile(InputProfile&profile);			
+		void					bindProfile(InputProfile&profile);		//!< Identical to chooseProfile()
+		void					activateProfile(InputProfile&profile);	//!< Identical to chooseProfile()
+		InputProfile*			currentProfile();					//!< Retrieves the currently bound profile
+		void					pushProfile();						//!< Pushes the currently active profile to the stack.
+		void					popProfile();						//!< Pops the most recently pushed profile from the stack, replacing the currently active one.
 			
 			
-			void				RegAnalog(const String&name, float&resource, float min, float max);	//!< Registers a new analog resource by the given name \param name Name of the new resource \param resource Reference to the float variable containing the current resource status \param min Minimum value of this resource \param max Maximum value of this resource
-			void				UnregAnalog(const String&name);
-			TAnalogSource*		FindAnalog(const String&name);											//!< Attempts to locate an analog input source by the specified name. \return Reference to a matching analog source or NULL if no such match was found
+		void					RegAnalog(const String&name, float&resource, float min, float max);	//!< Registers a new analog resource by the given name \param name Name of the new resource \param resource Reference to the float variable containing the current resource status \param min Minimum value of this resource \param max Maximum value of this resource
+		void					UnregAnalog(const String&name);
+		TAnalogSource*			FindAnalog(const String&name);											//!< Attempts to locate an analog input source by the specified name. \return Reference to a matching analog source or NULL if no such match was found
+		void					ReleasePressedKeys();
 	};
 	
 	

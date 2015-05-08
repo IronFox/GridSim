@@ -33,6 +33,7 @@ namespace Engine
 		return c;
 	}
 
+
 	void Keyboard::input(char c)
 	{
 		if (read)

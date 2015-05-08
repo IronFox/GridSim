@@ -1271,6 +1271,7 @@ namespace Engine
 		#endif
 		_focused = false;
 		mouse.looseFocus();
+		input.ReleasePressedKeys();
 	}
 
 	void Context::assign(pEngineExec target)
