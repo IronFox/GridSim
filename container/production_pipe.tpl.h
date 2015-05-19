@@ -41,7 +41,8 @@ template <typename T,typename Strategy>
 	inline WorkPipe<T,Strategy>&    WorkPipe<T,Strategy>::operator<<(const T&pntr)
 	{
 		mutex.lock();
-		Super::Append(pntr);
+			Super::Append(pntr);
+			contentSignal.signal();
 		mutex.release();
 		return *this;
 	}
@@ -49,7 +50,8 @@ template <typename T,typename Strategy>
 	inline WorkPipe<T,Strategy>&    WorkPipe<T,Strategy>::MoveAppend(T&pntr)
 	{
 		mutex.lock();
-		Super::MoveAppend(pntr);
+			Super::MoveAppend(pntr);
+			contentSignal.signal();
 		mutex.release();
 		return *this;
 	}
@@ -59,6 +61,7 @@ template <typename T,typename Strategy>
 	{
 		mutex.lock();
 			Super::MoveAppend(buffer);
+			contentSignal.signal();
 		mutex.release();
 		return *this;
 	}
@@ -69,7 +72,7 @@ template <typename T,typename Strategy>
 	inline void WorkPipe<T,Strategy>::clear()
 	{
 		mutex.lock();
-		Super::clear();
+			Super::clear();
 		mutex.release();
 	}
 

@@ -4,6 +4,7 @@
 #include "node.h"
 #include "../container/buffer.h"
 #include "../io/byte_stream.h"
+#include "../container/production_pipe.h"
 
 #include <thread>
 #include <sstream>
@@ -636,18 +637,86 @@ namespace TCP
 		}
 	};
 
+
+
+	class PeerWriter : public TCPThreadObject
+	{
+		WorkPipe<Array<BYTE> >		pipe;
+		SocketAccess				*volatile access;
+	public:
+		bool						connectionLost;
+		Peer						*const parent;
+		
+		/**/						PeerWriter(Peer*parent):access(nullptr),connectionLost(false),parent(parent){}
+
+		void						Begin(SocketAccess*access);
+		void						Update(SocketAccess*access);
+		void						Terminate();
+
+		void						ThreadMain() override;			//!< Socket write thread main
+
+
+		bool						Write(UINT32 channel, const ISerializable&s)
+		{
+			if (connectionLost)
+				return false;
+			serial_size_t size = s.GetSerialSize(false);
+			Array<BYTE>	data(8 + size);
+			(*(UINT32*)data.pointer()) = channel;
+			(*(((UINT32*)data.pointer())+1)) = (UINT32)size;
+
+			serial_size_t actual;
+			SerializeToMemory(s,data.pointer()+8,size,false,&actual);
+			ASSERT_EQUAL__(actual,size);
+			pipe.MoveAppend(data);
+			return true;
+		}
+		bool						Write(UINT32 channel, const void*rawData, size_t numBytes)
+		{
+			if (connectionLost)
+				return false;
+			Array<BYTE>	data(8 + numBytes);
+			(*(UINT32*)data.pointer()) = channel;
+			(*(((UINT32*)data.pointer())+1)) = (UINT32)numBytes;
+			memcpy(data.pointer()+8,rawData,numBytes);
+			pipe.MoveAppend(data);
+			return true;
+		}
+
+		bool						Write(const Array<BYTE>&packet)
+		{
+			if (connectionLost)
+				return false;
+			pipe << packet;
+			return true;
+		}
+
+		bool						WriteSignal(UINT32 signal)
+		{
+			if (connectionLost)
+				return false;
+			Array<BYTE>	data(8);
+			(*(UINT32*)data.pointer()) = signal;
+			(*(((UINT32*)data.pointer())+1)) = (UINT32)0;
+			pipe.MoveAppend(data);
+			return true;
+		}
+
+	};
+
 	
 	/**
-		@brief TCP socket handler
+	@brief TCP socket handler
 		
-		A peer handles incoming and outgoing packages from/to a specific IP address over a specific socket handle. A server would manage one peer structure per client, a client would inherit from Peer.
+	A peer handles incoming and outgoing packages from/to a specific IP address over a specific socket handle. A server would manage one peer structure per client, a client would inherit from Peer.
 	
 	*/
-	class Peer : public TCPThreadObject, protected IReadStream, protected IWriteStream, public Destination //, public IToString
+	class Peer : public TCPThreadObject, protected IReadStream, /*protected IWriteStream, */public Destination //, public IToString
 	{
 	protected:
+		PeerWriter					writer;
 		Connection					*owner;			//!< Pointer to the owning connection to handle incoming packages and report errors to
-		Mutex						write_mutex,	//!< Mutex to synchronize socket write operations
+		Mutex						//write_mutex,	//!< Mutex to synchronize socket write operations
 									counter_mutex;	//!< Currently not in use
 		//volatile SOCKET				socket_handle;	//!< Handle to the occupied socket
 		serial_size_t				remaining_size,			//!< Size remaining for reading streams 
@@ -658,13 +727,14 @@ namespace TCP
 		const bool					canDoSharedFromThis;
 		friend class Server;
 		friend class RootChannel;
+		friend class PeerWriter;
 			
 		void						ThreadMain() override;			//!< Socket read thread main
-		bool						sendData(UINT32 channel_id, const void*data, size_t size);	//!< Sends raw data to the TCP stream
+		bool						sendData(UINT32 channel_id, const void*data, size_t size);	//!< Sends raw data to the TCP stream. Used by server
 		bool						succeeded(int result, size_t desired);							//!< Handles the result of a TCP socket send operation. @param result Actual value returned by send() @param desired Valued expected to be returned by send() @return true if both values match, false otherwise. The connection is automatically closed, events triggered and error values set if the operation failed.
 		void						handleUnexpectedSendResult(int result);
 		bool						Read(void*target, serial_size_t size) override;								//!< IInStream override for direct TCP stream input
-		bool						Write(const void*target, serial_size_t size) override;						//!< IOutStream override for direct TCP stream output
+		//bool						Write(const void*target, serial_size_t size) override;						//!< IOutStream override for direct TCP stream output
 		serial_size_t				GetRemainingBytes() const override;
 		bool						netRead(BYTE*current, size_t size);							//!< Continuously reads a sequence of bytes from the TCP stream. The method does not return until either the requested amount of bytes was received or an error occured
 			
@@ -707,25 +777,29 @@ namespace TCP
 		bool						destroyed;
 		
 				
-		/**/						Peer(Connection*connection, bool canDoSharedFromThis):owner(connection),socketAccess(new DefaultSocketAccess()),userLevel(User::Anonymous),canDoSharedFromThis(canDoSharedFromThis),destroyed(false)
+		/**/						Peer(Connection*connection, bool canDoSharedFromThis):owner(connection),socketAccess(new DefaultSocketAccess()),
+									userLevel(User::Anonymous),canDoSharedFromThis(canDoSharedFromThis),destroyed(false),
+									writer(this)
 									{
 										memset(&address,0,sizeof(address));
 										ASSERT_NOT_NULL__(owner);
+										writer.Begin(socketAccess);
 									}
 		virtual						~Peer()
 									{
+										writer.Terminate();
 										ASSERT_NOT_NULL__(socketAccess);
 										ASSERT__(socketAccess->IsClosed());
 										SocketAccess*a = socketAccess;
 										socketAccess = nullptr;
 										if (a)
 											delete a;
-
 									}
 		bool						Destroy()
 									{
 										if (!destroyed)
 										{
+											writer.Terminate();
 											destroyed = true;
 											Disconnect();
 											return true;
@@ -741,12 +815,14 @@ namespace TCP
 										ASSERT__(socketAccess->IsClosed());
 										delete socketAccess;
 										socketAccess = new SocketAccessClass();
+										writer.Update(socketAccess);
 									}
 		void						SetCloneOfSocketAccess(SocketAccess*access)
 									{
 										ASSERT__(socketAccess->IsClosed());
 										delete socketAccess;
 										socketAccess = access->CloneClass();
+										writer.Update(socketAccess);
 									}
 
 		void						Disconnect();			//!< Disconnects the local peer. If this peer is element of a peer collection (ie. a Server instance) then the owner is automatically notified that the client on this peer is no longer available. The local data is erased immediately if the respective dispatcher is set to @b async, or when its resolve() method is next executed.

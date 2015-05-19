@@ -482,18 +482,19 @@ namespace TCP
 	{
 		if (socketAccess->IsClosed())
 			return false;
-		UINT32 size32 = (UINT32)size;
-		synchronized(write_mutex)
-		{
+		return writer.Write(channel_id,data,size);
+		//UINT32 size32 = (UINT32)size;
+		//synchronized(write_mutex)
+		//{
 
-			if (socketAccess->Write(&channel_id,4)!=4)
-				return false;
-			if (socketAccess->Write(&size32,4)!=4)
-				return false;
-			if (socketAccess->Write(data,size)!=(int)size)
-				return false;
-		}
-		return true;
+		//	if (socketAccess->Write(&channel_id,4)!=4)
+		//		return false;
+		//	if (socketAccess->Write(&size32,4)!=4)
+		//		return false;
+		//	if (socketAccess->Write(data,size)!=(int)size)
+		//		return false;
+		//}
+		//return true;
 	}
 	
 	
@@ -564,100 +565,124 @@ namespace TCP
 	}
 
 	
-	/*virtual override*/ bool	Peer::Write(const void*target, serial_size_t size)
-	{
-		if (verbose)
-			std::cout << "Peer::write() enter"<<std::endl;
-		if (!size)
-			return true;
-		if (verbose)
-			std::cout << "Peer::write(): sending "<<size<<" byte(s)"<<std::endl;
-		if (size > remaining_write_size)
-		{
-			FATAL__("Send-size ("+String(size)+" byte(s)) exceeds remaining available write size ("+String(remaining_write_size)+" byte(s))");
-		}
-		if (!succeeded(socketAccess->Write(target,size),size))
-		{
-			if (verbose)
-				std::cout << "Peer::write(): failed to write data to socket"<<std::endl;
-			return false;
-		}
-		remaining_write_size -= size;
-		if (verbose)
-			std::cout << "Peer::write() exit: "<<remaining_write_size<<" byte(s) remaining to write"<<std::endl;
-		return true;
-	}
+	///*virtual override*/ bool	Peer::Write(const void*target, serial_size_t size)
+	//{
+	//	if (verbose)
+	//		std::cout << "Peer::write() enter"<<std::endl;
+	//	if (!size)
+	//		return true;
+	//	if (verbose)
+	//		std::cout << "Peer::write(): sending "<<size<<" byte(s)"<<std::endl;
+	//	if (size > remaining_write_size)
+	//	{
+	//		FATAL__("Send-size ("+String(size)+" byte(s)) exceeds remaining available write size ("+String(remaining_write_size)+" byte(s))");
+	//	}
+	//	if (!succeeded(socketAccess->Write(target,size),size))
+	//	{
+	//		if (verbose)
+	//			std::cout << "Peer::write(): failed to write data to socket"<<std::endl;
+	//		return false;
+	//	}
+	//	remaining_write_size -= size;
+	//	if (verbose)
+	//		std::cout << "Peer::write() exit: "<<remaining_write_size<<" byte(s) remaining to write"<<std::endl;
+	//	return true;
+	//}
 	
 	static BYTE	dump_buffer[2048];
 	bool	Peer::SendObject(UINT32 channel_id, const ISerializable&object)
 	{
-		if (verbose)
-			std::cout << "Peer::sendObject() enter: channel_id="<<channel_id<<std::endl;
-		if (socketAccess->IsClosed())
-		{
-			if (verbose)
-				std::cout << "Peer::sendObject() exit: socket handle reset by remote operation"<<std::endl;
+		if (writer.connectionLost)
 			return false;
-		}
-		UINT32 size32 = (UINT32)object.GetSerialSize(false);
-		if (verbose)
-			std::cout << "Peer::sendObject() exit: package size determined as "<<size32<<" byte(s)"<<std::endl;
-		softsync(write_mutex)
+		writer.Write(channel_id,object);
+		return !writer.connectionLost;
+	}
+
+
+	void						PeerWriter::Begin(SocketAccess*access)
+	{
+		this->access = access;
+		this->Start();
+	}
+
+	void						PeerWriter::Update(SocketAccess*access)
+	{
+		this->access = access;
+	}
+	void						PeerWriter::Terminate()
+	{
+		access = nullptr;
+		connectionLost = true;
+		pipe.clear();
+		pipe.OverrideSignalNow();
+		this->Join();
+	}
+
+
+	void	PeerWriter::ThreadMain()
+	{
+		Buffer<Array<BYTE>,0,Swap>	storage;
+		for (;;)
 		{
-			serial_buffer.Clear();
-			serial_buffer << (UINT32)channel_id;
-			serial_buffer << (UINT32)0;
-			bool did_serialize = object.Serialize(serial_buffer,false);
-			bool did_write = false;
-			if (did_serialize)
+			if (access && !connectionLost)
+				pipe.WaitForContent();
+			if (!access || connectionLost || pipe.IsEmpty())
 			{
-				UINT32*data = (UINT32*)serial_buffer.data();
-				data[1] = (UINT32)(serial_buffer.GetFillLevel() - 8);
-
-				int rs = socketAccess->Write(serial_buffer.data(),serial_buffer.GetFillLevel());
-				if (rs <= 0)
-				{
-					if (verbose)
-						std::cout << "Peer::sendObject() exit: failed to send package chunk"<<std::endl;
-					handleUnexpectedSendResult(rs);
-					return false;
-				}
-
-
+				connectionLost = true;
+				access = nullptr;
+				if (verbose)
+					std::cout << __func__<<" exit"<<std::endl;
+				return;
 			}
-			//this->write(serial_buffer.data(),(serial_size_t)serial_buffer.fillLevel());
-
-			
+			storage.Clear();
+			pipe.SignalRead();
 			if (verbose)
-				std::cout << "Peer::sendObject() exit: success "<<std::endl;
-			return true;
+				std::cout << __func__<<" loop "<<std::endl;
+	
+			storage.MoveAppend(pipe.begin(),pipe.count());
+			pipe.ExitRead();
+
+
+			for (auto package : storage)
+			{
+				bool did_write = false;
+				{
+					UINT32*data = (UINT32*)package.pointer();
+					int rs = access->Write(package.pointer(),package.size());
+					if ((size_t)rs != package.size())
+					{
+						if (verbose)
+							std::cout << __func__ << " exit: failed to send package chunk"<<std::endl;
+						connectionLost = true;
+						access = nullptr;
+						parent->handleUnexpectedSendResult(rs);
+						return;
+					}
+				}
+			
+			}
+			storage.Clear();
+			if (verbose)
+				std::cout << __func__ << " success "<<std::endl;
 		}
-		FATAL__("Architectural flaw");
-		return false;
 	}
 	
 	bool	Peer::SendSignal(UINT32 channel_id)
 	{
 		if (verbose)
 			std::cout << "Peer::sendSignal() enter: channel_id="<<channel_id<<std::endl;
-		synchronized(write_mutex)
+		//synchronized(write_mutex)
 		{
-			UINT32 packet[2];
-			packet[0] = channel_id;
-			packet[1] = 0;
-
-			if (!succeeded(socketAccess->Write(packet,sizeof(packet)),sizeof(packet)))
+			if (!writer.WriteSignal(channel_id))
 			{
 				if (verbose)
-					std::cout << "Peer::sendSignal() exit: failed to send channel id"<<std::endl;
+					std::cout << __func__<<" exit: failed to send channel id"<<std::endl;
 				return false;
 			}
 			if (verbose)
-				std::cout << "Peer::sendSignal() exit"<<std::endl;
+				std::cout << __func__ << " exit"<<std::endl;
 			return true;
 		}
-		FATAL__("Architectural flaw");
-		return false;
 	}
 	
 	void	Peer::ThreadMain()

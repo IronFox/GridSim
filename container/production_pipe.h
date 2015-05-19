@@ -21,6 +21,7 @@ template <typename T, typename Strategy=typename StrategySelector<T>::Default>
 		volatile bool				locked;
 	    Mutex						mutex;
 		index_t						readAt;
+		Signal						contentSignal;
 	public:
 		typedef typename Super::iterator		iterator;
 		typedef typename Super::const_iterator		const_iterator;
@@ -33,6 +34,8 @@ template <typename T, typename Strategy=typename StrategySelector<T>::Default>
 		inline  Self&				MoveAppend(T&);		//!< Similar to the << operator but uses strategy move, rather than forced copy
 		inline	Self&				MoveAppend(BasicBuffer<T>&buffer);
 	    inline  void                clear();			//!< Erases each object and flushs the queue. This operation is mutex protected
+		inline	void				WaitForContent()	{contentSignal.wait();}
+		inline  void				OverrideSignalNow() {contentSignal.signal();}
 		
 		typename Super::iterator		begin()	{ASSERT__(locked); return Super::begin();}
 		typename Super::const_iterator	begin()	const {ASSERT__(locked); return Super::begin();}
@@ -40,6 +43,7 @@ template <typename T, typename Strategy=typename StrategySelector<T>::Default>
 		typename Super::const_iterator	end() const	{return Super::end();}
 
 		inline count_t				count() const {return Super::count();}
+		inline bool					IsEmpty() const {return Super::IsEmpty();}
 
 		//the following operations are provided for convenience. They are _not_ mutex protected and (except for count() maybe) should be invoked only from inside a signalRead()/exitRead() block.
 		Super::isEmpty;
