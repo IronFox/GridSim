@@ -29,6 +29,14 @@ namespace Engine
 		state.lineOffset += getScaledHeight();
 	}
 
+	void	VirtualTextout::Tint(float red, float green, float blue)
+	{
+		state.red *= red;
+		state.green *= green;
+		state.blue *= blue;
+	}
+
+
 	void	VirtualTextout::color(const TVec3<>&color)
 	{
 		state.rgb = color;

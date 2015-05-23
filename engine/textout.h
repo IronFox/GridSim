@@ -111,6 +111,7 @@ namespace Engine
 			void			color3(const double*color);								//!< Respecify the current textout color via a 3 element array (opaque) \param color 3 segment double array in rgb order.
 			void			color3a(const float*color, float alpha);				//!< Respecify the current textout color via a 3 element array and an alpha value \param color 3 segment float array in rgb order. @param alpha Opacity (0 = invisible ... 1 = opaque)
 			void			color3a(const double*color, float alpha);				//!< Respecify the current textout color via a 3 element array and an alpha value \param color 3 segment double array in rgb order. @param alpha Opacity (0 = invisible ... 1 = opaque)
+			void			Tint(float red, float green, float blue);				//!< Multiplies the current font color with the specified color
 				
 	virtual	float			getUnscaledWidth(const char*line, size_t len)=0;		//!< Determine the length of a string in its native (unscaled) size \param line Pointer to a field of characters containing the string to analyse \param len Number of characters to analyse out of line \return Unscaled length of the specified string
 	virtual	float			getUnscaledWidth(const char*line)=0;					//!< Determine the length of a string in its native (unscaled) size \param line Pointer to a zero terminated character array containing the string to analyse \return Unscaled length of the specified string
