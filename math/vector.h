@@ -2518,13 +2518,12 @@ namespace Math
 
 					m = hsl.z + hsl.z - v;
 					sv = (v - m) / v;
-					T h = hsl.x * (T)6.0;
-					sextant = (int)h;
-					fract = h - sextant;
+					T scaled = hsl.x * (T)6.0;
+					fract = fmod(scaled,(T)1.0);
 					vsf = v * sv * fract;
 					mid1 = m + vsf;
 					mid2 = v - vsf;
-					switch (sextant)
+					switch ((int)scaled)
 					{
 					case 0:
 						outRGB.r = v;
