@@ -194,6 +194,7 @@ template <class C0> INLINE	C* BinaryTree<C,Class>::add(const C0&ident)
 		return node->element;
 	}
 	DISCARD(node);
+#pragma warning(suppress: 6011)
 	return other->element;
 }
 
@@ -1225,6 +1226,7 @@ template <class C, class Class> INLINE void BinaryNode<C,Class>::rebalanceUpper(
 	{
 		node->updateDepth();
 		node->balance();
+		#pragma warning(suppress: 6011)	//useless piece of crap. analysis doesn't work
 		node = node->parent;
 		if (!node && limit)
 			FATAL__("boundary breached");
