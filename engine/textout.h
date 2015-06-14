@@ -117,9 +117,11 @@ namespace Engine
 	virtual	float			getUnscaledWidth(const char*line)=0;					//!< Determine the length of a string in its native (unscaled) size \param line Pointer to a zero terminated character array containing the string to analyse \return Unscaled length of the specified string
 	virtual	float			getUnscaledHeight() = 0;								//!< Determine the height of a string in its native (unscaled) size
 			float			getUnscaledWidth(const String&line);					//!< Determine the length of a string in its native (unscaled) size \param line String to analyse \return Unscaled length of the specified string
+			float			getUnscaledWidth(const StringRef&line);					//!< Determine the length of a string in its native (unscaled) size \param line String to analyse \return Unscaled length of the specified string
 			float			getScaledWidth(const char*line, size_t len);			//!< Determine the length of a string \param line Pointer to a field of characters containing the string to analyse \param len Number of characters to analyse out of line \return Scaled length of the specified string
 			float			getScaledWidth(const char*line);						//!< Determine the length of a string \param line Pointer to a zero terminated character array containing the string to analyse \return Scaled length of the specified string
 			float			getScaledWidth(const String&line);						//!< Determine the length of a string \param line String to analyse \return Scaled length of the specified string
+			float			getScaledWidth(const StringRef&line);					//!< Determine the length of a string \param line String to analyse \return Scaled length of the specified string
 			float			getScaledHeight();										//!< Determine the height of a string \return Scaled height of a single line
 
 			void			newLine();												//!< Increases line count and resets current line indentation to 0
@@ -190,22 +192,27 @@ namespace Engine
 				float			unscaledLength(const char*line, size_t len);			//!< Determine the length of a string in its native (unscaled) size \param line Pointer to a field of characters containing the string to analyse \param len Number of characters to analyse out of line \return Unscaled length of the specified string
 				float			unscaledLength(const char*line);						//!< Determine the length of a string in its native (unscaled) size \param line Pointer to a zero terminated character array containing the string to analyse \return Unscaled length of the specified string
 				float			unscaledLength(const String&line);						//!< Determine the length of a string in its native (unscaled) size \param line String to analyse \return Unscaled length of the specified string
-				float			scaledLength(const char*line, size_t len);			//!< Determine the length of a string \param line Pointer to a field of characters containing the string to analyse \param len Number of characters to analyse out of line \return Scaled length of the specified string
+				float			unscaledLength(const StringRef&line);					//!< Determine the length of a string in its native (unscaled) size \param line String to analyse \return Unscaled length of the specified string
+				float			scaledLength(const char*line, size_t len);				//!< Determine the length of a string \param line Pointer to a field of characters containing the string to analyse \param len Number of characters to analyse out of line \return Scaled length of the specified string
 				float			scaledLength(const char*line);							//!< Determine the length of a string \param line Pointer to a zero terminated character array containing the string to analyse \return Scaled length of the specified string
 				float			scaledLength(const String&line);						//!< Determine the length of a string \param line String to analyse \return Scaled length of the specified string
+				float			scaledLength(const StringRef&line);						//!< Determine the length of a string \param line String to analyse \return Scaled length of the specified string
 				
-				float			unscaledWidth(const char*line, size_t len);			//!< Determine the length of a string in its native (unscaled) size \param line Pointer to a field of characters containing the string to analyse \param len Number of characters to analyse out of line \return Unscaled length of the specified string
+				float			unscaledWidth(const char*line, size_t len);				//!< Determine the length of a string in its native (unscaled) size \param line Pointer to a field of characters containing the string to analyse \param len Number of characters to analyse out of line \return Unscaled length of the specified string
 				float			unscaledWidth(const char*line);							//!< Determine the length of a string in its native (unscaled) size \param line Pointer to a zero terminated character array containing the string to analyse \return Unscaled length of the specified string
 				float			unscaledWidth(const String&line);						//!< Determine the length of a string in its native (unscaled) size \param line String to analyse \return Unscaled length of the specified string
+				float			unscaledWidth(const StringRef&line);					//!< Determine the length of a string in its native (unscaled) size \param line String to analyse \return Unscaled length of the specified string
 				float			scaledWidth(const char*line, size_t len);				//!< Determine the length of a string \param line Pointer to a field of characters containing the string to analyse \param len Number of characters to analyse out of line \return Scaled length of the specified string
 				float			scaledWidth(const char*line);							//!< Determine the length of a string \param line Pointer to a zero terminated character array containing the string to analyse \return Scaled length of the specified string
-				float			scaledWidth(const String&line);						//!< Determine the length of a string \param line String to analyse \return Scaled length of the specified string
+				float			scaledWidth(const String&line);							//!< Determine the length of a string \param line String to analyse \return Scaled length of the specified string
+				float			scaledWidth(const StringRef&line);						//!< Determine the length of a string \param line String to analyse \return Scaled length of the specified string
 
-		virtual	float			getUnscaledWidth(const char*line, size_t len);		//!< Determine the length of a string in its native (unscaled) size \param line Pointer to a field of characters containing the string to analyse \param len Number of characters to analyse out of line \return Unscaled length of the specified string
+		virtual	float			getUnscaledWidth(const char*line, size_t len);			//!< Determine the length of a string in its native (unscaled) size \param line Pointer to a field of characters containing the string to analyse \param len Number of characters to analyse out of line \return Unscaled length of the specified string
 		virtual	float			getUnscaledWidth(const char*line);						//!< Determine the length of a string in its native (unscaled) size \param line Pointer to a zero terminated character array containing the string to analyse \return Unscaled length of the specified string
 		virtual	float			getUnscaledHeight();									//!< Determine the height of a string in its native (unscaled) size
 
 				Textout<Font>&	operator<<(const String&);
+				Textout<Font>&	operator<<(const StringRef&);
 				Textout<Font>&	operator<<(const char*);
 				Textout<Font>&	operator<<(const TNewLine&);
 				Textout<Font>&	operator<<(const TSpace&);
@@ -230,10 +237,12 @@ namespace Engine
 				void			print(const char*str, size_t len);					//!< Prints a string segment with a predefined length @param str Pointer to an array of characters containing at least @b len characters @param len Number of characters to print
 				void			print(const char*str);
 				void			print(const String&str);
+				void			print(const StringRef&str);
 				void			printTagged(const char*str, char tag);
 				void			printTagged(const String&str, char tag);
 				void			println(const char*str);
 				void			println(const String&str);
+				void			println(const StringRef&str);
 				void			printTaggedLine(const char*str, char tag);
 				void			printTaggedLine(const String&str, char tag);
 		};

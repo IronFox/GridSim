@@ -85,6 +85,10 @@ namespace Engine
 	{
 	    return active_font->getWidth(line.c_str(),line.length());
 	}
+	template <class Font> float Textout<Font>::unscaledLength(const StringRef&line)
+	{
+	    return active_font->getWidth(line.pointer(),line.length());
+	}
 
 	template <class Font> float Textout<Font>::scaledLength(const char*line)
 	{
@@ -99,6 +103,10 @@ namespace Engine
 	template <class Font> float Textout<Font>::scaledLength(const String&line)
 	{
 	    return active_font->getWidth(line.c_str(),line.length())*state.x_scale;
+	}
+	template <class Font> float Textout<Font>::scaledLength(const StringRef&line)
+	{
+	    return active_font->getWidth(line.pointer(),line.length())*state.x_scale;
 	}
 	
 	
@@ -133,6 +141,10 @@ namespace Engine
 	{
 	    return active_font->getWidth(line.c_str(),line.length());
 	}
+	template <class Font> float Textout<Font>::unscaledWidth(const StringRef&line)
+	{
+	    return active_font->getWidth(line.pointer(),line.length());
+	}
 
 	template <class Font> float Textout<Font>::scaledWidth(const char*line)
 	{
@@ -147,6 +159,10 @@ namespace Engine
 	template <class Font> float Textout<Font>::scaledWidth(const String&line)
 	{
 	    return active_font->getWidth(line.c_str(),line.length())*state.x_scale;
+	}
+	template <class Font> float Textout<Font>::scaledWidth(const StringRef&line)
+	{
+	    return active_font->getWidth(line.pointer(),line.length())*state.x_scale;
 	}
 	
 	
@@ -231,7 +247,11 @@ namespace Engine
 
 	template <class Font> void Textout<Font>::print(const String&str)
 	{
-	    print(str.c_str());
+	    print(str.c_str(),str.length());
+	}
+	template <class Font> void Textout<Font>::print(const StringRef&str)
+	{
+	    print(str.pointer(),str.length());
 	}
 
 	template <class Font> void Textout<Font>::printTagged(const char*str, char tag)
@@ -308,6 +328,11 @@ namespace Engine
 		print(str);
 		newLine();
 	}
+	template <class Font> void Textout<Font>::println(const StringRef&str)
+	{
+		print(str);
+		newLine();
+	}
 
 	template <class Font> void Textout<Font>::printTaggedLine(const char*str, char tag)
 	{
@@ -327,6 +352,12 @@ namespace Engine
 		Textout<Font>&	Textout<Font>::operator<<(const String&str)
 		{
 			stream(str.c_str(),str.length());
+			return *this;
+		}
+	template <class Font>
+		Textout<Font>&	Textout<Font>::operator<<(const StringRef&str)
+		{
+			stream(str.pointer(),str.length());
 			return *this;
 		}
 
