@@ -724,13 +724,13 @@ namespace Except
 
 #else
 	#define DBG_ASSERT__(exp0)
-	#define DGB_ASSERT1__(exp0,exp1)
+	#define DBG_ASSERT1__(exp0,exp1)
 	#define DBG_ASSERT2__(exp0,exp1,exp2)
 	#define DBG_ASSERT3__(exp0,exp1,exp2,exp3)
 	#define DBG_ASSERT4__(exp0,exp1,exp2,exp3,exp4)
 
 	#define DBG_VERIFY__(exp0)						exp0
-	#define DGB_VERIFY1__(exp0,exp1)				exp0
+	#define DBG_VERIFY1__(exp0,exp1)				exp0
 	#define DBG_VERIFY2__(exp0,exp1,exp2)			exp0
 	#define DBG_VERIFY3__(exp0,exp1,exp2,exp3)		exp0
 	#define DBG_VERIFY4__(exp0,exp1,exp2,exp3,exp4)	exp0
