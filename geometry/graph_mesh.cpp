@@ -1024,7 +1024,7 @@ static void	convertDescriptionToHull(const SurfaceDescription&desc, Hull&hull)
 	}
 	//ASSERT_CONCLUSION(robj.ipool.idata,iat);
 	
-	DGB_ASSERT1__(hull.valid(),hull.errorStr());
+	DBG_ASSERT1__(hull.valid(),hull.errorStr());
 }
 
 

@@ -674,13 +674,13 @@ namespace Except
 
 #ifdef _DEBUG
 	#define DBG_ASSERT__			ASSERT__
-	#define DGB_ASSERT1__(exp0,exp1)	ASSERT1__(exp0,exp1)
+	#define DBG_ASSERT1__(exp0,exp1)	ASSERT1__(exp0,exp1)
 	#define DBG_ASSERT2__			ASSERT2__
 	#define DBG_ASSERT3__			ASSERT3__
 	#define DBG_ASSERT4__			ASSERT4__
 
 	#define DBG_VERIFY__			ASSERT__
-	#define DGB_VERIFY1__			ASSERT1__
+	#define DBG_VERIFY1__			ASSERT1__
 	#define DBG_VERIFY2__			ASSERT2__
 	#define DBG_VERIFY3__			ASSERT3__
 	#define DBG_VERIFY4__			ASSERT4__
