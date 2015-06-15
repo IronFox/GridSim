@@ -1,4 +1,4 @@
-#ifndef hread_systemH
+#ifndef thread_systemH
 #define thread_systemH
 
 /*****************************************************************************
