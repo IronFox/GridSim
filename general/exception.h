@@ -315,6 +315,9 @@ namespace Except
 				}
 		public:
 										Exception()
+											#if SYSTEM!=WINDOWS
+												:Super("")
+											#endif
 										{
 										}
 										Exception(const char*message):Super(message)
