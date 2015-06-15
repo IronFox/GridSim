@@ -1,4 +1,4 @@
-CPP= g++
+CPP= clang-3.5
 CXXFLAGS= -O3  -I"." -I"../Nx/include" -DNX32
 CPPFLAGS= -std=c++11
 #-DNX_CALL_CONV
