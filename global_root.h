@@ -292,7 +292,7 @@ SYSTEM specifies the general system (eg. UNIX) while SYSTEM_VARIANCE characteriz
 #endif
 
 	
-//#include "general/root.h"	//this is primarily X, which might not be available
+#include "general/root.h"
 
 /*#if !defined(main) && !defined(_DLL)
 	#error main not defined

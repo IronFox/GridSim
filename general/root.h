@@ -26,11 +26,7 @@ extern volatile bool application_shutting_down;
 	const char*	argv(int index);			//!< Returns a specific argument. The first argument (index 0) is the command name as evoked by the shell.
 	int			rootCallMeToLinkMe();		//!< Dummy function, causing certain variables and functions to be linked if evoked by the main program file.
 	*/
-	#if SYSTEM==UNIX
-	    #include <X11/Xlib.h>
-	    Display*getDisplay();
-	    void    closeDisplay();
-	#endif
+
 
 	#if 0
 		#if !defined(__BORLANDC__) && !defined(_DLL)

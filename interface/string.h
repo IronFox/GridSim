@@ -32,55 +32,62 @@ template <typename T>
 
 
 
-/**
-	@brief Simply string conversion method
 
-	The converter object may be used to convert one string type into another. String data is stored in a constant size character field of the specified OutType.
-	Following the constraint definition of IString, StringConverter will always work for ToType = wchar_t or ToType = char, but may work for other types too
+
+namespace StringConverterDetail
+{
+	template <typename ToType, typename FromType, size_t Size=0x200>
+		struct TConvert
+		{
+			static inline const ToType*	convert(const FromType*pntr, ToType*field)	throw()
+			{
+				if (!pntr)
+				{
+					field[0] = 0;
+					return field;
+				}
+				const FromType	*end = pntr;
+				while (*end)
+					end++;
+				size_t len = end-pntr;
+				if (len > Size-1)
+					len = Size-1;
+				for (index_t i = 0; i < len; i++)
+					if (FromType(ToType(pntr[i])) == pntr[i])
+						field[i] = ToType(pntr[i]);
+					else
+						field[i] = ToType('?');
+				field[len] = 0;
+				return field;
+			}
+		};
+	template <typename SameType, size_t Size>
+		struct TConvert<SameType,SameType,Size>
+		{
+			static inline const SameType*	convert(const SameType*pntr, SameType*field)	throw()
+			{
+				if (pntr)
+					return pntr;
+				field[0] = 0;
+				return field;
+			}
+		};
+
+
+}
+
+
+/**
+@brief Simply string conversion method
+
+The converter object may be used to convert one string type into another. String data is stored in a constant size character field of the specified OutType.
+Following the constraint definition of IString, StringConverter will always work for ToType = wchar_t or ToType = char, but may work for other types too
 */
 template <typename ToType, size_t Size=0x200>
 	class StringConverter
 	{
 	protected:
 			ToType					field[Size];
-			template <typename FromType>
-				struct	TConvert
-				{
-						static inline const ToType*	convert(const FromType*pntr, ToType*field)	throw()
-						{
-							if (!pntr)
-							{
-								field[0] = 0;
-								return field;
-							}
-							const FromType	*end = pntr;
-							while (*end)
-								end++;
-							size_t len = end-pntr;
-							if (len > Size-1)
-								len = Size-1;
-							for (index_t i = 0; i < len; i++)
-								if (FromType(ToType(pntr[i])) == pntr[i])
-									field[i] = ToType(pntr[i]);
-								else
-									field[i] = ToType('?');
-							field[len] = 0;
-							return field;
-						}
-				};
-			
-			template <>
-				struct	TConvert<ToType>
-				{
-						static inline const ToType*	convert(const ToType*pntr, ToType*field)	throw()
-						{
-							if (pntr)
-								return pntr;
-							field[0] = 0;
-							return field;
-						}
-				};
-			
 
 	public:
 			
@@ -96,7 +103,7 @@ template <typename ToType, size_t Size=0x200>
 		template <typename FromType>
 			inline const ToType*	convert(const FromType*pntr)	throw()
 			{
-				return TConvert<FromType>::convert(pntr,field);
+				return StringConverterDetail::TConvert<ToType,FromType,Size>::convert(pntr,field);
 			}
 
 		/**
@@ -108,19 +115,19 @@ template <typename ToType, size_t Size=0x200>
 		template <typename FromType>
 			inline const ToType*	convert(const IString<FromType>&string)
 			{
-				return TConvert<FromType>::convert(string.resolveContent(),field);
+				return StringConverterDetail::TConvert<ToType,FromType,Size>::convert(string.resolveContent(),field);
 			}
 
 		template <typename FromType>
 			inline const ToType*	operator()(const FromType*pntr) throw()	//! Identical to resolve(pntr)
 			{
-				return TConvert<FromType>::convert(pntr,field);
+				return StringConverterDetail::TConvert<ToType,FromType,Size>::convert(pntr,field);
 			}
 
 		template <typename FromType>
 			inline const ToType*	operator()(const IString<FromType>&string)	//!< Identical to resolve(string)
 			{
-				return TConvert<FromType>::convert(string.resolveContent(),field);
+				return StringConverterDetail::TConvert<ToType,FromType,Size>::convert(string.resolveContent(),field);
 			}
 
 
