@@ -490,7 +490,7 @@ template <class C>
 									offset = elements-1;
 								if (max > elements)
 									max = elements;
-								for (register count_t i = offset; i < max; i++)
+								for (count_t i = offset; i < max; i++)
 									data[i] = (C)element;
 							}
 		template <typename T>
@@ -1011,7 +1011,7 @@ template <class C, class Strategy=typename StrategySelector<C>::Default>
 					{
 						if (string)
 						{
-							register const C*terminator(string);
+							const C*terminator(string);
 							while (*terminator++);
 							elements = terminator-string;
 						}
@@ -1391,10 +1391,10 @@ template <class C, class Strategy=typename Strategy::StrategySelector<C>::Defaul
 			
 		Arrays::count_t	w;
 			
-		Super::setSize;
-		Super::resizePreserveContent;
-		Super::erase;
-		Super::append;
+		using Super::setSize;
+		using Super::resizePreserveContent;
+		using Super::erase;
+		using Super::append;
 	public:
 		Array2D():w(0)
 		{}
