@@ -231,6 +231,7 @@ namespace System //! Translation namespace for common system tasks
 			typedef HANDLE	handle_t;
 		#elif SYSTEM==UNIX
 			typedef int		handle_t;
+			#define INVALID_HANDLE_VALUE -1
 		#endif
 	private:
 		handle_t			write_handle;
