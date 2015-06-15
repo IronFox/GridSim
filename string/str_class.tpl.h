@@ -327,8 +327,8 @@ namespace Template
 		{
 			if (chr >= T('a') && chr <= T('z'))
 				return chr + (T('A') - T('a'));
-			if (chr >= T('à') && chr <= T('ö'))
-				return chr + (T('À') - T('à'));
+			//if (chr >= T('à') && chr <= T('ö'))
+			//	return chr + (T('À') - T('à'));
 			return chr;
 		}
 
@@ -350,8 +350,8 @@ namespace Template
 		{
 			if (chr >= T('A') && chr <= T('Z'))
 				return chr + (T('a') - T('A'));
-			if (chr >= T('À') && chr <= T('Ö'))
-				return chr + (T('à') - T('À'));
+			//if (chr >= T('À') && chr <= T('Ö'))
+			//	return chr + (T('à') - T('À'));
 			return chr;
 		}
 
