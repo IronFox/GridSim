@@ -251,6 +251,7 @@ in the foundation.
 		#define __cdecl
 		
 		#define _strnicmp	strncasecmp
+		#define sprintf_s	snprintf
 		
 		typedef struct { 
 		    WORD  wFormatTag; 
