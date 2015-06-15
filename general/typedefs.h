@@ -9,7 +9,7 @@ in the foundation.
 ******************************************************************/
 
 #if SYSTEM==UNIX
-	#include "../gl/glx.h"
+//	#include "../gl/glx.h"
 #endif
 
 

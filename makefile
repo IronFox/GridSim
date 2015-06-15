@@ -1,6 +1,7 @@
-CPP= clang-3.5
-CXXFLAGS= -O3  -I"." -I"../Nx/include" -DNX32
-CPPFLAGS= -std=c++11
+CXX=clang++-3.5
+CXXFLAGS= 
+#-O3  -I"." -I"../Nx/include" -DNX32
+CPPFLAGS= -std=c++11 -Wno-ignored-attributes -ferror-limit=1
 #-DNX_CALL_CONV
 BIN= ./maker/maker
 LINKOBJ= ./maker/main.o ./io/file_system.o ./io/string_file.o ./general/system.o ./string/str_class.o ./string/tokenizer.o ./string/token_parser.o ./string/string_converter.o ./general/thread_system.o ./general/exception.o ./io/log.o
@@ -8,21 +9,21 @@ LINKOBJ= ./maker/main.o ./io/file_system.o ./io/string_file.o ./general/system.o
 LIBS= -L"/usr/X11R6/lib/" -lX11 -lpthread
 
 all: $(BIN)
-	$(BIN) $(CXXFLAGS)
+	yo1 $(BIN) $(CXXFLAGS)
 
-new: clean $(BIN)
-	$(BIN) --new $(CXXFLAGS)
+#new: clean $(BIN)
+#	yo2 $(BIN) --new $(CXXFLAGS)
 
 clean:
 	rm -f $(LINKOBJ)
 	
 
-first: $(BIN)
-	$(BIN) --first $(CXXFLAGS)
+#first: $(BIN)
+#	yo4 $(BIN) --first $(CXXFLAGS)
 
 $(BIN): $(LINKOBJ)
-	$(CPP) $(LINKOBJ) -o $(BIN) $(LIBS)
+#	yo5 $(LINKOBJ) -o $(BIN) $(LIBS)
 
 
-*.o: *.cpp
-	$(CPP) -c $*.cpp -o $*.o $(CXXFLAGS) $(CPPFLAGS)
+#*.o: *.cpp
+#	yo6 -c $*.cpp -o sklfdsfn $*.o $(CXXFLAGS) $(CPPFLAGS)

@@ -4,11 +4,11 @@
 
 
 #include "hinstance.h"
-#include "../container/array.h"
 
 
 
 extern volatile bool application_shutting_down;
+#include "../container/array.h"
 
 #if defined(__DLL__) && __DLL__!=0
 	//#define _DLL
