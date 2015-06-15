@@ -197,7 +197,7 @@ template <class C, size_t Length>
 			virtual	bool			Deserialize(IReadStream&in_stream, serial_size_t)	override
 			{
 				if (!IsISerializable((const C*)value))
-					return in_stream.read(value,sizeof(value));
+					return in_stream.Read(value,sizeof(value));
 	
 				for (index_t i = 0; i < Length; i++)
 					if (!DeserializeObject(value+i,sizeof(C),in_stream,EmbeddedSize))
