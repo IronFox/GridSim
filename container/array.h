@@ -1307,20 +1307,20 @@ template <class C, class Strategy=typename StrategySelector<C>::Default>
 					}
 					inline iterator	erase(iterator position)
 					{
-						index_t index = position - begin();
+						index_t index = position - Super::begin();
 						erase(index);
-						return begin() + index;
+						return Super::begin() + index;
 					}
 					inline iterator	erase(iterator first, iterator end)
 					{
-						index_t index = first - begin();
+						index_t index = first - Super::begin();
 						erase(index, end - first);
-						return begin() + index;
+						return Super::begin() + index;
 					}
 				template <class T>
 					inline bool	 FindAndErase (const T &element)
 					{
-						index_t index = findFirst (element);
+						index_t index = Super::findFirst (element);
 						if (index)
 						{
 							erase(index-1);
