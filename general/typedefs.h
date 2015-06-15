@@ -217,7 +217,8 @@ in the foundation.
 		typedef int16_t		__int16;		//!< Standard signed 16 bit integer (short)
 		typedef void*		HINSTANCE;
 		typedef int			HDC;
-		typedef Window		HWND;			//long unsigned int
+//		typedef Window		HWND;			//long unsigned int
+		typedef long unsigned int	HWND;
 
 		#undef Bool
 		typedef bool		Bool;
