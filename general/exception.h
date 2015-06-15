@@ -90,7 +90,7 @@ struct TCodeLocation
 							out++;
 						//std::cout << " ... "<<out<<std::endl;
 						
-						sprintf_s(formatted,"line %i of %s::%s()",line,out,method);
+						sprintf_s(formatted,sizeof(formatted),"line %i of %s::%s()",line,out,method);
 						//std::cout << " ... "<<formatted<<std::endl;
 
 
@@ -137,7 +137,7 @@ private:
 							length = sizeof(this->message)-1;
 						memcpy(this->message,message,length);
 						this->message[length] = 0;
-						sprintf_s(formatted,"Fatal exception in %s\n\"%s\"",TCodeLocation::formatted,this->message);
+						sprintf_s(formatted,sizeof(formatted),"Fatal exception in %s\n\"%s\"",TCodeLocation::formatted,this->message);
 					}
 public:
                     FatalDescriptor(const TCodeLocation&location, const char*msg):TCodeLocation(location)
