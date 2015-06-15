@@ -986,12 +986,16 @@ DECLARE_T__(ArrayData,SwapStrategy);
 template <class C, class Strategy=typename StrategySelector<C>::Default>
 	class Array: public ArrayData<C>
 	{
+		typedef ArrayData<C>	Super;
 		protected:
 			#ifdef __GNUC__
 				using ArrayData<C>::data;
 				using ArrayData<C>::elements;
 			#endif
 		public:
+				typedef Super::iterator iterator;
+				typedef Super::const_iterator const_iterator;
+
 				typedef	Strategy	AppliedStrategy;
 
 				typedef ArrayData<C>	Data;
