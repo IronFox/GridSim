@@ -108,6 +108,11 @@ template <typename T>
 
 #endif
 
+#ifdef __llvm__
+	#define strnicmp	strncasecmp
+
+#endif
+
 
 #include <iostream>
 //using namespace std;
