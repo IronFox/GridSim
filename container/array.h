@@ -5,7 +5,7 @@
 #include <wchar.h>
 #include "../interface/serializable.h"
 #include "strategy.h"
-#include "../general/root.h"
+#include <cstdarg>
 
 
 #define __ARRAY_RVALUE_REFERENCES__	1		//!< Allows && references in constructors and assignment operators
