@@ -250,6 +250,7 @@ template <class C>
 	public:
 		typedef C*			iterator;
 		typedef const C*	const_iterator;
+		static const count_t	Undefined=Arrays::Undefined;
 	private:
 
 		/**/				ArrayData(const ArrayData<C>&){}
@@ -993,12 +994,13 @@ template <class C, class Strategy=typename StrategySelector<C>::Default>
 				using ArrayData<C>::elements;
 			#endif
 		public:
-				typedef typename Super::iterator iterator;
-				typedef typename Super::const_iterator const_iterator;
+			typedef typename Super::iterator iterator;
+			typedef typename Super::const_iterator const_iterator;
+			static const count_t	Undefined=Arrays::Undefined;
 
-				typedef	Strategy	AppliedStrategy;
+			typedef	Strategy	AppliedStrategy;
 
-				typedef ArrayData<C>	Data;
+			typedef ArrayData<C>	Data;
 
 		explicit	Array(count_t length=0):Data(length)	/** Creates a new array \param length Length of the new array object */ {}
 		explicit	Array(const C&e0, const C&e1):Data(e0,e1)	/** Creates a new 2-element array @param e0 First element to fill into the array @param e1 Second element to fill into the array*/ {}
