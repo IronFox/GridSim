@@ -122,26 +122,62 @@ static unsigned	genericLengthFunction(const char*begin, const char*end)
 
 
 #else
-	void strlwr(char*target)
+
+	void strlwr(char*str)
 	{
-		if (!target) return;
-		while (*target)
+		while (*str)
 		{
-			if (*target >= 'A' && *target <= 'Z')
-				(*target) += 'a' - 'A';
-			target++;
+			*str = tolower(*str);
+			str++;
 		}
 	}
-	void strupr(char*target)
+	void strupr(char*str)
 	{
-		if (!target) return;
-		while (*target)
+		while (*str)
 		{
-			if (*target >= 'a' && *target <= 'z')
-				(*target) -= 'a' - 'A';
-			target++;
+			*str = toupper(*str);
+			str++;
 		}
 	}
+
+	void wcslwr(wchar_t*str)
+	{
+		while (*str)
+		{
+			*str = towlower(*str);
+			str++;
+		}
+	}
+	void wcsupr(wchar_t*str)
+	{
+		while (*str)
+		{
+			*str = towupper(*str);
+			str++;
+		}
+	}
+
+
+	//void strlwr(char*target)
+	//{
+	//	if (!target) return;
+	//	while (*target)
+	//	{
+	//		if (*target >= 'A' && *target <= 'Z')
+	//			(*target) += 'a' - 'A';
+	//		target++;
+	//	}
+	//}
+	//void strupr(char*target)
+	//{
+	//	if (!target) return;
+	//	while (*target)
+	//	{
+	//		if (*target >= 'a' && *target <= 'z')
+	//			(*target) -= 'a' - 'A';
+	//		target++;
+	//	}
+	//}
 #endif
 
 

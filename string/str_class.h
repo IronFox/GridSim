@@ -96,9 +96,11 @@ template <typename T>
 	#include <wctype.h>
 	#include <ctype.h>
 
-	/*
+	
 	void strlwr(char*target);
-	void strupr(char*target);*/
+	void strupr(char*target);
+	void wcslwr(wchar_t*target);
+	void wcsupr(wchar_t*target);
 #endif
 
 #ifdef _MSC_VER
@@ -112,6 +114,7 @@ template <typename T>
 	#define strnicmp	strncasecmp
 	#define wcscmpi		wcscasecmp
 	#define wcsnicmp	wcsncasecmp
+
 
 #endif
 
