@@ -993,8 +993,8 @@ template <class C, class Strategy=typename StrategySelector<C>::Default>
 				using ArrayData<C>::elements;
 			#endif
 		public:
-				typedef Super::iterator iterator;
-				typedef Super::const_iterator const_iterator;
+				typedef typename Super::iterator iterator;
+				typedef typename Super::const_iterator const_iterator;
 
 				typedef	Strategy	AppliedStrategy;
 
