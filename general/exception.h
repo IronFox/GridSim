@@ -332,7 +332,7 @@ namespace Except
 										{
 										}
 									#endif
-										Exception(const std::exception&except):Super(except)
+										Exception(const Super&except):Super(except)
 										{
 										}
 		template <class C>				Exception(const IString<C>&string):Super(castToChar(string))
