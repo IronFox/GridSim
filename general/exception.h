@@ -183,6 +183,9 @@ template <class C>  FatalDescriptor(const TCodeLocation&location, const C&msg):T
 namespace Except
 {
 
+
+
+
 	#if SYSTEM==WINDOWS
 		/**
 		@brief Fatal exception, which should always lead to program termination
@@ -290,11 +293,19 @@ namespace Except
 	//namespace Runtime
 	//{
 
+
+		#if SYSTEM==WINDOWS
+			typedef std::exception	RootException;
+		#else
+			typedef std::runtime_error	RootException;
+		#endif
+
 		/**
-			@brief Generic runtime exception
-		 */
-		class Exception:public std::exception
+		@brief Generic runtime exception
+		*/
+		class Exception:public RootException
 		{
+			typedef RootException	Super;
 		protected:
 			template <typename T>
 				static inline const char*		castToChar(const IString<T>&string)
@@ -306,16 +317,22 @@ namespace Except
 										Exception()
 										{
 										}
-										Exception(const char*message):std::exception(message)
+										Exception(const char*message):Super(message)
 										{
 										}
-										Exception(const globalString&string):std::exception(string.address,1)
+									#if SYSTEM==WINDOWS
+										Exception(const globalString&string):Super(string.address,1)
 										{
 										}
-										Exception(const std::exception&except):std::exception(except)
+									#else
+										Exception(const globalString&string):Super(string.address)
 										{
 										}
-		template <class C>				Exception(const IString<C>&string):std::exception(castToChar(string))
+									#endif
+										Exception(const std::exception&except):Super(except)
+										{
+										}
+		template <class C>				Exception(const IString<C>&string):Super(castToChar(string))
 										{
 										}
 		virtual	const char*				getType()	const {return staticGetName();}
