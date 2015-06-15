@@ -36,6 +36,7 @@ __STDC__
 
 #if SYSTEM==UNIX
 	#include <signal.h>
+	#include <stdexcept>
 #endif
 
 
