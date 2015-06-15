@@ -110,6 +110,7 @@ template <typename T>
 
 #ifdef __llvm__
 	#define strnicmp	strncasecmp
+	#define wcscmpi		wcscasecmp
 
 #endif
 
