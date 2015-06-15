@@ -292,7 +292,7 @@ SYSTEM specifies the general system (eg. UNIX) while SYSTEM_VARIANCE characteriz
 #endif
 
 	
-#include "general/root.h"
+//#include "general/root.h"	//this is primarily X, which might not be available
 
 /*#if !defined(main) && !defined(_DLL)
 	#error main not defined
@@ -308,7 +308,8 @@ struct  tFragmentName	(outdated)
 
 template <class ObjectName, int IntParameter> ...
 
-ObjectName::functionName(...)
+ObjectName::methodName(...)	(outdated)
+ObjectName::MethodName(...)          <-- use this
 
 namespace NameSpace {...}            <-- use this
 namespace name_space {...}
@@ -319,17 +320,17 @@ typedef (...)   TypeName		<-- applicable if nested (outdated)
 typedef (basic)	tTypeName
 typedef (class)	TypeName
 typedef (struct)	TTypeName
-typedef (func)	pFuncTypeName
+typedef (func)	pFuncTypeName, PFuncTypeName, FFuncTypeName
 
 enum    en_EnumerationName{ST_OPT0, ST_OPT1, ...}	(outdated)
 enum    eEnumerationName{...}                       <-- use this
+enum    enumerationName_t{...}						<-- or this
 
 struct/class/union/namespace
 {
 	enum EnumeratorName {Option0, Option1, ...}    setting;
 	struct SubStruct	{};	<-- only in structs/classes
 	struct TSubStruct	{};	<-- use this
-	class SubClass	{};	<-- only in structs/classes
 	class SubClass	{};	<-- use this
 };
 
@@ -340,7 +341,7 @@ classes should be written ObjectName and structs TStructName for all times (for 
 Enumerations can practically have any naming-style as long as they remain inside a class. Otherwise use the standard
 #define-like style preceded by a short 1 to 3 character long enum-class (i.e. 'EO_ENUM_OPTION') to avoid global ambiguity.
 
-Functions should remain functionName for the time being though FunctionName might be considerable.
+Functions/methods should be written FunctionName() for the time being.
 Functionpointer-types are usually written _pointerType or pPointerType but this is no fixed rule.
 
 
