@@ -1129,14 +1129,14 @@ template <class C, class Strategy=typename StrategySelector<C>::Default>
 				
 					inline	void	resizeAndImport(C*origin, count_t length)	//!< Resizes the local field and imports the specified number of elements (see import())
 					{
-						setSize(length);
+						Super::setSize(length);
 						Strategy::moveElements(origin,data,length);
 					}
 				
 				template <class T>
 					inline void	resizeAndCopy(const T*origin, count_t length) //! Copies all elements from \b origin via the = operator overwriting any existing local elements \param origin Array to copy from (may be of a different entry type) \param count Number of elements to copy
 					{
-						setSize(length);
+						Super::setSize(length);
 						Strategy::copyElements(origin,data,length);
 					}
 
@@ -1146,7 +1146,7 @@ template <class C, class Strategy=typename StrategySelector<C>::Default>
 					{
 						if (max > origin.count())
 							max = origin.count();
-						setSize(max);
+						Super::setSize(max);
 						HybridStrategy<Strategy,OtherStrategy>::copyElements(origin.pointer(),data,max);
 					}
 			
@@ -1425,7 +1425,7 @@ template <class C, class Strategy=typename Strategy::StrategySelector<C>::Defaul
 			}
 	inline	void		setSize(Arrays::count_t width, Arrays::count_t height)	//! Resizes the local 2d array to match the specified dimensions. The local array content is lost if the array's total size is changed
 			{
-				Array<C,Strategy>::setSize(width*height);
+				Super::setSize(width*height);
 				w = width;
 			}
 	inline	void		set(Arrays::count_t x, Arrays::count_t y, const C&value)	//! Updates a singular element at the specified position	\param x X coordinate. Must be less than width() \param y Y coordinate. Must be less than height() @param value Value to set \return Reference to the requested element
