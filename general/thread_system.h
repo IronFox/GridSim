@@ -1,4 +1,4 @@
-#ifndef thread_systemH
+#ifndef hread_systemH
 #define thread_systemH
 
 /*****************************************************************************
@@ -164,11 +164,11 @@ namespace System
 		/**/				ThreadObject();
 		virtual				~ThreadObject()		{};
 			
-			Thread::start;
-			Thread::isActive;
-			Thread::awaitCompletion;
-			Thread::terminate;
-			Thread::getHandle;
+			using Thread::start;
+			using Thread::isActive;
+			using Thread::awaitCompletion;
+			using Thread::terminate;
+			using Thread::getHandle;
 			
 	};
 	
