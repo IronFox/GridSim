@@ -181,18 +181,35 @@ template <class C>  FatalDescriptor(const TCodeLocation&location, const C&msg):T
  */
 namespace Except
 {
-	/**
-	 @brief Fatal exception, which should always lead to program termination
-	 */
-	class Fatal:public ::FatalDescriptor, public std::exception
-	{
-	public:
-						Fatal(const TCodeLocation&location, const char*msg):FatalDescriptor(location,msg),std::exception(ToString(),1)
-						{}
-	template <class C>  Fatal(const TCodeLocation&location, const C&msg):FatalDescriptor(location,msg),std::exception(ToString(),1)
-						{}
 
-	};
+	#if SYSTEM==WINDOWS
+		/**
+		@brief Fatal exception, which should always lead to program termination
+		*/
+		class Fatal:public ::FatalDescriptor, public std::exception
+		{
+		public:
+							Fatal(const TCodeLocation&location, const char*msg):FatalDescriptor(location,msg),std::exception(ToString(),1)
+							{}
+		template <class C>  Fatal(const TCodeLocation&location, const C&msg):FatalDescriptor(location,msg),std::exception(ToString(),1)
+							{}
+
+		};
+	#else
+		/**
+		@brief Fatal exception, which should always lead to program termination
+		*/
+		class Fatal:public ::FatalDescriptor, public std::runtime_error
+		{
+			typedef std::runtime_error	Super;
+		public:
+							Fatal(const TCodeLocation&location, const char*msg):FatalDescriptor(location,msg),Super(ToString())
+							{}
+		template <class C>  Fatal(const TCodeLocation&location, const C&msg):FatalDescriptor(location,msg),Super(ToString())
+							{}
+
+		};
+	#endif
 
 
 
