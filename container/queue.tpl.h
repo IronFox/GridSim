@@ -598,7 +598,6 @@ template <class Entry, class Priority, class Strategy>
 		section_begin++;
 		if (section_begin >= entry_field.length())
 			section_begin = 0;
-		return rs;
 	}
 
 
