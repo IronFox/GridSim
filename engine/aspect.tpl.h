@@ -433,6 +433,16 @@ MFUNC2 (bool) Aspect<C>::Project(const TVec3<C0>&point, TVec3<C1>&projected)	con
 }
 
 template <class C>
+MFUNC2 (bool) Aspect<C>::ProjectToRegion(const TVec3<C0>&point, TVec3<C1>&projected)	const
+{
+	bool rs = Project(point,projected);
+	region.Derelativate(C(projected.x * (C1)0.5+(C1)0.5),C(projected.y * (C1)0.5+(C1)0.5),projected.x,projected.y);
+	projected.x = projected.x * (C1)2-(C1)1;
+	projected.y = projected.y * (C1)2-(C1)1;
+	return rs;
+}
+
+template <class C>
 MFUNC2 (bool) Aspect<C>::VectorToScreen(const TVec3<C0>&vector, TVec2<C1>&screenPoint)	const
 {
 	TVec4<C>	temp0,temp1;
