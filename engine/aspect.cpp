@@ -9,6 +9,8 @@ namespace Engine
 	template VectorCamera<double>;
 	template OrthographicAspect<float>;
 	template OrthographicAspect<double>;
+	template Frustum<float>;
+	template Frustum<double>;
 
 
 	namespace GlobalAspectConfiguration

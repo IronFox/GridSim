@@ -10,6 +10,7 @@ different types of cameras.
 
 
 #include "../math/matrix.h"
+#include "../math/object.h"
 #include "../math/complex.h"
 #include "enumerations.h"
 //#include <general/undef.h>
@@ -33,7 +34,8 @@ private:
 template <typename Subtype>
 		MF_DECLARE(void)	defNormalST(const TVec3<C>&p0, const TVec3<C>&p1, const TVec3<C>&p2, TVec3<C>&target);
 		MF_STATIC(1,bool)	intersects(const C0&x0, const C0&y0, const C0&z0,const C0&x1, const C0&y1, const C0&z1,const TVec3<C>&p0, const TVec3<C>&p1, const TVec3<C>&p2, const TVec3<C>&p3);
-		MF_STATIC(1,bool)	intersects(const TVec3<C0> box[2], const TVec3<C>&p0, const TVec3<C>&p1, const TVec3<C>&p2, const TVec3<C>&p3);
+		MF_STATIC(1,bool)	intersects(const Box<C0>&box, const TVec3<C>&p0, const TVec3<C>&p1, const TVec3<C>&p2, const TVec3<C>&p3);
+		MF_STATIC(1,bool)		TestTriangle(const TVec3<C0>&p0,const TVec3<C0>&p1,const TVec3<C0>&p2,const TVec3<C0>&e0,const TVec3<C0>&d);
 
 public:
 	union
@@ -81,16 +83,18 @@ public:
 
 MFUNC3	(bool)				visible(const C0&x, const C1&y, const C2&z) const;		//!< Determines visibility of a point \return true if the specified point lies within the local frustum
 MFUNC2	(bool)				visible(const TVec3<C0>&center, const C1&radius)	const;	//!< Determines visibility of a sphere \param center Center of the sphere \param radius Radius of the sphere \return true if the specified sphere is inside or intersects the volume, false otherwise
-MFUNC2	(bool)				isVisible(const TVec3<C0>&center, const C1&radius)	const;	//!< Identical to visible()
-MFUNC2	(Visibility)		checkSphereVisibility(const TVec3<C0>&center, const C1&radius)	const;	//!< Determines visibility of a sphere \param center Center of the sphere \param radius Radius of the sphere \return sphere visibility
-MFUNC2	(Visibility)		checkBoxVisibility(const TVec3<C0>&lower_corner, const TVec3<C1>&upper_corner)	const;	 //!< Determines visibility of a box \param lower_corner 3 component vector pointing to the lower corner of the box \param upper_corner 3 component vector pointing to the upper corner of the box \return box visibility
-MFUNC2	(bool)				intersectsCone(const TVec3<C0>&center, const C1&radius) const;	//!< Similar to visible(), however ignoring the znear and zfar planes, making the frustum infinitly long
-MF_DECLARE(void)			updateNormals();								//!< Recalculate normals from the modified volume edges
-MF_DECLARE(void)			updateNormalsP();								
+MFUNC2	(bool)				IsVisible(const TVec3<C0>&center, const C1&radius)	const;	//!< Identical to visible()
+MFUNC1	(bool)				IsVisible(const Box<C0>&)	const;
+MFUNC2	(Visibility)		CheckSphereVisibility(const TVec3<C0>&center, const C1&radius)	const;	//!< Determines visibility of a sphere \param center Center of the sphere \param radius Radius of the sphere \return sphere visibility
+MF_DECLARE (Visibility)		CheckBoxVisibility(const Box<C>&)	const;	 //!< Determines visibility of a box \return box visibility
+
+MFUNC2	(bool)				IntersectsCone(const TVec3<C0>&center, const C1&radius) const;	//!< Similar to visible(), however ignoring the znear and zfar planes, making the frustum infinitly long
+MF_DECLARE(void)			UpdateNormals();								//!< Recalculate normals from the modified volume edges
+MF_DECLARE(void)			UpdateNormalsP();								
 template <typename SubType>
-MF_DECLARE(void)			updateNormalsST();								
+MF_DECLARE(void)			UpdateNormalsST();								
 MF_DECLARE(String)			ToString()	const;
-MF_DECLARE(void)			flipNormals();
+MF_DECLARE(void)			FlipNormals();
 
 MFUNC1	(Frustum<C>&)		operator=(const Frustum<C0>&other);
 };
@@ -141,10 +145,10 @@ public:
 	MFUNC2(void)				ReverseProject(const TVec3<C0>&point, TVec3<C1>&position)					const;	//!< Reverse projects a point on the screen to its point of origin. \param point 3 component screen point to reverse Project.\param position 3 component out vector to write the final point coordinates to. 
 	MF_DECLARE(const Volume&)	ResolveVolume() 													const;	//!< Extracts a visual volume from the current matrix content. \return Const reference to a global visual volume object that contains the local visual volume.
 	MF_DECLARE(const Volume&)	ResolveFrustum()													const;	//!< Identical to ResolveVolume()
-	MF_DECLARE(const Volume&)	GetFrustrum()														const;	//!< Identical to ResolveVolume()
+	MF_DECLARE(const Volume&)	GetFrustum()														const;	//!< Identical to ResolveVolume()
 	MF_DECLARE(void)			ResolveVolume(Volume&v) 											const;	//!< Extracts a visual volume from the current matrix content. @param v [out] Reference to a global visual volume object that should contain the local visual volume.
 	MF_DECLARE(void)			ResolveFrustum(Volume&v)											const;	//!< Identical to ResolveVolume()
-	MF_DECLARE(void)			GetFrustrum(Volume&v)												const;	//!< Identical to ResolveVolume()
+	MF_DECLARE(void)			GetFrustum(Volume&v)												const;	//!< Identical to ResolveVolume()
 	template <typename SubType>
 		MF_DECLARE(void)		ResolveVolumeST(Volume&v)											const;	//!< Similar however potential more precise version of ResolveVolume(). Normal calculation is done using the specified sub type instead (double recommended here)
 	MF_DECLARE(String)			ToString()															const;	//!< Creates a string representation of the local aspect. \return String representation.

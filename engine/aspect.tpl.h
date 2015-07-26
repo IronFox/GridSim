@@ -31,7 +31,7 @@ MFUNC2 (bool) Frustum<C>::visible(const TVec3<C0>&center, const C1&radius) const
 }
 
 template <class C>
-	MFUNC2 (bool) Frustum<C>::intersectsCone(const TVec3<C0>&center, const C1&radius) const
+	MFUNC2 (bool) Frustum<C>::IntersectsCone(const TVec3<C0>&center, const C1&radius) const
 		{
 			return	(Vec::planePointDistanceN(near_bottom_left,bottom_normal,center)<radius)
 					&&
@@ -43,7 +43,7 @@ template <class C>
 		}
 
 
-template <class C> MFUNC2 (typename Frustum<C>::Visibility) Frustum<C>::checkSphereVisibility(const TVec3<C0>&center, const C1&radius) const
+template <class C> MFUNC2 (typename Frustum<C>::Visibility) Frustum<C>::CheckSphereVisibility(const TVec3<C0>&center, const C1&radius) const
 	{
 		const TVec3<C>* base[6] =
 			{
@@ -86,92 +86,107 @@ template <class C> MFUNC3 (bool) Frustum<C>::visible(const C0&x, const C1&y, con
 	
 	
 	
-template <class C> MFUNC1 (bool) Frustum<C>::intersects(const C0&x0, const C0&y0, const C0&z0,const C0&x1, const C0&y1, const C0&z1,const TVec3<C>&p0, const TVec3<C>&p1, const TVec3<C>&p2, const TVec3<C>&p3)
+template <class C>
+	MF_STATIC(1,bool) Frustum<C>::TestTriangle(const TVec3<C0>&p0,const TVec3<C0>&p1,const TVec3<C0>&p2,const TVec3<C0>&e0,const TVec3<C0>&d)
+	{
+		TVec3<C0> rs;
+		return
+			Obj::detTriangleRayIntersection(p0, p1, p2, e0, d, rs)
+			&& 
+			rs.z >= -getError<C0>() 
+			&& 
+			rs.z <= (C0)1+getError<C0>() 
+			&& 
+			rs.x >= getError<C0>() 
+			&& 
+			rs.y >= getError<C0>() 
+			&& 
+			rs.x+rs.y <= (C0)1+getError<C0>();
+	}
+
+template <class C>
+	MFUNC1 (bool) Frustum<C>::intersects(const C0&x0, const C0&y0, const C0&z0,const C0&x1, const C0&y1, const C0&z1,const TVec3<C>&p0, const TVec3<C>&p1, const TVec3<C>&p2, const TVec3<C>&p3)
 	{
 		TVec3<C0>	e0 = {x0,y0,z0},
-						e1 = {x1,y1,z1},
-						rs;
-		if (
-			_oDetTriangleEdgeIntersection(p0, p1, p2, e0, e1, rs) 
-			&& 
-			rs[2] >= -getError<C>() 
-			&& 
-			rs[2] <= (C)1+getError<C>() 
-			&& 
-			rs[0] >= getError<C>() 
-			&& 
-			rs[1] >= getError<C>() 
-			&& 
-			rs[0]+rs[1] <= (C)1+getError<C>())
-			return true;
-		return _oDetTriangleEdgeIntersection(p0, p2, p3, e0, e1, rs) && rs[2] >= -getError<C>() && rs[2] <= (C)1+getError<C>() && rs[0] >= getError<C>() && rs[1] >= getError<C>() && rs[0]+rs[1] <= (C)1+getError<C>();
+//						e1 = {x1,y1,z1},
+						d = {x1-x0,y1-y0,z1-z0};
+						
+		return TestTriangle(p0,p1,p2,e0,d) || TestTriangle(p0,p2,p3,e0,d);
 	}
 	
 
-template <class C> MFUNC1 (bool) Frustum<C>::intersects(const TVec3<C0> box[2], const TVec3<C>&p0, const TVec3<C>&p1, const TVec3<C>&p2, const TVec3<C>&p3)
+template <class C> MFUNC1 (bool) Frustum<C>::intersects(const Box<C0>&box, const TVec3<C>&p0, const TVec3<C>&p1, const TVec3<C>&p2, const TVec3<C>&p3)
 	{
-		return	intersects(box[0].x,box[0].y,box[0].z,box[2].x,box[0].y,box[0].z,p0,p1,p2,p3)
+		return	intersects(box.x.min,box.y.min,box.z.min,box.x.max,box.y.min,box.z.min,p0,p1,p2,p3)
 				||
-				intersects(box[0].x,box[0].y,box[0].z,box[0].x,box[1].y,box[0].z,p0,p1,p2,p3)
+				intersects(box.x.min,box.y.min,box.z.min,box.x.min,box.y.max,box.z.min,p0,p1,p2,p3)
 				||
-				intersects(box[0].x,box[0].y,box[0].z,box[0].x,box[0].y,box[1].z,p0,p1,p2,p3)
+				intersects(box.x.min,box.y.min,box.z.min,box.x.min,box.y.min,box.z.max,p0,p1,p2,p3)
 				||
-				intersects(box[1].x,box[0].y,box[0].z,box[1].x,box[1].y,box[0].z,p0,p1,p2,p3)
+				intersects(box.x.max,box.y.min,box.z.min,box.x.max,box.y.max,box.z.min,p0,p1,p2,p3)
 				||
-				intersects(box[1].x,box[0].y,box[0].z,box[1].x,box[0].y,box[1].z,p0,p1,p2,p3)
+				intersects(box.x.max,box.y.min,box.z.min,box.x.max,box.y.min,box.z.max,p0,p1,p2,p3)
 				||
-				intersects(box[0].x,box[1].y,box[0].z,box[0].x,box[1].y,box[1].z,p0,p1,p2,p3)
+				intersects(box.x.min,box.y.max,box.z.min,box.x.min,box.y.max,box.z.max,p0,p1,p2,p3)
 				||
-				intersects(box[0].x,box[1].y,box[0].z,box[1].x,box[1].y,box[0].z,p0,p1,p2,p3)
+				intersects(box.x.min,box.y.max,box.z.min,box.x.max,box.y.max,box.z.min,p0,p1,p2,p3)
 				||
-				intersects(box[0].x,box[0].y,box[1].z,box[0].x,box[1].y,box[1].z,p0,p1,p2,p3)
+				intersects(box.x.min,box.y.min,box.z.max,box.x.min,box.y.max,box.z.max,p0,p1,p2,p3)
 				||
-				intersects(box[0].x,box[0].y,box[1].z,box[1].x,box[0].y,box[1].z,p0,p1,p2,p3)
+				intersects(box.x.min,box.y.min,box.z.max,box.x.max,box.y.min,box.z.max,p0,p1,p2,p3)
 				||
-				intersects(box[0].x,box[1].y,box[1].z,box[1].x,box[1].y,box[1].z,p0,p1,p2,p3)
+				intersects(box.x.min,box.y.max,box.z.max,box.x.max,box.y.max,box.z.max,p0,p1,p2,p3)
 				||
-				intersects(box[1].x,box[0].y,box[1].z,box[1].x,box[1].y,box[1].z,p0,p1,p2,p3)
+				intersects(box.x.max,box.y.min,box.z.max,box.x.max,box.y.max,box.z.max,p0,p1,p2,p3)
 				||
-				intersects(box[1].x,box[1].y,box[0].z,box[1].x,box[1].y,box[1].z,p0,p1,p2,p3);
+				intersects(box.x.max,box.y.max,box.z.min,box.x.max,box.y.max,box.z.max,p0,p1,p2,p3);
+	}
+
+
+template <class C> 
+	MFUNC1 (bool) Frustum<C>::IsVisible(const Box<C0>&box)	const
+	{
+		return CheckBoxVisibility(box) != NotVisible;
 	}
 
 	
-template <class C> MFUNC2 (typename Frustum<C>::Visibility) Frustum<C>::checkBoxVisibility(const TVec3<C0>&lower_corner, const TVec3<C1>&upper_corner)	const
+template <class C>
+	MF_DECLARE (typename Frustum<C>::Visibility) Frustum<C>::CheckBoxVisibility(const Box<C>&box)	const
 	{
 		bool all_in_box=true;
 		for (BYTE k = 0; k < 8; k++)
 		{
-			all_in_box = !Vec::oneLess(corner[k],lower_corner) && !Vec::oneGreater(corner[k],upper_corner);
+			all_in_box = box.Contains(corner[k]);
+			//!Vec::oneLess(corner[k],box.axis[k].min) && !Vec::oneGreater(corner[k],box.axis[k].max);
 			if (!all_in_box)
 				break;
 		}
 		if (all_in_box)
 			return PartiallyVisible;
 		if (
-			visible(lower_corner.x,lower_corner.y,lower_corner.z)
+			visible(box.x.min,box.y.min,box.z.min)
 			&&
-			visible(lower_corner.x,lower_corner.y,upper_corner.z)
+			visible(box.x.min,box.y.min,box.z.max)
 			&&
-			visible(lower_corner.x,upper_corner.y,upper_corner.z)
+			visible(box.x.min,box.y.max,box.z.max)
 			&&
-			visible(lower_corner.x,upper_corner.y,lower_corner.z)
+			visible(box.x.min,box.y.max,box.z.min)
 			&&
-			visible(upper_corner.x,upper_corner.y,upper_corner.z)
+			visible(box.x.max,box.y.max,box.z.max)
 			&&
-			visible(upper_corner.x,upper_corner.y,lower_corner.z)
+			visible(box.x.max,box.y.max,box.z.min)
 			&&
-			visible(upper_corner.x,lower_corner.y,lower_corner.z)
+			visible(box.x.max,box.y.min,box.z.min)
 			&&
-			visible(upper_corner.x,lower_corner.y,upper_corner.z))
+			visible(box.x.max,box.y.min,box.z.max))
 			return FullyVisible;
 		
 		// tested for box in frustum and frustum in box. now to check for other intersection. if no intersecion occurs then the box is invisible
 		
 		//test if edges of the frustum intersect box faces:
 		
-		C0 box[6];
-		_c3(lower_corner,box);
-		_c3(upper_corner,box+3);
+		//Vec(lower_corner,box);
+		//_c3(upper_corner,box+3);
 		
 		if (_oIntersectsBox(near_bottom_left,near_bottom_right,box))
 			return PartiallyVisible;
@@ -228,21 +243,21 @@ template <class C>
 	}
 
 template <class C>
-MFUNC2 (bool)	Frustum<C>::isVisible(const TVec3<C0>&center, const C1&radius)	const
-{
-	return visible(center,radius);
-}
+	MFUNC2 (bool)	Frustum<C>::IsVisible(const TVec3<C0>&center, const C1&radius)	const
+	{
+		return visible(center,radius);
+	}
 
 
 template <class C>
-MF_DECLARE(void) Frustum<C>::defNormal(const TVec3<C>&p0, const TVec3<C>&p1, const TVec3<C>&p2, TVec3<C>&out)
-{
-	TVec3<C> edge0,edge1;
-	Vec::sub(p1,p0,edge0);
-	Vec::sub(p2,p0,edge1);
-	Vec::cross(edge0,edge1,out);
-	Vec::normalize0(out);
-}
+	MF_DECLARE(void) Frustum<C>::defNormal(const TVec3<C>&p0, const TVec3<C>&p1, const TVec3<C>&p2, TVec3<C>&out)
+	{
+		TVec3<C> edge0,edge1;
+		Vec::sub(p1,p0,edge0);
+		Vec::sub(p2,p0,edge1);
+		Vec::cross(edge0,edge1,out);
+		Vec::normalize0(out);
+	}
 
 template <class C>
 	template <typename SubType>
@@ -256,7 +271,7 @@ template <class C>
 			Vec::copy(tmp,out);
 		}
 template <class C>
-	MF_DECLARE(void)	Frustum<C>::flipNormals()
+	MF_DECLARE(void)	Frustum<C>::FlipNormals()
 	{
 		Vec::mult(normal[0],-1);
 		Vec::mult(normal[1],-1);
@@ -269,37 +284,37 @@ template <class C>
 	}
 
 template <class C>
-MF_DECLARE(void) Frustum<C>::updateNormals()
-{
-	defNormal(corner[0],corner[4],corner[1],bottom_normal);
-	defNormal(corner[1],corner[5],corner[2],right_normal);
-	defNormal(corner[2],corner[6],corner[3],top_normal);
-	defNormal(corner[3],corner[7],corner[4],left_normal);
-	//defNormal(corner[0],corner[1],corner[2],near_normal);	//near field may be too small
+	MF_DECLARE(void) Frustum<C>::UpdateNormals()
 	{
-		TVec3<C>	far_center = far[0],
-					near_center = near[0];
+		defNormal(corner[0],corner[4],corner[1],bottom_normal);
+		defNormal(corner[1],corner[5],corner[2],right_normal);
+		defNormal(corner[2],corner[6],corner[3],top_normal);
+		defNormal(corner[3],corner[7],corner[4],left_normal);
+		//defNormal(corner[0],corner[1],corner[2],near_normal);	//near field may be too small
+		{
+			TVec3<C>	far_center = far[0],
+						near_center = near[0];
 
-		Vec::add(near_center,near[1]);
-		Vec::add(near_center,near[2]);
-		Vec::add(near_center,near[3]);
-		Vec::div(near_center,(C)4);
+			Vec::add(near_center,near[1]);
+			Vec::add(near_center,near[2]);
+			Vec::add(near_center,near[3]);
+			Vec::div(near_center,(C)4);
 	
-		Vec::add(far_center,far[1]);
-		Vec::add(far_center,far[2]);
-		Vec::add(far_center,far[3]);
-		Vec::div(far_center,(C)4);
+			Vec::add(far_center,far[1]);
+			Vec::add(far_center,far[2]);
+			Vec::add(far_center,far[3]);
+			Vec::div(far_center,(C)4);
 	
-		Vec::sub(near_center,far_center,near_normal);
-		Vec::normalize0(near_normal);
+			Vec::sub(near_center,far_center,near_normal);
+			Vec::normalize0(near_normal);
+		}
+	
+		defNormal(corner[7],corner[6],corner[5],far_normal);
 	}
-	
-	defNormal(corner[7],corner[6],corner[5],far_normal);
-}
 
 template <class C>
 	template <typename SubType>
-		MF_DECLARE(void) Frustum<C>::updateNormalsST()
+		MF_DECLARE(void) Frustum<C>::UpdateNormalsST()
 		{
 			defNormalST<SubType>(corner[0],corner[4],corner[1],bottom_normal);
 			defNormalST<SubType>(corner[1],corner[5],corner[2],right_normal);
@@ -310,7 +325,7 @@ template <class C>
 		}
 
 template <class C>
-	MF_DECLARE(void) Frustum<C>::updateNormalsP()
+	MF_DECLARE(void) Frustum<C>::UpdateNormalsP()
 	{
 		defNormal(corner[0],corner[4],corner[1],bottom_normal);
 		defNormal(corner[1],corner[5],corner[2],right_normal);
@@ -494,7 +509,7 @@ template <class C>
 	}
 
 template <class C>
-	MF_DECLARE (const Frustum<C>&)	Aspect<C>::GetFrustrum() const
+	MF_DECLARE (const Frustum<C>&)	Aspect<C>::GetFrustum() const
 	{
 		return ResolveVolume();
 	}
@@ -515,7 +530,7 @@ template <class C>
 	}
 
 template <class C>
-	MF_DECLARE (void) Aspect<C>::GetFrustrum(Volume&result) const
+	MF_DECLARE (void) Aspect<C>::GetFrustum(Volume&result) const
 	{
 		ResolveVolume(result);
 	}
@@ -624,7 +639,7 @@ template <class C>
 							Vec::divide(temp.xyz,temp.w);
 						Mat::transform(viewInvert,temp.xyz,result.corner[7]);
 
-		result.updateNormals();
+		result.UpdateNormals();
 	}
 
 template <class C> MF_DECLARE (String) Aspect<C>::ToString() const

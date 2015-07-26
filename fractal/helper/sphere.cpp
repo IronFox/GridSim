@@ -173,7 +173,7 @@ bool			SphereSector::isVisible(::Sphere*super, double distance)		const
 	super->radialPoint((abegin+aend)/2,(rbegin+rend)/2,distance,sphere_center);
 	sphere_radius = vsqrt(vmax(vmax(Vec::quadraticDistance(p0,sphere_center),Vec::quadraticDistance(p1,sphere_center)),vmax(Vec::quadraticDistance(p2,sphere_center),Vec::quadraticDistance(p3,sphere_center))));
 	Mat::transform(super->world_system,sphere_center,center);
-	bool rs = super->frustum.isVisible(center,sphere_radius);
+	bool rs = super->frustum.IsVisible(center,sphere_radius);
 	return rs;
 	
 }

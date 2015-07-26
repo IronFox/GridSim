@@ -1312,7 +1312,7 @@ namespace Fractal
 
 
 		
-		if (!override_only && view.frustum.isVisible(view_relative_center,global_sphere.radius))
+		if (!override_only && view.frustum.IsVisible(view_relative_center,global_sphere.radius))
 			visibility |= Visibility::Primary;
 		if ((visibility & (Visibility::Primary)) || has_override)
 		{
@@ -1501,7 +1501,7 @@ namespace Fractal
 			
 			Height::apply(reflected_center,-h,*this,*super->context);
 			Vec::add(reflected_center,translation);
-			if (view.frustum.isVisible(reflected_center,global_sphere.radius))
+			if (view.frustum.IsVisible(reflected_center,global_sphere.radius))
 			{
 				visibility |= Visibility::Reflection;
 				if (effective_distance <= focus_barrier && depth > view.min_layer /*&& depth > super->context->recursive_depth/2*/)
@@ -1571,7 +1571,7 @@ namespace Fractal
 			TVec3<> water_center;
 			Vec::add(this->water_center,translation,water_center);
 
-			if (view.frustum.isVisible(water_center,global_sphere.radius))
+			if (view.frustum.IsVisible(water_center,global_sphere.radius))
 			{
 				visibility |= Visibility::Water;
 				if (effective_distance <= focus_barrier && depth > view.min_layer && h+global_sphere.radius*0.5 > 0)
