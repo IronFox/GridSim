@@ -601,17 +601,25 @@ namespace TCP
 
 	void						PeerWriter::Begin(SocketAccess*access)
 	{
-		this->access = access;
+		accessPointerLock.lock();
+		this->accessPointer = access;
+		accessPointerLock.unlock();
 		this->Start();
 	}
 
 	void						PeerWriter::Update(SocketAccess*access)
 	{
-		this->access = access;
+		accessPointerLock.lock();
+
+		this->accessPointer = access;
+		accessPointerLock.unlock();
 	}
 	void						PeerWriter::Terminate()
 	{
-		access = nullptr;
+		accessPointerLock.lock();
+			accessPointer = nullptr;
+		accessPointerLock.unlock();
+
 		connectionLost = true;
 		pipe.clear();
 		pipe.OverrideSignalNow();
@@ -624,14 +632,18 @@ namespace TCP
 		Buffer<Array<BYTE>,0,Swap>	storage;
 		for (;;)
 		{
-			if (access && !connectionLost)
+
+			if (accessPointer && !connectionLost)
 				pipe.WaitForContent();
-			if (!access || connectionLost || pipe.IsEmpty())
+
+			accessPointerLock.lock();
+			if (!accessPointer || connectionLost || pipe.IsEmpty())
 			{
 				connectionLost = true;
-				access = nullptr;
+				accessPointer = nullptr;
 				if (verbose)
 					std::cout << __func__<<" exit"<<std::endl;
+				accessPointerLock.unlock();
 				return;
 			}
 			storage.Clear();
@@ -648,19 +660,22 @@ namespace TCP
 				bool did_write = false;
 				{
 					UINT32*data = (UINT32*)package.pointer();
-					int rs = access->Write(package.pointer(),package.size());
+					int rs = accessPointer->Write(package.pointer(),package.size());
 					if ((size_t)rs != package.size())
 					{
 						if (verbose)
 							std::cout << __func__ << " exit: failed to send package chunk"<<std::endl;
 						connectionLost = true;
-						access = nullptr;
+						accessPointer = nullptr;
 						parent->handleUnexpectedSendResult(rs);
+						accessPointerLock.unlock();
 						return;
 					}
 				}
 			
 			}
+			accessPointerLock.unlock();
+
 			storage.Clear();
 			if (verbose)
 				std::cout << __func__ << " success "<<std::endl;

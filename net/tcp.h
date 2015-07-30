@@ -642,12 +642,13 @@ namespace TCP
 	class PeerWriter : public TCPThreadObject
 	{
 		WorkPipe<Array<BYTE> >		pipe;
-		SocketAccess				*volatile access;
+		SocketAccess				*volatile accessPointer;
+		SpinLock					accessPointerLock;
 	public:
 		bool						connectionLost;
 		Peer						*const parent;
 		
-		/**/						PeerWriter(Peer*parent):access(nullptr),connectionLost(false),parent(parent){}
+		/**/						PeerWriter(Peer*parent):accessPointer(nullptr),connectionLost(false),parent(parent){}
 
 		void						Begin(SocketAccess*access);
 		void						Update(SocketAccess*access);
