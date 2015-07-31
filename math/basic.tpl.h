@@ -77,7 +77,7 @@ namespace Math
 				return (C0)max;
 			return v;
 		}
-		MFUNC  (char)        sign(const C&f)
+		MFUNC  (int)        sign(const C&f)
 		{
 			if (f < -getError<C>()/100)
 				return -1;
@@ -592,7 +592,7 @@ namespace Math
 	}
 
 
-    MFUNC (char)        sign(C f)
+    MFUNC (int)        sign(C f)
     {
         if (f < -getError<C>()/100)
             return -1;
