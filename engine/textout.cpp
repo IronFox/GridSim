@@ -372,6 +372,10 @@ namespace Engine
 	{
 		return getUnscaledWidth(line.c_str(),line.length())*state.x_scale;
 	}
+	float VirtualTextout::getScaledWidth(const StringRef&line)
+	{
+		return getUnscaledWidth(line.pointer(),line.length())*state.x_scale;
+	}
 
 	float VirtualTextout::getScaledHeight()
 	{

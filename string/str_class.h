@@ -258,6 +258,13 @@ template <typename T>
 		/**/			ReferenceExpression():reference(NULL),len(0) {}
 		/**/			ReferenceExpression(const T*str):reference(str),len(Template::strlen(str)) {}
 		/**/			ReferenceExpression(const T*str, size_t length):reference(str),len(length) {}
+		inline bool		DropLastChar()
+						{
+							if (!len)
+								return false;
+							len--;
+							return true;
+						}
 		inline size_t	length()	const	//! Retrieves the length of the reference character segment (excluding any trailing zero) @return Length in characters
 						{
 							return len;
