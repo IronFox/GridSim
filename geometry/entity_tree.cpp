@@ -259,9 +259,9 @@ void		CompositeEntityTree::recursiveRemap(const Buffer<Entity*>&source, float se
 			unary_child = 0;
 	for (BYTE k = 0; k < 8; k++)
 	{
-		BYTE p[3] = {k / 4,
-					 k % 4 / 2,
-					 k % 4 % 2};
+		BYTE p[3] = { (BYTE)(k / 4),
+					 (BYTE)(k % 4 / 2),
+					 (BYTE)(k % 4 % 2)};
 		Volume d;
 		bool collapsed(false);
 		for (BYTE j = 0; j < 3; j++)
@@ -853,9 +853,9 @@ void		EntityTree::_RecursiveRemap(const Buffer<Entity*>&source)
 			unary_child = 0;
 	for (BYTE k = 0; k < 8; k++)
 	{
-		BYTE p[3] = {k / 4,
-					 k % 4 / 2,
-					 k % 4 % 2};
+		BYTE p[3] = { (BYTE)(k / 4),
+					 (BYTE)(k % 4 / 2),
+					 (BYTE)(k % 4 % 2)};
 		Volume d;
 		bool collapsed(false);
 		for (BYTE j = 0; j < 3; j++)

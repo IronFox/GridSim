@@ -396,8 +396,8 @@ namespace Flare
 			for (unsigned i = 0; i < 10; i++)
 			{
 				float angle = random.getFloat();
-				TVec3<> c = {0.5,random.getFloat()*0.25+0.5,random.getFloat()+0.5};
-				Vec::setLen0(c,1.2);
+				TVec3<> c = {0.5f,random.getFloat()*0.25f+0.5f,random.getFloat()+0.5f};
+				Vec::setLen0(c,1.2f);
 				Vec::clamp(c,0,1);
 				
 				while (counter[(unsigned)(8*angle)] > i/8)

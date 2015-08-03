@@ -1347,7 +1347,7 @@ namespace Engine
 			return;
 		is_bound = false;
 		if (OpenGL::created_contexts.isEmpty())
-			throw Renderer::GeneralFault(globalString("Cannot unbind OpenGL context: no reference context"));
+			FATAL__("Cannot unbind OpenGL context: no reference context");
 		#if SYSTEM==WINDOWS
 			wglMakeCurrent(OpenGL::created_contexts.first().device_context, NULL);
 		#elif SYSTEM==UNIX

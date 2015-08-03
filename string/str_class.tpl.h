@@ -958,7 +958,7 @@ template <typename T>
 
 template <typename T>
 	template <class Marker>
-		void					StringTemplate<T>::genericEraseCharacters(const Marker&marked, bool erase_matches)
+		void					StringTemplate<T>::genericEraseCharacters(const Marker &marked, bool erase_matches)
 		{
 			index_t erase_count = 0;
 			const T*read = field;
@@ -1029,7 +1029,7 @@ template <typename T>
 template <typename T>
 	StringTemplate<T>&		StringTemplate<T>::eraseCharacters(bool doReplace(T character), bool erase_matches)
 	{
-		genericEraseCharacters(&doReplace,erase_matches);
+		genericEraseCharacters(doReplace,erase_matches);
 		return *this;
 	}
 
@@ -1105,7 +1105,7 @@ template <typename T>
 template <typename T>
 	count_t					StringTemplate<T>::countCharacters(bool isMatch(T character), bool count_matches)	const
 	{
-		return genericCountCharacters(&isMatch,count_matches);
+		return genericCountCharacters(isMatch,count_matches);
 	}
 template <typename T>
 	count_t					StringTemplate<T>::countCharactersIgnoreCase(const StringTemplate<T>& characters, bool count_matches)	const
@@ -1186,7 +1186,7 @@ template <typename T>
 template <typename T>
 	StringTemplate<T>&		StringTemplate<T>::addSlashesToThis()
 	{
-		genericAddSlashes(&Template::isEscapable<T>);
+		genericAddSlashes(Template::isEscapable<T>);
 		return *this;
 	}
 
@@ -1214,7 +1214,7 @@ template <typename T>
 template <typename T>
 	StringTemplate<T>&		StringTemplate<T>::addSlashesToThis(bool isMatch(T character))
 	{
-		genericAddSlashes(&isMatch);
+		genericAddSlashes(isMatch);
 		return *this;
 	}
 

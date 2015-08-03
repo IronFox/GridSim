@@ -427,7 +427,7 @@ namespace Engine
 	template <class GL, class Def> Material<GL,Def>::Material(Scenery<GL,Def>*parent, GL*renderer_,CGS::MaterialInfo&source,TextureTable<GL>*table):owner(parent), renderer(renderer_),info(source),vertexFlags(0),texture_table(table),locked(false),requires_rebuild(false),initialized(false),additional(0)
 	{
 	    SCENERY_LOG("creating visual");
-	    coord_layers = UINT32(source.countCoordLayers());
+	    coord_layers = UINT16(source.countCoordLayers());
 		
 		SCENERY_LOG("counted "+String(coord_layers)+" coordinate layers");
 		//coord_layers = 0;
@@ -1885,9 +1885,9 @@ namespace Engine
 					unary_child = 0;
 			for (BYTE k = 0; k < 8; k++)
 			{
-				BYTE p[3] = {k / 4,
-							 k % 4 / 2,
-							 k % 4 % 2};
+				BYTE p[3] = {(BYTE)(k / 4),
+							(BYTE)(k % 4 / 2),
+							(BYTE)(k % 4 % 2)};
 				bool collapsed(false);
 				TVec3<typename Def::FloatType>	min,max,out_min,out_max;
 				volume.GetMin(min);

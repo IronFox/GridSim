@@ -327,7 +327,7 @@ namespace Map	//! Geometrical scenario composition
 									{}
 									ObjectInstance(Composition*composition):Entity("Object",Entity::NoOrder,composition),type(Physical),spawn_count(0),spawned(0),appear_delay(0),respawn_delay(1),current_delay(0)
 									{}
-									ObjectInstance(ObjectInstance&&other):Entity(other),type(other.type),source_name(other.source_name),spawn_count(other.spawn_count),spawned(other.spawned),appear_delay(other.appear_delay),respawn_delay(other.respawn_delay),current_delay(other.current_delay),instance(other.instance),collision_effects(other.collision_effects)
+									ObjectInstance(ObjectInstance&&other):Entity(std::move(other)),type(other.type),source_name(other.source_name),spawn_count(other.spawn_count),spawned(other.spawned),appear_delay(other.appear_delay),respawn_delay(other.respawn_delay),current_delay(other.current_delay),instance(other.instance),collision_effects(other.collision_effects)
 									{
 										ASSERT__(other.collision_effects.isEmpty());
 									}
@@ -379,7 +379,7 @@ namespace Map	//! Geometrical scenario composition
 									{}
 									Shape(Composition*composition):Entity("Shape",Entity::Default,composition),type(Circle),primary_diameter(2),secondary_diameter(2)
 									{}
-									Shape(Shape&&other):Entity(other),type(other.type),primary_diameter(other.primary_diameter),secondary_diameter(other.secondary_diameter),polygon_points(other.polygon_points),triangulation(other.triangulation)
+									Shape(Shape&&other):Entity(std::move(other)),type(other.type),primary_diameter(other.primary_diameter),secondary_diameter(other.secondary_diameter),polygon_points(other.polygon_points),triangulation(other.triangulation)
 									{
 										ASSERT__(other.polygon_points.isEmpty());	//must have been moved
 									}
@@ -426,7 +426,7 @@ namespace Map	//! Geometrical scenario composition
 									{}
 									HexGrid(Composition*composition):Entity("HexGrid",Entity::Default),grid(8,8),grid_offset(-4,-4),cell_height(1.f)
 									{}
-									HexGrid(HexGrid&&other):Entity(other),grid(other.grid),grid_offset(other.grid_offset),cell_height(other.cell_height),hull(other.hull)
+									HexGrid(HexGrid&&other):Entity(std::move(other)),grid(other.grid),grid_offset(other.grid_offset),cell_height(other.cell_height),hull(other.hull)
 									{}
 
 	virtual	void					parse(const XML::Node&node,float scale, const FileSystem::Folder&loading_context) override;	//!< Parses the local shape configuration from the specified XML node
@@ -486,7 +486,7 @@ namespace Map	//! Geometrical scenario composition
 									{}
 									Track(Composition*composition):Entity("Track",Entity::MetaEntity,composition),loop(false)
 									{}
-									Track(Track&&other):Entity(other),loop(other.loop),start_positions(other.start_positions),checkpoints(other.checkpoints)
+									Track(Track&&other):Entity(std::move(other)),loop(other.loop),start_positions(other.start_positions),checkpoints(other.checkpoints)
 									{
 										ASSERT__(other.checkpoints.isEmpty());
 									}
@@ -702,7 +702,7 @@ namespace Map	//! Geometrical scenario composition
 									{}
 									Volume(Composition*composition):Entity("Volume",Entity::Directional,composition),type(Sphere),height(1),radius(1)
 									{}
-									Volume(Volume&&other):Entity(other),type(other.type),height(other.height),radius(other.radius),effects(other.effects)
+									Volume(Volume&&other):Entity(std::move(other)),type(other.type),height(other.height),radius(other.radius),effects(other.effects)
 									{
 										ASSERT__(other.effects.isEmpty());
 									}

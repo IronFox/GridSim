@@ -1076,7 +1076,7 @@ template <typename T>
 									}
 			};
 		template <class Marker>
-			void					genericEraseCharacters(const Marker&marked, bool erase_matches);
+			void					genericEraseCharacters(const Marker &marked, bool erase_matches);
 		template <class Marker>
 			count_t					genericCountCharacters(const Marker&marked, bool count_matches)const;
 		template <class Marker>

@@ -231,7 +231,7 @@ template <typename T, typename Strategy>
 
 		for (index_t i = 0; i < fill; i++)
 		{
-			new ((storage_begin+i)) T(other.storage_begin[i]);
+			new ((storage_begin+i)) T(std::move(other.storage_begin[i]));
 			//storage_begin[i] = other.storage_begin[i];
 		}
 	}
@@ -846,7 +846,7 @@ template <typename T, typename Strategy>
 			{
 				ensureHasSpace();
 
-				new (usage_end++) T(el);
+				new (usage_end++) T(std::move(el));
 				#if defined(_DEBUG) && __BUFFER_DBG_FILL_STATE__
 					fill_state++;
 					CHK_FILLSTATE

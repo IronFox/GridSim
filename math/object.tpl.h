@@ -6079,9 +6079,9 @@ namespace ObjectMath
 		{
 			if (!child[k])
 			{
-				BYTE p[3] = {	k / 4,
-								k % 4 / 2,
-								k % 4 % 2};
+				BYTE p[3] = {	(BYTE)(k / 4),
+								(BYTE)(k % 4 / 2),
+								(BYTE)(k % 4 % 2)};
 				Box<C>	d;
 				for (BYTE j = 0; j < 3; j++)
 				{

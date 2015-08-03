@@ -21,10 +21,10 @@ const char* shortenFile(const char*full_file)
 namespace CGS
 {
 
-TVec4<float>	ambient_default = {0.2,0.2,0.2,1},
-				diffuse_default = {0.8,0.8,0.8,1},
-				specular_default = {0,0,0,1},
-				emission_default = {0,0,0,1};
+TVec4<float>	ambient_default = {0.2f,0.2f,0.2f,1.f},
+				diffuse_default = {0.8f,0.8f,0.8f,1.f },
+				specular_default = {0,0,0,1.f },
+				emission_default = {0,0,0,1.f };
 float			shininess_default = 0;
 
 LogFile		*log(NULL);

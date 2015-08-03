@@ -1176,7 +1176,7 @@ namespace FileSystem
 	template <typename T>
 		static StringTemplate<T>	_escapeSpaces(StringTemplate<T> path)
 		{
-			while (index_t at = path.indexOf((T)"\\"))
+			while (index_t at = path.indexOf((T)'\\'))
 				path.erase(at-1,1);
 			StringTemplate<T> final;
 			for (index_t i = 0; i < path.length(); i++)

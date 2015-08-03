@@ -1,6 +1,6 @@
 #include "../global_root.h"
 #include "str_class.h"
-#include <io/file_system.h>
+#include "../io/file_system.h"
 #include <algorithm>
 
 /******************************************************************
@@ -67,7 +67,7 @@ void gotoxy(int x, int y)
 		printf("%s", essq);
 	#elif SYSTEM==WINDOWS
 		HANDLE hStdout = GetStdHandle(STD_OUTPUT_HANDLE) ; 
-		COORD position = { x, y } ; 
+		COORD position = { (SHORT)x, (SHORT)y } ; 
      
 		SetConsoleCursorPosition( hStdout, position ) ;
 	#endif

@@ -1111,7 +1111,7 @@ namespace Converter
 			ObjMaterial*material = material_list[i];
 			logMessage("Writing material '"+material->name+"'");
 			CGS::MaterialA<>&mt = target.material_field[i];
-			mt.data.coord_layers = unsigned(material->info.layer_field.length());
+			mt.data.coord_layers = UINT16(material->info.layer_field.length());
 			mt.name = material->name;
 			mt.info.adoptData(material->info);
 			if (mt.info.layer_field.length())

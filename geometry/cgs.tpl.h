@@ -4357,7 +4357,7 @@ template <class Def> void Geometry<Def>::makeSimpleObject(const Float*vertex,cou
 	clear();
 	setSize(1,1,0,0);
 	material_field[0].data.object_field.setSize(1);
-	material_field[0].data.coord_layers = (unsigned)(layers);
+	material_field[0].data.coord_layers = (UINT16)(layers);
 	RenderObjectA<Def>&robj = material_field[0].data.object_field[0];
 	ASSERT__(object_field.length()==1);
 	robj.target = object_field.pointer();
@@ -4422,7 +4422,7 @@ template <class Def>
 		setSize(ctr.CountObjects(),1,0,0);
 		ASSERT__(object_field.length()==ctr.CountObjects());
 		material_field[0].data.object_field.setSize(ctr.CountLODs());
-		material_field[0].data.coord_layers = (unsigned)(ctr.CountTextureLayers());
+		material_field[0].data.coord_layers = (UINT16)(ctr.CountTextureLayers());
 		material_field[0].name = "MainMaterial";
 		ASSERT_LESS__(ctr.CountTextureLayers(),0x10000);
 

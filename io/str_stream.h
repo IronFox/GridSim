@@ -15,7 +15,7 @@ namespace StrStream
 	
 	inline TSpace	space(int len)
 	{
-		TSpace result = {len};
+		TSpace result = {(unsigned)len};
 		return result;
 	}
 
@@ -27,7 +27,7 @@ namespace StrStream
 	
 	inline TTabSpace	tabSpace(int len)
 	{
-		TTabSpace result = {len};
+		TTabSpace result = {(unsigned)len};
 		return result;
 	}
 
