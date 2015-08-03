@@ -209,7 +209,7 @@ namespace Strategy
 		template <typename T>
 			inline static	void	move(T&from, T&to)
 			{
-				to = from;
+				to = std::move(from);
 			}
 
 			/**
@@ -218,9 +218,9 @@ namespace Strategy
 		template <typename T>
 			inline static	void	swap(T&u, T&v)
 			{
-				T tmp = u;
-				u = v;
-				v = tmp;
+				T tmp = std::move(u);
+				u = std::move(v);
+				v = std::move(tmp);
 			}
 
 
@@ -328,7 +328,7 @@ namespace Strategy
 		template <typename T>
 			inline static	void	move(T&from, T&to)
 			{
-				to = from;
+				to = std::move(from);
 			}
 			/**
 				@brief Swaps data of @b u and @b v
@@ -336,9 +336,9 @@ namespace Strategy
 		template <typename T>
 			inline static	void	swap(T&u, T&v)
 			{
-				T tmp = u;
-				u = v;
-				v = tmp;
+				T tmp = std::move(u);
+				u = std::move(v);
+				v = std::move(tmp);
 			}
 
 
