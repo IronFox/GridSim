@@ -194,7 +194,7 @@ namespace Strategy
 		template <typename T>
 			inline static	void	constructSingleFromFleetingData(T*target, T&data)
 			{
-				new (target) T(data);
+				new (target) T(std::move(data));
 			}
 
 
@@ -304,7 +304,7 @@ namespace Strategy
 			inline static	void	constructRangeFromFleetingData(T*write_begin, T*write_end, T*read_begin)
 			{
 				while (write_begin != write_end)
-					new (write_begin++) T(*read_begin++);
+					new (write_begin++) T(std::move(*read_begin++));
 			}
 
 			/**
