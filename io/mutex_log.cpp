@@ -72,66 +72,17 @@ SynchronizedLogFile::~SynchronizedLogFile()
 
 bool        SynchronizedLogFile::log(const char*line, bool time_)
 {
-//    ShowMessage(line);
-    if (!begin())
-        return false;
-    if (time_)
-    {
-        time_t tt = time(NULL);
-        const tm*t = localtime(&tt);
-        char output[256];
-        unsigned len = (unsigned)strftime(output,sizeof(output),format.c_str(),t);
-        mutex.lock();
-        if (fwrite(output,1,len,f)!=len)
-		{
-			end();
-			mutex.release();
-			return false;
-		}
-    }
-    else
-        mutex.lock();
-	size_t len = strlen(line);
-    if (fwrite(line,1,len,f)!=len)
-	{
-		end();
-		mutex.release();
-		return false;
-	}
-	end();
-	mutex.release();
-    return true;
+	mutex.lock();
+	bool rs = Super::log(line, time_);
+	mutex.unlock();
+	return rs;
 }
 
 bool        SynchronizedLogFile::log(const String&line, bool time_)
 {
-//    cout << "'"<<line.c_str()<<"' ("<<line.length()<<")\n";
-    if (!begin())
-        return false;
-    if (time_)
-    {
-        time_t tt = time(NULL);
-        const tm*t = localtime(&tt);
-        char output[256];
-        unsigned len = (unsigned)strftime(output,sizeof(output),format.c_str(),t);
-        mutex.lock();
-        if (fwrite(output,1,len,f)!=len)
-		{
-			end();
-			mutex.release();
-			return false;
-		}
-    }
-    else
-        mutex.lock();
-    if (fwrite(line.c_str(),1,line.length(),f)!=line.length())
-	{
-		end();
-		mutex.release();
-		return false;
-	}
-	end();
-	mutex.release();
-	return true;
+	mutex.lock();
+	bool rs = Super::log(line, time_);
+	mutex.unlock();
+	return rs;
 }
 

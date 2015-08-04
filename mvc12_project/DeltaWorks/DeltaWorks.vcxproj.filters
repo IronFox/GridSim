@@ -628,6 +628,9 @@
     <ClCompile Include="..\..\geometry\bvh.cpp">
       <Filter>Source Files\geometry</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\container\buffer.cpp">
+      <Filter>Source Files\container</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\io\config.h">

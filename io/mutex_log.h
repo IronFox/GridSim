@@ -38,6 +38,7 @@ class SynchronizedLogFile:public LogFile
 {
 private:
         Mutex      mutex;
+		typedef LogFile	Super;
 		
 		friend class MutexLogSession;
 public:
