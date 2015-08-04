@@ -5,11 +5,6 @@
 
 Thread-safe Logfile-creation-tool.
 
-This file is part of Delta-Works
-Copyright (C) 2006-2008 Stefan Elsen, University of Trier, Germany.
-http://www.delta-works.org/forge/
-http://informatik.uni-trier.de/
-
 ******************************************************************/
 
 #include "log.h"
@@ -58,7 +53,9 @@ inline  bool        open(const String&filename, bool makeclear);   //!< Closes t
 inline  void        close();                                        //!< Closes the active file
         bool        log(const char*line, bool time_=false);         //!< Writes a line to the end of the log file and flushes the file \param line Pointer to the string that should be written \param time_ Specifies whether or not a timestamp should preceed the output \return true on success
         bool        log(const String&line, bool time_=false);      //!< Writes a line to the end of the log file and flushes the file \param line String that should be written \param time_ Specifies whether or not a timestamp should preceed the output \return true on success
-inline  Session		operator<<(const char*line);
+		bool        Log(const char*line, bool time_ = false) { return log(line, time_); }
+		bool        Log(const String&line, bool time_ = false) { return log(line, time_); }
+		inline  Session		operator<<(const char*line);
 inline  Session		operator<<(const String&line);
 inline  Session		operator<<(const TNewLine&);
 inline  Session		operator<<(const TLogIndent&indent);
