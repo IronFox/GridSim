@@ -5,11 +5,6 @@
 
 Thread-safe Logfile-creation-tool.
 
-This file is part of Delta-Works
-Copyright (C) 2006-2008 Stefan Elsen, University of Trier, Germany.
-http://www.delta-works.org/forge/
-http://informatik.uni-trier.de/
-
 ******************************************************************/
 
 
@@ -89,6 +84,7 @@ bool        SynchronizedLogFile::log(const char*line, bool time_)
         mutex.lock();
         if (fwrite(output,1,len,f)!=len)
 		{
+			end();
 			mutex.release();
 			return false;
 		}
@@ -98,11 +94,12 @@ bool        SynchronizedLogFile::log(const char*line, bool time_)
 	size_t len = strlen(line);
     if (fwrite(line,1,len,f)!=len)
 	{
+		end();
 		mutex.release();
 		return false;
 	}
-    fflush(f);
-    mutex.release();
+	end();
+	mutex.release();
     return true;
 }
 
@@ -120,6 +117,7 @@ bool        SynchronizedLogFile::log(const String&line, bool time_)
         mutex.lock();
         if (fwrite(output,1,len,f)!=len)
 		{
+			end();
 			mutex.release();
 			return false;
 		}
@@ -128,11 +126,12 @@ bool        SynchronizedLogFile::log(const String&line, bool time_)
         mutex.lock();
     if (fwrite(line.c_str(),1,line.length(),f)!=line.length())
 	{
+		end();
 		mutex.release();
 		return false;
 	}
-    fflush(f);
-    mutex.release();
-    return true;
+	end();
+	mutex.release();
+	return true;
 }
 
