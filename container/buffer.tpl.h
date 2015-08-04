@@ -1,7 +1,6 @@
 #ifndef bufferTplH
 #define bufferTplH
 
-#include <algorithm>
 
 
 #undef min

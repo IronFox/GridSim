@@ -65,8 +65,9 @@ namespace Strategy
 	template <typename T>
 		static	inline	void	reverseShiftRange(T*shift_from_rbegin, T*shift_from_rend, T*shift_to_rbegin)
 		{
-			while (shift_from_rbegin != shift_from_rend)
-				(*shift_to_rbegin--) = (*shift_from_rend--);
+			std::move_backward(shift_from_rbegin, shift_from_rend, shift_to_rbegin);
+			//while (shift_from_rbegin != shift_from_rend)
+			//	(*shift_to_rbegin--) = std::move(*shift_from_rend--);
 		}
 
 
@@ -82,8 +83,9 @@ namespace Strategy
 	template <typename T>
 		static	inline	void	shiftRange(T*shift_from_begin, T*shift_from_end, T*shift_to_begin)
 		{
-			while (shift_from_begin != shift_from_end)
-				(*shift_to_begin++) = (*shift_from_end++);
+			std::move(shift_from_being, shift_from_end, shift_to_begin);
+			//while (shift_from_begin != shift_from_end)
+			//	(*shift_to_begin++) = std::move(*shift_from_end++);
 		}
 
 
@@ -196,6 +198,11 @@ namespace Strategy
 			{
 				new (target) T(std::move(data));
 			}
+		template <typename T>
+			inline static	void	constructSingleFromFleetingData(T*target, T&&data)
+			{
+				new (target) T(std::move(data));
+			}
 
 
 			/**
@@ -208,6 +215,11 @@ namespace Strategy
 			*/
 		template <typename T>
 			inline static	void	move(T&from, T&to)
+			{
+				to = std::move(from);
+			}
+		template <typename T>
+			inline static	void	move(T&&from, T&to)
 			{
 				to = std::move(from);
 			}
@@ -227,8 +239,9 @@ namespace Strategy
 		template <typename T0, typename T1>
 			inline static	void	moveRange(T0*from_begin, T0*from_end, T1*to_begin)
 			{
-				while (from_begin != from_end)
-					(*to_begin++) = (*from_begin++);
+				std::move(from_begin, from_end, to_begin);
+				//while (from_begin != from_end)
+				//	(*to_begin++) = std::move(*from_begin++);
 			}
 
 	};
@@ -370,7 +383,7 @@ namespace Strategy
 					static inline void	execute(T0*from_begin, T0*from_end, T1*to_begin)
 					{
 						while (from_begin != from_end)
-							(*to_begin++) = (*from_begin++);
+							(*to_begin++) = std::move(*from_begin++);
 					}
 			};
 		template <typename T>
@@ -506,7 +519,7 @@ namespace Strategy
 					static inline void	execute(T0*from_begin, T0*from_end, T1*to_begin)
 					{
 						while (from_begin != from_end)
-							(*to_begin++) = (*from_begin++);
+							(*to_begin++) = std::move(*from_begin++);
 					}
 			};
 		template <typename T>
