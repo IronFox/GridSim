@@ -980,7 +980,7 @@ template <class Def>
 		return current != NULL;
 		
 		
-		/*
+#if 0
 		current++;
 		//check termination (walk down by one):
 		if (context && context->concludedBy(current))
@@ -1001,7 +1001,7 @@ template <class Def>
 			current = context->pointer();
 		}
 		return true;
-		*/
+#endif /*0*/
 	}
 	
 template <class Def>
@@ -2475,7 +2475,7 @@ template <class C> void SubGeometryA<Def>::addWeight(C&weight)		const
 
 template <class Def> void SubGeometryA<Def>::defLinkageStr(String&rs, const String&intend)
 {
-	rs+=intend+"(0x"+IntToHex((int)system_link,8)+")\n";
+	rs+=intend+"(0x"+IntToHex((int)(size_t)system_link,8)+")\n";
 	for (index_t i = 0; i < child_field.length(); i++)
 		child_field[i].defLinkageStr(rs,intend+"	");
 }
@@ -4341,7 +4341,7 @@ template <class Def> void Geometry<Def>::verifyIntegrity()
 
 template <class Def> String Geometry<Def>::getLinkageString()
 {
-	String rs = "(0x"+IntToHex((int)system_link,8)+")\n ";
+	String rs = "(0x"+IntToHex((int)(size_t)system_link,8)+")\n ";
 	for (index_t i = 0; i < object_field.length(); i++)
 		object_field[i].defLinkageStr(rs," ");
 	return rs;

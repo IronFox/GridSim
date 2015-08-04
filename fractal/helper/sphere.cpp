@@ -337,7 +337,7 @@ void			::Sphere::checkDisplayLists(const String&domain)
 			for (unsigned k = 0; k < ARRAYSIZE(phase[i].sector[j]); k++)
 				if (!phase[i].sector[j][k].display_list)
 				{
-					ErrMessage("display list in phase "+String(i)+"-"+String(j)+"."+String(k)+" is 0 ("+domain+" 0x"+IntToHex((int)this,8)+")");
+					ErrMessage("display list in phase "+String(i)+"-"+String(j)+"."+String(k)+" is 0 ("+domain+" 0x"+IntToHex((int)(__int64)this,8)+")");
 					exit(0);
 				}
 

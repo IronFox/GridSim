@@ -188,7 +188,7 @@ namespace System
 		#if SYSTEM==UNIX
 			return ((void*)pthread_self());
 		#elif SYSTEM==WINDOWS
-			return ((void*)GetCurrentThreadId());
+			return ((void*)(size_t)GetCurrentThreadId());
 		#endif
 		return NULL;
 	}

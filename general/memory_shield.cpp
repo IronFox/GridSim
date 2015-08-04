@@ -38,7 +38,7 @@ void MemoryShield::castError(const char*err)
 {
     log(err);
     for (unsigned i = 0; i < sections; i++)
-        fprintf(f,"      0x%08x (owned by 0x%08x) size: %u\n",(int)section[i].root,(int)section[i].owner,section[i].size);
+        fprintf(f,"      0x%p (owned by 0x%p) size: %u\n",section[i].root,section[i].owner,section[i].size);
 
 
     throw Fatal(location,err);
@@ -50,7 +50,7 @@ void MemoryShield::log(const char*err)
         return;
         
         
-    if (id == (unsigned)-1)
+    if (id == -1)
         fprintf(f,"(%s) %s\n",location.formatted,err);
     else
         fprintf(f,"(%s {%u}) %s\n",location.formatted,id,err);
@@ -69,11 +69,11 @@ MemoryShield::~MemoryShield()
         return;
     fprintf(f,"\nmemory-shield closing down.\nremaining sections are:\n");
     for (unsigned i = 0; i < sections; i++)
-        fprintf(f," 0x%08x\n",(int)section[i].root);
+        fprintf(f," 0x%p\n",section[i].root);
 
     fprintf(f,"\nremaining fields are:\n");
     for (unsigned i = 0; i < fields; i++)
-        fprintf(f," 0x%08x\n",(int)field[i].root);
+        fprintf(f," 0x%p\n",field[i].root);
 
     fflush(f);
     fclose(f);
@@ -88,7 +88,7 @@ MemoryShield&  MemoryShield::identify(unsigned id_)
 MemoryShield&  MemoryShield::locate(const char*file, const char*func, int line_)
 {
 	location = TCodeLocation(file,func,line_);
-    id = (unsigned)-1;
+    id = -1;
     return *this;
 }
 
@@ -109,7 +109,7 @@ void MemoryShield::shield(void*data, unsigned size)
     #ifdef TRACE_ID
         if (id == TRACE_ID)
         {
-			snprintf(buffer,sizeof(buffer),"<now tracing 0x%08x>",(unsigned)data);
+			snprintf(buffer,sizeof(buffer),"<now tracing 0x%p>",data);
             log(buffer);
             traced_addr = data;
         }
@@ -121,7 +121,7 @@ void MemoryShield::shield(void*data, unsigned size)
     for (unsigned i = 0; i < sections; i++)
         if ((BYTE*)data+size > (BYTE*)section[i].root && data < section[i].root+section[i].size)
         {
-            snprintf(buffer,sizeof(buffer),"cannot shield 0x%08x (%u bytes) - area used by field 0x%08x",(unsigned)data,size,(unsigned)section[i].root);
+            snprintf(buffer,sizeof(buffer),"cannot shield 0x%p (%u bytes) - area used by field 0x%p",data,size,section[i].root);
             castError(buffer);
         }
         
@@ -139,7 +139,7 @@ void MemoryShield::shield(void*data, unsigned size)
                 lower = el+1;
             else
             {
-                snprintf(buffer,sizeof(buffer),"cannot shield 0x%08x (%u bytes) - area occupied (used by 0x%08x)",(unsigned)data,size,(unsigned)element.root);
+                snprintf(buffer,sizeof(buffer),"cannot shield 0x%p (%u bytes) - area occupied (used by 0x%p)",data,size,element.root);
                 castError(buffer);
             }
     }
@@ -149,7 +149,7 @@ void MemoryShield::shield(void*data, unsigned size)
 
     field[lower].root = data;
     field[lower].size = size;
-    snprintf(buffer,sizeof(buffer),"0x%08x (%u bytes) shielded",(unsigned)data,size);
+    snprintf(buffer,sizeof(buffer),"0x%p (%u bytes) shielded",data,size);
     log(buffer);
     #ifdef TRACE_ID
         if (traced_addr && !covered(traced_addr))
@@ -172,7 +172,7 @@ void MemoryShield::release(const void*data)
     #ifdef TRACE_ID
         if (data == traced_addr)
         {
-            snprintf(buffer,sizeof(buffer),"<release operation {%u} on 0x%08x (traced address is 0x%08x)>",id,(unsigned)data,(unsigned)traced_addr);
+            snprintf(buffer,sizeof(buffer),"<release operation {%u} on 0x%p (traced address is 0x%p)>",id,data,traced_addr);
             log(buffer);
             traced_addr = NULL;
         }
@@ -193,13 +193,13 @@ void MemoryShield::release(const void*data)
             {
                 if (element.root != data)
                 {
-                    snprintf(buffer,sizeof(buffer),"cannot release 0x%08x",(unsigned)data);
+                    snprintf(buffer,sizeof(buffer),"cannot release 0x%p",data);
                     castError(buffer);
                 }
                 fields--;
                 for (unsigned i = el; i < fields; i++)
                     field[i] = field[i+1];
-                snprintf(buffer,sizeof(buffer),"0x%08x released",(unsigned)data);
+                snprintf(buffer,sizeof(buffer),"0x%p released",data);
                 log(buffer);
                 #ifdef TRACE_ID
                     if (traced_addr && !covered(traced_addr))
@@ -209,7 +209,7 @@ void MemoryShield::release(const void*data)
                 return;
             }
     }
-    snprintf(buffer,sizeof(buffer),"cannot release 0x%08x",(unsigned)data);
+    snprintf(buffer,sizeof(buffer),"cannot release 0x%p",data);
     castError(buffer);
 }
 
@@ -304,14 +304,14 @@ void** MemoryShield::allocate(void*owner, unsigned size)
 
     if (occupied((void*)pntr,size*sizeof(void*)))
     {
-        snprintf(buffer,sizeof(buffer),"section-allocation-error! allocated section 0x%08x is occupied",(unsigned)pntr);
+        snprintf(buffer,sizeof(buffer),"section-allocation-error! allocated section 0x%p is occupied",pntr);
         castError(buffer);
     }
 
     section[sections].root = pntr;
     section[sections].owner = owner;
     section[sections++].size = size;
-    snprintf(buffer,sizeof(buffer),"0x%08x (%u entry/ies) allocated",(unsigned)pntr,size);
+    snprintf(buffer,sizeof(buffer),"0x%p (%u entry/ies) allocated",pntr,size);
     log(buffer);
     #ifdef TRACE_ADDRESS
         if (pntr == (void**)TRACE_ADDRESS)
@@ -320,7 +320,7 @@ void** MemoryShield::allocate(void*owner, unsigned size)
     #ifdef TRACE_ID
         if (id == TRACE_ID)
         {
-            snprintf(buffer,sizeof(buffer),"<now tracing section 0x%08x>",(unsigned)pntr);
+            snprintf(buffer,sizeof(buffer),"<now tracing section 0x%p>",pntr);
             log(buffer);
             traced_addr = (void*)pntr;
         }
@@ -344,7 +344,7 @@ void MemoryShield::delocate(void*owner, void**root)
     #ifdef TRACE_ID
         if ((void*)root == traced_addr)
         {
-            snprintf(buffer,sizeof(buffer),"<section delocated {%u} 0x%08x>",id,(unsigned)traced_addr);
+            snprintf(buffer,sizeof(buffer),"<section delocated {%u} 0x%p>",id,traced_addr);
             log(buffer);
             traced_addr = NULL;
         }
@@ -355,11 +355,11 @@ void MemoryShield::delocate(void*owner, void**root)
         {
             if (section[i].owner != owner)
             {
-                snprintf(buffer,sizeof(buffer),"owner-mismatch for section 0x%08x should be 0x%08x but is 0x%08x",(unsigned)root,(unsigned)section[i].owner,(unsigned)owner);
+                snprintf(buffer,sizeof(buffer),"owner-mismatch for section 0x%p should be 0x%p but is 0x%p",root,section[i].owner,owner);
                 castError(buffer);
             }
             delete[] section[i].root;
-            snprintf(buffer,sizeof(buffer),"0x%08x (%u entry/ies) delocated",(unsigned)section[i].root,section[i].size);
+            snprintf(buffer,sizeof(buffer),"0x%p (%u entry/ies) delocated",section[i].root,section[i].size);
             log(buffer);
 
             sections--;
@@ -377,7 +377,7 @@ void MemoryShield::delocate(void*owner, void**root)
 
             return;
         }
-    snprintf(buffer,sizeof(buffer),"unable to locate section 0x%08x",(unsigned)root);
+    snprintf(buffer,sizeof(buffer),"unable to locate section 0x%p",root);
     castError(buffer);
 }
 
@@ -393,13 +393,13 @@ void MemoryShield::verify(const void*owner, void**root, void**offset)
         {
             if (section[i].owner != owner)
             {
-                snprintf(buffer,sizeof(buffer),"owner-mismatch for root 0x%08x should be 0x%08x but is 0x%08x",(unsigned)root,(unsigned)section[i].owner,(unsigned)owner);
+                snprintf(buffer,sizeof(buffer),"owner-mismatch for root 0x%p should be 0x%p but is 0x%p",root,section[i].owner,owner);
                 castError(buffer);
             }
             else
                 if ((unsigned long)(offset-root) >= section[i].size)
                 {
-                    snprintf(buffer,sizeof(buffer),"index of section 0x%08x out of bounds: %u / %u",(unsigned)root,(unsigned)(offset-root),section[i].size);
+					snprintf(buffer, sizeof(buffer), "index of section 0x%p out of bounds: %lli / %u", root, (offset - root), section[i].size);
                     castError(buffer);
                 }
             return;
@@ -412,7 +412,7 @@ void MemoryShield::verify(const void*owner, void**root, void**offset)
                 log("<not tracing>");
     #endif
 
-    snprintf(buffer,sizeof(buffer),"section not found: 0x%08x",(unsigned)root);
+    snprintf(buffer,sizeof(buffer),"section not found: 0x%p",root);
     castError(buffer);
 }
 
