@@ -1094,6 +1094,8 @@ namespace ObjectMath	//! Collection of geometry related mathematical functions a
 
 		MF_DECLARE	(void)						buildCube();	//!< Rebuilds the local geometry as a cube in the range [-1,+1]³
 		MF_DECLARE	(void)						buildSphere(count_t resolution=50);	//!< Rebuilds the local geometry as a sphere of radius 1. @param resolution Number of vertices along the equador, twice the number of vertices from north to south pole. The total number of vertices is thus resolution*resolution/2
+		MF_DECLARE	(void)						buildCylinder(count_t resolution=50);
+
 
 			/*!
 				\brief Checks if there is a valid closer intersection of the local mesh and a ray
@@ -1319,6 +1321,7 @@ namespace ObjectMath	//! Collection of geometry related mathematical functions a
 		MF_DECLARE (void)				makeSphere(const Float&radius,AbstractHull<Float>&out_hull);	//!< Generates an abstract hull that contains just one sphere (at the point of origin) of the specified radius
 	template <class Float>
 		MF_DECLARE (void)				makeSphere(const TVec3<Float>&center, const Float&radius,AbstractHull<Float>&out_hull);	//!< Generates an abstract hull that contains just one sphere at the specified center of the specified radius
+
 	template <class Float>
 		MF_DECLARE (void)				makeCapsule(const TVec3<Float>&p0, const TVec3<Float>&p1, const Float&radius,AbstractHull<Float>&out_hull);	//!< Generates an abstract hull consisting of two spheres and a connecting cylinder \param p0 Center of the first sphere/cylinder circle \param p1 Center of the second sphere/cylinder circle \param radius Radius of the spheres and cylinder \return new hull containing a cylinder and two spheres
 

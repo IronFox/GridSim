@@ -5666,6 +5666,57 @@ namespace ObjectMath
 			#endif
 		}
 
+	template <class Def>
+		MF_DECLARE	(void)						Mesh<Def>::buildCylinder(count_t resolution/*=50*/)
+		{
+			typedef typename Def::Type Float;
+
+			flushMap();
+
+			Buffer<Vertex>	vertexBuffer;
+			Buffer<UINT32> quadBuffer;
+
+			{
+				index_t offset = vertexBuffer.count();
+
+				for (index_t ix = 0; ix < resolution; ix++)
+				{
+					Float ax = Float(ix) / Float(resolution) * Float(M_PI*2);
+					Float sn = vsin(ax);
+					Float cs = vcos(ax);
+
+					_AddVertex(vertexBuffer,cs, sn, 0);
+					_AddVertex(vertexBuffer,cs, sn, 1);
+
+					{
+						index_t off0 = offset - resolution;
+						//quadBuffer  << (UINT32)(off0 + (ix + 1)%resolution) << (UINT32)(off0 + ix) << (UINT32)(offset + ix) << (UINT32)(offset + (ix + 1)%resolution);
+						quadBuffer  << (UINT32)(ix*2)<< (UINT32)(ix*2+1)  
+									<< (UINT32)(((ix + 1)%resolution) * 2)<< (UINT32)(((ix + 1)%resolution) * 2+1);
+					}
+				}
+
+			}
+
+			index_t end = vertexBuffer.count();
+
+			vertexBuffer.copyToArray(vertex_field);
+			quad_field.setSize(quadBuffer.count()/4);
+			triangle_field.Clear();
+			edge_field.setSize(0);
+			for (index_t i = 0; i < quad_field.count(); i++)
+			{
+				quad_field[i].v0 = vertex_field + quadBuffer[i*4];
+				quad_field[i].v1 = vertex_field + quadBuffer[i*4+1];
+				quad_field[i].v2 = vertex_field + quadBuffer[i*4+2];
+				quad_field[i].v3 = vertex_field + quadBuffer[i*4+3];
+			}
+			#ifdef _DEBUG
+				verifyIntegrity();
+			#endif
+		}
+
+
 	
 	template <class Def>
 		MF_DECLARE	(void)		Mesh<Def>::buildCube()
