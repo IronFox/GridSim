@@ -1,0 +1,1546 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Source Files\Remote">
+    </Filter>
+    <Filter Include="Source Files\io" />
+    <Filter Include="Source Files\engine\renderer" />
+    <Filter Include="Source Files\engine" />
+    <Filter Include="Source Files\engine\gl" />
+    <Filter Include="Source Files\fractal" />
+    <Filter Include="Source Files\net" />
+    <Filter Include="Source Files\string" />
+    <Filter Include="Source Files\geometry" />
+    <Filter Include="Source Files\general" />
+    <Filter Include="Source Files\engine\interface" />
+    <Filter Include="Source Files\fractal\helper" />
+    <Filter Include="Source Files\gl" />
+    <Filter Include="Source Files\image\converter" />
+    <Filter Include="Source Files\image" />
+    <Filter Include="Source Files\container" />
+    <Filter Include="Source Files\math" />
+    <Filter Include="Source Files\geometry\converter" />
+    <Filter Include="Source Files\structure" />
+    <Filter Include="Source Files\al" />
+    <Filter Include="Source Files\remote\bz2" />
+    <Filter Include="Source Files\remote\jpeg" />
+    <Filter Include="Source Files\remote\zlib" />
+    <Filter Include="Source Files\remote\png" />
+    <Filter Include="Header Files\io" />
+    <Filter Include="Header Files\string" />
+    <Filter Include="Header Files\container" />
+    <Filter Include="Header Files\fractal\kernel" />
+    <Filter Include="Header Files\fractal" />
+    <Filter Include="Header Files\math" />
+    <Filter Include="Header Files\engine" />
+    <Filter Include="Header Files\engine\gl" />
+    <Filter Include="Header Files\net" />
+    <Filter Include="Header Files\fractal\helper" />
+    <Filter Include="Header Files\general" />
+    <Filter Include="Header Files\interface" />
+    <Filter Include="Header Files\engine\renderer" />
+    <Filter Include="Header Files\engine\interface" />
+    <Filter Include="Header Files\gl" />
+    <Filter Include="Header Files\image" />
+    <Filter Include="Header Files\engine\objects" />
+    <Filter Include="Header Files\structure" />
+    <Filter Include="Header Files\al" />
+    <Filter Include="Header Files\Nx" />
+    <Filter Include="Header Files\image\converter" />
+    <Filter Include="Header Files\remote\jpeg" />
+    <Filter Include="Header Files\remote\bz2" />
+    <Filter Include="Header Files\remote\zlib" />
+    <Filter Include="Header Files\net\conventions" />
+    <Filter Include="Header Files\remote\png" />
+    <Filter Include="Source Files\remote" />
+    <Filter Include="Header Files\remote" />
+    <Filter Include="Header Files\boost_integration">
+      <UniqueIdentifier>{f2abea24-84e0-4a54-9b19-adbb0b55209d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\geometry" />
+    <Filter Include="Header Files\geometry\converter" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\io\config.cpp">
+      <Filter>Source Files\io</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\io\xml.cpp">
+      <Filter>Source Files\io</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\engine\renderer\opengl.cpp">
+      <Filter>Source Files\engine\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\engine\display.cpp">
+      <Filter>Source Files\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\engine\gl\multi_window.cpp">
+      <Filter>Source Files\engine\gl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\fractal\fractal_kernel.cpp">
+      <Filter>Source Files\fractal</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\engine\profiler.cpp">
+      <Filter>Source Files\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\engine\gl\components.cpp">
+      <Filter>Source Files\engine\gl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\net\tcp.cpp">
+      <Filter>Source Files\net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\string\string_buffer.cpp">
+      <Filter>Source Files\string</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\io\string_file.cpp">
+      <Filter>Source Files\io</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\geometry\entity_tree.cpp">
+      <Filter>Source Files\geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\engine\gl\gui.cpp">
+      <Filter>Source Files\engine\gl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\general\thread_system.cpp">
+      <Filter>Source Files\general</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\io\delta_crc32.cpp">
+      <Filter>Source Files\io</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\general\timer.cpp">
+      <Filter>Source Files\general</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\engine\interface\input.cpp">
+      <Filter>Source Files\engine\interface</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\engine\interface\mouse.cpp">
+      <Filter>Source Files\engine\interface</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\fractal\interface.cpp">
+      <Filter>Source Files\fractal</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\engine\gl\extensions.cpp">
+      <Filter>Source Files\engine\gl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\fractal\helper\flare.cpp">
+      <Filter>Source Files\fractal\helper</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\gl\gl_enhancement.cpp">
+      <Filter>Source Files\gl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\image\converter\bitmap.cpp">
+      <Filter>Source Files\image\converter</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\image\converter\tga.cpp">
+      <Filter>Source Files\image\converter</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\image\converter\jpeg.cpp">
+      <Filter>Source Files\image\converter</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\image\image.cpp">
+      <Filter>Source Files\image</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\io\log.cpp">
+      <Filter>Source Files\io</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\image\img_generators.cpp">
+      <Filter>Source Files\image</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\string\string_converter.cpp">
+      <Filter>Source Files\string</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\engine\renderer\renderer.cpp">
+      <Filter>Source Files\engine\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\string\str_class.cpp">
+      <Filter>Source Files\string</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\container\string_list.cpp">
+      <Filter>Source Files\container</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\string\cli.cpp">
+      <Filter>Source Files\string</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\math\expression.cpp">
+      <Filter>Source Files\math</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\geometry\converter\obj.cpp">
+      <Filter>Source Files\geometry\converter</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\geometry\vertex_table.cpp">
+      <Filter>Source Files\geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\io\file_system.cpp">
+      <Filter>Source Files\io</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\engine\gl\texture_font2.cpp">
+      <Filter>Source Files\engine\gl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\structure\texture_buffer.cpp">
+      <Filter>Source Files\structure</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\structure\map.cpp">
+      <Filter>Source Files\structure</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\string\tokenizer.cpp">
+      <Filter>Source Files\string</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\string\cli_defaults.cpp">
+      <Filter>Source Files\string</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\net\node.cpp">
+      <Filter>Source Files\net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\string\int_name.cpp">
+      <Filter>Source Files\string</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\io\texture_archive.cpp">
+      <Filter>Source Files\io</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\io\mutex_log.cpp">
+      <Filter>Source Files\io</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\image\converter\magic.cpp">
+      <Filter>Source Files\image\converter</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\geometry\cgs_track_segment.cpp">
+      <Filter>Source Files\geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\general\progress_log.cpp">
+      <Filter>Source Files\general</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\fractal\helper\sphere.cpp">
+      <Filter>Source Files\fractal\helper</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\engine\textout.cpp">
+      <Filter>Source Files\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\engine\interface\keyboard.cpp">
+      <Filter>Source Files\engine\interface</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\engine\gl\mw_console.cpp">
+      <Filter>Source Files\engine\gl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\engine\console.cpp">
+      <Filter>Source Files\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\al\openal.cpp">
+      <Filter>Source Files\al</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\container\attrib_table.cpp">
+      <Filter>Source Files\container</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\general\random.cpp">
+      <Filter>Source Files\general</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\al\CWaves.cpp">
+      <Filter>Source Files\al</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\engine\gl\texture_triangle_buffer.cpp">
+      <Filter>Source Files\engine\gl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\geometry\cgs.cpp">
+      <Filter>Source Files\geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\general\system.cpp">
+      <Filter>Source Files\general</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\io\encryption.cpp">
+      <Filter>Source Files\io</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\geometry\cgs_archive.cpp">
+      <Filter>Source Files\geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\math\neuronal_network.cpp">
+      <Filter>Source Files\math</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\general\root.cpp">
+      <Filter>Source Files\general</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\geometry\coordinates.cpp">
+      <Filter>Source Files\geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\engine\control.cpp">
+      <Filter>Source Files\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\math\basic.cpp">
+      <Filter>Source Files\math</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\io\file_stream.cpp">
+      <Filter>Source Files\io</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\io\random_access_file.cpp">
+      <Filter>Source Files\io</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\io\riff_handler.cpp">
+      <Filter>Source Files\io</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\io\log_stream.cpp">
+      <Filter>Source Files\io</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\engine\scenery.cpp">
+      <Filter>Source Files\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\general\memory_shield.cpp">
+      <Filter>Source Files\general</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\engine\gl\raster_font.cpp">
+      <Filter>Source Files\engine\gl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\general\exception.cpp">
+      <Filter>Source Files\general</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\general\hinstance.cpp">
+      <Filter>Source Files\general</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\general\rootx.cpp">
+      <Filter>Source Files\general</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\io\bitmap_handler.cpp">
+      <Filter>Source Files\io</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\io\date.cpp">
+      <Filter>Source Files\io</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\geometry\simple_geometry.cpp">
+      <Filter>Source Files\geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\io\texture_compression.cpp">
+      <Filter>Source Files\io</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\string\token_parser.cpp">
+      <Filter>Source Files\string</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\io\bit_stream.cpp">
+      <Filter>Source Files\io</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\io\byte_stream.cpp">
+      <Filter>Source Files\io</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\engine\renderer\dummygl.cpp">
+      <Filter>Source Files\engine\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\gl\gl_generators.cpp">
+      <Filter>Source Files\gl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\engine\interface\joystick.cpp">
+      <Filter>Source Files\engine\interface</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\engine\gl\outline_font.cpp">
+      <Filter>Source Files\engine\gl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\structure\plant.cpp">
+      <Filter>Source Files\structure</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\engine\interface\screen.cpp">
+      <Filter>Source Files\engine\interface</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\engine\gl\texture_font.cpp">
+      <Filter>Source Files\engine\gl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\engine\timing.cpp">
+      <Filter>Source Files\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\bz2\bz2.cpp">
+      <Filter>Source Files\remote\bz2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jquant1.cpp">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jquant2.cpp">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jutils.cpp">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\bz2\decompress.c">
+      <Filter>Source Files\remote\bz2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\bz2\randtable.c">
+      <Filter>Source Files\remote\bz2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\zlib\trees.c">
+      <Filter>Source Files\remote\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\zlib\uncompr.c">
+      <Filter>Source Files\remote\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\zlib\zcompress.c">
+      <Filter>Source Files\remote\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\zlib\zutil.c">
+      <Filter>Source Files\remote\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\fractal\segment_map.cpp">
+      <Filter>Source Files\fractal</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\zlib\adler32.c">
+      <Filter>Source Files\remote\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\bz2\blocksort.c">
+      <Filter>Source Files\remote\bz2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\bz2\bzlib.c">
+      <Filter>Source Files\remote\bz2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\bz2\compress.c">
+      <Filter>Source Files\remote\bz2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\zlib\crc32.c">
+      <Filter>Source Files\remote\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\bz2\crctable.c">
+      <Filter>Source Files\remote\bz2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\zlib\deflate.c">
+      <Filter>Source Files\remote\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\zlib\gzio.c">
+      <Filter>Source Files\remote\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\bz2\huffman.c">
+      <Filter>Source Files\remote\bz2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\zlib\infback.c">
+      <Filter>Source Files\remote\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\zlib\inflate.c">
+      <Filter>Source Files\remote\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\zlib\inffast.c">
+      <Filter>Source Files\remote\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\zlib\inftrees.c">
+      <Filter>Source Files\remote\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jcapimin.cpp">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jcapistd.cpp">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jccoefct.cpp">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jccolor.cpp">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jcdctmgr.cpp">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jchuff.cpp">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jcinit.cpp">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jcmainct.cpp">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jcmarker.cpp">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jcmaster.cpp">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jcomapi.cpp">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jcparam.cpp">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jcphuff.cpp">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jcprepct.cpp">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jcsample.cpp">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jctrans.cpp">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jdapimin.cpp">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jdapistd.cpp">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jdatadst.cpp">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jdatasrc.cpp">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jdcoefct.cpp">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jdcolor.cpp">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jddctmgr.cpp">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jdhuff.cpp">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jdinput.cpp">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jdmainct.cpp">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jdmarker.cpp">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jdmaster.cpp">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jdmerge.cpp">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jdphuff.cpp">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jdpostct.cpp">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jdsample.cpp">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jdtrans.cpp">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jerror.cpp">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jfdctflt.cpp">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jfdctfst.cpp">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jfdctint.cpp">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jidctflt.cpp">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jidctfst.cpp">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jidctint.cpp">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jidctred.cpp">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jmemmgr.cpp">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\jpeg\jmemnobs.cpp">
+      <Filter>Source Files\remote\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\png\png.c">
+      <Filter>Source Files\remote\png</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\image\converter\png_cpp.cpp">
+      <Filter>Source Files\image\converter</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\png\pngerror.c">
+      <Filter>Source Files\remote\png</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\png\pnggccrd.c">
+      <Filter>Source Files\remote\png</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\png\pngget.c">
+      <Filter>Source Files\remote\png</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\png\pngmem.c">
+      <Filter>Source Files\remote\png</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\png\pngpread.c">
+      <Filter>Source Files\remote\png</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\png\pngread.c">
+      <Filter>Source Files\remote\png</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\png\pngrio.c">
+      <Filter>Source Files\remote\png</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\png\pngrtran.c">
+      <Filter>Source Files\remote\png</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\png\pngrutil.c">
+      <Filter>Source Files\remote\png</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\png\pngset.c">
+      <Filter>Source Files\remote\png</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\png\pngtrans.c">
+      <Filter>Source Files\remote\png</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\png\pngvcrd.c">
+      <Filter>Source Files\remote\png</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\png\pngwio.c">
+      <Filter>Source Files\remote\png</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\png\pngwrite.c">
+      <Filter>Source Files\remote\png</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\png\pngwtran.c">
+      <Filter>Source Files\remote\png</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\remote\png\pngwutil.c">
+      <Filter>Source Files\remote\png</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\container\strategy.cpp">
+      <Filter>Source Files\container</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\math\resolution.cpp">
+      <Filter>Source Files\math</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\geometry\graph_mesh.cpp">
+      <Filter>Source Files\geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\engine\aspect.cpp">
+      <Filter>Source Files\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\geometry\converter\lwo.cpp">
+      <Filter>Source Files\geometry\converter</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\math\vector.cpp">
+      <Filter>Source Files\math</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\geometry\bvh.cpp">
+      <Filter>Source Files\geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\container\buffer.cpp">
+      <Filter>Source Files\container</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\io\config.h">
+      <Filter>Header Files\io</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\string\str_class.h">
+      <Filter>Header Files\string</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\string\str_class.tpl.h">
+      <Filter>Header Files\string</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\io\str_stream.h">
+      <Filter>Header Files\io</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\container\hashlist.h">
+      <Filter>Header Files\container</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\container\hashlist.tpl.h">
+      <Filter>Header Files\container</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\container\linkedlist.tpl.h">
+      <Filter>Header Files\container</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\container\linkedlist.h">
+      <Filter>Header Files\container</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\io\xml.h">
+      <Filter>Header Files\io</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\fractal\kernel\subdivideVertexBlock.h">
+      <Filter>Header Files\fractal\kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\fractal\fractal_kernel.tpl.h">
+      <Filter>Header Files\fractal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\fractal\fractal_kernel.h">
+      <Filter>Header Files\fractal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\fractal\fractal_types.h">
+      <Filter>Header Files\fractal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\math\sse.h">
+      <Filter>Header Files\math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\engine\profiler.h">
+      <Filter>Header Files\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\engine\gl\components.h">
+      <Filter>Header Files\engine\gl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\string\string_buffer.h">
+      <Filter>Header Files\string</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\io\string_file.h">
+      <Filter>Header Files\io</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\container\array.h">
+      <Filter>Header Files\container</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\net\tcp.h">
+      <Filter>Header Files\net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\math\object.tpl.h">
+      <Filter>Header Files\math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\fractal\helper\sphere.h">
+      <Filter>Header Files\fractal\helper</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\math\vector.h">
+      <Filter>Header Files\math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\general\thread_system.h">
+      <Filter>Header Files\general</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\io\delta_crc32.h">
+      <Filter>Header Files\io</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\container\buffer.h">
+      <Filter>Header Files\container</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\interface\serializable.h">
+      <Filter>Header Files\interface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\geometry\coordinates.h">
+      <Filter>Header Files\geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\math\vector.tpl.h">
+      <Filter>Header Files\math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\math\object.h">
+      <Filter>Header Files\math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\fractal\kernel\config.h">
+      <Filter>Header Files\fractal\kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\general\timer.h">
+      <Filter>Header Files\general</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\geometry\entity_tree.h">
+      <Filter>Header Files\geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\engine\gl\gui.h">
+      <Filter>Header Files\engine\gl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\engine\renderer\opengl.tpl.h">
+      <Filter>Header Files\engine\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\engine\renderer\opengl.h">
+      <Filter>Header Files\engine\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\engine\renderer\renderer.h">
+      <Filter>Header Files\engine\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\geometry\cgs.h">
+      <Filter>Header Files\geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\engine\interface\input.h">
+      <Filter>Header Files\engine\interface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\math\basic.tpl.h">
+      <Filter>Header Files\math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\engine\interface\mouse.h">
+      <Filter>Header Files\engine\interface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\engine\display.tpl.h">
+      <Filter>Header Files\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\engine\display.h">
+      <Filter>Header Files\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\fractal\interface.h">
+      <Filter>Header Files\fractal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\gl\gl_enhancement.tpl.h">
+      <Filter>Header Files\gl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\gl\gl_enhancement.h">
+      <Filter>Header Files\gl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\engine\aspect.tpl.h">
+      <Filter>Header Files\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\fractal\helper\flare.h">
+      <Filter>Header Files\fractal\helper</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\engine\aspect.h">
+      <Filter>Header Files\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\image\image.h">
+      <Filter>Header Files\image</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\engine\gl\texture.h">
+      <Filter>Header Files\engine\gl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\engine\objects\texture.h">
+      <Filter>Header Files\engine\objects</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\container\production_pipe.h">
+      <Filter>Header Files\container</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\container\sorter.tpl.h">
+      <Filter>Header Files\container</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\container\aligned_array.h">
+      <Filter>Header Files\container</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\container\buffer.tpl.h">
+      <Filter>Header Files\container</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\engine\gl\extensions.h">
+      <Filter>Header Files\engine\gl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\io\file_system.h">
+      <Filter>Header Files\io</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\io\log_stream.h">
+      <Filter>Header Files\io</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\io\log.h">
+      <Filter>Header Files\io</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\image\img_generators.h">
+      <Filter>Header Files\image</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\string\keys.h">
+      <Filter>Header Files\string</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\engine\renderer\dummygl.h">
+      <Filter>Header Files\engine\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\engine\gl\material_binding.h">
+      <Filter>Header Files\engine\gl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\general\exception.h">
+      <Filter>Header Files\general</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\container\string_list.h">
+      <Filter>Header Files\container</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\engine\scenery.h">
+      <Filter>Header Files\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\string\cli.h">
+      <Filter>Header Files\string</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\math\expression.h">
+      <Filter>Header Files\math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\geometry\converter\obj.h">
+      <Filter>Header Files\geometry\converter</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\container\string_list.tpl.h">
+      <Filter>Header Files\container</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\container\hashtable.tpl.h">
+      <Filter>Header Files\container</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\container\hashtable.h">
+      <Filter>Header Files\container</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\structure\plant.h">
+      <Filter>Header Files\structure</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\string\cli.tpl.h">
+      <Filter>Header Files\string</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\io\archive.tpl.h">
+      <Filter>Header Files\io</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\geometry\cgs_archive.tpl.h">
+      <Filter>Header Files\geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\engine\console.tpl.h">
+      <Filter>Header Files\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\geometry\cgs.tpl.h">
+      <Filter>Header Files\geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\math\matrix.tpl.h">
+      <Filter>Header Files\math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\engine\textout.tpl.h">
+      <Filter>Header Files\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\interface\to_string.h">
+      <Filter>Header Files\interface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\general\random.h">
+      <Filter>Header Files\general</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\al\ks.h">
+      <Filter>Header Files\al</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\math\basic.h">
+      <Filter>Header Files\math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\general\thread_system.tpl.h">
+      <Filter>Header Files\general</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\fractal\interface.tpl.h">
+      <Filter>Header Files\fractal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Nx\physics.h">
+      <Filter>Header Files\Nx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\engine\gl\buffer_object.h">
+      <Filter>Header Files\engine\gl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\engine\scenery.tpl.h">
+      <Filter>Header Files\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\al\al.h">
+      <Filter>Header Files\al</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\al\alc.h">
+      <Filter>Header Files\al</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\al\CWaves.h">
+      <Filter>Header Files\al</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\al\openal.h">
+      <Filter>Header Files\al</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\engine\profiler.tpl.h">
+      <Filter>Header Files\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\engine\gl\texture_triangle_buffer.h">
+      <Filter>Header Files\engine\gl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\container\queue.h">
+      <Filter>Header Files\container</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\gl\glext.h">
+      <Filter>Header Files\gl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\container\lvector.h">
+      <Filter>Header Files\container</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\container\lvector.tpl.h">
+      <Filter>Header Files\container</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\general\system.h">
+      <Filter>Header Files\general</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\container\attrib_table.h">
+      <Filter>Header Files\container</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\container\queue.tpl.h">
+      <Filter>Header Files\container</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\general\root.h">
+      <Filter>Header Files\general</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\io\riff_handler.tpl.h">
+      <Filter>Header Files\io</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\geometry\cgs_track_segment.h">
+      <Filter>Header Files\geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\structure\mapping.h">
+      <Filter>Header Files\structure</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\engine\textout.h">
+      <Filter>Header Files\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\math\object_def.h">
+      <Filter>Header Files\math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\math\neuronal_network.h">
+      <Filter>Header Files\math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\engine\gl\multi_window.h">
+      <Filter>Header Files\engine\gl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\engine\control.h">
+      <Filter>Header Files\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Nx\nx_math.tpl.h">
+      <Filter>Header Files\Nx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Nx\nx_math.h">
+      <Filter>Header Files\Nx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\general\managed.tpl.h">
+      <Filter>Header Files\general</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\general\managed.h">
+      <Filter>Header Files\general</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\io\file_stream.h">
+      <Filter>Header Files\io</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\math\matrix.h">
+      <Filter>Header Files\math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\math\vclasses.h">
+      <Filter>Header Files\math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\math\vclasses.tpl.h">
+      <Filter>Header Files\math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\string\int_name.h">
+      <Filter>Header Files\string</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\io\archive.h">
+      <Filter>Header Files\io</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\io\random_access_file.h">
+      <Filter>Header Files\io</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\io\random_access_file.tpl.h">
+      <Filter>Header Files\io</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\io\riff_handler.h">
+      <Filter>Header Files\io</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\interface\read_stream.h">
+      <Filter>Header Files\interface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\interface\write_stream.h">
+      <Filter>Header Files\interface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\structure\fractal_map.h">
+      <Filter>Header Files\structure</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\string\string_converter.h">
+      <Filter>Header Files\string</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\string\string_converter.tpl.h">
+      <Filter>Header Files\string</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\general\ref.h">
+      <Filter>Header Files\general</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\io\encryption.h">
+      <Filter>Header Files\io</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\image\converter\img_format.h">
+      <Filter>Header Files\image\converter</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\structure\event.h">
+      <Filter>Header Files\structure</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\structure\structure_simulation.tpl.h">
+      <Filter>Header Files\structure</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\structure\structure_simulation.h">
+      <Filter>Header Files\structure</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\geometry\vertex_table.h">
+      <Filter>Header Files\geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\container\arraylist.h">
+      <Filter>Header Files\container</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\container\arraylist.tpl.h">
+      <Filter>Header Files\container</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\container\attrib_table.tpl.h">
+      <Filter>Header Files\container</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\container\binarytree.h">
+      <Filter>Header Files\container</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\container\binarytree.tpl.h">
+      <Filter>Header Files\container</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\container\dynamic_elements.h">
+      <Filter>Header Files\container</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\container\list.h">
+      <Filter>Header Files\container</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\container\list.tpl.h">
+      <Filter>Header Files\container</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\container\production_pipe.tpl.h">
+      <Filter>Header Files\container</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\container\sort_classes.h">
+      <Filter>Header Files\container</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\container\sort_classes.tpl.h">
+      <Filter>Header Files\container</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\container\sortedlist.h">
+      <Filter>Header Files\container</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\container\sortedlist.tpl.h">
+      <Filter>Header Files\container</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\container\sorter.h">
+      <Filter>Header Files\container</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\container\stack.h">
+      <Filter>Header Files\container</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\container\stack.tpl.h">
+      <Filter>Header Files\container</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\string\cli_defaults.h">
+      <Filter>Header Files\string</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\structure\texture_buffer.h">
+      <Filter>Header Files\structure</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\string\token_parser.h">
+      <Filter>Header Files\string</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\string\tokenizer.h">
+      <Filter>Header Files\string</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\net\node.h">
+      <Filter>Header Files\net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Nx\nx_buffers.h">
+      <Filter>Header Files\Nx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\geometry\simple_geometry.h">
+      <Filter>Header Files\geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\io\texture_compression.h">
+      <Filter>Header Files\io</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\general\progress_log.h">
+      <Filter>Header Files\general</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\engine\interface\screen.h">
+      <Filter>Header Files\engine\interface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\image\converter\png.h">
+      <Filter>Header Files\image\converter</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\engine\visual_map.h">
+      <Filter>Header Files\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\io\bitmap_handler.h">
+      <Filter>Header Files\io</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\geometry\cgs_archive.h">
+      <Filter>Header Files\geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\engine\console.h">
+      <Filter>Header Files\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\io\texture_archive.h">
+      <Filter>Header Files\io</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\image\converter\bitmap.h">
+      <Filter>Header Files\image\converter</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\engine\gl\texture_font2.h">
+      <Filter>Header Files\engine\gl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\engine\texture_resource.h">
+      <Filter>Header Files\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\io\byte_stream.h">
+      <Filter>Header Files\io</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\image\converter\jpeg.h">
+      <Filter>Header Files\image\converter</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\geometry\converter.h">
+      <Filter>Header Files\geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\general\auto.h">
+      <Filter>Header Files\general</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\general\typedefs.h">
+      <Filter>Header Files\general</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\general\alloc_templates.h">
+      <Filter>Header Files\general</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\general\callback.h">
+      <Filter>Header Files\general</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\general\function_pointer.h">
+      <Filter>Header Files\general</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\general\hinstance.h">
+      <Filter>Header Files\general</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\image\converter\magic.h">
+      <Filter>Header Files\image\converter</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\general\memory_shield.h">
+      <Filter>Header Files\general</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\general\p.h">
+      <Filter>Header Files\general</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\general\progress_log.tpl.h">
+      <Filter>Header Files\general</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\general\testable.h">
+      <Filter>Header Files\general</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\image\converter\tga.h">
+      <Filter>Header Files\image\converter</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\general\undef.h">
+      <Filter>Header Files\general</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\general\xportal.h">
+      <Filter>Header Files\general</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\io\date.h">
+      <Filter>Header Files\io</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\io\mutex_log.h">
+      <Filter>Header Files\io</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\io\mutex_log.tpl.h">
+      <Filter>Header Files\io</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\io\tcp.h">
+      <Filter>Header Files\io</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\engine\timing.h">
+      <Filter>Header Files\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\io\bit_stream.h">
+      <Filter>Header Files\io</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\io\byte_stream.tpl.h">
+      <Filter>Header Files\io</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\geometry\collada.h">
+      <Filter>Header Files\geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\engine\enumerations.h">
+      <Filter>Header Files\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\structure\experimental.tpl.h">
+      <Filter>Header Files\structure</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\structure\fractal_map.tpl.h">
+      <Filter>Header Files\structure</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\structure\geomatrix.h">
+      <Filter>Header Files\structure</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\structure\geomatrix.tpl.h">
+      <Filter>Header Files\structure</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\gl\gl.h">
+      <Filter>Header Files\gl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\gl\gl_generators.h">
+      <Filter>Header Files\gl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\gl\glu.h">
+      <Filter>Header Files\gl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\gl\glx.h">
+      <Filter>Header Files\gl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\gl\glxext.h">
+      <Filter>Header Files\gl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\gl\glxtokens.h">
+      <Filter>Header Files\gl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\image\image.tpl.h">
+      <Filter>Header Files\image</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\engine\interface\joystick.h">
+      <Filter>Header Files\engine\interface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\engine\interface\keyboard.h">
+      <Filter>Header Files\engine\interface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\engine\gl\mw_console.h">
+      <Filter>Header Files\engine\gl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\engine\gl\outline_font.h">
+      <Filter>Header Files\engine\gl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\engine\particle_factory.h">
+      <Filter>Header Files\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\engine\particle_factory.tpl.h">
+      <Filter>Header Files\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\engine\progress_visualizer.h">
+      <Filter>Header Files\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\engine\progress_visualizer.tpl.h">
+      <Filter>Header Files\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\engine\gl\raster_font.h">
+      <Filter>Header Files\engine\gl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\engine\gl\texture_font.h">
+      <Filter>Header Files\engine\gl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\engine\texture_resource.tpl.h">
+      <Filter>Header Files\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\engine\visual_map.tpl.h">
+      <Filter>Header Files\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\gl\wglext.h">
+      <Filter>Header Files\gl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\remote\jpeg\Basic.h">
+      <Filter>Header Files\remote\jpeg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\remote\jpeg\bmpdlg.h">
+      <Filter>Header Files\remote\jpeg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\remote\jpeg\bmpfile.h">
+      <Filter>Header Files\remote\jpeg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\remote\bz2\bz2.h">
+      <Filter>Header Files\remote\bz2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\remote\bz2\bzlib.h">
+      <Filter>Header Files\remote\bz2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\remote\bz2\bzlib_private.h">
+      <Filter>Header Files\remote\bz2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\remote\jpeg\cderror.h">
+      <Filter>Header Files\remote\jpeg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\remote\jpeg\cdjpeg.h">
+      <Filter>Header Files\remote\jpeg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\math\complex.h">
+      <Filter>Header Files\math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\math\complex.tpl.h">
+      <Filter>Header Files\math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\remote\zlib\crc32.h">
+      <Filter>Header Files\remote\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\math\definitions.h">
+      <Filter>Header Files\math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\remote\zlib\deflate.h">
+      <Filter>Header Files\remote\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\remote\jpeg\Dl1quant.h">
+      <Filter>Header Files\remote\jpeg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\al\efx.h">
+      <Filter>Header Files\al</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\al\efx-creative.h">
+      <Filter>Header Files\al</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\al\EFX-Util.h">
+      <Filter>Header Files\al</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\math\exp_vector.h">
+      <Filter>Header Files\math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\math\exp_vector.tpl.h">
+      <Filter>Header Files\math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\math\graph.h">
+      <Filter>Header Files\math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\math\graph.tpl.h">
+      <Filter>Header Files\math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\remote\zlib\inffast.h">
+      <Filter>Header Files\remote\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\remote\zlib\inffixed.h">
+      <Filter>Header Files\remote\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\remote\zlib\inflate.h">
+      <Filter>Header Files\remote\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\remote\zlib\inftrees.h">
+      <Filter>Header Files\remote\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\net\conventions\infworlds.h">
+      <Filter>Header Files\net\conventions</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\remote\jpeg\jchuff.h">
+      <Filter>Header Files\remote\jpeg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\remote\jpeg\jconfig.h">
+      <Filter>Header Files\remote\jpeg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\remote\jpeg\jdct.h">
+      <Filter>Header Files\remote\jpeg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\remote\jpeg\jdhuff.h">
+      <Filter>Header Files\remote\jpeg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\remote\jpeg\jerror.h">
+      <Filter>Header Files\remote\jpeg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\remote\jpeg\jinclude.h">
+      <Filter>Header Files\remote\jpeg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\remote\jpeg\jmemsys.h">
+      <Filter>Header Files\remote\jpeg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\remote\jpeg\jmorecfg.h">
+      <Filter>Header Files\remote\jpeg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\remote\jpeg\Jpegfile.h">
+      <Filter>Header Files\remote\jpeg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\remote\jpeg\jpegint.h">
+      <Filter>Header Files\remote\jpeg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\remote\jpeg\jpeglib.h">
+      <Filter>Header Files\remote\jpeg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\remote\jpeg\jversion.h">
+      <Filter>Header Files\remote\jpeg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\al\KsMedia.h">
+      <Filter>Header Files\al</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\remote\jpeg\MainFrm.h">
+      <Filter>Header Files\remote\jpeg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\math\mclasses.h">
+      <Filter>Header Files\math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\math\mclasses.tpl.h">
+      <Filter>Header Files\math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\remote\jpeg\MfcApp.h">
+      <Filter>Header Files\remote\jpeg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\remote\jpeg\MfcAppDoc.h">
+      <Filter>Header Files\remote\jpeg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\remote\jpeg\MfcAppView.h">
+      <Filter>Header Files\remote\jpeg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\net\conventions\net_connection.h">
+      <Filter>Header Files\net\conventions</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\net\conventions\net_module_interface.h">
+      <Filter>Header Files\net\conventions</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\net\conventions\net_simulation.h">
+      <Filter>Header Files\net\conventions</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\net\node.tpl.h">
+      <Filter>Header Files\net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Nx\nx_cooking.h">
+      <Filter>Header Files\Nx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\remote\png\png.h">
+      <Filter>Header Files\remote\png</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\remote\png\pngconf.h">
+      <Filter>Header Files\remote\png</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\remote\png\pnglib.h">
+      <Filter>Header Files\remote\png</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\remote\jpeg\Quantdlg.h">
+      <Filter>Header Files\remote\jpeg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\remote\jpeg\resource.h">
+      <Filter>Header Files\remote\jpeg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\remote\jpeg\StdAfx.h">
+      <Filter>Header Files\remote\jpeg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\remote\zlib\trees.h">
+      <Filter>Header Files\remote\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\al\xram.h">
+      <Filter>Header Files\al</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\remote\zlib\zconf.h">
+      <Filter>Header Files\remote\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\remote\zlib\zconf.in.h">
+      <Filter>Header Files\remote\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\remote\zlib\zlib.h">
+      <Filter>Header Files\remote\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\remote\zlib\zutil.h">
+      <Filter>Header Files\remote\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\structure\map.h">
+      <Filter>Header Files\structure</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\fractal\segment_map.h">
+      <Filter>Header Files\fractal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\global_root.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\global_string.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\image\img_generators.tpl.h">
+      <Filter>Header Files\image</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\interface\hashable.h">
+      <Filter>Header Files\interface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\general\orthographic_comparator.h">
+      <Filter>Header Files\general</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\container\incremental_hash_list.h">
+      <Filter>Header Files\container</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\general\enumeration.h">
+      <Filter>Header Files\general</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\container\strategy.h">
+      <Filter>Header Files\container</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\interface\string.h">
+      <Filter>Header Files\interface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\interface\common.h">
+      <Filter>Header Files\interface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\boost_integration\pointer.h">
+      <Filter>Header Files\boost_integration</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\engine\gl\helper.h">
+      <Filter>Header Files\engine\gl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\geometry\graph_mesh.h">
+      <Filter>Header Files\geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\net\containers.h">
+      <Filter>Header Files\net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\geometry\converter\lwo.h">
+      <Filter>Header Files\geometry\converter</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\geometry\converter\lwo.tpl.h">
+      <Filter>Header Files\geometry\converter</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ClassDiagram1.cd" />
+  </ItemGroup>
+</Project>
