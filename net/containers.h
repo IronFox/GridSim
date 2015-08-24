@@ -11,15 +11,30 @@ namespace Package
 		protected:
 		static	bool			validChar(char c)
 				{
+					switch (c)
+					{
+						case 'ä':
+						case 'ö':
+						case 'ü':
+						case 'Ä':
+						case 'Ö':
+						case 'Ü':
+						case 'ß':
+							return true;
+					}
 					return isgraph((BYTE)c) || isspace((BYTE)c);
 				}
 		public:
 			/**/				NetString()
 								{}
 			/**/				NetString(const String&string):String(string)
-								{}
+								{
+									ASSERT__(IsValid(*this));
+								}
 			/**/				NetString(const char*string):String(string)
-								{}
+								{
+									ASSERT__(IsValid(*this));
+								}
 
 			static bool			IsValid(const String&str)
 			{
