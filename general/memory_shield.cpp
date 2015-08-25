@@ -399,7 +399,7 @@ void MemoryShield::verify(const void*owner, void**root, void**offset)
             else
                 if ((unsigned long)(offset-root) >= section[i].size)
                 {
-					snprintf(buffer, sizeof(buffer), "index of section 0x%p out of bounds: %lli / %u", root, (offset - root), section[i].size);
+					snprintf(buffer, sizeof(buffer), "index of section 0x%p out of bounds: %lli / %u", root, (UINT64)(offset - root), section[i].size);
                     castError(buffer);
                 }
             return;
