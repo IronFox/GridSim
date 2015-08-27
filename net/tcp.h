@@ -561,9 +561,14 @@ namespace TCP
 									}
 	public:
 		virtual	void				OnDisconnect(const Peer*, event_t event)	{};	//!< Abstract disconnection even called if the local connection has been lost or closed
-		const String&				GetError()	const	//! Queries the last occured error
+		String						GetError(bool flushError)	//! Queries the last occured error
 									{
-										return current_error;
+										error_mutex.lock();
+											String copy = current_error;
+											if (flushError)
+												current_error = "";
+										error_mutex.release();
+										return copy;
 									}
 	};
 

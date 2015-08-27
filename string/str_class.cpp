@@ -407,7 +407,7 @@ void ErrMessageW(const StringW&line)
 
 static char* pointerToHex(const void*pointer, int min_len, char*end, char*first)
 {
-	unsigned long value = (unsigned long)pointer;
+	size_t value = (size_t)pointer;
 	while (value && end != first)
 	{
 		BYTE c = value & (0xF);

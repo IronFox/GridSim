@@ -730,7 +730,7 @@ namespace TCP
 					return;
 				}
 				socketAccess->CloseSocket();
-				FATAL__("Maximum safe package size ("+String(owner->safe_package_size/1024)+"KB) exceeded by "+String((remaining_size-owner->safe_package_size)/1024)+"KB");
+				DBG_FATAL__("Maximum safe package size ("+String(owner->safe_package_size/1024)+"KB) exceeded by "+String((remaining_size-owner->safe_package_size)/1024)+"KB");
 				owner->setError("Maximum safe package size ("+String(owner->safe_package_size/1024)+"KB) exceeded by "+String((remaining_size-owner->safe_package_size)/1024)+"KB");
 				owner->HandleEvent(Event::ConnectionClosed,LinkFromThis());
 				owner->OnDisconnect(this,Event::ConnectionClosed);
