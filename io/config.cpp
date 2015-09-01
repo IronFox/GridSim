@@ -33,57 +33,61 @@ namespace Config
 	Container::Config						Container::configuration;
 
 
-	Context::Attribute*		Context::protectedDefine(const String&name, const String&value)
+	Context::Attribute&		Context::protectedDefine(const String&name, const String&value)
 	{
-		if (!this || name.IsEmpty())
-			return NULL;
-		Attribute*result;
-		if (attribute_map.query(name,result))
+		ASSERT_NOT_NULL__(this);
+		ASSERT__(name.IsNotEmpty());
+		//Attribute*result;
+		index_t resultAt;
+		if (attributeMap.query(name,resultAt))
 		{
-			result->value = value;
-			return result;
+			Attribute&rs = attributes[resultAt];
+			rs.value = value;
+			return rs;
 		}
-		result = attributes.append();
-		result->name = name;
-		result->value = value;
-		result->commented = false;
-		result->assignment_operator = '=';
-		attribute_map.set(name,result);
-		return result;
+		resultAt = attributes.Count();
+		Attribute&rs = attributes.Append();
+		rs.name = name;
+		rs.value = value;
+		rs.commented = false;
+		rs.assignment_operator = '=';
+		attributeMap.set(name,resultAt);
+		return rs;
 	}
 
-	Context::Attribute*		Context::define(const String&name, const String&value)
+	Context::Attribute&		Context::Define(const String&name, const String&value)
 	{
 		if (!name.contains('/'))
 			return protectedDefine(name.trim(),value);
 
 		Array<String>	components;
 		explode('/',name,components);
-		return protectedDefineContext(components.pointer(),components.count()-1)->protectedDefine(components.last().trim(),value);
+		return protectedDefineContext(components.pointer(),components.count()-1).protectedDefine(components.last().trim(),value);
 	}
 
-	Context*					Context::protectedDefineContext(const String*names, count_t num_names)
+	Context&					Context::protectedDefineContext(const String*names, count_t num_names)
 	{
 		Context*ctx = this;
 		for (index_t i = 0; i < num_names; i ++)
-			ctx = ctx->protectedDefineContext(names[i].trim());
-		return ctx;
+			ctx = &ctx->protectedDefineContext(names[i].trim());
+		return *ctx;
 	}
 	
-	Context*					Context::protectedDefineContext(const String&name)
+	Context&					Context::protectedDefineContext(const String&name)
 	{
-		if (!this || name.IsEmpty())
-			return NULL;
-		Context*result;
-		if (child_map.query(name,result))
-			return result;
-		result = children.append();
-		result->name = name;
-		result->Is_mode = false;
-		child_map.set(name,result);
-		return result;
+		ASSERT_NOT_NULL__(this);
+		ASSERT__(name.IsNotEmpty());
+		index_t resultAt;
+		if (childMap.query(name,resultAt))
+			return children[resultAt];
+		resultAt = children.Count();
+		Context&rs = children.Append();
+		rs.name = name;
+		rs.isMode = false;
+		childMap.set(name,resultAt);
+		return rs;
 	}
-	Context*					Context::defineContext(const String&name)
+	Context&					Context::DefineContext(const String&name)
 	{
 		if (!name.contains('/'))
 			return protectedDefineContext(name.trim());
@@ -94,89 +98,90 @@ namespace Config
 	}
 		
 	
-	Context*					Context::createContext(const String&name)
+	Context&					Context::CreateContext(const String&name)
 	{
-		Context*result;
-		result = children.append();
-		result->name = name;
-		result->Is_mode = false;
-		child_map.set(name,result);
-		return result;
+		index_t resultAt = children.Count();
+		Context&rs = children.Append();
+		rs.name = name;
+		rs.isMode = false;
+		childMap.set(name,resultAt);
+		return rs;
 	}
 	
-	Context*					Context::defineMode(const String&name)
+	Context&					Context::DefineMode(const String&name)
 	{
-		Context*result;
-		if (mode_map.query(name,result))
-			return result;
-		result = modes.append();
-		result->name = name;
-		result->Is_mode = true;
-		mode_map.set(name,result);
-		return result;
+		index_t resultAt;
+		if (modeMap.query(name,resultAt))
+			return modes[resultAt];
+		resultAt = modes.Count();
+		Context&rs = modes.Append();
+		rs.name = name;
+		rs.isMode = true;
+		modeMap.set(name,resultAt);
+		return rs;
 	}
 	
-	Context*					Context::defineModeContext(const String&mode_name, const String&context_name)
+	Context&					Context::DefineModeContext(const String&mode_name, const String&context_name)
 	{
-		return defineMode(mode_name)->defineContext(context_name);
+		return DefineMode(mode_name).DefineContext(context_name);
 	}
 	
-	Context*					Context::createModeContext(const String&mode_name, const String&context_name)
+	Context&					Context::CreateModeContext(const String&mode_name, const String&context_name)
 	{
-		return defineMode(mode_name)->createContext(context_name);
+		return DefineMode(mode_name).CreateContext(context_name);
 	}
 	
 	void						Context::clear()
 	{
 		children.clear();
-		child_map.clear();
+		childMap.clear();
 		modes.clear();
-		mode_map.clear();
+		modeMap.clear();
 		attributes.clear();
-		attribute_map.clear();
+		attributeMap.clear();
 	}
 
 
 	void						Context::exportModes(ArrayData<Context*>&out)
 	{
-		out.setSize(modes);
-		for (unsigned i = 0; i < modes; i++)
-			out[i] = modes[i];
+		out.setSize(modes.Count());
+		for (index_t i = 0; i < modes.Count(); i++)
+			out[i] = modes + i;
 	}
 	
 	void						Context::exportModes(ArrayData<const Context*>&out)				const
 	{
-		out.setSize(modes);
-		for (unsigned i = 0; i < modes; i++)
-			out[i] = modes[i];
+		out.setSize(modes.Count());
+		for (index_t i = 0; i < modes.Count(); i++)
+			out[i] = modes+i;
 	}
 	
 	void						Context::exportChildren(ArrayData<Context*>&out)
 	{
-		out.setSize(children.count());
-		for (unsigned i = 0; i < children; i++)
-			out[i] = children[i];
+		out.setSize(children.Count());
+		for (index_t i = 0; i < children.Count(); i++)
+			out[i] = children + i;
 	}
 	
 	void						Context::exportChildren(ArrayData<const Context*>&out)			const
 	{
-		out.setSize(children.count());
-		for (unsigned i = 0; i < children; i++)
-			out[i] = children[i];
+		out.setSize(children.Count());
+		for (index_t i = 0; i < children.Count(); i++)
+			out[i] = children + i;
 	}
 	
 	void						Context::exportAttributes(ArrayData<Attribute*>&out)
 	{
-		out.setSize(attributes);
-		for (unsigned i = 0; i < attributes; i++)
-			out[i] = attributes[i];
+		out.setSize(attributes.Count());
+		for (index_t i = 0; i < attributes.Count(); i++)
+			out[i] = attributes + i;
 	}
 	
 	void						Context::exportAttributes(ArrayData<const Attribute*>&out)		const
 	{
-		out.setSize(attributes);
-		for (unsigned i = 0; i < attributes; i++)
-			out[i] = attributes[i];
+		out.setSize(attributes.Count());
+		for (index_t i = 0; i < attributes.Count(); i++)
+			out[i] = attributes + i;
 	}
 
 
@@ -185,7 +190,7 @@ namespace Config
 		Array<String,Adopt>	segments;
 		explode('/',path,segments);
 		if (!segments.count())
-			return NULL;
+			return nullptr;
 		String mode;
 		if (index_t at = segments.first().indexOf(':'))
 		{
@@ -200,11 +205,11 @@ namespace Config
 		if (!context)
 		{
 			//std::cout << " context could not be located"<<std::endl;
-			return NULL;
+			return nullptr;
 		}
-		Attribute*result;
-		if (context->attribute_map.query(segments.last(),result))
-			return result;
+		index_t  resultAt;
+		if (context->attributeMap.query(segments.last(),resultAt))
+			return context->attributes + resultAt;
 		/*std::cout << " attribute '"+segments.last()+"' could not be located:"<<std::endl;
 		context->attributes.reset();
 		while (Attribute*a = context->attributes.each())
@@ -214,7 +219,7 @@ namespace Config
 				std::cout << "  ERROR: found unmapped attribute '"<<a->name<<"'!!!"<<std::endl;
 		}*/
 
-		return NULL;
+		return nullptr;
 	}
 
 
@@ -223,7 +228,7 @@ namespace Config
 		Array<String,Adopt>	segments;
 		explode('/',path,segments);
 		if (!segments.count())
-			return NULL;
+			return nullptr;
 		String mode;
 		if (index_t at = segments.first().indexOf(':'))
 		{
@@ -235,11 +240,11 @@ namespace Config
 		}
 		const Context*context = (segments.count()>1||mode.length())?GetContext(segments.pointer(),segments.count()-1,mode):this;
 		if (!context)
-			return NULL;
-		Attribute*result;
-		if (context->attribute_map.query(segments.last(),result))
-			return result;
-		return NULL;
+			return nullptr;
+		index_t  resultAt;
+		if (context->attributeMap.query(segments.last(),resultAt))
+			return context->attributes + resultAt;
+		return nullptr;
 	}
 	
 	const String&				Context::Get(const String&path, const String&except)	const
@@ -320,13 +325,13 @@ namespace Config
 	
 	Context*					Context::GetContext(const String*path, size_t path_len, const String&mode)
 	{
-		Context*n;
-		if (mode.length() && mode_map.query(mode,n))
-			if (Context*rs = n->GetContext(path,path_len,""))
+		index_t at;
+		if (mode.length() && modeMap.query(mode,at))
+			if (Context*rs = modes[at].GetContext(path,path_len,""))
 				return rs;
-		if (path_len && child_map.query(*path,n))
-			return n->GetContext(path+1,path_len-1,mode);
-		return path_len || mode.length()?NULL:this;
+		if (path_len && childMap.query(*path,at))
+			return children[at].GetContext(path+1,path_len-1,mode);
+		return path_len || mode.length()?nullptr:this;
 	}
 	
 	const Context*					Context::GetContext(const String&path) const
@@ -334,7 +339,7 @@ namespace Config
 		Array<String,Adopt>	segments;
 		explode('/',path,segments);
 		if (!segments.count())
-			return NULL;
+			return nullptr;
 		String mode;
 		if (index_t at = segments.first().indexOf(':'))
 		{
@@ -346,13 +351,13 @@ namespace Config
 	
 	const Context*					Context::GetContext(const String*path, size_t path_len, const String&mode) const
 	{
-		Context*n;
-		if (mode.length() && mode_map.query(mode,n))
-			if (const Context*rs = ((const Context*)n)->GetContext(path,path_len,""))
+		index_t at;
+		if (mode.length() && modeMap.query(mode,at))
+			if (const Context*rs = modes[at].GetContext(path,path_len,""))
 				return rs;
-		if (path_len && child_map.query(*path,n))
-			return ((const Context*)n)->GetContext(path+1,path_len-1,mode);
-		return path_len || mode.length()?NULL:this;
+		if (path_len && childMap.query(*path,at))
+			return children[at].GetContext(path+1,path_len-1,mode);
+		return path_len || mode.length()?nullptr:this;
 	}
 	
 	const String&					Context::GetOperator(const String&path)						const
@@ -366,51 +371,48 @@ namespace Config
 	
 	void		Context::cleanup()
 	{
-		children.reset();
-		while (Context*child = children.each())
+		for (index_t i = 0; i < children.Count(); i++)
 		{
-			child->cleanup();
-			if (child->IsEmpty())
+			Context&child = children[i];
+			child.cleanup();
+			if (child.IsEmpty())
 			{
-				child_map.unSet(child->name);
-				children.erase();
+				childMap.unSet(child.name);
+				children.Erase(i--);
 			}
 		}
 		
-		modes.reset();
-		while (Context*mode = modes.each())
+		for (index_t i = 0; i < modes.Count(); i++)
 		{
-			mode->cleanup();
-			if (mode->IsEmpty())
+			Context&mode = modes[i];
+			mode.cleanup();
+			if (mode.IsEmpty())
 			{
-				mode_map.unSet(mode->name);
-				modes.erase();
+				modeMap.unSet(mode.name);
+				modes.Erase(i--);
 			}
 		}
 	}
 	
 	bool		Context::IsEmpty() const
 	{
-		return !children && !attributes && !modes;
+		return children.IsEmpty() && attributes.IsEmpty() && modes.IsEmpty();
 	}
 	
 	void		Context::retrieveMaxNameValueLength(size_t&name_len, size_t&value_len, size_t indent)	const
 	{
-		for (index_t i = 0; i < attributes; i++)
+		foreach (attributes, attrib)
 		{
-			if (name_len < attributes[i]->name.length()+indent)
-				name_len = attributes[i]->name.length()+indent;
-			if (value_len < attributes[i]->value.length()+2+indent)
-				value_len = attributes[i]->value.length()+2+indent;
+			name_len = std::min(name_len,attrib->name.length() + indent);
+			value_len = std::min(value_len,attrib->value.length() + 2 + indent);
 		}
-		for (index_t i = 0; i < children; i++)
-			children[i]->retrieveMaxNameValueLength(name_len,value_len,indent+4);
+		foreach (children,child)
+			child->retrieveMaxNameValueLength(name_len,value_len,indent+4);
 		
-		for (index_t i = 0; i < modes; i++)
+		foreach (modes,mode)
 		{
-			const Context*mode = modes[i];
-			if (mode->children == 1 && !mode->attributes)
-				mode->children.first()->retrieveMaxNameValueLength(name_len,value_len,indent+4);
+			if (mode->children.Count() == 1 && mode->attributes.IsEmpty())
+				mode->children.first().retrieveMaxNameValueLength(name_len,value_len,indent+4);
 			else
 				mode->retrieveMaxNameValueLength(name_len,value_len,indent+4);
 		}
@@ -419,9 +421,8 @@ namespace Config
 
 	void		Context::writeContent(StringBuffer&buffer, size_t name_len, size_t value_len, const String&indent) const
 	{
-		for (index_t i = 0; i < attributes.count(); i++)
+		foreach (attributes,attrib)
 		{
-			const Attribute*attrib = attributes[i];
 			if (attrib->commented)
 				buffer << "//";
 			buffer << indent << attrib->name;
@@ -463,13 +464,12 @@ namespace Config
 			}
 			buffer << nl;
 		}
-		for (index_t i = 0; i < modes.count(); i++)
+		foreach (modes,mode)
 		{
-			const Context*mode = modes[i];
-			if (mode->children == 1 && !mode->attributes.count() && !mode->modes.count())
+			if (mode->children.Count() == 1 && mode->attributes.IsEmpty() && mode->modes.IsEmpty())
 			{
-				buffer << indent << "["<<mode->name<<":"<<mode->children.first()->name<<"]"<<nl;
-				mode->children.first()->writeContent(buffer,name_len,value_len,indent+"\t");
+				buffer << indent << "["<<mode->name<<":"<<mode->children.first().name<<"]"<<nl;
+				mode->children.first().writeContent(buffer,name_len,value_len,indent+"\t");
 			}
 			else
 			{
@@ -477,9 +477,8 @@ namespace Config
 				mode->writeContent(buffer,name_len,value_len,indent+"\t");
 			}
 		}
-		for (index_t i = 0; i < children.count(); i++)
+		foreach (children,child)
 		{
-			const Context*child = children[i];
 			buffer << indent << "["<<child->name<<"]"<<nl;
 			child->writeContent(buffer,name_len,value_len,indent+"\t");
 		}
@@ -615,17 +614,17 @@ namespace Config
 				}
 				else
 				{
-					Context*child = context->defineMode(mode);
+					Context&child = context->DefineMode(mode);
 					if (!group.length())
-						stack_elements.append(child);
-					context = child;
+						stack_elements.append(&child);
+					context = &child;
 				}
 			}
 			if (group.length())
 			{
-				Context*child = context->createContext(group);
-				stack_elements.append(child);
-				context = child;
+				Context&child = context->CreateContext(group);
+				stack_elements.append(&child);
+				context = &child;
 			}
 			
 			if (!group.length() && !mode.length())
@@ -639,15 +638,15 @@ namespace Config
 					errors = true;
 					continue;
 				}
-				Attribute*attrib = context->define(tokens.first());
-				if (attrib->value.length())
+				Attribute&attrib = context->Define(tokens.first());
+				if (attrib.value.length())
 				{
-					error += "\nRedefining attribute '"+attrib->name+"' to '"+tokens[2]+"' in line "+String(file.root_line)+":\n "+line;
+					error += "\nRedefining attribute '"+attrib.name+"' to '"+tokens[2]+"' in line "+String(file.root_line)+":\n "+line;
 					errors = true;
 				}
-				attrib->assignment_operator = tokens[1];
-				attrib->value = Tokenizer::dequote(tokens[2],configuration);
-				attrib->comment = file.comment.trim();
+				attrib.assignment_operator = tokens[1];
+				attrib.value = Tokenizer::dequote(tokens[2],configuration);
+				attrib.comment = file.comment.trim();
 			}
 		}
 		//logfile << "Reached end of file "<<filename<<nl;
@@ -988,7 +987,7 @@ namespace Config
 	{
 		if (variables_finalized)
 			return;
-		for (StringMappedList<Variable>::iterator it = variables.begin(); it != variables.end(); ++it)
+		foreach (variables,it)
 		{
 			//std::cout << "rendering variable #"<<i<<std::endl;
 			Variable*variable = *it;
@@ -1009,7 +1008,7 @@ namespace Config
 	
 	void	CXContext::trimVariables()
 	{
-		for (StringMappedList<Variable>::iterator it = variables.begin(); it != variables.end(); ++it)
+		foreach (variables,it)
 		{
 			for (unsigned i = 0; i < (*it)->count(); i++)
 			{

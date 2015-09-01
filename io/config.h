@@ -56,33 +56,54 @@ namespace Config
 											value,
 											comment;
 					bool					commented;	//indicates that the entire line Is to be commented
+
+					void					swap(Attribute&other)
+					{
+						name.swap(other.name);
+						assignment_operator.swap(other.assignment_operator);
+						value.swap(other.value);
+						comment.swap(other.comment);
+						swp(commented,other.commented);
+					}
 				};
 			
 		protected:
-				List::Vector<Context>		children;
-				StringTable<Context*>		child_map;
-				List::Vector<Attribute>		attributes;
-				StringTable<Attribute*>		attribute_map;
-				List::Vector<Context>		modes;
-				StringTable<Context*>		mode_map;
-				bool						Is_mode;
+				Buffer0<Context,Swap>		children;
+				StringTable<index_t>		childMap;
+				Buffer0<Attribute,Swap>		attributes;
+				StringTable<index_t>		attributeMap;
+				Buffer0<Context,Swap>		modes;
+				StringTable<index_t>		modeMap;
+				bool						isMode;
 
-				Attribute*					protectedDefine(const String&name, const String&value="");
-				Context*					protectedDefineContext(const String&name);	//!< Defines a new context within this one if one of the specified name does not already exist
-				Context*					protectedDefineContext(const String*names, count_t num_names);
+				Attribute&					protectedDefine(const String&name, const String&value="");
+				Context&					protectedDefineContext(const String&name);	//!< Defines a new context within this one if one of the specified name does not already exist
+				Context&					protectedDefineContext(const String*names, count_t num_names);
 		public:
 				String						name;	//!< Name 
 
-											Context():Is_mode(false)	{};
+											Context():isMode(false)	{};
+
+				void						swap(Context&other)
+				{
+					children.swap(other.children);
+					childMap.swap(other.childMap);
+					attributes.swap(other.attributes);
+					attributeMap.swap(other.attributeMap);
+					modes.swap(other.modes);
+					modeMap.swap(other.modeMap);
+					swp(isMode,other.isMode);
+					name.swap(other.name);
+				}
 											
 		virtual								~Context()	{};
 		
-				Attribute*					define(const String&name, const String&value="");
-				Context*					defineContext(const String&name);	//!< Defines a new context within this one if one of the specified name does not already exist
-				Context*					createContext(const String&name);	//!< Defines a new context within this one even if one of the specified name already exists.
-				Context*					defineModeContext(const String&mode_name, const String&context_name);
-				Context*					createModeContext(const String&mode_name, const String&context_name);
-				Context*					defineMode(const String&name);
+				Attribute&					Define(const String&name, const String&value="");
+				Context&					DefineContext(const String&name);	//!< Defines a new context within this one if one of the specified name does not already exist
+				Context&					CreateContext(const String&name);	//!< Defines a new context within this one even if one of the specified name already exists.
+				Context&					DefineModeContext(const String&mode_name, const String&context_name);
+				Context&					CreateModeContext(const String&mode_name, const String&context_name);
+				Context&					DefineMode(const String&name);
 				
 				Attribute*					GetAttrib(const String&path);
 				const Attribute*			GetAttrib(const String&path)						const;
@@ -102,7 +123,7 @@ namespace Config
 				const Context*				GetContext(const String*path, size_t path_len, const String&mode)	const;
 				
 				
-				bool						IsMode() const	{return Is_mode;};
+				bool						IsMode() const	{return isMode;};
 				bool						IsEmpty() 											const;
 				void						exportModes(ArrayData<Context*>&out);
 				void						exportModes(ArrayData<const Context*>&out)			const;
@@ -205,7 +226,7 @@ namespace Config
 				bool						process(String&expression, bool singular, String*error_out)	const;	//!< Processes an expression that may contain variables
 	
 				Variable*					innerFindVariable(const ArrayData<String>&segments);		//!< Recursively looks for a variable via its path
-				const Variable*			innerFindVariable(const ArrayData<String>&segments) const;	//!< @overload
+				const Variable*				innerFindVariable(const ArrayData<String>&segments) const;	//!< @overload
 				CXContext*					innerFindContext(const ArrayData<String>&segments);		//!< Recursively looks for a context via its path
 				const CXContext*			innerFindContext(const ArrayData<String>&segments) const;	//!< @overload
 				void						finalizeVariables();	//!< Processes all variables and removes inner variable expressions. Invocation will fail if one or more inner variables cannot be found. The method will only actually change anything if @a variables_finalized Is false and set same variable to true
