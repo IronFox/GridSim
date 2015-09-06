@@ -202,13 +202,15 @@ in the foundation.
 
 		typedef int64_t		__int64;		//!< Standard signed 64 bit integer
 		typedef unsigned int	UINT;			//!< Compatiblity typedef
-		//typedef long		LONG;			//!< Compatiblity typedef
-		//typedef unsigned long	ULONG;			//!< Compatiblity typedef
+		typedef long		LONG;			//!< Compatiblity typedef
+		typedef unsigned long	ULONG;			//!< Compatiblity typedef
 		typedef uint32_t	UINT32;			//!< Compatiblity typedef
 		typedef int32_t		INT32;			//!< Compatiblity typedef
 		typedef int			DWORD;			//!< Compatiblity typedef
 		typedef short		WORD;			//!< Compatiblity typedef
 		typedef int			INT;			//!< Compatiblity typedef
+		
+		typedef int			BOOL;
 
 		typedef int32_t		__int32;		//!< Standard signed 32 bit integer
 		typedef int64_t		INT64;			//!< Compatiblity typedef

@@ -425,7 +425,7 @@ namespace Math
 
 		};
 
-	template <typename T=float>
+	template <typename T>
 		TFloatRange<T>	TFloatRange<T>::Invalid = {TypeInfo<T>::max, TypeInfo<T>::min};
 
 
@@ -457,7 +457,7 @@ namespace Math
 				TIntRange<T>&		operator=(const TIntRange<T1>&other)
 									{
 										start = (T)other.start;
-										max = (T)other.max;
+										end = (T)other.end;
 										return *this;
 									}
 									
@@ -526,7 +526,7 @@ namespace Math
 									}
 		};
 
-	template <typename T=float>
+	template <typename T>
 		TIntRange<T>	TIntRange<T>::Invalid = {TypeInfo<T>::max, TypeInfo<T>::min};
 
 
@@ -803,7 +803,7 @@ namespace Math
 			@brief Updates the maximum values of the local rectangle
 			*/
 			template<typename T0, typename T1>
-				MF_DECLARE(void)	SetMax(const T0&min_x, const T1&min_y)
+				MF_DECLARE(void)	SetMax(const T0&max_x, const T1&max_y)
 									{
 										x.max = (T)max_x;
 										y.max = (T)max_y;
@@ -1606,84 +1606,6 @@ namespace Math
 
 
 	
-	template <typename T=float>
-		class Sphere/*: public IToString*/	//! General purpose sphere - better not implement IToString due to possible IO-problems
-		{
-		public:
-			TVec3<T>				center;		//!< Sphere center (point)
-			T						radius;		//!< Sphere radius (scalar)
-			
-			MF_CONSTRUCTOR			Sphere(const T&radius=1):radius(radius) {Vec::clear(center);} 
-			MF_CONSTRUCTOR			Sphere(const TVec3<T>&center, const T&radius=1):center(center),radius(radius){}
-
-			static Sphere<T>		Invalid()	{return Sphere((T)-1);}
-
-			MF_DECLARE(bool)		Intersects(const Sphere<T>&remote)		const	{return Vec::quadraticDistance(center,remote.center) < sqr(radius + remote.radius);}
-			/**
-				@brief Extends radius so that the local sphere includes the specified point. The calculated distance from the local sphere center to the specified point is left squared thus increasing performance
-			*/
-			MFUNC(void)				IncludeSquare(const TVec3<C>&point)	{radius = std::max<T>(radius,Vec::quadraticDistance(center,point));}
-			/**
-			@brief Expands the local radius to include the specified sphere, if necessary. Does not modify the local sphere's center
-			*/
-			MFUNC(void)				Include(const TVec3<C>&sphereCenter, const T&sphereRadius)
-			{
-				T dist2 = Vec::quadraticDistance(center, sphereCenter);
-
-				if (radius >= sphereRadius && dist2 <= sqr(radius - sphereRadius))
-					return;
-				radius = vsqrt(dist2) + sphereRadius;
-			}
-			/**
-			@brief Expands the local radius to include the specified sphere, if necessary. Does not modify the local sphere's center
-			*/
-			MFUNC(void)				Include(const Sphere<C>&sphere)	{ Include(sphere.center, sphere.radius); }
-			MFUNC(void)				Include(const TVec3<C>& point)	/** @brief Extends radius so that the local sphere includes the specified point */ { if (radius < 0) Vec::copy(point, center); radius = std::max<T>(radius, Vec::distance(center, point)); }
-			MFUNC(void)				Merge(const TVec3<C>& point, const T&radius)
-			{
-				if (this->radius < 0)
-				{
-					Vec::copy(point,center); 
-					this->radius = radius;
-				}
-				else
-				{
-					TVec3<T>	d;
-					Vec::sub(point,center,d);
-					Vec::normalize0(d);
-					TVec3<T>	a,b;
-					Vec::mad(center,d,-this->radius,a);
-					Vec::mad(point,d,radius,b);
-					Vec::center(a,b,center);
-					this->radius = Vec::distance(a,b)/(T)2;
-				}
-			}
-			MFUNC(void)				Merge(const Sphere<C>&sphere)	{Merge(sphere.center,sphere.radius);}
-			MFUNC(bool)				Contains(const TVec3<C>&point)	const	{return Vec::quadraticDistance(center,point) <= sqr(radius);}
-			MFUNC(bool)				Contains(const Sphere<C>&sphere)	const	{ return radius >= sphere.radius && Vec::quadraticDistance(center, sphere.center) <= sqr(radius-sphere.radius); }
-			MF_DECLARE(T)			volume()	const
-									{
-										return (T)4/(T)3 * (T)M_PI * radius * radius * radius;
-									}
-			MF_DECLARE(T)			GetVolume()		const	/** @copydoc volume() */ {return volume();}
-			template <typename T0>
-				MF_DECLARE(void)	GetVolume(T0&result)	const
-									{
-										result = (T0)((T)4/(T)3 * (T)M_PI * radius * radius * radius);
-									}
-			template <typename T0>
-				void				GetCenter(TVec3<T0>&out)	const
-									{
-										out.x = (T0)center.x;
-										out.y = (T0)center.y;
-										out.z = (T0)center.z;
-									}
-
-			String					ToString()	const /*override*/
-									{
-										return Vec::toString(center)+",r="+String(radius);
-									}
-		};
 
 	/**
 		@brief Predefined global 2d vectors
@@ -2562,9 +2484,92 @@ namespace Math
 	}
 
 
-
+	#if __cplusplus > 199711L
+		#define register      // Deprecated in C++11.
+	#endif  // #if __cplusplus > 199711L
+	
 
 	#include "vector_operations.h"
+
+	
+	template <typename T=float>
+		class Sphere/*: public IToString*/	//! General purpose sphere - better not implement IToString due to possible IO-problems
+		{
+		public:
+			TVec3<T>				center;		//!< Sphere center (point)
+			T						radius;		//!< Sphere radius (scalar)
+			
+			MF_CONSTRUCTOR			Sphere(const T&radius=1):radius(radius) {Vec::clear(center);} 
+			MF_CONSTRUCTOR			Sphere(const TVec3<T>&center, const T&radius=1):center(center),radius(radius){}
+
+			static Sphere<T>		Invalid()	{return Sphere((T)-1);}
+
+			MF_DECLARE(bool)		Intersects(const Sphere<T>&remote)		const	{return Vec::quadraticDistance(center,remote.center) < sqr(radius + remote.radius);}
+			/**
+				@brief Extends radius so that the local sphere includes the specified point. The calculated distance from the local sphere center to the specified point is left squared thus increasing performance
+			*/
+			MFUNC(void)				IncludeSquare(const TVec3<C>&point)	{radius = std::max<T>(radius,Vec::quadraticDistance(center,point));}
+			/**
+			@brief Expands the local radius to include the specified sphere, if necessary. Does not modify the local sphere's center
+			*/
+			MFUNC(void)				Include(const TVec3<C>&sphereCenter, const T&sphereRadius)
+			{
+				T dist2 = Vec::quadraticDistance(center, sphereCenter);
+
+				if (radius >= sphereRadius && dist2 <= sqr(radius - sphereRadius))
+					return;
+				radius = vsqrt(dist2) + sphereRadius;
+			}
+			/**
+			@brief Expands the local radius to include the specified sphere, if necessary. Does not modify the local sphere's center
+			*/
+			MFUNC(void)				Include(const Sphere<C>&sphere)	{ Include(sphere.center, sphere.radius); }
+			MFUNC(void)				Include(const TVec3<C>& point)	/** @brief Extends radius so that the local sphere includes the specified point */ { if (radius < 0) Vec::copy(point, center); radius = std::max<T>(radius, Vec::distance(center, point)); }
+			MFUNC(void)				Merge(const TVec3<C>& point, const T&radius)
+			{
+				if (this->radius < 0)
+				{
+					Vec::copy(point,center); 
+					this->radius = radius;
+				}
+				else
+				{
+					TVec3<T>	d;
+					Vec::sub(point,center,d);
+					Vec::normalize0(d);
+					TVec3<T>	a,b;
+					Vec::mad(center,d,-this->radius,a);
+					Vec::mad(point,d,radius,b);
+					Vec::center(a,b,center);
+					this->radius = Vec::distance(a,b)/(T)2;
+				}
+			}
+			MFUNC(void)				Merge(const Sphere<C>&sphere)	{Merge(sphere.center,sphere.radius);}
+			MFUNC(bool)				Contains(const TVec3<C>&point)	const	{return Vec::quadraticDistance(center,point) <= sqr(radius);}
+			MFUNC(bool)				Contains(const Sphere<C>&sphere)	const	{ return radius >= sphere.radius && Vec::quadraticDistance(center, sphere.center) <= sqr(radius-sphere.radius); }
+			MF_DECLARE(T)			volume()	const
+									{
+										return (T)4/(T)3 * (T)M_PI * radius * radius * radius;
+									}
+			MF_DECLARE(T)			GetVolume()		const	/** @copydoc volume() */ {return volume();}
+			template <typename T0>
+				MF_DECLARE(void)	GetVolume(T0&result)	const
+									{
+										result = (T0)((T)4/(T)3 * (T)M_PI * radius * radius * radius);
+									}
+			template <typename T0>
+				void				GetCenter(TVec3<T0>&out)	const
+									{
+										out.x = (T0)center.x;
+										out.y = (T0)center.y;
+										out.z = (T0)center.z;
+									}
+
+			String					ToString()	const /*override*/
+									{
+										return Vec::toString(center)+",r="+String(radius);
+									}
+		};
 
 }
 

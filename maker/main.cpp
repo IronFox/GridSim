@@ -234,9 +234,9 @@ void buildFile(TFile*file)
     String obj_file = FileSystem::ExtractFileDirName(file->ident.GetLocation())+".o",
             cmd;
    if (file->ext == "c")
-        cmd = "gcc";
+        cmd = "clang-3.5";
     else
-        cmd = "g++";
+        cmd = "clang++-3.5 -o2 -std=c++11 -Wno-ignored-attributes -ferror-limit=1 -Wno-dangling-else -Wno-undefined-bool-conversion";
     cmd += " -c "+file->ident.GetLocation()+" -o "+obj_file+compile_flags;
     cout << "compiling "<<file->ident.GetLocation().c_str()<<" ("<<++build_index<<"/"<<build_total<<")...\n";
     //cmd.c_str() << endl;
