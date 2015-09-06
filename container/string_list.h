@@ -67,7 +67,7 @@ namespace Tokenizer
 							{
 								return first_char[c];
 							}
-			Super::isSet;
+			using Super::isSet;
 	};
 
 	class CharacterTable	//! Character table, providing the respective index for set characters and 0 for undefined characters
@@ -84,14 +84,20 @@ namespace Tokenizer
 								memset(field,0,sizeof(field));
 								const char*c = tokens.c_str(),*first = c;
 								while (*c)
-									field[(BYTE)*c++] = c-first+1;
+								{
+									field[(BYTE)*c] = c-first+1;
+									c++;
+								}
 							}
 							CharacterTable(const char*tokens)
 							{
 								memset(field,0,sizeof(field));
 								const char*c = tokens,*first = c;
 								while (*c)
-									field[(BYTE)*c++] = c-first+1;
+								{
+									field[(BYTE)*c] = c-first+1;
+									c++;
+								}
 							}
 							
 			CharacterTable&operator=(const String&tokens)		//!< Sets the local character map based on the characters found in the specified string
@@ -99,7 +105,10 @@ namespace Tokenizer
 								memset(field,0,sizeof(field));
 								const char*c = tokens.c_str(),*first = c;
 								while (*c)
-									field[(BYTE)*c++] = c-first+1;
+								{
+									field[(BYTE)*c] = c-first+1;
+									c++;
+								}
 								return *this;
 							}
 			CharacterTable&operator=(const char*tokens)		//!< Sets the local character map based on the characters found in the specified string
@@ -107,7 +116,10 @@ namespace Tokenizer
 								memset(field,0,sizeof(field));
 								const char*c = tokens,*first = c;
 								while (*c)
-									field[(BYTE)*c++] = c-first+1;
+								{
+									field[(BYTE)*c] = c-first+1;
+									c++;
+								}
 								return *this;
 							}
 			
@@ -423,18 +435,18 @@ INLINE		const String&		operator[](size_t index)									const;
 
 INLINE		void				clear()			{Super::reset();}
 			
-			Super::count;
-			Super::size;
-			Super::revert;
-			Super::isEmpty;
-			Super::isNotEmpty;
-			Super::erase;
-			Super::append;
-			Super::moveAppend;
-			Super::moveToArray;
-			Super::copyToArray;
-			Super::begin;
-			Super::end;
+			using Super::count;
+			using Super::size;
+			using Super::revert;
+			using Super::isEmpty;
+			using Super::isNotEmpty;
+			using Super::erase;
+			using Super::append;
+			using Super::moveAppend;
+			using Super::moveToArray;
+			using Super::copyToArray;
+			using Super::begin;
+			using Super::end;
 };
 
 

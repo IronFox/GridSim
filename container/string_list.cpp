@@ -91,7 +91,8 @@ namespace Tokenizer
 			}
 			else
 			{
-				if (status.in_string = config.quotations.query(c))
+				size_t rindex;
+				if ((status.in_string = config.quotations.query(c)))
 				{
 					escaped = false;
 					if (!status.recursion_level && config.string_break)
@@ -100,7 +101,7 @@ namespace Tokenizer
 						continue;
 					}
 				}
-				elif (size_t rindex = config.recursion_up.query(c))
+				elif ((rindex = config.recursion_up.query(c)))
 				{
 					if (!status.recursion_level && config.recursion_break)
 						END_EXCLUSIVE
@@ -251,7 +252,8 @@ namespace Tokenizer
 			}
 			else
 			{
-				if (status.in_string = config.quotations.query(c))
+				size_t rindex;
+				if ((status.in_string = config.quotations.query(c)))
 				{
 					escaped = false;
 					if (!status.recursion_level && config.string_break)
@@ -260,7 +262,7 @@ namespace Tokenizer
 						continue;
 					}
 				}
-				elif (size_t rindex = config.recursion_up.query(c))
+				elif ((rindex = config.recursion_up.query(c)))
 				{
 					if (!status.recursion_level && config.recursion_break)
 						END_EXCLUSIVE

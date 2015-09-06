@@ -1098,7 +1098,7 @@ namespace Math
     MFUNCD	(C) __determinant(const C*m)
     {
         C temp[Cols*Rows],rs(1);
-        _copyV<C,C,Cols*Rows>(m,temp);
+        VecUnroll<Cols*Rows>::copy(m,temp);
         count_t dim = Cols<=Rows?Cols:Rows;
         for (index_t row = 0; row < dim-1; row++)
         {
@@ -1363,8 +1363,8 @@ namespace Math
     {
         C eye[Dimensions*Dimensions];
         __eye<C,Dimensions>(eye);
-        _subV<C,C,16>(eye,matrix);
-        return _sumV<C,16>(eye)<getError<C>*Dimensions*Dimensions;
+		VecUnroll<16>::sub(eye,matrix);
+        return VecUnroll<16>::sum(eye) < getError<C>*Dimensions*Dimensions;
     }
 	#endif
 

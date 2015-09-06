@@ -138,7 +138,7 @@ namespace Attrib
 			attrib.copyable = copyable;
 			
 			name_map.set(name,attrib);
-			return attrib.global_id;
+			return attrib;//.global_id;
 		}
 
 	

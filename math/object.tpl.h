@@ -2403,8 +2403,8 @@ namespace ObjectMath
 				edge->v0->unlink(edge);
 			if (edge->v1)
 				edge->v1->unlink(edge);
-			edge.n[0].triangle = NULL;
-			edge.n[1].triangle = NULL;
+			edge->n[0].triangle = NULL;
+			edge->n[1].triangle = NULL;
 		}
 	#endif
 	
@@ -3124,7 +3124,7 @@ namespace ObjectMath
  			const Triangle*t = (const Triangle*)this;
  			if (!full)
  				return "t"+IntToStr(t->index);
- 			return "t"+IntToStr(t->index)+" {v"+IntToStr(t->v0->index)+", v"+IntToStr(t->v1->index)+", v"+IntToStr(t->v2->index)+"} {"+n0.ToString(false)+", "+n1.ToString(false)+", "+n2.ToString(false)+"} {e"+IntToStr(e0.index)+", e"+IntToStr(e1.index)+", e"+IntToStr(e2.index)+"}";
+ 			return "t"+IntToStr(t->index)+" {v"+IntToStr(t->v0->index)+", v"+IntToStr(t->v1->index)+", v"+IntToStr(t->v2->index)+"} {"+n0.ToString(false)+", "+n1.ToString(false)+", "+n2.ToString(false)+"} {e"+IntToStr(e0->index)+", e"+IntToStr(e1->index)+", e"+IntToStr(e2->index)+"}";
 		}
 	
 	template <class Def>
@@ -3136,7 +3136,7 @@ namespace ObjectMath
  			const Quad*t = (const Quad*)this;
  			if (!full)
  				return "q"+IntToStr(t->index);
- 			return "q"+IntToStr(t->index)+" {v"+IntToStr(t->v0->index)+", v"+IntToStr(t->v1->index)+", v"+IntToStr(t->v2->index)+", v"+IntToStr(t->v3->index)+"} {"+n0.ToString(false)+", "+n1.ToString(false)+", "+n2.ToString(false)+", "+n3.ToString(false)+" {e"+IntToStr(e0.index)+", e"+IntToStr(e1.index)+", e"+IntToStr(e2.index)+", e"+IntToStr(e3.index)+"}";
+ 			return "q"+IntToStr(t->index)+" {v"+IntToStr(t->v0->index)+", v"+IntToStr(t->v1->index)+", v"+IntToStr(t->v2->index)+", v"+IntToStr(t->v3->index)+"} {"+n0.ToString(false)+", "+n1.ToString(false)+", "+n2.ToString(false)+", "+n3.ToString(false)+" {e"+IntToStr(e0->index)+", e"+IntToStr(e1->index)+", e"+IntToStr(e2->index)+", e"+IntToStr(e3->index)+"}";
 		}
 
 	
