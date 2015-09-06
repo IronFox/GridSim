@@ -2,10 +2,10 @@
 #define vector_operationsH
 /*
 
-Warning: date(): It is not safe to rely on the system's timezone settings. You are *required* to use the date.timezone setting or the date_default_timezone_set() function. In case you used any of those methods and you are still getting this warning, you most likely misspelled the timezone identifier. We selected 'Europe/Paris' for '1.0/no DST' instead in E:\include\math\update.php on line 1656
+Warning: date(): It is not safe to rely on the system's timezone settings. You are *required* to use the date.timezone setting or the date_default_timezone_set() function. In case you used any of those methods and you are still getting this warning, you most likely misspelled the timezone identifier. We selected the timezone 'UTC' for now, but please set date.timezone to select your timezone. in E:\include\math\update.php on line 1656
 
-Warning: date(): It is not safe to rely on the system's timezone settings. You are *required* to use the date.timezone setting or the date_default_timezone_set() function. In case you used any of those methods and you are still getting this warning, you most likely misspelled the timezone identifier. We selected 'Europe/Paris' for '1.0/no DST' instead in E:\include\math\update.php on line 1656
-This file was generated from template definition 'vector.template.php' on 2014 December 13th 14:25:35
+Warning: date(): It is not safe to rely on the system's timezone settings. You are *required* to use the date.timezone setting or the date_default_timezone_set() function. In case you used any of those methods and you are still getting this warning, you most likely misspelled the timezone identifier. We selected the timezone 'UTC' for now, but please set date.timezone to select your timezone. in E:\include\math\update.php on line 1656
+This file was generated from template definition 'vector.template.php' on 2015 September 6th 15:13:31
 Do not edit
 */
 
@@ -1543,6 +1543,7 @@ namespace Vec
 		{
 			T2 len = (vsqrt( (Vec::Operator4_sumD(current, center, dimensions)/*sqr(current:i - center:i)*/) ));
 			if (len > TypeInfo<T2>::error)
+			{
 				
 				//block inlining void scale (2..4) (<const [*] center>, <factor>, <[*] current>) direct=1 for dimensions=3, assembly_mode='DynamicPointers', parameters={center, (distance/len), current}...
 				{
@@ -1551,6 +1552,7 @@ namespace Vec
 						current[iterator__] = center[iterator__]+(current[iterator__]-center[iterator__])*(distance/len);
 					}
 				};
+			}
 			else
 				current[0] = len;
 		}
@@ -7286,12 +7288,14 @@ namespace Vec
 		{
 			T2 len = (vsqrt( (sqr(current.x - center.x) + sqr(current.y - center.y)) ));
 			if (len > TypeInfo<T2>::error)
+			{
 				
 				//block inlining void scale (2..4) (<const [*] center>, <factor>, <[*] current>) direct=1 for dimensions=2, assembly_mode='Objects', parameters={center, (distance/len), current}...
 				{
 					current.x = center.x+(current.x-center.x)*(distance/len);
 					current.y = center.y+(current.y-center.y)*(distance/len);
 				};
+			}
 			else
 				current[0] = len;
 		}
@@ -7312,6 +7316,7 @@ namespace Vec
 		{
 			T2 len = (vsqrt( (sqr(current.x - center.x) + sqr(current.y - center.y) + sqr(current.z - center.z)) ));
 			if (len > TypeInfo<T2>::error)
+			{
 				
 				//block inlining void scale (2..4) (<const [*] center>, <factor>, <[*] current>) direct=1 for dimensions=3, assembly_mode='Objects', parameters={center, (distance/len), current}...
 				{
@@ -7319,6 +7324,7 @@ namespace Vec
 					current.y = center.y+(current.y-center.y)*(distance/len);
 					current.z = center.z+(current.z-center.z)*(distance/len);
 				};
+			}
 			else
 				current[0] = len;
 		}
@@ -7339,6 +7345,7 @@ namespace Vec
 		{
 			T2 len = (vsqrt( (sqr(current.x - center.x) + sqr(current.y - center.y) + sqr(current.z - center.z) + sqr(current.w - center.w)) ));
 			if (len > TypeInfo<T2>::error)
+			{
 				
 				//block inlining void scale (2..4) (<const [*] center>, <factor>, <[*] current>) direct=1 for dimensions=4, assembly_mode='Objects', parameters={center, (distance/len), current}...
 				{
@@ -7347,6 +7354,7 @@ namespace Vec
 					current.z = center.z+(current.z-center.z)*(distance/len);
 					current.w = center.w+(current.w-center.w)*(distance/len);
 				};
+			}
 			else
 				current[0] = len;
 		}
@@ -14222,12 +14230,14 @@ template <count_t Current, count_t Dimensions>
 			{
 				T2 len = (vsqrt( (VecV_Include__<0,Dimensions,false>::Operator21_sum(current, center)/*sqr(current:i - center:i)*/) ));
 				if (len > TypeInfo<T2>::error)
+				{
 					
 					//block inlining void scale (2..4) (<const [*] center>, <factor>, <[*] current>) direct=1 for dimensions=3, assembly_mode='Pointers', parameters={center, (distance/len), current}...
 					{
 						current[Current] = center[Current]+(current[Current]-center[Current])*(distance/len);
 						VecV_Include__<Current+1,Dimensions,GreaterOrEqual<Current+2,Dimensions>::eval>::scale(center, (distance/len), current);
 					};
+				}
 				else
 					current[0] = len;
 			}
@@ -15089,12 +15099,14 @@ template <count_t Current, count_t Dimensions>
 			{
 				T2 len = (vsqrt( (VecV_Include__<0,Dimensions,false>::Operator43_sum(current.v, center.v)/*sqr(current:i - center:i)*/) ));
 				if (len > TypeInfo<T2>::error)
+				{
 					
 					//block inlining void scale (2..4) (<const [*] center>, <factor>, <[*] current>) direct=1 for dimensions=3, assembly_mode='Objects', parameters={center, (distance/len), current}...
 					{
 						current.v[Current] = center.v[Current]+(current.v[Current]-center.v[Current])*(distance/len);
 						VecV_Include__<Current+1,Dimensions,GreaterOrEqual<Current+2,Dimensions>::eval>::scale(center, (distance/len), current);
 					};
+				}
 				else
 					current[0] = len;
 			}

@@ -284,7 +284,9 @@ functions:
 		{Scales the distance between <paramref>center</paramref> and <paramref>current</paramref> to the specified absolute <paramref>distance</paramref>. Also checks if <paramref>center</paramref> and <paramref>current</paramref> are identical and reacts appropriately.}
 		:float len = :<distance>(current,center);
 		if (len > TypeInfo<:float>::error)
+		{
 			:<scale>(center, distance/len, current);
+		}
 		else
 			current[0] = len;
 	
