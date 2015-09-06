@@ -64,9 +64,9 @@ as the Borland AnsiString-class.
 #endif
 
 
-#ifdef _MSC_VER
+//#ifdef _MSC_VER
 	#define WCOUT
-#endif
+//#endif
 
 //#include "../general/comparable.h"
 
@@ -1760,6 +1760,12 @@ template <typename T>
 			typedef	AdoptStrategy		Default;
 	};
 
+	
+#if SYSTEM==UNIX
+
+	String	ToUTF8(const StringW&str);
+#endif
+	
 	
 #include "str_class.tpl.h"
 

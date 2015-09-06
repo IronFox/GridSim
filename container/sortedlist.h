@@ -70,22 +70,22 @@ public:
 		bool							checkIntegrity();
 		size_t							duplicateEntry();
 
-		Super::each;
-		Super::reset;
-		Super::count;
-		Super::get;
-		Super::clear;
-		Super::flush;
-		Super::getIndexOf;
-		Super::begin;
-		Super::end;
-		Super::totalSize;
-		Super::first;
-		Super::last;
-		Super::iterator;
-		Super::const_iterator;
-		Super::isEmpty;
-		Super::isNotEmpty;
+		using Super::each;
+		using Super::reset;
+		using Super::count;
+		using Super::get;
+		using Super::clear;
+		using Super::flush;
+		using Super::getIndexOf;
+		using Super::begin;
+		using Super::end;
+		using Super::totalSize;
+		using Super::first;
+		using Super::last;
+		using typename Super::iterator;
+		using typename Super::const_iterator;
+		using Super::isEmpty;
+		using Super::isNotEmpty;
 //		Super::operator size_t;
 		
 

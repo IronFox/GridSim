@@ -161,11 +161,11 @@ namespace List
 		Identical to BinaryTree except that it does not erase its elements on destruction.
 	*/
 
-	template <class C, class Class> class ReferenceBinaryTree		:public BinaryTree<C,Class>
+	template <class C, class Class> class ReferenceBinaryTree : public BinaryTree<C,Class>
 	{
 	public:
-						typedef BinaryTree<C,Class>	List;
-						USE_SORTED
+						typedef BinaryTree<C,Class>		Super;
+						//USE_SORTED
 						typedef C						Type;
 						typedef C*						Data;
 					
@@ -191,8 +191,9 @@ namespace List
 	{
 	public:
 						typedef C						Type;
-						typedef BinaryNode<C,Class>	Node;
-						typedef BinaryTree<C,Class>	Tree;
+						typedef BinaryNode<C,Class>		Node;
+						typedef BinaryTree<C,Class>		Tree;
+						typedef Class					Super;
 						typedef void					(*_walkFunc)(Type*,size_t);
 						typedef void					(*_printFunc)(Type*);
 	protected:

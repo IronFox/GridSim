@@ -50,13 +50,13 @@ namespace FileSystem
 	String			ExtractFileName(const String&filename);									//!< Extracts the file name of \b filename without preceeding folder or succeeding extension (neither preceeding slashes or succeeding dots either)
 	String			ExtractFileDirName(const String&filename);								//!< Extracts folders and file name of \b filename but no trailing extension (or extension dot)
 	String			ExtractFileNameExt(const String&filename);									//!< Extracts the file name and extension of \b filename but no preceeding folders (or slashes)
-	String			EscapeSpaces(String path);													//!< Inserts a backslash before every space character (for unix systems)
+	String			EscapeSpaces(const String&path);													//!< Inserts a backslash before every space character (for unix systems)
 	WString			ExtractFileExt(const WString&filename);										//!< Extracts the file extension of \b filename without preceeding '.'
 	WString			ExtractFileDir(const WString&filename);									//!< Extracts the file path of \b filename without trailing slash
 	WString			ExtractFileName(const WString&filename);									//!< Extracts the file name of \b filename without preceeding folder or succeeding extension (neither preceeding slashes or succeeding dots either)
 	WString			ExtractFileDirName(const WString&filename);								//!< Extracts folders and file name of \b filename but no trailing extension (or extension dot)
 	WString			ExtractFileNameExt(const WString&filename);									//!< Extracts the file name and extension of \b filename but no preceeding folders (or slashes)
-	WString			EscapeSpaces(WString path);													//!< Inserts a backslash before every space character (for unix systems)
+	WString			EscapeSpaces(const WString&path);													//!< Inserts a backslash before every space character (for unix systems)
 	
 	ftime_t			GetModificationTime(const String&name);												//!< Returns the unix timestamp of the specified file \param name File name \return Unix timestamp
 	fsize_t			GetFileSize(const String&name);												//!< Returns the size (in bytes) of the specified file

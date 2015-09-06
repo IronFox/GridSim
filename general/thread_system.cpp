@@ -1,6 +1,8 @@
 #include "../global_root.h"
 #include "thread_system.h"
+#if SYSTEM==WINDOWS
 #include <Windows.h>
+#endif
 #include <algorithm>
 
 namespace System
@@ -396,10 +398,11 @@ namespace System
 			}
 
             CloseHandle(handle);
+			handle = NULL;
         #elif SYSTEM==UNIX
             pthread_join(handle,NULL);
+			handle = 0;
         #endif
-		handle = NULL;
         operation.executing = false;
     }
 
@@ -1259,45 +1262,77 @@ namespace System
 	
 	long				AtomicLong::Set(long value_)
 	{
-		return InterlockedExchange(&value,value_);
+		#if SYSTEM==WINDOWS
+			return InterlockedExchange(&value,value_);
+		#else
+			return value.exchange(value_);
+		#endif
 	}
 
 
 	AtomicLong&			AtomicLong::operator=(long value_)
 	{
-		InterlockedExchange(&value,value_);
+		#if SYSTEM==WINDOWS
+			InterlockedExchange(&value,value_);
+		#else
+			value = value_;
+		#endif
 		return *this;
 	}
 	
 	long			AtomicLong::operator++()
 	{
-		return InterlockedIncrement(&value);
+		#if SYSTEM==WINDOWS
+			return InterlockedIncrement(&value);
+		#else
+			return ++value;
+		#endif
 	}
 	
 	long			AtomicLong::operator++(int)
 	{
-		return InterlockedIncrement(&value);
+		#if SYSTEM==WINDOWS
+			return InterlockedIncrement(&value);
+		#else
+			return value++;
+		#endif
 	}
 	
 	long			AtomicLong::operator--()
 	{
-		return InterlockedDecrement(&value);
+		#if SYSTEM==WINDOWS
+			return InterlockedDecrement(&value);
+		#else
+			return --value;
+		#endif
 	}
 	
 	long			AtomicLong::operator--(int)
 	{
-		return InterlockedDecrement(&value);
+		#if SYSTEM==WINDOWS
+			return InterlockedDecrement(&value);
+		#else
+			return value--;
+		#endif
 	}
 	
 	long			AtomicLong::operator+=(long value_)
 	{
-		InterlockedExchangeAdd(&value,value_);
+		#if SYSTEM==WINDOWS
+			InterlockedExchangeAdd(&value,value_);
+		#else
+			value += value_;
+		#endif
 		return value;
 	}
 	
 	long			AtomicLong::operator-=(long value_)
 	{
-		InterlockedExchangeAdd(&value,-value_);
+		#if SYSTEM==WINDOWS
+			InterlockedExchangeAdd(&value,-value_);
+		#else
+			value -= value_;
+		#endif
 		return value;
 	}
 			
@@ -1540,7 +1575,7 @@ namespace System
 						CPU_ZERO(&cpu_set);
 						CPU_SET(index,&cpu_set);
 						if (sched_setaffinity(0,sizeof(cpu_set),&cpu_set))
-							cout << "Warning: CPU affinity set failed for processor #"<<index<<"\n";
+							std::cerr << "Warning: CPU affinity set failed for processor #"<<index<<"\n";
 					parent->mutex.release();
 				#endif
 			}
@@ -1568,8 +1603,14 @@ namespace System
 					const unsigned offset = parent->offset++;
 				parent->mutex.release();*/
 			
-				offset_t offset = InterlockedIncrement(parent->aligned_offset);
+				//offset_t offset = InterlockedIncrement(parent->aligned_offset);
 
+				#if SYSTEM==WINDOWS
+					offset_t offset = InterlockedIncrement(parent->aligned_offset);
+				#else
+					offset_t offset = ++parent->jobOffset;
+				#endif
+				
 			
 				if ((unsigned)offset > parent->num_jobs)
 				{
@@ -1609,17 +1650,16 @@ namespace System
 		{
 			init_object = init_object_;
 			init_method = init_method_;
-			volatile BYTE*address = offset_field;
-			#ifdef __GNUC__
-				while (((long)address)&0x3)
-					address++;
-			#else
+			#if SYSTEM==WINDOWS
+				volatile BYTE*address = offset_field;
 				while (((__int64)address)&0x3)
 					address++;
+				aligned_offset = (offset_t*)address;
+				(*aligned_offset) = 0;
+			#else
+				jobOffset = 0;
 			#endif
 		
-			aligned_offset = (offset_t*)address;
-			(*aligned_offset) = 0;
 	
 			count_t num_threads = getProcessorCount();
 			workers.setSize(num_threads);
@@ -1641,7 +1681,11 @@ namespace System
 		ParallelLoop::~ParallelLoop()
 		{
 			num_jobs = 0;
-			(*aligned_offset) = 1;
+			#if SYSTEM==WINDOWS
+				(*aligned_offset) = 1;
+			#else
+				jobOffset = 1;
+			#endif
 			job_semaphore.release(unsigned(workers.count()));
 			if (!application_shutting_down)
 				for (index_t i = 0; i < workers.count(); i++)
@@ -1653,7 +1697,11 @@ namespace System
 		{
 			if (!op)
 				return;
-			(*aligned_offset) = 0;
+			#if SYSTEM==WINDOWS
+				(*aligned_offset) = 0;
+			#else
+				jobOffset = 0;
+			#endif
 			num_jobs = iterations/iterations_per_job;
 			last_job_iterations = iterations%iterations_per_job;
 

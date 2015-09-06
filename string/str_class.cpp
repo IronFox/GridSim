@@ -11,10 +11,10 @@ as the Borland AnsiString-class.
 ******************************************************************/
 
 
-template StringTemplate<char>;
-template StringTemplate<wchar_t>;
-template ReferenceExpression<char>;
-template ReferenceExpression<wchar_t>;
+template class StringTemplate<char>;
+template class StringTemplate<wchar_t>;
+template class ReferenceExpression<char>;
+template class ReferenceExpression<wchar_t>;
 
 #define ErrBox(msg) ErrMessage(msg)
 
@@ -24,6 +24,10 @@ static  char		zc(0);
 		unsigned	GLOBAL_STRING_ID_COUNTER(0);
 		void*	   GLOBAL_TRACED_ORIGINAL_ADDR;
 
+#if SYSTEM!=WINDOWS
+	static const int MB_OK = 0;
+#endif
+		
 
 void gotoxy(int x, int y)
 {
@@ -78,6 +82,30 @@ static inline bool isWhitespace(char c)
 {
 	return c == ' ' || c == '\t' || c == '\r' || c == '\n';
 }
+
+
+#if SYSTEM==UNIX
+	#include <iconv.h>
+
+	String	ToUTF8(const StringW&str)
+	{
+		iconv_t	iv = iconv_open("WCHAR_T", "UTF-8");
+		size_t maxLen = str.length() * 4;
+		Array<char>	field(maxLen);
+		char*source = const_cast<char*>((const char*)str.c_str());
+		char*dest = field.pointer();
+		size_t sourceBytes = (str.length()) * sizeof(wchar_t);
+		size_t destBytes = maxLen;
+		size_t resultLength = iconv(iv, &source, &sourceBytes, &dest, &destBytes);
+		if (resultLength == InvalidIndex)
+			return "";
+		return String(field.pointer(),maxLen - destBytes);
+	}
+
+
+#endif
+
+
 
 
 char*	strnchr(char*string,size_t cnt, char c)
@@ -231,12 +259,20 @@ void ShowMessage(const char*line)
 
 static void _msgBox(const char*body, const char*head, UINT type)
 {
-	MessageBoxA (NULL,body,head,type);
+	#if SYSTEM == WINDOWS
+		MessageBoxA (NULL,body,head,type);
+	#else
+		std::cout << "["<<head<<"]:"<<body<<std::endl;
+	#endif
 }
 
 static void _msgBox(const wchar_t*body, const wchar_t*head, UINT type)
 {
-	MessageBoxW (NULL,body,head,type);
+	#if SYSTEM == WINDOWS
+		MessageBoxW (NULL,body,head,type);
+	#else
+		std::cout << "["<<head<<"]:"<<body<<std::endl;
+	#endif
 }
 
 template <typename T>
@@ -260,24 +296,54 @@ template <typename T>
 	{
 		return StringTemplate<T>();
 	}
+	
+#if SYSTEM==WINDOWS
+	void	GetProgramFileName(char*out)
+	{
+		GetModuleFileNameA( NULL, out, MAX_PATH );
+	}
+#elif SYSTEM_VARIANCE==LINUX
+	extern char * program_invocation_name;
+
+	void	GetProgramFileName(char*out)
+	{
+//		char real[PATH_MAX] = {0};
+		realpath(program_invocation_name, out);
+	}
+#elif SYSTEM_VARIANCE==FREEBSD
+	#include <stdlib.h>
+	void	GetProgramFileName(char*out)
+	{
+//		char real[PATH_MAX] = {0};
+		realpath(getprogname(), out);
+	}
+#else
+	#error find some solution
+#endif
+	
 
 template <>
 	StringTemplate<char>	_getApplicationName()
 	{
 		char szFileName[MAX_PATH];
 
-		GetModuleFileNameA( NULL, szFileName, MAX_PATH );
+		GetProgramFileName(  szFileName);
 
 		return FileSystem::ExtractFileName(StringTemplate<char>(szFileName))+": ";
 	}
 template <>
 	StringTemplate<wchar_t>	_getApplicationName()
 	{
-		wchar_t szFileName[MAX_PATH];
+		#if SYSTEM==WINDOWS
+			wchar_t szFileName[MAX_PATH];
 
-		GetModuleFileNameW( NULL, szFileName, MAX_PATH );
+			GetModuleFileNameW( NULL, szFileName, MAX_PATH );
 
-		return FileSystem::ExtractFileName(StringTemplate<wchar_t>(szFileName))+": ";
+			return FileSystem::ExtractFileName(StringTemplate<wchar_t>(szFileName))+": ";
+		#else
+			return StringTemplate<wchar_t>(_getApplicationName<char>().c_str());
+		
+		#endif
 	}
 
 
@@ -313,8 +379,8 @@ void			displayMessage(const char*head, const char*line)
 		//MessageBoxA (NULL,line,head?head:"message",MB_OK);
 	#elif SYSTEM==UNIX
 		if (head)
-			cout << head << ":"<<endl<<"  ";
-		cout << line<<endl;
+			std::cout << head << ":"<<std::endl<<"  ";
+		std::cout << line<<std::endl;
 	#endif
 }
 
@@ -325,8 +391,8 @@ void			displayMessage(const char*head, const String&line)
 		//MessageBoxA (NULL,line.c_str(),head?head:"message",MB_OK);
 	#elif SYSTEM==UNIX
 		if (head)
-			cout << head << ":"<<endl<<"  ";
-		cout << line<<endl;
+			std::cout << head << ":"<<std::endl<<"  ";
+		std::cout << line<<std::endl;
 	#endif
 
 }
@@ -358,8 +424,8 @@ void			displayMessageW(const wchar_t*head, const wchar_t*line)
 		_displayMessage(head,line);
 	#elif SYSTEM==UNIX
 		if (head)
-			wcout << head << ":"<<endl<<"  ";
-		wcout << line<<endl;
+			std::wcout << head << ":"<<std::endl<<"  ";
+		std::wcout << line<<std::endl;
 	#endif
 }
 
@@ -369,8 +435,8 @@ void			displayMessageW(const wchar_t*head, const StringW&line)
 		_displayMessage(head,line);
 	#elif SYSTEM==UNIX
 		if (head)
-			cout << head << ":"<<endl<<"  ";
-		cout << line<<endl;
+			std::wcout << head << ":"<<std::endl<<"  ";
+		std::wcout << line<<std::endl;
 	#endif
 
 }

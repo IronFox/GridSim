@@ -374,7 +374,7 @@ namespace Math
 
 		MFUNC (C)     cubicFactor(const C&f)
 		{
-			return f*f*((C)3 - (C)2*f)
+			return f*f*((C)3 - (C)2*f);
 		}
 
 
@@ -436,8 +436,8 @@ namespace Math
 
 	MFUNC   (C)	rnd(C f)
 	{
-		C a = (T)floor(f);
-		if (a+(T)0.5 < f)
+		C a = (C)floor(f);
+		if (a+(C)0.5 < f)
 			a++;
 		return a;
 	}

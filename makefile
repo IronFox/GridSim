@@ -1,7 +1,7 @@
 CXX=clang++-3.5
 CXXFLAGS= 
 #-O3  -I"." -I"../Nx/include" -DNX32
-CPPFLAGS= -std=c++11 -Wno-ignored-attributes -ferror-limit=1
+CPPFLAGS= -std=c++11 -Wno-ignored-attributes -ferror-limit=1 -Wno-dangling-else -Wno-undefined-bool-conversion
 #-DNX_CALL_CONV
 BIN= ./maker/maker
 LINKOBJ= ./maker/main.o ./io/file_system.o ./io/string_file.o ./general/system.o ./string/str_class.o ./string/tokenizer.o ./string/token_parser.o ./string/string_converter.o ./general/thread_system.o ./general/exception.o ./io/log.o

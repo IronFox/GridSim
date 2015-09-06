@@ -246,9 +246,9 @@ namespace Container
 				template<count_t Len>
 								Buffer(Buffer<T,Len,Strategy>&&other):Super(std::move(other))
 								{}
-								Self(Self&&other) :Super(std::move(other))
+								Buffer(Self && other) :Super(std::move(other))
 								{}
-								Self(Super&&other) :Super(std::move(other))
+								Buffer(Super&&other) :Super(std::move(other))
 								{}
 				Self&			operator=(Self&&other) { Super::adoptData(other); return *this; }
 				Self&			operator=(Super&&other) { Super::adoptData(other); return *this; }
@@ -262,9 +262,9 @@ namespace Container
 				a.swap(b);
 			}
 
-			Super::operator<<;
-			Super::operator[];
-			Super::operator+;
+			using Super::operator<<;
+			using Super::operator[];
+			using Super::operator+;
 		};
 
 	template <typename T, typename Strategy=typename ::StrategySelector<T>::Default>
@@ -286,9 +286,9 @@ namespace Container
 				template<count_t Len>
 								Buffer0(Buffer0<T,Strategy>&&other):Super(std::move(other))
 								{}
-								Self(Self&&other):Super(std::move(other))
+								Buffer0(Self&&other):Super(std::move(other))
 								{}
-								Self(Super&&other):Super(std::move(other))
+								Buffer0(Super&&other):Super(std::move(other))
 								{}
 				Self&			operator=(Self&&other){Super::adoptData(other); return *this;}
 				Self&			operator=(Super&&other){Super::adoptData(other); return *this;}
@@ -302,9 +302,9 @@ namespace Container
 				a.swap(b);
 			}
 
-			Super::operator<<;
-			Super::operator[];
-			Super::operator+;
+			using Super::operator<<;
+			using Super::operator[];
+			using Super::operator+;
 		};
 	template <count_t InitialLength=1024>
 		class WriteBuffer:public Buffer<BYTE,InitialLength,PrimitiveStrategy>, public IWriteStream

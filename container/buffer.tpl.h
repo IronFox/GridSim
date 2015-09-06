@@ -300,7 +300,7 @@ template <typename T, typename Strategy>
 	{
 		Clear();
 		T*field = AppendRow(other.Count());
-		Strategy::copyRange<const T,T>(other.begin(),other.end(),field);
+		Strategy::template copyRange<const T,T>(other.begin(),other.end(),field);
 		return *this;
 	}
 	
@@ -317,7 +317,7 @@ template <typename T, typename Strategy>
 		if ((count_t)(storage_end-storage_begin) == new_len)
 			return;
 
-		count_t preserve = vmin(new_len,usage_end-storage_begin);
+		count_t preserve = std::min(new_len,usage_end-storage_begin);
 
 		try
 		{
@@ -415,7 +415,7 @@ template <typename T, typename Strategy>
 template <typename T, typename Strategy>
 	void	BasicBuffer<T, Strategy>::fill(const T&pattern)
 	{
-		for (register T*c = storage_begin; c < usage_end; c++)
+		for (T*c = storage_begin; c < usage_end; c++)
 			(*c) = pattern;
 
 		/*for (register T*c = usage_end; c < storage_end; c++)
@@ -643,7 +643,7 @@ template <typename T2>
 					*write = new_field,
 					*read = storage_begin;
 
-				count_t construct_before = vmin(before,current_index),	//elements to construct before the inserted element
+				count_t construct_before = std::min(before,current_index),	//elements to construct before the inserted element
 						construct_after = current_index - construct_before;	//elements to construct after the inserted element
 					//*barrier = vmin(storage_begin+before,usage_end);
 
@@ -664,7 +664,7 @@ template <typename T2>
 				#endif
 
 
-				return *vmin(storage_begin+before,usage_end-1);
+				return *std::min(storage_begin+before,usage_end-1);
 					//*(storage_begin+before);
 			}
 			catch (std::bad_alloc& exception)
@@ -680,7 +680,7 @@ template <typename T2>
 		else
 		{
 			new (usage_end) T;
-			T*el = vmin(storage_begin+before,usage_end);
+			T*el = std::min(storage_begin+before,usage_end);
 			for (T*c = usage_end; c > el; c--)
 				Strategy::move(*(c-1),*c);
 			(*el) = data;
@@ -1204,7 +1204,7 @@ template <typename T, typename Strategy>
 		target.setSize(usage_end-storage_begin);
 		const T*from = storage_begin;
 		T*to = target.pointer();
-		Strategy::copyRange<const T,T>(from,usage_end,to);
+		Strategy::template copyRange<const T,T>(from,usage_end,to);
 		/*while (from != usage_end)
 			(*to++) = (*from++);
 		ASSERT_CONCLUSION(target,to);*/

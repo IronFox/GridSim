@@ -2,17 +2,6 @@
 #include "system.h"
 
 
-/******************************************************************
-
-E:\include\general\system.cpp
-
-This file is part of Delta-Works
-Copyright (C) 2006-2008 Stefan Elsen, University of Trier, Germany.
-http://www.delta-works.org/forge/
-http://informatik.uni-trier.de/
-
-******************************************************************/
-
 
 /*
 Calling a DLL with C# (C Sharp)
@@ -151,31 +140,33 @@ namespace System
         #endif
     }
 
-	const char*			getLastError()
-	{
-		static char		error_buffer[512];
+	#if SYSTEM==WINDOWS
+		const char*			getLastError()
+		{
+			static char		error_buffer[512];
 
-        LPVOID lpMsgBuf;
-        FormatMessage(
-            FORMAT_MESSAGE_ALLOCATE_BUFFER |
-            FORMAT_MESSAGE_FROM_SYSTEM |
-            FORMAT_MESSAGE_IGNORE_INSERTS,
-            NULL,
-            GetLastError(),
-            MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
-            (LPTSTR) &lpMsgBuf,
-            0,
-            NULL
-            );
-        size_t len = strlen((char*)lpMsgBuf);
-        if (len >= sizeof(error_buffer))
-            len = sizeof(error_buffer)-1;
-        memcpy(error_buffer,lpMsgBuf,len);
-        error_buffer[len] = 0;
-        LocalFree( lpMsgBuf );
-        return error_buffer;
-	}
-
+			LPVOID lpMsgBuf;
+			FormatMessage(
+				FORMAT_MESSAGE_ALLOCATE_BUFFER |
+				FORMAT_MESSAGE_FROM_SYSTEM |
+				FORMAT_MESSAGE_IGNORE_INSERTS,
+				NULL,
+				GetLastError(),
+				MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
+				(LPTSTR) &lpMsgBuf,
+				0,
+				NULL
+				);
+			size_t len = strlen((char*)lpMsgBuf);
+			if (len >= sizeof(error_buffer))
+				len = sizeof(error_buffer)-1;
+			memcpy(error_buffer,lpMsgBuf,len);
+			error_buffer[len] = 0;
+			LocalFree( lpMsgBuf );
+			return error_buffer;
+		}
+	#endif
+	
     const char*  SharedLibrary::errorStr()
     {
         #if SYSTEM==UNIX
@@ -283,18 +274,16 @@ namespace System
         #endif
     }
 
-	size_t	BlockingPipe::PeekReadBytes(void *target, size_t bytes)
-	{
-		#if SYSTEM==WINDOWS
+	#if SYSTEM==WINDOWS
+		size_t	BlockingPipe::PeekReadBytes(void *target, size_t bytes)
+		{
 			DWORD rs = 0;
 			BOOL rc = PeekNamedPipe(read_handle,target,(DWORD)bytes,&rs,NULL,NULL);
 			if (!rc)
 				return 0;
 			return rs;
-		#else
-			#error stub
-		#endif
-	}
+		}
+	#endif
 
     bool    BlockingPipe::read(void*target, unsigned bytes)
     {
@@ -453,7 +442,12 @@ namespace System
 			return status.dwTotalPhys;
 		#elif SYSTEM_VARIANCE==LINUX
 			//check /proc/meminfo
-			#error find some solution
+			FILE*f = fopen("/proc/meminfo","rb");
+			unsigned long long kb = 0;
+			int rc = fscanf ( f, "MemTotal: %llu kB", &kb );
+			fclose(f);
+			ASSERT__(rc == 1);
+			return kb*1024;
 		#else
 			#error find some solution
 		#endif
@@ -471,9 +465,7 @@ namespace System
 			rusage	usage;
 			if (getrusage(RUSAGE_SELF,&usage))
 				return 0;
-			return usage.ru_ixrss+usage.ru_idrss+usage.ru_isrss;
-			//check /proc/[pid]/statm second entry, multiply with page file
-			#error find some solution
+			return usage.ru_ixrss*4096;
 		#else
 			#error find some solution
 		#endif

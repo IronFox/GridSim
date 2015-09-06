@@ -22,9 +22,9 @@ enum Type {StringType,Sharp,Include,StringMarker,CharMarker,EscapedStringMarker,
 
 
 
-CTokenParser    tokenparser;
-CTokenizer  tokenizer;
-CFSFolder   local;
+TokenParser    		tokenparser;
+StringTokenizer  	tokenizer;
+FileSystem::Folder	local;
 
 bool        build_failed = false,
             recompile=false,
@@ -32,24 +32,24 @@ bool        build_failed = false,
 unsigned    compilables(0),
             build_total(0),
             build_index(0);
-CString     compile_flags;
+String     	compile_flags;
 
 struct TFile
 {
-    CFSFile                 ident;
-    CString                 name,
+    FileSystem::File		ident;
+    String					name,
                             ext;
     bool                    compilable;
     long                    local_date,
                             global_date;
     TFile                  *global_dep;
-    CReferenceVector<TFile> dependents;
+    List::ReferenceVector<TFile> dependents;
 };
 
 
 
 
-CSorted<CVector<TFile>,NameSort>           files;
+Sorted<List::Vector<TFile>,NameSort>           files;
 
 
 
@@ -57,31 +57,31 @@ CSorted<CVector<TFile>,NameSort>           files;
 
 
 
-void scan(CFSFolder&folder)
+void scan(FileSystem::Folder&folder)
 {
-    folder.reset();
-    while (const CFSFile*file = folder.nextEntry())
+    folder.Rewind();
+    while (const FileSystem::File*file = folder.NextEntry())
     {
-        if (file->isFolder())
+        if (file->IsFolder())
         {
-            CFSFolder child(file);
-            if (file->getName()!="maker" && file->getName()!="Nx" && file->getName()!="cuda")
+            FileSystem::Folder child(file);
+            if (file->GetName()!="maker" && file->GetName()!="Nx" && file->GetName()!="cuda")
             {
                 scan(child);
             }
             continue;
         }
             
-        CString ext = CString(file->getExtension()).LowerCase();
+        String ext = String(file->GetExtension()).copyToLowerCase();
         if (ext == "h" || ext=="c" || ext=="cpp")
         {
             TFile*f = SHIELDED(new TFile());
             f->ident = *file;
-            f->name = file->getLocation();
+            f->name = file->GetLocation();
             f->ext = ext;
             f->compilable = ext != "h";
             compilables += f->compilable;
-            f->local_date = f->global_date = file->fileTime();
+            f->local_date = f->global_date = file->GetModificationTime();
             f->global_dep = f;
             files.insert(f);
         }
@@ -93,13 +93,13 @@ void scan(CFSFolder&folder)
 
 void link(TFile*file)
 {
-    CString addr = file->ident.getLocation();
+    String addr = file->ident.GetLocation();
     
-    CString name = FileSystem::extractFilePath(addr)+FOLDER_SLASH+'.'+FileSystem::extractFileNameExt(addr)+".ref";
-    if (recompile || FileSystem::fileTime(name) < file->ident.fileTime())
+    String name = FileSystem::ExtractFileDir(addr)+FOLDER_SLASH+'.'+FileSystem::ExtractFileNameExt(addr)+".ref";
+    if (recompile || FileSystem::GetModificationTime(name) < file->ident.GetModificationTime())
     {
-        cout << "updating dependencies of "<<file->ident.toString().c_str()<<"...\n";
-        FILE*f = fopen(file->ident.getLocation().c_str(),"rb");
+        cout << "updating dependencies of "<<file->ident.ToString().c_str()<<"...\n";
+        FILE*f = fopen(file->ident.GetLocation().c_str(),"rb");
         if (!f)
         {
             cout << "unable to read content. aborting.\n";
@@ -109,7 +109,7 @@ void link(TFile*file)
         unsigned size = ftell(f);
         fseek(f,0,SEEK_SET);
 
-        CTokenList tokens;
+        TokenList tokens;
 
         char*buffer = alloc<char>(size+1);
             fread(buffer,1,size,f);
@@ -119,11 +119,11 @@ void link(TFile*file)
             tokens.clear();
             tokenizer.parse(buffer,tokens);
 
-        deloc(buffer);
+        dealloc(buffer);
 
-        CParseResult rs;
+        Parser::Result rs;
 
-        CStringFile out;
+        StringFile out;
         if (!out.create(name))
         {
             cout << "unable create ref file. aborting.\n";
@@ -131,19 +131,18 @@ void link(TFile*file)
         }
         unsigned cnt = 0;
 
-        tokenparser.parse(tokens,&rs);
+        tokenparser.parseTokenSequence(tokens,rs);
 
-        rs.reset();
-        while (CSortedStream*sequence = rs.each())
+		for (Parser::Stream*stream = rs.begin(); stream != rs.end(); ++stream)
         {
-            TParserSequence*stream;
-            CString refname;
-            if ((stream = sequence->lookup("IncludeAbsolute")) && stream->count()>1)
-                refname = local.locationStr()+FOLDER_SLASH_STR+stream->get(1)->content;
+			Parser::Sequence* any;
+            String refname;
+            if ((any = stream->FindAny("IncludeAbsolute")) && any->Length() > 1)
+                refname = local.LocationStr()+FOLDER_SLASH_STR+tokens[any->at(1)].content;
             else
-                if ((stream = sequence->lookup("IncludeRelative")) && stream->count()>1)
-                    refname = file->ident.getFolder()+FOLDER_SLASH_STR+stream->get(1)->content;
-            if (refname.Length() && FileSystem::isFile(refname))
+                if ((any = stream->FindAny("IncludeRelative")) && any->Length() > 1)
+                    refname = file->ident.GetFolder()+FOLDER_SLASH_STR+tokens[any->at(1)].content;
+            if (refname.length() && FileSystem::IsFile(refname))
             {
                 out << refname << nl;
 //                cout << refname.c_str() << endl;
@@ -155,44 +154,44 @@ void link(TFile*file)
         
     }
     
-    CStringFile in;
+    StringFile in;
     if (!in.open(name))
     {
-        cout << "unable to open reference file of "<<file->ident.toString().c_str()<<endl;
+        cout << "unable to open reference file of "<<file->ident.ToString().c_str()<<endl;
         return;
     }
-    CString dep;
+    String dep;
     while (in >> dep)
     {
         if (dep == "(*)")
             continue;
-        for (unsigned i = 1; i < dep.Length(); i++)
-            if (dep[i]=='/' || dep[i]=='\\')
-                dep[i] = FOLDER_SLASH;
+        for (unsigned i = 1; i < dep.length(); i++)
+            if (dep.get(i)=='/' || dep.get(i)=='\\')
+                dep.set(i, FOLDER_SLASH);
 
-        CString path = FileSystem::extractFilePath(dep),
-                name = FileSystem::extractFileNameExt(dep);
-        CFSFolder folder(path);
-        if (!folder.validLocation())
+        String path = FileSystem::ExtractFileDir(dep),
+                name = FileSystem::ExtractFileNameExt(dep);
+        FileSystem::Folder folder(path);
+        if (!folder.IsValidLocation())
         {
-            cout << "folder '"<<path.c_str()<<"', referenced from "<<file->ident.getName().c_str()<<" does not exist.\n";
+            cout << "folder '"<<path.c_str()<<"', referenced from "<<file->ident.GetName().c_str()<<" does not exist.\n";
             continue;
         }
         
-        const CFSFile*f = folder.find(name);
+        const FileSystem::File*f = folder.Find(name);
         if (!f)
         {
-            cout << "file '"<<folder.locationStr().c_str()<<" | "<<name.c_str()<<"', referenced from "<<file->ident.getName().c_str()<<" does not exist.\n";
+            cout << "file '"<<folder.LocationStr().c_str()<<" | "<<name.c_str()<<"', referenced from "<<file->ident.GetName().c_str()<<" does not exist.\n";
             continue;
         }
 
                 
                 
-        TFile*link = files.lookup(f->getLocation());
+        TFile*link = files.lookup(f->GetLocation());
         if (link)
             link->dependents.append(file);
         else
-            cout << "dependency '"<<f->getLocation().c_str()<<"', referenced from "<<file->ident.getName().c_str()<<" is unknown.\n";
+            cout << "dependency '"<<f->GetLocation().c_str()<<"', referenced from "<<file->ident.GetName().c_str()<<" is unknown.\n";
     }
 
 
@@ -232,27 +231,27 @@ void cast()
 
 void buildFile(TFile*file)
 {
-    CString obj_file = FileSystem::extractFilePathName(file->ident.getLocation())+".o",
+    String obj_file = FileSystem::ExtractFileDirName(file->ident.GetLocation())+".o",
             cmd;
    if (file->ext == "c")
         cmd = "gcc";
     else
         cmd = "g++";
-    cmd += " -c "+file->ident.getLocation()+" -o "+obj_file+compile_flags;
-    cout << "compiling "<<file->ident.getLocation().c_str()<<" ("<<++build_index<<"/"<<build_total<<")...\n";
+    cmd += " -c "+file->ident.GetLocation()+" -o "+obj_file+compile_flags;
+    cout << "compiling "<<file->ident.GetLocation().c_str()<<" ("<<++build_index<<"/"<<build_total<<")...\n";
     //cmd.c_str() << endl;
     build_failed = system(cmd.c_str()) || build_failed;
 }
 
 void build()
 {
-    CReferenceVector<TFile> compile_list;
+    List::ReferenceVector<TFile> compile_list;
     files.reset();
     while (TFile*file = files.each())
         if (file->compilable)
         {
-            CString obj_file = FileSystem::extractFilePathName(file->ident.getLocation())+".o";
-            if (recompile || FileSystem::fileTime(obj_file) < file->global_date)
+            String obj_file = FileSystem::ExtractFileDirName(file->ident.GetLocation())+".o";
+            if (recompile || FileSystem::GetModificationTime(obj_file) < file->global_date)
                 compile_list.append(file);
         }
     build_total = compile_list.count();
@@ -267,18 +266,18 @@ void build()
 
 
 
-int main()
+int main(int argc, char *argv[])
 {
 	try
 	{
-		for (unsigned i = 1; i < argc(); i++)
-			if (!strcmp(argv(i),"--new"))
+		for (int i = 1; i < argc; i++)
+			if (!strcmp(argv[i],"--new"))
 				recompile = true;
 			else
-				if (!strcmp(argv(i),"--first"))
+				if (!strcmp(argv[i],"--first"))
 					first_only = true;
 				else
-					compile_flags+=" "+CString(argv(i));
+					compile_flags+=" "+String(argv[i]);
 	
 
         tokenizer.setStringIdent(StringType);
@@ -304,12 +303,12 @@ int main()
 
         tokenizer.reg(">",BlockEnd);
         tokenizer.reg("<",BlockBegin);
-		tokenizer.finalize();
+		tokenizer.finalizeInitialization();
 
 
 
-        tokenparser.createStatus("Abort",PO_ABORT);
-        tokenparser.createStatus("Finish",PO_FINISH);
+        tokenparser.createStatus("Abort",Parser::PO_ABORT);
+        tokenparser.createStatus("Finish",Parser::PO_FINISH);
         tokenparser.createStatus("Include");
         tokenparser.createStatus("IncludeAbsolute");
         tokenparser.createStatus("IncludeRelative");
@@ -323,12 +322,12 @@ int main()
         
         tokenparser.route("Include",NewLine,"Finish");
 
-        tokenparser.globalBlock(StringMarker,0,BT_TOGGLE);
-        tokenparser.globalBlock(CharMarker,1,BT_TOGGLE);
-        tokenparser.globalBlock(CommentMarker,2,BT_BLOCK);
-        tokenparser.globalBlock(NewLine,2,BT_UNBLOCK);
-        tokenparser.globalBlock(CommentBegin,3,BT_BLOCK);
-        tokenparser.globalBlock(CommentEnd,3,BT_UNBLOCK);
+        tokenparser.globalBlock(StringMarker,0,Parser::BT_TOGGLE);
+        tokenparser.globalBlock(CharMarker,1,Parser::BT_TOGGLE);
+        tokenparser.globalBlock(CommentMarker,2,Parser::BT_BLOCK);
+        tokenparser.globalBlock(NewLine,2,Parser::BT_UNBLOCK);
+        tokenparser.globalBlock(CommentBegin,3,Parser::BT_BLOCK);
+        tokenparser.globalBlock(CommentEnd,3,Parser::BT_UNBLOCK);
 
         tokenparser.createStatus("BlockComment");
         tokenparser.createStatus("LineComment");
@@ -339,7 +338,7 @@ int main()
 
 
 
-        local = FileSystem::workingDirectory();
+        local = FileSystem::GetWorkingDirectory();
 
 
 
@@ -348,7 +347,7 @@ int main()
 
     /*if (!local.exit())
     {
-        cout << "navigation error in "<<local.toString().c_str()<<". aborting.\n";
+        cout << "navigation error in "<<local.ToString().c_str()<<". aborting.\n";
         system("PAUSE");
         return EXIT_SUCCESS;
     }*/
@@ -367,7 +366,7 @@ int main()
 		}
 		else
 		{
-			CString libname;
+			String libname;
 			#if SYSTEM==WINDOWS
 				libname = "libinkworks.a";
 			#elif SYSTEM==UNIX
@@ -376,11 +375,11 @@ int main()
 				libname = "libinclude.a";
 			#endif
 			cout << "compiling library...\n";
-			CString cmd = "ar r ./"+libname;
+			String cmd = "ar r ./"+libname;
 			files.reset();
 			while (TFile*file = files.each())
 				if (file->ext != "h")
-					cmd += " "+FileSystem::extractFilePathName(file->name)+".o";
+					cmd += " "+FileSystem::ExtractFileDirName(file->name)+".o";
 			if (system(cmd.c_str()))
 			{
 				cout << "ar call failed :/:\n"<<cmd.c_str()<<endl;
@@ -394,9 +393,9 @@ int main()
 			cout << "all done :)\n";
 		}
 	}
-	catch (CException*exception)
+	catch (const std::exception&exception)
 	{
-		cout << exception->toString()<<endl;
+		cerr << exception.what()<<endl;
 	
 	}
    

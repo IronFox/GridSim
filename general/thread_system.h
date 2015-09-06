@@ -21,6 +21,9 @@ Classes for platform-independent handling of Threads, Mutexes, and Thread Pools
 	#undef USE_ATOMIC
 #endif
 
+#if SYSTEM!=WINDOWS
+	#include <atomic>
+#endif
 
 
 
@@ -649,13 +652,14 @@ namespace System
 	class AtomicLong
 	{
 	protected:
-			#ifdef __GNUC__
+			#if SYSTEM!=WINDOWS
 				typedef long int		long_t;
+				std::atomic<long_t>		value;
 			#else
 				typedef volatile LONG	long_t;
+			long_t						value;
 			#endif
 			
-			long_t						value;
 	public:
 										AtomicLong(long value_=0):value(value_)
 										{}
@@ -1099,8 +1103,12 @@ namespace System
 			#else
 				typedef volatile LONG			offset_t;
 			#endif
-			volatile BYTE						offset_field[2*sizeof(offset_t)];
-			offset_t							*aligned_offset;	//!< Current job offset (located in offset_field and aligned to 32 bits)
+			#if SYSTEM==WINDOWS
+				volatile BYTE					offset_field[2*sizeof(offset_t)];
+				offset_t						*aligned_offset;	//!< Current job offset (located in offset_field and aligned to 32 bits)
+			#else
+				std::atomic<offset_t>			jobOffset;	//!< Current job offset
+			#endif
 			count_t								thread_counter,
 												num_jobs,			//!< Total number of jobs
 												last_job_iterations;		//!< Number of iterations in the last job

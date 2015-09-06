@@ -65,6 +65,7 @@ template <class K, class KeyStrategy>
 	struct THashSetCarrier	//! Carrier type used to store a single entry of a hash set
 	{
 			typedef K					Key;
+			typedef KeyStrategy			AppliedKeyStrategy;
 
 			K							key;		//!< Key of this entry
 			hash_t						hashed;		//!< Hashed key
@@ -102,13 +103,13 @@ template <class K, class C, class KeyStrategy, class DataStrategy>
 
 										~THashTableCarrier()
 										{
-											if (occupied)
+											if (Super::occupied)
 												reinterpret_cast<C*>(entry_data)->~C();
 										}
 
 			ThisType&					operator=(const ThisType&other)
 										{
-											if (occupied)
+											if (Super::occupied)
 											{
 												if (other.occupied)
 													(*reinterpret_cast<C*>(entry_data)) =  (*reinterpret_cast<const C*>(other.entry_data));
@@ -126,13 +127,13 @@ template <class K, class C, class KeyStrategy, class DataStrategy>
 										{
 											if (other.occupied)
 											{
-												if (occupied)
+												if (Super::occupied)
 													DataStrategy::move(*reinterpret_cast<C*>(other.entry_data),*reinterpret_cast<C*>(entry_data));
 												else
 													DataStrategy::constructSingleFromFleetingData(reinterpret_cast<C*>(entry_data),*reinterpret_cast<C*>(other.entry_data));
 											}
 											else
-												if (occupied)
+												if (Super::occupied)
 													reinterpret_cast<C*>(entry_data)->~C();
 											Super::adoptData(other);
 										}
@@ -146,14 +147,14 @@ template <class K, class C, class KeyStrategy, class DataStrategy>
 										}
 			void						free()
 										{
-											if (occupied)
+											if (Super::occupied)
 												reinterpret_cast<C*>(entry_data)->~C();
-											occupied = false;
+											Super::occupied = false;
 										}
 			void						occupy()
 										{
 											new (entry_data) C;
-											occupied = true;
+											Super::occupied = true;
 										}
 	};
 
@@ -487,12 +488,12 @@ template <class K, class C,class Hash=StdHash, typename KeyStrategy = typename S
 			inline	const DataType			operator[](const Key&ident)			const;	//!< Identical to lookup(ident)
 			inline	operator 				size_t()							const;	//!< Implicit conversion to size_t. \return Returns the number of entries in the table.
 			
-			Root::isSet;
-			Root::count;
-			Root::get;
-			Root::totalSize;
+			using Root::isSet;
+			using Root::count;
+			using Root::get;
+			using Root::totalSize;
 			#ifndef __BORLANDC__
-			Root::exportTo;
+			using Root::exportTo;
 			#else
 		template <class Key, class Entry>
 			inline	void					exportTo(ArrayData<Key>&keys, ArrayData<Entry>&values)	const
@@ -505,8 +506,8 @@ template <class K, class C,class Hash=StdHash, typename KeyStrategy = typename S
 				Root::exportTo(values);
 			}
 			#endif
-			Root::query;
-			Root::findKeyOf;
+			using Root::query;
+			using Root::findKeyOf;
 			
 			
 	};

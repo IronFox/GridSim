@@ -87,6 +87,9 @@ namespace Parser
 									end = end_;
 									return *this;
 								}
+		count_t					Length()	const	{return end - begin;}
+		index_t					operator[](index_t element)	const	{ASSERT_LESS__(element,Length()); return begin + element;}
+		index_t					at(index_t element) const 	{ASSERT_LESS__(element,Length()); return begin + element;}
 
 		void					swap(Sequence&other)
 								{
@@ -101,8 +104,31 @@ namespace Parser
 	public:
 			typedef Buffer<Sequence,0,Strategy::Swap>	Super;
 
-			StringTable<Buffer<index_t,0>,Strategy::Swap>	sequence_map;	//!< Maps state names to sequences
+			typedef Buffer<index_t,0>	MapEntry;
+			StringTable<MapEntry,Strategy::Swap>	sequence_map;	//!< Maps state names to sequences
 
+			count_t			FindAll(const String&name, Buffer0<Sequence*>&result)
+			{
+				result.Clear();
+				//index_t at;
+				MapEntry*entry = sequence_map.QueryPointer(name);
+				if (entry)
+				{
+					foreach (*entry,item)
+						result << &Super::at(*item);
+					return result.Count();
+				}
+				return 0;
+			}
+			
+			Sequence*			FindAny(const String&name)
+			{
+				MapEntry*entry = sequence_map.QueryPointer(name);
+				if (entry && entry->Count())
+					return &Super::at(entry->first());
+				return nullptr;
+			}
+			
 
 			void				swap(Stream&other)
 								{

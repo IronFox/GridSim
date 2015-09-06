@@ -40,7 +40,7 @@ template <typename T>
 	}
 
 template <typename T0, typename T1>
-	static inline hash_t 	StdHash::hash(const std::pair<T0,T1>&ident)
+	/*static*/ inline hash_t 	StdHash::hash(const std::pair<T0,T1>&ident)
 	{
 		hash_t	result = hash(ident.first);
 		result *= 17;
@@ -264,7 +264,7 @@ template <class Carrier>
 template <class Carrier>
 	inline	void					GenericHashBase<Carrier>::calculateIntersection(const GenericHashBase<Carrier>&other)
 	{
-		Array<THashSetCarrier<typename Carrier::Key> >	occupied_keys(entries);
+		Array<THashSetCarrier<typename Carrier::Key, typename Carrier::AppliedKeyStrategy> >	occupied_keys(entries);
 		index_t at = 0;
 		for (index_t i = 0; i < array.length(); i++)
 		{
@@ -275,7 +275,7 @@ template <class Carrier>
 		ASSERT_EQUAL__(at,entries);
 		for (index_t i = 0; i < occupied_keys.count(); i++)
 		{
-			const THashSetCarrier<typename Carrier::Key>&c = occupied_keys[i];
+			const THashSetCarrier<typename Carrier::Key, typename Carrier::AppliedKeyStrategy>&c = occupied_keys[i];
 			if (!other.find(c.hashed,c.key)->occupied)
 				remove(find(c.hashed,c.key,false));
 		}
@@ -284,7 +284,7 @@ template <class Carrier>
 template <class Carrier>
 	inline	void					GenericHashBase<Carrier>::calculateDifference(const GenericHashBase<Carrier>&other)
 	{
-		Array<THashSetCarrier<typename Carrier::Key> >	occupied_keys(entries);
+		Array<THashSetCarrier<typename Carrier::Key, typename Carrier::AppliedKeyStrategy> >	occupied_keys(entries);
 		index_t at = 0;
 		for (index_t i = 0; i < array.length(); i++)
 		{
@@ -295,7 +295,7 @@ template <class Carrier>
 		ASSERT_EQUAL__(at,entries);
 		for (index_t i = 0; i < occupied_keys.count(); i++)
 		{
-			const THashSetCarrier<typename Carrier::Key>&c = occupied_keys[i];
+			const THashSetCarrier<typename Carrier::Key, typename Carrier::AppliedKeyStrategy>&c = occupied_keys[i];
 			if (other.find(c.hashed,c.key)->occupied)
 			{
 				remove(find(c.hashed,c.key,false));

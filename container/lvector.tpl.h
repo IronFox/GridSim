@@ -635,29 +635,29 @@ template <class C> ReferenceVector<C>::ReferenceVector(const Vector<C>&other):Ve
 
 template <class C> ReferenceVector<C>::~ReferenceVector()
 {
-    Vector<C>::flush();
+    Super::flush();
 }
 
 template <class C> Vector<C>& ReferenceVector<C>::operator=(const Vector<C>&other)
 {
-    Vector<C>::flush();
-    Vector<C>::appendAll(other);
+    Super::flush();
+    Super::appendAll(other);
     return *this;
 }
 
 template <class C> INLINE      C* ReferenceVector<C>::operator[](size_t index)
 {
-    return Vector<C>::get(index);
+    return Super::get(index);
 }
 
 template <class C> INLINE      const C* ReferenceVector<C>::operator[](size_t index) const
 {
-    return Vector<C>::get(index);
+    return Super::get(index);
 }
 
 template <class C> INLINE      size_t   ReferenceVector<C>::operator()(const Type*el)         const
 {
-    return Vector<C>::getIndexOf(el);
+    return Super::getIndexOf(el);
 }
 
 

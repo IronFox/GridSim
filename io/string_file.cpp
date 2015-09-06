@@ -268,7 +268,11 @@ StringFile& StringFile::operator<< (const char*line)
     if (!write_mode)
         return *this;
     if (fputs(line,f) == EOF)
-		throw IO::DriveAccess::DataWriteFault(__func__ ": Unable to write string '"+String(line)+"' to file");
+		#if SYSTEM==WINDOWS
+			throw IO::DriveAccess::DataWriteFault(__func__ ": Unable to write string '"+String(line)+"' to file");
+		#else
+			throw IO::DriveAccess::DataWriteFault(String(__func__)+ ": Unable to write string '"+String(line)+"' to file");
+		#endif
     return *this;
 }
 

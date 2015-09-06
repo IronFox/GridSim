@@ -541,6 +541,7 @@ namespace Math
 		static const char*	name;
 		};
 
+	#if SYSTEM==WINDOWS
 	template <>
 		class TypeInfo<LONG>
 		{
@@ -560,7 +561,7 @@ namespace Math
 		static const Type	error = 0;
 		static const char*	name;
 		};
-
+	
 	template <>
 		class TypeInfo<ULONG>
 		{
@@ -580,6 +581,7 @@ namespace Math
 		static const Type	error = 0;
 		static const char*	name;
 		};
+	#endif
 
 	template <>
 		class TypeInfo<INT64>
@@ -793,21 +795,35 @@ namespace Math
 
 }
 
+#include <limits>
+
+
 namespace std
 {
+	
 	template <>
 	class numeric_limits < Math::THalf >
+		#if SYSTEM == WINDOWS
 		: public _Num_float_base
+		#else
+			//#define _Ty(x)	_Ty	x
+			#ifndef _THROW0
+				#define _THROW0()	throw()
+			#endif
+			#undef min
+			#undef max
+			#define _STCONS(_TYPE_,_NAME_,_VALUE_)	static const _TYPE_ _NAME_ = _VALUE_;
+		#endif
 	{
 	public:
 		typedef Math::THalf _Ty;
 
-		static _Ty(min)() _THROW0()
+		static _Ty min() _THROW0()
 		{	// return minimum value
 			return Math::half::min;
 		}
 
-		static _Ty(max)() _THROW0()
+		static _Ty max() _THROW0()
 		{	// return maximum value
 			return Math::half::max;
 		}

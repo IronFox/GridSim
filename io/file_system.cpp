@@ -9,6 +9,7 @@ Plattform-independent file-browsing-module.
 ******************************************************************/
 
 
+
 static	String addSlashes(const String&in)
 {
 	String rs = in;
@@ -24,6 +25,9 @@ static	String addSlashes(const String&in)
 
 namespace FileSystem
 {
+
+
+
 
 	Mutex	TempFile::mutex;
 
@@ -828,7 +832,7 @@ namespace FileSystem
 			out.is_folder = (attributes&FILE_ATTRIBUTE_DIRECTORY)!=0;
 		#elif SYSTEM==UNIX
 			struct stat s;
-			if (stat(out.location,&s))
+			if (stat(out.location.c_str(),&s))
 				return false;
 			out.is_folder = s.st_mode&S_IFDIR;
 		#else
@@ -923,7 +927,7 @@ namespace FileSystem
 			return NULL;
 		#if SYSTEM==UNIX
 			if (absolute_folder == '/' || absolute_folder == '\\')
-				return false;
+				return nullptr;
 		#endif
 
 		String	 super = ExtractFileDir(absolute_folder);
@@ -1017,8 +1021,7 @@ namespace FileSystem
 		#if SYSTEM==WINDOWS
 			return !!SetCurrentDirectoryW(path.c_str());
 		#elif SYSTEM==UNIX
-			//return !chdir(path.c_str());
-			#error stub
+			return SetWorkingDirectory(ToUTF8(path));
 		#else
 			#error not supported
 		#endif
@@ -1220,7 +1223,7 @@ namespace FileSystem
 			DWORD attribs = GetFileAttributesW(name.c_str());
 			return attribs != INVALID_FILE_ATTRIBUTES && (attribs&FILE_ATTRIBUTE_DIRECTORY);
 		#elif SYSTEM==UNIX
-			#error stub
+			return IsFolder(ToUTF8(name));
 //			struct ::stat s;
 	//		return !stat(name.c_str(),&s) && (s.st_mode&S_IFDIR);
 		#else
@@ -1252,7 +1255,7 @@ namespace FileSystem
 			DWORD attribs = GetFileAttributesW(name.c_str());
 			return attribs != INVALID_FILE_ATTRIBUTES && !(attribs&FILE_ATTRIBUTE_DIRECTORY);
 		#elif SYSTEM==UNIX
-			#error stub
+			return IsFile(ToUTF8(name));
 			//struct ::stat s;
 			//return !stat(name.c_str(),&s) && !(s.st_mode&S_IFDIR);
 		#else
@@ -1561,7 +1564,7 @@ namespace FileSystem
 				return NULL;
 
 			char buffer[0x200];
-			int len = readlink(file->GetLocation(),buffer,sizeof(buffer));
+			int len = readlink(file->GetLocation().c_str(),buffer,sizeof(buffer));
 			if (len == -1 || len ==sizeof(buffer))
 				return file;
 			buffer[len] = 0;	//appearingly readlink does not terminate the string by itself
@@ -1578,7 +1581,7 @@ namespace FileSystem
 	{
 		#if SYSTEM==UNIX
 			char buffer[0x200];
-			int len = readlink(file.GetLocation(),buffer,sizeof(buffer));
+			int len = readlink(file.GetLocation().c_str(),buffer,sizeof(buffer));
 			if (len == -1 || len >= sizeof(buffer))
 				return true;
 			buffer[len] = 0;	//appearingly readlink does not terminate the string by itself
@@ -1606,7 +1609,7 @@ namespace FileSystem
 		String filename=name;
 
 		#if SYSTEM==UNIX
-			if (filename.Pos('/'))
+			if (filename.indexOf('/'))
 		#endif
 		{
 			#if SYSTEM==WINDOWS

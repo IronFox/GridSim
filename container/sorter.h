@@ -154,7 +154,7 @@ namespace Sorting
 			{
 				if (container.size()<=1)
 					return;
-				typedef Accessor<Container>::accessor_t	accessor_t;
+				typedef typename Accessor<Container>::accessor_t	accessor_t;
 				accessor_t data = Accessor<Container>::resolve(container);
 				//typedef typename StrategySelector<decltype(data.operator[](index_t(0)))>::Default	Strategy;
 				typedef typename StrategySelector<decltype(data[index_t(0)])>::Default	Strategy;
@@ -230,7 +230,7 @@ namespace Sorting
 				if (container.size()<=1)
 					return;
 
-				typedef Accessor<Container>::accessor_t	accessor_t;
+				typedef typename Accessor<Container>::accessor_t	accessor_t;
 				accessor_t data = Accessor<Container>::resolve(container);
 				typedef typename StrategySelector<decltype(data[0])>::Default	Strategy;
 				quickSort<accessor_t,Strategy>(data,0,container.size()-1);
@@ -302,7 +302,7 @@ namespace Sorting
 				if (container.size()<=1)
 					return;
 
-				typedef Accessor<Container>::accessor_t	accessor_t;
+				typedef typename Accessor<Container>::accessor_t	accessor_t;
 				accessor_t data = Accessor<Container>::resolve(container);
 				typedef typename StrategySelector<decltype(data[0])>::Default	Strategy;
 				quickSort<accessor_t,Strategy,Comparator>(data,0,container.size()-1,comparator);

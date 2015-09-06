@@ -135,8 +135,8 @@ namespace List
 			typedef Vector<C>			Super;	//!< Base list type
 			typedef C					Type;	//!< Base object type
 			typedef C*					Data;	//!< Base pointer type
-			USE_LIST
-			USE_CONTAINER
+			//USE_LIST
+			//USE_CONTAINER
 
 										ReferenceVector();
 										ReferenceVector(const Vector<C>&other);

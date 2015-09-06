@@ -84,8 +84,8 @@ namespace Strategy
 	template <typename T>
 		static	inline	void	shiftRange(T*shift_from_begin, T*shift_from_end, T*shift_to_begin)
 		{
-			if (shift_from_being != shift_from_end)
-				std::move(shift_from_being, shift_from_end, shift_to_begin);
+			if (shift_from_begin != shift_from_end)
+				std::move(shift_from_begin, shift_from_end, shift_to_begin);
 			//while (shift_from_begin != shift_from_end)
 			//	(*shift_to_begin++) = std::move(*shift_from_end++);
 		}

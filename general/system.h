@@ -149,11 +149,11 @@ namespace System //! Translation namespace for common system tasks
 	virtual					~BlockingPipe();
 		#if SYSTEM==WINDOWS
 			HANDLE			writeHandle()	const	{return write_handle;}
+			size_t			PeekReadBytes(void *target, size_t bytes);
 		#elif SYSTEM==UNIX
 			int				writeHandle()	const	{return handle[1];}
 		#endif
 
-		size_t				PeekReadBytes(void *target, size_t bytes);
 
 
 			bool			write(const void*data, unsigned bytes);	  //!< Writes unformated data to the pipe \param data Pointer to the data to read from \param bytes Number of bytes to write to the pipe

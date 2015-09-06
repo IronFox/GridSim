@@ -870,38 +870,38 @@ template <class C, class Class> void BinaryTree<C,Class>::printHierarchy(_printF
 
 
 
-template <class C, class Class> ReferenceBinaryTree		<C,Class>::ReferenceBinaryTree		()
+template <class C, class Class> ReferenceBinaryTree<C,Class>::ReferenceBinaryTree		()
 {}
 
 template <class C, class Class>
-template <class CL>			ReferenceBinaryTree		<C,Class>::ReferenceBinaryTree		(const BinaryTree<C,CL>&other):BinaryTree<C,Class>(other)
+template <class CL>			ReferenceBinaryTree<C,Class>::ReferenceBinaryTree		(const BinaryTree<C,CL>&other):BinaryTree<C,Class>(other)
 {}
 
-template <class C, class Class> ReferenceBinaryTree		<C,Class>::~ReferenceBinaryTree		()
+template <class C, class Class> ReferenceBinaryTree<C,Class>::~ReferenceBinaryTree		()
 {
-	flush();
+	Super::flush();
 }
 
 template <class C, class Class>
-template <class CL> INLINE	BinaryTree<C,Class>&	ReferenceBinaryTree		<C,Class>::operator=(const BinaryTree<C,CL>&other)
+template <class CL> INLINE	BinaryTree<C,Class>&	ReferenceBinaryTree<C,Class>::operator=(const BinaryTree<C,CL>&other)
 {
-	flush();
+	Super::flush();
 	insert(other);
 	return *this;
 }
 
 
-template <class C, class Class> INLINE	C* ReferenceBinaryTree		<C,Class>::operator[](size_t index)
+template <class C, class Class> INLINE	C* ReferenceBinaryTree<C,Class>::operator[](size_t index)
 {
-	return get(index);
+	return Super::get(index);
 }
 
-template <class C, class Class> INLINE	const C* ReferenceBinaryTree		<C,Class>::operator[](size_t index)				const
+template <class C, class Class> INLINE	const C* ReferenceBinaryTree<C,Class>::operator[](size_t index)				const
 {
-	return get(index);
+	return Super::get(index);
 }
 
-template <class C, class Class> INLINE	size_t ReferenceBinaryTree		<C,Class>::operator()(const Type*element)		const
+template <class C, class Class> INLINE	size_t ReferenceBinaryTree<C,Class>::operator()(const Type*element)		const
 {
 	return getIndexOf(element);
 }

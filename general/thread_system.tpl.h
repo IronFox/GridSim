@@ -19,7 +19,7 @@ namespace System
 						CPU_ZERO(&cpu_set);
 						CPU_SET(index,&cpu_set);
 						if (sched_setaffinity(0,sizeof(cpu_set),&cpu_set))
-							cout << "Warning: CPU affinity set failed for processor #"<<index<<"\n";
+							std::cerr << "Warning: CPU affinity set failed for processor #"<<index<<"\n";
 					#endif
 				instance.mutex.release();
 			}
@@ -622,7 +622,7 @@ namespace System
 					CPU_ZERO(&cpu_set);
 					CPU_SET(index,&cpu_set);
 					if (sched_setaffinity(0,sizeof(cpu_set),&cpu_set))
-						cout << "Warning: CPU affinity set failed for processor #"<<index<<"\n";
+						std::cerr << "Warning: CPU affinity set failed for processor #"<<index<<"\n";
 				mutex.release();
 	        #endif
 	        if (init_object)
@@ -672,7 +672,7 @@ namespace System
 					CPU_ZERO(&cpu_set);
 					CPU_SET(index,&cpu_set);
 					if (sched_setaffinity(0,sizeof(cpu_set),&cpu_set))
-						cout << "Warning: CPU affinity set failed for processor #"<<index<<"\n";
+						std::cerr << "Warning: CPU affinity set failed for processor #"<<index<<"\n";
 				mutex.release();
 	        #endif
 	        if (init_object)
