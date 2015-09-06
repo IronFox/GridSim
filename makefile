@@ -4,12 +4,12 @@ CXXFLAGS=
 CPPFLAGS= -std=c++11 -Wno-ignored-attributes -ferror-limit=1 -Wno-dangling-else -Wno-undefined-bool-conversion
 #-DNX_CALL_CONV
 BIN= ./maker/maker
-LINKOBJ= ./maker/main.o ./io/file_system.o ./io/string_file.o ./general/system.o ./string/str_class.o ./string/tokenizer.o ./string/token_parser.o ./string/string_converter.o ./general/thread_system.o ./general/exception.o ./io/log.o
+LINKOBJ= ./maker/main.o ./io/file_system.o ./io/string_file.o ./general/system.o ./string/str_class.o ./string/tokenizer.o ./string/token_parser.o ./string/string_converter.o ./general/thread_system.o ./general/exception.o ./io/log.o ./general/root.o
 #./general/root.o 
-LIBS= -L"/usr/X11R6/lib/" -lX11 -lpthread
+LIBS= -L"/usr/X11R6/lib/" -lX11 -lpthread -ldl
 
-all: $(BIN)
-	yo1 $(BIN) $(CXXFLAGS)
+all: $(LINKOBJ)
+	$(CXX) $(LINKOBJ) -o $(BIN) $(LIBS)
 
 #new: clean $(BIN)
 #	yo2 $(BIN) --new $(CXXFLAGS)
