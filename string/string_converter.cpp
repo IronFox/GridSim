@@ -1220,7 +1220,7 @@ bool convertToFloat(const char*string, float*OutFloat)
 	{
 		if (!strcmpi(string+offset,"inf"))
 		{
-			*OutFloat = offset && string[0] == '-'?-INFINITY:INFINITY;
+			*OutFloat = offset && string[0] == '-'?-std::numeric_limits<float>::infinity():std::numeric_limits<float>::infinity();
 			return true;
 		}
         return false;
@@ -1238,7 +1238,7 @@ bool convertToFloat(const char*string, size_t length, float*OutFloat)
 	{
 		if (length-offset==3 && !strncmpi(string+offset,"inf",3))
 		{
-			*OutFloat = offset && string[0] == '-'?-INFINITY:INFINITY;
+			*OutFloat = offset && string[0] == '-'?-std::numeric_limits<float>::infinity():std::numeric_limits<float>::infinity();
 			return true;
 		}
         return false;
@@ -1255,7 +1255,7 @@ bool convertToDouble(const char*string, double*OutDouble)
 	{
 		if (!strcmpi(string+offset,"inf"))
 		{
-			*OutDouble = offset && string[0] == '-'?-INFINITY:INFINITY;
+			*OutDouble = offset && string[0] == '-'?-std::numeric_limits<double>::infinity():std::numeric_limits<double>::infinity();
 			return true;
 		}	
         return false;
@@ -1274,7 +1274,7 @@ bool convertToDouble(const char*string, size_t length, double*OutDouble)
 	{
 		if (length-offset == 3 && !strncmpi(string+offset,"inf",3))
 		{
-			*OutDouble = offset && string[0] == '-'?-INFINITY:INFINITY;
+			*OutDouble = offset && string[0] == '-'?-std::numeric_limits<double>::infinity():std::numeric_limits<double>::infinity();
 			return true;
 		}	
         return false;
@@ -1292,7 +1292,7 @@ bool convertToLongDouble(const char*string, long double*OutDouble)
 	{
 		if (!strcmpi(string+offset,"inf"))
 		{
-			*OutDouble = offset && string[0] == '-'?-INFINITY:INFINITY;
+			*OutDouble = offset && string[0] == '-'?-std::numeric_limits<double>::infinity():std::numeric_limits<double>::infinity();
 			return true;
 		}	
         return false;
@@ -1308,7 +1308,7 @@ bool convertToLongDouble(const char*string, size_t length, long double*OutDouble
 	{
 		if (length-offset==3 && !strncmpi(string+offset,"inf",3))
 		{
-			*OutDouble = offset && string[0] == '-'?-INFINITY:INFINITY;
+			*OutDouble = offset && string[0] == '-'?-std::numeric_limits<long double>::infinity():std::numeric_limits<long double>::infinity();
 			return true;
 		}	
         return false;
@@ -1613,7 +1613,7 @@ bool convertToFloat(const char*string, float&OutFloat)
 	{
 		if (!strcmpi(string+offset,"inf"))
 		{
-			OutFloat = offset && string[0] == '-'?-INFINITY:INFINITY;
+			OutFloat = offset && string[0] == '-'?-std::numeric_limits<float>::infinity():std::numeric_limits<float>::infinity();
 			return true;
 		}
         return false;
@@ -1631,7 +1631,7 @@ bool convertToFloat(const char*string, size_t length, float&OutFloat)
 	{
 		if (length-offset==3 && !strncmpi(string+offset,"inf",3))
 		{
-			OutFloat = offset && string[0] == '-'?-INFINITY:INFINITY;
+			OutFloat = offset && string[0] == '-'?-std::numeric_limits<float>::infinity():std::numeric_limits<float>::infinity();
 			return true;
 		}
         return false;
@@ -1648,7 +1648,7 @@ bool convertToDouble(const char*string, double&OutDouble)
 	{
 		if (!strcmpi(string+offset,"inf"))
 		{
-			OutDouble = offset && string[0] == '-'?-INFINITY:INFINITY;
+			OutDouble = offset && string[0] == '-'?-std::numeric_limits<double>::infinity():std::numeric_limits<double>::infinity();
 			return true;
 		}	
         return false;
@@ -1667,7 +1667,7 @@ bool convertToDouble(const char*string, size_t length, double&OutDouble)
 	{
 		if (length-offset == 3 && !strncmpi(string+offset,"inf",3))
 		{
-			OutDouble = offset && string[0] == '-'?-INFINITY:INFINITY;
+			OutDouble = offset && string[0] == '-'?-std::numeric_limits<double>::infinity():std::numeric_limits<double>::infinity();
 			return true;
 		}	
         return false;
@@ -1685,7 +1685,7 @@ bool convertToLongDouble(const char*string, long double&OutDouble)
 	{
 		if (!strcmpi(string+offset,"inf"))
 		{
-			OutDouble = offset && string[0] == '-'?-INFINITY:INFINITY;
+			OutDouble = offset && string[0] == '-'?-std::numeric_limits<long double>::infinity():std::numeric_limits<long double>::infinity();
 			return true;
 		}	
         return false;
@@ -1701,7 +1701,7 @@ bool convertToLongDouble(const char*string, size_t length, long double&OutDouble
 	{
 		if (length-offset==3 && !strncmpi(string+offset,"inf",3))
 		{
-			OutDouble = offset && string[0] == '-'?-INFINITY:INFINITY;
+			OutDouble = offset && string[0] == '-'?-std::numeric_limits<long double>::infinity():std::numeric_limits<long double>::infinity();
 			return true;
 		}	
         return false;

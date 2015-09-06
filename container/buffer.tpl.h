@@ -317,7 +317,7 @@ template <typename T, typename Strategy>
 		if ((count_t)(storage_end-storage_begin) == new_len)
 			return;
 
-		count_t preserve = std::min(new_len,usage_end-storage_begin);
+		count_t preserve = std::min<count_t>(new_len,usage_end-storage_begin);
 
 		try
 		{
