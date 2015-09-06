@@ -5,9 +5,9 @@
 
 #undef _TYPENAME
 #ifdef _MSC_VER
-	#define _TYPENAME
+	#define _TYPENAME		//visual studio insists that lambda function bodies are not templates themselves even if their parent methods are, and typename is thus misplaced
 #else
-	#define _TYPENAME	typename
+	#define _TYPENAME	typename		//clang, on the other hand, insists that they are template methods, and thus typename is required
 #endif
 
 
