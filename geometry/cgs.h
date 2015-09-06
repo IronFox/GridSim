@@ -1351,8 +1351,6 @@ namespace CGS	//! Compiled Geometrical Structure
 		
 		typedef GeometryInstance<Def>					Super;
 				using Super::target;
-				using Super::progress;
-				using Super::active;
 				
 				Array<AnimatorInstanceA<Def>,Adopt>		animator_field;
 				

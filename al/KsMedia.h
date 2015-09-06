@@ -876,10 +876,9 @@ typedef struct {
 #define KSDSOUND_BUFFER_CTRL_HRTF_3D        0x40000000
 
 #ifndef BOOL
-	#ifdef _WIN32
-		#error this should not happen
+	#ifndef _WIN32
+		#define BOOL			int	//I have NO idea what type this should be...
 	#endif
-	#define BOOL			int	//I have NO idea
 #endif
 
 typedef struct {
