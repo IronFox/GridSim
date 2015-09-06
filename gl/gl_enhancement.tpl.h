@@ -646,7 +646,7 @@ DEFINE_OPENGL_TYPE( GLDepthComponent, GL_FLOAT,		GL_DEPTH_COMPONENT24,	GL_DEPTH_
 
 
 template<typename T>
-	inline  GLenum      glType<T>()
+	inline  GLenum      glType()
 	{
 		return GLType<T>::constant;
 	}

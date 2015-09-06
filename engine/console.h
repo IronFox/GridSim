@@ -5,11 +5,6 @@
 
 Language/Font-independed console.
 
-This file is part of Delta-Works
-Copyright (C) 2006-2008 Stefan Elsen, University of Trier, Germany.
-http://www.delta-works.org/forge/
-http://informatik.uni-trier.de/
-
 ******************************************************************/
 
 
@@ -120,9 +115,9 @@ namespace Engine
 					TFloatRect		relative,			//!< Relative console base region (relative to the parent console location and size)
 									absolute,			//!< Absolute base screen region of this section
 									current;			//!< Current (animated) absolute screen region of this section
-					float			trans0[2],			//!< Primary translation of this section (during the first half of the animation)
-									trans1[2],			//!< Secondary translation of this section (during the second half of the animation) in addition to the primary translation
-									translation[2];		//!< Effective current (animated) translation
+					TVec2<>			trans0,				//!< Primary translation of this section (during the first half of the animation)
+									trans1,				//!< Secondary translation of this section (during the second half of the animation) in addition to the primary translation
+									translation;		//!< Effective current (animated) translation
 					Texture			primary,			//!< Background texture of this section (if any)
 									shiny;				//!< Animated shiny texture of this section (if any)
 					
@@ -130,15 +125,16 @@ namespace Engine
 					void			setPrimaryTranslation(float x, float y);	//!< Updates the (negative) primary translation of this section
 					void			setSecondaryTranslation(float x, float y);	//!< Updates the (negative) secondary translation of this section
 					void			updateState(float state);					//!< Updates \b current and \b translation based on the specified state scalar (0-1)
-					void			updateAbsolutePosition(float x, float y, float width, float height);	//!< Updates absolute base position relative the specified parent console location
+					void			updateAbsolutePosition(const TFloatRect&parentLocation);	//!< Updates absolute base position relative the specified parent console location
 					void			render(GL*renderer);						//!< Renders this section using the specified renderer
 				};
 
 				Textout<Font>		textout;							//!< Console textout. Must be initialized externally to work
-				float				x,									//!< Left border of the console
-									y,									//!< Bottom border of the console
-									width,								//!< Width of the console
-									height,								//!< Height of the console
+				TFloatRect			location;
+				float				//x,									//!< Left border of the console
+									//y,									//!< Bottom border of the console
+									//width,								//!< Width of the console
+									//height,								//!< Height of the console
 									font_x,								//!< Font width
 									font_y;								//!< Font height
 				Section				head,								//!< Header section

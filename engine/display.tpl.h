@@ -268,7 +268,8 @@ namespace Engine
 	            context_error = false;
 	            return false;
 	        }
-	        Window wnd = context.createWindow(dconfig.window_name,attributes,dconfig.hide_border,dconfig.icon_filename);
+			Window wnd = context.createWindow(dconfig.window_name,attributes,dconfig.border_style, dconfig.onResize,dconfig.icon_filename);
+	        //Window wnd = context.createWindow(dconfig.window_name,attributes,dconfig.hide_border,dconfig.icon_filename);
 	        if (!wnd)
 	        {
 	            GL::DestroyContext();
@@ -288,8 +289,9 @@ namespace Engine
 			Resolution res = context.clientSize();
 	        GL::SetViewport(rect(0,res.height,res.width,0),res);
 
-	        current_target_resolution = window_client_resolution = res;
-			pixel_aspect = current_target_resolution.aspect();
+	        //current_target_resolution = 
+			//window_client_resolution = res;
+			//pixel_aspect = window_client_resolution.aspect();
 
 	        return true;
 	    }
@@ -627,9 +629,9 @@ namespace Engine
             }
         #elif SYSTEM==UNIX
             XEvent event;
-            while (!context.shutting_down && XPending(connection))
+            while (!context.shutting_down && XPending(context.connection()))
             {
-                if (XNextEvent(connection,&event))
+                if (XNextEvent(context.connection(),&event))
                     FATAL__("event-handling error");
                 process(event);
             }
@@ -643,7 +645,7 @@ namespace Engine
 	        return;
 	    bool exec_loop = true;
 	    #if SYSTEM==UNIX
-	        Display*connection = context.connection();
+	        ::Display*connection = context.connection();
 	        if (!connection)
 	            return;
 	    #endif
@@ -659,7 +661,11 @@ namespace Engine
 			}
 			if (context.isMinimized())
 			{
-				Sleep(50.f);
+				#if SYSTEM==UNIX
+					usleep(50000);
+				#else
+					Sleep(50.f);
+				#endif
 				if (++callAnyway > 10)
 				{
 					callAnyway = 0;
@@ -702,7 +708,11 @@ namespace Engine
 			}
 			if (context.isMinimized())
 			{
-				Sleep(50.f);
+				#if SYSTEM==UNIX
+					usleep(50000);
+				#else
+					Sleep(50.f);
+				#endif
 				if (++callAnyway > 10)
 				{
 					callAnyway = 0;

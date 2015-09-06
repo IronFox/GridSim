@@ -35,7 +35,7 @@ template <typename Subtype>
 		MF_DECLARE(void)	defNormalST(const TVec3<C>&p0, const TVec3<C>&p1, const TVec3<C>&p2, TVec3<C>&target);
 		MF_STATIC(1,bool)	intersects(const C0&x0, const C0&y0, const C0&z0,const C0&x1, const C0&y1, const C0&z1,const TVec3<C>&p0, const TVec3<C>&p1, const TVec3<C>&p2, const TVec3<C>&p3);
 		MF_STATIC(1,bool)	intersects(const Box<C0>&box, const TVec3<C>&p0, const TVec3<C>&p1, const TVec3<C>&p2, const TVec3<C>&p3);
-		MF_STATIC(1,bool)		TestTriangle(const TVec3<C0>&p0,const TVec3<C0>&p1,const TVec3<C0>&p2,const TVec3<C0>&e0,const TVec3<C0>&d);
+		MF_STATIC(1,bool)	TestTriangle(const TVec3<C0>&p0,const TVec3<C0>&p1,const TVec3<C0>&p2,const TVec3<C0>&e0,const TVec3<C0>&d);
 
 public:
 	union

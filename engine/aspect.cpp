@@ -3,14 +3,14 @@
 
 namespace Engine
 {
-	template AngularCamera<float>;
-	template AngularCamera<double>;
-	template VectorCamera<float>;
-	template VectorCamera<double>;
-	template OrthographicAspect<float>;
-	template OrthographicAspect<double>;
-	template Frustum<float>;
-	template Frustum<double>;
+	template class AngularCamera<float>;
+	template class AngularCamera<double>;
+	template class VectorCamera<float>;
+	template class VectorCamera<double>;
+	template class OrthographicAspect<float>;
+	template class OrthographicAspect<double>;
+	template class Frustum<float>;
+	template class Frustum<double>;
 
 
 	namespace GlobalAspectConfiguration

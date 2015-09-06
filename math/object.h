@@ -1261,6 +1261,7 @@ namespace ObjectMath	//! Collection of geometry related mathematical functions a
 		class AbstractSphere : public Sphere<FloatType>	//! Sphere definition
 		{
 		public:
+			typedef Sphere<FloatType>	Super;
 			typedef FloatType			Float;
 			
 			MF_DECLARE	(void)			resolveIndentation(const AbstractSphere<Float>&remote, Float&indentation, TVec3<Float>&indentation_vector, bool verbose)	const;	//!< Attempts to determine the direction and intensity of an intersection between the local sphere and a remote abstract geometry  \param remote Geometry to determine the indentation/intersection of \param indentation_vector Out vector that the local sphere would have to be moved by to deintersect the two geometries. The resulting vector is of length 0 if the two geometries don't intersect.

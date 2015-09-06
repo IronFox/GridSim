@@ -236,7 +236,7 @@ void buildFile(TFile*file)
    if (file->ext == "c")
         cmd = "clang-3.5";
     else
-        cmd = "clang++-3.5 -o2 -std=c++11 -Wno-switch -Wno-ignored-attributes -ferror-limit=1 -Wno-dangling-else -Wno-undefined-bool-conversion";
+        cmd = "clang++-3.5 -o2 -std=c++11 -Wno-switch -Wno-ignored-attributes -ferror-limit=1 -Wno-dangling-else -Wno-undefined-bool-conversion -Wno-tautological-undefined-compare";
     cmd += " -c "+file->ident.GetLocation()+" -o "+obj_file+compile_flags;
     cout << "compiling "<<file->ident.GetLocation().c_str()<<" ("<<++build_index<<"/"<<build_total<<")...\n";
     //cmd.c_str() << endl;
@@ -361,7 +361,7 @@ int main(int argc, char *argv[])
 	
 		if (build_failed)
 		{
-			cout << "compilation of one or more files has failed. sorry :(\n";
+			cout << "failed\n";
 			return -1;
 		}
 		else

@@ -1,5 +1,8 @@
 #ifndef engineJoystickH
 #define engineJoystickH
+
+#if SYSTEM==WINDOWS
+
 #include "../../math/basic.h"
 #include "input.h"
 
@@ -64,5 +67,7 @@ namespace Engine
 
 }
 
+
+#endif
 
 #endif

@@ -210,7 +210,7 @@ in the foundation.
 		typedef short		WORD;			//!< Compatiblity typedef
 		typedef int			INT;			//!< Compatiblity typedef
 		
-		typedef int			BOOL;
+		//typedef int			BOOL;
 
 		typedef int32_t		__int32;		//!< Standard signed 32 bit integer
 		typedef int64_t		INT64;			//!< Compatiblity typedef

@@ -10,6 +10,8 @@ Also provides template-structures for abstract objects.
 ******************************************************************/
 
 
+#include "../general/parallel_for.h"
+
 namespace ObjectMath
 {
 
@@ -5540,7 +5542,7 @@ namespace ObjectMath
 			for (index_t i = 0; i < triangle_field.length(); i++)
 			{
 				MeshTriangle<Def>&t = triangle_field[i];
-				typename TVec3<Def::Type>	normal;
+				TVec3<typename Def::Type>	normal;
 				Obj::triangleNormal(t.v0->position,t.v1->position,t.v2->position,normal);
 				Vec::add(t.v0->normal,normal);
 				Vec::add(t.v1->normal,normal);
@@ -5550,7 +5552,7 @@ namespace ObjectMath
 			for (index_t i = 0; i < quad_field.length(); i++)
 			{
 				MeshQuad<Def>&q = quad_field[i];
-				typename TVec3<Def::Type>	normal;
+				TVec3<typename Def::Type>	normal;
 				Obj::triangleNormal(q.v0->position,q.v1->position,q.v2->position,normal);
 				_oAddTriangleNormal(q.v0->position,q.v2->position,q.v3->position,normal);
 				Vec::add(q.v0->normal,normal);
@@ -6727,9 +6729,9 @@ namespace ObjectMath
 			{
 				if (!child[k])
 				{
-					BYTE p[3] = {k / 4,
-									k % 4 / 2,
-									k % 4 % 2};
+					BYTE p[3] = {(BYTE)(k / 4),
+								(BYTE)(k % 4 / 2),
+								(BYTE)(k % 4 % 2)};
 					C	d[6];
 					for (BYTE j = 0; j < 3; j++)
 					{
@@ -7308,13 +7310,13 @@ namespace ObjectMath
 	template <class FloatType> template <typename T>
 		MF_DECLARE	(bool)				Point<FloatType>::operator>(const TVec3<T>&other)	const
 		{
-			return Vec::compare(vector,other)>0;
+			return Vec::compare(*this,other)>0;
 		}
 		
 	template <class FloatType> template <typename T>
 		MF_DECLARE	(bool)				Point<FloatType>::operator<(const TVec3<T>&other)	const
 		{
-			return Vec::compare(vector,other)<0;
+			return Vec::compare(*this,other)<0;
 		}
 		
 	
@@ -7361,8 +7363,8 @@ namespace ObjectMath
 	template <class FloatType>
 		MF_DECLARE	(bool) AbstractSphere<FloatType>::intersects(const AbstractSphere<Float>&remote)	const
 		{
-			Float distance2 = Vec::quadraticDistance(center,remote.center);
-			if (distance2 > sqr(radius + remote.radius))
+			Float distance2 = Vec::quadraticDistance(Super::center,remote.center);
+			if (distance2 > sqr(Super::radius + remote.radius))
 				return false;
 			return true;
 		}
@@ -7373,13 +7375,13 @@ namespace ObjectMath
 		{
 			TVec3<Float> v;
 			Vec::sub(remote.p1,remote.p0,v);
-			Float alpha = (Vec::dot(center,v)-Vec::dot(remote.p0,v))/Vec::dot(v);
+			Float alpha = (Vec::dot(Super::center,v)-Vec::dot(remote.p0,v))/Vec::dot(v);
 			if (alpha < -Math::getError<Float>() || alpha > (Float)1+Math::getError<Float>())
 				return false;
 			TVec3<Float> p;
 			Vec::mad(remote.p0,v,alpha,p);
-			Float distance = Vec::distance(center,p);
-			if (distance > radius+remote.radius)
+			Float distance = Vec::distance(Super::center,p);
+			if (distance > Super::radius+remote.radius)
 				return false;
 			return true;
 		}
@@ -7388,16 +7390,16 @@ namespace ObjectMath
 		MF_DECLARE	(void) AbstractSphere<FloatType>::resolveIndentation(const AbstractSphere<Float>&remote, Float&indentation, TVec3<Float>&indentation_vector, bool verbose)	const
 		{
 			if (verbose)
-				ShowMessage("testing local sphere "+Vec::toString(center)+" r"+FloatToStr(radius)+"\n with remote sphere "+Vec::toString(remote.center)+" r"+FloatToStr(remote.radius));
+				ShowMessage("testing local sphere "+Vec::toString(Super::center)+" r"+FloatToStr(Super::radius)+"\n with remote sphere "+Vec::toString(remote.center)+" r"+FloatToStr(remote.radius));
 
-			Float distance = Vec::distance(center,remote.center);
-			if (distance > radius + remote.radius)
+			Float distance = Vec::distance(Super::center,remote.center);
+			if (distance > Super::radius + remote.radius)
 				return;
-			Float local_indentation = (Float)1-(distance-remote.radius)/radius;
+			Float local_indentation = (Float)1-(distance-remote.radius)/Super::radius;
 			if (local_indentation > indentation)
 			{
 				indentation = local_indentation;
-				Vec::sub(remote.center,center,indentation_vector);
+				Vec::sub(remote.center,Super::center,indentation_vector);
 				Vec::mult(indentation_vector,indentation/distance);
 			}
 		}
@@ -7407,23 +7409,23 @@ namespace ObjectMath
 		MF_DECLARE	(void) AbstractSphere<FloatType>::resolveIndentation(const AbstractCylinder<Float>&remote, Float&indentation, TVec3<Float>&indentation_vector, bool verbose)	const
 		{
 			if (verbose)
-				ShowMessage("testing local sphere "+Vec::toString(center)+" r"+FloatToStr(radius)+"\n with remote cylinder "+Vec::toString(remote.p0)+" "+Vec::toString(remote.p1)+" r"+FloatToStr(remote.radius));
+				ShowMessage("testing local sphere "+Vec::toString(Super::center)+" r"+FloatToStr(Super::radius)+"\n with remote cylinder "+Vec::toString(remote.p0)+" "+Vec::toString(remote.p1)+" r"+FloatToStr(remote.radius));
 
 			TVec3<Float> v;
 			Vec::sub(remote.p1,remote.p0,v);
-			Float alpha = (Vec::dot(center,v)-Vec::dot(remote.p0,v))/Vec::dot(v);
+			Float alpha = (Vec::dot(Super::center,v)-Vec::dot(remote.p0,v))/Vec::dot(v);
 			if (alpha < -Math::getError<Float>() || alpha > (Float)1+Math::getError<Float>())
 				return;
 			TVec3<Float> p;
 			Vec::mad(remote.p0,v,alpha,p);
-			Float distance = Vec::distance(center,p);
-			if (distance > radius+remote.radius)
+			Float distance = Vec::distance(Super::center,p);
+			if (distance > Super::radius+remote.radius)
 				return;
-			Float local_indentation = (Float)1-(distance-remote.radius)/radius;
+			Float local_indentation = (Float)1-(distance-remote.radius)/Super::radius;
 			if (local_indentation > indentation)
 			{
 				indentation = local_indentation;
-				Vec::sub(p,center,indentation_vector);
+				Vec::sub(p,Super::center,indentation_vector);
 				Vec::mult(indentation_vector,indentation/distance);
 			}
 		}
@@ -7756,7 +7758,7 @@ namespace ObjectMath
 			if (!vertices.count())
 			{
 				buffer.append().Set(point,0,0);
-				if (!detectTedrahedron())
+				if (!DetectTedrahedron())
 				{
 					return;
 				}
@@ -7859,7 +7861,7 @@ namespace ObjectMath
 				
 				steps = 0;
 				triangles[face].flagged = true;
-				while (!queue.isEmpty())
+				while (!queue.IsEmpty())
 				{
 					ASSERT__(steps++<=triangles.count());
 					queue >> face;
@@ -7964,7 +7966,7 @@ namespace ObjectMath
 					if (!triangles[i].flagged)
 					{
 						//logfile<< " copying preserved face "<<i<<"/"<<triangles.count()<<nl;
-						Vec::Set(triangles[i].link,new_triangles.count());
+						Vec::set(triangles[i].link,new_triangles.count());
 						new_triangles << triangles[i];
 						new_triangles.last().flagged = false;
 						new_triangles.last().link.x = i;

@@ -18,41 +18,43 @@ namespace Engine
 	template <class GL, class Font>
 		VisualConsole<GL,Font>::Section::Section():relative(0,0,1,1),absolute(0,0,1,1),current(0,0,1,1)
 		{
-		    _clear2(trans0);
-		    _clear2(trans1);
-		    _clear2(translation);
+		    Vec::clear(trans0);
+		    Vec::clear(trans1);
+		    Vec::clear(translation);
 		}
 
 	template <class GL, class Font>
 		void VisualConsole<GL,Font>::Section::setPrimaryTranslation(float x, float y)
 		{
-		    _v2(trans0,-x,-y);
+		    Vec::def(trans0,-x,-y);
 		}
 
 	template <class GL, class Font>
 		void VisualConsole<GL,Font>::Section::setSecondaryTranslation(float x, float y)
 		{
-		    _v2(trans1,-x,-y);
+		    Vec::def(trans1,-x,-y);
 		}
 
 	template <class GL, class Font>
 		void VisualConsole<GL,Font>::Section::updateState(float state)
 		{
 		    if (state < 0.5)
-		        _mad2(trans1,trans0,1-state*2,translation);
+		        Vec::mad(trans1,trans0,1-state*2,translation);
 		    else
-		        _mult2(trans1,1-(state-0.5)*2,translation);
-		    _add2(absolute.dim,translation,current.dim);
-		    _add2(absolute.dim+2,translation,current.dim+2);
+		        Vec::mult(trans1,1-(state-0.5)*2,translation);
+			absolute.Translate(translation);
+		    //Vec::add(absolute.min(),translation,current.dim);
+		    //Vec::add(absolute.dim+2,translation,current.dim+2);
 		}
 
 	template <class GL, class Font>
-		void VisualConsole<GL,Font>::Section::updateAbsolutePosition(float x, float y, float width, float height)
+		void VisualConsole<GL,Font>::Section::updateAbsolutePosition(const TFloatRect&parentLocation)
 		{
-		    absolute.x0 = x + width*relative.x0;
-		    absolute.y0 = y + height*relative.y0;
-		    absolute.x1 = x + width*relative.x1;
-		    absolute.y1 = y + height*relative.y1;
+			parentLocation.MakeAbsolute(relative,absolute);
+		    //absolute.x0 = x + width*relative.x0;
+		    //absolute.y0 = y + height*relative.y0;
+		    //absolute.x1 = x + width*relative.x1;
+		    //absolute.y1 = y + height*relative.y1;
 		}
 
 	template <class GL, class Font>
@@ -61,34 +63,34 @@ namespace Engine
 		    if (primary.isEmpty())
 		        return;
 		    Engine::TColorTextureVertex v0,v1,v2,v3;
-		    _v4(v0.position,current.left,current.bottom,0,1);
-		    _v4(v1.position,current.right,current.bottom,0,1);
-		    _v4(v2.position,current.right,current.top,0,1);
-		    _v4(v3.position,current.left,current.top,0,1);
-		    _set4(v0.color,1);
-		    _set4(v1.color,1);
-		    _set4(v2.color,1);
-		    _set4(v3.color,1);
-		    _v2(v0.coord,0,0);
-		    _v2(v1.coord,1,0);
-		    _v2(v2.coord,1,1);
-		    _v2(v3.coord,0,1);
+		    Vec::def(v0,current.x.min,current.y.min,0,1);
+		    Vec::def(v1,current.x.max,current.y.min,0,1);
+		    Vec::def(v2,current.x.max,current.y.max,0,1);
+		    Vec::def(v3,current.x.min,current.y.max,0,1);
+		    Vec::set(v0.color,1);
+		    Vec::set(v1.color,1);
+		    Vec::set(v2.color,1);
+		    Vec::set(v3.color,1);
+		    Vec::def(v0.coord,0,0);
+		    Vec::def(v1.coord,1,0);
+		    Vec::def(v2.coord,1,1);
+		    Vec::def(v3.coord,0,1);
 		    if (!shiny.isEmpty())
 		    {
-		        v0.color[3] = 0.3-cos(timing.now)*0.25;
-		        v1.color[3] = 0.3-cos(timing.now+2)*0.25;
-		        v2.color[3] = 0.3-cos(timing.now+3)*0.25;
-		        v3.color[3] = 0.3-cos(timing.now+1)*0.25;
+		        v0.color.a = 0.3-cos(timing.now)*0.25;
+		        v1.color.a = 0.3-cos(timing.now+2)*0.25;
+		        v2.color.a = 0.3-cos(timing.now+3)*0.25;
+		        v3.color.a = 0.3-cos(timing.now+1)*0.25;
 		    }
 
 		    renderer->useTexture(primary,true);
 		    renderer->face(v0,v1,v2,v3);
 		    if (!renderer->useTexture(shiny,true))
 		        return;
-		    v0.color[3] = 0.5+cos(timing.now)*0.5;
-		    v1.color[3] = 0.5+cos(timing.now+2)*0.5;
-		    v2.color[3] = 0.5+cos(timing.now+3)*0.5;
-		    v3.color[3] = 0.5+cos(timing.now+1)*0.5;
+		    v0.color.a = 0.5+cos(timing.now)*0.5;
+		    v1.color.a = 0.5+cos(timing.now+2)*0.5;
+		    v2.color.a = 0.5+cos(timing.now+3)*0.5;
+		    v3.color.a = 0.5+cos(timing.now+1)*0.5;
 		    renderer->face(v0,v1,v2,v3);
 		}
 
@@ -96,18 +98,19 @@ namespace Engine
 	template <class GL, class Font>
 		void VisualConsole<GL,Font>::updateSectionPositions()
 		{
-		    body.updateAbsolutePosition(x,y,width,height);
+		    body.updateAbsolutePosition(location);
 		    body.updateState(status);
-		    head.updateAbsolutePosition(x,y,width,height);
+		    head.updateAbsolutePosition(location);
 		    head.updateState(status);
-		    foot.updateAbsolutePosition(x,y,width,height);
+		    foot.updateAbsolutePosition(location);
 		    foot.updateState(status);
 		    if (text_target)
 		    {
-		        absolute_text.left = text_target->current.x0 + (text_target->current.x1-text_target->current.x0)*relative_text.left;
-		        absolute_text.right = text_target->current.x0 + (text_target->current.x1-text_target->current.x0)*relative_text.right;
-		        absolute_text.top = text_target->current.y0 + (text_target->current.y1-text_target->current.y0)*relative_text.top;
-		        absolute_text.bottom = text_target->current.y0 + (text_target->current.y1-text_target->current.y0)*relative_text.bottom;
+				text_target->current.MakeAbsolute(relative_text,absolute_text);
+		        // absolute_text.x.min = text_target->current.x0 + (text_target->current.x1-text_target->current.x0)*relative_text.left;
+		        // absolute_text.right = text_target->current.x0 + (text_target->current.x1-text_target->current.x0)*relative_text.right;
+		        // absolute_text.top = text_target->current.y0 + (text_target->current.y1-text_target->current.y0)*relative_text.top;
+		        // absolute_text.y.min = text_target->current.y0 + (text_target->current.y1-text_target->current.y0)*relative_text.bottom;
 		    }
 		}
 
@@ -116,29 +119,29 @@ namespace Engine
 
 	template <class GL, class Font>
 	VisualConsole<GL,Font>::VisualConsole():renderer(GL::global_instance),
-	                                x(0),y(0),width(1),height(1),font_x(0.05),font_y(0.1),
+	                                location(0,0,1,1),font_x(0.05),font_y(0.1),
 	                                history_state(0),text_target(0),relative_text(0,0,1,1),absolute_text(0,0,1,1)
 		{
 		    textout.setScale(font_x,font_y);
-		    textout.locate(x,y+height+EVE_PANEL_SIZE*height);
+		    textout.locate(location.x.min,location.y.max+EVE_PANEL_SIZE*location.height());
 		}
 
 	template <class GL, class Font>
 		VisualConsole<GL,Font>::VisualConsole(GL*renderer_):renderer(renderer_),
-	                                x(0),y(0),width(1),height(1),font_x(0.05),font_y(0.1),
+	                                location(0,0,1,1),font_x(0.05),font_y(0.1),
 	                                history_state(0),text_target(0),relative_text(0,0,1,1),absolute_text(0,0,1,1)
 		{
 		    textout.setScale(font_x,font_y);
-		    textout.locate(x,y+height+EVE_PANEL_SIZE*height);
+		    textout.locate(location.x.min,location.y.max+EVE_PANEL_SIZE*location.height());
 		}
 
 	template <class GL, class Font>
 		VisualConsole<GL,Font>::VisualConsole(GL&renderer_):renderer(&renderer_),
-	                                x(0),y(0),width(1),height(1),font_x(0.05),font_y(0.1),
+	                                location(0,0,1,1),font_x(0.05),font_y(0.1),
 	                                history_state(0),text_target(0),relative_text(0,0,1,1),absolute_text(0,0,1,1)
 		{
 		    textout.setScale(font_x,font_y);
-		    textout.locate(x,y+height+EVE_PANEL_SIZE*height);
+		    textout.locate(location.x.min,location.y.max+EVE_PANEL_SIZE*location.height());
 		}
 
 	template <class GL, class Font>
@@ -163,10 +166,11 @@ namespace Engine
 	template <class GL, class Font>
 		void VisualConsole<GL,Font>::setFinalRegion(float x_, float y_, float width_, float height_)
 		{
-		    x = x_;
-		    y = y_;
-		    width = width_;
-		    height = height_;
+			location.Set(x_,y_,width_,height_);
+		    // x = x_;
+		    // y = y_;
+		    // width = width_;
+		    // height = height_;
 		    
 		    updateSectionPositions();
 		}
@@ -224,7 +228,7 @@ namespace Engine
 		{
 		    Section&sec = getSec(section);
 		    sec.relative = TFloatRect(left,bottom,right,top);
-		    sec.updateAbsolutePosition(x,y,width,height);
+		    sec.updateAbsolutePosition(location);
 		    sec.updateState(status);
 		}
 
@@ -233,10 +237,7 @@ namespace Engine
 		{
 		    text_target = &getSec(section);
 		    relative_text = TFloatRect(left,bottom,right,top);
-		        absolute_text.left = text_target->current.x0 + (text_target->current.x1-text_target->current.x0)*relative_text.left;
-		        absolute_text.right = text_target->current.x0 + (text_target->current.x1-text_target->current.x0)*relative_text.right;
-		        absolute_text.top = text_target->current.y0 + (text_target->current.y1-text_target->current.y0)*relative_text.top;
-		        absolute_text.bottom = text_target->current.y0 + (text_target->current.y1-text_target->current.y0)*relative_text.bottom;
+			text_target->current.MakeAbsolute(relative_text,absolute_text);
 		}
 
 
@@ -251,7 +252,7 @@ namespace Engine
 	template <class GL, class Font>
 		String VisualConsole<GL,Font>::truncate(const String&origin)
 		{
-		    float len = absolute_text.right-absolute_text.left;
+		    float len = absolute_text.width();
 		    char buffer[0x100];
 		    memcpy(buffer,origin.c_str(),vmin(origin.length(),sizeof(buffer)));
 		    BYTE at = vmin(origin.length()+1,sizeof(buffer))-1;
@@ -267,7 +268,7 @@ namespace Engine
 		void VisualConsole<GL,Font>::printLine(const String&line)
 		{
 		    StringList list(line);
-		    float len = absolute_text.right-absolute_text.left;
+		    float len = absolute_text.width();
 		    while (list.count())
 		    {
 				bool split = false;
@@ -365,10 +366,7 @@ namespace Engine
 		        foot.updateState(status);
 		        if (text_target)
 		        {
-		            absolute_text.left = text_target->current.x0 + (text_target->current.x1-text_target->current.x0)*relative_text.left;
-		            absolute_text.right = text_target->current.x0 + (text_target->current.x1-text_target->current.x0)*relative_text.right;
-		            absolute_text.top = text_target->current.y0 + (text_target->current.y1-text_target->current.y0)*relative_text.top;
-		            absolute_text.bottom = text_target->current.y0 + (text_target->current.y1-text_target->current.y0)*relative_text.bottom;
+					text_target->current.MakeAbsolute(relative_text,absolute_text);
 		        }
 		    }
 		    
@@ -377,18 +375,18 @@ namespace Engine
 		        body.render(renderer);
 
 		            unsigned    //block = status*height/line_height,
-		                        frame_size = clamped((int)((absolute_text.top-absolute_text.bottom)/font_y)-1,0,1000),
+		                        frame_size = clamped((int)((absolute_text.height())/font_y)-1,0,1000),
 		                        offset = lines - clamped(history_state*frame_size+frame_size,0,lines),
 		                        count = lines - offset;
-		            textout.locate(absolute_text.left,absolute_text.bottom+font_y*(count+1));
+		            textout.locate(absolute_text.x.min,absolute_text.y.min+font_y*(count+1));
 		            for (unsigned i = 0; i < count; i++)
 		            {
 		                textout.line(i);
 		                textout.print(lines[offset+i],'§');
 		            }
-		        float displace = clamped(textout.unscaledLength(keyboard.getInput())*font_x-(absolute_text.right-absolute_text.left),0,100000);
+		        float displace = clamped(textout.unscaledLength(keyboard.getInput())*font_x-(absolute_text.width()),0,100000);
 
-		        textout.locate(absolute_text.left-displace,absolute_text.bottom+font_y);
+		        textout.locate(absolute_text.x.min-displace,absolute_text.y.min+font_y);
 		        textout.line(0);
 		        textout.print(keyboard.getInput());
 
@@ -396,13 +394,13 @@ namespace Engine
 		        {
 		            renderer->useTexture(NULL);
 		            TColorVertex  v0,v1;
-		            float x = absolute_text.left-displace+textout.unscaledLength(keyboard.getInput())*font_x,
-		                  y = absolute_text.bottom,
+		            float x = absolute_text.x.min-displace+textout.unscaledLength(keyboard.getInput())*font_x,
+		                  y = absolute_text.y.min,
 		                  light = cos(Engine::timing.now);
-		            _v4(v0.position,x,y+font_y*0.1,0,1);
-		            _v4(v1.position,x,y+font_y*0.9,0,1);
-		            _v4(v0.color,1,1,1,0.6+0.2*light);
-		            _v4(v1.color,1,1,1,0.6+0.2*light);
+		            Vec::def(v0,x,y+font_y*0.1,0,1);
+		            Vec::def(v1,x,y+font_y*0.9,0,1);
+		            Vec::def(v0.color,1,1,1,0.6+0.2*light);
+		            Vec::def(v1.color,1,1,1,0.6+0.2*light);
 		            renderer->segment(v0,v1);
 		        }
 		    }

@@ -875,6 +875,13 @@ typedef struct {
 
 #define KSDSOUND_BUFFER_CTRL_HRTF_3D        0x40000000
 
+#ifndef BOOL
+	#ifdef _WIN32
+		#error this should not happen
+	#endif
+	#define BOOL			int	//I have NO idea
+#endif
+
 typedef struct {
     ULONG                   Size;           // This is the size of the struct in bytes
     ULONG                   Enabled;
@@ -5203,4 +5210,3 @@ typedef enum {
 #endif // __ENCODER_API_DEFINES__
 
 #endif // !defined(_KSMEDIA_)
-

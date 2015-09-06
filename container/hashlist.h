@@ -87,29 +87,29 @@ template <class K, class C, class Hash=StdHash, class KeyStrategy=typename Strat
 											}
 
 
-			List::get;
-			List::getConst;
-			List::getReference;
-			List::getIterator;
-			List::getIndexOf;
-			List::first;
-			List::last;
-			List::begin;
-			List::end;
+			using List::get;
+			using List::getConst;
+			using List::getReference;
+			using List::getIterator;
+			using List::getIndexOf;
+			using List::first;
+			using List::last;
+			using List::begin;
+			using List::end;
 			#ifndef __BORLANDC__
-			List::operator();
+			using List::operator();
 	        #endif
-			List::count;
-			List::reset;
-			List::each;
+			using List::count;
+			using List::reset;
+			using List::each;
 			
-			Table::isSet;
-			Table::findKeyOf;
-			Table::exportKeys;
+			using Table::isSet;
+			using Table::findKeyOf;
+			using Table::exportKeys;
 
 			#ifndef _MSC_VER
-				List::iterator;
-				List::const_iterator;
+				using typename List::iterator;
+				using typename List::const_iterator;
 			#endif
 	};
 

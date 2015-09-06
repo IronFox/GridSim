@@ -13,8 +13,10 @@ Image-class used to store and process textures
 #include "../io/bit_stream.h"
 #include "../math/vector.h"
 #include <stdio.h>
-#include <ppl.h>
+//#include <ppl.h>
+#include "../general/parallel_for.h"
 #include <random>
+#include "../general/undef.h"
 
 
 
@@ -145,6 +147,8 @@ template <typename T>
 	class ImageTemplate:public BaseImage
 	{
 	protected:
+		using BaseImage::dimension_t;
+	
 			T						*image_data;		//!< Pointer to the actual image data.
 
 		template <typename Float>
@@ -482,7 +486,13 @@ template <class Nature>
 	public:
 		typedef ImageTemplate<typename Nature::channel_value_t>	Parent;
 		typedef GenericImage<Nature>	Self;
-		#ifdef __GNUC__
+		typedef typename Super::dimension_t	dimension_t;
+		
+		using Super::isColorMap;
+		using Super::isNormalMap;
+		using Super::free;
+		
+		//#ifdef __GNUC__
 			using Parent::image_channels;
 			using Parent::image_width;
 			using Parent::image_height;
@@ -491,7 +501,7 @@ template <class Nature>
 			using Parent::content_type;
 			using Parent::get;
 
-			using Parent::combiner_t;
+			using typename Parent::combiner_t;
 
 
 			using Parent::IC_COPY;
@@ -500,7 +510,8 @@ template <class Nature>
 			using Parent::IC_ADD;
 			using Parent::IC_MULTIPLY;
 			using Parent::IC_MULT_NEGATIVE;
-		#endif
+			
+		//#endif
 
 			typedef typename Nature::float_type_t			F;
 			typedef typename Nature::channel_value_t			T;

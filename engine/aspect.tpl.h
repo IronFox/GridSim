@@ -87,7 +87,7 @@ template <class C> MFUNC3 (bool) Frustum<C>::visible(const C0&x, const C1&y, con
 	
 	
 template <class C>
-	MF_STATIC(1,bool) Frustum<C>::TestTriangle(const TVec3<C0>&p0,const TVec3<C0>&p1,const TVec3<C0>&p2,const TVec3<C0>&e0,const TVec3<C0>&d)
+	/*static*/ MFUNC1(bool) Frustum<C>::TestTriangle(const TVec3<C0>&p0,const TVec3<C0>&p1,const TVec3<C0>&p2,const TVec3<C0>&e0,const TVec3<C0>&d)
 	{
 		TVec3<C0> rs;
 		return

@@ -11,6 +11,7 @@
 
 #include "hashtable.h"
 #include "buffer.h"
+#include "../general/undef.h"
 //#include "lists.h"
 
 class StringList;
@@ -253,7 +254,6 @@ namespace Tokenizer
 							{}
 
 	};
-	
 	class Status:public TemporaryStatus	//! Status including string buffer
 	{
 	public:

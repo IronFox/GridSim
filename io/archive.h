@@ -139,7 +139,7 @@ inline		String					getLocationString()							const;	//!< Queries a string repres
 inline		BYTE					pathDepth()									const;	//!< Queries the recursive folder depth of the current working directory. \return Current folder depth (1 = root folder) or 0 if no archive is currently loaded.
 virtual		String					errorStr()									const;	//!< Queries a string representation of the last occured error (if any). \return Error string.
 
-									RandomAccessFile::isActive;
+									using RandomAccessFile::isActive;
 };
 
 #include "archive.tpl.h"

@@ -198,13 +198,13 @@ public:
 		typedef LinkedList<C>		Super;
 		typedef C					Type;
 		typedef C*					Data;
-		USE_LIST
-		USE_CONTAINER
+		//USE_LIST
+		//USE_CONTAINER
 
 									~ReferenceLinkedList();
 inline	C*							operator[](size_t Index);
 inline	const C*					operator[](size_t Index)	const;
-inline	size_t					operator()(const C*element) const;
+inline	size_t						operator()(const C*element) const;
 INLINE	LinkedList<C>&				operator=(const LinkedList<C>&list);
 };
 

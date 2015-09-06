@@ -8,9 +8,13 @@ eve mouse-interface.
 ******************************************************************/
 
 #if SYSTEM==UNIX
+	#ifndef Status
+		typedef int	Status;
+	#endif
 	#include <X11/Xlib.h>
 	#include <X11/Xutil.h>
 	#include <X11/cursorfont.h>
+	#include "../../general/undef.h"
 #endif
 
 #include "input.h"

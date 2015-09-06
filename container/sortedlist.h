@@ -97,7 +97,7 @@ template <class RList> class Named:public Sorted<RList,NameSort>
 public:
 					typedef typename RList::Type	 Type;
 					typedef Sorted<RList,NameSort>  Super;
-					USE_SORTED
+	//				USE_SORTED
 
 					inline  Type*		   operator[](size_t index);
 };

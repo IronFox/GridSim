@@ -4,6 +4,7 @@
 
 #include "../../gl/gl.h"
 #include "../../gl/glext.h"
+#include "../../general/undef.h"
 
 #undef glBlendFuncSeparate
 #undef glGenBuffers
@@ -1060,7 +1061,7 @@
 			#if SYSTEM==WINDOWS
 				HDC								hDC;
 			#elif SYSTEM==UNIX
-				Display							*display;
+				::Display						*display;
 				int								screen;
 			#endif
 			static GLuint						AllocateDepthBuffer(const Resolution&res);
@@ -1157,7 +1158,7 @@
 			#if SYSTEM==WINDOWS
 				void							Initialize(HDC hDC);
 			#elif SYSTEM==UNIX
-				void							Initialize(Display*display,int screen);
+				void							Initialize(::Display*display,int screen);
 			#else
 				void							Initialize();
 			#endif

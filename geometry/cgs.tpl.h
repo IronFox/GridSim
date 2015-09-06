@@ -23,17 +23,17 @@ template <class C> String vstructArrayCompare(const String&name,unsigned cnt0,C*
 
 
 
-template <class Def>
-	void			Tracks<Def>::adoptData(Tracks<Def>&other)
-	{
-		if (this == &other)
-			return;
-		domain = other.domain;
-		name_field.adoptData(other.name_field);
-		entry_field.adoptData(other.entry_field);
-		rotation.adoptData(other.rotation);
-		flags = other.flags;
-	}
+// template <class Def>
+	// void			Tracks<Def>::adoptData(Tracks<Def>&other)
+	// {
+		// if (this == &other)
+			// return;
+		// domain = other.domain;
+		// name_field.adoptData(other.name_field);
+		// entry_field.adoptData(other.entry_field);
+		// rotation.adoptData(other.rotation);
+		// flags = other.flags;
+	// }
 
 
 
@@ -1138,7 +1138,7 @@ template <class Def>
 				Vec::clear(obj.vertex_field[i].normal);
 			for (index_t i = 0; i < obj.triangle_field.length(); i++)
 			{
-				VsMesh::Triangle&t = obj.triangle_field[i];
+				typename VsMesh::Triangle & t = obj.triangle_field[i];
 				_oTriangleNormal(t.v0->position,t.v1->position,t.v2->position,t.normal);
 				Vec::add(t.v0->normal,t.normal);
 				Vec::add(t.v1->normal,t.normal);
@@ -1147,7 +1147,7 @@ template <class Def>
 			}
 			for (index_t i = 0; i < obj.quad_field.length(); i++)
 			{
-				VsMesh::Quad&q = obj.quad_field[i];
+				typename VsMesh::Quad&q = obj.quad_field[i];
 				_oTriangleNormal(q.v0->position,q.v1->position,q.v2->position,q.normal);
 				_oAddTriangleNormal(q.v0->position,q.v2->position,q.v3->position,q.normal);
 				Vec::add(q.v0->normal,q.normal);
@@ -1160,7 +1160,7 @@ template <class Def>
 				Vec::normalize0(obj.vertex_field[i].normal);
 			for (index_t i = 0; i < obj.edge_field.length(); i++)
 			{
-				VsMesh::Edge&e = obj.edge_field[i];
+				typename VsMesh::Edge&e = obj.edge_field[i];
 				Vec::clear(e.normal);
 				if (e.n[0])
 				{
@@ -1302,7 +1302,7 @@ template <class Def> void SubGeometryA<Def>::saveToRiff(Riff::Chunk*riff)	const
 				Array<UINT32>	out(hull.triangle_field.length()*3);
 				for (index_t j = 0; j < hull.triangle_field.length(); j++)
 				{
-					const VsMesh::Triangle	&tri = hull.triangle_field[j];
+					const typename VsMesh::Triangle	&tri = hull.triangle_field[j];
 					out[j*3 + 0] = static_cast<UINT32>(tri.vertex[0]-hull.vertex_field);
 					out[j*3 + 1] = static_cast<UINT32>(tri.vertex[1]-hull.vertex_field);
 					out[j*3 + 2] = static_cast<UINT32>(tri.vertex[2]-hull.vertex_field);
@@ -1313,7 +1313,7 @@ template <class Def> void SubGeometryA<Def>::saveToRiff(Riff::Chunk*riff)	const
 				Array<UINT32>	out(hull.quad_field.length()*4);
 				for (index_t j = 0; j < hull.quad_field.length(); j++)
 				{
-					const VsMesh::Quad	&quad = hull.quad_field[j];
+					const typename VsMesh::Quad	&quad = hull.quad_field[j];
 					out[j*4 + 0] = static_cast<UINT32>(quad.vertex[0]-hull.vertex_field);
 					out[j*4 + 1] = static_cast<UINT32>(quad.vertex[1]-hull.vertex_field);
 					out[j*4 + 2] = static_cast<UINT32>(quad.vertex[2]-hull.vertex_field);
@@ -1325,7 +1325,7 @@ template <class Def> void SubGeometryA<Def>::saveToRiff(Riff::Chunk*riff)	const
 				Array<INT32>out(hull.edge_field.length()*4);	//2*vertex. 2*face. positive: triangle, negative: quad+1
 				for (index_t j = 0; j < hull.edge_field.length(); j++)
 				{
-					const VsMesh::Edge	&edge = hull.edge_field[j];
+					const typename VsMesh::Edge	&edge = hull.edge_field[j];
 					
 					out[j*4 + 0] = static_cast<UINT32>(edge.vertex[0]-hull.vertex_field);
 					out[j*4 + 1] = static_cast<UINT32>(edge.vertex[1]-hull.vertex_field);
@@ -1352,7 +1352,7 @@ template <class Def> void SubGeometryA<Def>::saveToRiff(Riff::Chunk*riff)	const
 			ByteStream	out;	//3*vindex, group, name, grip, updrift
 			for (index_t i = 0; i < phHull.triangle_field.length(); i++)
 			{
-				const Mesh<PhDef>::Triangle	&triangle = phHull.triangle_field[i];
+				const typename Mesh<PhDef>::Triangle	&triangle = phHull.triangle_field[i];
 				out << (UINT32)(triangle.vertex[0]-phHull.vertex_field)
 					<< (UINT32)(triangle.vertex[1]-phHull.vertex_field)
 					<< (UINT32)(triangle.vertex[2]-phHull.vertex_field);
@@ -1362,7 +1362,7 @@ template <class Def> void SubGeometryA<Def>::saveToRiff(Riff::Chunk*riff)	const
 			out.Clear();
 			for (index_t i = 0; i < phHull.quad_field.length(); i++)
 			{
-				const Mesh<PhDef>::Quad	&quad = phHull.quad_field[i];
+				const typename Mesh<PhDef>::Quad	&quad = phHull.quad_field[i];
 				out << (UINT32)(quad.vertex[0]-phHull.vertex_field)
 					<< (UINT32)(quad.vertex[1]-phHull.vertex_field)
 					<< (UINT32)(quad.vertex[2]-phHull.vertex_field)
@@ -1374,7 +1374,7 @@ template <class Def> void SubGeometryA<Def>::saveToRiff(Riff::Chunk*riff)	const
 				Array<UINT32>out(phHull.edge_field.length()*4);	//2*vertex. 2*face
 				for (index_t j = 0; j < phHull.edge_field.length(); j++)
 				{
-					const Mesh<PhDef>::Edge	&edge = phHull.edge_field[j];
+					const typename Mesh<PhDef>::Edge	&edge = phHull.edge_field[j];
 						
 					out[j*4 + 0] = static_cast<UINT32>(edge.vertex[0]-phHull.vertex_field);
 					out[j*4 + 1] = static_cast<UINT32>(edge.vertex[1]-phHull.vertex_field);
@@ -1524,7 +1524,7 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(Riff::File&riff) //ass
 					hull.triangle_field.setSize(array.length()/4);
 					for (index_t i = 0; i < hull.triangle_field.length(); i++)
 					{
-						VsMesh::Triangle	&face = hull.triangle_field[i];
+						typename VsMesh::Triangle	&face = hull.triangle_field[i];
 						face.vertex[0] = hull.vertex_field+array[i*4];
 						face.vertex[1] = hull.vertex_field+array[i*4+1];
 						face.vertex[2] = hull.vertex_field+array[i*4+2];
@@ -1539,7 +1539,7 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(Riff::File&riff) //ass
 					hull.edge_field.setSize(array.length()/4);
 					for (index_t i = 0; i < hull.edge_field.length(); i++)
 					{
-						VsMesh::Edge	&edge = hull.edge_field[i];
+						typename VsMesh::Edge	&edge = hull.edge_field[i];
 						edge.vertex[0] = hull.vertex_field+array[i*4];
 						edge.vertex[1] = hull.vertex_field+array[i*4+1];
 						hull.indexToLink(array[i*4+2],edge.n[0]);
@@ -1578,7 +1578,7 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(Riff::File&riff) //ass
 					hull.triangle_field.setSize(array.length()/3);
 					for (index_t i = 0; i < hull.triangle_field.length(); i++)
 					{
-						VsMesh::Triangle	&face = hull.triangle_field[i];
+						typename VsMesh::Triangle	&face = hull.triangle_field[i];
 						face.vertex[0] = hull.vertex_field+array[i*3];
 						face.vertex[1] = hull.vertex_field+array[i*3+1];
 						face.vertex[2] = hull.vertex_field+array[i*3+2];
@@ -1593,7 +1593,7 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(Riff::File&riff) //ass
 					hull.quad_field.setSize(array.length()/4);
 					for (index_t i = 0; i < hull.quad_field.length(); i++)
 					{
-						VsMesh::Quad	&face = hull.quad_field[i];
+						typename VsMesh::Quad	&face = hull.quad_field[i];
 						face.vertex[0] = hull.vertex_field+array[i*4];
 						face.vertex[1] = hull.vertex_field+array[i*4+1];
 						face.vertex[2] = hull.vertex_field+array[i*4+2];
@@ -1609,7 +1609,7 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(Riff::File&riff) //ass
 					hull.edge_field.setSize(array.length()/4);
 					for (index_t i = 0; i < hull.edge_field.length(); i++)
 					{
-						VsMesh::Edge	&edge = hull.edge_field[i];
+						typename VsMesh::Edge	&edge = hull.edge_field[i];
 						edge.vertex[0] = hull.vertex_field+array[i*4];
 						edge.vertex[1] = hull.vertex_field+array[i*4+1];
 						hull.indexToLink(array[i*4+2],edge.n[0]);
@@ -1633,7 +1633,7 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(Riff::File&riff) //ass
 			phHull.vertex_field.setSize(array.length()/4);
 			for (index_t i = 0; i < phHull.vertex_field.length(); i++)
 			{
-				Mesh<PhDef>::Vertex	&vertex = phHull.vertex_field[i];
+				typename Mesh<PhDef>::Vertex	&vertex = phHull.vertex_field[i];
 				/*vertex.p0 = vertex.p1 = */
 				vertex.position = Vec::ref3(array + i*4);
 				Vec::clear(vertex.normal);
@@ -1653,7 +1653,7 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(Riff::File&riff) //ass
 			riff.OpenStream();
 			for (unsigned i = 0; i < cnt; i++)
 			{
-				Mesh<PhDef>::Triangle	&face = phHull.triangle_field[i];
+				typename Mesh<PhDef>::Triangle	&face = phHull.triangle_field[i];
 				UINT32	index[4];
 				riff.Stream(index,4);
 				face.vertex[0] = phHull.vertex_field+index[0];
@@ -1677,7 +1677,7 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(Riff::File&riff) //ass
 			phHull.edge_field.setSize(array.length()/4);
 			for (index_t i = 0; i < phHull.edge_field.length(); i++)
 			{
-				Mesh<PhDef>::Edge	&edge = phHull.edge_field[i];
+				typename Mesh<PhDef>::Edge	&edge = phHull.edge_field[i];
 				edge.vertex[0] = phHull.vertex_field+array[i*4];
 				edge.vertex[1] = phHull.vertex_field+array[i*4+1];
 				phHull.indexToLink(array[i*4+2],edge.n[0]);
@@ -1696,7 +1696,7 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(Riff::File&riff) //ass
 				phHull.vertex_field.setSize(array.length()/3);
 				for (index_t i = 0; i < phHull.vertex_field.length(); i++)
 				{
-					Mesh<PhDef>::Vertex	&vertex = phHull.vertex_field[i];
+					typename Mesh<PhDef>::Vertex	&vertex = phHull.vertex_field[i];
 					//vertex.p0 = vertex.p1 = 
 					vertex.position = Vec::ref3(array + i*3);
 					Vec::clear(vertex.normal);
@@ -1720,7 +1720,7 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(Riff::File&riff) //ass
 					riff.OpenStream();
 					for (index_t i = 0; i < cnt; i++)
 					{
-						Mesh<PhDef>::Triangle	&face = phHull.triangle_field[i];
+						typename Mesh<PhDef>::Triangle	&face = phHull.triangle_field[i];
 						UINT32	index[3];
 						riff.Stream(index,3);
 						face.vertex[0] = phHull.vertex_field+index[0];
@@ -1740,7 +1740,7 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(Riff::File&riff) //ass
 					riff.OpenStream();
 					for (index_t i = 0; i < cnt; i++)
 					{
-						Mesh<PhDef>::Quad	&face = phHull.quad_field[i];
+						typename Mesh<PhDef>::Quad	&face = phHull.quad_field[i];
 						UINT32	index[4];
 						riff.Stream(index,4);
 						face.vertex[0] = phHull.vertex_field+index[0];
@@ -1760,7 +1760,7 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(Riff::File&riff) //ass
 				phHull.edge_field.setSize(array.length()/4);
 				for (index_t i = 0; i < phHull.edge_field.length(); i++)
 				{
-					Mesh<PhDef>::Edge	&edge = phHull.edge_field[i];
+					typename Mesh<PhDef>::Edge	&edge = phHull.edge_field[i];
 					edge.vertex[0] = phHull.vertex_field+array[i*4];
 					edge.vertex[1] = phHull.vertex_field+array[i*4+1];
 					phHull.indexToLink(array[i*4+2],edge.n[0]);
@@ -1780,7 +1780,7 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(Riff::File&riff) //ass
 	
 	for (index_t i = 0; i < phHull.triangle_field.length(); i++)
 	{
-		Mesh<PhDef>::Triangle	&face = phHull.triangle_field[i];
+		typename Mesh<PhDef>::Triangle	&face = phHull.triangle_field[i];
 		Obj::triangleNormal(face.vertex[0]->position,face.vertex[1]->position,face.vertex[2]->position,face.normal);
 		Vec::add(face.vertex[0]->normal,face.normal);
 		Vec::add(face.vertex[1]->normal,face.normal);
@@ -1798,7 +1798,7 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(Riff::File&riff) //ass
 	
 	for (index_t i = 0; i < phHull.quad_field.length(); i++)
 	{
-		Mesh<PhDef>::Quad	&face = phHull.quad_field[i];
+		typename Mesh<PhDef>::Quad	&face = phHull.quad_field[i];
 		_oTriangleNormal(face.vertex[0]->position,face.vertex[1]->position,face.vertex[2]->position,face.normal);
 		_oAddTriangleNormal(face.vertex[0]->position,face.vertex[2]->position,face.vertex[3]->position,face.normal);
 		Vec::add(face.vertex[0]->normal,face.normal);
@@ -1835,7 +1835,7 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(Riff::File&riff) //ass
 	
 	for (index_t i = 0; i < phHull.edge_field.length(); i++)
 	{
-		Mesh<PhDef>::Edge	&edge = phHull.edge_field[i];
+		typename Mesh<PhDef>::Edge	&edge = phHull.edge_field[i];
 		Vec::clear(edge.normal);
 		
 		if (edge.n[0].is_quad)
@@ -4814,7 +4814,7 @@ template <class Def> void StaticInstance<Def>::restoreFromGeometry()
 template <class Def> void StaticInstance<Def>::link()
 {
 	ASSERT_NOT_NULL__(GeometryInstance<Def>::target);
-	TMatrix4<typename Def::SystemType>&m = System::matrix;
+	TMatrix4<typename Def::SystemType>&m = Super::matrix;
 	GeometryInstance<Def>::target->system_link = &m;
 	for (index_t i = 0; i < child_field.length(); i++)
 		child_field[i].linkObjects();
@@ -5330,8 +5330,8 @@ template <class Def>
 			wheel_rotation_animators[i].update();
 		for (index_t i = 0; i < wheel_suspension_animators.length(); i++)
 			wheel_suspension_animators[i].update();
-		for (index_t i = 0; i < construct_rotation_animators.length(); i++)
-			construct_rotation_animators[i].update();
+		// for (index_t i = 0; i < construct_rotation_animators.length(); i++)
+			// construct_rotation_animators[i].update();
 	
 		for (index_t i = 0; i < child_field.length(); i++)
 			child_field[i].updateAnimations();

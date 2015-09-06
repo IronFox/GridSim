@@ -1818,7 +1818,7 @@ template <typename T>
 		if (yoffset+h > image_height || xoffset+w > image_width)
 			return false;
 
-		Concurrency::parallel_for(dimension_t(yoffset),yoffset+h,[this,=target](dimension_t y)
+		Concurrency::parallel_for(dimension_t(yoffset),yoffset+h,[this,target,xoffset,yoffset,w](dimension_t y)
 		{
 			memcpy(target+size_t(y-yoffset)*size_t(w)*size_t(image_channels),
 					image_data+size_t(y)*size_t(image_width)*size_t(image_channels)+size_t(xoffset)*size_t(image_channels),
@@ -1832,7 +1832,7 @@ template <typename T>
 	{
 		if (yoffset+h > image_height || xoffset+w > image_width)
 			return false;
-		Concurrency::parallel_for(dimension_t(yoffset),yoffset+h,[this,=target](dimension_t y)
+		Concurrency::parallel_for(dimension_t(yoffset),yoffset+h,[this,target,xoffset,yoffset,w](dimension_t y)
 		{
 			memcpy(image_data+size_t(y)*size_t(image_width)*size_t(image_channels)+size_t(xoffset)*size_t(image_channels),
 					target+size_t(y-yoffset)*size_t(w)*size_t(image_channels),
@@ -1847,7 +1847,7 @@ template <class Nature>
 		{
 			if (yoffset+h > image_height || xoffset+w > image_width)
 				return false;
-			Concurrency::parallel_for(dimension_t(0),h,[this,=target](dimension_t y)
+			Concurrency::parallel_for(dimension_t(0),h,[this,target,xoffset,yoffset,w](dimension_t y)
 			{
 				for (dimension_t x = 0; x < w; x++)
 				{
@@ -1866,7 +1866,7 @@ template <class Nature>
 		{
 			if (yoffset+h > image_height || xoffset+w > image_width)
 				return false;
-			Concurrency::parallel_for(dimension_t(0),h,[this,=target](dimension_t y)
+			Concurrency::parallel_for(dimension_t(0),h,[this,target,xoffset,yoffset,w](dimension_t y)
 			{
 				for (dimension_t x = 0; x < w; x++)
 				{
@@ -1965,7 +1965,7 @@ template <class Nature>
 								*from2 = getPixel(x+1,y+1),
 								*from3 = getPixel(x,y+1);
 					T			*to = new_image.getPixel(x*2+1,y*2+1);
-					typedef GenericImage<Nature>::ImageNature::float_type_t	F;
+					typedef typename GenericImage<Nature>::ImageNature::float_type_t	F;
 					for (BYTE k = 0; k < image_channels; k++)
 						to[k] = GenericImage<Nature>::ImageNature::clamp(((F)from0[k]+(F)from1[k]+(F)from2[k]+(F)from3[k])/F(4)+(F(rnd())*F(2)-F(1))*noise_level);
 				}
@@ -1998,7 +1998,7 @@ template <class Nature>
 								*from2 = getPixel(x,y+1),
 								*from3 = new_image.getPixel(x*2-1,y*2+1);
 					T			*to = new_image.getPixel(x*2,y*2+1);
-					typedef GenericImage<Nature>::ImageNature::float_type_t	F;
+					typedef typename GenericImage<Nature>::ImageNature::float_type_t	F;
 					for (BYTE k = 0; k < image_channels; k++)
 						to[k] = GenericImage<Nature>::ImageNature::clamp(((F)from0[k]+(F)from1[k]+(F)from2[k]+(F)from3[k])/F(4)+(F(rnd())*F(2)-F(1))*noise_level);
 				}
@@ -2028,7 +2028,7 @@ template <class Nature>
 								*from1 = new_image.getPixel(1,y*2+1),
 								*from2 = getPixel(0,y+1);
 					T			*to = new_image.getPixel(0,y*2+1);
-					typedef GenericImage<Nature>::ImageNature::float_type_t	F;
+					typedef typename GenericImage<Nature>::ImageNature::float_type_t	F;
 					for (BYTE k = 0; k < image_channels; k++)
 						to[k] = GenericImage<Nature>::ImageNature::clamp(((F)from0[k]+(F)from1[k]+(F)from2[k])/F(3)+(F(rnd())*F(2)-F(1))*noise_level);
 				});
@@ -2058,7 +2058,7 @@ template <class Nature>
 								*from1 = getPixel(image_width-1,y+1),
 								*from2 = new_image.getPixel((image_width-1)*2-1,y*2+1);
 					T			*to = new_image.getPixel((image_width-1)*2,y*2+1);
-					typedef GenericImage<Nature>::ImageNature::float_type_t	F;
+					typedef typename GenericImage<Nature>::ImageNature::float_type_t	F;
 					for (BYTE k = 0; k < image_channels; k++)
 						to[k] = GenericImage<Nature>::ImageNature::clamp(((F)from0[k]+(F)from1[k]+(F)from2[k])/F(3)+(F(rnd())*F(2)-F(1))*noise_level);
 				});
@@ -2090,7 +2090,7 @@ template <class Nature>
 								*from2 = getPixel(x+1,y),
 								*from3 = new_image.getPixel(x*2+1,y*2+1);
 					T			*to = new_image.getPixel(x*2+1,y*2);
-					typedef GenericImage<Nature>::ImageNature::float_type_t	F;
+					typedef typename GenericImage<Nature>::ImageNature::float_type_t	F;
 					for (BYTE k = 0; k < image_channels; k++)
 						to[k] = GenericImage<Nature>::ImageNature::clamp(((F)from0[k]+(F)from1[k]+(F)from2[k]+(F)from3[k])/F(4)+(F(rnd())*F(2)-F(1))*noise_level);
 				}
@@ -2120,7 +2120,7 @@ template <class Nature>
 								*from1 = getPixel(x+1,0),
 								*from2 = new_image.getPixel(x*2+1,1);
 					T			*to = new_image.getPixel(x*2+1,0);
-					typedef GenericImage<Nature>::ImageNature::float_type_t	F;
+					typedef typename GenericImage<Nature>::ImageNature::float_type_t	F;
 					for (BYTE k = 0; k < image_channels; k++)
 						to[k] = GenericImage<Nature>::ImageNature::clamp(((F)from0[k]+(F)from1[k]+(F)from2[k])/F(3)+(F(rnd())*F(2)-F(1))*noise_level);
 				});
@@ -2148,7 +2148,7 @@ template <class Nature>
 								*from1 = new_image.getPixel(x*2+1,(image_height-1)*2-1),
 								*from2 = getPixel(x+1,image_height-1);
 					T			*to = new_image.getPixel(x*2+1,(image_height-1)*2);
-					typedef GenericImage<Nature>::ImageNature::float_type_t	F;
+					typedef typename GenericImage<Nature>::ImageNature::float_type_t	F;
 					for (BYTE k = 0; k < image_channels; k++)
 						to[k] = GenericImage<Nature>::ImageNature::clamp(((F)from0[k]+(F)from1[k]+(F)from2[k])/F(3)+((F)rnd()*F(2)-F(1))*noise_level);
 				});
@@ -2210,7 +2210,7 @@ template <class Nature>
 								*from2 = getPixel((x+1)%image_width,(y+1)%image_height),
 								*from3 = getPixel(x,(y+1)%image_height);
 					T			*to = new_image.getPixel(x*2+1,y*2+1);
-					typedef GenericImage<Nature>::ImageNature::float_type_t	F;
+					typedef typename GenericImage<Nature>::ImageNature::float_type_t	F;
 					for (BYTE k = 0; k < image_channels; k++)
 						to[k] = GenericImage<Nature>::ImageNature::clamp(((F)from0[k]+(F)from1[k]+(F)from2[k]+(F)from3[k])/F(4)+(F(rnd())*F(2)-F(1))*noise_level);
 				}
@@ -2244,7 +2244,7 @@ template <class Nature>
 								*from2 = getPixel(x,(y+1)%image_height),
 								*from3 = new_image.getPixel(x>0?x*2-1:image_width*2-1,y*2+1);
 					T			*to = new_image.getPixel(x*2,y*2+1);
-					typedef GenericImage<Nature>::ImageNature::float_type_t	F;
+					typedef typename GenericImage<Nature>::ImageNature::float_type_t	F;
 					for (BYTE k = 0; k < image_channels; k++)
 						to[k] = GenericImage<Nature>::ImageNature::clamp(((F)from0[k]+(F)from1[k]+(F)from2[k]+(F)from3[k])/F(4)+(F(rnd())*F(2)-F(1))*noise_level);
 				}
@@ -2279,7 +2279,7 @@ template <class Nature>
 								*from2 = getPixel((x+1)%image_width,y),
 								*from3 = new_image.getPixel(x*2+1,y*2+1);
 					T			*to = new_image.getPixel(x*2+1,y*2);
-					typedef GenericImage<Nature>::ImageNature::float_type_t	F;
+					typedef typename GenericImage<Nature>::ImageNature::float_type_t	F;
 					for (BYTE k = 0; k < image_channels; k++)
 						to[k] = GenericImage<Nature>::ImageNature::clamp(((F)from0[k]+(F)from1[k]+(F)from2[k]+(F)from3[k])/F(4)+(F(rnd())*F(2)-F(1))*noise_level);
 				}
@@ -2326,8 +2326,8 @@ template <class Nature>
 		draw(other,x,y,combiner);
 	}
 
-template <class Nature>
-	void	GenericImage<Nature>::draw(const ImageTemplate<T>*other, dimension_t x, dimension_t y, BaseImage::combiner_t combiner)
+template <class Nature0>
+	void	GenericImage<Nature0>::draw(const ImageTemplate<T>*other, dimension_t x, dimension_t y, BaseImage::combiner_t combiner)
 	{
 		if (x >= image_width || y >= image_height)
 			return;
@@ -2375,7 +2375,7 @@ template <class Nature>
 							{
 								T*p = getPixel(x+X,y+Y);
 								const T*o = other->getPixel(X,Y);
-								typedef GenericImage<Nature>::ImageNature::float_type_t	F;
+								typedef typename GenericImage<Nature0>::ImageNature::float_type_t	F;
 								F a = p[3]>0?vmin((F)o[3]/p[3],1):F(1);
 								p[0] = (T)(((F)p[0]*(1.0-a) + (F)o[0]*a));
 								p[1] = (T)(((F)p[1]*(1.0-a) + (F)o[1]*a));
@@ -2410,7 +2410,7 @@ template <class Nature>
 					{
 						T		*local = getPixel(x+X,y+Y);
 						const T	*remote = other->getPixel(X,Y);
-						typedef GenericImage<Nature>::ImageNature	Nature;
+						typedef typename GenericImage<Nature0>::ImageNature	Nature;
 						for (BYTE c = 0; c < c_num; c++)
 							local[c] = Nature::floatToChannel(Nature::toFloat(local[c]) * Nature::toFloat(remote[c]));
 					}
@@ -2423,7 +2423,7 @@ template <class Nature>
 					{
 						T		*local = getPixel(x+X,y+Y);
 						const T	*remote = other->getPixel(X,Y);
-						typedef GenericImage<Nature>::ImageNature	Nature;
+						typedef typename GenericImage<Nature0>::ImageNature	Nature;
 						for (BYTE c = 0; c < c_num; c++)
 							local[c] = max-Nature::floatToChannel((Nature::toFloat(max-local[c])) * (Nature::toFloat(max-remote[c])));
 					}
@@ -2441,8 +2441,8 @@ template <class Nature>
 							{
 								T		*p = getPixel(x+X,y+Y);
 								const T	*o = other->getPixel(X,Y);
-								typedef GenericImage<Nature>::ImageNature::float_type_t	F;
-								typedef GenericImage<Nature>::ImageNature	Nature;
+								typedef typename GenericImage<Nature0>::ImageNature::float_type_t	F;
+								typedef typename GenericImage<Nature0>::ImageNature	Nature;
 								F weight = Nature::toFloat(o[3]);
 								p[0] = Nature::clamp((F)p[0] + (F)o[0]*weight);
 								p[1] = Nature::clamp((F)p[1] + (F)o[1]*weight);
@@ -2457,8 +2457,8 @@ template <class Nature>
 							{
 								T		*p = getPixel(x+X,y+Y);
 								const T	*o = other->getPixel(X,Y);
-								typedef GenericImage<Nature>::ImageNature::float_type_t	F;
-								typedef GenericImage<Nature>::ImageNature	Nature;
+								typedef typename GenericImage<Nature0>::ImageNature::float_type_t	F;
+								typedef typename GenericImage<Nature0>::ImageNature	Nature;
 								F weight = Nature::toFloat(o[3]);
 								p[0] = Nature::clamp((F)p[0] + (F)o[0]*weight);
 								p[1] = Nature::clamp((F)p[1] + (F)o[1]*weight);
@@ -2474,8 +2474,8 @@ template <class Nature>
 							{
 								T		*local = getPixel(x+X,y+Y);
 								const T	*remote = other->getPixel(X,Y);
-								typedef GenericImage<Nature>::ImageNature::float_type_t	F;
-								typedef GenericImage<Nature>::ImageNature	Nature;
+								typedef typename GenericImage<Nature0>::ImageNature::float_type_t	F;
+								typedef typename GenericImage<Nature0>::ImageNature	Nature;
 								F weight = Nature::toFloat(remote[3]);
 								for (BYTE c = 0; c < c_num; c++)
 									local[c] = Nature::clamp((F)local[c]+(F)((F)remote[c]*weight));
@@ -2492,8 +2492,8 @@ template <class Nature>
 					{
 						T		*local = getPixel(x+X,y+Y);
 						const T	*remote = other->getPixel(X,Y);
-						typedef GenericImage<Nature>::ImageNature::float_type_t	F;
-						typedef GenericImage<Nature>::ImageNature	Nature;
+						typedef typename GenericImage<Nature0>::ImageNature::float_type_t	F;
+						typedef typename GenericImage<Nature0>::ImageNature	Nature;
 						for (BYTE c = 0; c < c_num; c++)
 							local[c] = Nature::clamp((F)local[c]+(F)remote[c]);
 					}

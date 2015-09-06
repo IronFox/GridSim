@@ -1,4 +1,7 @@
 #include "../../global_root.h"
+
+#if SYSTEM==WINDOWS
+
 #include "joystick.h"
 
 namespace Engine
@@ -141,3 +144,4 @@ namespace Engine
 	
 	Joystick		joystick(input);
 }
+#endif

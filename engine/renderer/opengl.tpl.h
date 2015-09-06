@@ -7,7 +7,7 @@
 namespace Engine
 {
 	template <typename GLType>
-		static	void		GL::Texture::formatAt(BYTE channels, PixelType type, bool compress, GLenum&internal_format, GLenum&import_format)
+		/*static*/	void		GL::Texture::formatAt(BYTE channels, PixelType type, bool compress, GLenum&internal_format, GLenum&import_format)
 		{
 			switch (channels)
 			{

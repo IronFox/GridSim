@@ -22,7 +22,9 @@
 	#define	__O_NONBLOCK	O_NONBLOCK
 	#define	__O_SHLOCK		0
 	#define	__O_EXLOCK		0
-	#define	__O_NOFOLLOW	O_NOFOLLOW
+	#ifndef __O_NOFOLLOW
+		#define	__O_NOFOLLOW	O_NOFOLLOW
+	#endif
 	#define __O_SYMLINK		0
 #else
 	#include <io.h>
@@ -116,14 +118,18 @@ virtual					~FileStream()
 
 		void			close();
 	
-		uint64_t		size()	const
+		#ifdef _WIN32
+			uint64_t	size()	const
 						{
 							return isOpen() ? _filelengthi64(handle) : 0;
 						}
+		#endif
 		
 	virtual bool		Write(const void*data, serial_size_t size) override;	//!< Writes a section of binary data to the local file. File must be opened in write mode or this operation will fail
 	virtual bool		Read(void*data, serial_size_t size) override;			//!< Reads a section of binary data from the local file. File must be opened in read mode or this operation will fail
-	serial_size_t		GetRemainingBytes() const override {return isOpen()? (serial_size_t)(_filelengthi64(handle) - _telli64(handle)): 0;}
+	#ifdef _WIN32
+		serial_size_t	GetRemainingBytes() const override {return isOpen()? (serial_size_t)(_filelengthi64(handle) - _telli64(handle)): 0;}
+	#endif
 
 
 	template <typename T>

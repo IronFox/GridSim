@@ -36,16 +36,17 @@ extern "C" {
 ** the United States.
 */
 
-#ifndef APIENTRY
-	#include <windows.h>
-#endif
+#ifdef _WIN32
+	#ifndef APIENTRY
+		#include <windows.h>
+	#endif
 
-#ifndef WINGDIAPI
-	#include <windows.h>
-#endif
-
-#ifndef _WIN32
-#define WINGDIAPI
+	#ifndef WINGDIAPI
+		#include <windows.h>
+	#endif
+#else
+	#define APIENTRY
+	#define WINGDIAPI
 #endif
 
 #ifndef GLAPI

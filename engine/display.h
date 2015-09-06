@@ -273,7 +273,9 @@ namespace Engine
 	class Context
 	{
 	public:
-		typedef LRESULT (*EventHook)(HWND window, UINT Msg, WPARAM wParam,LPARAM lParam);
+		#if SYSTEM==WINDOWS
+			typedef LRESULT (*EventHook)(HWND window, UINT Msg, WPARAM wParam,LPARAM lParam);
+		#endif
 	private:
 			pEngineExec					exec_target;
 	#if SYSTEM==WINDOWS
@@ -289,7 +291,7 @@ namespace Engine
 	static	void						installHook();
 	static	void						uninstallHook(bool force=false);
 	#elif SYSTEM==UNIX
-			Display						*display;
+			::Display					*display;
 			Window						window; //is long unsigned int
 			int							screen;
 			Colormap					colormap;   //is long unsigned int
@@ -342,8 +344,8 @@ namespace Engine
 			WString						createClass();
 			void						destroyClass();
 	#elif SYSTEM==UNIX
-			Display*					connect();
-			Display*					connection();
+			::Display*					connect();
+			::Display*					connection();
 			void						disconnect();
 			Window						createWindow(const String&window_name, const TWindowAttributes&attributes, DisplayConfig::border_style_t border_style, const DisplayConfig::FOnResize&onResize, const String&icon_filename);
 			void						setWindow(Window);

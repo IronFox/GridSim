@@ -201,14 +201,14 @@ template <class Entry> inline void Archive<Entry>::dropToRoot()
 
 template <class Entry> inline void Archive<Entry>::GetPath(Array<tName>&path)  const
 {
-	path.resize(depth);
+	path.SetSize(depth);
     for (BYTE k = 0; k < depth; k++)
 		path[k] = str2name(name_path[k]);
 }
 
 template <class Entry> inline void Archive<Entry>::GetPath(Array<String>&path)  const
 {
-	path.resize(depth);
+	path.SetSize(depth);
     for (BYTE k = 0; k < depth; k++)
 		path[k] = name_path[k];
 }

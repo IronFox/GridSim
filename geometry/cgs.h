@@ -698,7 +698,14 @@ namespace CGS	//! Compiled Geometrical Structure
 			//AnimatorA<Def>							rotation;		//!< Rotation animation
 			UINT32									flags;			//!< Non-persistent general purpose flags
 			
-			void									adoptData(Tracks<Def>&other);
+			void									adoptData(Tracks<Def>&other)
+			{
+				if (this == &other)
+					return;
+				domain = other.domain;
+				member_field.adoptData(other.member_field);
+				flags = other.flags;
+			}
 	};
 		CGS_DECLARE_ADOPTING_DEF(Tracks);
 
@@ -1183,6 +1190,7 @@ namespace CGS	//! Compiled Geometrical Structure
 		public:
 		typedef System<typename Def::SystemType>		Super;
 				Geometry<Def>							*target;		//!< Target (origin) geometry
+				using Super::matrix;
 				
 														GeometryInstance();
 		virtual											~GeometryInstance()	{};
@@ -1342,6 +1350,9 @@ namespace CGS	//! Compiled Geometrical Structure
 		public:
 		
 		typedef GeometryInstance<Def>					Super;
+				using Super::target;
+				using Super::progress;
+				using Super::active;
 				
 				Array<AnimatorInstanceA<Def>,Adopt>		animator_field;
 				

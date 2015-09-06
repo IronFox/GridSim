@@ -494,8 +494,8 @@ namespace Engine
 			class GeometryBuffer:public Buffer
 			{
 			protected:
-					Buffer::loadData;
-					Buffer::resize;
+					using Buffer::loadData;
+					using Buffer::resize;
 
 			public:
 			inline	bool	load(const T*field, size_t num_units);	//!< Loads the specified data into the local buffer. @a field must be at least @a num_units units long but may be NULL if @a num_units is 0
@@ -665,9 +665,9 @@ namespace Engine
 			class SmartGeometryBuffer:public SmartBuffer
 			{
 			protected:
-				SmartBuffer::loadData;
-				SmartBuffer::resize;
-				SmartBuffer::streamData;
+				using SmartBuffer::loadData;
+				using SmartBuffer::resize;
+				using SmartBuffer::streamData;
 
 			public:
 
@@ -983,11 +983,11 @@ namespace Engine
 						struct				GLBinding
 						{
 							GLContext		gl_context;
-							Display			*display;			//!< Handle of the chosen display
+							::Display		*display;			//!< Handle of the chosen display
 							Window			wnd;				//!< Handle of the active window
 						};
 						XVisualInfo			*visual;			//!< Handle of the chosen visual
-						Display				*display;			//!< Handle of the chosen display
+						::Display			*display;			//!< Handle of the chosen display
 						Window				wnd;				//!< Handle of the active window
 		#endif
 						GLContext			gl_context,clone;			//!< Handle of the OpenGL context
@@ -1194,7 +1194,7 @@ namespace Engine
 						bool						CreateContext(HWND hWnd, TVisualConfig&config, const Resolution&res);
 	#elif SYSTEM==UNIX
 		virtual										~OpenGL();
-						bool						CreateContext(Display*connection, TVisualConfig&config, TWindowAttributes&out_attributes);
+						bool						CreateContext(::Display*connection, TVisualConfig&config, TWindowAttributes&out_attributes);
 						bool						bindContext(Window window);
 	#endif
 						void						setVerbose(bool);

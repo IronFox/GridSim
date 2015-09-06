@@ -25,6 +25,8 @@ Universal visual language-interface and rendering related definitions
 	#include <X11/Xlib.h>
 #endif
 
+#include "../../general/undef.h"
+
 namespace Engine
 {
 
@@ -395,11 +397,12 @@ namespace Engine
 	virtual	hash_t						hashCode()	const
 										{
 											return enabled? 
-													HashValue(system_type)
-													.add(content_type)
-													.add( (UINT32(clamp_x)<<24) | (UINT32(clamp_y)<<16) | (UINT32(clamp_z)<<8)  /*| UINT32(reflect)*/)
-													.add(combiner)
-													.add(system_type == SystemType::Custom && custom_system != NULL ? stdMemHash(custom_system,16*sizeof(float)) : 0)
+													(int)(HashValue(system_type)
+														.add(content_type)
+														.add( (UINT32(clamp_x)<<24) | (UINT32(clamp_y)<<16) | (UINT32(clamp_z)<<8)  /*| UINT32(reflect)*/)
+														.add(combiner)
+														.add(system_type == SystemType::Custom && custom_system != NULL ? stdMemHash(custom_system,16*sizeof(float)) : 0)
+													)
 													:
 													0;
 										}
