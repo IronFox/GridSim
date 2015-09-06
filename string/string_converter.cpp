@@ -23,6 +23,8 @@ Collection of string-to-type parsers.
 
 #endif
 
+#include <limits>
+
 
 // #undef INFINITY
 // #ifndef _MSC_VER
