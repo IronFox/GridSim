@@ -1107,12 +1107,12 @@ namespace Engine
 	{
 		char buffer[0x500];
 		buffer[0] = 0;
-		GetWindowText(getWindow(),buffer,sizeof(buffer)-1);
+		GetWindowTextA(getWindow(),buffer,sizeof(buffer)-1);
 		return buffer;
 	}
 	void					Window::setTitle(const String&title)
 	{
-		SetWindowText(getWindow(),title.c_str());
+		SetWindowTextA(getWindow(),title.c_str());
 	}
 
 

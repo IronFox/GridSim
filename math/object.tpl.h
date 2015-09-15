@@ -1516,7 +1516,7 @@ namespace ObjectMath
 		{
 			walk = 0;
 			bool looping=true;
-			MeshVertex<C1>*v0,*v1,*v2;
+			MeshVertex<C1>*v0=nullptr,*v1= nullptr,*v2= nullptr;
 
 			while (looping)
 			{

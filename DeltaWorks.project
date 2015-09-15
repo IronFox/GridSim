@@ -1,0 +1,11 @@
+<project type="StaticLibrary">
+	<source path=".">
+		<exclude find="mvc"/>
+		<exclude dir="maker" />
+		<exclude dir="Nx" />
+		<exclude dir="cuda" />
+		<exclude file="remote_shell.cpp" />
+		<exclude file="remote_shell.h" />
+	</source>
+	<macro name="_CRT_SECURE_NO_WARNINGS" />
+</project>
