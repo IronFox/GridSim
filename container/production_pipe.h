@@ -19,7 +19,8 @@ template <typename T, typename Strategy=typename StrategySelector<T>::Default>
 		typedef Buffer<T,0,Strategy>Super;
 		typedef WorkPipe<T,Strategy>Self;
 		volatile bool				locked;
-	    Mutex						mutex;
+	    //Mutex						mutex;
+		SpinLock					lock;
 		index_t						readAt;
 		Signal						contentSignal;
 	public:
@@ -42,12 +43,12 @@ template <typename T, typename Strategy=typename StrategySelector<T>::Default>
 		typename Super::iterator		end()	{return Super::end();}
 		typename Super::const_iterator	end() const	{return Super::end();}
 
-		inline count_t				count() const {return Super::count();}
+		inline count_t				Count() const {return Super::count();}
 		inline bool					IsEmpty() const {return Super::IsEmpty();}
 
 		//the following operations are provided for convenience. They are _not_ mutex protected and (except for count() maybe) should be invoked only from inside a signalRead()/exitRead() block.
-		Super::isEmpty;
-		Super::isNotEmpty;
+		//Super::IsEmpty;
+		Super::IsNotEmpty;
 		Super::operator[];
 			
 		typedef T	Type;

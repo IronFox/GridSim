@@ -13,7 +13,8 @@ template <typename T,typename Strategy>
 	inline void WorkPipe<T,Strategy>::SignalRead()
 	{
 		DBG_ASSERT__(!locked);
-		mutex.lock();
+		//mutex.lock();
+		lock.lock();
 		readAt = 0;
 		locked = true;
 	}
@@ -34,35 +35,35 @@ template <typename T,typename Strategy>
 		DBG_ASSERT__(locked);
 		Super::clear();
 		locked = false;
-		mutex.release();
+		lock.unlock();
 	}
 
 template <typename T,typename Strategy>
 	inline WorkPipe<T,Strategy>&    WorkPipe<T,Strategy>::operator<<(const T&pntr)
 	{
-		mutex.lock();
+		lock.lock();
 			Super::Append(pntr);
 			contentSignal.signal();
-		mutex.release();
+		lock.unlock();
 		return *this;
 	}
 template <typename T,typename Strategy>
 	inline WorkPipe<T,Strategy>&    WorkPipe<T,Strategy>::MoveAppend(T&pntr)
 	{
-		mutex.lock();
+		lock.lock();
 			Super::MoveAppend(pntr);
 			contentSignal.signal();
-		mutex.release();
+		lock.unlock();
 		return *this;
 	}
 
 template <typename T,typename Strategy>
 	inline	WorkPipe<T,Strategy>&    WorkPipe<T,Strategy>::MoveAppend(BasicBuffer<T>&buffer)
 	{
-		mutex.lock();
+		lock.lock();
 			Super::MoveAppend(buffer);
 			contentSignal.signal();
-		mutex.release();
+		lock.unlock();
 		return *this;
 	}
 
@@ -71,9 +72,9 @@ template <typename T,typename Strategy>
 template <typename T,typename Strategy>
 	inline void WorkPipe<T,Strategy>::clear()
 	{
-		mutex.lock();
+		lock.lock();
 			Super::clear();
-		mutex.release();
+		lock.unlock();
 	}
 
 

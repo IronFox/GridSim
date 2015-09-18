@@ -651,7 +651,7 @@ namespace TCP
 			if (verbose)
 				std::cout << __func__<<" loop "<<std::endl;
 	
-			storage.MoveAppend(pipe.begin(),pipe.count());
+			storage.MoveAppend(pipe.begin(),pipe.Count());
 			pipe.ExitRead();
 
 
