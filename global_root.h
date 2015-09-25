@@ -10,6 +10,9 @@ Global super-include. This file is included by all .cpp-files.
 #include "general/undef.h"
 #include <stdlib.h>
 
+#pragma warning (error: 4715)	//functions with a declared return value must return something
+#pragma warning (error: 4716)	//variance of 4715
+
 #undef DEBUG_LEVEL
 
 #define DEBUG_LEVEL 0
