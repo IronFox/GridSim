@@ -972,7 +972,7 @@ namespace TCP
 	}
 
 
-	bool		Server::StartService(USHORT port)
+	bool		Server::StartService(USHORT port, USHORT*outPort)
 	{
 		if (verbose)
 			std::cout << "Server::startService() enter"<<std::endl;
@@ -1024,6 +1024,27 @@ namespace TCP
 				std::cout << "Server::startService() exit: failed to start listen operation"<<std::endl;
 			return false;
 		}
+
+		if (outPort)
+		{
+			struct sockaddr_in sin;
+			socklen_t len = sizeof(sin);
+			if (getsockname(socket_handle, (struct sockaddr *)&sin, &len) == -1)
+			{
+				Fail("Unable to fetch sock-name on new socket");
+				return false;
+			}
+			else
+			{
+				(*outPort) = ntohs(sin.sin_port);
+				if (port != 0 && port != *outPort)
+				{
+					Fail("Read port does not match expected port");
+					return false;
+				}
+			}
+		}
+
 		if (verbose)
 			std::cout << "Server::startService(): socket created, bound, and now listening. starting thread"<<std::endl;
 		Start();

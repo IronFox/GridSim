@@ -982,9 +982,10 @@ namespace TCP
 		connections. Query the result of error() to retrieve a more detailed error discription in case
 		this method returns false.
 		@param port Port to bind this service to
+		@param[out] outPort Actually used port. Useful only if @a port is set to 0 such that a dynamic port is assigned
 		@return true on success, false otherwise.
 		*/
-		bool				StartService(USHORT port);
+		bool				StartService(USHORT port, USHORT*outPort=nullptr);
 		/**
 		@brief Terminates the service.
 				
