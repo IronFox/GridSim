@@ -1,3 +1,6 @@
+#ifndef netContainersH
+#define netContainersH
+
 #include "tcp.h"
 #include "../remote/bz2/bz2.h"
 #include "../global_string.h"
@@ -424,3 +427,5 @@ template <ISerializable::serial_size_t max_size>
 	typedef	Strategy::Swappable	Default;
 	};
 }
+
+#endif
