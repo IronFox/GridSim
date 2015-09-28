@@ -940,6 +940,10 @@ namespace TCP
 								clientMutex.exitWrite();
 								delete socketAccess;
 							}
+		bool				HasAnyClients() const
+		{
+			return clientList.Count() != 0;
+		}
 		template <typename F>
 			void			VisitAllPeerAttachments(const F&f)
 							{
