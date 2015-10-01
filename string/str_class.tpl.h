@@ -4416,7 +4416,7 @@ template <typename T0, typename T1, typename T2>
 			T1 len = lengthFunction(*at);
 			line_width += len;
 			word_width += len;
-			if (line_width >= max_line_length)
+			if (line_width >= max_line_length && word_begin < at)
 			{
 				//cout << "passed length barrier of "<<max_line_length<<" at "<<(at-string)<<endl;
 				lines++;
@@ -4480,7 +4480,7 @@ template <typename T0, typename T1, typename T2>
 			T1 len = lengthFunction(*at);
 			line_width += len;
 			word_width += len;
-			if (line_width >= max_line_length)
+			if (line_width >= max_line_length && word_begin < at)
 			{
 				
 				if (word_begin == line_begin)
