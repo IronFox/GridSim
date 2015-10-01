@@ -201,7 +201,7 @@ namespace Container
 			template <typename T2>
 				inline bool			Contains(const T2&element)	const	/**@copydoc contains()*/	{return contains(element);}
 			template <typename T2>
-				inline index_t		indexOf(const T2&element)	const;	//!< Determines the index of the specified element via == operator. If no match was found then index_t(-1) is returned
+				inline index_t		indexOf(const T2&element)	const;	//!< Determines the index of the specified element via == operator. If no match was found then index_t(-1)/InvalidIndex is returned
 			template <typename T2>
 				inline index_t		GetIndexOf(const T2&element)const	/**@copydoc indexOf()*/	{return indexOf(element);}
 			template <typename T2>

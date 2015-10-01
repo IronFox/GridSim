@@ -971,8 +971,7 @@ namespace TCP
 			std::cout << "Server::fail() exit"<<std::endl;
 	}
 
-
-	bool		Server::StartService(USHORT port, USHORT*outPort)
+	bool		Server::StartService(USHORT port, bool limitToLocalhost/*=false*/, USHORT*outPort/*=nullptr*/)
 	{
 		if (verbose)
 			std::cout << "Server::startService() enter"<<std::endl;
@@ -1008,7 +1007,7 @@ namespace TCP
 		
 		sockaddr_in self;
 		self.sin_family = AF_INET;
-		self.sin_addr.s_addr = INADDR_ANY;//inet_addr("127.0.0.1");
+		self.sin_addr.s_addr = limitToLocalhost ? INADDR_LOOPBACK : INADDR_ANY;//inet_addr("127.0.0.1");
 		self.sin_port = htons(port);
 		if (bind(socket_handle, (sockaddr*)&self,sizeof(self)))
 		{

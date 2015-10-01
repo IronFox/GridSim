@@ -263,12 +263,36 @@ namespace Config
 		return false;
 	}
 	
+	const String&				Context::RequireString(const String&path)	const
+	{
+		const Attribute*rs = GetAttrib(path);
+		if (!rs)
+		{
+			static String bad = "baadf00d";
+			FATAL__("Config: Unable to retrieve value of '"+path+"' from '"+this->name+"'");
+			return bad;
+		}
+		return rs->value;
+	}
+	
 	int							Context::GetInt(const String&path, int except)			const
 	{
 		const Attribute*rs = GetAttrib(path);
 		int result;
 		if (!rs || !convert(rs->value.c_str(),result))
 			return except;
+		return result;
+	}
+
+	int							Context::RequireInt(const String&path)			const
+	{
+		const String&svalue = RequireString(path);
+		int result;
+		if (!convert(svalue.c_str(),result))
+		{
+			FATAL__("Config: Unable to parse '"+svalue+"' of '"+name+"/"+path+ "' to int");
+			return -1;
+		}
 		return result;
 	}
 	
@@ -281,12 +305,36 @@ namespace Config
 		return result;
 	}
 
+	unsigned							Context::RequireUnsigned(const String&path)			const
+	{
+		const String&svalue = RequireString(path);
+		unsigned result;
+		if (!convert(svalue.c_str(),result))
+		{
+			FATAL__("Config: Unable to parse '"+svalue+"' of '"+name+"/"+path+ "' to unsigned int");
+			return -1;
+		}
+		return result;
+	}
+
 	float						Context::GetFloat(const String&path, float except)		const
 	{
 		const Attribute*rs = GetAttrib(path);
 		float result;
 		if (!rs || !convert(rs->value.c_str(),result))
 			return except;
+		return result;
+	}
+
+	float							Context::RequireFloat(const String&path)			const
+	{
+		const String&svalue = RequireString(path);
+		float result;
+		if (!convert(svalue.c_str(),result))
+		{
+			FATAL__("Config: Unable to parse '"+svalue+"' of '"+name+"/"+path+ "' to float");
+			return NAN;
+		}
 		return result;
 	}
 
@@ -299,12 +347,36 @@ namespace Config
 		return result;
 	}
 
+	bool						Context::RequireBool(const String&path)		const
+	{
+		const String&svalue = RequireString(path);
+		bool result;
+		if (!convert(svalue.c_str(),result))
+		{
+			FATAL__("Config: Unable to parse '"+svalue+"' of '"+name+"/"+path+ "' to bool");
+			return false;
+		}
+		return result;
+	}
+
 	Key::Name					Context::GetKey(const String&path, Key::Name except)		const
 	{
 		const Attribute*rs = GetAttrib(path);
 		Key::Name result;
 		if (!rs || !convert(rs->value.c_str(),result))
 			return except;
+		return result;
+	}
+
+	Key::Name					Context::RequireKey(const String&path)		const
+	{
+		const String&svalue = RequireString(path);
+		Key::Name result;
+		if (!convert(svalue.c_str(),result))
+		{
+			FATAL__("Config: Unable to parse '"+svalue+"' of '"+name+"/"+path+ "' to key");
+			return Key::A;
+		}
 		return result;
 	}
 

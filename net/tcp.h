@@ -930,6 +930,7 @@ namespace TCP
 		Buffer0<PPeer>		clientList;		//!< List of all currently connected clients
 		USHORT				port;			//!< Read only variable which is updated during StartService()
 	public:
+
 	
 							Server():socket_handle(INVALID_SOCKET),clients_locked(false),is_shutting_down(false),socketAccess(new DefaultSocketAccess()),centralPeer(this,false)
 							{}
@@ -986,10 +987,11 @@ namespace TCP
 		connections. Query the result of error() to retrieve a more detailed error discription in case
 		this method returns false.
 		@param port Port to bind this service to
+		@param limitToLocalhost If true, only clients connecting from localhost will be permitted
 		@param[out] outPort Actually used port. Useful only if @a port is set to 0 such that a dynamic port is assigned
 		@return true on success, false otherwise.
 		*/
-		bool				StartService(USHORT port, USHORT*outPort=nullptr);
+		bool				StartService(USHORT port, bool limitToLocalhost=false, USHORT*outPort=nullptr);
 		/**
 		@brief Terminates the service.
 				

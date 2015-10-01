@@ -112,10 +112,16 @@ namespace Config
 				const String&				Get(const String&path, const String&except="")	const;
 				const String&				GetString(const String&path, const String&except="")	const	{return Get(path,except);}
 				bool						QueryString(const String&path, String&outResult)	const;
+				const String&				RequireString(const String&path)	const;
+				int							RequireInt(const String&path)			const;
 				int							GetInt(const String&path, int except=0)			const;
+				unsigned					RequireUnsigned(const String&path)	const;
 				unsigned					GetUnsigned(const String&path, unsigned except=0)	const;
+				float						RequireFloat(const String&path)		const;
 				float						GetFloat(const String&path, float except=0)		const;
+				bool						RequireBool(const String&path)		const;
 				bool						GetBool(const String&path, bool except=false)		const;
+				Key::Name					RequireKey(const String&path)		const;
 				Key::Name					GetKey(const String&path, Key::Name except)		const;
 				Context*					GetContext(const String&path);	//path of form: 'mode:folder/folder/folder' or 'folder/folder/folder'
 				Context*					GetContext(const String*path, size_t path_len, const String&mode);
