@@ -651,7 +651,7 @@ namespace System
 
 	
 	
-	Signal::Signal():signaled(false)
+	Signal::Signal():grantCount(0)
 	{}
 	
 	Signal::~Signal()
@@ -659,33 +659,52 @@ namespace System
 	
 	void	Signal::wait()
 	{
-		mutex.lock();
-			if (signaled)
-				signaled = false;
-		mutex.release();
-		Semaphore::enter();
+		count_t set;
+		do
+		{
+			Semaphore::request();
+			set = --grantCount;
+		}
+		while (set > 0);
+		//signalCheck = false;
+		//mutex.lock();
+		//	if (signaled)
+		//		signaled = false;
+		//mutex.release();
+		//Semaphore::request();
 	}
 	
 	void	Signal::signal()
 	{
-		mutex.lock();
-			if (signaled)
-			{
-				mutex.release();
-				return;
-			}
-			signaled = true;
-			Semaphore::release();
-		mutex.release();
+		++grantCount;
+		Semaphore::grant();
+
+		//mutex.lock();
+		//	if (signaled)
+		//	{
+		//		mutex.release();
+		//		return;
+		//	}
+		//	signaled = true;
+		//	Semaphore::release();
+		//mutex.release();
 	}
 	
 	void	Signal::reset()
 	{
-		mutex.lock();
-			if (signaled)
-				Semaphore::enter();
-			signaled = false;
-		mutex.release();
+		while (grantCount--)
+			Semaphore::request();
+		//bool ref = true;
+		//if (signalCheck.compare_exchange_strong(ref,false))
+		//{
+		//	Semaphore::request();
+		//}
+
+		//mutex.lock();
+		//	if (signaled)
+		//		Semaphore::enter();
+		//	signaled = false;
+		//mutex.release();
 	}
 
 	void	Signal::trigger()
@@ -695,12 +714,12 @@ namespace System
 
 	bool	Signal::isSignaled()	const
 	{
-		return signaled;
+		return grantCount > 0;
 	}
 	
 	bool	Signal::isTriggered()	const
 	{
-		return signaled;
+		return grantCount > 0;
 	}
 
 	

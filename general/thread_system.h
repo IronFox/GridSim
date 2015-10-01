@@ -539,14 +539,16 @@ namespace System
 		@brief Asynchronous event
 	
 		Similar to an event except that triggering the event before the waiting thread is actually waiting will not cause deadlocks.
-		Signal is primarily designed for a strict 1-1-relation, meaning the signal is signaled exactly once and waited for once before it is signaled again. Also only
-		one thread may wait for this particular signal at any given time.
+		Signal is primarily designed for a n-1-relation, meaning the signal is signaled one or more times and waited for exactly once before it can be signaled again.
+		Any number of threads can signal, but only exactly one thread may wait for this particular signal at any given time.
 	*/
 	class Signal:protected Semaphore
 	{
 	protected:
-			bool			signaled;
+			//volatile bool	signaled;
 			Mutex			mutex;
+			//std::atomic<bool>	signalCheck;
+			std::atomic<count_t>	grantCount;
 	public:
 							Signal();
 	virtual					~Signal();
