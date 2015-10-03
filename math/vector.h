@@ -925,6 +925,13 @@ namespace Math
 										x.Translate(delta_x);
 										y.Translate(delta_y);
 									}
+									
+			template <typename T0>
+				MF_DECLARE(void)	Translate(const TVec2<T0>&delta)
+									{
+										x.Translate(delta.x);
+										y.Translate(delta.y);
+									}
 			
 			template <typename T0,typename T1>
 				MF_DECLARE(void)	MakeRelative(const T& x, const T& y, T0&x_out, T1&y_out)	const
