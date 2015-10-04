@@ -4428,7 +4428,7 @@ template <typename T0, typename T1, typename T2>
 					{
 						ASSERT_LESS_OR_EQUAL__(word_begin,at);
 						T1 chrWidth = lengthFunction(*word_begin);
-						if (current == 0 || current + chrWidth <= max_line_length)
+						if (word_begin < at && (current == 0 || current + chrWidth <= max_line_length))
 						{
 							word_begin++;
 							current += chrWidth;
@@ -4490,7 +4490,7 @@ template <typename T0, typename T1, typename T2>
 					{
 						ASSERT_LESS_OR_EQUAL__(word_begin,at);
 						T1 chrWidth = lengthFunction(*word_begin);
-						if (current == 0 || current + chrWidth <= max_line_length)
+						if (word_begin < at && (current == 0 || current + chrWidth <= max_line_length))
 						{
 							word_begin++;
 							current += chrWidth;
