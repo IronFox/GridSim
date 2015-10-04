@@ -650,7 +650,7 @@ namespace TCP
 		SocketAccess				*volatile accessPointer;
 		SpinLock					accessPointerLock;
 	public:
-		bool						connectionLost;
+		volatile bool				connectionLost;
 		Peer						*const parent;
 		
 		/**/						PeerWriter(Peer*parent):accessPointer(nullptr),connectionLost(false),parent(parent){}
