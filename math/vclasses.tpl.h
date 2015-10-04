@@ -745,6 +745,8 @@ namespace Math
 
 
 
+
+
     template <class C>  MF_DECLARE  (Vec4<C>)    Vec4<C>::normalized()                            const
     {
         C   len = Vec::length(*this);
@@ -761,6 +763,15 @@ namespace Math
     {
         return Vec4<C>(x+value,y+value,z+value,w+value);
     }
+
+
+
+	template <class C>
+	MFUNC1 (Vec4<C>)		Vec4<C>::operator&(const TVec4<C0>&other)		const
+	{
+		return Vec3<C>(x * other.x, y * other.y, z * other.z, w * other.w);
+	}
+
 
 
     template <class C>

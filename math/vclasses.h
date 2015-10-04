@@ -231,6 +231,7 @@ namespace Math
 		MFUNC1 (void)					operator+=(const TVec4<C0>&other);
 		MF_DECLARE(void)				operator+=(const C&value);
 		//MFUNC1 (C)						operator*(const TVec4<C0>&other)		const;
+		MFUNC1 (Vec4<C>)				operator&(const TVec4<C0>&other)		const;
 		MF_DECLARE(Vec4<C>)				operator*(const C&factor)				const;
 		MF_DECLARE(void)				operator*=(const C&factor);
 		MFUNC1 (Vec4<C>)				operator/(const C0&factor)				const;
