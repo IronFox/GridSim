@@ -769,7 +769,7 @@ namespace Math
 	template <class C>
 	MFUNC1 (Vec4<C>)		Vec4<C>::operator&(const TVec4<C0>&other)		const
 	{
-		return Vec3<C>(x * other.x, y * other.y, z * other.z, w * other.w);
+		return Vec4<C>(x * other.x, y * other.y, z * other.z, w * other.w);
 	}
 
 
