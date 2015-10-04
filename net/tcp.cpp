@@ -637,7 +637,7 @@ namespace TCP
 				pipe.WaitForContent();
 
 			accessPointerLock.lock();
-			if (!accessPointer || connectionLost || pipe.IsEmpty())
+			if (!accessPointer || connectionLost /*|| pipe.IsEmpty()*/)	//through weird synchronization events, the pipe might be empty
 			{
 				connectionLost = true;
 				accessPointer = nullptr;
