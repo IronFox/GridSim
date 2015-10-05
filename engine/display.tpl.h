@@ -323,6 +323,8 @@ namespace Engine
 		SignalWindowResize(true);
 	}
 
+
+
 	template <class GL>	inline	void	Display<GL>::overrideSetClientResolution(const Resolution&region)
 	{
 		overridden_client_resolution = region;
@@ -545,6 +547,12 @@ namespace Engine
 	{
 	    return context.getRefreshRate();
 	}
+
+	template <class GL> inline bool Display<GL>::IsMaximized()	{return context.WindowIsMaximized();}
+	template <class GL> inline void Display<GL>::Maximize()		{context.MaximizeWindow();}
+	template <class GL> inline bool	Display<GL>::IsMinimized()	{return context.WindowIsMinimized();}
+	template <class GL> inline void Display<GL>::Minimize()		{context.MinimizeWindow();}
+
 
 
 

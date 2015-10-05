@@ -383,6 +383,29 @@ namespace Engine
 		_current = _initial;
 	}
 
+
+	void	Context::MaximizeWindow()
+	{
+		#if SYSTEM==WINDOWS
+			if (hWnd)
+				ShowWindow(hWnd,SW_MAXIMIZE);
+		#else
+			#error stub
+		#endif	
+	}
+
+	void	Context::MinimizeWindow()
+	{
+		#if SYSTEM==WINDOWS
+			if (hWnd)
+				ShowWindow(hWnd,SW_MINIMIZE);
+		#else
+			#error stub
+		#endif	
+
+	}
+
+
 	#if SYSTEM==WINDOWS
 
 	static CtxDropTarget	dropHandler;
@@ -474,6 +497,8 @@ namespace Engine
 		return hWnd;
 	}
 	
+
+
 	
 	HWND Context::createWindow(const String&window_name, DisplayConfig::border_style_t border_style, const DisplayConfig::FOnResize&onResize, const String&icon_name)
 	{
@@ -898,6 +923,18 @@ namespace Engine
 	{
 		#if SYSTEM==WINDOWS
 			return hWnd && IsIconic(hWnd);
+		#elif SYSTEM==UNIX
+			#error stub
+		#else
+			return false;
+		#endif
+
+	}
+
+	bool Context::WindowIsMaximized() const
+	{
+		#if SYSTEM==WINDOWS
+			return hWnd && IsZoomed(hWnd);
 		#elif SYSTEM==UNIX
 			#error stub
 		#else
@@ -1600,6 +1637,10 @@ namespace Engine
 				}
 			}
 			break;
+			case WM_MENUCHAR:
+				if( LOWORD(wParam) & VK_RETURN )
+					return MAKELRESULT(0, MNC_CLOSE);//MNC_CLOSE (close the menu), is going fullscreen anyway..
+				return MAKELRESULT(0, MNC_IGNORE);
 			case WM_QUERYENDSESSION:
 				return TRUE;
 			//case WM_DROPFILES:

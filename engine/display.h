@@ -175,26 +175,27 @@ namespace Engine
 	FORWARD bool						hideCursor();   				//!< Hides the mouse cursor while above the active window. A created context is required. \return true if cursor is hidden
 	FORWARD void						showCursor();   				//!< Shows cursor again if it has previously been hidden.
 										/*!
-											\brief Changes the location and size of the associated window
-											\param left New left coordinate of the window in pixels (relative to the left screen border)
-											\param top New top coordinate of the window in pixels (relative to the top screen border - facing downwards)
-											\param width New window width in pixels
-											\param height New window height in pixels
+										\brief Changes the location and size of the associated window
+										\param left New left coordinate of the window in pixels (relative to the left screen border)
+										\param top New top coordinate of the window in pixels (relative to the top screen border - facing downwards)
+										\param width New window width in pixels
+										\param height New window height in pixels
 
-											localWindow() redefines the location and size of the active window. If no window is active then
-											the specified window location will be applied during the next create() call.
-											Depending on the underlying system, the window size either specifies the size
-											of the inner client area or the windoe including its border (if any).
+										localWindow() redefines the location and size of the active window. If no window is active then
+										the specified window location will be applied during the next create() call.
+										Depending on the underlying system, the window size either specifies the size
+										of the inner client area or the windoe including its border (if any).
 										*/
 	inline  void						locateWindow(unsigned left, unsigned top, unsigned width, unsigned height);
+	inline  void						LocateWindow(unsigned left, unsigned top, unsigned width, unsigned height)	/**@copydoc locateWindow()*/	{locateWindow(left,top,width,height);}
 	inline  void						locateWindow(const RECT&rect);	//!< Identical to the above localeWindow() using a RECT struct.
 										/*!
-											\brief Changes the size of the associated window
-											\param width New window width in pixels
-											\param height New window height in pixels
+										\brief Changes the size of the associated window
+										\param width New window width in pixels
+										\param height New window height in pixels
 
-											resizeWindow() redefines the size of the active window. If no window is active then
-											the specified window dimension will be applied during the next create() call.
+										resizeWindow() redefines the size of the active window. If no window is active then
+										the specified window dimension will be applied during the next create() call.
 										*/
 	inline  void						resizeWindow(unsigned width, unsigned height, DisplayConfig::border_style_t style);
 	inline	void						setDimension(unsigned width, unsigned height, DisplayConfig::border_style_t style);	//!< @copydoc resizeWindow()
@@ -219,12 +220,32 @@ namespace Engine
 			RECT						transformViewport(const TFloatRect&rect, const Resolution&clientSize);
 	inline  void						setScreen(const TDisplayMode&mode);
 	FORWARD short						getRefreshRate();
+	FORWARD bool						IsMaximized();
+	FORWARD void						Maximize();
+	FORWARD bool						IsMinimized();
+	FORWARD void						Minimize();
 	#if SYSTEM==WINDOWS
 	FORWARD bool						getScreen(DEVMODE&mode);
 	FORWARD bool						getScreen(DEVMODE*mode);
 	FORWARD bool						isCurrent(const DEVMODE&screen);
+	/**
+	Signals that file drops are allowed and specified handler functions to check whether or not a set of files is accepted, and what to do if they are actually dropped.
+	@param onDrag Function to determine whether or not a group of files being dragged atop the window is accepted for dropping. The function must either accept all files, or none.
+	The function may be empty in which case all files are accepted.
+	@param onDrop Function to be called if a set of accepted files are dropped on the window. The function is not executed if @a onDrag returned false on them.
+	*/
+	FORWARD void						AcceptFileDrop(const DragEventHandler&onDrag, const DropEventHandler&onDrop);
+	/**
+	Signals that file drops are allowed. Use this method to quickly en/disable file dropping without altering the handler functions.
+	When first called use AcceptFileDrop(const DragEventHandler&, const DropEventHandler&) instead,
+	to define handler functions.
+	If no handler functions are specified, no files are accepted since they have nowhere to go.
+	*/
 	FORWARD void						AcceptFileDrop();
-	FORWARD void						AcceptFileDrop(const DragEventHandler&, const DropEventHandler&);
+	/**
+	Signals that file drops are disallowed. Does not affect the defined handler functions. Until AcceptFileDrop() is called again, all file drops are rejected globally,
+	and no handler functions are executed.
+	*/
 	FORWARD void						BlockFileDrop();
 
 	#elif SYSTEM==UNIX
@@ -270,6 +291,9 @@ namespace Engine
 	};
 
 
+	/**
+	Singleton non-template base of display. All window operations are actually executed by the context, and not the template display helper
+	*/
 	class Context
 	{
 	public:
@@ -277,35 +301,35 @@ namespace Engine
 			typedef LRESULT (*EventHook)(HWND window, UINT Msg, WPARAM wParam,LPARAM lParam);
 		#endif
 	private:
-			pEngineExec					exec_target;
+			pEngineExec			exec_target;
 	#if SYSTEM==WINDOWS
 
-			EventHook					eventHook;
-			HINSTANCE					hInstance;
-			HWND						hWnd;
-	static	HHOOK						hHook;
-	static	unsigned					hook_counter;
-			bool						class_created;
-	static  LRESULT CALLBACK			WndProc(HWND hWnd, UINT Msg, WPARAM wParam,LPARAM lParam);
-	static 	LRESULT CALLBACK 			mouseHook(int nCode, WPARAM wParam,   LPARAM lParam);
-	static	void						installHook();
-	static	void						uninstallHook(bool force=false);
+			EventHook			eventHook;
+			HINSTANCE			hInstance;
+			HWND				hWnd;
+	static	HHOOK				hHook;
+	static	unsigned			hook_counter;
+			bool				class_created;
+	static  LRESULT CALLBACK	WndProc(HWND hWnd, UINT Msg, WPARAM wParam,LPARAM lParam);
+	static 	LRESULT CALLBACK 	mouseHook(int nCode, WPARAM wParam,   LPARAM lParam);
+	static	void				installHook();
+	static	void				uninstallHook(bool force=false);
 	#elif SYSTEM==UNIX
-			::Display					*display;
-			Window						window; //is long unsigned int
-			int							screen;
-			Colormap					colormap;   //is long unsigned int
-			TWindowAttributes			window_attributes;
-			bool						function_key_mask[0x100];
+			::Display			*display;
+			Window				window; //is long unsigned int
+			int					screen;
+			Colormap			colormap;   //is long unsigned int
+			TWindowAttributes	window_attributes;
+			bool				function_key_mask[0x100];
 
-	friend  void						ExecuteEvent(XEvent&event);
+	friend  void				ExecuteEvent(XEvent&event);
 
 	#endif
 
-			void						looseFocus();
-			void						restoreFocus();
-			void						locateWindow();
-			void						eventClose();
+			void				looseFocus();
+			void				restoreFocus();
+			void				locateWindow();
+			void				eventClose();
 
 
 	protected:
@@ -318,10 +342,10 @@ namespace Engine
 	public:
 			bool						shutting_down;
 
-										Context();
+								Context();
 
 		template <typename T>
-			void						GetAbsoluteClientRegion(Rect<T>&rect)		const
+			void				GetAbsoluteClientRegion(Rect<T>&rect)		const
 			{
 				rect.x.min = client_area.left;
 				rect.y.min = client_area.top;
@@ -332,67 +356,83 @@ namespace Engine
 			
 
 	#if SYSTEM==WINDOWS
-			void						RegisterEventHook(EventHook hook)	{eventHook = hook;}
-			HWND						window()	const;
-			HWND						getWindow()	const
-										{
-											return window();
-										}
-			HWND						createWindow(const String&window_name, DisplayConfig::border_style_t border_style, const DisplayConfig::FOnResize&onResize, const String&icon_filename);
-			HWND 						createChildWindow(HWND parent, bool enabled);
-			void						setWindow(HWND);
-			WString						createClass();
-			void						destroyClass();
+			void				RegisterEventHook(EventHook hook)	{eventHook = hook;}
+			HWND				window()	const;
+			HWND				getWindow()	const {return window();}
+			HWND				createWindow(const String&window_name, DisplayConfig::border_style_t border_style, const DisplayConfig::FOnResize&onResize, const String&icon_filename);
+			HWND 				createChildWindow(HWND parent, bool enabled);
+			void				setWindow(HWND);
+			WString				createClass();
+			void				destroyClass();
 	#elif SYSTEM==UNIX
-			::Display*					connect();
-			::Display*					connection();
-			void						disconnect();
-			Window						createWindow(const String&window_name, const TWindowAttributes&attributes, DisplayConfig::border_style_t border_style, const DisplayConfig::FOnResize&onResize, const String&icon_filename);
-			void						setWindow(Window);
+			::Display*			connect();
+			::Display*			connection();
+			void				disconnect();
+			Window				createWindow(const String&window_name, const TWindowAttributes&attributes, DisplayConfig::border_style_t border_style, const DisplayConfig::FOnResize&onResize, const String&icon_filename);
+			void				setWindow(Window);
 	#endif
 
-			bool						hideCursor();
-			void						showCursor();
-			void						resizeWindow(unsigned width, unsigned height, DisplayConfig::border_style_t border_style);
-			void						locateWindow(unsigned left, unsigned top, unsigned width, unsigned height);
-			void						locateWindow(const RECT&dimensions);
-			const RECT&					windowLocation()						const;
-			const RECT&					windowClientArea()						const;
-			Resolution					windowSize()							const;
-			Resolution					clientSize()							const;
-			UINT						clientWidth()							const;
-			UINT						clientHeight()							const;
-			RECT						transform(const TFloatRect&field)		const;
-			static RECT					transform(const TFloatRect&field, const Resolution&);
-			void						destroyWindow();
+			bool				hideCursor();
+			void				showCursor();
+			void				resizeWindow(unsigned width, unsigned height, DisplayConfig::border_style_t border_style);
+			void				locateWindow(unsigned left, unsigned top, unsigned width, unsigned height);
+			void				locateWindow(const RECT&dimensions);
+			const RECT&			windowLocation()						const;
+			const RECT&			windowClientArea()						const;
+			Resolution			windowSize()							const;
+			Resolution			clientSize()							const;
+			UINT				clientWidth()							const;
+			UINT				clientHeight()							const;
+			RECT				transform(const TFloatRect&field)		const;
+			static RECT			transform(const TFloatRect&field, const Resolution&);
+			void				destroyWindow();
 
-			void						signalResize(bool is_final, bool is_maximized);
+			void				signalResize(bool is_final, bool is_maximized);
 
-			bool						isTopWindow()							const;
-			void						focus();
-			bool						isFocused()								const;
-			bool						isMinimized()							const;
+			bool				isTopWindow()							const;
+			void				focus();
+			bool				isFocused()								const;
+			bool				isMinimized()							const;
 
-			void						checkFocus();	//sends isFocused() to eveMouse.setFocused()
 
-			float						pixelAspectf()							const;
-			double						pixelAspectd()							const;
-			float						windowAspectf()							const;
-			double						windowAspectd()							const;
+			/**
+			Checks whether or not the managed window exists and is currently the top-most
+			*/
+			bool				WindowIsTop()							const	{return isTopWindow();}
+			/**
+			Checks whether or not the managed window exists and is currently minimized
+			*/
+			bool				WindowIsMinimized()						const	{return isMinimized();}
+			/**
+			Checks whether ot not the mangaged window exists and is currently maximized
+			*/
+			bool				WindowIsMaximized()						const;
 
-			unsigned					countScreenModes();
-			Resolution					getScreenSize();
-			short						getRefreshRate();
+			void				MaximizeWindow();
+			void				MinimizeWindow();
+
+
+			void				checkFocus();	//sends isFocused() to eveMouse.setFocused()
+
+			float				pixelAspectf()							const;
+			double				pixelAspectd()							const;
+			float				windowAspectf()							const;
+			double				windowAspectd()							const;
+
+			unsigned			countScreenModes();
+			Resolution			getScreenSize();
+			short				getRefreshRate();
 	#if SYSTEM==WINDOWS
-			void						AcceptFileDrop();
-			void						AcceptFileDrop(const DragEventHandler&, const DropEventHandler&);
-			void						BlockFileDrop();
+			
+			void				AcceptFileDrop(const DragEventHandler&, const DropEventHandler&);
+			void				AcceptFileDrop();
+			void				BlockFileDrop();
 
 
-			DEVMODE*					getScreen(unsigned index);
-			bool						isCurrent(const DEVMODE&screen);
-			bool						getScreen(DEVMODE*mode);
-			bool						getScreen(DEVMODE&mode);
+			DEVMODE*			getScreen(unsigned index);
+			bool				isCurrent(const DEVMODE&screen);
+			bool				getScreen(DEVMODE*mode);
+			bool				getScreen(DEVMODE&mode);
 	#elif SYSTEM==UNIX
 
 			int							findScreen(DWORD width, DWORD height, DWORD&refresh_rate);
