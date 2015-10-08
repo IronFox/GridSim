@@ -144,14 +144,14 @@ template <class C> MFUNC1 (bool) Frustum<C>::intersects(const Box<C0>&box, const
 
 
 template <class C> 
-	MFUNC1 (bool) Frustum<C>::IsVisible(const Box<C0>&box)	const
+	MFUNC1 (bool) Frustum<C>::IsVisible_UnpreciseExpensiveDoNotUse(const Box<C0>&box)	const
 	{
-		return CheckBoxVisibility(box) != NotVisible;
+		return CheckBoxVisibility_UnpreciseExpensiveDoNotUse(box) != NotVisible;
 	}
 
 	
 template <class C>
-	MF_DECLARE (typename Frustum<C>::Visibility) Frustum<C>::CheckBoxVisibility(const Box<C>&box)	const
+	MF_DECLARE (typename Frustum<C>::Visibility) Frustum<C>::CheckBoxVisibility_UnpreciseExpensiveDoNotUse(const Box<C>&box)	const
 	{
 		bool all_in_box=true;
 		for (BYTE k = 0; k < 8; k++)

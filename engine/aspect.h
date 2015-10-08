@@ -84,9 +84,11 @@ public:
 MFUNC3	(bool)				visible(const C0&x, const C1&y, const C2&z) const;		//!< Determines visibility of a point \return true if the specified point lies within the local frustum
 MFUNC2	(bool)				visible(const TVec3<C0>&center, const C1&radius)	const;	//!< Determines visibility of a sphere \param center Center of the sphere \param radius Radius of the sphere \return true if the specified sphere is inside or intersects the volume, false otherwise
 MFUNC2	(bool)				IsVisible(const TVec3<C0>&center, const C1&radius)	const;	//!< Identical to visible()
-MFUNC1	(bool)				IsVisible(const Box<C0>&)	const;
+MFUNC1	(bool)				IsVisible(const Math::Sphere<C0>&sphere)	const	{return IsVisible(sphere.center,sphere.radius);}
+MFUNC1	(bool)				IsVisible_UnpreciseExpensiveDoNotUse(const Box<C0>&)	const;
 MFUNC2	(Visibility)		CheckSphereVisibility(const TVec3<C0>&center, const C1&radius)	const;	//!< Determines visibility of a sphere \param center Center of the sphere \param radius Radius of the sphere \return sphere visibility
-MF_DECLARE (Visibility)		CheckBoxVisibility(const Box<C>&)	const;	 //!< Determines visibility of a box \return box visibility
+MFUNC1	(Visibility)		CheckSphereVisibility(const Math::Sphere<C0>&sphere)	const	{return CheckSphereVisibility(sphere.center,sphere.radius);}
+MF_DECLARE (Visibility)		CheckBoxVisibility_UnpreciseExpensiveDoNotUse(const Box<C>&)	const;	 //!< Determines visibility of a box \return box visibility
 
 MFUNC2	(bool)				IntersectsCone(const TVec3<C0>&center, const C1&radius) const;	//!< Similar to visible(), however ignoring the znear and zfar planes, making the frustum infinitly long
 MF_DECLARE(void)			UpdateNormals();								//!< Recalculate normals from the modified volume edges
