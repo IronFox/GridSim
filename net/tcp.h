@@ -653,7 +653,7 @@ namespace TCP
 		volatile bool				connectionLost;
 		Peer						*const parent;
 		
-		/**/						PeerWriter(Peer*parent):accessPointer(nullptr),connectionLost(false),parent(parent){}
+		/**/						PeerWriter(Peer*parent):accessPointer(nullptr),connectionLost(true),parent(parent){}
 
 		void						Begin(SocketAccess*access);
 		void						Update(SocketAccess*access);
@@ -789,7 +789,7 @@ namespace TCP
 									{
 										memset(&address,0,sizeof(address));
 										ASSERT_NOT_NULL__(owner);
-										writer.Begin(socketAccess);
+										//writer.Begin(socketAccess);
 									}
 		virtual						~Peer()
 									{

@@ -434,6 +434,7 @@ namespace TCP
 
 	void	Peer::handleUnexpectedSendResult(int result)
 	{
+		writer.Terminate();
 		if (!result || result == SOCKET_ERROR)
 		{
 			if (socketAccess->IsClosed())
@@ -508,6 +509,7 @@ namespace TCP
 			int size = socketAccess->Read(current,end-current);
 			if (size == SOCKET_ERROR)
 			{
+				writer.Terminate();
 				if (socketAccess->IsClosed())
 				{
 					if (verbose)
@@ -525,6 +527,7 @@ namespace TCP
 			}
 			if (!size)
 			{
+				writer.Terminate();
 				if (socketAccess->IsClosed())
 				{
 					if (verbose)
@@ -601,6 +604,9 @@ namespace TCP
 
 	void						PeerWriter::Begin(SocketAccess*access)
 	{
+		Terminate();
+		connectionLost = false;
+		pipe.clear();
 		accessPointerLock.lock();
 		this->accessPointer = access;
 		accessPointerLock.unlock();
@@ -667,8 +673,8 @@ namespace TCP
 							std::cout << __func__ << " exit: failed to send package chunk"<<std::endl;
 						connectionLost = true;
 						accessPointer = nullptr;
-						parent->handleUnexpectedSendResult(rs);
 						accessPointerLock.unlock();
+						parent->handleUnexpectedSendResult(rs);
 						return;
 					}
 				}
@@ -705,6 +711,7 @@ namespace TCP
 		if (verbose)
 			std::cout << "Peer::ThreadMain() enter"<<std::endl;
 		AssertIsSelf();	//this should really be implied. as it turns out due to whatnot kind of errors, sometimes it hicks up
+		writer.Begin(socketAccess);
 		while (socketAccess && !socketAccess->IsClosed())
 		{
 			UINT32	header[2];
@@ -723,6 +730,7 @@ namespace TCP
 			remaining_size = (serial_size_t)header[1];
 			if (remaining_size > owner->safe_package_size)
 			{
+				writer.Terminate();
 				if (socketAccess->IsClosed())
 				{
 					if (verbose)
@@ -851,6 +859,7 @@ namespace TCP
 	{
 		if (verbose)
 			std::cout << "Peer::disconnect() enter"<<std::endl;
+		writer.Terminate();
 		if (!socketAccess->IsClosed())
 		{
 			if (verbose)
@@ -858,12 +867,7 @@ namespace TCP
 			owner->setError("");
 			owner->HandleEvent(Event::ConnectionClosed,LinkFromThis());
 			socketAccess->CloseSocket();
-			//if (!isSelf())
-				//awaitCompletion();	//can't wait for self.
 			owner->OnDisconnect(this,Event::ConnectionClosed);
-			
-			/*if (!owner->block_events)	//i really can't recall why i did this
-				owner->block_events++;	*/
 		}
 		elif (verbose)
 			std::cout << "Peer::disconnect(): socket handle reset by remote operation"<<std::endl;
