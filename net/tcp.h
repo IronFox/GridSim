@@ -132,21 +132,25 @@ namespace TCP
 
 	class Peer;
 	typedef std::shared_ptr<Peer>	PPeer;
+	typedef std::weak_ptr<Peer>	WPeer;
 
 	struct TDualLink
 	{
 		Peer					*p;	//cannot avoid pointer sometimes
-		PPeer					s;
+		WPeer					s;
 
 		/**/					TDualLink():p(NULL){}
 		explicit				TDualLink(Peer*_p):p(_p)	{}
 		explicit				TDualLink(const PPeer&_s):p(NULL),s(_s)	{}
 
-		Peer&					Reference() const
-		{
-			DBG_ASSERT__(s || p);
-			return s ? *s : *p;
-		}
+		//Peer*					Reference() const
+		//{
+		//	PPeer pp = s.lock();
+		//	if (pp)
+		//		re
+		//	DBG_ASSERT__(s || p);
+		//	return s ? *s : *p;
+		//}
 	};
 
 
@@ -1036,8 +1040,16 @@ namespace TCP
 				
 			virtual	void			Handle(const PSerializableObject&serializable,const TDualLink&sender)	override
 			{
-				if (sender.Reference().userLevel >= MinUserLevel)
-					OnReceive((Object&)*serializable,sender.Reference());
+				PPeer p = sender.s.lock();
+				Peer*ptr = p ? p.get() : sender.p;
+				if (ptr && ptr->userLevel >= MinUserLevel)
+				{
+					OnReceive((Object&)*serializable,*ptr);
+				}
+				else if (!ptr)
+				{
+					DBG_FATAL__("peer reference lost in transit for data on channel "+String(ChannelID));
+				}
 				//discard((Object*)serializable);
 			}
 								

@@ -148,8 +148,14 @@ namespace TCP
 		{
 			if (onEvent)
 			{
-				//std::cout << "sending event "<<event2str(event)<<" | "<<(void*)peer<<" to "<<(void*)onEvent<<std::endl;
-				onEvent(event,peer.Reference());
+				PPeer p = peer.s.lock();
+				Peer*ptr = p ? p.get() : peer.p;
+				if (ptr)
+					onEvent(event,*ptr);
+				else
+				{
+					DBG_FATAL__("peer reference lost in transit for event "+String(event2str(event)));
+				}
 			}
 		}
 		else
@@ -170,7 +176,16 @@ namespace TCP
 		if (async)
 		{
 			if (onSignal)
-				onSignal(signal,peer.Reference());
+			{
+				PPeer p = peer.s.lock();
+				Peer*ptr = p ? p.get() : peer.p;
+				if (ptr)
+					onSignal(signal,*ptr);
+				else
+				{
+					DBG_FATAL__("peer reference lost in transit for signal on channel "+String(signal));
+				}
+			}
 		}
 		else
 		{
@@ -197,11 +212,29 @@ namespace TCP
 				{
 					case TCommonEvent::NetworkEvent:
 						if (onEvent)
-							onEvent(ev.event,ev.sender.Reference());
+						{
+							PPeer p = ev.sender.s.lock();
+							Peer*ptr = p ? p.get() : ev.sender.p;
+							if (ptr)
+								onEvent(ev.event,*ptr);
+							else
+							{
+								DBG_FATAL__("peer reference lost in transit for event "+String(event2str(ev.event)));
+							}
+						}
 					break;
 					case TCommonEvent::Signal:
 						if (onSignal)
-							onSignal(ev.channel,ev.sender.Reference());
+						{
+							PPeer p = ev.sender.s.lock();
+							Peer*ptr = p ? p.get() : ev.sender.p;
+							if (ptr)
+								onSignal(ev.channel,*ptr);
+							else
+							{
+								DBG_FATAL__("peer reference lost in transit for signal on channel "+String(ev.channel));
+							}
+						}
 					break;
 					case TCommonEvent::Object:
 						ev.receiver->Handle(ev.object,ev.sender);

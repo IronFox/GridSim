@@ -67,6 +67,10 @@ inline	bool		IsISerializable(const volatile void*)
 					{
 						return false;
 					}
+inline	size_t		GetFixedSize(const void*)
+					{
+						return 0;
+					}
 
 /**
 	@brief Overload serilizable check (ISerializable*)
@@ -80,6 +84,10 @@ inline	bool		IsISerializable(const ISerializable*)
 inline	bool		IsISerializable(const volatile ISerializable*)
 					{
 						return true;
+					}
+inline	size_t		GetFixedSize(const ISerializable*serial)
+					{
+						return serial->HasFixedSize() ? serial->GetSerialSize(true) : 0;
 					}
 
 /**
@@ -224,6 +232,8 @@ template <class C>
 	class ArrayData: public SerializableObject, public Arrays
 	{
 	protected:
+		static C		testElement;	//!< Used to test serializability
+
 		C*				data;
 		count_t			elements;
 
@@ -796,7 +806,7 @@ template <class C>
 		virtual	serial_size_t	GetSerialSize(bool export_size) const	override
 							{
 								serial_size_t result = 0;
-								if (export_size || IsISerializable(data))
+								if (export_size || (IsISerializable(data) && !GetFixedSize(&testElement)))
 									result = GetSerialSizeOfSize((serial_size_t)elements);
 								for (index_t i = 0; i < elements; i++)
 									result += GetSerialSizeOf((const C*)data+i,sizeof(C),true);//must pass true here because the individual object size cannot be restored from the global data size
@@ -805,7 +815,7 @@ template <class C>
 
 		virtual	bool		Serialize(IWriteStream&out_stream, bool export_size) const	override
 							{
-								if (export_size || IsISerializable(data))
+								if (export_size || (IsISerializable(data) && !GetFixedSize(&testElement)))
 									if (!out_stream.WriteSize(elements))
 										return false;
 								if (!IsISerializable(data))
@@ -837,8 +847,16 @@ template <class C>
 									if (!IsISerializable(data))
 										size = (count_t)(fixed_size/sizeof(C));
 									else
-										if (!in_stream.ReadSize(size))
-											return false;
+									{
+										size_t fixedElementSize = GetFixedSize(&testElement);
+										if (fixedElementSize != 0)
+										{
+											size = (count_t)(fixed_size/fixedElementSize);
+										}
+										else
+											if (!in_stream.ReadSize(size))
+												return false;
+									}
 						
 										//FATAL__("trying to Deserialize an array containing serializable objects from a fixed size stream data section not including any element count");
 								}
@@ -863,6 +881,8 @@ template <class C>
 								return true;
 							}
 	};
+	template <class C>
+	/*static*/ C		ArrayData<C>::testElement;	//!< Used to test serializability
 
 DECLARE_T__(ArrayData,SwapStrategy);
 
