@@ -249,7 +249,15 @@ namespace TCP
 	{
 		wasteMutex.lock();
 			foreach(wasteBucket, w)
-				(*w)->Join(/*1000*/);
+			{
+				try
+				{
+					(*w)->Join(/*1000*/);
+					(*w)->Dissolve();
+				}
+				catch (...)
+				{}
+			}
 			wasteBucket.Clear();
 		wasteMutex.release();
 	}

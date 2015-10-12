@@ -640,6 +640,7 @@ namespace TCP
 			try
 			{
 				thread.join();
+				thread.swap(std::thread());
 			}
 			catch (...)
 			{}	//dont care
@@ -796,6 +797,11 @@ namespace TCP
 										//writer.Begin(socketAccess);
 									}
 		virtual						~Peer()
+									{}
+		/**
+		Basically the destructor, except not a destructor, so the destruction won't throw exceptions.
+		*/
+		void						Dissolve()
 									{
 										writer.Terminate();
 										ASSERT_NOT_NULL__(socketAccess);
@@ -805,6 +811,10 @@ namespace TCP
 										if (a)
 											delete a;
 									}
+
+		/**
+		Pre-desructor shut-down
+		*/
 		bool						Destroy()
 									{
 										if (!destroyed)
