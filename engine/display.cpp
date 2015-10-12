@@ -18,6 +18,11 @@ template Engine::Display<Engine::OpenGL>;
 #include <ole2.h> 
 #include <shlobj.h>
 
+bool operator==(const RECT&a, const RECT&b)
+{
+	return a.left == b.left && a.right == b.right && a.top == b.top && a.bottom == b.bottom;
+}
+
 
 #define WM_OLEDROP WM_USER + 1 
 
@@ -267,6 +272,8 @@ namespace Engine
 	static bool							_applied=false,
 										_focused=false;
 	
+	/*static*/ UINT32				Context::displayConfigFlags = 0;
+
 
 	#define ENGINE_CLASS_NAME L"Engine Display Class"
 
@@ -502,6 +509,7 @@ namespace Engine
 	
 	HWND Context::createWindow(const String&window_name, DisplayConfig::border_style_t border_style, const DisplayConfig::FOnResize&onResize, const String&icon_name)
 	{
+		displayConfigFlags = 0;
 		this->border_style = border_style;
 		this->onResize = onResize;
 	/*
@@ -596,7 +604,7 @@ namespace Engine
 		}
 		ShowWindow(hWnd, SW_SHOW);
 		UpdateWindow(hWnd);
-		locateWindow();
+		LocateWindow();
 		SetForegroundWindow(hWnd);
 		SetFocus(hWnd);
 		timing.initialize();
@@ -620,6 +628,10 @@ namespace Engine
 	*/
 		if (hWnd)
 			return hWnd;
+
+		displayConfigFlags = 0;
+
+
 		mouse.looseFocus();
 		DWORD style = WS_CHILD |WS_CLIPCHILDREN;//|WS_CLIPSIBLINGS;
 		if (!enabled)
@@ -669,7 +681,7 @@ namespace Engine
 		}
 		ShowWindow(hWnd, SW_SHOW);
 		UpdateWindow(hWnd);
-		locateWindow();
+		LocateWindow();
 		SetForegroundWindow(hWnd);
 		SetFocus(hWnd);
 		timing.initialize();
@@ -710,6 +722,8 @@ namespace Engine
 
 	Window Context::createWindow(const String&window_name, const TWindowAttributes&attributes,DisplayConfig::border_style_t border_style, const DisplayConfig::FOnResize&onResize, const String&icon_filename)
 	{
+		displayConfigFlags = 0;
+
 		this->border_style = border_style;
 		this->onResize = onResize;
 		if (!display)
@@ -772,17 +786,61 @@ namespace Engine
 	{
 		mouse.showCursor();
 	}
+	
+
+	#if SYSTEM==WINDOWS
 
 
-	void Context::locateWindow()
+		bool		Context::CheckFullscreen(const WINDOWINFO&info) const
+		{
+			Resolution screen = getScreenSize();
+			return info.rcClient == info.rcWindow
+					 && info.rcClient.left == 0 && info.rcClient.top == 0 && info.rcClient.right == screen.width && info.rcClient.bottom == screen.height;
+		}
+
+	#endif	
+
+
+	UINT32 Context::GetDisplayConfigFlags() const
 	{
 		#if SYSTEM==WINDOWS
 			if (!hWnd)
-				return;
+				return 0;
+			UINT32 result = DisplayConfig::ResizeDragHasEnded;
+			WINDOWINFO	info;
+			if (GetWindowInfo(hWnd,&info))
+			{
+				if (info.dwStyle & WS_ICONIC)
+					result |= DisplayConfig::IsMinimzed;
+				if (info.dwStyle & WS_MAXIMIZE)
+					result |= DisplayConfig::IsMaximized;
+				if (CheckFullscreen(info))
+					result |= DisplayConfig::IsFullscreen;
+			}
+			return result;
+		#else
+			#error stub
+			return 0;
+		#endif
+	}
+
+	UINT32 Context::LocateWindow()
+	{
+		UINT32 result = 0;
+		#if SYSTEM==WINDOWS
+			if (!hWnd)
+				return result;
+			result |= DisplayConfig::ResizeDragHasEnded;
 			SetWindowPos(hWnd,NULL,_location.left,_location.top,_location.right-_location.left,_location.bottom-_location.top,0);
 			WINDOWINFO	info;
 			if (GetWindowInfo(hWnd,&info))
 			{
+				if (info.dwStyle & WS_ICONIC)
+					result |= DisplayConfig::IsMinimzed;
+				if (info.dwStyle & WS_MAXIMIZE)
+					result |= DisplayConfig::IsMaximized;
+				if (CheckFullscreen(info))
+					result |= DisplayConfig::IsFullscreen;
 				_location = info.rcWindow;
 				client_area = info.rcClient;
 				mouse.redefineWindow(client_area,hWnd);
@@ -798,9 +856,10 @@ namespace Engine
 			//XGetGeometry
 			mouse.redefineWindow(_location);
 		#endif
+		return result;
 	}
 
-	void Context::signalResize(bool is_final, bool is_full_screen)
+	void Context::SignalResize(UINT32 flags)
 	{
 		#if SYSTEM==WINDOWS
 			if (!hWnd)
@@ -812,7 +871,7 @@ namespace Engine
 				client_area = info.rcClient;
 				mouse.redefineWindow(client_area,hWnd);
 				if (onResize)
-					onResize(Resolution(client_area.right - client_area.left,client_area.bottom - client_area.top),is_final,is_full_screen);
+					onResize(Resolution(client_area.right - client_area.left,client_area.bottom - client_area.top),flags);
 			}
 		#elif SYSTEM==UNIX
 			#error not defined
@@ -821,7 +880,7 @@ namespace Engine
 		#endif
 	}
 
-	void Context::resizeWindow(unsigned width, unsigned height, DisplayConfig::border_style_t style)
+	UINT32 Context::ResizeWindow(unsigned width, unsigned height, DisplayConfig::border_style_t style)
 	{
 		if (style != border_style)
 		{
@@ -845,22 +904,22 @@ namespace Engine
 		}
 		_location.right = _location.left + width;
 		_location.bottom = _location.top + height;
-		locateWindow();
+		return LocateWindow();
 	}
 
-	void Context::locateWindow(unsigned left, unsigned top, unsigned width, unsigned height)
+	UINT32 Context::LocateWindow(unsigned left, unsigned top, unsigned width, unsigned height)
 	{
 		_location.left = left;
 		_location.top = top;
 		_location.right = left+width;
 		_location.bottom = top+height;
-		locateWindow();
+		return LocateWindow();
 	}
 
-	void Context::locateWindow(const RECT&dimensions)
+	UINT32 Context::LocateWindow(const RECT&dimensions)
 	{
 		_location = dimensions;
-		locateWindow();
+		return LocateWindow();
 	}
 
 	const RECT& Context::windowLocation()	const
@@ -1074,7 +1133,7 @@ namespace Engine
 			mouse.setRegion(_current.dmPelsWidth,_current.dmPelsHeight);
 			_target = _current;
 			_applied = true;
-			locateWindow();
+			LocateWindow();
 			return true;
 		}
 		else
@@ -1092,7 +1151,7 @@ namespace Engine
 		_target = size;
 		_trate = refresh_rate;
 		_applied = applyScreen();
-		locateWindow();
+		LocateWindow();
 		return _applied;
 	#endif
 	}
@@ -1142,7 +1201,7 @@ namespace Engine
 	}
 
 	#if SYSTEM==WINDOWS
-	DEVMODE*Context::getScreen(unsigned index)
+	DEVMODE*Context::getScreen(unsigned index)	const
 	{
 		DEVMODE rs;
 		rs.dmSize = sizeof(rs);
@@ -1155,18 +1214,18 @@ namespace Engine
 		return NULL;
 	}
 
-	bool Context::isCurrent(const DEVMODE&screen)
+	bool Context::isCurrent(const DEVMODE&screen)	const
 	{
 		return _current.dmPelsWidth == screen.dmPelsWidth && _current.dmPelsHeight == screen.dmPelsHeight && _current.dmDisplayFrequency == screen.dmDisplayFrequency;
 	}
 
-	bool Context::getScreen(DEVMODE*mode)
+	bool Context::getScreen(DEVMODE*mode)	const
 	{
 		EnumDisplaySettings(NULL,ENUM_CURRENT_SETTINGS,mode);
 		return _applied;
 	}
 
-	bool Context::getScreen(DEVMODE&mode)
+	bool Context::getScreen(DEVMODE&mode)	const
 	{
 		return getScreen(&mode);
 	}
@@ -1178,7 +1237,7 @@ namespace Engine
 		return mode.dmDisplayFrequency;
 	}
 	
-	Resolution	Context::getScreenSize()
+	Resolution	Context::getScreenSize()	const
 	{
 		DEVMODE mode;
 		getScreen(&mode);
@@ -1576,7 +1635,6 @@ namespace Engine
 		
 	}
 
-	static bool wasFullScreen = false;
 
 	LRESULT CALLBACK Context::WndProc(HWND hWnd, UINT Msg, WPARAM wParam,LPARAM lParam)
 	{
@@ -1595,18 +1653,27 @@ namespace Engine
 		{
 			case WM_SETCURSOR:
 				return (LOWORD(lParam) == HTCLIENT) && mouse.cursorIsNotDefault() ? 1 : DefWindowProcW(hWnd, Msg, wParam, lParam);
-			case WM_SIZING:		context.signalResize(false,false);								return 0;
+			case WM_SIZING:		context.SignalResize(0);									return 0;
 			case WM_SIZE:	
 			{
 				if (wParam != SIZE_MINIMIZED)
 				{
-					bool newMaximized = wParam == SIZE_MAXIMIZED;
-					context.signalResize(newMaximized != wasFullScreen, newMaximized);
-					wasFullScreen = newMaximized;
+					UINT32 newFlags = 0;
+
+					if (wParam == SIZE_MAXIMIZED)
+						newFlags |= DisplayConfig::IsMaximized;
+					if (wParam == SIZE_MINIMIZED)
+						newFlags |= DisplayConfig::IsMinimzed;
+
+					if (newFlags != (displayConfigFlags & ~DisplayConfig::ResizeDragHasEnded))
+						newFlags |= DisplayConfig::ResizeDragHasEnded;
+
+					context.SignalResize(newFlags);
+					displayConfigFlags = newFlags;
 				}
 			}
 			return 0;
-			case WM_EXITSIZEMOVE:context.signalResize(true,wasFullScreen);								return 0;
+			case WM_EXITSIZEMOVE:context.SignalResize(displayConfigFlags | DisplayConfig::ResizeDragHasEnded);								return 0;
 			case WM_ERASEBKGND: 															return 1;
 			case WM_SETFOCUS:   context.restoreFocus();										return 0;
 			case WM_KILLFOCUS:  context.looseFocus();										return 0;

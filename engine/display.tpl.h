@@ -319,8 +319,7 @@ namespace Engine
 
 	template <class GL> inline  void  Display<GL>::locateWindow(unsigned left, unsigned top, unsigned width, unsigned height)
 	{
-	    context.locateWindow(left,top,width,height);
-		SignalWindowResize(true);
+		SignalWindowResize(context.LocateWindow(left,top,width,height));
 	}
 
 
@@ -333,20 +332,19 @@ namespace Engine
 
 	template <class GL> inline  void Display<GL>::locateWindow(const RECT&rect)
 	{
-		context.locateWindow(rect);
-		SignalWindowResize(true);
+		SignalWindowResize(context.LocateWindow(rect));
 	}
 
 	template <class GL> inline  void Display<GL>::resizeWindow(unsigned width, unsigned height, DisplayConfig::border_style_t style)
 	{
-	    context.resizeWindow(width,height,style);
-		SignalWindowResize(true);
+	    
+		SignalWindowResize(context.ResizeWindow(width,height,style));
 	}
 
-	template <class GL> inline void Display<GL>::SignalWindowResize(bool final)
+	template <class GL> inline void Display<GL>::SignalWindowResize(UINT32 flags)
 	{
 		//overrideSetClientResolution(context.clientSize());
-		if (final)
+		if (flags & DisplayConfig::ResizeDragHasEnded)
 		{
 			Resolution res = currentTargetResolution();
 			GL::SignalWindowResize(res);

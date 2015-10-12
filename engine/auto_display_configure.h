@@ -16,12 +16,14 @@ namespace Engine
 	namespace Detail
 	{
 		template <typename GL>
-			void	UpdateXML(Display<GL>&display, const String&filename)
+			void	UpdateXML(Display<GL>&display, UINT32 flags, const Resolution&restoredResolution, const String&filename)
 			{
 				XML::Container xconfig;
 				XML::Node&xdisplay = xconfig.create("config/display");
-				xdisplay.set("width",display.width());
-				xdisplay.set("height",display.height());
+				xdisplay.set("width",restoredResolution.width);
+				xdisplay.set("height",restoredResolution.height);
+				if (flags & DisplayConfig::IsMaximized)
+					xdisplay.set("state","maximized");
 				FileSystem::CreateFolder("config");
 				xconfig.saveToFile("./config/"+filename+".xml");
 			}
@@ -40,6 +42,7 @@ namespace Engine
 			fileName.convertToLowerCase();
 			XML::Container xconfig;
 			bool updateFile = false;
+			UINT32 flags = DisplayConfig::ResizeDragHasEnded;
 			try
 			{
 				xconfig.loadFromFile("./config/"+fileName+".xml");
@@ -52,6 +55,14 @@ namespace Engine
 					
 					if (!xdisplay->query("height",value)|| !convert(value.c_str(),resolution.height))
 						updateFile = true;
+
+					if (xdisplay->query("state",value))
+					{
+						if (value == "maximized")
+							flags |= DisplayConfig::IsMaximized;
+						//elif (value == "minimized")
+						//	flags |= DisplayConfig::IsMinimized;
+					}
 				}
 			}
 			catch (const IO::DriveAccess::FileOpenFault&)
@@ -59,20 +70,29 @@ namespace Engine
 				updateFile = true;
 			}
 			
-			DisplayConfig config(name,[fileName,onResize,&display](const Resolution&newRes, bool is_final, bool is_full_screen){
-				display.SignalWindowResize(is_final);
-				if (is_final && !is_full_screen)
+			DisplayConfig config(name,[fileName,onResize,&display, resolution](const Resolution&newRes, UINT32 flags){
+				static Resolution restoredResolution = resolution;
+				display.SignalWindowResize(flags);
+				if (flags & Engine::DisplayConfig::ResizeDragHasEnded)
 				{
-					Detail::UpdateXML(display,fileName);
+					if (!(flags & (Engine::DisplayConfig::IsMaximized | Engine::DisplayConfig::IsMinimzed | Engine::DisplayConfig::IsFullscreen)))
+					{
+						restoredResolution = newRes;
+					}
+					Detail::UpdateXML(display,flags, restoredResolution, fileName);
 				}
-				onResize(newRes,is_final,is_full_screen);
+				onResize(newRes,flags);
 			});
 			display.setSize(resolution.width, resolution.height, DisplayConfig::ResizableBorder);
 			if (!display.create(config))
 				FATAL__("Unable to create window (" + display.errorStr() + ")");
 			if (updateFile)
-				Detail::UpdateXML(display,fileName);
-			onResize(resolution,true,false);
+				Detail::UpdateXML(display,flags,resolution, fileName);
+			if (flags & DisplayConfig::IsMaximized)
+				context.MaximizeWindow();
+			//elif (flags & DisplayConfig::IsMinimzed)
+			//	context.MinimizeWindow();
+			onResize(resolution,context.GetDisplayConfigFlags());
 		}
 		
 		

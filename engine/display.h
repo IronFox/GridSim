@@ -67,8 +67,17 @@ namespace Engine
 	class DisplayConfig
 	{
 	public:
-		typedef std::function<void(const Resolution&, bool, bool)>	FOnResize;
-		typedef void (*f_on_resize)(const Resolution&newRes, bool is_final, bool is_full_screen);
+		enum flag_t
+		{
+			ResizeDragHasEnded = 0x1,
+			IsFullscreen = 0x2,
+			IsMaximized = 0x4,
+			IsMinimzed = 0x8
+		};
+
+
+		typedef std::function<void(const Resolution&, UINT32)>	FOnResize;
+		typedef void (*f_on_resize)(const Resolution&newRes, UINT32 flags);
 
 		enum border_style_t
 		{
@@ -202,7 +211,7 @@ namespace Engine
 	inline	void						setDimensions(unsigned width, unsigned height, DisplayConfig::border_style_t style);	//!< @copydoc resizeWindow()
 	inline	void						setSize(unsigned width, unsigned height, DisplayConfig::border_style_t style);	//!< @copydoc resizeWindow()
 
-	void								SignalWindowResize(bool final);
+	void								SignalWindowResize(UINT32 displayConfigFlags);
 
 	FORWARD const RECT&					windowLocation();	//!< Retrieves the current window location and size \return RECT Struct containing the current window location.
 	FORWARD	unsigned					width();			//!< Queries the current window width
@@ -326,23 +335,26 @@ namespace Engine
 
 	#endif
 
-			void				looseFocus();
-			void				restoreFocus();
-			void				locateWindow();
-			void				eventClose();
+		void					looseFocus();
+		void					restoreFocus();
+		UINT32					LocateWindow();
+		void					eventClose();
+
+		static UINT32			displayConfigFlags;
+
 
 
 	protected:
-			int								_error;
-			DWORD							_trate;
-			RECT					 		_location,
-											client_area;
-			DisplayConfig::border_style_t	border_style;
-			DisplayConfig::FOnResize		onResize;
+		int								_error;
+		DWORD							_trate;
+		RECT					 		_location,
+										client_area;
+		DisplayConfig::border_style_t	border_style;
+		DisplayConfig::FOnResize		onResize;
 	public:
-			bool						shutting_down;
+		bool					shutting_down;
 
-								Context();
+		/**/					Context();
 
 		template <typename T>
 			void				GetAbsoluteClientRegion(Rect<T>&rect)		const
@@ -353,6 +365,8 @@ namespace Engine
 				rect.y.max = client_area.bottom;
 			}
 
+
+		UINT32					GetDisplayConfigFlags() const;
 			
 
 	#if SYSTEM==WINDOWS
@@ -364,6 +378,8 @@ namespace Engine
 			void				setWindow(HWND);
 			WString				createClass();
 			void				destroyClass();
+
+			bool				CheckFullscreen(const WINDOWINFO&) const;
 	#elif SYSTEM==UNIX
 			::Display*			connect();
 			::Display*			connection();
@@ -374,9 +390,9 @@ namespace Engine
 
 			bool				hideCursor();
 			void				showCursor();
-			void				resizeWindow(unsigned width, unsigned height, DisplayConfig::border_style_t border_style);
-			void				locateWindow(unsigned left, unsigned top, unsigned width, unsigned height);
-			void				locateWindow(const RECT&dimensions);
+			UINT32				ResizeWindow(unsigned width, unsigned height, DisplayConfig::border_style_t border_style);
+			UINT32				LocateWindow(unsigned left, unsigned top, unsigned width, unsigned height);
+			UINT32				LocateWindow(const RECT&dimensions);
 			const RECT&			windowLocation()						const;
 			const RECT&			windowClientArea()						const;
 			Resolution			windowSize()							const;
@@ -387,7 +403,7 @@ namespace Engine
 			static RECT			transform(const TFloatRect&field, const Resolution&);
 			void				destroyWindow();
 
-			void				signalResize(bool is_final, bool is_maximized);
+			void				SignalResize(UINT32 flags);
 
 			bool				isTopWindow()							const;
 			void				focus();
@@ -420,7 +436,7 @@ namespace Engine
 			double				windowAspectd()							const;
 
 			unsigned			countScreenModes();
-			Resolution			getScreenSize();
+			Resolution			getScreenSize()							const;
 			short				getRefreshRate();
 	#if SYSTEM==WINDOWS
 			
@@ -429,10 +445,10 @@ namespace Engine
 			void				BlockFileDrop();
 
 
-			DEVMODE*			getScreen(unsigned index);
-			bool				isCurrent(const DEVMODE&screen);
-			bool				getScreen(DEVMODE*mode);
-			bool				getScreen(DEVMODE&mode);
+			DEVMODE*			getScreen(unsigned index)				const;
+			bool				isCurrent(const DEVMODE&screen)			const;
+			bool				getScreen(DEVMODE*mode)					const;
+			bool				getScreen(DEVMODE&mode)					const;
 	#elif SYSTEM==UNIX
 
 			int							findScreen(DWORD width, DWORD height, DWORD&refresh_rate);
