@@ -585,6 +585,7 @@ namespace TCP
 		std::thread			thread;
 		volatile bool		done = true;
 		Semaphore			sem;
+		SpinLock			joinLock;
 
 
 		static void			_Start(TCPThreadObject*self, Semaphore*sem)
@@ -637,13 +638,17 @@ namespace TCP
 
 		void				Join()
 		{
+			if (IsSelf())
+				return;
+			joinLock.lock();
 			try
 			{
-				thread.join();
+				if (thread.joinable())
+					thread.join();
 				thread.swap(std::thread());
 			}
-			catch (...)
-			{}	//dont care
+			catch (...) {}	//dont care
+			joinLock.unlock();
 		}
 	};
 
@@ -950,9 +955,10 @@ namespace TCP
 							{}
 		virtual				~Server()
 							{
-								clientMutex.signalWrite();
-									clientList.Clear();
-								clientMutex.exitWrite();
+								EndService();
+								//clientMutex.BeginWrite();
+								//	clientList.Clear();
+								//clientMutex.EndWrite();
 								delete socketAccess;
 							}
 		bool				HasAnyClients() const

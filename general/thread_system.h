@@ -618,12 +618,18 @@ namespace System
 			Mutex			mutex;
 			Semaphore		semaphore;
 			unsigned		max_readers;
+			volatile bool	lockedDown;
 	public:
 							ReadWriteMutex(unsigned max_readers=32);
-			void			signalRead();	   //!< Waits until read-access can be aquired
-			void			signalWrite();	  //!< Waits until write-access can be aquired
-			void			exitRead();		 //!< Releases read-access
-			void			exitWrite();		//!< Releases write-access
+			void			BeginRead();	   //!< Waits until read-access can be aquired
+			/**
+			Attempts to enter writing phase for the local thread. The invocation fails immediately, if the local instance is locked down.
+			@param lockdown Lock out any other threads calling SignalWrite() until ExitRead() is called. For those threads, calling SignalWrite() will return false immediately, rather than block\
+			@return true, if the lock was acquired, false otherwise.
+			*/
+			bool			BeginWrite(bool lockdown = false);
+			void			EndRead();		 //!< Releases read-access
+			void			EndWrite();		//!< Releases write-access
 	};
 	
 	/*!

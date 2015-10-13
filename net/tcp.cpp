@@ -431,16 +431,16 @@ namespace TCP
 				std::cout << "ConnectionAttempt::ThreadMain() exit: connection failed"<<std::endl;
 			return;
 		}
+		client->writer.Begin(client->socketAccess);
 
-
-		if (verbose)
-			std::cout << "ConnectionAttempt::ThreadMain(): sending 'connection established' event"<<std::endl;
-		client->HandleEvent(Event::ConnectionEstablished,TDualLink(client));
 		if (verbose)
 			std::cout << "ConnectionAttempt::ThreadMain(): starting client thread"<<std::endl;
 		client->Start();
 		if (verbose)
 			std::cout << "ConnectionAttempt::ThreadMain() exit: connection established"<<std::endl;
+		if (verbose)
+			std::cout << "ConnectionAttempt::ThreadMain(): sending 'connection established' event"<<std::endl;
+		client->HandleEvent(Event::ConnectionEstablished,TDualLink(client));
 
 	}
 
@@ -764,7 +764,6 @@ namespace TCP
 		if (verbose)
 			std::cout << "Peer::ThreadMain() enter"<<std::endl;
 		AssertIsSelf();	//this should really be implied. as it turns out due to whatnot kind of errors, sometimes it hicks up
-		writer.Begin(socketAccess);
 		while (socketAccess && !socketAccess->IsClosed())
 		{
 			UINT32	header[2];
@@ -977,16 +976,29 @@ namespace TCP
 
 			if (verbose)
 				std::cout << "Server::ThreadMain(): acquiring write lock for client create"<<std::endl;
-			clientMutex.signalWrite();
+			if (clientMutex.BeginWrite())
+			{
+				if (this->is_shutting_down)
+				{
+					clientMutex.EndWrite();
+					continue;
+				}
 				clientList << peer;
-			clientMutex.exitWrite();
-			if (verbose)
-				std::cout << "Server::ThreadMain(): released write lock"<<std::endl;
-			setError("");
-			HandleEvent(Event::ConnectionEstablished,TDualLink(peer));
-			if (verbose)
-				std::cout << "Server::ThreadMain():	starting peer thread"<<std::endl;
-			peer->Start();
+				clientMutex.EndWrite();
+
+				if (verbose)
+					std::cout << "Server::ThreadMain(): released write lock"<<std::endl;
+				setError("");
+				peer->writer.Begin(socketAccess);
+
+				if (verbose)
+					std::cout << "Server::ThreadMain():	starting peer thread"<<std::endl;
+				peer->Start();
+				HandleEvent(Event::ConnectionEstablished,TDualLink(peer));
+			}
+			else
+				if (verbose)
+					std::cout << "Server::ThreadMain():	ignoring client"<<std::endl;
 		}
 		if (verbose)
 			std::cout << "Server::ThreadMain() exit: socket handle reset by remote operation"<<std::endl;
@@ -1123,7 +1135,7 @@ namespace TCP
 			}
 			if (verbose)
 				std::cout << __func__": acquiring read lock for client lookup" << std::endl;
-			clientMutex.signalRead();
+			clientMutex.BeginRead();
 			if (verbose)
 				std::cout << __func__ ": lock acquired. searching" << std::endl;
 			index_t at = InvalidIndex;
@@ -1140,7 +1152,7 @@ namespace TCP
 					std::cout << __func__ " client found" << std::endl;
 				p = clientList[at];
 			}
-			clientMutex.exitRead();
+			clientMutex.EndRead();
 			if (verbose)
 				std::cout << __func__": released read lock. returning result" << std::endl;
 			return p;
@@ -1165,7 +1177,12 @@ namespace TCP
 			}
 			if (verbose)
 				std::cout << "Server::onDisconnect(): acquiring write lock for client disconnect" << std::endl;
-			clientMutex.signalWrite();
+			if (!clientMutex.BeginWrite())
+			{
+				if (verbose)
+					std::cout << "Server::onDisconnect(): Server locked down for termination. Aborting event handling" << std::endl;
+				return;
+			}
 			if (verbose)
 				std::cout << "Server::onDisconnect(): lock acquired. dropping peer" << std::endl;
 			index_t at = InvalidIndex;
@@ -1181,7 +1198,7 @@ namespace TCP
 				p = clientList[at];
 				clientList.erase(at);
 			}
-			clientMutex.exitWrite();
+			clientMutex.EndWrite();
 			if (verbose)
 				std::cout << "Server::onDisconnect(): released write lock. discarding peer" << std::endl;
 			if (p)
@@ -1205,7 +1222,7 @@ namespace TCP
 		block_events++;
 			if (verbose)
 				std::cout << "Server::endService(): acquiring write lock for service termination"<<std::endl;
-			clientMutex.signalWrite();
+			ASSERT__(clientMutex.BeginWrite(true));
 				if (verbose)
 					std::cout << "Server::endService(): lock acquired. erasing client peers"<<std::endl;
 				clients_locked = true;
@@ -1216,7 +1233,7 @@ namespace TCP
 				}
 				clientList.Clear();
 				clients_locked = false;
-			clientMutex.exitWrite();
+			clientMutex.EndWrite();
 			if (verbose)
 				std::cout << "Server::endService(): released write lock"<<std::endl;
 			
@@ -1270,7 +1287,7 @@ namespace TCP
 		}
 		if (verbose)
 			std::cout << "Server::sendObject(): acquiring read lock for message send"<<std::endl;
-		clientMutex.signalRead();
+		clientMutex.BeginRead();
 			if (verbose)
 				std::cout << "Server::sendObject(): lock acquired"<<std::endl;
 			for (index_t i = 0; i < clientList.Count(); i++)
@@ -1280,30 +1297,35 @@ namespace TCP
 					continue;	//we assume this case is already handled
 				if (!peer->sendData(channel,out_buffer.pointer(),size))
 				{
-					clientMutex.exitRead();
+					clientMutex.EndRead();
 					if (verbose)
 					{
 						std::cout << "Server::sendObject(): released read lock"<<std::endl;
 						std::cout << "Server::sendObject(): acquiring write lock for peer termination"<<std::endl;
 					}
-					clientMutex.signalWrite();
+					if (clientMutex.BeginWrite())
+					{
 						clients_locked = true;
 						if (verbose)
 							std::cout << "Server::sendObject(): erasing peer "<<peer->ToString()<<std::endl;
 						clientList.FindAndErase(peer);
 						clients_locked = false;
-					clientMutex.exitWrite();
+						clientMutex.EndWrite();
+					}
+					else
+						FATAL__("TCP Server: Failed to acquire write-lock. This should not happen");
+
 					if (verbose)
 					{
 						std::cout << "Server::sendObject(): released write lock"<<std::endl;
 						std::cout << "Server::sendObject(): acquiring read lock for continued message send"<<std::endl;
 					}
 					HandlePeerDeletion(peer);
-					clientMutex.signalRead();
+					clientMutex.BeginRead();
 					i--;
 				}
 			}
-		clientMutex.exitRead();
+		clientMutex.EndRead();
 		if (verbose)
 		{
 			std::cout << "Server::sendObject(): released read lock"<<std::endl;
@@ -1329,7 +1351,7 @@ namespace TCP
 			return false;
 		if (verbose)
 			std::cout << "Server::sendObject(): acquiring read lock for message send"<<std::endl;
-		clientMutex.signalRead();
+		clientMutex.BeginRead();
 			for (index_t i = 0; i < clientList.Count(); i++)
 			{
 				const PPeer peer = clientList[i];
@@ -1339,29 +1361,34 @@ namespace TCP
 					continue;	//we assume this case is already handled
 				if (!peer->sendData(channel,out_buffer.pointer(),size))
 				{
-					clientMutex.exitRead();
+					clientMutex.EndRead();
 					if (verbose)
 					{
 						std::cout << "Server::sendObject(): released read lock"<<std::endl;
 						std::cout << "Server::sendObject(): acquiring write lock for peer termination"<<std::endl;
 					}
-					clientMutex.signalWrite();
+					if (clientMutex.BeginWrite())
+					{
 						clients_locked = true;
 						if (verbose)
 							std::cout << "Server::sendObject(): erasing peer "<<peer->ToString()<<std::endl;
 						clientList.FindAndErase(peer);
 						clients_locked = false;
-					clientMutex.exitWrite();
+						clientMutex.EndWrite();
+					}
+					else
+						FATAL__("TCP Server: Failed to acquire write-lock. This should not happen");
+
 					if (verbose)
 					{
 						std::cout << "Server::sendObject(): released write lock"<<std::endl;
 						std::cout << "Server::sendObject(): acquiring read lock for continued message send"<<std::endl;
 					}
-					clientMutex.signalRead();
+					clientMutex.BeginRead();
 					i--;
 				}
 			}
-		clientMutex.exitRead();
+		clientMutex.EndRead();
 		if (verbose)
 		{
 			std::cout << "Server::sendObject(): released read lock"<<std::endl;

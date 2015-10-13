@@ -749,30 +749,38 @@ namespace System
 
 
 
-    ReadWriteMutex::ReadWriteMutex(unsigned max):semaphore(max),max_readers(max)
+    ReadWriteMutex::ReadWriteMutex(unsigned max):semaphore(max),max_readers(max),lockedDown(false)
     {}
 
-    void        ReadWriteMutex::signalRead()
+    void        ReadWriteMutex::BeginRead()
     {
 		semaphore.enter();
     }
 
-    void        ReadWriteMutex::exitRead()
+    void        ReadWriteMutex::EndRead()
     {
 		semaphore.leave();
     }
 
-    void        ReadWriteMutex::signalWrite()
+    bool        ReadWriteMutex::BeginWrite(bool lockdown /*= false*/)
     {
 		mutex.lock();
-		for (unsigned i = 0; i < max_readers; ++i)
-			semaphore.enter();
+			if (lockedDown)
+			{
+				mutex.unlock();
+				return false;
+			}
+			lockedDown = lockdown;
+			for (unsigned i = 0; i < max_readers; ++i)
+				semaphore.enter();
 		mutex.release();
+		return true;
     }
 
-    void        ReadWriteMutex::exitWrite()
+    void        ReadWriteMutex::EndWrite()
     {
         semaphore.release(max_readers);
+		lockedDown = false;
     }
 
 
