@@ -989,7 +989,7 @@ namespace TCP
 				if (verbose)
 					std::cout << "Server::ThreadMain(): released write lock"<<std::endl;
 				setError("");
-				peer->writer.Begin(socketAccess);
+				peer->writer.Begin(peer->socketAccess);
 
 				if (verbose)
 					std::cout << "Server::ThreadMain():	starting peer thread"<<std::endl;
