@@ -663,13 +663,25 @@ namespace TCP
 	}
 	void						PeerWriter::Terminate()
 	{
-		accessPointerLock.lock();
-			accessPointer = nullptr;
-		accessPointerLock.unlock();
+		try
+		{
+			accessPointerLock.lock();
+				accessPointer = nullptr;
+			accessPointerLock.unlock();
+		}
+		catch (...){};
 
 		connectionLost = true;
-		pipe.clear();
-		pipe.OverrideSignalNow();
+		try
+		{
+			pipe.clear();
+		}
+		catch (...){};
+		try
+		{
+			pipe.OverrideSignalNow();
+		}
+		catch (...){};
 		this->Join();
 	}
 
