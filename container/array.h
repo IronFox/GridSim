@@ -223,16 +223,27 @@ public:
 };
 
 
-/**
-	@brief Array data containment
+template <typename T>
+	class FixedSizeSerializable
+	{
+	public:
+		static size_t		GetSize()
+		{
+			static T		testElement;	//!< Used to test serializability
+			return GetFixedSize(&testElement);
+		}
+	};
 
-	ArrayData provides all non-strategy dependent functionality that array usage requires. Methods or functions that do not require strategy-dependent functionality may accept ArrayData instead.
+
+/**
+@brief Array data containment
+
+ArrayData provides all non-strategy dependent functionality that array usage requires. Methods or functions that do not require strategy-dependent functionality may accept ArrayData instead.
 */
 template <class C>
 	class ArrayData: public SerializableObject, public Arrays
 	{
 	protected:
-		static C		testElement;	//!< Used to test serializability
 
 		C*				data;
 		count_t			elements;
@@ -806,7 +817,7 @@ template <class C>
 		virtual	serial_size_t	GetSerialSize(bool export_size) const	override
 							{
 								serial_size_t result = 0;
-								if (export_size || (IsISerializable(data) && !GetFixedSize(&testElement)))
+								if (export_size || (IsISerializable(data) && !FixedSizeSerializable<C>::GetSize()))
 									result = GetSerialSizeOfSize((serial_size_t)elements);
 								for (index_t i = 0; i < elements; i++)
 									result += GetSerialSizeOf((const C*)data+i,sizeof(C),true);//must pass true here because the individual object size cannot be restored from the global data size
@@ -815,7 +826,7 @@ template <class C>
 
 		virtual	bool		Serialize(IWriteStream&out_stream, bool export_size) const	override
 							{
-								if (export_size || (IsISerializable(data) && !GetFixedSize(&testElement)))
+								if (export_size || (IsISerializable(data) && !FixedSizeSerializable<C>::GetSize()))
 									if (!out_stream.WriteSize(elements))
 										return false;
 								if (!IsISerializable(data))
@@ -848,7 +859,7 @@ template <class C>
 										size = (count_t)(fixed_size/sizeof(C));
 									else
 									{
-										size_t fixedElementSize = GetFixedSize(&testElement);
+										size_t fixedElementSize = FixedSizeSerializable<C>::GetSize();
 										if (fixedElementSize != 0)
 										{
 											size = (count_t)(fixed_size/fixedElementSize);
@@ -881,8 +892,7 @@ template <class C>
 								return true;
 							}
 	};
-	template <class C>
-	/*static*/ C		ArrayData<C>::testElement;	//!< Used to test serializability
+
 
 DECLARE_T__(ArrayData,SwapStrategy);
 
