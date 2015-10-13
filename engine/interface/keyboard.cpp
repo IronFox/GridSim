@@ -86,6 +86,22 @@ namespace Engine
 			buffer_len = len;
 	}
 
+	void	Keyboard::FilterAppend(const char*strn)
+	{
+		while (*strn)
+		{
+			input(*strn);
+			++strn;
+		}
+	}
+
+	void	Keyboard::FilterAppend(const String&strn)
+	{
+		FilterAppend(strn.c_str());
+
+	}
+
+
 	void Keyboard::fillInput(const String&strn)
 	{
 		size_t len = strn.length();
