@@ -87,8 +87,18 @@ namespace Engine
 		};
 
 
-		String			window_name,
-						icon_filename;
+		struct Icon
+		{
+			String		fileName;
+			int			idiResource = -1;
+
+			/**/		Icon()	{}
+			/**/		Icon(int idiResource): idiResource(idiResource)	{}
+		};
+
+
+		String			window_name;
+		Icon			icon;
 		border_style_t	border_style;
 		FOnResize		onResize;
 
@@ -373,7 +383,7 @@ namespace Engine
 			void				RegisterEventHook(EventHook hook)	{eventHook = hook;}
 			HWND				window()	const;
 			HWND				getWindow()	const {return window();}
-			HWND				createWindow(const String&window_name, DisplayConfig::border_style_t border_style, const DisplayConfig::FOnResize&onResize, const String&icon_filename);
+			HWND				createWindow(const String&window_name, DisplayConfig::border_style_t border_style, const DisplayConfig::FOnResize&onResize, const DisplayConfig::Icon&icon);
 			HWND 				createChildWindow(HWND parent, bool enabled);
 			void				setWindow(HWND);
 			WString				createClass();

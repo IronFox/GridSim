@@ -32,7 +32,7 @@ namespace Engine
 
 
 	template <typename GL>
-		void	CreateDisplay(Display<GL>&display, const String&name, Resolution resolution, DisplayConfig::f_on_resize onResize)
+		void	CreateDisplay(Display<GL>&display, const String&name, Resolution resolution, DisplayConfig::f_on_resize onResize, const DisplayConfig::Icon&icon = DisplayConfig::Icon())
 		{
 			Resolution screenRes = display.getScreenSize();
 			resolution.width = std::min(resolution.width,screenRes.width);
@@ -83,6 +83,7 @@ namespace Engine
 				}
 				onResize(newRes,flags);
 			});
+			config.icon = icon;
 			display.setSize(resolution.width, resolution.height, DisplayConfig::ResizableBorder);
 			if (!display.create(config))
 				FATAL__("Unable to create window (" + display.errorStr() + ")");

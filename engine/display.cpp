@@ -507,7 +507,7 @@ namespace Engine
 
 
 	
-	HWND Context::createWindow(const String&window_name, DisplayConfig::border_style_t border_style, const DisplayConfig::FOnResize&onResize, const String&icon_name)
+	HWND Context::createWindow(const String&window_name, DisplayConfig::border_style_t border_style, const DisplayConfig::FOnResize&onResize, const DisplayConfig::Icon&icon)
 	{
 		displayConfigFlags = 0;
 		this->border_style = border_style;
@@ -549,12 +549,15 @@ namespace Engine
 		wc.lpszClassName = ENGINE_CLASS_NAME;
 		wc.cbClsExtra = 0;
 		wc.cbWndExtra = 0; 
-		if (icon_name.length())
+		if (icon.fileName.IsNotEmpty())
 		{
-			wc.hIconSm = wc.hIcon = (HICON)LoadImageA(hInstance,icon_name.c_str(),IMAGE_ICON,0,0,LR_LOADFROMFILE);
+			wc.hIconSm = wc.hIcon = (HICON)LoadImageA(hInstance,icon.fileName.c_str(),IMAGE_ICON,0,0,LR_LOADFROMFILE);
 		}
 		else
-			wc.hIconSm = wc.hIcon = NULL;//LoadIcon (NULL, IDI_APPLICATION);
+			if (icon.idiResource >= 0)
+				wc.hIconSm = wc.hIcon = LoadIcon (GetModuleHandle(NULL), MAKEINTRESOURCE(icon.idiResource));
+			else
+				wc.hIconSm = wc.hIcon = LoadIcon (GetModuleHandle(NULL), IDI_APPLICATION);
 		if (!RegisterClassExW(&wc))
 		{
 			_error = ERR_CLASS_REGISTRATION_FAILED;

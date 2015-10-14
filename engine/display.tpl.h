@@ -227,7 +227,7 @@ namespace Engine
 		resolution_overridden = false;
 		while (true)
 	    {
-			HWND hWnd = context.createWindow(dconfig.window_name,dconfig.border_style, dconfig.onResize,dconfig.icon_filename);
+			HWND hWnd = context.createWindow(dconfig.window_name,dconfig.border_style, dconfig.onResize,dconfig.icon);
 	        if (!hWnd)
 	        {
 	            context_error = true;
