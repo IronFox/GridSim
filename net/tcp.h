@@ -968,7 +968,7 @@ namespace TCP
 		template <typename F>
 			void			VisitAllPeerAttachments(const F&f)
 							{
-								clientMutex.signalRead();
+								clientMutex.BeginRead();
 								{
 									foreach (clientList,client)
 									{
@@ -977,19 +977,19 @@ namespace TCP
 											f(p->attachment);
 									}
 								}
-								clientMutex.exitRead();
+								clientMutex.EndRead();
 							}
 		template <typename F>
 			void			VisitAllPeers(const F&f)
 							{
-								clientMutex.signalRead();
+								clientMutex.BeginRead();
 								{
 									foreach (clientList,client)
 									{
 										f(*client);
 									}
 								}
-								clientMutex.exitRead();
+								clientMutex.EndRead();
 							}
 		template <class SocketAccessClass>
 			void			SetSocketAccess()
