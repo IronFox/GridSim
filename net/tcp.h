@@ -28,6 +28,26 @@ namespace TCP
 	#endif
 
 
+	#undef TCP_TRY
+	#undef TCP_CATCH
+
+	#define TCP_TRY  try
+	#define TCP_CATCH\
+				catch (const std::exception&ex)\
+				{\
+					::TCP::onIgnoredException(CLOCATION,ex);\
+				}\
+				catch (...)\
+				{\
+					::TCP::onIgnoredArbitraryException(CLOCATION);\
+				}
+
+
+
+	extern std::function<void(const TCodeLocation&,const std::exception&)>	onIgnoredException;
+	extern std::function<void(const TCodeLocation&)>	onIgnoredArbitraryException;
+
+
 	void	SwapCloseSocket(volatile SOCKET&socket);
 	String	ToString(const addrinfo&address);
 	String	ToString(const sockaddr_storage&address);
@@ -46,6 +66,22 @@ namespace TCP
 
 		virtual	int				Read(void*data, size_t dataSize) = 0;
 		virtual int				Write(const void*data, size_t dataSize) = 0;
+	};
+
+
+	class Exception : public std::exception
+	{
+	public:
+		String message;
+		TCodeLocation loc;
+
+
+		Exception(const TCodeLocation&loc):loc(loc)	{}
+		Exception(const TCodeLocation&loc,const String&message):loc(loc),message(message)	{}
+
+
+
+		const char* what() const override {return (String(loc.ToString())+": "+message).c_str();}
 	};
 
 
@@ -241,8 +277,8 @@ namespace TCP
 				@param serializable Data to send on the specified channel
 				@return true on success, false otherwise
 			*/
-	virtual	bool			SendObject(UINT32 channel, const ISerializable&serializable)=0;
-	virtual	bool			SendObject(UINT32 channel, const PPeer&exclude, const ISerializable&serializable)	{return SendObject(channel,serializable);};
+	virtual	bool			SendObject(UINT32 channel, const ISerializable&serializable, unsigned minUserLevel)=0;
+	virtual	bool			SendObject(UINT32 channel, const PPeer&exclude, const ISerializable&serializable, unsigned minUserLevel)	{return SendObject(channel,serializable,minUserLevel);};
 	};
 	typedef std::shared_ptr<Destination>	PDestination;
 	/**
@@ -264,8 +300,8 @@ namespace TCP
 		/**
 		@brief Sends an object to the specified destination
 		*/
-		bool				SendObject(Destination&destination, const ISerializable&object);
-		bool				SendObject(Destination&destination, const PPeer&exclude, const ISerializable&object);
+		bool				SendObject(Destination&destination, const ISerializable&object, unsigned minUserLevel=0);
+		bool				SendObject(Destination&destination, const PPeer&exclude, const ISerializable&object, unsigned minUserLevel=0);
 							
 		/**
 		@brief Deserializes the stream into a new object
@@ -301,15 +337,15 @@ namespace TCP
 		public:
 			/**/					ObjectSender():RootChannel(Channel)
 									{}
-			bool					SendTo(Destination&destination, const SerializableObject&object)
+			bool					SendTo(Destination&destination, const SerializableObject&object, unsigned minUserLevel=0)
 			{
-				return SendObject(destination,object);
+				return SendObject(destination,object,minUserLevel);
 			}
-			bool					SendTo(const PDestination&destination, const SerializableObject&object)
+			bool					SendTo(const PDestination&destination, const SerializableObject&object, unsigned minUserLevel=0)
 			{
 				if (!destination)
 					return false;
-				return SendObject(*destination,object);
+				return SendObject(*destination,object,minUserLevel);
 			}
 			/**
 			@brief Special overload form of sendTo for servers only
@@ -321,27 +357,27 @@ namespace TCP
 			@param object Serializable object to send
 			@return true on success, false otherwise. Note that a positive result only indicates that the object was successfuly serialized to the tcp stream. It does not mean that the package was received or accepted.
 			*/
-			bool				SendTo(const PDestination&destination, const PPeer&exclude, const SerializableObject&object)
+			bool				SendTo(const PDestination&destination, const PPeer&exclude, const SerializableObject&object, unsigned minUserLevel=0)
 			{
 				if (!destination)
 					return false;
-				return SendObject(*destination,exclude,object);
+				return SendObject(*destination,exclude,object,minUserLevel);
 			}
-			bool				SendTo(Destination&destination, const PPeer&exclude, const SerializableObject&object)
+			bool				SendTo(Destination&destination, const PPeer&exclude, const SerializableObject&object, unsigned minUserLevel=0)
 			{
 				return SendObject(destination,exclude,object);
 			}
 
 
-			bool					SendTo(Destination&destination, const Serial<SerializableObject>&object)
+			bool					SendTo(Destination&destination, const Serial<SerializableObject>&object, unsigned minUserLevel=0)
 			{
-				return SendObject(destination,object.Get());
+				return SendObject(destination,object.Get(),minUserLevel);
 			}
-			bool					SendTo(const PDestination&destination, const Serial<SerializableObject>&object)
+			bool					SendTo(const PDestination&destination, const Serial<SerializableObject>&object, unsigned minUserLevel=0)
 			{
 				if (!destination)
 					return false;
-				return SendObject(*destination,object.Get());
+				return SendObject(*destination,object.Get(),minUserLevel);
 			}
 			/**
 			@brief Special overload form of sendTo for servers only
@@ -353,15 +389,15 @@ namespace TCP
 			@param object Serializable object to send
 			@return true on success, false otherwise. Note that a positive result only indicates that the object was successfuly serialized to the tcp stream. It does not mean that the package was received or accepted.
 			*/
-			bool				SendTo(const PDestination&destination, const PPeer&exclude, const Serial<SerializableObject>&object)
+			bool				SendTo(const PDestination&destination, const PPeer&exclude, const Serial<SerializableObject>&object, unsigned minUserLevel=0)
 			{
 				if (!destination)
 					return false;
-				return SendObject(*destination,exclude,object.Get());
+				return SendObject(*destination,exclude,object.Get(),minUserLevel);
 			}
-			bool				SendTo(Destination&destination, const PPeer&exclude, const Serial<SerializableObject>&object)
+			bool				SendTo(Destination&destination, const PPeer&exclude, const Serial<SerializableObject>&object, unsigned minUserLevel=0)
 			{
-				return SendObject(destination,exclude,object.Get());
+				return SendObject(destination,exclude,object.Get(),minUserLevel);
 			}
 												
 		};
@@ -383,17 +419,17 @@ namespace TCP
 			/**
 			@brief Sends a signal (data-less package) to the specified destination
 			*/
-			bool				SendTo(Destination&destination)
+			bool				SendTo(Destination&destination, unsigned minUserLevel=0)
 			{
 				VoidSerializable object;
-				return SendObject(destination,object);
+				return SendObject(destination,object,minUserLevel);
 			}
-			bool				SendTo(const PDestination&destination)
+			bool				SendTo(const PDestination&destination, unsigned minUserLevel=0)
 			{
 				if (!destination)
 					return false;
 				VoidSerializable object;
-				return SendObject(*destination,object);
+				return SendObject(*destination,object,minUserLevel);
 			}
 			/**
 			@brief Special overload form of sendTo for servers only
@@ -405,17 +441,17 @@ namespace TCP
 			@param object Serializable object to send
 			@return true on success, false otherwise. Note that a positive result only indicates that the object was successfuly serialized to the tcp stream. It does not mean that the package was received or accepted.
 			*/
-			bool				SendTo(const PDestination&destination, const PPeer&exclude)
+			bool				SendTo(const PDestination&destination, const PPeer&exclude, unsigned minUserLevel=0)
 			{
 				if (!destination)
 					return false;
 				VoidSerializable object;
-				return SendObject(*destination,exclude,object);
+				return SendObject(*destination,exclude,object,minUserlevel);
 			}
-			bool				SendTo(Destination&destination, const PPeer&exclude)
+			bool				SendTo(Destination&destination, const PPeer&exclude, unsigned minUserLevel=0)
 			{
 				VoidSerializable object;
-				return SendObject(destination,exclude,object);
+				return SendObject(destination,exclude,object,minUserlevel);
 			}
 												
 		};
@@ -641,13 +677,13 @@ namespace TCP
 			if (IsSelf())
 				return;
 			joinLock.lock();
-			try
+			TCP_TRY
 			{
 				if (thread.joinable())
 					thread.join();
 				thread.swap(std::thread());
 			}
-			catch (...) {}	//dont care
+			TCP_CATCH
 			joinLock.unlock();
 		}
 	};
@@ -862,7 +898,7 @@ namespace TCP
 		bool						SendSignal(UINT32 channel);		//!< Sends a data-less package to the other end of this peer
 			
 		bool						HandleIsValid()	const	{return !socketAccess->IsClosed();}
-		bool						SendObject(UINT32 channel, const ISerializable&object) override;		//!< Sends a serializable object to the TCP stream on the specified channel
+		bool						SendObject(UINT32 channel, const ISerializable&object, unsigned minUserLevel=0) override;		//!< Sends a serializable object to the TCP stream on the specified channel
 	};
 
 	typedef std::shared_ptr<Peer::Attachment>	PAttachment;
@@ -942,8 +978,8 @@ namespace TCP
 	protected:
 		void				OnDisconnect(const Peer*, event_t) override;	//!< Executed by a peer if its connection died
 		void				Fail(const String&message);					//!< Executed if an operation failed
-		bool				SendObject(UINT32 channel, const ISerializable&object) override;
-		bool				SendObject(UINT32 channel, const PPeer&exclude, const ISerializable&object) override;
+		bool				SendObject(UINT32 channel, const ISerializable&object, unsigned minUserLevel) override;
+		bool				SendObject(UINT32 channel, const PPeer&exclude, const ISerializable&object, unsigned minUserLevel) override;
 		
 		ReadWriteMutex		clientMutex;	//!< Mutex to shield operations on the client list. This mutex should be locked before clients are queried
 		Buffer0<PPeer>		clientList;		//!< List of all currently connected clients

@@ -13,6 +13,20 @@ namespace TCP
 
 
 
+	void	NoExceptionHandler(const TCodeLocation&loc,const std::exception&ex)
+	{
+
+	}
+	void	NoArbExceptionHandler(const TCodeLocation&loc)
+	{
+
+	}
+
+	std::function<void(const TCodeLocation&,const std::exception&)>	onIgnoredException = NoExceptionHandler;
+	std::function<void(const TCodeLocation&)>	onIgnoredArbitraryException = NoArbExceptionHandler;
+
+
+
 	void	SwapCloseSocket(volatile SOCKET&socket)
 	{
 		if (socket == INVALID_SOCKET)
@@ -92,14 +106,14 @@ namespace TCP
 
 
 
-	bool RootChannel::SendObject(Destination&target, const ISerializable&object)
+	bool RootChannel::SendObject(Destination&target, const ISerializable&object, unsigned minUserLevel)
 	{
-		return target.SendObject(id,object);
+		return target.SendObject(id,object,minUserLevel);
 	}
 
-	bool RootChannel::SendObject(Destination&target, const PPeer&exclude, const ISerializable&object)
+	bool RootChannel::SendObject(Destination&target, const PPeer&exclude, const ISerializable&object, unsigned minUserLevel)
 	{
-		return target.SendObject(id,exclude,object);
+		return target.SendObject(id,exclude,object,minUserLevel);
 	}
 
 
@@ -118,7 +132,11 @@ namespace TCP
 			inbound.object = object;
 			inbound.sender = sender;
 			inbound.receiver = receiver;
-			mutex.lock();
+			if (!mutex.tryLock(1000))
+			{
+				FATAL__("Failed to lock thread after 1000ms. Deadlock assumed");
+				return;
+			}
 				queue << inbound;
 			mutex.release();
 		}
@@ -164,10 +182,13 @@ namespace TCP
 			sevent.type = TCommonEvent::NetworkEvent;
 			sevent.event = event;
 			sevent.sender = peer;
-			synchronized(mutex)
+			if (!mutex.tryLock(1000))
 			{
-				queue << sevent;
+				FATAL__("Failed to lock thread after 1000ms. Deadlock assumed");
+				return;
 			}
+			queue << sevent;
+			mutex.release();
 		}
 	}
 
@@ -193,54 +214,70 @@ namespace TCP
 			tsignal.type = TCommonEvent::Signal;
 			tsignal.channel = signal;
 			tsignal.sender = peer;
-			synchronized(mutex)
+			if (!mutex.tryLock(1000))
 			{
-				queue << tsignal;
+				FATAL__("Failed to lock thread after 1000ms. Deadlock assumed");
+				return;
 			}
+			queue << tsignal;
+			mutex.release();
+			
 		}
 	}
 
 
 	void Dispatcher::Resolve()
 	{
-		mutex.lock();
+		if (!mutex.tryLock(1000))
+		{
+			FATAL__("Failed to lock thread after 1000ms. Deadlock assumed");
+			return;
+		}
+		TCP_TRY
+		{
 			TCommonEvent ev;
 			//TSignal signal;
 			while (queue >> ev)
 			{
-				switch (ev.type)
+				TCP_TRY
 				{
-					case TCommonEvent::NetworkEvent:
-						if (onEvent)
-						{
-							PPeer p = ev.sender.s.lock();
-							Peer*ptr = p ? p.get() : ev.sender.p;
-							if (ptr)
-								onEvent(ev.event,*ptr);
-							else
+					switch (ev.type)
+					{
+						case TCommonEvent::NetworkEvent:
+							if (onEvent)
 							{
-								DBG_FATAL__("peer reference lost in transit for event "+String(event2str(ev.event)));
+								PPeer p = ev.sender.s.lock();
+								Peer*ptr = p ? p.get() : ev.sender.p;
+								if (ptr)
+									onEvent(ev.event,*ptr);
+								else
+								{
+									throw Exception(CLOCATION,"peer reference lost in transit for event "+String(event2str(ev.event)));
+								}
 							}
-						}
-					break;
-					case TCommonEvent::Signal:
-						if (onSignal)
-						{
-							PPeer p = ev.sender.s.lock();
-							Peer*ptr = p ? p.get() : ev.sender.p;
-							if (ptr)
-								onSignal(ev.channel,*ptr);
-							else
+						break;
+						case TCommonEvent::Signal:
+							if (onSignal)
 							{
-								DBG_FATAL__("peer reference lost in transit for signal on channel "+String(ev.channel));
+								PPeer p = ev.sender.s.lock();
+								Peer*ptr = p ? p.get() : ev.sender.p;
+								if (ptr)
+									onSignal(ev.channel,*ptr);
+								else
+								{
+									throw Exception(CLOCATION,"peer reference lost in transit for signal on channel "+String(ev.channel));
+								}
 							}
-						}
-					break;
-					case TCommonEvent::Object:
-						ev.receiver->Handle(ev.object,ev.sender);
-					break;
+						break;
+						case TCommonEvent::Object:
+							ev.receiver->Handle(ev.object,ev.sender);
+						break;
+					}
 				}
+				TCP_CATCH
 			}
+		}
+		TCP_CATCH
 		mutex.release();
 		FlushWaste();
 	}
@@ -250,13 +287,16 @@ namespace TCP
 		wasteMutex.lock();
 			foreach(wasteBucket, w)
 			{
-				try
+				TCP_TRY
 				{
 					(*w)->Join(/*1000*/);
+				}
+				TCP_CATCH
+				TCP_TRY
+				{
 					(*w)->Dissolve();
 				}
-				catch (...)
-				{}
+				TCP_CATCH
 			}
 			wasteBucket.Clear();
 		wasteMutex.release();
@@ -265,8 +305,12 @@ namespace TCP
 	void Dispatcher::FlushPendingEvents()
 	{
 		FlushWaste();
-		mutex.lock();
-			queue.Clear();
+		if (!mutex.tryLock(1000))
+		{
+			FATAL__("Failed to lock thread after 1000ms. Deadlock assumed");
+			return;
+		}
+		queue.Clear();
 		mutex.release();
 	}
 	
@@ -426,6 +470,14 @@ namespace TCP
 		catch (const std::exception&exception)
 		{
 			client->setError("Socket set operation to '"+host+"' failed: "+exception.what());
+			client->HandleEvent(Event::ConnectionFailed,TDualLink(client));
+			if (verbose)
+				std::cout << "ConnectionAttempt::ThreadMain() exit: connection failed"<<std::endl;
+			return;
+		}
+		catch (...)
+		{
+			client->setError("Socket set operation to '"+host+"' failed (no compatible exception given)");
 			client->HandleEvent(Event::ConnectionFailed,TDualLink(client));
 			if (verbose)
 				std::cout << "ConnectionAttempt::ThreadMain() exit: connection failed"<<std::endl;
@@ -634,8 +686,10 @@ namespace TCP
 	//}
 	
 	static BYTE	dump_buffer[2048];
-	bool	Peer::SendObject(UINT32 channel_id, const ISerializable&object)
+	bool	Peer::SendObject(UINT32 channel_id, const ISerializable&object, unsigned minUserLevel)
 	{
+		if (this->userLevel < minUserLevel)
+			return false;
 		if (writer.connectionLost)
 			return false;
 		writer.Write(channel_id,object);
@@ -663,25 +717,25 @@ namespace TCP
 	}
 	void						PeerWriter::Terminate()
 	{
-		try
+		TCP_TRY
 		{
 			accessPointerLock.lock();
 				accessPointer = nullptr;
 			accessPointerLock.unlock();
 		}
-		catch (...){};
+		TCP_CATCH
 
 		connectionLost = true;
-		try
+		TCP_TRY
 		{
 			pipe.clear();
 		}
-		catch (...){};
-		try
+		TCP_CATCH
+		TCP_TRY
 		{
 			pipe.OverrideSignalNow();
 		}
-		catch (...){};
+		TCP_CATCH
 		this->Join();
 	}
 
@@ -1258,7 +1312,7 @@ namespace TCP
 	}
 	
 	
-	bool		Server::SendObject(UINT32 channel, const ISerializable&object)
+	bool		Server::SendObject(UINT32 channel, const ISerializable&object, unsigned minUserLevel)
 	{
 		if (verbose)
 			std::cout << "Server::sendObject() enter: channel="<<channel<<std::endl;
@@ -1292,9 +1346,11 @@ namespace TCP
 				std::cout << "Server::sendObject(): lock acquired"<<std::endl;
 			for (index_t i = 0; i < clientList.Count(); i++)
 			{
-				const PPeer peer = clientList[i];
+				const PPeer peer = clientList[i];	//should be copy? let's assume so for now
 				if (peer->socketAccess->IsClosed())
 					continue;	//we assume this case is already handled
+				if (peer->userLevel < minUserLevel)
+					continue;
 				if (!peer->sendData(channel,out_buffer.pointer(),size))
 				{
 					clientMutex.EndRead();
@@ -1335,7 +1391,7 @@ namespace TCP
 		return true;
 	}
 	
-	bool		Server::SendObject(UINT32 channel, const PPeer&exclude, const ISerializable&object)
+	bool		Server::SendObject(UINT32 channel, const PPeer&exclude, const ISerializable&object, unsigned minUserLevel)
 	{
 		if (verbose)
 			std::cout << "Server::sendObject() enter: channel="<<channel<<", exclude="<<exclude->ToString()<<std::endl;
@@ -1359,6 +1415,8 @@ namespace TCP
 					continue;
 				if (peer->socketAccess->IsClosed())
 					continue;	//we assume this case is already handled
+				if (peer->userLevel < minUserLevel)
+					continue;
 				if (!peer->sendData(channel,out_buffer.pointer(),size))
 				{
 					clientMutex.EndRead();
