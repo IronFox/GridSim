@@ -322,7 +322,7 @@ namespace TCP
 		return channel;
 	}
 	
-	Dispatcher::Dispatcher():async(true),is_locked(false),block_events(0),onEvent(NULL),onSignal(NULL),onIgnorePackage(NULL)
+	Dispatcher::Dispatcher():async(true),is_locked(false),block_events(0),onEvent(NULL),onSignal(NULL),onIgnorePackage(NULL),onDeserializationFailed(NULL)
 	{}
 	
 	Dispatcher::~Dispatcher()
@@ -891,8 +891,10 @@ namespace TCP
 					}
 					else
 					{
+						if (owner->onDeserializationFailed)
+							owner->onDeserializationFailed(channel_index,*this);
 						#ifdef _DEBUG
-							if (!this->destroyed && !this->socketAccess->IsClosed())
+							else if (!this->destroyed && !this->socketAccess->IsClosed())
 								FATAL__("deserialization failed");	//for now, this is appropriate
 						#endif
 					}

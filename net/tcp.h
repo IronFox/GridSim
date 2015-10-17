@@ -550,9 +550,10 @@ namespace TCP
 			
 		void						FlushWaste();
 	public:
-		void (*onEvent)(event_t event, Peer&origin);	//!< Callback hook for events (connection, disconnection, etc)	@param event Event that occured @param origin Event origin
-		void (*onSignal)(UINT32 signal, Peer&origin);	//!< Callback hook for signals (data-less packages) @param signal Channel that the data-less package was received on @param origin Origin of the signal
-		void (*onIgnorePackage)(UINT32 channel,UINT32 size,Peer&origin);	//!< Callback hook for ignored packages. Always async. @param channel Channel the package or signal was received on @param size Package size in bytes @param origin Receiving peer
+		void (*onEvent)(event_t event, Peer&origin);	//!< Callback hook for events (connection, disconnection, etc). NULL by default. @param event Event that occured @param origin Event origin
+		void (*onSignal)(UINT32 signal, Peer&origin);	//!< Callback hook for signals (data-less packages). NULL by default.  @param signal Channel that the data-less package was received on @param origin Origin of the signal
+		void (*onIgnorePackage)(UINT32 channel,UINT32 size,Peer&origin);	//!< Callback hook for ignored packages. Always async. NULL by default. @param channel Channel the package or signal was received on @param size Package size in bytes @param origin Receiving peer
+		void (*onDeserializationFailed)(UINT32 channel, Peer&origin);	//!< Callback hook for deserialization failures. NULL by default. If not set, such errors cause a fatal exception in debug mode, and are ignored in release mode.
 	
 		/**/						Dispatcher();
 		virtual						~Dispatcher();
@@ -826,7 +827,7 @@ namespace TCP
 		std::shared_ptr<Attachment>	attachment;
 		sockaddr_storage			address;
 		unsigned					userLevel;							//!< Current user level. Anonymous by default
-		bool						destroyed;
+		volatile bool				destroyed;
 		
 				
 		/**/						Peer(Connection*connection, bool canDoSharedFromThis):owner(connection),socketAccess(new DefaultSocketAccess()),
