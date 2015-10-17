@@ -826,7 +826,7 @@ namespace TCP
 		*/
 		std::shared_ptr<Attachment>	attachment;
 		sockaddr_storage			address;
-		unsigned					userLevel;							//!< Current user level. Anonymous by default
+		unsigned					userLevel;							//!< Current user level. Anonymous (0) by default
 		volatile bool				destroyed;
 		
 				

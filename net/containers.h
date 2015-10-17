@@ -112,6 +112,13 @@ namespace Package
 
 			void							swap(Native<T>&other)		{swp(value,other.value);}
 			void							adoptData(Native<T>&other)	{value = other.value;}
+			
+			void							operator|=(const T&other)	{value |= other;}
+			void							operator&=(const T&other)	{value &= other;}
+			void							operator+=(const T&other)	{value += other;}
+			void							operator-=(const T&other)	{value -= other;}
+			void							operator*=(const T&other)	{value *= other;}
+			void							operator/=(const T&other)	{value /= other;}
 				
 			Native<T>&					operator=(T id_)
 			{
