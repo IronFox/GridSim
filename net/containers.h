@@ -119,6 +119,7 @@ namespace Package
 			void							operator-=(const T&other)	{value -= other;}
 			void							operator*=(const T&other)	{value *= other;}
 			void							operator/=(const T&other)	{value /= other;}
+//			T								operator&(const T&other) const	{return value&other;}
 				
 			Native<T>&					operator=(T id_)
 			{
