@@ -2,6 +2,14 @@
 #include "tcp.h"
 
 
+#undef TCP_LOCK_TOLERANCE_MS
+#ifdef _DEBUG
+	#define TCP_LOCK_TOLERANCE_MS	30000	//debug breaks
+#else
+	#define TCP_LOCK_TOLERANCE_MS	1000
+#endif
+
+
 
 namespace TCP
 {
@@ -132,9 +140,9 @@ namespace TCP
 			inbound.object = object;
 			inbound.sender = sender;
 			inbound.receiver = receiver;
-			if (!mutex.tryLock(1000))
+			if (!mutex.tryLock(TCP_LOCK_TOLERANCE_MS))
 			{
-				FATAL__("Failed to lock thread after 1000ms. Deadlock assumed");
+				FATAL__("Failed to lock thread after "+String(TCP_LOCK_TOLERANCE_MS)+"ms. Deadlock assumed");
 				return;
 			}
 				queue << inbound;
@@ -182,9 +190,9 @@ namespace TCP
 			sevent.type = TCommonEvent::NetworkEvent;
 			sevent.event = event;
 			sevent.sender = peer;
-			if (!mutex.tryLock(1000))
+			if (!mutex.tryLock(TCP_LOCK_TOLERANCE_MS))
 			{
-				FATAL__("Failed to lock thread after 1000ms. Deadlock assumed");
+				FATAL__("Failed to lock thread after "+String(TCP_LOCK_TOLERANCE_MS)+"ms. Deadlock assumed");
 				return;
 			}
 			queue << sevent;
@@ -214,9 +222,9 @@ namespace TCP
 			tsignal.type = TCommonEvent::Signal;
 			tsignal.channel = signal;
 			tsignal.sender = peer;
-			if (!mutex.tryLock(1000))
+			if (!mutex.tryLock(TCP_LOCK_TOLERANCE_MS))
 			{
-				FATAL__("Failed to lock thread after 1000ms. Deadlock assumed");
+				FATAL__("Failed to lock thread after "+String(TCP_LOCK_TOLERANCE_MS)+"ms. Deadlock assumed");
 				return;
 			}
 			queue << tsignal;
@@ -228,9 +236,9 @@ namespace TCP
 
 	void Dispatcher::Resolve()
 	{
-		if (!mutex.tryLock(1000))
+		if (!mutex.tryLock(TCP_LOCK_TOLERANCE_MS))
 		{
-			FATAL__("Failed to lock thread after 1000ms. Deadlock assumed");
+			FATAL__("Failed to lock thread after "+String(TCP_LOCK_TOLERANCE_MS)+"ms. Deadlock assumed");
 			return;
 		}
 		TCP_TRY
@@ -305,9 +313,9 @@ namespace TCP
 	void Dispatcher::FlushPendingEvents()
 	{
 		FlushWaste();
-		if (!mutex.tryLock(1000))
+		if (!mutex.tryLock(TCP_LOCK_TOLERANCE_MS))
 		{
-			FATAL__("Failed to lock thread after 1000ms. Deadlock assumed");
+			FATAL__("Failed to lock thread after "+String(TCP_LOCK_TOLERANCE_MS)+"ms. Deadlock assumed");
 			return;
 		}
 		queue.Clear();
