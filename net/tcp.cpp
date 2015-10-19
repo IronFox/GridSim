@@ -2,12 +2,6 @@
 #include "tcp.h"
 
 
-#undef TCP_LOCK_TOLERANCE_MS
-#ifdef _DEBUG
-	#define TCP_LOCK_TOLERANCE_MS	30000	//debug breaks
-#else
-	#define TCP_LOCK_TOLERANCE_MS	1000
-#endif
 
 
 
@@ -131,7 +125,11 @@ namespace TCP
 			return;
 		if (async)
 		{
-			receiver->Handle(object,sender);
+			if (eventLock.PermissiveLock())
+			{
+				receiver->Handle(object,sender);
+				eventLock.PermissiveUnlock();
+			}
 		}
 		else
 		{
@@ -140,13 +138,11 @@ namespace TCP
 			inbound.object = object;
 			inbound.sender = sender;
 			inbound.receiver = receiver;
-			if (!mutex.tryLock(TCP_LOCK_TOLERANCE_MS))
+			if (eventLock.ExclusiveLock(CLOCATION))
 			{
-				FATAL__("Failed to lock thread after "+String(TCP_LOCK_TOLERANCE_MS)+"ms. Deadlock assumed");
-				return;
-			}
 				queue << inbound;
-			mutex.release();
+				eventLock.ExclusiveUnlock();
+			}
 		}
 	}
 	
@@ -168,20 +164,24 @@ namespace TCP
 	
 	void	Dispatcher::HandleEvent(event_t event, const TDualLink&peer)
 	{
-		if (event == Event::None || block_events)
+		if (event == Event::None)
 			return;
 		if (async)
 		{
-			if (onEvent)
+			if (eventLock.PermissiveLock())
 			{
-				PPeer p = peer.s.lock();
-				Peer*ptr = p ? p.get() : peer.p;
-				if (ptr)
-					onEvent(event,*ptr);
-				else
+				if (onEvent)
 				{
-					DBG_FATAL__("peer reference lost in transit for event "+String(event2str(event)));
+					PPeer p = peer.s.lock();
+					Peer*ptr = p ? p.get() : peer.p;
+					if (ptr)
+						onEvent(event,*ptr);
+					else
+					{
+						DBG_FATAL__("peer reference lost in transit for event "+String(event2str(event)));
+					}
 				}
+				eventLock.PermissiveUnlock();
 			}
 		}
 		else
@@ -190,13 +190,11 @@ namespace TCP
 			sevent.type = TCommonEvent::NetworkEvent;
 			sevent.event = event;
 			sevent.sender = peer;
-			if (!mutex.tryLock(TCP_LOCK_TOLERANCE_MS))
+			if (eventLock.ExclusiveLock(CLOCATION))
 			{
-				FATAL__("Failed to lock thread after "+String(TCP_LOCK_TOLERANCE_MS)+"ms. Deadlock assumed");
-				return;
+				queue << sevent;
+				eventLock.ExclusiveUnlock();
 			}
-			queue << sevent;
-			mutex.release();
 		}
 	}
 
@@ -204,16 +202,20 @@ namespace TCP
 	{
 		if (async)
 		{
-			if (onSignal)
+			if (eventLock.PermissiveLock())
 			{
-				PPeer p = peer.s.lock();
-				Peer*ptr = p ? p.get() : peer.p;
-				if (ptr)
-					onSignal(signal,*ptr);
-				else
+				if (onSignal)
 				{
-					DBG_FATAL__("peer reference lost in transit for signal on channel "+String(signal));
+					PPeer p = peer.s.lock();
+					Peer*ptr = p ? p.get() : peer.p;
+					if (ptr)
+						onSignal(signal,*ptr);
+					else
+					{
+						DBG_FATAL__("peer reference lost in transit for signal on channel "+String(signal));
+					}
 				}
+				eventLock.PermissiveUnlock();
 			}
 		}
 		else
@@ -222,13 +224,12 @@ namespace TCP
 			tsignal.type = TCommonEvent::Signal;
 			tsignal.channel = signal;
 			tsignal.sender = peer;
-			if (!mutex.tryLock(TCP_LOCK_TOLERANCE_MS))
+
+			if (eventLock.ExclusiveLock(CLOCATION))
 			{
-				FATAL__("Failed to lock thread after "+String(TCP_LOCK_TOLERANCE_MS)+"ms. Deadlock assumed");
-				return;
+				queue << tsignal;
+				eventLock.ExclusiveUnlock();
 			}
-			queue << tsignal;
-			mutex.release();
 			
 		}
 	}
@@ -236,57 +237,56 @@ namespace TCP
 
 	void Dispatcher::Resolve()
 	{
-		if (!mutex.tryLock(TCP_LOCK_TOLERANCE_MS))
+		if (eventLock.ExclusiveLock(CLOCATION))
 		{
-			FATAL__("Failed to lock thread after "+String(TCP_LOCK_TOLERANCE_MS)+"ms. Deadlock assumed");
-			return;
-		}
-		TCP_TRY
-		{
-			TCommonEvent ev;
-			//TSignal signal;
-			while (queue >> ev)
+			TCP_TRY
 			{
-				TCP_TRY
+				TCommonEvent ev;
+				//TSignal signal;
+				while (queue >> ev)
 				{
-					switch (ev.type)
+					TCP_TRY
 					{
-						case TCommonEvent::NetworkEvent:
-							if (onEvent)
-							{
-								PPeer p = ev.sender.s.lock();
-								Peer*ptr = p ? p.get() : ev.sender.p;
-								if (ptr)
-									onEvent(ev.event,*ptr);
-								else
+						switch (ev.type)
+						{
+							case TCommonEvent::NetworkEvent:
+								if (onEvent)
 								{
-									throw Exception(CLOCATION,"peer reference lost in transit for event "+String(event2str(ev.event)));
+									PPeer p = ev.sender.s.lock();
+									Peer*ptr = p ? p.get() : ev.sender.p;
+									if (ptr)
+										onEvent(ev.event,*ptr);
+									else
+									{
+										throw Exception(CLOCATION,"peer reference lost in transit for event "+String(event2str(ev.event)));
+									}
 								}
-							}
-						break;
-						case TCommonEvent::Signal:
-							if (onSignal)
-							{
-								PPeer p = ev.sender.s.lock();
-								Peer*ptr = p ? p.get() : ev.sender.p;
-								if (ptr)
-									onSignal(ev.channel,*ptr);
-								else
+							break;
+							case TCommonEvent::Signal:
+								if (onSignal)
 								{
-									throw Exception(CLOCATION,"peer reference lost in transit for signal on channel "+String(ev.channel));
+									PPeer p = ev.sender.s.lock();
+									Peer*ptr = p ? p.get() : ev.sender.p;
+									if (ptr)
+										onSignal(ev.channel,*ptr);
+									else
+									{
+										throw Exception(CLOCATION,"peer reference lost in transit for signal on channel "+String(ev.channel));
+									}
 								}
-							}
-						break;
-						case TCommonEvent::Object:
-							ev.receiver->Handle(ev.object,ev.sender);
-						break;
+							break;
+							case TCommonEvent::Object:
+								ev.receiver->Handle(ev.object,ev.sender);
+							break;
+						}
 					}
+					TCP_CATCH
 				}
-				TCP_CATCH
 			}
+			TCP_CATCH
+			eventLock.ExclusiveUnlock();
 		}
-		TCP_CATCH
-		mutex.release();
+		//mutex.release();
 		FlushWaste();
 	}
 
@@ -313,13 +313,11 @@ namespace TCP
 	void Dispatcher::FlushPendingEvents()
 	{
 		FlushWaste();
-		if (!mutex.tryLock(TCP_LOCK_TOLERANCE_MS))
+		if (eventLock.ExclusiveLock(CLOCATION))
 		{
-			FATAL__("Failed to lock thread after "+String(TCP_LOCK_TOLERANCE_MS)+"ms. Deadlock assumed");
-			return;
+			queue.Clear();
+			eventLock.ExclusiveUnlock();
 		}
-		queue.Clear();
-		mutex.release();
 	}
 	
 	RootChannel*	Dispatcher::getReceiver(UINT32 channel_id, unsigned user_level)
@@ -330,7 +328,7 @@ namespace TCP
 		return channel;
 	}
 	
-	Dispatcher::Dispatcher():async(true),is_locked(false),block_events(0),onEvent(NULL),onSignal(NULL),onIgnorePackage(NULL),onDeserializationFailed(NULL)
+	Dispatcher::Dispatcher():async(true),is_locked(false),onEvent(NULL),onSignal(NULL),onIgnorePackage(NULL),onDeserializationFailed(NULL)
 	{}
 	
 	Dispatcher::~Dispatcher()
@@ -1097,9 +1095,9 @@ namespace TCP
 		}
 		if (verbose)
 			std::cout << "Server::fail(): terminating service"<<std::endl;
-		block_events++;
+		eventLock.Block();
 			EndService();
-		block_events--;
+		eventLock.Unblock();
 		if (verbose)
 			std::cout << "Server::fail() exit"<<std::endl;
 	}
@@ -1127,7 +1125,6 @@ namespace TCP
 				std::cout << "Server::startService() exit: failed to initialize the network"<<std::endl;
 			return false;
 		}
-		block_events = 0;
 		socket_handle = socket(AF_INET,SOCK_STREAM,IPPROTO_TCP); //and create a new socket
 		if (socket_handle == INVALID_SOCKET)
 		{
@@ -1283,7 +1280,9 @@ namespace TCP
 			return;
 		}
 		is_shutting_down = true;
-		block_events++;
+		eventLock.Block();
+		TCP_TRY
+		{
 			if (verbose)
 				std::cout << "Server::endService(): acquiring write lock for service termination"<<std::endl;
 			ASSERT__(clientMutex.BeginWrite(true));
@@ -1311,9 +1310,10 @@ namespace TCP
 				std::cout << "Server::endService(): awaiting listen thread termination"<<std::endl;
 			FlushPendingEvents();
 			Join(/*1000*/);
-		block_events--;
-		if (!block_events)//...??? must have had something to do with the incrementation in Peer::diconnect()
-			setError("");
+		}
+		TCP_CATCH
+		eventLock.Unblock();
+		setError("");
 		if (verbose)
 			std::cout << "Server::endService(): sending connection closed event"<<std::endl;
 		HandleEvent(Event::ConnectionClosed,TDualLink(&centralPeer));

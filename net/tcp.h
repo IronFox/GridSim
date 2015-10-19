@@ -8,6 +8,7 @@
 
 #include <thread>
 #include <sstream>
+#include <mutex>
 
 #ifndef INVALID_SOCKET
 #define INVALID_SOCKET -1
@@ -53,6 +54,79 @@ namespace TCP
 	String	ToString(const sockaddr_storage&address);
 	
 	typedef std::shared_ptr<SerializableObject>	PSerializableObject;
+
+
+	class EventLock
+	{
+		SpinLock			outerLock;
+		std::timed_mutex	innerLock;
+		static const int MaxWaitingThreads = 8;
+		Semaphore			blocker;
+		TCodeLocation		lastLockedBy;
+
+		bool		InnerLock(const TCodeLocation&locker)
+		{
+			#ifdef _DEBUG
+				static const size_t toleranceMS = 30000;
+			#else
+				static const size_t toleranceMS = 1000;
+			#endif
+			if (!innerLock.try_lock_for(std::chrono::milliseconds(toleranceMS)))
+			{
+				FATAL__(String(locker.ToString())+": Failed to lock thread after "+String(toleranceMS)+"ms. Deadlock assumed. Last locker was "+lastLockedBy.ToString());
+				return false;
+			}
+			lastLockedBy = locker;
+			return true;
+		}
+
+	public:
+		/**/		EventLock():blocker(MaxWaitingThreads)	{}
+
+
+		void		Block()
+		{
+			for (int i = 0; i < MaxWaitingThreads; i++)
+				blocker.enter();
+		}
+
+		void		Unblock()
+		{
+			blocker.release(MaxWaitingThreads);
+		}
+
+		bool		PermissiveLock()
+		{
+			return blocker.tryEnter();
+		}
+
+		void		PermissiveUnlock()
+		{
+			return blocker.leave();
+		}
+
+		bool		ExclusiveLock(const TCodeLocation&loc)
+		{
+			if (!PermissiveLock())
+				return false;
+
+			if (!InnerLock(loc))
+			{
+				blocker.leave();
+				return false;
+			}
+			return true;
+		}
+
+
+		void		ExclusiveUnlock()
+		{
+			innerLock.unlock();
+			blocker.leave();
+		}
+
+
+	};
 
 
 	class SocketAccess
@@ -533,10 +607,13 @@ namespace TCP
 
 
 		Buffer0<PPeer>				wasteBucket;
-		Mutex						mutex,wasteMutex;
+
+		EventLock					eventLock;
+
+		Mutex						wasteMutex;
 		bool						async;
 		volatile bool				is_locked;
-		volatile unsigned			block_events;
+		//volatile unsigned			block_events;
 		IndexTable<RootChannel*>	channel_map;
 		IndexTable<unsigned>		signal_map;
 			
