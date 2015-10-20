@@ -181,7 +181,7 @@ namespace TCP
 						DBG_FATAL__("peer reference lost in transit for event "+String(event2str(event)));
 					}
 				}
-				eventLock.PermissiveUnlock();
+				eventLock.PermissiveUnlock(CLOCATION);
 			}
 		}
 		else
@@ -215,7 +215,7 @@ namespace TCP
 						DBG_FATAL__("peer reference lost in transit for signal on channel "+String(signal));
 					}
 				}
-				eventLock.PermissiveUnlock();
+				eventLock.PermissiveUnlock(CLOCATION);
 			}
 		}
 		else

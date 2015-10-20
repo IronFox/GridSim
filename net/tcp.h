@@ -61,25 +61,40 @@ namespace TCP
 	*/
 	class EventLock
 	{
-		std::timed_mutex	innerLock;
-		TCodeLocation		lastLockedBy;
-		volatile count_t	blockLevel;
-
-		bool		InnerLock(const TCodeLocation&locker)
+		struct TimedLock
 		{
-			#ifdef _DEBUG
-				static const size_t toleranceMS = 30000;
-			#else
-				static const size_t toleranceMS = 1000;
-			#endif
-			if (!innerLock.try_lock_for(std::chrono::milliseconds(toleranceMS)))
+			std::timed_mutex	mutex;
+			TCodeLocation		lastLockedBy;
+
+			bool			TryLock(const TCodeLocation&locker)
 			{
-				FATAL__(String(locker.ToString())+": Failed to lock thread after "+String(toleranceMS)+"ms. Deadlock assumed. Last locker was "+lastLockedBy.ToString());
-				return false;
+				#ifdef _DEBUG
+					static const size_t toleranceMS = 30000;
+				#else
+					static const size_t toleranceMS = 1000;
+				#endif
+				if (!mutex.try_lock_for(std::chrono::milliseconds(toleranceMS)))
+				{
+					FATAL__(String(locker.ToString())+": Failed to lock thread after "+String(toleranceMS)+"ms. Deadlock assumed. Last locker was "+lastLockedBy.ToString());
+					return false;
+				}
+				lastLockedBy = locker;
+				return true;
 			}
-			lastLockedBy = locker;
-			return true;
-		}
+
+			void			Unlock()
+			{
+				mutex.unlock();
+			}
+
+		};
+
+
+		TimedLock			innerLock,permissiveLock;
+		volatile count_t	blockLevel,permissiveCount;
+		
+
+
 
 	public:
 		/**/		EventLock():blockLevel(0)	{}
@@ -87,43 +102,66 @@ namespace TCP
 
 		void		Block(const TCodeLocation&locker)
 		{
-			if (!InnerLock(locker))
+			if (!innerLock.TryLock(locker))
 				return;
 			blockLevel++;
-			innerLock.unlock();
+			innerLock.Unlock();
 		}
 
 		bool		Unblock(const TCodeLocation&locker)
 		{
-			if (!InnerLock(locker))
+			if (!innerLock.TryLock(locker))
 				return false;
 			ASSERT__(blockLevel > 0);
 			blockLevel--;
 			bool rs = blockLevel == 0;
-			innerLock.unlock();
+			innerLock.Unlock();
 			return rs;
 		}
 
 		bool		PermissiveLock(const TCodeLocation&locker)
 		{
-			if (!InnerLock(locker))
+			if (!permissiveLock.TryLock(locker))
 				return false;
-			bool canEnter = blockLevel == 0;
-			innerLock.unlock();
-			return canEnter;
+			if (permissiveCount == 0)
+			{
+				if (!innerLock.TryLock(locker))
+				{
+					permissiveLock.Unlock();
+					return false;
+				}
+				if (blockLevel != 0)
+				{
+					innerLock.Unlock();
+					permissiveLock.Unlock();
+					return false;
+				}
+			}
+			permissiveCount++;
+			permissiveLock.Unlock();
+			return true;
 		}
 
-		void		PermissiveUnlock()
+		void		PermissiveUnlock(const TCodeLocation&locker)
 		{
+			if (!permissiveLock.TryLock(locker))
+				return;
+			ASSERT__(permissiveCount > 0);
+			permissiveCount--;
+			if (permissiveCount == 0)
+			{
+				innerLock.Unlock();
+			}
+			permissiveLock.Unlock();
 		}
 
 		bool		ExclusiveLock(const TCodeLocation&loc)
 		{
-			if (!InnerLock(loc))
+			if (!innerLock.TryLock(loc))
 				return false;
 			if (blockLevel != 0)
 			{
-				innerLock.unlock();
+				innerLock.Unlock();
 				return false;
 			}
 			return true;
@@ -132,7 +170,7 @@ namespace TCP
 
 		void		ExclusiveUnlock()
 		{
-			innerLock.unlock();
+			innerLock.Unlock();
 		}
 
 
