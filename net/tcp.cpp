@@ -125,11 +125,11 @@ namespace TCP
 			return;
 		if (async)
 		{
-			if (eventLock.PermissiveLock())
-			{
-				receiver->Handle(object,sender);
-				eventLock.PermissiveUnlock();
-			}
+			receiver->Handle(object,sender);
+			//if (eventLock.PermissiveLock())
+			//{
+			//	eventLock.PermissiveUnlock();
+			//}
 		}
 		else
 		{

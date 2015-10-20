@@ -56,13 +56,14 @@ namespace TCP
 	typedef std::shared_ptr<SerializableObject>	PSerializableObject;
 
 
+	/**
+	Special mutex for events that allows to completely kick out threads before they enter a critical section
+	*/
 	class EventLock
 	{
-		SpinLock			outerLock;
 		std::timed_mutex	innerLock;
-		static const int MaxWaitingThreads = 8;
-		Semaphore			blocker;
 		TCodeLocation		lastLockedBy;
+		volatile count_t	blockLevel;
 
 		bool		InnerLock(const TCodeLocation&locker)
 		{
@@ -81,38 +82,42 @@ namespace TCP
 		}
 
 	public:
-		/**/		EventLock():blocker(MaxWaitingThreads)	{}
+		/**/		EventLock():blockLevel(0)	{}
 
 
 		void		Block()
 		{
-			for (int i = 0; i < MaxWaitingThreads; i++)
-				blocker.enter();
+			innerLock.lock();
+			blockLevel++;
+			innerLock.unlock();
 		}
 
 		void		Unblock()
 		{
-			blocker.release(MaxWaitingThreads);
+			innerLock.lock();
+			ASSERT__(blockLevel > 0);
+			blockLevel--;
+			innerLock.unlock();
 		}
 
 		bool		PermissiveLock()
 		{
-			return blocker.tryEnter();
+			innerLock.lock();
+			bool canEnter = blockLevel == 0;
+			innerLock.unlock();
+			return canEnter;
 		}
 
 		void		PermissiveUnlock()
 		{
-			return blocker.leave();
 		}
 
 		bool		ExclusiveLock(const TCodeLocation&loc)
 		{
-			if (!PermissiveLock())
-				return false;
-
-			if (!InnerLock(loc))
+			innerLock.lock();
+			if (blockLevel != 0)
 			{
-				blocker.leave();
+				innerLock.unlock();
 				return false;
 			}
 			return true;
@@ -122,7 +127,6 @@ namespace TCP
 		void		ExclusiveUnlock()
 		{
 			innerLock.unlock();
-			blocker.leave();
 		}
 
 
