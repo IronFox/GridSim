@@ -85,16 +85,18 @@ namespace TCP
 		/**/		EventLock():blockLevel(0)	{}
 
 
-		void		Block()
+		void		Block(const TCodeLocation&locker)
 		{
-			innerLock.lock();
+			if (!InnerLock(locker))
+				return;
 			blockLevel++;
 			innerLock.unlock();
 		}
 
-		bool		Unblock()
+		bool		Unblock(const TCodeLocation&locker)
 		{
-			innerLock.lock();
+			if (!InnerLock(locker))
+				return false;
 			ASSERT__(blockLevel > 0);
 			blockLevel--;
 			bool rs = blockLevel == 0;
@@ -102,9 +104,10 @@ namespace TCP
 			return rs;
 		}
 
-		bool		PermissiveLock()
+		bool		PermissiveLock(const TCodeLocation&locker)
 		{
-			innerLock.lock();
+			if (!InnerLock(locker))
+				return false;
 			bool canEnter = blockLevel == 0;
 			innerLock.unlock();
 			return canEnter;
@@ -116,7 +119,8 @@ namespace TCP
 
 		bool		ExclusiveLock(const TCodeLocation&loc)
 		{
-			innerLock.lock();
+			if (!InnerLock(loc))
+				return false;
 			if (blockLevel != 0)
 			{
 				innerLock.unlock();

@@ -168,7 +168,7 @@ namespace TCP
 			return;
 		if (async)
 		{
-			if (eventLock.PermissiveLock())
+			if (eventLock.PermissiveLock(CLOCATION))
 			{
 				if (onEvent)
 				{
@@ -202,7 +202,7 @@ namespace TCP
 	{
 		if (async)
 		{
-			if (eventLock.PermissiveLock())
+			if (eventLock.PermissiveLock(CLOCATION))
 			{
 				if (onSignal)
 				{
@@ -1095,9 +1095,9 @@ namespace TCP
 		}
 		if (verbose)
 			std::cout << "Server::fail(): terminating service"<<std::endl;
-		eventLock.Block();
+		eventLock.Block(CLOCATION);
 			EndService();
-		eventLock.Unblock();
+		eventLock.Unblock(CLOCATION);
 		if (verbose)
 			std::cout << "Server::fail() exit"<<std::endl;
 	}
@@ -1280,7 +1280,7 @@ namespace TCP
 			return;
 		}
 		is_shutting_down = true;
-		eventLock.Block();
+		eventLock.Block(CLOCATION);
 		TCP_TRY
 		{
 			if (verbose)
@@ -1312,7 +1312,7 @@ namespace TCP
 			Join(/*1000*/);
 		}
 		TCP_CATCH
-		if (eventLock.Unblock())	//Server::Fail() blocks events and calls this method, thus generating recursion. Let's not clear error messages then
+		if (eventLock.Unblock(CLOCATION))	//Server::Fail() blocks events and calls this method, thus generating recursion. Let's not clear error messages then
 			setError("");
 		if (verbose)
 			std::cout << "Server::endService(): sending connection closed event"<<std::endl;
