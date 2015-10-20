@@ -1312,8 +1312,8 @@ namespace TCP
 			Join(/*1000*/);
 		}
 		TCP_CATCH
-		eventLock.Unblock();
-		setError("");
+		if (eventLock.Unblock())	//Server::Fail() blocks events and calls this method, thus generating recursion. Let's not clear error messages then
+			setError("");
 		if (verbose)
 			std::cout << "Server::endService(): sending connection closed event"<<std::endl;
 		HandleEvent(Event::ConnectionClosed,TDualLink(&centralPeer));

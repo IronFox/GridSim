@@ -92,12 +92,14 @@ namespace TCP
 			innerLock.unlock();
 		}
 
-		void		Unblock()
+		bool		Unblock()
 		{
 			innerLock.lock();
 			ASSERT__(blockLevel > 0);
 			blockLevel--;
+			bool rs = blockLevel == 0;
 			innerLock.unlock();
+			return rs;
 		}
 
 		bool		PermissiveLock()
