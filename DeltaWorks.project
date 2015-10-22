@@ -1,5 +1,5 @@
 <project type="StaticLibrary">
-	<source path=".">
+	<source path="." include="true">
 		<exclude find="mvc"/>
 		<exclude dir="maker" />
 		<exclude dir="Nx" />
