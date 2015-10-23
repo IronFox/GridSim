@@ -63,7 +63,7 @@ namespace TCP
 	{
 		struct TimedLock
 		{
-			std::timed_mutex	mutex;
+			std::recursive_timed_mutex	mutex;
 			TCodeLocation		lastLockedBy;
 
 			bool			TryLock(const TCodeLocation&locker)
@@ -1079,6 +1079,8 @@ namespace TCP
 								
 								return attempt.IsRunning() && !attempt.IsDone();
 							}
+		void				Disconnect();
+
 	};
 	
 	/**

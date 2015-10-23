@@ -624,7 +624,7 @@ namespace TCP
 					std::cout << "Peer::netRead() exit: invalid size value received: "<<size<<std::endl;
 				return false;
 			}
-			if (!size)
+			if (size <= 0)
 			{
 				writer.Terminate();
 				if (socketAccess->IsClosed())
@@ -1067,6 +1067,17 @@ namespace TCP
 #endif /*0*/
 	}
 	
+	void		Client::Disconnect()
+	{
+		eventLock.Block(CLOCATION);
+		Peer::Disconnect();
+		Join();
+		eventLock.Unblock(CLOCATION);
+
+		Dispatcher::FlushPendingEvents();
+	}
+
+
 	void		Client::fail(const String&message)
 	{
 		if (verbose)
