@@ -1104,6 +1104,7 @@ namespace TCP
 	void		Client::Disconnect()
 	{
 		eventLock.Block(CLOCATION);
+		attempt.Join();
 		Peer::Disconnect();
 		Join();
 		eventLock.Unblock(CLOCATION);
