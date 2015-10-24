@@ -42,7 +42,7 @@ namespace TCP
 	{
 		sockaddr_storage temp;
 		memcpy(&temp, address.ai_addr, address.ai_addrlen);
-		return ToString(temp);
+		return ToString(temp,address.ai_addrlen);
 /*
 
 		static char buffer[INET6_ADDRSTRLEN];
@@ -63,11 +63,42 @@ namespace TCP
 		return buffer;*/
 	}
 
-	String	ToString(const sockaddr_storage&address)
+	String	ToString(const sockaddr_storage&address, socklen_t addrLen, bool includePort /*= true*/)
 	{
-		char ipbuff[INET_ADDRSTRLEN];
-		inet_ntop(address.ss_family, &(((struct sockaddr_in *)&address)->sin_addr), ipbuff, INET_ADDRSTRLEN);
-		return String(ipbuff);
+		if (addrLen == 0)
+			return "<No Address>";
+		char hoststr[NI_MAXHOST];
+		char portstr[NI_MAXSERV];
+
+		//in case hosts file contains localhost redirects, which produces funny results, let's do a manual localhost comparison:
+
+		int rc;
+		rc = getnameinfo((struct sockaddr *)&address, addrLen, hoststr, sizeof(hoststr), portstr, sizeof(portstr), NI_NUMERICHOST | NI_NUMERICSERV);
+		if (rc != 0)
+			return "<No Address>";
+		String result = hoststr;
+		if (result == "127.0.0.1" || result == "::1")
+		{
+			if (includePort)
+				return "localhost:"+String(portstr);
+			return "localhost";
+		}
+
+
+		rc = getnameinfo((struct sockaddr *)&address, addrLen, hoststr, sizeof(hoststr), portstr, sizeof(portstr), /*NI_NUMERICHOST |*/ NI_NUMERICSERV);
+		if (rc != 0)
+		{
+			if (includePort)
+				result += portstr;
+			return result;
+		}
+		if (!includePort)
+			return hoststr;
+		return String(hoststr)+":"+String(portstr);
+
+		//char ipbuff[INET_ADDRSTRLEN];
+		//inet_ntop(address.ss_family, &(((struct sockaddr_in *)&address)->sin_addr), ipbuff, INET_ADDRSTRLEN);
+		//return String(ipbuff);
 	}
 
 
@@ -468,6 +499,7 @@ namespace TCP
 			return;
 		}
 		memcpy(&client->address, actual_address->ai_addr, actual_address->ai_addrlen);
+		client->addressLength = actual_address->ai_addrlen;
 		freeaddrinfo(remote_address);
 		try
 		{
@@ -606,7 +638,7 @@ namespace TCP
 		while (current < end)
 		{
 			int size = socketAccess->Read(current,end-current);
-			if (size == SOCKET_ERROR)
+			if (size < 0)
 			{
 				writer.Terminate();
 				if (socketAccess->IsClosed())
@@ -624,7 +656,7 @@ namespace TCP
 					std::cout << "Peer::netRead() exit: invalid size value received: "<<size<<std::endl;
 				return false;
 			}
-			if (size <= 0)
+			if (size == 0)
 			{
 				writer.Terminate();
 				if (socketAccess->IsClosed())
@@ -1033,6 +1065,8 @@ namespace TCP
 			PPeer peer(new Peer(this,true));
 			peer->self = peer;
 			peer->address = addr;
+			peer->addressLength = size;
+
 			peer->SetCloneOfSocketAccess(socketAccess);
 			peer->socketAccess->SetSocket(handle);
 

@@ -25,7 +25,8 @@ namespace Package
 						case 'ß':
 							return true;
 					}
-					return isgraph((BYTE)c) || isspace((BYTE)c);
+					bool result = isgraph((BYTE)c) || c == ' ' || c == '\t' || c == '\n';
+					return result;
 				}
 		public:
 			/**/				NetString()

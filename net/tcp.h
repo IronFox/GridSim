@@ -51,7 +51,7 @@ namespace TCP
 
 	void	SwapCloseSocket(volatile SOCKET&socket);
 	String	ToString(const addrinfo&address);
-	String	ToString(const sockaddr_storage&address);
+	String	ToString(const sockaddr_storage&address, socklen_t addrLen, bool includePort = true);
 	
 	typedef std::shared_ptr<SerializableObject>	PSerializableObject;
 
@@ -951,12 +951,13 @@ namespace TCP
 		*/
 		std::shared_ptr<Attachment>	attachment;
 		sockaddr_storage			address;
+		socklen_t					addressLength;
 		unsigned					userLevel;							//!< Current user level. Anonymous (0) by default
 		volatile bool				destroyed;
 		
 				
 		/**/						Peer(Connection*connection, bool canDoSharedFromThis):owner(connection),socketAccess(new DefaultSocketAccess()),
-									userLevel(User::Anonymous),canDoSharedFromThis(canDoSharedFromThis),destroyed(false),
+									userLevel(User::Anonymous),addressLength(0), canDoSharedFromThis(canDoSharedFromThis),destroyed(false),
 									writer(this)
 									{
 										memset(&address,0,sizeof(address));
@@ -1019,7 +1020,7 @@ namespace TCP
 									}
 		String						ToString()	const	//! Converts the local address into a string. If the local object is NULL then the string "NULL" is returned instead.
 									{
-										return this?TCP::ToString(address):"NULL";
+										return this?( TCP::ToString(address,addressLength) ):"NULL";
 									}
 		bool						SendSignal(UINT32 channel);		//!< Sends a data-less package to the other end of this peer
 			
