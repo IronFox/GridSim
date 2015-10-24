@@ -566,7 +566,7 @@ namespace TCP
 	void	Peer::handleUnexpectedSendResult(int result)
 	{
 		writer.Terminate();
-		if (!result || result == SOCKET_ERROR)
+		if (result <= 0)
 		{
 			if (socketAccess->IsClosed())
 			{
@@ -579,7 +579,7 @@ namespace TCP
 			socketAccess->CloseSocket();
 			owner->OnDisconnect(this,Event::ConnectionClosed);
 			if (verbose)
-				std::cout << "Peer::succeeded() exit: result is 0"<<std::endl;
+				std::cout << "Peer::succeeded() exit: result is "<<result<<std::endl;
 			return;
 		}
 		if (socketAccess->IsClosed())
