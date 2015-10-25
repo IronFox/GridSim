@@ -5,11 +5,6 @@
 
 Language/Font-depended console.
 
-This file is part of Delta-Works
-Copyright (C) 2006-2008 Stefan Elsen, University of Trier, Germany.
-http://www.delta-works.org/forge/
-http://informatik.uni-trier.de/
-
 ******************************************************************/
 
 namespace Engine
@@ -32,9 +27,9 @@ void Console::closeEvent()
 void Console::fetchInput()
 {
 	CONSOLE_LOG("retrieving input");
-    const char*input = keyboard.getInput();
+    const char*input = keyboard.GetInput();
 	CONSOLE_LOG("input is '"<<input<<"'");
-    if (keyboard.getInputLen())
+    if (keyboard.GetInputLen())
     {
 		CONSOLE_LOG("erasing history occurances");
         inputs.eraseOccurrences(input);
@@ -49,7 +44,7 @@ void Console::fetchInput()
 		CONSOLE_LOG("parser returned");
 	}
 	CONSOLE_LOG("flushing input");
-    keyboard.flushInput();
+    keyboard.FlushInput();
 	CONSOLE_LOG("reseting selected input");
     selected_input = 0;
 	CONSOLE_LOG("input handled");
@@ -60,7 +55,7 @@ void Console::prevInput()
     if (selected_input < inputs.count())
     {
         selected_input++;
-        keyboard.fillInput(inputs.getReverse(selected_input-1));
+        keyboard.FillInput(inputs.getReverse(selected_input-1));
     }
 }
 
@@ -69,13 +64,13 @@ void Console::nextInput()
     if (selected_input)
     {
         selected_input--;
-        keyboard.fillInput(inputs.getReverse(selected_input-1));
+        keyboard.FillInput(inputs.getReverse(selected_input-1));
     }
 }
 
 void Console::back()
 {
-    keyboard.dropLastCharacter();
+    keyboard.DropLastCharacter();
 }
 
 Console::Console():profile(true,false),selected_input(0),parser(NULL),status(0),is_focused(false),target_open(false)

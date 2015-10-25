@@ -13,17 +13,17 @@ void Engine::ConsoleWindow::onChar(char c)
 	if (input.pressed[Key::Ctrl] && !input.pressed[Key::Alt])	//somehow Ctrl is issued when Alt is pressed. how odd...
 		return;
 	//ShowMessage("hello");
-	if (!busy && keyboard.getInputLen()<254)
+	if (!busy /*&& keyboard.GetInputLen()<254*/)
 	{
 		input_history_position = input_history.count();
 		if (sel_start < cursor)
 		{
-			keyboard.replaceInputSection(sel_start,cursor-sel_start,c);
+			keyboard.ReplaceInputSection(sel_start,cursor-sel_start,c);
 			cursor = sel_start+1;
 		}
 		else
 		{
-			keyboard.replaceInputSection(cursor,sel_start-cursor,c);
+			keyboard.ReplaceInputSection(cursor,sel_start-cursor,c);
 			cursor++;
 		}
 		sel_start = cursor;
@@ -67,7 +67,7 @@ void Engine::ConsoleWindow::onKeyDown(Key::Name key)
 			if (cursor)
 			{
 				input_history_position = input_history.count();
-				keyboard.replaceInputSection(--cursor,1,"");
+				keyboard.ReplaceInputSection(--cursor,1,"");
 				sel_start = cursor;
 				SignalWindowContentChange();
 			}
@@ -99,7 +99,7 @@ void Engine::ConsoleWindow::onKeyDown(Key::Name key)
 			}
 		break;
 		case Key::Right:
-			if (cursor < keyboard.getInputLen())
+			if (cursor < keyboard.GetInputLen())
 			{
 				cursor++;
 				if (!input.pressed[Key::Shift])
@@ -113,7 +113,7 @@ void Engine::ConsoleWindow::onKeyDown(Key::Name key)
 			bool command_line = show_command_line;
 			show_command_line = false;
 
-			const char*input = keyboard.getInput();
+			const char*input = keyboard.GetInput();
 			if (echo)
 				history << context+"> "+input;
 
@@ -131,7 +131,7 @@ void Engine::ConsoleWindow::onKeyDown(Key::Name key)
 			
 			busy = false;
 
-			keyboard.flushInput();
+			keyboard.FlushInput();
 			cursor = 0;
 			sel_start = 0;
 			show_command_line = command_line;
@@ -143,16 +143,16 @@ void Engine::ConsoleWindow::onKeyDown(Key::Name key)
 			input_history_position = input_history.count();
 
 			if (sel_start == cursor)
-				keyboard.replaceInputSection(cursor,1,"");
+				keyboard.ReplaceInputSection(cursor,1,"");
 			else
 			{
 				if (sel_start < cursor)
 				{
-					keyboard.replaceInputSection(sel_start,cursor-sel_start,"");
+					keyboard.ReplaceInputSection(sel_start,cursor-sel_start,"");
 					cursor = sel_start;
 				}
 				else
-					keyboard.replaceInputSection(cursor,sel_start-cursor,"");
+					keyboard.ReplaceInputSection(cursor,sel_start-cursor,"");
 				sel_start = cursor;
 			}
 			SignalWindowContentChange();
@@ -175,7 +175,7 @@ void Engine::ConsoleWindow::onKeyDown(Key::Name key)
 			SignalWindowContentChange();
 		break;
 		case Key::End:
-			cursor = keyboard.getInputLen();
+			cursor = keyboard.GetInputLen();
 			if (!input.pressed[Key::Shift])
 				sel_start = cursor;
 			SignalWindowContentChange();
@@ -196,11 +196,11 @@ void Engine::ConsoleWindow::onKeyDown(Key::Name key)
 
 					if (sel_start < cursor)
 					{
-						keyboard.replaceInputSection(sel_start,cursor-sel_start,"");
+						keyboard.ReplaceInputSection(sel_start,cursor-sel_start,"");
 						cursor = sel_start;
 					}
 					else
-						keyboard.replaceInputSection(cursor,sel_start-cursor,"");
+						keyboard.ReplaceInputSection(cursor,sel_start-cursor,"");
 					sel_start = cursor;
 					SignalWindowContentChange();
 				}
@@ -215,13 +215,13 @@ void Engine::ConsoleWindow::onKeyDown(Key::Name key)
 				{
 					if (sel_start < cursor)
 					{
-						keyboard.replaceInputSection(sel_start,cursor-sel_start,buffer);
-						cursor = sel_start+(BYTE)strlen(buffer);
+						keyboard.ReplaceInputSection(sel_start,cursor-sel_start,buffer);
+						cursor = sel_start+strlen(buffer);
 					}
 					else
 					{
-						keyboard.replaceInputSection(cursor,sel_start-cursor,buffer);
-						cursor+=(BYTE)strlen(buffer);
+						keyboard.ReplaceInputSection(cursor,sel_start-cursor,buffer);
+						cursor+=strlen(buffer);
 					}
 					sel_start = cursor;
 					SignalWindowContentChange();
@@ -237,7 +237,7 @@ void	Engine::ConsoleWindow::copyToClipboard()
 	unsigned begin(sel_start),end(cursor);
 	if (end < begin)
 		swp(end,begin);
-	String line = keyboard.getInput()+begin;
+	String line = keyboard.GetInput()+begin;
 	line.erase(end-begin);
 	if (!System::copyToClipboard(getWindow(),line.c_str()))
 		ErrMessage("copy failed :S");
@@ -394,12 +394,12 @@ void	Engine::ConsoleWindow::onPaint()
 		int			start = int(history > (index_t)lines?history-lines-retro_perspective:0),
 					end = int(start+ vmin(history-start,lines)),
 					shown_lines = int(history-start),
-					input_len = (int)keyboard.getInputLen(),
 					upper_border = start>0?(lines+3)*ConsoleWindow::font_height+spacing:height;
+		size_t		input_len = keyboard.GetInputLen();
 
 		bool		in_string = cursor < input_len;
 
-		const char*	input = keyboard.getInput();
+		const char*	input = keyboard.GetInput();
 
 		String		context = this->context+"> ";
 
@@ -703,8 +703,8 @@ void Engine::ConsoleWindow::fillLine(const String&line)
 {
 	MutexLock	lock(mutex);
 
-	keyboard.fillInput(line);
-	sel_start = cursor = BYTE(line.length());
+	keyboard.FillInput(line);
+	sel_start = cursor = line.length();
 	SignalWindowContentChange();
 }
 

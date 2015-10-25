@@ -52,7 +52,7 @@ namespace Engine
 						reader(c);
 					else
 					{
-						buffer[buffer_len++] = c;
+						internalBuffer.Append(c);
 						if (onCharHandled)
 							onCharHandled(c);
 					}
@@ -62,28 +62,103 @@ namespace Engine
 	}
 
 
-	const char* Keyboard::getInput()
+	void				Keyboard::CharacterBuffer::Truncate(size_t toLength)
 	{
-		buffer[buffer_len] = 0;
-		return buffer;
+		if (GetLength() <= toLength)
+			return;
+		WipeChars(Super::pointer()+toLength,GetLength()-toLength);
+		Super::Truncate(toLength+1);
+		Super::at(toLength)=0;
+		DBG_ASSERT__(IsSane());
 	}
 
-	BYTE Keyboard::getInputLen()
+	void				Keyboard::CharacterBuffer::SetTo(const char*str, size_t strLen)
 	{
-		return buffer_len;
+		Wipe();
+		Append(str,strLen);
+		DBG_ASSERT__(IsSane());
 	}
 
 
-	void Keyboard::dropLastCharacter()
+	bool				Keyboard::CharacterBuffer::IsSane() const
 	{
-		if (buffer_len)
-			buffer_len--;
+		if (Super::IsEmpty())
+			return false;
+		for (index_t i = 0; i < GetLength(); i++)
+			if (Super::at(i) == 0)
+				return false;
+		return Super::last() == 0;
 	}
 
-	void Keyboard::truncateIfLonger(BYTE len)
+
+
+	void				Keyboard::CharacterBuffer::ReplaceSection(index_t from, size_t len, const char*str, size_t strLen)
 	{
-		if (buffer_len > len)
-			buffer_len = len;
+		DBG_ASSERT__(IsSane());
+		if (len == 0 && strLen == 0)
+			return;
+		if (from + len > GetLength())
+		{
+			if (from >= GetLength())
+			{
+				Append(str,strLen);
+
+				return;
+			}
+			len = GetLength() - from;
+		}
+		
+		Array<char> tail;
+		size_t tailLength = GetLength() - (from+len);
+		if (tailLength)
+		{
+			tail.SetSize(tailLength);
+			memcpy(tail.pointer(),Super::pointer()+from+len,tailLength);
+			Truncate(from);
+		}
+		Append(str,strLen);
+		if (tailLength)
+		{
+			Append(tail.pointer(),tailLength);
+			WipeChars(tail.pointer(),tailLength);
+		}
+		DBG_ASSERT__(IsSane());
+	}
+
+	void			Keyboard::CharacterBuffer::Append(const char*str, size_t strLen)
+	{
+		if (strlen == 0)
+			return;
+		DBG_ASSERT__(IsSane());
+		Super::EraseLast();	//erase terminating zero
+		for (index_t i = 0; i < strLen; i++)
+			if (str[i])
+				Super::Append(str[i]);
+		Super::Append(0);
+		DBG_ASSERT__(IsSane());
+	}
+
+
+
+	const char* Keyboard::GetInput()	const
+	{
+		return internalBuffer.GetCharacters();
+	}
+
+	size_t Keyboard::GetInputLen()	const
+	{
+		return internalBuffer.GetLength();
+	}
+
+
+	void Keyboard::DropLastCharacter()
+	{
+		internalBuffer.EraseLast();
+	}
+
+	void Keyboard::TruncateIfLonger(size_t len)
+	{
+		internalBuffer.Truncate(len);
 	}
 
 	void	Keyboard::FilterAppend(const char*strn)
@@ -102,91 +177,31 @@ namespace Engine
 	}
 
 
-	void Keyboard::fillInput(const String&strn)
+	void Keyboard::FillInput(const String&strn)
 	{
-		size_t len = strn.length();
-		if (len > 255)
-			len = 255;
-		buffer_len = (BYTE)len;
-		memcpy(buffer,strn.c_str(),buffer_len);
+		internalBuffer.SetTo(strn);
 	}
 
-	void Keyboard::fillInput(const char*strn)
+	void Keyboard::FillInput(const char*strn)
 	{
-		size_t len = strlen(strn);
-		if (len > 255)
-			len = 255;
-		buffer_len = (BYTE)len;
-		memcpy(buffer,strn,buffer_len);
+		internalBuffer.SetTo(strn);
 	}
 
-	void Keyboard::replaceInputSection(BYTE offset, BYTE len, const String&strn)
+	void Keyboard::ReplaceInputSection(index_t offset, size_t len, const String&strn)
 	{
-		size_t insert_len = strn.length();
-		if (offset > buffer_len)
-			offset = buffer_len;
-		char temp[0x100];
-		unsigned end = (unsigned)offset+(unsigned)len,
-				 new_end = (unsigned)offset+(unsigned)insert_len;
-		if (end > buffer_len)
-			end = buffer_len;
-		if (new_end > 255)
-		{
-			insert_len = 255-offset;
-			new_end = 255;
-		}
-		unsigned rest;
-		if (end<buffer_len)
-		{
-			rest = (unsigned)buffer_len-end;
-			memcpy(temp,buffer+end,rest);
-		}
-		else
-			rest = 0;
-		memcpy(buffer+offset,strn.c_str(),insert_len);
-		if (new_end+rest > 255)
-			rest = 255-new_end;
-		if (rest)
-			memcpy(buffer+new_end,temp,rest);
-		buffer_len = new_end+rest;
+		internalBuffer.ReplaceSection(offset,len,strn);
 	}
 
-	void Keyboard::replaceInputSection(BYTE offset, BYTE len, const char*strn)
+	void Keyboard::ReplaceInputSection(index_t offset, size_t len, const char*strn)
 	{
-		unsigned insert_len = (unsigned)strlen(strn);
-		if (offset > buffer_len)
-			offset = buffer_len;
-		char temp[0x100];
-		unsigned end = (unsigned)offset+(unsigned)len,
-				 new_end = (unsigned)offset+insert_len;
-		if (end > buffer_len)
-			end = buffer_len;
-		if (new_end > 255)
-		{
-			insert_len = 255-offset;
-			new_end = 255;
-		}
-		unsigned rest;
-		if (end<buffer_len)
-		{
-			rest = (unsigned)buffer_len-end;
-			memcpy(temp,buffer+end,rest);
-		}
-		else
-			rest = 0;
-		memcpy(buffer+offset,strn,insert_len);
-		if (new_end+rest > 255)
-			rest = 255-new_end;
-		if (rest)
-			memcpy(buffer+new_end,temp,rest);
-		buffer_len = new_end+rest;
+		internalBuffer.ReplaceSection(offset,len,strn);
 	}
 
 
 
-	void Keyboard::flushInput()
+	void Keyboard::FlushInput()
 	{
-		buffer_len = 0;
+		internalBuffer.Wipe();
 	}
 
 
@@ -196,16 +211,15 @@ namespace Engine
 
 
 
-	Keyboard::Keyboard(InputMap&map_):block(false),buffer_len(0),map(map_),read(false),reader(NULL),onCharHandled(NULL)
+	Keyboard::Keyboard(InputMap&map_):block(false),map(map_),read(false),reader(NULL),onCharHandled(NULL)
 	{
-		buffer[256] = 0;
-		resetTranslation();
+		ResetTranslation();
 	}
 
 	Keyboard::~Keyboard()
 	{}
 
-	void Keyboard::delayRead(float len)
+	void Keyboard::DelayRead(float len)
 	{
 		block = true;
 		block_len = len;
@@ -215,9 +229,9 @@ namespace Engine
 
 
 
-	void Keyboard::resetTranslation()
+	void Keyboard::ResetTranslation()
 	{
-		filter("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789°!\"§$%&/()=?´`{[]}\\#+'*~-_.:,;|<> ");
+		Filter("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789°!\"§$%&/()=?´`{[]}\\#+'*~-_.:,;|<> ");
 
 		translation[(BYTE)'â'] = 'a';
 		translation[(BYTE)'ô'] = 'o';
@@ -243,7 +257,7 @@ namespace Engine
 	}
 
 
-	void Keyboard::filter(const char*characters)
+	void Keyboard::Filter(const char*characters)
 	{
 		memset(translation,0,sizeof(translation));
 		unsigned index = 0;
@@ -254,7 +268,7 @@ namespace Engine
 		}
 	}
 
-	void Keyboard::allow(const char*characters)
+	void Keyboard::Allow(const char*characters)
 	{
 		unsigned index = 0;
 		while (characters[index])
@@ -264,14 +278,14 @@ namespace Engine
 		}
 	}
 
-	void Keyboard::disallow(const char*characters)
+	void Keyboard::Disallow(const char*characters)
 	{
 		unsigned index = 0;
 		while (characters[index])
 			translation[(BYTE)characters[index++]] = 0;
 	}
 
-	void Keyboard::translate(const char*from, const char*to)
+	void Keyboard::Translate(const char*from, const char*to)
 	{
 		while (*from && *to)
 			translation[(BYTE)*from++] = *to++;

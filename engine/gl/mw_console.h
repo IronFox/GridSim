@@ -28,7 +28,7 @@ namespace Engine
 										show_progress_bar,
 										slider_grabbed;	//mouse pointer grabbed history slider
 			float						progress;
-			BYTE						cursor,
+			index_t						cursor,
 										sel_start;
 			String						context;
 			OpenGL::Texture::Reference	background;
