@@ -1485,6 +1485,7 @@ namespace FileSystem
 		#else
 			#error not supported
 		#endif
+		Folder().Find(out.location,out);
 		return true;
 	}
 
