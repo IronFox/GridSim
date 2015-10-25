@@ -52,6 +52,7 @@ namespace TCP
 	void	SwapCloseSocket(volatile SOCKET&socket);
 	String	ToString(const addrinfo&address);
 	String	ToString(const sockaddr_storage&address, socklen_t addrLen, bool includePort = true);
+	String	StripPort(const String&host);
 	
 	typedef std::shared_ptr<SerializableObject>	PSerializableObject;
 
@@ -64,7 +65,8 @@ namespace TCP
 		struct TimedLock
 		{
 			std::recursive_timed_mutex	mutex;
-			TCodeLocation		lastLockedBy;
+			TCodeLocation		lastLockedBy[0x10];
+			index_t				lockDepth=0;
 
 			bool			TryLock(const TCodeLocation&locker)
 			{
@@ -75,15 +77,28 @@ namespace TCP
 				#endif
 				if (!mutex.try_lock_for(std::chrono::milliseconds(toleranceMS)))
 				{
-					FATAL__(String(locker.ToString())+": Failed to lock thread after "+String(toleranceMS)+"ms. Deadlock assumed. Last locker was "+lastLockedBy.ToString());
+					if (lockDepth == 0)
+					{
+						FATAL__(String(locker.ToString())+": Failed to lock thread after "+String(toleranceMS)+"ms. Deadlock assumed. No lockers. This should not happen. Like, ever!");
+					}
+					else
+						if (lockDepth <= ARRAYSIZE(lastLockedBy)) 
+						{
+							FATAL__(String(locker.ToString())+": Failed to lock thread after "+String(toleranceMS)+"ms. Deadlock assumed. Last locker was "+lastLockedBy[lockDepth-1].ToString());
+						}
+						else
+							FATAL__(String(locker.ToString())+": Failed to lock thread after "+String(toleranceMS)+"ms. Deadlock assumed. Too many lockers");
 					return false;
 				}
-				lastLockedBy = locker;
+				if (lockDepth < ARRAYSIZE(lastLockedBy))
+					lastLockedBy[lockDepth] = locker;
+				lockDepth++;
 				return true;
 			}
 
 			void			Unlock()
 			{
+				lockDepth--;
 				mutex.unlock();
 			}
 
@@ -605,27 +620,7 @@ namespace TCP
 	*/
 	class Dispatcher
 	{
-	protected:
-
-		//struct TInbound
-		//{
-		//	PSerializableObject		object;
-		//	RootChannel				*receiver;
-		//	TDualLink				sender;
-		//};
-		//	
-		//struct TEvent
-		//{
-		//	event_t					event;
-		//	TDualLink				sender;
-		//};
-		//	
-		//struct TSignal
-		//{
-		//	UINT32					channel;
-		//	TDualLink				sender;
-		//};
-
+	private:
 		struct TCommonEvent
 		{
 			enum type_t
@@ -656,7 +651,6 @@ namespace TCP
 
 		Buffer0<PPeer>				wasteBucket;
 
-		EventLock					eventLock;
 
 		Mutex						wasteMutex;
 		bool						async;
@@ -664,16 +658,16 @@ namespace TCP
 		//volatile unsigned			block_events;
 		IndexTable<RootChannel*>	channel_map;
 		IndexTable<unsigned>		signal_map;
+
+		bool						resolving,terminateAfterResolve;
+
 			
 		friend class Peer;
 			
-		void						HandlePeerDeletion(const PPeer&);
 		void						HandleSignal(UINT32 signal, const TDualLink&sender);
 		void						HandleObject(RootChannel*receiver, const TDualLink&sender, const PSerializableObject&object);
-		void						HandleEvent(event_t event, const TDualLink&sender);
 		RootChannel*				getReceiver(UINT32 channel_id, unsigned user_level);
 			
-		void						FlushWaste();
 	public:
 		void (*onEvent)(event_t event, Peer&origin);	//!< Callback hook for events (connection, disconnection, etc). NULL by default. @param event Event that occured @param origin Event origin
 		void (*onSignal)(UINT32 signal, Peer&origin);	//!< Callback hook for signals (data-less packages). NULL by default.  @param signal Channel that the data-less package was received on @param origin Origin of the signal
@@ -682,6 +676,7 @@ namespace TCP
 	
 		/**/						Dispatcher();
 		virtual						~Dispatcher();
+		bool						IsResolving() const {return resolving;}
 		void						Resolve();		//!< Resolves all events that occured since the last Resolve() invokation. The client application must call this method frequently if the local dispatcher is set to synchronous. Never otherwise.
 		void						FlushPendingEvents();	//!< Dumps all remaining, pending events without executing them. The client application may call this method if the local dispatcher is set to synchronous. Nothing happens otherwise.
 		void						InstallChannel(RootChannel&channel);	//!< Installs a channel in/out processor. If the used channel id is already in use then it will be overwritten with the provided channel handler
@@ -697,6 +692,24 @@ namespace TCP
 									{
 										return async;
 									}
+
+	protected:
+		/**
+		Can only be called from inside Resolve(). Sets an interal flag to call PostResolutionTermination() once resolution is done.
+		Subsequent events during this resolution execution are discarded.
+		*/
+		void						SignalPostResolutionTermination();
+
+		/**
+		Signals that Resolve() has finished, and some callback function triggered an execution of SignalPostResolutionTermination() in the meantime.
+		*/
+		virtual void				PostResolutionTermination()=0;
+
+
+		void						HandleEvent(event_t event, const TDualLink&sender);
+		void						FlushWaste();
+		EventLock					eventLock;
+		void						HandlePeerDeletion(const PPeer&);
 	};
 	
 	
@@ -1057,6 +1070,7 @@ namespace TCP
 		ConnectionAttempt	attempt;
 		bool				is_connected;	//!< True if the client has an active connection to a server
 
+
 		friend class ConnectionAttempt;
 
 		void				fail(const String&message);
@@ -1081,6 +1095,9 @@ namespace TCP
 								return attempt.IsRunning() && !attempt.IsDone();
 							}
 		void				Disconnect();
+
+	protected:
+		virtual void		PostResolutionTermination() override {Disconnect();}
 
 	};
 	
@@ -1193,6 +1210,9 @@ namespace TCP
 							}
 
 		PPeer				GetSharedPointerOfClient(Peer*);
+	protected:
+		virtual void		PostResolutionTermination() override {EndService();}
+
 	};
 
 

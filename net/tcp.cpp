@@ -38,29 +38,20 @@ namespace TCP
 		closesocket(socket_to_close);
 	}
 
+	String	StripPort(const String&host)
+	{
+		index_t at = host.indexOf(':');
+		if (at)
+			return host.subString(0,at-1);
+		return host;
+	}
+
+
 	String	ToString(const addrinfo&address)
 	{
 		sockaddr_storage temp;
 		memcpy(&temp, address.ai_addr, address.ai_addrlen);
 		return ToString(temp,address.ai_addrlen);
-/*
-
-		static char buffer[INET6_ADDRSTRLEN];
-		if (address.ai_addrlen == sizeof(sockaddr_in6))
-		{
-			sockaddr_in6 copy = *(const sockaddr_in6*)address.ai_addr;
-			inet_ntop(AF_INET6,&copy.sin6_addr,buffer,sizeof(buffer));
-		}
-		else
-			if (address.ai_addrlen == sizeof(sockaddr_in))
-			{
-				sockaddr_in copy = *(const sockaddr_in*)address.ai_addr;
-				inet_ntop(AF_INET,&copy.sin_addr,buffer,sizeof(buffer));
-			}
-			else
-				strcpy_s(buffer,sizeof(buffer),"[Unknown address type]");
-					
-		return buffer;*/
 	}
 
 	String	ToString(const sockaddr_storage&address, socklen_t addrLen, bool includePort /*= true*/)
@@ -270,12 +261,16 @@ namespace TCP
 	{
 		if (eventLock.ExclusiveLock(CLOCATION))
 		{
+			terminateAfterResolve = false;
+			resolving = true;
 			TCP_TRY
 			{
 				TCommonEvent ev;
 				//TSignal signal;
 				while (queue >> ev)
 				{
+					if (terminateAfterResolve)
+						continue;
 					TCP_TRY
 					{
 						switch (ev.type)
@@ -315,11 +310,24 @@ namespace TCP
 				}
 			}
 			TCP_CATCH
+			resolving = false;
 			eventLock.ExclusiveUnlock();
 		}
 		//mutex.release();
 		FlushWaste();
+		if (terminateAfterResolve)
+		{
+			PostResolutionTermination();
+			terminateAfterResolve = false;
+		}
 	}
+
+	void	Dispatcher::SignalPostResolutionTermination()
+	{
+		ASSERT__(resolving);
+		terminateAfterResolve = true;
+	}
+
 
 	void Dispatcher::FlushWaste()
 	{
@@ -359,7 +367,7 @@ namespace TCP
 		return channel;
 	}
 	
-	Dispatcher::Dispatcher():async(true),is_locked(false),onEvent(NULL),onSignal(NULL),onIgnorePackage(NULL),onDeserializationFailed(NULL)
+	Dispatcher::Dispatcher():async(true),is_locked(false),onEvent(NULL),onSignal(NULL),onIgnorePackage(NULL),onDeserializationFailed(NULL),resolving(false),terminateAfterResolve(false)
 	{}
 	
 	Dispatcher::~Dispatcher()
@@ -1029,7 +1037,7 @@ namespace TCP
 		sockaddr_storage	addr;
 		while (socket_handle != INVALID_SOCKET)
 		{
-			if (async)
+			if (IsAsync())
 			{
 				FlushWaste();
 			}
@@ -1103,6 +1111,11 @@ namespace TCP
 	
 	void		Client::Disconnect()
 	{
+		if (IsResolving())
+		{
+			Dispatcher::SignalPostResolutionTermination();
+			return;
+		}
 		eventLock.Block(CLOCATION);
 		attempt.Join();
 		Peer::Disconnect();
@@ -1317,6 +1330,12 @@ namespace TCP
 
 	void		Server::EndService()
 	{
+		if (IsResolving())
+		{
+			Dispatcher::SignalPostResolutionTermination();
+			return;
+		}
+
 		if (verbose)
 			std::cout << "Server::endService() enter"<<std::endl;
 		if (is_shutting_down)
