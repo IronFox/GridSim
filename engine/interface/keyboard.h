@@ -52,6 +52,10 @@ namespace Engine
 			{
 				Super::Append('\0');
 			}
+			virtual				~CharacterBuffer()
+			{
+				Wipe();
+			}
 			/**
 			Appends a character to the end of the buffer. Makes sure the internal buffer is zero-terminated
 			*/
