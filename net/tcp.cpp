@@ -51,7 +51,7 @@ namespace TCP
 	{
 		sockaddr_storage temp;
 		memcpy(&temp, address.ai_addr, address.ai_addrlen);
-		return ToString(temp,address.ai_addrlen);
+		return ToString(temp,(socklen_t)address.ai_addrlen);
 	}
 
 	String	ToString(const sockaddr_storage&address, socklen_t addrLen, bool includePort /*= true*/)
@@ -507,7 +507,7 @@ namespace TCP
 			return;
 		}
 		memcpy(&client->address, actual_address->ai_addr, actual_address->ai_addrlen);
-		client->addressLength = actual_address->ai_addrlen;
+		client->addressLength = (socklen_t)actual_address->ai_addrlen;
 		freeaddrinfo(remote_address);
 		try
 		{

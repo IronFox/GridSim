@@ -234,7 +234,7 @@ void Engine::ConsoleWindow::onKeyDown(Key::Name key)
 
 void	Engine::ConsoleWindow::copyToClipboard()
 {
-	unsigned begin(sel_start),end(cursor);
+	index_t begin(sel_start),end(cursor);
 	if (end < begin)
 		swp(end,begin);
 	String line = keyboard.GetInput()+begin;
