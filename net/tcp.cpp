@@ -76,13 +76,13 @@ namespace TCP
 		}
 
 
-		rc = getnameinfo((struct sockaddr *)&address, addrLen, hoststr, sizeof(hoststr), portstr, sizeof(portstr), /*NI_NUMERICHOST |*/ NI_NUMERICSERV);
-		if (rc != 0)
-		{
-			if (includePort)
-				result += portstr;
-			return result;
-		}
+		//rc = getnameinfo((struct sockaddr *)&address, addrLen, hoststr, sizeof(hoststr), portstr, sizeof(portstr), /*NI_NUMERICHOST |*/ NI_NUMERICSERV);
+		//if (rc != 0)
+		//{
+		//	if (includePort)
+		//		result += portstr;
+		//	return result;
+		//}
 		if (!includePort)
 			return hoststr;
 		return String(hoststr)+":"+String(portstr);
