@@ -265,6 +265,14 @@ template <typename T>
 							len--;
 							return true;
 						}
+		inline bool		DropFirstChar()
+						{
+							if (!len)
+								return false;
+							len--;
+							reference++;
+							return true;
+						}
 		inline size_t	length()	const	//! Retrieves the length of the reference character segment (excluding any trailing zero) @return Length in characters
 						{
 							return len;

@@ -36,26 +36,50 @@ namespace Engine
 	class Keyboard
 	{
 	public:
-		class CharacterBuffer : private Buffer0<char>
+		/**
+		Overwrites the specified character section with zeros
+		*/
+		static void			WipeChars(char*c,size_t len)
 		{
-			typedef Buffer0<char>	Super;
+			volatile char*vp = c;
+			for (index_t i = 0; i < len; i++)
+				vp[i] = 0; 
+		}
 
-			static void			WipeChars(char*c,size_t len)
-			{
-				volatile char*vp = c;
-				for (index_t i = 0; i < len; i++)
-					vp[i] = 0; 
-			}
+		/**
+		Plugin to be used with SecureStrategy.
+		Only a single method is redefined to make sure data is properly wiped
+		*/
+		class SecurePlugin : public PrimitiveStrategyPlugin
+		{
+		public:
+			template <typename T>
+				static	inline	void	destructRange(T*begin, T*end)
+				{
+					WipeChars(begin,end-begin);
+				}
+		};
+
+		/**
+		Strategy to be used with character buffers that makes sure characters are wipe before being freed.
+		Without the use of this strategy it would be impossible to catch all cases where the Buffer class internally discards used memory
+		*/
+		typedef CommonStrategy<SecurePlugin>	SecureStrategy;
+
+		class CharacterBuffer : private Buffer0<char,SecureStrategy>
+		{
+			typedef Buffer0<char,SecureStrategy>	Super;
+
 
 		public:
 			/**/				CharacterBuffer()
 			{
 				Super::Append('\0');
 			}
-			virtual				~CharacterBuffer()
-			{
-				Wipe();
-			}
+			//virtual				~CharacterBuffer()
+			//{
+			//	Wipe();
+			//}
 			/**
 			Appends a character to the end of the buffer. Makes sure the internal buffer is zero-terminated
 			*/
