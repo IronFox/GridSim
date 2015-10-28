@@ -180,19 +180,19 @@ namespace Math
     template <class C, count_t Len>
     MFUNC1 (bool) VecN<C,Len>::operator> (const TVec<C0,Len>&other) const
     {
-		return VecUnroll<Eval<Len,Len0>::Min>::compare(v,other.v,getError<C>())>0;
+		return VecUnroll<Len>::compare(v,other.v,getError<C>())>0;
     }
 
     template <class C, count_t Len>
     MFUNC1 (bool) VecN<C,Len>::operator< (const TVec<C0,Len>&other) const
     {
-		return VecUnroll<Eval<Len,Len0>::Min>::compare(v,other.v,getError<C>())<0;
+		return VecUnroll<Len>::compare(v,other.v,getError<C>())<0;
     }
 
 	template <class C, count_t Len>
 	MFUNC1 (char) VecN<C,Len>::compareTo (const TVec<C0,Len>&other) const
 	{
-		return VecUnroll<Eval<Len,Len0>::Min>::compare(v,other.v,getError<C>());
+		return VecUnroll<Len>::compare(v,other.v,getError<C>());
 	}
 
 /*
@@ -238,7 +238,7 @@ namespace Math
 	template <class C>
 		MFUNC1 (C)				Vec3<C>::operator()(const C0&x)					const
 		{
-			return x*x*a + x*b + c;
+			return x*x*this->x + x*this->y + this->z;
 		}
 
 

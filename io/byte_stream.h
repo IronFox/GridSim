@@ -59,7 +59,9 @@ template <size_t Bytes>
 
 		void		_PushData(const void*pntr, size_t size)
 		{
-			ASSERT_LESS_OR_EQUAL1__(current + size, end, size);
+			if (current+size > end)
+				FATAL__("Internal fault: Byte streem size exhausted");
+			//ASSERT_LESS_OR_EQUAL1__(current + size, end, size);
 			memcpy(current, pntr, size);
 			current += size;
 		}

@@ -127,7 +127,7 @@ namespace Engine
 
 	void			Keyboard::CharacterBuffer::Append(const char*str, size_t strLen)
 	{
-		if (strlen == 0)
+		if (strLen == 0)
 			return;
 		DBG_ASSERT__(IsSane());
 		Super::EraseLast();	//erase terminating zero

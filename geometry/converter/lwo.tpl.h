@@ -90,7 +90,7 @@ void CLWMaterial::texCoord(const C*position, const C*norm, C*texcoord)
                     xyz2lp(-relative[0],relative[2],-relative[1],h,l);
                 break;
             }
-            t = -relative[axis] / dimension[axis] + 0.5;
+            t = -relative[axis] / dimension.v[axis] + 0.5;
             while (t < 0)
                 t++;
 
@@ -108,8 +108,8 @@ void CLWMaterial::texCoord(const C*position, const C*norm, C*texcoord)
             _c3(norm,anorm);
             _positive(anorm);
             axis = _highest(anorm);
-            texcoord[0] = (axis?relative[0]/dimension[0]:relative[2]/dimension[2])+0.5;
-            texcoord[1] = -(axis==1?relative[2]/dimension[2]:relative[1]/dimension[1])+0.5;
+            texcoord[0] = (axis?relative[0]/dimension.v[0]:relative[2]/dimension.v[2])+0.5;
+            texcoord[1] = -(axis==1?relative[2]/dimension.v[2]:relative[1]/dimension.v[1])+0.5;
         break;
     }
 }

@@ -218,15 +218,16 @@ namespace Engine
 		mx = (window.left+window.right)/2;
 		my = (window.top+window.bottom)/2;		
 
-		RAWINPUTDEVICE dev;
-        
-		dev.usUsagePage = 0x01; 
-		dev.usUsage = 0x02; 
-		dev.dwFlags = 0;//RIDEV_INPUTSINK;//RIDEV_INPUTSINK;//RIDEV_NOLEGACY;   // adds HID mouse and also ignores legacy mouse messages
-		dev.hwndTarget = hwnd;
-		if (!RegisterRawInputDevices(&dev,1,sizeof(dev)))
-			FATAL__(System::getLastError());
+		#if SYSTEM==WINDOWS
+			RAWINPUTDEVICE dev;
 			
+			dev.usUsagePage = 0x01; 
+			dev.usUsage = 0x02; 
+			dev.dwFlags = 0;//RIDEV_INPUTSINK;//RIDEV_INPUTSINK;//RIDEV_NOLEGACY;   // adds HID mouse and also ignores legacy mouse messages
+			dev.hwndTarget = hwnd;
+			if (!RegisterRawInputDevices(&dev,1,sizeof(dev)))
+				FATAL__(System::getLastError());
+		#endif
 	    //ShowMessage("window set to "+IntToStr(window.left)+", "+IntToStr(window.top)+" - "+IntToStr(window.right)+", "+IntToStr(window.bottom));
 	}
 
@@ -311,14 +312,17 @@ namespace Engine
 				short delta_x = mp.x-mx,
 					  delta_y = my-mp.y;
 				SetCursorPos(mx,my);
-				delta.x = speed[0]*delta_x/(screen_clip.right-screen_clip.left);
-				delta.y = speed[1]*delta_y/(screen_clip.bottom-screen_clip.top);
+				delta.x = speed.x*delta_x/(screen_clip.right-screen_clip.left);
+				delta.y = speed.y*delta_y/(screen_clip.bottom-screen_clip.top);
 				return;
 			}
-			GetCursorPos(&location.p);
+			POINT p;
+			GetCursorPos(&p);
+			location.absolute.x = p.x;
+			location.absolute.y = p.y;
 			//ShowMessage(String(location.x)+", "+String(location.y)+" / "+String(window.left)+", "+String(window.top)+", "+String(window.right)+", "+String(window.bottom));
-			location.fx = ((float)location.x-window.left)/(window.right-window.left);
-			location.fy = (1-((float)location.y-window.top)/(window.bottom-window.top));
+			location.windowRelative.x = ((float)location.absolute.x-window.left)/(window.right-window.left);
+			location.windowRelative.y = (1-((float)location.absolute.y-window.top)/(window.bottom-window.top));
 		#else
 			delta.x = 0;
 			delta.y = 0;
@@ -397,7 +401,9 @@ namespace Engine
 	        return;
 	    if (locked)
 		{
-	        ClipCursor(NULL);
+			#if SYSTEM==WINDOWS
+				ClipCursor(NULL);
+			#endif
 			SetCursorPos(location.absolute.x,location.absolute.y);
 		}
 		if (!cursor_visible)

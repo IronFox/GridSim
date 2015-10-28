@@ -1350,7 +1350,7 @@ namespace Engine
 			FATAL__("Cannot unbind OpenGL context: no reference context");
 		#if SYSTEM==WINDOWS
 			wglMakeCurrent(OpenGL::created_contexts.first().device_context, NULL);
-		#elif SYSTEM==UNIX
+		#elif SYSTEM_VARIANCE==LINUX
 			glXMakeCurrent(OpenGL::created_contexts.first().display,None,NULL);
 		#endif
 	}
@@ -1431,7 +1431,7 @@ namespace Engine
 	/*static*/ void	OpenGL::BuildMipMaps(const GL::FBO&fbo, unsigned target, const GLShader::Instance&mipMapShader)
 	{
 		ASSERT_LESS__(target, 4);
-		BuildMipMaps(fbo.Refer(target),mipMapShader, fbo.config.colorTarget[target].textureFormat);
+		BuildMipMaps(fbo.Refer(target),mipMapShader, fbo.GetConfig().colorTarget[target].textureFormat);
 	}
 	
 
@@ -1962,7 +1962,7 @@ namespace Engine
 	/*static*/			OpenGL::GLBinding			OpenGL::getCurrentContext()
 	{
 		GLBinding result;
-		#if SYSTEM==UNIX
+		#if SYSTEM_VARIANCE==LINUX
 			result.wnd = glXGetCurrentDrawable();
 			result.gl_context = glXGetCurrentContext();
 			result.display = glXGetCurrentDisplay();
@@ -1974,7 +1974,7 @@ namespace Engine
 	}
 	/*static*/			bool			OpenGL::hasCurrentContext()
 	{
-		#if SYSTEM==UNIX
+		#if SYSTEM_VARIANCE==LINUX
 			GLContext gl_context = glXGetCurrentContext();
 		#elif SYSTEM==WINDOWS
 			GLContext gl_context = wglGetCurrentContext();
@@ -1983,8 +1983,8 @@ namespace Engine
 	}
 	/*static*/			void						OpenGL::setCurrentContext(const GLBinding&current)
 	{
-		#if SYSTEM==UNIX
-			ASSERT__(!glXMakeCurrent(current.display,current.window,current.gl_context))
+		#if SYSTEM_VARIANCE==LINUX
+			ASSERT__(!glXMakeCurrent(current.display,current.wnd,current.gl_context))
 		#elif SYSTEM==WINDOWS
 			ASSERT__(wglMakeCurrent(current.device_context,current.gl_context));
 		#endif
@@ -1992,7 +1992,7 @@ namespace Engine
 
 	void OpenGL::adoptCurrentContext()
 	{
-		#if SYSTEM==UNIX
+		#if SYSTEM_VARIANCE==LINUX
 			wnd = glXGetCurrentDrawable();
 			gl_context = glXGetCurrentContext();
 			display = glXGetCurrentDisplay();
@@ -2155,7 +2155,7 @@ namespace Engine
 
 		OpenGL::OpenGL():verbose(false)
 		{
-			#if SYSTEM==UNIX
+			#if SYSTEM_VARIANCE==LINUX
 				visual = NULL;
 			#endif
 		}
@@ -2502,7 +2502,7 @@ namespace Engine
 			GL_END
 			return error_code == ERR_NO_ERROR;;
 		}
-	#elif SYSTEM==UNIX
+	#elif SYSTEM_VARIANCE==LINUX
 
 
 		OpenGL::~OpenGL()
@@ -2586,7 +2586,7 @@ namespace Engine
 			return true;
 		}
 
-		bool OpenGL::bindContext(Window window)
+		bool OpenGL::BindContext(Window window)
 		{
 			GL_BEGIN
 			if (!glXMakeCurrent(display,window,gl_context))
@@ -2612,7 +2612,7 @@ namespace Engine
 	void						OpenGL::LinkContextClone (context_t  c)
 	{
 		GL_BEGIN
-		#if SYSTEM==UNIX
+		#if SYSTEM_VARIANCE==LINUX
 			ASSERT__(glXMakeCurrent(display,wnd,c));
 		#elif SYSTEM==WINDOWS
 		    ASSERT__(wglMakeCurrent(device_context,c));
@@ -2623,7 +2623,7 @@ namespace Engine
 	OpenGL::context_t					OpenGL::CreateContextClone()
 	{
 		GL_BEGIN
-		#if SYSTEM==UNIX
+		#if SYSTEM_VARIANCE==LINUX
 			context_t result = glXCreateContext(display,visual,gl_context,True);
 			if (!result)
 			{
@@ -2652,7 +2652,7 @@ namespace Engine
 	OpenGL::context_t		OpenGL::linkContextClone()
 	{
 		GL_BEGIN
-		#if SYSTEM==UNIX
+		#if SYSTEM_VARIANCE==LINUX
 			context_t result = glXCreateContext(display,visual,gl_context,True);
 			if (!result)
 			{
@@ -2683,7 +2683,7 @@ namespace Engine
 	void						OpenGL::unlinkAndDestroyContextClone(context_t context)
 	{
 		GL_BEGIN
-		#if SYSTEM==UNIX
+		#if SYSTEM_VARIANCE==LINUX
 			glXMakeCurrent(display,None,NULL);
 			glXDestroyContext(display,context);
 		#elif SYSTEM==WINDOWS
@@ -2697,7 +2697,7 @@ namespace Engine
 	bool OpenGL::linkCallingThread()
 	{
 		GL_BEGIN
-		#if SYSTEM==UNIX
+		#if SYSTEM_VARIANCE==LINUX
 			bool result = glXMakeCurrent(display,wnd,gl_context);
 		#elif SYSTEM==WINDOWS
 			bool result = wglMakeCurrent(device_context,gl_context)!=0;
@@ -2717,7 +2717,7 @@ namespace Engine
 			wglMakeCurrent(device_context, NULL);
 			wglDeleteContext(gl_context);
 			ReleaseDC(window,device_context);
-		#elif SYSTEM==UNIX
+		#elif SYSTEM_VARIANCE==LINUX
 			glXMakeCurrent(display,None,NULL);
 			glXDestroyContext(display,gl_context);
 			XFree(visual);
@@ -2760,7 +2760,7 @@ namespace Engine
 		//glFlush();
 		#if SYSTEM==WINDOWS
 			SwapBuffers(device_context);
-		#elif SYSTEM==UNIX
+		#elif SYSTEM_VARIANCE==LINUX
 			glXSwapBuffers(display,wnd);
 		#endif
 		GL_END
@@ -2773,7 +2773,7 @@ namespace Engine
 		//glFlush();
 		#if SYSTEM==WINDOWS
 			SwapBuffers(device_context);
-		#elif SYSTEM==UNIX
+		#elif SYSTEM_VARIANCE==LINUX
 			glXSwapBuffers(display,wnd);
 		#endif
 		glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
@@ -3431,7 +3431,7 @@ namespace Engine
 	{
 		return gl_context;
 	}
-	#elif SYSTEM==UNIX
+	#elif SYSTEM_VARIANCE==LINUX
 	XVisualInfo* OpenGL::getVisual()
 	{
 		return visual;

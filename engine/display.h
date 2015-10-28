@@ -22,8 +22,8 @@ Engine Display
 
 #if SYSTEM==WINDOWS
 
-#elif SYSTEM==UNIX
-
+#elif SYSTEM_VARIANCE==LINUX
+	#include "../X11/displayConnection.h"
 	#include <X11/Xlib.h>
 	#include <X11/Xutil.h>
 	#include <X11/Xos.h>
@@ -394,7 +394,7 @@ namespace Engine
 			::Display*			connect();
 			::Display*			connection();
 			void				disconnect();
-			Window				createWindow(const String&window_name, const TWindowAttributes&attributes, DisplayConfig::border_style_t border_style, const DisplayConfig::FOnResize&onResize, const String&icon_filename);
+			Window				createWindow(const String&window_name, const TWindowAttributes&attributes, DisplayConfig::border_style_t border_style, const DisplayConfig::FOnResize&onResize, const DisplayConfig::Icon&icon);
 			void				setWindow(Window);
 	#endif
 
@@ -446,13 +446,13 @@ namespace Engine
 			double				windowAspectd()							const;
 
 			unsigned			countScreenModes();
-			Resolution			getScreenSize()							const;
 			short				getRefreshRate();
 	#if SYSTEM==WINDOWS
 			
 			void				AcceptFileDrop(const DragEventHandler&, const DropEventHandler&);
 			void				AcceptFileDrop();
 			void				BlockFileDrop();
+			Resolution			getScreenSize()							const;
 
 
 			DEVMODE*			getScreen(unsigned index)				const;
@@ -461,6 +461,7 @@ namespace Engine
 			bool				getScreen(DEVMODE&mode)					const;
 	#elif SYSTEM==UNIX
 
+			Resolution			getScreenSize();
 			int							findScreen(DWORD width, DWORD height, DWORD&refresh_rate);
 	#endif
 

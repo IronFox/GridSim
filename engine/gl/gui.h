@@ -726,11 +726,11 @@ namespace Engine
 
 
 			bool						mouseDown();			//!< Signals that the main mouse button has been pressed.
-			inline bool					SignalMouseDown()	{mouseDown();}
+			inline bool					SignalMouseDown()	{return mouseDown();}
 			void						mouseUp();				//!< Signals that the main mouse button has been released
 			inline void					SignalMouseUp()	{mouseUp();}
 			bool						mouseWheel(short delta);	//!< Signals that the mouse wheel has been used
-			inline bool					SignalMouseWheel(short delta)	{mouseWheel(delta);}
+			inline bool					SignalMouseWheel(short delta)	{return mouseWheel(delta);}
 
 			void						showMenu(const PWindow&menuWindow);
 			inline void					ShowMenu(const PWindow&menuWindow)	{showMenu(menuWindow);}

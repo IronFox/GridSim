@@ -442,11 +442,9 @@ INLINE		void					include(Type*element);
 template <class C, size_t Size> class ReferenceArrayList:public ArrayList<C,Size>
 {
 public:
-		typedef ArrayList<C,Size>	List;
+		typedef ArrayList<C,Size>	List,Super;
 		typedef C					Type;
 		typedef C*					Data;
-		USE_LIST
-		USE_CONTAINER
 		
 									ReferenceArrayList();
 template <size_t RSize>				ReferenceArrayList(const ArrayList<C,RSize>&other);

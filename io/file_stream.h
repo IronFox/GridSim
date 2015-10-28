@@ -5,6 +5,11 @@
 
 
 #if SYSTEM!=WINDOWS
+	#include <sys/io.h>
+	#include <stdio.h>
+	#include <sys/types.h>
+	#include <sys/stat.h>	
+	
 	#define _close	::close
 	#define	_open	::open
 	#define	_read	::read
@@ -123,12 +128,25 @@ virtual					~FileStream()
 						{
 							return isOpen() ? _filelengthi64(handle) : 0;
 						}
+		#else
+			uint64_t	size()	const
+						{
+							if (!isOpen())
+								return 0;
+							struct stat st;
+							fstat(handle,&st);
+							return st.st_size;
+						}
+			
 		#endif
 		
 	virtual bool		Write(const void*data, serial_size_t size) override;	//!< Writes a section of binary data to the local file. File must be opened in write mode or this operation will fail
 	virtual bool		Read(void*data, serial_size_t size) override;			//!< Reads a section of binary data from the local file. File must be opened in read mode or this operation will fail
 	#ifdef _WIN32
 		serial_size_t	GetRemainingBytes() const override {return isOpen()? (serial_size_t)(_filelengthi64(handle) - _telli64(handle)): 0;}
+	#else
+		serial_size_t	GetRemainingBytes() const override {return isOpen()? (serial_size_t)(size() - lseek(handle,0,SEEK_CUR)): 0;}
+		
 	#endif
 
 

@@ -99,7 +99,6 @@ namespace Engine
 		typedef		DummyObject					IBO;			//!< Handle for index buffer objects
 		typedef		DummyObject					Texture;			//!< Handle for textures
 		typedef		DummyObject					Query;			//!< Handle for pixel visibility queries
-		typedef		DummyObject					VBO;			//!< Handle for pixel buffer objects
 		typedef		DummyObject					Shader;			//!< Handle for pixel buffer objects
 		typedef		MaterialComposition<Texture*>	Material;			//!< Material-Container
 

@@ -1072,14 +1072,14 @@ template <class C, class Strategy=typename StrategySelector<C>::Default>
 				template <class OtherStrategy>
 					Array(Array<C,OtherStrategy>&&rvalue):Data(0)
 					{
-						adoptData(rvalue);
+						this->adoptData(rvalue);
 					}
 
 
 				template <class OtherStrategy>
 					Array<C,Strategy>&	operator=(Array<C,OtherStrategy>&&rvalue)
 					{
-						adoptData(rvalue);
+						this->adoptData(rvalue);
 						return *this;
 					}
 		#endif

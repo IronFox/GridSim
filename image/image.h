@@ -483,6 +483,7 @@ template <class Nature>
 		template <typename Float>
 			void					sampleNormal(Float x0, Float y0, Float x1, Float y1, TVec3<Float>&target)		const;
 
+			
 	public:
 		typedef ImageTemplate<typename Nature::channel_value_t>	Parent;
 		typedef GenericImage<Nature>	Self;
@@ -491,7 +492,9 @@ template <class Nature>
 		using Super::isColorMap;
 		using Super::isNormalMap;
 		using Super::free;
-		
+		using Super::getPixel;
+		using Super::adoptData;
+		using Super::sample;
 		//#ifdef __GNUC__
 			using Parent::image_channels;
 			using Parent::image_width;

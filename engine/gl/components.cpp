@@ -288,7 +288,7 @@ namespace Engine
 						*xcursor = xml.find("scrollbar/cursor"),
 						*xbutton = xml.find("scrollbar/button");
 			if (!xback || !xcursor || !xbutton)
-				throw IO::DriveAccess::FileFormatFault(globalString(__func__": Required XML nodes scrollbar/background, scrollbar/cursor, and/or scrollbar/button not found"));
+				throw IO::DriveAccess::FileFormatFault(String(__func__)+ ": Required XML nodes scrollbar/background, scrollbar/cursor, and/or scrollbar/button not found");
 
 			TTexture::load(xback,"center",folder,backCenter,scale);
 
@@ -298,7 +298,7 @@ namespace Engine
 			TTexture::load(xbutton,"background",folder,bottomButton,scale);
 
 			if (!xbutton->query("indent",attrib) || !convert(attrib.c_str(),buttonIndent))
-				throw IO::DriveAccess::FileFormatFault(globalString(__func__": Failed to find or parse scrollbar/button attribute 'indent'"));
+				throw IO::DriveAccess::FileFormatFault(String(__func__)+  ": Failed to find or parse scrollbar/button attribute 'indent'");
 			
 			
 			buttonIndent *= scale;
@@ -330,7 +330,7 @@ namespace Engine
 			XML::Node	*xbar = xml.find("slider/bar"),
 						*xslider = xml.find("slider/slider");
 			if (!xbar || !xslider)
-				throw IO::DriveAccess::FileFormatFault(globalString(__func__": Required XML nodes slider/bar and/or slider/slider not found"));
+				throw IO::DriveAccess::FileFormatFault(String(__func__)+ ": Required XML nodes slider/bar and/or slider/slider not found");
 
 			TTexture::load(xbar,"left",folder,barLeft,scale);
 			TTexture::load(xbar,"center",folder,barCenter,scale);

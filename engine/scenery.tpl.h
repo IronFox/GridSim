@@ -82,10 +82,10 @@ namespace Engine
 			
 			//if (!source->face_field.length())
 			{
-				if (object.textureDimension()==MaterialLayer::TextureDimension::Cube)
-					source->face_field.resize(6);
+				if (object.textureDimension()==TextureDimension::Cube)
+					source->face_field.SetSize(6);
 				else
-					source->face_field.resize(1);
+					source->face_field.SetSize(1);
 			}
 			
 		    SCENERY_LOG("returning.");
@@ -604,7 +604,7 @@ namespace Engine
 				    SCENERY_LOG("done writing to field");
 
 					v_offset += robj->vpool.vcnt;
-					i_offset += Def::IndexType(robj->ipool.idata.length());
+					i_offset += typename Def::IndexType(robj->ipool.idata.length());
 				}
 			}
 		}
@@ -2268,28 +2268,28 @@ namespace Engine
 
 
 	template <class GL, class Def>
-		MappedScenery<GL,Def>::MappedScenery(unsigned tree_depth, TextureTable<GL>*table):Scenery(table),tree(tree_depth)
+		MappedScenery<GL,Def>::MappedScenery(unsigned tree_depth, TextureTable<GL>*table):Super(table),tree(tree_depth)
 		{}
 		
 	template <class GL, class Def>
-		MappedScenery<GL,Def>::MappedScenery(unsigned tree_depth, GL*renderer, TextureTable<GL>*table):Scenery(renderer,table),tree(tree_depth)
+		MappedScenery<GL,Def>::MappedScenery(unsigned tree_depth, GL*renderer, TextureTable<GL>*table):Super(renderer,table),tree(tree_depth)
 		{}
 		
 	template <class GL, class Def>
-		MappedScenery<GL,Def>::MappedScenery(unsigned tree_depth, GL&renderer, TextureTable<GL>*table):Scenery(renderer,table),tree(tree_depth)
+		MappedScenery<GL,Def>::MappedScenery(unsigned tree_depth, GL&renderer, TextureTable<GL>*table):Super(renderer,table),tree(tree_depth)
 		{}
 		
 		
 	template <class GL, class Def>
 		StructureEntity<Def>*MappedScenery<GL,Def>::embed(CGS::AnimatableInstance<Def>&instance,unsigned detail_type)
 		{
-			StructureEntity<Def>*rs = Scenery::embed(instance,detail_type);
+			StructureEntity<Def>*rs = Super::embed(instance,detail_type);
 			if (rs)
 			{
 				for (index_t i = 0; i < rs->object_entities.count(); i++)
 					objects.add(rs->object_entities+i);
 				//objects.import(rs->object_entities);
-				if (!Scenery::locked)
+				if (!Super::locked)
 					remap();
 			}
 			
@@ -2299,14 +2299,14 @@ namespace Engine
 	template <class GL, class Def>
 		StructureEntity<Def>*MappedScenery<GL,Def>::embed(CGS::AnimatableInstance<Def>*instance,unsigned detail_type)
 		{
-			StructureEntity<Def>*rs = Scenery::embed(instance,detail_type);
+			StructureEntity<Def>*rs = Super::embed(instance,detail_type);
 			
 			if (rs)
 			{
 				for (index_t i = 0; i < rs->object_entities.count(); i++)
 					objects.add(rs->object_entities+i);
 				//objects.import(rs->object_entities);
-				if (!Scenery::locked)
+				if (!Super::locked)
 					remap();
 			}
 			return rs;
@@ -2316,13 +2316,13 @@ namespace Engine
 	template <class GL, class Def>
 		StructureEntity<Def>*MappedScenery<GL,Def>::embed(CGS::StaticInstance<Def>&instance,unsigned detail_type)
 		{
-			StructureEntity<Def>*rs = Scenery::embed(instance,detail_type);
+			StructureEntity<Def>*rs = Super::embed(instance,detail_type);
 			if (rs)
 			{
 				for (index_t i = 0; i < rs->object_entities.count(); i++)
 					objects.add(rs->object_entities+i);
 				//objects.import(rs->object_entities);
-				if (!Scenery::locked)
+				if (!Super::locked)
 					remap();
 			}
 			
@@ -2332,14 +2332,14 @@ namespace Engine
 	template <class GL, class Def>
 		StructureEntity<Def>*MappedScenery<GL,Def>::embed(CGS::StaticInstance<Def>*instance,unsigned detail_type)
 		{
-			StructureEntity<Def>*rs = Scenery::embed(instance,detail_type);
+			StructureEntity<Def>*rs = Super::embed(instance,detail_type);
 			
 			if (rs)
 			{
 				for (index_t i = 0; i < rs->object_entities.count(); i++)
 					objects.add(rs->object_entities+i);
 				//objects.import(rs->object_entities);
-				if (!Scenery::locked)
+				if (!Super::locked)
 					remap();
 			}
 			return rs;
@@ -2348,14 +2348,14 @@ namespace Engine
 	template <class GL, class Def>
 		StructureEntity<Def>*MappedScenery<GL,Def>::embed(CGS::Geometry<Def>&structure,unsigned detail_type)
 		{
-			StructureEntity<Def>*rs = Scenery::embed(structure,detail_type);
+			StructureEntity<Def>*rs = Super::embed(structure,detail_type);
 			
 			if (rs)
 			{
 				for (index_t i = 0; i < rs->object_entities.count(); i++)
 					objects.add(rs->object_entities+i);
 				//objects.import(rs->object_entities);
-				if (!Scenery::locked)
+				if (!Super::locked)
 					remap();
 			}
 			return rs;
@@ -2364,7 +2364,7 @@ namespace Engine
 	template <class GL, class Def>
 		StructureEntity<Def>*MappedScenery<GL,Def>::embed(CGS::Geometry<Def>*structure,unsigned detail_type)
 		{
-			StructureEntity<Def>*rs = Scenery::embed(structure,detail_type);
+			StructureEntity<Def>*rs = Super::embed(structure,detail_type);
 			
 			
 			if (rs)
@@ -2372,7 +2372,7 @@ namespace Engine
 				for (index_t i = 0; i < rs->object_entities.count(); i++)
 					objects.add(rs->object_entities+i);
 				//objects.import(rs->object_entities);
-				if (!Scenery::locked)
+				if (!Super::locked)
 					remap();
 			}
 			return rs;
@@ -2382,13 +2382,13 @@ namespace Engine
 		void			MappedScenery<GL,Def>::remove(CGS::Geometry<Def>&structure)
 		{
 
-			StructureEntity<Def>*entity = Scenery::structures.lookup(structure.system_link);
+			StructureEntity<Def>*entity = Super::structures.lookup(structure.system_link);
 			if (entity)
 			{
 				for (index_t i = 0; i < entity->object_entities.count(); i++)
 					objects.drop(&entity->object_entities[i]);
-				Scenery::remove(structure);
-				if (!Scenery::locked)
+				Super::remove(structure);
+				if (!Super::locked)
 					remap();
 			}
 		}
@@ -2396,27 +2396,27 @@ namespace Engine
 	template <class GL, class Def>
 		void			MappedScenery<GL,Def>::remove(CGS::Geometry<Def>*structure)
 		{
-			StructureEntity<Def>*entity = Scenery::structures.lookup(structure->system_link);
+			StructureEntity<Def>*entity = Super::structures.lookup(structure->system_link);
 			if (!entity)
 				return;
 			for (index_t i = 0; i < entity->object_entities.count(); i++)
 				objects.drop(&entity->object_entities[i]);
-			Scenery::remove(*structure);
-			if (!Scenery::locked)
+			Super::remove(*structure);
+			if (!Super::locked)
 				remap();
 		}
 		
 	template <class GL, class Def>
 		void			MappedScenery<GL,Def>::remove(CGS::AnimatableInstance<Def>&instance)
 		{
-			StructureEntity<Def>*entity = Scenery::structures.lookup(&instance.matrix);
+			StructureEntity<Def>*entity = Super::structures.lookup(&instance.matrix);
 			if (entity)
 			{
 				for (index_t i = 0; i < entity->object_entities.count(); i++)
 					objects.drop(&entity->object_entities[i]);
 
-				Scenery::remove(instance);
-				if (!Scenery::locked)
+				Super::remove(instance);
+				if (!Super::locked)
 					remap();
 			}
 		}
@@ -2424,27 +2424,27 @@ namespace Engine
 	template <class GL, class Def>
 		void			MappedScenery<GL,Def>::remove(CGS::AnimatableInstance<Def>*instance)
 		{
-			StructureEntity<Def>*entity = Scenery::structures.lookup(&instance->matrix);
+			StructureEntity<Def>*entity = Super::structures.lookup(&instance->matrix);
 			if (!entity)
 				return;
 			for (index_t i = 0; i < entity->object_entities.count(); i++)
 				objects.drop(&entity->object_entities[i]);
-			Scenery::remove(*instance);
-			if (!Scenery::locked)
+			Super::remove(*instance);
+			if (!Super::locked)
 				remap();
 		}
 		
 	template <class GL, class Def>
 		void			MappedScenery<GL,Def>::remove(CGS::StaticInstance<Def>&instance)
 		{
-			StructureEntity<Def>*entity = Scenery::structures.lookup(&instance.matrix);
+			StructureEntity<Def>*entity = Super::structures.lookup(&instance.matrix);
 			if (entity)
 			{
 				for (index_t i = 0; i < entity->object_entities.count(); i++)
 					objects.drop(&entity->object_entities[i]);
 
-				Scenery::remove(instance);
-				if (!Scenery::locked)
+				Super::remove(instance);
+				if (!Super::locked)
 					remap();
 			}
 		}
@@ -2452,29 +2452,29 @@ namespace Engine
 	template <class GL, class Def>
 		void			MappedScenery<GL,Def>::remove(CGS::StaticInstance<Def>*instance)
 		{
-			StructureEntity<Def>*entity = Scenery::structures.lookup(&instance->matrix);
+			StructureEntity<Def>*entity = Super::structures.lookup(&instance->matrix);
 			if (!entity)
 				return;
 			for (index_t i = 0; i < entity->object_entities.count(); i++)
 				objects.drop(&entity->object_entities[i]);
-			Scenery::remove(*instance);
-			if (!Scenery::locked)
+			Super::remove(*instance);
+			if (!Super::locked)
 				remap();
 		}
 		
 	template <class GL, class Def>
 		void			MappedScenery<GL,Def>::Rebuild()
 		{
-			if (Scenery::locked)
+			if (Super::locked)
 				return;
-			Scenery::Rebuild();
+			Super::Rebuild();
 			remap();
 		}
 		
 	template <class GL, class Def>
 		void			MappedScenery<GL,Def>::remap()
 		{
-			if (!Scenery::locked)
+			if (!Super::locked)
 				tree.remap(&objects);
 		}
 		
@@ -2494,8 +2494,8 @@ namespace Engine
 	template <class GL, class Def> template <class Def2>
 		void			MappedScenery<GL,Def>::import(Scenery<GL,Def2>&scenery)
 		{
-			Scenery::import(scenery);
-			if (!Scenery::locked)
+			Super::import(scenery);
+			if (!Super::locked)
 				remap();
 		}
 
@@ -2504,15 +2504,15 @@ namespace Engine
 		void 			MappedScenery<GL,Def>::Resolve(const Aspect<C0>&aspect, const C1&resolutionModifier)
 		{
 		
-			if (!Scenery::structures)
+			if (!Super::structures)
 				return;
-			if (Scenery::structures < 5)	// Don't use expensive tree lookup for few structures
+			if (Super::structures < 5)	// Don't use expensive tree lookup for few structures
 			{
-				Scenery::Resolve(aspect);
+				Super::Resolve(aspect);
 				structure_buffer.reset();
 				object_buffer.reset();
-				Scenery::structures.reset();
-				while (StructureEntity*e = Scenery::structures.each())
+				Super::structures.reset();
+				while (MyStructureEntity*e = Super::structures.each())
 					if (e->visible)
 					{
 						structure_buffer << e;

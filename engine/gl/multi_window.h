@@ -327,10 +327,14 @@ namespace Engine
 
 		static ContextHandle	getCurrentContext()
 								{
-									ContextHandle rs;
-									rs.gl_context = wglGetCurrentContext();
-									rs.device_context = wglGetCurrentDC();
-									return rs;
+									#if SYSTEM==WINDOWS
+										ContextHandle rs;
+										rs.gl_context = wglGetCurrentContext();
+										rs.device_context = wglGetCurrentDC();
+										return rs;
+									#else
+										return glXGetCurrentContext();
+									#endif
 								}
 		virtual	void			onPaint()		{};
 		virtual	void			onFocus()		{};
@@ -353,7 +357,9 @@ namespace Engine
 		virtual	void			onKeyDown(Key::Name key)						{};
 		virtual	void			onKeyUp(Key::Name key)						{};
 
-		HDC						GetDC()	const	{return local_context.device_context;}
+		#if SYSTEM==WINDOWS
+			HDC					GetDC()	const	{return local_context.device_context;}
+		#endif
 
 		/**
 			@brief Set whether or not system-events (such as redraw or button events) should be ignored
@@ -477,7 +483,7 @@ namespace Engine
 	private:
 
 		#if SYSTEM==UNIX
-			Display    *display;
+			::Display    *display;
 			bool		function_key_mask[0x100];
 			friend  void                        wExecuteEvent(XEvent&event);
 		#elif SYSTEM==WINDOWS
@@ -526,6 +532,7 @@ namespace Engine
 		bool			Create(const String&icon_name);
 		void			Destroy();
 		#if SYSTEM==UNIX
+			#undef IsFunctionKey
 			bool		IsFunctionKey(unsigned key);
 		#endif
 

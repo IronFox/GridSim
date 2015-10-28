@@ -2,11 +2,11 @@
 #include "cgs.h"
 
 
-template CGS::Geometry<CGS::StdDef>;
-template CGS::AnimatableInstance<CGS::StdDef>;
-template CGS::StaticInstance<CGS::StdDef>;
-template CGS::VertexContainerA<CGS::StdDef>;
-template CGS::Constructor<CGS::StdDef>;
+template class CGS::Geometry<CGS::StdDef>;
+template class CGS::AnimatableInstance<CGS::StdDef>;
+template class CGS::StaticInstance<CGS::StdDef>;
+template class CGS::VertexContainerA<CGS::StdDef>;
+template class CGS::Constructor<CGS::StdDef>;
 
 
 const char* shortenFile(const char*full_file)
@@ -29,8 +29,6 @@ float			shininess_default = 0;
 
 LogFile		*log(NULL);
 
-template class Geometry<StdDef>;
-template class StaticInstance<StdDef>;
 template class AnimatorInstanceA<StdDef>;
 
 

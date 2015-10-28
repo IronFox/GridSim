@@ -287,7 +287,7 @@ namespace Engine
 						lowest = h_field[t];
 				}
 			float invrange = highest > lowest?(1.0f/(highest-lowest)):1.0f;
-			Base::outlines.color(color[0],color[1],color[2]);
+			Base::outlines.color(color.r,color.g,color.b);
 			float bar_width = 1.0f/(res),
 					spacing = bar_width/8;
 			/*if (h_block[0])
@@ -369,7 +369,7 @@ namespace Engine
 					const Channel&channel = group.channel(j);
 					//ASSERT2__(channel.weighted_history.length() == res,channel.weighted_history.length(),res);
 					ASSERT2__(channel.history.length() == res,channel.history.length(),res);
-					const float*h = channel.history;
+					const float*h = channel.history.pointer();
 					for (unsigned t = 0; t < res; t++)
 						h_block[t] += h[t];
 					
@@ -932,7 +932,7 @@ namespace Engine
 			float invrange = highest > lowest?(1.0f/(highest-lowest)):1.0f;
 			if (highest <= lowest)
 				lowest = highest = 0;
-			Base::outlines.color(color[0],color[1],color[2]);
+			Base::outlines.color(color.g,color.g,color.b);
 			for (unsigned t = 0; t < res; t++)
 			{
 				float	x = (float)t/(res-1),

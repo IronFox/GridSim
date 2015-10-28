@@ -4,8 +4,8 @@
 
 namespace Engine
 {
-	template Scenery<OpenGL>;
-	template MappedScenery<OpenGL>;
-	template SceneryTree<CGS::StdDef>;
+	template class Scenery<OpenGL>;
+	template class MappedScenery<OpenGL>;
+	template class SceneryTree<CGS::StdDef>;
 	//float global_shortest_edge_length=0.1f;
 }

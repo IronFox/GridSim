@@ -14,7 +14,7 @@ namespace Converter
 
 
 
-	void			ObjConverter::parseObjPoint(Buffer<TVec3<Def::FloatType> >&target, char*start, char*end)
+	void			ObjConverter::parseObjPoint(Buffer<TVec3<Def::FloatType> >&target, char*start, char*end) throw()
 	{
 		BYTE section(0);
 		while (*start == ' ')
@@ -37,7 +37,7 @@ namespace Converter
 			v.v[k] = 0;
 	}
 
-	void			ObjConverter::parseObjPoint(Buffer<TVec2<Def::FloatType> >&target, char*start, char*end)
+	void			ObjConverter::parseObjPoint(Buffer<TVec2<Def::FloatType> >&target, char*start, char*end) throw()
 	{
 		BYTE section(0);
 		while (*start == ' ')
@@ -60,7 +60,7 @@ namespace Converter
 			v.v[k] = 0;
 	}
 
-	void			ObjConverter::parseObjFaceVertex(char*start, char*end, int&v, int&n, int&t)
+	void			ObjConverter::parseObjFaceVertex(char*start, char*end, int&v, int&n, int&t) throw()
 	{
 		char*s = start;
 		int		index[3];
@@ -99,7 +99,7 @@ namespace Converter
 	}
 
 
-	void			ObjConverter::parseObjFace(char*start, char*end)
+	void			ObjConverter::parseObjFace(char*start, char*end) throw()
 	{
 		
 		static Buffer<int>	ibuffer;
@@ -252,7 +252,7 @@ namespace Converter
 		console->printDirect(p);*/
 	}
 
-	void			ObjConverter::loadObjColor(const String&line,TVec4<Def::FloatType>&target)
+	void			ObjConverter::loadObjColor(const String&line,TVec4<Def::FloatType>&target) throw()
 	{
 		target.alpha = 1.0;
 		Array<String>	segments;
@@ -265,7 +265,7 @@ namespace Converter
 	}
 
 
-	ObjTexture*		ObjConverter::loadObjTexture(const String&color_map, const String&alpha_map)
+	ObjTexture*		ObjConverter::loadObjTexture(const String&color_map, const String&alpha_map) throw()
 	{
 		if (!color_map.length() && !alpha_map.length())
 			return NULL;
@@ -377,7 +377,7 @@ namespace Converter
 
 	}
 
-	ObjTexture*		ObjConverter::loadObjNormalMap(const String&normal_map)
+	ObjTexture*		ObjConverter::loadObjNormalMap(const String&normal_map) throw()
 	{
 		if (!normal_map.length())
 			return NULL;
@@ -436,7 +436,7 @@ namespace Converter
 	}
 
 
-	String			ObjConverter::parseMap(CFSFolder&folder, const String&line, TVec3<>&scale)
+	String			ObjConverter::parseMap(CFSFolder&folder, const String&line, TVec3<>&scale) throw()
 	{
 		static Tokenizer::Configuration	config(" "," \r\n","","","\'\"","",'\\',true,true,true);
 		static StringList	segments;
@@ -483,7 +483,7 @@ namespace Converter
 		return "";
 	}
 
-	void			ObjConverter::loadObjMaterialLibrary(const CFSFile*file)
+	void			ObjConverter::loadObjMaterialLibrary(const CFSFile*file) throw()
 	{
 		if (!file)
 			return;
@@ -625,7 +625,7 @@ namespace Converter
 		
 	}
 
-	void			ObjConverter::parseObjLine(char*start, char*end)
+	void			ObjConverter::parseObjLine(char*start, char*end) throw()
 	{
 		if (end==start || *start == '#')
 			return;
@@ -711,7 +711,7 @@ namespace Converter
 		}
 	}
 
-	void			ObjConverter::resetImport()
+	void			ObjConverter::resetImport() throw()
 	{
 		vertexBuffer.reset();
 		normal_buffer.reset();
@@ -744,7 +744,7 @@ namespace Converter
 
 
 
-	bool	ObjConverter::read(CGS::Geometry<>&target, const String&filename)
+	bool	ObjConverter::read(CGS::Geometry<>&target, const String&filename) throw()
 	{
 		object_system = FileSystem::GetWorkingDirectory();
 		if (!object_system.MoveTo(FileSystem::ExtractFileDir(filename)))
@@ -1430,7 +1430,7 @@ namespace Converter
 
 
 	
-	void	ObjConverter::exportTexture(const CGS::TextureA*texture, const String&outname, StringFile&fout)
+	void	ObjConverter::exportTexture(const CGS::TextureA*texture, const String&outname, StringFile&fout) throw()
 	{
 	if (!texture)
 		return;
@@ -1578,7 +1578,7 @@ namespace Converter
 
 
 	
-	void	ObjConverter::writeObject(const CGS::Geometry<>&geometry, const Array<PointerContainer<Array<TFace> > >&conversion_table,const CGS::SubGeometryA<>&object,StringFile&out)
+	void	ObjConverter::writeObject(const CGS::Geometry<>&geometry, const Array<PointerContainer<Array<TFace> > >&conversion_table,const CGS::SubGeometryA<>&object,StringFile&out) throw()
 	{
 		/*console->print("  "+name2str(object.name).Trim()+"...");
 		console->update();*/
@@ -1605,7 +1605,7 @@ namespace Converter
 	
 	
 	
-	bool	ObjConverter::write(const CGS::Geometry<>&geometry, const String&parameter)
+	bool	ObjConverter::write(const CGS::Geometry<>&geometry, const String&parameter) throw()
 	{
 #if 1
 		String filename = parameter;

@@ -1,6 +1,10 @@
 #include "../../global_root.h"
 #include "multi_window.h"
 
+#if SYSTEM_VARIANCE==LINUX
+	#include <X11/Xatom.h>
+#endif
+
 namespace Engine
 {
 	#if SYSTEM==UNIX
@@ -116,7 +120,7 @@ namespace Engine
 		if (application.fatal_exception_caught)
 		{
 			application.fatal_exception_caught = false;
-			throw std::exception(application.fatal_exception.c_str(),1);
+			throw Exception(globalString(application.fatal_exception.c_str()));
 		}
 	}
 
@@ -173,7 +177,7 @@ namespace Engine
 		#if SYSTEM==WINDOWS
 			return windows.lookup(GetFocus());
 		#elif SYSTEM==UNIX
-			Window focus;
+			::Window focus;
 			int revert_to;
 			XGetInputFocus(display, &focus, &revert_to);
 			return windows.lookup(focus);
@@ -457,7 +461,7 @@ namespace Engine
 				if (recursive)
 				{
 					//ShowMessage("is recursive. passing on '"+String(c)+"'");
-					if(result = entry->find(c,type))
+					if ((result = entry->find(c,type)))
 						return result;
 					if (type == Closest)
 						return entry;
@@ -1095,7 +1099,7 @@ namespace Engine
 	}
 
 #if SYSTEM==UNIX
-	bool Application::isFunctionKey(unsigned key)
+	bool Application::IsFunctionKey(unsigned key)
 	{
 		if (key >= 0x100)
 			return false;
@@ -1105,14 +1109,45 @@ namespace Engine
 
 	String					Window::getTitle()				const
 	{
-		char buffer[0x500];
-		buffer[0] = 0;
-		GetWindowTextA(getWindow(),buffer,sizeof(buffer)-1);
-		return buffer;
+		#if SYSTEM==WINDOWS
+			char buffer[0x500];
+			buffer[0] = 0;
+			GetWindowTextA(getWindow(),buffer,sizeof(buffer)-1);
+			return buffer;
+		#else
+			
+		
+			Atom actual_type;
+			int actual_format;
+			unsigned long nitems;
+			unsigned long leftover;
+			unsigned char *data = NULL;
+			if (XGetWindowProperty(application.display, window, XA_WM_NAME, 0L, (long)BUFSIZ,
+					False, XA_STRING, &actual_type, &actual_format,
+					&nitems, &leftover, &data) != Success)
+			{
+				return "";
+			}
+			String result;
+			if ( (actual_type == XA_STRING) &&  (actual_format == 8) )
+			{
+				/* The data returned by XGetWindowProperty is guaranteed
+				 * to contain one extra byte that is null terminated to
+				 * make retrieving string properties easy */
+				result = String((const char *)data);
+			}
+			if (data)
+				XFree ((char *)data);
+			return result;
+		#endif
 	}
 	void					Window::setTitle(const String&title)
 	{
-		SetWindowTextA(getWindow(),title.c_str());
+		#if SYSTEM==WINDOWS
+			SetWindowTextA(getWindow(),title.c_str());
+		#else
+			XStoreName(application.display, window, title.c_str());
+		#endif
 	}
 
 
@@ -1121,7 +1156,7 @@ namespace Engine
 		if (!created)
 			return NULL;
 		#if SYSTEM==UNIX
-			Window root,w;
+			::Window root,w;
 			int i;
 			unsigned width,height,u;
 			XGetGeometry(application.display, window, &root, &i, &i, &u,  &u,&u,&u);
@@ -1275,7 +1310,7 @@ namespace Engine
 		assembleClientRect(region);
 		previous_handle = Window::getCurrentContext();
 		#if SYSTEM==UNIX
-			glXMakeCurrent(application.display,window,gl_context);
+			glXMakeCurrent(application.display,window,local_context);
 			if (font_remake_counter)
 			{
 				font_remake_counter--;
@@ -1417,7 +1452,7 @@ namespace Engine
 		previous_handle = Window::getCurrentContext();
 		#if SYSTEM==UNIX
 			glXGetCurrentContext();
-			glXMakeCurrent(application.display,window,gl_context);
+			glXMakeCurrent(application.display,window,local_context);
 		#elif SYSTEM==WINDOWS
 			wglGetCurrentContext();
 			ASSERT__(wglMakeCurrent(local_context.device_context,local_context.gl_context));
@@ -1432,7 +1467,7 @@ namespace Engine
 			wglMakeCurrent(previous_handle.device_context,previous_handle.gl_context);
 		#elif SYSTEM==UNIX
 
-			glXMakeCurrent(application.display,None,None);
+			glXMakeCurrent(application.display,None,nullptr);
 		#endif
 		in_mutex = false;
 		update_mutex.release();
@@ -1520,7 +1555,7 @@ namespace Engine
 		#if SYSTEM==WINDOWS
 			return GetFocus() == window;
 		#elif SYSTEM==UNIX
-			Window focus;
+			::Window focus;
 			int revert_to;
 			XGetInputFocus(application.display, &focus, &revert_to);
 			return focus == window;
@@ -1568,7 +1603,7 @@ namespace Engine
 	{
 		POINT rs;
 		#if SYSTEM==UNIX
-			Window dummy,last_root;
+			::Window dummy,last_root;
 			int root_x,root_y,win_x,win_y;
 			unsigned idummy;
 			XQueryPointer(::getDisplay(),window,&last_root,&dummy,&root_x,&root_y,&win_x,&win_y,&idummy);
@@ -1788,7 +1823,7 @@ namespace Engine
 		#if SYSTEM==WINDOWS
 			SetWindowPos(window, NULL, 0, 0, w, h, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOOWNERZORDER | SWP_NOZORDER);
 		#else
-			#error stub
+			XResizeWindow(application.display,window,w,h);
 		#endif
 
 	}
@@ -1798,7 +1833,7 @@ namespace Engine
 		if (!this || !created)
 			return;
 		#if SYSTEM==UNIX
-			Window root_return,outer_window,*children;
+			::Window root_return,outer_window,*children;
 			unsigned dummy;
 
 
@@ -1863,7 +1898,7 @@ namespace Engine
 			RECT	screen_location;
 
 			#if SYSTEM==UNIX
-	 			Window dummy;
+	 			::Window dummy;
 	 			int x, y;
 	 			unsigned udummy;
 	 			XGetGeometry(application.display,root_return,&dummy,&x,&y,&udummy,&udummy,&udummy,&udummy);
@@ -2295,8 +2330,8 @@ namespace Engine
 //			screen = visual->screen;
 
 	            Window*root = application.windows.first();
-				gl_context = glXCreateContext(application.display,visual,root?root->gl_context:NULL,True);
-	            if (!gl_context)
+				local_context = glXCreateContext(application.display,visual,root?root->local_context:NULL,True);
+	            if (!local_context)
 	            {
 	                error = ContextCreationFailed;
 	                XFree(visual);
@@ -2304,7 +2339,7 @@ namespace Engine
 	                return false;
 	            }
 
-	            if (!glXIsDirect(application.display,gl_context))
+	            if (!glXIsDirect(application.display,local_context))
 	                ErrMessage("warning: window "+name+" rendering indirect!");
 
 	            glXSwapIntervalSGI(config.vertical_sync);
@@ -2319,7 +2354,7 @@ namespace Engine
 	            if (!colormap)
 	            {
 	                XFree(visual);
-	                glXDestroyContext(application.display,gl_context);
+	                glXDestroyContext(application.display,local_context);
 	                error = ColorMapCreationFailed;
 	                return false;
 	            }
@@ -2334,7 +2369,7 @@ namespace Engine
 	            if (!window)
 	            {
 	                XFree(visual);
-	                glXDestroyContext(application.display,gl_context);
+	                glXDestroyContext(application.display,local_context);
 	                XFreeColormap(application.display,colormap);
 	                error = WindowCreationFailed;
 	                return false;
@@ -2355,18 +2390,18 @@ namespace Engine
 	            //XGrabPointer(display_, window, True, ButtonPressMask|ButtonReleaseMask, GrabModeAsync, GrabModeAsync, None /*window*/, None, CurrentTime);
 	            XMoveResizeWindow(application.display, window, x,y,width,height);
 
-	            if (!glXMakeCurrent(application.display,window,gl_context))
+	            if (!glXMakeCurrent(application.display,window,local_context))
 	            {
 	                XFree(visual);
-	                glXDestroyContext(application.display,gl_context);
+	                glXDestroyContext(application.display,local_context);
 	                XDestroyWindow(application.display,window);
 	                XFreeColormap(application.display,colormap);
 	                error = ContextNotBindable;
 	                return false;
 	            }
 				//XSetInputFocus(application.display, window, RevertToNone,CurrentTime);
-	            Engine::gl_extensions.initialize(application.display,visual->screen);
-	            Engine::gl_extensions.init(EXT_WIN_CONTROL_BIT|EXT_MULTITEXTURE_BIT);
+	            Engine::glExtensions.Initialize(application.display,visual->screen);
+	            Engine::glExtensions.Init(EXT_WIN_CONTROL_BIT|EXT_MULTITEXTURE_BIT);
 
 
 	        #endif
@@ -2414,6 +2449,7 @@ namespace Engine
 			return;
 		showingBorder = newShow;
 
+		#if SYSTEM==WINDOWS
 		{
 			LONG lStyle = GetWindowLong(window, GWL_STYLE);
 			if (newShow)
@@ -2423,8 +2459,22 @@ namespace Engine
 			SetWindowLong(window, GWL_STYLE, lStyle);
 			SetWindowPos(window, NULL, 0,0,0,0, SWP_FRAMECHANGED | SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOOWNERZORDER);
 		}
-
-
+		#else
+			if (application.display)
+			{
+				XSetWindowAttributes attrib;
+				attrib.colormap = colormap;
+				attrib.border_pixel = !newShow ?0:CopyFromParent;
+				attrib.event_mask = ExposureMask|ButtonPressMask|ButtonReleaseMask|StructureNotifyMask|KeyPressMask|KeyReleaseMask|SubstructureRedirectMask;
+				attrib.override_redirect = !newShow;
+				XChangeWindowAttributes(application.display,window,CWBorderPixel|CWOverrideRedirect,&attrib);
+				//CWColormap|CWEventMask|
+				// if (style == DisplayConfig::NoBorder)
+					// XGrabKeyboard(display, window, True, GrabModeAsync, GrabModeAsync, CurrentTime);
+				// else
+					// XUngrabKeyboard(display,CurrentTime);
+			}
+		#endif
 	}
 
 
@@ -2489,15 +2539,20 @@ namespace Engine
 	    {
 	    	display.resetLighting();
 			textout.getFont().unmake();
-			if (previous_handle.gl_context == local_context.gl_context)
-				previous_handle.gl_context = NULL;
+			#if SYSTEM==WINDOWS
+				if (previous_handle.gl_context == local_context.gl_context)
+					previous_handle.gl_context = NULL;
+			#else
+				if (previous_handle == local_context)
+					previous_handle = NULL;
+			#endif
 	    	releaseContext(previous_handle);
 	    }
 		application.windows.drop(this);
 	    #if SYSTEM==UNIX
 //        glXMakeCurrent(application.display,window,NULL);   //<- this causes the application to crash
 	        XFree(visual);
-	        glXDestroyContext(application.display,gl_context);
+	        glXDestroyContext(application.display,local_context);
 	        XDestroyWindow(application.display,window);
 	        XFreeColormap(application.display,colormap);
 	    #elif SYSTEM==WINDOWS
@@ -2864,7 +2919,7 @@ namespace Engine
 		if (!window)
 		{
 			if (event.type == ButtonPress)
-				cout << "button press on unknown window\n";
+				std::cout << "button press on unknown window\n";
 			return;
 		}
 		if (window->ignoring_events)
@@ -2884,8 +2939,8 @@ namespace Engine
 	        case KeyPress:
 	        {
 				window->keyboard.keyDown((Key::Name)event.xkey.keycode);
-	            window->onKeyDown(event.xkey.keycode);
-	            if (!application.isFunctionKey(event.xkey.keycode))	//per definition of XLookupKeysym i should not have to check this
+	            window->onKeyDown((Key::Name) event.xkey.keycode);
+	            if (!application.IsFunctionKey(event.xkey.keycode))	//per definition of XLookupKeysym i should not have to check this
 	            {
 					KeySym symbol = XLookupKeysym(&event.xkey,window->input.pressed[Key::Shift]);
 					if (symbol != NoSymbol)
@@ -2899,7 +2954,7 @@ namespace Engine
 			case Expose:		if (!event.xexpose.count) window->update();	break;
 	        case KeyRelease:
 				window->keyboard.keyUp((Key::Name)event.xkey.keycode);
-				window->onKeyUp(event.xkey.keycode);
+				window->onKeyUp((Key::Name)event.xkey.keycode);
 			break;
 			case ButtonPress:
 			{

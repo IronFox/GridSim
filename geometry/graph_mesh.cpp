@@ -337,9 +337,9 @@ void		Graph::generateOutline(float step, Outline&outline)
 
 	float angle = angular_range * z;
 
-	TVec3<>	x_axis = {cos(angle),0,sin(angle)},
-			z_axis = {-sin(angle),0,cos(angle)},
-			center = {(r - cos(angle)*r)*2.0f*z_stretch, 0, -sin(angle)*r*2.0f*z_stretch + 1};
+	TVec3<>	x_axis = {(float)cos(angle),0,(float)sin(angle)},
+			z_axis = {(float)-sin(angle),0,(float)cos(angle)},
+			center = {(r - (float)cos(angle)*r)*2.0f*z_stretch, 0, (float)-sin(angle)*r*2.0f*z_stretch + 1};
 	float x = vtx.position.x;
 	vtx.position.x = center.x + x_axis.x * x;
 	vtx.position.z = center.z + x_axis.z * x;

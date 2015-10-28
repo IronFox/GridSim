@@ -8,9 +8,14 @@
 #undef GL_END
 #define GL_END		//{log_file << __LINE__<<": end "<<__func__<<nl;}
 
+
 #include "renderer.h"
 #include "../../gl/gl.h"
-#if SYSTEM==UNIX
+#if SYSTEM_VARIANCE==LINUX
+	#ifndef Status
+	typedef int Status;
+	#endif
+
 	#include "../../gl/glx.h"
 #endif
 #include "../../gl/glu.h"
@@ -130,10 +135,10 @@ namespace Engine
 		protected:
 			GLuint						geometry_handle;
 
-			friend class OpenGL;
-
+			friend class Engine::OpenGL;
+//			friend void	OpenGL::castQuery(const Query&);
 			bool						createQuery();
-													
+				
 		public:
 			/**/						Query():geometry_handle(0)	{}
 			virtual						~Query()	{if (!application_shutting_down) clear();}
@@ -173,7 +178,7 @@ namespace Engine
 				handle_t				handle;				//!< Handle as retrieved from the target object. May be 0
 				const Object			*target_object;		//!< Target object pointer. May be NULL
 
-				friend class OpenGL;
+				friend class Engine::OpenGL;
 			public:
 				/**/					Reference(const Object*object):Inherit(*object),handle(object->getHandle()),target_object(object){}
 				/**/					Reference(const Object&object):Inherit(object),handle(object.getHandle()),target_object(&object){}
@@ -394,7 +399,7 @@ namespace Engine
 		class	Shader:public Container<GLShader::Template*>, public TExtShaderConfiguration
 		{
 		protected:
-			friend class OpenGL;
+			friend class Engine::OpenGL;
 
 			static bool								localShaderIsBound;
 			static bool								_Install(const GLShader::Instance*instance);
@@ -711,7 +716,7 @@ namespace Engine
 		{
 		protected:
 			TFBOConfig	config;
-			friend class OpenGL;
+			friend class Engine::OpenGL;
 		public:
 			struct BaseConfiguration
 			{
@@ -789,6 +794,7 @@ namespace Engine
 			inline void				GenerateMIPLayers(UINT target=0)	{generateMIPLayers(target);}
 			bool					isValid()	const;	//!< Checks if the local frame buffer object is valid. A valid frame buffer object contains a valid or 0 handle
 			inline bool				IsValid()	const	/**@copydoc isValid()*/	{return isValid();}
+			const TFBOConfig&		GetConfig() const {return config;}
 		};
 
 
@@ -1195,7 +1201,7 @@ namespace Engine
 	#elif SYSTEM==UNIX
 		virtual										~OpenGL();
 						bool						CreateContext(::Display*connection, TVisualConfig&config, TWindowAttributes&out_attributes);
-						bool						bindContext(Window window);
+						bool						BindContext(Window window);
 	#endif
 						void						setVerbose(bool);
 						void						initDefaultExtensions();

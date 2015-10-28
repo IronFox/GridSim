@@ -32,7 +32,7 @@ namespace Attrib
 	template <>
 		inline enAttributeType					Table::typeOf<bool>()
 		{
-			return Bool;
+			return Boolean;
 		}
 	
 	template <>

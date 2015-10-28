@@ -52,6 +52,10 @@ namespace Math
 		typedef Vec3<C>					Self;
 		typedef TVec<C, 3>				Super;
 		typedef typename Super::Type	Type;	//union-compatible
+		using Super::x;
+		using Super::y;
+		using Super::z;
+		using Super::v;
 
 		MF_CONSTRUCTOR					Vec3();
 		explicit MF_CONSTRUCTOR			Vec3(const C&value);
@@ -125,6 +129,9 @@ namespace Math
 		typedef Vec2<C>					Self;
 		typedef TVec<C, 2>				Super;
 		typedef typename Super::Type	Type;	//union-compatible
+		using Super::x;
+		using Super::y;
+		using Super::v;
 
 		MF_CONSTRUCTOR					Vec2();
 		explicit MF_CONSTRUCTOR			Vec2(const C&value);
@@ -195,6 +202,13 @@ namespace Math
 		typedef Vec4<C>					Self;
 		typedef TVec<C, 4>				Super;
 		typedef typename Super::Type	Type;	//union-compatible
+		using Super::x;
+		using Super::y;
+		using Super::z;
+		using Super::w;
+		using Super::v;
+		using Super::xy;
+		using Super::xyz;
 
 		MF_CONSTRUCTOR					Vec4();
 		explicit MF_CONSTRUCTOR			Vec4(const C&value);
@@ -293,31 +307,33 @@ namespace Math
 		typedef VecN<C,Len>					Self;
 		typedef TVec<C, Len>				Super;
 		typedef typename Super::Type		Type;	//union-compatible
+		typedef typename TypeInfo<C>::UnionCompatibleBase Base;
+		using Super::v;
+		using Super::xyz;
 
+			MF_CONSTRUCTOR					VecN(const TVec2<C> &other)
+											{
+												VecUnroll<Len<2?Len:2>::copy(other.v,v);
+											}
+			MF_CONSTRUCTOR					VecN(const TVec3<C> &other)
+											{
+												VecUnroll<Len<3?Len:3>::copy(other.v,v);
+											}
 
-			MF_CONSTRUCTOR					VecN(const TVec2<C> &v)
+			MF_CONSTRUCTOR					VecN(const TVec4<C> &other)
 											{
-												_copyV<C,C,Len<2?Len:2>(other.v,v);
+												VecUnroll<Len<4?Len:4>::copy(other.v,v);
 											}
-			MF_CONSTRUCTOR					VecN(const TVec3<C> &v)
+			MF_CONSTRUCTOR					VecN(const TVec<C,Len> &other)
 											{
-												_copyV<C,C,Len<3?Len:3>(other.v,v);
-											}
-
-			MF_CONSTRUCTOR					VecN(const TVec4<C> &v)
-											{
-												_copyV<C,C,Len<4?Len:4>(other.v,v);
-											}
-			MF_CONSTRUCTOR					VecN(const TVec<C,Len> &v)
-											{
-												_copyV<C,C,Len>(other.v,v);
+												VecUnroll<Len>::copy(other.v,v);
 											}
 
 			MF_CONSTRUCTOR					VecN()									{}
 			MF_CONSTRUCTOR					VecN(C x, C y)							{v[0] = x; v[1] = y;};
 			MF_CONSTRUCTOR					VecN(C x, C y, C z)					{v[0] = x; v[1] = y; v[2] = z;};
 			MF_CONSTRUCTOR					VecN(C x, C y, C z, C a)				{v[0] = x; v[1] = y; v[2] = z; v[3] = a;};
-			MF_CONSTRUCTOR1					VecN(const C0 field[Len])				{_copyV<C0,C,Len>(field,v);};
+			MF_CONSTRUCTOR1					VecN(const C0 field[Len])				{VecUnroll<Len>::copy(field,v);};
 			MF_DECLARE(void)				clear();											//sets all values to 0
 			MF_DECLARE(String)				ToString()								const;		//returns string of vector-content
 			MF_DECLARE(C)					length()								const;		//calculates norm of the vector
@@ -352,8 +368,8 @@ namespace Math
 			MFUNC1 (bool)					operator>(const TVec<C0,Len>&other)		const;		//!< Lexicographic order using _compare
 			MFUNC1 (bool)					operator<(const TVec<C0,Len>&other)		const;		//!< Lexicographic order using _compare
 			MFUNC1 (char)					compareTo(const TVec<C0,Len>&other)		const;		//!< Lexicographic order using _compare
-			MF_DECLARE(Type&)				operator[](index_t component);						//return component of the vector
-			MF_DECLARE(const Type&)			operator[](index_t component)			const;
+			MF_DECLARE(Base&)				operator[](index_t component);						//return component of the vector
+			MF_DECLARE(const Base&)			operator[](index_t component)			const;
 	};
 
 

@@ -6,11 +6,6 @@
 Theoretically plattform independent time-query-class.
 Works under linux and windows so far.
 
-This file is part of Delta-Works
-Copyright (C) 2006-2008 Stefan Elsen, University of Trier, Germany.
-http://www.delta-works.org/forge/
-http://informatik.uni-trier.de/
-
 ******************************************************************/
 
 
@@ -36,9 +31,9 @@ Timer::Timer()
         dresolution = 0.000001;
         fresolution = 0.000001;
         
-        timeval t;
-        gettimeofday(&t,NULL);
-        started = frequency*t.tv_sec + t.tv_usec;
+        // timeval t;
+        // gettimeofday(&t,NULL);
+        // started = frequency*t.tv_sec + t.tv_usec;
     #endif
     lastcall = now();
 }

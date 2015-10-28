@@ -28,11 +28,11 @@ FileSystem::Folder	local;
 
 bool        build_failed = false,
             recompile=false,
-            first_only=false;
+            first_only=true;
 unsigned    compilables(0),
             build_total(0),
             build_index(0);
-String     	compile_flags;
+String     	compile_flags = "";
 
 struct TFile
 {
@@ -65,7 +65,7 @@ void scan(FileSystem::Folder&folder)
         if (file->IsFolder())
         {
             FileSystem::Folder child(file);
-            if (file->GetName()!="maker" && file->GetName()!="Nx" && file->GetName()!="cuda")
+            if (file->GetName()!="maker" && file->GetName()!="Nx" && file->GetName()!="cuda" && file->GetName()!="fractal")
             {
                 scan(child);
             }

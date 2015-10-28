@@ -324,7 +324,7 @@ namespace Engine
 					float h = vmax(label->height,component->height);
 
 					
-					label->anchored.set(true,false,false,true);
+					label->anchored.Set(true,false,false,true);
 					label->offset.left = x_offset;
 					label->offset.top = y_offset-h/2+label->height/2;
 					this->Add(label);
@@ -632,7 +632,7 @@ namespace Engine
 			TVec4<>						leftBackgroundColor,rightBackgroundColor,entryTextColor;
 			TVec3<>						entryBackgroundColor;
 			friend class MenuEntry;
-			ScrollBox::Append;
+			using ScrollBox::Append;
 			void						_Setup();
 			void						_ArrangeItems();
 			void						_SelectMenuEntry(const PComponent&);

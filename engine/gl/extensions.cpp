@@ -442,7 +442,7 @@ namespace Engine
 				
 				glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
 				glFramebufferTexture2D( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, resultTexture, 0 );
-				if (!glGetError()==GL_NO_ERROR)
+				if (glGetError()!=GL_NO_ERROR)
 				{
 					glDeleteTextures(1,&resultTexture);
 					resultTexture = 0;
@@ -522,7 +522,7 @@ namespace Engine
 				
 				glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
 				glFramebufferTexture2D( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, test_texture, 0 );
-				if (!glGetError()==GL_NO_ERROR)
+				if (glGetError()!=GL_NO_ERROR)
 					return;
 				glViewport(0,0,resolution.width,resolution.height);
 				glClearColor(0,0,0,0);
@@ -1133,7 +1133,7 @@ namespace Engine
 				while (copy.length())
 				{
 					log<<"\n("+IntToStr(line++)+") ";
-					if (at = copy.indexOf('\n'))
+					if ((at = copy.indexOf('\n')))
 					{
 						log<<copy.subString(0,at-1);
 						copy.erase(0,at);
@@ -1169,7 +1169,7 @@ namespace Engine
 		{
 			const char*str = source.c_str(),*begin = NULL;
 			index_t offset = initializers.count();
-			while (begin = ::Template::strstr(str,"<:="))
+			while ((begin = ::Template::strstr(str,"<:=")))
 			{
 				const char*valueBegin = begin+3;
 				const char*foundAt = begin;
@@ -3950,7 +3950,7 @@ namespace Engine
 #endif /*0*/
 
 	#elif defined(GLX_VERSION_1_3)
-
+#if 0
 
 	TPBuffer	Extension::createPBuffer(unsigned width, unsigned height, ePBufferType type, BYTE fsaa)
 	{
@@ -4029,6 +4029,7 @@ namespace Engine
 		glXDestroyPbuffer(display,buffer.buffer);
 
 	}
+#endif /*0*/
 	#endif
 
 

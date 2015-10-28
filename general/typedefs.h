@@ -223,7 +223,7 @@ in the foundation.
 		typedef long unsigned int	HWND;
 
 		#undef Bool
-		typedef bool		Bool;
+		typedef int		Bool;
 
 		typedef long long		LONGLONG;
 		typedef unsigned long long DWORDLONG;

@@ -1253,6 +1253,7 @@ namespace CGS	//! Compiled Geometrical Structure
 	template <class Def=StdDef>
 		class StaticSubInstanceA:public SubGeometryInstance<Def>	//! StaticInstance<Def> child class
 		{
+			typedef SubGeometryInstance<Def>	Super;
 		public:
 				Array<StaticSubInstanceA<Def>,Adopt>	child_field;	//!< Sub children
 														

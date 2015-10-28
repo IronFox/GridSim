@@ -6,11 +6,6 @@
 
 Visual structure archive.
 
-This file is part of Delta-Works
-Copyright (C) 2006-2008 Stefan Elsen, University of Trier, Germany.
-http://www.delta-works.org/forge/
-http://informatik.uni-trier.de/
-
 ******************************************************************/
 
 
@@ -41,25 +36,25 @@ template <class Def> GeometryArchive<Def>::GeometryArchive(): ::Archive<TArchive
 
 template <class Def> void GeometryArchive<Def>::handleChunk(Riff::File&riff,ArchiveFolder<TArchiveEntry>*current)
 {
-    switch (riff.getChunk().info.id)
+    switch (Riff::TID(riff.GetChunk().info.sid).Numeric())
     {
         case RIFF_STRC:
         {
             __int64 name;
-            riff.openStream();
-                riff.stream(name);
+            riff.OpenStream();
+                riff.Stream(name);
                 selected = current->files.add(name);
-                riff.stream(selected->crc);
-                riff.stream(selected->extracted_size);
-            riff.closeStream();
+                riff.Stream(selected->crc);
+                riff.Stream(selected->extracted_size);
+            riff.CloseStream();
         }
         break;
         case RIFF_DATA:
         {
             if (!selected)
                 return;
-            selected->location = riff.getAddr();
-            selected->size = riff.getSize();
+            selected->location = riff.GetAddr();
+            selected->size = riff.GetSize();
             selected = NULL;
         }
         break;
@@ -82,11 +77,11 @@ template <class Def> bool GeometryArchive<Def>::create(const String&filename_)
     _changed = false;
     filename = filename_;
     Riff::File riff;
-    if (!riff.create(String(filename+".va").c_str()))
+    if (!riff.Create(String(filename+".va").c_str()))
         return false;
     UINT32  version = VISUAL_VERSION;
-    riff.appendBlock("VERS",&version,sizeof(version));
-    riff.close();
+    riff.AppendBlock("VERS",&version,sizeof(version));
+    riff.Close();
     textures.clear();
     return ::Archive<TArchiveEntry>::open(filename+".va");
 }
@@ -130,7 +125,7 @@ template <class Def> bool GeometryArchive<Def>::getData(Geometry<Def>&target)
     }
     selected->extracted_size = extracted;
     Riff::File riff;
-    riff.assign(fbuffer,selected->extracted_size);
+    riff.Assign(fbuffer,selected->extracted_size);
     target.loadEmbedded(riff,&textures);
     DISCARD_ARRAY(fbuffer);
     return true;
@@ -151,10 +146,10 @@ template <class Def> void GeometryArchive<Def>::add(Geometry<Def>*structure,__in
     TArchiveEntry*entry = folder[depth]->files.add(name);
     Riff::Chunk chunk;
     structure->saveEmbedded(chunk,false);
-    entry->extracted_size = chunk.resolveSize(true);
+    entry->extracted_size = chunk.ResolveSize(true);
     BYTE*data = alloc<BYTE>(entry->extracted_size);
     entry->data = alloc<BYTE>(entry->extracted_size);   //virtual link is larger than actual used memory... hmm
-    chunk.toData(data,true);
+    chunk.ToData(data,true);
     entry->size = entry->extracted_size;
     size_t temp_size = BZ2::compress(data,entry->extracted_size,entry->data,entry->size);
 	entry->size = temp_size;
@@ -194,17 +189,17 @@ template <class Def> void GeometryArchive<Def>::putToRiff(ArchiveFolder<TArchive
         out.name = entry->name;
         out.crc = entry->crc;
         out.extracted_size = entry->extracted_size;
-        riff.appendBlock(RIFF_STRC,&out,sizeof(out));
-        riff.appendBlock(RIFF_DATA,entry->data,entry->size);
+        riff.AppendBlock(RIFF_STRC,&out,sizeof(out));
+        riff.AppendBlock(RIFF_DATA,entry->data,entry->size);
     }
     folder->reset();
     while (ArchiveFolder<TArchiveEntry>*sub = folder->each())
     {
-        riff.appendBlock(RIFF_FLDR,&sub->name,sizeof(sub->name));
-        riff.appendBlock(RIFF_LIST);
-        riff.enter();
+        riff.AppendBlock(RIFF_FLDR,&sub->name,sizeof(sub->name));
+        riff.AppendBlock(RIFF_LIST);
+        riff.Enter();
             putToRiff(sub,riff);
-        riff.dropBack();
+        riff.DropBack();
     }
 }
 
@@ -214,12 +209,12 @@ template <class Def> bool GeometryArchive<Def>::update()
         return true;
     makeVirtual(folder[0]);
     Riff::File riff;
-    if (!riff.create(String(filename+".va").c_str()))
+    if (!riff.Create(String(filename+".va").c_str()))
         return false;
     UINT32  version = VISUAL_VERSION;
-    riff.appendBlock("VERS",&version,sizeof(version));
+    riff.AppendBlock("VERS",&version,sizeof(version));
     putToRiff(folder[0],riff);
-    riff.close();
+    riff.Close();
     return textures.write(filename+".mta");
 }
 

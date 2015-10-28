@@ -5,11 +5,6 @@
 
 Language/Font-independed console.
 
-This file is part of Delta-Works
-Copyright (C) 2006-2008 Stefan Elsen, University of Trier, Germany.
-http://www.delta-works.org/forge/
-http://informatik.uni-trier.de/
-
 ******************************************************************/
 
 namespace Engine
@@ -382,19 +377,19 @@ namespace Engine
 		            for (unsigned i = 0; i < count; i++)
 		            {
 		                textout.line(i);
-		                textout.print(lines[offset+i],'§');
+		                textout.print(lines[offset+i],'$');
 		            }
-		        float displace = clamped(textout.unscaledLength(keyboard.getInput())*font_x-(absolute_text.width()),0,100000);
+		        float displace = clamped(textout.unscaledLength(keyboard.GetInput())*font_x-(absolute_text.width()),0,100000);
 
 		        textout.locate(absolute_text.x.min-displace,absolute_text.y.min+font_y);
 		        textout.line(0);
-		        textout.print(keyboard.getInput());
+		        textout.print(keyboard.GetInput());
 
 		        if (Console::is_focused)
 		        {
 		            renderer->useTexture(NULL);
 		            TColorVertex  v0,v1;
-		            float x = absolute_text.x.min-displace+textout.unscaledLength(keyboard.getInput())*font_x,
+		            float x = absolute_text.x.min-displace+textout.unscaledLength(keyboard.GetInput())*font_x,
 		                  y = absolute_text.y.min,
 		                  light = cos(Engine::timing.now);
 		            Vec::def(v0,x,y+font_y*0.1,0,1);

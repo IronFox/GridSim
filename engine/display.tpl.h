@@ -251,7 +251,7 @@ namespace Engine
 	template <class GL>bool Display<GL>::create(const DisplayConfig&dconfig)
 	{
 	    framebuffer_bound = false;
-	    Display*connection = context.connect();
+	    ::Display*connection = context.connect();
 	    if (!connection)
 	    {
 	        context_error = true;
@@ -268,7 +268,7 @@ namespace Engine
 	            context_error = false;
 	            return false;
 	        }
-			Window wnd = context.createWindow(dconfig.window_name,attributes,dconfig.border_style, dconfig.onResize,dconfig.icon_filename);
+			Window wnd = context.createWindow(dconfig.window_name,attributes,dconfig.border_style, dconfig.onResize,dconfig.icon);
 	        //Window wnd = context.createWindow(dconfig.window_name,attributes,dconfig.hide_border,dconfig.icon_filename);
 	        if (!wnd)
 	        {
@@ -697,7 +697,7 @@ namespace Engine
 	        return;
 	    bool exec_loop = true;
 	    #if SYSTEM==UNIX
-	        Display*connection = context.connection();
+	        ::Display*connection = context.connection();
 	        if (!connection)
 	            return;
 	    #endif

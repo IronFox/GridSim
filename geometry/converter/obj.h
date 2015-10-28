@@ -328,11 +328,11 @@ namespace Converter
 
 				void											exportToField(Array<Vertex>&out)	const
 				{
-					out.setSize(count());
+					out.setSize(Super::count());
 					{
 						Array<Vertex>		out_field;
 						Array<index_t>		out_index_field;
-						exportTo(out_field,out_index_field);
+						Super::exportTo(out_field,out_index_field);
 						Concurrency::parallel_for((index_t)0,out_index_field.length(),[&out,&out_field,&out_index_field](index_t i)
 						{
 							out[out_index_field[i]] = out_field[i];

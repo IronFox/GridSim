@@ -303,14 +303,14 @@ namespace CGS
 												{
 												//for (index_t k = 0; k < vframe_length; k++)
 												//{
-													const Mesh<Def>::Vertex	*vfrom = source_hull.vertex_field + k;
+													const typename Mesh<Def>::Vertex	*vfrom = source_hull.vertex_field + k;
 													TVec3<> p,n;
 													Mat::transform(path,vfrom->position,p);
 													Mat::rotate(path,vfrom->normal,n);
 					
 													for (index_t l = 0; l < repeat; l++)
 													{
-														Mesh<Def>::Vertex	&vto = target_hull.vertex_field[l*vframe_length+k];
+														typename Mesh<Def>::Vertex	&vto = target_hull.vertex_field[l*vframe_length+k];
 														float z = p.z;
 														float rel = 1.0f-((z-lower_z_boundary)/zrange+segment_length*l);
 														TFrame vec;
@@ -329,12 +329,12 @@ namespace CGS
 												//ASSERT_CONCLUSION(obj.vertex_field,vfrom);
 
 												target_hull.triangle_field.setSize(source_hull.triangle_field.length()*repeat);
-												const Mesh<Def>::Triangle	*tfrom = source_hull.triangle_field.pointer();
+												const typename Mesh<Def>::Triangle	*tfrom = source_hull.triangle_field.pointer();
 												for (index_t k = 0; k < source_hull.triangle_field.length(); k++)
 												{
 													for (index_t l = 0; l < repeat; l++)
 													{
-														Mesh<Def>::Triangle	&tto = target_hull.triangle_field[l*source_hull.triangle_field.length()+k];
+														typename Mesh<Def>::Triangle	&tto = target_hull.triangle_field[l*source_hull.triangle_field.length()+k];
 						
 														tto.v0 = target_hull.vertex_field+(index_t)(tfrom->v0-source_hull.vertex_field)+l*vframe_length;
 														tto.v1 = target_hull.vertex_field+(index_t)(tfrom->v1-source_hull.vertex_field)+l*vframe_length;
@@ -345,12 +345,12 @@ namespace CGS
 												ASSERT_CONCLUSION(source_hull.triangle_field,tfrom);
 
 												target_hull.quad_field.setSize(source_hull.quad_field.length()*repeat);
-												const Mesh<Def>::Quad	*qfrom = source_hull.quad_field.pointer();
+												const typename Mesh<Def>::Quad	*qfrom = source_hull.quad_field.pointer();
 												for (index_t k = 0; k < source_hull.quad_field.length(); k++)
 												{
 													for (index_t l = 0; l < repeat; l++)
 													{
-														Mesh<Def>::Quad	&qto = target_hull.quad_field[l*source_hull.quad_field.length()+k];
+														typename Mesh<Def>::Quad	&qto = target_hull.quad_field[l*source_hull.quad_field.length()+k];
 						
 														qto.v0 = target_hull.vertex_field+(index_t)(qfrom->v0-source_hull.vertex_field)+l*vframe_length;
 														qto.v1 = target_hull.vertex_field+(index_t)(qfrom->v1-source_hull.vertex_field)+l*vframe_length;
@@ -362,12 +362,12 @@ namespace CGS
 												ASSERT_CONCLUSION(source_hull.quad_field,qfrom);
 					
 												target_hull.edge_field.setSize(source_hull.edge_field.length()*repeat);
-												const Mesh<Def>::Edge	*efrom = source_hull.edge_field.pointer();
+												const typename Mesh<Def>::Edge	*efrom = source_hull.edge_field.pointer();
 												for (index_t k = 0; k < source_hull.edge_field.length(); k++)
 												{
 													for (index_t l = 0; l < repeat; l++)
 													{
-														Mesh<Def>::Edge	&eto = target_hull.edge_field[l*source_hull.edge_field.length()+k];
+														typename Mesh<Def>::Edge	&eto = target_hull.edge_field[l*source_hull.edge_field.length()+k];
 						
 														eto.v0 = target_hull.vertex_field+(index_t)(efrom->v0-source_hull.vertex_field)+l*vframe_length;
 														eto.v1 = target_hull.vertex_field+(index_t)(efrom->v1-source_hull.vertex_field)+l*vframe_length;

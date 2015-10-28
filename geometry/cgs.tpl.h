@@ -277,7 +277,7 @@ template <class Def0> VertexContainerA<Def>&	VertexContainerA<Def>::operator=(co
 
 template <class Def> void VertexContainerA<Def>::stretch(UINT16 layers, UINT32 flags)
 {
-	if (layers == UNSIGNED_UNDEF)
+	if (layers == 0xFFFF)
 		layers = vlyr;
 	unsigned	step0 = VSIZE(vlyr,vflags),
 				step1 = VSIZE(layers,flags);
@@ -5147,7 +5147,7 @@ template <class Def> void StaticSubInstanceA<Def>::updatePath(const TMatrix4<typ
 template <class Def> void StaticSubInstanceA<Def>::restoreFromGeometry()
 {
 	if (SubGeometryInstance<Def>::target)
-		system = SubGeometryInstance<Def>::target->meta.system;
+		Super::system = SubGeometryInstance<Def>::target->meta.system;
 	else
 		FATAL__("target expected");
 	for (index_t i = 0; i < child_field.length(); i++)

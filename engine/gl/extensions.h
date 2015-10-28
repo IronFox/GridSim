@@ -28,8 +28,11 @@
 		#include "../../gl/wglext.h"
 	#elif SYSTEM==UNIX
 		#ifndef Bool
-			typedef bool	Bool;
+			typedef int	Bool;
 		#endif
+		#ifndef Status
+			typedef int Status;
+		#endif		
 		#include "../../gl/glx.h"
 		#include "../../gl/glxext.h"
 	#endif

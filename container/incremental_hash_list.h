@@ -152,12 +152,12 @@ template <typename K, typename C, typename Hash=StdHash, typename Allocator = In
 			typedef GenericHashTable<K,iterator>			Table;
 
 
-			List::begin;
-			List::end;
+			using List::begin;
+			using List::end;
 
-			Table::isset;
-			Table::query;
-			Table::queryPointer;
+			using Table::isset;
+			using Table::query;
+			using Table::queryPointer;
 
 	inline	bool							isEmpty()	const
 			{

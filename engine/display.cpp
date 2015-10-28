@@ -3,7 +3,7 @@
 
 #include "renderer/opengl.h"
 
-template Engine::Display<Engine::OpenGL>;
+template class Engine::Display < Engine::OpenGL > ;
 
 
 
@@ -313,7 +313,9 @@ namespace Engine
 		if (!initialized)
 		{
 			mouse.RegAnalogInputs();
-			joystick.RegAnalogInputs();
+			#if SYSTEM==WINDOWS
+				joystick.RegAnalogInputs();
+			#endif
 			initialized = true;
 		}
 	}
@@ -396,8 +398,27 @@ namespace Engine
 		#if SYSTEM==WINDOWS
 			if (hWnd)
 				ShowWindow(hWnd,SW_MAXIMIZE);
+		#elif SYSTEM_VARIANCE==LINUX
+			if (display)
+			{
+				XEvent xev;
+				Atom wm_state  =  XInternAtom(display, "_NET_WM_STATE", False);
+				Atom max_horz  =  XInternAtom(display, "_NET_WM_STATE_MAXIMIZED_HORZ", False);
+				Atom max_vert  =  XInternAtom(display, "_NET_WM_STATE_MAXIMIZED_VERT", False);
+
+				memset(&xev, 0, sizeof(xev));
+				xev.type = ClientMessage;
+				xev.xclient.window = window;
+				xev.xclient.message_type = wm_state;
+				xev.xclient.format = 32;
+				xev.xclient.data.l[0] = 1;//_NET_WM_STATE_ADD;
+				xev.xclient.data.l[1] = max_horz;
+				xev.xclient.data.l[2] = max_vert;
+
+				XSendEvent(display, DefaultRootWindow(display), False, SubstructureNotifyMask, &xev);			
+			}
 		#else
-			#error stub
+			#error sgub
 		#endif	
 	}
 
@@ -406,6 +427,25 @@ namespace Engine
 		#if SYSTEM==WINDOWS
 			if (hWnd)
 				ShowWindow(hWnd,SW_MINIMIZE);
+		#elif SYSTEM_VARIANCE==LINUX
+			if (display)
+			{
+				XEvent xev;
+				Atom wm_state  =  XInternAtom(display, "_NET_WM_STATE_HIDDEN", False);
+				//Atom max_horz  =  XInternAtom(dpy, "_NET_WM_STATE_MAXIMIZED_HORZ", False);
+				//Atom max_vert  =  XInternAtom(dpy, "_NET_WM_STATE_MAXIMIZED_VERT", False);
+
+				memset(&xev, 0, sizeof(xev));
+				xev.type = ClientMessage;
+				xev.xclient.window = window;
+				xev.xclient.message_type = wm_state;
+				xev.xclient.format = 32;
+				xev.xclient.data.l[0] = 1;//_NET_WM_STATE_ADD;
+				//xev.xclient.data.l[1] = max_horz;
+				//xev.xclient.data.l[2] = max_vert;
+
+				XSendEvent(display, DefaultRootWindow(display), False, SubstructureNotifyMask, &xev);			
+			}
 		#else
 			#error stub
 		#endif	
@@ -701,7 +741,7 @@ namespace Engine
 	}
 	#elif SYSTEM==UNIX
 
-	Display*Context::connect()
+	::Display*Context::connect()
 	{
 		display = getDisplay();
 		if (!display)
@@ -709,7 +749,7 @@ namespace Engine
 		return display;
 	}
 
-	Display*Context::connection()
+	::Display*Context::connection()
 	{
 		return display;
 	}
@@ -723,7 +763,7 @@ namespace Engine
 	}
 
 
-	Window Context::createWindow(const String&window_name, const TWindowAttributes&attributes,DisplayConfig::border_style_t border_style, const DisplayConfig::FOnResize&onResize, const String&icon_filename)
+	Window Context::createWindow(const String&window_name, const TWindowAttributes&attributes,DisplayConfig::border_style_t border_style, const DisplayConfig::FOnResize&onResize, const DisplayConfig::Icon&icon)
 	{
 		displayConfigFlags = 0;
 
@@ -743,13 +783,15 @@ namespace Engine
 			return 0;
 		XSetWindowAttributes attrib;
 		attrib.colormap = colormap;
-		attrib.border_pixel = border_style == DisplayConfig::HideBorder ?0:CopyFromParent;
+		attrib.border_pixel = border_style == DisplayConfig::NoBorder ?0:CopyFromParent;
 		attrib.event_mask = ExposureMask|ButtonPressMask|ButtonReleaseMask|StructureNotifyMask|KeyPressMask|KeyReleaseMask|SubstructureRedirectMask;
-		attrib.override_redirect = border_style == DisplayConfig::HideBorder;
+		attrib.override_redirect = border_style == DisplayConfig::NoBorder;
 
 
 
-		window = XCreateWindow(display,RootWindow(display,attributes.screen_number),_location.left,_location.top,_location.right-_location.left,_location.bottom-_location.top,!hide_border,attributes.depth,InputOutput,attributes.visual,CWBorderPixel|CWColormap|CWEventMask|CWOverrideRedirect,&attrib);
+		window = XCreateWindow(display,RootWindow(display,attributes.screen_number),_location.left,_location.top,_location.right-_location.left,_location.bottom-_location.top,
+		 border_style != DisplayConfig::NoBorder,
+		 attributes.depth,InputOutput,attributes.visual,CWBorderPixel|CWColormap|CWEventMask|CWOverrideRedirect,&attrib);
 		if (!window)
 			return 0;
 		//Atom atom = XInternAtom (display, "WM_DELETE_WINDOW", False);
@@ -758,17 +800,17 @@ namespace Engine
 		if (config)
 			XRRFreeScreenConfigInfo(config);
 		config = XRRGetScreenInfo(display,window);
-		XSetStandardProperties(display,window,window_name,"",None,0,0,0);
+		XSetStandardProperties(display,window,window_name.c_str(),"",None,0,0,0);
 		//XSelectInput(display, window, ButtonPressMask | ButtonReleaseMask | FocusChangeMask);
 		XMapWindow(display,window);
-		if (hide_border)
+		if (border_style == DisplayConfig::NoBorder)
 			XGrabKeyboard(display, window, True, GrabModeAsync, GrabModeAsync, CurrentTime);
 		//XGrabPointer(display, window, True, ButtonPressMask|ButtonReleaseMask, GrabModeAsync, GrabModeAsync, None /*window*/, None, CurrentTime);
 		XMoveResizeWindow(display,window,_location.left,_location.top,_location.right-_location.left,_location.bottom-_location.top);
 		//XStoreName(display,window,window_name);
 		timing.initialize();
 		mouse.assign(display,window,screen);
-		mouse.redefineWindow(_location);
+		mouse.redefineWindow(_location,window);
 		mouse.setRegion(res_map[_current].width, res_map[_current].height);
 		initAnalogs();
 		window_attributes = attributes;
@@ -822,8 +864,8 @@ namespace Engine
 			}
 			return result;
 		#else
-			#error stub
-			return 0;
+			//#error stub
+			return DisplayConfig::ResizeDragHasEnded;
 		#endif
 	}
 
@@ -849,15 +891,13 @@ namespace Engine
 				mouse.redefineWindow(client_area,hWnd);
 			}
 		#elif SYSTEM==UNIX
-			client_area.left = 0;
-			client_area.top = 0;
-			client_area.bottom = _location.bottom-_location.top;
-			client_area.right = _location.right-_location.left;
+			client_area = _location;
 			if (!window || !display)
-				return;
+				return result;
+			result |= DisplayConfig::ResizeDragHasEnded;
 			XMoveResizeWindow(display,window,_location.left,_location.top,_location.right-_location.left,_location.bottom-_location.top);
 			//XGetGeometry
-			mouse.redefineWindow(_location);
+			mouse.redefineWindow(_location,window);
 		#endif
 		return result;
 	}
@@ -876,8 +916,21 @@ namespace Engine
 				if (onResize)
 					onResize(Resolution(client_area.right - client_area.left,client_area.bottom - client_area.top),flags);
 			}
-		#elif SYSTEM==UNIX
-			#error not defined
+		#elif SYSTEM_VARIANCE==LINUX
+			if (!display)
+				return;
+			XWindowAttributes info;
+			XGetWindowAttributes(display, window, &info);
+			_location.left = info.x;
+			_location.top = info.y;
+			_location.right = info.x + info.width;
+			_location.bottom = info.y + info.height;
+			client_area = _location;
+			mouse.redefineWindow(client_area,window);
+			if (onResize)
+				onResize(Resolution(client_area.right - client_area.left,client_area.bottom - client_area.top),flags);
+			
+			
 		#else
 			#error not defined
 		#endif
@@ -885,6 +938,7 @@ namespace Engine
 
 	UINT32 Context::ResizeWindow(unsigned width, unsigned height, DisplayConfig::border_style_t style)
 	{
+		#if SYSTEM==WINDOWS
 		if (style != border_style)
 		{
 			LONG lStyle = GetWindowLong(window(), GWL_STYLE);
@@ -905,6 +959,23 @@ namespace Engine
 			SetWindowPos(window(), NULL, 0,0,0,0, SWP_FRAMECHANGED | SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOOWNERZORDER);
 			border_style = style;
 		}
+		#elif SYSTEM_VARIANCE==LINUX
+			if (display)
+			{
+				XSetWindowAttributes attrib;
+				attrib.colormap = colormap;
+				attrib.border_pixel = style == DisplayConfig::NoBorder ?0:CopyFromParent;
+				attrib.event_mask = ExposureMask|ButtonPressMask|ButtonReleaseMask|StructureNotifyMask|KeyPressMask|KeyReleaseMask|SubstructureRedirectMask;
+				attrib.override_redirect = style == DisplayConfig::NoBorder;
+				XChangeWindowAttributes(display,window,CWBorderPixel|CWColormap|CWEventMask|CWOverrideRedirect,&attrib);
+				if (style == DisplayConfig::NoBorder)
+					XGrabKeyboard(display, window, True, GrabModeAsync, GrabModeAsync, CurrentTime);
+				else
+					XUngrabKeyboard(display,CurrentTime);
+			}
+		#else
+			#error stub
+		#endif
 		_location.right = _location.left + width;
 		_location.bottom = _location.top + height;
 		return LocateWindow();
@@ -985,10 +1056,10 @@ namespace Engine
 	{
 		#if SYSTEM==WINDOWS
 			return hWnd && IsIconic(hWnd);
-		#elif SYSTEM==UNIX
-			#error stub
+		#elif SYSTEM_VARIANCE==LINUX
+			return false;	//don't know
 		#else
-			return false;
+			#error stub
 		#endif
 
 	}
@@ -998,9 +1069,9 @@ namespace Engine
 		#if SYSTEM==WINDOWS
 			return hWnd && IsZoomed(hWnd);
 		#elif SYSTEM==UNIX
-			#error stub
-		#else
 			return false;
+		#else
+			#error stub
 		#endif
 
 	}
@@ -1305,10 +1376,10 @@ namespace Engine
 			
 
 			
-		cout << "retrieving current configuration ("<<config<<")"<<endl;
+		std::cout << "retrieving current configuration ("<<config<<")"<<std::endl;
 
 		_current = XRRConfigCurrentConfiguration(config,0);
-		cout << "Current screen is "<<_current<<endl;
+		std::cout << "Current screen is "<<_current<<std::endl;
 		return Resolution(res_map[_current].width,res_map[_current].height);
 	}
 

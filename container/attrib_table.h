@@ -11,12 +11,12 @@ namespace Attrib
 	enum enAttributeType
 	{
 		UnknownType,
-		Bool,
+		Boolean,
 		Int,
 		Float,
 		Double,
 		StringType,
-		BoolType = Bool,
+		BoolType = Boolean,
 		IntType = Int,
 		FloatType = Float,
 		DoubleType = Double

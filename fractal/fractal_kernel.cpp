@@ -8,7 +8,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
-#include <ppl.h>
+#include "../general/parallel_for.h"
+//#include <ppl.h>
 
 #ifdef _WIN32
 #  define WINDOWS_LEAN_AND_MEAN
