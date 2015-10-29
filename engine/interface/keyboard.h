@@ -56,7 +56,7 @@ namespace Engine
 			template <typename T>
 				static	inline	void	destructRange(T*begin, T*end)
 				{
-					WipeChars(begin,end-begin);
+					WipeChars((char*)begin,((char*)end)-((char*)begin));
 				}
 		};
 
