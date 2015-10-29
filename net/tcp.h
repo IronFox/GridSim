@@ -105,8 +105,8 @@ namespace TCP
 		};
 
 
-		TimedLock			innerLock,permissiveLock;
-		volatile count_t	blockLevel,permissiveCount;
+		TimedLock			innerLock;//,permissiveLock;
+		volatile count_t	blockLevel;//,permissiveCount;
 		
 
 
@@ -114,6 +114,8 @@ namespace TCP
 	public:
 		/**/		EventLock():blockLevel(0)	{}
 
+
+		bool		IsBlocked() const {return blockLevel > 0;}
 
 		void		Block(const TCodeLocation&locker)
 		{
@@ -133,7 +135,7 @@ namespace TCP
 			innerLock.Unlock();
 			return rs;
 		}
-
+/*
 		bool		PermissiveLock(const TCodeLocation&locker)
 		{
 			if (!permissiveLock.TryLock(locker))
@@ -168,7 +170,7 @@ namespace TCP
 				innerLock.Unlock();
 			}
 			permissiveLock.Unlock();
-		}
+		}*/
 
 		bool		ExclusiveLock(const TCodeLocation&loc)
 		{
@@ -1002,7 +1004,7 @@ namespace TCP
 										{
 											writer.Terminate();
 											destroyed = true;
-											Disconnect();
+											DisconnectPeer();
 											return true;
 										}
 										return false;
@@ -1026,7 +1028,7 @@ namespace TCP
 										writer.Update(socketAccess);
 									}
 
-		void						Disconnect();			//!< Disconnects the local peer. If this peer is element of a peer collection (ie. a Server instance) then the owner is automatically notified that the client on this peer is no longer available. The local data is erased immediately if the respective dispatcher is set to @b async, or when its resolve() method is next executed.
+		void						DisconnectPeer();			//!< Disconnects the local peer. If this peer is element of a peer collection (ie. a Server instance) then the owner is automatically notified that the client on this peer is no longer available. The local data is erased immediately if the respective dispatcher is set to @b async, or when its resolve() method is next executed.
 		bool						IsConnected()	const	//! Queries whether or not the local peer is currently connected @return true if the local peer is currently connected, false otherwise
 									{
 										return !socketAccess->IsClosed();
@@ -1081,7 +1083,7 @@ namespace TCP
 		virtual				~Client()
 							{
 								attempt.Join();
-								Disconnect();
+								DisconnectPeer();
 								Join();
 							}
 		bool				Connect(const String&url);		//!< Attempts to connect to a remote server and waits until a connection was established (or not establishable). Depending on the local connection this may lag for a few seconds. @return true if a connection could be established, false otherwise.

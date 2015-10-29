@@ -190,7 +190,8 @@ namespace TCP
 			return;
 		if (async)
 		{
-			if (eventLock.PermissiveLock(CLOCATION))
+		//	if (eventLock.PermissiveLock(CLOCATION))
+			if (!eventLock.IsBlocked())	//not thread-safe but works if the event is caused by the same thread as the one that blocked
 			{
 				if (onEvent)
 				{
@@ -203,7 +204,7 @@ namespace TCP
 						DBG_FATAL__("peer reference lost in transit for event "+String(event2str(event)));
 					}
 				}
-				eventLock.PermissiveUnlock(CLOCATION);
+			//	eventLock.PermissiveUnlock(CLOCATION);
 			}
 		}
 		else
@@ -224,7 +225,8 @@ namespace TCP
 	{
 		if (async)
 		{
-			if (eventLock.PermissiveLock(CLOCATION))
+//			if (eventLock.PermissiveLock(CLOCATION))
+	//		if (!eventLock.IsBlocked())	//not thread-safe but works if the event is caused by the same thread as the one that blocked. this is not an event and should not be blocked in permissive mode
 			{
 				if (onSignal)
 				{
@@ -237,7 +239,7 @@ namespace TCP
 						DBG_FATAL__("peer reference lost in transit for signal on channel "+String(signal));
 					}
 				}
-				eventLock.PermissiveUnlock(CLOCATION);
+		//		eventLock.PermissiveUnlock(CLOCATION);
 			}
 		}
 		else
@@ -412,7 +414,7 @@ namespace TCP
 
 		if (verbose)
 			std::cout << "ConnectionAttempt::ThreadMain() enter"<<std::endl;
-		client->Disconnect();
+		client->DisconnectPeer();
 		client->Join();
 		if (!Net::initNet())
 		{
@@ -1009,7 +1011,7 @@ namespace TCP
 			std::cout << "Peer::ThreadMain() exit: socket handle reset by remote operation"<<std::endl;
 	}
 	
-	void Peer::Disconnect()
+	void Peer::DisconnectPeer()
 	{
 		if (verbose)
 			std::cout << "Peer::disconnect() enter"<<std::endl;
@@ -1118,7 +1120,7 @@ namespace TCP
 		}
 		eventLock.Block(CLOCATION);
 		attempt.Join();
-		Peer::Disconnect();
+		DisconnectPeer();
 		Join();
 		eventLock.Unblock(CLOCATION);
 
@@ -1131,7 +1133,7 @@ namespace TCP
 		if (verbose)
 			std::cout << "Client::fail() invoked: "<<message<<std::endl;
 		Connection::setError(message+" ("+lastSocketError()+")");
-		Peer::Disconnect();
+		Peer::DisconnectPeer();
 	}
 	
 	void		Server::Fail(const String&message)
