@@ -1033,9 +1033,9 @@ namespace TCP
 									{
 										return !socketAccess->IsClosed();
 									}
-		String						ToString()	const	//! Converts the local address into a string. If the local object is NULL then the string "NULL" is returned instead.
+		String						ToString(bool includePort=true)	const	//! Converts the local address into a string. If the local object is NULL then the string "NULL" is returned instead.
 									{
-										return this?( TCP::ToString(address,addressLength) ):"NULL";
+										return this?( TCP::ToString(address,addressLength,includePort) ):"NULL";
 									}
 		bool						SendSignal(UINT32 channel);		//!< Sends a data-less package to the other end of this peer
 			

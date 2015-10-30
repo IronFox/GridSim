@@ -1125,6 +1125,7 @@ namespace TCP
 		eventLock.Unblock(CLOCATION);
 
 		Dispatcher::FlushPendingEvents();
+		HandleEvent(TCP::Event::ConnectionClosed,TCP::TDualLink(this));
 	}
 
 
