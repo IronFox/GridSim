@@ -109,26 +109,26 @@ namespace System //! Translation namespace for common system tasks
 							Pipe(DWORD size=0);						//!< Constructs a new pipe. \param size Pipe size in bytes. Only applicable when using windows. Set 0 for default.
 	virtual					~Pipe();
 
-			bool			write(const void*data, unsigned bytes);	 //!< Writes unformated data to the pipe \param data Pointer to the data to read from \param bytes Number of bytes to write to the pipe
-			bool			read(void*target, unsigned bytes);		  //!< Reads unformated data from the stream \param target Pointer to the data to write to \param bytes Number of bytes to read from the pipe
+			bool			write(const void*data, size_t bytes);	 //!< Writes data to the pipe \param data Pointer to the data to read from \param bytes Number of bytes to write to the pipe
+			bool			read(void*target, size_t bytes);		  //!< Reads data from the stream \param target Pointer to the data to write to \param bytes Number of bytes to read from the pipe
 		template <class C>
-			bool			write(const C&data)						 //!< Writes one unit of formated data \param data Reference to the object to read from
+			bool			write(const C&data)						 //!< Writes one unit of POD data \param data Reference to the object to read from
 							{
 								return write(&data,sizeof(C));
 							}
 		template <class C>
-			Pipe&	  		operator<<(const C&data)					//!< Streaming operator: Writes one unit of formated data \param data Reference to the object to read from
+			Pipe&	  		operator<<(const C&data)					//!< Streaming operator: Writes one unit of POD data \param data Reference to the object to read from
 							{
 								write(&data,sizeof(C));
 								return *this;
 							}
 		template <class C>
-			bool			read(C&data)								//!< Reads one unit of formated data \param data Reference to the object to write to \return true on success
+			bool			read(C&data)								//!< Reads one unit of POD data \param data Reference to the object to write to \return true on success
 							{
 								return read(&data,sizeof(C));
 							}
 		template <class C>
-			bool			operator>>(C&data)						  //!< Streaming operator: Reads one unit of formated data \param data Reference to the object to write to \return true on success
+			bool			operator>>(C&data)						  //!< Streaming operator: Reads one unit of POD data \param data Reference to the object to write to \return true on success
 							{
 								return read(&data,sizeof(C));
 							}
@@ -145,46 +145,50 @@ namespace System //! Translation namespace for common system tasks
 
 							BlockingPipe(bool);
 	public:
+		static const size_t	BadCall = (size_t)-1;	//!< Returned by PeekReadBytes() if something is wrong with the pipe
+
 							BlockingPipe(DWORD size=0);			   //!< Constructs a new (blocking) pipe. \param size Pipe size in bytes. Only applicable when using windows. Set 0 for default.
 	virtual					~BlockingPipe();
 		#if SYSTEM==WINDOWS
 			HANDLE			writeHandle()	const	{return write_handle;}
 			size_t			PeekReadBytes(void *target, size_t bytes);
+			size_t			GetFillLevel() const;
 		#elif SYSTEM==UNIX
 			int				writeHandle()	const	{return handle[1];}
 		#endif
 
 
+			bool			Write(const void*data, size_t bytes)	{return write(data,bytes);}
 
-			bool			write(const void*data, unsigned bytes);	  //!< Writes unformated data to the pipe \param data Pointer to the data to read from \param bytes Number of bytes to write to the pipe
+			bool			write(const void*data, size_t bytes);	  //!< Writes data to the pipe \param data Pointer to the data to read from \param bytes Number of bytes to write to the pipe
 			/*!
-				\brief Reads unformated data from the stream
+				\brief Reads data from the stream
 				\param target Pointer to the data to write to
 				\param bytes Number of bytes to read from the pipe
 				
 				The function blocks until the specified number of bytes were read from the pipe
 				or an error occured.
 			*/
-			bool			read(void*target, unsigned bytes);
+			bool			read(void*target, size_t bytes);
 		template <class C>
-			bool			write(const C&data)						 //!< Writes one unit of formated data \param data Reference to the object to read from
+			bool			write(const C&data)						 //!< Writes one unit of POD data \param data Reference to the object to read from
 							{
 								return write(&data,sizeof(C));
 							}
 		template <class C>
-			bool			writeArray(const Array<C>&data)						 //!< Writes one unit of formated data \param data Reference to the object to read from
+			bool			writeArray(const Array<C>&data)						 //!< Writes one unit of POD data \param data Reference to the object to read from
 							{
 								return write(data.pointer(),data.contentSize());
 							}
 							
 		template <class C>
-			BlockingPipe&	operator<<(const C&data)				  //!< Streaming operator: Writes one unit of formated data \param data Reference to the object to read from
+			BlockingPipe&	operator<<(const C&data)				  //!< Streaming operator: Writes one unit of POD data \param data Reference to the object to read from
 							{
 								write(&data,sizeof(C));
 								return *this;
 							}
 			/*!
-				\brief Reads one unit of formated data
+				\brief Reads one unit of POD data
 				\param data Reference to the data to write to
 				\return true on success
 
@@ -209,7 +213,7 @@ namespace System //! Translation namespace for common system tasks
 								return read(data.pointer(),data.contentSize());
 							}
 			/*!
-				\brief Streaming operator: Reads one unit of formated data
+				\brief Streaming operator: Reads one unit of POD data
 				\param data Reference to the data to write to
 				\return true on success
 
@@ -221,6 +225,7 @@ namespace System //! Translation namespace for common system tasks
 							{
 								return read(&data,sizeof(C));
 							}
+		void				Close();
 	};
 
 
@@ -240,20 +245,20 @@ namespace System //! Translation namespace for common system tasks
 
 		void				set(handle_t handle)	{write_handle = handle;}
 		bool				isSet()	const	{return write_handle != INVALID_HANDLE_VALUE;}
-		bool				write(const void*data, unsigned bytes);	  //!< Writes unformated data to the pipe \param data Pointer to the data to read from \param bytes Number of bytes to write to the pipe
+		bool				write(const void*data, size_t bytes);	  //!< Writes data to the pipe \param data Pointer to the data to read from \param bytes Number of bytes to write to the pipe
 		template <class C>
-		bool				write(const C&data)						 //!< Writes one unit of formated data \param data Reference to the object to read from
+		bool				write(const C&data)						 //!< Writes one unit of POD data \param data Reference to the object to read from
 							{
 								return write(&data,sizeof(C));
 							}
 		template <class C>
-		bool				writeArray(const Array<C>&data)						 //!< Writes one unit of formated data \param data Reference to the object to read from
+		bool				writeArray(const Array<C>&data)						 //!< Writes one unit of POD data \param data Reference to the object to read from
 							{
 								return write(data.pointer(),data.contentSize());
 							}
 							
 		template <class C>
-		PipeFeed&			operator<<(const C&data)				  //!< Streaming operator: Writes one unit of formated data \param data Reference to the object to read from
+		PipeFeed&			operator<<(const C&data)				  //!< Streaming operator: Writes one unit of POD data \param data Reference to the object to read from
 							{
 								write(&data,sizeof(C));
 								return *this;
@@ -273,11 +278,13 @@ namespace System //! Translation namespace for common system tasks
 	};
 	class NamedPipeServer:public BlockingPipe //! System independent (blocking) named pipe handler
 	{
+	private:
+		DWORD				timeout;
 	public:
 		/**/				NamedPipeServer();			   			//!< Constructs a new (blocking) named pipe client. The pipe is not automatically connected.
 	
-		bool				Start(const char*pipe_name);
-		void				AcceptClient();								//!< Checks and connects any pending connection request. Blocks until a client has connected	
+		bool				Start(const char*pipe_name, DWORD timeoutMS);
+		bool				AcceptClient();								//!< Checks and connects any pending connection request. Blocks until a client has connected	
 		bool				IsActive()			const;					//!< Queries the current status of the named pipe
 		bool				IsConnected()		const;					//!< Queries the current status of the named pipe
 	};

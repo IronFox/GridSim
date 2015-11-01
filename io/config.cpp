@@ -269,7 +269,7 @@ namespace Config
 		if (!rs)
 		{
 			static String bad = "baadf00d";
-			FATAL__("Config: Unable to retrieve value of '"+path+"' from '"+this->name+"'");
+			FATAL__("Bad configuration file: Unable to retrieve value of '"+path+"' from '"+this->name+"'");
 			return bad;
 		}
 		return rs->value;
@@ -290,7 +290,7 @@ namespace Config
 		int result;
 		if (!convert(svalue.c_str(),result))
 		{
-			FATAL__("Config: Unable to parse '"+svalue+"' of '"+name+"/"+path+ "' to int");
+			FATAL__("Bad configuration file: Unable to parse '"+svalue+"' of '"+name+"/"+path+ "' to int");
 			return -1;
 		}
 		return result;
@@ -311,7 +311,7 @@ namespace Config
 		unsigned result;
 		if (!convert(svalue.c_str(),result))
 		{
-			FATAL__("Config: Unable to parse '"+svalue+"' of '"+name+"/"+path+ "' to unsigned int");
+			FATAL__("Bad configuration file: Unable to parse '"+svalue+"' of '"+name+"/"+path+ "' to unsigned int");
 			return -1;
 		}
 		return result;
@@ -332,7 +332,7 @@ namespace Config
 		float result;
 		if (!convert(svalue.c_str(),result))
 		{
-			FATAL__("Config: Unable to parse '"+svalue+"' of '"+name+"/"+path+ "' to float");
+			FATAL__("Bad configuration file: Unable to parse '"+svalue+"' of '"+name+"/"+path+ "' to float");
 			return NAN;
 		}
 		return result;
@@ -353,7 +353,7 @@ namespace Config
 		bool result;
 		if (!convert(svalue.c_str(),result))
 		{
-			FATAL__("Config: Unable to parse '"+svalue+"' of '"+name+"/"+path+ "' to bool");
+			FATAL__("Bad configuration file: Unable to parse '"+svalue+"' of '"+name+"/"+path+ "' to bool");
 			return false;
 		}
 		return result;
@@ -374,7 +374,7 @@ namespace Config
 		Key::Name result;
 		if (!convert(svalue.c_str(),result))
 		{
-			FATAL__("Config: Unable to parse '"+svalue+"' of '"+name+"/"+path+ "' to key");
+			FATAL__("Bad configuration file: Unable to parse '"+svalue+"' of '"+name+"/"+path+ "' to key");
 			return Key::A;
 		}
 		return result;

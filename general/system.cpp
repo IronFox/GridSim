@@ -203,23 +203,23 @@ namespace System
         #endif
     }
 
-    bool Pipe::write(const void*data, unsigned bytes)
+    bool Pipe::write(const void*data, size_t bytes)
     {
         #if SYSTEM==WINDOWS
             DWORD written;
-            return WriteFile(write_handle,data,bytes,&written,NULL) && written == bytes;
+            return WriteFile(write_handle,data,(DWORD)bytes,&written,NULL) && (size_t)written == bytes;
         #elif SYSTEM==UNIX
            return (:: write(handle[1],data,bytes) == bytes);
         #endif
     }
 
-    bool    Pipe::read(void*target, unsigned bytes)
+    bool    Pipe::read(void*target, size_t bytes)
     {
         #if SYSTEM==WINDOWS
             DWORD size;
             if (!PeekNamedPipe(read_handle,NULL,0,NULL,&size,NULL) || size < bytes)
                 return false;
-            ReadFile(read_handle,target,bytes,&size,NULL);
+            ReadFile(read_handle,target,(DWORD)bytes,&size,NULL);
             return true;
         #elif SYSTEM==UNIX
             return (::read(handle[0],target,bytes) == bytes);
@@ -251,55 +251,77 @@ namespace System
 
     BlockingPipe::~BlockingPipe()
     {
+		Close();
+	}
+
+	void BlockingPipe::Close()
+	{
         #if SYSTEM==WINDOWS
 			if (read_handle)
+			{
 				CloseHandle(read_handle);
+			}
 			if (write_handle && read_handle != write_handle)
 				CloseHandle(write_handle);
+			write_handle = NULL;
+			read_handle = NULL;
         #elif SYSTEM==UNIX
 			if (handle[0])
+			{
 				close(handle[0]);
+			}
 			if (handle[1] && handle[0] != handle[1])
 				close(handle[1]);
+			handle[0] = 0;
+			handle[1] = 0;
         #endif
     }
 
-    bool BlockingPipe::write(const void*data, unsigned bytes)
+    bool BlockingPipe::write(const void*data, size_t bytes)
     {
         #if SYSTEM==WINDOWS
             DWORD written;
-            return WriteFile(write_handle,data,bytes,&written,NULL) && written == bytes;
+            return WriteFile(write_handle,data,(DWORD)bytes,&written,NULL) && (size_t)written == bytes;
         #elif SYSTEM==UNIX
            return (:: write(handle[1],data,bytes) == bytes);
         #endif
     }
 
 	#if SYSTEM==WINDOWS
+		size_t			BlockingPipe::GetFillLevel() const
+		{
+			DWORD rs = 0;
+			BOOL rc = PeekNamedPipe(read_handle,NULL,0,NULL,&rs,NULL);
+			if (!rc)
+				return BadCall;
+			return rs;
+		}
+
 		size_t	BlockingPipe::PeekReadBytes(void *target, size_t bytes)
 		{
 			DWORD rs = 0;
 			BOOL rc = PeekNamedPipe(read_handle,target,(DWORD)bytes,&rs,NULL,NULL);
 			if (!rc)
-				return 0;
+				return BadCall;
 			return rs;
 		}
 	#endif
 
-    bool    BlockingPipe::read(void*target, unsigned bytes)
+    bool    BlockingPipe::read(void*target, size_t bytes)
     {
         #if SYSTEM==WINDOWS
             DWORD size;
-            return ReadFile(read_handle,target,bytes,&size,NULL) && size == bytes;
+            return ReadFile(read_handle,target,(DWORD)bytes,&size,NULL) && (size_t)size == bytes;
         #elif SYSTEM==UNIX
             return (::read(handle[0],target,bytes) == bytes);
         #endif
     }
 
-    bool PipeFeed::write(const void*data, unsigned bytes)
+    bool PipeFeed::write(const void*data, size_t bytes)
     {
         #if SYSTEM==WINDOWS
             DWORD written;
-            return WriteFile(write_handle,data,bytes,&written,NULL) && written == bytes;
+            return WriteFile(write_handle,data,(DWORD)bytes,&written,NULL) && (size_t)written == bytes;
         #elif SYSTEM==UNIX
            return (:: write(write_handle,data,bytes) == bytes);
         #endif
@@ -349,11 +371,25 @@ namespace System
 	}
 
 	
-	bool		NamedPipeServer::Start(const char*pipe_name)
+	bool		NamedPipeServer::Start(const char*pipe_name, DWORD timeoutMS)
 	{
+		Close();
 		#if SYSTEM==WINDOWS
+			timeout = timeoutMS;
 			//read_handle = write_handle = CreateFileA(pipe_name , GENERIC_READ|GENERIC_WRITE ,  FILE_SHARE_WRITE|FILE_SHARE_READ , NULL , CREATE_NEW, FILE_ATTRIBUTE_NORMAL|FILE_FLAG_DELETE_ON_CLOSE, NULL); 
-			read_handle = write_handle = CreateNamedPipeA(pipe_name,PIPE_ACCESS_DUPLEX,PIPE_TYPE_BYTE|PIPE_READMODE_BYTE| PIPE_WAIT,PIPE_UNLIMITED_INSTANCES,1024,1024,500,NULL);
+			//read_handle = write_handle = CreateNamedPipeA(pipe_name,PIPE_ACCESS_DUPLEX,PIPE_TYPE_BYTE|PIPE_READMODE_BYTE| PIPE_WAIT|FILE_FLAG_OVERLAPPED,PIPE_UNLIMITED_INSTANCES,1024,1024,500,NULL);
+			read_handle = write_handle = CreateNamedPipeA(
+			  pipe_name,                    // pipe name
+			  PIPE_ACCESS_DUPLEX |      // read/write access
+			  FILE_FLAG_OVERLAPPED,
+			  PIPE_TYPE_BYTE |              // byte type pipe
+			  PIPE_READMODE_BYTE |          // message-read mode
+			  PIPE_WAIT,                // blocking mode
+			  PIPE_UNLIMITED_INSTANCES,     // max. instances
+			  1024,                      // output buffer size
+			  1024,                      // input buffer size
+			  timeout,         // client time-out
+			  NULL);                        // default security attribute
 			if (read_handle == INVALID_HANDLE_VALUE)
 			{
 				return false;
@@ -363,10 +399,40 @@ namespace System
 			return false;
 		#endif
 	}
-	void		NamedPipeServer::AcceptClient()
+	bool		NamedPipeServer::AcceptClient()
 	{
 		#if SYSTEM==WINDOWS
-			ConnectNamedPipe(read_handle,NULL);
+			//https://memset.wordpress.com/2010/10/08/timeout-on-named-pipes/
+			OVERLAPPED ol = {0,0,0,0,NULL};
+			BOOL ret = 0;
+			ol.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
+			ret = ConnectNamedPipe(write_handle, &ol);
+			if( ret == 0 )
+			{
+				switch( GetLastError() ) {
+					case ERROR_PIPE_CONNECTED:
+						/* client is connected */
+						ret = TRUE;
+					break;
+					case ERROR_IO_PENDING:
+						/* if pending i wait PIPE_TIMEOUT_CONNECT ms */
+						if( WaitForSingleObject(ol.hEvent, timeout) == WAIT_OBJECT_0 )
+						{
+							DWORD dwIgnore;
+							ret = GetOverlappedResult(write_handle, &ol, &dwIgnore, FALSE);
+						}
+						else
+						{
+							CancelIo(write_handle);
+						}
+					break;
+				}
+			}
+			CloseHandle(ol.hEvent);
+			return ret != 0;
+//			return ConnectNamedPipe(read_handle,NULL) != 0;
+		#else
+			return false;
 		#endif	
 	}
 	
