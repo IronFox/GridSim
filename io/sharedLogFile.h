@@ -24,14 +24,11 @@ public:
 			fileHandle = INVALID_HANDLE_VALUE;
 		}
 	}
-	void	Open(const String&path)
+	bool	Open(const String&path)
 	{
 		Close();
 		fileHandle = CreateFileA(path.c_str(),GENERIC_WRITE,FILE_SHARE_READ,nullptr,CREATE_ALWAYS,FILE_ATTRIBUTE_NORMAL,nullptr);
-		if (fileHandle == INVALID_HANDLE_VALUE)
-		{
-			LogEvent(EventType::InternalFault,getLastError());
-		}
+		return fileHandle != INVALID_HANDLE_VALUE;
 	}
 
 	void	Write(const StringBuffer&buffer,bool toSyslog)
