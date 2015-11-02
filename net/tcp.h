@@ -73,7 +73,7 @@ namespace TCP
 				#ifdef _DEBUG
 					static const size_t toleranceMS = 30000;
 				#else
-					static const size_t toleranceMS = 1000;
+					static const size_t toleranceMS = 5000;
 				#endif
 				if (!mutex.try_lock_for(std::chrono::milliseconds(toleranceMS)))
 				{
