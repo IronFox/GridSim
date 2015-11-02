@@ -32,9 +32,14 @@ template <typename T, typename Strategy=typename StrategySelector<T>::Default>
 	    inline  bool                operator>>(T&);	//!< Retrieves the object currently apointed by the read cursor. Automatically advances the read cursor 	@return true if the object could be retrieves, false if the read cursor has reached the end of the queue
 	    inline  void                ExitRead();			//!< Signals that the local list should be flushed and the local object mutex released
 	    inline  Self&				operator<<(const T&);		//!< Inserts an element to the end of the queue. This operation is mutex protected
+		#if __BUFFER_RVALUE_REFERENCES__
+			inline Self&			operator<<(T&&element);
+		#endif
+
 		inline  Self&				MoveAppend(T&);		//!< Similar to the << operator but uses strategy move, rather than forced copy
 		inline	Self&				MoveAppend(BasicBuffer<T>&buffer);
 	    inline  void                clear();			//!< Erases each object and flushs the queue. This operation is mutex protected
+		inline	void				Clear() {clear();}
 		inline	void				WaitForContent()	{contentSignal.wait();}
 		inline  void				OverrideSignalNow() {contentSignal.signal();}
 		

@@ -37,6 +37,18 @@ template <typename T,typename Strategy>
 		locked = false;
 		lock.unlock();
 	}
+#if __BUFFER_RVALUE_REFERENCES__
+template <typename T,typename Strategy>
+	inline WorkPipe<T,Strategy>&    WorkPipe<T,Strategy>::operator<<(T&&element)
+	{
+		lock.lock();
+			Super::Append(std::forward<T&&>(element));
+			contentSignal.signal();
+		lock.unlock();
+		return *this;
+
+	}
+#endif
 
 template <typename T,typename Strategy>
 	inline WorkPipe<T,Strategy>&    WorkPipe<T,Strategy>::operator<<(const T&pntr)
