@@ -70,8 +70,9 @@ void	MonitoredProcess::CheckNow()
 {
 	if (!IsRunning())
 	{
+		bool wasStarted = isStarted;
 		Flush();
-		if (!isStarted)
+		if (!wasStarted)
 			return;
 		Restart();
 	}
