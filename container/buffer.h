@@ -5,6 +5,7 @@
 #include <exception>
 #include <new>
 #include <algorithm>
+#include <initializer_list>
 
 #include "strategy.h"
 
@@ -52,9 +53,11 @@ namespace Container
 			#if __BUFFER_RVALUE_REFERENCES__
 				/**/				BasicBuffer(BasicBuffer<T,Strategy>&&other);
 			#endif
+			/**/					BasicBuffer(std::initializer_list<T> items);
 			virtual				   ~BasicBuffer();
 			Self&					operator=(const ArrayData<T>&array);
 			Self&					operator=(const Self&other);
+			Self&					operator=(std::initializer_list<T> items);
 			#if __BUFFER_RVALUE_REFERENCES__
 				Self&				operator=(Self&&other);
 			#endif
@@ -82,12 +85,15 @@ namespace Container
 			inline Self&			MoveAppend(ArrayData<T>&array, bool clearSourceOnCompletion=true)	/**@copydoc moveAppend()*/ {return moveAppend(array,clearSourceOnCompletion);}
 			Self&					moveAppend(T*data, count_t elements);			//!< Appends all elements in the specified range to the end of the local buffer. The elements will be moved, leaving the individual objects of the parameter field empty upon completion.
 			inline Self&			MoveAppend(T*data, count_t elements)	/**@copydoc moveAppend()*/ {return moveAppend(data,elements);}
+			inline Self&			MoveAppend(std::initializer_list<T> items);
 			template <typename T2, typename Strategy2>
 				Self&				AppendSubList(const BasicBuffer<T2,Strategy2>&other, index_t offset, count_t maxElements);
 			template <typename T2>
 				Self&				append(const T2*data, count_t elements);	//!< Appends a number of elements to the end of the buffer, advancing the buffer cursor by the specified number of elements. The buffer will automatically be resized if necessary.
 			template <typename T2>
 				inline Self&		Append(const T2*data, count_t elements)		/**@copydoc append()*/ {return append(data,elements);}
+			template <typename T2>
+				Self&				Append(std::initializer_list<T2> items);
 			template <typename T2>
 				Self&				append(const ArrayData<T2>&array);				//!< Appends a number of elements to the end of the buffer, advancing the buffer cursor by the specified array's contained of elements. The buffer will automatically be resized if necessary.
 			template <typename T2>

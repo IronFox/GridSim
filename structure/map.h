@@ -104,6 +104,11 @@ namespace Map	//! Geometrical scenario composition
 				MetaEntity		=NoPosition|NoOrientation|NoOrder,	//!< Entity is pure abstract
 				Default			=0									//!< Entity is located, rotatable, and has a fixed order value
 			};
+
+	private:
+			Flags					flags;							//!< Constant entity class configuration. \b flags may contain any combination of the above defined flags
+			const char				*entity_class;					//!< Name of the derivative class
+	public:
 			
 			String					sub_line;						//!< Secondary description string
 		
@@ -117,11 +122,9 @@ namespace Map	//! Geometrical scenario composition
 				TVec3<>				x_align,						//!< X-Align of the local entity. The x alignment loosly defines the x-axis of the final entity system if \b flags does not contain \b Directional
 									direction;						//!< Directional (Z-)align of the local entity. The z align is directly defined by this vector if \b flags contains \b Directional
 			};
-			const Flags				flags;							//!< Constant entity class configuration. \b flags may contain any combination of the above defined flags
 			int						order;							//!< Effective order value of this entity. The functionality of the order attribute depends on the respective derivative class. If this entity is for instance a checkpoint shape then the order value effectively defines the checkpoint index.
 			String					name;							//!< Name of this entity (mostly unique)
-			const char				*const	entity_class;					//!< Name of the derivative class
-			Composition				* composition;				//!< Pointer to the respective parent composition
+			Composition				*composition;				//!< Pointer to the respective parent composition
 
 
 									Entity(const char*entity_class_,int flags_):flags((Flags)flags_),order(0),entity_class(entity_class_),composition(NULL)
@@ -148,17 +151,19 @@ namespace Map	//! Geometrical scenario composition
 										constraints.SetAllMin(-1);
 										constraints.SetAllMax(1);
 									}
-									Entity(Entity&&other):sub_line(other.sub_line),position(other.position),y_align(other.y_align),constraints(other.constraints),system(other.system),inverse(other.inverse),
-															x_align(other.x_align),flags(other.flags),order(other.order),name(other.name),entity_class(other.entity_class),composition(other.composition)
-									{
-										ASSERT__(other.name.isEmpty());
-									}
+									//Entity(Entity&&other):sub_line(other.sub_line),position(other.position),y_align(other.y_align),constraints(other.constraints),system(other.system),inverse(other.inverse),
+									//						x_align(other.x_align),flags(other.flags),order(other.order),name(other.name),entity_class(other.entity_class),composition(other.composition)
+									//{
+									//	ASSERT__(other.name.isEmpty());
+									//}
 			Entity&					setComposition(Composition*composition_)
 									{
 										composition = composition_;
 										return *this;
 									}
 	virtual							~Entity(){};
+		Flags						GetFlags() const {return flags;}
+		const char*					GetEntityClass() const {return entity_class;}
 			void					updateSystem();	//!< Updates the local system from changed position or align vectors
 	virtual void					parse(const XML::Node&node,float scale, const FileSystem::Folder&loading_context);	//!< Parses the content of the specified XML node and automatically updates the system
 	virtual	bool					cast(const TVec3<>&from, const TVec3<>&direction, float&distance)	const;	//!< Virtual vector cast. Determines the closest ray intersection. \param from 3 component base vector \param direction Normalized ray direction vector \param distance in/out distance value along the specified ray axis of the closest intersection \return true if a closer intersection was detected, false otherwise
@@ -379,10 +384,10 @@ namespace Map	//! Geometrical scenario composition
 									{}
 									Shape(Composition*composition):Entity("Shape",Entity::Default,composition),type(Circle),primary_diameter(2),secondary_diameter(2)
 									{}
-									Shape(Shape&&other):Entity(std::move(other)),type(other.type),primary_diameter(other.primary_diameter),secondary_diameter(other.secondary_diameter),polygon_points(other.polygon_points),triangulation(other.triangulation)
-									{
-										ASSERT__(other.polygon_points.isEmpty());	//must have been moved
-									}
+									//Shape(Shape&&other):Entity(std::move(other)),type(other.type),primary_diameter(other.primary_diameter),secondary_diameter(other.secondary_diameter),polygon_points(other.polygon_points),triangulation(other.triangulation)
+									//{
+									//	ASSERT__(other.polygon_points.isEmpty());	//must have been moved
+									//}
 	virtual							~Shape();
 	virtual	void					parse(const XML::Node&node,float scale, const FileSystem::Folder&loading_context) override;	//!< Parses the local shape configuration from the specified XML node
 			void					updateShape();			//!< Updates \b polygon_points (if type is not Polygon) and \b triangulation

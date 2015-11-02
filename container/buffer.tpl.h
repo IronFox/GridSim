@@ -203,6 +203,41 @@ template <typename T, typename Strategy>
 	}
 
 template <typename T, typename Strategy>
+	BasicBuffer<T, Strategy>::BasicBuffer(std::initializer_list<T> items)
+	{
+		count_t	fill = items.size();
+		//alloc(storage_begin,fill);
+		try
+		{
+			storage_begin = allocate(fill);
+		}
+		catch (std::bad_alloc& exception)
+		{
+			storage_begin = storage_end = usage_end = NULL;
+			#if defined(_DEBUG) && __BUFFER_DBG_FILL_STATE__
+				fill_state = 0;
+				CHK_FILLSTATE
+			#endif
+
+			throw;
+		}
+
+		storage_end = usage_end = storage_begin+fill;
+		#if defined(_DEBUG) && __BUFFER_DBG_FILL_STATE__
+			fill_state = fill;
+			CHK_FILLSTATE
+		#endif
+
+
+		std::initializer_list<T>::const_iterator it = items.begin();
+		for (index_t i = 0; i < fill; i++, ++it)
+		{
+			new ((storage_begin+i)) T(*it);
+		}
+	}
+
+
+template <typename T, typename Strategy>
 	BasicBuffer<T, Strategy>::BasicBuffer(const BasicBuffer<T, Strategy>&other)
 	{
 		count_t	fill = other.usage_end-other.storage_begin;
@@ -230,7 +265,7 @@ template <typename T, typename Strategy>
 
 		for (index_t i = 0; i < fill; i++)
 		{
-			new ((storage_begin+i)) T(std::move(other.storage_begin[i]));
+			new ((storage_begin+i)) T(other.storage_begin[i]);
 			//storage_begin[i] = other.storage_begin[i];
 		}
 	}
@@ -303,6 +338,16 @@ template <typename T, typename Strategy>
 		Strategy::template copyRange<const T,T>(other.begin(),other.end(),field);
 		return *this;
 	}
+
+template <typename T, typename Strategy>
+	BasicBuffer<T, Strategy>&		BasicBuffer<T, Strategy>::operator=(std::initializer_list<T> items)
+	{
+		Clear();
+		T*field = AppendRow(items.size());
+		Strategy::copyRange(items.begin(),items.end(),field);
+		return *this;
+	}
+
 	
 template <typename T, typename Strategy>
 	void	BasicBuffer<T, Strategy>::revert()
@@ -920,6 +965,18 @@ template <typename T, typename Strategy>
 		#endif
 
 		return *this;
+	}
+
+template <typename T, typename Strategy>
+	BasicBuffer<T, Strategy>&		BasicBuffer<T, Strategy>::MoveAppend(std::initializer_list<T> items)
+	{
+		return moveAppend(items.begin(),items.size());
+	}
+
+template <typename T, typename Strategy> template <typename T2>
+	BasicBuffer<T, Strategy>&		BasicBuffer<T, Strategy>::Append(std::initializer_list<T2> items)
+	{
+		return append(items.begin(),items.size());
 	}
 
 
