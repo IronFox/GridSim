@@ -16,7 +16,7 @@ namespace Engine
 	namespace Detail
 	{
 		template <typename GL>
-			void	UpdateXML(Display<GL>&display, UINT32 flags, const Resolution&restoredResolution, const String&filename)
+			void	UpdateXML(Display<GL>&display, UINT32 flags, const Resolution&restoredResolution, const String&xmlfilename)
 			{
 				XML::Container xconfig;
 				XML::Node&xdisplay = xconfig.create("config/display");
@@ -25,27 +25,28 @@ namespace Engine
 				if (flags & DisplayConfig::IsMaximized)
 					xdisplay.set("state","maximized");
 				FileSystem::CreateFolder("config");
-				xconfig.saveToFile("./config/"+filename+".xml");
+				xconfig.saveToFile(xmlfilename);
 			}
 	}
 
 
 
 	template <typename GL>
-		void	CreateDisplay(Display<GL>&display, const String&name, Resolution resolution, DisplayConfig::f_on_resize onResize, const DisplayConfig::Icon&icon = DisplayConfig::Icon())
+		void	CreateDisplay(Display<GL>&display, const String&configFolderPath, const String&displayName, Resolution resolution, DisplayConfig::f_on_resize onResize, const DisplayConfig::Icon&icon = DisplayConfig::Icon())
 		{
 			Resolution screenRes = display.getScreenSize();
 			resolution.width = std::min(resolution.width,screenRes.width);
 			resolution.height = std::min(resolution.height,screenRes.height);
-			String fileName = name;
-			fileName.eraseCharacters(validFileNameChar,false);
-			fileName.convertToLowerCase();
+			String xmlFileName = displayName;
+			xmlFileName.eraseCharacters(validFileNameChar,false);
+			xmlFileName.convertToLowerCase();
+			xmlFileName = configFolderPath + FOLDER_SLASH + xmlFileName + ".xml";
 			XML::Container xconfig;
 			bool updateFile = false;
 			UINT32 flags = DisplayConfig::ResizeDragHasEnded;
 			try
 			{
-				xconfig.loadFromFile("./config/"+fileName+".xml");
+				xconfig.loadFromFile(xmlFileName);
 				XML::Node*xdisplay = xconfig.find("config/display");
 				if (xdisplay)
 				{
@@ -70,7 +71,7 @@ namespace Engine
 				updateFile = true;
 			}
 			
-			DisplayConfig config(name,[fileName,onResize,&display, resolution](const Resolution&newRes, UINT32 flags){
+			DisplayConfig config(displayName,[xmlFileName,onResize,&display, resolution](const Resolution&newRes, UINT32 flags){
 				static Resolution restoredResolution = resolution;
 				display.SignalWindowResize(flags);
 				if (flags & Engine::DisplayConfig::ResizeDragHasEnded)
@@ -79,7 +80,7 @@ namespace Engine
 					{
 						restoredResolution = newRes;
 					}
-					Detail::UpdateXML(display,flags, restoredResolution, fileName);
+					Detail::UpdateXML(display,flags, restoredResolution, xmlFileName);
 				}
 				onResize(newRes,flags);
 			});
@@ -88,7 +89,7 @@ namespace Engine
 			if (!display.create(config))
 				FATAL__("Unable to create window (" + display.errorStr() + ")");
 			if (updateFile)
-				Detail::UpdateXML(display,flags,resolution, fileName);
+				Detail::UpdateXML(display,flags,resolution, xmlFileName);
 			if (flags & DisplayConfig::IsMaximized)
 				context.MaximizeWindow();
 			//elif (flags & DisplayConfig::IsMinimzed)
