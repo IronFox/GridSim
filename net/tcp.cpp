@@ -163,6 +163,7 @@ namespace TCP
 			if (eventLock.ExclusiveLock(CLOCATION))
 			{
 				queue << inbound;
+				anyEventsPending = true;
 				eventLock.ExclusiveUnlock();
 			}
 		}
@@ -216,6 +217,7 @@ namespace TCP
 			if (eventLock.ExclusiveLock(CLOCATION))
 			{
 				queue << sevent;
+				anyEventsPending = true;
 				eventLock.ExclusiveUnlock();
 			}
 		}
@@ -252,6 +254,7 @@ namespace TCP
 			if (eventLock.ExclusiveLock(CLOCATION))
 			{
 				queue << tsignal;
+				anyEventsPending = true;
 				eventLock.ExclusiveUnlock();
 			}
 			
@@ -261,18 +264,33 @@ namespace TCP
 
 	void Dispatcher::Resolve()
 	{
+		if (!anyEventsPending)
+			return;
 		if (eventLock.ExclusiveLock(CLOCATION))
 		{
-			terminateAfterResolve = false;
-			resolving = true;
+			static Buffer0<TCommonEvent>	exported;
 			TCP_TRY
 			{
 				TCommonEvent ev;
 				//TSignal signal;
 				while (queue >> ev)
+					exported << ev;
+		
+			}
+			TCP_CATCH
+			anyEventsPending = false;
+			eventLock.ExclusiveUnlock();
+
+
+			terminateAfterResolve = false;
+			resolving = true;
+			TCP_TRY
+			{
+				foreach (exported,_ev)
 				{
 					if (terminateAfterResolve)
-						continue;
+						break;
+					const TCommonEvent&ev = *_ev;
 					TCP_TRY
 					{
 						switch (ev.type)
@@ -310,10 +328,11 @@ namespace TCP
 					}
 					TCP_CATCH
 				}
+				exported.Clear();
 			}
 			TCP_CATCH
 			resolving = false;
-			eventLock.ExclusiveUnlock();
+
 		}
 		//mutex.release();
 		FlushWaste();
@@ -369,7 +388,7 @@ namespace TCP
 		return channel;
 	}
 	
-	Dispatcher::Dispatcher():async(true),is_locked(false),onEvent(NULL),onSignal(NULL),onIgnorePackage(NULL),onDeserializationFailed(NULL),resolving(false),terminateAfterResolve(false)
+	Dispatcher::Dispatcher():async(true),is_locked(false),onEvent(NULL),onSignal(NULL),onIgnorePackage(NULL),onDeserializationFailed(NULL),resolving(false),terminateAfterResolve(false),anyEventsPending(false)
 	{}
 	
 	Dispatcher::~Dispatcher()

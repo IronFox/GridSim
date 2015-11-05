@@ -649,7 +649,7 @@ namespace TCP
 		//Queue<TEvent>				event_queue;
 		//Queue<TSignal>				signal_queue;
 		Queue<TCommonEvent>			queue;
-
+		volatile bool				anyEventsPending;	//low impact if not initialized properly. Self-managed after the first frame or so. Only used in synchronous mode. must be set true, if anything is filled into queue.
 
 		Buffer0<PPeer>				wasteBucket;
 
