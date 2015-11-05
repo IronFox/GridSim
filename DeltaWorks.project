@@ -6,6 +6,7 @@
 		<exclude dir="cuda" />
 		<exclude file="remote_shell.cpp" />
 		<exclude file="remote_shell.h" />
+		<exclude find="displayConnection" />
 	</source>
 	<macro name="_CRT_SECURE_NO_WARNINGS" />
 </project>
