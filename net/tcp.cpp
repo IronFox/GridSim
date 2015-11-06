@@ -268,13 +268,13 @@ namespace TCP
 			return;
 		if (eventLock.ExclusiveLock(CLOCATION))
 		{
-			static Buffer0<TCommonEvent>	exported;
+			resolutionBuffer.Clear();
 			TCP_TRY
 			{
 				TCommonEvent ev;
 				//TSignal signal;
 				while (queue >> ev)
-					exported << ev;
+					resolutionBuffer << ev;
 		
 			}
 			TCP_CATCH
@@ -286,7 +286,7 @@ namespace TCP
 			resolving = true;
 			TCP_TRY
 			{
-				foreach (exported,_ev)
+				foreach (resolutionBuffer,_ev)
 				{
 					if (terminateAfterResolve)
 						break;
@@ -328,7 +328,7 @@ namespace TCP
 					}
 					TCP_CATCH
 				}
-				exported.Clear();
+				resolutionBuffer.Clear();
 			}
 			TCP_CATCH
 			resolving = false;
@@ -704,6 +704,7 @@ namespace TCP
 				return false;
 			}
 			current += size;
+			lastReceivedPackage = timer.Now();
 		}
 		if (verbose)
 			std::cout << "Peer::netRead() exit"<<std::endl;
@@ -899,7 +900,7 @@ namespace TCP
 			}
 			if (verbose)
 				std::cout << "Peer::ThreadMain(): received header: channel="<<header[0]<<" size="<<header[1]<<std::endl;
-			
+			//lastReceivedPackage = timer.Now();
 			remaining_size = (serial_size_t)header[1];
 			if (remaining_size > owner->safe_package_size)
 			{

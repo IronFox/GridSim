@@ -618,7 +618,7 @@ namespace TCP
 		@brief Package handler
 		
 		The dispatcher handles incoming objects and events. Objects and events are enqueued if @b async is false. Otherwise they are directly executed and deleted if appropriate.
-		If @b async is false then the client application must invoke resolve() from time to time to handle incoming events and objects
+		If @b async is false then the client application must invoke Resolve() from time to time to handle incoming events and objects
 	*/
 	class Dispatcher
 	{
@@ -662,6 +662,8 @@ namespace TCP
 		IndexTable<unsigned>		signal_map;
 
 		bool						resolving,terminateAfterResolve;
+		Buffer0<TCommonEvent>		resolutionBuffer;	//used as temporary storage by Resolve() for events taken out of queue prior to resolution.
+
 
 			
 		friend class Peer;
@@ -679,7 +681,12 @@ namespace TCP
 		/**/						Dispatcher();
 		virtual						~Dispatcher();
 		bool						IsResolving() const {return resolving;}
-		void						Resolve();		//!< Resolves all events that occured since the last Resolve() invokation. The client application must call this method frequently if the local dispatcher is set to synchronous. Never otherwise.
+		/**
+		Resolves all events that occured since the last Resolve() invokation.
+		The client application must call this method frequently from the same thread, if the local dispatcher is set to synchronous. Never otherwise.
+		This method is not thread-safe. It interacts savely with the internal TCP mechanics but calling this method from multiple threads without some form of synchronization will cause problems.
+		*/
+		void						Resolve();
 		void						FlushPendingEvents();	//!< Dumps all remaining, pending events without executing them. The client application may call this method if the local dispatcher is set to synchronous. Nothing happens otherwise.
 		void						InstallChannel(RootChannel&channel);	//!< Installs a channel in/out processor. If the used channel id is already in use then it will be overwritten with the provided channel handler
 		void						UninstallChannel(RootChannel&channel);		//!< Uninstalls a channel in/out processor. The used channel id will be closed
@@ -906,6 +913,8 @@ namespace TCP
 	*/
 	class Peer : public TCPThreadObject, protected IReadStream, /*protected IWriteStream, */public Destination //, public IToString
 	{
+	private:
+		std::atomic<Timer::Time>	lastReceivedPackage;
 	protected:
 		PeerWriter					writer;
 		Connection					*owner;			//!< Pointer to the owning connection to handle incoming packages and report errors to
@@ -973,7 +982,8 @@ namespace TCP
 				
 		/**/						Peer(Connection*connection, bool canDoSharedFromThis):owner(connection),socketAccess(new DefaultSocketAccess()),
 									userLevel(User::Anonymous),addressLength(0), canDoSharedFromThis(canDoSharedFromThis),destroyed(false),
-									writer(this)
+									writer(this),
+									lastReceivedPackage(timer.Now())
 									{
 										memset(&address,0,sizeof(address));
 										ASSERT_NOT_NULL__(owner);
@@ -1041,6 +1051,10 @@ namespace TCP
 			
 		bool						HandleIsValid()	const	{return !socketAccess->IsClosed();}
 		bool						SendObject(UINT32 channel, const ISerializable&object, unsigned minUserLevel=0) override;		//!< Sends a serializable object to the TCP stream on the specified channel
+		/**
+		Retrieves the high-resolution time of last receiving of any package from the remote end. Even partial packages count
+		*/
+		Timer::Time					GetLastPackageTime()	const	{return lastReceivedPackage;}
 	};
 
 	typedef std::shared_ptr<Peer::Attachment>	PAttachment;
