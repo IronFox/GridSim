@@ -5,11 +5,6 @@
 
 File-access tool providing more options for handling volumes.
 
-This file is part of Delta-Works
-Copyright (C) 2006-2008 Stefan Elsen, University of Trier, Germany.
-http://www.delta-works.org/forge/
-http://informatik.uni-trier.de/
-
 ******************************************************************/
 
 
@@ -28,6 +23,17 @@ O_EXCL	Used only with O_CREAT. If the file already exists, an error is returned.
 
 O_BINARY	Can be given to explicitly open the file in binary mode.
 */
+
+
+#undef FOPEN
+#undef STRLEN
+#if SYSTEM==WINDOWS
+	#define STRLEN(_STR_)	wcslen(_STR_)
+	#define FOPEN(_FILE_,_MODE_)	_wfopen((_FILE_),L##_MODE_)
+#else
+	#define STRLEN(_STR_)	strlen(_STR_)
+	#define FOPEN(_FILE_,_MODE_)	fopen((_FILE_),_MODE_)
+#endif
 
 
 void RandomAccessFile::applyBufferSize(unsigned new_size)
@@ -49,14 +55,14 @@ bool RandomAccessFile::openStream(bool truncate)
 {
     if (truncate)
     {
-        f = fopen(filename,"w+b");
+        f = FOPEN(filename,"w+b");
         writable = write_access = f != NULL;
         if (!f)
-            f = fopen(filename,"rb");
+            f = FOPEN(filename,"rb");
     }
     else
     {
-        f = fopen(filename, "rb");
+        f = FOPEN(filename, "rb");
         writable = true;
         write_access = false;
     }
@@ -72,10 +78,10 @@ bool RandomAccessFile::beginWrite()
         return false;
 //    long at = ftell(f);
     fclose(f);
-    f = fopen(filename,"r+b");
+    f = FOPEN(filename,"r+b");
     writable = write_access = f != NULL;
     if (!f)
-        f = fopen(filename,"rb");
+        f = FOPEN(filename,"rb");
     active = f != NULL;
     return write_access;
 }
@@ -88,22 +94,22 @@ RandomAccessFile::RandomAccessFile():f(NULL),buffer(NULL),write_access(false),wr
 
 RandomAccessFile::~RandomAccessFile()
 {
-    close();
+    Close();
     if (!referenced)
         dealloc(buffer);
 }
 
-bool RandomAccessFile::writeAccess()
+bool RandomAccessFile::HasWriteAccess()
 {
     return write_access||writable;
 }
 
-bool RandomAccessFile::isActive()
+bool RandomAccessFile::IsActive()
 {
     return active;
 }
 
-bool RandomAccessFile::resize(unsigned size)
+bool RandomAccessFile::Resize(unsigned size)
 {
     if (!beginWrite())
         return false;
@@ -127,7 +133,7 @@ bool RandomAccessFile::resize(unsigned size)
             }
             else
             {
-                BYTE*buffer = extract(0,size);
+                BYTE*buffer = Extract(0,size);
                 fclose(f);
                 if (!openStream(true))
                 {
@@ -135,7 +141,7 @@ bool RandomAccessFile::resize(unsigned size)
                     active = false;
                     return false;
                 }
-                append(buffer,size);
+                Append(buffer,size);
                 dealloc(buffer);
             }
             fsize = size;
@@ -144,28 +150,32 @@ bool RandomAccessFile::resize(unsigned size)
     return false;
 }
 
-bool RandomAccessFile::create(const char*Filename, OpenMode mode)
+bool RandomAccessFile::Create(const char_t*Filename, OpenMode mode)
 {
-    close();
-    if (!Filename ||!strlen(Filename) || strlen(Filename)>0x99)
+    Close();
+	if (!Filename)
+		return false;
+	size_t len = STRLEN(Filename);
+    if (!len || len+1>MAX_PATH)
         return false;
-    strcpy(filename,Filename);
-    return recreate(mode);
+	memcpy(filename,Filename,(len+1)*sizeof(char_t));
+    //strcpy(filename,Filename);
+    return ReCreate(mode);
 }
 
-bool RandomAccessFile::recreate(OpenMode mode)
+bool RandomAccessFile::ReCreate(OpenMode mode)
 {
-    FILE*temp = fopen(filename,"wb");      //sort of cheating here but never mind
+    FILE*temp = FOPEN(filename,"wb");      //sort of cheating here but never mind
     if (!temp)
         return false;
     fclose(temp);
     changed = true;
-    return reopen(mode);
+    return ReOpen(mode);
 }
 
-void RandomAccessFile::assign(BYTE*data, unsigned size)
+void RandomAccessFile::Assign(BYTE*data, unsigned size)
 {
-    close();
+    Close();
     if (!referenced)
         dealloc(buffer);
     buffer = data;
@@ -179,9 +189,9 @@ void RandomAccessFile::assign(BYTE*data, unsigned size)
     active = true;
 }
 
-void RandomAccessFile::assign(const RandomAccessFile&other)
+void RandomAccessFile::Assign(const RandomAccessFile&other)
 {
-    close();
+    Close();
     if (!referenced)
         dealloc(buffer);
     (*this) = other;
@@ -190,20 +200,22 @@ void RandomAccessFile::assign(const RandomAccessFile&other)
         writable = write_access = false;
 }
 
-bool RandomAccessFile::open(const char*Filename, OpenMode mode)
+bool RandomAccessFile::Open(const char_t*Filename, OpenMode mode)
 {
-    close();
-    if (!Filename ||!strlen(Filename) || strlen(Filename)>0x99)
-    {
+    Close();
+
+	if (!Filename)
+		return false;
+	size_t len = STRLEN(Filename);
+    if (!len || len+1>MAX_PATH)
         return false;
-    }
-    strcpy(filename,Filename);
-    return reopen(mode);
+	memcpy(filename,Filename,(len+1)*sizeof(char_t));
+    return ReOpen(mode);
 }
 
-bool RandomAccessFile::reopen(OpenMode mode)
+bool RandomAccessFile::ReOpen(OpenMode mode)
 {
-    close();
+    Close();
     changed = false;
     if (referenced)
     {
@@ -251,18 +263,18 @@ bool RandomAccessFile::reopen(OpenMode mode)
     return true;
 }
 
-void RandomAccessFile::close()
+void RandomAccessFile::Close()
 {
     if (!active||referenced)
         return;
-    update();
+    Update();
     if (f)
         fclose(f);
     f = NULL;
     active = false;
 }
 
-bool RandomAccessFile::update()
+bool RandomAccessFile::Update()
 {
     if (!changed)
         return write_access;
@@ -286,7 +298,7 @@ bool RandomAccessFile::update()
     return false;
 }
 
-BYTE*RandomAccessFile::extract(unsigned offset, unsigned size)
+BYTE*RandomAccessFile::Extract(unsigned offset, unsigned size)
 {
     BYTE*out = alloc<BYTE>(size);
     switch (open_mode)
@@ -306,7 +318,7 @@ BYTE*RandomAccessFile::extract(unsigned offset, unsigned size)
     return NULL;
 }
 
-bool RandomAccessFile::extract(unsigned offset, void*out, unsigned size)
+bool RandomAccessFile::Extract(unsigned offset, void*out, unsigned size)
 {
     switch (open_mode)
     {
@@ -324,27 +336,27 @@ bool RandomAccessFile::extract(unsigned offset, void*out, unsigned size)
     return false;
 }
 
-bool RandomAccessFile::erase(unsigned offset, unsigned size)
+bool RandomAccessFile::Erase(unsigned offset, unsigned size)
 {
     if (!write_access)
         return false;
     unsigned m_size = fsize-(offset+size);
-    BYTE*temp =extract(offset+size,m_size);
-    if (!resize(fsize-size))
+    BYTE*temp =Extract(offset+size,m_size);
+    if (!Resize(fsize-size))
     {
         dealloc(temp);
         return false;
     }
     if (temp)
     {
-        overwrite(offset,temp,m_size);
+        Overwrite(offset,temp,m_size);
         DISCARD_ARRAY(temp);
     }
     changed = true;
     return true;
 }
 
-bool RandomAccessFile::overwrite(unsigned offset, const void*data, unsigned size)
+bool RandomAccessFile::Overwrite(unsigned offset, const void*data, unsigned size)
 {
     if (!write_access)
         return false;
@@ -365,7 +377,7 @@ bool RandomAccessFile::overwrite(unsigned offset, const void*data, unsigned size
     return false;
 }
 
-bool RandomAccessFile::overwrite(unsigned offset, BYTE value, unsigned size)
+bool RandomAccessFile::Overwrite(unsigned offset, BYTE value, unsigned size)
 {
     if (!write_access)
         return false;
@@ -389,65 +401,65 @@ bool RandomAccessFile::overwrite(unsigned offset, BYTE value, unsigned size)
     return false;
 }
 
-bool RandomAccessFile::insert(unsigned offset, const void*data, unsigned size)
+bool RandomAccessFile::Insert(unsigned offset, const void*data, unsigned size)
 {
     if (!write_access)
         return false;
     changed = true;
     if (offset >= fsize)
-        return append(data,size);
+        return Append(data,size);
     unsigned m_size = fsize-offset;
-    BYTE*temp =extract(offset,m_size);
-    if (!resize(fsize+size))
+    BYTE*temp =Extract(offset,m_size);
+    if (!Resize(fsize+size))
     {
         dealloc(temp);
         return false;
     }
     if (temp)
     {
-        overwrite(offset+size,temp,m_size);
+        Overwrite(offset+size,temp,m_size);
         DISCARD_ARRAY(temp);
     }
-    overwrite(offset,data,size);
+    Overwrite(offset,data,size);
     return true;
 }
 
-bool RandomAccessFile::insert(unsigned offset, BYTE value, unsigned size)
+bool RandomAccessFile::Insert(unsigned offset, BYTE value, unsigned size)
 {
     if (!write_access)
         return false;
     changed = true;
     if (offset >= fsize)
-        return append(value,size);
+        return Append(value,size);
     unsigned m_size = fsize-offset;
-    BYTE*temp =extract(offset,m_size);
-    if (!resize(fsize+size))
+    BYTE*temp =Extract(offset,m_size);
+    if (!Resize(fsize+size))
     {
         dealloc(temp);
         return false;
     }
     if (temp)
     {
-        overwrite(offset+size,temp,m_size);
+        Overwrite(offset+size,temp,m_size);
         DISCARD_ARRAY(temp);
     }
-    overwrite(offset,value,size);
+    Overwrite(offset,value,size);
     return true;
 }
 
-bool RandomAccessFile::append(const void*data, unsigned size)
+bool RandomAccessFile::Append(const void*data, unsigned size)
 {
     unsigned at = fsize;
-    return resize(fsize+size) && overwrite(at,data,size);
+    return Resize(fsize+size) && Overwrite(at,data,size);
 }
 
-bool RandomAccessFile::append(BYTE value, unsigned size)
+bool RandomAccessFile::Append(BYTE value, unsigned size)
 {
     unsigned at = fsize;
-    return resize(fsize+size) && overwrite(at,value,size);
+    return Resize(fsize+size) && Overwrite(at,value,size);
 }
 
-UINT RandomAccessFile::size()
+UINT RandomAccessFile::GetSize()
 {
     return fsize;
 }

@@ -61,7 +61,7 @@ namespace Engine
 										minHeight;
 			static  SliderLayout		global;	//!< Global slider layout, applied by default to the appearance of a new slider
 
-			void						LoadFromFile(const String&filename, float scale=1.0f);
+			void						LoadFromFile(const FileSystem::PathString&filename, float scale=1.0f);
 		};
 		
 		/**
@@ -90,7 +90,7 @@ namespace Engine
 			@param error_out String to store an error description in (in case of an error) or NULL if the error output should be ignored.
 			@return true on success
 			*/
-			void						LoadFromFile(const String&filename, float scale=1.0f);
+			void						LoadFromFile(const FileSystem::PathString&filename, float scale=1.0f);
 				
 			static  ScrollBarLayout		global;	//!< Global scrollbar layout, applied by default to the appearance of a new scrollbar
 		};

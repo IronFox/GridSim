@@ -6,11 +6,6 @@
 
 E:\include\io\xml.cpp
 
-This file is part of Delta-Works
-Copyright (C) 2006-2008 Stefan Elsen, University of Trier, Germany.
-http://www.delta-works.org/forge/
-http://informatik.uni-trier.de/
-
 ******************************************************************/
 
 #define IS_WHITESPACE(c)	((c)==' ' || (c)=='\t' || (c)=='\n' || (c)=='\r')
@@ -206,14 +201,14 @@ void		XML::Node::swap(Node&other)
 
 
 
-XML::Node&		XML::Node::newChild(const String&name)
+XML::Node&		XML::Node::NewChild(const String&name)
 {
 	Node&rs = children.append();
 	rs.name = name;
 	return rs;
 }
 
-XML::TAttribute*	XML::Node::set(const String&parameter_name, const String&parameter_value)
+XML::TAttribute*	XML::Node::Set(const String&parameter_name, const String&parameter_value)
 {
 	TAttribute* p = attributes.append(parameter_name);
 	p->name = parameter_name;
@@ -222,7 +217,7 @@ XML::TAttribute*	XML::Node::set(const String&parameter_name, const String&parame
 }
 
 
-void				XML::Node::unset(const String&parameter_name)
+void				XML::Node::Unset(const String&parameter_name)
 {
 	attributes.erase(parameter_name);
 }
@@ -242,7 +237,7 @@ String			XML::Node::path()	const
 }
 */
 
-bool			XML::Node::query(const String&attrib_name, String&val_out) const
+bool			XML::Node::Query(const String&attrib_name, String&val_out) const
 {
 	if (!this)
 		return false;
@@ -254,7 +249,7 @@ bool			XML::Node::query(const String&attrib_name, String&val_out) const
 	return false;
 }
 
-bool			XML::Node::query(const char*attrib_name, String&val_out)		const
+bool			XML::Node::Query(const char*attrib_name, String&val_out)		const
 {
 	if (!this)
 		return false;
@@ -280,7 +275,7 @@ bool			XML::Node::query(const String&attrib_name, String&val_out) const
 	return false;
 }*/
 
-void	XML::Container::clear()
+void	XML::Container::Clear()
 {
 	root_node.name = "root";
 	root_node.inner_content = "";
@@ -289,7 +284,7 @@ void	XML::Container::clear()
 	root_node.attributes.clear();
 }
 
-void	XML::Container::loadFromCharArray(ArrayData<char>&field)
+void	XML::Container::LoadFromCharArray(ArrayData<char>&field)
 {
 	Buffer<Node*,4>	parse_stack;
 
@@ -395,7 +390,7 @@ void	XML::Container::loadFromCharArray(ArrayData<char>&field)
 					pvalue.erase(0,1);
 				if (pvalue.length() && (pvalue.lastChar() == '\"' || pvalue.lastChar() == '\''))
 					pvalue.erase(pvalue.length()-1);
-				active_entry->set(pname,decode(pvalue));
+				active_entry->Set(pname,decode(pvalue));
 //				ShowMessage("specifying parameter "+pname+" = "+pvalue);
 			}
 			c = strchr(c,'>');
@@ -416,25 +411,29 @@ void	XML::Container::loadFromCharArray(ArrayData<char>&field)
 
 }
 
-void	XML::Container::loadFromString(const String&content)
+void	XML::Container::LoadFromString(const String&content)
 {
-	clear();
+	Clear();
 	
 	Array<char>	field(content.c_str(),content.length()+1);
 	size_t len = content.length();
 	
 	field[len] = 0;
 	
-	loadFromCharArray(field);
+	LoadFromCharArray(field);
 }
 
-void	XML::Container::loadFromFile(const String&filename, String*content_out)
+void	XML::Container::LoadFromFile(const PathString&filename, String*content_out)
 {
-	FILE*f = fopen(filename.c_str(),"rb");
+	#if SYSTEM==WINDOWS
+		FILE*f = _wfopen(filename.c_str(),L"rb");
+	#else
+		FILE*f = fopen(filename.c_str(),"rb");
+	#endif
 	if (!f)
 		throw IO::DriveAccess::FileOpenFault("XML: Unable to open file '"+filename+"'");
 
-	clear();
+	Clear();
 	fseek(f,0,SEEK_END);
 	unsigned len = ftell(f);
 	fseek(f,0,SEEK_SET);
@@ -454,7 +453,7 @@ void	XML::Container::loadFromFile(const String&filename, String*content_out)
 	if (content_out)
 		(*content_out) = field;
 	
-	loadFromCharArray(field);
+	LoadFromCharArray(field);
 }
 
 inline static bool isNewLine(char c)
@@ -585,15 +584,15 @@ static void writeToStream(OutStream&outfile, XML::Node		*entry, XML::export_styl
 	}
 }
 
-void				XML::Container::saveToStringBuffer(StringBuffer&target, export_style_t style)
+void				XML::Container::SaveToStringBuffer(StringBuffer&target, export_style_t style)
 {
 	writeToStream(target,&root_node,style);
 }
 
-void				XML::Container::saveToFile(const String&filename, export_style_t style)
+void				XML::Container::SaveToFile(const PathString&filename, export_style_t style)
 {
 	StringFile outfile;
-	if (!outfile.create(filename))
+	if (!outfile.Create(filename))
 		throw IO::DriveAccess::FileOpenFault("XML: Unable to open file '"+filename+"' for output");
 
 	
@@ -724,34 +723,34 @@ static XML::Node&	createIn(XML::Node*context, const String&path, const String&in
 
 
 
-XML::Node* XML::Node::find(const String&path)
+XML::Node* XML::Node::Find(const String&path)
 {
 	return findIn(children,path);
 }
 
-const XML::Node* XML::Node::find(const String&path) const
+const XML::Node* XML::Node::Find(const String&path) const
 {
 	return findInConst(children,path);
 }
 
 
-XML::Node*	XML::Container::find(const String&path)
+XML::Node*	XML::Container::Find(const String&path)
 {
 	return findFrom(&root_node,path);
 }
 
-const XML::Node*	XML::Container::find(const String&path) const
+const XML::Node*	XML::Container::Find(const String&path) const
 {
 	return findFromConst(&root_node,path);
 }
 
 
-XML::Node&	XML::Node::create(const String&path, const String&inner_content)
+XML::Node&	XML::Node::Create(const String&path, const String&inner_content)
 {
 	ASSERT_NOT_NULL__(this);	//kinda dumb, no?
 	return createIn(this, path, inner_content);
 }
-XML::Node&	XML::Container::create(const String&path, const String&inner_content)
+XML::Node&	XML::Container::Create(const String&path, const String&inner_content)
 {
 	String local,sub;
 	index_t p = path.indexOf('/');
@@ -780,7 +779,7 @@ XML::Node&	XML::Container::create(const String&path, const String&inner_content)
 XML::ScannerRule::ScannerRule(const String&name_, Scanner*parent_, bool want_content_, pNodeCallback on_enter_, pNodeCallback on_exit_):
 								parent(parent_),name(name_),want_content(want_content_),on_enter(on_enter_),on_exit(on_exit_)	{}
 								
-XML::ScannerRule*	XML::ScannerRule::map(const String&name, bool want_content,pNodeCallback on_enter, pNodeCallback on_exit)
+XML::ScannerRule*	XML::ScannerRule::Map(const String&name, bool want_content,pNodeCallback on_enter, pNodeCallback on_exit)
 {
 	ScannerRule*result;
 	if (connections.query(name,result))
@@ -795,13 +794,13 @@ XML::ScannerRule*	XML::ScannerRule::map(const String&name, bool want_content,pNo
 	return result;
 }
 
-XML::ScannerRule*	XML::ScannerRule::map(ScannerRule*node)
+XML::ScannerRule*	XML::ScannerRule::Map(ScannerRule*node)
 {
 	connections.set(node->name,node);
 	return node;
 }
 
-bool	XML::ScannerRule::unMap(const String&name)
+bool	XML::ScannerRule::Unmap(const String&name)
 {
 	if (connections.isSet(name))
 	{
@@ -811,7 +810,7 @@ bool	XML::ScannerRule::unMap(const String&name)
 	return false;
 }
 
-bool	XML::ScannerRule::unMap(ScannerRule*node)
+bool	XML::ScannerRule::Unmap(ScannerRule*node)
 {
 	if (connections.isSet(node->name))
 	{
@@ -907,28 +906,27 @@ XML::Scanner::Scanner():ScannerRule("xml:document",this,false,NULL,NULL),except(
 {}
 
 
-const String&	XML::Scanner::errorStr()						const
-{
-	return error_string;
-}
-
-const String&	XML::Scanner::getError()						const
+const String&	XML::Scanner::GetError()						const
 {
 	return error_string;
 }
 
 
-void	XML::Scanner::setExcept(pNodeCallback callback_on_except)
+void	XML::Scanner::SetExcept(pNodeCallback callback_on_except)
 {
 	except = callback_on_except;
 }
 
-bool	XML::Scanner::scan(const String&filename)
+bool	XML::Scanner::Scan(const PathString&filename)
 {
-	FILE*f = fopen(filename.c_str(),"rb");
+	#if SYSTEM==WINDOWS
+		FILE*f = _wfopen(filename.c_str(),L"rb");
+	#else
+		FILE*f = fopen(filename.c_str(),"rb");
+	#endif
 	if (!f)
 	{
-		error_string = "Unable to open file '"+filename+"'";
+		error_string = "Unable to open file '"+String(filename)+"'";
 		error_is_filenotfound = true;
 	}
 	error_is_filenotfound = false;

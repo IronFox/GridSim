@@ -8,7 +8,7 @@ JPEG-Format handler.
 ******************************************************************/
 
 
-CJPEG	jpeg;
+JPEG	jpeg;
 
 int jpeg_error;
 char jpeg_detail[JMSG_LENGTH_MAX];
@@ -95,7 +95,7 @@ void j_putGrayScanlineToRGB(BYTE *jpegline,
 	}
 }
 
-void	CJPEG::loadFromFilePointer(Image&result, FILE*f)
+void	JPEG::LoadFromFilePointer(Image&result, FILE*f)
 {
 	struct jpeg_decompress_struct cinfo;
 	struct my_error_mgr jerr;
@@ -150,7 +150,7 @@ void	CJPEG::loadFromFilePointer(Image&result, FILE*f)
 }
 
 
-void	CJPEG::saveToFilePointer(const Image&result, FILE*f)
+void	JPEG::SaveToFilePointer(const Image&result, FILE*f)
 {
 	throw Program::FunctionalityNotImplemented();
 

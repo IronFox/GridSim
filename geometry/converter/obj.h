@@ -426,7 +426,8 @@ namespace Converter
 			StringSet							object_name_table64, 
 												texture_name_table64;
 			ObjMaterial*						current_material;
-			HashContainer<ObjTexture>			texture_field;
+			GenericHashContainer<PathString,ObjTexture>
+												texture_field;
 			UINT32								broken_vertex_links,
 												broken_normal_links,
 												broken_texcoord_links;
@@ -435,20 +436,20 @@ namespace Converter
 			
 
 			
-			void				loadObjColor(const String&line,TVec4<Def::FloatType>&target) throw();
-			String				parseMap(CFSFolder&folder, const String&line, TVec3<>&scale) throw();
-			void				loadObjMaterialLibrary(const CFSFile*file) throw();
+			void				LoadObjColor(const String&line,TVec4<Def::FloatType>&target) throw();
+			PathString			ParseMap(CFSFolder&folder, const String&line, TVec3<>&scale) throw();
+			void				LoadObjMaterialLibrary(const CFSFile*file) throw();
 			void				parseObjPoint(Buffer<TVec3<Def::FloatType> >&target, char*start, char*end) throw();
 			void				parseObjPoint(Buffer<TVec2<Def::FloatType> >&target, char*start, char*end) throw();
 			void				parseObjFaceVertex(char*start, char*end, int&v, int&n, int&t) throw();
 			void				parseObjFace(char*start, char*end) throw();
 			void				parseObjLine(char*start, char*end) throw();
-			ObjTexture*		loadObjTexture(const String&color_map, const String&alpha_map) throw();
-			ObjTexture*		loadObjNormalMap(const String&normal_map) throw();
+			ObjTexture*			LoadObjTexture(const PathString&color_map, const PathString&alpha_map) throw();
+			ObjTexture*			LoadObjNormalMap(const PathString&normal_map) throw();
 			void				resetImport() throw();
 				
 	static	void				writeObject(const CGS::Geometry<>&geometry, const Array<PointerContainer<Array<TFace> > >&conversion_table,const CGS::SubGeometryA<>&object,StringFile&out) throw();
-			void				exportTexture(const CGS::TextureA*texture, const String&outname, StringFile&out) throw();
+			void				ExportTexture(const CGS::TextureA*texture, const PathString&outname, StringFile&out) throw();
 
 	inline	void				logMessage(const String&message) throw()
 								{
@@ -495,8 +496,8 @@ namespace Converter
 									return texcoord_buffer+texcoord_buffer.fillLevel()+index;
 								}
 								
-	virtual	bool				read(CGS::Geometry<>&target, const String&filename) throw();
-	virtual	bool				write(const CGS::Geometry<>&source, const String&filename) throw();
+	virtual	bool				Read(CGS::Geometry<>&target, const PathString&filename) throw() override;
+	virtual	bool				Write(const CGS::Geometry<>&source, const PathString&filename) throw() override;
 	
 	public:
 			LogFile				*log_file;

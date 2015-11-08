@@ -291,16 +291,11 @@ template <>
 		return L"<empty string>";
 	}
 
-template <typename T>
-	StringTemplate<T>	_getApplicationName()
-	{
-		return StringTemplate<T>();
-	}
 	
 #if SYSTEM==WINDOWS
-	void	GetProgramFileName(char*out)
+	void	GetProgramFileName(wchar_t*out)
 	{
-		GetModuleFileNameA( NULL, out, MAX_PATH );
+		GetModuleFileNameW( NULL, out, MAX_PATH );
 	}
 #elif SYSTEM_VARIANCE==LINUX
 	extern char * program_invocation_name;
@@ -322,28 +317,14 @@ template <typename T>
 #endif
 	
 
-template <>
-	StringTemplate<char>	_getApplicationName()
+template <typename T>
+	StringTemplate<T>	_getApplicationName()
 	{
-		char szFileName[MAX_PATH];
+		PathString::char_t szFileName[MAX_PATH];
 
 		GetProgramFileName(  szFileName);
 
-		return FileSystem::ExtractFileName(StringTemplate<char>(szFileName))+": ";
-	}
-template <>
-	StringTemplate<wchar_t>	_getApplicationName()
-	{
-		#if SYSTEM==WINDOWS
-			wchar_t szFileName[MAX_PATH];
-
-			GetModuleFileNameW( NULL, szFileName, MAX_PATH );
-
-			return FileSystem::ExtractFileName(StringTemplate<wchar_t>(szFileName))+": ";
-		#else
-			return StringTemplate<wchar_t>(_getApplicationName<char>().c_str());
-		
-		#endif
+		return StringTemplate<T>(FileSystem::ExtractFileName(PathString(szFileName))+": ");
 	}
 
 

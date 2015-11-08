@@ -13,7 +13,7 @@ template <typename T>
 		static String string;
 		static Array<String>	segments;
 		
-		if (!node.query(attrib_name,string))
+		if (!node.Query(attrib_name,string))
 			return throw IO::DriveAccess::FileFormatFault("Unable to retrieve attribute '"+String(attrib_name)+"' from XML node '"+node.name+"'");
 			
 		explode(',',string,segments);
@@ -29,14 +29,14 @@ template <typename T>
 		
 	}
 
-void	Graph::loadFromFile(const String&filename, bool compact)
+void	Graph::LoadFromFile(const PathString&filename, bool compact)
 {
 	XML::Container	xml;
-	xml.loadFromFile(filename);
+	xml.LoadFromFile(filename);
 
 	
-	const XML::Node	*xnodes = xml.find("graph/nodes"),
-					*xedges = xml.find("graph/edges");
+	const XML::Node	*xnodes = xml.Find("graph/nodes"),
+					*xedges = xml.Find("graph/edges");
 	if (!xnodes || !xedges)
 		throw IO::DriveAccess::FileFormatFault("XML Graph file lacks 'nodes' and/or 'edges' tag");
 	
@@ -84,33 +84,33 @@ void	Graph::loadFromFile(const String&filename, bool compact)
 	}
 }
 
-void	Graph::saveToFile(const String&filename)	const
+void	Graph::SaveToFile(const PathString&filename)	const
 {
 	XML::Container	xml;
 	
-	XML::Node	&xgraph = xml.create("graph");
+	XML::Node	&xgraph = xml.Create("graph");
 	{
-		XML::Node	&xnodes = xgraph.create("nodes");
+		XML::Node	&xnodes = xgraph.Create("nodes");
 		for (index_t i = 0; i < nodes.count(); i++)
 		{
 			const Node&node = nodes[i];
-			XML::Node	&xnode = xnodes.create("node");
-			xnode.set("position",String(node.position.x)+", "+String(node.position.y));
-			xnode.set("direction",String(node.direction.x)+", "+String(node.direction.y));
+			XML::Node	&xnode = xnodes.Create("node");
+			xnode.Set("position",String(node.position.x)+", "+String(node.position.y));
+			xnode.Set("direction",String(node.direction.x)+", "+String(node.direction.y));
 		}
 	}
 	{
-		XML::Node	&xedges = xgraph.create("edges");
+		XML::Node	&xedges = xgraph.Create("edges");
 		for (index_t i = 0; i < edges.count(); i++)
 		{
 			const Edge&edge = edges[i];
-			XML::Node	&xedge = xedges.create("edge");
-			xedge.set("nodes",String(edge.node[0])+", "+String(edge.node[1]));
-			xedge.set("control",String(edge.control_dist[0])+", "+String(edge.control_dist[1]));
+			XML::Node	&xedge = xedges.Create("edge");
+			xedge.Set("nodes",String(edge.node[0])+", "+String(edge.node[1]));
+			xedge.Set("control",String(edge.control_dist[0])+", "+String(edge.control_dist[1]));
 		}
 	}
 	
-	xml.saveToFile(filename);
+	xml.SaveToFile(filename);
 }
 
 
@@ -870,17 +870,17 @@ namespace MeshGraphDetail
 
 
 
-void		GraphTextureResource::insert(const String&filename, name64_t as_name, bool bump_map,float bump_strength /*=0.01f*/)
+void		GraphTextureResource::Insert(const PathString&filename, name64_t as_name, bool bump_map,float bump_strength /*=0.01f*/)
 {
 	if (container.isSet(as_name))
 		throw Program::UniquenessViolation("64bit name '"+name2str(as_name)+"' is already defined");
 
 	Image	image;
-	Magic::loadFromFile(image,filename);
+	Magic::LoadFromFile(image,filename);
 
 	CGS::TextureA*new_texture = container.define(as_name);
 	new_texture->name = as_name;
-	new_texture->face_field.setSize(1);
+	new_texture->face_field.SetSize(1);
 
 	if (!bump_map)
 		TextureCompression::compress(image, new_texture->face_field.first(),TextureCompression::NoCompression);
@@ -989,20 +989,20 @@ template <typename Hull>
 static void	convertDescriptionToHull(const SurfaceDescription&desc, Hull&hull)
 {
 	hull.clear();
-	hull.quad_field.setSize(desc.quadIndices.count()/4);
-	hull.triangle_field.setSize(desc.triangleIndices.count()/3);
+	hull.quad_field.SetSize(desc.quadIndices.count()/4);
+	hull.triangle_field.SetSize(desc.triangleIndices.count()/3);
 	
 	static VertexTable		vertex_table;
 	static Array<index_t>	vertex_map;
 
 	vertex_table.setTolerance(1e-8f);
 	//vertex_table.clear();	done by setTolerance()
-	vertex_map.setSize(desc.vertices.count());
+	vertex_map.SetSize(desc.vertices.count());
 
 	for (UINT32 i = 0; i < desc.vertices.count(); i++)
 		vertex_map[i] = vertex_table.map(desc.vertices[i].position);
 
-	hull.vertex_field.setSize(vertex_table.vertices());
+	hull.vertex_field.SetSize(vertex_table.vertices());
 
 	for (index_t i = 0; i < vertex_table.vertices(); i++)
 		Vec::copy(vertex_table.vertex(i),hull.vertex_field[i].position);
@@ -1031,10 +1031,10 @@ static void	convertDescriptionToHull(const SurfaceDescription&desc, Hull&hull)
 count_t		GraphMesh::createGeometry(CGS::Geometry<>&target, float step, float texture_size_x, float texture_size_y, Graph::layout_t layout, name64_t texture, name64_t normal_texture, name64_t glow_texture, bool export_visual_sub_hulls)	const
 {
 	//target.clear();
-	target.object_field.setSize(1);
+	target.object_field.SetSize(1);
 	target.object_field[0].name = str2name("object");
 	
-	target.material_field.setSize(1);
+	target.material_field.SetSize(1);
 	//target.material_field[0].data.object_field.resize(detail_levels);
 	Vec::set(target.material_field[0].info.specular,0.7);
 	//target.material_field[0].info.shininess = 0;
@@ -1043,7 +1043,7 @@ count_t		GraphMesh::createGeometry(CGS::Geometry<>&target, float step, float tex
 	
 	//if (texture != 0)
 	{
-		target.material_field[0].info.layer_field.setSize(1 + (normal_texture!=0) + (glow_texture!=0));
+		target.material_field[0].info.layer_field.SetSize(1 + (normal_texture!=0) + (glow_texture!=0));
 		target.material_field[0].info.layer_field[0].combiner = GL_MODULATE;
 		target.material_field[0].info.layer_field[0].cube_map = false;
 		target.material_field[0].info.layer_field[0].clamp_x = false;
@@ -1132,7 +1132,7 @@ count_t		GraphMesh::createGeometry(CGS::Geometry<>&target, float step, float tex
 			//Graph::splitHull(hull_iout,hull_vout,hull_triangle_iout);
 		}
 
-		robj.vpool.setSize(visual_hull.vertices.count(),1,CGS::HasNormalFlag |CGS::HasTangentFlag);
+		robj.vpool.SetSize(visual_hull.vertices.count(),1,CGS::HasNormalFlag |CGS::HasTangentFlag);
 		//ASSERT_EQUAL__(robj.vpool.vsize(),11 + 2*...yadda, you get idea);
 		float*vtx = robj.vpool.vdata.pointer();
 		for (index_t i = 0; i < visual_hull.vertices.length(); i++)
@@ -1151,7 +1151,7 @@ count_t		GraphMesh::createGeometry(CGS::Geometry<>&target, float step, float tex
 		}
 		ASSERT__(!(visual_hull.quadIndices.count()%4));
 		ASSERT__(!(visual_hull.triangleIndices.count()%3));
-		robj.ipool.setSize(UINT32(visual_hull.triangleIndices.count()/3),UINT32(visual_hull.quadIndices.count()/4));
+		robj.ipool.SetSize(UINT32(visual_hull.triangleIndices.count()/3),UINT32(visual_hull.quadIndices.count()/4));
 		memcpy(robj.ipool.idata.pointer(),visual_hull.triangleIndices.pointer(),visual_hull.triangleIndices.count()*sizeof(UINT32));
 		memcpy(robj.ipool.idata.pointer()+visual_hull.triangleIndices.count(),visual_hull.quadIndices.pointer(),visual_hull.quadIndices.count()*sizeof(UINT32));
 		//robj.ipool.idata.copyFrom
@@ -1181,7 +1181,7 @@ count_t		GraphMesh::createGeometry(CGS::Geometry<>&target, float step, float tex
 		Graph::splitHull(physical_hull);
 
 
-	target.material_field[0].data.object_field.setSize(robjs.count());
+	target.material_field[0].data.object_field.SetSize(robjs.count());
 	for (index_t i = 0; i < robjs.count(); i++)
 	{
 		target.material_field[0].data.object_field[i].adoptData(robjs[i]);
@@ -1192,7 +1192,7 @@ count_t		GraphMesh::createGeometry(CGS::Geometry<>&target, float step, float tex
 	
 	//const CGS::RenderObjectA<>&robj = target.material_field[0].data.object_field.first();
 	CGS::SubGeometryA<>&obj = target.object_field.first();
-	obj.vs_hull_field.setSize(visual_hulls.count());
+	obj.vs_hull_field.SetSize(visual_hulls.count());
 	for (index_t i = 0; i < obj.vs_hull_field.length(); i++)
 	{
 		Mesh<CGS::SubGeometryA<>::VsDef>&vs_hull = obj.vs_hull_field[i];
@@ -1218,7 +1218,7 @@ count_t		GraphMesh::createGeometry(CGS::Geometry<>&target, float step, float tex
 
 	if (layout == Graph::Split)
 	{
-		target.connector_field.setSize(2);
+		target.connector_field.SetSize(2);
 		SurfaceDescription::TVertex vtx;
 		Vec::def(vtx.position,0,0,-1);
 		Vec::def(vtx.normal,0,1,0);
@@ -1376,19 +1376,19 @@ void		Profile::readFrom(const XML::Node*xprofile)
 }
 
 
-void		GraphMesh::loadFromFile(const String&filename,bool compact)
+void		GraphMesh::LoadFromFile(const PathString&filename,bool compact)
 {
 	XML::Container	xml;
-	xml.loadFromFile(filename);
+	xml.LoadFromFile(filename);
 	
-	XML::Node	*xmesh = xml.find("mesh"),
-				*xvisual_profile = xmesh->find("profile"),
-				*xphysical_profile = xmesh->find("physical_profile"),
-				*xvisual_graph = xmesh->find("graph"),
-				*xvisual_nodes = xvisual_graph?xvisual_graph->find("nodes"):xmesh->find("nodes"),	//format variances
-				*xvisual_edges = xvisual_graph?xvisual_graph->find("edges"):xmesh->find("edges"),
-				*xphysical_nodes = xmesh->find("physical_graph/nodes"),
-				*xphysical_edges = xmesh->find("physical_graph/edges");
+	XML::Node	*xmesh = xml.Find("mesh"),
+				*xvisual_profile = xmesh->Find("profile"),
+				*xphysical_profile = xmesh->Find("physical_profile"),
+				*xvisual_graph = xmesh->Find("graph"),
+				*xvisual_nodes = xvisual_graph?xvisual_graph->Find("nodes"):xmesh->Find("nodes"),	//format variances
+				*xvisual_edges = xvisual_graph?xvisual_graph->Find("edges"):xmesh->Find("edges"),
+				*xphysical_nodes = xmesh->Find("physical_graph/nodes"),
+				*xphysical_edges = xmesh->Find("physical_graph/edges");
 	if (!xvisual_nodes)
 		throw IO::DriveAccess::FileFormatFault(globalString("mesh/graph/nodes missing in XML document"));
 
@@ -1429,60 +1429,60 @@ void		GraphMesh::loadFromFile(const String&filename,bool compact)
 
 static void		writeNode(XML::Node&xprofile, const Profile::Node&node)
 {
-	XML::Node	&xnode = xprofile.create("node");
-	xnode.set("position",String(node.position.x)+", "+String(node.position.y));
-	xnode.set("direction",String(node.direction.x)+", "+String(node.direction.y));
-	xnode.set("control",String(node.control_dist[0])+", "+String(node.control_dist[1]));
+	XML::Node	&xnode = xprofile.Create("node");
+	xnode.Set("position",String(node.position.x)+", "+String(node.position.y));
+	xnode.Set("direction",String(node.direction.x)+", "+String(node.direction.y));
+	xnode.Set("control",String(node.control_dist[0])+", "+String(node.control_dist[1]));
 }
 
 
 void		Graph::writeTo(XML::Node&xmesh)	const
 {
 	{
-		XML::Node	&xnodes = xmesh.create("nodes");
+		XML::Node	&xnodes = xmesh.Create("nodes");
 		for (index_t i = 0; i < nodes.count(); i++)
 		{
 			const Graph::Node&node = nodes[i];
-			XML::Node	&xnode = xnodes.create("node");
-			xnode.set("position",String(node.position.x)+", "+String(node.position.y));
-			xnode.set("direction",String(node.direction.x)+", "+String(node.direction.y));
+			XML::Node	&xnode = xnodes.Create("node");
+			xnode.Set("position",String(node.position.x)+", "+String(node.position.y));
+			xnode.Set("direction",String(node.direction.x)+", "+String(node.direction.y));
 		}
 	}
 	{
-		XML::Node	&xedges = xmesh.create("edges");
+		XML::Node	&xedges = xmesh.Create("edges");
 		for (index_t i = 0; i < edges.count(); i++)
 		{
 			const Graph::Edge&edge = edges[i];
-			XML::Node	&xedge = xedges.create("edge");
-			xedge.set("nodes",String(edge.node[0])+", "+String(edge.node[1]));
-			xedge.set("control",String(edge.control_dist[0])+", "+String(edge.control_dist[1]));
+			XML::Node	&xedge = xedges.Create("edge");
+			xedge.Set("nodes",String(edge.node[0])+", "+String(edge.node[1]));
+			xedge.Set("control",String(edge.control_dist[0])+", "+String(edge.control_dist[1]));
 		}
 	}
 }
 
-void		GraphMesh::saveToFile(const String&filename)	const
+void		GraphMesh::SaveToFile(const PathString&filename)	const
 {
 	XML::Container	xml;
 	
 	{
-		XML::Node	&xmesh = xml.create("mesh");
+		XML::Node	&xmesh = xml.Create("mesh");
 		{
-			XML::Node	&xprofile = xmesh.create("profile");
+			XML::Node	&xprofile = xmesh.Create("profile");
 
 			for (index_t i = 0; i < visual_profile.nodes.count(); i++)
 				writeNode(xprofile,visual_profile.nodes[i]);
 		}
 		{
-			XML::Node	&xprofile = xmesh.create("physical_profile");
+			XML::Node	&xprofile = xmesh.Create("physical_profile");
 			for (index_t i = 0; i < physical_profile.nodes.count(); i++)
 				writeNode(xprofile,physical_profile.nodes[i]);
 		}
-		visual_graph.writeTo(xmesh.create("graph"));
-		physical_graph.writeTo(xmesh.create("physical_graph"));
+		visual_graph.writeTo(xmesh.Create("graph"));
+		physical_graph.writeTo(xmesh.Create("physical_graph"));
 	
-		xmesh.set("caps",has_caps?"true":"false");
+		xmesh.Set("caps",has_caps?"true":"false");
 	}
-	xml.saveToFile(filename);
+	xml.SaveToFile(filename);
 }
 
 /*static*/	void				GraphMesh::buildStub(Graph::layout_t layout, float step, SurfaceDescription&desc)
@@ -1663,7 +1663,7 @@ void			SurfaceDescription::InterpolatedSlice::MakePoint(float x, TVec3<>&pt, TVe
 		swp(slice.angle0,slice.angle1);
 	}
 	const count_t steps = slice.CalculateSteps(tolerance);
-	//arc_out.setSize(steps);
+	//arc_out.SetSize(steps);
 	arc_out.reset();
 	for (index_t i = 0; i < steps; i++)
 	{
@@ -1936,9 +1936,9 @@ void				SurfaceDescription::BuildSegment(const SurfaceDescription::TConnector&be
 
 void				SurfaceNetwork::Compact(Compacted&target)
 {
-	target.nodes.setSize(nodes.count());
-	target.segments.setSize(segments.count());
-	target.nodeIsFlipped.setSize(nodes.count());
+	target.nodes.SetSize(nodes.count());
+	target.segments.SetSize(segments.count());
+	target.nodeIsFlipped.SetSize(nodes.count());
 
 	bool*node_flipped_to = target.nodeIsFlipped.pointer();
 	nodes.visitAllEntries([this,&target,&node_flipped_to](index_t key, Node&node)
@@ -1975,9 +1975,9 @@ void				SurfaceNetwork::Compact(Compacted&target)
 
 void				SurfaceNetwork::MoveCompact(Compacted&target)
 {
-	target.nodes.setSize(nodes.count());
-	target.segments.setSize(segments.count());
-	target.nodeIsFlipped.setSize(nodes.count());
+	target.nodes.SetSize(nodes.count());
+	target.segments.SetSize(segments.count());
+	target.nodeIsFlipped.SetSize(nodes.count());
 
 	bool*node_flipped_to = target.nodeIsFlipped.pointer();
 	nodes.visitAllEntries([this,&target,&node_flipped_to](index_t key, Node&node)
@@ -2211,7 +2211,7 @@ void		SurfaceNetwork::ManagedRemoveNode(index_t nodeIndex, bool updateConnectedS
 						Segment&seg = segments.require(n.segments[c.outbound][i]);
 						seg.connector[seg.GetEndIndex(c.node)].subdivisionStep--;
 					}
-				n.subdivision[c.outbound].setSize(n.subdivision[c.outbound].length()-1);
+				n.subdivision[c.outbound].SetSize(n.subdivision[c.outbound].length()-1);
 				MakeEven(n.subdivision[c.outbound]);
 			}
 			segments.unset(*segID);
@@ -2241,9 +2241,9 @@ SurfaceNetwork::Node&	SurfaceNetwork::Node::SplitEvenly(bool outbound, count_t n
 	ASSERT_EQUAL__(segments[outbound].count(),1);
 	ASSERT_EQUAL__(segments[outbound].first(),InvalidIndex); 
 	
-	segments[outbound].setSize(num_slots);
+	segments[outbound].SetSize(num_slots);
 	segments[outbound].fill(InvalidIndex); 
-	subdivision[outbound].setSize(num_slots-1);
+	subdivision[outbound].SetSize(num_slots-1);
 	SurfaceNetwork::MakeEven(subdivision[outbound]);
 	return *this;
 }
@@ -2414,7 +2414,7 @@ void								SurfaceNetwork::RebuildSegment(Segment&segment)
 	DBG_VERIFY__(n0->BuildConnector(segment.connector[0].outbound,segment.connector[0].subdivisionStep,false,c0));
 	DBG_VERIFY__(n1->BuildConnector(segment.connector[1].outbound,segment.connector[1].subdivisionStep,true,c1));
 
-	segment.compiledSurfaces.setSize(numLODs*3);
+	segment.compiledSurfaces.SetSize(numLODs*3);
 	float tolerance = minTolerance;
 	for (index_t i = 0; i < numLODs; i++)
 	{
@@ -2491,9 +2491,9 @@ index_t							SurfaceNetwork::SmartMakeRoom(Node&node,index_t node_index,bool ou
 		sort.revert();
 
 	index_t result = InvalidIndex;
-	node.segments[outbound].setSize(sort.count());
+	node.segments[outbound].SetSize(sort.count());
 
-	node.subdivision[outbound].setSize(sort.count()-1);
+	node.subdivision[outbound].SetSize(sort.count()-1);
 	for (index_t i = 0; i < node.subdivision[outbound].count(); i++)
 	{
 		node.subdivision[outbound][i] = float(i+1)/float(sort.count());
@@ -3409,7 +3409,7 @@ bool	SurfaceNetwork::NodeIsFlipped(index_t node_id)	const
 	}
 	static Array<SurfaceDescription>					lods;
 
-	lods.setSize(SurfaceNetwork::numLODs);
+	lods.SetSize(SurfaceNetwork::numLODs);
 
 	TVec3<>	center = {0,0,0};
 	count_t counter = 0;
@@ -3447,7 +3447,7 @@ bool	SurfaceNetwork::NodeIsFlipped(index_t node_id)	const
 	}
 	static Array<SurfaceDescription>					lods;
 
-	lods.setSize(SurfaceNetwork::numLODs);
+	lods.SetSize(SurfaceNetwork::numLODs);
 
 	TVec3<>	center = segment.compiledSurfaces[2].GetEdgeCenter();
 
@@ -3473,7 +3473,7 @@ bool	SurfaceNetwork::NodeIsFlipped(index_t node_id)	const
 	}
 	static Array<SurfaceDescription>					lods;
 
-	lods.setSize(SurfaceNetwork::numLODs);
+	lods.SetSize(SurfaceNetwork::numLODs);
 
 	TVec3<>	center = segment.compiledSurfaces[2].GetEdgeCenter();
 
@@ -3498,8 +3498,8 @@ bool	SurfaceNetwork::NodeIsFlipped(index_t node_id)	const
 	static Array<Buffer<SurfaceDescription::TVertex> >	arc_vertices;
 	static Array<SurfaceDescription>					arc_descriptions;
 
-	arc_vertices.setSize(SurfaceNetwork::numLODs);
-	arc_descriptions.setSize(SurfaceNetwork::numLODs);
+	arc_vertices.SetSize(SurfaceNetwork::numLODs);
+	arc_descriptions.SetSize(SurfaceNetwork::numLODs);
 
 
 	for (index_t i = 0; i < SurfaceNetwork::numLODs; i++)
@@ -3531,10 +3531,10 @@ bool	SurfaceNetwork::NodeIsFlipped(index_t node_id)	const
 
 /*static*/ void SurfaceNetwork::CompileFromDescriptions(CGS::Geometry<>&target, const Array<SurfaceDescription>&lods, float shortest_edge, name64_t texture, name64_t normal_texture, CGS::TextureResource*resource /*=NULL*/)
 {
-	target.object_field.setSize(1);
+	target.object_field.SetSize(1);
 	target.object_field[0].name = str2name("object");
 	
-	target.material_field.setSize(1);
+	target.material_field.SetSize(1);
 	//target.material_field[0].data.object_field.resize(detail_levels);
 	Vec::set(target.material_field[0].info.specular,0.7);
 	//target.material_field[0].info.shininess = 0;
@@ -3548,7 +3548,7 @@ bool	SurfaceNetwork::NodeIsFlipped(index_t node_id)	const
 	{
 		Vec::def(target.material_field[0].info.ambient,0.4,0.4,0.4,1);
 		target.material_field[0].info.attachment.reset();
-		target.material_field[0].info.layer_field.setSize((texture!=0) + (normal_texture!=0));
+		target.material_field[0].info.layer_field.SetSize((texture!=0) + (normal_texture!=0));
 		if (texture != 0)
 		{
 			target.material_field[0].info.layer_field[0].combiner = GL_MODULATE;
@@ -3588,7 +3588,7 @@ bool	SurfaceNetwork::NodeIsFlipped(index_t node_id)	const
 
 		const SurfaceDescription&hull = lods[i];
 		bool has_texcoords = (texture != 0 || normal_texture != 0);
-		robj.vpool.setSize(hull.vertices.count(),has_texcoords,CGS::HasNormalFlag |CGS::HasTangentFlag);
+		robj.vpool.SetSize(hull.vertices.count(),has_texcoords,CGS::HasNormalFlag |CGS::HasTangentFlag);
 		//ASSERT_EQUAL__(robj.vpool.vsize(),11 + 2*...yadda, you get idea);
 		float*vtx = robj.vpool.vdata.pointer();
 		const int vsize = 9 + 2*has_texcoords;
@@ -3612,7 +3612,7 @@ bool	SurfaceNetwork::NodeIsFlipped(index_t node_id)	const
 		}*/
 		ASSERT__(!(hull.quadIndices.count()%4));
 		ASSERT__(!(hull.triangleIndices.count()%3));
-		robj.ipool.setSize(UINT32(hull.triangleIndices.count()/3),UINT32(hull.quadIndices.count()/4));
+		robj.ipool.SetSize(UINT32(hull.triangleIndices.count()/3),UINT32(hull.quadIndices.count()/4));
 		memcpy(robj.ipool.idata.pointer(),hull.triangleIndices.pointer(),hull.triangleIndices.count()*sizeof(UINT32));
 		memcpy(robj.ipool.idata.pointer()+hull.triangleIndices.count(),hull.quadIndices.pointer(),hull.quadIndices.count()*sizeof(UINT32));
 		//robj.ipool.idata.copyFrom
@@ -3620,7 +3620,7 @@ bool	SurfaceNetwork::NodeIsFlipped(index_t node_id)	const
 	}
 
 
-	target.material_field[0].data.object_field.setSize(robjs.count());
+	target.material_field[0].data.object_field.SetSize(robjs.count());
 	for (index_t i = 0; i < robjs.count(); i++)
 		target.material_field[0].data.object_field[i].adoptData(robjs[i]);
 
@@ -3629,7 +3629,7 @@ bool	SurfaceNetwork::NodeIsFlipped(index_t node_id)	const
 	
 	//const CGS::RenderObjectA<>&robj = target.material_field[0].data.object_field.first();
 	CGS::SubGeometryA<>&obj = target.object_field.first();
-	obj.vs_hull_field.setSize(lods.count());
+	obj.vs_hull_field.SetSize(lods.count());
 	for (index_t i = 0; i < obj.vs_hull_field.length(); i++)
 	{
 		Mesh<CGS::SubGeometryA<>::VsDef>&vs_hull = obj.vs_hull_field[i];
@@ -3662,10 +3662,10 @@ bool	SurfaceNetwork::NodeIsFlipped(index_t node_id)	const
 
 /*static*/ void SurfaceNetwork::CompileFromDescriptions(CGS::Geometry<>&target, const Array<SurfaceDescription>&lods, const SurfaceDescription&phHull, float shortest_edge, name64_t texture, name64_t normal_texture, CGS::TextureResource*resource /*=NULL*/)
 {
-	target.object_field.setSize(1);
+	target.object_field.SetSize(1);
 	target.object_field[0].name = str2name("object");
 	
-	target.material_field.setSize(1);
+	target.material_field.SetSize(1);
 	//target.material_field[0].data.object_field.resize(detail_levels);
 	Vec::set(target.material_field[0].info.specular,0.7);
 	//target.material_field[0].info.shininess = 0;
@@ -3679,7 +3679,7 @@ bool	SurfaceNetwork::NodeIsFlipped(index_t node_id)	const
 	{
 		Vec::def(target.material_field[0].info.ambient,0.4,0.4,0.4,1);
 		target.material_field[0].info.attachment.reset();
-		target.material_field[0].info.layer_field.setSize((texture!=0) + (normal_texture!=0));
+		target.material_field[0].info.layer_field.SetSize((texture!=0) + (normal_texture!=0));
 		if (texture != 0)
 		{
 			target.material_field[0].info.layer_field[0].combiner = GL_MODULATE;
@@ -3719,7 +3719,7 @@ bool	SurfaceNetwork::NodeIsFlipped(index_t node_id)	const
 
 		const SurfaceDescription&hull = lods[i];
 		bool has_texcoords = (texture != 0 || normal_texture != 0);
-		robj.vpool.setSize(hull.vertices.count(),has_texcoords,CGS::HasNormalFlag |CGS::HasTangentFlag);
+		robj.vpool.SetSize(hull.vertices.count(),has_texcoords,CGS::HasNormalFlag |CGS::HasTangentFlag);
 		//ASSERT_EQUAL__(robj.vpool.vsize(),11 + 2*...yadda, you get idea);
 		float*vtx = robj.vpool.vdata.pointer();
 		const int vsize = 9 + 2*has_texcoords;
@@ -3743,7 +3743,7 @@ bool	SurfaceNetwork::NodeIsFlipped(index_t node_id)	const
 		}*/
 		ASSERT__(!(hull.quadIndices.count()%4));
 		ASSERT__(!(hull.triangleIndices.count()%3));
-		robj.ipool.setSize(UINT32(hull.triangleIndices.count()/3),UINT32(hull.quadIndices.count()/4));
+		robj.ipool.SetSize(UINT32(hull.triangleIndices.count()/3),UINT32(hull.quadIndices.count()/4));
 		memcpy(robj.ipool.idata.pointer(),hull.triangleIndices.pointer(),hull.triangleIndices.count()*sizeof(UINT32));
 		memcpy(robj.ipool.idata.pointer()+hull.triangleIndices.count(),hull.quadIndices.pointer(),hull.quadIndices.count()*sizeof(UINT32));
 		//robj.ipool.idata.copyFrom
@@ -3751,7 +3751,7 @@ bool	SurfaceNetwork::NodeIsFlipped(index_t node_id)	const
 	}
 
 
-	target.material_field[0].data.object_field.setSize(robjs.count());
+	target.material_field[0].data.object_field.SetSize(robjs.count());
 	for (index_t i = 0; i < robjs.count(); i++)
 		target.material_field[0].data.object_field[i].adoptData(robjs[i]);
 
@@ -3760,7 +3760,7 @@ bool	SurfaceNetwork::NodeIsFlipped(index_t node_id)	const
 	
 	//const CGS::RenderObjectA<>&robj = target.material_field[0].data.object_field.first();
 	CGS::SubGeometryA<>&obj = target.object_field.first();
-	obj.vs_hull_field.setSize(lods.count());
+	obj.vs_hull_field.SetSize(lods.count());
 	for (index_t i = 0; i < obj.vs_hull_field.length(); i++)
 	{
 		Mesh<CGS::SubGeometryA<>::VsDef>&vs_hull = obj.vs_hull_field[i];
@@ -3852,7 +3852,7 @@ void							SurfaceNetwork::ManagedUnlink(index_t segment_index,bool update_contr
 				ASSERT_NOT_NULL__(seg);
 				seg->connector[seg->GetEndIndex(c.node)].subdivisionStep--;
 			}
-		n->subdivision[c.outbound].setSize(n->subdivision[c.outbound].length()-1);
+		n->subdivision[c.outbound].SetSize(n->subdivision[c.outbound].length()-1);
 		MakeEven(n->subdivision[c.outbound]);
 	}
 	segments.unSet(segment_index);

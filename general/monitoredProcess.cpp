@@ -6,7 +6,7 @@
 #ifdef WIN32
 
 
-bool		MonitoredProcess::Start(const String&workingDirectory, const String&executablePath, const String&parametersWithoutExecutableName, bool createWindow)
+bool		MonitoredProcess::Start(const PathString&workingDirectory, const PathString&executablePath, const PathString&parametersWithoutExecutableName, bool createWindow)
 {
 	parameters = '"'+FileSystem::ExtractFileNameExt(executablePath)+"\" "+parametersWithoutExecutableName;
 	this->executablePath = executablePath;
@@ -26,7 +26,7 @@ bool	MonitoredProcess::Restart()
 	//sprintf_s(parameterBuffer,"\"Console Client" PLATFORM_TARGET_NAME_EXTENSION_STR ".exe\" aiAccessToken='%s' udpListen=false serverURL=localhost",accessToken.ToFullString().c_str());
 
 
-	STARTUPINFOA	infoIn;
+	STARTUPINFOW	infoIn;
 	ZeroMemory(&infoIn,sizeof(infoIn));
 	infoIn.cb = sizeof(infoIn);
 
@@ -45,7 +45,7 @@ bool	MonitoredProcess::Restart()
 	if (!createWindow)
 		flags |= CREATE_NO_WINDOW;
 			
-	BOOL rs = CreateProcessA(executablePath.c_str(),parameters.mutablePointer(),NULL,NULL,FALSE,flags,NULL,workingDirectory.c_str(),&infoIn,&infoOut);
+	BOOL rs = CreateProcessW(executablePath.c_str(),parameters.mutablePointer(),NULL,NULL,FALSE,flags,NULL,workingDirectory.c_str(),&infoIn,&infoOut);
 	return rs != 0;
 }
 

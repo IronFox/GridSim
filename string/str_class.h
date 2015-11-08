@@ -231,6 +231,8 @@ namespace Template
 		inline bool	__fastcall isalpha(T chr) throw();
 	template <typename T>
 		inline bool __fastcall isEscapable(T chr) throw();	//!< Returns true for characters that can be escaped
+	template <typename T0, typename T1>
+		inline void	__fastcall Cast(const T0*from, T1*to, count_t numChars);
 }
 
 
@@ -1092,6 +1094,16 @@ template <typename T>
 
 	public:
 
+		template <typename T1>
+		explicit					StringTemplate(const StringTemplate<T1>&other)
+									{
+										string_length = other.length();
+										field = allocate(string_length);
+										const T1*otherField = other.c_str();
+										DBG_ASSERT_NOT_NULL__(field);	//gonna crash with an access violation otherwise anyway
+										Template::Cast(otherField,field,string_length);
+									}
+
 									StringTemplate():field(sz),string_length(0)
 									{
 										ASSERT_NOT_NULL__(field);
@@ -1119,8 +1131,7 @@ template <typename T>
 											field = allocate(string_length);
 											memcpy(field, other.field,string_length*sizeof(T));
 										#endif
-										ASSERT_NOT_NULL__(field);
-										//ASSERT__(this->operator==(other));
+										DBG_ASSERT_NOT_NULL__(field);
 									}
 								template <typename T2>
 									StringTemplate(const T2*string, size_t length);
@@ -1625,7 +1636,14 @@ typedef ReferenceExpression<char>	StringRef;
 typedef ReferenceExpression<wchar_t>WStringRef;
 typedef ReferenceExpression<wchar_t>StringRefW;
 
-
+#undef FOPEN
+#if SYSTEM==WINDOWS
+	typedef StringW	PathString;
+	#define FOPEN(_FILE_,_MODE_)	_wfopen((_FILE_),L##_MODE_)
+#else
+	typedef String	PathString;	//uses UTF8
+	#define FOPEN(_FILE_,_MODE_)	fopen((_FILE_),_MODE_)
+#endif
 
 
 

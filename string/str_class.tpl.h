@@ -433,6 +433,21 @@ namespace Template
 			return chr == T('\\') || chr == T('\'') || chr == T('\"');
 		}
 
+
+	template <typename T0, typename T1>
+		inline void	__fastcall Cast(const T0*from, T1*to, count_t numChars)
+		{
+			for (index_t i = 0; i < numChars; i++)
+				to[i] =  (T1)(index_t)from[i];
+		}
+
+	template <>
+		inline void	__fastcall Cast<char,wchar_t>(const char*from, wchar_t*to, count_t numChars)
+		{
+			for (index_t i = 0; i < numChars; i++)
+				to[i] =  (unsigned char)from[i];
+		}
+
 }
 
 
@@ -578,8 +593,7 @@ template <typename T>
 		{
 			field = allocate(length);
 			string_length = length;
-			for (size_t i = 0; i < length; i++)
-				field[i] = (T)string[i];
+			Template::Cast(string,field,length);
 			//ASSERT_NOT_NULL__(field);
 		}	
 		
@@ -613,8 +627,7 @@ template <typename T>
 		size_t len = Template::strlen(string);
 		field = allocate(len);
 		string_length = len;
-		for (size_t i = 0; i < len; i++)
-			field[i] = (T)string[i];
+		Template::Cast(string,field,len);
 		//ASSERT_NOT_NULL__(field);
 	}
 
@@ -626,8 +639,7 @@ template <typename T>
 		size_t len = Template::strlen(string);
 		field = allocate(len);
 		string_length = len;
-		for (size_t i = 0; i < len; i++)
-			field[i] = (T)string[i];
+		Template::Cast(string,field,len);
 		//ASSERT_NOT_NULL__(field);
 	}
 

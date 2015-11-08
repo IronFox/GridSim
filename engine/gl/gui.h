@@ -171,7 +171,7 @@ namespace Engine
 			@param filename Filename  of the xml file to load
 			@param scale Relative scale that should be applied to the loaded layout
 			*/
-			void					LoadFromFile(const String&filename, float scale=1.0f);	
+			void					LoadFromFile(const PathString&filename, float scale=1.0f);	
 			void					UpdateCells(const Rect<float>&window_location, TCellLayout&layout)	const;		//!< Updates the final layout of a window or component depending on the window's location
 			Layout*					Refer()	{return override!=NULL?override:this;}
 		};
@@ -742,13 +742,13 @@ namespace Engine
 			PWindow						GetWindowUnderMouse()	const;
 		};
 
-		void							loadBump(const String&filename, OpenGL::Texture&target);	//!< Loads a bump texture
-		void							loadBump(const String&filename, Image&target);			//!< Loads a bump texture as normals into an image
-		void							loadColor(const String&filename, OpenGL::Texture&target);	//!< Loads a color texture
+		void							LoadBump(const PathString&filename, OpenGL::Texture&target);	//!< Loads a bump texture
+		void							LoadBump(const PathString&filename, Image&target);			//!< Loads a bump texture as normals into an image
+		void							LoadColor(const PathString&filename, OpenGL::Texture&target);	//!< Loads a color texture
 		
-		void							setBlurEffect(bool setting);	//!< Updates the blur effect setting. If both blur and refract are disabled then texture copying is disabled altogether
-		void							setRefractEffect(bool setting);	//!< Updates the refraction effect setting. If both blur and refract are disabled then texture copying is disabled altogether
-		void							setBumpEffect(bool setting);	//!< Disables bump maps. This also disables refraction
+		void							SetBlurEffect(bool setting);	//!< Updates the blur effect setting. If both blur and refract are disabled then texture copying is disabled altogether
+		void							SetRefractEffect(bool setting);	//!< Updates the refraction effect setting. If both blur and refract are disabled then texture copying is disabled altogether
+		void							SetBumpEffect(bool setting);	//!< Disables bump maps. This also disables refraction
 		
 	}
 

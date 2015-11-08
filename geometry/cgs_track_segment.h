@@ -12,11 +12,11 @@ namespace CGS
 	public:
 			CGS::Geometry<>			geometry;	//!< Loaded geometry (may be empty, but usually isn't)
 			Box<>					dim;		//!< Dimension of the loaded geometry
-			String					filename;	//!< Filename that this geometry was originally loaded from
+			PathString				filename;	//!< Filename that this geometry was originally loaded from
 			index_t					index;		//!< Linearized index of this tile.
 			
 	
-			bool					loadFromFile(const String&filename);
+			bool					loadFromFile(const PathString&filename);
 	};
 
 

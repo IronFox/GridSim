@@ -89,15 +89,15 @@ void StringFile::stripComments(String&str)
 
 
 
-StringFile::StringFile(const String&filename, unsigned flags, bool create_):active(false),write_mode(false),read_mode(false),had13(false),fclose_on_destruct(true),
+StringFile::StringFile(const PathString&filename, unsigned flags, bool create_):active(false),write_mode(false),read_mode(false),had13(false),fclose_on_destruct(true),
                 f(NULL),e(&buffer[sizeof(buffer)-1]),lineComment("//"),lineStartComment("#"), comment_begin("/*"),comment_end("*/"),conversion_flags(flags),
                 root_line(1)
 {
     buffer[sizeof(buffer)-1] = 0;
 	if (!create_)
-		open(filename);
+		Open(filename);
 	else
-		create(filename);
+		Create(filename);
 }
 
 StringFile::StringFile(FILE*file, unsigned flags):active(false),write_mode(false),read_mode(false),had13(false),fclose_on_destruct(true),
@@ -105,7 +105,7 @@ StringFile::StringFile(FILE*file, unsigned flags):active(false),write_mode(false
                 root_line(1)
 {
     buffer[sizeof(buffer)-1] = 0;
-    assign(file);
+    Assign(file);
 }
 
 StringFile::StringFile(unsigned flags):active(false),write_mode(false),read_mode(false),had13(false),fclose_on_destruct(true),
@@ -118,37 +118,45 @@ StringFile::StringFile(unsigned flags):active(false),write_mode(false),read_mode
 
 StringFile::~StringFile()
 {
-	close();
+	Close();
 }
 
-void StringFile::assign(FILE*file)
+void StringFile::Assign(FILE*file)
 {
-	close();
+	Close();
     f = file;
     active = f!=NULL;
     write_mode = false;
     read_mode = active;
 	fclose_on_destruct = false;
-    reset();
+    Reset();
 }
 
-bool StringFile::open(const String&filename)
+bool StringFile::Open(const PathString&filename)
 {
 	//log_file << "reading '"<<filename<<"'"<<nl;
 
-	close();
-    f = fopen(filename.c_str(),"rb");
+	Close();
+	#if SYSTEM==WINDOWS
+		f = _wfopen(filename.c_str(),L"rb");
+	#else
+		f = fopen(filename.c_str(),"rb");
+	#endif
     active = f!=NULL;
     write_mode = false;
     read_mode = active;
 	fclose_on_destruct = true;
-    return reset();
+    return Reset();
 }
 
-bool StringFile::create(const String&filename)
+bool StringFile::Create(const PathString&filename)
 {
-    close();
-    f = fopen(filename.c_str(),"wb");
+    Close();
+	#if SYSTEM==WINDOWS
+		f = _wfopen(filename.c_str(),L"wb");
+	#else
+		f = fopen(filename.c_str(),"wb");
+	#endif
     active = f!=NULL;
     write_mode = active;
     read_mode = false;
@@ -157,10 +165,14 @@ bool StringFile::create(const String&filename)
 }
 
 
-bool StringFile::append(const String&filename)
+bool StringFile::Append(const PathString&filename)
 {
-    close();
-    f = fopen(filename.c_str(),"a+b");
+    Close();
+	#if SYSTEM==WINDOWS
+		f = _wfopen(filename.c_str(),L"a+b");
+	#else
+		f = fopen(filename.c_str(),"a+b");
+	#endif
     active = f!=NULL;
     write_mode = active;
     read_mode = false;
@@ -168,7 +180,7 @@ bool StringFile::append(const String&filename)
     return active;
 }
 
-void StringFile::close()
+void StringFile::Close()
 {
     if (f && fclose_on_destruct)
         fclose(f);
@@ -177,12 +189,12 @@ void StringFile::close()
     f = NULL;
 }
 
-bool StringFile::isActive()
+bool StringFile::IsActive()
 {
     return active;
 }
 
-bool StringFile::reset()
+bool StringFile::Reset()
 {
     if (!read_mode)
         return false;
@@ -427,7 +439,7 @@ StringFile& StringFile::operator<< (double item)
     return *this;
 }
 
-void	StringFile::flush()
+void	StringFile::Flush()
 {
 	fflush(f);
 }

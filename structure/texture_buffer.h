@@ -81,7 +81,7 @@ public:
 		CGS::TextureA*	lookupData(CGS::TextureA*texture);
 		void			add(CGS::TextureA*texture);
 		CGS::TextureA*	addDuplicate(CGS::TextureA*texture);
-		bool			write(const String&filename);
+		bool			write(const PathString&filename);
 		String			state();
 		void			flush();
 		void			clear();

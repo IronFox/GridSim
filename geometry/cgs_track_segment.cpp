@@ -21,9 +21,9 @@ namespace CGS
 			linearize(sub.child_field[i],objects,visible_only);
 	}
 	
-	bool		Tile::loadFromFile(const String&filename)
+	bool		Tile::loadFromFile(const PathString&filename)
 	{
-		if (!geometry.loadFromFile(filename.c_str()))
+		if (!geometry.LoadFromFile(filename.c_str()))
 			return false;
 		this->filename = filename;
 		return geometry.extractDimensions(dim);

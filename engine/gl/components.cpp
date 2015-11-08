@@ -265,7 +265,7 @@ namespace Engine
 		
 
 		
-		void	ScrollBarLayout::LoadFromFile(const String&filename, float scale)
+		void	ScrollBarLayout::LoadFromFile(const FileSystem::PathString&filename, float scale)
 		{
 			/*
 				TTexture				backCenter,
@@ -284,9 +284,9 @@ namespace Engine
 
 			String attrib;
 			
-			XML::Node	*xback = xml.find("scrollbar/background"),
-						*xcursor = xml.find("scrollbar/cursor"),
-						*xbutton = xml.find("scrollbar/button");
+			XML::Node	*xback = xml.Find("scrollbar/background"),
+						*xcursor = xml.Find("scrollbar/cursor"),
+						*xbutton = xml.Find("scrollbar/button");
 			if (!xback || !xcursor || !xbutton)
 				throw IO::DriveAccess::FileFormatFault(String(__func__)+ ": Required XML nodes scrollbar/background, scrollbar/cursor, and/or scrollbar/button not found");
 
@@ -297,7 +297,7 @@ namespace Engine
 			TTexture::load(xcursor,"bottom",folder,cursorBottom,scale);
 			TTexture::load(xbutton,"background",folder,bottomButton,scale);
 
-			if (!xbutton->query("indent",attrib) || !convert(attrib.c_str(),buttonIndent))
+			if (!xbutton->Query("indent",attrib) || !convert(attrib.c_str(),buttonIndent))
 				throw IO::DriveAccess::FileFormatFault(String(__func__)+  ": Failed to find or parse scrollbar/button attribute 'indent'");
 			
 			
@@ -308,7 +308,7 @@ namespace Engine
 		
 		
 		
-		void	SliderLayout::LoadFromFile(const String&filename, float scale)
+		void	SliderLayout::LoadFromFile(const FileSystem::PathString&filename, float scale)
 		{
 			/*
 				TTexture				backCenter,
@@ -327,8 +327,8 @@ namespace Engine
 
 			String attrib;
 			
-			XML::Node	*xbar = xml.find("slider/bar"),
-						*xslider = xml.find("slider/slider");
+			XML::Node	*xbar = xml.Find("slider/bar"),
+						*xslider = xml.Find("slider/slider");
 			if (!xbar || !xslider)
 				throw IO::DriveAccess::FileFormatFault(String(__func__)+ ": Required XML nodes slider/bar and/or slider/slider not found");
 
@@ -2717,22 +2717,22 @@ namespace Engine
 
 		static void	LoadLayout(XML::Node*xtheme, FileSystem::Folder&folder, const String&path, Layout&layout, float outer_scale)
 		{
-			XML::Node*node = xtheme->find(path);
+			XML::Node*node = xtheme->Find(path);
 			if (!node)
 				return;	//graceful ignore
 			String string;
 			float scale = 1.0f;
-			if (node->query("scale",string))
+			if (node->Query("scale",string))
 				convert(string.c_str(),scale);
 			layout.override = NULL;
 			FileSystem::File	file;
-			if (node->query("file",string))
-				if (folder.FindFile(string,file))
+			if (node->Query("file",string))
+				if (folder.FindFile(PathString(string),file))
 				{
 					layout.LoadFromFile(file.GetLocation(),scale*outer_scale);
 					return;
 				}
-			if (node->query("copy",string))
+			if (node->Query("copy",string))
 			{
 				if (string == "button")
 					layout.override = &Button::globalLayout;
@@ -2755,76 +2755,76 @@ namespace Engine
 		
 		static void LoadLayout(XML::Node*xtheme, FileSystem::Folder&folder, const String&path, ScrollBarLayout&layout, float outer_scale)
 		{
-			XML::Node*node = xtheme->find(path);
+			XML::Node*node = xtheme->Find(path);
 			if (!node)
 				return;	//graceful ignore
 			String string;
 			float scale = 1.0f;
-			if (node->query("scale",string))
+			if (node->Query("scale",string))
 				convert(string.c_str(),scale);
 			
 			FileSystem::File	file;
-			if (node->query("file",string))
-				if (folder.FindFile(string,file))
+			if (node->Query("file",string))
+				if (folder.FindFile(PathString(string),file))
 					layout.LoadFromFile(file.GetLocation(),scale*outer_scale);
 		}
 		
 		static void LoadLayout(XML::Node*xtheme, FileSystem::Folder&folder, const String&path, SliderLayout&layout, float outer_scale)
 		{
-			XML::Node*node = xtheme->find(path);
+			XML::Node*node = xtheme->Find(path);
 			if (!node)
 				return;	//graceful ignore
 			String string;
 			float scale = 1.0f;
-			if (node->query("scale",string))
+			if (node->Query("scale",string))
 				convert(string.c_str(),scale);
 			
 			FileSystem::File	file;
-			if (node->query("file",string))
-				if (folder.FindFile(string,file))
+			if (node->Query("file",string))
+				if (folder.FindFile(PathString(string),file))
 					layout.LoadFromFile(file.GetLocation(),scale*outer_scale);
 		}
 		
 		static void LoadLayout(XML::Node*xtheme, FileSystem::Folder&folder, const String&path, CheckBox::TStyle&layout, float outer_scale)
 		{
-			XML::Node*node = xtheme->find(path);
+			XML::Node*node = xtheme->Find(path);
 			if (!node)
 				return;	//graceful ignore
 			String string;
 
 			FileSystem::File	file;
 			
-			if (node->query("color",string) && folder.FindFile(string,file))
-				loadColor(file.GetLocation(),layout.boxColor);
-			if (node->query("bump",string) && folder.FindFile(string,file))
-				loadBump(file.GetLocation(),layout.boxNormal);
-			if (node->query("check",string) && folder.FindFile(string,file))
-				loadColor(file.GetLocation(),layout.checkMark);
-			if (node->query("highlight",string) && folder.FindFile(string,file))
-				loadColor(file.GetLocation(),layout.highlightMark);
+			if (node->Query("color",string) && folder.FindFile(PathString(string),file))
+				LoadColor(file.GetLocation(),layout.boxColor);
+			if (node->Query("bump",string) && folder.FindFile(PathString(string),file))
+				LoadBump(file.GetLocation(),layout.boxNormal);
+			if (node->Query("check",string) && folder.FindFile(PathString(string),file))
+				LoadColor(file.GetLocation(),layout.checkMark);
+			if (node->Query("highlight",string) && folder.FindFile(PathString(string),file))
+				LoadColor(file.GetLocation(),layout.highlightMark);
 		}
 		
 		
-		void		LoadTheme(const String&filename,float outer_scale)
+		void		LoadTheme(const FileSystem::PathString&filename,float outer_scale)
 		{
 			XML::Container	xml;
 			xml.LoadFromFile(filename);
 			FileSystem::Folder	folder(FileSystem::ExtractFileDir(filename));
 			String	string;
-			XML::Node*xtheme = xml.find("theme");
+			XML::Node*xtheme = xml.Find("theme");
 			if (!xtheme)
 				throw IO::DriveAccess::FileFormatFault(globalString("XML theme file lacks theme XML root node"));
 				
 			FileSystem::File	file;
-			if (XML::Node*node = xtheme->find("font"))
+			if (XML::Node*node = xtheme->Find("font"))
 			{
 				float scale = 1.0f;
-				if (node->query("scale",string))
+				if (node->Query("scale",string))
 					convert(string.c_str(),scale);
-				if (!node->query("file",string))
+				if (!node->Query("file",string))
 					throw IO::DriveAccess::FileFormatFault("XML Font node lacks file attribute");
-				if (folder.FindFile(string,file))
-					ColorRenderer::textout.getFont().loadFromFile(file.GetLocation(),scale*outer_scale);
+				if (folder.FindFile(PathString(string),file))
+					ColorRenderer::textout.getFont().LoadFromFile(file.GetLocation(),scale*outer_scale);
 						//FAIL("Failed to load font from font file '"+file.GetLocation()+"'");
 			}
 			else
@@ -2865,7 +2865,7 @@ namespace Engine
 		}
 		
 		
-		void			ShowChoice(Operator&op, const String&title, const String&query, const Array<String>&choices, const std::function<void(index_t)>&onSelect)
+		void			ShowChoice(Operator&op, const String&title, const String&Query, const Array<String>&choices, const std::function<void(index_t)>&onSelect)
 		{
 			if (choices.isEmpty())
 				return;
@@ -2882,7 +2882,7 @@ namespace Engine
 				//message_button->on_execute += HideMessage;
 			
 			message_label->wrapText = true;
-			message_label->SetText(query);
+			message_label->SetText(Query);
 			message_label->anchored.Set(true,true,true,true);
 			panel->Add(message_label);
 			panel->Add(buttons.first());
@@ -2899,7 +2899,7 @@ namespace Engine
 			window->visualChanged = true;
 			window->UpdateLayout();
 			window->size.height = (size_t)(window->fsize.y = window->GetMinHeight());
-			message_label->SetText(query);
+			message_label->SetText(Query);
 			window->UpdateLayout();
 			window->size.height = (size_t)(window->fsize.y = window->GetMinHeight());
 

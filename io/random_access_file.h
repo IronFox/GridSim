@@ -5,11 +5,6 @@
 
 File-access tool providing more options for handling volumes.
 
-This file is part of Delta-Works
-Copyright (C) 2006-2008 Stefan Elsen, University of Trier, Germany.
-http://www.delta-works.org/forge/
-http://informatik.uni-trier.de/
-
 ******************************************************************/
 
 #include "../global_root.h"
@@ -45,11 +40,17 @@ WINMMAPI MMRESULT WINAPI mmioCreateChunk(IN HMMIO hmmio, IN LPMMCKINFO pmmcki, I
 class RandomAccessFile //! Address orientated data file
 {
 public:
-        enum OpenMode       //! File open mode
-        {
-            Direct,         //!< IO operations are directly applied to the underlying file
-            Buffered        //!< IO processes operate on a local buffer rather than the actual file. modifications are applied only when closing the file or manually calling update()
-        };
+	#if SYSTEM==WINDOWS
+		typedef wchar_t	char_t;
+	#else
+		typedef char char_t;
+	#endif
+
+    enum OpenMode       //! File open mode
+    {
+        Direct,         //!< IO operations are directly applied to the underlying file
+        Buffered        //!< IO processes operate on a local buffer rather than the actual file. modifications are applied only when closing the file or manually calling update()
+    };
 private:
         FILE       *f;
         BYTE       *buffer;
@@ -62,41 +63,41 @@ private:
         void        applyBufferSize(unsigned new_size); //resizes buffer if necessary. Also applies new_size to fsize
 
 protected:
-        char        filename[0x100];        //!< Filename buffer (max 255 characters)
+        char_t      filename[MAX_PATH];      
 
 public:
                     RandomAccessFile();
 virtual            ~RandomAccessFile();
-		const char*	getFilename() const {return filename;}
-        bool        create(const char*filename, OpenMode mode=Direct);      //!< Closes if active and creates the specified file. \param filename specifies the name of the file to create \param mode specifies how the file should be handled. \return true if the file could be created and opened, false otherwise.
-        bool        recreate(OpenMode mode=Direct);                         //!< Closes if active and recreates/overwrites the file specified by the stored filename. \param mode specifies how the file should be handled. \return true if the file could be created and opened, false otherwise.
-        bool        open(const char*filename, OpenMode mode=Direct);        //!< Closes if active and opens the specified file in the specified mode. If \b mode is Buffered and the file is accessible, the entire data is read to a local buffer. \param filename specifies the name of the file to open \param mode specifies how the file should be handled. \return true if the file could be opened, false otherwise.
-        void        assign(BYTE*data, unsigned size);                       //!< Closes if active and assigns data of length size bytes as read-only buffer. \param data Pointer to the external data field \param size Size in bytes of the external data field
-        void        assign(const RandomAccessFile&other);
-        bool        reopen(OpenMode mode);                                  //!< Closes if active and reopens it in the specified mode.
-        bool        update();
-        bool        resize(unsigned new_size);                              //!< Changes the size of the file to \b new_size bytes. If the file-size is increased then the file will be padded using unspecified data. \return true if the file could be resized, false otherwise.
-        bool        isActive();								//!< Queries file status \return true if a file is currently opened, false otherwise
-        bool        writeAccess();								//!< Queries write access availability \return true if write access is available or active, false otherwise
-        void        close();									//!< Closes any active file handle. If the file is buffered then it will be updated before closing.
-        BYTE*       extract(unsigned offset, unsigned size);
-        bool        extract(unsigned offset, void*out, unsigned size);
-        bool        erase(unsigned offset, unsigned size);
-        bool        overwrite(unsigned offset, const void*data, unsigned size);
-        bool        overwrite(unsigned offset, BYTE value, unsigned size);
-        bool        insert(unsigned offset, const void*data, unsigned size);
-        bool        insert(unsigned offset, BYTE value, unsigned size);
-        bool        append(const void*data, unsigned size);
-        bool        append(BYTE value, unsigned size);
-        UINT        size();									//!< Queries file size \return File size in bytes
+		const char_t*	GetFilename() const {return filename;}
+        bool        Create(const char_t*filename, OpenMode mode=Direct);      //!< Closes if active and creates the specified file. \param filename specifies the name of the file to create \param mode specifies how the file should be handled. \return true if the file could be created and opened, false otherwise.
+        bool        ReCreate(OpenMode mode=Direct);                         //!< Closes if active and recreates/overwrites the file specified by the stored filename. \param mode specifies how the file should be handled. \return true if the file could be created and opened, false otherwise.
+        bool        Open(const char_t*filename, OpenMode mode=Direct);        //!< Closes if active and opens the specified file in the specified mode. If \b mode is Buffered and the file is accessible, the entire data is read to a local buffer. \param filename specifies the name of the file to open \param mode specifies how the file should be handled. \return true if the file could be opened, false otherwise.
+        void        Assign(BYTE*data, unsigned size);                       //!< Closes if active and assigns data of length size bytes as read-only buffer. \param data Pointer to the external data field \param size Size in bytes of the external data field
+        void        Assign(const RandomAccessFile&other);
+        bool        ReOpen(OpenMode mode);                                  //!< Closes if active and reopens it in the specified mode.
+        bool        Update();
+        bool        Resize(unsigned new_size);                              //!< Changes the size of the file to \b new_size bytes. If the file-size is increased then the file will be padded using unspecified data. \return true if the file could be resized, false otherwise.
+        bool        IsActive();								//!< Queries file status \return true if a file is currently opened, false otherwise
+        bool        HasWriteAccess();								//!< Queries write access availability \return true if write access is available or active, false otherwise
+        void        Close();									//!< Closes any active file handle. If the file is buffered then it will be updated before closing.
+        BYTE*       Extract(unsigned offset, unsigned size);
+        bool        Extract(unsigned offset, void*out, unsigned size);
+        bool        Erase(unsigned offset, unsigned size);
+        bool        Overwrite(unsigned offset, const void*data, unsigned size);
+        bool        Overwrite(unsigned offset, BYTE value, unsigned size);
+        bool        Insert(unsigned offset, const void*data, unsigned size);
+        bool        Insert(unsigned offset, BYTE value, unsigned size);
+        bool        Append(const void*data, unsigned size);
+        bool        Append(BYTE value, unsigned size);
+        UINT        GetSize();									//!< Queries file size \return File size in bytes
 template <class C>
-        bool        insert(unsigned offset, const C&target);
+        bool        Insert(unsigned offset, const C&target);
 template <class C>
-        bool        append(const C&target);
+        bool        Append(const C&target);
 template <class C>
-        bool        read(unsigned offset, C&target);
+        bool        Read(unsigned offset, C&target);
 template <class C>
-        bool        overwrite(unsigned offset, const C&target);
+        bool        Overwrite(unsigned offset, const C&target);
 };
 
 

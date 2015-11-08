@@ -212,6 +212,11 @@ resizeBlock()	- UNTESTED!!
 namespace Riff
 {
 
+	#if SYSTEM==WINDOWS
+		typedef wchar_t	char_t;
+	#else
+		typedef char char_t;
+	#endif
 
 	typedef UINT32				RIFF_INDEX_ID;
 	typedef const char*			RIFF_STRING_ID;
@@ -292,18 +297,18 @@ namespace Riff
 		bool				ignore_main_size_;
 		
 		/**/				File();
-		/**/				File(const char*filename);
+		/**/				File(const char_t*filename);
 		virtual				~File();
 
-		bool				Open(const char*filename);	//opens an existing archive - closes old if existing
+		bool				Open(const char_t*filename);	//opens an existing archive - closes old if existing
 		void				Assign(BYTE*data, ULONG size); //retrieves data from external data-field
-		bool				Reopen();
+		bool				ReOpen();
 		const char*			MainID();
 	#ifdef	RIFF_SENSITIVE
 		const char*			SubID();
 	#endif
 		RIFF_SIZE			mainSize();
-		bool				Create(const char*filename);//creates a new archive
+		bool				Create(const char_t*filename);//creates a new archive
 		void				Close();					//closes open archive
 		void				Reset();					//resets cursor to file-start
 		bool				FindFirst(TID ID);			//select riff-chunk via ID
@@ -319,7 +324,7 @@ namespace Riff
 		RIFF_SIZE			Get(void*out,size_t max);//extrudes data but not more than max - returns FULL size
 	template <class C>
 		count_t				Get(ArrayData<C>&out);			//extracts data into an array
-		const char*			GetFileName();
+		const char_t*			GetFileName();
 		TID					GetID();					//returns block's type-id
 		unsigned			GetIndex();					//returns block's index (in present context)
 		RIFF_ADDR			GetAddr();					//returns block's address
@@ -375,11 +380,11 @@ namespace Riff
 	virtual					~Chunk();
 
 	
-			bool			LoadFromFile(const char*filename);
+			bool			LoadFromFile(const char_t*filename);
 			RIFF_SIZE		FromFile(FILE*f, size_t size, bool force_list=false);
 			void			LoadFromData(const void*data, size_t size);
 			RIFF_SIZE		FromData(const BYTE*data, size_t size, bool force_list=false);
-			bool			SaveToFile(const char*filename);
+			bool			SaveToFile(const char_t*filename);
 			void			ToFile(FILE*f, bool force_list=false);
 			RIFF_SIZE		SaveToData(void*out);
 			void			ToData(BYTE*out, bool force_list=false);

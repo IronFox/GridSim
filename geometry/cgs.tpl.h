@@ -3147,12 +3147,12 @@ template <class Def> void Geometry<Def>::clear()
 	system_link = &root_system.matrix;
 }
 
-template <class Def> bool Geometry<Def>::saveToFile(const String&filename)	const
+template <class Def> bool Geometry<Def>::SaveToFile(const PathString&filename)	const
 {
-	return saveToFile(filename.c_str());
+	return SaveToFile(filename.c_str());
 }
 
-template <class Def> bool Geometry<Def>::saveToFile(const char*filename)	const
+template <class Def> bool Geometry<Def>::SaveToFile(const PathString::char_t*filename)	const
 {
 	Riff::Chunk	riff;
 	UINT32 version = CGS_FILE_VERSION;
@@ -3161,12 +3161,12 @@ template <class Def> bool Geometry<Def>::saveToFile(const char*filename)	const
 	return riff.SaveToFile(filename);
 }
 
-template <class Def> bool Geometry<Def>::loadFromFile(const String&filename,TextureResource*resource/*=NULL*/)
+template <class Def> bool Geometry<Def>::LoadFromFile(const PathString&filename,TextureResource*resource/*=NULL*/)
 {
-	return loadFromFile(filename.c_str(),resource);
+	return LoadFromFile(filename.c_str(),resource);
 }
 
-template <class Def> bool Geometry<Def>::loadFromFile(const char*filename,TextureResource*resource/*=NULL*/)//, bool post_strip, unsigned min_strip)
+template <class Def> bool Geometry<Def>::LoadFromFile(const PathString::char_t*filename,TextureResource*resource/*=NULL*/)//, bool post_strip, unsigned min_strip)
 {
 	Riff::File riff;
 	if (!riff.Open(filename))

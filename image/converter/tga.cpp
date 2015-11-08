@@ -6,14 +6,9 @@
 
 TGA-Format handler.
 
-This file is part of Delta-Works
-Copyright (C) 2006-2008 Stefan Elsen, University of Trier, Germany.
-http://www.delta-works.org/forge/
-http://informatik.uni-trier.de/
-
 ******************************************************************/
 
-CTGA	tga;
+TGA	tga;
 
 
 #define TGA_EMPTY       0
@@ -68,7 +63,7 @@ static void tgaLinearPixel(unsigned index,Image&target,BYTE*color)
 
 
 
-void	CTGA::loadFromFilePointer(Image&target, FILE*f)
+void	TGA::LoadFromFilePointer(Image&target, FILE*f)
 {
 	Array<BYTE>	color_map,
 					final_map,
@@ -244,7 +239,7 @@ void	CTGA::loadFromFilePointer(Image&target, FILE*f)
 }
 
 
-void CTGA::saveToFilePointer(const Image&resource, FILE*)
+void TGA::SaveToFilePointer(const Image&resource, FILE*)
 {
 	throw Program::FunctionalityNotImplemented();
 }

@@ -131,7 +131,7 @@ namespace Config
 		return DefineMode(mode_name).CreateContext(context_name);
 	}
 	
-	void						Context::clear()
+	void						Context::Clear()
 	{
 		children.clear();
 		childMap.clear();
@@ -142,42 +142,42 @@ namespace Config
 	}
 
 
-	void						Context::exportModes(ArrayData<Context*>&out)
+	void						Context::ExportModes(ArrayData<Context*>&out)
 	{
 		out.setSize(modes.Count());
 		for (index_t i = 0; i < modes.Count(); i++)
 			out[i] = modes + i;
 	}
 	
-	void						Context::exportModes(ArrayData<const Context*>&out)				const
+	void						Context::ExportModes(ArrayData<const Context*>&out)				const
 	{
 		out.setSize(modes.Count());
 		for (index_t i = 0; i < modes.Count(); i++)
 			out[i] = modes+i;
 	}
 	
-	void						Context::exportChildren(ArrayData<Context*>&out)
+	void						Context::ExportChildren(ArrayData<Context*>&out)
 	{
 		out.setSize(children.Count());
 		for (index_t i = 0; i < children.Count(); i++)
 			out[i] = children + i;
 	}
 	
-	void						Context::exportChildren(ArrayData<const Context*>&out)			const
+	void						Context::ExportChildren(ArrayData<const Context*>&out)			const
 	{
 		out.setSize(children.Count());
 		for (index_t i = 0; i < children.Count(); i++)
 			out[i] = children + i;
 	}
 	
-	void						Context::exportAttributes(ArrayData<Attribute*>&out)
+	void						Context::ExportAttributes(ArrayData<Attribute*>&out)
 	{
 		out.setSize(attributes.Count());
 		for (index_t i = 0; i < attributes.Count(); i++)
 			out[i] = attributes + i;
 	}
 	
-	void						Context::exportAttributes(ArrayData<const Attribute*>&out)		const
+	void						Context::ExportAttributes(ArrayData<const Attribute*>&out)		const
 	{
 		out.setSize(attributes.Count());
 		for (index_t i = 0; i < attributes.Count(); i++)
@@ -441,15 +441,15 @@ namespace Config
 		return attrib->assignment_operator;
 	}
 	
-	void		Context::cleanup()
+	void		Context::Cleanup()
 	{
 		for (index_t i = 0; i < children.Count(); i++)
 		{
 			Context&child = children[i];
-			child.cleanup();
+			child.Cleanup();
 			if (child.IsEmpty())
 			{
-				childMap.unSet(child.name);
+				childMap.Unset(child.name);
 				children.Erase(i--);
 			}
 		}
@@ -457,7 +457,7 @@ namespace Config
 		for (index_t i = 0; i < modes.Count(); i++)
 		{
 			Context&mode = modes[i];
-			mode.cleanup();
+			mode.Cleanup();
 			if (mode.IsEmpty())
 			{
 				modeMap.unSet(mode.name);
@@ -471,7 +471,7 @@ namespace Config
 		return children.IsEmpty() && attributes.IsEmpty() && modes.IsEmpty();
 	}
 	
-	void		Context::retrieveMaxNameValueLength(size_t&name_len, size_t&value_len, size_t indent)	const
+	void		Context::RetrieveMaxNameValueLength(size_t&name_len, size_t&value_len, size_t indent)	const
 	{
 		foreach (attributes, attrib)
 		{
@@ -479,19 +479,19 @@ namespace Config
 			value_len = std::min(value_len,attrib->value.length() + 2 + indent);
 		}
 		foreach (children,child)
-			child->retrieveMaxNameValueLength(name_len,value_len,indent+4);
+			child->RetrieveMaxNameValueLength(name_len,value_len,indent+4);
 		
 		foreach (modes,mode)
 		{
 			if (mode->children.Count() == 1 && mode->attributes.IsEmpty())
-				mode->children.first().retrieveMaxNameValueLength(name_len,value_len,indent+4);
+				mode->children.first().RetrieveMaxNameValueLength(name_len,value_len,indent+4);
 			else
-				mode->retrieveMaxNameValueLength(name_len,value_len,indent+4);
+				mode->RetrieveMaxNameValueLength(name_len,value_len,indent+4);
 		}
 	}
 
 
-	void		Context::writeContent(StringBuffer&buffer, size_t name_len, size_t value_len, const String&indent) const
+	void		Context::WriteContent(StringBuffer&buffer, size_t name_len, size_t value_len, const String&indent) const
 	{
 		foreach (attributes,attrib)
 		{
@@ -541,18 +541,18 @@ namespace Config
 			if (mode->children.Count() == 1 && mode->attributes.IsEmpty() && mode->modes.IsEmpty())
 			{
 				buffer << indent << "["<<mode->name<<":"<<mode->children.first().name<<"]"<<nl;
-				mode->children.first().writeContent(buffer,name_len,value_len,indent+"\t");
+				mode->children.first().WriteContent(buffer,name_len,value_len,indent+"\t");
 			}
 			else
 			{
 				buffer << indent << mode->name<<":"<<nl;
-				mode->writeContent(buffer,name_len,value_len,indent+"\t");
+				mode->WriteContent(buffer,name_len,value_len,indent+"\t");
 			}
 		}
 		foreach (children,child)
 		{
 			buffer << indent << "["<<child->name<<"]"<<nl;
-			child->writeContent(buffer,name_len,value_len,indent+"\t");
+			child->WriteContent(buffer,name_len,value_len,indent+"\t");
 		}
 	}
 	
@@ -561,7 +561,7 @@ namespace Config
 	{
 	}
 	
-	Container::Container(const String&filename)
+	Container::Container(const PathString&filename)
 	{
 		LoadFromFile(filename);
 	
@@ -605,18 +605,18 @@ namespace Config
 	
 	void	Container::Clear()
 	{
-		Context::clear();
+		Context::Clear();
 		error = "";
 	}
 	
 	LogFile	logfile("configuration.log",true);
 	
-	bool	Container::LoadFromFile(const String&filename)
+	bool	Container::LoadFromFile(const PathString&filename)
 	{
 		StringFile file(CM_STRIP_COMMENTS|CM_RECORD_COMMENTS|CM_STRIP_LINE_START_COMMENTS);
-		if (!file.open(filename))
+		if (!file.Open(filename))
 		{
-			error = "File not found: "+filename;
+			error = "File not found: "+String(filename);
 			return false;
 		}
 		return LoadFromFile(file);
@@ -624,7 +624,7 @@ namespace Config
 
 	bool	Container::LoadFromFile(StringFile&file)
 	{
-		clear();
+		Clear();
 		List::ReferenceVector<Context>	stack_elements;
 		stack_elements.append(this);
 		
@@ -726,12 +726,12 @@ namespace Config
 	}
 	
 	
-	bool						Container::SaveToFile(const String&filename)
+	bool						Container::SaveToFile(const PathString&filename)
 	{
 		StringFile	file;
-		if (!file.create(filename))
+		if (!file.Create(filename))
 		{
-			error = "Unable to create/overwrite file '"+filename+"'";
+			error = "Unable to create/overwrite file '"+String(filename)+"'";
 			return false;
 		}
 		error = "";
@@ -775,13 +775,13 @@ namespace Config
 		
 		size_t	name_len = 0,
 				value_len = 0;
-		retrieveMaxNameValueLength(name_len,value_len);
+		RetrieveMaxNameValueLength(name_len,value_len);
 		if (name_len%4)
 			name_len += 4-(name_len%4);
 		if (value_len%4)
 			value_len += 4-(value_len%4);
 
-		Context::writeContent(buffer,name_len,value_len);
+		Context::WriteContent(buffer,name_len,value_len);
 	}
 
 
@@ -837,7 +837,7 @@ namespace Config
 				}
 				else
 				{
-					const Variable*variable = lookup(key,error_out);
+					const Variable*variable = Lookup(key,error_out);
 					if (!variable)
 					{
 						if (error_out)
@@ -887,7 +887,7 @@ namespace Config
 		return context->variables.lookup(segments.last());
 	}
 	
-	CXContext::Variable*					CXContext::findVariable(const String&path)
+	CXContext::Variable*					CXContext::FindVariable(const String&path)
 	{
 		Array<String,Adopt>	segments;
 		explodeCallback(IsPathSeparator,path,segments);
@@ -897,7 +897,7 @@ namespace Config
 		return context->innerFindVariable(segments);
 	}
 	
-	const CXContext::Variable*					CXContext::findVariable(const String&path)	const
+	const CXContext::Variable*					CXContext::FindVariable(const String&path)	const
 	{
 		Array<String,Adopt>	segments;
 		explodeCallback(IsPathSeparator,path,segments);
@@ -932,7 +932,7 @@ namespace Config
 		return context;
 	}
 	
-	CXContext*					CXContext::findContext(const String&path)
+	CXContext*					CXContext::FindContext(const String&path)
 	{
 		Array<String,Adopt>	segments;
 		explodeCallback(IsPathSeparator,path,segments);
@@ -942,7 +942,7 @@ namespace Config
 		return context->innerFindContext(segments);
 	}
 	
-	const CXContext*					CXContext::findContext(const String&path)	const
+	const CXContext*					CXContext::FindContext(const String&path)	const
 	{
 		Array<String,Adopt>	segments;
 		explodeCallback(IsPathSeparator,path,segments);
@@ -953,27 +953,27 @@ namespace Config
 	}
 	
 	
-	CXContext::Variable*					CXContext::lookup(String path, String*error_out)
+	CXContext::Variable*					CXContext::Lookup(String path, String*error_out)
 	{
 		if (!process(path,true,error_out))
 			return NULL;
-		Variable*rs = findVariable(path);
+		Variable*rs = FindVariable(path);
 		if (!rs && error_out)
 			(*error_out) = "Unable to locate variable '"+path+"'";
 		return rs;
 	}
 	
-	const CXContext::Variable*				CXContext::lookup(String path, String*error_out)	const
+	const CXContext::Variable*				CXContext::Lookup(String path, String*error_out)	const
 	{
 		if (!process(path,true,error_out))
 			return NULL;
-		const Variable*rs = findVariable(path);
+		const Variable*rs = FindVariable(path);
 		if (!rs && error_out)
 			(*error_out) = "Unable to locate variable '"+path+"'";
 		return rs;
 	}
 	
-	void	CXContext::clear()
+	void	CXContext::Clear()
 	{
 		variables_finalized = false;
 		children.clear();
@@ -1029,7 +1029,7 @@ namespace Config
 
 	}
 	
-	void	CXContext::loadStacked(const XML::Node*node)
+	void	CXContext::LoadStacked(const XML::Node*node)
 	{
 		if (!node)
 			throw IO::ParameterFault(globalString("Provided node Is NULL"));
@@ -1048,7 +1048,7 @@ namespace Config
 			const XML::Node&xchild = node->children[i];
 			CXContext*child = pre_finalize_children.append();
 			child->parent = this;
-			child->loadStacked(&xchild);
+			child->LoadStacked(&xchild);
 		
 			parse(xchild.following_content);
 		}
@@ -1093,7 +1093,7 @@ namespace Config
 		}
 	}
 	
-	void	CXContext::finalize()
+	void	CXContext::Finalize()
 	{
 		bool succeeded = true;
 		String error_message;
@@ -1125,14 +1125,14 @@ namespace Config
 						inherit[k].trimThis();
 						if (inherit[k].IsEmpty())
 							continue;
-						CXContext*target = findContext(inherit[k]);
+						CXContext*target = FindContext(inherit[k]);
 						if (!target)
 						{
 							error_message = "Failed to locate inheritance '"+inherit[k]+"'";
 							succeeded = false;
 							continue;
 						}
-						if (target->childOf(child) || child->childOf(target))
+						if (target->IsChildOf(child) || child->IsChildOf(target))
 							continue;
 						Array<String,Adopt>		names;
 						Array<Variable*>	variables;
@@ -1166,7 +1166,7 @@ namespace Config
 					}
 					continue;
 				}
-				const Variable*var = findVariable(attrib.name);
+				const Variable*var = FindVariable(attrib.name);
 				if (!var)
 				{
 					error_message += "\nUnable to check for compliance of conditional attribute '"+attrib.name+"="+attrib.value+"'";
@@ -1195,7 +1195,7 @@ namespace Config
 					if (succeeded)
 						try
 						{
-							child->finalize();
+							child->Finalize();
 						}
 						catch (const std::exception&except)
 						{
@@ -1216,20 +1216,20 @@ namespace Config
 	}
 	
 	
-	void	CXContext::loadFromXML(const XML::Container&container, bool stack)
+	void	CXContext::LoadFromXML(const XML::Container&container, bool stack)
 	{
 		if (!stack)
-			clear();
-		loadStacked(&container.root_node);
+			Clear();
+		LoadStacked(&container.root_node);
 		if (!stack)
-			return finalize();
+			return Finalize();
 	}
 	
-	void	CXContext::loadFromFile(const String&filename, bool stack)
+	void	CXContext::LoadFromFile(const PathString&filename, bool stack)
 	{
 		XML::Container	container;
-		container.loadFromFile(filename);
-		loadFromXML(container,stack);
+		container.LoadFromFile(filename);
+		LoadFromXML(container,stack);
 	}
 	
 	bool	CXContext::IsPathSeparator(char c)
@@ -1237,7 +1237,7 @@ namespace Config
 		return c == '.' || c == '/';
 	}
 	
-	bool	CXContext::set(const String&variable_name, const String&variable_value)
+	bool	CXContext::Set(const String&variable_name, const String&variable_value)
 	{
 		Array<String,Adopt>	segments;
 		explodeCallback(IsPathSeparator,variable_name,segments);
@@ -1259,7 +1259,7 @@ namespace Config
 		return false;
 	}
 	
-	bool	CXContext::childOf(const CXContext*other)	const
+	bool	CXContext::IsChildOf(const CXContext*other)	const
 	{
 		const CXContext*ctx = this;
 		while (ctx && ctx != other)
@@ -1267,7 +1267,7 @@ namespace Config
 		return ctx == other;
 	}
 	
-	void	CXContext::printToCOut(unsigned indent)	const
+	void	CXContext::PrintToCOut(unsigned indent)	const
 	{
 		std::cout << tabSpace(indent)<<name<<std::endl;
 		Array<String,Adopt>		names;
@@ -1277,7 +1277,7 @@ namespace Config
 			std::cout << tabSpace(indent+1)<<names[i]<<" := '"<<implode("', '",*(variables[i]))<<"'"<<std::endl;
 				
 		for (StringMappedList<CXContext>::const_iterator it = children.begin(); it != children.end(); ++it)
-			(*it)->printToCOut(indent+1);
+			(*it)->PrintToCOut(indent+1);
 	}
 	
 	

@@ -78,10 +78,10 @@ private:
 
 public:
                             TextureArchive();
-                            TextureArchive(const String&filename);	//!< Archive load constructor. \param filename Name of the archive file to load.
-		BYTE				getFaces();						//!< Queries the number of faces attached to the currently selected texture. \return Number of faces attached to the currently selected texture
-        const Image*       getData(BYTE face=0);			//!< Extracts one image (face) from the currently selected texture. \param face Index of the face to extract. \return Pointer to the internal Image data containing the extracted image or NULL if no texture was selected or the face index invalid. <b>Must not be deleted</b>.
-        BYTE                getAll(const Image* out[]);	//!< Extracts all faces of the currently selected texture. \param out Image pointer field to write the faces to. Query getFaces() to insure the field has enough entries. The Image pointers written to the out field <b>must not be deleted</b> \return Number of faces attached to the currently selected texture
-        void				getRaw(const STAface&face, ArrayData<BYTE>&target);			//!< Extracts the raw unmodified (compressed) data of the specified face. \param face Reference to the face to extract the data of. \param target Byte output
+                            TextureArchive(const PathString&filename);	//!< Archive load constructor. \param filename Name of the archive file to load.
+		BYTE				GetFaces();						//!< Queries the number of faces attached to the currently selected texture. \return Number of faces attached to the currently selected texture
+        const Image*		GetData(BYTE face=0);			//!< Extracts one image (face) from the currently selected texture. \param face Index of the face to extract. \return Pointer to the internal Image data containing the extracted image or NULL if no texture was selected or the face index invalid. <b>Must not be deleted</b>.
+        BYTE                GetAll(const Image* out[]);	//!< Extracts all faces of the currently selected texture. \param out Image pointer field to write the faces to. Query getFaces() to insure the field has enough entries. The Image pointers written to the out field <b>must not be deleted</b> \return Number of faces attached to the currently selected texture
+        void				GetRaw(const STAface&face, ArrayData<BYTE>&target);			//!< Extracts the raw unmodified (compressed) data of the specified face. \param face Reference to the face to extract the data of. \param target Byte output
 };
 #endif

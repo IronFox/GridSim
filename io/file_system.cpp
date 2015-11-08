@@ -10,21 +10,25 @@ Plattform-independent file-browsing-module.
 
 
 
-static	String addSlashes(const String&in)
-{
-	String rs = in;
-	for (index_t i = 0; i < rs.length(); i++)
-		if (rs.get(i) == '\\' || rs.get(i) == '\'' || rs.get(i) == '\"')
-		{
-			rs.insert(i,'\\');
-			i++;
-		}
-	return rs;
-}
 
 
 namespace FileSystem
 {
+	#if SYSTEM==WINDOWS
+		static const PathString absMarker = L"\\\\?\\";
+	#endif
+
+	static	PathString addSlashes(const PathString&in)
+	{
+		PathString rs = in;
+		for (index_t i = 0; i < rs.length(); i++)
+			if (rs.get(i) == '\\' || rs.get(i) == '\'' || rs.get(i) == '\"')
+			{
+				rs.insert(i,'\\');
+				i++;
+			}
+		return rs;
+	}
 
 
 
@@ -37,17 +41,17 @@ namespace FileSystem
 	File::File(const Drive&drive):name(drive.root),location(drive.root),is_folder(true)
 	{}
 
-	String	 File::GetName()  const
+	PathString	 File::GetName()  const
 	{
 		return name;
 	}
 
-	String	 File::GetInnerName()  const
+	PathString	 File::GetInnerName()  const
 	{
 		return ExtractFileName(name);
 	}
 	
-	String	 File::GetLocation() const
+	PathString	 File::GetLocation() const
 	{
 		return location;
 	}
@@ -63,15 +67,15 @@ namespace FileSystem
 	}
 
 
-	String	 File::GetFolder()		 const
+	PathString	 File::GetFolder()		 const
 	{
 		return ExtractFileDir(location);
 	}
 
-	const char* File::GetExtensionPointer()	const
+	const PathString::char_t* File::GetExtensionPointer()	const
 	{
 		index_t at = name.length();
-		const char*field = name.c_str();
+		const PathString::char_t*field = name.c_str();
 		while (at!=InvalidIndex && field[at] != '.')
 			at--;
 		if (at == InvalidIndex)
@@ -79,20 +83,16 @@ namespace FileSystem
 		return field+at+1;
 	}
 	
-	String  File::GetExtension()	  const
+	PathString  File::GetExtension()	  const
 	{
 		return GetExtensionPointer();
 	}
 	
-	bool	File::IsExtension(const String&ext)		const
+	bool	File::IsExtension(const PathString&ext)		const
 	{
-		return !strcmpi(ext.c_str(),GetExtensionPointer());
+		return ext == GetExtensionPointer();
 	}
 	
-	bool	File::IsExtension(const char*ext)			const
-	{
-		return !strcmpi(ext,GetExtensionPointer());
-	}
 
 
 	bool	File::DoesExist()							const
@@ -110,119 +110,70 @@ namespace FileSystem
 
 	bool		  File::operator<(const File&other)  const
 	{
-    	#if SYSTEM==WINDOWS
-			return strcmpi(location.c_str(),other.location.c_str())<0;
-        #else
-        	return location < other.location;
-        #endif
+        return location < other.location;
 	}
 
 	bool		  File::operator>(const File&other)  const
 	{
-    	#if SYSTEM==WINDOWS
-			return strcmpi(location.c_str(),other.location.c_str())>0;
-        #else
-        	return location > other.location;
-        #endif
+        return location > other.location;
 	}
 
 	bool		  File::operator<=(const File&other)  const
 	{
-    	#if SYSTEM==WINDOWS
-			return strcmpi(location.c_str(),other.location.c_str())<=0;
-        #else
-        	return location <= other.location;
-        #endif
+        return location <= other.location;
 	}
 
 	bool		  File::operator>=(const File&other)  const
 	{
-    	#if SYSTEM==WINDOWS
-			return strcmpi(location.c_str(),other.location.c_str())>=0;
-        #else
-        	return location >= other.location;
-        #endif
+        return location >= other.location;
 	}
 
 	bool		  File::operator==(const File&other)  const
 	{
-    	#if SYSTEM==WINDOWS
-        	return !strcmpi(location.c_str(),other.location.c_str());
-        #else
-			return location == other.location;
-        #endif
+		return location == other.location;
 	}
 
 	bool		  File::operator!=(const File&other)  const
 	{
-    	#if SYSTEM==WINDOWS
-        	return strcmpi(location.c_str(),other.location.c_str())!=0;
-        #else
-			return location != other.location;
-        #endif
-
+		return location != other.location;
 	}
 
 
-	bool	 File::operator<(const String&filename)  const
+	bool	 File::operator<(const PathString&filename)  const
 	{
-    	#if SYSTEM==WINDOWS
-        	return strcmpi(location.c_str(),filename.c_str())<0;
-        #else
-			return name < filename;
-        #endif
+		return location < filename;
 	}
 
-	bool	 File::operator>(const String&filename)  const
+	bool	 File::operator>(const PathString&filename)  const
 	{
-    	#if SYSTEM==WINDOWS
-        	return strcmpi(location.c_str(),filename.c_str())>0;
-        #else
-			return name > filename;
-        #endif
+		return location > filename;
 	}
 
-	bool	 File::operator<=(const String&filename)  const
+	bool	 File::operator<=(const PathString&filename)  const
 	{
-    	#if SYSTEM==WINDOWS
-        	return strcmpi(location.c_str(),filename.c_str())<=0;
-        #else
-			return name <= filename;
-        #endif
+		return location <= filename;
 	}
 
-	bool	 File::operator>=(const String&filename)  const
+	bool	 File::operator>=(const PathString&filename)  const
 	{
-    	#if SYSTEM==WINDOWS
-        	return strcmpi(location.c_str(),filename.c_str())>=0;
-        #else
-			return name >= filename;
-        #endif
+		return location >= filename;
 	}
 
-	bool	 File::operator==(const String&filename)  const
+	bool	 File::operator==(const PathString&filename)  const
 	{
-    	#if SYSTEM==WINDOWS
-        	return strcmpi(location.c_str(),filename.c_str())==0;
-        #else
-			return name == filename;
-        #endif
+		return location == filename;
 	}
 
-	bool	 File::operator!=(const String&filename)  const
+	bool	 File::operator!=(const PathString&filename)  const
 	{
-    	#if SYSTEM==WINDOWS
-        	return strcmpi(location.c_str(),filename.c_str())!=0;
-        #else
-			return name != filename;
-        #endif
+ 		return location != filename;
 	}
 
 	static File  fs_file_sibling;
 
-	const File*	  File::GetSibling(const String&ext)  const
+	const File*	  File::GetSibling(const PathString&ext)  const
 	{
-		String sibling_location = ExtractFileName(location)+"."+ext;
+		PathString sibling_location = ExtractFileName(location)+L"."+ext;
 		if (!FileSystem::DoesExist(sibling_location))
 			return NULL;
 		fs_file_sibling = *this;
@@ -236,7 +187,7 @@ namespace FileSystem
 
 	String File::ToString() const
 	{
-		return is_folder?"Folder: "+location:"File: "+location;
+		return is_folder?"Folder: "+String(location):"File: "+String(location);
 	}
 
 	bool File::Unlink() const
@@ -249,8 +200,8 @@ namespace FileSystem
 			return !::unlink(location.c_str());
 		#elif SYSTEM==WINDOWS
 			if (is_folder)
-				return !!RemoveDirectoryA(location.c_str());
-			return !!DeleteFileA(location.c_str());
+				return !!RemoveDirectoryW(location.c_str());
+			return !!DeleteFileW(location.c_str());
 		#else
 			#error not supported
 		#endif
@@ -278,25 +229,26 @@ namespace FileSystem
 	bool				TempFile::Create()
 	{
 		MutexLock	lock(mutex);
-		String tmp_folder = getTempFolder();
+		PathString tmp_folder = getTempFolder();
 		#if SYSTEM==WINDOWS
 
 			static const size_t buffer_size=512;
 
-			char	szTempName[buffer_size];
+			PathString::char_t	szTempName[buffer_size];
 	/*		UINT	uRetVal;
 			BOOL fSuccess;*/
 
 
 		// Create a temporary file.
-			if (!GetTempFileNameA(tmp_folder.c_str(), // directory for tmp files
-								  "generic",		// temp file name prefix
+			if (!GetTempFileNameW(tmp_folder.c_str(), // directory for tmp files
+								  L"generic",		// temp file name prefix
 								  0,			// create unique name
 								  szTempName))  // buffer for name
 				return false;
 
 
 			filename = szTempName;
+			FILE*tmp = _wfopen(filename.c_str(),L"wb");
 		#elif SYSTEM==UNIX
 			static unsigned subsequent_call;
 			srand(time(NULL)+(subsequent_call++));
@@ -310,18 +262,18 @@ namespace FileSystem
 				return false;
 			//filename = mktemp("/tmp/generic.XXXXXX");
 			//filename = mkstemp("/tmp/generic.XXXXXX");
+			FILE*tmp = fopen(filename.c_str(),"wb");
 		#else
 			#error not supported
 		#endif
 
-		FILE*tmp = fopen(filename.c_str(),"wb");
 		if (!tmp)
 			return false;
 		fclose(tmp);
 		created = true;
 
 		#if SYSTEM==WINDOWS
-			SetFileAttributesA(filename.c_str(),FILE_ATTRIBUTE_TEMPORARY);
+			SetFileAttributesW(filename.c_str(),FILE_ATTRIBUTE_TEMPORARY);
 		#endif
 
 	//	cout << " + "<<filename.c_str()<<endl;
@@ -341,14 +293,14 @@ namespace FileSystem
 	}
 
 
-	const String&	  TempFile::GetLocation()
+	const PathString&	  TempFile::GetLocation()
 	{
 		if (!created && !Create())
 			FATAL__("Unable to create temporary file");
 		return filename;
 	}
 
-	TempFile::operator const String& ()
+	TempFile::operator const PathString& ()
 	{
 		if (!created && !Create())
 			FATAL__("Unable to create temporary file");
@@ -357,17 +309,17 @@ namespace FileSystem
 
 
 
-	String Drive::GetName()			const
+	PathString Drive::GetName()			const
 	{
 		return name;
 	}
 
-	String Drive::GetRoot()			const
+	PathString Drive::GetRoot()			const
 	{
 		return root;
 	}
 
-	String Drive::ToString() const
+	PathString Drive::ToString() const
 	{
 		return name+" ("+root+")";
 	}
@@ -383,17 +335,12 @@ namespace FileSystem
 
 
 
-	Folder::Folder():valid_location(true),absolute_folder(GetWorkingDirectory()),find_handle(NULL)
+	Folder::Folder():valid_location(true),absolute_folder(absMarker + GetWorkingDirectory()),find_handle(NULL)
 	{}
 
-	Folder::Folder(const String&folder_string) : valid_location(true), absolute_folder(GetWorkingDirectory()), find_handle(NULL)
+	Folder::Folder(const PathString&folder_string) : valid_location(true), absolute_folder(absMarker + GetWorkingDirectory()), find_handle(NULL)
 	{
 		MoveTo(folder_string);
-	}
-
-	Folder::Folder(const StringW&folder_string) : valid_location(true), absolute_folder(GetWorkingDirectory()), find_handle(NULL)
-	{
-		MoveTo(String(folder_string.c_str()));	//feeling lazy
 	}
 
 	Folder::Folder(const File&file):valid_location(false),find_handle(NULL)
@@ -435,11 +382,12 @@ namespace FileSystem
 	{
 		closeScan();
 		valid_location = false;
-		locate(file->location);
+		if (file)
+			locate(file->location);
 	    return *this;
 	}
 
-	Folder& Folder::operator=(const String&folder_string)
+	Folder& Folder::operator=(const PathString&folder_string)
 	{
 		closeScan();
 		valid_location = false;
@@ -464,31 +412,52 @@ namespace FileSystem
 		find_handle = NULL;
 	}
 
-	bool Folder::resolvePath(const String&path_string, String&final)
+	bool Folder::ResolvePath(const PathString&path_string, PathString*finalParent, PathString&final) const
 	{
 		if (!path_string.length())
 			return false;
-		String local = path_string;
+		PathString local = path_string;
+		bool valid_location = false;
 		#if SYSTEM==WINDOWS
-			if (isalpha(path_string.firstChar()) && path_string.get(1) == ':')
+			
+			bool isAbs = path_string.beginsWith(absMarker);
+			if (isAbs || (   isalpha(path_string.firstChar()) && path_string.get(1) == ':'))
 			{
-				absolute_folder = path_string.subString(0,3);
-				local = path_string.subString(3);
+				if (isAbs)
+				{
+					local = path_string.subString(absMarker.length()+3);
+					final = path_string.subString(0,absMarker.length()+3);
+				}
+				else
+				{
+					local = path_string.subString(3);
+					final = absMarker + path_string.subString(0,3);
+				}
 				valid_location = true;
 			}
 			else
 				if (path_string.firstChar() == '\\')
 				{
-					absolute_folder = GetWorkingDirectory().subString(0, 3);
 					local = path_string.subString(1);
+					final = absMarker + GetWorkingDirectory().subString(0, 3);
 					valid_location = true;
+				}
+				else
+				{
+					final = absolute_folder;
+					valid_location = this->valid_location;
 				}
 		#elif SYSTEM==UNIX
 			if (path_string.firstChar() == '/')
 			{
-				absolute_folder = "/";
 				local = path_string.subString(1);
+				final = "/";
 				valid_location = true;
+			}
+			else
+			{
+				final = absolute_folder;
+				valid_location = this->valid_location;
 			}
 		#else
 			#error not supported
@@ -496,17 +465,15 @@ namespace FileSystem
 
 		if (!valid_location)
 		{
-			absolute_folder = GetWorkingDirectory();
+			final = absMarker + GetWorkingDirectory();
 			valid_location = true;
 		}
-
-		final = absolute_folder;
-
-		while (local.length())
+		if (finalParent)
+			*finalParent = final;
+		
+		while (local.IsNotEmpty())
 		{
-			if (!IsFolder(final))
-				return false;
-			String step;
+			PathString step;
 			index_t	at0 = local.indexOf('/'),
 					at1 = local.indexOf('\\'),
 					at = !at0?at1:(!at1?at0:(std::min(at0,at1)));
@@ -526,37 +493,63 @@ namespace FileSystem
 				continue;
 			if (step == "..")
 			{
-				if (!Exit())
+				if (!ExitAbs(final,false))
 					return false;
 				continue;
 			}
-			if (absolute_folder.lastChar() != '/'
+			if (local.IsEmpty())
+				if (finalParent)
+					*finalParent = final;
+			if (final.lastChar() != '/'
 				&&
-				absolute_folder.lastChar() != '\\')
-				absolute_folder+=FOLDER_SLASH;
-			absolute_folder += step;
+				final.lastChar() != '\\')
+				final += FOLDER_SLASH;
+			final += step;
 		}
-		final = absolute_folder;
-		return true;
+		//final = absolute_folder;
+		return DoesExist(final);
+	}
+
+	bool				Folder::ResolvePathAndMoveTo(const PathString&path, bool moveToParent)
+	{
+		PathString parent,str;
+		if (ResolvePath(path,&parent,str))
+		{
+			absolute_folder = moveToParent ? parent : str;
+			valid_location = moveToParent || IsFolder(absolute_folder);
+			if (!valid_location)
+			{
+				absolute_folder = parent;
+				valid_location = true;
+			}
+			return true;
+		}
+		return false;
 	}
 
 
 
 
-	bool Folder::locate(const String&folder_string)
+	bool Folder::locate(const PathString&folder_string)
 	{
 		absolute_folder = folder_string;
 		if (absolute_folder.length() > 1 && (absolute_folder.lastChar() == '/' || absolute_folder.lastChar() == '\\'))
 			absolute_folder.erase(absolute_folder.length()-1);
+		#if SYSTEM==WINDOWS
+			if (!absolute_folder.beginsWith(absMarker))
+			{
+				absolute_folder = absMarker + absolute_folder;
+			}
+		#endif
 		valid_location = IsFolder(absolute_folder);
 		return valid_location;
 	}
 
-	bool Folder::MoveTo(const String&folder_string)
+	bool Folder::MoveTo(const PathString&folder_string)
 	{
 		closeScan();
-		String final;
-		valid_location = resolvePath(folder_string, final) && locate(final);
+		//PathString final;
+		valid_location = ResolvePathAndMoveTo(folder_string,false);
 		return valid_location;
 	}
 
@@ -576,53 +569,71 @@ namespace FileSystem
 	{
 		if (!valid_location)
 			return false;
-		#if SYSTEM==UNIX
+		return ExitAbs(absolute_folder,true);
+		//#if SYSTEM==UNIX
+		//	if (absolute_folder == '/' || absolute_folder == '\\')
+		//		return false;
+		//#endif
+
+		//PathString current = absolute_folder,
+		//		dir = ExtractFileNameExt(absolute_folder),
+		//		super = ExtractFileDir(absolute_folder);
+		//#if SYSTEM!=UNIX
+		//	if (!super.length())
+		//		return false;
+		//#else
+		//	if (!super.length())
+		//	{
+		//		absolute_folder = FOLDER_SLASH;
+		//		return true;
+		//	}
+		//#endif
+		//if (!locate(super))
+		//{
+		//	absolute_folder = current;
+		//	valid_location = true;
+		//	return false;
+		//}
+		//return true;
+	}
+
+	/*static*/ bool Folder::ExitAbs(PathString&path, bool check)
+	{
+		if (check && !IsDirectory(path))
+			return false;
+		#if SYSTEM!=WINDOWS
 			if (absolute_folder == '/' || absolute_folder == '\\')
 				return false;
 		#endif
 
-		String current = absolute_folder,
-				dir = ExtractFileNameExt(absolute_folder),
-				super = ExtractFileDir(absolute_folder);
-		#if SYSTEM!=UNIX
-			if (!super.length())
-				return false;
-		#else
-			if (!super.length())
-			{
-				absolute_folder = FOLDER_SLASH;
-				return true;
-			}
-		#endif
-		if (!locate(super))
-		{
-			absolute_folder = current;
-			valid_location = true;
+		PathString current = path,
+				dir = ExtractFileNameExt(path),
+				super = ExtractFileDir(path);
+		if (super.IsEmpty())
 			return false;
+		if (!check || IsDirectory(super))
+		{
+			path = super;
+			return true;
 		}
-		return true;
+		return false;
 	}
 
-	bool Folder::Enter(const String&folder)
+	bool Folder::Enter(const PathString&folder)
 	{
 		if (!valid_location)
 			return false;
-		String current = absolute_folder,
-				target;
-		if (!resolvePath(folder,target) || !locate(target))
-		{
-			absolute_folder = current;
-			valid_location = true;
-			return false;
-		}
-		return true;
+	//	PathString current = absolute_folder;
+			//	target;
+		return ResolvePathAndMoveTo(folder,false);
+	
 	}
 
 	bool Folder::Enter(const File&file)
 	{
 		if (!valid_location)
 			return false;
-		String current = absolute_folder;
+		PathString current = absolute_folder;
 		if (!locate(file.location))
 		{
 			absolute_folder = current;
@@ -650,8 +661,8 @@ namespace FileSystem
 
 		#if SYSTEM==WINDOWS
 
-			WIN32_FIND_DATAA result;
-			HANDLE handle = FindFirstFileA(String(absolute_folder+"\\*").c_str(),&result);
+			WIN32_FIND_DATAW result;
+			HANDLE handle = FindFirstFileW(PathString(absolute_folder+L"\\*").c_str(),&result);
 			if (handle)
 			{
 				do
@@ -659,7 +670,7 @@ namespace FileSystem
 					if (result.cFileName[0] != '.')
 						count++;
 				}
-				while (FindNextFileA(handle,&result));
+				while (FindNextFileW(handle,&result));
 				FindClose(handle);
 			}
 		#elif SYSTEM==UNIX
@@ -682,7 +693,7 @@ namespace FileSystem
 		#if SYSTEM==WINDOWS
 			if (find_handle)
 				FindClose(find_handle);
-			find_handle = FindFirstFileA(String(absolute_folder+"\\*").c_str(),&find_data);
+			find_handle = FindFirstFileW(PathString(absolute_folder+L"\\*").c_str(),&find_data);
 		#elif SYSTEM==UNIX
 			if (find_handle)
 				rewinddir(find_handle);
@@ -717,7 +728,7 @@ namespace FileSystem
 				file.location+=FOLDER_SLASH;
 			file.location+= find_data.cFileName;
 			file.is_folder = (find_data.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)!=0;
-			if (!FindNextFileA(find_handle,&find_data))
+			if (!FindNextFileW(find_handle,&find_data))
 			{
 				FindClose(find_handle);
 				find_handle = NULL;
@@ -787,9 +798,9 @@ namespace FileSystem
 	}
 
 
-	const Folder::File*	 Folder::NextFile(const String&extension)
+	const Folder::File*	 Folder::NextFile(const PathString&extension)
 	{
-		const char*ext = extension.c_str();
+		const PathString::char_t*ext = extension.c_str();
 		const File*file;
 		do
 		{
@@ -800,9 +811,9 @@ namespace FileSystem
 		return file;
 	}
 
-	bool	Folder::NextFile(const String&extension, File&target)
+	bool	Folder::NextFile(const PathString&extension, File&target)
 	{
-		const char*ext = extension.c_str();
+		const PathString::char_t*ext = extension.c_str();
 		while (NextEntry(target))
 			if (!target.is_folder && target.GetLocation().endsWith(extension))
 				return true;
@@ -811,29 +822,30 @@ namespace FileSystem
 
 
 
-	const Folder::File*	 Folder::Find(const String&folder_str)	const
+	const Folder::File*	 Folder::Find(const PathString&folder_str, bool mustExist/*=true*/)	const
 	{
-		if (Find(folder_str,file))
+		if (Find(folder_str,file,mustExist))
 			return &file;
 		return NULL;
 	}
 
-	bool	 Folder::Find(const String&folder_str, File&out)	const
+	bool	 Folder::Find(const PathString&folder_str, File&out, bool mustExist/*=true*/)	const
 	{
-		Folder	temporary = *this;
-		if (!temporary.resolvePath(folder_str,out.location))
+		if (!valid_location)
+			return false;
+		if (!ResolvePath(folder_str,nullptr,out.location) && mustExist)
 			return false;
 		out.name = ExtractFileNameExt(out.location);
-
+		out.is_folder = false;
 		#if SYSTEM==WINDOWS
-			DWORD attributes = GetFileAttributesA(out.location.c_str());
+			DWORD attributes = GetFileAttributesW(out.location.c_str());
 			if (attributes == INVALID_FILE_ATTRIBUTES)
-				return false;
+				return !mustExist;
 			out.is_folder = (attributes&FILE_ATTRIBUTE_DIRECTORY)!=0;
 		#elif SYSTEM==UNIX
 			struct stat s;
 			if (stat(out.location.c_str(),&s))
-				return false;
+				return !mustExist;
 			out.is_folder = s.st_mode&S_IFDIR;
 		#else
 			#error not supported
@@ -841,51 +853,65 @@ namespace FileSystem
 		return true;
 	}
 
-	const Folder::File*	 Folder::FindFile(const String&folder_str)	const
+	const Folder::File*	 Folder::FindFile(const PathString&folder_str, bool mustExist/*=true*/)	const
 	{
-		const File*rs = Find(folder_str);
+		const File*rs = Find(folder_str,mustExist);
 		if (!rs || rs->is_folder)
 			return NULL;
 		return rs;
 	}
 
-	bool	 Folder::FindFile(const String&folder_str, File&out)	const
+	bool	 Folder::FindFile(const PathString&folder_str, File&out, bool mustExist/*=true*/)	const
 	{
-		return Find(folder_str,out) && !out.is_folder;
+		return Find(folder_str,out,mustExist) && !out.is_folder;
 	}
 
-	bool	 Folder::FindFolder(const String&folder_str, File&out)	const
+	bool	 Folder::FindFolder(const PathString&folder_str, File&out, bool mustExist/*=true*/)	const
 	{
-		return Find(folder_str,out) && out.is_folder;
+		//return Find(folder_str,out,mustExist) && out.is_folder;
+		if (Find(folder_str,out,mustExist))
+		{
+			if (mustExist)
+				return out.is_folder;
+			return !IsFile(out.location);
+		}
+		return false;
 	}
 
-	const Folder::File*	 Folder::FindFolder(const String&folder_str)	const
+	const Folder::File*	 Folder::FindFolder(const PathString&folder_str, bool mustExist/*=true*/)	const
 	{
-		const File*rs = Find(folder_str);
-		if (!rs || !rs->is_folder)
+		const File*rs = Find(folder_str,mustExist);
+		if (!rs)
 			return NULL;
-		return rs;
+
+		if (mustExist)
+			return rs->is_folder ? rs : NULL;
+		return IsFile(rs->location) ? NULL : rs;
 	}
 
-	const Folder::File*	 Folder::CreateFolder(const String&name)	const
+	const Folder::File*	 Folder::CreateFolder(const PathString&name)	const
 	{
 		if (!valid_location)
 			return NULL;
-		String location = absolute_folder;
+		PathString location = absolute_folder;
 		if (location.lastChar() != '/' && location.lastChar() != '\\')
 			location += FOLDER_SLASH;
 		location += name;
-		return FileSystem::CreateFolder(location);
+		//locate(
+		PathString final;
+		ResolvePath(location,nullptr,final);
+		return FileSystem::CreateFolder(final);
 	}
 
-	bool	 Folder::CreateFolder(const String&name, File&out)	const
+	bool	 Folder::CreateFolder(const PathString&name, File&out)	const
 	{
 		if (!valid_location)
 			return false;
-		String location = absolute_folder;
+		PathString location = absolute_folder;
 		if (location.lastChar() != '/' && location.lastChar() != '\\')
 			location += FOLDER_SLASH;
 		location += name;
+		ResolvePath(location,nullptr,location);
 		return FileSystem::CreateFolder(location, out);
 	}
 
@@ -896,16 +922,16 @@ namespace FileSystem
 	String		 Folder::ToString() const
 	{
 		if (!valid_location)
-			return "Folder: "+absolute_folder+"(invalid)";
-		return "Folder: "+absolute_folder;
+			return "Folder: "+String(absolute_folder)+"(invalid)";
+		return "Folder: "+String(absolute_folder);
 	}
 
-	const String&  Folder::LocationStr() const
+	const PathString&  Folder::LocationStr() const
 	{
 		return absolute_folder;
 	}
 
-	const String&  Folder::GetLocation() const
+	const PathString&  Folder::GetLocation() const
 	{
 		return absolute_folder;
 	}
@@ -930,7 +956,7 @@ namespace FileSystem
 				return nullptr;
 		#endif
 
-		String	 super = ExtractFileDir(absolute_folder);
+		PathString	 super = ExtractFileDir(absolute_folder);
 		#if SYSTEM==WINDOWS
 			if (!super.length())
 				return NULL;
@@ -984,7 +1010,7 @@ namespace FileSystem
 
 
 
-	String WorkingDirectory()
+	PathString WorkingDirectory()
 	{
 		char buffer[0x1000];
 		#if SYSTEM==WINDOWS
@@ -1000,7 +1026,7 @@ namespace FileSystem
 		#endif
 	}
 
-	String GetWorkingDirectory()
+	PathString GetWorkingDirectory()
 	{
 		char buffer[0x1000];
 		#if SYSTEM==WINDOWS
@@ -1016,21 +1042,11 @@ namespace FileSystem
 		#endif
 	}
 
-	bool	SetWorkingDirectory(const StringW&path)
+
+	bool  SetWorkingDirectory(const PathString&path)
 	{
 		#if SYSTEM==WINDOWS
 			return !!SetCurrentDirectoryW(path.c_str());
-		#elif SYSTEM==UNIX
-			return SetWorkingDirectory(ToUTF8(path));
-		#else
-			#error not supported
-		#endif
-	}
-
-	bool  SetWorkingDirectory(const String&path)
-	{
-		#if SYSTEM==WINDOWS
-			return !!SetCurrentDirectoryA(path.c_str());
 		#elif SYSTEM==UNIX
 			return !chdir(path.c_str());
 		#else
@@ -1102,11 +1118,7 @@ namespace FileSystem
 			return filename.subString(last_slash,last_dot-last_slash);
 		}
 
-	String	ExtractFileName(const String&filename)
-	{
-		return _extractFileName(filename);
-	}
-	WString	ExtractFileName(const WString&filename)
+	PathString	ExtractFileName(const PathString&filename)
 	{
 		return _extractFileName(filename);
 	}
@@ -1121,11 +1133,7 @@ namespace FileSystem
 			return filename.subString(at+1);
 		}
 
-	String	ExtractFileExt(const String&filename)
-	{
-		return _extractFileExt(filename);
-	}
-	WString	ExtractFileExt(const WString&filename)
+	PathString	ExtractFileExt(const PathString&filename)
 	{
 		return _extractFileExt(filename);
 	}
@@ -1144,8 +1152,7 @@ namespace FileSystem
 			return filename.subString(0,at);
 		}
 
-	String	ExtractFileDir(const String&filename)	{return _extractFileDir(filename);}
-	WString	ExtractFileDir(const WString&filename)	{return _extractFileDir(filename);}
+	PathString	ExtractFileDir(const PathString&filename)	{return _extractFileDir(filename);}
 
 	template <typename T>
 		static StringTemplate<T>	 _extractFileDirName(const StringTemplate<T>&filename)
@@ -1159,8 +1166,7 @@ namespace FileSystem
 			return filename.subString(0,at);
 		}
 
-	String	 ExtractFileDirName(const String&filename)	{return _extractFileDirName(filename);}
-	WString	 ExtractFileDirName(const WString&filename)	{return _extractFileDirName(filename);}
+	PathString	 ExtractFileDirName(const PathString&filename)	{return _extractFileDirName(filename);}
 
 	template <typename T>
 		static StringTemplate<T>	 _extractFileNameExt(const StringTemplate<T>&filename)
@@ -1172,8 +1178,7 @@ namespace FileSystem
 			return filename.subString(at+1);
 		}
 
-	String	 ExtractFileNameExt(const String&filename)	{return _extractFileNameExt(filename);}
-	WString	 ExtractFileNameExt(const WString&filename)	{return _extractFileNameExt(filename);}
+	PathString	 ExtractFileNameExt(const PathString&filename)	{return _extractFileNameExt(filename);}
 
 
 	template <typename T>
@@ -1190,24 +1195,19 @@ namespace FileSystem
 			}
 			return final;
 		}
-	String	 EscapeSpaces(const String &path)	{return _escapeSpaces(path);}
-	WString	 EscapeSpaces(const WString &path)	{return _escapeSpaces(path);}
+	PathString	 EscapeSpaces(const PathString &path)	{return _escapeSpaces(path);}
 
 
-	bool IsDirectory(const String&name)
+	bool IsDirectory(const PathString&name)
 	{
 		return IsFolder(name);
 	}
 
-	bool IsDirectory(const StringW&name)
-	{
-		return IsFolder(name);
-	}
 
-	bool IsFolder(const String&name)
+	bool IsFolder(const PathString&name)
 	{
 		#if SYSTEM==WINDOWS
-			DWORD attribs = GetFileAttributesA(name.c_str());
+			DWORD attribs = GetFileAttributesW(name.c_str());
 			return attribs != INVALID_FILE_ATTRIBUTES && (attribs&FILE_ATTRIBUTE_DIRECTORY);
 		#elif SYSTEM==UNIX
 			struct ::stat s;
@@ -1217,29 +1217,15 @@ namespace FileSystem
 		#endif
 	}
 
-	bool IsFolder(const StringW&name)
-	{
-		#if SYSTEM==WINDOWS
-			DWORD attribs = GetFileAttributesW(name.c_str());
-			return attribs != INVALID_FILE_ATTRIBUTES && (attribs&FILE_ATTRIBUTE_DIRECTORY);
-		#elif SYSTEM==UNIX
-			return IsFolder(ToUTF8(name));
-//			struct ::stat s;
-	//		return !stat(name.c_str(),&s) && (s.st_mode&S_IFDIR);
-		#else
-			#error not supported
-		#endif
-	}
-
-	bool IsFile(const String&name)
+	bool IsFile(const PathString&name)
 	{
 		return IsFile(name.c_str());
 	}
 
-	bool IsFile(const char*name)
+	bool IsFile(const PathString::char_t*name)
 	{
 		#if SYSTEM==WINDOWS
-			DWORD attribs = GetFileAttributesA(name);
+			DWORD attribs = GetFileAttributesW(name);
 			return attribs != INVALID_FILE_ATTRIBUTES && !(attribs&FILE_ATTRIBUTE_DIRECTORY);
 		#elif SYSTEM==UNIX
 			struct ::stat s;
@@ -1249,24 +1235,11 @@ namespace FileSystem
 		#endif
 	}
 
-	bool IsFile(const StringW&name)
-	{
-		#if SYSTEM==WINDOWS
-			DWORD attribs = GetFileAttributesW(name.c_str());
-			return attribs != INVALID_FILE_ATTRIBUTES && !(attribs&FILE_ATTRIBUTE_DIRECTORY);
-		#elif SYSTEM==UNIX
-			return IsFile(ToUTF8(name));
-			//struct ::stat s;
-			//return !stat(name.c_str(),&s) && !(s.st_mode&S_IFDIR);
-		#else
-			#error not supported
-		#endif
-	}
 
-	bool DoesExist(const String&name)
+	bool DoesExist(const PathString&name)
 	{
 		#if SYSTEM==WINDOWS
-			return GetFileAttributesA(name.c_str()) != INVALID_FILE_ATTRIBUTES;
+			return GetFileAttributesW(name.c_str()) != INVALID_FILE_ATTRIBUTES;
 		#elif SYSTEM==UNIX
 			struct ::stat s;
 			return !stat(name.c_str(),&s);
@@ -1276,11 +1249,11 @@ namespace FileSystem
 	}
 
 
-	fsize_t		GetFileSize(const String&name)
+	fsize_t		GetFileSize(const PathString&name)
 	{
 		#if SYSTEM==WINDOWS
 			WIN32_FILE_ATTRIBUTE_DATA	data;
-			if (!GetFileAttributesExA(name.c_str(),GetFileExInfoStandard,&data))
+			if (!GetFileAttributesExW(name.c_str(),GetFileExInfoStandard,&data))
 			{
 				return 0;
 			}
@@ -1296,11 +1269,11 @@ namespace FileSystem
 	}
 
 
-	ftime_t GetModificationTime(const String&name)
+	ftime_t GetModificationTime(const PathString&name)
 	{
 		#if SYSTEM==WINDOWS
 			WIN32_FILE_ATTRIBUTE_DATA	data;
-			if (!GetFileAttributesExA(name.c_str(),GetFileExInfoStandard,&data))
+			if (!GetFileAttributesExW(name.c_str(),GetFileExInfoStandard,&data))
 			{
 				return 0;
 			}
@@ -1323,16 +1296,16 @@ namespace FileSystem
 	}
 
 
-	const File*  MoveFile(const String&source, const String&destination)
+	const File*  MoveFile(const PathString&source, const PathString&destination)
 	{
 		return Move(source, destination);
 	}
 
 
-	const File*  Move(const String&source, const String&destination)
+	const File*  Move(const PathString&source, const PathString&destination)
 	{
 		#if SYSTEM==WINDOWS
-			if (!MoveFileA(source.c_str(),destination.c_str()))
+			if (!MoveFileW(source.c_str(),destination.c_str()))
 				return NULL;
 		#elif SYSTEM==UNIX
 			if (rename(source.c_str(),destination.c_str()))
@@ -1346,17 +1319,49 @@ namespace FileSystem
 		return &fs_result;
 	}
 
-	const File*  Copy(const String&source, const String&destination, bool overwrite_if_exist)
+	const File*  Copy(const PathString&source, const PathString&destination, bool overwrite_if_exist)
 	{
-		if (DoesExist(destination) && !overwrite_if_exist)
+		if (!Copy(source,destination,fs_result,overwrite_if_exist))
 			return NULL;
+		return &fs_result;
+	}
+
+
+	bool		Copy(const PathString&source, const PathString&destination, File&outFile, bool overwrite_if_exist)
+	{
+		if ((IsFile(destination)) && !overwrite_if_exist)
+			return false;
 		#if SYSTEM==WINDOWS
-			String my_destination = destination;
+			PathString my_destination = destination;
 			if (IsFolder(destination) && !IsFolder(source))
 				my_destination += FOLDER_SLASH+ExtractFileNameExt(source);
-
-			if (!CopyFileA(source.c_str(),my_destination.c_str(),!overwrite_if_exist) && system("copy \""+addSlashes(source)+"\" \""+addSlashes(destination)+"\""))
-				return NULL;
+			if (IsFolder(source))
+			{
+				if (!DoesExist(destination))
+				{
+					File dummy;
+					if (!CreateFolder(destination,dummy))
+					{
+						return false;
+					}
+				}
+				if (IsFile(destination))
+					return false;
+				Folder scan(source);
+				Folder write(destination);
+				File found,dest,copied;
+				scan.Rewind();
+				while (scan.NextEntry(found))
+				{
+					if (write.Find(found.GetName(),dest,false))
+						Copy(found.GetLocation(),dest.GetLocation(),copied,overwrite_if_exist);
+				}
+			}
+			else
+			{
+				if (!CopyFileW(source.c_str(),my_destination.c_str(),!overwrite_if_exist) && _wsystem((L"copy \""+addSlashes(source)+L"\" \""+addSlashes(destination)+L"\"").c_str()))
+					return false;
+			}
 		#elif SYSTEM==UNIX
 			/*FILE*fsource = fopen(EscapeSpaces(source),"rb");
 			if (!source)
@@ -1381,87 +1386,88 @@ namespace FileSystem
 			fclose(ftarget);*/
 		
 			
-			String call = ("cp "+EscapeSpaces(source)+" "+EscapeSpaces(destination));
+			PathString call = ("cp "+EscapeSpaces(source)+" "+EscapeSpaces(destination));
 			if (system(call))
-				return NULL;
+				return false;
 			//sleep(500);
 		#else
 			#error not supported
 		#endif
-		fs_result.name = ExtractFileNameExt(destination);
-		fs_result.location = destination;
-		fs_result.is_folder = IsFolder(destination);
-		return &fs_result;
+		outFile.name = ExtractFileNameExt(destination);
+		outFile.location = destination;
+		outFile.is_folder = IsFolder(destination);
+		return true;
 	}
 
-	const File*  Copy(const File*source, const String&destination, bool overwrite)
+	const File*  Copy(const File*source, const PathString&destination, bool overwrite)
 	{
 		if (!source)
 			return NULL;
-		return Copy(source->location,destination,overwrite);
+		return Copy(source->GetLocation(),destination,overwrite);
 	}
 
-	const File*  Copy(const File&source, const String&destination, bool overwrite)
+	const File*  Copy(const File&source, const PathString&destination, bool overwrite)
 	{
-		return Copy(source.location,destination,overwrite);
+		return Copy(source.GetLocation(),destination,overwrite);
 	}
 
 
-	const File*  CopyFile(const String&source, const String&destination, bool overwrite_if_exist)
+	const File*  CopyFile(const PathString&source, const PathString&destination, bool overwrite_if_exist)
 	{
 		return Copy(source,destination,overwrite_if_exist);
 	}
 
-	const File*  CopyFile(const File*source, const String&destination, bool overwrite)
+	const File*  CopyFile(const File*source, const PathString&destination, bool overwrite)
 	{
 		return Copy(source,destination,overwrite);
 	}
 
-	const File*  CopyFile(const File&source, const String&destination, bool overwrite)
+	const File*  CopyFile(const File&source, const PathString&destination, bool overwrite)
 	{
 		return Copy(source,destination,overwrite);
 	}
 
 
-	const File*  Move(const File*source, const String&destination)
+	const File*  Move(const File*source, const PathString&destination)
 	{
 		return Move(source->GetLocation(),destination);
 	}
 
-	const File*  Move(const File&source, const String&destination)
+	const File*  Move(const File&source, const PathString&destination)
 	{
 		return Move(source.GetLocation(),destination);
 	}
 
 
-	const File*  MoveFile(const File*source, const String&destination)
+	const File*  MoveFile(const File*source, const PathString&destination)
 	{
 		return Move(source->GetLocation(),destination);
 	}
 
-	const File*  MoveFile(const File&source, const String&destination)
+	const File*  MoveFile(const File&source, const PathString&destination)
 	{
 		return Move(source.GetLocation(),destination);
 	}
 
-	const File*  CreateDirectory(const String&folder_name)
+	const File*  CreateDirectory(const PathString&folder_name)
 	{
 		return CreateFolder(folder_name);
 	}
 
-	const File*  CreateFolder(const String&folder_name)
+	const File*  CreateFolder(const PathString&folder_name)
 	{
 		if (CreateFolder(folder_name,fs_result))
 			return &fs_result;
 		return NULL;
 	}
 
-	bool  CreateDirectory(const String&folder_name, File&out)
+
+	bool  CreateDirectory(const PathString&folder_name, File&out)
 	{
 		return CreateFolder(folder_name,out);
 	}
 
-	bool  CreateFolder(const String&folder_name, File&out)
+	bool  CreateFolder(const PathString&folder_name, File&out)
 	{
 		if (!folder_name.length())
 			return false;
@@ -1470,13 +1476,20 @@ namespace FileSystem
 			out.location.erase(out.location.length()-1);
 		out.is_folder = true;
 		#if SYSTEM==WINDOWS
-			out.location.replace('/','\\');
-			Array<String>	segments;
-			explode('\\',out.location,segments);
+			bool absoluteWide = folder_name.beginsWith(absMarker);
+			out.location.replace(L'/',L'\\');
+			Array<PathString>	segments;
+			explode(L'\\',out.location,segments);
 			for (index_t i = 1; i <= segments.count(); i++)
 			{
-				String path = implode('\\',segments.pointer(),i);
-				if (!CreateDirectoryA(path.c_str(),NULL) && GetLastError() != ERROR_ALREADY_EXISTS)
+				PathString path = implode(L'\\',segments.pointer(),i);
+				if (path.IsEmpty() || path == L"\\\\?" || path.endsWith(L':') || path==L"\\")
+					continue;
+				//if (absoluteWide)
+					//path = absMarker + path;
+				if (IsDirectory(path))
+					continue;
+				if (!CreateDirectoryW(path.c_str(),NULL) && GetLastError() != ERROR_ALREADY_EXISTS)
 					return false;
 			}
 		#elif SYSTEM==UNIX
@@ -1485,8 +1498,9 @@ namespace FileSystem
 		#else
 			#error not supported
 		#endif
-		Folder().Find(out.location,out);
-		return true;
+		//PathString copy = out.location;
+		//;
+		return Folder().Find(out.location,out);
 	}
 
 #if SYSTEM==WINDOWS
@@ -1494,26 +1508,26 @@ namespace FileSystem
 	{
 		DWORD code = GetLastError();
 		LPVOID lpMsgBuf;
-		FormatMessage(
+		FormatMessageW(
 			FORMAT_MESSAGE_ALLOCATE_BUFFER |
 			FORMAT_MESSAGE_FROM_SYSTEM |
 			FORMAT_MESSAGE_IGNORE_INSERTS,
 			NULL,
 			code,
 			MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
-			(LPTSTR)&lpMsgBuf,
+			(LPWSTR)&lpMsgBuf,
 			0,
 			NULL
 			);
 		//unsigned len = strlen((char*)lpMsgBuf);
-		ErrMessage((const char*)lpMsgBuf);
+		ErrMessage((const wchar_t*)lpMsgBuf);
 
 		LocalFree(lpMsgBuf);
 	}
 
 #endif
 
-	bool			UnlinkFile(const String&location)
+	bool			UnlinkFile(const PathString&location)
 	{
 		#if SYSTEM==UNIX
 			return !::unlink(location.c_str());
@@ -1521,9 +1535,9 @@ namespace FileSystem
 			if (!IsFile(location))
 				return true;
 			int retry = 0;
-			String loc = location;
-			loc.replace('/','\\');
-			while (!DeleteFileA(loc.c_str()))
+			PathString loc = location;
+			loc.replace(L'/',L'\\');
+			while (!DeleteFileW(loc.c_str()))
 			{
 				if (retry > 10)
 				{
@@ -1531,7 +1545,7 @@ namespace FileSystem
 					return false;
 				}
 				if (retry == 0)
-					SetFileAttributesA(loc.c_str(), FILE_ATTRIBUTE_NORMAL);
+					SetFileAttributesW(loc.c_str(), FILE_ATTRIBUTE_NORMAL);
 				else
 					Sleep(10);
 				retry++;
@@ -1544,12 +1558,12 @@ namespace FileSystem
 
 	}
 
-	bool			RemoveFolder(const String&location)
+	bool			RemoveFolder(const PathString&location)
 	{
 		#if SYSTEM==UNIX
 			return !rmdir(location.c_str());
 		#elif SYSTEM==WINDOWS
-			return !!RemoveDirectoryA(location.c_str());
+			return !!RemoveDirectoryW(location.c_str());
 		#else
 			#error not supported
 		#endif
@@ -1569,7 +1583,7 @@ namespace FileSystem
 			if (len == -1 || len ==sizeof(buffer))
 				return file;
 			buffer[len] = 0;	//appearingly readlink does not terminate the string by itself
-	//		ShowMessage("symlink pointing to "+String(buffer));
+	//		ShowMessage("symlink pointing to "+PathString(buffer));
 			Folder folder(file->GetFolder());
 			return folder.FindFile(buffer);
 		#else
@@ -1586,7 +1600,7 @@ namespace FileSystem
 			if (len == -1 || len >= sizeof(buffer))
 				return true;
 			buffer[len] = 0;	//appearingly readlink does not terminate the string by itself
-	//		ShowMessage("symlink pointing to "+String(buffer));
+	//		ShowMessage("symlink pointing to "+PathString(buffer));
 			Folder folder(file.GetFolder());
 			return folder.FindFile(buffer,file);
 		#else
@@ -1604,10 +1618,10 @@ namespace FileSystem
 
 	bool  LocateExecutable(const char*name, File&target)
 	{
-		String wd = GetWorkingDirectory();
+		PathString wd = GetWorkingDirectory();
 		Folder folder(wd);
 
-		String filename=name;
+		PathString filename=name;
 
 		#if SYSTEM==UNIX
 			if (filename.indexOf('/'))
@@ -1639,7 +1653,7 @@ namespace FileSystem
 					field[i] = 0;
 					if (field[i-1] == '/' || field[i-1] == '\\')
 						field[i-1] = 0;
-					filename = String(segment_begin)+FOLDER_SLASH_STR+name;
+					filename = PathString(segment_begin)+FOLDER_SLASH_STR+name;
 					if (folder.FindFile(filename,target))
 						return ResolveLink(target);
 					if (folder.FindFile(filename+".exe",target))
@@ -1647,7 +1661,7 @@ namespace FileSystem
 					segment_begin = field+i+1;
 				}
 			{
-				filename = String(segment_begin)+FOLDER_SLASH_STR+name;
+				filename = PathString(segment_begin)+FOLDER_SLASH_STR+name;
 				if (folder.FindFile(filename,target))
 					return ResolveLink(target);
 				if (folder.FindFile(filename+".exe",target))
@@ -1657,7 +1671,7 @@ namespace FileSystem
 		return false;
 	}
 
-	String			GetAbsolutePath(const String&relative_path)
+	PathString			GetAbsolutePath(const PathString&relative_path)
 	{
 		Folder	folder(GetWorkingDirectory());
 		File file;
@@ -1666,12 +1680,12 @@ namespace FileSystem
 		return relative_path;
 	}
 
-	String			GetRelativePath(const String&origin, const String&destination)
+	PathString			GetRelativePath(const PathString&origin, const PathString&destination)
 	{
-		const char	*o = origin.c_str(),
-					*d = destination.c_str(),
-					*of = origin.c_str(),
-					*df = destination.c_str();
+		const PathString::char_t	*o = origin.c_str(),
+									*d = destination.c_str(),
+									*of = origin.c_str(),
+									*df = destination.c_str();
 		while (*o && (*o == *d || (*o == '/' && *d == '\\') || (*o == '\\' && *d == '/')))
 		{
 			if (*o == '/' || *o == '\\')
@@ -1696,7 +1710,7 @@ namespace FileSystem
 		if (of == origin.c_str())
 			return destination; //no relative path found
 	//	unsigned down(0);
-		String rs;
+		PathString rs;
 		o = of;
 		while (*o)
 		{

@@ -55,15 +55,15 @@ namespace Converter	//! Geometry converter namespace
 								*current_callback;	//!< Effective callback instance
 			float				seconds;			//!< Number of seconds passed during the last load/save operation
 	
-	virtual	bool				read(CGS::Geometry<>&target, const String&filename)=0;		//!< Virtual abstract load method (defined by the inheriting converter class)
-	virtual	bool				write(const CGS::Geometry<>&source, const String&filename)=0;	//!< Virtual abstract save method (defined by the inheriting converter class)
+	virtual	bool				Read(CGS::Geometry<>&target, const PathString&filename)=0;		//!< Virtual abstract load method (defined by the inheriting converter class)
+	virtual	bool				Write(const CGS::Geometry<>&source, const PathString&filename)=0;	//!< Virtual abstract save method (defined by the inheriting converter class)
 	public:
-		bool				positionObjects;	//!< Indicates that loaded objects should be located in the center of the extracted vertices. True by default
+		bool					positionObjects;	//!< Indicates that loaded objects should be located in the center of the extracted vertices. True by default
 	
-		/**/				Root() :current_callback(&default_callback), positionObjects(true)
+		/**/					Root() :current_callback(&default_callback), positionObjects(true)
 								{}
 								
-			bool            	loadFromFile(CGS::Geometry<>&structure, const String&filename, ProgressCallback*callback=NULL)	//! Attempts to import the specified geometrical file. \param structure Geometry to import into. Any existing geometrical data will be cleared \param filename Filename to load from \param callback Custom progress callback instance to report to or NULL to not generate any reports \return true on success, false otherwise
+			bool            	LoadFromFile(CGS::Geometry<>&structure, const PathString&filename, ProgressCallback*callback=NULL)	//! Attempts to import the specified geometrical file. \param structure Geometry to import into. Any existing geometrical data will be cleared \param filename Filename to load from \param callback Custom progress callback instance to report to or NULL to not generate any reports \return true on success, false otherwise
 								{
 									if (callback)
 										current_callback = callback;
@@ -71,20 +71,20 @@ namespace Converter	//! Geometry converter namespace
 										current_callback = &default_callback;
 									last_error = "No Error";
 									Timer::Time t = timer.now();
-									bool result = read(structure,filename);
+									bool result = Read(structure,filename);
 									seconds = timer.toSecondsf(timer.now()-t);
 									return result;
 								}
 								
-	        CGS::Geometry<>*  	loadFromFile(const String&filename,ProgressCallback*callback=NULL)	//! Attempts to import the specified geometrical file into a new geometry \param callback Custom progress callback instance to report to or NULL to not generate any reports \param filename Filename to load from 
+	        CGS::Geometry<>*  	LoadFromFile(const PathString&filename,ProgressCallback*callback=NULL)	//! Attempts to import the specified geometrical file into a new geometry \param callback Custom progress callback instance to report to or NULL to not generate any reports \param filename Filename to load from 
 		                        {
 		                            CGS::Geometry<>*struc = SHIELDED(new CGS::Geometry<>());
-		                            if (loadFromFile(*struc,filename,callback))
+		                            if (LoadFromFile(*struc,filename,callback))
 		                                return struc;
 		                            DISCARD(struc);
 		                            return NULL;
 		                        }
-			bool            	saveToFile(const CGS::Geometry<>&structure, const String&filename,ProgressCallback*callback=NULL)	//! Attempts to export the specified geometry to the specified file \param structure Geometry to export \param filename Filename to save to  \param callback Custom progress callback instance to report to or NULL to not generate any reports
+			bool            	SaveToFile(const CGS::Geometry<>&structure, const PathString&filename,ProgressCallback*callback=NULL)	//! Attempts to export the specified geometry to the specified file \param structure Geometry to export \param filename Filename to save to  \param callback Custom progress callback instance to report to or NULL to not generate any reports
 								{
 									if (callback)
 										current_callback = callback;
@@ -92,17 +92,13 @@ namespace Converter	//! Geometry converter namespace
 										current_callback = &default_callback;
 									last_error = "No Error";
 									Timer::Time t = timer.now();
-									bool result = write(structure,filename);
+									bool result = Write(structure,filename);
 									seconds = timer.toSecondsf(timer.now()-t);
 									return result;
 								}
-	virtual const String&     	errorStr() const					//! Returns a string representation of the last occured error (if any)
+		virtual	const String&	GetError()	const					//! Returns a string representation of the last occured error (if any)
 								{
 									return last_error;
-								}
-			const String&		getError()	const					//! Returns a string representation of the last occured error (if any)
-								{
-									return errorStr();
 								}
 			float				getSecondsf()	const				//! Returns the number of seconds passed during the last load/save operation
 								{

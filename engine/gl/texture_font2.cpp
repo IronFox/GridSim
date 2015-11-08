@@ -39,17 +39,17 @@ namespace Engine
 		static bool			get(const XML::Node&node, const String&name, T&out)
 		{
 			String val;
-			return node.query(name,val) && convert(val.c_str(),out);
+			return node.Query(name,val) && convert(val.c_str(),out);
 		}
 
 	
 	
-	void				GLTextureFont2::loadFromFile(const String&filename, float scale_)
+	void				GLTextureFont2::LoadFromFile(const PathString&filename, float scale_)
 	{
 		XML::Container	container;
-		container.loadFromFile(filename);
+		container.LoadFromFile(filename);
 
-		const XML::Node*xfont = container.find("font");
+		const XML::Node*xfont = container.Find("font");
 		if (!xfont)
 			throw IO::DriveAccess::FileFormatFault(globalString("XML font file lacks <font> tag"));
 
@@ -57,11 +57,11 @@ namespace Engine
 			throw IO::DriveAccess::FileFormatFault(globalString("XML <font> attribute lacks 'scale' parameter"));
 		scale*=scale_;
 		String imagefile;
-		if (!xfont->query("image",imagefile))
+		if (!xfont->Query("image",imagefile))
 			throw IO::DriveAccess::FileFormatFault(globalString("XML <font> attribute lacks 'image' parameter"));
 			
 		Image image;
-		Magic::loadFromFile(image,imagefile);
+		Magic::LoadFromFile(image,PathString(imagefile));
 
 
 		if (image.channels() != 4)

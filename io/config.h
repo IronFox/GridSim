@@ -131,18 +131,18 @@ namespace Config
 				
 				bool						IsMode() const	{return isMode;};
 				bool						IsEmpty() 											const;
-				void						exportModes(ArrayData<Context*>&out);
-				void						exportModes(ArrayData<const Context*>&out)			const;
-				void						exportChildren(ArrayData<Context*>&out);
-				void						exportChildren(ArrayData<const Context*>&out)			const;
-				void						exportAttributes(ArrayData<Attribute*>&out);
-				void						exportAttributes(ArrayData<const Attribute*>&out)		const;
+				void						ExportModes(ArrayData<Context*>&out);
+				void						ExportModes(ArrayData<const Context*>&out)			const;
+				void						ExportChildren(ArrayData<Context*>&out);
+				void						ExportChildren(ArrayData<const Context*>&out)			const;
+				void						ExportAttributes(ArrayData<Attribute*>&out);
+				void						ExportAttributes(ArrayData<const Attribute*>&out)		const;
 
-		virtual	void						clear();
-				void						writeContent(StringBuffer&, size_t max_name_len, size_t max_value_len, const String&indent="") const;
-				void						cleanup();	//!< Recursivly erases all empty sub contexts and modes
+		virtual	void						Clear();
+				void						WriteContent(StringBuffer&, size_t max_name_len, size_t max_value_len, const String&indent="") const;
+				void						Cleanup();	//!< Recursivly erases all empty sub contexts and modes
 				
-				void						retrieveMaxNameValueLength(size_t&name_len, size_t&value_len, size_t indent=0)	const;
+				void						RetrieveMaxNameValueLength(size_t&name_len, size_t&value_len, size_t indent=0)	const;
 				
 		};
 		
@@ -163,18 +163,18 @@ namespace Config
 				
 		public:
 			/**/							Container();
-			/**/							Container(const String&filename);
+			/**/							Container(const PathString&filename);
 											
 			static bool						IsOperator(const String&string);
-			bool							LoadFromFile(const String&filename);
+			bool							LoadFromFile(const PathString&filename);
 			bool							LoadFromFile(StringFile&file);
-			bool							SaveToFile(const String&filename);
+			bool							SaveToFile(const PathString&filename);
 			void							SaveToFile(StringFile&file);
 			void							SaveToStringBuffer(StringBuffer&);
 			bool							HasErrors()	const;
 			const String&					GetError()	const;
 			const String&					Report() const {return GetError();}
-			virtual	void					Clear();
+			virtual	void					Clear() override;
 		};
 		
 		
@@ -244,8 +244,8 @@ namespace Config
 		
 		public:
 				String						name;		//!< Name of this context
-				StringMappedList<Variable>variables;	//!< Variable table (one variable per name)
-				StringMappedList<CXContext>children;	//!< Sub context table (one per name)
+				StringMappedList<Variable>	variables;	//!< Variable table (one variable per name)
+				StringMappedList<CXContext>	children;	//!< Sub context table (one per name)
 				
 											CXContext():variables_finalized(false),parent(NULL)
 											{}
@@ -259,9 +259,9 @@ namespace Config
 					@param error_out Optional: String to put an error description into if the method fails
 					@return true on success											
 				*/
-				Variable*					lookup(String path, String*error_out=NULL);
-				const Variable*			lookup(String path, String*error_out=NULL)	const; //!< @overload
-				void						clear();	//!< Clears any local data and sub contexts
+				Variable*					Lookup(String path, String*error_out=NULL);
+				const Variable*				Lookup(String path, String*error_out=NULL)	const; //!< @overload
+				void						Clear();	//!< Clears any local data and sub contexts
 				/**
 					@brief Loads the local content from an XML container
 					
@@ -274,7 +274,7 @@ namespace Config
 					@param stack Set true to clear the local configuration before loading and automatically finalize the final configuration
 					@param error_out Optional: String to put an error description into if the method fails
 				*/
-				void						loadFromXML(const XML::Container&container, bool stack=false);
+				void						LoadFromXML(const XML::Container&container, bool stack=false);
 				
 				/**
 					@brief Identical to loadFromXML with the exception of that the XML content Is automatically loaded from the specified file
@@ -284,7 +284,7 @@ namespace Config
 					@param filename Name of the (XML) file to load
 					@param stack Set true to clear the local configuration before loading and automatically finalize the final configuration
 				*/
-				void						loadFromFile(const String&filename, bool stack=false);
+				void						LoadFromFile(const PathString&filename, bool stack=false);
 				/**
 					@brief Attempts to locate a variable via its path				
 					
@@ -292,10 +292,10 @@ namespace Config
 					Variables are located starting from the root context. The method will follow the parent
 					sequence until parent it NULL before attempting to follow the specified path
 				*/
-				Variable*					findVariable(const String&path);
-				const Variable*			findVariable(const String&path) const;	//!< @overload
-				CXContext*					findContext(const String&path);		//!< Similar to findVariable() for contexts
-				const CXContext*			findContext(const String&path) const;
+				Variable*					FindVariable(const String&path);
+				const Variable*				FindVariable(const String&path) const;	//!< @overload
+				CXContext*					FindContext(const String&path);		//!< Similar to findVariable() for contexts
+				const CXContext*			FindContext(const String&path) const;
 				/**
 					@brief Embedded loading method
 					
@@ -311,7 +311,7 @@ namespace Config
 					
 					@param node XML node to load from. Sub nodes are loaded into sub contexts recursively
 				*/
-				void						loadStacked(const XML::Node*node);
+				void						LoadStacked(const XML::Node*node);
 				/**
 					@brief Sets (creates/modifies) the specified variable to the specified value
 					
@@ -319,8 +319,8 @@ namespace Config
 					@param variable_value Value of the variable to set
 					@return true on success
 				*/
-				bool						set(const String&variable_name, const String&variable_value);
-				bool						childOf(const CXContext*other)	const;	//!< Checks if the local context Is a child of the specified other context @return true if the local context Is a decendent of the specified context, false otherwise
+				bool						Set(const String&variable_name, const String&variable_value);
+				bool						IsChildOf(const CXContext*other)	const;	//!< Checks if the local context Is a child of the specified other context @return true if the local context Is a decendent of the specified context, false otherwise
 				/**
 					@brief Finalizes the loading process
 					
@@ -333,12 +333,12 @@ namespace Config
 					May throw exceptions
 				
 				*/
-				void						finalize();
+				void						Finalize();
 				
 				/**
 					@brief Debug method to print the local configuration to the console.
 				*/
-				void						printToCOut(unsigned indent=0)	const;
+				void						PrintToCOut(unsigned indent=0)	const;
 		};
 	
 		typedef CXContext::Variable	CXVariable;

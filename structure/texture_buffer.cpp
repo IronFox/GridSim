@@ -78,7 +78,7 @@ void TextureBuffer::clear()
 }
 
 
-bool TextureBuffer::write(const String&filename)
+bool TextureBuffer::write(const PathString&filename)
 {
     Riff::File  riff;
 	if (comment.length() > TypeInfo<Riff::RIFF_SIZE>::max)

@@ -95,9 +95,9 @@ static 	inline void  _c3(const BYTE v[3], BYTE w[3])
 	}
 
 
-void PNG::saveToFileQ(const Image&resource, const String&filename)
+void PNG::SaveToFileQ(const Image&resource, const PathString&filename)
 {
-    FILE*f = fopen(filename.c_str(),"wb");
+    FILE*f = FOPEN(filename.c_str(),"wb");
     if (!f)
 		throw IO::DriveAccess::FileOpenFault("File not found or inaccessible for writing: '"+filename+"'");
 
@@ -161,7 +161,7 @@ void PNG::saveToFileQ(const Image&resource, const String&filename)
 }
 
 
-void PNG::saveToFilePointer(const Image&resource, FILE*f)
+void PNG::SaveToFilePointer(const Image&resource, FILE*f)
 {
 
 	png_structp png = png_create_write_struct(PNG_LIBPNG_VER_STRING,(void*)pngError,writeError,handleWarning);
@@ -222,7 +222,7 @@ void PNG::saveToFilePointer(const Image&resource, FILE*f)
 }
 
 
-void PNG::loadFromFilePointer(Image&target, FILE*f)
+void PNG::LoadFromFilePointer(Image&target, FILE*f)
 {
     png_structp png = png_create_read_struct(PNG_LIBPNG_VER_STRING,(void*)pngError,readError,handleWarning);
     if (!png)
@@ -292,7 +292,7 @@ void PNG::loadFromFilePointer(Image&target, FILE*f)
 
 
 
-/*static*/	void		PNG::compressToStream(const Image&source_image, IWriteStream&stream)
+/*static*/	void		PNG::CompressToStream(const Image&source_image, IWriteStream&stream)
 {
 	out_stream = &stream;
 	png_structp png = png_create_write_struct(PNG_LIBPNG_VER_STRING,(void*)pngError,writeError,handleWarning);
@@ -365,7 +365,7 @@ void PNG::loadFromFilePointer(Image&target, FILE*f)
 }
 
 
-/*static*/	void		PNG::compressToArray(const Image&source_image, Array<BYTE>&data)
+/*static*/	void		PNG::CompressToArray(const Image&source_image, Array<BYTE>&data)
 {
 	out_buffer.reset();
 	png_structp png = png_create_write_struct(PNG_LIBPNG_VER_STRING,(void*)pngError,writeError,handleWarning);
@@ -438,7 +438,7 @@ void PNG::loadFromFilePointer(Image&target, FILE*f)
 }
 
 
-/*static*/	void		PNG::decompressData(Image&out_image, const void*data, size_t data_size)
+/*static*/	void		PNG::DecompressData(Image&out_image, const void*data, size_t data_size)
 {
 	png_structp png = png_create_read_struct(PNG_LIBPNG_VER_STRING,(void*)pngError,readError,handleWarning);
 	png_infop info= png_create_info_struct(png);
@@ -475,14 +475,14 @@ void PNG::loadFromFilePointer(Image&target, FILE*f)
 	}
 }
 
-/*static*/	void		PNG::decompressArray(Image&out_image, const Array<BYTE>&data)
+/*static*/	void		PNG::DecompressArray(Image&out_image, const Array<BYTE>&data)
 {
-	decompressData(out_image,data.pointer(),data.size());
+	DecompressData(out_image,data.pointer(),data.size());
 
 }
 
 
-/*static*/	void		PNG::decompressStream(Image&out_image, IReadStream&stream)
+/*static*/	void		PNG::DecompressStream(Image&out_image, IReadStream&stream)
 {
 	inStream = &stream;
 

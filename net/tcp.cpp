@@ -332,15 +332,15 @@ namespace TCP
 			}
 			TCP_CATCH
 			resolving = false;
+			if (terminateAfterResolve)
+			{
+				PostResolutionTermination();
+				terminateAfterResolve = false;
+			}
 
 		}
 		//mutex.release();
 		FlushWaste();
-		if (terminateAfterResolve)
-		{
-			PostResolutionTermination();
-			terminateAfterResolve = false;
-		}
 	}
 
 	void	Dispatcher::SignalPostResolutionTermination()

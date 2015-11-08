@@ -47,11 +47,11 @@ protected:
 
 
 public:
-		const String	name;			//!< Image format name (ie. 'JPEG')
-		Array<String>	extensions;		//!< Extensions supported by this image format
-		Array<BYTE>	magic_bytes;	//!< Magic bytes (if any). May be up to 10 bytes
+		const String		name;			//!< Image format name (ie. 'JPEG')
+		Array<PathString>	extensions;		//!< Extensions supported by this image format
+		Array<BYTE>			magic_bytes;	//!< Magic bytes (if any). May be up to 10 bytes
 		
-						ImageFormat(const String&name_, const String&ext):name(name_)	{explode(' ',ext,extensions);}
+						ImageFormat(const String&name_, const PathString&ext):name(name_)	{explode((PathString::char_t)' ',ext,extensions);}
 		
 		/**
 			@brief Attempts to write an image to the specified file
@@ -61,16 +61,16 @@ public:
 			@param image Image to save
 			@param filename File path to write to
 		*/
-		void			saveToFile(const Image&image, const String&filename)
+		void			SaveToFile(const Image&image, const PathString&filename)
 		{
-			FILE*f = fopen(filename.c_str(),"wb");
+			FILE*f = FOPEN(filename.c_str(),"wb");
 			if (!f)
 			{
 				throw IO::DriveAccess::FileOpenFault("File not found or inaccessible for writing: '"+filename+"'");
 			}
 			try
 			{
-				saveToFilePointer(image,f);
+				SaveToFilePointer(image,f);
 				fclose(f);
 			}
 			catch (...)
@@ -88,7 +88,7 @@ public:
 			@param image Image to save
 			@param f File pointer to write to
 		*/
-virtual	void			saveToFilePointer(const Image&image, FILE*f)  =0;
+		virtual	void			SaveToFilePointer(const Image&image, FILE*f)  =0;
 		/**
 			@brief Attempts to read an image from the specified file
 
@@ -97,14 +97,14 @@ virtual	void			saveToFilePointer(const Image&image, FILE*f)  =0;
 			@param image Image to load
 			@param filename File path to read from
 		*/
-		void			loadFromFile(Image&image, const String&filename) 
+		void			LoadFromFile(Image&image, const PathString&filename) 
 		{
-			FILE*f = fopen(filename.c_str(),"rb");
+			FILE*f = FOPEN(filename.c_str(),"rb");
 			if (!f)
 				throw IO::DriveAccess::FileOpenFault("File not found or inaccessible: '"+filename+"'");
 			try
 			{
-				loadFromFilePointer(image,f);
+				LoadFromFilePointer(image,f);
 				fclose(f);
 			}
 			catch (...)
@@ -122,15 +122,15 @@ virtual	void			saveToFilePointer(const Image&image, FILE*f)  =0;
 			@param image Image to load
 			@param file File reference to load from
 		*/
-virtual	void			loadFromFilePointer(Image&image, FILE*file) =0;
+		virtual	void			LoadFromFilePointer(Image&image, FILE*file) =0;
 
 		/**
 			@brief Queries whether or not the specified extension is supported by this image format
 		*/
-		bool			supports(const char*extension) const throw()
+		bool			Supports(const PathString::char_t*extension) const throw()
 		{
-			for (unsigned i = 0; i < extensions.count(); i++)
-				if (!strcmpi(extensions[i].c_str(),extension))
+			for (index_t i = 0; i < extensions.count(); i++)
+				if (extensions[i] == extension)
 					return true;
 			return false;
 		}

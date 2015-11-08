@@ -436,23 +436,23 @@ namespace Engine
 		void	TTexture::load(XML::Node*node, const char*aname, FileSystem::Folder&folder, TTexture&out, float scale)
 		{
 			String attrib;
-			if (!node->query(aname,attrib))
-				throw IO::DriveAccess::FileFormatFault("Failed to query '"+String(aname)+"' of XML node '"+node->name+"'");
+			if (!node->Query(aname,attrib))
+				throw IO::DriveAccess::FileFormatFault("Failed to Query '"+String(aname)+"' of XML node '"+node->name+"'");
 
 			FileSystem::File	file;
 			Image image;
 			out.width = 0;
 			out.height = 0;
-			if (folder.FindFile("color/"+attrib,file))
+			if (folder.FindFile(PathString("color/"+attrib),file))
 			{
 				Magic::LoadFromFile(image,file.GetLocation());
 				out.color.load(image,global_anisotropy,true);
 				out.width = image.width();
 				out.height = image.height();
 			}
-			if (folder.FindFile("bump/"+attrib,file))
+			if (folder.FindFile(PathString("bump/"+attrib),file))
 			{
-				loadBump(file.GetLocation(),image);
+				LoadBump(file.GetLocation(),image);
 
 				if (out.width != 0 && (out.width != image.width() || out.height != image.height()))
 				{
@@ -687,10 +687,10 @@ namespace Engine
 		}
 		
 		
-		void					loadBump(const String&filename, Image&target)
+		void					LoadBump(const PathString&filename, Image&target)
 		{
 			Image image;
-			Magic::loadFromFile(image,filename);
+			Magic::LoadFromFile(image,filename);
 
 			bool alpha = image.channels()==4;
 			target.setSize(image.width(),image.height(),4);
@@ -731,17 +731,17 @@ namespace Engine
 		}
 		
 		
-		void	loadBump(const String&filename,OpenGL::Texture&target)
+		void	LoadBump(const PathString&filename,OpenGL::Texture&target)
 		{
 			Image	image;
-			loadBump(filename,image);
+			LoadBump(filename,image);
 			target.load(image,global_anisotropy,true);
 		}
 		
-		void	loadColor(const String&filename,OpenGL::Texture&target)
+		void	LoadColor(const PathString&filename,OpenGL::Texture&target)
 		{
 			Image	image;
-			Magic::loadFromFile(image,filename);
+			Magic::LoadFromFile(image,filename);
 			target.load(image,global_anisotropy,true);
 		}
 
@@ -750,7 +750,7 @@ namespace Engine
 		{}
 		
 	
-		void	Layout::LoadFromFile(const String&filename, float scale)
+		void	Layout::LoadFromFile(const PathString&filename, float scale)
 		{
 			rows.free();
 			
@@ -764,12 +764,12 @@ namespace Engine
 			XML::Container	xml;
 			xml.LoadFromFile(filename);
 				
-			const XML::Node*xlayout = xml.find("layout");
+			const XML::Node*xlayout = xml.Find("layout");
 			if (!xlayout)
 				throw IO::DriveAccess::FileFormatFault(globalString("XML file lacks 'layout' root node"));
 
 			String attrib;
-			if (xlayout->query("title_position",attrib))
+			if (xlayout->Query("title_position",attrib))
 			{
 				Array<String>	segments;
 				explode(',',attrib,segments);
@@ -789,7 +789,7 @@ namespace Engine
 				titlePosition *= scale;
 			}
 			{
-				if (!xlayout->query("border_edge",attrib))
+				if (!xlayout->Query("border_edge",attrib))
 					throw IO::DriveAccess::FileFormatFault(globalString("XML node 'layout' lacks 'border_edge' attribute"));
 					
 				Array<String>	segments;
@@ -810,7 +810,7 @@ namespace Engine
 				borderEdge *= scale;
 			}
 			{
-				if (!xlayout->query("client_edge",attrib))
+				if (!xlayout->Query("client_edge",attrib))
 					throw IO::DriveAccess::FileFormatFault(globalString("XML node 'layout' lacks 'client_edge' attribute"));
 
 				Array<String>	segments;
@@ -831,7 +831,7 @@ namespace Engine
 				clientEdge *= scale;
 			}
 			
-			XML::Node*xrows = xml.find("layout/rows");
+			XML::Node*xrows = xml.Find("layout/rows");
 			if (!xrows)
 				throw IO::DriveAccess::FileFormatFault(globalString("XML file lacks 'layout/rows' node"));
 			
@@ -841,7 +841,7 @@ namespace Engine
 				const XML::Node&xrow = xrows->children[i];
 				if (xrow.name == "row")
 				{
-					if (!xrow.query("type",attrib))
+					if (!xrow.Query("type",attrib))
 					{
 						ErrMessage("type attribute not defined of row. Ignoring row.");
 						continue;
@@ -856,7 +856,7 @@ namespace Engine
 						const XML::Node&xcell = xrow.children[j];
 						if (xcell.name == "cell")
 						{
-							if (!xcell.query("type",attrib))
+							if (!xcell.Query("type",attrib))
 							{
 								ErrMessage("type attribute not defined of cell. Ignoring cell.");
 								continue;
@@ -865,18 +865,18 @@ namespace Engine
 							cell->variableWidth = attrib == "stretch";
 							
 							String error;
-							if (xcell.query("background",attrib))
+							if (xcell.Query("background",attrib))
 							{
 								FileSystem::File	file;
-								if (folder.FindFile("bump/"+attrib,file))
+								if (folder.FindFile(PathString("bump/"+attrib),file))
 								{
-									loadBump(file.GetLocation(),cell->normal);
+									LoadBump(file.GetLocation(),cell->normal);
 								}
 								else
 									ErrMessage("Failed to locate bump component of '"+attrib+"'");
-								if (folder.FindFile("color/"+attrib,file))
+								if (folder.FindFile(PathString("color/"+attrib),file))
 								{
-									Magic::loadFromFile(cell->color,file.GetLocation());
+									Magic::LoadFromFile(cell->color,file.GetLocation());
 									if (cell->color.width() == 1)
 										cell->color.scaleTo(64,cell->color.height());
 									if (cell->color.height() == 1)

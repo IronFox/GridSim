@@ -6,23 +6,18 @@
 
 Auto-Format handler.
 
-This file is part of Delta-Works
-Copyright (C) 2006-2008 Stefan Elsen, University of Trier, Germany.
-http://www.delta-works.org/forge/
-http://informatik.uni-trier.de/
-
 ******************************************************************/
 
 
 ImageFormat*	Magic::format[] = {&bitmap,&jpeg,&png,&tga};
 
-void			Magic::getExtensions(ArrayData<String>&extensions)
+void			Magic::GetExtensions(ArrayData<PathString>&extensions)
 {
 	count_t cnt = 0;
 	for (index_t i = 0; i < ARRAYSIZE(format); i++)
 		cnt += format[i]->extensions.count();
 	extensions.setSize(cnt);
-	String*to = extensions.pointer();
+	PathString*to = extensions.pointer();
 	for (index_t i = 0; i < ARRAYSIZE(format); i++)
 	{
 		for (index_t j = 0; j < format[i]->extensions.count(); j++)
@@ -31,14 +26,14 @@ void			Magic::getExtensions(ArrayData<String>&extensions)
 	ASSERT_CONCLUSION(extensions,to);
 }
 
-void			Magic::getExtensions(ArrayData<String>&extensions, ArrayData<ImageFormat*>&formats)
+void			Magic::GetExtensions(ArrayData<PathString>&extensions, ArrayData<ImageFormat*>&formats)
 {
 	count_t cnt = 0;
 	for (index_t i = 0; i < ARRAYSIZE(format); i++)
 		cnt += format[i]->extensions.count();
 	extensions.setSize(cnt);
 	formats.setSize(cnt);
-	String*sto = extensions.pointer();
+	PathString*sto = extensions.pointer();
 	ImageFormat**fto = formats.pointer();
 	
 	for (index_t i = 0; i < ARRAYSIZE(format); i++)
@@ -53,10 +48,10 @@ void			Magic::getExtensions(ArrayData<String>&extensions, ArrayData<ImageFormat*
 	ASSERT_CONCLUSION(formats,fto);
 }
 
-static const char* extractExt(const String&name)
+static const PathString::char_t* extractExt(const PathString&name)
 {
     index_t offset = name.length();
-	const char*cstr = name.c_str();
+	const PathString::char_t*cstr = name.c_str();
     while (--offset && cstr[offset] != '.');
     if (offset)
         return cstr + (offset+1);
@@ -64,18 +59,18 @@ static const char* extractExt(const String&name)
 }
 
 
-void		Magic::loadFromFile(Image&target, const String&filename)
+void		Magic::LoadFromFile(Image&target, const PathString&filename)
 {
-	loadFromFile(target,filename,NULL);
+	LoadFromFile(target,filename,NULL);
 }
 
-void        Magic::loadFromFile(Image&target, const String&filename, const char*file_ext)
+void        Magic::LoadFromFile(Image&target, const PathString&filename, const PathString::char_t*file_ext)
 {
 	if (!file_ext)
 		file_ext = extractExt(filename);
 
 	BYTE	magic_bytes[10];
-	FILE*file = fopen(filename.c_str(),"rb");
+	FILE*file = FOPEN(filename.c_str(),"rb");
 	if (!file)
 	{
 		throw IO::DriveAccess::FileOpenFault("File not found or inaccessible: '"+filename+"'");
@@ -101,7 +96,7 @@ void        Magic::loadFromFile(Image&target, const String&filename, const char*
 		//cout << " found direct match #"<<i<<" '"<<format->name<<"'"<<endl;
 		try
 		{
-			format->loadFromFilePointer(target,file);
+			format->LoadFromFilePointer(target,file);
 			fclose(file);
 			return;
 		}
@@ -118,7 +113,7 @@ void        Magic::loadFromFile(Image&target, const String&filename, const char*
 		ImageFormat*format = Magic::format[i];
 		if (file_ext)
 		{
-			if (!format->supports(file_ext))
+			if (!format->Supports(file_ext))
 				continue;
 			//cout << " found extension match #"<<i<<" '"<<format->name<<"'"<<endl;
 		}
@@ -130,7 +125,7 @@ void        Magic::loadFromFile(Image&target, const String&filename, const char*
 		}
 		try
 		{
-			format->loadFromFilePointer(target,file);
+			format->LoadFromFilePointer(target,file);
 			fclose(file);
 			return;
 		}
@@ -145,12 +140,12 @@ void        Magic::loadFromFile(Image&target, const String&filename, const char*
 	throw Program::UnsupportedRequest("'"+filename+"': Unable to find matching image format");
 }
 
-void			Magic::saveToFile(const Image&image, const String&filename)
+void			Magic::SaveToFile(const Image&image, const PathString&filename)
 {
-	return saveToFile(image,filename,NULL);
+	return SaveToFile(image,filename,NULL);
 }
 
-void        	Magic::saveToFile(const Image&image, const String&filename, const char*file_ext)
+void        	Magic::SaveToFile(const Image&image, const PathString&filename, const PathString::char_t*file_ext)
 {
 	if (!file_ext)
 		file_ext = extractExt(filename);
@@ -158,9 +153,9 @@ void        	Magic::saveToFile(const Image&image, const String&filename, const c
 	if (file_ext)
 	{
 		for (index_t i = 0; i < ARRAYSIZE(format); i++)
-			if (format[i]->supports(file_ext))
+			if (format[i]->Supports(file_ext))
 			{
-				format[i]->saveToFile(image,filename);
+				format[i]->SaveToFile(image,filename);
 				return;
 			}
 	}

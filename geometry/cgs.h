@@ -357,6 +357,7 @@ namespace CGS	//! Compiled Geometrical Structure
 				unsigned								vsize() const;		//!< Queries number of floats per vertex
 				count_t									vlen()	const;		//!< Queries total number of floats in the float-field.
 				void									setSize(count_t vertex_count, UINT16 layers, UINT32 flags=HasNormalFlag);	//!< Depreciated setSize function. Resizes the local vertex field to match the given parameters. Any existing vertex data is lost if the size of the underlying vertex array changes.
+				void									SetSize(count_t vertex_count, UINT16 layers, UINT32 flags=HasNormalFlag)	{setSize(vertex_count,layers,flags);}
 				void									stretch(UINT16 layers, UINT32 flags);		//!< Stretches the vertex-field and copies the old data. Newly added fields are not cleared.
 				bool									operator>(const VertexContainerA<Def>&other) const;							//!< Greater operator to create a linear order among vertex containers. The greater operator must be called before the respective less-operator is invoked,
 				bool									operator<(const VertexContainerA<Def>&other) const;							//!< Less operator to create a linear order among vertex containers.  The greater operator must be called before the respective less-operator is invoked,
@@ -395,6 +396,7 @@ namespace CGS	//! Compiled Geometrical Structure
 
 														IndexContainerA():triangles(0),quads(0)	{}
 				void									setSize(UINT32 triangles, UINT32 quads);
+				void									SetSize(UINT32 triangles, UINT32 quads)	{setSize(triangles,quads);}
 				bool									operator>(const IndexContainerA<Def>&other) const;	//!< Greater operator to create a linear order among index containers. The greater operator must be called before the respective less-operator is invoked,
 				bool									operator<(const IndexContainerA<Def>&other) const;	//!< Less operator to create a linear order among index containers. The greater operator must be called before the respective less-operator is invoked,
 				void									adoptData(IndexContainerA<Def>&other);
@@ -1073,10 +1075,10 @@ namespace CGS	//! Compiled Geometrical Structure
 			void									storeTargetNames();		//!< Globally stores target names in the respective structures (textures, render objects, wheels, animators, etc). Recursive.
 			void									relinkEverything();		//!< Relinks everything (textures, render objects, wheels, animators, etc) based on the stored target names.
 
-			bool									saveToFile(const char*filename)	const;	//!< Saves the local geometry to the specified file. \return true on success
-			bool									saveToFile(const String&fielanem)	const;	//!< @copydoc saveToFile()
-			bool									loadFromFile(const char*filename,TextureResource*resource=NULL);	//!< Loads the local geometry from the specified file overwriting any previously loaded local data. \return true on success
-			bool									loadFromFile(const String&filename,TextureResource*resource=NULL);	//!< @copydoc loadFromFile()
+			bool									SaveToFile(const PathString::char_t*filename)	const;	//!< Saves the local geometry to the specified file. \return true on success
+			bool									SaveToFile(const PathString&filename)	const;	//!< @copydoc saveToFile()
+			bool									LoadFromFile(const PathString::char_t*filename,TextureResource*resource=NULL);	//!< Loads the local geometry from the specified file overwriting any previously loaded local data. \return true on success
+			bool									LoadFromFile(const PathString&filename,TextureResource*resource=NULL);	//!< @copydoc loadFromFile()
 			void									saveEmbedded(Riff::Chunk&target, bool embed_textures)	const;	//!< Saves the local geometry to an existing RIFF chunk. \param target RIFF chunk to save to \param embed_textures Set true to also save local textures to the specified RIFF chunk
 			void									loadFromRiff(Riff::File&source,TextureResource*resource=NULL);		//!< Loads the local geometry from the current context of the specified RIFF file.
 			void									loadEmbedded(Riff::File&riff, TextureResource*resource); 	//!< Similar to loadFromRiff() but using a remote texture resource instead.

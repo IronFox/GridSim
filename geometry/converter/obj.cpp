@@ -252,7 +252,7 @@ namespace Converter
 		console->printDirect(p);*/
 	}
 
-	void			ObjConverter::loadObjColor(const String&line,TVec4<Def::FloatType>&target) throw()
+	void			ObjConverter::LoadObjColor(const String&line,TVec4<Def::FloatType>&target) throw()
 	{
 		target.alpha = 1.0;
 		Array<String>	segments;
@@ -265,17 +265,17 @@ namespace Converter
 	}
 
 
-	ObjTexture*		ObjConverter::loadObjTexture(const String&color_map, const String&alpha_map) throw()
+	ObjTexture*		ObjConverter::LoadObjTexture(const PathString&color_map, const PathString&alpha_map) throw()
 	{
 		if (!color_map.length() && !alpha_map.length())
 			return NULL;
-		String key = color_map+"|"+alpha_map;
+		PathString key = color_map+"|"+alpha_map;
 		ObjTexture*result;
 		if (texture_field.query(key,result))
 			return result;
 		current_callback->hideConverterProgressBar();
 		current_callback->dropLastConverterProgressUpdate();
-		sendMessage("Loading '"+key+"'...");
+		sendMessage("Loading '"+String(key)+"'...");
 		
 		Image	color_image,alpha_image;
 		String error;
@@ -284,7 +284,7 @@ namespace Converter
 		if (color)
 			try
 			{
-				Magic::loadFromFile(color_image,color_map);
+				Magic::LoadFromFile(color_image,color_map);
 	//			color_image.free();
 			}
 			catch (const Exception&except)
@@ -305,15 +305,15 @@ namespace Converter
 		
 		if (color_map.length() && !color)
 		{
-			logMessage("Loading of '"+color_map+"' failed ("+error+")");
-			sendMessage("Warning: Unable to load '"+color_map+"' ("+error+")!");
+			logMessage("Loading of '"+String(color_map)+"' failed ("+error+")");
+			sendMessage("Warning: Unable to load '"+String(color_map)+"' ("+error+")!");
 		}
 		
 		bool alpha = alpha_map.length()!=0;
 		if (alpha)
 			try
 			{
-				Magic::loadFromFile(alpha_image,alpha_map);
+				Magic::LoadFromFile(alpha_image,alpha_map);
 			}
 			catch (const Exception&except)
 			{
@@ -333,8 +333,8 @@ namespace Converter
 		
 		if (alpha_map.length() && !alpha)
 		{
-			logMessage("Loading of '"+alpha_map+"' failed ("+error+")");
-			sendMessage("Warning: Unable to load '"+alpha_map+"' ("+error+")!");
+			logMessage("Loading of '"+String(alpha_map)+"' failed ("+error+")");
+			sendMessage("Warning: Unable to load '"+String(alpha_map)+"' ("+error+")!");
 		}
 		if (!color && !alpha)
 		{
@@ -342,7 +342,7 @@ namespace Converter
 			return NULL;
 		}
 		result = texture_field.define(key);
-		result->data.name = str2name(FileSystem::ExtractFileName(color_map)+FileSystem::ExtractFileName(alpha_map));
+		result->data.name = str2name(String(FileSystem::ExtractFileName(color_map)+FileSystem::ExtractFileName(alpha_map)));
 		while (texture_name_table64.isSet(result->data.name))
 			incrementName(result->data.name);
 		texture_name_table64.set(result->data.name);
@@ -364,7 +364,7 @@ namespace Converter
 		size_t out_size = TextureCompression::compress(color_image,buffer);
 		color_image.free();
 		if (!out_size)
-			logMessage("Compression failed of '"+key+"' ("+TextureCompression::getError()+")");
+			logMessage("Compression failed of '"+String(key)+"' ("+TextureCompression::getError()+")");
 		
 		result->data.face_field.setSize(1);
 		result->data.face_field[0].importFrom(buffer.pointer(),(Arrays::count_t)out_size);
@@ -377,21 +377,21 @@ namespace Converter
 
 	}
 
-	ObjTexture*		ObjConverter::loadObjNormalMap(const String&normal_map) throw()
+	ObjTexture*		ObjConverter::LoadObjNormalMap(const PathString&normal_map) throw()
 	{
 		if (!normal_map.length())
 			return NULL;
-		String key = normal_map;
+		PathString key = normal_map;
 		ObjTexture*result;
 		if (texture_field.query(key,result))
 			return result;
 		current_callback->hideConverterProgressBar();
 		current_callback->dropLastConverterProgressUpdate();
-		sendMessage("Loading '"+key+"'...");
+		sendMessage("Loading '"+String(key)+"'...");
 		Image	image;
 		try
 		{
-			Magic::loadFromFile(image,normal_map);
+			Magic::LoadFromFile(image,normal_map);
 		}
 		catch (...)
 		{
@@ -412,7 +412,7 @@ namespace Converter
 		}
 		
 		result = texture_field.define(key);
-		result->data.name = str2name(FileSystem::ExtractFileName(normal_map));
+		result->data.name = str2name(String(FileSystem::ExtractFileName(normal_map)));
 		while (texture_name_table64.isSet(result->data.name))
 			incrementName(result->data.name);
 		texture_name_table64.set(result->data.name);
@@ -422,7 +422,7 @@ namespace Converter
 		size_t out_size = TextureCompression::compress(image,buffer);
 
 		if (!out_size)
-			logMessage("Compression failed of '"+key+"' ("+TextureCompression::getError()+")");
+			logMessage("Compression failed of '"+String(key)+"' ("+TextureCompression::getError()+")");
 		
 		result->data.face_field.setSize(1);
 		result->data.face_field[0].importFrom(buffer.pointer(),(Arrays::count_t)out_size);
@@ -436,7 +436,7 @@ namespace Converter
 	}
 
 
-	String			ObjConverter::parseMap(CFSFolder&folder, const String&line, TVec3<>&scale) throw()
+	PathString			ObjConverter::ParseMap(CFSFolder&folder, const String&line, TVec3<>&scale) throw()
 	{
 		static Tokenizer::Configuration	config(" "," \r\n","","","\'\"","",'\\',true,true,true);
 		static StringList	segments;
@@ -469,10 +469,10 @@ namespace Converter
 			}
 			else
 			{
-				const CFSFile*f = folder.FindFile(seg);
+				const CFSFile*f = folder.FindFile(PathString(seg));
 				if (f)
 				{
-					sendMessage("parsed map '"+f->GetLocation()+"'");
+					sendMessage("parsed map '"+String(f->GetLocation())+"'");
 					return f->GetLocation();
 				}
 				
@@ -483,7 +483,7 @@ namespace Converter
 		return "";
 	}
 
-	void			ObjConverter::loadObjMaterialLibrary(const CFSFile*file) throw()
+	void			ObjConverter::LoadObjMaterialLibrary(const CFSFile*file) throw()
 	{
 		if (!file)
 			return;
@@ -494,10 +494,11 @@ namespace Converter
 			return;
 		}
 		StringFile	in(file->GetLocation());
-		if (!in.isActive())
+		if (!in.IsActive())
 			return;
 		ObjMaterial*material(NULL);
-		String line,
+		String line;
+		PathString
 				color_map,
 				transparency_map,
 				bump_map;
@@ -510,8 +511,8 @@ namespace Converter
 				case 'b':
 					if (line.beginsWith("bump ") && material)
 					{
-						bump_map = parseMap(folder,line,material->scale);
-						logMessage("bump map set to '"+bump_map+"'");
+						bump_map = ParseMap(folder,line,material->scale);
+						logMessage("bump map set to '"+String(bump_map)+"'");
 					}
 				break;
 				case 'n':
@@ -521,11 +522,11 @@ namespace Converter
 						{
 							if (material)
 							{
-								material->texture = loadObjTexture(color_map,transparency_map);
-								material->normal_map = loadObjNormalMap(bump_map);
+								material->texture = LoadObjTexture(color_map,transparency_map);
+								material->normal_map = LoadObjNormalMap(bump_map);
 								if (bump_map.length() && material->normal_map)
 								{
-									sendMessage("bump map loaded '"+bump_map+"'");
+									sendMessage("bump map loaded '"+String(bump_map)+"'");
 								}
 								
 								count_t layers = (material->texture != NULL) + (material->normal_map!=NULL);
@@ -556,13 +557,13 @@ namespace Converter
 					{
 						if (line.beginsWithCaseIgnore("map_Kd "))
 						{
-							color_map = parseMap(folder,line,material->scale);
-							logMessage("color map set to '"+color_map+"'");
+							color_map = ParseMap(folder,line,material->scale);
+							logMessage("color map set to '"+String(color_map)+"'");
 						}
 						elif (line.beginsWithCaseIgnore("map_d "))
 						{
-							transparency_map = parseMap(folder,line,material->scale);
-							logMessage("transparency map set to '"+transparency_map+"'");
+							transparency_map = ParseMap(folder,line,material->scale);
+							logMessage("transparency map set to '"+String(transparency_map)+"'");
 						}
 						else
 							logMessage("Warning: trying to set unknown map type '"+line.firstWord()+"'");
@@ -575,16 +576,16 @@ namespace Converter
 						switch (line.get(1))
 						{
 							case 'a':
-								loadObjColor(line.c_str()+3,material->info.ambient);
+								LoadObjColor(line.c_str()+3,material->info.ambient);
 								Vec::addVal(material->info.ambient,0.1);
 								Vec::clamp(material->info.ambient,0,1);
 							break;
 							case 'd':
-								loadObjColor(line.c_str()+3,material->info.diffuse);
+								LoadObjColor(line.c_str()+3,material->info.diffuse);
 								Vec::clamp(material->info.diffuse,0,1);
 							break;
 							case 's':
-								loadObjColor(line.c_str()+3,material->info.specular);
+								LoadObjColor(line.c_str()+3,material->info.specular);
 							break;
 						}
 				break;
@@ -602,11 +603,11 @@ namespace Converter
 		{
 			if (material)
 			{
-				material->texture = loadObjTexture(color_map,transparency_map);
-				material->normal_map = loadObjNormalMap(bump_map);
+				material->texture = LoadObjTexture(color_map,transparency_map);
+				material->normal_map = LoadObjNormalMap(bump_map);
 				if (bump_map.length() && material->normal_map)
 				{
-					sendMessage("bump map loaded '"+bump_map+"'");
+					sendMessage("bump map loaded '"+String(bump_map)+"'");
 				}
 				
 				count_t layers = (material->texture != NULL) + (material->normal_map!=NULL);
@@ -706,7 +707,7 @@ namespace Converter
 			break;
 			case 'm':
 				if (!strncmp(start,"mtllib",6) && end-start>6)
-					loadObjMaterialLibrary(object_system.FindFile(start+7));
+					LoadObjMaterialLibrary(object_system.FindFile(start+7));
 			break;
 		}
 	}
@@ -744,7 +745,7 @@ namespace Converter
 
 
 
-	bool	ObjConverter::read(CGS::Geometry<>&target, const String&filename) throw()
+	bool	ObjConverter::Read(CGS::Geometry<>&target, const PathString&filename) throw()
 	{
 		object_system = FileSystem::GetWorkingDirectory();
 		if (!object_system.MoveTo(FileSystem::ExtractFileDir(filename)))
@@ -752,7 +753,7 @@ namespace Converter
 			last_error = "Unable to move to file folder";
 			return false;
 		}
-		FILE*f = fopen(filename.c_str(),"rb");
+		FILE*f = FOPEN(filename.c_str(),"rb");
 		if (!f)
 		{
 			last_error = "File not readable";
@@ -1430,7 +1431,7 @@ namespace Converter
 
 
 	
-	void	ObjConverter::exportTexture(const CGS::TextureA*texture, const String&outname, StringFile&fout) throw()
+	void	ObjConverter::ExportTexture(const CGS::TextureA*texture, const PathString&outname, StringFile&fout) throw()
 	{
 	if (!texture)
 		return;
@@ -1463,10 +1464,10 @@ namespace Converter
 		return;
 	}
 	
-	String base_name = FileSystem::ExtractFileDir(outname);
+	PathString base_name = FileSystem::ExtractFileDir(outname);
 	if (base_name.length())
 		base_name+=FOLDER_SLASH;
-	base_name+=tex_name;
+	base_name+=PathString(tex_name);
 	
 	
 	if (TextureCompression::decompress(texture->face_field[0].pointer(),texture->face_field[0].size(),out))	//that i would ever have to use const_cast... stupid bz2 lib :S
@@ -1478,7 +1479,7 @@ namespace Converter
 			out.extractChannels(3,1,alpha);
 			try
 			{
-				bitmap.saveToFile(alpha,base_name+".alpha.bmp");
+				bitmap.SaveToFile(alpha,base_name+".alpha.bmp");
 				sendMessage("  Alpha component of '"+tex_name+"' written to '"+base_name+".alpha.bmp'");
 				fout << "map_d " <<  tex_name<<".alpha.bmp"<<nl;
 			}
@@ -1505,7 +1506,7 @@ namespace Converter
 		
 		try
 		{
-			bitmap.saveToFile(out,base_name+".bmp");
+			bitmap.SaveToFile(out,base_name+".bmp");
 			texture_names.set(texture,tex_name+".bmp");
 			if (out.getContentType() == PixelType::Color)
 			{
@@ -1539,7 +1540,7 @@ namespace Converter
 				out.extractChannels(3,1,alpha);
 				try
 				{
-					bitmap.saveToFile(alpha,base_name+String(j)+".alpha.bmp");
+					bitmap.SaveToFile(alpha,base_name+String(j)+".alpha.bmp");
 					sendMessage("  Alpha component of layer "+String(j)+" '"+tex_name+"' written to '"+base_name+String(j)+".alpha.bmp'");
 				}
 				catch (...)
@@ -1564,7 +1565,7 @@ namespace Converter
 			
 			try
 			{
-				bitmap.saveToFile(out,base_name+String(j)+".bmp");
+				bitmap.SaveToFile(out,base_name+String(j)+".bmp");
 				sendMessage("  Color component of layer "+String(j)+" '"+tex_name+"' written to '"+base_name+String(j)+".bmp'");
 			}
 			catch (...)
@@ -1605,15 +1606,15 @@ namespace Converter
 	
 	
 	
-	bool	ObjConverter::write(const CGS::Geometry<>&geometry, const String&parameter) throw()
+	bool	ObjConverter::Write(const CGS::Geometry<>&geometry, const PathString&parameter) throw()
 	{
 #if 1
-		String filename = parameter;
+		PathString filename = parameter;
 		if (!filename.endsWith(".obj"))
 			filename+=".obj";
 			
 		
-		String material_lib_file = FileSystem::ExtractFileDirName(filename)+".mtl";
+		PathString material_lib_file = FileSystem::ExtractFileDirName(filename)+".mtl";
 		
 		StringFile	out;
 		
@@ -1621,14 +1622,14 @@ namespace Converter
 		alpha_names.clear();
 		
 	
-		if (!out.create(material_lib_file))
+		if (!out.Create(material_lib_file))
 		{
-			last_error = "Unable to create out file '"+material_lib_file+"'";
+			last_error = "Unable to create out file '"+String(material_lib_file)+"'";
 			return false;
 		}
 		
 		
-		out << "# Material library generated for "<<filename<<nl;
+		out << "# Material library generated for "<<String(filename)<<nl;
 		out << "#"<<nl;
 		
 		sendMessage(" Exporting materials...");
@@ -1646,12 +1647,12 @@ namespace Converter
 			
 			String texture_name, alpha_name;
 			if (m.info.layer_field.length())
-				exportTexture(m.info.layer_field[0].source,filename, out);
+				ExportTexture(m.info.layer_field[0].source,filename, out);
 			
 			out << nl;
 		}
 		
-		out.close();
+		out.Close();
 		
 		// Log	log("export.log",true);
 		
@@ -1763,14 +1764,14 @@ namespace Converter
 		sendMessage(" Exporting vertices");
 
 
-		if (!out.create(filename))
+		if (!out.Create(filename))
 		{
-			last_error = "Unable to create out file '"+filename+"'";
+			last_error = "Unable to create out file '"+String(filename)+"'";
 			return false;
 		}
-		out << "# Object generated for "<<filename<<nl;
+		out << "# Object generated for "<<String(filename)<<nl;
 		out << "#"<<nl;
-		out << "mtllib ./"<<FileSystem::ExtractFileName(filename)<<".mtl"<<nl;
+		out << "mtllib ./"<<String(FileSystem::ExtractFileName(filename))<<".mtl"<<nl;
 		
 		out << "g"<<nl;
 		index_t	index=1;
@@ -1816,7 +1817,7 @@ namespace Converter
 			writeObject(geometry,conversion_table,geometry.object_field[i],out);
 		}
 		setProgress(1.0f);
-		out.close();
+		out.Close();
 		
 		vertex_field.clear();
 		normal_field.clear();

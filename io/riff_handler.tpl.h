@@ -34,7 +34,7 @@ count_t File::Get(ArrayData<C>&out)
 	
 	count_t count = (size_t)now.info.size/sizeof(C);
 	out.setSize(count);
-	file.extract(now.addr,out.pointer(),(unsigned)out.contentSize());
+	file.Extract(now.addr,out.pointer(),(unsigned)out.contentSize());
     return count;
 }
 

@@ -5,6 +5,16 @@ namespace Riff
 {
 
 
+	#undef FOPEN
+	#undef STRLEN
+	#if SYSTEM==WINDOWS
+		#define STRLEN(_STR_)	wcslen(_STR_)
+		#define FOPEN(_FILE_,_MODE_)	_wfopen((_FILE_),L##_MODE_)
+	#else
+		#define STRLEN(_STR_)	strlen(_STR_)
+		#define FOPEN(_FILE_,_MODE_)	fopen((_FILE_),_MODE_)
+	#endif
+
 	#ifdef DOUBLE_CHECK_DATA
 	unsigned char check_buffer[1000000];
 	#endif
@@ -108,10 +118,10 @@ namespace Riff
 		str_out[4] = 0;
 	}
 
-	File::File(const char*filename):mark_stacked(0),husage(0),streaming(false),ignore_main_size_(false)
+	File::File(const char_t*filename):mark_stacked(0),husage(0),streaming(false),ignore_main_size_(false)
 	{
 		str_out[4] = 0;
-		file.open(filename);
+		file.Open(filename);
 	}
 
 	File::~File()
@@ -119,10 +129,10 @@ namespace Riff
 		Close();
 	}
 
-	bool File::Open(const char*filename)
+	bool File::Open(const char_t*filename)
 	{
 		Close();
-		if (!file.open(filename,RandomAccessFile::Direct))
+		if (!file.Open(filename,RandomAccessFile::Direct))
 			return false;
 		Reset();
 		return true;
@@ -131,26 +141,26 @@ namespace Riff
 	void File::Assign(BYTE*data, ULONG size)
 	{
 		Close();
-		file.assign(data,size);
+		file.Assign(data,size);
 		Reset();
 	}
 
-	bool File::Reopen()
+	bool File::ReOpen()
 	{
 		Close();
-		if (!file.reopen(RandomAccessFile::Direct))
+		if (!file.ReOpen(RandomAccessFile::Direct))
 			return false;
 		Reset();
 		return true;
 	}
 
-	bool File::Create(const char*filename)
+	bool File::Create(const char_t*filename)
 	{
 		Close();
-		if (!file.create(filename,RandomAccessFile::Direct))
+		if (!file.Create(filename,RandomAccessFile::Direct))
 			return false;
-		file.append("RIFF",4);
-		file.append((BYTE)0,4);
+		file.Append("RIFF",4);
+		file.Append((BYTE)0,4);
 		Reset();
 		return true;
 	}
@@ -160,18 +170,18 @@ namespace Riff
 	{
 		if (streaming)
 			FATAL__("closing in stream");
-		file.close();
+		file.Close();
 	}
 
 	void File::Reset()
 	{
 		streaming = false;
-		if (!file.isActive())
+		if (!file.IsActive())
 			return;
 
-		file.read(0,now.info);
+		file.Read(0,now.info);
 		if (ignore_main_size_)
-			now.info.size = file.size()-RIFF_CHUNK_HEAD_SIZE;
+			now.info.size = file.GetSize()-RIFF_CHUNK_HEAD_SIZE;
 		now.addr = RIFF_CHUNK_HEAD_SIZE;
 		now.index = 0;
 		#ifdef  RIFF_SENSITIVE
@@ -179,10 +189,10 @@ namespace Riff
 			{
 				RIFF_INDEX_ID test;
 				char*ctest = (char*)&test;
-				file.read(RIFF_CHUNK_HEAD_SIZE+4,test);
+				file.Read(RIFF_CHUNK_HEAD_SIZE+4,test);
 				if (ischar(ctest[0]) && ischar(ctest[1]) && ischar(ctest[2]) && ischar(ctest[3]))
 				{
-					file.read(RIFF_CHUNK_HEAD_SIZE,sub_id);
+					file.Read(RIFF_CHUNK_HEAD_SIZE,sub_id);
 					now.info.size-=4;
 					now.addr+=4;
 				}
@@ -258,7 +268,7 @@ namespace Riff
 		if (now.addr+size+RIFF_CHUNK_HEAD_SIZE > history[husage-1].blockEnd())
 			return false;
 		now.addr+=size+RIFF_CHUNK_HEAD_SIZE;
-		file.read(now.addr-RIFF_CHUNK_HEAD_SIZE,now.info);
+		file.Read(now.addr-RIFF_CHUNK_HEAD_SIZE,now.info);
 		now.index++;
 		return true;
 	}
@@ -267,9 +277,9 @@ namespace Riff
 	{
 		if (streaming)
 			FATAL__("seeking first while streaming");
-		if (!history[husage-1].info.size || !file.isActive())
+		if (!history[husage-1].info.size || !file.IsActive())
 			return false;
-		file.read(history[husage-1].addr,now.info);
+		file.Read(history[husage-1].addr,now.info);
 		now.addr = history[husage-1].addr+RIFF_CHUNK_HEAD_SIZE;
 		now.index = 0;
 		return true;
@@ -281,7 +291,7 @@ namespace Riff
 			FATAL__("trying to enter while streaming");
 		if ((!IsID("LIST") && !IsID("RIFF") && husage)) return false;
 		history[husage++] = now;
-		file.read(now.addr,now.info);
+		file.Read(now.addr,now.info);
 		now.addr+=RIFF_CHUNK_HEAD_SIZE;
 		now.index = 0;
 		return true;
@@ -302,7 +312,7 @@ namespace Riff
 	{
 		if (streaming)
 			FATAL__("get does not work during streaming-operation");
-		file.extract(now.addr,out,now.info.size);
+		file.Extract(now.addr,out,now.info.size);
 		return now.info.size;
 	}
 
@@ -311,7 +321,7 @@ namespace Riff
 		if (streaming)
 			FATAL__("get does not work during streaming-operation");
 		RIFF_SIZE reading = now.info.size<max?now.info.size:castSize(max);
-		file.extract(now.addr,out,reading);
+		file.Extract(now.addr,out,reading);
 		return now.info.size;
 	}
 
@@ -320,9 +330,9 @@ namespace Riff
 		return now.addr;
 	}
 
-	const char* File::GetFileName()
+	const char_t* File::GetFileName()
 	{
-		return file.getFilename();
+		return file.GetFilename();
 	}
 
 
@@ -366,7 +376,7 @@ namespace Riff
 			FATAL__("no stream open");
 		if ((size_t)streaming_at+data_size > (size_t)now.info.size)
 			return false;
-		file.extract(now.addr+streaming_at,target,castSize(data_size));
+		file.Extract(now.addr+streaming_at,target,castSize(data_size));
 		streaming_at+=castSize(data_size);
 		return true;
 	}
@@ -384,7 +394,7 @@ namespace Riff
 		RIFF_ADDR offset = history[husage-1].addr+history[husage-1].info.size+history[husage-1].info.size%2;
 		memcpy(str_out,c,4);
 	//    ShowMessage(C_String(str_out)+" "+IntToStr(offset));
-		if (!file.insert(offset,insert,isize))
+		if (!file.Insert(offset,insert,isize))
 		{
 			DISCARD_ARRAY(insert);
 			return false;
@@ -393,7 +403,7 @@ namespace Riff
 		{
 	//        ShowMessage("adding: "+IntToStr(isize)+" to "+IntToStr(i));
 			history[i].info.size+=isize;
-			file.overwrite(history[i].root(),history[i].info);
+			file.Overwrite(history[i].root(),history[i].info);
 		}
 	/*    if (catch_newone)
 		{*/
@@ -418,7 +428,7 @@ namespace Riff
 		memcpy(insert,c,4);
 		memcpy(&insert[4],&size,sizeof(size));
 		memcpy(&insert[RIFF_CHUNK_HEAD_SIZE],data,size);
-		if (!file.insert(now.addr-RIFF_CHUNK_HEAD_SIZE,insert,isize))
+		if (!file.Insert(now.addr-RIFF_CHUNK_HEAD_SIZE,insert,isize))
 		{
 			DISCARD_ARRAY(insert);
 			return false;
@@ -428,7 +438,7 @@ namespace Riff
 		for (BYTE i = 0; i < husage; i++)
 		{
 			history[i].info.size+=isize;
-			file.overwrite(history[i].root(),history[i].info);
+			file.Overwrite(history[i].root(),history[i].info);
 		}
 		DISCARD_ARRAY(insert);
 		return true;
@@ -436,15 +446,15 @@ namespace Riff
 
 	bool File::DropBlock()
 	{
-		if (!history[husage-1].info.size || !file.isActive() || streaming)
+		if (!history[husage-1].info.size || !file.IsActive() || streaming)
 			return false;
 		RIFF_SIZE total_size = now.info.size+now.info.size%2+RIFF_CHUNK_HEAD_SIZE;
-		if (!file.erase(now.addr-RIFF_CHUNK_HEAD_SIZE,total_size))
+		if (!file.Erase(now.addr-RIFF_CHUNK_HEAD_SIZE,total_size))
 			return false;
 		for (BYTE i = 0; i < husage; i++)
 		{
 			history[i].info.size-=total_size;
-			file.overwrite(history[i].root(),history[i].info);
+			file.Overwrite(history[i].root(),history[i].info);
 		}
 		First();    
 		return true;
@@ -452,9 +462,9 @@ namespace Riff
 
 	bool File::Overwrite(const void*data, size_t check_size)
 	{
-		if (size_t(now.info.size) != check_size || !file.isActive() || streaming)
+		if (size_t(now.info.size) != check_size || !file.IsActive() || streaming)
 			return false;
-		return file.overwrite(now.addr,data,castSize(check_size));
+		return file.Overwrite(now.addr,data,castSize(check_size));
 	}
 
 	bool File::ResizeBlock(size_t size)
@@ -463,20 +473,20 @@ namespace Riff
 		RIFF_ADDR end = now.addr+now.info.size+now.info.size%2;
 		int difference = castSize((size+size%2)-(now.info.size+now.info.size%2));
 		if (difference > 0)
-			success = file.insert(end,(BYTE)0,difference);
+			success = file.Insert(end,(BYTE)0,difference);
 		else
 			if (difference < 0)
-				success = file.erase(end+difference,-difference);
+				success = file.Erase(end+difference,-difference);
 			else
 				return true;
 		if (!success)
 			return false;
 		now.info.size = castSize(size);
-		file.overwrite(now.root(),now.info);
+		file.Overwrite(now.root(),now.info);
 		for (BYTE i = 0; i < husage; i++)
 		{
 			history[i].info.size+=difference;
-			file.overwrite(history[i].root(),history[i].info);
+			file.Overwrite(history[i].root(),history[i].info);
 		}
 		return true;
 	}
@@ -496,7 +506,7 @@ namespace Riff
 			return false;
 		}
 		SRiffChunk first = now;
-		BYTE*buffer = file.extract(now.addr-RIFF_CHUNK_HEAD_SIZE,now.info.size+RIFF_CHUNK_HEAD_SIZE);
+		BYTE*buffer = file.Extract(now.addr-RIFF_CHUNK_HEAD_SIZE,now.info.size+RIFF_CHUNK_HEAD_SIZE);
 		if (!Select(index1))
 		{
 			recall();
@@ -504,12 +514,12 @@ namespace Riff
 			return false;
 		}
 		SRiffChunk second = now;
-		BYTE*second_buffer = file.extract(now.addr-RIFF_CHUNK_HEAD_SIZE,now.info.size+RIFF_CHUNK_HEAD_SIZE);
+		BYTE*second_buffer = file.Extract(now.addr-RIFF_CHUNK_HEAD_SIZE,now.info.size+RIFF_CHUNK_HEAD_SIZE);
 		ResizeBlock(first.info.size);
-		file.overwrite(second.addr-RIFF_CHUNK_HEAD_SIZE,buffer,first.info.size+RIFF_CHUNK_HEAD_SIZE);
+		file.Overwrite(second.addr-RIFF_CHUNK_HEAD_SIZE,buffer,first.info.size+RIFF_CHUNK_HEAD_SIZE);
 		Select(index0);
 		ResizeBlock(second.info.size);
-		file.overwrite(first.addr-RIFF_CHUNK_HEAD_SIZE,second_buffer,second.info.size+RIFF_CHUNK_HEAD_SIZE);
+		file.Overwrite(first.addr-RIFF_CHUNK_HEAD_SIZE,second_buffer,second.info.size+RIFF_CHUNK_HEAD_SIZE);
 		recall();
 		dealloc(buffer);
 		dealloc(second_buffer);
@@ -591,10 +601,10 @@ namespace Riff
 	}
 
     
-	bool Chunk::LoadFromFile(const char*filename)
+	bool Chunk::LoadFromFile(const char_t*filename)
 	{
 		Clear();
-		FILE*f = fopen(filename,"rb");
+		FILE*f = FOPEN(filename,"rb");
 		if (!f)
 			return false;
 		Clear();
@@ -708,9 +718,9 @@ namespace Riff
 	}
 
 
-	bool Chunk::SaveToFile(const char*filename)
+	bool Chunk::SaveToFile(const char_t*filename)
 	{
-		FILE*f = fopen(filename,"wb");
+		FILE*f = FOPEN(filename,"wb");
 		if (!f)
 			return false;
 		ResolveSize(true);

@@ -24,10 +24,10 @@ public:
 			fileHandle = INVALID_HANDLE_VALUE;
 		}
 	}
-	bool	Open(const String&path)
+	bool	Open(const PathString&path)
 	{
 		Close();
-		fileHandle = CreateFileA(path.c_str(),GENERIC_WRITE,FILE_SHARE_READ,nullptr,CREATE_ALWAYS,FILE_ATTRIBUTE_NORMAL,nullptr);
+		fileHandle = CreateFileW(path.c_str(),GENERIC_WRITE,FILE_SHARE_READ,nullptr,CREATE_ALWAYS,FILE_ATTRIBUTE_NORMAL,nullptr);
 		return fileHandle != INVALID_HANDLE_VALUE;
 	}
 

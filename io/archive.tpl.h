@@ -56,7 +56,7 @@ template <class Entry> void Archive<Entry>::scanFolder(Riff::File&riff)
         while (riff.Next());
 }
 
-template <class Entry> bool Archive<Entry>::open(const String&filename)
+template <class Entry> bool Archive<Entry>::Open(const PathString&filename)
 {
     Riff::File  riff;
     if (!riff.Open(filename.c_str()))
@@ -87,40 +87,40 @@ template <class Entry> bool Archive<Entry>::open(const String&filename)
     scanFolder(riff);
     riff.Close();
     error_ = ARCHIVE_ERROR_UNABLE_TO_REOPEN;
-    return RandomAccessFile::open(filename.c_str());
+    return RandomAccessFile::Open(filename.c_str());
 }
 
-template <class Entry> void Archive<Entry>::close()
+template <class Entry> void Archive<Entry>::Close()
 {
-    RandomAccessFile::close();
+    RandomAccessFile::Close();
     folder[0]->clear();
     folder[0]->files.clear();
     depth = 0;
 }
 
-template <class Entry> inline const String&Archive<Entry>::getContent()   const
+template <class Entry> inline const String&Archive<Entry>::GetContent()   const
 {
     return info;
 }
 
-template <class Entry> inline const String&Archive<Entry>::getInfo()   const
+template <class Entry> inline const String&Archive<Entry>::GetInfo()   const
 {
     return info;
 }
 
-template <class Entry> inline Entry*Archive<Entry>::select(const String&name)
+template <class Entry> inline Entry*Archive<Entry>::Select(const String&name)
 {
     selected = folder[depth]->files.lookup(name);
     return selected;
 }
 
-template <class Entry> inline Entry*Archive<Entry>::select(unsigned index)
+template <class Entry> inline Entry*Archive<Entry>::Select(unsigned index)
 {
     selected = folder[depth]->files.Get(index);
     return selected;
 }
 
-template <class Entry> inline bool Archive<Entry>::select(Entry*entry)
+template <class Entry> inline bool Archive<Entry>::Select(Entry*entry)
 {
     if (folder[depth]->files.getIndexOf(entry))
         selected = entry;
@@ -129,24 +129,24 @@ template <class Entry> inline bool Archive<Entry>::select(Entry*entry)
     return selected;
 }
 
-template <class Entry> inline Entry*Archive<Entry>::select64(const int64_t&name)
+template <class Entry> inline Entry*Archive<Entry>::Select64(const int64_t&name)
 {
     selected = folder[depth]->files.lookup(name2str(name));
     return selected;
 }
 
-template <class Entry> inline Entry*Archive<Entry>::getSelected() const
+template <class Entry> inline Entry*Archive<Entry>::GetSelected() const
 {
     return selected;
 }
 
 
-template <class Entry> inline ArchiveFolder<Entry>*Archive<Entry>::location()   const
+template <class Entry> inline ArchiveFolder<Entry>*Archive<Entry>::GetLocation()   const
 {
     return folder[depth];
 }
 
-template <class Entry> inline bool Archive<Entry>::path(const Array<tName>&path)
+template <class Entry> inline bool Archive<Entry>::SetPath(const Array<tName>&path)
 {
     depth = 0;
 	Folder*f;
@@ -158,7 +158,7 @@ template <class Entry> inline bool Archive<Entry>::path(const Array<tName>&path)
     return depth == path.length();
 }
 
-template <class Entry> inline bool Archive<Entry>::path(const Array<String>&path)
+template <class Entry> inline bool Archive<Entry>::SetPath(const Array<String>&path)
 {
     depth = 0;
 	Folder*f;
@@ -170,12 +170,12 @@ template <class Entry> inline bool Archive<Entry>::path(const Array<String>&path
     return depth == path.length();
 }
 
-template <class Entry> inline bool Archive<Entry>::enter(const tName&folder_name)
+template <class Entry> inline bool Archive<Entry>::Enter(const tName&folder_name)
 {
 	return enter(name2str(folder_name));
 }
 
-template <class Entry> inline bool Archive<Entry>::enter(const String&folder_name)
+template <class Entry> inline bool Archive<Entry>::Enter(const String&folder_name)
 {
     if (Folder*f = folder[depth]->lookup(folder_name))
     {
@@ -186,7 +186,7 @@ template <class Entry> inline bool Archive<Entry>::enter(const String&folder_nam
     return false;
 }
 
-template <class Entry> inline bool Archive<Entry>::dropBack()
+template <class Entry> inline bool Archive<Entry>::DropBack()
 {
     if (!depth)
         return false;
@@ -194,7 +194,7 @@ template <class Entry> inline bool Archive<Entry>::dropBack()
     return true;
 }
 
-template <class Entry> inline void Archive<Entry>::dropToRoot()
+template <class Entry> inline void Archive<Entry>::DropToRoot()
 {
 	depth = 0;
 }
@@ -214,13 +214,13 @@ template <class Entry> inline void Archive<Entry>::GetPath(Array<String>&path)  
 }
 
 
-template <class Entry> inline BYTE Archive<Entry>::pathDepth() const
+template <class Entry> inline BYTE Archive<Entry>::GetPathDepth() const
 {
     return depth;
 }
 
 
-template <class Entry> inline String Archive<Entry>::getLocationString()  const
+template <class Entry> inline String Archive<Entry>::GetLocationString()  const
 {
     String result;
     for (BYTE k = 0; k < depth; k++)
@@ -232,7 +232,7 @@ template <class Entry> inline String Archive<Entry>::getLocationString()  const
 
 
 
-template <class Entry> inline String Archive<Entry>::errorStr()    const
+template <class Entry> inline String Archive<Entry>::GetErrorStr()    const
 {
     #define ecase(token)    case token: return #token;
     switch (error_)

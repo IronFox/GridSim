@@ -24,9 +24,9 @@ STAface::~STAface()
 TextureArchive::TextureArchive():Archive<STAentry>(0x0103)
 {}
 
-TextureArchive::TextureArchive(const String&filename):Archive<STAentry>(0x0103)
+TextureArchive::TextureArchive(const PathString&filename):Archive<STAentry>(0x0103)
 {
-    open(filename);
+    Open(filename);
 }
 
 void TextureArchive::handleChunk(Riff::File&riff,ArchiveFolder<STAentry>*current)
@@ -64,13 +64,13 @@ void TextureArchive::handleChunk(Riff::File&riff,ArchiveFolder<STAentry>*current
 }
 
 
-const Image* TextureArchive::getData(BYTE face)
+const Image* TextureArchive::GetData(BYTE face)
 {
     if (!selected || face >= selected->faces)
         return NULL;
     if (selected->face[face].extracted)
         return selected->face[face].extracted;
-    BYTE*data = RandomAccessFile::extract(selected->face[face].location,selected->face[face].size);
+    BYTE*data = RandomAccessFile::Extract(selected->face[face].location,selected->face[face].size);
     if (!data)
         return NULL;
     selected->face[face].extracted = SHIELDED(new Image());
@@ -111,29 +111,29 @@ const Image* TextureArchive::getData(BYTE face)
     return selected->face[face].extracted;
 }
 
-BYTE TextureArchive::getFaces()
+BYTE TextureArchive::GetFaces()
 {
 	if (!selected)
 		return 0;
     return selected->faces;	
 }
 
-BYTE TextureArchive::getAll(const Image* out[])
+BYTE TextureArchive::GetAll(const Image* out[])
 {
     if (!selected)
         return 0;
     /*unsigned width(0),height(0);
     BYTE     channels(0);*/
     for (BYTE k = 0; k < selected->faces; k++)
-        out[k] = getData(k);
+        out[k] = GetData(k);
 
 	return selected->faces;
 }
 
-void	TextureArchive::getRaw(const STAface&face, ArrayData<BYTE>&target)
+void	TextureArchive::GetRaw(const STAface&face, ArrayData<BYTE>&target)
 {
 	target.setSize(face.size);
-	RandomAccessFile::extract(face.location,target.pointer(),face.size);
+	RandomAccessFile::Extract(face.location,target.pointer(),face.size);
 }
 
 

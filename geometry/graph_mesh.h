@@ -660,8 +660,8 @@ static	void				ramp(SurfaceDescription::TVertex&vtx);
 								}
 							}
 
-		void				loadFromFile(const String&filename,bool compactify=true);
-		void				saveToFile(const String&filename)	const;
+		void				LoadFromFile(const PathString&filename,bool compactify=true);
+		void				SaveToFile(const PathString&filename)	const;
 
 		void				writeTo(XML::Node&node)	const;
 		void				readFrom(const XML::Node*xnodes, const XML::Node*xedges);
@@ -680,7 +680,7 @@ private:
 		GenericHashContainer<name64_t,CGS::TextureA>	container;
 
 public:
-		void					insert(const String&filename, name64_t as_name, bool bump_map, float bump_strength = 0.01f);
+		void					Insert(const PathString&filename, name64_t as_name, bool bump_map, float bump_strength = 0.01f);
 
 virtual count_t					countEntries()
 								{
@@ -761,8 +761,8 @@ static	GraphTextureResource	texture_resource;
 		count_t				createGeometry(CGS::Geometry<>&target, float step, float texture_size_x, float texture_size_y, Graph::layout_t layout, name64_t texture, name64_t normal_texture, name64_t glow_texture, bool export_visual_sub_hulls)	const;
 
 
-		void				loadFromFile(const String&filename,bool compactify=true);
-		void				saveToFile(const String&filename)	const;
+		void				LoadFromFile(const PathString&filename,bool compactify=true);
+		void				SaveToFile(const PathString&filename)	const;
 
 
 static	void				buildStub(Graph::layout_t layout, float step, SurfaceDescription&desc);

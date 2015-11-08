@@ -95,7 +95,7 @@ static 	inline void  _c3(const BYTE v[3], BYTE w[3])
 		w[2] = v[2];
 	}
 
-void	Bitmap::loadFromFilePointer(Image&target, FILE*f)
+void	Bitmap::LoadFromFilePointer(Image&target, FILE*f)
 {
 #if SYSTEM!=WINDOWS
 
@@ -320,7 +320,7 @@ void	Bitmap::loadFromFilePointer(Image&target, FILE*f)
 
 
 
-void	Bitmap::saveToFilePointer(const Image&resource, FILE*f)
+void	Bitmap::SaveToFilePointer(const Image&resource, FILE*f)
 {
 //#if SYSTEM==WINDOWS
     BYTE magic[2]={'B','M'};

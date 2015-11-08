@@ -52,18 +52,18 @@ public:
         UINT32	conversion_flags;	//!< String conversion configuration
         UINT    root_line;		//!< Beginning of the currently returned line (from the beginning of the file)
 
-                StringFile(const String&filename, unsigned flags=CM_IDENTITY, bool create=false);	//!< Load constructor. File is opened in readonly mode. \param filename File to open \param flags Filter configuration. Common are CM_STRIP_COMMENTS to strip all comments or CM_IDENTITY to disable filtering.
+                StringFile(const PathString&filename, unsigned flags=CM_IDENTITY, bool create=false);	//!< Load constructor. File is opened in readonly mode. \param filename File to open \param flags Filter configuration. Common are CM_STRIP_COMMENTS to strip all comments or CM_IDENTITY to disable filtering.
 				StringFile(FILE*f, unsigned flags=CM_IDENTITY);					//!< Assign constructor. File is used for reading. \param f Stream to read from. May be NULL. \param flags Filter configuration. Common are CM_STRIP_COMMENTS to strip all comments or CM_IDENTITY to disable filtering.
                 StringFile(unsigned flags=CM_IDENTITY);							//!< Empty constructor. No file is opened.\param flags Filter configuration. Common are CM_STRIP_COMMENTS to strip all comments or CM_IDENTITY to disable filtering.
 virtual        ~StringFile();
 
-        void    assign(FILE*file);					//!< Assigns an already open file for reading. \param file File to read from. May be NULL.
-        bool    open(const String&filename);		//!< Opens a text file in readonly mode.  \return true if the file could be opened, false otherwise.
-        bool    create(const String&filename);		//!< (Re)creates a text file for output. If the file exists then it is overwritten. \return true if the file could be created/overwritten, false otherwise.
-        bool    append(const String&filename);		//!< Opens a text file for output. If the file exists then any succeeding content will be appended to it. Otherwise a new file is created.
-        void    close();							//!< Closes the local file handle (if open)
-        bool    isActive();							//!< Queries the current file state. \return true if a file is currently opened.
-        bool    reset();							//!< Resets the file pointer to the beginning of the file. \return true on success.
+        void    Assign(FILE*file);					//!< Assigns an already open file for reading. \param file File to read from. May be NULL.
+        bool    Open(const PathString&filename);		//!< Opens a text file in readonly mode.  \return true if the file could be opened, false otherwise.
+        bool    Create(const PathString&filename);		//!< (Re)creates a text file for output. If the file exists then it is overwritten. \return true if the file could be created/overwritten, false otherwise.
+        bool    Append(const PathString&filename);		//!< Opens a text file for output. If the file exists then any succeeding content will be appended to it. Otherwise a new file is created.
+        void    Close();							//!< Closes the local file handle (if open)
+        bool    IsActive();							//!< Queries the current file state. \return true if a file is currently opened.
+        bool    Reset();							//!< Resets the file pointer to the beginning of the file. \return true on success.
 
 		/**
 		Loads temporary data into the local file for stream-processing.
@@ -71,7 +71,7 @@ virtual        ~StringFile();
 		*/
 		void			LinkSourceData(String&data)
 		{
-			close();
+			Close();
 			string = data.mutablePointer();
 			end = string + data.length();
 			read_mode = true;
@@ -117,7 +117,7 @@ virtual        ~StringFile();
 		*/
         bool    operator>>(String&target);
 			
-		void	flush();	//!< Flushes the file
+		void	Flush();	//!< Flushes the file
 };
 
 
