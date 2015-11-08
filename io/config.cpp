@@ -644,7 +644,7 @@ namespace Config
 			String group = line.getBetween('[',']').trimThis();
 			if (depth >= stack_elements)
 			{
-				error += "\nRecursive depth of line "+String(file.root_line)+" exceeds stack depth ("+String(stack_elements)+"):\n "+line;
+				error += "\nNesting depth "+String(depth)+" of line "+String(file.root_line)+" exceeds context nesting depth ("+String(stack_elements)+"):\n "+line.trim();
 				errors = true;
 				continue;
 			}

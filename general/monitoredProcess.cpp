@@ -8,9 +8,15 @@
 
 bool		MonitoredProcess::Start(const PathString&workingDirectory, const PathString&executablePath, const PathString&parametersWithoutExecutableName, bool createWindow)
 {
+	FileSystem::Folder f(workingDirectory);
+	if (!f.IsValidLocation())
+		return false;
+	FileSystem::File found;
+	if (!f.FindFile(executablePath,found))
+		return false;
 	parameters = '"'+FileSystem::ExtractFileNameExt(executablePath)+"\" "+parametersWithoutExecutableName;
-	this->executablePath = executablePath;
-	this->workingDirectory = workingDirectory;
+	this->executablePath = found.GetLocation();
+	this->workingDirectory = f.GetLocation();
 	this->createWindow = createWindow;
 	return Restart();
 }
