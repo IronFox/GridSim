@@ -36,6 +36,15 @@ bool	MonitoredProcess::Restart()
 	ZeroMemory(&infoIn,sizeof(infoIn));
 	infoIn.cb = sizeof(infoIn);
 
+	if (!createWindow)
+	{
+		infoIn.dwFlags = STARTF_USESTDHANDLES | STARTF_USESHOWWINDOW;
+		infoIn.hStdInput = GetStdHandle(STD_INPUT_HANDLE);
+		infoIn.hStdOutput =  GetStdHandle(STD_OUTPUT_HANDLE);
+		infoIn.hStdError = GetStdHandle(STD_ERROR_HANDLE);
+		infoIn.wShowWindow = SW_HIDE;
+	}
+
 	//infoIn.wShowWindow = SW_MINIMIZE;
 	//infoIn.dwFlags |= STARTF_USESHOWWINDOW;	//dx11 doesn't start well minimized
 
