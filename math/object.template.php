@@ -178,6 +178,31 @@ functions:
 			return false;
 		:float	alpha = smallestPositiveResult(rs,num_rs);
 		return alpha >= (:float)0 && alpha <= (:float)1;
+		
+	
+	detectSphereEdgeIntersection,DetectSphereEdgeIntersection(const [3] center, radius, const [3] e0, const [3] e1, [2] distances{Intersection distances} ) -> bool {True, if there is an intersection, or all intersection points lie inside the sphere, false otherwise}
+		{
+			Detects whether or not there is an intersection between the given sphere and edge. Returns the intersection distance factors between e0 (=0) and e1 (=1)
+		}
+		:vector(d);
+		:<sub>(e1,e0,d);
+		:vector(delta);
+		:<sub>(e0,center,delta);
+		:float	pa = :<dot>(d,d),
+				pb = 2*:<dot>(d,delta),
+				pc = :<dot>(delta)-sqr(radius),
+				rs[2];
+		BYTE num_rs = solveSqrEquation(pa,pb,pc,rs);
+		if (!num_rs)
+			return false;
+		if (num_rs == 1)
+		{
+			distances:0 = distances:1 = rs[0];
+			return rs[0] >= (:float)0 && rs[0] <= (:float)1;
+		}
+		distances:0 = std::min(rs[0],rs[1]);
+		distances:1 = std::max(rs[0],rs[1]);
+		return (distances:0 <= (:float)1 && distances:1 >= (:float)0);
 
 	detTriangleRayIntersection(const [3] t0, const [3] t1, const [3] t2, const [3] b, const [3] f {Ray direction vector: any length greater 0}, [3] result) -> bool { true if a point of intersection could be determined, false otherwise. The out array will remain unchanged if the function returns false.}
 		{Similar to _oDetTriangleEdgeIntersection(), _oDetTriangleRayIntersection() determines the factors (a, b, c) of the intersection of the specified triangle and ray (if any).<br>Unless the ray and triangle are parallel the resulting factors are written to the specified out array: out[0] = a, out[1] = b, out[2] = c.<br>The solved intersection equation is: x (point of intersection) = t0 + (t1-t0)*a + (t2-t0)*b = b + f*c}

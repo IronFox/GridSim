@@ -2,10 +2,10 @@
 #define object_operationsH
 /*
 
-Warning: date(): It is not safe to rely on the system's timezone settings. You are *required* to use the date.timezone setting or the date_default_timezone_set() function. In case you used any of those methods and you are still getting this warning, you most likely misspelled the timezone identifier. We selected 'Europe/Paris' for '1.0/no DST' instead in E:\include\math\update.php on line 1656
+Warning: date(): It is not safe to rely on the system's timezone settings. You are *required* to use the date.timezone setting or the date_default_timezone_set() function. In case you used any of those methods and you are still getting this warning, you most likely misspelled the timezone identifier. We selected the timezone 'UTC' for now, but please set date.timezone to select your timezone. in E:\include\math\update.php on line 1656
 
-Warning: date(): It is not safe to rely on the system's timezone settings. You are *required* to use the date.timezone setting or the date_default_timezone_set() function. In case you used any of those methods and you are still getting this warning, you most likely misspelled the timezone identifier. We selected 'Europe/Paris' for '1.0/no DST' instead in E:\include\math\update.php on line 1656
-This file was generated from template definition 'object.template.php' on 2014 December 20th 16:08:03
+Warning: date(): It is not safe to rely on the system's timezone settings. You are *required* to use the date.timezone setting or the date_default_timezone_set() function. In case you used any of those methods and you are still getting this warning, you most likely misspelled the timezone identifier. We selected the timezone 'UTC' for now, but please set date.timezone to select your timezone. in E:\include\math\update.php on line 1656
+This file was generated from template definition 'object.template.php' on 2015 November 15th 14:49:46
 Do not edit
 */
 
@@ -599,6 +599,105 @@ namespace Obj
 				return false;
 			T0	alpha = smallestPositiveResult(rs,num_rs);
 			return alpha >= (T0)0 && alpha <= (T0)1;
+		}
+
+	//now implementing template definition 'bool detectSphereEdgeIntersection|DetectSphereEdgeIntersection (<const [3] center>, <radius>, <const [3] e0>, <const [3] e1>, <[2] distances>) direct='
+	/**
+		@brief Detects whether or not there is an intersection between the given sphere and edge. Returns the intersection distance factors between e0 (=0) and e1 (=1)<br>
+		<br>
+		detectSphereEdgeIntersection() requires vector objects to operate on, rather than raw pointers. Use ref*() to create a temporary reference object to existing array pointers<br>
+		Scalar values are passed as copies rather than by const reference. Use this version for primitive types only.<br>
+	
+		@param[in] center 
+		@param[in] radius 
+		@param[in] e0 
+		@param[in] e1 
+		@param[out] distances Intersection distances
+		@return True, if there is an intersection, or all intersection points lie inside the sphere, false otherwise 
+	*/
+	template <typename T0, typename T1, typename T2, typename T3, typename T4>
+		inline	bool	__fastcall	detectSphereEdgeIntersection(const TVec3<T0>& center, T1 radius, const TVec3<T2>& e0, const TVec3<T3>& e1, TVec2<T4>& distances)throw()
+		{
+			TVec3<T4> d;
+			
+			//block inlining void subtract|sub (2..4) (<const [*] v>, <const [*] w>, <[*] result>) direct=1 for dimensions=3, assembly_mode='Objects', parameters={e1, e0, d}...
+			{
+				d.x = e1.x - e0.x;
+				d.y = e1.y - e0.y;
+				d.z = e1.z - e0.z;
+			};
+			TVec3<T4> delta;
+			
+			//block inlining void subtract|sub (2..4) (<const [*] v>, <const [*] w>, <[*] result>) direct=1 for dimensions=3, assembly_mode='Objects', parameters={e0, center, delta}...
+			{
+				delta.x = e0.x - center.x;
+				delta.y = e0.y - center.y;
+				delta.z = e0.z - center.z;
+			};
+			T4	pa = (d.x*d.x + d.y*d.y + d.z*d.z),
+					pb = 2*(d.x*delta.x + d.y*delta.y + d.z*delta.z),
+					pc = (delta.x*delta.x + delta.y*delta.y + delta.z*delta.z)-sqr(radius),
+					rs[2];
+			BYTE num_rs = solveSqrEquation(pa,pb,pc,rs);
+			if (!num_rs)
+				return false;
+			if (num_rs == 1)
+			{
+				distances.x = distances.y = rs[0];
+				return rs[0] >= (T4)0 && rs[0] <= (T4)1;
+			}
+			distances.x = std::min(rs[0],rs[1]);
+			distances.y = std::max(rs[0],rs[1]);
+			return (distances.x <= (T4)1 && distances.y >= (T4)0);
+		}
+
+	/**
+		@brief Detects whether or not there is an intersection between the given sphere and edge. Returns the intersection distance factors between e0 (=0) and e1 (=1)<br>
+		<br>
+		DetectSphereEdgeIntersection() requires vector objects to operate on, rather than raw pointers. Use ref*() to create a temporary reference object to existing array pointers<br>
+		Scalar values are passed as copies rather than by const reference. Use this version for primitive types only.<br>
+	
+		@param[in] center 
+		@param[in] radius 
+		@param[in] e0 
+		@param[in] e1 
+		@param[out] distances Intersection distances
+		@return True, if there is an intersection, or all intersection points lie inside the sphere, false otherwise 
+	*/
+	template <typename T0, typename T1, typename T2, typename T3, typename T4>
+		inline	bool	__fastcall	DetectSphereEdgeIntersection(const TVec3<T0>& center, T1 radius, const TVec3<T2>& e0, const TVec3<T3>& e1, TVec2<T4>& distances)throw()
+		{
+			TVec3<T4> d;
+			
+			//block inlining void subtract|sub (2..4) (<const [*] v>, <const [*] w>, <[*] result>) direct=1 for dimensions=3, assembly_mode='Objects', parameters={e1, e0, d}...
+			{
+				d.x = e1.x - e0.x;
+				d.y = e1.y - e0.y;
+				d.z = e1.z - e0.z;
+			};
+			TVec3<T4> delta;
+			
+			//block inlining void subtract|sub (2..4) (<const [*] v>, <const [*] w>, <[*] result>) direct=1 for dimensions=3, assembly_mode='Objects', parameters={e0, center, delta}...
+			{
+				delta.x = e0.x - center.x;
+				delta.y = e0.y - center.y;
+				delta.z = e0.z - center.z;
+			};
+			T4	pa = (d.x*d.x + d.y*d.y + d.z*d.z),
+					pb = 2*(d.x*delta.x + d.y*delta.y + d.z*delta.z),
+					pc = (delta.x*delta.x + delta.y*delta.y + delta.z*delta.z)-sqr(radius),
+					rs[2];
+			BYTE num_rs = solveSqrEquation(pa,pb,pc,rs);
+			if (!num_rs)
+				return false;
+			if (num_rs == 1)
+			{
+				distances.x = distances.y = rs[0];
+				return rs[0] >= (T4)0 && rs[0] <= (T4)1;
+			}
+			distances.x = std::min(rs[0],rs[1]);
+			distances.y = std::max(rs[0],rs[1]);
+			return (distances.x <= (T4)1 && distances.y >= (T4)0);
 		}
 
 	//now implementing template definition 'bool detTriangleRayIntersection (<const [3] t0>, <const [3] t1>, <const [3] t2>, <const [3] b>, <const [3] f>, <[3] result>) direct='
