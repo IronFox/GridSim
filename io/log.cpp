@@ -18,7 +18,7 @@
 	LogFile::LogFile():f(NULL),format("[%Y %B %d. %H:%M:%S] "),indentation(0),indent_(false),closeWhenIdle(false)
 	{}
 
-	LogFile::LogFile(const String&filename, bool makeclear, bool closeWhenIdle):f(NULL),do_open(true),last(filename),format("[%Y %B %d. %H:%M:%S] "),indentation(0),indent_(false),make_clear(makeclear),closeWhenIdle(closeWhenIdle)
+	LogFile::LogFile(const PathString&filename, bool makeclear, bool closeWhenIdle):f(NULL),do_open(true),last(filename),format("[%Y %B %d. %H:%M:%S] "),indentation(0),indent_(false),make_clear(makeclear),closeWhenIdle(closeWhenIdle)
 	{
 		memset(space_buffer,' ',sizeof(space_buffer));
 	}
@@ -35,16 +35,16 @@
 		if (!do_open)
 			return false;
 		if (make_clear)
-			f = fopen(last.c_str(),"wb");
+			f = FOPEN(last.c_str(),"wb");
 		else
-			f = fopen(last.c_str(),"ab");
+			f = FOPEN(last.c_str(),"ab");
 		do_open = false;
 		return f != NULL;
 	}
 
-	bool LogFile::open(const String&filename, bool makeclear, bool closeWhenIdle/*=true*/)
+	bool LogFile::Open(const PathString&filename, bool makeclear, bool closeWhenIdle/*=true*/)
 	{
-		close();
+		Close();
 		this->closeWhenIdle = closeWhenIdle;
 		last = filename;
 		do_open = true;
@@ -52,9 +52,9 @@
 		return true;
 	}
 
-	bool LogFile::create(const String&filename, bool closeWhenIdle/*=true*/)
+	bool LogFile::Create(const PathString&filename, bool closeWhenIdle/*=true*/)
 	{
-		return open(filename,true,closeWhenIdle);
+		return Open(filename,true,closeWhenIdle);
 	}
 
 	bool LogFile::isActive()
@@ -75,7 +75,7 @@
 	void LogFile::clear()
 	{
 		close();
-		open(last,true,false);
+		Open(last,true,false);
 	}
 
 	void LogFile::timeStamp()
@@ -104,7 +104,7 @@
 			fflush(f);
 	}
 
-	bool LogFile::log(const char*line, bool time_)
+	bool LogFile::Log(const char*line, bool time_)
 	{
 		if (!begin())
 			return false;
@@ -137,7 +137,7 @@
 				end();
 				return true;
 			}
-			return log(nl+1,false);
+			return Log(nl+1,false);
 		}
 		size_t len = strlen(line);
 		if (fwrite(line,1,len,f)!=len)
@@ -156,7 +156,7 @@
 	}
 
 
-	bool LogFile::log(const String&line, bool time_)
+	bool LogFile::Log(const String&line, bool time_)
 	{
 		if (!begin())
 			return false;
@@ -188,7 +188,7 @@
 				end();
 				return true;
 			}
-			return log(line.c_str()+at,false);
+			return Log(line.c_str()+at,false);
 		}
 		if (fwrite(line.c_str(),1,line.length(),f)!=line.length())
 		{
@@ -225,13 +225,13 @@
 
 	LogFile& LogFile::operator<<(const char*line)
 	{
-		log(line);
+		Log(line);
 		return *this;
 	}
 
 	LogFile& LogFile::operator<<(const String&line)
 	{
-		log(line);
+		Log(line);
 		return *this;
 	}
 
@@ -245,12 +245,12 @@
 		return *this;
 	}
 
-	void	LogFile::indent()
+	void	LogFile::Indent()
 	{
 		indentation++;
 	}
 
-	void	LogFile::outdent()
+	void	LogFile::Outdent()
 	{
 		if (indentation)
 			indentation--;

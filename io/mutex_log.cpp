@@ -8,6 +8,27 @@ Thread-safe Logfile-creation-tool.
 ******************************************************************/
 
 
+void        SynchronizedLogFile::Clear()
+{
+    mutex.lock();
+        LogFile::Clear();
+    mutex.release();
+}
+
+bool        SynchronizedLogFile::Open(const PathString&filename, bool makeclear)
+{
+    mutex.lock();
+        bool result = LogFile::Open(filename,makeclear);
+    mutex.release();
+    return result;
+}
+
+void        SynchronizedLogFile::Close()
+{
+    mutex.lock();
+        LogFile::close();
+    mutex.release();
+}
 
 MutexLogSession::MutexLogSession(SynchronizedLogFile*file):log_file(file),counter(SHIELDED(new unsigned(1)))
 {
@@ -53,7 +74,7 @@ SynchronizedLogFile::SynchronizedLogFile()
 
 
 
-SynchronizedLogFile::SynchronizedLogFile(const String&filename, bool makeclear):LogFile(filename,makeclear)
+SynchronizedLogFile::SynchronizedLogFile(const PathString&filename, bool makeclear):LogFile(filename,makeclear)
 {
     /*mutex.lock();
         if (makeclear)
@@ -70,18 +91,18 @@ SynchronizedLogFile::~SynchronizedLogFile()
     close();
 }
 
-bool        SynchronizedLogFile::log(const char*line, bool time_)
+bool        SynchronizedLogFile::Log(const char*line, bool time_)
 {
 	mutex.lock();
-	bool rs = Super::log(line, time_);
+	bool rs = Super::Log(line, time_);
 	mutex.unlock();
 	return rs;
 }
 
-bool        SynchronizedLogFile::log(const String&line, bool time_)
+bool        SynchronizedLogFile::Log(const String&line, bool time_)
 {
 	mutex.lock();
-	bool rs = Super::log(line, time_);
+	bool rs = Super::Log(line, time_);
 	mutex.unlock();
 	return rs;
 }

@@ -5,37 +5,11 @@
 
 Thread-safe Logfile-creation-tool.
 
-This file is part of Delta-Works
-Copyright (C) 2006-2008 Stefan Elsen, University of Trier, Germany.
-http://www.delta-works.org/forge/
-http://informatik.uni-trier.de/
-
 ******************************************************************/
 
 
  
 
-inline  void        SynchronizedLogFile::clear()
-{
-    mutex.lock();
-        LogFile::clear();
-    mutex.release();
-}
-
-inline  bool        SynchronizedLogFile::open(const String&filename, bool makeclear)
-{
-    mutex.lock();
-        bool result = LogFile::open(filename,makeclear);
-    mutex.release();
-    return result;
-}
-
-inline  void        SynchronizedLogFile::close()
-{
-    mutex.lock();
-        LogFile::close();
-    mutex.release();
-}
 
 
 inline  MutexLogSession	SynchronizedLogFile::operator<<(const char*line)
@@ -71,13 +45,13 @@ inline  MutexLogSession	SynchronizedLogFile::operator<<(const TLogIndent&indent)
 
 inline  MutexLogSession&       MutexLogSession::operator<<(const char*line)
 {
-    log_file->LogFile::log(line);
+    log_file->LogFile::Log(line);
     return *this;
 }
 
 inline  MutexLogSession&       MutexLogSession::operator<<(const String&line)
 {
-    log_file->LogFile::log(line);
+    log_file->LogFile::Log(line);
     return *this;
 }
 
