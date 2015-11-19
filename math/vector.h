@@ -423,6 +423,10 @@ namespace Math
 										max /= factor;
 									}
 
+			MF_DECLARE(String)		ToString() const
+									{
+										return "["+String(min)+","+String(max)+"]";
+									}
 		};
 
 	template <typename T>
