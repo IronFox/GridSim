@@ -456,6 +456,10 @@ namespace Riff
 			Chunk*			Select(unsigned index);		//select riff-chunk via context-index
 			Chunk*			Next();						//increase cursor
 			Chunk*			First();					//reset cursor in present context
+			Chunk*			GetNextSibling()		/** Retrieves the sibling of this chunk in its parent context*/ {return _next;}
+			const Chunk*	GetNextSibling() const	/** @copydoc GetNextSibling() */ {return _next;}
+			Chunk*			GetFirstChild()			/** Retrieves the first child of the local chunk */ {return _first;}
+			const Chunk*	GetFirstChild() const	/** @copydoc GetFirstChild() */ {return _first;}
 			unsigned		CurrentIndex()	const;					//returns block's index
 			Chunk*			Current();
 			bool			EraseCurrent();
