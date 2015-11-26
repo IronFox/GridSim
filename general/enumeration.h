@@ -41,6 +41,7 @@ struct NAME\
 		template <typename T> bool	Load(const T&v)	{index_t val = (index_t)(v); if (val < NumberOfPossibilities) {value = (value_t)val; return true;} return false;}\
 		template <typename T> static NAME		Reinterpret(const T&v)	{index_t val = (index_t)(v); if (val < NumberOfPossibilities) return NAME((value_t)val); return NAME();}\
 		bool	Decode(const char*str)			{for (index_t i = 0; i < NumberOfPossibilities; i++) if (!strcmp(str,ToString((value_t)i))) {value = (value_t)i; return true;} return false;}\
+		bool	Decode(const char*str, size_t strLen)			{for (index_t i = 0; i < NumberOfPossibilities; i++) {const char*test = ToString((value_t)i); size_t testLen = strlen(test); if (testLen == strLen && !strncmp(str,test,strLen)) {value = (value_t)i; return true;}} return false;}\
 		NAME&	operator=(value_t value_)		{value = value_; return *this;}\
 		NAME&	operator=(const NAME&value_)	{value = value_.value; return *this;}\
 		bool	operator==(value_t value_)		{return value == value_;}\
