@@ -406,6 +406,33 @@ namespace System
         operation.executing = false;
     }
 
+   bool        Thread::CheckAwaitCompletion(DWORD maxWaitMilliseconds/*=0xFFFFFFFF*/)
+    {
+        if (!operation.executing)
+            return true;
+        #if SYSTEM==WINDOWS
+            if (handle == NULL)
+                FATAL__("bad state");
+			DWORD waitingForThreadID = GetThreadId(handle);	//in case it 
+            DWORD rs = WaitForSingleObject(handle,maxWaitMilliseconds);
+			if (rs == WAIT_TIMEOUT)
+			{
+				return false;
+			}
+			elif (rs != 0)
+			{
+				//FATAL__("Some unknown error occFailed to await completion of thread in allotted amount of time");
+			}
+
+            CloseHandle(handle);
+			handle = NULL;
+        #elif SYSTEM==UNIX
+            pthread_join(handle,NULL);
+			handle = 0;
+        #endif
+        operation.executing = false;
+		return true;
+    }
 	ThreadObject::ThreadObject()
 	{
 		Thread::create(this,false);

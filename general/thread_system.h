@@ -153,6 +153,7 @@ namespace System
 			void			resume();*/
 			void			terminate();													//!< Terminates thread execution. A thread should rather return than self terminate
 			void			awaitCompletion(DWORD maxWaitMilliseconds=0xFFFFFFFF);												 //!< Waits until thread has returned. Do not call from the thread itself
+			bool			CheckAwaitCompletion(DWORD maxWaitMilliseconds=0xFFFFFFFF);
 			bool			isActive()	const;											//!< Query thread status \return true, if the thread is currently running
 			bool			isSelf();													   //!< Checks if the calling thread matches the internal handle of the local object
 			handle_t		getHandle()	const	{return handle;}
