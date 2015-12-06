@@ -189,6 +189,7 @@ template <class Entry, class Strategy=typename StrategySelector<Entry>::Default>
 		void				adoptData(Queue<Entry,Strategy>&other);
 
 		void				CopyToArray(ArrayData<Entry>&out) const;
+		void				MoveToArray(ArrayData<Entry>&out, bool clearSelfWhenDone=true);
 			
 		inline count_t		count()						const	{return length();};	//!< Returns the current number of element stored in the queue
 		inline count_t		Count()						const	{return length();}

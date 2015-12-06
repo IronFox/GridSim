@@ -498,6 +498,15 @@ template <class Entry, class Strategy>
 			out[i] = operator[](i);
 	}
 
+template <class Entry, class Strategy>
+	void		Queue<Entry,Strategy>::MoveToArray(ArrayData<Entry>&out, bool clearSelfWhenDone/*=true*/)
+	{
+		out.SetSize(CountEntries());
+		for (index_t i = 0; i < out.Count(); i++)
+			Strategy::move(operator[](i),out[i]);
+		if (clearSelfWhenDone)
+			Clear();
+	}
 
 
 template <class Entry,class Strategy>
