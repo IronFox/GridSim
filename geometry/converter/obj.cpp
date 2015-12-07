@@ -289,7 +289,7 @@ namespace Converter
 			}
 			catch (const Exception&except)
 			{
-				error = String(except.getType())+": "+except.what();
+				error = String(except.GetType())+": "+except.what();
 				color = false;
 			}
 			catch (const std::exception&except)
@@ -317,7 +317,7 @@ namespace Converter
 			}
 			catch (const Exception&except)
 			{
-				error = String(except.getType())+": "+except.what();
+				error = String(except.GetType())+": "+except.what();
 				alpha = false;
 			}
 			catch (const std::exception&except)

@@ -314,39 +314,43 @@ namespace Except
 					return converter.convert(string);
 				}
 		public:
-										Exception()
+			TCodeLocation				location;
+			bool						hasLocation;
+			/**/						Exception():hasLocation(false)
 											#if SYSTEM!=WINDOWS
 												:Super("")
 											#endif
-										{
-										}
-										Exception(const char*message):Super(message)
-										{
-										}
-									#if SYSTEM==WINDOWS
-										Exception(const globalString&string):Super(string.address,1)
-										{
-										}
-									#else
-										Exception(const globalString&string):Super(string.address)
-										{
-										}
-									#endif
-										Exception(const Super&except):Super(except)
-										{
-										}
-		template <class C>				Exception(const IString<C>&string):Super(castToChar(string))
-										{
-										}
-		virtual	const char*				getType()	const {return staticGetName();}
-		//virtual	const char*				what()		const
-		//{
-		//	static char buffer[0x4000]; sprintf_s<sizeof(buffer)>(buffer,"%s: %s",getType(),std::exception::what()); buffer[sizeof(buffer)-1] = 0; return buffer;
-		//};
-		static const Name&				staticGetName()	{static const Name	name = Name("Except"); return name;}
+										{}
+			/**/						Exception(const TCodeLocation&loc):location(loc),hasLocation(true)
+											#if SYSTEM!=WINDOWS
+												:Super("")
+											#endif
+										{}
+			/**/						Exception(const char*message):Super(message),hasLocation(false) {}
+			/**/						Exception(const TCodeLocation&loc, const char*message):Super(message),location(loc),hasLocation(true) {}
+			#if SYSTEM==WINDOWS
+				/**/					Exception(const globalString&string):Super(string.address,1),hasLocation(false) {}
+				/**/					Exception(const TCodeLocation&loc, const globalString&string):Super(string.address,1),location(loc),hasLocation(true) {}
+			#else
+				/**/					Exception(const globalString&string):Super(string.address),hasLocation(false) {}
+				/**/					Exception(const TCodeLocation&loc, const globalString&string):Super(string.address),location(loc),hasLocation(true) {}
+			#endif
+			/**/						Exception(const Super&except):Super(except),hasLocation(false) {}
+			template <class C>			Exception(const IString<C>&string):Super(castToChar(string)),hasLocation(false) { }
+			template <class C>			Exception(const TCodeLocation&loc, const IString<C>&string):Super(castToChar(string)),location(loc),hasLocation(true) { }
+			virtual	const char*			GetType()	const {return StaticGetName();}
+			virtual	const char*			what()		const override
+			{
+				if (!hasLocation)
+					return Super::what();
+				static char buffer[0x4000];
+				sprintf_s<sizeof(buffer)>(buffer,"%s: %s",location.ToString(),Super::what());
+				buffer[sizeof(buffer)-1] = 0;
+				return buffer;
+			};
+			static const Name&			StaticGetName()	{static const Name	name = Name("Except"); return name;}
 
-				const std::exception&	c_str()	const	{return *this;}		//ok, this is close to a hack. let's forget i had to do this :P
-
+			const std::exception&		c_str()	const	{return *this;}		//ok, this is close to a hack. let's forget i had to do this :P. WHY did i have to do this again...?
 		};
 
 
@@ -360,36 +364,29 @@ namespace Except
 		#define BEGIN_EXCEPTION_GROUP(_name_)\
 			struct _PreType##_name_: public Inherit\
 			{\
-													_PreType##_name_()\
-													{\
-													}\
-													_PreType##_name_(const char*message):Inherit(message)\
-													{\
-													}\
-													_PreType##_name_(const globalString&string):Inherit(string)\
-													{\
-													}\
-				template <class C>					_PreType##_name_(const IString<C>&string):Inherit(string)\
-													{\
-													}\
-				static const Name&					staticGetName()	{static const Name name=Name(Inherit::staticGetName(),"/"#_name_); return name;}\
-				virtual	const char*					getType()	const						{return staticGetName();}\
+				typedef Inherit Super;\
+				/**/								_PreType##_name_(){}\
+				/**/								_PreType##_name_(const char*message):Inherit(message) {}\
+				/**/								_PreType##_name_(const globalString&string):Inherit(string){}\
+				/**/								_PreType##_name_(const TCodeLocation&loc):Super(loc){}\
+				/**/								_PreType##_name_(const TCodeLocation&loc, const char*message):Super(loc,message) {}\
+				/**/								_PreType##_name_(const TCodeLocation&loc, const globalString&string):Super(loc,string){}\
+				template <class C>					_PreType##_name_(const IString<C>&string):Super(string){}\
+				template <class C>					_PreType##_name_(const TCodeLocation&loc, const IString<C>&string):Super(loc,string){}\
+				static const Name&					StaticGetName()	{static const Name name=Name(Super::StaticGetName(),"/"#_name_); return name;}\
+				virtual	const char*					GetType()	const override					{return StaticGetName();}\
 			};\
 			struct _name_: public _PreType##_name_\
 			{\
-				typedef _PreType##_name_	Inherit;\
-													_name_()\
-													{\
-													}\
-													_name_(const char*message):Inherit(message)\
-													{\
-													}\
-													_name_(const globalString&string):Inherit(string)\
-													{\
-													}\
-				template <class C>					_name_(const IString<C>&string):Inherit(string)\
-													{\
-													}
+				typedef _PreType##_name_	Super;\
+				/**/								_name_() {}\
+				/**/								_name_(const char*message):Super(message) {}\
+				/**/								_name_(const globalString&string):Super(string) {}\
+				template <class C>					_name_(const IString<C>&string):Super(string) {}\
+				/**/								_name_(const TCodeLocation&loc):Super(loc) {}\
+				/**/								_name_(const TCodeLocation&loc, const char*message):Super(loc,message) {}\
+				/**/								_name_(const TCodeLocation&loc, const globalString&string):Super(loc,string) {}\
+				template <class C>					_name_(const TCodeLocation&loc, const IString<C>&string):Super(loc,string) {}
 
 		#undef END_EXCEPTION_GROUP
 		#define END_EXCEPTION_GROUP\
