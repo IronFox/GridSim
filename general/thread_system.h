@@ -1067,7 +1067,7 @@ namespace System
 				void				build(ThreadMainObject*init_object=NULL, Thread::pMethod init_method=NULL);
 		};
 	
-	typedef TmplKernel<ThreadPool>			Kernel;
+	typedef TmplKernel<ThreadPool>			ThreadKernel;
 	typedef TmplKernel<PriorityThreadPool>	PriorityKernel;
 	
 	/**
