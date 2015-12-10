@@ -89,7 +89,7 @@ void        Magic::LoadFromFile(Image&target, const PathString&filename, const P
 	for (index_t i = 0; i < ARRAYSIZE(format); i++)
 	{
 		ImageFormat*format = Magic::format[i];
-		if (format->magic_bytes.isEmpty() || format->magic_bytes.count()>actual_bytes)
+		if (format->magic_bytes.IsEmpty() || format->magic_bytes.count()>actual_bytes)
 			continue;	//process later or ignore
 		if (memcmp(format->magic_bytes.pointer(),magic_bytes,format->magic_bytes.count())!=0)
 			continue;
@@ -119,7 +119,7 @@ void        Magic::LoadFromFile(Image&target, const PathString&filename, const P
 		}
 		else
 		{
-			if (!format->magic_bytes.isEmpty())
+			if (!format->magic_bytes.IsEmpty())
 				continue;
 			//cout << " trying format #"<<i<<" '"<<format->name<<"'"<<endl;
 		}

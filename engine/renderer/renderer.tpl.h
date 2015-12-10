@@ -17,7 +17,7 @@ namespace Engine
 			if (list)
 				for (unsigned i = 0; i < config.layers(); i++)
 				{
-					if (list[i].isEmpty())
+					if (list[i].IsEmpty())
 						continue;
 					const TMaterialLayer&layer = config.layer(i);
 					

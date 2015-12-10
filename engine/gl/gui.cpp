@@ -373,7 +373,7 @@ namespace Engine
 
 		void		NormalRenderer::Paint(const TFreeCell&cell, bool invertNormals)
 		{
-			if (cell.normal->isEmpty())	//NULL-pointer sensitive
+			if (cell.normal->IsEmpty())	//NULL-pointer sensitive
 				return;
 			_UpdateState(cell.normal);
 			PushNormalMatrix();
@@ -885,7 +885,7 @@ namespace Engine
 								if (!cell->color.width() || !cell->color.height())
 								{
 									cell->color.setSize(32,32,4);
-									cell->color.fill(0,0,0,0);
+									cell->color.Fill(0,0,0,0);
 								}
 							}
 						}
@@ -1598,9 +1598,9 @@ namespace Engine
 		
 		void		Renderer::Unclip()	//!< Reverts the focus process by jumping back to the next upper focus
 		{
-			ASSERT__(clipStack.isNotEmpty());
+			ASSERT__(clipStack.IsNotEmpty());
 			clipStack.eraseLast();
-			if (clipStack.isNotEmpty())
+			if (clipStack.IsNotEmpty())
 				_Apply(clipStack.last());
 			else
 				_Apply(Rect<int>(0,0,subRes.width,subRes.height));
@@ -1787,7 +1787,7 @@ namespace Engine
 			glClear(GL_COLOR_BUFFER_BIT);
 
 
-			if (clipStack.isNotEmpty())
+			if (clipStack.IsNotEmpty())
 				_Apply(clipStack.last());
 			else
 				_Apply(Rect<int>(0,0,subRes.width,subRes.height));
@@ -1798,7 +1798,7 @@ namespace Engine
 
 		void		Renderer::Finish()
 		{
-			ASSERT__(clipStack.isEmpty());
+			ASSERT__(clipStack.IsEmpty());
 
 			MarkNewLayer();
 			bool mustCopy = layerCounter > 0 && targetingFinal;
@@ -2046,7 +2046,7 @@ namespace Engine
 		void					ColorRenderer::Finish()
 		{
 			_UpdateState();
-			ASSERT__(colorStack.isEmpty());
+			ASSERT__(colorStack.IsEmpty());
 			Renderer::Finish();
 		}
 
@@ -2163,7 +2163,7 @@ namespace Engine
 		void					NormalRenderer::Finish()
 		{
 			normalRenderer.Uninstall();
-			ASSERT__(normalSystemStack.isEmpty());
+			ASSERT__(normalSystemStack.IsEmpty());
 
 			Renderer::Finish();
 			glDisable(GL_TEXTURE_2D);
@@ -2628,7 +2628,7 @@ namespace Engine
 				stack_changed = false;
 				last_m = m;
 				Window::ClickResult::value_t cursor_mode = Window::ClickResult::Missed;
-				if (mouse->buttons.down[0] && owns_mouse_down && (windowStack.isNotEmpty() || menu_stack.isNotEmpty()))
+				if (mouse->buttons.down[0] && owns_mouse_down && (windowStack.IsNotEmpty() || menu_stack.IsNotEmpty()))
 				{
 					if (dragging)
 					{
@@ -2657,9 +2657,9 @@ namespace Engine
 				}
 				if (clicked)
 				{
-					PWindow	window = menu_stack.isNotEmpty()?menu_stack.last().lock():windowStack.last();
+					PWindow	window = menu_stack.IsNotEmpty()?menu_stack.last().lock():windowStack.last();
 
-					if (!window && menu_stack.isNotEmpty())	//last window has been erased
+					if (!window && menu_stack.IsNotEmpty())	//last window has been erased
 					{
 						hideMenus();
 						window = windowStack.last();
@@ -2882,7 +2882,7 @@ namespace Engine
 			glBindTexture(GL_TEXTURE_2D,0);
 			glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
 			glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
-			/*if (!sky_texture.isEmpty())
+			/*if (!sky_texture.IsEmpty())
 			{
 				glActiveTexture(GL_TEXTURE3);
 				display->useTexture(NULL);
@@ -2963,7 +2963,7 @@ namespace Engine
 		*/
 		PWindow	Operator::getTopWindow() const
 		{
-			if (windowStack.isEmpty())
+			if (windowStack.IsEmpty())
 				return PWindow();
 			return windowStack.last();
 		}
@@ -2973,7 +2973,7 @@ namespace Engine
 		*/
 		bool				Operator::showingModalWindows()	const
 		{
-			return windowStack.isNotEmpty() && windowStack.last()->isModal;
+			return windowStack.IsNotEmpty() && windowStack.last()->isModal;
 		}
 
 
@@ -2991,11 +2991,11 @@ namespace Engine
 			}
 			else
 				window->operatorLink = shared_from_this();
-			if (windowStack.isNotEmpty() && windowStack.last() == window)
+			if (windowStack.IsNotEmpty() && windowStack.last() == window)
 				return;
 			windowStack.findAndErase(window);
 
-			if (!window->isModal && windowStack.isNotEmpty() && windowStack.last()->isModal)
+			if (!window->isModal && windowStack.IsNotEmpty() && windowStack.last()->isModal)
 			{
 				index_t at = windowStack.size()-2;
 				while (at != InvalidIndex && windowStack[at]->isModal)
@@ -3004,7 +3004,7 @@ namespace Engine
 			}
 			else
 			{
-				if (windowStack.isNotEmpty())
+				if (windowStack.IsNotEmpty())
 					windowStack.last()->onFocusLost();
 				windowStack << window;
 				Component::ResetFocused();
@@ -3023,7 +3023,7 @@ namespace Engine
 		
 		bool			Operator::HideWindow(const PWindow&window)
 		{
-			bool was_top = windowStack.isNotEmpty() && windowStack.last() == window;
+			bool was_top = windowStack.IsNotEmpty() && windowStack.last() == window;
 				
 			if (windowStack.findAndErase(window))
 			{
@@ -3031,7 +3031,7 @@ namespace Engine
 				{
 					window->onFocusLost();
 					Component::ResetFocused();
-					if (windowStack.isNotEmpty())
+					if (windowStack.IsNotEmpty())
 						windowStack.last()->onFocusGained();
 				}
 				window->operatorLink.reset();

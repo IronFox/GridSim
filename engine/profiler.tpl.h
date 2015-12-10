@@ -107,7 +107,7 @@ namespace Engine
 				unsigned stride = (4+dimensions);
 				unsigned vcnt = vertices.count()/stride;
 				Array<TVec3<> >	normals(vcnt);
-				normals.fill(0);
+				normals.Fill(0);
 				for (unsigned i = 0; i < indices.count()/4; i++)
 				{
 					TVec3<>	n0,
@@ -358,8 +358,8 @@ namespace Engine
 				return;
 			h_field.resize(res);
 			h_block.resize(res);
-			h_block.fill(0);
-			h_field.fill(0);
+			h_block.Fill(0);
+			h_field.Fill(0);
 			unsigned cnt = 0;
 			for (unsigned i = 0; i < data->groups(); i++)
 			{
@@ -699,8 +699,8 @@ namespace Engine
 				return;
 			h_field.setSize(res);
 			h_block.setSize(res);
-			h_block.fill(0);
-			h_field.fill(0);
+			h_block.Fill(0);
+			h_field.Fill(0);
 			unsigned cnt = 0;
 			if (group < 0 || (unsigned)group >= data->groups() || channel < 0 || (unsigned)channel >= data->group(group).channels())
 			{
@@ -1105,8 +1105,8 @@ namespace Engine
 				return;
 			h_field.resize(res);
 			h_block.resize(res);
-			h_block.fill(0);
-			h_field.fill(0);
+			h_block.Fill(0);
+			h_field.Fill(0);
 			unsigned cnt = 0;
 			float depth = 1;
 			for (index_t i = 0; i < data->groups(); i++)

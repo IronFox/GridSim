@@ -63,8 +63,8 @@ template <typename T, typename Strategy>
 	{
 		count_t	current_size = storage_end-storage_begin,
 				target_size = current_size,
-				fill = usage_end-storage_begin,
-				want_size = fill+elements;
+				Fill = usage_end-storage_begin,
+				want_size = Fill+elements;
 		if (!target_size)
 			target_size = 4;
 
@@ -87,7 +87,7 @@ template <typename T, typename Strategy>
 
 				storage_begin = new_field;
 				storage_end = storage_begin+target_size;
-				usage_end = storage_begin+fill;
+				usage_end = storage_begin+Fill;
 				CHK_FILLSTATE
 
 			}
@@ -205,11 +205,11 @@ template <typename T, typename Strategy>
 template <typename T, typename Strategy>
 	BasicBuffer<T, Strategy>::BasicBuffer(std::initializer_list<T> items)
 	{
-		count_t	fill = items.size();
-		//alloc(storage_begin,fill);
+		count_t	Fill = items.size();
+		//alloc(storage_begin,Fill);
 		try
 		{
-			storage_begin = allocate(fill);
+			storage_begin = allocate(Fill);
 		}
 		catch (std::bad_alloc& exception)
 		{
@@ -222,15 +222,15 @@ template <typename T, typename Strategy>
 			throw;
 		}
 
-		storage_end = usage_end = storage_begin+fill;
+		storage_end = usage_end = storage_begin+Fill;
 		#if defined(_DEBUG) && __BUFFER_DBG_FILL_STATE__
-			fill_state = fill;
+			fill_state = Fill;
 			CHK_FILLSTATE
 		#endif
 
 
 		std::initializer_list<T>::const_iterator it = items.begin();
-		for (index_t i = 0; i < fill; i++, ++it)
+		for (index_t i = 0; i < Fill; i++, ++it)
 		{
 			new ((storage_begin+i)) T(*it);
 		}
@@ -240,11 +240,11 @@ template <typename T, typename Strategy>
 template <typename T, typename Strategy>
 	BasicBuffer<T, Strategy>::BasicBuffer(const BasicBuffer<T, Strategy>&other)
 	{
-		count_t	fill = other.usage_end-other.storage_begin;
-		//alloc(storage_begin,fill);
+		count_t	Fill = other.usage_end-other.storage_begin;
+		//alloc(storage_begin,Fill);
 		try
 		{
-			storage_begin = allocate(fill);
+			storage_begin = allocate(Fill);
 		}
 		catch (std::bad_alloc& exception)
 		{
@@ -257,13 +257,13 @@ template <typename T, typename Strategy>
 			throw;
 		}
 
-		storage_end = usage_end = storage_begin+fill;
+		storage_end = usage_end = storage_begin+Fill;
 		#if defined(_DEBUG) && __BUFFER_DBG_FILL_STATE__
-			fill_state = fill;
+			fill_state = Fill;
 			CHK_FILLSTATE
 		#endif
 
-		for (index_t i = 0; i < fill; i++)
+		for (index_t i = 0; i < Fill; i++)
 		{
 			new ((storage_begin+i)) T(other.storage_begin[i]);
 			//storage_begin[i] = other.storage_begin[i];
@@ -296,13 +296,13 @@ template <typename T, typename Strategy>
 	BasicBuffer<T, Strategy>&		BasicBuffer<T, Strategy>::operator=(const BasicBuffer<T, Strategy>&other)
 	{
 		Strategy::destructRange(storage_begin,usage_end);
-		count_t	fill = other.usage_end-other.storage_begin;
-		if (count_t(storage_end-storage_begin) < fill)
+		count_t	Fill = other.usage_end-other.storage_begin;
+		if (count_t(storage_end-storage_begin) < Fill)
 		{
 			free(storage_begin);
 			try
 			{
-				storage_begin = allocate(fill);
+				storage_begin = allocate(Fill);
 			}
 			catch (std::bad_alloc& exception)
 			{
@@ -313,19 +313,19 @@ template <typename T, typename Strategy>
 				#endif
 				throw;
 			}
-			storage_end = usage_end = storage_begin+fill;
+			storage_end = usage_end = storage_begin+Fill;
 		}
 		else
-			usage_end = storage_begin+fill;
+			usage_end = storage_begin+Fill;
 
 		//	deloc(storage_begin);
-			//alloc(storage_begin,fill);
+			//alloc(storage_begin,Fill);
 		#if defined(_DEBUG) && __BUFFER_DBG_FILL_STATE__
-			fill_state = fill;
+			fill_state = Fill;
 			CHK_FILLSTATE
 		#endif
 
-		for (index_t i = 0; i < fill; i++)
+		for (index_t i = 0; i < Fill; i++)
 			new ((storage_begin+i)) T(other.storage_begin[i]);
 		return *this;
 	}
@@ -458,7 +458,7 @@ template <typename T, typename Strategy>
 	}
 
 template <typename T, typename Strategy>
-	void	BasicBuffer<T, Strategy>::fill(const T&pattern)
+	void	BasicBuffer<T, Strategy>::Fill(const T&pattern)
 	{
 		for (T*c = storage_begin; c < usage_end; c++)
 			(*c) = pattern;
@@ -859,7 +859,7 @@ template <typename T, typename Strategy>
 template <typename T, typename Strategy>
 	inline	index_t			BasicBuffer<T,Strategy>::appendIfNotFound(const T&el)
 	{
-		index_t index = indexOf(el);
+		index_t index = GetIndexOf(el);
 		if (index == InvalidIndex)
 		{
 			index = count();
@@ -932,7 +932,7 @@ template <typename T, typename Strategy> template <typename T2>
 template <typename T, typename Strategy> template <typename Strategy2>
 	BasicBuffer<T, Strategy>&		BasicBuffer<T, Strategy>::moveAppend(BasicBuffer<T,Strategy2>&buffer, bool clearSourceOnCompletion/*=true*/)
 	{
-		if (isEmpty() && clearSourceOnCompletion)
+		if (IsEmpty() && clearSourceOnCompletion)
 		{
 			swap(buffer);
 			return *this;
@@ -1080,13 +1080,13 @@ template <typename T, typename Strategy>
 		return usage_end==storage_begin;
 	}
 template <typename T, typename Strategy>
-	inline bool	BasicBuffer<T, Strategy>::isEmpty()					const
+	inline bool	BasicBuffer<T, Strategy>::IsEmpty()					const
 	{
 		return usage_end==storage_begin;
 	}
 
 template <typename T, typename Strategy>
-	inline bool	BasicBuffer<T, Strategy>::isNotEmpty()					const
+	inline bool	BasicBuffer<T, Strategy>::IsNotEmpty()					const
 	{
 		return usage_end!=storage_begin;
 	}
@@ -1322,7 +1322,7 @@ template <typename T, typename Strategy>
 
 template <typename T, typename Strategy>
 	template <typename T2>
-		inline	index_t		BasicBuffer<T, Strategy>::indexOf(const T2&element)	const
+		inline	index_t		BasicBuffer<T, Strategy>::GetIndexOf(const T2&element)	const
 		{
 			const T*at = storage_begin;
 			while (at != usage_end)
@@ -1338,7 +1338,7 @@ template <typename T, typename Strategy>
 	template <typename T2>
 			bool			BasicBuffer<T, Strategy>::findAndErase(const T2&element)
 			{
-				index_t index = indexOf(element);
+				index_t index = GetIndexOf(element);
 				if (index == InvalidIndex)
 					return false;
 				erase(index);

@@ -145,7 +145,7 @@ namespace CLI
 	static void	set(const String&variable, const String&value)
 	{
 		CLI::PVariable v;
-		if (index_t p = variable.indexOf('.'))
+		if (index_t p = variable.GetIndexOf('.'))
 		{
 			String var = variable.subString(0,p-1),
 					component = variable.subString(p);

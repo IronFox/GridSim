@@ -186,8 +186,8 @@ namespace Engine
 		struct TCellInstance
 		{
 			Rect<float>				region;			//!< Effective cell region (in pixels)
-			const OpenGL::Texture	*colorTexture,	//!< Color texture to fill the cell with
-									*normalTexture;	//!< Normal texture to fill the cell with
+			const OpenGL::Texture	*colorTexture,	//!< Color texture to Fill the cell with
+									*normalTexture;	//!< Normal texture to Fill the cell with
 			//float					width;			//!< Effective width of the cell.
 				
 			/**/					TCellInstance():colorTexture(NULL),normalTexture(NULL){}

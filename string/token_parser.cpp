@@ -328,7 +328,7 @@ void					TokenParser::parseTokenSequence(const TokenList&tokens, Parser::Result&
             {
                 if (record)
 				{
-					if (stream.isEmpty() || stream.last().state != connection->target->name)
+					if (stream.IsEmpty() || stream.last().state != connection->target->name)
 					{
 						stream.sequence_map.set(connection->target->name).append(stream.length());
 						stream.append().setState(connection->target->name).setRange(token - tokens.pointer(),token - tokens.pointer() + 1);

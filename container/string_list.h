@@ -438,8 +438,8 @@ INLINE		void				clear()			{Super::reset();}
 			using Super::count;
 			using Super::size;
 			using Super::revert;
-			using Super::isEmpty;
-			using Super::isNotEmpty;
+			using Super::IsEmpty;
+			using Super::IsNotEmpty;
 			using Super::erase;
 			using Super::append;
 			using Super::moveAppend;

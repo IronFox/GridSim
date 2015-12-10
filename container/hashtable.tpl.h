@@ -52,74 +52,74 @@ template <typename T0, typename T1>
 template <>
 	inline hash_t 			StdHash::hash(const ArrayData<const void*>&field)
 	{
-		return stdMemHash(field.pointer(),field.contentSize());
+		return stdMemHash(field.pointer(),field.GetContentSize());
 	}
 
 template <>
 	inline hash_t 			StdHash::hash(const ArrayData<void*>&field)
 	{
-		return stdMemHash(field.pointer(),field.contentSize());
+		return stdMemHash(field.pointer(),field.GetContentSize());
 	}
 
 template <>
 	inline hash_t 			StdHash::hash(const ArrayData<char>&field)
 	{
-		return stdCharHash(field.pointer(),field.contentSize());
+		return stdCharHash(field.pointer(),field.GetContentSize());
 	}
 template <>
 	inline hash_t 			StdHash::hash(const ArrayData<wchar_t>&field)
 	{
-		return stdCharHash(field.pointer(),field.contentSize());
+		return stdCharHash(field.pointer(),field.GetContentSize());
 	}
 template <>
 	inline hash_t 			StdHash::hash(const ArrayData<short>&field)
 	{
-		return stdMemHash(field.pointer(),field.contentSize());
+		return stdMemHash(field.pointer(),field.GetContentSize());
 	}
 template <>
 	inline hash_t 			StdHash::hash(const ArrayData<int>&field)
 	{
-		return stdMemHash(field.pointer(),field.contentSize());
+		return stdMemHash(field.pointer(),field.GetContentSize());
 	}
 template <>
 	inline hash_t 			StdHash::hash(const ArrayData<long>&field)
 	{
-		return stdMemHash(field.pointer(),field.contentSize());
+		return stdMemHash(field.pointer(),field.GetContentSize());
 	}
 template <>
 	inline hash_t 			StdHash::hash(const ArrayData<long long>&field)
 	{
-		return stdMemHash(field.pointer(),field.contentSize());
+		return stdMemHash(field.pointer(),field.GetContentSize());
 	}
 
 template <>
 	inline hash_t 			StdHash::hash(const ArrayData<unsigned char>&field)
 	{
-		return stdMemHash(field.pointer(),field.contentSize());
+		return stdMemHash(field.pointer(),field.GetContentSize());
 	}
 
 template <>
 	inline hash_t 			StdHash::hash(const ArrayData<unsigned short>&field)
 	{
-		return stdMemHash(field.pointer(),field.contentSize());
+		return stdMemHash(field.pointer(),field.GetContentSize());
 	}
 
 template <>
 	inline hash_t 			StdHash::hash(const ArrayData<unsigned int>&field)
 	{
-		return stdMemHash(field.pointer(),field.contentSize());
+		return stdMemHash(field.pointer(),field.GetContentSize());
 	}
 
 template <>
 	inline hash_t 			StdHash::hash(const ArrayData<unsigned long>&field)
 	{
-		return stdMemHash(field.pointer(),field.contentSize());
+		return stdMemHash(field.pointer(),field.GetContentSize());
 	}
 
 template <>
 	inline hash_t 			StdHash::hash(const ArrayData<unsigned long long>&field)
 	{
-		return stdMemHash(field.pointer(),field.contentSize());
+		return stdMemHash(field.pointer(),field.GetContentSize());
 	}
 
 
@@ -382,7 +382,7 @@ template <class Carrier>
 template <class Carrier>
     inline	size_t				GenericHashBase<Carrier>::totalSize()							const
 	{
-		return sizeof(*this)+array.contentSize();
+		return sizeof(*this)+array.GetContentSize();
 	}
 	
 
@@ -672,10 +672,10 @@ template <class K, class C, class Hash, class KeyStrategy, class DataStrategy> t
 
 	
 template <class K, class C, class Hash, class KeyStrategy, class DataStrategy>
-	inline	bool	GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::owns(const DataType*data)	const
+	inline	bool	GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::Owns(const DataType*data)	const
 	{
 		static const size_t	delta = ((const Carrier*)NULL)->entry_data - (BYTE*)NULL;
-		return Base::array.owns((const Carrier*)(((const BYTE*)data)-delta));
+		return Base::array.Owns((const Carrier*)(((const BYTE*)data)-delta));
 	}
 
 template <class K, class C, class Hash, class KeyStrategy, class DataStrategy> template <class Key>

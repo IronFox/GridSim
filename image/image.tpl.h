@@ -566,7 +566,7 @@ template <typename T>
 
 
 template <typename T>
-	void		ImageTemplate<T>::fill(T red, T green, T blue, T alpha)
+	void		ImageTemplate<T>::Fill(T red, T green, T blue, T alpha)
 	{
 		size_t pixels = size_t(image_width)*size_t(image_height);
 		switch (image_channels)

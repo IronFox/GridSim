@@ -57,19 +57,19 @@ template <class C> INLINE void Vector<C>::inc()
 {
     VCHECK
 
-    if (fill == imark)
+    if (Fill == imark)
     {
         C** new_field = VMAKE_FIELD(cells<<1);
         VMOVE_FIELD(root,new_field,cells);
         VFREE_FIELD(root);
         root = new_field;
-        fill = root+cells;
+        Fill = root+cells;
         cells <<=1;
         imark = root+cells-1;
     }
     else
-        ++fill;
-    VSET(fill,NULL);
+        ++Fill;
+    VSET(Fill,NULL);
 
     VCHECK
 
@@ -78,19 +78,19 @@ template <class C> INLINE void Vector<C>::inc()
 
 template <class C> INLINE void Vector<C>::dec()
 {
-    if (fill == root+cells/4)
+    if (Fill == root+cells/4)
     {
         cells >>= 1;
         C** new_field = VMAKE_FIELD(cells);
-        VMOVE_FIELD(root,new_field,fill-root);
+        VMOVE_FIELD(root,new_field,Fill-root);
         VFREE_FIELD(root);
         root = new_field;
         imark = root+cells-1;
-        fill = root+cells/2-1;
+        Fill = root+cells/2-1;
     }
     else
-        --fill;
-    VSET(fill,NULL);
+        --Fill;
+    VSET(Fill,NULL);
     VCHECK
 }
 
@@ -108,7 +108,7 @@ template <class C> INLINE void Vector<C>::decToZero()
     }
     else
         VSET(root,NULL);
-    fill = root;
+    Fill = root;
     VCHECK
 }
 
@@ -117,9 +117,9 @@ template <class C> Vector<C>::Vector():/*elements(0),*/
     #if DEBUG_LEVEL >= 2
         list_id(global_list_id++),
     #endif
-    cells(2),root(VMAKE_FIELD(2)),fill(root),imark(root+1)
+    cells(2),root(VMAKE_FIELD(2)),Fill(root),imark(root+1)
 {
-    VSET(fill,NULL);
+    VSET(Fill,NULL);
 }
 
 template <class C> Vector<C>::Vector(const Vector<C>&other):
@@ -128,15 +128,15 @@ template <class C> Vector<C>::Vector(const Vector<C>&other):
     #endif
     cells(other.cells),root(VMAKE_FIELD(other.cells))
 {
-    fill = root+(other.fill-other.root);
+    Fill = root+(other.Fill-other.root);
     imark = root+(other.imark-other.root);
-    movePointers(other.root,root,fill-root);
+    movePointers(other.root,root,Fill-root);
     VCHECK
 }
 
 template <class C> Vector<C>::~Vector()
 {
-    for (iterator it = root; it != fill; ++it)
+    for (iterator it = root; it != Fill; ++it)
         VDELETE(it);
     VFREE_FIELD(root);
 }
@@ -151,9 +151,9 @@ template <class C> INLINE Vector<C>& Vector<C>::operator=(const Vector<C>&other)
         cells = other.cells;
         root = VMAKE_FIELD(cells);
     }
-    fill = root+(other.fill-other.root);
+    Fill = root+(other.Fill-other.root);
     imark = root+(other.imark-other.root);
-    movePointers(other.root,root,fill-root);
+    movePointers(other.root,root,Fill-root);
     VCHECK
     return *this;
 }
@@ -164,7 +164,7 @@ template <class C> INLINE		void			Vector<C>::adoptData(Vector<C>&other)
 	
 	swp(cells,other.cells);
 	swp(root,other.root);
-	swp(fill,other.fill);
+	swp(Fill,other.Fill);
 	swp(imark,other.imark);
 	swp(cursor,other.cursor);
 }
@@ -182,41 +182,41 @@ template <class C> INLINE  C* Vector<C>::each()
 
 template <class C> INLINE  size_t Vector<C>::count()                         const
 {
-    return fill-root;
+    return Fill-root;
 }
 
 /*template <class C> INLINE		bool					Vector<C>::empty()							const
 {
-	return fill == root;
+	return Fill == root;
 }*/
 
-template <class C> INLINE		bool					Vector<C>::isEmpty()						const
+template <class C> INLINE		bool					Vector<C>::IsEmpty()						const
 {
-	return fill == root;
+	return Fill == root;
 }
-template <class C> INLINE		bool					Vector<C>::isNotEmpty()					const
+template <class C> INLINE		bool					Vector<C>::IsNotEmpty()					const
 {
-	return fill != root;
+	return Fill != root;
 }
 
 
 template <class C> INLINE C* Vector<C>::get(size_t index)
 {
-    if (index >= (size_t)(fill-root))
+    if (index >= (size_t)(Fill-root))
         return NULL;
     return VGET(root + index);
 }
 
 template <class C> INLINE const C* Vector<C>::get(size_t index)	const
 {
-    if (index >= (size_t)(fill-root))
+    if (index >= (size_t)(Fill-root))
         return NULL;
     return VGET(root + index);
 }
 
 template <class C> INLINE const C* Vector<C>::getConst(size_t index) const
 {
-    if (index >= (size_t)(fill-root))
+    if (index >= (size_t)(Fill-root))
         return NULL;
     return VGET(root + index);
 }
@@ -248,12 +248,12 @@ template <class C> INLINE const C* Vector<C>::first() const
 
 template <class C> INLINE C* Vector<C>::last()
 {
-    return fill != root ? *(fill-1): NULL;
+    return Fill != root ? *(Fill-1): NULL;
 }
 
 template <class C> INLINE const C* Vector<C>::last() const
 {
-    return fill != root ? *(fill-1): NULL;
+    return Fill != root ? *(Fill-1): NULL;
 }
 
 
@@ -262,7 +262,7 @@ template <class C> INLINE C* Vector<C>::drop()
     VCHECK
     size_t index = cursor-root;
     C*result = *(cursor-1);
-    VCOPY_FIELD(cursor,cursor-1,fill-cursor);
+    VCOPY_FIELD(cursor,cursor-1,Fill-cursor);
     dec();
     cursor = root+index-1;
     VCHECK
@@ -274,7 +274,7 @@ template <class C> INLINE void Vector<C>::erase()
     VCHECK
     size_t index = cursor-root;
     VDELETE(cursor-1);
-    VCOPY_FIELD(cursor,cursor-1,fill-cursor);
+    VCOPY_FIELD(cursor,cursor-1,Fill-cursor);
     dec();
     cursor = root+index-1;
     VCHECK
@@ -282,12 +282,12 @@ template <class C> INLINE void Vector<C>::erase()
 
 template <class C> INLINE bool Vector<C>::erase(size_t index)
 {
-    if (index >= (size_t)(fill-root))
+    if (index >= (size_t)(Fill-root))
         return false;
     VCHECK
     iterator it = root + index;
     VDELETE(it);
-    VCOPY_FIELD(it+1,it,fill-it-1);
+    VCOPY_FIELD(it+1,it,Fill-it-1);
     dec();
     VCHECK
 	return true;
@@ -308,10 +308,10 @@ template <class C> INLINE C* Vector<C>::drop(size_t index)
 {
     VCHECK
     iterator it = root + index;
-    if (it >= fill || it < root)
+    if (it >= Fill || it < root)
         return NULL;
     Type*el = VGET(it);
-    VCOPY_FIELD(it+1,it,fill-it-1);
+    VCOPY_FIELD(it+1,it,Fill-it-1);
     dec();
     VCHECK
     return el;
@@ -325,7 +325,7 @@ template <class C> INLINE void Vector<C>::flush()
 template <class C> INLINE void Vector<C>::clear()
 {
     VCHECK
-    for (iterator it = root; it != fill; it++)
+    for (iterator it = root; it != Fill; it++)
         VDELETE(it);
     decToZero();
 }
@@ -334,14 +334,14 @@ template <class C> INLINE void Vector<C>::clear()
 template <class C> INLINE C* Vector<C>::insert(size_t index,C*element)
 {
     VCHECK
-    if (index >= (size_t)(fill-root))
+    if (index >= (size_t)(Fill-root))
     {
         push_back(element);
         return element;
     }
     inc();
     iterator it = root + index;
-    VCOPY_FIELD_BACK(it,it+1,fill-it-1);
+    VCOPY_FIELD_BACK(it,it+1,Fill-it-1);
     VSET(it,element);
     VCHECK
     return element;
@@ -355,14 +355,14 @@ template <class C> INLINE C* Vector<C>::insert(size_t index)
 template <class C> INLINE  C** Vector<C>::insert(const iterator&it, C*element)
 {
     size_t index = it-root;
-    if (index >= (size_t)(fill-root))
+    if (index >= (size_t)(Fill-root))
     {
         push_back(element);
         return root+index;
     }
     inc();
     iterator i = root+index;
-    VCOPY_FIELD_BACK(i,i+1,fill-i-1);
+    VCOPY_FIELD_BACK(i,i+1,Fill-i-1);
     VSET(i,element);
     return i;
 }
@@ -371,20 +371,20 @@ template <class C> INLINE  C** Vector<C>::insert(const iterator&it, C*element)
 template <class C> INLINE C* Vector<C>::append(C*element)
 {
     VCHECK
-    VSET(fill,element);
-    if (fill == imark)
+    VSET(Fill,element);
+    if (Fill == imark)
     {
         C** new_field = VMAKE_FIELD(cells<<1);
         VMOVE_FIELD(root,new_field,cells);
         VFREE_FIELD(root);
         root = new_field;
-        fill = root+cells;
+        Fill = root+cells;
         cells <<=1;
         imark = root+cells-1;
     }
     else
-        ++fill;
-    VSET(fill,NULL);
+        ++Fill;
+    VSET(Fill,NULL);
     VCHECK
     return element;
 }
@@ -429,7 +429,7 @@ template <class C> INLINE void Vector<C>::push_front(C*element)
 {
     VCHECK
     inc();
-    movePointersBack(root,root+1,fill-root-1);
+    movePointersBack(root,root+1,Fill-root-1);
     VSET(root,element);
     VCHECK
 }
@@ -458,20 +458,20 @@ template <class C> INLINE void Vector<C>::push_back(C*element)
     */
 
     VCHECK
-    VSET(fill,element);
-    if (fill == imark)
+    VSET(Fill,element);
+    if (Fill == imark)
     {
         C** new_field = VMAKE_FIELD(cells<<1);
         VMOVE_FIELD(root,new_field,cells);
         VFREE_FIELD(root);
         root = new_field;
-        fill = root+cells;
+        Fill = root+cells;
         cells <<=1;
         imark = root+cells-1;
     }
     else
-        ++fill;
-    VSET(fill,NULL);
+        ++Fill;
+    VSET(Fill,NULL);
     VCHECK
 }
 
@@ -482,7 +482,7 @@ template <class C> INLINE C* Vector<C>::append()
 
 template <class C> INLINE size_t    Vector<C>::getIndexOf(const C*element)  const
 {
-    for (iterator i = root; i != fill; i++)
+    for (iterator i = root; i != Fill; i++)
         if ((*i) == element)
             return (i-root)+1;
     return 0;
@@ -490,7 +490,7 @@ template <class C> INLINE size_t    Vector<C>::getIndexOf(const C*element)  cons
 
 template <class C> INLINE void        Vector<C>::set(size_t index, Type*element)
 {
-    if (index >= (size_t)(fill-root))
+    if (index >= (size_t)(Fill-root))
         return;
     VSET(root+index,element);
 }
@@ -518,19 +518,19 @@ template <class C> INLINE  const C** Vector<C>::begin()   const
 
 template <class C> INLINE  C** Vector<C>::end()
 {
-    return fill;
+    return Fill;
 }
 
 template <class C> INLINE  const C** Vector<C>::end()   const
 {
-    return (const C**)fill;
+    return (const C**)Fill;
 }
 
 template <class C> INLINE C**  Vector<C>::erase(const iterator&it)
 {
     VCHECK
     size_t index = it-root;
-    VCOPY_FIELD(it+1,it,fill-it-1);
+    VCOPY_FIELD(it+1,it,Fill-it-1);
     dec();
     VCHECK
     return root+index;
@@ -556,14 +556,14 @@ template <class C> INLINE  C** Vector<C>::drop(const iterator&it)
 
 template <class C> INLINE  C*  Vector<C>::operator[](size_t index)
 {
-    if (index >= (size_t)(fill-root))
+    if (index >= (size_t)(Fill-root))
         return NULL;
     return VGET(root+index);
 }
 
 template <class C> INLINE  const C*  Vector<C>::operator[](size_t index)	const
 {
-    if (index >= (size_t)(fill-root))
+    if (index >= (size_t)(Fill-root))
         return NULL;
     return VGET(root+index);
 }
@@ -576,7 +576,7 @@ template <class C> INLINE  size_t    Vector<C>::operator()(const Type*element) c
 template <class C> INLINE      Vector<C>::operator                size_t()                         const
 
 {
-    return fill - root;
+    return Fill - root;
 }
 
 template <class C> INLINE  size_t    Vector<C>::totalSize()                     const
@@ -610,7 +610,7 @@ template <class C> INLINE void  Vector<C>::swap(size_t index0, size_t index1)
 
 template <class C> INLINE void  Vector<C>::revert()
 {
-    size_t len = fill-root,
+    size_t len = Fill-root,
             steps = len/2;
     for (size_t i = 0; i < steps; i++)
         swp(root[i],root[len-i-1]);
@@ -621,7 +621,7 @@ template <class C> INLINE void Vector<C>::swap(Vector<C>&other)
 //    Swap::swap(elements,other.elements);
     swp(cells,other.cells);
     swp(root,other.root);
-    swp(fill,other.fill);
+    swp(Fill,other.Fill);
     swp(imark,other.imark);
 }
 

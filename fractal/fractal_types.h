@@ -256,7 +256,7 @@ namespace Fractal
 	{
 		TSurfaceSegment				*segment;		//!< Link to the actual neighbor. May be NULL indicating that this neighbor does not exist
 		BYTE						orientation;	//!< Neighbor orientation in the range [0,2]. Basically that is the index of the remote edge as seen from the containing surface segment
-		bool						primary;		//!< Indicates that the segment that contains this link instance owns this edge. The corresponding link structure of the respective neighbor must contain this variable negated
+		bool						primary;		//!< Indicates that the segment that contains this link instance Owns this edge. The corresponding link structure of the respective neighbor must contain this variable negated
 	
 		TSurfaceSegmentLink():segment(NULL),orientation(0),primary(true)
 		{}

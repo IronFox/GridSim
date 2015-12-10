@@ -563,8 +563,8 @@ namespace ObjectMath	//! Collection of geometry related mathematical functions a
 				bool								is_quad;	//!< Specifies whether or not the target face is a quad. If so use the respective \b quad pointer, else the \b triangle pointer
 			
 			
-				MF_DECLARE(char)					indexOf(const MeshVertex<Def>*)	const;		//!< Determines the index of a vertex as seen by the target face \return vertex index or -1 if the vertex is not part of the target face or no target face is linked
-				MF_DECLARE(char)					indexOf(const MeshEdge<Def>*)	const;		//!< Compiles only if Def is some variation of TGraphDef. Determines the index of an edge as seen by the target face \return edge index or -1 if the edge is not part of the target face or no target face is linked
+				MF_DECLARE(char)					GetIndexOf(const MeshVertex<Def>*)	const;		//!< Determines the index of a vertex as seen by the target face \return vertex index or -1 if the vertex is not part of the target face or no target face is linked
+				MF_DECLARE(char)					GetIndexOf(const MeshEdge<Def>*)	const;		//!< Compiles only if Def is some variation of TGraphDef. Determines the index of an edge as seen by the target face \return edge index or -1 if the edge is not part of the target face or no target face is linked
 				MF_DECLARE(BYTE)					requireIndexOf(const MeshVertex<Def>*)	const;	//!< Determines the index of a vertex as seen by the target face. Throws an exception if the specified vertex is not part of the target face or the target face is not linked
 				MF_DECLARE(BYTE)					requireIndexOf(const MeshEdge<Def>*)	const;	//!< Compiles only if Def is some variation of TGraphDef. Determines the index of an edge as seen by the target face. Throws an exception if the specified vertex is not part of the target face or the target face is not linked
 		
@@ -628,12 +628,12 @@ namespace ObjectMath	//! Collection of geometry related mathematical functions a
 			};
 			unsigned						attrib;			//!< Custom triangle attribute
 			
-			MF_DECLARE	(char)					indexOf(const MeshQuad<TGraphDef<Def> >*q)		const;	//!< Determines the index of the specified neighboring quad \return requested index or -1 if the specified quad is no neighbor of the local triangle
-			MF_DECLARE	(char)					indexOf(const MeshTriangle<TGraphDef<Def> >*t)	const;	//!< Determines the index of the specified neighboring triangle \return requested index or -1 if the specified triangle is no neighbor of the local triangle
-			MF_DECLARE	(char)					indexOf(const MeshEdge<TGraphDef<Def> >*e)		const;	//!< Determines the index of the specified edge \return requested index or -1 if the specified edge does not border the local triangle
-			MF_DECLARE	(BYTE)					requireIndexOf(const MeshQuad<TGraphDef<Def> >*q)		const;	//!< Identical to indexOf() except that requireIndexOf() throws an exception if -1 would have been returned
-			MF_DECLARE	(BYTE)					requireIndexOf(const MeshTriangle<TGraphDef<Def> >*t)	const;	//!< Identical to indexOf() except that requireIndexOf() throws an exception if -1 would have been returned
-			MF_DECLARE	(BYTE)					requireIndexOf(const MeshEdge<TGraphDef<Def> >*e)		const;	//!< Identical to indexOf() except that requireIndexOf() throws an exception if -1 would have been returned
+			MF_DECLARE	(char)					GetIndexOf(const MeshQuad<TGraphDef<Def> >*q)		const;	//!< Determines the index of the specified neighboring quad \return requested index or -1 if the specified quad is no neighbor of the local triangle
+			MF_DECLARE	(char)					GetIndexOf(const MeshTriangle<TGraphDef<Def> >*t)	const;	//!< Determines the index of the specified neighboring triangle \return requested index or -1 if the specified triangle is no neighbor of the local triangle
+			MF_DECLARE	(char)					GetIndexOf(const MeshEdge<TGraphDef<Def> >*e)		const;	//!< Determines the index of the specified edge \return requested index or -1 if the specified edge does not border the local triangle
+			MF_DECLARE	(BYTE)					requireIndexOf(const MeshQuad<TGraphDef<Def> >*q)		const;	//!< Identical to GetIndexOf() except that requireIndexOf() throws an exception if -1 would have been returned
+			MF_DECLARE	(BYTE)					requireIndexOf(const MeshTriangle<TGraphDef<Def> >*t)	const;	//!< Identical to GetIndexOf() except that requireIndexOf() throws an exception if -1 would have been returned
+			MF_DECLARE	(BYTE)					requireIndexOf(const MeshEdge<TGraphDef<Def> >*e)		const;	//!< Identical to GetIndexOf() except that requireIndexOf() throws an exception if -1 would have been returned
 			
 			MF_DECLARE	(char)					replace(MeshQuad<TGraphDef<Def> >*neighbor, MeshQuad<TGraphDef<Def> >*with);
 			MF_DECLARE	(char)					replace(MeshQuad<TGraphDef<Def> >*neighbor, MeshTriangle<TGraphDef<Def> >*with);
@@ -669,12 +669,12 @@ namespace ObjectMath	//! Collection of geometry related mathematical functions a
 
 			unsigned						attrib;
 			
-			MF_DECLARE	(char)					indexOf(const MeshQuad<TGraphDef<Def> >*q)				const;	//!< Determines the index of the specified neighboring quad \return requested index or -1 if the specified quad is no neighbor of the local quad
-			MF_DECLARE	(char)					indexOf(const MeshTriangle<TGraphDef<Def> >*t)			const;	//!< Determines the index of the specified neighboring triangle \return requested index or -1 if the specified triangle is no neighbor of the local quad
-			MF_DECLARE	(char)					indexOf(const MeshEdge<TGraphDef<Def> >*e)				const;	//!< Determines the index of the specified edge \return requested index or -1 if the specified edge does not border the local quad
-			MF_DECLARE	(BYTE)					requireIndexOf(const MeshQuad<TGraphDef<Def> >*q)		const;	//!< Identical to indexOf() except that requireIndexOf() throws an exception if -1 would have been returned
-			MF_DECLARE	(BYTE)					requireIndexOf(const MeshTriangle<TGraphDef<Def> >*t)	const;	//!< Identical to indexOf() except that requireIndexOf() throws an exception if -1 would have been returned
-			MF_DECLARE	(BYTE)					requireIndexOf(const MeshEdge<TGraphDef<Def> >*e)		const;	//!< Identical to indexOf() except that requireIndexOf() throws an exception if -1 would have been returned
+			MF_DECLARE	(char)					GetIndexOf(const MeshQuad<TGraphDef<Def> >*q)				const;	//!< Determines the index of the specified neighboring quad \return requested index or -1 if the specified quad is no neighbor of the local quad
+			MF_DECLARE	(char)					GetIndexOf(const MeshTriangle<TGraphDef<Def> >*t)			const;	//!< Determines the index of the specified neighboring triangle \return requested index or -1 if the specified triangle is no neighbor of the local quad
+			MF_DECLARE	(char)					GetIndexOf(const MeshEdge<TGraphDef<Def> >*e)				const;	//!< Determines the index of the specified edge \return requested index or -1 if the specified edge does not border the local quad
+			MF_DECLARE	(BYTE)					requireIndexOf(const MeshQuad<TGraphDef<Def> >*q)		const;	//!< Identical to GetIndexOf() except that requireIndexOf() throws an exception if -1 would have been returned
+			MF_DECLARE	(BYTE)					requireIndexOf(const MeshTriangle<TGraphDef<Def> >*t)	const;	//!< Identical to GetIndexOf() except that requireIndexOf() throws an exception if -1 would have been returned
+			MF_DECLARE	(BYTE)					requireIndexOf(const MeshEdge<TGraphDef<Def> >*e)		const;	//!< Identical to GetIndexOf() except that requireIndexOf() throws an exception if -1 would have been returned
 			
 			MF_DECLARE	(char)					replace(MeshQuad<TGraphDef<Def> >*v, MeshQuad<TGraphDef<Def> >*with);
 			MF_DECLARE	(char)					replace(MeshQuad<TGraphDef<Def> >*v, MeshTriangle<TGraphDef<Def> >*with);
@@ -774,11 +774,11 @@ namespace ObjectMath	//! Collection of geometry related mathematical functions a
 			};
 			unsigned						attrib;							//!< Custom triangle attribute value
 			
-			MF_DECLARE	(char)					indexOf(const MeshQuad<TFaceGraphDef<Def> >*q)		const;	//!< Determines the index of the specified neighboring quad \return requested index or -1 if the specified quad is no neighbor of the local triangle
-			MF_DECLARE	(char)					indexOf(const MeshTriangle<TFaceGraphDef<Def> >*t)	const;	//!< Determines the index of the specified neighboring triangle \return requested index or -1 if the specified triangle is no neighbor of the local triangle
+			MF_DECLARE	(char)					GetIndexOf(const MeshQuad<TFaceGraphDef<Def> >*q)		const;	//!< Determines the index of the specified neighboring quad \return requested index or -1 if the specified quad is no neighbor of the local triangle
+			MF_DECLARE	(char)					GetIndexOf(const MeshTriangle<TFaceGraphDef<Def> >*t)	const;	//!< Determines the index of the specified neighboring triangle \return requested index or -1 if the specified triangle is no neighbor of the local triangle
 			MF_DECLARE	(char)					indexOfTriangle(const MeshTriangle<TFaceGraphDef<Def> >*t)	const;	//!< Determines the index of the specified neighboring triangle \return requested index or -1 if the specified triangle is no neighbor of the local triangle
-			MF_DECLARE	(BYTE)					requireIndexOf(const MeshQuad<TFaceGraphDef<Def> >*q)		const;	//!< Identical to indexOf() except that requireIndexOf() throws an exception if -1 would have been returned
-			MF_DECLARE	(BYTE)					requireIndexOf(const MeshTriangle<TFaceGraphDef<Def> >*t)	const;	//!< Identical to indexOf() except that requireIndexOf() throws an exception if -1 would have been returned
+			MF_DECLARE	(BYTE)					requireIndexOf(const MeshQuad<TFaceGraphDef<Def> >*q)		const;	//!< Identical to GetIndexOf() except that requireIndexOf() throws an exception if -1 would have been returned
+			MF_DECLARE	(BYTE)					requireIndexOf(const MeshTriangle<TFaceGraphDef<Def> >*t)	const;	//!< Identical to GetIndexOf() except that requireIndexOf() throws an exception if -1 would have been returned
 			MF_DECLARE	(BYTE)					requireIndexOfTriangle(const MeshTriangle<TFaceGraphDef<Def> >*t)	const;	//!< Explicit version of the above
 			
 			MF_DECLARE	(char)					replace(MeshQuad<TFaceGraphDef<Def> >*neighbor, MeshQuad<TFaceGraphDef<Def> >*with);
@@ -814,10 +814,10 @@ namespace ObjectMath	//! Collection of geometry related mathematical functions a
 
 			unsigned							attrib;			//!< Custom quad attribute
 			
-			MF_DECLARE	(char)					indexOf(const MeshQuad<TFaceGraphDef<Def> >*q)				const;	//!< Determines the index of the specified neighboring quad \return requested index or -1 if the specified quad is no neighbor of the local quad
-			MF_DECLARE	(char)					indexOf(const MeshTriangle<TFaceGraphDef<Def> >*t)			const;	//!< Determines the index of the specified neighboring triangle \return requested index or -1 if the specified triangle is no neighbor of the local quad
-			MF_DECLARE	(BYTE)					requireIndexOf(const MeshQuad<TFaceGraphDef<Def> >*q)		const;	//!< Identical to indexOf() except that requireIndexOf() throws an exception if -1 would have been returned
-			MF_DECLARE	(BYTE)					requireIndexOf(const MeshTriangle<TFaceGraphDef<Def> >*t)	const;	//!< Identical to indexOf() except that requireIndexOf() throws an exception if -1 would have been returned
+			MF_DECLARE	(char)					GetIndexOf(const MeshQuad<TFaceGraphDef<Def> >*q)				const;	//!< Determines the index of the specified neighboring quad \return requested index or -1 if the specified quad is no neighbor of the local quad
+			MF_DECLARE	(char)					GetIndexOf(const MeshTriangle<TFaceGraphDef<Def> >*t)			const;	//!< Determines the index of the specified neighboring triangle \return requested index or -1 if the specified triangle is no neighbor of the local quad
+			MF_DECLARE	(BYTE)					requireIndexOf(const MeshQuad<TFaceGraphDef<Def> >*q)		const;	//!< Identical to GetIndexOf() except that requireIndexOf() throws an exception if -1 would have been returned
+			MF_DECLARE	(BYTE)					requireIndexOf(const MeshTriangle<TFaceGraphDef<Def> >*t)	const;	//!< Identical to GetIndexOf() except that requireIndexOf() throws an exception if -1 would have been returned
 			
 			MF_DECLARE	(char)					replace(MeshQuad<TFaceGraphDef<Def> >*v, MeshQuad<TFaceGraphDef<Def> >*with);
 			MF_DECLARE	(char)					replace(MeshQuad<TFaceGraphDef<Def> >*v, MeshTriangle<TFaceGraphDef<Def> >*with);
@@ -923,12 +923,12 @@ namespace ObjectMath	//! Collection of geometry related mathematical functions a
 			
 		MF_DECLARE	(void)					linkUnary(MeshTriangle<Def>*t);	//!< Sets the first neighbor link to the specified triangle and unsets the second link
 		MF_DECLARE	(void)					linkUnary(MeshQuad<Def>*q);		//!< Sets the first neighbor link to the specified quad and unsets the second link
-		MF_DECLARE	(char)					indexOf(const MeshVertex<Def>*v)			const;	//!< Determines the index of the specified vertex. \return requested index or -1 if the specified vertex is not linked by this edge
-		MF_DECLARE	(char)					indexOf(const MeshTriangle<Def>*t)			const;	//!< Determines the index of the specified triangle. \return requested index or -1 if the specified triangle is not linked by this edge
-		MF_DECLARE	(char)					indexOf(const MeshQuad<Def>*t)				const;	//!< Determines the index of the specified quad. \return requested index or -1 if the specified quad is not linked by this edge
-		MF_DECLARE	(BYTE)					requireIndexOf(const MeshVertex<Def>*v)		const;	//!< Identical to indexOf() except that requireIndexOf() throws an exception if -1 would have been returned
-		MF_DECLARE	(BYTE)					requireIndexOf(const MeshTriangle<Def>*t)	const;	//!< Identical to indexOf() except that requireIndexOf() throws an exception if -1 would have been returned
-		MF_DECLARE	(BYTE)					requireIndexOf(const MeshQuad<Def>*t)		const;	//!< Identical to indexOf() except that requireIndexOf() throws an exception if -1 would have been returned
+		MF_DECLARE	(char)					GetIndexOf(const MeshVertex<Def>*v)			const;	//!< Determines the index of the specified vertex. \return requested index or -1 if the specified vertex is not linked by this edge
+		MF_DECLARE	(char)					GetIndexOf(const MeshTriangle<Def>*t)			const;	//!< Determines the index of the specified triangle. \return requested index or -1 if the specified triangle is not linked by this edge
+		MF_DECLARE	(char)					GetIndexOf(const MeshQuad<Def>*t)				const;	//!< Determines the index of the specified quad. \return requested index or -1 if the specified quad is not linked by this edge
+		MF_DECLARE	(BYTE)					requireIndexOf(const MeshVertex<Def>*v)		const;	//!< Identical to GetIndexOf() except that requireIndexOf() throws an exception if -1 would have been returned
+		MF_DECLARE	(BYTE)					requireIndexOf(const MeshTriangle<Def>*t)	const;	//!< Identical to GetIndexOf() except that requireIndexOf() throws an exception if -1 would have been returned
+		MF_DECLARE	(BYTE)					requireIndexOf(const MeshQuad<Def>*t)		const;	//!< Identical to GetIndexOf() except that requireIndexOf() throws an exception if -1 would have been returned
 	
 		MF_DECLARE	(char)					replace(MeshVertex<Def>*v, MeshVertex<Def>*with);
 		MF_DECLARE	(char)					replace(MeshQuad<Def>*v, MeshQuad<Def>*with);
@@ -953,8 +953,8 @@ namespace ObjectMath	//! Collection of geometry related mathematical functions a
 				};
 			};
 
-		MF_DECLARE	(char)					indexOf(const MeshVertex<Def>*v)	const;		//!< Determines the index of the specified vertex. \return requested index or -1 if the specified vertex is not linked by this triangle
-		MF_DECLARE	(BYTE)					requireIndexOf(const MeshVertex<Def>*v)	const;	//!< Identical to indexOf() except that requireIndexOf() throws an exception if -1 would have been returned
+		MF_DECLARE	(char)					GetIndexOf(const MeshVertex<Def>*v)	const;		//!< Determines the index of the specified vertex. \return requested index or -1 if the specified vertex is not linked by this triangle
+		MF_DECLARE	(BYTE)					requireIndexOf(const MeshVertex<Def>*v)	const;	//!< Identical to GetIndexOf() except that requireIndexOf() throws an exception if -1 would have been returned
 		MF_DECLARE	(char)					replace(MeshVertex<Def>*v, MeshVertex<Def>*with);
 		};
 	
@@ -974,8 +974,8 @@ namespace ObjectMath	//! Collection of geometry related mathematical functions a
 				};
 			};
 
-		MF_DECLARE	(char)					indexOf(const MeshVertex<Def>*v)	const;		//!< Determines the index of the specified vertex. \return requested index or -1 if the specified vertex is not linked by this quad
-		MF_DECLARE	(BYTE)					requireIndexOf(const MeshVertex<Def>*v)	const;	//!< Identical to indexOf() except that requireIndexOf() throws an exception if -1 would have been returned
+		MF_DECLARE	(char)					GetIndexOf(const MeshVertex<Def>*v)	const;		//!< Determines the index of the specified vertex. \return requested index or -1 if the specified vertex is not linked by this quad
+		MF_DECLARE	(BYTE)					requireIndexOf(const MeshVertex<Def>*v)	const;	//!< Identical to GetIndexOf() except that requireIndexOf() throws an exception if -1 would have been returned
 		MF_DECLARE	(char)					replace(MeshVertex<Def>*v, MeshVertex<Def>*with);
 		};
 	
@@ -1112,7 +1112,7 @@ namespace ObjectMath	//! Collection of geometry related mathematical functions a
 		MF_DECLARE	(bool)						detectOpticalIntersection(const T0 b[3], const T1 d[3], float&distance)	const;
 				
 				
-		MF_DECLARE	(bool)						isEmpty()																				const;	//!< Returns true if the local mesh contains no vertices, egdes, or faces
+		MF_DECLARE	(bool)						IsEmpty()																				const;	//!< Returns true if the local mesh contains no vertices, egdes, or faces
 		MF_DECLARE	(bool)						isValid(const TMeshFaceLink<Def>&link, bool may_be_null=true, bool may_be_marked=true)	const;	//!< Checks if the specified face link is valid \param may_be_null Set true to allow an unset (NULL) target \param may_be_marked Set true to allow a marked target
 		MF_DECLARE	(signed_index_t)			linkToIndex(const TMeshFaceLink<Def>&link)												const;	//!< Converts a link to an integer index. The resulting int is negative for a quad target and positive for a triangle target. Quad indices start with -1 and decrease, triangle	indices start with 0 and increase. If the specified link is not set then the result will be the largest positive integer.
 		MF_DECLARE	(bool)						indexToLink(signed_index_t index, TMeshFaceLink<Def>&link);													//!< Converts a link integer to an actual face link. The method effectivly reverts the result of linkToIndex(). \param index Face target index as retrieved from linkToIndex() \param link Target face link. The target face link will be unset if \b index is invalid. \return true if the specified index was valid and link could be set, false otherwise

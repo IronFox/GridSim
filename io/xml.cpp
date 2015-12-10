@@ -475,7 +475,7 @@ template <class OutStream>
 static void writeToStream(OutStream&outfile, XML::Node		*entry, XML::export_style_t style, unsigned indent=0)
 {
 	entry->name.trimThis();
-	if (entry->name.isEmpty())
+	if (entry->name.IsEmpty())
 		throw IO::StructureCompositionFault("XML: Local entry is empty");
 
 	if (style==XML::Nice)
@@ -488,7 +488,7 @@ static void writeToStream(OutStream&outfile, XML::Node		*entry, XML::export_styl
 			outfile << " ";
 		outfile << p->name<<"=\""<<encode(p->value)<<"\"";
 	}
-	if (entry->children.isEmpty() && entry->inner_content.isEmpty())
+	if (entry->children.IsEmpty() && entry->inner_content.IsEmpty())
 	{
 		if (style != XML::Tidy)
 			outfile << " /";
@@ -513,14 +513,14 @@ static void writeToStream(OutStream&outfile, XML::Node		*entry, XML::export_styl
 					outfile << nl;
 					for (unsigned i = 0; i < lines.count(); i++)
 						outfile << tabSpace(indent+1)<<encode(lines[i])<<nl;
-					if (entry->children.isEmpty())
+					if (entry->children.IsEmpty())
 						outfile << tabSpace(indent);
 				}
 				else
 				{
-					if (lines.isNotEmpty())
+					if (lines.IsNotEmpty())
 						outfile << encode(lines.first());
-					if (entry->children.isNotEmpty())
+					if (entry->children.IsNotEmpty())
 						outfile << nl;
 				}
 			}
@@ -544,9 +544,9 @@ static void writeToStream(OutStream&outfile, XML::Node		*entry, XML::export_styl
 	for (index_t i = 0; i < entry->children.count(); i++)
 		writeToStream(outfile,entry->children +i,style,indent+1);
 	
-	if (entry->children.isNotEmpty() || entry->inner_content.isNotEmpty())
+	if (entry->children.IsNotEmpty() || entry->inner_content.IsNotEmpty())
 	{
-		if (style==XML::Nice && entry->children.isNotEmpty())
+		if (style==XML::Nice && entry->children.IsNotEmpty())
 			outfile << tabSpace(indent);
 		outfile << "</" << entry->name << ">";
 	}
@@ -603,7 +603,7 @@ void				XML::Container::SaveToFile(const PathString&filename, export_style_t sty
 static XML::Node*	findIn(BasicBuffer<XML::Node,SwapStrategy>&children, const String&path)
 {
 	String local,sub;
-	index_t p = path.indexOf('/');
+	index_t p = path.GetIndexOf('/');
 	if (p)
 	{
 		local = path.subString(0,p-1);
@@ -617,7 +617,7 @@ static XML::Node*	findIn(BasicBuffer<XML::Node,SwapStrategy>&children, const Str
 	for (index_t i = 0; i < children.count(); i++)
 		if (children[i].name == local)
 		{
-			if (sub.isEmpty())
+			if (sub.IsEmpty())
 				return children+i;
 			return findIn(children[i].children,sub);
 		}
@@ -627,7 +627,7 @@ static XML::Node*	findIn(BasicBuffer<XML::Node,SwapStrategy>&children, const Str
 static const XML::Node*	findInConst(const BasicBuffer<XML::Node,SwapStrategy>&children, const String&path)
 {
 	String local,sub;
-	index_t p = path.indexOf('/');
+	index_t p = path.GetIndexOf('/');
 	if (p)
 	{
 		local = path.subString(0,p-1);
@@ -641,7 +641,7 @@ static const XML::Node*	findInConst(const BasicBuffer<XML::Node,SwapStrategy>&ch
 	for (index_t i = 0; i < children.count(); i++)
 		if (children[i].name == local)
 		{
-			if (sub.isEmpty())
+			if (sub.IsEmpty())
 				return children+i;
 			return findInConst(children[i].children,sub);
 		}
@@ -651,7 +651,7 @@ static const XML::Node*	findInConst(const BasicBuffer<XML::Node,SwapStrategy>&ch
 static XML::Node*	findFrom(XML::Node*context, const String&path)
 {
 	String local,sub;
-	index_t p = path.indexOf('/');
+	index_t p = path.GetIndexOf('/');
 	if (p)
 	{
 		local = path.subString(0,p-1);
@@ -665,7 +665,7 @@ static XML::Node*	findFrom(XML::Node*context, const String&path)
 		//cout << "context name is '"<<context->name<<"', local is '"<<local<<"'"<<endl;
 		return NULL;
 	}
-	if (sub.isEmpty())
+	if (sub.IsEmpty())
 		return context;
 	//cout << "delegating search to "<<context->children.count()<<" children using sub path '"<<sub<<"'"<<endl;
 	return findIn(context->children,sub);
@@ -674,7 +674,7 @@ static XML::Node*	findFrom(XML::Node*context, const String&path)
 static const XML::Node*	findFromConst(const XML::Node*context, const String&path)
 {
 	String local,sub;
-	index_t p = path.indexOf('/');
+	index_t p = path.GetIndexOf('/');
 	if (p)
 	{
 		local = path.subString(0,p-1);
@@ -685,7 +685,7 @@ static const XML::Node*	findFromConst(const XML::Node*context, const String&path
 
 	if (context->name != local)
 		return NULL;
-	if (sub.isEmpty())
+	if (sub.IsEmpty())
 		return context;
 	return findInConst(context->children,sub);
 }
@@ -753,7 +753,7 @@ XML::Node&	XML::Node::Create(const String&path, const String&inner_content)
 XML::Node&	XML::Container::Create(const String&path, const String&inner_content)
 {
 	String local,sub;
-	index_t p = path.indexOf('/');
+	index_t p = path.GetIndexOf('/');
 	if (p)
 	{
 		local = path.subString(0,p-1);
@@ -769,7 +769,7 @@ XML::Node&	XML::Container::Create(const String&path, const String&inner_content)
 	elif (root_node.name != local)
 		throw IO::ParameterFault("Path component mismatch: '"+local+"'");
 
-	if (sub.isEmpty())
+	if (sub.IsEmpty())
 		return root_node;
 
 	return createIn(&root_node, sub, inner_content);

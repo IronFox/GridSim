@@ -26,7 +26,7 @@ namespace CRC32
 	template <typename T>
     inline UINT32  getChecksum(const ArrayData<T>&array)	//!< Directly calculates a checksum of the specified data field \param array Array to determine the checksum of. Only actual data is read. Not recommended for dynamic structures such as strings \return CRC32 checksum
 	{
-		return getChecksum(array.pointer(),array.contentSize());
+		return getChecksum(array.pointer(),array.GetContentSize());
 	}
 
     void    beginSequence();					//!< Begins a new checksum calculation sequence

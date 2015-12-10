@@ -427,8 +427,8 @@ namespace Engine
 				for (index_t source_layer = 0; source_layer < layer_count; source_layer++)
 				{
 					const MaterialLayer&layer = config.layers[source_layer];
-					bool	cube = list && !list[source_layer]->isEmpty() && list[source_layer]->isCube(),
-							normal_map = list && !list[source_layer]->isEmpty() && layer.isNormalMap();
+					bool	cube = list && !list[source_layer]->IsEmpty() && list[source_layer]->isCube(),
+							normal_map = list && !list[source_layer]->IsEmpty() && layer.isNormalMap();
 
 					if (glActiveTexture)
 						glActiveTexture(GL_TEXTURE0+static_cast<GLenum>(source_layer));
@@ -488,7 +488,7 @@ namespace Engine
 							state.render_setup.texcoord_type[source_layer] = TextureMapping::Default;
 							glThrowError();
 
-							if (list && !list[source_layer]->isEmpty())
+							if (list && !list[source_layer]->IsEmpty())
 							{
 								state.render_setup.texture_type[source_layer] = list[source_layer]->dimension();
 								switch (list[source_layer]->dimension())
@@ -539,7 +539,7 @@ namespace Engine
 							glDisable(GL_TEXTURE_1D);	glBindTexture(GL_TEXTURE_1D,0);
 							glDisable(GL_TEXTURE_2D);	glBindTexture(GL_TEXTURE_2D,0);
 							glDisable(GL_TEXTURE_3D);	glBindTexture(GL_TEXTURE_3D,0);
-							if (!list[source_layer]->isEmpty())
+							if (!list[source_layer]->IsEmpty())
 							{
 								state.render_setup.texture_type[source_layer] = list[source_layer]->dimension();
 								glEnable(GL_TEXTURE_CUBE_MAP);
@@ -551,7 +551,7 @@ namespace Engine
 								state.render_setup.texture_type[source_layer] = TextureDimension::None;
 							}
 							glThrowError();
-							/*if (config.texcoords[source_layer].isEmpty())
+							/*if (config.texcoords[source_layer].IsEmpty())
 							{
 								if (!has_shader)
 								{
@@ -592,7 +592,7 @@ namespace Engine
 					}
 				}
 
-				if (Shader::globalSkyTexture.isNotEmpty())
+				if (Shader::globalSkyTexture.IsNotEmpty())
 				{
 					const index_t source_layer = layer_count;
 					if (glActiveTexture)
@@ -640,7 +640,7 @@ namespace Engine
 					glThrowError();
 				}
 			}
-			//ASSERT__(shader.isEmpty() || shader.requires_tangents == state.render_setup.expect_tangent_normals);
+			//ASSERT__(shader.IsEmpty() || shader.requires_tangents == state.render_setup.expect_tangent_normals);
 
 		//	glEnable(GL_BLEND);
 			//glDisable(GL_ALPHA_TEST);

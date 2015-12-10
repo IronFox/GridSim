@@ -1227,19 +1227,19 @@ void CMD5::transform(UINT32*data)
 void CMD5::update(const void*source_, size_t len)
 {
     const BYTE*source = (const BYTE*)source_;
-    size_t left, fill;
+    size_t left, Fill;
     if (!len)
         return;
     left = (_total & 0x3F);
-    fill = 64 - left;
+    Fill = 64 - left;
     _total += len;
 
-    if(left && len >= fill )
+    if(left && len >= Fill )
     {
-        memcpy(&_data[left], source, fill);
+        memcpy(&_data[left], source, Fill);
         transform((UINT32*)_data);
-        len -= fill;
-        source += fill;
+        len -= Fill;
+        source += Fill;
         left = 0;
     }
 
@@ -1499,13 +1499,13 @@ void SHA1::transform(UINT32*data)
 void SHA1::Append(const void*source_, size_t size)
 {
     const BYTE*source = (const BYTE*)source_;
-    size_t left, fill;
+    size_t left, Fill;
 
     if (!size)
         return;
 
     left = sz0 & 0x3F;
-    fill = 64 - left;
+    Fill = 64 - left;
 
     sz0 += (UINT32)size;
     sz0 &= 0xFFFFFFFF;
@@ -1513,12 +1513,12 @@ void SHA1::Append(const void*source_, size_t size)
     if(sz0 < size)
         sz1++;
 
-    if(left && size >= fill)
+    if(left && size >= Fill)
     {
-        memcpy(&data[left],source, fill);
+        memcpy(&data[left],source, Fill);
         transform((UINT32*)data);
-        size -= fill;
-        source  += fill;
+        size -= Fill;
+        source  += Fill;
         left = 0;
     }
 

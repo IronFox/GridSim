@@ -823,7 +823,7 @@ namespace System
 				void						beginSequence();					//!< Begins a protected write sequence. Must be terminated by invoking endSequence()
 				void						writeElement(const Entry&data);		//!< Appends a single element to the end of the queue. This method is considerably faster than write() but must be called inbetween beginSequence() and endSequence()
 				void						endSequence();						//!< Ends a protected write sequence. Must be called once all elements of a sequence have been appended to the queue.
-				bool						isEmpty()	const;					//!< Queries if the queue is currently empty
+				bool						IsEmpty()	const;					//!< Queries if the queue is currently empty
 				void						insertPrimary(const Entry&data, size_t count);	//!< The method is named to allow seamless handling of different types of queues by template classes. It does append the specified object @a count times to the end of the queue, @b not to the beginning as the method name might imply. @param data Data to append to the end of the queue @param count Number of times that the object should be appended
 				
 				void						operator>>(Entry&out);				//!< Operator version of read()
@@ -850,7 +850,7 @@ namespace System
 				void						beginSequence();							//!< Begins a protected write sequence. Must be terminated by invoking endSequence()
 				void						writeElement(const Entry&data, int priority);		//!< Inserts a single element into the queue. This method is considerably faster than write() but must be called inbetween beginSequence() and endSequence()
 				void						endSequence();								//!< Ends a protected write sequence. Must be called once all elements of a sequence have been appended to the queue.
-				bool						isEmpty()	const;									//!< Queries if the queue is currently empty
+				bool						IsEmpty()	const;									//!< Queries if the queue is currently empty
 				void						insertPrimary(const Entry&data, size_t count);	//!< Inserts a single object a number of times at top priority into the queue. The inserted object will be priorized over all currently inserted objects. @param data [in] Object to enqueue @param count [in] Number of times the object should be inserted in the queue
 				
 				void						operator>>(Entry&out);				//!< Operator version of read()

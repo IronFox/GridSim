@@ -286,7 +286,7 @@ namespace Engine
 					break;
 				}
 			}
-			if (globalSkyTexture.isNotEmpty())
+			if (globalSkyTexture.IsNotEmpty())
 			{
 				samplers << "uniform samplerCube sky;\n";
 				code_out.sky_lighting = true;
@@ -748,7 +748,7 @@ namespace Engine
 
 		bool			Texture::load(const Buffer&object, GLuint width_, GLuint height_, BYTE channels_)
 		{
-			if (object.isEmpty())
+			if (object.IsEmpty())
 				return false;
 			ContextLock	context_lock;
 
@@ -1250,7 +1250,7 @@ namespace Engine
 
 		void		FBO::generateMIPLayers(UINT target/*=0*/)
 		{
-			if (isEmpty() || !glGenerateMipmap)
+			if (IsEmpty() || !glGenerateMipmap)
 				return;
 			ContextLock	context_lock;
 
@@ -1335,7 +1335,7 @@ namespace Engine
 			is_bound = false;
 			return;
 		}
-		if (OpenGL::created_contexts.isEmpty())
+		if (OpenGL::created_contexts.IsEmpty())
 			throw Renderer::GeneralFault(globalString("Cannot bind OpenGL context: none created"));
 		is_bound = true;
 		OpenGL::setCurrentContext(OpenGL::created_contexts.first());
@@ -1346,7 +1346,7 @@ namespace Engine
 		if (!is_bound)
 			return;
 		is_bound = false;
-		if (OpenGL::created_contexts.isEmpty())
+		if (OpenGL::created_contexts.IsEmpty())
 			FATAL__("Cannot unbind OpenGL context: no reference context");
 		#if SYSTEM==WINDOWS
 			wglMakeCurrent(OpenGL::created_contexts.first().device_context, NULL);
@@ -2006,7 +2006,7 @@ namespace Engine
 
 	bool OpenGL::TargetFBO(const FBO&pobj)
 	{
-		if (!glBindFramebuffer || pobj.isEmpty())
+		if (!glBindFramebuffer || pobj.IsEmpty())
 			return false;
 		GL_BEGIN
 			glBindFramebuffer(GL_FRAMEBUFFER, pobj.handle);
@@ -2027,7 +2027,7 @@ namespace Engine
 	{
 		GL_BEGIN
 			Shader::Instance*instance = shader.construct();
-			ASSERT1__(shader.isEmpty() || instance!=NULL,shader.Report());
+			ASSERT1__(shader.IsEmpty() || instance!=NULL,shader.Report());
 			genericBindMaterial(config,list,instance != NULL);
 			Shader::_Install(instance);
 		GL_END
@@ -2037,7 +2037,7 @@ namespace Engine
 	{
 		GL_BEGIN
 			Shader::Instance*instance = shader.construct();
-			ASSERT1__(shader.isEmpty() || instance!=NULL,shader.Report());
+			ASSERT1__(shader.IsEmpty() || instance!=NULL,shader.Report());
 
 			genericBindMaterial(config,list,instance != NULL);
 			Shader::_Install(instance);
@@ -3218,19 +3218,19 @@ namespace Engine
 
 		//	ShowMessage("triangles: "+String(structure.len[ERR_TRIANGLES])+"; quads: "+String(structure.len[ERR_QUADS])+"; lines: "+String(structure.len[ERR_LINES]));
 
-		if (structure.field[SimpleGeometry::Triangles].isNotEmpty())
+		if (structure.field[SimpleGeometry::Triangles].IsNotEmpty())
 		{
 			glVertexPointer(3,GL_FLOAT,sizeof(tCVertex),structure.field[SimpleGeometry::Triangles].first().v);
 			glColorPointer(4,GL_FLOAT,sizeof(tCVertex),structure.field[SimpleGeometry::Triangles].first().color.v);
 			glDrawArrays(GL_TRIANGLES,0,GLuint(structure.field[SimpleGeometry::Triangles].length()));
 		}
-		if (structure.field[SimpleGeometry::Quads].isNotEmpty())
+		if (structure.field[SimpleGeometry::Quads].IsNotEmpty())
 		{
 			glVertexPointer(3,GL_FLOAT,sizeof(tCVertex),structure.field[SimpleGeometry::Quads].first().v);
 			glColorPointer(4,GL_FLOAT,sizeof(tCVertex),structure.field[SimpleGeometry::Quads].first().color.v);
 			glDrawArrays(GL_QUADS,0,GLuint(structure.field[SimpleGeometry::Quads].length()));
 		}
-		if (structure.field[SimpleGeometry::Lines].isNotEmpty())
+		if (structure.field[SimpleGeometry::Lines].IsNotEmpty())
 		{
 			glVertexPointer(3,GL_FLOAT,sizeof(tCVertex),structure.field[SimpleGeometry::Lines].first().v);
 			glColorPointer(4,GL_FLOAT,sizeof(tCVertex),structure.field[SimpleGeometry::Lines].first().color.v);
@@ -3244,7 +3244,7 @@ namespace Engine
 	void OpenGL::bindIndices(const IBO&iobj)
 	{
 		GL_BEGIN
-		if (!iobj.isEmpty())
+		if (!iobj.IsEmpty())
 		{
 			glGetError();
 			if (glBindBuffer)

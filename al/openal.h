@@ -26,9 +26,7 @@ namespace OpenAL
 		friend void			discard(WaveBuffer&wbo);
 	public:
 		/**/				WaveBuffer():bufferHandle(0) {}
-		inline bool			isEmpty()	const	{return bufferHandle == 0;}
 		inline bool			IsEmpty()	const	{return bufferHandle == 0;}
-		inline bool			isNotEmpty()	const	{return bufferHandle != 0;}
 		inline bool			IsNotEmpty()	const	{return bufferHandle != 0;}
 		inline ALuint		getHandle()	const	{return bufferHandle;}
 		inline ALuint		GetHandle()	const	{return bufferHandle;}

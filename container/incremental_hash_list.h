@@ -18,7 +18,7 @@ template <size_t ElementSize>
 	public:
 	static inline void*			allocate()
 								{
-									if (unused_elements.isEmpty())
+									if (unused_elements.IsEmpty())
 									{
 										return malloc(ElementSize);
 										//BYTE*address = (BYTE*)malloc(ElementSize*4);	//for some reason, block allocation is slower. Definately not faster. After a while it doesn't matter anyway
@@ -159,7 +159,7 @@ template <typename K, typename C, typename Hash=StdHash, typename Allocator = In
 			using Table::query;
 			using Table::queryPointer;
 
-	inline	bool							isEmpty()	const
+	inline	bool							IsEmpty()	const
 			{
 				return List::empty();
 			}

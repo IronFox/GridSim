@@ -312,7 +312,7 @@ namespace Engine
 										{
 											return length > 0;
 										}
-			bool						isEmpty() const
+			bool						IsEmpty() const
 										{
 											return !length;
 										}
@@ -624,9 +624,9 @@ namespace Engine
 		- be comparable via operator== and operator!=
 		- be comparable via operator< and operator>
 		- NOT auto-delete on destruction (except local data)
-		- be distinguishable so ambiguities cannot occur on any method other than discardObject(...) and isEmpty(...)
+		- be distinguishable so ambiguities cannot occur on any method other than discardObject(...) and IsEmpty(...)
 		- NOT keep references to client-data
-		- provide a const isEmpty()-method to determine whether not not content is available.
+		- provide a const IsEmpty()-method to determine whether not not content is available.
 		
 	*/
 
@@ -679,7 +679,7 @@ namespace Engine
 		virtual	hash_t				hashCode() const
 									{
 										HashValue hash(MaterialConfiguration::hashCode());
-										hash.add(stdMemHash(textures.pointer(),textures.contentSize()));
+										hash.add(stdMemHash(textures.pointer(),textures.GetContentSize()));
 
 										return hash;
 									}

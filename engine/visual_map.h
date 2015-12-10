@@ -48,7 +48,7 @@ namespace Engine
 													{
 														if (light)
 															light->destroy();
-														if (!query_object.isEmpty())
+														if (!query_object.IsEmpty())
 															renderer->discardObject(query_object);
 													}
 		virtual void								parse(XML::Node*node);

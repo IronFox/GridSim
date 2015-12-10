@@ -213,7 +213,7 @@
 
 				void					adoptData(Composition&other);
 				void					Clear();
-				bool					IsEmpty()	const	{return sharedSource.isEmpty() && vertexSource.isEmpty() && fragmentSource.isEmpty() && geometrySource.isEmpty();}
+				bool					IsEmpty()	const	{return sharedSource.IsEmpty() && vertexSource.IsEmpty() && fragmentSource.IsEmpty() && geometrySource.IsEmpty();}
 				bool					IsNotEmpty()const	{return !IsEmpty();}
 				Composition&			Load(const String&objectSource);
 				bool					LoadFromFiles(const String&sharedFile, const String&vertexFile, const String&fragmentFile);
@@ -516,7 +516,7 @@
 												fragmentShadowCode.swap(other.fragmentShadowCode);
 												samplerAssignments.swap(other.samplerAssignments);
 											}
-					bool					IsEmpty()	const	{return fragmentShadowCode.isEmpty();}
+					bool					IsEmpty()	const	{return fragmentShadowCode.IsEmpty();}
 
 					void					PredefineSampler(const char*samplerName, GLint samplerLevel)
 											{

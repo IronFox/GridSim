@@ -40,7 +40,7 @@ namespace TCP
 
 	String	StripPort(const String&host)
 	{
-		index_t at = host.indexOf(':');
+		index_t at = host.GetIndexOf(':');
 		if (at)
 			return host.subString(0,at-1);
 		return host;
@@ -444,7 +444,7 @@ namespace TCP
 			return;
 		}
 		const String&url = connect_target;
-		index_t separator = url.indexOf(':');
+		index_t separator = url.GetIndexOf(':');
 		if (!separator)
 		{
 			client->setError("Missing port in address line '"+url+"'");
@@ -511,7 +511,7 @@ namespace TCP
 
 			if (connect(socketHandle,actual_address->ai_addr,(int)actual_address->ai_addrlen) == 0)
 				break;
-			if (host.isNotEmpty())
+			if (host.IsNotEmpty())
 				host += '/';
 			host += ToString(*actual_address);
 			actual_address = actual_address->ai_next;

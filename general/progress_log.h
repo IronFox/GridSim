@@ -70,7 +70,7 @@ namespace Progress	//! Progress log and visualizer namespace
     struct  tLogLine	//! Output line in the progress log
     {
         char        line[0x100];	//!< character buffer
-        size_t		line_len,		//!< character buffer fill state
+        size_t		line_len,		//!< character buffer Fill state
 					depth;			//!< line indentation (0 = no indentation)
     };
 

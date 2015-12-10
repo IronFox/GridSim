@@ -943,12 +943,12 @@ template <class Entry, class Priority, class Strategy>
 	}
 	
 template <class Entry, class Priority, class Strategy>
-	bool				PriorityQueue<Entry, Priority, Strategy>::isEmpty()					const
+	bool				PriorityQueue<Entry, Priority, Strategy>::IsEmpty()					const
 	{
 		return section_begin == section_end;
 	}
 template <class Entry, class Priority, class Strategy>
-	bool				PriorityQueue<Entry, Priority, Strategy>::isNotEmpty()					const
+	bool				PriorityQueue<Entry, Priority, Strategy>::IsNotEmpty()					const
 	{
 		return section_begin != section_end;
 	}

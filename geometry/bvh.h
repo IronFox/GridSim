@@ -94,7 +94,7 @@ template <typename Object, typename Bounds, count_t MaxObjectsPerLeaf>
 		void			GetAll(BasicBuffer<Object*>&out) const
 		{
 			Object*row = out.AppendRow(objects.Count());
-			memcpy(row, objects.pointer(), objects.contentSize());
+			memcpy(row, objects.pointer(), objects.GetContentSize());
 		}
 
 		count_t			CountObjects() const { return objects.Count(); }
@@ -195,7 +195,7 @@ template <typename Object, count_t MaxObjectsPerLeaf, typename Float = float, ty
         {
             //lock (this)
             {
-                if (!_root && _allItems.isNotEmpty())
+                if (!_root && _allItems.IsNotEmpty())
                     ForceReconstruction();
             }
         }
@@ -555,7 +555,7 @@ template <typename Object, count_t MaxObjectsPerLeaf, typename Float = float, ty
 				if (_root)
 					delete _root;
 				_root = NULL;
-                if (_allItems.isEmpty())
+                if (_allItems.IsEmpty())
                 {
                     //if (verbose)
                       //  Debug.WriteLine("Tree is empty");
@@ -572,8 +572,8 @@ template <typename Object, count_t MaxObjectsPerLeaf, typename Float = float, ty
 		count_t	GetBucketCount() const {return _numBuckets;}
 		void	SetBucketCount(index_t count) {_numBuckets = count;}
 
-		bool	IsEmpty() const	{return _allItems.isEmpty();}
-		bool	IsNotEmpty() const {return _allItems.isNotEmpty();}
+		bool	IsEmpty() const	{return _allItems.IsEmpty();}
+		bool	IsNotEmpty() const {return _allItems.IsNotEmpty();}
 
         void Lookup(const Bounds&space, BasicBuffer<Object*>&found)	const
         {

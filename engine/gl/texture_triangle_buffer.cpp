@@ -32,14 +32,14 @@ namespace Engine
 		
 		void		Buffer::setTextureDimension(unsigned texture_dimension)
 		{
-			if (!isEmpty())
+			if (!IsEmpty())
 				return;
 			this->texture_dimension = texture_dimension;
 		}
 		
 		void		Buffer::setType(GLenum type)
 		{
-			if (!isEmpty())
+			if (!IsEmpty())
 				return;
 			this->texture_type = type;
 		}

@@ -115,10 +115,8 @@ namespace Engine
 				inline handle_t	getHandle() const	{return handle;}
 				inline handle_t	GetHandle() const	{return handle;}
 				/** @brief Determine whether or not the local object is empty. NULL-pointer sensitive @return true if the local object is NULL or the associated handle 0*/
-				inline bool		isEmpty()	const	{return !this || !handle;}
 				inline bool		IsEmpty()	const	{return !this || !handle;}
 				/** Determine whether or not the local object is empty. NULL-pointer sensitive @return true if the local object is NULL or the associated handle 0*/
-				inline bool		isNotEmpty()	const	{return this!=NULL && handle!=0;}
 				inline bool		IsNotEmpty()	const	{return this!=NULL && handle!=0;}
 								
 				inline void		overrideSetHandle(handle_t h, bool do_clear=true)	//! Override method (use only to override the native OpenGL texture constructors). Sets the local handle. The method is kept explicit so that users are aware of this being rather unusual and potentially having undesired side-effects
@@ -221,10 +219,8 @@ namespace Engine
 				inline handle_t			getHandle() const	{return handle;}
 				inline handle_t			GetHandle() const	{return handle;}
 				/** Determine whether or not the local object is empty. NULL-pointer sensitive @return true if the local object is NULL or the associated handle 0*/
-				inline bool				isEmpty()	const	{return !this || !handle;}
 				inline bool				IsEmpty()	const	{return !this || !handle;}
 				/** Determine whether or not the local object is empty. NULL-pointer sensitive @return true if the local object is NULL or the associated handle 0*/
-				inline bool				isNotEmpty()	const	{return this!=NULL && handle!=0;}
 				inline bool				IsNotEmpty()	const	{return this!=NULL && handle!=0;}
 				/** reference self rather than target because self may be reference local where target is not. This operator exists for seamless interchangability of a pointer to the object and its reference*/
 				inline ThisType*		operator->()	{return this;}
@@ -618,16 +614,14 @@ namespace Engine
 									return on_device?NULL:host_data;
 								}
 			inline	const void*	GetHostData() const		/** @copydoc getHostData() */	{return getHostData();}
-			inline	bool		isEmpty()	const	//! Determine whether or not the local object is empty. NULL-pointer sensitive @return true if the local object is NULL or the associated handle 0
+			inline	bool		IsEmpty()	const	//! Determine whether or not the local object is empty. NULL-pointer sensitive @return true if the local object is NULL or the associated handle 0
 								{
 									return !this || !data_size;
 								}
-			inline	bool		IsEmpty()	const	/** @copydoc isEmpty() */ {return isEmpty();}
-			inline	bool		isNotEmpty()	const	//! Determine whether or not the local object is empty. NULL-pointer sensitive @return true if the local object is NULL or the associated handle 0
+			inline	bool		IsNotEmpty()	const	//! Determine whether or not the local object is empty. NULL-pointer sensitive @return true if the local object is NULL or the associated handle 0
 								{
 									return this!=NULL && data_size>0;
 								}
-			inline	bool		IsNotEmpty()	const	/**@copydoc isNotEmpty() */ {return isNotEmpty();}
 
 			inline	size_t		size()	const			//!< Retrieves the current object size in bytes.
 								{

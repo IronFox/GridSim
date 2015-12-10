@@ -391,7 +391,7 @@ template <class Def > bool IndexContainerA<Def>::operator>(const IndexContainerA
 		if (quads < other.quads)
 			return false;
 	#ifndef FUZZY_COMPARE
-	char rs = fastCompare(idata,other.idata,idata.contentSize());
+	char rs = fastCompare(idata,other.idata,idata.GetContentSize());
 	if (rs > 0)
 		return true;
 	if (rs < 0)
@@ -1336,7 +1336,7 @@ template <class Def> void SubGeometryA<Def>::saveToRiff(Riff::Chunk*riff)	const
 			}
 		}
 
-		if (!phHull.isEmpty())
+		if (!phHull.IsEmpty())
 		{
 			{
 				Array<typename Def::PhHullFloatType> out(phHull.vertex_field.length()*3);
@@ -1441,7 +1441,7 @@ template <class Def> void SubGeometryA<Def>::saveToRiff(Riff::Chunk*riff)	const
 				wheel_field[i].rotation.saveToRiff(inner);
 			}
 		}
-		if (tracks_field.isNotEmpty())
+		if (tracks_field.IsNotEmpty())
 		{
 			ByteStream	c;
 			for (index_t i = 0; i < tracks_field.length(); i++)
@@ -1929,7 +1929,7 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(Riff::File&riff) //ass
 		}
 	accelerator_field.setSize(accelerators);
 	accelerators = 0;
-	if (accelerator_field.isNotEmpty() && riff.FindFirst(acc_key))
+	if (accelerator_field.IsNotEmpty() && riff.FindFirst(acc_key))
 		do
 		{
 
@@ -2026,7 +2026,7 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(Riff::File&riff) //ass
 
 	wheel_field.setSize(wheels);
 	wheels = 0;
-	if (wheel_field.isNotEmpty() && riff.FindFirst(whl_key))
+	if (wheel_field.IsNotEmpty() && riff.FindFirst(whl_key))
 		do
 		{
 			switch (whl_version)
@@ -2104,7 +2104,7 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(Riff::File&riff) //ass
 		while (riff.FindNext(trk_key));
 	tracks_field.setSize(tracks);
 	tracks = 0;
-	if (tracks_field.isNotEmpty() && riff.FindFirst(trk_key))
+	if (tracks_field.IsNotEmpty() && riff.FindFirst(trk_key))
 		do
 		{
 			switch (trk_version)
@@ -2294,9 +2294,9 @@ template <class Def> void SubGeometryA<Def>::checkLinkage()
 {
 	/*for (index_t i = 0; i < wheel_field.length(); i++)
 	{
-		if ((wheel_field[i].prev && !wheel_field.owns(wheel_field[i].prev))
+		if ((wheel_field[i].prev && !wheel_field.Owns(wheel_field[i].prev))
 			||
-			(wheel_field[i].next && !wheel_field.owns(wheel_field[i].next)))
+			(wheel_field[i].next && !wheel_field.Owns(wheel_field[i].next)))
 			FATAL__("WheelLinkage of "+name2str(name)+" broken");
 	}
 	for (index_t i = 0; i < child_field.length(); i++)
@@ -2392,7 +2392,7 @@ template <class Def>
 			if (layer < vs_hull_field.length())
 			{
 				const Mesh<VsDef>&mesh = vs_hull_field[layer];
-				if (mesh.edge_field.isNotEmpty())
+				if (mesh.edge_field.IsNotEmpty())
 				{
 					for (index_t i = 0; i < mesh.edge_field.length(); i++)
 					{
@@ -2542,8 +2542,8 @@ template <class Def> void SubGeometryA<Def>::toInstance(AnimatableSubInstanceA<D
 		tree.construct_rotation_animators[i].build(&tracks_field[i].rotation);*/
 	tree.wheel_status.setSize(wheel_field.length()*2);
 	tree.accelerator_status.setSize(accelerator_field.length());
-	tree.wheel_status.fill(0);
-	tree.accelerator_status.fill(0);
+	tree.wheel_status.Fill(0);
+	tree.accelerator_status.Fill(0);
 	
 	tree.child_field.setSize(child_field.length());
 	tree.system = meta.system;
@@ -3211,7 +3211,7 @@ template <class Def> void Geometry<Def>::saveEmbedded(Riff::Chunk&riff, bool emb
 	{
 		Array<BYTE> buffer(xml.length()+4);
 		(*(UINT32*)buffer.pointer()) = (UINT32)xml.length();
-		size_t compressed = BZ2::compress(xml.c_str(),xml.length(),buffer.pointer()+4,buffer.contentSize()-4);
+		size_t compressed = BZ2::compress(xml.c_str(),xml.length(),buffer.pointer()+4,buffer.GetContentSize()-4);
 		if (compressed)
 			riff.AppendBlock("CXML",buffer.pointer(),compressed+4);
 	}
@@ -3288,8 +3288,8 @@ template <class Def> void Geometry<Def>::saveEmbedded(Riff::Chunk&riff, bool emb
 					obj->AppendBlock("IOBJ",chunk.idata);
 					obj->AppendBlock("ICMP",chunk.composition,8);
 					
-					//obj->AppendBlock("SOBJ",chunk.sdata,chunk.sdata.contentSize());
-					//obj->AppendBlock("QOBJ",chunk.qdata,chunk.qdata.contentSize());
+					//obj->AppendBlock("SOBJ",chunk.sdata,chunk.sdata.GetContentSize());
+					//obj->AppendBlock("QOBJ",chunk.qdata,chunk.qdata.GetContentSize());
 				}
 			}
 		}
@@ -3738,7 +3738,7 @@ template <class Def> void Geometry<Def>::loadEmbedded(Riff::File&riff, TextureRe
 		riff.Get(buffer.pointer());
 		UINT32 extracted = (*(UINT32*)buffer.pointer());
 		Array<char> extracted_buffer(extracted+1);
-		size_t bz_result = BZ2::decompress(buffer.pointer()+4,buffer.contentSize()-4,extracted_buffer.pointer(),extracted_buffer.contentSize());
+		size_t bz_result = BZ2::decompress(buffer.pointer()+4,buffer.GetContentSize()-4,extracted_buffer.pointer(),extracted_buffer.GetContentSize());
 		if (bz_result==(size_t)extracted)
 		{
 			extracted_buffer[extracted] = 0;
@@ -4031,7 +4031,7 @@ template <class Def>
 				object_field[i].remap(path,*this, bits);
 
 			path.eraseLast();
-			ASSERT__(path.isEmpty());
+			ASSERT__(path.IsEmpty());
 		}
 		if (bits & AnimatorBit)
 			for (index_t i = 0; i < animator_field.length(); i++)
@@ -4041,7 +4041,7 @@ template <class Def>
 				animator_table.set(animator_field[i].name,path.copyToArray());
 
 				path.eraseLast();
-				ASSERT__(path.isEmpty());
+				ASSERT__(path.IsEmpty());
 			}
 		if (bits & RelinkBit)
 			relinkEverything();
@@ -4268,7 +4268,7 @@ template <class Def> void Geometry<Def>::setSize(count_t objects_, count_t mater
 
 template <class Def> bool Geometry<Def>::isMember(SubGeometryA<Def>*obj) const
 {
-	if (object_field.owns(obj))
+	if (object_field.Owns(obj))
 		return true;
 	for (index_t i = 0; i < object_field.length(); i++)
 		if (object_field[i].isMember(obj))
@@ -4971,8 +4971,8 @@ template <class Def>
 	{
 		if (!GeometryInstance<Def>::target || !animator)
 			return NULL;
-		if (GeometryInstance<Def>::target->animator_field.owns(animator))
-			return animator_field+GeometryInstance<Def>::target->animator_field.indexOf(animator);
+		if (GeometryInstance<Def>::target->animator_field.Owns(animator))
+			return animator_field+GeometryInstance<Def>::target->animator_field.GetIndexOf(animator);
 		for (index_t i = 0; i < child_field.length(); i++)
 			if (AnimatorInstanceA<Def>*rs = child_field[i].findInstanceOf(animator))
 				return rs;
@@ -5182,9 +5182,9 @@ template <class Def>
 template <class Def>
 	double*		AnimatableSubInstanceA<Def>::findStatusOf(TWheel<Def>*wheel)
 	{
-		if (SubGeometryInstance<Def>::target->wheel_field.owns(wheel))
+		if (SubGeometryInstance<Def>::target->wheel_field.Owns(wheel))
 		{
-			return wheel_status+2*SubGeometryInstance<Def>::target->wheel_field.indexOf(wheel);
+			return wheel_status+2*SubGeometryInstance<Def>::target->wheel_field.GetIndexOf(wheel);
 		}
 		for (index_t i = 0; i < child_field.length(); i++)
 		{
@@ -5317,8 +5317,8 @@ template <class Def>
 	void AnimatableSubInstanceA<Def>::resetAnimationStatus()
 	{
 		_clear6(animation_status);
-		wheel_status.fill(0);
-		accelerator_status.fill(0);
+		wheel_status.Fill(0);
+		accelerator_status.Fill(0);
 	
 		for (index_t i = 0; i < child_field.length(); i++)
 			child_field[i].resetAnimationStatus();
@@ -5885,7 +5885,7 @@ template <class Def>
 			if (verifyAllVerticesAreUsed)
 			{
 				Array<bool>	used(numVertices);
-				used.fill(false);
+				used.Fill(false);
 				for (index_t i = 0; i < lod.triangleIndices.length(); i++)
 					used[lod.triangleIndices[i]] = true;
 				for (index_t i = 0; i < lod.quadIndices.length(); i++)

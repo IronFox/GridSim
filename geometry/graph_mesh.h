@@ -592,7 +592,7 @@ static	void				ramp(SurfaceDescription::TVertex&vtx);
 								x_coord[0] = x_coord[1] = 0;
 								control_dist[0] = control_dist[1] = 1;
 							}
-		inline	BYTE		indexOf(index_t node_)	const
+		inline	BYTE		GetIndexOf(index_t node_)	const
 							{
 								if (node_ == node[0])
 									return 0;

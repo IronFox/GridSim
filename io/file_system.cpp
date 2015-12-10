@@ -474,8 +474,8 @@ namespace FileSystem
 		while (local.IsNotEmpty())
 		{
 			PathString step;
-			index_t	at0 = local.indexOf('/'),
-					at1 = local.indexOf('\\'),
+			index_t	at0 = local.GetIndexOf('/'),
+					at1 = local.GetIndexOf('\\'),
 					at = !at0?at1:(!at1?at0:(std::min(at0,at1)));
 
 			
@@ -1184,7 +1184,7 @@ namespace FileSystem
 	template <typename T>
 		static StringTemplate<T>	_escapeSpaces(StringTemplate<T> path)
 		{
-			while (index_t at = path.indexOf((T)'\\'))
+			while (index_t at = path.GetIndexOf((T)'\\'))
 				path.erase(at-1,1);
 			StringTemplate<T> final;
 			for (index_t i = 0; i < path.length(); i++)
@@ -1624,7 +1624,7 @@ namespace FileSystem
 		PathString filename=name;
 
 		#if SYSTEM==UNIX
-			if (filename.indexOf('/'))
+			if (filename.GetIndexOf('/'))
 		#endif
 		{
 			#if SYSTEM==WINDOWS

@@ -23,7 +23,7 @@ void StringFile::stripComments(String&str)
     {
         if (/*(conversion_flags&CM_RECORD_COMMENTS) && */in_comment)
         {
-            index_t at = str.indexOf(comment_end);
+            index_t at = str.GetIndexOf(comment_end);
             if (at)
             {
 				if (conversion_flags&CM_RECORD_COMMENTS)
@@ -42,10 +42,10 @@ void StringFile::stripComments(String&str)
         }
         index_t lcomment(0),lscomment(0),bcomment(0);
         if (conversion_flags&CM_STRIP_LINE_COMMENTS)
-            lcomment = str.indexOf(lineComment);
+            lcomment = str.GetIndexOf(lineComment);
 		if (conversion_flags&CM_STRIP_LINE_START_COMMENTS)
 		{
-			index_t candidate = str.indexOf(lineStartComment);
+			index_t candidate = str.GetIndexOf(lineStartComment);
 			bool valid = candidate > 0;
 			for (index_t i = 0; i+1 < candidate; i++)
 			{
@@ -59,7 +59,7 @@ void StringFile::stripComments(String&str)
 				lscomment = candidate;
 		}
         if (conversion_flags&CM_STRIP_BLOCK_COMMENTS)
-            bcomment = str.indexOf(comment_begin);
+            bcomment = str.GetIndexOf(comment_begin);
         if (!bcomment && !lcomment && !lscomment)
 		{
 			//log_file << " => '"<<str<<"'"<<nl;

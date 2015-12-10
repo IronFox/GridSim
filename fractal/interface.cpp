@@ -244,7 +244,7 @@ namespace Fractal
 	
 	String			DynamicSeed::toHex()	const
 	{
-		return binaryToHex(value.pointer(),value.contentSize());
+		return binaryToHex(value.pointer(),value.GetContentSize());
 	}
 	
 	DynamicSeed&			DynamicSeed::hash(const String&string)
@@ -2545,7 +2545,7 @@ namespace Fractal
 					f->neighbor_link[k] =
 							link(
 									faces[(int)(graph.triangle_field[i].n[k].triangle-graph.triangle_field)],
-		 							graph.triangle_field[i].n[k].indexOf(graph.triangle_field[i].vertex[(k+1)%3])
+		 							graph.triangle_field[i].n[k].GetIndexOf(graph.triangle_field[i].vertex[(k+1)%3])
 								);
 					f->outer_seed[k] = ((SurfaceSegment*)f->neighbor_link[k].segment)->outer_seed[f->neighbor_link[k].orientation];
 				}

@@ -5,7 +5,7 @@
 template <typename T>
 	void		ByteStream::Assign(Array<T>&array)
 	{
-		Assign(array.pointer(),array.contentSize());
+		Assign(array.pointer(),array.GetContentSize());
 	}
 
 

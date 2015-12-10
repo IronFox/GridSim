@@ -225,11 +225,9 @@ template <class Carrier>
 			inline size_t					Count()								const	/**@copydoc count()*/	{return count();}
 			inline operator 				size_t()							const;	//!< Implicit conversion to size_t. \return Returns the number of entries in the set/table.
 			inline	void					clear();									//!< Resizes back to the initial set size and un-occupies all carriers. If no resizing took place then the respective objects are not reinitialized.
-			inline	bool					isEmpty()							const	/**!< Checks if the local table is empty**/	{return entries ==0;}
-			inline	bool					isNotEmpty()						const	/**!< Checks if the local table contains at least one element*/ 	{return entries !=0;}
+			inline	bool					IsEmpty()							const	/**!< Checks if the local table is empty**/	{return entries ==0;}
+			inline	bool					IsNotEmpty()						const	/**!< Checks if the local table contains at least one element*/ 	{return entries !=0;}
 			inline	void					Clear()										/** @copydoc clear() */ {clear();}
-			inline	bool					IsEmpty()							const	/** @copydoc isEmpty() */ {return isEmpty();}
-			inline	bool					IsNotEmpty()						const	/** @copydoc isNotEmpty() */ {return isNotEmpty();}
 			inline	void					import(GenericHashBase<Carrier>&list);		//!< Imports the content of the specified other hashset/hashtable in addition to the already contained entries. Existing entries are overwritten. \param list Hashset to import entries from.
 		template <class Key>
 			inline	void					exportKeys(ArrayData<Key>&keys)	const;			//!< Exports the keys to the specified array. \param keys Reference to an array containing all associated keys after execution. 
@@ -366,7 +364,7 @@ template <class K, class C, class Hash=StdHash, typename KeyStrategy = typename 
 			inline	const DataType*			queryPointer(const Key&ident)		const;	//!< Requests the content associated with the specified key without setting it. The method returns a pointer to the element ot NULL if no such could be found. \param ident Key to look for \return Pointer to the object matching the specified key or NULL if no such could be found
 		template <class Key>
 			inline	DataType*				QueryPointer(const Key&ident)		const	/** @copydoc queryPointer() */{return queryPointer(ident);}
-			inline	bool					owns(const DataType*data)	const;
+			inline	bool					Owns(const DataType*data)	const;
 		template <class Key>
 			inline	DataType*				setNew(const Key&ident);					//!< Sets the specified key if it is currently not set and returns the pointer its content. If the key is already set then NULL is returned @param ident Key to set @return Pointer to the set content associated with the specified key, or NULL if the key was previously set
 		template <class Key>

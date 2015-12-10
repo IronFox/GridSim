@@ -922,7 +922,7 @@ namespace Converter
 			sendMessage("Provided normals are non-existing or not properly generated.");
 			sendMessage("Generating normals");
 			normal_buffer.setSize(vertexBuffer.fillLevel()*smooth_groups,true);
-			normal_buffer.fill(Vector<>::null);
+			normal_buffer.Fill(Vector<>::null);
 			index_t index = 0;
 			update_step = total/100;
 			if (!update_step)
@@ -1167,7 +1167,7 @@ namespace Converter
 						(*pi++) = t.v[3];
 					}
 					if (pi != chunk.idata+chunk.idata.length())
-						FATAL__("triangle fill exception");
+						FATAL__("triangle Fill exception");
 					index += static_cast<UINT32>(s->triangles.count()+s->quads.count());
 				}
 				else
@@ -1208,7 +1208,7 @@ namespace Converter
 						(*pi++) = t.v[3];
 					}
 					if (pi != chunk.idata+chunk.idata.length())
-						FATAL__("triangle fill exception");
+						FATAL__("triangle Fill exception");
 					
 					index += UINT32(s->tex_triangles.count()+s->tex_quads.count());
 				}
@@ -1241,7 +1241,7 @@ namespace Converter
 			logMessage(__LINE__);
 			CGS::SubGeometryA<>&child = target.object_field[i];
 		
-			history.fill(invalid_index);
+			history.Fill(invalid_index);
 			triangle_buffer.reset();
 			quad_buffer.reset();
 		

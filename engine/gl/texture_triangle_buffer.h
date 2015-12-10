@@ -50,7 +50,7 @@ namespace Engine
 				GLuint		handle()	const;									//!< Retrieves the texture handle of this allocation from the parent buffer. @return Texture handle or 0 if the local allocation is empty
 		inline	bool		firstHalf() const	{return first_half;}			//! Queries whether this allocation is the first half of the allocated texture @return True if this is the first half of the allocated texture, false otherwise.
 				void		free();												//!< Frees this texture allocation. The method has no effect if no texture half has been allocated
-		inline	bool		isEmpty()	const	{return !texture_index;}		//! Queries whether or not a texture half has been allocated @return True if @b no texture half has been allocated, false otherwise
+		inline	bool		IsEmpty()	const	{return !texture_index;}		//! Queries whether or not a texture half has been allocated @return True if @b no texture half has been allocated, false otherwise
 		};
 
 	
@@ -79,7 +79,7 @@ namespace Engine
 		inline	unsigned			textureDimension() const								{return texture_dimension;}	//! Queries the currently used texture dimension
 		inline	GLenum				textureType() const										{return texture_type;}				//! Queries the currently used texture type
 				void				clear();											//!< Frees all currently allocated textures
-		inline	bool				isEmpty() const											{return textures.count()!=0;}//! Queries whether or not textures are currently allocated
+		inline	bool				IsEmpty() const											{return textures.count()!=0;}//! Queries whether or not textures are currently allocated
 				TAllocation			allocate();											//!< Allocates a new texture half
 				void				allocate(Allocation&allocation);					//!< @overload
 				void				free(TAllocation&allocation);						//!< Frees a texture half. The free a Allocation instance call Allocation::free()

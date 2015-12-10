@@ -46,7 +46,7 @@ namespace Engine
 		bool	TextureTable<GL>::createLink(CGS::TextureA*source, const typename GL::Texture&object)
 		{
 		    SCENERY_LOG("linking texture");
-		    if (!source || object.isEmpty())
+		    if (!source || object.IsEmpty())
 		        return false;
 		    if (source->signature == this && source->reference)
 		    {
@@ -157,7 +157,7 @@ namespace Engine
 		else
 			link->clear();
 
-		if (link->isEmpty())
+		if (link->IsEmpty())
 			SCENERY_LOG("failed to load. cleaning up...")
 		else
 			SCENERY_LOG("loaded (dimension #"+String(link->dimension())+"). cleaning up...");
@@ -288,7 +288,7 @@ namespace Engine
 	}
 
 	template <class Def>
-		index_t	StructureEntity<Def>::indexOf(CGS::SubGeometryA<Def>*child)
+		index_t	StructureEntity<Def>::GetIndexOf(CGS::SubGeometryA<Def>*child)
 		{
 			return object_entity_map.get(child->system_link,InvalidIndex);
 		}
@@ -412,7 +412,7 @@ namespace Engine
 				
 				VisualDetail<Def>*detail = detail_layers+obj.detail;
 				detail->robjects.append(&obj);
-				detail->object_index << entity->indexOf(obj.target);
+				detail->object_index << entity->GetIndexOf(obj.target);
 				
 				flags |= obj.vpool.vflags;
 		        SCENERY_LOG("done merging render object '"+obj.target->name+"'");
@@ -843,7 +843,7 @@ namespace Engine
 			const MaterialLayer&layer = material.layers[i];
 
 	        rs+="  ";
-	        if (material.textures[i].isEmpty())
+	        if (material.textures[i].IsEmpty())
 	            rs+="(empty)";
 	        else
 				rs += TextureDimension::ToString(material.textures[i].dimension());
@@ -878,7 +878,7 @@ namespace Engine
 		structures.reset();
 		while (StructureEntity<Def>*structure = structures.each())
 		{
-			sub_index = structure->indexOf(&object);
+			sub_index = structure->GetIndexOf(&object);
 			if (sub_index != InvalidIndex)
 				return structure;
 		}
@@ -1344,7 +1344,7 @@ namespace Engine
 
 	template <class GL, class Def> bool Scenery<GL,Def>::idle()
 	{
-	    return structures.isEmpty() && all_materials.isEmpty();
+	    return structures.IsEmpty() && all_materials.IsEmpty();
 	}
 
 	template <class GL, class Def>

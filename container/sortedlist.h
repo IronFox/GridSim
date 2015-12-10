@@ -84,8 +84,8 @@ public:
 		using Super::last;
 		using typename Super::iterator;
 		using typename Super::const_iterator;
-		using Super::isEmpty;
-		using Super::isNotEmpty;
+		using Super::IsEmpty;
+		using Super::IsNotEmpty;
 //		Super::operator size_t;
 		
 

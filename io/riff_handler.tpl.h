@@ -34,7 +34,7 @@ count_t File::Get(ArrayData<C>&out)
 	
 	count_t count = (size_t)now.info.size/sizeof(C);
 	out.setSize(count);
-	file.Extract(now.addr,out.pointer(),(unsigned)out.contentSize());
+	file.Extract(now.addr,out.pointer(),(unsigned)out.GetContentSize());
     return count;
 }
 
@@ -47,13 +47,13 @@ inline bool File::Exit()
 template <typename T>
 bool	File::InsertBlock(TID id, const ArrayData<T>&data)
 {
-	return InsertBlock(id,data.pointer(),(RIFF_SIZE)data.contentSize());
+	return InsertBlock(id,data.pointer(),(RIFF_SIZE)data.GetContentSize());
 }
 
 template <typename T>
 bool	File::AppendBlock(TID id, const ArrayData<T>&data)
 {
-	return AppendBlock(id,data.pointer(),(RIFF_SIZE)data.contentSize());
+	return AppendBlock(id,data.pointer(),(RIFF_SIZE)data.GetContentSize());
 }
 
 template <typename T>
@@ -61,20 +61,20 @@ count_t	Chunk::Get(ArrayData<T>&out) const
 {
 	count_t count = count_t(_info.size)/sizeof(T);
 	out.SetSize(count);
-	memcpy(out.pointer(),_data,out.contentSize());
+	memcpy(out.pointer(),_data,out.GetContentSize());
     return count;
 }
 
 template<typename T>
 Chunk*		Chunk::InsertBlock(TID id, const ArrayData<T>&data)
 {
-	return insertBlock(id,data.pointer(),data.contentSize());
+	return insertBlock(id,data.pointer(),data.GetContentSize());
 }
 
 template<typename T>
 Chunk*		Chunk::AppendBlock(TID id, const ArrayData<T>&data)
 {
-	return AppendBlock(id,data.pointer(),data.contentSize());
+	return AppendBlock(id,data.pointer(),data.GetContentSize());
 }
 
 

@@ -1545,7 +1545,7 @@ template <typename T>
 	}
 	
 template <typename T>
-	index_t			StringTemplate<T>::indexOf(const StringTemplate<T>&sub_str)	const
+	index_t			StringTemplate<T>::GetIndexOf(const StringTemplate<T>&sub_str)	const
 	{
 		if (!sub_str.length())
 			return 0;
@@ -1554,7 +1554,7 @@ template <typename T>
 	}
 
 template <typename T>
-	index_t			StringTemplate<T>::indexOf(const T*needle, size_t length)	const
+	index_t			StringTemplate<T>::GetIndexOf(const T*needle, size_t length)	const
 	{
 		if (!length)
 			return 0;
@@ -1578,7 +1578,7 @@ template <typename T>
 	}
 	
 template <typename T>
-	index_t			StringTemplate<T>::indexOf(const T*sub_str)	const
+	index_t			StringTemplate<T>::GetIndexOf(const T*sub_str)	const
 	{
 		if (!*sub_str)
 			return 0;
@@ -1587,7 +1587,7 @@ template <typename T>
 	}
 
 template <typename T>
-	index_t			StringTemplate<T>::indexOf(T c)					const
+	index_t			StringTemplate<T>::GetIndexOf(T c)					const
 	{
 		const T*pntr = Template::strchr(field,c);
 		return pntr?(pntr-field)+1:0;

@@ -1245,7 +1245,7 @@ namespace CLI
 
 	void		Interpretor::PopFocus()
 	{
-		ASSERT__(focusStack.isNotEmpty());
+		ASSERT__(focusStack.IsNotEmpty());
 		SetFocus(focusStack.pop());
 	}
 

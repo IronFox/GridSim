@@ -23,7 +23,7 @@ namespace List
 	/*!
 		\brief Optimized vector list
 
-		The list stores object pointers in one large array. The size of the array is altered (halved or doubled)	if the current fill state leaves the working range.
+		The list stores object pointers in one large array. The size of the array is altered (halved or doubled)	if the current Fill state leaves the working range.
 	*/
 	template <class C> class Vector
 	{
@@ -34,7 +34,7 @@ namespace List
 	#endif
 
 				size_t					cells;
-				C						**root,**fill,**imark,**cursor;
+				C						**root,**Fill,**imark,**cursor;
 		
 	INLINE		void					decToZero();
 	INLINE		void					inc();
@@ -104,8 +104,8 @@ namespace List
 	INLINE		index_t					operator()(const Type*)			const;
 	INLINE		operator				size_t()						const;		//!< Implict cast to size_t	\return Number of elements in the list
 
-	INLINE		bool					isEmpty()						const;
-	INLINE		bool					isNotEmpty()					const;
+	INLINE		bool					IsEmpty()						const;
+	INLINE		bool					IsNotEmpty()					const;
 	INLINE		size_t					count()							const;
 	INLINE		size_t					totalSize()						const;
 	INLINE		bool					discrete()						const;		//!< Verifies discrete list state \return true if no element is listed multiple times

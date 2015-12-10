@@ -277,9 +277,9 @@ namespace Package
 					fixed_size -= GetSerialSizeOfSize(decompressed_size);
 				if (!compressed.Deserialize(in_stream,fixed_size))
 					return false;
-				//cout << "extracted "<<compressed.contentSize()<<" compressed byte(s). uncompressed="<<decompressed_size<<endl;
+				//cout << "extracted "<<compressed.GetContentSize()<<" compressed byte(s). uncompressed="<<decompressed_size<<endl;
 				uncompressed.setLength(decompressed_size);
-				serial_size_t result = (serial_size_t)BZ2::decompress(compressed.pointer(),compressed.contentSize(),uncompressed.mutablePointer(),decompressed_size);
+				serial_size_t result = (serial_size_t)BZ2::decompress(compressed.pointer(),compressed.GetContentSize(),uncompressed.mutablePointer(),decompressed_size);
 				if (result != decompressed_size)
 				{
 					if (TCP::verbose)
@@ -385,9 +385,9 @@ namespace Package
 									if (!compressed.Deserialize(in_stream,fixed_size))
 										return false;
 									serialized.setSize(serial_size);
-									if (BZ2::decompress(compressed.pointer(),compressed.contentSize(),serialized.pointer(),serial_size) != serial_size)
+									if (BZ2::decompress(compressed.pointer(),compressed.GetContentSize(),serialized.pointer(),serial_size) != serial_size)
 										return false;
-									MemReadStream stream(serialized.pointer(),(serial_size_t)serialized.contentSize());
+									MemReadStream stream(serialized.pointer(),(serial_size_t)serialized.GetContentSize());
 									return uncompressed.Deserialize(stream,EmbeddedSize);
 								}
 								//cout << "deserialized array is not compressed"<<endl;
@@ -402,7 +402,7 @@ namespace Package
 										cout << ' '<<String((UINT)serialized[i]);
 								}
 								cout << endl;*/
-								MemReadStream	inner_read(serialized.pointer(),(serial_size_t)serialized.contentSize());
+								MemReadStream	inner_read(serialized.pointer(),(serial_size_t)serialized.GetContentSize());
 								return uncompressed.Deserialize(inner_read,EmbeddedSize);
 							}	
 				

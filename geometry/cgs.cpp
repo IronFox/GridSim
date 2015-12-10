@@ -216,12 +216,12 @@ Texture::type_t	Texture::type()	const
 */
 
 
-bool		TextureA::isEmpty()	const
+bool		TextureA::IsEmpty()	const
 {
 	if (!this || !face_field.length())
 		return true;
 	for (index_t i = 0; i < face_field.length(); i++)
-		if (face_field[i].contentSize() > sizeof(Image::THeader))
+		if (face_field[i].GetContentSize() > sizeof(Image::THeader))
 			return false;
 	return true;
 }
@@ -238,10 +238,10 @@ void		TextureA::downSample(BYTE modifier, String*error_out)
 	Image extracted;
 	for (index_t i = 0; i < face_field.length(); i++)
 	{
-		if (face_field[i].contentSize() < sizeof(Image::THeader))
+		if (face_field[i].GetContentSize() < sizeof(Image::THeader))
 		{
 			if (error_out)
-				(*error_out) += "Face #"+String(i)+": insufficient size ("+String((unsigned)face_field[i].contentSize())+" byte(s))";
+				(*error_out) += "Face #"+String(i)+": insufficient size ("+String((unsigned)face_field[i].GetContentSize())+" byte(s))";
 			continue;
 		}
 		Image::THeader header = *(Image::THeader*)face_field[i].pointer();
@@ -280,10 +280,10 @@ void	TextureA::limitSizeExponent(BYTE max_exponent, String*error_out)
 	Image extracted;
 	for (unsigned i = 0; i < face_field.length(); i++)
 	{
-		if (face_field[i].contentSize() < sizeof(Image::THeader))
+		if (face_field[i].GetContentSize() < sizeof(Image::THeader))
 		{
 			if (error_out)
-				(*error_out) += "Face #"+String(i)+": insufficient size ("+String((unsigned)face_field[i].contentSize())+" byte(s))";
+				(*error_out) += "Face #"+String(i)+": insufficient size ("+String((unsigned)face_field[i].GetContentSize())+" byte(s))";
 			continue;
 		}
 		Image::THeader header = *(Image::THeader*)face_field[i].pointer();

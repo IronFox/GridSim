@@ -345,7 +345,7 @@ void	Engine::ConsoleWindow::onPaint()
 		glDisable(GL_DEPTH_TEST);
 
 
-		if (!background.isEmpty())
+		if (!background.IsEmpty())
 		{
 			display.useTexture(background);
 

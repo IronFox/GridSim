@@ -248,7 +248,7 @@ namespace Engine
 
 										StructureEntity(CGS::Geometry<Def>*target, unsigned type);
 			void						rescale();								//!< Updates the local system scale variable based on the current system
-			index_t						indexOf(CGS::SubGeometryA<Def>*child);		//!< Retrieves the index of the specified sub geometry. \return Index of the specified sub geometry with 0 being the first sub geometry or InvalidIndex if the specified child could not be found
+			index_t						GetIndexOf(CGS::SubGeometryA<Def>*child);		//!< Retrieves the index of the specified sub geometry. \return Index of the specified sub geometry with 0 being the first sub geometry or InvalidIndex if the specified child could not be found
 	};
 
 	/*!

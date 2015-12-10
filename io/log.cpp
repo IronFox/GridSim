@@ -175,7 +175,7 @@
 		}
 		if (time_)
 			timeStamp();
-		if (index_t at = line.indexOf('\n'))
+		if (index_t at = line.GetIndexOf('\n'))
 		{
 			if (fwrite(line.c_str(),1,at,f)!=at)
 			{

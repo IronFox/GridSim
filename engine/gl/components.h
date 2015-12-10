@@ -314,7 +314,7 @@ namespace Engine
 				{
 					if (!component)
 						return std::shared_ptr<Component>();
-					std::shared_ptr<GUI::Component> last = children.isNotEmpty()?children.last():std::shared_ptr<GUI::Component>();
+					std::shared_ptr<GUI::Component> last = children.IsNotEmpty()?children.last():std::shared_ptr<GUI::Component>();
 					float	y_offset = (last?last->offset.top-last->height:0),
 							x_offset = 0;
 
@@ -352,7 +352,7 @@ namespace Engine
 			virtual	PConstComponent		GetChild(index_t index) const override	{return children[index];}
 			virtual	PComponent			GetChild(index_t index) override	{return children[index];}
 			virtual	count_t				CountChildren() const override {return children.count();}
-			virtual	index_t				GetIndexOfChild(const PComponent&child)const	override {return children.indexOf(child)+1;}	//!< Queries the index of a child +1. @return Index+1 or 0 if the child could not be found
+			virtual	index_t				GetIndexOfChild(const PComponent&child)const	override {return children.GetIndexOf(child)+1;}	//!< Queries the index of a child +1. @return Index+1 or 0 if the child could not be found
 			virtual	void				clear() {children.clear();}
 		};
 		typedef std::shared_ptr<Panel>		PPanel;

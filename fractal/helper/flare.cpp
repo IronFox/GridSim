@@ -389,7 +389,7 @@ namespace Flare
 			Image	image(512,512,3);
 			Image	image2(512,512,4);
 			//image.clear();
-			image.fill(0,0,0);
+			image.Fill(0,0,0);
 			
 			Random random;
 			
@@ -554,7 +554,7 @@ namespace Flare
 			float base_size = light->visibility*light->intensity*vmin(Vec::dot(c0.color.rgb)*light->GetSize()/light->distance,2.0);//(light->reference->getConstantAttenuation()+light->reference->getLinearAttenuation()*light->distance+light->reference->getQuadraticAttenuation()*sqr(light->distance));
 			for (index_t j = 0; j < sprites.fillLevel(); j++)
 			{
-				if (sprites[j].texture->isEmpty() || !sprites[j].primary)
+				if (sprites[j].texture->IsEmpty() || !sprites[j].primary)
 					continue;
 				TVec2<OpenGL::FloatType> at;
 				Vec::mult(light->projected,sprites[j].position,at);
@@ -682,7 +682,7 @@ namespace Flare
 			float base_size = light->visibility*light->intensity*vmin(Vec::dot(c0.color.rgb)*light->GetSize()/light->distance,2.0);//(light->reference->getConstantAttenuation()+light->reference->getLinearAttenuation()*light->distance+light->reference->getQuadraticAttenuation()*sqr(light->distance));
 			for (index_t j = 0; j < sprites.fillLevel(); j++)
 			{
-				if (sprites[j].texture->isEmpty())
+				if (sprites[j].texture->IsEmpty())
 					continue;
 				TVec2<OpenGL::FloatType> at,vec;
 				Vec::sub(light->projected,screen_center,vec);

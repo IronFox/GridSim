@@ -88,13 +88,13 @@ namespace Engine
 				return;
 			count_t old = history.length();
 			history.resizePreserveContent(res);
-			history.fill(0,old);
+			history.Fill(0,old);
 			//weighted_history.resizeCopy(res);
-			//weighted_history.fill(0,old);
+			//weighted_history.Fill(0,old);
 			minimum_history.resizePreserveContent(res);
-			minimum_history.fill(0,old);
+			minimum_history.Fill(0,old);
 			maximum_history.resizePreserveContent(res);
-			maximum_history.fill(0,old);
+			maximum_history.Fill(0,old);
 		}
 		
 		void		Channel::advance()
@@ -185,10 +185,10 @@ namespace Engine
 		
 		Channel::Channel():history(Config::channelResolution()),minimum_history(Config::channelResolution()),maximum_history(Config::channelResolution()),accumulated(0),minimum(0),maximum(0),frame_accumulated(0),faccumulated(0),fminimum(0),fmaximum(0),counter(0),total(0),name("[unnamed]")
 		{
-			history.fill(0);
-			//weighted_history.fill(0);
-			maximum_history.fill(0);
-			minimum_history.fill(0);
+			history.Fill(0);
+			//weighted_history.Fill(0);
+			maximum_history.Fill(0);
+			minimum_history.Fill(0);
 			first_advance = true;
 		}
 		

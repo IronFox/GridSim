@@ -299,7 +299,7 @@ template <class C, size_t A> class AlignedArray: public SerializableObject, publ
 				}
 				
 			template <typename T>
-				inline	void	fill(const T&element, count_t offset=0, count_t max=Undefined)	//! Sets up to \b max elements starting from @b offset of the local array to \b element \param element Element to repeat @param offset First index \param max If specified: Maximum number of elements to set to \b element
+				inline	void	Fill(const T&element, count_t offset=0, count_t max=Undefined)	//! Sets up to \b max elements starting from @b offset of the local array to \b element \param element Element to repeat @param offset First index \param max If specified: Maximum number of elements to set to \b element
 				{
 					if (!elements)
 						return;
@@ -531,12 +531,12 @@ template <class C, size_t A> class AlignedArray: public SerializableObject, publ
 					return element == data+elements;
 				}
 				
-				inline bool owns(const C*element)	const	//! Queries if the specified entry pointer was taken from the local array. Actual pointer address is checked, not what it points to.
+				inline bool Owns(const C*element)	const	//! Queries if the specified entry pointer was taken from the local array. Actual pointer address is checked, not what it points to.
 				{
 					return element >= data && element < data+elements;
 				}
 				
-				inline count_t indexOf(const C*element)	const	//! Queries the index of the specifed element with 0 being the first element. To determine whether ot not the specified element is member of this array use the owns() method.
+				inline count_t GetIndexOf(const C*element)	const	//! Queries the index of the specifed element with 0 being the first element. To determine whether ot not the specified element is member of this array use the Owns() method.
 				{
 					return element-data;
 				}				
@@ -697,7 +697,7 @@ template <class C, size_t A> class AlignedArray: public SerializableObject, publ
 				{
 					return elements;
 				}
-				inline size_t contentSize()	const		//! Returns the summarized size of all contained elements in bytes \return Size of all elements
+				inline size_t GetContentSize()	const		//! Returns the summarized size of all contained elements in bytes \return Size of all elements
 				{
 					return (size_t)elements*sizeof(C);
 				}
@@ -721,7 +721,7 @@ template <class C, size_t A> class AlignedArray: public SerializableObject, publ
 				if (!out_stream.WriteSize(elements))
 					return false;
 			if (!IsISerializable(data))
-				return out_stream.Write(data,(serial_size_t)contentSize());
+				return out_stream.Write(data,(serial_size_t)GetContentSize());
 
 			for (index_t i = 0; i < elements; i++)
 				if (!SerializeObject(data+i,sizeof(C),out_stream,true))
@@ -745,7 +745,7 @@ template <class C, size_t A> class AlignedArray: public SerializableObject, publ
 
 			setSize(size);
 			if (!IsISerializable(data))
-				return in_stream.Read(data,(serial_size_t)contentSize());
+				return in_stream.Read(data,(serial_size_t)GetContentSize());
 
 			for (index_t i = 0; i < elements; i++)
 				if (!DeserializeObject(data+i,sizeof(C),in_stream,0))

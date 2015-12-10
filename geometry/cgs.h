@@ -288,7 +288,7 @@ namespace CGS	//! Compiled Geometrical Structure
 			void									updateHash();
 			void									downSample(BYTE exponent_modifier, String*error_out=NULL);	//!< Downsamples the local texture by the specified exponent. \param exponent_modifier Value to decrement the size exponents by. 1 would halve both width and height of all textures, 2 scale down to 1/4 and so on. \param error_out Optional pointer to a string to contain error descriptions (if any)
 			void									limitSizeExponent(BYTE max_exponent, String*error_out=NULL);	//!< Limites the size (width/height) exponent to the specified exponent. \param max_exponent Maximum size exponent allowed once this method finished  \param error_out Optional pointer to a string to contain error descriptions (if any)
-			bool									isEmpty()	const;	//!< Queries whether or not the local texture holds data
+			bool									IsEmpty()	const;	//!< Queries whether or not the local texture holds data
 			bool									isSimilar(const TextureA&other)	const;
 	};
 	CGS_DECLARE_ADOPTING(TextureA);

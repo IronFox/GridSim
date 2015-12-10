@@ -178,7 +178,7 @@ namespace System //! Translation namespace for common system tasks
 		template <class C>
 			bool			writeArray(const Array<C>&data)						 //!< Writes one unit of POD data \param data Reference to the object to read from
 							{
-								return write(data.pointer(),data.contentSize());
+								return write(data.pointer(),data.GetContentSize());
 							}
 							
 		template <class C>
@@ -210,7 +210,7 @@ namespace System //! Translation namespace for common system tasks
 		template <class C>
 			bool			readArray(Array<C>&data)
 							{
-								return read(data.pointer(),data.contentSize());
+								return read(data.pointer(),data.GetContentSize());
 							}
 			/*!
 				\brief Streaming operator: Reads one unit of POD data
@@ -254,7 +254,7 @@ namespace System //! Translation namespace for common system tasks
 		template <class C>
 		bool				writeArray(const Array<C>&data)						 //!< Writes one unit of POD data \param data Reference to the object to read from
 							{
-								return write(data.pointer(),data.contentSize());
+								return write(data.pointer(),data.GetContentSize());
 							}
 							
 		template <class C>

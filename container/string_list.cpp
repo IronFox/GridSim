@@ -793,7 +793,7 @@ namespace Tokenizer
 
 	size_t	StringList::charactersInCommon()					const
 	{
-		if (Super::isEmpty())
+		if (Super::IsEmpty())
 			return 0;
 		const String&sample = Super::first();
 		size_t	max_len = sample.length();
@@ -954,7 +954,7 @@ namespace Tokenizer
 
 	String& StringList::first()
 	{
-		if (isNotEmpty())
+		if (IsNotEmpty())
 			return Super::first();
 		empty_string = "";
 		return empty_string;
@@ -962,7 +962,7 @@ namespace Tokenizer
 
 	const String& StringList::first()													 const
 	{
-		if (isNotEmpty())
+		if (IsNotEmpty())
 			return Super::first();
 		empty_string = "";
 		return empty_string;
@@ -970,7 +970,7 @@ namespace Tokenizer
 
 	String& StringList::last()
 	{
-		if (isNotEmpty())
+		if (IsNotEmpty())
 			return Super::last();
 		empty_string = "";
 		return empty_string;
@@ -978,7 +978,7 @@ namespace Tokenizer
 
 	const String& StringList::last()													  const
 	{
-		if (isNotEmpty())
+		if (IsNotEmpty())
 			return Super::last();
 		empty_string = "";
 		return empty_string;

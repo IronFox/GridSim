@@ -182,7 +182,7 @@ void	Bitmap::LoadFromFilePointer(Image&target, FILE*f)
     {
         case 1:
         {
-            if (color_map.isEmpty() || colors < 2)
+            if (color_map.IsEmpty() || colors < 2)
 				throw IO::DriveAccess::FileFormatFault(globalString("Insufficient color table size"));
 
             unsigned offset(0);
@@ -205,7 +205,7 @@ void	Bitmap::LoadFromFilePointer(Image&target, FILE*f)
         }
         break;
         case 4:
-            if (color_map.isEmpty() || colors < 16)
+            if (color_map.IsEmpty() || colors < 16)
 				throw IO::DriveAccess::FileFormatFault(globalString("Insufficient color table size"));
 
             for (unsigned i = 0; i < bitmap_data_size; i++)
@@ -229,7 +229,7 @@ void	Bitmap::LoadFromFilePointer(Image&target, FILE*f)
         break;
         case 8:
         {
-            if (color_map.isEmpty() || colors < 256)
+            if (color_map.IsEmpty() || colors < 256)
 				throw IO::DriveAccess::FileFormatFault(globalString("Insufficient color table size"));
 
             unsigned batch_size = height*aligned(width,4);

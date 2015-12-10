@@ -77,12 +77,12 @@ template <class C> inline void Net::Connection::send(UINT16 channel, BYTE flags,
 
 template <class C> inline void Net::Connection::sendArray(UINT16 channel, BYTE flags, const Array<C>&data)
 {
-    write(channel,flags,data.pointer(),data.contentSize());
+    write(channel,flags,data.pointer(),data.GetContentSize());
 }
 
 template <class C> inline void Net::Connection::sendArray(UINT16 channel, const Array<C>&data)
 {
-    write(channel,NET_CONFIRM|NET_SERIAL,data.pointer(),data.contentSize());
+    write(channel,NET_CONFIRM|NET_SERIAL,data.pointer(),data.GetContentSize());
 }
 
 template <class C> inline void Net::Connection::send(UINT16 channel, BYTE flags, const C&data)
@@ -102,12 +102,12 @@ template <class C> inline void Net::Connection::send(UINT16 channel, const C&dat
 
 template <class C> inline void Net::Server::sendArray(UINT16 channel, BYTE flags, const Array<C>&data)
 {
-    write(channel,flags,data.pointer(),data.contentSize());
+    write(channel,flags,data.pointer(),data.GetContentSize());
 }
 
 template <class C> inline void Net::Server::sendArray(UINT16 channel, const Array<C>&data)
 {
-    write(channel,NET_CONFIRM|NET_SERIAL,data.pointer(),data.contentSize());
+    write(channel,NET_CONFIRM|NET_SERIAL,data.pointer(),data.GetContentSize());
 }
 
 

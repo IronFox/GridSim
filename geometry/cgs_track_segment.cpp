@@ -36,8 +36,8 @@ namespace CGS
 		if (segment)
 		{
 			ASSERT_IS_NULL__(stub);
-			//lout << "feeding parent configuration into segment end point "<<segment->indexOf(this)<<nl;
-			TTrackNode&end_point = ((TTrackNode&)segment->end_point[segment->indexOf(this)]);
+			//lout << "feeding parent configuration into segment end point "<<segment->GetIndexOf(this)<<nl;
+			TTrackNode&end_point = ((TTrackNode&)segment->end_point[segment->GetIndexOf(this)]);
 			end_point = *parent;
 			
 			if (flipped)
@@ -113,8 +113,8 @@ namespace CGS
 			
 			if (connectors[i].segment)
 			{
-				//lout << "feeding node configuration into stub segment end point "<<connectors[i].segment->indexOf(this)<<nl;
-				TTrackNode&end_point = ((TTrackNode&)connectors[i].segment->end_point[connectors[i].segment->indexOf(this)]);
+				//lout << "feeding node configuration into stub segment end point "<<connectors[i].segment->GetIndexOf(this)<<nl;
+				TTrackNode&end_point = ((TTrackNode&)connectors[i].segment->end_point[connectors[i].segment->GetIndexOf(this)]);
 				end_point = nodes[i];
 				
 				if (connectors[i].flipped)

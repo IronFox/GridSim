@@ -161,13 +161,13 @@ namespace Engine
 		/**/			Keyboard(InputMap&map);
 		virtual			~Keyboard();
 		const char*		GetInput() const;				//!< Returns the internal character buffer content.  \return Character array pointer pointing to the internal character buffer. The returned string is zero terminated.
-		size_t			GetInputLen() const ;			//!< Queries buffer fill state. \return Number of characters currently in the internal buffer (not counting any trailing zero character).
+		size_t			GetInputLen() const ;			//!< Queries buffer Fill state. \return Number of characters currently in the internal buffer (not counting any trailing zero character).
 		void			FlushInput();					//!< Wipes and dumps the internal character buffer.
-		void			FillInput(const char*strn);		//!< Fills the specified string into the internal character buffer overwriting any previous buffer content. \param strn String to fill in.
-		void			FillInput(const String&strn);	//!< Fills the specified string into the internal character buffer overwriting any previous buffer content. \param strn String to fill in.
+		void			FillInput(const char*strn);		//!< Fills the specified string into the internal character buffer overwriting any previous buffer content. \param strn String to Fill in.
+		void			FillInput(const String&strn);	//!< Fills the specified string into the internal character buffer overwriting any previous buffer content. \param strn String to Fill in.
 		void			FilterAppend(const char*strn);		//!< Appends the specified string to the internal character buffer. Only characters passing the character filter are considered. \param strn String to append
 		void			FilterAppend(const String&strn);	//!< @copydoc FilterAppend(const char*)
-		void			DropLastCharacter();			//!< Drops one character from the end of the internal character buffer reducing the buffer fill state by one. The method has no effect if the internal buffer is empty.
+		void			DropLastCharacter();			//!< Drops one character from the end of the internal character buffer reducing the buffer Fill state by one. The method has no effect if the internal buffer is empty.
 		void			TruncateIfLonger(size_t len);										//!< Wipes and dumps a number of characters from the end of the internal character buffer so that its content is at most \b len characters long after execution. \param len Maximum number of characters, the internal buffer should contain after execution, not counting the terminating zero.
 		void			ReplaceInputSection(index_t offset, size_t len, const String&string);	//!< Replaces a section of the internal character buffer with the specified string. \param offset Index of the first character to remove (0=first character in the buffer) \param len Number of characters to remove \param strn String to replace the removed section with. The string is not required to be of the same length as the section it replaces.
 		void			ReplaceInputSection(index_t offset, size_t len, const char*string);	//!< Replaces a section of the internal character buffer with the specified string. \param offset Index of the first character to remove (0=first character in the buffer) \param len Number of characters to remove \param strn String to replace the removed section with. The string is not required to be of the same length as the section it replaces.

@@ -1226,10 +1226,10 @@ template <typename T>
 			bool					containsWordIgnoreCase(const StringTemplate<T>&sub_str) const;		//!< Checks if the specified word is part of the local string
 
 
-			index_t					indexOf(const StringTemplate<T>&sub_str)	const;		//!< Attempts to locate the first occurance of the specified string @param sub_str String segment to look for @return Offset index plus 1 or 0 if no occurance was found
-			index_t					indexOf(const T*sub_str, size_t length)	const;		//!< Attempts to locate the first occurance of the specified string segment @param sub_str Pointer to the first character of the string segment to look for @param length Number of characters of the specified string segment to look for @return Offset index plus 1 or 0 if no occurance was found
-			index_t					indexOf(const T*sub_str)		const;					//!< Attempts to locate the first occurance of the specified string @param sub_str Pointer to the first character of the string segment to look for @return Offset index plus 1 or 0 if no occurance was found
-			index_t					indexOf(T c)					const;					//!< Attempts to locate the first occurance of the specified character @param c Character to look for @return Offset index plus 1 or 0 if no occurance was found
+			index_t					GetIndexOf(const StringTemplate<T>&sub_str)	const;		//!< Attempts to locate the first occurance of the specified string @param sub_str String segment to look for @return Offset index plus 1 or 0 if no occurance was found
+			index_t					GetIndexOf(const T*sub_str, size_t length)	const;		//!< Attempts to locate the first occurance of the specified string segment @param sub_str Pointer to the first character of the string segment to look for @param length Number of characters of the specified string segment to look for @return Offset index plus 1 or 0 if no occurance was found
+			index_t					GetIndexOf(const T*sub_str)		const;					//!< Attempts to locate the first occurance of the specified string @param sub_str Pointer to the first character of the string segment to look for @return Offset index plus 1 or 0 if no occurance was found
+			index_t					GetIndexOf(T c)					const;					//!< Attempts to locate the first occurance of the specified character @param c Character to look for @return Offset index plus 1 or 0 if no occurance was found
 			index_t					find(const StringTemplate<T>&sub_str)	const;		//!< Attempts to locate the first occurance of the specified string @param sub_str String segment to look for @return Offset index plus 1 or 0 if no occurance was found
 			index_t					find(const T*sub_str, size_t length)	const;		//!< Attempts to locate the first occurance of the specified string segment @param sub_str Pointer to the first character of the string segment to look for @param length Number of characters of the specified string segment to look for @return Offset index plus 1 or 0 if no occurance was found
 			index_t					find(const T*sub_str)		const;					//!< Attempts to locate the first occurance of the specified string @param sub_str Pointer to the first character of the string segment to look for @return Offset index plus 1 or 0 if no occurance was found
@@ -1605,8 +1605,6 @@ template <typename T>
 	virtual	bool					Deserialize(IReadStream&in_stream, serial_size_t fixed_size) override;		//!< Reads the content of the local object from the specified stream @param in_stream Stream to read from @param fixed_size 0 if any dynamic object size should be read from the stream or the size in bytes that the local object should adopt to otherwise. If this parameter is non-0 then the object data was serialized with @b export_size set to false @return true if the object data could be fully read from the out stream, false otherwise
 	inline	void					resize(size_t new_length);		//!< Resizes the local string length to match the specified number of characters (not including trailing zero). The resize operation leaves the local string content uninitialized save for an automatically set trailing zero. The string is duplicated even if the new size matches the existing one if it's not exclusively owned
 	inline	void					resizeCopy(size_t new_length);	//!< Resizes the local string length to match the specified number of characters (not including trailing zero). Any available string content is copied and the trailing zero set. If the local string length is increased then the new characters following the existing ones are left undefined.
-	inline	bool					isEmpty()	const	{return string_length==0;}
-	inline	bool					isNotEmpty()const	{return string_length!=0;}
 	inline	bool					IsEmpty()	const	{return string_length==0;}
 	inline	bool					IsNotEmpty()const	{return string_length!=0;}
 	inline	T*						writeTo(T*target)	const;

@@ -962,7 +962,7 @@ void		Graph::updateDirectionsAndXCoords()
 		Node&node = nodes[i];
 		if (node.in_edge < edges.count())
 		{
-			BYTE index = edges[node.in_edge].indexOf(i);
+			BYTE index = edges[node.in_edge].GetIndexOf(i);
 			if (edges[node.in_edge].control_dist[index])
 				continue;
 			prev = nodes[edges[node.in_edge].node[!index]].position;
@@ -971,7 +971,7 @@ void		Graph::updateDirectionsAndXCoords()
 			prev = node.position;
 		if (node.out_edge<edges.count())
 		{
-			BYTE index = edges[node.out_edge].indexOf(i);
+			BYTE index = edges[node.out_edge].GetIndexOf(i);
 			if (edges[node.out_edge].control_dist[index])
 				continue;
 			next = nodes[edges[node.out_edge].node[!index]].position;
@@ -1415,12 +1415,12 @@ void		GraphMesh::LoadFromFile(const PathString&filename,bool compact)
 	}
 	visual_graph.updateDirectionsAndXCoords();
 
-	if (physical_graph.nodes.isNotEmpty())
+	if (physical_graph.nodes.IsNotEmpty())
 		physical_graph.updateDirectionsAndXCoords();
 	else
 		physical_graph = visual_graph;
 
-	if (physical_profile.nodes.isEmpty())
+	if (physical_profile.nodes.IsEmpty())
 	{
 		physical_profile.nodes.append().reset().moveTo(-1,0);
 		physical_profile.nodes.append().reset().moveTo(1,0);
@@ -2113,7 +2113,7 @@ void								SurfaceNetwork::UpdateSlopes(Node&node, bool update_connected_segmen
 				}
 				else
 				{
-					ASSERT__(nodes.owns(&node));
+					ASSERT__(nodes.Owns(&node));
 					FATAL__("Data inconsistency detected");
 					node.segments[k][i] = InvalidIndex;
 				}
@@ -2242,7 +2242,7 @@ SurfaceNetwork::Node&	SurfaceNetwork::Node::SplitEvenly(bool outbound, count_t n
 	ASSERT_EQUAL__(segments[outbound].first(),InvalidIndex); 
 	
 	segments[outbound].SetSize(num_slots);
-	segments[outbound].fill(InvalidIndex); 
+	segments[outbound].Fill(InvalidIndex); 
 	subdivision[outbound].SetSize(num_slots-1);
 	SurfaceNetwork::MakeEven(subdivision[outbound]);
 	return *this;
@@ -2278,7 +2278,7 @@ bool								SurfaceNetwork::Node::BuildState(bool outbound, index_t subdiv, bool
 		//VecUnroll<SurfaceDescription::TControl::NumFloats>::mult(slopes[outbound][subdiv].field,-1,out.state.field);
 	}
 
-	if (subdivision[outbound].isEmpty())
+	if (subdivision[outbound].IsEmpty())
 		return subdiv == 0;
 	if (subdiv == 0)
 	{
@@ -2645,7 +2645,7 @@ void							SurfaceNetwork::VerifyIntegrity()	const
 		std::cout << " Node "<<id<<": "<<std::endl;
 		for (int k = 0; k < 2; k++)
 		{
-			if (n.segments[k].isNotEmpty())
+			if (n.segments[k].IsNotEmpty())
 				ASSERT_EQUAL1__(n.subdivision[k].count()+1,n.segments[k].count(),k);
 			foreach (n.subdivision[k],subdiv)
 				ASSERT_IS_CONSTRAINED__(*subdiv,0,1);

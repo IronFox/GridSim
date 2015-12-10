@@ -55,7 +55,7 @@ namespace Engine
 	template <class GL, class Font>
 		void VisualConsole<GL,Font>::Section::render(GL*renderer)
 		{
-		    if (primary.isEmpty())
+		    if (primary.IsEmpty())
 		        return;
 		    Engine::TColorTextureVertex v0,v1,v2,v3;
 		    Vec::def(v0,current.x.min,current.y.min,0,1);
@@ -70,7 +70,7 @@ namespace Engine
 		    Vec::def(v1.coord,1,0);
 		    Vec::def(v2.coord,1,1);
 		    Vec::def(v3.coord,0,1);
-		    if (!shiny.isEmpty())
+		    if (!shiny.IsEmpty())
 		    {
 		        v0.color.a = 0.3-cos(timing.now)*0.25;
 		        v1.color.a = 0.3-cos(timing.now+2)*0.25;
@@ -190,9 +190,9 @@ namespace Engine
 		    Section&sec = getSec(section);
 		    sec.primary = primary;
 		    sec.shiny = shiny;
-			if (primary.isEmpty())
+			if (primary.IsEmpty())
 				ErrMessage("Warning: Primary section texture is empty for Console");
-			if (shiny.isEmpty())
+			if (shiny.IsEmpty())
 				ErrMessage("Warning: Secondary section texture is empty for Console");
 		}
 
@@ -309,7 +309,7 @@ namespace Engine
 		    String local = line;
 		    while (local.length())
 		    {
-		        unsigned nl = local.indexOf('\n');
+		        unsigned nl = local.GetIndexOf('\n');
 		        if (nl)
 		        {
 		            if (!word_wrap)

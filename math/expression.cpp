@@ -67,7 +67,7 @@ namespace Expression
 			reference = var_container.define(string);
 			reference->name = string;
 			
-			if (index_t p = string.indexOf('.'))
+			if (index_t p = string.GetIndexOf('.'))
 			{
 				(*(String*)this) = string.subString(0,p-1);
 				component = string.get(p);
@@ -92,7 +92,7 @@ namespace Expression
 		{
 			flag_array.setSize(members);
 		}
-		flag_array.fill(false);
+		flag_array.Fill(false);
 			
 		for (unsigned i = 0; i < members; i++)
 		{

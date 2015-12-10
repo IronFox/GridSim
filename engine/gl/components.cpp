@@ -22,7 +22,7 @@ namespace Engine
 	
 		bool		Panel::GetChildSpace(Rect<float>&outRect)	const
 		{
-			if (children.isEmpty())
+			if (children.IsEmpty())
 				return false;
 			const PComponent&first = children.first();
 			outRect = first->currentRegion;
@@ -39,7 +39,7 @@ namespace Engine
 		{
 			DBG_ASSERT__(!children.contains(component));
 			component->anchored.Set(true,false,false,true);
-			if (children.isNotEmpty())
+			if (children.IsNotEmpty())
 				component->offset.top = children.last()->offset.top-children.last()->height;
 			else
 				component->offset.top = 0;
@@ -53,7 +53,7 @@ namespace Engine
 		void			Panel::AppendRight(const PComponent&component)
 		{
 			DBG_ASSERT__(!children.contains(component));
-			if (children.isNotEmpty())
+			if (children.IsNotEmpty())
 			{
 				component->anchored = children.last()->anchored;
 				component->offset.top = children.last()->offset.top;
@@ -108,7 +108,7 @@ namespace Engine
 		bool					Panel::MoveChildUp(const PComponent&component)
 		{
 			index_t index;
-			if ((index = children.indexOf(component)) != -1)
+			if ((index = children.GetIndexOf(component)) != -1)
 				return MoveChildUp(index);
 			return false;
 		}
@@ -127,7 +127,7 @@ namespace Engine
 		bool					Panel::MoveChildDown(const PComponent&component)
 		{
 			index_t index;
-			if ((index = children.indexOf(component)) != -1)
+			if ((index = children.GetIndexOf(component)) != -1)
 				return MoveChildDown(index);
 			return false;
 		}
@@ -144,7 +144,7 @@ namespace Engine
 		bool					Panel::MoveChildToTop(const PComponent&component)
 		{
 			index_t index;
-			if ((index = children.indexOf(component))!=-1)
+			if ((index = children.GetIndexOf(component))!=-1)
 				return MoveChildToTop(index);
 			return false;
 		}
@@ -165,7 +165,7 @@ namespace Engine
 		bool					Panel::MoveChildToBottom(const PComponent&component)
 		{
 			index_t index;
-			if ((index = children.indexOf(component)) != -1)
+			if ((index = children.GetIndexOf(component)) != -1)
 				return MoveChildToBottom(index);
 			return false;
 		}
@@ -953,7 +953,7 @@ namespace Engine
 				verticalBar->scrollable = toScrollable();
 
 			Rect<float>	current;
-			if (children.isEmpty())
+			if (children.IsEmpty())
 			{
 				current.Set(0,0,1,1);
 				horizontal.current = 0.5;
@@ -1255,7 +1255,7 @@ namespace Engine
 		void			ScrollBox::Append(const PComponent&component)
 		{
 			component->anchored.Set(true,false,false,true);
-			if (children.isNotEmpty())
+			if (children.IsNotEmpty())
 				component->offset.top = children.last()->offset.top-children.last()->height;
 			else
 				component->offset.top = 0;
@@ -1754,7 +1754,7 @@ namespace Engine
 			Component::OnColorPaint(renderer,parentIsEnabled);
 			renderer.PopColor();
 
-			if (caption.isNotEmpty())
+			if (caption.IsNotEmpty())
 			{
 				const Rect<float>&rect=cellLayout.client;
 				renderer.SetTextPosition(rect.x.center()-ColorRenderer::textout.unscaledLength(caption)*0.5+pressed,rect.y.center()-ColorRenderer::textout.getFont().getHeight()/2+font_offset);
@@ -1825,7 +1825,7 @@ namespace Engine
 		/*virtual override*/void		CheckBox::OnNormalPaint(NormalRenderer&renderer, bool parentIsEnabled)
 		{
 			Component::OnNormalPaint(renderer,parentIsEnabled);
-			if (style && !style->boxNormal.isEmpty())
+			if (style && !style->boxNormal.IsEmpty())
 			{
 				renderer.TextureRect(GetBoxRect(),style->boxNormal);
 			}
@@ -1837,18 +1837,18 @@ namespace Engine
 			Component::OnColorPaint(renderer,parentIsEnabled);
 			
 			const Rect<> rect=GetBoxRect();
-			if (style && !style->boxColor.isEmpty())
+			if (style && !style->boxColor.IsEmpty())
 			{
 				renderer.TextureRect(rect,style->boxColor);
 				renderer.MarkNewLayer();
 			}
-			if (checked && style && !style->checkMark.isEmpty())
+			if (checked && style && !style->checkMark.IsEmpty())
 			{
 				renderer.TextureRect(rect,style->checkMark);
 				renderer.MarkNewLayer();
 			}
 			
-			if (pressed && style && !style->highlightMark.isEmpty())
+			if (pressed && style && !style->highlightMark.IsEmpty())
 			{
 				renderer.ModulateColor(1,0.6,0);
 				renderer.TextureRect(rect,style->highlightMark);
@@ -1856,7 +1856,7 @@ namespace Engine
 				renderer.MarkNewLayer();
 			}
 		
-			if (caption.isNotEmpty())
+			if (caption.IsNotEmpty())
 			{
 				const float h= ColorRenderer::textout.getFont().getHeight();
 				const float size = GetBoxSize();
@@ -2021,7 +2021,7 @@ namespace Engine
 			
 			Component::OnColorPaint(renderer, parentIsEnabled);
 
-			if (!fillBackground && caption.isEmpty())
+			if (!fillBackground && caption.IsEmpty())
 			{
 				renderer.PopColor();
 				return;
@@ -2034,7 +2034,7 @@ namespace Engine
 				renderer.PeekColor();
 				renderer.MarkNewLayer();
 			}
-			if (caption.isNotEmpty())
+			if (caption.IsNotEmpty())
 			{
 				renderer.Clip(cellLayout.client);
 				renderer.ModulateColor(textColor);
@@ -2698,7 +2698,7 @@ namespace Engine
 		{
 			if (selectedComponent == c)
 				return;
-			index_t index = Panel::children.indexOf(c);
+			index_t index = Panel::children.GetIndexOf(c);
 			selectedEntry = index;
 			if (index != InvalidIndex)
 			{
@@ -2867,7 +2867,7 @@ namespace Engine
 		
 		void			ShowChoice(Operator&op, const String&title, const String&Query, const Array<String>&choices, const std::function<void(index_t)>&onSelect)
 		{
-			if (choices.isEmpty())
+			if (choices.IsEmpty())
 				return;
 			PLabel	message_label = PLabel(new Label());
 			PPanel	panel = PPanel(new Panel());

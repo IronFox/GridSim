@@ -123,7 +123,7 @@ namespace Math
 		foreach (nodes,n)
 			(*n)->isSelected = false;
 		foreach (nodes,n)
-			if ((*n)->in.isEmpty())
+			if ((*n)->in.IsEmpty())
 				cnt = (*n)->Scan(cnt+1);
 	};
 

@@ -59,7 +59,7 @@ typedef		SArraySection<C,Size>*	Section;
 									elements,				//!< Number of elements currently held by the list
 									sections;				//!< Number of sections currently managed by the list
 			Iterator				root,					//!< First entry in the top section
-									fill,					//!< Current entry in the top section
+									Fill,					//!< Current entry in the top section
 									ceiling,				//!< Top most entry in the top section
 									cursor_id,				//!< Entry link used in 'each' operations
 									cursor_limit;			//!< Top most entry link in the current cursor link
@@ -281,7 +281,7 @@ INLINE		void					include(Type*element);
 	\param element Pointer to use as replacement
 	
 	set() changes the element specified by \a index to \a element. No operation is performed if \a index is invalid.
-	Operates in O(1) or O(n) depending on the fill-state of the list.
+	Operates in O(1) or O(n) depending on the Fill-state of the list.
 	
 	\fn void ArrayList::swap(UINT32 index0, UINT32 index1)
 	\brief Swaps two elements in the list
@@ -290,7 +290,7 @@ INLINE		void					include(Type*element);
 	
 	Swaps two list entries. The method fails if either \a index0 or \a index1 are
 	invalid or \a index0 is identical to \a index1.
-	Operates in O(1) or O(n) depending on the fill-state of the list.
+	Operates in O(1) or O(n) depending on the Fill-state of the list.
 	
 
 	\fn void ArrayList::swap(ArrayList<C,Size>&other)

@@ -330,7 +330,7 @@ namespace Fractal
 			}
 		}
 		else
-			forward_map.fill(0);
+			forward_map.Fill(0);
 
 		
 

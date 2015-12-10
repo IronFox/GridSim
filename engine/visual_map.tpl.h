@@ -321,7 +321,7 @@ namespace Engine
 						//renderer->castPointQuery(flare_query,light->position);
 						//bool visible = renderer->resolveObjectSize(flare_query)>0;
 						light->visible = camera.PointToScreen(light->position,light->projected);
-						if (light->query_object.isEmpty())
+						if (light->query_object.IsEmpty())
 							light->query_object = renderer->queryObject();
 						
 						bool visible = light->visible && light->projected[0]>=-1 && light->projected[0]<=1 && light->projected[1]>=-1 && light->projected[1]<=1;
@@ -432,7 +432,7 @@ namespace Engine
 			image.paint(&lower_blend,0,120);
 			image.paint(&upper_blend,128,0);
 			
-			if (!target.texture.isEmpty())
+			if (!target.texture.IsEmpty())
 				renderer->discardObject(target.texture);
 			target.texture = renderer->textureObject(&image);
 			target.width = 2;
@@ -448,7 +448,7 @@ namespace Engine
 			static Image	image(128,128,4);
 			
 			igRadial(image,CGColor(r,g,b),CGColor(r,g,b,0));
-			if (!target.texture.isEmpty())
+			if (!target.texture.IsEmpty())
 				renderer->discardObject(target.texture);
 			target.texture = renderer->textureObject(&image);
 			target.width = target.height = size;
@@ -463,7 +463,7 @@ namespace Engine
 			static Image	image(128,128,4);
 			
 			igRing(image,0.3,CGColor(r,g,b,0),CGColor(r,g,b),CGColor(r,g,b,0),CGColor(r,g,b,0));
-			if (!target.texture.isEmpty())
+			if (!target.texture.IsEmpty())
 				renderer->discardObject(target.texture);
 			target.texture = renderer->textureObject(&image);
 			target.width = target.height = size;
@@ -531,7 +531,7 @@ namespace Engine
 				float base_size = _dot(c0.color);
 				for (unsigned i = 0; i < sprites.count(); i++)
 				{
-					if (sprites[i].texture.isEmpty())
+					if (sprites[i].texture.IsEmpty())
 						continue;
 					typename GL::FloatType at[2];
 					_mult2(light->projected,1.0-sprites[i].position,at);

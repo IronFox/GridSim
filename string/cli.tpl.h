@@ -60,18 +60,18 @@ template <typename T, count_t Components>
 	{
 		T temp[Components];
 		
-		index_t	begin = value.indexOf('('),
-				end = value.indexOf(')');
+		index_t	begin = value.GetIndexOf('('),
+				end = value.GetIndexOf(')');
 		if (!begin || !end)
 		{
-			begin = value.indexOf('{');
-			end = value.indexOf('}');
+			begin = value.GetIndexOf('{');
+			end = value.GetIndexOf('}');
 		}
 		
 		if (!begin || !end)
 		{
-			begin = value.indexOf('[');
-			end = value.indexOf(']');
+			begin = value.GetIndexOf('[');
+			end = value.GetIndexOf(']');
 		}
 		
 		if (!begin || !end)
@@ -158,18 +158,18 @@ template <typename T, count_t Components>
 template <typename T, count_t Components>
 	bool				SetVectorVariableContent(T*content, const String&value)
 	{
-		index_t		begin = value.indexOf('('),
-					end = value.indexOf(')');
+		index_t		begin = value.GetIndexOf('('),
+					end = value.GetIndexOf(')');
 		if (!begin || !end)
 		{
-			begin = value.indexOf('{');
-			end = value.indexOf('}');
+			begin = value.GetIndexOf('{');
+			end = value.GetIndexOf('}');
 		}
 		
 		if (!begin || !end)
 		{
-			begin = value.indexOf('[');
-			end = value.indexOf(']');
+			begin = value.GetIndexOf('[');
+			end = value.GetIndexOf(']');
 		}
 				
 		if (!begin || !end)

@@ -117,8 +117,8 @@ virtual							~BaseImage()	{};
 		float					getAspect()															const;	//!< Queries the pixel aspect (width/height) of the local image
 		dimension_t				dimension(BYTE index)												const; 	//!< Queries current image width/height \param index Coordinate index to retrieve (0=width, 1=height) \return Image width or height in pixels
 		dimension_t				getDimension(BYTE index)											const; 	//!< Queries current image width/height \param index Coordinate index to retrieve (0=width, 1=height) \return Image width or height in pixels
-		bool					isEmpty()															const;	//!< Checks if the local image contains at least one pixel and one channel, false otherwise
-		bool					isNotEmpty()														const;	//!< identical to !isEmpty()		
+		bool					IsEmpty()															const;	//!< Checks if the local image contains at least one pixel and one channel, false otherwise
+		bool					IsNotEmpty()														const;	//!< identical to !IsEmpty()		
 		BYTE					channels()															const;	//!< Queries current image color channels \return Number of color channels
 		BYTE					getChannels()														const;	//!< Queries current image color channels \return Number of color channels
 		PixelType				contentType()														const;	//!< Queries content type \return content type
@@ -198,7 +198,7 @@ template <typename T>
 		void						noiseFillChannel(BYTE channel, T min_value, T max_value, unsigned seed);		//!< Alters the content of one color channel of all pixels to random values \param channel Target channel (must be valid) \param min_value Minimum channel value @param max_value maximum channel value
 		void						blurChannel(BYTE channel, float radius, bool loop);					//!< Blurs the specified image channel (all other channels are left unchanged) @param channel Channel to blur @param radius Radius controling the blur intensity @param loop Image is seamless and blurring should loop around image borders
 		void						linearBlurChannel(BYTE channel, float radius, bool loop);					//!< Blurs the specified image channel (all other channels are left unchanged). Separates horizontal from vertical blurring @param channel Channel to blur @param radius Radius controling the blur intensity @param loop Image is seamless and blurring should loop around image borders
-		void						fill(T red, T green, T blue, T alpha=TypeInfo<T>::zero);			//!< Fills the lower 4 (or less if less) channels of the local image with the specified values.
+		void						Fill(T red, T green, T blue, T alpha=TypeInfo<T>::zero);			//!< Fills the lower 4 (or less if less) channels of the local image with the specified values.
 									/*!
 										\brief Overwrites the color of a specific pixel.
 										\param X X-coordinate of the pixel

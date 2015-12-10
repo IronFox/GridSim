@@ -48,7 +48,7 @@ template <class Nature>
 	\param outer Color to use for the outer most 2% and the corners
 	\param outer_ring Color to use for the outer ring border
 	\param inner_ring Color to use for the inner ring border
-	\param inner Color to fill the inner circle with
+	\param inner Color to Fill the inner circle with
 	\param use_cos Set true to use cosinus smoothing for the interpolation
 	\return Pointer to a new Image object. The client application is responsible for discarding the returned object.
 */

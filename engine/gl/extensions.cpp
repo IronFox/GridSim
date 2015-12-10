@@ -577,7 +577,7 @@ namespace Engine
 		field.setSize(elements);
 		for (index_t i	= 0; i < elements; i++)
 		{
-			index_t p	= line.indexOf(' ');
+			index_t p	= line.GetIndexOf(' ');
 			if (!p)
 				field[i] = line;
 			else
@@ -1133,7 +1133,7 @@ namespace Engine
 				while (copy.length())
 				{
 					log<<"\n("+IntToStr(line++)+") ";
-					if ((at = copy.indexOf('\n')))
+					if ((at = copy.GetIndexOf('\n')))
 					{
 						log<<copy.subString(0,at-1);
 						copy.erase(0,at);
@@ -1227,11 +1227,11 @@ namespace Engine
 			vertexShader	= _LoadShader(composition.sharedSource+composition.vertexSource,GL_VERTEX_SHADER_ARB);
 			fragmentShader	= _LoadShader(composition.sharedSource+composition.fragmentSource,GL_FRAGMENT_SHADER_ARB);
 			#ifdef GL_GEOMETRY_SHADER_EXT
-				bool hasGeometryShader = composition.geometrySource.indexOf("main")!=0;
+				bool hasGeometryShader = composition.geometrySource.GetIndexOf("main")!=0;
 				if (hasGeometryShader)
 				{
 					String fullSource;
-					index_t p = composition.geometrySource.indexOf('#');
+					index_t p = composition.geometrySource.GetIndexOf('#');
 					if (!p)
 						fullSource = 
 						"#version 120 \n"
@@ -1317,7 +1317,7 @@ namespace Engine
 				return false;
 			}
 
-			if (initializers.isNotEmpty())
+			if (initializers.IsNotEmpty())
 			{
 				ASSERT__(Install());
 				foreach (initializers,initializer)
@@ -2365,7 +2365,7 @@ namespace Engine
 						if (!shadowAttachments[i].IsEmpty())
 						{
 							buffer << nl;
-							if (shadowAttachments[i].sharedAttachment.isNotEmpty())
+							if (shadowAttachments[i].sharedAttachment.IsNotEmpty())
 								buffer << shadowAttachments[i].sharedAttachment<<nl;
 							buffer << "float fragmentShadow"<<i<<"(vec3 position)"<<nl
 									<< '{'<<nl
@@ -2383,7 +2383,7 @@ namespace Engine
 					//for (index_t i = 0; i < shadowAttachments.size(); i++)
 					//	if (!shadowAttachments[i].IsEmpty())
 					//	{
-					//		if (shadowAttachments[i].vertex_shader_attachment.isNotEmpty())
+					//		if (shadowAttachments[i].vertex_shader_attachment.IsNotEmpty())
 					//			buffer << shadowAttachments[i].vertex_shader_attachment<<nl;
 					//	}
 					//buffer << "}\n";
@@ -2935,7 +2935,7 @@ namespace Engine
 	
 			void		Template::UserConfiguration::ResetAllValues()
 			{
-				values.fill(0);
+				values.Fill(0);
 			}
 
 
@@ -3001,8 +3001,8 @@ namespace Engine
 				map = newMap;
 				if (map)
 					map->Reg(this);
-				values.setSize(map->variableMap.count());
-				values.fill(0);
+				values.SetSize(map->variableMap.count());
+				values.Fill(0);
 
 				SignalHasChanged();
 			}

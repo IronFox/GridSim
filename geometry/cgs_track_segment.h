@@ -274,7 +274,7 @@ namespace CGS
 			void							disconnectFrom(TrackConnector*);
 			void							disconnect();
 	
-	inline	BYTE							indexOf(TrackConnector*connector_)	const
+	inline	BYTE							GetIndexOf(TrackConnector*connector_)	const
 											{
 												if (connector[0] == connector_)
 													return 0;

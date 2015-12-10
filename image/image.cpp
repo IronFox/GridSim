@@ -43,12 +43,12 @@ template GenericImage<TFloatImageNature<float> >;
 template GenericImage<TUnclampedFloatImageNature<float> >;
 
 
-bool					BaseImage::isEmpty()															const
+bool					BaseImage::IsEmpty()															const
 {
 	return image_width == 0 || image_height == 0 || image_channels == 0;
 }
 
-bool					BaseImage::isNotEmpty()														const
+bool					BaseImage::IsNotEmpty()														const
 {
 	return image_width != 0 && image_height != 0 && image_channels != 0;
 }

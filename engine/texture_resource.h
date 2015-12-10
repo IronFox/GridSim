@@ -50,7 +50,7 @@ namespace Engine
 												the underlying visual interface will increment its reference counter and return its hook to the previously
 												loaded texture.
 												The returned texture reference will be empty if lookup or upload (to the rendering context) failed.
-												Use texture.isEmpty() to query the returned texture's status.
+												Use texture.IsEmpty() to query the returned texture's status.
 											*/
 				const Texture*				getTexture(const String&name);
 				const Texture*				getTexture64(const int64_t&name);	//!< Identical to the above getTexture() for 64bit integer names

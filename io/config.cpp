@@ -192,7 +192,7 @@ namespace Config
 		if (!segments.count())
 			return nullptr;
 		String mode;
-		if (index_t at = segments.first().indexOf(':'))
+		if (index_t at = segments.first().GetIndexOf(':'))
 		{
 			mode = segments.first().subString(0,at-1);
 			segments.first().erase(0,at).trimThis();
@@ -230,7 +230,7 @@ namespace Config
 		if (!segments.count())
 			return nullptr;
 		String mode;
-		if (index_t at = segments.first().indexOf(':'))
+		if (index_t at = segments.first().GetIndexOf(':'))
 		{
 			mode = segments.first().subString(0,at-1);
 			segments.first().erase(0,at).trimThis();
@@ -387,7 +387,7 @@ namespace Config
 		if (!segments.count())
 			return NULL;
 		String mode;
-		if (index_t at = segments.first().indexOf(':'))
+		if (index_t at = segments.first().GetIndexOf(':'))
 		{
 			mode = segments.first().subString(0,at-1);
 			segments.first().erase(0,at);
@@ -413,7 +413,7 @@ namespace Config
 		if (!segments.count())
 			return nullptr;
 		String mode;
-		if (index_t at = segments.first().indexOf(':'))
+		if (index_t at = segments.first().GetIndexOf(':'))
 		{
 			mode = segments.first().subString(0,at-1);
 			segments.first().erase(0,at);
@@ -662,7 +662,7 @@ namespace Config
 				mode.erase(mode.length()-1);
 			}
 			
-			if (index_t at = group.indexOf(':'))
+			if (index_t at = group.GetIndexOf(':'))
 			{
 				mode = group.subString(0,at-1);
 				mode.trimThis();
@@ -1003,7 +1003,7 @@ namespace Config
 		
 		for (index_t i = 0; i+1 < lines.count(); i++)
 		{
-			index_t at = lines[i].indexOf('=');
+			index_t at = lines[i].GetIndexOf('=');
 			if (!at)
 				throw IO::DriveAccess::FileDataFault("Expression lacks '=': '"+lines[i]+"'");
 
@@ -1015,7 +1015,7 @@ namespace Config
 			std::cout << "defining variable '"<<name<<"' in "<<this->name<<std::endl;
 			Variable*var = variables.append(name);
 			
-			if (at = value.indexOf("($*)"))
+			if (at = value.GetIndexOf("($*)"))
 			{
 				if (var->count())
 					value.replaceSubString(at-1,4,var->first());
@@ -1149,7 +1149,7 @@ namespace Config
 								std::cout <<" variable already exists with value '"<<implode("', '",*(var))<<"'"<<std::endl;
 								index_t at;
 								for (index_t j = 0; j < var->count(); j++)
-									while (at = (*var)[j].indexOf("($*)"))
+									while (at = (*var)[j].GetIndexOf("($*)"))
 									{
 										std::cout << "found ($*) in parameter #"<<j<<std::endl;
 										(*var)[j].replaceSubString(at-1,4,implode(',',*variables[i]));

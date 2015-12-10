@@ -797,7 +797,7 @@ namespace ObjectMath
 				Edg*edge(NULL),*current(vtx0->first);
 				while (current && !edge)
 				{
-					char index = current->indexOf(vtx0);
+					char index = current->GetIndexOf(vtx0);
 					if (index == -1)
 						FATAL__("edge-extraction-error for "+IntToStr(i)+" "+IntToStr(k));
 					if (current->vertex[!index] == vtx1)
@@ -822,7 +822,7 @@ namespace ObjectMath
 					vtx1->degree++;
 					if (vtx0->last)
 					{
-						char index = vtx0->last->indexOf(vtx0);
+						char index = vtx0->last->GetIndexOf(vtx0);
 						if (index == -1)
 							FATAL__("linkage broken");
 						vtx0->last->next[index] = edge;
@@ -833,7 +833,7 @@ namespace ObjectMath
 
 					if (vtx1->last)
 					{
-						char index = vtx1->last->indexOf(vtx1);
+						char index = vtx1->last->GetIndexOf(vtx1);
 						if (index == -1)
 							FATAL__("linkage broken");
 						vtx1->last->next[index] = edge;
@@ -844,7 +844,7 @@ namespace ObjectMath
 				}
 				else
 				{
-					char index = edge->triangle[0]->indexOf(edge->v0);
+					char index = edge->triangle[0]->GetIndexOf(edge->v0);
 					if (index == -1)
 						FATAL__("broken index");
 					edge->triangle[0]->n[index] = &object.triangle_field[i];
@@ -1591,23 +1591,23 @@ namespace ObjectMath
 		}
 	
 	template <class Def>
-		MF_DECLARE (char) TMeshFaceLink<Def>::indexOf(const MeshVertex<Def>*vertex)	const
+		MF_DECLARE (char) TMeshFaceLink<Def>::GetIndexOf(const MeshVertex<Def>*vertex)	const
 		{
 			if (!triangle)
 				return -1;
 			if (is_quad)
-				return quad->indexOf(vertex);
-			return triangle->indexOf(vertex);
+				return quad->GetIndexOf(vertex);
+			return triangle->GetIndexOf(vertex);
 		}
 		
 	template <class Def>
-		MF_DECLARE (char) TMeshFaceLink<Def>::indexOf(const MeshEdge<Def>*edge)	const	//if supported
+		MF_DECLARE (char) TMeshFaceLink<Def>::GetIndexOf(const MeshEdge<Def>*edge)	const	//if supported
 		{
 			if (!triangle)
 				return -1;
 			if (is_quad)
-				return quad->indexOf(edge);
-			return triangle->indexOf(edge);
+				return quad->GetIndexOf(edge);
+			return triangle->GetIndexOf(edge);
 		}
 		
 	template <class Def>
@@ -1809,13 +1809,13 @@ namespace ObjectMath
 			if (triangle)
 				if (is_quad)
 				{
-					char index = quad->indexOf(vertex);
+					char index = quad->GetIndexOf(vertex);
 					if (index != -1)
 						return quad->next[index];
 				}
 				else
 				{
-					char index = triangle->indexOf(vertex);
+					char index = triangle->GetIndexOf(vertex);
 					if (index != -1)
 						return triangle->next[index];
 				}
@@ -1848,13 +1848,13 @@ namespace ObjectMath
 				return;
 			if (is_quad)
 			{
-				char index = quad->indexOf(v);
+				char index = quad->GetIndexOf(v);
 				if (index != -1)
 					quad->n[index].set(face);
 			}
 			else
 			{
-				char index = triangle->indexOf(v);
+				char index = triangle->GetIndexOf(v);
 				if (index != -1)
 					triangle->n[index].set(face);
 			}
@@ -1883,7 +1883,7 @@ namespace ObjectMath
 
 	
 
-	template <class Def> MF_DECLARE (char) MeshEdge<Def>::indexOf(const MeshVertex<Def>*v)	const
+	template <class Def> MF_DECLARE (char) MeshEdge<Def>::GetIndexOf(const MeshVertex<Def>*v)	const
 	{
 		if (v0 == v)
 			return 0;
@@ -1892,7 +1892,7 @@ namespace ObjectMath
 		return -1;
 	}
 	
-	template <class Def> MF_DECLARE (char) MeshEdge<Def>::indexOf(const MeshTriangle<Def>*t)		const
+	template <class Def> MF_DECLARE (char) MeshEdge<Def>::GetIndexOf(const MeshTriangle<Def>*t)		const
 	{
 		if (n[0].triangle == t)
 			return 0;
@@ -1901,7 +1901,7 @@ namespace ObjectMath
 		return -1;	
 	}
 	
-	template <class Def> MF_DECLARE (char) MeshEdge<Def>::indexOf(const MeshQuad<Def>*t)	const
+	template <class Def> MF_DECLARE (char) MeshEdge<Def>::GetIndexOf(const MeshQuad<Def>*t)	const
 	{
 		if (n[0].quad == t)
 			return 0;
@@ -2046,7 +2046,7 @@ namespace ObjectMath
 	}
 
 
-	template <class Def> MF_DECLARE (char) MeshTriangle<Def>::indexOf(const MeshVertex<Def>*v)	const
+	template <class Def> MF_DECLARE (char) MeshTriangle<Def>::GetIndexOf(const MeshVertex<Def>*v)	const
 	{
 		if (v0 == v)
 			return 0;
@@ -2089,7 +2089,7 @@ namespace ObjectMath
 		return -1;
 	}
 	
-	template <class Def> MF_DECLARE (char) MeshQuad<Def>::indexOf(const MeshVertex<Def>*v)	const
+	template <class Def> MF_DECLARE (char) MeshQuad<Def>::GetIndexOf(const MeshVertex<Def>*v)	const
 	{
 		if (v0 == v)
 			return 0;
@@ -2152,7 +2152,7 @@ namespace ObjectMath
 			degree++;
 			if (last)
 			{
-				char index = last->indexOf((const MeshVertex<TGraphDef<Def> >*)this);
+				char index = last->GetIndexOf((const MeshVertex<TGraphDef<Def> >*)this);
 				if (index == -1)
 					FATAL__("linkage broken");
 				last->next[index] = edge;
@@ -2160,7 +2160,7 @@ namespace ObjectMath
 			}
 			else
 				first = last = edge;
-			char index = edge->indexOf((const MeshVertex<TGraphDef<Def> >*)this);
+			char index = edge->GetIndexOf((const MeshVertex<TGraphDef<Def> >*)this);
 			if (index == -1)
 				FATAL__("bad insert. edge is not linked to local vertex");
 			edge->next[index] = NULL;
@@ -2173,7 +2173,7 @@ namespace ObjectMath
 
 			while (current)
 			{
-				char index = current->indexOf((const MeshVertex<TGraphDef<Def> >*)this);
+				char index = current->GetIndexOf((const MeshVertex<TGraphDef<Def> >*)this);
 				if (index == -1)
 					FATAL__("linkage broken");
 				if (current->vertex[!index] == vertex)
@@ -2255,7 +2255,7 @@ namespace ObjectMath
 			FaceLink	current = first;
 			while (current)
 			{
-				if (current.indexOf(v) != -1)
+				if (current.GetIndexOf(v) != -1)
 					return current;
 				current = current.getNextAround((const MeshVertex<TFaceGraphDef<Def> >*)this);
 			}
@@ -2459,7 +2459,7 @@ namespace ObjectMath
 		{
 			while (face && !face.marked())
 			{
-				char index1 = face.indexOf((MeshVertex<TFaceGraphDef<Def> >*)this);
+				char index1 = face.GetIndexOf((MeshVertex<TFaceGraphDef<Def> >*)this);
 				if (index1 == -1)	//path lost
 					FATAL__("path lost. "+face.ToString()+" does not contain v"+IntToStr(((MeshVertex<TFaceGraphDef<Def> >*)this)->index));
 
@@ -2515,7 +2515,7 @@ namespace ObjectMath
 			{
 				current = fbuffer[offset+i];
 // 				cout << "processing "<<current.ToString()<<endl;
-				char vindex = current.indexOf((Vertex*)this);
+				char vindex = current.GetIndexOf((Vertex*)this);
 				if (vindex < 0 || current.marked())
 					continue;
 				count_t	fcnt = 0;
@@ -2776,7 +2776,7 @@ namespace ObjectMath
 		}
 
 	
-	template <class Def> MF_DECLARE (char) TFaceGraphDefTriangle<Def>::indexOf(const MeshQuad<TFaceGraphDef<Def> >*q)	const
+	template <class Def> MF_DECLARE (char) TFaceGraphDefTriangle<Def>::GetIndexOf(const MeshQuad<TFaceGraphDef<Def> >*q)	const
 	{
 		if (n0.quad == q)
 			return 0;
@@ -2798,7 +2798,7 @@ namespace ObjectMath
 		FATAL__("linkage broken");
 	}
 	
-	template <class Def> MF_DECLARE (char) TFaceGraphDefTriangle<Def>::indexOf(const MeshTriangle<TFaceGraphDef<Def> >*t)		const
+	template <class Def> MF_DECLARE (char) TFaceGraphDefTriangle<Def>::GetIndexOf(const MeshTriangle<TFaceGraphDef<Def> >*t)		const
 	{
 		if (n0.triangle == t)
 			return 0;
@@ -2941,7 +2941,7 @@ namespace ObjectMath
 	
 
 	
-	template <class Def> MF_DECLARE (char) TFaceGraphDefQuad<Def>::indexOf(const MeshQuad<TFaceGraphDef<Def> >*q)	const
+	template <class Def> MF_DECLARE (char) TFaceGraphDefQuad<Def>::GetIndexOf(const MeshQuad<TFaceGraphDef<Def> >*q)	const
 	{
 		if (n0.quad == q)
 			return 0;
@@ -2967,7 +2967,7 @@ namespace ObjectMath
 		FATAL__("linkage broken");
 	}
 	
-	template <class Def> MF_DECLARE (char) TFaceGraphDefQuad<Def>::indexOf(const MeshTriangle<TFaceGraphDef<Def> >*t)		const
+	template <class Def> MF_DECLARE (char) TFaceGraphDefQuad<Def>::GetIndexOf(const MeshTriangle<TFaceGraphDef<Def> >*t)		const
 	{
 		if (n0.triangle == t)
 			return 0;
@@ -3146,7 +3146,7 @@ namespace ObjectMath
 	
 	
 	
-	template <class Def> MF_DECLARE (char) TGraphDefTriangle<Def>::indexOf(const MeshQuad<TGraphDef<Def> >*q)	const
+	template <class Def> MF_DECLARE (char) TGraphDefTriangle<Def>::GetIndexOf(const MeshQuad<TGraphDef<Def> >*q)	const
 	{
 		if (n0.quad == q)
 			return 0;
@@ -3168,7 +3168,7 @@ namespace ObjectMath
 		FATAL__("linkage broken");
 	}
 	
-	template <class Def> MF_DECLARE (char) TGraphDefTriangle<Def>::indexOf(const MeshTriangle<TGraphDef<Def> >*t)		const
+	template <class Def> MF_DECLARE (char) TGraphDefTriangle<Def>::GetIndexOf(const MeshTriangle<TGraphDef<Def> >*t)		const
 	{
 		if (n0.triangle == t)
 			return 0;
@@ -3190,7 +3190,7 @@ namespace ObjectMath
 		FATAL__("linkage broken");
 	}
 	
-	template <class Def> MF_DECLARE (char) TGraphDefTriangle<Def>::indexOf(const MeshEdge<TGraphDef<Def> >*e)	const
+	template <class Def> MF_DECLARE (char) TGraphDefTriangle<Def>::GetIndexOf(const MeshEdge<TGraphDef<Def> >*e)	const
 	{
 		if (edge[0] == e)
 			return 0;
@@ -3329,7 +3329,7 @@ namespace ObjectMath
 	
 
 	
-	template <class Def> MF_DECLARE (char) TGraphDefQuad<Def>::indexOf(const MeshQuad<TGraphDef<Def> >*q)	const
+	template <class Def> MF_DECLARE (char) TGraphDefQuad<Def>::GetIndexOf(const MeshQuad<TGraphDef<Def> >*q)	const
 	{
 		if (n0.quad == q)
 			return 0;
@@ -3355,7 +3355,7 @@ namespace ObjectMath
 		FATAL__("linkage broken");
 	}
 	
-	template <class Def> MF_DECLARE (char) TGraphDefQuad<Def>::indexOf(const MeshTriangle<TGraphDef<Def> >*t)		const
+	template <class Def> MF_DECLARE (char) TGraphDefQuad<Def>::GetIndexOf(const MeshTriangle<TGraphDef<Def> >*t)		const
 	{
 		if (n0.triangle == t)
 			return 0;
@@ -3381,7 +3381,7 @@ namespace ObjectMath
 		FATAL__("linkage broken");
 	}
 	
-	template <class Def> MF_DECLARE (char) TGraphDefQuad<Def>::indexOf(const MeshEdge<TGraphDef<Def> >*e)	const
+	template <class Def> MF_DECLARE (char) TGraphDefQuad<Def>::GetIndexOf(const MeshEdge<TGraphDef<Def> >*e)	const
 	{
 		if (edge[0] == e)
 			return 0;
@@ -4083,7 +4083,7 @@ namespace ObjectMath
 			return true;
 		}
 	
-	template <class Def> MF_DECLARE	(bool) Mesh<Def>::isEmpty()																	const
+	template <class Def> MF_DECLARE	(bool) Mesh<Def>::IsEmpty()																	const
 	{
 		return !vertex_field.length();	//no vertices = no edges && no faces
 	}
@@ -4093,8 +4093,8 @@ namespace ObjectMath
 		if (!link.triangle)
 			return may_be_null;
 		if (link.is_quad)
-			return quad_field.owns(link.quad) && (may_be_marked || !link.quad->marked);
-		return triangle_field.owns(link.triangle) && (may_be_marked || !link.triangle->marked);
+			return quad_field.Owns(link.quad) && (may_be_marked || !link.quad->marked);
+		return triangle_field.Owns(link.triangle) && (may_be_marked || !link.triangle->marked);
 	}
 	
 	template <class Def> MF_DECLARE	(signed_index_t)	Mesh<Def>::linkToIndex(const TMeshFaceLink<Def>&link)	const
@@ -4233,7 +4233,7 @@ namespace ObjectMath
 					else
 					{
 						//must be triangle at this point
-						/*char index = found->n[0].triangle->indexOf(edge->v0);
+						/*char index = found->n[0].triangle->GetIndexOf(edge->v0);
 						if (index == -1)
 							FATAL__("broken index");*/
 						//edge->n[0].triangle->n[index].triangle = &t;
@@ -4298,7 +4298,7 @@ namespace ObjectMath
 					{
 						/*if (found->n[0].is_quad)
 						{
-							char index = found->n[0].quad->indexOf(edge->v0);
+							char index = found->n[0].quad->GetIndexOf(edge->v0);
 							if (index == -1)
 								FATAL__("broken index");
 							//found->n[0].quad->n[index].quad = &q;
@@ -4308,7 +4308,7 @@ namespace ObjectMath
 						}
 						else
 						{
-							char index = found->n[0].triangle->indexOf(edge->v0);
+							char index = found->n[0].triangle->GetIndexOf(edge->v0);
 							if (index == -1)
 								FATAL__("broken index");
 							edge->n[0].triangle->n[index].quad = &q;
@@ -4669,8 +4669,8 @@ namespace ObjectMath
 				{
 					if (e.n0.is_quad)
 					{
-						char	index0 = e.n0.quad->indexOf(e.v0),
-								index1 = e.n0.quad->indexOf(e.v1);
+						char	index0 = e.n0.quad->GetIndexOf(e.v0),
+								index1 = e.n0.quad->GetIndexOf(e.v1);
 						if (index0 == -1 || index1 == -1)
 							FATAL__("linkage broken");
 						if (index1 == (index0+1)%4)
@@ -4686,8 +4686,8 @@ namespace ObjectMath
 					}
 					else
 					{
-						char	index0 = e.n0.triangle->indexOf(e.v0),
-								index1 = e.n0.triangle->indexOf(e.v1);
+						char	index0 = e.n0.triangle->GetIndexOf(e.v0),
+								index1 = e.n0.triangle->GetIndexOf(e.v1);
 						if (index0 == -1 || index1 == -1)
 							FATAL__("linkage broken");
 						if (index1 == (index0+1)%3)
@@ -4704,8 +4704,8 @@ namespace ObjectMath
 					
 					if (e.n1.is_quad)
 					{
-						char	index0 = e.n1.quad->indexOf(e.v0),
-								index1 = e.n1.quad->indexOf(e.v1);
+						char	index0 = e.n1.quad->GetIndexOf(e.v0),
+								index1 = e.n1.quad->GetIndexOf(e.v1);
 						if (index0 == -1 || index1 == -1)
 							FATAL__("linkage broken");
 						if (index1 == (index0+1)%4)
@@ -4721,8 +4721,8 @@ namespace ObjectMath
 					}
 					else
 					{
-						char	index0 = e.n1.triangle->indexOf(e.v0),
-								index1 = e.n1.triangle->indexOf(e.v1);
+						char	index0 = e.n1.triangle->GetIndexOf(e.v0),
+								index1 = e.n1.triangle->GetIndexOf(e.v1);
 						if (index0 == -1 || index1 == -1)
 							FATAL__("linkage broken");
 						if (index1 == (index0+1)%3)
@@ -4741,8 +4741,8 @@ namespace ObjectMath
 				{
 					if (e.n0.is_quad)
 					{
-						char	index0 = e.n0.quad->indexOf(e.v0),
-								index1 = e.n0.quad->indexOf(e.v1);
+						char	index0 = e.n0.quad->GetIndexOf(e.v0),
+								index1 = e.n0.quad->GetIndexOf(e.v1);
 						if (index0 == -1 || index1 == -1)
 							FATAL__("linkage broken");
 						if (index1 == (index0+1)%4)
@@ -4752,8 +4752,8 @@ namespace ObjectMath
 					}
 					else
 					{
-						char	index0 = e.n0.triangle->indexOf(e.v0),
-								index1 = e.n0.triangle->indexOf(e.v1);
+						char	index0 = e.n0.triangle->GetIndexOf(e.v0),
+								index1 = e.n0.triangle->GetIndexOf(e.v1);
 						if (index0 == -1 || index1 == -1)
 							FATAL__("linkage broken");
 						if (index1 == (index0+1)%3)
@@ -4869,8 +4869,8 @@ namespace ObjectMath
 				{
 					if (e->n0.is_quad)
 					{
-						char	index0 = e->n0.quad->indexOf(e->v0),
-								index1 = e->n0.quad->indexOf(e->v1);
+						char	index0 = e->n0.quad->GetIndexOf(e->v0),
+								index1 = e->n0.quad->GetIndexOf(e->v1);
 						if (index0 == -1 || index1 == -1)
 							FATAL__("linkage broken");
 						if (index1 == (index0+1)%4)
@@ -4886,8 +4886,8 @@ namespace ObjectMath
 					}
 					else
 					{
-						char	index0 = e->n0.triangle->indexOf(e->v0),
-								index1 = e->n0.triangle->indexOf(e->v1);
+						char	index0 = e->n0.triangle->GetIndexOf(e->v0),
+								index1 = e->n0.triangle->GetIndexOf(e->v1);
 						if (index0 == -1 || index1 == -1)
 							FATAL__("linkage broken");
 						if (index1 == (index0+1)%3)
@@ -4904,8 +4904,8 @@ namespace ObjectMath
 					
 					if (e->n1.is_quad)
 					{
-						char	index0 = e->n1.quad->indexOf(e->v0),
-								index1 = e->n1.quad->indexOf(e->v1);
+						char	index0 = e->n1.quad->GetIndexOf(e->v0),
+								index1 = e->n1.quad->GetIndexOf(e->v1);
 						if (index0 == -1 || index1 == -1)
 							FATAL__("linkage broken");
 						if (index1 == (index0+1)%4)
@@ -4921,8 +4921,8 @@ namespace ObjectMath
 					}
 					else
 					{
-						char	index0 = e->n1.triangle->indexOf(e->v0),
-								index1 = e->n1.triangle->indexOf(e->v1);
+						char	index0 = e->n1.triangle->GetIndexOf(e->v0),
+								index1 = e->n1.triangle->GetIndexOf(e->v1);
 						if (index0 == -1 || index1 == -1)
 							FATAL__("linkage broken");
 						if (index1 == (index0+1)%3)
@@ -4941,8 +4941,8 @@ namespace ObjectMath
 				{
 					if (e->n0.is_quad)
 					{
-						char	index0 = e->n0.quad->indexOf(e->v0),
-								index1 = e->n0.quad->indexOf(e->v1);
+						char	index0 = e->n0.quad->GetIndexOf(e->v0),
+								index1 = e->n0.quad->GetIndexOf(e->v1);
 						if (index0 == -1 || index1 == -1)
 							FATAL__("linkage broken");
 						if (index1 == (index0+1)%4)
@@ -4952,8 +4952,8 @@ namespace ObjectMath
 					}
 					else
 					{
-						char	index0 = e->n0.triangle->indexOf(e->v0),
-								index1 = e->n0.triangle->indexOf(e->v1);
+						char	index0 = e->n0.triangle->GetIndexOf(e->v0),
+								index1 = e->n0.triangle->GetIndexOf(e->v1);
 						if (index0 == -1 || index1 == -1)
 							FATAL__("linkage broken");
 						if (index1 == (index0+1)%3)
@@ -5074,7 +5074,7 @@ namespace ObjectMath
 				MeshTriangle<Def>&triangle = triangle_field[i];
 				triangle.marked = false;
 				for (BYTE k = 0; k < 3; k++)
-					triangle.marked |=	(!vertex_field.owns(triangle.vertex[k])
+					triangle.marked |=	(!vertex_field.Owns(triangle.vertex[k])
 										||
 										triangle_field[i].vertex[k] == triangle_field[i].vertex[(k+1)%3]);
 				marked += triangle.marked;
@@ -5101,7 +5101,7 @@ namespace ObjectMath
 				MeshQuad<Def>&quad = quad_field[i];
 				quad.marked = false;
 				for (BYTE k = 0; k < 4; k++)
-					quad.marked |=	(!vertex_field.owns(quad_field[i].vertex[k])
+					quad.marked |=	(!vertex_field.Owns(quad_field[i].vertex[k])
 									||
 									quad_field[i].vertex[k] == quad_field[i].vertex[(k+1)%4]
 									||
@@ -5127,9 +5127,9 @@ namespace ObjectMath
 			for (index_t i = 0; i < edge_field.length(); i++)
 			{
 				MeshEdge<Def>&edge = edge_field[i];
-				edge.marked = (	!vertex_field.owns(edge.v0)
+				edge.marked = (	!vertex_field.Owns(edge.v0)
 								||
-								!vertex_field.owns(edge.v1));
+								!vertex_field.Owns(edge.v1));
 								
 				if (!edge.marked)
 				{
@@ -8017,7 +8017,7 @@ namespace ObjectMath
 		MF_DECLARE	(void)			ConvexHullBuilder<Float>::ExportToMesh(Mesh<Def>&object)	const
 		{
 			Array<UINT32>	vmap(vertices.count());
-			vmap.fill(UNSIGNED_UNDEF);
+			vmap.Fill(UNSIGNED_UNDEF);
 			for (index_t i = 0; i < triangles.count(); i++)
 			{
 				vmap[triangles[i].v0] = 0;

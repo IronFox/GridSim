@@ -50,7 +50,7 @@ namespace Engine
 						{
 							return 1;
 						}
-	inline	bool		isEmpty()	const
+	inline	bool		IsEmpty()	const
 						{
 							return false;
 						}

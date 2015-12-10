@@ -397,7 +397,7 @@ namespace Riff
 		template <typename T>
 			void			SetPODData(const T&podData) {SetData(&podData,sizeof(podData));}
 		template <typename T>
-			void			SetData(const ArrayData<T>&ar) {SetData(ar.pointer(),ar.contentSize());}
+			void			SetData(const ArrayData<T>&ar) {SetData(ar.pointer(),ar.GetContentSize());}
 
 			RIFF_SIZE		Get(void*out)	const;				//extracts data
 			RIFF_SIZE		Get(void*out,size_t max)	const;//extracts data but not more than max - returns FULL size

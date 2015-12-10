@@ -289,7 +289,7 @@ size_t TextureCompression::compress(const Image&source, Array<BYTE>&buffer, Code
 		case BZ2Compression:
 		{
 			Array<BYTE>	temp((unsigned)(from->size()));
-			compressed_size = BZ2::compress(from->getData(), from->size(), temp.pointer(), temp.contentSize());
+			compressed_size = BZ2::compress(from->getData(), from->size(), temp.pointer(), temp.GetContentSize());
 			if (!compressed_size)
 			{
 				ext_error = "Compression failed ("+String(BZ2::errorStr())+")";
@@ -362,7 +362,7 @@ size_t TextureCompression::compress(const Image&source, Array<BYTE>&buffer, Code
 	
 			compressed_size = out_buffer.fillLevel();
 			buffer.setSize(sizeof(Image::THeader)+out_buffer.fillLevel());
-			LOG_TEXTURE_COMPRESSION_STAGE("buffer resized to "<<buffer.contentSize()<<" byte(s)");
+			LOG_TEXTURE_COMPRESSION_STAGE("buffer resized to "<<buffer.GetContentSize()<<" byte(s)");
 			memcpy(buffer.pointer()+sizeof(Image::THeader),out_buffer.pointer(),compressed_size);
 		}
 	}

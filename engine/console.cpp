@@ -107,7 +107,7 @@ void Console::print(const String&line)
     String local = line;
     while (local.length())
     {
-        index_t nl = local.indexOf('\n');
+        index_t nl = local.GetIndexOf('\n');
         if (nl)
         {
             lines.add(local.subString(0,nl-1));

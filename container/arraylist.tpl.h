@@ -29,7 +29,7 @@ template <class C, size_t Size> INLINE void ArrayList<C,Size>::flush()
 	}
 	sections = 0;
 	elements = 0;
-	fill = ceiling = NULL;
+	Fill = ceiling = NULL;
 	lookup = NULL;
 	top = NULL;
 }
@@ -48,7 +48,7 @@ template <class C, size_t Size> INLINE void ArrayList<C,Size>::clear()
 	}
 	sections = 0;
 	elements = 0;
-	fill = ceiling = NULL;
+	Fill = ceiling = NULL;
 	lookup = NULL;
 	top = NULL;
 }
@@ -97,7 +97,7 @@ template <class C, size_t Size> INLINE void ArrayList<C,Size>::push_front(Type*e
 
 template <class C, size_t Size> inline void ArrayList<C,Size>::push_back(C*element)
 {
-	if (fill == ceiling)
+	if (Fill == ceiling)
 	{
 //		cout << "	new section ("<<sections<<")\n";
 		if (!top)
@@ -124,19 +124,19 @@ template <class C, size_t Size> inline void ArrayList<C,Size>::push_back(C*eleme
 			}
 		}
 		++sections;
-		fill = root = top->field;
+		Fill = root = top->field;
 		ceiling = top->field+Size;
 //		cout << "	done\n";
 	}
-	(*fill) = element;
-	++fill;
+	(*Fill) = element;
+	++Fill;
 	elements++;
-//	cout << "	done ("<<(fill-root)<<" / "<<elements<<")\n";
+//	cout << "	done ("<<(Fill-root)<<" / "<<elements<<")\n";
 }
 
 template <class C, size_t Size> INLINE		C* ArrayList<C,Size>::append(C*element)
 {
-	if (fill == ceiling)
+	if (Fill == ceiling)
 	{
 		if (!top)
 		{
@@ -153,11 +153,11 @@ template <class C, size_t Size> INLINE		C* ArrayList<C,Size>::append(C*element)
 				map[sections] = section;
 		}
 		++sections;
-		fill = root = top->field;
+		Fill = root = top->field;
 		ceiling = top->field+Size;
 	}
-	(*fill) = element;
-	++fill;
+	(*Fill) = element;
+	++Fill;
 	elements++;
 	return element;
 }
@@ -320,8 +320,8 @@ template <class C, size_t Size> INLINE C* ArrayList<C,Size>::drop(UINT32 index)
 			movePointers(s->field+1,s->field,(elements%Size)-1);
 //		cout << "copied\n";
 	}
-	--fill;
-	if (fill == root)
+	--Fill;
+	if (Fill == root)
 	{
 //		cout << "decreasing ("<<sections<<")";
 		if (--sections)
@@ -336,14 +336,14 @@ template <class C, size_t Size> INLINE C* ArrayList<C,Size>::drop(UINT32 index)
 			UNMAKE_SECTION(top->next);
 			root = top->field;
 			ceiling = top->field+Size;
-			fill = ceiling;
+			Fill = ceiling;
 		}
 		else
 		{
 //			cout << " to zero\n";
 			UNMAKE_SECTION(top);
 			top = NULL;
-			root = fill = ceiling = NULL;
+			root = Fill = ceiling = NULL;
 			lookup = NULL;
 		}
 	}
@@ -404,11 +404,11 @@ template <class C, size_t Size> INLINE bool ArrayList<C,Size>::erase(Type*elemen
 
 
 
-template <class C, size_t Size> ArrayList<C,Size>::ArrayList():top(NULL),lookup(NULL),cursor(NULL),elements(0),sections(0),root(NULL),fill(NULL),ceiling(NULL)
+template <class C, size_t Size> ArrayList<C,Size>::ArrayList():top(NULL),lookup(NULL),cursor(NULL),elements(0),sections(0),root(NULL),Fill(NULL),ceiling(NULL)
 {}
 
 template <class C, size_t Size>
-template <size_t RSize> ArrayList<C,Size>::ArrayList(const ArrayList<C,RSize>&other):top(NULL),lookup(NULL),cursor(NULL),elements(0),sections(0),root(NULL),fill(NULL),ceiling(NULL)
+template <size_t RSize> ArrayList<C,Size>::ArrayList(const ArrayList<C,RSize>&other):top(NULL),lookup(NULL),cursor(NULL),elements(0),sections(0),root(NULL),Fill(NULL),ceiling(NULL)
 {
 	append(other);
 }
@@ -467,7 +467,7 @@ template <class C, size_t Size> INLINE void ArrayList<C,Size>::swap(ArrayList<C,
 	swp(elements,other.elements);
 	swp(sections,other.sections);
 	swp(root,other.root);
-	swp(fill,other.fill);
+	swp(Fill,other.Fill);
 	swp(ceiling,other.ceiling);
 	
 	bool left = other.sections < sections;
@@ -578,14 +578,14 @@ template <class C, size_t Size> INLINE		C*	ArrayList<C,Size>::last()
 {
 	if (!elements)
 		return NULL;
-	return *(fill-1);
+	return *(Fill-1);
 }
 
 template <class C, size_t Size> INLINE		const C*	ArrayList<C,Size>::last()							const
 {
 	if (!elements)
 		return NULL;
-	return *(fill-1);
+	return *(Fill-1);
 }
 
 
@@ -678,7 +678,7 @@ template <class C, size_t Size> INLINE		C* ArrayList<C,Size>::drop()
 {
 	Type*result = *(cursor_id-1);
 	if (cursor == top)
-		movePointers(cursor_id,cursor_id-1,fill-cursor_id);
+		movePointers(cursor_id,cursor_id-1,Fill-cursor_id);
 	else
 	{
 		size_t index = cursor_id - cursor->field;
@@ -695,8 +695,8 @@ template <class C, size_t Size> INLINE		C* ArrayList<C,Size>::drop()
 		if (elements%Size)
 			movePointers(s->field+1,s->field,(elements%Size)-1);
 	}
-	--fill;
-	if (fill == root)
+	--Fill;
+	if (Fill == root)
 	{
 		if (--sections)
 		{
@@ -709,13 +709,13 @@ template <class C, size_t Size> INLINE		C* ArrayList<C,Size>::drop()
 			UNMAKE_SECTION(top->next);
 			root = top->field;
 			ceiling = top->field+Size;
-			fill = ceiling;
+			Fill = ceiling;
 		}
 		else
 		{
 			UNMAKE_SECTION(top);
 			top = NULL;
-			root = fill = ceiling = NULL;
+			root = Fill = ceiling = NULL;
 			lookup = NULL;
 		}
 	}

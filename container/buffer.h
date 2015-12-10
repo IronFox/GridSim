@@ -26,7 +26,7 @@ namespace Container
 									*storage_end,		//!< Pointer one past the last valid element of the storage area. May be NULL indicating an empty buffer. (storage_end-storage_begin) stays valid even if the buffer is empty
 									*usage_end;			//!< Pointer one past the last allocated element of the storage area. May be NULL indicating an empty buffer. (usage_end-storage_begin) stays valid even if the buffer is empty
 			#if defined(_DEBUG) && __BUFFER_DBG_FILL_STATE__
-				count_t				fill_state;			//!< Current fill state in elements. Maintained in debug mode only
+				count_t				fill_state;			//!< Current Fill state in elements. Maintained in debug mode only
 			#endif
 
 
@@ -34,11 +34,11 @@ namespace Container
 			inline static	T*		allocateNotEmpty(count_t len);	//!< Identical to the above but without length check. @a len must not be 0. passing 0 causes undefined behavior
 
 
-			inline void				ensureHasSpace(count_t elements);	//!< Ensures that at least the specified number of non-allocated elements is available from @a usage_end to @a storage_end . The local storage may be resized/allocated if necessary. Element movement behavior is described by the passed @a Behavior struct. The requested elements are not constructed. std::bad_alloc may be thrown
+			inline void				ensureHasSpace(count_t elements);	//!< Ensures that at least the specified number of non-allocated elements is available from @a usage_end to @a storage_end . The local storage may be resized/allocated if necessary. Element movement behavior is described by the passed @a Strategy struct. The requested elements are not constructed. std::bad_alloc may be thrown
 			inline void				ensureHasSpace();					//!< Similar to the above. Ensures that at least one more non-allocated element is available.
 
 	
-			inline void				genericCompactify();				//!< Reduces storage size to the number of currently allocated elements. If the storage must be reallocated then elements are moved as described in the specified @a Behavior struct. std::bad_alloc may be thrown
+			inline void				genericCompactify();				//!< Reduces storage size to the number of currently allocated elements. If the storage must be reallocated then elements are moved as described in the specified @a Strategy struct. std::bad_alloc may be thrown
 	
 			static inline void		destructAndFree(T*range_begin, T*range_end);	//!< Invokes destructors for all elements from @a range_begin to @a range_end excluding @a range_end . Then invokes free(@a range_begin ). @a range_begin may be NULL if @a range_end is too.
 
@@ -55,6 +55,8 @@ namespace Container
 			#endif
 			/**/					BasicBuffer(std::initializer_list<T> items);
 			virtual				   ~BasicBuffer();
+			ArrayRef<T>				ToRef() {return ArrayRef<T>(pointer(),Count());}
+			ArrayRef<const T>		ToRef() const {return ArrayRef<const T>(pointer(),Count());}
 			Self&					operator=(const ArrayData<T>&array);
 			Self&					operator=(const Self&other);
 			Self&					operator=(std::initializer_list<T> items);
@@ -66,17 +68,16 @@ namespace Container
 			#if __BUFFER_RVALUE_REFERENCES__
 				inline Self&		operator<<(T&&element);			//!< Appends \b element to the end of the buffer, advancing the buffer cursor by one. The buffer will automatically be doubled in size if it is full at the time this operator is invoked.
 			#endif
-			inline index_t			push_back(const T&element);				//!< @copydoc operator<<() @return Index of the appended element (buffer fill state prior to appending)
+			inline index_t			push_back(const T&element);				//!< @copydoc operator<<() @return Index of the appended element (buffer Fill state prior to appending)
 			inline void				clear(count_t len);						//!< Reallocates the buffer to the specified size and resets the buffer cursor. Any stored data is destructed.
 			inline void				clear();								//!< @copydoc reset()
 			inline void				Clear(count_t len)	/**@copydoc clear(count_t len)*/ {clear(len);}
 			inline void				Clear()				/**@copydoc clear()*/ {clear();}
-			void					setSize(count_t len, bool occupy);		//!< Resizes the local buffer size @param len New length (in elements) that the buffer storage should hold @param occupy Pass true to call the constructor on all unconstructed elements and set fill state to the specified size, false to clear all data and set fill state to 0
+			void					setSize(count_t len, bool occupy);		//!< Resizes the local buffer size @param len New length (in elements) that the buffer storage should hold @param occupy Pass true to call the constructor on all unconstructed elements and set Fill state to the specified size, false to clear all data and set Fill state to 0
 			inline void				SetSize(count_t len, bool occupy)		/**@copydoc setSize()*/ {setSize(len,occupy);}
-			void					resizePreserveContent(count_t len);		//!< Resizes the local buffer size but preserves the old content and fill state where possible. If the old fill state exceeds the new size then all new elements will be occupied and initialized
+			void					resizePreserveContent(count_t len);		//!< Resizes the local buffer size but preserves the old content and Fill state where possible. If the old Fill state exceeds the new size then all new elements will be occupied and initialized
 			inline void				ResizePreserveContent(count_t len)		/**@copydoc resizePreserveContent()*/ {resizePreserveContent(len);}
-			void					fill(const T&pattern);					//!< Copies \b pattern to each element of the local buffer
-			inline void				Fill(const T&pattern)					/**@copydoc fill()*/ {Fill(pattern);}
+			void					Fill(const T&pattern);					//!< Copies \b pattern to each element of the local buffer
 			template <typename Strategy2>
 				Self&				moveAppend(BasicBuffer<T,Strategy2>&buffer, bool clearSourceOnCompletion=true);	//!< Appends all elements in the specified other buffer to the end of the local buffer. The elements will be moved, leaving the parameter buffer empty upon completion.
 			template <typename Strategy2>
@@ -125,16 +126,14 @@ namespace Container
 			inline count_t			storageSize()				const;	//!< Queries the number of elements held in total. This also includes unconstructed incremental storage
 			inline count_t			GetStorageSize()			const	/**@copydoc storageSize()*/ {return storageSize();}
 			inline size_t			GetContentSize()			const {return fillLevel() * sizeof(T);}
-			inline bool				empty()						const;	//!< @copydoc isEmpty()
-			inline bool				isEmpty()					const;	//!< Returns true if the buffer holds no elements
-			inline bool				IsEmpty()					const	/**@copydoc isEmpty()*/ {return isEmpty();}
-			inline bool				isNotEmpty()				const;	//!< Returns true if the buffer holds at least one element
-			inline bool				IsNotEmpty()				const	/**@copydoc isNotEmpty()*/ {return isNotEmpty();}
-			bool					truncate(count_t fill_state);		//!< Decrements the local buffer counter to the specified fill state. The method fails if the local buffer fill state is less or equal the specified fill state. The actually allocated buffer size remains unchanged.
+			inline bool				empty()						const;	//!< @copydoc IsEmpty()
+			inline bool				IsEmpty()					const;	//!< Returns true if the buffer holds no elements
+			inline bool				IsNotEmpty()				const;	//!< Returns true if the buffer holds at least one element
+			bool					truncate(count_t fill_state);		//!< Decrements the local buffer counter to the specified Fill state. The method fails if the local buffer Fill state is less or equal the specified Fill state. The actually allocated buffer size remains unchanged.
 			inline bool				Truncate(count_t fill_state)		/**@copydoc truncate()*/ {return truncate(fill_state);}
 			inline T*				appendRow(count_t length);			//!< Appends a number of elements and returns a pointer to the first element. The method returns NULL, if length is 0 @param length Number of elements to append. Must be greater 0 @return Pointer to the first of the appended elements or NULL, if an error occured
 			inline T*				AppendRow(count_t length)			/**@copydoc appendRow()*/ {return appendRow(length);}
-			inline T*				appendRow(count_t length, const T&pattern);			//!< Appends a number of elements and returns a pointer to the first element. The method returns NULL, if length is 0 @param length Number of elements to append. Must be greater 0 @param pattern Data to fill newly appended elements with @return Pointer to the first of the appended elements or NULL, if an error occured
+			inline T*				appendRow(count_t length, const T&pattern);			//!< Appends a number of elements and returns a pointer to the first element. The method returns NULL, if length is 0 @param length Number of elements to append. Must be greater 0 @param pattern Data to Fill newly appended elements with @return Pointer to the first of the appended elements or NULL, if an error occured
 			inline T*				AppendRow(count_t length, const T&pattern)			/**@copydoc appendRow()*/ {return appendRow(length,pattern);}
 			inline T&				append();							//!< Appends a single element and returns a reference to it
 			inline T&				Append()							/**@copydoc append()*/	{return append();}
@@ -159,7 +158,7 @@ namespace Container
 			inline T*				insertRow(index_t before_element, count_t length);		//!< Appends a number of elements and returns a pointer to the first element. The method returns NULL, if length is 0 @param length Number of elements to append. Must be greater 0 @return Pointer to the first of the appended elements or NULL, if an error occured
 			inline T*				InsertRow(index_t before_element, count_t length)		/**@copydoc insertRow()*/ {return insertRow(before_element,length);}
 
-			inline T				pop();								//!< Pops the last element from the buffer (the internally allocated memory section is not resized, only the local fill state decremented and the last object destructed). The method behavior is undefined if the buffer is empty.
+			inline T				pop();								//!< Pops the last element from the buffer (the internally allocated memory section is not resized, only the local Fill state decremented and the last object destructed). The method behavior is undefined if the buffer is empty.
 			inline T				Pop()								/**@copydoc pop()*/ {return pop();}
 			inline void				eraseLast();						//!< Simplified void-version of pop(). Can be more efficient if the contained type is complex and the returned object not used anyway. The method behavior is undefined if the buffer is empty.
 			inline void				EraseLast()							/**@copydoc eraseLast()*/ {eraseLast();}
@@ -194,22 +193,20 @@ namespace Container
 
 			inline T&				fromEnd(index_t);					//!< Retrieves the nth element from the end of the consumed buffer space. fromEnd(0) is identical to last()
 			inline const T&			fromEnd(index_t)			const;	//!< @copydoc fromEnd()
-			void					compact();							//!< Reduces the local buffer size to the exact fill state and copies all contained elements. Any succeeding push operation will automatically increase buffer size again. The method returns if the stack is already of compact size
+			void					compact();							//!< Reduces the local buffer size to the exact Fill state and copies all contained elements. Any succeeding push operation will automatically increase buffer size again. The method returns if the stack is already of compact size
 			inline void				Compact()							/**@copydoc compact()*/	{compact();}
-			Array<T,Strategy>		copyToArray()						const;	//!< Exports the local data up to the current fill state to the returned array.
+			Array<T,Strategy>		copyToArray()						const;	//!< Exports the local data up to the current Fill state to the returned array.
 			inline Array<T,Strategy>CopyToArray()						const	/**@copydoc copyToArray()*/	{return copyToArray();}
-			void					copyToArray(ArrayData<T>&target)	const;	//!< Exports the local data up to the current fill state to the specified array. The target array will be resized if necessary
+			void					copyToArray(ArrayData<T>&target)	const;	//!< Exports the local data up to the current Fill state to the specified array. The target array will be resized if necessary
 			inline void				CopyToArray(ArrayData<T>&target)	const	/**@copydoc copyToArray()*/	{copyToArray(target);}
-			void					moveToArray(ArrayData<T>&target, bool reset_buffer=true);		//!< Moves local data up to the current fill state to the specified array. Move behavior is defined by the used Strategy class. @param reset_buffer Set true to automatically reset the buffer once element movement is completed
+			void					moveToArray(ArrayData<T>&target, bool reset_buffer=true);		//!< Moves local data up to the current Fill state to the specified array. Move behavior is defined by the used Strategy class. @param reset_buffer Set true to automatically reset the buffer once element movement is completed
 			inline void				MoveToArray(ArrayData<T>&target, bool reset_buffer=true)	/**@copydoc moveToArray()*/	{moveToArray(target,reset_buffer);}
 			template <typename T2>
 				inline bool			contains(const T2&element)	const;	//!< Determines whether or not an equivalent to the specified element is currently stored in the active region of the buffer. Comparison is done via the ==operator.
 			template <typename T2>
 				inline bool			Contains(const T2&element)	const	/**@copydoc contains()*/	{return contains(element);}
 			template <typename T2>
-				inline index_t		indexOf(const T2&element)	const;	//!< Determines the index of the specified element via == operator. If no match was found then index_t(-1)/InvalidIndex is returned
-			template <typename T2>
-				inline index_t		GetIndexOf(const T2&element)const	/**@copydoc indexOf()*/	{return indexOf(element);}
+				inline index_t		GetIndexOf(const T2&element)	const;	//!< Determines the index of the specified element via == operator. If no match was found then index_t(-1)/InvalidIndex is returned
 			template <typename T2>
 				bool				findAndErase(const T2&element);		//!< Attempts to find and erase the specified element @return true if the specified element could be found (via ==operator), false otherwise
 			template <typename T2>
