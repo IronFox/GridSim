@@ -92,6 +92,14 @@ namespace CLI	//! Command line interpretor
 		virtual	String		ToString()			const=0;		//!< Virtual abstract out conversion method. Converts the local variable value(s) to a string representation. The returned string should be a valid parameter for set().
 		virtual	bool		Set(const String&value)=0;			//!< Virtual abstract in conversion method. Converts the specified string value to the local variable value(s). @param value String containing the new value(s) \return true if the variable value could be updated, false otherwise
 		virtual bool		Set(const String&component, const String&value)	{return false;};	//!< Component-wise virtual conversion method. The method sets one or more components of the local variable value(s) as described by \b component to \b value @param component Description of one or more components to set @param value String containing the new value(s) \return true if the variable value(s) could be updated, false otherwise
+		/**
+		Queries a descriptor of supported values from the local variable. Typically this would be a range for scalar values, or all choices for enumeration values
+		*/
+		virtual String		GetSupportedValues() const {return "any";}
+		/**
+		Returns the default value, if any.
+		*/
+		virtual String		GetDefault() const {return "";}
 	};
 
 	typedef std::shared_ptr<Variable>	PVariable;
