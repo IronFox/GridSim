@@ -17,19 +17,14 @@ template <typename F>
 		PFolder parent = _Resolve(def.beginsWith('/'));
 		if (!parent)
 			return NULL;
-		
-		StringList	items(lookup.pathSegments.last());
-		if (!items)
-			return NULL;
-		detail::makeValidName(items.first());
-		PCommand result = parent->commands.Query(items.first());
+		Command::Name name;
+		if (!name.Parse(lookup.pathSegments.last()))
+			return false;
+
+		PCommand result = parent->commands.Query(name.coreName);
 		if (result)
 			return result;
-		String description = items.first();
-		if (items > 1)
-			description += " <"+items.fuse(1,"> <")+">";
-		
-		PCommand command (new Command(items.first(),description,f, completion));
+		PCommand command (new Command(name,f, completion));
 		parent->commands.Insert(command->name, command);
 		return command;
 	}
@@ -37,19 +32,13 @@ template <typename F>
 template <typename F>
 	CLI::PCommand				CLI::Interpretor::DefineGlobalCommand(const String& def, const F&f, eCommandCompletion completion/*=NoCompletion*/)
 	{
-		StringList	items(def);
-		if (!items)
-			return NULL;
-		detail::makeValidName(items.first());
-		PCommand result = globalCommands.Query(items.first());
+		Command::Name name;
+		if (!name.Parse(def))
+			return false;
+		PCommand result = globalCommands.Query(name.coreName);
 		if (result)
 			return result;
-		String description = items.first();
-		if (items > 1)
-			description += " <"+items.fuse(1,"> <")+">";
-		
-		PCommand command (new Command(items.first(),description,f, completion));
-			
+		PCommand command (new Command(name,f, completion));
 		globalCommands.Insert(command->name, command);
 		return command;
 	}

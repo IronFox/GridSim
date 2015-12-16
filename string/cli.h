@@ -39,7 +39,8 @@ namespace CLI	//! Command line interpretor
 		NoProtection		= 0x0,	//!< Variable is not protected and may be changed or unset by the user at will
 		EraseProtection		= 0x1,	//!< Variable is protected against deletion. Unless WriteProtection is set the variable may still be changed though
 		WriteProtection		= 0x2,	//!< Variable is protected against changes. Unless EraseProtection is set the variable may still be unset though
-		FullProtection		= (EraseProtection|WriteProtection)	//!< Full protection. The variable may be queried but not changed or unset
+		FullProtection		= (EraseProtection|WriteProtection),	//!< Full protection. The variable may be queried but not changed or unset
+		ReadOnly = FullProtection
 	};
 
 	/*!
@@ -59,17 +60,29 @@ namespace CLI	//! Command line interpretor
 	};
 
 
+
+	class NamedItem
+	{
+	public:
+		const String		name;		//!< Variable name. Must not be empty
+		std::shared_ptr<const String>	help;		//!< Help-text. Often reused
+
+		/**/				NamedItem(const String&name):name(name)	{}
+
+		void				SetUniqueHelp(const String&help)	{this->help.reset(new String(help));}
+	};
+
+
 	/*!
 	\brief Abstract virtual CLI variable container
 		
 	A Variable instance describes a variable in the CLI interpretor tree. A variable derivative class must provide methods
 	to query or set the variable contents via strings.
 	*/
-	class Variable : public std::enable_shared_from_this<Variable>
+	class Variable : public std::enable_shared_from_this<Variable>, public NamedItem
 	{
 	public:
-		const String		type,		//!< Type string (i.e. 'int')
-							name;		//!< Variable name. Must not be empty
+		const String		type;		//!< Type string (i.e. 'int')
 		UINT32				protection;	//!< Variable protection flags. May be any combination of CLI::eVariableProtection enumeration values
 		const count_t		components;	//!< Number of components this variable provides. Contains 1 for non-array variables and a fixed number for array variables (i.e. 3 for a 3d vector).
 			
@@ -200,7 +213,7 @@ namespace CLI	//! Command line interpretor
 	class Command;
 	typedef std::shared_ptr<Command>	PCommand;
 	
-	class Command : public std::enable_shared_from_this<Command>	//! CLI command container
+	class Command : public std::enable_shared_from_this<Command>, public NamedItem	//! CLI command container
 	{
 	public:
 		typedef Attachable			Attachable;
@@ -232,31 +245,41 @@ namespace CLI	//! Command line interpretor
 
 			
 		full_function_t			callback;
-		String					name;	//!< Command name
-		String					description;	//!< Command description
+		const String			fullSpecification;	//!< Command description (name+ named parameters)
 		eCommandCompletion		completion;		//!< Type of command completion requested by this command
 		PAttachment				attachment;		//!< Command attachment
+
+		struct Name
+		{
+			String				coreName;
+			String				fullSpecification;
+
+			/**/				Name()	{}
+			/**/				Name(const String&def)	{ASSERT1__(Parse(def),def);}
+			bool				Parse(const String&def);
+		};
+
 			
-		/**/					Command();	//!< Constructor for virtual commands
-		/**/					Command(const String&name, const String&description, const full_function_t&, eCommandCompletion completion);
-		/**/					Command(const String&name, const String&description, const function0_t&, eCommandCompletion completion);
-		/**/					Command(const String&name, const String&description, const function1_t&, eCommandCompletion completion);
-		/**/					Command(const String&name, const String&description, const function2_t&, eCommandCompletion completion);
-		/**/					Command(const String&name, const String&description, const function3_t&, eCommandCompletion completion);
-		/**/					Command(const String&name, const String&description, const function4_t&, eCommandCompletion completion);
-		/**/					Command(const String&name, const String&description, const function5_t&, eCommandCompletion completion);
-		/**/					Command(const String&name, const String&description, const function6_t&, eCommandCompletion completion);
-		/**/					Command(const String&name, const String&description, const full_func_t&, eCommandCompletion completion);
-		/**/					Command(const String&name, const String&description, const func0_t&, eCommandCompletion completion);
-		/**/					Command(const String&name, const String&description, const func1_t&, eCommandCompletion completion);
-		/**/					Command(const String&name, const String&description, const func2_t&, eCommandCompletion completion);
-		/**/					Command(const String&name, const String&description, const func3_t&, eCommandCompletion completion);
-		/**/					Command(const String&name, const String&description, const func4_t&, eCommandCompletion completion);
-		/**/					Command(const String&name, const String&description, const func5_t&, eCommandCompletion completion);
-		/**/					Command(const String&name, const String&description, const func6_t&, eCommandCompletion completion);
+		/**/					Command(const Name&name);	//!< Constructor for virtual commands
+		/**/					Command(const Name&name, const full_function_t&, eCommandCompletion completion);
+		/**/					Command(const Name&name, const function0_t&, eCommandCompletion completion);
+		/**/					Command(const Name&name, const function1_t&, eCommandCompletion completion);
+		/**/					Command(const Name&name, const function2_t&, eCommandCompletion completion);
+		/**/					Command(const Name&name, const function3_t&, eCommandCompletion completion);
+		/**/					Command(const Name&name, const function4_t&, eCommandCompletion completion);
+		/**/					Command(const Name&name, const function5_t&, eCommandCompletion completion);
+		/**/					Command(const Name&name, const function6_t&, eCommandCompletion completion);
+		/**/					Command(const Name&name, const full_func_t&, eCommandCompletion completion);
+		/**/					Command(const Name&name, const func0_t&, eCommandCompletion completion);
+		/**/					Command(const Name&name, const func1_t&, eCommandCompletion completion);
+		/**/					Command(const Name&name, const func2_t&, eCommandCompletion completion);
+		/**/					Command(const Name&name, const func3_t&, eCommandCompletion completion);
+		/**/					Command(const Name&name, const func4_t&, eCommandCompletion completion);
+		/**/					Command(const Name&name, const func5_t&, eCommandCompletion completion);
+		/**/					Command(const Name&name, const func6_t&, eCommandCompletion completion);
 		virtual	void			Invoke(const StringList&arguments, const Tokenizer::Config&dequote_config);
 	private:
-			void					construct(const String&name, const String&description, eCommandCompletion completion);
+			void					construct(eCommandCompletion completion);
 	};
 
 
@@ -300,7 +323,7 @@ namespace CLI	//! Command line interpretor
 		
 	Folder stores sub folder, variables and commands as defined in this folder.
 	*/
-	class Folder : public std::enable_shared_from_this<Folder>
+	class Folder : public std::enable_shared_from_this<Folder>, public NamedItem
 	{
 	public:
 		typedef Attachable			Attachable;
@@ -315,7 +338,6 @@ namespace CLI	//! Command line interpretor
 		ItemTable<Command>			commands;		//!< Commands in this folder
 		ItemTable<Folder>			folders;		//!< Sub folders
 		const WFolder				parent;	//!< Parent folder or NULL if this folder has no parent
-		const String				name;			//!< Folder name
 			
 		/**/						Folder(const PFolder&,const String&);
 		count_t						CountCommands()					const;		//!< Recursivly counts all commands
@@ -361,10 +383,10 @@ namespace CLI	//! Command line interpretor
 		/**/						Interpretor();
 		template <typename F>
 			PCommand				DefineCommand(const String& def, const F&f, eCommandCompletion completion=NoCompletion);	//!< Defines a new command (0 argument pointer command) in the active folder @param def Name of the command to create(may include folder names) @param method Pointer to the handler function @param completion Command completion
-		PCommand					DefineCommand(const String& def, const PCommand&cmd);	//!< Inserts a new command in the specified location. The method fails if a command already exists in the specified location. The method's name and description will be overwritten depending on the content of the \b def variable @param def Name of the command to create(may include folder names)  @param cmd New command object. The object will be managed by this structure and must not be deleted \return Pointer to the inserted command object if no command of that name existed, NULL otherwise
+		bool						InsertCommand(const PCommand&cmd, const String&targetPath);	//!< Inserts a new command in the specified location. The method fails if a command already exists in the specified location. @param cmd New command object. The object will be managed by this structure and must not be deleted \return Pointer to the inserted command object if no command of that name existed, NULL otherwise
 		template <typename F>
 			PCommand				DefineGlobalCommand(const String& def, const F&f, eCommandCompletion completion=NoCompletion);	//!< Defines a new command (0 argument pointer command) in the active folder @param def Name of the command to create(may include folder names) @param method Pointer to the handler function @param completion Command completion
-		PCommand					DefineGlobalCommand(const String& def, const PCommand&cmd);	//!< Inserts a new command in the specified location. The method fails if a command already exists in the specified location. The method's name and description will be overwritten depending on the content of the \b def variable @param def Name of the command to create(may include folder names)  @param cmd New command object. The object will be managed by this structure and must not be deleted \return Pointer to the inserted command object if no command of that name existed, NULL otherwise
+		bool						InsertGlobalCommand(const PCommand&cmd);	//!< Inserts a new command in the specified location. The method fails if a command already exists in the specified location. @param cmd New command object. The object will be managed by this structure and must not be deleted \return Pointer to the inserted command object if no command of that name existed, NULL otherwise
 			
 			
 		PVariable					SetString(const String& path, unsigned Protection);					//!< Sets a new empty string variable (StringVariable). @param path path of the string variable to set (may contain folders). No changes occur if a variable of the specified path already exists @param Protection Protection config of the new variable. May be any combination of CLI::eVariableProtection enumeration values @return Pointer to a new abstract variable on success, NULL otherwise. Use getError() to retrieve an error description in this case

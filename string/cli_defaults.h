@@ -8,11 +8,6 @@
 
 E:\include\string\cli_defaults.h
 
-This file is part of Delta-Works
-Copyright (C) 2006-2008 Stefan Elsen, University of Trier, Germany.
-http://www.delta-works.org/forge/
-http://informatik.uni-trier.de/
-
 ******************************************************************/
 
 namespace CLI
@@ -35,25 +30,6 @@ namespace CLI
 	void			InitDefaults(Interpretor&target, pPrintln println, pOnFocusChange onFocusChange=NULL, bool echoSetOperation = true);
 
 
-	/**
-	@brief Registers a help entry for a command or variable
-		
-	registerHelp() registers the specified message as help message for the specified command or variable. This message will be print out upon invocation of
-	the internal 'help <command/variable>' command. Any previously registered help message for the specified object is overwritten.
-		
-	@param pointer Pointer to the command or variable object. May technically be of any type but should be registered to the main interpretor
-	@param message String message to be passed to println if the respective command or variable is queried
-	
-	*/
-	void			RegisterHelp(void*pointer,const String&message);
-	inline void		RegisterHelp(const CLI::PCommand&cmd,const String&message)	{RegisterHelp((void*)cmd.get(),message);}
-	inline void		RegisterHelp(const CLI::PFolder&fld,const String&message)	{RegisterHelp((void*)fld.get(),message);}
-	inline void		RegisterHelp(const CLI::PVariable&var,const String&message)	{RegisterHelp((void*)var.get(),message);}
-	
-	/**
-	@brief Unregisters a help entry.
-	*/
-	void	UnregisterHelp(void*pointer);
 	
 
 

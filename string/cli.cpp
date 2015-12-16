@@ -22,115 +22,129 @@ namespace CLI
 	}
 
 
-	Command::Command():callback([](const PCommand&command, const StringList&arguments, const Tokenizer::Config&config) {})
+	Command::Command(const Name&name):callback([](const PCommand&command, const StringList&arguments, const Tokenizer::Config&config) {}),
+						NamedItem(name.coreName), fullSpecification(name.fullSpecification)
 	{
-		construct("", "", NoCompletion);
+		construct(NoCompletion);
 	}
 
-	Command::Command(const String&name, const String&description, const full_function_t&f, eCommandCompletion completion):
+	Command::Command(const Name&name, const full_function_t&f, eCommandCompletion completion):
+					NamedItem(name.coreName), fullSpecification(name.fullSpecification),
 					callback(f)
 	{
-		construct(name,description,completion);
+		construct(completion);
 	}
-	Command::Command(const String&name, const String&description, const function0_t&f, eCommandCompletion completion):
+	Command::Command(const Name&name, const function0_t&f, eCommandCompletion completion):
+					NamedItem(name.coreName), fullSpecification(name.fullSpecification),
 					callback([f](const PCommand&command, const StringList&arguments, const Tokenizer::Config&config){f();})
 	{
-		construct(name,description,completion);
+		construct(completion);
 
 	}
-	Command::Command(const String&name, const String&description, const function1_t&f, eCommandCompletion completion):
+	Command::Command(const Name&name, const function1_t&f, eCommandCompletion completion):
+					NamedItem(name.coreName), fullSpecification(name.fullSpecification),
 					callback([f](const PCommand&command, const StringList&arguments, const Tokenizer::Config&config){f(Tokenizer::dequote(arguments[1],config));})
 
 	{
-		construct(name,description,completion);
+		construct(completion);
 	}
-	Command::Command(const String&name, const String&description, const function2_t&f, eCommandCompletion completion):
+	Command::Command(const Name&name, const function2_t&f, eCommandCompletion completion):
+					NamedItem(name.coreName), fullSpecification(name.fullSpecification),
 					callback([f](const PCommand&command, const StringList&arguments, const Tokenizer::Config&config){f(Tokenizer::dequote(arguments[1],config),Tokenizer::dequote(arguments[2],config));})
 
 	{
-		construct(name,description,completion);
+		construct(completion);
 	}
-	Command::Command(const String&name, const String&description, const function3_t&f, eCommandCompletion completion):
+	Command::Command(const Name&name, const function3_t&f, eCommandCompletion completion):
+					NamedItem(name.coreName), fullSpecification(name.fullSpecification),
 					callback([f](const PCommand&command, const StringList&arguments, const Tokenizer::Config&config){f(Tokenizer::dequote(arguments[1],config),Tokenizer::dequote(arguments[2],config),Tokenizer::dequote(arguments[3],config));})
 
 	{
-		construct(name,description,completion);
+		construct(completion);
 	}
-	Command::Command(const String&name, const String&description, const function4_t&f, eCommandCompletion completion):
+	Command::Command(const Name&name, const function4_t&f, eCommandCompletion completion):
+					NamedItem(name.coreName), fullSpecification(name.fullSpecification),
 					callback([f](const PCommand&command, const StringList&arguments, const Tokenizer::Config&config){f(Tokenizer::dequote(arguments[1],config),Tokenizer::dequote(arguments[2],config),Tokenizer::dequote(arguments[3],config),Tokenizer::dequote(arguments[4],config));})
 
 	{
-		construct(name,description,completion);
+		construct(completion);
 	}
 
-	Command::Command(const String&name, const String&description, const function5_t&f, eCommandCompletion completion):
+	Command::Command(const Name&name, const function5_t&f, eCommandCompletion completion):
+					NamedItem(name.coreName), fullSpecification(name.fullSpecification),
 					callback([f](const PCommand&command, const StringList&arguments, const Tokenizer::Config&config){f(Tokenizer::dequote(arguments[1],config),Tokenizer::dequote(arguments[2],config),Tokenizer::dequote(arguments[3],config),Tokenizer::dequote(arguments[4],config),Tokenizer::dequote(arguments[5],config));})
 
 	{
-		construct(name,description,completion);
+		construct(completion);
 	}
-	Command::Command(const String&name, const String&description, const function6_t&f, eCommandCompletion completion):
+	Command::Command(const Name&name, const function6_t&f, eCommandCompletion completion):
+					NamedItem(name.coreName), fullSpecification(name.fullSpecification),
 					callback([f](const PCommand&command, const StringList&arguments, const Tokenizer::Config&config){f(Tokenizer::dequote(arguments[1],config),Tokenizer::dequote(arguments[2],config),Tokenizer::dequote(arguments[3],config),Tokenizer::dequote(arguments[4],config),Tokenizer::dequote(arguments[5],config),Tokenizer::dequote(arguments[6],config));})
 
 	{
-		construct(name,description,completion);
+		construct(completion);
 	}
 
 
-	Command::Command(const String&name, const String&description, const full_func_t&f, eCommandCompletion completion):
+	Command::Command(const Name&name, const full_func_t&f, eCommandCompletion completion):
+					NamedItem(name.coreName), fullSpecification(name.fullSpecification),
 					callback(f)
 	{
-		construct(name,description,completion);
+		construct(completion);
 	}
-	Command::Command(const String&name, const String&description, const func0_t&f, eCommandCompletion completion):
+	Command::Command(const Name&name, const func0_t&f, eCommandCompletion completion):
+					NamedItem(name.coreName), fullSpecification(name.fullSpecification),
 					callback([f](const PCommand&command, const StringList&arguments, const Tokenizer::Config&config){f();})
 	{
-		construct(name,description,completion);
-
+		construct(completion);
 	}
-	Command::Command(const String&name, const String&description, const func1_t&f, eCommandCompletion completion):
+	Command::Command(const Name&name, const func1_t&f, eCommandCompletion completion):
+					NamedItem(name.coreName), fullSpecification(name.fullSpecification),
 					callback([f](const PCommand&command, const StringList&arguments, const Tokenizer::Config&config){f(Tokenizer::dequote(arguments[1],config));})
 
 	{
-		construct(name,description,completion);
+		construct(completion);
 	}
-	Command::Command(const String&name, const String&description, const func2_t&f, eCommandCompletion completion):
+	Command::Command(const Name&name, const func2_t&f, eCommandCompletion completion):
+					NamedItem(name.coreName), fullSpecification(name.fullSpecification),
 					callback([f](const PCommand&command, const StringList&arguments, const Tokenizer::Config&config){f(Tokenizer::dequote(arguments[1],config),Tokenizer::dequote(arguments[2],config));})
 
 	{
-		construct(name,description,completion);
+		construct(completion);
 	}
-	Command::Command(const String&name, const String&description, const func3_t&f, eCommandCompletion completion):
+	Command::Command(const Name&name, const func3_t&f, eCommandCompletion completion):
+					NamedItem(name.coreName), fullSpecification(name.fullSpecification),
 					callback([f](const PCommand&command, const StringList&arguments, const Tokenizer::Config&config){f(Tokenizer::dequote(arguments[1],config),Tokenizer::dequote(arguments[2],config),Tokenizer::dequote(arguments[3],config));})
 
 	{
-		construct(name,description,completion);
+		construct(completion);
 	}
-	Command::Command(const String&name, const String&description, const func4_t&f, eCommandCompletion completion):
+	Command::Command(const Name&name, const func4_t&f, eCommandCompletion completion):
+					NamedItem(name.coreName), fullSpecification(name.fullSpecification),
 					callback([f](const PCommand&command, const StringList&arguments, const Tokenizer::Config&config){f(Tokenizer::dequote(arguments[1],config),Tokenizer::dequote(arguments[2],config),Tokenizer::dequote(arguments[3],config),Tokenizer::dequote(arguments[4],config));})
 
 	{
-		construct(name,description,completion);
+		construct(completion);
 	}
 
-	Command::Command(const String&name, const String&description, const func5_t&f, eCommandCompletion completion):
+	Command::Command(const Name&name, const func5_t&f, eCommandCompletion completion):
+					NamedItem(name.coreName), fullSpecification(name.fullSpecification),
 					callback([f](const PCommand&command, const StringList&arguments, const Tokenizer::Config&config){f(Tokenizer::dequote(arguments[1],config),Tokenizer::dequote(arguments[2],config),Tokenizer::dequote(arguments[3],config),Tokenizer::dequote(arguments[4],config),Tokenizer::dequote(arguments[5],config));})
 
 	{
-		construct(name,description,completion);
+		construct(completion);
 	}
-	Command::Command(const String&name, const String&description, const func6_t&f, eCommandCompletion completion):
+	Command::Command(const Name&name, const func6_t&f, eCommandCompletion completion):
+					NamedItem(name.coreName), fullSpecification(name.fullSpecification),
 					callback([f](const PCommand&command, const StringList&arguments, const Tokenizer::Config&config){f(Tokenizer::dequote(arguments[1],config),Tokenizer::dequote(arguments[2],config),Tokenizer::dequote(arguments[3],config),Tokenizer::dequote(arguments[4],config),Tokenizer::dequote(arguments[5],config),Tokenizer::dequote(arguments[6],config));})
 
 	{
-		construct(name,description,completion);
+		construct(completion);
 	}
 
 
-	void Command::construct(const String&name, const String&description, eCommandCompletion completion)
+	void Command::construct(eCommandCompletion completion)
 	{
-		this->name = name;
-		this->description = description;
 		this->completion = completion;
 	}
 
@@ -140,7 +154,7 @@ namespace CLI
 	}
 
 
-	Variable::Variable(const String&name_, const String&type_, count_t components_, UINT32 protection_):name(name_),type(type_),components(components_),protection(protection_)
+	Variable::Variable(const String&name_, const String&type_, count_t components_, UINT32 protection_):NamedItem(name_),type(type_),components(components_),protection(protection_)
 	{}
 
 
@@ -164,53 +178,46 @@ namespace CLI
 		
 	}
 	
-	
-	PCommand	Interpretor::DefineCommand(const String& def, const PCommand&cmd)
+	bool Command::Name::Parse(const String&def)
 	{
-		if (!cmd)
-			return PCommand();
-		Tokenizer::tokenize(def,lookup.pathConfig,lookup.pathSegments);
-		if (!lookup.pathSegments)
-			return PCommand();
-		PFolder parent = _Resolve(def.beginsWith('/'));
-		if (!parent)
-			return PCommand();
-		
-		StringList	items(lookup.pathSegments.last());
-		if (!items)
-			return PCommand();
-		detail::makeValidName(items.first());
-		PCommand result = parent->commands.Query(items.first());
-		if (result)
-			return PCommand();
-		cmd->description = items.first();
-		if (items > 1)
-			cmd->description += " <"+items.fuse(1,"> <")+">";
-		
-		cmd->name = items.first();
-		parent->commands.Set(cmd->name, cmd);
-		return cmd;
-	}
-	
-	PCommand	Interpretor::DefineGlobalCommand(const String& def, const PCommand&cmd)
-	{
-		if (!cmd)
-			return PCommand();
 		StringList	items(def);
 		if (!items)
-			return PCommand();
+			return false;
 		detail::makeValidName(items.first());
-		PCommand result = globalCommands.Query(items.first());
-		if (result)
-			return PCommand();
-		cmd->description = items.first();
+		fullSpecification = items.first();
 		if (items > 1)
-			cmd->description += " <"+items.fuse(1,"> <")+">";
+			fullSpecification += " <"+items.fuse(1,"> <")+">";
 		
-		cmd->name = items.first();
-		
+		coreName = items.first();
+		return true;
+	}
+	
+
+
+	bool	Interpretor::InsertCommand(const PCommand&cmd, const String&targetPath)
+	{
+		if (!cmd)
+			return false;
+		PFolder folder = FindFolder(targetPath);
+		if (!folder)
+			return false;
+
+		PCommand result = folder->commands.Query(cmd->name);
+		if (result)
+			return false;
+		folder->commands.Set(cmd->name, cmd);
+		return true;
+	}
+	
+	bool	Interpretor::InsertGlobalCommand(const PCommand&cmd)
+	{
+		if (!cmd)
+			return false;
+		PCommand result = globalCommands.Query(cmd->name);
+		if (result)
+			return false;
 		globalCommands.Set(cmd->name, cmd);
-		return cmd;
+		return true;
 	}
 	
 
@@ -1071,7 +1078,7 @@ namespace CLI
 	}
 
 
-	Folder::Folder(const PFolder&p,const String&n):parent(p),name(n),customFlags(0)
+	Folder::Folder(const PFolder&p,const String&n):parent(p),NamedItem(n),customFlags(0)
 	{}
 
 	String Folder::GetPath()	const

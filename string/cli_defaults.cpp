@@ -4,11 +4,6 @@
 
 E:\include\string\cli_defaults.cpp
 
-This file is part of Delta-Works
-Copyright (C) 2006-2008 Stefan Elsen, University of Trier, Germany.
-http://www.delta-works.org/forge/
-http://informatik.uni-trier.de/
-
 ******************************************************************/
 
 namespace CLI
@@ -16,22 +11,12 @@ namespace CLI
 
 	pPrintln		println=NULL;
 
-	Interpretor	*main_interpretor(NULL);
+	Interpretor		*main_interpretor(NULL);
 	pOnFocusChange	onFocusChange=NULL;
 	bool echoSetOperation = true;
 	
-	PointerTable<String>	help_map;
 	
 	
-	void	RegisterHelp(void*pointer,const String&message)
-	{
-		help_map.set(pointer,message);
-	}
-	
-	void	UnregisterHelp(void*pointer)
-	{
-		help_map.unSet(pointer);
-	}
 	
 
 	static void	printHelp(const String&p)
@@ -44,24 +29,24 @@ namespace CLI
 			String message;
 			if (PVariable var = main_interpretor->FindVar(parameter))
 			{
-				if (help_map.query(var.get(),message))
-					message = var->name+" ("+var->type+"):\n"+message;
+				if (var->help)
+					message = var->name+" ("+var->type+"):\n"+*var->help;
 				else
-					message = "No help definitions found for variable '"+var->name+"' of type "+var->type;
+					message = "No help text defined for variable '"+var->name+"' of type "+var->type;
 			}
 			elif (PCommand cmd = main_interpretor->Find(parameter))
 			{
-				if (help_map.query(cmd.get(),message))
-					message = cmd->description+":\n"+message;
+				if (cmd->help)
+					message = cmd->fullSpecification+":\n"+*cmd->help;
 				else
-					message = "No help definitions found for command '"+cmd->description+"'";
+					message = "No help text defined for command '"+cmd->fullSpecification+"'";
 			}
 			elif (PFolder folder = main_interpretor->FindFolder(parameter))
 			{
-				if (help_map.query(folder.get(),message))
-					message = folder->name+":\n"+message;
+				if (folder->help)
+					message = folder->name+":\n"+*folder->help;
 				else
-					message = "No help definitions found for folder '"+folder->name+"'";
+					message = "No help text defined for folder '"+folder->name+"'";
 			}
 			
 			if (!message.length())
@@ -90,7 +75,7 @@ namespace CLI
 				String line = " *";
 				for (index_t j = 0; j < temp.count()-1; j++)
 					line+=temp[j]->name+"/";
-				line+=temp.last()->description+appendix;
+				line+=temp.last()->fullSpecification+appendix;
 				println(line);
 				listed_commands.set(cmd.get(),true);
 			}
@@ -215,13 +200,14 @@ namespace CLI
 			println(main_interpretor->GetErrorStr());
 	}
 
+	typedef std::shared_ptr<const String>	PString;
 	
-	static const String	list_help = "Displays the content of the current folder.\nCommands are displayed with a leading asterisk (e.g. '*command'), folders in brackets (e.g. '[folder]'), and variables just plain (e.g. 'variable').",
-							general_help = "Enter 'ls' or 'list' to list all available commands.\nAdditionally 'help <variable/command>' will query the respective help entry.",
-							set_help = "Registers a new variable or updates the value of an existing one.\nVariables may be read-only preventing you from changing their value, others may execute arbitrary code upon modification.",
-							unset_help = "Unregisters a variable. Variables may be protected against this kind of operation.",
-							cd_help = "Changes the active folder. Use 'cd <folder>' to change into a specific folder.\nEntering 'cd ..' will change into the respective parent folder and 'cd /' will change the active directory to the root folder. You may also specify an entire path (e.g. 'cd ../path0/subpath/../othersubpath'). The respective target folder(s) must exist for this operation to be successful.",
-							typeof_help = "Queries the type and protection of a variable.\nVariable types may vary from primitive types like integers, booleans, strings, or floats to very complex ones.";
+	static PString	list_help = PString(new String("Displays the content of the current folder.\nCommands are displayed with a leading asterisk (e.g. '*command'), folders in brackets (e.g. '[folder]'), and variables just plain (e.g. 'variable').")),
+							general_help = PString(new String("Enter 'ls' or 'list' to list all available commands.\nAdditionally 'help <variable/command>' will query the respective help entry.")),
+							set_help = PString(new String("Registers a new variable or updates the value of an existing one.\nVariables may be read-only preventing you from changing their value, others may execute arbitrary code upon modification.")),
+							unset_help = PString(new String("Unregisters a variable. Variables may be protected against this kind of operation.")),
+							cd_help = PString(new String("Changes the active folder. Use 'cd <folder>' to change into a specific folder.\nEntering 'cd ..' will change into the respective parent folder and 'cd /' will change the active directory to the root folder. You may also specify an entire path (e.g. 'cd ../path0/subpath/../othersubpath'). The respective target folder(s) must exist for this operation to be successful.")),
+							typeof_help = PString(new String("Queries the type and protection of a variable.\nVariable types may vary from primitive types like integers, booleans, strings, or floats to very complex ones."));
 							
 							
 	
@@ -234,17 +220,17 @@ namespace CLI
 		
 		main_interpretor = &parser;
 		PCommand help = parser.DefineGlobalCommand("help command/variable/folder",printHelp,CLI::CommandCompletion);
-		RegisterHelp(parser.DefineGlobalCommand("ls",list).get(),list_help);
-		RegisterHelp(parser.DefineGlobalCommand("list",list).get(),list_help);
+		parser.DefineGlobalCommand("ls",list)->help = list_help;
+		parser.DefineGlobalCommand("list",list)->help = list_help;
 		//parser.defineGlobalCommand("list",list);
 
-		RegisterHelp(parser.DefineGlobalCommand("set variable value",set,CLI::VariableCompletion).get(),set_help);
-		RegisterHelp(parser.DefineGlobalCommand("unset variable",unset,CLI::VariableCompletion).get(),unset_help);
-		RegisterHelp(parser.DefineGlobalCommand("cd folder",cd,CLI::FolderCompletion).get(),cd_help);
-		RegisterHelp(parser.DefineGlobalCommand("typeof variable",showTypeof,CLI::VariableCompletion).get(),typeof_help);
+		parser.DefineGlobalCommand("set variable value",set,CLI::VariableCompletion)->help = set_help;
+		parser.DefineGlobalCommand("unset variable",unset,CLI::VariableCompletion)->help = unset_help;
+		parser.DefineGlobalCommand("cd folder",cd,CLI::FolderCompletion)->help = cd_help;
+		parser.DefineGlobalCommand("typeof variable",showTypeof,CLI::VariableCompletion)->help = typeof_help;
 		parser.onVariableCall = variableCallBack;
 		
-		RegisterHelp(help.get(),general_help);
+		help->help = general_help;
 	}
 
 }
