@@ -16,6 +16,7 @@ struct NAME\
 		{\
 		static const size_t NumberOfPossibilities = COUNT;\
 		static const size_t N = COUNT;\
+		static const char* GetName() {return #NAME;}\
 		enum value_t\
 			{\
 
