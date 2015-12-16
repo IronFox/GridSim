@@ -354,6 +354,7 @@ namespace CLI	//! Command line interpretor
 		String						GetPath(unsigned max_depth)		const;		//!< Retrieves a folder path with up to \b max_depth segments to this folder (path segments separated by '/') @param max_depth Maximum number of path segments in the returned path. If the actual path would be longer than '(...)/' preceeds the returned segment string \return (potentially truncated) path string to the local folder (i.e. "(...)/folder22/folder23/folder24" for \b max_depth = 3)
 		bool						IsChildOf(const PFolder&other)	const;		//!< Checks if the local folder is some child of \b other
 
+		PFolder						CreateOrGetChild(const String&folderName);	//!< Creates or fetches a folder by the specified name. @param folderName Name of the new or existing folder. Must not contain path separators
 		PVariable					SetVariable(const PVariable&v);	//!< Attempts to declare the specified variable. If the operation fails, an exception of type Program::UniquenessViolation
 	};
 	

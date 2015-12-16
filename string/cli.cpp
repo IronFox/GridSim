@@ -428,6 +428,20 @@ namespace CLI
 	}
 
 
+
+	PFolder		Folder::CreateOrGetChild(const String&folderName)
+	{
+		for (index_t i = 0; i < folderName.length(); i++)
+			if (!isAllowedCharacter(folderName.get(i)))
+				throw Program::ParameterFault("Character 0x"+IntToHex((int)folderName.get(i),2)+" ('"+folderName.get(i)+"') of variable '"+folderName+"' not allowed");
+		PFolder f = folders.Query(folderName);
+		if (f)
+			return f;
+		f.reset(new Folder(shared_from_this(),folderName));
+		folders.Insert(folderName,f);
+		return f;
+	}
+
 	PVariable	Folder::SetVariable(const PVariable&v)
 	{
 		for (index_t i = 0; i < v->name.length(); i++)
