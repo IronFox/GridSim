@@ -6,9 +6,18 @@
 
 namespace CLI
 {
+	static inline bool isUmlaut(char c)
+	{
+		return c == 'ä' || c == 'ü' || c == 'ö'
+				||
+				c == 'Ä' || c == 'Ü' || c == 'Ö'
+				||
+				c == 'ß';
+	}
+
 	static inline bool isAllowedCharacter(char c)
 	{
-		return (isalnum(c) || c == '_') && (c != '\n' && c != '\r' && c != ' ');
+		return (isUmlaut(c) || isalnum(c) || c == '_') && (c != '\n' && c != '\r' && c != ' ');
 	}
 
 	namespace detail
