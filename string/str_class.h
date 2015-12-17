@@ -1138,6 +1138,7 @@ template <typename T>
 							//template <typename T2>
 	inline							StringTemplate(const char*string);
 	inline							StringTemplate(const wchar_t*string);
+									StringTemplate(bool);
 									StringTemplate(char);
 									StringTemplate(wchar_t);
 									StringTemplate(short);

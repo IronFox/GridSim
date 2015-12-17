@@ -686,6 +686,31 @@ template <typename T>
 		//ASSERT_NOT_NULL__(field);
 	}
 
+
+template <typename T>
+	StringTemplate<T>::StringTemplate(bool b)
+	{
+		if (b)
+		{
+			string_length = 4;
+			field = allocate(4);
+			field[0] = (T)'t';
+			field[1] = (T)'r';
+			field[2] = (T)'u';
+			field[3] = (T)'e';
+		}
+		else
+		{
+			string_length = 5;
+			field = allocate(5);
+			field[0] = (T)'f';
+			field[1] = (T)'a';
+			field[2] = (T)'l';
+			field[3] = (T)'s';
+			field[4] = (T)'e';
+		}
+	}
+
 template <typename T>
 	StringTemplate<T>::StringTemplate(char c)
 	{
