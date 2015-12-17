@@ -446,10 +446,10 @@ namespace CLI
 	{
 		for (index_t i = 0; i < v->name.length(); i++)
 			if (!isAllowedCharacter(v->name.get(i)))
-				throw Program::ParameterFault("Character 0x"+IntToHex((int)v->name.get(i),2)+" ('"+v->name.get(i)+"') of variable '"+v->name+"' not allowed");
+				throw Program::ParameterFault(CLOCATION,"Character 0x"+IntToHex((int)v->name.get(i),2)+" ('"+v->name.get(i)+"') of variable '"+v->name+"' not allowed");
 
 		if (variables.IsSet(v->name))
-			throw Program::UniquenessViolation("Variable '"+v->name+"' already defined in context '"+GetPath()+"'");
+			throw Program::UniquenessViolation(CLOCATION,"Variable '"+v->name+"' already defined in context '"+GetPath()+"'");
 		variables.Insert(v->name, v);
 		return v;
 	}
