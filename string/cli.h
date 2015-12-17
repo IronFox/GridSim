@@ -100,6 +100,10 @@ namespace CLI	//! Command line interpretor
 		Returns the default value, if any.
 		*/
 		virtual String		GetDefault() const {return "";}
+		/**
+		Redefines the default value of this variable to its current value
+		*/
+		virtual void		SetCurrentToDefault() {}
 	};
 
 	typedef std::shared_ptr<Variable>	PVariable;
