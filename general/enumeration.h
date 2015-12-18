@@ -4,7 +4,14 @@
 
 
 
-
+#ifndef constexpr
+#ifdef _MSC_VER 
+#if _MSC_VER  <= 1800
+	#define constexpr
+	#define _ALLOW_KEYWORD_MACROS
+#endif
+#endif
+#endif
 
 #undef CONSTRUCT_ECASE
 #define CONSTRUCT_ECASE(ENUM_NAME,ENUM_VAL)	case ENUM_VAL: return #ENUM_VAL;
