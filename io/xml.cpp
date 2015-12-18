@@ -23,7 +23,7 @@ static char* findCharacter(char*from, char c)
 	return from;
 }
 
-static String getWord(char*from)
+static StringRef GetWord(char*from)
 {
 	while (IS_WHITESPACE(*from))
 		from++;
@@ -55,11 +55,12 @@ static String getWord(char*from)
 		}
 		c++;
 	}
-	char temp = *c;
-	(*c) = 0;
-	String rs = from;
-	(*c) = temp;
-	return rs;
+	return StringRef(from,c-from);
+	//char temp = *c;
+	//(*c) = 0;
+	//String rs = from;
+	//(*c) = temp;
+	//return rs;
 }
 
 static unsigned findWord(char*from)
@@ -104,81 +105,129 @@ static unsigned findWord(char*from)
 }
 
 
-static String encode(const String&content)
+template <typename Stream>
+static void EncodeValueToStream(Stream&stream, XML::Encoding enc, const String&content)
 {
-	ASSERT_EQUAL1__(content.length(),strlen(content.c_str()),content.c_str());
+	DBG_ASSERT_EQUAL1__(content.length(),strlen(content.c_str()),content.c_str());
 	
-	String rs = content;
-	for (unsigned i = 0; i < rs.length(); i++)
+	//String rs = content;
+	for (index_t i = 0; i < content.length(); i++)
 	{
-		char c = rs.get(i);
+		char c = content.get(i);
 		switch (c)
 		{
 			case '&':
-				rs.insert(i+1,"amp;");
+				stream << "&amp;";
 			break;
 			case '<':
-				rs.erase(i,1);
-				rs.insert(i,"&lt;");
+				stream << "&lt;";
 			break;
 			case '>':
-				rs.erase(i,1);
-				rs.insert(i,"&gt;");
+				stream << "&gt;";
 			break;
 			case '\'':
 			{
-				rs.erase(i,1);
-				rs.insert(i,"&apos;");
+				stream << "&apos;";
 			}
 			break;
 			case '\"':
-				rs.erase(i,1);
-				rs.insert(i,"&quot;");
+				stream << "&quot;";
+			break;
+			default:
+			{
+				if (enc == XML::Encoding::ANSI)
+					stream << c;
+				elif (enc == XML::Encoding::UTF8)
+				{
+					StringConversion::UTF8Char ch;
+					StringConversion::AnsiToUtf8(c,ch);
+					stream << StringRef(ch.encoded,ch.numCharsUsed);
+				}
+				else
+					FATAL__("XML: Unsupported encoding encountered");
+			}
 			break;
 		}
 	}
-	ASSERT_EQUAL__(rs.length(), strlen(rs.c_str()));
-	return rs;
 }
 
-static String decode(const String&content)
+
+static String Decode(const StringRef&content, XML::Encoding enc)
+{
+	switch (enc)
+	{
+		case XML::Encoding::ANSI:
+			return content;
+		case XML::Encoding::UTF8:
+		{
+			String rs;
+			ASSERT__(StringConversion::Utf8ToAnsi(content,rs));
+			return std::move(rs);
+		}
+		default:
+			FATAL__("Unexpected encoding encountered");
+	}
+	return "";
+}
+
+static String DecodeValue(const StringRef&content, XML::Encoding enc)
 {
 	if (content.length() < 4)
-		return content;
-	String rs = content;
+		return Decode(content,enc);
+	static StringBuffer buffer;
+	buffer.Clear();
+
+	//String rs = content;
 	//log_file << "in: "<<content<<nl;
-	for (unsigned i = 0; i+3 < rs.length(); i++)
-		if (rs.get(i) == '&')
+	const char*source = content.pointer();
+	const char*const end = source + content.length();
+	while (source < end)
+	{
+		
+		if (*source != '&')
 		{
-			unsigned end=0;
-			//log_file << i+1<<"->"<<rs.length()<<nl;
-			for (end = i+1; end < rs.length() && rs.get(end) != ';'; end++);
-			
-			if (end >= rs.length() || end-i>6)
-				break;
-			String sub = rs.subString(i+1,end-i);
-			rs.erase(i,end-i+1);
-			char replace(0);
-			if (sub == "amp;")
-				replace='&';
-			elif (sub == "lt;")
-				replace='<';
-			elif (sub == "gt;")
-				replace='>';
-			elif (sub == "quot;")
-				replace='\"';
-			elif (sub == "apos;")
-				replace='\'';
-			if (replace)
+			if (enc == XML::Encoding::UTF8)
 			{
-				//log_file << "replace ("<<String(replace)<<")"<<nl;
-				rs.insert(i,replace);
-				//log_file << "replaced"<<nl;
+				char c;
+				if (!StringConversion::Utf8CharToAnsi(source,end,c))
+					break;
+				buffer << c;
 			}
-			//log_file << i<<"/"<<rs.length()<<nl;
+			elif (enc == XML::Encoding::ANSI)
+			{
+				buffer << *source;
+				source++;
+			}
+			else
+				FATAL__("Unexpected encoding encountered");
 		}
-	//log_file << "out: "<<rs<<nl;
-	return rs;
+		else
+		{
+			source++;
+			if (source >= end)
+				break;
+			const char*begin = source;
+			while (source < end && *source != ';')
+				source++;
+			if (source >= end)
+				break;
+			StringRef sub(begin,source-begin);
+			if (sub == "amp")
+				buffer << '&';
+			elif (sub == "lt")
+				buffer << '<';
+			elif (sub == "gt")
+				buffer << '>';
+			elif (sub == "quot")
+				buffer << '\"';
+			elif (sub == "apos")
+				buffer << '\'';
+			else
+				buffer << '&'<<Decode(sub,enc)<<';';
+			source++;
+		}
+	}
+	return buffer.ToStringRef();
 }
 
 /*
@@ -284,8 +333,19 @@ void	XML::Container::Clear()
 	root_node.attributes.clear();
 }
 
+static XML::Encoding	DecodeEncoding(const StringRef&name)
+{
+	if (name.CompareToIgnoreCase("UTF-8") == 0)
+		return XML::Encoding::UTF8;
+	if (name.CompareToIgnoreCase("ANSI")==0 || name.CompareToIgnoreCase("ISO-8859-1")==0 || name.CompareToIgnoreCase("windows-1252")==0)
+		return XML::Encoding::ANSI;
+	FATAL__("Unexpected encoding: '"+String(name)+"'");
+	return XML::Encoding::UTF8;
+}
+
 void	XML::Container::LoadFromCharArray(ArrayData<char>&field)
 {
+	encoding = Encoding::UTF8;
 	Buffer<Node*,4>	parse_stack;
 
 	bool in_block(false),/*in_string(false),*/open(false);
@@ -308,16 +368,16 @@ void	XML::Container::LoadFromCharArray(ArrayData<char>&field)
 		}
 			
 		{
-			*next = 0;
+//			*next = 0;
 			if (open)
 			{
 				if (active_entry)
-					active_entry->inner_content += decode(c);
+					active_entry->inner_content += DecodeValue(StringRef(c,next-c),encoding);
 			}
 			else
 				if (last)
-					last->following_content += decode(c);
-			*next = '<';
+					last->following_content += DecodeValue(StringRef(c,next-c),encoding);
+//			*next = '<';
 		}
 		c = next;
 
@@ -325,10 +385,28 @@ void	XML::Container::LoadFromCharArray(ArrayData<char>&field)
 
 		if (*c == '?')
 		{
-			c = strchr(c,'>');
-			if (!c)
+			char*end = strchr(c, '>');
+			if (!end)
 				throw IO::DriveAccess::FileFormatFault(globalString("XML: Cannot find enclosing '>' character to '<?...'"));
-			c++;
+			const char*enc = strstr(c,"encoding");
+			if (!enc || enc > end)
+				throw IO::DriveAccess::FileFormatFault(globalString("XML: Missing encoding"));
+			enc += 8;
+			while (isWhitespace(*enc))
+				enc++;
+			if (*enc != '=')
+				throw IO::DriveAccess::FileFormatFault(globalString("XML: Encoding assignment broken"));
+			enc++;
+			while (isWhitespace(*enc))
+				enc++;
+			if (*enc != '"' && *enc != '\'')
+				throw IO::DriveAccess::FileFormatFault(globalString("XML: Encoding assignment broken"));
+			enc++;
+			const char*encStart = enc;
+			while (*enc != '"' && *enc != '\'')
+				enc++;
+			encoding = DecodeEncoding(StringRef(encStart,enc-encStart));
+			c = end+1;
 		}
 		elif (c[0] == '!' && c[1] == '-' && c[2] == '-')
 		{
@@ -340,7 +418,7 @@ void	XML::Container::LoadFromCharArray(ArrayData<char>&field)
 		}
 		elif (*c == '/')
 		{
-			String name = getWord(c+1);
+			String name = Decode(GetWord(c+1),encoding);
 			last = active_entry;
 			if (active_entry && name == active_entry->name)
 				active_entry = parse_stack.pop();
@@ -358,14 +436,14 @@ void	XML::Container::LoadFromCharArray(ArrayData<char>&field)
 			//sub->parent = active_entry;
 			parse_stack << active_entry;
 			active_entry = sub;
-			active_entry->name = getWord(c);
+			active_entry->name = Decode(GetWord(c),encoding);
 //			ShowMessage("opening "+active_entry->name);
 			in_block = true;
 			c += active_entry->name.length();
 			open = true;
 			while (unsigned len = findWord(c))
 			{
-				String pname = getWord(c);
+				String pname = Decode(GetWord(c),encoding);
 				c += len;
 				if (pname == "/")
 				{
@@ -384,13 +462,13 @@ void	XML::Container::LoadFromCharArray(ArrayData<char>&field)
 				if (!len)
 					throw IO::DriveAccess::FileFormatFault("XML: Missing attribute value of attribute '"+pname+"'");
 
-				String pvalue = getWord(c);
+				StringRef pvalue = GetWord(c);
 				c += len;
-				if (pvalue.firstChar() == '\"' || pvalue.firstChar() == '\'')
-					pvalue.erase(0,1);
-				if (pvalue.length() && (pvalue.lastChar() == '\"' || pvalue.lastChar() == '\''))
-					pvalue.erase(pvalue.length()-1);
-				active_entry->Set(pname,decode(pvalue));
+				if (pvalue.GetFirstChar() == '\"' || pvalue.GetFirstChar() == '\'')
+					pvalue.DropFirstChar();
+				if (pvalue.length() && (pvalue.GetLastChar() == '\"' || pvalue.GetLastChar() == '\''))
+					pvalue.DropLastChar();
+				active_entry->Set(pname,DecodeValue(pvalue,encoding));
 //				ShowMessage("specifying parameter "+pname+" = "+pvalue);
 			}
 			c = strchr(c,'>');
@@ -472,7 +550,25 @@ inline static void trim(Array<String,Adopt>&field)
 }
 
 template <class OutStream>
-static void writeToStream(OutStream&outfile, XML::Node		*entry, XML::export_style_t style, unsigned indent=0)
+static void EncodeToStream(OutStream&outfile, XML::Encoding enc, const String&identifier)
+{
+	if (enc == XML::Encoding::ANSI)
+		outfile << identifier;
+	static String encoded;
+	switch (enc)
+	{
+		case XML::Encoding::UTF8:
+			StringConversion::AnsiToUtf8(identifier,encoded);
+		break;
+		default:
+			FATAL__("XML: Unsupported encoding encountered");
+	}
+	outfile << encoded;
+}
+
+
+template <class OutStream>
+static void writeToStream(OutStream&outfile, XML::Encoding enc, XML::Node*entry, XML::export_style_t style, unsigned indent=0)
 {
 	entry->name.trimThis();
 	if (entry->name.IsEmpty())
@@ -480,13 +576,17 @@ static void writeToStream(OutStream&outfile, XML::Node		*entry, XML::export_styl
 
 	if (style==XML::Nice)
 		outfile << tabSpace(indent);
-	outfile << "<" << entry->name;
+	outfile << "<";
+	EncodeToStream(outfile, enc,entry->name);
 	entry->attributes.reset();
 	while (XML::TAttribute*p = entry->attributes.each())
 	{
 		if (style != XML::Tidy || p == entry->attributes.first())
 			outfile << " ";
-		outfile << p->name<<"=\""<<encode(p->value)<<"\"";
+		EncodeToStream(outfile, enc,p->name);
+		outfile << "=\"";
+		EncodeValueToStream(outfile,enc,p->value);
+		outfile<<"\"";
 	}
 	if (entry->children.IsEmpty() && entry->inner_content.IsEmpty())
 	{
@@ -501,7 +601,7 @@ static void writeToStream(OutStream&outfile, XML::Node		*entry, XML::export_styl
 		switch (style)
 		{
 			case XML::Raw:
-				outfile << encode(entry->inner_content);
+				EncodeValueToStream(outfile,enc,entry->inner_content);
 			break;
 			case XML::Nice:
 			{
@@ -511,15 +611,21 @@ static void writeToStream(OutStream&outfile, XML::Node		*entry, XML::export_styl
 				if (lines.count() > 1)
 				{
 					outfile << nl;
-					for (unsigned i = 0; i < lines.count(); i++)
-						outfile << tabSpace(indent+1)<<encode(lines[i])<<nl;
+					for (index_t i = 0; i < lines.count(); i++)
+					{
+						outfile << tabSpace(indent+1);
+						EncodeValueToStream(outfile,enc,lines[i]);
+						outfile << nl;
+					}
 					if (entry->children.IsEmpty())
 						outfile << tabSpace(indent);
 				}
 				else
 				{
 					if (lines.IsNotEmpty())
-						outfile << encode(lines.first());
+					{
+						EncodeValueToStream(outfile,enc,lines.first());
+					}
 					if (entry->children.IsNotEmpty())
 						outfile << nl;
 				}
@@ -530,11 +636,11 @@ static void writeToStream(OutStream&outfile, XML::Node		*entry, XML::export_styl
 				Array<String,Adopt>	lines;
 				explodeCallback(isNewLine,entry->inner_content,lines);
 				trim(lines);
-				for (unsigned i = 0; i < lines.count(); i++)
+				for (index_t i = 0; i < lines.count(); i++)
 				{
 					if (i)
 						outfile << nl;
-					outfile << lines[i];
+					EncodeValueToStream(outfile,enc,lines[i]);
 				}
 			}
 			break;
@@ -542,20 +648,23 @@ static void writeToStream(OutStream&outfile, XML::Node		*entry, XML::export_styl
 	}
 
 	for (index_t i = 0; i < entry->children.count(); i++)
-		writeToStream(outfile,entry->children +i,style,indent+1);
+		writeToStream(outfile,enc,entry->children +i,style,indent+1);
 	
 	if (entry->children.IsNotEmpty() || entry->inner_content.IsNotEmpty())
 	{
 		if (style==XML::Nice && entry->children.IsNotEmpty())
 			outfile << tabSpace(indent);
-		outfile << "</" << entry->name << ">";
+		outfile << "</";
+		EncodeToStream(outfile,enc,entry->name);
+		outfile << ">";
 	}
 
 	{
 		switch (style)
 		{
 			case XML::Raw:
-				outfile << encode(entry->following_content);
+				EncodeValueToStream(outfile,enc,entry->following_content);
+				//outfile << encode(entry->following_content);
 			break;
 			case XML::Nice:
 			{
@@ -563,8 +672,12 @@ static void writeToStream(OutStream&outfile, XML::Node		*entry, XML::export_styl
 				explodeCallback(isNewLine,entry->following_content,lines);
 				trim(lines);
 				outfile << nl;
-				for (unsigned i = 0; i < lines.count(); i++)
-					outfile << tabSpace(indent)<<encode(lines[i])<<nl;
+				for (index_t i = 0; i < lines.count(); i++)
+				{
+					outfile << tabSpace(indent);
+					EncodeValueToStream(outfile,enc,lines[i]);
+					outfile<<nl;
+				}
 			}
 			break;
 			case XML::Tidy:
@@ -572,11 +685,11 @@ static void writeToStream(OutStream&outfile, XML::Node		*entry, XML::export_styl
 				Array<String,Adopt>	lines;
 				explodeCallback(isNewLine,entry->inner_content,lines);
 				trim(lines);
-				for (unsigned i = 0; i < lines.count(); i++)
+				for (index_t i = 0; i < lines.count(); i++)
 				{
 					if (i)
 						outfile << nl;
-					outfile << lines[i];
+					EncodeValueToStream(outfile,enc,lines[i]);
 				}
 			}
 			break;
@@ -586,18 +699,29 @@ static void writeToStream(OutStream&outfile, XML::Node		*entry, XML::export_styl
 
 void				XML::Container::SaveToStringBuffer(StringBuffer&target, export_style_t style)
 {
-	writeToStream(target,&root_node,style);
+	writeToStream(target,encoding,&root_node,style);
 }
 
 void				XML::Container::SaveToFile(const PathString&filename, export_style_t style)
 {
 	StringFile outfile;
 	if (!outfile.Create(filename))
-		throw IO::DriveAccess::FileOpenFault("XML: Unable to open file '"+filename+"' for output");
+		throw IO::DriveAccess::FileOpenFault(CLOCATION,"XML: Unable to open file '"+filename+"' for output");
 
-	
-	outfile << "<?xml version=\"1.0\" encoding=\""<<encoding<<"\" ?>"<<nl;
-	writeToStream(outfile,&root_node, style);
+	outfile << "<?xml version=\"1.0\" encoding=\"";
+	switch (encoding)
+	{
+		case Encoding::ANSI:
+			outfile << "ISO-8859-1";
+		break;
+		case Encoding::UTF8:
+			outfile << "UTF-8";
+		break;
+		default:
+			throw Program::DataConsistencyFault(CLOCATION,"XML: Unsupported encoding for export");
+	}
+	outfile <<"\" ?>"<<nl;
+	writeToStream(outfile,encoding,&root_node, style);
 }
 
 static XML::Node*	findIn(BasicBuffer<XML::Node,SwapStrategy>&children, const String&path)
@@ -930,6 +1054,8 @@ bool	XML::Scanner::Scan(const PathString&filename)
 		error_is_filenotfound = true;
 	}
 	error_is_filenotfound = false;
+
+	XML::Encoding encoding = XML::Encoding::UTF8;
 	
 	List::Vector<TScannerNode>	stack;
 	TScannerNode*current = stack.append();
@@ -1026,6 +1152,7 @@ bool	XML::Scanner::Scan(const PathString&filename)
 				while (IS_WHITESPACE(*name_offset))
 					name_offset++;
 				(*attrib) = 0;
+				const char*name_end = attrib;
 				attrib++;
 				field[buffer.length()] = 0;
 				char quote = *attrib;
@@ -1048,8 +1175,8 @@ bool	XML::Scanner::Scan(const PathString&filename)
 				}
 				(*attrib) = 0;
 				TAttribute*a = inner->attributes.append(name_offset);
-				a->name = name_offset;
-				a->value = decode(data_offset);
+				a->name = Decode(StringRef(name_offset,name_end - name_offset),encoding);
+				a->value = DecodeValue(StringRef(data_offset,attrib - data_offset),encoding);
 				name_offset = attrib+1;
 			}
 		bool do_enter = field[buffer.length()-1] != '/';
@@ -1062,7 +1189,7 @@ bool	XML::Scanner::Scan(const PathString&filename)
 				working = false;
 				error_string = "Unexpected end of file.";
 			}
-			inner->content = decode(buffer.ToStringRef());
+			inner->content = DecodeValue(buffer.ToStringRef(),encoding);
 		}
 		else
 			if (!skip('<',f))

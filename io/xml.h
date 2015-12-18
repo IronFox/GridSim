@@ -24,6 +24,14 @@ namespace XML
 
 
 
+	enum class Encoding
+	{
+		UTF8,
+		ANSI
+	};
+
+
+
 	enum export_style_t	//! Style used to export XML content to files or string buffers
 	{
 		Raw,	//!< Export data as available. Whitespaces and newlines are exported if they are contained in the exporting structure
@@ -74,10 +82,10 @@ namespace XML
 
 	public:
         Node           		root_node;
-		String				encoding;							//!< Character encoding
+		Encoding			encoding;							//!< Character encoding
 
-		/**/				Container()						{root_node.name = "xml"; encoding = "UTF-8"; }
-		/**/				Container(const PathString&source)	{root_node.name = "xml"; encoding = "UTF-8"; LoadFromFile(source);}
+		/**/				Container()						{root_node.name = "xml"; encoding = Encoding::UTF8; }
+		/**/				Container(const PathString&source)	{root_node.name = "xml"; encoding = Encoding::UTF8; LoadFromFile(source);}
 		void				Clear();													//!< Clears all local data
 		Node*				Find(const String&path);				//!< Returns the first matching node (if any) @param path Path string in the form 'node/subnode/.../subnodeN' @return Pointer to the matching node or NULL if no such could be found
 		const Node*			Find(const String&path)		const;	//!< @copydoc find()
