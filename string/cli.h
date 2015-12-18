@@ -68,6 +68,7 @@ namespace CLI	//! Command line interpretor
 		std::shared_ptr<const String>	help;		//!< Help-text. Often reused
 
 		/**/				NamedItem(const String&name):name(name)	{}
+		virtual				~NamedItem()	{}
 
 		void				SetUniqueHelp(const String&help)	{this->help.reset(new String(help));}
 	};
