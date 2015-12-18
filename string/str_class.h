@@ -1378,7 +1378,8 @@ template <typename T>
 									\param Index of the character to retrieve in the range [0,length()-1]
 									
 									If \b index is not in the range [0,length()-1] (0=first character) then the result will be 0.*/
-			T						get(size_t index) const;
+			T						get(index_t index) const;
+			T						operator[](index_t index) const {return get(index);}
 			#if 0
 								/*!	\brief Const character access operator
 									\param Index of the character to retrieve in the range [0,length()-1]
@@ -1793,6 +1794,14 @@ template <typename T>
 	
 	
 #include "str_class.tpl.h"
+
+
+namespace StringConversion
+{
+	void	AnsiToUtf8(const String&ansiSource, String&utf8Dest);
+	bool	Utf8ToAnsi(const String&utf8Source, String&ansiDest);
+}
+
 
 
 #endif

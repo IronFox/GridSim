@@ -782,6 +782,87 @@ String floatToStr(float value)
 #endif
 
 
+namespace StringConversion
+{
+	bool	IsAnsiMultiByte(char csource)
+	{
+		return ((signed char)csource) < 0;
+	}
+
+	void AnsiCharToUtf8(char csource, char*&dest, const char*end)
+	{
+		unsigned char usource = (unsigned char)csource;
+		ASSERT_LESS__(dest,end);
+		if (usource < 128)
+		{
+			*dest = csource;
+			dest++;
+			return;
+		}
+		*dest = (char)(0xC0 | (usource >> 6));
+		dest++;
+		ASSERT_LESS__(dest,end);
+		*dest = (char)(0x80 | (usource & 0x3f));
+		dest++;
+	}
+
+
+	void	AnsiToUtf8(const String&ansiSource, String&utf8Dest)
+	{
+		count_t len = 0;
+		for (index_t i = 0; i < ansiSource.length(); i++)
+			if (IsAnsiMultiByte(ansiSource[i]))
+				len += 2;
+			else
+				len ++;
+		utf8Dest.setLength(len);
+		index_t at = 0;
+		char*out = utf8Dest.mutablePointer();
+		char*end = out + len;
+		for (index_t i = 0; i < ansiSource.length(); i++)
+			AnsiCharToUtf8(ansiSource[i],out,end);
+	}
+
+
+	bool	Utf8ToAnsi(const String&utf8Source, String&ansiDest)
+	{
+		count_t len = 0;
+		for (index_t i = 0; i < utf8Source.length(); i++)
+		{
+			len++;
+			unsigned char usource = (unsigned char)utf8Source[i];
+			if (usource >= 128)
+				i++;
+		}
+
+		ansiDest.setLength(len);
+		index_t at = 0;
+		char*out = ansiDest.mutablePointer();
+		for (index_t i = 0; i < utf8Source.length(); i++)
+		{
+			unsigned char usource = (unsigned char)utf8Source[i];
+			if (usource < 128)
+				*out = (char)usource;
+			else
+			{
+				unsigned char usource1 = (unsigned char)utf8Source[i+1];	//should be caught. if not, and out of range, must be terminating 0.
+				*out = (char)(((usource & ~0xC0) << 6) | ((usource1 & ~0x80)));
+
+		//*dest = (char)(0xC0 | (usource >> 6));
+		//dest++;
+		//ASSERT_LESS__(dest,end);
+		//*dest = (char)(0x80 | (usource & 0x3f));
+
+			}
+			out++;
+		}
+		ASSERT__(out == utf8Source.c_str() + utf8Source.length());
+		return true;
+
+	}
+}
+
+
 
 
 //#if 0
