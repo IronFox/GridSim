@@ -275,13 +275,45 @@ template <typename T>
 							reference++;
 							return true;
 						}
+		inline T		GetFirstChar() const
+						{
+							if (!len)
+								FATAL__("Cannot access first char. Expression is empty");
+							return *reference;
+						}
+		inline T		GetLastChar() const
+						{
+							if (!len)
+								FATAL__("Cannot access first char. Expression is empty");
+							return reference[len-1];
+						}
+		inline T		operator[](index_t at) const
+						{
+							return reference[at];
+						}
 		inline size_t	length()	const	//! Retrieves the length of the reference character segment (excluding any trailing zero) @return Length in characters
 						{
 							return len;
 						}
+		inline size_t	GetLength() const {return len;}
 		inline const T*	pointer()	const
 						{
 							return reference;
+						}
+		inline ReferenceExpression<T>	SubStringRef(int index, count_t count = (count_t)-1)	 const
+						{
+							if (index<0)
+							{
+								count += index;
+								index=0;
+							}
+							if ((size_t)index >= len)
+								return ReferenceExpression<T>(reference,0);
+							if (count > len)
+								count = len;
+							if (index+count>len)
+								count = len-index;
+							return ReferenceExpression<T>(reference+index,count);
 						}
 		inline StringTemplate<char>		ToString()			const;	//!< Converts the expression architecture including data to a string for debug output
 		inline void		print(std::ostream&stream)			const;	//!< Prints the local expression content to the specified stream @param stream Stream to print to
@@ -359,6 +391,15 @@ template <typename T>
 						{
 							int result = compareSegmentIgnoreCase(string,string_length);
 							if (!result && string_length > len)
+								result = -1;
+							return result;
+						}
+		template <typename T2>
+			inline int	CompareToIgnoreCase(const T2*string)	const	//! Expression comparison. Allows to orthographically compare the local string to the specified character segment @param string String to compare to @param string_length Number of characters that the specified string is in length @return -1 if the local expression is orthographically smaller than the specified string, 0 if it is equal, +1 if it is orthographically larger
+						{
+							size_t slen = Template::strlen(string);
+							int result = compareSegmentIgnoreCase(string,slen);
+							if (!result && slen > len)
 								result = -1;
 							return result;
 						}
@@ -1798,8 +1839,20 @@ template <typename T>
 
 namespace StringConversion
 {
+	struct UTF8Char
+	{
+		char	encoded[6];
+		BYTE	numCharsUsed;
+	};
+
+	void	AnsiToUtf8(const char ansiSource, UTF8Char&utf8Dest);
+	bool	Utf8CharToAnsi(const char*&ch, const char*const inEnd, char&out);
+
 	void	AnsiToUtf8(const String&ansiSource, String&utf8Dest);
 	bool	Utf8ToAnsi(const String&utf8Source, String&ansiDest);
+	void	AnsiToUtf8(const StringRef&ansiSource, String&utf8Dest);
+	bool	Utf8ToAnsi(const StringRef&utf8Source, String&ansiDest);
+
 }
 
 

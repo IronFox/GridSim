@@ -806,8 +806,26 @@ namespace StringConversion
 		dest++;
 	}
 
+	void	AnsiToUtf8(const char ansiSource, UTF8Char&utf8Dest)
+	{
+		char*at = utf8Dest.encoded;
+		AnsiCharToUtf8(ansiSource,at,at+6);
+		utf8Dest.numCharsUsed = (BYTE)(at - utf8Dest.encoded);
+	}
+
+
+
+	bool	Utf8ToAnsi(const String&utf8Source, String&ansiDest)
+	{
+		return Utf8ToAnsi(utf8Source.ref(),ansiDest);
+	}
 
 	void	AnsiToUtf8(const String&ansiSource, String&utf8Dest)
+	{
+		AnsiToUtf8(ansiSource.ref(),utf8Dest);
+	}
+
+	void	AnsiToUtf8(const StringRef&ansiSource, String&utf8Dest)
 	{
 		count_t len = 0;
 		for (index_t i = 0; i < ansiSource.length(); i++)
@@ -824,39 +842,63 @@ namespace StringConversion
 	}
 
 
-	bool	Utf8ToAnsi(const String&utf8Source, String&ansiDest)
+	bool Utf8CharToAnsi(const char*&ch, const char*const inEnd, char&out)
+	{
+		unsigned char usource = (unsigned char)*ch;
+		ch++;
+		if (!(usource & 0x80))
+			out = (char)usource;
+		else
+		{
+			if (ch >= inEnd)
+				return false;
+			unsigned char usource1 = (unsigned char)*ch;	//should be caught. if not, and out of range, must be terminating 0.
+			ch++;
+				
+			unsigned char payload0 = (unsigned char)(usource & ~0xC0);
+			if (payload0 & 0x3C)
+			{
+				//not ansi
+				return false;
+			}
+			out = (char)((payload0 << 6) | ((usource1 & ~0x80)));
+		}
+		return true;
+	}
+
+
+	bool	Utf8ToAnsi(const StringRef&utf8Source, String&ansiDest)
 	{
 		count_t len = 0;
-		for (index_t i = 0; i < utf8Source.length(); i++)
+		const char*utf8 = utf8Source.pointer();
+		char const*const end = utf8 + utf8Source.length();
+		while (utf8 < end)
 		{
+			count_t localLen = 0;
+			unsigned char usource = (unsigned char)*utf8;
+			while (usource & 0x80)
+			{
+				usource <<= 1;
+				localLen ++;
+			}
+			localLen = std::max(localLen,1U);
+			if (localLen > 2)
+				return false;
+			utf8 += localLen;
 			len++;
-			unsigned char usource = (unsigned char)utf8Source[i];
-			if (usource >= 128)
-				i++;
 		}
 
 		ansiDest.setLength(len);
 		index_t at = 0;
 		char*out = ansiDest.mutablePointer();
-		for (index_t i = 0; i < utf8Source.length(); i++)
+		const char*in = utf8Source.pointer();
+		const char*const inEnd = in + utf8Source.length();
+		while (in < inEnd)
 		{
-			unsigned char usource = (unsigned char)utf8Source[i];
-			if (usource < 128)
-				*out = (char)usource;
-			else
-			{
-				unsigned char usource1 = (unsigned char)utf8Source[i+1];	//should be caught. if not, and out of range, must be terminating 0.
-				*out = (char)(((usource & ~0xC0) << 6) | ((usource1 & ~0x80)));
-
-		//*dest = (char)(0xC0 | (usource >> 6));
-		//dest++;
-		//ASSERT_LESS__(dest,end);
-		//*dest = (char)(0x80 | (usource & 0x3f));
-
-			}
+			Utf8CharToAnsi(in,inEnd, *out);
 			out++;
 		}
-		ASSERT__(out == utf8Source.c_str() + utf8Source.length());
+		ASSERT__(out == ansiDest.c_str() + ansiDest.length());
 		return true;
 
 	}
