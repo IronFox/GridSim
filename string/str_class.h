@@ -82,6 +82,11 @@ template <typename T>
 		return c == (T)' ' || c == (T)'\t' || c == (T)'\r' || c == (T)'\n';
 	}
 
+template <typename T>
+	inline bool isNewline(T c)
+	{
+		return c == (T)'\r' || c == (T)'\n';
+	}
 
 #include "../interface/to_string.h"
 #include "../interface/serializable.h"
@@ -300,21 +305,10 @@ template <typename T>
 						{
 							return reference;
 						}
-		inline ReferenceExpression<T>	SubStringRef(int index, count_t count = (count_t)-1)	 const
-						{
-							if (index<0)
-							{
-								count += index;
-								index=0;
-							}
-							if ((size_t)index >= len)
-								return ReferenceExpression<T>(reference,0);
-							if (count > len)
-								count = len;
-							if (index+count>len)
-								count = len-index;
-							return ReferenceExpression<T>(reference+index,count);
-						}
+		inline ReferenceExpression<T>	SubStringRef(int index, count_t count = (count_t)-1)	 const;
+		inline ReferenceExpression<T>	Trim() const;
+		inline ReferenceExpression<T>	TrimLeft() const;
+		inline ReferenceExpression<T>	TrimRight() const;
 		inline StringTemplate<char>		ToString()			const;	//!< Converts the expression architecture including data to a string for debug output
 		inline void		print(std::ostream&stream)			const;	//!< Prints the local expression content to the specified stream @param stream Stream to print to
 		#ifdef WCOUT

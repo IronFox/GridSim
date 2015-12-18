@@ -2094,96 +2094,110 @@ template <typename T>
 		string_length = len;
 		return *this;
 	}
+
+
+template <typename T>
+	ReferenceExpression<T>				ReferenceExpression<T>::Trim()			const
+	{
+		if (!len)
+			return ReferenceExpression<T>();
+		const T*left=reference;
+		const T*const end = reference + len;
+		while (left < end && isWhitespace(*left))
+			left++;
+		if (left == end)
+			return ReferenceExpression<T>();
+		const T*right = end-1;
+		while (isWhitespace(*right))
+			right--;
+		size_t len2 = right-left+1;
+		if (!left && len2 == len)
+			return *this;
+		return ReferenceExpression<T>(left,len2);
+	}
+
+template <typename T>
+	ReferenceExpression<T>				ReferenceExpression<T>::SubStringRef(int index, count_t count /*= (count_t)-1*/)	 const
+	{
+		if (index<0)
+		{
+			count += index;
+			index=0;
+		}
+		if ((size_t)index >= len)
+			return ReferenceExpression<T>(reference,0);
+		if (count > len)
+			count = len;
+		if (index+count>len)
+			count = len-index;
+		return ReferenceExpression<T>(reference+index,count);
+	}
+
+
+template <typename T>
+	ReferenceExpression<T>				ReferenceExpression<T>::TrimLeft()		const
+	{
+		size_t left = 0;
+//		const T*const end = pointer + len;
+		while (left < len && isWhitespace(reference[left]))
+			left++;
+		if (!left)
+			return *this;
+		return ReferenceExpression<T>(reference+left,len-left);
+	}
+
+
+template <typename T>
+	ReferenceExpression<T>				ReferenceExpression<T>::TrimRight()		const
+	{
+		if (!len)
+			return ReferenceExpression<T>();
+		size_t right = len-1;
+		while (right && isWhitespace(reference[right]))
+			right--;
+		right+=!isWhitespace(reference[right]);  //should increase cnt if necessary
+		
+		if (right == len)
+			return *this;
+		return ReferenceExpression<T>(reference,right);
+	}
+
 	
 
 template <typename T>
 	StringTemplate<T>				StringTemplate<T>::trim()			const
 	{
-		if (!string_length)
-			return StringTemplate<T>();
-		const T*left=field;
-		while ((*left) && isWhitespace(*left))
-			left++;
-		if (!*left)
-			return StringTemplate<T>();
-		const T*right = field+string_length-1;
-		while (isWhitespace(*right))
-			right--;
-		size_t len = right-left+1;
-		if (!left && len == string_length)
-			return *this;
-		return StringTemplate<T>(left,len);
+		return ref().Trim();
 	}
 
 template <typename T>
 	ReferenceExpression<T>				StringTemplate<T>::trimRef()			const
 	{
-		if (!string_length)
-			return ReferenceExpression<T>(field,0);
-		const T*left=field;
-		while ((*left) && isWhitespace(*left))
-			left++;
-		if (!*left)
-			return ReferenceExpression<T>(field,0);
-		const T*right = field+string_length-1;
-		while (isWhitespace(*right))
-			right--;
-		size_t len = right-left+1;
-		if (!left && len == string_length)
-			return ReferenceExpression<T>(field,string_length);
-		return ReferenceExpression<T>(left,len);
+		return ref().Trim();
 	}
 
 template <typename T>
 	StringTemplate<T>				StringTemplate<T>::trimLeft()		const
 	{
-		size_t left = 0;
-		while (field[left] && isWhitespace(field[left]))
-			left++;
-		if (!left)
-			return *this;
-		return StringTemplate<T>(field+left,string_length-left);
+		return ref().TrimLeft();
 	}
 
 template <typename T>
 	ReferenceExpression<T>				StringTemplate<T>::trimLeftRef()		const
 	{
-		size_t left = 0;
-		while (field[left] && isWhitespace(field[left]))
-			left++;
-		if (!left)
-			return ReferenceExpression<T>(field,string_length);
-		return ReferenceExpression<T>(field+left,string_length-left);
+		return ref().TrimLeft();
 	}
 
 template <typename T>
 	StringTemplate<T>				StringTemplate<T>::trimRight()		const
 	{
-		if (!string_length)
-			return StringTemplate<T>();
-		size_t right = string_length-1;
-		while (right && isWhitespace(field[right]))
-			right--;
-		right+=!isWhitespace(field[right]);  //should increase cnt if necessary
-		
-		if (right == string_length)
-			return *this;
-		return StringTemplate<T>(field,right);
+		return ref().TrimRight();
 	}
 
 template <typename T>
 	ReferenceExpression<T>				StringTemplate<T>::trimRightRef()		const
 	{
-		if (!string_length)
-			return ReferenceExpression<T>(field,0);
-		size_t right = string_length-1;
-		while (right && isWhitespace(field[right]))
-			right--;
-		right+=!isWhitespace(field[right]);  //should increase cnt if necessary
-		
-		if (right == string_length)
-			return ReferenceExpression<T>(field,string_length);
-		return ReferenceExpression<T>(field,right);
+		return ref().TrimRight();
 	}
 
 
@@ -3518,7 +3532,7 @@ template <typename T>
 				exactness = (BYTE)log10(INT_MAX/value);
 				sub_decimal = pow(10.0f,exactness)*value;
 			}
-			UINT64 v = (UINT64)sub_decimal;
+			UINT64 v = (UINT64)round(sub_decimal);
 
 			size_t at(0);
 			bool write = !exactness || force_trailing_zeros;	//start write trailing zeros immediately
@@ -4436,27 +4450,31 @@ template <typename T0, typename T1>
 	
 	
 
-	
 template <typename T0, typename T1, typename T2>
-	static void twrap(const T0*string, T1 max_line_length, T1 (*lengthFunction)(T0 character),ArrayData<StringTemplate<T2> >&result)
+	static void RunTWrap(const T0*string, T1 max_line_length, T1(*lengthFunction)(T0 character),const T2&callback)
 	{
 		T1			line_width = 0,
 					word_width = 0;
 		const T0	*at = string,
 					*word_begin=string,
 					*line_begin=string;
-		size_t lines=0;
 		bool word_ended = false;
+		bool forceNewline = false;
 		//cout << "wrapping '"<<string<<"'"<<endl;
 		while (*at)
 		{
 			T1 len = lengthFunction(*at);
 			line_width += len;
 			word_width += len;
-			if (line_width >= max_line_length && word_begin < at)
+			if ((forceNewline || line_width >= max_line_length) && word_begin < at)
 			{
+				if (line_width < max_line_length)
+				{
+					word_begin = at-1;
+					word_width = len;
+				}
+				forceNewline = false;
 				//cout << "passed length barrier of "<<max_line_length<<" at "<<(at-string)<<endl;
-				lines++;
 				if (word_begin == line_begin)
 				{
 					//ASSERT_EQUAL__(word_width,line_width);
@@ -4475,6 +4493,7 @@ template <typename T0, typename T1, typename T2>
 							break;
 					}
 				}
+				callback(ReferenceExpression<T0>(line_begin,word_begin-line_begin));
 				line_begin = word_begin;
 				line_width = word_width;
 				//length = len;
@@ -4483,6 +4502,8 @@ template <typename T0, typename T1, typename T2>
 		
 			if (isWhitespace(*at))
 			{
+				if (isNewline(*at))
+					forceNewline = true;
 				//*at = ' ';
 				if (line_begin == at)
 				{
@@ -4501,76 +4522,27 @@ template <typename T0, typename T1, typename T2>
 			at++;
 		}
 		if (at > word_begin)
-			lines++;
+		{
+			callback(ReferenceExpression<T0>(line_begin, at - line_begin));
+		}
+	}
+	
+template <typename T0, typename T1, typename T2>
+	static void twrap(const T0*string, T1 max_line_length, T1 (*lengthFunction)(T0 character),ArrayData<StringTemplate<T2> >&result)
+	{
+		size_t lines=0;
+		RunTWrap(string,max_line_length,lengthFunction,[&lines](const ReferenceExpression<T0>&)	{lines++;});
+
 		
 		result.setSize(lines);
-		
-		at = string;
-		word_begin=string;
-		line_begin=string;
-		line_width = 0;
-		word_width = 0;
-		word_ended = false;
-		lines = 0;
-		while (*at)
+		index_t at = 0;
+		RunTWrap(string,max_line_length,lengthFunction,[&result,&at](const ReferenceExpression<T0>&exp)
 		{
-			T1 len = lengthFunction(*at);
-			line_width += len;
-			word_width += len;
-			if (line_width >= max_line_length && word_begin < at)
-			{
-				
-				if (word_begin == line_begin)
-				{
-					T1 current = 0;
-					for(;;)
-					{
-						ASSERT_LESS_OR_EQUAL__(word_begin,at);
-						T1 chrWidth = lengthFunction(*word_begin);
-						if (word_begin < at && (current == 0 || current + chrWidth <= max_line_length))
-						{
-							word_begin++;
-							current += chrWidth;
-							word_width -= chrWidth;
-						}
-						else
-							break;
-					}
-						
-				}
-				result[lines] = StringTemplate<T2>(line_begin,word_begin-line_begin);
-				result[lines].replaceCharacters(isWhitespace<T2>,(T2)' ');
-				line_begin = word_begin;
-				line_width = word_width;
-				
-				lines++;
-			}
-			
-			if (isWhitespace(*at))
-			{
-				//*at = ' ';
-				if (line_begin == at)
-				{
-					line_begin++;
-					word_begin++;
-				}
-				word_ended = true;
-			}
-			else
-				if (word_ended)
-				{
-					word_ended = false;
-					word_begin = at;
-					word_width = 0;
-				}
-
+			result[at] = StringTemplate<T2>(exp);
+			result[at].replaceCharacters(isWhitespace<T2>,(T2)' ');
 			at++;
-		}
-		if (at > line_begin)
-		{
-			result[lines] = StringTemplate<T2>(line_begin, at - line_begin);
-			result[lines].replaceCharacters(isWhitespace<T2>,(T2)' ');
-		}
+		});
+		ASSERT_EQUAL__(at,lines);
 			
 	}	
 	
