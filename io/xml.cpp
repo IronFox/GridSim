@@ -144,7 +144,7 @@ static void EncodeValueToStream(Stream&stream, XML::Encoding enc, const String&c
 					stream << StringRef(ch.encoded,ch.numCharsUsed);
 				}
 				else
-					FATAL__("XML: Unsupported encoding encountered");
+					throw IO::StructureCompositionFault(CLOCATION,"XML: Unsupported encoding encountered");
 			}
 			break;
 		}
@@ -161,11 +161,14 @@ static String Decode(const StringRef&content, XML::Encoding enc)
 		case XML::Encoding::UTF8:
 		{
 			String rs;
-			ASSERT__(StringConversion::Utf8ToAnsi(content,rs));
+			if (!StringConversion::Utf8ToAnsi(content,rs))
+			{
+				throw IO::StructureCompositionFault(CLOCATION,"XML: Error decoding UTF-8 '"+String(content)+"'");
+			}
 			return std::move(rs);
 		}
 		default:
-			FATAL__("Unexpected encoding encountered");
+			throw IO::StructureCompositionFault(CLOCATION,"XML: Unsupported encoding encountered");
 	}
 	return "";
 }
@@ -199,7 +202,7 @@ static String DecodeValue(const StringRef&content, XML::Encoding enc)
 				source++;
 			}
 			else
-				FATAL__("Unexpected encoding encountered");
+				throw IO::StructureCompositionFault(CLOCATION,"XML: Unsupported encoding encountered");
 		}
 		else
 		{
@@ -339,8 +342,8 @@ static XML::Encoding	DecodeEncoding(const StringRef&name)
 		return XML::Encoding::UTF8;
 	if (name.CompareToIgnoreCase("ANSI")==0 || name.CompareToIgnoreCase("ISO-8859-1")==0 || name.CompareToIgnoreCase("windows-1252")==0)
 		return XML::Encoding::ANSI;
-	FATAL__("Unexpected encoding: '"+String(name)+"'");
-	return XML::Encoding::UTF8;
+	throw IO::StructureCompositionFault(CLOCATION,("XML: Unsupported encoding encountered: '"+String(name)+"'"));
+//	return XML::Encoding::UTF8;
 }
 
 void	XML::Container::LoadFromCharArray(ArrayData<char>&field)
@@ -561,7 +564,7 @@ static void EncodeToStream(OutStream&outfile, XML::Encoding enc, const String&id
 			StringConversion::AnsiToUtf8(identifier,encoded);
 		break;
 		default:
-			FATAL__("XML: Unsupported encoding encountered");
+			throw IO::StructureCompositionFault(CLOCATION,"XML: Unsupported encoding encountered");
 	}
 	outfile << encoded;
 }
