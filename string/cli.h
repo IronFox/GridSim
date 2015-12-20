@@ -96,7 +96,7 @@ namespace CLI	//! Command line interpretor
 		/**
 		Queries a descriptor of supported values from the local variable. Typically this would be a range for scalar values, or all choices for enumeration values
 		*/
-		virtual String		GetSupportedValues() const {return "any";}
+		virtual String		GetSupportedValues() const {return "";}
 		/**
 		Returns the default value, if any.
 		*/
