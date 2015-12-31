@@ -143,7 +143,7 @@ template <class Entry, class Strategy=typename StrategySelector<Entry>::Default>
 		typedef QueueIterator<Entry,Element,Strategy>	iterator;
 		typedef QueueIterator<const Entry,const Element,Strategy>	const_iterator;
 			
-	
+		/**/				Queue(const Self&other);
 		/**/				Queue(size_t size=1024);
 		/**/				~Queue()	{clear();}
 
@@ -167,6 +167,7 @@ template <class Entry, class Strategy=typename StrategySelector<Entry>::Default>
 		bool				IsEmpty()					const;	//!< Identical to length()==0
 		bool				IsNotEmpty()				const;	//!< Identical to length()!=0
 		count_t				length()					const;	//!< Returns the current number of element stored in the queue
+		inline count_t		GetLength()					const {return length();}
 		inline count_t		CountEntries()				const {return length();}
 		inline count_t		size()						const {return length();}		//!< Identical to length()
 		bool				operator>>(Entry&entry);			//!< Identical to pop()

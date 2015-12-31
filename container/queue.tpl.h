@@ -86,6 +86,21 @@ template <class Entry,class Strategy>
 		field_end = section_begin + Array::length();
 	}
 
+
+
+template <class Entry,class Strategy>
+	Queue<Entry,Strategy>::Queue(const Self&other)
+	{
+		Array::setSize(other.Array::count());
+		section_begin = section_end = Array::pointer();
+		field_end = section_begin + Array::length();
+		for (index_t i = 0; i < other.count(); i++)
+			(*section_end++).Copy(other[i]);
+		//DBG_ASSERT__(Array::Owns(section_end));
+		//DBG_ASSERT__(Array::Owns(section_begin));
+	}
+
+
 template <class Entry,class Strategy>
 	void Queue<Entry,Strategy>::operator=(const Queue<Entry,Strategy>&other)
 	{
@@ -94,6 +109,9 @@ template <class Entry,class Strategy>
 		field_end = section_begin + Array::length();
 		for (index_t i = 0; i < other.count(); i++)
 			(*section_end++).Copy(other[i]);
+		//DBG_ASSERT__(Array::Owns(section_end));
+		//DBG_ASSERT__(Array::Owns(section_begin));
+
 	}
 
 template <class Entry,class Strategy>
@@ -103,6 +121,9 @@ template <class Entry,class Strategy>
 		std::swap(section_begin,other.section_begin);
 		std::swap(section_end,other.section_end);
 		std::swap(field_end,other.field_end);
+		//DBG_ASSERT__(Array::Owns(section_end));
+		//DBG_ASSERT__(Array::Owns(section_begin));
+
 	}
 template <class Entry,class Strategy>
 	void Queue<Entry,Strategy>::adoptData(Queue<Entry,Strategy>&other)
@@ -113,6 +134,9 @@ template <class Entry,class Strategy>
 		field_end = other.field_end;
 
 		other.field_end = other.section_begin = other.section_end = NULL;
+		//DBG_ASSERT__(Array::Owns(section_end));
+		//DBG_ASSERT__(Array::Owns(section_begin));
+
 	}
 
 
@@ -162,9 +186,11 @@ template <class Entry,class Strategy>
 			section_begin++;
 			out_field++;
 			if (section_begin >= field_end)
-				section_begin = Array::pointer();
+				section_begin = Array::data;
 			count--;
 			written++;
+			//DBG_ASSERT__(Array::Owns(section_end));
+			//DBG_ASSERT__(Array::Owns(section_begin));
 		}
 		return written;
 	}
@@ -174,11 +200,16 @@ template <class Entry,class Strategy>
 	{
 		if (section_begin == section_end)
 			return false;
+		//DBG_ASSERT__(Array::Owns(section_end));
+		//DBG_ASSERT__(Array::Owns(section_begin));
 		Strategy::move(section_begin->Cast(),out);
 		section_begin->Destruct();
 		section_begin++;
 		if (section_begin >= field_end)
-			section_begin = Array::pointer();
+			section_begin = Array::data;
+		//DBG_ASSERT__(Array::Owns(section_end));
+		//DBG_ASSERT__(Array::Owns(section_begin));
+
 		return true;
 	}
 
@@ -187,12 +218,16 @@ template <class Entry,class Strategy>
 	{
 		if (section_begin == section_end)
 			return Entry();
+		//DBG_ASSERT__(Array::Owns(section_end));
+		//DBG_ASSERT__(Array::Owns(section_begin));
 		Entry out;
 		Strategy::move(section_begin->Cast(),out);
 		section_begin->Destruct();
 		section_begin++;
 		if (section_begin >= field_end)
-			section_begin = Array::pointer();
+			section_begin = Array::data;
+		//DBG_ASSERT__(Array::Owns(section_end));
+		//DBG_ASSERT__(Array::Owns(section_begin));
 		return out;
 	}
 
@@ -201,10 +236,16 @@ template <class Entry,class Strategy>
 	{
 		if (section_begin == section_end)
 			return;
+		//DBG_ASSERT__(Array::Owns(section_end));
+		//DBG_ASSERT__(Array::Owns(section_begin));
+
 		section_begin->Destruct();
 		section_begin++;
 		if (section_begin >= field_end)
-			section_begin = Array::pointer();
+			section_begin = Array::data;
+		//DBG_ASSERT__(Array::Owns(section_end));
+		//DBG_ASSERT__(Array::Owns(section_begin));
+
 	}
 
 template <class Entry,class Strategy>
@@ -212,16 +253,22 @@ template <class Entry,class Strategy>
 	{
 		if (section_begin == section_end)
 			return;
-		if (section_end == Array::pointer())
+		//DBG_ASSERT__(Array::Owns(section_end));
+		//DBG_ASSERT__(Array::Owns(section_begin));
+		if (section_end == Array::data)
 			section_end = field_end-1;
 		else
 			section_end--;
 		section_end->Destruct();
+		//DBG_ASSERT__(Array::Owns(section_end));
+		//DBG_ASSERT__(Array::Owns(section_begin));
 	}
 
 template <class Entry, class Strategy>
 	void	Queue<Entry,Strategy>::increaseSize(count_t new_size)
 	{
+		//DBG_ASSERT__(Array::Owns(section_end));
+		//DBG_ASSERT__(Array::Owns(section_begin));
 		size_t old_usage = length();
 		Array	new_field(new_size);
 		Element*out = new_field.pointer();
@@ -232,7 +279,7 @@ template <class Entry, class Strategy>
 			section_begin++;
 			//Strategy::move(*section_begin++,*out++);
 			if (section_begin >= field_end)
-				section_begin = Array::pointer();
+				section_begin = Array::data;
 		}
 		
 
@@ -240,6 +287,8 @@ template <class Entry, class Strategy>
 		section_begin = Array::pointer();
 		section_end = section_begin+old_usage;
 		field_end = section_begin+Array::length();
+		//DBG_ASSERT__(Array::Owns(section_end));
+		//DBG_ASSERT__(Array::Owns(section_begin));
 	}
 
 template <class Entry, class Strategy>
@@ -253,6 +302,9 @@ template <class Entry, class Strategy>
 	{
 		if (!count)
 			return;
+		//DBG_ASSERT__(Array::Owns(section_end));
+		//DBG_ASSERT__(Array::Owns(section_begin));
+
 		count_t target = Array::length(),
 				need = length()+count;
 				
@@ -279,9 +331,11 @@ template <class Entry, class Strategy>
 				section_end++;
 				//(*section_end++) = (*data++);
 				if (section_end >= field_end)
-					section_end = Array::pointer();
+					section_end = Array::data;
 			}
 		}
+		//DBG_ASSERT__(Array::Owns(section_end));
+		//DBG_ASSERT__(Array::Owns(section_begin));
 	}
 
 
@@ -296,7 +350,9 @@ template <class Entry, class Strategy>
 	{
 		section_end++;
 		if (section_end >= field_end)
-			section_end = Array::pointer();
+			section_end = Array::data;
+		//DBG_ASSERT__(Array::Owns(section_end));
+		//DBG_ASSERT__(Array::Owns(section_begin));
 		if (section_end == section_begin)
 		{
 			size_t old_len = Array::length();
@@ -315,7 +371,11 @@ template <class Entry, class Strategy>
 			section_begin = Array::pointer();
 			section_end = section_begin+old_len;
 			field_end = section_begin+Array::length();
+			//DBG_ASSERT__(Array::Owns(section_end));
+			//DBG_ASSERT__(Array::Owns(section_begin));
 		}
+		//DBG_ASSERT__(Array::Owns(section_end));
+		//DBG_ASSERT__(Array::Owns(section_begin));
 		if (section_end > Array::data)
 			return (section_end-1)->ConstructAndCast();
 		return Array::data[Array::elements-1].ConstructAndCast();
