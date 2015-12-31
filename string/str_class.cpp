@@ -881,7 +881,7 @@ namespace StringConversion
 				usource <<= 1;
 				localLen ++;
 			}
-			localLen = std::max(localLen,1U);
+			localLen = std::max<count_t>(localLen,1U);
 			if (localLen > 2)
 				return false;
 			utf8 += localLen;
