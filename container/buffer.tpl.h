@@ -556,6 +556,7 @@ template <typename T, typename Strategy>
 					//*barrier = vmin(storage_begin+before,usage_end);
 
 				Strategy::constructRangeFromFleetingData(write, write+construct_before, read); write+= construct_before; read+= construct_before;
+				T*result = write;
 				new (write++) T;
 				Strategy::constructRangeFromFleetingData(write, write+construct_after, read);
 
@@ -571,7 +572,8 @@ template <typename T, typename Strategy>
 					CHK_FILLSTATE
 				#endif
 
-				return *std::min(storage_begin+before,usage_end-1);
+				return *result;
+				//return std::min(storage_begin+before,usage_end-1);	//logically correct, but 'min' may fail for very large 'before' values (e.g. -1)
 					//*(storage_begin+before);
 			}
 			catch (std::bad_alloc& exception)
@@ -587,7 +589,8 @@ template <typename T, typename Strategy>
 		else
 		{
 			new (usage_end) T;
-			T*el = std::min(storage_begin+before,usage_end);
+			//T*el = std::min(storage_begin+before,usage_end);	//logically correct, but 'min' may fail for very large 'before' values (e.g. -1)
+			T*el = storage_begin+std::min(before,count());
 			for (T*c = usage_end; c > el; c--)
 				Strategy::move(*(c-1),*c);
 			usage_end++;
