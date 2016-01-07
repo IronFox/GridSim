@@ -673,10 +673,10 @@ namespace Riff
 		return _info.size+_info.size%2+sizeof(TRiffInfo);
 	}
 
-	void Chunk::LoadFromData(const void*data, size_t size)
+	bool Chunk::LoadFromData(const void*data, size_t size)
 	{
 		Clear();
-		FromData((const BYTE*)data,size, true);
+		return FromData((const BYTE*)data,size, true) > 0;
 	}
 
 	RIFF_SIZE Chunk::FromData(const BYTE*data, size_t size, bool force_list)

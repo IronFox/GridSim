@@ -382,7 +382,7 @@ namespace Riff
 	
 			bool			LoadFromFile(const char_t*filename);
 			RIFF_SIZE		FromFile(FILE*f, size_t size, bool force_list=false);
-			void			LoadFromData(const void*data, size_t size);
+			bool			LoadFromData(const void*data, size_t size);
 			RIFF_SIZE		FromData(const BYTE*data, size_t size, bool force_list=false);
 			bool			SaveToFile(const char_t*filename);
 			void			ToFile(FILE*f, bool force_list=false);
