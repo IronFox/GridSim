@@ -34,7 +34,7 @@ namespace StrStream
 static const TNewLine  nl  = TNewLine();
 static const char  nl_  = '\n';
 static const char  n_  = '\n';
-static const char  tab = 9;
+static const char  tab = '\t';
 
 	typedef std::ostream& (*TEndLine)(std::ostream&);
 }
