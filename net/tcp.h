@@ -1047,6 +1047,10 @@ namespace TCP
 									{
 										return this?( TCP::ToString(address,addressLength,includePort) ):"NULL";
 									}
+		bool						IsLocalhost() const
+									{
+										return this && TCP::ToString(address,addressLength,false) == "localhost";
+									}
 		bool						SendSignal(UINT32 channel);		//!< Sends a data-less package to the other end of this peer
 			
 		bool						HandleIsValid()	const	{return !socketAccess->IsClosed();}
