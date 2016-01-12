@@ -16,7 +16,7 @@ namespace CLI
 	typedef	void	(*pOnFocusChange)();
 	
 	extern pPrintln			println;
-	extern pOnFocusChange	focusChange;
+	extern pOnFocusChange	onFocusChange;
 
 	
 	/**
