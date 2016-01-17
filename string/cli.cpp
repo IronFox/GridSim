@@ -181,7 +181,7 @@ namespace CLI
 		lookup.segmentConfig.quotation_escape_character = '\\';
 		lookup.segmentConfig.recursion_break = false;
 		lookup.lineConfig.quotations = "\"'";
-		lookup.lineConfig.main_separator = "\n";
+		lookup.lineConfig.main_separator = "\n;";
 		lookup.lineConfig.quotation_escape_character = '\\';
 		lookup.lineConfig.recursion_break = false;
 		
