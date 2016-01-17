@@ -39,6 +39,10 @@ namespace Package
 								{
 									ASSERT__(IsValid(*this));
 								}
+			/**/				NetString(const StringRef&string):String(string)
+								{
+									ASSERT__(IsValid(*this));
+								}
 
 			static bool			IsValid(const String&str)
 			{
