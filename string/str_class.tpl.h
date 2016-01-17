@@ -370,7 +370,7 @@ namespace Template
 	template <typename T>
 		inline bool __fastcall isalpha(T chr) throw()
 		{
-			return ::iswalpha((wchar_t)chr);
+			return ::iswalpha((wchar_t)chr) != 0;
 			//return (chr >= T('a') && chr <= T('z'))
 			//	||
 			//	(chr >= T('A') && chr <= T('Z'))
