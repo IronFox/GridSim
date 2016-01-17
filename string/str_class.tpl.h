@@ -381,7 +381,7 @@ namespace Template
 	template <>
 		inline bool __fastcall isalpha(char chr) throw()
 		{
-			return ::isalpha(chr)!=0;
+			return ::isalpha((BYTE)chr)!=0;
 		}
 
 	template <>
@@ -400,7 +400,7 @@ namespace Template
 	template <>
 		inline bool __fastcall isdigit(char chr) throw()
 		{
-			return ::isdigit(chr)!=0;
+			return ::isdigit((BYTE)chr)!=0;
 		}
 
 	template <>
