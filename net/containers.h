@@ -11,8 +11,8 @@ namespace Package
 	template <ISerializable::serial_size_t max_size>
 		class NetString:public String
 		{
-		protected:
-		static	bool			validChar(char c)
+		public:
+		static	bool			IsValidChar(char c)
 				{
 					switch (c)
 					{
@@ -47,7 +47,7 @@ namespace Package
 			static bool			IsValid(const String&str)
 			{
 				for (index_t i = 0; i < str.length(); i++)
-					if (!validChar(str.get(i)))
+					if (!IsValidChar(str.get(i)))
 					{
 						//cout << "invalid char '"<<
 						return false;
