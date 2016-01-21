@@ -88,21 +88,18 @@ static void EnumerateWindows(DWORD process, Buffer0<HWND>&outWindows)
 }
 
 
-
-bool		MonitoredProcess::ResumeOrStart(const PathString&workingDirectory, const PathString&executablePath, const PathString&parametersWithoutExecutableName, bool createWindow/*=true*/)
+bool		MonitoredProcess::TryResume(const PathString&workingDirectory, const PathString&executablePath)
 {
 	FileSystem::Folder folder;
 	FileSystem::File file;
 	ASSERT1__(folder.FindFile(executablePath,file),executablePath);
 	DWORD process = MapPathToProcess(file);
 	if (process == NULL)
-		return Start(workingDirectory,executablePath,parameters, createWindow);
+		return false;
 
 	HANDLE processHandle = OpenProcess(PROCESS_ALL_ACCESS, FALSE, process);
 	if (processHandle == INVALID_HANDLE_VALUE)
-	{
-		return Start(workingDirectory,executablePath,parameters, createWindow);
-	}
+		return false;
 	Terminate();
 	Flush();
 	infoOut.dwProcessId = process;
@@ -112,6 +109,16 @@ bool		MonitoredProcess::ResumeOrStart(const PathString&workingDirectory, const P
 	this->createWindow = createWindow;
 	this->isStarted = true;
 	return true;
+}
+
+
+
+bool		MonitoredProcess::ResumeOrStart(const PathString&workingDirectory, const PathString&executablePath, const PathString&parametersWithoutExecutableName, bool createWindow/*=true*/)
+{
+	return
+		TryResume(workingDirectory,executablePath)
+		||
+		Start(workingDirectory,executablePath,parameters, createWindow);
 }
 
 
@@ -231,8 +238,19 @@ void		MonitoredProcess::Terminate()
 		EnumerateWindows(infoOut.dwProcessId,windows);
 		foreach (windows,w)
 		{
-			DWORD threadID = GetWindowThreadProcessId(*w,NULL);
-			PostThreadMessageA(threadID,WM_DESTROY,0,0);
+			//DestroyWindow(*w);
+			//WINDOWINFO info;
+			//info.cbSize = sizeof(info);
+			//GetWindowInfo(*w,&info);
+			//wchar_t str[0x100];
+			//memset(str,0,sizeof(str));
+			//GetWindowText(*w,str,sizeof(str)-1);
+			//
+			//DWORD threadID = GetWindowThreadProcessId(*w,NULL);
+			//if (threadID == 0)
+				//continue;
+			PostMessage(*w,WM_CLOSE,0,0);
+			//PostThreadMessageA(threadID,WM_CLOSE,0,0);
 		}
 		if (WaitForSingleObject(infoOut.hProcess,2000) != 0)
 			TerminateProcess(infoOut.hProcess,0);

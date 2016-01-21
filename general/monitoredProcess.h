@@ -23,6 +23,7 @@ public:
 	bool			IsStarted() const {return isStarted;}
 	bool			Start(const PathString&workingDirectory, const PathString&executablePath, const PathString&parametersWithoutExecutableName, bool createWindow=true);
 
+	bool			TryResume(const PathString&workingDirectory, const PathString&executablePath);
 	/**
 	First checks whether a process with the specified executablePath is already running. Parameters cannot be checked reliably, so it is assumed they match.
 	If a process is found then the found process is copied to the local configuration.
