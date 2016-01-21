@@ -1,13 +1,123 @@
 #include "../global_root.h"
 #include "monitoredProcess.h"
 #include "../io/file_system.h"
-
+#include "../container/buffer.h"
 
 #ifdef WIN32
+
+#include <cstdio>
+#include <windows.h>
+#include <tlhelp32.h>
+#include <winternl.h>
+//#include <iostream>
+
+
+static DWORD		MapPathToProcess(const FileSystem::File&file)
+{
+	FileSystem::Folder folder;
+	PROCESSENTRY32 entry;
+    entry.dwSize = sizeof(PROCESSENTRY32);
+
+    HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, NULL);
+
+	//StringW out;
+
+    if (Process32First(snapshot, &entry) == TRUE)
+    {
+        do
+        {
+			if (file.GetName().equalsIgnoreCase(entry.szExeFile))
+			{
+				MODULEENTRY32 mentry;
+				mentry.dwSize = sizeof(MODULEENTRY32);
+				HANDLE msnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE|TH32CS_SNAPMODULE32,entry.th32ProcessID);
+				if (Module32First(msnapshot,&mentry) == TRUE)
+				{
+					FileSystem::File mfile;
+					if (folder.FindFile(mentry.szExePath,mfile))
+					{
+						if (mfile.GetLocation().equalsIgnoreCase(file.GetLocation()))
+						{
+							CloseHandle(msnapshot);
+							CloseHandle(snapshot);
+							return mentry.th32ProcessID;
+						}
+					}
+					else
+						ShowMessage(String(mentry.szExePath));
+				}
+				CloseHandle(msnapshot);
+			}
+			//out += entry.szExeFile;
+			//out += L'\n';
+			//std::wcout << entry.szExeFile<<std::endl;
+        }
+		while  (Process32Next(snapshot, &entry) == TRUE);
+    }
+    CloseHandle(snapshot);
+	//ShowMessage("not found: "+String(file.GetName()));
+	//ShowMessage(String(out));
+	return NULL;
+}
+
+
+struct TEnumParameter
+{
+    DWORD	process;
+	Buffer0<HWND>	*outWindows;
+};
+
+static BOOL CALLBACK Enumerate(HWND hWnd, LPARAM lParam)
+{
+    TEnumParameter*p = (TEnumParameter*)lParam;
+    DWORD process = 0x0;
+    GetWindowThreadProcessId( hWnd, &process );
+    if (p->process == process)
+	{
+        p->outWindows->Append(hWnd);
+    }
+    return TRUE;
+}
+
+static void EnumerateWindows(DWORD process, Buffer0<HWND>&outWindows)
+{
+    TEnumParameter p;
+	p.process = process;
+	p.outWindows = &outWindows;
+    EnumWindows( Enumerate, (LPARAM)&p );
+}
+
+
+
+bool		MonitoredProcess::ResumeOrStart(const PathString&workingDirectory, const PathString&executablePath, const PathString&parametersWithoutExecutableName, bool createWindow/*=true*/)
+{
+	FileSystem::Folder folder;
+	FileSystem::File file;
+	ASSERT1__(folder.FindFile(executablePath,file),executablePath);
+	DWORD process = MapPathToProcess(file);
+	if (process == NULL)
+		return Start(workingDirectory,executablePath,parameters, createWindow);
+
+	HANDLE processHandle = OpenProcess(PROCESS_ALL_ACCESS, FALSE, process);
+	if (processHandle == INVALID_HANDLE_VALUE)
+	{
+		return Start(workingDirectory,executablePath,parameters, createWindow);
+	}
+	Terminate();
+	Flush();
+	infoOut.dwProcessId = process;
+	infoOut.hProcess = processHandle;
+	this->executablePath = file.GetLocation();
+	this->workingDirectory = file.GetFolder();
+	this->createWindow = createWindow;
+	this->isStarted = true;
+	return true;
+}
 
 
 bool		MonitoredProcess::Start(const PathString&workingDirectory, const PathString&executablePath, const PathString&parametersWithoutExecutableName, bool createWindow)
 {
+	Terminate();
 	FileSystem::Folder f(workingDirectory);
 	if (!f.IsValidLocation())
 		return false;
@@ -117,7 +227,13 @@ void		MonitoredProcess::Terminate()
 	if (isStarted)
 	{
 		isStarted = false;
-		PostThreadMessageA(infoOut.dwThreadId,WM_DESTROY,0,0);
+		Buffer0<HWND>	windows;
+		EnumerateWindows(infoOut.dwProcessId,windows);
+		foreach (windows,w)
+		{
+			DWORD threadID = GetWindowThreadProcessId(*w,NULL);
+			PostThreadMessageA(threadID,WM_DESTROY,0,0);
+		}
 		if (WaitForSingleObject(infoOut.hProcess,2000) != 0)
 			TerminateProcess(infoOut.hProcess,0);
 		Flush();
