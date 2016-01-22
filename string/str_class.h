@@ -1711,17 +1711,17 @@ char*			writeFloatToCharField(float value, char*offset, char*end);	//!< Writes t
 
 void			ErrMessage(const String&line);
 void			ShowMessage(const String&line);
-void			displayMessage(const char*head, const String&line);
-void			displayMessage(const String&head, const String&line);
+void			DisplayMessage(const char*head, const String&line, bool prefixProgramName=true);
+void			DisplayMessage(const String&head, const String&line, bool prefixProgramName=true);
 
 
 void			ErrMessageW(const wchar_t*line);
 void			ErrMessageW(const StringW&line);
 void			ShowMessageW(const wchar_t*line);
 void			ShowMessageW(const StringW&line);
-void			displayMessageW(const wchar_t*head, const wchar_t*line);
-void			displayMessageW(const wchar_t*head, const StringW&line);
-void			displayMessageW(const StringW&head, const StringW&line);
+void			DisplayMessageW(const wchar_t*head, const wchar_t*line, bool prefixProgramName=true);
+void			DisplayMessageW(const wchar_t*head, const StringW&line, bool prefixProgramName=true);
+void			DisplayMessageW(const StringW&head, const StringW&line, bool prefixProgramName=true);
 
 				#define BinaryToHex		binaryToHex
 				#define BinaryToStr		binaryToHex

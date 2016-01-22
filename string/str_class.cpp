@@ -253,7 +253,7 @@ void	 strFree(char*current)
 
 void ShowMessage(const char*line)
 {
-	displayMessage("message",line);
+	DisplayMessage("message",line);
 }
 
 
@@ -329,11 +329,11 @@ template <typename T>
 
 
 template <typename T0, typename T1>
-	static void _displayMessage(const T0*head_, const T1&line)
+	static void _displayMessage(const T0*head_, const T1&line, bool prefixProgramName)
 	{
 		Array<StringTemplate<T0> >	lines;
 		explode((T0)'\n',line,lines);
-		StringTemplate<T0> head = _getApplicationName<T0>() + head_;
+		StringTemplate<T0> head = prefixProgramName ? _getApplicationName<T0>() + head_ : head_;
 		if (!lines.count())
 			_msgBox(_empty<T0>(),head.c_str(),MB_OK);
 		StringTemplate<T0> sum;
@@ -353,10 +353,10 @@ template <typename T0, typename T1>
 		}
 	}
 
-void			displayMessage(const char*head, const char*line)
+void			DisplayMessage(const char*head, const char*line, bool prefixProgramName/*=true*/)
 {
 	#if SYSTEM==WINDOWS
-		_displayMessage(head,line);
+		_displayMessage(head,line,prefixProgramName);
 		//MessageBoxA (NULL,line,head?head:"message",MB_OK);
 	#elif SYSTEM==UNIX
 		if (head)
@@ -365,10 +365,10 @@ void			displayMessage(const char*head, const char*line)
 	#endif
 }
 
-void			displayMessage(const char*head, const String&line)
+void			DisplayMessage(const char*head, const String&line, bool prefixProgramName/*=true*/)
 {
 	#if SYSTEM==WINDOWS
-		_displayMessage(head,line);
+		_displayMessage(head,line,prefixProgramName);
 		//MessageBoxA (NULL,line.c_str(),head?head:"message",MB_OK);
 	#elif SYSTEM==UNIX
 		if (head)
@@ -378,31 +378,31 @@ void			displayMessage(const char*head, const String&line)
 
 }
 
-void			displayMessage(const String&head, const String&line)
+void			DisplayMessage(const String&head, const String&line, bool prefixProgramName/*=true*/)
 {
-	displayMessage(head.c_str(),line);
+	DisplayMessage(head.c_str(),line,prefixProgramName);
 }
 
 void ShowMessage(const String&line)
 {
-	displayMessage("message",line);
+	DisplayMessage("message",line);
 }
 
 
 void ErrMessage(const char*line)
 {
-	displayMessage("error",line);
+	DisplayMessage("error",line);
 }
 
 void ErrMessage(const String&line)
 {
-	displayMessage("error",line);
+	DisplayMessage("error",line);
 }
 
-void			displayMessageW(const wchar_t*head, const wchar_t*line)
+void			DisplayMessageW(const wchar_t*head, const wchar_t*line, bool prefixProgramName/*=true*/)
 {
 	#if SYSTEM==WINDOWS
-		_displayMessage(head,line);
+		_displayMessage(head,line,prefixProgramName);
 	#elif SYSTEM==UNIX
 		if (head)
 			std::wcout << head << ":"<<std::endl<<"  ";
@@ -410,10 +410,10 @@ void			displayMessageW(const wchar_t*head, const wchar_t*line)
 	#endif
 }
 
-void			displayMessageW(const wchar_t*head, const StringW&line)
+void			DisplayMessageW(const wchar_t*head, const StringW&line, bool prefixProgramName/*=true*/)
 {
 	#if SYSTEM==WINDOWS
-		_displayMessage(head,line);
+		_displayMessage(head,line,prefixProgramName);
 	#elif SYSTEM==UNIX
 		if (head)
 			std::wcout << head << ":"<<std::endl<<"  ";
@@ -422,30 +422,30 @@ void			displayMessageW(const wchar_t*head, const StringW&line)
 
 }
 
-void			displayMessageW(const StringW&head, const StringW&line)
+void			DisplayMessageW(const StringW&head, const StringW&line, bool prefixProgramName/*=true*/)
 {
-	displayMessageW(head.c_str(),line);
+	DisplayMessageW(head.c_str(),line,prefixProgramName);
 }
 
 void ShowMessageW(const StringW&line)
 {
-	displayMessageW(L"message",line);
+	DisplayMessageW(L"message",line);
 }
 
 void ShowMessageW(const wchar_t*line)
 {
-	displayMessageW(L"message",line);
+	DisplayMessageW(L"message",line);
 }
 
 
 void ErrMessageW(const wchar_t*line)
 {
-	displayMessageW(L"error",line);
+	DisplayMessageW(L"error",line);
 }
 
 void ErrMessageW(const StringW&line)
 {
-	displayMessageW(L"error",line);
+	DisplayMessageW(L"error",line);
 }
 
 
