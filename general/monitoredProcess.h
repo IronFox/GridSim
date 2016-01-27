@@ -20,7 +20,7 @@ private:
 	bool			Restart();
 	void			Flush();
 public:
-	//bool			IsStarted() const {return isStarted;}
+	//bool			IsStarted() const {return isStarted;}	//deprecated. do not use. ever. use IsRunning() instead
 	bool			Start(const PathString&workingDirectory, const PathString&executablePath, const PathString&parametersWithoutExecutableName, bool createWindow=true);
 
 	bool			TryResume(const PathString&workingDirectory, const PathString&executablePath);
