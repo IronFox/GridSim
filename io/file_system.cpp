@@ -15,7 +15,9 @@ Plattform-independent file-browsing-module.
 namespace FileSystem
 {
 	#if SYSTEM==WINDOWS
-		static const PathString absMarker = L"\\\\?\\";
+		#define ABS_MARKER	L"\\\\?\\"
+		#define ABS_MARKER_LENGTH	(sizeof(ABS_MARKER)/sizeof(ABS_MARKER[0]) - 1)
+		//static const PathString absMarker = L"\\\\?\\";
 	#endif
 
 	static	PathString addSlashes(const PathString&in)
@@ -335,10 +337,10 @@ namespace FileSystem
 
 
 
-	Folder::Folder():valid_location(true),absolute_folder(absMarker + GetWorkingDirectory()),find_handle(NULL)
+	Folder::Folder():valid_location(true),absolute_folder(GetWorkingDirectory()),find_handle(NULL)
 	{}
 
-	Folder::Folder(const PathString&folder_string) : valid_location(true), absolute_folder(absMarker + GetWorkingDirectory()), find_handle(NULL)
+	Folder::Folder(const PathString&folder_string) : valid_location(true), absolute_folder(GetWorkingDirectory()), find_handle(NULL)
 	{
 		MoveTo(folder_string);
 	}
@@ -420,18 +422,18 @@ namespace FileSystem
 		bool valid_location = false;
 		#if SYSTEM==WINDOWS
 			
-			bool isAbs = path_string.beginsWith(absMarker);
+			bool isAbs = path_string.beginsWith(ABS_MARKER);
 			if (isAbs || (   isalpha(path_string.firstChar()) && path_string.get(1) == ':'))
 			{
 				if (isAbs)
 				{
-					local = path_string.subString(absMarker.length()+3);
-					final = path_string.subString(0,absMarker.length()+3);
+					local = path_string.subString(ABS_MARKER_LENGTH+3);
+					final = path_string.subString(0,ABS_MARKER_LENGTH+3);
 				}
 				else
 				{
 					local = path_string.subString(3);
-					final = absMarker + path_string.subString(0,3);
+					final = ABS_MARKER + path_string.subString(0,3);
 				}
 				valid_location = true;
 			}
@@ -439,7 +441,7 @@ namespace FileSystem
 				if (path_string.firstChar() == '\\')
 				{
 					local = path_string.subString(1);
-					final = absMarker + GetWorkingDirectory().subString(0, 3);
+					final = GetWorkingDirectory().subString(0, 3);
 					valid_location = true;
 				}
 				else
@@ -465,7 +467,7 @@ namespace FileSystem
 
 		if (!valid_location)
 		{
-			final = absMarker + GetWorkingDirectory();
+			final = GetWorkingDirectory();
 			valid_location = true;
 		}
 		if (finalParent)
@@ -536,9 +538,9 @@ namespace FileSystem
 		if (absolute_folder.length() > 1 && (absolute_folder.lastChar() == '/' || absolute_folder.lastChar() == '\\'))
 			absolute_folder.erase(absolute_folder.length()-1);
 		#if SYSTEM==WINDOWS
-			if (!absolute_folder.beginsWith(absMarker))
+			if (!absolute_folder.beginsWith(ABS_MARKER))
 			{
-				absolute_folder = absMarker + absolute_folder;
+				absolute_folder = ABS_MARKER + absolute_folder;
 			}
 		#endif
 		valid_location = IsFolder(absolute_folder);
@@ -1028,12 +1030,17 @@ namespace FileSystem
 
 	PathString GetWorkingDirectory()
 	{
-		char buffer[0x1000];
 		#if SYSTEM==WINDOWS
-			if (!GetCurrentDirectoryA(sizeof(buffer),buffer))
-				return "";
-			return buffer;
+			wchar_t buffer[0x1000];
+			if (!GetCurrentDirectoryW(sizeof(buffer),buffer))
+				return L"";
+			PathString rs = buffer;
+			if (!rs.beginsWith(ABS_MARKER))
+				rs = ABS_MARKER + rs;
+			//size_t len = ABS_MARKER_LENGTH;
+			return rs;
 		#elif SYSTEM==UNIX
+			char buffer[0x1000];
 			if (!getcwd(buffer,sizeof(buffer)))
 				return "";
 			return buffer;
@@ -1521,7 +1528,7 @@ namespace FileSystem
 			out.location.erase(out.location.length()-1);
 		out.is_folder = true;
 		#if SYSTEM==WINDOWS
-			bool absoluteWide = folder_name.beginsWith(absMarker);
+			bool absoluteWide = folder_name.beginsWith(ABS_MARKER);
 			out.location.replace(L'/',L'\\');
 			Array<PathString>	segments;
 			explode(L'\\',out.location,segments);
