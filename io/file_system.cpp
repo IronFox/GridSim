@@ -1014,18 +1014,7 @@ namespace FileSystem
 
 	PathString WorkingDirectory()
 	{
-		char buffer[0x1000];
-		#if SYSTEM==WINDOWS
-			if (!GetCurrentDirectoryA(sizeof(buffer),buffer))
-				return "";
-			return buffer;
-		#elif SYSTEM==UNIX
-			if (!getcwd(buffer,sizeof(buffer)))
-				return "";
-			return buffer;
-		#else
-			#error not supported
-		#endif
+		return GetWorkingDirectory();
 	}
 
 	PathString GetWorkingDirectory()
