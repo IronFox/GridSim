@@ -16,8 +16,7 @@ namespace FileSystem
 {
 	#if SYSTEM==WINDOWS
 		#define ABS_MARKER	L"\\\\?\\"
-		#define ABS_MARKER_LENGTH	(sizeof(ABS_MARKER)/sizeof(ABS_MARKER[0]) - 1)
-		//static const PathString absMarker = L"\\\\?\\";
+		#define ABS_MARKER_LENGTH	(ARRAYSIZE(ABS_MARKER)-1)
 	#endif
 
 	static	PathString addSlashes(const PathString&in)
@@ -1020,18 +1019,18 @@ namespace FileSystem
 	PathString GetWorkingDirectory()
 	{
 		#if SYSTEM==WINDOWS
-			static const size_t len = 0x2000;
-			wchar_t buffer[len];
-			if (!GetCurrentDirectoryW(len-1,buffer))
+			//static const size_t len = 0x2000;
+			wchar_t buffer[0x2000];
+			if (!GetCurrentDirectoryW(ARRAYSIZE(buffer)-1,buffer))
 				return L"";
 			PathString rs = buffer;
 			if (!rs.beginsWith(ABS_MARKER))
 				rs = ABS_MARKER + rs;
-			//size_t len = ABS_MARKER_LENGTH;
+//			size_t len = ABS_MARKER_LENGTH;
 			return rs;
 		#elif SYSTEM==UNIX
 			char buffer[0x1000];
-			if (!getcwd(buffer,sizeof(buffer)))
+			if (!getcwd(buffer,ARRAYSIZE(buffer)))
 				return "";
 			return buffer;
 		#else
@@ -1079,7 +1078,7 @@ namespace FileSystem
 				drive[0] = d;
 				UINT type = GetDriveTypeA(drive);
 				bool valid = type == DRIVE_FIXED || type == DRIVE_REMOTE || type == DRIVE_CDROM || type == DRIVE_RAMDISK;
-				if (!valid || !GetVolumeInformationA(drive, volume_name, sizeof(volume_name), NULL, NULL, NULL, NULL, 0))
+				if (!valid || !GetVolumeInformationA(drive, volume_name, ARRAYSIZE(volume_name), NULL, NULL, NULL, NULL, 0))
 					continue;
 				if (cnt < max)
 				{
@@ -1620,9 +1619,9 @@ namespace FileSystem
 			if (!file)
 				return NULL;
 
-			char buffer[0x200];
-			int len = readlink(file->GetLocation().c_str(),buffer,sizeof(buffer));
-			if (len == -1 || len ==sizeof(buffer))
+			char buffer[0x2000];
+			int len = readlink(file->GetLocation().c_str(),buffer,ARRAYSIZE(buffer));
+			if (len == -1 || len ==ARRAYSIZE(buffer))
 				return file;
 			buffer[len] = 0;	//appearingly readlink does not terminate the string by itself
 	//		ShowMessage("symlink pointing to "+PathString(buffer));
@@ -1637,9 +1636,9 @@ namespace FileSystem
 	static bool ResolveLink(File&file)
 	{
 		#if SYSTEM==UNIX
-			char buffer[0x200];
-			int len = readlink(file.GetLocation().c_str(),buffer,sizeof(buffer));
-			if (len == -1 || len >= sizeof(buffer))
+			char buffer[0x2000];
+			int len = readlink(file.GetLocation().c_str(),buffer,ARRAYSIZE(buffer));
+			if (len == -1 || len >= ARRAYSIZE(buffer))
 				return true;
 			buffer[len] = 0;	//appearingly readlink does not terminate the string by itself
 	//		ShowMessage("symlink pointing to "+PathString(buffer));
