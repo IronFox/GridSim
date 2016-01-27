@@ -1207,6 +1207,12 @@ namespace FileSystem
 	bool IsFolder(const PathString&name)
 	{
 		#if SYSTEM==WINDOWS
+			if (name.contains('/'))//this is apparently bad when using extended path strings
+			{
+				StringW copy(name);
+				copy.replace((PathString::char_t)'/',(PathString::char_t)'\\');
+				return IsFolder(copy);
+			}
 			DWORD attribs = GetFileAttributesW(name.c_str());
 			return attribs != INVALID_FILE_ATTRIBUTES && (attribs&FILE_ATTRIBUTE_DIRECTORY);
 		#elif SYSTEM==UNIX
@@ -1225,6 +1231,18 @@ namespace FileSystem
 	bool IsFile(const PathString::char_t*name)
 	{
 		#if SYSTEM==WINDOWS
+			const PathString::char_t*chk = name;
+			while (*chk)
+			{
+				if (*chk == (PathString::char_t)'/')
+				{
+					//this is apparently bad when using extended path strings
+					StringW copy(name);
+					copy.replace((PathString::char_t)'/',(PathString::char_t)'\\');
+					return IsFile(copy.c_str());
+				}
+				chk++;
+			}
 			DWORD attribs = GetFileAttributesW(name);
 			return attribs != INVALID_FILE_ATTRIBUTES && !(attribs&FILE_ATTRIBUTE_DIRECTORY);
 		#elif SYSTEM==UNIX
@@ -1239,6 +1257,12 @@ namespace FileSystem
 	bool DoesExist(const PathString&name)
 	{
 		#if SYSTEM==WINDOWS
+			if (name.contains('/'))//this is apparently bad when using extended path strings
+			{
+				StringW copy(name);
+				copy.replace((PathString::char_t)'/',(PathString::char_t)'\\');
+				return DoesExist(copy);
+			}
 			return GetFileAttributesW(name.c_str()) != INVALID_FILE_ATTRIBUTES;
 		#elif SYSTEM==UNIX
 			struct ::stat s;
@@ -1252,6 +1276,12 @@ namespace FileSystem
 	fsize_t		GetFileSize(const PathString&name)
 	{
 		#if SYSTEM==WINDOWS
+			if (name.contains('/'))//this is apparently bad when using extended path strings
+			{
+				StringW copy(name);
+				copy.replace((PathString::char_t)'/',(PathString::char_t)'\\');
+				return GetFileSize(copy);
+			}
 			WIN32_FILE_ATTRIBUTE_DATA	data;
 			if (!GetFileAttributesExW(name.c_str(),GetFileExInfoStandard,&data))
 			{
@@ -1272,6 +1302,13 @@ namespace FileSystem
 	ftime_t GetModificationTime(const PathString&name)
 	{
 		#if SYSTEM==WINDOWS
+			if (name.contains('/'))//this is apparently bad when using extended path strings
+			{
+				StringW copy(name);
+				copy.replace((PathString::char_t)'/',(PathString::char_t)'\\');
+				return GetModificationTime(copy);
+			}
+
 			WIN32_FILE_ATTRIBUTE_DATA	data;
 			if (!GetFileAttributesExW(name.c_str(),GetFileExInfoStandard,&data))
 			{
@@ -1305,6 +1342,14 @@ namespace FileSystem
 	const File*  Move(const PathString&source, const PathString&destination)
 	{
 		#if SYSTEM==WINDOWS
+			if (source.contains('/') || destination.contains('/'))//this is apparently bad when using extended path strings
+			{
+				StringW copy0(source),copy1(destination);
+				copy0.replace((PathString::char_t)'/',(PathString::char_t)'\\');
+				copy1.replace((PathString::char_t)'/',(PathString::char_t)'\\');
+				return Move(copy0,copy1);
+			}
+
 			if (!MoveFileW(source.c_str(),destination.c_str()))
 				return NULL;
 		#elif SYSTEM==UNIX
