@@ -1031,8 +1031,9 @@ namespace FileSystem
 	PathString GetWorkingDirectory()
 	{
 		#if SYSTEM==WINDOWS
-			wchar_t buffer[0x1000];
-			if (!GetCurrentDirectoryW(sizeof(buffer),buffer))
+			static const size_t len = 0x2000;
+			wchar_t buffer[len];
+			if (!GetCurrentDirectoryW(len-1,buffer))
 				return L"";
 			PathString rs = buffer;
 			if (!rs.beginsWith(ABS_MARKER))
