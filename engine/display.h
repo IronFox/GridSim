@@ -310,6 +310,10 @@ namespace Engine
 	};
 
 
+	#ifdef _DEBUG
+		#define DISPLAY_NO_MOUSE_HOOKS
+	#endif
+
 	/**
 	Singleton non-template base of display. All window operations are actually executed by the context, and not the template display helper
 	*/
@@ -326,13 +330,23 @@ namespace Engine
 			EventHook			eventHook;
 			HINSTANCE			hInstance;
 			HWND				hWnd;
-	static	HHOOK				hHook;
-	static	unsigned			hook_counter;
+	#ifndef DISPLAY_NO_MOUSE_HOOKS
+		static	HHOOK			hHook;
+		static	unsigned		hook_counter;
+	#endif
 			bool				class_created;
 	static  LRESULT CALLBACK	WndProc(HWND hWnd, UINT Msg, WPARAM wParam,LPARAM lParam);
-	static 	LRESULT CALLBACK 	mouseHook(int nCode, WPARAM wParam,   LPARAM lParam);
-	static	void				installHook();
-	static	void				uninstallHook(bool force=false);
+
+	#ifndef DISPLAY_NO_MOUSE_HOOKS
+		static 	LRESULT CALLBACK 	mouseHook(int nCode, WPARAM wParam,   LPARAM lParam);
+		static	void				installHook();
+		static	void				uninstallHook(bool force=false);
+	#else
+		static	void				installHook()	{};
+		static	void				uninstallHook(bool force=false)	{};
+
+	#endif
+
 	#elif SYSTEM==UNIX
 			::Display			*display;
 			Window				window; //is long unsigned int

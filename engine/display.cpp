@@ -279,30 +279,32 @@ namespace Engine
 
 	
 	#if SYSTEM==WINDOWS
-		HHOOK	Context::hHook(NULL);
-		unsigned	Context::hook_counter(0);
+		#ifndef DISPLAY_NO_MOUSE_HOOKS
+			HHOOK	Context::hHook(NULL);
+			unsigned	Context::hook_counter(0);
 		
 		
-		void	Context::installHook()
-		{
-			if (!hHook)
+			void	Context::installHook()
 			{
-				hHook = SetWindowsHookEx(WH_MOUSE_LL,mouseHook,getInstance(),0);
+				if (!hHook)
+				{
+					hHook = SetWindowsHookEx(WH_MOUSE_LL,mouseHook,getInstance(),0);
+				}
+				hook_counter++;
 			}
-			hook_counter++;
-		}
 		
-		void	Context::uninstallHook(bool force)
-		{
-			hook_counter--;
-			if (force)
-				hook_counter = 0;
-			if (!hook_counter && hHook)
+			void	Context::uninstallHook(bool force)
 			{
-				UnhookWindowsHookEx(hHook);
-				hHook = NULL;
+				hook_counter--;
+				if (force)
+					hook_counter = 0;
+				if (!hook_counter && hHook)
+				{
+					UnhookWindowsHookEx(hHook);
+					hHook = NULL;
+				}
 			}
-		}
+		#endif
 
 	#endif
 	
@@ -1578,7 +1580,9 @@ namespace Engine
 		#if SYSTEM==UNIX
 			disconnect();
 		#elif SYSTEM==WINDOWS
-			uninstallHook(true);
+			#ifndef DISPLAY_NO_MOUSE_HOOKS
+				uninstallHook(true);
+			#endif
 		#endif
 		shutting_down = true;
 	}
@@ -1669,45 +1673,47 @@ namespace Engine
 
 
 
+	#ifndef DISPLAY_NO_MOUSE_HOOKS
 
-	LRESULT CALLBACK Context::mouseHook(
-		    int nCode,
-		    WPARAM wParam,
-		    LPARAM lParam
-			)
-	{
-		#ifndef WM_XBUTTONDOWN
-			#define WM_XBUTTONDOWN 523
-		#endif
-		#ifndef WM_XBUTTONUP
-			#define WM_XBUTTONUP 524
-		#endif
-
-		if (nCode < 0)
-			return CallNextHookEx(hHook,nCode,wParam,lParam);
-		if (nCode == HC_ACTION)
+		LRESULT CALLBACK Context::mouseHook(
+				int nCode,
+				WPARAM wParam,
+				LPARAM lParam
+				)
 		{
-			bool uninstall = false;
-			switch (wParam)
+			#ifndef WM_XBUTTONDOWN
+				#define WM_XBUTTONDOWN 523
+			#endif
+			#ifndef WM_XBUTTONUP
+				#define WM_XBUTTONUP 524
+			#endif
+
+			if (nCode < 0)
+				return CallNextHookEx(hHook,nCode,wParam,lParam);
+			if (nCode == HC_ACTION)
 			{
-				case WM_LBUTTONUP:	uninstall=true;	mouse.buttonUp(0);				break;
-				case WM_MBUTTONUP:  uninstall=true;	mouse.buttonUp(1);				break;
-				case WM_RBUTTONUP:  uninstall=true;	mouse.buttonUp(2);				break;
-				case WM_XBUTTONUP:	uninstall=true;	mouse.buttonUp(HIWORD (wParam)==1?3:4);	break;
+				bool uninstall = false;
+				switch (wParam)
+				{
+					case WM_LBUTTONUP:	uninstall=true;	mouse.buttonUp(0);				break;
+					case WM_MBUTTONUP:  uninstall=true;	mouse.buttonUp(1);				break;
+					case WM_RBUTTONUP:  uninstall=true;	mouse.buttonUp(2);				break;
+					case WM_XBUTTONUP:	uninstall=true;	mouse.buttonUp(HIWORD (wParam)==1?3:4);	break;
+				}
+				LRESULT rs = CallNextHookEx(hHook,nCode,wParam,lParam);
+
+				if (uninstall)
+					uninstallHook();
+
+				return rs;
+		
 			}
-			LRESULT rs = CallNextHookEx(hHook,nCode,wParam,lParam);
+			else
+				return CallNextHookEx(hHook,nCode,wParam,lParam);
 
-			if (uninstall)
-				uninstallHook();
-
-			return rs;
 		
 		}
-		else
-			return CallNextHookEx(hHook,nCode,wParam,lParam);
-
-		
-	}
+	#endif
 
 
 	LRESULT CALLBACK Context::WndProc(HWND hWnd, UINT Msg, WPARAM wParam,LPARAM lParam)
