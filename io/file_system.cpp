@@ -422,12 +422,18 @@ namespace FileSystem
 		#if SYSTEM==WINDOWS
 			
 			bool isAbs = path_string.beginsWith(ABS_MARKER);
-			if (isAbs || (   isalpha(path_string.firstChar()) && path_string.get(1) == ':'))
+			if (isAbs || (isalpha(path_string.firstChar()) && path_string.get(1) == ':'))
 			{
 				if (isAbs)
 				{
 					local = path_string.subString(ABS_MARKER_LENGTH+3);
 					final = path_string.subString(0,ABS_MARKER_LENGTH+3);
+
+					if (isalpha(local.firstChar()) && local.get(1) == ':')
+					{
+						local = local.subString(3);
+						final = ABS_MARKER + local.subString(0,3);
+					}
 				}
 				else
 				{
@@ -839,6 +845,15 @@ namespace FileSystem
 		out.name = ExtractFileNameExt(out.location);
 		out.is_folder = false;
 		#if SYSTEM==WINDOWS
+			if (out.name.endsWith(':'))
+			{
+				PathString driveName = out.name+L'\\';
+				UINT type = GetDriveTypeW(driveName.c_str());
+				bool valid = type == DRIVE_FIXED || type == DRIVE_REMOTE || type == DRIVE_CDROM || type == DRIVE_RAMDISK;
+				out.is_folder = true;
+				return valid || !mustExist;
+			}
+
 			DWORD attributes = GetFileAttributesW(out.location.c_str());
 			if (attributes == INVALID_FILE_ATTRIBUTES)
 				return !mustExist;
@@ -1203,6 +1218,14 @@ namespace FileSystem
 	bool IsFolder(const PathString&name)
 	{
 		#if SYSTEM==WINDOWS
+			if (name.endsWith(':'))
+			{
+				PathString driveName = name+L'\\';
+				UINT type = GetDriveTypeW(driveName.c_str());
+				bool valid = type == DRIVE_FIXED || type == DRIVE_REMOTE || type == DRIVE_CDROM || type == DRIVE_RAMDISK;
+				return valid;
+			}
+
 			if (name.contains('/'))//this is apparently bad when using extended path strings
 			{
 				StringW copy(name);
@@ -1253,6 +1276,14 @@ namespace FileSystem
 	bool DoesExist(const PathString&name)
 	{
 		#if SYSTEM==WINDOWS
+			if (name.endsWith(':'))
+			{
+				PathString driveName = name+L'\\';
+				UINT type = GetDriveTypeW(driveName.c_str());
+				bool valid = type == DRIVE_FIXED || type == DRIVE_REMOTE || type == DRIVE_CDROM || type == DRIVE_RAMDISK;
+				return valid;
+			}
+			
 			if (name.contains('/'))//this is apparently bad when using extended path strings
 			{
 				StringW copy(name);
@@ -1541,7 +1572,7 @@ namespace FileSystem
 		#endif
 		//PathString copy = out.location;
 		//;
-		return Folder().Find(out.location,out);
+		return Folder().FindFolder(out.location,out);
 	}
 
 #if SYSTEM==WINDOWS
