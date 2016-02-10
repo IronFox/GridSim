@@ -9,7 +9,7 @@ E:\include\string\cli.tpl.h
 ******************************************************************/
 
 template <typename F>
-	CLI::PCommand				CLI::Interpretor::DefineCommand(const String& def, const F&f, eCommandCompletion completion/*=NoCompletion*/)
+	CLI::PCommand				CLI::Interpreter::DefineCommand(const String& def, const F&f, eCommandCompletion completion/*=NoCompletion*/)
 	{
 		Tokenizer::tokenize(def,lookup.pathConfig,lookup.pathSegments);
 		if (!lookup.pathSegments)
@@ -30,7 +30,7 @@ template <typename F>
 	}
 
 template <typename F>
-	CLI::PCommand				CLI::Interpretor::DefineGlobalCommand(const String& def, const F&f, eCommandCompletion completion/*=NoCompletion*/)
+	CLI::PCommand				CLI::Interpreter::DefineGlobalCommand(const String& def, const F&f, eCommandCompletion completion/*=NoCompletion*/)
 	{
 		Command::Name name;
 		if (!name.Parse(def))

@@ -27,7 +27,7 @@ namespace CLI
 	@param println Pointer to a print line function that will be used to print results to a console
 	@param onFocusChange Function pointer to execute if the cd command was successfuly executed
 	*/
-	void			InitDefaults(Interpretor&target, pPrintln println, pOnFocusChange onFocusChange=NULL, bool echoSetOperation = true);
+	void			InitDefaults(Interpreter&target, pPrintln println, pOnFocusChange onFocusChange=NULL, bool echoSetOperation = true);
 
 
 	

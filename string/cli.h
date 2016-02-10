@@ -46,7 +46,7 @@ namespace CLI	//! Command line interpretor
 	/*!
 		\brief Type of complemention requested by a command
 		
-		Actual command-completion (if any) has to be implemented by the respective interface. Interpretor provides completion functionality
+		Actual command-completion (if any) has to be implemented by the respective interface. Interpreter provides completion functionality
 		for folders and variables but not files.
 		A CLI command may request exactly one type of completion for all its parameters
 	*/
@@ -364,7 +364,7 @@ namespace CLI	//! Command line interpretor
 	};
 	
 
-	class Interpretor	//! Command line interpretor
+	class Interpreter	//! Command line interpretor
 	{
 		String						error;				//!< Contains a description of the last occured error (if any)
 		struct
@@ -385,8 +385,8 @@ namespace CLI	//! Command line interpretor
 		PFolder						root;
 			
 		bool						_ParseLine(const char*line,bool allowGlobalCommands);	//!< Parses an input line
-		PFolder						_Resolve(bool fromRoot);	//!< Resolves the folder described by the first n-1 segments of the current content of Interpretor::segments @param from_root Specifies that the folder lookup should start from the parser root folder rather than the currently focused folder \return Pointer to the respective folder or NULL if no such folder could be found
-		PFolder						_ResolveFull(bool fromRoot);	//!< Resolves the folder described by the current content of Interpretor::segments @param from_root Specifies that the folder lookup should start from the parser root folder rather than the currently focused folder \return Pointer to the respective folder or NULL if no such folder could be found
+		PFolder						_Resolve(bool fromRoot);	//!< Resolves the folder described by the first n-1 segments of the current content of Interpreter::segments @param from_root Specifies that the folder lookup should start from the parser root folder rather than the currently focused folder \return Pointer to the respective folder or NULL if no such folder could be found
+		PFolder						_ResolveFull(bool fromRoot);	//!< Resolves the folder described by the current content of Interpreter::segments @param from_root Specifies that the folder lookup should start from the parser root folder rather than the currently focused folder \return Pointer to the respective folder or NULL if no such folder could be found
 			
 		bool						_EntryLookup(const String&name, bool mayExist);	//!< Attempts to locate an element by the specified name (and path). @param name Path to look for @param may_exist Set false to let the function fail if an element of that name exists @return true on success, false otherwise
 	public:
@@ -394,7 +394,7 @@ namespace CLI	//! Command line interpretor
 		ItemTable<Command>			globalCommands;
 		std::function<void(PVariable)>	onVariableCall;	//!< Callback function invoked whenever a variable is executed (NULL by default)
 
-		/**/						Interpretor();
+		/**/						Interpreter();
 		template <typename F>
 			PCommand				DefineCommand(const String& def, const F&f, eCommandCompletion completion=NoCompletion);	//!< Defines a new command (0 argument pointer command) in the active folder @param def Name of the command to create(may include folder names) @param method Pointer to the handler function @param completion Command completion
 		bool						InsertCommand(const PCommand&cmd, const String&targetPath);	//!< Inserts a new command in the specified location. The method fails if a command already exists in the specified location. @param cmd New command object. The object will be managed by this structure and must not be deleted \return Pointer to the inserted command object if no command of that name existed, NULL otherwise
@@ -471,7 +471,8 @@ namespace CLI	//! Command line interpretor
 		const String&				GetAsString(const String& path, const String& exception = "");					//!< Attempts to retrieve the specified variable as a string. All variables inherently provide a ToString() method so the only reason for this method to fail is if the requested variable does not exist @param path Variable path @param exception Value to return if the specified variable could not be found
 		const String&				GetErrorStr()	const;						//!< Retrieves an error description of the last occured error
 		const String&				GetError()		const;						//!< Identical to GetErrorStr()
-		String						Complete(const String&line, StringList&out);			//!< Attempts to complete an incomplete line towards a command or folder. @param line Line to complete @param out Reference list to store all possibilities in \return Longest common string among all possibilities or a complete command line if there is just one possibility. The returned string is empty if no matching possibility was found.
+		String						StandardComplete(const String&line, StringList&out);			//!< Attempts to complete an incomplete line towards a command or folder. @param line Line to complete @param out Reference list to store all possibilities in \return Longest common string among all possibilities or a complete command line if there is just one possibility. The returned string is empty if no matching possibility was found.
+		String						ExtendedComplete(const String&line, StringList&out);			//!< Extended version of StandardComplete() that also checks parameters for completion
 		String						CompleteFolders(const String&line, StringList&out);		//!< Attempts to complete an incomplete line towards a folder. @param line Line to complete @param out Reference list to store all possibilities in \return Longest common string among all possibilities or a complete command line if there is just one possibility. The returned string is empty if no matching possibility was found.
 		String						CompleteVariables(const String&line, StringList&out);		//!< Attempts to complete an incomplete line towards a variable or folder. @param line Line to complete @param out Reference list to store all possibilities in \return Longest common string among all possibilities or a complete command line if there is just one possibility. The returned string is empty if no matching possibility was found.
 		PCommand 					Find(const String&path,PFolder*folder_out=NULL);	//!< Attempts to find a command matching \b path @param path Path of the command to look for \return Pointer to a matching command or NULL if no such command exists
@@ -488,7 +489,7 @@ namespace CLI	//! Command line interpretor
 		[command] like all paths may be preceeded by paths relative to the currently active folder (i.e. 'myFolder/doSomething')
 		or absolute paths with a slash at the beginning (i.e. '/myTopmostFolder/mySubFolder/mySubSubFolder/myCommand').<br />
 		Commands are case sensitive! 'doSomething' is not the same command as 'DoSomething'.<br />
-		Existing variables may also be 'executed' if Interpretor::exec_on_variable_call is not NULL.<br />
+		Existing variables may also be 'executed' if Interpreter::exec_on_variable_call is not NULL.<br />
 		[parameter] may be a single word or a group of words grouped by quotation marks (i.e. "hello world" or "string \"in a\" string").<br />
 		Note that backslashes need not be escaped (i.e. "\" is the same as "\\" but in order to insert two backslashes inside quotation marks you need to pass "\\\\")
 				
@@ -533,7 +534,7 @@ namespace CLI	//! Command line interpretor
 			bool		load(const String&filename, const String&alias);	//!< Attempts to load a new script to the end of the script list
 			bool		erase(const String&alias);							//!< Erases the specified script
 			Script*	find(const String&alias);							//!< Attempts to locate a loaded script
-			bool		execute(const String&alias,Interpretor*parser);	//!< Executes a script
+			bool		execute(const String&alias,Interpreter*parser);	//!< Executes a script
 	};
 	
 	#include "cli.tpl.h"

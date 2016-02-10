@@ -11,7 +11,7 @@ namespace CLI
 
 	pPrintln		println=NULL;
 
-	Interpretor		*main_interpretor(NULL);
+	Interpreter		*main_interpretor(NULL);
 	pOnFocusChange	onFocusChange=NULL;
 	bool echoSetOperation = true;
 	
@@ -82,9 +82,11 @@ namespace CLI
 		}
 	}
 
-	static void 	list()
+	static void 	list(const String&f)
 	{
-		CLI::PFolder folder = main_interpretor->GetFocus();
+		CLI::PFolder folder = f.IsNotEmpty() ? main_interpretor->FindFolder(f) : main_interpretor->GetFocus();
+		if (!folder)
+			println("'"+f+"' is not a folder");
 		
 		//println(" ["+folder->path()+"]:");
 		println("-");
@@ -211,7 +213,7 @@ namespace CLI
 							
 							
 	
-	void			InitDefaults(Interpretor&parser, pPrintln out, pOnFocusChange focusChange, bool echoSetOperation_)
+	void			InitDefaults(Interpreter&parser, pPrintln out, pOnFocusChange focusChange, bool echoSetOperation_)
 	{
 	
 		println = out;
@@ -220,8 +222,8 @@ namespace CLI
 		
 		main_interpretor = &parser;
 		PCommand help = parser.DefineGlobalCommand("help command/variable/folder",printHelp,CLI::CommandCompletion);
-		parser.DefineGlobalCommand("ls",list)->help = list_help;
-		parser.DefineGlobalCommand("list",list)->help = list_help;
+		parser.DefineGlobalCommand("ls [folder]",list,CLI::FolderCompletion)->help = list_help;
+		parser.DefineGlobalCommand("list [folder]",list,CLI::FolderCompletion)->help = list_help;
 		//parser.defineGlobalCommand("list",list);
 
 		parser.DefineGlobalCommand("set variable value",set,CLI::VariableCompletion)->help = set_help;

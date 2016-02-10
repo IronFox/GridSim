@@ -172,7 +172,7 @@ namespace CLI
 
 	
 
-	Interpretor::Interpretor():root(new Folder(PFolder(),""))
+	Interpreter::Interpreter():root(new Folder(PFolder(),""))
 	{
 		focused = root;
 		lookup.pathConfig.main_separator="/";
@@ -203,7 +203,7 @@ namespace CLI
 	
 
 
-	bool	Interpretor::InsertCommand(const PCommand&cmd, const String&targetPath)
+	bool	Interpreter::InsertCommand(const PCommand&cmd, const String&targetPath)
 	{
 		if (!cmd)
 			return false;
@@ -218,7 +218,7 @@ namespace CLI
 		return true;
 	}
 	
-	bool	Interpretor::InsertGlobalCommand(const PCommand&cmd)
+	bool	Interpreter::InsertGlobalCommand(const PCommand&cmd)
 	{
 		if (!cmd)
 			return false;
@@ -230,7 +230,7 @@ namespace CLI
 	}
 	
 
-	bool	Interpretor::_EntryLookup(const String&name, bool may_exist)
+	bool	Interpreter::_EntryLookup(const String&name, bool may_exist)
 	{
 		lookup.folder.reset();
 		lookup.variable.reset();
@@ -266,7 +266,7 @@ namespace CLI
 			
 	}
 
-	PVariable	Interpretor::SetString(const String& name,	unsigned protection)
+	PVariable	Interpreter::SetString(const String& name,	unsigned protection)
 	{
 		if (!_EntryLookup(name,false))
 			return PVariable();
@@ -276,7 +276,7 @@ namespace CLI
 		
 	}
 
-	PVariable	Interpretor::SetString(const String& name, const String& value, unsigned protection, bool allow_overwrite)
+	PVariable	Interpreter::SetString(const String& name, const String& value, unsigned protection, bool allow_overwrite)
 	{
 		if (!_EntryLookup(name,allow_overwrite))
 			return PVariable();
@@ -298,7 +298,7 @@ namespace CLI
 	}
 
 
-	PVariable	Interpretor::SetFloat(const String& name,	unsigned protection)
+	PVariable	Interpreter::SetFloat(const String& name,	unsigned protection)
 	{
 		if (!_EntryLookup(name,false))
 			return PVariable();
@@ -308,7 +308,7 @@ namespace CLI
 		return lookup.folder->variables.InsertNew(lookup.pathSegments.last(),new FloatVariable(lookup.pathSegments.last(),0,protection));
 	}
 
-	PVariable	Interpretor::SetFloat(const String& name, float value, unsigned protection)
+	PVariable	Interpreter::SetFloat(const String& name, float value, unsigned protection)
 	{
 		if (!_EntryLookup(name,false))
 			return PVariable();
@@ -318,7 +318,7 @@ namespace CLI
 	}
 
 	
-	PVariable	Interpretor::SetInt(const String& name,	unsigned protection)
+	PVariable	Interpreter::SetInt(const String& name,	unsigned protection)
 	{
 	
 		if (!_EntryLookup(name,false))
@@ -328,7 +328,7 @@ namespace CLI
 		return lookup.folder->variables.InsertNew(lookup.pathSegments.last(),new IntVariable(lookup.pathSegments.last(),0,protection));
 	}
 
-	PVariable	Interpretor::SetInt(const String& name, int value, unsigned protection)
+	PVariable	Interpreter::SetInt(const String& name, int value, unsigned protection)
 	{
 		if (!_EntryLookup(name,false))
 			return PVariable();
@@ -337,7 +337,7 @@ namespace CLI
 		return lookup.folder->variables.InsertNew(lookup.pathSegments.last(),new IntVariable(lookup.pathSegments.last(),value,protection));
 	}
 
-	PVariable	Interpretor::SetBool(const String& name,	unsigned protection)
+	PVariable	Interpreter::SetBool(const String& name,	unsigned protection)
 	{
 		if (!_EntryLookup(name,false))
 			return PVariable();
@@ -346,7 +346,7 @@ namespace CLI
 		return lookup.folder->variables.InsertNew(lookup.pathSegments.last(),new BoolVariable(lookup.pathSegments.last(),false,protection));
 	}
 
-	PVariable	Interpretor::SetBool(const String& name, bool value, unsigned protection)
+	PVariable	Interpreter::SetBool(const String& name, bool value, unsigned protection)
 	{
 		if (!_EntryLookup(name,false))
 			return PVariable();
@@ -357,7 +357,7 @@ namespace CLI
 
 	
 	
-	PVariable	Interpretor::SetVector3f(const String& name, unsigned protection)
+	PVariable	Interpreter::SetVector3f(const String& name, unsigned protection)
 	{
 		if (!_EntryLookup(name,false))
 			return PVariable();
@@ -366,7 +366,7 @@ namespace CLI
 		return lookup.folder->variables.InsertNew(lookup.pathSegments.last(),new VectorVariable<3>(lookup.pathSegments.last(),NULL,protection));
 	}
 	
-	PVariable	Interpretor::SetVector4f(const String& name, unsigned protection)
+	PVariable	Interpreter::SetVector4f(const String& name, unsigned protection)
 	{
 		if (!_EntryLookup(name,false))
 			return PVariable();
@@ -375,7 +375,7 @@ namespace CLI
 		return lookup.folder->variables.InsertNew(lookup.pathSegments.last(),new VectorVariable<4>(lookup.pathSegments.last(),NULL,protection));
 	}
 	
-	PVariable	Interpretor::SetVector3d(const String& name, unsigned protection)
+	PVariable	Interpreter::SetVector3d(const String& name, unsigned protection)
 	{
 		if (!_EntryLookup(name,false))
 			return PVariable();
@@ -384,7 +384,7 @@ namespace CLI
 		return lookup.folder->variables.InsertNew(lookup.pathSegments.last(),new DoubleVectorVariable<3>(lookup.pathSegments.last(),NULL,protection));
 	}
 	
-	PVariable	Interpretor::SetVector4d(const String& name, unsigned protection)
+	PVariable	Interpreter::SetVector4d(const String& name, unsigned protection)
 	{
 		if (!_EntryLookup(name,false))
 			return PVariable();
@@ -394,7 +394,7 @@ namespace CLI
 	}
 	
 	
-	PVariable	Interpretor::SetVector3f(const String& name, float value[3], unsigned protection)
+	PVariable	Interpreter::SetVector3f(const String& name, float value[3], unsigned protection)
 	{
 		if (!_EntryLookup(name,false))
 			return PVariable();
@@ -403,7 +403,7 @@ namespace CLI
 		return lookup.folder->variables.InsertNew(lookup.pathSegments.last(),new VectorVariable<3>(lookup.pathSegments.last(),value,protection));
 	}
 	
-	PVariable	Interpretor::SetVector4f(const String& name, float value[4], unsigned protection)
+	PVariable	Interpreter::SetVector4f(const String& name, float value[4], unsigned protection)
 	{
 		if (!_EntryLookup(name,false))
 			return PVariable();
@@ -412,7 +412,7 @@ namespace CLI
 		return lookup.folder->variables.InsertNew(lookup.pathSegments.last(),new VectorVariable<4>(lookup.pathSegments.last(),value,protection));
 	}
 	
-	PVariable	Interpretor::SetVector3d(const String& name, double value[3], unsigned protection)
+	PVariable	Interpreter::SetVector3d(const String& name, double value[3], unsigned protection)
 	{
 		if (!_EntryLookup(name,false))
 			return PVariable();
@@ -421,7 +421,7 @@ namespace CLI
 		return lookup.folder->variables.InsertNew(lookup.pathSegments.last(),new DoubleVectorVariable<3>(lookup.pathSegments.last(),value,protection));
 	}
 	
-	PVariable	Interpretor::SetVector4d(const String& name, double value[3], unsigned protection)
+	PVariable	Interpreter::SetVector4d(const String& name, double value[3], unsigned protection)
 	{
 		if (!_EntryLookup(name,false))
 			return PVariable();
@@ -431,7 +431,7 @@ namespace CLI
 	}
 	
 
-	PVariable	Interpretor::SetVariable(const PVariable&v)
+	PVariable	Interpreter::SetVariable(const PVariable&v)
 	{
 		return focused->SetVariable(v);
 	}
@@ -471,7 +471,7 @@ namespace CLI
 	
 	
 	
-	PVariable	Interpretor::Set(const String& name, const String& value)
+	PVariable	Interpreter::Set(const String& name, const String& value)
 	{
 		if (!_EntryLookup(name,true))
 			return PVariable();
@@ -523,7 +523,7 @@ namespace CLI
 	
 	
 
-	PFolder	Interpretor::_Resolve(bool from_root)
+	PFolder	Interpreter::_Resolve(bool from_root)
 	{
 		if (!lookup.pathSegments)
 		{
@@ -570,7 +570,7 @@ namespace CLI
 		return	current;
 	}
 	
-	PFolder	Interpretor::_ResolveFull(bool from_root)
+	PFolder	Interpreter::_ResolveFull(bool from_root)
 	{
 		if (!lookup.pathSegments)
 		{
@@ -617,7 +617,7 @@ namespace CLI
 		return	current;
 	}
 
-	bool	Interpretor::Unset(const String&	name)
+	bool	Interpreter::Unset(const String&	name)
 	{
 		if (!_EntryLookup(name,true))
 			return false;
@@ -640,7 +640,7 @@ namespace CLI
 	}
 
 
-	void	Interpretor::UnsetIgnoreProtection(const String&	name)
+	void	Interpreter::UnsetIgnoreProtection(const String&	name)
 	{
 		if (!_EntryLookup(name,true) || !lookup.variable)
 			return;
@@ -649,7 +649,7 @@ namespace CLI
 		lookup.folder->variables.Unset(lookup.variable->name);
 	}
 
-	bool	Interpretor::Unset(const PFolder&folder, const PVariable&var, bool ignore_protection)
+	bool	Interpreter::Unset(const PFolder&folder, const PVariable&var, bool ignore_protection)
 	{
 		if (!var || !folder || !folder->variables.IsSet(var->name))
 		{
@@ -667,7 +667,7 @@ namespace CLI
 
 
 
-	unsigned	Interpretor::GetAsUnsigned(const String&	name,	unsigned	exception)
+	unsigned	Interpreter::GetAsUnsigned(const String&	name,	unsigned	exception)
 	{
 		PVariable v = FindVar(name);
 		if (!v)
@@ -683,7 +683,7 @@ namespace CLI
 		return val;
 	}
 
-	int	Interpretor::GetAsInt(const String&	name,	int	exception)
+	int	Interpreter::GetAsInt(const String&	name,	int	exception)
 	{
 		PVariable v = FindVar(name);
 		if (!v)
@@ -698,7 +698,7 @@ namespace CLI
 		return val;
 	}
 
-	float	Interpretor::GetAsFloat(const String&	name,	float	exception)
+	float	Interpreter::GetAsFloat(const String&	name,	float	exception)
 	{
 		PVariable v = FindVar(name);
 		if (!v)
@@ -713,7 +713,7 @@ namespace CLI
 		return val;
 	}
 
-	Key::Name	Interpretor::GetAsKey(const String&	name,	Key::Name	exception)
+	Key::Name	Interpreter::GetAsKey(const String&	name,	Key::Name	exception)
 	{
 		PVariable v = FindVar(name);
 		if (!v)
@@ -724,7 +724,7 @@ namespace CLI
 		return val;
 	}
 
-	bool	Interpretor::GetAsBool(const String&	name,	bool	exception)
+	bool	Interpreter::GetAsBool(const String&	name,	bool	exception)
 	{
 		PVariable v = FindVar(name);
 		if (!v)
@@ -740,7 +740,7 @@ namespace CLI
 	}
 
 
-	const String& Interpretor::GetAsString(const String& name, const String& exception)
+	const String& Interpreter::GetAsString(const String& name, const String& exception)
 	{
 		static String content;
 		PVariable v = FindVar(name);
@@ -750,18 +750,18 @@ namespace CLI
 		return content;
 	}
 
-	const	String&	Interpretor::GetErrorStr()	const
+	const	String&	Interpreter::GetErrorStr()	const
 	{
 		return	error;
 	}
 
-	const	String&	Interpretor::GetError()	const
+	const	String&	Interpreter::GetError()	const
 	{
 		return	error;
 	}
 
 
-	PCommand Interpretor::Find(const String&name,PFolder*folder_out/*=NULL*/)
+	PCommand Interpreter::Find(const String&name,PFolder*folder_out/*=NULL*/)
 	{
 		Tokenizer::tokenize(name,lookup.pathConfig,lookup.pathSegments);
 		
@@ -786,12 +786,12 @@ namespace CLI
 		return PCommand();
 	}
 
-	PCommand Interpretor::Find(const char*name,PFolder*folder_out/*=NULL*/)
+	PCommand Interpreter::Find(const char*name,PFolder*folder_out/*=NULL*/)
 	{
 		return Find(String(name),folder_out);
 	}
 
-	PVariable Interpretor::FindVar(const String&name,PFolder*folder_out/*=NULL*/)
+	PVariable Interpreter::FindVar(const String&name,PFolder*folder_out/*=NULL*/)
 	{
 		Tokenizer::tokenize(name,lookup.pathConfig,lookup.pathSegments);
 		if (!lookup.pathSegments)
@@ -804,7 +804,7 @@ namespace CLI
 		return folder->variables.Query(lookup.pathSegments.last());
 	}
 
-	PVariable Interpretor::FindVar(const char*name,PFolder *folder_out/*=NULL*/)
+	PVariable Interpreter::FindVar(const char*name,PFolder *folder_out/*=NULL*/)
 	{
 		Tokenizer::tokenize(name,lookup.pathConfig,lookup.pathSegments);
 		if (!lookup.pathSegments)
@@ -817,7 +817,7 @@ namespace CLI
 		return folder->variables.Query(lookup.pathSegments.last());
 	}
 
-	PFolder 		Interpretor::FindFolder(const String&path)
+	PFolder 		Interpreter::FindFolder(const String&path)
 	{
 		Tokenizer::tokenize(path,lookup.pathConfig,lookup.pathSegments);
 		if (!lookup.pathSegments)
@@ -832,33 +832,107 @@ namespace CLI
 	}
 
 
-	bool	Interpretor::Interpret(const String&line, bool allow_global_commands/*=true*/)
+	bool	Interpreter::Interpret(const String&line, bool allow_global_commands/*=true*/)
 	{
 		return	Parse(line.c_str(),allow_global_commands);
 	}
 	
-	bool	Interpretor::Interpret(const char*line, bool allow_global_commands/*=true*/)
+	bool	Interpreter::Interpret(const char*line, bool allow_global_commands/*=true*/)
 	{
 		return	Parse(line,allow_global_commands);
 	}
 
-	bool	Interpretor::Parse(const String&line, bool allow_global_commands/*=true*/)
+	bool	Interpreter::Parse(const String&line, bool allow_global_commands/*=true*/)
 	{
 		return	Parse(line.c_str(),allow_global_commands);
 	}
 
-	PCommand		Interpretor::GetExecutingCommand()	const
+	PCommand		Interpreter::GetExecutingCommand()	const
 	{
 		return executing;
 	}
 
-	PFolder 		Interpretor::GetExecutionContext()	const
+	PFolder 		Interpreter::GetExecutionContext()	const
 	{
 		return executingFolder;
 	}
 
-	String Interpretor::Complete(const String&line, StringList&out)
+	String Interpreter::ExtendedComplete(const String&line, StringList&out)
 	{
+		out.clear();
+		StringList segments;
+		Tokenizer::tokenize(line,GetSegmentizerConfig(),segments);
+
+		if (!segments)
+			return "";
+		
+		if (segments == 1)
+		{
+			return StandardComplete(segments[0],out);
+		}
+	
+		CLI::PCommand cmd = Find(segments[0]);
+		if (!cmd || cmd->completion == CLI::NoCompletion)
+		{
+			return line;
+		}
+		
+		String prefix = segments.fuse(0,segments-1,' ')+" ";
+	
+		switch (cmd->completion)
+		{
+			case CLI::FolderCompletion:
+			{
+				String line = CompleteFolders(segments.last(),out);
+				if (line.IsEmpty())
+					return line;
+				//for (index_t i = 0; i < out; i++)
+				//	out[i] = prefix + out[i];
+				return prefix + line;
+			}
+			case CLI::VariableCompletion:
+			{
+				String line = CompleteVariables(segments.last(),out);
+				if (line.IsEmpty())
+					return line;
+				//for (index_t i = 0; i < out; i++)
+				//	out[i] = prefix + out[i];
+				return prefix + line;
+			}
+			case CLI::CommandCompletion:
+			{
+				String line = StandardComplete(segments.last(),out);
+				if (line.IsEmpty())
+					return line;
+				//for (index_t i = 0; i < out; i++)
+				//	out[i] = prefix + out[i];
+				return prefix + line;
+			}
+			case CLI::FileCompletion:
+			{
+				
+			}
+		}
+	
+	
+
+		return prefix;
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+	String			Interpreter::StandardComplete(const String&line, StringList&out)
+	{
+
 		out.clear();
 		String longest_common;
 		Tokenizer::tokenize(line,lookup.pathConfig,lookup.pathSegments);
@@ -918,7 +992,7 @@ namespace CLI
 		return longest_common;
 	}
 
-	String Interpretor::CompleteVariables(const String&line,StringList&out)
+	String Interpreter::CompleteVariables(const String&line,StringList&out)
 	{
 		out.clear();
 		String longest_common;
@@ -972,7 +1046,7 @@ namespace CLI
 
 
 
-	String Interpretor::CompleteFolders(const String&line, StringList&out)
+	String Interpreter::CompleteFolders(const String&line, StringList&out)
 	{
 		out.clear();
 		String longest_common;
@@ -1022,12 +1096,12 @@ namespace CLI
 		return longest_common;
 	}
 
-	const StringList&	Interpretor::GetExecutionSegments()		const
+	const StringList&	Interpreter::GetExecutionSegments()		const
 	{
 		return lookup.cmdSegments;
 	}
 	
-	bool	Interpretor::_ParseLine(const char*line,bool allow_global_commands)
+	bool	Interpreter::_ParseLine(const char*line,bool allow_global_commands)
 	{
 		//cout << "parse("<<line<<")"<<endl;
 		Tokenizer::tokenize(line,lookup.segmentConfig,lookup.cmdSegments);
@@ -1072,7 +1146,7 @@ namespace CLI
 		return false;
 	}
 
-	bool	Interpretor::Parse(const char*line, bool allow_global_commands /*=true*/)
+	bool	Interpreter::Parse(const char*line, bool allow_global_commands /*=true*/)
 	{
 		StringList	lines;
 		Tokenizer::tokenize(line,lookup.lineConfig,lines);
@@ -1157,7 +1231,7 @@ namespace CLI
 	}
 
 
-	PFolder 		Interpretor::EnterNewFolder(const String& name, bool enter_existing)
+	PFolder 		Interpreter::EnterNewFolder(const String& name, bool enter_existing)
 	{
 		Tokenizer::tokenize(name,lookup.pathConfig,lookup.pathSegments);
 		if (!lookup.pathSegments)
@@ -1181,7 +1255,7 @@ namespace CLI
 		return result;
 	}
 
-	void				Interpretor::EraseFolder(const PFolder&folder)
+	void				Interpreter::EraseFolder(const PFolder&folder)
 	{
 		if (!folder)
 			return;
@@ -1195,7 +1269,7 @@ namespace CLI
 		parent->folders.Unset(folder->name);
 	}
 	
-	void				Interpretor::EraseFolder(const String& name)
+	void				Interpreter::EraseFolder(const String& name)
 	{
 		Tokenizer::tokenize(name,lookup.pathConfig,lookup.pathSegments);
 		if (!lookup.pathSegments)
@@ -1210,7 +1284,7 @@ namespace CLI
 	}
 
 
-	bool	Interpretor::MoveFocus(const String&context)
+	bool	Interpreter::MoveFocus(const String&context)
 	{
 		Tokenizer::tokenize(context,lookup.pathConfig,lookup.pathSegments);
 		lookup.pathSegments << ".";	//dummy
@@ -1223,12 +1297,12 @@ namespace CLI
 		return false;
 	}
 
-	bool	Interpretor::ExitFolder()
+	bool	Interpreter::ExitFolder()
 	{
 		return ExitFocus();
 	}
 	
-	bool	Interpretor::ExitFocus()
+	bool	Interpreter::ExitFocus()
 	{
 		PFolder parent = focused->parent.lock();
 		if (parent)
@@ -1239,17 +1313,17 @@ namespace CLI
 		return false;
 	}
 
-	void	Interpretor::ResetFocus()
+	void	Interpreter::ResetFocus()
 	{
 		focused = root;
 	}
 
-	PFolder 	Interpretor::GetFocus()	const
+	PFolder 	Interpreter::GetFocus()	const
 	{
 		return focused;
 	}
 	
-	void		Interpretor::SetFocus(const PFolder&folder)
+	void		Interpreter::SetFocus(const PFolder&folder)
 	{
 		if (folder)
 			focused = folder;
@@ -1260,12 +1334,12 @@ namespace CLI
 		}
 	}
 
-	void		Interpretor::PushFocus()
+	void		Interpreter::PushFocus()
 	{
 		focusStack << focused;
 	}
 
-	void		Interpretor::PushAndReplaceFocus(const PFolder&new_focus)
+	void		Interpreter::PushAndReplaceFocus(const PFolder&new_focus)
 	{
 		PushFocus();
 		//if (new_focus)
@@ -1273,7 +1347,7 @@ namespace CLI
 	}
 
 
-	void		Interpretor::PopFocus()
+	void		Interpreter::PopFocus()
 	{
 		ASSERT__(focusStack.IsNotEmpty());
 		SetFocus(focusStack.pop());
@@ -1281,12 +1355,12 @@ namespace CLI
 
 
 	
-	String			Interpretor::GetContext(unsigned depth)	const
+	String			Interpreter::GetContext(unsigned depth)	const
 	{
 		return focused->GetPath(depth);
 	}
 
-	const Tokenizer::Config&	Interpretor::GetSegmentizerConfig()	const
+	const Tokenizer::Config&	Interpreter::GetSegmentizerConfig()	const
 	{
 		return lookup.segmentConfig;
 	}
@@ -1369,7 +1443,7 @@ namespace CLI
 		return	NULL;
 	}
 
-	bool	ScriptList::execute(const	String&alias,Interpretor*parser)
+	bool	ScriptList::execute(const	String&alias,Interpreter*parser)
 	{
 		Script*script = find(alias);
 		if	(!script)
