@@ -45,7 +45,7 @@ public:
 	*/
 	void			ForceRestart();
 	bool			IsRunning() const;
-	bool			HasAnyWindow() const;
+	bool			HasAnyVisibleWindows() const;
 };
 
 #endif

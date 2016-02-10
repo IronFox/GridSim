@@ -258,13 +258,17 @@ void		MonitoredProcess::Terminate()
 	}
 }
 
-bool		MonitoredProcess::HasAnyWindow() const
+bool		MonitoredProcess::HasAnyVisibleWindows() const
 {
 	if (isStarted)
 	{
 		Buffer0<HWND>	windows;
 		EnumerateWindows(infoOut.dwProcessId,windows);
-		return windows.IsNotEmpty();
+		foreach (windows,w)
+		{
+			if (IsWindowVisible(*w))
+				return true;
+		}
 	}
 	return false;
 }
