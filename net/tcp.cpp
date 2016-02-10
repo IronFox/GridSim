@@ -1186,6 +1186,11 @@ namespace TCP
 
 	bool		Server::StartService(USHORT port, bool limitToLocalhost/*=false*/, USHORT*outPort/*=nullptr*/)
 	{
+		return ExtStartService(port,Protocol::IPv4,limitToLocalhost,outPort);
+	}
+
+	bool		Server::ExtStartService(USHORT port, Protocol proto, bool limitToLocalhost/*=false*/, USHORT*outPort/*=nullptr*/)
+	{
 		if (verbose)
 			std::cout << "Server::startService() enter"<<std::endl;
 		if (IsRunning())
@@ -1207,7 +1212,33 @@ namespace TCP
 				std::cout << "Server::startService() exit: failed to initialize the network"<<std::endl;
 			return false;
 		}
-		socket_handle = socket(AF_INET,SOCK_STREAM,IPPROTO_TCP); //and create a new socket
+
+		struct sockaddr_storage self;
+		socklen_t               selflen;
+		memset(&self,0,sizeof(self));
+
+		switch (proto)
+		{
+			case Protocol::IPv4:
+			{
+				socket_handle = socket(AF_INET,SOCK_STREAM,IPPROTO_TCP); //and create a new socket
+				sockaddr_in&self4 = (sockaddr_in&)self;
+				self4.sin_family = AF_INET;
+				self4.sin_addr.s_addr = htonl(limitToLocalhost ? INADDR_LOOPBACK : INADDR_ANY);
+				self4.sin_port = htons(port);
+				selflen = sizeof(self4);
+			}
+			break;
+			case Protocol::IPv6:
+				socket_handle = socket(AF_INET6,SOCK_STREAM,IPPROTO_TCP); //and create a new socket
+				sockaddr_in6&self6 = (sockaddr_in6&)self;
+				self6.sin6_family = AF_INET6;
+				self6.sin6_addr = limitToLocalhost ? in6addr_loopback : in6addr_any;
+				self6.sin6_port = htons(port);
+				selflen = sizeof(self6);
+			break;
+		}
+
 		if (socket_handle == INVALID_SOCKET)
 		{
 			Fail("socket creation failed");
@@ -1217,11 +1248,8 @@ namespace TCP
 		}
 		this->port = port;
 		
-		sockaddr_in self;
-		self.sin_family = AF_INET;
-		self.sin_addr.s_addr = limitToLocalhost ? inet_addr("127.0.0.1") : INADDR_ANY;//inet_addr("127.0.0.1");
-		self.sin_port = htons(port);
-		if (bind(socket_handle, (sockaddr*)&self,sizeof(self)))
+	
+		if (bind(socket_handle, (sockaddr*)&self,selflen))
 		{
 			Fail("socket bind failed");
 			if (verbose)

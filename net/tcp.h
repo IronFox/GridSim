@@ -1214,6 +1214,16 @@ namespace TCP
 		@return true on success, false otherwise.
 		*/
 		bool				StartService(USHORT port, bool limitToLocalhost=false, USHORT*outPort=nullptr);
+
+		enum class Protocol
+		{
+			IPv4,
+			IPv6
+		};
+
+		bool				ExtStartService(USHORT port, Protocol proto, bool limitToLocalhost=false, USHORT*outPort=nullptr);
+
+
 		/**
 		@brief Terminates the service.
 				
