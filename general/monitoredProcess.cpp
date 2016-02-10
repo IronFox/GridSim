@@ -258,5 +258,17 @@ void		MonitoredProcess::Terminate()
 	}
 }
 
+bool		MonitoredProcess::HasAnyWindow() const
+{
+	if (isStarted)
+	{
+		Buffer0<HWND>	windows;
+		EnumerateWindows(infoOut.dwProcessId,windows);
+		return windows.IsNotEmpty();
+	}
+	return false;
+}
+
+
 #endif
 

@@ -45,6 +45,7 @@ public:
 	*/
 	void			ForceRestart();
 	bool			IsRunning() const;
+	bool			HasAnyWindow() const;
 };
 
 #endif
