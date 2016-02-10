@@ -86,7 +86,10 @@ namespace CLI
 	{
 		CLI::PFolder folder = f.IsNotEmpty() ? main_interpretor->FindFolder(f) : main_interpretor->GetFocus();
 		if (!folder)
+		{
 			println("'"+f+"' is not a folder");
+			return;
+		}
 		
 		//println(" ["+folder->path()+"]:");
 		println("-");
