@@ -85,7 +85,10 @@ namespace TCP
 		//}
 		if (!includePort)
 			return hoststr;
-		return String(hoststr)+":"+String(portstr);
+		String hstr = hoststr;
+		if (hstr.contains(':') && !hstr.beginsWith('['))
+			hstr = '[' + hstr + ']';
+		return hstr+":"+String(portstr);
 
 		//char ipbuff[INET_ADDRSTRLEN];
 		//inet_ntop(address.ss_family, &(((struct sockaddr_in *)&address)->sin_addr), ipbuff, INET_ADDRSTRLEN);
