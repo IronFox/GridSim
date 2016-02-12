@@ -29,10 +29,19 @@ namespace CLI
 			String message;
 			if (PVariable var = main_interpretor->FindVar(parameter))
 			{
+				String supported = var->GetSupportedValues();
 				if (var->help)
 					message = var->name+" ("+var->type+"):\n"+*var->help;
 				else
+				{
 					message = "No help text defined for variable '"+var->name+"' of type "+var->type;
+					if (supported.IsNotEmpty())
+						message += '.';
+				}
+				if (supported.IsNotEmpty())
+				{
+					message += "\nSupported values are "+supported;
+				}
 			}
 			elif (PCommand cmd = main_interpretor->Find(parameter))
 			{
@@ -178,7 +187,7 @@ namespace CLI
 				println("Undefined variable: '"+var+"'");
 			return;
 		}
-		String msg = v->name+" is of type "+v->type;
+		String msg = "'"+v->name+"' is of type "+v->type;
 		if (v->components != 1)
 			msg += "["+String(v->components)+"]";
 		//println(msg);
@@ -195,6 +204,10 @@ namespace CLI
 		}
 		else
 			msg += "may be modified and/or unset as required";
+		msg += '.';
+		String supported = v->GetSupportedValues();
+		if (supported.IsNotEmpty())
+			msg += "\nSupported values are "+supported;
 		println(msg);
 
 	}
