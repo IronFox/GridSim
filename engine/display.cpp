@@ -1738,15 +1738,12 @@ namespace Engine
 			{
 				if (wParam != SIZE_MINIMIZED)
 				{
-					UINT32 newFlags = 0;
+					UINT32 newFlags = DisplayConfig::ResizeDragHasEnded;
 
 					if (wParam == SIZE_MAXIMIZED)
 						newFlags |= DisplayConfig::IsMaximized;
 					if (wParam == SIZE_MINIMIZED)
 						newFlags |= DisplayConfig::IsMinimzed;
-
-					if (newFlags != (displayConfigFlags & ~DisplayConfig::ResizeDragHasEnded))
-						newFlags |= DisplayConfig::ResizeDragHasEnded;
 
 					context.SignalResize(newFlags);
 					displayConfigFlags = newFlags;
