@@ -1002,9 +1002,9 @@ namespace TCP
 									found = true;
 							});
 							ASSERT__(!found);
-							FATAL__("channel/signal channel is not known "+String(channel_index)+" (known channels: "+dbg+", known signal channels: "+dbg2+")");	//for now, this is appropriate
+							FATAL__("channel/signal channel is not known: "+String(channel_index)+" (known channels: "+dbg+", known signal channels: "+dbg2+")");	//for now, this is appropriate
 						}
-						FATAL__("channel is not known "+String(channel_index)+" (known channels: "+dbg+")");	//for now, this is appropriate
+						FATAL__("channel is not known: "+String(channel_index)+" (known channels: "+dbg+")");	//for now, this is appropriate
 					#endif
 					if (verbose)
 						std::cout << "Peer::ThreadMain(): no receiver available (nothing installed on this channel). ignoring package"<<std::endl;
