@@ -104,6 +104,7 @@ namespace OpenAL
 		{
 			ALuint uiBuffer = 0;
 			alSourceUnqueueBuffers(handle, 1, &uiBuffer);
+			processed--;
 		}
 	}
 	
