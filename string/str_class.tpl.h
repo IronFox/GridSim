@@ -1348,6 +1348,15 @@ template <typename T>
 	}
 
 template <typename T>
+	StringTemplate<T>&		StringTemplate<T>::Truncate(size_t maxLength)
+	{
+		if (string_length <= maxLength)
+			return *this;
+		return eraseRight(string_length - maxLength);
+	}
+
+
+template <typename T>
 	StringTemplate<T>&		StringTemplate<T>::eraseRight(size_t count)
 	{
 		if (!count)

@@ -1217,6 +1217,8 @@ template <typename T>
 			StringTemplate<T>&		eraseLeft(size_t count);								//!< Erases the specified number of characters from the beginning of the string @param count Number of characters to erase from the beginning @return Reference to the local string once the operation is completed
 			StringTemplate<T>&		eraseRight(size_t count);								//!< Erases the specified number of characters from the end of the string @param count Number of characters to erase from the end @return Reference to the local string once the operation is completed
 
+			StringTemplate<T>&		Truncate(size_t maxLength);	//!< Removes characters from the end such that the total length of the local string is less or equal to the specified length. If the local string already contains at most that many characters, then nothing changes
+
 			StringTemplate<T>&		eraseCharacter(T chr);																				//!< Erases all occurrences of @a chr in the local string
 			StringTemplate<T>&		eraseCharacters(const StringTemplate<T>& characters, bool erase_matches=true);										//!< Erases any character that is contained in the zero-terminated string specified by @a characters
 			StringTemplate<T>&		eraseCharacters(const T* characters, bool erase_matches=true);										//!< Erases any character that is contained in the zero-terminated string specified by @a characters
