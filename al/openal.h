@@ -110,8 +110,8 @@ namespace OpenAL
 		inline void		SetVolume(float volume)	{setVolume(volume);}
 		float			volume()		const;
 		inline float	GetVolume()		const	{return volume();}
-		void			setReferenceDistance(float distance);
-		inline void		SetReferenceDistance(float distance)	{setReferenceDistance(distance);}
+		void			setReferenceDistance(float distance, float rolloffFactor = 1.f);
+		inline void		SetReferenceDistance(float distance, float rolloffFactor = 1.f)	{setReferenceDistance(distance,rolloffFactor);}
 		float			referenceDistance()	const;
 		inline float	GetReferenceDistance()	const	{return referenceDistance();}
 

@@ -240,9 +240,10 @@ namespace OpenAL
 		return val;
 	}
 	
-	void	Source::setReferenceDistance(float distance)
+	void	Source::setReferenceDistance(float distance, float rolloffFactor)
 	{
 		alSourcef(handle,AL_REFERENCE_DISTANCE,distance);
+		alSourcef(handle,AL_ROLLOFF_FACTOR,rolloffFactor);
 	}
 	
 	float	Source::referenceDistance()	const
