@@ -12,6 +12,7 @@ namespace Package
 		class NetString:public String
 		{
 		public:
+			static const size_t	MaxSize = max_size;
 		static	bool			IsValidChar(char c)
 				{
 					switch (c)
@@ -46,6 +47,8 @@ namespace Package
 
 			static bool			IsValid(const String&str)
 			{
+				if (str.length() > max_size)
+					return false;
 				for (index_t i = 0; i < str.length(); i++)
 					if (!IsValidChar(str.get(i)))
 					{
