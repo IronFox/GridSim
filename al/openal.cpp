@@ -392,6 +392,12 @@ namespace OpenAL
 	
 	namespace Listener
 	{
+
+		void					SetGain(float volume)
+		{
+			alListenerf(AL_GAIN,volume);
+		}
+
 			void			setOrientation(const TVec3<float>&direction, const TVec3<float>&up, bool negate_direction, bool negate_up)
 			{
 				ALfloat field[6];

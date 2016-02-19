@@ -166,6 +166,7 @@ namespace OpenAL
 		inline const TVec3<>&	GetLocation()	{return location();}
 		const TVec3<>&			position();
 		inline const TVec3<>&	GetPosition()	{return position();}
+		void					SetGain(float volume);
 	}
 
 
