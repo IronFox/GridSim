@@ -55,6 +55,7 @@ namespace OpenAL
 			source_field[i].SetPosition(position);
 			source_field[i].SetWaveBuffer(buffer);
 			source_field[i].Play();
+			return true;
 		}
 		return false;
 	}
