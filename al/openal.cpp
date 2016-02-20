@@ -154,6 +154,7 @@ namespace OpenAL
 		if (!ALIsPlaying())
 			return false;
 		wasPlaying = true;
+		wasSwitchedOff = true;
 		alSourceStop(handle);
 		return true;
 	}
@@ -168,6 +169,7 @@ namespace OpenAL
 		if (error == AL_NO_ERROR)
 		{
 			wasPlaying = true;
+			wasSwitchedOff = false;
 			return true;
 		}
 		return false;
@@ -208,7 +210,7 @@ namespace OpenAL
 	{
 		if (handle == 0)
 			return true;
-		return !ALIsPlaying() && (!wantsToPlay || !wasPlaying);
+		return !ALIsPlaying() && (!wasSwitchedOff || !wantsToPlay || !wasPlaying);
 		//ALint	queued = 0;
 		//alGetSourcei(handle, AL_BUFFERS_QUEUED, &queued);
 		//ALint	iState = 0;

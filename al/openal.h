@@ -50,6 +50,7 @@ namespace OpenAL
 						wantsToPlay=false,
 						isPaused=false,
 						wasPlaying=false,
+						wasSwitchedOff = false,
 						isLooping=false;
 		float			priority = 1.f,
 						gain=1.f,
