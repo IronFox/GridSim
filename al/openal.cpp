@@ -1,5 +1,8 @@
 #include "../global_root.h"
 #include "openal.h"
+#include "../general/timer.h"
+#include "../container/buffer.h"
+#include "../container/sorter.h"
 
 #include <cstdlib>
 #include <iostream>
@@ -10,24 +13,36 @@ namespace OpenAL
 {
 	static Source	source_field[0x100];
 	
+
+	namespace Registry
+	{
+		Buffer0<ALuint>	createdHandles;
+
+		Buffer0<Source*>	playingSources;
+
+		void	Replace(Source*toFind, Source*replaceWith);
+		void	Remove(Source*);
+		void	Add(Source*);
+	}
+
 	
-	bool				playOnce(float x, float y, float z, const WaveBuffer&buffer)
+	bool				PlayOnce(float x, float y, float z, const WaveBuffer&buffer)
 	{
 		TVec3<>	field = {x,y,z};
-		return playOnce(field,buffer);
+		return PlayOnce(field,buffer);
 	}
 	
-	bool				playOnce(const TVec3<>&position, const WaveBuffer&buffer)
+	bool				PlayOnce(const TVec3<>&position, const WaveBuffer&buffer)
 	{
 		for (index_t i = 0; i < ARRAYSIZE(source_field); i++)
 		{
-			if (source_field[i].isPlaying())
+			if (source_field[i].IsPlaying())
 				continue;
-			if (!source_field[i].isCreated())
-				source_field[i].create();
-			source_field[i].locate(position);
-			source_field[i].setWaveBuffer(buffer);
-			return source_field[i].play();
+			if (!source_field[i].IsCreated())
+				source_field[i].Create();
+			source_field[i].SetPosition(position);
+			source_field[i].SetWaveBuffer(buffer);
+			source_field[i].Play();
 		}
 		return false;
 	}
@@ -38,8 +53,7 @@ namespace OpenAL
 	
 	
 	
-	
-	Source::Source():handle(0)
+	Source::Source()
 	{}
 
 	Source::Source(Source&&fleeting)
@@ -51,82 +65,138 @@ namespace OpenAL
 	
 	Source::~Source()
 	{
-		destroy();
+		Destroy();
+
+		DBG_ASSERT__(!Registry::playingSources.Contains(this));
 	}
 	
 	
-	bool	Source::create()
+	bool	Source::Create()
 	{
 		if (handle)
 			return true;
-		if (!init())
+		if (!Init())
 			return false;
 	    alGenSources( 1, &handle );
+		Registry::createdHandles << handle;
 		return handle != 0;
 	}
 	
-	bool	Source::isCreated()	const
+	bool	Source::IsCreated()	const
 	{
 		return handle != 0;
 	}
 	
-	void	Source::destroy()
+	void	Source::Destroy()
 	{
 		if (!handle)
 			return;
+		if (wantsToPlay)
+			Registry::Remove(this);
+		ASSERT__(Registry::createdHandles.FindAndErase( handle ));
 		alDeleteSources(1,&handle);
 		handle = 0;
 	}
 	
 			
-	void	Source::replaceWaveBuffer(const WaveBuffer&wbo)
+	void	Source::ReplaceWaveBuffer(const WaveBuffer&wbo)
 	{
 		alSourcei( handle, AL_BUFFER, wbo.getHandle() );		
+		hasWave = true;		
 	}
 	
-	void	Source::setWaveBuffer(const WaveBuffer&wbo)
+	void	Source::SetWaveBuffer(const WaveBuffer&wbo)
 	{
-		alSourcei( handle, AL_BUFFER, wbo.getHandle() );		
+		alSourcei( handle, AL_BUFFER, wbo.getHandle() );
+		hasWave = true;		
 	}
 	
-	void	Source::enqueueWaveBuffer(const WaveBuffer&wbo)
+	void	Source::EnqueueWaveBuffer(const WaveBuffer&wbo)
 	{
 		ALuint whandle = wbo.getHandle();
 		alSourceQueueBuffers(handle,1,&whandle);
+		hasWave = true;		
 	}
 	
-	void	Source::clearQueue()
+	void	Source::ClearQueue()
 	{
-		alSourceStop(handle);
-		ALint	processed = 0;
-		alGetSourcei(handle, AL_BUFFERS_PROCESSED, &processed);
-		while (processed > 0)
-		{
-			ALuint uiBuffer = 0;
-			alSourceUnqueueBuffers(handle, 1, &uiBuffer);
-			processed--;
-		}
+		Stop();	//same operation
 	}
 	
-	void	Source::rewind()
+	void	Source::Rewind()
 	{
 		alSourceRewind(handle);
 	}
+
+	bool	Source::ALStop()
+	{
+		if (!ALIsPlaying())
+			return false;
+		alSourceStop(handle);
+		return true;
+	}
+
+	bool	Source::ALStart()
+	{
+		if (ALIsPlaying())
+			return true;
+		alGetError();
+		alSourcePlay(handle);
+		ALenum error = alGetError();
+		return error ==AL_NO_ERROR;
+	}
+
 	
-	bool	Source::play()
+	void	Source::Play()
 	{
 		if (!handle)
-			return false;
-		alSourcePlay(handle);
-		return alGetError()==AL_NO_ERROR;
+			return;
+		if (ALIsPlaying())
+			return;
+		if (!wantsToPlay)
+		{
+			wantsToPlay = true;
+			Registry::Add(this);
+		}
+		isPaused = false;
+		//return alGetError()==AL_NO_ERROR;
 	}
 	
-	void	Source::stop()
+	void	Source::Stop()
 	{
-		alSourceStop(handle);
+		if (wantsToPlay)
+		{
+			Registry::Remove(this);
+			alSourceStop(handle);
+		}
+		wantsToPlay = false;
+
+
+		if (handle)
+		{
+			ALint	processed = 0;
+			alGetSourcei(handle, AL_BUFFERS_PROCESSED, &processed);
+			while (processed > 0)
+			{
+				ALuint uiBuffer = 0;
+				alSourceUnqueueBuffers(handle, 1, &uiBuffer);
+				processed--;
+			}
+		}
+
+//		alSourceStop(handle);
 	}
 	
-	bool	Source::isPlaying()	const
+	bool	Source::CheckQueueIsDone()	const
+	{
+		if (handle == 0)
+			return true;
+		ALint	queued = 0;
+		alGetSourcei(handle, AL_BUFFERS_QUEUED, &queued);
+		return !queued;
+	}
+
+	bool	Source::ALIsPlaying()	const
 	{
 		if (!handle)
 			return false;
@@ -135,56 +205,59 @@ namespace OpenAL
 		return iState == AL_PLAYING;
 	}
 	
-	void	Source::pause()
+	void	Source::Pause()
 	{
 		alSourcePause(handle);
+		isPaused = true;
 	}
 	
-	bool	Source::isPaused()	const
+	bool	Source::ALIsPaused()	const
 	{
 		ALint	iState;
 		alGetSourcei(handle, AL_SOURCE_STATE, &iState);
 		return iState == AL_PAUSED;
 	}
 	
-	void	Source::setLooping(bool do_loop)
+	void	Source::SetLooping(bool do_loop)
 	{
 		alSourcei(handle, AL_LOOPING, do_loop?AL_TRUE:AL_FALSE);
 	}
 	
-	bool	Source::isLooping()	const
+	bool	Source::IsLooping()	const
 	{
 		ALint	iLoop;
 		alGetSourcei(handle, AL_LOOPING, &iLoop);
 		return iLoop == AL_TRUE;
 	}
 	
-	void	Source::setVelocity(float x, float y, float z)
+	void	Source::SetVelocity(float x, float y, float z)
 	{
 		TVec3<> v = {x,y,z};
-		setVelocity(v);
+		SetVelocity(v);
 	}
 	
-	void	Source::setVelocity(const TVec3<>&velocity)
+	void	Source::SetVelocity(const TVec3<>&velocity)
 	{
 		alSourcefv(handle, AL_VELOCITY, velocity.v);
 	}
 	
-	void	Source::getVelocity(TVec3<>&velocity_out)	const
+	void	Source::GetVelocity(TVec3<>&velocity_out)	const
 	{
 		alGetSourcefv(handle, AL_VELOCITY, velocity_out.v);
 	}
 	
-	void	Source::locate(const TVec3<>&position, bool relative)
+	void	Source::SetPosition(const TVec3<>&position, bool relative)
 	{
 		alSourcefv(handle, AL_POSITION, position.v);
 		alSourcei(handle,AL_SOURCE_RELATIVE,relative?AL_TRUE:AL_FALSE);
+		this->position = position;
+		this->isRelative = relative;
 	}
 	
-	void	Source::locate(float x, float y, float z, bool relative)
+	void	Source::SetPosition(float x, float y, float z, bool relative)
 	{
 		TVec3<> v = {x,y,z};
-		locate(v,relative);
+		SetPosition(v,relative);
 	}
 	
 	void	Source::GetLocation(TVec3<>&position_out)
@@ -192,133 +265,161 @@ namespace OpenAL
 		alGetSourcefv(handle, AL_POSITION,position_out.v);
 	}
 	
-	void	Source::getPosition(TVec3<>&position_out)
+	
+	bool	Source::IsRelativeLocation()	const
 	{
-		alGetSourcefv(handle, AL_POSITION,position_out.v);
+		return isRelative;
+		//ALint	val;
+		//alGetSourcei(handle,AL_SOURCE_RELATIVE,&val);
+		//return val == AL_TRUE;
 	}
 	
-	bool	Source::relativeLocation()	const
-	{
-		ALint	val;
-		alGetSourcei(handle,AL_SOURCE_RELATIVE,&val);
-		return val == AL_TRUE;
-	}
-	
-	void	Source::setPitch(float pitch)
+	void	Source::SetPitch(float pitch)
 	{
 		alSourcef(handle,AL_PITCH,pitch);
 	}
 	
-	float	Source::pitch()		const
+	float	Source::GetPitch()		const
 	{
 		ALfloat val;
 		alGetSourcef(handle,AL_PITCH,&val);
 		return val;
 	}
 		
-	void	Source::setGain(float gain)
+	void	Source::SetGain(float gain)
 	{
 		alSourcef(handle,AL_GAIN,gain);
+		this->gain = gain;
 	}
 	
-	float	Source::gain()		const
+	float	Source::ALGetGain()		const
 	{
-		ALfloat val;
-		alGetSourcef(handle,AL_GAIN,&val);
-		return val;
-	}
-			
-	void	Source::setVolume(float volume)
-	{
-		alSourcef(handle,AL_GAIN,volume);
-	}
-	
-	float	Source::volume()		const
-	{
+		
 		ALfloat val;
 		alGetSourcef(handle,AL_GAIN,&val);
 		return val;
 	}
 	
-	void	Source::setReferenceDistance(float distance, float rolloffFactor)
+	void	Source::SetReferenceDistance(float distance, float rolloffFactor)
 	{
 		alSourcef(handle,AL_REFERENCE_DISTANCE,distance);
 		alSourcef(handle,AL_ROLLOFF_FACTOR,rolloffFactor);
+		this->refDistance = distance;
+		this->rollOffFactor = rollOffFactor;
 	}
 	
-	float	Source::referenceDistance()	const
+	float	Source::ALGetReferenceDistance()	const
 	{
 		ALfloat val;
 		alGetSourcef(handle,AL_REFERENCE_DISTANCE,&val);
 		return val;
 	}
 	
-	namespace
+	namespace Status
 	{
 		CWaves		wave_loader;
 		bool		initialized = false;
+		ALCdevice	*pDevice = NULL;
+		ALCcontext *pContext = NULL;
 	}
 
-	bool	init()
+	void	Registry::Replace(Source*toFind, Source*replaceWith)
 	{
+		if (!Status::initialized)
+			return;
+		index_t at = playingSources.GetIndexOf(toFind);
+		ASSERT__(at != InvalidIndex);
+		playingSources[at] = replaceWith;
+	}
+
+	void	Registry::Remove(Source*s)
+	{
+		if (!Status::initialized)
+			return;
+
+		DBG_VERIFY__(playingSources.FindAndErase(s));
+		DBG_ASSERT__(!playingSources.Contains(s));
+	}
+	void	Registry::Add(Source*s)
+	{
+		if (!Status::initialized)
+			return;
+
+		DBG_ASSERT__(!playingSources.Contains(s));
+		playingSources << s;
+	}
+
+
+
+	void			Source::swap(Source&other)
+	{
+		swp((TSourceData&)*this,(TSourceData&)other);
+		if (wantsToPlay && !other.wantsToPlay)
+			Registry::Replace(&other,this);
+		elif (!wantsToPlay && other.wantsToPlay)
+			Registry::Replace(this,&other);
+	}
+
+
+	bool	Init()
+	{
+		using namespace Status;
 		if (initialized)
-			return true;
-		ALCcontext *pContext = NULL;
-		ALCdevice *pDevice = NULL;
-	//	OPENALFNTABLE	ALFunction;
-		
-//		cout << "loading openal\n";
-		
-	/*	if (!LoadOAL10Library(NULL, &ALFunction) == TRUE)
 		{
-			cout << "openal loading failed\n";
-			return false;
-		}*/
-		
+			return true;
+		}
+
 		const char*defaultDeviceName = (const char *)alcGetString(NULL, ALC_DEFAULT_DEVICE_SPECIFIER);
 		if (!defaultDeviceName || !strlen(defaultDeviceName))
 		{
-			std::cout << "no default device available\n";
+			std::cout << "OpenAL: no default device available\n";
 			return false;
 		}
-		std::cout << "default device is '"<<defaultDeviceName<<"'"<<std::endl;
+		std::cout << "OpenAL: default device is '"<<defaultDeviceName<<"'"<<std::endl;
 			
 		
 		pDevice = alcOpenDevice(defaultDeviceName);
 		if (pDevice)
 		{
-			std::cout << "device opened\n";
+			std::cout << "OpenAL: device opened\n";
 			pContext = alcCreateContext(pDevice, NULL);
 			if (pContext)
 			{
-				std::cout << "context created\n";
+				std::cout << "OpenAL: context created\n";
 				alcMakeContextCurrent(pContext);
 				initialized = true;
-				std::cout << "all done\n";
+				std::cout << "OpenAL: all done\n";
 				return true;
 			}
 			else
 			{
-				std::cout << "context creation failed. closing device...\n";
+				std::cout << "OpenAL: context creation failed. closing device...\n";
 				alcCloseDevice(pDevice);
 			}
 		}
-		std::cout << "all done. initialization failed. returning\n";
+		std::cout << "OpenAL: all done. initialization failed. returning\n";
 		return false;
 	}
 
-	
-	bool				isInitialized()
+	void	Shutdown()
 	{
-		return initialized;
+		alcDestroyContext(Status::pContext);
+		alcCloseDevice(Status::pDevice);
+		Status::initialized = false;
+	}
+
+	
+	bool				IsInitialized()
+	{
+		return Status::initialized;
 	}
 	
 
 	
-	WaveBuffer			load(const String&filename, String*error_out)
+	WaveBuffer			Load(const String&filename, String*error_out)
 	{
 		WaveBuffer	result;
-		if (!init())
+		if (!Init())
 			return result;
 		
 		WAVEID			WaveID;
@@ -328,6 +429,8 @@ namespace OpenAL
 
 		if (error_out)
 			(*error_out) = "No error";
+
+		using namespace Status;
 
 		WAVERESULT rs = wave_loader.LoadWaveFile(filename.c_str(), &WaveID);
 		if (WV_SUCCEEDED(rs))
@@ -371,7 +474,7 @@ namespace OpenAL
 		return result;
 	}
 	
-	void				discard(WaveBuffer&wbo)
+	void				Discard(WaveBuffer&wbo)
 	{
 		if (!wbo.bufferHandle)
 			return;
@@ -380,94 +483,172 @@ namespace OpenAL
 	}
 	
 	
-	void				setSpeedOfSound(float speed)
+	void				SetSpeedOfSound(float speed)
 	{
 		alSpeedOfSound(speed);
 	}
 	
-	float				speedOfSound()
+	float				GetSpeedOfSound()
 	{
 		return alGetFloat(AL_SPEED_OF_SOUND);
 	}
 	
 	namespace Listener
 	{
+		namespace Status
+		{
+			TVec3<> velocity,location;
+			count_t	maxPlayingSources = 16;
+		}
+
 
 		void					SetGain(float volume)
 		{
 			alListenerf(AL_GAIN,volume);
 		}
 
-			void			setOrientation(const TVec3<float>&direction, const TVec3<float>&up, bool negate_direction, bool negate_up)
-			{
-				ALfloat field[6];
-				TVec3<float>	&d = Vec::ref3(field),
-								&u = Vec::ref3(field+3);
-				d = direction;
-				u = up;
-				Vec::normalize0(d);
-				Vec::normalize0(u);
-				if (negate_direction)
-					Vec::mult(d,-1);
-				if (negate_up)
-					Vec::mult(u,-1);
-				//field[2] *= -1;
-				//field[5] *= -1;
-				alListenerfv(AL_ORIENTATION,field);
-			}
+		void			SetOrientation(const TVec3<float>&direction, const TVec3<float>&up, bool negate_direction, bool negate_up)
+		{
+			ALfloat field[6];
+			TVec3<float>	&d = Vec::ref3(field),
+							&u = Vec::ref3(field+3);
+			d = direction;
+			u = up;
+			Vec::normalize0(d);
+			Vec::normalize0(u);
+			if (negate_direction)
+				Vec::mult(d,-1);
+			if (negate_up)
+				Vec::mult(u,-1);
+			//field[2] *= -1;
+			//field[5] *= -1;
+			alListenerfv(AL_ORIENTATION,field);
+		}
 			
-			static float field[6];
+		static float field[6];
 			
-			const TVec3<>&	direction()
-			{
-				alGetListenerfv(AL_ORIENTATION,field);
-				return Vec::ref3(field);
-			}
+		const TVec3<>&	GetDirectionVector()
+		{
+			alGetListenerfv(AL_ORIENTATION,field);
+			return Vec::ref3(field);
+		}
 			
-			const TVec3<>&	up()
-			{
-				alGetListenerfv(AL_ORIENTATION,field);
-				return Vec::ref3(field+3);
-			}
-			void			setVelocity(float x, float y, float z)
-			{
-				TVec3<> v = {x,y,z};
-				setVelocity(v);
-			}
+		const TVec3<>&	GetUpVector()
+		{
+			alGetListenerfv(AL_ORIENTATION,field);
+			return Vec::ref3(field+3);
+		}
+		void			SetVelocity(float x, float y, float z)
+		{
+			TVec3<> v = {x,y,z};
+			SetVelocity(v);
+		}
 			
-			void			setVelocity(const TVec3<>& velocity)
-			{
-				alListenerfv(AL_VELOCITY,velocity.v);
-			}
+		void			SetVelocity(const TVec3<>& velocity)
+		{
+			alListenerfv(AL_VELOCITY,velocity.v);
+		}
 			
-			namespace
-			{
-				TVec3<> velocity_,location_;
-			}
 			
-			const TVec3<>&	velocity()
-			{
-				alGetListenerfv(AL_VELOCITY,velocity_.v);
-				return velocity_;
-			}
+		const TVec3<>&	GetVelocity()
+		{
+			alGetListenerfv(AL_VELOCITY,Status::velocity.v);
+			return Status::velocity;
+		}
 			
-			void			locate(const TVec3<>&position)
+		void			SetPosition(const TVec3<>&position)
+		{
+			Init();
+			//float p[3] = {position[0],position[1],-position[2]};
+			alListenerfv(AL_POSITION,position.v);
+
+			CheckSources();
+
+
+		}
+
+		int PrioritySortComparator(Source*a, Source*b)
+		{
+			if (a->GetPriority() > b->GetPriority())
+				return -1;
+			return 1;
+		}
+
+		void					SetMaxPlayingSources(count_t newCnt)
+		{
+			Status::maxPlayingSources = newCnt;
+		}
+		count_t					GetMaxPlayingSources()
+		{
+			return Status::maxPlayingSources;
+		}
+
+
+
+		void			CheckSources()
+		{
+			GetLocation();
+			for (index_t i = 0; i < Registry::playingSources.Count(); i++)
 			{
-				//float p[3] = {position[0],position[1],-position[2]};
-				alListenerfv(AL_POSITION,position.v);
+				Source*s = Registry::playingSources[i];
+				if (s->CheckQueueIsDone())
+				{
+					count_t preStop = Registry::playingSources.Count();
+					s->Stop();
+					if (preStop = Registry::playingSources.Count()+1)
+						i--;
+					else
+					{
+						DBG_FATAL__("Source::Stop() should have removed exactly one audio source from the registry");
+					}
+				}
+				else
+				{
+					s->UpdatePriority();
+				}
 			}
+			ByComparator::QuickSort(Registry::playingSources,PrioritySortComparator);
+			for (index_t i = Status::maxPlayingSources; i < Registry::playingSources.Count(); i++)
+			{
+				Registry::playingSources[i]->ALStop();
+			}
+			for (index_t i = 0; i < Status::maxPlayingSources && i < Registry::playingSources.Count(); i++)
+			{
+				while (!Registry::playingSources[i]->ALStart())
+				{
+					bool retry = false;
+					for (index_t j = i+1; j < Status::maxPlayingSources && j < Registry::playingSources.Count(); j++)
+					{
+						if (Registry::playingSources[j]->ALStop())
+						{
+							retry = true;
+						}
+					}
+
+					if (!retry)
+					{
+						Status::maxPlayingSources = i;
+						break;
+					}
+				}
+			}
+		}
 			
-			const TVec3<>&	location()
-			{
-				alGetListenerfv(AL_POSITION,location_.v);
-				return location_;
-			}
+		const TVec3<>&	GetLocation()
+		{
+			alGetListenerfv(AL_POSITION,Status::location.v);
+			return Status::location;
+		}
 			
-			const TVec3<>&	position()
-			{
-				alGetListenerfv(AL_POSITION,location_.v);
-				return location_;
-			}
+	}
+
+	void	Source::UpdatePriority()
+	{
+		float distance = Vec::distance(position,Listener::Status::location);
+
+		float attenuation = refDistance / (refDistance + (rollOffFactor * (distance - refDistance)));
+
+		priority = gain * attenuation;
 	}
 
 

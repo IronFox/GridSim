@@ -18,12 +18,17 @@
 
 namespace OpenAL
 {
+	namespace Listener
+	{
+		void					CheckSources();	//!< Called by SetPosition automatically
+	}
+
 	class WaveBuffer
 	{
 	protected:
 		ALuint				bufferHandle;
-		friend WaveBuffer	load(const String&filename, String*);
-		friend void			discard(WaveBuffer&wbo);
+		friend WaveBuffer	Load(const String&filename, String*);
+		friend void			Discard(WaveBuffer&wbo);
 	public:
 		/**/				WaveBuffer():bufferHandle(0) {}
 		inline bool			IsEmpty()	const	{return bufferHandle == 0;}
@@ -34,139 +39,134 @@ namespace OpenAL
 	
 	typedef WaveBuffer	Wave;
 	
-	
-	class Source
+	struct TSourceData
 	{
-	protected:
-		ALuint			handle;
-			
+		ALuint			handle=0;
+		TVec3<>			position;
+		bool			isRelative=false,
+						wantsToPlay=false,
+						isPaused=false,
+						hasWave=false;
+		float			priority = 1.f,
+						gain=1.f,
+						refDistance=1.f,
+						rollOffFactor=1.f;
+	};
+	
+	class Source : private TSourceData
+	{
+	private:
 						Source(const Source&other)
 						{}
 		void			operator=(const Source&other)
 						{}
+
+		bool			ALIsPlaying()	const;
+		bool			ALIsPaused()	const;
+		float			ALGetGain()		const;
+		float			ALGetReferenceDistance()	const;
+		/**
+		Stops the OpenAL playback
+		@return true, if playback was playing and is now stopped, false otherwise
+		*/
+		bool			ALStop();
+		bool			ALStart();
+
+
+		friend void		Listener::CheckSources();
 	public:
 		/**/			Source();
 		/**/			Source(Source&&fleeting);
 		virtual			~Source();
 	
-		bool			create();
-		inline bool		Create()			{return create();}
-		bool			isCreated()	const;
-		inline bool		IsCreated() const	{return isCreated();}
-		void			destroy();
-		inline void		Destroy()			{destroy();}
+		bool			Create();
+		bool			IsCreated()	const;
+		void			Destroy();
 			
-		void			setWaveBuffer(const WaveBuffer&wbo);
-		inline void		SetWaveBuffer(const WaveBuffer&wbo)		{setWaveBuffer(wbo);}
-		void			replaceWaveBuffer(const WaveBuffer&wbo);
-		inline void		ReplaceWaveBuffer(const WaveBuffer&wbo)	{replaceWaveBuffer(wbo);}
-		void			enqueueWaveBuffer(const WaveBuffer&wbo);
-		inline void		EnqueueWaveBuffer(const WaveBuffer&wbo)	{enqueueWaveBuffer(wbo);}
-		void			clearQueue();
-		inline void		ClearQueue()	{clearQueue();}
-		void			rewind();
-		inline void		Rewind()		{rewind();}
-		bool			play();
-		inline bool		Play()			{return play();}
-		void			stop();
-		inline void		Stop()			{stop();}
-		bool			isPlaying()	const;
-		inline bool		IsPlaying()	const	{return isPlaying();}
-		void			pause();
-		inline void		Pause()			{pause();}
-		bool			isPaused()	const;
-		inline bool		IsPaused()	const	{return isPaused();}
-		void			setLooping(bool do_loop);
-		inline void		SetLooping(bool doLoop)	{setLooping(doLoop);}
-		bool			isLooping()	const;
-		inline bool		IsLooping()	const	{return isLooping();}
-		void			setVelocity(const TVec3<>&velocity);
-		inline void		SetVelocity(const TVec3<>&velocity)	{setVelocity(velocity);}
-		void			setVelocity(float x, float y, float z);
-		inline void		SetVelocity(float x, float y, float z)	{setVelocity(x,y,z);}
-		void			getVelocity(TVec3<>&velocity_out)	const;
-		inline void		GetVelocity(TVec3<>&velocityOut)	const	{getVelocity(velocityOut);}
-		void			locate(float x, float y, float z, bool relative=false);
-		inline void		Locate(float x, float y, float z, bool relative=false)	{locate(x,y,z,relative);}
-		inline void		SetPosition(float x, float y, float z, bool relative=false)	{locate(x,y,z,relative);}
-		void			locate(const TVec3<>&position, bool relative=false);
-		inline void		Locate(const TVec3<>&position, bool relative=false)	{locate(position,relative);}
-		inline void		SetPosition(const TVec3<>&position, bool relative=false)	{locate(position,relative);}
-		void			GetLocation(TVec3<>&position_out);
-		inline void		getLocation(TVec3<>&positionOut)	{GetLocation(positionOut);}
-		void			getPosition(TVec3<>&position_out);
-		inline void		GetPosition(TVec3<>&positionOut)	{getPosition(positionOut);}
-		bool			relativeLocation()	const;
-		inline bool		IsRelativeLocation()	const	{return relativeLocation();}
-		void			setPitch(float pitch);
-		inline void		SetPitch(float pitch)	{setPitch(pitch);}
-		float			pitch()		const;
-		inline float	GetPitch()	const	{return pitch();}
-		void			setGain(float gain);
-		inline void		SetGain(float gain)	{setGain(gain);}
-		float			gain()		const;
-		inline float	GetGain()		const	{return gain();}
-		void			setVolume(float volume);	//!< Identical to setGain(). volume should be in the range [0,1]
-		inline void		SetVolume(float volume)	{setVolume(volume);}
-		float			volume()		const;
-		inline float	GetVolume()		const	{return volume();}
-		void			setReferenceDistance(float distance, float rolloffFactor = 1.f);
-		inline void		SetReferenceDistance(float distance, float rolloffFactor = 1.f)	{setReferenceDistance(distance,rolloffFactor);}
-		float			referenceDistance()	const;
-		inline float	GetReferenceDistance()	const	{return referenceDistance();}
+		void			SetWaveBuffer(const WaveBuffer&wbo);
+		void			ReplaceWaveBuffer(const WaveBuffer&wbo);
+		void			EnqueueWaveBuffer(const WaveBuffer&wbo);
+		void			ClearQueue();
+		void			Rewind();
+		void			Play();
+		void			Stop();
+		bool			IsPlaying()	const	{return wantsToPlay;}
+		void			Pause();
+		bool			IsPaused()	const;
+		void			SetLooping(bool do_loop);
+		bool			IsLooping()	const;
+		void			SetVelocity(const TVec3<>&velocity);
+		void			SetVelocity(float x, float y, float z);
+		void			GetVelocity(TVec3<>&velocity_out)	const;
+		void			SetPosition(float x, float y, float z, bool relative=false);
+		void			SetPosition(const TVec3<>&position, bool relative=false);
+		void			GetLocation(TVec3<>&positionOut);
+		inline void		GetPosition(TVec3<>&positionOut)	{GetLocation(positionOut);}
+		bool			IsRelativeLocation()	const;
+		void			SetPitch(float pitch);
+		float			GetPitch()	const;
+		void			SetGain(float gain);
+		float			GetGain()		const	{return gain;}
+		inline void		SetVolume(float volume)	{SetGain(volume);}
+		inline float	GetVolume()		const	{return gain;}
+		void			SetReferenceDistance(float distance, float rolloffFactor = 1.f);
+		float			GetReferenceDistance()	const	{return refDistance;}
+		float			GetRollOffFactor() const		{return rollOffFactor;}
 
-		void			swap(Source&other)
-		{
-			swp(handle,other.handle);
-		}
+		bool			CheckQueueIsDone()	const;
+		void			UpdatePriority();
+		inline float	GetPriority() const {return priority;}
+
+		void			swap(Source&other);
 	};
 	
 	typedef Source	Player;
 
-	bool				init();
-	inline bool			Init()	{return init();}
-	bool				isInitialized();
-	inline bool			IsInitialized()	{return isInitialized();}
+	/**
+	Initializes the global device handle and audio context.
+	This function is called automatically when the listener is updated the first time, or sources created
+	*/
+	bool				Init();
+	bool				IsInitialized();
+	/**
+	Destroys the global OpenAL context and device handle.
+	Does not destroy audio sources but playback will probably stop on its own.
+	*/
+	void				Shutdown();
 	
-	WaveBuffer			load(const String&filename, String*error_out = NULL);
-	inline WaveBuffer	Load(const String&filename, String*errorOut = NULL)	{return load(filename,errorOut);}
-	void				discard(WaveBuffer&wbo);
-	inline void			Discard(WaveBuffer&wbo)	{discard(wbo);}
+	WaveBuffer			Load(const String&filename, String*error_out = NULL);
+	void				Discard(WaveBuffer&wbo);
 	
-	void				setSpeedOfSound(float speed);
-	inline void			SetSpeedOfSound(float speed)	{setSpeedOfSound(speed);}
-	float				speedOfSound();
-	inline float		GetSpeedOfSound()	{return speedOfSound();}
+	void				SetSpeedOfSound(float speed);
+	float				GetSpeedOfSound();
 	
 	
-	bool				playOnce(float x, float y, float z, const WaveBuffer&buffer);
-	inline bool			PlayOnce(float x, float y, float z, const WaveBuffer&buffer)	{return playOnce(x,y,z,buffer);}
-	bool				playOnce(const TVec3<>&position, const WaveBuffer&buffer);
-	inline bool			PlayOnce(const TVec3<>&position, const WaveBuffer&buffer)	{return playOnce(position,buffer);}
+	bool				PlayOnce(float x, float y, float z, const WaveBuffer&buffer);
+	bool				PlayOnce(const TVec3<>&position, const WaveBuffer&buffer);
 	
 	
 	namespace Listener
 	{
-		void					setOrientation(const TVec3<>&direction, const TVec3<>&up, bool negate_direction=false, bool negate_up=false);
-		inline void				SetOrientation(const TVec3<>&direction, const TVec3<>&up, bool negateDirection=false, bool negateUp=false)
-								{setOrientation(direction,up,negateDirection,negateUp);}
-		const TVec3<>&			direction();
-		inline const TVec3<>&	GetDirection()	{return direction();}
-		const TVec3<>&			up();
-		inline const TVec3<>&	GetUp()	{return up();}
-		void					setVelocity(float x, float y, float z);
-		inline void				SetVelocity(float x, float y, float z)	{setVelocity(x,y,z);}
-		void					setVelocity(const TVec3<>&velocity);
-		inline void				SetVelocity(const TVec3<>&velocity)	{setVelocity(velocity);}
-		const TVec3<>&			velocity();
-		inline const TVec3<>&	GetVelocity()	{return velocity();}
-		void					locate(const TVec3<>&position);
-		inline void				Locate(const TVec3<>&position)	{locate(position);}
-		const TVec3<>&			location();
-		inline const TVec3<>&	GetLocation()	{return location();}
-		const TVec3<>&			position();
-		inline const TVec3<>&	GetPosition()	{return position();}
+		void					CheckSources();	//!< Called by SetPosition automatically
+
+		void					SetOrientation(const TVec3<>&direction, const TVec3<>&up, bool negate_direction=false, bool negate_up=false);
+		const TVec3<>&			GetDirectionVector();
+		const TVec3<>&			GetUpVector();
+		void					SetVelocity(float x, float y, float z);
+		void					SetVelocity(const TVec3<>&velocity);
+		const TVec3<>&			GetVelocity();
+		/**
+		Changes the listener position in the world.
+		This function doubles as a priority cleanup. It is assumed you call this function around once per frame.
+		*/
+		void					SetPosition(const TVec3<>&position);
+		const TVec3<>&			GetLocation();
+		inline const TVec3<>&	GetPosition()	{return GetLocation();}
 		void					SetGain(float volume);
+
+		void					SetMaxPlayingSources(count_t);
+		count_t					GetMaxPlayingSources();
+
 	}
 
 
