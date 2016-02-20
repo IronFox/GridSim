@@ -38,13 +38,13 @@ namespace OpenAL
 	}
 
 	
-	bool				PlayOnce(float x, float y, float z, const WaveBuffer&buffer)
+	bool				PlayOnce(float x, float y, float z, const WaveBuffer&buffer, float gain/*=1.f*/, float referenceDistance/*=1.f*/)
 	{
 		TVec3<>	field = {x,y,z};
-		return PlayOnce(field,buffer);
+		return PlayOnce(field,buffer,gain,referenceDistance);
 	}
 	
-	bool				PlayOnce(const TVec3<>&position, const WaveBuffer&buffer)
+	bool				PlayOnce(const TVec3<>&position, const WaveBuffer&buffer, float gain/*=1.f*/, float referenceDistance/*=1.f*/)
 	{
 		for (index_t i = 0; i < ARRAYSIZE(source_field); i++)
 		{
@@ -54,6 +54,8 @@ namespace OpenAL
 				source_field[i].Create();
 			source_field[i].SetPosition(position);
 			source_field[i].SetWaveBuffer(buffer);
+			source_field[i].SetGain(gain);
+			source_field[i].SetReferenceDistance(referenceDistance);
 			source_field[i].Play();
 			return true;
 		}

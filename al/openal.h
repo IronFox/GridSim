@@ -82,6 +82,7 @@ namespace OpenAL
 	public:
 		#ifdef _DEBUG
 			String		name;
+			void		*reference = nullptr;
 		#endif
 		/**/			Source();
 		/**/			Source(Source&&fleeting);
@@ -150,8 +151,8 @@ namespace OpenAL
 	float				GetSpeedOfSound();
 	
 	
-	bool				PlayOnce(float x, float y, float z, const WaveBuffer&buffer);
-	bool				PlayOnce(const TVec3<>&position, const WaveBuffer&buffer);
+	bool				PlayOnce(float x, float y, float z, const WaveBuffer&buffer, float gain=1.f, float referenceDistance=1.f);
+	bool				PlayOnce(const TVec3<>&position, const WaveBuffer&buffer, float gain=1.f, float referenceDistance=1.f);
 	
 	
 	namespace Listener
