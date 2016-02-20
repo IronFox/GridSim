@@ -13,10 +13,22 @@ namespace OpenAL
 {
 	static Source	source_field[0x100];
 	
+	namespace Status
+	{
+		CWaves		wave_loader;
+		bool		initialized = false;
+		ALCdevice	*pDevice = NULL;
+		ALCcontext *pContext = NULL;
+		float		globalGainScale = 1.f;
+		float		globalMaxOverVolume = 1.f;	//Maximum absolute gain of any source with a gain > 1.f. If negative must be redetected among all
+		bool		globalMaxOverVolumeChanged = false;	//Indicates that globalMaxOverVolume has changed.
+	}
+
+
 
 	namespace Registry
 	{
-		Buffer0<ALuint>	createdHandles;
+//		Buffer0<ALuint>	createdHandles;
 
 		Buffer0<Source*>	playingSources;
 
@@ -78,7 +90,7 @@ namespace OpenAL
 		if (!Init())
 			return false;
 	    alGenSources( 1, &handle );
-		Registry::createdHandles << handle;
+		//Registry::createdHandles << handle;
 		return handle != 0;
 	}
 	
@@ -93,7 +105,7 @@ namespace OpenAL
 			return;
 		if (wantsToPlay)
 			Registry::Remove(this);
-		ASSERT__(Registry::createdHandles.FindAndErase( handle ));
+		//ASSERT__(Registry::createdHandles.FindAndErase( handle ));
 		alDeleteSources(1,&handle);
 		handle = 0;
 	}
@@ -102,25 +114,33 @@ namespace OpenAL
 	void	Source::ReplaceWaveBuffer(const WaveBuffer&wbo)
 	{
 		alSourcei( handle, AL_BUFFER, wbo.getHandle() );		
-		hasWave = true;		
 	}
 	
 	void	Source::SetWaveBuffer(const WaveBuffer&wbo)
 	{
 		alSourcei( handle, AL_BUFFER, wbo.getHandle() );
-		hasWave = true;		
 	}
 	
 	void	Source::EnqueueWaveBuffer(const WaveBuffer&wbo)
 	{
 		ALuint whandle = wbo.getHandle();
 		alSourceQueueBuffers(handle,1,&whandle);
-		hasWave = true;		
 	}
 	
 	void	Source::ClearQueue()
 	{
-		Stop();	//same operation
+		Stop();
+		if (handle)
+		{
+			ALint	processed = 0;
+			alGetSourcei(handle, AL_BUFFERS_PROCESSED, &processed);
+			while (processed > 0)
+			{
+				ALuint uiBuffer = 0;
+				alSourceUnqueueBuffers(handle, 1, &uiBuffer);
+				processed--;
+			}
+		}
 	}
 	
 	void	Source::Rewind()
@@ -132,6 +152,7 @@ namespace OpenAL
 	{
 		if (!ALIsPlaying())
 			return false;
+		wasPlaying = true;
 		alSourceStop(handle);
 		return true;
 	}
@@ -143,7 +164,12 @@ namespace OpenAL
 		alGetError();
 		alSourcePlay(handle);
 		ALenum error = alGetError();
-		return error ==AL_NO_ERROR;
+		if (error == AL_NO_ERROR)
+		{
+			wasPlaying = true;
+			return true;
+		}
+		return false;
 	}
 
 	
@@ -157,6 +183,7 @@ namespace OpenAL
 		{
 			wantsToPlay = true;
 			Registry::Add(this);
+			ALStart();	//try
 		}
 		isPaused = false;
 		//return alGetError()==AL_NO_ERROR;
@@ -170,19 +197,8 @@ namespace OpenAL
 			alSourceStop(handle);
 		}
 		wantsToPlay = false;
+		wasPlaying = false;
 
-
-		if (handle)
-		{
-			ALint	processed = 0;
-			alGetSourcei(handle, AL_BUFFERS_PROCESSED, &processed);
-			while (processed > 0)
-			{
-				ALuint uiBuffer = 0;
-				alSourceUnqueueBuffers(handle, 1, &uiBuffer);
-				processed--;
-			}
-		}
 
 //		alSourceStop(handle);
 	}
@@ -191,16 +207,19 @@ namespace OpenAL
 	{
 		if (handle == 0)
 			return true;
-		ALint	queued = 0;
-		alGetSourcei(handle, AL_BUFFERS_QUEUED, &queued);
-		return !queued;
+		return !ALIsPlaying() && (!wantsToPlay || !wasPlaying);
+		//ALint	queued = 0;
+		//alGetSourcei(handle, AL_BUFFERS_QUEUED, &queued);
+		//ALint	iState = 0;
+		//alGetSourcei(handle, AL_SOURCE_STATE, &iState);
+		//return !queued && iState != AL_PLAYING;
 	}
 
 	bool	Source::ALIsPlaying()	const
 	{
 		if (!handle)
 			return false;
-		ALint	iState;
+		ALint	iState = 0;
 		alGetSourcei(handle, AL_SOURCE_STATE, &iState);
 		return iState == AL_PLAYING;
 	}
@@ -213,19 +232,20 @@ namespace OpenAL
 	
 	bool	Source::ALIsPaused()	const
 	{
-		ALint	iState;
+		ALint	iState = 0;
 		alGetSourcei(handle, AL_SOURCE_STATE, &iState);
 		return iState == AL_PAUSED;
 	}
 	
 	void	Source::SetLooping(bool do_loop)
 	{
+		isLooping = do_loop;
 		alSourcei(handle, AL_LOOPING, do_loop?AL_TRUE:AL_FALSE);
 	}
 	
 	bool	Source::IsLooping()	const
 	{
-		ALint	iLoop;
+		ALint	iLoop = 0;
 		alGetSourcei(handle, AL_LOOPING, &iLoop);
 		return iLoop == AL_TRUE;
 	}
@@ -288,7 +308,20 @@ namespace OpenAL
 		
 	void	Source::SetGain(float gain)
 	{
-		alSourcef(handle,AL_GAIN,gain);
+		alSourcef(handle,AL_GAIN,std::min(1.f,gain * Status::globalGainScale));
+		if (gain > 1.f)
+		{
+			if (gain > Status::globalMaxOverVolume && Status::globalMaxOverVolume > 0.f)
+			{
+				Status::globalMaxOverVolume = gain;
+				Status::globalMaxOverVolumeChanged = true;
+			}
+		}
+		if (gain < this->gain && this->gain > 1.f && this->gain == Status::globalMaxOverVolume)
+		{
+			Status::globalMaxOverVolume = -1;
+			Status::globalMaxOverVolumeChanged = true;
+		}
 		this->gain = gain;
 	}
 	
@@ -315,13 +348,6 @@ namespace OpenAL
 		return val;
 	}
 	
-	namespace Status
-	{
-		CWaves		wave_loader;
-		bool		initialized = false;
-		ALCdevice	*pDevice = NULL;
-		ALCcontext *pContext = NULL;
-	}
 
 	void	Registry::Replace(Source*toFind, Source*replaceWith)
 	{
@@ -354,6 +380,9 @@ namespace OpenAL
 	void			Source::swap(Source&other)
 	{
 		swp((TSourceData&)*this,(TSourceData&)other);
+		#ifdef _DEBUG
+			name.swap(other.name);
+		#endif
 		if (wantsToPlay && !other.wantsToPlay)
 			Registry::Replace(&other,this);
 		elif (!wantsToPlay && other.wantsToPlay)
@@ -499,6 +528,7 @@ namespace OpenAL
 		{
 			TVec3<> velocity,location;
 			count_t	maxPlayingSources = 16;
+			float	baseVolume = 1.f;
 			bool (*reduceCallback)(count_t) = nullptr;
 		}
 
@@ -510,7 +540,9 @@ namespace OpenAL
 
 		void					SetGain(float volume)
 		{
-			alListenerf(AL_GAIN,volume);
+			if (OpenAL::Status::globalMaxOverVolume >= 1.f && !OpenAL::Status::globalMaxOverVolumeChanged)
+				alListenerf(AL_GAIN,volume * OpenAL::Status::globalMaxOverVolume);
+			Status::baseVolume = volume;
 		}
 
 		void			SetOrientation(const TVec3<float>&direction, const TVec3<float>&up, bool negate_direction, bool negate_up)
@@ -594,6 +626,11 @@ namespace OpenAL
 		void			CheckSources()
 		{
 			GetLocation();
+
+
+			
+
+
 			for (index_t i = 0; i < Registry::playingSources.Count(); i++)
 			{
 				Source*s = Registry::playingSources[i];
@@ -646,6 +683,29 @@ namespace OpenAL
 					}
 				}
 			}
+
+			if (OpenAL::Status::globalMaxOverVolumeChanged)
+			{
+				using namespace OpenAL::Status;
+				globalMaxOverVolumeChanged = false;
+				if (OpenAL::Status::globalMaxOverVolume < 1.f)
+				{
+					OpenAL::Status::globalMaxOverVolume = 1.f;
+					for (index_t i = 0; i < Registry::playingSources.Count(); i++)
+						globalMaxOverVolume = std::max(globalMaxOverVolume,Registry::playingSources[i]->gain);
+				}
+				globalGainScale = 1.f / OpenAL::Status::globalMaxOverVolume;
+				alListenerf(AL_GAIN,Status::baseVolume * OpenAL::Status::globalMaxOverVolume);
+				for (index_t i = 0; i < Status::maxPlayingSources && i < Registry::playingSources.Count(); i++)
+				{
+					float gain = Registry::playingSources[i]->gain * globalGainScale;
+					DBG_ASSERT_LESS_OR_EQUAL__(gain,1.f);
+					alSourcef(Registry::playingSources[i]->handle,AL_GAIN,gain);
+				}
+					
+
+			}
+
 		}
 			
 		const TVec3<>&	GetLocation()
@@ -658,7 +718,7 @@ namespace OpenAL
 
 	void	Source::UpdatePriority()
 	{
-		float distance = Vec::distance(position,Listener::Status::location);
+		float distance = isRelative ? Vec::length(position) : Vec::distance(position,Listener::Status::location);
 
 		float attenuation = refDistance / (refDistance + (rollOffFactor * (distance - refDistance)));
 

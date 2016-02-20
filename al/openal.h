@@ -11,6 +11,9 @@
 
 #include "../global_root.h"
 #include "../math/vector.h"
+#ifdef _DEBUG
+	#include "../global_string.h"
+#endif
 
 #pragma comment(lib,"OpenAL32.lib")
 
@@ -46,7 +49,8 @@ namespace OpenAL
 		bool			isRelative=false,
 						wantsToPlay=false,
 						isPaused=false,
-						hasWave=false;
+						wasPlaying=false,
+						isLooping=false;
 		float			priority = 1.f,
 						gain=1.f,
 						refDistance=1.f,
@@ -75,6 +79,9 @@ namespace OpenAL
 
 		friend void		Listener::CheckSources();
 	public:
+		#ifdef _DEBUG
+			String		name;
+		#endif
 		/**/			Source();
 		/**/			Source(Source&&fleeting);
 		virtual			~Source();
