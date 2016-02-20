@@ -87,7 +87,7 @@ namespace OpenAL
 	{
 		if (handle)
 			return true;
-		if (!Init())
+		if (!Status::initialized)
 			return false;
 	    alGenSources( 1, &handle );
 		//Registry::createdHandles << handle;
@@ -448,7 +448,7 @@ namespace OpenAL
 	WaveBuffer			Load(const String&filename, String*error_out)
 	{
 		WaveBuffer	result;
-		if (!Init())
+		if (!Status::initialized)
 			return result;
 		
 		WAVEID			WaveID;
@@ -596,7 +596,8 @@ namespace OpenAL
 			
 		void			SetPosition(const TVec3<>&position)
 		{
-			Init();
+			if (!OpenAL::Status::initialized)
+				return;
 			//float p[3] = {position[0],position[1],-position[2]};
 			alListenerfv(AL_POSITION,position.v);
 

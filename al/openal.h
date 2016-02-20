@@ -131,7 +131,8 @@ namespace OpenAL
 
 	/**
 	Initializes the global device handle and audio context.
-	This function is called automatically when the listener is updated the first time, or sources created
+	This must be called before any sound operations are executed. Any listener update, wave loading operation, or source creation will fail silently otherwise.
+	You can avoid calling Init() in order to completely disable sound output of an otherwise unmodified application
 	*/
 	bool				Init();
 	bool				IsInitialized();
