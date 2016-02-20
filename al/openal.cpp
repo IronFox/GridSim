@@ -499,6 +499,12 @@ namespace OpenAL
 		{
 			TVec3<> velocity,location;
 			count_t	maxPlayingSources = 16;
+			bool (*reduceCallback)(count_t) = nullptr;
+		}
+
+		void					RegisterMaxPlayingSourcesCallback(bool (*f)(count_t))
+		{
+			Status::reduceCallback = f;
 		}
 
 
@@ -622,12 +628,20 @@ namespace OpenAL
 						if (Registry::playingSources[j]->ALStop())
 						{
 							retry = true;
+							break;
 						}
 					}
 
 					if (!retry)
 					{
-						Status::maxPlayingSources = i;
+						if (Status::reduceCallback)
+						{
+							if (Status::reduceCallback(i))
+								Status::maxPlayingSources = i;
+						}
+						else
+							if (Status::maxPlayingSources > 8)
+								Status::maxPlayingSources = i;
 						break;
 					}
 				}

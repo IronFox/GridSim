@@ -167,6 +167,12 @@ namespace OpenAL
 		void					SetMaxPlayingSources(count_t);
 		count_t					GetMaxPlayingSources();
 
+		/**
+		Registers a callback function that is called in the event that the maximum number of concurrently playing audio sources would be reduced as a result of playback errors
+		@param f Function to call. If the function returns false, the reduction is not executed, but chances are @a f will be called very often in this case. If @a f is NULL then callback will be disabled
+		*/
+		void					RegisterMaxPlayingSourcesCallback(bool (*f)(count_t));
+
 	}
 
 
