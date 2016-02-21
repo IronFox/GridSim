@@ -284,6 +284,19 @@ namespace Math
 		#endif
 	}
 
+	/**
+	Calculates ceil(x/div) as an unsigned integer operation.
+	*/
+	template <typename IntType>
+	inline IntType	CeilDiv(IntType x, IntType div)
+	{
+		IntType rs = x / div;
+		IntType remainder = x % div;
+		if (remainder != 0)
+			rs ++;
+		return rs;
+	}
+
 
 	template <typename T>
 		T		rnd(const T&val);
