@@ -1062,13 +1062,20 @@ template <class C, class Strategy=typename StrategySelector<C>::Default>
 				template <class T,class OtherStrategy>
 					inline Array(const Array<T,OtherStrategy>&other):Data(other.count())
 					{
-						HybridStrategy<Strategy,OtherStrategy>::copyElements(other.pointer(),data,elements);
+						HybridStrategy<Strategy,OtherStrategy>::copyElements(other.GetPointer(),data,elements);
 					}
 				
 					inline Array(const Array<C,Strategy>&other):Data(other.count())
 					{
 						Strategy::copyElements(other.data,data,elements);
 					}
+				
+				template <class T>
+					inline Array(const ArrayRef<T>&other):Data(other.count())
+					{
+						Strategy::copyElements(other.GetPointer(),data,elements);
+					}
+				
 					inline Array(const ArrayRef<C>&other):Data(other.Count())
 					{
 						Strategy::copyElements(other.GetPointer(),data,elements);
@@ -1119,8 +1126,18 @@ template <class C, class Strategy=typename StrategySelector<C>::Default>
 						return *this;
 					}
 				
-			
 				
+				template <class T>
+					inline Array<C,Strategy>& operator=(const ArrayRef<T>&other) //! Assignment operator. Copies each element via the = operator
+					{
+						if ((const ArrayRef<C>*)&other == this)	//this should not happen but anyway
+							return *this;
+						reloc(data,elements,other.count());
+						Strategy::copyElements(other.GetPointer(),data,elements);
+						return *this;
+					}
+				
+							
 					inline	C		shiftDown()	//!< Moves all array elements down, starting with the first, finishing with one before the last element. Elements are copied via the = operator. The original first element of the array will be removed from the array, the last one duplicated. @return Original (dropped) first element
 					{
 						if (!elements)
