@@ -34,15 +34,15 @@ namespace Package
 								{}
 			/**/				NetString(const String&string):String(string)
 								{
-									ASSERT__(IsValid(*this));
+									ASSERT1__(IsValid(*this),*this);
 								}
 			/**/				NetString(const char*string):String(string)
 								{
-									ASSERT__(IsValid(*this));
+									ASSERT1__(IsValid(*this),*this);
 								}
 			/**/				NetString(const StringRef&string):String(string)
 								{
-									ASSERT__(IsValid(*this));
+									ASSERT1__(IsValid(*this),*this);
 								}
 
 			static bool			IsValid(const String&str)
