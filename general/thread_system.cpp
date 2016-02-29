@@ -17,8 +17,6 @@ namespace System
 
 #if SYSTEM==WINDOWS
 
-	typedef WINBASEAPI BOOL WINAPI pHandleFunction(__in HANDLE);
-
 	pHandleFunction		*cancelSynchronousIo = NULL;
 
 #endif

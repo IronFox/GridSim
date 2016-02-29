@@ -39,6 +39,10 @@ namespace System
 		typedef pthread_t		thread_handle_t;
 	#elif SYSTEM==WINDOWS
 		typedef DWORD			thread_handle_t;
+		typedef WINBASEAPI BOOL WINAPI pHandleFunction(__in HANDLE);
+
+		extern pHandleFunction		*cancelSynchronousIo;
+
 	#else
 		#error stub: thread_t;
 	#endif
