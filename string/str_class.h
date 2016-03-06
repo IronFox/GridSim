@@ -584,7 +584,7 @@ template <typename T>
 						StringExpression(const StringTemplate<T>&other):StringTemplate<T>(other)
 						{}
 					#if __STR_RVALUE_REFERENCES__
-						StringExpression(StringTemplate<T>&&other):StringTemplate<T>(other)
+						StringExpression(StringTemplate<T>&&other):StringTemplate<T>(std::move(other))
 						{}
 					#endif
 	template <typename T2>
