@@ -179,42 +179,105 @@ inline	bool		DeserializeObject(volatile ISerializable*object, ISerializable::ser
 	FixedArray 
 */
 
-template <class C, size_t Length>
+template <typename T, size_t Length>
 	class FixedArray:public SerializableObject
 	{
 	public:	
-			C						value[Length];
+		T						value[Length];
+		typedef T*				iterator;
+		typedef const T*		const_iterator;
 			
-			virtual	serial_size_t	GetSerialSize(bool export_size) const	override
-			{
-				serial_size_t result = 0;
-				for (index_t i = 0; i < Length; i++)
-					result += serialSizeOf(value+i,sizeof(C),true);//must pass true here because the individual object size cannot be restored from the global data size
-				return result;
-			}
+		/**/					FixedArray()	{}
+		/**/					FixedArray(std::initializer_list<T> l)
+		{
+			index_t at = 0;
+			for (const auto&it = l.begin(); it != l.end() && at < Length; ++it)
+				value[at++] = *it;
+		}
+
+
+		iterator				begin()
+		{
+			return value;
+		}
+
+		const_iterator			begin() const
+		{
+			return value;
+		}
+
+		iterator				end()
+		{
+			return value+Length;
+		}
+
+		const_iterator			end() const
+		{
+			return value+Length;
+		}
+
+		size_t					size() const {return Length;}
+		count_t					Count() const {return Length;}
+
+		void					Fill(const T&pattern)
+		{
+			for (index_t i = 0; i < Length; i++)
+				value[i] = pattern;
+		}
+
+		virtual	serial_size_t	GetSerialSize(bool export_size) const	override
+		{
+			serial_size_t result = 0;
+			for (index_t i = 0; i < Length; i++)
+				result += GetSerialSizeOf(value+i,sizeof(T),true);//must pass true here because the individual object size cannot be restored from the global data size
+			return result;
+		}
 			
-			virtual	bool			Serialize(IWriteStream&out_stream, bool export_size) const	override
-			{
-				if (!IsISerializable((const C*)value))
-					return out_stream.Write(value,sizeof(value));
+		virtual	bool			Serialize(IWriteStream&out_stream, bool export_size) const	override
+		{
+			if (!IsISerializable((const T*)value))
+				return out_stream.Write(value,sizeof(value));
 	
-				for (index_t i = 0; i < Length; i++)
-					if (!SerializeObject(value+i,sizeof(C),out_stream,true))
-						return false;
-				return true;
-			}
+			for (index_t i = 0; i < Length; i++)
+				if (!SerializeObject(value+i,sizeof(T),out_stream,true))
+					return false;
+			return true;
+		}
 			
-			virtual	bool			Deserialize(IReadStream&in_stream, serial_size_t)	override
-			{
-				if (!IsISerializable((const C*)value))
-					return in_stream.Read(value,sizeof(value));
+		virtual	bool			Deserialize(IReadStream&in_stream, serial_size_t)	override
+		{
+			if (!IsISerializable((const T*)value))
+				return in_stream.Read(value,sizeof(value));
 	
-				for (index_t i = 0; i < Length; i++)
-					if (!DeserializeObject(value+i,sizeof(C),in_stream,EmbeddedSize))
-						return false;
-				return true;
-			}	
+			for (index_t i = 0; i < Length; i++)
+				if (!DeserializeObject(value+i,sizeof(T),in_stream,EmbeddedSize))
+					return false;
+			return true;
+		}	
 		
+		virtual bool			HasFixedSize() const override
+		{
+			return GetFixedSize((const T*)value) != 0;
+		}
+
+
+		T&						operator[](index_t index)
+		{
+			#if defined(_DEBUG) && __ARRAY_DBG_RANGE_CHECK__
+				if (index >= Length)
+					FATAL__("Index out of bounds");
+			#endif
+			return value[index];
+		}
+
+		const T&						operator[](index_t index) const
+		{
+			#if defined(_DEBUG) && __ARRAY_DBG_RANGE_CHECK__
+				if (index >= Length)
+					FATAL__("Index out of bounds");
+			#endif
+			return value[index];
+		}
 	};
 
 
