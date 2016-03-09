@@ -1267,7 +1267,7 @@ namespace TCP
 			return false;
 		}
 
-		if (outPort)
+		if (port == 0)
 		{
 			struct sockaddr_in sin;
 			socklen_t len = sizeof(sin);
@@ -1278,14 +1278,20 @@ namespace TCP
 			}
 			else
 			{
-				(*outPort) = ntohs(sin.sin_port);
-				if (port != 0 && port != *outPort)
-				{
-					Fail("Read port does not match expected port");
-					return false;
-				}
+				UINT16 p = ntohs(sin.sin_port);
+				//if (port != 0 && port != p)
+				//{
+				//	Fail("Read port does not match expected port");
+				//	return false;
+				//}
+				port = p;
+				if (outPort)
+					(*outPort) = p;
 			}
 		}
+		else
+			if (outPort)
+				(*outPort) = port;
 
 		if (verbose)
 			std::cout << "Server::startService(): socket created, bound, and now listening. starting thread"<<std::endl;
