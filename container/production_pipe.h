@@ -49,6 +49,7 @@ template <typename T, typename Strategy=typename StrategySelector<T>::Default>
 		typename Super::const_iterator	end() const	{return Super::end();}
 
 		inline count_t				Count() const {return Super::count();}
+		inline count_t				size() const {return Super::size();}
 		inline bool					IsEmpty() const {return Super::IsEmpty();}
 
 		//the following operations are provided for convenience. They are _not_ mutex protected and (except for count() maybe) should be invoked only from inside a signalRead()/exitRead() block.
