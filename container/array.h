@@ -191,7 +191,7 @@ template <typename T, size_t Length>
 		/**/					FixedArray(std::initializer_list<T> l)
 		{
 			index_t at = 0;
-			for (const auto&it = l.begin(); it != l.end() && at < Length; ++it)
+			for (auto it = l.begin(); it != l.end() && at < Length; ++it)
 				value[at++] = *it;
 		}
 
