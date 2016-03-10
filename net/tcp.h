@@ -548,7 +548,7 @@ namespace TCP
 		class SignalSender:public RootChannel
 		{
 		protected:
-			virtual	PSerializableObject	Deserialize(IReadStream&stream,serial_size_t fixed_size,const PPeer&sender)	override
+			virtual	PSerializableObject	Deserialize(IReadStream&stream,serial_size_t fixed_size,Peer&sender)	override
 			{
 				return PSerializableObject();
 			}
