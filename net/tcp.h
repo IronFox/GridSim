@@ -788,6 +788,8 @@ namespace TCP
 
 		void				Start()
 		{
+			if (IsRunning())
+				return;
 			done = false;
 			//Semaphore			sem;	//perhaps better not to have this in stack
 			thread.swap(std::thread(_Start,this,&sem));
@@ -911,9 +913,10 @@ namespace TCP
 	A peer handles incoming and outgoing packages from/to a specific IP address over a specific socket handle. A server would manage one peer structure per client, a client would inherit from Peer.
 	
 	*/
-	class Peer : public TCPThreadObject, protected IReadStream, /*protected IWriteStream, */public Destination //, public IToString
+	class Peer : protected TCPThreadObject, protected IReadStream, /*protected IWriteStream, */public Destination //, public IToString
 	{
 	private:
+		friend class Dispatcher;
 		std::atomic<Timer::Time>	lastReceivedPackage;
 	protected:
 		PeerWriter					writer;
@@ -1068,9 +1071,10 @@ namespace TCP
 	/**
 		@brief Asynchronous connection attempt
 	*/
-	class ConnectionAttempt:public TCPThreadObject
+	class ConnectionAttempt:private TCPThreadObject
 	{
 	protected:
+		friend class Client;
 		void				ThreadMain();
 	public:
 		String				connect_target;	//!< Target address
@@ -1127,7 +1131,7 @@ namespace TCP
 	The Server object sets up a local listen port and automatically accepts incoming connection requests.
 	Dispatcher for channel handling is inherited via Connection
 	*/
-	class Server : public Connection, public TCPThreadObject, public Destination
+	class Server : public Connection, private TCPThreadObject, public Destination
 	{
 	private:
 		volatile SOCKET		socket_handle;
