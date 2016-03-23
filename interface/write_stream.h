@@ -25,7 +25,7 @@ template <>
 			return encodeLittleEndian<false>(size);
 	}
 
-template<class T>
+template<class T, bool isEnum=false>
 struct GenericVTableTest
 {
 	class TestClass : public T
@@ -36,8 +36,16 @@ struct GenericVTableTest
 	static const bool HasVTable = (sizeof(T) == sizeof(TestClass));
 };
 
+template<class T>
+struct GenericVTableTest<T,true>
+{
+	static const bool HasVTable = false;
+};
+
+
+
 #define PRIMITIVE_NO_VTABLE(TYPE)\
-	template<> struct GenericVTableTest<TYPE> {static const bool HasVTable = false;};
+	template<> struct GenericVTableTest<TYPE,false> {static const bool HasVTable = false;};
 
 PRIMITIVE_NO_VTABLE(bool)
 PRIMITIVE_NO_VTABLE(char)
@@ -94,13 +102,13 @@ public:
 	template <typename T>
 		bool		WritePrimitive(const T&element)
 		{
-			VTableAssertion<GenericVTableTest<T>::HasVTable>::AssertNot();
+			VTableAssertion<GenericVTableTest<T,std::is_enum<T>::value>::HasVTable>::AssertNot();
 			return Write(&element, (serial_size_t)sizeof(element));
 		}
 	template <typename T>
 		bool		WritePrimitives(const T*elements, count_t num_elements)
 		{
-			VTableAssertion<GenericVTableTest<T>::HasVTable>::AssertNot();
+			VTableAssertion<GenericVTableTest<T,std::is_enum<T>::value>::HasVTable>::AssertNot();
 			return Write(elements, (serial_size_t)(sizeof(T)*num_elements));
 		}
 
