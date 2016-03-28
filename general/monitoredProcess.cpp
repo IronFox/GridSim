@@ -92,7 +92,11 @@ bool		MonitoredProcess::TryResume(const PathString&workingDirectory, const PathS
 {
 	FileSystem::Folder folder;
 	FileSystem::File file;
-	ASSERT1__(folder.FindFile(executablePath,file),executablePath);
+	if (!folder.FindFile(executablePath,file))
+	{
+		DBG_FATAL__("Unable to find executable "+String(executablePath));
+		return false;
+	}
 	DWORD process = MapPathToProcess(file);
 	if (process == NULL)
 		return false;
