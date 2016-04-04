@@ -730,17 +730,30 @@ namespace TCP
 	class Connection:public Dispatcher
 	{
 	private:
-		String						last_error,
-									current_error;
-		Mutex						error_mutex;
 		friend class Peer;
 	protected:
 		serial_size_t				safe_package_size;	//!< Maximum allowed package size. ~64MB by default
 			
 									Connection():safe_package_size(64000000)
 									{}
-			
-		void						setError(const String&message)	//!< Updates the local error string. The local structure maintains two string objects to reduce the risk of invalid pointer access
+
+	public:
+		virtual	void				OnDisconnect(const Peer*, event_t event)	{};	//!< Abstract disconnection even called if the local connection has been lost or closed
+	};
+
+	typedef std::shared_ptr<Connection>	PConnection;
+
+
+	/**
+	Setable/getable error state
+	*/
+	class ErrorState
+	{
+		Mutex						error_mutex;
+		String						last_error,
+									current_error;
+	protected:
+		void						SetError(const String&message)	//!< Updates the local error string. The local structure maintains two string objects to reduce the risk of invalid pointer access (???)
 									{
 										error_mutex.lock();
 											last_error.adoptData(current_error);
@@ -748,7 +761,6 @@ namespace TCP
 										error_mutex.release();
 									}
 	public:
-		virtual	void				OnDisconnect(const Peer*, event_t event)	{};	//!< Abstract disconnection even called if the local connection has been lost or closed
 		String						GetError(bool flushError)	//! Queries the last occured error
 									{
 										error_mutex.lock();
@@ -759,9 +771,6 @@ namespace TCP
 										return copy;
 									}
 	};
-
-	typedef std::shared_ptr<Connection>	PConnection;
-
 
 	class TCPThreadObject
 	{
@@ -913,7 +922,7 @@ namespace TCP
 	A peer handles incoming and outgoing packages from/to a specific IP address over a specific socket handle. A server would manage one peer structure per client, a client would inherit from Peer.
 	
 	*/
-	class Peer : protected TCPThreadObject, protected IReadStream, /*protected IWriteStream, */public Destination //, public IToString
+	class Peer : protected TCPThreadObject, protected IReadStream, /*protected IWriteStream, */public Destination, public ErrorState
 	{
 	private:
 		friend class Dispatcher;
@@ -1131,7 +1140,7 @@ namespace TCP
 	The Server object sets up a local listen port and automatically accepts incoming connection requests.
 	Dispatcher for channel handling is inherited via Connection
 	*/
-	class Server : public Connection, private TCPThreadObject, public Destination
+	class Server : public Connection, private TCPThreadObject, public Destination, public ErrorState
 	{
 	private:
 		volatile SOCKET		socket_handle;
