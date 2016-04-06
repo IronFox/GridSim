@@ -312,6 +312,7 @@ namespace CLI	//! Command line interpretor
 		public:
 			typedef typename Super::const_iterator	const_iterator;
 
+			Super::Count;
 			Super::count;
 			Super::length;
 			Super::size;
@@ -327,7 +328,7 @@ namespace CLI	//! Command line interpretor
 			void					Set(const String&name, const Type&object)	{index_t at = Super::count(); Super::append(object); table.set(name,at);}
 			void					Insert(const String&name, const Type&object)	{Set(name,object);}
 			Type					Query(const String&name) const	{index_t at; if (table.query(name,at)) return Super::at(at); return Type();}
-			void					clear()	{Super::clear(); table.clear();}
+			void					Clear()	{Super::Clear(); table.clear();}
 		};
 
 
