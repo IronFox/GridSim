@@ -929,22 +929,12 @@ XML::ScannerRule*	XML::ScannerRule::Map(ScannerRule*node)
 
 bool	XML::ScannerRule::Unmap(const String&name)
 {
-	if (connections.isSet(name))
-	{
-		connections.unSet(name);
-		return true;
-	}
-	return false;
+	return connections.Unset(name);
 }
 
 bool	XML::ScannerRule::Unmap(ScannerRule*node)
 {
-	if (connections.isSet(node->name))
-	{
-		connections.unSet(node->name);
-		return true;
-	}
-	return false;
+	return connections.Unset(node->name);
 }
 	
 	

@@ -665,7 +665,7 @@ namespace Engine
 			return;
 		}
 		group->entities.drop(entity);
-		group_map.unSet(entity);
+		group_map.Unset(entity);
 		if (!group->entities && !locked)
 		{
 			groups.erase(group);

@@ -122,13 +122,13 @@ namespace Fractal
 	{
 		return;	//disabled
 		std::cout << "unregister "<<segment<<std::endl;
-		segment_table.unSet(segment);
+		segment_table.Unset(segment);
 	}
 	
 	void		registerArray(TVertex*field)
 	{
 		return;	//disabled
-		if (array_table.isSet(field))
+		if (array_table.IsSet(field))
 			FATAL__("Trying to reregister array "+PointerToStr(field));
 		array_table.set(field);
 	}
@@ -136,7 +136,7 @@ namespace Fractal
 	void		registerArray(Array<TVertex>&field)
 	{
 		return;	//disabled
-		if (array_table.isSet(field.pointer()))
+		if (array_table.IsSet(field.pointer()))
 			FATAL__("Trying to reregister array "+PointerToStr(field.pointer()));
 		array_table.set(field.pointer());
 	}
@@ -145,12 +145,12 @@ namespace Fractal
 	void		unregisterArray(TVertex*field)
 	{
 		return;	//disabled
-		array_table.unSet(field);
+		array_table.Unset(field);
 	}
 	void		unregisterArray(Array<TVertex>&field)
 	{
 		return;	//disabled
-		array_table.unSet(field.pointer());
+		array_table.Unset(field.pointer());
 	}
 	
 	

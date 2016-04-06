@@ -460,7 +460,7 @@ namespace Config
 			mode.Cleanup();
 			if (mode.IsEmpty())
 			{
-				modeMap.unSet(mode.name);
+				modeMap.Unset(mode.name);
 				modes.Erase(i--);
 			}
 		}

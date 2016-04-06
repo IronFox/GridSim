@@ -444,7 +444,7 @@ template <class Carrier, class Hash>
 	
 template <class Carrier, class Hash>
 	template <class Key>
-		inline  bool        ExtendedHashBase<Carrier,Hash>::unSet(const Key&ident)
+		inline  bool        ExtendedHashBase<Carrier,Hash>::Unset(const Key&ident)
 		{
 			Carrier*c = Base::find(Hash::hash(ident),ident,false);
 			if (c->occupied)
@@ -726,7 +726,7 @@ template <class K, class C, class Hash, class KeyStrategy, class DataStrategy> t
 	}
 
 template <class K, class C, class Hash, class KeyStrategy, class DataStrategy> template <class Key>
-	inline	bool	GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::queryAndUnSet(const Key&ident, DataType&target)
+	inline	bool	GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::queryAndUnset(const Key&ident, DataType&target)
 	{
 		Carrier*c = Base::find(Hash::hash(ident),ident,false);
 		if (!c->occupied)
@@ -742,10 +742,10 @@ template <class K, class C, class Hash, class KeyStrategy, class DataStrategy> t
 
 template <class K, class C, class Hash, class KeyStrategy, class DataStrategy>
 template <class Entry>
-	inline	bool				GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::unSetEntry(const Entry&entry)
+	inline	bool				GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::unsetEntry(const Entry&entry)
 	{
 		K key;
-		return findKeyOf(entry,key) && Base::unSet(key);
+		return findKeyOf(entry,key) && Base::Unset(key);
 	}
 	
 		

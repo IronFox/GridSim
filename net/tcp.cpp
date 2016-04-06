@@ -407,22 +407,22 @@ namespace TCP
 	
 	void	Dispatcher::OpenSignalChannel(UINT32 id, unsigned min_user_level)
 	{
-		signal_map.set(id,min_user_level);
+		signal_map.Set(id,min_user_level);
 	}
 	
 	void	Dispatcher::CloseSignalChannel(UINT32 id)
 	{
-		signal_map.unSet(id);
+		signal_map.Unset(id);
 	}
 	
 	void	Dispatcher::InstallChannel(RootChannel&channel)
 	{
-		channel_map.set(channel.id,&channel);
+		channel_map.Set(channel.id,&channel);
 	}
 	
 	void	Dispatcher::UninstallChannel(RootChannel&channel)
 	{
-		channel_map.unSet(channel.id);
+		channel_map.Unset(channel.id);
 	}
 
 

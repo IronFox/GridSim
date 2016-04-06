@@ -323,12 +323,39 @@ namespace CLI	//! Command line interpretor
 			const Type&				operator[](index_t element)	const {return Super::operator[](element);}
 			
 			bool					IsSet(const String&name) const	{return table.isSet(name);}
-			void					Unset(const String&name)		{index_t at; if (table.queryAndUnSet(name,at)) Super::erase(at);}
-			Type					InsertNew(const String&name, T*newObject)	{index_t at = Super::count(); Super::append(Type(newObject)); table.set(name,at); return Super::last();}
-			void					Set(const String&name, const Type&object)	{index_t at = Super::count(); Super::append(object); table.set(name,at);}
+			void					Unset(const String&name)
+			{
+				//ASSERT_EQUAL__(,Super::Count());
+				count_t preCount = table.Count();
+				index_t at;
+				if (table.QueryAndUnset(name,at))
+				{
+					Super::Erase(at);
+
+					table.VisitAllValues([at](index_t&val)
+					{
+						if (val > at)
+							val--;
+					});
+					ASSERT_EQUAL__(table.Count(),Super::Count());
+				}	
+			}
+			Type					InsertNew(const String&name, T*newObject)
+			{
+				Set(name,Type(newObject));
+				return Super::last();
+			}
+			void					Set(const String&name, const Type&object)
+			{
+				ASSERT1__(!table.IsSet(name),name);
+				index_t at = Super::Count();
+				Super::Append(object);
+				table.Set(name,at);
+				ASSERT_EQUAL__(table.Count(),Super::Count());
+			}
 			void					Insert(const String&name, const Type&object)	{Set(name,object);}
-			Type					Query(const String&name) const	{index_t at; if (table.query(name,at)) return Super::at(at); return Type();}
-			void					Clear()	{Super::Clear(); table.clear();}
+			Type					Query(const String&name) const	{ASSERT_EQUAL__(table.Count(),Super::Count()); index_t at; if (table.query(name,at)) return Super::at(at); return Type();}
+			void					Clear()	{Super::Clear(); table.clear();ASSERT_EQUAL__(table.Count(),Super::Count());}
 		};
 
 

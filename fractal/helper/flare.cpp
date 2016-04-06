@@ -100,7 +100,7 @@ namespace Flare
 			for (index_t i = 0; i < lights.count(); i++)
 				if (!lights[i].tagged)
 				{
-					light_map.unSet(lights[i].reference);
+					light_map.Unset(lights[i].reference);
 					lights.erase(i--);
 				}
 			while (lights.count() > query_objects.fillLevel())

@@ -3824,7 +3824,7 @@ void							SurfaceNetwork::Unlink(index_t segment_index)
 		n->segments[c.outbound][c.subdivisionStep] = InvalidIndex;
 	}
 
-	segments.unSet(segment_index);
+	segments.Unset(segment_index);
 }
 
 void							SurfaceNetwork::ManagedUnlink(index_t segment_index,bool update_controls, bool build, IndexSet*affectedSegments)
@@ -3855,7 +3855,7 @@ void							SurfaceNetwork::ManagedUnlink(index_t segment_index,bool update_contr
 		n->subdivision[c.outbound].SetSize(n->subdivision[c.outbound].length()-1);
 		MakeEven(n->subdivision[c.outbound]);
 	}
-	segments.unSet(segment_index);
+	segments.Unset(segment_index);
 
 	UpdateSlopes(*nodes_[0],update_controls,build,affectedSegments);
 	UpdateSlopes(*nodes_[1],update_controls,build,affectedSegments);

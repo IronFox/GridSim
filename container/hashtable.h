@@ -251,11 +251,9 @@ template <class Carrier, class Hash>
 		template <class Key>
 			inline	bool					IsSet(const Key&ident)				const	/** @copydoc IsSet() */{return isSet(ident);}
 		template <class Key>
-			inline	bool					unset(const Key&ident)						/** @copydoc unSet() */{return unSet(ident);}
+			inline	bool					unset(const Key&ident)						/** @copydoc Unset() */{return Unset(ident);}
 		template <class Key>
-			inline	bool					Unset(const Key&ident)						/** @copydoc unSet() */{return unSet(ident);}
-		template <class Key>
-			inline	bool					unSet(const Key&ident);						//!< Un-sets any data associated with the specifed key. Potentially resizes the internal set. \param ident Key to look for \return True if the specified key could be found and un-set, false otherwise.
+			inline	bool					Unset(const Key&ident);						//!< Un-sets any data associated with the specifed key. Potentially resizes the internal set. \param ident Key to look for \return True if the specified key could be found and un-set, false otherwise.
 		template <typename F>
 			inline	void					visitAllKeys(const F&f) const;	//!< Passes each occupied element to the specified functor of type <tt>void f(const Key&)</tt>.
 		template <typename F>
@@ -347,15 +345,11 @@ template <class K, class C, class Hash=StdHash, typename KeyStrategy = typename 
 		template <class Key>
 			inline	bool					query(const Key&ident, DataType&target)	const;	//!< Requests the content associated with the specified key without setting it. \param ident Key to look for \param target Out reference to copy the respective content to \return True if an entry matching the specified key could be found, false otherwise. \b target remains unchanged if \b key could not be found.
 		template <class Key>
-			inline	bool					queryAndUnSet(const Key&ident, DataType&target);	//!< Requests the content associated with the specified key and un-sets it. \param ident Key to look for \param target Out reference to copy the respective content to \return True if an entry matching the specified key could be found, false otherwise. \b target remains unchanged if \b key could not be found.
-		template <class Key>
-			inline	bool					queryAndUnset(const Key&ident, DataType&target)	/** @copydoc queryAndUnSet() */ {return queryAndUnSet(ident,target);}
+			inline	bool					queryAndUnset(const Key&ident, DataType&target); 	//!< Requests the content associated with the specified key and un-sets it. \param ident Key to look for \param target Out reference to copy the respective content to \return True if an entry matching the specified key could be found, false otherwise. \b target remains unchanged if \b key could not be found.
 		template <class Key>
 			inline	bool					Query(const Key&ident, DataType&target)	const /*@copydoc query()*/ {return query(ident,target);}
 		template <class Key>
-			inline	bool					QueryAndUnSet(const Key&ident, DataType&target)/*@copydoc queryAndUnset()*/ {return query(ident,target);}
-		template <class Key>
-			inline	bool					QueryAndUnset(const Key&ident, DataType&target)	/** @copydoc queryAndUnSet() */ {return queryAndUnSet(ident,target);}
+			inline	bool					QueryAndUnset(const Key&ident, DataType&target)	/** @copydoc queryAndUnSet() */ {return queryAndUnset(ident,target);}
 		template <class Key>
 			inline	DataType*				queryPointer(const Key&ident);				//!< Requests the content associated with the specified key without setting it. The method returns a pointer to the element ot NULL if no such could be found. \param ident Key to look for \return Pointer to the object matching the specified key or NULL if no such could be found
 		template <class Key>
@@ -372,9 +366,9 @@ template <class K, class C, class Hash=StdHash, typename KeyStrategy = typename 
 		template <class Key>
 			inline	bool					SetNew(const Key&ident, const DataType&d)	{ DataType*into = setNew(ident); if (into) (*into) = d; return into != NULL;}
 		template <class Entry>
-			inline	bool					unSetEntry(const Entry&entry);				//!< Un-sets the key associated with the specified entry. Potentially resizes the internal table. \param entry Entry to look for \return True if the specified entry could be found and un-set, false otherwise.
+			inline	bool					unsetEntry(const Entry&entry);				//!< Un-sets the key associated with the specified entry. Potentially resizes the internal table. \param entry Entry to look for \return True if the specified entry could be found and un-set, false otherwise.
 		template <class Entry>
-			inline	bool					unsetEntry(const Entry&entry)				/** @copydoc unSetEntry() */{return unSetEntry(entry);}
+			inline	bool					UnsetEntry(const Entry&entry)				/** @copydoc unSetEntry() */{return unsetEntry(entry);}
 		template <class Key>
 			inline	DataType&				Reference(const Key&ident, const DataType&initValue);		//!< Sets the specified key (to the specified init value, if not set already) and returns the currently stored value as a reference. \param ident Key to set \param initValue Value to assign to the associated data if the specified key was not previously specified.
 		template <class Key>
