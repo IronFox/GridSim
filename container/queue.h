@@ -98,6 +98,8 @@ template <class T, class Strategy>
 	
 	};
 
+template <class Entry, class Strategy>
+	class Queue;
 
 template <class Entry, class Element, class Strategy>
 	class QueueIterator
@@ -108,10 +110,14 @@ template <class Entry, class Element, class Strategy>
 			Element			*field_begin,
 							*current,
 							*field_end;
+
+			friend class Queue<Entry,Strategy>;
+			//friend class Queue<typename std::remove_const<Entry>::type,Strategy>;
 	public:
 			typedef QueueIterator<Entry,Element,Strategy>	It;
 			
-							QueueIterator(Element*begin,Element*end,Element*c);
+			/**/			QueueIterator(Element*begin,Element*end,Element*c);
+			///**/			QueueIterator(const QueueIterator<typename std::remove_const<Entry>::type,typename std::remove_const<Element>::type,Strategy>&other):field_begin(other.field_begin),current(other.current),field_end(other.field_end)	{}
 			It&				operator++();
 			It				operator++(int);
 			It				operator+(int delta)	const;
@@ -123,14 +129,14 @@ template <class Entry, class Element, class Strategy>
 			Entry&			operator*()	{return current->Cast();}
 			Entry*			operator->()	{return &current->Cast();}
 			
-			size_t		index()	const;
+			size_t			index()	const;
 	};
 
 
 template <class Entry, class Strategy=typename StrategySelector<Entry>::Default>
 	class Queue:protected Array<QueueElement<Entry,Strategy>,::Strategy::Adopt>
 	{
-	protected:
+	private:
 		typedef QueueElement<Entry,Strategy>	Element;
 		Element				*section_begin,
 							*section_end,
@@ -138,13 +144,18 @@ template <class Entry, class Strategy=typename StrategySelector<Entry>::Default>
 		typedef Array<Element,::Strategy::Adopt>	Array;
 
 		void				increaseSize(count_t new_size);
+
+		Element*			Increment(Element*el)	const;
+	
+
 	public:
 		typedef Queue<Entry,Strategy>	Self;
 		typedef QueueIterator<Entry,Element,Strategy>	iterator;
 		typedef QueueIterator<const Entry,const Element,Strategy>	const_iterator;
 			
 		/**/				Queue(const Self&other);
-		/**/				Queue(size_t size=1024);
+		/**/				Queue(Self&&other);
+		/**/				Queue(size_t size=0);
 		/**/				~Queue()	{clear();}
 
 		iterator			begin();

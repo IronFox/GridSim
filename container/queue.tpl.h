@@ -100,6 +100,11 @@ template <class Entry,class Strategy>
 		//DBG_ASSERT__(Array::Owns(section_begin));
 	}
 
+template <class Entry,class Strategy>
+	Queue<Entry,Strategy>::Queue(Self&&other):section_begin(nullptr),section_end(nullptr),field_end(nullptr)
+	{
+		this->adoptData(other);
+	}
 
 template <class Entry,class Strategy>
 	void Queue<Entry,Strategy>::operator=(const Queue<Entry,Strategy>&other)
@@ -348,37 +353,45 @@ template <class Entry, class Strategy>
 template <class Entry, class Strategy>
 	Entry&	Queue<Entry,Strategy>::Push()
 	{
-		section_end++;
-		if (section_end >= field_end)
-			section_end = Array::data;
-		//DBG_ASSERT__(Array::Owns(section_end));
-		//DBG_ASSERT__(Array::Owns(section_begin));
-		if (section_end == section_begin)
+		Element* newEnd = section_end;
+		newEnd++;
+		if (newEnd >= field_end)
+			newEnd = Array::data;
+		if (newEnd == section_begin)
 		{
 			size_t old_len = Array::length();
-			Array	new_field(Array::length()*2);
+			Array	new_field(Array::length() > 0 ? Array::length()*2 : 2);
 			Element*out = new_field.pointer();
-			do
+			for (iterator it = begin(); it != end(); ++it)
 			{
-				out->adoptData(*section_begin);
-				section_begin++;
+				out->adoptData(*it.current);
 				out++;
-				if (section_begin >= field_end)
-					section_begin = Array::pointer();
 			}
-			while (section_begin != section_end);
 			Array::adoptData(new_field);
 			section_begin = Array::pointer();
-			section_end = section_begin+old_len;
+			section_end = old_len > 0 ? section_begin+old_len-1 : section_begin;
+			newEnd = section_end+1;
 			field_end = section_begin+Array::length();
-			//DBG_ASSERT__(Array::Owns(section_end));
-			//DBG_ASSERT__(Array::Owns(section_begin));
+			#ifdef _DEBUG
+				for (iterator it = begin(); it != end(); ++it)
+				{
+					volatile Entry&test = *it;
+				}
+			#endif
 		}
-		//DBG_ASSERT__(Array::Owns(section_end));
-		//DBG_ASSERT__(Array::Owns(section_begin));
-		if (section_end > Array::data)
-			return (section_end-1)->ConstructAndCast();
-		return Array::data[Array::elements-1].ConstructAndCast();
+
+		Element* rs = section_end;
+		section_end = newEnd;
+		return rs->ConstructAndCast();
+	}
+
+template <class Entry, class Strategy>
+	typename Queue<Entry,Strategy>::Element*	Queue<Entry,Strategy>::Increment(Element*el)	const
+	{
+		el++;
+		if (el >= field_end)
+			el = Array::data;
+		return el;
 	}
 
 //
@@ -432,22 +445,23 @@ template <class Entry, class Strategy>
 		if (section_end == section_begin)
 		{
 			size_t old_len = Array::length();
-			Array	new_field(Array::length()*2);
+			Array	new_field(Array::length() > 0 ? Array::length()*2 : 2);
 			Element*out = new_field.pointer();
-			do
+			for (iterator it = begin(); it != end(); ++it)
 			{
-				out->adoptData(*section_begin);
-				section_begin++;
+				out->adoptData(*it.current);
 				out++;
-				//Strategy::move(*section_begin++,*out++);
-				if (section_begin >= field_end)
-					section_begin = Array::pointer();
 			}
-			while (section_begin != section_end);
 			Array::adoptData(new_field);
 			section_begin = Array::pointer();
-			section_end = section_begin+old_len;
+			section_end = old_len > 0 ? section_begin+old_len-1 : section_begin;
 			field_end = section_begin+Array::length();
+			//DBG_ASSERT__(old_len==length()+1);
+
+			//for (iterator it = begin(); it != end(); ++it)
+			//{
+			//	volatile Entry&test = *it;
+			//}
 		}
 		return section_begin->ConstructAndCast();
 	}
