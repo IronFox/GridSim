@@ -121,6 +121,12 @@ namespace Net
 		#else
 		switch (code)
 		{
+			ECASE(WSA_INVALID_HANDLE);
+			ECASE(WSA_NOT_ENOUGH_MEMORY);
+			ECASE(WSA_INVALID_PARAMETER);
+			ECASE(WSA_OPERATION_ABORTED);
+			ECASE(WSA_IO_INCOMPLETE);
+			ECASE(WSA_IO_PENDING);
 			ECASE(WSAEINTR);
 			ECASE(WSAEBADF);
 			ECASE(WSAEACCES);
@@ -175,7 +181,7 @@ namespace Net
 		}
 		#endif
 		#undef ECASE
-		return "Unknown Error";
+		return code == 0 ? "" : "Unknown Error";
 	}
 
 
