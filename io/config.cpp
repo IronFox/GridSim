@@ -475,8 +475,8 @@ namespace Config
 	{
 		foreach (attributes, attrib)
 		{
-			name_len = std::min(name_len,attrib->name.length() + indent);
-			value_len = std::min(value_len,attrib->value.length() + 2 + indent);
+			name_len = std::max(name_len,attrib->name.length() + indent);
+			value_len = std::max(value_len,attrib->value.length() + 2 + indent);
 		}
 		foreach (children,child)
 			child->RetrieveMaxNameValueLength(name_len,value_len,indent+4);
