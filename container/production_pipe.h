@@ -56,6 +56,7 @@ template <typename T, typename Strategy=typename StrategySelector<T>::Default>
 		//Super::IsEmpty;
 		Super::IsNotEmpty;
 		Super::operator[];
+		Super::pointer;
 			
 		typedef T	Type;
 	
