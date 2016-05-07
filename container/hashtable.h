@@ -328,78 +328,51 @@ template <class K, class C, class Hash=StdHash, typename KeyStrategy = typename 
 			inline	void					visitAllEntries(const F&f)	const;	//!< Constant version of visitAllEntries(). Only copies or const references may be received by the functor.
 		template <typename F>
 			inline	void					VisitAllEntries(const F&f)	const		/** @copydoc visitAllEntries() */{visitAllEntries(f);}
-		template <class Key, class Entry>
-			inline	void					exportTo(ArrayData<Key>&keys, ArrayData<Entry>&values)	const;	//!< Exports keys and values to the respective arrays. \param keys Reference to an array containing all associated keys after execution. \param values Reference to an object array containing all contained data elements after execution. \b keys and \b values will be of the same size with each entry of \b keys associated with the entry in \b values of the same index.
+		template <class Entry>
+			inline	void					exportTo(ArrayData<K>&keys, ArrayData<Entry>&values)	const;	//!< Exports keys and values to the respective arrays. \param keys Reference to an array containing all associated keys after execution. \param values Reference to an object array containing all contained data elements after execution. \b keys and \b values will be of the same size with each entry of \b keys associated with the entry in \b values of the same index.
 		template <class Entry>
 			inline	void					exportTo(ArrayData<Entry>&values)		const;	//!< Exports all entries. \param values Reference to an array containing all entries after execution.
-		template <class Key, class Entry>
-			inline	void					exportAddressesTo(ArrayData<const Key*>&keys, ArrayData<Entry*>&values);
+		template <class Entry>
+			inline	void					exportAddressesTo(ArrayData<const K*>&keys, ArrayData<Entry*>&values);
 		template <class Entry>
 			inline	void					exportAddressesTo(ArrayData<Entry*>&values);
-		template <class Key, class Entry>
-			inline	void					exportAddressesTo(ArrayData<const Key*>&keys, ArrayData<const Entry*>&values)const;
+		template <class Entry>
+			inline	void					exportAddressesTo(ArrayData<const K*>&keys, ArrayData<const Entry*>&values)const;
 		template <class Entry>
 			inline	void					exportAddressesTo(ArrayData<const Entry*>&values)	const;
-		template <class Key, class Entry>
-			inline	bool					findKeyOf(const Entry&entry, Key&key)const;	//!< Finds the key of the specified entry and stores it in \b key. Operates in O(n). \param entry Entry to look for. Comparison will be done via operator== . \param key Out key variable. Found key will be assigned via operator= . \return True if the requested element could be found, false otherwise.
-		template <class Key>
-			inline	bool					query(const Key&ident, DataType&target)	const;	//!< Requests the content associated with the specified key without setting it. \param ident Key to look for \param target Out reference to copy the respective content to \return True if an entry matching the specified key could be found, false otherwise. \b target remains unchanged if \b key could not be found.
-		template <class Key>
-			inline	bool					queryAndUnset(const Key&ident, DataType&target); 	//!< Requests the content associated with the specified key and un-sets it. \param ident Key to look for \param target Out reference to copy the respective content to \return True if an entry matching the specified key could be found, false otherwise. \b target remains unchanged if \b key could not be found.
-		template <class Key>
-			inline	bool					Query(const Key&ident, DataType&target)	const /*@copydoc query()*/ {return query(ident,target);}
-		template <class Key>
-			inline	bool					QueryAndUnset(const Key&ident, DataType&target)	/** @copydoc queryAndUnSet() */ {return queryAndUnset(ident,target);}
-		template <class Key>
-			inline	DataType*				queryPointer(const Key&ident);				//!< Requests the content associated with the specified key without setting it. The method returns a pointer to the element ot NULL if no such could be found. \param ident Key to look for \return Pointer to the object matching the specified key or NULL if no such could be found
-		template <class Key>
-			inline	DataType*				QueryPointer(const Key&ident)				/** @copydoc queryPointer() */{return queryPointer(ident);}
-		template <class Key>
-			inline	const DataType*			queryPointer(const Key&ident)		const;	//!< Requests the content associated with the specified key without setting it. The method returns a pointer to the element ot NULL if no such could be found. \param ident Key to look for \return Pointer to the object matching the specified key or NULL if no such could be found
-		template <class Key>
-			inline	DataType*				QueryPointer(const Key&ident)		const	/** @copydoc queryPointer() */{return queryPointer(ident);}
-			inline	bool					Owns(const DataType*data)	const;
-		template <class Key>
-			inline	DataType*				setNew(const Key&ident);					//!< Sets the specified key if it is currently not set and returns the pointer its content. If the key is already set then NULL is returned @param ident Key to set @return Pointer to the set content associated with the specified key, or NULL if the key was previously set
-		template <class Key>
-			inline	DataType*				SetNew(const Key&ident)						/** @copydoc setNew()*/ { return setNew(ident); }
-		template <class Key>
-			inline	bool					SetNew(const Key&ident, const DataType&d)	{ DataType*into = setNew(ident); if (into) (*into) = d; return into != NULL;}
+		template <class Entry>
+			inline	bool					findKeyOf(const Entry&entry, K&key)const;	//!< Finds the key of the specified entry and stores it in \b key. Operates in O(n). \param entry Entry to look for. Comparison will be done via operator== . \param key Out key variable. Found key will be assigned via operator= . \return True if the requested element could be found, false otherwise.
+		inline	bool						query(const K&ident, DataType&target)	const;	//!< Requests the content associated with the specified key without setting it. \param ident Key to look for \param target Out reference to copy the respective content to \return True if an entry matching the specified key could be found, false otherwise. \b target remains unchanged if \b key could not be found.
+		inline	bool						queryAndUnset(const K&ident, DataType&target); 	//!< Requests the content associated with the specified key and un-sets it. \param ident K to look for \param target Out reference to copy the respective content to \return True if an entry matching the specified key could be found, false otherwise. \b target remains unchanged if \b key could not be found.
+		inline	bool						Query(const K&ident, DataType&target)	const /*@copydoc query()*/ {return query(ident,target);}
+		inline	bool						QueryAndUnset(const K&ident, DataType&target)	/** @copydoc queryAndUnSet() */ {return queryAndUnset(ident,target);}
+		inline	DataType*					queryPointer(const K&ident);				//!< Requests the content associated with the specified key without setting it. The method returns a pointer to the element ot NULL if no such could be found. \param ident Key to look for \return Pointer to the object matching the specified key or NULL if no such could be found
+		inline	DataType*					QueryPointer(const K&ident)				/** @copydoc queryPointer() */{return queryPointer(ident);}
+		inline	const DataType*				queryPointer(const K&ident)		const;	//!< Requests the content associated with the specified key without setting it. The method returns a pointer to the element ot NULL if no such could be found. \param ident Key to look for \return Pointer to the object matching the specified key or NULL if no such could be found
+		inline	DataType*					QueryPointer(const K&ident)		const	/** @copydoc queryPointer() */{return queryPointer(ident);}
+		inline	bool						Owns(const DataType*data)	const;
+		inline	DataType*					setNew(const K&ident);					//!< Sets the specified key if it is currently not set and returns the pointer its content. If the key is already set then NULL is returned @param ident Key to set @return Pointer to the set content associated with the specified key, or NULL if the key was previously set
+		inline	DataType*					SetNew(const K&ident)						/** @copydoc setNew()*/ { return setNew(ident); }
+		inline	bool						SetNew(const K&ident, const DataType&d)	{ DataType*into = setNew(ident); if (into) (*into) = d; return into != NULL;}
 		template <class Entry>
 			inline	bool					unsetEntry(const Entry&entry);				//!< Un-sets the key associated with the specified entry. Potentially resizes the internal table. \param entry Entry to look for \return True if the specified entry could be found and un-set, false otherwise.
 		template <class Entry>
 			inline	bool					UnsetEntry(const Entry&entry)				/** @copydoc unSetEntry() */{return unsetEntry(entry);}
-		template <class Key>
-			inline	DataType&				Reference(const Key&ident, const DataType&initValue);		//!< Sets the specified key (to the specified init value, if not set already) and returns the currently stored value as a reference. \param ident Key to set \param initValue Value to assign to the associated data if the specified key was not previously specified.
-		template <class Key>
-			inline	DataType&				set(const Key&ident, const DataType&v);		//!< Sets the specified key (if not set already) and assigns \b v to the associated data. \param ident Key to set \param v Value to assign to the associated data.
-		template <class Key>
-			inline	DataType&				Set(const Key&ident, const DataType&v)		{return set(ident,v);}
-		template <class Key>
-			inline	DataType&				set(const Key&ident);						//!< Sets the specified key if it is currently not set and returns a reference to it. No change occurs if the specified key is already set (merely returns a reference to it)
-		template <class Key>
-			inline	DataType&				Set(const Key&ident)						{return set(ident);}
-		template <class Key>
-			inline	DataType&				get(const Key&ident, DataType&except);		//!< Returns a (mutable) reference to the data associated with the specified key, or @a except if no such could be found.
-		template <class Key>
-			inline	DataType&				Get(const Key&ident, DataType&except)		{return get(ident,except);}
-		template <class Key>
-			inline	const C&				get(const Key&ident, const C&except)	const;			//!< Returns a (const) reference to the data associated with the specified key, or @a except if no such could be found.
-		template <class Key>
-			inline	const C&				Get(const Key&ident, const C&except)	const	{return get(ident,except);}
-		template <class Key>
-			inline	DataType&				require(const Key&ident);					//!< Returns a (mutable) reference to the data associated with the specified key. An assertion will fire, if the requested element does not exist
-		template <class Key>
-			inline	DataType&				Require(const Key&ident)					{return require(ident);}
-		template <class Key>
-			inline	const C&				require(const Key&ident)	const;			//!< Returns a (const) reference to the data associated with the specified key. An assertion will fire, if the requested element does not exist
-		template <class Key>
-			inline	const C&				Require(const Key&ident)	const			{return require(ident);}
-
-		template <class Key>
-			inline	DataType&				operator[](const Key&ident);				//!< Standard access. If the specified key could not be found then an exception of type Program::MemberNotFound will be triggered. \param ident Key to look for \return Reference to the data associated with the specified key.
-		template <class Key>
-			inline	const DataType&			operator[](const Key&ident)			const;	//!< Standard const access. If the specified key could not be found then an exception of type Program::MemberNotFound will be triggered. \param ident Key to look for \return Reference to the data associated with the specified key.
+		inline	DataType&					Reference(const K&ident, const DataType&initValue);		//!< Sets the specified key (to the specified init value, if not set already) and returns the currently stored value as a reference. \param ident Key to set \param initValue Value to assign to the associated data if the specified key was not previously specified.
+		inline	DataType&					set(const K&ident, const DataType&v);		//!< Sets the specified key (if not set already) and assigns \b v to the associated data. \param ident Key to set \param v Value to assign to the associated data.
+		inline	DataType&					Set(const K&ident, const DataType&v)		{return set(ident,v);}
+		inline	DataType&					set(const K&ident);						//!< Sets the specified key if it is currently not set and returns a reference to it. No change occurs if the specified key is already set (merely returns a reference to it)
+		inline	DataType&					Set(const K&ident)						{return set(ident);}
+		inline	DataType&					get(const K&ident, DataType&except);		//!< Returns a (mutable) reference to the data associated with the specified key, or @a except if no such could be found.
+		inline	DataType&					Get(const K&ident, DataType&except)		{return get(ident,except);}
+		inline	const C&					get(const K&ident, const C&except)	const;			//!< Returns a (const) reference to the data associated with the specified key, or @a except if no such could be found.
+		inline	const C&					Get(const K&ident, const C&except)	const	{return get(ident,except);}
+		inline	DataType&					require(const K&ident);					//!< Returns a (mutable) reference to the data associated with the specified key. An assertion will fire, if the requested element does not exist
+		inline	DataType&					Require(const K&ident)					{return require(ident);}
+		inline	const C&					require(const K&ident)	const;			//!< Returns a (const) reference to the data associated with the specified key. An assertion will fire, if the requested element does not exist
+		inline	const C&					Require(const K&ident)	const			{return require(ident);}
+		inline	DataType&					operator[](const K&ident);				//!< Standard access. If the specified key could not be found then an exception of type Program::MemberNotFound will be triggered. \param ident Key to look for \return Reference to the data associated with the specified key.
+		inline	const DataType&				operator[](const K&ident)			const;	//!< Standard const access. If the specified key could not be found then an exception of type Program::MemberNotFound will be triggered. \param ident Key to look for \return Reference to the data associated with the specified key.
 	};
 
 

@@ -541,8 +541,8 @@ template <class K, class C, class Hash, class KeyStrategy, class DataStrategy>
 		}
 
 template <class K, class C, class Hash, class KeyStrategy, class DataStrategy>
-		template <class Key, class Entry>
-			inline	void					GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::exportAddressesTo(ArrayData<const Key*>&keys, ArrayData<Entry*>&values)
+		template <class Entry>
+			inline	void					GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::exportAddressesTo(ArrayData<const K*>&keys, ArrayData<Entry*>&values)
 			{
 				keys.setSize(Base::entries);
 				values.setSize(Base::entries);
@@ -576,8 +576,8 @@ template <class K, class C, class Hash, class KeyStrategy, class DataStrategy>
 			}
 
 template <class K, class C, class Hash, class KeyStrategy, class DataStrategy>
-		template <class Key, class Entry>
-			inline	void					GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::exportAddressesTo(ArrayData<const Key*>&keys, ArrayData<const Entry*>&values)const
+		template <class Entry>
+			inline	void					GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::exportAddressesTo(ArrayData<const K*>&keys, ArrayData<const Entry*>&values)const
 			{
 				keys.setSize(Base::entries);
 				values.setSize(Base::entries);
@@ -613,8 +613,8 @@ template <class K, class C, class Hash, class KeyStrategy, class DataStrategy>
 
 
 template <class K, class C, class Hash, class KeyStrategy, class DataStrategy>
-	template <class Key, class Entry>
-	inline  void  GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::exportTo(ArrayData<Key>&keys, ArrayData<Entry>&values)	const 
+	template <class Entry>
+	inline  void  GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::exportTo(ArrayData<K>&keys, ArrayData<Entry>&values)	const 
 	{
 		keys.setSize(Base::entries);
 		values.setSize(Base::entries);
@@ -649,8 +649,8 @@ template <class K, class C, class Hash, class KeyStrategy, class DataStrategy>	t
 	
 	
 
-template <class K, class C, class Hash, class KeyStrategy, class DataStrategy> template <class Key, class Entry>
-	inline	bool		GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::findKeyOf(const Entry&entry, Key&key)const
+template <class K, class C, class Hash, class KeyStrategy, class DataStrategy> template <class Entry>
+	inline	bool		GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::findKeyOf(const Entry&entry, K&key)const
 	{
 		for (size_t i = 0; i < Base::array.length(); i++)
 			if (Base::array[i].occupied && Base::array[i].cast() == entry)
@@ -661,8 +661,8 @@ template <class K, class C, class Hash, class KeyStrategy, class DataStrategy> t
 		return false;
 	}
 	
-template <class K, class C, class Hash, class KeyStrategy, class DataStrategy> template <class Key>
-	inline	C*	GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::queryPointer(const Key&ident)
+template <class K, class C, class Hash, class KeyStrategy, class DataStrategy>
+	inline	C*	GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::queryPointer(const K&ident)
 	{
 		Carrier*c = Base::find(Hash::hash(ident),ident,false,NULL);
 		if (!c->occupied)
@@ -678,27 +678,27 @@ template <class K, class C, class Hash, class KeyStrategy, class DataStrategy>
 		return Base::array.Owns((const Carrier*)(((const BYTE*)data)-delta));
 	}
 
-template <class K, class C, class Hash, class KeyStrategy, class DataStrategy> template <class Key>
-	inline	C&					GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::get(const Key&ident, C&except)
+template <class K, class C, class Hash, class KeyStrategy, class DataStrategy>
+	inline	C&					GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::get(const K&ident, C&except)
 	{
 		C*ptr = queryPointer(ident);
 		return ptr ? *ptr : except;
 	}
-template <class K, class C, class Hash, class KeyStrategy, class DataStrategy> template <class Key>
-	inline	const C&				GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::get(const Key&ident, const C&except)	const
+template <class K, class C, class Hash, class KeyStrategy, class DataStrategy>
+	inline	const C&				GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::get(const K&ident, const C&except)	const
 	{
 		const C*ptr = queryPointer(ident);
 		return ptr ? *ptr : except;
 	}
-template <class K, class C, class Hash, class KeyStrategy, class DataStrategy> template <class Key>
-	inline	C&					GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::require(const Key&ident)
+template <class K, class C, class Hash, class KeyStrategy, class DataStrategy>
+	inline	C&					GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::require(const K&ident)
 	{
 		C*ptr = queryPointer(ident);
 		ASSERT_NOT_NULL__(ptr/*,ident*/);	//not all 'ident' may be casted to string
 		return *ptr;
 	}
-template <class K, class C, class Hash, class KeyStrategy, class DataStrategy> template <class Key>
-	inline	const C&				GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::require(const Key&ident)	const
+template <class K, class C, class Hash, class KeyStrategy, class DataStrategy>
+	inline	const C&				GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::require(const K&ident)	const
 	{
 		const C*ptr = queryPointer(ident);
 		ASSERT_NOT_NULL1__(ptr,ident);
@@ -706,8 +706,8 @@ template <class K, class C, class Hash, class KeyStrategy, class DataStrategy> t
 	}
 
 
-template <class K, class C, class Hash, class KeyStrategy, class DataStrategy> template <class Key>
-	inline	const C*	GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::queryPointer(const Key&ident) const
+template <class K, class C, class Hash, class KeyStrategy, class DataStrategy>
+	inline	const C*	GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::queryPointer(const K&ident) const
 	{
 		const Carrier*c = Base::find(Hash::hash(ident),ident);
 		if (!c->occupied)
@@ -715,8 +715,8 @@ template <class K, class C, class Hash, class KeyStrategy, class DataStrategy> t
 		return &c->cast();
 	}
 
-template <class K, class C, class Hash, class KeyStrategy, class DataStrategy> template <class Key>
-	inline	bool	GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::query(const Key&ident, DataType&target)	const
+template <class K, class C, class Hash, class KeyStrategy, class DataStrategy>
+	inline	bool	GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::query(const K&ident, DataType&target)	const
 	{
 		const Carrier*c = Base::find(Hash::hash(ident),ident);
 		if (!c->occupied)
@@ -725,8 +725,8 @@ template <class K, class C, class Hash, class KeyStrategy, class DataStrategy> t
 		return true;
 	}
 
-template <class K, class C, class Hash, class KeyStrategy, class DataStrategy> template <class Key>
-	inline	bool	GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::queryAndUnset(const Key&ident, DataType&target)
+template <class K, class C, class Hash, class KeyStrategy, class DataStrategy>
+	inline	bool	GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::queryAndUnset(const K&ident, DataType&target)
 	{
 		Carrier*c = Base::find(Hash::hash(ident),ident,false);
 		if (!c->occupied)
@@ -750,16 +750,16 @@ template <class Entry>
 	
 		
 	
-template <class K, class C, class Hash, class KeyStrategy, class DataStrategy> template <class Key>
-	inline	C&					GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::set(const Key&ident, const DataType&v)
+template <class K, class C, class Hash, class KeyStrategy, class DataStrategy> 
+	inline	C&					GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::set(const K&ident, const DataType&v)
 	{
 		C&rs = Base::find(Hash::hash(ident),ident,true)->cast();
 		rs = v;
 		return rs;
 	}
 
-template <class K, class C, class Hash, class KeyStrategy, class DataStrategy> template <class Key>
-	inline	C&				GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::Reference(const Key&ident, const DataType&initValue)
+template <class K, class C, class Hash, class KeyStrategy, class DataStrategy>
+	inline	C&				GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::Reference(const K&ident, const DataType&initValue)
 	{
 		bool didOccupy;
 		C&rs = Base::find(Hash::hash(ident),ident,true,&didOccupy)->cast();
@@ -769,8 +769,8 @@ template <class K, class C, class Hash, class KeyStrategy, class DataStrategy> t
 	}
 
 
-template <class K, class C, class Hash, class KeyStrategy, class DataStrategy> template <class Key>
-	inline	C*					GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::setNew(const Key&ident)
+template <class K, class C, class Hash, class KeyStrategy, class DataStrategy>
+	inline	C*					GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::setNew(const K&ident)
 	{
 		bool did_occupy;
 		Carrier*c = Base::find(Hash::hash(ident),ident,true,&did_occupy);
@@ -779,8 +779,8 @@ template <class K, class C, class Hash, class KeyStrategy, class DataStrategy> t
 		return &c->cast();
 	}
 
-template <class K, class C, class Hash, class KeyStrategy, class DataStrategy> template <class Key>
-    inline  typename GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::DataType&           		GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::set(const Key&ident)
+template <class K, class C, class Hash, class KeyStrategy, class DataStrategy>
+    inline  typename GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::DataType&           		GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::set(const K&ident)
 	{
 		Carrier*c = Base::find(Hash::hash(ident),ident,true);
 		return c->cast();
@@ -788,8 +788,8 @@ template <class K, class C, class Hash, class KeyStrategy, class DataStrategy> t
 
 	
 	
-template <class K, class C, class Hash, class KeyStrategy, class DataStrategy> template <class Key>
-    inline  typename GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::DataType&           		GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::operator[](const Key&ident)
+template <class K, class C, class Hash, class KeyStrategy, class DataStrategy>
+    inline  typename GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::DataType&           		GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::operator[](const K&ident)
 	{
 		Carrier*c = Base::find(Hash::hash(ident),ident,false);
 		if (!c->occupied)
@@ -797,8 +797,8 @@ template <class K, class C, class Hash, class KeyStrategy, class DataStrategy> t
 		return c->cast();
 	}
 	
-template <class K, class C, class Hash, class KeyStrategy, class DataStrategy> template <class Key>
-    inline  const typename GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::DataType&           	GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::operator[](const Key&ident)				const
+template <class K, class C, class Hash, class KeyStrategy, class DataStrategy>
+    inline  const typename GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::DataType&           	GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::operator[](const K&ident)				const
 	{
 		Carrier*c = Base::find(Hash::hash(ident),ident);
 		if (!c->occupied)
