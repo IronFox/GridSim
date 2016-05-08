@@ -144,24 +144,21 @@ namespace TCP
 	}
 
 
-	void	Dispatcher::HandleObject(RootChannel*receiver, const TDualLink&sender, const PSerializableObject&object)
+	void	Dispatcher::HandleObject(RootChannel*receiver, Peer&sender, const PSerializableObject&object)
 	{
 		if (!object)
 			return;
 		if (async)
 		{
-			receiver->Handle(object,sender);
-			//if (eventLock.PermissiveLock())
-			//{
-			//	eventLock.PermissiveUnlock();
-			//}
+			receiver->Handle(object,sender.LinkFromThis());
+
 		}
 		else
 		{
 			TCommonEvent inbound;
 			inbound.type = TCommonEvent::Object;
 			inbound.object = object;
-			inbound.sender = sender;
+			inbound.sender = sender.LinkFromThis();
 			inbound.receiver = receiver;
 			if (eventLock.ExclusiveLock(CLOCATION))
 			{
@@ -188,9 +185,9 @@ namespace TCP
 		}
 	}
 	
-	void	Dispatcher::HandleEvent(event_t event, const TDualLink&peer)
+	/*virtual*/ void	Dispatcher::HandleEvent(event_t ev, Peer&sender)
 	{
-		if (event == Event::None)
+		if (ev == Event::None)
 			return;
 		if (async)
 		{
@@ -199,14 +196,7 @@ namespace TCP
 			{
 				if (onEvent)
 				{
-					PPeer p = peer.s.lock();
-					Peer*ptr = p ? p.get() : peer.p;
-					if (ptr)
-						onEvent(event,*ptr);
-					else
-					{
-						DBG_FATAL__("peer reference lost in transit for event "+String(event2str(event)));
-					}
+					onEvent(ev,sender);
 				}
 			//	eventLock.PermissiveUnlock(CLOCATION);
 			}
@@ -215,8 +205,8 @@ namespace TCP
 		{
 			TCommonEvent  sevent;
 			sevent.type = TCommonEvent::NetworkEvent;
-			sevent.event = event;
-			sevent.sender = peer;
+			sevent.event = ev;
+			sevent.sender = sender.LinkFromThis();
 			if (eventLock.ExclusiveLock(CLOCATION))
 			{
 				queue << sevent;
@@ -226,7 +216,7 @@ namespace TCP
 		}
 	}
 
-	void	Dispatcher::HandleSignal(UINT32 signal, const TDualLink&peer)
+	/*virtual*/ void	Dispatcher::HandleSignal(UINT32 signal, Peer&peer)
 	{
 		if (async)
 		{
@@ -234,16 +224,7 @@ namespace TCP
 	//		if (!eventLock.IsBlocked())	//not thread-safe but works if the event is caused by the same thread as the one that blocked. this is not an event and should not be blocked in permissive mode
 			{
 				if (onSignal)
-				{
-					PPeer p = peer.s.lock();
-					Peer*ptr = p ? p.get() : peer.p;
-					if (ptr)
-						onSignal(signal,*ptr);
-					else
-					{
-						DBG_FATAL__("peer reference lost in transit for signal on channel "+String(signal));
-					}
-				}
+					onSignal(signal,peer);
 		//		eventLock.PermissiveUnlock(CLOCATION);
 			}
 		}
@@ -252,7 +233,7 @@ namespace TCP
 			TCommonEvent tsignal;
 			tsignal.type = TCommonEvent::Signal;
 			tsignal.channel = signal;
-			tsignal.sender = peer;
+			tsignal.sender = peer.LinkFromThis();
 
 			if (eventLock.ExclusiveLock(CLOCATION))
 			{
@@ -383,11 +364,29 @@ namespace TCP
 		}
 	}
 	
-	RootChannel*	Dispatcher::getReceiver(UINT32 channel_id, unsigned user_level)
+	RootChannel*	Dispatcher::getReceiver(UINT32 channelID, unsigned user_level)
 	{
 		RootChannel*channel;
-		if (!channel_map.query(channel_id,channel))	//not protecting this against invalid operations because netRead operations don't interfere with each other
+		if (!channel_map.query(channelID,channel))	//not protecting this against invalid operations because netRead operations don't interfere with each other
+		{
+			#ifdef _DEBUG
+				String dbg;
+				bool found = false;
+				channel_map.visitAllEntries([&dbg,&found,channelID](index_t index, RootChannel*channel)
+				{
+					dbg += String(index)+", ";
+					if (index == channelID)
+						found = true;
+				});
+				ASSERT__(!channel_map.IsSet(channelID));
+				ASSERT__(!found);
+				FATAL__("channel is not known: "+String(channelID)+" (known channels: "+dbg+")");	//for now, this is appropriate
+			#endif
+			if (verbose)
+				std::cout << "Peer::ThreadMain(): no receiver available (nothing installed on this channel). ignoring package"<<std::endl;
+
 			return NULL;
+		}
 		return channel;
 	}
 	
@@ -426,8 +425,107 @@ namespace TCP
 	}
 
 
+	bool	Dispatcher::QuerySignalMap(UINT32 channelID, unsigned&outMinChannelID) const
+	{
+		return signal_map.Query(channelID,outMinChannelID);
+	}
 
-	
+	String	Dispatcher::DebugGetOpenSignalChannels() const
+	{
+		String result;
+		signal_map.VisitAllKeys([&result](index_t index)
+		{
+			if (result.IsNotEmpty())
+				result+=',';
+			result += String(index);
+		});
+		return result;
+	}
+
+	String	Dispatcher::DebugGetOpenPackageChannels() const
+	{
+		String result;
+		channel_map.VisitAllKeys([&result](index_t index)
+		{
+			if (result.IsNotEmpty())
+				result+=',';
+			result += String(index);
+		});
+		return result;
+	}
+	void Connection::HandleIncomingPackage(UINT32 channelID, Peer&sender, IReadStream&stream, serial_size_t dataSize)
+	{
+		RootChannel*receiver = getReceiver(channelID,sender.userLevel);
+		if (receiver)
+		{
+			if (verbose)
+				std::cout << "Peer::ThreadMain(): deserializing"<<std::endl;
+				
+			PSerializableObject object = receiver->Deserialize(stream,dataSize,sender);
+			if (object)
+			{
+				if (verbose)
+					std::cout << "Peer::ThreadMain(): deserialization succeeded, dispatching object"<<std::endl;
+				HandleObject(receiver,sender,object);
+			}
+			else
+			{
+				if (onDeserializationFailed)
+					onDeserializationFailed(channelID,sender);
+				#ifdef _DEBUG
+					else if (!sender.destroyed)
+						FATAL__("deserialization failed");	//for now, this is appropriate
+				#endif
+			}
+			//elif (verbose)
+			//{
+			//	std::cout << "Peer::ThreadMain(): deserialization failed, or refuses to return an object"<<std::endl;
+			//}
+
+		}
+		else
+		{
+			#ifdef _DEBUG
+				if (!dataSize)
+				{
+					unsigned min_user_level = 0;
+					bool mapped = QuerySignalMap(channelID,min_user_level);
+					ASSERT__(!mapped);
+					ASSERT__(min_user_level == 0);
+					FATAL__("channel/signal channel is not known: "+String(channelID)+" (known channels: "+DebugGetOpenPackageChannels()+", known signal channels: "+DebugGetOpenSignalChannels()+")");	//for now, this is appropriate
+				}
+			#endif
+			if (onIgnorePackage)
+			{
+				onIgnorePackage(channelID,UINT32(dataSize),sender);
+			}
+		}
+
+	}
+
+	bool Connection::HandleIncomingSignal(UINT32 channelID, Peer&sender)
+	{
+		unsigned min_user_level=0;
+
+		if (QuerySignalMap(channelID,min_user_level))
+		{
+			if (sender.userLevel >= min_user_level)
+			{
+				HandleSignal(channelID,sender);
+			}
+			else
+			{
+				if (verbose)
+					std::cout << "Peer::ThreadMain(): insufficient user level. ignoring package"<<std::endl;
+				if (onIgnorePackage)
+				{
+					onIgnorePackage(channelID,0,sender);
+				}
+			}
+			return true;
+		}
+		return false;
+	}
 
 	
 	
@@ -441,7 +539,7 @@ namespace TCP
 		if (!Net::initNet())
 		{
 			client->SetError("Failed to initialize network ("+String(lastSocketError())+")");
-			client->HandleEvent(Event::ConnectionFailed,TDualLink(client));
+			client->HandleEvent(Event::ConnectionFailed,*client);
 			if (verbose)
 				std::cout << "ConnectionAttempt::ThreadMain() exit: failed to initialize network"<<std::endl;
 			return;
@@ -451,7 +549,7 @@ namespace TCP
 		if (!separator)
 		{
 			client->SetError("Missing port in address line '"+url+"'");
-			client->HandleEvent(Event::ConnectionFailed,TDualLink(client));
+			client->HandleEvent(Event::ConnectionFailed,*client);
 			if (verbose)
 				std::cout << "ConnectionAttempt::ThreadMain() exit: provided URL lacks port"<<std::endl;
 			return;
@@ -462,7 +560,7 @@ namespace TCP
 		if (!convert(s_port.c_str(),port))
 		{
 			client->SetError("Failed to parse port number '"+s_port+"'");
-			client->HandleEvent(Event::ConnectionFailed,TDualLink(client));
+			client->HandleEvent(Event::ConnectionFailed,*client);
 			if (verbose)
 				std::cout << "ConnectionAttempt::ThreadMain() exit: provided port is not parsable"<<std::endl;
 			return;
@@ -478,7 +576,7 @@ namespace TCP
 		if (getaddrinfo(addr.c_str(),s_port.c_str(),&hints,&remote_address) != 0)
 		{
 			client->SetError("Unable to resolve address '"+String(addr)+"'");
-			client->HandleEvent(Event::ConnectionFailed,TDualLink(client));
+			client->HandleEvent(Event::ConnectionFailed,*client);
 			if (verbose)
 				std::cout << "ConnectionAttempt::ThreadMain() exit: unable to decode IP address"<<std::endl;
 			return;
@@ -525,7 +623,7 @@ namespace TCP
 		{
 			freeaddrinfo(remote_address);
 			client->SetError("'"+host+"' does not answer on port "+s_port);
-			client->HandleEvent(Event::ConnectionFailed,TDualLink(client));
+			client->HandleEvent(Event::ConnectionFailed,*client);
 			if (verbose)
 				std::cout << "ConnectionAttempt::ThreadMain() exit: connection failed"<<std::endl;
 			return;
@@ -540,7 +638,7 @@ namespace TCP
 		catch (const std::exception&exception)
 		{
 			client->SetError("Socket set operation to '"+host+"' failed: "+exception.what());
-			client->HandleEvent(Event::ConnectionFailed,TDualLink(client));
+			client->HandleEvent(Event::ConnectionFailed,*client);
 			if (verbose)
 				std::cout << "ConnectionAttempt::ThreadMain() exit: connection failed"<<std::endl;
 			return;
@@ -548,7 +646,7 @@ namespace TCP
 		catch (...)
 		{
 			client->SetError("Socket set operation to '"+host+"' failed (no compatible exception given)");
-			client->HandleEvent(Event::ConnectionFailed,TDualLink(client));
+			client->HandleEvent(Event::ConnectionFailed,*client);
 			if (verbose)
 				std::cout << "ConnectionAttempt::ThreadMain() exit: connection failed"<<std::endl;
 			return;
@@ -562,7 +660,7 @@ namespace TCP
 			std::cout << "ConnectionAttempt::ThreadMain() exit: connection established"<<std::endl;
 		if (verbose)
 			std::cout << "ConnectionAttempt::ThreadMain(): sending 'connection established' event"<<std::endl;
-		client->HandleEvent(Event::ConnectionEstablished,TDualLink(client));
+		client->HandleEvent(Event::ConnectionEstablished,*client);
 
 	}
 
@@ -607,7 +705,7 @@ namespace TCP
 				return;
 			}
 			SetError("");
-			owner->HandleEvent(Event::ConnectionClosed,LinkFromThis());
+			owner->HandleEvent(Event::ConnectionClosed,*this);
 			socketAccess->CloseSocket();
 			owner->OnDisconnect(this,Event::ConnectionClosed);
 			if (verbose)
@@ -622,7 +720,7 @@ namespace TCP
 		}
 		SetError("Connection lost to "+ToString()+" ("+lastSocketError()+")");
 		socketAccess->CloseSocket();
-		owner->HandleEvent(Event::ConnectionLost,LinkFromThis());
+		owner->HandleEvent(Event::ConnectionLost,*this);
 		owner->OnDisconnect(this, Event::ConnectionLost);
 		if (verbose)
 			std::cout << "Peer::succeeded() exit: result was unexpected. socket closed"<<std::endl;
@@ -681,7 +779,7 @@ namespace TCP
 				}
 				socketAccess->CloseSocket();
 				SetError("Connection lost to "+ToString()+" ("+lastSocketError()+")");
-				owner->HandleEvent(Event::ConnectionLost,LinkFromThis());
+				owner->HandleEvent(Event::ConnectionLost,*this);
 				if (!destroyed)
 					owner->OnDisconnect(this,Event::ConnectionLost);
 				if (verbose)
@@ -699,7 +797,7 @@ namespace TCP
 				}
 				socketAccess->CloseSocket();
 				SetError("");
-				owner->HandleEvent(Event::ConnectionClosed,LinkFromThis());
+				owner->HandleEvent(Event::ConnectionClosed,*this);
 				if (!destroyed)
 					owner->OnDisconnect(this, Event::ConnectionClosed);
 				if (verbose)
@@ -917,7 +1015,7 @@ namespace TCP
 				socketAccess->CloseSocket();
 				DBG_FATAL__("Maximum safe package size ("+String(owner->safe_package_size/1024)+"KB) exceeded by "+String((remaining_size-owner->safe_package_size)/1024)+"KB");
 				SetError("Maximum safe package size ("+String(owner->safe_package_size/1024)+"KB) exceeded by "+String((remaining_size-owner->safe_package_size)/1024)+"KB");
-				owner->HandleEvent(Event::ConnectionClosed,LinkFromThis());
+				owner->HandleEvent(Event::ConnectionClosed,*this);
 				owner->OnDisconnect(this,Event::ConnectionClosed);
 				if (verbose)
 					std::cout << "Peer::ThreadMain() exit: received invalid package size"<<std::endl;
@@ -926,93 +1024,9 @@ namespace TCP
 			UINT32	channel_index = header[0];
 			//std::cout << "has package "<<channel_index<<"/"<<remaining_size<<std::endl;
 
-			unsigned min_user_level=0;
-			if (!remaining_size && owner->signal_map.query(channel_index,min_user_level))
+			if (remaining_size || !owner->HandleIncomingSignal(channel_index,*this))
 			{
-				if (userLevel >= min_user_level)
-				{
-					owner->HandleSignal(channel_index,LinkFromThis());
-				}
-				else
-				{
-					if (verbose)
-						std::cout << "Peer::ThreadMain(): insufficient user level. ignoring package"<<std::endl;
-					if (owner->onIgnorePackage)
-					{
-						owner->onIgnorePackage(channel_index,0,*this);
-					}
-				}
-			}
-			else
-			{
-					
-				RootChannel*receiver = owner->getReceiver(channel_index,userLevel);
-				
-				if (receiver)
-				{
-					if (verbose)
-						std::cout << "Peer::ThreadMain(): deserializing"<<std::endl;
-				
-					PSerializableObject object = receiver->Deserialize(*this,remaining_size,*this);
-					if (object)
-					{
-						if (verbose)
-							std::cout << "Peer::ThreadMain(): deserialization succeeded, dispatching object"<<std::endl;
-						owner->HandleObject(receiver,LinkFromThis(),object);
-					}
-					else
-					{
-						if (owner->onDeserializationFailed)
-							owner->onDeserializationFailed(channel_index,*this);
-						#ifdef _DEBUG
-							else if (!this->destroyed && !this->socketAccess->IsClosed())
-								FATAL__("deserialization failed");	//for now, this is appropriate
-						#endif
-					}
-					//elif (verbose)
-					//{
-					//	std::cout << "Peer::ThreadMain(): deserialization failed, or refuses to return an object"<<std::endl;
-					//}
-
-				}
-				else
-				{
-					#ifdef _DEBUG
-						String dbg;
-						bool found = false;
-						owner->channel_map.visitAllEntries([&dbg,&found,channel_index](index_t index, RootChannel*channel)
-						{
-							dbg += String(index)+", ";
-							if (index == channel_index)
-								found = true;
-						});
-						ASSERT__(!owner->channel_map.IsSet(channel_index));
-						ASSERT__(!found);
-						if (!remaining_size)
-						{
-							min_user_level = 0;
-							bool mapped = owner->signal_map.query(channel_index,min_user_level);
-							ASSERT__(!mapped);
-							ASSERT__(min_user_level == 0);
-							String dbg2;
-							owner->signal_map.visitAllEntries([&dbg2,&found,channel_index](index_t index, unsigned minLevel)
-							{
-								dbg2 += String(index)+", ";
-								if (index == channel_index)
-									found = true;
-							});
-							ASSERT__(!found);
-							FATAL__("channel/signal channel is not known: "+String(channel_index)+" (known channels: "+dbg+", known signal channels: "+dbg2+")");	//for now, this is appropriate
-						}
-						FATAL__("channel is not known: "+String(channel_index)+" (known channels: "+dbg+")");	//for now, this is appropriate
-					#endif
-					if (verbose)
-						std::cout << "Peer::ThreadMain(): no receiver available (nothing installed on this channel). ignoring package"<<std::endl;
-					if (owner->onIgnorePackage)
-					{
-						owner->onIgnorePackage(channel_index,UINT32(remaining_size),*this);
-					}
-				}
+				owner->HandleIncomingPackage(channel_index,*this,*this,remaining_size);
 				while (remaining_size > sizeof(dump_buffer))
 					if (netRead(dump_buffer,sizeof(dump_buffer)))
 						remaining_size -= sizeof(dump_buffer);
@@ -1044,7 +1058,7 @@ namespace TCP
 			if (verbose)
 				std::cout << "Peer::disconnect(): graceful shutdown: invoking handlers and closing socket"<<std::endl;
 			SetError("");
-			owner->HandleEvent(Event::ConnectionClosed,LinkFromThis());
+			owner->HandleEvent(Event::ConnectionClosed,*this);
 			socketAccess->CloseSocket();
 			owner->OnDisconnect(this,Event::ConnectionClosed);
 		}
@@ -1052,6 +1066,12 @@ namespace TCP
 			std::cout << "Peer::disconnect(): socket handle reset by remote operation"<<std::endl;
 		if (verbose)
 			std::cout << "Peer::disconnect() exit"<<std::endl;
+	}
+
+	void	Peer::SetSelf(const PPeer&p)
+	{
+		ASSERT__(p.get()==this);
+		self = p;
 	}
 
 	void		Server::ThreadMain()
@@ -1095,8 +1115,8 @@ namespace TCP
 					std::cout << "Server::ThreadMain() exit: accept() operation failed"<<std::endl;
 				return;
 			}
-			PPeer peer(new Peer(this,true));
-			peer->self = peer;
+			PPeer peer(new Peer(this));
+			peer->SetSelf(peer);
 			peer->address = addr;
 			peer->addressLength = size;
 
@@ -1123,7 +1143,7 @@ namespace TCP
 				if (verbose)
 					std::cout << "Server::ThreadMain():	starting peer thread"<<std::endl;
 				peer->Start();
-				HandleEvent(Event::ConnectionEstablished,TDualLink(peer));
+				HandleEvent(Event::ConnectionEstablished,*peer);
 			}
 			else
 				if (verbose)
@@ -1148,7 +1168,7 @@ namespace TCP
 		eventLock.Unblock(CLOCATION);
 
 		Dispatcher::FlushPendingEvents();
-		HandleEvent(TCP::Event::ConnectionClosed,TCP::TDualLink(this));
+		HandleEvent(TCP::Event::ConnectionClosed,*this);
 	}
 
 
@@ -1175,7 +1195,7 @@ namespace TCP
 		{
 			if (verbose)
 				std::cout << "Server::fail(): closing listen socket"<<std::endl;
-			HandleEvent(Event::ConnectionLost,TDualLink(&centralPeer));
+			HandleEvent(Event::ConnectionLost,centralPeer);
 			SwapCloseSocket(socket_handle);
 		}
 		if (verbose)
@@ -1417,7 +1437,16 @@ namespace TCP
 				foreach (clientList,cl)
 				{
 					(*cl)->Destroy();
-					(*cl)->Join();
+					TCP_TRY
+					{
+						(*cl)->Join(/*1000*/);
+					}
+					TCP_CATCH
+					TCP_TRY
+					{
+						(*cl)->Dissolve();
+					}
+					TCP_CATCH
 				}
 				clientList.Clear();
 				clients_locked = false;
@@ -1441,39 +1470,14 @@ namespace TCP
 			SetError("");
 		if (verbose)
 			std::cout << "Server::endService(): sending connection closed event"<<std::endl;
-		HandleEvent(Event::ConnectionClosed,TDualLink(&centralPeer));
+		HandleEvent(Event::ConnectionClosed,centralPeer);
 		if (verbose)
 			std::cout << "Server::endService() exit: service is offline"<<std::endl;
 	}
 	
-	
-	bool		Server::SendObject(UINT32 channel, const ISerializable&object, unsigned minUserLevel)
-	{
-		if (verbose)
-			std::cout << "Server::sendObject() enter: channel="<<channel<<std::endl;
 
-		if (is_shutting_down)
-		{
-			if (verbose)
-				std::cout << "Server::sendObject() exit: service is being shut down"<<std::endl;
-			return false;
-		}
-		serial_size_t size = object.GetSerialSize(false);
-		Array<BYTE>		out_buffer(size);
-		if (!SerializeToMemory(object,out_buffer.pointer(),size,false))
-		{
-			#ifdef _DEBUG
-				Array<BYTE>	testBuffer(10000000);
-				ISerializable::serial_size_t rs = SerializeToMemory(object,testBuffer.pointer(),testBuffer.GetContentSize(),false);
-				if (rs)
-				{
-					FATAL__("Failed to serialize data structure on channel "+String(channel)+". Expected serial size "+String(size)+" but serialized to "+String(rs));
-				}
-				else
-					FATAL__("Failed to serialize data structure on channel "+String(channel));
-			#endif
-			return false;
-		}
+	void		Server::SendSerializedObject(UINT32 channel, const ArrayRef<BYTE>&object, unsigned minUserLevel)
+	{
 		if (verbose)
 			std::cout << "Server::sendObject(): acquiring read lock for message send"<<std::endl;
 		clientMutex.BeginRead();
@@ -1486,7 +1490,7 @@ namespace TCP
 					continue;	//we assume this case is already handled
 				if (peer->userLevel < minUserLevel)
 					continue;
-				if (!peer->sendData(channel,out_buffer.pointer(),size))
+				if (!peer->sendData(channel,object.pointer(),object.size()))
 				{
 					clientMutex.EndRead();
 					if (verbose)
@@ -1522,24 +1526,11 @@ namespace TCP
 			std::cout << "Server::sendObject(): released read lock"<<std::endl;
 			std::cout << "Server::sendObject() exit"<<std::endl;
 		}
-	
-		return true;
 	}
-	
-	bool		Server::SendObject(UINT32 channel, const PPeer&exclude, const ISerializable&object, unsigned minUserLevel)
+
+
+	void		Server::SendSerializedObject(UINT32 channel, const PPeer&exclude, const ArrayRef<BYTE>&object, unsigned minUserLevel)
 	{
-		if (verbose)
-			std::cout << "Server::sendObject() enter: channel="<<channel<<", exclude="<<exclude->ToString()<<std::endl;
-		if (is_shutting_down)
-		{
-			if (verbose)
-				std::cout << "Server::sendObject() exit: service is being shut down"<<std::endl;
-			return false;
-		}
-		serial_size_t size = object.GetSerialSize(false);
-		Array<BYTE>		out_buffer(size);
-		if (!SerializeToMemory(object,out_buffer.pointer(),size,false))
-			return false;
 		if (verbose)
 			std::cout << "Server::sendObject(): acquiring read lock for message send"<<std::endl;
 		clientMutex.BeginRead();
@@ -1552,7 +1543,7 @@ namespace TCP
 					continue;	//we assume this case is already handled
 				if (peer->userLevel < minUserLevel)
 					continue;
-				if (!peer->sendData(channel,out_buffer.pointer(),size))
+				if (!peer->sendData(channel,object.pointer(),object.size()))
 				{
 					clientMutex.EndRead();
 					if (verbose)
@@ -1587,6 +1578,57 @@ namespace TCP
 			std::cout << "Server::sendObject(): released read lock"<<std::endl;
 			std::cout << "Server::sendObject() exit"<<std::endl;
 		}
+	}
+	
+	bool		Server::SendObject(UINT32 channel, const ISerializable&object, unsigned minUserLevel)
+	{
+		if (verbose)
+			std::cout << "Server::sendObject() enter: channel="<<channel<<std::endl;
+
+		if (is_shutting_down)
+		{
+			if (verbose)
+				std::cout << "Server::sendObject() exit: service is being shut down"<<std::endl;
+			return false;
+		}
+		serial_size_t size = object.GetSerialSize(false);
+		Array<BYTE>		out_buffer(size);
+		if (!SerializeToMemory(object,out_buffer.pointer(),size,false))
+		{
+			#ifdef _DEBUG
+				Array<BYTE>	testBuffer(10000000);
+				ISerializable::serial_size_t rs = SerializeToMemory(object,testBuffer.pointer(),testBuffer.GetContentSize(),false);
+				if (rs)
+				{
+					FATAL__("Failed to serialize data structure on channel "+String(channel)+". Expected serial size "+String(size)+" but serialized to "+String(rs));
+				}
+				else
+					FATAL__("Failed to serialize data structure on channel "+String(channel));
+			#endif
+			return false;
+		}
+		SendSerializedObject(channel,out_buffer,minUserLevel);
+		
+		return true;
+	}
+	
+	bool		Server::SendObject(UINT32 channel, const PPeer&exclude, const ISerializable&object, unsigned minUserLevel)
+	{
+		if (verbose)
+			std::cout << "Server::sendObject() enter: channel="<<channel<<", exclude="<<exclude->ToString()<<std::endl;
+		if (is_shutting_down)
+		{
+			if (verbose)
+				std::cout << "Server::sendObject() exit: service is being shut down"<<std::endl;
+			return false;
+		}
+		serial_size_t size = object.GetSerialSize(false);
+		Array<BYTE>		out_buffer(size);
+		if (!SerializeToMemory(object,out_buffer.pointer(),size,false))
+			return false;
+
+		SendSerializedObject(channel, exclude,out_buffer,minUserLevel);
+		
 		return true;
 	}
 

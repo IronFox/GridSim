@@ -317,15 +317,6 @@ namespace TCP
 		/**/					TDualLink():p(NULL){}
 		explicit				TDualLink(Peer*_p):p(_p)	{}
 		explicit				TDualLink(const PPeer&_s):p(NULL),s(_s)	{}
-
-		//Peer*					Reference() const
-		//{
-		//	PPeer pp = s.lock();
-		//	if (pp)
-		//		re
-		//	DBG_ASSERT__(s || p);
-		//	return s ? *s : *p;
-		//}
 	};
 
 
@@ -430,7 +421,8 @@ namespace TCP
 	protected:
 		const UINT32		id;			//!< Channel id. Unmutable
 		friend class 		Peer;
-		friend class 		Dispatcher;
+		friend class 		Connection;
+		friend class		Dispatcher;
 		Mutex				sendMutex;	//!< Mutex used to shield outgoing serializations to the tcp socket
 			
 							RootChannel(UINT32 id_):id(id_)
@@ -451,6 +443,7 @@ namespace TCP
 		{
 			return PSerializableObject();
 		}
+	public:
 		/**
 		@brief Dispatches a successfully deserialized object (returned by Deserialize() )
 
@@ -458,7 +451,6 @@ namespace TCP
 		Depending on whether the connection is synchronous or asynchronous, this method is called my the main thread, or the connection's worker thread.
 		*/
 		virtual	void				Handle(const PSerializableObject&serializable,const TDualLink&sender)	{FATAL__("Channel failed to override handle()");};
-	public:
 	};
 
 
@@ -666,12 +658,15 @@ namespace TCP
 
 
 			
-		friend class Peer;
-			
-		void						HandleSignal(UINT32 signal, const TDualLink&sender);
-		void						HandleObject(RootChannel*receiver, const TDualLink&sender, const PSerializableObject&object);
+		//friend class Peer;
+	protected:
+		virtual void				HandleSignal(UINT32 signal, Peer&sender);
+		virtual void				HandleObject(RootChannel*receiver, Peer&sender, const PSerializableObject&object);
+		virtual void				HandleEvent(event_t ev, Peer&sender);
 		RootChannel*				getReceiver(UINT32 channel_id, unsigned user_level);
-			
+		bool						QuerySignalMap(UINT32 channelID, unsigned&outMinChannelID) const;
+		String						DebugGetOpenSignalChannels() const;
+		String						DebugGetOpenPackageChannels() const;
 	public:
 		void (*onEvent)(event_t event, Peer&origin);	//!< Callback hook for events (connection, disconnection, etc). NULL by default. @param event Event that occured @param origin Event origin
 		void (*onSignal)(UINT32 signal, Peer&origin);	//!< Callback hook for signals (data-less packages). NULL by default.  @param signal Channel that the data-less package was received on @param origin Origin of the signal
@@ -715,7 +710,6 @@ namespace TCP
 		virtual void				PostResolutionTermination()=0;
 
 
-		void						HandleEvent(event_t event, const TDualLink&sender);
 		void						FlushWaste();
 		EventLock					eventLock;
 		void						HandlePeerDeletion(const PPeer&);
@@ -739,6 +733,9 @@ namespace TCP
 
 	public:
 		virtual	void				OnDisconnect(const Peer*, event_t event)	{};	//!< Abstract disconnection even called if the local connection has been lost or closed
+
+		bool						HandleIncomingSignal(UINT32 channelID, Peer&sender);
+		void						HandleIncomingPackage(UINT32 channelID, Peer&sender, IReadStream&stream, serial_size_t dataSize);
 	};
 
 	typedef std::shared_ptr<Connection>	PConnection;
@@ -938,7 +935,6 @@ namespace TCP
 		ByteStream					serial_buffer;		//!< Buffer used to serialize package data
 		SocketAccess				*socketAccess;
 		std::weak_ptr<Peer>			self;
-		const bool					canDoSharedFromThis;
 		friend class Server;
 		friend class RootChannel;
 		friend class PeerWriter;
@@ -952,23 +948,15 @@ namespace TCP
 		serial_size_t				GetRemainingBytes() const override;
 		bool						netRead(BYTE*current, size_t size);							//!< Continuously reads a sequence of bytes from the TCP stream. The method does not return until either the requested amount of bytes was received or an error occured
 			
-		TDualLink					LinkFromThis()
-		{
-			PPeer p = self.lock();
-			if (p)
-				return TDualLink(p);
-			return TDualLink(this);
-		}
-		//{
-		//	try
-		//	{
-		//		return canDoSharedFromThis ? shared_from_this() : PPeer();
-		//	}
-		//	catch (...)
-		//	{
-		//		return PPeer();	//weak ptr exception
-		//	}
-		//}
+
+		virtual String				AddressToString(bool includePort) const
+									{
+										return TCP::ToString(address,addressLength,includePort);
+									}
+		virtual bool				AddressIsLocalhost() const
+									{
+										return AddressToString(false) == "localhost";
+									}
 
 	public:
 		/**
@@ -992,8 +980,8 @@ namespace TCP
 		volatile bool				destroyed;
 		
 				
-		/**/						Peer(Connection*connection, bool canDoSharedFromThis):owner(connection),socketAccess(new DefaultSocketAccess()),
-									userLevel(User::Anonymous),addressLength(0), canDoSharedFromThis(canDoSharedFromThis),destroyed(false),
+		/**/						Peer(Connection*connection):owner(connection),socketAccess(new DefaultSocketAccess()),
+									userLevel(User::Anonymous),addressLength(0), destroyed(false),
 									writer(this),
 									lastReceivedPackage(timer.Now())
 									{
@@ -1050,18 +1038,36 @@ namespace TCP
 										writer.Update(socketAccess);
 									}
 
+		/**
+		Updates the local weak pointer reference to the given shared_ptr.
+		A critical assertion is triggered if the passed pointer does not match the local object's address.
+		Must be called by a server instance for each of its clients upon connect.
+		Self serving client instances do not need to call this method since they are rarely shared pointers
+		*/
+		void						SetSelf(const PPeer&);
+		TDualLink					LinkFromThis()
+		{
+			PPeer p = self.lock();
+			if (p)
+				return TDualLink(p);
+			return TDualLink(this);
+		}
+
+
 		void						DisconnectPeer();			//!< Disconnects the local peer. If this peer is element of a peer collection (ie. a Server instance) then the owner is automatically notified that the client on this peer is no longer available. The local data is erased immediately if the respective dispatcher is set to @b async, or when its resolve() method is next executed.
 		bool						IsConnected()	const	//! Queries whether or not the local peer is currently connected @return true if the local peer is currently connected, false otherwise
 									{
 										return !socketAccess->IsClosed();
 									}
+
+
 		String						ToString(bool includePort=true)	const	//! Converts the local address into a string. If the local object is NULL then the string "NULL" is returned instead.
 									{
-										return this?( TCP::ToString(address,addressLength,includePort) ):"NULL";
+										return this?AddressToString(includePort):"NULL";
 									}
 		bool						IsLocalhost() const
 									{
-										return this && TCP::ToString(address,addressLength,false) == "localhost";
+										return this && AddressIsLocalhost();
 									}
 		bool						SendSignal(UINT32 channel);		//!< Sends a data-less package to the other end of this peer
 			
@@ -1071,6 +1077,7 @@ namespace TCP
 		Retrieves the high-resolution time of last receiving of any package from the remote end. Even partial packages count
 		*/
 		Timer::Time					GetLastPackageTime()	const	{return lastReceivedPackage;}
+		void						SignalPackage()					{lastReceivedPackage = timer.Now();}
 	};
 
 	typedef std::shared_ptr<Peer::Attachment>	PAttachment;
@@ -1109,7 +1116,7 @@ namespace TCP
 		void				fail(const String&message);
 	public:
 					
-		/**/				Client():Peer(this,false),is_connected(false),attempt(this)
+		/**/				Client():Peer(this),is_connected(false),attempt(this)
 							{}
 		virtual				~Client()
 							{
@@ -1160,13 +1167,19 @@ namespace TCP
 		bool				SendObject(UINT32 channel, const ISerializable&object, unsigned minUserLevel) override;
 		bool				SendObject(UINT32 channel, const PPeer&exclude, const ISerializable&object, unsigned minUserLevel) override;
 		
+		void				SendSerializedObject(UINT32 channel, const ArrayRef<BYTE>&object, unsigned minUserLevel);
+		void				SendSerializedObject(UINT32 channel, const PPeer&exclude, const ArrayRef<BYTE>&object, unsigned minUserLevel);
+
+		bool				IsShuttingDown() const {return is_shutting_down;}
+
+	private:
 		ReadWriteMutex		clientMutex;	//!< Mutex to shield operations on the client list. This mutex should be locked before clients are queried
 		Buffer0<PPeer>		clientList;		//!< List of all currently connected clients
 		USHORT				port;			//!< Read only variable which is updated during StartService()
 	public:
 
 	
-							Server():socket_handle(INVALID_SOCKET),clients_locked(false),is_shutting_down(false),socketAccess(new DefaultSocketAccess()),centralPeer(this,false)
+							Server():socket_handle(INVALID_SOCKET),clients_locked(false),is_shutting_down(false),socketAccess(new DefaultSocketAccess()),centralPeer(this)
 							{}
 		virtual				~Server()
 							{
@@ -1279,7 +1292,6 @@ namespace TCP
 			typedef ObjectSender<Object,ChannelID>	Super;
 			void					(*onObjectReceive)(Object&object, Peer&sender);
 			void					(*onSimpleObjectReceive)(Object&object);
-		protected:
 				
 				
 			virtual	void			Handle(const PSerializableObject&serializable,const TDualLink&sender)	override
@@ -1296,6 +1308,8 @@ namespace TCP
 				}
 				//discard((Object*)serializable);
 			}
+		protected:
+
 								
 								
 			virtual	PSerializableObject	Deserialize(IReadStream&stream,serial_size_t fixed_size,Peer&sender)	override
