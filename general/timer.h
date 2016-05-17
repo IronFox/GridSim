@@ -50,6 +50,16 @@ public:
 	Time					toTicks(double seconds)					const;	//!< Converts seconds into ticks \param seconds Time (in seconds) to convert to ticks \return Time equivalent in ticks
 	inline Time				ToTicks(double seconds)					const	{return toTicks(seconds);}
 		
+	/**
+	Checks if the current timestamp is greater than the specified stamp plus maxAgeInSeconds.
+	If outdated, then stamp is updated to Now() and the method returns true
+
+	@param[inout] stamp Time stamp to check and potentially update to Now() if outdated
+	@param maxAgeInSeconds Maximum time span in seconds that the specified stamp may be outdated by
+	@return True, if the specified time stamp is older than the specified amount of seconds and has been updated. False otherwise
+	*/
+	bool					CheckIfOutdatedAndUpdate(Time&stamp, float maxAgeInSeconds)	const;
+
 	Time					netToLocalTicks(const Time&mseconds)	const;
 	inline Time				NetToLocalTicks(const Time&mseconds)	const	{return netToLocalTicks(mseconds);}
 	Time					localToNetTicks(const Time&ticks)		const;

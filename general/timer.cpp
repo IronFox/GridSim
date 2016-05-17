@@ -39,6 +39,19 @@ Timer::Timer()
 }
 
 
+bool	Timer::CheckIfOutdatedAndUpdate(Time&stamp, float maxAgeInSeconds)	const
+{
+	Time now = Now();
+	if (stamp + ToTicks(maxAgeInSeconds) < now)
+	{
+		stamp = now;
+		return true;
+	}
+	return false;
+}
+
+
+
 float Timer::getDeltaf()
 {
     Time   time,delta;
