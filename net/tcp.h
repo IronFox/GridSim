@@ -667,6 +667,8 @@ namespace TCP
 		bool						QuerySignalMap(UINT32 channelID, unsigned&outMinChannelID) const;
 		String						DebugGetOpenSignalChannels() const;
 		String						DebugGetOpenPackageChannels() const;
+
+		friend class ConnectionAttempt;
 	public:
 		void (*onEvent)(event_t event, Peer&origin);	//!< Callback hook for events (connection, disconnection, etc). NULL by default. @param event Event that occured @param origin Event origin
 		void (*onSignal)(UINT32 signal, Peer&origin);	//!< Callback hook for signals (data-less packages). NULL by default.  @param signal Channel that the data-less package was received on @param origin Origin of the signal
@@ -923,6 +925,7 @@ namespace TCP
 	{
 	private:
 		friend class Dispatcher;
+		friend class ConnectionAttempt;
 		std::atomic<Timer::Time>	lastReceivedPackage;
 	protected:
 		PeerWriter					writer;
@@ -1054,11 +1057,16 @@ namespace TCP
 		}
 
 
-		void						DisconnectPeer();			//!< Disconnects the local peer. If this peer is element of a peer collection (ie. a Server instance) then the owner is automatically notified that the client on this peer is no longer available. The local data is erased immediately if the respective dispatcher is set to @b async, or when its resolve() method is next executed.
-		bool						IsConnected()	const	//! Queries whether or not the local peer is currently connected @return true if the local peer is currently connected, false otherwise
+		virtual void				DisconnectPeer();			//!< Disconnects the local peer. If this peer is element of a peer collection (ie. a Server instance) then the owner is automatically notified that the client on this peer is no longer available. The local data is erased immediately if the respective dispatcher is set to @b async, or when its resolve() method is next executed.
+		virtual bool				IsConnected()	const	//! Queries whether or not the local peer is currently connected @return true if the local peer is currently connected, false otherwise
 									{
 										return !socketAccess->IsClosed();
 									}
+
+		/**
+		Logs the specified error message (including the last socked error) and disconnects the local peer
+		*/
+		void						Fail(const String&message);
 
 
 		String						ToString(bool includePort=true)	const	//! Converts the local address into a string. If the local object is NULL then the string "NULL" is returned instead.
@@ -1087,16 +1095,17 @@ namespace TCP
 	/**
 		@brief Asynchronous connection attempt
 	*/
-	class ConnectionAttempt:private TCPThreadObject
+	class ConnectionAttempt:public TCPThreadObject
 	{
 	protected:
 		friend class Client;
 		void				ThreadMain();
 	public:
 		String				connect_target;	//!< Target address
-		Client				*const client;		//!< Client to connect
+		Peer				*const client;		//!< Client to connect
+		Dispatcher			*const dispatcher;
 
-		/**/				ConnectionAttempt(Client*parent):client(parent)	{}
+		/**/				ConnectionAttempt(Peer*parent,Dispatcher*state):client(parent),dispatcher(state)	{}
 	};
 
 	/**
@@ -1111,12 +1120,9 @@ namespace TCP
 		bool				is_connected;	//!< True if the client has an active connection to a server
 
 
-		friend class ConnectionAttempt;
-
-		void				fail(const String&message);
 	public:
 					
-		/**/				Client():Peer(this),is_connected(false),attempt(this)
+		/**/				Client():Peer(this),is_connected(false),attempt(this,this)
 							{}
 		virtual				~Client()
 							{

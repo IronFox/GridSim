@@ -539,7 +539,7 @@ namespace TCP
 		if (!Net::initNet())
 		{
 			client->SetError("Failed to initialize network ("+String(lastSocketError())+")");
-			client->HandleEvent(Event::ConnectionFailed,*client);
+			dispatcher->HandleEvent(Event::ConnectionFailed,*client);
 			if (verbose)
 				std::cout << "ConnectionAttempt::ThreadMain() exit: failed to initialize network"<<std::endl;
 			return;
@@ -549,7 +549,7 @@ namespace TCP
 		if (!separator)
 		{
 			client->SetError("Missing port in address line '"+url+"'");
-			client->HandleEvent(Event::ConnectionFailed,*client);
+			dispatcher->HandleEvent(Event::ConnectionFailed,*client);
 			if (verbose)
 				std::cout << "ConnectionAttempt::ThreadMain() exit: provided URL lacks port"<<std::endl;
 			return;
@@ -560,7 +560,7 @@ namespace TCP
 		if (!convert(s_port.c_str(),port))
 		{
 			client->SetError("Failed to parse port number '"+s_port+"'");
-			client->HandleEvent(Event::ConnectionFailed,*client);
+			dispatcher->HandleEvent(Event::ConnectionFailed,*client);
 			if (verbose)
 				std::cout << "ConnectionAttempt::ThreadMain() exit: provided port is not parsable"<<std::endl;
 			return;
@@ -576,7 +576,7 @@ namespace TCP
 		if (getaddrinfo(addr.c_str(),s_port.c_str(),&hints,&remote_address) != 0)
 		{
 			client->SetError("Unable to resolve address '"+String(addr)+"'");
-			client->HandleEvent(Event::ConnectionFailed,*client);
+			dispatcher->HandleEvent(Event::ConnectionFailed,*client);
 			if (verbose)
 				std::cout << "ConnectionAttempt::ThreadMain() exit: unable to decode IP address"<<std::endl;
 			return;
@@ -604,7 +604,7 @@ namespace TCP
 
 			if (socketHandle == INVALID_SOCKET)
 			{
-				client->fail("Socket creation failed");
+				client->Fail("Socket creation failed");
 				if (verbose)
 					std::cout << "ConnectionAttempt::ThreadMain() exit: unable to create socket"<<std::endl;
 				return;
@@ -623,7 +623,7 @@ namespace TCP
 		{
 			freeaddrinfo(remote_address);
 			client->SetError("'"+host+"' does not answer on port "+s_port);
-			client->HandleEvent(Event::ConnectionFailed,*client);
+			dispatcher->HandleEvent(Event::ConnectionFailed,*client);
 			if (verbose)
 				std::cout << "ConnectionAttempt::ThreadMain() exit: connection failed"<<std::endl;
 			return;
@@ -638,7 +638,7 @@ namespace TCP
 		catch (const std::exception&exception)
 		{
 			client->SetError("Socket set operation to '"+host+"' failed: "+exception.what());
-			client->HandleEvent(Event::ConnectionFailed,*client);
+			dispatcher->HandleEvent(Event::ConnectionFailed,*client);
 			if (verbose)
 				std::cout << "ConnectionAttempt::ThreadMain() exit: connection failed"<<std::endl;
 			return;
@@ -646,7 +646,7 @@ namespace TCP
 		catch (...)
 		{
 			client->SetError("Socket set operation to '"+host+"' failed (no compatible exception given)");
-			client->HandleEvent(Event::ConnectionFailed,*client);
+			dispatcher->HandleEvent(Event::ConnectionFailed,*client);
 			if (verbose)
 				std::cout << "ConnectionAttempt::ThreadMain() exit: connection failed"<<std::endl;
 			return;
@@ -660,7 +660,7 @@ namespace TCP
 			std::cout << "ConnectionAttempt::ThreadMain() exit: connection established"<<std::endl;
 		if (verbose)
 			std::cout << "ConnectionAttempt::ThreadMain(): sending 'connection established' event"<<std::endl;
-		client->HandleEvent(Event::ConnectionEstablished,*client);
+		dispatcher->HandleEvent(Event::ConnectionEstablished,*client);
 
 	}
 
@@ -1172,12 +1172,12 @@ namespace TCP
 	}
 
 
-	void		Client::fail(const String&message)
+	void		Peer::Fail(const String&message)
 	{
 		if (verbose)
 			std::cout << "Client::fail() invoked: "<<message<<std::endl;
 		SetError(message+" ("+lastSocketError()+")");
-		Peer::DisconnectPeer();
+		DisconnectPeer();
 	}
 	
 	void		Server::Fail(const String&message)
