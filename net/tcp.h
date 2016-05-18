@@ -662,7 +662,6 @@ namespace TCP
 	protected:
 		virtual void				HandleSignal(UINT32 signal, Peer&sender);
 		virtual void				HandleObject(RootChannel*receiver, Peer&sender, const PSerializableObject&object);
-		virtual void				HandleEvent(event_t ev, Peer&sender);
 		RootChannel*				getReceiver(UINT32 channel_id, unsigned user_level);
 		bool						QuerySignalMap(UINT32 channelID, unsigned&outMinChannelID) const;
 		String						DebugGetOpenSignalChannels() const;
@@ -699,6 +698,7 @@ namespace TCP
 										return async;
 									}
 
+		virtual void				HandleEvent(event_t ev, Peer&sender);
 	protected:
 		/**
 		Can only be called from inside Resolve(). Sets an interal flag to call PostResolutionTermination() once resolution is done.
@@ -725,8 +725,6 @@ namespace TCP
 	*/
 	class Connection:public Dispatcher
 	{
-	private:
-		friend class Peer;
 	protected:
 		serial_size_t				safe_package_size;	//!< Maximum allowed package size. ~64MB by default
 			
@@ -736,6 +734,7 @@ namespace TCP
 	public:
 		virtual	void				OnDisconnect(const Peer*, event_t event)	{};	//!< Abstract disconnection even called if the local connection has been lost or closed
 
+		serial_size_t				GetSafePackageSize() const {return safe_package_size;}
 		bool						HandleIncomingSignal(UINT32 channelID, Peer&sender);
 		void						HandleIncomingPackage(UINT32 channelID, Peer&sender, IReadStream&stream, serial_size_t dataSize);
 	};

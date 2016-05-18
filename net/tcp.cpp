@@ -1003,7 +1003,7 @@ namespace TCP
 				std::cout << "Peer::ThreadMain(): received header: channel="<<header[0]<<" size="<<header[1]<<std::endl;
 			//lastReceivedPackage = timer.Now();
 			remaining_size = (serial_size_t)header[1];
-			if (remaining_size > owner->safe_package_size)
+			if (remaining_size > owner->GetSafePackageSize())
 			{
 				writer.Terminate();
 				if (socketAccess->IsClosed())
@@ -1013,8 +1013,8 @@ namespace TCP
 					return;
 				}
 				socketAccess->CloseSocket();
-				DBG_FATAL__("Maximum safe package size ("+String(owner->safe_package_size/1024)+"KB) exceeded by "+String((remaining_size-owner->safe_package_size)/1024)+"KB");
-				SetError("Maximum safe package size ("+String(owner->safe_package_size/1024)+"KB) exceeded by "+String((remaining_size-owner->safe_package_size)/1024)+"KB");
+				DBG_FATAL__("Maximum safe package size ("+String(owner->GetSafePackageSize()/1024)+"KB) exceeded by "+String((remaining_size-owner->GetSafePackageSize())/1024)+"KB");
+				SetError("Maximum safe package size ("+String(owner->GetSafePackageSize()/1024)+"KB) exceeded by "+String((remaining_size-owner->GetSafePackageSize())/1024)+"KB");
 				owner->HandleEvent(Event::ConnectionClosed,*this);
 				owner->OnDisconnect(this,Event::ConnectionClosed);
 				if (verbose)
@@ -1057,7 +1057,7 @@ namespace TCP
 		{
 			if (verbose)
 				std::cout << "Peer::disconnect(): graceful shutdown: invoking handlers and closing socket"<<std::endl;
-			SetError("");
+			//SetError("");
 			owner->HandleEvent(Event::ConnectionClosed,*this);
 			socketAccess->CloseSocket();
 			owner->OnDisconnect(this,Event::ConnectionClosed);
@@ -1410,6 +1410,8 @@ namespace TCP
 
 	void		Server::EndService()
 	{
+		if (!IsOnline())
+			return;
 		if (IsResolving())
 		{
 			Dispatcher::SignalPostResolutionTermination();
