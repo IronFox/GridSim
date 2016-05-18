@@ -999,8 +999,7 @@ namespace TCP
 		void						Dissolve()
 									{
 										writer.Terminate();
-										ASSERT_NOT_NULL__(socketAccess);
-										ASSERT__(socketAccess->IsClosed());
+										ASSERT__(!socketAccess || socketAccess->IsClosed());
 										SocketAccess*a = socketAccess;
 										socketAccess = nullptr;
 										if (a)
@@ -1076,7 +1075,7 @@ namespace TCP
 									{
 										return this && AddressIsLocalhost();
 									}
-		bool						SendSignal(UINT32 channel);		//!< Sends a data-less package to the other end of this peer
+		virtual bool				SendSignal(UINT32 channel);		//!< Sends a data-less package to the other end of this peer
 			
 		bool						HandleIsValid()	const	{return !socketAccess->IsClosed();}
 		bool						SendObject(UINT32 channel, const ISerializable&object, unsigned minUserLevel=0) override;		//!< Sends a serializable object to the TCP stream on the specified channel
