@@ -1053,7 +1053,7 @@ namespace TCP
 		if (verbose)
 			std::cout << "Peer::disconnect() enter"<<std::endl;
 		writer.Terminate();
-		if (!socketAccess->IsClosed())
+		if (socketAccess && !socketAccess->IsClosed())
 		{
 			if (verbose)
 				std::cout << "Peer::disconnect(): graceful shutdown: invoking handlers and closing socket"<<std::endl;
