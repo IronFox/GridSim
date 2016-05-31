@@ -438,15 +438,19 @@ template <class Entry, class Strategy>
 template <class Entry, class Strategy>
 	Entry&	Queue<Entry,Strategy>::PushFront()
 	{
-		if (section_begin > Array::pointer())
-			section_begin --;
-		else
-			section_begin = Array::IsNotEmpty() ? field_end-1 : field_end;
-		if (section_end == section_begin)
+		#ifdef _DEBUG
+			count_t cnt0 = Count();
+		#endif
+
+		Element* newStart = section_begin;
+		newStart--;
+		if (newStart < Array::pointer())
+			newStart = Array::IsNotEmpty() ? field_end-1 : field_end;
+		if (section_end == newStart)
 		{
 			size_t old_len = Array::length();
 			Array	new_field(Array::length() > 0 ? Array::length()*2 : 2);
-			Element*out = new_field.pointer();
+			Element*out = new_field.pointer()+1;
 			for (iterator it = begin(); it != end(); ++it)
 			{
 				out->adoptData(*it.current);
@@ -454,7 +458,7 @@ template <class Entry, class Strategy>
 			}
 			Array::adoptData(new_field);
 			section_begin = Array::pointer();
-			section_end = old_len > 0 ? section_begin+old_len-1 : section_begin;
+			section_end = out;
 			field_end = section_begin+Array::length();
 			//DBG_ASSERT__(old_len==length()+1);
 
@@ -463,6 +467,9 @@ template <class Entry, class Strategy>
 			//	volatile Entry&test = *it;
 			//}
 		}
+		else
+			section_begin = newStart;
+		DBG_ASSERT__(cnt0+1 == Count());
 		return section_begin->ConstructAndCast();
 	}
 
