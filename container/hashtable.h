@@ -58,6 +58,12 @@ static inline hash_t 			hash(const std::pair<T0,T1>&ident);
 
 };
 
+struct PODHash
+{
+template <typename T>
+static inline hash_t 			hash(const T&ident)	{return stdMemHashT<sizeof(T)>(&ident);}
+};
+
 
 
 
