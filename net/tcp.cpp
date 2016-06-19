@@ -665,32 +665,61 @@ namespace TCP
 	}
 
 
+	/*virtual override*/ String		Client::AddressToString(bool includePort) const
+	{
+		if (this->addressLength == 0)
+		{
+			String copy;
+			connectionLock.lock();
+			copy = attemptHost;
+			connectionLock.unlock();
+			if (!includePort)
+			{
+				index_t at = copy.GetIndexOf(':');
+				if (at)
+					copy.erase(at-1);
+			}
+			return copy;
+		}
+		return TCP::ToString(address,addressLength,includePort);
+	}
+
+
 	bool	Client::Connect(const String&url)
 	{
+		connectionLock.lock();
 		if (attempt.IsRunning())
 		{
 			attempt.Join();
+			connectionLock.unlock();
 			return !socketAccess->IsClosed();
 		}
 		ConnectAsync(url);
 		attempt.Join();
 		ASSERT__(!attempt.IsRunning());
+		connectionLock.unlock();
 		return !socketAccess->IsClosed();
 	}
 	
 	void	Client::ConnectAsync(const String&url)
 	{
+		connectionLock.lock();
 		ASSERT__(!IsSelf());
+		attemptHost = url;
 		if (attempt.IsRunning())
 		{
 			if (!attempt.IsDone())
+			{
+				connectionLock.unlock();
 				return;
+			}
 			attempt.Join();
 		}
 			
 		attempt.connect_target = url;
 //		attempt.client = this;
 		attempt.Start();
+		connectionLock.unlock();
 	}
 
 	void	Peer::handleUnexpectedSendResult(int result)
@@ -1051,21 +1080,21 @@ namespace TCP
 	void Peer::DisconnectPeer()
 	{
 		if (verbose)
-			std::cout << "Peer::disconnect() enter"<<std::endl;
+			std::cout << __func__ <<" enter"<<std::endl;
 		writer.Terminate();
 		if (socketAccess && !socketAccess->IsClosed())
 		{
 			if (verbose)
-				std::cout << "Peer::disconnect(): graceful shutdown: invoking handlers and closing socket"<<std::endl;
+				std::cout << __func__ << ": graceful shutdown: invoking handlers and closing socket"<<std::endl;
 			//SetError("");
 			owner->HandleEvent(Event::ConnectionClosed,*this);
 			socketAccess->CloseSocket();
 			owner->OnDisconnect(this,Event::ConnectionClosed);
 		}
 		elif (verbose)
-			std::cout << "Peer::disconnect(): socket handle reset by remote operation"<<std::endl;
+			std::cout << __func__ << ": socket handle reset by remote operation"<<std::endl;
 		if (verbose)
-			std::cout << "Peer::disconnect() exit"<<std::endl;
+			std::cout << __func__ << " exit"<<std::endl;
 	}
 
 	void	Peer::SetSelf(const PPeer&p)
@@ -1161,6 +1190,7 @@ namespace TCP
 			Dispatcher::SignalPostResolutionTermination();
 			return;
 		}
+		connectionLock.lock();
 		eventLock.Block(CLOCATION);
 		attempt.Join();
 		DisconnectPeer();
@@ -1169,6 +1199,7 @@ namespace TCP
 
 		Dispatcher::FlushPendingEvents();
 		HandleEvent(TCP::Event::ConnectionClosed,*this);
+		connectionLock.unlock();
 	}
 
 

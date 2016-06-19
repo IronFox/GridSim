@@ -957,7 +957,7 @@ namespace TCP
 									}
 		virtual bool				AddressIsLocalhost() const
 									{
-										return AddressToString(false) == "localhost";
+										return addressLength && AddressToString(false) == "localhost";
 									}
 
 	public:
@@ -1100,10 +1100,10 @@ namespace TCP
 		void				ThreadMain();
 	public:
 		String				connect_target;	//!< Target address
-		Peer				*const client;		//!< Client to connect
+		Client				*const client;		//!< Client to connect
 		Dispatcher			*const dispatcher;
 
-		/**/				ConnectionAttempt(Peer*parent,Dispatcher*state):client(parent),dispatcher(state)	{}
+		/**/				ConnectionAttempt(Client*parent,Dispatcher*state):client(parent),dispatcher(state)	{}
 	};
 
 	/**
@@ -1116,8 +1116,8 @@ namespace TCP
 	protected:
 		ConnectionAttempt	attempt;
 		bool				is_connected;	//!< True if the client has an active connection to a server
-
-
+		mutable std::recursive_mutex	connectionLock;
+		String				attemptHost;	//!< Host passed during the last connection attempt. Protected by connectionLock
 	public:
 					
 		/**/				Client():Peer(this),is_connected(false),attempt(this,this)
@@ -1142,6 +1142,13 @@ namespace TCP
 
 	protected:
 		virtual void		PostResolutionTermination() override {Disconnect();}
+		virtual String		AddressToString(bool includePort) const override;
+		virtual void		HandleEvent(event_t ev, Peer&sender) override
+		{
+			if (ev != Event::ConnectionEstablished)
+				this->addressLength = 0;
+			Connection::HandleEvent(ev,sender);
+		}
 
 	};
 	
