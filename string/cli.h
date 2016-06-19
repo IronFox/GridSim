@@ -105,6 +105,7 @@ namespace CLI	//! Command line interpretor
 		Redefines the default value of this variable to its current value
 		*/
 		virtual void		SetCurrentToDefault() {}
+		virtual bool		IsWriteProtected() const {return (protection & WriteProtection)!= 0;}
 	};
 
 	typedef std::shared_ptr<Variable>	PVariable;

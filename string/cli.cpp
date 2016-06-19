@@ -484,7 +484,7 @@ namespace CLI
 		
 		if (lookup.variable)
 		{
-			if (lookup.variable->protection&WriteProtection)
+			if (lookup.variable->IsWriteProtected())
 			{
 				error = "Variable '"+name+"' is write-protected";
 				return	PVariable();
