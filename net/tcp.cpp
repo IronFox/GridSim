@@ -144,6 +144,19 @@ namespace TCP
 	}
 
 
+	void	Dispatcher::OnDoneResolving(const std::function<void()>&f)
+	{
+		if (IsResolving())
+		{
+			postResolutionCallbackLock.lock();
+			postResolutionCallbacks << f;
+			postResolutionCallbackLock.unlock();
+		}
+		else
+			f();
+	}
+
+
 	void	Dispatcher::HandleObject(RootChannel*receiver, Peer&sender, const PSerializableObject&object)
 	{
 		if (!object)
@@ -321,7 +334,14 @@ namespace TCP
 				PostResolutionTermination();
 				terminateAfterResolve = false;
 			}
-
+			if (postResolutionCallbacks.IsNotEmpty())
+			{
+				postResolutionCallbackLock.lock();
+				foreach (postResolutionCallbacks,f)
+					(*f)();
+				postResolutionCallbacks.Clear();
+				postResolutionCallbackLock.unlock();
+			}
 		}
 		//mutex.release();
 		FlushWaste();
@@ -1245,6 +1265,7 @@ namespace TCP
 
 	bool		Server::ExtStartService(USHORT port, Protocol proto, bool limitToLocalhost/*=false*/, USHORT*outPort/*=nullptr*/)
 	{
+		ASSERT__(!IsResolving());
 		if (verbose)
 			std::cout << "Server::startService() enter"<<std::endl;
 		if (IsRunning())
@@ -1506,6 +1527,7 @@ namespace TCP
 		HandleEvent(Event::ConnectionClosed,centralPeer);
 		if (verbose)
 			std::cout << "Server::endService() exit: service is offline"<<std::endl;
+		ASSERT__(!IsOnline());
 	}
 	
 

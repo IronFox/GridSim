@@ -655,11 +655,13 @@ namespace TCP
 
 		bool						resolving,terminateAfterResolve;
 		Buffer0<TCommonEvent>		resolutionBuffer;	//used as temporary storage by Resolve() for events taken out of queue prior to resolution.
-
+		SpinLock					postResolutionCallbackLock;
+		Buffer0<std::function<void()>,Swap>	postResolutionCallbacks;
 
 			
 		//friend class Peer;
 	protected:
+		bool						PostResolveTerminationIsImminent() const {return resolving && terminateAfterResolve;}
 		virtual void				HandleSignal(UINT32 signal, Peer&sender);
 		virtual void				HandleObject(RootChannel*receiver, Peer&sender, const PSerializableObject&object);
 		RootChannel*				getReceiver(UINT32 channel_id, unsigned user_level);
@@ -677,6 +679,11 @@ namespace TCP
 		/**/						Dispatcher();
 		virtual						~Dispatcher();
 		bool						IsResolving() const {return resolving;}
+		/**
+		Attaches the specified function to the post-resolution queue, if currently resolving.
+		Executed directly otherwise
+		*/
+		void						OnDoneResolving(const std::function<void()>&);
 		/**
 		Resolves all events that occured since the last Resolve() invokation.
 		The client application must call this method frequently from the same thread, if the local dispatcher is set to synchronous. Never otherwise.
@@ -1273,7 +1280,7 @@ namespace TCP
 		void				Shutdown()		{EndService();};		//!< @overload
 		bool				IsOnline()	const	//!< Queries the current execution status
 							{
-								return IsRunning() && !IsDone();
+								return IsRunning() && !IsDone() && !PostResolveTerminationIsImminent();
 							}
 
 		PPeer				GetSharedPointerOfClient(Peer*);
