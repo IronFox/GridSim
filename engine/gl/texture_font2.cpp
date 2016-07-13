@@ -1,14 +1,10 @@
 #include "../../global_root.h"
 #include "texture_font2.h"
+#include <io/file_system.h>
 
 /******************************************************************
 
 OpenGL texture-font.
-
-This file is part of Delta-Works
-Copyright (C) 2006-2008 Stefan Elsen, University of Trier, Germany.
-http://www.delta-works.org/forge/
-http://informatik.uni-trier.de/
 
 ******************************************************************/
 
@@ -59,9 +55,14 @@ namespace Engine
 		String imagefile;
 		if (!xfont->Query("image",imagefile))
 			throw IO::DriveAccess::FileFormatFault(globalString("XML <font> attribute lacks 'image' parameter"));
-			
+		FileSystem::Folder folder(FileSystem::ExtractFileDir(filename));
 		Image image;
-		Magic::LoadFromFile(image,PathString(imagefile));
+		FileSystem::File f;
+		if (!folder.FindFile(PathString(imagefile),f,true))
+		{
+			throw IO::DriveAccess::FileOpenFault("Font image file not found: "+imagefile);
+		}
+		Magic::LoadFromFile(image,  f.GetLocation());
 
 
 		if (image.channels() != 4)
