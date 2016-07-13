@@ -1106,15 +1106,9 @@ namespace Engine
 
 		static inline	void						setFog(const Fog&fog,bool enabled=true);							//!< Applies given fog configuration \param fog Fog configuration \param enabled Set true to enable fog
 		static inline	void						setFog(bool enabled);													//!< Dynamically enables or disables fog \param enabled Set true to enable fog
-		static inline	void						setBackgroundColor(float red, float green, float blue, float alpha);	//!< Changes the active clear color \param red Red color component (0.0f - 1.0f) \param green Green color component (0.0f - 1.0f) \param blue Blue color component (0.0f - 1.0f) \param alpha Transparency color component (0.0f - 1.0f)
-		static inline	void						setBackgroundColor(const TVec3<>&color, float alpha);						//!< Changes the active clear color \param color Pointer to a color vector in R \param alpha Transparency color component (0.0f - 1.0f)
-		static inline	void						setBackgroundColor(const TVec4<>&color);									//!< Changes the active clear color \param color Pointer to a 4d color vector.
-		static inline	void						setClearColor(float red, float green, float blue, float alpha);	//!< Changes the active clear color \param red Red color component (0.0f - 1.0f) \param green Green color component (0.0f - 1.0f) \param blue Blue color component (0.0f - 1.0f) \param alpha Transparency color component (0.0f - 1.0f)
-		static inline	void						setClearColor(const TVec3<>&color, float alpha);						//!< Changes the active clear color \param color Pointer to a color vector in R \param alpha Transparency color component (0.0f - 1.0f)
-		static inline	void						setClearColor(const TVec4<>&color);									//!< Changes the active clear color \param color Pointer to a 4d color vector.
-		static inline	void						setBackground(float red, float green, float blue, float alpha);	//!< Changes the active clear color \param red Red color component (0.0f - 1.0f) \param green Green color component (0.0f - 1.0f) \param blue Blue color component (0.0f - 1.0f) \param alpha Transparency color component (0.0f - 1.0f)
-		static inline	void						setBackground(const TVec3<>&color, float alpha);						//!< Changes the active clear color \param color Pointer to a color vector in R \param alpha Transparency color component (0.0f - 1.0f)
-		static inline	void						setBackground(const TVec4<>&color);									//!< Changes the active clear color \param color Pointer to a 4d color vector.
+		static inline	void						SetBackbufferClearColor(float red, float green, float blue, float alpha);	//!< Changes the active clear color \param red Red color component (0.0f - 1.0f) \param green Green color component (0.0f - 1.0f) \param blue Blue color component (0.0f - 1.0f) \param alpha Transparency color component (0.0f - 1.0f)
+		static inline	void						SetBackbufferClearColor(const TVec3<>&color, float alpha);						//!< Changes the active clear color \param color Pointer to a color vector in R \param alpha Transparency color component (0.0f - 1.0f)
+		static inline	void						SetBackbufferClearColor(const TVec4<>&color);									//!< Changes the active clear color \param color Pointer to a 4d color vector.
 
 						bool						useTexture(const Texture&, bool clamp = false, bool override_safety = false);
 						bool						useTexture(const Texture*, bool clamp = false, bool override_safety = false);

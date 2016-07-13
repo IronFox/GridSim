@@ -949,50 +949,20 @@ namespace Engine
 	}
 
 
-	inline   void OpenGL::setBackgroundColor(float red, float green, float blue, float alpha)
+	inline   void OpenGL::SetBackbufferClearColor(float red, float green, float blue, float alpha)
 	{
 	    glClearColor(red,green,blue,alpha);
 	}
 
-	inline   void OpenGL::setBackgroundColor(const TVec3<>&color, float alpha)
+	inline   void OpenGL::SetBackbufferClearColor(const TVec3<>&color, float alpha)
 	{
 	    glClearColor(color.red,color.green,color.blue,alpha);
 	}
 
-	inline   void OpenGL::setBackgroundColor(const TVec4<>&color)
+	inline   void OpenGL::SetBackbufferClearColor(const TVec4<>&color)
 	{
 	    glClearColor(color.red,color.green,color.blue,color.alpha);
 	}
-	inline   void OpenGL::setClearColor(float red, float green, float blue, float alpha)
-	{
-	    glClearColor(red,green,blue,alpha);
-	}
-
-	inline   void OpenGL::setClearColor(const TVec3<>&color, float alpha)
-	{
-	    glClearColor(color.red,color.green,color.blue,alpha);
-	}
-
-	inline   void OpenGL::setClearColor(const TVec4<>&color)
-	{
-	    glClearColor(color.red,color.green,color.blue,color.alpha);
-	}
-
-	inline   void OpenGL::setBackground(float red, float green, float blue, float alpha)
-	{
-	    glClearColor(red,green,blue,alpha);
-	}
-
-	inline   void OpenGL::setBackground(const TVec3<>&color, float alpha)
-	{
-	    glClearColor(color.red,color.green,color.blue,alpha);
-	}
-
-	inline   void OpenGL::setBackground(const TVec4<>&color)
-	{
-	    glClearColor(color.red,color.green,color.blue,color.alpha);
-	}
-
 	inline	void	OpenGL::setDefaultBlendFunc()
 	{
 		if (glBlendFuncSeparate)
