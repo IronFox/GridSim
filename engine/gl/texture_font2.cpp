@@ -69,6 +69,15 @@ namespace Engine
 			throw IO::DriveAccess::FileFormatFault("XML font file specifies unusable font image. Image must have 4 channels (RGBA) but has "+String(image.channels()));
 
 		clear();
+
+		for (UINT32 x = 0; x < image.width(); x++)
+			for (UINT32 y = 0; y < image.height(); y++)
+			{
+				BYTE*pixel = image.get(x,y);
+				if (pixel[3] == 0)
+					pixel[0] = pixel[1] = pixel[2] = 0;
+			}
+
 	
 		height = 0;
 		unsigned lowest = UNSIGNED_UNDEF;
