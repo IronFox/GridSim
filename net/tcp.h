@@ -1107,10 +1107,10 @@ namespace TCP
 		void				ThreadMain();
 	public:
 		String				connect_target;	//!< Target address
-		Client				*const client;		//!< Client to connect
+		Peer				*const client;		//!< Client to connect
 		Dispatcher			*const dispatcher;
 
-		/**/				ConnectionAttempt(Client*parent,Dispatcher*state):client(parent),dispatcher(state)	{}
+		/**/				ConnectionAttempt(Peer*parent,Dispatcher*state):client(parent),dispatcher(state)	{}
 	};
 
 	/**
