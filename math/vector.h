@@ -329,14 +329,14 @@ namespace Math
 			template<typename T0>
 				MF_DECLARE(void)	Include(const T0&value)	//!< Expands the local range so that it includes the specified value
 									{
-										min = std::min<T>(min,value);
-										max = std::max<T>(max,value);
+										min = vmin(min,value);
+										max = vmax(max,value);
 									}
 			template<typename T0>
 				MF_DECLARE(void)	Include(const TFloatRange<T0>&other)	//!< Expands the local range so that it includes the specified other range
 									{
-										min = std::min<T>(min,other.min);
-										max = std::max<T>(max,other.max);
+										min = vmin(min,other.min);
+										max = vmax(max,other.max);
 									}
 			template <typename T0>
 				MF_DECLARE(void)	Translate(const T0&delta)
@@ -508,14 +508,14 @@ namespace Math
 			template<typename T0>
 				MF_DECLARE(void)	Include(const T0&value)	//!< Expands the local range so that it includes the specified value
 									{
-										start = std::min<T>(start,value);
-										end = std::max<T>(end,value+1);
+										start = vmin(start,value);
+										end = vmax(end,value+1);
 									}
 			template<typename T0>
 				MF_DECLARE(void)	Include(const TIntRange<T0>&other)	//!< Expands the local range so that it includes the specified other range
 									{
-										start = std::min<T>(start,other.start);
-										end = std::max<T>(end,other.end);
+										start = vmin(start,other.start);
+										end = vmax(end,other.end);
 									}
 			template <typename T0>
 				MF_DECLARE(void)	Translate(const T0&delta)
@@ -2519,7 +2519,7 @@ namespace Math
 			/**
 				@brief Extends radius so that the local sphere includes the specified point. The calculated distance from the local sphere center to the specified point is left squared thus increasing performance
 			*/
-			MFUNC(void)				IncludeSquare(const TVec3<C>&point)	{radius = std::max<T>(radius,Vec::quadraticDistance(center,point));}
+			MFUNC(void)				IncludeSquare(const TVec3<C>&point)	{radius = vmax(radius,Vec::quadraticDistance(center,point));}
 			/**
 			@brief Expands the local radius to include the specified sphere, if necessary. Does not modify the local sphere's center
 			*/
@@ -2535,7 +2535,7 @@ namespace Math
 			@brief Expands the local radius to include the specified sphere, if necessary. Does not modify the local sphere's center
 			*/
 			MFUNC(void)				Include(const Sphere<C>&sphere)	{ Include(sphere.center, sphere.radius); }
-			MFUNC(void)				Include(const TVec3<C>& point)	/** @brief Extends radius so that the local sphere includes the specified point */ { if (radius < 0) Vec::copy(point, center); radius = std::max<T>(radius, Vec::distance(center, point)); }
+			MFUNC(void)				Include(const TVec3<C>& point)	/** @brief Extends radius so that the local sphere includes the specified point */ { if (radius < 0) Vec::copy(point, center); radius = vmax(radius, Vec::distance(center, point)); }
 			MFUNC(void)				Merge(const TVec3<C>& point, const T&radius)
 			{
 				if (this->radius < 0)
