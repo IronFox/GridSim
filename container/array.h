@@ -9,10 +9,12 @@
 
 #include "../general/typedefs.h"
 
-
 #define __ARRAY_RVALUE_REFERENCES__	1		//!< Allows && references in constructors and assignment operators
-#define __ARRAY_DBG_RANGE_CHECK__	1		//!< Checks index ranges in debug mode
 
+
+#ifdef _DEBUG
+#define __ARRAY_DBG_RANGE_CHECK__		//!< Checks index ranges in debug mode
+#endif
 
 #if SYSTEM==WINDOWS
 	#define wcswcs	wcsstr
@@ -263,7 +265,7 @@ template <typename T, size_t Length>
 
 		T&						operator[](index_t index)
 		{
-			#if defined(_DEBUG) && __ARRAY_DBG_RANGE_CHECK__
+			#ifdef __ARRAY_DBG_RANGE_CHECK__
 				if (index >= Length)
 					FATAL__("Index out of bounds");
 			#endif
@@ -272,7 +274,7 @@ template <typename T, size_t Length>
 
 		const T&						operator[](index_t index) const
 		{
-			#if defined(_DEBUG) && __ARRAY_DBG_RANGE_CHECK__
+			#ifdef __ARRAY_DBG_RANGE_CHECK__
 				if (index >= Length)
 					FATAL__("Index out of bounds");
 			#endif
@@ -378,7 +380,7 @@ template <typename T>
 
 		inline	T&			operator[](index_t index)		//! Sub-element access \param index Index of the requested element (0 = first element) \return Reference to the requested element
 							{
-								#if defined(_DEBUG) && __ARRAY_DBG_RANGE_CHECK__
+								#ifdef __ARRAY_DBG_RANGE_CHECK__
 									if (index >= elements)
 										FATAL__("Index out of bounds");
 								#endif
@@ -386,7 +388,7 @@ template <typename T>
 							}
 		inline	const T&	operator[](index_t index) const	//! @copydoc operator[]()
 							{
-								#if defined(_DEBUG) && __ARRAY_DBG_RANGE_CHECK__
+								#ifdef __ARRAY_DBG_RANGE_CHECK__
 									if (index >= elements)
 										FATAL__("Index out of bounds");
 								#endif
@@ -394,7 +396,7 @@ template <typename T>
 							}
 		inline	T&			at(index_t index)		//! @copydoc operator[]()
 							{
-								#if defined(_DEBUG) && __ARRAY_DBG_RANGE_CHECK__
+								#ifdef __ARRAY_DBG_RANGE_CHECK__
 									if (index >= elements)
 										FATAL__("Index out of bounds");
 								#endif
@@ -402,7 +404,7 @@ template <typename T>
 							}
 		inline	const T&	at(index_t index) const	//! @copydoc at()
 							{
-								#if defined(_DEBUG) && __ARRAY_DBG_RANGE_CHECK__
+								#ifdef __ARRAY_DBG_RANGE_CHECK__
 									if (index >= elements)
 										FATAL__("Index out of bounds");
 								#endif
@@ -411,7 +413,7 @@ template <typename T>
 		inline	T&			GetFromEnd(index_t index)					//! Retrieves the nth element from the end of the array. fromEnd(0) is identical to last()
 							{
 								index = elements - index - 1;
-								#if defined(_DEBUG) && __ARRAY_DBG_RANGE_CHECK__
+								#ifdef __ARRAY_DBG_RANGE_CHECK__
 									if (index >= elements)
 										FATAL__("Index out of bounds");
 								#endif
@@ -420,7 +422,7 @@ template <typename T>
 		inline	const T&	GetFromEnd(index_t index)			const	//! @copydoc fromEnd()
 							{
 								index = elements - index - 1;
-								#if defined(_DEBUG) && __ARRAY_DBG_RANGE_CHECK__
+								#ifdef __ARRAY_DBG_RANGE_CHECK__
 									if (index >= elements)
 										FATAL__("Index out of bounds");
 								#endif
@@ -650,7 +652,7 @@ template <typename T>
 
 		inline T&			first()	//!< Retrieves a reference to the first element in the field. The method will return an undefined result if the local array is empty
 							{
-								#if defined(_DEBUG) && __ARRAY_DBG_RANGE_CHECK__
+								#ifdef __ARRAY_DBG_RANGE_CHECK__
 									if (!elements)
 										FATAL__("Array is empty - cannot retrieve first()");
 								#endif
@@ -659,7 +661,7 @@ template <typename T>
 
 		inline const T&		first()	const
 							{
-								#if defined(_DEBUG) && __ARRAY_DBG_RANGE_CHECK__
+								#ifdef __ARRAY_DBG_RANGE_CHECK__
 									if (!elements)
 										FATAL__("Array is empty - cannot retrieve first()");
 								#endif
@@ -669,7 +671,7 @@ template <typename T>
 
 		inline T&			last()
 							{
-								#if defined(_DEBUG) && __ARRAY_DBG_RANGE_CHECK__
+								#ifdef __ARRAY_DBG_RANGE_CHECK__
 									if (!elements)
 										FATAL__("Array is empty - cannot retrieve last()");
 								#endif
@@ -679,7 +681,7 @@ template <typename T>
 
 		inline const T&		last()	const
 							{
-								#if defined(_DEBUG) && __ARRAY_DBG_RANGE_CHECK__
+								#ifdef __ARRAY_DBG_RANGE_CHECK__
 									if (!elements)
 										FATAL__("Array is empty - cannot retrieve last()");
 								#endif
@@ -1540,52 +1542,110 @@ template <class C, class Strategy=typename Strategy::StrategySelector<C>::Defaul
 				
 				
 			
-	inline	Arrays::count_t	width()	const	//! Retrieves this array's width \return width
+		inline	Arrays::count_t	width()	const	//! Retrieves this array's width \return width
+		{
+			return w;
+		}
+		inline	Arrays::count_t	height() const	//! Retrieves this array's height \return height
+		{
+			return w?Array<C,Strategy>::elements/w:0;
+		}
+		inline	Arrays::count_t	GetWidth()	const	//! Retrieves this array's width \return width
+		{
+			return w;
+		}
+		inline	Arrays::count_t	GetHeight() const	//! Retrieves this array's height \return height
+		{
+			return w?Array<C,Strategy>::elements/w:0;
+		}
+
+		void		CopyRowTo(index_t row, ArrayData<C>&target) const
+		{
+			#ifdef __ARRAY_DBG_RANGE_CHECK__
+				if (row >= GetHeight())
+					FATAL__("Index out of bounds");
+			#endif
+			target.SetSize(w);
+			Strategy::copyElements(Super::pointer()+row*w,target.pointer(),w);
+		}
+
+		void		CopyColumnTo(index_t col, ArrayData<C>&target) const
+		{
+			#ifdef __ARRAY_DBG_RANGE_CHECK__
+				if (col >= w)
+					FATAL__("Index out of bounds");
+			#endif
+			count_t h = GetHeight();
+			target.SetSize(h);
+			for (index_t i= 0; i < h; i++)
 			{
-				return w;
+				target[i] = Super::data[i*w+col];
 			}
-	inline	Arrays::count_t	height() const	//! Retrieves this array's height \return height
+		}
+
+		void		CopyRowFrom(index_t row, const ArrayData<C>&source)
+		{
+			#ifdef __ARRAY_DBG_RANGE_CHECK__
+				if (row >= GetHeight())
+					FATAL__("Index out of bounds");
+				ASSERT__(source.GetLength() == w);
+			#endif
+			Strategy::copyElements(source.pointer(),Super::pointer()+row*w,w);
+		}
+
+		void		CopyColumnFrom(index_t col, const ArrayData<C>&source)
+		{
+			count_t h = GetHeight();
+			#ifdef __ARRAY_DBG_RANGE_CHECK__
+				if (col >= w)
+					FATAL__("Index out of bounds");
+				ASSERT__(source.GetLength() == h);
+			#endif
+			for (index_t i= 0; i < h; i++)
 			{
-				return w?Array<C,Strategy>::elements/w:0;
+				Super::data[i*w+col] = source[i];
 			}
-	inline	void		setSize(Arrays::count_t width, Arrays::count_t height)	//! Resizes the local 2d array to match the specified dimensions. The local array content is lost if the array's total size is changed
-			{
-				Super::setSize(width*height);
-				w = width;
-			}
-	inline	void		set(Arrays::count_t x, Arrays::count_t y, const C&value)	//! Updates a singular element at the specified position	\param x X coordinate. Must be less than width() \param y Y coordinate. Must be less than height() @param value Value to set \return Reference to the requested element
-			{
-				Array<C,Strategy>::data[y*w+x] = value;
-			}
+		}
+
+		void		SetSize(Arrays::count_t width, Arrays::count_t height)	//! Resizes the local 2d array to match the specified dimensions. The local array content is lost if the array's total size is changed
+		{
+			Super::SetSize(width*height);
+			w = width;
+		}
+		void		Set(Arrays::count_t x, Arrays::count_t y, const C&value)	//! Updates a singular element at the specified position	\param x X coordinate. Must be less than width() \param y Y coordinate. Must be less than height() @param value Value to set \return Reference to the requested element
+		{
+			Super::data[y*w+x] = value;
+		}
 		
-	inline	C&			get(Arrays::count_t x, Arrays::count_t y)	//! Retrieves a singular element at the specified position	\param x X coordinate. Must be less than width() \param y Y coordinate. Must be less than height() \return Reference to the requested element
-			{
-				#if defined(_DEBUG) && __ARRAY_DBG_RANGE_CHECK__
-					if (x >= w || y >= height())
-						FATAL__("Index out of bounds");
-				#endif
-				return Array<C,Strategy>::data[y*w+x];
-			}
+		C&			Get(Arrays::count_t x, Arrays::count_t y)	//! Retrieves a singular element at the specified position	\param x X coordinate. Must be less than width() \param y Y coordinate. Must be less than height() \return Reference to the requested element
+		{
+			#ifdef __ARRAY_DBG_RANGE_CHECK__
+				if (x >= w || y >= height())
+					FATAL__("Index out of bounds");
+			#endif
+			return Super::data[y*w+x];
+		}
 	
-	inline	const C&	get(Arrays::count_t x, Arrays::count_t y)	const	//! Retrieves a singular element at the specified position \param x X coordinate. Must be less than width() \param y Y coordinate. Must be less than height() \return Reference to the requested element
-			{
-				#if defined(_DEBUG) && __ARRAY_DBG_RANGE_CHECK__
-					if (x >= w || y >= height())
-						FATAL__("Index out of bounds");
-				#endif
-				return Array<C>::data[y*w+x];
-			}
-	inline	void	adoptData(Array2D<C,Strategy>&other)	//! Adopts pointer and size and sets both NULL of the specified origin array.
-			{
-				w = other.w;
-				Array<C,Strategy>::adoptData(other);
-				other.w = 0;
-			}
-	inline	void	swap(Array2D<C,Strategy>&other)
-			{
-				Array<C,Strategy>::swap(other);
-				swp(w,other.w);
-			}
+		const C&	Get(Arrays::count_t x, Arrays::count_t y)	const	//! Retrieves a singular element at the specified position \param x X coordinate. Must be less than width() \param y Y coordinate. Must be less than height() \return Reference to the requested element
+		{
+			#ifdef __ARRAY_DBG_RANGE_CHECK__
+				if (x >= w || y >= height())
+					FATAL__("Index out of bounds");
+			#endif
+			return Super::data[y*w+x];
+		}
+		void	adoptData(Array2D<C,Strategy>&other)	//! Adopts pointer and size and sets both NULL of the specified origin array.
+		{
+			w = other.w;
+			Super::adoptData(other);
+			other.w = 0;
+		}
+		void	swap(Array2D<C,Strategy>&other)
+		{
+			Super::swap(other);
+			swp(w,other.w);
+		}
+
 	};
 
 
