@@ -4482,7 +4482,6 @@ template <typename T0, typename T1, typename T2>
 					word_begin = at-1;
 					word_width = len;
 				}
-				forceNewline = false;
 				//cout << "passed length barrier of "<<max_line_length<<" at "<<(at-string)<<endl;
 				if (word_begin == line_begin)
 				{
@@ -4503,9 +4502,15 @@ template <typename T0, typename T1, typename T2>
 					}
 				}
 				callback(ReferenceExpression<T0>(line_begin,word_begin-line_begin));
+				if (line_width < max_line_length)
+				{
+					word_begin = at;
+					word_width = 0;
+				}
 				line_begin = word_begin;
 				line_width = word_width;
 				//length = len;
+				forceNewline = false;
 			}
 		
 		
@@ -4514,7 +4519,7 @@ template <typename T0, typename T1, typename T2>
 				if (isNewline(*at))
 					forceNewline = true;
 				//*at = ' ';
-				if (line_begin == at)
+				if (line_begin == at && !forceNewline)
 				{
 					line_begin++;
 					word_begin++;
