@@ -1747,7 +1747,7 @@ namespace System
 	
 		void		ParallelLoop::execute(Operator*op, count_t iterations, count_t iterations_per_job)
 		{
-			if (!op)
+			if (!op || application_shutting_down)
 				return;
 			#if SYSTEM==WINDOWS
 				(*aligned_offset) = 0;
