@@ -367,8 +367,8 @@ template <class Carrier>
 	{
 		array = other.array;
 		entries = other.entries;
-		if (array.pointer() && array.pointer() == other.array.pointer())
-			FATAL__("copy exception");
+		//if (array.pointer() && array.pointer() == other.array.pointer())	//this happens when copying self, but the assignment operator of array already handles that, so let's not add more redundant logic
+		//	FATAL__("copy exception");
 		return *this;
 	
 	}
