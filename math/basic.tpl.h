@@ -16,6 +16,12 @@ namespace Math
 
 	namespace ByReference
 	{
+
+		MFUNC	(C)			frac(const C&x)
+		{
+			return x - floor(x);
+		}
+
 	
 		MFUNC	(C)		gaussian(const C&t)
 		{
@@ -410,6 +416,12 @@ namespace Math
 
 	}
 	
+	MFUNC	(C)			frac(C x)
+	{
+		return x - floor(x);
+	}
+
+
 	MFUNC (bool)		nearingZero(C value)
 	{
 		return vabs(value)<=getError<C>();

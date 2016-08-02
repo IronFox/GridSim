@@ -319,10 +319,7 @@ namespace Math
 		String	 floatStr(float f, bool force=false);
 	#endif
 
-
-	inline   __declspec(nothrow)	void	__fastcall test() ;
-
-
+	MFUNC	(C)			frac(C x);														//!< Returns the fractional component of @a x
 	MFUNC3	(C0)		linearStep(C0 v, C1 lower, C2 upper);		 					//!< Returns linear step \param v Value to examine \param lower Lower boundary \param upper Upper boundary \return 0 for v=lower, 1 for v=upper, and (v-lower)/(upper-lower) for lower<v<upper
 	MFUNC3	(C0)		cosStep(C0 v, C1 lower, C2 upper);								//!< Returns cos smoothed step \param v Value to examin \param lower Lower boundary \param upper Upper boundary \return cosFactor(linearStep(...))
 	MFUNC3	(C0)		cubicStep(C0 v, C1 lower, C2 upper);							//!< Returns cubic (x^3)  smoothed step \param v Value to examin \param lower Lower boundary \param upper Upper boundary \return cubicFactor(linearStep(...))
@@ -394,6 +391,7 @@ namespace Math
 	namespace ByReference
 	{
 	
+		MFUNC	(C)			frac(const C&x);											//!< By reference variant of Math::frac()
 		MFUNC3	(C0)		linearStep(const C0&v, const C1&lower, const C2&upper);		//!< By reference variant of Math::linearStep()
 		MFUNC3	(C0)		cosStep(const C0&v, const C1&lower, const C2&upper);		//!< By reference variant of Math::cosStep()
 		MFUNC3	(C0)		cubicStep(const C0&v, const C1&lower, const C2&upper);		//!< By reference variant of Math::cubicStep()
