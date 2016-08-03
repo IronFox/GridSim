@@ -892,7 +892,15 @@ namespace Math
 										x.Include(other.x);
 										y.Include(other.y);
 									}
-		
+			/*!
+			@brief Modifies the given point so that it lies within the local rectangle
+			*/
+			template <typename T0>
+				MF_DECLARE(void)	Clamp(TVec2<T0>&p) const
+									{
+										p.x = x.Clamp(p.x);
+										p.y = y.Clamp(p.y);
+									}
 				/*!
 				\brief	Determines whether or not the specified point lies within the local rectangle
 				\param x X coordinate of the point
