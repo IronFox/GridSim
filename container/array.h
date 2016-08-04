@@ -300,6 +300,18 @@ template <typename T, size_t Length>
 	};
 
 
+namespace Compare
+{
+	template <typename T0, typename T1=T0>
+		inline int		Primitives(const T0&a, const T1&b)
+		{
+			if (a < b)
+				return -1;
+			if (a > b)
+				return 1;
+			return 0;
+		}
+}
 
 
 class Arrays	//! Defines a number of array specific constants and types
@@ -444,6 +456,24 @@ template <typename T>
 										FATAL__("Index out of bounds");
 								#endif
 								return data[index];
+							}
+
+		template <typename T1>
+			inline int		CompareTo(const ArrayRef<T1>&other, int comparer(const T&, const T1&) ) const	//! Compares the local array with the remote array. The objects of the local array must implement a compareTo method that accepts objects of the remote array
+							{
+								count_t len = elements < other.length()?elements:other.length();
+								for (count_t i = 0; i < len; i++)
+								{
+									char val = comparer(data[i],other[i]);
+									if (val != 0)
+										return val;
+								}
+
+								if (elements > other.length())
+									return 1;
+								if (elements < other.length())
+									return -1;
+								return 0;
 							}
 
 		template <typename T1>
