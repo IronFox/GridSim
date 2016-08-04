@@ -221,6 +221,23 @@ template <typename T, size_t Length>
 		size_t					size() const {return Length;}
 		count_t					Count() const {return Length;}
 
+		/**
+		Executes swap() on all elements
+		*/
+		void					swap(FixedArray<T,Length>&other)
+		{
+			for (index_t i = 0; i < Length; i++)
+				value[i].swap(other.value[i]);
+		}
+		/**
+		Executes adoptData() on all elements
+		*/
+		void					adoptData(FixedArray<T,Length>&other)
+		{
+			for (index_t i = 0; i < Length; i++)
+				value[i].adoptData(other.value[i]);
+		}
+
 		void					Fill(const T&pattern)
 		{
 			for (index_t i = 0; i < Length; i++)
