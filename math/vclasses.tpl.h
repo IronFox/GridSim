@@ -606,7 +606,7 @@ namespace Math
     template <class C>
     MFUNC1  (bool)        Vec2<C>::operator==(const TVec2<C0>&other)   const
     {
-        return Math::sqr(x-other.x)+Math::sqr(y-other.y) < getError<C>() * getError<C0>();
+        return Math::sqr(x-other.x)+Math::sqr(y-other.y) <= getError<C>() * getError<C0>();
     }
 
     template <class C>
