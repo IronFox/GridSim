@@ -310,6 +310,7 @@ public:
 
                     SHA1();
     void			Append(const void*source, size_t size);
+    void			Append(const Array<BYTE>&source)	{Append(source.GetPointer(),source.GetLength());}
     void			Finish(void*target);
     void			Finish(HashContainer&target);
 	template <typename T>
