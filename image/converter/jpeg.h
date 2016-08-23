@@ -22,7 +22,7 @@ JPEG-Format handler.
 		typedef int	boolean;
 	#endif
 #endif
-#include "../../remote/jpeg/jpeglib.h"
+#include "../../third_party/jpeg/jpeglib.h"
 #include "img_format.h"
 
 #include "../../general/root.h"	//redefine "main"

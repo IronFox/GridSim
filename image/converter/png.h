@@ -14,7 +14,7 @@
 	#undef FAR
 	#define FAR
 #endif
-#include "../../remote/png/png.h"
+#include "../../third_party/png/png.h"
 
 
 class PNG:public ImageFormat

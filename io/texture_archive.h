@@ -5,18 +5,13 @@
 
 Texture-archive.
 
-This file is part of Delta-Works
-Copyright (C) 2006-2008 Stefan Elsen, University of Trier, Germany.
-http://www.delta-works.org/forge/
-http://informatik.uni-trier.de/
-
 ******************************************************************/
 
 
 
 #include "archive.h"
 #include "../image/image.h"
-#include "../remote/bz2/bz2.h"
+#include "../third_party/bz2/bz2.h"
 
 
 #define RIFF_ID     0x20204449		//"ID  "
