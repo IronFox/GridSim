@@ -164,8 +164,12 @@ namespace Container
 			inline void				EraseLast()							/**@copydoc eraseLast()*/ {eraseLast();}
 			inline T&				first();							//!< Retrieves a reference to the first element in the buffer. The behavior of this method is undefined if the local buffer is empty
 			inline const T&			first()	const;						//!< @overload
+			inline T&				First()								/**@copydoc first()*/	{return first();}
+			inline const T&			First()	const						/**@copydoc first()*/	{return first();}
 			inline T&				last();								//!< Retrieves a reference to the last element in the buffer. The behavior of this method is undefined if the local buffer is empty
 			inline const T&			last()	const;						//!< @overload
+			inline T&				Last()								/**@copydoc last()*/	{return first();}
+			inline const T&			Last()	const						/**@copydoc last()*/	{return first();}
 			inline void				erase(index_t index);				//!< Removes the specified element from the buffer. The buffer's contained element count decreases by one if the specified index is valid.
 			inline void				Erase(index_t index)				/**@copydoc erase()*/ {erase(index);}
 			inline void				erase(index_t index, index_t elements);		//!< Removes a range of elements from the buffer. The buffer's contained element count decreases by one if the specified index is valid. @a elements may be reduced if the range surpasses the end of the consumed buffer space
