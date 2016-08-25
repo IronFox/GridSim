@@ -101,7 +101,10 @@ public:
 										depth = size;
 									}
 		count_t						CountPixels()	const	{return (count_t)width*(count_t)height*(count_t)depth;}
-
+		float						GetFlatAspect()	const
+									{
+										return static_cast<float>(width) / static_cast<float>(height);
+									}
 		bool						operator==(const Resolution3D&other)	const
 									{
 										return width == other.width && height == other.height && depth == other.depth;
