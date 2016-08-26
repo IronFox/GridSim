@@ -1,19 +1,261 @@
 #ifndef object_operationsH
 #define object_operationsH
 /*
-
-Warning: date(): It is not safe to rely on the system's timezone settings. You are *required* to use the date.timezone setting or the date_default_timezone_set() function. In case you used any of those methods and you are still getting this warning, you most likely misspelled the timezone identifier. We selected the timezone 'UTC' for now, but please set date.timezone to select your timezone. in E:\include\math\update.php on line 1656
-
-Warning: date(): It is not safe to rely on the system's timezone settings. You are *required* to use the date.timezone setting or the date_default_timezone_set() function. In case you used any of those methods and you are still getting this warning, you most likely misspelled the timezone identifier. We selected the timezone 'UTC' for now, but please set date.timezone to select your timezone. in E:\include\math\update.php on line 1656
-This file was generated from template definition 'object.template.php' on 2015 November 15th 14:49:46
+This file was generated from template definition 'object.template.php' on 2016 August 25th 15:28:07
 Do not edit
 */
 
 
 namespace Obj
 {
+	template <typename T0, typename T1>
+		inline	T0	__fastcall	Operator0_sumD(const T0*__p0, const T1*__p1, count_t dimensions)throw()
+		{
+			T0 result = sqr(__p0[0] - __p1[0]);
+			for (register index_t iterator__ = 1; iterator__ < dimensions; iterator__++)
+				result = result + sqr(__p0[iterator__] - __p1[iterator__]);
+			return result;
+		}
+
+	template <typename T0, typename T1>
+		inline	T0	__fastcall	Operator1_sumD(const T0*__p0, const T1*__p1, count_t dimensions)throw()
+		{
+			T0 result = __p0[0]*__p1[0];
+			for (register index_t iterator__ = 1; iterator__ < dimensions; iterator__++)
+				result = result + __p0[iterator__]*__p1[iterator__];
+			return result;
+		}
+
+	template <typename T0>
+		inline	T0	__fastcall	Operator2_sumD(const T0*__p0, count_t dimensions)throw()
+		{
+			T0 result = __p0[0]*__p0[0];
+			for (register index_t iterator__ = 1; iterator__ < dimensions; iterator__++)
+				result = result + __p0[iterator__]*__p0[iterator__];
+			return result;
+		}
+
 
 		/* ----- Now dynamic_dimensions instances ----- */
+	//now implementing template definition 'bool SphereContainsPoint (2..4) (<const [*] center>, <radius>, <const [*] p>) direct='
+	/**
+		@brief <br>
+		<br>
+		SphereContainsPoint() requires array pointers to operate on. Make sure all passed array pointers provide at least as many elements as required (@a dimensions in general for this version)<br>
+		Scalar values are passed as copies rather than by const reference. Use this version for primitive types only.<br>
+	
+		@param[in] center 
+		@param[in] radius 
+		@param[in] p 
+		@param dimensions [in] Number of dimensions to process
+		@return  
+	*/
+	template <typename T0, typename T1, typename T2>
+		inline	bool	__fastcall	SphereContainsPointD(const T0 *center, T1 radius, const T2 *p, count_t dimensions)throw()
+		{
+			return (Obj::Operator0_sumD(center, p, dimensions)/*sqr(center:i - p:i)*/) <= sqr(radius);
+		}
+
+	//now implementing template definition 'bool detectSphereEdgeIntersection|DetectSphereEdgeIntersection (2..4) (<const [*] center>, <radius>, <const [*] e0>, <const [*] e1>) direct='
+	/**
+		@brief <br>
+		<br>
+		detectSphereEdgeIntersection() requires array pointers to operate on. Make sure all passed array pointers provide at least as many elements as required (@a dimensions in general for this version)<br>
+		Scalar values are passed as copies rather than by const reference. Use this version for primitive types only.<br>
+	
+		@param[in] center 
+		@param[in] radius 
+		@param[in] e0 
+		@param[in] e1 
+		@param dimensions [in] Number of dimensions to process
+		@return  
+	*/
+	template <typename T0, typename T1, typename T2, typename T3>
+		inline	bool	__fastcall	detectSphereEdgeIntersectionD(const T0 *center, T1 radius, const T2 *e0, const T3 *e1, count_t dimensions)throw()
+		{
+			if (((Obj::Operator0_sumD(center, e0, dimensions)/*sqr(center:i - e0:i)*/) <= sqr(radius)) || ((Obj::Operator0_sumD(center, e1, dimensions)/*sqr(center:i - e1:i)*/) <= sqr(radius)))
+				return true;
+			CArray<T0> d(dimensions);
+			
+			//block inlining void subtract|sub (2..4) (<const [*] v>, <const [*] w>, <[*] result>) direct=1 for dimensions=3, assembly_mode='DynamicPointers', parameters={e1, e0, d}...
+			{
+				for (register index_t iterator__=0; iterator__ < dimensions; iterator__++)
+				{
+					d[iterator__] = e1[iterator__] - e0[iterator__];
+				}
+			};
+			CArray<T0> delta(dimensions);
+			
+			//block inlining void subtract|sub (2..4) (<const [*] v>, <const [*] w>, <[*] result>) direct=1 for dimensions=3, assembly_mode='DynamicPointers', parameters={e0, center, delta}...
+			{
+				for (register index_t iterator__=0; iterator__ < dimensions; iterator__++)
+				{
+					delta[iterator__] = e0[iterator__] - center[iterator__];
+				}
+			};
+			T0	pa = (Obj::Operator1_sumD(d, d, dimensions)/*d:i*d:i*/),
+					pb = 2*(Obj::Operator1_sumD(d, delta, dimensions)/*d:i*delta:i*/),
+					pc = (Obj::Operator2_sumD(delta, dimensions)/*delta:i*delta:i*/)-sqr(radius),
+					rs[2];
+			BYTE num_rs = solveSqrEquation(pa,pb,pc,rs);
+			if (!num_rs)
+				return false;
+			T0	alpha = smallestPositiveResult(rs,num_rs);
+			return alpha >= (T0)0 && alpha <= (T0)1;
+		}
+
+	/**
+		@brief <br>
+		<br>
+		DetectSphereEdgeIntersection() requires array pointers to operate on. Make sure all passed array pointers provide at least as many elements as required (@a dimensions in general for this version)<br>
+		Scalar values are passed as copies rather than by const reference. Use this version for primitive types only.<br>
+	
+		@param[in] center 
+		@param[in] radius 
+		@param[in] e0 
+		@param[in] e1 
+		@param dimensions [in] Number of dimensions to process
+		@return  
+	*/
+	template <typename T0, typename T1, typename T2, typename T3>
+		inline	bool	__fastcall	DetectSphereEdgeIntersectionD(const T0 *center, T1 radius, const T2 *e0, const T3 *e1, count_t dimensions)throw()
+		{
+			if (((Obj::Operator0_sumD(center, e0, dimensions)/*sqr(center:i - e0:i)*/) <= sqr(radius)) || ((Obj::Operator0_sumD(center, e1, dimensions)/*sqr(center:i - e1:i)*/) <= sqr(radius)))
+				return true;
+			CArray<T0> d(dimensions);
+			
+			//block inlining void subtract|sub (2..4) (<const [*] v>, <const [*] w>, <[*] result>) direct=1 for dimensions=3, assembly_mode='DynamicPointers', parameters={e1, e0, d}...
+			{
+				for (register index_t iterator__=0; iterator__ < dimensions; iterator__++)
+				{
+					d[iterator__] = e1[iterator__] - e0[iterator__];
+				}
+			};
+			CArray<T0> delta(dimensions);
+			
+			//block inlining void subtract|sub (2..4) (<const [*] v>, <const [*] w>, <[*] result>) direct=1 for dimensions=3, assembly_mode='DynamicPointers', parameters={e0, center, delta}...
+			{
+				for (register index_t iterator__=0; iterator__ < dimensions; iterator__++)
+				{
+					delta[iterator__] = e0[iterator__] - center[iterator__];
+				}
+			};
+			T0	pa = (Obj::Operator1_sumD(d, d, dimensions)/*d:i*d:i*/),
+					pb = 2*(Obj::Operator1_sumD(d, delta, dimensions)/*d:i*delta:i*/),
+					pc = (Obj::Operator2_sumD(delta, dimensions)/*delta:i*delta:i*/)-sqr(radius),
+					rs[2];
+			BYTE num_rs = solveSqrEquation(pa,pb,pc,rs);
+			if (!num_rs)
+				return false;
+			T0	alpha = smallestPositiveResult(rs,num_rs);
+			return alpha >= (T0)0 && alpha <= (T0)1;
+		}
+
+	//now implementing template definition 'bool detectSphereEdgeIntersection|DetectSphereEdgeIntersection (2..4) (<const [*] center>, <radius>, <const [*] e0>, <const [*] e1>, <[2] distances>) direct='
+	/**
+		@brief Detects whether or not there is an intersection between the given sphere and edge. Returns the intersection distance factors between e0 (=0) and e1 (=1)<br>
+		<br>
+		detectSphereEdgeIntersection() requires array pointers to operate on. Make sure all passed array pointers provide at least as many elements as required (2 in general for this version)<br>
+		Scalar values are passed as copies rather than by const reference. Use this version for primitive types only.<br>
+	
+		@param[in] center 
+		@param[in] radius 
+		@param[in] e0 
+		@param[in] e1 
+		@param[out] distances Intersection distances
+		@param dimensions [in] Number of dimensions to process
+		@return True, if there is an intersection, or all intersection points lie inside the sphere, false otherwise 
+	*/
+	template <typename T0, typename T1, typename T2, typename T3, typename T4>
+		inline	bool	__fastcall	detectSphereEdgeIntersectionD(const T0 *center, T1 radius, const T2 *e0, const T3 *e1, T4 distances[2], count_t dimensions)throw()
+		{
+			CArray<T4> d(dimensions);
+			
+			//block inlining void subtract|sub (2..4) (<const [*] v>, <const [*] w>, <[*] result>) direct=1 for dimensions=3, assembly_mode='DynamicPointers', parameters={e1, e0, d}...
+			{
+				for (register index_t iterator__=0; iterator__ < dimensions; iterator__++)
+				{
+					d[iterator__] = e1[iterator__] - e0[iterator__];
+				}
+			};
+			CArray<T4> delta(dimensions);
+			
+			//block inlining void subtract|sub (2..4) (<const [*] v>, <const [*] w>, <[*] result>) direct=1 for dimensions=3, assembly_mode='DynamicPointers', parameters={e0, center, delta}...
+			{
+				for (register index_t iterator__=0; iterator__ < dimensions; iterator__++)
+				{
+					delta[iterator__] = e0[iterator__] - center[iterator__];
+				}
+			};
+			T4	pa = (Obj::Operator1_sumD(d, d, dimensions)/*d:i*d:i*/),
+					pb = 2*(Obj::Operator1_sumD(d, delta, dimensions)/*d:i*delta:i*/),
+					pc = (Obj::Operator2_sumD(delta, dimensions)/*delta:i*delta:i*/)-sqr(radius),
+					rs[2];
+			BYTE num_rs = solveSqrEquation(pa,pb,pc,rs);
+			if (!num_rs)
+				return false;
+			if (num_rs == 1)
+			{
+				distances[0] = distances[1] = rs[0];
+				return rs[0] >= (T4)0 && rs[0] <= (T4)1;
+			}
+			distances[0] = std::min(rs[0],rs[1]);
+			distances[1] = std::max(rs[0],rs[1]);
+			return (distances[0] <= (T4)1 && distances[1] >= (T4)0);
+		}
+
+	/**
+		@brief Detects whether or not there is an intersection between the given sphere and edge. Returns the intersection distance factors between e0 (=0) and e1 (=1)<br>
+		<br>
+		DetectSphereEdgeIntersection() requires array pointers to operate on. Make sure all passed array pointers provide at least as many elements as required (2 in general for this version)<br>
+		Scalar values are passed as copies rather than by const reference. Use this version for primitive types only.<br>
+	
+		@param[in] center 
+		@param[in] radius 
+		@param[in] e0 
+		@param[in] e1 
+		@param[out] distances Intersection distances
+		@param dimensions [in] Number of dimensions to process
+		@return True, if there is an intersection, or all intersection points lie inside the sphere, false otherwise 
+	*/
+	template <typename T0, typename T1, typename T2, typename T3, typename T4>
+		inline	bool	__fastcall	DetectSphereEdgeIntersectionD(const T0 *center, T1 radius, const T2 *e0, const T3 *e1, T4 distances[2], count_t dimensions)throw()
+		{
+			CArray<T4> d(dimensions);
+			
+			//block inlining void subtract|sub (2..4) (<const [*] v>, <const [*] w>, <[*] result>) direct=1 for dimensions=3, assembly_mode='DynamicPointers', parameters={e1, e0, d}...
+			{
+				for (register index_t iterator__=0; iterator__ < dimensions; iterator__++)
+				{
+					d[iterator__] = e1[iterator__] - e0[iterator__];
+				}
+			};
+			CArray<T4> delta(dimensions);
+			
+			//block inlining void subtract|sub (2..4) (<const [*] v>, <const [*] w>, <[*] result>) direct=1 for dimensions=3, assembly_mode='DynamicPointers', parameters={e0, center, delta}...
+			{
+				for (register index_t iterator__=0; iterator__ < dimensions; iterator__++)
+				{
+					delta[iterator__] = e0[iterator__] - center[iterator__];
+				}
+			};
+			T4	pa = (Obj::Operator1_sumD(d, d, dimensions)/*d:i*d:i*/),
+					pb = 2*(Obj::Operator1_sumD(d, delta, dimensions)/*d:i*delta:i*/),
+					pc = (Obj::Operator2_sumD(delta, dimensions)/*delta:i*delta:i*/)-sqr(radius),
+					rs[2];
+			BYTE num_rs = solveSqrEquation(pa,pb,pc,rs);
+			if (!num_rs)
+				return false;
+			if (num_rs == 1)
+			{
+				distances[0] = distances[1] = rs[0];
+				return rs[0] >= (T4)0 && rs[0] <= (T4)1;
+			}
+			distances[0] = std::min(rs[0],rs[1]);
+			distances[1] = std::max(rs[0],rs[1]);
+			return (distances[0] <= (T4)1 && distances[1] >= (T4)0);
+		}
+
 
 		/* ----- Now implementing fixed_dimensions instances ----- */
 	//now implementing template definition 'bool detectOpticalIntersection (<const [3] p0>, <const [3] p1>, <const [3] p2>, <const [3] b>, <const [3] d>, <&distance>) direct='
@@ -494,10 +736,29 @@ namespace Obj
 			return true;
 		}
 
-	//now implementing template definition 'bool SphereContainsPoint (<const [3] center>, <radius>, <const [3] p>) direct='
+	//now implementing template definition 'bool SphereContainsPoint (2..4) (<const [*] center>, <radius>, <const [*] p>) direct='
 	/**
 		@brief <br>
 		<br>
+		2 dimensional specialized version of SphereContainsPoint()<br>
+		SphereContainsPoint() requires vector objects to operate on, rather than raw pointers. Use ref*() to create a temporary reference object to existing array pointers<br>
+		Scalar values are passed as copies rather than by const reference. Use this version for primitive types only.<br>
+	
+		@param[in] center 
+		@param[in] radius 
+		@param[in] p 
+		@return  
+	*/
+	template <typename T0, typename T1, typename T2>
+		inline	bool	__fastcall	SphereContainsPoint(const TVec2<T0>& center, T1 radius, const TVec2<T2>& p)throw()
+		{
+			return (sqr(center.x - p.x) + sqr(center.y - p.y)) <= sqr(radius);
+		}
+
+	/**
+		@brief <br>
+		<br>
+		3 dimensional specialized version of SphereContainsPoint()<br>
 		SphereContainsPoint() requires vector objects to operate on, rather than raw pointers. Use ref*() to create a temporary reference object to existing array pointers<br>
 		Scalar values are passed as copies rather than by const reference. Use this version for primitive types only.<br>
 	
@@ -512,10 +773,115 @@ namespace Obj
 			return (sqr(center.x - p.x) + sqr(center.y - p.y) + sqr(center.z - p.z)) <= sqr(radius);
 		}
 
-	//now implementing template definition 'bool detectSphereEdgeIntersection|DetectSphereEdgeIntersection (<const [3] center>, <radius>, <const [3] e0>, <const [3] e1>) direct='
 	/**
 		@brief <br>
 		<br>
+		4 dimensional specialized version of SphereContainsPoint()<br>
+		SphereContainsPoint() requires vector objects to operate on, rather than raw pointers. Use ref*() to create a temporary reference object to existing array pointers<br>
+		Scalar values are passed as copies rather than by const reference. Use this version for primitive types only.<br>
+	
+		@param[in] center 
+		@param[in] radius 
+		@param[in] p 
+		@return  
+	*/
+	template <typename T0, typename T1, typename T2>
+		inline	bool	__fastcall	SphereContainsPoint(const TVec4<T0>& center, T1 radius, const TVec4<T2>& p)throw()
+		{
+			return (sqr(center.x - p.x) + sqr(center.y - p.y) + sqr(center.z - p.z) + sqr(center.w - p.w)) <= sqr(radius);
+		}
+
+	//now implementing template definition 'bool detectSphereEdgeIntersection|DetectSphereEdgeIntersection (2..4) (<const [*] center>, <radius>, <const [*] e0>, <const [*] e1>) direct='
+	/**
+		@brief <br>
+		<br>
+		2 dimensional specialized version of detectSphereEdgeIntersection/DetectSphereEdgeIntersection()<br>
+		detectSphereEdgeIntersection() requires vector objects to operate on, rather than raw pointers. Use ref*() to create a temporary reference object to existing array pointers<br>
+		Scalar values are passed as copies rather than by const reference. Use this version for primitive types only.<br>
+	
+		@param[in] center 
+		@param[in] radius 
+		@param[in] e0 
+		@param[in] e1 
+		@return  
+	*/
+	template <typename T0, typename T1, typename T2, typename T3>
+		inline	bool	__fastcall	detectSphereEdgeIntersection(const TVec2<T0>& center, T1 radius, const TVec2<T2>& e0, const TVec2<T3>& e1)throw()
+		{
+			if (((sqr(center.x - e0.x) + sqr(center.y - e0.y)) <= sqr(radius)) || ((sqr(center.x - e1.x) + sqr(center.y - e1.y)) <= sqr(radius)))
+				return true;
+			TVec2<T0> d;
+			
+			//block inlining void subtract|sub (2..4) (<const [*] v>, <const [*] w>, <[*] result>) direct=1 for dimensions=2, assembly_mode='Objects', parameters={e1, e0, d}...
+			{
+				d.x = e1.x - e0.x;
+				d.y = e1.y - e0.y;
+			};
+			TVec2<T0> delta;
+			
+			//block inlining void subtract|sub (2..4) (<const [*] v>, <const [*] w>, <[*] result>) direct=1 for dimensions=2, assembly_mode='Objects', parameters={e0, center, delta}...
+			{
+				delta.x = e0.x - center.x;
+				delta.y = e0.y - center.y;
+			};
+			T0	pa = (d.x*d.x + d.y*d.y),
+					pb = 2*(d.x*delta.x + d.y*delta.y),
+					pc = (delta.x*delta.x + delta.y*delta.y)-sqr(radius),
+					rs[2];
+			BYTE num_rs = solveSqrEquation(pa,pb,pc,rs);
+			if (!num_rs)
+				return false;
+			T0	alpha = smallestPositiveResult(rs,num_rs);
+			return alpha >= (T0)0 && alpha <= (T0)1;
+		}
+
+	/**
+		@brief <br>
+		<br>
+		2 dimensional specialized version of detectSphereEdgeIntersection/DetectSphereEdgeIntersection()<br>
+		DetectSphereEdgeIntersection() requires vector objects to operate on, rather than raw pointers. Use ref*() to create a temporary reference object to existing array pointers<br>
+		Scalar values are passed as copies rather than by const reference. Use this version for primitive types only.<br>
+	
+		@param[in] center 
+		@param[in] radius 
+		@param[in] e0 
+		@param[in] e1 
+		@return  
+	*/
+	template <typename T0, typename T1, typename T2, typename T3>
+		inline	bool	__fastcall	DetectSphereEdgeIntersection(const TVec2<T0>& center, T1 radius, const TVec2<T2>& e0, const TVec2<T3>& e1)throw()
+		{
+			if (((sqr(center.x - e0.x) + sqr(center.y - e0.y)) <= sqr(radius)) || ((sqr(center.x - e1.x) + sqr(center.y - e1.y)) <= sqr(radius)))
+				return true;
+			TVec2<T0> d;
+			
+			//block inlining void subtract|sub (2..4) (<const [*] v>, <const [*] w>, <[*] result>) direct=1 for dimensions=2, assembly_mode='Objects', parameters={e1, e0, d}...
+			{
+				d.x = e1.x - e0.x;
+				d.y = e1.y - e0.y;
+			};
+			TVec2<T0> delta;
+			
+			//block inlining void subtract|sub (2..4) (<const [*] v>, <const [*] w>, <[*] result>) direct=1 for dimensions=2, assembly_mode='Objects', parameters={e0, center, delta}...
+			{
+				delta.x = e0.x - center.x;
+				delta.y = e0.y - center.y;
+			};
+			T0	pa = (d.x*d.x + d.y*d.y),
+					pb = 2*(d.x*delta.x + d.y*delta.y),
+					pc = (delta.x*delta.x + delta.y*delta.y)-sqr(radius),
+					rs[2];
+			BYTE num_rs = solveSqrEquation(pa,pb,pc,rs);
+			if (!num_rs)
+				return false;
+			T0	alpha = smallestPositiveResult(rs,num_rs);
+			return alpha >= (T0)0 && alpha <= (T0)1;
+		}
+
+	/**
+		@brief <br>
+		<br>
+		3 dimensional specialized version of detectSphereEdgeIntersection/DetectSphereEdgeIntersection()<br>
 		detectSphereEdgeIntersection() requires vector objects to operate on, rather than raw pointers. Use ref*() to create a temporary reference object to existing array pointers<br>
 		Scalar values are passed as copies rather than by const reference. Use this version for primitive types only.<br>
 	
@@ -560,6 +926,7 @@ namespace Obj
 	/**
 		@brief <br>
 		<br>
+		3 dimensional specialized version of detectSphereEdgeIntersection/DetectSphereEdgeIntersection()<br>
 		DetectSphereEdgeIntersection() requires vector objects to operate on, rather than raw pointers. Use ref*() to create a temporary reference object to existing array pointers<br>
 		Scalar values are passed as copies rather than by const reference. Use this version for primitive types only.<br>
 	
@@ -601,10 +968,201 @@ namespace Obj
 			return alpha >= (T0)0 && alpha <= (T0)1;
 		}
 
-	//now implementing template definition 'bool detectSphereEdgeIntersection|DetectSphereEdgeIntersection (<const [3] center>, <radius>, <const [3] e0>, <const [3] e1>, <[2] distances>) direct='
+	/**
+		@brief <br>
+		<br>
+		4 dimensional specialized version of detectSphereEdgeIntersection/DetectSphereEdgeIntersection()<br>
+		detectSphereEdgeIntersection() requires vector objects to operate on, rather than raw pointers. Use ref*() to create a temporary reference object to existing array pointers<br>
+		Scalar values are passed as copies rather than by const reference. Use this version for primitive types only.<br>
+	
+		@param[in] center 
+		@param[in] radius 
+		@param[in] e0 
+		@param[in] e1 
+		@return  
+	*/
+	template <typename T0, typename T1, typename T2, typename T3>
+		inline	bool	__fastcall	detectSphereEdgeIntersection(const TVec4<T0>& center, T1 radius, const TVec4<T2>& e0, const TVec4<T3>& e1)throw()
+		{
+			if (((sqr(center.x - e0.x) + sqr(center.y - e0.y) + sqr(center.z - e0.z) + sqr(center.w - e0.w)) <= sqr(radius)) || ((sqr(center.x - e1.x) + sqr(center.y - e1.y) + sqr(center.z - e1.z) + sqr(center.w - e1.w)) <= sqr(radius)))
+				return true;
+			TVec4<T0> d;
+			
+			//block inlining void subtract|sub (2..4) (<const [*] v>, <const [*] w>, <[*] result>) direct=1 for dimensions=4, assembly_mode='Objects', parameters={e1, e0, d}...
+			{
+				d.x = e1.x - e0.x;
+				d.y = e1.y - e0.y;
+				d.z = e1.z - e0.z;
+				d.w = e1.w - e0.w;
+			};
+			TVec4<T0> delta;
+			
+			//block inlining void subtract|sub (2..4) (<const [*] v>, <const [*] w>, <[*] result>) direct=1 for dimensions=4, assembly_mode='Objects', parameters={e0, center, delta}...
+			{
+				delta.x = e0.x - center.x;
+				delta.y = e0.y - center.y;
+				delta.z = e0.z - center.z;
+				delta.w = e0.w - center.w;
+			};
+			T0	pa = (d.x*d.x + d.y*d.y + d.z*d.z + d.w*d.w),
+					pb = 2*(d.x*delta.x + d.y*delta.y + d.z*delta.z + d.w*delta.w),
+					pc = (delta.x*delta.x + delta.y*delta.y + delta.z*delta.z + delta.w*delta.w)-sqr(radius),
+					rs[2];
+			BYTE num_rs = solveSqrEquation(pa,pb,pc,rs);
+			if (!num_rs)
+				return false;
+			T0	alpha = smallestPositiveResult(rs,num_rs);
+			return alpha >= (T0)0 && alpha <= (T0)1;
+		}
+
+	/**
+		@brief <br>
+		<br>
+		4 dimensional specialized version of detectSphereEdgeIntersection/DetectSphereEdgeIntersection()<br>
+		DetectSphereEdgeIntersection() requires vector objects to operate on, rather than raw pointers. Use ref*() to create a temporary reference object to existing array pointers<br>
+		Scalar values are passed as copies rather than by const reference. Use this version for primitive types only.<br>
+	
+		@param[in] center 
+		@param[in] radius 
+		@param[in] e0 
+		@param[in] e1 
+		@return  
+	*/
+	template <typename T0, typename T1, typename T2, typename T3>
+		inline	bool	__fastcall	DetectSphereEdgeIntersection(const TVec4<T0>& center, T1 radius, const TVec4<T2>& e0, const TVec4<T3>& e1)throw()
+		{
+			if (((sqr(center.x - e0.x) + sqr(center.y - e0.y) + sqr(center.z - e0.z) + sqr(center.w - e0.w)) <= sqr(radius)) || ((sqr(center.x - e1.x) + sqr(center.y - e1.y) + sqr(center.z - e1.z) + sqr(center.w - e1.w)) <= sqr(radius)))
+				return true;
+			TVec4<T0> d;
+			
+			//block inlining void subtract|sub (2..4) (<const [*] v>, <const [*] w>, <[*] result>) direct=1 for dimensions=4, assembly_mode='Objects', parameters={e1, e0, d}...
+			{
+				d.x = e1.x - e0.x;
+				d.y = e1.y - e0.y;
+				d.z = e1.z - e0.z;
+				d.w = e1.w - e0.w;
+			};
+			TVec4<T0> delta;
+			
+			//block inlining void subtract|sub (2..4) (<const [*] v>, <const [*] w>, <[*] result>) direct=1 for dimensions=4, assembly_mode='Objects', parameters={e0, center, delta}...
+			{
+				delta.x = e0.x - center.x;
+				delta.y = e0.y - center.y;
+				delta.z = e0.z - center.z;
+				delta.w = e0.w - center.w;
+			};
+			T0	pa = (d.x*d.x + d.y*d.y + d.z*d.z + d.w*d.w),
+					pb = 2*(d.x*delta.x + d.y*delta.y + d.z*delta.z + d.w*delta.w),
+					pc = (delta.x*delta.x + delta.y*delta.y + delta.z*delta.z + delta.w*delta.w)-sqr(radius),
+					rs[2];
+			BYTE num_rs = solveSqrEquation(pa,pb,pc,rs);
+			if (!num_rs)
+				return false;
+			T0	alpha = smallestPositiveResult(rs,num_rs);
+			return alpha >= (T0)0 && alpha <= (T0)1;
+		}
+
+	//now implementing template definition 'bool detectSphereEdgeIntersection|DetectSphereEdgeIntersection (2..4) (<const [*] center>, <radius>, <const [*] e0>, <const [*] e1>, <[2] distances>) direct='
 	/**
 		@brief Detects whether or not there is an intersection between the given sphere and edge. Returns the intersection distance factors between e0 (=0) and e1 (=1)<br>
 		<br>
+		2 dimensional specialized version of detectSphereEdgeIntersection/DetectSphereEdgeIntersection()<br>
+		detectSphereEdgeIntersection() requires vector objects to operate on, rather than raw pointers. Use ref*() to create a temporary reference object to existing array pointers<br>
+		Scalar values are passed as copies rather than by const reference. Use this version for primitive types only.<br>
+	
+		@param[in] center 
+		@param[in] radius 
+		@param[in] e0 
+		@param[in] e1 
+		@param[out] distances Intersection distances
+		@return True, if there is an intersection, or all intersection points lie inside the sphere, false otherwise 
+	*/
+	template <typename T0, typename T1, typename T2, typename T3, typename T4>
+		inline	bool	__fastcall	detectSphereEdgeIntersection(const TVec2<T0>& center, T1 radius, const TVec2<T2>& e0, const TVec2<T3>& e1, TVec2<T4>& distances)throw()
+		{
+			TVec2<T4> d;
+			
+			//block inlining void subtract|sub (2..4) (<const [*] v>, <const [*] w>, <[*] result>) direct=1 for dimensions=2, assembly_mode='Objects', parameters={e1, e0, d}...
+			{
+				d.x = e1.x - e0.x;
+				d.y = e1.y - e0.y;
+			};
+			TVec2<T4> delta;
+			
+			//block inlining void subtract|sub (2..4) (<const [*] v>, <const [*] w>, <[*] result>) direct=1 for dimensions=2, assembly_mode='Objects', parameters={e0, center, delta}...
+			{
+				delta.x = e0.x - center.x;
+				delta.y = e0.y - center.y;
+			};
+			T4	pa = (d.x*d.x + d.y*d.y),
+					pb = 2*(d.x*delta.x + d.y*delta.y),
+					pc = (delta.x*delta.x + delta.y*delta.y)-sqr(radius),
+					rs[2];
+			BYTE num_rs = solveSqrEquation(pa,pb,pc,rs);
+			if (!num_rs)
+				return false;
+			if (num_rs == 1)
+			{
+				distances.x = distances.y = rs[0];
+				return rs[0] >= (T4)0 && rs[0] <= (T4)1;
+			}
+			distances.x = std::min(rs[0],rs[1]);
+			distances.y = std::max(rs[0],rs[1]);
+			return (distances.x <= (T4)1 && distances.y >= (T4)0);
+		}
+
+	/**
+		@brief Detects whether or not there is an intersection between the given sphere and edge. Returns the intersection distance factors between e0 (=0) and e1 (=1)<br>
+		<br>
+		2 dimensional specialized version of detectSphereEdgeIntersection/DetectSphereEdgeIntersection()<br>
+		DetectSphereEdgeIntersection() requires vector objects to operate on, rather than raw pointers. Use ref*() to create a temporary reference object to existing array pointers<br>
+		Scalar values are passed as copies rather than by const reference. Use this version for primitive types only.<br>
+	
+		@param[in] center 
+		@param[in] radius 
+		@param[in] e0 
+		@param[in] e1 
+		@param[out] distances Intersection distances
+		@return True, if there is an intersection, or all intersection points lie inside the sphere, false otherwise 
+	*/
+	template <typename T0, typename T1, typename T2, typename T3, typename T4>
+		inline	bool	__fastcall	DetectSphereEdgeIntersection(const TVec2<T0>& center, T1 radius, const TVec2<T2>& e0, const TVec2<T3>& e1, TVec2<T4>& distances)throw()
+		{
+			TVec2<T4> d;
+			
+			//block inlining void subtract|sub (2..4) (<const [*] v>, <const [*] w>, <[*] result>) direct=1 for dimensions=2, assembly_mode='Objects', parameters={e1, e0, d}...
+			{
+				d.x = e1.x - e0.x;
+				d.y = e1.y - e0.y;
+			};
+			TVec2<T4> delta;
+			
+			//block inlining void subtract|sub (2..4) (<const [*] v>, <const [*] w>, <[*] result>) direct=1 for dimensions=2, assembly_mode='Objects', parameters={e0, center, delta}...
+			{
+				delta.x = e0.x - center.x;
+				delta.y = e0.y - center.y;
+			};
+			T4	pa = (d.x*d.x + d.y*d.y),
+					pb = 2*(d.x*delta.x + d.y*delta.y),
+					pc = (delta.x*delta.x + delta.y*delta.y)-sqr(radius),
+					rs[2];
+			BYTE num_rs = solveSqrEquation(pa,pb,pc,rs);
+			if (!num_rs)
+				return false;
+			if (num_rs == 1)
+			{
+				distances.x = distances.y = rs[0];
+				return rs[0] >= (T4)0 && rs[0] <= (T4)1;
+			}
+			distances.x = std::min(rs[0],rs[1]);
+			distances.y = std::max(rs[0],rs[1]);
+			return (distances.x <= (T4)1 && distances.y >= (T4)0);
+		}
+
+	/**
+		@brief Detects whether or not there is an intersection between the given sphere and edge. Returns the intersection distance factors between e0 (=0) and e1 (=1)<br>
+		<br>
+		3 dimensional specialized version of detectSphereEdgeIntersection/DetectSphereEdgeIntersection()<br>
 		detectSphereEdgeIntersection() requires vector objects to operate on, rather than raw pointers. Use ref*() to create a temporary reference object to existing array pointers<br>
 		Scalar values are passed as copies rather than by const reference. Use this version for primitive types only.<br>
 	
@@ -654,6 +1212,7 @@ namespace Obj
 	/**
 		@brief Detects whether or not there is an intersection between the given sphere and edge. Returns the intersection distance factors between e0 (=0) and e1 (=1)<br>
 		<br>
+		3 dimensional specialized version of detectSphereEdgeIntersection/DetectSphereEdgeIntersection()<br>
 		DetectSphereEdgeIntersection() requires vector objects to operate on, rather than raw pointers. Use ref*() to create a temporary reference object to existing array pointers<br>
 		Scalar values are passed as copies rather than by const reference. Use this version for primitive types only.<br>
 	
@@ -686,6 +1245,110 @@ namespace Obj
 			T4	pa = (d.x*d.x + d.y*d.y + d.z*d.z),
 					pb = 2*(d.x*delta.x + d.y*delta.y + d.z*delta.z),
 					pc = (delta.x*delta.x + delta.y*delta.y + delta.z*delta.z)-sqr(radius),
+					rs[2];
+			BYTE num_rs = solveSqrEquation(pa,pb,pc,rs);
+			if (!num_rs)
+				return false;
+			if (num_rs == 1)
+			{
+				distances.x = distances.y = rs[0];
+				return rs[0] >= (T4)0 && rs[0] <= (T4)1;
+			}
+			distances.x = std::min(rs[0],rs[1]);
+			distances.y = std::max(rs[0],rs[1]);
+			return (distances.x <= (T4)1 && distances.y >= (T4)0);
+		}
+
+	/**
+		@brief Detects whether or not there is an intersection between the given sphere and edge. Returns the intersection distance factors between e0 (=0) and e1 (=1)<br>
+		<br>
+		4 dimensional specialized version of detectSphereEdgeIntersection/DetectSphereEdgeIntersection()<br>
+		detectSphereEdgeIntersection() requires vector objects to operate on, rather than raw pointers. Use ref*() to create a temporary reference object to existing array pointers<br>
+		Scalar values are passed as copies rather than by const reference. Use this version for primitive types only.<br>
+	
+		@param[in] center 
+		@param[in] radius 
+		@param[in] e0 
+		@param[in] e1 
+		@param[out] distances Intersection distances
+		@return True, if there is an intersection, or all intersection points lie inside the sphere, false otherwise 
+	*/
+	template <typename T0, typename T1, typename T2, typename T3, typename T4>
+		inline	bool	__fastcall	detectSphereEdgeIntersection(const TVec4<T0>& center, T1 radius, const TVec4<T2>& e0, const TVec4<T3>& e1, TVec2<T4>& distances)throw()
+		{
+			TVec4<T4> d;
+			
+			//block inlining void subtract|sub (2..4) (<const [*] v>, <const [*] w>, <[*] result>) direct=1 for dimensions=4, assembly_mode='Objects', parameters={e1, e0, d}...
+			{
+				d.x = e1.x - e0.x;
+				d.y = e1.y - e0.y;
+				d.z = e1.z - e0.z;
+				d.w = e1.w - e0.w;
+			};
+			TVec4<T4> delta;
+			
+			//block inlining void subtract|sub (2..4) (<const [*] v>, <const [*] w>, <[*] result>) direct=1 for dimensions=4, assembly_mode='Objects', parameters={e0, center, delta}...
+			{
+				delta.x = e0.x - center.x;
+				delta.y = e0.y - center.y;
+				delta.z = e0.z - center.z;
+				delta.w = e0.w - center.w;
+			};
+			T4	pa = (d.x*d.x + d.y*d.y + d.z*d.z + d.w*d.w),
+					pb = 2*(d.x*delta.x + d.y*delta.y + d.z*delta.z + d.w*delta.w),
+					pc = (delta.x*delta.x + delta.y*delta.y + delta.z*delta.z + delta.w*delta.w)-sqr(radius),
+					rs[2];
+			BYTE num_rs = solveSqrEquation(pa,pb,pc,rs);
+			if (!num_rs)
+				return false;
+			if (num_rs == 1)
+			{
+				distances.x = distances.y = rs[0];
+				return rs[0] >= (T4)0 && rs[0] <= (T4)1;
+			}
+			distances.x = std::min(rs[0],rs[1]);
+			distances.y = std::max(rs[0],rs[1]);
+			return (distances.x <= (T4)1 && distances.y >= (T4)0);
+		}
+
+	/**
+		@brief Detects whether or not there is an intersection between the given sphere and edge. Returns the intersection distance factors between e0 (=0) and e1 (=1)<br>
+		<br>
+		4 dimensional specialized version of detectSphereEdgeIntersection/DetectSphereEdgeIntersection()<br>
+		DetectSphereEdgeIntersection() requires vector objects to operate on, rather than raw pointers. Use ref*() to create a temporary reference object to existing array pointers<br>
+		Scalar values are passed as copies rather than by const reference. Use this version for primitive types only.<br>
+	
+		@param[in] center 
+		@param[in] radius 
+		@param[in] e0 
+		@param[in] e1 
+		@param[out] distances Intersection distances
+		@return True, if there is an intersection, or all intersection points lie inside the sphere, false otherwise 
+	*/
+	template <typename T0, typename T1, typename T2, typename T3, typename T4>
+		inline	bool	__fastcall	DetectSphereEdgeIntersection(const TVec4<T0>& center, T1 radius, const TVec4<T2>& e0, const TVec4<T3>& e1, TVec2<T4>& distances)throw()
+		{
+			TVec4<T4> d;
+			
+			//block inlining void subtract|sub (2..4) (<const [*] v>, <const [*] w>, <[*] result>) direct=1 for dimensions=4, assembly_mode='Objects', parameters={e1, e0, d}...
+			{
+				d.x = e1.x - e0.x;
+				d.y = e1.y - e0.y;
+				d.z = e1.z - e0.z;
+				d.w = e1.w - e0.w;
+			};
+			TVec4<T4> delta;
+			
+			//block inlining void subtract|sub (2..4) (<const [*] v>, <const [*] w>, <[*] result>) direct=1 for dimensions=4, assembly_mode='Objects', parameters={e0, center, delta}...
+			{
+				delta.x = e0.x - center.x;
+				delta.y = e0.y - center.y;
+				delta.z = e0.z - center.z;
+				delta.w = e0.w - center.w;
+			};
+			T4	pa = (d.x*d.x + d.y*d.y + d.z*d.z + d.w*d.w),
+					pb = 2*(d.x*delta.x + d.y*delta.y + d.z*delta.z + d.w*delta.w),
+					pc = (delta.x*delta.x + delta.y*delta.y + delta.z*delta.z + delta.w*delta.w)-sqr(radius),
 					rs[2];
 			BYTE num_rs = solveSqrEquation(pa,pb,pc,rs);
 			if (!num_rs)
@@ -1126,6 +1789,42 @@ template <count_t Current, count_t Dimensions>
 		/* ----- Now implementing object based recursion terminators ----- */
 
 		/* ----- Now implementing helper class terminators ----- */
+		template <typename T0, typename T1>
+			static inline	T0	__fastcall	Operator3_sum(const T0 __p0[Dimensions], const T1 __p1[Dimensions])throw()
+			{
+				return sqr(__p0[Current] - __p1[Current]);
+			}
+
+		template <typename T0, typename T1>
+			static inline	T0	__fastcall	Operator4_sum(const T0 __p0[Dimensions], const T1 __p1[Dimensions])throw()
+			{
+				return __p0[Current]*__p1[Current];
+			}
+
+		template <typename T0>
+			static inline	T0	__fastcall	Operator5_sum(const T0 __p0[Dimensions])throw()
+			{
+				return __p0[Current]*__p0[Current];
+			}
+
+		template <typename T0, typename T1>
+			static inline	T0	__fastcall	Operator6_sum(const T0 __p0[Dimensions], const T1 __p1[Dimensions])throw()
+			{
+				return sqr(__p0[Current] - __p1[Current]);
+			}
+
+		template <typename T0, typename T1>
+			static inline	T0	__fastcall	Operator7_sum(const T0 __p0[Dimensions], const T1 __p1[Dimensions])throw()
+			{
+				return __p0[Current]*__p1[Current];
+			}
+
+		template <typename T0>
+			static inline	T0	__fastcall	Operator8_sum(const T0 __p0[Dimensions])throw()
+			{
+				return __p0[Current]*__p0[Current];
+			}
+
 	};
 
 template <count_t Current, count_t Dimensions>
@@ -1135,13 +1834,475 @@ template <count_t Current, count_t Dimensions>
 
 		/* ----- Now implementing helper class iterators ----- */
 
+		/* --- Now processing 'Pointers/Operator:+||const [*]|const [*]|<>|sqr(v:i - w:i)' --- */
+		template <typename T0, typename T1>
+			static inline	T0	__fastcall	Operator3_sum(const T0 __p0[Dimensions], const T1 __p1[Dimensions])throw()
+			{
+				return (
+						sqr(__p0[Current] - __p1[Current]) +
+						ObjV_Include__<Current+1,Dimensions, GreaterOrEqual<Current+2,Dimensions>::eval>::Operator3_sum(__p0,__p1)
+					);
+			}
+
+
+		/* --- Now processing 'Pointers/Operator:+||const [*]|const [*]|<>|v:i*w:i' --- */
+		template <typename T0, typename T1>
+			static inline	T0	__fastcall	Operator4_sum(const T0 __p0[Dimensions], const T1 __p1[Dimensions])throw()
+			{
+				return (
+						__p0[Current]*__p1[Current] +
+						ObjV_Include__<Current+1,Dimensions, GreaterOrEqual<Current+2,Dimensions>::eval>::Operator4_sum(__p0,__p1)
+					);
+			}
+
+
+		/* --- Now processing 'Pointers/Operator:+||const [*]|<>|v:i*v:i' --- */
+		template <typename T0>
+			static inline	T0	__fastcall	Operator5_sum(const T0 __p0[Dimensions])throw()
+			{
+				return (
+						__p0[Current]*__p0[Current] +
+						ObjV_Include__<Current+1,Dimensions, GreaterOrEqual<Current+2,Dimensions>::eval>::Operator5_sum(__p0)
+					);
+			}
+
+
+		/* --- Now processing 'Objects/Operator:+||const [*]|const [*]|<>|sqr(v:i - w:i)' --- */
+		template <typename T0, typename T1>
+			static inline	T0	__fastcall	Operator6_sum(const T0 __p0[Dimensions], const T1 __p1[Dimensions])throw()
+			{
+				return (
+						sqr(__p0[Current] - __p1[Current]) +
+						ObjV_Include__<Current+1,Dimensions, GreaterOrEqual<Current+2,Dimensions>::eval>::Operator6_sum(__p0,__p1)
+					);
+			}
+
+
+		/* --- Now processing 'Objects/Operator:+||const [*]|const [*]|<>|v:i*w:i' --- */
+		template <typename T0, typename T1>
+			static inline	T0	__fastcall	Operator7_sum(const T0 __p0[Dimensions], const T1 __p1[Dimensions])throw()
+			{
+				return (
+						__p0[Current]*__p1[Current] +
+						ObjV_Include__<Current+1,Dimensions, GreaterOrEqual<Current+2,Dimensions>::eval>::Operator7_sum(__p0,__p1)
+					);
+			}
+
+
+		/* --- Now processing 'Objects/Operator:+||const [*]|<>|v:i*v:i' --- */
+		template <typename T0>
+			static inline	T0	__fastcall	Operator8_sum(const T0 __p0[Dimensions])throw()
+			{
+				return (
+						__p0[Current]*__p0[Current] +
+						ObjV_Include__<Current+1,Dimensions, GreaterOrEqual<Current+2,Dimensions>::eval>::Operator8_sum(__p0)
+					);
+			}
+
+
 		/* ----- Now implementing pointer based recursion terminators ----- */
 
 		/* ----- Now implementing object based recursion terminators ----- */
 
 		/* ----- Now implementing pointer based recursion-indirect functions ----- */
+		//now implementing template definition 'bool SphereContainsPoint (2..4) (<const [*] center>, <radius>, <const [*] p>) direct='
+		/**
+			@brief <br>
+			<br>
+			SphereContainsPoint() requires array pointers to operate on. Make sure all passed array pointers provide at least as many elements as required (<Dimensions> in general for this version)<br>
+			Scalar values are passed as copies rather than by const reference. Use this version for primitive types only.<br>
+		
+			@param[in] center 
+			@param[in] radius 
+			@param[in] p 
+			@return  
+		*/
+		template <typename T0, typename T1, typename T2>
+			static	inline	bool	__fastcall	SphereContainsPoint(const T0 center[Dimensions], T1 radius, const T2 p[Dimensions])throw()
+			{
+				return (ObjV_Include__<0,Dimensions,false>::Operator3_sum(center, p)/*sqr(center:i - p:i)*/) <= sqr(radius);
+			}
+
+		//now implementing template definition 'bool detectSphereEdgeIntersection|DetectSphereEdgeIntersection (2..4) (<const [*] center>, <radius>, <const [*] e0>, <const [*] e1>) direct='
+		/**
+			@brief <br>
+			<br>
+			detectSphereEdgeIntersection() requires array pointers to operate on. Make sure all passed array pointers provide at least as many elements as required (<Dimensions> in general for this version)<br>
+			Scalar values are passed as copies rather than by const reference. Use this version for primitive types only.<br>
+		
+			@param[in] center 
+			@param[in] radius 
+			@param[in] e0 
+			@param[in] e1 
+			@return  
+		*/
+		template <typename T0, typename T1, typename T2, typename T3>
+			static	inline	bool	__fastcall	detectSphereEdgeIntersection(const T0 center[Dimensions], T1 radius, const T2 e0[Dimensions], const T3 e1[Dimensions])throw()
+			{
+				if (((ObjV_Include__<0,Dimensions,false>::Operator3_sum(center, e0)/*sqr(center:i - e0:i)*/) <= sqr(radius)) || ((ObjV_Include__<0,Dimensions,false>::Operator3_sum(center, e1)/*sqr(center:i - e1:i)*/) <= sqr(radius)))
+					return true;
+				T0 d[Dimensions];
+				
+				//block inlining void subtract|sub (2..4) (<const [*] v>, <const [*] w>, <[*] result>) direct=1 for dimensions=3, assembly_mode='Pointers', parameters={e1, e0, d}...
+				{
+					d[Current] = e1[Current] - e0[Current];
+					VecV_Include__<Current+1,Dimensions,GreaterOrEqual<Current+2,Dimensions>::eval>::subtract(e1, e0, d);
+				};
+				T0 delta[Dimensions];
+				
+				//block inlining void subtract|sub (2..4) (<const [*] v>, <const [*] w>, <[*] result>) direct=1 for dimensions=3, assembly_mode='Pointers', parameters={e0, center, delta}...
+				{
+					delta[Current] = e0[Current] - center[Current];
+					VecV_Include__<Current+1,Dimensions,GreaterOrEqual<Current+2,Dimensions>::eval>::subtract(e0, center, delta);
+				};
+				T0	pa = (ObjV_Include__<0,Dimensions,false>::Operator4_sum(d, d)/*d:i*d:i*/),
+						pb = 2*(ObjV_Include__<0,Dimensions,false>::Operator4_sum(d, delta)/*d:i*delta:i*/),
+						pc = (ObjV_Include__<0,Dimensions,false>::Operator5_sum(delta)/*delta:i*delta:i*/)-sqr(radius),
+						rs[2];
+				BYTE num_rs = solveSqrEquation(pa,pb,pc,rs);
+				if (!num_rs)
+					return false;
+				T0	alpha = smallestPositiveResult(rs,num_rs);
+				return alpha >= (T0)0 && alpha <= (T0)1;
+			}
+
+		/**
+			@brief <br>
+			<br>
+			DetectSphereEdgeIntersection() requires array pointers to operate on. Make sure all passed array pointers provide at least as many elements as required (<Dimensions> in general for this version)<br>
+			Scalar values are passed as copies rather than by const reference. Use this version for primitive types only.<br>
+		
+			@param[in] center 
+			@param[in] radius 
+			@param[in] e0 
+			@param[in] e1 
+			@return  
+		*/
+		template <typename T0, typename T1, typename T2, typename T3>
+			static	inline	bool	__fastcall	DetectSphereEdgeIntersection(const T0 center[Dimensions], T1 radius, const T2 e0[Dimensions], const T3 e1[Dimensions])throw()
+			{
+				if (((ObjV_Include__<0,Dimensions,false>::Operator3_sum(center, e0)/*sqr(center:i - e0:i)*/) <= sqr(radius)) || ((ObjV_Include__<0,Dimensions,false>::Operator3_sum(center, e1)/*sqr(center:i - e1:i)*/) <= sqr(radius)))
+					return true;
+				T0 d[Dimensions];
+				
+				//block inlining void subtract|sub (2..4) (<const [*] v>, <const [*] w>, <[*] result>) direct=1 for dimensions=3, assembly_mode='Pointers', parameters={e1, e0, d}...
+				{
+					d[Current] = e1[Current] - e0[Current];
+					VecV_Include__<Current+1,Dimensions,GreaterOrEqual<Current+2,Dimensions>::eval>::subtract(e1, e0, d);
+				};
+				T0 delta[Dimensions];
+				
+				//block inlining void subtract|sub (2..4) (<const [*] v>, <const [*] w>, <[*] result>) direct=1 for dimensions=3, assembly_mode='Pointers', parameters={e0, center, delta}...
+				{
+					delta[Current] = e0[Current] - center[Current];
+					VecV_Include__<Current+1,Dimensions,GreaterOrEqual<Current+2,Dimensions>::eval>::subtract(e0, center, delta);
+				};
+				T0	pa = (ObjV_Include__<0,Dimensions,false>::Operator4_sum(d, d)/*d:i*d:i*/),
+						pb = 2*(ObjV_Include__<0,Dimensions,false>::Operator4_sum(d, delta)/*d:i*delta:i*/),
+						pc = (ObjV_Include__<0,Dimensions,false>::Operator5_sum(delta)/*delta:i*delta:i*/)-sqr(radius),
+						rs[2];
+				BYTE num_rs = solveSqrEquation(pa,pb,pc,rs);
+				if (!num_rs)
+					return false;
+				T0	alpha = smallestPositiveResult(rs,num_rs);
+				return alpha >= (T0)0 && alpha <= (T0)1;
+			}
+
+		//now implementing template definition 'bool detectSphereEdgeIntersection|DetectSphereEdgeIntersection (2..4) (<const [*] center>, <radius>, <const [*] e0>, <const [*] e1>, <[2] distances>) direct='
+		/**
+			@brief Detects whether or not there is an intersection between the given sphere and edge. Returns the intersection distance factors between e0 (=0) and e1 (=1)<br>
+			<br>
+			detectSphereEdgeIntersection() requires array pointers to operate on. Make sure all passed array pointers provide at least as many elements as required (2 in general for this version)<br>
+			Scalar values are passed as copies rather than by const reference. Use this version for primitive types only.<br>
+		
+			@param[in] center 
+			@param[in] radius 
+			@param[in] e0 
+			@param[in] e1 
+			@param[out] distances Intersection distances
+			@return True, if there is an intersection, or all intersection points lie inside the sphere, false otherwise 
+		*/
+		template <typename T0, typename T1, typename T2, typename T3, typename T4>
+			static	inline	bool	__fastcall	detectSphereEdgeIntersection(const T0 center[Dimensions], T1 radius, const T2 e0[Dimensions], const T3 e1[Dimensions], T4 distances[2])throw()
+			{
+				T4 d[Dimensions];
+				
+				//block inlining void subtract|sub (2..4) (<const [*] v>, <const [*] w>, <[*] result>) direct=1 for dimensions=3, assembly_mode='Pointers', parameters={e1, e0, d}...
+				{
+					d[Current] = e1[Current] - e0[Current];
+					VecV_Include__<Current+1,Dimensions,GreaterOrEqual<Current+2,Dimensions>::eval>::subtract(e1, e0, d);
+				};
+				T4 delta[Dimensions];
+				
+				//block inlining void subtract|sub (2..4) (<const [*] v>, <const [*] w>, <[*] result>) direct=1 for dimensions=3, assembly_mode='Pointers', parameters={e0, center, delta}...
+				{
+					delta[Current] = e0[Current] - center[Current];
+					VecV_Include__<Current+1,Dimensions,GreaterOrEqual<Current+2,Dimensions>::eval>::subtract(e0, center, delta);
+				};
+				T4	pa = (ObjV_Include__<0,Dimensions,false>::Operator4_sum(d, d)/*d:i*d:i*/),
+						pb = 2*(ObjV_Include__<0,Dimensions,false>::Operator4_sum(d, delta)/*d:i*delta:i*/),
+						pc = (ObjV_Include__<0,Dimensions,false>::Operator5_sum(delta)/*delta:i*delta:i*/)-sqr(radius),
+						rs[2];
+				BYTE num_rs = solveSqrEquation(pa,pb,pc,rs);
+				if (!num_rs)
+					return false;
+				if (num_rs == 1)
+				{
+					distances[0] = distances[1] = rs[0];
+					return rs[0] >= (T4)0 && rs[0] <= (T4)1;
+				}
+				distances[0] = std::min(rs[0],rs[1]);
+				distances[1] = std::max(rs[0],rs[1]);
+				return (distances[0] <= (T4)1 && distances[1] >= (T4)0);
+			}
+
+		/**
+			@brief Detects whether or not there is an intersection between the given sphere and edge. Returns the intersection distance factors between e0 (=0) and e1 (=1)<br>
+			<br>
+			DetectSphereEdgeIntersection() requires array pointers to operate on. Make sure all passed array pointers provide at least as many elements as required (2 in general for this version)<br>
+			Scalar values are passed as copies rather than by const reference. Use this version for primitive types only.<br>
+		
+			@param[in] center 
+			@param[in] radius 
+			@param[in] e0 
+			@param[in] e1 
+			@param[out] distances Intersection distances
+			@return True, if there is an intersection, or all intersection points lie inside the sphere, false otherwise 
+		*/
+		template <typename T0, typename T1, typename T2, typename T3, typename T4>
+			static	inline	bool	__fastcall	DetectSphereEdgeIntersection(const T0 center[Dimensions], T1 radius, const T2 e0[Dimensions], const T3 e1[Dimensions], T4 distances[2])throw()
+			{
+				T4 d[Dimensions];
+				
+				//block inlining void subtract|sub (2..4) (<const [*] v>, <const [*] w>, <[*] result>) direct=1 for dimensions=3, assembly_mode='Pointers', parameters={e1, e0, d}...
+				{
+					d[Current] = e1[Current] - e0[Current];
+					VecV_Include__<Current+1,Dimensions,GreaterOrEqual<Current+2,Dimensions>::eval>::subtract(e1, e0, d);
+				};
+				T4 delta[Dimensions];
+				
+				//block inlining void subtract|sub (2..4) (<const [*] v>, <const [*] w>, <[*] result>) direct=1 for dimensions=3, assembly_mode='Pointers', parameters={e0, center, delta}...
+				{
+					delta[Current] = e0[Current] - center[Current];
+					VecV_Include__<Current+1,Dimensions,GreaterOrEqual<Current+2,Dimensions>::eval>::subtract(e0, center, delta);
+				};
+				T4	pa = (ObjV_Include__<0,Dimensions,false>::Operator4_sum(d, d)/*d:i*d:i*/),
+						pb = 2*(ObjV_Include__<0,Dimensions,false>::Operator4_sum(d, delta)/*d:i*delta:i*/),
+						pc = (ObjV_Include__<0,Dimensions,false>::Operator5_sum(delta)/*delta:i*delta:i*/)-sqr(radius),
+						rs[2];
+				BYTE num_rs = solveSqrEquation(pa,pb,pc,rs);
+				if (!num_rs)
+					return false;
+				if (num_rs == 1)
+				{
+					distances[0] = distances[1] = rs[0];
+					return rs[0] >= (T4)0 && rs[0] <= (T4)1;
+				}
+				distances[0] = std::min(rs[0],rs[1]);
+				distances[1] = std::max(rs[0],rs[1]);
+				return (distances[0] <= (T4)1 && distances[1] >= (T4)0);
+			}
+
 
 		/* ----- Now implementing object based recursion-indirect functions ----- */
+		//now implementing template definition 'bool SphereContainsPoint (2..4) (<const [*] center>, <radius>, <const [*] p>) direct='
+		/**
+			@brief <br>
+			<br>
+			SphereContainsPoint() requires vector objects to operate on, rather than raw pointers. Use ref*() to create a temporary reference object to existing array pointers<br>
+			Scalar values are passed as copies rather than by const reference. Use this version for primitive types only.<br>
+		
+			@param[in] center 
+			@param[in] radius 
+			@param[in] p 
+			@return  
+		*/
+		template <typename T0, typename T1, typename T2>
+			static	inline	bool	__fastcall	SphereContainsPoint(const TVec<T0,Dimensions>& center, T1 radius, const TVec<T2,Dimensions>& p)throw()
+			{
+				return (ObjV_Include__<0,Dimensions,false>::Operator6_sum(center.v, p.v)/*sqr(center:i - p:i)*/) <= sqr(radius);
+			}
+
+		//now implementing template definition 'bool detectSphereEdgeIntersection|DetectSphereEdgeIntersection (2..4) (<const [*] center>, <radius>, <const [*] e0>, <const [*] e1>) direct='
+		/**
+			@brief <br>
+			<br>
+			detectSphereEdgeIntersection() requires vector objects to operate on, rather than raw pointers. Use ref*() to create a temporary reference object to existing array pointers<br>
+			Scalar values are passed as copies rather than by const reference. Use this version for primitive types only.<br>
+		
+			@param[in] center 
+			@param[in] radius 
+			@param[in] e0 
+			@param[in] e1 
+			@return  
+		*/
+		template <typename T0, typename T1, typename T2, typename T3>
+			static	inline	bool	__fastcall	detectSphereEdgeIntersection(const TVec<T0,Dimensions>& center, T1 radius, const TVec<T2,Dimensions>& e0, const TVec<T3,Dimensions>& e1)throw()
+			{
+				if (((ObjV_Include__<0,Dimensions,false>::Operator6_sum(center.v, e0.v)/*sqr(center:i - e0:i)*/) <= sqr(radius)) || ((ObjV_Include__<0,Dimensions,false>::Operator6_sum(center.v, e1.v)/*sqr(center:i - e1:i)*/) <= sqr(radius)))
+					return true;
+				TVec<T0,Dimensions> d;
+				
+				//block inlining void subtract|sub (2..4) (<const [*] v>, <const [*] w>, <[*] result>) direct=1 for dimensions=3, assembly_mode='Objects', parameters={e1, e0, d}...
+				{
+					d.v[Current] = e1.v[Current] - e0.v[Current];
+					VecV_Include__<Current+1,Dimensions,GreaterOrEqual<Current+2,Dimensions>::eval>::subtract(e1, e0, d);
+				};
+				TVec<T0,Dimensions> delta;
+				
+				//block inlining void subtract|sub (2..4) (<const [*] v>, <const [*] w>, <[*] result>) direct=1 for dimensions=3, assembly_mode='Objects', parameters={e0, center, delta}...
+				{
+					delta.v[Current] = e0.v[Current] - center.v[Current];
+					VecV_Include__<Current+1,Dimensions,GreaterOrEqual<Current+2,Dimensions>::eval>::subtract(e0, center, delta);
+				};
+				T0	pa = (ObjV_Include__<0,Dimensions,false>::Operator7_sum(d.v, d.v)/*d:i*d:i*/),
+						pb = 2*(ObjV_Include__<0,Dimensions,false>::Operator7_sum(d.v, delta.v)/*d:i*delta:i*/),
+						pc = (ObjV_Include__<0,Dimensions,false>::Operator8_sum(delta.v)/*delta:i*delta:i*/)-sqr(radius),
+						rs[2];
+				BYTE num_rs = solveSqrEquation(pa,pb,pc,rs);
+				if (!num_rs)
+					return false;
+				T0	alpha = smallestPositiveResult(rs,num_rs);
+				return alpha >= (T0)0 && alpha <= (T0)1;
+			}
+
+		/**
+			@brief <br>
+			<br>
+			DetectSphereEdgeIntersection() requires vector objects to operate on, rather than raw pointers. Use ref*() to create a temporary reference object to existing array pointers<br>
+			Scalar values are passed as copies rather than by const reference. Use this version for primitive types only.<br>
+		
+			@param[in] center 
+			@param[in] radius 
+			@param[in] e0 
+			@param[in] e1 
+			@return  
+		*/
+		template <typename T0, typename T1, typename T2, typename T3>
+			static	inline	bool	__fastcall	DetectSphereEdgeIntersection(const TVec<T0,Dimensions>& center, T1 radius, const TVec<T2,Dimensions>& e0, const TVec<T3,Dimensions>& e1)throw()
+			{
+				if (((ObjV_Include__<0,Dimensions,false>::Operator6_sum(center.v, e0.v)/*sqr(center:i - e0:i)*/) <= sqr(radius)) || ((ObjV_Include__<0,Dimensions,false>::Operator6_sum(center.v, e1.v)/*sqr(center:i - e1:i)*/) <= sqr(radius)))
+					return true;
+				TVec<T0,Dimensions> d;
+				
+				//block inlining void subtract|sub (2..4) (<const [*] v>, <const [*] w>, <[*] result>) direct=1 for dimensions=3, assembly_mode='Objects', parameters={e1, e0, d}...
+				{
+					d.v[Current] = e1.v[Current] - e0.v[Current];
+					VecV_Include__<Current+1,Dimensions,GreaterOrEqual<Current+2,Dimensions>::eval>::subtract(e1, e0, d);
+				};
+				TVec<T0,Dimensions> delta;
+				
+				//block inlining void subtract|sub (2..4) (<const [*] v>, <const [*] w>, <[*] result>) direct=1 for dimensions=3, assembly_mode='Objects', parameters={e0, center, delta}...
+				{
+					delta.v[Current] = e0.v[Current] - center.v[Current];
+					VecV_Include__<Current+1,Dimensions,GreaterOrEqual<Current+2,Dimensions>::eval>::subtract(e0, center, delta);
+				};
+				T0	pa = (ObjV_Include__<0,Dimensions,false>::Operator7_sum(d.v, d.v)/*d:i*d:i*/),
+						pb = 2*(ObjV_Include__<0,Dimensions,false>::Operator7_sum(d.v, delta.v)/*d:i*delta:i*/),
+						pc = (ObjV_Include__<0,Dimensions,false>::Operator8_sum(delta.v)/*delta:i*delta:i*/)-sqr(radius),
+						rs[2];
+				BYTE num_rs = solveSqrEquation(pa,pb,pc,rs);
+				if (!num_rs)
+					return false;
+				T0	alpha = smallestPositiveResult(rs,num_rs);
+				return alpha >= (T0)0 && alpha <= (T0)1;
+			}
+
+		//now implementing template definition 'bool detectSphereEdgeIntersection|DetectSphereEdgeIntersection (2..4) (<const [*] center>, <radius>, <const [*] e0>, <const [*] e1>, <[2] distances>) direct='
+		/**
+			@brief Detects whether or not there is an intersection between the given sphere and edge. Returns the intersection distance factors between e0 (=0) and e1 (=1)<br>
+			<br>
+			detectSphereEdgeIntersection() requires vector objects to operate on, rather than raw pointers. Use ref*() to create a temporary reference object to existing array pointers<br>
+			Scalar values are passed as copies rather than by const reference. Use this version for primitive types only.<br>
+		
+			@param[in] center 
+			@param[in] radius 
+			@param[in] e0 
+			@param[in] e1 
+			@param[out] distances Intersection distances
+			@return True, if there is an intersection, or all intersection points lie inside the sphere, false otherwise 
+		*/
+		template <typename T0, typename T1, typename T2, typename T3, typename T4>
+			static	inline	bool	__fastcall	detectSphereEdgeIntersection(const TVec<T0,Dimensions>& center, T1 radius, const TVec<T2,Dimensions>& e0, const TVec<T3,Dimensions>& e1, TVec2<T4>& distances)throw()
+			{
+				TVec<T4,Dimensions> d;
+				
+				//block inlining void subtract|sub (2..4) (<const [*] v>, <const [*] w>, <[*] result>) direct=1 for dimensions=3, assembly_mode='Objects', parameters={e1, e0, d}...
+				{
+					d.v[Current] = e1.v[Current] - e0.v[Current];
+					VecV_Include__<Current+1,Dimensions,GreaterOrEqual<Current+2,Dimensions>::eval>::subtract(e1, e0, d);
+				};
+				TVec<T4,Dimensions> delta;
+				
+				//block inlining void subtract|sub (2..4) (<const [*] v>, <const [*] w>, <[*] result>) direct=1 for dimensions=3, assembly_mode='Objects', parameters={e0, center, delta}...
+				{
+					delta.v[Current] = e0.v[Current] - center.v[Current];
+					VecV_Include__<Current+1,Dimensions,GreaterOrEqual<Current+2,Dimensions>::eval>::subtract(e0, center, delta);
+				};
+				T4	pa = (ObjV_Include__<0,Dimensions,false>::Operator7_sum(d.v, d.v)/*d:i*d:i*/),
+						pb = 2*(ObjV_Include__<0,Dimensions,false>::Operator7_sum(d.v, delta.v)/*d:i*delta:i*/),
+						pc = (ObjV_Include__<0,Dimensions,false>::Operator8_sum(delta.v)/*delta:i*delta:i*/)-sqr(radius),
+						rs[2];
+				BYTE num_rs = solveSqrEquation(pa,pb,pc,rs);
+				if (!num_rs)
+					return false;
+				if (num_rs == 1)
+				{
+					distances.x = distances.y = rs[0];
+					return rs[0] >= (T4)0 && rs[0] <= (T4)1;
+				}
+				distances.x = std::min(rs[0],rs[1]);
+				distances.y = std::max(rs[0],rs[1]);
+				return (distances.x <= (T4)1 && distances.y >= (T4)0);
+			}
+
+		/**
+			@brief Detects whether or not there is an intersection between the given sphere and edge. Returns the intersection distance factors between e0 (=0) and e1 (=1)<br>
+			<br>
+			DetectSphereEdgeIntersection() requires vector objects to operate on, rather than raw pointers. Use ref*() to create a temporary reference object to existing array pointers<br>
+			Scalar values are passed as copies rather than by const reference. Use this version for primitive types only.<br>
+		
+			@param[in] center 
+			@param[in] radius 
+			@param[in] e0 
+			@param[in] e1 
+			@param[out] distances Intersection distances
+			@return True, if there is an intersection, or all intersection points lie inside the sphere, false otherwise 
+		*/
+		template <typename T0, typename T1, typename T2, typename T3, typename T4>
+			static	inline	bool	__fastcall	DetectSphereEdgeIntersection(const TVec<T0,Dimensions>& center, T1 radius, const TVec<T2,Dimensions>& e0, const TVec<T3,Dimensions>& e1, TVec2<T4>& distances)throw()
+			{
+				TVec<T4,Dimensions> d;
+				
+				//block inlining void subtract|sub (2..4) (<const [*] v>, <const [*] w>, <[*] result>) direct=1 for dimensions=3, assembly_mode='Objects', parameters={e1, e0, d}...
+				{
+					d.v[Current] = e1.v[Current] - e0.v[Current];
+					VecV_Include__<Current+1,Dimensions,GreaterOrEqual<Current+2,Dimensions>::eval>::subtract(e1, e0, d);
+				};
+				TVec<T4,Dimensions> delta;
+				
+				//block inlining void subtract|sub (2..4) (<const [*] v>, <const [*] w>, <[*] result>) direct=1 for dimensions=3, assembly_mode='Objects', parameters={e0, center, delta}...
+				{
+					delta.v[Current] = e0.v[Current] - center.v[Current];
+					VecV_Include__<Current+1,Dimensions,GreaterOrEqual<Current+2,Dimensions>::eval>::subtract(e0, center, delta);
+				};
+				T4	pa = (ObjV_Include__<0,Dimensions,false>::Operator7_sum(d.v, d.v)/*d:i*d:i*/),
+						pb = 2*(ObjV_Include__<0,Dimensions,false>::Operator7_sum(d.v, delta.v)/*d:i*delta:i*/),
+						pc = (ObjV_Include__<0,Dimensions,false>::Operator8_sum(delta.v)/*delta:i*delta:i*/)-sqr(radius),
+						rs[2];
+				BYTE num_rs = solveSqrEquation(pa,pb,pc,rs);
+				if (!num_rs)
+					return false;
+				if (num_rs == 1)
+				{
+					distances.x = distances.y = rs[0];
+					return rs[0] >= (T4)0 && rs[0] <= (T4)1;
+				}
+				distances.x = std::min(rs[0],rs[1]);
+				distances.y = std::max(rs[0],rs[1]);
+				return (distances.x <= (T4)1 && distances.y >= (T4)0);
+			}
+
 	};
 
 template <count_t Dimensions, count_t First=0>

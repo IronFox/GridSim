@@ -158,11 +158,11 @@ functions:
 		distance = alpha;
 		return true;
 
-	SphereContainsPoint(const [3] center, radius, const [3] p) -> bool
+	SphereContainsPoint(const [] center, radius, const [] p) -> bool
 		return :<quadraticDistance>(center,p) <= sqr(radius);
 	
 	
-	detectSphereEdgeIntersection,DetectSphereEdgeIntersection(const [3] center, radius, const [3] e0, const [3] e1) -> bool
+	detectSphereEdgeIntersection,DetectSphereEdgeIntersection(const [] center, radius, const [] e0, const [] e1) -> bool
 		if (:<SphereContainsPoint>(center,radius,e0) || :<SphereContainsPoint>(center,radius,e1))
 			return true;
 		:vector(d);
@@ -180,7 +180,7 @@ functions:
 		return alpha >= (:float)0 && alpha <= (:float)1;
 		
 	
-	detectSphereEdgeIntersection,DetectSphereEdgeIntersection(const [3] center, radius, const [3] e0, const [3] e1, [2] distances{Intersection distances} ) -> bool {True, if there is an intersection, or all intersection points lie inside the sphere, false otherwise}
+	detectSphereEdgeIntersection,DetectSphereEdgeIntersection(const [] center, radius, const [] e0, const [] e1, [2] distances{Intersection distances} ) -> bool {True, if there is an intersection, or all intersection points lie inside the sphere, false otherwise}
 		{
 			Detects whether or not there is an intersection between the given sphere and edge. Returns the intersection distance factors between e0 (=0) and e1 (=1)
 		}
