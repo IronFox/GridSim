@@ -191,7 +191,7 @@ namespace Engine
 		be destroyed automatically if the Display object instance is deleted.
 		*/
 		inline	bool				create(const DisplayConfig&config = DisplayConfig());	//!< @overload
-		inline	bool				Create(const DisplayConfig&config = DisplayConfig());	/**@copydoc create()*/ {return create(config);}
+		inline	bool				Create(const DisplayConfig&config = DisplayConfig())	/**@copydoc create()*/ {return create(config);}
 		FORWARD bool				hideCursor();   				//!< Hides the mouse cursor while above the active window. A created context is required. \return true if cursor is hidden
 		FORWARD void				showCursor();   				//!< Shows cursor again if it has previously been hidden.
 		/*!
