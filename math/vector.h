@@ -589,6 +589,35 @@ namespace Math
 			return FloatRange(std::numeric_limits<T>::max(),-std::numeric_limits<T>::max());
 		}
 
+	template <>
+		inline TFloatRange<unsigned char>	MaxInvalidRange()
+		{
+			return FloatRange(std::numeric_limits<unsigned char>::max(),(unsigned char)0);
+		}
+
+	template <>
+		inline TFloatRange<unsigned short>	MaxInvalidRange()
+		{
+			return FloatRange(std::numeric_limits<unsigned short>::max(),(unsigned short)0);
+		}
+		
+	template <>
+		inline TFloatRange<unsigned int>	MaxInvalidRange()
+		{
+			return FloatRange(std::numeric_limits<unsigned int>::max(),(unsigned int)0);
+		}
+
+	//template <>
+	//	inline TFloatRange<unsigned long>	MaxInvalidRange()
+	//	{
+	//		return FloatRange(std::numeric_limits<unsigned long>::max(),(unsigned long)0);
+	//	}
+
+	template <>
+		inline TFloatRange<unsigned long long>	MaxInvalidRange()
+		{
+			return FloatRange(std::numeric_limits<unsigned long long>::max(),(unsigned long long)0);
+		}
 
 	template <typename T>
 		class Quad
