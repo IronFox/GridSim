@@ -170,143 +170,145 @@ namespace Engine
 
 	public:
 
-	#undef FORWARD
-	/*!
-	  \def FORWARD
-	  Methods that use this simply foward to the underlieing context class
-	*/
-	#define FORWARD static inline
+		#undef FORWARD
+		/*!
+		  \def FORWARD
+		  Methods that use this simply foward to the underlieing context class
+		*/
+		#define FORWARD static inline
 
-			TextureResource<GL>			archive;			//!< gl specific archive
-			TVisualConfig				config;			 	//!< startup configuration
+		TextureResource<GL>			archive;			//!< gl specific archive
+		TVisualConfig				config;			 	//!< startup configuration
 
-										Display();
-										/*!
-											\brief Creates the eve interface
-											\return true on success
+		/**/						Display();
+		/*!
+		\brief Creates the eve interface
+		\return true on success
 
-											create() creates a window and binds the GL rendering context to the window.
-											Successive calls to create() will have no effect until the Display context
-											has been destroyed via close(). The window and rendering context will
-											be destroyed automatically if the Display object instance is deleted.
-										*/
-	inline	bool						create(const DisplayConfig&config = DisplayConfig());	//!< @overload
-	FORWARD bool						hideCursor();   				//!< Hides the mouse cursor while above the active window. A created context is required. \return true if cursor is hidden
-	FORWARD void						showCursor();   				//!< Shows cursor again if it has previously been hidden.
-										/*!
-										\brief Changes the location and size of the associated window
-										\param left New left coordinate of the window in pixels (relative to the left screen border)
-										\param top New top coordinate of the window in pixels (relative to the top screen border - facing downwards)
-										\param width New window width in pixels
-										\param height New window height in pixels
+		create() creates a window and binds the GL rendering context to the window.
+		Successive calls to create() will have no effect until the Display context
+		has been destroyed via close(). The window and rendering context will
+		be destroyed automatically if the Display object instance is deleted.
+		*/
+		inline	bool				create(const DisplayConfig&config = DisplayConfig());	//!< @overload
+		inline	bool				Create(const DisplayConfig&config = DisplayConfig());	/**@copydoc create()*/ {return create(config);}
+		FORWARD bool				hideCursor();   				//!< Hides the mouse cursor while above the active window. A created context is required. \return true if cursor is hidden
+		FORWARD void				showCursor();   				//!< Shows cursor again if it has previously been hidden.
+		/*!
+		\brief Changes the location and size of the associated window
+		\param left New left coordinate of the window in pixels (relative to the left screen border)
+		\param top New top coordinate of the window in pixels (relative to the top screen border - facing downwards)
+		\param width New window width in pixels
+		\param height New window height in pixels
 
-										localWindow() redefines the location and size of the active window. If no window is active then
-										the specified window location will be applied during the next create() call.
-										Depending on the underlying system, the window size either specifies the size
-										of the inner client area or the windoe including its border (if any).
-										*/
-	inline  void						locateWindow(unsigned left, unsigned top, unsigned width, unsigned height);
-	inline  void						LocateWindow(unsigned left, unsigned top, unsigned width, unsigned height)	/**@copydoc locateWindow()*/	{locateWindow(left,top,width,height);}
-	inline  void						locateWindow(const RECT&rect);	//!< Identical to the above localeWindow() using a RECT struct.
-										/*!
-										\brief Changes the size of the associated window
-										\param width New window width in pixels
-										\param height New window height in pixels
+		localWindow() redefines the location and size of the active window. If no window is active then
+		the specified window location will be applied during the next create() call.
+		Depending on the underlying system, the window size either specifies the size
+		of the inner client area or the windoe including its border (if any).
+		*/
+		inline  void				locateWindow(unsigned left, unsigned top, unsigned width, unsigned height);
+		inline  void				LocateWindow(unsigned left, unsigned top, unsigned width, unsigned height)	/**@copydoc locateWindow()*/	{locateWindow(left,top,width,height);}
+		inline  void				locateWindow(const RECT&rect);	//!< Identical to the above localeWindow() using a RECT struct.
+		/*!
+		\brief Changes the size of the associated window
+		\param width New window width in pixels
+		\param height New window height in pixels
 
-										resizeWindow() redefines the size of the active window. If no window is active then
-										the specified window dimension will be applied during the next create() call.
-										*/
-	inline  void						resizeWindow(unsigned width, unsigned height, DisplayConfig::border_style_t style);
-	inline	void						setDimension(unsigned width, unsigned height, DisplayConfig::border_style_t style);	//!< @copydoc resizeWindow()
-	inline	void						setDimensions(unsigned width, unsigned height, DisplayConfig::border_style_t style);	//!< @copydoc resizeWindow()
-	inline	void						setSize(unsigned width, unsigned height, DisplayConfig::border_style_t style);	//!< @copydoc resizeWindow()
+		resizeWindow() redefines the size of the active window. If no window is active then
+		the specified window dimension will be applied during the next create() call.
+		*/
+		inline  void				resizeWindow(unsigned width, unsigned height, DisplayConfig::border_style_t style);
+		inline	void				setDimension(unsigned width, unsigned height, DisplayConfig::border_style_t style);	//!< @copydoc resizeWindow()
+		inline	void				setDimensions(unsigned width, unsigned height, DisplayConfig::border_style_t style);	//!< @copydoc resizeWindow()
+		inline	void				setSize(unsigned width, unsigned height, DisplayConfig::border_style_t style);	//!< @copydoc resizeWindow()
 
-	void								SignalWindowResize(UINT32 displayConfigFlags);
+		void						SignalWindowResize(UINT32 displayConfigFlags);
 
-	FORWARD const RECT&					windowLocation();	//!< Retrieves the current window location and size \return RECT Struct containing the current window location.
-	FORWARD	unsigned					width();			//!< Queries the current window width
-	FORWARD	unsigned					height();				//!< Queries the current window height
-	inline	UINT						clientWidth()			const;	//!< Queries the current window's inner width
-	inline	UINT						clientHeight()			const;	//!< Queries the current window's inner height
-	inline	float						pixelAspect()	const;	   //!< window pixel-aspect
-	FORWARD	Resolution					size();							//!< Queries the current window size
-	inline	Resolution					clientSize()			const;	//!< Queries the current window's inner size
-	inline	Resolution					currentTargetResolution()				const;
-	FORWARD	Resolution					dimension();					//!< Identical to size()
-	FORWARD	Resolution					dimensions();					//!< Identical to size()
-	FORWARD void						queryScreen(ResolutionList*r_list, FrequencyList*f_list=NULL, DWORD w_min=0, DWORD h_min=0, DWORD f_min=0);
-	FORWARD	Resolution					getScreenSize();
-			RECT						transformViewport(const TFloatRect&rect, const Resolution&clientSize);
-	inline  void						setScreen(const TDisplayMode&mode);
-	FORWARD short						getRefreshRate();
-	FORWARD bool						IsMaximized();
-	FORWARD void						Maximize();
-	FORWARD bool						IsMinimized();
-	FORWARD void						Minimize();
-	#if SYSTEM==WINDOWS
-	FORWARD bool						getScreen(DEVMODE&mode);
-	FORWARD bool						getScreen(DEVMODE*mode);
-	FORWARD bool						isCurrent(const DEVMODE&screen);
-	/**
-	Signals that file drops are allowed and specified handler functions to check whether or not a set of files is accepted, and what to do if they are actually dropped.
-	@param onDrag Function to determine whether or not a group of files being dragged atop the window is accepted for dropping. The function must either accept all files, or none.
-	The function may be empty in which case all files are accepted.
-	@param onDrop Function to be called if a set of accepted files are dropped on the window. The function is not executed if @a onDrag returned false on them.
-	*/
-	FORWARD void						AcceptFileDrop(const DragEventHandler&onDrag, const DropEventHandler&onDrop);
-	/**
-	Signals that file drops are allowed. Use this method to quickly en/disable file dropping without altering the handler functions.
-	When first called use AcceptFileDrop(const DragEventHandler&, const DropEventHandler&) instead,
-	to define handler functions.
-	If no handler functions are specified, no files are accepted since they have nowhere to go.
-	*/
-	FORWARD void						AcceptFileDrop();
-	/**
-	Signals that file drops are disallowed. Does not affect the defined handler functions. Until AcceptFileDrop() is called again, all file drops are rejected globally,
-	and no handler functions are executed.
-	*/
-	FORWARD void						BlockFileDrop();
+		FORWARD const RECT&			windowLocation();	//!< Retrieves the current window location and size \return RECT Struct containing the current window location.
+		FORWARD	unsigned			width();			//!< Queries the current window width
+		FORWARD	unsigned			height();				//!< Queries the current window height
+		inline	UINT				clientWidth()			const;	//!< Queries the current window's inner width
+		inline	UINT				clientHeight()			const;	//!< Queries the current window's inner height
+		inline	float				pixelAspect()	const;	   //!< window pixel-aspect
+		FORWARD	Resolution			size();							//!< Queries the current window size
+		inline	Resolution			clientSize()			const;	//!< Queries the current window's inner size
+		inline	Resolution			currentTargetResolution()				const;
+		FORWARD	Resolution			dimension();					//!< Identical to size()
+		FORWARD	Resolution			dimensions();					//!< Identical to size()
+		FORWARD void				queryScreen(ResolutionList*r_list, FrequencyList*f_list=NULL, DWORD w_min=0, DWORD h_min=0, DWORD f_min=0);
+		FORWARD	Resolution			getScreenSize();
+		RECT						transformViewport(const TFloatRect&rect, const Resolution&clientSize);
+		inline  void				setScreen(const TDisplayMode&mode);
+		FORWARD short				getRefreshRate();
+		FORWARD bool				IsMaximized();
+		FORWARD void				Maximize();
+		FORWARD bool				IsMinimized();
+		FORWARD void				Minimize();
+		#if SYSTEM==WINDOWS
+			FORWARD bool			getScreen(DEVMODE&mode);
+			FORWARD bool			getScreen(DEVMODE*mode);
+			FORWARD bool			isCurrent(const DEVMODE&screen);
+			/**
+			Signals that file drops are allowed and specified handler functions to check whether or not a set of files is accepted, and what to do if they are actually dropped.
+			@param onDrag Function to determine whether or not a group of files being dragged atop the window is accepted for dropping. The function must either accept all files, or none.
+			The function may be empty in which case all files are accepted.
+			@param onDrop Function to be called if a set of accepted files are dropped on the window. The function is not executed if @a onDrag returned false on them.
+			*/
+			FORWARD void			AcceptFileDrop(const DragEventHandler&onDrag, const DropEventHandler&onDrop);
+			/**
+			Signals that file drops are allowed. Use this method to quickly en/disable file dropping without altering the handler functions.
+			When first called use AcceptFileDrop(const DragEventHandler&, const DropEventHandler&) instead,
+			to define handler functions.
+			If no handler functions are specified, no files are accepted since they have nowhere to go.
+			*/
+			FORWARD void			AcceptFileDrop();
+			/**
+			Signals that file drops are disallowed. Does not affect the defined handler functions. Until AcceptFileDrop() is called again, all file drops are rejected globally,
+			and no handler functions are executed.
+			*/
+			FORWARD void			BlockFileDrop();
 
-	#elif SYSTEM==UNIX
-	FORWARD int							findScreen(DWORD width, DWORD height, DWORD&refresh_rate);
-	/*FORWARD const XRRScreenSize&		getScreen(unsigned index);
-	FORWARD bool						getScreen(XRRScreenSize*size);
-	FORWARD bool						getScreen(XRRScreenSize&size);
-	FORWARD bool						isCurrent(const XRRScreenSize&size);*/
-	#endif
+		#elif SYSTEM==UNIX
+			FORWARD int							findScreen(DWORD width, DWORD height, DWORD&refresh_rate);
+			/*FORWARD const XRRScreenSize&		getScreen(unsigned index);
+			FORWARD bool						getScreen(XRRScreenSize*size);
+			FORWARD bool						getScreen(XRRScreenSize&size);
+			FORWARD bool						isCurrent(const XRRScreenSize&size);*/
+		#endif
 
-			void						renderSomething();
-	inline	void						renderPivot();		//!< Identical to renderSomething()
-	inline	void						renderToken();		//!< Identical to renderSomething()
-			void						renderLights();		//!< Renders the active light scenario in line geometries
+		void						renderSomething();
+		inline	void				renderPivot();		//!< Identical to renderSomething()
+		inline	void				renderToken();		//!< Identical to renderSomething()
+		void						renderLights();		//!< Renders the active light scenario in line geometries
 
-	inline  bool						applyScreen();
-	inline  bool						applyWindowScreen(DWORD refresh_rate=0);
-	inline  void						resetScreen();
-	inline	void						Capture(FloatImage&target);
-	inline	void						Capture(Image&target);
-	inline	void						Capture(typename GL::Texture&target);
-	inline	void						captureDepth(typename GL::Texture&target);
+		inline  bool				applyScreen();
+		inline  bool				applyWindowScreen(DWORD refresh_rate=0);
+		inline  void				resetScreen();
+		inline	void				Capture(FloatImage&target);
+		inline	void				Capture(Image&target);
+		inline	void				Capture(typename GL::Texture&target);
+		inline	void				captureDepth(typename GL::Texture&target);
 
-			void						interruptCheckEvents();
-			void						assign(pEngineExec target);		//!< Assigns a new loop-function \param target Callback function of the form bool func(). The function may return false causing execute() to return
-			void						execute();					  	//!< Executes the assigned loop-function
-			void						executeNoClr();				 //!< Executes the assigned loop-function without clearing the screen per loop
-			void						destroy();					//!< Terminates engine execution
-			void						terminate();				//!< \deprecated {use close() instead}
-			String						errorStr();					 //!< Returns a string representation of the last occured error. \return String representation of the last occured error
+		void						interruptCheckEvents();
+		void						assign(pEngineExec target);		//!< Assigns a new loop-function \param target Callback function of the form bool func(). The function may return false causing execute() to return
+		void						execute();					  	//!< Executes the assigned loop-function
+		void						executeNoClr();				 //!< Executes the assigned loop-function without clearing the screen per loop
+		void						destroy();					//!< Terminates engine execution
+		void						terminate();				//!< \deprecated {use close() instead}
+		String						errorStr();					 //!< Returns a string representation of the last occured error. \return String representation of the last occured error
 
-			void						lockRegion();					   //!< Prevent subsequent pick(...) or pickCentered(...) calls from affecting the render region
-			void						unlockRegion();					 //!< Allow subsequent pick(...) or pickCentered(...) calls to affect the render region
-			void						pickRegion(const TFloatRect&rect);   //!< Pick rendering region \param rect New render region
-	template <class C>
-			void						pick(const Aspect<C>&aspect);	//!< Picks aspect (i.e. a camera) for rendering \param aspect Aspect that should be used from now on
-	template <class C>
-			void						pickCentered(const Aspect<C>&aspect);				//!< Picks aspect (i.e. a camera) as if it were located in the point of origin \param aspect Aspect that should be used from now on
-			bool						TargetFBO(const typename GL::FBO&pobj);	 //!< Binds a pixel buffer object for rendering \param pobj Pixel buffer object that should be rendered to
-			void						TargetBackbuffer();										//!< Unbinds bound pixel buffer object
-			void						overrideSetClientResolution(const Resolution&res);
-
+		void						lockRegion();					   //!< Prevent subsequent pick(...) or pickCentered(...) calls from affecting the render region
+		void						unlockRegion();					 //!< Allow subsequent pick(...) or pickCentered(...) calls to affect the render region
+		void						pickRegion(const TFloatRect&rect);   //!< Pick rendering region \param rect New render region
+		template <class C>
+			void					pick(const Aspect<C>&aspect);	//!< Picks aspect (i.e. a camera) for rendering \param aspect Aspect that should be used from now on
+		template <class C>
+			void					Pick(const Aspect<C>&aspect)	/**@copydoc pick()*/ {pick(aspect);}
+		template <class C>
+			void					pickCentered(const Aspect<C>&aspect);				//!< Picks aspect (i.e. a camera) as if it were located in the point of origin \param aspect Aspect that should be used from now on
+		bool						TargetFBO(const typename GL::FBO&pobj);	 //!< Binds a pixel buffer object for rendering \param pobj Pixel buffer object that should be rendered to
+		void						TargetBackbuffer();										//!< Unbinds bound pixel buffer object
+		void						overrideSetClientResolution(const Resolution&res);
 	};
 
 

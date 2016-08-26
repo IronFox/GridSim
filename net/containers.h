@@ -2,7 +2,7 @@
 #define netContainersH
 
 #include "tcp.h"
-#include "../remote/bz2/bz2.h"
+#include "../third_party/bz2/bz2.h"
 #include "../global_string.h"
 
 
