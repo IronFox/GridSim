@@ -584,7 +584,7 @@ namespace Math
 
 
 	template <typename T>
-		inline TFloatRange<T>	MaxInvalidRange()
+		inline constexpr TFloatRange<T>	MaxInvalidRange()
 		{
 			return FloatRange(std::numeric_limits<T>::max(),std::numeric_limits<T>::lowest());
 		}
