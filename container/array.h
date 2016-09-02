@@ -1146,52 +1146,62 @@ template <class C, class Strategy=typename StrategySelector<C>::Default>
 
 			typedef ArrayData<C>	Data;
 
-		explicit	Array(count_t length=0):Data(length)	/** Creates a new array \param length Length of the new array object */ {}
-		explicit	Array(const C&e0, const C&e1):Data(e0,e1)	/** Creates a new 2-element array @param e0 First element to Fill into the array @param e1 Second element to Fill into the array*/ {}
-		explicit	Array(const C&e0, const C&e1, const C&e2):Data(e0,e1,e2)	/** Creates a new 3-element array @param e0 First element to Fill into the array @param e1 Second element to Fill into the array @param e2 Third element to Fill into the array*/ {}
-		explicit	Array(const C&e0, const C&e1, const C&e2, const C&e3):Data(e0,e1,e2,e3)	/** Creates a new 4-element array @param e0 First element to Fill into the array @param e1 Second element to Fill into the array @param e2 Third element to Fill into the array @param e3 Fourth element to Fill into the array*/ {}
+			explicit	Array(count_t length=0):Data(length)	/** Creates a new array \param length Length of the new array object */ {}
+			explicit	Array(const C&e0, const C&e1):Data(e0,e1)	/** Creates a new 2-element array @param e0 First element to Fill into the array @param e1 Second element to Fill into the array*/ {}
+			explicit	Array(const C&e0, const C&e1, const C&e2):Data(e0,e1,e2)	/** Creates a new 3-element array @param e0 First element to Fill into the array @param e1 Second element to Fill into the array @param e2 Third element to Fill into the array*/ {}
+			explicit	Array(const C&e0, const C&e1, const C&e2, const C&e3):Data(e0,e1,e2,e3)	/** Creates a new 4-element array @param e0 First element to Fill into the array @param e1 Second element to Fill into the array @param e2 Third element to Fill into the array @param e3 Fourth element to Fill into the array*/ {}
 				
-					inline Array(const C*string)
-					{
-						if (string)
-						{
-							const C*terminator(string);
-							while (*terminator++);
-							elements = terminator-string;
-						}
-						else
-							elements = 0;
-						alloc(data,elements);
-						Strategy::copyElements(string,data,elements);
-					}
+			inline		Array(const C*string)
+			{
+				if (string)
+				{
+					const C*terminator(string);
+					while (*terminator++);
+					elements = terminator-string;
+				}
+				else
+					elements = 0;
+				alloc(data,elements);
+				Strategy::copyElements(string,data,elements);
+			}
 			
-				template <class T>
-					inline Array(const T*field, count_t length):Data(length)	//!< Array copy constructor \param field Array that should be copies \param length Number of elements, field contains
-					{
-						Strategy::copyElements(field,data,elements);
-					}
+			template <class T>
+				inline	Array(const T*field, count_t length):Data(length)	//!< Array copy constructor \param field Array that should be copies \param length Number of elements, field contains
+				{
+					Strategy::copyElements(field,data,elements);
+				}
 				
-				template <class T,class OtherStrategy>
-					inline Array(const Array<T,OtherStrategy>&other):Data(other.count())
+			template <class T,class OtherStrategy>
+				inline	Array(const Array<T,OtherStrategy>&other):Data(other.count())
+				{
+					HybridStrategy<Strategy,OtherStrategy>::copyElements(other.GetPointer(),data,elements);
+				}
+
+				inline	Array(const std::initializer_list<C>&other):Data(other.size())
+				{
+					std::initializer_list<C>::const_iterator it = other.begin();
+					index_t at = 0;
+					for (;it != other.end(); ++it)
 					{
-						HybridStrategy<Strategy,OtherStrategy>::copyElements(other.GetPointer(),data,elements);
+						Super::data[at++] = *it;
 					}
+				}
 				
-					inline Array(const Array<C,Strategy>&other):Data(other.count())
-					{
-						Strategy::copyElements(other.data,data,elements);
-					}
+				inline	Array(const Array<C,Strategy>&other):Data(other.count())
+				{
+					Strategy::copyElements(other.data,data,elements);
+				}
 				
-				template <class T>
-					inline Array(const ArrayRef<T>&other):Data(other.count())
-					{
-						Strategy::copyElements(other.GetPointer(),data,elements);
-					}
+			template <class T>
+				inline	Array(const ArrayRef<T>&other):Data(other.count())
+				{
+					Strategy::copyElements(other.GetPointer(),data,elements);
+				}
 				
-					inline Array(const ArrayRef<C>&other):Data(other.Count())
-					{
-						Strategy::copyElements(other.GetPointer(),data,elements);
-					}
+				inline	Array(const ArrayRef<C>&other):Data(other.Count())
+				{
+					Strategy::copyElements(other.GetPointer(),data,elements);
+				}
 
 		#if __ARRAY_RVALUE_REFERENCES__
 				template <class OtherStrategy>
