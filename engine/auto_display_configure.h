@@ -73,7 +73,12 @@ namespace Engine
 			
 			DisplayConfig config(displayName,[xmlFileName,onResize,&display, resolution](const Resolution&newRes, UINT32 flags){
 				static Resolution restoredResolution = resolution;
+				Timer::Time tUpdateXML = 0;
+				Timer::Time t0 = timer.Now();
+				Timer::Time t1 = t0;
 				display.SignalWindowResize(flags);
+				Timer::Time tResizeDisplay = timer.Now() - t1;
+				t1 += tResizeDisplay;
 				if (flags & Engine::DisplayConfig::ResizeDragHasEnded)
 				{
 					if (!(flags & (Engine::DisplayConfig::IsMaximized | Engine::DisplayConfig::IsMinimzed | Engine::DisplayConfig::IsFullscreen)))
@@ -81,8 +86,18 @@ namespace Engine
 						restoredResolution = newRes;
 					}
 					Detail::UpdateXML(display,flags, restoredResolution, xmlFileName);
+					tUpdateXML = timer.Now() - t1;
+					t1 += tUpdateXML;
 				}
 				onResize(newRes,flags);
+				Timer::Time tOnResize = timer.Now() - t1;
+				t1 += tOnResize;
+				#ifdef _DEBUG
+				if (t1 - t0 > timer.GetTicksPerSecond()/2)
+				{
+					ShowOnce("Warning: Resize time threshold exceeded: display="+String(timer.ToSeconds(tResizeDisplay))+", XML="+String(timer.ToSeconds(tUpdateXML))+", client="+String(timer.ToSeconds(tOnResize)));
+				}
+				#endif
 			});
 			config.icon = icon;
 			display.setSize(resolution.width, resolution.height, DisplayConfig::ResizableBorder);
