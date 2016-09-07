@@ -187,6 +187,7 @@ void StringFile::Close()
     string = buffer;
     end = string;
     f = NULL;
+	active = false;
 }
 
 bool StringFile::IsActive()
