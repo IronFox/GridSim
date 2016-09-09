@@ -67,6 +67,7 @@ namespace XML
 		Node&				AddChild(const String&name)			{return NewChild(name);}
 		Node&				AddNewChild(const String&name)		{return NewChild(name);}
 		TAttribute*			Set(const String&attrib_name, const String&attrib_value);
+		Node&				SetMore(const String&attrib_name, const String&attrib_value)	{Set(attrib_name,attrib_value); return *this;}
 		void				Unset(const String&attrib_name);
 	    Node*          		Find(const String&path);				//!< Returns the first matching node (if any) @param path Path string in the form 'node/subnode/.../subnodeN' @return Pointer to the matching node or NULL if no such could be found
 	    const Node*			Find(const String&path)		const;	//!< @copydoc find()
