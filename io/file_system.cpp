@@ -1561,8 +1561,16 @@ namespace FileSystem
 					//path = absMarker + path;
 				if (IsDirectory(path))
 					continue;
-				if (!CreateDirectoryW(path.c_str(),NULL) && GetLastError() != ERROR_ALREADY_EXISTS)
-					return false;
+				if (!CreateDirectoryW(path.c_str(),NULL))
+				{
+					DWORD err = GetLastError();
+					if (err != ERROR_ALREADY_EXISTS)
+					{
+						//char msg[0x1000];
+						//WindowsErrorToString(err,msg,sizeof(msg));
+						return false;
+					}
+				}
 			}
 		#elif SYSTEM==UNIX
 			if (mkdir(out.location.c_str(), S_IRUSR|S_IWUSR|S_IXUSR|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH) && errno != EEXIST)
@@ -1630,19 +1638,73 @@ namespace FileSystem
 
 	}
 
+	bool DeleteDirectory(LPCTSTR lpszDir, bool noRecycleBin = true)
+	{
+		int len = wcslen(lpszDir);
+		TCHAR* pszFrom = new TCHAR[len+4]; //4 to handle wide char
+		//_tcscpy(pszFrom, lpszDir); //todo:remove warning//;//convet wchar to char*
+		wcscpy_s (pszFrom, len+2, lpszDir);
+		pszFrom[len] = 0;
+		pszFrom[len+1] = 0;
+
+		SHFILEOPSTRUCT fileop;
+		fileop.hwnd   = NULL;    // no status display
+		fileop.wFunc  = FO_DELETE;  // delete operation
+		fileop.pFrom  = pszFrom;  // source file name as double null terminated string
+		fileop.pTo    = NULL;    // no destination needed
+		fileop.fFlags = FOF_NOCONFIRMATION|FOF_SILENT;  // do not prompt the user
+
+		if(!noRecycleBin)
+			fileop.fFlags |= FOF_ALLOWUNDO;
+
+		fileop.fAnyOperationsAborted = FALSE;
+		fileop.lpszProgressTitle     = NULL;
+		fileop.hNameMappings         = NULL;
+
+		int ret = SHFileOperation(&fileop); //SHFileOperation returns zero if successful; otherwise nonzero 
+		delete [] pszFrom;  
+		return (0 == ret);
+	}
+
+	bool			RemoveFolderContents(const PathString&location)
+	{
+		FileSystem::Folder f(location);
+		if (!f.IsValidLocation())
+			return false;
+		f.Rewind();
+		FileSystem::File file;
+		while (f.NextEntry(file))
+		{
+			if (file.IsDirectory())
+			{
+				if (!RemoveFolder(file.GetLocation()))
+					return false;
+			}
+			else
+				if (!file.Unlink())
+					return false;
+		}
+		return true;
+	}
+
 	bool			RemoveFolder(const PathString&location)
 	{
+		if (!IsFolder(location))
+			return true;
+		if (!RemoveFolderContents(location))
+			return false;
 		#if SYSTEM==UNIX
 			return !rmdir(location.c_str());
 		#elif SYSTEM==WINDOWS
-			return !!RemoveDirectoryW(location.c_str());
+			bool rs = !!RemoveDirectoryW(location.c_str());
+			//const char* err = getLastError();
+			return rs;
 		#else
 			#error not supported
 		#endif
 
 
 	}
-
 
 	static const File* ResolveLink(const File*file)
 	{

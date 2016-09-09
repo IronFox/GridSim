@@ -86,8 +86,8 @@ namespace FileSystem
 	const File*		CreateDirectory(const PathString&folder_name);									//!< Identical to CreateFolder(). Creates one or more folders/directories specified by \b folder_name. Identical to CreateFolder(). If \b folder_name is relative then it is created relative to the active working directory. \param folder_name Name of the folder to create \return pointer to a global file object pointing to the newly created folder or NULL on failure
 	bool			CreateDirectory(const PathString&folder_name, File&out);						//!< Identical to CreateFolder(). Creates one or more folders/directories specified by \b folder_name. Identical to CreateFolder(). If \b folder_name is relative then it is created relative to the active working directory. \param folder_name Name of the folder to create \param out File reference to hold the newly created directory (if any). \return true on success
 	bool			UnlinkFile(const PathString&filename);											//!< Unlinks (erases) the specified file \return true on success
-	bool			RemoveFolder(const PathString&foldername);										//!< Erases the specified folder \return true on success
-	
+	bool			RemoveFolder(const PathString&foldername);										//!< Recursively erases the specified folder and all contained files \return true on success, false if any one file or directory could not be deleted
+	bool			RemoveFolderContents(const PathString&foldername);								//!< Recursively erases the contents of the specified folder \return true on success, false if any one file or directory could not be deleted
 	PathString		GetRelativePath(const PathString&origin, const PathString&destination);	//!< Creates a relative path from \b origin to \b destination \return relative path
 	PathString		GetAbsolutePath(const PathString&relative_path);	//!< Converts the specified relative path to an absolute path based on the current working directory.
 
