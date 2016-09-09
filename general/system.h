@@ -310,6 +310,11 @@ namespace System //! Translation namespace for common system tasks
 	#if SYSTEM==WINDOWS
 		inline void sleep(DWORD milsec)   {::Sleep(milsec);}
 		const char*			getLastError();
+		inline const char*	GetLastErrorString()	{return getLastError();}
+		/**
+		Formats a windows error code to string
+		*/
+		void				WindowsErrorToString(DWORD lastError, char*outMsg, size_t outSize);
 
 	#elif SYSTEM==UNIX
 		inline void sleep(unsigned milsec)   {usleep(milsec*1000);}

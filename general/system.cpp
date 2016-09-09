@@ -141,28 +141,32 @@ namespace System
     }
 
 	#if SYSTEM==WINDOWS
-		const char*			getLastError()
-		{
-			static char		error_buffer[512];
 
+		void	WindowsErrorToString(DWORD lastError, char*outMsg, size_t outSize)
+		{
 			LPVOID lpMsgBuf;
-			FormatMessage(
+			FormatMessageA(
 				FORMAT_MESSAGE_ALLOCATE_BUFFER |
 				FORMAT_MESSAGE_FROM_SYSTEM |
 				FORMAT_MESSAGE_IGNORE_INSERTS,
 				NULL,
-				GetLastError(),
+				lastError,
 				MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
-				(LPTSTR) &lpMsgBuf,
+				(char*) &lpMsgBuf,
 				0,
 				NULL
 				);
 			size_t len = strlen((char*)lpMsgBuf);
-			if (len >= sizeof(error_buffer))
-				len = sizeof(error_buffer)-1;
-			memcpy(error_buffer,lpMsgBuf,len);
-			error_buffer[len] = 0;
+			if (len >= outSize)
+				len = outSize-1;
+			memcpy(outMsg,lpMsgBuf,len);
+			outMsg[len] = 0;
 			LocalFree( lpMsgBuf );
+		}
+		const char*			getLastError()
+		{
+			static char		error_buffer[512];
+			WindowsErrorToString(GetLastError(),error_buffer,sizeof(error_buffer));
 			return error_buffer;
 		}
 	#endif
