@@ -1638,34 +1638,6 @@ namespace FileSystem
 
 	}
 
-	bool DeleteDirectory(LPCTSTR lpszDir, bool noRecycleBin = true)
-	{
-		int len = wcslen(lpszDir);
-		TCHAR* pszFrom = new TCHAR[len+4]; //4 to handle wide char
-		//_tcscpy(pszFrom, lpszDir); //todo:remove warning//;//convet wchar to char*
-		wcscpy_s (pszFrom, len+2, lpszDir);
-		pszFrom[len] = 0;
-		pszFrom[len+1] = 0;
-
-		SHFILEOPSTRUCT fileop;
-		fileop.hwnd   = NULL;    // no status display
-		fileop.wFunc  = FO_DELETE;  // delete operation
-		fileop.pFrom  = pszFrom;  // source file name as double null terminated string
-		fileop.pTo    = NULL;    // no destination needed
-		fileop.fFlags = FOF_NOCONFIRMATION|FOF_SILENT;  // do not prompt the user
-
-		if(!noRecycleBin)
-			fileop.fFlags |= FOF_ALLOWUNDO;
-
-		fileop.fAnyOperationsAborted = FALSE;
-		fileop.lpszProgressTitle     = NULL;
-		fileop.hNameMappings         = NULL;
-
-		int ret = SHFileOperation(&fileop); //SHFileOperation returns zero if successful; otherwise nonzero 
-		delete [] pszFrom;  
-		return (0 == ret);
-	}
-
 	bool			RemoveFolderContents(const PathString&location)
 	{
 		FileSystem::Folder f(location);
