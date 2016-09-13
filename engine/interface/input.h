@@ -128,6 +128,11 @@ namespace Engine
 		void					bind(Key::Name key, const std::function<void()>& down_handler, const std::function<void()>& up_handler);				//!< Binds the specified event handlers to the specified key. \param key Index of the key to bind. \param down_handler Pointer to a function to execute if the specified key has been pressed. \param up_handler Pointer to a function to execute if the specified key has been released.
 		void					bindCtrl(Key::Name key, const std::function<void()>& ctrl_handler);									//!< Binds the specified event handler to the specified key (+ctrl). \param key Index of the key to bind. \param ctrl_handler Pointer to a function to execute if the specified key has been pressed in combination with the ctrl key.
 		void					unbind(Key::Name key);																//!< Removes all bound event handlers from the specified key. \param key Index of the key to unbind.
+		void					Bind(Key::Name key, const std::function<void()>& downHandler)	/**@copydoc bind()*/ {bind(key,downHandler);}
+		void					Bind(Key::Name key, const std::function<void()>& downHandler, const std::function<void()>& upHandler)	/**@copydoc bind() */ {bind(key,downHandler,upHandler);}
+		void					BindCtrl(Key::Name key, const std::function<void()>& ctrlHandler)	/**@copydoc bindCtrl()*/ {bindCtrl(key,ctrlHandler);}
+		void					Unbind(Key::Name key)	/**@copydoc unbind()*/ {unbind(key);}
+
 		void					cascade(Key::Name key);																//!< Sets the key to auto cascade incoming key down and up events to stacked profiles. \param key Index of the key to cascade.
 		void					resetKeys();																		//!< Unbinds all keys.
 		void					cascadeKeys();																		//!< Binds all keys so that their event is forwarded to the profile stack
