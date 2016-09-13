@@ -33,7 +33,7 @@ count_t File::Get(ArrayData<C>&out)
         FATAL__("get does not work during streaming-operation");
 	
 	count_t count = (size_t)now.info.size/sizeof(C);
-	out.setSize(count);
+	out.SetSize(count);
 	file.Extract(now.addr,out.pointer(),(unsigned)out.GetContentSize());
     return count;
 }

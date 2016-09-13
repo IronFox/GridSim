@@ -375,7 +375,7 @@ namespace Engine
 										{
 											clamp_x = clamp_y = clamp_z = do_clamp;
 										}
-			bool						isNormalMap() const
+			bool						IsNormalMap() const
 										{
 											return content_type != PixelType::Color;
 										}
@@ -662,7 +662,7 @@ namespace Engine
 		virtual	void 				read(const CGS::MaterialInfo&info, UINT32 flags)
 									{
 										MaterialConfiguration::read(info,flags);
-										textures.setSize(MaterialConfiguration::layers.count());
+										textures.SetSize(MaterialConfiguration::layers.count());
 									}
 
 				void				adoptData(MaterialComposition&other)

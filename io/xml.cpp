@@ -520,7 +520,7 @@ void	XML::Container::LoadFromFile(const PathString&filename, String*content_out)
 	fseek(f,0,SEEK_SET);
 	
 	Array<char>	field;
-	field.setSize(len+1);
+	field.SetSize(len+1);
 	
 	if (fread(field.pointer(),1,len,f)!=len)
 	{

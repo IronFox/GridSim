@@ -1642,7 +1642,7 @@ namespace Fractal
 			
 			if (segment.crater_field.length() > static_crater_field.length())
 			{
-				static_crater_field.setSize(segment.crater_field.length());
+				static_crater_field.SetSize(segment.crater_field.length());
 
 			}
 			for (unsigned i = 0; i < segment.crater_field.length(); i++)
@@ -1704,7 +1704,7 @@ namespace Fractal
 		void generateVertices(TSurfaceSegment&segment, const TContext&context,const VertexMap&map)
 		{
 			BEGIN
-			segment.vertex_field.setSize(map.vertex_count);
+			segment.vertex_field.SetSize(map.vertex_count);
 
 			UnifiedOperationParameter parameter;
 			
@@ -1720,7 +1720,7 @@ namespace Fractal
 
 			if (segment.crater_field.length() > static_crater_field.length())
 			{
-				static_crater_field.setSize(segment.crater_field.length());
+				static_crater_field.SetSize(segment.crater_field.length());
 
 			}
 			for (unsigned i = 0; i < segment.crater_field.length(); i++)
@@ -1810,7 +1810,7 @@ namespace Fractal
 
 			if (segment.crater_field.length() > static_crater_field.length())
 			{
-				static_crater_field.setSize(segment.crater_field.length());
+				static_crater_field.SetSize(segment.crater_field.length());
 
 			}
 			for (unsigned i = 0; i < segment.crater_field.length(); i++)
@@ -2086,7 +2086,7 @@ namespace Fractal
 			size_t		data_size = sizeof(GLubyte)*num_values;
 		
 			static Array<BYTE,Primitive>	write_buffer;
-			write_buffer.setSize(num_values);
+			write_buffer.SetSize(num_values);
 			
 			UnifiedOperationParameter parameter;
 			
@@ -2171,7 +2171,7 @@ namespace Fractal
 
 
 			if (write_buffer.size() < new_size)
-				write_buffer.setSize(new_size);
+				write_buffer.SetSize(new_size);
 
 
 			UnifiedOperationParameter parameter;
@@ -2269,7 +2269,7 @@ namespace Fractal
 		void	retrieveCover(const TSurfaceSegment&segment, const TContext&context, const ArrayData<unsigned>&cover_indices, ArrayData<TCoverVertex>&out_cover)
 		{
 			BEGIN
-			out_cover.setSize(cover_indices.count());
+			out_cover.SetSize(cover_indices.count());
 			
 			UnifiedOperationParameter parameter;
 			parameter.segment = &segment;
@@ -2297,7 +2297,7 @@ namespace Fractal
 				if (segment.neighbor_link[k].primary)
 					num_vertices += map.vertex_maximum;	//do not include end vertex, which belongs to the next edge
 			
-			out_cover.setSize(num_vertices);
+			out_cover.SetSize(num_vertices);
 			
 			UnifiedOperationParameter parameter;
 			parameter.segment = &segment;
@@ -2310,7 +2310,7 @@ namespace Fractal
 			
 			if (segment.neighbor_link[0].primary && segment.neighbor_link[1].primary && segment.neighbor_link[2].primary)	//all edges belong to this segment
 			{
-				//out_cover.setSize(map.vertex_count);
+				//out_cover.SetSize(map.vertex_count);
 				ASSERT_EQUAL__(out_cover.count(),map.vertex_count);
 				
 				unsigned num_iterations = numBlockIterations(map.vertex_count);

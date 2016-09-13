@@ -58,7 +58,7 @@ private:
         UINT        fsize,buffer_size;
         OpenMode    open_mode;
 
-        bool        openStream(bool truncate=false);
+        bool        openStream(bool Truncate=false);
         bool        beginWrite();
         void        applyBufferSize(unsigned new_size); //resizes buffer if necessary. Also applies new_size to fsize
 

@@ -245,7 +245,7 @@ namespace Engine
 
 
 	template <class GL, class Font>
-		String VisualConsole<GL,Font>::truncate(const String&origin)
+		String VisualConsole<GL,Font>::Truncate(const String&origin)
 		{
 		    float len = absolute_text.width();
 		    char buffer[0x100];
@@ -313,7 +313,7 @@ namespace Engine
 		        if (nl)
 		        {
 		            if (!word_wrap)
-		                lines.add(truncate(local.subString(0,nl-1)));
+		                lines.add(Truncate(local.subString(0,nl-1)));
 		            else
 		                printLine(local.subString(0,nl-1));
 		            local.erase(0,nl);
@@ -321,7 +321,7 @@ namespace Engine
 		        else
 		        {
 		            if (!word_wrap)
-		                lines.add(truncate(local));
+		                lines.add(Truncate(local));
 		            else
 		                printLine(local);
 		            return;

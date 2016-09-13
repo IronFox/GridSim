@@ -55,7 +55,7 @@ namespace Engine
 							return false;
 						}
 	inline	PixelType
-						getContentType()	const
+						GetContentType()	const
 						{
 							return PixelType::Color;
 						}

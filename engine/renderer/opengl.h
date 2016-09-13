@@ -273,7 +273,7 @@ namespace Engine
 												throw Renderer::TextureTransfer::ParameterFault(globalString("Image properties are incompatible to the local texture properties"));
 												return;
 											}
-											update(image.getData(),filter,anisotropy);
+											update(image.GetData(),filter,anisotropy);
 										}
 				template <typename Nature>
 					inline void			Update(const GenericImage<Nature>&image,TextureFilter filter=TextureFilter::Trilinear, float anisotropy=1.f)
@@ -344,12 +344,12 @@ namespace Engine
 			template <typename Nature>
 				inline void				load(const GenericImage<Nature>&image, float anisotropy=1.0f, bool clamp_texcoords=true, TextureFilter filter=TextureFilter::Trilinear, bool compress=false)
 										{
-											loadPixels(image.getData(), image.width(), image.height(), image.channels(), image.getContentType(), anisotropy, clamp_texcoords, filter, compress);
+											loadPixels(image.GetData(), image.width(), image.height(), image.channels(), image.GetContentType(), anisotropy, clamp_texcoords, filter, compress);
 										}
 			template <typename Nature>
 				inline void				Load(const GenericImage<Nature>&image, float anisotropy=1.0f, bool clamp_texcoords=true, TextureFilter filter=TextureFilter::Trilinear, bool compress=false)
 										{
-											loadPixels(image.getData(), image.width(), image.height(), image.channels(), image.getContentType(), anisotropy, clamp_texcoords, filter, compress);
+											loadPixels(image.GetData(), image.width(), image.height(), image.channels(), image.GetContentType(), anisotropy, clamp_texcoords, filter, compress);
 										}
 								
 			/**

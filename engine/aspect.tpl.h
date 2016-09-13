@@ -660,7 +660,7 @@ MFUNC (void) OrthographicAspect<C>::UpdateProjection(const C&aspect, const C&zoo
 {
 	C	scale = (C)1/(zFar-zNear),		//endless 0
 		offset = -(zNear+zFar)/2*scale,	//endless -0.5
-		pa = (C)1.0/region.aspect()/aspect;
+		pa = (C)1.0/region.pixelAspect()/aspect;
 
 	Vec::def(projection.x,	pa*zoom,0,0,0);
 	Vec::def(projection.y,	0,zoom,0,0);
@@ -673,7 +673,7 @@ MFUNC (void) OrthographicAspect<C>::UpdateProjection(const C&aspect, const C&zoo
 //{
 //	C	scale = (C)1/(zFar-zNear),		//endless 0
 //		offset = -(zNear+zFar)/2*scale,	//endless -0.5
-//		pa = (C)1.0/region.aspect()/aspect;
+//		pa = (C)1.0/region.pixelAspect()/aspect;
 //
 //	Vec::def(projection.x,	pa*zoom,0,0,0);
 //	Vec::def(projection.y,	0,zoom,0,0);
@@ -777,7 +777,7 @@ template <class C> MF_DECLARE (void) Camera<C>::UpdateProjection(const C&aspect,
 {
 	vfov = vFov;
 	C	extend = (C)1.0/vtan(vfov*M_PI/180/2),
-		pa = (C)1.0/region.aspect()/aspect;
+		pa = (C)1.0/region.pixelAspect()/aspect;
 
 	Vec::def(projection.x,	pa*extend,0,0,0);
 	Vec::def(projection.y,	0,extend,0,0);
@@ -790,7 +790,7 @@ template <class C> MF_DECLARE (void) Camera<C>::UpdateProjection2(const C&aspect
 {
 	vfov = vFov;
 	C	extend = (C)1.0/vtan(vfov*M_PI/180/2),
-		pa = (C)1.0/region.aspect()/aspect;
+		pa = (C)1.0/region.pixelAspect()/aspect;
 
 	Vec::def(projection.x,	pa*extend,0,0,0);
 	Vec::def(projection.y,	0,extend,0,0);

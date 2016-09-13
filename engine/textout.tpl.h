@@ -73,96 +73,96 @@ namespace Engine
 	
 	template <class Font> float Textout<Font>::unscaledLength(const char*line)
 	{
-	    return active_font->getWidth(line);
+	    return active_font->GetWidth(line);
 	}
 
 	template <class Font> float Textout<Font>::unscaledLength(const char*line, size_t len)
 	{
-	    return active_font->getWidth(line,len);
+	    return active_font->GetWidth(line,len);
 	}
 
 	template <class Font> float Textout<Font>::unscaledLength(const String&line)
 	{
-	    return active_font->getWidth(line.c_str(),line.length());
+	    return active_font->GetWidth(line.c_str(),line.length());
 	}
 	template <class Font> float Textout<Font>::unscaledLength(const StringRef&line)
 	{
-	    return active_font->getWidth(line.pointer(),line.length());
+	    return active_font->GetWidth(line.pointer(),line.length());
 	}
 
 	template <class Font> float Textout<Font>::scaledLength(const char*line)
 	{
-	    return active_font->getWidth(line)*state.x_scale;
+	    return active_font->GetWidth(line)*state.x_scale;
 	}
 
 	template <class Font> float Textout<Font>::scaledLength(const char*line, size_t len)
 	{
-	    return active_font->getWidth(line,len)*state.x_scale;
+	    return active_font->GetWidth(line,len)*state.x_scale;
 	}
 
 	template <class Font> float Textout<Font>::scaledLength(const String&line)
 	{
-	    return active_font->getWidth(line.c_str(),line.length())*state.x_scale;
+	    return active_font->GetWidth(line.c_str(),line.length())*state.x_scale;
 	}
 	template <class Font> float Textout<Font>::scaledLength(const StringRef&line)
 	{
-	    return active_font->getWidth(line.pointer(),line.length())*state.x_scale;
+	    return active_font->GetWidth(line.pointer(),line.length())*state.x_scale;
 	}
 	
 	
 	template <class Font> float Textout<Font>::getUnscaledWidth(const char*line)
 	{
-	    return active_font->getWidth(line);
+	    return active_font->GetWidth(line);
 	}
 
 	template <class Font> float Textout<Font>::getUnscaledWidth(const char*line, size_t len)
 	{
-	    return active_font->getWidth(line,len);
+	    return active_font->GetWidth(line,len);
 	}
 	
 	
 	template <class Font> float Textout<Font>::unscaledWidth(const char*line)
 	{
-	    return active_font->getWidth(line);
+	    return active_font->GetWidth(line);
 	}
 
 	template <class Font> float Textout<Font>::unscaledWidth(const char*line, size_t len)
 	{
-	    return active_font->getWidth(line,len);
+	    return active_font->GetWidth(line,len);
 	}
 
 	template <class Font> float Textout<Font>::getUnscaledHeight()
 	{
-		return active_font->getHeight();
+		return active_font->GetHeight();
 	}
 
 
 	template <class Font> float Textout<Font>::unscaledWidth(const String&line)
 	{
-	    return active_font->getWidth(line.c_str(),line.length());
+	    return active_font->GetWidth(line.c_str(),line.length());
 	}
 	template <class Font> float Textout<Font>::unscaledWidth(const StringRef&line)
 	{
-	    return active_font->getWidth(line.pointer(),line.length());
+	    return active_font->GetWidth(line.pointer(),line.length());
 	}
 
 	template <class Font> float Textout<Font>::scaledWidth(const char*line)
 	{
-	    return active_font->getWidth(line)*state.x_scale;
+	    return active_font->GetWidth(line)*state.x_scale;
 	}
 
 	template <class Font> float Textout<Font>::scaledWidth(const char*line, size_t len)
 	{
-	    return active_font->getWidth(line,len)*state.x_scale;
+	    return active_font->GetWidth(line,len)*state.x_scale;
 	}
 
 	template <class Font> float Textout<Font>::scaledWidth(const String&line)
 	{
-	    return active_font->getWidth(line.c_str(),line.length())*state.x_scale;
+	    return active_font->GetWidth(line.c_str(),line.length())*state.x_scale;
 	}
 	template <class Font> float Textout<Font>::scaledWidth(const StringRef&line)
 	{
-	    return active_font->getWidth(line.pointer(),line.length())*state.x_scale;
+	    return active_font->GetWidth(line.pointer(),line.length())*state.x_scale;
 	}
 	
 	

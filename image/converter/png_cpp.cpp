@@ -108,32 +108,32 @@ void PNG::SaveToFileQ(const Image&resource, const PathString&filename)
 	//png_set_write_fn(png,NULL,writeSection,flushSection);
 
 	//log_file << "configuring info...\r\n";
-	info->width = resource.getWidth();
-	info->height = resource.getHeight();
+	info->width = resource.GetWidth();
+	info->height = resource.GetHeight();
 	info->valid = 0;
-	info->rowbytes = resource.getWidth()*resource.getChannels();
+	info->rowbytes = resource.GetWidth()*resource.GetChannels();
 	info->palette = NULL;
 	info->num_palette = 0;
 	info->num_trans = 0;
 	info->bit_depth = 8;
-	info->color_type = _GetColorType(resource.getChannels());
+	info->color_type = _GetColorType(resource.GetChannels());
 	info->compression_type = PNG_COMPRESSION_TYPE_BASE;
 	info->filter_type = PNG_FILTER_TYPE_BASE;
 	info->interlace_type = PNG_INTERLACE_NONE;
-	info->channels = resource.getChannels();
-	info->pixel_depth = resource.getChannels()*8;
+	info->channels = resource.GetChannels();
+	info->pixel_depth = resource.GetChannels()*8;
 	info->spare_byte = 0;
 	memcpy(info->signature,"PNG     ",8);
 
 	//log_file << "creating map...\r\n";
 
-	png_bytepp image = new png_bytep[resource.getHeight()];
-	for (unsigned i = 0; i < resource.getHeight(); i++)
+	png_bytepp image = new png_bytep[resource.GetHeight()];
+	for (unsigned i = 0; i < resource.GetHeight(); i++)
 	{
-		image[i] = new png_byte[resource.getWidth()*resource.getChannels()];
-		for (unsigned j = 0; j < resource.getWidth(); j++)
+		image[i] = new png_byte[resource.GetWidth()*resource.GetChannels()];
+		for (unsigned j = 0; j < resource.GetWidth(); j++)
 		{
-			const BYTE*pixel = resource.get(j,resource.getHeight()-1-i);
+			const BYTE*pixel = resource.get(j,resource.GetHeight()-1-i);
 			for (BYTE k = 0; k < info->channels; k++)
 				image[i][j*info->channels+k] = pixel[k];
 		}
@@ -151,7 +151,7 @@ void PNG::SaveToFileQ(const Image&resource, const PathString&filename)
 	png_destroy_write_struct(&png,NULL);
 
 
-	for (unsigned i = 0; i < resource.getHeight(); i++)
+	for (unsigned i = 0; i < resource.GetHeight(); i++)
 	{
 		delete[] image[i];
 	}
@@ -171,32 +171,32 @@ void PNG::SaveToFilePointer(const Image&resource, FILE*f)
 	//png_set_write_fn(png,NULL,writeSection,flushSection);
 
 	//log_file << "configuring info...\r\n";
-	info->width = resource.getWidth();
-	info->height = resource.getHeight();
+	info->width = resource.GetWidth();
+	info->height = resource.GetHeight();
 	info->valid = 0;
-	info->rowbytes = resource.getWidth()*resource.getChannels();
+	info->rowbytes = resource.GetWidth()*resource.GetChannels();
 	info->palette = NULL;
 	info->num_palette = 0;
 	info->num_trans = 0;
 	info->bit_depth = 8;
-	info->color_type = _GetColorType(resource.getChannels());
+	info->color_type = _GetColorType(resource.GetChannels());
 	info->compression_type = PNG_COMPRESSION_TYPE_BASE;
 	info->filter_type = PNG_FILTER_TYPE_BASE;
 	info->interlace_type = PNG_INTERLACE_NONE;
-	info->channels = resource.getChannels();
-	info->pixel_depth = resource.getChannels()*8;
+	info->channels = resource.GetChannels();
+	info->pixel_depth = resource.GetChannels()*8;
 	info->spare_byte = 0;
 	memcpy(info->signature,"PNG     ",8);
 
 	//log_file << "creating map...\r\n";
 
-	png_bytepp image = new png_bytep[resource.getHeight()];
-	for (unsigned i = 0; i < resource.getHeight(); i++)
+	png_bytepp image = new png_bytep[resource.GetHeight()];
+	for (unsigned i = 0; i < resource.GetHeight(); i++)
 	{
-		image[i] = new png_byte[resource.getWidth()*resource.getChannels()];
-		for (unsigned j = 0; j < resource.getWidth(); j++)
+		image[i] = new png_byte[resource.GetWidth()*resource.GetChannels()];
+		for (unsigned j = 0; j < resource.GetWidth(); j++)
 		{
-			const BYTE*pixel = resource.get(j,resource.getHeight()-1-i);
+			const BYTE*pixel = resource.get(j,resource.GetHeight()-1-i);
 			for (BYTE k = 0; k < info->channels; k++)
 				image[i][j*info->channels+k] = pixel[k];
 		}
@@ -214,7 +214,7 @@ void PNG::SaveToFilePointer(const Image&resource, FILE*f)
 	png_destroy_write_struct(&png,NULL);
 
 
-	for (unsigned i = 0; i < resource.getHeight(); i++)
+	for (unsigned i = 0; i < resource.GetHeight(); i++)
 	{
 		delete[] image[i];
 	}
@@ -236,7 +236,7 @@ void PNG::LoadFromFilePointer(Image&target, FILE*f)
         return;
     }
 	
-    //target.setDimensions(10,10,3);
+    //target.SetSize(10,10,3);
     png_init_io(png,f);
     png_read_png(png,info,PNG_TRANSFORM_IDENTITY,NULL);
 	BYTE bits_per_channel = info->bit_depth;
@@ -244,7 +244,7 @@ void PNG::LoadFromFilePointer(Image&target, FILE*f)
     png_bytepp image = png_get_rows(png,info);
     bool palette = info->color_type&PNG_COLOR_MASK_PALETTE;
 	target.setContentType(PixelType::Color);
-    target.setDimensions(info->width,info->height,palette?3:info->channels);
+    target.SetSize(info->width,info->height,palette?3:info->channels);
 	//ShowMessage(info->channels);
 
 	
@@ -284,7 +284,7 @@ void PNG::LoadFromFilePointer(Image&target, FILE*f)
 */
     png_destroy_info_struct(png,&info);
 	png_destroy_read_struct(&png,NULL,NULL);
-    target.flipVertical();
+    target.FlipVertically();
 //    target.resize(128,128);
 
 }
@@ -303,28 +303,28 @@ void PNG::LoadFromFilePointer(Image&target, FILE*f)
 	png_bytepp image = NULL;
 	try
 	{
-		info->width = source_image.getWidth();
-		info->height = source_image.getHeight();
+		info->width = source_image.GetWidth();
+		info->height = source_image.GetHeight();
 		info->valid = 0;
-		info->rowbytes = source_image.getWidth()*source_image.getChannels();
+		info->rowbytes = source_image.GetWidth()*source_image.GetChannels();
 		info->palette = NULL;
 		info->num_palette = 0;
 		info->num_trans = 0;
 		info->bit_depth = 8;
-		info->color_type = _GetColorType(source_image.getChannels());
+		info->color_type = _GetColorType(source_image.GetChannels());
 		info->compression_type = PNG_COMPRESSION_TYPE_BASE;
 		info->filter_type = PNG_FILTER_TYPE_BASE;
 		info->interlace_type = PNG_INTERLACE_NONE;
-		info->channels = source_image.getChannels();
-		info->pixel_depth = source_image.getChannels()*8;
+		info->channels = source_image.GetChannels();
+		info->pixel_depth = source_image.GetChannels()*8;
 		info->spare_byte = 0;
 		memcpy(info->signature,"PNG     ",8);
 		
-		image = new png_bytep[source_image.getHeight()];
-		for (UINT32 i = 0; i < source_image.getHeight(); i++)
+		image = new png_bytep[source_image.GetHeight()];
+		for (UINT32 i = 0; i < source_image.GetHeight(); i++)
 		{
-			image[i] = new png_byte[source_image.getWidth()*source_image.getChannels()];
-			for (UINT32 j = 0; j < source_image.getWidth(); j++)
+			image[i] = new png_byte[source_image.GetWidth()*source_image.GetChannels()];
+			for (UINT32 j = 0; j < source_image.GetWidth(); j++)
 			{
 				const BYTE*pixel = source_image.get(j,i);
 				for (BYTE k = 0; k < info->channels; k++)
@@ -338,7 +338,7 @@ void PNG::LoadFromFilePointer(Image&target, FILE*f)
 		png_destroy_write_struct(&png,NULL);
 			
 			
-		for (UINT32 i = 0; i < source_image.getHeight(); i++)
+		for (UINT32 i = 0; i < source_image.GetHeight(); i++)
 		{
 			delete[] image[i];
 		}
@@ -352,7 +352,7 @@ void PNG::LoadFromFilePointer(Image&target, FILE*f)
 			
 		if (image)
 		{
-			for (UINT32 i = 0; i < source_image.getHeight(); i++)
+			for (UINT32 i = 0; i < source_image.GetHeight(); i++)
 			{
 				delete[] image[i];
 			}
@@ -375,28 +375,28 @@ void PNG::LoadFromFilePointer(Image&target, FILE*f)
 	png_bytepp image = NULL;
 	try
 	{
-		info->width = source_image.getWidth();
-		info->height = source_image.getHeight();
+		info->width = source_image.GetWidth();
+		info->height = source_image.GetHeight();
 		info->valid = 0;
-		info->rowbytes = source_image.getWidth()*source_image.getChannels();
+		info->rowbytes = source_image.GetWidth()*source_image.GetChannels();
 		info->palette = NULL;
 		info->num_palette = 0;
 		info->num_trans = 0;
 		info->bit_depth = 8;
-		info->color_type = _GetColorType(source_image.getChannels());
+		info->color_type = _GetColorType(source_image.GetChannels());
 		info->compression_type = PNG_COMPRESSION_TYPE_BASE;
 		info->filter_type = PNG_FILTER_TYPE_BASE;
 		info->interlace_type = PNG_INTERLACE_NONE;
-		info->channels = source_image.getChannels();
-		info->pixel_depth = source_image.getChannels()*8;
+		info->channels = source_image.GetChannels();
+		info->pixel_depth = source_image.GetChannels()*8;
 		info->spare_byte = 0;
 		memcpy(info->signature,"PNG     ",8);
 		
-		image = new png_bytep[source_image.getHeight()];
-		for (UINT32 i = 0; i < source_image.getHeight(); i++)
+		image = new png_bytep[source_image.GetHeight()];
+		for (UINT32 i = 0; i < source_image.GetHeight(); i++)
 		{
-			image[i] = new png_byte[source_image.getWidth()*source_image.getChannels()];
-			for (UINT32 j = 0; j < source_image.getWidth(); j++)
+			image[i] = new png_byte[source_image.GetWidth()*source_image.GetChannels()];
+			for (UINT32 j = 0; j < source_image.GetWidth(); j++)
 			{
 				const BYTE*pixel = source_image.get(j,i);
 				for (BYTE k = 0; k < info->channels; k++)
@@ -411,7 +411,7 @@ void PNG::LoadFromFilePointer(Image&target, FILE*f)
 			
 
 
-		for (UINT32 i = 0; i < source_image.getHeight(); i++)
+		for (UINT32 i = 0; i < source_image.GetHeight(); i++)
 		{
 			delete[] image[i];
 		}
@@ -427,7 +427,7 @@ void PNG::LoadFromFilePointer(Image&target, FILE*f)
 			
 		if (image)
 		{
-			for (UINT32 i = 0; i < source_image.getHeight(); i++)
+			for (UINT32 i = 0; i < source_image.GetHeight(); i++)
 			{
 				delete[] image[i];
 			}
@@ -454,7 +454,7 @@ void PNG::LoadFromFilePointer(Image&target, FILE*f)
 			
 		png_bytepp image = png_get_rows(png,info);
 		bool palette = info->color_type&PNG_COLOR_MASK_PALETTE;
-		out_image.setDimensions(info->width,info->height,palette?3:info->channels);
+		out_image.SetSize(info->width,info->height,palette?3:info->channels);
 		out_image.setContentType(PixelType::Color);
 
 		for (UINT32 x = 0; x < info->width; x++)
@@ -496,7 +496,7 @@ void PNG::LoadFromFilePointer(Image&target, FILE*f)
 			
 		png_bytepp image = png_get_rows(png,info);
 		bool palette = info->color_type&PNG_COLOR_MASK_PALETTE;
-		out_image.setDimensions(info->width,info->height,palette?3:info->channels);
+		out_image.SetSize(info->width,info->height,palette?3:info->channels);
 		out_image.setContentType(PixelType::Color);
 
 		for (UINT32 x = 0; x < info->width; x++)

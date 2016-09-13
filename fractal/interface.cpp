@@ -249,7 +249,7 @@ namespace Fractal
 	
 	DynamicSeed&			DynamicSeed::hash(const String&string)
 	{
-		value.setSize(string.length());
+		value.SetSize(string.length());
 		value.copyFrom(string.c_str(),string.length());
 		as_int = toInt();
 		return *this;
@@ -264,7 +264,7 @@ namespace Fractal
 	
 	void			DynamicSeed::implant(const DynamicSeed&seed, BYTE child_id)
 	{
-		value.setSize(seed.value.length()+1);
+		value.SetSize(seed.value.length()+1);
 		value.copyFrom(seed.value.pointer(),seed.value.length());
 		value.last() = child_id;
 		as_int = toInt();
@@ -290,7 +290,7 @@ namespace Fractal
 	{
 		Random random;
 		unsigned len = random.get(3,32);
-		value.setSize(len);
+		value.SetSize(len);
 		for (unsigned i = 0; i < len; i++)
 			value[i] = random.get(255);
 		as_int = toInt();
@@ -472,7 +472,7 @@ namespace Fractal
 		//DEBUG_POINT(f)
 		updateSphere();
 
-		//resample variance
+		//Resample variance
 		{
 			const VertexMap&map = *super->full_map;
 			/*float	h0 = vertex_field[map.border_index[1][0]].height,
@@ -542,7 +542,7 @@ namespace Fractal
 			Timer::Time t = timer.now();
 		#endif
 		
-		vertex_field.setSize(super->full_map->vertex_count);
+		vertex_field.SetSize(super->full_map->vertex_count);
 		registerArray(vertex_field);
 		Kernel::generateVertices(*this,*super->context,*super->full_map);
 		Kernel::generateNormals(*this,*super->context,*super->full_map);
@@ -716,7 +716,7 @@ namespace Fractal
 	DataSurface::DataSurface(unsigned exponent_, unsigned vertex_count_):
 						SurfaceSegment(exponent_,vertex_count_)
 	{
-		vertex_field.setSize(vertex_count_);
+		vertex_field.SetSize(vertex_count_);
 		registerArray(vertex_field);
 	
 	}
@@ -751,7 +751,7 @@ namespace Fractal
 			unsigned 	num_vertices = ((1<<(geometrical_exponent-1))+1),
 						num_floats = num_vertices*floats_per_vbo_vertex;
 			ASSERT__(num_floats>0);
-			vbo_edge[edge].first().setSize(num_floats);
+			vbo_edge[edge].first().SetSize(num_floats);
 			float*to = vbo_edge[edge].first().pointer();
 			for (unsigned j = 0; j < num_vertices; j++)
 			{
@@ -788,7 +788,7 @@ namespace Fractal
 			fractal_log<<" transition="<<_toString(transition)<<endl;
 			fractal_log<<" parent_edge_begin="<<((SurfaceSegment*)parent)->corner[edge].ToString()<<endl;
 			fractal_log<<" parent_edge_end="<<((SurfaceSegment*)parent)->corner[(edge+1)%3].ToString()<<endl;*/
-			vbo_edge[edge][i].setSize(num_floats);
+			vbo_edge[edge][i].SetSize(num_floats);
 
 			ASSERT_EQUAL__(parent->vbo_edge[edge][i-1].length(),2*num_floats-floats_per_vbo_vertex);
 			const float	*from = parent->vbo_edge[edge][i-1].pointer()+offset;
@@ -2437,7 +2437,7 @@ namespace Fractal
 		
 		
 		clearFaces();
-		faces.setSize(geometry.triangleField.length()/3);
+		faces.SetSize(geometry.triangleField.length()/3);
 		for (index_t i = 0; i < faces.count(); i++)
 		{
 			faces[i] = makeFace();
@@ -3096,8 +3096,8 @@ namespace Fractal
 	{
 		static const unsigned resolution = 20;
 	
-		geometry.vertexField.setSize(resolution*2);
-		geometry.triangleField.setSize(resolution*6);
+		geometry.vertexField.SetSize(resolution*2);
+		geometry.triangleField.SetSize(resolution*6);
 		unsigned *f = geometry.triangleField.pointer();
 		#undef t
 		#define t(i0,i1,i2)	{(*f++) = i0; (*f++) = i1; (*f++) = i2;}
@@ -3185,9 +3185,9 @@ namespace Fractal
 	
 		//20 sided:
 		
-		geometry.vertexField.setSize(12);
-		geometry.triangleField.setSize(60);
-		geometry.edgeField.setSize(60);
+		geometry.vertexField.SetSize(12);
+		geometry.triangleField.SetSize(60);
+		geometry.edgeField.SetSize(60);
 		UINT32 *f = geometry.triangleField.pointer();
 		#undef t
 		#define t(i0,i1,i2)	{(*f++) = i0; (*f++) = i1; (*f++) = i2;}

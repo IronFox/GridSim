@@ -861,7 +861,7 @@ template <class C>
 
 		inline	void		set(count_t num_values, ...)	//! Resizes the local array and fills it with the specified elements. The elements must be specified in the type of the local array's data
 							{
-								setSize(num_values);
+								SetSize(num_values);
 								va_list vl;
 								va_start( vl, num_values );
 								for (index_t i = 0; i < num_values; i++)
@@ -871,7 +871,7 @@ template <class C>
 		template <typename T>
 			inline	void	set2(const T&x, const T&y)	//! Resizes the local array and fills it with the specified elements. The elements must be specified in the type of the local array's data
 							{
-								setSize(2);
+								SetSize(2);
 								data[0] = C(x);
 								data[1] = C(y);
 							}
@@ -879,7 +879,7 @@ template <class C>
 		template <typename T>
 			inline	void	set3(const T&x, const T&y, const T&z)	//! Resizes the local array and fills it with the specified elements. The elements must be specified in the type of the local array's data
 							{
-								setSize(3);
+								SetSize(3);
 								data[0] = C(x);
 								data[1] = C(y);
 								data[2] = C(z);
@@ -888,7 +888,7 @@ template <class C>
 		template <typename T>
 			inline	void	set4(const T&x, const T&y, const T&z, const T&w)	//! Resizes the local array and fills it with the specified elements. The elements must be specified in the type of the local array's data
 							{
-								setSize(4);
+								SetSize(4);
 								data[0] = C(x);
 								data[1] = C(y);
 								data[2] = C(z);
@@ -915,15 +915,10 @@ template <class C>
 
 
 
-		inline	void		setSize(count_t new_size)	/** @brief Resizes the array. The new array's content is constructed but uninitialized. \param new_size New array size in elements (may be 0) */
+		inline	void		SetSize(count_t new_size)	/** @brief Resizes the array. The new array's content is constructed but uninitialized. \param new_size New array size in elements (may be 0) */
 							{
 								reloc(data,elements,new_size);
 							}
-		inline	void		SetSize(count_t new_size)	/** @copydoc setSize **/
-							{
-								reloc(data,elements,new_size);
-							}
-			
 
 		//template <class T>
 
@@ -986,7 +981,7 @@ template <class C>
 										//FATAL__("trying to Deserialize an array containing serializable objects from a fixed size stream data section not including any element count");
 								}
 
-								setSize(size);
+								SetSize(size);
 								if (!IsISerializable(data))
 								{
 									//cout << "data is not of i-serializable type. reading plain"<<endl;
@@ -1313,14 +1308,14 @@ template <class C, class Strategy=typename StrategySelector<C>::Default>
 				
 					inline	void	resizeAndImport(C*origin, count_t length)	//!< Resizes the local field and imports the specified number of elements (see import())
 					{
-						Super::setSize(length);
+						Super::SetSize(length);
 						Strategy::moveElements(origin,data,length);
 					}
 				
 				template <class T>
 					inline void	resizeAndCopy(const T*origin, count_t length) //! Copies all elements from \b origin via the = operator overwriting any existing local elements \param origin Array to copy from (may be of a different entry type) \param count Number of elements to copy
 					{
-						Super::setSize(length);
+						Super::SetSize(length);
 						Strategy::copyElements(origin,data,length);
 					}
 
@@ -1330,7 +1325,7 @@ template <class C, class Strategy=typename StrategySelector<C>::Default>
 					{
 						if (max > origin.count())
 							max = origin.count();
-						Super::setSize(max);
+						Super::SetSize(max);
 						HybridStrategy<Strategy,OtherStrategy>::copyElements(origin.pointer(),data,max);
 					}
 			
@@ -1575,7 +1570,7 @@ template <class C, class Strategy=typename Strategy::StrategySelector<C>::Defaul
 			
 		Arrays::count_t	w;
 			
-		using Super::setSize;
+		using Super::SetSize;
 		using Super::resizePreserveContent;
 		using Super::erase;
 		using Super::append;
@@ -1727,7 +1722,7 @@ template <class C>
 template <class C>
 	inline void re_alloc(ArrayData<C>&array, Arrays::count_t elements)
 	{
-		array.setSize(elements);
+		array.SetSize(elements);
 	}
 
 /*!
@@ -1736,7 +1731,7 @@ template <class C>
 template <class FieldType, class IndexType0, class IndexType1>
 	inline void   reloc(ArrayData<FieldType>&array, IndexType0&length, IndexType1 new_length)
 	{
-		array.setSize(new_length);
+		array.SetSize(new_length);
 		length = array.length();
 	}
 
@@ -1746,7 +1741,7 @@ template <class FieldType, class IndexType0, class IndexType1>
 template <class C>
 	inline void alloc(ArrayData<C>&target, Arrays::count_t elements)
 	{
-		target.setSize(elements);
+		target.SetSize(elements);
 	}
 
 			

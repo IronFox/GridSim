@@ -57,7 +57,7 @@ void TextureArchive::handleChunk(Riff::File&riff,ArchiveFolder<STAentry>*current
             face->height = 0x1<<head.y_exp;
             face->channels = head.channels;
             face->codec = head.type&TEX_CODEC_MASK;
-			face->content_type = Image::getContentType(head);
+			face->content_type = Image::GetContentType(head);
         }
         break;
     }
@@ -75,7 +75,7 @@ const Image* TextureArchive::GetData(BYTE face)
         return NULL;
     selected->face[face].extracted = SHIELDED(new Image());
     Image&target = *selected->face[face].extracted;
-    target.setDimensions(selected->face[face].width,selected->face[face].height,selected->face[face].channels);
+    target.SetSize(selected->face[face].width,selected->face[face].height,selected->face[face].channels);
     target.setContentType(selected->face[face].content_type);
     switch (selected->face[face].codec)
     {
@@ -92,7 +92,7 @@ const Image* TextureArchive::GetData(BYTE face)
         break;
         case 2:
         {
-            if (!BZ2::decompress(&data[sizeof(Image::THeader)],selected->face[face].size-sizeof(Image::THeader),target.getData(),target.size()))
+            if (!BZ2::decompress(&data[sizeof(Image::THeader)],selected->face[face].size-sizeof(Image::THeader),target.GetData(),target.size()))
             {
                 ErrMessage("TextureArchive: BZ2-decompression failed ("+String(BZ2::errorStr())+")");
                 DISCARD(selected->face[face].extracted);
@@ -132,7 +132,7 @@ BYTE TextureArchive::GetAll(const Image* out[])
 
 void	TextureArchive::GetRaw(const STAface&face, ArrayData<BYTE>&target)
 {
-	target.setSize(face.size);
+	target.SetSize(face.size);
 	RandomAccessFile::Extract(face.location,target.pointer(),face.size);
 }
 

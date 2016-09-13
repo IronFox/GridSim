@@ -837,13 +837,13 @@ namespace Math
 			@brief	Calculate aspect of the rectangle
 			@return Aspect
 			*/
-			MF_DECLARE(T)			aspect()	const
+			MF_DECLARE(T)			pixelAspect()	const
 									{
 										return x.extend()/y.extend();
 									}
-			MF_DECLARE(T)			GetAspect()	const	/** @copydoc aspect() */
+			MF_DECLARE(T)			GetAspect()	const	/** @copydoc pixelAspect() */
 									{
-										return aspect();
+										return pixelAspect();
 									}
 			/*!
 			@brief	Determines whether or not the specified point lies within the local rectangle

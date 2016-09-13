@@ -71,7 +71,7 @@ static void    bmpResolveBitCompression(BYTE*data,unsigned data_size,BYTE*color_
         for (BYTE k = 0; k < len/pixels; k++)
         {
             BYTE source = *data++;
-            if (x>= result->getWidth() || y >= result->getHeight())
+            if (x>= result->GetWidth() || y >= result->GetHeight())
 				throw IO::DriveAccess::FileFormatFault(globalString("Decompression pixel out of range"));
 
             for (BYTE j = 0; j < pixels; j++)
@@ -160,7 +160,7 @@ void	Bitmap::LoadFromFilePointer(Image&target, FILE*f)
         colors = 256;
     if (colors)
     {
-        color_map.setSize(colors*4);
+        color_map.SetSize(colors*4);
         read(color_map.pointer(),4*colors,f);
     }
     if (ftell(f) != (long)data_offset)
@@ -175,9 +175,9 @@ void	Bitmap::LoadFromFilePointer(Image&target, FILE*f)
 	Array<BYTE>	data(bitmap_data_size);
     fread(data.pointer(),bitmap_data_size,1,f);
 	target.setContentType(PixelType::Color);
-    target.setDimensions(width,height,3);
+    target.SetSize(width,height,3);
     BYTE 	pixel[3],
-			*out_field = target.getData();
+			*out_field = target.GetData();
     switch (bpp)
     {
         case 1:
@@ -285,9 +285,9 @@ void	Bitmap::LoadFromFilePointer(Image&target, FILE*f)
             {
                 for (unsigned x = 0; x < width; x++)
                 {
-					target.setChannel(x,y,0,data[offset+2]);
-					target.setChannel(x,y,1,data[offset+1]);
-					target.setChannel(x,y,2,data[offset]);
+					target.SetChannel(x,y,0,data[offset+2]);
+					target.SetChannel(x,y,1,data[offset+1]);
+					target.SetChannel(x,y,2,data[offset]);
                     offset+=3;
                 }
                 offset = aligned(offset,4);
@@ -326,19 +326,19 @@ void	Bitmap::SaveToFilePointer(const Image&resource, FILE*f)
     BYTE magic[2]={'B','M'};
     write(magic,2,f);
 
-    unsigned row_size = 3*resource.getWidth();
+    unsigned row_size = 3*resource.GetWidth();
     unsigned padding = (row_size%4);
     if (padding)
     {
         padding = 4-padding;
         row_size += padding;
     }
-    unsigned image_size = row_size*resource.getHeight();
+    unsigned image_size = row_size*resource.GetHeight();
 
     ULONG bitmap_data_size(image_size),filesize(0x36+bitmap_data_size),dummy,data_offset(0x36),header_size(0x28),/*width,height,*/compression(0),colors(0),vres(1024),hres(1024);
     USHORT  planes(1),bpp(24);
-	UINT32	image_width = resource.getWidth(),
-			image_height = resource.getHeight();
+	UINT32	image_width = resource.GetWidth(),
+			image_height = resource.GetHeight();
     write(filesize,f);
     write(dummy,f);
     write(data_offset,f);
@@ -356,9 +356,9 @@ void	Bitmap::SaveToFilePointer(const Image&resource, FILE*f)
     ASSERT_EQUAL__ (ftell(f),(long)data_offset);
 
     BYTE pad = 0;
-    for (unsigned y = 0; y < resource.getHeight(); y++)
+    for (unsigned y = 0; y < resource.GetHeight(); y++)
     {
-        for (unsigned x = 0; x < resource.getWidth(); x++)
+        for (unsigned x = 0; x < resource.GetWidth(); x++)
         {
             const BYTE*pixel = resource.get(x,y);
             write(&pixel[2],1,f);

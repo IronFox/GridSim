@@ -574,7 +574,7 @@ namespace Engine
 				elements++;
 		if (line.length() && line.lastChar() != ' ')
 			elements++;
-		field.setSize(elements);
+		field.SetSize(elements);
 		for (index_t i	= 0; i < elements; i++)
 		{
 			index_t p	= line.GetIndexOf(' ');
@@ -2167,7 +2167,7 @@ namespace Engine
 			
 		/* 			if (current->children)
 						cout << "appending "<<(i-blockBegin)<<" line(s):"<<endl; */
-					target.setSize(i-blockBegin);
+					target.SetSize(i-blockBegin);
 					for (index_t j = 0; j < target.size(); j++)
 					{
 						explode(current->lightLoopConstant,lines[blockBegin+j],target[j].segments);
@@ -2319,7 +2319,7 @@ namespace Engine
 												? current->children.last()->trailingLines
 												: current->innerLines;
 			
-					target.setSize(lines.count()-blockBegin);
+					target.SetSize(lines.count()-blockBegin);
 					for (unsigned j = 0; j < target.size(); j++)
 					{
 						explode(current->lightLoopConstant,lines[blockBegin+j],target[j].segments);
@@ -2793,7 +2793,7 @@ namespace Engine
 				map = NULL;
 				if (values.count() != 2 || values[0] != 0 || values[1] != 0)
 				{
-					values.setSize(2);
+					values.SetSize(2);
 					values[0] = 0;
 					values[1] = 0;
 					SignalHasChanged();
@@ -3051,7 +3051,7 @@ namespace Engine
 						renderConfig->Reg(this);
 						registered = true;
 					}
-					setSize(renderConfig->lights.fillLevel()+userConfig->values.count());
+					SetSize(renderConfig->lights.fillLevel()+userConfig->values.count());
 					for (unsigned i = 0; i < renderConfig->lights.fillLevel(); i++)
 						data[i] = renderConfig->lights[i];
 					for (unsigned i = 0; i < userConfig->values.count(); i++)

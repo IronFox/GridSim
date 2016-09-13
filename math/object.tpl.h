@@ -612,9 +612,9 @@ namespace ObjectMath
 				min = vmin(min,quad_index_field[i]);
 				max = vmax(max,quad_index_field[i]);
 			}
-			object.vertex_field.setSize(max+1-min);
-			object.triangle_field.setSize(triangle_index_field.length()/3);
-			object.quad_field.setSize(quad_index_field.length()/4);
+			object.vertex_field.SetSize(max+1-min);
+			object.triangle_field.SetSize(triangle_index_field.length()/3);
+			object.quad_field.SetSize(quad_index_field.length()/4);
 			object.vregion.first = min;
 			object.vregion.last = max;
 			
@@ -768,8 +768,8 @@ namespace ObjectMath
 			min = vmin(min,field[i]);
 			max = vmax(max,field[i]);
 		}
-		object.vertex_field.setSize(max+1-min);
-		object.triangle_field.setSize(field.length()/3);
+		object.vertex_field.SetSize(max+1-min);
+		object.triangle_field.SetSize(field.length()/3);
 		object.vregion.first = min;
 		object.vregion.last = max;
 
@@ -856,7 +856,7 @@ namespace ObjectMath
 			}
 		}
 
-		object.edge_field.setSize(edge_buffer.count());
+		object.edge_field.SetSize(edge_buffer.count());
 		for (index_t i = 0; i < object.edge_field.length(); i++)
 			edge_buffer[i]->index = i;
 
@@ -925,7 +925,7 @@ namespace ObjectMath
 				min = vmin(min,index_field[i]);
 				max = vmax(max,index_field[i]);
 			}
-			object.vertex_field.setSize(max+1-min);
+			object.vertex_field.SetSize(max+1-min);
 			{
 				count_t	triangles = 0,
 						indices = 0;
@@ -941,7 +941,7 @@ namespace ObjectMath
 					triangles += tsegment_field[k]-2;
 					indices += tsegment_field[k];
 				}
-				object.triangle_field.setSize(triangles);
+				object.triangle_field.SetSize(triangles);
 
 				count_t	quads= 0;
 
@@ -959,7 +959,7 @@ namespace ObjectMath
 					if (qsegment_field[k]%2)
 						return false;
 				}
-				object.quad_field.setSize(quads);
+				object.quad_field.SetSize(quads);
 				if (indices != index_field.length())
 					return false;
 			}
@@ -1569,7 +1569,7 @@ namespace ObjectMath
 			triangles.append(target.vertex_field+indices[1]);
 			triangles.append(target.vertex_field+indices[2]);
 		}
-		target.triangle_field.setSize(triangles/3);
+		target.triangle_field.SetSize(triangles/3);
 		for (index_t i = 0; i < target.triangle_field.length(); i++)
 		{
 			target.triangle_field[i].v0 = triangles[i*3];
@@ -2495,7 +2495,7 @@ namespace ObjectMath
 			static Array<Link>	fbuffer;
 			
 			if (fbuffer.length() < degree*2)
-				fbuffer.setSize(degree*2);
+				fbuffer.SetSize(degree*2);
 			const count_t offset = degree;
 			count_t fentries(0);	//number of faces that lack a right neighbor
 			Link current = first;	//try to find islands
@@ -3673,7 +3673,7 @@ namespace ObjectMath
 		{
 			obj.vertices = (iterations-1)*(iterations-1)*3*12;
 			obj.band = 6;
-			obj.data.setSize(obj.vertices*obj.band);
+			obj.data.SetSize(obj.vertices*obj.band);
 			
 			//unsigned cnt = 0;
 			TVec3<C0> p[4],c,n;
@@ -4367,11 +4367,11 @@ namespace ObjectMath
 			typedef MeshQuad<TFaceGraphDef<Def> >	Quad;
 			
 			
-			object.vertex_field.setSize(vertex_field.length());
-			object.triangle_field.setSize(triangle_field.length());
-			object.quad_field.setSize(quad_field.length());
+			object.vertex_field.SetSize(vertex_field.length());
+			object.triangle_field.SetSize(triangle_field.length());
+			object.quad_field.SetSize(quad_field.length());
 			if (include_edges)
-				object.edge_field.setSize(edge_field.length());
+				object.edge_field.SetSize(edge_field.length());
 			
 			object.vregion.first = 0;
 			object.vregion.last = vertex_field.length()-1;
@@ -4578,10 +4578,10 @@ namespace ObjectMath
 			typedef MeshQuad<TGraphDef<Def> >	Quad;
 			
 			
-			object.vertex_field.setSize(vertex_field.length());
-			object.triangle_field.setSize(triangle_field.length());
-			object.quad_field.setSize(quad_field.length());
-			object.edge_field.setSize(edge_field.length());
+			object.vertex_field.SetSize(vertex_field.length());
+			object.triangle_field.SetSize(triangle_field.length());
+			object.quad_field.SetSize(quad_field.length());
+			object.edge_field.SetSize(edge_field.length());
 			
 			object.vregion.first = 0;
 			object.vregion.last = vertex_field.length()-1;
@@ -5083,7 +5083,7 @@ namespace ObjectMath
 			if (marked)
 			{
 				replace_triangles = true;
-				new_triangles.setSize(triangle_field.length()-marked);
+				new_triangles.SetSize(triangle_field.length()-marked);
 				MeshTriangle<Def>*at = new_triangles.pointer();
 				
 				for (index_t i = 0; i < triangle_field.length(); i++)
@@ -5112,7 +5112,7 @@ namespace ObjectMath
 			if (marked)
 			{
 				replace_quads = true;
-				new_quads.setSize(quad_field.length()-marked);
+				new_quads.SetSize(quad_field.length()-marked);
 				MeshQuad<Def>*at = new_quads.pointer();
 				
 				for (index_t i = 0; i < quad_field.length(); i++)
@@ -5490,10 +5490,10 @@ namespace ObjectMath
 
 	template <class Def>MF_DECLARE	(void) Mesh<Def>::resize(count_t vcnt, count_t ecnt, count_t tcnt, count_t qcnt)
 	{
-		vertex_field.setSize(vcnt);
-		edge_field.setSize(ecnt);
-		triangle_field.setSize(tcnt);
-		quad_field.setSize(qcnt);
+		vertex_field.SetSize(vcnt);
+		edge_field.SetSize(ecnt);
+		triangle_field.SetSize(tcnt);
+		quad_field.SetSize(qcnt);
 	}
 
 	
@@ -5646,9 +5646,9 @@ namespace ObjectMath
 			}
 
 			vertexBuffer.copyToArray(vertex_field);
-			quad_field.setSize(quadBuffer.count()/4);
-			triangle_field.setSize(triangleBuffer.count()/3);
-			edge_field.setSize(0);
+			quad_field.SetSize(quadBuffer.count()/4);
+			triangle_field.SetSize(triangleBuffer.count()/3);
+			edge_field.SetSize(0);
 			for (index_t i = 0; i < quad_field.count(); i++)
 			{
 				quad_field[i].v0 = vertex_field + quadBuffer[i*4];
@@ -5703,9 +5703,9 @@ namespace ObjectMath
 			index_t end = vertexBuffer.count();
 
 			vertexBuffer.copyToArray(vertex_field);
-			quad_field.setSize(quadBuffer.count()/4);
+			quad_field.SetSize(quadBuffer.count()/4);
 			triangle_field.Clear();
-			edge_field.setSize(0);
+			edge_field.SetSize(0);
 			for (index_t i = 0; i < quad_field.count(); i++)
 			{
 				quad_field[i].v0 = vertex_field + quadBuffer[i*4];
@@ -5727,10 +5727,10 @@ namespace ObjectMath
 
 			flushMap();
 
-			vertex_field.setSize(8);
-			quad_field.setSize(6);
-			triangle_field.setSize(0);
-			edge_field.setSize(12);
+			vertex_field.SetSize(8);
+			quad_field.SetSize(6);
+			triangle_field.SetSize(0);
+			edge_field.SetSize(12);
 
 			Vec::def(vertex_field[0].position,-1,-1,+1);
 			Vec::def(vertex_field[1].position,+1,-1,+1);
@@ -5861,8 +5861,8 @@ namespace ObjectMath
 		MF_DECLARE	(void)		Mesh<Def>::buildFromFunction(const T&min_x, const T&max_x, count_t xres, const T&min_z, const T&max_z, count_t zres, T (*function)(const T&x, const T&y))
 		{
 			typedef typename Def::Type Float;
-			vertex_field.setSize((xres+1)*(zres+1));
-			quad_field.setSize(xres*zres);
+			vertex_field.SetSize((xres+1)*(zres+1));
+			quad_field.SetSize(xres*zres);
 			triangle_field.free();
 			edge_field.free();
 			
@@ -6088,10 +6088,10 @@ namespace ObjectMath
 		Array<MeshQuad<Def>*>			qbuffer[8];
 		for (BYTE k = 0; k < 8; k++)
 		{
-			vbuffer[k].setSize(vertex_field.length());
-			ebuffer[k].setSize(edge_field.length());
-			tbuffer[k].setSize(triangle_field.length());
-			qbuffer[k].setSize(quad_field.length());
+			vbuffer[k].SetSize(vertex_field.length());
+			ebuffer[k].SetSize(edge_field.length());
+			tbuffer[k].SetSize(triangle_field.length());
+			qbuffer[k].SetSize(quad_field.length());
 		}
 		
 		recursiveMap(vbuffer,ebuffer,tbuffer,qbuffer,tag);
@@ -6495,13 +6495,13 @@ namespace ObjectMath
 		static Array<MeshTriangle<Def>*>		temp_triangle_field;
 		
 		if (temp_vertex_field.length() < source->vertex_field.length())
-			temp_vertex_field.setSize(source->vertex_field.length());
+			temp_vertex_field.SetSize(source->vertex_field.length());
 		if (temp_edge_field.length() < source->edge_field.length())
-			temp_edge_field.setSize(source->edge_field.length());
+			temp_edge_field.SetSize(source->edge_field.length());
 		if (temp_triangle_field.length() < source->triangle_field.length())
-			temp_triangle_field.setSize(source->triangle_field.length());
+			temp_triangle_field.SetSize(source->triangle_field.length());
 		if (temp_quad_field.length() < source->quad_field.length())
-			temp_quad_field.setSize(source->quad_field.length());
+			temp_quad_field.SetSize(source->quad_field.length());
 		
 		count_t	temp_vertex_count = 0,
 				temp_edge_count = 0,
@@ -6929,7 +6929,7 @@ namespace ObjectMath
 			if (Set[k])
 				if (child[k]->recursiveLookupEdge(p0,p1) == cnt)
 				{
-					sector_map.truncate(at);
+					sector_map.Truncate(at);
 					sector_map<< this;
 					return cnt;
 				}
@@ -7112,7 +7112,7 @@ namespace ObjectMath
 			if (Set[k])
 				if (child[k]->recursiveLookupSphere(p,r) == cnt)
 				{
-					sector_map.truncate(at);
+					sector_map.Truncate(at);
 					sector_map<< this;
 					return cnt;
 				}
@@ -7670,7 +7670,7 @@ namespace ObjectMath
 		MF_DECLARE	(void)		makeSphere(const Float&radius,AbstractHull<Float>&result)
 		{
 			result.cylinders.free();
-			result.spheres.setSize(1);
+			result.spheres.SetSize(1);
 			Vec::clear(result.spheres[0].center);
 			result.spheres[0].radius = radius;
 		}
@@ -7679,7 +7679,7 @@ namespace ObjectMath
 		MF_DECLARE	(void)		makeSphere(const TVec3<Float>&center, const Float&radius,AbstractHull<Float>&result)
 		{
 			result.cylinders.free();
-			result.spheres.setSize(1);
+			result.spheres.SetSize(1);
 			result.spheres[0].radius = radius;
 			result.spheres[0].center = center;
 		}
@@ -7687,8 +7687,8 @@ namespace ObjectMath
 	template <class Float>
 		MF_DECLARE	(void)		makeCapsule(const TVec3<Float>&p0, const TVec3<Float>&p1, const Float&radius,AbstractHull<Float>&result)
 		{
-			result.cylinders.setSize(1);
-			result.spheres.setSize(2);
+			result.cylinders.SetSize(1);
+			result.spheres.SetSize(2);
 			result.spheres[0] = AbstractSphere<Float>(p0,radius);
 			result.spheres[1] = AbstractSphere<Float>(p1,radius);
 			result.cylinders[0] = AbstractCylinder<Float>(p0,p1,radius);
@@ -8028,7 +8028,7 @@ namespace ObjectMath
 			for (index_t i = 0; i < vertices.count(); i++)
 				if (!vmap[i])
 					vcnt++;
-			object.vertex_field.setSize(vcnt);
+			object.vertex_field.SetSize(vcnt);
 			vcnt = 0;
 			for (index_t i = 0; i < vertices.count(); i++)
 				if (!vmap[i])
@@ -8036,8 +8036,8 @@ namespace ObjectMath
 					vmap[i] = vcnt;
 					_c3(vertices[i].vector,object.vertex_field[vcnt++].position);
 				}
-			object.quad_field.setSize(0);
-			object.triangle_field.setSize(triangles.count());
+			object.quad_field.SetSize(0);
+			object.triangle_field.SetSize(triangles.count());
 			for (index_t i = 0; i < triangles.count(); i++)
 			{
 				object.triangle_field[i].v0 = object.vertex_field+vmap[triangles[i].v0];

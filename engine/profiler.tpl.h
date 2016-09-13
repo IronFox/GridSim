@@ -185,7 +185,7 @@ namespace Engine
 		
 		
 	template <class GL, class Font>
-		void		ColumnGraph<GL,Font>::draw()
+		void		ColumnGraph<GL,Font>::Draw()
 		{
 			GL*renderer = Base::getRenderer();
 			if (!renderer)
@@ -253,14 +253,14 @@ namespace Engine
 							Vec::interpolate(group.color,channel.color,0.25,color);
 							active_textout->locate(x,y);
 							active_textout->color(color);
-							y+=active_textout->state.scale_y*active_textout->getFont().getHeight();
+							y+=active_textout->state.scale_y*active_textout->getFont().GetHeight();
 							active_textout->print(channel.name);
 						}
 						x-=indent;
 					}
 					active_textout->locate(x,y);
 					active_textout->color(group.color);
-					y+=active_textout->state.scale_y*active_textout->getFont().getHeight();
+					y+=active_textout->state.scale_y*active_textout->getFont().GetHeight();
 					active_textout->print(group.name);
 				}
 			}
@@ -433,7 +433,7 @@ namespace Engine
 		
 		
 	template <class GL, class Font>
-		void		StackedGraph<GL,Font>::draw()
+		void		StackedGraph<GL,Font>::Draw()
 		{
 			GL*renderer = Base::getRenderer();
 			if (!renderer)
@@ -494,7 +494,7 @@ namespace Engine
 				exclusive = &data->group(group).channel(channel);
 			
 			float 	base = Base::position.y.min,
-					font_height = active_textout->state.scale_y*active_textout->getFont().getHeight();
+					font_height = active_textout->state.scale_y*active_textout->getFont().GetHeight();
 			
 			if ((view != Solid || exclusive) && print_channel_names)
 			{
@@ -552,13 +552,13 @@ namespace Engine
 						active_textout->color(group.color);
 					else
 						active_textout->color(group.color,0.25);
-					y+=active_textout->state.scale_y*active_textout->getFont().getHeight();
+					y+=active_textout->state.scale_y*active_textout->getFont().GetHeight();
 					active_textout->print(group.name);
 				}
 			}
 			active_textout->color(1,1,1);
 			
-			active_textout->locate(position.x.max-active_textout->scaledLength(str_current)-indent/2, position.y.max-active_textout->state.y_scale*active_textout->getFont().getHeight());
+			active_textout->locate(position.x.max-active_textout->scaledLength(str_current)-indent/2, position.y.max-active_textout->state.y_scale*active_textout->getFont().GetHeight());
 			active_textout->print(str_current);
 			
 		}
@@ -697,8 +697,8 @@ namespace Engine
 			unsigned res = data->resolution();
 			if (!res)
 				return;
-			h_field.setSize(res);
-			h_block.setSize(res);
+			h_field.SetSize(res);
+			h_block.SetSize(res);
 			h_block.Fill(0);
 			h_field.Fill(0);
 			unsigned cnt = 0;
@@ -816,7 +816,7 @@ namespace Engine
 		
 		
 	template <class GL, class Font>
-		void		StairGraph<GL,Font>::draw()
+		void		StairGraph<GL,Font>::Draw()
 		{
 			GL*renderer = Base::getRenderer();
 			if (!renderer)
@@ -1098,7 +1098,7 @@ namespace Engine
 				return;
 			}
 			Base::beginUpdate();
-			Base::text_location.setSize(data->countChannels());
+			Base::text_location.SetSize(data->countChannels());
 			
 			unsigned res = data->resolution();
 			if (!res)
@@ -1188,7 +1188,7 @@ namespace Engine
 		
 		
 	template <class GL, class Font>
-		void		HeightGraph<GL,Font>::draw()
+		void		HeightGraph<GL,Font>::Draw()
 		{
 			GL*renderer = Base::getRenderer();
 			if (!renderer)
@@ -1297,7 +1297,7 @@ namespace Engine
 				return;
 			}
 			Base::beginUpdate();
-			Base::text_location.setSize(data->countChannels());
+			Base::text_location.SetSize(data->countChannels());
 			
 			unsigned res = data->resolution();
 			if (res<2)

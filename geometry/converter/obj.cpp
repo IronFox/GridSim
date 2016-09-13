@@ -348,15 +348,15 @@ namespace Converter
 		texture_name_table64.set(result->data.name);
 		
 		if (color && alpha)
-			color_image.appendAlpha(&alpha_image);
+			color_image.AppendAlpha(&alpha_image);
 		else
 			if (alpha)
 			{
 				color_image = alpha_image;
-				color_image.setChannels(4,Image::CA_REPEAT);
-				color_image.setChannel(0,255);
-				color_image.setChannel(1,255);
-				color_image.setChannel(2,255);
+				color_image.SetChannels(4,Image::CA_REPEAT);
+				color_image.SetChannel(0,255);
+				color_image.SetChannel(1,255);
+				color_image.SetChannel(2,255);
 			}
 		Array<BYTE>	buffer;
 		sendMessage("Compressing...");
@@ -366,7 +366,7 @@ namespace Converter
 		if (!out_size)
 			logMessage("Compression failed of '"+String(key)+"' ("+TextureCompression::getError()+")");
 		
-		result->data.face_field.setSize(1);
+		result->data.face_field.SetSize(1);
 		result->data.face_field[0].importFrom(buffer.pointer(),(Arrays::count_t)out_size);
 		result->data.updateHash();
 		
@@ -401,10 +401,10 @@ namespace Converter
 		
 		{
 			TVec3<> normal;
-			for (UINT32 x = 0; x < image.getWidth(); x++)
-				for (UINT32 y = 0; y < image.getHeight(); y++)
+			for (UINT32 x = 0; x < image.GetWidth(); x++)
+				for (UINT32 y = 0; y < image.GetHeight(); y++)
 				{
-					image.getNormal(x,y,normal);
+					image.GetNormal(x,y,normal);
 					swp(normal.y,normal.z);
 					normal.z*=-1;
 					image.setNormal(x,y,normal);
@@ -424,7 +424,7 @@ namespace Converter
 		if (!out_size)
 			logMessage("Compression failed of '"+String(key)+"' ("+TextureCompression::getError()+")");
 		
-		result->data.face_field.setSize(1);
+		result->data.face_field.SetSize(1);
 		result->data.face_field[0].importFrom(buffer.pointer(),(Arrays::count_t)out_size);
 		result->data.updateHash();
 		
@@ -531,7 +531,7 @@ namespace Converter
 								
 								count_t layers = (material->texture != NULL) + (material->normal_map!=NULL);
 								sendMessage("material '"+material->name+"' has "+String(layers)+" layer(s)");
-								material->info.layer_field.setSize(layers);
+								material->info.layer_field.SetSize(layers);
 								for (index_t i = 0; i < layers; i++)
 								{
 									CGS::TLayer&layer = material->info.layer_field[i];
@@ -611,7 +611,7 @@ namespace Converter
 				}
 				
 				count_t layers = (material->texture != NULL) + (material->normal_map!=NULL);
-				material->info.layer_field.setSize(layers);
+				material->info.layer_field.SetSize(layers);
 				for (index_t i = 0; i < layers; i++)
 				{
 					CGS::TLayer&layer = material->info.layer_field[i];
@@ -921,7 +921,7 @@ namespace Converter
 		{
 			sendMessage("Provided normals are non-existing or not properly generated.");
 			sendMessage("Generating normals");
-			normal_buffer.setSize(vertexBuffer.fillLevel()*smooth_groups,true);
+			normal_buffer.SetSize(vertexBuffer.fillLevel()*smooth_groups,true);
 			normal_buffer.Fill(Vector<>::null);
 			index_t index = 0;
 			update_step = total/100;
@@ -992,7 +992,7 @@ namespace Converter
 
 
 
-		target.object_field.setSize(group_buffer.count());
+		target.object_field.SetSize(group_buffer.count());
 		
 		for (index_t i = 0; i < group_buffer.count(); i++)
 		{
@@ -1080,7 +1080,7 @@ namespace Converter
 		Array<ObjTexture*>	exp;
 		texture_field.exportTo(exp);
 		
-		target.local_textures.entry_field.setSize(exp.length());
+		target.local_textures.entry_field.SetSize(exp.length());
 		target.texture_resource = &target.local_textures;
 		for (index_t i = 0; i < exp.length(); i++)
 		{
@@ -1106,7 +1106,7 @@ namespace Converter
 		
 		count_t render_vertices(0);
 		sendMessage("Writing materials");
-		target.material_field.setSize(material_list.count());
+		target.material_field.SetSize(material_list.count());
 		for (index_t i = 0; i < material_list.count(); i++)
 		{
 			ObjMaterial*material = material_list[i];
@@ -1121,7 +1121,7 @@ namespace Converter
 				if (mt.info.layer_field.length()>1)
 					mt.info.layer_field[1].source = material->normal_map->target;
 			}
-			mt.data.object_field.setSize(material->sections);
+			mt.data.object_field.SetSize(material->sections);
 			for (index_t j = 0; j < mt.data.object_field.length(); j++)
 			{
 				ObjMaterialSection*s = material->sections[j];
@@ -1136,7 +1136,7 @@ namespace Converter
 					s->vertices.exportToField(vertex_field);
 
 					render_vertices += s->vertices.count();
-					ro.vpool.setSize(s->vertices,0,CGS::HasNormalFlag);
+					ro.vpool.SetSize(s->vertices,0,CGS::HasNormalFlag);
 					for (UINT32 k = 0; k < ro.vpool.vcnt; k++)
 					{
 						const ObjVertexN&v = vertex_field[k];
@@ -1147,7 +1147,7 @@ namespace Converter
 							sendMessage("Conversion error: Normal of vertex "+String(k)+" of render object "+String(j)+" of material "+String(i)+" is not normalized ("+Vec::toString(v.n)+")");
 						//s->vertices[k]->index = k;
 					}
-					chunk.idata.setSize(s->triangles.count()*3+s->quads.count()*4);
+					chunk.idata.SetSize(s->triangles.count()*3+s->quads.count()*4);
 					chunk.triangles = UINT32(s->triangles.count());
 					chunk.quads = UINT32(s->quads.count());
 					UINT32*pi = chunk.idata.pointer();
@@ -1176,7 +1176,7 @@ namespace Converter
 					s->tex_vertices.exportToField(vertex_field);
 
 					render_vertices += s->tex_vertices.count();
-					ro.vpool.setSize(s->tex_vertices,1,CGS::HasNormalFlag);
+					ro.vpool.SetSize(s->tex_vertices,1,CGS::HasNormalFlag);
 					for (UINT32 k = 0; k < ro.vpool.vcnt; k++)
 					{
 						const ObjVertexNT&v = vertex_field[k];
@@ -1187,7 +1187,7 @@ namespace Converter
 							sendMessage("Conversion error: Normal of vertex "+String(k)+" of render object "+String(j)+" of material "+String(i)+" is not normalized ("+Vec::toString(v.n)+")");
 						//s->tex_vertices[k]->index = k;
 					}
-					chunk.idata.setSize(s->tex_triangles.count()*3+s->tex_quads.count()*4);
+					chunk.idata.SetSize(s->tex_triangles.count()*3+s->tex_quads.count()*4);
 					chunk.triangles = UINT32(s->tex_triangles.count());
 					chunk.quads = UINT32(s->tex_quads.count());
 					UINT32*pi = chunk.idata.pointer();
@@ -1288,9 +1288,9 @@ namespace Converter
 			logMessage(__LINE__);
 			
 			
-			child.vs_hull_field.setSize(1);
+			child.vs_hull_field.SetSize(1);
 			Mesh<CGS::SubGeometryA<>::VsDef>	&vs_hull = child.vs_hull_field[0];
-			vs_hull.vertex_field.setSize(pool.count());
+			vs_hull.vertex_field.SetSize(pool.count());
 			
 			Mat::eye(child.meta.system);
 			child.meta.volume = 1.0;
@@ -1329,7 +1329,7 @@ namespace Converter
 			}
 			logMessage(__LINE__);
 			
-			vs_hull.triangle_field.setSize(triangle_buffer.count());
+			vs_hull.triangle_field.SetSize(triangle_buffer.count());
 			for (index_t j = 0; j < triangle_buffer.count(); j++)
 			{
 				const TPoolTriangle&t = triangle_buffer[j];
@@ -1339,7 +1339,7 @@ namespace Converter
 			}
 			logMessage(__LINE__);
 			
-			vs_hull.quad_field.setSize(quad_buffer.count());
+			vs_hull.quad_field.SetSize(quad_buffer.count());
 			for (index_t j = 0; j < quad_buffer.count(); j++)
 			{
 				const TPoolQuad&q = quad_buffer[j];
@@ -1472,11 +1472,11 @@ namespace Converter
 	
 	if (TextureCompression::decompress(texture->face_field[0].pointer(),texture->face_field[0].size(),out))	//that i would ever have to use const_cast... stupid bz2 lib :S
 	{
-		if (out.getContentType() == PixelType::Color && out.getChannels() > 3)
+		if (out.GetContentType() == PixelType::Color && out.GetChannels() > 3)
 		{
 			alpha_names.set(texture,tex_name+".alpha.bmp");
 			Image alpha;
-			out.extractChannels(3,1,alpha);
+			out.ExtractChannels(3,1,alpha);
 			try
 			{
 				bitmap.SaveToFile(alpha,base_name+".alpha.bmp");
@@ -1488,16 +1488,16 @@ namespace Converter
 				sendMessage("  Failed to write alpha of '"+tex_name+"' to '"+base_name+".alpha.bmp'");
 			}
 		}
-		if (out.getChannels() != 3)
-			out.setChannels(3);
+		if (out.GetChannels() != 3)
+			out.SetChannels(3);
 		
-		if (out.getContentType() != PixelType::Color)
+		if (out.GetContentType() != PixelType::Color)
 		{
 			TVec3<> normal;
-			for (UINT32 x = 0; x < out.getWidth(); x++)
-				for (UINT32 y = 0; y < out.getHeight(); y++)
+			for (UINT32 x = 0; x < out.GetWidth(); x++)
+				for (UINT32 y = 0; y < out.GetHeight(); y++)
 				{
-					out.getNormal(x,y,normal);
+					out.GetNormal(x,y,normal);
 					swp(normal.y,normal.z);
 					normal.y*=-1;
 					out.setNormal(x,y,normal);
@@ -1508,7 +1508,7 @@ namespace Converter
 		{
 			bitmap.SaveToFile(out,base_name+".bmp");
 			texture_names.set(texture,tex_name+".bmp");
-			if (out.getContentType() == PixelType::Color)
+			if (out.GetContentType() == PixelType::Color)
 			{
 				sendMessage("  Color component of '"+tex_name+"' written to '"+base_name+".bmp'");
 				fout << "map_Kd "<<tex_name<<".bmp"<<nl;
@@ -1534,10 +1534,10 @@ namespace Converter
 	for (index_t j = 1; j < texture->face_field.length(); j++)
 		if (TextureCompression::decompress(texture->face_field[j].pointer(),texture->face_field[j].size(),out))
 		{
-			if (out.getContentType() == PixelType::Color && out.getChannels() > 3)
+			if (out.GetContentType() == PixelType::Color && out.GetChannels() > 3)
 			{
 				Image alpha;
-				out.extractChannels(3,1,alpha);
+				out.ExtractChannels(3,1,alpha);
 				try
 				{
 					bitmap.SaveToFile(alpha,base_name+String(j)+".alpha.bmp");
@@ -1548,15 +1548,15 @@ namespace Converter
 					sendMessage("  Failed to write alpha layer "+String(j)+" '"+tex_name+"' to '"+base_name+String(j)+".alpha.bmp'");
 				}
 			}
-			if (out.getChannels() != 3)
-				out.setChannels(3);
-			if (out.getContentType() != PixelType::Color)
+			if (out.GetChannels() != 3)
+				out.SetChannels(3);
+			if (out.GetContentType() != PixelType::Color)
 			{
 				TVec3<> normal;
-				for (UINT32 x = 0; x < out.getWidth(); x++)
-					for (UINT32 y = 0; y < out.getHeight(); y++)
+				for (UINT32 x = 0; x < out.GetWidth(); x++)
+					for (UINT32 y = 0; y < out.GetHeight(); y++)
 					{
-						out.getNormal(x,y,normal);
+						out.GetNormal(x,y,normal);
 						swp(normal.y,normal.z);
 						normal.y*=-1;
 						out.setNormal(x,y,normal);
@@ -1711,7 +1711,7 @@ namespace Converter
 				const CGS::IndexContainerA<>&chunk = robj.ipool;
 				Array<TFace>*field_pntr = conversion_table[i].define(robj.target),
 							&field = *field_pntr;
-				field.setSize(chunk.countFaces());
+				field.SetSize(chunk.countFaces());
 				UINT32	index_offset(0),
 						entry_index(0);
 				

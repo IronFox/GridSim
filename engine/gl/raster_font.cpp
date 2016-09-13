@@ -150,12 +150,12 @@ namespace Engine
 
 	}    
 
-	float GLRasterFont::getHeight()
+	float GLRasterFont::GetHeight()
 	{
 		return height;
 	}
 	
-	float GLRasterFont::getWidth(const char*str)
+	float GLRasterFont::GetWidth(const char*str)
 	{
 	    float len(0);
 	    while (*str)
@@ -163,7 +163,7 @@ namespace Engine
 	    return len;
 	}
 
-	float GLRasterFont::getWidth(const char*str, size_t len)
+	float GLRasterFont::GetWidth(const char*str, size_t len)
 	{
 	    float result(0);
 	    for (index_t i = 0; i < len; i++)
@@ -171,7 +171,7 @@ namespace Engine
 	    return result;
 	}
 
-	float GLRasterFont::getWidth(char c)
+	float GLRasterFont::GetWidth(char c)
 	{
 	    return width[(BYTE)c];
 	}

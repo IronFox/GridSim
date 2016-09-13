@@ -71,7 +71,7 @@ PixelType	TextureCompression::extractContentType(const ArrayData<BYTE>&source)
 {
 	if (source.size() < sizeof(Image::THeader))
 		return PixelType::None;
-	return Image::getContentType(*(const Image::THeader*)source.pointer());
+	return Image::GetContentType(*(const Image::THeader*)source.pointer());
 }
 
 Image*    TextureCompression::decompress(const BYTE*data, size_t size)
@@ -104,7 +104,7 @@ Image*    TextureCompression::decompress(const BYTE*data, size_t size)
         break;
         case BZ2Compression:
         {
-            if (!BZ2::decompress(&data[sizeof(Image::THeader)],size-sizeof(Image::THeader),result->getData(),result->size()))
+            if (!BZ2::decompress(&data[sizeof(Image::THeader)],size-sizeof(Image::THeader),result->GetData(),result->size()))
             {
 				ext_error = "Decompression failed ("+String(BZ2::errorStr())+")";
                 DISCARD(result);
@@ -126,7 +126,7 @@ Image*    TextureCompression::decompress(const BYTE*data, size_t size)
 			
 		    png_bytepp image = png_get_rows(png,info);
 		    bool palette = info->color_type&PNG_COLOR_MASK_PALETTE;
-		    result->setDimensions(info->width,info->height,palette?3:info->channels);
+		    result->SetSize(info->width,info->height,palette?3:info->channels);
 
 		    for (unsigned x = 0; x < info->width; x++)
 		        for (unsigned y = 0; y < info->height; y++)
@@ -180,7 +180,7 @@ bool TextureCompression::decompress(const BYTE*data, size_t size, Image&to)
         break;
         case BZ2Compression:
         {
-            if (!BZ2::decompress(&data[sizeof(Image::THeader)],size-sizeof(Image::THeader),to.getData(),to.size()))
+            if (!BZ2::decompress(&data[sizeof(Image::THeader)],size-sizeof(Image::THeader),to.GetData(),to.size()))
 			{
 				ext_error = "Decompression failed ("+String(BZ2::errorStr())+")";
                 return false;
@@ -201,7 +201,7 @@ bool TextureCompression::decompress(const BYTE*data, size_t size, Image&to)
 			
 		    png_bytepp image = png_get_rows(png,info);
 		    bool palette = info->color_type&PNG_COLOR_MASK_PALETTE;
-		    to.setDimensions(info->width,info->height,palette?3:info->channels);
+		    to.SetSize(info->width,info->height,palette?3:info->channels);
 
 		    for (unsigned x = 0; x < info->width; x++)
 		        for (unsigned y = 0; y < info->height; y++)
@@ -261,7 +261,7 @@ size_t TextureCompression::compress(const Image&source, Array<BYTE>&buffer, Code
 	else
 	{
 		local = source;
-		local.resample((1<<header.x_exp),(1<<header.y_exp));
+		local.Resample((1<<header.x_exp),(1<<header.y_exp));
 		from = &local;
 	}
 	
@@ -270,15 +270,15 @@ size_t TextureCompression::compress(const Image&source, Array<BYTE>&buffer, Code
 		static LogFile	log_file("compression.log",true);
 	#endif
 
-	LOG_TEXTURE_COMPRESSION_STAGE("compressing "<<from->getWidth()<<"*"<<from->getHeight()<<"*"<<from->getChannels());
+	LOG_TEXTURE_COMPRESSION_STAGE("compressing "<<from->GetWidth()<<"*"<<from->GetHeight()<<"*"<<from->GetChannels());
 
 
 	switch (codec)
 	{
 		case NoCompression:
 			compressed_size = from->size();
-			buffer.setSize((unsigned)(compressed_size+sizeof(Image::THeader)));
-			memcpy(buffer+sizeof(Image::THeader),from->getData(),compressed_size);
+			buffer.SetSize((unsigned)(compressed_size+sizeof(Image::THeader)));
+			memcpy(buffer+sizeof(Image::THeader),from->GetData(),compressed_size);
 		break;
 		case SectorCompression:
 		{
@@ -289,13 +289,13 @@ size_t TextureCompression::compress(const Image&source, Array<BYTE>&buffer, Code
 		case BZ2Compression:
 		{
 			Array<BYTE>	temp((unsigned)(from->size()));
-			compressed_size = BZ2::compress(from->getData(), from->size(), temp.pointer(), temp.GetContentSize());
+			compressed_size = BZ2::compress(from->GetData(), from->size(), temp.pointer(), temp.GetContentSize());
 			if (!compressed_size)
 			{
 				ext_error = "Compression failed ("+String(BZ2::errorStr())+")";
 				return 0;
 			}	
-			buffer.setSize((unsigned)(compressed_size+sizeof(Image::THeader)));
+			buffer.SetSize((unsigned)(compressed_size+sizeof(Image::THeader)));
 			memcpy(buffer+sizeof(Image::THeader),temp.pointer(),compressed_size);
 		}
 		break;
@@ -309,30 +309,30 @@ size_t TextureCompression::compress(const Image&source, Array<BYTE>&buffer, Code
 
 			LOG_TEXTURE_COMPRESSION_STAGE("configuring info");
 
-			info->width = from->getWidth();
-			info->height = from->getHeight();
+			info->width = from->GetWidth();
+			info->height = from->GetHeight();
 			info->valid = 0;
-			info->rowbytes = from->getWidth()*from->getChannels();
+			info->rowbytes = from->GetWidth()*from->GetChannels();
 			info->palette = NULL;
 			info->num_palette = 0;
 			info->num_trans = 0;
 			info->bit_depth = 8;
-			info->color_type = from->getChannels()==3?PNG_COLOR_TYPE_RGB:PNG_COLOR_TYPE_RGBA;
+			info->color_type = from->GetChannels()==3?PNG_COLOR_TYPE_RGB:PNG_COLOR_TYPE_RGBA;
 			info->compression_type = PNG_COMPRESSION_TYPE_BASE;
 			info->filter_type = PNG_FILTER_TYPE_BASE;
 			info->interlace_type = PNG_INTERLACE_NONE;
-			info->channels = from->getChannels();
-			info->pixel_depth = from->getChannels()*8;
+			info->channels = from->GetChannels();
+			info->pixel_depth = from->GetChannels()*8;
 			info->spare_byte = 0;
 			memcpy(info->signature,"PNG     ",8);
 			
 			LOG_TEXTURE_COMPRESSION_STAGE("creating map");
 
-			png_bytepp image = new png_bytep[from->getHeight()];
-			for (unsigned i = 0; i < from->getHeight(); i++)
+			png_bytepp image = new png_bytep[from->GetHeight()];
+			for (unsigned i = 0; i < from->GetHeight(); i++)
 			{
-				image[i] = new png_byte[from->getWidth()*from->getChannels()];
-				for (unsigned j = 0; j < from->getWidth(); j++)
+				image[i] = new png_byte[from->GetWidth()*from->GetChannels()];
+				for (unsigned j = 0; j < from->GetWidth(); j++)
 				{
 					const BYTE*pixel = from->get(j,i);
 					for (BYTE k = 0; k < info->channels; k++)
@@ -352,7 +352,7 @@ size_t TextureCompression::compress(const Image&source, Array<BYTE>&buffer, Code
 			png_destroy_write_struct(&png,NULL);
 			
 			
-			for (unsigned i = 0; i < from->getHeight(); i++)
+			for (unsigned i = 0; i < from->GetHeight(); i++)
 			{
 				delete[] image[i];
 			}
@@ -361,7 +361,7 @@ size_t TextureCompression::compress(const Image&source, Array<BYTE>&buffer, Code
 			LOG_TEXTURE_COMPRESSION_STAGE("copying compressed image ("<<out_buffer.fillLevel()<<" byte(s))");
 	
 			compressed_size = out_buffer.fillLevel();
-			buffer.setSize(sizeof(Image::THeader)+out_buffer.fillLevel());
+			buffer.SetSize(sizeof(Image::THeader)+out_buffer.fillLevel());
 			LOG_TEXTURE_COMPRESSION_STAGE("buffer resized to "<<buffer.GetContentSize()<<" byte(s)");
 			memcpy(buffer.pointer()+sizeof(Image::THeader),out_buffer.pointer(),compressed_size);
 		}

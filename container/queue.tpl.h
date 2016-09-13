@@ -91,7 +91,7 @@ template <class Entry,class Strategy>
 template <class Entry,class Strategy>
 	Queue<Entry,Strategy>::Queue(const Self&other)
 	{
-		Array::setSize(other.Array::count());
+		Array::SetSize(other.Array::count());
 		section_begin = section_end = Array::pointer();
 		field_end = section_begin + Array::length();
 		for (index_t i = 0; i < other.count(); i++)
@@ -109,7 +109,7 @@ template <class Entry,class Strategy>
 template <class Entry,class Strategy>
 	void Queue<Entry,Strategy>::operator=(const Queue<Entry,Strategy>&other)
 	{
-		Array::setSize(other.Array::count());
+		Array::SetSize(other.Array::count());
 		section_begin = section_end = Array::pointer();
 		field_end = section_begin + Array::length();
 		for (index_t i = 0; i < other.count(); i++)

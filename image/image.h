@@ -79,7 +79,7 @@ protected:
 
 public:
 		String					origin;		//!< Custom string. Possibly a filename. This value is carried along but not used by any method of this file
-		enum channel_append_t{	//! Operation to perfom if new channels are appended via the setChannel() method.
+		enum channel_append_t{	//! Operation to perfom if new channels are appended via the SetChannel() method.
 								CA_ZERO=0,	//!< Set the content of new channels to 0 (black)
 								CA_REPEAT,	//!< Repeat the content of the last defined channel
 								CA_UNDEF,	//!< Leave the content of new channels undefined
@@ -110,30 +110,30 @@ public:
 								{}
 virtual							~BaseImage()	{};
 		dimension_t				width()																const;	//!< Queries current image width \return Image width in pixels
-		dimension_t				getWidth()															const;	//!< Queries current image width \return Image width in pixels
+		dimension_t				GetWidth()															const;	//!< Queries current image width \return Image width in pixels
 		dimension_t				height()															const;	//!< Queries current image height \return Image height in pixels
-		dimension_t				getHeight()															const;	//!< Queries current image height \return Image height in pixels
-		float					aspect()															const;	//!< Queries the pixel aspect (width/height) of the local image
-		float					getAspect()															const;	//!< Queries the pixel aspect (width/height) of the local image
-		dimension_t				dimension(BYTE index)												const; 	//!< Queries current image width/height \param index Coordinate index to retrieve (0=width, 1=height) \return Image width or height in pixels
-		dimension_t				getDimension(BYTE index)											const; 	//!< Queries current image width/height \param index Coordinate index to retrieve (0=width, 1=height) \return Image width or height in pixels
+		dimension_t				GetHeight()															const;	//!< Queries current image height \return Image height in pixels
+		float					pixelAspect()														const;	//!< Queries the pixel aspect (width/height) of the local image
+		float					GetPixelAspect()													const;	//!< Queries the pixel aspect (width/height) of the local image
+		dimension_t				dimension(BYTE axis)												const; 	//!< Queries current image width/height \param axis Coordinate axis to retrieve (0=width, 1=height) \return Image width or height in pixels
+		dimension_t				GetDimension(BYTE axis)												const; 	//!< Queries current image width/height \param axis Coordinate axis to retrieve (0=width, 1=height) \return Image width or height in pixels
 		bool					IsEmpty()															const;	//!< Checks if the local image contains at least one pixel and one channel, false otherwise
 		bool					IsNotEmpty()														const;	//!< identical to !IsEmpty()		
 		BYTE					channels()															const;	//!< Queries current image color channels \return Number of color channels
-		BYTE					getChannels()														const;	//!< Queries current image color channels \return Number of color channels
+		BYTE					GetChannels()														const;	//!< Queries current image color channels \return Number of color channels
 		PixelType				contentType()														const;	//!< Queries content type \return content type
-		PixelType				getContentType()													const;	//!< Queries content type \return content type
+		PixelType				GetContentType()													const;	//!< Queries content type \return content type
 static	PixelType				contentType(const THeader&header);											//!< Extracts the content type from the provided image header
-static	PixelType				getContentType(const THeader&header);										//!< Extracts the content type from the provided image header
+static	PixelType				GetContentType(const THeader&header);										//!< Extracts the content type from the provided image header
 		String					contentTypeString()													const;	//!< Generates a short string describing the current content type \return content type string
-		String					getContentTypeString()												const;	//!< Generates a short string describing the current content type \return content type string
+		String					GetContentTypeString()												const;	//!< Generates a short string describing the current content type \return content type string
 		void					setContentType(PixelType type);												//!< Sets content type. Does not change the actual data.
 		bool					writeHeader(THeader&header)											const;	//!< Generates a header from the local image data \return true if the local image coordinates could be transformed into exponents, false otherwise. The resulting header will contain approximated exponents if false is returned
 		THeader					header()															const;	//!< Generates a header from the local image data
-		THeader					getHeader()															const;	//!< Generates a header from the local image data
+		THeader					GetHeader()															const;	//!< Generates a header from the local image data
 		String					ToString()															const;		//!< Generates a string representation of the local image (width, height, channels, type, etc)
-		bool					isColorMap()														const;	//!< Checks if the local map contains color pixels
-		bool					isNormalMap()														const;	//!< Checks if the local map contains normal pixels
+		bool					IsColorMap()														const;	//!< Checks if the local map contains color pixels
+		bool					IsNormalMap()														const;	//!< Checks if the local map contains normal pixels
 };
 
 
@@ -177,27 +177,26 @@ template <typename T>
 										content_type = PixelType::Color;
 									}
 		void						clear()	{free();}
+		void						Clear() {free();}
 		void						applyHeader(const THeader&header);											//!< Changes the size, channels, and type of the local image based on the provided header. Any content in the local image will be lost if the size of the local color array changes
-		inline	T*					getData();																	//!< Retrieves a pointer to the actual pixel data of the image \return Pointer to the image pixel data array. The returned array <b>must not be deleted</b>
-		inline	const T*			getData()															const;	//!< Const version of getData().
+		inline	T*					GetData()	/**@copydoc data()*/ {return data();}
+		inline	const T*			GetData() const	/**@copydoc data()*/ {return data();}
 		inline	T*					data();																	//!< Retrieves a pointer to the actual pixel data of the image \return Pointer to the image pixel data array. The returned array <b>must not be deleted</b>
-		inline	const T*			data()																const;	//!< Const version of getData().
+		inline	const T*			data()																const;	//!< Const version of GetData().
 		void						adoptData(ImageTemplate<T>&other);													//!< Clears any local data and adopts all pointers of the other image. The respective other image will be empty when the operation is executed.
 		void						swap(ImageTemplate<T>&other);													//!< Swaps all pointers and attributes with the other image.
-		void						setDimensions(dimension_t width, dimension_t height, BYTE channels);				//!< Alters the dimensions of the local image. The content of the pixel data field is lost if it is resized during this operation. \param width New image width in pixels \param height New image height in pixels. \param channels New number of color channels.
-		void						setDimension(dimension_t width, dimension_t height, BYTE channels);				//!< Identical to setDimensions()
-		void						setSize(dimension_t width, dimension_t height, BYTE channels);							//!< Identical to setDimensions()
-		inline	void				setChannel(dimension_t X, dimension_t Y, BYTE channel, T newData);	//!< Alters the content of one color channel of one specific pixel.  \param X X-coordinate of the pixel (0 = left most pixel, must be valid) \param Y Y-coordinate of the pixel (usually 0 = bottom most pixel, must be valid) \param channel Target channel (must be valid) \param newData New value for the specified channel of the specified pixel.
-		void						setChannel(BYTE channel, T new_value);							//!< Alters the content of one color channel of all pixels  \param channel Target channel (must be valid) \param newData New value for the specified channel of all pixels.
-		void						copyChannel(const ImageTemplate<T>&source_image, BYTE source_channel, BYTE target_channel);
-		void						paintRect(dimension_t left, dimension_t bottom, dimension_t width, dimension_t height, T r);
-		void						paintRect(dimension_t left, dimension_t bottom, dimension_t width, dimension_t height, T r, T g);
-		void						paintRect(dimension_t left, dimension_t bottom, dimension_t width, dimension_t height, T r, T g, T b);
-		void						paintRect(dimension_t left, dimension_t bottom, dimension_t width, dimension_t height, T r, T g, T b, T a);
-		void						noiseFillChannel(BYTE channel, T min_value, T max_value);		//!< Alters the content of one color channel of all pixels to random values \param channel Target channel (must be valid) \param min_value Minimum channel value @param max_value maximum channel value
-		void						noiseFillChannel(BYTE channel, T min_value, T max_value, unsigned seed);		//!< Alters the content of one color channel of all pixels to random values \param channel Target channel (must be valid) \param min_value Minimum channel value @param max_value maximum channel value
-		void						blurChannel(BYTE channel, float radius, bool loop);					//!< Blurs the specified image channel (all other channels are left unchanged) @param channel Channel to blur @param radius Radius controling the blur intensity @param loop Image is seamless and blurring should loop around image borders
-		void						linearBlurChannel(BYTE channel, float radius, bool loop);					//!< Blurs the specified image channel (all other channels are left unchanged). Separates horizontal from vertical blurring @param channel Channel to blur @param radius Radius controling the blur intensity @param loop Image is seamless and blurring should loop around image borders
+		void						SetSize(dimension_t width, dimension_t height, BYTE channels);				//!< Alters the dimensions of the local image. The content of the pixel data field is lost if it is resized during this operation. \param width New image width in pixels \param height New image height in pixels. \param channels New number of color channels.
+		inline	void				SetChannel(dimension_t X, dimension_t Y, BYTE channel, T newData);	//!< Alters the content of one color channel of one specific pixel.  \param X X-coordinate of the pixel (0 = left most pixel, must be valid) \param Y Y-coordinate of the pixel (usually 0 = bottom most pixel, must be valid) \param channel Target channel (must be valid) \param newData New value for the specified channel of the specified pixel.
+		void						SetChannel(BYTE channel, T new_value);							//!< Alters the content of one color channel of all pixels  \param channel Target channel (must be valid) \param newData New value for the specified channel of all pixels.
+		void						CopyChannel(const ImageTemplate<T>&source_image, BYTE source_channel, BYTE target_channel);
+		void						PaintRect(dimension_t left, dimension_t bottom, dimension_t width, dimension_t height, T r);
+		void						PaintRect(dimension_t left, dimension_t bottom, dimension_t width, dimension_t height, T r, T g);
+		void						PaintRect(dimension_t left, dimension_t bottom, dimension_t width, dimension_t height, T r, T g, T b);
+		void						PaintRect(dimension_t left, dimension_t bottom, dimension_t width, dimension_t height, T r, T g, T b, T a);
+		void						NoiseFillChannel(BYTE channel, T min_value, T max_value);		//!< Alters the content of one color channel of all pixels to random values \param channel Target channel (must be valid) \param min_value Minimum channel value @param max_value maximum channel value
+		void						NoiseFillChannel(BYTE channel, T min_value, T max_value, unsigned seed);		//!< Alters the content of one color channel of all pixels to random values \param channel Target channel (must be valid) \param min_value Minimum channel value @param max_value maximum channel value
+		void						BlurChannel(BYTE channel, float radius, bool loop);					//!< Blurs the specified image channel (all other channels are left unchanged) @param channel Channel to blur @param radius Radius controling the blur intensity @param loop Image is seamless and blurring should loop around image borders
+		void						LinearBlurChannel(BYTE channel, float radius, bool loop);					//!< Blurs the specified image channel (all other channels are left unchanged). Separates horizontal from vertical blurring @param channel Channel to blur @param radius Radius controling the blur intensity @param loop Image is seamless and blurring should loop around image borders
 		void						Fill(T red, T green, T blue, T alpha=TypeInfo<T>::zero);			//!< Fills the lower 4 (or less if less) channels of the local image with the specified values.
 									/*!
 										\brief Overwrites the color of a specific pixel.
@@ -274,8 +273,8 @@ template <typename T>
 									*/
 		inline	void				set(dimension_t X, dimension_t Y, T red, T green, T blue); 
 
-		float						sampleChannelAt(float x, float y, BYTE channel,bool loop)	const;
-		T							smoothSampleChannelAt(float x, float y, BYTE channel,bool loop)	const;
+		float						SampleChannelAt(float x, float y, BYTE channel,bool loop)	const;
+		T							SmoothSampleChannelAt(float x, float y, BYTE channel,bool loop)	const;
 		inline	T*					get(dimension_t X, dimension_t Y)														//! Retrieves a pointer to the color data of the specified pixel. Warning: The method behavior is undefined for invalid pixel coordinates. \param X X-coordinate of the pixel \param Y Y-coordinate of the pixel  \return Pointer to the color data of the specified pixel.
 									{
 										return image_data+(size_t(Y)*size_t(image_width)+size_t(X))*size_t(image_channels);
@@ -284,28 +283,24 @@ template <typename T>
 									{
 										return image_data+(size_t(Y)*size_t(image_width)+size_t(X))*size_t(image_channels);
 									}
-		inline	T*					getPixel(dimension_t X, dimension_t Y)														//! Retrieves a pointer to the color data of the specified pixel. Warning: The method behavior is undefined for invalid pixel coordinates. \param X X-coordinate of the pixel \param Y Y-coordinate of the pixel  \return Pointer to the color data of the specified pixel.
-									{
-										return image_data+(size_t(Y)*size_t(image_width)+size_t(X))*size_t(image_channels);
-									}
-		inline	const T*			getPixel(dimension_t X, dimension_t Y)											const		//! Retrieves a pointer to the color data of the specified pixel. Warning: The method behavior is undefined for invalid pixel coordinates. \param X X-coordinate of the pixel \param Y Y-coordinate of the pixel  \return Pointer to the color data of the specified pixel.
-									{
-										return image_data+(size_t(Y)*size_t(image_width)+size_t(X))*size_t(image_channels);
-									}
-		inline 	T*					getVerified(dimension_t X, dimension_t Y);											//!< Retrieves a pointer to the color data of the specified pixel. \param X X-coordinate of the pixel \param Y Y-coordinate of the pixel  \return Pointer to the color data of the specified pixel or NULL if the specified pixel does not exist.
-		inline 	const T*			getVerified(dimension_t X, dimension_t Y)									const;		//!< Retrieves a pointer to the color data of the specified pixel. \param X X-coordinate of the pixel \param Y Y-coordinate of the pixel  \return Pointer to the color data of the specified pixel or NULL if the specified pixel does not exist.
+		inline	T*					GetPixel(dimension_t x, dimension_t y)/**@copydoc get()*/	{return get(x,y);}
+		inline	const T*			GetPixel(dimension_t x, dimension_t y) const /**@copydoc get()*/	{return get(x,y);}
+		inline	T*					Get(dimension_t x, dimension_t y)/**@copydoc get()*/	{return get(x,y);}
+		inline	const T*			Get(dimension_t x, dimension_t y) const /**@copydoc get()*/	{return get(x,y);}
+		inline 	T*					GetVerified(dimension_t X, dimension_t Y);											//!< Retrieves a pointer to the color data of the specified pixel. \param X X-coordinate of the pixel \param Y Y-coordinate of the pixel  \return Pointer to the color data of the specified pixel or NULL if the specified pixel does not exist.
+		inline 	const T*			GetVerified(dimension_t X, dimension_t Y)									const;		//!< Retrieves a pointer to the color data of the specified pixel. \param X X-coordinate of the pixel \param Y Y-coordinate of the pixel  \return Pointer to the color data of the specified pixel or NULL if the specified pixel does not exist.
 
-		void						swapChannels(BYTE c0, BYTE c1);													//!< Exchanges the content of two channels for all pixels. \param c0 First channel index (0 = first(red) channel) \param c1 Second channel index (0 = first(red) channel).
-		void						appendAlpha(const ImageTemplate<T>*other);												//!< Creates/overwrites the local 4th channel with the first channel of the specified other image for all pixels. \param other Pointer to another Image object. \b other is required to be of the exact same dimensions as the local image.
-		void						appendAlphaAndDelete(ImageTemplate<T>*other);												//!< Performs appendAlpha(), then deletes \b other. \param other Pointer to another Image object. \b other is required to be of the exact same dimensions as the local image but will be deleted even if that should not be the case.
-		inline	size_t				size()																const;		//!< Retrieves the size of the local pixel data. \return Size of the local pixel map in bytes (identical to getWidth()*getHeight()*getChannels()).
+		void						SwapChannels(BYTE c0, BYTE c1);													//!< Exchanges the content of two channels for all pixels. \param c0 First channel index (0 = first(red) channel) \param c1 Second channel index (0 = first(red) channel).
+		void						AppendAlpha(const ImageTemplate<T>*other);												//!< Creates/overwrites the local 4th channel with the first channel of the specified other image for all pixels. \param other Pointer to another Image object. \b other is required to be of the exact same dimensions as the local image.
+		void						AppendAlphaAndDelete(ImageTemplate<T>*other);												//!< Performs AppendAlpha(), then deletes \b other. \param other Pointer to another Image object. \b other is required to be of the exact same dimensions as the local image but will be deleted even if that should not be the case.
+		inline	size_t				size()																const;		//!< Retrieves the size of the local pixel data. \return Size of the local pixel map in bytes (identical to GetWidth()*GetHeight()*GetChannels()).
 		void						readFrom(const ImageTemplate<T>*other);																	//!< Adapts the local image data to the specified image's data. Deprecated. \param other Image to copy data from.
 		void						read(const T* data);																			//!< Adopts the local image data to the specified array content. \param data Array to copy from. Must be the exact same size as what size() returns.
-		bool						exportRectangle(dimension_t x, dimension_t y, dimension_t width, dimension_t height, T*target)	const;	//!< Exports a rectangular pixel area from the local pixel data. \param x Pixel offset (X) \param y Pixel offset (Y) \param width Pixels in x-direction to export \param height Pixels in y-direction to export. \param target Array to write to. Must be at least (\b width * \b height * getChannels()) elements long.
-		bool						importRectangle(dimension_t x, dimension_t y, dimension_t width, dimension_t height, const T*target);	//!< Overwrites a section in the local pixel data. \param x Pixel offset (X) \param y Pixel offset (Y) \param width Pixels in x-direction to overwrite \param height Pixels in y-direction to overwrite. \param target Array to read from. Must be at least (\b width * \b height * getChannels()) elements long.
-		void						extractChannels(BYTE channel, BYTE c_num, ImageTemplate<T>&target);								//!< Extracts the specified channel range into the specified target image
+		bool						ExportRectangle(dimension_t x, dimension_t y, dimension_t width, dimension_t height, T*target)	const;	//!< Exports a rectangular pixel area from the local pixel data. \param x Pixel offset (X) \param y Pixel offset (Y) \param width Pixels in x-direction to export \param height Pixels in y-direction to export. \param target Array to write to. Must be at least (\b width * \b height * GetChannels()) elements long.
+		bool						ImportRectangle(dimension_t x, dimension_t y, dimension_t width, dimension_t height, const T*target);	//!< Overwrites a section in the local pixel data. \param x Pixel offset (X) \param y Pixel offset (Y) \param width Pixels in x-direction to overwrite \param height Pixels in y-direction to overwrite. \param target Array to read from. Must be at least (\b width * \b height * GetChannels()) elements long.
+		void						ExtractChannels(BYTE channel, BYTE c_num, ImageTemplate<T>&target);								//!< Extracts the specified channel range into the specified target image
 
-		bool						truncateToOpaque();																	//!< Reduces the image to the minimum necessary rectangle covering all opaque pixels. This method has no effect if the image does not have 2 (intensity+opacity) or 4 (rgb+opacity) channels @return True if the local image has been changed, false otherwise
+		bool						TruncateToOpaque();																	//!< Reduces the image to the minimum necessary rectangle covering all opaque pixels. This method has no effect if the image does not have 2 (intensity+opacity) or 4 (rgb+opacity) channels @return True if the local image has been changed, false otherwise
 
 	};
 
@@ -489,10 +484,10 @@ template <class Nature>
 		typedef GenericImage<Nature>	Self;
 		typedef typename Super::dimension_t	dimension_t;
 		
-		using Super::isColorMap;
-		using Super::isNormalMap;
+		using Super::IsColorMap;
+		using Super::IsNormalMap;
 		using Super::free;
-		using Super::getPixel;
+		using Super::GetPixel;
 		using Super::adoptData;
 		using Super::sample;
 		//#ifdef __GNUC__
@@ -527,41 +522,41 @@ template <class Nature>
 									GenericImage(const BaseImage::THeader&header):ImageTemplate<T>(header)
 									{}
 			
-			void					scaleChannel(BYTE channel, F factor);							//!< Magnifies or shrinks the specified channel value of all pixels
-			void					scaleChannel(BYTE channel, F offset, F factor);							//!< Magnifies or shrinks the specified channel value of all pixels
-			void					fractalDouble(F noise_level, bool loop);									//!< Resizes the image to double its size (minus 1 (width/height*2-1) pixels if @b loop is not set, plain double otherwise) and fills the pixels inbetween with fractal noise @param noise_level Degree of randomness to apply to intermediate pixels @param loop Set true to interpolate edge pixels using original pixel data from the opposite edge
-			void					fractalDouble(F noise_level, bool loop, unsigned seed);									//!< Resizes the image to double its size (minus 1 (width/height*2-1) pixels if @b loop is not set, plain double otherwise) and fills the pixels inbetween with fractal noise @param noise_level Degree of randomness to apply to intermediate pixels @param loop Set true to interpolate edge pixels using original pixel data from the opposite edge
-			void					flipHorizontal();																//!< Flips the local pixel data horizontally. Also flips the x-coordinate of normals if the local image is a normal map.
-			void					flipVertical();																	//!< Flips the local pixel data vertically. Also flips the y-coordinate of normals if the local image is a normal map.
-			void					rotate90CW();																	//!< Rotates the local image 90 degrees clock wise.
-			void					rotate90CCW();																	//!< Rotates the local image 90 degrees counter clock wise.
-			bool					scaleHalf();																	//!< Scales the image to half its width and height. Normals will be renormalized if necessary. \return true if the local image could be halved, false otherwise.
-			bool					scaleHalf(const Self&source);													//!< Scales the suppied image to half its width and height. Normals will be renormalized if necessary. \return true if the local image could be halved, false otherwise.
-			bool					scaleXHalf();																	//!< Scales the image to half its width. Normals will be renormalized if necessary. \return true if the local image could be halved, false otherwise.
-			bool					scaleYHalf();																	//!< Scales the image to half its height. Normals will be renormalized if necessary. \return true if the local image could be halved, false otherwise.
-			void					scaleDouble(bool loop=false);																	//!< Scales the image to double its width and height. Normals will be renormalized if necessary.
-			void					scaleXDouble(bool loop=false);																	//!< Scales the image to double its width. Normals will be renormalized if necessary.
-			void					scaleYDouble(bool loop=false);																	//!< Scales the image to double its height. Normals will be renormalized if necessary.
-			bool					scaleTo(dimension_t width, dimension_t height);										//!< Scales the image closest to the specified width and height via doubling and/or halving. Normals will be renormalized if necessary. \param width Image target width \param height Image target height \return true if the resulting image is exactly the specified size, false otherwise.
-			void					resample(dimension_t width, dimension_t height);										//!< Resizes the image using linear interpolation. Normals will be renormalized if necessary. The method in general behaves differently when resizing normal maps. \param width Image target width \param height Image target height
-			void					crop(dimension_t offset_x, dimension_t offset_y, dimension_t width, dimension_t height);	//!< Crops the local image to the specified region
-			void					truncate(dimension_t width, dimension_t height);										//!< Truncates the image to not be larger than the specified dimensions. The method has no effect if the picture is already that small or smaller
-			void					changeSaturation(float scale_by);														//!< Alters the saturation among the first three channels of the local image
-			void					addRect(dimension_t left, dimension_t bottom, dimension_t width, dimension_t height, T r, T g, T b);
-			void					power(BYTE channel, float exponent);																	//!< Apply the specified exponent too all pixels (only the specified channel, however)
+			void					ScaleChannel(BYTE channel, F factor);							//!< Magnifies or shrinks the specified channel value of all pixels
+			void					ScaleChannel(BYTE channel, F offset, F factor);							//!< Magnifies or shrinks the specified channel value of all pixels
+			void					FractalDouble(F noise_level, bool loop);									//!< Resizes the image to double its size (minus 1 (width/height*2-1) pixels if @b loop is not set, plain double otherwise) and fills the pixels inbetween with fractal noise @param noise_level Degree of randomness to apply to intermediate pixels @param loop Set true to interpolate edge pixels using original pixel data from the opposite edge
+			void					FractalDouble(F noise_level, bool loop, unsigned seed);									//!< Resizes the image to double its size (minus 1 (width/height*2-1) pixels if @b loop is not set, plain double otherwise) and fills the pixels inbetween with fractal noise @param noise_level Degree of randomness to apply to intermediate pixels @param loop Set true to interpolate edge pixels using original pixel data from the opposite edge
+			void					FlipHorizontally();																//!< Flips the local pixel data horizontally. Also flips the x-coordinate of normals if the local image is a normal map.
+			void					FlipVertically();																	//!< Flips the local pixel data vertically. Also flips the y-coordinate of normals if the local image is a normal map.
+			void					Rotate90CW();																	//!< Rotates the local image 90 degrees clock wise.
+			void					Rotate90CCW();																	//!< Rotates the local image 90 degrees counter clock wise.
+			bool					ScaleHalf();																	//!< Scales the image to half its width and height. Normals will be renormalized if necessary. \return true if the local image could be halved, false otherwise.
+			bool					ScaleHalf(const Self&source);													//!< Scales the suppied image to half its width and height. Normals will be renormalized if necessary. \return true if the local image could be halved, false otherwise.
+			bool					ScaleXHalf();																	//!< Scales the image to half its width. Normals will be renormalized if necessary. \return true if the local image could be halved, false otherwise.
+			bool					ScaleYHalf();																	//!< Scales the image to half its height. Normals will be renormalized if necessary. \return true if the local image could be halved, false otherwise.
+			void					ScaleDouble(bool loop=false);																	//!< Scales the image to double its width and height. Normals will be renormalized if necessary.
+			void					ScaleXDouble(bool loop=false);																	//!< Scales the image to double its width. Normals will be renormalized if necessary.
+			void					ScaleYDouble(bool loop=false);																	//!< Scales the image to double its height. Normals will be renormalized if necessary.
+			bool					ScaleTo(dimension_t width, dimension_t height);										//!< Scales the image closest to the specified width and height via doubling and/or halving. Normals will be renormalized if necessary. \param width Image target width \param height Image target height \return true if the resulting image is exactly the specified size, false otherwise.
+			void					Resample(dimension_t width, dimension_t height);										//!< Resizes the image using linear interpolation. Normals will be renormalized if necessary. The method in general behaves differently when resizing normal maps. \param width Image target width \param height Image target height
+			void					Crop(dimension_t offset_x, dimension_t offset_y, dimension_t width, dimension_t height);	//!< Crops the local image to the specified region
+			void					Truncate(dimension_t width, dimension_t height);										//!< Truncates the image to not be larger than the specified dimensions. The method has no effect if the picture is already that small or smaller
+			void					ChangeSaturation(float scale_by);														//!< Alters the saturation among the first three channels of the local image
+			void					AddRect(dimension_t left, dimension_t bottom, dimension_t width, dimension_t height, T r, T g, T b);
+			void					Power(BYTE channel, float exponent);																	//!< Apply the specified exponent too all pixels (only the specified channel, however)
 									/*!
 										\brief Draws a remote image into the pixel data of the local image
 										\param other Image to draw
 										\param combiner Draw rule
 
-										draw() draws the content of the specified other image into the local image content.
+										Draw() draws the content of the specified other image into the local image content.
 										\a other may be larger than the remaining pixels in width and height direction
 										relative to \a x_offset and \a y_offset.
 									*/
-			void					draw(const ImageTemplate<T>*other, dimension_t x_offset, dimension_t y_offset, BaseImage::combiner_t combiner=BaseImage::IC_ALPHA_BLEND);
-			void					paint(const ImageTemplate<T>*other, dimension_t x_offset, dimension_t y_offset, BaseImage::combiner_t combiner=BaseImage::IC_ALPHA_BLEND);	//!< Identical to draw()
+			void					Draw(const ImageTemplate<T>*other, dimension_t x_offset, dimension_t y_offset, BaseImage::combiner_t combiner=BaseImage::IC_ALPHA_BLEND);
+			void					Paint(const ImageTemplate<T>*other, dimension_t x_offset, dimension_t y_offset, BaseImage::combiner_t combiner=BaseImage::IC_ALPHA_BLEND);	//!< Identical to Draw()
 		template <class Nature1>
-			void					toNormalMap(GenericImage<Nature1>&target, F intensity, bool seamless, BYTE height_channel=0)		const;		//!< Generates a normal map from the local color map. Size and type of the specified target image will be adjusted. @param target Image container to write the resulting normal map to @param intensity Intensity of the resulting normal map @param seamless True if border pixels should loop around to determine a seamless normal map @param height_channel Color channel to use as height value to calculate the normals from
+			void					ToNormalMap(GenericImage<Nature1>&target, F intensity, bool seamless, BYTE height_channel=0)		const;		//!< Generates a normal map from the local color map. Size and type of the specified target image will be adjusted. @param target Image container to write the resulting normal map to @param intensity Intensity of the resulting normal map @param seamless True if border pixels should loop around to determine a seamless normal map @param height_channel Color channel to use as height value to calculate the normals from
 			/**
 									@brief Generates a normal map from the local color map
 
@@ -573,7 +568,7 @@ template <class Nature>
 									@param height_channel Channel that should be used to retrieve the 'height' of a texel
 			*/
 		template <class Nature1>
-			void					toNormalMap(GenericImage<Nature1>&target, F x_texel_distance, F y_texel_distance, F height_scale, bool seamless, BYTE height_channel=0)		const;
+			void					ToNormalMap(GenericImage<Nature1>&target, F x_texel_distance, F y_texel_distance, F height_scale, bool seamless, BYTE height_channel=0)		const;
 
 
 									/*!
@@ -721,7 +716,7 @@ template <class Nature>
 										segmentation faults.
 									*/
 		template <typename Float>
-			void					blendf(dimension_t X, dimension_t Y, const Float*data, Float alpha);
+			void					BlendF(dimension_t X, dimension_t Y, const Float*data, Float alpha);
 									/*!
 										\brief Modifies the color of the specified pixel.
 										\param X X-coordinate of the pixel
@@ -739,16 +734,16 @@ template <class Nature>
 										segmentation faults.
 									*/
 		template <typename Float>
-			void					blendf(dimension_t X, dimension_t Y, const Float*data, Float alpha, BYTE channels);
+			void					BlendF(dimension_t X, dimension_t Y, const Float*data, Float alpha, BYTE channels);
 		template <typename Float>
-			void					getNormal(dimension_t X, dimension_t Y, TVec3<Float>&out)						const;		//!< Retrieves the normal content of a pixel. The method behavior is undefined for invalid pixel coordinates. \param X X-coordinate of the pixel \param Y Y-coordinate of the pixel  \param out Normal output field
+			void					GetNormal(dimension_t X, dimension_t Y, TVec3<Float>&out)						const;		//!< Retrieves the normal content of a pixel. The method behavior is undefined for invalid pixel coordinates. \param X X-coordinate of the pixel \param Y Y-coordinate of the pixel  \param out Normal output field
 		template <typename Float>
-			bool					getNormalVerified(dimension_t X, dimension_t Y, TVec3<Float>&out)				const;		//!< Retrieves the normal content of a pixel. \param X X-coordinate of the pixel \param Y Y-coordinate of the pixel  \param out Normal output field \return true if the specified pixel exists and a normal could be extracted, false otherwise.
+			bool					GetNormalVerified(dimension_t X, dimension_t Y, TVec3<Float>&out)				const;		//!< Retrieves the normal content of a pixel. \param X X-coordinate of the pixel \param Y Y-coordinate of the pixel  \param out Normal output field \return true if the specified pixel exists and a normal could be extracted, false otherwise.
 		template <typename Float>
-			bool					importRectanglef(dimension_t x, dimension_t y, dimension_t w, dimension_t h, const Float*target);
+			bool					ImportRectangleF(dimension_t x, dimension_t y, dimension_t w, dimension_t h, const Float*target);
 		template <typename Float>
-			bool					exportRectanglef(dimension_t x, dimension_t y, dimension_t w, dimension_t h, Float*target) const;
-			void					setChannels(BYTE new_channels,BaseImage::channel_append_t append = BaseImage::CA_REPEAT);			//!< Alters the number of channels in the local image. \param new_channels New number of color channels. \param append Action to perform if the new number of channels is greater than the old one.
+			bool					ExportRectangleF(dimension_t x, dimension_t y, dimension_t w, dimension_t h, Float*target) const;
+			void					SetChannels(BYTE new_channels,BaseImage::channel_append_t append = BaseImage::CA_REPEAT);			//!< Alters the number of channels in the local image. \param new_channels New number of color channels. \param append Action to perform if the new number of channels is greater than the old one.
 
 
 

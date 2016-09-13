@@ -14,7 +14,7 @@ StringBuffer::StringBuffer(size_t l):Super(l)
 StringBuffer::StringBuffer(const char*string, size_t extra):Super(0)
 {
 	size_t strLen = strlen(string);
-	Super::setSize(strLen + extra,false);
+	Super::SetSize(strLen + extra,false);
 	memcpy(Super::appendRow(strLen),string,strLen);
 }
 

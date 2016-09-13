@@ -78,7 +78,7 @@ namespace Engine
 	}
 
 
-	float GLOutlineFont::getWidth(const char*str)
+	float GLOutlineFont::GetWidth(const char*str)
 	{
 	    float len(0);
 	    while (*str)
@@ -86,7 +86,7 @@ namespace Engine
 	    return len*internal_scale * font_size;
 	}
 
-	float GLOutlineFont::getWidth(const char*str, size_t len)
+	float GLOutlineFont::GetWidth(const char*str, size_t len)
 	{
 	    float result(0);
 	    for (index_t i = 0; i < len; i++)
@@ -94,7 +94,7 @@ namespace Engine
 	    return result*internal_scale * font_size;
 	}
 
-	float GLOutlineFont::getWidth(char c)
+	float GLOutlineFont::GetWidth(char c)
 	{
 	    return gmf[(BYTE)c].gmfCellIncX;//*internal_scale;
 	}

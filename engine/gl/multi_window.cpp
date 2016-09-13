@@ -1164,9 +1164,9 @@ namespace Engine
 			XImage*image = XGetImage(application.display,root,0,0,width,height,AllPlanes,XYPixmap);
 			if (!image)
 				return NULL;
-			desktop_background.setDimensions(image->width,image->height,3);
+			desktop_background.SetSize(image->width,image->height,3);
 			for (int y = 0; y < image->height; y++)
-				memcpy(desktop_background.getData()+(image->height-y-1)*image->width*3,image->data+y*image->bytes_per_line,image->width*3);
+				memcpy(desktop_background.GetData()+(image->height-y-1)*image->width*3,image->data+y*image->bytes_per_line,image->width*3);
 			XDestroyImage(image);
 
 		#elif SYSTEM==WINDOWS
@@ -1222,7 +1222,7 @@ namespace Engine
 			if (!hidden)
 				ShowWindow(window, SW_SHOW);
 
-			desktop_background.setDimensions(width,height,3);
+			desktop_background.SetSize(width,height,3);
 
 			BITMAPINFO info;
 			info.bmiHeader.biSize = sizeof(info.bmiHeader);
@@ -1239,7 +1239,7 @@ namespace Engine
 
 
 
-			GetDIBits(hdcCompatible,hbmScreen,0,height,desktop_background.getData(),&info,DIB_RGB_COLORS);
+			GetDIBits(hdcCompatible,hbmScreen,0,height,desktop_background.GetData(),&info,DIB_RGB_COLORS);
 /*		char*source_data = (char*)bitmap.bmBits;
 
 			for (int y = 0; y < height; y++)
@@ -1251,7 +1251,7 @@ namespace Engine
 					COLORREF pixel = GetPixel(hdcCompatible,x,y);
 					desktop_background.set(x,height-1-y,pixel&0xFF,(pixel>>8)&0xFF,(pixel>>16)&0xFF);
 				}*/
-			desktop_background.swapChannels(0,2);
+			desktop_background.SwapChannels(0,2);
 			ReleaseDC(root,hdcScreen);
 //		DeleteDC(hdcScreen);
 			DeleteDC(hdcCompatible);
@@ -1818,7 +1818,7 @@ namespace Engine
 	}
 
 
-	void	Window::setSize(UINT w, UINT h)
+	void	Window::SetSize(UINT w, UINT h)
 	{
 		#if SYSTEM==WINDOWS
 			SetWindowPos(window, NULL, 0, 0, w, h, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOOWNERZORDER | SWP_NOZORDER);
@@ -2107,7 +2107,7 @@ namespace Engine
 
 				
 				Array<wchar_t>	w_name;
-				w_name.setSize(name.length()+1);
+				w_name.SetSize(name.length()+1);
 				for (unsigned i = 0; i < name.length(); i++)
 					w_name[i] = (USHORT)(BYTE)name.get(i);
 				w_name.last() = 0;

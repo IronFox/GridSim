@@ -138,7 +138,7 @@ namespace Engine
 			SCENERY_LOG("extracting face "+String(k)+" ("+String(source->face_field[k].size())+" bytes)");
 	        extracted[k] = TextureCompression::decompress(source->face_field[k].pointer(),source->face_field[k].size());
 			if (extracted[k])
-				SCENERY_LOG("extracted ("+String(extracted[k]->getWidth())+"x"+String(extracted[k]->getHeight())+"x"+String(extracted[k]->getChannels())+")")
+				SCENERY_LOG("extracted ("+String(extracted[k]->GetWidth())+"x"+String(extracted[k]->GetHeight())+"x"+String(extracted[k]->GetChannels())+")")
 			else
 			{
 				SCENERY_LOG("extraction failed ("+TextureCompression::getError()+")");
@@ -148,7 +148,7 @@ namespace Engine
 	    SCENERY_LOG("extracted. sending data to interface...");
 		if (!failed)
 		{
-			link->content_type = layer.content_type = extracted[0]->getContentType();
+			link->content_type = layer.content_type = extracted[0]->GetContentType();
 			if (num >= 6)
 				link->loadCube(*extracted[0],*extracted[1],*extracted[2],*extracted[3],*extracted[4],*extracted[5]);
 			else
@@ -515,8 +515,8 @@ namespace Engine
 			}
 		}
 		
-	    buffer.vertex_field.setSize(vlen);
-		buffer.index_field.setSize(ilen);
+	    buffer.vertex_field.SetSize(vlen);
+		buffer.index_field.SetSize(ilen);
 	    SCENERY_LOG("buffer resized ("+String(vlen)+", "+String(ilen)+")");
 	    typename Def::IndexType v_offset(0),i_offset(0);
 	    SCENERY_LOG("writing sections");
@@ -529,7 +529,7 @@ namespace Engine
 			{
 				VisualDetail<Def>&detail = group->detail_layers[d];
 				SCENERY_LOG("writing detail "+String(d));
-				detail.offset.setSize(detail.robjects);
+				detail.offset.SetSize(detail.robjects);
 				for (index_t o = 0; o < detail.robjects.count(); o++)
 				{
 					CGS::RenderObjectA<Def>*robj = detail.robjects[o];
@@ -1198,8 +1198,8 @@ namespace Engine
 	        head.type = 0;
 	     
 			dummy_texture.name = 0;
-			dummy_texture.face_field.setSize(1);
-	        dummy_texture.face_field[0].setSize(sizeof(Image::THeader)+128*128*3);
+			dummy_texture.face_field.SetSize(1);
+	        dummy_texture.face_field[0].SetSize(sizeof(Image::THeader)+128*128*3);
 			Array<BYTE>&fce = dummy_texture.face_field[0];
 	        memcpy(fce.pointer(),&head,sizeof(head));
 	        UINT32 crc = CRC32::getChecksum(fce.pointer()+4,fce.size()-4);
@@ -1208,7 +1208,7 @@ namespace Engine
 	    }
 	    if (!dummy_info.layer_field.length())
 	    {
-	        dummy_info.layer_field.setSize(1);
+	        dummy_info.layer_field.SetSize(1);
 	        dummy_info.layer_field[0].combiner = 0x2100;
 	        dummy_info.layer_field[0].source = &dummy_texture;
 			std::shared_ptr<Material<GL,Def> >	dummy(new Material<GL,Def>(this,renderer,dummy_info,textures));
@@ -1973,7 +1973,7 @@ namespace Engine
 	            {
 	                if (buffer.fillLevel()-at > cnt)
 	                {
-						buffer.truncate(at);
+						buffer.Truncate(at);
 	                    for (index_t i = 0; i < cnt; i++)
 	                        buffer << elements[i];
 	                }
@@ -2019,7 +2019,7 @@ namespace Engine
 	            {
 	                if (buffer.fillLevel()-at > cnt)
 	                {
-						buffer.truncate(at);
+						buffer.Truncate(at);
 	                    for (index_t i = 0; i < cnt; i++)
 	                        buffer << elements[i];
 	                }

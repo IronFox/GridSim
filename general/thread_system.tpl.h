@@ -108,7 +108,7 @@ namespace System
 			if (Reduced)
 				if (num_threads>1)
 					num_threads--;
-			workers.setSize(num_threads);
+			workers.SetSize(num_threads);
 		
 		
 
@@ -593,7 +593,7 @@ namespace System
 			implode();
 			//terminated = false;
 			THREAD_REPORT("resizing")
-			workers.setSize(num_threads);
+			workers.SetSize(num_threads);
 	        init_object = init_object_;
 			init_method = init_method_;
 

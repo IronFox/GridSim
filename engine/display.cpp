@@ -37,7 +37,7 @@ private:
 	static void	DropToFiles(HDROP hDrop, Array<String>&files)
 	{
 		UINT cnt = DragQueryFile(hDrop,0xFFFFFFFF,NULL,0);
-		files.setSize(cnt);
+		files.SetSize(cnt);
 		if (cnt)
 		{
 			for (unsigned i = 0; i < cnt; i++)
@@ -609,7 +609,7 @@ namespace Engine
 
 		//#ifdef _UNICODE
 			Array<wchar_t>	w_name;
-			w_name.setSize(window_name.length()+1);
+			w_name.SetSize(window_name.length()+1);
 			for (index_t i = 0; i < window_name.length(); i++)
 				w_name[i] = (wchar_t)window_name.get(i);
 			w_name.last() = 0;

@@ -423,14 +423,14 @@ namespace Engine
 			static Image	upper_blend(256,256,4),
 							lower_blend(512,16,4),
 							image(512,256,4);
-			image.setChannel(0,255);
-			image.setChannel(1,255);
-			image.setChannel(2,255);
-			image.setChannel(3,0);
+			image.SetChannel(0,255);
+			image.SetChannel(1,255);
+			image.SetChannel(2,255);
+			image.SetChannel(3,0);
 			igRadial(lower_blend, CGColor(1,1,1,1), CGColor(1,1,1,0));
 			igExtRadial(upper_blend,CGColor(1,1,1,1), CGColor(1,1,1,0));
-			image.paint(&lower_blend,0,120);
-			image.paint(&upper_blend,128,0);
+			image.Paint(&lower_blend,0,120);
+			image.Paint(&upper_blend,128,0);
 			
 			if (!target.texture.IsEmpty())
 				renderer->discardObject(target.texture);
@@ -484,7 +484,7 @@ namespace Engine
 			}
 			if (!sprites.count())
 			{
-				sprites.setSize(5);
+				sprites.SetSize(5);
 				Image	image;
 				
 				generateCentralFlareSprite(sprites[0]);

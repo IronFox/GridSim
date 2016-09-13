@@ -57,7 +57,7 @@ namespace Engine
 			}
 			else
 			{
-				const Image*image = TextureArchive::getData();
+				const Image*image = TextureArchive::GetData();
 				if (!image)
 					return NULL;
 				target->load(*image);

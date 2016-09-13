@@ -291,7 +291,7 @@ namespace Engine
 
 	        //current_target_resolution = 
 			//window_client_resolution = res;
-			//pixel_aspect = window_client_resolution.aspect();
+			//pixel_aspect = window_client_resolution.pixelAspect();
 
 	        return true;
 	    }
@@ -355,17 +355,7 @@ namespace Engine
 
 
 	template <class GL>
-		inline	void		Display<GL>::setDimension(unsigned width, unsigned height, DisplayConfig::border_style_t style)
-		{
-			resizeWindow(width,height,style);
-		}
-	template <class GL>
-		inline	void		Display<GL>::setSize(unsigned width, unsigned height, DisplayConfig::border_style_t style)
-		{
-			resizeWindow(width,height,style);
-		}
-	template <class GL>
-		inline	void		Display<GL>::setDimensions(unsigned width, unsigned height, DisplayConfig::border_style_t style)
+		inline	void		Display<GL>::SetSize(unsigned width, unsigned height, DisplayConfig::border_style_t style)
 		{
 			resizeWindow(width,height,style);
 		}
@@ -431,9 +421,9 @@ namespace Engine
 		float				Display<GL>::pixelAspect()	const
 		{
 			if (framebuffer_bound)
-				return target_buffer_resolution.aspect();
+				return target_buffer_resolution.pixelAspect();
 			if (resolution_overridden)
-				return overridden_client_resolution.aspect();
+				return overridden_client_resolution.pixelAspect();
 			return context.pixelAspectf();
 		}
 
@@ -580,12 +570,12 @@ namespace Engine
 		if (!framebuffer_bound)
 		{
 			if (resolution_overridden)
-				target.setDimension(overridden_client_resolution.width,overridden_client_resolution.height,config.alpha_buffer_bits?4:3);
+				target.SetSize(overridden_client_resolution.width,overridden_client_resolution.height,config.alpha_buffer_bits?4:3);
 			else
-				target.setDimension(context.clientWidth(),context.clientHeight(),config.alpha_buffer_bits?4:3);
+				target.SetSize(context.clientWidth(),context.clientHeight(),config.alpha_buffer_bits?4:3);
 		}
 		else
-			target.setDimension(target_buffer_resolution.width,target_buffer_resolution.height,framebuffer_alpha?4:3);
+			target.SetSize(target_buffer_resolution.width,target_buffer_resolution.height,framebuffer_alpha?4:3);
 		GL::Capture(target);
 	}
 	template <class GL> inline	void	Display<GL>::Capture(FloatImage&target)
@@ -593,12 +583,12 @@ namespace Engine
 		if (!framebuffer_bound)
 		{
 			if (resolution_overridden)
-				target.setDimension(overridden_client_resolution.width,overridden_client_resolution.height,config.alpha_buffer_bits?4:3);
+				target.SetSize(overridden_client_resolution.width,overridden_client_resolution.height,config.alpha_buffer_bits?4:3);
 			else
-				target.setDimension(context.clientWidth(),context.clientHeight(),config.alpha_buffer_bits?4:3);
+				target.SetSize(context.clientWidth(),context.clientHeight(),config.alpha_buffer_bits?4:3);
 		}
 		else
-			target.setDimension(target_buffer_resolution.width,target_buffer_resolution.height,framebuffer_alpha?4:3);
+			target.SetSize(target_buffer_resolution.width,target_buffer_resolution.height,framebuffer_alpha?4:3);
 		GL::Capture(target);
 	}
 
@@ -922,7 +912,7 @@ namespace Engine
 			framebuffer_bound = true;
 	        target_buffer_resolution = pobj.GetResolution();
 			framebuffer_alpha = pobj.PrimaryHasAlpha();
-	        //pixelAspect = current_target_resolution.aspect();
+	        //pixelAspect = current_target_resolution.pixelAspect();
 			//ShowMessage("pbuffer bound. region is "+String(region_size.x)+", "+String(region_size.y)+". aspect is "+String(pixelAspect));
 
 			GL::SetViewport(rect(0,target_buffer_resolution.height,target_buffer_resolution.width,0),target_buffer_resolution);	        

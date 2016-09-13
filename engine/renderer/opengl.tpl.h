@@ -317,7 +317,7 @@ namespace Engine
 			}
 			else
 				image = faces;
-			loadCube(image[0].getData(),image[1].getData(),image[2].getData(),image[3].getData(),image[4].getData(),image[5].getData(),image[0].width(),image[0].height(),image[0].channels(),filter,compress);
+			loadCube(image[0].GetData(),image[1].GetData(),image[2].GetData(),image[3].GetData(),image[4].GetData(),image[5].GetData(),image[0].width(),image[0].height(),image[0].channels(),filter,compress);
 		}
 
 	template <typename Nature>
@@ -346,7 +346,7 @@ namespace Engine
 				image[4] = &temp[4];
 				image[5] = &temp[5];
 			}
-			loadCube(image[0]->getData(),image[1]->getData(),image[2]->getData(),image[3]->getData(),image[4]->getData(),image[5]->getData(),image[0]->width(),image[0]->height(),image[0]->channels(),filter,compress);
+			loadCube(image[0]->GetData(),image[1]->GetData(),image[2]->GetData(),image[3]->GetData(),image[4]->GetData(),image[5]->GetData(),image[0]->width(),image[0]->height(),image[0]->channels(),filter,compress);
 		}
 
 
@@ -428,7 +428,7 @@ namespace Engine
 				{
 					const MaterialLayer&layer = config.layers[source_layer];
 					bool	cube = list && !list[source_layer]->IsEmpty() && list[source_layer]->isCube(),
-							normal_map = list && !list[source_layer]->IsEmpty() && layer.isNormalMap();
+							normal_map = list && !list[source_layer]->IsEmpty() && layer.IsNormalMap();
 
 					if (glActiveTexture)
 						glActiveTexture(GL_TEXTURE0+static_cast<GLenum>(source_layer));

@@ -100,7 +100,7 @@ namespace Engine
 				#endif
 			});
 			config.icon = icon;
-			display.setSize(resolution.width, resolution.height, DisplayConfig::ResizableBorder);
+			display.SetSize(resolution.width, resolution.height, DisplayConfig::ResizableBorder);
 			if (!display.create(config))
 				FATAL__("Unable to create window (" + display.errorStr() + ")");
 			if (updateFile)

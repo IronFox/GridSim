@@ -44,7 +44,7 @@ template <class K, class C, class Hash, class KeyStrategy> template <class Key, 
 	{
 		Array<ListCarrier*>	elements;
 		Table::exportTo(keys,elements);
-		values.setSize(elements.count());
+		values.SetSize(elements.count());
 		for (size_t i = 0; i < elements.count(); i++)
 			values[i] = elements[i]->getElement();
 	}
@@ -54,7 +54,7 @@ template <class K, class C, class Hash, class KeyStrategy> template <class Key, 
 	{
 		Array<const ListCarrier*>	elements;
 		Table::exportTo(keys,elements);
-		values.setSize(elements.count());
+		values.SetSize(elements.count());
 		for (size_t i = 0; i < elements.count(); i++)
 			values[i] = elements[i]->getElement();
 	}

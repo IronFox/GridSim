@@ -620,7 +620,7 @@ template <typename Object, count_t MaxObjectsPerLeaf, typename Float = float, ty
 		void	Compact(Array<TCompactNode>&outNodes)
 		{
 			Node*root = _root;
-			outNodes.setSize(root->RecursiveCount());
+			outNodes.SetSize(root->RecursiveCount());
 			TCompactNode*n = outNodes.pointer();
 			_Compact(root,n);
 			ASSERT__(n == outNodes.end());

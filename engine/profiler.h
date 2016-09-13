@@ -210,7 +210,7 @@ inline	void				render3dGraphs()	{renderPerspective();}
 								{}
 		virtual					~Graph();
 		
-		virtual	void			draw()=0;
+		virtual	void			Draw()=0;
 		virtual	void			update()=0;
 		virtual	void			install()=0;
 		virtual	void			uninstall() {};	//<- this is a microsoft C++ bug. pure virtual should never lack an external
@@ -415,7 +415,7 @@ inline	void				render3dGraphs()	{renderPerspective();}
 					bool								caption_left;
 					
 														ColumnGraph(Data*data_=&time_data);
-					void								draw();
+					void								Draw();
 					void								update();
 			};
 		
@@ -452,7 +452,7 @@ inline	void				render3dGraphs()	{renderPerspective();}
 					bool								caption_left;
 					
 														StackedGraph(Data*data_=&time_data);
-					void								draw();
+					void								Draw();
 					void								update();
 			};
 			
@@ -486,7 +486,7 @@ inline	void				render3dGraphs()	{renderPerspective();}
 			public:
 					
 														StairGraph(Data*data_=&time_data);
-					void								draw();
+					void								Draw();
 					void								update();
 			};
 			
@@ -515,7 +515,7 @@ inline	void				render3dGraphs()	{renderPerspective();}
 					
 			public:
 														HeightGraph(Data*data_=&time_data);
-					void								draw();
+					void								Draw();
 					void								update();
 			};
 			

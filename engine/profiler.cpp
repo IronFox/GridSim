@@ -522,13 +522,13 @@ namespace Engine
 						{
 							orthographic_graphs.reset();
 							while (Graph*graph = orthographic_graphs.each())
-								graph->draw();
+								graph->Draw();
 						}
 		void			renderPerspective()
 						{
 							perspective_graphs.reset();
 							while (Graph*graph = perspective_graphs.each())
-								graph->draw();
+								graph->Draw();
 						}
 	}
 }

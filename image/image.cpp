@@ -54,7 +54,7 @@ bool					BaseImage::IsNotEmpty()														const
 }
 
 
-UINT32					BaseImage::getWidth()															const
+UINT32					BaseImage::GetWidth()															const
 {
 	return image_width;
 }
@@ -64,7 +64,7 @@ UINT32					BaseImage::width()															const
 	return image_width;
 }
 
-UINT32					BaseImage::getDimension(BYTE index)											const
+UINT32					BaseImage::GetDimension(BYTE index)											const
 {
 	return index?image_height:image_width;
 }
@@ -74,7 +74,7 @@ UINT32					BaseImage::dimension(BYTE index)											const
 	return index?image_height:image_width;
 }
 
-UINT32					BaseImage::getHeight()															const
+UINT32					BaseImage::GetHeight()															const
 {
 	return image_height;
 }
@@ -84,12 +84,12 @@ UINT32					BaseImage::height()															const
 	return image_height;
 }
 
-float					BaseImage::aspect()															const
+float					BaseImage::pixelAspect()															const
 {
 	return float(image_width)/float(image_height);
 }
 
-float					BaseImage::getAspect()															const
+float					BaseImage::GetPixelAspect()															const
 {
 	return float(image_width)/float(image_height);
 }
@@ -100,12 +100,12 @@ BYTE					BaseImage::channels()														const
 	return image_channels;
 }
 
-BYTE					BaseImage::getChannels()														const
+BYTE					BaseImage::GetChannels()														const
 {
 	return image_channels;
 }
 
-PixelType		BaseImage::getContentType()													const
+PixelType		BaseImage::GetContentType()													const
 {
 	return content_type;
 }
@@ -120,7 +120,7 @@ String					BaseImage::contentTypeString()												const
 	return content_type.ToString();
 }
 
-String					BaseImage::getContentTypeString()												const
+String					BaseImage::GetContentTypeString()												const
 {
 	return content_type.ToString();
 }
@@ -136,10 +136,10 @@ void					BaseImage::setContentType(PixelType type)
 
 PixelType				BaseImage::contentType(const THeader&header)
 {
-	return getContentType(header);
+	return GetContentType(header);
 }
 
-PixelType				BaseImage::getContentType(const THeader&header)
+PixelType				BaseImage::GetContentType(const THeader&header)
 {
 	PixelType type = PixelType::Color;
 	if (header.type&TEX_NORMAL_BIT)
@@ -168,7 +168,7 @@ bool					BaseImage::writeHeader(THeader&header)											const
 	return image_width == (1<<header.x_exp) && image_height == (1<<header.y_exp);
 }
 
-BaseImage::THeader					BaseImage::getHeader()															const
+BaseImage::THeader					BaseImage::GetHeader()															const
 {
 	THeader h;
 	writeHeader(h);
@@ -176,12 +176,12 @@ BaseImage::THeader					BaseImage::getHeader()															const
 }
 
 
-bool	BaseImage::isColorMap()	const
+bool	BaseImage::IsColorMap()	const
 {
 	return content_type == PixelType::Color || content_type == PixelType::StrictColor || content_type == PixelType::BGRA || content_type == PixelType::PureLuminance;
 }
 
-bool	BaseImage::isNormalMap() const
+bool	BaseImage::IsNormalMap() const
 {
 	return content_type == PixelType::ObjectSpaceNormal || content_type == PixelType::TangentSpaceNormal;
 }

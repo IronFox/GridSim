@@ -208,8 +208,8 @@ public:
 
 		/**/							Node():lodIndex(0),nodeID(InvalidIndex)
 										{
-											segments[0].setSize(1);
-											segments[1].setSize(1);
+											segments[0].SetSize(1);
+											segments[1].SetSize(1);
 
 											segments[0].first() = InvalidIndex;
 											segments[1].first() = InvalidIndex;

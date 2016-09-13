@@ -125,7 +125,7 @@ namespace Engine
 		glBindTexture(GL_TEXTURE_2D,texture);
 		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_CLAMP_TO_EDGE);
-		gluBuild2DMipmaps(GL_TEXTURE_2D,4,image.getWidth(),image.getHeight(),GL_RGBA,GL_UNSIGNED_BYTE,image.getData());
+		gluBuild2DMipmaps(GL_TEXTURE_2D,4,image.GetWidth(),image.GetHeight(),GL_RGBA,GL_UNSIGNED_BYTE,image.GetData());
 		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
 
@@ -166,7 +166,7 @@ namespace Engine
 	        }
 	}
 
-	float GLTextureFont2::getWidth(const char*str)
+	float GLTextureFont2::GetWidth(const char*str)
 	{
 		unsigned rs = 0;
 		while (*str)
@@ -178,7 +178,7 @@ namespace Engine
 	    return rs*scale;
 	}
 
-	float GLTextureFont2::getWidth(const char*str, size_t len)
+	float GLTextureFont2::GetWidth(const char*str, size_t len)
 	{
 		float rs = 0;
 		for (index_t i = 0; i < len; i++)
@@ -190,7 +190,7 @@ namespace Engine
 	    return rs*scale;
 	}
 
-	float GLTextureFont2::getWidth(char c)
+	float GLTextureFont2::GetWidth(char c)
 	{
 	    return chars[(BYTE)c].isset?scale*chars[(BYTE)c].width:0;
 	}

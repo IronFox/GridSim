@@ -59,9 +59,9 @@ namespace Engine
 	/*
 	template class EveFont	//the height of a character must always be 1
 	{
-		float	getWidth(const char*str);
-		float	getWidth(const char*str, size_t len);
-		float	getWidth(char);
+		float	GetWidth(const char*str);
+		float	GetWidth(const char*str, size_t len);
+		float	GetWidth(char);
 		void	begin(const TFontState&state);
 		void	alterColor(const TFontColor&color);
 		void	write(const char*str);

@@ -541,7 +541,7 @@ template <class C, size_t A> class AlignedArray: public SerializableObject, publ
 					return element-data;
 				}				
 				
-				inline	void	setSize(count_t new_size)	//! Resizes the array. The new array's content is uninitialized. \param new_size New array size in elements (may be 0)
+				inline	void	SetSize(count_t new_size)	//! Resizes the array. The new array's content is uninitialized. \param new_size New array size in elements (may be 0)
 				{
 					relocAligned<C,A>(root,data,elements,new_size);
 				}
@@ -743,7 +743,7 @@ template <class C, size_t A> class AlignedArray: public SerializableObject, publ
 				else
 					FATAL__("trying to Deserialize an array containing serializable objects from a fixed size stream data section not including any element count");
 
-			setSize(size);
+			SetSize(size);
 			if (!IsISerializable(data))
 				return in_stream.Read(data,(serial_size_t)GetContentSize());
 

@@ -146,7 +146,7 @@ namespace Engine
 				Section				*text_target;						//!< Target section to adjust the visual history to (usually the body)
 				
 				void				updateSectionPositions();			//!< Updates both the absolute positions and states of all sections as well as the absolute text position
-				String				truncate(const String&origin);		//!< Truncates the given string so that it fits into the absolute history frame
+				String				Truncate(const String&origin);		//!< Truncates the given string so that it fits into the absolute history frame
 				void				printLine(const String&line);		//!< Adds the specified line (wrapped) to the console history
 				Section&			getSec(eConsoleSection ident)		//!< Retrieves a section via a section identifier
 									{

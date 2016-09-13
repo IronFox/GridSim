@@ -218,9 +218,7 @@ namespace Engine
 		the specified window dimension will be applied during the next create() call.
 		*/
 		inline  void				resizeWindow(unsigned width, unsigned height, DisplayConfig::border_style_t style);
-		inline	void				setDimension(unsigned width, unsigned height, DisplayConfig::border_style_t style);	//!< @copydoc resizeWindow()
-		inline	void				setDimensions(unsigned width, unsigned height, DisplayConfig::border_style_t style);	//!< @copydoc resizeWindow()
-		inline	void				setSize(unsigned width, unsigned height, DisplayConfig::border_style_t style);	//!< @copydoc resizeWindow()
+		inline	void				SetSize(unsigned width, unsigned height, DisplayConfig::border_style_t style);	//!< @copydoc resizeWindow()
 
 		void						SignalWindowResize(UINT32 displayConfigFlags);
 

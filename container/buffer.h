@@ -73,8 +73,7 @@ namespace Container
 			inline void				clear();								//!< @copydoc reset()
 			inline void				Clear(count_t len)	/**@copydoc clear(count_t len)*/ {clear(len);}
 			inline void				Clear()				/**@copydoc clear()*/ {clear();}
-			void					setSize(count_t len, bool occupy);		//!< Resizes the local buffer size @param len New length (in elements) that the buffer storage should hold @param occupy Pass true to call the constructor on all unconstructed elements and set Fill state to the specified size, false to clear all data and set Fill state to 0
-			inline void				SetSize(count_t len, bool occupy)		/**@copydoc setSize()*/ {setSize(len,occupy);}
+			void					SetSize(count_t len, bool occupy);		//!< Resizes the local buffer size @param len New length (in elements) that the buffer storage should hold @param occupy Pass true to call the constructor on all unconstructed elements and set Fill state to the specified size, false to clear all data and set Fill state to 0
 			void					resizePreserveContent(count_t len);		//!< Resizes the local buffer size but preserves the old content and Fill state where possible. If the old Fill state exceeds the new size then all new elements will be occupied and initialized
 			inline void				ResizePreserveContent(count_t len)		/**@copydoc resizePreserveContent()*/ {resizePreserveContent(len);}
 			void					Fill(const T&pattern);					//!< Copies \b pattern to each element of the local buffer
@@ -129,8 +128,7 @@ namespace Container
 			inline bool				empty()						const;	//!< @copydoc IsEmpty()
 			inline bool				IsEmpty()					const;	//!< Returns true if the buffer holds no elements
 			inline bool				IsNotEmpty()				const;	//!< Returns true if the buffer holds at least one element
-			bool					truncate(count_t fill_state);		//!< Decrements the local buffer counter to the specified Fill state. The method fails if the local buffer Fill state is less or equal the specified Fill state. The actually allocated buffer size remains unchanged.
-			inline bool				Truncate(count_t fill_state)		/**@copydoc truncate()*/ {return truncate(fill_state);}
+			bool					Truncate(count_t fill_state);		//!< Decrements the local buffer counter to the specified Fill state. The method fails if the local buffer Fill state is less or equal the specified Fill state. The actually allocated buffer size remains unchanged.
 			inline T*				appendRow(count_t length);			//!< Appends a number of elements and returns a pointer to the first element. The method returns NULL, if length is 0 @param length Number of elements to append. Must be greater 0 @return Pointer to the first of the appended elements or NULL, if an error occured
 			inline T*				AppendRow(count_t length)			/**@copydoc appendRow()*/ {return appendRow(length);}
 			inline T*				appendRow(count_t length, const T&pattern);			//!< Appends a number of elements and returns a pointer to the first element. The method returns NULL, if length is 0 @param length Number of elements to append. Must be greater 0 @param pattern Data to Fill newly appended elements with @return Pointer to the first of the appended elements or NULL, if an error occured

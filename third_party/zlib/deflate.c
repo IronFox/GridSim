@@ -1644,7 +1644,7 @@ local block_state deflate_slow(s, flush)
         } else if (s->match_available) {
             /* If there was no match at the previous position, output a
              * single literal. If there was a match but the current match
-             * is longer, truncate the previous match to a single literal.
+             * is longer, Truncate the previous match to a single literal.
              */
             Tracevv((stderr,"%c", s->window[s->strstart-1]));
             _tr_tally_lit(s, s->window[s->strstart-1], bflush);

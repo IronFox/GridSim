@@ -563,7 +563,7 @@ static Engine::Window::Font*font;
 
 static float lengthFunction(char c)
 {
-	return font->getWidth(&c,1);
+	return font->GetWidth(&c,1);
 }
 
 void		Engine::ConsoleWindow::print(const String&line)

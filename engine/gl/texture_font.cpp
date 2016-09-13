@@ -64,17 +64,17 @@ namespace Engine
 	    }
 	}
 
-	float GLTextureFont::getWidth(const char*str)
+	float GLTextureFont::GetWidth(const char*str)
 	{
 	    return 0.5f*strlen(str);
 	}
 
-	float GLTextureFont::getWidth(const char*str, size_t len)
+	float GLTextureFont::GetWidth(const char*str, size_t len)
 	{
 	    return 0.5f*len;
 	}
 
-	float GLTextureFont::getWidth(char)
+	float GLTextureFont::GetWidth(char)
 	{
 	    return 0.5f;
 	}

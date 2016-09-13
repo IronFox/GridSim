@@ -74,7 +74,7 @@ public:
 			NonBlock = __O_NONBLOCK,		//!< do not block on open or for data to become available
 			Append = __O_APPEND,			//!< append on each write
 			Create = __O_CREAT,			//!< create file if it does not exist
-			Truncate = __O_TRUNC,			//!< truncate size to 0
+			Truncate = __O_TRUNC,			//!< Truncate size to 0
 			ForceNew = __O_EXCL,			//!< error if O_CREAT and the file exists
 			SharedLock = __O_SHLOCK,		//!< atomically obtain a shared lock
 			ExclusiveLock = __O_EXLOCK,	//!< atomically obtain an exclusive lock

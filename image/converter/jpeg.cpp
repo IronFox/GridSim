@@ -116,7 +116,7 @@ void	JPEG::LoadFromFilePointer(Image&result, FILE*f)
 	(void) jpeg_read_header(&cinfo, TRUE);
 	(void) jpeg_start_decompress(&cinfo);
 	result.setContentType(PixelType::Color);
-    result.setDimensions(cinfo.output_width,cinfo.output_height,3);
+    result.SetSize(cinfo.output_width,cinfo.output_height,3);
 	
 	/* JSAMPLEs per row in output buffer */
 	row_stride = cinfo.output_width * cinfo.output_components;
@@ -130,8 +130,8 @@ void	JPEG::LoadFromFilePointer(Image&result, FILE*f)
 		if (cinfo.out_color_components==3)
         {
 			j_putRGBScanline(buffer[0],
-								result.getWidth(),
-								result.getData(),
+								result.GetWidth(),
+								result.GetData(),
 								cinfo.output_scanline-1);
 
 		}
@@ -139,12 +139,12 @@ void	JPEG::LoadFromFilePointer(Image&result, FILE*f)
             if (cinfo.out_color_components==1)
             {
     			j_putGrayScanlineToRGB(buffer[0],
-	    							result.getWidth(),
-		    						result.getData(),
+	    							result.GetWidth(),
+		    						result.GetData(),
 			    					cinfo.output_scanline-1);
     		}
 	}
-    result.flipVertical();
+    result.FlipVertically();
 	(void) jpeg_finish_decompress(&cinfo);
 	jpeg_destroy_decompress(&cinfo);
 }
@@ -194,11 +194,11 @@ void	JPEG::SaveToFilePointer(const Image&result, FILE*f)
 	
 // 	jpeg_read_header(&cinfo, TRUE);
 	
-//  	buffer = (*cinfo.mem->alloc_sarray)((j_common_ptr) &cinfo, JPOOL_IMAGE, resource->getWidth()*resource->getChannels()*100, 1);
+//  	buffer = (*cinfo.mem->alloc_sarray)((j_common_ptr) &cinfo, JPOOL_IMAGE, resource->GetWidth()*resource->GetChannels()*100, 1);
 	
-	cinfo.image_width = resource->getWidth();
-	cinfo.image_height = resource->getHeight();
-	cinfo.input_components = resource->getChannels();
+	cinfo.image_width = resource->GetWidth();
+	cinfo.image_height = resource->GetHeight();
+	cinfo.input_components = resource->GetChannels();
 	cinfo.in_color_space = JCS_RGB;
 	
 	
@@ -217,14 +217,14 @@ void	JPEG::SaveToFilePointer(const Image&result, FILE*f)
 
 	while (cinfo.next_scanline < cinfo.image_height)
 	{
-		int source_row_index = (resource->getHeight()-cinfo.next_scanline-1);
-		const BYTE*source_row = resource->getData()+source_row_index*resource->getWidth()*resource->getChannels();
+		int source_row_index = (resource->GetHeight()-cinfo.next_scanline-1);
+		const BYTE*source_row = resource->GetData()+source_row_index*resource->GetWidth()*resource->GetChannels();
 		for (unsigned i = 0; i < (unsigned)row_stride; i++)
 		{
 			sample[i] = JSAMPLE(((float)source_row[i]/255.0f)*MAXJSAMPLE);
 			cout << (int)sample[i]<<" ";
 		}
-		cout << "writing "<<cinfo.next_scanline<<" ("<<source_row_index<<"/"<<resource->getHeight()<<")... ";
+		cout << "writing "<<cinfo.next_scanline<<" ("<<source_row_index<<"/"<<resource->GetHeight()<<")... ";
 		flush(cout);
 		row_pointer[0] = sample;
 		jpeg_write_scanlines(&cinfo, row_pointer, 1);

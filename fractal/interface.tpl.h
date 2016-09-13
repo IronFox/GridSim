@@ -495,7 +495,7 @@ template <unsigned Exponent, unsigned ExponentReduction>
 			return;
 		
 		
-		vbo_vertex_index_field.setSize(ReducedMap::vertices);
+		vbo_vertex_index_field.SetSize(ReducedMap::vertices);
 		unsigned at_index = 0;
 		
 		for (unsigned i = 0; i < FullMap::vertices; i++)

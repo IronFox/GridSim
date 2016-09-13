@@ -693,7 +693,7 @@ namespace Engine
 			Magic::LoadFromFile(image,filename);
 
 			bool alpha = image.channels()==4;
-			target.setSize(image.width(),image.height(),4);
+			target.SetSize(image.width(),image.height(),4);
 			
 			float	x_bump_scale = (float)image.width()/512.0f/5.0f,
 					y_bump_scale = (float)image.height()/512.0f/5.0f;
@@ -724,9 +724,9 @@ namespace Engine
 					target.get(x,y)[3] = alpha?p[3]:255;
 				}						
 			if (target.width() == 1)
-				target.scaleTo(64,target.height());
+				target.ScaleTo(64,target.height());
 			if (target.height() == 1)
-				target.scaleTo(target.width(),64);
+				target.ScaleTo(target.width(),64);
 			
 		}
 		
@@ -878,13 +878,13 @@ namespace Engine
 								{
 									Magic::LoadFromFile(cell->color,file.GetLocation());
 									if (cell->color.width() == 1)
-										cell->color.scaleTo(64,cell->color.height());
+										cell->color.ScaleTo(64,cell->color.height());
 									if (cell->color.height() == 1)
-										cell->color.scaleTo(cell->color.width(),64);
+										cell->color.ScaleTo(cell->color.width(),64);
 								}
 								if (!cell->color.width() || !cell->color.height())
 								{
-									cell->color.setSize(32,32,4);
+									cell->color.SetSize(32,32,4);
 									cell->color.Fill(0,0,0,0);
 								}
 							}
@@ -897,11 +897,11 @@ namespace Engine
 			minHeight = 0;
 			variableRows = 0;
 			cellCount = 0;
-			rows.setSize(iorows);
+			rows.SetSize(iorows);
 			for (unsigned i = 0; i < iorows; i++)
 			{
 				TRow&row = rows[i];
-				row.cells.setSize(iorows[i]->cells);
+				row.cells.SetSize(iorows[i]->cells);
 				row.variable_height = iorows[i]->variable_height;
 				row.height = 0;
 				row.variable_cells = 0;
@@ -951,7 +951,7 @@ namespace Engine
 		
 		void	Layout::UpdateCells(const Rect<float>&window_location, TCellLayout&layout)	const
 		{
-			layout.cells.setSize(cellCount);
+			layout.cells.SetSize(cellCount);
 			
 			//applyArea(layout.body,window_location,body_location);
 			//applyArea(layout.title,window_location,title_location);
@@ -2432,7 +2432,7 @@ namespace Engine
 				if (cellLayout.title.width()>0)
 				{
 					op->colorRenderer.MarkNewLayer();
-					op->colorRenderer.SetTextPosition(cellLayout.title.x.min,cellLayout.title.y.center()-ColorRenderer::textout.getFont().getHeight()/2+font_offset);
+					op->colorRenderer.SetTextPosition(cellLayout.title.x.min,cellLayout.title.y.center()-ColorRenderer::textout.getFont().GetHeight()/2+font_offset);
 					op->colorRenderer.WriteText(title);
 				}
 				if (rootComponent && rootComponent->visible)

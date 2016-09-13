@@ -394,7 +394,7 @@ template <typename T, typename Strategy>
 
 
 template <typename T, typename Strategy>
-	void	BasicBuffer<T, Strategy>::setSize(count_t len, bool occupy_all)
+	void	BasicBuffer<T, Strategy>::SetSize(count_t len, bool occupy_all)
 	{
 		if ((count_t)(storage_end-storage_begin) !=len)
 		{
@@ -1209,7 +1209,7 @@ template <typename T, typename Strategy>
 		}
 
 template <typename T, typename Strategy>
-	bool			BasicBuffer<T, Strategy>::truncate(count_t fill_state)
+	bool			BasicBuffer<T, Strategy>::Truncate(count_t fill_state)
 	{
 		count_t cfill = usage_end-storage_begin;
 		if (fill_state < cfill)
@@ -1261,7 +1261,7 @@ template <typename T, typename Strategy>
 template <typename T, typename Strategy>
 	void			BasicBuffer<T, Strategy>::copyToArray(ArrayData<T>&target)	const
 	{
-		target.setSize(usage_end-storage_begin);
+		target.SetSize(usage_end-storage_begin);
 		const T*from = storage_begin;
 		T*to = target.pointer();
 		Strategy::template copyRange<const T,T>(from,usage_end,to);
@@ -1280,7 +1280,7 @@ template <typename T, typename Strategy>
 template <typename T, typename Strategy>
 	void			BasicBuffer<T, Strategy>::moveToArray(ArrayData<T>&target, bool reset_buffer)
 	{
-		target.setSize(usage_end-storage_begin);
+		target.SetSize(usage_end-storage_begin);
 		T*from = storage_begin;
 		T*to = target.pointer();
 		Strategy::moveRange(from,usage_end,to);

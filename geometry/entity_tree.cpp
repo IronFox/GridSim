@@ -383,7 +383,7 @@ count_t	CompositeEntityTree::recursiveLookup(const Composite::Coordinates&edge_p
 		if (set[k])
 			if (child[k]->recursiveLookup(edge_point0,edge_point1,buffer,sector_size) == entities.count())
 			{
-				buffer.truncate(at);
+				buffer.Truncate(at);
 				for (index_t i = 0; i < entities.count(); i++)
 					buffer << entities[i];
 				return entities.count();
@@ -421,7 +421,7 @@ count_t	CompositeEntityTree::recursiveLookup(const Volume&space, Buffer<Entity*>
 		{
 			if (buffer.fillLevel()-at > cnt)
 			{
-				buffer.truncate(at);
+				buffer.Truncate(at);
 				for (unsigned i = 0; i < cnt; i++)
 					buffer << entities[i];
 			}
@@ -977,7 +977,7 @@ count_t	EntityTree::_RecursiveLookup(const TVec3<>&p0, const TVec3<>&p1, Buffer<
 		if (set[k] && child[k]!=NULL)
 			if (child[k]->_RecursiveLookup(p0,p1,buffer) == cnt)
 			{
-				buffer.truncate(at);
+				buffer.Truncate(at);
 				return _RecursionEnd(p0,p1,buffer);
 			}
 	return 0;
@@ -1013,7 +1013,7 @@ count_t	EntityTree::_RecursiveLookup(const Volume&space, Buffer<Entity*>&buffer)
 		{
 			if (buffer.fillLevel()-at > cnt)
 			{
-				buffer.truncate(at);
+				buffer.Truncate(at);
 				for (index_t i = 0; i < cnt; i++)
 					buffer << entities[i];
 			}

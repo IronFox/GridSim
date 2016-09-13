@@ -30,13 +30,13 @@ Image*IntStream::getImage()
 {
     Image*image = SHIELDED(new Image(info.biWidth,info.biHeight,info.biBitCount/8));
     image->read(stream);
-    image->swapChannels(0,2);
+    image->SwapChannels(0,2);
     return image;
 }
 
 void IntStream::setImage(const Image*origin)
 {
-    unsigned row_size = 3*origin->getWidth();
+    unsigned row_size = 3*origin->GetWidth();
     unsigned padding = (row_size%4);
     if (padding)
     {
@@ -44,10 +44,10 @@ void IntStream::setImage(const Image*origin)
         row_size += padding;
     }
 
-    unsigned total = row_size*origin->getHeight();
+    unsigned total = row_size*origin->GetHeight();
     info.biSize = 0x28;
-    info.biWidth = origin->getWidth();
-    info.biHeight = origin->getHeight();
+    info.biWidth = origin->GetWidth();
+    info.biHeight = origin->GetHeight();
     info.biBitCount = 24;
     info.biPlanes = 1;
     info.biCompression = 0;
@@ -68,9 +68,9 @@ void IntStream::setImage(const Image*origin)
     memcpy(stream,&file,14);
     memcpy(&stream[14],&info,sizeof(info));
     BYTE*p = stream+14+40;
-    for (unsigned row = 0; row < origin->getHeight(); row++)
+    for (unsigned row = 0; row < origin->GetHeight(); row++)
     {
-        for (unsigned col = 0; col < origin->getWidth(); col++)
+        for (unsigned col = 0; col < origin->GetWidth(); col++)
         {
             const BYTE*pixel = origin->get(col,row);
             (*p++) = pixel[2];
@@ -153,15 +153,15 @@ void _BMO_Slice(Image**IMG,en_Parameter_Type Type, float Left, float Bottom, flo
 {
     if (Type == PT_Percent)
     {
-        Left = Round(Left/100*(float)(*IMG)->getWidth());
-        Top = Round(Top/100*(float)(*IMG)->getHeight());
-        Right = Round(Right/100*(float)(*IMG)->getWidth());
-        Bottom = Round(Bottom/100*(float)(*IMG)->getHeight());
+        Left = Round(Left/100*(float)(*IMG)->GetWidth());
+        Top = Round(Top/100*(float)(*IMG)->GetHeight());
+        Right = Round(Right/100*(float)(*IMG)->GetWidth());
+        Bottom = Round(Bottom/100*(float)(*IMG)->GetHeight());
     }
-    Image*New = SHIELDED(new Image((UINT32)(Right-Left),(UINT32)(Top-Bottom),(*IMG)->getChannels()));
+    Image*New = SHIELDED(new Image((UINT32)(Right-Left),(UINT32)(Top-Bottom),(*IMG)->GetChannels()));
 
-    for (unsigned x = 0; x < New->getWidth(); x++)
-        for (unsigned y = 0; y < New->getHeight(); y++)
+    for (unsigned x = 0; x < New->GetWidth(); x++)
+        for (unsigned y = 0; y < New->GetHeight(); y++)
             New->set(x,y,(*IMG)->get((unsigned)(x+Left),(unsigned)(y+Bottom)));
     DISCARD(*IMG);
     (*IMG) = New;

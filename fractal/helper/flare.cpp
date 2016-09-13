@@ -52,7 +52,7 @@ namespace Flare
 	}
 	void _FetchCustom()
 	{
-		light_field.setSize(customLights.count());
+		light_field.SetSize(customLights.count());
 		for (index_t i = 0; i < customLights.count(); i++)
 			light_field[i] = customLights + i;
 	}
@@ -229,14 +229,14 @@ namespace Flare
 		static Image	upper_blend(256,256,4),
 						lower_blend(512,16,4),
 						image(512,256,4);
-		image.setChannel(0,255);
-		image.setChannel(1,255);
-		image.setChannel(2,255);
-		image.setChannel(3,0);
+		image.SetChannel(0,255);
+		image.SetChannel(1,255);
+		image.SetChannel(2,255);
+		image.SetChannel(3,0);
 		igRadial(lower_blend, CGColor(1,1,1,1), CGColor(1,1,1,0));
 		igExtRadial(upper_blend,CGColor(1,1,1,1), CGColor(1,1,1,0));
-		image.paint(&lower_blend,0,120);
-		image.paint(&upper_blend,128,0);
+		image.Paint(&lower_blend,0,120);
+		image.Paint(&upper_blend,128,0);
 		
 		texture_target.load(image);
 		target.texture = &texture_target;
@@ -405,13 +405,13 @@ namespace Flare
 				counter[(unsigned)(8*angle)]++;
 				float width = random.getFloat(0,12);
 				igSolarStripe(image2, 0.0002, cos(angle*M_PI), sin(angle*M_PI),  width ,sqr(random.getFloat(0.5,1))/(width/2+1),CGColor(c.red,c.green,c.blue,1),CGColor(c.red,c.green,c.blue,0));
-				image.paint(&image2,0,0,Image::AlphaAdd);
+				image.Paint(&image2,0,0,Image::AlphaAdd);
 			}
 			
 			
 			igExtRadial(image2,CGColor(1.15,1.15,1.15),CGColor(0,0,0));
 			
-			image.paint(&image2,0,0,Image::Add);
+			image.Paint(&image2,0,0,Image::Add);
 
 			sun_flare.load(image);
 			
@@ -425,7 +425,7 @@ namespace Flare
 			
 			
 			
-			image.setSize(256,256,4);
+			image.SetSize(256,256,4);
 			
 			igHexagon(image,0.3,CGColor(1,1,1,-0.1),CGColor(1,1,1,1),CGColor(1,1,1,-0.1));
 			
@@ -737,7 +737,7 @@ namespace Flare
 
 	void			SetFlareSequence(const FlareCenter*centers, count_t numCenters)
 	{
-		customLights.setSize(numCenters);
+		customLights.SetSize(numCenters);
 		for (index_t i = 0; i < numCenters; i++)
 			customLights[i].Update(centers[i]);
 		_FetchLightSources = _FetchCustom;

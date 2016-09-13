@@ -16,7 +16,7 @@ void			Magic::GetExtensions(ArrayData<PathString>&extensions)
 	count_t cnt = 0;
 	for (index_t i = 0; i < ARRAYSIZE(format); i++)
 		cnt += format[i]->extensions.count();
-	extensions.setSize(cnt);
+	extensions.SetSize(cnt);
 	PathString*to = extensions.pointer();
 	for (index_t i = 0; i < ARRAYSIZE(format); i++)
 	{
@@ -31,8 +31,8 @@ void			Magic::GetExtensions(ArrayData<PathString>&extensions, ArrayData<ImageFor
 	count_t cnt = 0;
 	for (index_t i = 0; i < ARRAYSIZE(format); i++)
 		cnt += format[i]->extensions.count();
-	extensions.setSize(cnt);
-	formats.setSize(cnt);
+	extensions.SetSize(cnt);
+	formats.SetSize(cnt);
 	PathString*sto = extensions.pointer();
 	ImageFormat**fto = formats.pointer();
 	

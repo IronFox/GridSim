@@ -90,7 +90,7 @@ namespace Expression
 		static Array<bool>	flag_array;
 		if (members > flag_array.length())
 		{
-			flag_array.setSize(members);
+			flag_array.SetSize(members);
 		}
 		flag_array.Fill(false);
 			

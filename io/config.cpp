@@ -144,42 +144,42 @@ namespace Config
 
 	void						Context::ExportModes(ArrayData<Context*>&out)
 	{
-		out.setSize(modes.Count());
+		out.SetSize(modes.Count());
 		for (index_t i = 0; i < modes.Count(); i++)
 			out[i] = modes + i;
 	}
 	
 	void						Context::ExportModes(ArrayData<const Context*>&out)				const
 	{
-		out.setSize(modes.Count());
+		out.SetSize(modes.Count());
 		for (index_t i = 0; i < modes.Count(); i++)
 			out[i] = modes+i;
 	}
 	
 	void						Context::ExportChildren(ArrayData<Context*>&out)
 	{
-		out.setSize(children.Count());
+		out.SetSize(children.Count());
 		for (index_t i = 0; i < children.Count(); i++)
 			out[i] = children + i;
 	}
 	
 	void						Context::ExportChildren(ArrayData<const Context*>&out)			const
 	{
-		out.setSize(children.Count());
+		out.SetSize(children.Count());
 		for (index_t i = 0; i < children.Count(); i++)
 			out[i] = children + i;
 	}
 	
 	void						Context::ExportAttributes(ArrayData<Attribute*>&out)
 	{
-		out.setSize(attributes.Count());
+		out.SetSize(attributes.Count());
 		for (index_t i = 0; i < attributes.Count(); i++)
 			out[i] = attributes + i;
 	}
 	
 	void						Context::ExportAttributes(ArrayData<const Attribute*>&out)		const
 	{
-		out.setSize(attributes.Count());
+		out.SetSize(attributes.Count());
 		for (index_t i = 0; i < attributes.Count(); i++)
 			out[i] = attributes + i;
 	}
@@ -1053,7 +1053,7 @@ namespace Config
 					value.erase(at-1,4);
 				value.insert(at-1,"($*),");
 			}
-			var->setSize(1);
+			var->SetSize(1);
 			var->first() = value;
 		}
 
@@ -1066,7 +1066,7 @@ namespace Config
 
 
 		std::cout << "now processing node '"<<node->name<<"'"<<std::endl;
-		conditions.setSize(node->attributes.count());
+		conditions.SetSize(node->attributes.count());
 		for (index_t i = 0; i < conditions.count(); i++)
 			conditions[i] = *node->attributes.get(i);
 		name = node->name;
@@ -1280,7 +1280,7 @@ namespace Config
 			if (result = context->innerFindContext(segments))
 			{
 				Variable*var = result->variables.append(var_name);
-				var->setSize(1);
+				var->SetSize(1);
 				var->first() = variable_value;
 				return true;
 			}

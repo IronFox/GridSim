@@ -32,10 +32,10 @@ namespace Engine
 	        bool                isMade();
 			void				unmake();
 	        
-	        float               getWidth(const char*str);
-	        float               getWidth(const char*str, size_t len);
-	        float               getWidth(char);
-			float				getHeight();
+	        float               GetWidth(const char*str);
+	        float               GetWidth(const char*str, size_t len);
+	        float               GetWidth(char);
+			float				GetHeight();
 	        void                begin(const TFontState&state);
 	        void                alterColor(const TFontColor&color);
 	        void                write(const char*str);

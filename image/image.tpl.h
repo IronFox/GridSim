@@ -76,15 +76,15 @@ template <typename T>
 
 			for (int x = px0+1; x < px1; x++)
 				for (int y = py0+1; y < py1; y++)
-					if (const T*pixel = getVerified(x,y))
+					if (const T*pixel = GetVerified(x,y))
 					{
 						Vec::addD(target,pixel,image_channels);
 						count++;
 					}
 			for (int x = px0+1; x < px1; x++)
 			{
-				const T	*p0 = getVerified(x,py0),
-						*p1 = getVerified(x,py1);
+				const T	*p0 = GetVerified(x,py0),
+						*p1 = GetVerified(x,py1);
 				for (BYTE k = 0; k < image_channels; k++)
 				{
 					if (p0)
@@ -99,8 +99,8 @@ template <typename T>
 			}
 			for (int y = py0+1; y < py1; y++)
 			{
-				const T	*p0 = getVerified(px0,y),
-						*p1 = getVerified(px1,y);
+				const T	*p0 = GetVerified(px0,y),
+						*p1 = GetVerified(px1,y);
 				for (BYTE k = 0; k < image_channels; k++)
 				{
 					if (p0)
@@ -113,10 +113,10 @@ template <typename T>
 				if (p1)
 					count += xp1;
 			}
-			const T	*p0 = getVerified(px0,py0),
-					*p1 = getVerified(px0,py1),
-					*p2 = getVerified(px1,py1),
-					*p3 = getVerified(px1,py0);
+			const T	*p0 = GetVerified(px0,py0),
+					*p1 = GetVerified(px0,py1),
+					*p2 = GetVerified(px1,py1),
+					*p3 = GetVerified(px1,py0);
 
 			for (BYTE k = 0; k < image_channels; k++)
 			{
@@ -150,19 +150,19 @@ template <typename T>
 template <typename T>
 	ImageTemplate<T>::ImageTemplate(const ImageTemplate<T>&other):image_data(NULL)
 	{
-		setDimensions(other.image_width,other.image_height,other.image_channels);
+		SetSize(other.image_width,other.image_height,other.image_channels);
 		memcpy(image_data,other.image_data,other.size());
 	}
 
 template <typename T>
 	ImageTemplate<T>::ImageTemplate(dimension_t width, dimension_t height, BYTE channels,PixelType type):image_data(NULL)
 	{
-		setDimensions(width,height,channels);
+		SetSize(width,height,channels);
 		content_type = type;
 	}
 
 template <typename T>
-	ImageTemplate<T>::ImageTemplate(const THeader&header):BaseImage(0x1<<header.x_exp,0x1<<header.y_exp,header.channels,getContentType(header)),image_data(NULL)
+	ImageTemplate<T>::ImageTemplate(const THeader&header):BaseImage(0x1<<header.x_exp,0x1<<header.y_exp,header.channels,GetContentType(header)),image_data(NULL)
 	{
 		alloc(image_data,image_width*image_height*image_channels);
 	}
@@ -178,7 +178,7 @@ template <typename T>
 	{
 		content_type = other.content_type;
 		origin = other.origin;
-		setDimensions(other.image_width,other.image_height,other.image_channels);
+		SetSize(other.image_width,other.image_height,other.image_channels);
 		memcpy(image_data,other.image_data,other.size());
 		return *this;
 	}
@@ -188,21 +188,10 @@ template <typename T>
 template <typename T>
 	void		ImageTemplate<T>::applyHeader(const THeader&header)
 	{
-		setDimensions(0x1<<header.x_exp,0x1<<header.y_exp,header.channels);
-		setContentType(getContentType(header));
+		SetSize(0x1<<header.x_exp,0x1<<header.y_exp,header.channels);
+		setContentType(GetContentType(header));
 	}
 
-template <typename T>
-	inline	T*			ImageTemplate<T>::getData()
-	{
-		return image_data;
-	}
-
-template <typename T>
-	inline	const T*	ImageTemplate<T>::getData() const
-	{
-		return image_data;
-	}
 
 template <typename T>
 	inline	T*			ImageTemplate<T>::data()
@@ -247,7 +236,7 @@ template <typename T>
 	}
 
 template <typename T>
-	void		ImageTemplate<T>::setDimensions(dimension_t width, dimension_t height, BYTE channels)
+	void		ImageTemplate<T>::SetSize(dimension_t width, dimension_t height, BYTE channels)
 	{
 		if (width*height*channels != image_width*image_height*image_channels)
 			re_alloc(image_data,width*height*channels);
@@ -257,37 +246,25 @@ template <typename T>
 	}
 
 template <typename T>
-	void		ImageTemplate<T>::setDimension(dimension_t width, dimension_t height, BYTE channels)
-	{
-		setDimensions(width,height,channels);
-	}
-
-template <typename T>
-	void		ImageTemplate<T>::setSize(dimension_t width, dimension_t height, BYTE channels)
-	{
-		setDimensions(width,height,channels);
-	}
-
-template <typename T>
-	inline void		ImageTemplate<T>::setChannel(dimension_t X, dimension_t Y, BYTE channel, T newData)
+	inline void		ImageTemplate<T>::SetChannel(dimension_t X, dimension_t Y, BYTE channel, T newData)
 	{
 		image_data[Y*image_width*image_channels+X*image_channels+channel] = newData;
 	}
 
 template <typename T>
-	void		ImageTemplate<T>::setChannel(BYTE channel, T new_value)
+	void		ImageTemplate<T>::SetChannel(BYTE channel, T new_value)
 	{
 		if (channel >= image_channels)
 			return;
 		Concurrency::parallel_for(dimension_t(0),image_width,[this,channel,new_value](dimension_t x)
 		{
 			for (dimension_t y = 0; y < image_height; y++)
-				setChannel(x,y,channel,new_value);
+				SetChannel(x,y,channel,new_value);
 		});
 	}
 
 template <typename T>
-	void		ImageTemplate<T>::paintRect(dimension_t left, dimension_t bottom, dimension_t width, dimension_t height, T r)
+	void		ImageTemplate<T>::PaintRect(dimension_t left, dimension_t bottom, dimension_t width, dimension_t height, T r)
 	{
 		if (image_channels != 1)
 			return;
@@ -303,12 +280,12 @@ template <typename T>
 	}
 
 template <typename T>
-	void		ImageTemplate<T>::paintRect(dimension_t left, dimension_t bottom, dimension_t width, dimension_t height, T r, T g)
+	void		ImageTemplate<T>::PaintRect(dimension_t left, dimension_t bottom, dimension_t width, dimension_t height, T r, T g)
 	{
 		switch (image_channels)
 		{
 			case 1:
-				paintRect(left,bottom,width,height,r);
+				PaintRect(left,bottom,width,height,r);
 			break;
 		}
 		if (image_channels != 2)
@@ -327,15 +304,15 @@ template <typename T>
 
 
 template <typename T>
-	void		ImageTemplate<T>::paintRect(dimension_t left, dimension_t bottom, dimension_t width, dimension_t height, T r, T g, T b)
+	void		ImageTemplate<T>::PaintRect(dimension_t left, dimension_t bottom, dimension_t width, dimension_t height, T r, T g, T b)
 	{
 		switch (image_channels)
 		{
 			case 1:
-				paintRect(left,bottom,width,height,r);
+				PaintRect(left,bottom,width,height,r);
 			break;
 			case 2:
-				paintRect(left,bottom,width,height,r,g);
+				PaintRect(left,bottom,width,height,r,g);
 			break;
 		}
 		if (image_channels != 3)
@@ -355,18 +332,18 @@ template <typename T>
 	}
 
 template <typename T>
-	void		ImageTemplate<T>::paintRect(dimension_t left, dimension_t bottom, dimension_t width, dimension_t height, T r, T g, T b, T a)
+	void		ImageTemplate<T>::PaintRect(dimension_t left, dimension_t bottom, dimension_t width, dimension_t height, T r, T g, T b, T a)
 	{
 		switch (image_channels)
 		{
 			case 1:
-				paintRect(left,bottom,width,height,r);
+				PaintRect(left,bottom,width,height,r);
 			break;
 			case 2:
-				paintRect(left,bottom,width,height,r,g);
+				PaintRect(left,bottom,width,height,r,g);
 			break;
 			case 3:
-				paintRect(left,bottom,width,height,r,g,b);
+				PaintRect(left,bottom,width,height,r,g,b);
 			break;
 		}
 		if (image_channels != 4)
@@ -386,7 +363,7 @@ template <typename T>
 
 	}
 template <class Nature>
-	void		GenericImage<Nature>::addRect(dimension_t left, dimension_t bottom, dimension_t width, dimension_t height, T r, T g, T b)
+	void		GenericImage<Nature>::AddRect(dimension_t left, dimension_t bottom, dimension_t width, dimension_t height, T r, T g, T b)
 	{
 		if (image_channels != 3)
 			return;
@@ -408,12 +385,12 @@ template <class Nature>
 
 
 template <typename T>
-	void		ImageTemplate<T>::noiseFillChannel(BYTE channel, T min_value, T max_value)
+	void		ImageTemplate<T>::NoiseFillChannel(BYTE channel, T min_value, T max_value)
 	{
-		noiseFillChannel(channel,min_value,max_value,rand());
+		NoiseFillChannel(channel,min_value,max_value,rand());
 	}
 template <typename T>
-	void		ImageTemplate<T>::noiseFillChannel(BYTE channel, T min_value, T max_value, unsigned seed)
+	void		ImageTemplate<T>::NoiseFillChannel(BYTE channel, T min_value, T max_value, unsigned seed)
 	{
 		if (channel >= image_channels)
 			return;
@@ -423,7 +400,7 @@ template <typename T>
 			for (dimension_t y = 0; y < image_height; y++)
 			{
 				T value = min_value+T(rnd()*(max_value-min_value));
-				setChannel(x,y,channel,value);
+				SetChannel(x,y,channel,value);
 			}
 		});
 	}
@@ -431,7 +408,7 @@ template <typename T>
 
 
 template <typename T>
-	void		ImageTemplate<T>::blurChannel(BYTE channel, float radius, bool loop)
+	void		ImageTemplate<T>::BlurChannel(BYTE channel, float radius, bool loop)
 	{
 		if (channel >= image_channels || radius <= 0)
 			return;
@@ -474,7 +451,7 @@ template <typename T>
 							continue;
 					
 						counter += intensity;
-						sum += intensity*(float)getPixel(ax,ay)[channel];
+						sum += intensity*(float)GetPixel(ax,ay)[channel];
 					}
 				ASSERT__(counter > 0);
 				channels.get(x,y) = T(sum/counter);
@@ -483,13 +460,13 @@ template <typename T>
 		Concurrency::parallel_for(dimension_t(0),image_width,[this,&channels,channel](dimension_t x)
 		{
 			for (dimension_t y = 0; y < image_height; y++)
-				getPixel(x,y)[channel] = channels.get(x,y);
+				GetPixel(x,y)[channel] = channels.get(x,y);
 		});
 	}
 
 
 template <typename T>
-	void		ImageTemplate<T>::linearBlurChannel(BYTE channel, float radius, bool loop)
+	void		ImageTemplate<T>::LinearBlurChannel(BYTE channel, float radius, bool loop)
 	{
 		if (channel >= image_channels || radius <= 0)
 			return;
@@ -523,7 +500,7 @@ template <typename T>
 							continue;
 					
 						counter += intensity;
-						sum += intensity*(float)getPixel(ax,y)[channel];
+						sum += intensity*(float)GetPixel(ax,y)[channel];
 					}
 				ASSERT__(counter > 0);
 				channels.get(x,y) = T(sum/counter);
@@ -559,7 +536,7 @@ template <typename T>
 						sum += intensity*(float)channels.get(x,ay);
 					}
 				ASSERT__(counter > 0);
-				getPixel(x,y)[channel] = T(sum/counter);
+				GetPixel(x,y)[channel] = T(sum/counter);
 			}
 		});
 	}
@@ -616,7 +593,7 @@ template <typename T>
 	}
 
 template <class Nature>
-	void		GenericImage<Nature>::setChannels(BYTE new_channels,BaseImage::channel_append_t append)
+	void		GenericImage<Nature>::SetChannels(BYTE new_channels,BaseImage::channel_append_t append)
 	{
 		if (!new_channels || new_channels==image_channels)
 			return;
@@ -628,9 +605,9 @@ template <class Nature>
 			typedef GenericImage<Nature>::Size Size;
 			for (dimension_t y = 0; y < image_height; y++)
 			{
-			 //   BYTE*old = getPixel(x,y);
+			 //   BYTE*old = GetPixel(x,y);
 				T*target = &buffer[Size(y)*Size(image_width)*Size(new_channels)+Size(x)*Size(new_channels)];
-				Vec::copyD(getPixel(x,y),target,vmin(image_channels,new_channels));
+				Vec::copyD(GetPixel(x,y),target,vmin(image_channels,new_channels));
 			};
 		});
 		T fixed_value = 0;
@@ -657,7 +634,7 @@ template <class Nature>
 					{
 						typedef GenericImage<Nature>::Size Size;
 						for (dimension_t y = 0; y < image_height; y++)
-							Vec::setD(&buffer[(Size(y)*Size(image_width)+Size(x))*Size(new_channels)+Size(image_channels)],this->getPixel(x,y)[image_channels-1],new_channels-image_channels);
+							Vec::setD(&buffer[(Size(y)*Size(image_width)+Size(x))*Size(new_channels)+Size(image_channels)],this->GetPixel(x,y)[image_channels-1],new_channels-image_channels);
 					});
 				}
 				break;
@@ -892,7 +869,7 @@ template <class Nature>
 		}
 
 template <typename T>
-	void			ImageTemplate<T>::copyChannel(const ImageTemplate<T>&source_image, BYTE source_channel, BYTE target_channel)
+	void			ImageTemplate<T>::CopyChannel(const ImageTemplate<T>&source_image, BYTE source_channel, BYTE target_channel)
 	{
 		if (source_image.width() != width() || source_image.height() != height() || source_channel >= source_image.channels() || target_channel >= channels())
 		{
@@ -909,7 +886,7 @@ template <typename T>
 	}
 
 template <typename T>
-	float				ImageTemplate<T>::sampleChannelAt(float x, float y, BYTE channel, bool loop)	const
+	float				ImageTemplate<T>::SampleChannelAt(float x, float y, BYTE channel, bool loop)	const
 	{
 		if (!image_width || !image_height || channel >= image_channels)
 			return 0;
@@ -960,7 +937,7 @@ template <typename T>
 
 
 template <typename T>
-	T				ImageTemplate<T>::smoothSampleChannelAt(float x, float y, BYTE channel, bool loop)	const
+	T				ImageTemplate<T>::SmoothSampleChannelAt(float x, float y, BYTE channel, bool loop)	const
 	{
 		if (!image_width || !image_height || channel >= image_channels)
 			return 0;
@@ -1012,24 +989,24 @@ template <typename T>
 
 
 template <typename T>
-	inline T*		ImageTemplate<T>::getVerified(dimension_t X, dimension_t Y)
+	inline T*		ImageTemplate<T>::GetVerified(dimension_t X, dimension_t Y)
 	{
 		if (X < image_width && Y < image_height && image_channels)
-			return getPixel(X,Y);
+			return GetPixel(X,Y);
 		return NULL;
 	}
 
 template <typename T>
-	inline const T*		ImageTemplate<T>::getVerified(dimension_t X, dimension_t Y) const
+	inline const T*		ImageTemplate<T>::GetVerified(dimension_t X, dimension_t Y) const
 	{
 		if (X < image_width && Y < image_height && image_channels)
-			return getPixel(X,Y);
+			return GetPixel(X,Y);
 		return NULL;
 	}
 
 
 template <typename T>
-	void		ImageTemplate<T>::swapChannels(BYTE c0, BYTE c1)
+	void		ImageTemplate<T>::SwapChannels(BYTE c0, BYTE c1)
 	{
 		if (c0 == c1 || c0 >= image_channels || c1 >= image_channels)
 			return;
@@ -1046,7 +1023,7 @@ template <typename T>
 
 
 template <typename T>
-	void		ImageTemplate<T>::appendAlpha(const ImageTemplate<T>*other)
+	void		ImageTemplate<T>::AppendAlpha(const ImageTemplate<T>*other)
 	{
 		if (!other || !other->image_channels || other->image_width != image_width || other->image_height != image_height)
 			return;
@@ -1058,8 +1035,8 @@ template <typename T>
 			{
 				for (dimension_t y = 0; y < image_height; y++)
 				{
-				 //   BYTE*old = getPixel(x,y);
-					Vec::copyD(this->getPixel(x,y),&buffer[size_type(y)*size_type(image_width)*size_type(4)+size_type(x)*size_type(4)],vmin(image_channels,4));
+				 //   BYTE*old = GetPixel(x,y);
+					Vec::copyD(this->GetPixel(x,y),&buffer[size_type(y)*size_type(image_width)*size_type(4)+size_type(x)*size_type(4)],vmin(image_channels,4));
 				};
 			});
 
@@ -1071,14 +1048,14 @@ template <typename T>
 		Concurrency::parallel_for(dimension_t(0),image_width,[this,&other](dimension_t x)
 		{
 			for (dimension_t y = 0; y < image_height; y++)
-				setChannel(x,y,3,other->getPixel(x,y)[0]);
+				SetChannel(x,y,3,other->GetPixel(x,y)[0]);
 		});
 	}
 
 template <typename T>
-	void		ImageTemplate<T>::appendAlphaAndDelete(ImageTemplate<T>*other)
+	void		ImageTemplate<T>::AppendAlphaAndDelete(ImageTemplate<T>*other)
 	{
-		appendAlpha(other);
+		AppendAlpha(other);
 		if (other)
 			DISCARD(other);
 	}
@@ -1090,15 +1067,15 @@ template <typename T>
 	}
 
 template <class Nature>
-	void	GenericImage<Nature>::changeSaturation(float scale_by)
+	void	GenericImage<Nature>::ChangeSaturation(float scale_by)
 	{
-		if (!isColorMap() || image_channels < 3)
+		if (!IsColorMap() || image_channels < 3)
 			return;
 		Concurrency::parallel_for(dimension_t(0),image_height,[this,scale_by](dimension_t y)
 		{
 			for (dimension_t x = 0; x < image_width; x++)
 			{
-				T	*pixel = getPixel(x,y);
+				T	*pixel = GetPixel(x,y);
 				F	avg = (static_cast<F>(pixel[0]) + static_cast<F>(pixel[1]) + static_cast<F>(pixel[2]))/static_cast<F>(3);
 				pixel[0] = static_cast<T>(avg + (pixel[0] - avg)*scale_by);
 				pixel[1] = static_cast<T>(avg + (pixel[1] - avg)*scale_by);
@@ -1108,16 +1085,16 @@ template <class Nature>
 	}
 
 template <class Nature>
-	void	GenericImage<Nature>::power(BYTE channel, float exponent)
+	void	GenericImage<Nature>::Power(BYTE channel, float exponent)
 	{
-		if (!isColorMap())
+		if (!IsColorMap())
 			return;
 		Concurrency::parallel_for(dimension_t(0),image_height,[this,exponent,channel](dimension_t y)
 		{
 			for (dimension_t x = 0; x < image_width; x++)
 			{
-				F	val = pow(static_cast<F>(getPixel(x,y)[channel]) / static_cast<F>(max),exponent);
-				getPixel(x,y)[channel] = static_cast<T>(val * static_cast<F>(max));
+				F	val = pow(static_cast<F>(GetPixel(x,y)[channel]) / static_cast<F>(max),exponent);
+				GetPixel(x,y)[channel] = static_cast<T>(val * static_cast<F>(max));
 			}
 		});
 
@@ -1126,17 +1103,17 @@ template <class Nature>
 
 
 template <class Nature>
-	void GenericImage<Nature>::flipHorizontal()
+	void GenericImage<Nature>::FlipHorizontally()
 	{
-		if (isNormalMap() && image_channels >= 3)
+		if (IsNormalMap() && image_channels >= 3)
 		{
 			Concurrency::parallel_for(dimension_t(0),image_height,[this](dimension_t y)
 			{
 				TVec3<F> n0,n1;
 				for (dimension_t x = 0; x < image_width/2; x++)
 				{
-					getNormal(x,y,n0);
-					getNormal(image_width-x-1,y,n1);
+					GetNormal(x,y,n0);
+					GetNormal(image_width-x-1,y,n1);
 					n0.x *= -1;
 					n1.x *= -1;
 					setNormal(x,y,n1);
@@ -1152,8 +1129,8 @@ template <class Nature>
 					T buffer[0x100];
 					for (dimension_t x = 0; x < image_width/2; x++)
 					{
-						T	*lower = getPixel(x,y)+3,
-							*upper = getPixel(image_width-x-1,y)+3;
+						T	*lower = GetPixel(x,y)+3,
+							*upper = GetPixel(image_width-x-1,y)+3;
 						Vec::copyD(lower,buffer,range);
 						Vec::copyD(upper,lower,range);
 						Vec::copyD(buffer,upper,range);
@@ -1168,8 +1145,8 @@ template <class Nature>
 				T buffer[0x100];
 				for (dimension_t x = 0; x < image_width/2; x++)
 				{
-					Vec::copyD(getPixel(x,y),buffer,image_channels);
-					set(x,y,getPixel(image_width-x-1,y));
+					Vec::copyD(GetPixel(x,y),buffer,image_channels);
+					set(x,y,GetPixel(image_width-x-1,y));
 					set(image_width-x-1,y,buffer);
 				}
 			});
@@ -1179,17 +1156,17 @@ template <class Nature>
 
 
 template <class Nature>
-	void GenericImage<Nature>::flipVertical()
+	void GenericImage<Nature>::FlipVertically()
 	{
-		if (isNormalMap() && image_channels >= 3)
+		if (IsNormalMap() && image_channels >= 3)
 		{
 			Concurrency::parallel_for(dimension_t(0),image_width,[this](dimension_t x)
 			{
 				TVec3<F> n0,n1;
 				for (dimension_t y = 0; y < image_height/2; y++)
 				{
-					getNormal(x,y,n0);
-					getNormal(x,image_height-y-1,n1);
+					GetNormal(x,y,n0);
+					GetNormal(x,image_height-y-1,n1);
 					n0.y *= -1;
 					n1.y *= -1;
 					setNormal(x,y,n1);
@@ -1204,8 +1181,8 @@ template <class Nature>
 					T buffer[0x100];
 					for (dimension_t y = 0; y < image_height/2; y++)
 					{
-						T	*lower = getPixel(x,y)+3,
-							*upper = getPixel(x,image_height-y-1)+3;
+						T	*lower = GetPixel(x,y)+3,
+							*upper = GetPixel(x,image_height-y-1)+3;
 						Vec::copyD(lower,buffer,range);
 						Vec::copyD(upper,lower,range);
 						Vec::copyD(buffer,upper,range);
@@ -1220,8 +1197,8 @@ template <class Nature>
 				T buffer[0x100];
 				for (dimension_t y = 0; y < image_height/2; y++)
 				{
-					Vec::copyD(getPixel(x,y),buffer,image_channels);
-					set(x,y,getPixel(x,image_height-y-1));
+					Vec::copyD(GetPixel(x,y),buffer,image_channels);
+					set(x,y,GetPixel(x,image_height-y-1));
 					set(x,image_height-y-1,buffer);
 				}
 			});
@@ -1230,7 +1207,7 @@ template <class Nature>
 
 
 template <class Nature>
-	void GenericImage<Nature>::rotate90CW()
+	void GenericImage<Nature>::Rotate90CW()
 	{
 		GenericImage<Nature>	temp(image_height,image_width,image_channels);
 		temp.content_type = content_type;
@@ -1238,14 +1215,14 @@ template <class Nature>
 
 
 
-		if (isNormalMap())
+		if (IsNormalMap())
 		{
 			Concurrency::parallel_for(dimension_t(0),image_height,[this,&temp](dimension_t x)
 			{
 				for (dimension_t y = 0; y < image_width; y++)
 				{
 					TVec3<F> n;
-					getNormal(image_width-y-1,x,n);
+					GetNormal(image_width-y-1,x,n);
 					swp(n.x,n.y);
 					n.y *= -1;
 					temp.setNormal(x,y,n);
@@ -1256,27 +1233,27 @@ template <class Nature>
 			Concurrency::parallel_for(dimension_t(0),image_height,[this,&temp](dimension_t x)
 			{
 				for (dimension_t y = 0; y < image_width; y++)
-					temp.set(x,y,getPixel(image_width-y-1,x));
+					temp.set(x,y,GetPixel(image_width-y-1,x));
 			});
 
 		adoptData(temp);
 	}
 
 template <class Nature>
-	void GenericImage<Nature>::rotate90CCW()
+	void GenericImage<Nature>::Rotate90CCW()
 	{
 		GenericImage<Nature>	temp(image_height,image_width,image_channels);
 		temp.content_type = content_type;
 		temp.origin.adoptData(origin);
 
-		if (isNormalMap())
+		if (IsNormalMap())
 		{
 			Concurrency::parallel_for(dimension_t(0),image_height,[this,&temp](dimension_t x)
 			{
 				for (dimension_t y = 0; y < image_width; y++)
 				{
 					TVec3<F> n;
-					getNormal(image_width-y-1,x,n);
+					GetNormal(image_width-y-1,x,n);
 					swp(n.x,n.y);
 					n.x *= -1;
 					temp.setNormal(x,y,n);
@@ -1287,7 +1264,7 @@ template <class Nature>
 			Concurrency::parallel_for(dimension_t(0),image_height,[this,&temp](dimension_t x)
 			{
 				for (dimension_t y = 0; y < image_width; y++)
-					temp.set(x,y,getPixel(y,image_height-x-1));
+					temp.set(x,y,GetPixel(y,image_height-x-1));
 			});
 
 		adoptData(temp);
@@ -1301,39 +1278,39 @@ template <class Nature>
 
 
 template <class Nature>
-	bool GenericImage<Nature>::scaleHalf()
+	bool GenericImage<Nature>::ScaleHalf()
 	{
 		if (image_width<2 || image_height<2)
 			return false;
 		GenericImage<Nature>	temp(image_width/2,image_height/2,image_channels);
 		temp.content_type = content_type;
 		temp.origin.adoptData(origin);
-		if (! temp.scaleHalf(*this))
+		if (! temp.ScaleHalf(*this))
 			return false;
 		adoptData(temp);
 		return true;
 	}
 
 template <class Nature>
-	bool GenericImage<Nature>::scaleHalf(const Self&source)
+	bool GenericImage<Nature>::ScaleHalf(const Self&source)
 	{
-		setDimension(source.getWidth()/2,source.getHeight()/2,source.getChannels());
+		SetSize(source.GetWidth()/2,source.GetHeight()/2,source.GetChannels());
 		if (image_channels == 4)
 		{
 			Concurrency::parallel_for(dimension_t(0),image_width,[this,&source](dimension_t x)
 			{
 				for (dimension_t y = 0; y < image_height; y++)
-					if (isNormalMap())
+					if (IsNormalMap())
 					{
 						TVec3<F> norm0,norm1,norm2,norm3;
-						source.getNormal(x*2,y*2,norm0);
-						source.getNormal(x*2+1,y*2,norm1);
-						source.getNormal(x*2+1,y*2+1,norm2);
-						source.getNormal(x*2,y*2+1,norm3);
-						F a0 = toFloat(source.getPixel(x*2,y*2)[3]);
-						F a1 = toFloat(source.getPixel(x*2+1,y*2)[3]);
-						F a2 = toFloat(source.getPixel(x*2+1,y*2+1)[3]);
-						F a3 = toFloat(source.getPixel(x*2,y*2+1)[3]);
+						source.GetNormal(x*2,y*2,norm0);
+						source.GetNormal(x*2+1,y*2,norm1);
+						source.GetNormal(x*2+1,y*2+1,norm2);
+						source.GetNormal(x*2,y*2+1,norm3);
+						F a0 = toFloat(source.GetPixel(x*2,y*2)[3]);
+						F a1 = toFloat(source.GetPixel(x*2+1,y*2)[3]);
+						F a2 = toFloat(source.GetPixel(x*2+1,y*2+1)[3]);
+						F a3 = toFloat(source.GetPixel(x*2,y*2+1)[3]);
 						F aSum = a0 + a1 + a2 + a3;
 						if (aSum > 0)
 						{
@@ -1344,7 +1321,7 @@ template <class Nature>
 							Vec::div(norm0,aSum);
 							Vec::normalize0(norm0);
 							this->setNormal(x,y,norm0);
-							this->getPixel(x,y)[3] = floatToChannel(aSum/(F)4);
+							this->GetPixel(x,y)[3] = floatToChannel(aSum/(F)4);
 						}
 						else
 						{
@@ -1353,15 +1330,15 @@ template <class Nature>
 							Vec::add(norm0,norm3);
 							Vec::normalize0(norm0);
 							this->setNormal(x,y,norm0);
-							this->getPixel(x,y)[3] = 0;
+							this->GetPixel(x,y)[3] = 0;
 						}
 					}
 					else
 					{
-						const T	*p0 = source.getPixel(x*2,y*2),
-								*p1 = source.getPixel(x*2+1,y*2),
-								*p2 = source.getPixel(x*2+1,y*2+1),
-								*p3 = source.getPixel(x*2,y*2+1);
+						const T	*p0 = source.GetPixel(x*2,y*2),
+								*p1 = source.GetPixel(x*2+1,y*2),
+								*p2 = source.GetPixel(x*2+1,y*2+1),
+								*p3 = source.GetPixel(x*2,y*2+1);
 						F a0 = toFloat(p0[3]);
 						F a1 = toFloat(p1[3]);
 						F a2 = toFloat(p2[3]);
@@ -1395,13 +1372,13 @@ template <class Nature>
 			Concurrency::parallel_for(dimension_t(0),image_width,[this,&source](dimension_t x)
 			{
 				for (dimension_t y = 0; y < image_height; y++)
-					if (isNormalMap() && image_channels >= 3)
+					if (IsNormalMap() && image_channels >= 3)
 					{
 						TVec3<F> norm0,norm1,norm2,norm3;
-						source.getNormal(x*2,y*2,norm0);
-						source.getNormal(x*2+1,y*2,norm1);
-						source.getNormal(x*2+1,y*2+1,norm2);
-						source.getNormal(x*2,y*2+1,norm3);
+						source.GetNormal(x*2,y*2,norm0);
+						source.GetNormal(x*2+1,y*2,norm1);
+						source.GetNormal(x*2+1,y*2+1,norm2);
+						source.GetNormal(x*2,y*2+1,norm3);
 						Vec::add(norm0,norm1);
 						Vec::add(norm0,norm2);
 						Vec::add(norm0,norm3);
@@ -1411,11 +1388,11 @@ template <class Nature>
 						{
 							for (BYTE c = 3; c < image_channels; c++)
 							{
-								F col = source.getPixel(x*2,y*2)[c];
-								col += source.getPixel(x*2+1,y*2)[c];
-								col += source.getPixel(x*2+1,y*2+1)[c];
-								col += source.getPixel(x*2,y*2+1)[c];
-								this->setChannel(x,y,c,(T)(col/4));
+								F col = source.GetPixel(x*2,y*2)[c];
+								col += source.GetPixel(x*2+1,y*2)[c];
+								col += source.GetPixel(x*2+1,y*2+1)[c];
+								col += source.GetPixel(x*2,y*2+1)[c];
+								this->SetChannel(x,y,c,(T)(col/4));
 							}
 						}
 					}
@@ -1423,14 +1400,14 @@ template <class Nature>
 					{
 						for (BYTE c = 0; c < image_channels; c++)
 						{
-							F col = source.getPixel(x*2,y*2)[c];
-							col += source.getPixel(x*2+1,y*2)[c];
-							col += source.getPixel(x*2+1,y*2+1)[c];
-							col += source.getPixel(x*2,y*2+1)[c];
-							this->setChannel(x,y,c,(T)(col/4));
+							F col = source.GetPixel(x*2,y*2)[c];
+							col += source.GetPixel(x*2+1,y*2)[c];
+							col += source.GetPixel(x*2+1,y*2+1)[c];
+							col += source.GetPixel(x*2,y*2+1)[c];
+							this->SetChannel(x,y,c,(T)(col/4));
 						}
 		/*                if (!x && !y)
-							ShowMessage(_toString(temp.getPixel(x,y),image_channels));*/
+							ShowMessage(_toString(temp.GetPixel(x,y),image_channels));*/
 					}
 			});
 
@@ -1438,7 +1415,7 @@ template <class Nature>
 	}
 
 template <class Nature>
-	bool GenericImage<Nature>::scaleXHalf()
+	bool GenericImage<Nature>::ScaleXHalf()
 	{
 		if (image_width<2)
 			return false;
@@ -1449,18 +1426,18 @@ template <class Nature>
 		Concurrency::parallel_for(dimension_t(0),image_height,[this,&temp](dimension_t y)
 		{
 			for (dimension_t x = 0; x < image_width/2; x++)
-				if (isNormalMap() && image_channels == 3)
+				if (IsNormalMap() && image_channels == 3)
 				{
 					TVec3<F> norm0,norm1;
-					getNormal(x*2,y,norm0);
-					getNormal(x*2+1,y,norm1);
+					GetNormal(x*2,y,norm0);
+					GetNormal(x*2+1,y,norm1);
 					Vec::add(norm0,norm1);
 					Vec::normalize0(norm0);
 					temp.setNormal(x,y,norm0);
 				}
 				else
 					for (BYTE c = 0; c < image_channels; c++)
-						temp.setChannel(x,y,c,(T)(((F)this->getPixel(x*2,y)[c]+this->getPixel(x*2+1,y)[c])/2));
+						temp.SetChannel(x,y,c,(T)(((F)this->GetPixel(x*2,y)[c]+this->GetPixel(x*2+1,y)[c])/2));
 		});
 		adoptData(temp);
 		return true;
@@ -1468,7 +1445,7 @@ template <class Nature>
 
 
 template <class Nature>
-	bool GenericImage<Nature>::scaleYHalf()
+	bool GenericImage<Nature>::ScaleYHalf()
 	{
 		if (image_height<2)
 			return false;
@@ -1479,25 +1456,25 @@ template <class Nature>
 		Concurrency::parallel_for(dimension_t(0),image_width,[this,&temp](dimension_t x)
 		{
 			for (dimension_t y = 0; y < image_height/2; y++)
-				if (isNormalMap() && image_channels == 3)
+				if (IsNormalMap() && image_channels == 3)
 				{
 					TVec3<F> norm0,norm1;
-					getNormal(x,y*2,norm0);
-					getNormal(x,y*2+1,norm1);
+					GetNormal(x,y*2,norm0);
+					GetNormal(x,y*2+1,norm1);
 					Vec::add(norm0,norm1);
 					Vec::normalize0(norm0);
 					temp.setNormal(x,y,norm0);
 				}
 				else
 					for (BYTE c = 0; c < image_channels; c++)
-						temp.setChannel(x,y,c,(T)(((F)this->getPixel(x,y*2)[c]+this->getPixel(x,y*2+1)[c])/2));
+						temp.SetChannel(x,y,c,(T)(((F)this->GetPixel(x,y*2)[c]+this->GetPixel(x,y*2+1)[c])/2));
 		});
 		adoptData(temp);
 		return true;
 	}
 
 template <class Nature>
-	void GenericImage<Nature>::scaleDouble(bool loop)
+	void GenericImage<Nature>::ScaleDouble(bool loop)
 	{
 		if (image_width * 2 < image_width || image_height * 2 < image_height)
 			return;
@@ -1515,7 +1492,7 @@ template <class Nature>
 		Concurrency::parallel_for(dimension_t(0),image_width,[this,&temp](dimension_t x)
 		{
 			for (dimension_t y = 0; y < image_height; y++)
-				temp.set(x*2,y*2,getPixel(x,y));
+				temp.set(x*2,y*2,GetPixel(x,y));
 		});
     
 		if (!loop)
@@ -1524,27 +1501,27 @@ template <class Nature>
 			{
 				for (dimension_t y = 0; y < image_height-1; y++)
 					for (BYTE k = 0; k < image_channels; k++)
-						temp.setChannel(x*2,y*2+1,k,(T)(((F)getPixel(x,y)[k]+getPixel(x,y+1)[k])/2));
+						temp.SetChannel(x*2,y*2+1,k,(T)(((F)GetPixel(x,y)[k]+GetPixel(x,y+1)[k])/2));
 			});
 			Concurrency::parallel_for(dimension_t(0),image_width-1,[this,&temp](dimension_t x)
 			{
 				for (dimension_t y = 0; y < image_height; y++)
 					for (BYTE k = 0; k < image_channels; k++)
-						temp.setChannel(x*2+1,y*2,k,(T)(((F)getPixel(x,y)[k]+getPixel(x+1,y)[k])/2));
+						temp.SetChannel(x*2+1,y*2,k,(T)(((F)GetPixel(x,y)[k]+GetPixel(x+1,y)[k])/2));
 			});
 			Concurrency::parallel_for(dimension_t(0),image_width-1,[this,&temp](dimension_t x)
 			{
 				for (dimension_t y = 0; y < image_height-1; y++)
 					for (BYTE k = 0; k < image_channels; k++)
-						temp.setChannel(x*2+1,y*2+1,k,(T)(((F)getPixel(x,y)[k]+getPixel(x,y+1)[k]+getPixel(x+1,y+1)[k]+getPixel(x+1,y)[k])/4));
+						temp.SetChannel(x*2+1,y*2+1,k,(T)(((F)GetPixel(x,y)[k]+GetPixel(x,y+1)[k]+GetPixel(x+1,y+1)[k]+GetPixel(x+1,y)[k])/4));
 			});
 			Concurrency::parallel_for(dimension_t(0),image_height*2,[this,&temp](dimension_t y)
 			{
-				temp.set(image_width*2-1,y,temp.getPixel(image_width*2-2,y));
+				temp.set(image_width*2-1,y,temp.GetPixel(image_width*2-2,y));
 			});
 			Concurrency::parallel_for(dimension_t(0),image_width*2,[this,&temp](dimension_t x)
 			{
-				temp.set(x,image_height*2-1,temp.getPixel(x,image_height*2-2));
+				temp.set(x,image_height*2-1,temp.GetPixel(x,image_height*2-2));
 			});
 		}
 		else
@@ -1553,19 +1530,19 @@ template <class Nature>
 			{
 				for (dimension_t y = 0; y < image_height; y++)
 					for (BYTE k = 0; k < image_channels; k++)
-						temp.setChannel(x*2,y*2+1,k,(T)(((F)getPixel(x,y)[k]+getPixel(x,(y+1)%image_height)[k])/2));
+						temp.SetChannel(x*2,y*2+1,k,(T)(((F)GetPixel(x,y)[k]+GetPixel(x,(y+1)%image_height)[k])/2));
 			});
 			Concurrency::parallel_for(dimension_t(0),image_width,[this,&temp](dimension_t x)
 			{
 				for (dimension_t y = 0; y < image_height; y++)
 					for (BYTE k = 0; k < image_channels; k++)
-						temp.setChannel(x*2+1,y*2,k,(T)(((F)getPixel(x,y)[k]+getPixel((x+1)%image_width,y)[k])/2));
+						temp.SetChannel(x*2+1,y*2,k,(T)(((F)GetPixel(x,y)[k]+GetPixel((x+1)%image_width,y)[k])/2));
 			});
 			Concurrency::parallel_for(dimension_t(0),image_width,[this,&temp](dimension_t x)
 			{
 				for (dimension_t y = 0; y < image_height; y++)
 					for (BYTE k = 0; k < image_channels; k++)
-						temp.setChannel(x*2+1,y*2+1,k,(T)(((F)getPixel(x,y)[k]+getPixel(x,(y+1)%image_height)[k]+getPixel((x+1)%image_width,(y+1)%image_height)[k]+getPixel((x+1)%image_width,y)[k])/4));
+						temp.SetChannel(x*2+1,y*2+1,k,(T)(((F)GetPixel(x,y)[k]+GetPixel(x,(y+1)%image_height)[k]+GetPixel((x+1)%image_width,(y+1)%image_height)[k]+GetPixel((x+1)%image_width,y)[k])/4));
 			});
 		}
     
@@ -1574,7 +1551,7 @@ template <class Nature>
 	}
 
 template <class Nature>
-	void GenericImage<Nature>::scaleXDouble(bool loop)
+	void GenericImage<Nature>::ScaleXDouble(bool loop)
 	{
 		if (!image_width || image_width*2 < image_width)
 			return;
@@ -1586,30 +1563,30 @@ template <class Nature>
 		{
 			for (dimension_t x = 0; x < image_width; x++)
 			{
-				temp.set(x*2,y,this->getPixel(x,y));
+				temp.set(x*2,y,this->GetPixel(x,y));
 				if (x == image_width-1)
 					continue;
-				if (isNormalMap() && image_channels == 3)
+				if (IsNormalMap() && image_channels == 3)
 				{
 					TVec3<F> norm0,norm1;
-					getNormal(x,y,norm0);
-					getNormal(x+1,y,norm1);
+					GetNormal(x,y,norm0);
+					GetNormal(x+1,y,norm1);
 					Vec::add(norm0,norm1);
 					Vec::normalize0(norm0);
 					temp.setNormal(x*2+1,y,norm0);
 				}
 				else
 					for (BYTE c = 0; c < image_channels; c++)
-						temp.setChannel(x*2+1,y,c,(T)(((F)this->getPixel(x,y)[c]+this->getPixel(x+1,y)[c])/2));
+						temp.SetChannel(x*2+1,y,c,(T)(((F)this->GetPixel(x,y)[c]+this->GetPixel(x+1,y)[c])/2));
 			}
-			temp.set(image_width*2-1,y,this->getPixel(image_width-1,y));
+			temp.set(image_width*2-1,y,this->GetPixel(image_width-1,y));
 		});
 		adoptData(temp);
 
 	}
 
 template <class Nature>
-	void GenericImage<Nature>::scaleYDouble(bool loop)
+	void GenericImage<Nature>::ScaleYDouble(bool loop)
 	{
 		if (!image_height || image_height*2 < image_height)
 			return;
@@ -1621,53 +1598,53 @@ template <class Nature>
 		{
 			for (dimension_t y = 0; y < image_height; y++)
 			{
-				temp.set(x,y*2,this->getPixel(x,y));
+				temp.set(x,y*2,this->GetPixel(x,y));
 				if (y == image_height-1)
 					continue;
-				if (isNormalMap() && image_channels == 3)
+				if (IsNormalMap() && image_channels == 3)
 				{
 					TVec3<F> norm0,norm1;
-					getNormal(x,y,norm0);
-					getNormal(x,y+1,norm1);
+					GetNormal(x,y,norm0);
+					GetNormal(x,y+1,norm1);
 					Vec::add(norm0,norm1);
 					Vec::normalize0(norm0);
 					temp.setNormal(x,y*2+1,norm0);
 				}
 				else
 					for (BYTE c = 0; c < image_channels; c++)
-						temp.setChannel(x,y*2+1,c,(T)(((F)this->getPixel(x,y)[c]+this->getPixel(x,y+1)[c])/2));
+						temp.SetChannel(x,y*2+1,c,(T)(((F)this->GetPixel(x,y)[c]+this->GetPixel(x,y+1)[c])/2));
 			}
-			temp.set(x,image_height*2-1,this->getPixel(x,image_height-1));
+			temp.set(x,image_height*2-1,this->GetPixel(x,image_height-1));
 		});
 		adoptData(temp);
 	}
 
 
 template <class Nature>
-	bool GenericImage<Nature>::scaleTo(dimension_t width, dimension_t height)
+	bool GenericImage<Nature>::ScaleTo(dimension_t width, dimension_t height)
 	{
 		if (!image_width || !image_height)
 			return false;
 		while (image_width <= width/2)
-			scaleXDouble();
+			ScaleXDouble();
 		while (image_height <= height/2)
-			scaleYDouble();
+			ScaleYDouble();
 		while (image_width >= width*2)
-			scaleXHalf();
+			ScaleXHalf();
 		while (image_height >= height*2)
-			scaleYHalf();
+			ScaleYHalf();
 		return image_width == width && image_height == height;
 	}
 
 template <class Nature>
-	void GenericImage<Nature>::resample(dimension_t w, dimension_t h)
+	void GenericImage<Nature>::Resample(dimension_t w, dimension_t h)
 	{
-		if (scaleTo(w,h))
+		if (ScaleTo(w,h))
 			return;
 		GenericImage<Nature>	temp(w,h,image_channels);
 		temp.origin.adoptData(origin);
 		temp.setContentType(content_type);
-		if (isNormalMap())
+		if (IsNormalMap())
 		{
 			Concurrency::parallel_for(dimension_t(0),w,[this,&temp,w,h](dimension_t x)
 			{
@@ -1676,7 +1653,7 @@ template <class Nature>
 				{
 					sampleNormal((F)x/w,(F)y/h,(F)(x+1)/w,(F)(y+1)/h,normal);
 					temp.setNormal(x,y,normal);
-					//_c3(pixel,temp.getPixel(x,y));
+					//_c3(pixel,temp.GetPixel(x,y));
 				}
 			});
 		}
@@ -1694,7 +1671,7 @@ template <class Nature>
 	}
 
 template <class Nature>
-	void	GenericImage<Nature>::crop(dimension_t x, dimension_t y, dimension_t width, dimension_t height)
+	void	GenericImage<Nature>::Crop(dimension_t x, dimension_t y, dimension_t width, dimension_t height)
 	{
 		if (x >= image_width || y >= image_height)
 		{
@@ -1720,14 +1697,14 @@ template <class Nature>
 		
 		Concurrency::parallel_for(dimension_t(0),yext,[this,&temp,x,y,xext](dimension_t Y)
 		{
-			memcpy(temp.getPixel(0,Y),getPixel(x,y+Y),sizeof(T)*xext*image_channels);
+			memcpy(temp.GetPixel(0,Y),GetPixel(x,y+Y),sizeof(T)*xext*image_channels);
 		});
 
 		adoptData(temp);
 	}
 
 template <class Nature>
-	void GenericImage<Nature>::truncate(dimension_t width, dimension_t height)
+	void GenericImage<Nature>::Truncate(dimension_t width, dimension_t height)
 	{
 		if (image_width <= width && image_height <= height)
 			return;
@@ -1735,7 +1712,7 @@ template <class Nature>
 		GenericImage<Nature>	new_image(vmin(width,image_width),vmin(height,image_height),image_channels);
 		new_image.origin.adoptData(origin);
 		new_image.setContentType(content_type);
-		new_image.paint(this,0,0,IC_COPY);
+		new_image.Paint(this,0,0,IC_COPY);
 	
 		adoptData(new_image);
 	}
@@ -1744,7 +1721,7 @@ template <class Nature>
 template <typename T>
 	void ImageTemplate<T>::readFrom(const ImageTemplate<T>*other)
 	{
-		setDimensions(other->image_width,other->image_height,other->image_channels);
+		SetSize(other->image_width,other->image_height,other->image_channels);
 		content_type = other->content_type;
 		origin = other->origin;
 		read(other->image_data);
@@ -1760,7 +1737,7 @@ template <typename T>
 	bool	ImageTemplate<T>::columnIsOpaque(dimension_t x)	const
 	{
 		for (dimension_t y = 0; y < image_height; y++)
-			if (getPixel(x,y)[image_channels-1] != 0)
+			if (GetPixel(x,y)[image_channels-1] != 0)
 				return true;
 		return false;
 	}
@@ -1769,13 +1746,13 @@ template <typename T>
 	bool	ImageTemplate<T>::rowIsOpaque(dimension_t y)	const
 	{
 		for (dimension_t x = 0; x < image_width; x++)
-			if (getPixel(x,y)[image_channels-1] != 0)
+			if (GetPixel(x,y)[image_channels-1] != 0)
 				return true;
 		return false;
 	}
 
 template <typename T>
-	bool	ImageTemplate<T>::truncateToOpaque()
+	bool	ImageTemplate<T>::TruncateToOpaque()
 	{
 		if (image_channels != 4 && image_channels != 2)
 			return false;
@@ -1793,7 +1770,7 @@ template <typename T>
 			top--;
 		if (bottom == top || left == right)
 		{
-			setSize(0,0,image_channels);
+			SetSize(0,0,image_channels);
 			return true;
 		}
 		if (bottom == 0 && top == 0 && right == image_width && top == image_height)
@@ -1806,13 +1783,13 @@ template <typename T>
 			Concurrency::parallel_for(dimension_t(0),new_data.image_width,[this,&new_data,left,bottom](dimension_t x)
 			{
 				for (dimension_t y = 0; y < new_data.image_height; y++)
-					VecUnroll<4>::copy(getPixel(left+x,bottom+y),new_data.getPixel(x,y));
+					VecUnroll<4>::copy(GetPixel(left+x,bottom+y),new_data.GetPixel(x,y));
 			});
 		else
 			Concurrency::parallel_for(dimension_t(0),new_data.image_width,[this,&new_data,left,bottom](dimension_t x)
 			{
 				for (dimension_t y = 0; y < new_data.image_height; y++)
-					VecUnroll<2>::copy(getPixel(left+x,bottom+y),new_data.getPixel(x,y));
+					VecUnroll<2>::copy(GetPixel(left+x,bottom+y),new_data.GetPixel(x,y));
 			});
 		adoptData(new_data);
 		return true;
@@ -1820,7 +1797,7 @@ template <typename T>
 
 
 template <typename T>
-	bool	ImageTemplate<T>::exportRectangle(dimension_t xoffset, dimension_t yoffset, dimension_t w, dimension_t h, T*target)	const
+	bool	ImageTemplate<T>::ExportRectangle(dimension_t xoffset, dimension_t yoffset, dimension_t w, dimension_t h, T*target)	const
 	{
 		if (yoffset+h > image_height || xoffset+w > image_width)
 			return false;
@@ -1835,7 +1812,7 @@ template <typename T>
 	}
 
 template <typename T>
-	bool	ImageTemplate<T>::importRectangle(dimension_t xoffset, dimension_t yoffset, dimension_t w, dimension_t h, const T*target)
+	bool	ImageTemplate<T>::ImportRectangle(dimension_t xoffset, dimension_t yoffset, dimension_t w, dimension_t h, const T*target)
 	{
 		if (yoffset+h > image_height || xoffset+w > image_width)
 			return false;
@@ -1850,7 +1827,7 @@ template <typename T>
 
 template <class Nature>
 	template <typename Float>
-		bool	GenericImage<Nature>::importRectanglef(dimension_t xoffset, dimension_t yoffset, dimension_t w, dimension_t h, const Float*target)
+		bool	GenericImage<Nature>::ImportRectangleF(dimension_t xoffset, dimension_t yoffset, dimension_t w, dimension_t h, const Float*target)
 		{
 			if (yoffset+h > image_height || xoffset+w > image_width)
 				return false;
@@ -1869,7 +1846,7 @@ template <class Nature>
 
 template <class Nature>
 	template <typename Float>
-		bool	GenericImage<Nature>::exportRectanglef(dimension_t xoffset, dimension_t yoffset, dimension_t w, dimension_t h, Float*target) const
+		bool	GenericImage<Nature>::ExportRectangleF(dimension_t xoffset, dimension_t yoffset, dimension_t w, dimension_t h, Float*target) const
 		{
 			if (yoffset+h > image_height || xoffset+w > image_width)
 				return false;
@@ -1888,32 +1865,32 @@ template <class Nature>
 
 
 template <typename T>
-	void	ImageTemplate<T>::extractChannels(BYTE channel, BYTE c_num, ImageTemplate<T>&target)
+	void	ImageTemplate<T>::ExtractChannels(BYTE channel, BYTE c_num, ImageTemplate<T>&target)
 	{
 		if (channel+c_num > image_channels || !c_num)
 		{
 			target.free();
 			return;
 		}
-		target.setSize(image_width,image_height,c_num);
+		target.SetSize(image_width,image_height,c_num);
 		target.setContentType(content_type);
 		target.origin = origin;
 
 		Concurrency::parallel_for(dimension_t(0),image_width,[this,&target,channel](dimension_t x)
 		{
 			for (dimension_t y = 0; y < image_height; y++)
-				target.set(x,y,getPixel(x,y)+channel);
+				target.set(x,y,GetPixel(x,y)+channel);
 		});
 	}
 
 template <class Nature>
-	void	GenericImage<Nature>::fractalDouble(F noise_level, bool loop)
+	void	GenericImage<Nature>::FractalDouble(F noise_level, bool loop)
 	{
-		fractalDouble(noise_level,loop,rand());
+		FractalDouble(noise_level,loop,rand());
 	}
 
 template <class Nature>
-	void	GenericImage<Nature>::fractalDouble(F noise_level, bool loop, unsigned seed)
+	void	GenericImage<Nature>::FractalDouble(F noise_level, bool loop, unsigned seed)
 	{
 		if (!image_width || !image_height || !image_channels || image_width*2<image_width ||image_height*2<image_height)
 			return;
@@ -1942,8 +1919,8 @@ template <class Nature>
 			{
 				for (dimension_t y = 0; y < image_height; y++)
 				{
-					const T	*from = getPixel(x,y);
-					T		*to = new_image.getPixel(x*2,y*2);
+					const T	*from = GetPixel(x,y);
+					T		*to = new_image.GetPixel(x*2,y*2);
 					for (BYTE k = 0; k < image_channels; k++)
 						to[k] = from[k];
 				}
@@ -1967,11 +1944,11 @@ template <class Nature>
 
 				for (dimension_t y = 0; y+1 < image_height; y++)
 				{
-					const T		*from0 = getPixel(x,y),
-								*from1 = getPixel(x+1,y),
-								*from2 = getPixel(x+1,y+1),
-								*from3 = getPixel(x,y+1);
-					T			*to = new_image.getPixel(x*2+1,y*2+1);
+					const T		*from0 = GetPixel(x,y),
+								*from1 = GetPixel(x+1,y),
+								*from2 = GetPixel(x+1,y+1),
+								*from3 = GetPixel(x,y+1);
+					T			*to = new_image.GetPixel(x*2+1,y*2+1);
 					typedef _TYPENAME GenericImage<Nature>::ImageNature::float_type_t	F;
 					for (BYTE k = 0; k < image_channels; k++)
 						to[k] = GenericImage<Nature>::ImageNature::clamp(((F)from0[k]+(F)from1[k]+(F)from2[k]+(F)from3[k])/F(4)+(F(rnd())*F(2)-F(1))*noise_level);
@@ -2000,11 +1977,11 @@ template <class Nature>
 
 				for (dimension_t y = 0; y+1 < image_height; y++)
 				{
-					const T		*from0 = getPixel(x,y),
-								*from1 = new_image.getPixel(x*2+1,y*2+1),
-								*from2 = getPixel(x,y+1),
-								*from3 = new_image.getPixel(x*2-1,y*2+1);
-					T			*to = new_image.getPixel(x*2,y*2+1);
+					const T		*from0 = GetPixel(x,y),
+								*from1 = new_image.GetPixel(x*2+1,y*2+1),
+								*from2 = GetPixel(x,y+1),
+								*from3 = new_image.GetPixel(x*2-1,y*2+1);
+					T			*to = new_image.GetPixel(x*2,y*2+1);
 					typedef _TYPENAME GenericImage<Nature>::ImageNature::float_type_t	F;
 					for (BYTE k = 0; k < image_channels; k++)
 						to[k] = GenericImage<Nature>::ImageNature::clamp(((F)from0[k]+(F)from1[k]+(F)from2[k]+(F)from3[k])/F(4)+(F(rnd())*F(2)-F(1))*noise_level);
@@ -2031,10 +2008,10 @@ template <class Nature>
 				{
 					ImageRandomSource rnd((unsigned long)(seed+y*29+10234));
 
-					const T		*from0 = getPixel(0,y),
-								*from1 = new_image.getPixel(1,y*2+1),
-								*from2 = getPixel(0,y+1);
-					T			*to = new_image.getPixel(0,y*2+1);
+					const T		*from0 = GetPixel(0,y),
+								*from1 = new_image.GetPixel(1,y*2+1),
+								*from2 = GetPixel(0,y+1);
+					T			*to = new_image.GetPixel(0,y*2+1);
 					typedef _TYPENAME GenericImage<Nature>::ImageNature::float_type_t	F;
 					for (BYTE k = 0; k < image_channels; k++)
 						to[k] = GenericImage<Nature>::ImageNature::clamp(((F)from0[k]+(F)from1[k]+(F)from2[k])/F(3)+(F(rnd())*F(2)-F(1))*noise_level);
@@ -2061,10 +2038,10 @@ template <class Nature>
 				{
 					ImageRandomSource rnd((unsigned long)(seed+y*29+102349));
 
-					const T		*from0 = getPixel(image_width-1,y),
-								*from1 = getPixel(image_width-1,y+1),
-								*from2 = new_image.getPixel((image_width-1)*2-1,y*2+1);
-					T			*to = new_image.getPixel((image_width-1)*2,y*2+1);
+					const T		*from0 = GetPixel(image_width-1,y),
+								*from1 = GetPixel(image_width-1,y+1),
+								*from2 = new_image.GetPixel((image_width-1)*2-1,y*2+1);
+					T			*to = new_image.GetPixel((image_width-1)*2,y*2+1);
 					typedef _TYPENAME GenericImage<Nature>::ImageNature::float_type_t	F;
 					for (BYTE k = 0; k < image_channels; k++)
 						to[k] = GenericImage<Nature>::ImageNature::clamp(((F)from0[k]+(F)from1[k]+(F)from2[k])/F(3)+(F(rnd())*F(2)-F(1))*noise_level);
@@ -2092,11 +2069,11 @@ template <class Nature>
 
 				for (dimension_t y = 1; y+1 < image_height; y++)
 				{
-					const T		*from0 = getPixel(x,y),
-								*from1 = new_image.getPixel(x*2+1,y*2-1),
-								*from2 = getPixel(x+1,y),
-								*from3 = new_image.getPixel(x*2+1,y*2+1);
-					T			*to = new_image.getPixel(x*2+1,y*2);
+					const T		*from0 = GetPixel(x,y),
+								*from1 = new_image.GetPixel(x*2+1,y*2-1),
+								*from2 = GetPixel(x+1,y),
+								*from3 = new_image.GetPixel(x*2+1,y*2+1);
+					T			*to = new_image.GetPixel(x*2+1,y*2);
 					typedef _TYPENAME GenericImage<Nature>::ImageNature::float_type_t	F;
 					for (BYTE k = 0; k < image_channels; k++)
 						to[k] = GenericImage<Nature>::ImageNature::clamp(((F)from0[k]+(F)from1[k]+(F)from2[k]+(F)from3[k])/F(4)+(F(rnd())*F(2)-F(1))*noise_level);
@@ -2123,10 +2100,10 @@ template <class Nature>
 				{
 					ImageRandomSource rnd((unsigned long)(seed+x*29+1827349));
 
-					const T		*from0 = getPixel(x,0),
-								*from1 = getPixel(x+1,0),
-								*from2 = new_image.getPixel(x*2+1,1);
-					T			*to = new_image.getPixel(x*2+1,0);
+					const T		*from0 = GetPixel(x,0),
+								*from1 = GetPixel(x+1,0),
+								*from2 = new_image.GetPixel(x*2+1,1);
+					T			*to = new_image.GetPixel(x*2+1,0);
 					typedef _TYPENAME GenericImage<Nature>::ImageNature::float_type_t	F;
 					for (BYTE k = 0; k < image_channels; k++)
 						to[k] = GenericImage<Nature>::ImageNature::clamp(((F)from0[k]+(F)from1[k]+(F)from2[k])/F(3)+(F(rnd())*F(2)-F(1))*noise_level);
@@ -2151,10 +2128,10 @@ template <class Nature>
 				Concurrency::parallel_for(dimension_t(0),image_width-1,[this,&new_image,noise_level,seed](dimension_t x)
 				{
 					ImageRandomSource rnd((unsigned long)(seed+x*29+827349));
-					const T		*from0 = getPixel(x,image_height-1),
-								*from1 = new_image.getPixel(x*2+1,(image_height-1)*2-1),
-								*from2 = getPixel(x+1,image_height-1);
-					T			*to = new_image.getPixel(x*2+1,(image_height-1)*2);
+					const T		*from0 = GetPixel(x,image_height-1),
+								*from1 = new_image.GetPixel(x*2+1,(image_height-1)*2-1),
+								*from2 = GetPixel(x+1,image_height-1);
+					T			*to = new_image.GetPixel(x*2+1,(image_height-1)*2);
 					typedef _TYPENAME GenericImage<Nature>::ImageNature::float_type_t	F;
 					for (BYTE k = 0; k < image_channels; k++)
 						to[k] = GenericImage<Nature>::ImageNature::clamp(((F)from0[k]+(F)from1[k]+(F)from2[k])/F(3)+((F)rnd()*F(2)-F(1))*noise_level);
@@ -2186,8 +2163,8 @@ template <class Nature>
 			{
 				for (dimension_t y = 0; y < image_height; y++)
 				{
-					const T		*from = getPixel(x,y);
-					T			*to = new_image.getPixel(x*2,y*2);
+					const T		*from = GetPixel(x,y);
+					T			*to = new_image.GetPixel(x*2,y*2);
 					for (BYTE k = 0; k < image_channels; k++)
 						to[k] = from[k];
 				}
@@ -2212,11 +2189,11 @@ template <class Nature>
 
 				for (dimension_t y = 0; y < image_height; y++)
 				{
-					const T		*from0 = getPixel(x,y),
-								*from1 = getPixel((x+1)%image_width,y),
-								*from2 = getPixel((x+1)%image_width,(y+1)%image_height),
-								*from3 = getPixel(x,(y+1)%image_height);
-					T			*to = new_image.getPixel(x*2+1,y*2+1);
+					const T		*from0 = GetPixel(x,y),
+								*from1 = GetPixel((x+1)%image_width,y),
+								*from2 = GetPixel((x+1)%image_width,(y+1)%image_height),
+								*from3 = GetPixel(x,(y+1)%image_height);
+					T			*to = new_image.GetPixel(x*2+1,y*2+1);
 					typedef _TYPENAME GenericImage<Nature>::ImageNature::float_type_t	F;
 					for (BYTE k = 0; k < image_channels; k++)
 						to[k] = GenericImage<Nature>::ImageNature::clamp(((F)from0[k]+(F)from1[k]+(F)from2[k]+(F)from3[k])/F(4)+(F(rnd())*F(2)-F(1))*noise_level);
@@ -2246,11 +2223,11 @@ template <class Nature>
 
 				for (dimension_t y = 0; y < image_height; y++)
 				{
-					const T		*from0 = getPixel(x,y),
-								*from1 = new_image.getPixel(x*2+1,y*2+1),
-								*from2 = getPixel(x,(y+1)%image_height),
-								*from3 = new_image.getPixel(x>0?x*2-1:image_width*2-1,y*2+1);
-					T			*to = new_image.getPixel(x*2,y*2+1);
+					const T		*from0 = GetPixel(x,y),
+								*from1 = new_image.GetPixel(x*2+1,y*2+1),
+								*from2 = GetPixel(x,(y+1)%image_height),
+								*from3 = new_image.GetPixel(x>0?x*2-1:image_width*2-1,y*2+1);
+					T			*to = new_image.GetPixel(x*2,y*2+1);
 					typedef _TYPENAME GenericImage<Nature>::ImageNature::float_type_t	F;
 					for (BYTE k = 0; k < image_channels; k++)
 						to[k] = GenericImage<Nature>::ImageNature::clamp(((F)from0[k]+(F)from1[k]+(F)from2[k]+(F)from3[k])/F(4)+(F(rnd())*F(2)-F(1))*noise_level);
@@ -2281,11 +2258,11 @@ template <class Nature>
 
 				for (dimension_t y = 0; y < image_height; y++)
 				{
-					const T		*from0 = getPixel(x,y),
-								*from1 = new_image.getPixel(x*2+1,y>0?y*2-1:image_height*2-1),
-								*from2 = getPixel((x+1)%image_width,y),
-								*from3 = new_image.getPixel(x*2+1,y*2+1);
-					T			*to = new_image.getPixel(x*2+1,y*2);
+					const T		*from0 = GetPixel(x,y),
+								*from1 = new_image.GetPixel(x*2+1,y>0?y*2-1:image_height*2-1),
+								*from2 = GetPixel((x+1)%image_width,y),
+								*from3 = new_image.GetPixel(x*2+1,y*2+1);
+					T			*to = new_image.GetPixel(x*2+1,y*2);
 					typedef _TYPENAME GenericImage<Nature>::ImageNature::float_type_t	F;
 					for (BYTE k = 0; k < image_channels; k++)
 						to[k] = GenericImage<Nature>::ImageNature::clamp(((F)from0[k]+(F)from1[k]+(F)from2[k]+(F)from3[k])/F(4)+(F(rnd())*F(2)-F(1))*noise_level);
@@ -2297,7 +2274,7 @@ template <class Nature>
 	}
 
 template <class Nature>
-	void	GenericImage<Nature>::scaleChannel(BYTE channel, F factor)
+	void	GenericImage<Nature>::ScaleChannel(BYTE channel, F factor)
 	{
 		if (channel >= image_channels)
 			return;
@@ -2305,14 +2282,14 @@ template <class Nature>
 		{
 			for (dimension_t y = 0; y < image_height; y++)
 			{
-        		T&val = getPixel(x,y)[channel];
+        		T&val = GetPixel(x,y)[channel];
 				val = GenericImage<Nature>::ImageNature::clamp((F)val*factor);
 			}
 		});
 	}
 
 template <class Nature>
-	void	GenericImage<Nature>::scaleChannel(BYTE channel, F offset, F factor)
+	void	GenericImage<Nature>::ScaleChannel(BYTE channel, F offset, F factor)
 	{
 		if (channel >= image_channels)
 			return;
@@ -2320,7 +2297,7 @@ template <class Nature>
 		{
 			for (dimension_t y = 0; y < image_height; y++)
 			{
-        		T&val = getPixel(x,y)[channel];
+        		T&val = GetPixel(x,y)[channel];
 				val = GenericImage<Nature>::ImageNature::clamp(offset + (F)val*factor);
 			}
 		});
@@ -2328,15 +2305,15 @@ template <class Nature>
 
 
 template <class Nature>
-	void	GenericImage<Nature>::paint(const ImageTemplate<T>*other, dimension_t x, dimension_t y, BaseImage::combiner_t combiner)
+	void	GenericImage<Nature>::Paint(const ImageTemplate<T>*other, dimension_t x, dimension_t y, BaseImage::combiner_t combiner)
 	{
-		draw(other,x,y,combiner);
+		Draw(other,x,y,combiner);
 	}
 
 
 
 template <class Nature0>
-	void	GenericImage<Nature0>::draw(const ImageTemplate<T>*other, dimension_t x, dimension_t y, BaseImage::combiner_t combiner)
+	void	GenericImage<Nature0>::Draw(const ImageTemplate<T>*other, dimension_t x, dimension_t y, BaseImage::combiner_t combiner)
 	{
 		if (x >= image_width || y >= image_height)
 			return;
@@ -2369,8 +2346,8 @@ template <class Nature0>
 						{
 							for (dimension_t Y = 0; Y < yext; Y++)
 							{
-								T*p = getPixel(x+X,y+Y);
-								const T*o = other->getPixel(X,Y);
+								T*p = GetPixel(x+X,y+Y);
+								const T*o = other->GetPixel(X,Y);
 								p[0] = (T)(((F)p[0]*(max-o[3]) + (F)o[0]*o[3])/max);
 								p[1] = (T)(((F)p[1]*(max-o[3]) + (F)o[1]*o[3])/max);
 								p[2] = (T)(((F)p[2]*(max-o[3]) + (F)o[2]*o[3])/max);
@@ -2382,8 +2359,8 @@ template <class Nature0>
 						{
 							for (dimension_t Y = 0; Y < yext; Y++)
 							{
-								T*p = getPixel(x+X,y+Y);
-								const T*o = other->getPixel(X,Y);
+								T*p = GetPixel(x+X,y+Y);
+								const T*o = other->GetPixel(X,Y);
 								typedef _TYPENAME GenericImage<Nature0>::ImageNature::float_type_t	F;
 								F a = p[3]>0?vmin((F)o[3]/p[3],1):F(1);
 								p[0] = (T)(((F)p[0]*(1.0-a) + (F)o[0]*a));
@@ -2397,7 +2374,7 @@ template <class Nature0>
 						Concurrency::parallel_for(dimension_t(0),xext,[this,&other,x,y,yext,c_num](dimension_t X)
 						{
 							for (dimension_t Y = 0; Y < yext; Y++)
-								blend(x+X,y+Y,other->getPixel(X,Y),other->getPixel(X,Y)[3],c_num);
+								blend(x+X,y+Y,other->GetPixel(X,Y),other->GetPixel(X,Y)[3],c_num);
 						});
 					break;
 				}
@@ -2408,7 +2385,7 @@ template <class Nature0>
 					Concurrency::parallel_for(dimension_t(0),xext,[this,p,&other,x,y,yext,c_num](dimension_t X)
 					{
 						for (dimension_t Y = 0; Y < yext; Y++)
-							p->set(x+X,y+Y,other->getPixel(X,Y),c_num);
+							p->set(x+X,y+Y,other->GetPixel(X,Y),c_num);
 					});
 				}
 			break;
@@ -2417,8 +2394,8 @@ template <class Nature0>
 				{
 					for (dimension_t Y = 0; Y < yext; Y++)
 					{
-						T		*local = getPixel(x+X,y+Y);
-						const T	*remote = other->getPixel(X,Y);
+						T		*local = GetPixel(x+X,y+Y);
+						const T	*remote = other->GetPixel(X,Y);
 						typedef _TYPENAME GenericImage<Nature0>::ImageNature	Nature;
 						for (BYTE c = 0; c < c_num; c++)
 							local[c] = Nature::floatToChannel(Nature::toFloat(local[c]) * Nature::toFloat(remote[c]));
@@ -2430,8 +2407,8 @@ template <class Nature0>
 				{
 					for (dimension_t Y = 0; Y < yext; Y++)
 					{
-						T		*local = getPixel(x+X,y+Y);
-						const T	*remote = other->getPixel(X,Y);
+						T		*local = GetPixel(x+X,y+Y);
+						const T	*remote = other->GetPixel(X,Y);
 						typedef _TYPENAME GenericImage<Nature0>::ImageNature	Nature;
 						for (BYTE c = 0; c < c_num; c++)
 							local[c] = max-Nature::floatToChannel((Nature::toFloat(max-local[c])) * (Nature::toFloat(max-remote[c])));
@@ -2448,8 +2425,8 @@ template <class Nature0>
 						{
 							for (dimension_t Y = 0; Y < yext; Y++)
 							{
-								T		*p = getPixel(x+X,y+Y);
-								const T	*o = other->getPixel(X,Y);
+								T		*p = GetPixel(x+X,y+Y);
+								const T	*o = other->GetPixel(X,Y);
 								typedef _TYPENAME GenericImage<Nature0>::ImageNature::float_type_t	F;
 								typedef _TYPENAME GenericImage<Nature0>::ImageNature	Nature;
 								F weight = Nature::toFloat(o[3]);
@@ -2464,8 +2441,8 @@ template <class Nature0>
 						{
 							for (dimension_t Y = 0; Y < yext; Y++)
 							{
-								T		*p = getPixel(x+X,y+Y);
-								const T	*o = other->getPixel(X,Y);
+								T		*p = GetPixel(x+X,y+Y);
+								const T	*o = other->GetPixel(X,Y);
 								typedef _TYPENAME GenericImage<Nature0>::ImageNature::float_type_t	F;
 								typedef _TYPENAME GenericImage<Nature0>::ImageNature	Nature;
 								F weight = Nature::toFloat(o[3]);
@@ -2481,8 +2458,8 @@ template <class Nature0>
 						{
 							for (dimension_t Y = 0; Y < yext; Y++)
 							{
-								T		*local = getPixel(x+X,y+Y);
-								const T	*remote = other->getPixel(X,Y);
+								T		*local = GetPixel(x+X,y+Y);
+								const T	*remote = other->GetPixel(X,Y);
 								typedef _TYPENAME GenericImage<Nature0>::ImageNature::float_type_t	F;
 								typedef _TYPENAME GenericImage<Nature0>::ImageNature	Nature;
 								F weight = Nature::toFloat(remote[3]);
@@ -2499,8 +2476,8 @@ template <class Nature0>
 				{
 					for (dimension_t Y = 0; Y < yext; Y++)
 					{
-						T		*local = getPixel(x+X,y+Y);
-						const T	*remote = other->getPixel(X,Y);
+						T		*local = GetPixel(x+X,y+Y);
+						const T	*remote = other->GetPixel(X,Y);
 						typedef _TYPENAME GenericImage<Nature0>::ImageNature::float_type_t	F;
 						typedef _TYPENAME GenericImage<Nature0>::ImageNature	Nature;
 						for (BYTE c = 0; c < c_num; c++)
@@ -2515,13 +2492,13 @@ template <class Nature0>
 
 template <class Nature>
 	template <class Nature1>
-		void	GenericImage<Nature>::toNormalMap(GenericImage<Nature1>&target, F x_texel_distance, F y_texel_distance, F height_scale, bool seamless, BYTE height_channel)		const
+		void	GenericImage<Nature>::ToNormalMap(GenericImage<Nature1>&target, F x_texel_distance, F y_texel_distance, F height_scale, bool seamless, BYTE height_channel)		const
 		{
 			if (!image_channels)
 				return;
 			if (height_channel >= image_channels)
 				height_channel = image_channels-1;
-			target.setSize(image_width,image_height,3);
+			target.SetSize(image_width,image_height,3);
 			target.setContentType(PixelType::TangentSpaceNormal);
 	
 	
@@ -2538,17 +2515,17 @@ template <class Nature>
 							nextx = x+1<image_width?x+1:(seamless?0:image_width-1),
 							nexty = y+1<image_height?y+1:(seamless?0:image_height-1);
 		
-					const T		*px0 = getPixel(prevx,y),
-								*px1 = getPixel(nextx,y),
-								*py0 = getPixel(x,prevy),
-								*py1 = getPixel(x,nexty);
+					const T		*px0 = GetPixel(prevx,y),
+								*px1 = GetPixel(nextx,y),
+								*py0 = GetPixel(x,prevy),
+								*py1 = GetPixel(x,nexty);
 					F		dx = ((F)px1[height_channel]-(F)px0[height_channel])*x_bump_scale,
 							dy = ((F)py1[height_channel]-(F)py0[height_channel])*y_bump_scale;
 					TVec3<F>	n = {-dx,-dy,1};
 					Vec::normalize(n);
 					//cout << _toString(n);
 					target.setNormal(x,y,n);
-					//cout << " => "<<_toString(target.getPixel(x,y))<<" @"<<x_bump_scale << "x"<<y_bump_scale<< endl;
+					//cout << " => "<<_toString(target.GetPixel(x,y))<<" @"<<x_bump_scale << "x"<<y_bump_scale<< endl;
 				}
 			});
 			//cout << x_bump_scale << "x"<<y_bump_scale<<endl;
@@ -2558,13 +2535,13 @@ template <class Nature>
 
 template <class Nature>
 	template <class Nature1>
-		void	GenericImage<Nature>::toNormalMap(GenericImage<Nature1>&target, F intensity, bool seamless, BYTE height_channel)		const
+		void	GenericImage<Nature>::ToNormalMap(GenericImage<Nature1>&target, F intensity, bool seamless, BYTE height_channel)		const
 		{
 			if (!image_channels)
 				return;
 			if (height_channel >= image_channels)
 				height_channel = image_channels-1;
-			target.setSize(image_width,image_height,3);
+			target.SetSize(image_width,image_height,3);
 			target.setContentType(PixelType::TangentSpaceNormal);
 	
 	
@@ -2582,17 +2559,17 @@ template <class Nature>
 							nextx = x+1<image_width?x+1:(seamless?0:image_width-1),
 							nexty = y+1<image_height?y+1:(seamless?0:image_height-1);
 		
-					const T		*px0 = getPixel(prevx,y),
-								*px1 = getPixel(nextx,y),
-								*py0 = getPixel(x,prevy),
-								*py1 = getPixel(x,nexty);
+					const T		*px0 = GetPixel(prevx,y),
+								*px1 = GetPixel(nextx,y),
+								*py0 = GetPixel(x,prevy),
+								*py1 = GetPixel(x,nexty);
 					F		dx = ((F)px1[height_channel]-(F)px0[height_channel])*x_bump_scale,
 							dy = ((F)py1[height_channel]-(F)py0[height_channel])*y_bump_scale;
 					TVec3<F>	n = {-dx,-dy,1};
 					Vec::normalize(n);
 					//cout << _toString(n);
 					target.setNormal(x,y,n);
-					//cout << " => "<<_toString(target.getPixel(x,y))<<" @"<<x_bump_scale << "x"<<y_bump_scale<< endl;
+					//cout << " => "<<_toString(target.GetPixel(x,y))<<" @"<<x_bump_scale << "x"<<y_bump_scale<< endl;
 				}
 			});
 			//cout << x_bump_scale << "x"<<y_bump_scale<<endl;
@@ -2600,9 +2577,9 @@ template <class Nature>
 
 template <class Nature>
 	template <typename Float>
-		void	GenericImage<Nature>::getNormal(dimension_t X, dimension_t Y, TVec3<Float>&out) const
+		void	GenericImage<Nature>::GetNormal(dimension_t X, dimension_t Y, TVec3<Float>&out) const
 		{
-			const T*pixel = getPixel(X,Y);
+			const T*pixel = GetPixel(X,Y);
 			out.x = Nature::toNormalComponent(pixel[0]);
 			out.y = Nature::toNormalComponent(pixel[1]);
 			out.z = Nature::toNormalComponent(pixel[2]);
@@ -2610,12 +2587,12 @@ template <class Nature>
 
 template <class Nature>
 	template <typename Float>
-		bool GenericImage<Nature>::getNormalVerified(dimension_t X, dimension_t Y, TVec3<Float>&out)             const
+		bool GenericImage<Nature>::GetNormalVerified(dimension_t X, dimension_t Y, TVec3<Float>&out)             const
 		{
 			if (X >= image_width || Y >= image_height || image_channels<3)
 				return false;
 
-			const T*pixel = getPixel(X,Y);
+			const T*pixel = GetPixel(X,Y);
 			out.x = Nature::toNormalComponent(pixel[0]);
 			out.y = Nature::toNormalComponent(pixel[1]);
 			out.z = Nature::toNormalComponent(pixel[2]);
@@ -2627,7 +2604,7 @@ template <class Nature>
 	template <typename Float>
 		void	GenericImage<Nature>::setNormal(dimension_t X, dimension_t Y, const TVec3<Float>&data)
 		{
-			T*p = getPixel(X,Y);
+			T*p = GetPixel(X,Y);
 			//for (BYTE i = 0; i < 3; i++)
 			p[0] = Nature::normalComponentToChannel(data.x);
 			p[1] = Nature::normalComponentToChannel(data.y);
@@ -2638,16 +2615,16 @@ template <class Nature>
 	void GenericImage<Nature>::blend(dimension_t X, dimension_t Y, const T*data,T alpha)
 	{
 		typedef typename TypeInfo<T>::GreaterType::Type	GT;	//next larger type (floats map to themselves)
-		T*pixel = getPixel(X,Y);
+		T*pixel = GetPixel(X,Y);
 		for (BYTE k = 0; k < image_channels; k++)
 			pixel[k] = (GT(pixel[k])*(max-alpha) + GT(data[k])*alpha)/max;
 	}
 
 template <class Nature>
 	template <typename Float>
-		void GenericImage<Nature>::blendf(dimension_t X, dimension_t Y, const Float*data, Float alpha)
+		void GenericImage<Nature>::BlendF(dimension_t X, dimension_t Y, const Float*data, Float alpha)
 		{
-			T*pixel = getPixel(X,Y);
+			T*pixel = GetPixel(X,Y);
 			for (BYTE k = 0; k < image_channels; k++)
 				pixel[k] = (T)((F)pixel[k]*(1-alpha) + (F)(data[k]*alpha*F(max)));
 		}
@@ -2658,18 +2635,18 @@ template <class Nature>
 		typedef typename TypeInfo<T>::GreaterType::Type	GT;	//next larger type
 		if (channels > image_channels)
 			channels = image_channels;
-		T*pixel = getPixel(X,Y);
+		T*pixel = GetPixel(X,Y);
 		for (BYTE k = 0; k < channels; k++)
 			pixel[k] = (GT(pixel[k])*(max-alpha) + GT(data[k])*alpha)/max;
 	}
 
 template <class Nature>
 	template <typename Float>
-		void GenericImage<Nature>::blendf(dimension_t X, dimension_t Y, const Float*data, Float alpha, BYTE channels)
+		void GenericImage<Nature>::BlendF(dimension_t X, dimension_t Y, const Float*data, Float alpha, BYTE channels)
 		{
 			if (channels > image_channels)
 				channels = image_channels;
-			T*pixel = getPixel(X,Y);
+			T*pixel = GetPixel(X,Y);
 			for (BYTE k = 0; k < channels; k++)
 				pixel[k] = (T)((F)pixel[k]*(1-alpha) + (F)(data[k]*alpha*F(max)));
 		}
@@ -2681,10 +2658,10 @@ template <class Nature>
 	{
 		if (!cnt || !field)
 			return false;
-		unsigned w(field[0].getWidth()),h(field[0].getHeight());
-		BYTE channels_(field[0].getChannels());
+		unsigned w(field[0].GetWidth()),h(field[0].GetHeight());
+		BYTE channels_(field[0].GetChannels());
 		for (unsigned i = 1; i < cnt; i++)
-			if (field[i].getWidth() != w || field[i].getHeight() != h || field[i].getChannels() != channels_)
+			if (field[i].GetWidth() != w || field[i].GetHeight() != h || field[i].GetChannels() != channels_)
 				return true;
 
 		return false;
@@ -2695,10 +2672,10 @@ template <class Nature>
 	{
 		if (!cnt || !field)
 			return false;
-		unsigned w(field[0]->getWidth()),h(field[0]->getHeight());
-		BYTE channels_(field[0]->getChannels());
+		unsigned w(field[0]->GetWidth()),h(field[0]->GetHeight());
+		BYTE channels_(field[0]->GetChannels());
 		for (unsigned i = 1; i < cnt; i++)
-			if (field[i]->getWidth() != w || field[i]->getHeight() != h || field[i]->getChannels() != channels_)
+			if (field[i]->GetWidth() != w || field[i]->GetHeight() != h || field[i]->GetChannels() != channels_)
 				return true;
 		return false;
 	}
@@ -2711,25 +2688,25 @@ template <class Nature>
 	{
 		if (!cnt || !field)
 			return;
-		unsigned w(field->getWidth()),h(field->getHeight());
-		BYTE channels_(field->getChannels());
+		unsigned w(field->GetWidth()),h(field->GetHeight());
+		BYTE channels_(field->GetChannels());
 		for (unsigned i = 1; i < cnt; i++)
 		{
-			if (field[i].getWidth() > w)
-				w = field[i].getWidth();
-			if (field[i].getHeight() > h)
-				h = field[i].getHeight();
-			if (field[i].getChannels() > channels_)
-				channels_ = field[i].getChannels();
+			if (field[i].GetWidth() > w)
+				w = field[i].GetWidth();
+			if (field[i].GetHeight() > h)
+				h = field[i].GetHeight();
+			if (field[i].GetChannels() > channels_)
+				channels_ = field[i].GetChannels();
 		}
 		for (unsigned i = 0; i < cnt; i++)
 		{
-			if (!field[i].scaleTo(w,h))
-				field[i].resample(w,h);
-			BYTE difference = channels_-field[i].getChannels();
-			field[i].setChannels(channels_);
+			if (!field[i].ScaleTo(w,h))
+				field[i].Resample(w,h);
+			BYTE difference = channels_-field[i].GetChannels();
+			field[i].SetChannels(channels_);
 			for (BYTE k = channels_-difference; k < channels_; k++)
-				field[i].setChannel(k,(BYTE)0x100);
+				field[i].SetChannel(k,(BYTE)0x100);
 		}
 	}
 
@@ -2743,22 +2720,22 @@ template <class Nature>
 		for (unsigned i = 0; i < cnt; i++)
 			if (field[i])
 			{
-				if (field[i]->getWidth() > w)
-					w = field[i]->getWidth();
-				if (field[i]->getHeight() > h)
-					h = field[i]->getHeight();
-				if (field[i]->getChannels() > channels_)
-					channels_ = field[i]->getChannels();
+				if (field[i]->GetWidth() > w)
+					w = field[i]->GetWidth();
+				if (field[i]->GetHeight() > h)
+					h = field[i]->GetHeight();
+				if (field[i]->GetChannels() > channels_)
+					channels_ = field[i]->GetChannels();
 			}
 		for (unsigned i = 0; i < cnt; i++)
 			if (field[i])
 			{
-				if (!field[i]->scaleTo(w,h))
-					field[i]->resample(w,h);
-				BYTE difference = channels_-field[i]->getChannels();
-				field[i]->setChannels(channels_);
+				if (!field[i]->ScaleTo(w,h))
+					field[i]->Resample(w,h);
+				BYTE difference = channels_-field[i]->GetChannels();
+				field[i]->SetChannels(channels_);
 				for (BYTE k = channels_-difference; k < channels_; k++)
-					field[i]->setChannel(k,(BYTE)0x100);
+					field[i]->SetChannel(k,(BYTE)0x100);
 			}
 	}
 

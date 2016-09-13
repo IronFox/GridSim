@@ -52,9 +52,9 @@ static USHORT tgaIndex(BYTE*index, BYTE bpp)
 
 static void tgaLinearPixel(unsigned index,Image&target,BYTE*color)
 {
-    unsigned x = index % target.getWidth(),
-             y = index / target.getWidth();
-    if (y >= target.getHeight())
+    unsigned x = index % target.GetWidth(),
+             y = index / target.GetWidth();
+    if (y >= target.GetHeight())
         return;
     target.set(x,y,color);
 }
@@ -84,7 +84,7 @@ void	TGA::LoadFromFilePointer(Image&target, FILE*f)
     if (type == TGA_EMPTY)
     {
 		target.setContentType(PixelType::Color);
-        target.setDimensions(0,0,3);
+        target.SetSize(0,0,3);
         return;
     }
     bool valid = (type < 4 || (type > 8 && type < 12) || type == 32 || type==33);
@@ -119,8 +119,8 @@ void	TGA::LoadFromFilePointer(Image&target, FILE*f)
 
     if (map_type)
     {
-        color_map.setSize(map_size);
-        final_map.setSize(map_len);
+        color_map.SetSize(map_size);
+        final_map.SetSize(map_len);
         read(color_map.pointer(),map_size,f);
         for (unsigned i = 0; i < map_len; i++)
             tgaColor(color_map,i*3,map_bpp,&final_map[i*map_stride]);
@@ -138,10 +138,10 @@ void	TGA::LoadFromFilePointer(Image&target, FILE*f)
     unsigned size = (unsigned)width*height*pixel_stride;
     if (type > 3)
         size = fsize-18-map_size;
-	image.setSize(size);
+	image.SetSize(size);
     read(image.pointer(),size,f);
 	target.setContentType(PixelType::Color);
-    target.setDimensions(width,height,image_bpp<=24?3:4);
+    target.SetSize(width,height,image_bpp<=24?3:4);
     switch (type)
     {
         case TGA_MAPPED:

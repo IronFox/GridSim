@@ -1497,7 +1497,7 @@ namespace System
 		unsigned num_threads = getProcessorCount();
 		if (reduced && num_threads>1)
 			num_threads--;
-		workers.setSize(num_threads);
+		workers.SetSize(num_threads);
 		
 		
 
@@ -1714,7 +1714,7 @@ namespace System
 		
 	
 			count_t num_threads = getProcessorCount();
-			workers.setSize(num_threads);
+			workers.SetSize(num_threads);
 		
 		
 

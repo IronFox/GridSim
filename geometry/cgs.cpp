@@ -266,7 +266,7 @@ void		TextureA::downSample(BYTE modifier, String*error_out)
 		else
 			header.y_exp = 1;
 		
-		extracted.scaleTo(1<<header.x_exp,1<<header.y_exp);
+		extracted.ScaleTo(1<<header.x_exp,1<<header.y_exp);
 		TextureCompression::compress(extracted,face_field[i]);
 	}
 	updateHash();
@@ -300,7 +300,7 @@ void	TextureA::limitSizeExponent(BYTE max_exponent, String*error_out)
 		if (header.y_exp > max_exponent)
 			header.y_exp = max_exponent;
 		
-		extracted.scaleTo(1<<header.x_exp,1<<header.y_exp);
+		extracted.ScaleTo(1<<header.x_exp,1<<header.y_exp);
 		TextureCompression::compress(extracted,face_field[i]);
 	}
 	updateHash();

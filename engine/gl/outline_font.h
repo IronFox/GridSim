@@ -35,10 +35,10 @@ namespace Engine
 	        void                make(HDC hDC, const char*font_name=NULL, int size=16, FontStyle style=Normal);
 			void				unmake();
 	        
-	        float               getWidth(const char*str);
-	        float               getWidth(const char*str, size_t len);
-	        float               getWidth(char);
-			float				getHeight()	{return size;}
+	        float               GetWidth(const char*str);
+	        float               GetWidth(const char*str, size_t len);
+	        float               GetWidth(char);
+			float				GetHeight()	{return size;}
 	        void                begin(const TFontState&state);
 	        void                alterColor(const TFontColor&color);
 	        void                write(const char*str);

@@ -51,9 +51,9 @@ void RandomAccessFile::applyBufferSize(unsigned new_size)
 }
 
 
-bool RandomAccessFile::openStream(bool truncate)
+bool RandomAccessFile::openStream(bool Truncate)
 {
-    if (truncate)
+    if (Truncate)
     {
         f = FOPEN(filename,"w+b");
         writable = write_access = f != NULL;

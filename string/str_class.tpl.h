@@ -3963,7 +3963,7 @@ template <typename T0, typename T1, typename T2>
 			return;
 		if (!*delimiter)
 		{
-			result.setSize(1);
+			result.SetSize(1);
 			result[0] = string;
 			return;
 		}
@@ -3982,7 +3982,7 @@ template <typename T0, typename T1, typename T2>
 			else
 				break;
 		}
-		result.setSize(count);
+		result.SetSize(count);
 		at = string;
 		count = 0;
 		while (*at)
@@ -4009,7 +4009,7 @@ template <typename T0, typename T1, typename T2>
 			return;
 		if (!*delimiter)
 		{
-			result.setSize(1);
+			result.SetSize(1);
 			result[0] = string;
 			return;
 		}
@@ -4028,7 +4028,7 @@ template <typename T0, typename T1, typename T2>
 			else
 				break;
 		}
-		result.setSize(count);
+		result.SetSize(count);
 		at = string.c_str();
 		count = 0;
 		while (*at)
@@ -4090,7 +4090,7 @@ template <typename T0, typename T1>
 			else
 				break;
 		}
-		result.setSize(count);
+		result.SetSize(count);
 		at = string;
 		count = 0;
 		while (*at)
@@ -4126,7 +4126,7 @@ template <typename T0, typename T1>
 				break;
 		}
 
-		result.setSize(count);
+		result.SetSize(count);
 		at = string.c_str();
 		count = 0;
 		while (*at)
@@ -4162,7 +4162,7 @@ template <typename T0, typename T1>
 			else
 				break;
 		}
-		result.setSize(count);
+		result.SetSize(count);
 		at = string;
 		count = 0;
 		while (*at)
@@ -4198,7 +4198,7 @@ template <typename T0, typename T1>
 				break;
 		}
 
-		result.setSize(count);
+		result.SetSize(count);
 		at = string.c_str();
 		count = 0;
 		while (*at)
@@ -4548,7 +4548,7 @@ template <typename T0, typename T1, typename T2>
 		RunTWrap(string,max_line_length,lengthFunction,[&lines](const ReferenceExpression<T0>&)	{lines++;});
 
 		
-		result.setSize(lines);
+		result.SetSize(lines);
 		index_t at = 0;
 		RunTWrap(string,max_line_length,lengthFunction,[&result,&at](const ReferenceExpression<T0>&exp)
 		{

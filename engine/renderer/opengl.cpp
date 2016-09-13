@@ -320,7 +320,7 @@ namespace Engine
 					vertex_transformations << "gl_TexCoord["<<i<<"] = gl_TextureMatrix["<<i<<"] * gl_MultiTexCoord"<<i<<";\n";
 				else
 					vertex_transformations << "gl_TexCoord["<<i<<"] = gl_MultiTexCoord"<<i<<";\n";
-				if (layer.isNormalMap())
+				if (layer.IsNormalMap())
 				{
 					if (num_normal_maps++)
 						fragment_transformations << "normal += ";
@@ -403,7 +403,7 @@ namespace Engine
 				const MaterialLayer&layer = config.layers[i];
 				if (config.textures[i].dimension() == TextureDimension::None)
 					continue;
-				if (layer.isNormalMap())
+				if (layer.IsNormalMap())
 					continue;
 				if (layer.combiner == GL_DECAL)
 					continue;
@@ -433,7 +433,7 @@ namespace Engine
 				const MaterialLayer&layer = config.layers[i];
 				if (config.textures[i].dimension() == TextureDimension::None)
 					continue;
-				if (layer.isNormalMap())
+				if (layer.IsNormalMap())
 					continue;
 				if (layer.combiner != GL_DECAL)
 					continue;
@@ -736,12 +736,12 @@ namespace Engine
 		{
 			if (!handle)
 				return false;
-			target.setSize(texture_width,texture_height,texture_channels);
+			target.SetSize(texture_width,texture_height,texture_channels);
 			ContextLock	context_lock;
 
 			glPushAttrib(GL_TEXTURE_BIT);
 				glBindTexture(GL_TEXTURE_2D,handle);
-				glGetTexImage(GL_TEXTURE_2D,0,texture_channels==3?GL_RGB:GL_RGBA,GL_UNSIGNED_BYTE,target.getData());
+				glGetTexImage(GL_TEXTURE_2D,0,texture_channels==3?GL_RGB:GL_RGBA,GL_UNSIGNED_BYTE,target.GetData());
 			glPopAttrib();
 			return true;
 		}
@@ -977,14 +977,14 @@ namespace Engine
 			BYTE channels;
 			PixelType pt;
 			Decode(config.colorTarget[target_index].textureFormat, channels,pt);
-			target.setSize(config.resolution.width,config.resolution.height,channels);
+			target.SetSize(config.resolution.width,config.resolution.height,channels);
 			target.setContentType(pt);
 
 			ContextLock	context_lock;
 
 			glPushAttrib(GL_TEXTURE_BIT);
 				glBindTexture(GL_TEXTURE_2D,config.colorTarget[target_index].textureHandle);
-				glGetTexImage(GL_TEXTURE_2D,0,formatToOrder(config.colorTarget[target_index].textureFormat),GL_FLOAT,target.getData());
+				glGetTexImage(GL_TEXTURE_2D,0,formatToOrder(config.colorTarget[target_index].textureFormat),GL_FLOAT,target.GetData());
 			glPopAttrib();
 			return true;
 		}
@@ -996,14 +996,14 @@ namespace Engine
 			BYTE channels;
 			PixelType pt;
 			Decode(config.colorTarget[target_index].textureFormat, channels,pt);
-			target.setSize(config.resolution.width,config.resolution.height,channels);
+			target.SetSize(config.resolution.width,config.resolution.height,channels);
 			target.setContentType(pt);
 
 			ContextLock	context_lock;
 
 			glPushAttrib(GL_TEXTURE_BIT);
 				glBindTexture(GL_TEXTURE_2D,config.colorTarget[target_index].textureHandle);
-				glGetTexImage(GL_TEXTURE_2D,0,formatToOrder(config.colorTarget[target_index].textureFormat),GL_FLOAT,target.getData());
+				glGetTexImage(GL_TEXTURE_2D,0,formatToOrder(config.colorTarget[target_index].textureFormat),GL_FLOAT,target.GetData());
 			glPopAttrib();
 			return true;
 		}
@@ -1015,14 +1015,14 @@ namespace Engine
 			BYTE channels;
 			PixelType pt;
 			Decode(config.colorTarget[target_index].textureFormat, channels,pt);
-			target.setSize(config.resolution.width,config.resolution.height,channels);
+			target.SetSize(config.resolution.width,config.resolution.height,channels);
 			target.setContentType(pt);
 
 			ContextLock	context_lock;
 
 			glPushAttrib(GL_TEXTURE_BIT);
 				glBindTexture(GL_TEXTURE_2D,config.colorTarget[target_index].textureHandle);
-				glGetTexImage(GL_TEXTURE_2D,0,formatToOrder(config.colorTarget[target_index].textureFormat),GL_UNSIGNED_BYTE,target.getData());
+				glGetTexImage(GL_TEXTURE_2D,0,formatToOrder(config.colorTarget[target_index].textureFormat),GL_UNSIGNED_BYTE,target.GetData());
 			glPopAttrib();
 			return true;
 		}
@@ -1438,21 +1438,21 @@ namespace Engine
 	void	OpenGL::Capture(Image&target)
 	{
 		DBG_ASSERT__(hasCurrentContext());
-		if (target.getChannels() != 3 && target.getChannels() != 4)
-			target.setChannels(3);
+		if (target.GetChannels() != 3 && target.GetChannels() != 4)
+			target.SetChannels(3);
 		//set pixel read 
 		glGetError();
-		glReadPixels(0,0,target.getWidth(),target.getHeight(),  target.getChannels()==4?GL_RGBA:GL_RGB,GL_UNSIGNED_BYTE,target.getData());
+		glReadPixels(0,0,target.GetWidth(),target.GetHeight(),  target.GetChannels()==4?GL_RGBA:GL_RGB,GL_UNSIGNED_BYTE,target.GetData());
 		ASSERT_EQUAL__(glGetError(), GL_NO_ERROR);
 	}
 
 	void	OpenGL::Capture(FloatImage&target)
 	{
 		DBG_ASSERT__(hasCurrentContext());
-		if (target.getChannels() != 3 && target.getChannels() != 4)
-			target.setChannels(3);
+		if (target.GetChannels() != 3 && target.GetChannels() != 4)
+			target.SetChannels(3);
 		glGetError();
-		glReadPixels(0,0,target.getWidth(),target.getHeight(),  target.getChannels()==4?GL_RGBA:GL_RGB,GL_FLOAT,target.getData());
+		glReadPixels(0,0,target.GetWidth(),target.GetHeight(),  target.GetChannels()==4?GL_RGBA:GL_RGB,GL_FLOAT,target.GetData());
 		ASSERT_EQUAL__(glGetError(), GL_NO_ERROR);
 	}
 	
@@ -1756,31 +1756,31 @@ namespace Engine
 	{
 		GL_BEGIN
 			cout << format << "/"<<internal_format<<endl;
-		if (img->getContentType() == Image::ColorMap)
+		if (img->GetContentType() == Image::ColorMap)
 		{
-			if (glGenerateMipmap && img->getHeight() > 1)
+			if (glGenerateMipmap && img->GetHeight() > 1)
 			{
-				glTexImage2D(GL_TEXTURE_2D,0,internal_format,img->getWidth(),img->getHeight(),0,format,GL_FLOAT,img->getData());
+				glTexImage2D(GL_TEXTURE_2D,0,internal_format,img->GetWidth(),img->GetHeight(),0,format,GL_FLOAT,img->GetData());
 				glGenerateMipmap(GL_TEXTURE_2D);
 			}
 			else
 			{
-				if (img->getHeight() > 1)
-					gluBuild2DMipmaps(GL_TEXTURE_2D,internal_format,img->getWidth(),img->getHeight(),format,GL_FLOAT,img->getData());
+				if (img->GetHeight() > 1)
+					gluBuild2DMipmaps(GL_TEXTURE_2D,internal_format,img->GetWidth(),img->GetHeight(),format,GL_FLOAT,img->GetData());
 				else
-					gluBuild1DMipmaps(GL_TEXTURE_1D,internal_format,img->getWidth(),format, GL_FLOAT, img->getData());
+					gluBuild1DMipmaps(GL_TEXTURE_1D,internal_format,img->GetWidth(),format, GL_FLOAT, img->GetData());
 			}
 			GL_END
 			return;
 		}
 
 		FloatImage clone (*img);
-		if (clone.getChannels() != 4)
+		if (clone.GetChannels() != 4)
 		{
-			clone.setChannels(4);
-			clone.setChannel(3,1.0f);
+			clone.SetChannels(4);
+			clone.SetChannel(3,1.0f);
 		}
-		GLenum target = img->getHeight()>1?GL_TEXTURE_2D:GL_TEXTURE_1D;
+		GLenum target = img->GetHeight()>1?GL_TEXTURE_2D:GL_TEXTURE_1D;
 
 
 		glTexImage2D(target,0,GL_RGBA32F_ARB,clone.width(),clone.height(),0,GL_RGBA,GL_FLOAT,clone.data());
@@ -1789,8 +1789,8 @@ namespace Engine
 			UINT32 layer(1);
 			while (true)
 			{
-				bool	x = clone.scaleXHalf(),
-						y = clone.scaleYHalf();
+				bool	x = clone.ScaleXHalf(),
+						y = clone.ScaleYHalf();
 				if (!x && !y)
 				{
 					GL_END
@@ -1806,38 +1806,38 @@ namespace Engine
 	void OpenGL::loadTexture(const Image&img, bool use_mipmap, GLuint type, BYTE face)
 	{
 		GL_BEGIN
-		if (img.getContentType() == Image::ColorMap)
+		if (img.GetContentType() == Image::ColorMap)
 		{
 			if (glGenerateMipmap)
-				glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X+face,0,img.getChannels(),img.getWidth(),img.getHeight(),0,type,GL_UNSIGNED_BYTE,img.getData());
+				glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X+face,0,img.GetChannels(),img.GetWidth(),img.GetHeight(),0,type,GL_UNSIGNED_BYTE,img.GetData());
 			else
-				gluBuild2DMipmaps(GL_TEXTURE_CUBE_MAP_POSITIVE_X+face,img.getChannels(),img.getWidth(),img.getHeight(),type,GL_UNSIGNED_BYTE,img.getData());
+				gluBuild2DMipmaps(GL_TEXTURE_CUBE_MAP_POSITIVE_X+face,img.GetChannels(),img.GetWidth(),img.GetHeight(),type,GL_UNSIGNED_BYTE,img.GetData());
 			GL_END
 			return;
 		}
 
 		Image clone(img);
-		if (clone.getChannels() != 4)
+		if (clone.GetChannels() != 4)
 		{
-			clone.setChannels(4);
-			clone.setChannel(3,255);
+			clone.SetChannels(4);
+			clone.SetChannel(3,255);
 		}
 
 
-		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X+face,0,GL_RGBA,clone.getWidth(),clone.getHeight(),0,GL_RGBA,GL_UNSIGNED_BYTE,clone.getData());
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X+face,0,GL_RGBA,clone.GetWidth(),clone.GetHeight(),0,GL_RGBA,GL_UNSIGNED_BYTE,clone.GetData());
 		if (use_mipmap)
 		{
 			UINT32 layer(1);
 			while (true)
 			{
-				bool x = clone.scaleXHalf(),
-						y = clone.scaleYHalf();
+				bool x = clone.ScaleXHalf(),
+						y = clone.ScaleYHalf();
 				if (!x && !y)
 				{
 					GL_END
 					return;
 				}
-				glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X+face,layer++,GL_RGBA,clone.getWidth(), clone.getHeight(),0,GL_RGBA,GL_UNSIGNED_BYTE,clone.getData());
+				glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X+face,layer++,GL_RGBA,clone.GetWidth(), clone.GetHeight(),0,GL_RGBA,GL_UNSIGNED_BYTE,clone.GetData());
 			}
 		}
 		GL_END
@@ -1849,38 +1849,38 @@ namespace Engine
 	{
 			cout << format << "/"<<internal_format<<endl;
 		GL_BEGIN
-		if (img.getContentType() == Image::ColorMap)
+		if (img.GetContentType() == Image::ColorMap)
 		{
 			if (glGenerateMipmap)
-				glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X+face,0,internal_format,img.getWidth(),img.getHeight(),0,format,GL_FLOAT,img.getData());
+				glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X+face,0,internal_format,img.GetWidth(),img.GetHeight(),0,format,GL_FLOAT,img.GetData());
 			else
-				gluBuild2DMipmaps(GL_TEXTURE_CUBE_MAP_POSITIVE_X+face,internal_format,img.getWidth(),img.getHeight(),format,GL_FLOAT,img.getData());
+				gluBuild2DMipmaps(GL_TEXTURE_CUBE_MAP_POSITIVE_X+face,internal_format,img.GetWidth(),img.GetHeight(),format,GL_FLOAT,img.GetData());
 			GL_END
 			return;
 		}
 
 		FloatImage clone(img);
-		if (clone.getChannels() != 4)
+		if (clone.GetChannels() != 4)
 		{
-			clone.setChannels(4);
-			clone.setChannel(3,1.0f);
+			clone.SetChannels(4);
+			clone.SetChannel(3,1.0f);
 		}
 
 
-		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X+face,0,GL_RGBA32F_ARB,clone.getWidth(),clone.getHeight(),0,GL_RGBA,GL_FLOAT,clone.getData());
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X+face,0,GL_RGBA32F_ARB,clone.GetWidth(),clone.GetHeight(),0,GL_RGBA,GL_FLOAT,clone.GetData());
 		if (use_mipmap)
 		{
 			UINT32 layer(1);
 			while (true)
 			{
-				bool x = clone.scaleXHalf(),
-						y = clone.scaleYHalf();
+				bool x = clone.ScaleXHalf(),
+						y = clone.ScaleYHalf();
 				if (!x && !y)
 				{
 					GL_END
 					return;
 				}
-				glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X+face,layer++,GL_RGBA32F_ARB,clone.getWidth(), clone.getHeight(),0,GL_RGBA,GL_FLOAT,clone.getData());
+				glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X+face,layer++,GL_RGBA32F_ARB,clone.GetWidth(), clone.GetHeight(),0,GL_RGBA,GL_FLOAT,clone.GetData());
 			}
 		}
 		GL_END
@@ -2172,7 +2172,7 @@ namespace Engine
 								|EXT_FRAME_BUFFER_OBJECT_BIT
 								|EXT_BLEND_FUNC_SEPARATE_BIT);
 			//state.dot3_available = glExtensions.available("GL_ARB_texture_env_dot3");
-			state.render_setup.enabled_light_field.setSize(glExtensions.maxLights);
+			state.render_setup.enabled_light_field.SetSize(glExtensions.maxLights);
 
 			glPixelStorei(GL_UNPACK_ALIGNMENT,1);
 			glPixelStorei(GL_PACK_ALIGNMENT,1);

@@ -29,11 +29,11 @@ public:
 										width = width_;
 										height = height_;
 									}
-		float						aspect()	const
+		float						pixelAspect()	const
 									{
 										return static_cast<float>(width) / static_cast<float>(height);
 									}
-		float						GetAspect()	const	{return aspect();}
+		float						GetAspect()	const	{return pixelAspect();}
 		count_t						CountPixels()	const	{return (count_t)width*(count_t)height;}
 
 		bool						operator==(const Resolution&other)	const

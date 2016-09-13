@@ -205,10 +205,10 @@ template <class Def> void MaterialA<Def>::linkTextures(TextureResource*resource)
 	}
 }
 
-template <class Def> void MaterialA<Def>::setSize(count_t layer_count, count_t object_count)
+template <class Def> void MaterialA<Def>::SetSize(count_t layer_count, count_t object_count)
 {
-	info.layer_field.setSize(layer_count);
-	data.setSize(object_count);
+	info.layer_field.SetSize(layer_count);
+	data.SetSize(object_count);
 }
 
 
@@ -329,9 +329,9 @@ template <class Def> void VertexContainerA<Def>::stretch(UINT16 layers, UINT32 f
 }
 
 
-template <class Def> void VertexContainerA<Def>::setSize(count_t vertex_count, UINT16 layers, UINT32 flags)
+template <class Def> void VertexContainerA<Def>::SetSize(count_t vertex_count, UINT16 layers, UINT32 flags)
 {
-	vdata.setSize(vertex_count * VSIZE(layers,flags));
+	vdata.SetSize(vertex_count * VSIZE(layers,flags));
 	vcnt = UINT32(vertex_count);
 	vlyr = UINT32(layers);
 	vflags = flags;
@@ -407,9 +407,9 @@ template <class Def> bool IndexContainerA<Def>::operator<(const IndexContainerA<
 }
 
 
-template <class Def> void IndexContainerA<Def>::setSize(UINT32 triangles_, UINT32 quads_)
+template <class Def> void IndexContainerA<Def>::SetSize(UINT32 triangles_, UINT32 quads_)
 {
-	idata.setSize(triangles_*3+quads_*4);
+	idata.SetSize(triangles_*3+quads_*4);
 	triangles = triangles_;
 	quads = quads_;
 }
@@ -1496,7 +1496,7 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(Riff::File&riff) //ass
 				objects++;
 		while (riff.FindNext("VVX3"));
 
-	vs_hull_field.setSize(objects);
+	vs_hull_field.SetSize(objects);
 	count_t c(0);
 	
 	if (riff.FindFirst("VVTX"))
@@ -1509,7 +1509,7 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(Riff::File&riff) //ass
 				{
 					Array<typename Def::FloatType>	array;
 					riff.Get(array);
-					hull.vertex_field.setSize(array.length()/4);
+					hull.vertex_field.SetSize(array.length()/4);
 					for (index_t i = 0; i < hull.vertex_field.length(); i++)
 					{
 						hull.vertex_field[i].position = Vec::ref3(array + i*4);
@@ -1521,7 +1521,7 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(Riff::File&riff) //ass
 				{
 					Array<UINT32>	array;
 					riff.Get(array);
-					hull.triangle_field.setSize(array.length()/4);
+					hull.triangle_field.SetSize(array.length()/4);
 					for (index_t i = 0; i < hull.triangle_field.length(); i++)
 					{
 						typename VsMesh::Triangle	&face = hull.triangle_field[i];
@@ -1536,7 +1536,7 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(Riff::File&riff) //ass
 				{
 					Array<UINT32>	array;
 					riff.Get(array);
-					hull.edge_field.setSize(array.length()/4);
+					hull.edge_field.SetSize(array.length()/4);
 					for (index_t i = 0; i < hull.edge_field.length(); i++)
 					{
 						typename VsMesh::Edge	&edge = hull.edge_field[i];
@@ -1563,7 +1563,7 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(Riff::File&riff) //ass
 				{
 					Array<typename Def::FloatType>	array;
 					riff.Get(array);
-					hull.vertex_field.setSize(array.length()/3);
+					hull.vertex_field.SetSize(array.length()/3);
 					for (index_t i = 0; i < hull.vertex_field.length(); i++)
 					{
 						hull.vertex_field[i].position = Vec::ref3(array + i*3);
@@ -1575,7 +1575,7 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(Riff::File&riff) //ass
 				{
 					Array<UINT32>	array;
 					riff.Get(array);
-					hull.triangle_field.setSize(array.length()/3);
+					hull.triangle_field.SetSize(array.length()/3);
 					for (index_t i = 0; i < hull.triangle_field.length(); i++)
 					{
 						typename VsMesh::Triangle	&face = hull.triangle_field[i];
@@ -1590,7 +1590,7 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(Riff::File&riff) //ass
 				{
 					Array<UINT32>	array;
 					riff.Get(array);
-					hull.quad_field.setSize(array.length()/4);
+					hull.quad_field.SetSize(array.length()/4);
 					for (index_t i = 0; i < hull.quad_field.length(); i++)
 					{
 						typename VsMesh::Quad	&face = hull.quad_field[i];
@@ -1606,7 +1606,7 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(Riff::File&riff) //ass
 				{
 					Array<INT32>	array;
 					riff.Get(array);
-					hull.edge_field.setSize(array.length()/4);
+					hull.edge_field.SetSize(array.length()/4);
 					for (index_t i = 0; i < hull.edge_field.length(); i++)
 					{
 						typename VsMesh::Edge	&edge = hull.edge_field[i];
@@ -1630,7 +1630,7 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(Riff::File&riff) //ass
 		{
 			Array<typename Def::PhHullFloatType>	array;
 			riff.Get(array);
-			phHull.vertex_field.setSize(array.length()/4);
+			phHull.vertex_field.SetSize(array.length()/4);
 			for (index_t i = 0; i < phHull.vertex_field.length(); i++)
 			{
 				typename Mesh<PhDef>::Vertex	&vertex = phHull.vertex_field[i];
@@ -1648,7 +1648,7 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(Riff::File&riff) //ass
 		{
 			
 			unsigned cnt = riff.GetSize()/ph_face_size;
-			phHull.triangle_field.setSize(cnt);
+			phHull.triangle_field.SetSize(cnt);
 			
 			riff.OpenStream();
 			for (unsigned i = 0; i < cnt; i++)
@@ -1674,7 +1674,7 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(Riff::File&riff) //ass
 		{
 			Array<UINT32>	array;
 			riff.Get(array);
-			phHull.edge_field.setSize(array.length()/4);
+			phHull.edge_field.SetSize(array.length()/4);
 			for (index_t i = 0; i < phHull.edge_field.length(); i++)
 			{
 				typename Mesh<PhDef>::Edge	&edge = phHull.edge_field[i];
@@ -1693,7 +1693,7 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(Riff::File&riff) //ass
 			{
 				Array<typename Def::PhHullFloatType>	array;
 				riff.Get(array);
-				phHull.vertex_field.setSize(array.length()/3);
+				phHull.vertex_field.SetSize(array.length()/3);
 				for (index_t i = 0; i < phHull.vertex_field.length(); i++)
 				{
 					typename Mesh<PhDef>::Vertex	&vertex = phHull.vertex_field[i];
@@ -1715,7 +1715,7 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(Riff::File&riff) //ass
 				if ( riff.IsMultipleOf(ph_face_size3))
 				{
 					count_t cnt = riff.GetSize()/ph_face_size3;
-					phHull.triangle_field.setSize(cnt);
+					phHull.triangle_field.SetSize(cnt);
 				
 					riff.OpenStream();
 					for (index_t i = 0; i < cnt; i++)
@@ -1735,7 +1735,7 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(Riff::File&riff) //ass
 				if (riff.IsMultipleOf(ph_face_size4))
 				{
 					count_t cnt = riff.GetSize()/ph_face_size4;
-					phHull.quad_field.setSize(cnt);
+					phHull.quad_field.SetSize(cnt);
 				
 					riff.OpenStream();
 					for (index_t i = 0; i < cnt; i++)
@@ -1757,7 +1757,7 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(Riff::File&riff) //ass
 			{
 				Array<UINT32>	array;
 				riff.Get(array);
-				phHull.edge_field.setSize(array.length()/4);
+				phHull.edge_field.SetSize(array.length()/4);
 				for (index_t i = 0; i < phHull.edge_field.length(); i++)
 				{
 					typename Mesh<PhDef>::Edge	&edge = phHull.edge_field[i];
@@ -1882,7 +1882,7 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(Riff::File&riff) //ass
 		}
 		while (riff.FindNext("MNT "));
 	
-	mounting_field.setSize(mountings);
+	mounting_field.SetSize(mountings);
 	mountings = 0;
 	
 	if (mounting_field.length() && riff.FindFirst("MNT "))
@@ -1927,7 +1927,7 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(Riff::File&riff) //ass
 			}
 			while (riff.FindNext("ACC2"));
 		}
-	accelerator_field.setSize(accelerators);
+	accelerator_field.SetSize(accelerators);
 	accelerators = 0;
 	if (accelerator_field.IsNotEmpty() && riff.FindFirst(acc_key))
 		do
@@ -2024,7 +2024,7 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(Riff::File&riff) //ass
 		while (riff.FindNext(whl_key));
 	
 
-	wheel_field.setSize(wheels);
+	wheel_field.SetSize(wheels);
 	wheels = 0;
 	if (wheel_field.IsNotEmpty() && riff.FindFirst(whl_key))
 		do
@@ -2102,7 +2102,7 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(Riff::File&riff) //ass
 			tracks++;
 		}
 		while (riff.FindNext(trk_key));
-	tracks_field.setSize(tracks);
+	tracks_field.SetSize(tracks);
 	tracks = 0;
 	if (tracks_field.IsNotEmpty() && riff.FindFirst(trk_key))
 		do
@@ -2112,7 +2112,7 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(Riff::File&riff) //ass
 				case 0:
 					if (riff.GetSize() && riff.GetSize() && !(riff.GetSize()%8))
 					{
-						tracks_field[tracks].member_field.setSize(riff.GetSize()/8);
+						tracks_field[tracks].member_field.SetSize(riff.GetSize()/8);
 						name64_t	name;
 						riff.OpenStream();
 							for (index_t k = 0; k < tracks_field[tracks].member_field.length(); k++)
@@ -2134,7 +2134,7 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(Riff::File&riff) //ass
 							riff.CloseStream();
 							continue;
 						}
-						tracks_field[tracks].member_field.setSize(member_count);
+						tracks_field[tracks].member_field.SetSize(member_count);
 						for (UINT32 k = 0; k < member_count; k++)
 						{
 							UINT32	name_length;
@@ -2164,7 +2164,7 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(Riff::File&riff) //ass
 				children++;
 		}
 		while (riff.FindNext("OBJ "));
-	child_field.setSize(children);
+	child_field.SetSize(children);
 	children = 0;
 	if (child_field.length() && riff.FindFirst("OBJ "))
 		do
@@ -2517,7 +2517,7 @@ template <class Def> void SubGeometryA<Def>::resetLinkageRec()
 template <class Def> void SubGeometryA<Def>::toInstance(StaticSubInstanceA<Def>&tree)
 {
 	tree.target = this;
-	tree.child_field.setSize(child_field.length());
+	tree.child_field.SetSize(child_field.length());
 	tree.system = meta.system;
 	for (index_t i = 0; i < child_field.length(); i++)
 		child_field[i].toInstance(tree.child_field[i]);
@@ -2530,9 +2530,9 @@ template <class Def> void SubGeometryA<Def>::toInstance(AnimatableSubInstanceA<D
 	Vec::clear(tree.animation_status.translation);
 	Vec::clear(tree.animation_status.rotation);
 
-	tree.wheel_rotation_animators.setSize(wheel_field.length());
-	tree.wheel_suspension_animators.setSize(wheel_field.length());
-	//tree.construct_rotation_animators.setSize(tracks_field.length());
+	tree.wheel_rotation_animators.SetSize(wheel_field.length());
+	tree.wheel_suspension_animators.SetSize(wheel_field.length());
+	//tree.construct_rotation_animators.SetSize(tracks_field.length());
 	for (index_t i = 0; i < wheel_field.length(); i++)
 	{
 		tree.wheel_rotation_animators[i].build(&wheel_field[i].rotation);
@@ -2540,12 +2540,12 @@ template <class Def> void SubGeometryA<Def>::toInstance(AnimatableSubInstanceA<D
 	}
 	/*for (index_t i = 0; i < tracks_field.length(); i++)
 		tree.construct_rotation_animators[i].build(&tracks_field[i].rotation);*/
-	tree.wheel_status.setSize(wheel_field.length()*2);
-	tree.accelerator_status.setSize(accelerator_field.length());
+	tree.wheel_status.SetSize(wheel_field.length()*2);
+	tree.accelerator_status.SetSize(accelerator_field.length());
 	tree.wheel_status.Fill(0);
 	tree.accelerator_status.Fill(0);
 	
-	tree.child_field.setSize(child_field.length());
+	tree.child_field.SetSize(child_field.length());
 	tree.system = meta.system;
 	
 	for (index_t i = 0; i < child_field.length(); i++)
@@ -3505,7 +3505,7 @@ template <class Def> void Geometry<Def>::loadMaterials(Riff::File&riff)//, bool 
 											object = &obuffer.append();
 											object->tname = rinf.tname;
 											object->detail = rinf.detail;
-											object->vpool.setSize(rinf.vcnt,material.data.coord_layers,rinf.vflags);
+											object->vpool.SetSize(rinf.vcnt,material.data.coord_layers,rinf.vflags);
 											riff.Get(object->vpool.vdata);
 											CGS_MSG("loaded "+String(object->vpool.vdata.length())+" floats for "+rinf.tname+". loading indices...");
 											object->vpool.updateCRC();
@@ -3529,7 +3529,7 @@ template <class Def> void Geometry<Def>::loadMaterials(Riff::File&riff)//, bool 
 											if (riff.IsMultipleOf(sizeof(typename Def::IndexType)))
 											{
 												IndexContainerA<Def>*chunk = &object->ipool;
-												chunk->idata.setSize(riff.GetSize()/sizeof(typename Def::IndexType));
+												chunk->idata.SetSize(riff.GetSize()/sizeof(typename Def::IndexType));
 												riff.Get(chunk->idata);
 												total_indices += chunk->idata.length();
 												CGS_MSG("loaded indices: "+String(chunk->idata.length())+" to a total of "+String(total_indices)+" indices");
@@ -3583,7 +3583,7 @@ template <class Def> void Geometry<Def>::loadMaterials(Riff::File&riff)//, bool 
 							while (riff.FindNext(RIFF_LIST));
 						obuffer.moveToArray(material.data.object_field);
 						//material.data.object_field.adoptData(obuffer);
-						/*material->data.object_field.setSize(obuffer.count());
+						/*material->data.object_field.SetSize(obuffer.count());
 						for (index_t i = 0; i < material->data.object_field.length(); i++)
 						{
 							// CGS_MSG("casting object("+String(i)+"): "+String(obuffer[i]->vpool.vcnt)+"/"+String(obuffer[i]->countIndices()));
@@ -3594,7 +3594,7 @@ template <class Def> void Geometry<Def>::loadMaterials(Riff::File&riff)//, bool 
 					}
 					lbuffer.moveToArray(material.info.layer_field);
 					//material.info.layer_field.adoptData(lbuffer);
-						/*.setSize(lbuffer.count());
+						/*.SetSize(lbuffer.count());
 					for (index_t i = 0; i < material->info.layer_field.length(); i++)
 						material->info.layer_field[i] = *lbuffer[i];
 					lbuffer.clear();*/
@@ -3604,7 +3604,7 @@ template <class Def> void Geometry<Def>::loadMaterials(Riff::File&riff)//, bool 
 		while (riff.FindNext(RIFF_LIST));
 	mbuffer.moveToArray(material_field);
 	//material_field.adoptData(mbuffer);
-	/*material_field.setSize(mbuffer.count());
+	/*material_field.SetSize(mbuffer.count());
 	for (index_t i = 0; i < material_field.length(); i++)
 	{
 		// CGS_MSG("casting material("+String(i)+"): "+String(mbuffer[i]->data.countChunks()));
@@ -3628,7 +3628,7 @@ template <class Def> void Geometry<Def>::loadObjects(Riff::File&riff)
 				object_count++;
 		}
 		while (riff.FindNext("OBJ "));
-	object_field.setSize(object_count);
+	object_field.SetSize(object_count);
 	index_t at = 0;
 	//Buffer<index_t>	path;
 	if (riff.FindFirst("OBJ "))
@@ -3660,7 +3660,7 @@ template <class Def> void Geometry<Def>::loadAnimators(Riff::File&riff)
 	do
 		count++;
 	while (riff.FindNext("ANIM"));
-	animator_field.setSize(count);
+	animator_field.SetSize(count);
 
 	Buffer<index_t>	path;	//empty path
 
@@ -3673,7 +3673,7 @@ template <class Def> void Geometry<Def>::loadConnectors(Riff::File&riff)
 	if (riff.FindFirst("CNCT"))
 	{
 		count_t count = riff.GetSize()/sizeof(TConnector<Def>);
-		connector_field.setSize(count);
+		connector_field.SetSize(count);
 		riff.Get(connector_field);
 	}
 }
@@ -3688,7 +3688,7 @@ template <class Def> void Geometry<Def>::loadTextures(Riff::File&riff)
 				count++;
 		while (riff.FindNext(RIFF_ID));
 	CGS_POINT
-	local_textures.entry_field.setSize(count);
+	local_textures.entry_field.SetSize(count);
 	CGS_POINT
 	TextureA*texture = NULL;
 	index_t at = 0;
@@ -3712,7 +3712,7 @@ template <class Def> void Geometry<Def>::loadTextures(Riff::File&riff)
 						CGS_POINT
 						index_t index = texture->face_field.length();
 						texture->face_field.resizePreserveContent(index+1);	//this has got to be the second most inefficient way to do this :S
-						texture->face_field[index].setSize(riff.GetSize());
+						texture->face_field[index].SetSize(riff.GetSize());
 						riff.Get(texture->face_field[index].pointer());
 						CGS_POINT
 					}
@@ -4258,12 +4258,12 @@ template <class Def> void Geometry<Def>::updateRadius()
 	extractRadius(radius);
 }
 
-template <class Def> void Geometry<Def>::setSize(count_t objects_, count_t materials_, count_t animators_, count_t connectors_)
+template <class Def> void Geometry<Def>::SetSize(count_t objects_, count_t materials_, count_t animators_, count_t connectors_)
 {
-	object_field.setSize(objects_);
-	material_field.setSize(materials_);
-	animator_field.setSize(animators_);
-	connector_field.setSize(connectors_);
+	object_field.SetSize(objects_);
+	material_field.SetSize(materials_);
+	animator_field.SetSize(animators_);
+	connector_field.SetSize(connectors_);
 }
 
 template <class Def> bool Geometry<Def>::isMember(SubGeometryA<Def>*obj) const
@@ -4355,25 +4355,25 @@ template <class Def> void Geometry<Def>::makeSimpleObject(const Float*vertex,cou
 template <class Def> void Geometry<Def>::makeSimpleObject(const Float*vertex,count_t vertices,count_t layers, const Index*index,count_t indices)
 {
 	clear();
-	setSize(1,1,0,0);
-	material_field[0].data.object_field.setSize(1);
+	SetSize(1,1,0,0);
+	material_field[0].data.object_field.SetSize(1);
 	material_field[0].data.coord_layers = (UINT16)(layers);
 	RenderObjectA<Def>&robj = material_field[0].data.object_field[0];
 	ASSERT__(object_field.length()==1);
 	robj.target = object_field.pointer();
 	ASSERT_LESS__(layers,0x10000);
-	robj.vpool.setSize(vertices,(UINT16)layers);
+	robj.vpool.SetSize(vertices,(UINT16)layers);
 	
 	robj.vpool.vdata.copyFrom(vertex);
 	robj.detail=0;
-	robj.ipool.idata.setSize(indices);
+	robj.ipool.idata.SetSize(indices);
 	robj.ipool.triangles = unsigned(indices/3);
 	robj.ipool.idata.copyFrom(index);
-	object_field[0].vs_hull_field.setSize(1);
+	object_field[0].vs_hull_field.SetSize(1);
 	typedef Mesh<typename SubGeometryA<Def>::VsDef>	VsMesh;
 	VsMesh	&obj = object_field[0].vs_hull_field[0];
-	obj.vertex_field.setSize(vertices);
-	obj.triangle_field.setSize(indices/3);
+	obj.vertex_field.SetSize(vertices);
+	obj.triangle_field.SetSize(indices/3);
 	obj.edge_field.free();
 	obj.quad_field.free();
 	UINT32 band = UINT32(3+3+layers*2);
@@ -4393,7 +4393,7 @@ template <class Def> void Geometry<Def>::makeSimpleObject(const Float*vertex,cou
 		obj.triangle_field[i].marked = false;
 	}
 	ASSERT1__(obj.valid(),obj.errorStr());
-	material_field[0].info.layer_field.setSize(layers);
+	material_field[0].info.layer_field.SetSize(layers);
 	for (index_t i = 0; i < layers; i++)
 	{
 		material_field[0].info.layer_field[i].combiner = 0x2100;
@@ -4419,9 +4419,9 @@ template <class Def>
 	void	Geometry<Def>::makeFromConstructor(const Constructor<Def>&ctr)
 	{
 		clear();
-		setSize(ctr.CountObjects(),1,0,0);
+		SetSize(ctr.CountObjects(),1,0,0);
 		ASSERT__(object_field.length()==ctr.CountObjects());
-		material_field[0].data.object_field.setSize(ctr.CountLODs());
+		material_field[0].data.object_field.SetSize(ctr.CountLODs());
 		material_field[0].data.coord_layers = (UINT16)(ctr.CountTextureLayers());
 		material_field[0].name = "MainMaterial";
 		ASSERT_LESS__(ctr.CountTextureLayers(),0x10000);
@@ -4431,18 +4431,18 @@ template <class Def>
 		{
 			const typename Constructor<Def>::Object&cobj = ctr.GetObject(i);
 			object_field[i].name = "Object"+String(i);
-			object_field[i].vs_hull_field.setSize(cobj.CountLODs());
+			object_field[i].vs_hull_field.SetSize(cobj.CountLODs());
 
 			for (index_t l = 0; l < cobj.CountLODs(); l++)
 			{
 				RenderObjectA<Def>&robj = *(robjects++);
 				robj.target = object_field.pointer() + i;
 				robj.tname = object_field[i].name;
-				robj.vpool.setSize(cobj.CountVertices(l),(UINT16)ctr.CountTextureLayers(),ctr.GetVertexFlags());
+				robj.vpool.SetSize(cobj.CountVertices(l),(UINT16)ctr.CountTextureLayers(),ctr.GetVertexFlags());
 	
 				robj.vpool.vdata.copyFrom(cobj.GetVertices(l));
 				robj.detail=(unsigned)l;
-				robj.ipool.idata.setSize(cobj.CountTriangleIndices(l) + cobj.CountQuadIndices(l));
+				robj.ipool.idata.SetSize(cobj.CountTriangleIndices(l) + cobj.CountQuadIndices(l));
 				robj.ipool.triangles = unsigned(cobj.CountTriangles(l));
 				robj.ipool.quads = unsigned(cobj.CountQuads(l));
 				robj.ipool.idata.copyFrom(cobj.GetTriangleIndices(l),cobj.CountTriangleIndices(l));
@@ -4450,10 +4450,10 @@ template <class Def>
 			
 				typedef Mesh<typename SubGeometryA<Def>::VsDef>	VsMesh;
 				VsMesh	&obj = object_field[i].vs_hull_field[l];
-				obj.vertex_field.setSize(cobj.CountVertices(l));
-				obj.triangle_field.setSize(cobj.CountTriangles(l));
+				obj.vertex_field.SetSize(cobj.CountVertices(l));
+				obj.triangle_field.SetSize(cobj.CountTriangles(l));
 				obj.edge_field.free();
-				obj.quad_field.setSize(cobj.CountQuads(l));
+				obj.quad_field.SetSize(cobj.CountQuads(l));
 				UINT32 band = (UINT32)cobj.GetVertexSize();
 				const count_t vertices = cobj.CountVertices(l);
 				const Float*vertex = cobj.GetVertices(l);
@@ -4500,7 +4500,7 @@ template <class Def>
 			object_field[i].system_link = &object_field[i].path;
 		}
 		material_field[0].info = ctr.colors;
-		material_field[0].info.layer_field.setSize(ctr.CountTextureLayers());
+		material_field[0].info.layer_field.SetSize(ctr.CountTextureLayers());
 		for (index_t i = 0; i < ctr.CountTextureLayers(); i++)
 		{
 			material_field[0].info.layer_field[i].combiner = 0x2100;
@@ -4651,7 +4651,7 @@ template <class Def>
 			instance.loadIdentity(false);
 		PointerTable<double*>	map;
 		PointerTable<TAnimationStatus*>	map2;
-		instance.child_field.setSize(object_field.length());
+		instance.child_field.SetSize(object_field.length());
 		for (index_t i = 0; i < object_field.length(); i++)
 		{
 			object_field[i].toInstance(instance.child_field[i]);
@@ -4660,7 +4660,7 @@ template <class Def>
 		for (index_t i = 0; i < object_field.length(); i++)
 			instance.child_field[i].linkEntities(map,map2);
 		
-		instance.animator_field.setSize(animator_field.length());
+		instance.animator_field.SetSize(animator_field.length());
 		for (index_t i = 0; i < animator_field.length(); i++)
 		{
 			instance.animator_field[i].build(animator_field+i);
@@ -4685,7 +4685,7 @@ template <class Def>
 			instance.matrix = root_system.matrix;
 		else
 			instance.loadIdentity(false);
-		instance.child_field.setSize(object_field.length());
+		instance.child_field.SetSize(object_field.length());
 		for (index_t i = 0; i < object_field.length(); i++)
 			object_field[i].toInstance(instance.child_field[i]);
 		instance.update();
@@ -4850,9 +4850,9 @@ template <class Def>
 			acc_animator_field.free();
 			return;
 		}
-		obj_animator_field.setSize(target->obj_trace_field.length());
-		whl_animator_field.setSize(target->whl_trace_field.length());
-		acc_animator_field.setSize(target->acc_trace_field.length());
+		obj_animator_field.SetSize(target->obj_trace_field.length());
+		whl_animator_field.SetSize(target->whl_trace_field.length());
+		acc_animator_field.SetSize(target->acc_trace_field.length());
 		
 		for (index_t i = 0; i < obj_animator_field.length(); i++)
 		{
@@ -5416,11 +5416,11 @@ template <class Def> String AnimatorA<Def>::ToString(const String&intend)	const
 	return "Animator (ObjecCTraces: "+String(obj_trace_field.length())+"; AcceleratorTraces: "+String(acc_trace_field.length())+"; WheelTraces: "+String(whl_trace_field.length())+")";
 }
 
-template <class Def> void AnimatorA<Def>::setSize(count_t obj_count, count_t acc_count, count_t whl_count)
+template <class Def> void AnimatorA<Def>::SetSize(count_t obj_count, count_t acc_count, count_t whl_count)
 {
-	obj_trace_field.setSize(obj_count);
-	acc_trace_field.setSize(acc_count);
-	whl_trace_field.setSize(whl_count);
+	obj_trace_field.SetSize(obj_count);
+	acc_trace_field.SetSize(acc_count);
+	whl_trace_field.SetSize(whl_count);
 }
 
 
@@ -5603,7 +5603,7 @@ void AnimatorA<Def>::loadTraces(ArrayData<TraceA<T,B> >&array,Riff::File&riff,co
 			cnt++;
 		}
 		while (riff.FindNext(riff_name));
-	array.setSize(cnt);
+	array.SetSize(cnt);
 	index_t at = 0;
 	if (begin)
 	if (riff.FindFirst(riff_name))
@@ -5616,7 +5616,7 @@ void AnimatorA<Def>::loadTraces(ArrayData<TraceA<T,B> >&array,Riff::File&riff,co
 				{
 					if (riff.GetSize() < sizeof(name64_t))
 						continue;
-					trace.step_field.setSize((riff.GetSize()-sizeof(name64_t))/((1+B*3)*sizeof(double)));
+					trace.step_field.SetSize((riff.GetSize()-sizeof(name64_t))/((1+B*3)*sizeof(double)));
 					riff.OpenStream();
 						name64_t	name64;
 						riff.Stream(name64);
@@ -5648,7 +5648,7 @@ void AnimatorA<Def>::loadTraces(ArrayData<TraceA<T,B> >&array,Riff::File&riff,co
 						}
 						trace.tname.setLength(name_length);
 						riff.Stream(trace.tname.mutablePointer(),name_length);
-						trace.step_field.setSize((riff.GetSize()-riff.StreamTell())/((1+B*3)*sizeof(double)));
+						trace.step_field.SetSize((riff.GetSize()-riff.StreamTell())/((1+B*3)*sizeof(double)));
 						double time(0),len;
 						for (index_t i = 0; i < trace.step_field.length(); i++)
 						{

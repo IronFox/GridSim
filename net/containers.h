@@ -318,7 +318,7 @@ namespace Package
 		{
 			static Array<BYTE>	buffer;
 			if (buffer.length() < uncompressed.length())
-				buffer.setSize(uncompressed.length());
+				buffer.SetSize(uncompressed.length());
 			size_t compressed_size = BZ2::compress(uncompressed.c_str(),uncompressed.length(),buffer.pointer(),buffer.length());
 			is_compressed = compressed_size>0 && compressed_size+GetSerialSizeOfSize((serial_size_t)uncompressed.length()) < uncompressed.length();
 			if (is_compressed)
@@ -391,7 +391,7 @@ namespace Package
 										fixed_size -= GetSerialSizeOfSize(serial_size);
 									if (!compressed.Deserialize(in_stream,fixed_size))
 										return false;
-									serialized.setSize(serial_size);
+									serialized.SetSize(serial_size);
 									if (BZ2::decompress(compressed.pointer(),compressed.GetContentSize(),serialized.pointer(),serial_size) != serial_size)
 										return false;
 									MemReadStream stream(serialized.pointer(),(serial_size_t)serialized.GetContentSize());
@@ -422,7 +422,7 @@ namespace Package
 				is_compressed = compressed_size>0 && compressed_size < serialized.length();	//the latter comparison should be redundant...
 				if (is_compressed)
 				{
-					compressed.setSize(compressed_size);
+					compressed.SetSize(compressed_size);
 					compressed.copyFrom(buffer.pointer());
 				}
 				else

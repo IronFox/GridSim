@@ -231,8 +231,8 @@ namespace CGS
 			}
 		}
 		else
-			connectors.setSize(stub->geometry.connector_field.length());
-		nodes.setSize(stub->geometry.connector_field.length());
+			connectors.SetSize(stub->geometry.connector_field.length());
+		nodes.SetSize(stub->geometry.connector_field.length());
 		
 		instance = stub->geometry.createInstance();
 		
@@ -737,9 +737,9 @@ namespace CGS
 		object.meta = input_object.meta;
 		object.name = input_object.name;	//hmmmm, no, no name needed. yes, yes, it is... gah
 		//object.system_link = &object.path;	//done later
-		object.vs_hull_field.setSize(input_object.vs_hull_field.length());
+		object.vs_hull_field.SetSize(input_object.vs_hull_field.length());
 
-		object.child_field.setSize(input_object.child_field.length());
+		object.child_field.SetSize(input_object.child_field.length());
 
 		for (index_t i = 0; i < object.child_field.length(); i++)
 			allocateBendableComponents(input_object.child_field[i],object.child_field[i]);
@@ -759,14 +759,14 @@ namespace CGS
 		else
 			geometry.texture_resource = source.geometry.texture_resource;
 
-		geometry.object_field.setSize(source.geometry.object_field.length());
+		geometry.object_field.SetSize(source.geometry.object_field.length());
 		for (index_t i = 0; i < geometry.object_field.length(); i++)
 			allocateBendableComponents(source.geometry.object_field[i],geometry.object_field[i]);
 
 		geometry.animator_field.free();	//can't be bent
 		geometry.connector_field.free();
 
-		geometry.material_field.setSize(source.geometry.material_field.length());
+		geometry.material_field.SetSize(source.geometry.material_field.length());
 		for (index_t i = 0; i < geometry.material_field.length(); i++)
 		{
 			const CGS::MaterialA<>&source_material = source.geometry.material_field[i];
@@ -774,7 +774,7 @@ namespace CGS
 
 			target_material.info = source_material.info;
 			target_material.data.coord_layers = source_material.data.coord_layers;
-			target_material.data.object_field.setSize(source_material.data.object_field.length());
+			target_material.data.object_field.SetSize(source_material.data.object_field.length());
 		}
 
 		geometry.resetLinkage();
@@ -832,7 +832,7 @@ namespace CGS
 				count_t		frame_length = source_robj.vpool.vdata.length(),
 							vframe_length = source_robj.vpool.vcnt,
 							vsize = source_robj.vpool.vsize();
-				target_robj.vpool.vdata.setSize(frame_length*repeat);	//simple clone here, i can't be arsed to merge them
+				target_robj.vpool.vdata.SetSize(frame_length*repeat);	//simple clone here, i can't be arsed to merge them
 				target_robj.vpool.vdata.copyFrom(source_robj.vpool.vdata.pointer(),source_robj.vpool.vdata.size());
 				//float*vfield = target_robj.vpool.vdata;
 				Concurrency::parallel_for(UINT32(0),source_robj.vpool.vcnt,[&target_robj,&source_robj,center,vsize,repeat,frame_length,this,zrange,&source,segment_length,stretch](UINT32 k)
@@ -907,7 +907,7 @@ namespace CGS
 				if (repeat > 1)
 				{
 					count_t iframe_length = source_robj.ipool.idata.length();
-					target_robj.ipool.idata.setSize(iframe_length*repeat);
+					target_robj.ipool.idata.SetSize(iframe_length*repeat);
 					//Array<CGS::StdDef::IndexType>	new_field(iframe_length*repeat);
 					CGS::StdDef::IndexType*at = target_robj.ipool.idata.pointer();
 					//for (index_t k = 0; k < robj.ipool.sdata.length(); k++)

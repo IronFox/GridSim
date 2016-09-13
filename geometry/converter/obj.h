@@ -328,7 +328,7 @@ namespace Converter
 
 				void											exportToField(Array<Vertex>&out)	const
 				{
-					out.setSize(Super::count());
+					out.SetSize(Super::count());
 					{
 						Array<Vertex>		out_field;
 						Array<index_t>		out_index_field;
@@ -479,7 +479,7 @@ namespace Converter
 										return NULL;
 									return vertexBuffer+(index-1);
 								}
-	inline TVec3<Def::FloatType>*getNormal(int index) throw()
+	inline TVec3<Def::FloatType>*GetNormal(int index) throw()
 								{
 									if (!index)
 										return NULL;

@@ -566,7 +566,7 @@ namespace Engine
 		else
 			color.set(0,0);
 
-		texcoords.setSize(info.layer_field.length());
+		texcoords.SetSize(info.layer_field.length());
 		for (index_t i = 0; i < texcoords.count(); i++)
 		{
 			if (CGS::layerRequiresTexCoords(info.layer_field[i]))
@@ -662,7 +662,7 @@ namespace Engine
 		MaterialColors::read(info);
 		//VertexBinding::read(info,floats_per_coordinate,flags);
 
-		layers.setSize(info.layer_field.length());
+		layers.SetSize(info.layer_field.length());
 			//texcoords.count());
 
 		for (index_t i = 0; i < layers.length(); i++)
@@ -882,7 +882,7 @@ namespace Engine
 			for (unsigned i = 0; i < active_scene->count(); i++)
 				if (active_scene->get(i)->isEnabled())
 					count++;
-		array.setSize(count);
+		array.SetSize(count);
 		count = 0;
 		for (unsigned i = 0; i < active_scene->count(); i++)
 			if (!enabled_only || active_scene->get(i)->isEnabled())

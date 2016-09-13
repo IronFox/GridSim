@@ -12,14 +12,14 @@ template <class Nature>
 	void        igRadial(GenericImage<Nature>&target, const CGColor&inner, const CGColor&outer, bool use_cos)
 	{
 		typedef typename Nature::float_type_t	F;
-		target.setChannels(4);
-		UINT32 r = vmin(target.getWidth(),target.getHeight());
-		F			a = sqr(target.getWidth()/2),
-					b = sqr(target.getHeight()/2);
-		for (UINT32 x = 0; x < target.getWidth(); x++)
-			for (UINT32 y = 0; y < target.getHeight(); y++)
+		target.SetChannels(4);
+		UINT32 r = vmin(target.GetWidth(),target.GetHeight());
+		F			a = sqr(target.GetWidth()/2),
+					b = sqr(target.GetHeight()/2);
+		for (UINT32 x = 0; x < target.GetWidth(); x++)
+			for (UINT32 y = 0; y < target.GetHeight(); y++)
 			{
-				F   dist = clamped(sqrt(sqr(x-target.getWidth()/2)/a+sqr(y-target.getHeight()/2)/b),0,1);
+				F   dist = clamped(sqrt(sqr(x-target.GetWidth()/2)/a+sqr(y-target.GetHeight()/2)/b),0,1);
 				if (use_cos)
 					dist = cosFactor(dist);
 				F	idist(F(1)-dist),
@@ -33,14 +33,14 @@ template <class Nature>
 	{
 		typedef typename Nature::float_type_t	F;
 		TVec4<F> color;
-		target.setChannels(4);
-		F		a = sqr(target.getWidth()/2),
-				b = sqr(target.getHeight()/2);
+		target.SetChannels(4);
+		F		a = sqr(target.GetWidth()/2),
+				b = sqr(target.GetHeight()/2);
 	
-		for (UINT32 x = 0; x < target.getWidth(); x++)
-			for (UINT32 y = 0; y < target.getHeight(); y++)
+		for (UINT32 x = 0; x < target.GetWidth(); x++)
+			for (UINT32 y = 0; y < target.GetHeight(); y++)
 			{
-				F   dist = sqrt(sqr(x-target.getWidth()/2)/a+sqr(y-target.getHeight()/2)/b);
+				F   dist = sqrt(sqr(x-target.GetWidth()/2)/a+sqr(y-target.GetHeight()/2)/b);
 				F	f = smooth?-cos(M_PI/(dist*5+1))/2.0+0.5:vmin(1/(dist+0.0001)/15,1.1);
 				//;
 				//f = f/15-0.1;
@@ -60,7 +60,7 @@ template <class Nature>
 		typedef typename Nature::float_type_t	F;
 		TVec3<F>	n0 = {x0,y0,z0},
 					nd = {x1-x0, y1-y0, z1-z0};
-		target.setDimension(resolution,resolution,3);
+		target.SetSize(resolution,resolution,3);
 		target.setContentType(PixelType::ObjectSpaceNormal);
 		for (UINT32 x = 0; x < resolution; x++)
 			for (UINT32 y = 0; y < resolution; y++)
@@ -94,14 +94,14 @@ template <class Nature>
 	void        igRing(GenericImage<Nature>&target, typename Nature::float_type_t width, const CGColor&outer, const CGColor&outer_ring, const CGColor&inner_ring, const CGColor&inner, bool use_cos)
 	{
 		typedef typename Nature::float_type_t	F;
-		F r = vmin(target.getWidth(),target.getHeight());
+		F r = vmin(target.GetWidth(),target.GetHeight());
 		TVec4<F>	color;
-		target.setChannels(4);
+		target.SetChannels(4);
     
-		for (UINT32 x = 0; x < target.getWidth(); x++)
-			for (UINT32 y = 0; y < target.getHeight(); y++)
+		for (UINT32 x = 0; x < target.GetWidth(); x++)
+			for (UINT32 y = 0; y < target.GetHeight(); y++)
 			{
-				F dist = clamped(sqrt((F)sqr(x-target.getWidth()/2)+(F)sqr(y-target.getHeight()/2))/(r/2),0,1);
+				F dist = clamped(sqrt((F)sqr(x-target.GetWidth()/2)+(F)sqr(y-target.GetHeight()/2))/(r/2),0,1);
 				if (dist >= 0.98)
 					color = outer;
 				else
@@ -125,20 +125,20 @@ template <class Nature>
 	{
 		typedef typename Nature::float_type_t	F;
 		TVec4<F> c;
-		target.setChannels(4);
-		for (UINT32 x = 0; x < target.getWidth(); x++)
-			for (UINT32 y = 0; y < target.getHeight()/2; y++)
+		target.SetChannels(4);
+		for (UINT32 x = 0; x < target.GetWidth(); x++)
+			for (UINT32 y = 0; y < target.GetHeight()/2; y++)
 			{
-				F fc = (F)y/(F)target.getHeight()*2;
+				F fc = (F)y/(F)target.GetHeight()*2;
 				if (use_cos)
 					fc = cosFactor(fc);
 				Vec::interpolate(bottom,center,fc,c);
 				target.set4f(x,y,c.v);
 			}
-		for (UINT32 x = 0; x < target.getWidth(); x++)
-			for (UINT32 y = target.getHeight()/2; y < target.getHeight(); y++)
+		for (UINT32 x = 0; x < target.GetWidth(); x++)
+			for (UINT32 y = target.GetHeight()/2; y < target.GetHeight(); y++)
 			{
-				F fc = (F)((F)y-target.getHeight()/2)/(F)target.getHeight()*2;
+				F fc = (F)((F)y-target.GetHeight()/2)/(F)target.GetHeight()*2;
 				if (use_cos)
 					fc = cosFactor(fc);
 				Vec::interpolate(center,top,fc,c);
@@ -151,21 +151,21 @@ template <class Nature>
 	{
 		typedef typename Nature::float_type_t	F;
 		TVec4<F> c;
-		target.setChannels(4);
-		for (UINT32 x = 0; x < target.getWidth()/2; x++)
-			for (UINT32 y = 0; y < target.getHeight(); y++)
+		target.SetChannels(4);
+		for (UINT32 x = 0; x < target.GetWidth()/2; x++)
+			for (UINT32 y = 0; y < target.GetHeight(); y++)
 			{
-				F fc = (F)x/(F)target.getWidth()*2;
+				F fc = (F)x/(F)target.GetWidth()*2;
 				if (use_cos)
 					fc = cosFactor(fc);
 				Vec::interpolate(bottom,center,fc,c);
 				target.set4f(x,y,c.v);
 			}
         
-		for (UINT32 x = target.getWidth()/2; x < target.getWidth(); x++)
-			for (UINT32 y = 0; y < target.getHeight(); y++)
+		for (UINT32 x = target.GetWidth()/2; x < target.GetWidth(); x++)
+			for (UINT32 y = 0; y < target.GetHeight(); y++)
 			{
-				F fc = (F)((F)x-target.getWidth()/2)/(F)target.getWidth()*2;
+				F fc = (F)((F)x-target.GetWidth()/2)/(F)target.GetWidth()*2;
 				if (use_cos)
 					fc = cosFactor(fc);
 				Vec::interpolate(center,top,fc,c);
@@ -184,14 +184,14 @@ template <class Nature>
 	{
 		typedef typename Nature::float_type_t	F;
 		TVec4<F> c;
-		target.setChannels(4);
+		target.SetChannels(4);
 		for (UINT32 x = begin; x < begin + width; x++)
 		{
 			F fc = cubicStep<F, F, F>(x, begin, begin + width);
 			//sin((F)(x-begin) / width * 2 * M_PI)*0.5 + 0.5;
 			Vec::interpolate(bottom, top, fc, c);
 
-			for (UINT32 y = 0; y < target.getHeight(); y++)
+			for (UINT32 y = 0; y < target.GetHeight(); y++)
 			{
 				target.set4f(x, y, c.v);
 			}
@@ -203,11 +203,11 @@ template <class Nature>
 	{
 		typedef typename Nature::float_type_t	F;
 		TVec4<F> c;
-		target.setChannels(4);
-		for (UINT32 x = 0; x < target.getWidth(); x++)
-			for (UINT32 y = 0; y < target.getHeight(); y++)
+		target.SetChannels(4);
+		for (UINT32 x = 0; x < target.GetWidth(); x++)
+			for (UINT32 y = 0; y < target.GetHeight(); y++)
 			{
-				F fc = sin((F)y/target.getHeight()*2*M_PI)*0.5+0.5;
+				F fc = sin((F)y/target.GetHeight()*2*M_PI)*0.5+0.5;
 				Vec::interpolate(bottom,top,fc,c);
 				target.set4f(x,y,c.v);
 			}
@@ -217,12 +217,12 @@ template <class Nature>
 	void		igCubic(GenericImage<Nature>&target, typename Nature::float_type_t frame_width, const CGColor&outer, const CGColor&inner, bool use_cos)
 	{
 		typedef typename Nature::float_type_t	F;
-		F		half_width = target.getWidth()/2,
-				half_height = target.getHeight()/2;
+		F		half_width = target.GetWidth()/2,
+				half_height = target.GetHeight()/2;
 		TVec4<F>	color;
 	
-		for (UINT32 x = 0; x < target.getWidth(); x++)
-			for (UINT32 y = 0; y < target.getHeight(); y++)
+		for (UINT32 x = 0; x < target.GetWidth(); x++)
+			for (UINT32 y = 0; y < target.GetHeight(); y++)
 			{
 				F		fx = fabs(((F)x-half_width)/half_width),
 						fy = fabs(((F)y-half_height)/half_height),
@@ -244,7 +244,7 @@ template <class Nature>
 	void		igSolarStripe(GenericImage<Nature>&target, typename Nature::float_type_t center_radius, typename Nature::float_type_t axis_x, typename Nature::float_type_t axis_y, typename Nature::float_type_t angle_border, typename Nature::float_type_t intensity, const CGColor&inner_color, const CGColor&outer, typename Nature::float_type_t smoothing)
 	{
 		typedef typename Nature::float_type_t	F;
-		target.setChannels(4);
+		target.SetChannels(4);
 		TVec2<F>axis = {axis_x,axis_y},
 				normal = {axis_y,-axis_x};
 		F		growth = sin(angle_border*M_PI/180);
@@ -293,7 +293,7 @@ template <class Nature>
 								axis1 = {sin(a1),cos(a1)},
 								axis2 = {sin(a2),cos(a2)};
 
-		target.setChannels(4);
+		target.SetChannels(4);
 		for (UINT32 x = 0; x < target.width(); x++)
 			for (UINT32 y = 0; y < target.height(); y++)
 			{

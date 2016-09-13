@@ -1073,7 +1073,7 @@ namespace FileSystem
 	void		GetDriveList(Array<Drive>&out)
 	{
     	count_t cnt = GetDriveList(NULL,0);
-        out.setSize(cnt);
+        out.SetSize(cnt);
         GetDriveList(out.pointer(),out.length());
 	}
 	count_t GetDriveList(Drive*target, count_t max)

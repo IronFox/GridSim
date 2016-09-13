@@ -887,7 +887,7 @@ void		GraphTextureResource::Insert(const PathString&filename, name64_t as_name, 
 	else
 	{
 		Image	normal_map;
-		image.toNormalMap(normal_map,1.0f,1.0f,bump_strength,true,0);
+		image.ToNormalMap(normal_map,1.0f,1.0f,bump_strength,true,0);
 		TextureCompression::compress(normal_map, new_texture->face_field.first(),TextureCompression::NoCompression);
 		//png.saveToFileQ(normal_map,"test.png");
 	}

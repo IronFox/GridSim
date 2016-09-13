@@ -356,8 +356,7 @@ namespace CGS	//! Compiled Geometrical Structure
 				void									adoptData(VertexContainerA<Def>&other);
 				unsigned								vsize() const;		//!< Queries number of floats per vertex
 				count_t									vlen()	const;		//!< Queries total number of floats in the float-field.
-				void									setSize(count_t vertex_count, UINT16 layers, UINT32 flags=HasNormalFlag);	//!< Depreciated setSize function. Resizes the local vertex field to match the given parameters. Any existing vertex data is lost if the size of the underlying vertex array changes.
-				void									SetSize(count_t vertex_count, UINT16 layers, UINT32 flags=HasNormalFlag)	{setSize(vertex_count,layers,flags);}
+				void									SetSize(count_t vertex_count, UINT16 layers, UINT32 flags=HasNormalFlag);	//!< Depreciated SetSize function. Resizes the local vertex field to match the given parameters. Any existing vertex data is lost if the size of the underlying vertex array changes.
 				void									stretch(UINT16 layers, UINT32 flags);		//!< Stretches the vertex-field and copies the old data. Newly added fields are not cleared.
 				bool									operator>(const VertexContainerA<Def>&other) const;							//!< Greater operator to create a linear order among vertex containers. The greater operator must be called before the respective less-operator is invoked,
 				bool									operator<(const VertexContainerA<Def>&other) const;							//!< Less operator to create a linear order among vertex containers.  The greater operator must be called before the respective less-operator is invoked,
@@ -395,8 +394,7 @@ namespace CGS	//! Compiled Geometrical Structure
 				
 
 														IndexContainerA():triangles(0),quads(0)	{}
-				void									setSize(UINT32 triangles, UINT32 quads);
-				void									SetSize(UINT32 triangles, UINT32 quads)	{setSize(triangles,quads);}
+				void									SetSize(UINT32 triangles, UINT32 quads);
 				bool									operator>(const IndexContainerA<Def>&other) const;	//!< Greater operator to create a linear order among index containers. The greater operator must be called before the respective less-operator is invoked,
 				bool									operator<(const IndexContainerA<Def>&other) const;	//!< Less operator to create a linear order among index containers. The greater operator must be called before the respective less-operator is invoked,
 				void									adoptData(IndexContainerA<Def>&other);
@@ -568,7 +566,7 @@ namespace CGS	//! Compiled Geometrical Structure
 			String									name;	//!< Name of the local material
 
 													MaterialA()	{}
-			void									setSize(count_t layers, count_t objects);	//!< Mostly depreciated. Used to setSize the respective info.layer_field and data.object_field arrays.
+			void									SetSize(count_t layers, count_t objects);	//!< Mostly depreciated. Used to SetSize the respective info.layer_field and data.object_field arrays.
 			void									adoptData(MaterialA<Def>&other);
 			void									linkTextures(TextureResource*res);				//!< Links referenced textures via their name to loaded texture resources provided by the specified texture resource. \param res Texture resource to retrieve textures from.
 			String									ToString(const String&intend="")		const;	//!< Creates a string representation of the local material \param intend Intendation string put before each new line of the returned string.
@@ -658,7 +656,7 @@ namespace CGS	//! Compiled Geometrical Structure
 		template <class Def1>
 			AnimatorA<Def>&							operator=(const AnimatorA<Def1>&other);	//!< Copy operator
 			void									adoptData(AnimatorA<Def>&other);
-			void									setSize(count_t obj_count, count_t acc_count, count_t whl_traces);	//!< Mostly depreciated setSize method. Resizes the local trace arrays. The content of an array is lost if it is resized.
+			void									SetSize(count_t obj_count, count_t acc_count, count_t whl_traces);	//!< Mostly depreciated SetSize method. Resizes the local trace arrays. The content of an array is lost if it is resized.
 			String									ToString(const String&intend="")	const;	//!< Generates a string representation of the local animation \param intend Intendation string put before each new line of the resulting string.
 			bool									valid(Geometry<Def>*structure);			//!< Determines whether or not all trace links are valid. This procedure is very slow. Use only when debugging.
 			double									executionTime()						const;	//!< Determines the number of seconds this animation takes
@@ -1064,7 +1062,7 @@ namespace CGS	//! Compiled Geometrical Structure
 			template <class Def0>					Geometry(const Geometry<Def0>&other);
 	inline	bool									usesLocalTextureResource()	const		{return texture_resource == &local_textures;}
 			void									clear();								//!< Clears the local structure, erasing all arrays and reseting all variables.
-			void									setSize(count_t objects, count_t materials, count_t animators, count_t connectors);
+			void									SetSize(count_t objects, count_t materials, count_t animators, count_t connectors);
 			std::shared_ptr<StaticInstance<Def> >	createInstance(bool copy_root_system=false);				//!< Creates a new instance (a spawn) of the local geometry. The new instance refers to the local geometry but may be animated separatly.
 			std::shared_ptr<AnimatableInstance<Def> >createAnimatableInstance(bool copy_root_system=false);		//!< Creates a new animatable instance (a spawn) of the local geometry. The new instance refers to the local geometry but may be animated separatly.
 			void									adoptInstance(StaticInstance<Def>&instance,bool copy_root_system=false);		//!< Adopts an existing instance to the local geometry. The instance will refer to the local geometry but may be animated separatly.
@@ -1514,7 +1512,7 @@ namespace CGS	//! Compiled Geometrical Structure
 				/**/				Object():voffset(0),normalsFromVertex(0),normalsFromTriangle(0),normalsFromQuad(0), system(Matrix<typename Def::SystemType>::eye4)	{currentLOD = &lods.append();}
 				void				Clear()
 									{
-										lods.truncate(1);
+										lods.Truncate(1);
 										lods.last().Clear();
 										currentLOD = lods.pointer();
 										_OnActiveLODChange();

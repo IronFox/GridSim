@@ -295,7 +295,7 @@ namespace CGS
 												count_t	vframe_length = source_hull.vertex_field.length();
 												ASSERT1__(source_hull.valid(),source_hull.errorStr());	//TRANSITORY
 				
-												target_hull.vertex_field.setSize(vframe_length*repeat);
+												target_hull.vertex_field.SetSize(vframe_length*repeat);
 												//const Mesh<Def>::Vertex	*vfrom = source.vertex_field;
 
 
@@ -328,7 +328,7 @@ namespace CGS
 												});
 												//ASSERT_CONCLUSION(obj.vertex_field,vfrom);
 
-												target_hull.triangle_field.setSize(source_hull.triangle_field.length()*repeat);
+												target_hull.triangle_field.SetSize(source_hull.triangle_field.length()*repeat);
 												const typename Mesh<Def>::Triangle	*tfrom = source_hull.triangle_field.pointer();
 												for (index_t k = 0; k < source_hull.triangle_field.length(); k++)
 												{
@@ -344,7 +344,7 @@ namespace CGS
 												}
 												ASSERT_CONCLUSION(source_hull.triangle_field,tfrom);
 
-												target_hull.quad_field.setSize(source_hull.quad_field.length()*repeat);
+												target_hull.quad_field.SetSize(source_hull.quad_field.length()*repeat);
 												const typename Mesh<Def>::Quad	*qfrom = source_hull.quad_field.pointer();
 												for (index_t k = 0; k < source_hull.quad_field.length(); k++)
 												{
@@ -361,7 +361,7 @@ namespace CGS
 												}
 												ASSERT_CONCLUSION(source_hull.quad_field,qfrom);
 					
-												target_hull.edge_field.setSize(source_hull.edge_field.length()*repeat);
+												target_hull.edge_field.SetSize(source_hull.edge_field.length()*repeat);
 												const typename Mesh<Def>::Edge	*efrom = source_hull.edge_field.pointer();
 												for (index_t k = 0; k < source_hull.edge_field.length(); k++)
 												{
