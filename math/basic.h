@@ -325,6 +325,7 @@ namespace Math
 	MFUNC3	(C0)		cubicStep(C0 v, C1 lower, C2 upper);							//!< Returns cubic (x^3)  smoothed step \param v Value to examin \param lower Lower boundary \param upper Upper boundary \return cubicFactor(linearStep(...))
 	MFUNC3	(C0)		smoothstep(C1 lower, C2 upper,C0 v)	{return cubicStep(v,lower,upper);}
 	MFUNC3	(C0)		clamp(C0 v, C1 min, C2 max);									//!< Returns clamped value \param v Value to examine \param min Lower boundary \param max Upper boundary \return Value clamped to [min,max]
+	MFUNC3	(C0)		clamp01(C0 v);													//!< Returns clamped value in the range [0,1] \param v Value to examine @return Value clamped to [0,1]
 	MFUNC3	(C0)		clamped(C0 v, C1 min, C2 max);									//!< Returns clamped value \param v Value to examine \param min Lower boundary \param max Upper boundary \return Value clamped to [min,max]
 	MFUNC2	(C0)		aligned(C0 i, C1 at);											//!< Aligns i to the upper step ceiling \param i Value to examine \param at Step \return ceil(i/at)*at
 	MFUNC	(C)			cosFactor(C f);													//!< Smooths f using cos \param f Value to examine in the boundary [0,1] \return smoothed factor [0,1]
@@ -396,6 +397,7 @@ namespace Math
 		MFUNC3	(C0)		cosStep(const C0&v, const C1&lower, const C2&upper);		//!< By reference variant of Math::cosStep()
 		MFUNC3	(C0)		cubicStep(const C0&v, const C1&lower, const C2&upper);		//!< By reference variant of Math::cubicStep()
 		MFUNC3	(C0)		clamp(const C0&v, const C1&min, const C2&max);				//!< By reference variant of Math::clamp()
+		MFUNC3	(C0)		clamp01(C0 v);												//!< By reference variant of Math::clamp01()
 		MFUNC3	(C0)		clamped(const C0&v, const C1&min, const C2&max);			//!< By reference variant of Math::clamped()
 		MFUNC2	(C0)		aligned(const C0&i, const C1&at);							//!< By reference variant of Math::aligned()
 		MFUNC	(C)			cosFactor(const C&f);										//!< By reference variant of Math::cosFactor()

@@ -83,6 +83,14 @@ namespace Math
 				return (C0)max;
 			return v;
 		}
+		MFUNC (C)          clamp01(const C&v)
+		{
+			if (v < (C)0)
+				return (C)0;
+			if (v > (C)1)
+				return (C)1;
+			return v;
+		}
 		MFUNC  (int)        sign(const C&f)
 		{
 			if (f < -getError<C>()/100)
@@ -602,7 +610,14 @@ namespace Math
 			return (C0)max;
 		return v;
 	}
-
+	MFUNC (C)          clamp01(C v)
+	{
+		if (v < (C)0)
+			return (C)0;
+		if (v > (C)1)
+			return (C)1;
+		return v;
+	}
 
     MFUNC (int)        sign(C f)
     {
