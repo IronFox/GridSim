@@ -309,12 +309,12 @@ namespace Engine
 
 	template <class GL> inline bool Display<GL>::hideCursor()
 	{
-	    return mouse.hideCursor();
+	    return mouse.HideCursor();
 	}
 
 	template <class GL> inline void Display<GL>::showCursor()
 	{
-	    mouse.showCursor();
+	    mouse.ShowCursor();
 	}
 
 	template <class GL> inline  void  Display<GL>::locateWindow(unsigned left, unsigned top, unsigned width, unsigned height)
@@ -652,7 +652,7 @@ namespace Engine
 			if (!--focus_check)
 			{
 				focus_check = 5;
-				if (mouse.isLocked())
+				if (mouse.IsLocked())
 					context.checkFocus();
 			}
 			if (context.isMinimized())
@@ -675,7 +675,7 @@ namespace Engine
 				exec_loop = !context.shutting_down && exec_target();
 			}
 
-	        mouse.update();	//set here to reset motion
+	        mouse.Update();	//set here to reset motion
 			interruptCheckEvents();
 	        GL::NextFrame();
 	    }
@@ -699,7 +699,7 @@ namespace Engine
 			if (!--focus_check)
 			{
 				focus_check = 5;
-				if (mouse.isLocked())
+				if (mouse.IsLocked())
 					context.checkFocus();
 			}
 			if (context.isMinimized())
@@ -723,7 +723,7 @@ namespace Engine
 			}
 
 
-	        mouse.update();
+	        mouse.Update();
 
 	        #if SYSTEM==WINDOWS
 	            MSG msg;
@@ -775,7 +775,7 @@ namespace Engine
 	    TargetBackbuffer();
 	    GL::DestroyContext();
 	    context.close();
-		mouse.release();
+		mouse.Release();
 	}
 
 	template <class GL>

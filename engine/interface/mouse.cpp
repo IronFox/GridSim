@@ -16,7 +16,7 @@ engine mouse-interface.
 namespace Engine
 {
 
-	const char*			Mouse::cursorToString(cursor_t cursor)
+	const char*			Mouse::CursorToString(cursor_t cursor)
 	{
 		#undef CASE
 		#define CASE(_CURSOR_)	case _CURSOR_: return #_CURSOR_;
@@ -48,7 +48,7 @@ namespace Engine
 	}
 
 
-	bool Mouse::buttonDown(BYTE id, bool update_if_bound)
+	bool Mouse::SignalButtonDown(BYTE id, bool update_if_bound)
 	{
 		if (id >= 5 || buttons.down[id])
 			return false;
@@ -56,11 +56,11 @@ namespace Engine
 		buttons.down[id] = true;
 		buttons.pressed = true;
 		if (update_if_bound)
-			update();
+			Update();
 		return map.keyDown(Key::MouseButton0+(int)id);
 	}
 
-	bool Mouse::buttonUp(BYTE id, bool update_if_bound)
+	bool Mouse::SignalButtonUp(BYTE id, bool update_if_bound)
 	{
 		if (id >= 5 || !buttons.down[id])
 			return false;
@@ -68,25 +68,30 @@ namespace Engine
 		buttons.down[id] = false;
 		buttons.pressed = buttons.down[0] || buttons.down[1] || buttons.down[2] || buttons.down[3] || buttons.down[4];
 		if (update_if_bound)
-			update();
+			Update();
 		return map.keyUp(Key::MouseButton0+(int)id);
 	}
 
-	BYTE	Mouse::getButton()							const
+	BYTE	Mouse::GetButton()							const
 	{
 		return button_id;
 	}
 
 
+	void	Mouse::HandleMouseWheel(short delta)
+	{
+		if (wheel_link)
+			wheel_link(delta);
+	}
 
 
-	void Mouse::bindWheel(wheelLink Link)
+	void Mouse::BindWheel(FWheelLink Link)
 	{
 	    wheel_link = Link;
 	}
 
 	#if SYSTEM==WINDOWS
-	void Mouse::updateNoClip()
+	void Mouse::UpdateNoClip()
 	{
 	    no_clip.left = screen_clip.left-(screen_clip.right-screen_clip.left)*10;
 	    no_clip.top = screen_clip.top-(screen_clip.bottom-screen_clip.top)*10;
@@ -96,7 +101,7 @@ namespace Engine
 
 	#elif SYSTEM==UNIX
 
-	    void Mouse::assign(Display*display_, Window window_, int screen_)
+	    void Mouse::Assign(Display*display_, Window window_, int screen_)
 	    {
 	        display = display_;
 	        window_handle = window_;
@@ -125,7 +130,7 @@ namespace Engine
 	#endif
 
 	
-	void	Mouse::loadCursors()
+	void	Mouse::LoadCursors()
 	{
 		#if SYSTEM==WINDOWS
 			cursor_reference[CursorType::Default] = LoadCursor(NULL,IDC_ARROW);
@@ -194,7 +199,7 @@ namespace Engine
 		    mx = (screen_clip.left+screen_clip.right)/2;
 		    my = (screen_clip.top+screen_clip.bottom)/2;		
 			
-	        updateNoClip();
+	        UpdateNoClip();
 
 
 
@@ -212,7 +217,7 @@ namespace Engine
 	}
 
 
-	void Mouse::redefineWindow(RECT window_, HWND hwnd)
+	void Mouse::RedefineWindow(RECT window_, HWND hwnd)
 	{
 	    window = window_;
 		mx = (window.left+window.right)/2;
@@ -231,7 +236,7 @@ namespace Engine
 	    //ShowMessage("window set to "+IntToStr(window.left)+", "+IntToStr(window.top)+" - "+IntToStr(window.right)+", "+IntToStr(window.bottom));
 	}
 
-	void Mouse::setRegion(int width, int height)
+	void Mouse::SetRegion(int width, int height)
 	{
 	    mx = width/2;
 	    my = height/2;
@@ -241,7 +246,7 @@ namespace Engine
 	    screen_clip.bottom = height;
 	//    ShowMessage("region updated to "+IntToStr(width)+", "+IntToStr(height));
 	    #if SYSTEM==WINDOWS
-	        updateNoClip();
+	        UpdateNoClip();
 	        if (locked)
 	            ClipCursor(&window);
 	        else
@@ -249,20 +254,20 @@ namespace Engine
 	    #endif
 	}
 
-	void Mouse::resetRegion()
+	void Mouse::ResetRegion()
 	{
 	    #if SYSTEM==WINDOWS
-	        setRegion(initial_clip);
+	        SetRegion(initial_clip);
 	    #endif
 	}
 
-	void Mouse::setRegion(RECT region)
+	void Mouse::SetRegion(RECT region)
 	{
 	    mx = (region.left+region.right)/2;
 	    my = (region.top+region.bottom)/2;
 	    screen_clip = region;
 	    #if SYSTEM==WINDOWS
-	        updateNoClip();
+	        UpdateNoClip();
 	        if (locked)
 	            ClipCursor(&window);
 	        else
@@ -299,7 +304,7 @@ namespace Engine
 	}
 
 
-	void Mouse::update()
+	void Mouse::Update()
 	{
 		#if SYSTEM!=WINDOWS
 			previous_location = location;
@@ -349,12 +354,12 @@ namespace Engine
 #endif /*0*/	
 	}
 
-	void Mouse::freeMouse()
+	void Mouse::Release()
 	{
 	    if (!locked)
 	        return;
 	    
-	    SetCursorPos(location.absolute.x,location.absolute.y);
+	    ::SetCursorPos(location.absolute.x,location.absolute.y);
 	    
 	    locked = false;
 	    #if SYSTEM==WINDOWS
@@ -362,7 +367,7 @@ namespace Engine
 	    #endif
 	}
 
-	void Mouse::catchMouse()
+	void Mouse::Trap()
 	{
 	    if (locked)
 	        return;
@@ -377,25 +382,25 @@ namespace Engine
 	    #if SYSTEM==WINDOWS
 	        //ClipCursor(&no_clip);
 			if (focus)
-				ClipCursor(&window);
+				::ClipCursor(&window);
 	    #endif
 	}
 
-	void	Mouse::setFocused(bool focused)
+	void	Mouse::SetFocused(bool focused)
 	{
 		if (focused)
-			restoreFocus();
+			RestoreFocus();
 		else
-			looseFocus();
+			LooseFocus();
 	}
 
-	bool	Mouse::isFocused()
+	bool	Mouse::IsFocused()	const
 	{
 		return focus;
 	}
 
 
-	void Mouse::looseFocus()
+	void Mouse::LooseFocus()
 	{
 	    if (!focus)
 	        return;
@@ -430,7 +435,7 @@ namespace Engine
 	}
 
 
-	void Mouse::restoreFocus()
+	void Mouse::RestoreFocus()
 	{
 	    if (focus)
 	        return;
@@ -438,7 +443,7 @@ namespace Engine
 	    if (locked)
 	    {
 	        #if SYSTEM==WINDOWS
-	            ClipCursor(&window);
+	            ::ClipCursor(&window);
 	        #else
 				SetCursorPos(mx,my);
 			#endif
@@ -458,12 +463,12 @@ namespace Engine
 	    focus = true;
 	}
 
-	bool Mouse::in(float left, float bottom, float right, float top)
+	bool Mouse::IsIn(float left, float bottom, float right, float top)	const
 	{
 		return location.windowRelative.x >= left && location.windowRelative.y >= bottom && location.windowRelative.x <= right && location.windowRelative.y <= top;
 	}
 
-	void Mouse::lock()
+	void Mouse::Lock()
 	{
 	    if (locked)
 	        return;
@@ -474,22 +479,22 @@ namespace Engine
 	    #endif
 	}
 
-	void Mouse::unlock()
+	void Mouse::Unlock()
 	{
 	    locked = false;
 	    #if SYSTEM==WINDOWS
-	        ClipCursor(NULL);
+	        ::ClipCursor(NULL);
 	    #endif
 	}
 
-	bool Mouse::isLocked()
+	bool Mouse::IsLocked()	const
 	{
 	    return locked;
 	}
 
 	#if SYSTEM==UNIX
 
-	bool Mouse::setCursor(Cursor cursor)
+	bool Mouse::SetCursor(Cursor cursor)
 	{
 	    if (!display || !cursor || !window_handle)
 	    {
@@ -506,7 +511,7 @@ namespace Engine
 	    return !XDefineCursor(display, window_handle, cursor);
 	}
 
-	void Mouse::destroyCursor(Cursor cursor)
+	void Mouse::DestroyCursor(Cursor cursor)
 	{
 	    if (!cursor || !display)
 	        return;
@@ -515,7 +520,7 @@ namespace Engine
 	}
 
 
-	Cursor Mouse::createCursor(BYTE*data, BYTE*mask, int w, int h, int hot_x, int hot_y, int screen)
+	Cursor Mouse::CreateCursor(BYTE*data, BYTE*mask, int w, int h, int hot_x, int hot_y, int screen)
 	{
 	    if (!display)
 	        return (Cursor)0;
@@ -594,24 +599,24 @@ namespace Engine
 	//bas: 75 51 41 60
 	#endif
 	
-	bool	Mouse::cursorIsNotDefault()	const
+	bool	Mouse::CursorIsNotDefault()	const
 	{
 		return (loaded_cursor != cursor_reference[CursorType::Default]);
 	}
 
-	void	Mouse::setCursor(eCursor cursor)
+	void	Mouse::SetCursor(eCursor cursor)
 	{
 		if (cursor == CursorType::None || cursor >= CursorType::Count)
 			return;
 		if (cursor != CursorType::Hidden && !cursor_visible)
-			showCursor(false);
+			ShowCursor(false);
 		if (cursor == CursorType::Hidden)
 		{
-			hideCursor(false);
+			HideCursor(false);
 			return;
 		}
 		if (!cursor_reference[CursorType::EditText])
-			loadCursors();
+			LoadCursors();
 		
 		if (loaded_cursor == cursor_reference[cursor])
 			return;
@@ -619,10 +624,10 @@ namespace Engine
 		if (cursor_visible)
 		{
 			#if SYSTEM==WINDOWS
-				SetCursor(cursor_reference[cursor]);
+				::SetCursor(cursor_reference[cursor]);
 			#elif SYSTEM_VARIANCE==LINUX
 				//cout << "setting cursor "<<cursorToString(cursor)<<endl;
-				setCursor(cursor_reference[cursor]);	//for some reason this may fail occasionally, during startup at least. it does work most of the time though
+				SetCursor(cursor_reference[cursor]);	//for some reason this may fail occasionally, during startup at least. it does work most of the time though
 				//ASSERT2__(setCursor(cursor_reference[cursor]),cursorToString(cursor),cursor_reference[cursor]); //so, no assertion here
 			#else
 				#error stub
@@ -632,10 +637,10 @@ namespace Engine
 		}
 	}
 
-	void	Mouse::setCustomCursor(HCURSOR cursor)
+	void	Mouse::SetCustomCursor(HCURSOR cursor)
 	{
 		if (!cursor_visible)
-			showCursor(false);
+			ShowCursor(false);
 		
 		if (loaded_cursor == cursor)
 			return;
@@ -643,10 +648,10 @@ namespace Engine
 		if (cursor_visible)
 		{
 			#if SYSTEM==WINDOWS
-				SetCursor(cursor);
+				::SetCursor(cursor);
 			#elif SYSTEM_VARIANCE==LINUX
 				//cout << "setting cursor "<<cursorToString(cursor)<<endl;
-				setCursor(cursor);	//for some reason this may fail occasionally, during startup at least. it does work most of the time though
+				SetCursor(cursor);	//for some reason this may fail occasionally, during startup at least. it does work most of the time though
 				//ASSERT2__(setCursor(cursor_reference[cursor]),cursorToString(cursor),cursor_reference[cursor]); //so, no assertion here
 			#else
 				#error stub
@@ -657,7 +662,7 @@ namespace Engine
 	}
 	
 
-	bool Mouse::hideCursor(bool force)
+	bool Mouse::HideCursor(bool force)
 	{
 		force_invisible	= force;
 		if (!cursor_visible)
@@ -677,7 +682,7 @@ namespace Engine
 	    #endif
 	}
 
-	void Mouse::showCursor(bool override)
+	void Mouse::ShowCursor(bool override)
 	{
 		if (force_invisible && !override)
 			return;
@@ -689,9 +694,9 @@ namespace Engine
 			return;
 
 	    #if SYSTEM==WINDOWS
-	        ShowCursor(TRUE);
+	        ::ShowCursor(TRUE);
 	    #elif SYSTEM==UNIX
-	        setCursor(None);    //None means no custom cursor thus default to standard cursor
+	        SetCursor(None);    //None means no custom cursor thus default to standard cursor
 	    #endif
 	}
 

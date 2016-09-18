@@ -561,7 +561,7 @@ namespace Engine
 	
 		if (hWnd)
 			return hWnd;
-		mouse.looseFocus();
+		mouse.LooseFocus();
 		DWORD style = WS_POPUP|WS_CLIPCHILDREN;//|WS_CLIPSIBLINGS;
 		switch (border_style)
 		{
@@ -677,7 +677,7 @@ namespace Engine
 		displayConfigFlags = 0;
 
 
-		mouse.looseFocus();
+		mouse.LooseFocus();
 		DWORD style = WS_CHILD |WS_CLIPCHILDREN;//|WS_CLIPSIBLINGS;
 		if (!enabled)
 			style |= WS_DISABLED;
@@ -811,9 +811,9 @@ namespace Engine
 		XMoveResizeWindow(display,window,_location.left,_location.top,_location.right-_location.left,_location.bottom-_location.top);
 		//XStoreName(display,window,window_name);
 		timing.initialize();
-		mouse.assign(display,window,screen);
-		mouse.redefineWindow(_location,window);
-		mouse.setRegion(res_map[_current].width, res_map[_current].height);
+		mouse.Assign(display,window,screen);
+		mouse.RedefineWindow(_location,window);
+		mouse.SetRegion(res_map[_current].width, res_map[_current].height);
 		initAnalogs();
 		window_attributes = attributes;
 		return window;
@@ -826,12 +826,12 @@ namespace Engine
 
 	bool Context::hideCursor()
 	{
-		return  mouse.hideCursor();
+		return  mouse.HideCursor();
 	}
 
 	void Context::showCursor()
 	{
-		mouse.showCursor();
+		mouse.ShowCursor();
 	}
 	
 
@@ -890,7 +890,7 @@ namespace Engine
 					result |= DisplayConfig::IsFullscreen;
 				_location = info.rcWindow;
 				client_area = info.rcClient;
-				mouse.redefineWindow(client_area,hWnd);
+				mouse.RedefineWindow(client_area,hWnd);
 			}
 		#elif SYSTEM==UNIX
 			client_area = _location;
@@ -914,7 +914,7 @@ namespace Engine
 			{
 				_location = info.rcWindow;
 				client_area = info.rcClient;
-				mouse.redefineWindow(client_area,hWnd);
+				mouse.RedefineWindow(client_area,hWnd);
 				if (onResize)
 					onResize(Resolution(client_area.right - client_area.left,client_area.bottom - client_area.top),flags);
 			}
@@ -928,7 +928,7 @@ namespace Engine
 			_location.right = info.x + info.width;
 			_location.bottom = info.y + info.height;
 			client_area = _location;
-			mouse.redefineWindow(client_area,window);
+			mouse.RedefineWindow(client_area,window);
 			if (onResize)
 				onResize(Resolution(client_area.right - client_area.left,client_area.bottom - client_area.top),flags);
 			
@@ -1097,7 +1097,7 @@ namespace Engine
 
 	void Context::checkFocus()
 	{
-		mouse.setFocused(isFocused());
+		mouse.SetFocused(isFocused());
 	}
 
 	void Context::destroyWindow()
@@ -1166,7 +1166,7 @@ namespace Engine
 		if (_applied)
 		{
 			EnumDisplaySettings(NULL,ENUM_CURRENT_SETTINGS,&_current);
-			mouse.setRegion(_current.dmPelsWidth,_current.dmPelsHeight);
+			mouse.SetRegion(_current.dmPelsWidth,_current.dmPelsHeight);
 		}
 	#elif SYSTEM==UNIX
 	/*	Time stamp;
@@ -1206,7 +1206,7 @@ namespace Engine
 		if (ChangeDisplaySettings(&mode,CDS_FULLSCREEN) == DISP_CHANGE_SUCCESSFUL)
 		{
 			EnumDisplaySettings(NULL,ENUM_CURRENT_SETTINGS,&_current);
-			mouse.setRegion(_current.dmPelsWidth,_current.dmPelsHeight);
+			mouse.SetRegion(_current.dmPelsWidth,_current.dmPelsHeight);
 			_target = _current;
 			_applied = true;
 			LocateWindow();
@@ -1240,7 +1240,7 @@ namespace Engine
 		#elif SYSTEM==UNIX
 			XRRSetScreenConfigAndRate(display, config, window, 0, 1, 0, CurrentTime);
 		#endif
-		mouse.resetRegion();
+		mouse.ResetRegion();
 		_current = _initial;
 		_applied = false;
 	}
@@ -1433,7 +1433,7 @@ namespace Engine
 			XGrabKeyboard(display, window, True, GrabModeAsync, GrabModeAsync, CurrentTime);
 		#endif
 		_focused = true;
-		mouse.restoreFocus();
+		mouse.RestoreFocus();
 	}
 
 	void Context::looseFocus()
@@ -1442,7 +1442,7 @@ namespace Engine
 			XUngrabKeyboard(display, CurrentTime);
 		#endif
 		_focused = false;
-		mouse.looseFocus();
+		mouse.LooseFocus();
 		input.ReleasePressedKeys();
 	}
 
@@ -1494,8 +1494,8 @@ namespace Engine
 			if (!--focus_check)
 			{
 				focus_check = 5;
-				if (mouse.isLocked())
-					mouse.setFocused(context.isFocused());
+				if (mouse.IsLocked())
+					mouse.SetFocused(context.isFocused());
 			}
 			#if SYSTEM==WINDOWS
 				MSG msg;
@@ -1732,7 +1732,7 @@ namespace Engine
 		switch (Msg)
 		{
 			case WM_SETCURSOR:
-				return (LOWORD(lParam) == HTCLIENT) && mouse.cursorIsNotDefault() ? 1 : DefWindowProcW(hWnd, Msg, wParam, lParam);
+				return (LOWORD(lParam) == HTCLIENT) && mouse.CursorIsNotDefault() ? 1 : DefWindowProcW(hWnd, Msg, wParam, lParam);
 			case WM_SIZING:		context.SignalResize(0);									return 0;
 			case WM_SIZE:	
 			{
@@ -1759,17 +1759,17 @@ namespace Engine
 			case WM_SYSKEYUP:
 			case WM_KEYUP:		keyboard.keyUp((Key::Name)wParam);							return 0;
 			case WM_CHAR:		keyboard.input(wParam);										return 0;
-			case WM_LBUTTONDOWN:mouse.buttonDown(0); installHook();							return 0;
-			case WM_LBUTTONUP:  mouse.buttonUp(0);											return 0;
-			case WM_MBUTTONDOWN:mouse.buttonDown(1); installHook();							return 0;
-			case WM_MBUTTONUP:  mouse.buttonUp(1);											return 0;
-			case WM_RBUTTONDOWN:mouse.buttonDown(2); installHook();							return 0;
-			case WM_RBUTTONUP:  mouse.buttonUp(2);											return 0;
+			case WM_LBUTTONDOWN:mouse.SignalButtonDown(0); installHook();							return 0;
+			case WM_LBUTTONUP:  mouse.SignalButtonUp(0);											return 0;
+			case WM_MBUTTONDOWN:mouse.SignalButtonDown(1); installHook();							return 0;
+			case WM_MBUTTONUP:  mouse.SignalButtonUp(1);											return 0;
+			case WM_RBUTTONDOWN:mouse.SignalButtonDown(2); installHook();							return 0;
+			case WM_RBUTTONUP:  mouse.SignalButtonUp(2);											return 0;
 			case WM_XBUTTONDOWN:
 				//cout << wParam<<" / "<<HIWORD (wParam)<<" == "<<VK_XBUTTON1<<endl;
-				mouse.buttonDown(HIWORD (wParam)==1?3:4); installHook();	return 0;
-			case WM_XBUTTONUP:	mouse.buttonUp(HIWORD (wParam)==1?3:4);			return 0;
-			case WM_MOUSEWHEEL: if (mouse.wheel_link) mouse.wheel_link(GET_WHEEL_DELTA_WPARAM(wParam)/ WHEEL_DELTA);	return 0;
+				mouse.SignalButtonDown(HIWORD (wParam)==1?3:4); installHook();	return 0;
+			case WM_XBUTTONUP:	mouse.SignalButtonUp(HIWORD (wParam)==1?3:4);			return 0;
+			case WM_MOUSEWHEEL: mouse.HandleMouseWheel(GET_WHEEL_DELTA_WPARAM(wParam)/ WHEEL_DELTA);	return 0;
 			case WM_MOVE:
 			{
 				WINDOWINFO	info;
@@ -1777,7 +1777,7 @@ namespace Engine
 				{
 					context._location = info.rcWindow;
 					context.client_area = info.rcClient;
-					mouse.redefineWindow(context.client_area,context.hWnd);
+					mouse.RedefineWindow(context.client_area,context.hWnd);
 				}
 			}
 			break;
@@ -2106,14 +2106,14 @@ namespace Engine
 				unsigned id = event.xbutton.button-Button1;
 				if (id < 3)
 				{
-					mouse.buttonDown(id);
+					mouse.SignalButtonDown(id);
 				}
 				elif (id >= 5)
 				{
-					mouse.buttonDown(id-2);
+					mouse.SignalButtonDown(id-2);
 				}
-				elif (mouse.wheel_link)
-					mouse.wheel_link((1-(id-3)*2));
+				else
+					mouse.HandleMouseWheel((1-(id-3)*2));
 			}
 			break;
 			case ButtonRelease:
@@ -2121,11 +2121,11 @@ namespace Engine
 				unsigned id = event.xbutton.button-Button1;
 				if (id < 3)
 				{
-					mouse.buttonUp(id);
+					mouse.SignalButtonUp(id);
 				}
 				elif (id >= 5)
 				{
-					mouse.buttonUp(id-2);
+					mouse.SignalButtonUp(id-2);
 				}
 			}
 			break;

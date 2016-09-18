@@ -346,8 +346,7 @@ namespace Engine
 		virtual	void			onMouseMove()	{};
 		virtual	void			onMouseWheel(short delta)
 								{
-									if (mouse.wheel_link)
-										mouse.wheel_link(delta);
+									mouse.HandleMouseWheel(delta);
 								}
 		virtual	void			onFileDrop(const Array<String>&files);
 		virtual	void			onChar(char c)

@@ -2521,7 +2521,7 @@ namespace Engine
 			if (cursor == Mouse::CursorType::Default && was_default)
 				return;
 			
-			mouse.setCursor(cursor);
+			mouse.SetCursor(cursor);
 			was_default = cursor == Mouse::CursorType::Default;
 		}
 		

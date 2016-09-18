@@ -1329,8 +1329,8 @@ namespace Engine
 	    glViewport(0,0,client_width,client_height);
 
 	    Engine::timing.update();
-		mouse.redefineWindow(region,window);
-		mouse.update();
+		mouse.RedefineWindow(region,window);
+		mouse.Update();
 		
 		display.overrideSetClientResolution(Resolution(client_width,client_height));
 //		display.lockRegion();
@@ -1868,7 +1868,7 @@ namespace Engine
 			}
 
 			screen = attributes.screen;
-			mouse.assign(application.display,window,XScreenNumberOfScreen(screen));
+			mouse.Assign(application.display,window,XScreenNumberOfScreen(screen));
 		#elif SYSTEM==WINDOWS
 			WINDOWINFO	info;
 			GetWindowInfo(window,&info);
@@ -1889,7 +1889,7 @@ namespace Engine
 
 		RECT region;
 		assembleClientRect(region);
-		mouse.redefineWindow(region,window);
+		mouse.RedefineWindow(region,window);
 
 
 		if (application.active_screen != screen)
@@ -1915,7 +1915,7 @@ namespace Engine
 				screen_location = info.rcMonitor;
 			#endif
 
-			mouse.setRegion(screen_location);
+			mouse.SetRegion(screen_location);
 		}
 	}
 
@@ -2640,7 +2640,7 @@ namespace Engine
 						if (p.x < w.left || p.x > w.right || p.y < w.top || p.y > w.bottom)
 						{
 							if (update)
-								installed_on[k]->mouse.update();
+								installed_on[k]->mouse.Update();
 							installed_on[k]->onMouseMove();
 							installed_on[k]->updateIfRequired();
 						}
@@ -2682,7 +2682,7 @@ namespace Engine
 					{
 						if (installed_on[button] != NULL)
 						{
-							installed_on[button]->mouse.buttonUp((BYTE)button,true);
+							installed_on[button]->mouse.SignalButtonUp((BYTE)button,true);
 							installed_on[button]->onKeyUp((Key::Name)(Key::MouseButton0+button));
 							installed_on[button] = NULL;
 							
@@ -2733,7 +2733,7 @@ namespace Engine
 				switch (Msg)
 				{
 					case WM_SETCURSOR:
-						return (LOWORD(lParam) == HTCLIENT) && window->mouse.cursorIsNotDefault() ? 1 : DefWindowProcW(hWnd, Msg, wParam, lParam);
+						return (LOWORD(lParam) == HTCLIENT) && window->mouse.CursorIsNotDefault() ? 1 : DefWindowProcW(hWnd, Msg, wParam, lParam);
 
 					case MW_CREATE_WINDOW_REQUEST:
 					{
@@ -2763,16 +2763,16 @@ namespace Engine
 						if (char c = window->keyboard.convertInput(wParam))
 							window->onChar(c);
 					break;
-					case WM_LBUTTONDOWN:	window->mouse.buttonDown(0,true);window->onKeyDown(Key::MouseButton0); Hook::install(0,window);	break;
-			        case WM_LBUTTONUP:  	window->mouse.buttonUp(0,true);window->onKeyUp(Key::MouseButton0);								break;
-					case WM_MBUTTONDOWN:	window->mouse.buttonDown(1,true);window->onKeyDown(Key::MouseButton1); Hook::install(1,window);	break;
-			        case WM_MBUTTONUP:  	window->mouse.buttonUp(1,true);window->onKeyUp(Key::MouseButton1);								break;
-					case WM_RBUTTONDOWN:	window->mouse.buttonDown(2,true);window->onKeyDown(Key::MouseButton2); Hook::install(2,window);	break;
-			        case WM_RBUTTONUP:  	window->mouse.buttonUp(2,true);window->onKeyUp(Key::MouseButton2);								break;
+					case WM_LBUTTONDOWN:	window->mouse.SignalButtonDown(0,true);window->onKeyDown(Key::MouseButton0); Hook::install(0,window);	break;
+			        case WM_LBUTTONUP:  	window->mouse.SignalButtonUp(0,true);window->onKeyUp(Key::MouseButton0);								break;
+					case WM_MBUTTONDOWN:	window->mouse.SignalButtonDown(1,true);window->onKeyDown(Key::MouseButton1); Hook::install(1,window);	break;
+			        case WM_MBUTTONUP:  	window->mouse.SignalButtonUp(1,true);window->onKeyUp(Key::MouseButton1);								break;
+					case WM_RBUTTONDOWN:	window->mouse.SignalButtonDown(2,true);window->onKeyDown(Key::MouseButton2); Hook::install(2,window);	break;
+			        case WM_RBUTTONUP:  	window->mouse.SignalButtonUp(2,true);window->onKeyUp(Key::MouseButton2);								break;
 					case WM_XBUTTONDOWN:
 					{
 						WORD button = HIWORD (wParam)==1?3:4;
-						window->mouse.buttonDown(button,true);
+						window->mouse.SignalButtonDown(button,true);
 						window->onKeyDown((Key::Name)(Key::MouseButton0 + button));
 						Hook::install(button,window);
 					}
@@ -2780,20 +2780,20 @@ namespace Engine
 					case WM_XBUTTONUP:
 					{
 						WORD button = HIWORD (wParam)==1?3:4;
-						window->mouse.buttonUp(button,true);
+						window->mouse.SignalButtonUp(button,true);
 						window->onKeyUp((Key::Name)(Key::MouseButton0 + button));
 						
-						//mouse.buttonUp(HIWORD (wParam)==1?3:4);
+						//mouse.SignalButtonUp(HIWORD (wParam)==1?3:4);
 					}
 					return 0;
 
 
 					case WM_MOUSELEAVE:	//does this event even work...???
-						window->mouse.buttonUp(0,true);
-						window->mouse.buttonUp(1,true);
-						window->mouse.buttonUp(2,true);
-						window->mouse.buttonUp(3,true);
-						window->mouse.buttonUp(4,true);
+						window->mouse.SignalButtonUp(0,true);
+						window->mouse.SignalButtonUp(1,true);
+						window->mouse.SignalButtonUp(2,true);
+						window->mouse.SignalButtonUp(3,true);
+						window->mouse.SignalButtonUp(4,true);
 				        window->onKeyUp(Key::MouseButton0);
 				        window->onKeyUp(Key::MouseButton1);
 				        window->onKeyUp(Key::MouseButton2);
@@ -2807,7 +2807,7 @@ namespace Engine
 					case WM_MOUSEMOVE:
 						//if (window->mouseMovePntr)
 						{
-							window->mouse.update();
+							window->mouse.Update();
 							window->onMouseMove();
 						}
 					break;
@@ -2817,7 +2817,7 @@ namespace Engine
 						window->onDestroy();
 						window->destroy();
 					break;
-					case WM_DISPLAYCHANGE:	window->mouse.setRegion(LOWORD(wParam),HIWORD(wParam));		break;
+					case WM_DISPLAYCHANGE:	window->mouse.SetRegion(LOWORD(wParam),HIWORD(wParam));		break;
 //		case WM_SHOWWINDOW:
 			        case WM_SETFOCUS:
 						if (!window->focused)
@@ -2975,12 +2975,12 @@ namespace Engine
 				{
 					if (id < 3)
 					{
-						window->mouse.buttonDown(id,true);
+						window->mouse.SignalButtonDown(id,true);
 						window->onKeyDown((Key::Name)(Key::MouseButton0+id));
 					}
 					elif (id >= 5)
 					{
-						window->mouse.buttonDown(((id-5)%2)+3,true);
+						window->mouse.SignalButtonDown(((id-5)%2)+3,true);
 						window->onKeyDown((Key::Name)(Key::MouseButton0+((id-5)%2)+3));
 					}
 					else
@@ -3008,12 +3008,12 @@ namespace Engine
 				{
 					if (id < 3)
 					{
-						window->mouse.buttonUp(id,true);
+						window->mouse.SignalButtonUp(id,true);
 						window->onKeyUp((Key::Name)(Key::MouseButton0+id));
 					}
 					elif (id >= 5)
 					{
-						window->mouse.buttonUp(((id-5)%2)+3,true);
+						window->mouse.SignalButtonUp(((id-5)%2)+3,true);
 						window->onKeyUp((Key::Name)(Key::MouseButton0+((id-5)%2)+3));
 					}
 				}
@@ -3034,7 +3034,7 @@ namespace Engine
 					{
 						//if (window->mouseMovePntr)
 						{
-							window->mouse.update();
+							window->mouse.Update();
 							window->onMouseMove();
 						}
 					}
