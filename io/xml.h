@@ -72,8 +72,10 @@ namespace XML
 	    Node*          		Find(const String&path);				//!< Returns the first matching node (if any) @param path Path string in the form 'node/subnode/.../subnodeN' @return Pointer to the matching node or NULL if no such could be found
 	    const Node*			Find(const String&path)		const;	//!< @copydoc find()
 		Node&				Create(const String&path, const String&inner_content="");
-		bool				Query(const String&attrib_name, String&val_out)	const;	//!< Queries the string content of the specified attribute of the local node. The method does not crash if this is NULL. \param attrib_name Name of the requested attribute \param val_out String reference to store the respective attribute's value in \return true if the local object is not NULL and the requested attribute exists, false otherwise.
-		bool				Query(const char*attrib_name, String&val_out)	const;	//!< @copydoc query()
+		bool				Query(const String&attrib_name, String&val_out)	const;	//!< Queries the string content of the specified attribute of the local node. The method does not crash if @a this is NULL. \param attrib_name Name of the requested attribute \param val_out String reference to store the respective attribute's value in \return true if the local object is not NULL and the requested attribute exists, false otherwise.
+		bool				Query(const char*attrib_name, String&val_out)	const;	//!< @copydoc Query()
+		bool				Query(const String&attrib_name, StringRef&val_out)	const;	//!< Queries the string content of the specified attribute of the local node. The method does not crash if @a this is NULL. \param attrib_name Name of the requested attribute \param val_out String reference to store the respective attribute's value in \return true if the local object is not NULL and the requested attribute exists, false otherwise.
+		bool				Query(const char*attrib_name, StringRef&val_out)	const;	//!< @copydoc Query()
 		void				swap(Node&other);
 	};
 

@@ -313,6 +313,30 @@ bool			XML::Node::Query(const char*attrib_name, String&val_out)		const
 	return false;
 }
 
+bool			XML::Node::Query(const String&attrib_name, StringRef&val_out) const
+{
+	if (!this)
+		return false;
+	if (const TAttribute*attrib = attributes.lookup(attrib_name))
+	{
+		val_out = attrib->value.ref();
+		return true;
+	}
+	return false;
+}
+
+bool			XML::Node::Query(const char*attrib_name, StringRef&val_out)		const
+{
+	if (!this)
+		return false;
+	if (const TAttribute*attrib = attributes.lookup(attrib_name))
+	{
+		val_out = attrib->value.ref();
+		return true;
+	}
+	return false;
+}
+
 
 /*
 bool			XML::Node::query(const String&attrib_name, String&val_out) const
