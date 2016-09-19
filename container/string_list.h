@@ -272,17 +272,18 @@ namespace Tokenizer
 	};
 	
 	/**
-		@brief Tokenizes a string composition in accordance to the specified configuration
+	@brief Tokenizes a string composition in accordance to the specified configuration
 		
-		@param composition Composition string to tokenize
-		@param config Tokenizer configuration
-		@param target String list to append identified tokens to
-		@param clear_list Clears the target list before adding tokens to it
+	@param composition Composition string to tokenize
+	@param config Tokenizer configuration
+	@param target String list to append identified tokens to
+	@param clear_list Clears the target list before adding tokens to it
 		
-		@return true if the string is valid in accordance with the specified tokenizer configuration, false if strings or recursive layers are left open when the tokenizer reaches the end of the specified composition
+	@return true if the string is valid in accordance with the specified tokenizer configuration, false if strings or recursive layers are left open when the tokenizer reaches the end of the specified composition
 	*/
 	bool			tokenize(const char*composition, const Configuration&config, StringList&target, bool clear_list=true);
 	bool			tokenize(const String&composition, const Configuration&config, StringList&target, bool clear_list=true);	//!< @overload
+	bool			Tokenize(const StringRef&composition, const Configuration&config, BasicBuffer<StringRef>&target, bool clear_list=true);
 	
 	
 	void			tokenizeSegment(const String&composition_segment, const Configuration&config, Status&status, StringList&target);
@@ -384,8 +385,12 @@ public:
 			const String&		min()														const;	//!< Const @overload
 			String&				first();															//!< Returns a reference to the first string of the local list. Returns a reference to a global empty string if the local list is empty
 			const String&		first()														const;	//!< Const @overload
+			String&				First()	/**@copydoc first()*/	{return first();}
+			const String&		First()	const /**@copydoc first()const*/ {return first();}
 			String&				last();																//!< Returns a reference to the last string of the local list. Returns a reference to a global empty string if the local list is empty
 			const String&		last()														const;	//!< Const @overload
+			String&				Last()	/**@copydoc last()*/	{return last();}
+			const String&		Last()	const /**@copydoc last()const*/ {return last();}
 			size_t				charactersInCommon()										const;	//!< Queries how many characters (starting from the beginning) all contained strings have in common with each other. Comparison is case sensitive
 			size_t				charactersInCommon(const String&sample)					const;	//!< Queries how many characters (starting from the beginning) all contained strings have in common with the specified sample. Comparison is case sensitive
 			
@@ -436,6 +441,7 @@ INLINE		const String&		operator[](size_t index)									const;
 INLINE		void				clear()			{Super::reset();}
 			
 			using Super::count;
+			using Super::Count;
 			using Super::size;
 			using Super::revert;
 			using Super::IsEmpty;

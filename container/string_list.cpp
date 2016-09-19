@@ -1,5 +1,6 @@
 #include "../global_root.h"
 #include "string_list.h"
+#include <functional>
 
 
 namespace Tokenizer
@@ -30,15 +31,14 @@ namespace Tokenizer
 	}
 
 
-
-
-	static bool			tokenize(const char*composition, size_t length, const Configuration&config, StringList&target)
+	template <typename Receiver>
+	static bool			tokenize(const char*composition, size_t length, const Configuration&config, Receiver&receiver)
 	{
 		if (!*composition)
 			return true;
 		
 		#undef ADD_ENTRY
-		#define ADD_ENTRY(_SEGMENT_)	target.add(String(_SEGMENT_.first,_SEGMENT_.last-_SEGMENT_.first+1));
+		#define ADD_ENTRY(_SEGMENT_)	receiver << StringRef(_SEGMENT_.first,_SEGMENT_.last-_SEGMENT_.first+1);
 		//#define ADD_ENTRY(_SEGMENT_)	target.add(_SEGMENT_);
 
 		
@@ -63,13 +63,13 @@ namespace Tokenizer
 		const char	*ch = composition,
 					*token_start = composition;
 		
-		const char	*end = composition+length;
+		const char	*const end = composition+length;
 
 		TemporaryStatus	status;
 		
 		bool escaped = false;
 		bool double_escaped = false;
-		while (*ch)
+		while (ch != end)
 		{
 			char c = *ch++;
 			if (config.convert_tabs && c=='\t')
@@ -174,9 +174,17 @@ namespace Tokenizer
 			target.clear();
 		return tokenize(composition.c_str(),composition.length(),config,target);
 	}
+
+	bool			Tokenize(const StringRef&composition, const Configuration&config, BasicBuffer<StringRef>&target, bool clear_list)
+	{
+		if (clear_list)
+			target.clear();
+		return tokenize(composition.pointer(),composition.length(),config,target);
+	}
 	
 	
-	static void			tokenizeSegment(const char*composition_segment, size_t length, const Configuration&config, Status&status, StringList&target)
+	template <typename Receiver>
+	static void			tokenizeSegment(const char*composition_segment, size_t length, const Configuration&config, Status&status, Receiver&receiver)
 	{
 		if (!*composition_segment)
 			return;
@@ -225,12 +233,12 @@ namespace Tokenizer
 					*token_start = composition_segment;
 		
 		
-		const char	*end = composition_segment+length;
+		const char	*const end = composition_segment+length;
 
 
 		bool escaped = false;
 		bool double_escaped = false;
-		while (*ch)
+		while (ch != end)
 		{
 			char c = *ch++;
 			if (config.convert_tabs && c=='\t')
