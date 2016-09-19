@@ -595,24 +595,24 @@ static void EncodeToStream(OutStream&outfile, XML::Encoding enc, const String&id
 
 
 template <class OutStream>
-static void writeToStream(OutStream&outfile, XML::Encoding enc, XML::Node*entry, XML::export_style_t style, unsigned indent=0)
+static void writeToStream(OutStream&outfile, XML::Encoding enc, const XML::Node*entry, XML::export_style_t style, unsigned indent=0)
 {
-	entry->name.trimThis();
-	if (entry->name.IsEmpty())
+	StringRef trimmed = entry->name.trimRef();
+	//entry->name.trimThis();
+	if (trimmed.length() == 0)
 		throw IO::StructureCompositionFault("XML: Local entry is empty");
 
 	if (style==XML::Nice)
 		outfile << tabSpace(indent);
 	outfile << "<";
-	EncodeToStream(outfile, enc,entry->name);
-	entry->attributes.reset();
-	while (XML::TAttribute*p = entry->attributes.each())
+	EncodeToStream(outfile, enc,trimmed);
+	foreach (entry->attributes,p)
 	{
-		if (style != XML::Tidy || p == entry->attributes.first())
+		if (style != XML::Tidy || *p == entry->attributes.first())
 			outfile << " ";
-		EncodeToStream(outfile, enc,p->name);
+		EncodeToStream(outfile, enc,(*p)->name);
 		outfile << "=\"";
-		EncodeValueToStream(outfile,enc,p->value);
+		EncodeValueToStream(outfile,enc,(*p)->value);
 		outfile<<"\"";
 	}
 	if (entry->children.IsEmpty() && entry->inner_content.IsEmpty())
@@ -682,7 +682,7 @@ static void writeToStream(OutStream&outfile, XML::Encoding enc, XML::Node*entry,
 		if (style==XML::Nice && entry->children.IsNotEmpty())
 			outfile << tabSpace(indent);
 		outfile << "</";
-		EncodeToStream(outfile,enc,entry->name);
+		EncodeToStream(outfile,enc,trimmed);
 		outfile << ">";
 	}
 
@@ -724,12 +724,12 @@ static void writeToStream(OutStream&outfile, XML::Encoding enc, XML::Node*entry,
 	}
 }
 
-void				XML::Container::SaveToStringBuffer(StringBuffer&target, export_style_t style)
+void				XML::Container::SaveToStringBuffer(StringBuffer&target, export_style_t style) const
 {
 	writeToStream(target,encoding,&root_node,style);
 }
 
-void				XML::Container::SaveToFile(const PathString&filename, export_style_t style)
+void				XML::Container::SaveToFile(const PathString&filename, export_style_t style) const
 {
 	StringFile outfile;
 	if (!outfile.Create(filename))

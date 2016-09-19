@@ -112,8 +112,8 @@ namespace XML
 		@param content String to parse
 		*/
 		void				LoadFromString(const String&content);
-		void                SaveToFile(const PathString&filename, export_style_t style=Nice);
-		void				SaveToStringBuffer(StringBuffer&target, export_style_t style=Nice);
+		void                SaveToFile(const PathString&filename, export_style_t style=Nice) const;
+		void				SaveToStringBuffer(StringBuffer&target, export_style_t style=Nice) const;
 	};
 	
 	
