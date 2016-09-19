@@ -569,6 +569,12 @@ namespace Math
 		}
 
 
+		MFUNC(void)		resetBottomRow(TMatrix3<C>&matrix)
+		{
+			matrix.x.z = matrix.y.z = 0;
+			matrix.z.z = 1;
+		}
+
 		MFUNC(void)		resetBottomRow(TMatrix4<C>&matrix)
 		{
 			matrix.x.w = matrix.y.w = matrix.z.w = 0;
