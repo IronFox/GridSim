@@ -203,11 +203,17 @@ namespace Template
 	template <typename T0, typename T1>
 		inline const T0*	__fastcall strstr(const T0*haystack, const T1*needle) throw();
 	template <typename T0, typename T1>
+		inline const T0*	__fastcall strstr(const T0*haystack, const T0*const haystackEnd, const T1*needle, const T1*const needleEnd) throw();
+	template <typename T0, typename T1>
 		inline const T0*	__fastcall stristr(const T0*haystack, const T1*needle) throw();
 	template <typename T>
 		inline const T*	__fastcall strchr(const T*haystack, T needle) throw();
 	template <typename T>
+		inline const T*	__fastcall strchr(const T*haystack, const T*const haystackEnd, T needle) throw();
+	template <typename T>
 		inline const T*	__fastcall strchr(const T*haystack, bool isNeedle(T)) throw();
+	template <typename T>
+		inline const T*	__fastcall strchr(const T*haystack, const T*const haystackEnd, bool isNeedle(T)) throw();
 	template <typename T>
 		inline const T*	__fastcall strichr(const T*haystack, T needle) throw();
 	template <typename T0, typename T1>
@@ -1736,7 +1742,11 @@ String			binaryToHex(const void*data, size_t data_size);					//!< @overload
 template <typename T0, typename T1, typename T2>
 	void	explode(const StringTemplate<T0>&delimiter, const StringTemplate<T1>&string, ArrayData<T2>&result);
 template <typename T0, typename T1, typename T2>
+	void	explode(const StringTemplate<T0>&delimiter, const ReferenceExpression<T1>&string, ArrayData<T2>&result);
+template <typename T0, typename T1, typename T2>
 	void	explode(const T0*delimiter, const StringTemplate<T1>&string, ArrayData<T2>&result);
+template <typename T0, typename T1, typename T2>
+	void	explode(const T0*delimiter, const ReferenceExpression<T1>&string, ArrayData<T2>&result);
 template <typename T0, typename T1, typename T2>
 	void	explode(const T0*delimiter, const T1*string, ArrayData<T2>&result);
 template <typename T0, typename T1>
@@ -1744,26 +1754,30 @@ template <typename T0, typename T1>
 template <typename T0, typename T1>
 	void	explode(T0 delimiter, const StringTemplate<T0>&string, ArrayData<T1>&result);
 template <typename T0, typename T1>
+	void	explode(T0 delimiter, const ReferenceExpression<T0>&string, ArrayData<T1>&result);
+template <typename T0, typename T1>
 	void	explodeCallback(bool isDelimiter(T0), const T0*string, ArrayData<T1>&result);
 template <typename T0, typename T1>
 	void	explodeCallback(bool isDelimiter(T0), const StringTemplate<T0>&string, ArrayData<T1>&result);
+template <typename T0, typename T1>
+	void	explodeCallback(bool isDelimiter(T0), const ReferenceExpression<T0>&string, ArrayData<T1>&result);
 
 
 
 
 template <typename T0, typename T1>
-	StringTemplate<T1>		implode(const StringTemplate<T0>&glue, const ArrayData<ReferenceExpression<T1> >&pieces);
+	StringTemplate<T1>		implode(const StringTemplate<T0>&glue, const ArrayRef<ReferenceExpression<T1> >&pieces);
 template <typename T>
-	StringTemplate<T>		implode(T glue, const ArrayData<ReferenceExpression<T> >&pieces);
+	StringTemplate<T>		implode(T glue, const ArrayRef<ReferenceExpression<T> >&pieces);
 template <typename T0, typename T1>
-	StringTemplate<T1>		implode(const T0*glue, const ArrayData<ReferenceExpression<T1> >&pieces);
+	StringTemplate<T1>		implode(const T0*glue, const ArrayRef<ReferenceExpression<T1> >&pieces);
 
 template <typename T0, typename T1>
-	StringTemplate<T1>		implode(const StringTemplate<T0>&glue, const ArrayData<StringTemplate<T1> >&pieces);
+	StringTemplate<T1>		implode(const StringTemplate<T0>&glue, const ArrayRef<StringTemplate<T1> >&pieces);
 template <typename T>
-	StringTemplate<T>		implode(T glue, const ArrayData<StringTemplate<T> >&pieces);
+	StringTemplate<T>		implode(T glue, const ArrayRef<StringTemplate<T> >&pieces);
 template <typename T0, typename T1>
-	StringTemplate<T1>		implode(const T0*glue, const ArrayData<StringTemplate<T1> >&pieces);
+	StringTemplate<T1>		implode(const T0*glue, const ArrayRef<StringTemplate<T1> >&pieces);
 template <typename T0, typename T1>
 	StringTemplate<T1>		implode(const StringTemplate<T0>&glue, const StringTemplate<T1>*pieces, count_t numPieces);
 template <typename T>

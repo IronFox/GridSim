@@ -57,6 +57,25 @@ namespace Template
 			}
 			return NULL;
 		}
+
+	template <typename T0, typename T1>
+		inline const T0*	__fastcall strstr(const T0*haystack, const T0*const haystackEnd, const T1*needle, const T1*const needleEnd) throw()
+		{
+			while (haystack != haystackEnd)
+			{
+				const T0	*p0 = haystack;
+				const T1	*p1 = needle;
+				while (p0 != haystackEnd && p1 != needleEnd && *p0 == (T0)*p1)
+				{
+					p0++;
+					p1++;
+				}
+				if (p1 == needleEnd)
+					return haystack;
+				haystack++;
+			}
+			return NULL;
+		}
 		
 	template <typename T0, typename T1>
 		inline const T0*	__fastcall stristr(const T0*haystack, const T1*needle) throw()
@@ -113,11 +132,35 @@ namespace Template
 			}
 			return NULL;
 		}
+
+	template <typename T>
+		inline const T*	__fastcall strchr(const T*haystack, const T*const haystackEnd, T needle) throw()
+		{
+			while (haystack != haystackEnd)
+			{
+				if (*haystack == needle)
+					return haystack;
+				haystack++;
+			}
+			return NULL;
+		}
 	
 	template <typename T>
 		inline const T*	__fastcall strchr(const T*haystack, bool isNeedle(T)) throw()
 		{
 			while (*haystack)
+			{
+				if (isNeedle(*haystack))
+					return haystack;
+				haystack++;
+			}
+			return NULL;
+		}
+	
+	template <typename T>
+		inline const T*	__fastcall strchr(const T*haystack, const T*const haystackEnd, bool isNeedle(T)) throw()
+		{
+			while (haystack != haystackEnd)
 			{
 				if (isNeedle(*haystack))
 					return haystack;
@@ -3955,27 +3998,36 @@ template <typename T>
 
 #endif
 
-	
 template <typename T0, typename T1, typename T2>
 	void	explode(const T0*delimiter, size_t delimiter_length, const T1*string, ArrayData<T2>&result)
 	{
-		if (!string || !delimiter)
+		if (!string)
 			return;
-		if (!*delimiter)
+		explode(delimiter, delimiter_length,ReferenceExpression<T1>(string,Template::strlen(string)),result);
+	}
+
+	
+template <typename T0, typename T1, typename T2>
+	void	explode(const T0*delimiter, size_t delimiter_length, const ReferenceExpression<T1>&string, ArrayData<T2>&result)
+	{
+		if (!delimiter)
+			return;
+		if (!string.length())
 		{
 			result.SetSize(1);
 			result[0] = string;
 			return;
 		}
-		
+		const T0*const delimiterEnd = delimiter+delimiter_length;
 		
 		//ArrayData<T1>	buffer(string);
-		const T1*at = string;
+		const T1*at = string.pointer();
+		const T1*const end = at+string.length();
 		size_t count = 0;
-		while (*at)
+		while (at != end)
 		{
 			count ++;
-			if (const T1*found = Template::strstr<T1,T0>(at,delimiter))
+			if (const T1*found = Template::strstr<T1,T0>(at,end,delimiter,delimiterEnd))
 			{
 				at = found + delimiter_length;
 			}
@@ -3983,11 +4035,11 @@ template <typename T0, typename T1, typename T2>
 				break;
 		}
 		result.SetSize(count);
-		at = string;
+		at = string.pointer();
 		count = 0;
-		while (*at)
+		while (at != end)
 		{
-			if (const T1*found = Template::strstr<T1,T0>(at,delimiter))
+			if (const T1*found = Template::strstr<T1,T0>(at,end,delimiter,delimiterEnd))
 			{
 				result[count++] = T2(at,found-at);
 				/*(*found) = 0;
@@ -3996,7 +4048,7 @@ template <typename T0, typename T1, typename T2>
 			}
 			else
 			{
-				result[count++] = at;
+				result[count++] = T2(at,end-at);
 				return;
 			}
 		}
@@ -4005,47 +4057,7 @@ template <typename T0, typename T1, typename T2>
 template <typename T0, typename T1, typename T2>
 	void	explode(const T0*delimiter, size_t delimiter_length, const StringTemplate<T1>&string, ArrayData<T2>&result)
 	{
-		if (!delimiter)
-			return;
-		if (!*delimiter)
-		{
-			result.SetSize(1);
-			result[0] = string;
-			return;
-		}
-		
-		
-		//ArrayData<T1>	buffer(string.c_str(),string.length());
-		const T1*at = string.c_str();
-		size_t count = 0;
-		while (*at)
-		{
-			count ++;
-			if (const T1*found = Template::strstr<T1,T0>(at,delimiter))
-			{
-				at = found + delimiter_length;
-			}
-			else
-				break;
-		}
-		result.SetSize(count);
-		at = string.c_str();
-		count = 0;
-		while (*at)
-		{
-			if (const T1*found = Template::strstr<T1,T0>(at,delimiter))
-			{
-				/*(*found) = 0;
-				result[count++] = at;*/
-				result[count++] = T2(at,found-at);
-				at = found + delimiter_length;
-			}
-			else
-			{
-				result[count++] = at;
-				return;
-			}
-		}
+		explode(delimiter,delimiter_length,string.ref(),result);
 	}
 
 
@@ -4077,13 +4089,20 @@ template <typename T0, typename T1>
 	{
 		if (!string)
 			return;
+		explode(delimiter, ReferenceExpression<T0>(string,Template::strlen(string)),result);
+	}
+
+template <typename T0, typename T1>
+	void	explode(T0 delimiter, const ReferenceExpression<T0>&string, ArrayData<T1>&result)
+	{
 		//ArrayData<T0>	buffer(string);
-		const T0*at = string;
+		const T0*at = string.pointer();
+		const T0*const end = at + string.length();
 		size_t count = 0;
-		while (*at)
+		while (at != end)
 		{
 			count ++;
-			if (const T0*found = Template::strchr(at,delimiter))
+			if (const T0*found = Template::strchr(at,end,delimiter))
 			{
 				at = found +1;
 			}
@@ -4091,11 +4110,11 @@ template <typename T0, typename T1>
 				break;
 		}
 		result.SetSize(count);
-		at = string;
+		at = string.pointer();
 		count = 0;
-		while (*at)
+		while (at != end)
 		{
-			if (const T0*found = Template::strchr(at,delimiter))
+			if (const T0*found = Template::strchr(at,end,delimiter))
 			{
 				/*(*found) = 0;
 				result[count++] = at;*/
@@ -4104,7 +4123,7 @@ template <typename T0, typename T1>
 			}
 			else
 			{
-				result[count++] = at;
+				result[count++] = T1(at,end-at);
 				return;
 			}
 		}
@@ -4113,35 +4132,7 @@ template <typename T0, typename T1>
 template <typename T0, typename T1>
 	void	explode(T0 delimiter, const StringTemplate<T0>&string, ArrayData<T1>&result)
 	{
-		const T0*at = string.c_str();
-		size_t count = 0;
-		while (*at)
-		{
-			count ++;
-			if (const T0*found = Template::strchr(at,delimiter))
-			{
-				at = found +1;
-			}
-			else
-				break;
-		}
-
-		result.SetSize(count);
-		at = string.c_str();
-		count = 0;
-		while (*at)
-		{
-			if (const T0*found = Template::strchr(at,delimiter))
-			{
-				result[count++] = T1(at,found-at);
-				at = found + 1;
-			}
-			else
-			{
-				result[count++] = T1(at,string.c_str() + string.length() - at);
-				return;
-			}
-		}
+		explode(delimiter,string.ref(),result);
 	}
 
 template <typename T0, typename T1>
@@ -4149,13 +4140,20 @@ template <typename T0, typename T1>
 	{
 		if (!string)
 			return;
+		explodeCallback(isDelimiter, ReferenceExpression<T0>(string,Template::strlen(string)),result);
+	}
+
+template <typename T0, typename T1>
+	void	explodeCallback(bool isDelimiter(T0), const ReferenceExpression<T0>&string, ArrayData<T1>&result)
+	{
 		//ArrayData<T0>	buffer(string);
-		const T0*at = string;
+		const T0*at = string.pointer();
+		const T0*const end = at + string.length();
 		size_t count = 0;
-		while (*at)
+		while (at!=end)
 		{
 			count ++;
-			if (const T0*found = Template::strchr(at,isDelimiter))
+			if (const T0*found = Template::strchr(at,end,isDelimiter))
 			{
 				at = found +1;
 			}
@@ -4163,11 +4161,11 @@ template <typename T0, typename T1>
 				break;
 		}
 		result.SetSize(count);
-		at = string;
+		at = string.pointer();
 		count = 0;
 		while (*at)
 		{
-			if (const T0*found = Template::strchr(at,isDelimiter))
+			if (const T0*found = Template::strchr(at,end,isDelimiter))
 			{
 				/*(*found) = 0;
 				result[count++] = at;*/
@@ -4176,7 +4174,7 @@ template <typename T0, typename T1>
 			}
 			else
 			{
-				result[count++] = at;
+				result[count++] = T1(at,end-at);
 				return;
 			}
 		}
@@ -4185,35 +4183,7 @@ template <typename T0, typename T1>
 template <typename T0, typename T1>
 	void	explodeCallback(bool isDelimiter(T0), const StringTemplate<T0>&string, ArrayData<T1>&result)
 	{
-		const T0*at = string.c_str();
-		size_t count = 0;
-		while (*at)
-		{
-			count ++;
-			if (const T0*found = Template::strchr(at,isDelimiter))
-			{
-				at = found +1;
-			}
-			else
-				break;
-		}
-
-		result.SetSize(count);
-		at = string.c_str();
-		count = 0;
-		while (*at)
-		{
-			if (const T0*found = Template::strchr(at,isDelimiter))
-			{
-				result[count++] = T1(at,found-at);
-				at = found + 1;
-			}
-			else
-			{
-				result[count++] = at;
-				return;
-			}
-		}
+		explodeCallback(isDelimiter,string.ref(),result);
 	}
 
 
@@ -4381,7 +4351,7 @@ template <typename T0, typename T1>
 	}
 
 template <typename T0, typename T1>
-	StringTemplate<T1>		implode(const StringTemplate<T0>&glue, const ArrayData<StringTemplate<T1> >&pieces)
+	StringTemplate<T1>		implode(const StringTemplate<T0>&glue, const ArrayRef<StringTemplate<T1> >&pieces)
 	{
 		if (!pieces.count())
 			return "";
@@ -4408,7 +4378,7 @@ template <typename T0, typename T1>
 	}
 
 template <typename T>
-	StringTemplate<T>		implode(T glue, const ArrayData<StringTemplate<T> >&pieces)
+	StringTemplate<T>		implode(T glue, const ArrayRef<StringTemplate<T> >&pieces)
 	{
 		if (!pieces.count())
 			return "";
@@ -4432,7 +4402,7 @@ template <typename T>
 	}
 	
 template <typename T0, typename T1>
-	StringTemplate<T1>		implode(const T0*glue_str, const ArrayData<StringTemplate<T1> >&pieces)
+	StringTemplate<T1>		implode(const T0*glue_str, const ArrayRef<StringTemplate<T1> >&pieces)
 	{
 		if (!pieces.count())
 			return "";
