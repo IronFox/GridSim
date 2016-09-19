@@ -72,10 +72,12 @@ namespace SVG
 		Element&	SkewX(float);
 		Element&	SkewY(float);
 		Element&	SetStrokeWidth(float w);
-		Element&	SetStroke(const float3&);
-		Element&	SetStroke(const float4&);
-		Element&	SetFill(const float3&);
-		Element&	SetFill(const float4&);
+		Element&	Stroke(const float3&);
+		Element&	Stroke(const float4&);
+		Element&	NoStroke();
+		Element&	Fill(const float3&);
+		Element&	Fill(const float4&);
+		Element&	NoFill();
 	};
 
 

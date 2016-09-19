@@ -105,26 +105,38 @@ namespace SVG
 
 	}
 
-	Element & Element::SetStroke(const float3 &c)
+	Element & Element::NoStroke()
+	{
+		node.Set("stroke","none");
+		return *this;
+	}
+
+	Element & Element::Stroke(const float3 &c)
 	{
 		SetRGB("stroke",c);
 		return *this;
 	}
 
-	Element & Element::SetStroke(const float4 &c)
+	Element & Element::Stroke(const float4 &c)
 	{
 		SetRGB("stroke",c.rgb);
 		node.Set("stroke-opacity",c.a);
 		return *this;
 	}
 
-	Element & Element::SetFill(const float3 &c)
+	Element & Element::NoFill()
+	{
+		node.Set("fill","none");
+		return *this;
+	}
+
+	Element & Element::Fill(const float3 &c)
 	{
 		SetRGB("fill",c);
 		return *this;
 	}
 
-	Element & Element::SetFill(const float4 &c)
+	Element & Element::Fill(const float4 &c)
 	{
 		SetRGB("fill",c.rgb);
 		node.Set("fill-opacity",c.a);
