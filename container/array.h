@@ -218,8 +218,8 @@ template <typename T, size_t Length>
 			return value+Length;
 		}
 
-		size_t					size() const {return Length;}
-		count_t					Count() const {return Length;}
+		constexpr size_t		size() const {return Length;}
+		constexpr count_t		Count() const {return Length;}
 
 		/**
 		Executes swap() on all elements
