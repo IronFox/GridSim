@@ -21,11 +21,20 @@ namespace SVG
 
 		/**/		BaseElement(XML::Node&node):node(node)	{}
 	public:
+		bool		IsGroup() const;
+		/**Creates a new group child element in the local SVG element. Local element must be a group*/
 		Element		CreateGroup();
+		/**Creates a new line child element in the local SVG element. Local element must be a group*/
 		Element		CreateLine(const TVec2<>&,const TVec2<>&);
+		/**Creates a new image child element in the local SVG element. Local element must be a group*/
 		Element		CreateImage(const Rect<>&, const PathString&path);
+		/**Creates a new polyline child element in the local SVG element. Local element must be a group*/
+		Element		CreatePolyline(const ArrayRef<float2>&);
+		/**Creates a new polygon child element in the local SVG element. Local element must be a group*/
 		Element		CreatePolygon(const ArrayRef<float2>&);
+		/**Creates a new polygon child element in the local SVG element. Local element must be a group*/
 		Element		CreatePolygon(const Rect<>&);
+		/**Creates a new circle child element in the local SVG element. Local element must be a group*/
 		Element		CreateCircle(const TVec2<>&center, float radius);
 
 		Rect<>		GetBoundingBox(TMatrix3<> transform, float strokeWidth) const;

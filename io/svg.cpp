@@ -44,13 +44,20 @@ namespace SVG
 			node.Set("transform",transformation);
 	}
 
+	bool BaseElement::IsGroup() const
+	{
+		return node.name == "g" || node.name=="svg";
+	}
+
 	Element BaseElement::CreateGroup()
 	{
+		DBG_ASSERT__(IsGroup());
 		return Element(node.AddChild("g"));
 	}
 
 	Element BaseElement::CreateLine(const TVec2<>&p0, const TVec2<>&p1)
 	{
+		DBG_ASSERT__(IsGroup());
 		return Element(node.AddChild("line")
 				.SetMore("x1",p0.x)
 				.SetMore("y1",p0.y)
@@ -61,6 +68,7 @@ namespace SVG
 
 	Element BaseElement::CreateImage(const Rect<>&rect, const PathString & path)
 	{
+		DBG_ASSERT__(IsGroup());
 		return Element(node.AddChild("image")
 				.SetMore("xlink:href",String(path))
 				.SetMore("x", rect.x.min)
@@ -69,9 +77,22 @@ namespace SVG
 				.SetMore("height", rect.y.GetExtend())
 				);
 	}
+	
+	Element BaseElement::CreatePolyline(const ArrayRef<float2>&points)
+	{
+		DBG_ASSERT__(IsGroup());
+		static StringBuffer strPoints;
+		strPoints.Clear();
+		foreach (points,p)
+			strPoints << p->x << ','<<p->y<<' ';
+		return Element(node.AddChild("polyline")
+				.SetMore("points",strPoints.ToStringRef())
+				);
+	}
 
 	Element BaseElement::CreatePolygon(const ArrayRef<float2>&points)
 	{
+		DBG_ASSERT__(IsGroup());
 		static StringBuffer strPoints;
 		strPoints.Clear();
 		foreach (points,p)
@@ -83,6 +104,7 @@ namespace SVG
 
 	Element BaseElement::CreatePolygon(const Rect<>&r)
 	{
+		DBG_ASSERT__(IsGroup());
 		static StringBuffer strPoints;
 		strPoints.Clear();
 		strPoints << r.x.min << ','<< r.y.min<<' ';
@@ -97,6 +119,7 @@ namespace SVG
 
 	Element BaseElement::CreateCircle(const TVec2<>& center, float radius)
 	{
+		DBG_ASSERT__(IsGroup());
 		return Element(node.AddChild("circle")
 				.SetMore("cx",center.x)
 				.SetMore("cy",center.y)
@@ -307,7 +330,7 @@ namespace SVG
 			rs.Include(line);
 
 		}
-		elif (node.name=="polygon")
+		elif (node.name=="polygon" || node.name =="polyline")
 		{
 			const String&spoints = node.attributes["points"]->value;
 			Array<StringRef> points,coords;
@@ -354,7 +377,7 @@ namespace SVG
 			primitive.Expand(strokeExtend);
 			rs.Include(primitive);
 		}
-		elif (node.name == "g" || node.name=="svg")
+		elif (IsGroup())
 		{
 			foreach(node.children,ch)
 			{
