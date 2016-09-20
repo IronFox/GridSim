@@ -1695,10 +1695,10 @@ namespace Engine
 				bool uninstall = false;
 				switch (wParam)
 				{
-					case WM_LBUTTONUP:	uninstall=true;	mouse.buttonUp(0);				break;
-					case WM_MBUTTONUP:  uninstall=true;	mouse.buttonUp(1);				break;
-					case WM_RBUTTONUP:  uninstall=true;	mouse.buttonUp(2);				break;
-					case WM_XBUTTONUP:	uninstall=true;	mouse.buttonUp(HIWORD (wParam)==1?3:4);	break;
+					case WM_LBUTTONUP:	uninstall=true;	mouse.SignalButtonUp(0);				break;
+					case WM_MBUTTONUP:  uninstall=true;	mouse.SignalButtonUp(1);				break;
+					case WM_RBUTTONUP:  uninstall=true;	mouse.SignalButtonUp(2);				break;
+					case WM_XBUTTONUP:	uninstall=true;	mouse.SignalButtonUp(HIWORD (wParam)==1?3:4);	break;
 				}
 				LRESULT rs = CallNextHookEx(hHook,nCode,wParam,lParam);
 
