@@ -473,7 +473,7 @@ namespace TCP
 		});
 		return result;
 	}
-	void Connection::HandleIncomingPackage(UINT32 channelID, Peer&sender, IReadStream&stream, serial_size_t dataSize)
+	void Connection::HandleIncomingPackage(UINT32 channelID, Peer&sender, IReadStream&stream)
 	{
 		RootChannel*receiver = getReceiver(channelID,sender.userLevel);
 		if (receiver)
@@ -481,8 +481,8 @@ namespace TCP
 			if (verbose)
 				std::cout << "Peer::ThreadMain(): deserializing"<<std::endl;
 				
-			PSerializableObject object = receiver->Deserialize(stream,dataSize,sender);
-			if (object)
+			PSerializableObject object = receiver->Deserialize(stream,stream.GetRemainingBytes(),sender);
+			if (object && stream.GetRemainingBytes()==0)
 			{
 				if (verbose)
 					std::cout << "Peer::ThreadMain(): deserialization succeeded, dispatching object"<<std::endl;
@@ -506,7 +506,7 @@ namespace TCP
 		else
 		{
 			#ifdef _DEBUG
-				if (!dataSize)
+				if (!stream.GetRemainingBytes())	//signal
 				{
 					unsigned min_user_level = 0;
 					bool mapped = QuerySignalMap(channelID,min_user_level);
@@ -517,7 +517,7 @@ namespace TCP
 			#endif
 			if (onIgnorePackage)
 			{
-				onIgnorePackage(channelID,UINT32(dataSize),sender);
+				onIgnorePackage(channelID,UINT32(stream.GetRemainingBytes()),sender);
 			}
 		}
 
@@ -1075,7 +1075,7 @@ namespace TCP
 
 			if (remaining_size || !owner->HandleIncomingSignal(channel_index,*this))
 			{
-				owner->HandleIncomingPackage(channel_index,*this,*this,remaining_size);
+				owner->HandleIncomingPackage(channel_index,*this,*this);
 				while (remaining_size > sizeof(dump_buffer))
 					if (netRead(dump_buffer,sizeof(dump_buffer)))
 						remaining_size -= sizeof(dump_buffer);
@@ -1652,7 +1652,7 @@ namespace TCP
 		{
 			#ifdef _DEBUG
 				Array<BYTE>	testBuffer(10000000);
-				ISerializable::serial_size_t rs = SerializeToMemory(object,testBuffer.pointer(),testBuffer.GetContentSize(),false);
+				ISerializable::serial_size_t rs = SerializeToMemory(object,testBuffer.pointer(),(serial_size_t)testBuffer.GetContentSize(),false);
 				if (rs)
 				{
 					FATAL__("Failed to serialize data structure on channel "+String(channel)+". Expected serial size "+String(size)+" but serialized to "+String(rs));

@@ -743,7 +743,15 @@ namespace TCP
 
 		serial_size_t				GetSafePackageSize() const {return safe_package_size;}
 		bool						HandleIncomingSignal(UINT32 channelID, Peer&sender);
-		void						HandleIncomingPackage(UINT32 channelID, Peer&sender, IReadStream&stream, serial_size_t dataSize);
+		/**
+		Handles an incoming package on a specific channel.
+		Automatically looks up the appropriate receiver and dispatches the message
+		@param channelID Channel the package was received on
+		@param sender Sender peer
+		@param stream Source stream. Must be EOF after deserialization or package will be ignored
+		@param dataSize Total available space
+		*/
+		void						HandleIncomingPackage(UINT32 channelID, Peer&sender, IReadStream&stream);
 	};
 
 	typedef std::shared_ptr<Connection>	PConnection;
