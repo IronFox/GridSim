@@ -79,8 +79,12 @@ namespace SVG
 
 		Element&	Scale(const TVec2<>&);
 		Element&	Translate(const TVec2<>&);
+		Element&	Rotate(float angle);
+		Element&	Rotate(float angle, const TVec2<>&rotationPivot);
 		Element&	SkewX(float);
 		Element&	SkewY(float);
+
+
 		Element&	SetStrokeWidth(float w);
 		Element&	Stroke(const float3&);
 		Element&	Stroke(const float4&);

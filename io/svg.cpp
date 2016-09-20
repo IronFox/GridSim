@@ -201,6 +201,18 @@ namespace SVG
 		return *this;
 	}
 
+	Element & Element::Rotate(float angle)
+	{
+		TransformFront("rotate("+String(angle)+")");
+		return *this;
+	}
+
+	Element & Element::Rotate(float angle, const TVec2<>&pivot)
+	{
+		TransformFront("rotate("+String(angle)+' '+String(pivot.x)+' '+String(pivot.y)+")");
+		return *this;
+	}
+
 	Element & Element::SkewX(float v)
 	{
 		TransformFront("skewX("+String(v)+")");
