@@ -478,6 +478,7 @@ namespace SVG
 						.SetMore("y",rect.y.min)
 						.SetMore("width",rect.x.GetExtend())
 						.SetMore("height",rect.y.GetExtend())
+						.SetMore("patternUnits","userSpaceOnUse")
 						.AddChild("g")
 					);
 	}
