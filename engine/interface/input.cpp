@@ -6,7 +6,7 @@ static std::ostream& operator<<(std::ostream&str, const std::function<void()> &f
 {
 	str << "function(";
 	if (func)
-		str << func.target<void()>();	//happens here. i'm fairly sure the warning is not my fault...
+		str << func.target<void(*)()>();
 	else
 		str << "<empty>";
 	str << ")";
