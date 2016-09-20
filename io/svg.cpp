@@ -128,6 +128,17 @@ namespace SVG
 
 	}
 
+	Element BaseElement::CreateText(const TVec2<>&p, const String & text)
+	{
+		DBG_ASSERT__(IsGroup());
+		Element rs = Element(node.AddChild("text")
+				.SetMore("x",p.x)
+				.SetMore("y",p.y)
+				);
+		rs.node.inner_content= text;
+		return rs;
+	}
+
 	Element & Element::NoStroke()
 	{
 		node.Set("stroke","none");
@@ -150,6 +161,18 @@ namespace SVG
 	Element & Element::NoFill()
 	{
 		node.Set("fill","none");
+		return *this;
+	}
+
+	Element & Element::SetFontSize(float size)
+	{
+		node.Set("font-size",size);
+		return *this;
+	}
+
+	Element & Element::SetFontFamily(const String &family)
+	{
+		node.Set("font-family",family);
 		return *this;
 	}
 
@@ -217,6 +240,13 @@ namespace SVG
 		Vec::mad(final,transform.y.xy,p.y);
 		r.Include(final);
 	}
+	static void Include(Rect<>&r, const TMatrix3<>&transform, const Rect<>&outline)
+	{
+		Include(r,transform,outline.min());
+		Include(r,transform,float2(outline.x.max,outline.y.min));
+		Include(r,transform,outline.max());
+		Include(r,transform,float2(outline.x.min,outline.y.max));
+	}
 
 	static void Get(const XML::Node&n, const char*p, float&rs)
 	{
@@ -233,11 +263,13 @@ namespace SVG
 		return rs;
 	}
 
-	Rect<> BaseElement::GetBoundingBox(TMatrix3<> transform, float strokeWidth) const
+	Rect<> BaseElement::GetBoundingBox(TMatrix3<> transform, float strokeWidth, float fontSize) const
 	{
-		StringRef sStrokeWidth;
-		if (node.Query("stroke-width",sStrokeWidth))
-			ASSERT1__(Convert(sStrokeWidth,strokeWidth),sStrokeWidth);
+		StringRef attrib;
+		if (node.Query("stroke-width",attrib))
+			ASSERT1__(Convert(attrib,strokeWidth),attrib);
+		if (node.Query("font-size",attrib))
+			ASSERT1__(Convert(attrib,fontSize),attrib);
 
 		StringRef strans;
 		if (node.Query("transform",strans))
@@ -377,11 +409,22 @@ namespace SVG
 			primitive.Expand(strokeExtend);
 			rs.Include(primitive);
 		}
+		elif (node.name=="text")
+		{
+			float x,y,s;
+			Get(node,"x",x);
+			Get(node,"y",y);
+			
+			Rect<> primitive = Rect<>::Invalid;
+			Include(primitive,transform,Rect<>(x,y-fontSize,x+fontSize*node.inner_content.length(),y));
+			primitive.Expand(strokeExtend);
+			rs.Include(primitive);
+		}
 		elif (IsGroup())
 		{
 			foreach(node.children,ch)
 			{
-				rs.Include(Element(*ch).GetBoundingBox(transform,strokeWidth));
+				rs.Include(Element(*ch).GetBoundingBox(transform,strokeWidth,fontSize));
 			}
 		}
 		else
