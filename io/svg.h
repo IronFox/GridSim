@@ -51,12 +51,14 @@ namespace SVG
 		{
 			container.root_node.name = "svg";
 			container.root_node.SetMore("xmlns","http://www.w3.org/2000/svg").SetMore("xmlns:xlink","http://www.w3.org/1999/xlink").SetMore("version","1.1");
+			container.root_node.AddChild("defs");
 		}
 		Rect<>		GetBoundingBox() const	{return Super::GetBoundingBox(Matrix<>::eye3,1.f,1.f);}
 
 		void		AutoDetectDocumentSize(const TVec2<>&extra);
 		void		DefineCustomDocumentSize(const TVec2<>&size);
 		void		SaveToFile(const PathString&) const;
+		Element		CreatePattern(const String&name, const Rect<>&);
 	};
 
 
@@ -85,12 +87,14 @@ namespace SVG
 		Element&	SkewY(float);
 
 
+
 		Element&	SetStrokeWidth(float w);
 		Element&	Stroke(const float3&);
 		Element&	Stroke(const float4&);
 		Element&	NoStroke();
 		Element&	Fill(const float3&);
 		Element&	Fill(const float4&);
+		Element&	FillPattern(const String&patternName);
 		Element&	NoFill();
 		Element&	SetFontSize(float);
 		Element&	SetFontFamily(const String&);

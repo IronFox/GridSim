@@ -189,6 +189,12 @@ namespace SVG
 		return *this;
 	}
 
+	Element & Element::FillPattern(const String & patternName)
+	{
+		node.Set("fill","url(#"+patternName+")");
+		return *this;
+	}
+
 	Element & Element::Scale(const TVec2<>&s)
 	{
 		TransformFront("scale("+String(s.x)+' '+String(s.y)+")");
@@ -436,7 +442,8 @@ namespace SVG
 		{
 			foreach(node.children,ch)
 			{
-				rs.Include(Element(*ch).GetBoundingBox(transform,strokeWidth,fontSize));
+				if (ch->name!="defs")
+					rs.Include(Element(*ch).GetBoundingBox(transform,strokeWidth,fontSize));
 			}
 		}
 		else
@@ -460,6 +467,19 @@ namespace SVG
 	void		Document::SaveToFile(const PathString&path) const
 	{
 		container.SaveToFile(path);
+	}
+
+	Element SVG::Document::CreatePattern(const String & name, const Rect<>&rect)
+	{
+		XML::Node* defs=container.root_node.Find("defs");
+		return Element(defs->AddChild("pattern")
+						.SetMore("id",name)
+						.SetMore("x",rect.x.min)
+						.SetMore("y",rect.y.min)
+						.SetMore("width",rect.x.GetExtend())
+						.SetMore("height",rect.y.GetExtend())
+						.AddChild("g")
+					);
 	}
 
 }
