@@ -330,7 +330,7 @@ namespace SVG
 					{
 						TransMatrix(transform,1,0,0,1,p[1],p[2]);
 					}
-					float a= p.First();
+					float a= p.First()*M_PIF/180.f;
 					TransMatrix(transform,cos(a),sin(a),-sin(a),cos(a),0,0);
 					if (p.Count() == 3)
 					{
@@ -339,12 +339,12 @@ namespace SVG
 				}
 				elif (trans == "skewY")
 				{
-					float a= p.First();
+					float a= p.First()*M_PIF/180.f;
 					TransMatrix(transform,1,tan(a),0,1,0,0);
 				}
 				elif (trans == "skewX")
 				{
-					float a= p.First();
+					float a= p.First()*M_PIF/180.f;
 					TransMatrix(transform,1,0,tan(a),1,0,0);
 				}
 				else
