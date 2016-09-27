@@ -286,6 +286,13 @@ template <typename T>
 							reference++;
 							return true;
 						}
+		inline bool		EndsWith(const T*str) const
+						{
+							size_t slen = Template::strlen(str);
+							if (slen > len)
+								return false;
+							return !Template::strncmp(reference+len-slen,str, slen);
+						}
 		inline T		GetFirstChar() const
 						{
 							if (!len)
@@ -1281,6 +1288,11 @@ template <typename T>
 			index_t					find(bool callback(T)) const;							//!< Attempts to locate the first occurance of a character for which the specified callback function returns true @param callback Pointer to a function to determine whether a character is a valid match. The function should return true if the character is a valid match, false otherwise @return Offset index plus 1 or 0 if no occurance was found
 			index_t					findWord(const T*sub_str) const;						//!< Searches the local string for the first occurance of the specified sub string with neither the succeeding or preceeding characters being alpha-numeric. Search is case sensitive. \param sub_str String to search for \return Offset of the first occurance in the local string ( in the range [1,Length()]) or 0 if the specified sub string could not be found.
 			index_t					findWord(const StringTemplate<T>&sub_str) const;		//!< Searches the local string for the first occurance of the specified sub string with neither the succeeding or preceeding characters being alpha-numeric. Search is case sensitive. \param sub_str String to search for \return Offset of the first occurance in the local string ( in the range [1,Length()]) or 0 if the specified sub string could not be found.
+			index_t					FindFrom(index_t offset, const StringTemplate<T>&sub_str)	const;		//!< Attempts to locate the first occurance of the specified string from the specified offset @param sub_str String segment to look for @return Offset index plus 1 or 0 if no occurance was found
+			index_t					FindFrom(index_t offset, const T*sub_str, size_t length)	const;		//!< Attempts to locate the first occurance of the specified string segment from the specified offset  @param sub_str Pointer to the first character of the string segment to look for @param length Number of characters of the specified string segment to look for @return Offset index plus 1 or 0 if no occurance was found
+			index_t					FindFrom(index_t offset, const T*sub_str)		const;					//!< Attempts to locate the first occurance of the specified string from the specified offset  @param sub_str Pointer to the first character of the string segment to look for @return Offset index plus 1 or 0 if no occurance was found
+			index_t					FindFrom(index_t offset, T c)					const;					//!< Attempts to locate the first occurance of the specified character from the specified offset  @param c Character to look for @return Offset index plus 1 or 0 if no occurance was found
+			index_t					FindFrom(index_t offset, bool callback(T)) const;							//!< Attempts to locate the first occurance of a character for which the specified callback function returns true, starting at the specified offset @param callback Pointer to a function to determine whether a character is a valid match. The function should return true if the character is a valid match, false otherwise @return Offset index plus 1 or 0 if no occurance was found
 
 			index_t					indexOfIgnoreCase(const StringTemplate<T>&sub_str)	const;		//!< Attempts to locate the first occurance of the specified string. Ignores case @param sub_str String segment to look for @return Offset index plus 1 or 0 if no occurance was found
 			index_t					indexOfIgnoreCase(const T*sub_str, size_t length)	const;		//!< Attempts to locate the first occurance of the specified string. Ignores case segment @param sub_str Pointer to the first character of the string segment to look for @param length Number of characters of the specified string segment to look for @return Offset index plus 1 or 0 if no occurance was found

@@ -1582,11 +1582,49 @@ template <typename T>
 	}
 
 template <typename T>
+	index_t			StringTemplate<T>::FindFrom(index_t offset, const StringTemplate<T>&sub_str)	const
+	{
+		if (!sub_str.length())
+			return 0;
+		if (sub_str.length() + offset >= string_length)
+			return 0;
+		const T*ptr = Template::strstr(field+offset,sub_str.field);
+		return ptr?(ptr-field)+1:0;
+	}
+
+
+template <typename T>
 	index_t			StringTemplate<T>::find(const T*needle, size_t length)	const
 	{
 		if (!length)
 			return 0;
 		const T	*haystack = field,
+				*end = field+string_length,
+				*needle_end = needle+length;
+		while (haystack+length <= end)
+		{
+			const T	*p0 = haystack;
+			const T	*p1 = needle;
+			while (*p0 && p1 < needle_end && *p0 == *p1)
+			{
+				p0++;
+				p1++;
+			}
+			if (p1==needle_end)
+				return haystack-field+1;
+			haystack++;
+		}
+		return 0;
+	}
+
+template <typename T>
+	index_t			StringTemplate<T>::FindFrom(index_t offset, const T*needle, size_t length)	const
+	{
+		if (!length)
+			return 0;
+		if (length + offset >= string_length)
+			return 0;
+		const T	*haystack = field+offset,
 				*end = field+string_length,
 				*needle_end = needle+length;
 		while (haystack+length <= end)
@@ -1615,9 +1653,29 @@ template <typename T>
 	}
 
 template <typename T>
+	index_t			StringTemplate<T>::FindFrom(index_t offset, const T*sub_str)	const
+	{
+		if (!*sub_str)
+			return 0;
+		if (Template::strlen(sub_str) + offset >= string_length)
+			return 0;
+		const T*ptr = Template::strstr(field+offset,sub_str);
+		return ptr?(ptr-field)+1:0;
+	}
+
+template <typename T>
 	index_t			StringTemplate<T>::find(T c)					const
 	{
 		const T*pntr = Template::strchr(field,c);
+		return pntr?(pntr-field)+1:0;
+	}
+
+template <typename T>
+	index_t			StringTemplate<T>::FindFrom(index_t offset, T c)					const
+	{
+		if (1 + offset >= string_length)
+			return 0;
+		const T*pntr = Template::strchr(field+offset,c);
 		return pntr?(pntr-field)+1:0;
 	}
 	
@@ -1682,6 +1740,16 @@ template <typename T>
 		return haystack < end?haystack-field+1:0;
 	}
 
+
+template <typename T>
+	index_t			StringTemplate<T>::FindFrom(index_t offset, bool callback(T))					const
+	{
+		const T *end = field+string_length,
+				*haystack = field+offset;
+		while (haystack < end && !callback(*haystack))
+			haystack++;
+		return haystack < end?haystack-field+1:0;
+	}
 
 
 
@@ -2564,16 +2632,26 @@ template <typename T>
 template <typename T>
 	StringTemplate<T>&				StringTemplate<T>::replace(const StringTemplate<T>&needle, const StringTemplate<T>&replacement)
 	{
-		while (size_t at = find(needle))
-			replaceSubString(at-1,needle.string_length,replacement);
+		index_t at = 0;
+		while (at = FindFrom(at,needle))
+		{
+			at--;
+			replaceSubString(at,needle.string_length,replacement);
+			at += replacement.length();
+		}
 		return *this;
 	}
 
 template <typename T>
 	StringTemplate<T>&				StringTemplate<T>::replace(T needle_char, const StringTemplate<T>&replacement)
 	{
-		while (size_t at = find(needle_char))
-			replaceSubString(at-1,1,replacement);
+		index_t at = 0;
+		while (at = FindFrom(at,needle_char))
+		{
+			at--;
+			replaceSubString(at,1,replacement);
+			at += replacement.length();
+		}
 		return *this;
 	}
 
