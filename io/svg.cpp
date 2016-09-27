@@ -176,6 +176,12 @@ namespace SVG
 		return *this;
 	}
 
+	Element & Element::SetTextAnchor(const String &a)
+	{
+		node.Set("text-anchor",a);
+		return *this;
+	}
+
 	Element & Element::Fill(const float3 &c)
 	{
 		SetRGB("fill",c);
@@ -281,13 +287,20 @@ namespace SVG
 		return rs;
 	}
 
-	Rect<> BaseElement::GetBoundingBox(TMatrix3<> transform, float strokeWidth, float fontSize) const
+	Rect<> BaseElement::GetBoundingBox(TMatrix3<> transform, float strokeWidth, float fontSize, const String&textAnchor) const
 	{
 		StringRef attrib;
 		if (node.Query("stroke-width",attrib))
 			ASSERT1__(Convert(attrib,strokeWidth),attrib);
 		if (node.Query("font-size",attrib))
 			ASSERT1__(Convert(attrib,fontSize),attrib);
+		String localAnchor;
+		const String*outAnchor = &textAnchor;
+		if (node.Query("text-anchor",attrib) && attrib.compareSegment("inherit",7)!=0)
+		{
+			localAnchor = attrib;
+			outAnchor = &localAnchor;
+		}
 
 		StringRef strans;
 		if (node.Query("transform",strans))
@@ -434,7 +447,17 @@ namespace SVG
 			Get(node,"y",y);
 			
 			Rect<> primitive = Rect<>::Invalid;
-			Include(primitive,transform,Rect<>(x,y-fontSize,x+fontSize*node.inner_content.length(),y));
+			Rect<> rect;
+			const float w = fontSize*0.5f *node.inner_content.length();
+			if (*outAnchor == "start")
+				rect = Rect<>(x,y-fontSize,x+w,y);
+			elif (*outAnchor == "middle")
+				rect = Rect<>(x-w/2.f,y-fontSize,x+w/2.f,y);
+			elif (*outAnchor == "end")
+				rect = Rect<>(x-w,y-fontSize,x,y);
+			else
+				return rs;
+			Include(primitive,transform,rect);
 			primitive.Expand(strokeExtend);
 			rs.Include(primitive);
 		}
@@ -443,7 +466,7 @@ namespace SVG
 			foreach(node.children,ch)
 			{
 				if (ch->name!="defs")
-					rs.Include(Element(*ch).GetBoundingBox(transform,strokeWidth,fontSize));
+					rs.Include(Element(*ch).GetBoundingBox(transform,strokeWidth,fontSize,*outAnchor));
 			}
 		}
 		else

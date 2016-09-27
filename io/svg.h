@@ -38,7 +38,7 @@ namespace SVG
 		Element		CreateCircle(const TVec2<>&center, float radius);
 		Element		CreateText(const TVec2<>&,const String&text);
 
-		Rect<>		GetBoundingBox(TMatrix3<> transform, float strokeWidth, float fontSize) const;
+		Rect<>		GetBoundingBox(TMatrix3<> transform, float strokeWidth, float fontSize, const String&textAnchor) const;
 
 	};
 
@@ -53,7 +53,7 @@ namespace SVG
 			container.root_node.SetMore("xmlns","http://www.w3.org/2000/svg").SetMore("xmlns:xlink","http://www.w3.org/1999/xlink").SetMore("version","1.1");
 			container.root_node.AddChild("defs");
 		}
-		Rect<>		GetBoundingBox() const	{return Super::GetBoundingBox(Matrix<>::eye3,1.f,1.f);}
+		Rect<>		GetBoundingBox() const	{return Super::GetBoundingBox(Matrix<>::eye3,1.f,1.f,"start");}
 
 		void		AutoDetectDocumentSize(const TVec2<>&extra);
 		void		DefineCustomDocumentSize(const TVec2<>&size);
@@ -98,6 +98,7 @@ namespace SVG
 		Element&	NoFill();
 		Element&	SetFontSize(float);
 		Element&	SetFontFamily(const String&);
+		Element&	SetTextAnchor(const String&);
 	};
 
 
