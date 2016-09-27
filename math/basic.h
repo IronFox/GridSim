@@ -505,12 +505,12 @@ namespace Math
 		typedef TypeInfo<INT16>	GreaterType;
 		typedef TypeInfo<INT8>	LesserType;
 		typedef TTrue		IsPrimitive;
-		static const bool	is_signed=true,
+		static constexpr bool	is_signed=true,
 							is_float=false;
-		static const Type	zero = 0;
-		static const Type	max = 0x7F;
-		static const Type	min = -max-1;
-		static const Type	error = 0;
+		static constexpr Type	zero = 0;
+		static constexpr Type	max = 0x7F;
+		static constexpr Type	min = -max-1;
+		static constexpr Type	error = 0;
 		static const char*	name;
 		};
 
@@ -525,12 +525,12 @@ namespace Math
 		typedef TypeInfo<INT32>	GreaterType;
 		typedef TypeInfo<INT8>	LesserType;
 		typedef TTrue		IsPrimitive;
-		static const bool	is_signed=true,
+		static constexpr bool	is_signed=true,
 							is_float=false;
-		static const Type	zero = 0;
-		static const Type	max = 0x7FFF;
-		static const Type	min = -max-1;
-		static const Type	error = 0;
+		static constexpr Type	zero = 0;
+		static constexpr Type	max = 0x7FFF;
+		static constexpr Type	min = -max-1;
+		static constexpr Type	error = 0;
 		static const char*	name;
 		};
 
@@ -545,12 +545,12 @@ namespace Math
 		typedef TypeInfo<INT64>	GreaterType;
 		typedef TypeInfo<INT16>	LesserType;
 		typedef TTrue		IsPrimitive;
-		static const bool	is_signed=true,
+		static constexpr bool	is_signed=true,
 							is_float=false;
-		static const Type	zero = 0;
-		static const Type	max = 0x7FFFFFFF;
-		static const Type	min = -max-1;
-		static const Type	error = 0;
+		static constexpr Type	zero = 0;
+		static constexpr Type	max = 0x7FFFFFFF;
+		static constexpr Type	min = -max-1;
+		static constexpr Type	error = 0;
 		static const char*	name;
 		};
 
@@ -566,12 +566,12 @@ namespace Math
 		typedef TypeInfo<INT64>	GreaterType;
 		typedef TypeInfo<INT16>	LesserType;
 		typedef TTrue		IsPrimitive;
-		static const bool	is_signed=true,
+		static constexpr bool	is_signed=true,
 							is_float=false;
-		static const Type	zero = 0;
-		static const Type	max = (LONG)(((ULONG)((LONG)-1)) >> 1);  //0x7FFFFFFF;
-		static const Type	min = -max-1;
-		static const Type	error = 0;
+		static constexpr Type	zero = 0;
+		static constexpr Type	max = (LONG)(((ULONG)((LONG)-1)) >> 1);  //0x7FFFFFFF;
+		static constexpr Type	min = -max-1;
+		static constexpr Type	error = 0;
 		static const char*	name;
 		};
 	
@@ -586,12 +586,12 @@ namespace Math
 		typedef TypeInfo<INT64>	GreaterType;
 		typedef TypeInfo<INT16>	LesserType;
 		typedef TTrue		IsPrimitive;
-		static const bool	is_signed=false,
+		static constexpr bool	is_signed=false,
 							is_float=false;
-		static const Type	zero = 0;
-		static const Type	max = ((ULONG)((LONG)-1));  //0x7FFFFFFF;
-		static const Type	min = 0;
-		static const Type	error = 0;
+		static constexpr Type	zero = 0;
+		static constexpr Type	max = ((ULONG)((LONG)-1));  //0x7FFFFFFF;
+		static constexpr Type	min = 0;
+		static constexpr Type	error = 0;
 		static const char*	name;
 		};
 	#endif
@@ -607,12 +607,12 @@ namespace Math
 		typedef TypeInfo<INT64>	GreaterType;
 		typedef TypeInfo<INT32>	LesserType;
 		typedef TTrue		IsPrimitive;
-		static const bool	is_signed=true,
+		static constexpr bool	is_signed=true,
 							is_float=false;
-		static const Type	zero = 0;
-		static const Type	max = 0x7FFFFFFFFFFFFFFFLL;
-		static const Type	min = -max-1;
-		static const Type	error = 0;
+		static constexpr Type	zero = 0;
+		static constexpr Type	max = 0x7FFFFFFFFFFFFFFFLL;
+		static constexpr Type	min = -max-1;
+		static constexpr Type	error = 0;
 		static const char*	name;
 		};
 
@@ -627,12 +627,12 @@ namespace Math
 		typedef TypeInfo<UINT16>GreaterType;
 		typedef TypeInfo<UINT8>	LesserType;
 		typedef TTrue		IsPrimitive;
-		static const bool	is_signed=false,
+		static constexpr bool	is_signed=false,
 							is_float=false;
-		static const Type	zero = 0;
-		static const Type	max = 0xFF;
-		static const Type	min = 0x00;
-		static const Type	error = 0;
+		static constexpr Type	zero = 0;
+		static constexpr Type	max = 0xFF;
+		static constexpr Type	min = 0x00;
+		static constexpr Type	error = 0;
 		static const char*	name;
 		};
 
@@ -647,12 +647,12 @@ namespace Math
 			typedef TypeInfo<bool>	GreaterType;
 			typedef TypeInfo<bool>	LesserType;
 			typedef TTrue		IsPrimitive;
-			static const bool	is_signed = false,
-				is_float = false;
-			static const Type	zero = false;
-			static const Type	max = true;
-			static const Type	min = false;
-			static const Type	error = 0;
+			static constexpr bool	is_signed = false,
+									is_float = false;
+			static constexpr Type	zero = false;
+			static constexpr Type	max = true;
+			static constexpr Type	min = false;
+			static constexpr Type	error = 0;
 			static const char*	name;
 		};
 
@@ -667,12 +667,12 @@ namespace Math
 		typedef TypeInfo<UINT32>GreaterType;
 		typedef TypeInfo<UINT8>	LesserType;
 		typedef TTrue		IsPrimitive;
-		static const bool	is_signed=false,
-							is_float=false;
-		static const Type	zero = 0;
-		static const Type	max = 0xFFFF;
-		static const Type	min = 0x0000;
-		static const Type	error = 0;
+		static constexpr bool	is_signed=false,
+								is_float=false;
+		static constexpr Type	zero = 0;
+		static constexpr Type	max = 0xFFFF;
+		static constexpr Type	min = 0x0000;
+		static constexpr Type	error = 0;
 		static const char*	name;
 		};
 
@@ -687,12 +687,12 @@ namespace Math
 		typedef TypeInfo<UINT64>GreaterType;
 		typedef TypeInfo<UINT16>LesserType;
 		typedef TTrue		IsPrimitive;
-		static const bool	is_signed=false,
-							is_float=false;
-		static const Type	zero = 0;
-		static const Type	max = 0xFFFFFFFF;
-		static const Type	min = 0x00000000;
-		static const Type	error = 0;
+		static constexpr bool	is_signed=false,
+								is_float=false;
+		static constexpr Type	zero = 0;
+		static constexpr Type	max = 0xFFFFFFFF;
+		static constexpr Type	min = 0x00000000;
+		static constexpr Type	error = 0;
 		static const char*	name;
 		};
 
@@ -707,12 +707,12 @@ namespace Math
 		typedef TypeInfo<UINT64>GreaterType;
 		typedef TypeInfo<UINT32>LesserType;
 		typedef TTrue		IsPrimitive;
-		static const bool	is_signed=false,
-							is_float=false;
-		static const Type	zero = 0;
-		static const Type	max = 0xFFFFFFFFFFFFFFFFULL;
-		static const Type	min = 0x0000000000000000ULL;
-		static const Type	error = 0;
+		static constexpr bool	is_signed=false,
+								is_float=false;
+		static constexpr Type	zero = 0;
+		static constexpr Type	max = 0xFFFFFFFFFFFFFFFFULL;
+		static constexpr Type	min = 0x0000000000000000ULL;
+		static constexpr Type	error = 0;
 		static const char*	name;
 		};
 
@@ -727,8 +727,8 @@ namespace Math
 		typedef TypeInfo<Type>	GreaterType;
 		typedef TypeInfo<Type>	LesserType;
 		typedef TTrue		IsPrimitive;
-		static const bool	is_signed=true,
-							is_float=true;
+		static constexpr bool	is_signed=true,
+								is_float=true;
 		static const Type	zero;
 		static const Type	max;
 		static const Type	min;
@@ -747,7 +747,7 @@ namespace Math
 		typedef TypeInfo<Type>	GreaterType;
 		typedef TypeInfo<Type>	LesserType;
 		typedef TTrue		IsPrimitive;
-		static const bool	is_signed=true,
+		static constexpr bool	is_signed=true,
 							is_float=true;
 		static const Type	zero;
 		static const Type	max;
@@ -767,7 +767,7 @@ namespace Math
 		typedef TypeInfo<Type>	GreaterType;
 		typedef TypeInfo<Type>	LesserType;
 		typedef TTrue		IsPrimitive;
-		static const bool	is_signed=true,
+		static constexpr bool	is_signed=true,
 							is_float=true;
 		static const Type	zero;
 		static const Type	max;
@@ -790,7 +790,7 @@ namespace Math
 			typedef TypeInfo<Type>	GreaterType;
 			typedef TypeInfo<Type>	LesserType;
 			typedef TTrue		IsPrimitive;
-			static const bool	is_signed = true,
+			static constexpr bool	is_signed = true,
 				is_float = true;
 			static const Type	zero;
 			static const Type	max;

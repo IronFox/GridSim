@@ -734,9 +734,43 @@ namespace Math
 		return expl(e);
 	}
 
+
+	template <bool IsFloat /*=false*/>
+		class Pow10
+		{
+		public:
+			template <typename T>
+				static T Execute(T val)
+				{
+					if (val == 0)
+						return (T)1;
+					if (val == 1)
+						return (T)10;
+					T rs = Pow10<IsFloat>::Execute(val>>1);
+					rs *= rs;
+					if (val%2)
+						rs *= 10;
+					return rs;
+				}
+
+		};
+
+	template <>
+		class Pow10<true>
+		{
+		public:
+			template <typename T>
+				static T Execute(T val)
+				{
+					return ::pow((T)10,val);
+				}
+
+		};
+
+
 	MFUNC (C)             vpow10(C e)
 	{
-		return pow10(e);
+		return Pow10<TypeInfo<C>::is_float>::Execute(e);
 	}
 
     #ifdef __BORLANDC__
