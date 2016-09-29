@@ -342,10 +342,10 @@ template <typename Object, count_t MaxObjectsPerLeaf, typename Float = float, ty
 				Nature::IncludeCenterIntoBox(centerVolume,elements[i].bounds);
 
 			int useAxis = 0;
-			Float dist = centerVolume.axis[0].extend();
+			Float dist = centerVolume.axis[0].GetExtent();
 			for (int i = 1; i < 3; i++)
 			{
-				Float e = centerVolume.axis[i].extend();
+				Float e = centerVolume.axis[i].GetExtent();
 				if (e > dist)
 				{
 					dist = e;
@@ -353,7 +353,7 @@ template <typename Object, count_t MaxObjectsPerLeaf, typename Float = float, ty
 				}
 			}
 			const TFloatRange<Float> axisRange2 = centerVolume.axis[useAxis];
-            const Float extend2 = axisRange2.extend();
+            const Float extend2 = axisRange2.GetExtent();
 
 
 			for (index_t i = 0; i < numElements; i++)

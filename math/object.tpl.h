@@ -5982,7 +5982,7 @@ namespace ObjectMath
 			_sub(dim,new_dim);
 			_add(dim+3,new_dim);*/
 			
-			C range = Vec::length(new_dim.extend());
+			C range = Vec::length(new_dim.GetExtent());
 			for (BYTE k = 0; k < 3; k++)
 			{
 				if (new_dim.axis[k].max == new_dim.axis[k].min)
@@ -5990,7 +5990,7 @@ namespace ObjectMath
 					new_dim.axis[k].max+=range/100;
 					new_dim.axis[k].min-=range/50;
 				}
-				C dif = new_dim.axis[k].extend();
+				C dif = new_dim.axis[k].GetExtent();
 				new_dim.axis[k].Expand(dif/100);
 			}
 			dim = new_dim;
@@ -6138,8 +6138,8 @@ namespace ObjectMath
 				Box<C>	d;
 				for (BYTE j = 0; j < 3; j++)
 				{
-					d.axis[j].min = dim.axis[j].min + (dim.axis[j].extend())/2*p[j];
-					d.axis[j].max = d.axis[j].min + (dim.axis[j].extend())/2;
+					d.axis[j].min = dim.axis[j].min + (dim.axis[j].GetExtent())/2*p[j];
+					d.axis[j].max = d.axis[j].min + (dim.axis[j].GetExtent())/2;
 				}
 				child[k] = SHIELDED(new ObjMap<Def>(d, level-1));
 			}
@@ -6287,9 +6287,9 @@ namespace ObjectMath
 
 							BYTE	x = (k+1)%3,
 									y = (k+2)%3;
-							a.v[x] += (dim.axis[x].extend())/2 * fx;
-							a.v[y] += (dim.axis[y].extend())/2 * fy;
-							d.v[k] =	dim.axis[k].extend(); //so now we got the base point and direction;
+							a.v[x] += (dim.axis[x].GetExtent())/2 * fx;
+							a.v[y] += (dim.axis[y].GetExtent())/2 * fy;
+							d.v[k] =	dim.axis[k].GetExtent(); //so now we got the base point and direction;
 							TVec3<C>	n0,n1,cross_point,dif;
 							C	div = Vec::dot(d, normal);
 							if (!div)
@@ -6394,9 +6394,9 @@ namespace ObjectMath
 								a = dim.min();
 								BYTE	x = (k+1)%3,
 										y = (k+2)%3;
-								a.v[x] += (dim.axis[x].extend())/2 * fx;
-								a.v[y] += (dim.axis[y].extend())/2 * fy;
-								d.v[k] =	dim.axis[k].extend(); //so now we got the base point and direction;
+								a.v[x] += (dim.axis[x].GetExtent())/2 * fx;
+								a.v[y] += (dim.axis[y].GetExtent())/2 * fy;
+								d.v[k] =	dim.axis[k].GetExtent(); //so now we got the base point and direction;
 								TVec3<C>	n0,n1,cross_point,dif;
 								C	div = Vec::dot(d, normal);
 								if (!div)
@@ -6436,9 +6436,9 @@ namespace ObjectMath
 								a = dim.min();
 								BYTE	x = (k+1)%3,
 										y = (k+2)%3;
-								a.v[x] += (dim.axis[x].extend())/2 * fx;
-								a.v[y] += (dim.axis[y].extend())/2 * fy;
-								d.v[k] =	dim.axis[k].extend(); //so now we got the base point and direction;
+								a.v[x] += (dim.axis[x].GetExtent())/2 * fx;
+								a.v[y] += (dim.axis[y].GetExtent())/2 * fy;
+								d.v[k] =	dim.axis[k].GetExtent(); //so now we got the base point and direction;
 								TVec3<C>	n0,n1,cross_point,dif;
 								C	div = Vec::dot(d, normal);
 								if (!div)

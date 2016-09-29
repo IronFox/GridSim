@@ -46,29 +46,77 @@ public:
 };
 
 
+template <typename T>
+	class ImageTemplate;
+
 /**
 	@brief Basic image implementation
 */
 class BaseImage
 {
 public:
-		typedef UINT32					dimension_t,dim_t;	
+		typedef UINT32			dimension_t,dim_t;	
 			
 		struct THeader	//! File header used for certain texture io-operations
 		{
-					UINT32				crc;	//!< Image crc32 checksum (including settings)
+					UINT32		crc;	//!< Image crc32 checksum (including settings)
 			union
 			{
 				struct
 				{
-					BYTE				x_exp,	//!< Size X-exponent (final image width = 2^x_exp)
-										y_exp,	//!< Size Y-exponent (final image height = 2^y_exp)
-										channels,	//!< Image color channels
-										type;		//!< Image content type
+					BYTE		x_exp,	//!< Size x-exponent (final image width = 2^x_exp)
+								y_exp,	//!< Size y-exponent (final image height = 2^y_exp)
+								channels,	//!< Image color channels
+								type;		//!< Image content type
 				};
-				UINT32					settings;
+				UINT32			settings;
 			};
-		};						
+		};
+		template <bool IsHorizontal>
+			class Axis;
+
+		template <bool IsHorizontal>
+			class Iterator
+			{
+				dim_t	at;
+				friend class Axis<IsHorizontal>;
+
+				/**/			Iterator(dim_t at):at(at)	{}
+			public:
+				Iterator		operator++(int) {Iterator rs(*this); at++; return rs;}
+				Iterator&		operator++() {at++; return *this;}
+				Iterator		operator--(int) {Iterator rs(*this); at--; return rs;}
+				Iterator&		operator--() {at--; return *this;}
+				dim_t			operator*() const {return at;}
+				bool			operator==(dim_t other) const {return at == other;}
+				bool			operator!=(dim_t other) const {return at != other;}
+				bool			operator<=(dim_t other) const {return at <= other;}
+				bool			operator>=(dim_t other) const {return at >= other;}
+				bool			operator<(dim_t other) const {return at < other;}
+				bool			operator>(dim_t other) const {return at > other;}
+				bool			operator==(const Iterator<IsHorizontal>&other) const {return at == other.at;}
+				bool			operator!=(const Iterator<IsHorizontal>&other) const {return at != other.at;}
+				bool			operator<=(const Iterator<IsHorizontal>&other) const {return at <= other.at;}
+				bool			operator>=(const Iterator<IsHorizontal>&other) const {return at >= other.at;}
+				bool			operator<(const Iterator<IsHorizontal>&other) const {return at < other.at;}
+				bool			operator>(const Iterator<IsHorizontal>&other) const {return at > other.at;}
+			};
+		
+		template <bool IsHorizontal>
+			class Axis
+			{
+				const dim_t		extend;
+
+				friend class BaseImage;
+
+				/**/			Axis(dim_t extend):extend(extend)	{}
+			public:
+				typedef Iterator<IsHorizontal>	iterator,const_iterator;
+
+				constexpr iterator	begin() const {return 0;}
+				iterator		end() const {return extend;}
+				dim_t			size() const {return extend;}
+			};	
 
 protected:
 		dimension_t				image_width,		//!< Width of the image in pixels.
@@ -109,6 +157,8 @@ public:
 								BaseImage(dimension_t width=0, dimension_t height=0, BYTE channels=3, PixelType type=PixelType::Color):image_width(width),image_height(height),image_channels(channels),content_type(type)
 								{}
 virtual							~BaseImage()	{};
+		Axis<true>				Horizontal() const {return Axis<true>(GetWidth());}
+		Axis<false>				Vertical() const {return Axis<false>(GetHeight());}
 		dimension_t				width()																const;	//!< Queries current image width \return Image width in pixels
 		dimension_t				GetWidth()															const;	//!< Queries current image width \return Image width in pixels
 		dimension_t				height()															const;	//!< Queries current image height \return Image height in pixels
@@ -148,6 +198,7 @@ template <typename T>
 	{
 	protected:
 		using BaseImage::dimension_t;
+		using BaseImage::Iterator;
 	
 			T						*image_data;		//!< Pointer to the actual image data.
 
@@ -160,6 +211,8 @@ template <typename T>
 
 
 	public:
+		typedef Iterator<true>		X;
+		typedef Iterator<false>		Y;
 
 		/**/						ImageTemplate();
 		/**/						ImageTemplate(const ImageTemplate<T>&other);									//!< Copy constructor
@@ -186,7 +239,7 @@ template <typename T>
 		void						adoptData(ImageTemplate<T>&other);													//!< Clears any local data and adopts all pointers of the other image. The respective other image will be empty when the operation is executed.
 		void						swap(ImageTemplate<T>&other);													//!< Swaps all pointers and attributes with the other image.
 		void						SetSize(dimension_t width, dimension_t height, BYTE channels);				//!< Alters the dimensions of the local image. The content of the pixel data field is lost if it is resized during this operation. \param width New image width in pixels \param height New image height in pixels. \param channels New number of color channels.
-		inline	void				SetChannel(dimension_t X, dimension_t Y, BYTE channel, T newData);	//!< Alters the content of one color channel of one specific pixel.  \param X X-coordinate of the pixel (0 = left most pixel, must be valid) \param Y Y-coordinate of the pixel (usually 0 = bottom most pixel, must be valid) \param channel Target channel (must be valid) \param newData New value for the specified channel of the specified pixel.
+		inline	void				SetChannel(dimension_t x, dimension_t y, BYTE channel, T newData);	//!< Alters the content of one color channel of one specific pixel.  \param x x-coordinate of the pixel (0 = left most pixel, must be valid) \param y y-coordinate of the pixel (usually 0 = bottom most pixel, must be valid) \param channel Target channel (must be valid) \param newData New value for the specified channel of the specified pixel.
 		void						SetChannel(BYTE channel, T new_value);							//!< Alters the content of one color channel of all pixels  \param channel Target channel (must be valid) \param newData New value for the specified channel of all pixels.
 		void						CopyChannel(const ImageTemplate<T>&source_image, BYTE source_channel, BYTE target_channel);
 		void						PaintRect(dimension_t left, dimension_t bottom, dimension_t width, dimension_t height, T r);
@@ -200,40 +253,40 @@ template <typename T>
 		void						Fill(T red, T green, T blue, T alpha=TypeInfo<T>::zero);			//!< Fills the lower 4 (or less if less) channels of the local image with the specified values.
 									/*!
 										\brief Overwrites the color of a specific pixel.
-										\param X X-coordinate of the pixel
-										\param Y Y-coordinate of the pixel
+										\param x x-coordinate of the pixel
+										\param y y-coordinate of the pixel
 										\param data Pointer to an array providing at least 3 entries
 									
 										set3() overwrites the local pixel data with the specified color ( @b data). The method does not check for correctness and assumes
 										the local image has at least 3 channels.
 										Corrupted x/y coordinates or insufficient entries in the \b data field will lead to access violations and/or segmentation faults.
 									*/
-		inline	void				set3(dimension_t X, dimension_t Y, const T*data);
+		inline	void				set3(dimension_t x, dimension_t y, const T*data);
 									/*!
 										\brief Overwrites the color of a specific pixel.
-										\param X X-coordinate of the pixel
-										\param Y Y-coordinate of the pixel
+										\param x x-coordinate of the pixel
+										\param y y-coordinate of the pixel
 										\param data Pointer to an array providing at least 4 entries
 									
 										set3() overwrites the local pixel data with the specified color ( @b data). The method does not check for correctness and assumes
 										the local image has at least 4 channels.
 										Corrupted x/y coordinates or insufficient entries in the \b data field will lead to access violations and/or segmentation faults.
 									*/
-		inline	void				set4(dimension_t X, dimension_t Y, const T*data);
+		inline	void				set4(dimension_t x, dimension_t y, const T*data);
 									/*!
 										\brief Overwrites the color of a specific pixel.
-										\param X X-coordinate of the pixel
-										\param Y Y-coordinate of the pixel
+										\param x x-coordinate of the pixel
+										\param y y-coordinate of the pixel
 										\param data Pointer to an array providing at least one entry per local channel
 									
 										set() overwrites the local pixel data with the specified color (\b data). The method does not check for correctness.
 										Corrupted x/y coordinates or insufficient entries in the \b data field will lead to access violations and/or segmentation faults.
 									*/
-		inline 	void				set(dimension_t X, dimension_t Y, const T*data);
+		inline 	void				set(dimension_t x, dimension_t y, const T*data);
 									/*!
 										\brief Overwrites the color of a specific pixel.
-										\param X X-coordinate of the pixel
-										\param Y Y-coordinate of the pixel
+										\param x x-coordinate of the pixel
+										\param y y-coordinate of the pixel
 										\param data Pointer to an array providing at least one entry per local channel
 										\param channels Number of entries in the provided \b data array.
 									
@@ -242,11 +295,11 @@ template <typename T>
 										The method does not check for correctness. Corrupted x/y coordinates or insufficient entries in the \b data
 										field will lead to access violations and/or segmentation faults.
 									*/
-		inline 	void				set(dimension_t X, dimension_t Y, const T*data, BYTE channels);
+		inline 	void				set(dimension_t x, dimension_t y, const T*data, BYTE channels);
 									/*!
 										\brief Overwrites the color of a specific pixel.
-										\param X X-coordinate of the pixel
-										\param Y Y-coordinate of the pixel
+										\param x x-coordinate of the pixel
+										\param y y-coordinate of the pixel
 										\param red Red color component
 										\param green Green color component
 										\param blue Blue color component
@@ -257,11 +310,11 @@ template <typename T>
 										The method does not check for correctness. Corrupted x/y coordinates will lead to access violations and/or
 										segmentation faults.
 									*/
-		inline	void				set(dimension_t X, dimension_t Y, T red, T green, T blue, T alpha); 
+		inline	void				set(dimension_t x, dimension_t y, T red, T green, T blue, T alpha); 
 									/*!
 										\brief Overwrites the color of a specific pixel.
-										\param X X-coordinate of the pixel
-										\param Y Y-coordinate of the pixel
+										\param x x-coordinate of the pixel
+										\param y y-coordinate of the pixel
 										\param red Red color component
 										\param green Green color component
 										\param blue Blue color component
@@ -271,24 +324,28 @@ template <typename T>
 										The method does not check for correctness. Corrupted x/y coordinates will lead to access violations and/or
 										segmentation faults.
 									*/
-		inline	void				set(dimension_t X, dimension_t Y, T red, T green, T blue); 
+		inline	void				set(dimension_t x, dimension_t y, T red, T green, T blue); 
 
 		float						SampleChannelAt(float x, float y, BYTE channel,bool loop)	const;
 		T							SmoothSampleChannelAt(float x, float y, BYTE channel,bool loop)	const;
-		inline	T*					get(dimension_t X, dimension_t Y)														//! Retrieves a pointer to the color data of the specified pixel. Warning: The method behavior is undefined for invalid pixel coordinates. \param X X-coordinate of the pixel \param Y Y-coordinate of the pixel  \return Pointer to the color data of the specified pixel.
+		inline	T*					get(dimension_t x, dimension_t y)														//! Retrieves a pointer to the color data of the specified pixel. Warning: The method behavior is undefined for invalid pixel coordinates. \param x x-coordinate of the pixel \param y y-coordinate of the pixel  \return Pointer to the color data of the specified pixel.
 									{
-										return image_data+(size_t(Y)*size_t(image_width)+size_t(X))*size_t(image_channels);
+										return image_data+(size_t(y)*size_t(image_width)+size_t(x))*size_t(image_channels);
 									}
-		inline	const T*			get(dimension_t X, dimension_t Y)											const		//! Retrieves a pointer to the color data of the specified pixel. Warning: The method behavior is undefined for invalid pixel coordinates. \param X X-coordinate of the pixel \param Y Y-coordinate of the pixel  \return Pointer to the color data of the specified pixel.
+		inline	const T*			get(dimension_t x, dimension_t y)											const		//! Retrieves a pointer to the color data of the specified pixel. Warning: The method behavior is undefined for invalid pixel coordinates. \param x x-coordinate of the pixel \param y y-coordinate of the pixel  \return Pointer to the color data of the specified pixel.
 									{
-										return image_data+(size_t(Y)*size_t(image_width)+size_t(X))*size_t(image_channels);
+										return image_data+(size_t(y)*size_t(image_width)+size_t(x))*size_t(image_channels);
 									}
 		inline	T*					GetPixel(dimension_t x, dimension_t y)/**@copydoc get()*/	{return get(x,y);}
 		inline	const T*			GetPixel(dimension_t x, dimension_t y) const /**@copydoc get()*/	{return get(x,y);}
 		inline	T*					Get(dimension_t x, dimension_t y)/**@copydoc get()*/	{return get(x,y);}
 		inline	const T*			Get(dimension_t x, dimension_t y) const /**@copydoc get()*/	{return get(x,y);}
-		inline 	T*					GetVerified(dimension_t X, dimension_t Y);											//!< Retrieves a pointer to the color data of the specified pixel. \param X X-coordinate of the pixel \param Y Y-coordinate of the pixel  \return Pointer to the color data of the specified pixel or NULL if the specified pixel does not exist.
-		inline 	const T*			GetVerified(dimension_t X, dimension_t Y)									const;		//!< Retrieves a pointer to the color data of the specified pixel. \param X X-coordinate of the pixel \param Y Y-coordinate of the pixel  \return Pointer to the color data of the specified pixel or NULL if the specified pixel does not exist.
+		inline 	T*					GetVerified(dimension_t x, dimension_t y);											//!< Retrieves a pointer to the color data of the specified pixel. \param x x-coordinate of the pixel \param y y-coordinate of the pixel  \return Pointer to the color data of the specified pixel or NULL if the specified pixel does not exist.
+		inline 	const T*			GetVerified(dimension_t x, dimension_t y)									const;		//!< Retrieves a pointer to the color data of the specified pixel. \param x x-coordinate of the pixel \param y y-coordinate of the pixel  \return Pointer to the color data of the specified pixel or NULL if the specified pixel does not exist.
+		inline	T*					GetPixel(const X&x, const Y&y)/**@copydoc get()*/	{return get(*x,*y);}
+		inline	const T*			GetPixel(const X&x, const Y&y) const /**@copydoc get()*/	{return get(*x,*y);}
+		inline	T*					Get(const X&x, const Y&y)/**@copydoc get()*/	{return get(*x,*y);}
+		inline	const T*			Get(const X&x, const Y&y) const /**@copydoc get()*/	{return get(*x,*y);}
 
 		void						SwapChannels(BYTE c0, BYTE c1);													//!< Exchanges the content of two channels for all pixels. \param c0 First channel index (0 = first(red) channel) \param c1 Second channel index (0 = first(red) channel).
 		void						AppendAlpha(const ImageTemplate<T>*other);												//!< Creates/overwrites the local 4th channel with the first channel of the specified other image for all pixels. \param other Pointer to another Image object. \b other is required to be of the exact same dimensions as the local image.
@@ -296,8 +353,8 @@ template <typename T>
 		inline	size_t				size()																const;		//!< Retrieves the size of the local pixel data. \return Size of the local pixel map in bytes (identical to GetWidth()*GetHeight()*GetChannels()).
 		void						readFrom(const ImageTemplate<T>*other);																	//!< Adapts the local image data to the specified image's data. Deprecated. \param other Image to copy data from.
 		void						read(const T* data);																			//!< Adopts the local image data to the specified array content. \param data Array to copy from. Must be the exact same size as what size() returns.
-		bool						ExportRectangle(dimension_t x, dimension_t y, dimension_t width, dimension_t height, T*target)	const;	//!< Exports a rectangular pixel area from the local pixel data. \param x Pixel offset (X) \param y Pixel offset (Y) \param width Pixels in x-direction to export \param height Pixels in y-direction to export. \param target Array to write to. Must be at least (\b width * \b height * GetChannels()) elements long.
-		bool						ImportRectangle(dimension_t x, dimension_t y, dimension_t width, dimension_t height, const T*target);	//!< Overwrites a section in the local pixel data. \param x Pixel offset (X) \param y Pixel offset (Y) \param width Pixels in x-direction to overwrite \param height Pixels in y-direction to overwrite. \param target Array to read from. Must be at least (\b width * \b height * GetChannels()) elements long.
+		bool						ExportRectangle(dimension_t x, dimension_t y, dimension_t width, dimension_t height, T*target)	const;	//!< Exports a rectangular pixel area from the local pixel data. \param x Pixel offset (x) \param y Pixel offset (y) \param width Pixels in x-direction to export \param height Pixels in y-direction to export. \param target Array to write to. Must be at least (\b width * \b height * GetChannels()) elements long.
+		bool						ImportRectangle(dimension_t x, dimension_t y, dimension_t width, dimension_t height, const T*target);	//!< Overwrites a section in the local pixel data. \param x Pixel offset (x) \param y Pixel offset (y) \param width Pixels in x-direction to overwrite \param height Pixels in y-direction to overwrite. \param target Array to read from. Must be at least (\b width * \b height * GetChannels()) elements long.
 		void						ExtractChannels(BYTE channel, BYTE c_num, ImageTemplate<T>&target);								//!< Extracts the specified channel range into the specified target image
 
 		bool						TruncateToOpaque();																	//!< Reduces the image to the minimum necessary rectangle covering all opaque pixels. This method has no effect if the image does not have 2 (intensity+opacity) or 4 (rgb+opacity) channels @return True if the local image has been changed, false otherwise
@@ -573,8 +630,8 @@ template <class Nature>
 
 									/*!
 										\brief Overwrites the color of a specific pixel with the specified floating point color
-										\param X X-coordinate of the pixel
-										\param Y Y-coordinate of the pixel
+										\param x x-coordinate of the pixel
+										\param y y-coordinate of the pixel
 										\param data Pointer to an array providing at least 3 entries
 									
 										set3f() overwrites the local pixel data with the specified color ( @b data). The method does not check for correctness and assumes
@@ -582,11 +639,11 @@ template <class Nature>
 										Corrupted x/y coordinates or insufficient entries in the \b data field will lead to access violations and/or segmentation faults.
 									*/
 	template <typename Float>
-	inline	void					set3f(dimension_t X, dimension_t Y, const Float data[3]);
+	inline	void					set3f(dimension_t x, dimension_t y, const Float data[3]);
 									/*!
 										\brief Overwrites the color of a specific pixel.
-										\param X X-coordinate of the pixel
-										\param Y Y-coordinate of the pixel
+										\param x x-coordinate of the pixel
+										\param y y-coordinate of the pixel
 										\param data Pointer to an array providing at least 4 entries
 									
 										set3() overwrites the local pixel data with the specified color ( @b data). The method does not check for correctness and assumes
@@ -594,11 +651,11 @@ template <class Nature>
 										Corrupted x/y coordinates or insufficient entries in the \b data field will lead to access violations and/or segmentation faults.
 									*/
 	template <typename Float>
-	inline	void					set4f(dimension_t X, dimension_t Y, const Float data[4]);
+	inline	void					set4f(dimension_t x, dimension_t y, const Float data[4]);
 									/*!
 										\brief Overwrites the color of a specific pixel.
-										\param X X-coordinate of the pixel
-										\param Y Y-coordinate of the pixel
+										\param x x-coordinate of the pixel
+										\param y y-coordinate of the pixel
 										\param data Pointer to an array providing at least one entry per local channel
 									
 										set() overwrites the local pixel data with the specified color (\b data). The method does not check for correctness.
@@ -606,11 +663,11 @@ template <class Nature>
 										Corrupted x/y coordinates or insufficient entries in the \b data field will lead to access violations and/or segmentation faults.
 									*/
 	template <typename Float>
-	inline 	void					setf(dimension_t X, dimension_t Y, const Float*data);
+	inline 	void					setf(dimension_t x, dimension_t y, const Float*data);
 									/*!
 										\brief Overwrites the color of a specific pixel.
-										\param X X-coordinate of the pixel
-										\param Y Y-coordinate of the pixel
+										\param x x-coordinate of the pixel
+										\param y y-coordinate of the pixel
 										\param data Pointer to an array providing at least one entry per local channel
 										\param channels Number of entries in the provided \b data array.
 									
@@ -621,11 +678,11 @@ template <class Nature>
 										field will lead to access violations and/or segmentation faults.
 									*/
 	template <typename Float>
-	inline 	void					setf(dimension_t X, dimension_t Y, const Float*data, BYTE channels);
+	inline 	void					setf(dimension_t x, dimension_t y, const Float*data, BYTE channels);
 									/*!
 										\brief Overwrites the color of a specific pixel.
-										\param X X-coordinate of the pixel
-										\param Y Y-coordinate of the pixel
+										\param x x-coordinate of the pixel
+										\param y y-coordinate of the pixel
 										\param red Red color component
 										\param green Green color component
 										\param blue Blue color component
@@ -637,11 +694,11 @@ template <class Nature>
 										segmentation faults.
 									*/
 	template <typename Float>
-	inline	void					setf(dimension_t X, dimension_t Y, Float red, Float green, Float blue, Float alpha); 
+	inline	void					setf(dimension_t x, dimension_t y, Float red, Float green, Float blue, Float alpha); 
 									/*!
 										\brief Overwrites the color of a specific pixel.
-										\param X X-coordinate of the pixel
-										\param Y Y-coordinate of the pixel
+										\param x x-coordinate of the pixel
+										\param y y-coordinate of the pixel
 										\param red Red color component
 										\param green Green color component
 										\param blue Blue color component
@@ -653,15 +710,15 @@ template <class Nature>
 										segmentation faults.
 									*/
 	template <typename Float>
-	inline	void					setf(dimension_t X, dimension_t Y, Float red, Float green, Float blue); 
+	inline	void					setf(dimension_t x, dimension_t y, Float red, Float green, Float blue); 
 
 
 
 
 									/*!
 										\brief Overwrites the color of a specific pixel with a normal.
-										\param X X-coordinate of the pixel
-										\param Y Y-coordinate of the pixel 
+										\param x x-coordinate of the pixel
+										\param y y-coordinate of the pixel 
 										\param data Pointer to a 3 element float normal vector
 									
 										setNormal() transforms the specified normal to a rgb color vector (-1.0f .. 1.0f will be translated to normal_offset+p*normal_scale).
@@ -669,12 +726,12 @@ template <class Nature>
 										unexpectedly or even crash if the contained data is not a 3 channel normal map or if the specified coordinates are invalid.
 									*/
 		template <typename Float>
-			void					setNormal(dimension_t X, dimension_t Y, const TVec3<Float>&data); //-1.0f .. 1.0f will be translated to normal_offset+p*normal_scale
+			void					setNormal(dimension_t x, dimension_t y, const TVec3<Float>&data); //-1.0f .. 1.0f will be translated to normal_offset+p*normal_scale
 
 									/*!
 										\brief Modifies the color of the specified pixel.
-										\param X X-coordinate of the pixel
-										\param Y Y-coordinate of the pixel 
+										\param x x-coordinate of the pixel
+										\param y y-coordinate of the pixel 
 										\param data Pointer to an array providing at least one entry per local channel 
 										\param alpha Opacity of the specified color.
 									
@@ -684,11 +741,11 @@ template <class Nature>
 										The method does not check for correctness. Corrupted x/y coordinates will lead to access violations and/or
 										segmentation faults.
 									*/
-			void					blend(dimension_t X, dimension_t Y, const T*data,T alpha);
+			void					blend(dimension_t x, dimension_t y, const T*data,T alpha);
 									/*!
 										\brief Modifies the color of the specified pixel.
-										\param X X-coordinate of the pixel
-										\param Y Y-coordinate of the pixel 
+										\param x x-coordinate of the pixel
+										\param y y-coordinate of the pixel 
 										\param data Pointer to an array providing at least \b channels entries.
 										\param alpha Opacity of the specified color.
 										\param channels Number of entries in the provided \b data array.
@@ -700,11 +757,11 @@ template <class Nature>
 										The method does not check for correctness. Corrupted x/y coordinates will lead to access violations and/or
 										segmentation faults.
 									*/
-			void					blend(dimension_t X, dimension_t Y, const T*data,T alpha, BYTE channels);
+			void					blend(dimension_t x, dimension_t y, const T*data,T alpha, BYTE channels);
 									/*!
 										\brief Modifies the color of the specified pixel.
-										\param X X-coordinate of the pixel
-										\param Y Y-coordinate of the pixel 
+										\param x x-coordinate of the pixel
+										\param y y-coordinate of the pixel 
 										\param data Pointer to a float array providing at least one entry per local channel 
 										\param alpha Opacity of the specified color.
 									
@@ -716,11 +773,11 @@ template <class Nature>
 										segmentation faults.
 									*/
 		template <typename Float>
-			void					BlendF(dimension_t X, dimension_t Y, const Float*data, Float alpha);
+			void					BlendF(dimension_t x, dimension_t y, const Float*data, Float alpha);
 									/*!
 										\brief Modifies the color of the specified pixel.
-										\param X X-coordinate of the pixel
-										\param Y Y-coordinate of the pixel 
+										\param x x-coordinate of the pixel
+										\param y y-coordinate of the pixel 
 										\param data Pointer to an array providing at least \b channels entries.
 										\param alpha Opacity of the specified color.
 										\param channels Number of entries in the provided \b data array.
@@ -734,11 +791,11 @@ template <class Nature>
 										segmentation faults.
 									*/
 		template <typename Float>
-			void					BlendF(dimension_t X, dimension_t Y, const Float*data, Float alpha, BYTE channels);
+			void					BlendF(dimension_t x, dimension_t y, const Float*data, Float alpha, BYTE channels);
 		template <typename Float>
-			void					GetNormal(dimension_t X, dimension_t Y, TVec3<Float>&out)						const;		//!< Retrieves the normal content of a pixel. The method behavior is undefined for invalid pixel coordinates. \param X X-coordinate of the pixel \param Y Y-coordinate of the pixel  \param out Normal output field
+			void					GetNormal(dimension_t x, dimension_t y, TVec3<Float>&out)						const;		//!< Retrieves the normal content of a pixel. The method behavior is undefined for invalid pixel coordinates. \param x x-coordinate of the pixel \param y y-coordinate of the pixel  \param out Normal output field
 		template <typename Float>
-			bool					GetNormalVerified(dimension_t X, dimension_t Y, TVec3<Float>&out)				const;		//!< Retrieves the normal content of a pixel. \param X X-coordinate of the pixel \param Y Y-coordinate of the pixel  \param out Normal output field \return true if the specified pixel exists and a normal could be extracted, false otherwise.
+			bool					GetNormalVerified(dimension_t x, dimension_t y, TVec3<Float>&out)				const;		//!< Retrieves the normal content of a pixel. \param x x-coordinate of the pixel \param y y-coordinate of the pixel  \param out Normal output field \return true if the specified pixel exists and a normal could be extracted, false otherwise.
 		template <typename Float>
 			bool					ImportRectangleF(dimension_t x, dimension_t y, dimension_t w, dimension_t h, const Float*target);
 		template <typename Float>

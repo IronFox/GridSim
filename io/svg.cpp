@@ -73,8 +73,8 @@ namespace SVG
 				.SetMore("xlink:href",String(path))
 				.SetMore("x", rect.x.min)
 				.SetMore("y", rect.y.min)
-				.SetMore("width", rect.x.GetExtend())
-				.SetMore("height", rect.y.GetExtend())
+				.SetMore("width", rect.x.GetExtent())
+				.SetMore("height", rect.y.GetExtent())
 				);
 	}
 	
@@ -499,8 +499,8 @@ namespace SVG
 						.SetMore("id",name)
 						.SetMore("x",rect.x.min)
 						.SetMore("y",rect.y.min)
-						.SetMore("width",rect.x.GetExtend())
-						.SetMore("height",rect.y.GetExtend())
+						.SetMore("width",rect.x.GetExtent())
+						.SetMore("height",rect.y.GetExtent())
 						.SetMore("patternUnits","userSpaceOnUse")
 						.AddChild("g")
 					);

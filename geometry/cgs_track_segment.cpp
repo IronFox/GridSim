@@ -785,7 +785,7 @@ namespace CGS
 		/*TFrame		frame[Resolution];
 		for (index_t i = 0; i < Resolution; i++)*/
 		
-		TVec3<>	range = source.dim.extend();
+		TVec3<>	range = source.dim.GetExtent();
 		
 		//::lout << "bending segment with"<<nl;
 		//lout << " dim="<<Vec::toString(source.dim.lower)<<'-'<<Vec::toString(source.dim.upper)<<nl;

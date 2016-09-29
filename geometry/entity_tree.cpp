@@ -862,7 +862,7 @@ void		EntityTree::_RecursiveRemap(const Buffer<Entity*>&source)
 		{
 			d.axis[j].min = p[j]?split.v[j]:volume.axis[j].min;
 			d.axis[j].max = p[j]?volume.axis[j].max:split.v[j];
-			collapsed |= d.axis[j].extend() < (volume.axis[j].extend())/20;
+			collapsed |= d.axis[j].GetExtent() < (volume.axis[j].GetExtent())/20;
 		}
 		
 		if (!collapsed)

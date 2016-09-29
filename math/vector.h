@@ -308,13 +308,9 @@ namespace Math
 									{
 										return center();
 									}
-			MF_DECLARE(T)			extend()	const	//! Retrieves the difference between max and min
+			MF_DECLARE(T)			GetExtent()	const	//! Retrieves the difference between max and min
 									{
-										return max - min;
-									}
-			MF_DECLARE(T)			GetExtend()	const	//! @copydoc extend()
-									{
-										return extend();
+										return max-min;
 									}
 			template<typename T0>
 				MF_DECLARE(bool)	Contains(const T0&value)	const //! Checks if the specified value lies within the local range
@@ -347,12 +343,12 @@ namespace Math
 			template <typename T0,typename T1>
 				MF_DECLARE(void)	Relativate(const T0& absolute, T1&relative_out)	const
 									{
-										relative_out = (T1)(((T)absolute-min)/extend());
+										relative_out = (T1)(((T)absolute-min)/GetExtent());
 									}
 			template <typename T0>
 				MF_DECLARE(T)		Relativate(const T0& absolute)	const
 									{
-										return (T)(((T)absolute-min)/extend());
+										return (T)(((T)absolute-min)/GetExtent());
 									}
 			template <typename T0,typename T1>
 				MF_DECLARE(void)	RelativateRange(const TFloatRange<T0>& absolute, TFloatRange<T1>&relative_out)	const
@@ -363,12 +359,12 @@ namespace Math
 			template <typename T0,typename T1>
 				MF_DECLARE(void)	Derelativate(const T0& relative, T1&absolute_out)	const
 									{
-										absolute_out = (T1)(min + relative*extend());
+										absolute_out = (T1)(min + relative*GetExtent());
 									}
 			template <typename T0>
 				MF_DECLARE(T)		Derelativate(const T0& relative)	const
 									{
-										return (T)(min + (T)relative*extend());
+										return (T)(min + (T)relative*GetExtent());
 									}
 			template <typename T0,typename T1>
 				MF_DECLARE(void)	DerelativateRange(const TFloatRange<T0>& relative, TFloatRange<T1>&absolute_out)	const
@@ -381,7 +377,7 @@ namespace Math
 			template <typename T0,typename T1>
 				MF_DECLARE(void)	MakeRelative(const T0& absolute, T1&relative_out)	const
 									{
-										relative_out = (T1)(T)((absolute-min)/extend());
+										relative_out = (T1)(T)((absolute-min)/GetExtent());
 									}
 			template <typename T0,typename T1>
 				MF_DECLARE(void)	MakeRangeRelative(const TFloatRange<T0>& absolute, TFloatRange<T1>&relative_out)	const
@@ -392,7 +388,7 @@ namespace Math
 			template <typename T0,typename T1>
 				MF_DECLARE(void)	MakeAbsolute(const T0& relative, T1&absolute_out)	const
 									{
-										absolute_out = (T1)(min + relative*extend());
+										absolute_out = (T1)(min + relative*GetExtent());
 									}
 			template <typename T0,typename T1>
 				MF_DECLARE(void)	MakeRangeAbsolute(const TFloatRange<T0>& relative, TFloatRange<T1>&absolute_out)	const
@@ -491,7 +487,7 @@ namespace Math
 										start = Math::clamp(start,constraint.start,constraint.end);
 										end = Math::clamp(end,constraint.start,constraint.end);
 									}
-			MF_DECLARE(T)			GetExtend()	const	//! @copydoc extend()
+			MF_DECLARE(T)			GetExtent()	const
 									{
 										return end - start;
 									}
@@ -724,8 +720,8 @@ namespace Math
 			@brief Updates all values of the local rectangle so that the center points to the specified x and y coordinates, and width and height match twice the specified extend
 			@param x X coordinate of the new center
 			@param y Y coordinate of the new center
-			@param ext_x Extend in both directions along the x axis. Equals half the resulting width
-			@param ext_y Extend in both directions along the y axis. Equals half the resulting height
+			@param ext_x Extent in both directions along the x axis. Equals half the resulting width
+			@param ext_y Extent in both directions along the y axis. Equals half the resulting height
 			*/
 			MF_DECLARE(void)		SetCenter(const T&x, const T& y, const T&ext_x, const T&ext_y)
 									{
@@ -736,7 +732,7 @@ namespace Math
 			@brief Updates all values of the local rectangle so that the center points to the specified x and y coordinates, and width and height match twice the specified extend
 			@param x X coordinate of the new center
 			@param y Y coordinate of the new center
-			@param ext Extend in both directions along the x and y axes. Equals half the resulting width/height
+			@param ext Extent in both directions along the x and y axes. Equals half the resulting width/height
 			*/
 			MF_DECLARE(void)		SetCenter(const T&x, const T& y, const T&ext)
 									{
@@ -839,7 +835,7 @@ namespace Math
 			*/
 			MF_DECLARE(T)			pixelAspect()	const
 									{
-										return x.extend()/y.extend();
+										return x.GetExtent()/y.GetExtent();
 									}
 			MF_DECLARE(T)			GetAspect()	const	/** @copydoc pixelAspect() */
 									{
@@ -917,7 +913,7 @@ namespace Math
 			*/
 			MF_DECLARE(T)			width()		const
 									{
-										return x.extend();
+										return x.GetExtent();
 									}
 			MF_DECLARE(T)			GetWidth()		const /** @copydoc width()*/ {return width();}
 			/*!
@@ -926,7 +922,7 @@ namespace Math
 			*/
 			MF_DECLARE(T)			height()	const
 									{
-										return y.extend();
+										return y.GetExtent();
 									}
 			MF_DECLARE(T)			GetHeigth()		const /** @copydoc height()*/ {return height();}
 									
@@ -1094,14 +1090,10 @@ namespace Math
 										out.y = (T0)y.center();
 									}
 			template <typename T0>
-				MF_DECLARE(void)	GetExtend(TVec2<T0>&out)	const
+				MF_DECLARE(void)	GetExtent(TVec2<T0>&out)	const
 									{
-										out.x = (T0)x.extend();
-										out.y = (T0)y.extend();
-									}
-			MF_DECLARE(TVec2<T>)	GetExtend()	const
-									{
-										return extend();
+										out.x = (T0)x.GetExtent();
+										out.y = (T0)y.GetExtent();
 									}
 			MF_DECLARE(TVec2<T>)	min()	const
 									{
@@ -1118,9 +1110,9 @@ namespace Math
 										TVec2<T> rs = {x.center(),y.center()};
 										return rs;
 									}
-			MF_DECLARE(TVec2<T>)	extend()	const
+			MF_DECLARE(TVec2<T>)	GetExtent()	const
 									{
-										TVec2<T> rs = {x.extend(),y.extend()};
+										TVec2<T> rs = {x.GetExtent(),y.GetExtent()};
 										return rs;
 									}
 
@@ -1250,7 +1242,7 @@ namespace Math
 			/**
 			@brief Updates all values of the local box so that the center points to the specified x, y, z coordinates, and width, height, depth match twice the specified extend
 			@param center New center
-			@param ext Extend in both directions along the respective axis. Equals half the resulting width/height/depth
+			@param ext Extent in both directions along the respective axis. Equals half the resulting width/height/depth
 			*/
 			template<typename T0, typename T1>
 				MF_DECLARE(void)	SetCenter(const TVec3<T0>&center, const TVec3<T1>&ext)
@@ -1262,7 +1254,7 @@ namespace Math
 			/**
 			@brief Updates all values of the local box so that the center points to the specified x, y, z coordinates, and width, height, depth match twice the specified extend
 			@param center New center
-			@param ext Extend in both directions along the respective axis. Equals half the resulting width/height/depth
+			@param ext Extent in both directions along the respective axis. Equals half the resulting width/height/depth
 			*/
 			template<typename T0, typename T1>
 				MF_DECLARE(Box<T>&)	SetCenter(const TVec3<T0>&center, const T1&ext)
@@ -1439,7 +1431,7 @@ namespace Math
 			*/
 			MF_DECLARE(T)			width()		const
 									{
-										return x.extend();
+										return x.GetExtent();
 									}
 			MF_DECLARE(T)			GetWidth()		const	/** @copydoc width() */ {return width();}
 			/*!
@@ -1448,7 +1440,7 @@ namespace Math
 			*/
 			MF_DECLARE(T)			height()	const
 									{
-										return y.extend();
+										return y.GetExtent();
 									}
 			MF_DECLARE(T)			GetHeight()		const	/** @copydoc height() */ {return height();}
 			/*!
@@ -1457,7 +1449,7 @@ namespace Math
 			*/
 			MF_DECLARE(T)			depth()	const
 									{
-										return z.extend();
+										return z.GetExtent();
 									}
 			MF_DECLARE(T)			GetDepth()		const	/** @copydoc depth() */ {return depth();}
 			MF_DECLARE(T)			volume()	const
@@ -1578,9 +1570,9 @@ namespace Math
 			template <typename T0>
 				void				GetExtend(TVec3<T0>&out)	const
 									{
-										out.x = (T0)x.extend();
-										out.y = (T0)y.extend();
-										out.z = (T0)z.extend();
+										out.x = (T0)x.GetExtent();
+										out.y = (T0)y.GetExtent();
+										out.z = (T0)z.GetExtent();
 									}
 			MF_DECLARE(TVec3<T>)	center()	const
 									{
@@ -1597,9 +1589,9 @@ namespace Math
 										TVec3<T> rs = {x.max,y.max,z.max};
 										return rs;
 									}
-			MF_DECLARE(TVec3<T>)	extend()	const
+			MF_DECLARE(TVec3<T>)	GetExtent()	const
 									{
-										TVec3<T> rs = {x.extend(),y.extend(),z.extend()};
+										TVec3<T> rs = {x.GetExtent(),y.GetExtent(),z.GetExtent()};
 										return rs;
 									}
 
