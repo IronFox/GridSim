@@ -652,6 +652,7 @@ namespace TCP
 		//volatile unsigned			block_events;
 		IndexTable<RootChannel*>	channel_map;
 		IndexTable<unsigned>		signal_map;
+		Dispatcher*					relayTo=nullptr;
 
 		bool						resolving,terminateAfterResolve;
 		Buffer0<TCommonEvent>		resolutionBuffer;	//used as temporary storage by Resolve() for events taken out of queue prior to resolution.
@@ -691,19 +692,44 @@ namespace TCP
 		*/
 		void						Resolve();
 		void						FlushPendingEvents();	//!< Dumps all remaining, pending events without executing them. The client application may call this method if the local dispatcher is set to synchronous. Nothing happens otherwise.
-		void						InstallChannel(RootChannel&channel);	//!< Installs a channel in/out processor. If the used channel id is already in use then it will be overwritten with the provided channel handler
-		void						UninstallChannel(RootChannel&channel);		//!< Uninstalls a channel in/out processor. The used channel id will be closed
-		void						OpenSignalChannel(UINT32 id, unsigned minUserLevel);	//!< Opens a signal channel for receiving	@param id Channel id to listen for signals on @param min_user_level Minimum required user level for this signal to be accepted
-		void						CloseSignalChannel(UINT32 id);							//!< Closes a signal channel
+		/**
+		Installs a channel in/out processor.
+		If the used channel id is already in use then it will be overwritten with the provided channel handler.
+		Object/signal relaying must be disabled, or the method will issue a critical assertion.
+		*/
+		void						InstallChannel(RootChannel&channel);
+		/**
+		Uninstalls a channel in/out processor. The used channel id will be closed.
+		Object/signal relaying must be disabled, or the method will issue a critical assertion.
+		*/
+		void						UninstallChannel(RootChannel&channel);
+		/**
+		Opens a signal channel for receiving.
+		Object/signal relaying must be disabled, or the method will issue a critical assertion.
+		@param id Channel id to listen for signals on @param min_user_level Minimum required user level for this signal to be accepted
+		*/
+		void						OpenSignalChannel(UINT32 id, unsigned minUserLevel);
+		/**
+		Closes a signal channel.
+		Object/signal relaying must be disabled, or the method will issue a critical assertion.
+		*/
+		void						CloseSignalChannel(UINT32 id);
 			
 		void						SetAsync(bool is_async)		//! Changes the socket asynchronous status. Dispatchers run in async mode by default. @param is_async Set true if the dispatcher should perform operations asynchronously from this point on, false otherwise
 									{
+										ASSERT_IS_NULL__(relayTo);
 										async = is_async;
 									}
 		bool						IsAsync()	const			//! Queries whether or not this dispatcher is currently asynchronously. Dispatchers run in async mode by default.
 									{
-										return async;
+										return relayTo ? relayTo->IsAsync() : async;
 									}
+		/**
+		Defines a relay dispatcher to get channels from and to receive incoming objects, events and signals instead of the local instance.
+		Set NULL to disable.
+		If set, local channel declarations and async settings are completely ignored
+		*/
+		void						RelayTo(Dispatcher*relay)	{ASSERT__(!relay || channel_map.IsEmpty()); relayTo = relay;}
 
 		virtual void				HandleEvent(event_t ev, Peer&sender);
 	protected:

@@ -161,6 +161,11 @@ namespace TCP
 	{
 		if (!object)
 			return;
+		if (relayTo)
+		{
+			relayTo->HandleObject(receiver,sender,object);
+			return;
+		}
 		if (async)
 		{
 			receiver->Handle(object,sender.LinkFromThis());
@@ -200,6 +205,11 @@ namespace TCP
 	
 	/*virtual*/ void	Dispatcher::HandleEvent(event_t ev, Peer&sender)
 	{
+		if (relayTo)
+		{
+			relayTo->HandleEvent(ev,sender);
+			return;
+		}
 		if (ev == Event::None)
 			return;
 		if (async)
@@ -231,6 +241,12 @@ namespace TCP
 
 	/*virtual*/ void	Dispatcher::HandleSignal(UINT32 signal, Peer&peer)
 	{
+		if (relayTo)
+		{
+			relayTo->HandleSignal(signal,peer);
+			return;
+		}
+
 		if (async)
 		{
 //			if (eventLock.PermissiveLock(CLOCATION))
@@ -386,6 +402,8 @@ namespace TCP
 	
 	RootChannel*	Dispatcher::getReceiver(UINT32 channelID, unsigned user_level)
 	{
+		if (relayTo)
+			return relayTo->getReceiver(channelID,user_level);
 		RootChannel*channel;
 		if (!channel_map.query(channelID,channel))	//not protecting this against invalid operations because netRead operations don't interfere with each other
 		{
@@ -426,32 +444,40 @@ namespace TCP
 	
 	void	Dispatcher::OpenSignalChannel(UINT32 id, unsigned min_user_level)
 	{
+		ASSERT_IS_NULL__(relayTo);
 		signal_map.Set(id,min_user_level);
 	}
 	
 	void	Dispatcher::CloseSignalChannel(UINT32 id)
 	{
+		ASSERT_IS_NULL__(relayTo);
 		signal_map.Unset(id);
 	}
 	
 	void	Dispatcher::InstallChannel(RootChannel&channel)
 	{
+		ASSERT_IS_NULL__(relayTo);
 		channel_map.Set(channel.id,&channel);
 	}
 	
 	void	Dispatcher::UninstallChannel(RootChannel&channel)
 	{
+		ASSERT_IS_NULL__(relayTo);
 		channel_map.Unset(channel.id);
 	}
 
 
 	bool	Dispatcher::QuerySignalMap(UINT32 channelID, unsigned&outMinChannelID) const
 	{
+		if (relayTo)
+			return relayTo->QuerySignalMap(channelID,outMinChannelID);
 		return signal_map.Query(channelID,outMinChannelID);
 	}
 
 	String	Dispatcher::DebugGetOpenSignalChannels() const
 	{
+		if (relayTo)
+			return relayTo->DebugGetOpenSignalChannels();
 		String result;
 		signal_map.VisitAllKeys([&result](index_t index)
 		{
@@ -464,6 +490,8 @@ namespace TCP
 
 	String	Dispatcher::DebugGetOpenPackageChannels() const
 	{
+		if (relayTo)
+			return relayTo->DebugGetOpenPackageChannels();
 		String result;
 		channel_map.VisitAllKeys([&result](index_t index)
 		{
