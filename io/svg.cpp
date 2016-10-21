@@ -448,7 +448,7 @@ namespace SVG
 			
 			Rect<> primitive = Rect<>::Invalid;
 			Rect<> rect;
-			const float w = fontSize*0.5f *node.inner_content.length();
+			const float w = fontSize*0.75f *node.inner_content.length();
 			if (*outAnchor == "start")
 				rect = Rect<>(x,y-fontSize,x+w,y);
 			elif (*outAnchor == "middle")
