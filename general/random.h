@@ -56,7 +56,7 @@ static	const UINT	resolution=32768,			//!< Number of different random values.
 		double		getDouble(double min, double max);	//!< Query random double value \param min Minimum random value \param max Maximum random value \return Random double value ranging [min,max]
 
 	template <class Type>
-		Type		getType()							//!< Query custom type random value \return Random value ranging [0,1]
+		Type		GetFloatT()							//!< Query custom type random value \return Random value ranging [0,1]
 		{
 			return (Type)get()/(Type)(resolution-1);
 		}
