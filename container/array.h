@@ -22,7 +22,7 @@
 
 #undef ASSERT_CONCLUSION
 #ifdef _DEBUG
-	#define ASSERT_CONCLUSION(array,pointer)	{if (!array.IsConcludedBy(pointer)) FATAL__("Conclusion exception for array '" #array "', element '" #pointer "' ("+String(array.GetIndexOf(pointer))+"/"+String(array.GetLength())+")"); }
+	#define ASSERT_CONCLUSION(array,pointer)	{if (!(array).IsConcludedBy(pointer)) FATAL__("Conclusion exception for array '" #array "', element '" #pointer "' ("+String((array).GetIndexOf(pointer))+"/"+String((array).GetLength())+")"); }
 #else
 	#define ASSERT_CONCLUSION(array,pointer)
 #endif
