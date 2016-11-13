@@ -441,6 +441,7 @@ namespace TCP
 		*/
 		virtual	PSerializableObject	Deserialize(IReadStream&stream,serial_size_t fixed_size,Peer&sender)
 		{
+			DBG_FATAL__("TCP: Trying to deserialize on a pure root channel");
 			return PSerializableObject();
 		}
 	public:
@@ -463,6 +464,7 @@ namespace TCP
 		protected:
 			virtual	PSerializableObject	Deserialize(IReadStream&stream,serial_size_t fixed_size,Peer&sender)	override
 			{
+				DBG_FATAL__("TCP: Trying to deserialize on a pure object sender channel");
 				return PSerializableObject();
 			}
 		public:
@@ -542,6 +544,7 @@ namespace TCP
 		protected:
 			virtual	PSerializableObject	Deserialize(IReadStream&stream,serial_size_t fixed_size,Peer&sender)	override
 			{
+				DBG_FATAL__("TCP: Trying to deserialize on a pure signal sender");
 				return PSerializableObject();
 			}
 		public:

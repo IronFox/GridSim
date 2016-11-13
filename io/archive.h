@@ -7,11 +7,6 @@
 Universal riff-archive-structure. Can be used for any type
 of data-content in recursive folders with 8-byte-names.
 
-This file is part of Delta-Works
-Copyright (C) 2006-2008 Stefan Elsen, University of Trier, Germany.
-http://www.delta-works.org/forge/
-http://informatik.uni-trier.de/
-
 ******************************************************************/
 
 

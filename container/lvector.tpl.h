@@ -6,13 +6,6 @@
 /*************************************************************************************
 
 This file is part of the DeltaWorks-Foundation or an immediate derivative core module.
-Original Author: Stefan Elsen
-Copyright (C) 2006 Computer Science Department of the Univerity of Trier, Germany.
-
-This file is part of Delta-Works
-Copyright (C) 2006-2008 Stefan Elsen, University of Trier, Germany.
-http://www.delta-works.org/forge/
-http://informatik.uni-trier.de/
 
 *************************************************************************************/
 
