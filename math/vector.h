@@ -818,10 +818,11 @@ namespace Math
 										x.Scale(scaleCenter.x,by);
 										y.Scale(scaleCenter.y,by);
 									}
-			MF_DECLARE(void)		Expand(const T& by)	//! Expands the rectangle. @b bottom is expected to be less than @b top
+			MF_DECLARE(Rect<T>&)	Expand(const T& by)	//! Expands the rectangle. @b bottom is expected to be less than @b top
 									{
 										x.Expand(by);
 										y.Expand(by);
+										return *this;
 									}
 									
 			MF_DECLARE(void)		ConstrainBy(const Rect<T>&constraint)	//! Modifies the local rectangle so that it lies within the specified constraint rectangle. @b bottom is expected to be less than @b top
