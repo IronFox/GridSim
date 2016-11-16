@@ -7,6 +7,8 @@ crc32-hashsum calculator.
 
 ******************************************************************/
 
+#include <atomic>
+#include <mutex>
 
 
 char fastCompare(const void*pntr0, const void*pntr1, size_t size)
@@ -36,7 +38,7 @@ char fastCompare(const void*pntr0, const void*pntr1, size_t size)
 
 
 static UINT32  crc32_table[0x100],crc32_last;
-static bool    crc32_table_set(false);
+static std::atomic<bool>    crc32_table_set(false);
 
 UINT32 crc32reflect(UINT32 ref, BYTE ch)
 {
@@ -54,15 +56,25 @@ void CRC32::init()
 {
     if (crc32_table_set)
         return;
-    crc32_table_set = true;
-    UINT32 polynomial = 0x04C11DB7;
-    for (unsigned i = 0; i <= 0xFF; i++)
-    {
-        crc32_table[i] = crc32reflect(i,8) << 24;
-        for (BYTE j = 0; j < 8; j++)
-            crc32_table[i] = (crc32_table[i]<<1) ^ (crc32_table[i] & (1<<31)?polynomial:0);
-        crc32_table[i] = crc32reflect(crc32_table[i],32);
-    }
+
+	static std::mutex mutex;
+	mutex.lock();
+		if (crc32_table_set)
+		{
+			mutex.unlock();
+			return;
+		}
+
+		UINT32 polynomial = 0x04C11DB7;
+		for (unsigned i = 0; i <= 0xFF; i++)
+		{
+			crc32_table[i] = crc32reflect(i,8) << 24;
+			for (BYTE j = 0; j < 8; j++)
+				crc32_table[i] = (crc32_table[i]<<1) ^ (crc32_table[i] & (1<<31)?polynomial:0);
+			crc32_table[i] = crc32reflect(crc32_table[i],32);
+		}
+		crc32_table_set = true;
+	mutex.unlock();
 }
 
 UINT32 CRC32::getChecksum(const char* str)
