@@ -3353,6 +3353,11 @@ template <typename T>
 	{
 		//ASSERT_NOT_NULL__(field);
 		STRING_METHOD_BEGIN("(const T*string)",string);
+		if (string == nullptr)
+		{
+			resize(0);
+			return *this;
+		}
 		if (string == field)
 		{
 			STRING_METHOD_END
