@@ -185,6 +185,7 @@ template <typename T, size_t Length>
 	class FixedArray:public SerializableObject
 	{
 	public:	
+		typedef FixedArray<T,Length>	Self;
 		T						value[Length];
 		typedef T*				iterator;
 		typedef const T*		const_iterator;
@@ -279,6 +280,23 @@ template <typename T, size_t Length>
 			return GetFixedSize((const T*)value) != 0;
 		}
 
+		void					operator=(const Self&other)
+		{
+			for (index_t i = 0; i < Length; i++)
+				value[i] = other.value[i];
+		}
+		bool					operator==(const Self&other) const
+		{
+			for (index_t i = 0; i < Length; i++)
+				if (value[i] != other.value[i])
+					return false;
+			return true;
+		}
+
+		bool					operator!=(const Self&other) const
+		{
+			return !operator==(other);
+		}
 
 		T&						operator[](index_t index)
 		{
