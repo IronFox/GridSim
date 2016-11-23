@@ -3355,7 +3355,8 @@ template <typename T>
 		STRING_METHOD_BEGIN("(const T*string)",string);
 		if (string == nullptr)
 		{
-			resize(0);
+			free();
+			STRING_METHOD_END
 			return *this;
 		}
 		if (string == field)
