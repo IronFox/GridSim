@@ -182,15 +182,17 @@ template <class Carrier>
 												if (occupy && entries+1 >= array.length()*0.8)
 													resize(array.length()*2);
 												size_t offset = hash%array.length();
-										//		cout << "attempting to find '"<<key<<"' ("<<hash<<") at "<<entries<<"/"<<array.length()<<endl;
-												while (array[offset].occupied && (array[offset].hashed != hash || array[offset].key != key))
+
+												Carrier*const raw = array.pointer();	//avoid redundant check
+												while (raw[offset].occupied && (raw[offset].hashed != hash || raw[offset].key != key))
 													offset = (offset+1)%array.length();
-										//		cout << "done searching\n";
-												if (occupy && !array[offset].occupied)
+												Carrier&entry = raw[offset];
+												if (occupy && !entry.occupied)
 												{
-													array[offset].hashed = hash;
-													array[offset].key = typename Carrier::Key(key);
-													array[offset].occupy();
+
+													entry.hashed = hash;
+													entry.key = typename Carrier::Key(key);
+													entry.occupy();
 													entries++;
 													if (entries == array.length())
 														FATAL__("hashtable overflow");
@@ -207,17 +209,13 @@ template <class Carrier>
 		template <class Key>
 			inline const Carrier*			find(hash_t hash, const Key&key)			const	//!< Carrier lookup via a key and its hash-value. \param hash Hashvalue of the provided string (usually the result of hashString(key)) \param key Key to look for \return Pointer to the occupied carrier if the key could be found. Otherwise to a non-occupied carrier.
 											{
-										//		cout << "attempting to find '"<<key<<"' ("<<hash<<") at "<<entries<<"/"<<array.length()<<endl;
-
 
 												size_t offset = hash%array.length();
-												while (array[offset].occupied && (array[offset].hashed != hash || array[offset].key != key))
+												const Carrier*const raw = array.pointer();	//avoid redundant check
+												while (raw[offset].occupied && (raw[offset].hashed != hash || raw[offset].key != key))
 													offset = (offset+1)%array.length();
-										//		cout << "done searching\n";
 
-
-
-												return array+offset;
+												return raw+offset;
 											}
 			inline void						resize(size_t new_size);							//!< Resizes the hashtable to the specified size and remaps all table entries \param new_size New number of entries to use
 			inline void 					remove(Carrier*c);									//!< Removes the specified carrier from the table. Also reduces the size of the table if necessary. \param c Carrier to remove.
