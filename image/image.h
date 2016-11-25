@@ -55,135 +55,138 @@ template <typename T>
 class BaseImage
 {
 public:
-		typedef UINT32			dimension_t,dim_t;	
+	typedef UINT32			dimension_t,dim_t;	
 			
-		struct THeader	//! File header used for certain texture io-operations
+	struct THeader	//! File header used for certain texture io-operations
+	{
+				UINT32		crc;	//!< Image crc32 checksum (including settings)
+		union
 		{
-					UINT32		crc;	//!< Image crc32 checksum (including settings)
-			union
+			struct
 			{
-				struct
-				{
-					BYTE		x_exp,	//!< Size x-exponent (final image width = 2^x_exp)
-								y_exp,	//!< Size y-exponent (final image height = 2^y_exp)
-								channels,	//!< Image color channels
-								type;		//!< Image content type
-				};
-				UINT32			settings;
+				BYTE		x_exp,	//!< Size x-exponent (final image width = 2^x_exp)
+							y_exp,	//!< Size y-exponent (final image height = 2^y_exp)
+							channels,	//!< Image color channels
+							type;		//!< Image content type
 			};
+			UINT32			settings;
 		};
-		template <bool IsHorizontal>
-			class Axis;
+	};
+	template <bool IsHorizontal>
+		class Axis;
 
-		template <bool IsHorizontal>
-			class Iterator
-			{
-				dim_t	at;
-				friend class Axis<IsHorizontal>;
+	template <bool IsHorizontal>
+		class Iterator
+		{
+			dim_t	at;
+			friend class Axis<IsHorizontal>;
 
-				/**/			Iterator(dim_t at):at(at)	{}
-			public:
-				Iterator		operator++(int) {Iterator rs(*this); at++; return rs;}
-				Iterator&		operator++() {at++; return *this;}
-				Iterator		operator--(int) {Iterator rs(*this); at--; return rs;}
-				Iterator&		operator--() {at--; return *this;}
-				dim_t			operator*() const {return at;}
-				bool			operator==(dim_t other) const {return at == other;}
-				bool			operator!=(dim_t other) const {return at != other;}
-				bool			operator<=(dim_t other) const {return at <= other;}
-				bool			operator>=(dim_t other) const {return at >= other;}
-				bool			operator<(dim_t other) const {return at < other;}
-				bool			operator>(dim_t other) const {return at > other;}
-				bool			operator==(const Iterator<IsHorizontal>&other) const {return at == other.at;}
-				bool			operator!=(const Iterator<IsHorizontal>&other) const {return at != other.at;}
-				bool			operator<=(const Iterator<IsHorizontal>&other) const {return at <= other.at;}
-				bool			operator>=(const Iterator<IsHorizontal>&other) const {return at >= other.at;}
-				bool			operator<(const Iterator<IsHorizontal>&other) const {return at < other.at;}
-				bool			operator>(const Iterator<IsHorizontal>&other) const {return at > other.at;}
-			};
+			/**/			Iterator(dim_t at):at(at)	{}
+		public:
+			Iterator		operator++(int) {Iterator rs(*this); at++; return rs;}
+			Iterator&		operator++() {at++; return *this;}
+			Iterator		operator--(int) {Iterator rs(*this); at--; return rs;}
+			Iterator&		operator--() {at--; return *this;}
+			dim_t			operator*() const {return at;}
+			bool			operator==(dim_t other) const {return at == other;}
+			bool			operator!=(dim_t other) const {return at != other;}
+			bool			operator<=(dim_t other) const {return at <= other;}
+			bool			operator>=(dim_t other) const {return at >= other;}
+			bool			operator<(dim_t other) const {return at < other;}
+			bool			operator>(dim_t other) const {return at > other;}
+			bool			operator==(const Iterator<IsHorizontal>&other) const {return at == other.at;}
+			bool			operator!=(const Iterator<IsHorizontal>&other) const {return at != other.at;}
+			bool			operator<=(const Iterator<IsHorizontal>&other) const {return at <= other.at;}
+			bool			operator>=(const Iterator<IsHorizontal>&other) const {return at >= other.at;}
+			bool			operator<(const Iterator<IsHorizontal>&other) const {return at < other.at;}
+			bool			operator>(const Iterator<IsHorizontal>&other) const {return at > other.at;}
+		};
 		
-		template <bool IsHorizontal>
-			class Axis
-			{
-				const dim_t		extend;
+	template <bool IsHorizontal>
+		class Axis
+		{
+			const dim_t		extend;
 
-				friend class BaseImage;
+			friend class BaseImage;
 
-				/**/			Axis(dim_t extend):extend(extend)	{}
-			public:
-				typedef Iterator<IsHorizontal>	iterator,const_iterator;
+			/**/			Axis(dim_t extend):extend(extend)	{}
+		public:
+			typedef Iterator<IsHorizontal>	iterator,const_iterator;
 
-				constexpr iterator	begin() const {return 0;}
-				iterator		end() const {return extend;}
-				dim_t			size() const {return extend;}
-			};	
+			constexpr iterator	begin() const {return 0;}
+			iterator		end() const {return extend;}
+			dim_t			size() const {return extend;}
+		};	
 
 protected:
-		dimension_t				image_width,		//!< Width of the image in pixels.
-								image_height;		//!< Height of the image in pixels.
-		BYTE					image_channels;	//!< Number of color channels
-		PixelType				content_type;	//!< Contained image type. Certain methods will behave differently depending on this value.
+	dimension_t				image_width,		//!< Width of the image in pixels.
+							image_height;		//!< Height of the image in pixels.
+	BYTE					image_channels;	//!< Number of color channels
+	PixelType				content_type;	//!< Contained image type. Certain methods will behave differently depending on this value.
 
 
 public:
-		String					origin;		//!< Custom string. Possibly a filename. This value is carried along but not used by any method of this file
-		enum channel_append_t{	//! Operation to perfom if new channels are appended via the SetChannel() method.
-								CA_ZERO=0,	//!< Set the content of new channels to 0 (black)
-								CA_REPEAT,	//!< Repeat the content of the last defined channel
-								CA_UNDEF,	//!< Leave the content of new channels undefined
-								CA_HALF,	//!< Set the content of new channels to half the maximum possible value (grey)
-								CA_MAX		//!< Set the content of new channels to the maximum possible value (white)
-								};
+	String					origin;		//!< Custom string. Possibly a filename. This value is carried along but not used by any method of this file
+	enum channel_append_t{	//! Operation to perfom if new channels are appended via the SetChannel() method.
+							CA_ZERO=0,	//!< Set the content of new channels to 0 (black)
+							CA_REPEAT,	//!< Repeat the content of the last defined channel
+							CA_UNDEF,	//!< Leave the content of new channels undefined
+							CA_HALF,	//!< Set the content of new channels to half the maximum possible value (grey)
+							CA_MAX		//!< Set the content of new channels to the maximum possible value (white)
+							};
 							
-		enum combiner_t{	//! Operation to perform when drawing images into the local image.
-								IC_COPY,			//!< Overwrites the local pixel data with the provided remote pixel data
-								IC_ALPHA_BLEND,		//!< Blends the provided remote pixel data above the local pixel data (using the remote 4th channel as opacity value)
-								IC_MULTIPLY,		//!< Each channel of the local pixel data will be multiplied with the respective channel of the remote pixel data
-								IC_MULT_NEGATIVE,	//!< Each channel of the local pixel data will be negative multiplied with the respective channel of the remote pixel data
-								IC_ALPHA_ADD,		//!< The pixel data will be multipled with any available alpha channel and then added. Behaves identical to IC_ADD if no alpha channel is available
-								IC_ADD,				//!< The pixel data of the remote image will be added to the pixel data of the local image (and clamped to [0,255] if necessary).
+	enum combiner_t{	//! Operation to perform when drawing images into the local image.
+							IC_COPY,			//!< Overwrites the local pixel data with the provided remote pixel data
+							IC_ALPHA_BLEND,		//!< Blends the provided remote pixel data above the local pixel data (using the remote 4th channel as opacity value)
+							IC_MULTIPLY,		//!< Each channel of the local pixel data will be multiplied with the respective channel of the remote pixel data
+							IC_MULT_NEGATIVE,	//!< Each channel of the local pixel data will be negative multiplied with the respective channel of the remote pixel data
+							IC_ALPHA_ADD,		//!< The pixel data will be multipled with any available alpha channel and then added. Behaves identical to IC_ADD if no alpha channel is available
+							IC_ADD,				//!< The pixel data of the remote image will be added to the pixel data of the local image (and clamped to [0,255] if necessary).
 							
 							
-								Copy=IC_COPY,
-								Replace=IC_COPY,
-								AlphaBlend=IC_ALPHA_BLEND,
-								Multiply=IC_MULTIPLY,
-								MultNegative=IC_MULT_NEGATIVE,
-								AlphaAdd=IC_ALPHA_ADD,
-								Blend=IC_ALPHA_ADD,
-								Add=IC_ADD
-								};
+							Copy=IC_COPY,
+							Replace=IC_COPY,
+							AlphaBlend=IC_ALPHA_BLEND,
+							Multiply=IC_MULTIPLY,
+							MultNegative=IC_MULT_NEGATIVE,
+							AlphaAdd=IC_ALPHA_ADD,
+							Blend=IC_ALPHA_ADD,
+							Add=IC_ADD
+							};
 
-								BaseImage(dimension_t width=0, dimension_t height=0, BYTE channels=3, PixelType type=PixelType::Color):image_width(width),image_height(height),image_channels(channels),content_type(type)
-								{}
-virtual							~BaseImage()	{};
-		Axis<true>				Horizontal() const {return Axis<true>(GetWidth());}
-		Axis<false>				Vertical() const {return Axis<false>(GetHeight());}
-		dimension_t				width()																const;	//!< Queries current image width \return Image width in pixels
-		dimension_t				GetWidth()															const;	//!< Queries current image width \return Image width in pixels
-		dimension_t				height()															const;	//!< Queries current image height \return Image height in pixels
-		dimension_t				GetHeight()															const;	//!< Queries current image height \return Image height in pixels
-		float					pixelAspect()														const;	//!< Queries the pixel aspect (width/height) of the local image
-		float					GetPixelAspect()													const;	//!< Queries the pixel aspect (width/height) of the local image
-		dimension_t				dimension(BYTE axis)												const; 	//!< Queries current image width/height \param axis Coordinate axis to retrieve (0=width, 1=height) \return Image width or height in pixels
-		dimension_t				GetDimension(BYTE axis)												const; 	//!< Queries current image width/height \param axis Coordinate axis to retrieve (0=width, 1=height) \return Image width or height in pixels
-		bool					IsEmpty()															const;	//!< Checks if the local image contains at least one pixel and one channel, false otherwise
-		bool					IsNotEmpty()														const;	//!< identical to !IsEmpty()		
-		BYTE					channels()															const;	//!< Queries current image color channels \return Number of color channels
-		BYTE					GetChannels()														const;	//!< Queries current image color channels \return Number of color channels
-		PixelType				contentType()														const;	//!< Queries content type \return content type
-		PixelType				GetContentType()													const;	//!< Queries content type \return content type
-static	PixelType				contentType(const THeader&header);											//!< Extracts the content type from the provided image header
-static	PixelType				GetContentType(const THeader&header);										//!< Extracts the content type from the provided image header
-		String					contentTypeString()													const;	//!< Generates a short string describing the current content type \return content type string
-		String					GetContentTypeString()												const;	//!< Generates a short string describing the current content type \return content type string
-		void					setContentType(PixelType type);												//!< Sets content type. Does not change the actual data.
-		bool					writeHeader(THeader&header)											const;	//!< Generates a header from the local image data \return true if the local image coordinates could be transformed into exponents, false otherwise. The resulting header will contain approximated exponents if false is returned
-		THeader					header()															const;	//!< Generates a header from the local image data
-		THeader					GetHeader()															const;	//!< Generates a header from the local image data
-		String					ToString()															const;		//!< Generates a string representation of the local image (width, height, channels, type, etc)
-		bool					IsColorMap()														const;	//!< Checks if the local map contains color pixels
-		bool					IsNormalMap()														const;	//!< Checks if the local map contains normal pixels
+						BaseImage(dimension_t width=0, dimension_t height=0, BYTE channels=3, PixelType type=PixelType::Color):image_width(width),image_height(height),image_channels(channels),content_type(type)
+						{}
+	virtual				~BaseImage()	{};
+	Axis<true>			Horizontal() const {return Axis<true>(GetWidth());}
+	Axis<false>			Vertical() const {return Axis<false>(GetHeight());}
+	dimension_t			width()																const;	//!< Queries current image width \return Image width in pixels
+	dimension_t			GetWidth()															const;	//!< Queries current image width \return Image width in pixels
+	dimension_t			height()															const;	//!< Queries current image height \return Image height in pixels
+	dimension_t			GetHeight()															const;	//!< Queries current image height \return Image height in pixels
+	float				pixelAspect()														const;	//!< Queries the pixel aspect (width/height) of the local image
+	float				GetPixelAspect()													const;	//!< Queries the pixel aspect (width/height) of the local image
+	dimension_t			dimension(BYTE axis)												const; 	//!< Queries current image width/height \param axis Coordinate axis to retrieve (0=width, 1=height) \return Image width or height in pixels
+	dimension_t			GetDimension(BYTE axis)												const; 	//!< Queries current image width/height \param axis Coordinate axis to retrieve (0=width, 1=height) \return Image width or height in pixels
+	bool				IsEmpty()															const;	//!< Checks if the local image contains at least one pixel and one channel, false otherwise
+	bool				IsNotEmpty()														const;	//!< identical to !IsEmpty()		
+	BYTE				channels()															const;	//!< Queries current image color channels \return Number of color channels
+	BYTE				GetChannels()														const;	//!< Queries current image color channels \return Number of color channels
+	PixelType			contentType()														const;	//!< Queries content type \return content type
+	PixelType			GetContentType()													const;	//!< Queries content type \return content type
+	static PixelType	contentType(const THeader&header);											//!< Extracts the content type from the provided image header
+	static PixelType	GetContentType(const THeader&header);										//!< Extracts the content type from the provided image header
+	String				contentTypeString()													const;	//!< Generates a short string describing the current content type \return content type string
+	String				GetContentTypeString()												const;	//!< Generates a short string describing the current content type \return content type string
+	void				setContentType(PixelType type);												//!< Sets content type. Does not change the actual data.
+	bool				writeHeader(THeader&header)											const;	//!< Generates a header from the local image data \return true if the local image coordinates could be transformed into exponents, false otherwise. The resulting header will contain approximated exponents if false is returned
+	THeader				header()															const;	//!< Generates a header from the local image data
+	THeader				GetHeader()															const;	//!< Generates a header from the local image data
+	String				ToString()															const;		//!< Generates a string representation of the local image (width, height, channels, type, etc)
+	bool				IsColorMap()														const;	//!< Checks if the local map contains color pixels
+	bool				IsNormalMap()														const;	//!< Checks if the local map contains normal pixels
+
+	bool				operator==(const BaseImage&other) const;
+	bool				operator!=(const BaseImage&other) const {return !operator==(other);}
 };
 
 
@@ -196,9 +199,10 @@ static	PixelType				GetContentType(const THeader&header);										//!< Extracts
 template <typename T>
 	class ImageTemplate:public BaseImage
 	{
+		typedef BaseImage			Super;
 	protected:
-		using BaseImage::dimension_t;
-		using BaseImage::Iterator;
+		using Super::dimension_t;
+		using Super::Iterator;
 	
 			T						*image_data;		//!< Pointer to the actual image data.
 
@@ -213,13 +217,14 @@ template <typename T>
 	public:
 		typedef Iterator<true>		X;
 		typedef Iterator<false>		Y;
+		typedef ImageTemplate<T>	Self;
 
 		/**/						ImageTemplate();
-		/**/						ImageTemplate(const ImageTemplate<T>&other);									//!< Copy constructor
+		/**/						ImageTemplate(const Self&other);									//!< Copy constructor
 		/**/						ImageTemplate(dimension_t width, dimension_t height, BYTE channels=3,PixelType type=PixelType::Color);		//!< Direct constructor. Directly allocates a field of the specified size. \param width Image width \param height Image height, \param channels Number of color channels. \param type Image content type
 		/**/						ImageTemplate(const THeader&header);															//!< Header constructor. Configures the local image based on the information stored in the provided header
 		virtual						~ImageTemplate();
-		ImageTemplate<T>&			operator=(const ImageTemplate<T>&other);												//!< Copy assignment
+		Self&						operator=(const Self&other);												//!< Copy assignment
 		void						free()
 									{
 										dealloc(image_data);
@@ -348,17 +353,19 @@ template <typename T>
 		inline	const T*			Get(const X&x, const Y&y) const /**@copydoc get()*/	{return get(*x,*y);}
 
 		void						SwapChannels(BYTE c0, BYTE c1);													//!< Exchanges the content of two channels for all pixels. \param c0 First channel index (0 = first(red) channel) \param c1 Second channel index (0 = first(red) channel).
-		void						AppendAlpha(const ImageTemplate<T>*other);												//!< Creates/overwrites the local 4th channel with the first channel of the specified other image for all pixels. \param other Pointer to another Image object. \b other is required to be of the exact same dimensions as the local image.
-		void						AppendAlphaAndDelete(ImageTemplate<T>*other);												//!< Performs AppendAlpha(), then deletes \b other. \param other Pointer to another Image object. \b other is required to be of the exact same dimensions as the local image but will be deleted even if that should not be the case.
+		void						AppendAlpha(const Self*other);												//!< Creates/overwrites the local 4th channel with the first channel of the specified other image for all pixels. \param other Pointer to another Image object. \b other is required to be of the exact same dimensions as the local image.
+		void						AppendAlphaAndDelete(Self*other);												//!< Performs AppendAlpha(), then deletes \b other. \param other Pointer to another Image object. \b other is required to be of the exact same dimensions as the local image but will be deleted even if that should not be the case.
 		inline	size_t				size()																const;		//!< Retrieves the size of the local pixel data. \return Size of the local pixel map in bytes (identical to GetWidth()*GetHeight()*GetChannels()).
-		void						readFrom(const ImageTemplate<T>*other);																	//!< Adapts the local image data to the specified image's data. Deprecated. \param other Image to copy data from.
+		void						readFrom(const Self*other);																	//!< Adapts the local image data to the specified image's data. Deprecated. \param other Image to copy data from.
 		void						read(const T* data);																			//!< Adopts the local image data to the specified array content. \param data Array to copy from. Must be the exact same size as what size() returns.
 		bool						ExportRectangle(dimension_t x, dimension_t y, dimension_t width, dimension_t height, T*target)	const;	//!< Exports a rectangular pixel area from the local pixel data. \param x Pixel offset (x) \param y Pixel offset (y) \param width Pixels in x-direction to export \param height Pixels in y-direction to export. \param target Array to write to. Must be at least (\b width * \b height * GetChannels()) elements long.
 		bool						ImportRectangle(dimension_t x, dimension_t y, dimension_t width, dimension_t height, const T*target);	//!< Overwrites a section in the local pixel data. \param x Pixel offset (x) \param y Pixel offset (y) \param width Pixels in x-direction to overwrite \param height Pixels in y-direction to overwrite. \param target Array to read from. Must be at least (\b width * \b height * GetChannels()) elements long.
-		void						ExtractChannels(BYTE channel, BYTE c_num, ImageTemplate<T>&target);								//!< Extracts the specified channel range into the specified target image
+		void						ExtractChannels(BYTE channel, BYTE c_num, Self&target);								//!< Extracts the specified channel range into the specified target image
 
 		bool						TruncateToOpaque();																	//!< Reduces the image to the minimum necessary rectangle covering all opaque pixels. This method has no effect if the image does not have 2 (intensity+opacity) or 4 (rgb+opacity) channels @return True if the local image has been changed, false otherwise
 
+		bool						operator==(const Self&other) const;
+		bool						operator!=(const Self&other) const {return !operator==(other);}
 	};
 
 

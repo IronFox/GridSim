@@ -234,6 +234,12 @@ template <typename T>
 		swp(image_channels,other.image_channels);
 		swp(image_data,other.image_data);
 	}
+template <typename T>
+	bool		ImageTemplate<T>::operator==(const Self&other) const
+	{
+		return Super::operator==(other) && memcmp(image_data,other.image_data,size()) == 0;
+	}
+	
 
 template <typename T>
 	void		ImageTemplate<T>::SetSize(dimension_t width, dimension_t height, BYTE channels)
