@@ -44,6 +44,8 @@ public:
 	template <class C>
 	bool			operator>>(C&object);
 
+	void			CopyToArray(Array<BYTE>&outArray)const	{outArray.resizeAndCopy(begin,GetFillLevel());}
+
 	virtual	bool	Write(const void*data, serial_size_t size)	override {_PushData(data,size);return true;}
 	virtual	bool	Read(void*target_data, serial_size_t size)	override {return _GetData(target_data,size);}
 	virtual serial_size_t		GetRemainingBytes() const override {return end - current;}
@@ -94,6 +96,7 @@ public:
 
 	/**/			ByteReadStream() :begin(NULL), current(NULL), end(NULL)	{}
 	/**/			ByteReadStream(const void*begin, const void*end) :begin((const char*)begin), current((const char*)begin), end((const char*)end)	{}
+	/**/			ByteReadStream(const Array<BYTE>&data) : begin((const char*)data.begin()),current((const char*)data.begin()),end((const char*)data.end()){}
 	
 	void			Rewind()	{ current = begin; }
 	bool			ReachedEnd() const { return current == end; }
