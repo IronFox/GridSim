@@ -1201,7 +1201,7 @@ namespace Fractal
 				unsigned px = info.x;
 				unsigned py = info.y+TEXTURE_SEAM_EXTENSION+1;
 				
-				bool extend = px+TEXTURE_SEAM_EXTENSION+1 >= py;
+				bool extent = px+TEXTURE_SEAM_EXTENSION+1 >= py;
 				
 				if (px >= dimension || py >= dimension)
 					FATAL__("Pixel out of bounds: "+String(px)+", "+String(py)+" / "+String(dimension));
@@ -1216,7 +1216,7 @@ namespace Fractal
 				normal_texel[1] = (unsigned char)(255.0f*(0.5f+vertex.normal.y/nlen*0.5f));
 				normal_texel[2] = (unsigned char)(255.0f*(0.5f+vertex.normal.z/nlen*0.5f));
 				
-				if (extend)
+				if (extent)
 				{
 					#if TEXTURE_SEAM_EXTENSION >= 1
 						_c3(normal_texel,getTexel3(texel_data,px+1,py,dimension));
@@ -1271,7 +1271,7 @@ namespace Fractal
 
 				#endif
 				
-				if (extend)
+				if (extent)
 				{
 					#if TEXTURE_SEAM_EXTENSION >= 1
 						_c3(style_texel,getTexel3(texel_data,px-1,py,dimension));
@@ -1324,7 +1324,7 @@ namespace Fractal
 				SET_TEXEL_COORDS(2)
 				SET_TEXEL_COORDS(3)
 				
-				#define SET_TEXEL_EXTEND(_INDEX_)	bool extend##_INDEX_ = px##_INDEX_+TEXTURE_SEAM_EXTENSION+1 >= py##_INDEX_;\
+				#define SET_TEXEL_EXTEND(_INDEX_)	bool extent##_INDEX_ = px##_INDEX_+TEXTURE_SEAM_EXTENSION+1 >= py##_INDEX_;\
 					if (px##_INDEX_ >= dimension || py##_INDEX_ >= dimension)\
 						FATAL__("Texel "#_INDEX_" out of bounds: "+String(px##_INDEX_)+", "+String(py##_INDEX_)+" / "+String(dimension));
 
@@ -1380,7 +1380,7 @@ namespace Fractal
 				
 				#if TEXTURE_SEAM_EXTENSION >= 2
 					#define EXTEND_NORMAL(_INDEX_)\
-						if (extend##_INDEX_)\
+						if (extent##_INDEX_)\
 						{\
 							_c3(normal_texel##_INDEX_,getTexel3(texel_data,px##_INDEX_+1,py##_INDEX_,dimension));\
 							if (py##_INDEX_==TEXTURE_SEAM_EXTENSION+1)\
@@ -1388,7 +1388,7 @@ namespace Fractal
 							_c3(normal_texel##_INDEX_,getTexel3(texel_data,px##_INDEX_+1,py##_INDEX_-1,dimension));\
 						}
 					#define EXTEND_STYLE_TEXEL(_INDEX_)\
-						if (extend##_INDEX_)\
+						if (extent##_INDEX_)\
 						{\
 							_c3(style_texel##_INDEX_,getTexel3(texel_data,px##_INDEX_-1,py##_INDEX_,dimension));\
 							if (py##_INDEX_+TEXTURE_SEAM_EXTENSION+1==dimension-1)\
@@ -1398,14 +1398,14 @@ namespace Fractal
 						
 				#elif TEXTURE_SEAM_EXTENSION >= 1
 					#define EXTEND_NORMAL(_INDEX_)\
-						if (extend##_INDEX_)\
+						if (extent##_INDEX_)\
 						{\
 							_c3(normal_texel##_INDEX_,getTexel3(texel_data,px##_INDEX_+1,py##_INDEX_,dimension));\
 							if (py##_INDEX_==TEXTURE_SEAM_EXTENSION+1)\
 								_c3(normal_texel##_INDEX_,getTexel3(texel_data,px##_INDEX_,py##_INDEX_-1,dimension));\
 						}
 					#define EXTEND_STYLE_TEXEL(_INDEX_)\
-						if (extend##_INDEX_)\
+						if (extent##_INDEX_)\
 						{\
 							_c3(style_texel##_INDEX_,getTexel3(texel_data,px##_INDEX_-1,py##_INDEX_,dimension));\
 							if (py##_INDEX_+TEXTURE_SEAM_EXTENSION+1==dimension-1)\

@@ -1593,6 +1593,54 @@ template <class C, class Strategy=typename Strategy::StrategySelector<C>::Defaul
 		using Super::erase;
 		using Super::append;
 	public:
+
+		template <bool IsHorizontal>
+			class Axis;
+
+		template <bool IsHorizontal>
+			class Iterator
+			{
+				index_t	at;
+				friend class Axis<IsHorizontal>;
+
+				/**/			Iterator(index_t at):at(at)	{}
+			public:
+				Iterator		operator++(int) {Iterator rs(*this); at++; return rs;}
+				Iterator&		operator++() {at++; return *this;}
+				Iterator		operator--(int) {Iterator rs(*this); at--; return rs;}
+				Iterator&		operator--() {at--; return *this;}
+				index_t			operator*() const {return at;}
+				bool			operator==(index_t other) const {return at == other;}
+				bool			operator!=(index_t other) const {return at != other;}
+				bool			operator<=(index_t other) const {return at <= other;}
+				bool			operator>=(index_t other) const {return at >= other;}
+				bool			operator<(index_t other) const {return at < other;}
+				bool			operator>(index_t other) const {return at > other;}
+				bool			operator==(const Iterator<IsHorizontal>&other) const {return at == other.at;}
+				bool			operator!=(const Iterator<IsHorizontal>&other) const {return at != other.at;}
+				bool			operator<=(const Iterator<IsHorizontal>&other) const {return at <= other.at;}
+				bool			operator>=(const Iterator<IsHorizontal>&other) const {return at >= other.at;}
+				bool			operator<(const Iterator<IsHorizontal>&other) const {return at < other.at;}
+				bool			operator>(const Iterator<IsHorizontal>&other) const {return at > other.at;}
+			};
+		
+		template <bool IsHorizontal>
+			class Axis
+			{
+				const index_t		extent;
+
+				friend class Array2D<C,Strategy>;
+
+				/**/			Axis(index_t extent):extent(extent)	{}
+			public:
+				typedef Iterator<IsHorizontal>	iterator,const_iterator;
+
+				constexpr iterator	begin() const {return 0;}
+				iterator		end() const {return extent;}
+				count_t			size() const {return extent;}
+			};	
+
+
 		Array2D():w(0)
 		{}
 		Array2D(Arrays::count_t width, Arrays::count_t height):Super(width*height),w(width)
@@ -1628,6 +1676,10 @@ template <class C, class Strategy=typename Strategy::StrategySelector<C>::Defaul
 		{
 			return w?Array<C,Strategy>::elements/w:0;
 		}
+
+		Axis<true>			Horizontal() const {return Axis<true>(GetWidth());}
+		Axis<false>			Vertical() const {return Axis<false>(GetHeight());}
+
 
 		void		CopyRowTo(index_t row, ArrayData<C>&target) const
 		{
@@ -1695,6 +1747,10 @@ template <class C, class Strategy=typename Strategy::StrategySelector<C>::Defaul
 			#endif
 			return Super::data[y*w+x];
 		}
+		C&			Get(const Iterator<true>&x, const Iterator<false>&y)	//! Retrieves a singular element at the specified position	\param x X coordinate. Must be less than width() \param y Y coordinate. Must be less than height() \return Reference to the requested element
+		{
+			return Get(*x,*y);
+		}
 	
 		const C&	Get(Arrays::count_t x, Arrays::count_t y)	const	//! Retrieves a singular element at the specified position \param x X coordinate. Must be less than width() \param y Y coordinate. Must be less than height() \return Reference to the requested element
 		{
@@ -1703,6 +1759,10 @@ template <class C, class Strategy=typename Strategy::StrategySelector<C>::Defaul
 					FATAL__("Index out of bounds");
 			#endif
 			return Super::data[y*w+x];
+		}
+		const C&	Get(const Iterator<true>&x, const Iterator<false>&y)	const	//! Retrieves a singular element at the specified position \param x X coordinate. Must be less than width() \param y Y coordinate. Must be less than height() \return Reference to the requested element
+		{
+			return Get(*x,*y);
 		}
 		void	adoptData(Array2D<C,Strategy>&other)	//! Adopts pointer and size and sets both NULL of the specified origin array.
 		{
@@ -1716,6 +1776,15 @@ template <class C, class Strategy=typename Strategy::StrategySelector<C>::Defaul
 			swp(w,other.w);
 		}
 
+		bool	operator==(const Self&other) const
+		{
+			return w == other.w && Super::operator==(other);
+		}
+
+		bool	operator!=(const Self&other) const
+		{
+			return w != other.w || Super::operator!=(other);
+		}
 	};
 
 

@@ -279,7 +279,7 @@ namespace Math
 									{
 										min = max = (T)value;
 									}
-			MF_DECLARE(void)		Scale(const T&by)	//! Scales the range from its central extend
+			MF_DECLARE(void)		Scale(const T&by)	//! Scales the range from its central extent
 									{
 										T	c = center();
 										T	ext  = (max - c);
@@ -572,9 +572,9 @@ namespace Math
 	@brief Constructs a new centered range
 	*/
 	template <typename T>
-		inline TFloatRange<T>	CenterRange(const T&center, const T&extend)
+		inline TFloatRange<T>	CenterRange(const T&center, const T&extent)
 		{
-			TFloatRange<T> result = { center - extend, center + extend };
+			TFloatRange<T> result = { center - extent, center + extent };
 			return result;
 		}
 
@@ -717,7 +717,7 @@ namespace Math
 										this->y.SetCenter(y);
 									}
 			/**
-			@brief Updates all values of the local rectangle so that the center points to the specified x and y coordinates, and width and height match twice the specified extend
+			@brief Updates all values of the local rectangle so that the center points to the specified x and y coordinates, and width and height match twice the specified extent
 			@param x X coordinate of the new center
 			@param y Y coordinate of the new center
 			@param ext_x Extent in both directions along the x axis. Equals half the resulting width
@@ -729,7 +729,7 @@ namespace Math
 										this->y.SetCenter(y,ext_y);
 									}
 			/**
-			@brief Updates all values of the local rectangle so that the center points to the specified x and y coordinates, and width and height match twice the specified extend
+			@brief Updates all values of the local rectangle so that the center points to the specified x and y coordinates, and width and height match twice the specified extent
 			@param x X coordinate of the new center
 			@param y Y coordinate of the new center
 			@param ext Extent in both directions along the x and y axes. Equals half the resulting width/height
@@ -1241,7 +1241,7 @@ namespace Math
 										this->z.SetCenter(z);
 									}
 			/**
-			@brief Updates all values of the local box so that the center points to the specified x, y, z coordinates, and width, height, depth match twice the specified extend
+			@brief Updates all values of the local box so that the center points to the specified x, y, z coordinates, and width, height, depth match twice the specified extent
 			@param center New center
 			@param ext Extent in both directions along the respective axis. Equals half the resulting width/height/depth
 			*/
@@ -1253,7 +1253,7 @@ namespace Math
 										z.SetCenter(center.z,ext.z);
 									}
 			/**
-			@brief Updates all values of the local box so that the center points to the specified x, y, z coordinates, and width, height, depth match twice the specified extend
+			@brief Updates all values of the local box so that the center points to the specified x, y, z coordinates, and width, height, depth match twice the specified extent
 			@param center New center
 			@param ext Extent in both directions along the respective axis. Equals half the resulting width/height/depth
 			*/
@@ -1428,7 +1428,7 @@ namespace Math
 									}
 			/*!
 			\brief Calculates the width of the box
-			\return Box extend along the x axis
+			\return Box extent along the x axis
 			*/
 			MF_DECLARE(T)			width()		const
 									{
@@ -1437,7 +1437,7 @@ namespace Math
 			MF_DECLARE(T)			GetWidth()		const	/** @copydoc width() */ {return width();}
 			/*!
 			\brief Calculates the height of the box
-			\return Box extend along the y axis
+			\return Box extent along the y axis
 			*/
 			MF_DECLARE(T)			height()	const
 									{
@@ -1446,7 +1446,7 @@ namespace Math
 			MF_DECLARE(T)			GetHeight()		const	/** @copydoc height() */ {return height();}
 			/*!
 			\brief Calculates the depth of the box
-			\return Box extend along the z axis
+			\return Box extent along the z axis
 			*/
 			MF_DECLARE(T)			depth()	const
 									{

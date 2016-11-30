@@ -105,17 +105,17 @@ public:
 	template <bool IsHorizontal>
 		class Axis
 		{
-			const dim_t		extend;
+			const dim_t		extent;
 
 			friend class BaseImage;
 
-			/**/			Axis(dim_t extend):extend(extend)	{}
+			/**/			Axis(dim_t extent):extent(extent)	{}
 		public:
 			typedef Iterator<IsHorizontal>	iterator,const_iterator;
 
 			constexpr iterator	begin() const {return 0;}
-			iterator		end() const {return extend;}
-			dim_t			size() const {return extend;}
+			iterator		end() const {return extent;}
+			dim_t			size() const {return extent;}
 		};	
 
 protected:

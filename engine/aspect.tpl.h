@@ -776,11 +776,11 @@ template <class C> MF_CONSTRUCTOR Camera<C>::Camera()
 template <class C> MF_DECLARE (void) Camera<C>::UpdateProjection(const C&aspect, const C&zNear, const C&zFar, const C&vFov)
 {
 	vfov = vFov;
-	C	extend = (C)1.0/vtan(vfov*M_PI/180/2),
+	C	extent = (C)1.0/vtan(vfov*M_PI/180/2),
 		pa = (C)1.0/region.pixelAspect()/aspect;
 
-	Vec::def(projection.x,	pa*extend,0,0,0);
-	Vec::def(projection.y,	0,extend,0,0);
+	Vec::def(projection.x,	pa*extent,0,0,0);
+	Vec::def(projection.y,	0,extent,0,0);
 	Vec::def(projection.z,	0,0,(C)((C)zNear+zFar)/((C)zNear-zFar),-1);	//endless -1, -1
 	Vec::def(projection.w,	0,0,(C)2.0*zNear*zFar/(zNear-zFar),0);	//endless 0
 	Mat::invert(projection,projectionInvert);
@@ -789,11 +789,11 @@ template <class C> MF_DECLARE (void) Camera<C>::UpdateProjection(const C&aspect,
 template <class C> MF_DECLARE (void) Camera<C>::UpdateProjection2(const C&aspect, const C&zNear, const C&zFar, const C&vFov)
 {
 	vfov = vFov;
-	C	extend = (C)1.0/vtan(vfov*M_PI/180/2),
+	C	extent = (C)1.0/vtan(vfov*M_PI/180/2),
 		pa = (C)1.0/region.pixelAspect()/aspect;
 
-	Vec::def(projection.x,	pa*extend,0,0,0);
-	Vec::def(projection.y,	0,extend,0,0);
+	Vec::def(projection.x,	pa*extent,0,0,0);
+	Vec::def(projection.y,	0,extent,0,0);
 	Vec::def(projection.z,	0,0,(C)((C)zFar)/((C)zNear-zFar),-1);	//endless -1, -1
 	Vec::def(projection.w,	0,0,(C)zNear*zFar/(zNear-zFar),0);	//endless 0
 	Mat::invert(projection,projectionInvert);
