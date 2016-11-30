@@ -23,6 +23,12 @@ public:
 	{
 		open_simplex_noise_free(ctx);
 	}
+
+	void		Recreate(int64_t seed)
+	{
+		open_simplex_noise_free(ctx);
+		open_simplex_noise(seed, &ctx);
+	}
 	
 	/**
 	Samples semi-gaussian volumetric noise in the range [-1,+1]
