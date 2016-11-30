@@ -583,8 +583,8 @@ namespace Math
 		typedef Type		UnionCompatibleBase;
 		typedef TypeInfo<ULONG>UnsignedType;
 		typedef TypeInfo<LONG>	SignedType;
-		typedef TypeInfo<INT64>	GreaterType;
-		typedef TypeInfo<INT16>	LesserType;
+		typedef TypeInfo<UINT64>	GreaterType;
+		typedef TypeInfo<UINT16>	LesserType;
 		typedef TTrue		IsPrimitive;
 		static constexpr bool	is_signed=false,
 							is_float=false;
@@ -604,7 +604,7 @@ namespace Math
 		typedef Type		UnionCompatibleBase;
 		typedef TypeInfo<UINT64>UnsignedType;
 		typedef TypeInfo<INT64>	SignedType;
-		typedef TypeInfo<INT64>	GreaterType;
+		typedef TypeInfo<double>	GreaterType;
 		typedef TypeInfo<INT32>	LesserType;
 		typedef TTrue		IsPrimitive;
 		static constexpr bool	is_signed=true,
@@ -704,7 +704,7 @@ namespace Math
 		typedef Type		UnionCompatibleBase;
 		typedef TypeInfo<UINT64>UnsignedType;
 		typedef TypeInfo<INT64>	SignedType;
-		typedef TypeInfo<UINT64>GreaterType;
+		typedef TypeInfo<double>GreaterType;
 		typedef TypeInfo<UINT32>LesserType;
 		typedef TTrue		IsPrimitive;
 		static constexpr bool	is_signed=false,
@@ -724,8 +724,8 @@ namespace Math
 		typedef Type		UnionCompatibleBase;
 		typedef TypeInfo<Type>	UnsignedType;
 		typedef TypeInfo<Type>	SignedType;
-		typedef TypeInfo<Type>	GreaterType;
-		typedef TypeInfo<Type>	LesserType;
+		typedef TypeInfo<double>	GreaterType;
+		typedef TypeInfo<THalf>	LesserType;
 		typedef TTrue		IsPrimitive;
 		static constexpr bool	is_signed=true,
 								is_float=true;
@@ -744,8 +744,8 @@ namespace Math
 		typedef Type		UnionCompatibleBase;
 		typedef TypeInfo<Type>	UnsignedType;
 		typedef TypeInfo<Type>	SignedType;
-		typedef TypeInfo<Type>	GreaterType;
-		typedef TypeInfo<Type>	LesserType;
+		typedef TypeInfo<long double>	GreaterType;
+		typedef TypeInfo<float>	LesserType;
 		typedef TTrue		IsPrimitive;
 		static constexpr bool	is_signed=true,
 							is_float=true;
@@ -765,7 +765,7 @@ namespace Math
 		typedef TypeInfo<Type>	UnsignedType;
 		typedef TypeInfo<Type>	SignedType;
 		typedef TypeInfo<Type>	GreaterType;
-		typedef TypeInfo<Type>	LesserType;
+		typedef TypeInfo<double>	LesserType;
 		typedef TTrue		IsPrimitive;
 		static constexpr bool	is_signed=true,
 							is_float=true;
@@ -787,7 +787,7 @@ namespace Math
 			typedef Type		UnionCompatibleBase;
 			typedef TypeInfo<Type>	UnsignedType;
 			typedef TypeInfo<Type>	SignedType;
-			typedef TypeInfo<Type>	GreaterType;
+			typedef TypeInfo<float>	GreaterType;
 			typedef TypeInfo<Type>	LesserType;
 			typedef TTrue		IsPrimitive;
 			static constexpr bool	is_signed = true,
