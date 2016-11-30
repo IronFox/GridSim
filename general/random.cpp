@@ -10,9 +10,9 @@ E:\include\general\random.cpp
 ******************************************************************/
 
 
-template class RandomSource<SimpleRandomSource>;
-template class RandomSource<std::mt19937>;
-template class RandomSource<std::mt19937_64>;
+template class RNG<SimpleRandomSource>;
+template class RNG<std::mt19937>;
+template class RNG<std::mt19937_64>;
 
 
 std::atomic<index_t>		randomRandomizationModifier = time(NULL);

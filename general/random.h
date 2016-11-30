@@ -16,7 +16,8 @@ E:\include\general\random.h
 
 /**
 Pretty much the simplest possible random number source that still works to an acceptable degree.
-Made to be replacable by std::mt19937 for applications with higher requirements
+Made to be replacable by std::mt19937 for applications with higher requirements.
+Although SimpleRandomSource can produce only 2^15 different outputs, its internal number of states equals 2^32
 */
 class SimpleRandomSource
 {
@@ -83,24 +84,26 @@ extern std::atomic<index_t>		randomRandomizationModifier;
 \brief Random generator class
 	
 The Random class generates a sequence of pseudo random number in the range
-[0,Random::resolution).
+[Random::min(),Random::max()].
 Each Random object will auto randomize using the current time unless a custom
-seed is specified. The returned random sequence is deterministic, meaning it will produce the exact
-same sequence if starting at the same seed position.
-Although Random can produce only 2^15 different outputs, its internal number of states ranges at at least 2^32
+seed is specified. The returned random sequence is deterministic if the used Random plugin is.
+
+The Random-template plugin is expected to produce equally distributed random numbers, 
+and must define/implement min(), max(), seed(), type_t and operator()().
+See SimpleRandomSource for details.
 */
 template <typename Random>
-	class RandomSource : public Random
+	class RNG : public Random
 	{
 		typedef Random	Super;
 	public:
 		typedef typename Super::result_type	type_t;
 		typedef typename TypeInfo<type_t>::GreaterType::Type big_type_t;
 
-		/**/			RandomSource():Super((type_t)(time(NULL)*100 + randomRandomizationModifier++)){};
-		explicit		RandomSource(type_t seed):Super(seed)	{}
+		/**/			RNG():Super((type_t)(time(NULL)*100 + randomRandomizationModifier++)){};
+		explicit		RNG(type_t seed):Super(seed)	{}
 		template <typename Sseq>
-			explicit	RandomSource(Sseq&seq):Super(seq){}
+			explicit	RNG(Sseq&seq):Super(seq){}
 
 		/**
 		Re-randomizes the internal state using the current time and an incremented global atomic integer
@@ -213,7 +216,7 @@ template <typename Random>
 
 
 
-typedef RandomSource<SimpleRandomSource>	Random;
+typedef RNG<SimpleRandomSource>	Random;
 
 
 
