@@ -177,12 +177,12 @@ namespace Fractal
 
 	void	setSeed(Random&random, const Seed64&seed)
 	{
-		random.setSeed(seed.toInt());
+		random.seed(seed.toInt());
 	}
 			
 	void	setSeed(Random&random, const DynamicSeed&seed)
 	{
-		random.setSeed(seed.toInt());
+		random.seed(seed.toInt());
 	}
 			
 	TSurfaceSegmentLink link(SurfaceSegment*sector, BYTE orientation)
@@ -219,11 +219,11 @@ namespace Fractal
 	{
 		static const char alpha[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_./\\";
 		Random random;
-		BYTE len = random.get(3,32);
+		BYTE len = random.Next(3,32);
 		String result;
 		result.resize(len);
 		for (BYTE k = 0; k < len; k++)
-			result.set(k,alpha[random.get(0,(unsigned)strlen(alpha)-1)]);
+			result.set(k,alpha[random.NextIndex(strlen(alpha))]);
 		return result;
 	}
 	
@@ -289,10 +289,10 @@ namespace Fractal
 	void			DynamicSeed::randomize()
 	{
 		Random random;
-		unsigned len = random.get(3,32);
+		unsigned len = random.Next(3,32);
 		value.SetSize(len);
 		for (unsigned i = 0; i < len; i++)
-			value[i] = random.get(255);
+			value[i] = random.Next(255);
 		as_int = toInt();
 	}
 
@@ -366,7 +366,7 @@ namespace Fractal
 		Random random;
 		BYTE*bytes = (BYTE*)&value;
 		for (unsigned i = 0; i < 8; i++)
-			bytes[i] = random.get(255);
+			bytes[i] = random.Next(255);
 		as_int = toInt();
 	}
 
@@ -2409,14 +2409,14 @@ namespace Fractal
 	
 	void		Body::defaultInit(TChannelConfig&vertex, Random&random, const TContext*context)
 	{
-		vertex.c0 = random.getFloat(0,1);	//general height, riffs
-		vertex.c1 = random.getFloat(0,1);	//general height, riffs
-		vertex.c2 = random.getFloat(0,1);	//general height
-		vertex.c3 = random.getFloat(0,1);	//general height, height offset (1/2)
-		vertex.oceanic = random.getFloat(0,1);	//global scale height offset (low noise)
+		vertex.c0 = random.NextFloat(0,1);	//general height, riffs
+		vertex.c1 = random.NextFloat(0,1);	//general height, riffs
+		vertex.c2 = random.NextFloat(0,1);	//general height
+		vertex.c3 = random.NextFloat(0,1);	//general height, height offset (1/2)
+		vertex.oceanic = random.NextFloat(0,1);	//global scale height offset (low noise)
 		
 
-		vertex.water = random.getFloat(0.0,0.5*context->fertility);	//water density
+		vertex.water = random.NextFloat(0.0,0.5*context->fertility);	//water density
 		//vertex.weight = 1.0f;//Adaption::ageAt(context->recursive_depth);
 		
 	}
@@ -2456,7 +2456,7 @@ namespace Fractal
 		
 		for (unsigned i = 0; i < faces.count(); i++)
 		{
-			unsigned num_craters = random.get(context->crater_min_count, context->crater_max_count);
+			unsigned num_craters = random.Next(context->crater_min_count, context->crater_max_count);
 			if (!num_craters)
 				continue;
 				
@@ -2478,9 +2478,9 @@ namespace Fractal
 						r;
 				while (true)
 				{
-					x = random.getFloat(0,1);
-					y = random.getFloat(0,1);
-					r = vpow(random.getFloat(0,1),20);
+					x = random.NextFloat(0,1);
+					y = random.NextFloat(0,1);
+					r = vpow(random.NextFloat(0,1),20);
 					if (x+y <= 1 && r >= context->crater_min_radius)
 						break;
 				}

@@ -395,16 +395,16 @@ namespace Flare
 			
 			for (unsigned i = 0; i < 10; i++)
 			{
-				float angle = random.getFloat();
-				TVec3<> c = {0.5f,random.getFloat()*0.25f+0.5f,random.getFloat()+0.5f};
+				float angle = random.NextFloat();
+				TVec3<> c = {0.5f,random.NextFloat()*0.25f+0.5f,random.NextFloat()+0.5f};
 				Vec::setLen0(c,1.2f);
 				Vec::clamp(c,0,1);
 				
 				while (counter[(unsigned)(8*angle)] > i/8)
-					angle = random.getFloat();
+					angle = random.NextFloat();
 				counter[(unsigned)(8*angle)]++;
-				float width = random.getFloat(0,12);
-				igSolarStripe(image2, 0.0002, cos(angle*M_PI), sin(angle*M_PI),  width ,sqr(random.getFloat(0.5,1))/(width/2+1),CGColor(c.red,c.green,c.blue,1),CGColor(c.red,c.green,c.blue,0));
+				float width = random.NextFloat(0,12);
+				igSolarStripe(image2, 0.0002, cos(angle*M_PI), sin(angle*M_PI),  width ,sqr(random.NextFloat(0.5,1))/(width/2+1),CGColor(c.red,c.green,c.blue,1),CGColor(c.red,c.green,c.blue,0));
 				image.Paint(&image2,0,0,Image::AlphaAdd);
 			}
 			

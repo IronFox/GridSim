@@ -1,5 +1,6 @@
 #include "../global_root.h"
 #include "random.h"
+#include <random>
 
 
 /******************************************************************
@@ -8,90 +9,37 @@ E:\include\general\random.cpp
 
 ******************************************************************/
 
-unsigned    Random::random_mod((unsigned)time(NULL));
 
-Random::Random()
+template class RandomSource<SimpleRandomSource>;
+template class RandomSource<std::mt19937>;
+template class RandomSource<std::mt19937_64>;
+
+
+std::atomic<index_t>		randomRandomizationModifier = time(NULL);
+
+
+
+void        SimpleRandomSource::Advance()
 {
-    randomize();
+	last = last * 1103515245 + 12345;
 }
 
-Random::Random(unsigned seed):last(seed)
-{}
 
-void        Random::randomize()
+void        SimpleRandomSource::discard(count_t queries)
 {
-    last = (unsigned)time(NULL)+random_mod++;
+    for (index_t i = 0; i < queries; i++)
+        Advance();
 }
 
-void        Random::setSeed(unsigned seed)
+UINT32   SimpleRandomSource::NextSeed()
 {
-    last = seed;
-}
-
-void        Random::advance(unsigned queries)
-{
-    for (unsigned i = 0; i < queries; i++)
-        last = last * 1103515245 + 12345;
-}
-
-unsigned    Random::currentSeed() const
-{
+	Advance();
 	return last;
 }
 
-unsigned    Random::getSeed()
+UINT    SimpleRandomSource::operator()()
 {
-    last = last * 1103515245 + 12345;
-    return last;
+	Advance();
+    return((UINT)(last>>16) & Mask);
 }
 
-unsigned    Random::get()
-{
-    last = last * 1103515245 + 12345;
-    return((unsigned)(last>>16) & mask);
-}
-
-unsigned    Random::get(unsigned max)
-{
-    return get()*(max+1)/(resolution);
-}
-
-index_t    Random::getIndex(index_t max)
-{
-    return get()*(max+1)/(resolution);
-}
-
-int    Random::get(int min, int max)
-{
-    return min+get()*(max-min+1)/(resolution);
-}
-
-float       Random::getFloat()
-{
-    return (float)get()/(float)(resolution-1);
-}
-
-float       Random::getFloat(float max)
-{
-    return (float)get()*max/(float)(resolution-1);
-}
-
-float       Random::getFloat(float min, float max)
-{
-    return min+(float)get()*(max-min)/(float)(resolution-1);
-}
-
-double       Random::getDouble()
-{
-    return (double)get()/(double)(resolution-1);
-}
-
-double       Random::getDouble(double max)
-{
-    return (double)get()*max/(double)(resolution-1);
-}
-
-double       Random::getDouble(double min, double max)
-{
-    return min+(double)get()*(max-min)/(double)(resolution-1);
-}
