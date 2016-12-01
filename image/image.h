@@ -177,7 +177,7 @@ public:
 	static PixelType	GetContentType(const THeader&header);										//!< Extracts the content type from the provided image header
 	String				contentTypeString()													const;	//!< Generates a short string describing the current content type \return content type string
 	String				GetContentTypeString()												const;	//!< Generates a short string describing the current content type \return content type string
-	void				setContentType(PixelType type);												//!< Sets content type. Does not change the actual data.
+	void				SetContentType(PixelType type);												//!< Sets content type. Does not change the actual data.
 	bool				writeHeader(THeader&header)											const;	//!< Generates a header from the local image data \return true if the local image coordinates could be transformed into exponents, false otherwise. The resulting header will contain approximated exponents if false is returned
 	THeader				header()															const;	//!< Generates a header from the local image data
 	THeader				GetHeader()															const;	//!< Generates a header from the local image data

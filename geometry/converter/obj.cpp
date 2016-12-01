@@ -397,7 +397,7 @@ namespace Converter
 		{
 			return NULL;
 		}
-		image.setContentType(PixelType::ObjectSpaceNormal);
+		image.SetContentType(PixelType::ObjectSpaceNormal);
 		
 		{
 			TVec3<> normal;

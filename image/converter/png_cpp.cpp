@@ -243,7 +243,7 @@ void PNG::LoadFromFilePointer(Image&target, FILE*f)
   //  png_start_read_image(png);
     png_bytepp image = png_get_rows(png,info);
     bool palette = info->color_type&PNG_COLOR_MASK_PALETTE;
-	target.setContentType(PixelType::Color);
+	target.SetContentType(PixelType::Color);
     target.SetSize(info->width,info->height,palette?3:info->channels);
 	//ShowMessage(info->channels);
 
@@ -455,7 +455,7 @@ void PNG::LoadFromFilePointer(Image&target, FILE*f)
 		png_bytepp image = png_get_rows(png,info);
 		bool palette = info->color_type&PNG_COLOR_MASK_PALETTE;
 		out_image.SetSize(info->width,info->height,palette?3:info->channels);
-		out_image.setContentType(PixelType::Color);
+		out_image.SetContentType(PixelType::Color);
 
 		for (UINT32 x = 0; x < info->width; x++)
 			for (UINT32 y = 0; y < info->height; y++)
@@ -497,7 +497,7 @@ void PNG::LoadFromFilePointer(Image&target, FILE*f)
 		png_bytepp image = png_get_rows(png,info);
 		bool palette = info->color_type&PNG_COLOR_MASK_PALETTE;
 		out_image.SetSize(info->width,info->height,palette?3:info->channels);
-		out_image.setContentType(PixelType::Color);
+		out_image.SetContentType(PixelType::Color);
 
 		for (UINT32 x = 0; x < info->width; x++)
 			for (UINT32 y = 0; y < info->height; y++)

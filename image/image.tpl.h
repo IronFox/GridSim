@@ -189,7 +189,7 @@ template <typename T>
 	void		ImageTemplate<T>::applyHeader(const THeader&header)
 	{
 		SetSize(0x1<<header.x_exp,0x1<<header.y_exp,header.channels);
-		setContentType(GetContentType(header));
+		SetContentType(GetContentType(header));
 	}
 
 
@@ -1456,7 +1456,7 @@ template <class Nature>
 		if (image_height<2)
 			return false;
 		GenericImage<Nature>	temp(image_width,image_height/2,image_channels);
-		temp.setContentType(content_type);
+		temp.SetContentType(content_type);
 		temp.origin.adoptData(origin);
 
 		Concurrency::parallel_for(dimension_t(0),image_width,[this,&temp](dimension_t x)
@@ -1492,7 +1492,7 @@ template <class Nature>
 		}
 
 		ImageTemplate<T>	temp(image_width*2,image_height*2,image_channels);
-		temp.setContentType(content_type);
+		temp.SetContentType(content_type);
 		temp.origin.adoptData(origin);
 
 		Concurrency::parallel_for(dimension_t(0),image_width,[this,&temp](dimension_t x)
@@ -1563,7 +1563,7 @@ template <class Nature>
 			return;
 		GenericImage<Nature>	temp(image_width*2,image_height,image_channels);
 		temp.origin.adoptData(origin);
-		temp.setContentType(content_type);
+		temp.SetContentType(content_type);
 
 		Concurrency::parallel_for(dimension_t(0),image_height,[this,&temp](dimension_t y)
 		{
@@ -1598,7 +1598,7 @@ template <class Nature>
 			return;
 		GenericImage<Nature>	temp(image_width,image_height*2,image_channels);
 		temp.origin.adoptData(origin);
-		temp.setContentType(content_type);
+		temp.SetContentType(content_type);
 
 		Concurrency::parallel_for(dimension_t(0),image_width,[this,&temp](dimension_t x)
 		{
@@ -1649,7 +1649,7 @@ template <class Nature>
 			return;
 		GenericImage<Nature>	temp(w,h,image_channels);
 		temp.origin.adoptData(origin);
-		temp.setContentType(content_type);
+		temp.SetContentType(content_type);
 		if (IsNormalMap())
 		{
 			Concurrency::parallel_for(dimension_t(0),w,[this,&temp,w,h](dimension_t x)
@@ -1699,7 +1699,7 @@ template <class Nature>
 
 		GenericImage<Nature>		temp(xext,yext,image_channels);
 		temp.origin.adoptData(origin);
-		temp.setContentType(content_type);
+		temp.SetContentType(content_type);
 		
 		Concurrency::parallel_for(dimension_t(0),yext,[this,&temp,x,y,xext](dimension_t Y)
 		{
@@ -1717,7 +1717,7 @@ template <class Nature>
 	
 		GenericImage<Nature>	new_image(vmin(width,image_width),vmin(height,image_height),image_channels);
 		new_image.origin.adoptData(origin);
-		new_image.setContentType(content_type);
+		new_image.SetContentType(content_type);
 		new_image.Paint(this,0,0,IC_COPY);
 	
 		adoptData(new_image);
@@ -1879,7 +1879,7 @@ template <typename T>
 			return;
 		}
 		target.SetSize(image_width,image_height,c_num);
-		target.setContentType(content_type);
+		target.SetContentType(content_type);
 		target.origin = origin;
 
 		Concurrency::parallel_for(dimension_t(0),image_width,[this,&target,channel](dimension_t x)
@@ -1906,7 +1906,7 @@ template <class Nature>
 			ImageTemplate<T> new_image(image_width*2-1,image_height*2-1,image_channels);
 
 			new_image.origin.adoptData(origin);
-			new_image.setContentType(content_type);
+			new_image.SetContentType(content_type);
 
 			#if 0
 				X X X X X X X X
@@ -2149,7 +2149,7 @@ template <class Nature>
 		{
 			ImageTemplate<T> new_image(image_width*2,image_height*2,image_channels);
 			new_image.origin.adoptData(origin);
-			new_image.setContentType(content_type);
+			new_image.SetContentType(content_type);
 		
 			#if 0
 			                
@@ -2505,7 +2505,7 @@ template <class Nature>
 			if (height_channel >= image_channels)
 				height_channel = image_channels-1;
 			target.SetSize(image_width,image_height,3);
-			target.setContentType(PixelType::TangentSpaceNormal);
+			target.SetContentType(PixelType::TangentSpaceNormal);
 	
 	
 			F		x_bump_scale = height_scale/x_texel_distance,
@@ -2548,7 +2548,7 @@ template <class Nature>
 			if (height_channel >= image_channels)
 				height_channel = image_channels-1;
 			target.SetSize(image_width,image_height,3);
-			target.setContentType(PixelType::TangentSpaceNormal);
+			target.SetContentType(PixelType::TangentSpaceNormal);
 	
 	
 			F		scale = (F(512)*F(max)),

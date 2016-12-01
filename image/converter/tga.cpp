@@ -83,7 +83,7 @@ void	TGA::LoadFromFilePointer(Image&target, FILE*f)
     read(type,f);
     if (type == TGA_EMPTY)
     {
-		target.setContentType(PixelType::Color);
+		target.SetContentType(PixelType::Color);
         target.SetSize(0,0,3);
         return;
     }
@@ -140,7 +140,7 @@ void	TGA::LoadFromFilePointer(Image&target, FILE*f)
         size = fsize-18-map_size;
 	image.SetSize(size);
     read(image.pointer(),size,f);
-	target.setContentType(PixelType::Color);
+	target.SetContentType(PixelType::Color);
     target.SetSize(width,height,image_bpp<=24?3:4);
     switch (type)
     {

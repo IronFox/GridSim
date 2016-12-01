@@ -132,7 +132,7 @@ String					BaseImage::GetContentTypeString()												const
 
 
 
-void					BaseImage::setContentType(PixelType type)
+void					BaseImage::SetContentType(PixelType type)
 {
 	content_type = type;
 }

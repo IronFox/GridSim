@@ -76,7 +76,7 @@ const Image* TextureArchive::GetData(BYTE face)
     selected->face[face].extracted = SHIELDED(new Image());
     Image&target = *selected->face[face].extracted;
     target.SetSize(selected->face[face].width,selected->face[face].height,selected->face[face].channels);
-    target.setContentType(selected->face[face].content_type);
+    target.SetContentType(selected->face[face].content_type);
     switch (selected->face[face].codec)
     {
         case 0:

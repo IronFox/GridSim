@@ -115,7 +115,7 @@ void	JPEG::LoadFromFilePointer(Image&result, FILE*f)
 	jpeg_stdio_src(&cinfo, f);
 	(void) jpeg_read_header(&cinfo, TRUE);
 	(void) jpeg_start_decompress(&cinfo);
-	result.setContentType(PixelType::Color);
+	result.SetContentType(PixelType::Color);
     result.SetSize(cinfo.output_width,cinfo.output_height,3);
 	
 	/* JSAMPLEs per row in output buffer */

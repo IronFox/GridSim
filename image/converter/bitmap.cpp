@@ -169,7 +169,7 @@ void	Bitmap::LoadFromFilePointer(Image&target, FILE*f)
 	}
 	Array<BYTE>	data(bitmap_data_size);
     fread(data.pointer(),bitmap_data_size,1,f);
-	target.setContentType(PixelType::Color);
+	target.SetContentType(PixelType::Color);
     target.SetSize(width,height,3);
     BYTE 	pixel[3],
 			*out_field = target.GetData();

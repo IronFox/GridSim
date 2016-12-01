@@ -978,7 +978,7 @@ namespace Engine
 			PixelType pt;
 			Decode(config.colorTarget[target_index].textureFormat, channels,pt);
 			target.SetSize(config.resolution.width,config.resolution.height,channels);
-			target.setContentType(pt);
+			target.SetContentType(pt);
 
 			ContextLock	context_lock;
 
@@ -997,7 +997,7 @@ namespace Engine
 			PixelType pt;
 			Decode(config.colorTarget[target_index].textureFormat, channels,pt);
 			target.SetSize(config.resolution.width,config.resolution.height,channels);
-			target.setContentType(pt);
+			target.SetContentType(pt);
 
 			ContextLock	context_lock;
 
@@ -1016,7 +1016,7 @@ namespace Engine
 			PixelType pt;
 			Decode(config.colorTarget[target_index].textureFormat, channels,pt);
 			target.SetSize(config.resolution.width,config.resolution.height,channels);
-			target.setContentType(pt);
+			target.SetContentType(pt);
 
 			ContextLock	context_lock;
 
