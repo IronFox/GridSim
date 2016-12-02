@@ -29,7 +29,7 @@ namespace Engine
 			GL*					RenderGraph<GL,Base>::getRenderer()
 			{
 				if (!renderer)
-					renderer = GL::global_instance;
+					renderer = GL::globalInstance;
 				return renderer;
 			}
 			
