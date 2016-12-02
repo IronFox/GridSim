@@ -442,7 +442,7 @@ namespace CLI
 	{
 		for (index_t i = 0; i < folderName.length(); i++)
 			if (!isAllowedCharacter(folderName.get(i)))
-				throw Program::ParameterFault("Character 0x"+IntToHex((int)folderName.get(i),2)+" ('"+folderName.get(i)+"') of variable '"+folderName+"' not allowed");
+				throw Except::Program::ParameterFault("Character 0x"+IntToHex((int)folderName.get(i),2)+" ('"+folderName.get(i)+"') of variable '"+folderName+"' not allowed");
 		PFolder f = folders.Query(folderName);
 		if (f)
 			return f;
@@ -455,10 +455,10 @@ namespace CLI
 	{
 		for (index_t i = 0; i < v->name.length(); i++)
 			if (!isAllowedCharacter(v->name.get(i)))
-				throw Program::ParameterFault(CLOCATION,"Character 0x"+IntToHex((int)v->name.get(i),2)+" ('"+v->name.get(i)+"') of variable '"+v->name+"' not allowed");
+				throw Except::Program::ParameterFault(CLOCATION,"Character 0x"+IntToHex((int)v->name.get(i),2)+" ('"+v->name.get(i)+"') of variable '"+v->name+"' not allowed");
 
 		if (variables.IsSet(v->name))
-			throw Program::UniquenessViolation(CLOCATION,"Variable '"+v->name+"' already defined in context '"+GetPath()+"'");
+			throw Except::Program::UniquenessViolation(CLOCATION,"Variable '"+v->name+"' already defined in context '"+GetPath()+"'");
 		variables.Insert(v->name, v);
 		return v;
 	}

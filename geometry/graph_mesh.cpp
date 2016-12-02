@@ -14,17 +14,17 @@ template <typename T>
 		static Array<String>	segments;
 		
 		if (!node.Query(attrib_name,string))
-			return throw IO::DriveAccess::FileFormatFault("Unable to retrieve attribute '"+String(attrib_name)+"' from XML node '"+node.name+"'");
+			throw Except::IO::DriveAccess::FileFormatFault("Unable to retrieve attribute '"+String(attrib_name)+"' from XML node '"+node.name+"'");
 			
 		explode(',',string,segments);
 		if (segments.count() != 2)
-			throw IO::DriveAccess::FileFormatFault("Unexpected segment count in attribute '"+String(attrib_name)+"' of XML node '"+node.name+"': "+String(segments.count())+". Expected 2 comma separated segments in '"+string+"'");
+			throw Except::IO::DriveAccess::FileFormatFault("Unexpected segment count in attribute '"+String(attrib_name)+"' of XML node '"+node.name+"': "+String(segments.count())+". Expected 2 comma separated segments in '"+string+"'");
 
 		if (!convert(segments[0].trim().c_str(),out.x))
-			throw IO::DriveAccess::FileFormatFault("Conversion of segment 0 ('"+segments[0].trim()+"') for attribute '"+attrib_name+"' of XML node '"+node.name+"' failed");
+			throw Except::IO::DriveAccess::FileFormatFault("Conversion of segment 0 ('"+segments[0].trim()+"') for attribute '"+attrib_name+"' of XML node '"+node.name+"' failed");
 
 		if (!convert(segments[1].trim().c_str(),out.y))
-			throw IO::DriveAccess::FileFormatFault("Conversion of segment 1 ('"+segments[0].trim()+"') for attribute '"+attrib_name+"' of XML node '"+node.name+"' failed");
+			throw Except::IO::DriveAccess::FileFormatFault("Conversion of segment 1 ('"+segments[0].trim()+"') for attribute '"+attrib_name+"' of XML node '"+node.name+"' failed");
 
 		
 	}
@@ -38,7 +38,7 @@ void	Graph::LoadFromFile(const PathString&filename, bool compact)
 	const XML::Node	*xnodes = xml.Find("graph/nodes"),
 					*xedges = xml.Find("graph/edges");
 	if (!xnodes || !xedges)
-		throw IO::DriveAccess::FileFormatFault("XML Graph file lacks 'nodes' and/or 'edges' tag");
+		throw Except::IO::DriveAccess::FileFormatFault("XML Graph file lacks 'nodes' and/or 'edges' tag");
 	
 	nodes.reset();
 	edges.reset();
@@ -873,7 +873,7 @@ namespace MeshGraphDetail
 void		GraphTextureResource::Insert(const PathString&filename, name64_t as_name, bool bump_map,float bump_strength /*=0.01f*/)
 {
 	if (container.isSet(as_name))
-		throw Program::UniquenessViolation("64bit name '"+name2str(as_name)+"' is already defined");
+		throw Except::Program::UniquenessViolation("64bit name '"+name2str(as_name)+"' is already defined");
 
 	Image	image;
 	Magic::LoadFromFile(image,filename);
@@ -1271,24 +1271,24 @@ void	Graph::verifyIntegrity(const TCodeLocation&location)	const
 		if (node.out_edge != -1)
 		{
 			if (node.out_edge >= edges.count())
-				fatal(location,"invalid out_edge index ("+String(node.out_edge)+"/"+String(edges.count())+")");
+				Except::fatal(location,"invalid out_edge index ("+String(node.out_edge)+"/"+String(edges.count())+")");
 			
 			const Edge&edge = edges[node.out_edge];
 			if (edge.node[1] == i)
-				fatal(location,"edge node confusion");
+				Except::fatal(location,"edge node confusion");
 			if (edge.node[0] != i)
-				fatal(location,"edge "+String(node.out_edge)+" doesn't know node "+String(i));
+				Except::fatal(location,"edge "+String(node.out_edge)+" doesn't know node "+String(i));
 		}
 		if (node.in_edge != -1)
 		{
 			if (node.in_edge >= edges.count())
-				fatal(location,"invalid in_edge index ("+String(node.in_edge)+"/"+String(edges.count()));
+				Except::fatal(location,"invalid in_edge index ("+String(node.in_edge)+"/"+String(edges.count()));
 			
 			const Edge&edge = edges[node.in_edge];
 			if (edge.node[0] == i)
-				fatal(location,"edge node confusion");
+				Except::fatal(location,"edge node confusion");
 			if (edge.node[1] != i)
-				fatal(location,"edge "+String(node.in_edge)+" doesn't know node "+String(i));
+				Except::fatal(location,"edge "+String(node.in_edge)+" doesn't know node "+String(i));
 		}
 	}
 	
@@ -1297,19 +1297,19 @@ void	Graph::verifyIntegrity(const TCodeLocation&location)	const
 		const Edge&edge = edges[i];
 		
 		if (edge.node[0] >= nodes.count())
-			fatal(location,"node.x ("+String(edge.node[0])+"), referenced by edge "+String(i)+" does not exist");
+			Except::fatal(location,"node.x ("+String(edge.node[0])+"), referenced by edge "+String(i)+" does not exist");
 		if (edge.node[1] >= nodes.count())
-			fatal(location,"node.y ("+String(edge.node[1])+"), referenced by edge "+String(i)+" does not exist");
+			Except::fatal(location,"node.y ("+String(edge.node[1])+"), referenced by edge "+String(i)+" does not exist");
 		
 		if (nodes[edge.node[0]].in_edge == i)
-			fatal(location,"edge node confusion at edge "+String(i));
+			Except::fatal(location,"edge node confusion at edge "+String(i));
 		if (nodes[edge.node[1]].out_edge == i)
-			fatal(location,"edge node confusion at edge "+String(i));
+			Except::fatal(location,"edge node confusion at edge "+String(i));
 		
 		if (nodes[edge.node[0]].out_edge != i)
-			fatal(location,"node "+String(edge.node[0])+" doesn't know edge "+String(i));
+			Except::fatal(location,"node "+String(edge.node[0])+" doesn't know edge "+String(i));
 		if (nodes[edge.node[1]].in_edge != i)
-			fatal(location,"node "+String(edge.node[1])+" doesn't know edge "+String(i));
+			Except::fatal(location,"node "+String(edge.node[1])+" doesn't know edge "+String(i));
 	}
 }
 
@@ -1390,13 +1390,13 @@ void		GraphMesh::LoadFromFile(const PathString&filename,bool compact)
 				*xphysical_nodes = xmesh->Find("physical_graph/nodes"),
 				*xphysical_edges = xmesh->Find("physical_graph/edges");
 	if (!xvisual_nodes)
-		throw IO::DriveAccess::FileFormatFault(globalString("mesh/graph/nodes missing in XML document"));
+		throw Except::IO::DriveAccess::FileFormatFault(Except::globalString("mesh/graph/nodes missing in XML document"));
 
 	if (!xvisual_edges)
-		throw IO::DriveAccess::FileFormatFault(globalString("mesh/graph/edges missing in XML document"));
+		throw Except::IO::DriveAccess::FileFormatFault(Except::globalString("mesh/graph/edges missing in XML document"));
 
 	if (!xvisual_profile)
-		throw IO::DriveAccess::FileFormatFault(globalString("mesh/profile missing in XML document"));
+		throw Except::IO::DriveAccess::FileFormatFault(Except::globalString("mesh/profile missing in XML document"));
 	
 	visual_graph.readFrom(xvisual_nodes,xvisual_edges);
 	physical_graph.readFrom(xphysical_nodes,xphysical_edges);

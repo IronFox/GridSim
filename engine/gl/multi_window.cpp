@@ -120,7 +120,7 @@ namespace Engine
 		if (application.fatal_exception_caught)
 		{
 			application.fatal_exception_caught = false;
-			throw Exception(globalString(application.fatal_exception.c_str()));
+			throw Except::Exception(Except::globalString(application.fatal_exception.c_str()));
 		}
 	}
 

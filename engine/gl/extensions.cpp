@@ -1160,9 +1160,9 @@ namespace Engine
 		{
 			Composition composition;
 			if (!composition.LoadFromFile(filename))
-				throw IO::DriveAccess::FileOpenFault("Unable to open file \""+filename+"\"");
+				throw Except::IO::DriveAccess::FileOpenFault("Unable to open file \""+filename+"\"");
 			if (!Load(composition,geometryType,outputType,maxVertices))
-				throw Renderer::ShaderRejected(Report());
+				throw Except::Renderer::ShaderRejected(Report());
 		}
 
 		/*static*/ void				Instance::_ParseUniformVariableInitializers(String&source,BasicBuffer<Initializer,Strategy::Swap>& initializers)
@@ -3218,9 +3218,9 @@ namespace Engine
 			{
 				Composition composition;
 				if (!composition.LoadFromFile(filename))
-					throw IO::DriveAccess::FileOpenFault("Unable to open file \""+filename+"\"");
+					throw Except::IO::DriveAccess::FileOpenFault("Unable to open file \""+filename+"\"");
 				if (!Load(composition,geometryType,outputType,maxVertices))
-					throw Renderer::ShaderRejected(Report());
+					throw Except::Renderer::ShaderRejected(Report());
 			}
 	
 			bool				Template::Load(const Composition&composition, GLenum geometryType, GLenum outputType, unsigned maxVertices)

@@ -1026,7 +1026,7 @@ namespace Config
 			return;
 		lines.last().trimThis();
 		if (!lines.last().IsEmpty())
-			throw IO::DriveAccess::FileDataFault("; expected at end of line '"+lines.last()+"'");
+			throw Except::IO::DriveAccess::FileDataFault("; expected at end of line '"+lines.last()+"'");
 		
 		if (lines.count() == 1)
 			return;
@@ -1035,12 +1035,12 @@ namespace Config
 		{
 			index_t at = lines[i].GetIndexOf('=');
 			if (!at)
-				throw IO::DriveAccess::FileDataFault("Expression lacks '=': '"+lines[i]+"'");
+				throw Except::IO::DriveAccess::FileDataFault("Expression lacks '=': '"+lines[i]+"'");
 
 			String	name = lines[i].subString(0,at-1).trim(),
 					value = lines[i].subString(at).trim();
 			if (name.IsEmpty() || !name.isValid(validNameChar))
-				throw IO::DriveAccess::FileDataFault("Name validation failed. '"+name+"' Is no valid variable name");
+				throw Except::IO::DriveAccess::FileDataFault("Name validation failed. '"+name+"' Is no valid variable name");
 
 			std::cout << "defining variable '"<<name<<"' in "<<this->name<<std::endl;
 			Variable*var = variables.append(name);
@@ -1062,7 +1062,7 @@ namespace Config
 	void	CXContext::LoadStacked(const XML::Node*node)
 	{
 		if (!node)
-			throw IO::ParameterFault(globalString("Provided node Is NULL"));
+			throw Except::IO::ParameterFault(Except::globalString("Provided node Is NULL"));
 
 
 		std::cout << "now processing node '"<<node->name<<"'"<<std::endl;
@@ -1099,7 +1099,7 @@ namespace Config
 			String error;
 			std::cout << "finalizing variable = '"<<value<<"'"<<std::endl;
 			if (!process(value,false,&error))
-				throw IO::DriveAccess::FileDataFault("Expression processing failed for expression '"+value+"' ("+error+")");
+				throw Except::IO::DriveAccess::FileDataFault("Expression processing failed for expression '"+value+"' ("+error+")");
 			
 			explode(',',value,*variable);
 			for (index_t i = 0; i < variable->count(); i++)
@@ -1242,7 +1242,7 @@ namespace Config
 		trimVariables();
 		
 		if (!succeeded)
-			throw IO::DriveAccess::FileDataFault(error_message);
+			throw Except::IO::DriveAccess::FileDataFault(error_message);
 	}
 	
 	

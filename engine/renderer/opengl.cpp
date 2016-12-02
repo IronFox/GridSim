@@ -1336,7 +1336,7 @@ namespace Engine
 			return;
 		}
 		if (OpenGL::created_contexts.IsEmpty())
-			throw Renderer::GeneralFault(globalString("Cannot bind OpenGL context: none created"));
+			throw Except::Renderer::GeneralFault(Except::globalString("Cannot bind OpenGL context: none created"));
 		is_bound = true;
 		OpenGL::setCurrentContext(OpenGL::created_contexts.first());
 	}

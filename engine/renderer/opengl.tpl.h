@@ -52,7 +52,7 @@ namespace Engine
 		void	GL::Texture::Reference::update(const data_t*data,TextureFilter filter, float anisotropy)
 		{
 			if (readonly)
-				throw Renderer::TextureTransfer::GeneralFault(globalString("Update not possible: This texture is read-only"));
+				throw Except::Renderer::TextureTransfer::GeneralFault(Except::globalString("Update not possible: This texture is read-only"));
 
 			OpenGL::ContextLock	context_lock;
 
@@ -70,12 +70,12 @@ namespace Engine
 					target = GL_TEXTURE_3D;
 				break;
 				default:
-					throw Renderer::TextureTransfer::GeneralFault(globalString("Update not possible: Incompatible texture dimension"));
+					throw Except::Renderer::TextureTransfer::GeneralFault(Except::globalString("Update not possible: Incompatible texture dimension"));
 				break;
 			}
 			
 			if (!handle)
-				throw Renderer::TextureTransfer::GeneralFault(globalString("Update not possible: This texture is empty"));
+				throw Except::Renderer::TextureTransfer::GeneralFault(Except::globalString("Update not possible: This texture is empty"));
 
 
 			glPushAttrib(GL_TEXTURE_BIT);
@@ -88,7 +88,7 @@ namespace Engine
 			if (error != GL_NO_ERROR)
 			{
 				glPopAttrib();
-				throw Renderer::TextureTransfer::GeneralFault("OpenGL reports general fault while trying to configure texture handle ("+String(glGetErrorName(error))+")");
+				throw Except::Renderer::TextureTransfer::GeneralFault("OpenGL reports general fault while trying to configure texture handle ("+String(glGetErrorName(error))+")");
 				return;
 			}
 			
@@ -117,7 +117,7 @@ namespace Engine
 				if (error != GL_NO_ERROR)
 				{
 					glPopAttrib();
-					throw Renderer::TextureTransfer::GeneralFault("First chance: OpenGL reports general fault while trying to load texture ("+String(glGetErrorName(error))+") using internal format 0x"+IntToHex((int)internal_format,4)+" and import format 0x"+IntToHex((int)import_format,4));
+					throw Except::Renderer::TextureTransfer::GeneralFault("First chance: OpenGL reports general fault while trying to load texture ("+String(glGetErrorName(error))+") using internal format 0x"+IntToHex((int)internal_format,4)+" and import format 0x"+IntToHex((int)import_format,4));
 					return;
 				}
 				if (mipmap)
@@ -129,7 +129,7 @@ namespace Engine
 			glPopAttrib();
 			error = glGetError();
 			if (error != GL_NO_ERROR)
-				throw Renderer::TextureTransfer::GeneralFault("Second chance: OpenGL reports general fault while trying to load texture ("+String(glGetErrorName(error))+") using internal format 0x"+IntToHex((int)internal_format,4)+" and import format 0x"+IntToHex((int)import_format,4));
+				throw Except::Renderer::TextureTransfer::GeneralFault("Second chance: OpenGL reports general fault while trying to load texture ("+String(glGetErrorName(error))+") using internal format 0x"+IntToHex((int)internal_format,4)+" and import format 0x"+IntToHex((int)import_format,4));
 		}
 
 
@@ -139,7 +139,7 @@ namespace Engine
 		{
 			if (!width_ || !height_ || !channels_ || channels_ > 4)
 			{
-				throw Renderer::TextureTransfer::ParameterFault("Invalid data dimensions (width="+String(width_)+", height="+String(height_)+", channels="+String(channels_)+")");
+				throw Except::Renderer::TextureTransfer::ParameterFault("Invalid data dimensions (width="+String(width_)+", height="+String(height_)+", channels="+String(channels_)+")");
 				return;
 			}
 			texture_type = type;
@@ -160,7 +160,7 @@ namespace Engine
 				if (handle == 0 || error != GL_NO_ERROR)
 				{
 					glPopAttrib();
-					throw Renderer::TextureTransfer::GeneralFault("OpenGL refused to create texture handle ("+String(glGetErrorName(error))+")");
+					throw Except::Renderer::TextureTransfer::GeneralFault("OpenGL refused to create texture handle ("+String(glGetErrorName(error))+")");
 					return;	//in case throw is ignored
 				}
 			}
@@ -176,7 +176,7 @@ namespace Engine
 			if (error != GL_NO_ERROR)
 			{
 				glPopAttrib();
-				throw Renderer::TextureTransfer::GeneralFault("OpenGL reports general fault while trying to configure texture handle ("+String(glGetErrorName(error))+")");
+				throw Except::Renderer::TextureTransfer::GeneralFault("OpenGL reports general fault while trying to configure texture handle ("+String(glGetErrorName(error))+")");
 				return;
 			}
 			
@@ -207,7 +207,7 @@ namespace Engine
 				if (error != GL_NO_ERROR)
 				{
 					glPopAttrib();
-					throw Renderer::TextureTransfer::GeneralFault("First chance: OpenGL reports general fault while trying to load texture ("+String(glGetErrorName(error))+") using internal format 0x"+IntToHex((int)internal_format,4)+" and import format 0x"+IntToHex((int)import_format,4));
+					throw Except::Renderer::TextureTransfer::GeneralFault("First chance: OpenGL reports general fault while trying to load texture ("+String(glGetErrorName(error))+") using internal format 0x"+IntToHex((int)internal_format,4)+" and import format 0x"+IntToHex((int)import_format,4));
 					return;
 				}
 				if (mipmap && data != NULL)
@@ -219,7 +219,7 @@ namespace Engine
 			glPopAttrib();
 			error = glGetError();
 			if (error != GL_NO_ERROR)
-				throw Renderer::TextureTransfer::GeneralFault("Second chance: OpenGL reports general fault while trying to load texture ("+String(glGetErrorName(error))+") using internal format 0x"+IntToHex((int)internal_format,4)+" and import format 0x"+IntToHex((int)import_format,4));
+				throw Except::Renderer::TextureTransfer::GeneralFault("Second chance: OpenGL reports general fault while trying to load texture ("+String(glGetErrorName(error))+") using internal format 0x"+IntToHex((int)internal_format,4)+" and import format 0x"+IntToHex((int)import_format,4));
 		}
 
 
@@ -228,7 +228,7 @@ namespace Engine
 		void			GL::Texture::loadCube(const data_t*data0, const data_t*data1, const data_t*data2, const data_t*data3, const data_t*data4, const data_t*data5, GLuint width_, GLuint height_, BYTE channels_, TextureFilter filter, bool compress)
 		{
 			if (!width_ || !height_ || !channels_ || channels_ > 4)
-				throw Renderer::TextureTransfer::ParameterFault("Invalid data dimensions (width="+String(width_)+", height="+String(height_)+", channels="+String(channels_)+")");
+				throw Except::Renderer::TextureTransfer::ParameterFault("Invalid data dimensions (width="+String(width_)+", height="+String(height_)+", channels="+String(channels_)+")");
 			OpenGL::ContextLock	context_lock;
 			glPushAttrib(GL_TEXTURE_BIT);
 
@@ -240,7 +240,7 @@ namespace Engine
 				if (handle==0 || error != GL_NO_ERROR)
 				{
 					glPopAttrib();
-					throw Renderer::TextureTransfer::GeneralFault("OpenGL refused to create texture handle ("+String(glGetErrorName(error))+")");
+					throw Except::Renderer::TextureTransfer::GeneralFault("OpenGL refused to create texture handle ("+String(glGetErrorName(error))+")");
 				}
 			}
 			texture_width = width_;
@@ -292,14 +292,14 @@ namespace Engine
 			glPopAttrib();
 			GLenum error = glGetError();
 			if (error != GL_NO_ERROR)
-				throw Renderer::TextureTransfer::GeneralFault("OpenGL reports general fault while trying to load texture ("+String(glGetErrorName(error))+")");
+				throw Except::Renderer::TextureTransfer::GeneralFault("OpenGL reports general fault while trying to load texture ("+String(glGetErrorName(error))+")");
 		}
 
 	template <typename Nature>
 		void			GL::Texture::loadCube(const GenericImage<Nature> faces[6], TextureFilter filter, bool compress)
 		{
 			if (!faces)
-				throw Renderer::TextureTransfer::ParameterFault("Pointer to faces is NULL");
+				throw Except::Renderer::TextureTransfer::ParameterFault("Pointer to faces is NULL");
 
 			
 			GenericImage<Nature>	temp[6];

@@ -73,7 +73,7 @@ void        Magic::LoadFromFile(Image&target, const PathString&filename, const P
 	FILE*file = FOPEN(filename.c_str(),"rb");
 	if (!file)
 	{
-		throw IO::DriveAccess::FileOpenFault("File not found or inaccessible: '"+filename+"'");
+		throw Except::IO::DriveAccess::FileOpenFault("File not found or inaccessible: '"+filename+"'");
 		return;
 	}
 
@@ -137,7 +137,7 @@ void        Magic::LoadFromFile(Image&target, const PathString&filename, const P
 	}
 
 	fclose(file);
-	throw Program::UnsupportedRequest("'"+filename+"': Unable to find matching image format");
+	throw Except::Program::UnsupportedRequest("'"+filename+"': Unable to find matching image format");
 }
 
 void			Magic::SaveToFile(const Image&image, const PathString&filename)
@@ -159,5 +159,5 @@ void        	Magic::SaveToFile(const Image&image, const PathString&filename, con
 				return;
 			}
 	}
-	throw Program::UnsupportedRequest("Extension not supported: '"+String(file_ext)+"'");
+	throw Except::Program::UnsupportedRequest("Extension not supported: '"+String(file_ext)+"'");
 }

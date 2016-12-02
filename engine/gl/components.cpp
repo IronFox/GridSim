@@ -288,7 +288,7 @@ namespace Engine
 						*xcursor = xml.Find("scrollbar/cursor"),
 						*xbutton = xml.Find("scrollbar/button");
 			if (!xback || !xcursor || !xbutton)
-				throw IO::DriveAccess::FileFormatFault(String(__func__)+ ": Required XML nodes scrollbar/background, scrollbar/cursor, and/or scrollbar/button not found");
+				throw Except::IO::DriveAccess::FileFormatFault(String(__func__)+ ": Required XML nodes scrollbar/background, scrollbar/cursor, and/or scrollbar/button not found");
 
 			TTexture::load(xback,"center",folder,backCenter,scale);
 
@@ -298,7 +298,7 @@ namespace Engine
 			TTexture::load(xbutton,"background",folder,bottomButton,scale);
 
 			if (!xbutton->Query("indent",attrib) || !convert(attrib.c_str(),buttonIndent))
-				throw IO::DriveAccess::FileFormatFault(String(__func__)+  ": Failed to find or parse scrollbar/button attribute 'indent'");
+				throw Except::IO::DriveAccess::FileFormatFault(String(__func__)+  ": Failed to find or parse scrollbar/button attribute 'indent'");
 			
 			
 			buttonIndent *= scale;
@@ -330,7 +330,7 @@ namespace Engine
 			XML::Node	*xbar = xml.Find("slider/bar"),
 						*xslider = xml.Find("slider/slider");
 			if (!xbar || !xslider)
-				throw IO::DriveAccess::FileFormatFault(String(__func__)+ ": Required XML nodes slider/bar and/or slider/slider not found");
+				throw Except::IO::DriveAccess::FileFormatFault(String(__func__)+ ": Required XML nodes slider/bar and/or slider/slider not found");
 
 			TTexture::load(xbar,"left",folder,barLeft,scale);
 			TTexture::load(xbar,"center",folder,barCenter,scale);
@@ -2749,7 +2749,7 @@ namespace Engine
 				elif (string == "window/hint")
 					layout.override = &Window::hintStyle;
 				else
-					throw Program::UnsupportedRequest("Unknown resource layout '"+string+"'");
+					throw Except::Program::UnsupportedRequest("Unknown resource layout '"+string+"'");
 			}
 		}
 		
@@ -2813,7 +2813,7 @@ namespace Engine
 			String	string;
 			XML::Node*xtheme = xml.Find("theme");
 			if (!xtheme)
-				throw IO::DriveAccess::FileFormatFault(globalString("XML theme file lacks theme XML root node"));
+				throw Except::IO::DriveAccess::FileFormatFault(Except::globalString("XML theme file lacks theme XML root node"));
 				
 			FileSystem::File	file;
 			if (XML::Node*node = xtheme->Find("font"))
@@ -2822,13 +2822,13 @@ namespace Engine
 				if (node->Query("scale",string))
 					convert(string.c_str(),scale);
 				if (!node->Query("file",string))
-					throw IO::DriveAccess::FileFormatFault("XML Font node lacks file attribute");
+					throw Except::IO::DriveAccess::FileFormatFault("XML Font node lacks file attribute");
 				if (folder.FindFile(PathString(string),file))
 					ColorRenderer::textout.getFont().LoadFromFile(file.GetLocation(),scale*outer_scale);
 						//FAIL("Failed to load font from font file '"+file.GetLocation()+"'");
 			}
 			else
-				throw IO::DriveAccess::FileFormatFault(globalString("XML theme file lacks theme/font node"));
+				throw Except::IO::DriveAccess::FileFormatFault(Except::globalString("XML theme file lacks theme/font node"));
 			
 			LoadLayout(xtheme,folder,"button",Button::globalLayout,outer_scale);
 			LoadLayout(xtheme,folder,"panel",Panel::globalLayout,outer_scale);

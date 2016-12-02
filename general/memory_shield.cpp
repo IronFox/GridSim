@@ -36,7 +36,7 @@ void MemoryShield::castError(const char*err)
         fprintf(f,"      0x%p (owned by 0x%p) size: %u\n",section[i].root,section[i].owner,section[i].size);
 
 
-    throw Fatal(location,err);
+    throw Except::Fatal(location,err);
 }
 
 void MemoryShield::log(const char*err)

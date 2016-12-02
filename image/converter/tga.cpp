@@ -73,7 +73,7 @@ void	TGA::LoadFromFilePointer(Image&target, FILE*f)
     unsigned fsize = ftell(f);
     FILE_READ_ASSERT_ZERO__(fseek(f,0,SEEK_SET));
     if (fsize <18)
-		throw IO::DriveAccess::FileFormatFault(globalString("File size mismatch"));
+		throw Except::IO::DriveAccess::FileFormatFault(Except::globalString("File size mismatch"));
 
     BYTE type,ident_size,map_type,/*image_type,*/map_bpp,image_bpp,image_flags,
          attrib_bits,orientation,interleaving,map_stride;
@@ -89,11 +89,11 @@ void	TGA::LoadFromFilePointer(Image&target, FILE*f)
     }
     bool valid = (type < 4 || (type > 8 && type < 12) || type == 32 || type==33);
     if (!valid)
-		throw IO::DriveAccess::FileFormatFault("Unsupported type: "+String(type));
+		throw Except::IO::DriveAccess::FileFormatFault("Unsupported type: "+String(type));
 
     bool mapped = type == TGA_MAPPED || type == TGA_RLE_MAPPED || type > 12;
     if (mapped && !map_type)
-		throw IO::DriveAccess::FileFormatFault(globalString("Color map missing"));
+		throw Except::IO::DriveAccess::FileFormatFault(Except::globalString("Color map missing"));
 
     
     read(map_first,f);
@@ -101,7 +101,7 @@ void	TGA::LoadFromFilePointer(Image&target, FILE*f)
     read(map_bpp,f);
     map_stride = map_bpp/8;
     if (map_type && mapped && (map_bpp%8 || map_stride<2 || map_stride>4))
-		throw IO::DriveAccess::FileFormatFault("Invalid bit per color value: "+IntToStr(map_bpp));
+		throw Except::IO::DriveAccess::FileFormatFault("Invalid bit per color value: "+IntToStr(map_bpp));
 
     read(x_base,f);
     read(y_base,f);
@@ -115,7 +115,7 @@ void	TGA::LoadFromFilePointer(Image&target, FILE*f)
     FILE_READ_ASSERT_ZERO__(fseek(f,ident_size+(unsigned)map_first*map_stride,SEEK_CUR));
     unsigned map_size = (unsigned)map_len*map_stride;
     if (map_size+18 > fsize)
-		throw IO::DriveAccess::FileFormatFault(globalString("File size mismatch"));
+		throw Except::IO::DriveAccess::FileFormatFault(Except::globalString("File size mismatch"));
 
     if (map_type)
     {
@@ -133,7 +133,7 @@ void	TGA::LoadFromFilePointer(Image&target, FILE*f)
     if (pixel_bpp%8)
         pixel_stride++;
     if ((mapped && pixel_stride > 2) || pixel_stride>4 || !pixel_stride)
-		throw IO::DriveAccess::FileFormatFault("Invalid bit per pixel value: "+String(pixel_stride));
+		throw Except::IO::DriveAccess::FileFormatFault("Invalid bit per pixel value: "+String(pixel_stride));
 
     unsigned size = (unsigned)width*height*pixel_stride;
     if (type > 3)
@@ -150,7 +150,7 @@ void	TGA::LoadFromFilePointer(Image&target, FILE*f)
                 {
                     USHORT index = tgaIndex(&image[(y*width+x)*pixel_stride],image_bpp);
                     if (index > map_len)
-                        throw IO::DriveAccess::FileFormatFault("Index out of bounds ("+String(index)+")");
+                        throw Except::IO::DriveAccess::FileFormatFault("Index out of bounds ("+String(index)+")");
                     target.set(x,y,&final_map[index*3]);
                 }
         break;
@@ -176,10 +176,10 @@ void	TGA::LoadFromFilePointer(Image&target, FILE*f)
                 if (run)
                 {
                     if (offset + pixel_stride > size)
-                        throw IO::DriveAccess::FileFormatFault(globalString("File size error"));
+                        throw Except::IO::DriveAccess::FileFormatFault(Except::globalString("File size error"));
                     USHORT index = tgaIndex(&image[offset],image_bpp);
                     if (index > map_len)
-                        throw IO::DriveAccess::FileFormatFault("Index out of bounds ("+String(index)+")");
+                        throw Except::IO::DriveAccess::FileFormatFault("Index out of bounds ("+String(index)+")");
                     offset+=pixel_stride;
                     for (BYTE k = 0; k < count; k++)
                         tgaLinearPixel(pixel++,target,&final_map[index]);
@@ -187,12 +187,12 @@ void	TGA::LoadFromFilePointer(Image&target, FILE*f)
                 else
                 {
                     if (offset + count * pixel_stride > size)
-                        throw IO::DriveAccess::FileFormatFault(globalString("File size error"));
+                        throw Except::IO::DriveAccess::FileFormatFault(Except::globalString("File size error"));
                     for (BYTE k = 0; k < count; k++)
                     {
                         USHORT index = tgaIndex(&image[offset],image_bpp);
                         if (index > map_len)
-                            throw IO::DriveAccess::FileFormatFault("Index out of bounds ("+String(index)+")");
+                            throw Except::IO::DriveAccess::FileFormatFault("Index out of bounds ("+String(index)+")");
                         offset+= pixel_stride;
                         tgaLinearPixel(pixel++,target,&final_map[index]);
                     }
@@ -234,13 +234,13 @@ void	TGA::LoadFromFilePointer(Image&target, FILE*f)
         }
         break;
         default:
-			throw IO::DriveAccess::FileFormatFault("Compression not supported: "+String(type));
+			throw Except::IO::DriveAccess::FileFormatFault("Compression not supported: "+String(type));
     }
 }
 
 
 void TGA::SaveToFilePointer(const Image&resource, FILE*)
 {
-	throw Program::FunctionalityNotImplemented();
+	throw Except::Program::FunctionalityNotImplemented();
 }
 

@@ -437,7 +437,7 @@ namespace Engine
 		{
 			String attrib;
 			if (!node->Query(aname,attrib))
-				throw IO::DriveAccess::FileFormatFault("Failed to Query '"+String(aname)+"' of XML node '"+node->name+"'");
+				throw Except::IO::DriveAccess::FileFormatFault("Failed to Query '"+String(aname)+"' of XML node '"+node->name+"'");
 
 			FileSystem::File	file;
 			Image image;
@@ -456,7 +456,7 @@ namespace Engine
 
 				if (out.width != 0 && (out.width != image.width() || out.height != image.height()))
 				{
-					throw IO::StructureCompositionFault("Trying to match bump texture of different size (color image was "+String(out.width)+"*"+String(out.height)+", bump texture is "+image.ToString()+")");
+					throw Except::IO::StructureCompositionFault("Trying to match bump texture of different size (color image was "+String(out.width)+"*"+String(out.height)+", bump texture is "+image.ToString()+")");
 				}
 				out.normal.load(image,global_anisotropy,true);
 				out.width = image.width();
@@ -766,7 +766,7 @@ namespace Engine
 				
 			const XML::Node*xlayout = xml.Find("layout");
 			if (!xlayout)
-				throw IO::DriveAccess::FileFormatFault(globalString("XML file lacks 'layout' root node"));
+				throw Except::IO::DriveAccess::FileFormatFault(Except::globalString("XML file lacks 'layout' root node"));
 
 			String attrib;
 			if (xlayout->Query("title_position",attrib))
@@ -774,7 +774,7 @@ namespace Engine
 				Array<String>	segments;
 				explode(',',attrib,segments);
 				if (segments.count() != 4)
-					throw IO::DriveAccess::FileFormatFault(globalString("'title_position' attribute of XML 'layout' node does not contain 4 comma-separated segments"));
+					throw Except::IO::DriveAccess::FileFormatFault(Except::globalString("'title_position' attribute of XML 'layout' node does not contain 4 comma-separated segments"));
 
 				if (!convert(segments[0].c_str(),titlePosition.x.min)
 					||
@@ -784,18 +784,18 @@ namespace Engine
 					||
 					!convert(segments[3].c_str(),titlePosition.y.max))
 				{
-					throw IO::DriveAccess::FileFormatFault(globalString("One or more segments of 'title_position' attribute of XML 'layout' node could not be converted to float"));
+					throw Except::IO::DriveAccess::FileFormatFault(Except::globalString("One or more segments of 'title_position' attribute of XML 'layout' node could not be converted to float"));
 				}
 				titlePosition *= scale;
 			}
 			{
 				if (!xlayout->Query("border_edge",attrib))
-					throw IO::DriveAccess::FileFormatFault(globalString("XML node 'layout' lacks 'border_edge' attribute"));
+					throw Except::IO::DriveAccess::FileFormatFault(Except::globalString("XML node 'layout' lacks 'border_edge' attribute"));
 					
 				Array<String>	segments;
 				explode(',',attrib,segments);
 				if (segments.count() != 4)
-					throw IO::DriveAccess::FileFormatFault(globalString("'border_edge' attribute of XML 'layout' node does not contain 4 comma-separated segments"));
+					throw Except::IO::DriveAccess::FileFormatFault(Except::globalString("'border_edge' attribute of XML 'layout' node does not contain 4 comma-separated segments"));
 
 				if (!convert(segments[0].c_str(),borderEdge.left)
 					||
@@ -805,18 +805,18 @@ namespace Engine
 					||
 					!convert(segments[3].c_str(),borderEdge.top))
 				{
-					throw IO::DriveAccess::FileFormatFault(globalString("One or more segments of 'border_edge' attribute of XML 'layout' node could not be converted to float"));
+					throw Except::IO::DriveAccess::FileFormatFault(Except::globalString("One or more segments of 'border_edge' attribute of XML 'layout' node could not be converted to float"));
 				}
 				borderEdge *= scale;
 			}
 			{
 				if (!xlayout->Query("client_edge",attrib))
-					throw IO::DriveAccess::FileFormatFault(globalString("XML node 'layout' lacks 'client_edge' attribute"));
+					throw Except::IO::DriveAccess::FileFormatFault(Except::globalString("XML node 'layout' lacks 'client_edge' attribute"));
 
 				Array<String>	segments;
 				explode(',',attrib,segments);
 				if (segments.count() != 4)
-					throw IO::DriveAccess::FileFormatFault(globalString("'client_edge' attribute of XML 'layout' node does not contain 4 comma-separated segments"));
+					throw Except::IO::DriveAccess::FileFormatFault(Except::globalString("'client_edge' attribute of XML 'layout' node does not contain 4 comma-separated segments"));
 
 				if (!convert(segments[0].c_str(),clientEdge.left)
 					||
@@ -826,14 +826,14 @@ namespace Engine
 					||
 					!convert(segments[3].c_str(),clientEdge.top))
 				{
-					throw IO::DriveAccess::FileFormatFault(globalString("One or more segments of 'client_edge' attribute of XML 'layout' node could not be converted to float"));
+					throw Except::IO::DriveAccess::FileFormatFault(Except::globalString("One or more segments of 'client_edge' attribute of XML 'layout' node could not be converted to float"));
 				}
 				clientEdge *= scale;
 			}
 			
 			XML::Node*xrows = xml.Find("layout/rows");
 			if (!xrows)
-				throw IO::DriveAccess::FileFormatFault(globalString("XML file lacks 'layout/rows' node"));
+				throw Except::IO::DriveAccess::FileFormatFault(Except::globalString("XML file lacks 'layout/rows' node"));
 			
 			
 			for (index_t i = 0; i < xrows->children.count(); i++)

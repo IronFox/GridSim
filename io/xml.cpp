@@ -144,7 +144,7 @@ static void EncodeValueToStream(Stream&stream, XML::Encoding enc, const String&c
 					stream << StringRef(ch.encoded,ch.numCharsUsed);
 				}
 				else
-					throw IO::StructureCompositionFault(CLOCATION,"XML: Unsupported encoding encountered");
+					throw Except::IO::StructureCompositionFault(CLOCATION,"XML: Unsupported encoding encountered");
 			}
 			break;
 		}
@@ -163,12 +163,12 @@ static String Decode(const StringRef&content, XML::Encoding enc)
 			String rs;
 			if (!StringConversion::Utf8ToAnsi(content,rs))
 			{
-				throw IO::StructureCompositionFault(CLOCATION,"XML: Error decoding UTF-8 '"+String(content)+"'");
+				throw Except::IO::StructureCompositionFault(CLOCATION,"XML: Error decoding UTF-8 '"+String(content)+"'");
 			}
 			return std::move(rs);
 		}
 		default:
-			throw IO::StructureCompositionFault(CLOCATION,"XML: Unsupported encoding encountered");
+			throw Except::IO::StructureCompositionFault(CLOCATION,"XML: Unsupported encoding encountered");
 	}
 	return "";
 }
@@ -202,7 +202,7 @@ static String DecodeValue(const StringRef&content, XML::Encoding enc)
 				source++;
 			}
 			else
-				throw IO::StructureCompositionFault(CLOCATION,"XML: Unsupported encoding encountered");
+				throw Except::IO::StructureCompositionFault(CLOCATION,"XML: Unsupported encoding encountered");
 		}
 		else
 		{
@@ -366,7 +366,7 @@ static XML::Encoding	DecodeEncoding(const StringRef&name)
 		return XML::Encoding::UTF8;
 	if (name.CompareToIgnoreCase("ANSI")==0 || name.CompareToIgnoreCase("ISO-8859-1")==0 || name.CompareToIgnoreCase("windows-1252")==0)
 		return XML::Encoding::ANSI;
-	throw IO::StructureCompositionFault(CLOCATION,("XML: Unsupported encoding encountered: '"+String(name)+"'"));
+	throw Except::IO::StructureCompositionFault(CLOCATION,("XML: Unsupported encoding encountered: '"+String(name)+"'"));
 //	return XML::Encoding::UTF8;
 }
 
@@ -391,7 +391,7 @@ void	XML::Container::LoadFromCharArray(ArrayData<char>&field)
 		{
 			if (!active_entry)
 				return;
-			throw IO::DriveAccess::FileFormatFault("XML: Did not return to root level at end of file");
+			throw Except::IO::DriveAccess::FileFormatFault("XML: Did not return to root level at end of file");
 		}
 			
 		{
@@ -414,20 +414,20 @@ void	XML::Container::LoadFromCharArray(ArrayData<char>&field)
 		{
 			char*end = strchr(c, '>');
 			if (!end)
-				throw IO::DriveAccess::FileFormatFault(globalString("XML: Cannot find enclosing '>' character to '<?...'"));
+				throw Except::IO::DriveAccess::FileFormatFault(Except::globalString("XML: Cannot find enclosing '>' character to '<?...'"));
 			const char*enc = strstr(c,"encoding");
 			if (!enc || enc > end)
-				throw IO::DriveAccess::FileFormatFault(globalString("XML: Missing encoding"));
+				throw Except::IO::DriveAccess::FileFormatFault(Except::globalString("XML: Missing encoding"));
 			enc += 8;
 			while (isWhitespace(*enc))
 				enc++;
 			if (*enc != '=')
-				throw IO::DriveAccess::FileFormatFault(globalString("XML: Encoding assignment broken"));
+				throw Except::IO::DriveAccess::FileFormatFault(Except::globalString("XML: Encoding assignment broken"));
 			enc++;
 			while (isWhitespace(*enc))
 				enc++;
 			if (*enc != '"' && *enc != '\'')
-				throw IO::DriveAccess::FileFormatFault(globalString("XML: Encoding assignment broken"));
+				throw Except::IO::DriveAccess::FileFormatFault(Except::globalString("XML: Encoding assignment broken"));
 			enc++;
 			const char*encStart = enc;
 			while (*enc != '"' && *enc != '\'')
@@ -439,7 +439,7 @@ void	XML::Container::LoadFromCharArray(ArrayData<char>&field)
 		{
 			c = strstr(c+3,"-->");
 			if (!c)
-				throw IO::DriveAccess::FileFormatFault(globalString("XML: Cannot find enclosing '-->' character to '<!--...'"));
+				throw Except::IO::DriveAccess::FileFormatFault(Except::globalString("XML: Cannot find enclosing '-->' character to '<!--...'"));
 
 			c+=3;
 		}
@@ -452,7 +452,7 @@ void	XML::Container::LoadFromCharArray(ArrayData<char>&field)
 
 			c = strchr(c,'>');
 			if (!c)
-				throw IO::DriveAccess::FileFormatFault(globalString("XML: Cannot find enclosing '>' character to '</...'"));
+				throw Except::IO::DriveAccess::FileFormatFault(Except::globalString("XML: Cannot find enclosing '>' character to '</...'"));
 
 			c++;
 			open = false;
@@ -482,12 +482,12 @@ void	XML::Container::LoadFromCharArray(ArrayData<char>&field)
 				}
 				c = strchr(c,'=');
 				if (!c)
-					throw IO::DriveAccess::FileFormatFault("XML: Cannot find assignment operator '=' for attribute '"+pname+"'");
+					throw Except::IO::DriveAccess::FileFormatFault("XML: Cannot find assignment operator '=' for attribute '"+pname+"'");
 
 				c++;
 				len = findWord(c);
 				if (!len)
-					throw IO::DriveAccess::FileFormatFault("XML: Missing attribute value of attribute '"+pname+"'");
+					throw Except::IO::DriveAccess::FileFormatFault("XML: Missing attribute value of attribute '"+pname+"'");
 
 				StringRef pvalue = GetWord(c);
 				c += len;
@@ -500,7 +500,7 @@ void	XML::Container::LoadFromCharArray(ArrayData<char>&field)
 			}
 			c = strchr(c,'>');
 			if (!c)
-				throw IO::DriveAccess::FileFormatFault(globalString("XML: Cannot find enclosing '>' character to '<...'"));
+				throw Except::IO::DriveAccess::FileFormatFault(Except::globalString("XML: Cannot find enclosing '>' character to '<...'"));
 
 			if (*(c-1) == '/' && open)
 			{
@@ -536,7 +536,7 @@ void	XML::Container::LoadFromFile(const PathString&filename, String*content_out)
 		FILE*f = fopen(filename.c_str(),"rb");
 	#endif
 	if (!f)
-		throw IO::DriveAccess::FileOpenFault("XML: Unable to open file '"+filename+"'");
+		throw Except::IO::DriveAccess::FileOpenFault("XML: Unable to open file '"+filename+"'");
 
 	Clear();
 	fseek(f,0,SEEK_END);
@@ -550,7 +550,7 @@ void	XML::Container::LoadFromFile(const PathString&filename, String*content_out)
 	{
 		fclose(f);
 
-		throw IO::DriveAccess::DataReadFault("XML: Unable to read data from file");
+		throw Except::IO::DriveAccess::DataReadFault("XML: Unable to read data from file");
 	}
 	field[len] = 0;
 	fclose(f);
@@ -588,7 +588,7 @@ static void EncodeToStream(OutStream&outfile, XML::Encoding enc, const String&id
 			StringConversion::AnsiToUtf8(identifier,encoded);
 		break;
 		default:
-			throw IO::StructureCompositionFault(CLOCATION,"XML: Unsupported encoding encountered");
+			throw Except::IO::StructureCompositionFault(CLOCATION,"XML: Unsupported encoding encountered");
 	}
 	outfile << encoded;
 }
@@ -600,7 +600,7 @@ static void writeToStream(OutStream&outfile, XML::Encoding enc, const XML::Node*
 	StringRef trimmed = entry->name.trimRef();
 	//entry->name.trimThis();
 	if (trimmed.length() == 0)
-		throw IO::StructureCompositionFault("XML: Local entry is empty");
+		throw Except::IO::StructureCompositionFault("XML: Local entry is empty");
 
 	if (style==XML::Nice)
 		outfile << tabSpace(indent);
@@ -733,7 +733,7 @@ void				XML::Container::SaveToFile(const PathString&filename, export_style_t sty
 {
 	StringFile outfile;
 	if (!outfile.Create(filename))
-		throw IO::DriveAccess::FileOpenFault(CLOCATION,"XML: Unable to open file '"+filename+"' for output");
+		throw Except::IO::DriveAccess::FileOpenFault(CLOCATION,"XML: Unable to open file '"+filename+"' for output");
 
 	outfile << "<?xml version=\"1.0\" encoding=\"";
 	switch (encoding)
@@ -745,7 +745,7 @@ void				XML::Container::SaveToFile(const PathString&filename, export_style_t sty
 			outfile << "UTF-8";
 		break;
 		default:
-			throw Program::DataConsistencyFault(CLOCATION,"XML: Unsupported encoding for export");
+			throw Except::Program::DataConsistencyFault(CLOCATION,"XML: Unsupported encoding for export");
 	}
 	outfile <<"\" ?>"<<nl;
 	writeToStream(outfile,encoding,&root_node, style);
@@ -847,7 +847,7 @@ static XML::Node&	createIn(XML::Node*context, const String&path, const String&in
 	Array<String,Adopt>	components;
 	explode('/',path,components);
 	if (!components.count())
-		throw IO::ParameterFault("Trying to create empty XML segment");
+		throw Except::IO::ParameterFault("Trying to create empty XML segment");
 
 	for (index_t i = 0; i < components.count()-1; i++)
 	{
@@ -918,7 +918,7 @@ XML::Node&	XML::Container::Create(const String&path, const String&inner_content)
 		root_node.name = local;
 	}
 	elif (root_node.name != local)
-		throw IO::ParameterFault("Path component mismatch: '"+local+"'");
+		throw Except::IO::ParameterFault("Path component mismatch: '"+local+"'");
 
 	if (sub.IsEmpty())
 		return root_node;

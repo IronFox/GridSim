@@ -596,7 +596,7 @@ namespace Except
 
 }
 
-using namespace Except;
+//using namespace Except;
 
 
 
@@ -813,7 +813,7 @@ namespace Except
 
 
 
-#define EXCEPT_ASSERT__(ExceptionClass, expression)		if (!(expression)) throw ExceptionClass(globalString("Assertion failed: '"#expression"'"));
+#define EXCEPT_ASSERT__(ExceptionClass, expression)		if (!(expression)) throw ExceptionClass(Except::globalString("Assertion failed: '"#expression"'"));
 	
 #define FILE_READ_ASSERT_ZERO__(expression) EXCEPT_ASSERT__(Except::IO::DriveAccess::DataReadFault,expression==0)
 	

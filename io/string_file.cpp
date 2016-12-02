@@ -10,7 +10,7 @@ Simplified string-file-handler.
 static inline void awrite(const void*data,size_t a,size_t b, FILE*f)
 {
 	if (fwrite(data,a,b,f)!=b)
-		throw IO::DriveAccess::DataWriteFault("StringFile: Unable to write "+String(a*b)+" byte(s) to file");
+		throw Except::IO::DriveAccess::DataWriteFault("StringFile: Unable to write "+String(a*b)+" byte(s) to file");
 
 }
 
@@ -282,9 +282,9 @@ StringFile& StringFile::operator<< (const char*line)
         return *this;
     if (fputs(line,f) == EOF)
 		#if SYSTEM==WINDOWS
-			throw IO::DriveAccess::DataWriteFault(__func__ ": Unable to write string '"+String(line)+"' to file");
+			throw Except::IO::DriveAccess::DataWriteFault(__func__ ": Unable to write string '"+String(line)+"' to file");
 		#else
-			throw IO::DriveAccess::DataWriteFault(String(__func__)+ ": Unable to write string '"+String(line)+"' to file");
+			throw Except::IO::DriveAccess::DataWriteFault(String(__func__)+ ": Unable to write string '"+String(line)+"' to file");
 		#endif
     return *this;
 }

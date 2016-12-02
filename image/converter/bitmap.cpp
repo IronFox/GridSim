@@ -20,7 +20,7 @@ Bitmap	bitmap;
 static void    bmpResolveBitCompression(BYTE*data,unsigned data_size,BYTE*color_map,unsigned colors,Image*result,BYTE bpp)
 {
     if (colors < (unsigned)(0x1<<bpp))
-		throw IO::DriveAccess::FileFormatFault(globalString("Insufficient color table size"));
+		throw Except::IO::DriveAccess::FileFormatFault(Except::globalString("Insufficient color table size"));
 
     unsigned 	//offset = 0,
     			x(0),y(0),remaining(data_size);
@@ -34,7 +34,7 @@ static void    bmpResolveBitCompression(BYTE*data,unsigned data_size,BYTE*color_
         if (!len)
         {
             if (!remaining)
-				throw IO::DriveAccess::FileFormatFault(globalString("Unexpected decompression end-of-line"));
+				throw Except::IO::DriveAccess::FileFormatFault(Except::globalString("Unexpected decompression end-of-line"));
 
             remaining--;
             switch (*data++)
@@ -47,27 +47,27 @@ static void    bmpResolveBitCompression(BYTE*data,unsigned data_size,BYTE*color_
                     return;
                 case 2:
                     if (remaining < 2)
-						throw IO::DriveAccess::FileFormatFault(globalString("Unexpected decompression end-of-line"));
+						throw Except::IO::DriveAccess::FileFormatFault(Except::globalString("Unexpected decompression end-of-line"));
                     x+=*data++;
                     y+=*data++;
                     remaining-=2;
                 continue;
                 default:
                     if (!remaining)
-						throw IO::DriveAccess::FileFormatFault(globalString("Unexpected decompression end-of-line"));
+						throw Except::IO::DriveAccess::FileFormatFault(Except::globalString("Unexpected decompression end-of-line"));
                     len = *data++;
                     remaining--;
                 break;
             }
         }
         if ((unsigned)(len/pixels) > remaining)
-			throw IO::DriveAccess::FileFormatFault(globalString("Unexpected decompression end-of-line"));
+			throw Except::IO::DriveAccess::FileFormatFault(Except::globalString("Unexpected decompression end-of-line"));
         remaining-=len/pixels;
         for (BYTE k = 0; k < len/pixels; k++)
         {
             BYTE source = *data++;
             if (x>= result->GetWidth() || y >= result->GetHeight())
-				throw IO::DriveAccess::FileFormatFault(globalString("Decompression pixel out of range"));
+				throw Except::IO::DriveAccess::FileFormatFault(Except::globalString("Decompression pixel out of range"));
 
             for (BYTE j = 0; j < pixels; j++)
             {
@@ -107,7 +107,7 @@ void	Bitmap::LoadFromFilePointer(Image&target, FILE*f)
     BYTE magic[2];
     read(magic,2,f);
     if (magic[0] != 'B' || magic[1] != 'M')
-		throw IO::DriveAccess::FileFormatFault(globalString("Bitmap header broken: Magic bytes not 'BM'"));
+		throw Except::IO::DriveAccess::FileFormatFault(Except::globalString("Bitmap header broken: Magic bytes not 'BM'"));
 
     
     ULONG filesize,dummy,data_offset,header_size,width,height,compression,colors,bitmap_data_size,vres,hres;
@@ -122,7 +122,7 @@ void	Bitmap::LoadFromFilePointer(Image&target, FILE*f)
     read(data_offset,f);
     read(header_size,f);
     if (header_size != 0x28)
-		throw IO::DriveAccess::FileFormatFault("Bitmap header broken: Header size mismatch (should be 0x28 but is 0x"+IntToHex((int)header_size,4)+")");
+		throw Except::IO::DriveAccess::FileFormatFault("Bitmap header broken: Header size mismatch (should be 0x28 but is 0x"+IntToHex((int)header_size,4)+")");
 
     read(width,f);
     read(height,f);
@@ -140,7 +140,7 @@ void	Bitmap::LoadFromFilePointer(Image&target, FILE*f)
             bpp = BM_RLE4;
         break;
         default:
-			throw IO::DriveAccess::FileFormatFault("Bitmap uses unsupported data format "+IntToStr(compression));
+			throw Except::IO::DriveAccess::FileFormatFault("Bitmap uses unsupported data format "+IntToStr(compression));
     }
     read(bitmap_data_size,f);
     read(hres,f);
@@ -159,13 +159,13 @@ void	Bitmap::LoadFromFilePointer(Image&target, FILE*f)
         read(color_map.pointer(),4*colors,f);
     }
     if (ftell(f) != (long)data_offset)
-		throw IO::DriveAccess::FileFormatFault("Data offset mismatch (should be "+IntToStr((long)data_offset)+" but is "+IntToStr(ftell(f))+")");
+		throw Except::IO::DriveAccess::FileFormatFault("Data offset mismatch (should be "+IntToStr((long)data_offset)+" but is "+IntToStr(ftell(f))+")");
 
     if (!bitmap_data_size)
     {
         bitmap_data_size = true_size-ftell(f);
         if (!bitmap_data_size)
-			throw IO::DriveAccess::FileFormatFault("Data size mismatch ("+IntToStr(bitmap_data_size)+")");
+			throw Except::IO::DriveAccess::FileFormatFault("Data size mismatch ("+IntToStr(bitmap_data_size)+")");
 	}
 	Array<BYTE>	data(bitmap_data_size);
     fread(data.pointer(),bitmap_data_size,1,f);
@@ -178,7 +178,7 @@ void	Bitmap::LoadFromFilePointer(Image&target, FILE*f)
         case 1:
         {
             if (color_map.IsEmpty() || colors < 2)
-				throw IO::DriveAccess::FileFormatFault(globalString("Insufficient color table size"));
+				throw Except::IO::DriveAccess::FileFormatFault(Except::globalString("Insufficient color table size"));
 
             unsigned offset(0);
             for (unsigned y = 0; y < height; y++)
@@ -201,7 +201,7 @@ void	Bitmap::LoadFromFilePointer(Image&target, FILE*f)
         break;
         case 4:
             if (color_map.IsEmpty() || colors < 16)
-				throw IO::DriveAccess::FileFormatFault(globalString("Insufficient color table size"));
+				throw Except::IO::DriveAccess::FileFormatFault(Except::globalString("Insufficient color table size"));
 
             for (unsigned i = 0; i < bitmap_data_size; i++)
             {
@@ -225,11 +225,11 @@ void	Bitmap::LoadFromFilePointer(Image&target, FILE*f)
         case 8:
         {
             if (color_map.IsEmpty() || colors < 256)
-				throw IO::DriveAccess::FileFormatFault(globalString("Insufficient color table size"));
+				throw Except::IO::DriveAccess::FileFormatFault(Except::globalString("Insufficient color table size"));
 
             unsigned batch_size = height*aligned(width,4);
             if (bitmap_data_size<batch_size)
-				throw IO::DriveAccess::FileFormatFault("Data size mismatch ("+IntToStr(bitmap_data_size)+")");
+				throw Except::IO::DriveAccess::FileFormatFault("Data size mismatch ("+IntToStr(bitmap_data_size)+")");
 
             unsigned offset = 0;
             for (unsigned y = 0; y < height; y++)
@@ -248,7 +248,7 @@ void	Bitmap::LoadFromFilePointer(Image&target, FILE*f)
         {
             unsigned batch_size = height*aligned(width*2,4);
             if (bitmap_data_size<batch_size)
-				throw IO::DriveAccess::FileFormatFault("Data size mismatch ("+IntToStr(bitmap_data_size)+")");
+				throw Except::IO::DriveAccess::FileFormatFault("Data size mismatch ("+IntToStr(bitmap_data_size)+")");
 
             unsigned offset=0;
             for (unsigned y = 0; y < height; y++)
@@ -273,7 +273,7 @@ void	Bitmap::LoadFromFilePointer(Image&target, FILE*f)
         {
             unsigned batch_size = height*aligned(width*3,4);
             if (bitmap_data_size<batch_size)
-				throw IO::DriveAccess::FileFormatFault("Data size mismatch ("+IntToStr(bitmap_data_size)+")");
+				throw Except::IO::DriveAccess::FileFormatFault("Data size mismatch ("+IntToStr(bitmap_data_size)+")");
 
             unsigned offset = 0;
             for (unsigned y = 0; y < height; y++)
@@ -291,7 +291,7 @@ void	Bitmap::LoadFromFilePointer(Image&target, FILE*f)
         break;
         case 32:
             if (bitmap_data_size<width*height*4)
-				throw IO::DriveAccess::FileFormatFault("Data size mismatch ("+IntToStr(bitmap_data_size)+")");
+				throw Except::IO::DriveAccess::FileFormatFault("Data size mismatch ("+IntToStr(bitmap_data_size)+")");
 
             for (unsigned i = 0; i < width*height; i++)
             {
@@ -309,7 +309,7 @@ void	Bitmap::LoadFromFilePointer(Image&target, FILE*f)
             bmpResolveBitCompression(data.pointer(),bitmap_data_size,(BYTE*)color_map.pointer(),colors,&target,4);
         break;
         default:
-			throw IO::DriveAccess::FileFormatFault("Bit count not supported ("+IntToStr(bpp)+")");
+			throw Except::IO::DriveAccess::FileFormatFault("Bit count not supported ("+IntToStr(bpp)+")");
     }
 }
 

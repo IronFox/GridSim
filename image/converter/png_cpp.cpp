@@ -24,7 +24,7 @@ namespace
 				return PNG_COLOR_TYPE_RGB_ALPHA;
 			break;
 			default:
-				throw IO::DriveAccess::FileFormatFault(globalString("Unexpected number of channels"));
+				throw Except::IO::DriveAccess::FileFormatFault(Except::globalString("Unexpected number of channels"));
 			break;
 		}
 	}
@@ -34,12 +34,12 @@ namespace
 
 	void PNGAPI readError(png_structp strct, png_const_charp err_str)
 	{
-		throw IO::DriveAccess::DataReadFault(err_str);
+		throw Except::IO::DriveAccess::DataReadFault(err_str);
 	}
 
 	void PNGAPI writeError(png_structp strct, png_const_charp err_str)
 	{
-		throw IO::DriveAccess::DataWriteFault(err_str);
+		throw Except::IO::DriveAccess::DataWriteFault(err_str);
 	}
 
 
@@ -58,7 +58,7 @@ namespace
 	void writeSectionToStream(png_structp png, png_bytep data, png_size_t size)
 	{
 		if (!out_stream->Write(data,(serial_size_t)size))
-			throw IO::DriveAccess::DataWriteFault("Stream refused to accept streaming data");
+			throw Except::IO::DriveAccess::DataWriteFault("Stream refused to accept streaming data");
 	}
 
 	void	flushSection(png_structp png)
@@ -67,7 +67,7 @@ namespace
 	void readSection(png_structp png, png_bytep data, png_size_t size)
 	{
 		if (global_at + size > global_size)
-			throw IO::DriveAccess::DataReadFault("Unexpected end of file encountered");
+			throw Except::IO::DriveAccess::DataReadFault("Unexpected end of file encountered");
 		else
 			for (png_size_t i = 0; i < size; i++)
 			{
@@ -79,7 +79,7 @@ namespace
 	void readSectionFromStream(png_structp png, png_bytep data, png_size_t size)
 	{
 		if (!inStream->Read(data,(serial_size_t)size))
-			throw IO::DriveAccess::DataReadFault("Stream refused to read requested amount of bytes");
+			throw Except::IO::DriveAccess::DataReadFault("Stream refused to read requested amount of bytes");
 	}
 }
 
@@ -99,7 +99,7 @@ void PNG::SaveToFileQ(const Image&resource, const PathString&filename)
 {
     FILE*f = FOPEN(filename.c_str(),"wb");
     if (!f)
-		throw IO::DriveAccess::FileOpenFault("File not found or inaccessible for writing: '"+filename+"'");
+		throw Except::IO::DriveAccess::FileOpenFault("File not found or inaccessible for writing: '"+filename+"'");
 
 	png_structp png = png_create_write_struct(PNG_LIBPNG_VER_STRING,(void*)pngError,writeError,handleWarning);
     png_init_io(png,f);

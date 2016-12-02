@@ -47,26 +47,26 @@ namespace Engine
 
 		const XML::Node*xfont = container.Find("font");
 		if (!xfont)
-			throw IO::DriveAccess::FileFormatFault(globalString("XML font file lacks <font> tag"));
+			throw Except::IO::DriveAccess::FileFormatFault(Except::globalString("XML font file lacks <font> tag"));
 
 		if (!get(*xfont,"scale",scale))
-			throw IO::DriveAccess::FileFormatFault(globalString("XML <font> attribute lacks 'scale' parameter"));
+			throw Except::IO::DriveAccess::FileFormatFault(Except::globalString("XML <font> attribute lacks 'scale' parameter"));
 		scale*=scale_;
 		String imagefile;
 		if (!xfont->Query("image",imagefile))
-			throw IO::DriveAccess::FileFormatFault(globalString("XML <font> attribute lacks 'image' parameter"));
+			throw Except::IO::DriveAccess::FileFormatFault(Except::globalString("XML <font> attribute lacks 'image' parameter"));
 		FileSystem::Folder folder(FileSystem::ExtractFileDir(filename));
 		Image image;
 		FileSystem::File f;
 		if (!folder.FindFile(PathString(imagefile),f,true))
 		{
-			throw IO::DriveAccess::FileOpenFault("Font image file not found: "+imagefile);
+			throw Except::IO::DriveAccess::FileOpenFault("Font image file not found: "+imagefile);
 		}
 		Magic::LoadFromFile(image,  f.GetLocation());
 
 
 		if (image.channels() != 4)
-			throw IO::DriveAccess::FileFormatFault("XML font file specifies unusable font image. Image must have 4 channels (RGBA) but has "+String(image.channels()));
+			throw Except::IO::DriveAccess::FileFormatFault("XML font file specifies unusable font image. Image must have 4 channels (RGBA) but has "+String(image.channels()));
 
 		clear();
 
@@ -120,7 +120,7 @@ namespace Engine
 		glGenTextures(1,&texture);
 
 		if (!texture)
-			throw Renderer::TextureTransfer::GeneralFault("OpenGL refuses to create texture handle (glGetError()='"+String(glGetError())+")");
+			throw Except::Renderer::TextureTransfer::GeneralFault("OpenGL refuses to create texture handle (glGetError()='"+String(glGetError())+")");
 
 		glBindTexture(GL_TEXTURE_2D,texture);
 		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_CLAMP_TO_EDGE);
@@ -134,7 +134,7 @@ namespace Engine
 		base = glGenLists(0x100);
 
 		if (!base)
-			throw Renderer::GeometryTransfer::GeneralFault("OpenGL refuses to create display list (glGetError()='"+String(glGetError())+")");
+			throw Except::Renderer::GeometryTransfer::GeneralFault("OpenGL refuses to create display list (glGetError()='"+String(glGetError())+")");
 
 
 		ASSERT__(base > 0);

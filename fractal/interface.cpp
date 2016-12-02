@@ -171,7 +171,7 @@ namespace Fractal
 	
 	void				reportFatalException(const TCodeLocation&location, const String&message)
 	{
-		fatal(location,message);
+		Except::fatal(location,message);
 	}
 			
 

@@ -684,11 +684,11 @@ public:
 
 virtual count_t					countEntries()
 								{
-									throw Program::FunctionalityNotImplemented();
+									throw Except::Program::FunctionalityNotImplemented();
 								}
 virtual CGS::TextureA*			entry(index_t index)
 								{
-									throw Program::FunctionalityNotImplemented();
+									throw Except::Program::FunctionalityNotImplemented();
 								}
 								
 virtual CGS::TextureA*			retrieve(const name64_t&name)

@@ -34,7 +34,7 @@ void my_error_exit (j_common_ptr cinfo_ptr)
 		msg2 = cinfo.err->addon_message_table[cinfo.err->msg_code - cinfo.err->first_addon_message];
 		//MessageBox(NULL,msg2,NULL,MB_OK);
 	}
-	throw IO::DriveAccess::DataReadFault(String(msg1) + '\n' + String(msg2));
+	throw Except::IO::DriveAccess::DataReadFault(String(msg1) + '\n' + String(msg2));
 //	
 //	//const char* msg2 = "";
 //	MessageBox(NULL,msg1,NULL,MB_OK);
@@ -152,7 +152,7 @@ void	JPEG::LoadFromFilePointer(Image&result, FILE*f)
 
 void	JPEG::SaveToFilePointer(const Image&result, FILE*f)
 {
-	throw Program::FunctionalityNotImplemented();
+	throw Except::Program::FunctionalityNotImplemented();
 
 	struct jpeg_compress_struct cinfo;
 	struct my_error_mgr jerr;

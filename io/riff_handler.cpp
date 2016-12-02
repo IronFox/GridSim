@@ -625,7 +625,7 @@ namespace Riff
 			return 0;
 		if (size-sizeof(TRiffInfo) < _info.size)
 		{
-			throw IO::DriveAccess::FileFormatFault("RIFF size violation");
+			throw Except::IO::DriveAccess::FileFormatFault("RIFF size violation");
 			return sizeof(TRiffInfo);
 		}
 		RIFF_SIZE local = _info.size;

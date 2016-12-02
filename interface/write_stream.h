@@ -145,7 +145,7 @@ public:
 		bool	WriteSize(UINT64 size)
 		{
 			if (size > 0xFFFFFFFF)
-				throw Program::ParameterFault("Attempting to write serial size larger than can be expressed in 32 bit");
+				throw Except::Program::ParameterFault("Attempting to write serial size larger than can be expressed in 32 bit");
 			return WriteSize((serial_size_t)size);
 		}
 

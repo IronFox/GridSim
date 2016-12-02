@@ -287,7 +287,7 @@ namespace Converter
 				Magic::LoadFromFile(color_image,color_map);
 	//			color_image.free();
 			}
-			catch (const Exception&except)
+			catch (const Except::Exception&except)
 			{
 				error = String(except.GetType())+": "+except.what();
 				color = false;
@@ -315,7 +315,7 @@ namespace Converter
 			{
 				Magic::LoadFromFile(alpha_image,alpha_map);
 			}
-			catch (const Exception&except)
+			catch (const Except::Exception&except)
 			{
 				error = String(except.GetType())+": "+except.what();
 				alpha = false;

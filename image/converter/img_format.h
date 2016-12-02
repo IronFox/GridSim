@@ -17,7 +17,7 @@ protected:
 		{
 			if (fread(target,size,1,f) != 1)
 			{
-				throw IO::DriveAccess::DataReadFault();
+				throw Except::IO::DriveAccess::DataReadFault();
 			}
 		}
 
@@ -35,7 +35,7 @@ protected:
 		{
 			if (fwrite(target,size,1,f) != 1)
 			{
-				throw IO::DriveAccess::DataWriteFault();
+				throw Except::IO::DriveAccess::DataWriteFault();
 			}
 		}
 
@@ -66,7 +66,7 @@ public:
 			FILE*f = FOPEN(filename.c_str(),"wb");
 			if (!f)
 			{
-				throw IO::DriveAccess::FileOpenFault("File not found or inaccessible for writing: '"+filename+"'");
+				throw Except::IO::DriveAccess::FileOpenFault("File not found or inaccessible for writing: '"+filename+"'");
 			}
 			try
 			{
@@ -101,7 +101,7 @@ public:
 		{
 			FILE*f = FOPEN(filename.c_str(),"rb");
 			if (!f)
-				throw IO::DriveAccess::FileOpenFault("File not found or inaccessible: '"+filename+"'");
+				throw Except::IO::DriveAccess::FileOpenFault("File not found or inaccessible: '"+filename+"'");
 			try
 			{
 				LoadFromFilePointer(image,f);
