@@ -66,7 +66,7 @@ namespace Engine
 					}
 				}
 			}
-			catch (const IO::DriveAccess::FileOpenFault&)
+			catch (const Except::IO::DriveAccess::FileOpenFault&)
 			{
 				updateFile = true;
 			}
