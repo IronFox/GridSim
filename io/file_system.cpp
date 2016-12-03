@@ -52,7 +52,7 @@ namespace FileSystem
 		return ExtractFileName(name);
 	}
 	
-	PathString	 File::GetLocation() const
+	const PathString&	 File::GetLocation() const
 	{
 		return location;
 	}
