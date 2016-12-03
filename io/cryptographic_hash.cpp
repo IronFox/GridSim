@@ -1,5 +1,5 @@
 #include "../global_root.h"
-#include "encryption.h"
+#include "cryptographic_hash.h"
 
 
 
@@ -1113,10 +1113,10 @@ UINT32 swap32(UINT32 value)
 }
 
 
-CMD5::CMD5():_a(0x67452301UL),_b(0xEFCDAB89UL),_c(0x98BADCFEUL),_d(0x10325476UL),_total(0)
+MD5::MD5():_a(0x67452301UL),_b(0xEFCDAB89UL),_c(0x98BADCFEUL),_d(0x10325476UL),_total(0)
 {}
 
-void CMD5::transform(UINT32*data)
+void MD5::transform(UINT32*data)
 {
     UINT32 A, B, C, D, X[16];
     for (BYTE k = 0; k < 16; k++)
@@ -1224,7 +1224,7 @@ void CMD5::transform(UINT32*data)
     _d += D;
 }
 
-void CMD5::update(const void*source_, size_t len)
+void MD5::Update(const void*source_, size_t len)
 {
     const BYTE*source = (const BYTE*)source_;
     size_t left, Fill;
@@ -1257,9 +1257,9 @@ void CMD5::update(const void*source_, size_t len)
 }
 
 
-void CMD5::finish(void*target)
+void MD5::Finish(void*target)
 {
-    static BYTE padding[64] = {
+    static const BYTE padding[64] = {
         0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -1279,8 +1279,8 @@ void CMD5::finish(void*target)
     last = (_total & 0x3F);
     padn = ( last < 56 ) ? ( 56 - last ) : ( 120 - last );
 
-    update(padding, padn );
-    update(msglen, sizeof(msglen));
+    Update(padding, padn );
+    Update(msglen, sizeof(msglen));
 
     digest[0] = _a; //swap here
     digest[1] = _b; //swap here
@@ -1290,45 +1290,6 @@ void CMD5::finish(void*target)
 
 
 
-
-/*
- * General purpose 48-byte transformation, using two 32-byte salts (generally,
- * a client and server salt) and a global salt value used for padding.
- * Both SHA1 and MD5 algorithms are used.
- */
-void Encryption::hash48(const void*in, const void*salt, const void*pepper, BYTE base, void*out)
-{
-	BYTE shasig[20];
-	BYTE pad[4],*pntr = (BYTE*)out;
-	for (BYTE k = 0; k < 3; k++)
-	{
-		memset(pad, base + k, k + 1);
-        SHA1 sha;
-        sha.Append(pad,k+1);
-        sha.Append(in,48);
-        sha.Append(salt,32);
-        sha.Append(pepper,32);
-        sha.Finish(shasig);
-
-        CMD5 md5;
-        md5.update(in,48);
-        md5.update(shasig,20);
-        md5.finish(&pntr[k*16]);
-	}
-}
-
-/*
- * Weaker 16-byte transformation, also using two 32-byte salts, but
- * only using a single round of MD5.
- */
-void Encryption::hash16(const void*in, const void*salt, const void*pepper, void*out)
-{
-    CMD5   md5;
-    md5.update(in,16);
-    md5.update(salt,32);
-    md5.update(pepper,32);
-    md5.finish(out);
-}
 
 
 
@@ -1602,44 +1563,6 @@ void SHA1::Finish(HashContainer&target)
     target.ints[4] = swap32(h4);
 }
 
-
-void Encryption::sign(const void*key, size_t keylen, const void*data, size_t datalen, void*signature, BYTE signature_len)
-{
-	BYTE    shasig[20];
-	BYTE    md5sig[16];
-	BYTE    lenhdr[4];
-    static BYTE pad_54[40] = {
-	    54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54,
-    	54, 54, 54,
-    	54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54,
-    	54, 54, 54
-    };
-    static BYTE pad_92[48] = {
-    	92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92,
-    	92, 92, 92, 92, 92, 92, 92,
-    	92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92, 92,
-    	92, 92, 92, 92, 92, 92, 92
-    };
-    CMD5   md5;
-    SHA1  sha;
-
-    (*(UINT32*)lenhdr) = (UINT32)datalen;
-
-	sha.Append(key, keylen);
-	sha.Append(pad_54, 40);
-	sha.Append(lenhdr, 4);
-	sha.Append(data, datalen);
-	sha.Finish(shasig);
-
-	md5.update(key, keylen);
-	md5.update(pad_92, 48);
-	md5.update(shasig, 20);
-	md5.finish(md5sig);
-    if (signature_len > 16)
-        signature_len = 16;
-
-	memcpy(signature, md5sig, signature_len);
-}
 
 
 CRC4::CRC4():_x(0),_y(0)
