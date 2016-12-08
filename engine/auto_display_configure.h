@@ -24,7 +24,7 @@ namespace Engine
 				xdisplay.Set("height",restoredResolution.height);
 				if (flags & DisplayConfig::IsMaximized)
 					xdisplay.Set("state","maximized");
-				FileSystem::CreateFolder("config");
+				FileSystem::CreateFolder(FileSystem::ExtractFileDir(xmlfilename));
 				xconfig.SaveToFile(xmlfilename);
 			}
 	}
