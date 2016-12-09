@@ -404,6 +404,7 @@ namespace Riff
 			const BYTE*		pointer()	const	/** @brief Retrieves the pointer to the beginning of the data of the local chunk*/	{return _data;}
 		template <typename T>
 			count_t			Get(ArrayData<T>&out)	const;
+			ArrayRef<const BYTE>	ReferenceData() const {return ArrayRef<const BYTE>(pointer(),size());}
 			void			SetID(TID ID);
 			TID				GetID() const;
 			bool			IsID(TID id)	const;				//checks wether or not this chunk's id is equal to given one
