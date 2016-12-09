@@ -366,6 +366,7 @@ template <typename T>
 		ArrayRef():data(nullptr),elements(0)	{}
 		ArrayRef(T*data, count_t elements):data(data),elements(elements)	{}
 		ArrayRef(T&element):data(&element),elements(1)	{}
+		ArrayRef(const ArrayRef<typename std::remove_const<T>::type>&source):data(source.pointer()),elements(source.Count()){}
 
 		virtual ~ArrayRef()	{}
 
