@@ -366,9 +366,12 @@ template <typename T>
 		ArrayRef():data(nullptr),elements(0)	{}
 		ArrayRef(T*data, count_t elements):data(data),elements(elements)	{}
 		ArrayRef(T&element):data(&element),elements(1)	{}
-		ArrayRef(const ArrayRef<typename std::remove_const<T>::type>&source):data(source.pointer()),elements(source.Count()){}
 
 		virtual ~ArrayRef()	{}
+
+
+
+		operator ArrayRef<const T>() const {return ArrayRef<const T>(data,elements);}
 
 		template <typename I>
 			inline	T*		operator+(I rel)	//! Retrieves a pointer to the nth element @param rel Relative index. 0 points to the first element in the array. 	@return Pointer to the requested element for sub array access
