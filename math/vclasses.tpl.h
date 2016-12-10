@@ -294,6 +294,14 @@ namespace Math
 		return Vec3<C>(x * other.x, y * other.y, z * other.z);
 	}
 
+	template <class C>
+	MFUNC1 (void)		Vec3<C>::operator&=(const TVec3<C0>&other)
+	{
+		x *= other.x;
+		y *= other.y;
+		z *= other.z;
+	}
+
 
     template <class C>  MF_DECLARE  (Vec3<C>)    Vec3<C>::normalized()                const
     {
@@ -638,6 +646,13 @@ namespace Math
 		return Vec2<C>(x*other.x,y*other.y);
 	}
 
+	template <class C>
+	MFUNC1 (void)		Vec2<C>::operator&=(const TVec2<C0>&other)
+	{
+		x *= other.x;
+		y *= other.y;
+	}
+
 
 	template <class C>  MF_DECLARE(typename Vec2<C>::Type&)          Vec2<C>::operator[](index_t component)
     {
@@ -773,6 +788,15 @@ namespace Math
 	MFUNC1 (Vec4<C>)		Vec4<C>::operator&(const TVec4<C0>&other)		const
 	{
 		return Vec4<C>(x * other.x, y * other.y, z * other.z, w * other.w);
+	}
+
+	template <class C>
+	MFUNC1 (void)		Vec4<C>::operator&=(const TVec4<C0>&other)
+	{
+		x *= other.x;
+		y *= other.y;
+		z *= other.z;
+		w *= other.w;
 	}
 
 

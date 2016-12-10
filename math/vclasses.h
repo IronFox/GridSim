@@ -108,6 +108,7 @@ namespace Math
 		MF_DECLARE(void)				operator-=(const C&value);
 		MFUNC1 (Vec3<C>)				operator|(const TVec3<C0>&other)		const;
 		MFUNC1 (Vec3<C>)				operator&(const TVec3<C0>&other)		const;
+		MFUNC1 (void)					operator&=(const TVec3<C0>&other);
 		MFUNC1 (void)					operator=(const TVec3<C0>&other);
 		MFUNC1 (bool)					operator==(const TVec3<C0>&other)		const;
 		MFUNC1 (bool)					operator!=(const TVec3<C0>&other)		const;
@@ -182,6 +183,7 @@ namespace Math
 		MFUNC1 (void)					operator-=(const TVec2<C0>&other);
 		MF_DECLARE(void)				operator-=(const C&value);
 		MFUNC1 (Vec2<C>)				operator&(const TVec2<C0>&other)		const;
+		MFUNC1 (void)					operator&=(const TVec2<C0>&other);
 		MFUNC1 (void)					operator=(const TVec2<C0>&other);
 		MFUNC1 (bool)					operator==(const TVec2<C0>&other)		const;
 		MFUNC1 (bool)					operator!=(const TVec2<C0>&other)		const;
@@ -246,6 +248,7 @@ namespace Math
 		MF_DECLARE(void)				operator+=(const C&value);
 		//MFUNC1 (C)						operator*(const TVec4<C0>&other)		const;
 		MFUNC1 (Vec4<C>)				operator&(const TVec4<C0>&other)		const;
+		MFUNC1 (void)					operator&=(const TVec4<C0>&other);
 		MF_DECLARE(Vec4<C>)				operator*(const C&factor)				const;
 		MF_DECLARE(void)				operator*=(const C&factor);
 		MFUNC1 (Vec4<C>)				operator/(const C0&factor)				const;
@@ -358,7 +361,8 @@ namespace Math
 			MFUNCV1_(void)					operator-=(const TVec<C0,Len0>&v);
 			MF_DECLARE(void)				operator-=(const C&scalar);
 	MF_VNT	MF_INIT Vec3<C> MF_CC			operator|(const TVec<C0,Len0>&v)		const;
-	MF_VNT	MF_INIT Vec3<C> MF_CC			operator&(const TVec<C0,Len0>&v)		const;
+	MF_VNT	MF_INIT VecN<C,Len> MF_CC		operator&(const TVec<C0,Len0>&v)		const;
+			MFUNCV1_(void)					operator&=(const TVec<C0,Len0>&other);
 			MFUNCV1_(void)					operator=(const TVec<C0,Len0>&v);
 			MFUNC1 (void)					operator=(const TVec2<C0>&v);
 			MFUNC1 (void)					operator=(const TVec3<C0>&v);
@@ -708,6 +712,32 @@ namespace Math
 			a.y *= b;
 			a.z *= b;
 			a.w *= b;
+			return a;
+		}
+	template <typename T>
+		inline TVec2<T>&	operator&=(TVec2<T>&a, const TVec2<T>&b)
+		{
+			a.x *= b.x;
+			a.y *= b.y;
+			return a;
+		}
+
+	template <typename T>
+		inline TVec3<T>&	operator&=(TVec3<T>&a, const TVec3<T>&b)
+		{
+			a.x *= b.x;
+			a.y *= b.y;
+			a.z *= b.z;
+			return a;
+		}
+
+	template <typename T>
+		inline TVec4<T>&	operator&=(TVec4<T>&a, const TVec4<T>&b)
+		{
+			a.x *= b.x;
+			a.y *= b.y;
+			a.z *= b.z;
+			a.w *= b.w;
 			return a;
 		}
 	template <typename T>
