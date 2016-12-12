@@ -1238,6 +1238,9 @@ namespace TCP
 			Dispatcher::SignalPostResolutionTermination();
 			return;
 		}
+		if (!IsAttemptingToConnect() && !IsConnected())
+			return;
+
 		connectionLock.lock();
 		eventLock.Block(CLOCATION);
 		attempt.Join();
