@@ -369,6 +369,10 @@ template <typename T>
 
 		virtual ~ArrayRef()	{}
 
+
+
+		operator ArrayRef<const T>() const {return ArrayRef<const T>(data,elements);}
+
 		template <typename I>
 			inline	T*		operator+(I rel)	//! Retrieves a pointer to the nth element @param rel Relative index. 0 points to the first element in the array. 	@return Pointer to the requested element for sub array access
 							{

@@ -793,7 +793,7 @@ template <class K, class C, class Hash, class KeyStrategy, class DataStrategy>
 	{
 		Carrier*c = Base::find(Hash::hash(ident),ident,false);
 		if (!c->occupied)
-			throw Program::MemberNotFound();
+			throw Except::Program::MemberNotFound();
 		return c->cast();
 	}
 	
@@ -802,7 +802,7 @@ template <class K, class C, class Hash, class KeyStrategy, class DataStrategy>
 	{
 		Carrier*c = Base::find(Hash::hash(ident),ident);
 		if (!c->occupied)
-			throw Program::MemberNotFound();
+			throw Except::Program::MemberNotFound();
 		return c->cast();
 		//return Base::find(Hash::hash(ident),ident)->cast();
 	}

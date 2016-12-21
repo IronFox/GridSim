@@ -1,5 +1,5 @@
-#ifndef encryptionH
-#define encryptionH
+#pragma once
+
 
 /******************************************************************
 
@@ -233,12 +233,6 @@ namespace CSha2Import
 
 
 
-namespace Encryption
-{
-        void        hash48(const void*in, const void*salt, const void*pepper, BYTE base, void*out);
-        void        hash16(const void*in, const void*salt, const void*pepper, void*out);
-        void        sign(const void*key, size_t keylen, const void*data, size_t datalen, void*signature, BYTE signature_len);
-}
 
 
 template <UINT32 int32_count>
@@ -280,20 +274,20 @@ public:
 };
 
 
-class CMD5
+class MD5
 {
 protected:
-        UINT32      _a,_b,_c,_d;
-        UINT64      _total;
+	UINT32      _a,_b,_c,_d;
+	UINT64      _total;
 
-        BYTE        _data[64];
+	BYTE        _data[64];
 
-        void        transform(UINT32*in);
+	void        transform(UINT32*in);
 
 public:
-                    CMD5();
-        void        update(const void*source, size_t size);
-        void        finish(void*target);
+	/**/		MD5();
+	void        Update(const void*source, size_t size);
+	void        Finish(void*target);
 };
 
 class SHA1
@@ -344,7 +338,5 @@ public:
 
 
 
-using namespace Encryption;
 
 
-#endif
