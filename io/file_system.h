@@ -212,7 +212,6 @@ namespace FileSystem
 			typedef File	File;			//!< File entry
 			typedef Drive	Drive;			//!< Drive entry
 	private:
-			bool				valid_location;
 			PathString			absolute_folder;
 	static	File				file;
 			#if SYSTEM == WINDOWS

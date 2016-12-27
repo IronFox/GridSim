@@ -336,26 +336,26 @@ namespace FileSystem
 
 
 
-	Folder::Folder():valid_location(true),absolute_folder(GetWorkingDirectory()),find_handle(NULL)
+	Folder::Folder():absolute_folder(GetWorkingDirectory()),find_handle(NULL)
 	{}
 
-	Folder::Folder(const PathString&folder_string) : valid_location(true), absolute_folder(GetWorkingDirectory()), find_handle(NULL)
+	Folder::Folder(const PathString&folder_string) : absolute_folder(GetWorkingDirectory()), find_handle(NULL)
 	{
 		MoveTo(folder_string);
 	}
 
-	Folder::Folder(const File&file):valid_location(false),find_handle(NULL)
+	Folder::Folder(const File&file):find_handle(NULL)
 	{
 		locate(file.location);
 	}
 
-	Folder::Folder(const File*file):valid_location(false),find_handle(NULL)
+	Folder::Folder(const File*file):find_handle(NULL)
 	{
 		if (file)
 			locate(file->location);
 	}
 
-	Folder::Folder(const Folder&folder):valid_location(folder.valid_location),absolute_folder(folder.absolute_folder),find_handle(NULL)
+	Folder::Folder(const Folder&folder):absolute_folder(folder.absolute_folder),find_handle(NULL)
 	{}
 
 	Folder::~Folder()
@@ -366,7 +366,6 @@ namespace FileSystem
 	Folder& Folder::operator=(const Folder&other)
 	{
 		closeScan();
-		valid_location = other.valid_location;
 		absolute_folder = other.absolute_folder;
 	    return *this;
 	}
@@ -374,7 +373,6 @@ namespace FileSystem
 	Folder& Folder::operator=(const File&file)
 	{
 		closeScan();
-		valid_location = false;
 		locate(file.location);
 	    return *this;
 	}
@@ -382,7 +380,6 @@ namespace FileSystem
 	Folder& Folder::operator=(const File*file)
 	{
 		closeScan();
-		valid_location = false;
 		if (file)
 			locate(file->location);
 	    return *this;
@@ -391,7 +388,6 @@ namespace FileSystem
 	Folder& Folder::operator=(const PathString&folder_string)
 	{
 		closeScan();
-		valid_location = false;
 		MoveTo(folder_string);
 	    return *this;
 	}
@@ -452,7 +448,7 @@ namespace FileSystem
 				else
 				{
 					final = absolute_folder;
-					valid_location = this->valid_location;
+					valid_location = this->IsValidLocation();
 				}
 		#elif SYSTEM==UNIX
 			if (path_string.firstChar() == '/')
@@ -464,7 +460,7 @@ namespace FileSystem
 			else
 			{
 				final = absolute_folder;
-				valid_location = this->valid_location;
+				valid_location = this->IsValidLocation();
 			}
 		#else
 			#error not supported
@@ -523,7 +519,7 @@ namespace FileSystem
 		if (ResolvePath(path,&parent,str))
 		{
 			absolute_folder = moveToParent ? parent : str;
-			valid_location = moveToParent || IsFolder(absolute_folder);
+			bool valid_location = moveToParent || IsFolder(absolute_folder);
 			if (!valid_location)
 			{
 				absolute_folder = parent;
@@ -548,16 +544,14 @@ namespace FileSystem
 				absolute_folder = ABS_MARKER + absolute_folder;
 			}
 		#endif
-		valid_location = IsFolder(absolute_folder);
-		return valid_location;
+		return IsFolder(absolute_folder);
 	}
 
 	bool Folder::MoveTo(const PathString&folder_string)
 	{
 		closeScan();
 		//PathString final;
-		valid_location = ResolvePathAndMoveTo(folder_string,false);
-		return valid_location;
+		return ResolvePathAndMoveTo(folder_string,false);
 	}
 
 	bool Folder::MoveTo(const File*file)
@@ -574,7 +568,7 @@ namespace FileSystem
 
 	bool Folder::Exit()
 	{
-		if (!valid_location)
+		if (!IsValidLocation())
 			return false;
 		return ExitAbs(absolute_folder,true);
 		//#if SYSTEM==UNIX
@@ -628,7 +622,7 @@ namespace FileSystem
 
 	bool Folder::Enter(const PathString&folder)
 	{
-		if (!valid_location)
+		if (!IsValidLocation())
 			return false;
 	//	PathString current = absolute_folder;
 			//	target;
@@ -638,13 +632,12 @@ namespace FileSystem
 
 	bool Folder::Enter(const File&file)
 	{
-		if (!valid_location)
+		if (!IsValidLocation())
 			return false;
 		PathString current = absolute_folder;
 		if (!locate(file.location))
 		{
 			absolute_folder = current;
-			valid_location = true;
 			return false;
 		}
 		return true;
@@ -655,14 +648,15 @@ namespace FileSystem
 		return file && Enter(*file);
 	}
 
+
 	bool Folder::IsValidLocation() const
 	{
-		return valid_location;
+		return IsFolder(absolute_folder);
 	}
 
 	count_t  Folder::CountEntries() const
 	{
-		if (!valid_location)
+		if (!IsValidLocation())
 			return 0;
 		count_t	count = 0;
 
@@ -838,7 +832,7 @@ namespace FileSystem
 
 	bool	 Folder::Find(const PathString&folder_str, File&out, bool mustExist/*=true*/)	const
 	{
-		if (!valid_location)
+		if (!IsValidLocation())
 			return false;
 		if (!ResolvePath(folder_str,nullptr,out.location) && mustExist)
 			return false;
@@ -907,7 +901,7 @@ namespace FileSystem
 
 	const Folder::File*	 Folder::CreateFolder(const PathString&name)	const
 	{
-		if (!valid_location)
+		if (!IsValidLocation())
 			return NULL;
 		PathString location = absolute_folder;
 		if (location.lastChar() != '/' && location.lastChar() != '\\')
@@ -921,7 +915,7 @@ namespace FileSystem
 
 	bool	 Folder::CreateFolder(const PathString&name, File&out)	const
 	{
-		if (!valid_location)
+		if (!IsValidLocation())
 			return false;
 		PathString location = absolute_folder;
 		if (location.lastChar() != '/' && location.lastChar() != '\\')
@@ -937,7 +931,7 @@ namespace FileSystem
 
 	String		 Folder::ToString() const
 	{
-		if (!valid_location)
+		if (!IsValidLocation())
 			return "Folder: "+String(absolute_folder)+"(invalid)";
 		return "Folder: "+String(absolute_folder);
 	}
@@ -955,7 +949,7 @@ namespace FileSystem
 
 	const Folder::File* Folder::Location() const
 	{
-		if (!valid_location)
+		if (!IsValidLocation())
 			return NULL;
 		file.name = ExtractFileNameExt(absolute_folder);
 		file.location = absolute_folder;
@@ -965,7 +959,7 @@ namespace FileSystem
 
 	const Folder::File* Folder::ParentLocation()	  const
 	{
-		if (!valid_location)
+		if (!IsValidLocation())
 			return NULL;
 		#if SYSTEM==UNIX
 			if (absolute_folder == '/' || absolute_folder == '\\')
