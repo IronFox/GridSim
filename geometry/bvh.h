@@ -93,7 +93,7 @@ template <typename Object, typename Bounds, count_t MaxObjectsPerLeaf>
 
 		void			GetAll(BasicBuffer<Object*>&out) const
 		{
-			Object*row = out.AppendRow(objects.Count());
+			Object**row = out.AppendRow(objects.Count());
 			memcpy(row, objects.pointer(), objects.GetContentSize());
 		}
 
