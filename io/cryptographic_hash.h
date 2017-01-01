@@ -255,8 +255,12 @@ template <UINT32 int32_count>
 				{
 					return memcmp(bytes,other.bytes,sizeof(bytes)) != 0;
 				}
+
+		static const THash	Empty;
 	};
 
+template <UINT32 int32_count>
+	const THash<int32_count>	THash<int32_count>::Empty = {0};
 
 
 class CRC4
