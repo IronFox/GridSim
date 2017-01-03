@@ -5,7 +5,7 @@
 Warning: date(): It is not safe to rely on the system's timezone settings. You are *required* to use the date.timezone setting or the date_default_timezone_set() function. In case you used any of those methods and you are still getting this warning, you most likely misspelled the timezone identifier. We selected the timezone 'UTC' for now, but please set date.timezone to select your timezone. in E:\include\math\update.php on line 1656
 
 Warning: date(): It is not safe to rely on the system's timezone settings. You are *required* to use the date.timezone setting or the date_default_timezone_set() function. In case you used any of those methods and you are still getting this warning, you most likely misspelled the timezone identifier. We selected the timezone 'UTC' for now, but please set date.timezone to select your timezone. in E:\include\math\update.php on line 1656
-This file was generated from template definition 'vector.template.php' on 2015 September 6th 15:13:31
+This file was generated from template definition 'vector.template.php' on 2017 January 3rd 11:23:28
 Do not edit
 */
 
@@ -1272,7 +1272,7 @@ namespace Vec
 			//block inlining void normalize0 (2..4) (<[*] vector>) direct= for dimensions=3, assembly_mode='DynamicPointers', parameters={result}...
 			{
 				T5 len = (Vec::Operator1_sumD(result, dimensions)/*result:i*result:i*/);
-				if (isnan(len) || len <= TypeInfo<T5>::error)
+				if (isnan(len) || len == 0)
 				{
 					result[0] = 1;
 					for (register index_t iterator__=1; iterator__ < dimensions; iterator__++)
@@ -1589,7 +1589,7 @@ namespace Vec
 		inline	void	__fastcall	normalize0D(T0 *vector, count_t dimensions)throw()
 		{
 			T0 len = (Vec::Operator1_sumD(vector, dimensions)/*vector:i*vector:i*/);
-			if (isnan(len) || len <= TypeInfo<T0>::error)
+			if (isnan(len) || len == 0)
 			{
 				vector[0] = 1;
 				for (register index_t iterator__=1; iterator__ < dimensions; iterator__++)
@@ -5103,7 +5103,7 @@ namespace Vec
 			//block inlining void normalize0 (2..4) (<[*] vector>) direct= for dimensions=2, assembly_mode='Objects', parameters={result}...
 			{
 				T5 len = (result.x*result.x + result.y*result.y);
-				if (isnan(len) || len <= TypeInfo<T5>::error)
+				if (isnan(len) || len == 0)
 				{
 					result.x = 1;
 					result.y = 0;
@@ -5143,7 +5143,7 @@ namespace Vec
 			//block inlining void normalize0 (2..4) (<[*] vector>) direct= for dimensions=3, assembly_mode='Objects', parameters={result}...
 			{
 				T5 len = (result.x*result.x + result.y*result.y + result.z*result.z);
-				if (isnan(len) || len <= TypeInfo<T5>::error)
+				if (isnan(len) || len == 0)
 				{
 					result.x = 1;
 					result.y = 0;
@@ -5186,7 +5186,7 @@ namespace Vec
 			//block inlining void normalize0 (2..4) (<[*] vector>) direct= for dimensions=4, assembly_mode='Objects', parameters={result}...
 			{
 				T5 len = (result.x*result.x + result.y*result.y + result.z*result.z + result.w*result.w);
-				if (isnan(len) || len <= TypeInfo<T5>::error)
+				if (isnan(len) || len == 0)
 				{
 					result.x = 1;
 					result.y = 0;
@@ -7424,7 +7424,7 @@ namespace Vec
 		inline	void	__fastcall	normalize0(TVec2<T0>& vector)throw()
 		{
 			T0 len = (vector.x*vector.x + vector.y*vector.y);
-			if (isnan(len) || len <= TypeInfo<T0>::error)
+			if (isnan(len) || len == 0)
 			{
 				vector.x = 1;
 				vector.y = 0;
@@ -7447,7 +7447,7 @@ namespace Vec
 		inline	void	__fastcall	normalize0(TVec3<T0>& vector)throw()
 		{
 			T0 len = (vector.x*vector.x + vector.y*vector.y + vector.z*vector.z);
-			if (isnan(len) || len <= TypeInfo<T0>::error)
+			if (isnan(len) || len == 0)
 			{
 				vector.x = 1;
 				vector.y = 0;
@@ -7472,7 +7472,7 @@ namespace Vec
 		inline	void	__fastcall	normalize0(TVec4<T0>& vector)throw()
 		{
 			T0 len = (vector.x*vector.x + vector.y*vector.y + vector.z*vector.z + vector.w*vector.w);
-			if (isnan(len) || len <= TypeInfo<T0>::error)
+			if (isnan(len) || len == 0)
 			{
 				vector.x = 1;
 				vector.y = 0;
@@ -14064,7 +14064,7 @@ template <count_t Current, count_t Dimensions>
 				//block inlining void normalize0 (2..4) (<[*] vector>) direct= for dimensions=3, assembly_mode='Pointers', parameters={result}...
 				{
 					T5 len = (VecV_Include__<0,Dimensions,false>::Operator18_sum(result)/*result:i*result:i*/);
-					if (isnan(len) || len <= TypeInfo<T5>::error)
+					if (isnan(len) || len == 0)
 					{
 						result[0] = 1;
 						VecV_Include__<1,Dimensions,false>::User25_normalize0(result);
@@ -14269,7 +14269,7 @@ template <count_t Current, count_t Dimensions>
 			static	inline	void	__fastcall	normalize0(T0 vector[Dimensions])throw()
 			{
 				T0 len = (VecV_Include__<0,Dimensions,false>::Operator18_sum(vector)/*vector:i*vector:i*/);
-				if (isnan(len) || len <= TypeInfo<T0>::error)
+				if (isnan(len) || len == 0)
 				{
 					vector[0] = 1;
 					VecV_Include__<1,Dimensions,false>::User25_normalize0(vector);
@@ -14933,7 +14933,7 @@ template <count_t Current, count_t Dimensions>
 				//block inlining void normalize0 (2..4) (<[*] vector>) direct= for dimensions=3, assembly_mode='Objects', parameters={result}...
 				{
 					T5 len = (VecV_Include__<0,Dimensions,false>::Operator40_sum(result.v)/*result:i*result:i*/);
-					if (isnan(len) || len <= TypeInfo<T5>::error)
+					if (isnan(len) || len == 0)
 					{
 						result.x = 1;
 						VecV_Include__<1,Dimensions,false>::User47_normalize0(result.v);
@@ -15138,7 +15138,7 @@ template <count_t Current, count_t Dimensions>
 			static	inline	void	__fastcall	normalize0(TVec<T0,Dimensions>& vector)throw()
 			{
 				T0 len = (VecV_Include__<0,Dimensions,false>::Operator40_sum(vector.v)/*vector:i*vector:i*/);
-				if (isnan(len) || len <= TypeInfo<T0>::error)
+				if (isnan(len) || len == 0)
 				{
 					vector.x = 1;
 					VecV_Include__<1,Dimensions,false>::User47_normalize0(vector.v);

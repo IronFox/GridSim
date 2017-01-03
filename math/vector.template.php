@@ -298,7 +298,7 @@ functions:
 
 	normalize0([] vector)
 		:float len = :<dot>(vector);
-		if (isnan(len) || len <= TypeInfo<:float>::error)
+		if (isnan(len) || len == 0)
 		{
 			vector:0 = 1;
 			:iterate+
