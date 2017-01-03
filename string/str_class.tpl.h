@@ -4094,7 +4094,7 @@ template <typename T0, typename T1, typename T2>
 template <typename T0, typename T1, typename T2>
 	void	explode(const T0*delimiter, size_t delimiter_length, const ReferenceExpression<T1>&string, ArrayData<T2>&result)
 	{
-		if (!delimiter)
+		if (!delimiter || !delimiter_length)
 			return;
 		if (!string.length())
 		{
