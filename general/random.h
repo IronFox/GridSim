@@ -14,6 +14,18 @@ E:\include\general\random.h
 ******************************************************************/
 
 
+template <typename T>
+	struct TRandomSeed
+	{
+		const T	value;
+
+		/**/		TRandomSeed(const T&value):value(value)	{}
+	};
+
+template <typename T>
+	TRandomSeed<T>	RandomSeed(const T&value)	{return TRandomSeed<T>(value); }
+
+
 /**
 Pretty much the simplest possible random number source that still works to an acceptable degree.
 Made to be replacable by std::mt19937 for applications with higher requirements.
@@ -102,6 +114,8 @@ template <typename Random>
 
 		/**/			RNG():Super((type_t)(time(NULL)*100 + randomRandomizationModifier++)){};
 		explicit		RNG(type_t seed):Super(seed)	{}
+		template <typename T>
+			explicit	RNG(const TRandomSeed<T>& seed):Super((type_t)seed.value){};		//!< Constructs a new Random object \param seed Custom seed to start from
 		template <typename Sseq>
 			explicit	RNG(Sseq&seq):Super(seq){}
 
