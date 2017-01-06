@@ -271,18 +271,25 @@ namespace Math
 			static const bool		Less=Val0<Val1;
 		};
 
+	template <typename T>
+		inline T	Round(T x)
+		{
+			#if _MSC_VER >= 1800	/*vs12*/ || (defined __GXX_EXPERIMENTAL_CXX0X__)
+				return (T)std::round(x);
+			#else
+				if (x < 0.f)
+					return (int)(x - 0.5f);
+				else
+					return (int)(x + 0.5f);
+			#endif
+		}
 
-	inline float	Round(float x)
-	{
-		#if _MSC_VER >= 1800	/*vs12*/ || (defined __GXX_EXPERIMENTAL_CXX0X__)
-			return std::round(x);
-		#else
-			if (x < 0.f)
-				return (int)(x - 0.5f);
-			else
-				return (int)(x + 0.5f);
-		#endif
-	}
+	template <typename T>
+		inline T	Round(T x, unsigned digits)
+		{
+			T factor = vpow10(digits);
+			return Round(x * factor) / factor;
+		}
 
 	/**
 	Calculates ceil(x/div) as an unsigned integer operation.
