@@ -21,10 +21,6 @@ to provide a simplified interface.
 #include "../geometry/cgs.h"
 
 
-#ifdef DEBUG
-	#include "../container/lists.h"
-#endif
-
 
 namespace Engine
 {
