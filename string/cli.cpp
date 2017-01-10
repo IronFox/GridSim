@@ -491,7 +491,7 @@ namespace CLI
 			}
 			if (!lookup.variable->Set(value))
 			{
-				error = "Assigment failed";
+				error = "Assignment failed";
 				return PVariable();
 			}
 			return lookup.variable;
