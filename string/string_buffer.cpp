@@ -14,13 +14,12 @@ StringBuffer::StringBuffer(size_t l):Super(l)
 StringBuffer::StringBuffer(const char*string, size_t extra):Super(0)
 {
 	size_t strLen = strlen(string);
-	Super::SetSize(strLen + extra,false);
-	memcpy(Super::appendRow(strLen),string,strLen);
+	memcpy(Super::AppendRow(strLen),string,strLen);
 }
 
 StringBuffer::StringBuffer(const String&string, size_t extra):Super(string.length()+extra)
 {
-	memcpy(Super::appendRow(string.length()),string.c_str(),string.length());
+	memcpy(Super::AppendRow(string.length()),string.c_str(),string.length());
 }
 
 

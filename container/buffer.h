@@ -26,7 +26,7 @@ namespace Container
 									*storage_end,		//!< Pointer one past the last valid element of the storage area. May be NULL indicating an empty buffer. (storage_end-storage_begin) stays valid even if the buffer is empty
 									*usage_end;			//!< Pointer one past the last allocated element of the storage area. May be NULL indicating an empty buffer. (usage_end-storage_begin) stays valid even if the buffer is empty
 			#if defined(_DEBUG) && __BUFFER_DBG_FILL_STATE__
-				count_t				fill_state;			//!< Current Fill state in elements. Maintained in debug mode only
+				count_t				fillLevel;			//!< Current fill level in elements. Maintained in debug mode only
 			#endif
 
 
@@ -73,7 +73,6 @@ namespace Container
 			inline void				clear();								//!< @copydoc reset()
 			inline void				Clear(count_t len)	/**@copydoc clear(count_t len)*/ {clear(len);}
 			inline void				Clear()				/**@copydoc clear()*/ {clear();}
-			void					SetSize(count_t len, bool occupy);		//!< Resizes the local buffer size @param len New length (in elements) that the buffer storage should hold @param occupy Pass true to call the constructor on all unconstructed elements and set Fill state to the specified size, false to clear all data and set Fill state to 0
 			void					resizePreserveContent(count_t len);		//!< Resizes the local buffer size but preserves the old content and Fill state where possible. If the old Fill state exceeds the new size then all new elements will be occupied and initialized
 			inline void				ResizePreserveContent(count_t len)		/**@copydoc resizePreserveContent()*/ {resizePreserveContent(len);}
 			void					Fill(const T&pattern);					//!< Copies \b pattern to each element of the local buffer

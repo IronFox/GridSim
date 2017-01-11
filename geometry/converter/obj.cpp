@@ -921,7 +921,9 @@ namespace Converter
 		{
 			sendMessage("Provided normals are non-existing or not properly generated.");
 			sendMessage("Generating normals");
-			normal_buffer.SetSize(vertexBuffer.fillLevel()*smooth_groups,true);
+			normal_buffer.Clear();
+			normal_buffer.AppendRow(vertexBuffer.fillLevel()*smooth_groups);
+			normal_buffer.Compact();
 			normal_buffer.Fill(Vector<>::null);
 			index_t index = 0;
 			update_step = total/100;
