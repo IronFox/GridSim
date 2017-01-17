@@ -767,7 +767,7 @@ namespace Engine
 	            {
 					const VisualDetail<Def>&detail = group->detail_layers[entity->detail];
 					
-					for (index_t i = 0; i < detail.object_index.fillLevel(); i++)
+					for (index_t i = 0; i < detail.object_index.Count(); i++)
 					{
 						const CGS::RenderObjectA<Def>*r = detail.robjects[i];
 	                    const CGS::IndexContainerA<Def>&d = r->ipool;
@@ -1967,11 +1967,11 @@ namespace Engine
 	            return c;
 	        }
 			
-	        index_t at = buffer.fillLevel();
+	        index_t at = buffer.Count();
 	        for (BYTE k = 0; k < 8; k++)
 	            if (child[k] && child[k]->recursiveLookup(space,exclude,buffer) == cnt)
 	            {
-	                if (buffer.fillLevel()-at > cnt)
+	                if (buffer.Count()-at > cnt)
 	                {
 						buffer.Truncate(at);
 	                    for (index_t i = 0; i < cnt; i++)
@@ -2013,11 +2013,11 @@ namespace Engine
 	            return c;
 	        }
 			
-	        index_t at = buffer.fillLevel();
+	        index_t at = buffer.Count();
 	        for (BYTE k = 0; k < 8; k++)
 	            if (child[k] && child[k]->recursiveLookup(space,buffer) == cnt)
 	            {
-	                if (buffer.fillLevel()-at > cnt)
+	                if (buffer.Count()-at > cnt)
 	                {
 						buffer.Truncate(at);
 	                    for (index_t i = 0; i < cnt; i++)
@@ -2142,8 +2142,8 @@ namespace Engine
 			SCENERY_BEGIN
 			Buffer<Object*>					buffer;
 	        recursiveLookup(space,exclude,buffer);
-			index_t offset = out.fillLevel();
-	        for (index_t i = 0; i < buffer.fillLevel(); i++)
+			index_t offset = out.Count();
+	        for (index_t i = 0; i < buffer.Count(); i++)
 	        {
 	            Object*object = buffer[i];
 	            if (!object->added && object->structure != exclude)
@@ -2152,7 +2152,7 @@ namespace Engine
 	                object->added = true;
 	            }
 	        }
-	        for (index_t i = offset; i < out.fillLevel(); i++)
+	        for (index_t i = offset; i < out.Count(); i++)
 	            out[i]->added = false;
 			SCENERY_END
 		}
@@ -2163,9 +2163,9 @@ namespace Engine
 			SCENERY_BEGIN
 			Buffer<Object*>					buffer;
 	        recursiveLookup(volume,buffer);
-			index_t offset = object_out.fillLevel(),
-					struct_offset = struct_out.fillLevel();
-	        for (index_t i = 0; i < buffer.fillLevel(); i++)
+			index_t offset = object_out.Count(),
+					struct_offset = struct_out.Count();
+	        for (index_t i = 0; i < buffer.Count(); i++)
 	        {
 	            Object*object = buffer[i];
 	            if (!object->added)
@@ -2179,9 +2179,9 @@ namespace Engine
 					}
 	            }
 	        }
-	        for (index_t i = offset; i < object_out.fillLevel(); i++)
+	        for (index_t i = offset; i < object_out.Count(); i++)
 	            object_out[i]->added = false;
-			for (index_t i = struct_offset; i < struct_out.fillLevel(); i++)
+			for (index_t i = struct_offset; i < struct_out.Count(); i++)
 				struct_out[i]->added = false;
 			SCENERY_END
 		}
@@ -2534,7 +2534,7 @@ namespace Engine
 			structure_buffer.reset();
 			object_buffer.reset();
 			tree.lookup(volume,structure_buffer,object_buffer);
-			for (unsigned i = 0; i < structure_buffer.fillLevel(); i++)
+			for (unsigned i = 0; i < structure_buffer.Count(); i++)
 			{
 				StructureEntity<Def>*entity = structure_buffer[i];
 
@@ -2556,7 +2556,7 @@ namespace Engine
 				entity->visible = true;
 		    
 			}
-			for (unsigned i = 0; i < object_buffer.fillLevel(); i++)
+			for (unsigned i = 0; i < object_buffer.Count(); i++)
 			{
 				ObjectEntity<Def>*entity = object_buffer[i];
 				entity->visible = entity->structure->visible;
@@ -2568,9 +2568,9 @@ namespace Engine
 	template <class GL, class Def>
 		void MappedScenery<GL,Def>::PostRenderCleanup()
 		{
-			for (index_t i = 0; i < structure_buffer.fillLevel(); i++)
+			for (index_t i = 0; i < structure_buffer.Count(); i++)
 				structure_buffer[i]->visible = false;
-			for (index_t i = 0; i < object_buffer.fillLevel(); i++)
+			for (index_t i = 0; i < object_buffer.Count(); i++)
 				object_buffer[i]->visible = false;
 			structure_buffer.reset();
 			object_buffer.reset();
@@ -2592,7 +2592,7 @@ namespace Engine
 			obj_buffer.reset();
 			tree.lookup(volume,obj_buffer);
 				
-			for (index_t i = 0; i < obj_buffer.fillLevel(); i++)
+			for (index_t i = 0; i < obj_buffer.Count(); i++)
 			{
 				ObjectEntity<Def>*entity = obj_buffer[i];
 				CGS::SubGeometryA<Def>*child = entity->source;

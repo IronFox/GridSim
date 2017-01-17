@@ -378,7 +378,7 @@ count_t	CompositeEntityTree::recursiveLookup(const Composite::Coordinates&edge_p
 			define[k] = 1;
 			set[define[0] *4 + define[1]*2 + define[2]] = true;
 		}
-	index_t at = buffer.fillLevel();
+	index_t at = buffer.Count();
 	for (BYTE k = 0; k < 8; k++)
 		if (set[k])
 			if (child[k]->recursiveLookup(edge_point0,edge_point1,buffer,sector_size) == entities.count())
@@ -415,11 +415,11 @@ count_t	CompositeEntityTree::recursiveLookup(const Volume&space, Buffer<Entity*>
 		return c;
 	}
 	
-	count_t at = buffer.fillLevel();
+	count_t at = buffer.Count();
 	for (BYTE k = 0; k < 8; k++)
 		if (child[k] && child[k]->recursiveLookup(space,buffer,sector_size) == cnt)
 		{
-			if (buffer.fillLevel()-at > cnt)
+			if (buffer.Count()-at > cnt)
 			{
 				buffer.Truncate(at);
 				for (unsigned i = 0; i < cnt; i++)
@@ -554,8 +554,8 @@ void	CompositeEntityTree::lookup(const Volume&space, Buffer<Entity*>&out)
 	
 	/*
 	Buffer<Entity*>					buffer;
-	unsigned offset = out.fillLevel();
-	for (unsigned i = 0; i < buffer.fillLevel(); i++)
+	unsigned offset = out.Count();
+	for (unsigned i = 0; i < buffer.Count(); i++)
 	{
 		Entity*object = buffer[i];
 		if (!object->added)
@@ -564,7 +564,7 @@ void	CompositeEntityTree::lookup(const Volume&space, Buffer<Entity*>&out)
 			object->added = true;
 		}
 	}
-	for (unsigned i = offset; i < out.fillLevel(); i++)
+	for (unsigned i = offset; i < out.Count(); i++)
 		out[i]->added = false;*/
 }
 
@@ -972,7 +972,7 @@ count_t	EntityTree::_RecursiveLookup(const TVec3<>&p0, const TVec3<>&p1, Buffer<
 			define[k] = 1;
 			set[define[0] *4 + define[1]*2 + define[2]] = true;
 		}
-	index_t at = buffer.fillLevel();
+	index_t at = buffer.Count();
 	for (BYTE k = 0; k < 8; k++)
 		if (set[k] && child[k]!=NULL)
 			if (child[k]->_RecursiveLookup(p0,p1,buffer) == cnt)
@@ -1007,11 +1007,11 @@ count_t	EntityTree::_RecursiveLookup(const Volume&space, Buffer<Entity*>&buffer)
 		return c;
 	}
 	
-	count_t at = buffer.fillLevel();
+	count_t at = buffer.Count();
 	for (BYTE k = 0; k < 8; k++)
 		if (child[k] && child[k]->_RecursiveLookup(space,buffer) == cnt)
 		{
-			if (buffer.fillLevel()-at > cnt)
+			if (buffer.Count()-at > cnt)
 			{
 				buffer.Truncate(at);
 				for (index_t i = 0; i < cnt; i++)
@@ -1136,8 +1136,8 @@ void	EntityTree::Lookup(const Volume&space, Buffer<Entity*>&out)
 	
 	/*
 	Buffer<Entity*>					buffer;
-	unsigned offset = out.fillLevel();
-	for (unsigned i = 0; i < buffer.fillLevel(); i++)
+	unsigned offset = out.Count();
+	for (unsigned i = 0; i < buffer.Count(); i++)
 	{
 		Entity*object = buffer[i];
 		if (!object->added)
@@ -1146,7 +1146,7 @@ void	EntityTree::Lookup(const Volume&space, Buffer<Entity*>&out)
 			object->added = true;
 		}
 	}
-	for (unsigned i = offset; i < out.fillLevel(); i++)
+	for (unsigned i = offset; i < out.Count(); i++)
 		out[i]->added = false;*/
 }
 

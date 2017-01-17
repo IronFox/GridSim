@@ -233,12 +233,12 @@ StringBuffer&  StringBuffer::operator<<(const TTabSpace&space)
 
 String	 StringBuffer::ToString()	const
 {
-	return String(Super::pointer(),Super::fillLevel());
+	return String(Super::pointer(),Super::Count());
 }
 
 StringRef	StringBuffer::ToStringRef()	const
 {
-	return StringRef(Super::pointer(),Super::fillLevel());
+	return StringRef(Super::pointer(),Super::Count());
 }
 
 

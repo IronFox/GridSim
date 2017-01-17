@@ -5806,8 +5806,8 @@ template <class Def>
 	{
 		if (!(config.vertexFlags & HasNormalFlag))
 			return;
-		normalsFromQuad = currentLOD->quadIndices.fillLevel();
-		normalsFromTriangle = currentLOD->triangleIndices.fillLevel();
+		normalsFromQuad = currentLOD->quadIndices.Count();
+		normalsFromTriangle = currentLOD->triangleIndices.Count();
 		normalsFromVertex = currentLOD->vertexData.length() / config.vsize;
 	}
 

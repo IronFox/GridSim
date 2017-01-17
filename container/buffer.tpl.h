@@ -5,18 +5,18 @@
 
 #undef min
 
-#if defined(_DEBUG) && __BUFFER_DBG_fillLevel__
-	#define CHK_FILLSTATE //if (fillLevel != usage_end - storage_begin) FATAL__("Invalid buffer state")
+#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
+	#define CHK_FILLSTATE	if (fillLevel != usage_end - storage_begin) FATAL__("Invalid buffer state");
 #else
 	#define CHK_FILLSTATE
 #endif
 
 
 #if defined(_DEBUG) && __BUFFER_DBG_RANGE_CHECK__
-	#if __BUFFER_DBG_fillLevel__
+	#if __BUFFER_DBG_COUNT__
 		#define BUFFER_CHECK_RANGE(_INDEX_)	if ((_INDEX_) >= fillLevel) FATAL__("Index out of range for buffer access");
 	#else
-		#define BUFFER_CHECK_RANGE(_INDEX_)	if ((_INDEX_) >= fillState()) FATAL__("Index out of range for buffer access");
+		#define BUFFER_CHECK_RANGE(_INDEX_)	if ((_INDEX_) >= Count()) FATAL__("Index out of range for buffer access");
 	#endif
 	#define BUFFER_ASSERT_NOT_EMPTY()	if (usage_end == storage_begin)	FATAL__("Cannot access element: buffer is empty");
 #else
@@ -94,7 +94,7 @@ template <typename T, typename Strategy>
 			catch (std::bad_alloc& exception)
 			{
 				storage_begin = storage_end = usage_end = NULL;
-				#if defined(_DEBUG) && __BUFFER_DBG_fillLevel__
+				#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
 					fillLevel = 0;
 					CHK_FILLSTATE
 				#endif
@@ -132,7 +132,7 @@ template <typename T, typename Strategy>
 			catch (std::bad_alloc& exception)
 			{
 				storage_begin = storage_end = usage_end = NULL;
-				#if defined(_DEBUG) && __BUFFER_DBG_fillLevel__
+				#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
 					fillLevel = 0;
 					CHK_FILLSTATE
 				#endif
@@ -148,7 +148,7 @@ template <typename T, typename Strategy>
 		{
 			usage_end = storage_begin = allocate(len);
 			storage_end = storage_begin+len;
-			#if defined(_DEBUG) && __BUFFER_DBG_fillLevel__
+			#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
 				fillLevel = 0;
 				CHK_FILLSTATE
 			#endif
@@ -156,7 +156,7 @@ template <typename T, typename Strategy>
 		catch (std::bad_alloc& exception)
 		{
 			usage_end = storage_begin = storage_end = NULL;
-			#if defined(_DEBUG) && __BUFFER_DBG_fillLevel__
+			#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
 				fillLevel = 0;
 				CHK_FILLSTATE
 			#endif
@@ -178,7 +178,7 @@ template <typename T, typename Strategy>
 	{
 		//deloc(storage_begin);
 		Strategy::destructRange(storage_begin,usage_end);
-		#if defined(_DEBUG) && __BUFFER_DBG_fillLevel__
+		#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
 			fillLevel = 0;
 		#endif
 
@@ -214,7 +214,7 @@ template <typename T, typename Strategy>
 		catch (std::bad_alloc& exception)
 		{
 			storage_begin = storage_end = usage_end = NULL;
-			#if defined(_DEBUG) && __BUFFER_DBG_fillLevel__
+			#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
 				fillLevel = 0;
 				CHK_FILLSTATE
 			#endif
@@ -223,7 +223,7 @@ template <typename T, typename Strategy>
 		}
 
 		storage_end = usage_end = storage_begin+Fill;
-		#if defined(_DEBUG) && __BUFFER_DBG_fillLevel__
+		#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
 			fillLevel = Fill;
 			CHK_FILLSTATE
 		#endif
@@ -249,7 +249,7 @@ template <typename T, typename Strategy>
 		catch (std::bad_alloc& exception)
 		{
 			storage_begin = storage_end = usage_end = NULL;
-			#if defined(_DEBUG) && __BUFFER_DBG_fillLevel__
+			#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
 				fillLevel = 0;
 				CHK_FILLSTATE
 			#endif
@@ -258,7 +258,7 @@ template <typename T, typename Strategy>
 		}
 
 		storage_end = usage_end = storage_begin+Fill;
-		#if defined(_DEBUG) && __BUFFER_DBG_fillLevel__
+		#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
 			fillLevel = Fill;
 			CHK_FILLSTATE
 		#endif
@@ -275,7 +275,7 @@ template <typename T, typename Strategy>
 template <typename T, typename Strategy>
 	BasicBuffer<T, Strategy>::BasicBuffer(BasicBuffer<T, Strategy>&&other):storage_begin(other.storage_begin),storage_end(other.storage_end),usage_end(other.usage_end)
 	{
-		#if defined(_DEBUG) && __BUFFER_DBG_fillLevel__
+		#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
 			fillLevel = other.fillLevel;
 			other.fillLevel = 0;
 			CHK_FILLSTATE
@@ -307,7 +307,7 @@ template <typename T, typename Strategy>
 			catch (std::bad_alloc& exception)
 			{
 				storage_begin = storage_end = usage_end = NULL;
-				#if defined(_DEBUG) && __BUFFER_DBG_fillLevel__
+				#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
 					fillLevel = 0;
 					CHK_FILLSTATE
 				#endif
@@ -320,7 +320,7 @@ template <typename T, typename Strategy>
 
 		//	deloc(storage_begin);
 			//alloc(storage_begin,Fill);
-		#if defined(_DEBUG) && __BUFFER_DBG_fillLevel__
+		#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
 			fillLevel = Fill;
 			CHK_FILLSTATE
 		#endif
@@ -375,7 +375,7 @@ template <typename T, typename Strategy>
 			storage_begin = new_field;
 			storage_end = storage_begin+new_len;
 			usage_end = storage_begin+preserve;
-			#if defined(_DEBUG) && __BUFFER_DBG_fillLevel__
+			#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
 				fillLevel = preserve;
 				CHK_FILLSTATE
 			#endif
@@ -384,7 +384,7 @@ template <typename T, typename Strategy>
 		catch (std::bad_alloc& exception)
 		{
 			storage_begin = usage_end = storage_end = NULL;
-			#if defined(_DEBUG) && __BUFFER_DBG_fillLevel__
+			#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
 				fillLevel = 0;
 				CHK_FILLSTATE
 			#endif
@@ -411,7 +411,7 @@ template <typename T, typename Strategy>
 		T*result = usage_end;
 		usage_end += elements;
 		Strategy::constructRange(result,usage_end,init_pattern);
-		#if defined(_DEBUG) && __BUFFER_DBG_fillLevel__
+		#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
 			fillLevel+=elements;
 			CHK_FILLSTATE
 		#endif
@@ -427,7 +427,7 @@ template <typename T, typename Strategy>
 		T*result = usage_end;
 		usage_end += elements;
 		Strategy::constructRange(result,usage_end);
-		#if defined(_DEBUG) && __BUFFER_DBG_fillLevel__
+		#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
 			fillLevel+=elements;
 			CHK_FILLSTATE
 		#endif
@@ -449,7 +449,7 @@ template <typename T, typename Strategy>
 			new (usage_end++) T(va_arg(vl,T2));
 		}
 		va_end(vl);
-		#if defined(_DEBUG) && __BUFFER_DBG_fillLevel__
+		#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
 			fillLevel+=elements;
 			CHK_FILLSTATE
 		#endif
@@ -464,7 +464,7 @@ template <typename T, typename Strategy>
 		ensureHasSpace();
 
 		new (usage_end) T;
-		#if defined(_DEBUG) && __BUFFER_DBG_fillLevel__
+		#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
 			fillLevel++;
 		#endif
 		return (*usage_end++);
@@ -503,7 +503,7 @@ template <typename T, typename Strategy>
 				storage_begin = new_field;
 				storage_end = storage_begin+len;
 				usage_end = storage_begin+current_index+1;
-				#if defined(_DEBUG) && __BUFFER_DBG_fillLevel__
+				#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
 					fillLevel++;
 					CHK_FILLSTATE
 				#endif
@@ -515,7 +515,7 @@ template <typename T, typename Strategy>
 			catch (std::bad_alloc& exception)
 			{
 				storage_begin = storage_end = usage_end = NULL;
-				#if defined(_DEBUG) && __BUFFER_DBG_fillLevel__
+				#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
 					fillLevel = 0;
 					CHK_FILLSTATE
 				#endif
@@ -530,7 +530,7 @@ template <typename T, typename Strategy>
 			for (T*c = usage_end; c > el; c--)
 				Strategy::move(*(c-1),*c);
 			usage_end++;
-			#if defined(_DEBUG) && __BUFFER_DBG_fillLevel__
+			#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
 				fillLevel++;
 				CHK_FILLSTATE
 			#endif
@@ -574,7 +574,7 @@ template <typename T, typename Strategy>
 				storage_begin = new_field;
 				storage_end = storage_begin+len;
 				usage_end = storage_begin+current_fill_level+length;
-				#if defined(_DEBUG) && __BUFFER_DBG_fillLevel__
+				#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
 					fillLevel+=length;
 					CHK_FILLSTATE
 				#endif
@@ -585,7 +585,7 @@ template <typename T, typename Strategy>
 			catch (std::bad_alloc& exception)
 			{
 				storage_begin = storage_end = usage_end = NULL;
-				#if defined(_DEBUG) && __BUFFER_DBG_fillLevel__
+				#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
 					fillLevel = 0;
 					CHK_FILLSTATE
 				#endif
@@ -599,7 +599,7 @@ template <typename T, typename Strategy>
 			for (T*c = usage_end+length-1; c >= el+length; c--)
 				Strategy::move(*(c-length),*c);
 			usage_end+=length;
-			#if defined(_DEBUG) && __BUFFER_DBG_fillLevel__
+			#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
 				fillLevel+=length;
 				CHK_FILLSTATE
 			#endif
@@ -642,7 +642,7 @@ template <typename T2>
 				storage_begin = new_field;
 				storage_end = storage_begin+len;
 				usage_end = storage_begin+current_index+1;
-				#if defined(_DEBUG) && __BUFFER_DBG_fillLevel__
+				#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
 					fillLevel++;
 					CHK_FILLSTATE
 				#endif
@@ -654,7 +654,7 @@ template <typename T2>
 			catch (std::bad_alloc& exception)
 			{
 				storage_begin = storage_end = usage_end = NULL;
-				#if defined(_DEBUG) && __BUFFER_DBG_fillLevel__
+				#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
 					fillLevel = 0;
 					CHK_FILLSTATE
 				#endif
@@ -670,7 +670,7 @@ template <typename T2>
 			(*el) = data;
 			//el->operator=(data);
 			usage_end++;
-			#if defined(_DEBUG) && __BUFFER_DBG_fillLevel__
+			#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
 				fillLevel++;
 				CHK_FILLSTATE
 			#endif
@@ -684,7 +684,7 @@ template <typename T, typename Strategy>
 		BUFFER_ASSERT_NOT_EMPTY();
 		usage_end--;
 		usage_end->~T();
-		#if defined(_DEBUG) && __BUFFER_DBG_fillLevel__
+		#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
 			fillLevel--;
 			CHK_FILLSTATE
 		#endif
@@ -698,7 +698,7 @@ template <typename T, typename Strategy>
 		T data;
 		Strategy::move(*usage_end,data);
 		usage_end->~T();
-		#if defined(_DEBUG) && __BUFFER_DBG_fillLevel__
+		#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
 			fillLevel--;
 			CHK_FILLSTATE
 		#endif
@@ -758,7 +758,7 @@ template <typename T, typename Strategy>
 		ensureHasSpace();
 
 		new (usage_end++) T(el);
-		#if defined(_DEBUG) && __BUFFER_DBG_fillLevel__
+		#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
 			fillLevel++;
 			CHK_FILLSTATE
 		#endif
@@ -773,7 +773,7 @@ template <typename T, typename Strategy>
 				ensureHasSpace();
 
 				Strategy::constructSingleFromFleetingData(usage_end++, el);
-				#if defined(_DEBUG) && __BUFFER_DBG_fillLevel__
+				#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
 					fillLevel++;
 					CHK_FILLSTATE
 				#endif
@@ -787,7 +787,7 @@ template <typename T, typename Strategy>
 		ensureHasSpace();
 
 		new (usage_end++) T(el);
-		#if defined(_DEBUG) && __BUFFER_DBG_fillLevel__
+		#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
 			fillLevel++;
 			CHK_FILLSTATE
 		#endif
@@ -814,7 +814,7 @@ template <typename T, typename Strategy>
 		ensureHasSpace();
 
 		Strategy::constructSingleFromFleetingData(usage_end++, el);
-		#if defined(_DEBUG) && __BUFFER_DBG_fillLevel__
+		#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
 			fillLevel++;
 			CHK_FILLSTATE
 		#endif
@@ -830,7 +830,7 @@ template <typename T, typename Strategy>
 				ensureHasSpace();
 
 				new (usage_end++) T(std::move(el));
-				#if defined(_DEBUG) && __BUFFER_DBG_fillLevel__
+				#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
 					fillLevel++;
 					CHK_FILLSTATE
 				#endif
@@ -846,12 +846,12 @@ template <typename T, typename Strategy>
 		ensureHasSpace();
 
 		new (usage_end++) T(el);
-		#if defined(_DEBUG) && __BUFFER_DBG_fillLevel__
+		#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
 			fillLevel++;
 			CHK_FILLSTATE
 		#endif
 
-		return fillLevel()-1;
+		return length()-1;
 	}
 
 template <typename T, typename Strategy> template <typename T2>
@@ -860,7 +860,7 @@ template <typename T, typename Strategy> template <typename T2>
 		ensureHasSpace(elements);
 		for (index_t i = 0; i < elements; i++)
 			new (usage_end++) T(data+i);
-		#if defined(_DEBUG) && __BUFFER_DBG_fillLevel__
+		#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
 			fillLevel+=elements;
 			CHK_FILLSTATE
 		#endif
@@ -877,7 +877,7 @@ template <typename T, typename Strategy> template <typename Strategy2>
 			return *this;
 		}
 
-		moveAppend(buffer.pointer(),buffer.fillLevel());
+		moveAppend(buffer.pointer(),buffer.length());
 		if (clearSourceOnCompletion)
 			buffer.reset();
 		return *this;
@@ -898,7 +898,7 @@ template <typename T, typename Strategy>
 		ensureHasSpace(elements);
 		Strategy::constructRangeFromFleetingData(usage_end,usage_end+elements,data);
 		usage_end += elements;
-		#if defined(_DEBUG) && __BUFFER_DBG_fillLevel__
+		#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
 			fillLevel+=elements;
 			CHK_FILLSTATE
 		#endif
@@ -925,7 +925,7 @@ template <typename T, typename Strategy> template <typename T2>
 		ensureHasSpace(elements);
 		for (index_t i = 0; i < elements; i++)
 			new (usage_end++) T(data[i]);
-		#if defined(_DEBUG) && __BUFFER_DBG_fillLevel__
+		#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
 			fillLevel+=elements;
 			CHK_FILLSTATE
 		#endif
@@ -985,7 +985,7 @@ template <typename T, typename Strategy>
 		catch (std::bad_alloc& exception)
 		{
 			usage_end = storage_begin = storage_end = NULL;
-			#if defined(_DEBUG) && __BUFFER_DBG_fillLevel__
+			#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
 				fillLevel = 0;
 				CHK_FILLSTATE
 			#endif
@@ -1001,7 +1001,7 @@ template <typename T, typename Strategy>
 	{
 		Strategy::destructRange(storage_begin,usage_end);
 		usage_end = storage_begin;
-		#if defined(_DEBUG) && __BUFFER_DBG_fillLevel__
+		#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
 			fillLevel = 0;
 			CHK_FILLSTATE
 		#endif
@@ -1031,7 +1031,7 @@ template <typename T, typename Strategy>
 	}
 
 template <typename T, typename Strategy>
-	inline count_t	BasicBuffer<T, Strategy>::fillLevel()					const
+	inline count_t	BasicBuffer<T, Strategy>::length()					const
 	{
 		return usage_end-storage_begin;
 	}
@@ -1044,29 +1044,6 @@ template <typename T, typename Strategy>
 
 
 	
-template <typename T, typename Strategy>
-	inline count_t	BasicBuffer<T, Strategy>::length()					const
-	{
-		return fillLevel();
-	}
-	
-template <typename T, typename Strategy>
-	inline count_t	BasicBuffer<T, Strategy>::size()						const
-	{
-		return fillLevel();
-	}
-	
-template <typename T, typename Strategy>
-	inline count_t	BasicBuffer<T, Strategy>::count()						const
-	{
-		return fillLevel();
-	}
-
-template <typename T, typename Strategy>
-	inline count_t	BasicBuffer<T, Strategy>::Count()						const
-	{
-		return fillLevel();
-	}
 
 template <typename T, typename Strategy>
 	inline T&			BasicBuffer<T, Strategy>::operator[](index_t index)
@@ -1152,7 +1129,7 @@ template <typename T, typename Strategy>
 		{
 			Strategy::destructRange(storage_begin+fillLevel,usage_end);
 			usage_end = storage_begin+fillLevel;
-			#if defined(_DEBUG) && __BUFFER_DBG_fillLevel__
+			#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
 				this->fillLevel = fillLevel;
 				CHK_FILLSTATE
 			#endif
@@ -1172,7 +1149,7 @@ template <typename T, typename Strategy>
 		storage_begin = other.storage_begin;
 		usage_end = other.usage_end;
 		storage_end = other.storage_end;
-		#if defined(_DEBUG) && __BUFFER_DBG_fillLevel__
+		#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
 			fillLevel = other.fillLevel;
 			other.fillLevel = 0;
 			CHK_FILLSTATE
@@ -1188,7 +1165,7 @@ template <typename T, typename Strategy>
 			swp(storage_begin,other.storage_begin);
 			swp(usage_end,other.usage_end);
 			swp(storage_end,other.storage_end);
-			#if defined(_DEBUG) && __BUFFER_DBG_fillLevel__
+			#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
 				swp(fillLevel,other.fillLevel);
 				CHK_FILLSTATE
 			#endif
@@ -1308,7 +1285,7 @@ template <typename T, typename Strategy>
 		}
 		usage_end--;
 		usage_end->~T();
-		#if defined(_DEBUG) && __BUFFER_DBG_fillLevel__
+		#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
 			fillLevel--;
 			CHK_FILLSTATE
 		#endif
@@ -1333,7 +1310,7 @@ template <typename T, typename Strategy>
 
 		Strategy::destructRange(c,usage_end);
 		usage_end-=elements;
-		#if defined(_DEBUG) && __BUFFER_DBG_fillLevel__
+		#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
 			fillLevel-=elements;
 			CHK_FILLSTATE
 		#endif

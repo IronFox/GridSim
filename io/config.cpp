@@ -847,7 +847,7 @@ namespace Config
 			}
 			elif (expression.get(i) == ')')
 			{
-				if (!segment_start.fillLevel())
+				if (!segment_start.Count())
 				{
 					if (error_out)
 						(*error_out) = "Variable end at offset "+String(i)+" of expression '"+expression+"' lacks beginning";

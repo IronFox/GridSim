@@ -1800,7 +1800,7 @@ namespace Engine
 					{
 						if (child->type == LightLoop)
 						{
-							for (index_t j = 0; j < renderConfig.lights.fillLevel(); j++)
+							for (index_t j = 0; j < renderConfig.lights.Count(); j++)
 								if (renderConfig.lights[j] != Light::None)
 									child->Assemble(target,userConfig,renderConfig,renderConfig.lights[j],j);
 						}
@@ -2373,7 +2373,7 @@ namespace Engine
 									<< '}'<<nl;
 							FATAL__("Unsupported");
 						}
-					for (index_t i = shadowAttachments.count(); i < renderConfig.lights.fillLevel(); i++)
+					for (index_t i = shadowAttachments.count(); i < renderConfig.lights.Count(); i++)
 							buffer << "float fragmentShadow"<<i<<"(vec3 position)"<<nl
 									<< '{'<<nl
 									<< "return 1.0;"<<nl
@@ -2398,7 +2398,7 @@ namespace Engine
 						buffer <<
 						"	vec3 result = vec3(0.0);\n"
 						"	float fresnel = 1.0-abs(normal.z)*0.5;\n";
-						for (index_t i = 0; i < renderConfig.lights.fillLevel(); i++)
+						for (index_t i = 0; i < renderConfig.lights.Count(); i++)
 							switch (renderConfig.lights[i])
 							{
 								case Light::Omni:
@@ -2480,7 +2480,7 @@ namespace Engine
 						buffer <<
 						"	vec3 result = vec3(0.0);\n"
 						"	float fresnel = 1.0-abs(dot(normal,eye_direction))*0.5;\n";
-						for (index_t i = 0; i < renderConfig.lights.fillLevel(); i++)
+						for (index_t i = 0; i < renderConfig.lights.Count(); i++)
 							switch (renderConfig.lights[i])
 							{
 								case Light::Omni:
@@ -2562,7 +2562,7 @@ namespace Engine
 						buffer <<
 						"	vec3 result = vec3(0.0);\n"
 						"	float fresnel = 1.0-abs(normal.z)*0.5;\n";
-						for (index_t i = 0; i < renderConfig.lights.fillLevel(); i++)
+						for (index_t i = 0; i < renderConfig.lights.Count(); i++)
 							switch (renderConfig.lights[i])
 							{
 								case Light::Omni:
@@ -2735,11 +2735,11 @@ namespace Engine
 	/*
 			void		Configuration::toArray(Array<int>&target)	const
 			{
-				target.resize(lights.fillLevel()+values.count());
-				for (unsigned i = 0; i < lights.fillLevel(); i++)
+				target.resize(lights.Count()+values.count());
+				for (unsigned i = 0; i < lights.Count(); i++)
 					target[i] = lights[i];
 				for (unsigned i = 0; i < values.count(); i++)
-					target[i+lights.fillLevel()] = values[i];
+					target[i+lights.Count()] = values[i];
 			}*/
 	
 			void		Template::RenderConfiguration::SetLights(count_t count,...)
@@ -3051,11 +3051,11 @@ namespace Engine
 						renderConfig->Reg(this);
 						registered = true;
 					}
-					SetSize(renderConfig->lights.fillLevel()+userConfig->values.count());
-					for (unsigned i = 0; i < renderConfig->lights.fillLevel(); i++)
+					SetSize(renderConfig->lights.Count()+userConfig->values.count());
+					for (unsigned i = 0; i < renderConfig->lights.Count(); i++)
 						data[i] = renderConfig->lights[i];
 					for (unsigned i = 0; i < userConfig->values.count(); i++)
-						data[i+renderConfig->lights.fillLevel()] = userConfig->values[i];
+						data[i+renderConfig->lights.Count()] = userConfig->values[i];
 					structureChanged = false;
 					userConfigVersion = userConfig->version;
 					renderConfigVersion = renderConfig->version;
@@ -3379,7 +3379,7 @@ namespace Engine
 					GLuint currentProgram = glGetHandle(GL_PROGRAM_OBJECT_ARB);
 					glUseProgramObject(result->programHandle);
 			
-					for (index_t i = 0; i < uniformInit.fillLevel(); i++)
+					for (index_t i = 0; i < uniformInit.Count(); i++)
 					{
 			
 						GLint var	= glGetUniformLocation(result->programHandle,uniformInit[i].name.c_str());

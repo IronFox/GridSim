@@ -71,8 +71,8 @@ namespace Attrib
 			StaticTable<T>::configuration[copyable].values.append()= initial_value;
 			TAttribute	&attrib = index_map.append();
 			attrib.type = typeOf<T>();
-			attrib.field_index = StaticTable<T>::configuration[copyable].attributes.fillLevel()-1;
-			attrib.global_id = index_map.fillLevel()-1;
+			attrib.field_index = StaticTable<T>::configuration[copyable].attributes.Count()-1;
+			attrib.global_id = index_map.Count()-1;
 			attrib.exists = true;
 			attrib.copyable = copyable;
 			
@@ -91,8 +91,8 @@ namespace Attrib
 			StaticTable<T>::configuration[copyable].values.append()= initial_value1;
 			TAttribute	&attrib = index_map.append();
 			attrib.type = typeOf<T>();
-			attrib.field_index = StaticTable<T>::configuration[copyable].attributes.fillLevel()-1;
-			attrib.global_id = index_map.fillLevel()-1;
+			attrib.field_index = StaticTable<T>::configuration[copyable].attributes.Count()-1;
+			attrib.global_id = index_map.Count()-1;
 			attrib.exists = true;
 			attrib.copyable = copyable;
 			
@@ -112,8 +112,8 @@ namespace Attrib
 			StaticTable<T>::configuration[copyable].values.append()= initial_value2;
 			TAttribute	&attrib = index_map.append();
 			attrib.type = typeOf<T>();
-			attrib.field_index = StaticTable<T>::configuration[copyable].attributes.fillLevel()-1;
-			attrib.global_id = index_map.fillLevel()-1;
+			attrib.field_index = StaticTable<T>::configuration[copyable].attributes.Count()-1;
+			attrib.global_id = index_map.Count()-1;
 			attrib.exists = true;
 			attrib.copyable = copyable;
 			
@@ -132,8 +132,8 @@ namespace Attrib
 				StaticTable<T>::configuration[copyable].values.append()= initial_values[i];
 			TAttribute	&attrib = index_map.append();
 			attrib.type = typeOf<T>();
-			attrib.field_index = StaticTable<T>::configuration[copyable].attributes.fillLevel()-1;
-			attrib.global_id = index_map.fillLevel()-1;
+			attrib.field_index = StaticTable<T>::configuration[copyable].attributes.Count()-1;
+			attrib.global_id = index_map.Count()-1;
 			attrib.exists = true;
 			attrib.copyable = copyable;
 			

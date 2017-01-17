@@ -485,7 +485,7 @@ namespace Converter
 										return NULL;
 									if (index > 0)
 										return normal_buffer+(index-1);
-									return normal_buffer+normal_buffer.fillLevel()+index;
+									return normal_buffer+normal_buffer.Count()+index;
 								}
 	inline TVec2<Def::FloatType>*getTexcoord(int index) throw()
 								{
@@ -493,7 +493,7 @@ namespace Converter
 										return NULL;
 									if (index > 0)
 										return texcoord_buffer+(index-1);
-									return texcoord_buffer+texcoord_buffer.fillLevel()+index;
+									return texcoord_buffer+texcoord_buffer.Count()+index;
 								}
 								
 	virtual	bool				Read(CGS::Geometry<>&target, const PathString&filename) throw() override;

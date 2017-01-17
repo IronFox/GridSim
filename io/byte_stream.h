@@ -29,7 +29,7 @@ public:
 	const char*		pointer()	const;
 	const void*		data()	const;
     size_t			GetStorageSize()	const;
-	size_t			GetFillLevel()	const;
+	size_t			GetCount()	const;
     void			pushZero(size_t count);
 	template <class C>
 	bool			ReadNext(C&out);
@@ -44,7 +44,7 @@ public:
 	template <class C>
 	bool			operator>>(C&object);
 
-	void			CopyToArray(Array<BYTE>&outArray)const	{outArray.resizeAndCopy(begin,GetFillLevel());}
+	void			CopyToArray(Array<BYTE>&outArray)const	{outArray.resizeAndCopy(begin,GetCount());}
 
 	virtual	bool	Write(const void*data, serial_size_t size)	override {_PushData(data,size);return true;}
 	virtual	bool	Read(void*target_data, serial_size_t size)	override {return _GetData(target_data,size);}

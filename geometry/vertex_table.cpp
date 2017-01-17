@@ -35,7 +35,7 @@ index_t	VertexTable::map(const float position[3])
 	if (!did_occupy)
 		return carrier->cast();
 		
-	index_t result = position_map.fillLevel();
+	index_t result = position_map.Count();
 	TPosition&fp = position_map.append();
 	fp.x = position[0];
 	fp.y = position[1];
@@ -58,7 +58,7 @@ index_t	VertexTable::map(const TPosition&position)
 	if (!did_occupy)
 		return carrier->cast();
 		
-	index_t result = position_map.fillLevel();
+	index_t result = position_map.Count();
 	position_map<<position;
 		
 	carrier->cast() = result;

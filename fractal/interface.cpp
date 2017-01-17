@@ -2944,7 +2944,7 @@ namespace Fractal
 		SurfaceSegment*sector;
 		
 		//logfile << "-writing project map\n";
-		/*for (unsigned i = 0; i < face_buffer.fillLevel(); i++)
+		/*for (unsigned i = 0; i < face_buffer.Count(); i++)
 			face_buffer[i]->update();*/
 		
 	

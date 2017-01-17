@@ -344,11 +344,11 @@ namespace Riff
 		void				CloseStream();
 		
 		bool				InsertBlock(TID ID, const void*data=NULL, size_t size=0);	//insert a new block between the previous and the present block. Works too if inside an empty list-block. DATA can be NULL.
-		bool				InsertBlock(TID ID, const ByteStream&data)	{return InsertBlock(ID,data.data(),data.GetFillLevel());}
+		bool				InsertBlock(TID ID, const ByteStream&data)	{return InsertBlock(ID,data.data(),data.GetCount());}
 	template <typename T>
 		bool				InsertBlock(TID id, const ArrayData<T>&data);
 		bool				AppendBlock(TID ID, const void*data=NULL, size_t size=0);	//append a new block behind the last block. Works too if inside an empty list-block. DATA can be NULL.
-		bool				AppendBlock(TID ID, const ByteStream&data)	{return AppendBlock(ID,data.data(),data.GetFillLevel());}
+		bool				AppendBlock(TID ID, const ByteStream&data)	{return AppendBlock(ID,data.data(),data.GetCount());}
 	template <typename T>
 		bool				AppendBlock(TID id, const ArrayData<T>&data);
 		bool				AppendBlocks(File&other);
@@ -393,7 +393,7 @@ namespace Riff
 
 			void*			SetData(size_t dataSize);
 			void			SetData(const void*data, size_t dataSize);
-			void			SetData(const ByteStream&stream)	{SetData(stream.pointer(),stream.GetFillLevel());}
+			void			SetData(const ByteStream&stream)	{SetData(stream.pointer(),stream.GetCount());}
 		template <typename T>
 			void			SetPODData(const T&podData) {SetData(&podData,sizeof(podData));}
 		template <typename T>
@@ -466,11 +466,11 @@ namespace Riff
 			bool			EraseCurrent();
 			bool			ResizeCurrent(size_t size);
 			Chunk*			InsertBlock(TID ID, const void*data=NULL, size_t size=0);	//insert a new block between the previous and the present block. Works too if inside an empty list-block. DATA can be NULL.
-			Chunk*			InsertBlock(TID ID, const ByteStream&data)	{return InsertBlock(ID,data.data(),data.GetFillLevel());}
+			Chunk*			InsertBlock(TID ID, const ByteStream&data)	{return InsertBlock(ID,data.data(),data.GetCount());}
 		template<typename T>
 			Chunk*			InsertBlock(TID id, const ArrayData<T>&data);
 			Chunk*			AppendBlock(TID ID, const void*data=NULL, size_t size=0);	//insert a new block between the previous and the present block. Works too if inside an empty list-block. DATA can be NULL.
-			Chunk*			AppendBlock(TID ID, const ByteStream&data)	{return AppendBlock(ID,data.data(),data.GetFillLevel());}
+			Chunk*			AppendBlock(TID ID, const ByteStream&data)	{return AppendBlock(ID,data.data(),data.GetCount());}
 		template<typename T>
 			Chunk*			AppendBlock(TID id, const ArrayData<T>&data);
 

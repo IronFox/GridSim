@@ -6924,7 +6924,7 @@ namespace ObjectMath
 				define[k] = 1;
 				Set[define[0] *4 + define[1]*2 + define[2]] = true;
 			}
-		index_t at = sector_map.fillLevel();
+		index_t at = sector_map.Count();
 		for (BYTE k = 0; k < 8; k++)
 			if (Set[k])
 				if (child[k]->recursiveLookupEdge(p0,p1) == cnt)
@@ -7107,7 +7107,7 @@ namespace ObjectMath
 		Set[fc[1]+fc[2]] = Set[fc[1]+fc[2]] || sqr(p[0]-dim[0])+sqr(p[1]-dim[4])+sqr(p[2]-dim[5]) < r*r;
 		
 
-		index_t at = sector_map.fillLevel();
+		index_t at = sector_map.Count();
 		for (BYTE k = 0; k < 8; k++)
 			if (Set[k])
 				if (child[k]->recursiveLookupSphere(p,r) == cnt)
@@ -7116,7 +7116,7 @@ namespace ObjectMath
 					sector_map<< this;
 					return cnt;
 				}
-		//if (!sector_map.fillLevel())
+		//if (!sector_map.Count())
 			//ShowMessage("none found");
 		return 0;
 	}
@@ -7141,21 +7141,21 @@ namespace ObjectMath
 	{
 		sector_map.reset();
 		recursiveLookupEdge(p0,p1);
-		return sector_map.fillLevel();
+		return sector_map.Count();
 	}
 
 	template <class Def>MF_DECLARE	(count_t) ObjMap<Def>::lookupSphere(const C*p, const C&r)
 	{
 		sector_map.reset();
 		recursiveLookupSphere(p,r);
-		return sector_map.fillLevel();
+		return sector_map.Count();
 	}
 
 	template <class Def>MF_DECLARE	(count_t) ObjMap<Def>::lookup(const C*lower_corner, const C*upper_corner)
 	{
 		sector_map.reset();
 		recursiveLookup(lower_corner,upper_corner);
-		return sector_map.fillLevel();
+		return sector_map.Count();
 	}
 
 	template <class Def>MF_DECLARE	(ObjMap<Def>*) ObjMap<Def>::lookupCover(const C*lower_corner, const C*upper_corner)
@@ -7190,9 +7190,9 @@ namespace ObjectMath
 			overflow = false;
 		#endif
 		bad_hits = 0;
-		index_t begin = face_out.fillLevel();
+		index_t begin = face_out.Count();
 		count_t total=0;
-		for (index_t i = 0; i < sector_map.fillLevel(); i++)
+		for (index_t i = 0; i < sector_map.Count(); i++)
 		{
 			ObjMap<Def>*pntr = sector_map[i];
 			total += pntr->triangle_field.length();
@@ -7205,11 +7205,11 @@ namespace ObjectMath
 				else
 					bad_hits++;
 		}
-		for (index_t i = begin; i < face_out.fillLevel(); i++)
+		for (index_t i = begin; i < face_out.Count(); i++)
 			face_out[i]->marked = false;
-		if (total && begin==face_out.fillLevel())
+		if (total && begin==face_out.Count())
 			FATAL__("at least one resulting triangle expected");
-		return face_out.fillLevel()-begin;
+		return face_out.Count()-begin;
 	}
 	
 	template <class Def>
@@ -7219,8 +7219,8 @@ namespace ObjectMath
 			overflow = false;
 		#endif
 		bad_hits = 0;
-		index_t begin = face_out.fillLevel();
-		for (index_t i = 0; i < sector_map.fillLevel(); i++)
+		index_t begin = face_out.Count();
+		for (index_t i = 0; i < sector_map.Count(); i++)
 		{
 			ObjMap<Def>*pntr = sector_map[i];
 			for (index_t j = 0; j < pntr->quad_field.length(); j++)
@@ -7234,7 +7234,7 @@ namespace ObjectMath
 		}
 		for (index_t i = begin; i < face_out.length(); i++)
 			face_out[i]->marked = false;
-		return face_out.fillLevel()-begin;
+		return face_out.Count()-begin;
 	}
 	
 
@@ -7245,8 +7245,8 @@ namespace ObjectMath
 			overflow = false;
 		#endif
 		bad_hits = 0;
-		index_t begin = edge_out.fillLevel();
-		for (index_t i = 0; i < sector_map.fillLevel(); i++)
+		index_t begin = edge_out.Count();
+		for (index_t i = 0; i < sector_map.Count(); i++)
 		{
 			ObjMap<Def>*pntr = sector_map[i];
 			for (index_t j = 0; j < pntr->edge_field.length(); j++)
@@ -7258,9 +7258,9 @@ namespace ObjectMath
 				else
 					bad_hits++;
 		}
-		for (index_t i = begin; i < edge_out.fillLevel(); i++)
+		for (index_t i = begin; i < edge_out.Count(); i++)
 			edge_out[i]->marked = false;
-		return edge_out.fillLevel()-begin;
+		return edge_out.Count()-begin;
 	}
 
 	template <class Def>
@@ -7270,9 +7270,9 @@ namespace ObjectMath
 			overflow = false;
 		#endif
 		bad_hits = 0;
-		index_t begin = vertex_out.fillLevel();
+		index_t begin = vertex_out.Count();
 		
-		for (index_t i = 0; i < sector_map.fillLevel(); i++)
+		for (index_t i = 0; i < sector_map.Count(); i++)
 		{
 			ObjMap<Def>*pntr = sector_map[i];
 			for (index_t j = 0; j < pntr->vertex_field.length(); j++)
@@ -7284,9 +7284,9 @@ namespace ObjectMath
 				else
 					bad_hits++;
 		}
-		for (index_t i = begin; i < vertex_out.fillLevel(); i++)
+		for (index_t i = begin; i < vertex_out.Count(); i++)
 			vertex_out[i]->marked = false;
-		return vertex_out.fillLevel()-begin;
+		return vertex_out.Count()-begin;
 	}
 
 	template <class Def> String Mesh<Def>::_error;

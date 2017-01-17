@@ -1633,7 +1633,7 @@ template <class C, class Strategy=typename Strategy::StrategySelector<C>::Defaul
 			{
 				const index_t		extent;
 
-				friend class Array2D<C,Strategy>;
+				friend class Self;//Array2D<C,Strategy>;
 
 				/**/			Axis(index_t extent):extent(extent)	{}
 			public:

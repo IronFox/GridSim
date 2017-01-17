@@ -704,7 +704,7 @@ bool		Graph::defineProfileLessSurface(index_t edge_index,float step,float textur
 
 /*static*/		UINT32	Graph::insertInterpolatedVertex(Buffer<SurfaceDescription::TVertex,0,POD>&vout,UINT32 v0_i,UINT32 v1_i,float factor)
 {
-	UINT32 result = (UINT32)vout.fillLevel();
+	UINT32 result = (UINT32)vout.Count();
 	SurfaceDescription::TVertex&new_vtx = vout.append();
 
 	const SurfaceDescription::TVertex&v0 = vout[v0_i],
@@ -739,7 +739,7 @@ namespace MeshGraphDetail
 {
 		static Buffer<UINT32> iout2;
 		iout2.reset();
-		for (index_t i = 0; i < desc_out.quadIndices.fillLevel(); i+=4)
+		for (index_t i = 0; i < desc_out.quadIndices.Count(); i+=4)
 		{
 			const UINT32		v_i[4] = {	desc_out.quadIndices[i],
 											desc_out.quadIndices[i+1],
@@ -803,19 +803,19 @@ namespace MeshGraphDetail
 
 		static Buffer<SurfaceDescription::TVertex,0,POD>	vout2;
 		vout2.reset();
-		for (index_t i = 0; i < desc_out.vertices.fillLevel(); i++)
+		for (index_t i = 0; i < desc_out.vertices.Count(); i++)
 		{
 			if (desc_out.vertices[i].position.x >= -TypeInfo<float>::error)
 				vout2 << desc_out.vertices[i];
 			else
 			{
-				index_t degrade_after = vout2.fillLevel();
-				Concurrency::parallel_for(index_t(0), desc_out.quadIndices.fillLevel(), [degrade_after,&desc_out](index_t j)
+				index_t degrade_after = vout2.Count();
+				Concurrency::parallel_for(index_t(0), desc_out.quadIndices.Count(), [degrade_after,&desc_out](index_t j)
 				{
 					if (desc_out.quadIndices[j] > degrade_after)
 						desc_out.quadIndices[j]--;
 				});
-				Concurrency::parallel_for(index_t(0), desc_out.triangleIndices.fillLevel(), [degrade_after,&desc_out](index_t j)
+				Concurrency::parallel_for(index_t(0), desc_out.triangleIndices.Count(), [degrade_after,&desc_out](index_t j)
 				{
 					if (desc_out.triangleIndices[j] > degrade_after)
 						desc_out.triangleIndices[j]--;
@@ -825,7 +825,7 @@ namespace MeshGraphDetail
 		}
 
 		desc_out.vertices.swap(vout2);
-		count_t duplicate_to = desc_out.vertices.fillLevel();
+		count_t duplicate_to = desc_out.vertices.Count();
 		for (index_t i = 0; i < duplicate_to; i++)
 		{
 			SurfaceDescription::TVertex&duplicate = desc_out.vertices.append();
@@ -845,7 +845,7 @@ namespace MeshGraphDetail
 			duplicate.tcoord.x = 1.0f-duplicate.tcoord.x;
 		}
 
-		count_t duplicate_quad_to = desc_out.quadIndices.fillLevel();
+		count_t duplicate_quad_to = desc_out.quadIndices.Count();
 		for (index_t i = 0; i < duplicate_quad_to; i+=4)
 		{
 			UINT32*duplicate = desc_out.quadIndices.appendRow(4);
@@ -856,7 +856,7 @@ namespace MeshGraphDetail
 			duplicate[2] = static_cast<UINT32>(original[1] + duplicate_to);
 			duplicate[3] = static_cast<UINT32>(original[0] + duplicate_to);
 		}
-		count_t duplicate_triangles_to = desc_out.triangleIndices.fillLevel();
+		count_t duplicate_triangles_to = desc_out.triangleIndices.Count();
 		for (index_t i = 0; i < duplicate_triangles_to; i+=3)
 		{
 			UINT32*duplicate = desc_out.triangleIndices.appendRow(3);

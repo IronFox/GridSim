@@ -292,7 +292,7 @@ namespace System
     }
 
 	#if SYSTEM==WINDOWS
-		size_t			BlockingPipe::GetFillLevel() const
+		size_t			BlockingPipe::GetCount() const
 		{
 			DWORD rs = 0;
 			BOOL rc = PeekNamedPipe(read_handle,NULL,0,NULL,&rs,NULL);

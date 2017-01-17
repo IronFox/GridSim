@@ -358,10 +358,10 @@ size_t TextureCompression::compress(const Image&source, Array<BYTE>&buffer, Code
 			}
 			delete[] image;
 	
-			LOG_TEXTURE_COMPRESSION_STAGE("copying compressed image ("<<out_buffer.fillLevel()<<" byte(s))");
+			LOG_TEXTURE_COMPRESSION_STAGE("copying compressed image ("<<out_buffer.Count()<<" byte(s))");
 	
-			compressed_size = out_buffer.fillLevel();
-			buffer.SetSize(sizeof(Image::THeader)+out_buffer.fillLevel());
+			compressed_size = out_buffer.Count();
+			buffer.SetSize(sizeof(Image::THeader)+out_buffer.Count());
 			LOG_TEXTURE_COMPRESSION_STAGE("buffer resized to "<<buffer.GetContentSize()<<" byte(s)");
 			memcpy(buffer.pointer()+sizeof(Image::THeader),out_buffer.pointer(),compressed_size);
 		}

@@ -78,7 +78,7 @@ void ByteStream::Reset()
     current = begin;
 }
 
-size_t	ByteStream::GetFillLevel()	const
+size_t	ByteStream::GetCount()	const
 {
 	return current-begin;
 }

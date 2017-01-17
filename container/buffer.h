@@ -113,17 +113,16 @@ namespace Container
 				Self&				appendVA(count_t elements, ...);		//!< Appends a number of elements to the buffer
 			inline void				reset();							//!< Resets the buffer cursor to the beginning. Does \b not resize the local buffer.
 			inline void				Reset()								/**@copydoc reset()*/	{reset();}
-			inline count_t			fillLevel()					const;	//!< Returns the current buffer cursor relative to the buffer beginning.
-			inline count_t			GetFillLevel()				const	/**@copydoc fillLevel()*/ {return fillLevel();}
-			inline count_t			length()					const;	//!< @copydoc fillLevel()
-			inline count_t			GetLength()					const	/**@copydoc fillLevel()*/ {return fillLevel();}
-			inline count_t			size()						const;	//!< @copydoc fillLevel()
-			inline count_t			count()						const;	//!< @copydoc fillLevel()
-			inline count_t			Count()						const;	//!< @copydoc fillLevel()
-			inline count_t			operator()()				const	{ return fillLevel(); }
+			inline count_t			length()					const;	//!< Returns the number of elements currently constructed in the local container. Reserved (non-constructed) objects are not counted
+			inline count_t			GetCount()					const	/**@copydoc length()*/ {return length();}
+			inline count_t			GetLength()					const	/**@copydoc length()*/ {return length();}
+			inline count_t			size()						const	/**@copydoc length()*/ {return length();}
+			inline count_t			count()						const	/**@copydoc length()*/ {return length();}
+			inline count_t			Count()						const	/**@copydoc length()*/ {return length();}
+			inline count_t			operator()()				const	/**@copydoc length()*/ {return length();}
 			inline count_t			storageSize()				const;	//!< Queries the number of elements held in total. This also includes unconstructed incremental storage
 			inline count_t			GetStorageSize()			const	/**@copydoc storageSize()*/ {return storageSize();}
-			inline size_t			GetContentSize()			const {return fillLevel() * sizeof(T);}
+			inline size_t			GetContentSize()			const {return Count() * sizeof(T);}
 			inline bool				empty()						const;	//!< @copydoc IsEmpty()
 			inline bool				IsEmpty()					const;	//!< Returns true if the buffer holds no elements
 			inline bool				IsNotEmpty()				const;	//!< Returns true if the buffer holds at least one element

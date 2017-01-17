@@ -194,10 +194,10 @@ namespace Tokenizer
 		#undef END_EXCLUSIVE
 		#define END_INCLUSIVE\
 				{\
-					if (status.buffer.fillLevel())\
+					if (status.buffer.IsNotEmpty())\
 					{\
 						status.buffer.append(token_start,ch-token_start);\
-						TSegment segment = {status.buffer.pointer(),status.buffer.pointer()+status.buffer.fillLevel()-1};\
+						TSegment segment = {status.buffer.pointer(),status.buffer.pointer()+status.buffer.Count()-1};\
 						if (trimSegment(segment,config))\
 							ADD_ENTRY(segment);\
 						status.buffer.reset();\
@@ -212,10 +212,10 @@ namespace Tokenizer
 				}
 		#define END_EXCLUSIVE\
 				{\
-					if (status.buffer.fillLevel())\
+					if (status.buffer.IsNotEmpty())\
 					{\
 						status.buffer.append(token_start,ch-token_start-1);\
-						TSegment segment = {status.buffer.pointer(),status.buffer.pointer()+status.buffer.fillLevel()-1};\
+						TSegment segment = {status.buffer.pointer(),status.buffer.pointer()+status.buffer.Count()-1};\
 						if (trimSegment(segment,config))\
 							ADD_ENTRY(segment);\
 						status.buffer.reset();\
@@ -344,7 +344,7 @@ namespace Tokenizer
 	
 	bool			finish(const Configuration&config, Status&status, StringList&target)
 	{
-		TSegment segment = {status.buffer.pointer(),status.buffer.pointer()+status.buffer.fillLevel()-1};
+		TSegment segment = {status.buffer.pointer(),status.buffer.pointer()+status.buffer.Count()-1};
 		if (trimSegment(segment,config))
 			//target.add(segment);
 			target.add(String(segment.first,segment.last-segment.first+1));
@@ -995,7 +995,7 @@ namespace Tokenizer
 
 	bool  StringList::isSorted() const
 	{
-		return Sort<OperatorSort>::isSorted(Super::pointer(),Super::fillLevel());
+		return Sort<OperatorSort>::isSorted(Super::pointer(),Super::Count());
 	}
 
 	void StringList::radixSort()
@@ -1048,12 +1048,12 @@ namespace Tokenizer
 
 	void StringList::mergeSort()
 	{
-		Sort<OperatorSort>::mergeSortField(Super::pointer(),Super::fillLevel());
+		Sort<OperatorSort>::mergeSortField(Super::pointer(),Super::Count());
 	}
 
 	void StringList::bubbleSort()
 	{
-		Sort<OperatorSort>::bubbleSortField(Super::pointer(),Super::fillLevel());
+		Sort<OperatorSort>::bubbleSortField(Super::pointer(),Super::Count());
 	}
 
 	void StringList::quickSort()
@@ -1064,7 +1064,7 @@ namespace Tokenizer
 
 	void StringList::heapSort()
 	{
-		Sort<OperatorSort>::heapSortField(Super::pointer(),Super::fillLevel());
+		Sort<OperatorSort>::heapSortField(Super::pointer(),Super::Count());
 	}
 
 

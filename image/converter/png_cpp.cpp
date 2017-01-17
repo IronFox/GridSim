@@ -361,7 +361,7 @@ void PNG::LoadFromFilePointer(Image&target, FILE*f)
 		throw;
 	}
 	
-	//log_file << "copying compressed image ("<<out_buffer.fillLevel()<<" byte(s))...\r\n";
+	//log_file << "copying compressed image ("<<out_buffer.Count()<<" byte(s))...\r\n";
 }
 
 
@@ -417,7 +417,7 @@ void PNG::LoadFromFilePointer(Image&target, FILE*f)
 		}
 		delete[] image;
 	
-		//log_file << "copying compressed image ("<<out_buffer.fillLevel()<<" byte(s))...\r\n";
+		//log_file << "copying compressed image ("<<out_buffer.Count()<<" byte(s))...\r\n";
 		out_buffer.copyToArray(data);
 	}
 	catch (const std::exception&)

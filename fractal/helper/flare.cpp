@@ -103,7 +103,7 @@ namespace Flare
 					light_map.Unset(lights[i].reference);
 					lights.erase(i--);
 				}
-			while (lights.count() > query_objects.fillLevel())
+			while (lights.count() > query_objects.Count())
 				query_objects.append().create();
 			
 			lights_changed = false;
@@ -379,7 +379,7 @@ namespace Flare
 	void			Render(float ambient_light, float delta_t)
 	{
 	
-		if (!sprites.fillLevel())
+		if (!sprites.Count())
 		{
 			//sprites.resize(5);
 			
@@ -552,7 +552,7 @@ namespace Flare
 			//_clamp(c0.color,0,1);
 			//cout << _toString(base_color)<<endl;
 			float base_size = light->visibility*light->intensity*vmin(Vec::dot(c0.color.rgb)*light->GetSize()/light->distance,2.0);//(light->reference->getConstantAttenuation()+light->reference->getLinearAttenuation()*light->distance+light->reference->getQuadraticAttenuation()*sqr(light->distance));
-			for (index_t j = 0; j < sprites.fillLevel(); j++)
+			for (index_t j = 0; j < sprites.Count(); j++)
 			{
 				if (sprites[j].texture->IsEmpty() || !sprites[j].primary)
 					continue;
@@ -610,7 +610,7 @@ namespace Flare
 	void			Rerender(const Camera<float>&camera, float screen_center_x, float screen_center_y, float screen_scale,float ambient_light)
 	{
 	
-		if (!sprites.fillLevel())
+		if (!sprites.Count())
 			return;
 
 		display.unbindAll();
@@ -680,7 +680,7 @@ namespace Flare
 			//_mult(c0.color,1.2);
 			//_clamp(c0.color,0,1);
 			float base_size = light->visibility*light->intensity*vmin(Vec::dot(c0.color.rgb)*light->GetSize()/light->distance,2.0);//(light->reference->getConstantAttenuation()+light->reference->getLinearAttenuation()*light->distance+light->reference->getQuadraticAttenuation()*sqr(light->distance));
-			for (index_t j = 0; j < sprites.fillLevel(); j++)
+			for (index_t j = 0; j < sprites.Count(); j++)
 			{
 				if (sprites[j].texture->IsEmpty())
 					continue;
