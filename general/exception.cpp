@@ -25,7 +25,15 @@ namespace Except
 		#ifdef __CUDACC__
 			exit(-1);
 		#else
-			std::abort();
+			#ifdef _DEBUG
+				std::abort();
+			#else
+				#ifdef WIN32
+					TerminateProcess(GetCurrentProcess(),0);	//self-terminate
+				#else
+					exit(-1);
+				#endif
+			#endif
 		#endif
 			/*
 		#elif SYSTEM == WINDOWS
