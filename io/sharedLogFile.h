@@ -31,16 +31,18 @@ public:
 		return fileHandle != INVALID_HANDLE_VALUE;
 	}
 
-	void	Write(const StringBuffer&buffer,bool toSyslog)
+	bool	Write(const StringBuffer&buffer,bool toSyslog)
 	{
+		if (fileHandle == INVALID_HANDLE_VALUE)
+			return false;
 		DWORD at;
-		WriteFile(fileHandle,buffer.pointer(),(DWORD)buffer.GetLength(),&at,NULL);
+		return WriteFile(fileHandle,buffer.pointer(),(DWORD)buffer.GetLength(),&at,NULL) == TRUE;
 	}
 	
 	void	WriteAndClear(StringBuffer&buffer,bool toSyslog)
 	{
-		Write(buffer,toSyslog);
-		buffer.Clear();
+		if (Write(buffer,toSyslog) || buffer.Count() > 1000000)
+			buffer.Clear();
 	}
 	
 	
