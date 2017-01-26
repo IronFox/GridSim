@@ -152,7 +152,7 @@ namespace System //! Translation namespace for common system tasks
 		#if SYSTEM==WINDOWS
 			HANDLE			writeHandle()	const	{return write_handle;}
 			size_t			PeekReadBytes(void *target, size_t bytes);
-			size_t			GetCount() const;
+			size_t			GetFillLevel() const;
 		#elif SYSTEM==UNIX
 			int				writeHandle()	const	{return handle[1];}
 		#endif
