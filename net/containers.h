@@ -218,13 +218,13 @@ namespace Package
 											b.adoptData(other.b);
 										}
 
-			Tupel<C0,C1>&				setA(const C0&a_)
+			Self&					setA(const C0&a_)
 										{
 											a = a_;
 											return *this;
 										}
 
-			Tupel<C0,C1>&				setB(const C1&b_)
+			Self&						setB(const C1&b_)
 										{
 											b = b_;
 											return *this;
@@ -445,7 +445,7 @@ namespace Package
 DECLARE__(Package::CompressedString,Swappable);
 DECLARE_T__(Package::CompressedArray,Swappable);
 DECLARE_T__(Package::Native,Swappable);
-DECLARE_T2__(Package::Tupel,typename,typename,Swappable);
+DECLARE_T2__(Package::Tuple,typename,typename,Swappable);
 
 namespace Strategy
 {

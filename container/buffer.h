@@ -199,8 +199,8 @@ namespace Container
 			inline Array<T,Strategy>CopyToArray()						const	/**@copydoc copyToArray()*/	{return copyToArray();}
 			void					copyToArray(ArrayData<T>&target)	const;	//!< Exports the local data up to the current Fill state to the specified array. The target array will be resized if necessary
 			inline void				CopyToArray(ArrayData<T>&target)	const	/**@copydoc copyToArray()*/	{copyToArray(target);}
-			void					moveToArray(ArrayData<T>&target, bool reset_buffer=true);		//!< Moves local data up to the current Fill state to the specified array. Move behavior is defined by the used Strategy class. @param reset_buffer Set true to automatically reset the buffer once element movement is completed
-			inline void				MoveToArray(ArrayData<T>&target, bool reset_buffer=true)	/**@copydoc moveToArray()*/	{moveToArray(target,reset_buffer);}
+			void					moveToArray(ArrayData<T>&target, bool clearBuffer=true);		//!< Moves local data up to the current Fill state to the specified array. Move behavior is defined by the used Strategy class. @param reset_buffer Set true to automatically reset the buffer once element movement is completed
+			inline void				MoveToArray(ArrayData<T>&target, bool clearBuffer=true)	/**@copydoc moveToArray()*/	{moveToArray(target,clearBuffer);}
 			template <typename T2>
 				inline bool			contains(const T2&element)	const;	//!< Determines whether or not an equivalent to the specified element is currently stored in the active region of the buffer. Comparison is done via the ==operator.
 			template <typename T2>
