@@ -1032,6 +1032,7 @@ namespace ObjectMath	//! Collection of geometry related mathematical functions a
 	template <class Def>
 		class Mesh:public Def::Mesh
 		{
+			typedef Mesh<Def>					Self;
 		private:
 		static	String							_error;
 		static	MF_DECLARE (void)				_mergeIn(MeshVertex<Def>*&voffset,MeshEdge<Def>*&eoffset,MeshTriangle<Def>*&toffset,MeshQuad<Def>*&qoffset,const Mesh<Def>&obj);
@@ -1148,6 +1149,7 @@ namespace ObjectMath	//! Collection of geometry related mathematical functions a
 				
 		MF_DECLARE	(void)						adoptData(Mesh<Def>&other);
 		MF_DECLARE	(void)						swap(Mesh<Def>&other);
+		friend void								swap(Self&a, Self&b)	{a.swap(b);}
 
 		MF_DECLARE	(Mesh<Def>&)				operator=(const Mesh<Def>&other);
 		template <class T>

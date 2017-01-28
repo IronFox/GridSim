@@ -227,6 +227,11 @@ namespace Container
 			}
 		};
 
+	template <typename T, typename S0, typename S1>
+		inline void swap(BasicBuffer<T, S0>&a, BasicBuffer<T, S1>&b)
+		{
+			a.swap(b);
+		}
 
 
 		//! General buffer structure. Stores object copies rather than pointers making it extremely fast for primitive types

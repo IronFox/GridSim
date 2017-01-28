@@ -17,6 +17,7 @@ struct TToken
 	String			content;
 
 
+	friend void		swap(TToken&a, TToken&b){a.swap(b);}
 	void			swap(TToken&other)
 					{
 						swp(ident,other.ident);

@@ -496,6 +496,7 @@ namespace Engine
 	*/
 	class VertexBinding	: public IHashable
 	{
+		typedef VertexBinding			Self;
 	public:
 		TVertexSection					vertex,				//!< Section of the float field used to specify the position of a vertex
 										tangent,			//!< Section of the float field used to specify the tangent of a vertex. This field is required if the material features tangen space normal maps. OpenGL maps this section one past the last used texcoord field
@@ -517,6 +518,7 @@ namespace Engine
 											texcoords.swap(other.texcoords);
 											swp(floats_per_vertex,other.floats_per_vertex);
 										}
+		friend void						swap(Self&a, Self&b)	{a.swap(b);}
 
 		char							compareTo(const VertexBinding&)	const;
 
@@ -544,42 +546,44 @@ namespace Engine
 
 	class MaterialConfiguration:public MaterialColors
 	{
+		typedef MaterialConfiguration	Self;
 	public:
-			Array<MaterialLayer>		layers;
-			String						name;
+		Array<MaterialLayer>		layers;
+		String						name;
 			
-										MaterialConfiguration(count_t layers=0); //!< Constructs a new material \param layers Number of texture layers to use
-										MaterialConfiguration(const CGS::MaterialInfo&, UINT32 flags);
-										MaterialConfiguration(const CGS::MaterialInfo*, UINT32 flags);
+									MaterialConfiguration(count_t layers=0); //!< Constructs a new material \param layers Number of texture layers to use
+									MaterialConfiguration(const CGS::MaterialInfo&, UINT32 flags);
+									MaterialConfiguration(const CGS::MaterialInfo*, UINT32 flags);
 
-			void						resetToDefault(bool colors=true, bool erase_layers=false); //!< Loads default values into the structure. \param colors If set true then default colors will be loaded. @param erase_layers If set true then the number of layers will be reduced to zero
+		void						resetToDefault(bool colors=true, bool erase_layers=false); //!< Loads default values into the structure. \param colors If set true then default colors will be loaded. @param erase_layers If set true then the number of layers will be reduced to zero
 
-	virtual	void						setLayers(count_t num_layers)	{layers.resizePreserveContent(num_layers);/*texcoords.resizePreserveContent(num_layers);*/};	//!< Changes the number of layers. Copies the content of the existing layer array. \param layers New number of layers.
+		virtual	void				setLayers(count_t num_layers)	{layers.resizePreserveContent(num_layers);/*texcoords.resizePreserveContent(num_layers);*/};	//!< Changes the number of layers. Copies the content of the existing layer array. \param layers New number of layers.
 
-	virtual	void 						read(const CGS::MaterialInfo&info, UINT32 flags);	//!< Fills all local variables in accordance with the specified CGS material, floats per coordinate and flags
+		virtual	void 				read(const CGS::MaterialInfo&info, UINT32 flags);	//!< Fills all local variables in accordance with the specified CGS material, floats per coordinate and flags
 
-			char						compareTo(const MaterialConfiguration&)		const;
+		char						compareTo(const MaterialConfiguration&)		const;
 
-			bool						operator==(const MaterialConfiguration&)		const;
-			bool						operator!=(const MaterialConfiguration&other)	const	{return !operator==(other);}
-			bool						operator>(const MaterialConfiguration&other)	const	{return compareTo(other) > 0;}
-			bool						operator<(const MaterialConfiguration&other)	const	{return compareTo(other) < 0;}
+		bool						operator==(const MaterialConfiguration&)		const;
+		bool						operator!=(const MaterialConfiguration&other)	const	{return !operator==(other);}
+		bool						operator>(const MaterialConfiguration&other)	const	{return compareTo(other) > 0;}
+		bool						operator<(const MaterialConfiguration&other)	const	{return compareTo(other) < 0;}
 
-			void						adoptData(MaterialConfiguration&other)
-										{
-											MaterialColors::operator=(other);
-											layers.adoptData(other.layers);
-											name.adoptData(other.name);
-										}
-			void						swap(MaterialConfiguration&other)
-										{
-											swp(((MaterialColors&)*this),((MaterialColors&)other));
-											layers.swap(other.layers);
-											name.swap(other.name);
-										}
+		void						adoptData(MaterialConfiguration&other)
+									{
+										MaterialColors::operator=(other);
+										layers.adoptData(other.layers);
+										name.adoptData(other.name);
+									}
+		void						swap(MaterialConfiguration&other)
+									{
+										swp(((MaterialColors&)*this),((MaterialColors&)other));
+										layers.swap(other.layers);
+										name.swap(other.name);
+									}
+		friend void					swap(Self&a, Self&b)	{a.swap(b);}
 	
 
-	virtual	hash_t						hashCode() const;
+		virtual	hash_t				hashCode() const;
 
 	//virtual	bool						isConsistent() const	{return VertexBinding::texcoords.count() == layers.count();}
 	};
@@ -634,57 +638,59 @@ namespace Engine
 	template <typename Texture>
 		class MaterialComposition:public MaterialConfiguration //! Eve material container (including textures)
 		{
+			typedef MaterialComposition	Self;
 		public:
-				Array<Texture>		textures;
+			Array<Texture>		textures;
 
 
-		inline	bool				operator==(const MaterialComposition<Texture>&other) const
-									{
-										return MaterialConfiguration::operator==(other) && textures == other.textures;
-									}
+			inline	bool		operator==(const MaterialComposition<Texture>&other) const
+								{
+									return MaterialConfiguration::operator==(other) && textures == other.textures;
+								}
 
-		inline	char				compareTo(const MaterialComposition<Texture>&other)	const
-		{
-			return OrthographicComparison(MaterialConfiguration::compareTo(other)).addComparison(textures,other.textures);
-		}
+			inline	char		compareTo(const MaterialComposition<Texture>&other)	const
+			{
+				return OrthographicComparison(MaterialConfiguration::compareTo(other)).addComparison(textures,other.textures);
+			}
 
-		inline	bool				operator!=(const MaterialComposition<Texture>&other)	const	{return !operator==(other);}
-		inline	bool				operator>(const MaterialComposition<Texture>&other)	const	{return compareTo(other) > 0;}
-		inline	bool				operator<(const MaterialComposition<Texture>&other)	const	{return compareTo(other) < 0;}
+			inline	bool		operator!=(const MaterialComposition<Texture>&other)	const	{return !operator==(other);}
+			inline	bool		operator>(const MaterialComposition<Texture>&other)	const	{return compareTo(other) > 0;}
+			inline	bool		operator<(const MaterialComposition<Texture>&other)	const	{return compareTo(other) < 0;}
 
 						
-		virtual	void				setLayers(count_t num_layers)
-									{
-										MaterialConfiguration::setLayers(num_layers);
-										textures.resizePreserveContent(num_layers);
-									}
+			virtual	void		setLayers(count_t num_layers)
+								{
+									MaterialConfiguration::setLayers(num_layers);
+									textures.resizePreserveContent(num_layers);
+								}
 
-		virtual	void 				read(const CGS::MaterialInfo&info, UINT32 flags)
-									{
-										MaterialConfiguration::read(info,flags);
-										textures.SetSize(MaterialConfiguration::layers.count());
-									}
+			virtual	void 		read(const CGS::MaterialInfo&info, UINT32 flags)
+								{
+									MaterialConfiguration::read(info,flags);
+									textures.SetSize(MaterialConfiguration::layers.count());
+								}
 
-				void				adoptData(MaterialComposition&other)
-									{
-										MaterialConfiguration::adoptData(other);
-										textures.adoptData(other.textures);
-									}
-				void				swap(MaterialComposition&other)
-									{
-										MaterialConfiguration::swap(other);
-										textures.swap(other.textures);
-									}
+			void				adoptData(MaterialComposition&other)
+								{
+									MaterialConfiguration::adoptData(other);
+									textures.adoptData(other.textures);
+								}
+			void				swap(MaterialComposition&other)
+								{
+									MaterialConfiguration::swap(other);
+									textures.swap(other.textures);
+								}
+			friend void			swap(Self&a, Self&b)	{a.swap(b);}
 
-		virtual	hash_t				hashCode() const
-									{
-										HashValue hash(MaterialConfiguration::hashCode());
-										hash.add(stdMemHash(textures.pointer(),textures.GetContentSize()));
+			virtual	hash_t		hashCode() const
+								{
+									HashValue hash(MaterialConfiguration::hashCode());
+									hash.add(stdMemHash(textures.pointer(),textures.GetContentSize()));
 
-										return hash;
-									}
+									return hash;
+								}
 
-		virtual	bool				isConsistent() const	{return MaterialConfiguration::layers.count() == textures.count();}
+			virtual	bool		isConsistent() const	{return MaterialConfiguration::layers.count() == textures.count();}
 
 		};
 	

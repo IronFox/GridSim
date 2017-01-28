@@ -127,6 +127,7 @@ namespace OpenAL
 		inline float	GetPriority() const {return priority;}
 
 		void			swap(Source&other);
+		friend void		swap(Source&a, Source&b)	{a.swap(b);}
 	};
 	
 	typedef Source	Player;

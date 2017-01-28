@@ -28,6 +28,11 @@ namespace Engine
 			up_pntr.swap(other.up_pntr);
 			ctrl_pntr.swap(other.ctrl_pntr);
 		}
+
+		friend void				swap(TKeyLink&a, TKeyLink&b)
+		{
+			a.swap(b);
+		}
 	};
 
 	struct TKeyPreparation	//! Eve keyboard preparation container
@@ -43,7 +48,10 @@ namespace Engine
 			name.swap(other.name);
 			function_pointer.swap(other.function_pointer);
 			snd_pointer.swap(other.snd_pointer);
-
+		}
+		friend void				swap(TKeyPreparation&a, TKeyPreparation&b)
+		{
+			a.swap(b);
 		}
 	};
 

@@ -122,7 +122,7 @@ namespace Engine
 			void				Truncate(size_t toLength);
 
 			void				swap(CharacterBuffer&other)	{Super::swap(other); DBG_ASSERT__(IsSane()); DBG_ASSERT__(other.IsSane());}
-
+			friend void			swap(CharacterBuffer&a, CharacterBuffer&b)	{a.swap(b);}
 			bool				IsSane()	const;
 			
 		};

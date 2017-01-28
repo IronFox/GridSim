@@ -86,7 +86,7 @@ namespace Engine
 								{
 									swp(handle,other.handle);
 								}
-
+				friend void		swap(Container<T>&a, Container<T>&b)	{a.swap(b);}
 				inline int		compareTo(const Container<T>&other) const
 								{
 									if (handle > other.handle)
@@ -144,6 +144,7 @@ namespace Engine
 			virtual	void				flush()	override;
 			void						adoptData(Query&other);
 			void						swap(Query&other);
+			friend void					swap(Query&a, Query&b)	{a.swap(b);}
 				
 			bool						create();
 			inline bool					Create()	{return create();}
@@ -297,6 +298,7 @@ namespace Engine
 
 			void						adoptData(Texture&other);
 			void						swap(Texture&other);
+			friend void	swap(Texture&a, Texture&b)	{a.swap(b);}
 			/**
 			@brief Resizes the local texture to provide the specified 2 dimensiona range of pixels and channels
 									
@@ -461,7 +463,7 @@ namespace Engine
 							}
 				void		adoptData(Buffer&other);
 				void		swap(Buffer&other);
-							
+				friend void	swap(Buffer&a, Buffer&b)	{a.swap(b);}
 							/**
 								@brief Resizes the buffer
 								
@@ -494,27 +496,31 @@ namespace Engine
 		template <typename T>
 			class GeometryBuffer:public Buffer
 			{
+				typedef		GeometryBuffer<T>	Self;
 			protected:
-					using Buffer::loadData;
-					using Buffer::resize;
+				using Buffer::loadData;
+				using Buffer::resize;
 
 			public:
-			inline	bool	load(const T*field, size_t num_units);	//!< Loads the specified data into the local buffer. @a field must be at least @a num_units units long but may be NULL if @a num_units is 0
-			inline	bool	load(const Array<T>&field)	{return load(field.pointer(),field.length());}	
-			inline	bool	load(const ::Buffer<T>&field)	{return load(field.pointer(),field.length());}
+				inline	bool	load(const T*field, size_t num_units);	//!< Loads the specified data into the local buffer. @a field must be at least @a num_units units long but may be NULL if @a num_units is 0
+				inline	bool	load(const Array<T>&field)	{return load(field.pointer(),field.length());}	
+				inline	bool	load(const ::Buffer<T>&field)	{return load(field.pointer(),field.length());}
 
-					void	adoptData(GeometryBuffer<T>&other)
-					{
-						Buffer::adoptData(other);
-					}
-					void	swap(GeometryBuffer<T>&other)
-					{
-						Buffer::swap(other);
-					}
+				void	adoptData(GeometryBuffer<T>&other)
+				{
+					Buffer::adoptData(other);
+				}
+				void	swap(Self&other)
+				{
+					Buffer::swap(other);
+				}
+				friend void		swap(Self&a, Self&b)	{a.swap(b);}
+
 			};
 
 		class SmartBuffer
 		{
+			typedef SmartBuffer	Self;
 		protected:
 			size_t				data_size;
 			union
@@ -564,6 +570,7 @@ namespace Engine
 									swp(host_data,other.host_data);
 									swp(on_device,other.on_device);
 								}
+			friend void			swap(Self&a, Self&b)	{a.swap(b);}
 
 			inline	int			compareTo(const SmartBuffer&other) const
 								{
@@ -708,6 +715,7 @@ namespace Engine
 
 		class FBO:public Container<GLuint>
 		{
+			typedef FBO				Self;
 		protected:
 			TFBOConfig	config;
 			friend class Engine::OpenGL;
@@ -740,6 +748,7 @@ namespace Engine
 			virtual	void			clear()	override;
 			void					adoptData(FBO&other);
 			void					swap(FBO&other);
+			friend void				swap(Self&a, Self&b)	{a.swap(b);}
 		
 			void					resize(const Resolution&res);
 			inline void				Resize(const Resolution&res)	{resize(res);}

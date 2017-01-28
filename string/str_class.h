@@ -833,6 +833,7 @@ struct TStringLength
 template <typename T>
 	class StringTemplate:public SerializableObject, public IHashable, public IString<T>
 	{
+		typedef StringTemplate<T>	Self;
 	public:
 			typedef T		char_t;
 	protected:
@@ -1216,245 +1217,244 @@ template <typename T>
 									StringTemplate(const StringExpression<T0>&expression);
 								
 								
-	virtual							~StringTemplate();
-			void					adoptData(StringTemplate<T>&other);	//!< Adopts all local variables from the specified string without actually copying any strings. Any local data is erased, the specified other string left empty
-			void					swap(StringTemplate<T>&other);	//!< Swaps all data with other string
+		virtual					~StringTemplate();
+		void					adoptData(StringTemplate<T>&other);	//!< Adopts all local variables from the specified string without actually copying any strings. Any local data is erased, the specified other string left empty
+		void					swap(StringTemplate<T>&other);	//!< Swaps all data with other string
+		friend void				swap(Self&a, Self&b)		{a.swap(b);}
 	
-			void					free();					//!< Replaces local string content with an empty string
-	inline	size_t					length()	const;		//!< Retrieves the current string length in characters (not including trailing zero) @return String length in characters
-			const T*				c_str()		const;		//!< Retrieves a constant zero terminated character array containing the local string
-			T*						mutablePointer();				//!< Retrieves a writable zero terminated character array containing the local string. Characters may be modified but the trailing zero and thus the length of the string should not be modified.
-	//inline	operator			const T*()					const;
+		void					free();					//!< Replaces local string content with an empty string
+		void					Clear()	{free();}
+		inline	size_t			length()	const;		//!< Retrieves the current string length in characters (not including trailing zero) @return String length in characters
+		const T*				c_str()		const;		//!< Retrieves a constant zero terminated character array containing the local string
+		T*						mutablePointer();				//!< Retrieves a writable zero terminated character array containing the local string. Characters may be modified but the trailing zero and thus the length of the string should not be modified.
 
-			StringTemplate<T>&		erase(size_t index,size_t count=size_t(-1));	//!< Erases a sub string segment of the local string @param index Index of the first character to erase (0=first character). Invalid range values are clamped automatically. @param count Number of characters to erase starting at @a index @return Reference to the local string once the operation is completed
-			StringTemplate<T>&		eraseLeft(size_t count);								//!< Erases the specified number of characters from the beginning of the string @param count Number of characters to erase from the beginning @return Reference to the local string once the operation is completed
-			StringTemplate<T>&		eraseRight(size_t count);								//!< Erases the specified number of characters from the end of the string @param count Number of characters to erase from the end @return Reference to the local string once the operation is completed
+		StringTemplate<T>&		erase(size_t index,size_t count=size_t(-1));	//!< Erases a sub string segment of the local string @param index Index of the first character to erase (0=first character). Invalid range values are clamped automatically. @param count Number of characters to erase starting at @a index @return Reference to the local string once the operation is completed
+		StringTemplate<T>&		eraseLeft(size_t count);								//!< Erases the specified number of characters from the beginning of the string @param count Number of characters to erase from the beginning @return Reference to the local string once the operation is completed
+		StringTemplate<T>&		eraseRight(size_t count);								//!< Erases the specified number of characters from the end of the string @param count Number of characters to erase from the end @return Reference to the local string once the operation is completed
 
-			StringTemplate<T>&		Truncate(size_t maxLength);	//!< Removes characters from the end such that the total length of the local string is less or equal to the specified length. If the local string already contains at most that many characters, then nothing changes
+		StringTemplate<T>&		Truncate(size_t maxLength);	//!< Removes characters from the end such that the total length of the local string is less or equal to the specified length. If the local string already contains at most that many characters, then nothing changes
 
-			StringTemplate<T>&		eraseCharacter(T chr);																				//!< Erases all occurrences of @a chr in the local string
-			StringTemplate<T>&		eraseCharacters(const StringTemplate<T>& characters, bool erase_matches=true);										//!< Erases any character that is contained in the zero-terminated string specified by @a characters
-			StringTemplate<T>&		eraseCharacters(const T* characters, bool erase_matches=true);										//!< Erases any character that is contained in the zero-terminated string specified by @a characters
-			StringTemplate<T>&		eraseCharacters(const T* characters, count_t character_count, bool erase_matches=true);				//!< Erases any character that is contained in the range starting at @a characters . Checks @a character_count characters 
-			StringTemplate<T>&		eraseCharacters(bool doReplace(T character), bool erase_matches=true);	//!< Erases any character for which the specified function returns true, if @a erase_matches is true / false, if @a erase_matches is false
-			StringTemplate<T>&		eraseCharactersIgnoreCase(const StringTemplate<T>& characters, bool erase_matches=true);										//!< Erases any character that is contained in the zero-terminated string specified by @a characters . Case insensitive
-			StringTemplate<T>&		eraseCharactersIgnoreCase(const T* characters, bool erase_matches=true);										//!< Erases any character that is contained in the zero-terminated string specified by @a characters . Case insensitive
-			StringTemplate<T>&		eraseCharactersIgnoreCase(const T* characters, count_t character_count, bool erase_matches=true);				//!< Erases any character that is contained in the range starting at @a characters . Checks @a character_count characters  . Case insensitive
+		StringTemplate<T>&		eraseCharacter(T chr);																				//!< Erases all occurrences of @a chr in the local string
+		StringTemplate<T>&		eraseCharacters(const StringTemplate<T>& characters, bool erase_matches=true);										//!< Erases any character that is contained in the zero-terminated string specified by @a characters
+		StringTemplate<T>&		eraseCharacters(const T* characters, bool erase_matches=true);										//!< Erases any character that is contained in the zero-terminated string specified by @a characters
+		StringTemplate<T>&		eraseCharacters(const T* characters, count_t character_count, bool erase_matches=true);				//!< Erases any character that is contained in the range starting at @a characters . Checks @a character_count characters 
+		StringTemplate<T>&		eraseCharacters(bool doReplace(T character), bool erase_matches=true);	//!< Erases any character for which the specified function returns true, if @a erase_matches is true / false, if @a erase_matches is false
+		StringTemplate<T>&		eraseCharactersIgnoreCase(const StringTemplate<T>& characters, bool erase_matches=true);										//!< Erases any character that is contained in the zero-terminated string specified by @a characters . Case insensitive
+		StringTemplate<T>&		eraseCharactersIgnoreCase(const T* characters, bool erase_matches=true);										//!< Erases any character that is contained in the zero-terminated string specified by @a characters . Case insensitive
+		StringTemplate<T>&		eraseCharactersIgnoreCase(const T* characters, count_t character_count, bool erase_matches=true);				//!< Erases any character that is contained in the range starting at @a characters . Checks @a character_count characters  . Case insensitive
 
-			count_t					countCharacters(const StringTemplate<T>& characters, bool count_matches=true)	const;							//!< Counts how often each of the characters in the specified string is contained in the local string;	@param count_matches Set true to count matching characters, false to count non-matching characters
-			count_t					countCharacters(const T* characters, bool count_matches=true)	const;											//!< Counts how often each of the characters in the specified string is contained in the local string;	@param count_matches Set true to count matching characters, false to count non-matching characters
-			count_t					countCharacters(const T* characters, count_t character_count, bool count_matches=true)	const;							//!< Counts how often each of the characters in the specified string is contained in the local string;	@param count_matches Set true to count matching characters, false to count non-matching characters
-			count_t					countCharacters(bool isMatch(T character), bool count_matches=true)	const;							//!< Counts how often characters are contained by the local string for which isMatch(c) returns true (or false if @a count_matches is false).	@param count_matches Set true to count matching characters, false to count non-matching characters
-			count_t					countCharactersIgnoreCase(const StringTemplate<T>& characters, bool count_matches=true)	const;							//!< Counts how often each of the characters in the specified string is contained in the local string; Case insensitive version	@param count_matches Set true to count matching characters, false to count non-matching characters
-			count_t					countCharactersIgnoreCase(const T* characters, bool count_matches=true)	const;											//!< Counts how often each of the characters in the specified string is contained in the local string; Case insensitive version	@param count_matches Set true to count matching characters, false to count non-matching characters
-			count_t					countCharactersIgnoreCase(const T* characters, count_t character_count, bool count_matches=true)	const;							//!< Counts how often each of the characters in the specified string is contained in the local string; Case insensitive version	@param count_matches Set true to count matching characters, false to count non-matching characters
+		count_t					countCharacters(const StringTemplate<T>& characters, bool count_matches=true)	const;							//!< Counts how often each of the characters in the specified string is contained in the local string;	@param count_matches Set true to count matching characters, false to count non-matching characters
+		count_t					countCharacters(const T* characters, bool count_matches=true)	const;											//!< Counts how often each of the characters in the specified string is contained in the local string;	@param count_matches Set true to count matching characters, false to count non-matching characters
+		count_t					countCharacters(const T* characters, count_t character_count, bool count_matches=true)	const;							//!< Counts how often each of the characters in the specified string is contained in the local string;	@param count_matches Set true to count matching characters, false to count non-matching characters
+		count_t					countCharacters(bool isMatch(T character), bool count_matches=true)	const;							//!< Counts how often characters are contained by the local string for which isMatch(c) returns true (or false if @a count_matches is false).	@param count_matches Set true to count matching characters, false to count non-matching characters
+		count_t					countCharactersIgnoreCase(const StringTemplate<T>& characters, bool count_matches=true)	const;							//!< Counts how often each of the characters in the specified string is contained in the local string; Case insensitive version	@param count_matches Set true to count matching characters, false to count non-matching characters
+		count_t					countCharactersIgnoreCase(const T* characters, bool count_matches=true)	const;											//!< Counts how often each of the characters in the specified string is contained in the local string; Case insensitive version	@param count_matches Set true to count matching characters, false to count non-matching characters
+		count_t					countCharactersIgnoreCase(const T* characters, count_t character_count, bool count_matches=true)	const;							//!< Counts how often each of the characters in the specified string is contained in the local string; Case insensitive version	@param count_matches Set true to count matching characters, false to count non-matching characters
 
 
-			StringTemplate<T>		addSlashes()	const;		//!< Returns a copy with \ added before \, ', and " characters
-			StringTemplate<T>		addSlashes(const T*	before_characters) const;
-			StringTemplate<T>		addSlashes(const T*	before_characters, count_t before_character_count) const;
-			StringTemplate<T>		addSlashes(bool isMatch(T character)) const;
+		StringTemplate<T>		addSlashes()	const;		//!< Returns a copy with \ added before \, ', and " characters
+		StringTemplate<T>		addSlashes(const T*	before_characters) const;
+		StringTemplate<T>		addSlashes(const T*	before_characters, count_t before_character_count) const;
+		StringTemplate<T>		addSlashes(bool isMatch(T character)) const;
 			
-			StringTemplate<T>&		addSlashesToThis();		//!< Adds \ added before \, ', and " characters
-			StringTemplate<T>&		addSlashesToThis(const T*	before_characters);
-			StringTemplate<T>&		addSlashesToThis(const T*	before_characters, count_t before_character_count);
-			StringTemplate<T>&		addSlashesToThis(bool isMatch(T character));
+		StringTemplate<T>&		addSlashesToThis();		//!< Adds \ added before \, ', and " characters
+		StringTemplate<T>&		addSlashesToThis(const T*	before_characters);
+		StringTemplate<T>&		addSlashesToThis(const T*	before_characters, count_t before_character_count);
+		StringTemplate<T>&		addSlashesToThis(bool isMatch(T character));
 
-			StringTemplate<T>		stripSlashes()	const;		//!< Returns a copy with stripped \ characters
-			StringTemplate<T>&		stripSlashesInThis();		//!< Strips \ characters
+		StringTemplate<T>		stripSlashes()	const;		//!< Returns a copy with stripped \ characters
+		StringTemplate<T>&		stripSlashesInThis();		//!< Strips \ characters
 
-			bool					contains(const StringTemplate<T>&sub_str)	const;			//!< Checks if the specified token is part of the local string
-			bool					contains(const T*sub_str, size_t length)	const;			//!< Checks if the specified token is part of the local string
-			bool					contains(const T*sub_str)		const;						//!< Checks if the specified token is part of the local string
-			bool					contains(T c)					const;						//!< Checks if the specified token is part of the local string
-			bool					containsWord(const T*sub_str) const;						//!< Checks if the specified word is part of the local string
-			bool					containsWord(const StringTemplate<T>&sub_str) const;		//!< Checks if the specified word is part of the local string
-			bool					containsIgnoreCase(const StringTemplate<T>&sub_str)	const;			//!< Checks if the specified token is part of the local string
-			bool					containsIgnoreCase(const T*sub_str, size_t length)	const;			//!< Checks if the specified token is part of the local string
-			bool					containsIgnoreCase(const T*sub_str)		const;						//!< Checks if the specified token is part of the local string
-			bool					containsIgnoreCase(T c)					const;						//!< Checks if the specified token is part of the local string
-			bool					containsWordIgnoreCase(const T*sub_str) const;						//!< Checks if the specified word is part of the local string
-			bool					containsWordIgnoreCase(const StringTemplate<T>&sub_str) const;		//!< Checks if the specified word is part of the local string
+		bool					contains(const StringTemplate<T>&sub_str)	const;			//!< Checks if the specified token is part of the local string
+		bool					contains(const T*sub_str, size_t length)	const;			//!< Checks if the specified token is part of the local string
+		bool					contains(const T*sub_str)		const;						//!< Checks if the specified token is part of the local string
+		bool					contains(T c)					const;						//!< Checks if the specified token is part of the local string
+		bool					containsWord(const T*sub_str) const;						//!< Checks if the specified word is part of the local string
+		bool					containsWord(const StringTemplate<T>&sub_str) const;		//!< Checks if the specified word is part of the local string
+		bool					containsIgnoreCase(const StringTemplate<T>&sub_str)	const;			//!< Checks if the specified token is part of the local string
+		bool					containsIgnoreCase(const T*sub_str, size_t length)	const;			//!< Checks if the specified token is part of the local string
+		bool					containsIgnoreCase(const T*sub_str)		const;						//!< Checks if the specified token is part of the local string
+		bool					containsIgnoreCase(T c)					const;						//!< Checks if the specified token is part of the local string
+		bool					containsWordIgnoreCase(const T*sub_str) const;						//!< Checks if the specified word is part of the local string
+		bool					containsWordIgnoreCase(const StringTemplate<T>&sub_str) const;		//!< Checks if the specified word is part of the local string
 
 
-			index_t					GetIndexOf(const StringTemplate<T>&sub_str)	const;		//!< Attempts to locate the first occurance of the specified string @param sub_str String segment to look for @return Offset index plus 1 or 0 if no occurance was found
-			index_t					GetIndexOf(const T*sub_str, size_t length)	const;		//!< Attempts to locate the first occurance of the specified string segment @param sub_str Pointer to the first character of the string segment to look for @param length Number of characters of the specified string segment to look for @return Offset index plus 1 or 0 if no occurance was found
-			index_t					GetIndexOf(const T*sub_str)		const;					//!< Attempts to locate the first occurance of the specified string @param sub_str Pointer to the first character of the string segment to look for @return Offset index plus 1 or 0 if no occurance was found
-			index_t					GetIndexOf(T c)					const;					//!< Attempts to locate the first occurance of the specified character @param c Character to look for @return Offset index plus 1 or 0 if no occurance was found
-			index_t					find(const StringTemplate<T>&sub_str)	const;		//!< Attempts to locate the first occurance of the specified string @param sub_str String segment to look for @return Offset index plus 1 or 0 if no occurance was found
-			index_t					find(const T*sub_str, size_t length)	const;		//!< Attempts to locate the first occurance of the specified string segment @param sub_str Pointer to the first character of the string segment to look for @param length Number of characters of the specified string segment to look for @return Offset index plus 1 or 0 if no occurance was found
-			index_t					find(const T*sub_str)		const;					//!< Attempts to locate the first occurance of the specified string @param sub_str Pointer to the first character of the string segment to look for @return Offset index plus 1 or 0 if no occurance was found
-			index_t					find(T c)					const;					//!< Attempts to locate the first occurance of the specified character @param c Character to look for @return Offset index plus 1 or 0 if no occurance was found
-			index_t					find(bool callback(T)) const;							//!< Attempts to locate the first occurance of a character for which the specified callback function returns true @param callback Pointer to a function to determine whether a character is a valid match. The function should return true if the character is a valid match, false otherwise @return Offset index plus 1 or 0 if no occurance was found
-			index_t					findWord(const T*sub_str) const;						//!< Searches the local string for the first occurance of the specified sub string with neither the succeeding or preceeding characters being alpha-numeric. Search is case sensitive. \param sub_str String to search for \return Offset of the first occurance in the local string ( in the range [1,Length()]) or 0 if the specified sub string could not be found.
-			index_t					findWord(const StringTemplate<T>&sub_str) const;		//!< Searches the local string for the first occurance of the specified sub string with neither the succeeding or preceeding characters being alpha-numeric. Search is case sensitive. \param sub_str String to search for \return Offset of the first occurance in the local string ( in the range [1,Length()]) or 0 if the specified sub string could not be found.
-			index_t					FindFrom(index_t offset, const StringTemplate<T>&sub_str)	const;		//!< Attempts to locate the first occurance of the specified string from the specified offset @param sub_str String segment to look for @return Offset index plus 1 or 0 if no occurance was found
-			index_t					FindFrom(index_t offset, const T*sub_str, size_t length)	const;		//!< Attempts to locate the first occurance of the specified string segment from the specified offset  @param sub_str Pointer to the first character of the string segment to look for @param length Number of characters of the specified string segment to look for @return Offset index plus 1 or 0 if no occurance was found
-			index_t					FindFrom(index_t offset, const T*sub_str)		const;					//!< Attempts to locate the first occurance of the specified string from the specified offset  @param sub_str Pointer to the first character of the string segment to look for @return Offset index plus 1 or 0 if no occurance was found
-			index_t					FindFrom(index_t offset, T c)					const;					//!< Attempts to locate the first occurance of the specified character from the specified offset  @param c Character to look for @return Offset index plus 1 or 0 if no occurance was found
-			index_t					FindFrom(index_t offset, bool callback(T)) const;							//!< Attempts to locate the first occurance of a character for which the specified callback function returns true, starting at the specified offset @param callback Pointer to a function to determine whether a character is a valid match. The function should return true if the character is a valid match, false otherwise @return Offset index plus 1 or 0 if no occurance was found
+		index_t					GetIndexOf(const StringTemplate<T>&sub_str)	const;		//!< Attempts to locate the first occurance of the specified string @param sub_str String segment to look for @return Offset index plus 1 or 0 if no occurance was found
+		index_t					GetIndexOf(const T*sub_str, size_t length)	const;		//!< Attempts to locate the first occurance of the specified string segment @param sub_str Pointer to the first character of the string segment to look for @param length Number of characters of the specified string segment to look for @return Offset index plus 1 or 0 if no occurance was found
+		index_t					GetIndexOf(const T*sub_str)		const;					//!< Attempts to locate the first occurance of the specified string @param sub_str Pointer to the first character of the string segment to look for @return Offset index plus 1 or 0 if no occurance was found
+		index_t					GetIndexOf(T c)					const;					//!< Attempts to locate the first occurance of the specified character @param c Character to look for @return Offset index plus 1 or 0 if no occurance was found
+		index_t					find(const StringTemplate<T>&sub_str)	const;		//!< Attempts to locate the first occurance of the specified string @param sub_str String segment to look for @return Offset index plus 1 or 0 if no occurance was found
+		index_t					find(const T*sub_str, size_t length)	const;		//!< Attempts to locate the first occurance of the specified string segment @param sub_str Pointer to the first character of the string segment to look for @param length Number of characters of the specified string segment to look for @return Offset index plus 1 or 0 if no occurance was found
+		index_t					find(const T*sub_str)		const;					//!< Attempts to locate the first occurance of the specified string @param sub_str Pointer to the first character of the string segment to look for @return Offset index plus 1 or 0 if no occurance was found
+		index_t					find(T c)					const;					//!< Attempts to locate the first occurance of the specified character @param c Character to look for @return Offset index plus 1 or 0 if no occurance was found
+		index_t					find(bool callback(T)) const;							//!< Attempts to locate the first occurance of a character for which the specified callback function returns true @param callback Pointer to a function to determine whether a character is a valid match. The function should return true if the character is a valid match, false otherwise @return Offset index plus 1 or 0 if no occurance was found
+		index_t					findWord(const T*sub_str) const;						//!< Searches the local string for the first occurance of the specified sub string with neither the succeeding or preceeding characters being alpha-numeric. Search is case sensitive. \param sub_str String to search for \return Offset of the first occurance in the local string ( in the range [1,Length()]) or 0 if the specified sub string could not be found.
+		index_t					findWord(const StringTemplate<T>&sub_str) const;		//!< Searches the local string for the first occurance of the specified sub string with neither the succeeding or preceeding characters being alpha-numeric. Search is case sensitive. \param sub_str String to search for \return Offset of the first occurance in the local string ( in the range [1,Length()]) or 0 if the specified sub string could not be found.
+		index_t					FindFrom(index_t offset, const StringTemplate<T>&sub_str)	const;		//!< Attempts to locate the first occurance of the specified string from the specified offset @param sub_str String segment to look for @return Offset index plus 1 or 0 if no occurance was found
+		index_t					FindFrom(index_t offset, const T*sub_str, size_t length)	const;		//!< Attempts to locate the first occurance of the specified string segment from the specified offset  @param sub_str Pointer to the first character of the string segment to look for @param length Number of characters of the specified string segment to look for @return Offset index plus 1 or 0 if no occurance was found
+		index_t					FindFrom(index_t offset, const T*sub_str)		const;					//!< Attempts to locate the first occurance of the specified string from the specified offset  @param sub_str Pointer to the first character of the string segment to look for @return Offset index plus 1 or 0 if no occurance was found
+		index_t					FindFrom(index_t offset, T c)					const;					//!< Attempts to locate the first occurance of the specified character from the specified offset  @param c Character to look for @return Offset index plus 1 or 0 if no occurance was found
+		index_t					FindFrom(index_t offset, bool callback(T)) const;							//!< Attempts to locate the first occurance of a character for which the specified callback function returns true, starting at the specified offset @param callback Pointer to a function to determine whether a character is a valid match. The function should return true if the character is a valid match, false otherwise @return Offset index plus 1 or 0 if no occurance was found
 
-			index_t					indexOfIgnoreCase(const StringTemplate<T>&sub_str)	const;		//!< Attempts to locate the first occurance of the specified string. Ignores case @param sub_str String segment to look for @return Offset index plus 1 or 0 if no occurance was found
-			index_t					indexOfIgnoreCase(const T*sub_str, size_t length)	const;		//!< Attempts to locate the first occurance of the specified string. Ignores case segment @param sub_str Pointer to the first character of the string segment to look for @param length Number of characters of the specified string segment to look for @return Offset index plus 1 or 0 if no occurance was found
-			index_t					indexOfIgnoreCase(const T*sub_str)		const;					//!< Attempts to locate the first occurance of the specified string. Ignores case @param sub_str Pointer to the first character of the string segment to look for @return Offset index plus 1 or 0 if no occurance was found
-			index_t					indexOfIgnoreCase(T c)					const;					//!< Attempts to locate the first occurance of the specified character. Ignores case @param c Character to look for @return Offset index plus 1 or 0 if no occurance was found
-			index_t					findIgnoreCase(const StringTemplate<T>&sub_str)	const;		//!< Attempts to locate the first occurance of the specified string. Ignores case @param sub_str String segment to look for @return Offset index plus 1 or 0 if no occurance was found
-			index_t					findIgnoreCase(const T*sub_str, size_t length)	const;		//!< Attempts to locate the first occurance of the specified string segment. Ignores case @param sub_str Pointer to the first character of the string segment to look for @param length Number of characters of the specified string segment to look for @return Offset index plus 1 or 0 if no occurance was found
-			index_t					findIgnoreCase(const T*sub_str)		const;					//!< Attempts to locate the first occurance of the specified string. Ignores case @param sub_str Pointer to the first character of the string segment to look for @return Offset index plus 1 or 0 if no occurance was found
-			index_t					findIgnoreCase(T c)					const;					//!< Attempts to locate the first occurance of the specified character. Ignores case @param c Character to look for @return Offset index plus 1 or 0 if no occurance was found
-			index_t					findWordIgnoreCase(const T*sub_str) const;						//!< Searches the local string for the first occurance of the specified sub string with neither the succeeding or preceeding characters being alpha-numeric. Search is case insensitive. \param sub_str String to search for \return Offset of the first occurance in the local string ( in the range [1,Length()]) or 0 if the specified sub string could not be found.
-			index_t					findWordIgnoreCase(const StringTemplate<T>&sub_str) const;		//!< Searches the local string for the first occurance of the specified sub string with neither the succeeding or preceeding characters being alpha-numeric. Search is case insensitive. \param sub_str String to search for \return Offset of the first occurance in the local string ( in the range [1,Length()]) or 0 if the specified sub string could not be found.
+		index_t					indexOfIgnoreCase(const StringTemplate<T>&sub_str)	const;		//!< Attempts to locate the first occurance of the specified string. Ignores case @param sub_str String segment to look for @return Offset index plus 1 or 0 if no occurance was found
+		index_t					indexOfIgnoreCase(const T*sub_str, size_t length)	const;		//!< Attempts to locate the first occurance of the specified string. Ignores case segment @param sub_str Pointer to the first character of the string segment to look for @param length Number of characters of the specified string segment to look for @return Offset index plus 1 or 0 if no occurance was found
+		index_t					indexOfIgnoreCase(const T*sub_str)		const;					//!< Attempts to locate the first occurance of the specified string. Ignores case @param sub_str Pointer to the first character of the string segment to look for @return Offset index plus 1 or 0 if no occurance was found
+		index_t					indexOfIgnoreCase(T c)					const;					//!< Attempts to locate the first occurance of the specified character. Ignores case @param c Character to look for @return Offset index plus 1 or 0 if no occurance was found
+		index_t					findIgnoreCase(const StringTemplate<T>&sub_str)	const;		//!< Attempts to locate the first occurance of the specified string. Ignores case @param sub_str String segment to look for @return Offset index plus 1 or 0 if no occurance was found
+		index_t					findIgnoreCase(const T*sub_str, size_t length)	const;		//!< Attempts to locate the first occurance of the specified string segment. Ignores case @param sub_str Pointer to the first character of the string segment to look for @param length Number of characters of the specified string segment to look for @return Offset index plus 1 or 0 if no occurance was found
+		index_t					findIgnoreCase(const T*sub_str)		const;					//!< Attempts to locate the first occurance of the specified string. Ignores case @param sub_str Pointer to the first character of the string segment to look for @return Offset index plus 1 or 0 if no occurance was found
+		index_t					findIgnoreCase(T c)					const;					//!< Attempts to locate the first occurance of the specified character. Ignores case @param c Character to look for @return Offset index plus 1 or 0 if no occurance was found
+		index_t					findWordIgnoreCase(const T*sub_str) const;						//!< Searches the local string for the first occurance of the specified sub string with neither the succeeding or preceeding characters being alpha-numeric. Search is case insensitive. \param sub_str String to search for \return Offset of the first occurance in the local string ( in the range [1,Length()]) or 0 if the specified sub string could not be found.
+		index_t					findWordIgnoreCase(const StringTemplate<T>&sub_str) const;		//!< Searches the local string for the first occurance of the specified sub string with neither the succeeding or preceeding characters being alpha-numeric. Search is case insensitive. \param sub_str String to search for \return Offset of the first occurance in the local string ( in the range [1,Length()]) or 0 if the specified sub string could not be found.
 			
-			index_t					lastIndexOf(const StringTemplate<T>&sub_str)	const;		//!< Attempts to locate the last occurance of the specified string @param sub_str String segment to look for @return Offset index plus 1 or 0 if no occurance was found
-			index_t					lastIndexOf(const T*sub_str, size_t length)	const;		//!< Attempts to locate the last occurance of the specified string segment @param sub_str Pointer to the first character of the string segment to look for @param length Number of characters of the specified string segment to look for @return Offset index plus 1 or 0 if no occurance was found
-			index_t					lastIndexOf(const T*sub_str)		const;					//!< Attempts to locate the last occurance of the specified string @param sub_str Pointer to the first character of the string segment to look for @return Offset index plus 1 or 0 if no occurance was found
-			index_t					lastIndexOf(T c)					const;					//!< Attempts to locate the last occurance of the specified character @param c Character to look for @return Offset index plus 1 or 0 if no occurance was found
-			index_t					findLast(const StringTemplate<T>&sub_str)	const;		//!< Attempts to locate the last occurance of the specified string @param sub_str String segment to look for @return Offset index plus 1 or 0 if no occurance was found
-			index_t					findLast(const T*sub_str, size_t length)	const;		//!< Attempts to locate the last occurance of the specified string segment @param sub_str Pointer to the first character of the string segment to look for @param length Number of characters of the specified string segment to look for @return Offset index plus 1 or 0 if no occurance was found
-			index_t					findLast(const T*sub_str)		const;					//!< Attempts to locate the last occurance of the specified string @param sub_str Pointer to the first character of the string segment to look for @return Offset index plus 1 or 0 if no occurance was found
-			index_t					findLast(T c)					const;					//!< Attempts to locate the last occurance of the specified character @param c Character to look for @return Offset index plus 1 or 0 if no occurance was found
-			index_t					findLast(bool callback(T)) const;							//!< Attempts to locate the last occurance of a character for which the specified callback function returns true @param callback Pointer to a function to determine whether a character is a valid match. The function should return true if the character is a valid match, false otherwise @return Offset index plus 1 or 0 if no occurance was found
-			index_t					findLastWord(const T*sub_str) const;						//!< Searches the local string for the last occurance of the specified sub string with neither the succeeding or preceeding characters being alpha-numeric. Search is case sensitive. \param sub_str String to search for \return Offset of the first occurance in the local string ( in the range [1,Length()]) or 0 if the specified sub string could not be found.
-			index_t					findLastWord(const StringTemplate<T>&sub_str) const;		//!< Searches the local string for the last occurance of the specified sub string with neither the succeeding or preceeding characters being alpha-numeric. Search is case sensitive. \param sub_str String to search for \return Offset of the first occurance in the local string ( in the range [1,Length()]) or 0 if the specified sub string could not be found.
+		index_t					lastIndexOf(const StringTemplate<T>&sub_str)	const;		//!< Attempts to locate the last occurance of the specified string @param sub_str String segment to look for @return Offset index plus 1 or 0 if no occurance was found
+		index_t					lastIndexOf(const T*sub_str, size_t length)	const;		//!< Attempts to locate the last occurance of the specified string segment @param sub_str Pointer to the first character of the string segment to look for @param length Number of characters of the specified string segment to look for @return Offset index plus 1 or 0 if no occurance was found
+		index_t					lastIndexOf(const T*sub_str)		const;					//!< Attempts to locate the last occurance of the specified string @param sub_str Pointer to the first character of the string segment to look for @return Offset index plus 1 or 0 if no occurance was found
+		index_t					lastIndexOf(T c)					const;					//!< Attempts to locate the last occurance of the specified character @param c Character to look for @return Offset index plus 1 or 0 if no occurance was found
+		index_t					findLast(const StringTemplate<T>&sub_str)	const;		//!< Attempts to locate the last occurance of the specified string @param sub_str String segment to look for @return Offset index plus 1 or 0 if no occurance was found
+		index_t					findLast(const T*sub_str, size_t length)	const;		//!< Attempts to locate the last occurance of the specified string segment @param sub_str Pointer to the first character of the string segment to look for @param length Number of characters of the specified string segment to look for @return Offset index plus 1 or 0 if no occurance was found
+		index_t					findLast(const T*sub_str)		const;					//!< Attempts to locate the last occurance of the specified string @param sub_str Pointer to the first character of the string segment to look for @return Offset index plus 1 or 0 if no occurance was found
+		index_t					findLast(T c)					const;					//!< Attempts to locate the last occurance of the specified character @param c Character to look for @return Offset index plus 1 or 0 if no occurance was found
+		index_t					findLast(bool callback(T)) const;							//!< Attempts to locate the last occurance of a character for which the specified callback function returns true @param callback Pointer to a function to determine whether a character is a valid match. The function should return true if the character is a valid match, false otherwise @return Offset index plus 1 or 0 if no occurance was found
+		index_t					findLastWord(const T*sub_str) const;						//!< Searches the local string for the last occurance of the specified sub string with neither the succeeding or preceeding characters being alpha-numeric. Search is case sensitive. \param sub_str String to search for \return Offset of the first occurance in the local string ( in the range [1,Length()]) or 0 if the specified sub string could not be found.
+		index_t					findLastWord(const StringTemplate<T>&sub_str) const;		//!< Searches the local string for the last occurance of the specified sub string with neither the succeeding or preceeding characters being alpha-numeric. Search is case sensitive. \param sub_str String to search for \return Offset of the first occurance in the local string ( in the range [1,Length()]) or 0 if the specified sub string could not be found.
 
-			index_t					lastIndexOfIgnoreCase(const StringTemplate<T>&sub_str)	const;		//!< Attempts to locate the last occurance of the specified string. Ignores case @param sub_str String segment to look for @return Offset index plus 1 or 0 if no occurance was found
-			index_t					lastIndexOfIgnoreCase(const T*sub_str, size_t length)	const;		//!< Attempts to locate the last occurance of the specified string segment. Ignores case @param sub_str Pointer to the first character of the string segment to look for @param length Number of characters of the specified string segment to look for @return Offset index plus 1 or 0 if no occurance was found
-			index_t					lastIndexOfIgnoreCase(const T*sub_str)		const;					//!< Attempts to locate the last occurance of the specified string. Ignores case @param sub_str Pointer to the first character of the string segment to look for @return Offset index plus 1 or 0 if no occurance was found
-			index_t					lastIndexOfIgnoreCase(T c)					const;					//!< Attempts to locate the last occurance of the specified character. Ignores case @param c Character to look for @return Offset index plus 1 or 0 if no occurance was found
-			index_t					findLastIgnoreCase(const StringTemplate<T>&sub_str)	const;		//!< Attempts to locate the last occurance of the specified string. Ignores case @param sub_str String segment to look for @return Offset index plus 1 or 0 if no occurance was found
-			index_t					findLastIgnoreCase(const T*sub_str, size_t length)	const;		//!< Attempts to locate the last occurance of the specified string segment. Ignores case @param sub_str Pointer to the first character of the string segment to look for @param length Number of characters of the specified string segment to look for @return Offset index plus 1 or 0 if no occurance was found
-			index_t					findLastIgnoreCase(const T*sub_str)		const;					//!< Attempts to locate the last occurance of the specified string. Ignores case @param sub_str Pointer to the first character of the string segment to look for @return Offset index plus 1 or 0 if no occurance was found
-			index_t					findLastIgnoreCase(T c)					const;					//!< Attempts to locate the last occurance of the specified character. Ignores case @param c Character to look for @return Offset index plus 1 or 0 if no occurance was found
-			index_t					findLastWordIgnoreCase(const T*sub_str) const;						//!< Searches the local string for the last occurance of the specified sub string with neither the succeeding or preceeding characters being alpha-numeric. Search is case insensitive. \param sub_str String to search for \return Offset of the first occurance in the local string ( in the range [1,Length()]) or 0 if the specified sub string could not be found.
-			index_t					findLastWordIgnoreCase(const StringTemplate<T>&sub_str) const;		//!< Searches the local string for the last occurance of the specified sub string with neither the succeeding or preceeding characters being alpha-numeric. Search is case insensitive. \param sub_str String to search for \return Offset of the first occurance in the local string ( in the range [1,Length()]) or 0 if the specified sub string could not be found.
+		index_t					lastIndexOfIgnoreCase(const StringTemplate<T>&sub_str)	const;		//!< Attempts to locate the last occurance of the specified string. Ignores case @param sub_str String segment to look for @return Offset index plus 1 or 0 if no occurance was found
+		index_t					lastIndexOfIgnoreCase(const T*sub_str, size_t length)	const;		//!< Attempts to locate the last occurance of the specified string segment. Ignores case @param sub_str Pointer to the first character of the string segment to look for @param length Number of characters of the specified string segment to look for @return Offset index plus 1 or 0 if no occurance was found
+		index_t					lastIndexOfIgnoreCase(const T*sub_str)		const;					//!< Attempts to locate the last occurance of the specified string. Ignores case @param sub_str Pointer to the first character of the string segment to look for @return Offset index plus 1 or 0 if no occurance was found
+		index_t					lastIndexOfIgnoreCase(T c)					const;					//!< Attempts to locate the last occurance of the specified character. Ignores case @param c Character to look for @return Offset index plus 1 or 0 if no occurance was found
+		index_t					findLastIgnoreCase(const StringTemplate<T>&sub_str)	const;		//!< Attempts to locate the last occurance of the specified string. Ignores case @param sub_str String segment to look for @return Offset index plus 1 or 0 if no occurance was found
+		index_t					findLastIgnoreCase(const T*sub_str, size_t length)	const;		//!< Attempts to locate the last occurance of the specified string segment. Ignores case @param sub_str Pointer to the first character of the string segment to look for @param length Number of characters of the specified string segment to look for @return Offset index plus 1 or 0 if no occurance was found
+		index_t					findLastIgnoreCase(const T*sub_str)		const;					//!< Attempts to locate the last occurance of the specified string. Ignores case @param sub_str Pointer to the first character of the string segment to look for @return Offset index plus 1 or 0 if no occurance was found
+		index_t					findLastIgnoreCase(T c)					const;					//!< Attempts to locate the last occurance of the specified character. Ignores case @param c Character to look for @return Offset index plus 1 or 0 if no occurance was found
+		index_t					findLastWordIgnoreCase(const T*sub_str) const;						//!< Searches the local string for the last occurance of the specified sub string with neither the succeeding or preceeding characters being alpha-numeric. Search is case insensitive. \param sub_str String to search for \return Offset of the first occurance in the local string ( in the range [1,Length()]) or 0 if the specified sub string could not be found.
+		index_t					findLastWordIgnoreCase(const StringTemplate<T>&sub_str) const;		//!< Searches the local string for the last occurance of the specified sub string with neither the succeeding or preceeding characters being alpha-numeric. Search is case insensitive. \param sub_str String to search for \return Offset of the first occurance in the local string ( in the range [1,Length()]) or 0 if the specified sub string could not be found.
 
 
-	virtual	hash_t					hashCode()	const;
+		virtual	hash_t			hashCode()	const override;
 
-			StringTemplate<T>&		setLength(size_t newLength);								//!< Updates the local string to match the given number of characters. The new array will be uninitialized, except for the trailing zero @param newLength New string length in characters (not including trailing zero) @return Reference to the local string object once the modification is done
+		StringTemplate<T>&		setLength(size_t newLength);								//!< Updates the local string to match the given number of characters. The new array will be uninitialized, except for the trailing zero @param newLength New string length in characters (not including trailing zero) @return Reference to the local string object once the modification is done
 		template <typename IndexType>
 			StringTemplate<T>		subString(IndexType index, size_t count=size_t(-1)) const;	//!< Creates a string copy containing the specified sub string of the local string @param index Index of the sub string to extract with 0 being the first character  Invalid values are clamped to the valid range. @param count Number of characters to extract starting at @a index @return Extracted string
-			ReferenceExpression<T>	subStringRef(int index, size_t count=size_t(-1)) const;	//!< Creates a string reference expression pointing to the specified sub string of the local string. The returned object remains valid as long as the local string object is not deleted or modified @param index Index of the sub string to extract with 0 being the first character  Invalid values are clamped to the valid range. @param count Number of characters to extract starting at @a index @return String segment
-								/*!	\brief Removes whitespace characters from the beginning and the end of the local string
-									\return Reference to the local string
+		ReferenceExpression<T>	subStringRef(int index, size_t count=size_t(-1)) const;	//!< Creates a string reference expression pointing to the specified sub string of the local string. The returned object remains valid as long as the local string object is not deleted or modified @param index Index of the sub string to extract with 0 being the first character  Invalid values are clamped to the valid range. @param count Number of characters to extract starting at @a index @return String segment
+	
+		/*!	\brief Removes whitespace characters from the beginning and the end of the local string
+		\return Reference to the local string
 									
-									The following characters are considered whitespace: space (' '), tab ('\\t'), carriage return ('\\r') and newline ('\\n').*/
-			StringTemplate<T>&		trimThis();
-			ReferenceExpression<T>	ref()			const;	//!< Creates a reference expression of the local string
-								/*!	\brief Creates a copy of the local string with whitespace characters removed from the beginning and the end of the local string
-									\return Trimmed copy of the local string.
+		The following characters are considered whitespace: space (' '), tab ('\\t'), carriage return ('\\r') and newline ('\\n').*/
+		StringTemplate<T>&		trimThis();
+		ReferenceExpression<T>	ref()			const;	//!< Creates a reference expression of the local string
+		
+		/*!	\brief Creates a copy of the local string with whitespace characters removed from the beginning and the end of the local string
+		\return Trimmed copy of the local string.
 									
-									The resulting string has all preceeding and trailing whitespace characters removed. The following characters are considered whitespace: space (' '), tab ('\\t'), carriage return ('\\r') and newline ('\\n').*/
-			StringTemplate<T>		trim()			const;
-			ReferenceExpression<T>	trimRef()		const;	//!< Identical to the above but returns a reference instead
-								/*!	\brief Creates a copy of the local string with whitespace characters removed from the beginning of the local string
-									\return Trimmed copy of the local string.
+		The resulting string has all preceeding and trailing whitespace characters removed. The following characters are considered whitespace: space (' '), tab ('\\t'), carriage return ('\\r') and newline ('\\n').*/
+		StringTemplate<T>		trim()			const;
+		ReferenceExpression<T>	trimRef()		const;	//!< Identical to the above but returns a reference instead
+		
+		/*!	\brief Creates a copy of the local string with whitespace characters removed from the beginning of the local string
+		\return Trimmed copy of the local string.
 									
-									The resulting string has all preceeding whitespace characters removed. The following characters are considered whitespace: space (' '), tab ('\\t'), carriage return ('\\r') and newline ('\\n').*/
-			StringTemplate<T>		trimLeft()		const;
-			ReferenceExpression<T>	trimLeftRef()	const;	//!< Identical to the above but returns a reference instead
-								/*!	\brief Creates a copy of the local string with whitespace characters removed from the end of the local string
-									\return Trimmed copy of the local string.
+		The resulting string has all preceeding whitespace characters removed. The following characters are considered whitespace: space (' '), tab ('\\t'), carriage return ('\\r') and newline ('\\n').*/
+		StringTemplate<T>		trimLeft()		const;
+		ReferenceExpression<T>	trimLeftRef()	const;	//!< Identical to the above but returns a reference instead
+		
+		/*!	\brief Creates a copy of the local string with whitespace characters removed from the end of the local string
+		\return Trimmed copy of the local string.
 									
-									The resulting string has all trailing whitespace characters removed. The following characters are considered whitespace: space (' '), tab ('\\t'), carriage return ('\\r') and newline ('\\n').*/
-			StringTemplate<T>		trimRight()		const;
-			ReferenceExpression<T>	trimRightRef()	const;	//!< Identical to the above but returns a reference instead
-								/*!	\brief Inserts a string into the local string
-									\param index Character offset to insert before (in the range [0,length()-1])
-									\param str String to insert
-									\return Reference to this string
+		The resulting string has all trailing whitespace characters removed. The following characters are considered whitespace: space (' '), tab ('\\t'), carriage return ('\\r') and newline ('\\n').*/
+		StringTemplate<T>		trimRight()		const;
+		ReferenceExpression<T>	trimRightRef()	const;	//!< Identical to the above but returns a reference instead
+		
+		/*!	\brief Inserts a string into the local string
+		\param index Character offset to insert before (in the range [0,length()-1])
+		\param str String to insert
+		\return Reference to this string
 									
-									This method inserts the string \b before the specified character offset. Passing 0 as \b index would insert before the first character.*/
-			StringTemplate<T>&		insert(size_t index, const StringTemplate<T>&str);
-								/*!	\brief Inserts a character into the local string
-									\param index Character offset to insert before (in the range [0,length()-1])
-									\param c Character to insert
-									\return Reference to this string
+		This method inserts the string \b before the specified character offset. Passing 0 as \b index would insert before the first character.*/
+		StringTemplate<T>&		insert(size_t index, const StringTemplate<T>&str);
+		
+		/*!	\brief Inserts a character into the local string
+		\param index Character offset to insert before (in the range [0,length()-1])
+		\param c Character to insert
+		\return Reference to this string
 									
-									This method inserts the character \b before the specified character offset. Passing 0 as \b index would insert before the first character.*/
-			StringTemplate<T>&		insert(size_t index, T c);
+		This method inserts the character \b before the specified character offset. Passing 0 as \b index would insert before the first character.*/
+		StringTemplate<T>&		insert(size_t index, T c);
 
-			StringTemplate<T>&		convertToLowerCase();						//!< Transforms all characters of the local string to lower case \return Local string object after case change.
-			StringTemplate<T>&		convertToUpperCase();						//!< Transforms all characters of the local string to upper case \return Local string object after case change.
-			StringTemplate<T>		copyToLowerCase() const;					//!< Transforms all characters of a copy of the local string to lower case \return Copy of the local string with changed case
-			StringTemplate<T>		copyToUpperCase() const;					//!< Transforms all characters of a copy of the local string to upper case \return Copy of the local string with changed case
+		StringTemplate<T>&		convertToLowerCase();						//!< Transforms all characters of the local string to lower case \return Local string object after case change.
+		StringTemplate<T>&		convertToUpperCase();						//!< Transforms all characters of the local string to upper case \return Local string object after case change.
+		StringTemplate<T>		copyToLowerCase() const;					//!< Transforms all characters of a copy of the local string to lower case \return Copy of the local string with changed case
+		StringTemplate<T>		copyToUpperCase() const;					//!< Transforms all characters of a copy of the local string to upper case \return Copy of the local string with changed case
 			
-			/*operator String() const
-								{
-									String result;
-									result.SetLength(string_length);
-									for (unsigned i = 0; i < string_length; i++)
-										result[i+1] = (char)field[i];
-									return result;
-								}*/
-			
-							/*!	\brief Extracts a string section between two given string segments
-								\param left_delimiter Left delimiter string
-								\param right_delimiter Right delimiter string
-								\return First found string between the two given delimiters or an empty string if no match was found
+
+		/*!	\brief Extracts a string section between two given string segments
+		\param left_delimiter Left delimiter string
+		\param right_delimiter Right delimiter string
+		\return First found string between the two given delimiters or an empty string if no match was found
 								
-								getBetween() attempts to extract a string section following the last character of the first found match of \a left_delimiter to the last character before the first following match
-								of \a right_delimiter.<br />
-								Example:<br />
-								String a = "abcdefghijklghi";<br />
-								a.getBetween("cd","ghi") will return "ef"
-							*/
-			StringTemplate<T>		getBetween(const StringTemplate<T>&left_delimiter, const StringTemplate<T>&right_delimiter)	const;
-			ReferenceExpression<T>	getBetweenRef(const StringTemplate<T>&left_delimiter, const StringTemplate<T>&right_delimiter)	const;		//!< Identical to the above but returns a reference instead
-	        bool					beginsWith(const T*string)		const;		//!< Returns true if the local string begins with the specified string, false otherwise
-	        bool					beginsWith(const StringTemplate<T>&string)	const;		//!< Returns true if the local string begins with the specified string, false otherwise
-	        bool					beginsWith(const ReferenceExpression<T>&string)	const;		//!< Returns true if the local string begins with the specified string, false otherwise
-	        bool					endsWith(const T*string)			const;		//!< Returns true if the local string ends with the specified string, false otherwise
-	        bool					endsWith(const StringTemplate<T>&string)		const;		//!< Returns true if the local string ends with the specified string, false otherwise
-	        bool					endsWith(const ReferenceExpression<T>&string)		const;		//!< Returns true if the local string ends with the specified string, false otherwise
-	        bool					beginsWithCaseIgnore(const T*string)		const;		//!< Returns true if the local string begins with the specified string, false otherwise
-	        bool					beginsWithCaseIgnore(const StringTemplate<T>&string)	const;		//!< Returns true if the local string begins with the specified string, false otherwise
-	        bool					beginsWithCaseIgnore(const ReferenceExpression<T>&string)	const;		//!< Returns true if the local string begins with the specified string, false otherwise
-	        bool					endsWithCaseIgnore(const T*string)			const;		//!< Returns true if the local string ends with the specified string, false otherwise
-	        bool					endsWithCaseIgnore(const StringTemplate<T>&string)		const;		//!< Returns true if the local string ends with the specified string, false otherwise
-	        bool					endsWithCaseIgnore(const ReferenceExpression<T>&string)		const;		//!< Returns true if the local string ends with the specified string, false otherwise
-			T						firstChar()							const;		//!< Returns the first character
-			T						lastChar()							const;		//!< Returns the last character. Access is valid only if the local string is not empty
-			const T*				lastCharPointer()					const;		//!< Returns a pointer to the last character. The returned pointer points one before the trailing zero and is valid only if the local string is not empty.
-			StringTemplate<T>		firstWord()							const;		//!< Retrieves the first word, either the full string or until the first whitespace character is encountered
-			ReferenceExpression<T>	firstWordRef()						const;		//!< Identical to the above but returns a reference instead
-			StringTemplate<T>		lastWord()							const;		//!< Retrieves the last word, either the full string or from where the last whitespace character is encountered. May require testing!
-			ReferenceExpression<T>	lastWordRef()						const;		//!< Identical to the above but returns a reference instead
-			StringTemplate<T>&		replaceSubString(size_t offset, size_t count, const StringTemplate<T>&replacement);	//!< Replaces a sub string section of the local string with the specified replacement @param offset Index of the first character to replace @param count Number of characters to replace. If this value is zero then the method effectively behaves like insert() @param replacement String to replace the specified input section with @return Reference to @a this
-			StringTemplate<T>&		replace(const StringTemplate<T>&needle, const StringTemplate<T>&replacement);	//!< Replaces all occurances of \b needle in the local string with \b replacement \return Reference to the local string object after the modifications are done
-			StringTemplate<T>&		replace(T needle_char, const StringTemplate<T>&replacement);	//!< Replaces all occurances of \b needle_char in the local string with \b replacement \return Reference to the local string object after the modifications are done
-			StringTemplate<T>&		replace(T replace_what, T replace_with);						//!< Replaces all characters matching @a replace_what with @a replace_with	@param replace_what Characters that should be replaced @param replace_with Character to replace with @return Pointer to the local string object once the operation is completed
+		getBetween() attempts to extract a string section following the last character of the first found match of \a left_delimiter to the last character before the first following match
+		of \a right_delimiter.<br />
+		Example:<br />
+		String a = "abcdefghijklghi";<br />
+		a.getBetween("cd","ghi") will return "ef"
+		*/
+		StringTemplate<T>		getBetween(const StringTemplate<T>&left_delimiter, const StringTemplate<T>&right_delimiter)	const;
+		ReferenceExpression<T>	getBetweenRef(const StringTemplate<T>&left_delimiter, const StringTemplate<T>&right_delimiter)	const;		//!< Identical to the above but returns a reference instead
+	    bool					beginsWith(const T*string)		const;		//!< Returns true if the local string begins with the specified string, false otherwise
+	    bool					beginsWith(const StringTemplate<T>&string)	const;		//!< Returns true if the local string begins with the specified string, false otherwise
+	    bool					beginsWith(const ReferenceExpression<T>&string)	const;		//!< Returns true if the local string begins with the specified string, false otherwise
+	    bool					endsWith(const T*string)			const;		//!< Returns true if the local string ends with the specified string, false otherwise
+	    bool					endsWith(const StringTemplate<T>&string)		const;		//!< Returns true if the local string ends with the specified string, false otherwise
+	    bool					endsWith(const ReferenceExpression<T>&string)		const;		//!< Returns true if the local string ends with the specified string, false otherwise
+	    bool					beginsWithCaseIgnore(const T*string)		const;		//!< Returns true if the local string begins with the specified string, false otherwise
+	    bool					beginsWithCaseIgnore(const StringTemplate<T>&string)	const;		//!< Returns true if the local string begins with the specified string, false otherwise
+	    bool					beginsWithCaseIgnore(const ReferenceExpression<T>&string)	const;		//!< Returns true if the local string begins with the specified string, false otherwise
+	    bool					endsWithCaseIgnore(const T*string)			const;		//!< Returns true if the local string ends with the specified string, false otherwise
+	    bool					endsWithCaseIgnore(const StringTemplate<T>&string)		const;		//!< Returns true if the local string ends with the specified string, false otherwise
+	    bool					endsWithCaseIgnore(const ReferenceExpression<T>&string)		const;		//!< Returns true if the local string ends with the specified string, false otherwise
+		T						firstChar()							const;		//!< Returns the first character
+		T						lastChar()							const;		//!< Returns the last character. Access is valid only if the local string is not empty
+		const T*				lastCharPointer()					const;		//!< Returns a pointer to the last character. The returned pointer points one before the trailing zero and is valid only if the local string is not empty.
+		StringTemplate<T>		firstWord()							const;		//!< Retrieves the first word, either the full string or until the first whitespace character is encountered
+		ReferenceExpression<T>	firstWordRef()						const;		//!< Identical to the above but returns a reference instead
+		StringTemplate<T>		lastWord()							const;		//!< Retrieves the last word, either the full string or from where the last whitespace character is encountered. May require testing!
+		ReferenceExpression<T>	lastWordRef()						const;		//!< Identical to the above but returns a reference instead
+		StringTemplate<T>&		replaceSubString(size_t offset, size_t count, const StringTemplate<T>&replacement);	//!< Replaces a sub string section of the local string with the specified replacement @param offset Index of the first character to replace @param count Number of characters to replace. If this value is zero then the method effectively behaves like insert() @param replacement String to replace the specified input section with @return Reference to @a this
+		StringTemplate<T>&		replace(const StringTemplate<T>&needle, const StringTemplate<T>&replacement);	//!< Replaces all occurances of \b needle in the local string with \b replacement \return Reference to the local string object after the modifications are done
+		StringTemplate<T>&		replace(T needle_char, const StringTemplate<T>&replacement);	//!< Replaces all occurances of \b needle_char in the local string with \b replacement \return Reference to the local string object after the modifications are done
+		StringTemplate<T>&		replace(T replace_what, T replace_with);						//!< Replaces all characters matching @a replace_what with @a replace_with	@param replace_what Characters that should be replaced @param replace_with Character to replace with @return Pointer to the local string object once the operation is completed
 
-			StringTemplate<T>&		replaceCharacters(bool doReplace(T character), T replacement);		//!< Replaces all characters who are identified by the specified filter function with the specified replacement	@param doReplace Function pointer to identify characters that should be replaced. @param replacement Character to replace with @return Pointer to the local string object once the operation is completed
-			bool					isValid(bool validCharacter(T character))	const;					//!< Runs each character of the local string by the specified validation function. Returns true if all characters passed the validation, false otherwise.
-			void					set(size_t index, T c);
+		StringTemplate<T>&		replaceCharacters(bool doReplace(T character), T replacement);		//!< Replaces all characters who are identified by the specified filter function with the specified replacement	@param doReplace Function pointer to identify characters that should be replaced. @param replacement Character to replace with @return Pointer to the local string object once the operation is completed
+		bool					isValid(bool validCharacter(T character))	const;					//!< Runs each character of the local string by the specified validation function. Returns true if all characters passed the validation, false otherwise.
+		void					set(size_t index, T c);
 			
-								/*!	\brief Const character access method
-									\param Index of the character to retrieve in the range [0,length()-1]
+							/*!	\brief Const character access method
+								\param Index of the character to retrieve in the range [0,length()-1]
 									
-									If \b index is not in the range [0,length()-1] (0=first character) then the result will be 0.*/
-			T						get(index_t index) const;
-			T						operator[](index_t index) const {return get(index);}
-			#if 0
-								/*!	\brief Const character access operator
-									\param Index of the character to retrieve in the range [0,length()-1]
+								If \b index is not in the range [0,length()-1] (0=first character) then the result will be 0.*/
+		T						get(index_t index) const;
+		T						operator[](index_t index) const {return get(index);}
+		#if 0
+							/*!	\brief Const character access operator
+								\param Index of the character to retrieve in the range [0,length()-1]
 									
-									If \b index is not in the range [0,length()-1] (0=first character) then the result will be 0.*/
-			T						operator[](size_t index) const;
-								/*!	\brief Const character access operator
-									\param Index of the character to retrieve in the range [0,length()-1]
+								If \b index is not in the range [0,length()-1] (0=first character) then the result will be 0.*/
+		T						operator[](size_t index) const;
+							/*!	\brief Const character access operator
+								\param Index of the character to retrieve in the range [0,length()-1]
 									
-									If \b index is not in the range [0,length()-1] (0=first character) then the result will be 0.*/
-			T						operator[](int index)			const;
-								/*!	\brief Const character access operator
-									\param Index of the character to retrieve in the range [0,length()-1]
+								If \b index is not in the range [0,length()-1] (0=first character) then the result will be 0.*/
+		T						operator[](int index)			const;
+							/*!	\brief Const character access operator
+								\param Index of the character to retrieve in the range [0,length()-1]
 									
-									If \b index is not in the range [0,length()-1] (0=first character) then the result will be 0.*/
-			T						operator[](BYTE index)			const;
-			#endif
-			void					operator+=(const StringTemplate<T>&other);			//!< Appends the specified string to the end of the local string. \param other String to append to the local string.
-			void					operator+=(const T*string);				//!< Appends the specified string to the end of the local string. \param string String to append to the local string.
-			void					operator+=(T c);							//!< Appends the specified character to the end of the local string. \param c Character to append to the local string.
+								If \b index is not in the range [0,length()-1] (0=first character) then the result will be 0.*/
+		T						operator[](BYTE index)			const;
+		#endif
+		void					operator+=(const StringTemplate<T>&other);			//!< Appends the specified string to the end of the local string. \param other String to append to the local string.
+		void					operator+=(const T*string);				//!< Appends the specified string to the end of the local string. \param string String to append to the local string.
+		void					operator+=(T c);							//!< Appends the specified character to the end of the local string. \param c Character to append to the local string.
 		template <typename T0, typename T1>
 			void					operator+=(const ConcatExpression<T0,T1>&expression);
 		template <class T0>
@@ -1466,9 +1466,9 @@ template <typename T>
 		#ifdef DSTRING_H
 			bool					operator<(const AnsiString&)	const;		//!< Tests if the specifed string object is alphabetically greater than the local string content. Comparison is case sensitive.
 		#endif
-			bool					operator<(const StringTemplate<T>&)		const;		//!< Tests if the local string content is alphabetically less compared to the content of the specified String object. Comparison is case sensitive.
-			bool					operator<(const T*)			const;		//!< Tests if the local string content is alphabetically less compared to the content of the specified const char array. Comparison is case sensitive.
-			bool					operator<(T)					const;		//!< Tests if the local string content is alphabetically less compared to the specified character. Comparison is case sensitive.
+		bool					operator<(const StringTemplate<T>&)		const;		//!< Tests if the local string content is alphabetically less compared to the content of the specified String object. Comparison is case sensitive.
+		bool					operator<(const T*)			const;		//!< Tests if the local string content is alphabetically less compared to the content of the specified const char array. Comparison is case sensitive.
+		bool					operator<(T)					const;		//!< Tests if the local string content is alphabetically less compared to the specified character. Comparison is case sensitive.
 		template <typename T0, typename T1>
 			bool					operator<(const ConcatExpression<T0,T1>&expression)	const;
 		template <class T0>
@@ -1481,9 +1481,9 @@ template <typename T>
 		#ifdef DSTRING_H
 			bool					operator<=(const AnsiString&)	const;		//!< Tests if the specifed string object is alphabetically greater than or identical to the local string content. Comparison is case sensitive.
 		#endif
-			bool					operator<=(const StringTemplate<T>&)		const;		//!< Tests if the local string content is alphabetically less or equal compared to the content of the specified String object. Comparison is case sensitive.
-			bool					operator<=(const T*) 		const;		//!< Tests if the local string content is alphabetically less or equal compared to the content of the specified const char array. Comparison is case sensitive.
-			bool					operator<=(T)				const;		//!< Tests if the local string content is alphabetically less or equal compared to the specified character. Comparison is case sensitive.
+		bool					operator<=(const StringTemplate<T>&)		const;		//!< Tests if the local string content is alphabetically less or equal compared to the content of the specified String object. Comparison is case sensitive.
+		bool					operator<=(const T*) 		const;		//!< Tests if the local string content is alphabetically less or equal compared to the content of the specified const char array. Comparison is case sensitive.
+		bool					operator<=(T)				const;		//!< Tests if the local string content is alphabetically less or equal compared to the specified character. Comparison is case sensitive.
 		template <typename T0, typename T1>
 			bool					operator<=(const ConcatExpression<T0,T1>&expression)	const;
 		template <class T0>
@@ -1496,28 +1496,28 @@ template <typename T>
 		#ifdef DSTRING_H
 			StringTemplate<T>&		operator=(const AnsiString&);
 		#endif
-			StringTemplate<T>&		operator=(const StringTemplate<T>&);					//!< Overwrites the local string content with the content of the specified StringTemplate object. \return Reference to the local string object.
+		StringTemplate<T>&		operator=(const StringTemplate<T>&);					//!< Overwrites the local string content with the content of the specified StringTemplate object. \return Reference to the local string object.
 		#if __STR_RVALUE_REFERENCES__
 			StringTemplate<T>&		operator=(StringTemplate<T>&&);					//!< Overwrites the local string content with the content of the specified StringTemplate object. \return Reference to the local string object.
 		#endif
-			StringTemplate<T>&		operator=(const ArrayData<T>&array);
+		StringTemplate<T>&		operator=(const ArrayData<T>&array);
 			
 		template <typename T2>
 			StringTemplate<T>&		operator=(const T2*);						//!< Overwrites the local string content with the content of the specified const char array. \return Reference to the local string object.
-			StringTemplate<T>&		operator=(const T*);						//!< Overwrites the local string content with the content of the specified const char array. \return Reference to the local string object.
-			StringTemplate<T>&		operator=(char);								//!< Overwrites the local string content with the specified character. \return Reference to the local string object.
-			StringTemplate<T>&		operator=(wchar_t);								//!< Overwrites the local string content with the specified character. \return Reference to the local string object.
-			StringTemplate<T>&		operator=(short);							//!< Overwrites the local string content with the converted (decimal) number. \return Reference to the local string object.
-			StringTemplate<T>&		operator=(unsigned short);					//!< Overwrites the local string content with the converted (decimal) number. \return Reference to the local string object.
-			StringTemplate<T>&		operator=(long);							//!< Overwrites the local string content with the converted (decimal) number. \return Reference to the local string object.
-			StringTemplate<T>&		operator=(int);								//!< Overwrites the local string content with the converted (decimal) number. \return Reference to the local string object.
-			StringTemplate<T>&		operator=(unsigned);						//!< Overwrites the local string content with the converted (decimal) number. \return Reference to the local string object.
-			StringTemplate<T>&		operator=(unsigned long);					//!< Overwrites the local string content with the converted (decimal) number. \return Reference to the local string object.
-			StringTemplate<T>&		operator=(float);							//!< Overwrites the local string content with the converted (decimal) floating point value. \return Reference to the local string object.
-			StringTemplate<T>&		operator=(double);							//!< Overwrites the local string content with the converted (decimal) floating point value. \return Reference to the local string object.
-			StringTemplate<T>&		operator=(long double);						//!< Overwrites the local string content with the converted (decimal) floating point value. \return Reference to the local string object.
-			StringTemplate<T>&		operator=(long long);						//!< Overwrites the local string content with the converted (decimal) number. \return Reference to the local string object.
-			StringTemplate<T>&		operator=(unsigned long long);				//!< Overwrites the local string content with the converted (decimal) number. \return Reference to the local string object.
+		StringTemplate<T>&		operator=(const T*);						//!< Overwrites the local string content with the content of the specified const char array. \return Reference to the local string object.
+		StringTemplate<T>&		operator=(char);								//!< Overwrites the local string content with the specified character. \return Reference to the local string object.
+		StringTemplate<T>&		operator=(wchar_t);								//!< Overwrites the local string content with the specified character. \return Reference to the local string object.
+		StringTemplate<T>&		operator=(short);							//!< Overwrites the local string content with the converted (decimal) number. \return Reference to the local string object.
+		StringTemplate<T>&		operator=(unsigned short);					//!< Overwrites the local string content with the converted (decimal) number. \return Reference to the local string object.
+		StringTemplate<T>&		operator=(long);							//!< Overwrites the local string content with the converted (decimal) number. \return Reference to the local string object.
+		StringTemplate<T>&		operator=(int);								//!< Overwrites the local string content with the converted (decimal) number. \return Reference to the local string object.
+		StringTemplate<T>&		operator=(unsigned);						//!< Overwrites the local string content with the converted (decimal) number. \return Reference to the local string object.
+		StringTemplate<T>&		operator=(unsigned long);					//!< Overwrites the local string content with the converted (decimal) number. \return Reference to the local string object.
+		StringTemplate<T>&		operator=(float);							//!< Overwrites the local string content with the converted (decimal) floating point value. \return Reference to the local string object.
+		StringTemplate<T>&		operator=(double);							//!< Overwrites the local string content with the converted (decimal) floating point value. \return Reference to the local string object.
+		StringTemplate<T>&		operator=(long double);						//!< Overwrites the local string content with the converted (decimal) floating point value. \return Reference to the local string object.
+		StringTemplate<T>&		operator=(long long);						//!< Overwrites the local string content with the converted (decimal) number. \return Reference to the local string object.
+		StringTemplate<T>&		operator=(unsigned long long);				//!< Overwrites the local string content with the converted (decimal) number. \return Reference to the local string object.
 		template <typename T0, typename T1>
 			StringTemplate<T>&		operator=(const ConcatExpression<T0,T1>&expression);
 		template <class T0>
@@ -1657,22 +1657,22 @@ template <typename T>
 			bool					operator>=(const CharacterExpression<T0>&expression)	const;
 		template <class T0>
 			bool					operator>=(const StringExpression<T0>&expression)	const;
-	virtual	serial_size_t			GetSerialSize(bool export_size) const	override;	//!< Queries the serial size of this object @param export_size True if the result should include additional space required for any size variable such as a string or array length @return Serial size (in bytes) of this object
-	virtual	bool					Serialize(IWriteStream&out_stream, bool export_size) const override;	//!< Writes the serialized content of the local object to the specified stream. The size of the written data must match the result of GetSerialSize() as long as the object remains unchanged. @param out_stream Stream to write to @param export_size True if the object is expected to export any dynamic size such as string or array length @return true if the object could be fully written to the out stream, false otherwise
-	virtual	bool					Deserialize(IReadStream&in_stream, serial_size_t fixed_size) override;		//!< Reads the content of the local object from the specified stream @param in_stream Stream to read from @param fixed_size 0 if any dynamic object size should be read from the stream or the size in bytes that the local object should adopt to otherwise. If this parameter is non-0 then the object data was serialized with @b export_size set to false @return true if the object data could be fully read from the out stream, false otherwise
-	inline	void					resize(size_t new_length);		//!< Resizes the local string length to match the specified number of characters (not including trailing zero). The resize operation leaves the local string content uninitialized save for an automatically set trailing zero. The string is duplicated even if the new size matches the existing one if it's not exclusively owned
-	inline	void					resizeCopy(size_t new_length);	//!< Resizes the local string length to match the specified number of characters (not including trailing zero). Any available string content is copied and the trailing zero set. If the local string length is increased then the new characters following the existing ones are left undefined.
-	inline	bool					IsEmpty()	const	{return string_length==0;}
-	inline	bool					IsNotEmpty()const	{return string_length!=0;}
-	inline	T*						writeTo(T*target)	const;
-	template <typename T2>
-		inline	T2*					writeTo(T2*target)	const;
-	inline	T*						writeTo(T*target, T*end)	const;
-	template <typename T2>
-		inline	T2*					writeTo(T2*target, T2*end)	const;
+		virtual	serial_size_t			GetSerialSize(bool export_size) const	override;	//!< Queries the serial size of this object @param export_size True if the result should include additional space required for any size variable such as a string or array length @return Serial size (in bytes) of this object
+		virtual	bool					Serialize(IWriteStream&out_stream, bool export_size) const override;	//!< Writes the serialized content of the local object to the specified stream. The size of the written data must match the result of GetSerialSize() as long as the object remains unchanged. @param out_stream Stream to write to @param export_size True if the object is expected to export any dynamic size such as string or array length @return true if the object could be fully written to the out stream, false otherwise
+		virtual	bool					Deserialize(IReadStream&in_stream, serial_size_t fixed_size) override;		//!< Reads the content of the local object from the specified stream @param in_stream Stream to read from @param fixed_size 0 if any dynamic object size should be read from the stream or the size in bytes that the local object should adopt to otherwise. If this parameter is non-0 then the object data was serialized with @b export_size set to false @return true if the object data could be fully read from the out stream, false otherwise
+		inline	void					resize(size_t new_length);		//!< Resizes the local string length to match the specified number of characters (not including trailing zero). The resize operation leaves the local string content uninitialized save for an automatically set trailing zero. The string is duplicated even if the new size matches the existing one if it's not exclusively owned
+		inline	void					resizeCopy(size_t new_length);	//!< Resizes the local string length to match the specified number of characters (not including trailing zero). Any available string content is copied and the trailing zero set. If the local string length is increased then the new characters following the existing ones are left undefined.
+		inline	bool					IsEmpty()	const	{return string_length==0;}
+		inline	bool					IsNotEmpty()const	{return string_length!=0;}
+		inline	T*						writeTo(T*target)	const;
+		template <typename T2>
+			inline	T2*					writeTo(T2*target)	const;
+		inline	T*						writeTo(T*target, T*end)	const;
+		template <typename T2>
+			inline	T2*					writeTo(T2*target, T2*end)	const;
 
 
-	virtual const T*				resolveContent() const	{return field;}	//! Exception string resolution
+		virtual const T*				resolveContent() const	{return field;}	//! Exception string resolution
 	};
 /*
 template <typename T> inline

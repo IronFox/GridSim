@@ -77,6 +77,7 @@ namespace XML
 		bool				Query(const String&attrib_name, StringRef&val_out)	const;	//!< Queries the string content of the specified attribute of the local node. The method does not crash if @a this is NULL. \param attrib_name Name of the requested attribute \param val_out String reference to store the respective attribute's value in \return true if the local object is not NULL and the requested attribute exists, false otherwise.
 		bool				Query(const char*attrib_name, StringRef&val_out)	const;	//!< @copydoc Query()
 		void				swap(Node&other);
+		friend void			swap(Node&a, Node&b)	{a.swap(b);}
 	};
 
 	class Container
