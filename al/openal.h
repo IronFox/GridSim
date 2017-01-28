@@ -154,6 +154,16 @@ namespace OpenAL
 	bool				PlayOnce(float x, float y, float z, const WaveBuffer&buffer, float gain=1.f, float referenceDistance=1.f);
 	bool				PlayOnce(const TVec3<>&position, const WaveBuffer&buffer, float gain=1.f, float referenceDistance=1.f);
 	
+	/**
+	Signals OpenAL that a an existing window focus has been lost.
+	This mutes all OpenAL sound output. Calling this function multiple times has no effect.
+	*/
+	void				SignalWindowFocusRestoration();
+	/**
+	Signals OpenAL that a previously existing window focus has been restored.
+	This reenables sound output. Calling this function multiple times has no effect.
+	*/
+	void				SignalWindowFocusLoss();
 	
 	namespace Listener
 	{

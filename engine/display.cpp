@@ -1,5 +1,6 @@
 #include "../global_root.h"
 #include "display.h"
+#include "../al/openal.h"
 
 #include "renderer/opengl.h"
 
@@ -1434,6 +1435,7 @@ namespace Engine
 		#endif
 		_focused = true;
 		mouse.RestoreFocus();
+		OpenAL::SignalWindowFocusRestoration();
 	}
 
 	void Context::looseFocus()
@@ -1444,6 +1446,7 @@ namespace Engine
 		_focused = false;
 		mouse.LooseFocus();
 		input.ReleasePressedKeys();
+		OpenAL::SignalWindowFocusLoss();
 	}
 
 	void Context::assign(pEngineExec target)
