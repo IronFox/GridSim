@@ -12,7 +12,7 @@
 
 #define __BUFFER_RVALUE_REFERENCES__	1		//!< Allows && references in constructors and assignment operators
 #define __BUFFER_DBG_RANGE_CHECK__		1		//!< Checks index ranges before access and issues a FATAL__ in case of a violation (DEBUG MODE ONLY)
-#define __BUFFER_DBG_FILL_STATE__		1		//!< Maintains a count_t variable that provides the number of elements in the buffer (DEBUG MODE ONLY)
+#define __BUFFER_DBG_COUNT__			1		//!< Maintains a count_t variable that provides the number of elements in the buffer (DEBUG MODE ONLY)
 
 namespace Container
 {
@@ -25,7 +25,7 @@ namespace Container
 			T						*storage_begin,		//!< Pointer to the first element of the storage area. May be NULL indicating an empty buffer
 									*storage_end,		//!< Pointer one past the last valid element of the storage area. May be NULL indicating an empty buffer. (storage_end-storage_begin) stays valid even if the buffer is empty
 									*usage_end;			//!< Pointer one past the last allocated element of the storage area. May be NULL indicating an empty buffer. (usage_end-storage_begin) stays valid even if the buffer is empty
-			#if defined(_DEBUG) && __BUFFER_DBG_FILL_STATE__
+			#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
 				count_t				fillLevel;			//!< Current fill level in elements. Maintained in debug mode only
 			#endif
 
@@ -126,7 +126,7 @@ namespace Container
 			inline bool				empty()						const;	//!< @copydoc IsEmpty()
 			inline bool				IsEmpty()					const;	//!< Returns true if the buffer holds no elements
 			inline bool				IsNotEmpty()				const;	//!< Returns true if the buffer holds at least one element
-			bool					Truncate(count_t fill_state);		//!< Decrements the local buffer counter to the specified Fill state. The method fails if the local buffer Fill state is less or equal the specified Fill state. The actually allocated buffer size remains unchanged.
+			bool					Truncate(count_t count);			//!< Decrements the local buffer counter to the specified count. The method fails if the local buffer count is less or equal the specified count. The actually allocated buffer size remains unchanged.
 			inline T*				appendRow(count_t length);			//!< Appends a number of elements and returns a pointer to the first element. The method returns NULL, if length is 0 @param length Number of elements to append. Must be greater 0 @return Pointer to the first of the appended elements or NULL, if an error occured
 			inline T*				AppendRow(count_t length)			/**@copydoc appendRow()*/ {return appendRow(length);}
 			inline T*				appendRow(count_t length, const T&pattern);			//!< Appends a number of elements and returns a pointer to the first element. The method returns NULL, if length is 0 @param length Number of elements to append. Must be greater 0 @param pattern Data to Fill newly appended elements with @return Pointer to the first of the appended elements or NULL, if an error occured
