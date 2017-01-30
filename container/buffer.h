@@ -68,12 +68,12 @@ namespace Container
 			#if __BUFFER_RVALUE_REFERENCES__
 				inline Self&		operator<<(T&&element);			//!< Appends \b element to the end of the buffer, advancing the buffer cursor by one. The buffer will automatically be doubled in size if it is full at the time this operator is invoked.
 			#endif
-			inline index_t			push_back(const T&element);				//!< @copydoc operator<<() @return Index of the appended element (buffer Fill state prior to appending)
+			inline index_t			push_back(const T&element);				//!< @copydoc operator<<() @return Index of the appended element (buffer fill level prior to appending)
 			inline void				clear(count_t len);						//!< Reallocates the buffer to the specified size and resets the buffer cursor. Any stored data is destructed.
 			inline void				clear();								//!< @copydoc reset()
 			inline void				Clear(count_t len)	/**@copydoc clear(count_t len)*/ {clear(len);}
 			inline void				Clear()				/**@copydoc clear()*/ {clear();}
-			void					resizePreserveContent(count_t len);		//!< Resizes the local buffer size but preserves the old content and Fill state where possible. If the old Fill state exceeds the new size then all new elements will be occupied and initialized
+			void					resizePreserveContent(count_t len);		//!< Resizes the local buffer size but preserves the old content and fill level where possible. If the old fill level exceeds the new size then all new elements will be occupied and initialized
 			inline void				ResizePreserveContent(count_t len)		/**@copydoc resizePreserveContent()*/ {resizePreserveContent(len);}
 			void					Fill(const T&pattern);					//!< Copies \b pattern to each element of the local buffer
 			template <typename Strategy2>
@@ -154,7 +154,7 @@ namespace Container
 			inline T*				insertRow(index_t before_element, count_t length);		//!< Appends a number of elements and returns a pointer to the first element. The method returns NULL, if length is 0 @param length Number of elements to append. Must be greater 0 @return Pointer to the first of the appended elements or NULL, if an error occured
 			inline T*				InsertRow(index_t before_element, count_t length)		/**@copydoc insertRow()*/ {return insertRow(before_element,length);}
 
-			inline T				pop();								//!< Pops the last element from the buffer (the internally allocated memory section is not resized, only the local Fill state decremented and the last object destructed). The method behavior is undefined if the buffer is empty.
+			inline T				pop();								//!< Pops the last element from the buffer (the internally allocated memory section is not resized, only the local fill level decremented and the last object destructed). The method behavior is undefined if the buffer is empty.
 			inline T				Pop()								/**@copydoc pop()*/ {return pop();}
 			inline void				eraseLast();						//!< Simplified void-version of pop(). Can be more efficient if the contained type is complex and the returned object not used anyway. The method behavior is undefined if the buffer is empty.
 			inline void				EraseLast()							/**@copydoc eraseLast()*/ {eraseLast();}
@@ -193,13 +193,13 @@ namespace Container
 
 			inline T&				fromEnd(index_t);					//!< Retrieves the nth element from the end of the consumed buffer space. fromEnd(0) is identical to last()
 			inline const T&			fromEnd(index_t)			const;	//!< @copydoc fromEnd()
-			void					compact();							//!< Reduces the local buffer size to the exact Fill state and copies all contained elements. Any succeeding push operation will automatically increase buffer size again. The method returns if the stack is already of compact size
+			void					compact();							//!< Reduces the local buffer size to the exact fill level and copies all contained elements. Any succeeding push operation will automatically increase buffer size again. The method returns if the stack is already of compact size
 			inline void				Compact()							/**@copydoc compact()*/	{compact();}
-			Array<T,Strategy>		copyToArray()						const;	//!< Exports the local data up to the current Fill state to the returned array.
+			Array<T,Strategy>		copyToArray()						const;	//!< Exports the local data up to the current fill level to the returned array.
 			inline Array<T,Strategy>CopyToArray()						const	/**@copydoc copyToArray()*/	{return copyToArray();}
-			void					copyToArray(ArrayData<T>&target)	const;	//!< Exports the local data up to the current Fill state to the specified array. The target array will be resized if necessary
+			void					copyToArray(ArrayData<T>&target)	const;	//!< Exports the local data up to the current fill level to the specified array. The target array will be resized if necessary
 			inline void				CopyToArray(ArrayData<T>&target)	const	/**@copydoc copyToArray()*/	{copyToArray(target);}
-			void					moveToArray(ArrayData<T>&target, bool clearBuffer=true);		//!< Moves local data up to the current Fill state to the specified array. Move behavior is defined by the used Strategy class. @param reset_buffer Set true to automatically reset the buffer once element movement is completed
+			void					moveToArray(ArrayData<T>&target, bool clearBuffer=true);		//!< Moves local data up to the current fill level to the specified array. Move behavior is defined by the used Strategy class. @param reset_buffer Set true to automatically reset the buffer once element movement is completed
 			inline void				MoveToArray(ArrayData<T>&target, bool clearBuffer=true)	/**@copydoc moveToArray()*/	{moveToArray(target,clearBuffer);}
 			template <typename T2>
 				inline bool			contains(const T2&element)	const;	//!< Determines whether or not an equivalent to the specified element is currently stored in the active region of the buffer. Comparison is done via the ==operator.
