@@ -69,6 +69,8 @@ namespace Math
 				out[dimension+1] = cos(bow);
 			}
 
+
+
 		MFUNC5
 			(void)    __rotationMatrix(const C0&angle, const C1&ax, const C2&ay, const C3&az, C4 out[3*3])
 			{
@@ -363,8 +365,64 @@ namespace Math
 		}
 
 
+		MFUNC2 (void) FillRotationMatrix(C0 angle, TMatrix2<C1>&out)
+		{
+			C1   bow = angle*M_PI/180;
+			C1	cs = cos(bow),
+				sn = sin(bow);
+			out.x.x = çs;
+			out.x.y = -sn;
+			out.y.x = sn;
+			out.y.y = cs;
+		}
 
+		MFUNC2(void)		FillXRotationMatrix(C0 angle, TMatrix3<C1>&out)
+		{
+			C1   bow = angle*M_PI/180;
+			C1	cs = cos(bow),
+				sn = sin(bow);
+			out.x.x = 1;
+			out.x.y = 0;
+			out.x.z = 0;
+			out.y.x = 0;
+			out.y.y = cs;
+			out.y.z = -sn;
+			out.z.x = 0;
+			out.z.y = sn;
+			out.z.z = cs;
+		}
 
+		MFUNC2(void)		FillYRotationMatrix(C0 angle, TMatrix3<C1>&out)
+		{
+			C1   bow = angle*M_PI/180;
+			C1	cs = cos(bow),
+				sn = sin(bow);
+			out.x.x = cs;
+			out.x.y = 0;
+			out.x.z = -sn;
+			out.y.x = 0;
+			out.y.y = 1;
+			out.y.z = 0;
+			out.z.x = sn;
+			out.z.y = 0;
+			out.z.z = cs;
+		}
+
+		MFUNC2(void)		FillZRotationMatrix(C0 angle, TMatrix3<C1>&out)
+		{
+			C1   bow = angle*M_PI/180;
+			C1	cs = cos(bow),
+				sn = sin(bow);
+			out.x.x = cs;
+			out.x.y = -sn;
+			out.x.z = 0;
+			out.y.x = sn;
+			out.y.y = cs;
+			out.y.z = 0;
+			out.z.x = 0;
+			out.z.y = 0;
+			out.z.z = 1;
+		}
 
 		MFUNC3(void)	rotationMatrix(C0 angle,const TVec3<C1>&axis,TMatrix3<C2>&result)
 		{
@@ -388,15 +446,15 @@ namespace Math
 			result.z.z = t*z*z + c;
 		}
 
-		MFUNC5(void)	rotationMatrix(const C0&angle, const C1&ax, const C2&ay, const C3&az, TMatrix3<C4>&result)
+		MFUNC5(void)	rotationMatrix(C0 angle, C1 ax, C2 ay, C3 az, TMatrix3<C4>&result)
 		{
-				C4		c = cos(angle*M_PI/180),
-						t = 1-c,
-						s = sin(angle*M_PI/180),
-						l = sqrt(ax*ax+ay*ay+az*az),
-						x = ax/l,
-						y = ay/l,
-						z = az/l;
+			C4		c = cos(angle*M_PI/180),
+					t = 1-c,
+					s = sin(angle*M_PI/180),
+					l = sqrt(ax*ax+ay*ay+az*az),
+					x = ax/l,
+					y = ay/l,
+					z = az/l;
 
 			result.x.x = t*x*x + c;
 			result.x.y = t*x*y - s*z;
