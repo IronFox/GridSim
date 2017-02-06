@@ -794,6 +794,13 @@ namespace Engine
 	    region_locked = false;
 	}
 
+
+	template <class GL> /*static*/ void Display<GL>::RegisterFocusCallbacks(const PCallback&onFocusLost, const PCallback&onFocusRestored)
+	{
+		context.RegisterFocusCallbacks(onFocusLost,onFocusRestored);
+	}
+
+
 	/**
 		@brief Multi-window specific method. Allows to transform a float viewport to the corresponding pixel-region.
 

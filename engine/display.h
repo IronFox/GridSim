@@ -19,7 +19,6 @@ Engine Display
 #include "textout.h"
 #include "../math/resolution.h"
 
-
 #if SYSTEM==WINDOWS
 
 #elif SYSTEM_VARIANCE==LINUX
@@ -39,6 +38,9 @@ Engine Display
 */
 namespace Engine
 {
+
+	typedef std::function<void()>	PCallback;
+
 
 #if SYSTEM==WINDOWS
 
@@ -242,6 +244,7 @@ namespace Engine
 		FORWARD void				Maximize();
 		FORWARD bool				IsMinimized();
 		FORWARD void				Minimize();
+		FORWARD void				RegisterFocusCallbacks(const PCallback&onFocusLost, const PCallback&onFocusRestored);
 		#if SYSTEM==WINDOWS
 			FORWARD bool			getScreen(DEVMODE&mode);
 			FORWARD bool			getScreen(DEVMODE*mode);
@@ -334,8 +337,11 @@ namespace Engine
 		static	HHOOK			hHook;
 		static	unsigned		hook_counter;
 	#endif
-			bool				class_created;
-	static  LRESULT CALLBACK	WndProc(HWND hWnd, UINT Msg, WPARAM wParam,LPARAM lParam);
+		bool					class_created;
+
+		PCallback				onRestoreFocus,onLoseFocus;
+
+		static  LRESULT CALLBACK	WndProc(HWND hWnd, UINT Msg, WPARAM wParam,LPARAM lParam);
 
 	#ifndef DISPLAY_NO_MOUSE_HOOKS
 		static 	LRESULT CALLBACK 	mouseHook(int nCode, WPARAM wParam,   LPARAM lParam);
@@ -392,6 +398,11 @@ namespace Engine
 
 		UINT32					GetDisplayConfigFlags() const;
 			
+		void					RegisterFocusCallbacks(const PCallback&onFocusLost, const PCallback&onFocusRestored)
+		{
+			onLoseFocus = onFocusLost;
+			onRestoreFocus = onFocusRestored;
+		}
 
 	#if SYSTEM==WINDOWS
 			void				RegisterEventHook(EventHook hook)	{eventHook = hook;}
