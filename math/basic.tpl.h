@@ -188,17 +188,7 @@ namespace Math
 			return expl(e);
 		}
 		
-		MFUNC (C)             vpow10(const C&e)
-		{
-			return pow10(e);
-		}
 			
-		#ifdef __BORLANDC__
-			MF_SPECIALIZED (long double)   vpow10<long double>(const long double&e)
-			{
-				return pow10l(e);
-			}
-		#endif
 		
 		MFUNC (C)             vlog10(const C&v)
 		{
@@ -735,50 +725,64 @@ namespace Math
 	}
 
 
-	template <bool IsFloat /*=false*/>
-		class Pow10
+	template <typename T, bool IsFloat /*=false*/, bool IsSigned /*=false*/>
+		class TPow10
 		{
+			typedef TPow10<T,IsFloat,IsSigned>	Self;
 		public:
-			template <typename T>
-				static T Execute(T val)
-				{
-					if (val == 0)
-						return (T)1;
-					if (val == 1)
-						return (T)10;
-					T rs = Pow10<IsFloat>::Execute(val>>1);
-					rs *= rs;
-					if (val%2)
-						rs *= 10;
-					return rs;
-				}
+			typedef T	ReturnType;			
+			static ReturnType Execute(T val)
+			{
+				if (val == 0)
+					return (T)1;
+				if (val == 1)
+					return (T)10;
+				T rs = Self::Execute(val>>1);
+				rs *= rs;
+				if (val%2)
+					rs *= 10;
+				return rs;
+			}
 
 		};
 
-	template <>
-		class Pow10<true>
+	template <typename T, bool IsFloat /*=false*/>
+		class TPow10<T, IsFloat,true>	//signed integer
 		{
+			typedef TPow10<T,IsFloat,true>	Self;
+			typedef TPow10<typename TypeInfo<T>::UnsignedType::Type,IsFloat,false> Calculator;
 		public:
-			template <typename T>
-				static T Execute(T val)
-				{
-					return ::pow((T)10,val);
-				}
+			typedef double	ReturnType;
+
+			static ReturnType Execute(T val)
+			{
+				if (val < 0)
+					return 1.0 / (double)Calculator::Execute(-val);
+				return (double)Calculator::Execute(val);
+			}
 
 		};
 
+	template <typename T, bool IsSigned>
+		class TPow10<T, true,IsSigned>
+		{
+			typedef TPow10<T,true,IsSigned>	Self;
+		public:
+			typedef T	ReturnType;
 
-	MFUNC (C)             vpow10(C e)
+			static ReturnType Execute(T val)
+			{
+				return ::pow((T)10,val);
+			}
+
+		};
+
+	template <typename T>
+	auto            Pow10(T e) -> typename TPow10<T, TypeInfo<T>::is_float, TypeInfo<T>::is_signed>::ReturnType
 	{
-		return Pow10<TypeInfo<C>::is_float>::Execute(e);
+		return TPow10<T, TypeInfo<T>::is_float, TypeInfo<T>::is_signed>::Execute(e);
 	}
 
-    #ifdef __BORLANDC__
-		MF_SPECIALIZED	(long double)   vpow10<long double>(long double e)
-		{
-			return pow10l(e);
-		}
-    #endif
 
 	MFUNC (C)             vlog10(C v)
 	{

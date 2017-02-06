@@ -287,7 +287,7 @@ namespace Math
 	template <typename T>
 		inline T	Round(T x, unsigned digits)
 		{
-			T factor = vpow10(digits);
+			T factor = Pow10(digits);
 			return Round(x * factor) / factor;
 		}
 
@@ -373,7 +373,8 @@ namespace Math
 	MFUNC	(C)			vlog(C v);														//!< Calculates log(v)
 	MFUNC2	(C0)		vpow(C0 b,C1 e);												//!< Calculates b^e
 	MFUNC	(C)			vexp(C e);														//!< Calculates (e)^e
-	MFUNC	(C)			vpow10(C e);													//!< Calculates 10^e
+	//template <typename T>
+		//auto          Pow10(T e);														//!< Calculates 10^e (exists. Commented here due to declaration order)
 	MFUNC	(C)			vlog10(C v);													//!< Calculates log(10)e
 	MFUNC	(C)			vsin(C v);
 	MFUNC	(C)			vcos(C v);
@@ -434,7 +435,6 @@ namespace Math
 		MFUNC	(C)			vlog(const C&v);											//!< By reference variant of Math::vlog()
 		MFUNC2	(C0)		vpow(const C0&b,const C1&e);								//!< By reference variant of Math::vpow()
 		MFUNC	(C)			vexp(const C&e);											//!< By reference variant of Math::vexp()
-		MFUNC	(C)			vpow10(const C&e);											//!< By reference variant of Math::vpow10()
 		MFUNC	(C)			vlog10(const C&v);											//!< By reference variant of Math::vlog10()
 		MFUNC	(C)			vsin(const C&v);
 		MFUNC	(C)			vcos(const C&v);
