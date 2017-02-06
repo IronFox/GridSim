@@ -40,6 +40,7 @@ namespace Engine
 	*/
 	class RenderSequence
 	{
+		typedef RenderSequence	Self;
 	private:
 		typedef Buffer<RenderInstructionWrapper,0>	WrapperList;
 		WrapperList			wrappers;
@@ -51,6 +52,7 @@ namespace Engine
 								wrappers.swap(other.wrappers);
 								std::swap(isSealed,other.isSealed);
 							}
+		friend void			swap(Self&a, Self&b)	{a.swap(b);}
 		void				Insert(FRenderInstruction instruction, index_t orderIndex);
 		void				Seal();
 		bool				IsSealed()	const	{return isSealed;}

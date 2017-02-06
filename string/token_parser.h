@@ -97,49 +97,51 @@ namespace Parser
 									swp(begin,other.begin);
 									swp(end,other.end);
 								}
+		friend void				swap(Sequence&a, Sequence&b){a.swap(b);}
 	};
 
 	struct Stream : public Buffer<Sequence,0,Strategy::Swap>
 	{
 	public:
-			typedef Buffer<Sequence,0,Strategy::Swap>	Super;
+		typedef Buffer<Sequence,0,Strategy::Swap>	Super;
 
-			typedef Buffer<index_t,0>	MapEntry;
-			StringTable<MapEntry,Strategy::Swap>	sequence_map;	//!< Maps state names to sequences
+		typedef Buffer<index_t,0>	MapEntry;
+		StringTable<MapEntry,Strategy::Swap>	sequence_map;	//!< Maps state names to sequences
 
-			count_t			FindAll(const String&name, Buffer0<Sequence*>&result)
+		count_t			FindAll(const String&name, Buffer0<Sequence*>&result)
+		{
+			result.Clear();
+			//index_t at;
+			MapEntry*entry = sequence_map.QueryPointer(name);
+			if (entry)
 			{
-				result.Clear();
-				//index_t at;
-				MapEntry*entry = sequence_map.QueryPointer(name);
-				if (entry)
-				{
-					foreach (*entry,item)
-						result << &Super::at(*item);
-					return result.Count();
-				}
-				return 0;
+				foreach (*entry,item)
+					result << &Super::at(*item);
+				return result.Count();
 			}
+			return 0;
+		}
 			
-			Sequence*			FindAny(const String&name)
-			{
-				MapEntry*entry = sequence_map.QueryPointer(name);
-				if (entry && entry->Count())
-					return &Super::at(entry->first());
-				return nullptr;
-			}
+		Sequence*			FindAny(const String&name)
+		{
+			MapEntry*entry = sequence_map.QueryPointer(name);
+			if (entry && entry->Count())
+				return &Super::at(entry->first());
+			return nullptr;
+		}
 			
 
-			void				swap(Stream&other)
-								{
-									Super::swap(other);
-									sequence_map.swap(other.sequence_map);
-								}
-			void				adoptData(Stream&other)
-								{
-									Super::adoptData(other);
-									sequence_map.adoptData(other.sequence_map);
-								}
+		void				swap(Stream&other)
+							{
+								Super::swap(other);
+								sequence_map.swap(other.sequence_map);
+							}
+		friend void			swap(Stream&a, Stream&b){a.swap(b);}
+		void				adoptData(Stream&other)
+							{
+								Super::adoptData(other);
+								sequence_map.adoptData(other.sequence_map);
+							}
 	};
 	//typedef Buffer<Sequence,0,Strategy::Swap> 	Stream;
 
@@ -174,6 +176,7 @@ namespace Parser
 
 									Node();
 
+			friend void				swap(Node&a, Node&b){a.swap(b);}
 			void					swap(Node&other)
 									{
 										connections.swap(other.connections);

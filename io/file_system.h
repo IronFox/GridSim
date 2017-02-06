@@ -104,58 +104,62 @@ namespace FileSystem
 	class File
 	{
 	private:
-			PathString		name,
-							location;
-			bool			is_folder;
-			friend class	Folder;
-			friend class	Drive;
-			friend bool		FileSystem::Copy(const PathString&source, const PathString&destination, File&outFile, bool overwrite_if_exist);
-			//friend const File* FileSystem::Copy(const PathString&source, const PathString&destination, bool overwrite_if_exist);
-			//friend const File* FileSystem::Copy(const File*, const PathString&, bool);
-			//friend const File* FileSystem::Copy(const File&, const PathString&, bool);
-			friend const File* FileSystem::Move(const PathString&source, const PathString&destination);
-			friend const File* FileSystem::Move(const File*, const PathString&);
-			friend const File* FileSystem::Move(const File&, const PathString&);
-			friend bool  FileSystem::CreateFolder(const PathString&folder_name, File&out);
+		PathString		name,
+						location;
+		bool			is_folder;
+		friend class	Folder;
+		friend class	Drive;
+		friend bool		FileSystem::Copy(const PathString&source, const PathString&destination, File&outFile, bool overwrite_if_exist);
+		friend const File* FileSystem::Move(const PathString&source, const PathString&destination);
+		friend const File* FileSystem::Move(const File*, const PathString&);
+		friend const File* FileSystem::Move(const File&, const PathString&);
+		friend bool  FileSystem::CreateFolder(const PathString&folder_name, File&out);
 	public:
-								File();
-								File(const Drive&drive);
-	//virtual					~File(){};
+		/**/				File();
+		/**/				File(const Drive&drive);
 
-			const File*			GetSibling(const PathString&ext)		const;
-			ftime_t				GetModificationTime()				const;		//!< Returns the unix filetime of the local entry \return Unix time stamp
-			PathString			GetName()							const;		//!< Returns the name of the local entry (without preceeding folder(s)) \return Filename
-			PathString			GetInnerName()						const;		//!< Returns the name of the local entry (without preceeding folder(s)) excluding any trailing extension \return Inner filename
-			const PathString&	GetLocation()						const;		//!< Returns the absolute filename (including any preceeding folder(s)) \return Absolute location
-			PathString			GetFolder()							const;		//!< Returns the absolute name of the parent folder without trailing slash \return Absolute location of the containing folder
-			PathString			GetExtension()						const;		//!< Returns the file extension (without preceeding dot) \return String containing the file extension
-			const PathString::char_t*			GetExtensionPointer()				const;		//!< Returns the file extension (without preceeding dot) \return Pointer to the beginning of the local filename's file extension. Does not return NULL
-			bool				IsExtension(const PathString&ext)		const;		//!< Checks if the specified extension equals the local file's extension. Comparison is case insensitive. \return true if the specified extension matches the extension of the local file
-			bool				IsFolder()							const;		//!< Returns true if the local entry is a folder/directory (identical to IsDirectory())	\return true if folder
-			bool				IsDirectory()						const;		//!< Returns true if the local entry is a folder/directory (identical to IsFolder()) \return true if folder
-			String				ToString()							const;		//!< Creates a string representation of the local entry \return String representation
-			bool				DoesExist()							const;		//!< Queries existence of the local file or folder
+		void				swap(File&other)
+		{
+			name.swap(other.name);
+			location.swap(other.location);
+			swp(is_folder,other.is_folder);
+		}
+		friend void swap(File& a, File& b)	{a.swap(b);}
 
-			bool				Unlink()							const;		//!< Unlinks (erases) the local file/folder (making the local handle invalid) \return true on success
+		const File*			GetSibling(const PathString&ext)		const;
+		ftime_t				GetModificationTime()				const;		//!< Returns the unix filetime of the local entry \return Unix time stamp
+		PathString			GetName()							const;		//!< Returns the name of the local entry (without preceeding folder(s)) \return Filename
+		PathString			GetInnerName()						const;		//!< Returns the name of the local entry (without preceeding folder(s)) excluding any trailing extension \return Inner filename
+		const PathString&	GetLocation()						const;		//!< Returns the absolute filename (including any preceeding folder(s)) \return Absolute location
+		PathString			GetFolder()							const;		//!< Returns the absolute name of the parent folder without trailing slash \return Absolute location of the containing folder
+		PathString			GetExtension()						const;		//!< Returns the file extension (without preceeding dot) \return String containing the file extension
+		const PathString::char_t*			GetExtensionPointer()				const;		//!< Returns the file extension (without preceeding dot) \return Pointer to the beginning of the local filename's file extension. Does not return NULL
+		bool				IsExtension(const PathString&ext)		const;		//!< Checks if the specified extension equals the local file's extension. Comparison is case insensitive. \return true if the specified extension matches the extension of the local file
+		bool				IsFolder()							const;		//!< Returns true if the local entry is a folder/directory (identical to IsDirectory())	\return true if folder
+		bool				IsDirectory()						const;		//!< Returns true if the local entry is a folder/directory (identical to IsFolder()) \return true if folder
+		String				ToString()							const;		//!< Creates a string representation of the local entry \return String representation
+		bool				DoesExist()							const;		//!< Queries existence of the local file or folder
+
+		bool				Unlink()							const;		//!< Unlinks (erases) the local file/folder (making the local handle invalid) \return true on success
 			
-			bool				operator<(const File&other)			const;
-			bool				operator>(const File&other)			const;
-			bool				operator<=(const File&other)		const;
-			bool				operator>=(const File&other)		const;
-			bool				operator==(const File&other)		const;
-			bool				operator!=(const File&other)		const;
+		bool				operator<(const File&other)			const;
+		bool				operator>(const File&other)			const;
+		bool				operator<=(const File&other)		const;
+		bool				operator>=(const File&other)		const;
+		bool				operator==(const File&other)		const;
+		bool				operator!=(const File&other)		const;
 
-			bool				operator<(const PathString&filename)	const;
-			bool				operator>(const PathString&filename)	const;
-			bool				operator<=(const PathString&filename)	const;
-			bool				operator>=(const PathString&filename)	const;
-			bool				operator==(const PathString&filename)	const;
-			bool				operator!=(const PathString&filename)	const;
+		bool				operator<(const PathString&filename)	const;
+		bool				operator>(const PathString&filename)	const;
+		bool				operator<=(const PathString&filename)	const;
+		bool				operator>=(const PathString&filename)	const;
+		bool				operator==(const PathString&filename)	const;
+		bool				operator!=(const PathString&filename)	const;
 			
-			operator const PathString&()								const
-			{
-				return location;
-			}
+		operator const PathString&()								const
+		{
+			return location;
+		}
 	};
 
 	/**

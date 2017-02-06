@@ -223,13 +223,19 @@ template <typename T, size_t Length>
 		constexpr count_t		Count() const {return Length;}
 
 		/**
-		Executes swap() on all elements
+		Executes std::swap() on all elements
 		*/
-		void					swap(FixedArray<T,Length>&other)
+		void					swap(Self&other)
 		{
 			for (index_t i = 0; i < Length; i++)
-				value[i].swap(other.value[i]);
+				std::swap(value[i],other.value[i]);
 		}
+
+		friend void				swap(Self&a, Self&b)
+		{
+			a.swap(b);
+		}
+
 		/**
 		Executes adoptData() on all elements
 		*/
@@ -812,6 +818,7 @@ template <class C>
 	class ArrayData: public ArrayRef<C>, public SerializableObject, public Arrays
 	{
 		typedef ArrayRef<C>	Super;
+		typedef ArrayData<C>	Self;
 	protected:
 		using Super::data;
 		using Super::elements;
@@ -929,12 +936,15 @@ template <class C>
 								other.elements = 0;
 							}
 
-		inline	void		swap(ArrayData<C>&other)
+		inline	void		swap(Self&other)
 							{
 								swp(data,other.data);
 								swp(elements,other.elements);
 							}
-
+		friend void			swap(Self&a, Self&b)
+		{
+			a.swap(b);
+		}
 
 
 		inline	void		SetSize(count_t new_size)	/** @brief Resizes the array. The new array's content is constructed but uninitialized. \param new_size New array size in elements (may be 0) */
@@ -1779,26 +1789,30 @@ template <class C, class Strategy=typename Strategy::StrategySelector<C>::Defaul
 			return Get(*x,*y);
 		}
 		
-		const C&			Get(const Iterator<true>&x, index_t y)	const //! Retrieves a singular element at the specified position	\param x X coordinate. Must be less than width() \param y Y coordinate. Must be less than height() \return Reference to the requested element
+		const C&	Get(const Iterator<true>&x, index_t y)	const //! Retrieves a singular element at the specified position	\param x X coordinate. Must be less than width() \param y Y coordinate. Must be less than height() \return Reference to the requested element
 		{
 			return Get(*x,y);
 		}
 
-		const C&			Get(index_t x, const Iterator<false>&y)	const //! Retrieves a singular element at the specified position	\param x X coordinate. Must be less than width() \param y Y coordinate. Must be less than height() \return Reference to the requested element
+		const C&	Get(index_t x, const Iterator<false>&y)	const //! Retrieves a singular element at the specified position	\param x X coordinate. Must be less than width() \param y Y coordinate. Must be less than height() \return Reference to the requested element
 		{
 			return Get(x,*y);
 		}
 
-		void	adoptData(Array2D<C,Strategy>&other)	//! Adopts pointer and size and sets both NULL of the specified origin array.
+		void	adoptData(Self&other)	//! Adopts pointer and size and sets both NULL of the specified origin array.
 		{
 			w = other.w;
 			Super::adoptData(other);
 			other.w = 0;
 		}
-		void	swap(Array2D<C,Strategy>&other)
+		void	swap(Self&other)
 		{
 			Super::swap(other);
 			swp(w,other.w);
+		}
+		friend void swap(Self&a, Self&b)
+		{
+			a.swap(b);
 		}
 
 		bool	operator==(const Self&other) const

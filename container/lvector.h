@@ -36,7 +36,7 @@ namespace List
 	public:
 		//26 E:\include\list\lvector.h `typedef class KeyEntry Vector<KeyEntry>::Type' is inaccessible
 
-
+	typedef		Vector<C>				Self;
 	typedef		C						Type;		//!< Contained object type
 	typedef		C*						Data;		//!< Contained object pointer type
 	typedef		Data*					iterator;		//!< STL container iterator type
@@ -75,6 +75,7 @@ namespace List
 	INLINE		void					set(index_t index, Type*element);
 	INLINE		void					swap(index_t index0, index_t index1);
 	INLINE		void					swap(Vector<C>&other);
+	friend		void					swap(Self&a, Self&b)	{a.swap(b);}
 	INLINE		void					revert();
 
 	INLINE		Type*					get(index_t index);

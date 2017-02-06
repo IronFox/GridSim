@@ -243,6 +243,7 @@ template <typename T>
 		inline	const T*			data()																const;	//!< Const version of GetData().
 		void						adoptData(ImageTemplate<T>&other);													//!< Clears any local data and adopts all pointers of the other image. The respective other image will be empty when the operation is executed.
 		void						swap(ImageTemplate<T>&other);													//!< Swaps all pointers and attributes with the other image.
+		friend void					swap(Self&a, Self&b)	{a.swap(b);}
 		void						SetSize(dimension_t width, dimension_t height, BYTE channels);				//!< Alters the dimensions of the local image. The content of the pixel data field is lost if it is resized during this operation. \param width New image width in pixels \param height New image height in pixels. \param channels New number of color channels.
 		inline	void				SetChannel(dimension_t x, dimension_t y, BYTE channel, T newData);	//!< Alters the content of one color channel of one specific pixel.  \param x x-coordinate of the pixel (0 = left most pixel, must be valid) \param y y-coordinate of the pixel (usually 0 = bottom most pixel, must be valid) \param channel Target channel (must be valid) \param newData New value for the specified channel of the specified pixel.
 		void						SetChannel(BYTE channel, T new_value);							//!< Alters the content of one color channel of all pixels  \param channel Target channel (must be valid) \param newData New value for the specified channel of all pixels.

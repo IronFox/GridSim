@@ -47,9 +47,12 @@ namespace Config
 		
 	class Context
 	{
+		typedef Context					Self;
 	public:
 			struct Attribute
 			{
+				typedef Attribute		Self;
+
 				String					name,
 										assignment_operator,
 										value,
@@ -64,6 +67,7 @@ namespace Config
 					comment.swap(other.comment);
 					swp(commented,other.commented);
 				}
+				friend void				swap(Self&a, Self&b)	{a.swap(b);}
 			};
 			
 	protected:
@@ -96,6 +100,7 @@ namespace Config
 				swp(isMode,other.isMode);
 				name.swap(other.name);
 			}
+			friend void					swap(Self&a, Self&b)	{a.swap(b);}
 											
 	virtual								~Context()	{};
 		

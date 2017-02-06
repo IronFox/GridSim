@@ -86,8 +86,9 @@ namespace Package
 	template <typename T>
 		class Native:public SerializableObject
 		{
+			typedef Native<T>				Self;
 		public:
-				T							value;
+			T								value;
 				
 											Native():value()
 											{}
@@ -119,6 +120,7 @@ namespace Package
 			}
 
 			void							swap(Native<T>&other)		{swp(value,other.value);}
+			friend void						swap(Self&a, Self&b)		{a.swap(b);}
 			void							adoptData(Native<T>&other)	{value = other.value;}
 			
 			void							operator|=(const T&other)	{value |= other;}
@@ -147,14 +149,15 @@ namespace Package
 		};
 		
 	template <class C0, class C1>
-		class Tupel:public SerializableObject
+		class Tuple:public SerializableObject
 		{
+			typedef Tuple<C0,C1>		Self;
 		public:
 			C0							a;
 			C1							b;
 
-			/**/						Tupel()	{}
-			/**/						Tupel(const C0&a_, const C1&b_):a(a_),b(b_){}
+			/**/						Self()	{}
+			/**/						Self(const C0&a_, const C1&b_):a(a_),b(b_){}
 
 
 		
@@ -203,24 +206,25 @@ namespace Package
 				return	a.Deserialize(in_stream,EmbeddedSize) && b.Deserialize(in_stream,EmbeddedSize);
 			}
 
-			void						swap(Tupel<C0,C1>&other)
+			void						swap(Self&other)
 										{
 											a.swap(other.a);
 											b.swap(other.b);
 										}
-			void						adoptData(Tupel<C0,C1>&other)
+			friend void					swap(Self&a, Self&b)		{a.swap(b);}
+			void						adoptData(Self&other)
 										{
 											a.adoptData(other.a);
 											b.adoptData(other.b);
 										}
 
-			Tupel<C0,C1>&				setA(const C0&a_)
+			Self&					setA(const C0&a_)
 										{
 											a = a_;
 											return *this;
 										}
 
-			Tupel<C0,C1>&				setB(const C1&b_)
+			Self&						setB(const C1&b_)
 										{
 											b = b_;
 											return *this;
@@ -231,6 +235,7 @@ namespace Package
 		
 	class CompressedString:public SerializableObject
 	{
+		typedef CompressedString	Self;
 	public:
 		Array<BYTE>		compressed;
 		String			uncompressed;
@@ -243,6 +248,7 @@ namespace Package
 							uncompressed.swap(other.uncompressed);
 							swp(is_compressed,other.is_compressed);
 						}
+		friend void		swap(Self&a, Self&b)		{a.swap(b);}
 		void			adoptData(CompressedString&other)
 						{
 							compressed.adoptData(other.compressed);
@@ -332,6 +338,7 @@ namespace Package
 	template <class C>
 		class CompressedArray:public SerializableObject
 		{
+			typedef CompressedArray<C>		Self;
 		public:
 			Array<BYTE>		compressed,
 							serialized;
@@ -345,6 +352,7 @@ namespace Package
 								uncompressed.swap(other.uncompressed);
 								swp(is_compressed,other.is_compressed);
 							}
+			friend void		swap(Self&a, Self&b)		{a.swap(b);}
 			void			adoptData(CompressedArray<C>&other)
 							{
 								compressed.adoptData(other.compressed);
@@ -437,7 +445,7 @@ namespace Package
 DECLARE__(Package::CompressedString,Swappable);
 DECLARE_T__(Package::CompressedArray,Swappable);
 DECLARE_T__(Package::Native,Swappable);
-DECLARE_T2__(Package::Tupel,typename,typename,Swappable);
+DECLARE_T2__(Package::Tuple,typename,typename,Swappable);
 
 namespace Strategy
 {

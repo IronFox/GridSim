@@ -15,6 +15,8 @@ namespace OpenAL
 	
 	namespace Status
 	{
+		bool		focusLostMuted = false;
+
 		CWaves		wave_loader;
 		bool		initialized = false;
 		ALCdevice	*pDevice = NULL;
@@ -402,7 +404,6 @@ namespace OpenAL
 		{
 			return true;
 		}
-
 		const char*defaultDeviceName = (const char *)alcGetString(NULL, ALC_DEFAULT_DEVICE_SPECIFIER);
 		if (!defaultDeviceName || !strlen(defaultDeviceName))
 		{
@@ -546,7 +547,10 @@ namespace OpenAL
 		void					SetGain(float volume)
 		{
 			if (OpenAL::Status::globalMaxOverVolume >= 1.f && !OpenAL::Status::globalMaxOverVolumeChanged)
-				alListenerf(AL_GAIN,volume * OpenAL::Status::globalMaxOverVolume);
+				if (OpenAL::Status::focusLostMuted)
+					alListenerf(AL_GAIN,0);
+				else
+					alListenerf(AL_GAIN,volume * OpenAL::Status::globalMaxOverVolume);
 			Status::baseVolume = volume;
 		}
 
@@ -731,5 +735,16 @@ namespace OpenAL
 		priority = gain * attenuation;
 	}
 
+	void				SignalWindowFocusRestoration()
+	{
+		OpenAL::Status::focusLostMuted = false;
+		alListenerf(AL_GAIN,Listener::Status::baseVolume * OpenAL::Status::globalMaxOverVolume);
+	}
+
+	void				SignalWindowFocusLoss()
+	{
+		OpenAL::Status::focusLostMuted = true;
+		alListenerf(AL_GAIN,0);
+	}
 
 }

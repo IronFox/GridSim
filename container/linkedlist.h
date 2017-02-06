@@ -96,6 +96,7 @@ public:
 		typedef C*			Data;
 		
 		CONTAINER_TYPES
+		typedef LinkedList<C>		Self;
 		typedef LinkedIterator<Carrier,C*>				iterator;
 		typedef LinkedIterator<const Carrier,const C*>	const_iterator;
 
@@ -130,6 +131,7 @@ INLINE		bool					erase(Type*element);
 INLINE		void					set(size_t index, Type*element);
 INLINE		void					swap(size_t index0, size_t index1);
 INLINE		void					swap(LinkedList<C>&other);
+friend		void					swap(Self&a, Self&b)	{a.swap(b); }
 INLINE		void					revert();
 INLINE		C*						dropFirst();
 INLINE		C*						dropLast();

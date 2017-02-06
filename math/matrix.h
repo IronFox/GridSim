@@ -200,9 +200,49 @@ namespace Math
 		MFUNC3(void)		mult(const TMatrix4<C0>&m, const TVec4<C1>&v, TVec4<C2>&result);
 		MFUNC2(void)		mult(const TMatrix4<C0>&m, TVec4<C1>&v);
 
-
+		/**
+		Creates a 2d rotation matrix
+		@param angle Rotation angle in [-180,180]
+		@param[out] result Resulting rotation matrix
+		*/
+		MFUNC2(void)		FillRotationMatrix(C0 angle, TMatrix2<C1>&result);
+		/**
+		Creates a 3d rotation matrix, rotating around the X axis
+		@param angle Rotation angle in [-180,180]
+		@param[out] result Resulting rotation matrix
+		*/
+		MFUNC2(void)		FillXRotationMatrix(C0 angle, TMatrix3<C1>&result);
+		/**
+		Creates a 3d rotation matrix, rotating around the Y axis
+		@param angle Rotation angle in [-180,180]
+		@param[out] result Resulting rotation matrix
+		*/
+		MFUNC2(void)		FillYRotationMatrix(C0 angle, TMatrix3<C1>&result);
+		/**
+		Creates a 3d rotation matrix, rotating around the Z axis
+		@param angle Rotation angle in [-180,180]
+		@param[out] result Resulting rotation matrix
+		*/
+		MFUNC2(void)		FillZRotationMatrix(C0 angle, TMatrix3<C1>&result);
+		/**
+		Generates a 3x3 rotation matrix to rotate about an arbitrary axis and stores the result in \b out.
+		The component-wise defined axis can be of any length greater 0 
+		@param angle Angle this rotation matrix should rotate when multiplied (-180 - +180)
+		@param axis Normalized rotation axis
+		@param[out] Target 3x3 matrix
+		*/
 		MFUNC3(void)		rotationMatrix(C0 angle,const TVec3<C1>&axis,TMatrix3<C2>&result);
-		MFUNC5(void)		rotationMatrix(const C0&angle, const C1&ax, const C2&ay, const C3&az, TMatrix3<C4>&result);			//!< Generates a 3x3 rotation matrix to rotate about an arbitrary axis and stores the result in \b out. The component-wise defined axis can be of any length greater 0  \param angle Angle this rotation matrix should rotate when multiplied (-180 - +180) \param ax X-component of the rotation axis \param ay Y-component of the rotation axis \param az Z-component of the rotation axis \param out Target 3x3 matrix
+		MFUNC3(void)		FillRotationMatrix(C0 angle,const TVec3<C1>&axis,TMatrix3<C2>&result)	{rotationMatrix(angle,axis,result);}
+		/**
+		Generates a 3x3 rotation matrix to rotate about an arbitrary axis and stores the result in \b out.
+		The component-wise defined axis can be of any length greater 0 
+		\param angle Angle this rotation matrix should rotate when multiplied (-180 - +180)
+		\param ax X-component of the rotation axis
+		\param ay Y-component of the rotation axis
+		\param az Z-component of the rotation axis
+		\param[out] Target 3x3 matrix
+		*/
+		MFUNC5(void)		rotationMatrix(C0 angle, C1 ax, C2 ay, C3 az, TMatrix3<C4>&result);			
 
 		MFUNC2(void)		transpose(const TMatrix4<C0>&m, TMatrix4<C1>&result);
 		MFUNC(void)			transpose(TMatrix4<C>&m);

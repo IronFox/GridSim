@@ -168,80 +168,82 @@ template <class K, class C, class KeyStrategy, class DataStrategy>
 template <class Carrier>
 	class GenericHashBase
 	{
+		typedef GenericHashBase<Carrier>	Self;
 	protected:
-			static const size_t 			InitialSize = 4;	//!< Initial entries in the table.
+		static const size_t 			InitialSize = 4;	//!< Initial entries in the table.
 			
-			Array<Carrier,AdoptStrategy>	array;				//!< Entry table
-			size_t							entries;			//!< Number of entries that are occupied in the table
+		Array<Carrier,AdoptStrategy>	array;				//!< Entry table
+		size_t							entries;			//!< Number of entries that are occupied in the table
 			
-											GenericHashBase();
+										GenericHashBase();
 											
-		template <class Key>
-			inline Carrier*					find(hash_t hash, const Key&key, bool occupy,bool*did_occupy=NULL)	//!< Carrier lookup via a key and its hash-value. \param hash Hashvalue of the provided string (usually the result of hashString(key)) \param key Key to look for \param occupy Forces the hashtable to occupy a new carrier for the specified key if it could not be found. \param did_occupy If non NULL then \b did_occupy will be set true if a carrier was occupied, false otherwise. \return Pointer to the occupied carrier if the key could be found or \b occupy was set true. Otherwise to a non-occupied carrier.
-											{
-												if (occupy && entries+1 >= array.length()*0.8)
-													resize(array.length()*2);
-												size_t offset = hash%array.length();
+	template <class Key>
+		inline Carrier*					find(hash_t hash, const Key&key, bool occupy,bool*did_occupy=NULL)	//!< Carrier lookup via a key and its hash-value. \param hash Hashvalue of the provided string (usually the result of hashString(key)) \param key Key to look for \param occupy Forces the hashtable to occupy a new carrier for the specified key if it could not be found. \param did_occupy If non NULL then \b did_occupy will be set true if a carrier was occupied, false otherwise. \return Pointer to the occupied carrier if the key could be found or \b occupy was set true. Otherwise to a non-occupied carrier.
+										{
+											if (occupy && entries+1 >= array.length()*0.8)
+												resize(array.length()*2);
+											size_t offset = hash%array.length();
 
-												Carrier*const raw = array.pointer();	//avoid redundant check
-												while (raw[offset].occupied && (raw[offset].hashed != hash || raw[offset].key != key))
-													offset = (offset+1)%array.length();
-												Carrier&entry = raw[offset];
-												if (occupy && !entry.occupied)
-												{
-
-													entry.hashed = hash;
-													entry.key = typename Carrier::Key(key);
-													entry.occupy();
-													entries++;
-													if (entries == array.length())
-														FATAL__("hashtable overflow");
-													if (did_occupy)
-														(*did_occupy) = true;
-												}
-												else
-													if (did_occupy)
-														(*did_occupy) = false;
-
-
-												return array+offset;
-											}		
-		template <class Key>
-			inline const Carrier*			find(hash_t hash, const Key&key)			const	//!< Carrier lookup via a key and its hash-value. \param hash Hashvalue of the provided string (usually the result of hashString(key)) \param key Key to look for \return Pointer to the occupied carrier if the key could be found. Otherwise to a non-occupied carrier.
+											Carrier*const raw = array.pointer();	//avoid redundant check
+											while (raw[offset].occupied && (raw[offset].hashed != hash || raw[offset].key != key))
+												offset = (offset+1)%array.length();
+											Carrier&entry = raw[offset];
+											if (occupy && !entry.occupied)
 											{
 
-												size_t offset = hash%array.length();
-												const Carrier*const raw = array.pointer();	//avoid redundant check
-												while (raw[offset].occupied && (raw[offset].hashed != hash || raw[offset].key != key))
-													offset = (offset+1)%array.length();
-
-												return raw+offset;
+												entry.hashed = hash;
+												entry.key = typename Carrier::Key(key);
+												entry.occupy();
+												entries++;
+												if (entries == array.length())
+													FATAL__("hashtable overflow");
+												if (did_occupy)
+													(*did_occupy) = true;
 											}
-			inline void						resize(size_t new_size);							//!< Resizes the hashtable to the specified size and remaps all table entries \param new_size New number of entries to use
-			inline void 					remove(Carrier*c);									//!< Removes the specified carrier from the table. Also reduces the size of the table if necessary. \param c Carrier to remove.
+											else
+												if (did_occupy)
+													(*did_occupy) = false;
+
+
+											return array+offset;
+										}		
+	template <class Key>
+		inline const Carrier*			find(hash_t hash, const Key&key)			const	//!< Carrier lookup via a key and its hash-value. \param hash Hashvalue of the provided string (usually the result of hashString(key)) \param key Key to look for \return Pointer to the occupied carrier if the key could be found. Otherwise to a non-occupied carrier.
+										{
+
+											size_t offset = hash%array.length();
+											const Carrier*const raw = array.pointer();	//avoid redundant check
+											while (raw[offset].occupied && (raw[offset].hashed != hash || raw[offset].key != key))
+												offset = (offset+1)%array.length();
+
+											return raw+offset;
+										}
+		inline void						resize(size_t new_size);							//!< Resizes the hashtable to the specified size and remaps all table entries \param new_size New number of entries to use
+		inline void 					remove(Carrier*c);									//!< Removes the specified carrier from the table. Also reduces the size of the table if necessary. \param c Carrier to remove.
 	
 	public:
-			virtual							~GenericHashBase()	{};
+		virtual							~GenericHashBase()	{};
 	
-			inline size_t					totalSize()							const;	//!< Returns the total size of the set/table in bytes. \return Total size of the local set/table in bytes.
-			inline GenericHashBase<Carrier>&operator=(const GenericHashBase<Carrier>&other);
-			inline size_t					count()								const;	//!< Returns the number of entries currently stored in the set/table. \return Number of entries in the set/table.
-			inline size_t					Count()								const	/**@copydoc count()*/	{return count();}
-			inline operator 				size_t()							const;	//!< Implicit conversion to size_t. \return Returns the number of entries in the set/table.
-			inline	void					clear();									//!< Resizes back to the initial set size and un-occupies all carriers. If no resizing took place then the respective objects are not reinitialized.
-			inline	bool					IsEmpty()							const	/**!< Checks if the local table is empty**/	{return entries ==0;}
-			inline	bool					IsNotEmpty()						const	/**!< Checks if the local table contains at least one element*/ 	{return entries !=0;}
-			inline	void					Clear()										/** @copydoc clear() */ {clear();}
-			inline	void					import(GenericHashBase<Carrier>&list);		//!< Imports the content of the specified other hashset/hashtable in addition to the already contained entries. Existing entries are overwritten. \param list Hashset to import entries from.
-		template <class Key>
-			inline	void					exportKeys(ArrayData<Key>&keys)	const;			//!< Exports the keys to the specified array. \param keys Reference to an array containing all associated keys after execution. 
+		inline size_t					totalSize()							const;	//!< Returns the total size of the set/table in bytes. \return Total size of the local set/table in bytes.
+		inline GenericHashBase<Carrier>&operator=(const GenericHashBase<Carrier>&other);
+		inline size_t					count()								const;	//!< Returns the number of entries currently stored in the set/table. \return Number of entries in the set/table.
+		inline size_t					Count()								const	/**@copydoc count()*/	{return count();}
+		inline operator 				size_t()							const;	//!< Implicit conversion to size_t. \return Returns the number of entries in the set/table.
+		inline	void					clear();									//!< Resizes back to the initial set size and un-occupies all carriers. If no resizing took place then the respective objects are not reinitialized.
+		inline	bool					IsEmpty()							const	/**!< Checks if the local table is empty**/	{return entries ==0;}
+		inline	bool					IsNotEmpty()						const	/**!< Checks if the local table contains at least one element*/ 	{return entries !=0;}
+		inline	void					Clear()										/** @copydoc clear() */ {clear();}
+		inline	void					import(GenericHashBase<Carrier>&list);		//!< Imports the content of the specified other hashset/hashtable in addition to the already contained entries. Existing entries are overwritten. \param list Hashset to import entries from.
+	template <class Key>
+		inline	void					exportKeys(ArrayData<Key>&keys)	const;			//!< Exports the keys to the specified array. \param keys Reference to an array containing all associated keys after execution. 
 
-			inline	void					calculateUnion(const GenericHashBase<Carrier>&other);	//!< Calculates the union of the local and the remote hash table/set. Duplicate entries are taken once from the local table/set. @param other Hash table/set to calculate the union with.
-			inline	void					calculateIntersection(const GenericHashBase<Carrier>&other);	//!< Calculates the intersection of the local and the remote hash table/set. Local entries that are not also contained by the remote table/set are dropped. @param other Hash table/set to calculate the intersection with.
-			inline	void					calculateDifference(const GenericHashBase<Carrier>&other);		//!< Calculates the difference (this - other). Removes all entries of the remote table/set from the local table/set. @param other Hash table/set to remove from the local one
+		inline	void					calculateUnion(const GenericHashBase<Carrier>&other);	//!< Calculates the union of the local and the remote hash table/set. Duplicate entries are taken once from the local table/set. @param other Hash table/set to calculate the union with.
+		inline	void					calculateIntersection(const GenericHashBase<Carrier>&other);	//!< Calculates the intersection of the local and the remote hash table/set. Local entries that are not also contained by the remote table/set are dropped. @param other Hash table/set to calculate the intersection with.
+		inline	void					calculateDifference(const GenericHashBase<Carrier>&other);		//!< Calculates the difference (this - other). Removes all entries of the remote table/set from the local table/set. @param other Hash table/set to remove from the local one
 
-			inline	void					adoptData(GenericHashBase<Carrier>&other);
-			inline	void					swap(GenericHashBase<Carrier>&other);
+		inline	void					adoptData(Self&other);
+		inline	void					swap(Self&other);
+		friend void						swap(Self&a, Self&b)	{a.swap(b);}
 	};
 
 template <class Carrier, class Hash>

@@ -21,7 +21,7 @@ template <class K, class C, class Hash=StdHash, class KeyStrategy=typename Strat
 			typedef GenericHashTable<K,ListCarrier*,Hash,KeyStrategy,PrimitiveStrategy>	Table;
 			typedef typename Table::Carrier												TableCarrier;
 	public:
-			typedef GenericHashList<K,C,Hash,KeyStrategy>	ThisType;
+			typedef GenericHashList<K,C,Hash,KeyStrategy>	ThisType,Self;
 			typedef K						KeyType;	//!< Key type
 			typedef C						Type;		//!< Data type
 			
@@ -80,6 +80,7 @@ template <class K, class C, class Hash=StdHash, class KeyStrategy=typename Strat
 												List::swap(other);
 												Table::swap(other);
 											}
+			friend void						swap(Self&a, Self&b)	{a.swap(b);}
 
 
 			using List::get;
