@@ -1755,6 +1755,16 @@ template <class C, class Strategy=typename Strategy::StrategySelector<C>::Defaul
 		{
 			return Get(*x,*y);
 		}
+		
+		C&			Get(const Iterator<true>&x, index_t y)	//! Retrieves a singular element at the specified position	\param x X coordinate. Must be less than width() \param y Y coordinate. Must be less than height() \return Reference to the requested element
+		{
+			return Get(*x,y);
+		}
+
+		C&			Get(index_t x, const Iterator<false>&y)	//! Retrieves a singular element at the specified position	\param x X coordinate. Must be less than width() \param y Y coordinate. Must be less than height() \return Reference to the requested element
+		{
+			return Get(x,*y);
+		}
 	
 		const C&	Get(Arrays::count_t x, Arrays::count_t y)	const	//! Retrieves a singular element at the specified position \param x X coordinate. Must be less than width() \param y Y coordinate. Must be less than height() \return Reference to the requested element
 		{
@@ -1768,6 +1778,17 @@ template <class C, class Strategy=typename Strategy::StrategySelector<C>::Defaul
 		{
 			return Get(*x,*y);
 		}
+		
+		const C&			Get(const Iterator<true>&x, index_t y)	const //! Retrieves a singular element at the specified position	\param x X coordinate. Must be less than width() \param y Y coordinate. Must be less than height() \return Reference to the requested element
+		{
+			return Get(*x,y);
+		}
+
+		const C&			Get(index_t x, const Iterator<false>&y)	const //! Retrieves a singular element at the specified position	\param x X coordinate. Must be less than width() \param y Y coordinate. Must be less than height() \return Reference to the requested element
+		{
+			return Get(x,*y);
+		}
+
 		void	adoptData(Array2D<C,Strategy>&other)	//! Adopts pointer and size and sets both NULL of the specified origin array.
 		{
 			w = other.w;
