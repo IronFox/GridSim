@@ -730,14 +730,14 @@ namespace Math
 		{
 			typedef TPow10<T,IsFloat,IsSigned>	Self;
 		public:
-			typedef T	ReturnType;			
+			typedef typename TypeInfo<T>::GreaterType::Type	ReturnType;			
 			static ReturnType Execute(T val)
 			{
 				if (val == 0)
-					return (T)1;
+					return (ReturnType)1;
 				if (val == 1)
-					return (T)10;
-				T rs = Self::Execute(val>>1);
+					return (ReturnType)10;
+				ReturnType rs = Self::Execute(val>>1);
 				rs *= rs;
 				if (val%2)
 					rs *= 10;
