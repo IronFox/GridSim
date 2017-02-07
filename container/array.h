@@ -805,6 +805,25 @@ template <typename T>
 							{
 								return elements && data[elements-1] == element;
 							}
+
+
+		inline ArrayRef<T>	SubRef(index_t start, count_t count) const
+		{
+			if (IsEmpty())
+				return ArrayRef<T>();
+			start = vmin(start,elements-1);
+			count = vmin(count,elements-start);
+			return ArrayRef<T>(data+start,count);
+		}
+
+		inline ArrayRef<T>	SubRef(index_t start) const
+		{
+			if (IsEmpty())
+				return ArrayRef<T>();
+			start = vmin(start,elements-1);
+			count_t count = elements-start;
+			return ArrayRef<T>(data+start,count);
+		}
 	};
 
 
