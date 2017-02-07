@@ -641,6 +641,7 @@ template <typename T>
 										return i+1;
 								return 0;
 							}
+		inline count_t		FindFirst(const T&entry) const	/**@copydoc findFirst()*/ {return findFirst(entry);}
 
 		inline bool			Contains(const T&entry) const	{	return FindFirst(entry) != 0;	}
 
@@ -692,30 +693,28 @@ template <typename T>
 								return 0;
 							}
 
-		template <class T1>
-			inline index_t	FindFirst(const T1*string) const
-							{
-								const T1*terminator(string);
-								while (*terminator++);
-								return FindFirst(string,terminator-string-1);
-							}
+		//template <class T1>
+		//	inline index_t	FindFirst(const T1*string) const
+		//					{
+		//						const T1*terminator(string);
+		//						while (*terminator++);
+		//						return FindFirst(string,terminator-string-1);
+		//					}
 
-		template <class T1>
-			inline index_t	FindLast(const T1*string) const
-							{
-								const T1*terminator(string);
-								while (*terminator++);
-								return FindLast(string,terminator-string-1);
-							}
+		//template <class T1>
+		//	inline index_t	FindLast(const T1*string) const
+		//					{
+		//						const T1*terminator(string);
+		//						while (*terminator++);
+		//						return FindLast(string,terminator-string-1);
+		//					}
 
-		template <class T1>
-			inline index_t	FindFirst(const ArrayRef<T1>&other) const
+		inline index_t		FindFirst(const ArrayRef<T>&other) const
 							{
 								return FindFirst(other.data,other.elements);
 							}
 
-		template <class T1>
-			inline index_t	FindLast(const ArrayRef<T1>&other) const
+		inline index_t		FindLast(const ArrayRef<T>&other) const
 							{
 								return FindLast(other.data,other.elements);
 							}
