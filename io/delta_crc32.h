@@ -35,6 +35,8 @@ namespace CRC32
 	private:
 		UINT32		status;
 	public:
+		typedef UINT32	HashContainer;	//for interchangability
+
 		/**/		Sequence();
 		void		reset();								//!< Restarts the checksum sequence (this method is automatically called by the constructor)
 		void		append(const void*source, size_t size);	//!< Appends data to the CRC32 volume and advances the internal status @param source Binary data to insert into the calculation @param size Number of bytes that should be inserted into the calculation. @a source must provide at least this many bytes
@@ -44,6 +46,7 @@ namespace CRC32
 
 		UINT32		finish()	const;						//!< Resolves a result based on the current internal status. The method does not actually change anything and CRC32 calculation may be continued if desired
 		UINT32		Finish()	const	/** @copydoc finish() */ {return finish();}
+		void		Finish(UINT32&rs) const {rs = Finish();}
 	};
 }
 
