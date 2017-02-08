@@ -1539,15 +1539,15 @@ namespace Engine
 	float Context::pixelAspectf()	const
 	{
 		#if SYSTEM==WINDOWS
-			float frag = ((float)(client_area.right-client_area.left)/_current.dmPelsWidth) / ((float)(client_area.bottom-client_area.top)/_current.dmPelsHeight);
-			return frag*(float)_current.dmPelsWidth / _current.dmPelsHeight;
+			float frag = ((float)(client_area.right-client_area.left)) / ((float)(client_area.bottom-client_area.top));
+			return frag;//*(float)_current.dmPelsWidth / _current.dmPelsHeight;
 		#elif SYSTEM==UNIX
 			if (!res_map)
 				return windowAspectf();
 			unsigned width = res_map[_current].width,
 					 height = res_map[_current].height;
-			float frag = ((float)(client_area.right-client_area.left)/width) / ((float)(client_area.bottom-client_area.top)/height);
-			return frag*(float)width / height;
+			float frag = ((float)(client_area.right-client_area.left)) / ((float)(client_area.bottom-client_area.top));
+			return frag;//*(float)width / height;
 		#endif
 	}
 
