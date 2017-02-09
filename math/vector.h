@@ -537,10 +537,10 @@ namespace Math
 	@brief Constructs a new float range
 	*/
 	template <typename T>
-		inline TFloatRange<T>	FloatRange(const T&min, const T&max)
+		inline constexpr TFloatRange<T>	FloatRange(const T&min, const T&max)
 		{
-			TFloatRange<T> result = {min,max};
-			return result;
+			return TFloatRange<T> {min,max};
+			//return result;
 		}
 
 	/**
