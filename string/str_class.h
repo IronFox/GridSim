@@ -265,12 +265,16 @@ template <typename T>
 	class ReferenceExpression
 	{
 	private:
-			const T		*reference;
-			size_t		len;
+		const T			*reference;
+		size_t			len;
 	public:
+		typedef const T*iterator,const_iterator;
+
 		/**/			ReferenceExpression():reference(NULL),len(0) {}
 		/**/			ReferenceExpression(const T*str):reference(str),len(Template::strlen(str)) {}
 		/**/			ReferenceExpression(const T*str, size_t length):reference(str),len(length) {}
+		iterator		begin() const {return reference;}
+		iterator		end() const {return reference + len;}
 		inline bool		DropLastChar()
 						{
 							if (!len)
@@ -313,6 +317,7 @@ template <typename T>
 						{
 							return len;
 						}
+		inline size_t	size() const {return len;}
 		inline size_t	GetLength() const {return len;}
 		inline const T*	pointer()	const
 						{
@@ -916,7 +921,7 @@ template <typename T>
 		inline iterator	begin() const {return field;}
 		inline iterator	end() const {return field + string_length;}
 
-	/**
+		/**
 		@brief Writes a floating point value to the specified char field
 		
 		This function is rather lowlevel. Use with caution.
@@ -928,13 +933,26 @@ template <typename T>
 		@param end Pointer to the character one past the last available character slot. An actual digit will be written to @a *(end-1). It is up to the calling function to write a terminating zero to @a (*end) if needed
 		@param first Character to the first available character slot
 		@return Pointer to the first actually written character. This is at least @a first but may be anywhere between @a first and @a end
-	*/
-	template <typename Type>
-		static T* floatToStr(Type value, unsigned char exactness, bool force_trailing_zeros, T*end, T*first);
+		*/
+		template <typename Type>
+			static T* FloatToStr(Type value, unsigned char exactness, bool force_trailing_zeros, T*end, T*first);
 		
+		/**
+		@brief Writes a signed integer value to the specified char field
+		
+		This function is rather lowlevel. Use with caution.
+		The function does @a NOT Write a terminating zero.
+		
+		@param Type Type of @a value
+		@param UType Unsigned equivalent of @a Type
+		@param value Value to convert to string
+		@param end Pointer to the character one past the last available character slot. An actual digit will be written to @a *(end-1). It is up to the calling function to Write a terminating zero to @a (*end) if needed
+		@param first Character to the first available character slot
+		@return Pointer to the first actually written character. This is at least @a first but may be anywhere between @a first and @a end
+		*/
+		template <class Type, class UType> 
+			static T* SignedToStr(Type value, T*end, T*first);
 	protected:
-	template <class Type, class UType> 
-		static T* signedToStr(Type value, T*end, T*first);
 	
 	
 	template <typename Expression>
@@ -1714,10 +1732,9 @@ typedef ReferenceExpression<wchar_t>StringRefW;
 	String		intToHex(int value, BYTE min_len);
 	String		intToHex(__int64 value, BYTE min_len);
 	String		intToStr(int value);
-	String		floatToStr(float value);
+	String		FloatToStr(float value);
 	#define		IntToStr	intToStr
 	#define		IntToHex	intToHex
-	#define		FloatToStr	floatToStr
 #endif
 				#define PointerToString	PointerToHex
 				#define PointerToStr	PointerToHex

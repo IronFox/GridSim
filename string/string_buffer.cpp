@@ -90,7 +90,7 @@ template <typename T>
 	static void _WriteFloat(StringBuffer*buffer, T value, unsigned precision)
 	{
 		char	char_buffer[256],
-				*str = String::floatToStr(value, precision, false, char_buffer+ARRAYSIZE(char_buffer), char_buffer);
+				*str = String::FloatToStr(value, precision, false, char_buffer+ARRAYSIZE(char_buffer), char_buffer);
 
 		buffer->Write(str,char_buffer+ARRAYSIZE(char_buffer)-str);
 	}

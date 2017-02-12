@@ -529,88 +529,88 @@ template <class Type, class UType>
 		return c;
 	}
 
-
-template <class Type>
-	static char* floatToStr(Type value, unsigned char exactness, char*end, char*first)
-	{
-		/*if (value > INT_MAX||value < INT_MIN)
-		{
-			end-=8;
-			strcpy(end,"exceeded");
-			return end;
-		}*/
-
-		if (isinf(value))
-		{
-			end -= 4;
-			if (value > 0)
-				strcpy(end,"+INF");
-			else
-				strcpy(end,"-INF");
-			return end;
-		}
-		
-		if (isnan(value))
-		{
-			end-=3;
-			strcpy(end,"NAN");
-			return end;
-		}
-		bool negative = value < 0;
-		if (negative)
-			value*=-1;
-		
-		char*c = end;
-		(*c) = 0;
-		if (value > INT_MAX)
-		{
-			int exponent = (int)log10(value);
-			//cout << "exponent of "<<value<<" is "<<exponent << endl;
-			value /= pow(10.0,exponent);
-			c = signedToStr<int,unsigned>(exponent,c,first);
-			if (c != first)
-				(*(--c)) = 'e';
-		}
-			
-			
-		if (pow(10.0f,exactness)*value > INT_MAX)
-			exactness = (BYTE)log10(INT_MAX/value);
-		UINT64 v = (UINT64)(value*pow(10.0f,exactness));
-		unsigned at(0);
-		bool write = !exactness;
-		while (v && c != first)
-		{
-			char ch = '0'+(v%10);
-			write = write || ch != '0' || at==exactness;
-			if (write)
-				(*--c) = ch;
-			v/=10;
-			at++;
-			if (at == exactness && c != first && write)
-				(*--c) = DecimalSeparator;
-		}
-		if (c != end)
-		{
-			while (at < exactness && c != first)
-			{
-				(*--c) = '0';
-				at++;
-			}
-			if (at == exactness && c != first)
-			{
-				if ((*c) != DecimalSeparator)
-					(*--c) = DecimalSeparator;
-				if (c != first)
-					(*--c) = '0';
-			}
-			if (negative && c != first)
-				(*--c) = '-';
-		}
-		else
-			(*--c) = '0';
-	//	len = end-c;
-		return c;
-	}
+//
+//template <class Type>
+//	static char* floatToStr(Type value, unsigned char exactness, char*end, char*first)
+//	{
+//		/*if (value > INT_MAX||value < INT_MIN)
+//		{
+//			end-=8;
+//			strcpy(end,"exceeded");
+//			return end;
+//		}*/
+//
+//		if (isinf(value))
+//		{
+//			end -= 4;
+//			if (value > 0)
+//				strcpy(end,"+INF");
+//			else
+//				strcpy(end,"-INF");
+//			return end;
+//		}
+//		
+//		if (isnan(value))
+//		{
+//			end-=3;
+//			strcpy(end,"NAN");
+//			return end;
+//		}
+//		bool negative = value < 0;
+//		if (negative)
+//			value*=-1;
+//		
+//		char*c = end;
+//		(*c) = 0;
+//		if (value > INT_MAX)
+//		{
+//			int exponent = (int)log10(value);
+//			//cout << "exponent of "<<value<<" is "<<exponent << endl;
+//			value /= pow(10.0,exponent);
+//			c = signedToStr<int,unsigned>(exponent,c,first);
+//			if (c != first)
+//				(*(--c)) = 'e';
+//		}
+//			
+//			
+//		if (pow(10.0f,exactness)*value > INT_MAX)
+//			exactness = (BYTE)log10(INT_MAX/value);
+//		UINT64 v = (UINT64)(value*pow(10.0f,exactness));
+//		unsigned at(0);
+//		bool Write = !exactness;
+//		while (v && c != first)
+//		{
+//			char ch = '0'+(v%10);
+//			Write = Write || ch != '0' || at==exactness;
+//			if (Write)
+//				(*--c) = ch;
+//			v/=10;
+//			at++;
+//			if (at == exactness && c != first && Write)
+//				(*--c) = DecimalSeparator;
+//		}
+//		if (c != end)
+//		{
+//			while (at < exactness && c != first)
+//			{
+//				(*--c) = '0';
+//				at++;
+//			}
+//			if (at == exactness && c != first)
+//			{
+//				if ((*c) != DecimalSeparator)
+//					(*--c) = DecimalSeparator;
+//				if (c != first)
+//					(*--c) = '0';
+//			}
+//			if (negative && c != first)
+//				(*--c) = '-';
+//		}
+//		else
+//			(*--c) = '0';
+//	//	len = end-c;
+//		return c;
+//	}
 
 char*			writeToCharField(unsigned value, char*offset, char*end)
 {
@@ -773,7 +773,7 @@ String intToStr(int value)
 	return String(value);
 }
 
-String floatToStr(float value)
+String FloatToStr(float value)
 {
 	return value;
 }
