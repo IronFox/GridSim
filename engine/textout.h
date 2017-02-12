@@ -115,7 +115,7 @@ namespace Engine
 				
 		virtual float	QueryUnscaledHeight() const=0;							//!< Determines the height of a string in its native (unscaled) size. Virtual call
 		virtual	float	QueryUnscaledWidth(const StringRef&) const=0;			//!< Determines the width of a string in its native (unscaled) size. Virtual call \param line Pointer to a field of characters containing the string to analyse \param len Number of characters to analyse out of line \return Unscaled length of the specified string
-		float			QueryUnscaledWidth(const String&line) const				{return QueryUnscaledWidth(line.ref());}
+		float			QueryUnscaledWidth(const String&line) const		{return QueryUnscaledWidth(line.ref());}
 		float			QueryScaledWidth(const char*line) const;				//!< Determines the width of a string. Hidden virtual call \param line Pointer to a zero terminated character array containing the string to analyse \return Scaled length of the specified string
 		float			QueryScaledWidth(const String&line) const;				//!< Determines the width of a string. Hidden virtual call \param line String to analyse \return Scaled length of the specified string
 		float			QueryScaledWidth(const StringRef&line) const;			//!< Determines the width of a string. Hidden virtual call \param line String to analyse \return Scaled length of the specified string
@@ -129,6 +129,7 @@ namespace Engine
 		void			MoveTo(const float p[2]);								//!< Position the out cursor at a new location. Also resets the active line to 0. \param p Two component position vector
 		void			MoveTo3fv(const float p[3]);							//!< Position the out cursor at a new location. Also resets the active line to 0. \param p Two component position vector
 		void			SetScale(float x, float y);								//!< Redefine character scale \param x Character width \param y Character height
+		void			SetScale(float xy)				{SetScale(xy,xy);}
 		void			Scale(float by_x, float by_y);							//!< Alter the character scale \param by_x Width-factor \param by_y Height-factor
 		void			PushState();											//!< Pushes the current output status to the local stack
 		void			PushColorState();
@@ -138,7 +139,7 @@ namespace Engine
 		void			SetLine(int line_index);								//!< Changes the active line. Hidden virtual call \param line_index Line to change to (0=first line)
 		float			GetLineOffset()	const;									//!< Queries the current line offset (increased by newlines)
 
-		void			Write(const StringRef&str);						//!< Prints a string segment with a predefined length. Hidden virtual call @param str Pointer to an array of characters containing at least @b len characters @param len Number of characters to print
+		void			Write(const StringRef&str);								//!< Prints a string segment with a predefined length. Hidden virtual call @param str Pointer to an array of characters containing at least @b len characters @param len Number of characters to print
 		void			Write(const char*str);
 		void			Write(const String&str);
 		void			WriteTagged(const char*str, char tag);
