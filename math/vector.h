@@ -1487,7 +1487,7 @@ namespace Math
 									{
 										x.Relativate(absolute.x,relative_out.x);
 										y.Relativate(absolute.y,relative_out.y);
-										z.Relativate(absolute.y,relative_out.z);
+										z.Relativate(absolute.z,relative_out.z);
 									}			
 			
 			template <typename T0>
@@ -1495,7 +1495,7 @@ namespace Math
 									{
 										x.Relativate(absolute.x,relative_out.x);
 										y.Relativate(absolute.y,relative_out.y);
-										z.Relativate(absolute.y,relative_out.z);
+										z.Relativate(absolute.z,relative_out.z);
 									}			
 			
 
