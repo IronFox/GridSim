@@ -1889,26 +1889,21 @@ namespace Engine
 
 		void					ColorRenderer::SetTextPosition(float x, float y)
 		{
-			textout.locate(x,y);
+			textout.MoveTo(x,y);
 		}
 
-		void					ColorRenderer::WriteText(const String&text)
+
+
+		void					ColorRenderer::WriteText(const StringRef&text)
 		{
-			textout.color(color);
-			textout.write(text);
+			textout.SetColor(color);
+			textout.Write(text);
 			layerIsDirty = true;
 		}
 
-		void					ColorRenderer::WriteText(const char*text, count_t numChars)
+		float					ColorRenderer::GetUnscaledWidth(const StringRef&text) const
 		{
-			textout.color(color);
-			textout.write(text,numChars);
-			layerIsDirty = true;
-		}
-
-		float					ColorRenderer::GetUnscaledWidth(const char*text, count_t numChars)
-		{
-			return textout.unscaledLength(text,numChars);
+			return textout.GetUnscaledWidth(text);
 		}
 
 		void					ColorRenderer::SetPointSize(float size)
@@ -2432,7 +2427,7 @@ namespace Engine
 				if (cellLayout.title.width()>0)
 				{
 					op->colorRenderer.MarkNewLayer();
-					op->colorRenderer.SetTextPosition(cellLayout.title.x.min,cellLayout.title.y.center()-ColorRenderer::textout.getFont().GetHeight()/2+font_offset);
+					op->colorRenderer.SetTextPosition(cellLayout.title.x.min,cellLayout.title.y.center()-ColorRenderer::textout.GetFont().GetHeight()/2+font_offset);
 					op->colorRenderer.WriteText(title);
 				}
 				if (rootComponent && rootComponent->visible)

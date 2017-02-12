@@ -647,12 +647,12 @@ namespace Engine
 		}
 		if (caption != '-')
 		{
-			window->textout.locate(core_region.left+caption_offset_x, core_region.bottom+caption_offset_y+x_menu_font_size/8);
+			window->textout.MoveTo(core_region.left+caption_offset_x, core_region.bottom+caption_offset_y+x_menu_font_size/8);
 			if (enabled)
-				window->textout.color(0,0,0);
+				window->textout.SetColor(0,0,0);
 			else
-				window->textout.color(0.4,0.4,0.4);
-			window->textout.print(caption);
+				window->textout.SetColor(0.4,0.4,0.4);
+			window->textout.Print(caption);
 
 			if (children && child_region.top == core_region.top)	//opening to the right
 			{
@@ -857,7 +857,7 @@ namespace Engine
 			for (unsigned i = 0; i < children; i++)
 			{
 				MenuEntry*entry = children[i];
-				int right = child_region.left + (int)window->textout.unscaledLength(entry->caption) + 2*x_menu_font_size;
+				int right = child_region.left + (int)window->textout.GetUnscaledWidth(entry->caption) + 2*x_menu_font_size;
 				if (right > right_border)
 					right_border = right;
 			}
@@ -869,7 +869,7 @@ namespace Engine
 				entry->child_region.left = right_border;
 				entry->caption_offset_y = x_menu_font_size*1/3-1;
 				entry->core_region.bottom = entry->core_region.top-x_menu_font_size*3/2+1;
-				entry->core_region.right = entry->core_region.left + (unsigned)window->textout.unscaledLength(entry->caption);
+				entry->core_region.right = entry->core_region.left + (unsigned)window->textout.GetUnscaledWidth(entry->caption);
 				entry->core_region.right += x_menu_font_size;	//check or radio
 				entry->caption_offset_x = x_menu_font_size;
 				//if (entry->children)
@@ -909,7 +909,7 @@ namespace Engine
 			entry->core_region.top = full_region.top;
 			entry->core_region.bottom = y-x_menu_font_size/3;
 			entry->caption_offset_y = x_menu_font_size/6;
-	        at += (unsigned)window->textout.unscaledLength(entry->caption)+10;
+	        at += (unsigned)window->textout.GetUnscaledWidth(entry->caption)+10;
 	        entry->core_region.right = at-10;
 			entry->updateRegion(window,false);
 			include(entry->full_region,full_region);
@@ -1314,14 +1314,14 @@ namespace Engine
 			if (font_remake_counter)
 			{
 				font_remake_counter--;
-				textout.getFont().make(0,application.x_menu_font.c_str(),application.x_menu_font_size);
+				textout.GetFont().make(0,application.x_menu_font.c_str(),application.x_menu_font_size);
 			}
 		#elif SYSTEM==WINDOWS
 			wglMakeCurrent(local_context.device_context,local_context.gl_context);
 			if (font_remake_counter)
 			{
 				font_remake_counter--;
-				textout.getFont().make(local_context.device_context,application.x_menu_font.c_str(),application.x_menu_font_size);
+				textout.GetFont().make(local_context.device_context,application.x_menu_font.c_str(),application.x_menu_font_size);
 			}
 		#endif
 
@@ -1379,7 +1379,7 @@ namespace Engine
 									glVertex2i(client_width,client_height+application.x_menu_height);
 									glVertex2i(0,client_height+application.x_menu_height);
 								glEnd();
-								textout.color(0,0,0);
+								textout.SetColor(0,0,0);
 								menu.update(5,client_height+application.x_menu_height/3,this);
 
 								menu.render(this);
@@ -2538,7 +2538,7 @@ namespace Engine
 	    if (bindContext(previous_handle))
 	    {
 	    	display.resetLighting();
-			textout.getFont().unmake();
+			textout.GetFont().unmake();
 			#if SYSTEM==WINDOWS
 				if (previous_handle.gl_context == local_context.gl_context)
 					previous_handle.gl_context = NULL;

@@ -33,14 +33,14 @@ namespace Engine
 			void				unmake();
 	        
 	        float               GetWidth(const char*str);
-	        float               GetWidth(const char*str, size_t len);
+	        float               GetWidth(const StringRef&str);
 	        float               GetWidth(char);
 			float				GetHeight();
-	        void                begin(const TFontState&state);
-	        void                alterColor(const TFontColor&color);
-	        void                write(const char*str);
-	        void                write(const char*str, size_t len);
-	        void                end();
+	        void                Begin(const TFontState&state);
+	        void                AlterColor(const TFontColor&color);
+	        void                Write(const char*str);
+	        void                Write(const StringRef&str);
+	        void                End();
 	};
 }
 

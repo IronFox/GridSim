@@ -163,11 +163,13 @@ namespace Engine
 	    return len;
 	}
 
-	float GLRasterFont::GetWidth(const char*str, size_t len)
+	float GLRasterFont::GetWidth(const StringRef&str)
 	{
 	    float result(0);
-	    for (index_t i = 0; i < len; i++)
-	        result+= width[(BYTE)*str++];
+		const char*at = str.pointer(),
+					*const end = at + str.GetLength();
+		for (;at != end; ++at)
+	        result+= width[(BYTE)*at];
 	    return result;
 	}
 
@@ -176,7 +178,7 @@ namespace Engine
 	    return width[(BYTE)c];
 	}
 
-	void GLRasterFont::begin(const TFontState&state)
+	void GLRasterFont::Begin(const TFontState&state)
 	{
 		if (base == 0)
 			FATAL__("Trying to render GLRasterFont text, but the local font has not been created.");
@@ -197,22 +199,22 @@ namespace Engine
 	        glListBase(base-32);
 	}
 
-	void GLRasterFont::alterColor(const TFontColor&color)
+	void GLRasterFont::AlterColor(const TFontColor&color)
 	{
 	        glColor4fv(color.v);
 	}
 
-	void GLRasterFont::write(const char*str)
+	void GLRasterFont::Write(const char*str)
 	{
 	        glCallLists((GLsizei)strlen(str), GL_UNSIGNED_BYTE, str);
 	}
 
-	void GLRasterFont::write(const char*str, size_t len)
+	void GLRasterFont::Write(const StringRef&str)
 	{
-	        glCallLists((GLsizei)len, GL_UNSIGNED_BYTE, str);
+	        glCallLists((GLsizei)str.GetLength(), GL_UNSIGNED_BYTE, str.pointer());
 	}
 
-	void GLRasterFont::end()
+	void GLRasterFont::End()
 	{
 	        glPopAttrib();
 	    glPopMatrix();

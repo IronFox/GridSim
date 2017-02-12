@@ -64,9 +64,9 @@ namespace Engine
 	    return 0.5f*strlen(str);
 	}
 
-	float GLTextureFont::GetWidth(const char*str, size_t len)
+	float GLTextureFont::GetWidth(const StringRef&str)
 	{
-	    return 0.5f*len;
+	    return 0.5f*str.GetLength();
 	}
 
 	float GLTextureFont::GetWidth(char)
@@ -74,7 +74,7 @@ namespace Engine
 	    return 0.5f;
 	}
 
-	void GLTextureFont::begin(const TFontState&state)
+	void GLTextureFont::Begin(const TFontState&state)
 	{
 	    glPushMatrix();
 	        glTranslatef(state.left+state.indent,state.top,state.depth);
@@ -89,22 +89,17 @@ namespace Engine
 	    	glBindTexture(GL_TEXTURE_2D,texture);
 	}
 
-	void GLTextureFont::alterColor(const TFontColor&color)
+	void GLTextureFont::AlterColor(const TFontColor&color)
 	{
 	        glColor4fv(color.v);
 	}
 
-	void GLTextureFont::write(const char*str)
+	void GLTextureFont::Write(const StringRef&str)
 	{
-	        glCallLists((GLsizei)strlen(str), GL_UNSIGNED_BYTE, str);
+	        glCallLists(GLuint(str.GetLength()),GL_UNSIGNED_BYTE,str.pointer());
 	}
 
-	void GLTextureFont::write(const char*str, size_t len)
-	{
-	        glCallLists(GLuint(len),GL_UNSIGNED_BYTE,str);
-	}
-
-	void GLTextureFont::end()
+	void GLTextureFont::End()
 	{
 	        glPopAttrib();
 	    glPopMatrix();

@@ -268,9 +268,11 @@ namespace Engine
 			void					ModulateColor(float r, float g, float b, float a = 1.f);
 
 			void					SetTextPosition(float x, float y);
-			void					WriteText(const String&);
-			void					WriteText(const char*text, count_t numChars);
-			float					GetUnscaledWidth(const char*text, count_t numChars);
+			void					WriteText(const char*string, count_t length)	{WriteText(StringRef(string,length));}
+			void					WriteText(const String&str)	{WriteText(str.ref());}
+			void					WriteText(const StringRef&text);
+			float					GetUnscaledWidth(const StringRef&text) const;
+			float					GetUnscaledWidth(const char*text, count_t textLength) const {return GetUnscaledWidth(StringRef(text,textLength));}
 
 			void					Paint(const TFreeCell&);
 			void					SetPointSize(float size);
@@ -292,7 +294,7 @@ namespace Engine
 
 			void					MarkNewLayer();
 
-			GLTextureFont2&			GetFont()	const	{return textout.getFont();}
+			GLTextureFont2&			GetFont()	const	{return textout.GetFont();}
 
 
 			void					Configure(const TFrameBuffer&, const Resolution& usage);
