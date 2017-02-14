@@ -130,7 +130,8 @@ namespace Engine
 		void			MoveTo3fv(const float p[3]);							//!< Position the top-left corner of the out-cursor at a new location. Also resets the active line to 0. \param p Two component position vector
 		void			SetScale(float x, float y);								//!< Redefine character scale \param x Character width \param y Character height
 		void			SetScale(float xy)				{SetScale(xy,xy);}
-		void			Scale(float by_x, float by_y);							//!< Alter the character scale \param by_x Width-factor \param by_y Height-factor
+		void			Scale(float byX, float byY);							//!< Alter the character scale \param byX Width-factor \param byY Height-factor
+		void			Scale(float by)					{Scale(by,by);}
 		void			PushState();											//!< Pushes the current output status to the local stack
 		void			PushColorState();
 		void			PopState();												//!< Restores the current output status from the local stack
