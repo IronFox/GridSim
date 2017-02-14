@@ -122,12 +122,12 @@ namespace Engine
 		float			QueryScaledHeight() const;								//!< Determines the height of a string. Hidden virtual call \return Scaled height of a single line
 
 		void			NewLine();												//!< Increases line count and resets current line indentation to 0. Hidden virtual call
-		void			MoveBy(float by_x, float by_y, float by_z=0);				//!< Move the out cursor. Also resets the active line to 0. \param by_x X-delta \param by_y Y-delta \param by_z Optional Z-delta
-		void			MoveTo(float x, float y, float z=0);					//!< Position the out cursor at a new location. Also resets the active line to 0. \param x X-coordinate \param y Y-coordinate \param z Optional z coordinate
-		void			MoveTo(const TVec2<>&p);								//!< Position the out cursor at a new location. Also resets the active line to 0.
-		void			MoveTo(const TVec3<>&p);								//!< Position the out cursor at a new location. Also resets the active line to 0.
-		void			MoveTo(const float p[2]);								//!< Position the out cursor at a new location. Also resets the active line to 0. \param p Two component position vector
-		void			MoveTo3fv(const float p[3]);							//!< Position the out cursor at a new location. Also resets the active line to 0. \param p Two component position vector
+		void			MoveBy(float by_x, float by_y, float by_z=0);				//!< Move the out-cursor. Also resets the active line to 0. \param by_x X-delta \param by_y Y-delta \param by_z Optional Z-delta
+		void			MoveTo(float x, float y, float z=0);					//!< Position the top-left corner of the out-cursor at a new location. Also resets the active line to 0. \param x X-coordinate \param y Y-coordinate \param z Optional z coordinate
+		void			MoveTo(const TVec2<>&p);								//!< Position the top-left corner of the out-cursor at a new location. Also resets the active line to 0.
+		void			MoveTo(const TVec3<>&p);								//!< Position the top-left corner of the out-cursor at a new location. Also resets the active line to 0.
+		void			MoveTo(const float p[2]);								//!< Position the top-left corner of the out-cursor at a new location. Also resets the active line to 0. \param p Two component position vector
+		void			MoveTo3fv(const float p[3]);							//!< Position the top-left corner of the out-cursor at a new location. Also resets the active line to 0. \param p Two component position vector
 		void			SetScale(float x, float y);								//!< Redefine character scale \param x Character width \param y Character height
 		void			SetScale(float xy)				{SetScale(xy,xy);}
 		void			Scale(float by_x, float by_y);							//!< Alter the character scale \param by_x Width-factor \param by_y Height-factor
