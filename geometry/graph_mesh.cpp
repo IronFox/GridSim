@@ -1208,12 +1208,12 @@ count_t		GraphMesh::createGeometry(CGS::Geometry<>&target, float step, float tex
 	obj.meta.shortest_edge_length = step * z_factor;
 	//ShowMessage("generated "+String(robjs.count())+" sub defail level(s)");
 	
-	Mat::eye(target.object_field[0].meta.system);
+	Mat::Eye(target.object_field[0].meta.system);
 	Vec::clear(target.object_field[0].meta.center);
 	target.object_field[0].meta.radius = 1;
 	target.object_field[0].meta.volume = 1;
 	target.object_field[0].meta.density = 1;
-	Mat::eye(target.object_field[0].path);
+	Mat::Eye(target.object_field[0].path);
 	target.object_field[0].system_link = &target.object_field[0].path;
 
 	if (layout == Graph::Split)
@@ -3645,12 +3645,12 @@ bool	SurfaceNetwork::NodeIsFlipped(index_t node_id)	const
 	obj.meta.shortest_edge_length = shortest_edge*0.2f;
 	//ShowMessage("generated "+String(robjs.count())+" sub defail level(s)");
 	
-	Mat::eye(target.object_field[0].meta.system);
+	Mat::Eye(target.object_field[0].meta.system);
 	Vec::clear(target.object_field[0].meta.center);
 	target.object_field[0].meta.radius = 1;
 	target.object_field[0].meta.volume = 1;
 	target.object_field[0].meta.density = 1;
-	Mat::eye(target.object_field[0].path);
+	Mat::Eye(target.object_field[0].path);
 	target.object_field[0].system_link = &target.object_field[0].path;
 
 	target.connector_field.free();
@@ -3776,12 +3776,12 @@ bool	SurfaceNetwork::NodeIsFlipped(index_t node_id)	const
 	obj.meta.shortest_edge_length = shortest_edge*0.2f;
 	//ShowMessage("generated "+String(robjs.count())+" sub defail level(s)");
 	
-	Mat::eye(target.object_field[0].meta.system);
+	Mat::Eye(target.object_field[0].meta.system);
 	Vec::clear(target.object_field[0].meta.center);
 	target.object_field[0].meta.radius = 1;
 	target.object_field[0].meta.volume = 1;
 	target.object_field[0].meta.density = 1;
-	Mat::eye(target.object_field[0].path);
+	Mat::Eye(target.object_field[0].path);
 	target.object_field[0].system_link = &target.object_field[0].path;
 
 	target.connector_field.free();

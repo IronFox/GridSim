@@ -253,7 +253,7 @@ namespace SVG
 		sub.z.x = m02;
 		sub.z.y = m12;
 		Mat::resetBottomRow(sub);
-		Mat::mult(mat,sub,temp);
+		Mat::Mult(mat,sub,temp);
 		mat = temp;
 	}
 

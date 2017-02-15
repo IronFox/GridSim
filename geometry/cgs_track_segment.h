@@ -321,7 +321,7 @@ namespace CGS
 						
 														TVec3<> n2,n3;
 														Vec::def(n2,n.x/vec.scale.x,n.y/vec.scale.y,n.z/stretch);
-														Mat::mult(vec.system,n2,vto.normal);
+														Mat::Mult(vec.system,n2,vto.normal);
 														Vec::normalize0(vto.normal);
 													}
 													//vfrom++;

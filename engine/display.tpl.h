@@ -139,7 +139,7 @@ namespace Engine
 				{
 					float scale = Vec::distance(camera_location,lights[i]->GetPosition())/10;
 					TMatrix4<> system;
-					Mat::eye(system);
+					Mat::Eye(system);
 					Vec::copy(lights[i]->GetPosition(),system.w.xyz);
 					Vec::mult(system.x.xyz,scale);
 					Vec::mult(system.y.xyz,scale);
@@ -858,7 +858,7 @@ namespace Engine
 		if (GlobalAspectConfiguration::loadAsProjection)
 		{
 			TMatrix4<>	view_projection;
-			Mat::mult(aspect.projection,aspect.view,view_projection);
+			Mat::Mult(aspect.projection,aspect.view,view_projection);
 			GL::SetCameraMatrices(Matrix<>::eye4,view_projection,Matrix<>::eye4);
 		}
 		else
@@ -889,7 +889,7 @@ namespace Engine
 		if (GlobalAspectConfiguration::loadAsProjection)
 		{
 			TMatrix4<>	view_projection;
-			Mat::mult(aspect.projection,view,view_projection);
+			Mat::Mult(aspect.projection,view,view_projection);
 			GL::loadModelview(Matrix<>::eye4);
 			GL::loadProjection(view_projection);
 		}

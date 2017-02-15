@@ -2096,7 +2096,7 @@ namespace Engine
 		void					NormalRenderer::TransformNormals(const TMatrix3<>&m)
 		{
 			TMatrix3<> temp;
-			Mat::mult(m,normalSystem,temp);
+			Mat::Mult(m,normalSystem,temp);
 			normalSystem = temp;
 			DBG_VERIFY__(normalSystemVariable.Set(normalSystem));
 		}
@@ -2156,7 +2156,7 @@ namespace Engine
 			Renderer::Configure(buffer,usage);
 
 			normalRenderer.Install();
-			Mat::eye(normalSystem);
+			Mat::Eye(normalSystem);
 			DBG_VERIFY__(normalSystemVariable.Set(normalSystem));
 		}
 

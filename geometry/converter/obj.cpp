@@ -1294,7 +1294,7 @@ namespace Converter
 			Mesh<CGS::SubGeometryA<>::VsDef>	&vs_hull = child.vs_hull_field[0];
 			vs_hull.vertex_field.SetSize(pool.count());
 			
-			Mat::eye(child.meta.system);
+			Mat::Eye(child.meta.system);
 			child.meta.volume = 1.0;
 			child.meta.density = 1.0;
 			Vec::clear(child.meta.center);

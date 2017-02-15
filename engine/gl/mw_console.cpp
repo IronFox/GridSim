@@ -341,7 +341,7 @@ void	Engine::ConsoleWindow::onPaint()
     glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();
         glLoadMatrixf(aspect.view.v);
-//	ShowMessage(__toString(self->aspect.projection)+"\n/\n"+__toString(self->aspect.modelview)+"\n\n"+EveOpenGL::renderState());
+//	ShowMessage(Mat::Raw::ToString4x4(self->aspect.projection)+"\n/\n"+Mat::Raw::ToString4x4(self->aspect.modelview)+"\n\n"+EveOpenGL::renderState());
 		glDisable(GL_DEPTH_TEST);
 
 

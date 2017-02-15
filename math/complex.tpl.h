@@ -24,10 +24,10 @@ namespace ComplexMath
 	{
 		TMatrix3<C1> m;
 		_q2RotMatrixCW(q,m);
-		Mat::mult(m,matrix.x.xyz,m_out.x.xyz);
-		Mat::mult(m,matrix.y.xyz,m_out.y.xyz);
-		Mat::mult(m,matrix.z.xyz,m_out.z.xyz);
-		Mat::mult(m,matrix.w.xyz,m_out.w.xyz);
+		Mat::Mult(m,matrix.x.xyz,m_out.x.xyz);
+		Mat::Mult(m,matrix.y.xyz,m_out.y.xyz);
+		Mat::Mult(m,matrix.z.xyz,m_out.z.xyz);
+		Mat::Mult(m,matrix.w.xyz,m_out.w.xyz);
 		Mat::resetBottomRow(m_out);
 	}
 
@@ -35,20 +35,20 @@ namespace ComplexMath
 	{
 		TMatrix3<C1> m;
 		_q2RotMatrixCW(q,m);
-		Mat::mult(m,matrix.x.xyz);
-		Mat::mult(m,matrix.y.xyz);
-		Mat::mult(m,matrix.z.xyz);
-		Mat::mult(m,matrix.w.xyz);
+		Mat::Mult(m,matrix.x.xyz);
+		Mat::Mult(m,matrix.y.xyz);
+		Mat::Mult(m,matrix.z.xyz);
+		Mat::Mult(m,matrix.w.xyz);
 	}
 
 	MFUNC3 (void)	_qRotateSystemCCW(const TVec4<C0>&q, const TMatrix4<C1>&matrix, TMatrix4<C2>&m_out)
 	{
 		TMatrix3<C1> m;
 		_q2RotMatrixCCW(q,m);
-		Mat::mult(m,matrix.x.xyz,m_out.x.xyz);
-		Mat::mult(m,matrix.y.xyz,m_out.y.xyz);
-		Mat::mult(m,matrix.z.xyz,m_out.z.xyz);
-		Mat::mult(m,matrix.w.xyz,m_out.w.xyz);
+		Mat::Mult(m,matrix.x.xyz,m_out.x.xyz);
+		Mat::Mult(m,matrix.y.xyz,m_out.y.xyz);
+		Mat::Mult(m,matrix.z.xyz,m_out.z.xyz);
+		Mat::Mult(m,matrix.w.xyz,m_out.w.xyz);
 		Mat::resetBottomRow(m_out);
 	}
 
@@ -56,10 +56,10 @@ namespace ComplexMath
 	{
 		TMatrix3<C1> m;
 		_q2RotMatrixCCW(q,m);
-		Mat::mult(m,matrix.x.xyz);
-		Mat::mult(m,matrix.y.xyz);
-		Mat::mult(m,matrix.z.xyz);
-		Mat::mult(m,matrix.w.xyz);
+		Mat::Mult(m,matrix.x.xyz);
+		Mat::Mult(m,matrix.y.xyz);
+		Mat::Mult(m,matrix.z.xyz);
+		Mat::Mult(m,matrix.w.xyz);
 	}
 
 
@@ -67,28 +67,28 @@ namespace ComplexMath
 	{
 		TMatrix3<C1> m;
 		_q2RotMatrixCW(q,m);
-		Mat::mult(m,matrix,m_out);
+		Mat::Mult(m,matrix,m_out);
 	}
 
 	MFUNC2 (void)	_qRotateMatrix3x3CW(const TVec4<C0>&q, TMatrix3<C1>&m_inout)
 	{
 		TMatrix3<C1> m;
 		_q2RotMatrixCW(q,m);
-		Mat::mult(m,m_inout);
+		Mat::Mult(m,m_inout);
 	}
 
 	MFUNC3 (void)	_qRotateMatrix3x3CCW(const TVec4<C0>&q, const TMatrix3<C1>&matrix, TMatrix3<C2>&m_out)
 	{
 		TMatrix3<C1> m;
 		_q2RotMatrixCCW(q,m);
-		Mat::mult(m,matrix,m_out);
+		Mat::Mult(m,matrix,m_out);
 	}
 
 	MFUNC2 (void)	_qRotateMatrix3x3CCW(const TVec4<C0>&q, TMatrix3<C1>&m_inout)
 	{
 		TMatrix3<C1> m;
 		_q2RotMatrixCCW(q,m);
-		Mat::mult(m,m_inout);
+		Mat::Mult(m,m_inout);
 	}
 
 	MFUNC4 (void)	_qMultiply(const TVec4<C0>&q0, const TVec4<C1>&q1, const TVec4<C2>&q2, TVec4<C3>&out)

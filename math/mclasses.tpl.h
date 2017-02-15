@@ -136,7 +136,7 @@ namespace Math
 
     template <class C, unsigned Rows, unsigned Cols>    MF_DECLARE  (String)                VariableMatrix<C,Rows,Cols>::ToString()
     {
-        return __toString(field,Rows,Cols);
+        return Mat::Raw::ToString4x4(field,Rows,Cols);
     }
 
 
@@ -146,7 +146,7 @@ namespace Math
 
     template <class C> MF_DECLARE  (void) SystemMatrix<C>::loadIdentity()
     {
-		Mat::eye(*this);
+		Mat::Eye(*this);
     }
 
     template <class C>
@@ -184,10 +184,10 @@ namespace Math
 			TMatrix3<C>	rsystem;
 			Mat::rotationMatrix(angle,axis_x,axis_y,axis_z,rsystem);
 
-			Mat::mult(rsystem,x.xyz);
-			Mat::mult(rsystem,y.xyz);
-			Mat::mult(rsystem,z.xyz);
-			Mat::mult(rsystem,w.xyz);
+			Mat::Mult(rsystem,x.xyz);
+			Mat::Mult(rsystem,y.xyz);
+			Mat::Mult(rsystem,z.xyz);
+			Mat::Mult(rsystem,w.xyz);
 		}
 	
 	template <class C> MFUNC2 (void)	SystemMatrix<C>::rotate(const C0&angle, const TVec3<C1>& axis)
@@ -195,10 +195,10 @@ namespace Math
 			TMatrix3<C>	rsystem;
 			Mat::rotationMatrix(angle,axis,rsystem);
 
-			Mat::mult(rsystem,x.xyz);
-			Mat::mult(rsystem,y.xyz);
-			Mat::mult(rsystem,z.xyz);
-			Mat::mult(rsystem,w.xyz);
+			Mat::Mult(rsystem,x.xyz);
+			Mat::Mult(rsystem,y.xyz);
+			Mat::Mult(rsystem,z.xyz);
+			Mat::Mult(rsystem,w.xyz);
 		}
     
     template <class C>
@@ -323,7 +323,7 @@ namespace Math
     MFUNC1  (TVec4<C>)   SystemMatrix<C>::operator*(const TVec4<C0>&other) const
     {
 		TVec4<C> result;
-		Mat::mult(*this,other,result);
+		Mat::Mult(*this,other,result);
 		return result;
     }
 
@@ -354,7 +354,7 @@ namespace Math
 
     template <class C>  MF_DECLARE(String)    SystemMatrix<C>::ToString()                        const
     {
-        return __toString(v,4,4);
+        return Mat::Raw::ToString4x4(v,4,4);
     }
     
     

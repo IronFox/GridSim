@@ -757,7 +757,7 @@ template <typename T> template <typename T2>
 template <typename T>
 	inline void	System<T>::loadIdentity(bool do_callback)
 	{
-		Mat::eye(matrix);
+		Mat::Eye(matrix);
 		if (do_callback && callback)
 			callback->onSystemChange();
 	}
@@ -867,9 +867,9 @@ template <typename T>
 
 		Mat::rotationMatrix(angle,axis_x,axis_y,axis_z,rotation_matrix);
 
-		Mat::mult(rotation_matrix,matrix.x.xyz);
-		Mat::mult(rotation_matrix,matrix.y.xyz);
-		Mat::mult(rotation_matrix,matrix.z.xyz);
+		Mat::Mult(rotation_matrix,matrix.x.xyz);
+		Mat::Mult(rotation_matrix,matrix.y.xyz);
+		Mat::Mult(rotation_matrix,matrix.z.xyz);
 		
 		if (callback)
 			callback->onSystemChange();
@@ -881,9 +881,9 @@ template <typename T> template <typename T2>
 		TMatrix3<T>	rotation_matrix;
 		Mat::rotationMatrix(angle,axis,rotation_matrix);
 
-		Mat::mult(rotation_matrix,matrix.x.xyz);
-		Mat::mult(rotation_matrix,matrix.y.xyz);
-		Mat::mult(rotation_matrix,matrix.z.xyz);
+		Mat::Mult(rotation_matrix,matrix.x.xyz);
+		Mat::Mult(rotation_matrix,matrix.y.xyz);
+		Mat::Mult(rotation_matrix,matrix.z.xyz);
 	
 		if (callback)
 			callback->onSystemChange();
@@ -917,9 +917,9 @@ template <typename T>
 
 		Mat::rotationMatrix(angle,axis_x,axis_y,axis_z,rotation_matrix);
 
-		Mat::mult(rotation_matrix,matrix.x.xyz);
-		Mat::mult(rotation_matrix,matrix.y.xyz);
-		Mat::mult(rotation_matrix,matrix.z.xyz);
+		Mat::Mult(rotation_matrix,matrix.x.xyz);
+		Mat::Mult(rotation_matrix,matrix.y.xyz);
+		Mat::Mult(rotation_matrix,matrix.z.xyz);
 	}
 	
 template <typename T> template <typename T2>
@@ -928,9 +928,9 @@ template <typename T> template <typename T2>
 		TMatrix3<T>	rotation_matrix;
 		Mat::rotationMatrix(angle,axis,rotation_matrix);
 
-		Mat::mult(rotation_matrix,matrix.x.xyz);
-		Mat::mult(rotation_matrix,matrix.y.xyz);
-		Mat::mult(rotation_matrix,matrix.z.xyz);
+		Mat::Mult(rotation_matrix,matrix.x.xyz);
+		Mat::Mult(rotation_matrix,matrix.y.xyz);
+		Mat::Mult(rotation_matrix,matrix.z.xyz);
 	}
 
 
@@ -1025,7 +1025,7 @@ template <class Def> SubGeometryA<Def>::SubGeometryA():system_link(&path),name(0
 	meta.volume = 0;
 	meta.density = 1;
 	meta.shortest_edge_length = 0.1f;
-	Mat::eye(meta.system);
+	Mat::Eye(meta.system);
 }
 
 
@@ -1043,7 +1043,7 @@ template <class Def> void SubGeometryA<Def>::clear()
 	meta.density = 1;
 	meta.shortest_edge_length = 0.1f;
 	meta.flags = 0;
-	Mat::eye(meta.system);
+	Mat::Eye(meta.system);
 	system_link = &path;
 }
 
@@ -4402,13 +4402,13 @@ template <class Def> void Geometry<Def>::makeSimpleObject(const Float*vertex,cou
 	
 	
 	object_field[0].name = str2name("child");
-	Mat::eye(object_field[0].meta.system);
+	Mat::Eye(object_field[0].meta.system);
 	Vec::clear(object_field[0].meta.center);
 	object_field[0].meta.radius = 1;
 	object_field[0].meta.volume = 1;
 	object_field[0].meta.density = 1;
 	object_field[0].extractShortestVisualEdgeLength(0,object_field[0].meta.shortest_edge_length);
-	Mat::eye(object_field[0].path);
+	Mat::Eye(object_field[0].path);
 	object_field[0].system_link = &object_field[0].path;
 	robj.tname = object_field[0].name;
 	
@@ -4488,7 +4488,7 @@ template <class Def>
 				ASSERT1__(obj.valid(),obj.errorStr());
 			}
 
-			//Mat::eye(object_field[i].meta.system);
+			//Mat::Eye(object_field[i].meta.system);
 			object_field[i].meta.system = cobj.GetSystem();
 			Vec::clear(object_field[i].meta.center);
 			object_field[i].meta.radius = 1;
@@ -4496,7 +4496,7 @@ template <class Def>
 			object_field[i].meta.density = 1;
 			object_field[i].extractShortestVisualEdgeLength(0,object_field[i].meta.shortest_edge_length);
 			object_field[i].path = object_field[i].meta.system;
-			//Mat::eye(object_field[i].path);
+			//Mat::Eye(object_field[i].path);
 			object_field[i].system_link = &object_field[i].path;
 		}
 		material_field[0].info = ctr.colors;
@@ -4671,7 +4671,7 @@ template <class Def>
 		instance.updateAnimationMap();
 		
 		instance.update();
-		CGS_MSG(__toString(instance.child_field.last().path.v));
+		CGS_MSG(Mat::Raw::ToString4x4(instance.child_field.last().path.v));
 	}
 
 
@@ -4717,7 +4717,7 @@ template <class Def> void		Geometry<Def>::resetLinkage()
 
 template <class Def> void		Geometry<Def>::resetSystems()
 {
-	Mat::eye(root_system.matrix);
+	Mat::Eye(root_system.matrix);
 	for (index_t i = 0; i < object_field.length(); i++)
 	{
 		object_field[i].resetLinkageRec();
@@ -5221,9 +5221,9 @@ template <class Def> void AnimatableSubInstanceA<Def>::updatePath(const TMatrix4
 		ASSERT__(target->meta.flags&AnimationTargetFlag);
 		Vec::div(animation_status.rotation,angle,vector);
 		Mat::rotationMatrix(angle,vector,rotation_matrix);
-		Mat::mult(rotation_matrix,system.x.xyz,animated_system.x.xyz);
-		Mat::mult(rotation_matrix,system.y.xyz,animated_system.y.xyz);
-		Mat::mult(rotation_matrix,system.z.xyz,animated_system.z.xyz);
+		Mat::Mult(rotation_matrix,system.x.xyz,animated_system.x.xyz);
+		Mat::Mult(rotation_matrix,system.y.xyz,animated_system.y.xyz);
+		Mat::Mult(rotation_matrix,system.z.xyz,animated_system.z.xyz);
 		//CGS_MSG("Angle is "+String(angle)+". vector is "+_toString(vector)+". base vector was "+_toString(animation_status+3));
 	}
 	else
