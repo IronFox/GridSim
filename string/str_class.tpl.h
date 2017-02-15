@@ -3598,7 +3598,7 @@ template <typename T>
 
 template <typename T>
 	template <class Type, class UType> 
-		T* StringTemplate<T>::signedToStr(Type value, T*end, T*first)
+		T* StringTemplate<T>::SignedToStr(Type value, T*end, T*first)
 		{
 			bool negative = false;
 			if (value < 0)
@@ -3623,7 +3623,7 @@ template <typename T>
 	
 template <typename T>
 	template <typename Type>
-		T* StringTemplate<T>::floatToStr(Type value, unsigned char exactness, bool force_trailing_zeros, T*end, T*first)
+		T* StringTemplate<T>::FloatToStr(Type value, unsigned char exactness, bool force_trailing_zeros, T*end, T*first)
 		{
 			ASSERT__(end > first);
 			if (isinf(value))
@@ -3657,7 +3657,7 @@ template <typename T>
 			{
 				int exponent = (int)log10(value);
 				value /= pow(10.0,exponent);
-				c = signedToStr<int,unsigned>(exponent,c,first);
+				c = SignedToStr<int,unsigned>(exponent,c,first);
 				if (c != first)
 					(*(--c)) = L'e';
 			}
@@ -3727,7 +3727,7 @@ template <typename T>
 		inline void StringTemplate<T>::copyFloat(Float value)
 		{
 			T	buffer[257],
-				*str = floatToStr(value, 5, false,buffer+ARRAYSIZE(buffer)-1, buffer);
+				*str = FloatToStr(value, 5, false,buffer+ARRAYSIZE(buffer)-1, buffer);
 
 			resize(buffer+ARRAYSIZE(buffer)-str-1);
 			memcpy(field,str,string_length*sizeof(T));
@@ -3738,7 +3738,7 @@ template <typename T>
 		inline void StringTemplate<T>::makeFloat(Float value,unsigned char precision, bool force_trailing_zeros)
 		{
 			T	buffer[257],
-				*str = floatToStr(value, precision, force_trailing_zeros, buffer+ARRAYSIZE(buffer)-1, buffer);
+				*str = FloatToStr(value, precision, force_trailing_zeros, buffer+ARRAYSIZE(buffer)-1, buffer);
 
 			string_length = buffer+ARRAYSIZE(buffer)-str-1;
 			field = allocate(string_length);

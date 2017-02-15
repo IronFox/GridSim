@@ -166,24 +166,15 @@ namespace Engine
 	        }
 	}
 
-	float GLTextureFont2::GetWidth(const char*str)
-	{
-		unsigned rs = 0;
-		while (*str)
-		{
-			if (chars[(BYTE)*str].isset)
-				rs += chars[(BYTE)*str].width;
-			str++;
-		}
-	    return rs*scale;
-	}
 
-	float GLTextureFont2::GetWidth(const char*str, size_t len)
+	float GLTextureFont2::GetWidth(const StringRef&str)
 	{
 		float rs = 0;
-		for (index_t i = 0; i < len; i++)
+		const char*at = str.pointer(),
+				*const end = at + str.GetLength();
+		for (;at != end; ++at)
 		{
-			BYTE index = (BYTE)str[i];
+			BYTE index = (BYTE)*at;
 			if (chars[index].isset)
 				rs += chars[index].width;
 		}
@@ -195,7 +186,7 @@ namespace Engine
 	    return chars[(BYTE)c].isset?scale*chars[(BYTE)c].width:0;
 	}
 
-	void GLTextureFont2::begin(const TFontState&state)
+	void GLTextureFont2::Begin(const TFontState&state)
 	{
 	    glPushMatrix();
 	        glTranslatef(state.left+state.indent,state.top,state.depth);
@@ -209,21 +200,19 @@ namespace Engine
 	    	glBindTexture(GL_TEXTURE_2D,texture);
 	}
 
-	void GLTextureFont2::alterColor(const TFontColor&color)
+	void GLTextureFont2::AlterColor(const TFontColor&color)
 	{
 	        glColor4fv(color.v);
 	}
 
-	void GLTextureFont2::write(const char*str)
-	{
-			write(str,strlen(str));
-	}
 
-	void GLTextureFont2::write(const char*str, size_t len)
+	void GLTextureFont2::Write(const StringRef&str)
 	{
-		for (index_t i = 0; i < len; i++)
+		const char*c = str.pointer(),
+				*const end = c + str.GetLength();
+		for (;c != end; ++c)
 		{
-			BYTE at= str[i];
+			BYTE at= *c;
 			if (chars[at].isset)
 				glCallList(base + at);
 			else
@@ -232,7 +221,7 @@ namespace Engine
 	        //glCallLists(GLuint(len),GL_UNSIGNED_BYTE,str);
 	}
 
-	void GLTextureFont2::end()
+	void GLTextureFont2::End()
 	{
 	        glPopAttrib();
 	    glPopMatrix();

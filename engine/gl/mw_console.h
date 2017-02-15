@@ -38,7 +38,7 @@ namespace Engine
 			void						(*input_handler)(ConsoleWindow*,const String&);
 
 			void						init();
-			void						write(int x, int y, const String&text);
+			void						Write(int x, int y, const String&text);
 			void						copyToClipboard();
 			
 	public:

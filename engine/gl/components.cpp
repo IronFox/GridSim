@@ -1757,7 +1757,7 @@ namespace Engine
 			if (caption.IsNotEmpty())
 			{
 				const Rect<float>&rect=cellLayout.client;
-				renderer.SetTextPosition(rect.x.center()-ColorRenderer::textout.unscaledLength(caption)*0.5+pressed,rect.y.center()-ColorRenderer::textout.getFont().GetHeight()/2+font_offset);
+				renderer.SetTextPosition(rect.x.center()-ColorRenderer::textout.GetUnscaledWidth(caption)*0.5+pressed,rect.y.center()-ColorRenderer::textout.GetFont().GetHeight()/2+font_offset);
 				renderer.PushColor();
 				renderer.ModulateColor(1.0-0.2*(pressed||!enabled));
 				renderer.WriteText(caption);
@@ -1813,13 +1813,13 @@ namespace Engine
 		
 		float		Button::GetClientMinWidth()	const
 		{
-			return ColorRenderer::textout.unscaledLength(caption);
+			return ColorRenderer::textout.GetUnscaledWidth(caption);
 		}
 		
 		float		Button::GetClientMinHeight()	const
 		{
 
-			return ColorRenderer::textout.getFont().GetHeight();
+			return ColorRenderer::textout.GetFont().GetHeight();
 		}
 		
 		/*virtual override*/void		CheckBox::OnNormalPaint(NormalRenderer&renderer, bool parentIsEnabled)
@@ -1858,9 +1858,9 @@ namespace Engine
 		
 			if (caption.IsNotEmpty())
 			{
-				const float h= ColorRenderer::textout.getFont().GetHeight();
+				const float h= ColorRenderer::textout.GetFont().GetHeight();
 				const float size = GetBoxSize();
-				renderer.SetTextPosition(rect.left()+size+h*0.2f,rect.y.center()-h/2.f+font_offset);//textout.getFont().GetHeight()*0.5);
+				renderer.SetTextPosition(rect.left()+size+h*0.2f,rect.y.center()-h/2.f+font_offset);//textout.GetFont().GetHeight()*0.5);
 				renderer.ModulateColor(1.0-0.2*(!enabled));
 				renderer.WriteText(caption);
 			}
@@ -1905,7 +1905,7 @@ namespace Engine
 		{
 			float rs;
 			{
-				rs = ColorRenderer::textout.unscaledLength(caption)+0.2*ColorRenderer::textout.getFont().GetHeight()+GetBoxSize();
+				rs = ColorRenderer::textout.GetUnscaledWidth(caption)+0.2*ColorRenderer::textout.GetFont().GetHeight()+GetBoxSize();
 				if (anchored.right && includeOffsets)
 					rs -= offset.right;
 				if (anchored.left && includeOffsets)
@@ -1924,7 +1924,7 @@ namespace Engine
 		{
 			float rs;
 			{
-				rs = ColorRenderer::textout.getFont().GetHeight();
+				rs = ColorRenderer::textout.GetFont().GetHeight();
 				if (anchored.top && includeOffsets)
 					rs -= offset.top;
 				if (anchored.bottom && includeOffsets)
@@ -1982,15 +1982,15 @@ namespace Engine
 		float			Label::GetClientMinWidth()	const
 		{
 			if (!wrapText)
-				return ColorRenderer::textout.unscaledLength(caption) + textMargin.left + textMargin.right;
+				return ColorRenderer::textout.GetUnscaledWidth(caption) + textMargin.left + textMargin.right;
 			return 30;
 		}
 		
 		float			Label::GetClientMinHeight()	const
 		{
 			if (!wrapText)
-				return ColorRenderer::textout.getFont().GetHeight() + textMargin.bottom + textMargin.top;
-			return ColorRenderer::textout.getFont().GetHeight()*lines.count() + textMargin.bottom + textMargin.top;
+				return ColorRenderer::textout.GetFont().GetHeight() + textMargin.bottom + textMargin.top;
+			return ColorRenderer::textout.GetFont().GetHeight()*lines.count() + textMargin.bottom + textMargin.top;
 		
 		}
 		
@@ -2012,7 +2012,7 @@ namespace Engine
 
 		float		Label::_CharLen(char c)
 		{
-			return ColorRenderer::textout.unscaledLength(&c,1);
+			return ColorRenderer::textout.GetUnscaledWidth(StringRef(&c,1));
 		}
 		
 		void			Label::OnColorPaint(ColorRenderer&renderer, bool parentIsEnabled)
@@ -2040,7 +2040,7 @@ namespace Engine
 				renderer.ModulateColor(textColor);
 				if (!wrapText)
 				{
-					float	bottom = cellLayout.client.y.center()-ColorRenderer::textout.getFont().GetHeight()/2+font_offset;
+					float	bottom = cellLayout.client.y.center()-ColorRenderer::textout.GetFont().GetHeight()/2+font_offset;
 					renderer.SetTextPosition(cellLayout.client.left() + textMargin.left,bottom + textMargin.bottom);
 					renderer.WriteText(caption);
 				}
@@ -2048,7 +2048,7 @@ namespace Engine
 				{
 					for (index_t i = 0; i < lines.count(); i++)
 					{
-						renderer.SetTextPosition(cellLayout.client.left() + textMargin.left,cellLayout.client.top()-(ColorRenderer::textout.getFont().GetHeight()*(i+1))-textMargin.top);
+						renderer.SetTextPosition(cellLayout.client.left() + textMargin.left,cellLayout.client.top()-(ColorRenderer::textout.GetFont().GetHeight()*(i+1))-textMargin.top);
 						renderer.WriteText(lines[i]);
 					}
 				}
@@ -2824,7 +2824,7 @@ namespace Engine
 				if (!node->Query("file",string))
 					throw Except::IO::DriveAccess::FileFormatFault("XML Font node lacks file attribute");
 				if (folder.FindFile(PathString(string),file))
-					ColorRenderer::textout.getFont().LoadFromFile(file.GetLocation(),scale*outer_scale);
+					ColorRenderer::textout.GetFont().LoadFromFile(file.GetLocation(),scale*outer_scale);
 						//FAIL("Failed to load font from font file '"+file.GetLocation()+"'");
 			}
 			else

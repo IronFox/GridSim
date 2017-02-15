@@ -13,31 +13,31 @@ namespace Engine
 {
 
 	template <class Font>
-		void		Textout<Font>::beginOutput()
+		void		Textout<Font>::BeginOutput()
 		{
-			active_font->begin(state);
+			activeFont->Begin(state);
 		}
 		
 	template <class Font>
-		void		Textout<Font>::writeSegment(const char*field, size_t len)
+		void		Textout<Font>::WriteSegment(const char*field, size_t len)
 		{
-			active_font->write(field,len);
+			activeFont->Write(StringRef(field,len));
 		}
 		
 	template <class Font>
-		void		Textout<Font>::endOutput()
+		void		Textout<Font>::EndOutput()
 		{
-			active_font->end();
+			activeFont->End();
 		}
 		
 	template <class Font>
-		void		Textout<Font>::alterColor(const TFontColor&color)
+		void		Textout<Font>::AlterColor(const TFontColor&color)
 		{
-			active_font->alterColor(color);
+			activeFont->AlterColor(color);
 		}
 		
 
-	template <class Font> Textout<Font>::Textout():active_font(&local_font)
+	template <class Font> Textout<Font>::Textout():activeFont(&localFont)
 	{}
 
 
@@ -47,214 +47,107 @@ namespace Engine
 	
 	
 
-	template <class Font> void Textout<Font>::setFont(Font*font_)
+	template <class Font> void Textout<Font>::SetFont(Font*font)
 	{
-	    if (font_)
-	        active_font = font_;
+	    if (font)
+	        activeFont = font;
 	    else
-	        active_font = &local_font;
+	        activeFont = &localFont;
 	}
 	
 	
 	
 
-	template <class Font> Font& Textout<Font>::getFont()
+	template <class Font> Font& Textout<Font>::GetFont()
 	{
-	    return local_font;
+	    return localFont;
 	}
 
-	template <class Font> Font* Textout<Font>::getActiveFont()
+	template <class Font> Font* Textout<Font>::GetActiveFont()
 	{
-	    return active_font;
+	    return activeFont;
 	}
 
-	
-	
-	
-	template <class Font> float Textout<Font>::unscaledLength(const char*line)
+	template <class Font> float Textout<Font>::GetScaledWidth(const StringRef&line) const
 	{
-	    return active_font->GetWidth(line);
+	    return activeFont->GetWidth(line)*state.x_scale;
+	}
+		
+	template <class Font> /*virtual override*/ float Textout<Font>::QueryUnscaledWidth(const StringRef&line) const
+	{
+	    return activeFont->GetWidth(line);
 	}
 
-	template <class Font> float Textout<Font>::unscaledLength(const char*line, size_t len)
+	template <class Font> /*virtual override*/ float Textout<Font>::QueryUnscaledHeight() const
 	{
-	    return active_font->GetWidth(line,len);
+		return activeFont->GetHeight();
 	}
 
-	template <class Font> float Textout<Font>::unscaledLength(const String&line)
+	template <class Font> float Textout<Font>::GetUnscaledWidth(const StringRef&line) const
 	{
-	    return active_font->GetWidth(line.c_str(),line.length());
-	}
-	template <class Font> float Textout<Font>::unscaledLength(const StringRef&line)
-	{
-	    return active_font->GetWidth(line.pointer(),line.length());
+	    return activeFont->GetWidth(line);
 	}
 
-	template <class Font> float Textout<Font>::scaledLength(const char*line)
-	{
-	    return active_font->GetWidth(line)*state.x_scale;
-	}
-
-	template <class Font> float Textout<Font>::scaledLength(const char*line, size_t len)
-	{
-	    return active_font->GetWidth(line,len)*state.x_scale;
-	}
-
-	template <class Font> float Textout<Font>::scaledLength(const String&line)
-	{
-	    return active_font->GetWidth(line.c_str(),line.length())*state.x_scale;
-	}
-	template <class Font> float Textout<Font>::scaledLength(const StringRef&line)
-	{
-	    return active_font->GetWidth(line.pointer(),line.length())*state.x_scale;
-	}
-	
-	
-	template <class Font> float Textout<Font>::getUnscaledWidth(const char*line)
-	{
-	    return active_font->GetWidth(line);
-	}
-
-	template <class Font> float Textout<Font>::getUnscaledWidth(const char*line, size_t len)
-	{
-	    return active_font->GetWidth(line,len);
-	}
-	
-	
-	template <class Font> float Textout<Font>::unscaledWidth(const char*line)
-	{
-	    return active_font->GetWidth(line);
-	}
-
-	template <class Font> float Textout<Font>::unscaledWidth(const char*line, size_t len)
-	{
-	    return active_font->GetWidth(line,len);
-	}
-
-	template <class Font> float Textout<Font>::getUnscaledHeight()
-	{
-		return active_font->GetHeight();
-	}
-
-
-	template <class Font> float Textout<Font>::unscaledWidth(const String&line)
-	{
-	    return active_font->GetWidth(line.c_str(),line.length());
-	}
-	template <class Font> float Textout<Font>::unscaledWidth(const StringRef&line)
-	{
-	    return active_font->GetWidth(line.pointer(),line.length());
-	}
-
-	template <class Font> float Textout<Font>::scaledWidth(const char*line)
-	{
-	    return active_font->GetWidth(line)*state.x_scale;
-	}
-
-	template <class Font> float Textout<Font>::scaledWidth(const char*line, size_t len)
-	{
-	    return active_font->GetWidth(line,len)*state.x_scale;
-	}
-
-	template <class Font> float Textout<Font>::scaledWidth(const String&line)
-	{
-	    return active_font->GetWidth(line.c_str(),line.length())*state.x_scale;
-	}
-	template <class Font> float Textout<Font>::scaledWidth(const StringRef&line)
-	{
-	    return active_font->GetWidth(line.pointer(),line.length())*state.x_scale;
-	}
-	
-	
-	
 	template <class Font>
-		void	Textout<Font>::print(const char*str, size_t len)
+		void Textout<Font>::BeginNewLine()
 		{
-			if (!len)
-				return;
-		    active_font->begin(state);
-		    const char*at = str,*end=str+len;
-		    while (at<end)
-		    {
-		        size_t len(0);
-		        while (at+len<end && at[len] != '\n')
-		            len++;
-		        active_font->write(at,len);
-		        at+=len;
-		        if (at<end)
-		        {
-		            active_font->end();
-					newLine();
-		            active_font->begin(state);
-		            at++;
-		        }
-		    }
-		    active_font->end();
+			state.indent = 0;
+			state.lineOffset += GetScaledHeight();
 		}
 
-	template <class Font> void Textout<Font>::print(const char*str)
+	
+	
+	template <class Font>
+		void	Textout<Font>::Print(const char*str, size_t len)
+		{
+			Stream(str,len);
+		}
+
+	template <class Font> void Textout<Font>::Print(const char*str)
 	{
-	    if (!str)
-	        return;
-	    active_font->begin(state);
-	    const char*at = str;
-	    while (*at)
-	    {
-	        size_t len(0);
-	        while (at[len] && at[len] != '\n')
-	            len++;
-	        active_font->write(at,len);
-	        at+=len;
-	        if (*at)
-	        {
-	            active_font->end();
-				newLine();
-	            active_font->begin(state);
-	            at++;
-	        }
-	    }
-	    active_font->end();
+		Stream(str,strlen(str));
 	}
 
 	template <class Font>
-		void	Textout<Font>::stream(const char*str, size_t len)
+		void	Textout<Font>::Stream(const char*str, size_t len)
 		{
 			if (!len)
 				return;
-		    active_font->begin(state);
+		    activeFont->Begin(state);
 		    const char*at = str,*end=str+len;
 		    while (at<end)
 		    {
 		        size_t len(0);
 		        while (at+len<end && at[len] != '\n')
 		            len++;
-		        active_font->write(at,len);
+				const StringRef toWrite(at,len);
+		        activeFont->Write(toWrite);
 				if (at+len >= end)
 				{
-					state.indent += scaledWidth(at,len);
+					state.indent += GetScaledWidth(toWrite);
 				}
 		        at+=len;
 		        if (at<end)
 		        {
-		            active_font->end();
-					newLine();
-		            active_font->begin(state);
+		            activeFont->End();
+					BeginNewLine();
+		            activeFont->Begin(state);
 		            at++;
 		        }
 		    }
-		    active_font->end();
+		    activeFont->End();
 		}
 
-	template <class Font> void Textout<Font>::print(const String&str)
+	template <class Font> void Textout<Font>::Print(const String&str)
 	{
-	    print(str.c_str(),str.length());
+	    Print(str.c_str(),str.length());
 	}
-	template <class Font> void Textout<Font>::print(const StringRef&str)
+	template <class Font> void Textout<Font>::Print(const StringRef&str)
 	{
-	    print(str.pointer(),str.length());
+	    Print(str.pointer(),str.length());
 	}
 
-	template <class Font> void Textout<Font>::printTagged(const char*str, char tag)
+	template <class Font> void Textout<Font>::PrintTagged(const char*str, char tag)
 	{
 	    if (!str)
 	        return;
@@ -262,21 +155,21 @@ namespace Engine
 	    TFontColor	color_stack[0x100];
 	    BYTE        color_depth(0);
 
-	    active_font->begin(state);
+	    activeFont->Begin(state);
 	    const char*at = str;
 	    while (*at)
 	    {
 	        size_t l(0);
 	        while (at[l] && at[l] != '\n' && at[l] != tag)
 	            l++;
-	        active_font->write(at,l);
+	        activeFont->Write(at,l);
 	        at+=l;
 	        if ((*at) == '\n')
 	        {
-	            active_font->end();
-				newLine();
-	            active_font->begin(state);
-	            active_font->alterColor(color_state);
+	            activeFont->End();
+				BeginNewLine();
+	            activeFont->Begin(state);
+	            activeFont->AlterColor(color_state);
 	            at++;
 	        }
 	        else
@@ -293,7 +186,7 @@ namespace Engine
 	                    if (remaining > 3 && !strncmpi(at,"pop",3))
 	                    {
 	                        color_state = color_stack[--color_depth];
-	                        active_font->alterColor(color_state);
+	                        activeFont->AlterColor(color_state);
 	                        at+=3;
 	                    }
 	                    else
@@ -304,46 +197,46 @@ namespace Engine
 	                            color_state.blue = (float)hexStr(at+4)/255;
 	                            color_state.alpha = (float)hexStr(at+6)/255;
 	                            at+=8;
-	                            active_font->alterColor(color_state);
+	                            activeFont->AlterColor(color_state);
 	                        }
 	            }
 	    }
-	    active_font->end();
+	    activeFont->End();
 	}
 
-	template <class Font> void Textout<Font>::printTagged(const String&str, char tag)
+	template <class Font> void Textout<Font>::PrintTagged(const String&str, char tag)
 	{
-	    printTagged(str.c_str(),tag);
+	    PrintTagged(str.c_str(),tag);
 	}
 
 
-	template <class Font> void Textout<Font>::println(const char*str)
-	{
-		print(str);
-		newLine();
-	}
-
-	template <class Font> void Textout<Font>::println(const String&str)
+	template <class Font> void Textout<Font>::PrintLn(const char*str)
 	{
 		print(str);
-		newLine();
+		BeginNewLine();
 	}
-	template <class Font> void Textout<Font>::println(const StringRef&str)
+
+	template <class Font> void Textout<Font>::PrintLn(const String&str)
 	{
 		print(str);
-		newLine();
+		BeginNewLine();
+	}
+	template <class Font> void Textout<Font>::PrintLn(const StringRef&str)
+	{
+		print(str);
+		BeginNewLine();
 	}
 
-	template <class Font> void Textout<Font>::printTaggedLine(const char*str, char tag)
+	template <class Font> void Textout<Font>::PrintTaggedLine(const char*str, char tag)
 	{
-		printTagged(str,tag);
-		newLine();
+		PrintTagged(str,tag);
+		BeginNewLine();
 	}
 
-	template <class Font> void Textout<Font>::printTaggedLine(const String&str, char tag)
+	template <class Font> void Textout<Font>::PrintTaggedLine(const String&str, char tag)
 	{
-		printTagged(str,tag);
-		newLine();
+		PrintTagged(str,tag);
+		BeginNewLine();
 	}
 
 
@@ -351,27 +244,27 @@ namespace Engine
 	template <class Font>
 		Textout<Font>&	Textout<Font>::operator<<(const String&str)
 		{
-			stream(str.c_str(),str.length());
+			Stream(str.c_str(),str.length());
 			return *this;
 		}
 	template <class Font>
 		Textout<Font>&	Textout<Font>::operator<<(const StringRef&str)
 		{
-			stream(str.pointer(),str.length());
+			Stream(str.pointer(),str.length());
 			return *this;
 		}
 
 	template <class Font>
 		Textout<Font>&	Textout<Font>::operator<<(const char*str)
 		{
-			stream(str,strlen(str));
+			Stream(str,strlen(str));
 			return *this;
 		}
 
 	template <class Font>
 		Textout<Font>&	Textout<Font>::operator<<(const TNewLine&)
 		{
-			newLine();
+			BeginNewLine();
 			return *this;
 		}
 
@@ -381,7 +274,7 @@ namespace Engine
 			if (!space.length)
 				return *this;
 			static const char blank = ' ';
-			state.indent += scaledWidth(&blank,1)*space.length;
+			state.indent += GetScaledWidth(blank)*space.length;
 			return *this;
 		}
 
@@ -391,7 +284,7 @@ namespace Engine
 			if (!space.length)
 				return *this;
 			static const char blank = ' ';
-			float tab_width = scaledWidth(&blank,1)*4;
+			float tab_width = GetScaledWidth(blank)*4;
 			state.indent = (ceil(state.indent/tab_width)+space.length-1)*tab_width;
 			return *this;
 		}
@@ -401,41 +294,42 @@ namespace Engine
 		{
 			if (c == '\n')
 			{
-				newLine();
+				BeginNewLine();
 				return *this;
 			}
-		    active_font->begin(state);
-		        active_font->write(&c,1);
-		    active_font->end();
-			state.indent += scaledWidth(&c,1);
+		    activeFont->Begin(state);
+		        activeFont->Write(StringRef(&c,1));
+		    activeFont->End();
+			state.indent += GetScaledWidth(c);
 			return *this;
 		}
 	
 
 	template <class Font>
 		template <typename T>	
-			void Textout<Font>::streamUnsigned(T value)
+			void Textout<Font>::StreamUnsigned(T value)
 			{
 				char	char_buffer[256],
-						*end = char_buffer+ARRAYSIZE(char_buffer),
-						*c = end;
+						*End = char_buffer+ARRAYSIZE(char_buffer),
+						*c = End;
 				while (value && c != char_buffer)
 				{
 					(*(--c)) = (char)('0'+(value%10));
 					value/=10;
 				}
-				if (c==end)
+				if (c==End)
 					(*(--c)) = (char)'0';
 
-				active_font->begin(state);
-					active_font->write(c,end-c);
-				active_font->end();
-				state.indent += scaledWidth(c,end-c);
+				const StringRef toWrite(c,End-c);
+				activeFont->Begin(state);
+					activeFont->Write(toWrite);
+				activeFont->End();
+				state.indent += GetScaledWidth(toWrite);
 			}
 
 	template <class Font>
 		template <typename T, typename UT>
-			void Textout<Font>::streamSigned(T value)
+			void Textout<Font>::StreamSigned(T value)
 			{
 				bool negative = false;
 				if (value < 0)
@@ -445,114 +339,115 @@ namespace Engine
 				}
 
 				char	char_buffer[256],
-						*end = char_buffer+ARRAYSIZE(char_buffer),
-						*c = end;
+						*End = char_buffer+ARRAYSIZE(char_buffer),
+						*c = End;
 				UT uval = value;
 				while (uval && c != char_buffer)
 				{
 					(*(--c)) = (char)('0'+(uval%10));
 					uval/=10;
 				}
-				if (c==end)
+				if (c==End)
 					(*(--c)) = (char)'0';
 
-				active_font->begin(state);
+				const StringRef toWrite(c,End-c);
+				activeFont->Begin(state);
 					if (negative)
-						active_font->write("-",1);
-					active_font->write(c,end-c);
-				active_font->end();
-				state.indent += scaledWidth(c,end-c);
+						activeFont->Write(StringRef("-",1));
+					activeFont->Write(toWrite);
+				activeFont->End();
+				state.indent += GetScaledWidth(toWrite);
 				if (negative)
-					state.indent += scaledWidth("-",1);
+					state.indent += GetScaledWidth('-');
 			}
 
 	template <class Font>
 		Textout<Font>&	Textout<Font>::operator<<(BYTE b)
 		{
-			streamUnsigned(b);
+			StreamUnsigned(b);
 			return *this;
 		}
 
 	template <class Font>
 		Textout<Font>&	Textout<Font>::operator<<(long long ll)
 		{
-			streamSigned<long long, unsigned long long>(ll);
+			StreamSigned<long long, unsigned long long>(ll);
 			return *this;
 		}
 
 	template <class Font>
 		Textout<Font>&	Textout<Font>::operator<<(unsigned long long ll)
 		{
-			streamUnsigned(ll);
+			StreamUnsigned(ll);
 			return *this;
 		}
 
 	template <class Font>
 		Textout<Font>&	Textout<Font>::operator<<(int i)
 		{
-			streamSigned<int,unsigned>(i);
+			StreamSigned<int,unsigned>(i);
 			return *this;
 		}
 
 	template <class Font>
 		Textout<Font>&	Textout<Font>::operator<<(unsigned u)
 		{
-			streamUnsigned(u);
+			StreamUnsigned(u);
 			return *this;
 		}
 
 	template <class Font>
 		Textout<Font>&	Textout<Font>::operator<<(long l)
 		{
-			streamSigned<long, unsigned long>(l);
+			StreamSigned<long, unsigned long>(l);
 			return *this;
 		}
 		
 	template <class Font>
 		Textout<Font>&	Textout<Font>::operator<<(unsigned long l)
 		{
-			streamUnsigned(l);
+			StreamUnsigned(l);
 			return *this;
 		}
 
 	template <class Font>
 		Textout<Font>&	Textout<Font>::operator<<(short s)
 		{
-			streamSigned<short,unsigned short>(s);
+			StreamSigned<short,unsigned short>(s);
 			return *this;
 		}
 
 	template <class Font>
 		Textout<Font>&	Textout<Font>::operator<<(unsigned short s)
 		{
-			streamUnsigned(s);
+			StreamUnsigned(s);
 			return *this;
 		}
 
 	template <class Font>
 		template <typename T>
-			void Textout<Font>::streamFloat(T value, unsigned precision)
+			void Textout<Font>::StreamFloat(T value, unsigned precision)
 			{
 				char	char_buffer[256],
-						*str = String::floatToStr(value, precision, false, char_buffer+ARRAYSIZE(char_buffer), char_buffer);
-				
-				active_font->begin(state);
-					active_font->write(str,char_buffer+ARRAYSIZE(char_buffer)-str);
-				active_font->end();
-				state.indent += scaledWidth(str,char_buffer+ARRAYSIZE(char_buffer)-str);
+						*str = String::FloatToStr(value, precision, false, char_buffer+ARRAYSIZE(char_buffer), char_buffer);
+				const StringRef toWrite(str,char_buffer+ARRAYSIZE(char_buffer)-str);
+				activeFont->Begin(state);
+					activeFont->Write(toWrite);
+				activeFont->End();
+				state.indent += GetScaledWidth(toWrite);
 			}
 
 	template <class Font>
 		Textout<Font>&	Textout<Font>::operator<<(float f)
 		{
-			streamFloat(f,5);
+			StreamFloat(f,5);
 			return *this;
 		}
 
 	template <class Font>
 		Textout<Font>&	Textout<Font>::operator<<(double d)
 		{
-			streamFloat(d,8);
+			StreamFloat(d,8);
 			return *this;
 		}
 

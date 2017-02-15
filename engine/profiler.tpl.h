@@ -89,9 +89,9 @@ namespace Engine
 						{
 							TVec3<> color;
 							Vec::interpolate(group.color,group.channel(j).color,0.25,color);
-							textout->color(color);
-							textout->locate(*location);
-							textout->print(group.channel(j).name);
+							textout->SetColor(color);
+							textout->MoveTo(*location);
+							textout->Print(group.channel(j).name);
 						
 							location++;
 						}
@@ -208,7 +208,7 @@ namespace Engine
 			
 			
 			Textout<Font>*active_textout = TextoutManager<Font>::get();
-			float indent = active_textout->scaledLength('X');
+			float indent = active_textout->GetScaledWidth('X');
 			float x = Base::position.right+indent/2;
 			if (caption_left)
 			{
@@ -219,11 +219,11 @@ namespace Engine
 					for (unsigned i = 0; i < Base::data->groups(); i++)
 					{
 						const Group&group = Base::data->group(i);
-						width = vmax(width,active_textout->scaledLength(group.name));
+						width = vmax(width,active_textout->GetScaledWidth(group.name));
 						if (Base::view == Detailed && group.channels()>1)
 						{
 							for (unsigned j = 0; j < group.channels(); j++)
-								width = vmax(width,active_textout->scaledLength(group.channel(j).name)+indent);
+								width = vmax(width,active_textout->GetScaledWidth(group.channel(j).name)+indent);
 						}
 					}
 				}
@@ -232,9 +232,9 @@ namespace Engine
 			}
 			float y = Base::position.bottom;
 			
-			active_textout->locate(Base::position.left+indent/2,Base::position.top-active_textout->state.y_scale);
-			active_textout->color(1,1,1);
-			active_textout->print(Base::name);
+			active_textout->MoveTo(Base::position.left+indent/2,Base::position.top-active_textout->state.y_scale);
+			active_textout->SetColor(1,1,1);
+			active_textout->Print(Base::name);
 			
 			
 			if (view != Solid && print_channel_names)
@@ -251,23 +251,23 @@ namespace Engine
 							const Channel&channel = group.channel(j);
 							TVec3<> color;
 							Vec::interpolate(group.color,channel.color,0.25,color);
-							active_textout->locate(x,y);
-							active_textout->color(color);
-							y+=active_textout->state.scale_y*active_textout->getFont().GetHeight();
-							active_textout->print(channel.name);
+							active_textout->MoveTo(x,y);
+							active_textout->SetColor(color);
+							y+=active_textout->state.scale_y*active_textout->GetFont().GetHeight();
+							active_textout->Print(channel.name);
 						}
 						x-=indent;
 					}
-					active_textout->locate(x,y);
-					active_textout->color(group.color);
-					y+=active_textout->state.scale_y*active_textout->getFont().GetHeight();
-					active_textout->print(group.name);
+					active_textout->MoveTo(x,y);
+					active_textout->SetColor(group.color);
+					y+=active_textout->state.scale_y*active_textout->GetFont().GetHeight();
+					active_textout->Print(group.name);
 				}
 			}
-			active_textout->color(1,1,1);
+			active_textout->SetColor(1,1,1);
 			
 			//active_textout->locate(position.right-active_textout->scaledLength(str_current)-indent/2, position.top-active_textout->state.y_scale);
-			//active_textout->print(str_current);
+			//active_textout->Print(str_current);
 			
 		}
 	
@@ -458,7 +458,7 @@ namespace Engine
 			
 			Engine::Textout<Font>*active_textout = TextoutManager<Font>::get();
 			
-			float indent = active_textout->scaledLength('X');
+			float indent = active_textout->GetScaledWidth('X');
 			
 			float x = Base::position.x.max+indent/2;
 			
@@ -471,11 +471,11 @@ namespace Engine
 					for (index_t i = 0; i < Base::data->groups(); i++)
 					{
 						const Group&group = Base::data->group(i);
-						width = vmax(width,active_textout->scaledLength(group.name));
+						width = vmax(width,active_textout->GetScaledWidth(group.name));
 						if (Base::view == Detailed && group.channels()>1)
 						{
 							for (index_t j = 0; j < group.channels(); j++)
-								width = vmax(width,active_textout->scaledLength(group.channel(j).name)+indent);
+								width = vmax(width,active_textout->GetScaledWidth(group.channel(j).name)+indent);
 						}
 					}
 				}
@@ -484,9 +484,9 @@ namespace Engine
 			}
 			float y = Base::position.y.min;
 			
-			active_textout->locate(Base::position.x.min+indent/2,Base::position.y.max-active_textout->state.y_scale);
-			active_textout->color(1,1,1);
-			active_textout->print(Base::name);
+			active_textout->MoveTo(Base::position.x.min+indent/2,Base::position.y.max-active_textout->state.y_scale);
+			active_textout->SetColor(1,1,1);
+			active_textout->Print(Base::name);
 			
 			
 			const Channel*exclusive = NULL;
@@ -494,7 +494,7 @@ namespace Engine
 				exclusive = &data->group(group).channel(channel);
 			
 			float 	base = Base::position.y.min,
-					font_height = active_textout->state.scale_y*active_textout->getFont().GetHeight();
+					font_height = active_textout->state.scale_y*active_textout->GetFont().GetHeight();
 			
 			if ((view != Solid || exclusive) && print_channel_names)
 			{
@@ -510,14 +510,14 @@ namespace Engine
 							const Channel&channel = group.channel(j);
 							TVec3<> color;
 							Vec::interpolate(group.color,channel.color,0.25,color);
-							active_textout->locate(x,y);
+							active_textout->MoveTo(x,y);
 							if (!exclusive || exclusive==&channel)
-								active_textout->color(color);
+								active_textout->SetColor(color);
 							else
-								active_textout->color(color,0.25);
+								active_textout->SetColor(color,0.25);
 							
 							y+=font_height;
-							active_textout->print(channel.name);
+							active_textout->Print(channel.name);
 							
 						}
 						x-=indent;
@@ -535,11 +535,11 @@ namespace Engine
 									Vec::interpolate(group.color,channel.color,0.25,color);
 								else
 									Vec::copy(group.color,color);
-								active_textout->color(color,0.5);
-								active_textout->locate(x,y);
+								active_textout->SetColor(color,0.5);
+								active_textout->MoveTo(x,y);
 								
-								active_textout->locate(Base::position.x.max-active_textout->scaledLength(channel.name),base+this_height*0.65-font_height*0.5);
-								active_textout->print(channel.name);
+								active_textout->MoveTo(Base::position.x.max-active_textout->GetScaledWidth(channel.name),base+this_height*0.65-font_height*0.5);
+								active_textout->Print(channel.name);
 							
 							
 							}
@@ -547,19 +547,19 @@ namespace Engine
 						}
 					
 					
-					active_textout->locate(x,y);
+					active_textout->MoveTo(x,y);
 					if (!exclusive)
-						active_textout->color(group.color);
+						active_textout->SetColor(group.color);
 					else
-						active_textout->color(group.color,0.25);
-					y+=active_textout->state.scale_y*active_textout->getFont().GetHeight();
-					active_textout->print(group.name);
+						active_textout->SetColor(group.color,0.25);
+					y+=active_textout->state.scale_y*active_textout->GetFont().GetHeight();
+					active_textout->Print(group.name);
 				}
 			}
-			active_textout->color(1,1,1);
+			active_textout->SetColor(1,1,1);
 			
-			active_textout->locate(position.x.max-active_textout->scaledLength(str_current)-indent/2, position.y.max-active_textout->state.y_scale*active_textout->getFont().GetHeight());
-			active_textout->print(str_current);
+			active_textout->MoveTo(position.x.max-active_textout->GetScaledWidth(str_current)-indent/2, position.y.max-active_textout->state.y_scale*active_textout->GetFont().GetHeight());
+			active_textout->Print(str_current);
 			
 		}
 	
@@ -873,8 +873,8 @@ namespace Engine
 			float y = position.bottom;
 			
 			active_textout->locate(position.left+indent/2,position.top-active_textout->state.y_scale);
-			active_textout->color(1,1,1);
-			active_textout->print(name);
+			active_textout->SetColor(1,1,1);
+			active_textout->Print(name);
 			
 			
 			if (view != Solid)
@@ -892,22 +892,22 @@ namespace Engine
 							float color[3];
 							_interpolate(group.color,channel.color,0.5,color);
 							active_textout->locate(x,y);
-							active_textout->color3(color);
+							active_textout->SetColor3fv(color);
 							y+=active_textout->state.scale_y;
-							active_textout->print(channel.name);
+							active_textout->Print(channel.name);
 						}
 						x-=indent;
 					}
 					active_textout->locate(x,y);
-					active_textout->color3(group.color);
+					active_textout->SetColor3fv(group.color);
 					y+=active_textout->state.scale_y;
-					active_textout->print(group.name);
+					active_textout->Print(group.name);
 				}
 			}
-			active_textout->color(1,1,1);
+			active_textout->SetColor(1,1,1);
 			
 			active_textout->locate(position.right-active_textout->scaledLength(str_current)-indent/2, position.top-active_textout->state.y_scale);
-			active_textout->print(str_current);
+			active_textout->Print(str_current);
  */			
 		}
 	
@@ -1244,8 +1244,8 @@ namespace Engine
 			float y = position.bottom;
 			
 			active_textout->locate(position.left+indent/2,position.top-active_textout->state.y_scale);
-			active_textout->color(1,1,1);
-			active_textout->print(name);
+			active_textout->SetColor(1,1,1);
+			active_textout->Print(name);
 			
 			
 			if (view != Solid)
@@ -1263,22 +1263,22 @@ namespace Engine
 							float color[3];
 							_interpolate(group.color,channel.color,0.5,color);
 							active_textout->locate(x,y);
-							active_textout->color3(color);
+							active_textout->SetColor3fv(color);
 							y+=active_textout->state.scale_y;
-							active_textout->print(channel.name);
+							active_textout->Print(channel.name);
 						}
 						x-=indent;
 					}
 					active_textout->locate(x,y);
-					active_textout->color3(group.color);
+					active_textout->SetColor3fv(group.color);
 					y+=active_textout->state.scale_y;
-					active_textout->print(group.name);
+					active_textout->Print(group.name);
 				}
 			}
-			active_textout->color(1,1,1);
+			active_textout->SetColor(1,1,1);
 			
 			active_textout->locate(position.right-active_textout->scaledLength(str_current)-indent/2, position.top-active_textout->state.y_scale);
-			active_textout->print(str_current);
+			active_textout->Print(str_current);
  */			
 		}
 	

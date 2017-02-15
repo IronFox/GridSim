@@ -77,19 +77,10 @@ namespace Engine
 	    internal_scale = 1.0f/size;
 	}
 
-
-	float GLOutlineFont::GetWidth(const char*str)
-	{
-	    float len(0);
-	    while (*str)
-	        len+= gmf[(BYTE)*str++].gmfCellIncX;
-	    return len*internal_scale * font_size;
-	}
-
-	float GLOutlineFont::GetWidth(const char*str, size_t len)
+	float GLOutlineFont::GetWidth(const StringRef&str)
 	{
 	    float result(0);
-	    for (index_t i = 0; i < len; i++)
+	    for (index_t i = 0; i < str.GetLength(); i++)
 	        result+= gmf[(BYTE)str[i]].gmfCellIncX;
 	    return result*internal_scale * font_size;
 	}
@@ -101,7 +92,7 @@ namespace Engine
 
 
 
-	void GLOutlineFont::begin(const TFontState&state)
+	void GLOutlineFont::Begin(const TFontState&state)
 	{
 	    glDisable(GL_TEXTURE_2D);
 	    glPushMatrix();
@@ -124,61 +115,18 @@ namespace Engine
 	    	glListBase(base);
 	}
 
-	void GLOutlineFont::alterColor(const TFontColor&color)
+	void GLOutlineFont::AlterColor(const TFontColor&color)
 	{
 	        glColor4f(color.red, color.green, color.blue, color.alpha/4.0f);
 	        //glColor4fv(color.v);
 	}
 
-	void GLOutlineFont::write(const char*str)
+	void GLOutlineFont::Write(const StringRef&str)
 	{
-		//glPushMatrix();
-		//	glTranslatef(-jitter,-jitter*0.5,0);
-	 //       glCallLists((GLsizei)strlen(str), GL_UNSIGNED_BYTE, str);
-		//glPopMatrix();
-		//glPushMatrix();
-		//	glTranslatef(jitter*0.5,-jitter,0);
-	 //       glCallLists((GLsizei)strlen(str), GL_UNSIGNED_BYTE, str);
-		//glPopMatrix();
-		//glPushMatrix();
-		//	glTranslatef(-jitter*0.5,jitter,0);
-	 //       glCallLists((GLsizei)strlen(str), GL_UNSIGNED_BYTE, str);
-		//glPopMatrix();
-		//glPushMatrix();
-		//	glTranslatef(jitter,jitter*0.5,0);
-	 //       glCallLists((GLsizei)strlen(str), GL_UNSIGNED_BYTE, str);
-		//glPopMatrix();
-		/*glPushMatrix();
-	        glCallLists((GLsizei)strlen(str), GL_UNSIGNED_BYTE, str);
-		glPopMatrix();*/
-	        glCallLists((GLsizei)strlen(str), GL_UNSIGNED_BYTE, str);
+        glCallLists((GLsizei)str.GetLength(), GL_UNSIGNED_BYTE, str.pointer());
 	}
 
-	void GLOutlineFont::write(const char*str, size_t len)
-	{
-		//glPushMatrix();
-		//	glTranslatef(-jitter,-jitter*0.5,0);
-	 //       glCallLists((GLsizei)len, GL_UNSIGNED_BYTE, str);
-		//glPopMatrix();
-		//glPushMatrix();
-		//	glTranslatef(jitter*0.5,-jitter,0);
-	 //       glCallLists((GLsizei)len, GL_UNSIGNED_BYTE, str);
-		//glPopMatrix();
-		//glPushMatrix();
-		//	glTranslatef(-jitter*0.5,jitter,0);
-	 //       glCallLists((GLsizei)len, GL_UNSIGNED_BYTE, str);
-		//glPopMatrix();
-		//glPushMatrix();
-		//	glTranslatef(jitter,jitter*0.5,0);
-	 //       glCallLists((GLsizei)len, GL_UNSIGNED_BYTE, str);
-		//glPopMatrix();
-		/*glPushMatrix();
-	        glCallLists((GLsizei)len, GL_UNSIGNED_BYTE, str);
-		glPopMatrix();*/
-	        glCallLists((GLsizei)len, GL_UNSIGNED_BYTE, str);
-	}
-
-	void GLOutlineFont::end()
+	void GLOutlineFont::End()
 	{
 	        glPopAttrib();
 	    glPopMatrix();

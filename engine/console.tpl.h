@@ -118,7 +118,7 @@ namespace Engine
 	                                history_state(0),text_target(0),relative_text(0,0,1,1),absolute_text(0,0,1,1)
 		{
 		    textout.setScale(font_x,font_y);
-		    textout.locate(location.x.min,location.y.max+EVE_PANEL_SIZE*location.height());
+		    textout.MoveTo(location.x.min,location.y.max+EVE_PANEL_SIZE*location.height());
 		}
 
 	template <class GL, class Font>
@@ -127,7 +127,7 @@ namespace Engine
 	                                history_state(0),text_target(0),relative_text(0,0,1,1),absolute_text(0,0,1,1)
 		{
 		    textout.setScale(font_x,font_y);
-		    textout.locate(location.x.min,location.y.max+EVE_PANEL_SIZE*location.height());
+		    textout.MoveTo(location.x.min,location.y.max+EVE_PANEL_SIZE*location.height());
 		}
 
 	template <class GL, class Font>
@@ -136,7 +136,7 @@ namespace Engine
 	                                history_state(0),text_target(0),relative_text(0,0,1,1),absolute_text(0,0,1,1)
 		{
 		    textout.setScale(font_x,font_y);
-		    textout.locate(location.x.min,location.y.max+EVE_PANEL_SIZE*location.height());
+		    textout.MoveTo(location.x.min,location.y.max+EVE_PANEL_SIZE*location.height());
 		}
 
 	template <class GL, class Font>
@@ -240,7 +240,7 @@ namespace Engine
 	template <class GL, class Font>
 		Font& VisualConsole<GL,Font>::getFont()
 		{
-		    return textout.getFont();
+		    return textout.GetFont();
 		}
 
 
@@ -253,7 +253,7 @@ namespace Engine
 		    BYTE at = vmin(origin.length()+1,sizeof(buffer))-1;
 		    buffer[at] = 0;
 
-		    while (at && textout.unscaledLength(buffer)*font_x > len)
+		    while (at && textout.GetUnscaledWidth(buffer)*font_x > len)
 		        buffer[--at] = 0;
 
 		    return buffer;
@@ -270,7 +270,7 @@ namespace Engine
 		        for (unsigned i = list.count(); i; i--)
 		        {
 		            String comb = list.fuse(0,i,' ');
-		            if (textout.unscaledLength(comb)*font_x <= len)
+		            if (textout.GetUnscaledWidth(comb)*font_x <= len)
 		            {
 		                lines.add(comb);
 		                list.erase(0,i);
@@ -285,7 +285,7 @@ namespace Engine
 					{
 						bool printed=false;
 						for (unsigned i = 1; i <= el.length(); i++)
-							if (textout.unscaledLength(el.c_str(),i)*font_x > len)
+							if (textout.GetUnscaledWidth(el.c_str(),i)*font_x > len)
 							{
 								lines.add(el.subString(0,i));
 								el.erase(0,i);
@@ -373,15 +373,15 @@ namespace Engine
 		                        frame_size = clamped((int)((absolute_text.height())/font_y)-1,0,1000),
 		                        offset = lines - clamped(history_state*frame_size+frame_size,0,lines),
 		                        count = lines - offset;
-		            textout.locate(absolute_text.x.min,absolute_text.y.min+font_y*(count+1));
+		            textout.MoveTo(absolute_text.x.min,absolute_text.y.min+font_y*(count+1));
 		            for (unsigned i = 0; i < count; i++)
 		            {
 		                textout.line(i);
 		                textout.print(lines[offset+i],'$');
 		            }
-		        float displace = clamped(textout.unscaledLength(keyboard.GetInput())*font_x-(absolute_text.width()),0,100000);
+		        float displace = clamped(textout.GetUnscaledWidth(keyboard.GetInput())*font_x-(absolute_text.width()),0,100000);
 
-		        textout.locate(absolute_text.x.min-displace,absolute_text.y.min+font_y);
+		        textout.MoveTo(absolute_text.x.min-displace,absolute_text.y.min+font_y);
 		        textout.line(0);
 		        textout.print(keyboard.GetInput());
 
@@ -389,7 +389,7 @@ namespace Engine
 		        {
 		            renderer->useTexture(NULL);
 		            TColorVertex  v0,v1;
-		            float x = absolute_text.x.min-displace+textout.unscaledLength(keyboard.GetInput())*font_x,
+		            float x = absolute_text.x.min-displace+textout.GetUnscaledWidth(keyboard.GetInput())*font_x,
 		                  y = absolute_text.y.min,
 		                  light = cos(Engine::timing.now);
 		            Vec::def(v0,x,y+font_y*0.1,0,1);

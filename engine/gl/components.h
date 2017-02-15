@@ -506,14 +506,15 @@ namespace Engine
 			inline float				_GetCharWidth(char c)
 										{
 											if (maskInput)
-												return ColorRenderer::textout.getFont().GetHeight()*0.75f;
-											return ColorRenderer::textout.getFont().GetWidth(c);
+												return ColorRenderer::textout.GetFont().GetHeight()*0.75f;
+											return ColorRenderer::textout.GetFont().GetWidth(c);
 										}
-			inline float				_GetTextWidth(const char*str, size_t num_chars)
+			inline float				_GetTextWidth(const char*str, count_t stringLength)	const {return _GetTextWidth(StringRef(str,stringLength));}
+			inline float				_GetTextWidth(const StringRef&str) const
 										{
 											if (maskInput)
-												return ColorRenderer::textout.getFont().GetHeight()*0.75*num_chars;
-											return ColorRenderer::textout.unscaledLength(str,num_chars);
+												return ColorRenderer::textout.GetFont().GetHeight()*0.75*str.GetLength();
+											return ColorRenderer::textout.GetUnscaledWidth(str);
 										}
 		protected:
 			/**/						Edit(const String&type):Component("Edit/"+type),text(8)	{_Setup();}
@@ -550,7 +551,7 @@ namespace Engine
 			virtual	eEventResult		OnFocusGained()	override				{cursorTicks = 0; return RequestingRepaint;}
 			virtual	eEventResult		OnFocusLost()	override					{return RequestingRepaint;}
 			virtual	float				GetClientMinWidth()	const	override		{return 50;}
-			virtual	float				GetClientMinHeight()	const	override		{return ColorRenderer::textout.getFont().GetHeight();}
+			virtual	float				GetClientMinHeight()	const	override		{return ColorRenderer::textout.GetFont().GetHeight();}
 			virtual	void				OnColorPaint(ColorRenderer&, bool parentIsEnabled)	override;
 			virtual	eEventResult		OnKeyDown(Key::Name key)	override;
 			virtual	eEventResult		OnKeyUp(Key::Name key)	override;

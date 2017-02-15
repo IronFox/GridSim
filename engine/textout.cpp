@@ -11,7 +11,7 @@ resulting render depends on the used font.
 namespace Engine
 {
 
-	VirtualTextout::VirtualTextout():stack_depth(0),colorStackDepth(0)
+	VirtualTextout::VirtualTextout():stackDepth(0),colorStackDepth(0)
 	{
 		Vec::set(state,1);
 	    state.left = 0;
@@ -23,10 +23,10 @@ namespace Engine
 		state.indent = 0;
 	}
 
-	void VirtualTextout::newLine()
+	void VirtualTextout::NewLine()
 	{
 		state.indent = 0;
-		state.lineOffset += getScaledHeight();
+		state.lineOffset += QueryScaledHeight();
 	}
 
 	void	VirtualTextout::Tint(float red, float green, float blue)
@@ -37,79 +37,79 @@ namespace Engine
 	}
 
 
-	void	VirtualTextout::color(const TVec3<>&color)
+	void	VirtualTextout::SetColor(const TVec3<>&color)
 	{
 		state.rgb = color;
 		state.alpha = 1;
 	}
-	void	VirtualTextout::color(const TVec3<double>&color)
+	void	VirtualTextout::SetColor(const TVec3<double>&color)
 	{
 		Vec::copy(color,state.rgb);
 		state.alpha = 1;
 	}
-	void	VirtualTextout::color(const TVec3<>&color,float alpha)
+	void	VirtualTextout::SetColor(const TVec3<>&color,float alpha)
 	{
 		state.rgb = color;
 		state.alpha = alpha;
 	}
 
 
-	void	VirtualTextout::color(const TVec3<double>&color, double alpha)
+	void	VirtualTextout::SetColor(const TVec3<double>&color, double alpha)
 	{
 		Vec::copy(color,state.rgb);
 		state.alpha = alpha;
 	}
 
-	void	VirtualTextout::color(const TVec4<>&color)
+	void	VirtualTextout::SetColor(const TVec4<>&color)
 	{
 		Vec::copy(color,state);
 	}
 
-	void	VirtualTextout::color(const TVec4<double>&color)
+	void	VirtualTextout::SetColor(const TVec4<double>&color)
 	{
 		Vec::copy(color,state);
 	}
 
 	
-	void VirtualTextout::color(float red, float green, float blue, float alpha)
+	void VirtualTextout::SetColor(float red, float green, float blue, float alpha)
 	{
 	    Vec::def(state,red,green,blue,alpha);
 	}
 
-	void VirtualTextout::color4(const float*color)
+	void VirtualTextout::SetColor4fv(const float*color)
 	{
 		Vec::copy(Vec::ref4(color),state);
 	}
 
-	void VirtualTextout::color4(const double*color)
+	void VirtualTextout::SetColor4dv(const double*color)
 	{
 		Vec::copy(Vec::ref4(color),state);
 	}
 
-	void VirtualTextout::color(float red, float green, float blue)
+	void VirtualTextout::SetColor(float red, float green, float blue)
 	{
 	    Vec::def(state,red,green,blue,1);
 	}
 
-	void VirtualTextout::color3(const float*color)
+	void VirtualTextout::SetColor3fv(const float*color)
 	{
 		Vec::copy(Vec::ref3(color),state.rgb);
 	    state.alpha = 1;
 	}
 
-	void VirtualTextout::color3(const double*color)
+	void VirtualTextout::SetColor3dv(const double*color)
 	{
 		Vec::copy(Vec::ref3(color),state.rgb);
 	    state.alpha = 1;
 	}
 
-	void VirtualTextout::color3a(const float*color, float alpha)
+	void VirtualTextout::SetColor3fv(const float*color, float alpha)
 	{
 		Vec::copy(Vec::ref3(color),state.rgb);
 	    state.alpha = alpha;
 	}
 
-	void VirtualTextout::color3a(const double*color, float alpha)
+	void VirtualTextout::SetColor3dv(const double*color, float alpha)
 	{
 		Vec::copy(Vec::ref3(color),state.rgb);
 	    state.alpha = alpha;
@@ -119,7 +119,7 @@ namespace Engine
 	
 	
 
-	void VirtualTextout::move(float x, float y, float z)
+	void VirtualTextout::MoveBy(float x, float y, float z)
 	{
 	    state.left += x;
 	    state.top += y;
@@ -129,7 +129,7 @@ namespace Engine
 	}
 
 
-	void VirtualTextout::locate(float x, float y, float z)
+	void VirtualTextout::MoveTo(float x, float y, float z)
 	{
 	    state.left = x;
 	    state.top = y;
@@ -138,49 +138,51 @@ namespace Engine
 		state.indent = 0;
 	}
 
-	void VirtualTextout::locate(const TVec3<>&p)
+	void VirtualTextout::MoveTo(const TVec3<>&p)
 	{
-		locate(p.x,p.y,p.z);
+		MoveTo(p.x,p.y,p.z);
 	}
 
-	void VirtualTextout::locate(const TVec2<>&p)
+	void VirtualTextout::MoveTo(const TVec2<>&p)
 	{
-		locate(p.x,p.y);
+		MoveTo(p.x,p.y);
 	}
 
 
 
-	void VirtualTextout::locate(const float p[2])
+	void VirtualTextout::MoveTo(const float p[2])
 	{
-		locate(p[0],p[1]);
+		MoveTo(p[0],p[1]);
 	}
 
-	void VirtualTextout::locate3fv(const float p[3])
+	void VirtualTextout::MoveTo3fv(const float p[3])
 	{
-		locate(p[0],p[1],p[2]);
+		MoveTo(p[0],p[1],p[2]);
 	}
 
-	void VirtualTextout::setScale(float x, float y)
+	void VirtualTextout::SetScale(float x, float y)
 	{
 	    state.x_scale=x;
 	    state.y_scale=y;
 	}
 
-	void VirtualTextout::scale(float by_x, float by_y)
+	void VirtualTextout::Scale(float by_x, float by_y)
 	{
 	    state.x_scale*=by_x;
 	    state.y_scale*=by_y;
 	}
 
 
-	void VirtualTextout::pushState()
+	void VirtualTextout::PushState()
 	{
-	    stack[stack_depth++] = state;
+		DBG_ASSERT__(stackDepth < 0xFF);
+	    stack[stackDepth++] = state;
 	}
 
-	void VirtualTextout::popState()
+	void VirtualTextout::PopState()
 	{
-	    state = stack[--stack_depth];
+		DBG_ASSERT__(stackDepth > 0);
+	    state = stack[--stackDepth];
 	}
 
 
@@ -196,7 +198,7 @@ namespace Engine
 	
 	void VirtualTextout::SetLine(int line_)
 	{
-	    state.lineOffset = float(line_) * getScaledHeight();
+	    state.lineOffset = float(line_) * QueryScaledHeight();
 	}
 
 	void VirtualTextout::SetLineOffset(float offset)
@@ -213,60 +215,61 @@ namespace Engine
 
 	
 
-	void	VirtualTextout::write(const char*str, size_t len)
+	void	VirtualTextout::Write(const StringRef&str)
 	{
-		if (!len)
+		if (str.GetLength()==0)
 			return;
-		beginOutput();
-		const char*at = str,*end=str+len;
+		BeginOutput();
+		const char*at = str.pointer(),
+				*const end=at+str.GetLength();
 		while (at<end)
 		{
 			size_t len(0);
 			while (at+len<end && at[len] != '\n')
 				len++;
-			writeSegment(at,len);
+			WriteSegment(at,len);
 			at+=len;
 			if (at<end)
 			{
-				state.lineOffset += getScaledHeight();
-				endOutput();
-				beginOutput();
+				state.lineOffset += QueryScaledHeight();
+				EndOutput();
+				BeginOutput();
 				at++;
 			}
 		}
-		endOutput();
+		EndOutput();
 	}
 
-	void	VirtualTextout::write(const char*str)
+	void	VirtualTextout::Write(const char*str)
 	{
 	    if (!str)
 	        return;
-	    beginOutput();
+	    BeginOutput();
 	    const char*at = str;
 	    while (*at)
 	    {
 	        size_t len(0);
 	        while (at[len] && at[len] != '\n')
 	            len++;
-	        writeSegment(at,len);
+	        WriteSegment(at,len);
 	        at+=len;
 	        if (*at)
 	        {
-	            state.lineOffset+=getScaledHeight();
-	            endOutput();
-	            beginOutput();
+	            state.lineOffset+=QueryScaledHeight();
+	            EndOutput();
+	            BeginOutput();
 	            at++;
 	        }
 	    }
-	    endOutput();
+	    EndOutput();
 	}
 
-	void	VirtualTextout::write(const String&str)
+	void	VirtualTextout::Write(const String&str)
 	{
-	    write(str.c_str(),str.length());
+	    Write(str.ref());
 	}
 
-	void	VirtualTextout::writeTagged(const char*str, char tag)
+	void	VirtualTextout::WriteTagged(const char*str, char tag)
 	{
 	    if (!str)
 	        return;
@@ -274,21 +277,21 @@ namespace Engine
 	    TFontColor	color_stack[0x100];
 	    BYTE        color_depth(0);
 
-	    beginOutput();
+	    BeginOutput();
 	    const char*at = str;
 	    while (*at)
 	    {
 	        size_t l(0);
 	        while (at[l] && at[l] != '\n' && at[l] != tag)
 	            l++;
-	        writeSegment(at,l);
+	        WriteSegment(at,l);
 	        at+=l;
 	        if ((*at) == '\n')
 	        {
-	            state.lineOffset += getScaledHeight();
-	            endOutput();
-	            beginOutput();
-	            alterColor(color_state);
+	            state.lineOffset += QueryScaledHeight();
+	            EndOutput();
+	            BeginOutput();
+	            AlterColor(color_state);
 	            at++;
 	        }
 	        else
@@ -305,7 +308,7 @@ namespace Engine
 	                    if (remaining > 3 && !strncmpi(at,"pop",3))
 	                    {
 	                        color_state = color_stack[--color_depth];
-	                        alterColor(color_state);
+	                        AlterColor(color_state);
 	                        at+=3;
 	                    }
 	                    else
@@ -316,73 +319,63 @@ namespace Engine
 	                            color_state.blue = (float)hexStr(at+4)/255;
 	                            color_state.alpha = (float)hexStr(at+6)/255;
 	                            at+=8;
-	                            alterColor(color_state);
+	                            AlterColor(color_state);
 	                        }
 	            }
 	    }
-	    endOutput();
+	    EndOutput();
 	}
 
-	void VirtualTextout::writeTagged(const String&str, char tag)
+	void VirtualTextout::WriteTagged(const String&str, char tag)
 	{
-	    writeTagged(str.c_str(),tag);
+	    WriteTagged(str.c_str(),tag);
 	}
 
 
-	void VirtualTextout::writeln(const char*str)
+	void VirtualTextout::WriteLn(const char*str)
 	{
-		write(str);
-		state.lineOffset += getScaledHeight();
+		Write(str);
+		state.lineOffset += QueryScaledHeight();
 	}
 
-	void VirtualTextout::writeln(const String&str)
+	void VirtualTextout::WriteLn(const String&str)
 	{
-		write(str);
-		state.lineOffset += getScaledHeight();
+		Write(str);
+		state.lineOffset += QueryScaledHeight();
 	}
 
-	void VirtualTextout::writeTaggedLine(const char*str, char tag)
+	void VirtualTextout::WriteTaggedLine(const char*str, char tag)
 	{
-		writeTagged(str,tag);
-		state.lineOffset += getScaledHeight();
+		WriteTagged(str,tag);
+		state.lineOffset += QueryScaledHeight();
 	}
 
-	void VirtualTextout::writeTaggedLine(const String&str, char tag)
+	void VirtualTextout::WriteTaggedLine(const String&str, char tag)
 	{
-		writeTagged(str,tag);
-		state.lineOffset += getScaledHeight();
+		WriteTagged(str,tag);
+		state.lineOffset += QueryScaledHeight();
 	}
 	
-	float VirtualTextout::getUnscaledWidth(const String&line)
+	float VirtualTextout::QueryScaledWidth(const char*line) const
 	{
-		return getUnscaledWidth(line.c_str(),line.length());
-	}
-	
-	float VirtualTextout::getScaledWidth(const char*line, size_t len)
-	{
-		return getUnscaledWidth(line,len)*state.x_scale;
-	}
-	
-	float VirtualTextout::getScaledWidth(const char*line)
-	{
-		return getUnscaledWidth(line)*state.x_scale;
+		return QueryUnscaledWidth(StringRef(line))*state.x_scale;
 	}
 
-	float VirtualTextout::getScaledWidth(const String&line)
+	float VirtualTextout::QueryScaledWidth(const String&line) const
 	{
-		return getUnscaledWidth(line.c_str(),line.length())*state.x_scale;
+		return QueryUnscaledWidth(line.ref())*state.x_scale;
 	}
-	float VirtualTextout::getScaledWidth(const StringRef&line)
+	float VirtualTextout::QueryScaledWidth(const StringRef&line) const
 	{
-		return getUnscaledWidth(line.pointer(),line.length())*state.x_scale;
-	}
-
-	float VirtualTextout::getScaledHeight()
-	{
-		return getUnscaledHeight() * state.y_scale;
+		return QueryUnscaledWidth(line)*state.x_scale;
 	}
 
-	float			getScaledHeight();										//!< Determine the height of a string \return Scaled height of a single line
+	float VirtualTextout::QueryScaledHeight() const
+	{
+		return QueryUnscaledHeight() * state.y_scale;
+	}
+
+	float			QueryScaledHeight();										//!< Determine the height of a string \return Scaled height of a single line
 
 
 

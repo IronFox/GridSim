@@ -314,11 +314,11 @@ void Engine::ConsoleWindow::onCreate()
 }
 
 
-void	Engine::ConsoleWindow::write(int x, int y, const String&text)
+void	Engine::ConsoleWindow::Write(int x, int y, const String&text)
 {
-	textout.color(0.3,0.3,0.3);
-	textout.locate(x,y);
-	textout.print(text);
+	textout.SetColor(0.3,0.3,0.3);
+	textout.MoveTo(x,y);
+	textout.Print(text);
 }
 
 void	Engine::ConsoleWindow::onPaint()
@@ -375,7 +375,7 @@ void	Engine::ConsoleWindow::onPaint()
 			glEnd();
 		glPopMatrix();
 
-		write(spacing,height-ConsoleWindow::font_height+2,"history");
+		Write(spacing,height-ConsoleWindow::font_height+2,"history");
 
 
 
@@ -403,13 +403,13 @@ void	Engine::ConsoleWindow::onPaint()
 
 		String		context = this->context+"> ";
 
-		int			offset = (int)textout.unscaledLength(context),
-					char_len = (int)textout.unscaledLength(in_string?input[cursor]:'X'),
-					cursor_x = spacing+4+offset+(int)textout.unscaledLength(input,cursor)+2*!in_string,
+		int			offset = (int)textout.GetUnscaledWidth(context),
+					char_len = (int)textout.GetUnscaledWidth(in_string?input[cursor]:'X'),
+					cursor_x = spacing+4+offset+(int)textout.GetUnscaledWidth(StringRef(input,cursor))+2*!in_string,
 					cursor_y = upper_border-19-ConsoleWindow::font_height-(int)(end-start)*ConsoleWindow::font_height,
 					cursor_upper = cursor_y-1,
 					cursor_lower = cursor_y-5,
-					sel_start_x = spacing+4+offset+(int)textout.unscaledLength(input,sel_start);
+					sel_start_x = spacing+4+offset+(int)textout.GetUnscaledWidth(StringRef(input,sel_start));
 
 
 		if (cursor != sel_start)
@@ -452,11 +452,11 @@ void	Engine::ConsoleWindow::onPaint()
 
 		for (int i = start; i < end; i++)
 			if (i >= 0)
-				write(spacing+4,upper_border-19-ConsoleWindow::font_height-(int)(i-start)*ConsoleWindow::font_height,history[i]);
+				Write(spacing+4,upper_border-19-ConsoleWindow::font_height-(int)(i-start)*ConsoleWindow::font_height,history[i]);
 
 		if (lines >= 0 && history && show_progress_bar)
 		{
-			int	progress_start = spacing+4+(int)textout.unscaledLength(history.last())+10,
+			int	progress_start = spacing+4+(int)textout.GetUnscaledWidth(history.last())+10,
 				progress_end = (int)width-spacing-20,
 				progress_lower = upper_border-19-ConsoleWindow::font_height-(int)(history-start-1)*ConsoleWindow::font_height-2,
 				progress_upper = progress_lower + ConsoleWindow::font_height-4;
@@ -490,8 +490,8 @@ void	Engine::ConsoleWindow::onPaint()
 
 		if (lines >= 0 && show_command_line)
 		{
-			write(spacing+4,cursor_y,context);
-			write(spacing+4+offset,cursor_y,input);
+			Write(spacing+4,cursor_y,context);
+			Write(spacing+4+offset,cursor_y,input);
 			if (isFocused())
 			{
 				glBegin(GL_QUADS);
@@ -563,14 +563,14 @@ static Engine::Window::Font*font;
 
 static float lengthFunction(char c)
 {
-	return font->GetWidth(&c,1);
+	return font->GetWidth(c);
 }
 
 void		Engine::ConsoleWindow::print(const String&line)
 {
 	MutexLock	lock(mutex);
 
-	font = &textout.getFont();
+	font = &textout.GetFont();
 	retro_perspective = 0;
 	Array<String>	exploded,wrapped;
 	explode('\n',line,exploded);
