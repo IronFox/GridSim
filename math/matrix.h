@@ -134,10 +134,6 @@ namespace Math
 	MFUNC2	(void)		__extractLower(const C0*m, C1*out, count_t dimension);											//!< Extracts the lower triangular matrix of \b m \param m Quadratic matrix to extract the lower triangular matrix of
 	MFUNC2	(void)		__extractDiagonal(const C0*m, count_t m_height, C1*out, count_t dimension);					//!< Extracts the diagonal matrix of \b m \param m_height Number of rows in \b m \param m Matrix to extract the triangular matrix of
 	MFUNC2	(void)		__extractDiagonal(const C0*m, C1*out, count_t dimension);										//!< Extracts the diagonal matrix of \b m \param m Quadratic matrix to extract the triangular matrix of
-	MFUNC	(void)		__eye(C*out, count_t dimension);																//!< Stores identity matrix in \b out \param out Pointer to the matrix to store the identity matrix in (must be at least \b dimension ^2 in size) \param dimension Number of rows/cols in the target matrix
-	MFUNCV	(void)		__eye(C*out);																					//!< Stores identity matrix in \b out. The target dimension is specified in the last template parameter \param out Pointer to the matrix to store the identity matrix in (must be at least \b dimension ^2 in size)
-	MFUNC	(void)		__eye3(C*out);																					//!< Stores 3x3 identity matrix in \b out
-	MFUNC	(void)		__eye4(C*out);																					//!< Stores 4x4 identity matrix in \b out
 	MFUNC2	(bool)		__invertGauss(const C0*m, C1*out, count_t dimension);											//!< Inverts \b m using the plain Gauss algorithm. This function occassionally fails since it does not swap rows where needed \param m Quadratic matrix to invert \param out Matrix target for the inverted matrix \param dimension Number of columns/rows in \b m and \b out \return true if the matrix could be inverted, false otherwise
 	MFUNC2	(bool)		__invertMatrix3(const C0 m[3*3], C1 out[3*3]);													//!< Selective version of __invertGauss() for 3x3 matrices. This function successfully inverts most invertible matrices \param m 3x3 matrix to invert \param out Out target for the inverted matrix \return true if the matrix could be inverted, false otherwise
 	MFUNC2	(bool)		__invertMatrix4(const C0 m[4*4], C1 out[4*4]);													//!< Selective version of __invertGauss() for 4x4 matrices. This function successfully inverts most invertible matrices \param m 4x4 matrix to invert \param out Out target for the inverted matrix \return true if the matrix could be inverted, false otherwise
@@ -307,6 +303,8 @@ namespace Math
 
 		namespace Raw
 		{
+			MFUNCV (void)	Eye(C*out);
+
 			MFUNC (String)	ToStringD(const C*m, count_t rows, count_t cols);
 			MFUNC (String)	ToString4x4(const C m[16])	{return ToStringD(m,4,4);}
 
@@ -325,16 +323,7 @@ namespace Math
 			MFUNC2 (bool)	InvertD(const C0*m, C1*out, count_t dimension);
 
 			MFUNCM (void)	Mult(const T0*m, const T1*n, T2*out);
-			MFUNC3 (void)	MultD(const C0*m, const C1*n, C2*out, count_t height, count_t mwidth, count_t nwidth)
-			{
-				MATRIX_LOOP(nwidth,height)
-				{
-					C2  sum = m[y]*n[x*mwidth];
-					for (index_t k = 1; k < mwidth; k++)
-						sum += m[k*height+y]*n[x*mwidth+k];
-					out[x*height+y] = sum;
-				}
-			}
+			MFUNC3 (void)	MultD(const C0*m, const C1*n, C2*out, count_t height, count_t mwidth, count_t nwidth);
 		}
 	}
 }
