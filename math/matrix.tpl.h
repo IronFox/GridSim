@@ -251,7 +251,7 @@ namespace Math
 			{
 				MATRIX_LOOP(nwidth,height)
 				{
-					C2  sum = m[y]*n[x*mwidth];
+					C0  sum = m[y]*n[x*mwidth];
 					for (index_t k = 1; k < mwidth; k++)
 						sum += m[k*height+y]*n[x*mwidth+k];
 					out[x*height+y] = sum;
