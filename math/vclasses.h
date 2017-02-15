@@ -312,7 +312,7 @@ namespace Math
 		typedef typename Super::Type		Type;	//union-compatible
 		typedef typename TypeInfo<C>::UnionCompatibleBase Base;
 		using Super::v;
-		using Super::xyz;
+//		using Super::xyz;
 
 			MF_CONSTRUCTOR					VecN(const TVec2<C> &other)
 											{
