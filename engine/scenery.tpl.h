@@ -1370,7 +1370,7 @@ namespace Engine
 						center,
 						lower,
 						upper;
-	    Mat::mult(aspect.projection,aspect.view,matrix);
+	    Mat::Mult(aspect.projection,aspect.view,matrix);
 
 	    structures.reset();
 	    while (StructureEntity<Def>*entity = structures.each())
@@ -1395,10 +1395,10 @@ namespace Engine
 				oentity->visible = entity->visible;
 				if (oentity->visible && !(entity->config & StructureConfig::AlwaysVisible))
 				{
-					Mat::mult(matrix,*oentity->system,path);
+					Mat::Mult(matrix,*oentity->system,path);
 		            for (BYTE k = 0; k < 8; k++)
 		            {
-		                Mat::mult(path,oentity->cage[k],cage[k]);
+		                Mat::Mult(path,oentity->cage[k],cage[k]);
 		                Vec::divide(cage[k].xyz,cage[k].w);
 		            }
 		            lower.x = vmin(vmin(vmin(cage[0].x,cage[1].x),vmin(cage[2].x,cage[3].x)),vmin(vmin(cage[4].x,cage[5].x),vmin(cage[6].x,cage[7].x)));

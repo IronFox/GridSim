@@ -25,6 +25,26 @@ namespace Math
 		const	TMatrix4<T>	Matrix<T>::eye4 = {1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1};
 
 
+
+    template <class C, count_t Step, count_t Count> class MQSwap
+    {
+    public:
+            static MF_DECLARE	(void)    perform(C*m,C*n)
+                            {
+                                swp((*m),(*n));
+                                MQSwap<C,Step,Count-1>::perform(m+Step,n+Step);
+                            }
+    };
+	template <class C, count_t Step> class MQSwap<C,Step,1>
+	{
+	public:
+			static MF_DECLARE	(void)    perform(C*m,C*n)
+							{
+								swp((*m),(*n));
+							}
+	};
+
+
 	
 	namespace ByReference
 	{
@@ -174,32 +194,7 @@ namespace Math
 
 
 
-    MFUNC (String) __toString(const C*m, count_t rows, count_t cols)
-    {
-        String rs = "matrix  ("+String(rows)+"x"+String(cols)+")";
-		rs.set(7,vChar<C>());
-        
-        for (index_t row = 0; row < rows; row++)
-        {
-            rs+='\n';
-            for (index_t col = 0; col < cols; col++)
-                rs+=v2str(m[col*rows+row])+' ';
 
-        }
-        return rs;
-    }
-
-
-    MFUNC3 (void)    __multiply(const C0*m, const C1*n, C2*out, count_t height, count_t mwidth, count_t nwidth)
-    {
-        MATRIX_LOOP(nwidth,height)
-        {
-            C2  sum = m[y]*n[x*mwidth];
-            for (index_t k = 1; k < mwidth; k++)
-                sum += m[k*height+y]*n[x*mwidth+k];
-            out[x*height+y] = sum;
-        }
-    }
     
     
 
@@ -222,6 +217,221 @@ namespace Math
 
 	namespace Mat
 	{
+
+		/**
+		Matrix operations on raw pointers
+		*/
+		namespace Raw
+		{
+
+			MFUNCV	(void)        Eye(C*out)
+			{
+				MQEye<C,Dimensions>::perform(out);
+			}
+
+    
+
+			MFUNC (String) ToStringD(const C*m, count_t rows, count_t cols)
+			{
+				String rs = "matrix  ("+String(rows)+"x"+String(cols)+")";
+				rs.set(7,vChar<C>());
+        
+				for (index_t row = 0; row < rows; row++)
+				{
+					rs+='\n';
+					for (index_t col = 0; col < cols; col++)
+						rs+=v2str(m[col*rows+row])+' ';
+
+				}
+				return rs;
+			}
+
+
+			MFUNC3 (void)	MultD(const C0*m, const C1*n, C2*out, count_t height, count_t mwidth, count_t nwidth)
+			{
+				MATRIX_LOOP(nwidth,height)
+				{
+					C2  sum = m[y]*n[x*mwidth];
+					for (index_t k = 1; k < mwidth; k++)
+						sum += m[k*height+y]*n[x*mwidth+k];
+					out[x*height+y] = sum;
+				}
+			}
+
+			MFUNCM	(void)    Mult(const T0*m, const T1*n, T2*out)
+			{
+				MultD(m,n,out,MHeight,MWidth,NWidth);
+				//MQMult<T0,T1,T2,MHeight,MWidth,NWidth,MHeight,MWidth,NWidth>::perform(m,n,out,0);	//seems to be broken atm
+			}
+
+			MFUNC (void)    EyeD(C*out, count_t dimension)
+			{
+				MATRIX_LOOP(dimension,dimension)
+					out[x*dimension+y]=x==y;
+			}
+
+			MFUNC (void)    ClearD(C*m, count_t width, count_t height)
+			{
+				Vec::clearD(m,width*height);
+			}
+
+
+
+			MFUNC2 (bool) Invert3x3(const C0 m[3*3], C1 out[3*3])
+			{
+				return Invert<C0,C1,3>(m,out);
+			}
+
+			MFUNC2 (bool) Invert4x4(const C0 m[4*4], C1 out[4*4])
+			{
+				return Invert<C0,C1,4>(m,out);
+			}
+
+
+			MFUNC (void)    SwapRowsD(C*m, count_t rows, count_t cols, index_t r1, index_t r2)
+			{
+				VECTOR_LOOP(cols)
+				{
+					C save = m[el*rows+r1];
+					m[el*rows+r1] = m[el*rows+r2];
+					m[el*rows+r2] = save;
+				}
+			}
+			MFUNC (void)    SwapColsD(C*m, count_t rows, count_t cols, index_t c1, index_t c2)
+			{
+				VECTOR_LOOP(rows)
+				{
+					C save = m[c1*rows+el];
+					m[c1*rows+el] = m[c2*rows+el];
+					m[c2*rows+el]=save;
+				}
+			}
+			MFUNCD	(void) SwapColsD(C*m, index_t c1, index_t c2)
+			{
+				MQSwap<C,1,Rows>::perform(m+c1*Rows,m+c2*Rows);
+			}
+
+			MFUNCC	(void)    SwapCols(C*m)
+			{
+				MQSwap<C,1,Rows>::perform(m+Col0*Rows,m+Col1*Rows);
+			}
+
+
+			MFUNCR	(void)    SwapRows(C*m)
+			{
+				MQSwap<C,Rows,Cols>::perform(m+Row0,m+Row1);
+			}
+    
+			MFUNCD	(void)	SwapRows(C*m, index_t r1, index_t r2)
+			{
+				MQSwap<C,Rows,Cols>::perform(m+r1,m+r2);
+			}
+
+
+
+			MFUNC2 (bool) InvertD(const C0*m, C1*out, count_t dimension)
+			{
+				C0*buffer = alloc<C0>(2*dimension*dimension);
+				Vec::copyD(m,buffer,dimension*dimension);
+				Eye(&buffer[dimension*dimension],dimension);
+				for (index_t line = 0; line < dimension; line++)
+				{
+					index_t targetline = line;
+					while (vabs(buffer[line*dimension+targetline]) <= getError<C0>() && targetline < dimension)
+						targetline++;
+					if (targetline == dimension)
+					{
+						dealloc(buffer);
+						return false;
+					}
+					if (targetline != line)
+						SwapRowsD(buffer,dimension,2*dimension,targetline,line);
+					for (index_t i = line+1; i < dimension; i++)
+					{
+						C0 a = buffer[line*dimension+i]/buffer[line*dimension+line];
+						for (index_t j = line+1; j < 2*dimension; j++)
+							buffer[j*dimension+i] -= buffer[j*dimension+line]*a;
+						buffer[line*dimension+i] = 0;
+					}
+				}
+				Vec::clearD(out,dimension*dimension);
+				for (index_t i = 0; i < dimension; i++)
+					for (index_t line=dimension-1; line < dimension; line--)
+					{
+						C0 a = 0;
+						for (index_t inner=0; inner < dimension-line; inner++)
+							a+=buffer[(inner+line)*dimension+line]*out[i*dimension+(inner+line)];
+						if (!buffer[line*dimension+line])
+						{
+							dealloc(buffer);
+							return false;
+						}
+						out[i*dimension+line]=(buffer[(dimension+i)*dimension+line]-a)/buffer[line*dimension+line];
+					}
+				dealloc(buffer);
+				return true;
+			}
+
+
+			MFUNC2V (bool)    Invert(const C0*m, C1*out)
+			{
+				C0  buffer[2*Dimensions*Dimensions];
+				VecUnroll<Dimensions*Dimensions>::copy(m,buffer);
+				Eye<C0,Dimensions>(&buffer[Dimensions*Dimensions]);
+
+				for (index_t line = 0; line < Dimensions; line++)
+				{
+					index_t targetline = line;
+					while (vabs(buffer[line*Dimensions+targetline]) <= getError<C0>() && targetline < Dimensions)
+						targetline++;
+					if (targetline == Dimensions)
+						return false;
+					if (targetline != line)
+						SwapRows<C0,Dimensions,2*Dimensions>(buffer,targetline,line);
+					for (index_t i = line+1; i < Dimensions; i++)
+					{
+						C0 a = buffer[line*Dimensions+i]/buffer[line*Dimensions+line];
+						for (index_t j = line+1; j < 2*Dimensions; j++)
+							buffer[j*Dimensions+i] -= buffer[j*Dimensions+line]*a;
+						buffer[line*Dimensions+i] = 0;
+					}
+				}
+				VecUnroll<Dimensions*Dimensions>::clear(out);
+				for (index_t i = 0; i < Dimensions; i++)
+					for (index_t line=Dimensions-1; line < Dimensions; line--)
+					{
+						C0 a = 0;
+						for (index_t inner=0; inner < Dimensions-line; inner++)
+							a+=buffer[(inner+line)*Dimensions+line]*out[i*Dimensions+(inner+line)];
+						if (!buffer[line*Dimensions+line])
+							return false;
+						out[i*Dimensions+line]=(buffer[(Dimensions+i)*Dimensions+line]-a)/buffer[line*Dimensions+line];
+					}
+				return true;
+			}
+		}
+
+
+		MFUNCM(void)		Mult(const TMatrix<T0,MWidth,MHeight>&m, const TMatrix<T1,NWidth,MWidth>&n, TMatrix<T2,NWidth,MHeight>&outResult)
+		{
+			Raw::Mult<T0,T1,T2,MHeight,MWidth,NWidth>(m0.v,m1.v,result.v);
+		}
+
+		template <typename T0, typename T1, typename T2, count_t Rows, count_t Cols>
+			void			Mult(const TMatrix<T0,Cols,Rows>&m, const TVec<T1,Cols>&v, TVec<T2,Rows>&outResult)
+			{
+				Raw::Mult<T0,T1,T2,Rows,Cols,1>(m.v,v.v,outResult.v);
+			}
+
+
+		template <typename T, count_t Dimensions>
+			void			Invert(const TMatrix<T,Dimensions,Dimensions>&source,TMatrix<T,Dimensions,Dimensions>&resultOut)
+			{
+				Raw::Invert<T,T,Dimensions>(source.v,resultOut.v);
+			}
+
+
+
 		MFUNC4(void)		buildSystem(const TVec3<C0>&base,const TVec3<C1>&x,const TVec3<C2>&y, TMatrix4<C3>&out)
 		{
 			Vec::copy(base,out.w.xyz);
@@ -302,66 +512,67 @@ namespace Math
 		}
 
 
-		MFUNC3(void)	mult(const TMatrix2<C0>&m, const TVec2<C1>&v, TVec2<C2>&out)
+
+		MFUNC3(void)	Mult(const TMatrix2<C0>&m, const TVec2<C1>&v, TVec2<C2>&out)
 		{
 			out.x = m.x.x * v.x + m.y.x * v.y;
 			out.y = m.x.y * v.x + m.y.y * v.y;
 		}
 
-		MFUNC2(void)	mult(const TMatrix2<C0>&m, TVec2<C1>&v)
+		MFUNC2(void)	Mult(const TMatrix2<C0>&m, TVec2<C1>&v)
 		{
 			TVec2<C1> tmp = v;
-			mult(m,tmp,v);
+			Mult(m,tmp,v);
 		}
 
-		MFUNC3(void)	mult(const TMatrix2<C0>&m0, const TMatrix2<C1>&m1, TMatrix2<C2>&result)
+		MFUNC3(void)	Mult(const TMatrix2<C0>&m0, const TMatrix2<C1>&m1, TMatrix2<C2>&result)
 		{
-			mult(m0,m1.x,result.x);
-			mult(m0,m1.y,result.y);
+			Mult(m0,m1.x,result.x);
+			Mult(m0,m1.y,result.y);
 		}
 
 
 
 
-		MFUNC3(void)	mult(const TMatrix3<C0>&m, const TVec3<C1>&v, TVec3<C2>&out)
+		MFUNC3(void)	Mult(const TMatrix3<C0>&m, const TVec3<C1>&v, TVec3<C2>&out)
 		{
 			out.x = m.x.x * v.x + m.y.x * v.y + m.z.x * v.z;
 			out.y = m.x.y * v.x + m.y.y * v.y + m.z.y * v.z;
 			out.z = m.x.z * v.x + m.y.z * v.y + m.z.z * v.z;
 		}
 
-		MFUNC2(void)	mult(const TMatrix3<C0>&m, TVec3<C1>&v)
+		MFUNC2(void)	Mult(const TMatrix3<C0>&m, TVec3<C1>&v)
 		{
 			TVec3<C1> tmp = v;
-			mult(m,tmp,v);
+			Mult(m,tmp,v);
 		}
 
-		MFUNC3(void)	mult(const TMatrix3<C0>&m0, const TMatrix3<C1>&m1, TMatrix3<C2>&result)
+		MFUNC3(void)	Mult(const TMatrix3<C0>&m0, const TMatrix3<C1>&m1, TMatrix3<C2>&result)
 		{
-			mult(m0,m1.x,result.x);
-			mult(m0,m1.y,result.y);
-			mult(m0,m1.z,result.z);
+			Mult(m0,m1.x,result.x);
+			Mult(m0,m1.y,result.y);
+			Mult(m0,m1.z,result.z);
 		}
 
-		MFUNC3(void)	mult(const TMatrix4<C0>&m, const TVec4<C1>&v, TVec4<C2>&result)
+		MFUNC3(void)	Mult(const TMatrix4<C0>&m, const TVec4<C1>&v, TVec4<C2>&result)
 		{
 			result.x = m.x.x * v.x + m.y.x * v.y + m.z.x * v.z + m.w.x * v.w;
 			result.y = m.x.y * v.x + m.y.y * v.y + m.z.y * v.z + m.w.y * v.w;
 			result.z = m.x.z * v.x + m.y.z * v.y + m.z.z * v.z + m.w.z * v.w;
 			result.w = m.x.w * v.x + m.y.w * v.y + m.z.w * v.z + m.w.w * v.w;
 		}
-		MFUNC2(void)	mult(const TMatrix4<C0>&m, TVec4<C1>&v)
+		MFUNC2(void)	Mult(const TMatrix4<C0>&m, TVec4<C1>&v)
 		{
 			TVec4<C1> temp = v;
-			mult(m,temp,v);
+			Mult(m,temp,v);
 		}
 
-		MFUNC3(void)	mult(const TMatrix4<C0>&m0, const TMatrix4<C1>&m1, TMatrix4<C2>&result)
+		MFUNC3(void)	Mult(const TMatrix4<C0>&m0, const TMatrix4<C1>&m1, TMatrix4<C2>&result)
 		{
-			mult(m0,m1.x,result.x);
-			mult(m0,m1.y,result.y);
-			mult(m0,m1.z,result.z);
-			mult(m0,m1.w,result.w);
+			Mult(m0,m1.x,result.x);
+			Mult(m0,m1.y,result.y);
+			Mult(m0,m1.z,result.z);
+			Mult(m0,m1.w,result.w);
 		}
 
 
@@ -685,21 +896,21 @@ namespace Math
 
 		MFUNC2(bool)	invert(const TMatrix4<C0>&sys, TMatrix4<C1>&result)
 		{
-	        return __invertMatrix<C0,C1,4>(sys.v,result.v);
+	        return Raw::Invert<C0,C1,4>(sys.v,result.v);
 		}
 
 		MFUNC2(bool)	invert(const TMatrix3<C0>&sys, TMatrix3<C1>&result)
 		{
-	        return __invertMatrix<C0,C1,3>(sys.v,result.v);
+	        return Raw::Invert<C0,C1,3>(sys.v,result.v);
 		}
 
 		MFUNC(String)		ToString(const TMatrix4<C>&matrix)
 		{
-			return __toString(matrix.v,4,4);
+			return Raw::ToStringD(matrix.v,4,4);
 		}
 		MFUNC(String)		ToString(const TMatrix3<C>&matrix)
 		{
-			return __toString(matrix.v,3,3);
+			return Raw::ToStringD(matrix.v,3,3);
 		}
 
 
@@ -930,7 +1141,7 @@ namespace Math
     {
         C0*buffer = alloc<C0>(2*dimension*dimension);
         _copy(m,buffer,dimension*dimension);
-        __eye(&buffer[dimension*dimension],dimension);
+        Mat::Raw::Eye(&buffer[dimension*dimension],dimension);
         for (index_t line = 1; line < dimension; line++)
             for (index_t i = 0; i < line; i++)
             {
@@ -961,95 +1172,6 @@ namespace Math
         return true;
     }
     
-    MFUNC2V (bool)    __invertMatrix(const C0*m, C1*out)
-    {
-        C0  buffer[2*Dimensions*Dimensions];
-		VecUnroll<Dimensions*Dimensions>::copy(m,buffer);
-        __eye<C0,Dimensions>(&buffer[Dimensions*Dimensions]);
-
-        for (index_t line = 0; line < Dimensions; line++)
-        {
-            index_t targetline = line;
-            while (vabs(buffer[line*Dimensions+targetline]) <= getError<C0>() && targetline < Dimensions)
-                targetline++;
-            if (targetline == Dimensions)
-                return false;
-            if (targetline != line)
-                __swapRows<C0,Dimensions,2*Dimensions>(buffer,targetline,line);
-            for (index_t i = line+1; i < Dimensions; i++)
-            {
-                C0 a = buffer[line*Dimensions+i]/buffer[line*Dimensions+line];
-                for (index_t j = line+1; j < 2*Dimensions; j++)
-                    buffer[j*Dimensions+i] -= buffer[j*Dimensions+line]*a;
-                buffer[line*Dimensions+i] = 0;
-            }
-        }
-        VecUnroll<Dimensions*Dimensions>::clear(out);
-        for (index_t i = 0; i < Dimensions; i++)
-            for (index_t line=Dimensions-1; line < Dimensions; line--)
-            {
-                C0 a = 0;
-                for (index_t inner=0; inner < Dimensions-line; inner++)
-                    a+=buffer[(inner+line)*Dimensions+line]*out[i*Dimensions+(inner+line)];
-                if (!buffer[line*Dimensions+line])
-                    return false;
-                out[i*Dimensions+line]=(buffer[(Dimensions+i)*Dimensions+line]-a)/buffer[line*Dimensions+line];
-            }
-        return true;
-    }
-
-    MFUNC2 (bool) __invertMatrix3(const C0 m[3*3], C1 out[3*3])
-    {
-        return __invertMatrix<C0,C1,3>(m,out);
-    }
-
-    MFUNC2 (bool) __invertMatrix4(const C0 m[4*4], C1 out[4*4])
-    {
-        return __invertMatrix<C0,C1,4>(m,out);
-    }
-
-    MFUNC2 (bool) __invertMatrix(const C0*m, C1*out, count_t dimension)
-    {
-        C0*buffer = alloc<C0>(2*dimension*dimension);
-        _copy(m,buffer,dimension*dimension);
-        __eye(&buffer[dimension*dimension],dimension);
-        for (index_t line = 0; line < dimension; line++)
-        {
-            index_t targetline = line;
-            while (vabs(buffer[line*dimension+targetline]) <= getError<C0>() && targetline < dimension)
-                targetline++;
-            if (targetline == dimension)
-            {
-                dealloc(buffer);
-                return false;
-            }
-            if (targetline != line)
-                __swapRows(buffer,dimension,2*dimension,targetline,line);
-            for (index_t i = line+1; i < dimension; i++)
-            {
-                C0 a = buffer[line*dimension+i]/buffer[line*dimension+line];
-                for (index_t j = line+1; j < 2*dimension; j++)
-                    buffer[j*dimension+i] -= buffer[j*dimension+line]*a;
-                buffer[line*dimension+i] = 0;
-            }
-        }
-        _clear(out,dimension*dimension);
-        for (index_t i = 0; i < dimension; i++)
-            for (index_t line=dimension-1; line < dimension; line--)
-            {
-                C0 a = 0;
-                for (index_t inner=0; inner < dimension-line; inner++)
-                    a+=buffer[(inner+line)*dimension+line]*out[i*dimension+(inner+line)];
-                if (!buffer[line*dimension+line])
-                {
-                    dealloc(buffer);
-                    return false;
-                }
-                out[i*dimension+line]=(buffer[(dimension+i)*dimension+line]-a)/buffer[line*dimension+line];
-            }
-        dealloc(buffer);
-        return true;
-    }
 
     MFUNC2 (void)    __transpose(const C0*m, C1*out, count_t dimension)
     {
@@ -1225,24 +1347,6 @@ namespace Math
 
     
 
-    MFUNC (void)    __swapRows(C*m, count_t rows, count_t cols, index_t r1, index_t r2)
-    {
-        VECTOR_LOOP(cols)
-        {
-            C save = m[el*rows+r1];
-            m[el*rows+r1] = m[el*rows+r2];
-            m[el*rows+r2] = save;
-        }
-    }
-    MFUNC (void)    __swapCols(C*m, count_t rows, count_t cols, index_t c1, index_t c2)
-    {
-        VECTOR_LOOP(rows)
-        {
-            C save = m[c1*rows+el];
-            m[c1*rows+el] = m[c2*rows+el];
-            m[c2*rows+el]=save;
-        }
-    }
     
 
     MFUNC2 (void)    __rowMult(C0*m, count_t width, count_t height, index_t row, C1 value)
@@ -1253,17 +1357,6 @@ namespace Math
 
 
 
-
-    MFUNC (void)    __eye(C*out, count_t dimension)
-    {
-        MATRIX_LOOP(dimension,dimension)
-            out[x*dimension+y]=x==y;
-    }
-
-    MFUNC (void)    __clear(C*m, count_t width, count_t height)
-    {
-        _clear(m,width*height);
-    }
 
     MFUNC2V
 		(void)    __rotationMatrix(C0 angle, C1*out)
@@ -1426,7 +1519,7 @@ namespace Math
     MFUNCV (bool)        __isIdentity(const C*matrix)
     {
         C eye[Dimensions*Dimensions];
-        __eye<C,Dimensions>(eye);
+        Mat::Raw::Eye<C,Dimensions>(eye);
 		VecUnroll<16>::sub(eye,matrix);
         return VecUnroll<16>::sum(eye) < getError<C>*Dimensions*Dimensions;
     }
@@ -1524,11 +1617,6 @@ namespace Math
 
     
 
-    MFUNCM	(void)    __multiply(const C0*m, const C1*n, C2*out)
-    {
-        MQMult<C0,C1,C2,Height,mWidth,mWidth,Height,mWidth,nWidth>::perform(m,n,out,0);
-    }
-
     template <class C, count_t Dimensions, index_t DY=Dimensions, index_t DX=Dimensions> class MQEye
     {
     public:
@@ -1558,54 +1646,7 @@ namespace Math
                             }
     };
 
-    MFUNCV	(void)        __eye(C*out)
-    {
-        MQEye<C,Dimensions>::perform(out);
-    }
-
-
-    template <class C, count_t Step, count_t Count> class MQSwap
-    {
-    public:
-            static MF_DECLARE	(void)    perform(C*m,C*n)
-                            {
-                                swp((*m),(*n));
-                                MQSwap<C,Step,Count-1>::perform(m+Step,n+Step);
-                            }
-    };
-
-    template <class C, count_t Step> class MQSwap<C,Step,1>
-    {
-    public:
-            static MF_DECLARE	(void)    perform(C*m,C*n)
-                            {
-                                swp((*m),(*n));
-                            }
-    };
-
-    MFUNCD	(void) __swapCols(C*m, index_t c1, index_t c2)
-    {
-        MQSwap<C,1,Rows>::perform(m+c1*Rows,m+c2*Rows);
-    }
-
-    MFUNCC	(void)    __swapCols(C*m)
-    {
-        MQSwap<C,1,Rows>::perform(m+Col0*Rows,m+Col1*Rows);
-    }
-
-
-    MFUNCR	(void)    __swapRows(C*m)
-    {
-        MQSwap<C,Rows,Cols>::perform(m+Row0,m+Row1);
-    }
     
-    MFUNCD	(void) __swapRows(C*m, index_t r1, index_t r2)
-    {
-        MQSwap<C,Rows,Cols>::perform(m+r1,m+r2);
-    }
-
-    
-
 
     template <class C0, class C1, count_t Dimensions, index_t DY=Dimensions, index_t DX=Dimensions> class MQTranspose
     {

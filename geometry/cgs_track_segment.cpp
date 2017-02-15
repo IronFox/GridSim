@@ -871,7 +871,7 @@ namespace CGS
 						{
 							TVec3<> n2,n3;
 							Vec::def(n2,n.x*vec.scale.y/vec.scale.x,n.y*vec.scale.x/vec.scale.y,n.z);
-							Mat::mult(vec.system,n2,Vec::ref3(vout));
+							Mat::Mult(vec.system,n2,Vec::ref3(vout));
 							Vec::normalize0(Vec::ref3(vout));
 							//Vec::copy(vec.system.x,Vec::ref3(vout));
 							vout += 3;
@@ -880,7 +880,7 @@ namespace CGS
 						{
 							TVec3<> t2,t3;
 							Vec::def(t2,	t.x*vec.scale.y/vec.scale.x,t.y*vec.scale.x/vec.scale.y,t.z);
-							Mat::mult(vec.system,t2,Vec::ref3(vout));
+							Mat::Mult(vec.system,t2,Vec::ref3(vout));
 							Vec::normalize0(Vec::ref3(vout));
 							//Vec::copy(vec.system.x,Vec::ref3(vout));
 							vout += 3;
@@ -968,7 +968,7 @@ namespace CGS
 			bendHull(source_hull,target_hull,repeat,source.dim.z.min, zrange, segment_length, stretch, path, center);
 		}
 		/*for (index_t i = 0; i < objects.count(); i++)
-			Mat::eye(objects[i]->meta.system);*/
+			Mat::Eye(objects[i]->meta.system);*/
 		geometry.resetSystems();
 		//geometry.root_system.loadIdentity(false);
 		geometry.root_system.setPosition(center);

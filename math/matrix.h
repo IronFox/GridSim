@@ -78,9 +78,31 @@ namespace Math
 			};
 		};
 
+	template <typename T, count_t Width, count_t Height>
+		struct TMatrix
+		{
+			typedef T				Type;
+			static const count_t	Columns=Width,
+									Rows=Height;
+			union
+			{
+				TVec<T,Height>	axis[Width];
+				T				v[Width*Height];
+			};
+		};
+
+	template <typename T>
+		struct TMatrix<T,4,4>:public TMatrix4<T>
+		{};
+	template <typename T>
+		struct TMatrix<T,3,3>:public TMatrix3<T>
+		{};
+	template <typename T>
+		struct TMatrix<T,2,2>:public TMatrix2<T>
+		{};
 
 
-	#define MFUNCM(_return_type_)	template <class C0, class C1, class C2, count_t Height, count_t mWidth, count_t nWidth> MF_DECLARE(_return_type_)
+	#define MFUNCM(_return_type_)	template <class T0, class T1, class T2, count_t MHeight, count_t MWidth, count_t NWidth> MF_DECLARE(_return_type_)
 	#define MFUNCD(_return_type_)	template <class C, count_t Rows, count_t Cols> MF_DECLARE(_return_type_)
 	#define MFUNCC(_return_type_)	template <class C, count_t Rows, count_t Cols, index_t Col0, index_t Col1> MF_DECLARE(_return_type_)
 	#define MFUNCR(_return_type_)	template <class C, count_t Rows, count_t Cols, index_t Row0, index_t Row1> MF_DECLARE(_return_type_)
@@ -95,7 +117,6 @@ namespace Math
 	}
 	
 
-	MFUNC	(String)		__toString(const C*m, count_t rows=4, count_t cols=4);										//!< Converts a matrix to a string \param m Matrix to convert \param rows Matrix row count \param cols Matrix column count \return String representation of the specified matrix
 	MFUNC4	(void)		__buildSystem(const C0 base[3],const C1 x[3],const C2 y[3], C3 out[4*4]);						//!< Creates a system matrix based on base, x and y axes. The x axis is primary and used exactly as it is (though normalized). The y axis is normalized and used as close as it is orthogonal to x. @param base 3d vector to the base of the system @param x X axis of the system (any length > 0) @param y Y axis of the system (any length > 0) @param out Out matrix for the finished 4x4 system matrix
 	#define				_c9							__copy9
 	#define				_c11						__copy11															//note: might as well use the _copyV-functions provided by vector.h (same speed)
@@ -113,15 +134,9 @@ namespace Math
 	MFUNC2	(void)		__extractLower(const C0*m, C1*out, count_t dimension);											//!< Extracts the lower triangular matrix of \b m \param m Quadratic matrix to extract the lower triangular matrix of
 	MFUNC2	(void)		__extractDiagonal(const C0*m, count_t m_height, C1*out, count_t dimension);					//!< Extracts the diagonal matrix of \b m \param m_height Number of rows in \b m \param m Matrix to extract the triangular matrix of
 	MFUNC2	(void)		__extractDiagonal(const C0*m, C1*out, count_t dimension);										//!< Extracts the diagonal matrix of \b m \param m Quadratic matrix to extract the triangular matrix of
-	MFUNC	(void)		__eye(C*out, count_t dimension);																//!< Stores identity matrix in \b out \param out Pointer to the matrix to store the identity matrix in (must be at least \b dimension ^2 in size) \param dimension Number of rows/cols in the target matrix
-	MFUNCV	(void)		__eye(C*out);																					//!< Stores identity matrix in \b out. The target dimension is specified in the last template parameter \param out Pointer to the matrix to store the identity matrix in (must be at least \b dimension ^2 in size)
-	MFUNC	(void)		__eye3(C*out);																					//!< Stores 3x3 identity matrix in \b out
-	MFUNC	(void)		__eye4(C*out);																					//!< Stores 4x4 identity matrix in \b out
 	MFUNC2	(bool)		__invertGauss(const C0*m, C1*out, count_t dimension);											//!< Inverts \b m using the plain Gauss algorithm. This function occassionally fails since it does not swap rows where needed \param m Quadratic matrix to invert \param out Matrix target for the inverted matrix \param dimension Number of columns/rows in \b m and \b out \return true if the matrix could be inverted, false otherwise
-	MFUNC2V (bool)		__invertMatrix(const C0*m, C1*out);																//!< Selective version of __invertGauss() for n-dimensional quadratic matrices. This function successfully inverts most invertible matrices. The matrix dimension is specified in the last template parameter \param m Quadratic matrix to invert \param out Out target for the inverted matrix \return true if the matrix could be inverted, false otherwise
 	MFUNC2	(bool)		__invertMatrix3(const C0 m[3*3], C1 out[3*3]);													//!< Selective version of __invertGauss() for 3x3 matrices. This function successfully inverts most invertible matrices \param m 3x3 matrix to invert \param out Out target for the inverted matrix \return true if the matrix could be inverted, false otherwise
 	MFUNC2	(bool)		__invertMatrix4(const C0 m[4*4], C1 out[4*4]);													//!< Selective version of __invertGauss() for 4x4 matrices. This function successfully inverts most invertible matrices \param m 4x4 matrix to invert \param out Out target for the inverted matrix \return true if the matrix could be inverted, false otherwise
-	MFUNC2	(bool)		__invertMatrix(const C0*m, C1*out, count_t dimension);											//!< Selective version of __invertGauss() for n-dimensional quadratic matrices. This function successfully inverts most invertible matrices \param m Quadratic matrix to invert \param out Out target for the inverted matrix \param dimension Matrix column/row count \return true if the matrix could be inverted, false otherwise
 	MFUNC2	(void)		__invertSystem(const C0 m[4*4], C1 out[4*4]);													//!< Inverts the system matrix \b m. Inverting system matrices can be done much faster than inverting a general matrix. A system matrix consist of three orthogonal normalized direction vectors and one position vector. The bottom most row is supposed to be 0, 0, 0, 1.
 	MFUNC2	(void)		__invertReduced(const C0 m[3*4], C1 out[3*3]);													//!< Inverts the reduced system matrix \b m. A reduced system matrix is identical to a system matrix except that it does not provide the bottom most row, effectivly reducing the matrix to a 3x4 matrix (3 rows, 4 columns).
 	MFUNC	(bool)		__isIdentity(const C*matrix, count_t dimension);												//!< Tests whether or not the given \b dimension x \b dimension -matrix is identical or very close to an identity-matrix
@@ -135,7 +150,6 @@ namespace Math
 	MFUNC3	(void)		__makeAxisSystem(const C0 position[3],const C1 axis[3], BYTE direction,C2 out[4*4]);			//!< Creates a system matrix from a point and an axis and stores the result in \b out. \param position Base position of the new system \param axis Orientation axis \param direction Coordinate vector of the final matrix that should point along the specified axis (0-2). For instance passing 1 as \b direction effectivly causes the y axis of the final matrix to point along the specified axis. \param out Out 4x4 matrix for the constructed system matrix.
 	MFUNC2	(void)		__makeAxisSystem(const C0 axis[3], BYTE direction,C1 out[3*3]);									//!< Creates an orientation matrix from the specified axis and stores the result in \b out. \param axis Orientation axis \param direction Coordinate vector of the final matrix that should point along the specified axis (0-2). For instance passing 1 as \b direction effectivly causes the y axis of the final matrix to point along the specified axis. \param out Out 3x3 matrix for the constructed orientation matrix.
 	MFUNC3	(void)		__multiply(const C0*m, const C1*n, C2*out, count_t height, count_t mwidth, count_t nwidth);	//!< Multiples \b m and \b n and stores the result in \b out. \param m First matrix \param n Second matrix \param out Result matrix \param height Number of rows of the first matrix \param mwidth Number of columns of the first matrix and the number of rows of the second matrix \param nwidth Number of columns in the second matrix
-	MFUNCM	(void)		__multiply(const C0*m, const C1*n, C2*out);														//!< Multiples \b m and \b n and stores the result in \b out. The required three parameters height, mwidth, and nwidth are specified by the last three template parameters. \param m First matrix \param n Second matrix \param out Result matrix
 	MFUNC3	(void)		__mult331(const C0 m[3*3], const C1 n[3], C2 out[3]);											//!< Further optimized version of __multiply<*,*,*,3,3,1>()
 	MFUNC2	(void)		__mult331(const C0 m[3*3], C1 inout[3]);														//!< @overload
 	MFUNC3	(void)		__mult3(const C0 m[3*3], const C1 n[3*3], C2 out[3*3]);											//!< Further optimized version of __multiply<*,*,*,3,3,3>()
@@ -155,14 +169,6 @@ namespace Math
 	MFUNC3	(void)		__solveGaussSeidel(const C0*m, const C1*result, C2*out, count_t dimension, unsigned accuracy);						//solve system
 	MFUNC3	(void)		__solveJacobi(const C0*m, count_t m_height, const C1*result, C2*out, count_t dimension, unsigned accuracy);		//solve system
 	MFUNC3	(void)		__solveJacobi(const C0*m, const C1*result, C2*out, count_t dimension, unsigned accuracy);							//solve system
-	MFUNC	(void)		__swapCols4(C*m, index_t c1, index_t c2);														//!< Swaps two columns of the 4x4 matrix \b m. \param m 4x4 matrix to swap columns of \param c0 Index of the first column to swap \param c1 Index of the second column to swap
-	MFUNC	(void)		__swapCols(C*m, count_t rows, count_t cols, index_t c1, index_t c2);						//!< Swaps two columns of \b m \param m Matrix to swap columns of \param rows Number of rows of \b m \param cols Number of columns of \b m \param c0 Index of the first column to swap \param c1 Index of the second column to swap
-	MFUNCD	(void)		__swapCols(C*m, index_t c1, index_t c2);														//!< Swaps two columns of \b m. The dimensions of \b m are specified by the two last template parameters \param m Matrix to swap columns of \param c0 Index of the first column to swap \param c1 Index of the second column to swap
-	MFUNCC	(void)		__swapCols(C*m);																				//!< Swaps two columns of \b m. The dimensions of \b m and the column indices are specified by the fourt last template parameters  \param m Matrix to swap columns of
-	MFUNC	(void)		__swapRows4(C*m, index_t c1, index_t c2);														//!< Swaps two rows of the 4x4 matrix \b m. \param m 4x4 matrix to swap rows of \param c0 Index of the first row to swap \param c1 Index of the second row to swap
-	MFUNC	(void)		__swapRows(C*m, count_t rows, count_t cols, index_t r1, index_t r2);						//!< Swaps two rows of \b m \param m Matrix to swap rows of \param rows Number of rows of \b m \param cols Number of columns of \b m \param r0 Index of the first row to swap \param r1 Index of the second row to swap
-	MFUNCD	(void)		__swapRows(C*m, index_t r1, index_t r2);														//!< Swaps two rows of \b m. The dimensions of \b m are specified by the two last template parameters   \param m Matrix to swap rows of\param r0 Index of the first row to swap \param r1 Index of the second row to swap
-	MFUNCR	(void)		__swapRows(C*m);																				//!< Swaps two rows of \b m. The dimensions of \b m and the row indices are specified by the fourt last template parameters  \param m Matrix to swap rows of
 	MFUNC3	(void)		__transform(const C0 system[4*4], const C1 point[3], C2 out[3]);								//!< Transforms (rotates and translates) \b point using the system matrix \b system and writes the resulting vector to \b out \param system System matrix to use for the transformation \param point Point to transform \param out Transformed point
 	MFUNC2	(void)		__transform(const C0 system[4*4], C1 inout_point[3]);											//!< Transforms (rotates and translates) \b inout_point using the system matrix \b system and writes the resulting vector to \b inout_point \param system System matrix to use for the transformation \param inout_point Point to transform
 	MFUNC3	(void)		__transformSystem(const C0 system0[4*4], const C1 system1[4*4], C2 out[4*4]);					//!< Transforms (rotates and translates) the system matrix \b system1 using the system matrix \b system0 and writes the resulting system matrix to \b out. The transformation (product) of two system matrices is again a system matrix \param system0 System matrix to use for the transformation \param system1 System matrix to transform \param out Resulting system matrix
@@ -187,18 +193,21 @@ namespace Math
 
 	namespace Mat
 	{
-		MFUNC(void)			eye(TMatrix3<C>&matrix)		{matrix = Matrix<C>::eye3;}
-		MFUNC(void)			eye(TMatrix4<C>&matrix)		{matrix = Matrix<C>::eye4;}
+		MFUNC(void)			Eye(TMatrix3<C>&matrix)		{matrix = Matrix<C>::eye3;}
+		MFUNC(void)			Eye(TMatrix4<C>&matrix)		{matrix = Matrix<C>::eye4;}
 
-		MFUNC3(void)		mult(const TMatrix2<C0>&m0, const TMatrix2<C1>&m1, TMatrix2<C2>&result);
-		MFUNC3(void)		mult(const TMatrix2<C0>&m, const TVec2<C1>&v, TVec2<C2>&result);
-		MFUNC2(void)		mult(const TMatrix2<C0>&m, TVec2<C1>&v);
-		MFUNC3(void)		mult(const TMatrix3<C0>&m0, const TMatrix3<C1>&m1, TMatrix3<C2>&result);
-		MFUNC3(void)		mult(const TMatrix3<C0>&m, const TVec3<C1>&v, TVec3<C2>&result);
-		MFUNC2(void)		mult(const TMatrix3<C0>&m, TVec3<C1>&v);
-		MFUNC3(void)		mult(const TMatrix4<C0>&m0, const TMatrix4<C1>&m1, TMatrix4<C2>&result);
-		MFUNC3(void)		mult(const TMatrix4<C0>&m, const TVec4<C1>&v, TVec4<C2>&result);
-		MFUNC2(void)		mult(const TMatrix4<C0>&m, TVec4<C1>&v);
+		MFUNC3(void)		Mult(const TMatrix2<C0>&m0, const TMatrix2<C1>&m1, TMatrix2<C2>&result);
+		MFUNC3(void)		Mult(const TMatrix2<C0>&m, const TVec2<C1>&v, TVec2<C2>&result);
+		MFUNC2(void)		Mult(const TMatrix2<C0>&m, TVec2<C1>&v);
+		MFUNC3(void)		Mult(const TMatrix3<C0>&m0, const TMatrix3<C1>&m1, TMatrix3<C2>&result);
+		MFUNC3(void)		Mult(const TMatrix3<C0>&m, const TVec3<C1>&v, TVec3<C2>&result);
+		MFUNC2(void)		Mult(const TMatrix3<C0>&m, TVec3<C1>&v);
+		MFUNC3(void)		Mult(const TMatrix4<C0>&m0, const TMatrix4<C1>&m1, TMatrix4<C2>&result);
+		MFUNC3(void)		Mult(const TMatrix4<C0>&m, const TVec4<C1>&v, TVec4<C2>&result);
+		MFUNC2(void)		Mult(const TMatrix4<C0>&m, TVec4<C1>&v);
+		MFUNCM(void)		Mult(const TMatrix<T0,MWidth,MHeight>&m, const TMatrix<T1,NWidth,MWidth>&n, TMatrix<T2,NWidth,MHeight>&outResult);
+		template <typename T0, typename T1, typename T2, count_t Rows, count_t Cols>
+			void			Mult(const TMatrix<T0,Cols,Rows>&m, const TVec<T1,Cols>&v, TVec<T2,Rows>&outResult);
 
 		/**
 		Creates a 2d rotation matrix
@@ -287,6 +296,35 @@ namespace Math
 
 		MFUNC(String)		ToString(const TMatrix4<C>&matrix);
 		MFUNC(String)		ToString(const TMatrix3<C>&matrix);
+
+
+		template <typename T, count_t Dimension>
+			void			Invert(const TMatrix<T,Dimension,Dimension>&source,TMatrix<T,Dimension,Dimension>&resultOut);
+
+		namespace Raw
+		{
+			MFUNCV (void)	Eye(C*out);
+
+			MFUNC (String)	ToStringD(const C*m, count_t rows, count_t cols);
+			MFUNC (String)	ToString4x4(const C m[16])	{return ToStringD(m,4,4);}
+
+			MFUNC (void)    SwapRowsD(C*m, count_t rows, count_t cols, index_t r1, index_t r2);
+			MFUNC (void)    SwapColsD(C*m, count_t rows, count_t cols, index_t c1, index_t c2);
+			MFUNCD (void)	SwapColsD(C*m, index_t c1, index_t c2);
+			MFUNCC (void)	SwapCols(C*m);
+			MFUNCR (void)	SwapRows(C*m);
+			MFUNCD (void)	SwapRows(C*m, index_t r1, index_t r2);
+
+			MFUNC2V (bool)  Invert(const C0*m, C1*out);
+			MFUNC (void)    EyeD(C*out, count_t dimension);
+			MFUNC (void)    ClearD(C*m, count_t width, count_t height);
+			MFUNC2 (bool)	Invert3x3(const C0 m[3*3], C1 out[3*3]);
+			MFUNC2 (bool)	Invert4x4(const C0 m[4*4], C1 out[4*4]);
+			MFUNC2 (bool)	InvertD(const C0*m, C1*out, count_t dimension);
+
+			MFUNCM (void)	Mult(const T0*m, const T1*n, T2*out);
+			MFUNC3 (void)	MultD(const C0*m, const C1*n, C2*out, count_t height, count_t mwidth, count_t nwidth);
+		}
 	}
 }
 

@@ -4227,8 +4227,8 @@ namespace Engine
 		
 
 		String rs	= "OpenGL state:\n\
-  Projection:\n"+__toString(projection)+"\n\
-  Modelview:\n"+__toString(modelview)+"\n\
+  Projection:\n"+Mat::Raw::ToString4x4(projection)+"\n\
+  Modelview:\n"+Mat::Raw::ToString4x4(modelview)+"\n\
   Program: "+String(program)+"\n\
   FBO: "+String(fbo)+"\n\
   Viewport: "+(Vec::toString(Vec::ref4(viewport)))+"\n\

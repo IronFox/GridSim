@@ -3282,7 +3282,7 @@ namespace Fractal
 		Vec::def(texture_up,0,1,0);
 		Vec::def(texture_x,1,0,0);
 		Vec::def(texture_y,0,0,1);
-		Mat::eye(invert);
+		Mat::Eye(invert);
 	}
 	
 	void	RollSpace::roll(const TVec3<>&up, const TVec3<>&location)
