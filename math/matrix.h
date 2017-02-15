@@ -297,9 +297,7 @@ namespace Math
 		MFUNC(String)		ToString(const TMatrix4<C>&matrix);
 		MFUNC(String)		ToString(const TMatrix3<C>&matrix);
 
-
-		template <typename T, count_t Dimension>
-			void			Invert(const TMatrix<T,Dimension,Dimension>&source,TMatrix<T,Dimension,Dimension>&resultOut);
+		MFUNCV(bool)		Invert(const TMatrix<C,Dimensions,Dimensions>&source,TMatrix<C,Dimensions,Dimensions>&resultOut);
 
 		namespace Raw
 		{

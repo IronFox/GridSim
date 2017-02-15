@@ -424,11 +424,10 @@ namespace Math
 			}
 
 
-		template <typename T, count_t Dimensions>
-			void			Invert(const TMatrix<T,Dimensions,Dimensions>&source,TMatrix<T,Dimensions,Dimensions>&resultOut)
-			{
-				Raw::Invert<T,T,Dimensions>(source.v,resultOut.v);
-			}
+		MFUNCV(bool)		Invert(const TMatrix<C,Dimensions,Dimensions>&source,TMatrix<C,Dimensions,Dimensions>&resultOut)
+		{
+			return Raw::Invert<C,C,Dimensions>(source.v,resultOut.v);
+		}
 
 
 
