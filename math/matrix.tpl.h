@@ -333,7 +333,7 @@ namespace Math
 			{
 				C0*buffer = alloc<C0>(2*dimension*dimension);
 				Vec::copyD(m,buffer,dimension*dimension);
-				Eye(&buffer[dimension*dimension],dimension);
+				EyeD(&buffer[dimension*dimension],dimension);
 				for (index_t line = 0; line < dimension; line++)
 				{
 					index_t targetline = line;

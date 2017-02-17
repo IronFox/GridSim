@@ -324,6 +324,58 @@ namespace Math
 			MFUNC3 (void)	MultD(const C0*m, const C1*n, C2*out, count_t height, count_t mwidth, count_t nwidth);
 		}
 	}
+
+
+
+	/**
+	Nth degree polynomial representation with an approximation constructor
+	*/
+	template <typename T, count_t NumCoef>
+		struct TPolynomial
+		{
+			TVec<T,NumCoef>	coefficients;
+
+			T			operator()(const T x) const
+			{
+				T y = 0;
+				for (index_t i = 0; i < NumCoef; i++)
+				{
+					y = coefficients.v[NumCoef -i-1] + y * x;
+				}
+				return y;
+			}
+
+			/**
+			Fills to a subset of the given source values
+			*/
+			bool			Approximate(const std::array<TVec2<T>,NumCoef>&source)
+			{
+				TMatrix<T,NumCoef,NumCoef>	mX,mInv;
+				TVec<T,NumCoef>	vY;
+
+				const index_t lastSample = source.size()-1;
+
+				for (index_t at = 0; at < NumCoef; at++)
+				{
+
+					vY.v[at] = source[at].y;
+
+					T fx = source[at].x;
+					for (index_t e = 0; e < NumCoef; e++)
+					{
+						T xN = vpow(fx,e);
+						mX.axis[e].v[at] = xN;
+					}
+				}
+				if (!Mat::Invert(mX,mInv))
+					return false;
+				Mat::Mult(mInv,vY,this->coefficients);
+				return true;
+			}
+
+		};
+
+
 }
 
 
