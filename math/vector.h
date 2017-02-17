@@ -138,8 +138,18 @@ namespace Math
 				};
 				struct
 				{
-					Type		x_;
+					Type		x_0;
 					TVec3<T>	yzw; //!< yzw accessor
+				};
+				struct
+				{
+					Type		x_1;
+					TVec2<T>	yz;
+				};
+				struct
+				{
+					Type		x_2;
+					TVec2<T>	gb;
 				};
 				struct
 				{
