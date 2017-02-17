@@ -348,19 +348,19 @@ namespace Math
 			/**
 			Fills to a subset of the given source values
 			*/
-			bool			Approximate(const std::array<TVec2<T>,NumCoef>&source)
+			bool			MatchPoints(const std::array<TVec2<T>,NumCoef>&points)
 			{
 				TMatrix<T,NumCoef,NumCoef>	mX,mInv;
 				TVec<T,NumCoef>	vY;
 
-				const index_t lastSample = source.size()-1;
+				const index_t lastSample = points.size()-1;
 
 				for (index_t at = 0; at < NumCoef; at++)
 				{
 
-					vY.v[at] = source[at].y;
+					vY.v[at] = points[at].y;
 
-					T fx = source[at].x;
+					T fx = points[at].x;
 					for (index_t e = 0; e < NumCoef; e++)
 					{
 						T xN = vpow(fx,e);
