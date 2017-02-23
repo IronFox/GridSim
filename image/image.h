@@ -361,10 +361,10 @@ template <typename T>
 		void						read(const T* data);																			//!< Adopts the local image data to the specified array content. \param data Array to copy from. Must be the exact same size as what size() returns.
 		/** 
 		Exports a rectangular pixel area from the local pixel data.
-		@param x Pixel offset (x)
-		@param y Pixel offset (y)
-		@param width Pixels to export in x-direction.
-		@param height Pixels to export in y-direction.
+		@param x Pixel offset (x). The method fails if this value is greater or equal to the local image width
+		@param y Pixel offset (y). The method fails if this value is greater or equal to the local image height
+		@param width Pixels to export in x-direction. The width will be clamped if it exceeds the valid range
+		@param height Pixels to export in y-direction. The height will be clamped if it exceeds the valid range
 		@param target Image to write to. Will be resized as necessary.
 		@return true if the specified parameters were valid and any pixels were exported as a result. @a target will be resized to 0x0 otherwise.
 		*/
