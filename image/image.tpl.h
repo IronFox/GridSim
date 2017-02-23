@@ -1802,6 +1802,24 @@ template <typename T>
 	}
 
 
+
+template <typename T>
+	bool	ImageTemplate<T>::ExportRectangle(dimension_t xoffset, dimension_t yoffset, dimension_t w, dimension_t h, Self&target)	const
+	{
+		if (yoffset >= image_height || xoffset >= image_width)
+		{
+			target.SetSize(0,0,image_channels);
+			return false;
+		}
+		h = vmin(h,image_height-yoffset);
+		w = vmin(w,image_width-xoffset);
+		target.SetSize(w,h,this->image_channels);
+		ASSERT__(ExportRectangle(xoffset,yoffset,w,h,target.data()));
+		return true;
+	}
+
+
+
 template <typename T>
 	bool	ImageTemplate<T>::ExportRectangle(dimension_t xoffset, dimension_t yoffset, dimension_t w, dimension_t h, T*target)	const
 	{
