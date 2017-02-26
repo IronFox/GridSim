@@ -575,7 +575,7 @@ namespace Math
 		}
 
 
-		MFUNC2 (void) FillRotationMatrix(C0 angle, TMatrix2<C1>&out)
+		MFUNC2 (void) BuildRotationMatrix(C0 angle, TMatrix2<C1>&out)
 		{
 			C1   bow = angle*M_PI/180;
 			C1	cs = cos(bow),
@@ -634,7 +634,7 @@ namespace Math
 			out.z.z = 1;
 		}
 
-		MFUNC3(void)	rotationMatrix(C0 angle,const TVec3<C1>&axis,TMatrix3<C2>&result)
+		MFUNC3(void)	BuildRotationMatrix(C0 angle,const TVec3<C1>&axis,TMatrix3<C2>&result)
 		{
 			C2		c = cos(angle*M_PI/180),
 					t = 1-c,
@@ -656,7 +656,7 @@ namespace Math
 			result.z.z = t*z*z + c;
 		}
 
-		MFUNC5(void)	rotationMatrix(C0 angle, C1 ax, C2 ay, C3 az, TMatrix3<C4>&result)
+		MFUNC5(void)	BuildRotationMatrix(C0 angle, C1 ax, C2 ay, C3 az, TMatrix3<C4>&result)
 		{
 			C4		c = cos(angle*M_PI/180),
 					t = 1-c,

@@ -1173,12 +1173,12 @@ MFUNC2 (void) VectorCamera<C>::RotatePlanar(const C0&alpha, const C1&beta)
 	Vec::cross(upAxis,direction,axis0);
 	Vec::normalize0(axis0);
 	//_v3(axis0,-1,0,0);
-	Mat::rotationMatrix(-alpha,axis0,matrix);
+	Mat::BuildRotationMatrix(-alpha,axis0,matrix);
 	//_q2RotMatrixCCW(alpha,axis0,matrix);
 	Mat::Mult(matrix,direction,axis0);
 	//__mult3(matrix,orientation,temp);
 
-	Mat::rotationMatrix(beta,upAxis,matrix);
+	Mat::BuildRotationMatrix(beta,upAxis,matrix);
 	Mat::Mult(matrix,axis0,direction);
 	//__mult3(matrix,temp,orientation);
 	
@@ -1193,7 +1193,7 @@ MFUNC1 (void) VectorCamera<C>::RotateDirectional(const C0&alpha, bool rebuild)
 	TVec3<C>		v=direction;
 
 	Vec::normalize0(v);
-	Mat::rotationMatrix(alpha,v,matrix);
+	Mat::BuildRotationMatrix(alpha,v,matrix);
     //__rotationMatrix(alpha, matrix, 3);
 	Mat::Mult(matrix,upAxis);
 	//__mult3(matrix,orientation,tempm);

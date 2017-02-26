@@ -865,7 +865,7 @@ template <typename T>
 	{
 		TMatrix3<T>	rotation_matrix;
 
-		Mat::rotationMatrix(angle,axis_x,axis_y,axis_z,rotation_matrix);
+		Mat::BuildRotationMatrix(angle,axis_x,axis_y,axis_z,rotation_matrix);
 
 		Mat::Mult(rotation_matrix,matrix.x.xyz);
 		Mat::Mult(rotation_matrix,matrix.y.xyz);
@@ -879,7 +879,7 @@ template <typename T> template <typename T2>
 	void	System<T>::rotate(const T&angle, const TVec3<T2>&axis)
 	{
 		TMatrix3<T>	rotation_matrix;
-		Mat::rotationMatrix(angle,axis,rotation_matrix);
+		Mat::BuildRotationMatrix(angle,axis,rotation_matrix);
 
 		Mat::Mult(rotation_matrix,matrix.x.xyz);
 		Mat::Mult(rotation_matrix,matrix.y.xyz);
@@ -915,7 +915,7 @@ template <typename T>
 	{
 		TMatrix3<T>	rotation_matrix;
 
-		Mat::rotationMatrix(angle,axis_x,axis_y,axis_z,rotation_matrix);
+		Mat::BuildRotationMatrix(angle,axis_x,axis_y,axis_z,rotation_matrix);
 
 		Mat::Mult(rotation_matrix,matrix.x.xyz);
 		Mat::Mult(rotation_matrix,matrix.y.xyz);
@@ -926,7 +926,7 @@ template <typename T> template <typename T2>
 	void	System<T>::rotateNoCallback(const T&angle, const TVec3<T2>&axis)
 	{
 		TMatrix3<T>	rotation_matrix;
-		Mat::rotationMatrix(angle,axis,rotation_matrix);
+		Mat::BuildRotationMatrix(angle,axis,rotation_matrix);
 
 		Mat::Mult(rotation_matrix,matrix.x.xyz);
 		Mat::Mult(rotation_matrix,matrix.y.xyz);
@@ -5220,7 +5220,7 @@ template <class Def> void AnimatableSubInstanceA<Def>::updatePath(const TMatrix4
 	{
 		ASSERT__(target->meta.flags&AnimationTargetFlag);
 		Vec::div(animation_status.rotation,angle,vector);
-		Mat::rotationMatrix(angle,vector,rotation_matrix);
+		Mat::BuildRotationMatrix(angle,vector,rotation_matrix);
 		Mat::Mult(rotation_matrix,system.x.xyz,animated_system.x.xyz);
 		Mat::Mult(rotation_matrix,system.y.xyz,animated_system.y.xyz);
 		Mat::Mult(rotation_matrix,system.z.xyz,animated_system.z.xyz);

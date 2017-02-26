@@ -159,7 +159,7 @@ namespace Math
     MFUNC4 (void) SystemMatrix<C>::buildRotation(const C0&angle, const C1&x, const C2&y, const C3&z)
     {
 		TMatrix3<C>	temp;
-		Mat::rotationMatrix(angle,x,y,z,temp);
+		Mat::BuildRotationMatrix(angle,x,y,z,temp);
 		x.xyz = temp.x;
 		y.xyz = temp.y;
 		z.xyz = temp.z;
@@ -171,7 +171,7 @@ namespace Math
     MFUNC2 (void) SystemMatrix<C>::buildRotation(const C0&angle, const TVec3<C1>& axis)
     {
 		TMatrix3<C>	temp;
-		Mat::rotationMatrix(angle,axis,temp);
+		Mat::BuildRotationMatrix(angle,axis,temp);
 		x.xyz = temp.x;
 		y.xyz = temp.y;
 		z.xyz = temp.z;
@@ -182,7 +182,7 @@ namespace Math
 	template <class C> MFUNC4 (void)	SystemMatrix<C>::rotate(const C0&angle, const C1&axis_x, const C2&axis_y, const C3&axis_z)
 		{
 			TMatrix3<C>	rsystem;
-			Mat::rotationMatrix(angle,axis_x,axis_y,axis_z,rsystem);
+			Mat::BuildRotationMatrix(angle,axis_x,axis_y,axis_z,rsystem);
 
 			Mat::Mult(rsystem,x.xyz);
 			Mat::Mult(rsystem,y.xyz);
@@ -193,7 +193,7 @@ namespace Math
 	template <class C> MFUNC2 (void)	SystemMatrix<C>::rotate(const C0&angle, const TVec3<C1>& axis)
 		{
 			TMatrix3<C>	rsystem;
-			Mat::rotationMatrix(angle,axis,rsystem);
+			Mat::BuildRotationMatrix(angle,axis,rsystem);
 
 			Mat::Mult(rsystem,x.xyz);
 			Mat::Mult(rsystem,y.xyz);
