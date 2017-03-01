@@ -443,9 +443,10 @@ template <class Entry, class Strategy>
 		#endif
 
 		Element* newStart = section_begin;
-		newStart--;
-		if (newStart < Array::pointer())
+		if (newStart == Array::pointer())
 			newStart = Array::IsNotEmpty() ? field_end-1 : field_end;
+		else
+			newStart--;
 		if (section_end == newStart)
 		{
 			size_t old_len = Array::length();
