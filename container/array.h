@@ -1617,7 +1617,7 @@ template <typename T>
 	}
 
 /**
-	\brief two dimensional array
+	\brief Two dimensional array (row-major)
 	
 	The Array2D class maps 2d access to a single-dimensional field. Internally it behaves like a normal Array instance, but it provides some 2d access helper method.
 */
@@ -1723,6 +1723,61 @@ template <class C, class Strategy=typename Strategy::StrategySelector<C>::Defaul
 		Axis<true>			Horizontal() const {return Axis<true>(GetWidth());}
 		Axis<false>			Vertical() const {return Axis<false>(GetHeight());}
 
+
+		void		InsertRowBefore(index_t rowIndex)
+		{
+			const count_t h = GetHeight();
+			rowIndex = std::min(rowIndex,h);
+			Array2D<C,Strategy> temp(GetWidth(),h+1);
+			Strategy::moveElements(Super::pointer(),temp.pointer(),w*rowIndex);
+			Strategy::moveElements(Super::pointer()+rowIndex*w,temp.pointer()+(rowIndex+1)*w,w*(h - rowIndex));
+			swap(temp);
+		}
+
+		void		InsertColumnBefore(index_t colIndex)
+		{
+			const count_t h = GetHeight();
+			colIndex = std::min(colIndex,GetWidth());
+
+			const count_t w1 = w+1;
+			Array2D<C,Strategy> temp(w1,h);
+			for (index_t r = 0; r < h; r++)
+			{
+				C*row0 = Super::pointer()+r*w;
+				C*row1 = temp.pointer()+r*w1;
+				Strategy::moveElements(row0,row1,colIndex);
+				Strategy::moveElements(row0+colIndex,row1+colIndex+1,w-colIndex);
+			}
+			swap(temp);
+		}
+
+		void		EraseRow(index_t rowIndex)
+		{
+			const count_t h = GetHeight();
+			if (rowIndex >= h)
+				return;
+			Array2D<C,Strategy> temp(GetWidth(),h-1);
+			Strategy::moveElements(Super::pointer(),temp.pointer(),w*(rowIndex));
+			Strategy::moveElements(Super::pointer()+(rowIndex+1)*w,temp.pointer()+(rowIndex)*w,w*(h - rowIndex-1));
+			swap(temp);
+		}
+
+		void		EraseColumn(index_t colIndex)
+		{
+			const count_t h = GetHeight();
+			if (colIndex >= GetWidth())
+				return;
+			const count_t w1 = w-1;
+			Array2D<C,Strategy> temp(w1,h);
+			for (index_t r = 0; r < h; r++)
+			{
+				C*row0 = Super::pointer()+r*w;
+				C*row1 = temp.pointer()+r*w1;
+				Strategy::moveElements(row0,row1,colIndex);
+				Strategy::moveElements(row0+colIndex+1,row1+colIndex,w-colIndex-1);
+			}
+			swap(temp);
+		}
 
 		void		CopyRowTo(index_t row, ArrayData<C>&target) const
 		{
