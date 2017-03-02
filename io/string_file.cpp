@@ -9,7 +9,7 @@ Simplified string-file-handler.
 
 static inline void awrite(const void*data,size_t a,size_t b, FILE*f)
 {
-	if (fwrite(data,a,b,f)!=b)
+	if (!f || fwrite(data,a,b,f)!=b)
 		throw Except::IO::DriveAccess::DataWriteFault("StringFile: Unable to write "+String(a*b)+" byte(s) to file");
 
 }
