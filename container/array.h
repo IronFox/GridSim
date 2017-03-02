@@ -1385,16 +1385,21 @@ template <class C, class Strategy=typename StrategySelector<C>::Default>
 						return data[elements-1];
 					}
 
-					inline C&	insert(index_t offset)
+					inline C&	Insert(index_t beforeIndex)
 					{
-						if (offset >= elements)
+						return insert(beforeIndex);
+					}
+
+					inline C&	insert(index_t beforeIndex)
+					{
+						if (beforeIndex >= elements)
 							return append();
 
 						C	*new_field = alloc<C>(elements+1),
 							*at = new_field;
 
-						Strategy::moveElements(data,		new_field,			offset);
-						Strategy::moveRange(data+offset,	data+elements,	new_field+offset+1);
+						Strategy::moveElements(data,		new_field,			beforeIndex);
+						Strategy::moveRange(data+beforeIndex,	data+elements,	new_field+beforeIndex+1);
 
 						/*
 						for (count_t i = 0; i < offset; i++)
@@ -1407,7 +1412,7 @@ template <class C, class Strategy=typename StrategySelector<C>::Default>
 						//ASSERT_EQUAL__(at,new_field+elements);
 						dealloc(data);
 						data = new_field;
-						return data[offset];
+						return data[beforeIndex];
 					}
 
 					inline void	insert(index_t offset, const C&element)
@@ -1515,6 +1520,12 @@ template <class C, class Strategy=typename StrategySelector<C>::Default>
 						}
 					}
 			
+
+					inline void Erase(index_t fromIndex, count_t numElements=1)
+					{
+						erase(fromIndex,numElements);
+					}
+
 					inline void	erase(index_t index, count_t count=1)	//! Erases a number of elements from the array. The remaining elements (if any) are moved depending on the used strategy. \param index Index of the first element to erase with 0 being the first entry \param count Number of elements to erase
 					{
 						if (index >= elements)
