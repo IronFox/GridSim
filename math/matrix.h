@@ -86,8 +86,9 @@ namespace Math
 									Rows=Height;
 			union
 			{
-				TVec<T,Height>	axis[Width];
-				T				v[Width*Height];
+				TVec<T,Height>		axis[Width];
+				T					v[Width*Height];
+				TVec<T,Width*Height>asVector;
 			};
 		};
 
