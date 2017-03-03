@@ -440,6 +440,13 @@ StringFile& StringFile::operator<< (double item)
     return *this;
 }
 
+StringFile& StringFile::operator<< (long double item)
+{
+    String str(item);
+    awrite(str.c_str(),1,str.length(),f);
+    return *this;
+}
+
 void	StringFile::Flush()
 {
 	fflush(f);

@@ -112,6 +112,7 @@ public:
     StringFile&    operator<<(unsigned short);
     StringFile&    operator<<(float);
     StringFile&    operator<<(double);
+    StringFile&    operator<<(long double);
 
 	/*!
 		\brief Reads one line from the currently opened file
