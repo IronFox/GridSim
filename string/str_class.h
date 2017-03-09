@@ -1356,6 +1356,9 @@ template <typename T>
 		template <typename IndexType>
 			StringTemplate<T>		subString(IndexType index, size_t count=size_t(-1)) const;	//!< Creates a string copy containing the specified sub string of the local string @param index Index of the sub string to extract with 0 being the first character  Invalid values are clamped to the valid range. @param count Number of characters to extract starting at @a index @return Extracted string
 		ReferenceExpression<T>	subStringRef(int index, size_t count=size_t(-1)) const;	//!< Creates a string reference expression pointing to the specified sub string of the local string. The returned object remains valid as long as the local string object is not deleted or modified @param index Index of the sub string to extract with 0 being the first character  Invalid values are clamped to the valid range. @param count Number of characters to extract starting at @a index @return String segment
+		ReferenceExpression<T>	SubStringRef(int index, size_t count=size_t(-1)) const	/**@copydoc subStringRef()*/ {return subStringRef(index,count);}
+		ReferenceExpression<T>	SubStringRef(index_t index, size_t count=size_t(-1)) const	/**@copydoc subStringRef()*/ {return subStringRef(int(index),count);}
+
 	
 		/*!	\brief Removes whitespace characters from the beginning and the end of the local string
 		\return Reference to the local string
