@@ -45,7 +45,9 @@ public:
 		mutex.unlock();
 	}
 	bool	Open(const PathString&path, LONGLONG maxFileSize=0, OversizeHandling handling=OversizeHandling::ClearFileAndContinue);
-	bool	Write(const StringBuffer&buffer,bool toSyslog);
+	bool	Write(const String&str, bool toSyslog)	{return Write(str.ref(),toSyslog);}
+	bool	Write(const StringRef&str, bool toSyslog);
+	bool	Write(const StringBuffer&buffer,bool toSyslog)	{return Write(buffer.ToStringRef(),toSyslog);}
 	void	WriteAndClear(StringBuffer&buffer,bool toSyslog)
 	{
 		std::lock_guard<std::recursive_mutex> lock(mutex);

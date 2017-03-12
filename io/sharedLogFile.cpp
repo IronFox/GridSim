@@ -15,7 +15,9 @@ bool	SharedLogFile::Open(const PathString&path, LONGLONG maxFileSize/*=0*/, Over
 	return rs;
 }
 
-bool	SharedLogFile::Write(const StringBuffer&buffer,bool toSyslog)
+
+
+bool	SharedLogFile::Write(const StringRef&ref,bool toSyslog)
 {
 	if (fileHandle == INVALID_HANDLE_VALUE)
 		return false;
@@ -60,5 +62,5 @@ bool	SharedLogFile::Write(const StringBuffer&buffer,bool toSyslog)
 			}
 		}
 	}
-	return WriteFile(fileHandle,buffer.pointer(),(DWORD)buffer.GetLength(),&at,NULL) == TRUE;
+	return WriteFile(fileHandle,ref.pointer(),(DWORD)ref.GetLength(),&at,NULL) == TRUE;
 }
