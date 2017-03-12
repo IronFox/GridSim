@@ -52,13 +52,14 @@ bool	SharedLogFile::Write(const StringRef&ref,bool toSyslog)
 							return false;
 						}
 						timesTruncated++;
-						String toWrite = "File size threshold ("+String(maxFileSize)+") reached. Truncated file "+String(timesTruncated)+" time(s)\r\n";
+						String toWrite = "File size threshold ("+String(maxFileSize)+") reached. Cleared file. This happend "+String(timesTruncated)+" time(s)\r\n";
 						WriteFile(fileHandle,toWrite.c_str(),(DWORD)toWrite.length(),&at,NULL);
 					}
 					break;
+					default:
+						Close();
+						return false;
 				}
-				Close();
-				return false;
 			}
 		}
 	}
