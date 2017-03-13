@@ -41,17 +41,56 @@ public:
 	/**
 	Samples (close to) uniformly distributed volumetric noise in the range [0,1]
 	*/
-	double		GetContinuous(double x, double y, double z) const
+	double		GetUniform(double x, double y, double z) const
 	{
-		return ToContinuousDistribution(Get(x,y,z));
+		return ToUniformDistribution(Get(x,y,z));
 	}
 
-	static double	ToContinuousDistribution(double x)
+	static double	ToUniformDistribution(double x0)
 	{
+		/*
+		6.52302987e-01  -1.72903489e+01  -1.12122237e+00   2.77098705e+01
+		6.83447908e-01  -1.38410486e+01  -1.54970218e-01   4.01738791e-01
+		-3.72274565e-03   2.29025865e+00   4.93543117e-03
+		*/
+
+
+		static const double coefficients[10] = {
+			//0.00154044, 2.15570602, 0.78622404, -8.43136551, 24.1497156, -23.4820823, -53.9080885, 148.4834025, -125.3396094, 36.5856659
+			0.0, 2.14127769, 0.82418792, -8.11928605, 22.0528563, -16.92479066, -66.7294821, 163.6521446, -134.9893346, 39.0920684
+		};
+
+
+
+		double x = fabs(x0);
 		double x2 = x*x;
 		double x3 = x2*x;
 		double x4 = x3*x;
 		double x5 = x4*x;
-		return vmax(0.0,0.499877 + 1.12521 * x + 0.00298947 * x2 - 1.0534 *x3 - 0.00365494 *x4 + 0.431418 *x5);
+		double x6 = x5*x;
+		double x7 = x6*x;
+		double x8 = x7*x;
+		double x9 = x8*x;
+		double x10 = x9*x;
+		
+		
+		double rs= clamp01(
+			+ x9* coefficients[9]
+			+ x8* coefficients[8]
+			+ x7* coefficients[7]
+			+ x6* coefficients[6]
+			+ x5* coefficients[5]
+			+ x4* coefficients[4]
+			+ x3* coefficients[3]
+			+ x2* coefficients[2]
+			+ x* coefficients[1]
+			+ coefficients[0]
+			);
+
+		if (x0 < 0)
+			return 0.5 * rs;
+		return 1.0 - 0.5 * rs;
+
+		//return vmax(0.0,0.499877 + 1.12521 * x + 0.00298947 * x2 - 1.0534 *x3 - 0.00365494 *x4 + 0.431418 *x5);
 	}
 };
