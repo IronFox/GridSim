@@ -223,12 +223,12 @@ template <typename T, size_t Length>
 		constexpr count_t		Count() const {return Length;}
 
 		/**
-		Executes std::swap() on all elements
+		Executes StrategySelector<T>::Default::swap() on all elements
 		*/
 		void					swap(Self&other)
 		{
 			for (index_t i = 0; i < Length; i++)
-				std::swap(value[i],other.value[i]);
+				StrategySelector<T>::Default::swap(value[i],other.value[i]);
 		}
 
 		friend void				swap(Self&a, Self&b)
