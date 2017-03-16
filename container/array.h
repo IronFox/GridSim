@@ -186,8 +186,6 @@ template <typename T, size_t Length, class Strategy=typename StrategySelector<T>
 	public:	
 		typedef FixedArray<T,Length,Strategy>	Self;
 		typedef std::array<T,Length>		Super;
-		//typedef T*				iterator;
-		//typedef const T*		const_iterator;
 			
 		/**/					FixedArray()	{}
 		/**/					FixedArray(std::initializer_list<T> l):Super(l){}
@@ -195,7 +193,7 @@ template <typename T, size_t Length, class Strategy=typename StrategySelector<T>
 		constexpr count_t		Count() const {return Super::size();}
 
 		/**
-		Executes StrategySelector<T>::Default::swap() on all elements
+		Executes Strategy::swap() on all elements
 		*/
 		void					swap(Self&other)
 		{
@@ -226,7 +224,7 @@ template <typename T, size_t Length, class Strategy=typename StrategySelector<T>
 		}
 
 		/**
-		Executes adoptData() on all elements
+		Executes Strategy::move() on all elements
 		*/
 		void					adoptData(Self&other)
 		{
