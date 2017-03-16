@@ -6,6 +6,7 @@
 #include "../interface/serializable.h"
 #include "strategy.h"
 #include <cstdarg>
+#include <array>
 
 #include "../general/typedefs.h"
 
@@ -177,58 +178,29 @@ inline	bool		DeserializeObject(volatile ISerializable*object, ISerializable::ser
 
 /**
 	@brief Array with a fixed number of elements
-
 	FixedArray 
 */
-
-template <typename T, size_t Length>
-	class FixedArray:public SerializableObject
+template <typename T, size_t Length, class Strategy=typename StrategySelector<T>::Default>
+	class FixedArray:public std::array<T,Length>, public SerializableObject
 	{
 	public:	
-		typedef FixedArray<T,Length>	Self;
-		T						value[Length];
-		typedef T*				iterator;
-		typedef const T*		const_iterator;
+		typedef FixedArray<T,Length,Strategy>	Self;
+		typedef std::array<T,Length>		Super;
+		//typedef T*				iterator;
+		//typedef const T*		const_iterator;
 			
 		/**/					FixedArray()	{}
-		/**/					FixedArray(std::initializer_list<T> l)
-		{
-			index_t at = 0;
-			for (auto it = l.begin(); it != l.end() && at < Length; ++it)
-				value[at++] = *it;
-		}
-
-
-		iterator				begin()
-		{
-			return value;
-		}
-
-		const_iterator			begin() const
-		{
-			return value;
-		}
-
-		iterator				end()
-		{
-			return value+Length;
-		}
-
-		const_iterator			end() const
-		{
-			return value+Length;
-		}
-
-		constexpr size_t		size() const {return Length;}
-		constexpr count_t		Count() const {return Length;}
+		/**/					FixedArray(std::initializer_list<T> l):Super(l){}
+		
+		constexpr count_t		Count() const {return Super::size();}
 
 		/**
 		Executes StrategySelector<T>::Default::swap() on all elements
 		*/
 		void					swap(Self&other)
 		{
-			for (index_t i = 0; i < Length; i++)
-				StrategySelector<T>::Default::swap(value[i],other.value[i]);
+			for (auto i0 = begin(), i1 = other.begin(); i0 != end(); ++i0, ++i1)
+				Strategy::swap(*i0,*i1);
 		}
 
 		friend void				swap(Self&a, Self&b)
@@ -236,90 +208,98 @@ template <typename T, size_t Length>
 			a.swap(b);
 		}
 
+		T&						First()
+		{
+			return Super::front();
+		}
+		const T&				First() const
+		{
+			return Super::front();
+		}
+		T&						Last()
+		{
+			return Super::back();
+		}
+		const T&				Last() const
+		{
+			return Super::back();
+		}
+
 		/**
 		Executes adoptData() on all elements
 		*/
-		void					adoptData(FixedArray<T,Length>&other)
+		void					adoptData(Self&other)
 		{
-			for (index_t i = 0; i < Length; i++)
-				value[i].adoptData(other.value[i]);
+			for (Super::iterator i0 = Super::begin(), i1 = other.begin(); i0 != Super::end(); ++i0, ++i1)
+				Strategy::move(*i1,*i0);
 		}
 
 		void					Fill(const T&pattern)
 		{
-			for (index_t i = 0; i < Length; i++)
-				value[i] = pattern;
+			Super::fill(pattern);
 		}
 
 		virtual	serial_size_t	GetSerialSize(bool export_size) const	override
 		{
 			serial_size_t result = 0;
-			for (index_t i = 0; i < Length; i++)
-				result += GetSerialSizeOf(value+i,sizeof(T),true);//must pass true here because the individual object size cannot be restored from the global data size
+			for (Super::const_iterator i = Super::begin(); i != Super::end(); ++i)
+				result += GetSerialSizeOf(&*i,sizeof(T),true);//must pass true here because the individual object size cannot be restored from the global data size
 			return result;
 		}
 			
 		virtual	bool			Serialize(IWriteStream&out_stream, bool export_size) const	override
 		{
-			if (!IsISerializable((const T*)value))
-				return out_stream.Write(value,sizeof(value));
+			if (!IsISerializable(Super::data()))
+				return out_stream.Write(Super::data(),sizeof(T)*Length);
 	
-			for (index_t i = 0; i < Length; i++)
-				if (!SerializeObject(value+i,sizeof(T),out_stream,true))
+			for (Super::const_iterator i = Super::begin(); i != Super::end(); ++i)
+				if (!SerializeObject(&*i,sizeof(T),out_stream,true))
 					return false;
 			return true;
 		}
 			
 		virtual	bool			Deserialize(IReadStream&in_stream, serial_size_t)	override
 		{
-			if (!IsISerializable((const T*)value))
-				return in_stream.Read(value,sizeof(value));
+			if (!IsISerializable(Super::data()))
+				return in_stream.Read(Super::data(),sizeof(T)*Length);
 	
-			for (index_t i = 0; i < Length; i++)
-				if (!DeserializeObject(value+i,sizeof(T),in_stream,EmbeddedSize))
+			for (Super::iterator i = Super::begin(); i != Super::end(); ++i)
+				if (!DeserializeObject(&*i,sizeof(T),in_stream,EmbeddedSize))
 					return false;
 			return true;
 		}	
 		
 		virtual bool			HasFixedSize() const override
 		{
-			return GetFixedSize((const T*)value) != 0;
+			return GetFixedSize(Super::data()) != 0;
 		}
 
+		void					operator=(Self&&other)
+		{
+			adoptData(other);
+		}
 		void					operator=(const Self&other)
 		{
-			for (index_t i = 0; i < Length; i++)
-				value[i] = other.value[i];
+			Super::operator=(other);
 		}
 		bool					operator==(const Self&other) const
 		{
-			for (index_t i = 0; i < Length; i++)
-				if (value[i] != other.value[i])
-					return false;
-			return true;
+			return Super::operator==(other);
 		}
 
 		bool					operator!=(const Self&other) const
 		{
-			return !operator==(other);
+			return Super::operator!=(other);
 		}
 
 		T&						operator[](index_t index)
 		{
-			#ifdef __ARRAY_DBG_RANGE_CHECK__
-				if (index >= Length)
-					FATAL__("Index out of bounds");
-			#endif
-			return value[index];
+			return Super::operator[](index);
 		}
 
 		const T&						operator[](index_t index) const
 		{
-			#ifdef __ARRAY_DBG_RANGE_CHECK__
-				if (index >= Length)
-					FATAL__("Index out of bounds");
-			#endif
-			return value[index];
+			return Super::operator[](index);
 		}
 	};
 
