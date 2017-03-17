@@ -283,6 +283,7 @@ in the foundation.
 
 
 typedef size_t	index_t,count_t;
+typedef ptrdiff_t sindex_t;
 
 static const index_t		InvalidIndex = static_cast<index_t>(-1);
 
