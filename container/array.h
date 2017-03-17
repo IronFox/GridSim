@@ -445,7 +445,7 @@ template <typename T>
 								#endif
 								return data[index];
 							}
-		inline	T&			GetFromEnd(index_t index)					//! Retrieves the nth element from the end of the array. fromEnd(0) is identical to last()
+		inline	T&			GetFromEnd(index_t index)					//! Retrieves the nth element from the end of the array. GetFromEnd(0) is identical to last()
 							{
 								index = elements - index - 1;
 								#ifdef __ARRAY_DBG_RANGE_CHECK__
@@ -454,7 +454,7 @@ template <typename T>
 								#endif
 								return data[index];
 							}
-		inline	const T&	GetFromEnd(index_t index)			const	//! @copydoc fromEnd()
+		inline	const T&	GetFromEnd(index_t index)			const	//! @copydoc GetFromEnd()
 							{
 								index = elements - index - 1;
 								#ifdef __ARRAY_DBG_RANGE_CHECK__

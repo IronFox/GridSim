@@ -191,8 +191,8 @@ namespace Container
 			inline bool				operator==(const BasicBuffer<T,Strategy>&other) const;
 			inline bool				operator!=(const BasicBuffer<T,Strategy>&other) const;
 
-			inline T&				GetFromEnd(index_t);					//!< Retrieves the nth element from the end of the consumed buffer space. fromEnd(0) is identical to last()
-			inline const T&			GetFromEnd(index_t)			const;	//!< @copydoc fromEnd()
+			inline T&				GetFromEnd(index_t);					//!< Retrieves the nth element from the end of the consumed buffer space. GetFromEnd(0) is identical to last()
+			inline const T&			GetFromEnd(index_t)			const;	//!< @copydoc GetFromEnd()
 			void					compact();							//!< Reduces the local buffer size to the exact fill level and copies all contained elements. Any succeeding push operation will automatically increase buffer size again. The method returns if the stack is already of compact size
 			inline void				Compact()							/**@copydoc compact()*/	{compact();}
 			Array<T,Strategy>		copyToArray()						const;	//!< Exports the local data up to the current fill level to the returned array.
