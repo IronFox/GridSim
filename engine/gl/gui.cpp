@@ -1590,7 +1590,7 @@ namespace Engine
 			next.y.max = (int)ceil(region.y.max);
 			if (clipStack.count() > 1)
 			{
-				const Rect<int>&prev = clipStack.fromEnd(1);
+				const Rect<int>&prev = clipStack.GetFromEnd(1);
 				next.ConstrainBy(prev);
 			}
 			_Apply(next);

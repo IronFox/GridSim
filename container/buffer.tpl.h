@@ -1081,15 +1081,15 @@ template <typename T, typename Strategy>
 		return storage_begin[index];
 	}
 
-	template <typename T, typename Strategy>
-	inline T&			BasicBuffer<T, Strategy>::fromEnd(index_t index)
+template <typename T, typename Strategy>
+	inline T&			BasicBuffer<T, Strategy>::GetFromEnd(index_t index)
 	{
 		BUFFER_CHECK_RANGE(index);
 		return *(usage_end-index-1);
 	}
 
-	template <typename T, typename Strategy>
-	inline const T&	BasicBuffer<T, Strategy>::fromEnd(index_t index)	const
+template <typename T, typename Strategy>
+	inline const T&	BasicBuffer<T, Strategy>::GetFromEnd(index_t index)	const
 	{
 		BUFFER_CHECK_RANGE(index);
 		return *(usage_end-index-1);
