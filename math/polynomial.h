@@ -1,6 +1,7 @@
 #pragma once
 #include "matrix.h"
 
+#include "../container/array2d.h"
 
 namespace Math
 {
