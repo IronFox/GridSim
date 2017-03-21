@@ -1384,6 +1384,18 @@ namespace Math
 									{
 										return x.Contains(p.x) && y.Contains(p.y) && z.Contains(p.z);
 									}
+
+			/*!
+			@brief Modifies the given point so that it lies within the local box
+			*/
+			template <typename T0>
+				MF_DECLARE(void)	Clamp(TVec3<T0>&p) const
+									{
+										p.x = x.Clamp(p.x);
+										p.y = y.Clamp(p.y);
+										p.z = y.Clamp(p.z);
+									}
+
 			/*!
 			@brief	Determines whether or not the specified box lies within the local box
 			@return true if the box lies in the box
