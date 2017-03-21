@@ -304,77 +304,80 @@ namespace Math
 
 
 
-	template <class C, count_t Len> class VecN:public TVec<C,Len>
-	{
-	public:
-		typedef VecN<C,Len>					Self;
-		typedef TVec<C, Len>				Super;
-		typedef typename Super::Type		Type;	//union-compatible
-		typedef typename TypeInfo<C>::UnionCompatibleBase Base;
-		using Super::v;
-//		using Super::xyz;
+	template <class C, count_t Len>
+		class VecN:public TVec<C,Len>
+		{
+		public:
+			typedef VecN<C,Len>					Self;
+			typedef TVec<C, Len>				Super;
+			typedef typename Super::Type		Type;	//union-compatible
+			typedef typename TypeInfo<C>::UnionCompatibleBase Base;
+			using Super::v;
+	//		using Super::xyz;
 
-			MF_CONSTRUCTOR					VecN(const TVec2<C> &other)
-											{
-												VecUnroll<Len<2?Len:2>::copy(other.v,v);
-											}
-			MF_CONSTRUCTOR					VecN(const TVec3<C> &other)
-											{
-												VecUnroll<Len<3?Len:3>::copy(other.v,v);
-											}
+				MF_CONSTRUCTOR					VecN(const TVec2<C> &other)
+												{
+													VecUnroll<Len<2?Len:2>::copy(other.v,v);
+												}
+				MF_CONSTRUCTOR					VecN(const TVec3<C> &other)
+												{
+													VecUnroll<Len<3?Len:3>::copy(other.v,v);
+												}
 
-			MF_CONSTRUCTOR					VecN(const TVec4<C> &other)
-											{
-												VecUnroll<Len<4?Len:4>::copy(other.v,v);
-											}
-			MF_CONSTRUCTOR					VecN(const TVec<C,Len> &other)
-											{
-												VecUnroll<Len>::copy(other.v,v);
-											}
+				MF_CONSTRUCTOR					VecN(const TVec4<C> &other)
+												{
+													VecUnroll<Len<4?Len:4>::copy(other.v,v);
+												}
+				MF_CONSTRUCTOR					VecN(const TVec<C,Len> &other)
+												{
+													VecUnroll<Len>::copy(other.v,v);
+												}
 
-			MF_CONSTRUCTOR					VecN()									{}
-			MF_CONSTRUCTOR					VecN(C x, C y)							{v[0] = x; v[1] = y;};
-			MF_CONSTRUCTOR					VecN(C x, C y, C z)					{v[0] = x; v[1] = y; v[2] = z;};
-			MF_CONSTRUCTOR					VecN(C x, C y, C z, C a)				{v[0] = x; v[1] = y; v[2] = z; v[3] = a;};
-			MF_CONSTRUCTOR1					VecN(const C0 field[Len])				{VecUnroll<Len>::copy(field,v);};
-			MF_DECLARE(void)				clear();											//sets all values to 0
-			MF_DECLARE(String)				ToString()								const;		//returns string of vector-content
-			MF_DECLARE(C)					length()								const;		//calculates norm of the vector
-			MF_DECLARE(C)					sqr()							 		const;		//calculates square of the vector
-			MF_DECLARE(C)					summary()								const;		//calculates sum of all vector-components
-			MF_INIT VecN<C,Len> MF_CC		normalized()							const;		//returns normalized vector
-	MF_VNT	MF_INIT VecN<C, Eval<Len,Len0>::Min > MF_CC
-											operator+(const TVec<C0,Len0>&v)		const;
-			MF_INIT VecN<C,Len> MF_CC		operator+(const C&scalar)				const;
-			MFUNCV1_(void)					operator+=(const TVec<C0,Len0>&v);
-			MF_DECLARE(void)				operator+=(const C&scalar);
-			//MFUNCV1_(C)						operator*(const TVec<C0,Len0>&v)		const;
-			MF_INIT VecN<C,Len> MF_CC		operator*(const C&factor)				const;
-			MFUNC1 (void)					operator*=(const C0&factor);
-			template <class C0>
-			MF_INIT VecN<C,Len> MF_CC		operator/(const C0&factor)				const;
-			MFUNC1 (void)					operator/=(const C0&factor);
-	MF_VNT	MF_INIT VecN<C,Eval<Len,Len0>::Min > MF_CC
-											operator-(const TVec<C0,Len0>&v)		const;
-			MF_INIT VecN<C,Len> MF_CC		operator-(const C&scalar)				const;
-			MF_INIT VecN<C,Len> MF_CC		operator-()							 const;
-			MFUNCV1_(void)					operator-=(const TVec<C0,Len0>&v);
-			MF_DECLARE(void)				operator-=(const C&scalar);
-	MF_VNT	MF_INIT Vec3<C> MF_CC			operator|(const TVec<C0,Len0>&v)		const;
-	MF_VNT	MF_INIT VecN<C,Len> MF_CC		operator&(const TVec<C0,Len0>&v)		const;
-			MFUNCV1_(void)					operator&=(const TVec<C0,Len0>&other);
-			MFUNCV1_(void)					operator=(const TVec<C0,Len0>&v);
-			MFUNC1 (void)					operator=(const TVec2<C0>&v);
-			MFUNC1 (void)					operator=(const TVec3<C0>&v);
-			MFUNC1 (void)					operator=(const TVec4<C0>&v);
-			MFUNCV1_(bool)					operator==(const TVec<C0,Len0>&v)		const;
-			MFUNCV1_(bool)					operator!=(const TVec<C0,Len0>&v)		const;
-			MFUNC1 (bool)					operator>(const TVec<C0,Len>&other)		const;		//!< Lexicographic order using _compare
-			MFUNC1 (bool)					operator<(const TVec<C0,Len>&other)		const;		//!< Lexicographic order using _compare
-			MFUNC1 (char)					compareTo(const TVec<C0,Len>&other)		const;		//!< Lexicographic order using _compare
-			MF_DECLARE(Base&)				operator[](index_t component);						//return component of the vector
-			MF_DECLARE(const Base&)			operator[](index_t component)			const;
-	};
+				MF_CONSTRUCTOR					VecN()									{}
+				MF_CONSTRUCTOR					VecN(C value)							{VecUnroll<Len>::set(v,value);}
+				MF_CONSTRUCTOR					VecN(C x, C y)							{v[0] = x; v[1] = y;};
+				MF_CONSTRUCTOR					VecN(C x, C y, C z)						{v[0] = x; v[1] = y; v[2] = z;};
+				MF_CONSTRUCTOR					VecN(C x, C y, C z, C a)				{v[0] = x; v[1] = y; v[2] = z; v[3] = a;};
+				MF_CONSTRUCTOR1					VecN(const C0 field[Len])				{VecUnroll<Len>::copy(field,v);};
+				MF_DECLARE(void)				clear();											//sets all values to 0
+				MF_DECLARE(String)				ToString()								const;		//returns string of vector-content
+				MF_DECLARE(C)					length()								const;		//calculates norm of the vector
+				MF_DECLARE(C)					Length()								const	{return length();}
+				MF_DECLARE(C)					sqr()							 		const;		//calculates square of the vector
+				MF_DECLARE(C)					summary()								const;		//calculates sum of all vector-components
+				MF_INIT VecN<C,Len> MF_CC		normalized()							const;		//returns normalized vector
+		MF_VNT	MF_INIT VecN<C, Eval<Len,Len0>::Min > MF_CC
+												operator+(const TVec<C0,Len0>&v)		const;
+				MF_INIT VecN<C,Len> MF_CC		operator+(const C&scalar)				const;
+				MFUNCV1_(void)					operator+=(const TVec<C0,Len0>&v);
+				MF_DECLARE(void)				operator+=(const C&scalar);
+				//MFUNCV1_(C)						operator*(const TVec<C0,Len0>&v)		const;
+				MF_INIT VecN<C,Len> MF_CC		operator*(const C&factor)				const;
+				MFUNC1 (void)					operator*=(const C0&factor);
+				template <class C0>
+				MF_INIT VecN<C,Len> MF_CC		operator/(const C0&factor)				const;
+				MFUNC1 (void)					operator/=(const C0&factor);
+		MF_VNT	MF_INIT VecN<C,Eval<Len,Len0>::Min > MF_CC
+												operator-(const TVec<C0,Len0>&v)		const;
+				MF_INIT VecN<C,Len> MF_CC		operator-(const C&scalar)				const;
+				MF_INIT VecN<C,Len> MF_CC		operator-()							 const;
+				MFUNCV1_(void)					operator-=(const TVec<C0,Len0>&v);
+				MF_DECLARE(void)				operator-=(const C&scalar);
+		MF_VNT	MF_INIT Vec3<C> MF_CC			operator|(const TVec<C0,Len0>&v)		const;
+		MF_VNT	MF_INIT VecN<C,Len> MF_CC		operator&(const TVec<C0,Len0>&v)		const;
+				MFUNCV1_(void)					operator&=(const TVec<C0,Len0>&other);
+				MFUNCV1_(void)					operator=(const TVec<C0,Len0>&v);
+				MFUNC1 (void)					operator=(const TVec2<C0>&v);
+				MFUNC1 (void)					operator=(const TVec3<C0>&v);
+				MFUNC1 (void)					operator=(const TVec4<C0>&v);
+				MFUNCV1_(bool)					operator==(const TVec<C0,Len0>&v)		const;
+				MFUNCV1_(bool)					operator!=(const TVec<C0,Len0>&v)		const;
+				MFUNC1 (bool)					operator>(const TVec<C0,Len>&other)		const;		//!< Lexicographic order using _compare
+				MFUNC1 (bool)					operator<(const TVec<C0,Len>&other)		const;		//!< Lexicographic order using _compare
+				MFUNC1 (char)					compareTo(const TVec<C0,Len>&other)		const;		//!< Lexicographic order using _compare
+				MF_DECLARE(Base&)				operator[](index_t component);						//return component of the vector
+				MF_DECLARE(const Base&)			operator[](index_t component)			const;
+		};
 
 
 
