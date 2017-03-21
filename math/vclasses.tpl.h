@@ -102,21 +102,21 @@ namespace Math
     MF_VNT MF_INIT VecN<C,Eval<Len,Len0>::Min> MF_CC VecN<C,Len>::operator- (const TVec<C0,Len0>&other) const
     {
 	    VecN<C,Eval<Len,Len0>::Min> result;
-        VecUnroll<Eval<Len,Len0>::Min>::subtract(v,other.v,result);
+        VecUnroll<Eval<Len,Len0>::Min>::subtract(v,other.v,result.v);
 		return result;
     }
     
     template <class C, count_t Len> MF_INIT VecN<C,Len> MF_CC VecN<C,Len>::operator-(const C&scalar) const
     {
         VecN<C,Len> result;
-        VecUnroll<Len>::subtract(*this,scalar,result);
+        VecUnroll<Len>::subtractValue(v,scalar,result.v);
         return result;
     }
 
     template <class C, count_t Len>    MF_INIT  VecN<C,Len> MF_CC   VecN<C,Len>::operator-()          const
     {
         VecN<C,Len>   result;
-        VecUnroll<Len>::multiply(*this,(C)-1,result);
+        VecUnroll<Len>::multiply(v,(C)-1,result.v);
         return result;
     }
     
