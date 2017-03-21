@@ -386,7 +386,7 @@ namespace Math
 		typedef Vec2<T>	Super;
 		typedef typename Super::Super TVec;
 		public:
-			MF_CONSTRUCTOR				VecN(const TVec &other) : Super(other)	{}
+			MF_CONSTRUCTOR1				VecN(const TVec2<C0> &other) : Super(other) {}
 			MF_CONSTRUCTOR				VecN()									{}
 			MF_CONSTRUCTOR				VecN(T value):Super(value)				{}
 			MF_CONSTRUCTOR				VecN(T x, T y):Super(x,y)				{}
@@ -400,7 +400,7 @@ namespace Math
 		typedef Vec3<T>	Super;
 		typedef typename Super::Super TVec;
 		public:
-			MF_CONSTRUCTOR				VecN(const TVec &other) : Super(other)	{}
+			MF_CONSTRUCTOR1				VecN(const TVec3<C0> &other) : Super(other)	{}
 			MF_CONSTRUCTOR				VecN()									{}
 			MF_CONSTRUCTOR				VecN(T value):Super(value)				{}
 			MF_CONSTRUCTOR				VecN(T x, T y, T z):Super(x,y,z)		{}
@@ -414,7 +414,7 @@ namespace Math
 		typedef Vec4<T>	Super;
 		typedef typename Super::Super TVec;
 		public:
-			MF_CONSTRUCTOR				VecN(const TVec &other) : Super(other)	{}
+			MF_CONSTRUCTOR1				VecN(const TVec4<C0> &other) : Super(other) {}
 			MF_CONSTRUCTOR				VecN()									{}
 			MF_CONSTRUCTOR				VecN(T value):Super(value)				{}
 			MF_CONSTRUCTOR				VecN(T x, T y, T z, T w):Super(x,y,z,w)		{}
