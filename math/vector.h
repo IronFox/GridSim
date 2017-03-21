@@ -1579,7 +1579,7 @@ namespace Math
 									}
 				TVec3<T>			GetCenter() const {TVec3<T> rs; GetCenter(rs); return rs;}
 			template <typename T0>
-				void				GetExtend(TVec3<T0>&out)	const
+				void				GetExtent(TVec3<T0>&out)	const
 									{
 										out.x = (T0)x.GetExtent();
 										out.y = (T0)y.GetExtent();
