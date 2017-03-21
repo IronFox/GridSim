@@ -380,7 +380,47 @@ namespace Math
 		};
 
 
+	template <typename T>
+		class VecN<T,2>:public Vec2<T>
+		{
+		typedef Vec2<T>	Super;
+		typedef typename Super::Super TVec;
+		public:
+			MF_CONSTRUCTOR				VecN(const TVec &other) : Super(other)	{}
+			MF_CONSTRUCTOR				VecN()									{}
+			MF_CONSTRUCTOR				VecN(T value):Super(value)				{}
+			MF_CONSTRUCTOR				VecN(T x, T y):Super(x,y)				{}
+			MF_CONSTRUCTOR1				VecN(const C0 field[2]):Super(field)	{}
+			MFUNC1 (void)				operator=(const TVec2<C0>&v)			{Super::operator=(v);}
+		};
 
+	template <typename T>
+		class VecN<T,3>:public Vec3<T>
+		{
+		typedef Vec3<T>	Super;
+		typedef typename Super::Super TVec;
+		public:
+			MF_CONSTRUCTOR				VecN(const TVec &other) : Super(other)	{}
+			MF_CONSTRUCTOR				VecN()									{}
+			MF_CONSTRUCTOR				VecN(T value):Super(value)				{}
+			MF_CONSTRUCTOR				VecN(T x, T y, T z):Super(x,y,z)		{}
+			MF_CONSTRUCTOR1				VecN(const C0 field[3]):Super(field)	{}
+			MFUNC1 (void)				operator=(const TVec3<C0>&v)			{Super::operator=(v);}
+		};
+
+	template <typename T>
+		class VecN<T,4>:public Vec4<T>
+		{
+		typedef Vec4<T>	Super;
+		typedef typename Super::Super TVec;
+		public:
+			MF_CONSTRUCTOR				VecN(const TVec &other) : Super(other)	{}
+			MF_CONSTRUCTOR				VecN()									{}
+			MF_CONSTRUCTOR				VecN(T value):Super(value)				{}
+			MF_CONSTRUCTOR				VecN(T x, T y, T z, T w):Super(x,y,z,w)		{}
+			MF_CONSTRUCTOR1				VecN(const C0 field[4]):Super(field)	{}
+			MFUNC1 (void)				operator=(const TVec4<C0>&v)			{Super::operator=(v);}
+		};
 
 
 	typedef Vec2<float>	float2;
