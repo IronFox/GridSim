@@ -86,10 +86,11 @@ namespace XML
 
 	public:
         Node           		root_node;
-		Encoding			encoding;							//!< Character encoding
+		Encoding			encoding,							//!< Character encoding
+							hostEncoding;
 
-		/**/				Container()						{root_node.name = "xml"; encoding = Encoding::UTF8; }
-		/**/				Container(const PathString&source)	{root_node.name = "xml"; encoding = Encoding::UTF8; LoadFromFile(source);}
+		/**/				Container(Encoding hostEncoding=Encoding::ANSI):hostEncoding(hostEncoding)		{root_node.name = "xml"; encoding = Encoding::UTF8; }
+		/**/				Container(const PathString&source,Encoding hostEncoding=Encoding::ANSI):hostEncoding(hostEncoding)	{root_node.name = "xml"; encoding = Encoding::UTF8; LoadFromFile(source);}
 		void				Clear();													//!< Clears all local data
 		Node*				Find(const String&path);				//!< Returns the first matching node (if any) @param path Path string in the form 'node/subnode/.../subnodeN' @return Pointer to the matching node or NULL if no such could be found
 		const Node*			Find(const String&path)		const;	//!< @copydoc find()
@@ -160,6 +161,7 @@ namespace XML
 			size_t				buffer_fill_state;
 			String				error_string;
 			bool				error_is_filenotfound;
+			XML::Encoding		hostEncoding;
 			
 			friend class ScannerRule;
 			
@@ -167,7 +169,7 @@ namespace XML
 			bool				skip(char until, FILE*f);
 			bool				skip(const char*until, FILE*f);
 	public:
-								Scanner();
+								Scanner(Encoding hostEncoding=Encoding::ANSI);
 			void				SetExcept(pNodeCallback callback_on_except=NULL);
 			bool				Scan(const PathString&filename);
 			const String&		GetError()						const;

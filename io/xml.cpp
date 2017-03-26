@@ -106,15 +106,16 @@ static unsigned findWord(char*from)
 
 
 template <typename Stream>
-static void EncodeValueToStream(Stream&stream, XML::Encoding enc, const String&content)
+static void EncodeValueToStream(Stream&stream, XML::Encoding enc, XML::Encoding hostEnc, const String&content)
 {
 	DBG_ASSERT_EQUAL1__(content.length(),strlen(content.c_str()),content.c_str());
 	
 	//String rs = content;
-	for (index_t i = 0; i < content.length(); i++)
+	const char*c = content.c_str(),
+			*const end = content.end();
+	for (;c != end; ++c)
 	{
-		char c = content.get(i);
-		switch (c)
+		switch (*c)
 		{
 			case '&':
 				stream << "&amp;";
@@ -135,16 +136,29 @@ static void EncodeValueToStream(Stream&stream, XML::Encoding enc, const String&c
 			break;
 			default:
 			{
-				if (enc == XML::Encoding::ANSI)
-					stream << c;
-				elif (enc == XML::Encoding::UTF8)
-				{
-					StringConversion::UTF8Char ch;
-					StringConversion::AnsiToUtf8(c,ch);
-					stream << StringRef(ch.encoded,ch.numCharsUsed);
-				}
+				if (hostEnc == enc)
+					stream << *c;
 				else
-					throw Except::IO::StructureCompositionFault(CLOCATION,"XML: Unsupported encoding encountered");
+				{
+					if (enc == XML::Encoding::ANSI)
+					{
+						ASSERT__(hostEnc == XML::Encoding::UTF8);
+						char rs;
+						if (StringConversion::Utf8CharToAnsi(c,end,rs))
+							stream << rs;
+						else
+							throw Except::IO::StructureCompositionFault(CLOCATION,"XML: Unable to convert UTF8 char to ANSI for export");
+					}
+					elif (enc == XML::Encoding::UTF8)
+					{
+						ASSERT__(hostEnc == XML::Encoding::ANSI);
+						StringConversion::UTF8Char ch;
+						StringConversion::AnsiToUtf8(*c,ch);
+						stream << StringRef(ch.encoded,ch.numCharsUsed);
+					}
+					else
+						throw Except::IO::StructureCompositionFault(CLOCATION,"XML: Unsupported encoding encountered");
+				}
 			}
 			break;
 		}
@@ -173,7 +187,7 @@ static String Decode(const StringRef&content, XML::Encoding enc)
 	return "";
 }
 
-static String DecodeValue(const StringRef&content, XML::Encoding enc)
+static String DecodeValue(const StringRef&content, XML::Encoding enc, XML::Encoding hostEnc)
 {
 	if (content.length() < 4)
 		return Decode(content,enc);
@@ -189,20 +203,33 @@ static String DecodeValue(const StringRef&content, XML::Encoding enc)
 		
 		if (*source != '&')
 		{
-			if (enc == XML::Encoding::UTF8)
-			{
-				char c;
-				if (!StringConversion::Utf8CharToAnsi(source,end,c))
-					break;
-				buffer << c;
-			}
-			elif (enc == XML::Encoding::ANSI)
+			if (enc == hostEnc)
 			{
 				buffer << *source;
 				source++;
 			}
 			else
-				throw Except::IO::StructureCompositionFault(CLOCATION,"XML: Unsupported encoding encountered");
+			{
+				if (enc == XML::Encoding::UTF8)
+				{
+					ASSERT__(hostEnc == XML::Encoding::ANSI);
+					char c;
+					if (!StringConversion::Utf8CharToAnsi(source,end,c))
+						break;
+					buffer << c;
+				}
+				elif (enc == XML::Encoding::ANSI)
+				{
+					ASSERT__(hostEnc == XML::Encoding::UTF8);
+					StringConversion::UTF8Char ch;
+					StringConversion::AnsiToUtf8(*source,ch);
+					for (BYTE k = 0; k < ch.numCharsUsed; k++)
+						buffer << ch.encoded[k];
+					source++;
+				}
+				else
+					throw Except::IO::StructureCompositionFault(CLOCATION,"XML: Unsupported encoding encountered");
+			}
 		}
 		else
 		{
@@ -399,11 +426,11 @@ void	XML::Container::LoadFromCharArray(ArrayData<char>&field)
 			if (open)
 			{
 				if (active_entry)
-					active_entry->inner_content += DecodeValue(StringRef(c,next-c),encoding);
+					active_entry->inner_content += DecodeValue(StringRef(c,next-c),encoding,hostEncoding);
 			}
 			else
 				if (last)
-					last->following_content += DecodeValue(StringRef(c,next-c),encoding);
+					last->following_content += DecodeValue(StringRef(c,next-c),encoding,hostEncoding);
 //			*next = '<';
 		}
 		c = next;
@@ -495,7 +522,7 @@ void	XML::Container::LoadFromCharArray(ArrayData<char>&field)
 					pvalue.DropFirstChar();
 				if (pvalue.length() && (pvalue.GetLastChar() == '\"' || pvalue.GetLastChar() == '\''))
 					pvalue.DropLastChar();
-				active_entry->Set(pname,DecodeValue(pvalue,encoding));
+				active_entry->Set(pname,DecodeValue(pvalue,encoding,hostEncoding));
 //				ShowMessage("specifying parameter "+pname+" = "+pvalue);
 			}
 			c = strchr(c,'>');
@@ -595,7 +622,7 @@ static void EncodeToStream(OutStream&outfile, XML::Encoding enc, const String&id
 
 
 template <class OutStream>
-static void writeToStream(OutStream&outfile, XML::Encoding enc, const XML::Node*entry, XML::export_style_t style, unsigned indent=0)
+static void writeToStream(OutStream&outfile, XML::Encoding enc, XML::Encoding hostEnc, const XML::Node*entry, XML::export_style_t style, unsigned indent=0)
 {
 	StringRef trimmed = entry->name.trimRef();
 	//entry->name.trimThis();
@@ -612,7 +639,7 @@ static void writeToStream(OutStream&outfile, XML::Encoding enc, const XML::Node*
 			outfile << " ";
 		EncodeToStream(outfile, enc,(*p)->name);
 		outfile << "=\"";
-		EncodeValueToStream(outfile,enc,(*p)->value);
+		EncodeValueToStream(outfile,enc,hostEnc, (*p)->value);
 		outfile<<"\"";
 	}
 	if (entry->children.IsEmpty() && entry->inner_content.IsEmpty())
@@ -628,7 +655,7 @@ static void writeToStream(OutStream&outfile, XML::Encoding enc, const XML::Node*
 		switch (style)
 		{
 			case XML::Raw:
-				EncodeValueToStream(outfile,enc,entry->inner_content);
+				EncodeValueToStream(outfile,enc,hostEnc, entry->inner_content);
 			break;
 			case XML::Nice:
 			{
@@ -641,7 +668,7 @@ static void writeToStream(OutStream&outfile, XML::Encoding enc, const XML::Node*
 					for (index_t i = 0; i < lines.count(); i++)
 					{
 						outfile << tabSpace(indent+1);
-						EncodeValueToStream(outfile,enc,lines[i]);
+						EncodeValueToStream(outfile,enc,hostEnc,lines[i]);
 						outfile << nl;
 					}
 					if (entry->children.IsEmpty())
@@ -651,7 +678,7 @@ static void writeToStream(OutStream&outfile, XML::Encoding enc, const XML::Node*
 				{
 					if (lines.IsNotEmpty())
 					{
-						EncodeValueToStream(outfile,enc,lines.first());
+						EncodeValueToStream(outfile,enc,hostEnc,lines.first());
 					}
 					if (entry->children.IsNotEmpty())
 						outfile << nl;
@@ -667,7 +694,7 @@ static void writeToStream(OutStream&outfile, XML::Encoding enc, const XML::Node*
 				{
 					if (i)
 						outfile << nl;
-					EncodeValueToStream(outfile,enc,lines[i]);
+					EncodeValueToStream(outfile,enc,hostEnc,lines[i]);
 				}
 			}
 			break;
@@ -675,7 +702,7 @@ static void writeToStream(OutStream&outfile, XML::Encoding enc, const XML::Node*
 	}
 
 	for (index_t i = 0; i < entry->children.count(); i++)
-		writeToStream(outfile,enc,entry->children +i,style,indent+1);
+		writeToStream(outfile,enc,hostEnc,entry->children +i,style,indent+1);
 	
 	if (entry->children.IsNotEmpty() || entry->inner_content.IsNotEmpty())
 	{
@@ -690,7 +717,7 @@ static void writeToStream(OutStream&outfile, XML::Encoding enc, const XML::Node*
 		switch (style)
 		{
 			case XML::Raw:
-				EncodeValueToStream(outfile,enc,entry->following_content);
+				EncodeValueToStream(outfile,enc,hostEnc,entry->following_content);
 				//outfile << encode(entry->following_content);
 			break;
 			case XML::Nice:
@@ -702,7 +729,7 @@ static void writeToStream(OutStream&outfile, XML::Encoding enc, const XML::Node*
 				for (index_t i = 0; i < lines.count(); i++)
 				{
 					outfile << tabSpace(indent);
-					EncodeValueToStream(outfile,enc,lines[i]);
+					EncodeValueToStream(outfile,enc,hostEnc,lines[i]);
 					outfile<<nl;
 				}
 			}
@@ -716,7 +743,7 @@ static void writeToStream(OutStream&outfile, XML::Encoding enc, const XML::Node*
 				{
 					if (i)
 						outfile << nl;
-					EncodeValueToStream(outfile,enc,lines[i]);
+					EncodeValueToStream(outfile,enc,hostEnc,lines[i]);
 				}
 			}
 			break;
@@ -726,7 +753,7 @@ static void writeToStream(OutStream&outfile, XML::Encoding enc, const XML::Node*
 
 void				XML::Container::SaveToStringBuffer(StringBuffer&target, export_style_t style) const
 {
-	writeToStream(target,encoding,&root_node,style);
+	writeToStream(target,encoding,hostEncoding, &root_node,style);
 }
 
 void				XML::Container::SaveToFile(const PathString&filename, export_style_t style) const
@@ -748,7 +775,7 @@ void				XML::Container::SaveToFile(const PathString&filename, export_style_t sty
 			throw Except::Program::DataConsistencyFault(CLOCATION,"XML: Unsupported encoding for export");
 	}
 	outfile <<"\" ?>"<<nl;
-	writeToStream(outfile,encoding,&root_node, style);
+	writeToStream(outfile,encoding,hostEncoding, &root_node, style);
 }
 
 static XML::Node*	findIn(BasicBuffer<XML::Node,SwapStrategy>&children, const String&path)
@@ -1043,7 +1070,7 @@ bool	XML::Scanner::skip(const char*until, FILE*f)
 	return false;
 }
 
-XML::Scanner::Scanner():ScannerRule("xml:document",this,false,NULL,NULL),except(NULL),buffer_fill_state(0)
+XML::Scanner::Scanner(Encoding hostEncoding):ScannerRule("xml:document",this,false,NULL,NULL),except(NULL),buffer_fill_state(0),hostEncoding(hostEncoding)
 {}
 
 
@@ -1193,7 +1220,7 @@ bool	XML::Scanner::Scan(const PathString&filename)
 				(*attrib) = 0;
 				TAttribute*a = inner->attributes.append(name_offset);
 				a->name = Decode(StringRef(name_offset,name_end - name_offset),encoding);
-				a->value = DecodeValue(StringRef(data_offset,attrib - data_offset),encoding);
+				a->value = DecodeValue(StringRef(data_offset,attrib - data_offset),encoding,hostEncoding);
 				name_offset = attrib+1;
 			}
 		bool do_enter = field[buffer.length()-1] != '/';
@@ -1206,7 +1233,7 @@ bool	XML::Scanner::Scan(const PathString&filename)
 				working = false;
 				error_string = "Unexpected end of file.";
 			}
-			inner->content = DecodeValue(buffer.ToStringRef(),encoding);
+			inner->content = DecodeValue(buffer.ToStringRef(),encoding,hostEncoding);
 		}
 		else
 			if (!skip('<',f))
