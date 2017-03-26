@@ -1243,7 +1243,8 @@ template <typename T>
 	
 		void					free();					//!< Replaces local string content with an empty string
 		void					Clear()	{free();}
-		inline	size_t			length()	const;		//!< Retrieves the current string length in characters (not including trailing zero) @return String length in characters
+		inline size_t			length()	const;		//!< Retrieves the current string length in characters (not including trailing zero) @return String length in characters
+		inline size_t			size() const {return length();}
 		const T*				c_str()		const;		//!< Retrieves a constant zero terminated character array containing the local string
 		T*						mutablePointer();				//!< Retrieves a writable zero terminated character array containing the local string. Characters may be modified but the trailing zero and thus the length of the string should not be modified.
 
