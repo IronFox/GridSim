@@ -295,6 +295,7 @@ template <class K, class Hash=StdHash, typename KeyStrategy = typename StrategyS
 
 	
 typedef GenericHashSet<String>		StringSet;				//!< String based 'hash' set
+typedef GenericHashSet<StringW>		StringWSet;				//!< String based 'hash' set
 typedef GenericHashSet<index_t>		IndexSet;				//!< Index set
 typedef GenericHashSet<const void*>	PointerSet;			//!< Pointer set
 
