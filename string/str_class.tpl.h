@@ -3626,6 +3626,14 @@ template <typename T>
 		T* StringTemplate<T>::FloatToStr(Type value, unsigned char exactness, bool force_trailing_zeros, T*end, T*first)
 		{
 			ASSERT__(end > first);
+			if (isnan(value))
+			{
+				end-=3;
+				end[0] = L'N';
+				end[1] = L'a';
+				end[2] = L'N';
+				return end;
+			}
 			if (isinf(value))
 			{
 				end -= 4;
@@ -3639,14 +3647,6 @@ template <typename T>
 				return end;
 			}
 			
-			if (isnan(value))
-			{
-				end-=3;
-				end[0] = L'N';
-				end[1] = L'A';
-				end[2] = L'N';
-				return end;
-			}
 			bool negative = value < 0;
 			if (negative)
 				value*=-1;
