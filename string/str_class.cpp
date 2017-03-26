@@ -844,6 +844,9 @@ namespace StringConversion
 
 	bool Utf8CharToAnsi(const char*&ch, const char*const inEnd, char&out)
 	{
+		if (ch >= inEnd)
+			return false;
+
 		unsigned char usource = (unsigned char)*ch;
 		ch++;
 		if (!(usource & 0x80))
@@ -865,6 +868,165 @@ namespace StringConversion
 		}
 		return true;
 	}
+
+
+	//http://stackoverflow.com/questions/7153935/how-to-convert-utf-8-stdstring-to-utf-16-stdwstring/7154226#7154226
+	bool	Utf8ToUnicode(const StringRef&utf8Source, StringTemplate<char32_t>&unicodeDest)
+	{
+		const char*utf8 = utf8Source.pointer();
+		char const*const end = utf8 + utf8Source.length();
+
+		count_t len = 0;
+
+		while (utf8 < end)
+		{
+			count_t localLen = 0;
+			unsigned char usource = (unsigned char)*utf8;
+			while (usource & 0x80)
+			{
+				usource <<= 1;
+				localLen ++;
+			}
+			localLen = std::max<count_t>(localLen,1U);
+			utf8 += localLen;
+			len++;
+		}
+		utf8 = utf8Source.pointer();
+
+		unicodeDest.setLength(len);
+		index_t at= 0;
+
+		for (;utf8 != end;  utf8++)
+		{
+			char32_t uni;
+			size_t extra;
+			bool error = false;
+			unsigned char ch = *utf8;
+			if (ch <= 0x7F)
+			{
+				uni = ch;
+				extra = 0;
+			}
+			else if (ch <= 0xBF)
+			{
+				return false;
+			}
+			else if (ch <= 0xDF)
+			{
+				uni = ch&0x1F;
+				extra = 1;
+			}
+			else if (ch <= 0xEF)
+			{
+				uni = ch&0x0F;
+				extra = 2;
+			}
+			else if (ch <= 0xF7)
+			{
+				uni = ch&0x07;
+				extra = 3;
+			}
+			else
+			{
+				return false;
+			}
+			for (size_t j = 0; j < extra; ++j)
+			{
+				if (utf8+1 == end)
+					return false;
+				unsigned char ch = *(++utf8);
+				if (ch < 0x80 || ch > 0xBF)
+					return false;
+				uni <<= 6;
+				uni |= ch & 0x3F;
+			}
+			if (uni >= 0xD800 && uni <= 0xDFFF)
+				return false;;
+			if (uni > 0x10FFFF)
+				return false;
+
+			ASSERT_LESS__(at,unicodeDest.length());
+			unicodeDest.set(at++,uni);
+		}
+		ASSERT_EQUAL__(at,unicodeDest.length());
+		return true;
+	}
+
+
+	
+	template <typename T>
+	void	UnicodeToUtf16T(const ReferenceExpression<char32_t>&unicodeSource, StringTemplate<T>&utf16Dest)
+	{
+		count_t len = 0;
+
+		auto*s = unicodeSource.pointer(),
+			*const end = unicodeSource.end();
+		for (; s != end; ++s)
+		{
+			const auto uni = *s;
+			len++;
+			if (uni > 0xFFFF)
+				len++;
+		}
+
+		utf16Dest.setLength(len);
+		s = unicodeSource.pointer();
+		index_t at = 0;
+		for (; s != end; ++s)
+		{
+			auto uni = *s;
+			if (uni <= 0xFFFF)
+			{
+				utf16Dest.set(at++,(T)uni);
+			}
+			else
+			{
+				uni -= 0x10000;
+				utf16Dest.set(at++,(T)((uni >> 10) + 0xD800));
+				utf16Dest.set(at++,(T)((uni & 0x3FF) + 0xDC00));
+			}
+		}
+		ASSERT_EQUAL__(at,utf16Dest.length());
+	}
+
+	template <typename T>
+	bool	Utf8ToUtf16T(const StringRef&utf8Source, StringTemplate<T>&utf16Dest)
+	{
+		count_t len = 0;
+		const char*utf8 = utf8Source.pointer();
+		char const*const end = utf8 + utf8Source.length();
+
+		StringTemplate<char32_t> unicode;
+		if (!Utf8ToUnicode(utf8Source,unicode))
+			return false;
+
+		UnicodeToUtf16T(unicode.ref(),utf16Dest);
+		return true;
+	}
+
+
+	#ifdef WIN32
+		static_assert(sizeof(wchar_t)==sizeof(char16_t),"Expected wchar_t to be 16 bit on windows");
+		void	UnicodeToUtf16(const ReferenceExpression<char32_t>&unicodeSource, StringTemplate<wchar_t>&utf16Dest)
+		{
+			UnicodeToUtf16T(unicodeSource,utf16Dest);
+		}
+		bool	Utf8ToUtf16(const StringRef&utf8Source, StringTemplate<wchar_t>&utf16Dest)
+		{
+			return Utf8ToUtf16T(utf8Source,utf16Dest);
+		}
+	#endif
+
+	void	UnicodeToUtf16(const ReferenceExpression<char32_t>&unicodeSource, StringTemplate<char16_t>&utf16Dest)
+	{
+		UnicodeToUtf16T(unicodeSource,utf16Dest);
+	}
+
+	bool	Utf8ToUtf16(const StringRef&utf8Source, StringTemplate<char16_t>&utf16Dest)
+	{
+		return Utf8ToUtf16T(utf8Source,utf16Dest);
+	}
+
 
 
 	bool	Utf8ToAnsi(const StringRef&utf8Source, String&ansiDest)

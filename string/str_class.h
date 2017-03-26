@@ -1896,7 +1896,14 @@ namespace StringConversion
 	bool	Utf8ToAnsi(const String&utf8Source, String&ansiDest);
 	void	AnsiToUtf8(const StringRef&ansiSource, String&utf8Dest);
 	bool	Utf8ToAnsi(const StringRef&utf8Source, String&ansiDest);
-
+	bool	Utf8ToUtf16(const StringRef&utf8Source, StringTemplate<char16_t>&utf16Dest);
+	bool	Utf8ToUnicode(const StringRef&utf8Source, StringTemplate<char32_t>&unicodeDest);
+	void	UnicodeToUtf16(const ReferenceExpression<char32_t>&unicodeSource, StringTemplate<char16_t>&utf16Dest);
+	#ifdef WIN32
+		static_assert(sizeof(wchar_t)==sizeof(char16_t),"Expected wchar_t to be 16 bit on windows");
+		void	UnicodeToUtf16(const ReferenceExpression<char32_t>&unicodeSource, StringTemplate<wchar_t>&utf16Dest);
+		bool	Utf8ToUtf16(const StringRef&utf8Source, StringTemplate<wchar_t>&utf16Dest);
+	#endif
 }
 
 
