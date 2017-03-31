@@ -29,6 +29,8 @@ namespace Except
 				std::abort();
 			#else
 				#ifdef WIN32
+					if (IsDebuggerPresent())
+						DebugBreak();
 					TerminateProcess(GetCurrentProcess(),0);	//self-terminate
 				#else
 					exit(-1);
