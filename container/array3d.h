@@ -83,6 +83,7 @@ namespace Container
 				{}
 					
 			#if __ARRAY_RVALUE_REFERENCES__
+				Array3D(const Self&other):Super(other),w(other.w),h(other.h)	{}
 				Array3D(Self&&other):Super(std::move( other )),w(other.w),h(other.h)
 				{
 					other.w = 0;

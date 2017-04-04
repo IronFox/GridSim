@@ -189,6 +189,8 @@ template <typename T, size_t Length, class Strategy=typename StrategySelector<T>
 			
 		/**/					FixedArray()	{}
 		/**/					FixedArray(std::initializer_list<T> l):Super(l){}
+		/**/					FixedArray(const Self&other):Super(other)	{}
+		/**/					FixedArray(Self&&other):Super(std::move(other))	{}
 		
 		constexpr count_t		Count() const {return Super::size();}
 
