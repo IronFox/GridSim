@@ -131,11 +131,12 @@ template <typename T, typename Strategy>
 			}
 			catch (std::bad_alloc& exception)
 			{
+			/*	unnecessary since exception would be thrown in allocateNotEmpty(), which leaves list intact
 				storage_begin = storage_end = usage_end = NULL;
 				#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
 					fillLevel = 0;
 					CHK_FILL_LEVEL
-				#endif
+				#endif*/
 				throw;
 			}
 		}
