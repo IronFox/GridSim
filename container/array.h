@@ -319,6 +319,8 @@ template <typename T, size_t Length, class Strategy=typename StrategySelector<T>
 		{
 			return Super::operator[](index);
 		}
+
+		ArrayRef<T>				ToRef();
 	};
 
 
@@ -832,6 +834,13 @@ template <typename T, size_t Length, class Strategy>
 		for (index_t i = 0; i < Length; i++)
 			Super::operator[](i) = other[i];
 	}
+
+template <typename T, size_t Length, class Strategy>
+	ArrayRef<T>				FixedArray<T,Length,Strategy>::ToRef()
+	{
+		return ArrayRef<T>(data(),Length);
+	}
+
 
 
 /**
