@@ -77,6 +77,10 @@ namespace Container
 			{}
 			Array2D(Arrays::count_t width, Arrays::count_t height):Super(width*height),w(width)
 			{}
+			Array2D(Arrays::count_t width, Arrays::count_t height, const C&initial):Super(width*height),w(width)
+			{
+				Fill(initial);
+			}
 
 			template <class T, class OtherStrategy>
 				Array2D(const Array2D<T,OtherStrategy>&other):Super(other),w(other.w)

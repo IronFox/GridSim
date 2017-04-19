@@ -77,6 +77,10 @@ namespace Container
 			{}
 			Array3D(Arrays::count_t width, Arrays::count_t height, Arrays::count_t depth):Super(width*height*depth),w(width),h(height)
 			{}
+			Array3D(Arrays::count_t width, Arrays::count_t height, Arrays::count_t depth, const T&initial):Super(width*height*depth),w(width),h(height)
+			{
+				Fill(initial);
+			}
 
 			template <class T, class OtherStrategy>
 				Array3D(const Array3D<T,OtherStrategy>&other):Super(other),w(other.w),h(other.h)
