@@ -14,12 +14,16 @@ Classes for platform-independent handling of Threads, Mutexes, and Thread Pools
 #include <cstdlib>
 #include <iostream>
 #include <limits.h>
-#if defined _MSC_VER && _MSC_VER >= 1700
-	#define USE_ATOMIC
-	#include <atomic>
-#else
-	#undef USE_ATOMIC
-#endif
+//#if defined _MSC_VER && _MSC_VER >= 1700
+//	#define USE_ATOMIC
+//	#include <atomic>
+//#else
+//	#undef USE_ATOMIC
+//#endif
+#undef USE_ATOMIC
+
+#include <atomic>
+
 
 #if SYSTEM!=WINDOWS
 	#include <atomic>
