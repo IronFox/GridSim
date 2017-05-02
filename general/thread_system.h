@@ -136,34 +136,38 @@ namespace System
 
 			void			cleanUp();
 	public:
-			typedef pThreadMethod	pMethod;
+		typedef pThreadMethod	pMethod;
 
-			Operation		operation;		//!< operation to execute
+		Operation			operation;		//!< operation to execute
 
 
-							Thread();
-							Thread(ThreadMainObject*object,pMethod method, bool start);   		//!< Creates the thread. The thread needs to be started manually using the start() method if \b start is set false \param object Base object to execute \param method Method pointer to execute on the specified object or NULL to execute ThreadMain() \param start Set true to execute immideately
-							Thread(ThreadMainObject&object,pMethod method, bool start);		//!< Creates the thread (using NULL as parameter). The thread needs to be started manually using the start() method if \b start is set false \param object Base object to execute \param method Method pointer to execute on the specified object or NULL to execute ThreadMain()  \param start Set true to execute immideately
-							Thread(ThreadMainObject*object, bool start);						//!< Create the thread using a thread object. The thread needs to be started manually using the start() method if \b start is set false \param object Thread object to execute \param start Set true to execute immideately
-							Thread(ThreadMainObject&object, bool start);						//!< Create the thread using a thread object. The thread needs to be started manually using the start() method if \b start is set false \param object Thread object to execute \param start Set true to execute immideately
-	virtual					~Thread();
+		/**/				Thread();
+		/**/				Thread(ThreadMainObject*object,pMethod method, bool start);   		//!< Creates the thread. The thread needs to be started manually using the start() method if \b start is set false \param object Base object to execute \param method Method pointer to execute on the specified object or NULL to execute ThreadMain() \param start Set true to execute immideately
+		/**/				Thread(ThreadMainObject&object,pMethod method, bool start);		//!< Creates the thread (using NULL as parameter). The thread needs to be started manually using the start() method if \b start is set false \param object Base object to execute \param method Method pointer to execute on the specified object or NULL to execute ThreadMain()  \param start Set true to execute immideately
+		/**/				Thread(ThreadMainObject*object, bool start);						//!< Create the thread using a thread object. The thread needs to be started manually using the start() method if \b start is set false \param object Thread object to execute \param start Set true to execute immideately
+		/**/				Thread(ThreadMainObject&object, bool start);						//!< Create the thread using a thread object. The thread needs to be started manually using the start() method if \b start is set false \param object Thread object to execute \param start Set true to execute immideately
+		virtual				~Thread();
 	
-			void			create(ThreadMainObject*object,pMethod method, bool start);   		//!< Creates the thread. The thread needs to be started manually using the start() method if \b start is set false \param object Base object to execute \param method Method pointer to execute on the specified object or NULL to execute ThreadMain() \param start Set true to execute immideately
-			void			create(ThreadMainObject&object,pMethod method, bool start);		//!< Creates the thread (using NULL as parameter). The thread needs to be started manually using the start() method if \b start is set false \param object Base object to execute \param method Method pointer to execute on the specified object or NULL to execute ThreadMain()  \param start Set true to execute immideately
-			void			create(ThreadMainObject*object, bool start);						//!< Create the thread using a thread object. The thread needs to be started manually using the start() method if \b start is set false \param object Thread object to execute \param start Set true to execute immideately
-			void			create(ThreadMainObject&object, bool start);						//!< Create the thread using a thread object. The thread needs to be started manually using the start() method if \b start is set false \param object Thread object to execute \param start Set true to execute immideately
-			void			start();														//!< Starts the created thread
-	/*	  void				suspend();	  - pthread does not provide a suspend function
-			void			resume();*/
-			void			terminate();													//!< Terminates thread execution. A thread should rather return than self terminate
-			void			awaitCompletion(DWORD maxWaitMilliseconds=0xFFFFFFFF);												 //!< Waits until thread has returned. Do not call from the thread itself
-			bool			CheckAwaitCompletion(DWORD maxWaitMilliseconds=0xFFFFFFFF);
-			bool			isActive()	const;											//!< Query thread status \return true, if the thread is currently running
-			bool			isSelf();													   //!< Checks if the calling thread matches the internal handle of the local object
-			handle_t		getHandle()	const	{return handle;}
-	static	void*			id();															//!< Retrieves the thread id of the active thread
+		void				create(ThreadMainObject*object,pMethod method, bool start);   		//!< Creates the thread. The thread needs to be started manually using the start() method if \b start is set false \param object Base object to execute \param method Method pointer to execute on the specified object or NULL to execute ThreadMain() \param start Set true to execute immideately
+		void				create(ThreadMainObject&object,pMethod method, bool start);		//!< Creates the thread (using NULL as parameter). The thread needs to be started manually using the start() method if \b start is set false \param object Base object to execute \param method Method pointer to execute on the specified object or NULL to execute ThreadMain()  \param start Set true to execute immideately
+		void				create(ThreadMainObject*object, bool start);						//!< Create the thread using a thread object. The thread needs to be started manually using the start() method if \b start is set false \param object Thread object to execute \param start Set true to execute immideately
+		void				create(ThreadMainObject&object, bool start);						//!< Create the thread using a thread object. The thread needs to be started manually using the start() method if \b start is set false \param object Thread object to execute \param start Set true to execute immideately
+		void				start();														//!< Starts the created thread
+		inline void			Start()	{start();}
+		void				terminate();													//!< Terminates thread execution. A thread should rather return than self terminate
+		inline void			Terminate() {terminate();}
+		void				awaitCompletion(DWORD maxWaitMilliseconds=0xFFFFFFFF);												 //!< Waits until thread has returned. Do not call from the thread itself
+		bool				CheckAwaitCompletion(DWORD maxWaitMilliseconds=0xFFFFFFFF);
+		bool				isActive()	const;											//!< Query thread status \return true, if the thread is currently running
+		inline bool			IsActive() const {return isActive();}
+		bool				isSelf();													   //!< Checks if the calling thread matches the internal handle of the local object
+		inline bool			IsSelf() {return isSelf();}
+		handle_t			getHandle()	const	{return handle;}
+		handle_t			GetHandle() const {return handle;}
+		static void*		id();															//!< Retrieves the thread id of the active thread
+		static void*		GetID() {return id();}
 			
-	static  thread_handle_t	startAndForget(void (*func_pointer)(void*), void*parameter);	   //!< Creates and starts a new self-cleaning thread. No external holding structure necessary. \param func_pointer Function pointer to execute \param parameter Parameter handed to the function on execute
+		static  thread_handle_t	startAndForget(void (*func_pointer)(void*), void*parameter);	   //!< Creates and starts a new self-cleaning thread. No external holding structure necessary. \param func_pointer Function pointer to execute \param parameter Parameter handed to the function on execute
 	};
 	
 	class ThreadObject:public ThreadMainObject, protected Thread 	//! Abstract object passed to a thread handler instead of a thread function
