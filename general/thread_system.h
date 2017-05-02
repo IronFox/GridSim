@@ -181,10 +181,15 @@ namespace System
 		virtual				~ThreadObject()		{};
 			
 			using Thread::start;
+			using Thread::Start;
 			using Thread::isActive;
+			using Thread::IsActive;
 			using Thread::awaitCompletion;
+			using Thread::CheckAwaitCompletion;
 			using Thread::terminate;
+			using Thread::Terminate;
 			using Thread::getHandle;
+			using Thread::GetHandle;
 			
 	};
 	
