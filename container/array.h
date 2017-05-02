@@ -176,6 +176,10 @@ inline	bool		DeserializeObject(volatile ISerializable*object, ISerializable::ser
 						return const_cast<ISerializable*>(object)->Deserialize(in_stream,fixed_size);
 					}
 
+
+template <typename T>
+	class ArrayRef;
+
 /**
 	@brief Array with a fixed number of elements
 	FixedArray 
@@ -188,7 +192,16 @@ template <typename T, size_t Length, class Strategy=typename StrategySelector<T>
 		typedef std::array<T,Length>		Super;
 			
 		/**/					FixedArray()	{}
-		/**/					FixedArray(std::initializer_list<T> l):Super(l){}
+		/**/					FixedArray(std::initializer_list<T> l)
+		{
+			index_t at = 0;
+			for (auto i = l.begin(); i != l.end(); ++i)
+			{
+				if (at >= Length)
+					break;
+				Super::operator[](at++) = *i;
+			}
+		}
 		/**/					FixedArray(const Self&other):Super(other)	{}
 		/**/					FixedArray(Self&&other):Super(std::move(other))	{}
 		
@@ -274,6 +287,8 @@ template <typename T, size_t Length, class Strategy=typename StrategySelector<T>
 			return GetFixedSize(Super::data()) != 0;
 		}
 
+		constexpr size_t		GetContentSize() const {return sizeof(T)*Length;}
+
 		void					operator=(Self&&other)
 		{
 			adoptData(other);
@@ -282,14 +297,17 @@ template <typename T, size_t Length, class Strategy=typename StrategySelector<T>
 		{
 			Super::operator=(other);
 		}
+
+		void					operator=(const ArrayRef<const T>&other);
+
 		bool					operator==(const Self&other) const
 		{
-			return Super::operator==(other);
+			return std::equal(begin(),end(),other.begin());
 		}
 
 		bool					operator!=(const Self&other) const
 		{
-			return Super::operator!=(other);
+			return !operator==(other);
 		}
 
 		T&						operator[](index_t index)
@@ -301,6 +319,8 @@ template <typename T, size_t Length, class Strategy=typename StrategySelector<T>
 		{
 			return Super::operator[](index);
 		}
+
+		ArrayRef<T>				ToRef();
 	};
 
 
@@ -791,8 +811,8 @@ template <typename T>
 		{
 			if (IsEmpty())
 				return ArrayRef<T>();
-			start = vmin(start,elements-1);
-			count = vmin(count,elements-start);
+			start = std::min(start,elements-1);
+			count = std::min(count,elements-start);
 			return ArrayRef<T>(data+start,count);
 		}
 
@@ -800,11 +820,27 @@ template <typename T>
 		{
 			if (IsEmpty())
 				return ArrayRef<T>();
-			start = vmin(start,elements-1);
+			start = std::min(start,elements-1);
 			count_t count = elements-start;
 			return ArrayRef<T>(data+start,count);
 		}
 	};
+
+
+template <typename T, size_t Length, class Strategy>
+	void FixedArray<T,Length,Strategy>::operator=(const ArrayRef<const T>&other) 
+	{
+		ASSERT__(Length == other.GetLength());
+		for (index_t i = 0; i < Length; i++)
+			Super::operator[](i) = other[i];
+	}
+
+template <typename T, size_t Length, class Strategy>
+	ArrayRef<T>				FixedArray<T,Length,Strategy>::ToRef()
+	{
+		return ArrayRef<T>(data(),Length);
+	}
+
 
 
 /**

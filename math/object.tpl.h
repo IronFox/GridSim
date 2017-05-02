@@ -5693,8 +5693,11 @@ namespace ObjectMath
 					{
 						index_t off0 = offset - resolution;
 						//quadBuffer  << (UINT32)(off0 + (ix + 1)%resolution) << (UINT32)(off0 + ix) << (UINT32)(offset + ix) << (UINT32)(offset + (ix + 1)%resolution);
-						quadBuffer  << (UINT32)(ix*2)<< (UINT32)(ix*2+1)  
-									<< (UINT32)(((ix + 1)%resolution) * 2+1)<< (UINT32)(((ix + 1)%resolution) * 2);
+						quadBuffer << (UINT32)(ix * 2 + 1) 
+							<< (UINT32)(ix*2)
+							<< (UINT32)(((ix + 1) % resolution) * 2)
+							<< (UINT32)(((ix + 1)%resolution) * 2+1)
+							;
 					}
 				}
 
