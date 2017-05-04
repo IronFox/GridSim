@@ -1393,7 +1393,7 @@ namespace Math
 									{
 										p.x = x.Clamp(p.x);
 										p.y = y.Clamp(p.y);
-										p.z = y.Clamp(p.z);
+										p.z = z.Clamp(p.z);
 									}
 
 			/*!
