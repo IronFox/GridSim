@@ -54,6 +54,9 @@ namespace Except
 
 	bool	enterFatalPhase()
 	{
+		if (IsDebuggerPresent())
+			DebugBreak();
+
 		if (!fatal_mutex.tryLock())
 			return false;
 		if (fatal_occured)
