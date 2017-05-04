@@ -17,18 +17,18 @@ private:
 					workingDirectory;
 	bool			createWindow = true;
 
-	bool			Restart();
+	void			Restart();
 	void			Flush();
 public:
 	//bool			IsStarted() const {return isStarted;}	//deprecated. do not use. ever. use IsRunning() instead
-	bool			Start(const PathString&workingDirectory, const PathString&executablePath, const PathString&parametersWithoutExecutableName, bool createWindow=true);
+	void			Start(const PathString&workingDirectory, const PathString&executablePath, const PathString&parametersWithoutExecutableName, bool createWindow=true);
 
 	bool			TryResume(const PathString&workingDirectory, const PathString&executablePath);
 	/**
 	First checks whether a process with the specified executablePath is already running. Parameters cannot be checked reliably, so it is assumed they match.
 	If a process is found then the found process is copied to the local configuration.
 	*/
-	bool			ResumeOrStart(const PathString&workingDirectory, const PathString&executablePath, const PathString&parametersWithoutExecutableName, bool createWindow=true);
+	void			ResumeOrStart(const PathString&workingDirectory, const PathString&executablePath, const PathString&parametersWithoutExecutableName, bool createWindow=true);
 	/**
 	Checks whether or not the monitored process is still running. If not, it is restarted.
 	Can be called with high frequency. Will only actually check at most once per second

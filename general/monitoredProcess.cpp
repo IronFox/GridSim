@@ -117,33 +117,34 @@ bool		MonitoredProcess::TryResume(const PathString&workingDirectory, const PathS
 
 
 
-bool		MonitoredProcess::ResumeOrStart(const PathString&workingDirectory, const PathString&executablePath, const PathString&parametersWithoutExecutableName, bool createWindow/*=true*/)
+void		MonitoredProcess::ResumeOrStart(const PathString&workingDirectory, const PathString&executablePath, const PathString&parametersWithoutExecutableName, bool createWindow/*=true*/)
 {
-	return
-		TryResume(workingDirectory,executablePath)
-		||
-		Start(workingDirectory,executablePath,parameters, createWindow);
+	if (TryResume(workingDirectory,executablePath))
+		return;
+	Start(workingDirectory,executablePath,parameters, createWindow);
 }
 
 
-bool		MonitoredProcess::Start(const PathString&workingDirectory, const PathString&executablePath, const PathString&parametersWithoutExecutableName, bool createWindow)
+void		MonitoredProcess::Start(const PathString&workingDirectory, const PathString&executablePath, const PathString&parametersWithoutExecutableName, bool createWindow)
 {
 	Terminate();
 	FileSystem::Folder f(workingDirectory);
 	if (!f.IsValidLocation())
-		return false;
+		throw Except::IO::DriveAccess("Process Start: Chosen working directory '"+String(workingDirectory)+"' is invalid");
 	FileSystem::File found;
-	if (!f.FindFile(executablePath,found))
-		return false;
+	if (!f.FindFile(executablePath,found,false))
+		throw Except::IO::DriveAccess("Process Start: Chosen executable '"+String(executablePath)+"' does not exist");
+	if (!found.DoesExist())
+		throw Except::IO::DriveAccess("Process Start: Chosen executable '"+String(found.GetLocation())+"' does not exist");
 	parameters = '"'+FileSystem::ExtractFileNameExt(executablePath)+"\" "+parametersWithoutExecutableName;
 	this->executablePath = found.GetLocation();
 	this->workingDirectory = f.GetLocation();
 	this->createWindow = createWindow;
-	return Restart();
+	Restart();
 }
 
 
-bool	MonitoredProcess::Restart()
+void	MonitoredProcess::Restart()
 {
 	ASSERT__(!isStarted);
 	isStarted = true;
@@ -182,7 +183,8 @@ bool	MonitoredProcess::Restart()
 		flags |= CREATE_NO_WINDOW;
 			
 	BOOL rs = CreateProcessW(executablePath.c_str(),parameters.mutablePointer(),NULL,NULL,FALSE,flags,NULL,workingDirectory.c_str(),&infoIn,&infoOut);
-	return rs != 0;
+	if (rs == FALSE)
+		throw Except::IO::ParameterFault("Process Start: Windows refused to start process '"+String(executablePath)+"': "+System::GetLastErrorString());
 }
 
 
