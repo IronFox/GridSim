@@ -57,6 +57,8 @@ namespace Container
 			virtual				   ~BasicBuffer();
 			ArrayRef<T>				ToRef() {return ArrayRef<T>(pointer(),Count());}
 			ArrayRef<const T>		ToRef() const {return ArrayRef<const T>(pointer(),Count());}
+			ArrayRef<T>				SubRef(index_t start, count_t count=InvalidIndex) {if (start >= Count()) return ArrayRef<T>(); return ArrayRef<T>(pointer()+start,vmin(count, Count()-start));}
+			ArrayRef<const T>		SubRef(index_t start, count_t count=InvalidIndex) const {if (start >= Count()) return ArrayRef<const T>(); return ArrayRef<const T>(pointer()+start,vmin(count, Count()-start));}
 			Self&					operator=(const ArrayData<T>&array);
 			Self&					operator=(const Self&other);
 			Self&					operator=(std::initializer_list<T> items);
