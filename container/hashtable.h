@@ -219,7 +219,13 @@ template <class Carrier>
 											return raw+offset;
 										}
 		inline void						resize(size_t new_size);							//!< Resizes the hashtable to the specified size and remaps all table entries \param new_size New number of entries to use
-		inline void 					remove(Carrier*c);									//!< Removes the specified carrier from the table. Also reduces the size of the table if necessary. \param c Carrier to remove.
+		inline void 					remove(Carrier*c);									//!< Removes the specified carrier from the table. Invokes Tidy(). \param c Carrier to remove.
+
+		/**
+		Shrinks the local array if necessary
+		@return true if the local array was shrunk, false otherwise
+		*/
+		bool							Tidy();
 	
 	public:
 		virtual							~GenericHashBase()	{};
@@ -335,6 +341,12 @@ template <class K, class C, class Hash=StdHash, typename KeyStrategy = typename 
 			inline	void					visitAllEntries(const F&f)	const;	//!< Constant version of visitAllEntries(). Only copies or const references may be received by the functor.
 		template <typename F>
 			inline	void					VisitAllEntries(const F&f)	const		/** @copydoc visitAllEntries() */{visitAllEntries(f);}
+		/**
+		Visits both keys and associated values, and passes the (key,value) to @a f.
+		The callback function f must provide a boolean return value that shall be true, if the element should be preserved, false if it should be unset
+		*/
+		template <typename F>
+			inline	void					FilterEntries(const F&f);
 		template <class Entry>
 			inline	void					exportTo(ArrayData<K>&keys, ArrayData<Entry>&values)	const;	//!< Exports keys and values to the respective arrays. \param keys Reference to an array containing all associated keys after execution. \param values Reference to an object array containing all contained data elements after execution. \b keys and \b values will be of the same size with each entry of \b keys associated with the entry in \b values of the same index.
 		template <class Entry>
@@ -356,7 +368,7 @@ template <class K, class C, class Hash=StdHash, typename KeyStrategy = typename 
 		inline	DataType*					queryPointer(const K&ident);				//!< Requests the content associated with the specified key without setting it. The method returns a pointer to the element ot NULL if no such could be found. \param ident Key to look for \return Pointer to the object matching the specified key or NULL if no such could be found
 		inline	DataType*					QueryPointer(const K&ident)				/** @copydoc queryPointer() */{return queryPointer(ident);}
 		inline	const DataType*				queryPointer(const K&ident)		const;	//!< Requests the content associated with the specified key without setting it. The method returns a pointer to the element ot NULL if no such could be found. \param ident Key to look for \return Pointer to the object matching the specified key or NULL if no such could be found
-		inline	DataType*					QueryPointer(const K&ident)		const	/** @copydoc queryPointer() */{return queryPointer(ident);}
+		inline	const DataType*				QueryPointer(const K&ident)		const	/** @copydoc queryPointer() */{return queryPointer(ident);}
 		inline	bool						Owns(const DataType*data)	const;
 		inline	DataType*					setNew(const K&ident);					//!< Sets the specified key if it is currently not set and returns the pointer its content. If the key is already set then NULL is returned @param ident Key to set @return Pointer to the set content associated with the specified key, or NULL if the key was previously set
 		inline	DataType*					SetNew(const K&ident)						/** @copydoc setNew()*/ { return setNew(ident); }

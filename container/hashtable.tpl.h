@@ -351,8 +351,22 @@ template <class Carrier>
 			}
 		}
 		array[index].free();
-		if (--entries < 0.2*array.length() && array.length() > InitialSize)
-			resize(array.length()/2);
+		--entries;
+		Tidy();
+	}
+
+
+
+template <class Carrier>
+	inline bool					GenericHashBase<Carrier>::Tidy()
+	{
+		if (entries*5 >= array.length() || array.length() <= InitialSize)
+			return false;
+		count_t newSize = array.length() >> 1;
+		while (entries*5 < newSize && newSize > InitialSize)
+			newSize >>= 1;
+		resize(newSize);
+		return true;
 	}
 	
 
@@ -534,10 +548,26 @@ template <class K, class C, class Hash, class KeyStrategy, class DataStrategy>
 	template <typename F>
 		inline	void				GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::visitAllValues(const F&f)	const
 		{
-			index_t at = 0;
 			for (index_t i = 0; i < Base::array.length(); i++)
 				if (Base::array[i].occupied)
 					f(Base::array[i].cast());
+		}
+
+template <class K, class C, class Hash, class KeyStrategy, class DataStrategy>
+	template <typename F>
+		inline	void				GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::FilterEntries(const F&f)
+		{
+			bool anyChanged = false;
+			for (index_t i = 0; i < Base::array.length(); i++)
+				if (Base::array[i].occupied && !f((const K&)Base::array[i].key,Base::array[i].cast()))
+				{
+					Base::array[i].free();
+					--entries;
+					anyChanged = true;
+				}
+
+			if (anyChanged && !Base::Tidy())
+				Base::resize(array.Count());//will sort elements to where they should be
 		}
 
 template <class K, class C, class Hash, class KeyStrategy, class DataStrategy>
@@ -798,9 +828,9 @@ template <class K, class C, class Hash, class KeyStrategy, class DataStrategy>
 	}
 	
 template <class K, class C, class Hash, class KeyStrategy, class DataStrategy>
-    inline  const typename GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::DataType&           	GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::operator[](const K&ident)				const
+    inline  const typename GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::DataType&           	GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::operator[](const K&ident)	const
 	{
-		Carrier*c = Base::find(Hash::hash(ident),ident);
+		const Carrier*c = Base::find(Hash::hash(ident),ident);
 		if (!c->occupied)
 			throw Except::Program::MemberNotFound();
 		return c->cast();
