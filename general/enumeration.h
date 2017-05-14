@@ -1,7 +1,7 @@
 #ifndef enumerationH
 #define enumerationH
 
-
+#include "../global_root.h"
 
 
 #ifndef constexpr
