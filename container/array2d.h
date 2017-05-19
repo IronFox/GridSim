@@ -87,6 +87,7 @@ namespace Container
 				{}
 					
 			#if __ARRAY_RVALUE_REFERENCES__
+				Array2D(const Self&other):Super(other),w(other.w)	{}
 				Array2D(Self&&other):Super(std::move( other )),w(other.w)
 				{}
 				void operator=(Self&&other)
