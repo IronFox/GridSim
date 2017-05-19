@@ -469,6 +469,21 @@ template <class Carrier, class Hash>
 			return false;
 		}
 	
+template <class Carrier, class Hash>
+	inline	void				ExtendedHashBase<Carrier,Hash>::FilterKeys(const std::function<bool(const K&)>&f)
+	{
+		bool anyChanged = false;
+		for (index_t i = 0; i < Base::array.length(); i++)
+			if (Base::array[i].occupied && !f((const K&)Base::array[i].key))
+			{
+				Base::array[i].free();
+				--entries;
+				anyChanged = true;
+			}
+
+		if (anyChanged && !Base::Tidy())
+			Base::resize(array.Count());//will sort elements to where they should be
+	}
 
 
 template <class Carrier, class Hash>
@@ -515,6 +530,8 @@ template <class K, class Hash, class KeyStrategy>
 
 
 
+
+
 template <class K, class C, class Hash, class KeyStrategy, class DataStrategy>
 	template <typename F>
 		inline	void					GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::visitAllEntries(const F&f)
@@ -554,8 +571,7 @@ template <class K, class C, class Hash, class KeyStrategy, class DataStrategy>
 		}
 
 template <class K, class C, class Hash, class KeyStrategy, class DataStrategy>
-	template <typename F>
-		inline	void				GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::FilterEntries(const F&f)
+		inline	void				GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::FilterEntries(const std::function<bool(const K&, DataType&)>&f)
 		{
 			bool anyChanged = false;
 			for (index_t i = 0; i < Base::array.length(); i++)

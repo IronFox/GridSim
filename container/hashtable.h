@@ -4,7 +4,7 @@
 #include "../global_string.h"
 #include "../interface/hashable.h"
 
-
+#include <functional>
 
 
 
@@ -258,6 +258,8 @@ template <class Carrier, class Hash>
 	protected:
 			typedef GenericHashBase<Carrier>	Base;
 	public:
+		typedef typename Carrier::Key	K;
+
 		template <class Key>
 			inline	bool					isSet(const Key&ident)				const;	//!< Queries whether ot not data is associated with the specified key without setting it. \param ident Key to look for \return True if the specified key could be found, false otherwise.
 		template <class Key>
@@ -270,6 +272,11 @@ template <class Carrier, class Hash>
 			inline	void					visitAllKeys(const F&f) const;	//!< Passes each occupied element to the specified functor of type <tt>void f(const Key&)</tt>.
 		template <typename F>
 			inline	void					VisitAllKeys(const F&f) const				/** @copydoc visitAllKeys() */{visitAllKeys(f);}
+		/**
+		Visits all keys by invoking filter(key) for each contained key.
+		@param filter Callback function to call. The function must return true if the respective element should be preserved, false if it should be unset
+		*/
+		void								FilterKeys(const std::function<bool(const K&)>&filter);
 
 	};
 
@@ -342,11 +349,10 @@ template <class K, class C, class Hash=StdHash, typename KeyStrategy = typename 
 		template <typename F>
 			inline	void					VisitAllEntries(const F&f)	const		/** @copydoc visitAllEntries() */{visitAllEntries(f);}
 		/**
-		Visits both keys and associated values, and passes the (key,value) to @a f.
-		The callback function f must provide a boolean return value that shall be true, if the element should be preserved, false if it should be unset
+		Visits keys and values entries by invoking filter(key, value) for each contained entry.
+		@param filter Callback function to call. The function must return true if the respective element should be preserved, false if it should be unset
 		*/
-		template <typename F>
-			inline	void					FilterEntries(const F&f);
+		inline	void						FilterEntries(const std::function<bool(const K&, DataType&)>&f);
 		template <class Entry>
 			inline	void					exportTo(ArrayData<K>&keys, ArrayData<Entry>&values)	const;	//!< Exports keys and values to the respective arrays. \param keys Reference to an array containing all associated keys after execution. \param values Reference to an object array containing all contained data elements after execution. \b keys and \b values will be of the same size with each entry of \b keys associated with the entry in \b values of the same index.
 		template <class Entry>

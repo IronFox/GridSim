@@ -19,7 +19,7 @@ template <class K, class C, class Hash, class KeyStrategy>
 	}
 
 template <class K, class C, class Hash, class KeyStrategy>
-	GenericHashList<K,C,Hash,KeyStrategy>&	GenericHashList<K,C,Hash,KeyStrategy>::operator=(const GenericHashList<K,C,Hash,KeyStrategy>&other)
+	void	GenericHashList<K,C,Hash,KeyStrategy>::operator=(const ThisType&other)
 	{
 		clear();
 		for (typename List::const_iterator i = other.List::begin(); i != other.List::end(); ++i)
@@ -28,7 +28,6 @@ template <class K, class C, class Hash, class KeyStrategy>
 			if (other.Table::findKeyOf(i.getCarrier(),key))
 				append(key,SHIELDED(new C(**i)));
 		}
-		return *this;
 	}
 
 template <class K, class C, class Hash, class KeyStrategy> template <class Entry>

@@ -27,7 +27,7 @@ template <class K, class C, class Hash=StdHash, class KeyStrategy=typename Strat
 			
 											GenericHashList()	{};
 											GenericHashList(const ThisType&other);
-			ThisType&						operator=(const ThisType&other);
+			void							operator=(const ThisType&other);
 			
 
 		template <class Entry>
