@@ -257,12 +257,16 @@ namespace Template
 	template <>
 		inline int __fastcall strncmpi<char,char>(const char*string0,const char*string1, size_t length) throw()
 		{
+			if (length == 0)
+				return 0;
 			return ::strnicmp(string0,string1,length);
 		}
 		
 	template <>
 		inline int __fastcall strncmpi<wchar_t,wchar_t>(const wchar_t*string0,const wchar_t*string1, size_t length) throw()
 		{
+			if (length == 0)
+				return 0;
 			return ::wcsnicmp(string0,string1,length);
 		}
 
