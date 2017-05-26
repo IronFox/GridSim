@@ -124,8 +124,9 @@ namespace Key	//! Key code namespace
 		CapsLock	=	VK_CAPITAL,
 		
 
-
-
+		ColonSemicolon = VK_OEM_1,		//;:
+		BracketOpen = VK_OEM_4,		//[{
+		BracketClose = VK_OEM_6,		//]}
 		
 
 
@@ -157,10 +158,10 @@ namespace Key	//! Key code namespace
 		Y		=	89,					//!< Y character key
 		Z		=	90,					//!< Z character key
 
-		OE		=	192,				//!< O umlaut character key
-		AE		=	222,				//!< A umlaut character key
-		UE		=	186,				//!< U umlaut character key
-		SZ		=	219,				//!< Sz umlaut character key
+		OE		=	VK_OEM_3,				//!< O umlaut character key
+		AE		=	VK_OEM_7,				//!< A umlaut character key
+		UE		=	VK_OEM_1,				//!< U umlaut character key
+		SZ		=	VK_OEM_4,				//!< Sz umlaut character key
 
 		Alt		=	18,					//!< Alt key
 		PageUp	=	33,					//!< Page scroll up key
@@ -179,8 +180,8 @@ namespace Key	//! Key code namespace
 		NumLock =	0x90,				//!< Num lock key
 		Caret	=	220,				//!< Caret (^) symbol key
 		Mesh	=	191,				//!< Mesh (#)  symbol key
-		Comma	=	188,				//!< Comma key
-		Period	=	190,				//!< Period key
+		Comma	=	VK_OEM_COMMA,				//!< Comma key
+		Period	=	VK_OEM_PERIOD,				//!< Period key
 
 		N1		=	49,					//!< Digit 1 key
 		N2		=	50,					//!< Digit 2 key
