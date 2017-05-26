@@ -297,6 +297,13 @@ template <typename T>
 								return false;
 							return !Template::strncmp(reference+len-slen,str, slen);
 						}
+		inline bool		BeginsWith(const T*str) const
+						{
+							size_t slen = Template::strlen(str);
+							if (slen > len)
+								return false;
+							return !Template::strncmp(reference,str, slen);
+						}
 		inline T		GetFirstChar() const
 						{
 							if (!len)
