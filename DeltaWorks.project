@@ -9,4 +9,5 @@
 		<exclude find="displayConnection" />
 	</source>
 	<macro name="_CRT_SECURE_NO_WARNINGS" />
+	<macro name="_SCL_SECURE_NO_WARNINGS" />
 </project>
