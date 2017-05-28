@@ -58,23 +58,19 @@ namespace Package
 				return true;
 			}
 		
-			virtual	bool		Deserialize(IReadStream&in_stream, serial_size_t fixed_size)	override
+			virtual	void		Deserialize(IReadStream&in_stream, serial_size_t fixed_size)	override
 								{
 									if (fixed_size == EmbeddedSize)
 									{
 										serial_size_t len;
-										if (!in_stream.ReadSize(len))
-											return false;
-
+										in_stream.ReadSize(len);
 										fixed_size = len;
-										//cout << size<<endl;
 									}
 									if (fixed_size > max_size)
-										return false;
-									bool result = String::Deserialize(in_stream,fixed_size);
-									if (!result)
-										return false;
-									return IsValid(*this);
+										throw Except::Memory::SerializationFault(CLOCATION,"Deserialized string length "+String(fixed_size)+" exceeds maximum safe size "+String(max_size));
+									String::Deserialize(in_stream,fixed_size);
+									if (!IsValid(*this))
+										throw Except::Memory::SerializationFault(CLOCATION,"Deserialized string contains invalid characters");
 								}
 				
 				
@@ -100,18 +96,16 @@ namespace Package
 				return sizeof(T);
 			}
 				
-			virtual	bool					Serialize(IWriteStream&out_stream, bool export_size) const	override
+			virtual	void					Serialize(IWriteStream&out_stream, bool export_size) const	override
 			{
-				return 	out_stream.Write(&value,sizeof(value));
+				out_stream.Write(&value,sizeof(value));
 			}
 				
-			virtual	bool					Deserialize(IReadStream&in_stream, serial_size_t fixed_size)	override
+			virtual	void					Deserialize(IReadStream&in_stream, serial_size_t fixed_size)	override
 			{
-				//cout << "deserializing native type of size "<<sizeof(T)<<" and fixed_size parameter = "<<fixed_size<<endl;
 				if (fixed_size != EmbeddedSize && fixed_size != sizeof(T))
-					return false;
-				//cout << "attempting to parse"<<endl;
-				return	in_stream.Read(&value,sizeof(value));
+					throw Except::Memory::SerializationFault(CLOCATION,"Expected given fixed size "+String(fixed_size)+" to match size of local primitive "+String(sizeof(T)));
+				in_stream.Read(&value,sizeof(value));
 			}
 
 			virtual	bool					HasFixedSize() const	override
@@ -263,55 +257,46 @@ namespace Package
 			return sizeof(is_compressed) + uncompressed.GetSerialSize(export_size);
 		}
 			
-		virtual	bool			Serialize(IWriteStream&out_stream, bool export_size) const	override
+		virtual	void			Serialize(IWriteStream&out_stream, bool export_size) const	override
 		{
-			if (!out_stream.Write(&is_compressed,sizeof(is_compressed)))
-				return false;
+			out_stream.Write(&is_compressed,sizeof(is_compressed));
 			if (is_compressed)
 			{
 				UINT32 decompressed_size = UINT32(uncompressed.length());
-				return out_stream.WriteSize(uncompressed.length()) && compressed.Serialize(out_stream,export_size);
+				out_stream.WriteSize(uncompressed.length());
+				compressed.Serialize(out_stream,export_size);
+				return;
 			}
-			return uncompressed.Serialize(out_stream,export_size);
+			uncompressed.Serialize(out_stream,export_size);
 		}
 			
-		virtual	bool			Deserialize(IReadStream&in_stream, serial_size_t fixed_size)	override
+		virtual	void			Deserialize(IReadStream&in_stream, serial_size_t fixed_size)	override
 		{
-			if (!in_stream.Read(&is_compressed,sizeof(is_compressed)))
-				return false;
+			in_stream.Read(&is_compressed,sizeof(is_compressed));
 			if (fixed_size != EmbeddedSize)
 				fixed_size -= sizeof(is_compressed);
 			if (is_compressed)
 			{
 				serial_size_t	decompressed_size;
-				if (!in_stream.ReadSize(decompressed_size))
-					return false;
+				in_stream.ReadSize(decompressed_size);
 				if (fixed_size != EmbeddedSize)
 					fixed_size -= GetSerialSizeOfSize(decompressed_size);
-				if (!compressed.Deserialize(in_stream,fixed_size))
-					return false;
+				compressed.Deserialize(in_stream,fixed_size);
 				//cout << "extracted "<<compressed.GetContentSize()<<" compressed byte(s). uncompressed="<<decompressed_size<<endl;
 				uncompressed.setLength(decompressed_size);
 				serial_size_t result = (serial_size_t)BZ2::decompress(compressed.pointer(),compressed.GetContentSize(),uncompressed.mutablePointer(),decompressed_size);
 				if (result != decompressed_size)
-				{
-					if (TCP::verbose)
-						std::cout << "CompressedString::Deserialize(): decompression returned "<<result<<". expected "<<decompressed_size<<".ignoring package"<<std::endl;
-					return false;
-				}
+					throw Except::Memory::SerializationFault(CLOCATION,"Decompression returned "+String(result)+". Expected "+String(decompressed_size)+".ignoring package");
+
 				for (serial_size_t i = 0; i < decompressed_size; i++)
 				{
 					char c = uncompressed.get(i);
 					if (!isgraph(c) && !isspace(c))
-					{
-						if (TCP::verbose)
-							std::cout << "CompressedString::Deserialize(): encountered invalid character ("<<(int)c<<") at position "<<i<<"/"<<uncompressed.length()<<". ignoring package"<<std::endl;
-						return false;
-					}
+						throw Except::Memory::SerializationFault(CLOCATION,"Decompression string contains invalid character at location "+String(i));
 				}
-				return true;
+				return;
 			}
-			return uncompressed.Deserialize(in_stream,fixed_size);
+			uncompressed.Deserialize(in_stream,fixed_size);
 		}	
 			
 		void			set(const String&string)

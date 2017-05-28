@@ -6,4 +6,6 @@
 	#define interface struct
 #endif
 
+#include "../general/exception.h"
+
 #endif

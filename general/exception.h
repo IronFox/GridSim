@@ -450,9 +450,14 @@ namespace Except
 		 */
 		BEGIN_EXCEPTION_GROUP(Memory)
 			/**
-				@brief General memory fault
+			@brief General memory fault
 			 */
 			DEFINE_MEMBER_EXCEPTION(GeneralFault)
+
+			/**
+			Fault indicating some logic failure during serialization or deserialization
+			*/
+			DEFINE_MEMBER_EXCEPTION(SerializationFault)
 
 		END_EXCEPTION_GROUP
 
@@ -528,6 +533,7 @@ namespace Except
 			DEFINE_MEMBER_EXCEPTION(StructureCompositionFault)
 
 
+
 			/**
 				@brief Network (UDP, TCP, Pipe) related exceptions
 			*/
@@ -542,11 +548,15 @@ namespace Except
 				DEFINE_MEMBER_EXCEPTION(ConnectionFailed)
 
 				DEFINE_MEMBER_EXCEPTION(ConnectionLost)
+				DEFINE_MEMBER_EXCEPTION(ConnectionClosed)
+				DEFINE_MEMBER_EXCEPTION(ProtocolViolation)
 
 				/**
 				@brief Network data not formatted as expected
 				*/
 				DEFINE_MEMBER_EXCEPTION(DataFormatFault)
+				DEFINE_MEMBER_EXCEPTION(ReadLogicFault)
+				DEFINE_MEMBER_EXCEPTION(WriteLogicFault)
 
 
 			END_EXCEPTION_GROUP
@@ -589,6 +599,7 @@ namespace Except
 
 
 			END_EXCEPTION_GROUP
+
 
 		END_EXCEPTION_GROUP
 

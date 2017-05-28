@@ -139,41 +139,41 @@ inline	ISerializable::serial_size_t		GetSerialSizeOf(volatile const ISerializabl
 											}
 
 
-inline	bool		SerializeObject(const void*object, ISerializable::serial_size_t native_object_size, IWriteStream&out_stream, bool export_size)
+inline	void		SerializeObject(const void*object, ISerializable::serial_size_t native_object_size, IWriteStream&out_stream, bool export_size)
 					{
-						return out_stream.Write(object,native_object_size);
+						out_stream.Write(object,native_object_size);
 					}
-inline	bool		SerializeObject(const volatile void*object, ISerializable::serial_size_t native_object_size, IWriteStream&out_stream, bool export_size)
+inline	void		SerializeObject(const volatile void*object, ISerializable::serial_size_t native_object_size, IWriteStream&out_stream, bool export_size)
 					{
-						return out_stream.Write(object,native_object_size);
-					}
-
-inline	bool		SerializeObject(const ISerializable*object, ISerializable::serial_size_t native_object_size, IWriteStream&out_stream, bool export_size)
-					{
-						return object->Serialize(out_stream,export_size);
-					}
-inline	bool		SerializeObject(const volatile ISerializable*object, ISerializable::serial_size_t native_object_size, IWriteStream&out_stream, bool export_size)
-					{
-						return const_cast<const ISerializable*>(object)->Serialize(out_stream,export_size);
+						out_stream.Write(object,native_object_size);
 					}
 
+inline	void		SerializeObject(const ISerializable*object, ISerializable::serial_size_t native_object_size, IWriteStream&out_stream, bool export_size)
+					{
+						object->Serialize(out_stream,export_size);
+					}
+inline	void		SerializeObject(const volatile ISerializable*object, ISerializable::serial_size_t native_object_size, IWriteStream&out_stream, bool export_size)
+					{
+						const_cast<const ISerializable*>(object)->Serialize(out_stream,export_size);
+					}
 
-inline	bool		DeserializeObject(void*object, ISerializable::serial_size_t native_object_size, IReadStream&in_stream,ISerializable::serial_size_t fixed_size)
+
+inline	void		DeserializeObject(void*object, ISerializable::serial_size_t native_object_size, IReadStream&in_stream,ISerializable::serial_size_t fixed_size)
 					{
-						return in_stream.Read(object,native_object_size);
+						in_stream.Read(object,native_object_size);
 					}
-inline	bool		DeserializeObject(volatile void*object, ISerializable::serial_size_t native_object_size, IReadStream&in_stream,ISerializable::serial_size_t fixed_size)
+inline	void		DeserializeObject(volatile void*object, ISerializable::serial_size_t native_object_size, IReadStream&in_stream,ISerializable::serial_size_t fixed_size)
 					{
-						return in_stream.Read(object,native_object_size);
+						in_stream.Read(object,native_object_size);
 					}
 
-inline	bool		DeserializeObject(ISerializable*object, ISerializable::serial_size_t native_object_size, IReadStream&in_stream,ISerializable::serial_size_t fixed_size)
+inline	void		DeserializeObject(ISerializable*object, ISerializable::serial_size_t native_object_size, IReadStream&in_stream,ISerializable::serial_size_t fixed_size)
 					{
-						return object->Deserialize(in_stream,fixed_size);
+						object->Deserialize(in_stream,fixed_size);
 					}
-inline	bool		DeserializeObject(volatile ISerializable*object, ISerializable::serial_size_t native_object_size, IReadStream&in_stream,ISerializable::serial_size_t fixed_size)
+inline	void		DeserializeObject(volatile ISerializable*object, ISerializable::serial_size_t native_object_size, IReadStream&in_stream,ISerializable::serial_size_t fixed_size)
 					{
-						return const_cast<ISerializable*>(object)->Deserialize(in_stream,fixed_size);
+						const_cast<ISerializable*>(object)->Deserialize(in_stream,fixed_size);
 					}
 
 
@@ -260,26 +260,28 @@ template <typename T, size_t Length, class Strategy=typename StrategySelector<T>
 			return result;
 		}
 			
-		virtual	bool			Serialize(IWriteStream&out_stream, bool export_size) const	override
+		virtual	void			Serialize(IWriteStream&out_stream, bool export_size) const	override
 		{
 			if (!IsISerializable(Super::data()))
-				return out_stream.Write(Super::data(),sizeof(T)*Length);
+			{
+				out_stream.Write(Super::data(),sizeof(T)*Length);
+				return;
+			}
 	
 			for (Super::const_iterator i = Super::begin(); i != Super::end(); ++i)
-				if (!SerializeObject(&*i,sizeof(T),out_stream,true))
-					return false;
-			return true;
+				SerializeObject(&*i,sizeof(T),out_stream,true);
 		}
 			
-		virtual	bool			Deserialize(IReadStream&in_stream, serial_size_t)	override
+		virtual	void			Deserialize(IReadStream&in_stream, serial_size_t)	override
 		{
 			if (!IsISerializable(Super::data()))
-				return in_stream.Read(Super::data(),sizeof(T)*Length);
+			{
+				in_stream.Read(Super::data(),sizeof(T)*Length);
+				return;
+			}
 	
 			for (Super::iterator i = Super::begin(); i != Super::end(); ++i)
-				if (!DeserializeObject(&*i,sizeof(T),in_stream,EmbeddedSize))
-					return false;
-			return true;
+				DeserializeObject(&*i,sizeof(T),in_stream,EmbeddedSize);
 		}	
 		
 		virtual bool			HasFixedSize() const override
@@ -999,32 +1001,27 @@ template <class C>
 								return result;
 							}
 
-		virtual	bool		Serialize(IWriteStream&out_stream, bool export_size) const	override
+		virtual	void		Serialize(IWriteStream&out_stream, bool export_size) const	override
 							{
 								if (export_size || (IsISerializable(data) && !FixedSizeSerializable<C>::GetSize()))
-									if (!out_stream.WriteSize(elements))
-										return false;
+									out_stream.WriteSize(elements);
 								if (!IsISerializable(data))
 								{
-									return out_stream.Write(data,(serial_size_t)Super::GetContentSize());
+									out_stream.Write(data,(serial_size_t)Super::GetContentSize());
+									return;
 								}
 
 								for (index_t i = 0; i < elements; i++)
-								{
-									if (!SerializeObject(data+i,sizeof(C),out_stream,true))
-										return false;
-								}
-								return true;
+									SerializeObject(data+i,sizeof(C),out_stream,true);
 							}
 
-		virtual	bool		Deserialize(IReadStream&in_stream, serial_size_t fixed_size)	override
+		virtual	void		Deserialize(IReadStream&in_stream, serial_size_t fixed_size)	override
 							{
 								count_t size;
 								if (fixed_size == EmbeddedSize)
 								{
 									//cout << "reading embedded size "<<endl;
-									if (!in_stream.ReadSize(size))
-										return false;
+									in_stream.ReadSize(size);
 									//cout << "deciphered "<<size<<" elements"<<endl;
 								}
 								else
@@ -1040,8 +1037,7 @@ template <class C>
 											size = (count_t)(fixed_size/fixedElementSize);
 										}
 										else
-											if (!in_stream.ReadSize(size))
-												return false;
+											in_stream.ReadSize(size);
 									}
 						
 										//FATAL__("trying to Deserialize an array containing serializable objects from a fixed size stream data section not including any element count");
@@ -1051,20 +1047,13 @@ template <class C>
 								if (!IsISerializable(data))
 								{
 									//cout << "data is not of i-serializable type. reading plain"<<endl;
-									return in_stream.Read(data,(serial_size_t)Super::GetContentSize());
+									in_stream.Read(data,(serial_size_t)Super::GetContentSize());
+									return;
 								}
 
 								//cout << "data is of i-serializable type. invoking deserializers"<<endl;
 								for (index_t i = 0; i < elements; i++)
-								{
-									if (!DeserializeObject(data+i,sizeof(C),in_stream,EmbeddedSize))
-									{
-										//cout << "deserialization of element "<<i<<" with embedded size failed"<<endl;
-										return false;
-									}
-								}
-
-								return true;
+									DeserializeObject(data+i,sizeof(C),in_stream,EmbeddedSize);
 							}
 	};
 

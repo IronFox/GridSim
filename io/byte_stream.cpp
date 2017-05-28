@@ -52,13 +52,12 @@ void ByteStream::pushZero(size_t size)
 
 
 
-bool ByteStream::_GetData(void*pntr, size_t size)
+void ByteStream::_GetData(void*pntr, size_t size)
 {
     if (current+size > end)
-        return false;
+        throw Except::Memory::SerializationFault(CLOCATION,"Reached end of stream");
     memcpy(pntr,current,size);
     current+=size;
-    return true;
 }
 
 ByteStream::ByteStream(size_t len):local(true)
@@ -129,11 +128,10 @@ size_t    ByteStream::GetStorageSize()	const
     return end-begin;
 }
 
-bool ByteReadStream::_GetData(void*pntr, size_t size)
+void ByteReadStream::_GetData(void*pntr, size_t size)
 {
 	if (current + size > end)
-		return false;
+        throw Except::Memory::SerializationFault(CLOCATION,"Reached end of stream");
 	memcpy(pntr, current, size);
 	current += size;
-	return true;
 }

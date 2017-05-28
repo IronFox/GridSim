@@ -133,14 +133,14 @@ namespace TCP
 
 
 
-	bool RootChannel::SendObject(Destination&target, const ISerializable&object, unsigned minUserLevel)
+	void RootChannel::SendObject(Destination&target, const ISerializable&object, unsigned minUserLevel)
 	{
-		return target.SendObject(id,object,minUserLevel);
+		target.SendObject(id,object,minUserLevel);
 	}
 
-	bool RootChannel::SendObject(Destination&target, const PPeer&exclude, const ISerializable&object, unsigned minUserLevel)
+	void RootChannel::SendObject(Destination&target, const PPeer&exclude, const ISerializable&object, unsigned minUserLevel)
 	{
-		return target.SendObject(id,exclude,object,minUserLevel);
+		target.SendObject(id,exclude,object,minUserLevel);
 	}
 
 
@@ -509,20 +509,22 @@ namespace TCP
 			if (verbose)
 				std::cout << "Peer::ThreadMain(): deserializing"<<std::endl;
 				
-			PSerializableObject object = receiver->Deserialize(stream,stream.GetRemainingBytes(),sender);
-			if (object && stream.GetRemainingBytes()==0)
+			try
 			{
+				PSerializableObject object = receiver->Deserialize(stream,stream.GetRemainingBytes(),sender);
+				if (stream.GetRemainingBytes()!=0)
+					throw Except::Memory::SerializationFault(CLOCATION,"Object deserialization did not consume all available data. "+String(stream.GetRemainingBytes())+" byte(s) left in stream");
 				if (verbose)
 					std::cout << "Peer::ThreadMain(): deserialization succeeded, dispatching object"<<std::endl;
 				HandleObject(receiver,sender,object);
 			}
-			else
+			catch (const std::exception&ex)
 			{
 				if (onDeserializationFailed)
-					onDeserializationFailed(channelID,sender);
+					onDeserializationFailed(channelID,sender,ex.what());
 				#ifdef _DEBUG
 					else if (!sender.destroyed)
-						FATAL__("deserialization failed");	//for now, this is appropriate
+						FATAL__("deserialization failed: "+String(ex.what()));	//for now, this is appropriate
 				#endif
 			}
 			//elif (verbose)
@@ -817,27 +819,15 @@ namespace TCP
 		return false;
 	}
 	
-	bool	Peer::sendData(UINT32 channel_id, const void*data, size_t size)
+	void	Peer::SendData(UINT32 channel_id, const void*data, size_t size)
 	{
 		if (socketAccess->IsClosed())
-			return false;
-		return writer.Write(channel_id,data,size);
-		//UINT32 size32 = (UINT32)size;
-		//synchronized(write_mutex)
-		//{
-
-		//	if (socketAccess->Write(&channel_id,4)!=4)
-		//		return false;
-		//	if (socketAccess->Write(&size32,4)!=4)
-		//		return false;
-		//	if (socketAccess->Write(data,size)!=(int)size)
-		//		return false;
-		//}
-		//return true;
+			throw Except::IO::Network::ConnectionLost(CLOCATION,"Socket access is closed");
+		writer.Write(channel_id,data,size);
 	}
 	
 	
-	bool	Peer::netRead(BYTE*current, size_t size)
+	void	Peer::NetRead(BYTE*current, size_t size)
 	{
 		if (verbose)
 			std::cout << "Peer::netRead() enter: size="<<size<<std::endl;
@@ -847,58 +837,27 @@ namespace TCP
 			int size = socketAccess->Read(current,end-current);
 			if (size < 0)
 			{
-				writer.Terminate();
-				if (socketAccess->IsClosed())
-				{
-					if (verbose)
-						std::cout << "Peer::netRead() exit: socket handle reset by remote operation"<<std::endl;
-					return false;
-				}
-				socketAccess->CloseSocket();
-				SetError("Connection lost to "+ToString()+" ("+lastSocketError()+")");
-				owner->HandleEvent(Event::ConnectionLost,*this);
-				if (!destroyed)
-					owner->OnDisconnect(this,Event::ConnectionLost);
-				if (verbose)
-					std::cout << "Peer::netRead() exit: invalid size value received: "<<size<<std::endl;
-				return false;
+				throw Except::IO::Network::ConnectionLost(CLOCATION,"SocketAccess::Read() returned "+String(size));
 			}
 			if (size == 0)
 			{
-				writer.Terminate();
-				if (socketAccess->IsClosed())
-				{
-					if (verbose)
-						std::cout << "Peer::netRead() exit: socket handle reset by remote operation"<<std::endl;
-					return false;
-				}
-				socketAccess->CloseSocket();
-				SetError("");
-				owner->HandleEvent(Event::ConnectionClosed,*this);
-				if (!destroyed)
-					owner->OnDisconnect(this, Event::ConnectionClosed);
-				if (verbose)
-					std::cout << "Peer::netRead() exit: 0 size value received"<<std::endl;
-				return false;
+				throw Except::IO::Network::ConnectionClosed(CLOCATION,"SocketAccess::Read() returned "+String(size));
 			}
 			current += size;
 			lastReceivedPackage = timer.Now();
 		}
 		if (verbose)
 			std::cout << "Peer::netRead() exit"<<std::endl;
-		return true;
 	}
 
-	/*virtual override*/ bool	Peer::Read(void*target, serial_size_t size)
+	/*virtual override*/ void	Peer::Read(void*target, serial_size_t size)
 	{
 		if (!size)
-			return true;
+			return;
 		if (size > remaining_size)
-			return false;
-		if (!netRead((BYTE*)target,size))
-			return false;
+			throw Except::IO::Network::ReadLogicFault(CLOCATION,"Trying to read more data from stream ("+String(size)+"), than provided by remaining package data ("+String(remaining_size)+")");
+		NetRead((BYTE*)target,size);
 		remaining_size -= size;
-		return true;
 	}
 
 	/*virtual override*/ serial_size_t				Peer::GetRemainingBytes() const
@@ -932,14 +891,13 @@ namespace TCP
 	//}
 	
 	static BYTE	dump_buffer[2048];
-	bool	Peer::SendObject(UINT32 channel_id, const ISerializable&object, unsigned minUserLevel)
+	void	Peer::SendObject(UINT32 channel_id, const ISerializable&object, unsigned minUserLevel)
 	{
 		if (this->userLevel < minUserLevel)
-			return false;
+			return;
 		if (writer.connectionLost)
-			return false;
+			throw Except::IO::Network::ConnectionLost(CLOCATION);
 		writer.Write(channel_id,object);
-		return !writer.connectionLost;
 	}
 
 
@@ -1058,68 +1016,67 @@ namespace TCP
 			return true;
 		}
 	}
+
+	void	Peer::CloseWriterDown(Event::event_t ev, const String&errorMessage)
+	{
+		writer.Terminate();
+		if (!socketAccess->IsClosed())
+		{
+			socketAccess->CloseSocket();
+			SetError(errorMessage);
+			owner->HandleEvent(ev,*this);
+			if (!destroyed)
+				owner->OnDisconnect(this, ev);
+		}
+	}
 	
 	void	Peer::ThreadMain()
 	{
 		if (verbose)
 			std::cout << "Peer::ThreadMain() enter"<<std::endl;
 		AssertIsSelf();	//this should really be implied. as it turns out due to whatnot kind of errors, sometimes it hicks up
-		while (socketAccess && !socketAccess->IsClosed())
+		try
 		{
-			UINT32	header[2];
-			if (!netRead((BYTE*)header,sizeof(header)))
+			while (socketAccess && !socketAccess->IsClosed())
 			{
+				UINT32	header[2];
+				NetRead((BYTE*)header,sizeof(header));
 				if (verbose)
-					if (socketAccess->IsClosed())
-						std::cout << "Peer::ThreadMain() exit: socket handle reset by remote operation"<<std::endl;
-					else
-						std::cout << "Peer::ThreadMain() exit: netRead() invocation failed"<<std::endl;
-				return;
-			}
-			if (verbose)
-				std::cout << "Peer::ThreadMain(): received header: channel="<<header[0]<<" size="<<header[1]<<std::endl;
-			//lastReceivedPackage = timer.Now();
-			remaining_size = (serial_size_t)header[1];
-			if (remaining_size > owner->GetSafePackageSize())
-			{
-				writer.Terminate();
-				if (socketAccess->IsClosed())
+					std::cout << "Peer::ThreadMain(): received header: channel="<<header[0]<<" size="<<header[1]<<std::endl;
+				//lastReceivedPackage = timer.Now();
+				remaining_size = (serial_size_t)header[1];
+				if (remaining_size > owner->GetSafePackageSize())
 				{
-					if (verbose)
-						std::cout << "Peer::ThreadMain() exit: socket handle reset by remote operation"<<std::endl;
-					return;
+					throw Except::IO::Network::ProtocolViolation("Maximum safe package size ("+String(owner->GetSafePackageSize()/1024)+"KB) exceeded by "+String((remaining_size-owner->GetSafePackageSize())/1024)+"KB");
 				}
-				socketAccess->CloseSocket();
-				DBG_FATAL__("Maximum safe package size ("+String(owner->GetSafePackageSize()/1024)+"KB) exceeded by "+String((remaining_size-owner->GetSafePackageSize())/1024)+"KB");
-				SetError("Maximum safe package size ("+String(owner->GetSafePackageSize()/1024)+"KB) exceeded by "+String((remaining_size-owner->GetSafePackageSize())/1024)+"KB");
-				owner->HandleEvent(Event::ConnectionClosed,*this);
-				owner->OnDisconnect(this,Event::ConnectionClosed);
-				if (verbose)
-					std::cout << "Peer::ThreadMain() exit: received invalid package size"<<std::endl;
-				return;
-			}
-			UINT32	channel_index = header[0];
-			//std::cout << "has package "<<channel_index<<"/"<<remaining_size<<std::endl;
+				UINT32	channel_index = header[0];
+				//std::cout << "has package "<<channel_index<<"/"<<remaining_size<<std::endl;
 
-			if (remaining_size || !owner->HandleIncomingSignal(channel_index,*this))
-			{
-				owner->HandleIncomingPackage(channel_index,*this,*this);
-				while (remaining_size > sizeof(dump_buffer))
-					if (netRead(dump_buffer,sizeof(dump_buffer)))
-						remaining_size -= sizeof(dump_buffer);
-					else
-					{
-						if (verbose)
-							std::cout << "Peer::ThreadMain() exit: failed to read ignored appendix data of package"<<std::endl;
-						return;
-					}
-				if (remaining_size && !netRead(dump_buffer,remaining_size))
+				if (remaining_size || !owner->HandleIncomingSignal(channel_index,*this))
 				{
-					if (verbose)
-						std::cout << "Peer::ThreadMain() exit: failed to read ignored appendix data of package"<<std::endl;
-					return;
+					owner->HandleIncomingPackage(channel_index,*this,*this);
+					while (remaining_size > sizeof(dump_buffer))
+						NetRead(dump_buffer,sizeof(dump_buffer));
 				}
 			}
+		}
+		catch (const Except::IO::Network::ConnectionClosed&ex)
+		{
+			CloseWriterDown(Event::ConnectionClosed,"");
+		}
+		catch (const Except::IO::Network::ConnectionLost&ex)
+		{
+			CloseWriterDown(Event::ConnectionLost,"Connection lost to "+ToString()+" ("+lastSocketError()+")");
+		}
+		catch (const Except::IO::Network::ProtocolViolation&ex)
+		{
+			CloseWriterDown(Event::ConnectionLost,ex.what());
+		}
+		catch (const std::exception&ex)
+		{
+			if (verbose)
+				std::cout << "Peer::ThreadMain() exit: NetRead() exception caught: "<<ex.what()<<std::endl;
+			return;
 		}
 		if (verbose)
 			std::cout << "Peer::ThreadMain() exit: socket handle reset by remote operation"<<std::endl;
@@ -1576,7 +1533,11 @@ namespace TCP
 					continue;	//we assume this case is already handled
 				if (peer->userLevel < minUserLevel)
 					continue;
-				if (!peer->sendData(channel,object.pointer(),object.size()))
+				try
+				{
+					peer->SendData(channel,object.pointer(),object.size());
+				}
+				catch (const std::exception&ex)
 				{
 					clientMutex.EndRead();
 					if (verbose)
@@ -1629,7 +1590,11 @@ namespace TCP
 					continue;	//we assume this case is already handled
 				if (peer->userLevel < minUserLevel)
 					continue;
-				if (!peer->sendData(channel,object.pointer(),object.size()))
+				try
+				{
+					peer->SendData(channel,object.pointer(),object.size());
+				}
+				catch (const std::exception&ex)
 				{
 					clientMutex.EndRead();
 					if (verbose)
@@ -1666,7 +1631,7 @@ namespace TCP
 		}
 	}
 	
-	bool		Server::SendObject(UINT32 channel, const ISerializable&object, unsigned minUserLevel)
+	void		Server::SendObject(UINT32 channel, const ISerializable&object, unsigned minUserLevel)
 	{
 		if (verbose)
 			std::cout << "Server::sendObject() enter: channel="<<channel<<std::endl;
@@ -1675,30 +1640,18 @@ namespace TCP
 		{
 			if (verbose)
 				std::cout << "Server::sendObject() exit: service is being shut down"<<std::endl;
-			return false;
+			return;
 		}
-		serial_size_t size = object.GetSerialSize(false);
+		const serial_size_t size = object.GetSerialSize(false);
 		Array<BYTE>		out_buffer(size);
-		if (!SerializeToMemory(object,out_buffer.pointer(),size,false))
-		{
-			#ifdef _DEBUG
-				Array<BYTE>	testBuffer(10000000);
-				ISerializable::serial_size_t rs = SerializeToMemory(object,testBuffer.pointer(),(serial_size_t)testBuffer.GetContentSize(),false);
-				if (rs)
-				{
-					FATAL__("Failed to serialize data structure on channel "+String(channel)+". Expected serial size "+String(size)+" but serialized to "+String(rs));
-				}
-				else
-					FATAL__("Failed to serialize data structure on channel "+String(channel));
-			#endif
-			return false;
-		}
+		serial_size_t written=0;
+		SerializeToMemory(object,out_buffer.pointer(),size,false,&written);
+		if (written != size)
+			throw Except::Memory::SerializationFault(CLOCATION,"Serializable object actually wrote "+String(written)+" bytes. GetSerialSize() returned "+size);
 		SendSerializedObject(channel,out_buffer,minUserLevel);
-		
-		return true;
 	}
 	
-	bool		Server::SendObject(UINT32 channel, const PPeer&exclude, const ISerializable&object, unsigned minUserLevel)
+	void		Server::SendObject(UINT32 channel, const PPeer&exclude, const ISerializable&object, unsigned minUserLevel)
 	{
 		if (verbose)
 			std::cout << "Server::sendObject() enter: channel="<<channel<<", exclude="<<exclude->ToString()<<std::endl;
@@ -1706,16 +1659,15 @@ namespace TCP
 		{
 			if (verbose)
 				std::cout << "Server::sendObject() exit: service is being shut down"<<std::endl;
-			return false;
+			return;
 		}
-		serial_size_t size = object.GetSerialSize(false);
+		const serial_size_t size = object.GetSerialSize(false);
 		Array<BYTE>		out_buffer(size);
-		if (!SerializeToMemory(object,out_buffer.pointer(),size,false))
-			return false;
-
+		serial_size_t written=0;
+		SerializeToMemory(object,out_buffer.pointer(),size,false,&written);
+		if (written != size)
+			throw Except::Memory::SerializationFault(CLOCATION,"Serializable object actually wrote "+String(written)+" bytes. GetSerialSize() returned "+size);
 		SendSerializedObject(channel, exclude,out_buffer,minUserLevel);
-		
-		return true;
 	}
 
 
