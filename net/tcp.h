@@ -1156,7 +1156,9 @@ namespace TCP
 		ConnectionAttempt	attempt;
 		bool				is_connected;	//!< True if the client has an active connection to a server
 		mutable std::recursive_mutex	connectionLock;
-		String				attemptHost;	//!< Host passed during the last connection attempt. Protected by connectionLock
+
+		mutable SpinLock	attemptHostCopyLock;
+		String				attemptHostCopy;	//!< Host passed during the last connection attempt. Protected by connectionLock
 	public:
 					
 		/**/				Client():Peer(this),is_connected(false),attempt(this,this)

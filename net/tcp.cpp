@@ -720,9 +720,9 @@ namespace TCP
 		if (this->addressLength == 0)
 		{
 			String copy;
-			connectionLock.lock();
-			copy = attemptHost;
-			connectionLock.unlock();
+			attemptHostCopyLock.lock();
+			copy = attemptHostCopy;
+			attemptHostCopyLock.unlock();
 			if (!includePort)
 			{
 				index_t at = copy.GetIndexOf(':');
@@ -755,7 +755,9 @@ namespace TCP
 	{
 		connectionLock.lock();
 		ASSERT__(!IsSelf());
-		attemptHost = url;
+		attemptHostCopyLock.lock();
+		attemptHostCopy = url;
+		attemptHostCopyLock.unlock();
 		if (attempt.IsRunning())
 		{
 			if (!attempt.IsDone())
