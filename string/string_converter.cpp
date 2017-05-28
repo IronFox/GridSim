@@ -1040,11 +1040,13 @@ bool convertToKey(const char*string, Key::Name*Out)
 bool convertToKey(const char*string, size_t length, Key::Name*Out)
 {
     for (unsigned i = 0; i < ARRAYSIZE(K_ID); i++)
-        if (!strncmpi(K_ID[i].name,string,length))
+	{
+        if (!strncmpi(K_ID[i].name,string,length) && K_ID[i].name[length] == 0)
         {
             (*Out) = K_ID[i].index;
             return true;
         }
+	}
     return false;
 }
 
@@ -1419,26 +1421,14 @@ bool convertToBool(const char*string, size_t length, bool*OutBool)
 
 
 
-bool convertToKey(const char*string, Key::Name&Out)
+bool convertToKey(const char*string, Key::Name&out)
 {
-    for (unsigned i = 0; i < ARRAYSIZE(K_ID); i++)
-        if (!strcmpi(K_ID[i].name,string))
-        {
-            Out = K_ID[i].index;
-            return true;
-        }
-    return false;
+	return convertToKey(string,&out);
 }
 
-bool convertToKey(const char*string, size_t length, Key::Name&Out)
+bool convertToKey(const char*string, size_t length, Key::Name&out)
 {
-    for (unsigned i = 0; i < ARRAYSIZE(K_ID); i++)
-        if (!strncmpi(K_ID[i].name,string,length))
-        {
-            Out = K_ID[i].index;
-            return true;
-        }
-    return false;
+	return convertToKey(string,length,&out);
 }
 
 bool convertToLong(const char*string, long&OutInt)
