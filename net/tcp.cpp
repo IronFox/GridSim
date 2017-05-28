@@ -898,7 +898,7 @@ namespace TCP
 		if (this->userLevel < minUserLevel)
 			return;
 		if (writer.connectionLost)
-			throw Except::IO::Network::ConnectionLost(CLOCATION);
+			return;
 		writer.Write(channel_id,object);
 	}
 
