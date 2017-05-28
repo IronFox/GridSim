@@ -36,61 +36,57 @@ template <>
 interface IReadStream
 {
 protected:
-	virtual			~IReadStream()	{};
+	virtual						~IReadStream()	{};
 public:
-	virtual	bool				Read(void*target_data, serial_size_t size)=0;	//!< Loads a chunk of binary data from the stream @param target_data Pointer to the memory section that read data should be written to @param size Number of bytes that should be read @return true if the requested amount of bytes could be read from the stream, false otherwise
-	virtual bool				Read(volatile void*data, serial_size_t size)	{return Read(const_cast<void*>(data),size);}
+	virtual	void				Read(void*target_data, serial_size_t size)=0;	//!< Loads a chunk of binary data from the stream @param target_data Pointer to the memory section that read data should be written to @param size Number of bytes that should be read @return true if the requested amount of bytes could be read from the stream, false otherwise
+	virtual void				Read(volatile void*data, serial_size_t size)	{Read(const_cast<void*>(data),size);}
 	virtual serial_size_t		GetRemainingBytes()	const = 0;
 
 
 	template <typename T>
-		bool					ReadPrimitive(T&element)
+		void					ReadPrimitive(T&element)
 		{
-			return Read(&element,(serial_size_t)sizeof(element));
+			Read(&element,(serial_size_t)sizeof(element));
 		}
 	template <typename T>
-		bool					ReadPrimitives(T*elements, count_t num_elements)
+		void					ReadPrimitives(T*elements, count_t num_elements)
 		{
 			#ifdef _M_X64
 				ASSERT_LESS__(sizeof(elements) * num_elements, 0x100000000ULL);
 			#endif
-			return Read(elements, (serial_size_t)(sizeof(T)*num_elements));
+			Read(elements, (serial_size_t)(sizeof(T)*num_elements));
 		}
 	template <typename T>
-		bool					ReadSize(T&sizeOut)	//! Reads the content of a size variable in little endian 
+		void					ReadSize(T&sizeOut)	//! Reads the content of a size variable in little endian 
 		{
 			BYTE b[4];
-			if (!Read(b,1))
-				return false;
+			Read(b,1);
 			BYTE flags = b[0] & 0xC0;
 
 			switch (flags)
 			{
 				case 0:
 					sizeOut = b[0];
-					return true;
+					return;
 				break;
 				case 0x40:
-					if (!Read(b+1,1))
-						return false;
+					Read(b+1,1);
 					sizeOut = (((T)(b[0] & 0x3F)) << 8) | b[1];
-					return true;
+					return;
 				break;
 				case 0x80:
-					if (!Read(b+1,2))
-						return false;
+					Read(b+1,2);
 					sizeOut = (((T)(b[0] & 0x3F)) << 16) | (((T)b[1])<<8) | (((T)b[2]));
-					return true;
+					return;
 				break;
 				case 0xC0:
-					if (!Read(b+1,3))
-						return false;
+					Read(b+1,3);
 					sizeOut = (((T)(b[0] & 0x3F)) << 24) | (((T)b[1])<<16) | (((T)b[2])<<8) | (((T)b[3]));
-					return true;
+					return;
 				break;
 				default:
-					FATAL__("Logical issue");
-					return false;
+					FATAL__("Logical issue");	//this should be impossible due to the mask above
+					return;
 			}
 		}
 };
@@ -99,9 +95,9 @@ public:
 
 
 /*!
-	@brief Binary memory section in-stream
+@brief Binary memory section in-stream
 	
-	MemReadStream allows stream reading from a memory section. MemReadStream does not delete any assigned data on destruction.
+MemReadStream allows stream reading from a memory section. MemReadStream does not delete any assigned data on destruction.
 */
 class MemReadStream: public IReadStream
 {
@@ -126,13 +122,12 @@ public:
 
 	serial_size_t	GetRemainingBytes() const override {return end - field;}
 					
-	bool			Read(void*target_data, serial_size_t size)	override
+	void			Read(void*target_data, serial_size_t size)	override
 					{
 						if (field+size > end)
-							return false;
+							throw Except::Memory::SerializationFault(CLOCATION, "Stream reached end");
 						memcpy(target_data,field,size);
 						field+=size;
-						return true;
 					}
 };
 

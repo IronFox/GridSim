@@ -4,6 +4,7 @@
 #include "common.h"
 
 
+
 template <bool LocalIsLittleEndian>
 	inline serial_size_t	encodeLittleEndian(serial_size_t size)
 	{
@@ -87,67 +88,70 @@ class VTableAssertion<true>
 #define OBJECT_HAS_VTABLE(type) HasVTable<type>::Value
 
 /*!
-	@brief Generic data output stream
+@brief Generic data output stream
 	
-	Derivatives of IOutStream provide an interface to write blocks of data. Such a stream could (for instance) be a file, tcp stream, or pipe.
+Derivatives of IOutStream provide an interface to write blocks of data. Such a stream could (for instance) be a file, tcp stream, or pipe.
 */
 interface IWriteStream
 {
 protected:
 	virtual			~IWriteStream()	{};
 public:
-	virtual	bool	Write(const void*data, serial_size_t size)=0;	//!< Writes a chunk of binary data to the stream @param data Pointer to the memory section that should be written @param size Number of bytes that should be written @return true if the specified amount of bytes could be written to the stream, false otherwise
-	virtual bool	Write(const volatile void*data, serial_size_t size)	{return Write(const_cast<const void*>(data),size);}
+	virtual	void	Write(const void*data, serial_size_t size)=0;	//!< Writes a chunk of binary data to the stream @param data Pointer to the memory section that should be written @param size Number of bytes that should be written @return true if the specified amount of bytes could be written to the stream, false otherwise
+	virtual void	Write(const volatile void*data, serial_size_t size)	{Write(const_cast<const void*>(data),size);}
 
 	template <typename T>
-		bool		WritePrimitive(const T&element)
+		void		WritePrimitive(const T&element)
 		{
 			VTableAssertion<GenericVTableTest<T,std::is_enum<T>::value>::HasVTable>::AssertNot();
-			return Write(&element, (serial_size_t)sizeof(element));
+			Write(&element, (serial_size_t)sizeof(element));
 		}
 	template <typename T>
-		bool		WritePrimitives(const T*elements, count_t num_elements)
+		void		WritePrimitives(const T*elements, count_t num_elements)
 		{
 			VTableAssertion<GenericVTableTest<T,std::is_enum<T>::value>::HasVTable>::AssertNot();
-			return Write(elements, (serial_size_t)(sizeof(T)*num_elements));
+			Write(elements, (serial_size_t)(sizeof(T)*num_elements));
 		}
 
-		bool		WriteSize(serial_size_t size)	//! Reads the content of a size variable in little endian 
+	void		WriteSize(serial_size_t size)	//! Reads the content of a size variable in little endian 
+	{
+		BYTE b[4];
+		if (size <= 0x3F)
 		{
-			BYTE b[4];
-			if (size <= 0x3F)
-			{
-				b[0] = ((BYTE)size);
-				return Write(b,1);
-			}
-			if (size <= 0x3FFF)
-			{
-				b[0] = (BYTE)((size >> 8)&0x3F) | 0x40;
-				b[1] = (BYTE)(size&0xFF);
-				return Write(b,2);
-			}
-			if (size <= 0x3FFFFF)
-			{
-				b[0] = (BYTE)((size >> 16)&0x3F) | 0x80;
-				b[1] = (BYTE)((size>>8)&0xFF);
-				b[2] = (BYTE)((size)&0xFF);
-				return Write(b,3);
-			}
-			if (size >= (1U<<29))
-				return false;
-			b[0] = (BYTE)((size >> 24)&0x3F) | 0xC0;
-			b[1] = (BYTE)((size >> 16)&0xFF);
-			b[2] = (BYTE)((size >> 8)&0xFF);
-			b[3] = (BYTE)((size)&0xFF);
-			return Write(b,4);
+			b[0] = ((BYTE)size);
+			Write(b,1);
+			return;
 		}
+		if (size <= 0x3FFF)
+		{
+			b[0] = (BYTE)((size >> 8)&0x3F) | 0x40;
+			b[1] = (BYTE)(size&0xFF);
+			Write(b,2);
+			return;
+		}
+		if (size <= 0x3FFFFF)
+		{
+			b[0] = (BYTE)((size >> 16)&0x3F) | 0x80;
+			b[1] = (BYTE)((size>>8)&0xFF);
+			b[2] = (BYTE)((size)&0xFF);
+			Write(b,3);
+			return;
+		}
+		if (size >= (1U<<29))
+			throw Except::Memory::SerializationFault(CLOCATION, "Trying to serialize size exceeding maximum size of 2^29-1");
+		b[0] = (BYTE)((size >> 24)&0x3F) | 0xC0;
+		b[1] = (BYTE)((size >> 16)&0xFF);
+		b[2] = (BYTE)((size >> 8)&0xFF);
+		b[3] = (BYTE)((size)&0xFF);
+		Write(b,4);
+	}
 
-		bool	WriteSize(UINT64 size)
-		{
-			if (size > 0xFFFFFFFF)
-				throw Except::Program::ParameterFault("Attempting to write serial size larger than can be expressed in 32 bit");
-			return WriteSize((serial_size_t)size);
-		}
+	void	WriteSize(UINT64 size)
+	{
+		if (size > 0xFFFFFFFF)
+			throw Except::Memory::SerializationFault(CLOCATION, "Attempting to write serial size larger than can be expressed in 32 bit");
+		WriteSize((serial_size_t)size);
+	}
 
 };
 
@@ -178,14 +182,15 @@ public:
 					{
 						return field;
 					}
+
+	size_t			GetRemainingSpace() const {return end - field;}
 				
-	bool			Write(const void*data, serial_size_t size)	override
+	virtual void	Write(const void*data, serial_size_t size)	override
 					{
 						if (field+size > end)
-							return false;
+							throw Except::Memory::SerializationFault(CLOCATION, "Stream reached end");
 						memcpy(field,data,size);
 						field+=size;
-						return true;
 					}
 };
 

@@ -1687,22 +1687,22 @@ template <typename T>
 			bool					operator>=(const CharacterExpression<T0>&expression)	const;
 		template <class T0>
 			bool					operator>=(const StringExpression<T0>&expression)	const;
-		virtual	serial_size_t			GetSerialSize(bool export_size) const	override;	//!< Queries the serial size of this object @param export_size True if the result should include additional space required for any size variable such as a string or array length @return Serial size (in bytes) of this object
-		virtual	bool					Serialize(IWriteStream&out_stream, bool export_size) const override;	//!< Writes the serialized content of the local object to the specified stream. The size of the written data must match the result of GetSerialSize() as long as the object remains unchanged. @param out_stream Stream to write to @param export_size True if the object is expected to export any dynamic size such as string or array length @return true if the object could be fully written to the out stream, false otherwise
-		virtual	bool					Deserialize(IReadStream&in_stream, serial_size_t fixed_size) override;		//!< Reads the content of the local object from the specified stream @param in_stream Stream to read from @param fixed_size 0 if any dynamic object size should be read from the stream or the size in bytes that the local object should adopt to otherwise. If this parameter is non-0 then the object data was serialized with @b export_size set to false @return true if the object data could be fully read from the out stream, false otherwise
-		inline	void					resize(size_t new_length);		//!< Resizes the local string length to match the specified number of characters (not including trailing zero). The resize operation leaves the local string content uninitialized save for an automatically set trailing zero. The string is duplicated even if the new size matches the existing one if it's not exclusively owned
-		inline	void					resizeCopy(size_t new_length);	//!< Resizes the local string length to match the specified number of characters (not including trailing zero). Any available string content is copied and the trailing zero set. If the local string length is increased then the new characters following the existing ones are left undefined.
-		inline	bool					IsEmpty()	const	{return string_length==0;}
-		inline	bool					IsNotEmpty()const	{return string_length!=0;}
-		inline	T*						writeTo(T*target)	const;
+		virtual	serial_size_t		GetSerialSize(bool export_size) const	override;	//!< Queries the serial size of this object @param export_size True if the result should include additional space required for any size variable such as a string or array length @return Serial size (in bytes) of this object
+		virtual	void				Serialize(IWriteStream&out_stream, bool export_size) const override;	//!< Writes the serialized content of the local object to the specified stream. The size of the written data must match the result of GetSerialSize() as long as the object remains unchanged. @param out_stream Stream to write to @param export_size True if the object is expected to export any dynamic size such as string or array length @return true if the object could be fully written to the out stream, false otherwise
+		virtual	void				Deserialize(IReadStream&in_stream, serial_size_t fixed_size) override;		//!< Reads the content of the local object from the specified stream @param in_stream Stream to read from @param fixed_size 0 if any dynamic object size should be read from the stream or the size in bytes that the local object should adopt to otherwise. If this parameter is non-0 then the object data was serialized with @b export_size set to false @return true if the object data could be fully read from the out stream, false otherwise
+		inline	void				resize(size_t new_length);		//!< Resizes the local string length to match the specified number of characters (not including trailing zero). The resize operation leaves the local string content uninitialized save for an automatically set trailing zero. The string is duplicated even if the new size matches the existing one if it's not exclusively owned
+		inline	void				resizeCopy(size_t new_length);	//!< Resizes the local string length to match the specified number of characters (not including trailing zero). Any available string content is copied and the trailing zero set. If the local string length is increased then the new characters following the existing ones are left undefined.
+		inline	bool				IsEmpty()	const	{return string_length==0;}
+		inline	bool				IsNotEmpty()const	{return string_length!=0;}
+		inline	T*					writeTo(T*target)	const;
 		template <typename T2>
-			inline	T2*					writeTo(T2*target)	const;
-		inline	T*						writeTo(T*target, T*end)	const;
+			inline	T2*				writeTo(T2*target)	const;
+		inline	T*					writeTo(T*target, T*end)	const;
 		template <typename T2>
-			inline	T2*					writeTo(T2*target, T2*end)	const;
+			inline	T2*				writeTo(T2*target, T2*end)	const;
 
 
-		virtual const T*				resolveContent() const	{return field;}	//! Exception string resolution
+		virtual const T*			resolveContent() const	{return field;}	//! Exception string resolution
 	};
 /*
 template <typename T> inline

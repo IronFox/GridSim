@@ -3509,31 +3509,29 @@ template <typename T>
 	}
 
 template <typename T>
-	/*virtual override*/ bool			StringTemplate<T>::Serialize(IWriteStream&out_stream, bool export_size) const
+	/*virtual override*/ void			StringTemplate<T>::Serialize(IWriteStream&out_stream, bool export_size) const
 	{
 		if (export_size)
 		{
 			//cout << "encoding string length "<<string_length<<endl;
-			if (!out_stream.WriteSize(string_length))
-				return false;
+			out_stream.WriteSize(string_length);
 		}
-		return out_stream.Write(field,(serial_size_t)(string_length*sizeof(T)));
+		out_stream.Write(field,(serial_size_t)(string_length*sizeof(T)));
 	}
 
 template <typename T>
-	/*virtual override*/ bool			StringTemplate<T>::Deserialize(IReadStream&in_stream, serial_size_t fixed_size)
+	/*virtual override*/ void			StringTemplate<T>::Deserialize(IReadStream&in_stream, serial_size_t fixed_size)
 	{
 		if (fixed_size != EmbeddedSize)
 			setLength((fixed_size/sizeof(T)));
 		else
 		{
 			serial_size_t len;
-			if (!in_stream.ReadSize(len))
-				return false;
+			in_stream.ReadSize(len);
 			//cout << "decoded string length "<<len<<endl;
 			setLength(len);
 		}
-		return in_stream.Read(field,(serial_size_t)(string_length*sizeof(T)));
+		in_stream.Read(field,(serial_size_t)(string_length*sizeof(T)));
 	}
 
 

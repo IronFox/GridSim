@@ -25,18 +25,64 @@ bool	FileStream::open(const wchar_t*filename, int flags)
 }
 
 
-/*virtual override*/ bool	FileStream::Write(const void*data, serial_size_t size)
+/*virtual override*/ void	FileStream::Write(const void*data, serial_size_t size)
 {
 	if (handle == -1)
-		return false;
-	return _write(handle,data,(unsigned)size)==size;
+		throw Except::IO::DriveAccess(CLOCATION,"Cannot write data: File is not open");
+	unsigned remaining = (unsigned)size;
+	const BYTE*write = (const BYTE*)data;
+	while (remaining > 0)
+	{
+		int written = _write(handle,write,remaining);
+		if (written < 0)
+		{
+			int err = errno;
+			switch (err)
+			{
+				case EBADF:
+					throw Except::IO::DriveAccess(CLOCATION, "Cannot write data: File handle is invalid or not accessible for writing");
+				case ENOSPC:
+					throw Except::IO::DriveAccess(CLOCATION,"Cannot write data: Insufficient space on storage");
+				case EINVAL:
+					throw Except::Program::ParameterFault(CLOCATION,"Cannot write data: Invalid parameters");
+			}
+			char errs[0x100];
+			sprintf_s(errs,"Cannot write data: Unexpected error code: %d",err);
+			throw Except::IO::DriveAccess(CLOCATION,errs);
+
+		}
+		write += written;
+		remaining -= written;
+	}
 }
 
-/*virtual override*/ bool	FileStream::Read(void*data, serial_size_t size)
+/*virtual override*/ void	FileStream::Read(void*data, serial_size_t size)
 {
 	if (handle == -1)
-		return false;
-	return _read(handle,data,(unsigned)size)==size;
+		throw Except::IO::DriveAccess(CLOCATION,"Cannot read data: File is not open");
+	unsigned remaining = (unsigned)size;
+	BYTE*readPtr = (BYTE*)data;
+	while (remaining > 0)
+	{
+		int read = _read(handle,readPtr,remaining);
+		if (read == 0)
+			throw Except::IO::DriveAccess(CLOCATION,"Cannot read data: EOF reached");
+		if (read < 0)
+		{
+			int err = errno;
+			switch (err)
+			{
+				case EBADF:
+					throw Except::IO::DriveAccess(CLOCATION, "Cannot read data: File handle is invalid");
+			}
+			char errs[0x100];
+			sprintf_s(errs,"Cannot read data: Unexpected error code: %d",err);
+			throw Except::IO::DriveAccess(CLOCATION,errs);
+
+		}
+		readPtr += read;
+		remaining -= read;
+	}
 }
 
 void FileStream::close()

@@ -860,8 +860,13 @@ namespace Engine
 			}
 			uint64_t size = file.size();
 			target.resize(static_cast<size_t>(size));
-			if (!file.Read(target.mutablePointer(),size))
+			try
 			{
+				file.Read(target.mutablePointer(),size);
+			}
+			catch (const std::exception&ex)
+			{
+				logOut << "Unable to read from '"<<filename<<"':"<<ex.what()<<"\n";
 				target = "";
 				return false;
 			}
@@ -878,7 +883,11 @@ namespace Engine
 			}
 			uint64_t size = file.size();
 			target.resize(static_cast<size_t>(size));
-			if (!file.Read(target.mutablePointer(),size))
+			try
+			{
+				file.Read(target.mutablePointer(),size);
+			}
+			catch (const std::exception&ex)
 			{
 				target = "";
 				return false;

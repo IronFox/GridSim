@@ -13,7 +13,7 @@ private:
 	bool			local;
        
     void			_PushData(const void*pntr, size_t size);
-    bool			_GetData(void*pntr, size_t size);
+    void			_GetData(void*pntr, size_t size);
 public:
 
 	/**/			ByteStream(size_t size=1024);
@@ -46,8 +46,8 @@ public:
 
 	void			CopyToArray(Array<BYTE>&outArray)const	{outArray.resizeAndCopy(begin,GetFillLevel());}
 
-	virtual	bool	Write(const void*data, serial_size_t size)	override {_PushData(data,size);return true;}
-	virtual	bool	Read(void*target_data, serial_size_t size)	override {return _GetData(target_data,size);}
+	virtual	void	Write(const void*data, serial_size_t size)	override {_PushData(data,size);}
+	virtual	void	Read(void*target_data, serial_size_t size)	override {_GetData(target_data,size);}
 	virtual serial_size_t		GetRemainingBytes() const override {return end - current;}
 };
 
@@ -74,11 +74,11 @@ template <size_t Bytes>
 		char*			pointer()	{ return data; }
 		const char*		pointer()	const	{ return data; }
 		template <class C>
-		void			Write(const C&out)	{ _PushData(&out, sizeof(C)); }
+			void		Write(const C&out)	{ _PushData(&out, sizeof(C)); }
 		template <class C>
-		bool			Write(const C*array, count_t count)	{ _PushData(array, sizeof(C)*count); }
+			void		Write(const C*array, count_t count)	{ _PushData(array, sizeof(C)*count); }
 		template <class C>
-		ByteStreamT<Bytes>&	operator<<(const C&object) { Write(object); return *this; }
+			ByteStreamT<Bytes>&	operator<<(const C&object) { Write(object); return *this; }
 		bool			IsFull() const { return current == end; }
 
 		virtual	bool	Write(const void*data, serial_size_t size)	override { _PushData(data, size); return true; }
@@ -91,7 +91,7 @@ private:
 					*current,
 					*end;
 	
-	bool			_GetData(void*pntr, size_t size);
+	void			_GetData(void*pntr, size_t size);
 public:
 
 	/**/			ByteReadStream() :begin(NULL), current(NULL), end(NULL)	{}
@@ -101,13 +101,13 @@ public:
 	void			Rewind()	{ current = begin; }
 	bool			ReachedEnd() const { return current == end; }
 	template <class C>
-	bool			Stream(C&out)	{ return _GetData(&out, sizeof(C)); }
+		bool		Stream(C&out)	{ return _GetData(&out, sizeof(C)); }
 	template <class C>
-	bool			Stream(C*array, count_t count)	{ return _GetData(array, sizeof(C)*count); }
+		bool		Stream(C*array, count_t count)	{ return _GetData(array, sizeof(C)*count); }
 	template <class C>
-	ByteReadStream&	operator>>(C&object)	{ if (!Stream(object)) throw IO::GeneralFault("Unable to stream required object"); return *this; }
+		ByteReadStream&	operator>>(C&object)	{ if (!Stream(object)) throw IO::GeneralFault("Unable to stream required object"); return *this; }
 
-	virtual	bool	Read(void*target_data, serial_size_t size)	override { return _GetData(target_data, size); }
+	virtual	void	Read(void*target_data, serial_size_t size)	override { _GetData(target_data, size); }
 	virtual serial_size_t		GetRemainingBytes() const override { return end - current; }
 };
 

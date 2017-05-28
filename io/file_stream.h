@@ -143,8 +143,8 @@ virtual					~FileStream()
 
 		uint64_t		GetByteSize()	const	{return size();}
 		
-	virtual bool		Write(const void*data, serial_size_t size) override;	//!< Writes a section of binary data to the local file. File must be opened in write mode or this operation will fail
-	virtual bool		Read(void*data, serial_size_t size) override;			//!< Reads a section of binary data from the local file. File must be opened in read mode or this operation will fail
+	virtual void		Write(const void*data, serial_size_t size) override;	//!< Writes a section of binary data to the local file. File must be opened in write mode or this operation will fail
+	virtual void		Read(void*data, serial_size_t size) override;			//!< Reads a section of binary data from the local file. File must be opened in read mode or this operation will fail
 	#ifdef _WIN32
 		serial_size_t	GetRemainingBytes() const override {return isOpen()? (serial_size_t)(_filelengthi64(handle) - _telli64(handle)): 0;}
 	#else

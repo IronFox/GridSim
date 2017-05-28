@@ -715,42 +715,43 @@ template <class C, size_t A> class AlignedArray: public SerializableObject, publ
 			return result;
 		}
 		
-		virtual	bool			Serialize(IWriteStream&out_stream, bool export_size) const	override
+		virtual	void			Serialize(IWriteStream&out_stream, bool export_size) const	override
 		{
 			if (export_size)
-				if (!out_stream.WriteSize(elements))
-					return false;
+				out_stream.WriteSize(elements);
+
 			if (!IsISerializable(data))
-				return out_stream.Write(data,(serial_size_t)GetContentSize());
+			{
+				out_stream.Write(data,(serial_size_t)GetContentSize());
+				return;
+			}
 
 			for (index_t i = 0; i < elements; i++)
-				if (!SerializeObject(data+i,sizeof(C),out_stream,true))
-					return false;
-			return true;
+				SerializeObject(data+i,sizeof(C),out_stream,true);
 		}
 		
-		virtual	bool			Deserialize(IReadStream&in_stream, serial_size_t fixed_size)	override
+		virtual	void			Deserialize(IReadStream&in_stream, serial_size_t fixed_size)	override
 		{
 			count_t size;
 			if (fixed_size == EmbeddedSize)
 			{
-				if (!in_stream.ReadSize(size))
-					return false;
+				in_stream.ReadSize(size);
 			}
 			else
 				if (!IsISerializable(data))
 					size = (count_t)(fixed_size/sizeof(C));
 				else
-					FATAL__("trying to Deserialize an array containing serializable objects from a fixed size stream data section not including any element count");
+					throw Except::Memory::SerializationFault(CLOCATION,"Trying to deserialize an array containing serializable objects from a fixed size stream data section not including any element count");
 
 			SetSize(size);
 			if (!IsISerializable(data))
-				return in_stream.Read(data,(serial_size_t)GetContentSize());
+			{
+				in_stream.Read(data,(serial_size_t)GetContentSize());
+				return;
+			}
 
 			for (index_t i = 0; i < elements; i++)
-				if (!DeserializeObject(data+i,sizeof(C),in_stream,0))
-					return false;
-			return true;
+				DeserializeObject(data+i,sizeof(C),in_stream,0);
 		}
 
 };

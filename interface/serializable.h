@@ -11,13 +11,13 @@ template <typename T>
 	{
 		static const bool HasFixedSize = T::HasFixedSize;
 		static const serial_size_t FixedSize = T::FixedSize;
-		static inline bool	SerializeTo(IWriteStream&stream, const T&instance, bool integrate_size)
+		static inline void	SerializeTo(IWriteStream&stream, const T&instance, bool integrate_size)
 		{
-			return instance.Serialize(stream,integrate_size);
+			instance.Serialize(stream,integrate_size);
 		}
-		static inline bool Deserialize(IReadStream&stream, T&instance, bool derive_size, serial_size_t remaining_size)
+		static inline void Deserialize(IReadStream&stream, T&instance, bool derive_size, serial_size_t remaining_size)
 		{
-			return instance.Deserialize(stream,derive_size, remaining_size);
+			instance.Deserialize(stream,derive_size, remaining_size);
 		}
 	};
 
@@ -28,13 +28,13 @@ template <typename T>
 	{\
 		static const bool HasFixedSize = true;\
 		static const serial_size_t FixedSize = sizeof(PRIM);\
-		static inline bool	SerializeTo(IWriteStream&stream, PRIM prim, bool integrate_size)\
+		static inline void	SerializeTo(IWriteStream&stream, PRIM prim, bool integrate_size)\
 		{\
-			return stream.WritePrimitive(prim);\
+			stream.WritePrimitive(prim);\
 		}\
-		static inline bool Deserialize(IReadStream&stream, PRIM&prim, bool derive_size, serial_size_t remaining_size)\
+		static inline void Deserialize(IReadStream&stream, PRIM&prim, bool derive_size, serial_size_t remaining_size)\
 		{\
-			return stream.ReadPrimitive(prim);\
+			stream.ReadPrimitive(prim);\
 		}\
 	};
 
@@ -84,9 +84,21 @@ public:
 									}
 
 
-	virtual	serial_size_t			GetSerialSize(bool exportSize) const=0;							//!< Queries the serial size of this object @param export_size True if the result should include additional space required for any size variable such as a string or array length @return Serial size (in bytes) of this object
-	virtual	bool					Serialize(IWriteStream&outStream, bool exportSize) const=0;		//!< Writes the serialized content of the local object to the specified stream. The size of the written data must match the result of GetSerialSize() as long as the object remains unchanged. @param outStream Stream to write to @param exportSize True if the object is expected to export any dynamic size such as string or array length @return true if the object could be fully written to the out stream, false otherwise
-	virtual	bool					Deserialize(IReadStream&inStream, serial_size_t fixedSize)=0;			//!< Reads the content of the local object from the specified stream @param inStream Stream to read from @param fixedSize ISerializable::EmbeddedSize if any dynamic object size should be read from the stream or the size in bytes that the local object should adopt to otherwise. If this parameter is ISerializable::EmbeddedSize then the object data was serialized with @b export_size set to true @return true if the object data could be fully read from the out stream, false otherwise
+	/**
+	Queries the byte size of the serialized data of this object
+	@param exportSize True if the result should include additional space required for any size variable such as a string or array length.
+		If false, then an external variable will hold the serialized data size, which will be passed into Deserialize() as fixedSize.
+		If true, then no size data will be stored externally, and the local structure should serialize any variable size data manually. Deserialize() will receive fixedSize=EmbeddedSize in this case.
+	@return Serial size (in bytes) of this object
+	*/
+	virtual	serial_size_t			GetSerialSize(bool exportSize) const=0;
+	/**
+	Writes the serialized content of the local object to the specified stream.
+	The size of the written data must match the current result of GetSerialSize() as long as the object remains unchanged.
+	@param outStream Stream to write to @param exportSize True if the object is expected to export any dynamic size such as string or array length @return true if the object could be fully written to the out stream, false otherwise
+	*/
+	virtual	void					Serialize(IWriteStream&outStream, bool exportSize) const=0;
+	virtual	void					Deserialize(IReadStream&inStream, serial_size_t fixedSize)=0;			//!< Reads the content of the local object from the specified stream @param inStream Stream to read from @param fixedSize ISerializable::EmbeddedSize if any dynamic object size should be read from the stream or the size in bytes that the local object should adopt to otherwise. If this parameter is ISerializable::EmbeddedSize then the object data was serialized with @b export_size set to true @return true if the object data could be fully read from the out stream, false otherwise
 	virtual	bool					HasFixedSize() const {return false;}									//!< Queries whether this object is of fixed size (always the same no matter what content)
 };
 
@@ -100,53 +112,113 @@ public:
 };
 
 
-	//!< Simplified interface to write to a pre-allocated memory section.  @param target_data Pointer to the memory section to write to (may be NULL causing the method to fail) @param available_space Space (in bytes) available in the appointed memory section for serialization @param export_size True if the object is expected to export any dynamic size such as string or array length @return Size (in bytes) written to the specified memory section or 0 if serialization failed
-inline	bool			SerializeToMemory(const ISerializable&serializable, void*targetData, ISerializable::serial_size_t availableSpace, bool exportSize, serial_size_t*outUsedSize=nullptr)
+/**
+Simplified interface to serialized to a pre-allocated memory section. 
+@param targetData Pointer to the memory section to write to (may be NULL causing the method to fail)
+@param availableSpace Space (in bytes) available in the appointed memory section for serialization
+@param exportSize True if the object is expected to export any dynamic size such as string or array length
+@param[out] outUsedSize Optional resulting serialized size in memory
+*/
+inline	void			SerializeToMemory(const ISerializable&serializable, void*targetData, ISerializable::serial_size_t availableSpace, bool exportSize, serial_size_t*outUsedSize=nullptr)
 {
 	if (!availableSpace)
 	{
 		if (exportSize)
-			return false;
+			throw Except::Memory::SerializationFault(CLOCATION, "Insufficient space to write dynamic size");
 		MemWriteStream	writer;
 		if (outUsedSize)
 			(*outUsedSize) = 0;
-		return serializable.Serialize(writer, exportSize);
+		serializable.Serialize(writer, exportSize);
+		return;
 	}
 
 	if (!targetData)
-		return false;
+		throw Except::Memory::SerializationFault(CLOCATION, "Target data is NULL");
 	MemWriteStream	writer(targetData,availableSpace);
-	if (!serializable.Serialize(writer, exportSize))
-		return false;
+	serializable.Serialize(writer, exportSize);
 	if (outUsedSize)
 		(*outUsedSize) = writer.GetCurrent()-(BYTE*)targetData;
-	return true;
 }
 
 /**
-	Simplified interface to read from a loaded memory section.
-	@param data Pointer to the memory section to read from
-	@param dataSize Size (in bytes) of the memory section that should be deserialized
-	@param embeddedSize True if the object was serialized with @b export_size set true
-	@return true if Deserialization succeeded, false otherwise.
+Simplified interface to serialized to a pre-allocated memory section. 
+If the memory consumed during serialization does not exactly match the amount available, an exception is thrown
+@param targetData Pointer to the memory section to write to (may be NULL causing the method to fail)
+@param availableSpace Space (in bytes) available in the appointed memory section for serialization
+@param exportSize True if the object is expected to export any dynamic size such as string or array length
 */
-inline bool			DeserializeFromMemory(ISerializable&serializable, const void*data, ISerializable::serial_size_t dataSize, bool embeddedSize)
+inline	void			SerializeToCompactMemory(const ISerializable&serializable, void*targetData, ISerializable::serial_size_t availableSpace, bool exportSize)
+{
+	if (!availableSpace)
+	{
+		if (exportSize)
+			throw Except::Memory::SerializationFault(CLOCATION, "Insufficient space to write dynamic size");
+		MemWriteStream	writer;
+		serializable.Serialize(writer, exportSize);
+		return;
+	}
+
+	if (!targetData)
+		throw Except::Memory::SerializationFault(CLOCATION, "Target data is NULL");
+	MemWriteStream	writer(targetData,availableSpace);
+	serializable.Serialize(writer, exportSize);
+	if (writer.GetRemainingSpace() != 0)
+		throw Except::Memory::SerializationFault(CLOCATION, "Memory consumed during serialization does not match available memory");
+}
+
+/**
+Simplified interface to read from a loaded memory section.
+@param data Pointer to the memory section to read from
+@param dataSize Size (in bytes) of the memory section that should be deserialized
+@param embeddedSize True if the object was serialized with @b export_size set true
+@return true if Deserialization succeeded, false otherwise.
+*/
+inline void			DeserializeFromMemory(ISerializable&serializable, const void*data, ISerializable::serial_size_t dataSize, bool embeddedSize)
 {
 	if (!dataSize)
 	{
 		if (embeddedSize)
 		{
 			//impossible
-			return false;
+			throw Except::Memory::SerializationFault(CLOCATION, "Insufficient data to read dynamic size");
 		}
 		MemReadStream	reader;
-		return serializable.Deserialize(reader,0);
+		serializable.Deserialize(reader,0);
+		return;
 	}
 	ASSERT_NOT_NULL__(data);
 	MemReadStream	reader(data,dataSize);
-	return serializable.Deserialize(reader,embeddedSize?ISerializable::EmbeddedSize:dataSize);
+	serializable.Deserialize(reader,embeddedSize?ISerializable::EmbeddedSize:dataSize);
 }
 
 
+/**
+Simplified interface to read from a loaded memory section.
+If the data consumed during deserialization does not exactly match the amount available, an exception is thrown
+@param data Pointer to the memory section to read from
+@param dataSize Size (in bytes) of the memory section that should be deserialized
+@param embeddedSize True if the object was serialized with @b export_size set true
+@return true if Deserialization succeeded, false otherwise.
+*/
+inline void			DeserializeFromCompactMemory(ISerializable&serializable, const void*data, ISerializable::serial_size_t dataSize, bool embeddedSize)
+{
+	if (!dataSize)
+	{
+		if (embeddedSize)
+		{
+			//impossible
+			throw Except::Memory::SerializationFault(CLOCATION, "Insufficient data to read dynamic size");
+		}
+		MemReadStream	reader;
+		serializable.Deserialize(reader,0);
+		return;
+	}
+	ASSERT_NOT_NULL__(data);
+	MemReadStream	reader(data,dataSize);
+	serializable.Deserialize(reader,embeddedSize?ISerializable::EmbeddedSize:dataSize);
+	if (reader.GetRemainingBytes() != 0)
+		throw Except::Memory::SerializationFault(CLOCATION, "Data consumed during deserialization does not match available data");
+
+}
 
 #endif
