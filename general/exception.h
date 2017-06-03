@@ -548,7 +548,6 @@ namespace Except
 				DEFINE_MEMBER_EXCEPTION(ConnectionFailed)
 
 				DEFINE_MEMBER_EXCEPTION(ConnectionLost)
-				DEFINE_MEMBER_EXCEPTION(ConnectionClosed)
 				DEFINE_MEMBER_EXCEPTION(ProtocolViolation)
 
 				/**

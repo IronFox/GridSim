@@ -597,7 +597,6 @@ namespace TCP
 			None,					//!< Void
 			ConnectionFailed,		//!< The local connection attempt has failed
 			ConnectionEstablished,	//!< The local connection attempt has succeeded
-			ConnectionClosed,		//!< The local connection has been closed
 			ConnectionLost			//!< Connection closed unexpectedly
 		};
 	}

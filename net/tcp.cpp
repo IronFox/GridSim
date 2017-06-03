@@ -114,7 +114,6 @@ namespace TCP
 			ECASE(None);
 			ECASE(ConnectionFailed);
 			ECASE(ConnectionEstablished);
-			ECASE(ConnectionClosed);
 			ECASE(ConnectionLost);
 		}
 		return "Unknown event";
@@ -786,9 +785,9 @@ namespace TCP
 				return;
 			}
 			SetError("");
-			owner->HandleEvent(Event::ConnectionClosed,*this);
+			owner->HandleEvent(Event::ConnectionLost,*this);
 			socketAccess->CloseSocket();
-			owner->OnDisconnect(this,Event::ConnectionClosed);
+			owner->OnDisconnect(this,Event::ConnectionLost);
 			if (verbose)
 				std::cout << "Peer::succeeded() exit: result is "<<result<<std::endl;
 			return;
@@ -837,14 +836,8 @@ namespace TCP
 		while (current < end)
 		{
 			int size = socketAccess->Read(current,end-current);
-			if (size < 0)
-			{
+			if (size <= 0)
 				throw Except::IO::Network::ConnectionLost(CLOCATION,"SocketAccess::Read() returned "+String(size));
-			}
-			if (size == 0)
-			{
-				throw Except::IO::Network::ConnectionClosed(CLOCATION,"SocketAccess::Read() returned "+String(size));
-			}
 			current += size;
 			lastReceivedPackage = timer.Now();
 		}
@@ -1062,24 +1055,19 @@ namespace TCP
 				}
 			}
 		}
-		catch (const Except::IO::Network::ConnectionClosed&ex)
-		{
-			CloseWriterDown(Event::ConnectionClosed,"");
-		}
 		catch (const Except::IO::Network::ConnectionLost&ex)
 		{
 			CloseWriterDown(Event::ConnectionLost,"Connection lost to "+ToString()+" ("+lastSocketError()+")");
 		}
-		catch (const Except::IO::Network::ProtocolViolation&ex)
+		catch (const std::exception&ex)
 		{
 			CloseWriterDown(Event::ConnectionLost,ex.what());
 		}
-		catch (const std::exception&ex)
+		catch (...)
 		{
-			if (verbose)
-				std::cout << "Peer::ThreadMain() exit: NetRead() exception caught: "<<ex.what()<<std::endl;
-			return;
+			CloseWriterDown(Event::ConnectionLost,"...");
 		}
+
 		if (verbose)
 			std::cout << "Peer::ThreadMain() exit: socket handle reset by remote operation"<<std::endl;
 	}
@@ -1094,9 +1082,9 @@ namespace TCP
 			if (verbose)
 				std::cout << __func__ << ": graceful shutdown: invoking handlers and closing socket"<<std::endl;
 			//SetError("");
-			owner->HandleEvent(Event::ConnectionClosed,*this);
+			owner->HandleEvent(Event::ConnectionLost,*this);
 			socketAccess->CloseSocket();
-			owner->OnDisconnect(this,Event::ConnectionClosed);
+			owner->OnDisconnect(this,Event::ConnectionLost);
 		}
 		elif (verbose)
 			std::cout << __func__ << ": socket handle reset by remote operation"<<std::endl;
@@ -1208,7 +1196,7 @@ namespace TCP
 		eventLock.Unblock(CLOCATION);
 
 		Dispatcher::FlushPendingEvents();
-		HandleEvent(TCP::Event::ConnectionClosed,*this);
+		HandleEvent(TCP::Event::ConnectionLost,*this);
 		connectionLock.unlock();
 	}
 
@@ -1514,7 +1502,7 @@ namespace TCP
 			SetError("");
 		if (verbose)
 			std::cout << "Server::endService(): sending connection closed event"<<std::endl;
-		HandleEvent(Event::ConnectionClosed,centralPeer);
+		HandleEvent(Event::ConnectionLost,centralPeer);
 		if (verbose)
 			std::cout << "Server::endService() exit: service is offline"<<std::endl;
 		ASSERT__(!IsOnline());
