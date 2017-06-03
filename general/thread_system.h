@@ -1119,7 +1119,7 @@ namespace System
 
 	class ParallelLoopBase
 	{
-	public:
+	protected:
 			Semaphore							job_semaphore,		//!< Semaphore set to the number of remaining jobs
 												terminal_semaphore,
 												destruct_semaphore;
@@ -1151,48 +1151,50 @@ namespace System
 	class ParallelLoop:protected ParallelLoopBase
 	{
 	public:
-			class Operator
-			{
-			public:
-			virtual	void						executeRange(index_t begin, index_t end, index_t worker_index) = 0;
-			};
+		class Operator
+		{
+		public:
+			virtual	void			ExecuteRange(index_t begin, index_t end, index_t worker_index) = 0;
+		};
 	protected:
-			class Worker:public ThreadObject
-			{
-			public:
-					ParallelLoop				*parent;
-					index_t						my_index;
+		class Worker:public ThreadObject
+		{
+			ParallelLoop			*parent;
+			index_t					myIndex;
 					
-												Worker();
-					void						init();
-					void						ThreadMain();
-			};
+			void					Init();
+		public:
+			/**/					Worker();
+			void					Setup(index_t workerIndex, ParallelLoop*parent) {this->parent = parent; myIndex = workerIndex;}
+			void					ThreadMain();
+		};
 			
 			
-			friend class Worker;					//!< Should be implied but better to be safe than sorry
-			count_t								iterations_per_job;	//!< Number of iterations per job
-			Operator							*op;
-			Array<Worker>						workers;		//!< Worker field
+		friend class Worker;					//!< Should be implied but better to be safe than sorry
+		count_t						iterationsPerJob;	//!< Number of iterations per job
+		Operator					*op;
+		Array<Worker>				workers;		//!< Worker field
 			
 	public:
 
-	static	ParallelLoop						global_instance;
+		static	ParallelLoop		globalInstance;
 
-												ParallelLoop(ThreadMainObject*init_object=NULL, Thread::pMethod init_method=NULL);
-	virtual										~ParallelLoop();
+		/**/						ParallelLoop(ThreadMainObject*init_object=NULL, Thread::pMethod init_method=NULL);
+		virtual						~ParallelLoop();
 
 	
-			/**
-				@brief Executes a function on this object.
+		/**
+		@brief Executes a function on this object.
 				
-				execute() splits the specified number of iterations into jobs of equal size depending on @a iterations_per_job . The remainder is executed by the calling thread.
-				No two operations may be executed at the same time by a single object. If multiple threads execute operations on ParallelLoop instances, then create one instance per thread or protect execute()
-				using an external mutex.
-				execute() itself is not mutex protected.
-			*/
-			void								execute(Operator*op, count_t iterations, count_t iterations_per_job);
+		execute() splits the specified number of iterations into jobs of equal size depending on @a iterations_per_job . The remainder is executed by the calling thread.
+		No two operations may be executed at the same time by a single object. If multiple threads execute operations on ParallelLoop instances, then create one instance per thread or protect execute()
+		using an external mutex.
+		execute() itself is not mutex protected.
+		*/
+		void						Execute(Operator*op, count_t iterations, count_t iterationsPerJob);
 
-			count_t								getWorkerCount()	const	{return workers.count();}
+		count_t						GetWorkerCount()	const	{return workers.count();}
+		static count_t				GetGlobalWorkerCount() {return globalInstance.workers.Count();}
 	};
 
 
@@ -1200,30 +1202,28 @@ namespace System
 		class ParallelOperator : public ParallelLoop::Operator
 		{
 		protected:
-				const F							&function;
+			const F					&function;
 		public:
-												ParallelOperator(const F& f):function(f)
-												{}
-				
-		virtual	void							executeRange(index_t begin, index_t end, index_t worker_index)
-												{
-													while (begin != end)
-													{
-														function(begin,worker_index);
-														begin++;
-													}
-												}
+			/**/					ParallelOperator(const F& f):function(f) {}
+			virtual	void			ExecuteRange(index_t begin, index_t end, index_t worker_index) override
+									{
+										while (begin != end)
+										{
+											function(begin,worker_index);
+											begin++;
+										}
+									}
 		};
 
 	template <typename Function>
-		inline void parallelFor(count_t iterations, count_t iterations_per_job, const Function& f)
+		inline void ParallelFor(count_t iterations, count_t iterationsPerJob, const Function& f)
 		{
 			ParallelOperator<Function>	op(f);
-			ParallelLoop::global_instance.execute(&op,iterations,iterations_per_job);
+			ParallelLoop::globalInstance.Execute(&op,iterations,iterationsPerJob);
 		}
 		
 	template <typename Function>
-		inline void linearFor(count_t iterations, count_t iterations_per_job, const Function& f)
+		inline void LinearFor(count_t iterations, count_t iterationsPerJob, const Function& f)
 		{
 			for (index_t i = 0; i < iterations; i++)
 				f(i,0);

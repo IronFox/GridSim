@@ -1612,7 +1612,7 @@ namespace System
 		ParallelLoop::Worker::Worker():parent(NULL)
 		{}
 
-		void ParallelLoop::Worker::init()
+		void ParallelLoop::Worker::Init()
 		{
 			if (parent->set_affinity)
 			{
@@ -1644,7 +1644,7 @@ namespace System
 	
 		void ParallelLoop::Worker::ThreadMain()
 		{
-			init();
+			Init();
 
 
 			while (!application_shutting_down)
@@ -1675,13 +1675,13 @@ namespace System
 				bool final = offset == parent->num_jobs;
 				offset--;
 			
-				const count_t	iterations = parent->iterations_per_job;
+				const count_t	iterations = parent->iterationsPerJob;
 				index_t			at = offset * iterations;
 				const index_t	end = at + (final?parent->last_job_iterations:iterations);
 			
 				THREAD_REPORT("processing range "<<at<<" .. "<<end);
 			
-				parent->op->executeRange(at,end,my_index);
+				parent->op->ExecuteRange(at,end,myIndex);
 				bool terminal = !parent->terminal_semaphore.tryEnter();
 				/*parent->mutex.lock();
 					bool terminal = !--parent->jobs_left;
@@ -1698,7 +1698,7 @@ namespace System
 			}
 		}
 
-		ParallelLoop::ParallelLoop(ThreadMainObject*init_object_, Thread::pMethod init_method_):iterations_per_job(64),op(NULL)
+		ParallelLoop::ParallelLoop(ThreadMainObject*init_object_, Thread::pMethod init_method_):iterationsPerJob(64),op(NULL)
 		{
 			init_object = init_object_;
 			init_method = init_method_;
@@ -1722,8 +1722,7 @@ namespace System
 			{
 				THREAD_REPORT("starting thread "<<i)
 			   // workers[i].operation_counter = 0;
-				workers[i].my_index = i;
-				workers[i].parent = this;
+				workers[i].Setup(i,this);
 				workers[i].start();
 			}
 		}
@@ -1745,7 +1744,7 @@ namespace System
 		}
 
 	
-		void		ParallelLoop::execute(Operator*op, count_t iterations, count_t iterations_per_job)
+		void		ParallelLoop::Execute(Operator*op, count_t iterations, count_t iterationsPerJob)
 		{
 			if (!op || application_shutting_down)
 				return;
@@ -1754,20 +1753,20 @@ namespace System
 			#else
 				jobOffset = 0;
 			#endif
-			num_jobs = iterations/iterations_per_job;
-			last_job_iterations = iterations%iterations_per_job;
+			num_jobs = iterations/iterationsPerJob;
+			last_job_iterations = iterations%iterationsPerJob;
 
 			if (last_job_iterations)
 				num_jobs++;
 			else
-				last_job_iterations = iterations_per_job;
+				last_job_iterations = iterationsPerJob;
 			if (!num_jobs)
 				return;
 			if (num_jobs > 1)
 			{
 				this->op = op;
 			
-				this->iterations_per_job = iterations_per_job;
+				this->iterationsPerJob = iterationsPerJob;
 				//jobs_left = num_jobs;
 				THREAD_REPORT("configured. releasing "<<num_jobs<<" jobs");
 				terminal_semaphore.release(static_cast<unsigned>(num_jobs-1));
@@ -1779,11 +1778,11 @@ namespace System
 			}
 			else
 			{
-				op->executeRange(0,iterations,0);
+				op->ExecuteRange(0,iterations,0);
 			}
 		
 		}
 
-	/*static*/	ParallelLoop						ParallelLoop::global_instance;
+	/*static*/	ParallelLoop						ParallelLoop::globalInstance;
 
 }
