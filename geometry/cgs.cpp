@@ -184,7 +184,8 @@ TextureA::TextureA():name(0),data_hash(0)
 
 void	TextureA::updateHash()
 {
-	data_hash = StdHash::hash(face_field);
+	using namespace GlobalHashFunctions;
+	data_hash = Hash(face_field);
 }
 
 bool	TextureA::isSimilar(const TextureA&other)	const

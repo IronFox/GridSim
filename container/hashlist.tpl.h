@@ -126,7 +126,7 @@ template <class K, class C, class Hash, class KeyStrategy>	template <class Key>
 	inline	C*	GenericHashList<K,C,Hash,KeyStrategy>::drop(const Key&ident)
 	{
 	
-		TableCarrier*inner = Table::find(Hash::hash(ident),ident,false,NULL);
+		TableCarrier*inner = Table::find(Hash::ComputeHash(ident),ident,false,NULL);
 
 		if (!inner->occupied)
 			return NULL;
@@ -149,7 +149,7 @@ template <class K, class C, class Hash, class KeyStrategy>	template <class Key>
 	inline	C* GenericHashList<K,C,Hash,KeyStrategy>::append(const Key&ident, C*element)
 	{
 		bool did_occupy;
-		TableCarrier*inner = Table::find(Hash::hash(ident),ident,true,&did_occupy);
+		TableCarrier*inner = Table::find(Hash::ComputeHash(ident),ident,true,&did_occupy);
 		if (did_occupy)
 		{
 			List::append(element);
@@ -163,7 +163,7 @@ template <class K, class C, class Hash, class KeyStrategy>	template <class Key>
 	inline	C* GenericHashList<K,C,Hash,KeyStrategy>::append(const Key&ident)
 	{
 		bool did_occupy;
-		TableCarrier*inner = Table::find(Hash::hash(ident),ident,true,&did_occupy);
+		TableCarrier*inner = Table::find(Hash::ComputeHash(ident),ident,true,&did_occupy);
 		if (did_occupy)
 		{
 			C*result = List::append();
@@ -180,7 +180,7 @@ template <class K, class C, class Hash, class KeyStrategy>	template <class Key0,
 		if (!Table::query(before,c))
 			return NULL;
 		bool did_occupy;
-		TableCarrier*inner = Table::find(Hash::hash(key),key,true,&did_occupy);
+		TableCarrier*inner = Table::find(Hash::ComputeHash(key),key,true,&did_occupy);
 		if (did_occupy)
 		{
 			C*result = List::insertBeforeCarrier(c);
@@ -197,7 +197,7 @@ template <class K, class C, class Hash, class KeyStrategy>	template <class Key0,
 		if (!Table::query(before,c))
 			return NULL;
 		bool did_occupy;
-		TableCarrier*inner = Table::find(Hash::hash(key),key,true,&did_occupy);
+		TableCarrier*inner = Table::find(Hash::ComputeHash(key),key,true,&did_occupy);
 		if (did_occupy)
 		{
 			C*result = List::insertBeforeCarrier(c,element);
@@ -223,7 +223,7 @@ template <class K, class C, class Hash, class KeyStrategy>	template <class Key0,
 template <class K, class C, class Hash, class KeyStrategy> template <class Key>
 	inline	C*	GenericHashList<K,C,Hash,KeyStrategy>::lookup(const Key&ident)
 	{
-		TableCarrier*inner = Table::find(Hash::hash(ident),ident,false,NULL);
+		TableCarrier*inner = Table::find(Hash::ComputeHash(ident),ident,false,NULL);
 		if (!inner->occupied)
 			return NULL;
 		return inner->cast()->getElement();
@@ -232,7 +232,7 @@ template <class K, class C, class Hash, class KeyStrategy> template <class Key>
 template <class K, class C, class Hash, class KeyStrategy> template <class Key>
 	inline	const C*	GenericHashList<K,C,Hash,KeyStrategy>::lookup(const Key&ident)			const
 	{
-		const TableCarrier*inner = Table::find(Hash::hash(ident),ident);
+		const TableCarrier*inner = Table::find(Hash::ComputeHash(ident),ident);
 		if (!inner->occupied)
 			return NULL;
 		return inner->cast()->getElement();
@@ -241,7 +241,7 @@ template <class K, class C, class Hash, class KeyStrategy> template <class Key>
 template <class K, class C, class Hash, class KeyStrategy> template <class Key>
 	inline	C*	GenericHashList<K,C,Hash,KeyStrategy>::operator[](const Key&ident)
 	{
-		TableCarrier*inner = Table::find(Hash::hash(ident),ident,false,NULL);
+		TableCarrier*inner = Table::find(Hash::ComputeHash(ident),ident,false,NULL);
 		if (!inner->occupied)
 			return NULL;
 		return inner->cast()->getElement();
@@ -250,7 +250,7 @@ template <class K, class C, class Hash, class KeyStrategy> template <class Key>
 template <class K, class C, class Hash, class KeyStrategy> template <class Key>
 	inline	const C*	GenericHashList<K,C,Hash,KeyStrategy>::operator[](const Key&ident)			const
 	{
-		const TableCarrier*inner = Table::find(Hash::hash(ident),ident);
+		const TableCarrier*inner = Table::find(Hash::ComputeHash(ident),ident);
 		if (!inner->occupied)
 			return NULL;
 		return inner->cast()->getElement();

@@ -1358,7 +1358,7 @@ template <typename T>
 		index_t					findLastWordIgnoreCase(const StringTemplate<T>&sub_str) const;		//!< Searches the local string for the last occurance of the specified sub string with neither the succeeding or preceeding characters being alpha-numeric. Search is case insensitive. \param sub_str String to search for \return Offset of the first occurance in the local string ( in the range [1,Length()]) or 0 if the specified sub string could not be found.
 
 
-		virtual	hash_t			hashCode()	const override;
+		virtual hash_t			ToHash()	const override;
 
 		StringTemplate<T>&		setLength(size_t newLength);								//!< Updates the local string to match the given number of characters. The new array will be uninitialized, except for the trailing zero @param newLength New string length in characters (not including trailing zero) @return Reference to the local string object once the modification is done
 		template <typename IndexType>
@@ -1702,7 +1702,7 @@ template <typename T>
 			inline	T2*				writeTo(T2*target, T2*end)	const;
 
 
-		virtual const T*			resolveContent() const	{return field;}	//! Exception string resolution
+		virtual const T*			ToCString() const override {return field;}	//! IString::ToCString()
 	};
 /*
 template <typename T> inline
@@ -1883,7 +1883,18 @@ template <typename T>
 
 	String	ToUTF8(const StringW&str);
 #endif
-	
+
+
+	template <typename T>
+		inline hash_t		Hash(const ReferenceExpression<T>&ref)
+		{
+			return StdCharHash(ref.pointer(),ref.size());
+		}
+	template <typename T>
+		inline hash_t		Hash(const StringTemplate<T>&ref)
+		{
+			return StdCharHash(ref.c_str(),ref.size());
+		}	
 	
 #include "str_class.tpl.h"
 

@@ -7,6 +7,8 @@
 typedef size_t		hash_t;
 
 
+
+
 /**
 	@brief Computes a binary hash of the specified memory section
 
@@ -15,7 +17,7 @@ typedef size_t		hash_t;
 
 	@return Hash value
 */
-inline hash_t stdMemHash(const void*memory, size_t size)
+inline hash_t StdMemHash(const void*memory, size_t size)
 {
 	const char*ident = (const char*)memory;
 	hash_t	hash = 0;
@@ -37,7 +39,7 @@ inline hash_t stdMemHash(const void*memory, size_t size)
 	Template parameter version for size component, if you're hoping for the compiler to unroll this
 */
 template <size_t size>
-	inline hash_t stdMemHashT(const void*memory)
+	inline hash_t StdMemHashT(const void*memory)
 	{
 		const char*ident = (const char*)memory;
 		hash_t	hash = 0;
@@ -62,7 +64,7 @@ template <size_t size>
 */
 
 template <typename CharType>
-	inline hash_t stdCharHash(const CharType*begin, const CharType*end)
+	inline hash_t StdCharHash(const CharType*begin, const CharType*end)
 	{
 		hash_t	result = 0;
 		while (begin != end)
@@ -78,42 +80,59 @@ template <typename CharType>
 	}
 
 template <typename CharType>
-	inline hash_t stdCharHash(const CharType*begin, size_t len)	//! @overload
+	inline hash_t StdCharHash(const CharType*begin, size_t len)	//! @overload
 	{
-		return stdCharHash(begin,begin+len);
+		return StdCharHash(begin,begin+len);
 	}
 		
 
 class HashValue
 {
-protected:
-		hash_t					current_value;
+private:
+	hash_t			current_value;
 public:
 
-								HashValue():current_value(0) {}
-								HashValue(hash_t initial_value):current_value(initial_value) {}
+	/**/			HashValue():current_value(0) {}
+	/**/			HashValue(hash_t initial_value):current_value(initial_value) {}
 
-		HashValue&				add(hash_t hash_value)
-								{
-									current_value *= 17;
-									current_value += hash_value;
-									return *this;
-								};
+	HashValue&		Add(hash_t hash_value)
+					{
+						current_value *= 17;
+						current_value += hash_value;
+						return *this;
+					};
 
-		HashValue&				addFloat(float value)
-								{
-									return add(*(const UINT32*)&value);
-								};
+	HashValue&		AddFloat(float value)
+					{
+						return Add(*(const UINT32*)&value);
+					};
 
-		HashValue&				addFloat(double value)
-								{
-									return add(*(const UINT64*)&value);
-								};
+	HashValue&		AddFloat(double value)
+					{
+						return Add(*(const UINT64*)&value);
+					};
 
-		operator hash_t() const
+	template <typename T>
+		HashValue&	AddGeneric(const T&value)
 		{
-			return current_value;
+			using namespace GlobalHashFunctions;
+			Add(Hash(value));
+			return *this;
 		}
+
+	template <typename T>
+		HashValue&	operator<<(const T&value)
+		{
+			using namespace GlobalHashFunctions;
+			Add(Hash(value));
+			return *this;
+		}
+
+
+	operator hash_t() const
+	{
+		return current_value;
+	}
 								
 };
 
@@ -130,8 +149,45 @@ interface IHashable
 protected:
 virtual							~IHashable()	{};
 public:
-virtual	hash_t					hashCode()	const=0;
+virtual	hash_t					ToHash()	const=0;
 };
 
+/**
+Extendable list of hash functions
+*/
+namespace GlobalHashFunctions
+{
+	hash_t			MemHash(const void*memory, size_t size);
+
+	hash_t 			Hash(const std::string&ident);
+	hash_t 			Hash(const std::wstring&ident);
+	hash_t 			Hash(const char*ident);
+	hash_t 			Hash(const wchar_t*ident);
+	hash_t 			Hash(const void*ident);
+	hash_t 			Hash(char 	ident);
+	hash_t 			Hash(short 	ident);
+	hash_t 			Hash(int 	ident);
+	hash_t 			Hash(long	ident);
+	hash_t 			Hash(long long	ident);
+	hash_t 			Hash(unsigned char 	ident);
+	hash_t 			Hash(unsigned short 	ident);
+	hash_t 			Hash(unsigned int 	ident);
+	hash_t 			Hash(unsigned long	ident);
+	hash_t 			Hash(unsigned long long	ident);
+	hash_t 			Hash(float);
+	hash_t 			Hash(double);
+	hash_t 			Hash(long double);
+	hash_t			Hash(const IHashable&hashable);
+	hash_t			Hash(const IHashable*hashable);
+
+	template <typename T>
+		inline hash_t 		Hash(const ArrayData<T>&ident);
+
+	template <typename T0, typename T1>
+		inline hash_t 		Hash(const std::pair<T0,T1>&ident);
+};
+
+
+#include "hashable.tpl.h"
 
 #endif

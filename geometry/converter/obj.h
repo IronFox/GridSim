@@ -44,84 +44,84 @@ namespace Converter
 	class PoolVertex
 	{
 	public:
-			#undef index
-			TVec3<Def::FloatType>		p;
-			//index_t				index;
+		#undef index
+		TVec3<Def::FloatType>		p;
+		//index_t				index;
 			
-								PoolVertex() /*:index(UNSIGNED_UNDEF)*/
-								{
-									p = Vector<Def::FloatType>::zero;
-								}
-								PoolVertex(Def::FloatType x, Def::FloatType y, Def::FloatType z) /*:index(UNSIGNED_UNDEF)*/
-								{
-									Vec::def(p,x,y,z);
-								}
-								PoolVertex(const TVec3<Def::FloatType>&p_) /*:index(UNSIGNED_UNDEF)*/
-								{
-									p = p_;
-								}
+							PoolVertex() /*:index(UNSIGNED_UNDEF)*/
+							{
+								p = Vector<Def::FloatType>::zero;
+							}
+							PoolVertex(Def::FloatType x, Def::FloatType y, Def::FloatType z) /*:index(UNSIGNED_UNDEF)*/
+							{
+								Vec::def(p,x,y,z);
+							}
+							PoolVertex(const TVec3<Def::FloatType>&p_) /*:index(UNSIGNED_UNDEF)*/
+							{
+								p = p_;
+							}
 
-			bool				operator>(const PoolVertex&other)	const throw()
-								{
-									return Vec::compare(p,other.p)>0;
-								}
-			bool				operator<(const PoolVertex&other)	const throw()
-								{
-									return Vec::compare(p,other.p)<0;
-								}
-			int					compareTo(const PoolVertex&other) const throw()
-								{
-									return Vec::compare(p,other.p);
-								}
-			bool				operator==(const PoolVertex&other) const throw()
-								{
-									return Vec::similar(p,other.p);
-								}
-			bool				operator!=(const PoolVertex&other) const throw()
-								{
-									return !Vec::similar(p,other.p);
-								}
-			hash_t				toHash()	const
-								{
-									return HashValue(floatToHash(p.x))
-											.add(floatToHash(p.y))
-											.add(floatToHash(p.z));
-								}
+		bool				operator>(const PoolVertex&other)	const throw()
+							{
+								return Vec::compare(p,other.p)>0;
+							}
+		bool				operator<(const PoolVertex&other)	const throw()
+							{
+								return Vec::compare(p,other.p)<0;
+							}
+		int					compareTo(const PoolVertex&other) const throw()
+							{
+								return Vec::compare(p,other.p);
+							}
+		bool				operator==(const PoolVertex&other) const throw()
+							{
+								return Vec::similar(p,other.p);
+							}
+		bool				operator!=(const PoolVertex&other) const throw()
+							{
+								return !Vec::similar(p,other.p);
+							}
+		friend hash_t		Hash(const PoolVertex&v)
+							{
+								return HashValue(floatToHash(v.p.x))
+										.Add(floatToHash(v.p.y))
+										.Add(floatToHash(v.p.z));
+							}
 	};
 
 	class IndexedPoolVertex : public PoolVertex
 	{
 	public:
-			index_t				index;
-								IndexedPoolVertex() :index(InvalidIndex)
-								{
-									p = Vector<Def::FloatType>::zero;
-								}
-								IndexedPoolVertex(Def::FloatType x, Def::FloatType y, Def::FloatType z) :index(InvalidIndex)
-								{
-									Vec::def(p,x,y,z);
-								}
-								IndexedPoolVertex(const TVec3<Def::FloatType>&p_) :index(InvalidIndex)
-								{
-									p = p_;
-								}
+		index_t				index;
+							IndexedPoolVertex() :index(InvalidIndex)
+							{
+								p = Vector<Def::FloatType>::zero;
+							}
+							IndexedPoolVertex(Def::FloatType x, Def::FloatType y, Def::FloatType z) :index(InvalidIndex)
+							{
+								Vec::def(p,x,y,z);
+							}
+							IndexedPoolVertex(const TVec3<Def::FloatType>&p_) :index(InvalidIndex)
+							{
+								p = p_;
+							}
 
-			bool				operator>(const PoolVertex&other)	const throw()
-								{
-									return Vec::compare(p,other.p)>0;
-								}
-			bool				operator<(const PoolVertex&other)	const throw()
-								{
-									return Vec::compare(p,other.p)<0;
-								}
-			bool				operator==(const PoolVertex&other) const throw()
-								{
-									return Vec::similar(p,other.p);
-								}
-			bool				operator!=(const PoolVertex&other) const throw()
-								{
-									return !Vec::similar(p,other.p);
-								}
+		bool				operator>(const PoolVertex&other)	const throw()
+							{
+								return Vec::compare(p,other.p)>0;
+							}
+		bool				operator<(const PoolVertex&other)	const throw()
+							{
+								return Vec::compare(p,other.p)<0;
+							}
+		bool				operator==(const PoolVertex&other) const throw()
+							{
+								return Vec::similar(p,other.p);
+							}
+		bool				operator!=(const PoolVertex&other) const throw()
+							{
+								return !Vec::similar(p,other.p);
+							}
 
 	};
 
@@ -131,120 +131,120 @@ namespace Converter
 	class ObjVertexNT:public ObjVertexRoot
 	{
 	public:
-			TVec3<Def::FloatType>	p,n;
-			TVec2<Def::FloatType>	t;
+		TVec3<Def::FloatType>	p,n;
+		TVec2<Def::FloatType>	t;
 								
-			//UINT32						index;
+		//UINT32						index;
 
 			
-								ObjVertexNT()
-								{}
+							ObjVertexNT()
+							{}
 								
-								ObjVertexNT(Def::FloatType v)
-								{
-									Vec::set(p,v);
-									Vec::set(n,v);
-									Vec::set(t,v);
-								}
+							ObjVertexNT(Def::FloatType v)
+							{
+								Vec::set(p,v);
+								Vec::set(n,v);
+								Vec::set(t,v);
+							}
 								
-								ObjVertexNT(const TVec3<Def::FloatType>&p_, const TVec3<Def::FloatType>&n_, const TVec2<Def::FloatType>&t_)
-								{
-									p = p_;
-									n = n_;
-									t = t_;
-								}
-			bool				operator>(const ObjVertexNT&other)	const throw()
-								{
-									return compareTo(other)>0;
-								}
-			bool				operator<(const ObjVertexNT&other)	const throw()
-								{
-									return compareTo(other)<0;
-								}
-			bool				operator==(const ObjVertexNT&other) const throw()
-								{
-									return Vec::similar(p,other.p) && Vec::similar(n,other.n) && Vec::similar(t,other.t);
-								}
-			bool				operator!=(const ObjVertexNT&other) const throw()
-								{
-									return !Vec::similar(p,other.p) || !Vec::similar(n,other.n) || !Vec::similar(t,other.t);
-								}
-			int					compareTo(const ObjVertexNT&other) const throw()
-								{
-									OrthographicComparison cmp(Vec::compare(p,other.p));
-									if (!cmp.decided())
-										cmp.addComparisonResult(Vec::compare(n,other.n));
-									if (!cmp.decided())
-										cmp.addComparisonResult(Vec::compare(t,other.t));
-									return cmp;
-								}
-			hash_t				toHash()	const
-								{
-									return HashValue(floatToHash(p.x))
-											.add(floatToHash(p.y))
-											.add(floatToHash(p.z))
-											.add(floatToHash(n.x))
-											.add(floatToHash(n.y))
-											.add(floatToHash(n.z))
-											.add(floatToHash(t.x))
-											.add(floatToHash(t.y));
-								}
+							ObjVertexNT(const TVec3<Def::FloatType>&p_, const TVec3<Def::FloatType>&n_, const TVec2<Def::FloatType>&t_)
+							{
+								p = p_;
+								n = n_;
+								t = t_;
+							}
+		bool				operator>(const ObjVertexNT&other)	const throw()
+							{
+								return compareTo(other)>0;
+							}
+		bool				operator<(const ObjVertexNT&other)	const throw()
+							{
+								return compareTo(other)<0;
+							}
+		bool				operator==(const ObjVertexNT&other) const throw()
+							{
+								return Vec::similar(p,other.p) && Vec::similar(n,other.n) && Vec::similar(t,other.t);
+							}
+		bool				operator!=(const ObjVertexNT&other) const throw()
+							{
+								return !Vec::similar(p,other.p) || !Vec::similar(n,other.n) || !Vec::similar(t,other.t);
+							}
+		int					compareTo(const ObjVertexNT&other) const throw()
+							{
+								OrthographicComparison cmp(Vec::compare(p,other.p));
+								if (!cmp.decided())
+									cmp.addComparisonResult(Vec::compare(n,other.n));
+								if (!cmp.decided())
+									cmp.addComparisonResult(Vec::compare(t,other.t));
+								return cmp;
+							}
+		friend hash_t		Hash(const ObjVertexNT&v)
+							{
+								return HashValue(floatToHash(v.p.x))
+										.Add(floatToHash(v.p.y))
+										.Add(floatToHash(v.p.z))
+										.Add(floatToHash(v.n.x))
+										.Add(floatToHash(v.n.y))
+										.Add(floatToHash(v.n.z))
+										.Add(floatToHash(v.t.x))
+										.Add(floatToHash(v.t.y));
+							}
 
 	};
 
 	class ObjVertexN:public ObjVertexRoot
 	{
 	public:
-			TVec3<Def::FloatType>p,n;
-			//UINT32					index;
+		TVec3<Def::FloatType>p,n;
+		//UINT32					index;
 			
 			
-								ObjVertexN()
-								{}
+							ObjVertexN()
+							{}
 								
-								ObjVertexN(Def::FloatType v)
-								{
-									Vec::set(p,v);
-									Vec::set(n,v);
-								}
+							ObjVertexN(Def::FloatType v)
+							{
+								Vec::set(p,v);
+								Vec::set(n,v);
+							}
 															
 								
 				
 								
-								ObjVertexN(const TVec3<Def::FloatType>&p_, const TVec3<Def::FloatType>&n_)
-								{
-									p = p_;
-									n = n_;
-								}
-			bool				operator>(const ObjVertexN&other)	const throw()
-								{
-									return compareTo(other)>0;
-								}
-			bool				operator<(const ObjVertexN&other)	const throw()
-								{
-									return compareTo(other)<0;
-								}
-			bool				operator==(const ObjVertexN&other)	const throw()
-								{
-									return Vec::similar(p,other.p) && Vec::similar(n,other.n);
-								}
-			bool				operator!=(const ObjVertexN&other)	const throw()
-								{
-									return !Vec::similar(p,other.p) || !Vec::similar(n,other.n);
-								}
-			int					compareTo(const ObjVertexN&other) const throw()
-								{
-									return OrthographicComparison(Vec::compare(p,other.p)).addComparisonResult(Vec::compare(n,other.n));
-								}
-			hash_t				toHash()	const
-								{
-									return HashValue(floatToHash(p.x))
-											.add(floatToHash(p.y))
-											.add(floatToHash(p.z))
-											.add(floatToHash(n.x))
-											.add(floatToHash(n.y))
-											.add(floatToHash(n.z));
-								}
+							ObjVertexN(const TVec3<Def::FloatType>&p_, const TVec3<Def::FloatType>&n_)
+							{
+								p = p_;
+								n = n_;
+							}
+		bool				operator>(const ObjVertexN&other)	const throw()
+							{
+								return compareTo(other)>0;
+							}
+		bool				operator<(const ObjVertexN&other)	const throw()
+							{
+								return compareTo(other)<0;
+							}
+		bool				operator==(const ObjVertexN&other)	const throw()
+							{
+								return Vec::similar(p,other.p) && Vec::similar(n,other.n);
+							}
+		bool				operator!=(const ObjVertexN&other)	const throw()
+							{
+								return !Vec::similar(p,other.p) || !Vec::similar(n,other.n);
+							}
+		int					compareTo(const ObjVertexN&other) const throw()
+							{
+								return OrthographicComparison(Vec::compare(p,other.p)).addComparisonResult(Vec::compare(n,other.n));
+							}
+		friend hash_t		Hash(const ObjVertexN&v)
+							{
+								return HashValue(floatToHash(v.p.x))
+										.Add(floatToHash(v.p.y))
+										.Add(floatToHash(v.p.z))
+										.Add(floatToHash(v.n.x))
+										.Add(floatToHash(v.n.y))
+										.Add(floatToHash(v.n.z));
+							}
 	};
 
 
@@ -287,17 +287,12 @@ namespace Converter
 			Buffer<TObjFace>							face_buffer;
 	};
 
-	struct VertexHash
-	{
-	template <typename T>
-	static	hash_t		hash(const T&vertex)		{return vertex.toHash();}
-	};
 
 	template <typename Vertex>
-		class VertexHashTable : public GenericHashTable<Vertex,UINT32,VertexHash>
+		class VertexHashTable : public GenericHashTable<Vertex,UINT32>
 		{
 		public:
-				typedef GenericHashTable<Vertex,UINT32,VertexHash> Super;
+				typedef GenericHashTable<Vertex,UINT32> Super;
 				/*
 										Vec::stretch(q.v[0]->t,m->scale.xy,q.v[0]->t);
 						Vec::stretch(q.v[1]->t,m->scale.xy,q.v[1]->t);

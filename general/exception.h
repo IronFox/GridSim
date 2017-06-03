@@ -95,7 +95,7 @@ struct TCodeLocation
 						//std::cout << " ... "<<formatted<<std::endl;
 
 
-						char buffer[0x100];
+						//char buffer[0x100];
 						//std::cin.getline(buffer,sizeof(buffer));
 					};
 	const char*		ToString()	const

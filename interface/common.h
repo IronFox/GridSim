@@ -5,6 +5,7 @@
 	#undef interface
 	#define interface struct
 #endif
+#include "../global_root.h"
 
 #include "../general/exception.h"
 

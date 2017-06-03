@@ -8,160 +8,128 @@
 
 
 
-
-/**
-	@brief Basic hash interface
-
-	Question: should 'const String*' produce the same hash value as 'const String&' or as 'const void*'?
-	Same for 'const ArrayData<...>*' and 'const IHashable*'...
-
-	Pros: can use certain objects as pointers rather than copies and still apply data comparison instead of pointer comparison
-	Cons:	*pointer tables cease to work as defined for these types (identical hash value yet different)
-			*must always retrieve hash value for entire object which may be very expensive and unwanted (see above)
-
-	Conclusion: treat like 'const void*'
-*/
 class StdHash
 {
 public:
-static inline hash_t			memHash(const void*memory, size_t size);
-
-static inline hash_t 			hash(const String&ident);
-static inline hash_t 			hash(const StringW&ident);
-static inline hash_t 			hash(const StringRef&ident);
-static inline hash_t 			hash(const StringRefW&ident);
-static inline hash_t 			hash(const std::string&ident);
-static inline hash_t 			hash(const std::wstring&ident);
-static inline hash_t 			hash(const char*ident);
-static inline hash_t 			hash(const wchar_t*ident);
-static inline hash_t 			hash(const void*ident);
-static inline hash_t 			hash(char 	ident);
-static inline hash_t 			hash(short 	ident);
-static inline hash_t 			hash(int 	ident);
-static inline hash_t 			hash(long	ident);
-static inline hash_t 			hash(long long	ident);
-static inline hash_t 			hash(unsigned char 	ident);
-static inline hash_t 			hash(unsigned short 	ident);
-static inline hash_t 			hash(unsigned int 	ident);
-static inline hash_t 			hash(unsigned long	ident);
-static inline hash_t 			hash(unsigned long long	ident);
-static inline hash_t			hash(const IHashable&hashable);
-static inline hash_t			hash(const IHashable*hashable);
-
-template <typename T>
-static inline hash_t 			hash(const ArrayData<T>&ident);
-
-template <typename T0, typename T1>
-static inline hash_t 			hash(const std::pair<T0,T1>&ident);
-
-
-
+	template <typename T>
+		inline static hash_t	ComputeHash(const T&e)
+		{
+			using namespace GlobalHashFunctions;
+			return Hash(e);
+		}
 };
 
-struct PODHash
+
+/**
+Warning:
+Use with extreme care.
+Hashing WILL FAIL if there are memory gaps between contained members due to structure packing.
+These gaps will never be initialized and contain garbage data in the least useful moment.
+*/
+struct TightlyPackedPODHash
 {
 template <typename T>
-static inline hash_t 			hash(const T&ident)	{return stdMemHashT<sizeof(T)>(&ident);}
+	static inline hash_t 		ComputeHash(const T&ident)	{return StdMemHashT<sizeof(T)>(&ident);}
 };
 
 
 
 
 template <class K, class KeyStrategy>
-	struct THashSetCarrier	//! Carrier type used to store a single entry of a hash set
+	struct THashSetCarrier	//! Carrier type used to store a single entry of a Hash set
 	{
-			typedef K					Key;
-			typedef KeyStrategy			AppliedKeyStrategy;
+		typedef K					Key;
+		typedef KeyStrategy			AppliedKeyStrategy;
 
-			K							key;		//!< Key of this entry
-			hash_t						hashed;		//!< Hashed key
-			bool						occupied;	//!< Set true if this entry is occupied
+		K							key;		//!< Key of this entry
+		hash_t						hashed;		//!< Hashed key
+		bool						occupied;	//!< Set true if this entry is occupied
 
-										THashSetCarrier():occupied(false)
-										{}
+									THashSetCarrier():occupied(false)
+									{}
 
-			void						adoptData(THashSetCarrier<K,KeyStrategy>&other)
-										{
-											KeyStrategy::move(other.key,key);
-											hashed = other.hashed;
-											occupied = other.occupied;
-										}
-			void						occupy()
-										{
-											occupied = true;
-										}
-			void						free()
-										{
-											occupied = false;
-										}
+		void						adoptData(THashSetCarrier<K,KeyStrategy>&other)
+									{
+										KeyStrategy::move(other.key,key);
+										hashed = other.hashed;
+										occupied = other.occupied;
+									}
+		void						occupy()
+									{
+										occupied = true;
+									}
+		void						free()
+									{
+										occupied = false;
+									}
 	};
 
 template <class K, class C, class KeyStrategy, class DataStrategy>
-	struct THashTableCarrier:public THashSetCarrier<K, KeyStrategy>	//! Carrier type used to store a single entry of a hash table
+	struct THashTableCarrier:public THashSetCarrier<K, KeyStrategy>	//! Carrier type used to store a single entry of a Hash table
 	{
-			typedef THashTableCarrier<K,C,KeyStrategy,DataStrategy>	ThisType;
-			typedef THashSetCarrier<K, KeyStrategy>	Super;
-			typedef C					Data;
+		typedef THashTableCarrier<K,C,KeyStrategy,DataStrategy>	ThisType;
+		typedef THashSetCarrier<K, KeyStrategy>	Super;
+		typedef C					Data;
 
-			//this align is a pain in the arse in x86 for SOME reason
-			/*ALIGN16*/ BYTE				entry_data[sizeof(C)];
-			//C							entry;		//!< Local copy of the inserted data
+		//this align is a pain in the arse in x86 for SOME reason
+		/*ALIGN16*/ BYTE				entry_data[sizeof(C)];
+		//C							entry;		//!< Local copy of the inserted data
 
-										~THashTableCarrier()
-										{
-											if (Super::occupied)
-												reinterpret_cast<C*>(entry_data)->~C();
-										}
+									~THashTableCarrier()
+									{
+										if (Super::occupied)
+											reinterpret_cast<C*>(entry_data)->~C();
+									}
 
-			ThisType&					operator=(const ThisType&other)
-										{
-											if (Super::occupied)
-											{
-												if (other.occupied)
-													(*reinterpret_cast<C*>(entry_data)) =  (*reinterpret_cast<const C*>(other.entry_data));
-												else
-													reinterpret_cast<C*>(entry_data)->~C();
-											}
-											else
-												if (other.occupied)
-													new (entry_data) C(*reinterpret_cast<const C*>(other.entry_data));
-											Super::operator=(other);
-											return *this;
-										}
-
-			void						adoptData(THashTableCarrier<K,C,KeyStrategy,DataStrategy>&other)
+		ThisType&					operator=(const ThisType&other)
+									{
+										if (Super::occupied)
 										{
 											if (other.occupied)
-											{
-												if (Super::occupied)
-													DataStrategy::move(*reinterpret_cast<C*>(other.entry_data),*reinterpret_cast<C*>(entry_data));
-												else
-													DataStrategy::constructSingleFromFleetingData(reinterpret_cast<C*>(entry_data),*reinterpret_cast<C*>(other.entry_data));
-											}
+												(*reinterpret_cast<C*>(entry_data)) =  (*reinterpret_cast<const C*>(other.entry_data));
 											else
-												if (Super::occupied)
-													reinterpret_cast<C*>(entry_data)->~C();
-											Super::adoptData(other);
+												reinterpret_cast<C*>(entry_data)->~C();
 										}
-			C&							cast()
-										{
-											return *reinterpret_cast<C*>(entry_data);
-										}
-			const C&					cast() const
-										{
-											return *reinterpret_cast<const C*>(entry_data);
-										}
-			void						free()
+										else
+											if (other.occupied)
+												new (entry_data) C(*reinterpret_cast<const C*>(other.entry_data));
+										Super::operator=(other);
+										return *this;
+									}
+
+		void						adoptData(THashTableCarrier<K,C,KeyStrategy,DataStrategy>&other)
+									{
+										if (other.occupied)
 										{
 											if (Super::occupied)
+												DataStrategy::move(*reinterpret_cast<C*>(other.entry_data),*reinterpret_cast<C*>(entry_data));
+											else
+												DataStrategy::constructSingleFromFleetingData(reinterpret_cast<C*>(entry_data),*reinterpret_cast<C*>(other.entry_data));
+										}
+										else
+											if (Super::occupied)
 												reinterpret_cast<C*>(entry_data)->~C();
-											Super::occupied = false;
-										}
-			void						occupy()
-										{
-											new (entry_data) C;
-											Super::occupied = true;
-										}
+										Super::adoptData(other);
+									}
+		C&							cast()
+									{
+										return *reinterpret_cast<C*>(entry_data);
+									}
+		const C&					cast() const
+									{
+										return *reinterpret_cast<const C*>(entry_data);
+									}
+		void						free()
+									{
+										if (Super::occupied)
+											reinterpret_cast<C*>(entry_data)->~C();
+										Super::occupied = false;
+									}
+		void						occupy()
+									{
+										new (entry_data) C;
+										Super::occupied = true;
+									}
 	};
 
 
@@ -178,20 +146,20 @@ template <class Carrier>
 										GenericHashBase();
 											
 	template <class Key>
-		inline Carrier*					find(hash_t hash, const Key&key, bool occupy,bool*did_occupy=NULL)	//!< Carrier lookup via a key and its hash-value. \param hash Hashvalue of the provided string (usually the result of hashString(key)) \param key Key to look for \param occupy Forces the hashtable to occupy a new carrier for the specified key if it could not be found. \param did_occupy If non NULL then \b did_occupy will be set true if a carrier was occupied, false otherwise. \return Pointer to the occupied carrier if the key could be found or \b occupy was set true. Otherwise to a non-occupied carrier.
+		inline Carrier*					find(hash_t Hash, const Key&key, bool occupy,bool*did_occupy=NULL)	//!< Carrier lookup via a key and its Hash-value. \param Hash Hashvalue of the provided string (usually the result of hashString(key)) \param key Key to look for \param occupy Forces the hashtable to occupy a new carrier for the specified key if it could not be found. \param did_occupy If non NULL then \b did_occupy will be set true if a carrier was occupied, false otherwise. \return Pointer to the occupied carrier if the key could be found or \b occupy was set true. Otherwise to a non-occupied carrier.
 										{
 											if (occupy && entries+1 >= array.length()*0.8)
 												resize(array.length()*2);
-											size_t offset = hash%array.length();
+											size_t offset = Hash%array.length();
 
 											Carrier*const raw = array.pointer();	//avoid redundant check
-											while (raw[offset].occupied && (raw[offset].hashed != hash || raw[offset].key != key))
+											while (raw[offset].occupied && (raw[offset].hashed != Hash || raw[offset].key != key))
 												offset = (offset+1)%array.length();
 											Carrier&entry = raw[offset];
 											if (occupy && !entry.occupied)
 											{
 
-												entry.hashed = hash;
+												entry.hashed = Hash;
 												entry.key = typename Carrier::Key(key);
 												entry.occupy();
 												entries++;
@@ -208,12 +176,12 @@ template <class Carrier>
 											return array+offset;
 										}		
 	template <class Key>
-		inline const Carrier*			find(hash_t hash, const Key&key)			const	//!< Carrier lookup via a key and its hash-value. \param hash Hashvalue of the provided string (usually the result of hashString(key)) \param key Key to look for \return Pointer to the occupied carrier if the key could be found. Otherwise to a non-occupied carrier.
+		inline const Carrier*			find(hash_t Hash, const Key&key)			const	//!< Carrier lookup via a key and its Hash-value. \param Hash Hashvalue of the provided string (usually the result of hashString(key)) \param key Key to look for \return Pointer to the occupied carrier if the key could be found. Otherwise to a non-occupied carrier.
 										{
 
-											size_t offset = hash%array.length();
+											size_t offset = Hash%array.length();
 											const Carrier*const raw = array.pointer();	//avoid redundant check
-											while (raw[offset].occupied && (raw[offset].hashed != hash || raw[offset].key != key))
+											while (raw[offset].occupied && (raw[offset].hashed != Hash || raw[offset].key != key))
 												offset = (offset+1)%array.length();
 
 											return raw+offset;
@@ -243,8 +211,8 @@ template <class Carrier>
 	template <class Key>
 		inline	void					exportKeys(ArrayData<Key>&keys)	const;			//!< Exports the keys to the specified array. \param keys Reference to an array containing all associated keys after execution. 
 
-		inline	void					calculateUnion(const GenericHashBase<Carrier>&other);	//!< Calculates the union of the local and the remote hash table/set. Duplicate entries are taken once from the local table/set. @param other Hash table/set to calculate the union with.
-		inline	void					calculateIntersection(const GenericHashBase<Carrier>&other);	//!< Calculates the intersection of the local and the remote hash table/set. Local entries that are not also contained by the remote table/set are dropped. @param other Hash table/set to calculate the intersection with.
+		inline	void					calculateUnion(const GenericHashBase<Carrier>&other);	//!< Calculates the union of the local and the remote Hash table/set. Duplicate entries are taken once from the local table/set. @param other Hash table/set to calculate the union with.
+		inline	void					calculateIntersection(const GenericHashBase<Carrier>&other);	//!< Calculates the intersection of the local and the remote Hash table/set. Local entries that are not also contained by the remote table/set are dropped. @param other Hash table/set to calculate the intersection with.
 		inline	void					calculateDifference(const GenericHashBase<Carrier>&other);		//!< Calculates the difference (this - other). Removes all entries of the remote table/set from the local table/set. @param other Hash table/set to remove from the local one
 
 		inline	void					adoptData(Self&other);
@@ -307,8 +275,8 @@ template <class K, class Hash=StdHash, typename KeyStrategy = typename StrategyS
 	};
 
 	
-typedef GenericHashSet<String>		StringSet;				//!< String based 'hash' set
-typedef GenericHashSet<StringW>		StringWSet;				//!< String based 'hash' set
+typedef GenericHashSet<String>		StringSet;				//!< String based 'Hash' set
+typedef GenericHashSet<StringW>		StringWSet;				//!< String based 'Hash' set
 typedef GenericHashSet<index_t>		IndexSet;				//!< Index set
 typedef GenericHashSet<const void*>	PointerSet;			//!< Pointer set
 
@@ -503,7 +471,7 @@ template <class K, class C,class Hash=StdHash, typename KeyStrategy = typename S
 	};
 
 /*!
-	\brief String hash container
+	\brief String Hash container
 
 	The hashcontainer stores object pointers mapped via string keys.
 	The container manages the inserted pointers, deleting them if the hashcontainer is deleted.

@@ -2127,9 +2127,9 @@ template <typename T>
 
 
 template <typename T>
-	hash_t	StringTemplate<T>::hashCode() const
+	hash_t	StringTemplate<T>::ToHash() const
 	{
-		return stdCharHash(field,field+string_length);
+		return StdCharHash(field,field+string_length);
 	}
 
 

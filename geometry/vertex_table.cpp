@@ -27,7 +27,8 @@ index_t	VertexTable::map(const float position[3])
 	Vec::def(ip,(__int64)Round(position[0]/tolerance),(__int64)Round(position[1]/tolerance),(__int64)Round(position[2]/tolerance));
 	
 	
-	hash_t hashed = VertexHash::hash(ip);
+	using namespace GlobalHashFunctions;
+	hash_t hashed = Hash(ip);
 	
 	bool did_occupy;
 	Table::Carrier*carrier = Table::find(hashed, ip, true,&did_occupy);
@@ -50,7 +51,8 @@ index_t	VertexTable::map(const TPosition&position)
 	TVertexIntPosition ip;
 	Vec::def(ip,(__int64)Round(position.x/tolerance),(__int64)Round(position.y/tolerance),(__int64)Round(position.z/tolerance));
 	
-	hash_t hashed = VertexHash::hash(ip);
+	using namespace GlobalHashFunctions;
+	hash_t hashed = Hash(ip);
 	
 	bool did_occupy;
 	Table::Carrier*carrier = Table::find(hashed, ip, true,&did_occupy);

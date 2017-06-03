@@ -446,19 +446,20 @@ namespace Engine
 		return comparison;
 	}
 
-	hash_t MaterialColors::hashCode() const
+	/*virtual override*/	hash_t MaterialColors::ToHash() const
 	{
-		HashValue val(ambient.hashCode());
-
-		val	.add(diffuse.hashCode())
-			.add(specular.hashCode())
-			.add(emission.hashCode())
-			.add(alpha_test)
-			.add(fully_reflective)
-			.add(shininess_exponent);
+		HashValue val;
+		
+		val	.AddGeneric(ambient)
+			.AddGeneric(diffuse)
+			.AddGeneric(specular)
+			.AddGeneric(emission)
+			.AddGeneric(alpha_test)
+			.AddGeneric(fully_reflective)
+			.AddGeneric(shininess_exponent);
 
 		if (alpha_test)
-			val.addFloat(alpha_threshold);
+			val.AddGeneric(alpha_threshold);
 
 		return val;
 	}
@@ -497,15 +498,18 @@ namespace Engine
 		return *this;
 	}*/
 
-	hash_t VertexBinding::hashCode() const
+	/*virtual override*/ hash_t VertexBinding::ToHash() const
 	{
-		HashValue rs(vertex.hashCode());
-		rs	.add(tangent.hashCode())
-			.add(normal.hashCode())
-			.add(color.hashCode());
+		HashValue rs;
+		rs	.AddGeneric(vertex)
+			.AddGeneric(tangent)
+			.AddGeneric(normal)
+			.AddGeneric(color)
+			.AddGeneric(floats_per_vertex)
+			;
 		for (index_t i = 0; i < texcoords.count(); i++)
-			rs.add(texcoords[i].hashCode());
-		return rs.add(floats_per_vertex);
+			rs.AddGeneric(texcoords[i]);
+		return rs;
 	}
 
 	char	VertexBinding::compareTo(const VertexBinding&other) const
@@ -646,13 +650,13 @@ namespace Engine
 
 
 
-	hash_t						MaterialConfiguration::hashCode() const
+	/*virtual override*/ hash_t						MaterialConfiguration::ToHash() const
 	{
-		HashValue val(MaterialColors::hashCode());
+		HashValue val(MaterialColors::ToHash());
 		//val.add(VertexBinding::hashCode());
 
 		for (index_t i = 0; i < layers.count(); i++)
-			val.add(layers[i].hashCode());
+			val.Add(layers[i].ToHash());
 
 		return val;
 	}

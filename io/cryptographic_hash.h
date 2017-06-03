@@ -256,6 +256,12 @@ template <UINT32 int32_count>
 					return memcmp(bytes,other.bytes,sizeof(bytes)) != 0;
 				}
 
+
+		friend hash_t	Hash(const THash<int32_count>&h)
+		{
+			return StdMemHash(h.bytes,num_bytes);
+		}
+
 		static const THash	Empty;
 	};
 

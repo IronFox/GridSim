@@ -19,16 +19,9 @@ struct TVertexIntPosition:public TVec3<__int64>	//!< Internal integer vertex pos
 											||
 											z != other.z;
 								}
+
 };
 
-class VertexHash
-{
-public:
-static inline hash_t 			hash(const TVertexIntPosition&p)
-								{
-									return StdHash::memHash(p.v,sizeof(int)*3);
-								}
-};
 
 
 
@@ -37,14 +30,14 @@ static inline hash_t 			hash(const TVertexIntPosition&p)
 	
 	Vertices are converted to integer coordinates and mapped via a hashtable.
 */
-class VertexTable:protected GenericHashTable<TVertexIntPosition,index_t,VertexHash>
+class VertexTable:protected GenericHashTable<TVertexIntPosition,index_t>
 {
 public:
 		typedef TVec3<>	TPosition;
 
 
 protected:
-		typedef GenericHashTable<TVertexIntPosition,index_t,VertexHash>	Table;
+		typedef GenericHashTable<TVertexIntPosition,index_t>	Table;
 		
 		Buffer<TPosition>								position_map;
 		float											tolerance;

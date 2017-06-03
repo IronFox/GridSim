@@ -233,6 +233,45 @@ namespace Math
 		{};
 
 
+
+	template <typename T>
+		inline hash_t Hash(const TVec2<T>&v)
+		{
+			HashValue rs;
+			rs.AddGeneric(v.x);
+			rs.AddGeneric(v.y);
+			return rs;
+		}
+	template <typename T>
+		inline hash_t Hash(const TVec3<T>&v)
+		{
+			HashValue rs;
+			rs.AddGeneric(v.x);
+			rs.AddGeneric(v.y);
+			rs.AddGeneric(v.z);
+			return rs;
+		}
+	template <typename T>
+		inline hash_t Hash(const TVec4<T>&v)
+		{
+			HashValue rs;
+			rs.AddGeneric(v.x);
+			rs.AddGeneric(v.y);
+			rs.AddGeneric(v.z);
+			rs.AddGeneric(v.w);
+			return rs;
+		}
+
+	template <typename T, count_t D>
+		inline hash_t Hash(const TVec<T,D>&v)
+		{
+			HashValue rs;
+			for (index_t i = 0; i < D; i++)
+				rs.AddGeneric(v.v[i]);
+			return rs;
+		}
+
+
 	template <typename T=float>
 		class TFloatRange
 		{

@@ -291,55 +291,60 @@ namespace Engine
 	*/
 	struct TVertexSection
 	{
-			UINT16						offset, //!< First float used for the active component with 0 indicating the first float
-										length;	//!< Number of floats used for the active component. Must be 3 for normals or 0 if deactivated.
+		UINT16						offset, //!< First float used for the active component with 0 indicating the first float
+									length;	//!< Number of floats used for the active component. Must be 3 for normals or 0 if deactivated.
 
-	inline								TVertexSection():length(0)
-										{}
-										TVertexSection(UINT16 offset_, UINT16 length_):offset(offset_),length(length_)
-										{}
+		inline						TVertexSection():length(0)
+									{}
+		/**/						TVertexSection(UINT16 offset_, UINT16 length_):offset(offset_),length(length_)
+									{}
 										
-			void						set(UINT16 offset_,UINT16 length_)
-										{
-											offset = offset_;
-											length = length_;
-										}
-			void						unset()
-										{
-											length = 0;
-										}
-			bool						isSet() const
-										{
-											return length > 0;
-										}
-			bool						IsEmpty() const
-										{
-											return !length;
-										}
+		void						set(UINT16 offset_,UINT16 length_)
+									{
+										offset = offset_;
+										length = length_;
+									}
+		void						unset()
+									{
+										length = 0;
+									}
+		bool						isSet() const
+									{
+										return length > 0;
+									}
+		bool						IsEmpty() const
+									{
+										return !length;
+									}
 
-			char						compareTo(const TVertexSection&)	const;
+		char						compareTo(const TVertexSection&)	const;
 
-			bool						operator==(const TVertexSection&)	const;
-			bool						operator!=(const TVertexSection&other)	const		{return !operator==(other);}
-			bool						operator>(const TVertexSection&other)	const		{return compareTo(other) > 0;}
-			bool						operator<(const TVertexSection&other)	const		{return compareTo(other) < 0;}
+		bool						operator==(const TVertexSection&)	const;
+		bool						operator!=(const TVertexSection&other)	const		{return !operator==(other);}
+		bool						operator>(const TVertexSection&other)	const		{return compareTo(other) > 0;}
+		bool						operator<(const TVertexSection&other)	const		{return compareTo(other) < 0;}
 
-			hash_t						hashCode()	const
-										{
-											return (hash_t(offset)<<16) | hash_t(length);
-										}
-			UINT16						requiredFloats()	const	//! Queries the minimum number of floats per vertex this section requires
-										{
-											return length>0?offset+length:0;
-										}
+		friend hash_t				Hash(const TVertexSection&s)
+									{
+										return (hash_t(s.offset)<<16) | hash_t(s.length);
+									}
+		UINT16						requiredFloats()	const	//! Queries the minimum number of floats per vertex this section requires
+									{
+										return length>0?offset+length:0;
+									}
 	};
 
 	struct TTexVertexSection : public TVertexSection
 	{
-			bool						generate_reflection_coords;			//!< Reflect texture coordinates. Most commonly only applied when mapping cubes. Effective only if @a TVertexSection::length is 0
+		bool						generate_reflection_coords;			//!< Reflect texture coordinates. Most commonly only applied when mapping cubes. Effective only if @a TVertexSection::length is 0
 			
-										TTexVertexSection():generate_reflection_coords(false)
-										{}
+									TTexVertexSection():generate_reflection_coords(false)
+									{}
+
+		friend hash_t				Hash(const TTexVertexSection&s)
+									{
+										return HashValue(Hash((const TVertexSection&)s)).AddGeneric(s.generate_reflection_coords);
+									}
 	};
 
 	/**
@@ -350,62 +355,62 @@ namespace Engine
 	class MaterialLayer:public IHashable
 	{
 	public:
-			typedef PixelType				content_t;
+		typedef PixelType				content_t;
 
 
-			SystemType						system_type;			//!< Texcoord system type. Shaders may ignore this setting. Defaults to Identity
-			content_t						content_type;			//!< Type of contained texel. Shaders may ignore this setting. Defaults to Color
+		SystemType						system_type;			//!< Texcoord system type. Shaders may ignore this setting. Defaults to Identity
+		content_t						content_type;			//!< Type of contained texel. Shaders may ignore this setting. Defaults to Color
 			
 
-			bool						clamp_x,			//!< Clamp texture coordinates along x axis. Disabled by default
-										clamp_y,			//!< Clamp texture coordinates along y axis. Disabled by default
-										clamp_z,			//!< Clamp texture coordinates along z axis. Disabled by default
-										enabled;			//!< Layer is enabled. Other values are not reliable and may be filled with garbage if this value is set false. Defaults to true
-			UINT32						combiner;			//!< GL combiner (usually GL_MODULATE or GL_DECAL). Somewhat deprecated.
-			const TMatrix4<>			*custom_system;		//!< Remote texcoord 4x4 system matrix. Must be set non-NULL if system_type is SystemType::Custom. This pointer may be invalid if system_type is NOT SystemType::Custom.
+		bool						clamp_x,			//!< Clamp texture coordinates along x axis. Disabled by default
+									clamp_y,			//!< Clamp texture coordinates along y axis. Disabled by default
+									clamp_z,			//!< Clamp texture coordinates along z axis. Disabled by default
+									enabled;			//!< Layer is enabled. Other values are not reliable and may be filled with garbage if this value is set false. Defaults to true
+		UINT32						combiner;			//!< GL combiner (usually GL_MODULATE or GL_DECAL). Somewhat deprecated.
+		const TMatrix4<>			*custom_system;		//!< Remote texcoord 4x4 system matrix. Must be set non-NULL if system_type is SystemType::Custom. This pointer may be invalid if system_type is NOT SystemType::Custom.
 			
-										MaterialLayer()
-										{
-											resetToDefault();
-										}
+									MaterialLayer()
+									{
+										resetToDefault();
+									}
 
-			void						resetToDefault();
+		void						resetToDefault();
 
-			void						setClamp(bool do_clamp)
-										{
-											clamp_x = clamp_y = clamp_z = do_clamp;
-										}
-			bool						IsNormalMap() const
-										{
-											return content_type != PixelType::Color;
-										}
-			bool						isValid() const
-										{
-											return enabled
-													&& system_type != SystemType::None
-													&& content_type != PixelType::None
-													&& (system_type != SystemType::Custom || custom_system != NULL);
-										}
+		void						setClamp(bool do_clamp)
+									{
+										clamp_x = clamp_y = clamp_z = do_clamp;
+									}
+		bool						IsNormalMap() const
+									{
+										return content_type != PixelType::Color;
+									}
+		bool						isValid() const
+									{
+										return enabled
+												&& system_type != SystemType::None
+												&& content_type != PixelType::None
+												&& (system_type != SystemType::Custom || custom_system != NULL);
+									}
 										
-			char						compareTo(const MaterialLayer&)		const;
+		char						compareTo(const MaterialLayer&)		const;
 
-			bool						operator==(const MaterialLayer&)		const;
-			bool						operator!=(const MaterialLayer&other)	const		{return !operator==(other);}
-			bool						operator>(const MaterialLayer&other)	const		{return compareTo(other) > 0;}
-			bool						operator<(const MaterialLayer&other)	const		{return compareTo(other) < 0;}
+		bool						operator==(const MaterialLayer&)		const;
+		bool						operator!=(const MaterialLayer&other)	const		{return !operator==(other);}
+		bool						operator>(const MaterialLayer&other)	const		{return compareTo(other) > 0;}
+		bool						operator<(const MaterialLayer&other)	const		{return compareTo(other) < 0;}
 
-	virtual	hash_t						hashCode()	const
-										{
-											return enabled? 
-													(int)(HashValue(system_type)
-														.add(content_type)
-														.add( (UINT32(clamp_x)<<24) | (UINT32(clamp_y)<<16) | (UINT32(clamp_z)<<8)  /*| UINT32(reflect)*/)
-														.add(combiner)
-														.add(system_type == SystemType::Custom && custom_system != NULL ? stdMemHash(custom_system,16*sizeof(float)) : 0)
-													)
-													:
-													0;
-										}
+		virtual	hash_t				ToHash()	const	override
+									{
+										return enabled? 
+												(int)(HashValue(system_type)
+													.AddGeneric(content_type)
+													.AddGeneric( (UINT32(clamp_x)<<24) | (UINT32(clamp_y)<<16) | (UINT32(clamp_z)<<8)  /*| UINT32(reflect)*/)
+													.AddGeneric(combiner)
+													.Add(system_type == SystemType::Custom && custom_system != NULL ? StdMemHash(custom_system,16*sizeof(float)) : 0)
+												)
+												:
+												0;
+									}
 	};
 
 
@@ -414,47 +419,42 @@ namespace Engine
 	*/
 	struct TColor:public TVec4<>
 	{
-			typedef TVec4<>	Super;
+		typedef TVec4<>	Super;
 
-			void						set(float intensity)	//! Sets the intensity of the local color. red, green, and blue are set to the specified value, alpha is set to 1.0
-										{
-											red = green = blue = intensity;
-											alpha = 1.0f;
-										}
-			void						set(float new_red, float new_green, float new_blue, float new_alpha = 1.0f)	//!< Updates the local color vector to the specified color values
-										{
-											red = new_red;
-											green = new_green;
-											blue = new_blue;
-											alpha = new_alpha;
-										}
-			void						set(const TVec3<float>&channel_values)	//!< Updates the local color vector. The alpha channel is set to 1.0
-										{
-											rgb = channel_values;
-											alpha = 1.0f;
-										}
+		void						set(float intensity)	//! Sets the intensity of the local color. red, green, and blue are set to the specified value, alpha is set to 1.0
+									{
+										red = green = blue = intensity;
+										alpha = 1.0f;
+									}
+		void						set(float new_red, float new_green, float new_blue, float new_alpha = 1.0f)	//!< Updates the local color vector to the specified color values
+									{
+										red = new_red;
+										green = new_green;
+										blue = new_blue;
+										alpha = new_alpha;
+									}
+		void						set(const TVec3<float>&channel_values)	//!< Updates the local color vector. The alpha channel is set to 1.0
+									{
+										rgb = channel_values;
+										alpha = 1.0f;
+									}
 
-			hash_t						hashCode()	const
-										{
-											return HashValue().addFloat(red).addFloat(green).addFloat(blue).addFloat(alpha);
-										}
+		bool						operator==(const TColor&other) const
+									{
+										return Vec::similar(*this,other);
+									}
 
-			bool						operator==(const TColor&other) const
-										{
-											return Vec::similar(*this,other);
-										}
+		char						compareTo(const TColor&other) const
+									{
+										return Vec::compare(*this,other);
+									}
 
-			char						compareTo(const TColor&other) const
-										{
-											return Vec::compare(*this,other);
-										}
-
-			bool						operator!=(const TColor&other)	const		{return !operator==(other);}
-			bool						operator>(const TColor&other)	const		{return compareTo(other) > 0;}
-			bool						operator<(const TColor&other)	const		{return compareTo(other) < 0;}
+		bool						operator!=(const TColor&other)	const		{return !operator==(other);}
+		bool						operator>(const TColor&other)	const		{return compareTo(other) > 0;}
+		bool						operator<(const TColor&other)	const		{return compareTo(other) < 0;}
 
 
-			TColor&						operator=(const TVec4<>&other)	{Super::operator=(other); return*this;}
+		TColor&						operator=(const TVec4<>&other)	{Super::operator=(other); return*this;}
 	};
 
 	/**
@@ -463,30 +463,30 @@ namespace Engine
 	class MaterialColors : public IHashable
 	{
 	public:
-			TColor						ambient,		//!< Ambient light intensity vector
-										diffuse,		//!< Diffuse light intensity vector
-										specular,		//!< Specular light intensity vector
-										emission;		//!< Emission light intensity vector
-			float						alpha_threshold;	//!< @deprecated{should implement this feature using shaders} Minimum alpha value for a fragment to be visible. Effective only if @a alpha_test is set true
-			bool						alpha_test,			//!< @deprecated{should implement this feature using shaders}
-										blend,				//!< Indicates that alpha blending should be used for this material (true by default)
-										fully_reflective;	//!< Configures the shader to apply any reflection map everywhere, thus overriding any other material parameters (safe for normal mapping)
-			BYTE						shininess_exponent;	//!< Shininess exponent in the range 1-128. The higher, the sharper the reflected cone will be. Defaults to 16
+		TColor						ambient,		//!< Ambient light intensity vector
+									diffuse,		//!< Diffuse light intensity vector
+									specular,		//!< Specular light intensity vector
+									emission;		//!< Emission light intensity vector
+		float						alpha_threshold;	//!< @deprecated{should implement this feature using shaders} Minimum alpha value for a fragment to be visible. Effective only if @a alpha_test is set true
+		bool						alpha_test,			//!< @deprecated{should implement this feature using shaders}
+									blend,				//!< Indicates that alpha blending should be used for this material (true by default)
+									fully_reflective;	//!< Configures the shader to apply any reflection map everywhere, thus overriding any other material parameters (safe for normal mapping)
+		BYTE						shininess_exponent;	//!< Shininess exponent in the range 1-128. The higher, the sharper the reflected cone will be. Defaults to 16
 
-										MaterialColors();
-	virtual								~MaterialColors()	{};
-	virtual	hash_t						hashCode() const;
+									MaterialColors();
+		virtual						~MaterialColors()	{};
+		virtual	hash_t				ToHash() const	override;
 
-			void 						read(const CGS::MaterialInfo&info);	//!< Fills all local variables in accordance with the specified CGS material
+		void 						read(const CGS::MaterialInfo&info);	//!< Fills all local variables in accordance with the specified CGS material
 
-			char						compareTo(const MaterialColors&)	const;
+		char						compareTo(const MaterialColors&)	const;
 
-			bool						operator==(const MaterialColors&)	const;
-			bool						operator!=(const MaterialColors&other)	const		{return !operator==(other);}
-			bool						operator>(const MaterialColors&other)	const		{return compareTo(other) > 0;}
-			bool						operator<(const MaterialColors&other)	const		{return compareTo(other) < 0;}
+		bool						operator==(const MaterialColors&)	const;
+		bool						operator!=(const MaterialColors&other)	const		{return !operator==(other);}
+		bool						operator>(const MaterialColors&other)	const		{return compareTo(other) > 0;}
+		bool						operator<(const MaterialColors&other)	const		{return compareTo(other) < 0;}
 
-			void						resetToDefault();
+		void						resetToDefault();
 	};
 
 	/**
@@ -507,7 +507,7 @@ namespace Engine
 
 		/**/							VertexBinding(count_t layers=0);
 		virtual							~VertexBinding()	{};
-		virtual hash_t					hashCode() const override;
+		virtual hash_t					ToHash() const override;
 
 		void							swap(VertexBinding&other)
 										{
@@ -583,7 +583,7 @@ namespace Engine
 		friend void					swap(Self&a, Self&b)	{a.swap(b);}
 	
 
-		virtual	hash_t				hashCode() const;
+		virtual	hash_t				ToHash() const	override;
 
 	//virtual	bool						isConsistent() const	{return VertexBinding::texcoords.count() == layers.count();}
 	};
@@ -682,10 +682,10 @@ namespace Engine
 								}
 			friend void			swap(Self&a, Self&b)	{a.swap(b);}
 
-			virtual	hash_t		hashCode() const
+			virtual	hash_t		ToHash() const override
 								{
-									HashValue hash(MaterialConfiguration::hashCode());
-									hash.add(stdMemHash(textures.pointer(),textures.GetContentSize()));
+									HashValue hash(MaterialConfiguration::ToHash());
+									hash.Add(StdMemHash(textures.pointer(),textures.GetContentSize()));
 
 									return hash;
 								}
