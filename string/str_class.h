@@ -273,6 +273,17 @@ template <typename T>
 		/**/			ReferenceExpression():reference(NULL),len(0) {}
 		/**/			ReferenceExpression(const T*str):reference(str),len(Template::strlen(str)) {}
 		/**/			ReferenceExpression(const T*str, size_t length):reference(str),len(length) {}
+
+
+		friend hash_t	Hash(const ReferenceExpression<T>&ref)
+		{
+			return StdCharHash(ref.pointer(),ref.size());
+		}
+		friend StringTemplate<T>	ToString(const ReferenceExpression<T>&ref)
+		{
+			return StringTemplate<T>(ref);
+		}
+
 		iterator		begin() const {return reference;}
 		iterator		end() const {return reference + len;}
 		inline bool		DropLastChar()
@@ -1704,7 +1715,20 @@ template <typename T>
 			inline	T2*				writeTo(T2*target, T2*end)	const;
 
 
+		friend hash_t				Hash(const StringTemplate<T>&ref)
+		{
+			return StdCharHash(ref.c_str(),ref.size());
+		}	
+
 		virtual const T*			ToCString() const override {return field;}	//! IString::ToCString()
+		friend StringTemplate<char>	ToString(const StringTemplate<T>&str)
+		{
+			return StringTemplate<char>(str);
+		}
+		friend StringTemplate<wchar_t>	ToStringW(const StringTemplate<T>&str)
+		{
+			return StringTemplate<wchar_t>(str);
+		}
 	};
 /*
 template <typename T> inline
@@ -1732,6 +1756,40 @@ typedef ReferenceExpression<wchar_t>StringRefW;
 	#define FOPEN(_FILE_,_MODE_)	fopen((_FILE_),_MODE_)
 #endif
 
+
+
+inline String	ToString(long long i)	{return String(i);}
+inline StringW	ToStringW(long long i)	{return StringW(i);}
+inline String	ToString(long i)	{return String(i);}
+inline StringW	ToStringW(long i)	{return StringW(i);}
+inline String	ToString(int i)		{return String(i);}
+inline StringW	ToStringW(int i)	{return StringW(i);}
+inline String	ToString(short i)	{return String(i);}
+inline StringW	ToStringW(short i)	{return StringW(i);}
+inline String	ToString(bool i)	{return String(i);}
+inline StringW	ToStringW(bool i)	{return StringW(i);}
+
+inline String	ToString(unsigned long long i)	{return String(i);}
+inline StringW	ToStringW(unsigned long long i)	{return StringW(i);}
+inline String	ToString(unsigned long i)	{return String(i);}
+inline StringW	ToStringW(unsigned long i)	{return StringW(i);}
+inline String	ToString(unsigned int i)		{return String(i);}
+inline StringW	ToStringW(unsigned int i)	{return StringW(i);}
+inline String	ToString(unsigned short i)	{return String(i);}
+inline StringW	ToStringW(unsigned short i)	{return StringW(i);}
+inline String	ToString(unsigned char i)	{return String(i);}
+inline StringW	ToStringW(unsigned char i)	{return StringW(i);}
+
+inline String	ToString(float i)	{return String(i);}
+inline StringW	ToStringW(double i)	{return StringW(i);}
+
+inline String	ToString(const TCodeLocation& i)	{return String(i);}
+inline StringW	ToStringW(const TCodeLocation& i)	{return StringW(i);}
+
+template <size_t MaxLength>
+	inline String	ToString(const TFixedString<MaxLength>& i)	{return String(i);}
+template <size_t MaxLength>
+	inline StringW	ToStringW(const TFixedString<MaxLength>& i){return StringW(i);}
 
 
 

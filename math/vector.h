@@ -272,6 +272,9 @@ namespace Math
 		}
 
 
+
+
+
 	template <typename T=float>
 		class TFloatRange
 		{
@@ -2562,6 +2565,30 @@ namespace Math
 	
 
 	#include "vector_operations.h"
+
+
+
+	template <typename T>
+		inline String ToString(const TVec2<T>&v)
+		{
+			return Vec::toString(v);
+		}
+	template <typename T>
+		inline String ToString(const TVec3<T>&v)
+		{
+			return Vec::toString(v);
+		}
+	template <typename T>
+		inline String ToString(const TVec4<T>&v)
+		{
+			return Vec::toString(v);
+		}
+
+	template <typename T, count_t D>
+		inline String ToString(const TVec<T,D>&v)
+		{
+			return Vec::toString(v);
+		}
 
 	
 	template <typename T=float>
