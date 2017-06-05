@@ -128,6 +128,14 @@ public:
 			return *this;
 		}
 
+	template <typename T, count_t ArrayLength>
+		HashValue&	operator<<(const T(&value)[ArrayLength])
+		{
+			using namespace GlobalHashFunctions;
+			for (index_t i = 0; i < ArrayLength; i++)
+				Add(Hash(value[i]));
+			return *this;
+		}
 
 	operator hash_t() const
 	{
