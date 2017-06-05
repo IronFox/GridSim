@@ -678,6 +678,20 @@ template <typename T>
 		//ASSERT_NOT_NULL__(field);
 	}
 
+	
+template <typename T>
+	template <size_t MaxLength>
+		inline	StringTemplate<T>::StringTemplate(const TFixedString<MaxLength>&string)
+		{
+			*this = StringTemplate<T>(string.begin);
+		}
+template <typename T>
+	inline	StringTemplate<T>::StringTemplate(const TCodeLocation&loc)
+	{
+		TCodeLocation::TOutString str;
+		loc.Format(str);
+		*this = StringTemplate<T>(str.begin);
+	}
 
 
 template <typename T>

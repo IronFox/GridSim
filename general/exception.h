@@ -39,69 +39,29 @@ __STDC__
 	#include <stdexcept>
 #endif
 
+template <size_t Length>
+	struct TFixedString
+	{
+		static const size_t BufferSize = Length;
 
+		char			*begin;	//!< Actual string to use. May or may not match the beginning of buffer
+
+
+		char			buffer[BufferSize];
+	};
 
 struct TCodeLocation
 {
-	char			formatted[512];
+	const char*		file="",*method="";
+	unsigned		line=0;
+
+	typedef TFixedString<512>	TOutString;
     
-					TCodeLocation()
-					{
-						formatted[0] = 0;
-					};
-                    TCodeLocation(const char*file, const char*method, unsigned line)
-					{
-						//std::cout << "determining code location for "<<file<<"/"<<method<<" ["<<line<<"]"<<std::endl;
-						const char	*in = file,
-									*last = file;
-
-						char		modded_file[512];
-
-						char		*out = modded_file;
-							
-						
-						while (*in)
-						{
-							if (*in == '/' || *in == '\\')
-							{
-								if (in-last == 2)
-								{
-									if (last[0] == '.' && last[1] == '.' && out-modded_file>=2)
-									{
-										out -= 2;
-										while (out > modded_file && *out != '/' && *out != '\\')
-											out--;
-									}
-								}
-								last = in+1;
-							}
-							if (out-modded_file >= sizeof(modded_file)-2)
-								break;
-							(*out++) = (*in++);
-						}
-						(*out++) = 0;
-						unsigned cnt = 0;
-						while (out > modded_file && cnt < 2)
-						{
-							out--;
-							if (*out == '/' || *out == '\\')
-								cnt++;
-						}
-						if (cnt == 2)
-							out++;
-						//std::cout << " ... "<<out<<std::endl;
-						
-						sprintf_s(formatted,sizeof(formatted),"line %i of %s::%s()",line,out,method);
-						//std::cout << " ... "<<formatted<<std::endl;
-
-
-						//char buffer[0x100];
-						//std::cin.getline(buffer,sizeof(buffer));
-					};
-	const char*		ToString()	const
-                    {
-						return formatted;
-					}
+	/**/			TCodeLocation()	{}
+	/**/			TCodeLocation(const char*file, const char*method, unsigned line):file(file),method(method),line(line)	{}
+					
+	void			Format(TOutString&)	const throw();
+	void			FormatFilename(TOutString&)	const throw();
 };
 
 
@@ -128,39 +88,23 @@ struct TCodeLocation
 class FatalDescriptor:public TCodeLocation
 {
 private:
-		char		message[10000],
+	char			message[10000],
 					formatted[11000];
 
 		
-		void		copy(const char*message, size_t length) throw()
-					{
-						if (length > sizeof(this->message)-1)
-							length = sizeof(this->message)-1;
-						memcpy(this->message,message,length);
-						this->message[length] = 0;
-						sprintf_s(formatted,sizeof(formatted),"Fatal exception in %s\n\"%s\"",TCodeLocation::formatted,this->message);
-					}
+	void			Copy(const char*message, size_t length) throw();
+	void			Reformat() throw();
 public:
                     FatalDescriptor(const TCodeLocation&location, const char*msg):TCodeLocation(location)
                     {
-						copy(msg,strlen(msg));
+						Copy(msg,strlen(msg));
                     }
 
 template <class C>  FatalDescriptor(const TCodeLocation&location, const C&msg):TCodeLocation(location)
                     {
-						/*msg.printArchitecture(cout); cout << endl;
-						msg.print(cout); cout << endl;*/
 						char*terminal = msg.writeTo(message,message+sizeof(message)-1);
-						//cout << (unsigned)(terminal-message)<<endl;
-						
 						*terminal = 0;
-						
-						//cout << message << endl;
-						
-						
-						sprintf(formatted,"Fatal exception in %s\n\"%s\"",TCodeLocation::formatted,message);
-						
-						//cout << formatted<<endl;
+						Reformat();
                     }
 
 	const char*		ErrorMessage()	const throw()
@@ -344,7 +288,9 @@ namespace Except
 				if (!hasLocation)
 					return Super::what();
 				static char buffer[0x4000];
-				sprintf_s<sizeof(buffer)>(buffer,"%s: %s",location.ToString(),Super::what());
+				TCodeLocation::TOutString	formatted;
+				location.Format(formatted);
+				sprintf_s<sizeof(buffer)>(buffer,"%s: %s",formatted.begin,Super::what());
 				buffer[sizeof(buffer)-1] = 0;
 				return buffer;
 			};

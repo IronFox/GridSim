@@ -79,15 +79,15 @@ namespace TCP
 				{
 					if (lockDepth == 0)
 					{
-						FATAL__(String(locker.ToString())+": Failed to lock thread after "+String(toleranceMS)+"ms. Deadlock assumed. No lockers. This should not happen. Like, ever!");
+						FATAL__(String(locker)+": Failed to lock thread after "+String(toleranceMS)+"ms. Deadlock assumed. No lockers. This should not happen. Like, ever!");
 					}
 					else
 						if (lockDepth <= ARRAYSIZE(lastLockedBy)) 
 						{
-							FATAL__(String(locker.ToString())+": Failed to lock thread after "+String(toleranceMS)+"ms. Deadlock assumed. Last locker was "+lastLockedBy[lockDepth-1].ToString());
+							FATAL__(String(locker)+": Failed to lock thread after "+String(toleranceMS)+"ms. Deadlock assumed. Last locker was "+String(lastLockedBy[lockDepth-1]));
 						}
 						else
-							FATAL__(String(locker.ToString())+": Failed to lock thread after "+String(toleranceMS)+"ms. Deadlock assumed. Too many lockers");
+							FATAL__(String(locker)+": Failed to lock thread after "+String(toleranceMS)+"ms. Deadlock assumed. Too many lockers");
 					return false;
 				}
 				if (lockDepth < ARRAYSIZE(lastLockedBy))
@@ -220,7 +220,7 @@ namespace TCP
 
 
 
-		const char* what() const override {return (String(loc.ToString())+": "+message).c_str();}
+		const char* what() const override {return (String(loc)+": "+message).c_str();}
 	};
 
 

@@ -86,4 +86,81 @@ namespace Except
 
 	}
 
+
+
 }
+
+
+
+
+void		FatalDescriptor::Copy(const char*message, size_t length)
+{
+	if (length > sizeof(this->message)-1)
+		length = sizeof(this->message)-1;
+	memcpy(this->message,message,length);
+	this->message[length] = 0;
+	Reformat();
+}
+
+	
+void			TCodeLocation::Format(TCodeLocation::TOutString&rs)	const
+{
+	//std::cout << "determining code location for "<<file<<"/"<<method<<" ["<<line<<"]"<<std::endl;
+	const char	*in = file,
+				*last = file;
+
+	TOutString	filename;
+	FormatFilename(filename);
+						
+	sprintf_s(rs.buffer,sizeof(rs.buffer),"line %i of %s::%s()",line,filename.begin,method);
+	rs.begin = rs.buffer;
+};
+
+void		FatalDescriptor::Reformat() throw()
+{
+	TCodeLocation::TOutString filename;
+	TCodeLocation::FormatFilename(filename);
+	sprintf_s(formatted,"Fatal exception in line %i of %s::%s\n\"%s\"",TCodeLocation::line,filename.begin,TCodeLocation::method,message);
+}
+
+
+void			TCodeLocation::FormatFilename(TOutString&rs)	const
+{
+	const char	*in = file,
+				*last = file;
+
+	char		*out = rs.buffer;
+							
+						
+	while (*in)
+	{
+		if (*in == '/' || *in == '\\')
+		{
+			if (in-last == 2)
+			{
+				if (last[0] == '.' && last[1] == '.' && out-rs.buffer>=2)
+				{
+					out -= 2;
+					while (out > rs.buffer && *out != '/' && *out != '\\')
+						out--;
+				}
+			}
+			last = in+1;
+		}
+		if (out-rs.buffer >= sizeof(rs.buffer)-2)
+			break;
+		(*out++) = (*in++);
+	}
+	(*out++) = 0;
+	unsigned cnt = 0;
+	while (out > rs.buffer && cnt < 2)
+	{
+		out--;
+		if (*out == '/' || *out == '\\')
+			cnt++;
+	}
+	if (cnt == 2)
+		out++;
+	rs.begin = out;
+};
+

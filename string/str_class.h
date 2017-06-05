@@ -1208,9 +1208,11 @@ template <typename T>
 										#endif
 										DBG_ASSERT_NOT_NULL__(field);
 									}
-								template <typename T2>
-									StringTemplate(const T2*string, size_t length);
-							//template <typename T2>
+	template <typename T2>
+		/**/						StringTemplate(const T2*string, size_t length);
+	template <size_t MaxLength>
+		/**/						StringTemplate(const TFixedString<MaxLength>&string);
+	/**/							StringTemplate(const TCodeLocation&loc);
 	inline							StringTemplate(const char*string);
 	inline							StringTemplate(const wchar_t*string);
 									StringTemplate(bool);
@@ -1885,16 +1887,6 @@ template <typename T>
 #endif
 
 
-	template <typename T>
-		inline hash_t		Hash(const ReferenceExpression<T>&ref)
-		{
-			return StdCharHash(ref.pointer(),ref.size());
-		}
-	template <typename T>
-		inline hash_t		Hash(const StringTemplate<T>&ref)
-		{
-			return StdCharHash(ref.c_str(),ref.size());
-		}	
 	
 #include "str_class.tpl.h"
 
