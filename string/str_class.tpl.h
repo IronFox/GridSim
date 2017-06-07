@@ -3679,9 +3679,9 @@ template <typename T>
 			}
 				
 			double sub_decimal = pow(10.0f,exactness)*value;
-			if (sub_decimal > INT_MAX)
+			if (sub_decimal > UINT64_MAX)
 			{
-				exactness = (BYTE)log10(INT_MAX/value);
+				exactness = (BYTE)log10(UINT64_MAX/value);
 				sub_decimal = pow(10.0f,exactness)*value;
 			}
 			UINT64 v = (UINT64)round(sub_decimal);
