@@ -42,7 +42,7 @@ public:
 	inline	char		operator[](index_t index)	const{return Super::operator[](index);}
 		
 	StringRef			ToStringRef()	const;		//!< Returns a string reference to the local content
-	String				ToString()		const;		//!< Converts the local content to a string
+	String				CopyToString()		const;		//!< Copies the local content to a string
 
 	inline void			Write(const char*str, size_t strLen)	{memcpy(Super::appendRow(strLen),str,strLen);}
 };

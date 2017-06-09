@@ -231,7 +231,7 @@ StringBuffer&  StringBuffer::operator<<(const TTabSpace&space)
 }
 
 
-String	 StringBuffer::ToString()	const
+String	 StringBuffer::CopyToString()	const
 {
 	return String(Super::pointer(),Super::Count());
 }
