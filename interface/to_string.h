@@ -3,23 +3,33 @@
 
 #include "common.h"
 
-template <typename T>
-	class StringTemplate;
+namespace StringType
+{
+	template <typename T>
+		class Template;
+}
 
 /**
-	@brief String convertible object
+@brief String convertible object
 	
-	IToString provides an abstract super type for all objects that can implicitly be converted into a string.
+IToString provides an abstract super type for all objects that can implicitly be converted into a string.
 */
 interface IToString
 {
 protected:
-virtual								~IToString()	{};
+	virtual								~IToString()	{};
 public:
-virtual	StringTemplate<char>		ToString()	const=0;	//!< Converts the local object into a string to display to the user
+	virtual	StringType::Template<char>	ConvertToString()	const=0;	//!< Converts the local object into a string to display to the user
 };
 
+
 #include "../string/str_class.h"
+
+
+namespace StringConversion
+{
+	StringType::Template<char>	ToString(const IToString&str);
+}
 
 
 #endif

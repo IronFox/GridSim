@@ -1108,7 +1108,7 @@ namespace FileSystem
 
 
 	template<typename T>
-		static StringTemplate<T>	_extractFileName(const StringTemplate<T>&filename)
+		static StringType::Template<T>	_extractFileName(const StringType::Template<T>&filename)
 		{
 			index_t last_dot(filename.length()),last_slash(0);
 			for (index_t i = 0; i < filename.length(); i++)
@@ -1129,12 +1129,12 @@ namespace FileSystem
 	}
 
 	template <typename T>
-		static StringTemplate<T>	_extractFileExt(const StringTemplate<T>&filename)
+		static StringType::Template<T>	_extractFileExt(const StringType::Template<T>&filename)
 		{
 			index_t at(filename.length()-1);
 			while (filename.get(at) != (T)'/' && filename.get(at) != (T)'\\' && filename.get(at) != (T)'.' && --at < filename.length());
 			if (at >= filename.length() || filename.get(at) != (T)'.')
-				return StringTemplate<T>();
+				return StringType::Template<T>();
 			return filename.subString(at+1);
 		}
 
@@ -1144,10 +1144,10 @@ namespace FileSystem
 	}
 
 	template <typename T>
-		static StringTemplate<T>	_extractFileDir(const StringTemplate<T>&filename)
+		static StringType::Template<T>	_extractFileDir(const StringType::Template<T>&filename)
 		{
 			if (!filename.length())
-				return StringTemplate<T>();
+				return StringType::Template<T>();
 			index_t at = filename.length()-1;
 			while (filename.get(at) != (T)'\\' && filename.get(at) != (T)'/' && --at < filename.length());
 			if (at >= filename.length())
@@ -1160,11 +1160,11 @@ namespace FileSystem
 	PathString	ExtractFileDir(const PathString&filename)	{return _extractFileDir(filename);}
 
 	template <typename T>
-		static StringTemplate<T>	 _extractFileDirName(const StringTemplate<T>&filename)
+		static StringType::Template<T>	 _extractFileDirName(const StringType::Template<T>&filename)
 		{
 			index_t at(filename.length()-1);
 			if (at >= filename.length())
-				return StringTemplate<T>();
+				return StringType::Template<T>();
 			while (filename.get(at) != (T)'/' && filename.get(at) != (T)'\\' && filename.get(at) != (T)'.' && --at < filename.length());
 			if (at >= filename.length() || filename.get(at) != (T)'.')
 				return filename;
@@ -1174,11 +1174,11 @@ namespace FileSystem
 	PathString	 ExtractFileDirName(const PathString&filename)	{return _extractFileDirName(filename);}
 
 	template <typename T>
-		static StringTemplate<T>	 _extractFileNameExt(const StringTemplate<T>&filename)
+		static StringType::Template<T>	 _extractFileNameExt(const StringType::Template<T>&filename)
 		{
 			index_t at = filename.length()-1;
 			if (at>= filename.length())
-				return StringTemplate<T>();
+				return StringType::Template<T>();
 			while (filename.get(at) != (T)'/' && filename.get(at) != (T)'\\' && --at < filename.length());
 			return filename.subString(at+1);
 		}
@@ -1187,11 +1187,11 @@ namespace FileSystem
 
 
 	template <typename T>
-		static StringTemplate<T>	_escapeSpaces(StringTemplate<T> path)
+		static StringType::Template<T>	_escapeSpaces(StringType::Template<T> path)
 		{
 			while (index_t at = path.GetIndexOf((T)'\\'))
 				path.erase(at-1,1);
-			StringTemplate<T> final;
+			StringType::Template<T> final;
 			for (index_t i = 0; i < path.length(); i++)
 			{
 				if (path.get(i) == (T)' ')

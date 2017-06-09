@@ -625,18 +625,18 @@ namespace Except
 
 #define ASSERT__(_EXPRESSION_)	{if (!(_EXPRESSION_)) FATAL__("[" #_EXPRESSION_ "] evaluates to false");}
 #define ASSERT_NOT_NULL__(_EXPRESSION_)	{if ((_EXPRESSION_)==NULL) FATAL__("[" #_EXPRESSION_ "] evaluates to NULL");}
-#define ASSERT_NOT_NULL1__(_EXPRESSION_,_PARAMETER0_)	{if ((_EXPRESSION_)==NULL) FATAL__(#_EXPRESSION_ " (with "#_PARAMETER0_"='"+String(_PARAMETER0_)+"') evaluates to NULL");}
+#define ASSERT_NOT_NULL1__(_EXPRESSION_,_PARAMETER0_)	{using ::StringConversion::ToString; if ((_EXPRESSION_)==NULL) FATAL__(#_EXPRESSION_ " (with "#_PARAMETER0_"='"+ToString(_PARAMETER0_)+"') evaluates to NULL");}
 #define ASSERT_IS_NULL__(_EXPRESSION_)	{if ((_EXPRESSION_)!=NULL) FATAL__("[" #_EXPRESSION_ "] evaluates to not NULL");}
 
-#define ASSERT1__(_EXPRESSION_,_PARAMETER0_)	{if (!(_EXPRESSION_)) FATAL__(#_EXPRESSION_ " (with "#_PARAMETER0_"='"+String(_PARAMETER0_)+"') evaluates to false");}
-#define ASSERT2__(_EXPRESSION_,_PARAMETER0_,_PARAMETER1_)	{if (!(_EXPRESSION_)) FATAL__(#_EXPRESSION_ " (with "#_PARAMETER0_"='"+String(_PARAMETER0_)+"' and "#_PARAMETER1_"='"+String(_PARAMETER1_)+"') evaluates to false");}
-#define ASSERT3__(_EXPRESSION_,_PARAMETER0_,_PARAMETER1_,_PARAMETER2_)	{if (!(_EXPRESSION_)) FATAL__( #_EXPRESSION_ " (with "#_PARAMETER0_"='"+String(_PARAMETER0_)+"', "#_PARAMETER1_"='"+String(_PARAMETER1_)+"', and "#_PARAMETER2_"='"+String(_PARAMETER2_)+"') evaluates to false");}
-#define ASSERT4__(_EXPRESSION_,_PARAMETER0_,_PARAMETER1_,_PARAMETER2_,_PARAMETER3_)	{if (!(_EXPRESSION_)) FATAL__( #_EXPRESSION_ " (with "#_PARAMETER0_"='"+String(_PARAMETER0_)+"', "#_PARAMETER1_"='"+String(_PARAMETER1_)+"', "#_PARAMETER2_"='"+String(_PARAMETER2_)+"', and "#_PARAMETER3_"='"+String(_PARAMETER3_)+"') evaluates to false");}
+#define ASSERT1__(_EXPRESSION_,_PARAMETER0_)	{using ::StringConversion::ToString; if (!(_EXPRESSION_)) FATAL__(#_EXPRESSION_ " (with "#_PARAMETER0_"='"+ToString(_PARAMETER0_)+"') evaluates to false");}
+#define ASSERT2__(_EXPRESSION_,_PARAMETER0_,_PARAMETER1_)	{using ::StringConversion::ToString; if (!(_EXPRESSION_)) FATAL__(#_EXPRESSION_ " (with "#_PARAMETER0_"='"+ToString(_PARAMETER0_)+"' and "#_PARAMETER1_"='"+ToString(_PARAMETER1_)+"') evaluates to false");}
+#define ASSERT3__(_EXPRESSION_,_PARAMETER0_,_PARAMETER1_,_PARAMETER2_)	{using ::StringConversion::ToString; if (!(_EXPRESSION_)) FATAL__( #_EXPRESSION_ " (with "#_PARAMETER0_"='"+ToString(_PARAMETER0_)+"', "#_PARAMETER1_"='"+ToString(_PARAMETER1_)+"', and "#_PARAMETER2_"='"+ToString(_PARAMETER2_)+"') evaluates to false");}
+#define ASSERT4__(_EXPRESSION_,_PARAMETER0_,_PARAMETER1_,_PARAMETER2_,_PARAMETER3_)	{using ::StringConversion::ToString; if (!(_EXPRESSION_)) FATAL__( #_EXPRESSION_ " (with "#_PARAMETER0_"='"+ToString(_PARAMETER0_)+"', "#_PARAMETER1_"='"+ToString(_PARAMETER1_)+"', "#_PARAMETER2_"='"+ToString(_PARAMETER2_)+"', and "#_PARAMETER3_"='"+ToString(_PARAMETER3_)+"') evaluates to false");}
 
-#define CONSTRAINT_VIOLATION3__(component,vector,lower_bounds,upper_bounds)	FATAL__("Constraint violation of component "#component" of vector "#vector" ("+String((vector)[0])+", "+String((vector)[1])+", "+String((vector)[2])+") against constraint ["+String(lower_bounds)+", "+String(upper_bounds)+"]")
-#define ASSERT_COMPONENT_IS_CONSTRAINED3__(component,vector,lower_bounds,upper_bounds)	if ((vector)[component]<(lower_bounds) || (vector)[component]>(upper_bounds)) CONSTRAINT_VIOLATION3__(component,vector,lower_bounds,upper_bounds)
-#define	ASSERT_IS_CONSTRAINED3__(vector,lower_bounds,upper_bounds)	{ASSERT_COMPONENT_IS_CONSTRAINED3__(0,vector,lower_bounds,upper_bounds);ASSERT_COMPONENT_IS_CONSTRAINED3__(1,vector,lower_bounds,upper_bounds);ASSERT_COMPONENT_IS_CONSTRAINED3__(2,vector,lower_bounds,upper_bounds);}
-#define	ASSERT_IS_CONSTRAINED__(value,lower_bounds,upper_bounds)	{if ((value)<(lower_bounds) || (value)>(upper_bounds)) FATAL__("Constraint violation of "#value" ("+String(value)+") against constraint ["+String(lower_bounds)+", "+String(upper_bounds)+"]");}
+#define CONSTRAINT_VIOLATION3__(component,vector,lower_bounds,upper_bounds)	{using ::StringConversion::ToString;  FATAL__("Constraint violation of component "#component" of vector "#vector" ("+ToString((vector)[0])+", "+ToString((vector)[1])+", "+ToString((vector)[2])+") against constraint ["+ToString(lower_bounds)+", "+ToString(upper_bounds)+"]");}
+#define ASSERT_COMPONENT_IS_CONSTRAINED3__(component,vector,lower_bounds,upper_bounds)	{using ::StringConversion::ToString; if ((vector)[component]<(lower_bounds) || (vector)[component]>(upper_bounds)) CONSTRAINT_VIOLATION3__(component,vector,lower_bounds,upper_bounds);}
+#define	ASSERT_IS_CONSTRAINED3__(vector,lower_bounds,upper_bounds)	{using ::StringConversion::ToString; ASSERT_COMPONENT_IS_CONSTRAINED3__(0,vector,lower_bounds,upper_bounds);ASSERT_COMPONENT_IS_CONSTRAINED3__(1,vector,lower_bounds,upper_bounds);ASSERT_COMPONENT_IS_CONSTRAINED3__(2,vector,lower_bounds,upper_bounds);}
+#define	ASSERT_IS_CONSTRAINED__(value,lower_bounds,upper_bounds)	{using ::StringConversion::ToString; if ((value)<(lower_bounds) || (value)>(upper_bounds)) FATAL__("Constraint violation of "#value" ("+ToString(value)+") against constraint ["+ToString(lower_bounds)+", "+ToString(upper_bounds)+"]");}
 
 #define	ASSERT_EQUAL__(exp0,exp1)						ASSERT2__((exp0)==(exp1),exp0,exp1)
 #define	ASSERT_EQUAL1__(exp0,exp1,exp2)					ASSERT3__((exp0)==(exp1),exp0,exp1,exp2)

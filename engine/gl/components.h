@@ -44,7 +44,7 @@ namespace Engine
 			Label*						SetColor(const TVec4<>&color);	//!< Updates label text color
 			void						SetTextMargin(const Quad<float>&margin);
 			const Quad<float>&			GetTextMargin() const	{return textMargin;}
-			String						ToString()	const	{return caption;}	//!< Simple CSObject ToString() override
+			String						ConvertToString()	const override	{return caption;}	//!< Simple IToString::ConvertToString() override
 			virtual	void				UpdateLayout(const Rect<float>&parent_region)	override;
 		};
 		
@@ -543,7 +543,7 @@ namespace Engine
 										}
 			void						SetText(const char*new_text);
 			void						SetText(const String&new_text);
-			void						SetText(const ReferenceExpression<char>&new_text);
+			void						SetText(const StringRef&new_text);
 			StringBuffer&				GetBuffer()			{SignalVisualChange(); return text;}
 			const StringBuffer&			GetBuffer() const	{return text;}
 			String						GetText()		const{return text.ToStringRef();}

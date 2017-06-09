@@ -1317,7 +1317,7 @@ namespace Converter
 					_oDetDimension(vs_hull.vertex_field[j].position,dim);
 				}
 
-				logMessage("extracted dimensions of '"+child.name+"': "+dim.ToString());
+				logMessage("extracted dimensions of '"+child.name+"': "+ToString(dim));
 				
 				if (positionObjects)
 				{

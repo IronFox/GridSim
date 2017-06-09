@@ -411,7 +411,7 @@ namespace Engine
 			HWND				createWindow(const String&window_name, DisplayConfig::border_style_t border_style, const DisplayConfig::FOnResize&onResize, const DisplayConfig::Icon&icon);
 			HWND 				createChildWindow(HWND parent, bool enabled);
 			void				setWindow(HWND);
-			WString				createClass();
+			StringW				createClass();
 			void				destroyClass();
 
 			bool				CheckFullscreen(const WINDOWINFO&) const;

@@ -10,7 +10,7 @@ namespace Engine
 {
 	inline bool validFileNameChar(char c)
 	{
-		return Template::isalnum(c) || c == ' ' || c == '_';
+		return CharFunctions::isalnum(c) || c == ' ' || c == '_';
 	}
 
 	namespace Detail

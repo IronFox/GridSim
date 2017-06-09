@@ -948,7 +948,7 @@ namespace Engine
 					
 					for (unsigned k	= 0; k < ARRAYSIZE(type); k++)
 					{
-						const char*myAt = ::Template::strstr(at,type[k].c_str());
+						const char*myAt = ::CharFunctions::strstr(at,type[k].c_str());
 						if (!myAt)
 							continue;
 						if (!min || myAt < min)
@@ -957,7 +957,7 @@ namespace Engine
 							item = type+k;
 						}
 					}
-					ReferenceExpression<char>	segment = item?ReferenceExpression<char>(at,min-at):ReferenceExpression<char>(at,end-at);
+					StringRef	segment = item?StringRef(at,min-at):StringRef(at,end-at);
 					if (item)
 						at = min+item->length();
 					else
@@ -1017,14 +1017,14 @@ namespace Engine
 					}
 					for (; i < tokens.count(); )
 					{
-						ReferenceExpression<char>	source = tokens[i++].trimRef();
+						StringRef	source = tokens[i++].trimRef();
 						if (source.length() == 0)
 							continue;
 						
 						if (source.pointer()[0] != '{' || source.pointer()[source.length()-1] != '}')
 							continue;
 						
-						*sourceTarget = ReferenceExpression<char>(source.pointer() + 1, source.length()-2);
+						*sourceTarget = StringRef(source.pointer() + 1, source.length()-2);
 						sourceTarget = NULL;
 						break;
 					}
@@ -1178,7 +1178,7 @@ namespace Engine
 		{
 			const char*str = source.c_str(),*begin = NULL;
 			index_t offset = initializers.count();
-			while ((begin = ::Template::strstr(str,"<:=")))
+			while ((begin = ::CharFunctions::strstr(str,"<:=")))
 			{
 				const char*valueBegin = begin+3;
 				const char*foundAt = begin;
@@ -1186,7 +1186,7 @@ namespace Engine
 				while (begin > str && isWhitespace( *begin ) )
 					begin--;
 				const char*nameEnd = begin+1;
-				while (begin > str && (::Template::isalnum(*begin) || *begin == '_'))
+				while (begin > str && (::CharFunctions::isalnum(*begin) || *begin == '_'))
 					begin--;
 				begin++;
 				Initializer&init = initializers.append();
@@ -2023,7 +2023,7 @@ namespace Engine
 				Expression*result = _ProcessLayer(tokens,map,0,tokens.count(),error);
 				if (result && !result->Validate())
 				{
-					error = "Expression '"+result->ToString()+"' failed to validate";
+					error = "Expression '"+result->ConvertToString()+"' failed to validate";
 					DISCARD(result);
 					return NULL;
 				}
@@ -2042,7 +2042,7 @@ namespace Engine
 				{
 					if (inComment)
 					{
-						c = ::Template::strstr(c,"*/");
+						c = ::CharFunctions::strstr(c,"*/");
 						if (c)
 						{
 							unsigned index = commentStart-line.c_str();
@@ -2059,7 +2059,7 @@ namespace Engine
 					}
 			
 			
-					c = ::Template::strchr(c,'/');
+					c = ::CharFunctions::strchr(c,'/');
 					if (!c)
 						return;
 					c++;

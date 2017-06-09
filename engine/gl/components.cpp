@@ -1290,7 +1290,7 @@ namespace Engine
 			_UpdateView();
 			SignalVisualChange();
 		}
-		void Edit::SetText(const ReferenceExpression<char>&new_text)
+		void Edit::SetText(const StringRef&new_text)
 		{
 			text = new_text;
 			selectionStart = 0;
@@ -1301,7 +1301,7 @@ namespace Engine
 
 		void						Edit::SetText(const char*new_text)
 		{
-			SetText(ReferenceExpression<char>(new_text));
+			SetText(StringRef(new_text));
 		}
 
 
@@ -2086,7 +2086,7 @@ namespace Engine
 				selectedEntry = 0;
 				selectedObject = ((MenuEntry*)(GetMenu()->GetChild(selectedEntry).get()))->GetObject();
 				if (selectedObject)
-					SetText(selectedObject->ToString());
+					SetText(selectedObject->ConvertToString());
 				else
 					SetText("<error>");
 			}
@@ -2153,7 +2153,7 @@ namespace Engine
 				selectedObject.reset();
 			}
 			if (selectedObject)
-				SetText(selectedObject->ToString());
+				SetText(selectedObject->ConvertToString());
 			else
 				SetText("");
 			SignalLayoutChange();
@@ -2174,7 +2174,7 @@ namespace Engine
 			{
 				selectedObject = ((MenuEntry*)GetMenu()->GetChild(selectedEntry).get())->GetObject();
 				if (selectedObject)
-					SetText(selectedObject->ToString());
+					SetText(selectedObject->ConvertToString());
 				else
 					SetText("<error>");
 			}
@@ -2353,7 +2353,7 @@ namespace Engine
 				return;
 			object = object_;
 			if (object && object.get() != this)
-				Label::SetText(object->ToString());
+				Label::SetText(object->ConvertToString());
 			//SignalVisualChange();
 		}
 		

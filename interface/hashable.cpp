@@ -21,7 +21,7 @@ namespace GlobalHashFunctions
 	}
 	hash_t Hash(const wchar_t*ident)
 	{
-		return StdCharHash(ident,Template::strlen(ident));
+		return StdCharHash(ident,CharFunctions::strlen(ident));
 	}
 
 

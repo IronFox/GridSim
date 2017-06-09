@@ -214,6 +214,17 @@ namespace Math
 			return Interpret(helper.Abs(value));
 		}
 
+
+		friend String ToString(const THalf&half)
+		{
+			using ::StringConversion::ToString;
+			return ToString((float)half);
+		}
+		friend StringW ToStringW(const THalf&half)
+		{
+			using ::StringConversion::ToStringW;
+			return ToStringW((float)half);
+		}
 	};
 
 
@@ -252,6 +263,17 @@ namespace Math
 		}
 
 
+
+		friend String ToString(const half&half)
+		{
+			using ::StringConversion::ToString;
+			return ToString((float)half);
+		}
+		friend StringW ToStringW(const half&half)
+		{
+			using ::StringConversion::ToStringW;
+			return ToStringW((float)half);
+		}
 
 
 	};

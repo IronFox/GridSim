@@ -471,9 +471,10 @@ namespace Math
 										max /= factor;
 									}
 
-			MF_DECLARE(String)		ToString() const
+			friend String			ToString(const TFloatRange<T>&r)
 									{
-										return "["+String(min)+","+String(max)+"]";
+										using ::StringConversion::ToString;
+										return "["+ToString(r.min)+","+ToString(r.max)+"]";
 									}
 		};
 
@@ -575,6 +576,12 @@ namespace Math
 				MF_DECLARE(bool)	Intersects(const TIntRange<T1>&other)	const
 									{
 										return start < other.end && end > other.start;
+									}
+
+			friend String			ToString(const TIntRange<T>&r)
+									{
+										using ::StringConversion::ToString;
+										return "["+ToString(r.start)+","+ToString(r.end)+")";
 									}
 		};
 
@@ -1175,9 +1182,9 @@ namespace Math
 										return x.Intersects(other.x) && y.Intersects(other.y);
 									}
 			
-			String					ToString()	const
+			friend String			ToString(const Rect<T>&r)
 									{
-										return	"("+String(x.min)+", "+String(y.min)+") - ("+String(x.max)+", "+String(y.max)+")";
+										return	"("+String(r.x.min)+", "+String(r.y.min)+") - ("+String(r.x.max)+", "+String(r.y.max)+")";
 									}
 			template <typename T1>
 				MF_DECLARE(void)	operator*=(T1 factor)
@@ -1666,9 +1673,9 @@ namespace Math
 										return x.Intersects(other.x) && y.Intersects(other.y) && z.Intersects(other.z);
 									}
 			
-			String					ToString()	const
+			friend String			ToString(const Box<T>&b)
 									{
-										return	"("+String(x.min)+", "+String(y.min)+", "+String(z.min)+") - ("+String(x.max)+", "+String(y.max)+", "+String(z.max)+")";
+										return	"("+String(b.x.min)+", "+String(b.y.min)+", "+String(b.z.min)+") - ("+String(b.x.max)+", "+String(b.y.max)+", "+String(b.z.max)+")";
 									}
 			template <typename T1>
 				MF_DECLARE(void)	operator*=(T1 factor)
@@ -2664,9 +2671,9 @@ namespace Math
 										out.z = (T0)center.z;
 									}
 
-			String					ToString()	const /*override*/
+			friend String			ToString(const Sphere<T>&s)
 									{
-										return Vec::toString(center)+",r="+String(radius);
+										return ToString(s.center)+",r="+ToString(s.radius);
 									}
 		};
 

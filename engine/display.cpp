@@ -499,7 +499,7 @@ namespace Engine
 		}
 	}
 	
-	WString Context::createClass()
+	StringW Context::createClass()
 	{
 		if (class_created)
 			return ENGINE_CLASS_NAME;

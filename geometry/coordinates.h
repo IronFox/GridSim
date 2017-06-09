@@ -134,18 +134,20 @@ namespace Composite
 								return compareComposites(this->sector,this->remainder,other.sector,other.remainder,sector_size);
 							}
 							
-			String			ToString(float sector_size)	const
+			String			ConvertToString(float sector_size)	const
 							{
 								return "["+String(sector)+"] "+String(remainder)+" (="+String(sector*sector_size+remainder)+")";
 							}
 							
-			String			ToString()	const
+			friend String	ToString(const Scalar&s)
 							{
-								return "["+String(sector)+"] "+String(remainder);
+								using ::StringConversion::ToString;
+								return "["+ToString(s.sector)+"] "+ToString(s.remainder);
 							}
-			WString			toStringW()	const
+			friend StringW	ToStringW(const Scalar&s)
 							{
-								return L"["+WString(sector)+L"] "+WString(remainder);
+								using ::StringConversion::ToStringW;
+								return L"["+ToStringW(s.sector)+L"] "+ToStringW(s.remainder);
 							}
 
 			operator bool() const	{return sector != 0 || remainder != 0;}
@@ -346,14 +348,16 @@ namespace Composite
 								Vec::copy(other_sector,sector);
 							}
 			
-			String			ToString()	const	//! Converts the local space coordinates to a string representation
+			friend String	ToString(const Coordinates&c)
 							{
-								return "["+String(sector.x)+", "+String(sector.y)+", "+String(sector.z)+"] "+String(remainder.x)+", "+String(remainder.y)+", "+String(remainder.z);
+								using ::StringConversion::ToString;
+								return "["+ToString(c.sector.x)+", "+ToString(c.sector.y)+", "+ToString(c.sector.z)+"] "+ToString(c.remainder.x)+", "+ToString(c.remainder.y)+", "+ToString(c.remainder.z);
 							}
 			
-			String			ToString(float sector_size)	const	//! Converts the local space coordinates to a string representation
+			String			ConvertToString(float sector_size)	const	//! Converts the local space coordinates to a string representation
 							{
-								return "["+String(sector.x)+", "+String(sector.y)+", "+String(sector.z)+"] "+String(remainder.x)+", "+String(remainder.y)+", "+String(remainder.z)+" (="+String(sector.x*sector_size+remainder.x)+", "+String(sector.y*sector_size+remainder.y)+", "+String(sector.z*sector_size+remainder.z)+")";
+								using ::StringConversion::ToString;
+								return "["+ToString(sector.x)+", "+ToString(sector.y)+", "+ToString(sector.z)+"] "+ToString(remainder.x)+", "+ToString(remainder.y)+", "+ToString(remainder.z)+" (="+ToString(sector.x*sector_size+remainder.x)+", "+ToString(sector.y*sector_size+remainder.y)+", "+ToString(sector.z*sector_size+remainder.z)+")";
 							}
 		template <class Stream>
 			Stream&			stream(Stream&target) const

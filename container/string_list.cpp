@@ -14,7 +14,7 @@ namespace Tokenizer
 			if (const char*found = strchr(at,' '))
 			{
 				size_t len = found-at;
-				set(StringTemplate<char>(at,len));
+				set(String(at,len));
 				at = found +1;
 				if (len > max_len)
 					max_len = len;
@@ -128,7 +128,7 @@ namespace Tokenizer
 						size_t max = size_t(end-ch) >= config.operators.maxLength() ? config.operators.maxLength() : (end-ch);
 						bool found = false;
 						for (size_t j = max; j > 0; j--)
-							if (config.operators.isSet(ReferenceExpression<char>(ch-1,j)))
+							if (config.operators.isSet(StringRef(ch-1,j)))
 							{
 								END_EXCLUSIVE
 								ch += j-1;
@@ -297,7 +297,7 @@ namespace Tokenizer
 						size_t max = size_t(end-ch) >= config.operators.maxLength() ? config.operators.maxLength() : size_t(end-ch);
 						bool found = false;
 						for (size_t j = max; j > 0; j--)
-							if (config.operators.isSet(ReferenceExpression<char>(ch-1,j)))
+							if (config.operators.isSet(StringRef(ch-1,j)))
 							{
 								END_EXCLUSIVE
 								ch += j-1;
@@ -500,7 +500,7 @@ namespace Tokenizer
 		Super::operator<<(String(segment.first,segment.last-segment.first+1));
 	}
 
-	void StringList::add(const ReferenceExpression<char>&segment)
+	void StringList::add(const StringRef&segment)
 	{
 		Super::operator<<(segment);
 		//	String(segment.pointer(),segment.length()));
@@ -547,7 +547,7 @@ namespace Tokenizer
 		return *this;
 	}
 
-	StringList&  StringList::operator<<(const ReferenceExpression<char>&segment)
+	StringList&  StringList::operator<<(const StringRef&segment)
 	{
 		add(segment);
 		return *this;
@@ -609,7 +609,7 @@ namespace Tokenizer
 		for (size_t i = 0; i < length; i++)
 			len+=Super::at(i+index).length();
 
-		String result = String(TStringLength(len));
+		String result = String(StringType::TStringLength(len));
 		char	*at = result.mutablePointer();
 		const String&first = Super::at(index);
 		memcpy(at,first.c_str(),first.length());
@@ -745,7 +745,7 @@ namespace Tokenizer
 		{
 			if (const char*found = strchr(at,' '))
 			{
-				add(StringTemplate<char>(at,found-at));
+				add(String(at,found-at));
 				at = found +1;
 			}
 			else
@@ -765,7 +765,7 @@ namespace Tokenizer
 			{
 				if (const char*found = strchr(at,' '))
 				{
-					add(StringTemplate<char>(at,found-at));
+					add(String(at,found-at));
 					at = found +1;
 				}
 				else

@@ -207,8 +207,9 @@ namespace Engine
 		target->extractRadius(src_radius);
 		if (!src_radius)
 			src_radius = 1;
-		SCENERY_LOG(" dim = "+src_dim.ToString());
-		SCENERY_LOG(" radius = "+String(radius));
+		using namespace StringConversion; 
+		SCENERY_LOG(" dim = "+ToString(src_dim));
+		SCENERY_LOG(" radius = "+ToString(radius));
 		//target->extractAverageVisualEdgeLength(0,average_edge_length);
 	    rescale();
 	}

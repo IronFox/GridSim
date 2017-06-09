@@ -10,19 +10,23 @@ as the Borland AnsiString-class.
 
 ******************************************************************/
 
+namespace StringType
+{
 
-template class StringTemplate<char>;
-template class StringTemplate<wchar_t>;
-template class ReferenceExpression<char>;
-template class ReferenceExpression<wchar_t>;
+	template class Template<char>;
+	template class Template<wchar_t>;
+	template class ReferenceExpression<char>;
+	template class ReferenceExpression<wchar_t>;
+	
+	static  char		zc(0);
+
+	unsigned	GLOBAL_STRING_ID_COUNTER(0);
+	void*	   GLOBAL_TRACED_ORIGINAL_ADDR;
+
+}
 
 #define ErrBox(msg) ErrMessage(msg)
 
-
-static  char		zc(0);
-
-		unsigned	GLOBAL_STRING_ID_COUNTER(0);
-		void*	   GLOBAL_TRACED_ORIGINAL_ADDR;
 
 #if SYSTEM!=WINDOWS
 	static const int MB_OK = 0;
@@ -209,46 +213,48 @@ static unsigned	genericLengthFunction(const char*begin, const char*end)
 #endif
 
 
-
-
-
-char*	strAllocate(unsigned size)
+namespace StringType
 {
-	if (size <= 1)
-		return &zc;
-	#if (STRING_ALLOCATION_MODE == 0)
-		return (char*)malloc(size);
-	#elif (STRING_ALLOCATION_MODE == 1)
-		return SHIELDED_ARRAY(new char[size],size);
-	#else
-		return sys::allocate(size);
-	#endif
-}
 
-char*	strRelocate(char*current, unsigned current_size, unsigned new_size)
-{
+
+	char*	strAllocate(unsigned size)
+	{
+		if (size <= 1)
+			return &zc;
+		#if (STRING_ALLOCATION_MODE == 0)
+			return (char*)malloc(size);
+		#elif (STRING_ALLOCATION_MODE == 1)
+			return SHIELDED_ARRAY(new char[size],size);
+		#else
+			return sys::allocate(size);
+		#endif
+	}
+
+	char*	strRelocate(char*current, unsigned current_size, unsigned new_size)
+	{
 	
-	char*next = strAllocate(new_size);
-	if (new_size>current_size)
-		memcpy(next,current,current_size);
-	else
-		memcpy(next,current,new_size);
-	strFree(current);
-	return next;
-}
+		char*next = strAllocate(new_size);
+		if (new_size>current_size)
+			memcpy(next,current,current_size);
+		else
+			memcpy(next,current,new_size);
+		strFree(current);
+		return next;
+	}
 
 
-void	 strFree(char*current)
-{
-	if (current == &zc || !current)
-		return;
-	#if (STRING_ALLOCATION_MODE == 0)
-		free(current);
-	#elif (STRING_ALLOCATION_MODE == 1)
-		DISCARD_ARRAY(current);
-	#else
-		sys::delocate(current);
-	#endif
+	void	 strFree(char*current)
+	{
+		if (current == &zc || !current)
+			return;
+		#if (STRING_ALLOCATION_MODE == 0)
+			free(current);
+		#elif (STRING_ALLOCATION_MODE == 1)
+			DISCARD_ARRAY(current);
+		#else
+			sys::delocate(current);
+		#endif
+	}
 }
 
 void ShowMessage(const char*line)
@@ -318,25 +324,25 @@ template <>
 	
 
 template <typename T>
-	StringTemplate<T>	_getApplicationName()
+	StringType::Template<T>	_getApplicationName()
 	{
 		PathString::char_t szFileName[MAX_PATH];
 
 		GetProgramFileName(  szFileName);
 
-		return StringTemplate<T>(FileSystem::ExtractFileName(PathString(szFileName))+": ");
+		return StringType::Template<T>(FileSystem::ExtractFileName(PathString(szFileName))+": ");
 	}
 
 
 template <typename T0, typename T1>
 	static void _displayMessage(const T0*head_, const T1&line, bool prefixProgramName)
 	{
-		Array<StringTemplate<T0> >	lines;
+		Array<StringType::Template<T0> >	lines;
 		explode((T0)'\n',line,lines);
-		StringTemplate<T0> head = prefixProgramName ? _getApplicationName<T0>() + head_ : head_;
+		StringType::Template<T0> head = prefixProgramName ? _getApplicationName<T0>() + head_ : head_;
 		if (!lines.count())
 			_msgBox(_empty<T0>(),head.c_str(),MB_OK);
-		StringTemplate<T0> sum;
+		StringType::Template<T0> sum;
 		head += (T0)' ';
 		count_t rounds = lines.count() / 40;
 		if (lines.count() % 40)
@@ -346,7 +352,7 @@ template <typename T0, typename T1>
 			sum = implode((T0)'\n',lines + i,std::min<count_t>(40,lines.count() - i));
 			if (lines.count() > 40)
 			{
-				_msgBox(sum.c_str(),(head+ StringTemplate<T0>(i/40 +1)+(T0)'/'+ StringTemplate<T0>(rounds)).c_str(),MB_OK);
+				_msgBox(sum.c_str(),(head+ StringType::Template<T0>(i/40 +1)+(T0)'/'+ StringType::Template<T0>(rounds)).c_str(),MB_OK);
 			}
 			else
 				_msgBox(sum.c_str(),head.c_str(),MB_OK);
@@ -782,6 +788,7 @@ String FloatToStr(float value)
 #endif
 
 
+
 namespace StringConversion
 {
 	bool	IsAnsiMultiByte(char csource)
@@ -871,7 +878,7 @@ namespace StringConversion
 
 
 	//http://stackoverflow.com/questions/7153935/how-to-convert-utf-8-stdstring-to-utf-16-stdwstring/7154226#7154226
-	bool	Utf8ToUnicode(const StringRef&utf8Source, StringTemplate<char32_t>&unicodeDest)
+	bool	Utf8ToUnicode(const StringRef&utf8Source, StringType::Template<char32_t>&unicodeDest)
 	{
 		const char*utf8 = utf8Source.pointer();
 		char const*const end = utf8 + utf8Source.length();
@@ -955,7 +962,7 @@ namespace StringConversion
 
 	
 	template <typename T>
-	void	UnicodeToUtf16T(const ReferenceExpression<char32_t>&unicodeSource, StringTemplate<T>&utf16Dest)
+	void	UnicodeToUtf16T(const StringType::ReferenceExpression<char32_t>&unicodeSource, StringType::Template<T>&utf16Dest)
 	{
 		count_t len = 0;
 
@@ -990,13 +997,13 @@ namespace StringConversion
 	}
 
 	template <typename T>
-	bool	Utf8ToUtf16T(const StringRef&utf8Source, StringTemplate<T>&utf16Dest)
+	bool	Utf8ToUtf16T(const StringRef&utf8Source, StringType::Template<T>&utf16Dest)
 	{
 		count_t len = 0;
 		const char*utf8 = utf8Source.pointer();
 		char const*const end = utf8 + utf8Source.length();
 
-		StringTemplate<char32_t> unicode;
+		StringType::Template<char32_t> unicode;
 		if (!Utf8ToUnicode(utf8Source,unicode))
 			return false;
 
@@ -1007,22 +1014,22 @@ namespace StringConversion
 
 	#ifdef WIN32
 		static_assert(sizeof(wchar_t)==sizeof(char16_t),"Expected wchar_t to be 16 bit on windows");
-		void	UnicodeToUtf16(const ReferenceExpression<char32_t>&unicodeSource, StringTemplate<wchar_t>&utf16Dest)
+		void	UnicodeToUtf16(const StringType::ReferenceExpression<char32_t>&unicodeSource, StringType::Template<wchar_t>&utf16Dest)
 		{
 			UnicodeToUtf16T(unicodeSource,utf16Dest);
 		}
-		bool	Utf8ToUtf16(const StringRef&utf8Source, StringTemplate<wchar_t>&utf16Dest)
+		bool	Utf8ToUtf16(const StringRef&utf8Source, StringType::Template<wchar_t>&utf16Dest)
 		{
 			return Utf8ToUtf16T(utf8Source,utf16Dest);
 		}
 	#endif
 
-	void	UnicodeToUtf16(const ReferenceExpression<char32_t>&unicodeSource, StringTemplate<char16_t>&utf16Dest)
+	void	UnicodeToUtf16(const StringType::ReferenceExpression<char32_t>&unicodeSource, StringType::Template<char16_t>&utf16Dest)
 	{
 		UnicodeToUtf16T(unicodeSource,utf16Dest);
 	}
 
-	bool	Utf8ToUtf16(const StringRef&utf8Source, StringTemplate<char16_t>&utf16Dest)
+	bool	Utf8ToUtf16(const StringRef&utf8Source, StringType::Template<char16_t>&utf16Dest)
 	{
 		return Utf8ToUtf16T(utf8Source,utf16Dest);
 	}
@@ -1067,9 +1074,6 @@ namespace StringConversion
 }
 
 
-
-
-//#if 0
 
 
 

@@ -371,7 +371,7 @@ public:
 			void				add(const String&line);	//!< @overload
 			void				add(String&&line);	//!< @overload
 			void				add(const Tokenizer::TSegment&segment);	//!< @overload
-			void				add(const ReferenceExpression<char>&segment);	//!< @overload
+			void				add(const StringRef&segment);	//!< @overload
 			void				insert(size_t index, const char*line);	//!< Inserts a string before the specified list index
 			void				insert(size_t index, const String&line);	//!< Inserts a string before the specified list index
 			void				addEntries(const StringList&other);		//!< Appends all entries of the specified other list
@@ -426,7 +426,7 @@ INLINE		const String&		operator[](size_t index)									const;
 			StringList&			operator<<(String&&string);
 			StringList&			operator<<(const String&string);
 			StringList&			operator<<(const Tokenizer::TSegment&segment);	//!< @overload
-			StringList&			operator<<(const ReferenceExpression<char>&segment);	//!< @overload
+			StringList&			operator<<(const StringRef&segment);	//!< @overload
 			StringList&			operator<<(const char*string);	//!< @overload
 			
 			//bool				operator>>(String&target);
