@@ -167,12 +167,12 @@ namespace CLI
 				return;
 			}
 		if (echoSetOperation)
-			println(v->name+" set to "+v->ToString());
+			println(v->name+" set to "+v->ConvertToString());
 	}
 
 	static void	variableCallBack(const CLI::PVariable&v)
 	{
-		String msg = v->name+": "+v->ToString();
+		String msg = v->name+": "+v->ConvertToString();
 		println(msg);
 	}
 

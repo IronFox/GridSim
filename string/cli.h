@@ -90,7 +90,7 @@ namespace CLI	//! Command line interpretor
 			
 		/**/				Variable(const String&name, const String&type, count_t components=1, UINT32 protection=NoProtection);
 		virtual				~Variable()	{};
-		virtual	String		ToString()			const=0;		//!< Virtual abstract out conversion method. Converts the local variable value(s) to a string representation. The returned string should be a valid parameter for set().
+		virtual	String		ConvertToString()			const=0;		//!< Virtual abstract out conversion method. Converts the local variable value(s) to a string representation. The returned string should be a valid parameter for set().
 		virtual	bool		Set(const String&value)=0;			//!< Virtual abstract in conversion method. Converts the specified string value to the local variable value(s). @param value String containing the new value(s) \return true if the variable value could be updated, false otherwise
 		virtual bool		Set(const String&component, const String&value)	{return false;};	//!< Component-wise virtual conversion method. The method sets one or more components of the local variable value(s) as described by \b component to \b value @param component Description of one or more components to set @param value String containing the new value(s) \return true if the variable value(s) could be updated, false otherwise
 		/**
@@ -118,7 +118,7 @@ namespace CLI	//! Command line interpretor
 			T				content;	//!< Scalar content
 				
 			/**/			SimpleVariable(const String&name, const String&typeName, const T&content_=(T)0,unsigned protection=NoProtection):Variable(name,typeName,1,protection),content(content_)	{}
-			virtual String	ToString()		const	override	{return content;}
+			virtual String	ConvertToString()		const	override	{return content;}
 			virtual	bool	Set(const String&value)	override	{return convert(value.c_str(),content);}
 			virtual	bool	Set(const String&component, const String&value)	override	{return Set(value);}
 		};
@@ -140,14 +140,14 @@ namespace CLI	//! Command line interpretor
 	{
 	public:
 		/**/				StringVariable(const String&name, const String&content="", unsigned protection=NoProtection):SimpleVariable<String>(name,"String",content,protection){}
-		virtual String		ToString() const override	{return "'"+content+"'";}
+		virtual String		ConvertToString() const override	{return "'"+content+"'";}
 	};
 	
 	class BoolVariable:public SimpleVariable<bool>	//! Standard CLI bool variable
 	{
 	public:
 		/**/				BoolVariable(const String&name, bool content=false, unsigned protection=NoProtection):SimpleVariable<bool>(name,"Boolean",content,protection){}
-		virtual String		ToString()	const	override {return content?"true":"false";}
+		virtual String		ConvertToString()	const	override {return content?"true":"false";}
 	};
 
 
@@ -197,7 +197,7 @@ namespace CLI	//! Command line interpretor
 			float				content[Components];	//!< Field of variable values
 
 			/**/				VectorVariable(const String&name, float content[Components]=NULL, unsigned protection=NoProtection);
-			virtual String		ToString() const override;
+			virtual String		ConvertToString() const override;
 			virtual	bool		Set(const String&value) override;
 			virtual	bool		Set(const String&component, const String&value) override;
 		};
@@ -210,7 +210,7 @@ namespace CLI	//! Command line interpretor
 			double				content[Components];	//!< Field of variable values
 
 			/**/				DoubleVectorVariable(const String&name, double content[Components]=NULL, unsigned protection=NoProtection);
-			virtual String		ToString() const override;
+			virtual String		ConvertToString() const override;
 			virtual	bool		Set(const String&value) override;
 			virtual	bool		Set(const String&component, const String&value) override;
 		};
@@ -497,7 +497,7 @@ namespace CLI	//! Command line interpretor
 		float						GetAsFloat(const String& path, float exception = 0);				//!< Attempts to retrieve the specified variable as a float @param path Variable path @param exception Value to return if the specified variable could not be found or its value not converted to a float
 		Key::Name					GetAsKey(const String& path, Key::Name exception = (Key::Name)0);		//!< Attempts to retrieve the specified variable as a key name @param path Variable path @param exception Value to return if the specified variable could not be found or its value not converted to a key name
 		bool						GetAsBool(const String& path, bool exception = false);			//!< Attempts to retrieve the specified variable as a boolean @param path Variable path @param exception Value to return if the specified variable could not be found or its value not converted to a bool
-		const String&				GetAsString(const String& path, const String& exception = "");					//!< Attempts to retrieve the specified variable as a string. All variables inherently provide a ToString() method so the only reason for this method to fail is if the requested variable does not exist @param path Variable path @param exception Value to return if the specified variable could not be found
+		const String&				GetAsString(const String& path, const String& exception = "");					//!< Attempts to retrieve the specified variable as a string. All variables inherently provide a ConvertToString() method so the only reason for this method to fail is if the requested variable does not exist @param path Variable path @param exception Value to return if the specified variable could not be found
 		const String&				GetErrorStr()	const;						//!< Retrieves an error description of the last occured error
 		const String&				GetError()		const;						//!< Identical to GetErrorStr()
 		String						StandardComplete(const String&line, StringList&out);			//!< Attempts to complete an incomplete line towards a command or folder. @param line Line to complete @param out Reference list to store all possibilities in \return Longest common string among all possibilities or a complete command line if there is just one possibility. The returned string is empty if no matching possibility was found.

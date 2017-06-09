@@ -678,7 +678,7 @@ namespace CLI
 			return (unsigned)((FloatVariable*)v.get())->content;
 
 		unsigned val;
-		if (!convert(v->ToString().c_str(),val))
+		if (!convert(v->ConvertToString().c_str(),val))
 			return exception;
 		return val;
 	}
@@ -693,7 +693,7 @@ namespace CLI
 		if (v->type == "Float")
 			return (int)((FloatVariable*)v.get())->content;
 		int val;
-		if (!convert(v->ToString().c_str(),val))
+		if (!convert(v->ConvertToString().c_str(),val))
 			return exception;
 		return val;
 	}
@@ -708,7 +708,7 @@ namespace CLI
 		if (v->type == "Float")
 			return ((FloatVariable*)v.get())->content;
 		float val;
-		if (!convert(v->ToString().c_str(),val))
+		if (!convert(v->ConvertToString().c_str(),val))
 			return exception;
 		return val;
 	}
@@ -719,7 +719,7 @@ namespace CLI
 		if (!v)
 			return exception;
 		Key::Name val;
-		if (!convert(v->ToString().c_str(),val))
+		if (!convert(v->ConvertToString().c_str(),val))
 			return exception;
 		return val;
 	}
@@ -734,7 +734,7 @@ namespace CLI
 		if (v->type == "Float")
 			return ((FloatVariable*)v.get())->content!=0;
 		bool val;
-		if (!convert(v->ToString().c_str(),val))
+		if (!convert(v->ConvertToString().c_str(),val))
 			return exception;
 		return val;
 	}
@@ -746,7 +746,7 @@ namespace CLI
 		PVariable v = FindVar(name);
 		if (!v)
 			return exception;
-		content = v->ToString();
+		content = v->ConvertToString();
 		return content;
 	}
 

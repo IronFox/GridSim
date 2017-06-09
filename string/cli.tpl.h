@@ -209,7 +209,7 @@ template <count_t Components>
 	}
 	
 template <count_t Components>
-	String			VectorVariable<Components>::ToString()					const
+	String			VectorVariable<Components>::ConvertToString()					const
 	{
 		return VecUnroll<Components>::toString(content);
 	}
@@ -235,7 +235,7 @@ template <count_t Components>
 	}
 	
 template <count_t Components>
-	String		DoubleVectorVariable<Components>::ToString()					const
+	String		DoubleVectorVariable<Components>::ConvertToString()					const
 	{
 		return VecUnroll<Components>::toString(content);
 	}
