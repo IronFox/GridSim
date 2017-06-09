@@ -1759,7 +1759,7 @@ namespace StringType
 typedef StringType::String	String;
 typedef StringType::StringW	StringW;
 typedef StringType::StringRef	StringRef;
-
+typedef StringType::TStringLength	TStringLength;
 
 namespace StringConversion
 {
