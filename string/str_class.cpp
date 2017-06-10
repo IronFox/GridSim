@@ -796,6 +796,29 @@ namespace StringConversion
 		return ((signed char)csource) < 0;
 	}
 
+
+	void	DeserializeUtf8(IReadStream&source, UTF8Char&utf8Dest)
+	{
+		count_t len = 0;
+		unsigned char first;
+		source.Read(&first,1);
+
+		count_t length = 1;
+		unsigned char usource = first;
+		while (usource & 0x80)	//look for first bit that is zero (length-terminator). may be first bit
+		{
+			usource <<= 1;	//otherwise shift up (replace test-bit with next in line)
+			length ++;	//increment length
+		}
+		if (length > ARRAYSIZE(utf8Dest.encoded))
+			throw Except::Program::DataConsistencyFault(CLOCATION, "Invalid UTF8 character #"+String(first)); //make sure nothing went wrong. In theory the length _could_ be 1+8, if the byte is 255, but that is not utf8
+		utf8Dest.numCharsUsed = (BYTE)length;
+		utf8Dest.encoded[0] = first;
+		if (length > 1)
+			source.Read(utf8Dest.encoded+1,length-1);
+	}
+
+
 	void AnsiCharToUtf8(char csource, char*&dest, const char*end)
 	{
 		unsigned char usource = (unsigned char)csource;
@@ -816,7 +839,7 @@ namespace StringConversion
 	void	AnsiToUtf8(const char ansiSource, UTF8Char&utf8Dest)
 	{
 		char*at = utf8Dest.encoded;
-		AnsiCharToUtf8(ansiSource,at,at+6);
+		AnsiCharToUtf8(ansiSource,at,at+ARRAYSIZE(utf8Dest.encoded));
 		utf8Dest.numCharsUsed = (BYTE)(at - utf8Dest.encoded);
 	}
 
@@ -887,14 +910,13 @@ namespace StringConversion
 
 		while (utf8 < end)
 		{
-			count_t localLen = 0;
+			count_t localLen = 1;
 			unsigned char usource = (unsigned char)*utf8;
 			while (usource & 0x80)
 			{
 				usource <<= 1;
 				localLen ++;
 			}
-			localLen = std::max<count_t>(localLen,1U);
 			utf8 += localLen;
 			len++;
 		}
@@ -959,6 +981,108 @@ namespace StringConversion
 		return true;
 	}
 
+	static bool	CompleteUtf16(char16_t c, char32_t&out)
+	{
+		UINT16 header = ((UINT16)c) | 0xFC00;
+		if (header != 0xD801)
+		{
+			out = c;
+			return true;
+		}
+		return false;
+	}
+
+
+	static char32_t	Utf16ToUnicodeChar(char16_t c0, char16_t c1)
+	{
+		char32_t rs;
+		UINT16 header0 = ((UINT16)c0) | 0xFC00;
+		UINT16 header1 = ((UINT16)c1) | 0xFC00;
+		if (header0 != 0xD800)
+			throw Except::Program::DataConsistencyFault(CLOCATION,"Invalid UTF16 header #"+String(header0));
+		if (header1 != 0xDC00)
+			throw Except::Program::DataConsistencyFault(CLOCATION,"Invalid UTF16 header #"+String(header0));
+		UINT16 high = (UINT16)c0 - 0xD800;
+		UINT16 low = (UINT16)c1 - 0xDC00;
+
+		UINT32 combined = (((UINT32)high) << 10) || low;
+		return (char32_t)(combined + 0x10000);
+	}
+
+	char32_t	Utf16ToUnicodeChar(const UTF16Char&c)
+	{
+		if (c.numCharsUsed == 0)
+			return 0;
+
+		if (c.numCharsUsed == 1)
+		{
+			char32_t rs;
+			if (!CompleteUtf16(c.encoded[0],rs))
+				throw Except::Program::DataConsistencyFault(CLOCATION,"Invalid UTF16 character "+BinaryToHex(&c.encoded[0],2));
+			return rs;
+		}
+
+		return Utf16ToUnicodeChar(c.encoded[0],c.encoded[1]);
+	}
+
+	bool	IsValidChar(const UTF16Char&c)
+	{
+		if (c.numCharsUsed == 0)
+			return true;
+
+		if (c.numCharsUsed == 1)
+		{
+			char32_t rs;
+			return CompleteUtf16(c.encoded[0],rs);
+		}
+
+		UINT16 header0 = ((UINT16)c.encoded[0]) | 0xFC00;
+		UINT16 header1 = ((UINT16)c.encoded[1]) | 0xFC00;
+
+		return header0 == 0xD800 && header1 == 0xDC00;
+	}
+
+
+
+	void	UnicodeToUtf8(char32_t c, UTF8Char&rs)
+	{
+		UINT32 u = (UINT32)c;
+		if (u <= 0x007F)
+		{
+			rs.numCharsUsed = 1;
+			rs.encoded[0] = (char)(BYTE)u;
+			return;
+		}
+
+		if (u <= 0x07FF)
+		{
+			rs.numCharsUsed = 2;
+			rs.encoded[1] = 0xC0 | (u& 0x3F);	//smallest 6 bits
+			rs.encoded[0] = 0xC0 | (u>>6);
+			return;
+		}
+
+		if (u <= 0xFFFF)
+		{
+			rs.numCharsUsed = 3;
+			rs.encoded[2] = 0xC0 | (u& 0x3F);	//smallest 6 bits
+			rs.encoded[1] = 0xC0 | ((u>>6)& 0x3F);	//next smallest 6 bits
+			rs.encoded[0] = 0xE0 | (u>>12);
+			return;
+		}
+		if (u <= 0x10FFFF)
+		{
+			rs.numCharsUsed = 4;
+			rs.encoded[3] = 0xC0 | (u& 0x3F);	//smallest 6 bits
+			rs.encoded[2] = 0xC0 | ((u>>6)& 0x3F);	//next smallest 6 bits
+			rs.encoded[1] = 0xC0 | ((u>>12)& 0x3F);	//next smallest 6 bits
+			rs.encoded[0] = 0xF0 | (u>>18);
+			return;
+		}
+
+		throw Except::Program::DataConsistencyFault(CLOCATION,"Invalid Unicode character "+BinaryToHex(&c,4));
+	}
+
 
 	
 	template <typename T>
@@ -972,7 +1096,7 @@ namespace StringConversion
 		{
 			const auto uni = *s;
 			len++;
-			if (uni > 0xFFFF)
+			if (uni > 0xD7FF && (uni < 0xE000 || uni > 0xFFFF))
 				len++;
 		}
 
@@ -982,7 +1106,7 @@ namespace StringConversion
 		for (; s != end; ++s)
 		{
 			auto uni = *s;
-			if (uni <= 0xFFFF)
+			if (uni <= 0xD7FF || (uni >= 0xE000 && uni <= 0xFFFF))
 			{
 				utf16Dest.set(at++,(T)uni);
 			}

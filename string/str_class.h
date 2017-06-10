@@ -1978,9 +1978,20 @@ namespace StringConversion
 {
 	struct UTF8Char
 	{
-		char	encoded[6];
-		BYTE	numCharsUsed;
+		char	encoded[4];
+		BYTE	numCharsUsed=0;	//0-4
 	};
+	struct UTF16Char
+	{
+		char16_t	encoded[2];
+		BYTE		numCharsUsed=0;	//0, 1 or 2
+	};
+
+	void	DeserializeUtf8(IReadStream&source, UTF8Char&utf8Dest);
+
+	void	UnicodeToUtf8(char32_t c, UTF8Char&rs);
+	char32_t	Utf16ToUnicodeChar(const UTF16Char&c);
+	bool	IsValidChar(const UTF16Char&);
 
 	void	AnsiToUtf8(const char ansiSource, UTF8Char&utf8Dest);
 	bool	Utf8CharToAnsi(const char*&ch, const char*const inEnd, char&out);
