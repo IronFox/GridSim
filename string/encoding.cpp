@@ -221,15 +221,19 @@ namespace StringEncoding
 
 	BYTE	UTF8Length(char firstChar)
 	{
-		BYTE length = 1;
 		unsigned char usource = firstChar;
+		BYTE numOnes = 0;
 		while (usource & 0x80)	//look for first bit that is zero (length-terminator). may be first bit
 		{
 			usource <<= 1;	//otherwise shift up (replace test-bit with next in line)
-			length ++;	//increment length
+			numOnes ++;	//increment length
 		}
+		if (numOnes == 1)	//not defined. encodings always either start with 0* or 11*, never 10* for the first char
+			throw Except::Program::DataConsistencyFault(CLOCATION, "Invalid leading UTF-8 character "+DataToBinary(&firstChar,1)); //make sure nothing went wrong. In theory the length _could_ be 1+8, if the byte is 255, but that is not utf8
+		
+		const BYTE length = std::max<BYTE>(numOnes,1);
 		if ((count_t)length > ARRAYSIZE(UTF8Char::encoded))
-			throw Except::Program::DataConsistencyFault(CLOCATION, "Invalid UTF8 character #"+String((BYTE)firstChar)); //make sure nothing went wrong. In theory the length _could_ be 1+8, if the byte is 255, but that is not utf8
+			throw Except::Program::DataConsistencyFault(CLOCATION, "Invalid leading UTF-8 character "+DataToBinary(&firstChar,1)); //make sure nothing went wrong. In theory the length _could_ be 1+8, if the byte is 255, but that is not utf8
 		return length;
 	}
 
@@ -523,7 +527,7 @@ namespace StringEncoding
 		for (index_t at = 1; at < length; at++)
 		{
 			if ((c.encoded[at] & 0xC0) != 0x80)
-				throw Except::Program::DataConsistencyFault(CLOCATION, "UTF8 Encoding error. Expected following byte "+String(at)+" to contain 10xxxxxx header");
+				throw Except::Program::DataConsistencyFault(CLOCATION, "UTF8 Encoding error. Expected following byte "+String(at)+" to contain 10xxxxxx header (encountered "+DataToBinary(&c.encoded[at],1)+")");
 			rs <<= 6;
 			rs |= (c.encoded[at] & 0x3F);
 		}
@@ -561,7 +565,7 @@ namespace StringEncoding
 		{
 			rs.numCharsUsed = 2;
 			rs.encoded[1] = 0x80 | (u& 0x3F);	//smallest 6 bits
-			rs.encoded[0] = 0x80 | (u>>6);
+			rs.encoded[0] = 0xC0 | (u>>6);
 			return;
 		}
 
@@ -570,7 +574,7 @@ namespace StringEncoding
 			rs.numCharsUsed = 3;
 			rs.encoded[2] = 0x80 | (u& 0x3F);	//smallest 6 bits
 			rs.encoded[1] = 0x80 | ((u>>6)& 0x3F);	//next smallest 6 bits
-			rs.encoded[0] = 0xC0 | (u>>12);
+			rs.encoded[0] = 0xE0 | (u>>12);
 			return;
 		}
 		if (u <= 0x10FFFF)
@@ -579,7 +583,7 @@ namespace StringEncoding
 			rs.encoded[3] = 0x80 | (u& 0x3F);	//smallest 6 bits
 			rs.encoded[2] = 0x80 | ((u>>6)& 0x3F);	//next smallest 6 bits
 			rs.encoded[1] = 0x80 | ((u>>12)& 0x3F);	//next smallest 6 bits
-			rs.encoded[0] = 0xE0 | (u>>18);
+			rs.encoded[0] = 0xF0 | (u>>18);
 			return;
 		}
 
