@@ -244,8 +244,8 @@ namespace StringEncoding
 		unsigned char first;
 		source.Read(&first,1);
 
-		count_t length = UTF8Length(first);
-		utf8Dest.numCharsUsed = (BYTE)length;
+		BYTE length = UTF8Length(first);
+		utf8Dest.numCharsUsed = length;
 		utf8Dest.encoded[0] = first;
 		if (length > 1)
 			source.Read(utf8Dest.encoded+1,length-1);
