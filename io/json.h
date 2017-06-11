@@ -1,6 +1,7 @@
 #include "../global_string.h"
 #include "../container/hashtable.h"
 #include "../interface/read_stream.h"
+#include "../string/encoding.h"
 #include <functional>
 
 /**
@@ -19,7 +20,7 @@ namespace JSON
 		index_t				inLine = 1;
 
 
-		void				Feed(const StringConversion::UTF8Char&);
+		void				Feed(const StringEncoding::UTF8Char&);
 
 	};
 

@@ -1,6 +1,6 @@
 #include "../global_root.h"
 #include "xml.h"
-
+#include "../string/encoding.h"
 
 /******************************************************************
 
@@ -140,21 +140,25 @@ static void EncodeValueToStream(Stream&stream, XML::Encoding enc, XML::Encoding 
 					stream << *c;
 				else
 				{
-					if (enc == XML::Encoding::ANSI)
+					if (enc == XML::Encoding::Windows1252)
 					{
 						ASSERT__(hostEnc == XML::Encoding::UTF8);
-						char rs;
-						if (StringConversion::Utf8CharToAnsi(c,end,rs))
-							stream << rs;
-						else
-							throw Except::IO::StructureCompositionFault(CLOCATION,"XML: Unable to convert UTF8 char to ANSI for export");
+
+						StringEncoding::UTF8Char ch;
+						ch.numCharsUsed = StringEncoding::UTF8Length(*c);
+						if (c + ch.numCharsUsed > end)
+							throw Except::IO::StructureCompositionFault(CLOCATION,"XML: Remaining string does not contain all characters of a decoded UTF8 multi-byte string");
+
+						memcpy(ch.encoded,c,ch.numCharsUsed);
+						c += ch.numCharsUsed;
+						stream << StringEncoding::ToCP1252(ch);
 					}
 					elif (enc == XML::Encoding::UTF8)
 					{
-						ASSERT__(hostEnc == XML::Encoding::ANSI);
-						StringConversion::UTF8Char ch;
-						StringConversion::AnsiToUtf8(*c,ch);
-						stream << StringRef(ch.encoded,ch.numCharsUsed);
+						ASSERT__(hostEnc == XML::Encoding::Windows1252);
+						StringEncoding::UTF8Char ch;
+						StringEncoding::EncodeCP1252(*c,ch);
+						stream << ch.ToRef();
 					}
 					else
 						throw Except::IO::StructureCompositionFault(CLOCATION,"XML: Unsupported encoding encountered");
@@ -170,15 +174,12 @@ static String Decode(const StringRef&content, XML::Encoding enc)
 {
 	switch (enc)
 	{
-		case XML::Encoding::ANSI:
+		case XML::Encoding::Windows1252:
 			return content;
 		case XML::Encoding::UTF8:
 		{
 			String rs;
-			if (!StringConversion::Utf8ToAnsi(content,rs))
-			{
-				throw Except::IO::StructureCompositionFault(CLOCATION,"XML: Error decoding UTF-8 '"+String(content)+"'");
-			}
+			StringEncoding::UTF8ToCP1252(content,rs);
 			return std::move(rs);
 		}
 		default:
@@ -196,6 +197,8 @@ static String DecodeValue(const StringRef&content, XML::Encoding enc, XML::Encod
 
 	//String rs = content;
 	//log_file << "in: "<<content<<nl;
+
+
 	const char*source = content.pointer();
 	const char*const end = source + content.length();
 	while (source < end)
@@ -212,19 +215,24 @@ static String DecodeValue(const StringRef&content, XML::Encoding enc, XML::Encod
 			{
 				if (enc == XML::Encoding::UTF8)
 				{
-					ASSERT__(hostEnc == XML::Encoding::ANSI);
+					ASSERT__(hostEnc == XML::Encoding::Windows1252);
 					char c;
-					if (!StringConversion::Utf8CharToAnsi(source,end,c))
-						break;
-					buffer << c;
+
+					StringEncoding::UTF8Char ch;
+					ch.numCharsUsed = StringEncoding::UTF8Length(*source);
+					if (source + ch.numCharsUsed > end)
+						throw Except::IO::StructureCompositionFault(CLOCATION,"XML: Remaining string does not contain all characters of a decoded UTF8 multi-byte string");
+
+					memcpy(ch.encoded,source,ch.numCharsUsed);
+					source += ch.numCharsUsed;
+					buffer << StringEncoding::ToCP1252(ch);
 				}
-				elif (enc == XML::Encoding::ANSI)
+				elif (enc == XML::Encoding::Windows1252)
 				{
 					ASSERT__(hostEnc == XML::Encoding::UTF8);
-					StringConversion::UTF8Char ch;
-					StringConversion::AnsiToUtf8(*source,ch);
-					for (BYTE k = 0; k < ch.numCharsUsed; k++)
-						buffer << ch.encoded[k];
+					StringEncoding::UTF8Char ch;
+					StringEncoding::EncodeCP1252(*source,ch);
+					buffer << ch.ToRef();
 					source++;
 				}
 				else
@@ -391,8 +399,11 @@ static XML::Encoding	DecodeEncoding(const StringRef&name)
 {
 	if (name.CompareToIgnoreCase("UTF-8") == 0)
 		return XML::Encoding::UTF8;
-	if (name.CompareToIgnoreCase("ANSI")==0 || name.CompareToIgnoreCase("ISO-8859-1")==0 || name.CompareToIgnoreCase("windows-1252")==0)
-		return XML::Encoding::ANSI;
+	if (name.CompareToIgnoreCase("ANSI")==0 
+		|| name.CompareToIgnoreCase("ISO-8859-1")==0 
+		|| name.CompareToIgnoreCase("windows-1252")==0
+		|| name.CompareToIgnoreCase("cp-1252")==0)
+		return XML::Encoding::Windows1252;
 	throw Except::IO::StructureCompositionFault(CLOCATION,("XML: Unsupported encoding encountered: '"+String(name)+"'"));
 //	return XML::Encoding::UTF8;
 }
@@ -606,13 +617,13 @@ inline static void trim(Array<String,Adopt>&field)
 template <class OutStream>
 static void EncodeToStream(OutStream&outfile, XML::Encoding enc, const String&identifier)
 {
-	if (enc == XML::Encoding::ANSI)
+	if (enc == XML::Encoding::Windows1252)
 		outfile << identifier;
 	static String encoded;
 	switch (enc)
 	{
 		case XML::Encoding::UTF8:
-			StringConversion::AnsiToUtf8(identifier,encoded);
+			StringEncoding::CP1252ToUTF8(identifier,encoded);
 		break;
 		default:
 			throw Except::IO::StructureCompositionFault(CLOCATION,"XML: Unsupported encoding encountered");
@@ -765,8 +776,8 @@ void				XML::Container::SaveToFile(const PathString&filename, export_style_t sty
 	outfile << "<?xml version=\"1.0\" encoding=\"";
 	switch (encoding)
 	{
-		case Encoding::ANSI:
-			outfile << "ISO-8859-1";
+		case Encoding::Windows1252:
+			outfile << "windows-1252";
 		break;
 		case Encoding::UTF8:
 			outfile << "UTF-8";

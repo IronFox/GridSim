@@ -1373,9 +1373,10 @@ namespace StringType
 
 			virtual hash_t			ToHash()	const override;
 
-			Template<T>&		setLength(size_t newLength);								//!< Updates the local string to match the given number of characters. The new array will be uninitialized, except for the trailing zero @param newLength New string length in characters (not including trailing zero) @return Reference to the local string object once the modification is done
+			Template<T>&			setLength(size_t newLength);								//!< Updates the local string to match the given number of characters. The new array will be uninitialized, except for the trailing zero @param newLength New string length in characters (not including trailing zero) @return Reference to the local string object once the modification is done
+			Template<T>&			SetLength(size_t newLength)	{return setLength(newLength);}
 			template <typename IndexType>
-				Template<T>		subString(IndexType index, size_t count=size_t(-1)) const;	//!< Creates a string copy containing the specified sub string of the local string @param index Index of the sub string to extract with 0 being the first character  Invalid values are clamped to the valid range. @param count Number of characters to extract starting at @a index @return Extracted string
+				Template<T>			subString(IndexType index, size_t count=size_t(-1)) const;	//!< Creates a string copy containing the specified sub string of the local string @param index Index of the sub string to extract with 0 being the first character  Invalid values are clamped to the valid range. @param count Number of characters to extract starting at @a index @return Extracted string
 			ReferenceExpression<T>	subStringRef(int index, size_t count=size_t(-1)) const;	//!< Creates a string reference expression pointing to the specified sub string of the local string. The returned object remains valid as long as the local string object is not deleted or modified @param index Index of the sub string to extract with 0 being the first character  Invalid values are clamped to the valid range. @param count Number of characters to extract starting at @a index @return String segment
 			ReferenceExpression<T>	SubStringRef(int index, size_t count=size_t(-1)) const	/**@copydoc subStringRef()*/ {return subStringRef(index,count);}
 			ReferenceExpression<T>	SubStringRef(index_t index, size_t count=size_t(-1)) const	/**@copydoc subStringRef()*/ {return subStringRef(int(index),count);}
@@ -1471,6 +1472,7 @@ namespace StringType
 			Template<T>&		replaceCharacters(bool doReplace(T character), T replacement);		//!< Replaces all characters who are identified by the specified filter function with the specified replacement	@param doReplace Function pointer to identify characters that should be replaced. @param replacement Character to replace with @return Pointer to the local string object once the operation is completed
 			bool					isValid(bool validCharacter(T character))	const;					//!< Runs each character of the local string by the specified validation function. Returns true if all characters passed the validation, false otherwise.
 			void					set(size_t index, T c);
+			void					Set(size_t index, T c)	{set(index,c);}
 			
 								/*!	\brief Const character access method
 									\param Index of the character to retrieve in the range [0,length()-1]
@@ -1761,6 +1763,9 @@ typedef StringType::StringW	StringW;
 typedef StringType::StringRef	StringRef;
 typedef StringType::TStringLength	TStringLength;
 
+typedef StringType::Template<char32_t>	UnicodeString;
+typedef StringType::Template<char16_t>	UTF16String;	//only one effective use for this kind of character
+
 namespace StringConversion
 {
 
@@ -1974,41 +1979,6 @@ template <typename T>
 
 
 
-namespace StringConversion
-{
-	struct UTF8Char
-	{
-		char	encoded[4];
-		BYTE	numCharsUsed=0;	//0-4
-	};
-	struct UTF16Char
-	{
-		char16_t	encoded[2];
-		BYTE		numCharsUsed=0;	//0, 1 or 2
-	};
-
-	void	DeserializeUtf8(IReadStream&source, UTF8Char&utf8Dest);
-
-	void	UnicodeToUtf8(char32_t c, UTF8Char&rs);
-	char32_t	Utf16ToUnicodeChar(const UTF16Char&c);
-	bool	IsValidChar(const UTF16Char&);
-
-	void	AnsiToUtf8(const char ansiSource, UTF8Char&utf8Dest);
-	bool	Utf8CharToAnsi(const char*&ch, const char*const inEnd, char&out);
-
-	void	AnsiToUtf8(const String&ansiSource, String&utf8Dest);
-	bool	Utf8ToAnsi(const String&utf8Source, String&ansiDest);
-	void	AnsiToUtf8(const StringRef&ansiSource, String&utf8Dest);
-	bool	Utf8ToAnsi(const StringRef&utf8Source, String&ansiDest);
-	bool	Utf8ToUtf16(const StringRef&utf8Source, StringType::Template<char16_t>&utf16Dest);
-	bool	Utf8ToUnicode(const StringRef&utf8Source, StringType::Template<char32_t>&unicodeDest);
-	void	UnicodeToUtf16(const StringType::ReferenceExpression<char32_t>&unicodeSource, StringType::Template<char16_t>&utf16Dest);
-	#ifdef WIN32
-		static_assert(sizeof(wchar_t)==sizeof(char16_t),"Expected wchar_t to be 16 bit on windows");
-		void	UnicodeToUtf16(const StringType::ReferenceExpression<char32_t>&unicodeSource, StringType::Template<wchar_t>&utf16Dest);
-		bool	Utf8ToUtf16(const StringRef&utf8Source, StringType::Template<wchar_t>&utf16Dest);
-	#endif
-}
 
 #include "str_class.tpl.h"
 

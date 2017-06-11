@@ -3,7 +3,8 @@
 
 namespace JSON
 {
-	typedef StringConversion::UTF8Char	UTF8Char;
+	typedef StringEncoding::UTF8Char	UTF8Char;
+	typedef StringEncoding::UTF16Char	UTF16Char;
 
 	String Entity::CastToString() const
 	{
@@ -79,7 +80,7 @@ namespace JSON
 		return *objectValue;
 	}
 
-	bool Matches(const StringConversion::UTF8Char&c0, char c1)
+	bool Matches(const UTF8Char&c0, char c1)
 	{
 		return c0.numCharsUsed == 1 && c0.encoded[0] == c1;
 	}
@@ -87,10 +88,10 @@ namespace JSON
 
 	static void SearchForASCII(IReadStream & stream, char c, LineCounter&lineCounter)
 	{
-		StringConversion::UTF8Char ch;
+		UTF8Char ch;
 		for(;;)
 		{
-			StringConversion::DeserializeUtf8(stream,ch);
+			StringEncoding::Deserialize(stream,ch);
 			lineCounter.Feed(ch);
 
 			if (ch.numCharsUsed == 1 && ch.encoded[0] == c)
@@ -100,10 +101,10 @@ namespace JSON
 
 	static UTF8Char SearchFor(IReadStream & stream, const std::function<bool(const UTF8Char&)>&f, LineCounter&lineCounter)
 	{
-		StringConversion::UTF8Char ch;
+		UTF8Char ch;
 		for(;;)
 		{
-			StringConversion::DeserializeUtf8(stream,ch);
+			StringEncoding::Deserialize(stream,ch);
 			lineCounter.Feed(ch);
 			if (f(ch))
 				return ch;
@@ -112,12 +113,12 @@ namespace JSON
 
 	static String		ReadString(IReadStream&stream, LineCounter&lineCounter)
 	{
-		StringConversion::UTF8Char ch;
+		UTF8Char ch;
 		bool escaped = false;
 		StringBuffer temp;
 		for(;;)
 		{
-			StringConversion::DeserializeUtf8(stream,ch);
+			StringEncoding::Deserialize(stream,ch);
 			lineCounter.Feed(ch);
 			if (ch.numCharsUsed != 1)
 			{
@@ -141,22 +142,22 @@ namespace JSON
 					if (escaped)
 					{
 						escaped = false;
-						StringConversion::UTF16Char ch16;
+						UTF16Char ch16;
 						char32_t unicode = 0;
 						for (int c = 0; c < 2; c++)
 						{
 							if (c == 1)
 							{
-								StringConversion::DeserializeUtf8(stream,ch);
-								if (ch.numCharsUsed != 1 || ch.encoded[0] != '\\')
+								StringEncoding::Deserialize(stream,ch);
+								if (!Matches(ch,'\\'))
 									throw Except::Program::DataConsistencyFault(CLOCATION,"\\uXXXX\\uYYYY sequence expected intermediate \\u in line "+String(lineCounter.inLine));
-								StringConversion::DeserializeUtf8(stream,ch);
-								if (ch.numCharsUsed != 1 || ch.encoded[0] != 'u')
+								StringEncoding::Deserialize(stream,ch);
+								if (!Matches(ch,'u'))
 									throw Except::Program::DataConsistencyFault(CLOCATION,"\\uXXXX\\uYYYY sequence expected intermediate \\u in line "+String(lineCounter.inLine));
 							}
 							for (int k = 0; k < 4; k++)
 							{
-								StringConversion::DeserializeUtf8(stream,ch);
+								StringEncoding::Deserialize(stream,ch);
 								if (ch.numCharsUsed > 1)
 									throw Except::Program::DataConsistencyFault(CLOCATION,"\\uXXXX\\uYYYY sequence expected four hexadecimal number characters, but got non-ASCII character in sequence in line "+String(lineCounter.inLine));
 
@@ -180,11 +181,10 @@ namespace JSON
 							}
 							ch16.numCharsUsed ++;
 
-							if (StringConversion::IsValidChar(ch16))
+							if (StringEncoding::IsValid(ch16))
 								break;
 						}
-						unicode = StringConversion::Utf16ToUnicodeChar(ch16);
-						StringConversion::UnicodeToUtf8(unicode,ch);
+						StringEncoding::EncodeUnicode(StringEncoding::ToUnicode(ch16),ch);
 						for (BYTE i = 0; i < ch.numCharsUsed; i++)
 							temp << ch.encoded[i];
 
@@ -204,8 +204,8 @@ namespace JSON
 		word << firstChar;
 		for (;;)
 		{
-			StringConversion::UTF8Char ch;
-			StringConversion::DeserializeUtf8(stream,ch);
+			UTF8Char ch;
+			StringEncoding::Deserialize(stream,ch);
 			counter.Feed(ch);
 			if (ch.numCharsUsed == 1 && (isWhitespace(ch.encoded[0])) || ch.encoded[0] == ',')
 				break;
@@ -232,7 +232,7 @@ namespace JSON
 
 	static	void				DeserializeArray(Array<Entity>&target, IReadStream&stream,LineCounter&lineCounter);
 
-	static void DeserializeAny(Entity&e, const StringConversion::UTF8Char&firstChar, IReadStream&stream,LineCounter&counter)
+	static void DeserializeAny(Entity&e, const UTF8Char&firstChar, IReadStream&stream,LineCounter&counter)
 	{
 		if (firstChar.numCharsUsed != 1)	//requiring control char now
 			throw Except::Program::DataConsistencyFault(CLOCATION,"Expecting control char in line "+String(counter.inLine));
@@ -255,7 +255,7 @@ namespace JSON
 		{
 			for (;;)
 			{
-				StringConversion::DeserializeUtf8(stream,ch);
+				StringEncoding::Deserialize(stream,ch);
 				lineCounter.Feed(ch);
 				if (ch.numCharsUsed != 1 || !isWhitespace(ch.encoded[0]))	//search through whitespace
 					break;
@@ -270,7 +270,7 @@ namespace JSON
 
 			DeserializeAny(e,ch,stream,lineCounter);
 
-			StringConversion::UTF8Char ch = SearchFor(stream,[](const UTF8Char&ch){return Matches(ch,',') || Matches(ch,']');},lineCounter);
+			UTF8Char ch = SearchFor(stream,[](const UTF8Char&ch){return Matches(ch,',') || Matches(ch,']');},lineCounter);
 			if (Matches(ch,']'))
 			{
 				tmp.MoveToArray(target);
@@ -294,14 +294,14 @@ namespace JSON
 		
 		for (;;)
 		{
-			StringConversion::UTF8Char ch = SearchFor(stream,[](const UTF8Char&ch){return Matches(ch,'\"') || Matches(ch,'}');},counter);
+			UTF8Char ch = SearchFor(stream,[](const UTF8Char&ch){return Matches(ch,'\"') || Matches(ch,'}');},counter);
 			if (Matches(ch,'}'))
 				return;
 			String key = ReadString(stream,counter);
 			SearchForASCII(stream,':',counter);
 			for (;;)
 			{
-				StringConversion::DeserializeUtf8(stream,ch);
+				StringEncoding::Deserialize(stream,ch);
 				counter.Feed(ch);
 				if (ch.numCharsUsed != 1 || !isWhitespace(ch.encoded[0]))	//search through whitespace
 					break;
