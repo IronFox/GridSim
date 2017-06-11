@@ -127,6 +127,10 @@ template <typename Random>
 			Super::seed((type_t)(time(NULL)*100 + randomRandomizationModifier++));
 		}
 		
+		type_t			MaxNext()
+		{
+			return Next(std::numeric_limits<type_t>::max());
+		}
 
 		/**
 		Queries the next random value up to the specified max value (inclusive)
