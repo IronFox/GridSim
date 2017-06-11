@@ -1832,6 +1832,7 @@ namespace StringConversion
 				#define PointerToString	PointerToHex
 				#define PointerToStr	PointerToHex
 String			PointerToHex(const void*pointer);	//!< Converts the specified pointer to a hex string without leading 0x
+String			DataToBinary(const void*data, size_t byteSize);
 //int				extractInt(const char*string);
 //float			extractFloat(const char*string);
 

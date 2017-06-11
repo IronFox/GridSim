@@ -707,6 +707,22 @@ String PointerToHex(const void*pointer)
 	return pointerToHex(pointer,sizeof(pointer)*2,buffer+sizeof(buffer)-1,buffer);
 }
 
+String			DataToBinary(const void*data, size_t byteSize)
+{
+	String result(TStringLength(byteSize*8));
+	const BYTE*const raw = (const BYTE*)data;
+	for (index_t i = 0; i < byteSize; i++)
+	{
+		const BYTE val = raw[i];
+		for (int k = 0; k < 8; k++)
+		{
+			BYTE bit = (val >> (7-k)) & 1;
+			result.Set(i*8+k,bit ? '1': '0');
+		}
+	}
+	return result;
+}
+
 
 static char		hexChar(BYTE value)
 {
