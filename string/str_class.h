@@ -1761,6 +1761,7 @@ namespace StringType
 typedef StringType::String	String;
 typedef StringType::StringW	StringW;
 typedef StringType::StringRef	StringRef;
+typedef StringType::StringRefW	StringRefW;
 typedef StringType::TStringLength	TStringLength;
 
 typedef StringType::Template<char32_t>	UnicodeString;
