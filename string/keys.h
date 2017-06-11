@@ -194,18 +194,26 @@ namespace Key	//! Key code namespace
 		N9		=	57,					//!< Digit 9 key
 		N0		=	48,					//!< Digit 0 key
 
-		F1		=	112,				//!< F1 control key
-		F2		=	113,				//!< F2 control key
-		F3		=	114,				//!< F3 control key
-		F4		=	115,				//!< F4 control key
-		F5		=	116,				//!< F5 control key
-		F6		=	117,				//!< F6 control key
-		F7		=	118,				//!< F7 control key
-		F8		=	119,				//!< F8 control key
-		F9		=	120,				//!< F9 control key
-		F10		=	121,				//!< F10 control key
-		F11		=	122,				//!< F11 control key
-		F12		=	123,					//!< F12 control key
+		F1		=	VK_F1,				//!< F1 control key
+		F2		=	VK_F2,				//!< F2 control key
+		F3		=	VK_F3,				//!< F3 control key
+		F4		=	VK_F4,				//!< F4 control key
+		F5		=	VK_F5,				//!< F5 control key
+		F6		=	VK_F6,				//!< F6 control key
+		F7		=	VK_F7,				//!< F7 control key
+		F8		=	VK_F8,				//!< F8 control key
+		F9		=	VK_F9,				//!< F9 control key
+		F10		=	VK_F10,				//!< F10 control key
+		F11		=	VK_F11,				//!< F11 control key
+		F12		=	VK_F12,					//!< F12 control key
+		F13		=	VK_F13,					//!< F12 control key
+		F14		=	VK_F14,					//!< F12 control key
+		F15		=	VK_F15,					//!< F12 control key
+		F16		=	VK_F16,					//!< F12 control key
+		F17		=	VK_F17,					//!< F12 control key
+		F18		=	VK_F18,					//!< F12 control key
+		F19		=	VK_F19,					//!< F12 control key
+		F20		=	VK_F20,					//!< F12 control key
 
 
 	#elif SYSTEM==UNIX
@@ -287,6 +295,15 @@ namespace Key	//! Key code namespace
 		F10		=	76,					//!< F10 control key
 		F11		=	95,					//!< F11 control key
 		F12		=	96,					//!< F12 control key
+
+		F13		=	112,				//I have no idea where these should start
+		F14,
+		F15,
+		F16,
+		F17,
+		F18,
+		F19,
+		F20,
 
 	#endif
 		LeftMouseButton		=	0x100,

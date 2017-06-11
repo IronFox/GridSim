@@ -390,6 +390,14 @@ namespace Engine
 	 	function_key_mask[Key::F10] = true;
 	 	function_key_mask[Key::F11] = true;
 	 	function_key_mask[Key::F12] = true;
+	 	function_key_mask[Key::F13] = true;
+	 	function_key_mask[Key::F14] = true;
+	 	function_key_mask[Key::F15] = true;
+	 	function_key_mask[Key::F16] = true;
+	 	function_key_mask[Key::F17] = true;
+	 	function_key_mask[Key::F18] = true;
+	 	function_key_mask[Key::F19] = true;
+	 	function_key_mask[Key::F20] = true;
 	#endif
 		_current = _initial;
 	}
