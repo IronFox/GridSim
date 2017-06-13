@@ -143,7 +143,7 @@ namespace JSON
 					{
 						escaped = false;
 						UTF16Char ch16;
-						char32_t unicode = 0;
+						char32_t utf32 = 0;
 						for (int c = 0; c < 2; c++)
 						{
 							if (c == 1)
@@ -184,7 +184,7 @@ namespace JSON
 							if (StringEncoding::IsValid(ch16))
 								break;
 						}
-						StringEncoding::EncodeUnicode(StringEncoding::ToUnicode(ch16),ch);
+						StringEncoding::FromUTF32::ToUTF8(StringEncoding::FromUTF16::ToUTF32(ch16),ch);
 						for (BYTE i = 0; i < ch.numCharsUsed; i++)
 							temp << ch.encoded[i];
 

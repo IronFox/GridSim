@@ -1764,7 +1764,7 @@ typedef StringType::StringRef	StringRef;
 typedef StringType::StringRefW	StringRefW;
 typedef StringType::TStringLength	TStringLength;
 
-typedef StringType::Template<char32_t>	UnicodeString;
+typedef StringType::Template<char32_t>	UTF32String;
 typedef StringType::Template<char16_t>	UTF16String;	//only one effective use for this kind of character
 
 namespace StringConversion

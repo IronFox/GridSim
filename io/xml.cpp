@@ -151,13 +151,13 @@ static void EncodeValueToStream(Stream&stream, XML::Encoding enc, XML::Encoding 
 
 						memcpy(ch.encoded,c,ch.numCharsUsed);
 						c += ch.numCharsUsed;
-						stream << StringEncoding::ToCP1252(ch);
+						stream << StringEncoding::FromUTF8::ToCP1252(ch);
 					}
 					elif (enc == XML::Encoding::UTF8)
 					{
 						ASSERT__(hostEnc == XML::Encoding::Windows1252);
 						StringEncoding::UTF8Char ch;
-						StringEncoding::EncodeCP1252(*c,ch);
+						StringEncoding::FromCP1252::ToUTF8(*c,ch);
 						stream << ch.ToRef();
 					}
 					else
@@ -179,7 +179,7 @@ static String Decode(const StringRef&content, XML::Encoding enc)
 		case XML::Encoding::UTF8:
 		{
 			String rs;
-			StringEncoding::UTF8ToCP1252(content,rs);
+			StringEncoding::FromUTF8::ToCP1252(content,rs);
 			return std::move(rs);
 		}
 		default:
@@ -225,13 +225,13 @@ static String DecodeValue(const StringRef&content, XML::Encoding enc, XML::Encod
 
 					memcpy(ch.encoded,source,ch.numCharsUsed);
 					source += ch.numCharsUsed;
-					buffer << StringEncoding::ToCP1252(ch);
+					buffer << StringEncoding::FromUTF8::ToCP1252(ch);
 				}
 				elif (enc == XML::Encoding::Windows1252)
 				{
 					ASSERT__(hostEnc == XML::Encoding::UTF8);
 					StringEncoding::UTF8Char ch;
-					StringEncoding::EncodeCP1252(*source,ch);
+					StringEncoding::FromCP1252::ToUTF8(*source,ch);
 					buffer << ch.ToRef();
 					source++;
 				}
@@ -623,7 +623,7 @@ static void EncodeToStream(OutStream&outfile, XML::Encoding enc, const String&id
 	switch (enc)
 	{
 		case XML::Encoding::UTF8:
-			StringEncoding::CP1252ToUTF8(identifier,encoded);
+			StringEncoding::FromCP1252::ToUTF8(identifier,encoded);
 		break;
 		default:
 			throw Except::IO::StructureCompositionFault(CLOCATION,"XML: Unsupported encoding encountered");
