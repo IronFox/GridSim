@@ -20,7 +20,7 @@ namespace JSON
 		index_t				inLine = 1;
 
 
-		void				Feed(const StringEncoding::UTF8Char&);
+		void				Feed(char);
 
 	};
 

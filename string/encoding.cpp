@@ -42,7 +42,7 @@ namespace StringEncoding
 		struct UTF16Code
 		{
 			typedef Base		CharType;
-			typedef UTF16Char	EncodedType;
+			typedef UTF16::TChar	EncodedType;
 
 
 			static String	GetName() {return "UTF16";}
@@ -88,11 +88,11 @@ namespace StringEncoding
 
 			static char32_t		DeserializeUTF32(const CharType*&source)
 			{
-				UTF16Char ch;
+				UTF16::TChar ch;
 				ch.numCharsUsed = DecipherVariableLength(*source);
 				memcpy(ch.encoded,source,ch.numCharsUsed*sizeof(Base));
 				source += ch.numCharsUsed;
-				return FromUTF16::ToUTF32(ch);
+				return UTF16::ToUTF32(ch);
 			}
 
 		};
@@ -101,33 +101,33 @@ namespace StringEncoding
 	struct UTF8Code
 	{
 		typedef char		CharType;
-		typedef UTF8Char	EncodedType;
+		typedef UTF8::TChar	EncodedType;
 
 		static String	GetName() {return "UTF8";}
 
 
 		static count_t	UTF32ToEncodedLength(char32_t utf32)
 		{
-			return EncodedUTF8Length(utf32);
+			return UTF32::ToUTF8Length(utf32);
 		}
 
 		static void		UTF32ToEncoded(char32_t utf32, EncodedType&rs)
 		{
-			::StringEncoding::FromUTF32::ToUTF8(utf32,rs);
+			::StringEncoding::UTF32::ToUTF8(utf32,rs);
 		}
 
 		static BYTE		DecipherVariableLength(CharType c)
 		{
-			return UTF8Length(c);
+			return UTF8::GetLength(c);
 		}
 
 		static char32_t		DeserializeUTF32(const CharType*&source)
 		{
-			UTF8Char ch;
+			UTF8::TChar ch;
 			ch.numCharsUsed = DecipherVariableLength(*source);
 			memcpy(ch.encoded,source,ch.numCharsUsed);
 			source += ch.numCharsUsed;
-			return FromUTF8::ToUTF32(ch);
+			return UTF8::ToUTF32(ch);
 		}
 
 	};
@@ -146,8 +146,8 @@ namespace StringEncoding
 	{
 		typedef char	CharType;
 
-		static char		ConvertUTF32(char32_t c) {return FromUTF32::ToCP1252(c);}
-		static char32_t	ConvertToUTF32(char c) {return FromCP1252::ToUTF32(c);}
+		static char		ConvertUTF32(char32_t c) {return UTF32::ToCP1252(c);}
+		static char32_t	ConvertToUTF32(char c) {return CP1252::ToUTF32(c);}
 	};
 
 
@@ -219,7 +219,7 @@ namespace StringEncoding
 	}
 
 
-	BYTE	UTF8Length(char firstChar)
+	BYTE	UTF8::GetLength(char firstChar)
 	{
 		unsigned char usource = firstChar;
 		BYTE numOnes = 0;
@@ -232,19 +232,19 @@ namespace StringEncoding
 			throw Except::Program::DataConsistencyFault(CLOCATION, "Invalid leading UTF-8 character "+DataToBinary(&firstChar,1)); //make sure nothing went wrong. In theory the length _could_ be 1+8, if the byte is 255, but that is not utf8
 		
 		const BYTE length = std::max<BYTE>(numOnes,1);
-		if ((count_t)length > ARRAYSIZE(UTF8Char::encoded))
+		if ((count_t)length > ARRAYSIZE(UTF8::TChar::encoded))
 			throw Except::Program::DataConsistencyFault(CLOCATION, "Invalid leading UTF-8 character "+DataToBinary(&firstChar,1)); //make sure nothing went wrong. In theory the length _could_ be 1+8, if the byte is 255, but that is not utf8
 		return length;
 	}
 
 
-	void	Deserialize(IReadStream&source, UTF8Char&utf8Dest)
+	void	Deserialize(IReadStream&source, UTF8::TChar&utf8Dest)
 	{
 		count_t len = 0;
 		unsigned char first;
 		source.Read(&first,1);
 
-		BYTE length = UTF8Length(first);
+		BYTE length = UTF8::GetLength(first);
 		utf8Dest.numCharsUsed = length;
 		utf8Dest.encoded[0] = first;
 		if (length > 1)
@@ -253,7 +253,7 @@ namespace StringEncoding
 
 
 
-	char32_t	FromCP1252::ToUTF32(char c)
+	char32_t	CP1252::ToUTF32(char c)
 	{
 		if ((BYTE)c < 128 || (BYTE)c >= 160)
 			return (char32_t)(BYTE)c;
@@ -318,7 +318,7 @@ namespace StringEncoding
 		};
 	}
 
-	char	FromUTF32::ToCP1252(char32_t c)
+	char	UTF32::ToCP1252(char32_t c)
 	{
 		if ((UINT32)c < 0x100)
 		{
@@ -387,38 +387,38 @@ namespace StringEncoding
 		return (char)(BYTE)(UINT32)c;
 	}
 
-	char FromUTF8::ToCP1252(const UTF8Char&ch)
+	char UTF8::ToCP1252(const UTF8::TChar&ch)
 	{
 		if (!ch.numCharsUsed)
 			return 0;
-		return FromUTF32::ToCP1252(
-				FromUTF8::ToUTF32(ch));
+		return UTF32::ToCP1252(
+				UTF8::ToUTF32(ch));
 	}
 
-	void	FromCP1252::ToUTF8(char c, UTF8Char&ch)
+	void	CP1252::ToUTF8(char c, UTF8::TChar&ch)
 	{
-		FromUTF32::ToUTF8(
-			FromCP1252::ToUTF32(c),ch);
+		UTF32::ToUTF8(
+			CP1252::ToUTF32(c),ch);
 	}
 
 
-	void	FromUTF8::ToUTF32(const String&utf8Source, UTF32String&utf32Dest)
+	void	UTF8::ToUTF32(const String&utf8Source, UTF32String&utf32Dest)
 	{
-		FromUTF8::ToUTF32(utf8Source.ref(),utf32Dest);
+		UTF8::ToUTF32(utf8Source.ref(),utf32Dest);
 	}
-	void	FromUTF32::ToUTF8(const StringType::ReferenceExpression<char32_t>&utf32Source, String&utf8Dest)
+	void	UTF32::ToUTF8(const StringType::ReferenceExpression<char32_t>&utf32Source, String&utf8Dest)
 	{
 		FixedLengthToVariableLength<UTF32FixedCode,UTF8Code>(utf32Source,utf8Dest);
 	}
 
-	void	FromUTF32::ToUTF8(const UTF32String&utf32Source, String&utf8Dest)
+	void	UTF32::ToUTF8(const UTF32String&utf32Source, String&utf8Dest)
 	{
-		FromUTF32::ToUTF8(utf32Source.ref(),utf8Dest);
+		UTF32::ToUTF8(utf32Source.ref(),utf8Dest);
 	}
 
 
 
-	void	FromUTF8::ToUTF32(const StringRef&utf8Source, UTF32String&utf32Dest)
+	void	UTF8::ToUTF32(const StringRef&utf8Source, UTF32String&utf32Dest)
 	{
 		VariableLengthToFixedLength<UTF8Code,UTF32FixedCode>(utf8Source,utf32Dest);
 	}
@@ -427,7 +427,7 @@ namespace StringEncoding
 
 
 
-	char32_t	FromUTF16::ToUTF32(const UTF16Char&c)
+	char32_t	UTF16::ToUTF32(const UTF16::TChar&c)
 	{
 		if (c.numCharsUsed == 0)
 			return 0;
@@ -443,7 +443,7 @@ namespace StringEncoding
 		return Utf16ToUTF32Char(c.encoded[0],c.encoded[1]);
 	}
 
-	bool	IsValid(const UTF16Char&c)
+	bool	IsValid(const UTF16::TChar&c)
 	{
 		if (c.numCharsUsed == 0)
 			return true;
@@ -460,7 +460,7 @@ namespace StringEncoding
 		return header0 == 0xD800 && header1 == 0xDC00;
 	}
 
-	void	AssertValidity(const UTF16Char&c)
+	void	AssertValidity(const UTF16::TChar&c)
 	{
 		if (c.numCharsUsed == 0)
 			return;
@@ -481,12 +481,12 @@ namespace StringEncoding
 			throw Except::Program::DataConsistencyFault(CLOCATION,"Second encoded UTF16 character contains invalid header");
 	}
 
-	bool	IsValid(const UTF8Char&c)
+	bool	IsValid(const UTF8::TChar&c)
 	{
 		if (c.numCharsUsed == 0)
 			return true;
 
-		const BYTE length = UTF8Length(c.encoded[0]);
+		const BYTE length = UTF8::GetLength(c.encoded[0]);
 		if (length != c.numCharsUsed)
 			return false;
 		for (BYTE k = 1; k < c.numCharsUsed; k++)
@@ -495,12 +495,12 @@ namespace StringEncoding
 		return true;
 	}
 	
-	void	AssertValidity(const UTF8Char&c)
+	void	AssertValidity(const UTF8::TChar&c)
 	{
 		if (c.numCharsUsed == 0)
 			return;
 
-		const BYTE length = UTF8Length(c.encoded[0]);
+		const BYTE length = UTF8::GetLength(c.encoded[0]);
 		if (length != c.numCharsUsed)
 			throw Except::Program::DataConsistencyFault(CLOCATION, "UTF8 Encoding error. Expected "+String(length)+" bytes in encoded string, but got "+String(c.numCharsUsed));
 		for (BYTE k = 1; k < c.numCharsUsed; k++)
@@ -509,7 +509,7 @@ namespace StringEncoding
 	}
 
 
-	char32_t	FromUTF8::ToUTF32(const UTF8Char&c)
+	char32_t	UTF8::ToUTF32(const UTF8::TChar&c)
 	{
 		if (c.numCharsUsed == 0)
 			return 0;
@@ -517,7 +517,7 @@ namespace StringEncoding
 		unsigned char first = (BYTE) c.encoded[0];
 		
 
-		const BYTE length = UTF8Length(first);
+		const BYTE length = UTF8::GetLength(first);
 		if (length != c.numCharsUsed)
 			throw Except::Program::DataConsistencyFault(CLOCATION, "UTF8 Encoding error. Expected "+String(length)+" bytes in encoded string, but got "+String(c.numCharsUsed));
 
@@ -537,7 +537,7 @@ namespace StringEncoding
 
 
 
-	BYTE	EncodedUTF8Length(char32_t c)
+	BYTE	UTF32::ToUTF8Length(char32_t c)
 	{
 		UINT32 u = (UINT32)c;
 		if (u <= 0x007F)
@@ -551,7 +551,7 @@ namespace StringEncoding
 		throw Except::Program::DataConsistencyFault(CLOCATION,"Invalid UTF32 character "+BinaryToHex(&c,4));
 	}
 
-	void	FromUTF32::ToUTF8(char32_t c, UTF8Char&rs)
+	void	UTF32::ToUTF8(char32_t c, UTF8::TChar&rs)
 	{
 		UINT32 u = (UINT32)c;
 		if (u <= 0x007F)
@@ -590,7 +590,7 @@ namespace StringEncoding
 		throw Except::Program::DataConsistencyFault(CLOCATION,"Invalid UTF32 character "+BinaryToHex(&c,4));
 	}
 
-	void	FromUTF32::ToUTF16(char32_t c, UTF16Char&rs)
+	void	UTF32::ToUTF16(char32_t c, UTF16::TChar&rs)
 	{
 		UINT32 uni = (UINT32)c;
 
@@ -626,86 +626,86 @@ namespace StringEncoding
 		char const*const end = utf8 + utf8Source.length();
 
 		StringType::Template<char32_t> utf32;
-		FromUTF8::ToUTF32(utf8Source,utf32);
+		UTF8::ToUTF32(utf8Source,utf32);
 		FixedLengthToVariableLength<UTF32FixedCode, UTF16Code<T> >(utf32.ref(),utf16Dest);
 	}
 
 
 
-	void	FromUTF16::ToUTF32(const StringType::ReferenceExpression<char16_t>&utf16Source, UTF32String&utf32Dest)
+	void	UTF16::ToUTF32(const StringType::ReferenceExpression<char16_t>&utf16Source, UTF32String&utf32Dest)
 	{
 		VariableLengthToFixedLength<UTF16Code<char16_t>,UTF32FixedCode>(utf16Source,utf32Dest);
 	}
 
-	void	FromUTF16::ToUTF32(const StringType::Template<char16_t>&utf16Source, UTF32String&utf32Dest)
+	void	UTF16::ToUTF32(const StringType::Template<char16_t>&utf16Source, UTF32String&utf32Dest)
 	{
-		FromUTF16::ToUTF32(utf16Source.ref(),utf32Dest);
+		UTF16::ToUTF32(utf16Source.ref(),utf32Dest);
 	}
 
 
 
 	#ifdef WIN32
 		static_assert(sizeof(wchar_t)==sizeof(char16_t),"Expected wchar_t to be 16 bit on windows");
-		void	FromUTF32::ToUTF16(const StringType::ReferenceExpression<char32_t>&utf32Source, StringType::Template<wchar_t>&utf16Dest)
+		void	UTF32::ToUTF16(const StringType::ReferenceExpression<char32_t>&utf32Source, StringType::Template<wchar_t>&utf16Dest)
 		{
 			FixedLengthToVariableLength<UTF32FixedCode, UTF16Code<wchar_t> >(utf32Source,utf16Dest);
 		}
-		void	FromUTF32::ToUTF16(const UTF32String&utf32Source, StringType::Template<wchar_t>&utf16Dest)
+		void	UTF32::ToUTF16(const UTF32String&utf32Source, StringType::Template<wchar_t>&utf16Dest)
 		{
-			FromUTF32::ToUTF16(utf32Source.ref(),utf16Dest);
+			UTF32::ToUTF16(utf32Source.ref(),utf16Dest);
 		}
 
-		void	FromUTF8::ToUTF16(const StringRef&utf8Source, StringType::Template<wchar_t>&utf16Dest)
+		void	UTF8::ToUTF16(const StringRef&utf8Source, StringType::Template<wchar_t>&utf16Dest)
 		{
 			Utf8ToUtf16T(utf8Source,utf16Dest);
 		}
 
-		void	FromUTF8::ToUTF16(const String&utf8Source, StringType::Template<wchar_t>&utf16Dest)
+		void	UTF8::ToUTF16(const String&utf8Source, StringType::Template<wchar_t>&utf16Dest)
 		{
 			Utf8ToUtf16T(utf8Source.ref(),utf16Dest);
 		}
 
 	#endif
 
-	void	FromUTF32::ToUTF16(const UTF32String&utf32Source, StringType::Template<char16_t>&utf16Dest)
+	void	UTF32::ToUTF16(const UTF32String&utf32Source, StringType::Template<char16_t>&utf16Dest)
 	{
-		FromUTF32::ToUTF16(utf32Source.ref(),utf16Dest);
+		UTF32::ToUTF16(utf32Source.ref(),utf16Dest);
 	}
 
-	void	FromUTF32::ToUTF16(const StringType::ReferenceExpression<char32_t>&utf32Source, StringType::Template<char16_t>&utf16Dest)
+	void	UTF32::ToUTF16(const StringType::ReferenceExpression<char32_t>&utf32Source, StringType::Template<char16_t>&utf16Dest)
 	{
 		FixedLengthToVariableLength<UTF32FixedCode, UTF16Code<char16_t> >(utf32Source,utf16Dest);
 	}
 
-	void	FromUTF8::ToUTF16(const StringRef&utf8Source, StringType::Template<char16_t>&utf16Dest)
+	void	UTF8::ToUTF16(const StringRef&utf8Source, StringType::Template<char16_t>&utf16Dest)
 	{
 		Utf8ToUtf16T(utf8Source,utf16Dest);
 	}
 
 
 
-	void	FromUTF8::ToCP1252(const StringRef&utf8Source, String&cp1252Dest)
+	void	UTF8::ToCP1252(const StringRef&utf8Source, String&cp1252Dest)
 	{
 		VariableLengthToFixedLength<UTF8Code,CP1252FixedCode>(utf8Source,cp1252Dest);
 	}
 
 
-	void	FromUTF8::ToCP1252(const String&utf8Source, String&cp1252Dest)
+	void	UTF8::ToCP1252(const String&utf8Source, String&cp1252Dest)
 	{
-		FromUTF8::ToCP1252(utf8Source.ref(),cp1252Dest);
+		UTF8::ToCP1252(utf8Source.ref(),cp1252Dest);
 	}
 
-	void	FromCP1252::ToUTF8(const StringRef&cp1252Source, String&utf8Dest)
+	void	CP1252::ToUTF8(const StringRef&cp1252Source, String&utf8Dest)
 	{
 		FixedLengthToVariableLength<CP1252FixedCode, UTF8Code>(cp1252Source,utf8Dest);
 	}
 
-	void	FromCP1252::ToUTF8(const String&cp1252Source, String&utf8Dest)
+	void	CP1252::ToUTF8(const String&cp1252Source, String&utf8Dest)
 	{
-		FromCP1252::ToUTF8(cp1252Source.ref(),utf8Dest);
+		CP1252::ToUTF8(cp1252Source.ref(),utf8Dest);
 	}
 
-	void	FromCP1252::ToUTF32(const StringRef&cp1252Source, UTF32String&utf32Dest)
+	void	CP1252::ToUTF32(const StringRef&cp1252Source, UTF32String&utf32Dest)
 	{
 		utf32Dest.SetLength(cp1252Source.GetLength());
 		auto*out = utf32Dest.mutablePointer();
@@ -713,17 +713,17 @@ namespace StringEncoding
 		const auto*const end = cp1252Source.end();
 		for (; in != end; ++in, ++out)
 		{
-			*out = FromCP1252::ToUTF32(*in);
+			*out = CP1252::ToUTF32(*in);
 		}
 		ASSERT_EQUAL__(out,utf32Dest.end());
 	}
 
-	void	FromCP1252::ToUTF32(const String&cp1252Source, UTF32String&utf32Dest)
+	void	CP1252::ToUTF32(const String&cp1252Source, UTF32String&utf32Dest)
 	{
-		FromCP1252::ToUTF32(cp1252Source.ref(),utf32Dest);
+		CP1252::ToUTF32(cp1252Source.ref(),utf32Dest);
 	}
 
-	void	FromUTF32::ToCP1252(const StringType::ReferenceExpression<char32_t>&utf32Source, String&cp1525Dest)
+	void	UTF32::ToCP1252(const StringType::ReferenceExpression<char32_t>&utf32Source, String&cp1525Dest)
 	{
 		cp1525Dest.SetLength(utf32Source.GetLength());
 		auto*out = cp1525Dest.mutablePointer();
@@ -731,14 +731,14 @@ namespace StringEncoding
 		const auto*const end = utf32Source.end();
 		for (; in != end; ++in, ++out)
 		{
-			*out = FromUTF32::ToCP1252(*in);
+			*out = UTF32::ToCP1252(*in);
 		}
 		ASSERT_EQUAL__(out,cp1525Dest.end());
 	}
 
-	void	FromUTF32::ToCP1252(const UTF32String&utf32Source, String&cp1525Dest)
+	void	UTF32::ToCP1252(const UTF32String&utf32Source, String&cp1525Dest)
 	{
-		FromUTF32::ToCP1252(utf32Source.ref(),cp1525Dest);
+		UTF32::ToCP1252(utf32Source.ref(),cp1525Dest);
 	}
 
 
