@@ -113,6 +113,12 @@ public:
     StringFile&    operator<<(float);
     StringFile&    operator<<(double);
     StringFile&    operator<<(long double);
+	template <typename Generic>
+		StringFile&    operator<<(const Generic&generic)
+		{
+			using StringConversion::ToString;
+			return operator<<(ToString(generic));
+		}
 
 	/*!
 		\brief Reads one line from the currently opened file
