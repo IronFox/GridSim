@@ -170,74 +170,72 @@ static void EncodeValueToStream(Stream&stream, XML::Encoding enc, XML::Encoding 
 }
 
 
-static String Decode(const StringRef&content, XML::Encoding enc)
+//static String Decode(const StringRef&content, XML::Encoding enc)
+//{
+//	switch (enc)
+//	{
+//		case XML::Encoding::Windows1252:
+//			return content;
+//		case XML::Encoding::UTF8:
+//		{
+//			String rs;
+//			StringEncoding::UTF8::ToCP1252(content,rs);
+//			return std::move(rs);
+//		}
+//		default:
+//			throw Except::IO::StructureCompositionFault(CLOCATION,"XML: Unsupported encoding encountered");
+//	}
+//	return "";
+//}
+
+
+static void DecodeCharacter(const char*&source, const char*const end, StringBuffer&buffer, XML::Encoding enc, XML::Encoding hostEnc)
 {
-	switch (enc)
+	if (enc == hostEnc)
 	{
-		case XML::Encoding::Windows1252:
-			return content;
-		case XML::Encoding::UTF8:
-		{
-			String rs;
-			StringEncoding::UTF8::ToCP1252(content,rs);
-			return std::move(rs);
-		}
-		default:
-			throw Except::IO::StructureCompositionFault(CLOCATION,"XML: Unsupported encoding encountered");
+		buffer << *source;
+		source++;
 	}
-	return "";
+	else
+	{
+		if (enc == XML::Encoding::UTF8)
+		{
+			ASSERT__(hostEnc == XML::Encoding::Windows1252);
+			char c;
+
+			StringEncoding::UTF8::TChar ch;
+			ch.numCharsUsed = StringEncoding::UTF8::GetLength(*source);
+			if (source + ch.numCharsUsed > end)
+				throw Except::IO::StructureCompositionFault(CLOCATION,"XML: Remaining string does not contain all characters of a decoded UTF8 multi-byte character");
+
+			memcpy(ch.encoded,source,ch.numCharsUsed);
+			source += ch.numCharsUsed;
+			buffer << StringEncoding::UTF8::ToCP1252(ch);
+		}
+		elif (enc == XML::Encoding::Windows1252)
+		{
+			ASSERT__(hostEnc == XML::Encoding::UTF8);
+			StringEncoding::UTF8::TChar ch;
+			StringEncoding::CP1252::ToUTF8(*source,ch);
+			buffer << ch.ToRef();
+			source++;
+		}
+		else
+			throw Except::IO::StructureCompositionFault(CLOCATION,"XML: Unsupported encoding encountered: #"+String((int)enc));
+	}
 }
 
-static String DecodeValue(const StringRef&content, XML::Encoding enc, XML::Encoding hostEnc)
+static String DecodeValue(const StringRef&content, XML::Encoding enc, XML::Encoding hostEnc, StringBuffer&buffer)
 {
-	if (content.length() < 4)
-		return Decode(content,enc);
-	static StringBuffer buffer;
 	buffer.Clear();
-
-	//String rs = content;
-	//log_file << "in: "<<content<<nl;
-
 
 	const char*source = content.pointer();
 	const char*const end = source + content.length();
 	while (source < end)
 	{
-		
 		if (*source != '&')
 		{
-			if (enc == hostEnc)
-			{
-				buffer << *source;
-				source++;
-			}
-			else
-			{
-				if (enc == XML::Encoding::UTF8)
-				{
-					ASSERT__(hostEnc == XML::Encoding::Windows1252);
-					char c;
-
-					StringEncoding::UTF8::TChar ch;
-					ch.numCharsUsed = StringEncoding::UTF8::GetLength(*source);
-					if (source + ch.numCharsUsed > end)
-						throw Except::IO::StructureCompositionFault(CLOCATION,"XML: Remaining string does not contain all characters of a decoded UTF8 multi-byte string");
-
-					memcpy(ch.encoded,source,ch.numCharsUsed);
-					source += ch.numCharsUsed;
-					buffer << StringEncoding::UTF8::ToCP1252(ch);
-				}
-				elif (enc == XML::Encoding::Windows1252)
-				{
-					ASSERT__(hostEnc == XML::Encoding::UTF8);
-					StringEncoding::UTF8::TChar ch;
-					StringEncoding::CP1252::ToUTF8(*source,ch);
-					buffer << ch.ToRef();
-					source++;
-				}
-				else
-					throw Except::IO::StructureCompositionFault(CLOCATION,"XML: Unsupported encoding encountered");
-			}
+			DecodeCharacter(source,end,buffer,enc,hostEnc);
 		}
 		else
 		{
@@ -248,7 +246,7 @@ static String DecodeValue(const StringRef&content, XML::Encoding enc, XML::Encod
 			while (source < end && *source != ';')
 				source++;
 			if (source >= end)
-				break;
+				throw Except::IO::StructureCompositionFault(CLOCATION,"XML: Entity is not terminated in value '"+String(content)+"'");
 			StringRef sub(begin,source-begin);
 			if (sub == "amp")
 				buffer << '&';
@@ -261,10 +259,28 @@ static String DecodeValue(const StringRef&content, XML::Encoding enc, XML::Encod
 			elif (sub == "apos")
 				buffer << '\'';
 			else
-				buffer << '&'<<Decode(sub,enc)<<';';
+			{
+				buffer << '&';
+				while (begin != source)
+					DecodeCharacter(begin,source,buffer,enc,hostEnc);
+				buffer<<';';
+			}
 			source++;
 		}
 	}
+	return buffer.ToStringRef();
+}
+
+
+static String DecodeWord(const StringRef&content, XML::Encoding enc, XML::Encoding hostEnc, StringBuffer&buffer)
+{
+	if (enc == hostEnc)
+		return content;
+	buffer.Clear();
+	const char*source = content.pointer();
+	const char*const end = source + content.length();
+	while (source != end)
+		DecodeCharacter(source,end,buffer,enc,hostEnc);
 	return buffer.ToStringRef();
 }
 
@@ -437,11 +453,11 @@ void	XML::Container::LoadFromCharArray(ArrayData<char>&field)
 			if (open)
 			{
 				if (active_entry)
-					active_entry->inner_content += DecodeValue(StringRef(c,next-c),encoding,hostEncoding);
+					active_entry->inner_content += DecodeValue(StringRef(c,next-c),encoding,hostEncoding,myBuffer);
 			}
 			else
 				if (last)
-					last->following_content += DecodeValue(StringRef(c,next-c),encoding,hostEncoding);
+					last->following_content += DecodeValue(StringRef(c,next-c),encoding,hostEncoding,myBuffer);
 //			*next = '<';
 		}
 		c = next;
@@ -483,7 +499,7 @@ void	XML::Container::LoadFromCharArray(ArrayData<char>&field)
 		}
 		elif (*c == '/')
 		{
-			String name = Decode(GetWord(c+1),encoding);
+			String name = DecodeWord(GetWord(c+1),encoding,hostEncoding,myBuffer);
 			last = active_entry;
 			if (active_entry && name == active_entry->name)
 				active_entry = parse_stack.pop();
@@ -501,14 +517,14 @@ void	XML::Container::LoadFromCharArray(ArrayData<char>&field)
 			//sub->parent = active_entry;
 			parse_stack << active_entry;
 			active_entry = sub;
-			active_entry->name = Decode(GetWord(c),encoding);
+			active_entry->name = DecodeWord(GetWord(c),encoding,hostEncoding,myBuffer);
 //			ShowMessage("opening "+active_entry->name);
 			in_block = true;
 			c += active_entry->name.length();
 			open = true;
 			while (unsigned len = findWord(c))
 			{
-				String pname = Decode(GetWord(c),encoding);
+				String pname = DecodeWord(GetWord(c),encoding,hostEncoding,myBuffer);
 				c += len;
 				if (pname == "/")
 				{
@@ -533,7 +549,7 @@ void	XML::Container::LoadFromCharArray(ArrayData<char>&field)
 					pvalue.DropFirstChar();
 				if (pvalue.length() && (pvalue.GetLastChar() == '\"' || pvalue.GetLastChar() == '\''))
 					pvalue.DropLastChar();
-				active_entry->Set(pname,DecodeValue(pvalue,encoding,hostEncoding));
+				active_entry->Set(pname,DecodeValue(pvalue,encoding,hostEncoding,myBuffer));
 //				ShowMessage("specifying parameter "+pname+" = "+pvalue);
 			}
 			c = strchr(c,'>');
@@ -619,7 +635,7 @@ static void EncodeToStream(OutStream&outfile, XML::Encoding enc, const String&id
 {
 	if (enc == XML::Encoding::Windows1252)
 		outfile << identifier;
-	static String encoded;
+	String encoded;
 	switch (enc)
 	{
 		case XML::Encoding::UTF8:
@@ -1118,7 +1134,7 @@ bool	XML::Scanner::Scan(const PathString&filename)
 	current->rule = this;
 	ScannerRule*rule = this;
 	
-	StringBuffer	buffer;
+	StringBuffer	buffer,tempBuffer;
 	bool 	error = false,
 			working = true;
 	
@@ -1230,8 +1246,8 @@ bool	XML::Scanner::Scan(const PathString&filename)
 				}
 				(*attrib) = 0;
 				TAttribute*a = inner->attributes.append(name_offset);
-				a->name = Decode(StringRef(name_offset,name_end - name_offset),encoding);
-				a->value = DecodeValue(StringRef(data_offset,attrib - data_offset),encoding,hostEncoding);
+				a->name = DecodeWord(StringRef(name_offset,name_end - name_offset),encoding,hostEncoding,tempBuffer);
+				a->value = DecodeValue(StringRef(data_offset,attrib - data_offset),encoding,hostEncoding,tempBuffer);
 				name_offset = attrib+1;
 			}
 		bool do_enter = field[buffer.length()-1] != '/';
@@ -1244,7 +1260,7 @@ bool	XML::Scanner::Scan(const PathString&filename)
 				working = false;
 				error_string = "Unexpected end of file.";
 			}
-			inner->content = DecodeValue(buffer.ToStringRef(),encoding,hostEncoding);
+			inner->content = DecodeValue(buffer.ToStringRef(),encoding,hostEncoding,tempBuffer);
 		}
 		else
 			if (!skip('<',f))

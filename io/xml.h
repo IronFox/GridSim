@@ -83,7 +83,7 @@ namespace XML
 	class Container
 	{
 	private:
-
+		StringBuffer		myBuffer;	//avoid multi-threading issues
 	public:
         Node           		root_node;
 		Encoding			encoding,							//!< Character encoding
