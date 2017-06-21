@@ -1353,61 +1353,83 @@ namespace StringType
 			}
 	
 
-	template <>
-		inline	Template<char>::Template(const char*string)
+	template <typename T>
+		void						Template<T>::SetupFromCharArray(const T*string)
 		{
 			size_t len = CharFunctions::strlen(string);
 			field = allocate(len);
 			string_length = len;
-			memcpy(field,string,len);
-			//ASSERT_NOT_NULL__(field);
+			memcpy(field,string,len*sizeof(T));
+		}
+	template <typename T>
+		template <typename T2>
+			void					Template<T>::SetupFromCastCharArray(const T2*string)
+			{
+				size_t len = CharFunctions::strlen(string);
+				field = allocate(len);
+				string_length = len;
+				CharFunctions::Cast(string,field,len);
+			}
+
+
+	template <>
+		inline	Template<char>::Template(const char*string)
+		{
+			SetupFromCharArray(string);
 		}
 	
 	template <typename T>
 		inline	Template<T>::Template(const char*string)
 		{
-			size_t len = CharFunctions::strlen(string);
-			field = allocate(len);
-			string_length = len;
-			CharFunctions::Cast(string,field,len);
-			//ASSERT_NOT_NULL__(field);
+			SetupFromCastCharArray(string);
 		}
+
+
+	
+	template <>
+		template <size_t MaxLength>
+			inline	Template<char>::Template(const TFixedString<MaxLength>&string)
+			{
+				SetupFromCharArray(string.begin);
+			}
 
 	
 	template <typename T>
 		template <size_t MaxLength>
 			inline	Template<T>::Template(const TFixedString<MaxLength>&string)
 			{
-				*this = Template<T>(string.begin);
+				SetupFromCastCharArray(string.begin);
 			}
+
+	template <>
+		inline	Template<char>::Template(const TCodeLocation&loc)
+		{
+			TCodeLocation::TOutString str;
+			loc.Format(str);
+			SetupFromCharArray(str.begin);
+		}
+
 	template <typename T>
 		inline	Template<T>::Template(const TCodeLocation&loc)
 		{
 			TCodeLocation::TOutString str;
 			loc.Format(str);
-			*this = Template<T>(str.begin);
+			SetupFromCastCharArray(str.begin);
 		}
 
+	template <>
+		inline	Template<wchar_t>::Template(const wchar_t*string)
+		{
+			SetupFromCharArray(string);
+		}
 
 	template <typename T>
 		inline	Template<T>::Template(const wchar_t*string)
 		{
-			size_t len = CharFunctions::strlen(string);
-			field = allocate(len);
-			string_length = len;
-			CharFunctions::Cast(string,field,len);
-			//ASSERT_NOT_NULL__(field);
+			SetupFromCastCharArray(string);
 		}
 
-	//template <>
-	//	inline	Template<wchar_t>::Template(const wchar_t*string)
-	//	{
-	//		size_t len = CharFunctions::strlen(string);
-	//		field = allocate(len);
-	//		string_length = len;
-	//		memcpy(field,string,len*sizeof(wchar_t));
-	//		//ASSERT_NOT_NULL__(field);
-	//	}
+
 
 	template <typename T>
 		static inline T* pointerToHexT(const void*pointer, int min_len, T*end, T*first)

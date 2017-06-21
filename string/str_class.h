@@ -1178,6 +1178,10 @@ namespace StringType
 			template <class Marker>
 				void					genericAddSlashes(const Marker&marked);
 
+			void						SetupFromCharArray(const T*);
+			template <typename T2>
+				void					SetupFromCastCharArray(const T2*);
+
 		public:
 
 			template <typename T1>
