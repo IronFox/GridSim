@@ -626,6 +626,7 @@ namespace Except
 #define ASSERT__(_EXPRESSION_)	{if (!(_EXPRESSION_)) FATAL__("[" #_EXPRESSION_ "] evaluates to false");}
 #define ASSERT_NOT_NULL__(_EXPRESSION_)	{if ((_EXPRESSION_)==NULL) FATAL__("[" #_EXPRESSION_ "] evaluates to NULL");}
 #define ASSERT_NOT_NULL1__(_EXPRESSION_,_PARAMETER0_)	{using ::StringConversion::ToString; if ((_EXPRESSION_)==NULL) FATAL__(#_EXPRESSION_ " (with "#_PARAMETER0_"='"+ToString(_PARAMETER0_)+"') evaluates to NULL");}
+#define ASSERT_NOT_NULL2__(_EXPRESSION_,_PARAMETER0_,_PARAMETER1_)	{using ::StringConversion::ToString; if ((_EXPRESSION_)==NULL) FATAL__(#_EXPRESSION_ " (with "#_PARAMETER0_"='"+ToString(_PARAMETER0_)+" and "#_PARAMETER1_"='"+ToString(_PARAMETER1_)+"') evaluates to NULL");}
 #define ASSERT_IS_NULL__(_EXPRESSION_)	{if ((_EXPRESSION_)!=NULL) FATAL__("[" #_EXPRESSION_ "] evaluates to not NULL");}
 
 #define ASSERT1__(_EXPRESSION_,_PARAMETER0_)	{using ::StringConversion::ToString; if (!(_EXPRESSION_)) FATAL__(#_EXPRESSION_ " (with "#_PARAMETER0_"='"+ToString(_PARAMETER0_)+"') evaluates to false");}
