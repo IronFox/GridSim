@@ -124,10 +124,21 @@ namespace Container
 			Axis<2>			Deep() const {return Axis<2>(GetDepth());}
 
 
-			index_t	IndexOf(index_t x, index_t y, index_t z) const
+
+			index_t		ToIndex(index_t x, index_t y, index_t z) const
+			{
+				#ifdef __ARRAY_DBG_RANGE_CHECK__
+					if (x >= w || y >= h || z >= GetDepth())
+						FATAL__("Index out of bounds");
+				#endif
+				return ToIndexNoCheck(x,y,z);
+			}
+
+			index_t		ToIndexNoCheck(index_t x, index_t y, index_t z) const
 			{
 				return z*w*h + y*w + x;
 			}
+
 
 			void		SetSize(Arrays::count_t width, Arrays::count_t height, Arrays::count_t depth)	//! Resizes the local 2d array to match the specified dimensions. The local array content is lost if the array's total size is changed
 			{
@@ -137,24 +148,16 @@ namespace Container
 			}
 			void		Set(index_t x, index_t y, index_t z, const T&value)
 			{
-				Super::data[IndexOf(x,y,z)] = value;
+				Super::data[ToIndex(x,y,z)] = value;
 			}
 			
 			T&			Get(index_t x, index_t y, index_t z)
 			{
-				#ifdef __ARRAY_DBG_RANGE_CHECK__
-					if (x >= w || y >= h || z >= GetDepth())
-						FATAL__("Index out of bounds");
-				#endif
-				return Super::data[IndexOf(x,y,z)];
+				return Super::data[ToIndex(x,y,z)];
 			}
 			const T&			Get(index_t x, index_t y, index_t z) const
 			{
-				#ifdef __ARRAY_DBG_RANGE_CHECK__
-					if (x >= w || y >= h || z >= GetDepth())
-						FATAL__("Index out of bounds");
-				#endif
-				return Super::data[IndexOf(x,y,z)];
+				return Super::data[ToIndex(x,y,z)];
 			}
 			T&			Get(const Iterator<0>&x, const Iterator<1>&y, const Iterator<2>&z)
 			{

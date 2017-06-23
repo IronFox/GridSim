@@ -18,7 +18,7 @@ namespace Container
 			typedef Array<C,Strategy>	Super;
 		protected:
 				
-			Arrays::count_t	w;
+			index_t	w;
 				
 			using Super::SetSize;
 			using Super::resizePreserveContent;
@@ -75,9 +75,9 @@ namespace Container
 
 			Array2D():w(0)
 			{}
-			Array2D(Arrays::count_t width, Arrays::count_t height):Super(width*height),w(width)
+			Array2D(index_t width, index_t height):Super(width*height),w(width)
 			{}
-			Array2D(Arrays::count_t width, Arrays::count_t height, const C&initial):Super(width*height),w(width)
+			Array2D(index_t width, index_t height, const C&initial):Super(width*height),w(width)
 			{
 				Fill(initial);
 			}
@@ -102,19 +102,19 @@ namespace Container
 				w = other.w;
 			}
 				
-			inline	Arrays::count_t	width()	const	//! Retrieves this array's width \return width
+			inline	index_t	width()	const	//! Retrieves this array's width \return width
 			{
 				return w;
 			}
-			inline	Arrays::count_t	height() const	//! Retrieves this array's height \return height
+			inline	index_t	height() const	//! Retrieves this array's height \return height
 			{
 				return w?Array<C,Strategy>::elements/w:0;
 			}
-			inline	Arrays::count_t	GetWidth()	const	//! Retrieves this array's width \return width
+			inline	index_t	GetWidth()	const	//! Retrieves this array's width \return width
 			{
 				return w;
 			}
-			inline	Arrays::count_t	GetHeight() const	//! Retrieves this array's height \return height
+			inline	index_t	GetHeight() const	//! Retrieves this array's height \return height
 			{
 				return w?Array<C,Strategy>::elements/w:0;
 			}
@@ -198,7 +198,7 @@ namespace Container
 				target.SetSize(h);
 				for (index_t i= 0; i < h; i++)
 				{
-					target[i] = Super::data[i*w+col];
+					target[i] = Super::data[ToIndexNoCheck(col,i)];
 				}
 			}
 
@@ -222,27 +222,38 @@ namespace Container
 				#endif
 				for (index_t i= 0; i < h; i++)
 				{
-					Super::data[i*w+col] = source[i];
+					Super::data[ToIndexNoCheck(col,i)] = source[i];
 				}
 			}
 
-			void		SetSize(Arrays::count_t width, Arrays::count_t height)	//! Resizes the local 2d array to match the specified dimensions. The local array content is lost if the array's total size is changed
-			{
-				Super::SetSize(width*height);
-				w = width;
-			}
-			void		Set(Arrays::count_t x, Arrays::count_t y, const C&value)	//! Updates a singular element at the specified position	\param x X coordinate. Must be less than width() \param y Y coordinate. Must be less than height() @param value Value to set \return Reference to the requested element
-			{
-				Super::data[y*w+x] = value;
-			}
-			
-			C&			Get(Arrays::count_t x, Arrays::count_t y)	//! Retrieves a singular element at the specified position	\param x X coordinate. Must be less than width() \param y Y coordinate. Must be less than height() \return Reference to the requested element
+
+			index_t		ToIndex(index_t x, index_t y) const
 			{
 				#ifdef __ARRAY_DBG_RANGE_CHECK__
 					if (x >= w || y >= height())
 						FATAL__("Index out of bounds");
 				#endif
-				return Super::data[y*w+x];
+				return ToIndexNoCheck(x,y);
+			}
+
+			index_t		ToIndexNoCheck(index_t x, index_t y) const
+			{
+				return y*w+x;
+			}
+
+			void		SetSize(index_t width, index_t height)	//! Resizes the local 2d array to match the specified dimensions. The local array content is lost if the array's total size is changed
+			{
+				Super::SetSize(width*height);
+				w = width;
+			}
+			void		Set(index_t x, index_t y, const C&value)	//! Updates a singular element at the specified position	\param x X coordinate. Must be less than width() \param y Y coordinate. Must be less than height() @param value Value to set \return Reference to the requested element
+			{
+				Super::data[ToIndex(x,y)] = value;
+			}
+			
+			C&			Get(index_t x, index_t y)	//! Retrieves a singular element at the specified position	\param x X coordinate. Must be less than width() \param y Y coordinate. Must be less than height() \return Reference to the requested element
+			{
+				return Super::data[ToIndex(x,y)];
 			}
 			C&			Get(const Iterator<true>&x, const Iterator<false>&y)	//! Retrieves a singular element at the specified position	\param x X coordinate. Must be less than width() \param y Y coordinate. Must be less than height() \return Reference to the requested element
 			{
@@ -259,7 +270,7 @@ namespace Container
 				return Get(x,*y);
 			}
 		
-			const C&	Get(Arrays::count_t x, Arrays::count_t y)	const	//! Retrieves a singular element at the specified position \param x X coordinate. Must be less than width() \param y Y coordinate. Must be less than height() \return Reference to the requested element
+			const C&	Get(index_t x, index_t y)	const	//! Retrieves a singular element at the specified position \param x X coordinate. Must be less than width() \param y Y coordinate. Must be less than height() \return Reference to the requested element
 			{
 				#ifdef __ARRAY_DBG_RANGE_CHECK__
 					if (x >= w || y >= height())
