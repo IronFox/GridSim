@@ -1,0 +1,10 @@
+<project type="Application:Windows">
+	<source path="./">
+		<exclude dir="3dPlot" />
+		<exclude dir="SimpleSimulation" />
+		<exclude dir="Worker" />
+	</source>
+	<referenceProject name="DeltaWorks" />
+	<macro name="USE_CHEBYSHEV_DISTANCE" />
+	<manifest>DeclareDPIAware.manifest</manifest>
+</project>
