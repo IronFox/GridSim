@@ -1,0 +1,86 @@
+Grid Simulation
+
+
+Zielsetzung:
+
+Horizontal skalierende Simulation arbiträrer Entiäten in einem AP Grid.
+Zielsetzungen des Grids:
+* Maximale Verfügbarkeit gegebenüber Benutzern auch im Fall von auftretenden Partitionen
+* Minimale (Benutzer-)wahrgenommene Abweichung vom konsistenten Zustand, bzw. graduelle Rückführung in selbigen
+
+Bisherige Teilschritte:
+* Design der grundlegenden Verfahren
+* Exemplarische Implementierung der Verfahren in einem System, welches Design und Anahmen bzgl. selbiger bestätigt
+* Verifikation der Korrektheit (größtenteils vollendet)
+
+Offene Teilschritte:
+* (programmatisch) Testen von Kommunikationsverfahren (implementiert, ungetestet)
+* Aggregation multipler Simulationsläufe
+* Messen des Einflusses von variierendem Entitäten-Verhalten auf Entitäten-Inkonsistenz
+* Benutzerbeobachtung und Manipulation. Metrik zur Bestimmung beobachter Inkonsistenz und Verfahren zur minimierung selbiger
+* Breite Redundanz (global n-fache Shards pro SD)
+* Adaptive Redundanz (n-fache Shards pro SD im Beobachtungsfeld von Benutzern)
+* Adaptive Berechnung inkonsistenter Zustände (nur AP wenn beobachtet, sonst CP; gradueller Übergang)
+
+
+
+Aktuelle Implementierung:
+
+2D Simulationsfeld, in dem sich Entitäten frei bewegen können.
+Entitäten besitzen folgende Eigenschaften:
+* Eindeutige Identifikation via GUIDs.
+* 2D Fließkommakoordinaten.
+* Eine beliebige Anzahl von logischen Prozessen. Intern als Funktionspointer implementiert mit LP-spezifischem Speicherbereich zum Erhalt eines persistenten Zustandes.
+* Beim Ausführen erhaltenLPs die Identitäten und Positionen von Nachbarentitäten, eine deterministische Zufallssequenz, sowie eine geordnete Liste aller erhaltenen Nachrichten.
+* Nachrichten werden von Entität zu Entität und LP zu LP gesendet und können beliebige Daten beinhalten.
+* LPs können Entitätsverschiebungen, Änderungen ihres eigenen Zustandes oder Nachrichtenzustellung initiieren.
+* Alle LP-Operationen sind strikt auf den maximalen Einflussradius beschränkt, und Ordnungsunabhängig.
+Noch fehlend:
+* Frei definierbare Attribute
+
+2D shard grid. Shards kommunizieren Entität-Instruktionen und Inkonsistenzpropagation in den Randbereichen und erwarten selbige von den Nachbarn. Shards wissen, welche Nachrichten erhalten wurden und welche nicht.
+Shards speichern eine beliebige Anzahl von Grid-Zuständen, entfernen aber konsistente Zustände, die erfolgreich mit Nachbarn synchronisiert wurden, sofern es sich nicht um den aktuellen handelt.
+Pro Zustand wird folgendes gespeichert:
+* Die lokale Entitätenpopulation nach der LP-Berechnungsphase, sowie noch einmal nach der Anwendung aller Instruktionen. Die Separierung erlaubt das Zurücksetzen auf den Zustand nach der Berechnung zum erneuten Anwenden ggf. * änderter Nachbarinstruktionen.
+* Inkonsistenz wird als 2D-Bild gespeichert dessen minimaler Punktabstand dem maximalen Einflussradius entspricht. Die Farbkonfiguration speichert das Alter der Inkonsistenz.
+* Entitäteninstruktionen und Inkonsistenzausschnitte zur Weitergabe an Nachbarn, sowie ein Flag, wenn diese Daten angenommen wurden.
+* Erhaltene Nachbarinstruktionen und Inkonsistenzausschnitte zur Integration in den lokalen Zustand.
+	
+Das im Paper beschriebene Lockstep-Protokoll führt zur Berechnung neuer Zustände.
+Fehler sind via frei definierbarer Funktionen simulierbar.
+Festgestellte Inkonsistenz breitet sich pro Berechnungsschritt um den maximalen Einflussradius aus und propagiert ggf. zu Nachbarn.
+Korrekturprozesse reevaluieren frühere Zustände. Zustands-Hashwerte aller vom Vorgänger übernommenen Entitäten bestimmen, ob LPs neu ausgeführt werden müssen.
+Pro Korrekturschritt wird jeweils der älteste Zustand neu berechnet, sowie eine definierbare Anzahl weiterer, die sukzessive zum aktuellen Zustand hin durch die Historie propagieren.
+Korrekturschritte folgen z.Z. nicht dem Lockstep-Protokoll sondern berechnen einen vollständigen Zustand atomar, wobei die Aktualität von Nachbarupdates nicht garantiert ist.
+Kommunikation erfolgt in einem separaten Schritt.
+Dadurch benötigt die vollständige Korrektur der ältesten inkonsistenten Generation z.Z. zwei Iterationen.
+
+	
+	
+Beobachtungen:
+* Z.Z. können Instruktionen nicht so fehlschlagen, dass der Auslöser über den Fehlschlag informiert wird. Fehlgeschlagene Instruktionen werden ignoriert, was zu Verlust von Entitäten führen kann.
+Die vom Paper vorgegebene maximale Entitäten-Dichte ist nicht vom Shard erzwingbar, da fehlgeschlagene Relokalisierungen über Shardgrenzen nicht rechtzeitig zum ursprünglichen Shard zurückgemeldet werden.
+Eine maximale Dichte kann stattdessen approximiert werden, indem Abstoßungsbewegungen via entsprechender LPs ausgeführt werden.
+	
+* Verbindungsfehler können zum (temporären) Verlust von Entitäten führen. Obschon wahrscheinlich unausweichlich, bietet sich die Möglichkeit, diesen Fehler in der Client-Darstellung zu unterdrücken.
+	
+* Bewegung einer Entität kann nur von der Entität selbst bzw. seiner LPs ausgelöst werden.
+Eine entfernte Verschiebung anderer Entitäten ist nicht verteilbar, da die resultierende Gesamtverschiebung erst bei Instruktionsevaluation bekannt sein kann und Nachbarshards nicht mehr rechtzeitig informiert werden können.
+Bewegung entfernter Entitäten muss daher via Nachricht an einen speziellen LP dieser Entität erfolgen und hat dadurch eine erhöhte Latenz (zwei Iterationen statt einer).
+	
+* Propagierende Inkonsistenz scheint keine adäquate Metrik für beobachtbares divergierendes Entitätenverhalten. Auch hohe Dichten und aggressiv umgebungssensible Logiken führen zu deutlich schwächerer Inkonsistenz als abgeschätzt.
+Gibt es aussagekräftigere Metriken?
+Kann man Entitätenverhalten klassifizieren, wenn man LPs in Testszenarien ausführt und vergleicht?
+
+* Die aktuelle Implementierung des Korrekturvorgehens 'speichert' Inkonsistenz in den Grenzen zwischen Shards, da jeder Shard neue Zustände zunächst auf veraltetem Nachbar-Wissen berechnet und propagiert.
+Propagierte Inkonsistenz reflektiert zurück, auch wenn Inkonsistenz im Ursprungsshards vollständig korrigiert wurde. Fortschreitende Berechnung auf Basis dieses Fehlers führt zur Expansion der Inkonsistenz.
+Die aktuelle, von Kommunikation losgelöste, Korrekturberechnung führt zu diesem Phänomen, da beide Seiten fälschlicherweise davon ausgehen, dass der jeweilige Nachbarshard noch inkonsistent ist.
+Ein künstliches Zeitfenster zwischen LP-Reevaluation und Instruktionsanwendung könnte das Phänomen zumindest reduzieren.
+	
+
+Anderes:
+* Zur Zeit sind Simulationsprogression und Korrektur manuelle Operationen, die lokale Resourcenunterschiede der Shards ignorieren.
+* Auch wenn die aktuelle Visualisierung die Korrektheit der Implementierung klarstellen kann, so handelt es sich nicht um eine statistische Visualisierung, die Ergebnisse multipler Simulationsläufe aggregieren kann.
+* Es gibt zur Zeit noch kein Protokoll zur Integration von Benutzereingaben.
+	
+	
