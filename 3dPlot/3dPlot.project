@@ -1,0 +1,5 @@
+<project type="Application:Console">
+	<source path="./" />
+	<referenceProject name="DeltaWorks" />
+	<manifest>../DeclareDPIAware.manifest</manifest>
+</project>
