@@ -1017,12 +1017,18 @@ Statistics::TStateDifference	CompareStates(const CoreShardDomainState&approx, co
 		{
 			entitiesInInconsistentArea++;
 			auto e2 = approx.entities.FindEntity(e->guid);
+			bool consistent = true;
 			if (e2)
 			{
-				rs.inconsistency += Vec::distance(e->coordinates,e2->coordinates);
+				if (*e2 != *e)
+				{
+					rs.inconsistency += Vec::distance(e->coordinates,e2->coordinates);
+					consistent = false;
+				}
 			}
 			else
 			{
+				consistent = false;
 				//if (missing)
 				//{
 				//	if (generate)
@@ -1032,6 +1038,7 @@ Statistics::TStateDifference	CompareStates(const CoreShardDomainState&approx, co
 				//}
 				missingEntities++;
 			}
+			rs.inconsistencyProbability += consistent?0:1;
 		}
 	}
 
