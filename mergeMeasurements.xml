@@ -1,107 +1,135 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <xml>
 	<better>
-		<omega mean="0.01577517" deviation="0.35205614" sum="203711.41657785" squareSum="1603748.22317862" numSamples="12913419" />
-		<inconsistency mean="0.00212729" deviation="0.02023763" sum="134327.29636937" squareSum="26147.46027837" numSamples="63144863" />
-		<icSize mean="7.07458344" deviation="11.60490082" sum="446723602" squareSum="1.16643372e10" numSamples="63144863" />
-		<entitiesInInconsistentArea mean="5.94829233" deviation="14.76092224" sum="375604104" squareSum="1.59925105e10" numSamples="63144863" />
-		<missingEntities mean="0.62954675" deviation="3.22719693" sum="39752643" squareSum="682667269" numSamples="63144863" />
-		<overAccountedEntities mean="0.21921596" deviation="1.60888486" sum="13842362" squareSum="166485608" numSamples="63144863" />
+		<omega mean="0.02340716" deviation="0.50220304" sum="652732.43623751" squareSum="7048351.27093435" numSamples="27886013" />
+		<inconsistency mean="0.00106898" deviation="0.00905433" sum="1833.31278765" squareSum="142.55779286" numSamples="1715011" />
+		<icSize mean="7.0749405" deviation="11.60775704" sum="552676360" squareSum="1.44357004e10" numSamples="78117457" />
+		<entitiesInInconsistentArea mean="5.94755837" deviation="14.76508532" sum="464608135" squareSum="1.97934946e10" numSamples="78117457" />
+		<entitiesInSDS mean="77.94964616" deviation="8.78003184" sum="124457601" squareSum="9.82450935e9" numSamples="1596641" />
+		<inconsistencyProbability mean="0.05606127" deviation="0.15717447" sum="839382.69585432" squareSum="416937.04955404" numSamples="14972594" />
+		<inconsistentEntitiesOutsideIC mean="0" deviation="0" sum="0" squareSum="0" numSamples="950231" />
+		<missingEntities mean="0.63320899" deviation="3.25734159" sum="49464676" squareSum="860169120" numSamples="78117457" />
+		<overAccountedEntities mean="0.22018114" deviation="1.61726951" sum="17199991" squareSum="208108061" numSamples="78117457" />
 	</better>
 	<worse>
-		<omega mean="0.03790701" deviation="0.61742829" sum="489509.1178577" squareSum="4941379.66948457" numSamples="12913419" />
-		<inconsistency mean="0.00473278" deviation="0.03003715" sum="298850.75171697" squareSum="58385.61952614" numSamples="63144863" />
-		<icSize mean="12.88592215" deviation="13.90186404" sum="813679789" squareSum="2.26885058e10" numSamples="63144863" />
-		<entitiesInInconsistentArea mean="5.94829233" deviation="14.76092224" sum="375604104" squareSum="1.59925105e10" numSamples="63144863" />
-		<missingEntities mean="1.08544657" deviation="4.34974383" sum="68540375" squareSum="1269114859" numSamples="63144863" />
-		<overAccountedEntities mean="0.81349002" deviation="2.79987681" sum="51367716" squareSum="536799290" numSamples="63144863" />
+		<omega mean="0.05403287" deviation="0.88586788" sum="1506761.44949095" squareSum="21965295.27908165" numSamples="27886013" />
+		<inconsistency mean="0.00314193" deviation="0.01807182" sum="5388.4362698" squareSum="577.03656076" numSamples="1715011" />
+		<icSize mean="12.88747682" deviation="13.90196583" sum="1006736916" squareSum="2.8071642e10" numSamples="78117457" />
+		<entitiesInInconsistentArea mean="5.94755837" deviation="14.76508532" sum="464608135" squareSum="1.97934946e10" numSamples="78117457" />
+		<entitiesInSDS mean="77.94964616" deviation="8.78003184" sum="124457601" squareSum="9.82450935e9" numSamples="1596641" />
+		<inconsistencyProbability mean="0.1245291" deviation="0.25033739" sum="1864523.6302641" squareSum="1170502.10423382" numSamples="14972594" />
+		<inconsistentEntitiesOutsideIC mean="0" deviation="0" sum="0" squareSum="0" numSamples="950231" />
+		<missingEntities mean="1.08912835" deviation="4.38089693" sum="85079937" squareSum="1591913355" numSamples="78117457" />
+		<overAccountedEntities mean="0.81554338" deviation="2.8144328" sum="63708175" squareSum="670727655" numSamples="78117457" />
 	</worse>
-	<average>
-		<omega mean="0.02684109" deviation="0.46528286" sum="346610.26721778" squareSum="2804905.44022843" numSamples="12913419" />
-		<inconsistency mean="0.00343003" deviation="0.02429228" sum="216589.02404317" squareSum="38005.62415591" numSamples="63144863" />
-		<icSize mean="9.9802528" deviation="12.27364102" sum="630201695.5" squareSum="1.58018573e10" numSamples="63144863" />
-		<entitiesInInconsistentArea mean="5.94829233" deviation="14.76092224" sum="375604104" squareSum="1.59925105e10" numSamples="63144863" />
-		<missingEntities mean="0.85749666" deviation="3.717452" sum="54146509" squareSum="919057690" numSamples="63144863" />
-		<overAccountedEntities mean="0.51635299" deviation="2.10926647" sum="32605039" squareSum="297767523.5" numSamples="63144863" />
-	</average>
 	<capture class="Depth">
-		<omega relative="-0.34864" mean="0.02298303" deviation="0.49159743" sum="296789.45103621" squareSum="3127581.7297839" numSamples="12913419" />
-		<inconsistency relative="-0.49837" mean="0.00278078" deviation="0.02337674" sum="175591.90785224" squareSum="34995.1707359" numSamples="63144863" />
-		<icSize relative="-1.75203" mean="4.88941983" deviation="11.95874202" sum="308741745" squareSum="1.05400103e10" numSamples="63144863" />
-		<entitiesInInconsistentArea relative="+INF" mean="5.94829233" deviation="14.76092224" sum="375604104" squareSum="1.59925105e10" numSamples="63144863" />
-		<missingEntities relative="-0.35296" mean="0.77704023" deviation="3.62060929" sum="49066099" squareSum="865880449" numSamples="63144863" />
-		<overAccountedEntities relative="-0.69446" mean="0.31000321" deviation="2.06001344" sum="19575110" squareSum="274033384" numSamples="63144863" />
+		<omega relative="0.33752" mean="0.03374394" deviation="0.68793994" sum="940983.92517094" squareSum="13229125.09967603" numSamples="27886013" />
+		<inconsistency relative="0.22055" mean="0.00152617" deviation="0.01105975" sum="2617.39712213" squareSum="213.77135664" numSamples="1715011" />
+		<icSize relative="-0.37617" mean="4.88844998" deviation="11.96186105" sum="381873281" squareSum="1.30442922e10" numSamples="78117457" />
+		<entitiesInInconsistentArea relative="-INF" mean="5.94755837" deviation="14.76508532" sum="464608135" squareSum="1.97934946e10" numSamples="78117457" />
+		<entitiesInSDS relative="-INF" mean="37.2150997" deviation="39.43388142" sum="59419154" squareSum="4.694116e9" numSamples="1596641" />
+		<inconsistencyProbability relative="0.35056" mean="0.08006363" deviation="0.19242187" sum="1198760.21713694" squareSum="650355.00314501" numSamples="14972594" />
+		<inconsistentEntitiesOutsideIC relative="+INF" mean="0.01821526" deviation="0.10301066" sum="17308.70581245" squareSum="10398.36917813" numSamples="950231" />
+		<missingEntities relative="0.32335" mean="0.78063008" deviation="3.65015045" sum="60980837" squareSum="1088409091" numSamples="78117457" />
+		<overAccountedEntities relative="0.15286" mean="0.31118882" deviation="2.0711661" sum="24309279" squareSum="342667499" numSamples="78117457" />
 	</capture>
 	<capture class="Binary_Ex">
-		<omega relative="-0.20873" mean="0.02453127" deviation="0.49680931" sum="316782.53377028" squareSum="3195054.60573384" numSamples="12913419" />
-		<inconsistency relative="-0.37695" mean="0.00293896" deviation="0.02458531" sum="185580.24042411" squareSum="38712.54404504" numSamples="63144863" />
-		<icSize relative="-1.75203" mean="4.88941983" deviation="11.95874202" sum="308741745" squareSum="1.05400103e10" numSamples="63144863" />
-		<entitiesInInconsistentArea relative="+INF" mean="5.94829233" deviation="14.76092224" sum="375604104" squareSum="1.59925105e10" numSamples="63144863" />
-		<missingEntities relative="-0.19238" mean="0.81364338" deviation="3.77084021" sum="51377400" squareSum="939674586" numSamples="63144863" />
-		<overAccountedEntities relative="-0.69382" mean="0.31019241" deviation="2.11394496" sum="19587057" squareSum="288255203" numSamples="63144863" />
+		<omega relative="0.4227" mean="0.03635272" deviation="0.71815495" sum="1013732.53916866" squareSum="14418966.53217861" numSamples="27886013" />
+		<inconsistency relative="0.26759" mean="0.00162368" deviation="0.01250498" sum="2784.63344187" squareSum="272.70523668" numSamples="1715011" />
+		<icSize relative="-0.37617" mean="4.88844998" deviation="11.96186105" sum="381873281" squareSum="1.30442922e10" numSamples="78117457" />
+		<entitiesInInconsistentArea relative="-INF" mean="5.94755837" deviation="14.76508532" sum="464608135" squareSum="1.97934946e10" numSamples="78117457" />
+		<entitiesInSDS relative="-INF" mean="37.2150997" deviation="39.43388142" sum="59419154" squareSum="4.694116e9" numSamples="1596641" />
+		<inconsistencyProbability relative="0.34359" mean="0.07958621" deviation="0.19505969" sum="1191612.01433571" squareSum="664517.35365809" numSamples="14972594" />
+		<inconsistentEntitiesOutsideIC relative="+INF" mean="0.01821526" deviation="0.10301066" sum="17308.70581245" squareSum="10398.36917813" numSamples="950231" />
+		<missingEntities relative="0.40406" mean="0.81742603" deviation="3.80249793" sum="63855243" squareSum="1181696505" numSamples="78117457" />
+		<overAccountedEntities relative="0.15361" mean="0.31163696" deviation="2.12613281" sum="24344287" squareSum="360711913" numSamples="78117457" />
 	</capture>
 	<capture class="Extent_Ex">
-		<omega relative="0.01297" mean="0.02698457" deviation="0.53243548" sum="348463.00136556" squareSum="3670196.55914988" numSamples="12913419" />
-		<inconsistency relative="-0.29438" mean="0.00304653" deviation="0.02515893" sum="192372.66567165" squareSum="40554.96865385" numSamples="63144863" />
-		<icSize relative="-1.75203" mean="4.88941983" deviation="11.95874202" sum="308741745" squareSum="1.05400103e10" numSamples="63144863" />
-		<entitiesInInconsistentArea relative="+INF" mean="5.94829233" deviation="14.76092224" sum="375604104" squareSum="1.59925105e10" numSamples="63144863" />
-		<missingEntities relative="-0.57945" mean="0.72541184" deviation="3.64664395" sum="45806031" squareSum="872929389" numSamples="63144863" />
-		<overAccountedEntities relative="-0.59147" mean="0.34060568" deviation="2.25701258" sum="21507499" squareSum="328992189" numSamples="63144863" />
+		<omega relative="0.54739" mean="0.04017133" deviation="0.77188042" sum="1120218.3611599" squareSum="16659469.98767707" numSamples="27886013" />
+		<inconsistency relative="0.32311" mean="0.00173877" deviation="0.01309552" sum="2982.01196158" squareSum="299.29698806" numSamples="1715011" />
+		<icSize relative="-0.37617" mean="4.88844998" deviation="11.96186105" sum="381873281" squareSum="1.30442922e10" numSamples="78117457" />
+		<entitiesInInconsistentArea relative="-INF" mean="5.94755837" deviation="14.76508532" sum="464608135" squareSum="1.97934946e10" numSamples="78117457" />
+		<entitiesInSDS relative="-INF" mean="37.2150997" deviation="39.43388142" sum="59419154" squareSum="4.694116e9" numSamples="1596641" />
+		<inconsistencyProbability relative="0.24936" mean="0.07313473" deviation="0.18959149" sum="1095016.6675059" squareSum="618272.63055666" numSamples="14972594" />
+		<inconsistentEntitiesOutsideIC relative="+INF" mean="0.01821526" deviation="0.10301066" sum="17308.70581245" squareSum="10398.36917813" numSamples="950231" />
+		<missingEntities relative="0.21116" mean="0.72948249" deviation="3.67989582" sum="56985317" squareSum="1099407741" numSamples="78117457" />
+		<overAccountedEntities relative="0.20549" mean="0.34252491" deviation="2.27248246" sum="26757175" squareSum="412577337" numSamples="78117457" />
 	</capture>
 	<capture class="Orthographic (extent&gt;depth)">
-		<omega relative="-0.21834" mean="0.02442491" deviation="0.49337006" sum="315409.06134228" squareSum="3151010.99732493" numSamples="12913419" />
-		<inconsistency relative="-0.37322" mean="0.00294382" deviation="0.02384642" sum="185887.02550458" squareSum="36454.65060642" numSamples="63144863" />
-		<icSize relative="-1.75203" mean="4.88941983" deviation="11.95874202" sum="308741745" squareSum="1.05400103e10" numSamples="63144863" />
-		<entitiesInInconsistentArea relative="+INF" mean="5.94829233" deviation="14.76092224" sum="375604104" squareSum="1.59925105e10" numSamples="63144863" />
-		<missingEntities relative="-0.58219" mean="0.72478556" deviation="3.5783101" sum="45766485" squareSum="841696857" numSamples="63144863" />
-		<overAccountedEntities relative="-0.5804" mean="0.34389423" deviation="2.14919773" sum="21715154" squareSum="299137052" numSamples="63144863" />
+		<omega relative="0.39279" mean="0.03543653" deviation="0.69515333" sum="988183.42978415" squareSum="13510603.1043601" numSamples="27886013" />
+		<inconsistency relative="0.29833" mean="0.00168741" deviation="0.01181528" sum="2893.92091176" squareSum="244.30030748" numSamples="1715011" />
+		<icSize relative="-0.37617" mean="4.88844998" deviation="11.96186105" sum="381873281" squareSum="1.30442922e10" numSamples="78117457" />
+		<entitiesInInconsistentArea relative="-INF" mean="5.94755837" deviation="14.76508532" sum="464608135" squareSum="1.97934946e10" numSamples="78117457" />
+		<entitiesInSDS relative="-INF" mean="37.2150997" deviation="39.43388142" sum="59419154" squareSum="4.694116e9" numSamples="1596641" />
+		<inconsistencyProbability relative="0.28263" mean="0.07541259" deviation="0.18897382" sum="1129122.15605612" squareSum="619837.91107529" numSamples="14972594" />
+		<inconsistentEntitiesOutsideIC relative="+INF" mean="0.01821526" deviation="0.10301066" sum="17308.70581245" squareSum="10398.36917813" numSamples="950231" />
+		<missingEntities relative="0.20886" mean="0.72843229" deviation="3.6079293" sum="56903278" squareSum="1058317138" numSamples="78117457" />
+		<overAccountedEntities relative="0.21005" mean="0.34523958" deviation="2.16092413" sum="26969238" squareSum="374087586" numSamples="78117457" />
 	</capture>
 	<capture class="Orthographic (extent&gt;depth)_Ex">
-		<omega relative="-0.23894" mean="0.02419699" deviation="0.49933155" sum="312465.82553207" squareSum="3227289.25779023" numSamples="12913419" />
-		<inconsistency relative="-0.45448" mean="0.00283796" deviation="0.02389596" sum="179202.61529643" squareSum="36565.34136616" numSamples="63144863" />
-		<icSize relative="-1.75203" mean="4.88941983" deviation="11.95874202" sum="308741745" squareSum="1.05400103e10" numSamples="63144863" />
-		<entitiesInInconsistentArea relative="+INF" mean="5.94829233" deviation="14.76092224" sum="375604104" squareSum="1.59925105e10" numSamples="63144863" />
-		<missingEntities relative="-0.61659" mean="0.71694477" deviation="3.55089181" sum="45271379" squareSum="828640087" numSamples="63144863" />
-		<overAccountedEntities relative="-0.66709" mean="0.31813711" deviation="2.12090734" sum="20088724" squareSum="290432218" numSamples="63144863" />
+		<omega relative="0.38738" mean="0.03527084" deviation="0.70099545" sum="983563.07267436" squareSum="13737727.86789142" numSamples="27886013" />
+		<inconsistency relative="0.2449" mean="0.00157665" deviation="0.01168366" sum="2703.96724292" squareSum="238.37562439" numSamples="1715011" />
+		<icSize relative="-0.37617" mean="4.88844998" deviation="11.96186105" sum="381873281" squareSum="1.30442922e10" numSamples="78117457" />
+		<entitiesInInconsistentArea relative="-INF" mean="5.94755837" deviation="14.76508532" sum="464608135" squareSum="1.97934946e10" numSamples="78117457" />
+		<entitiesInSDS relative="-INF" mean="37.2150997" deviation="39.43388142" sum="59419154" squareSum="4.694116e9" numSamples="1596641" />
+		<inconsistencyProbability relative="0.24421" mean="0.07278159" deviation="0.18816628" sum="1089729.26868242" squareSum="609440.09990199" numSamples="14972594" />
+		<inconsistentEntitiesOutsideIC relative="+INF" mean="0.01821526" deviation="0.10301066" sum="17308.70581245" squareSum="10398.36917813" numSamples="950231" />
+		<missingEntities relative="0.19199" mean="0.72073942" deviation="3.58122514" sum="56302331" squareSum="1042449247" numSamples="78117457" />
+		<overAccountedEntities relative="0.16703" mean="0.31962424" deviation="2.13290282" sum="24968233" squareSum="363358203" numSamples="78117457" />
 	</capture>
 	<capture class="Binary">
-		<omega relative="0.03789" mean="0.02726042" deviation="0.46210457" sum="352025.2158052" squareSum="2767136.06681846" numSamples="12913419" />
-		<inconsistency relative="-0.24692" mean="0.00310835" deviation="0.02348218" sum="196276.55002825" squareSum="35428.97072617" numSamples="63144863" />
-		<icSize relative="-1.75203" mean="4.88941983" deviation="11.95874202" sum="308741745" squareSum="1.05400103e10" numSamples="63144863" />
-		<entitiesInInconsistentArea relative="+INF" mean="5.94829233" deviation="14.76092224" sum="375604104" squareSum="1.59925105e10" numSamples="63144863" />
-		<missingEntities relative="-1.38371" mean="0.54208045" deviation="2.58045357" sum="34229596" squareSum="439020460" numSamples="63144863" />
-		<overAccountedEntities relative="0.20049" mean="0.5759253" deviation="3.58396946" sum="36366724" squareSum="832029996" numSamples="63144863" />
+		<omega relative="0.52063" mean="0.03935192" deviation="0.66973629" sum="1097368.04124098" squareSum="12551362.73507293" numSamples="27886013" />
+		<inconsistency relative="0.37809" mean="0.00185273" deviation="0.01225906" sum="3177.45475216" squareSum="263.62682739" numSamples="1715011" />
+		<icSize relative="-0.37617" mean="4.88844998" deviation="11.96186105" sum="381873281" squareSum="1.30442922e10" numSamples="78117457" />
+		<entitiesInInconsistentArea relative="-INF" mean="5.94755837" deviation="14.76508532" sum="464608135" squareSum="1.97934946e10" numSamples="78117457" />
+		<entitiesInSDS relative="-INF" mean="37.2150997" deviation="39.43388142" sum="59419154" squareSum="4.694116e9" numSamples="1596641" />
+		<inconsistencyProbability relative="0.28629" mean="0.07566295" deviation="0.18690587" sum="1132870.62190844" squareSum="608765.97980528" numSamples="14972594" />
+		<inconsistentEntitiesOutsideIC relative="+INF" mean="0.01821526" deviation="0.10301066" sum="17308.70581245" squareSum="10398.36917813" numSamples="950231" />
+		<missingEntities relative="-0.19263" mean="0.54538505" deviation="2.60931084" sum="42604093" squareSum="555098581" numSamples="78117457" />
+		<overAccountedEntities relative="0.60218" mean="0.57869825" deviation="3.6067118" sum="45206436" squareSum="1042341670" numSamples="78117457" />
 	</capture>
 	<capture class="Extent">
-		<omega relative="-0.02546" mean="0.02655937" deviation="0.46614338" sum="342972.2098269" squareSum="2815061.38348357" numSamples="12913419" />
-		<inconsistency relative="-0.25893" mean="0.00309272" deviation="0.02377289" sum="195289.17144507" squareSum="36290.31779772" numSamples="63144863" />
-		<icSize relative="-1.75203" mean="4.88941983" deviation="11.95874202" sum="308741745" squareSum="1.05400103e10" numSamples="63144863" />
-		<entitiesInInconsistentArea relative="+INF" mean="5.94829233" deviation="14.76092224" sum="375604104" squareSum="1.59925105e10" numSamples="63144863" />
-		<missingEntities relative="-1.06981" mean="0.61363386" deviation="2.88471269" sum="38747826" squareSum="549241206" numSamples="63144863" />
-		<overAccountedEntities relative="-0.11302" mean="0.48277159" deviation="3.234924" sum="30484546" squareSum="675511222" numSamples="63144863" />
+		<omega relative="0.50135" mean="0.03876131" deviation="0.67673922" sum="1080898.43375948" squareSum="12813020.78107393" numSamples="27886013" />
+		<inconsistency relative="0.37255" mean="0.00184126" deviation="0.0124821" sum="3157.77558461" squareSum="273.01761524" numSamples="1715011" />
+		<icSize relative="-0.37617" mean="4.88844998" deviation="11.96186105" sum="381873281" squareSum="1.30442922e10" numSamples="78117457" />
+		<entitiesInInconsistentArea relative="-INF" mean="5.94755837" deviation="14.76508532" sum="464608135" squareSum="1.97934946e10" numSamples="78117457" />
+		<entitiesInSDS relative="-INF" mean="37.2150997" deviation="39.43388142" sum="59419154" squareSum="4.694116e9" numSamples="1596641" />
+		<inconsistencyProbability relative="0.27627" mean="0.07497692" deviation="0.18857014" sum="1122598.91321314" squareSum="616574.93090783" numSamples="14972594" />
+		<inconsistentEntitiesOutsideIC relative="+INF" mean="0.01821526" deviation="0.10301066" sum="17308.70581245" squareSum="10398.36917813" numSamples="950231" />
+		<missingEntities relative="-0.03574" mean="0.61691491" deviation="2.91208565" sum="48191824" squareSum="692185258" numSamples="78117457" />
+		<overAccountedEntities relative="0.44571" mean="0.48553986" deviation="3.25684124" sum="37929139" squareSum="847009137" numSamples="78117457" />
 	</capture>
 	<capture class="Orthographic (depth&gt;extent)_Ex">
-		<omega relative="-0.42666" mean="0.02211966" deviation="0.49328143" sum="285640.44770839" squareSum="3148496.21367678" numSamples="12913419" />
-		<inconsistency relative="-0.59803" mean="0.00265096" deviation="0.02325809" sum="167394.20323627" squareSum="34601.26671807" numSamples="63144863" />
-		<icSize relative="-1.75203" mean="4.88941983" deviation="11.95874202" sum="308741745" squareSum="1.05400103e10" numSamples="63144863" />
-		<entitiesInInconsistentArea relative="+INF" mean="5.94829233" deviation="14.76092224" sum="375604104" squareSum="1.59925105e10" numSamples="63144863" />
-		<missingEntities relative="-0.13609" mean="0.82647548" deviation="3.67570506" sum="52187681" squareSum="896269939" numSamples="63144863" />
-		<overAccountedEntities relative="-0.8191" mean="0.2729673" deviation="1.97628787" sum="17236483" squareSum="251330755" numSamples="63144863" />
+		<omega relative="0.30586" mean="0.03277433" deviation="0.68895204" sum="913945.3766797" squareSum="13266186.84965078" numSamples="27886013" />
+		<inconsistency relative="0.15911" mean="0.00139881" deviation="0.01079381" sum="2398.9812588" squareSum="203.1652469" numSamples="1715011" />
+		<icSize relative="-0.37617" mean="4.88844998" deviation="11.96186105" sum="381873281" squareSum="1.30442922e10" numSamples="78117457" />
+		<entitiesInInconsistentArea relative="-INF" mean="5.94755837" deviation="14.76508532" sum="464608135" squareSum="1.97934946e10" numSamples="78117457" />
+		<entitiesInSDS relative="-INF" mean="37.2150997" deviation="39.43388142" sum="59419154" squareSum="4.694116e9" numSamples="1596641" />
+		<inconsistencyProbability relative="0.37557" mean="0.08177544" deviation="0.19526297" sum="1224390.48251741" squareSum="670994.57141624" numSamples="14972594" />
+		<inconsistentEntitiesOutsideIC relative="+INF" mean="0.01821526" deviation="0.10301066" sum="17308.70581245" squareSum="10398.36917813" numSamples="950231" />
+		<missingEntities relative="0.43157" mean="0.82996912" deviation="3.7047658" sum="64835077" squareSum="1125995835" numSamples="78117457" />
+		<overAccountedEntities relative="0.09076" mean="0.27421505" deviation="1.98773016" sum="21420982" squareSum="314521588" numSamples="78117457" />
 	</capture>
 	<capture class="Depth_Ex">
-		<omega relative="-0.42574" mean="0.02212988" deviation="0.49324634" sum="285772.46439283" squareSum="3148055.0768487" numSamples="12913419" />
-		<inconsistency relative="-0.59413" mean="0.00265603" deviation="0.02326725" sum="167714.57636985" squareSum="34629.85522984" numSamples="63144863" />
-		<icSize relative="-1.75203" mean="4.88941983" deviation="11.95874202" sum="308741745" squareSum="1.05400103e10" numSamples="63144863" />
-		<entitiesInInconsistentArea relative="+INF" mean="5.94829233" deviation="14.76092224" sum="375604104" squareSum="1.59925105e10" numSamples="63144863" />
-		<missingEntities relative="-0.11042" mean="0.83232615" deviation="3.68231906" sum="52557121" squareSum="899955775" numSamples="63144863" />
-		<overAccountedEntities relative="-0.8183" mean="0.27320507" deviation="1.97616397" sum="17251497" squareSum="251308033" numSamples="63144863" />
+		<omega relative="0.30512" mean="0.03275171" deviation="0.6883127" sum="913314.59965454" squareSum="13241591.04067019" numSamples="27886013" />
+		<inconsistency relative="0.16117" mean="0.00140308" deviation="0.01081346" sum="2406.30344996" squareSum="203.91407113" numSamples="1715011" />
+		<icSize relative="-0.37617" mean="4.88844998" deviation="11.96186105" sum="381873281" squareSum="1.30442922e10" numSamples="78117457" />
+		<entitiesInInconsistentArea relative="-INF" mean="5.94755837" deviation="14.76508532" sum="464608135" squareSum="1.97934946e10" numSamples="78117457" />
+		<entitiesInSDS relative="-INF" mean="37.2150997" deviation="39.43388142" sum="59419154" squareSum="4.694116e9" numSamples="1596641" />
+		<inconsistencyProbability relative="0.38751" mean="0.08259354" deviation="0.1960732" sum="1236639.50558142" squareSum="677755.30221987" numSamples="14972594" />
+		<inconsistentEntitiesOutsideIC relative="+INF" mean="0.01821526" deviation="0.10301066" sum="17308.70581245" squareSum="10398.36917813" numSamples="950231" />
+		<missingEntities relative="0.44442" mean="0.83582697" deviation="3.71125974" sum="65292677" squareSum="1130520179" numSamples="78117457" />
+		<overAccountedEntities relative="0.09114" mean="0.27444245" deviation="1.98743806" sum="21438746" squareSum="314440630" numSamples="78117457" />
 	</capture>
 	<capture class="Orthographic (depth&gt;extent)">
-		<omega relative="-0.35045" mean="0.022963" deviation="0.49162971" sum="296530.78329651" squareSum="3127979.69801862" numSamples="12913419" />
-		<inconsistency relative="-0.50004" mean="0.0027786" deviation="0.02337692" sum="175454.53750723" squareSum="34994.94628435" numSamples="63144863" />
-		<icSize relative="-1.75203" mean="4.88941983" deviation="11.95874202" sum="308741745" squareSum="1.05400103e10" numSamples="63144863" />
-		<entitiesInInconsistentArea relative="+INF" mean="5.94829233" deviation="14.76092224" sum="375604104" squareSum="1.59925105e10" numSamples="63144863" />
-		<missingEntities relative="-0.34595" mean="0.77863715" deviation="3.62425384" sum="49166936" squareSum="867704610" numSamples="63144863" />
-		<overAccountedEntities relative="-0.7015" mean="0.30791072" deviation="2.05041247" sum="19442980" squareSum="271459786" numSamples="63144863" />
+		<omega relative="0.33692" mean="0.03372556" deviation="0.68799391" sum="940471.2814796" squareSum="13231161.25451859" numSamples="27886013" />
+		<inconsistency relative="0.21943" mean="0.00152385" deviation="0.01105678" sum="2613.42542783" squareSum="213.64656705" numSamples="1715011" />
+		<icSize relative="-0.37617" mean="4.88844998" deviation="11.96186105" sum="381873281" squareSum="1.30442922e10" numSamples="78117457" />
+		<entitiesInInconsistentArea relative="-INF" mean="5.94755837" deviation="14.76508532" sum="464608135" squareSum="1.97934946e10" numSamples="78117457" />
+		<entitiesInSDS relative="-INF" mean="37.2150997" deviation="39.43388142" sum="59419154" squareSum="4.694116e9" numSamples="1596641" />
+		<inconsistencyProbability relative="0.34851" mean="0.07992292" deviation="0.19236814" sum="1196653.4403789" squareSum="649708.39856745" numSamples="14972594" />
+		<inconsistentEntitiesOutsideIC relative="+INF" mean="0.01821526" deviation="0.10301066" sum="17308.70581245" squareSum="10398.36917813" numSamples="950231" />
+		<missingEntities relative="0.32687" mean="0.78223413" deviation="3.65388108" sum="61106141" squareSum="1090733523" numSamples="78117457" />
+		<overAccountedEntities relative="0.14932" mean="0.30908086" deviation="2.06129625" sum="24144611" squareSum="339379199" numSamples="78117457" />
 	</capture>
 </xml>

@@ -432,8 +432,7 @@ namespace Statistics
 			SpinLock mergeLock;
 
 			TStateDifference		betterPreMerge,
-									worsePreMerge,
-									avgPreMerge;
+									worsePreMerge;
 									
 
 			struct TMergeCapture
@@ -862,7 +861,6 @@ namespace Statistics
 		mergeLock.lock();
 			worsePreMerge += TStateDifference::Maximum(preMergeA,preMergeB);
 			betterPreMerge += TStateDifference::Minimum(preMergeA,preMergeB);
-			avgPreMerge += TStateDifference::Average(preMergeA,preMergeB);
 		mergeLock.unlock();
 	}
 
@@ -889,7 +887,6 @@ namespace Statistics
 
 			betterPreMerge.Import(doc.root_node.Find("better"));
 			worsePreMerge.Import(doc.root_node.Find("worse"));
-			avgPreMerge.Import(doc.root_node.Find("average"));
 
 			String key;
 			foreach(doc.root_node.children,n)
@@ -903,14 +900,31 @@ namespace Statistics
 	}
 
 
+	double ToDisplay(double v)
+	{
+		int digits = (int)floor(log(fabs(v))/log(10.0)) -1;
+		//if (fabs(v) > 1)
+		//	digits--;
+		double ex = pow(10.0,digits);
+		return Round(v /ex) * ex;
+	}
+
 	struct ExportChannel
 	{
 		typedef std::function<TSDSample<double>(const TStateDifference&diff)> FFilter;
-		const char*name;
+		const char*name="";
 		FFilter f;
+		const char* unit="";
 
 		/**/		ExportChannel()	{};
 		/**/		ExportChannel(const char*name, const FFilter&f):name(name),f(f)	{}
+		/**/		ExportChannel(const char*name, const char*unit, const FFilter&f):name(name),f(f),unit(unit)	{}
+
+		String		MakeName(const TStateDifference&source) const
+		{
+			double val = f(source).Get();
+			return String(name)+" \\("+String(ToDisplay(val))+unit+"\\)";
+		}
 
 	};
 
@@ -921,12 +935,31 @@ namespace Statistics
 		for (index_t index = 0; index < channels.Count(); index++)
 		{
 			const auto&c = channels[index];
-			const float max = std::max(c.f(worsePreMerge).Get(),c.f(cap.postMerge).Get());
+			const float max = std::max(c.f(worsePreMerge).Get(),c.f(cap.postMerge).Get())*1.2f;
 			float h0 = c.f(betterPreMerge).Get()/max;
 			float h1 = c.f(worsePreMerge).Get()/max;
 
 			//fill:
 			texFile << "\\draw [draw=black, pattern=north west lines, pattern color=black!50] (axis cs:"<<h0<<","<<(index)<<".0) rectangle (axis cs:"<<h1<<","<<index<<".9);"<<nl;
+
+			//describe:
+			String smax = ToDisplay(max);
+			//if (smax.contains('.'))
+			//{
+			//	while (smax.length() > 3)
+			//	{
+			//		if (smax.endsWith('.'))
+			//		{
+			//			smax.eraseRight(1);
+			//			break;
+			//		}
+			//		smax.eraseRight(1);
+			//	}
+			//	if (smax.endsWith('.'))
+			//		smax.eraseRight(1);
+			//}
+
+			texFile << "\\node[anchor=west,align=left] at (axis cs:0.8333,"<<index<<".5) {"<<smax<<c.unit<<"};"<<nl;
 
 			//lower:
 			texFile << "\\addplot+[draw=black,solid,name path=lower"<<index<<",mark=] plot coordinates {"<<nl
@@ -968,21 +1001,21 @@ namespace Statistics
 				//{
 				//	return diff.icSize;
 				//}),
-				ExportChannel("$\\Phi$",[](const TStateDifference&diff)
+				ExportChannel("$\\Phi$","\\%",[](const TStateDifference&diff)
 				{
-					return diff.missingEntities;
+					return diff.missingEntities / diff.entitiesInInconsistentArea.Get() * 100;
 				}),
-				ExportChannel("$\\Theta$",[](const TStateDifference&diff)
+				ExportChannel("$\\Theta$","\\%",[](const TStateDifference&diff)
 				{
-					return diff.overAccountedEntities;
+					return diff.overAccountedEntities / diff.entitiesInInconsistentArea.Get() * 100;
 				}),
-				ExportChannel("$\\Delta$",[](const TStateDifference&diff)
+				ExportChannel("$P$","\\%", [](const TStateDifference&diff)
 				{
-					return diff.inconsistency;
+					return diff.inconsistencyProbability * 100;
 				}),
-				ExportChannel("$\\Omega$",[](const TStateDifference&diff)
+				ExportChannel("$\\Omega$","R",[](const TStateDifference&diff)
 				{
-					return diff.omega;
+					return diff.omega * (1.0/ Entity::MaxInfluenceRadius);
 				}),
 			};
 
@@ -995,7 +1028,7 @@ namespace Statistics
 				<<tab<<"symbolic y coords={";
 			foreach (channels, ch)
 			{
-				texFile << ch->name << ',';
+				texFile << ch->MakeName(source.postMerge) << ',';
 			}
 
 			float enlarge = 0.8f / (channels.Count()-1);
@@ -1014,9 +1047,9 @@ namespace Statistics
 			texFile << "\\addplot+[xbar, color=black,mark=] coordinates {"<<nl;
 			foreach (channels,ch)
 			{
-				float max = std::max(ch->f(worsePreMerge).Get(),ch->f(source.postMerge).Get());
+				float max = std::max(ch->f(worsePreMerge).Get(),ch->f(source.postMerge).Get()) * 1.2f;
 				float v = ch->f(source.postMerge).Get() / max;
-				texFile << tab<<"("<<v<<","<<ch->name<<")"<<nl;
+				texFile << tab<<"("<<v<<","<<ch->MakeName(source.postMerge)<<")"<<nl;
 			}
 			texFile << "};"<<nl;
 			texFile << "\\end{axis}"<<nl;
@@ -1043,7 +1076,6 @@ namespace Statistics
 
 			betterPreMerge.ToXML(doc.root_node.Create("better"));
 			worsePreMerge.ToXML(doc.root_node.Create("worse"));
-			avgPreMerge.ToXML(doc.root_node.Create("average"));
 
 			mergeCaptures.exportTo(keys,values);
 			
@@ -1052,7 +1084,7 @@ namespace Statistics
 				XML::Node&node = doc.root_node.Create("capture");
 
 				node.Set("class",keys[i]);
-				values[i].postMerge.ToXML(node,betterPreMerge,worsePreMerge,avgPreMerge);
+				values[i].postMerge.ToXML(node,betterPreMerge,worsePreMerge);
 			}
 
 			doc.SaveToFile(MERGE_FILENAME);
