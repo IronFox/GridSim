@@ -1,0 +1,20 @@
+/*
+	getNoise() function content for inclusion in cuda kernel and cpu adaptions
+	
+	Common format: float getNoise(float distance, const TVertex&p0, const TVertex&p1, const T[Device/Host]Surface&surface, const TContext&context)
+*/
+
+
+	float rs = (float)(distance/(context.base_heightf)/6*250)*0.9f;//*clamped(vmin(p0[0],p0[1]),0.1,0.2))
+	/*if (!(context->depth%4) && context->depth>context->super->max_level/2)
+		rs *= 1.5;*/
+	float depth = (float)surface.depth/context.recursive_depth;
+	rs *= 0.25f+0.75f*depth;
+	rs *= context.noise_level;
+	/*if (depth < 0.1f)
+		rs *= (0.1f+0.9f*depth/0.1f);	//more reduction on lowest recursive depths
+	else*/
+	if (depth < 0.5)
+		rs *= (1.5f-depth);
+		
+	return rs;

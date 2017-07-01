@@ -1,0 +1,7 @@
+/*
+	float	ageAt(unsigned depth)
+*/
+
+//return powf(AGE_BASE,depth);
+//return 1.0f+0.02f*depth;
+return 1.0f+dbSqr(0.06f*depth);

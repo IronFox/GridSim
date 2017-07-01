@@ -1,0 +1,149 @@
+#include <global_root.h>
+#include "eve.fractal.h"
+
+/******************************************************************************************
+
+Language-dependent fractal-visualizer. Experimental.
+
+This file is part of the DeltaWorks-Foundation or an immediate derivative core application.
+Original Author: Stefan Elsen
+Copyright (C) 2006 University of Trier, Computer Science Department, Germany.
+
+A royalty-free, non-exclusive, perpetual right to read, modify, compile,
+and/or use this file in any way suited is hereby granted to all students and associates
+of the Computer Science Department of the University of Trier.
+This right may be granted to other individuals or parties in any modified form as well
+as denied to any member of the above mentioned group by the Authorities of the
+Computer Science Department of the University of Trier.
+
+The right granted in the above section is expressly made subject to and limited by the
+following conditions and restrictions:
+a) Any modifications to this file must be made available to the Computer Science Department
+of the University of Trier.
+b) Disclosure of this file, modified or unmodified, in parts or in its entirety to third
+parties is strictly prohibited.
+
+All rights and privileges that have not explicitly been granted are reserved.
+
+THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,
+BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+******************************************************************************************/
+
+//GLuint   debug_cylinder, debug_sphere;
+
+unsigned upload_counter(1000);
+bool ati_bug(false);
+
+namespace EveStatistics
+{
+        unsigned    vram =0,
+                    ram= 0,
+                    memory=0,
+                    sectors=0,
+                    rendered=0;
+};
+
+
+EveFractalMapView::EveFractalMapView():velocity(0),lod(1.0),visual_range(100),most_detail(UNSIGNED_UNDEF),visible_sectors(0),detail_limit(0)
+{
+    __eye4(system);
+    _c16(system,invert);
+    _v3(movement_direction,1,0,0);
+    _clear(texture_root);
+    _v3(texture_x,1,0,0);
+    _v3(texture_y,0,1,0);
+    _v3(texture_up,0,0,1);
+}
+
+void EveFractalMapView::begin()
+{
+    BEGIN
+    visible_sectors = 0;
+    most_detail = UNSIGNED_UNDEF;
+    END
+}
+
+
+void EveFractalMapView::setSystem(const float sys[16])
+{
+    BEGIN
+    _c16(sys,system);
+    __invertSystem(system,invert);
+    END
+}
+
+void EveFractalMapView::updateInvert()
+{
+    __invertSystem(system,invert);
+}
+
+
+const float* EveFractalMapView::origin() const
+{
+    return system+12;
+}
+
+void EveFractalMapView::resolveESX(float target[3]) const
+{
+    float temp[3];
+    __rotate(system,texture_x,temp);
+    __rotate(camera.modelview,temp,target);
+}
+
+void EveFractalMapView::resolveESY(float target[3]) const
+{
+    float temp[3];
+    __rotate(system,texture_y,temp);
+    __rotate(camera.modelview,temp,target);
+}
+
+const float*  EveFractalMapView::getSystem()     const
+{
+    return system;
+}
+
+
+
+void EveFractalMapView::setCamera(const EveCamera<float>&remote)
+{
+    BEGIN
+    float old[3];
+    _c3(camera.location,old);
+    camera = remote;
+    __transformSystem(invert,remote.modelview_invert,camera.modelview_invert);
+    __transform(invert,remote.location,camera.location);
+
+    __invertSystem(camera.modelview_invert,camera.modelview);
+    
+    float speed = _distance(old,camera.location)/eveTiming.delta;
+    if (speed > GLOBAL_ERROR)
+    {
+        _sub(camera.location,old,movement_direction);
+        _div(movement_direction,speed*eveTiming.delta);
+    }
+
+    velocity = speed;
+
+    if (speed > velocity)
+    {
+        float fc = 0.5;//pow(1.0f-EVE_MAX_VELOCITY_CHANGE_PER_SECOND,eveTiming.delta);
+        velocity = velocity * fc + speed * (1.0f-fc);
+    }
+    else
+        velocity = vmax(speed,velocity*pow(EVE_MAX_VELOCITY_CHANGE_PER_SECOND,eveTiming.delta));
+    _c3(camera.location,user_location);
+    
+    __mult4(camera.projection,camera.modelview,cast_matrix);
+    visual_volume = camera.resolveVolume();
+
+    END
+}
+
+

@@ -4,6 +4,9 @@
 		<exclude dir="maker" />
 		<exclude dir="Nx" />
 		<exclude dir="cuda" />
+		<exclude dir="DeltaWorksCore" />
+		<exclude dir="DW_Terrain" />
+		<exclude dir="DW_Engine" />
 		<exclude file="remote_shell.cpp" />
 		<exclude file="remote_shell.h" />
 		<exclude find="displayConnection" />

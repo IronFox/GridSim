@@ -1,0 +1,94 @@
+#include <global_root.h>
+#include "eve.shader.h"
+
+
+
+/******************************************************************************************
+
+This file is part of the DeltaWorks-Foundation or an immediate derivative core module.
+Original Author: Stefan Elsen
+Copyright (C) 2006 Computer Science Department of the Univerity of Trier, Germany.
+
+This file is part of the DeltaWorks-Foundation or an immediate derivative core module.
+Original Author: Stefan Elsen
+Copyright (C) 2006 Computer Science Department of the University of Trier, Germany.
+
+A royalty-free, non-exclusive, perpetual right to read, modify, compile,
+and/or use this file in any way suited is hereby granted to all students and associates
+of the Computer Science Department of the University of Trier.
+This right may be granted to other individuals or parties in any modified form as well
+as denied to any member of the above mentioned group by the Auhorities of the
+Computer Science Department of the University of Trier.
+
+The right granted in the above section is expressly made subject to and limited by the
+following conditions and restrictions:
+a) Any modifications to this file must be made available to the Computer Science Department
+of the University of Trier.
+b) Disclosure of this file, modified or unmodified, in sections or in its entirety to third
+parties is strictly prohibited.
+
+All rights and privileges that have not explicitly been granted are reserved.
+
+THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,
+BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+******************************************************************************************/
+
+EveShaderArchive::EveShaderArchive():language(NULL),reg_target(&eveShaderField)
+{}
+
+EveShaderArchive::EveShaderArchive(EveShaderField*register_to):language(NULL),reg_target(register_to)
+{}
+
+SHADER EveShaderArchive::getShader(const char*name)
+{
+    if (!select(name))
+        return EMPTY_SHADER;
+    return getTextureL();
+}
+
+SHADER EveShaderArchive::getShader(const C_String&name)
+{
+    return getShader(name.c_str());
+}
+
+SHADER EveShaderArchive::getShader(unsigned index)
+{
+    if (!select(index))
+        return EMPTY_SHADER;
+}
+
+SHADER EveShaderArchive::getShader64(__int64 name, bool registered)
+{
+    if (registered && reg_target->select(name))
+        return reg_target->getDuplicate();
+    if (!select64(name))
+        return EMPTY_SHADER;
+    SHADER result = getShaderL();
+    if (registered)
+        reg_target->define(result,true);
+    return result;
+}
+
+SHADER EveShaderArchive::getShaderL()
+{
+    const char*fragment_source = getFragmentSourceL(),          //archive manages memory
+              *vertex_source = getVertexSourceL();
+    if (!fragment_source || !vertex_source)
+        return EMPTY_SHADER;
+    SHADER result = language->loadShader(vertex_source,fragment_source);
+    if (result==EMPTY_SHADER)
+        ERROR_THROW__("shader found but "+language->name_+" refused to load");
+    return result;
+}
+
+void EveShaderArchive::setLanguage(Eve3dLanguage*Language)
+{
+    language = Language;
+}

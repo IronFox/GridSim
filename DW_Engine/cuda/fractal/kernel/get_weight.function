@@ -1,0 +1,6 @@
+/**
+	float	getWeight(float h, float average, float variance, float depth)
+*/
+//return 1.0f+0.9f*fabsf(h-average)/variance
+//*(1.0f-depth*2.0f)
+	return  1.0f+(h<average?0.9f*(average-h)/variance: (0.9f-h*0.7f)*(h-average)/variance)*(1.0f-depth);

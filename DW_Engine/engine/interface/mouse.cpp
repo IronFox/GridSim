@@ -1,0 +1,706 @@
+#include "../../global_root.h"
+#include "mouse.h"
+#include "../../general/system.h"
+
+    //#include <iostream>
+    //using namespace std;
+
+
+/******************************************************************
+
+engine mouse-interface.
+
+******************************************************************/
+
+
+namespace Engine
+{
+
+	const char*			Mouse::CursorToString(cursor_t cursor)
+	{
+		#undef CASE
+		#define CASE(_CURSOR_)	case _CURSOR_: return #_CURSOR_;
+		
+		switch (cursor)
+		{
+			CASE(CursorType::None)
+			CASE(CursorType::Hidden)
+			CASE(CursorType::Default)
+			CASE(CursorType::EditText)
+			CASE(CursorType::Waiting)
+			CASE(CursorType::HalfWaiting)
+			CASE(CursorType::CrossHair)
+			CASE(CursorType::Hand)
+			CASE(CursorType::Help)
+			CASE(CursorType::No)
+			CASE(CursorType::SizeAll)
+			CASE(CursorType::ResizeLeft)
+			CASE(CursorType::ResizeRight)
+			CASE(CursorType::ResizeUp)
+			CASE(CursorType::ResizeDown)
+			CASE(CursorType::ResizeDownRight)
+			CASE(CursorType::ResizeUpLeft)
+			CASE(CursorType::ResizeUpRight)
+			CASE(CursorType::ResizeDownLeft)
+		}
+		return "Unknown cursor type";
+		#undef CASE
+	}
+
+
+	bool Mouse::SignalButtonDown(BYTE id, bool update_if_bound)
+	{
+		if (id >= 5 || buttons.down[id])
+			return false;
+		button_id = id;
+		buttons.down[id] = true;
+		buttons.pressed = true;
+		if (update_if_bound)
+			Update();
+		return map.keyDown(Key::MouseButton0+(int)id);
+	}
+
+	bool Mouse::SignalButtonUp(BYTE id, bool update_if_bound)
+	{
+		if (id >= 5 || !buttons.down[id])
+			return false;
+		button_id = id;
+		buttons.down[id] = false;
+		buttons.pressed = buttons.down[0] || buttons.down[1] || buttons.down[2] || buttons.down[3] || buttons.down[4];
+		if (update_if_bound)
+			Update();
+		return map.keyUp(Key::MouseButton0+(int)id);
+	}
+
+	BYTE	Mouse::GetButton()							const
+	{
+		return button_id;
+	}
+
+
+	void	Mouse::HandleMouseWheel(short delta)
+	{
+		if (wheel_link)
+			wheel_link(delta);
+	}
+
+
+	void Mouse::BindWheel(FWheelLink Link)
+	{
+	    wheel_link = Link;
+	}
+
+	#if SYSTEM==WINDOWS
+	void Mouse::UpdateNoClip()
+	{
+	    no_clip.left = screen_clip.left-(screen_clip.right-screen_clip.left)*10;
+	    no_clip.top = screen_clip.top-(screen_clip.bottom-screen_clip.top)*10;
+	    no_clip.right = screen_clip.right+(screen_clip.right-screen_clip.left)*10;
+	    no_clip.bottom = screen_clip.bottom+(screen_clip.bottom-screen_clip.top)*10;
+	}
+
+	#elif SYSTEM==UNIX
+
+	    void Mouse::Assign(Display*display_, Window window_, int screen_)
+	    {
+	        display = display_;
+	        window_handle = window_;
+	        screen = screen_;
+			cursor_visible = true;
+	    }
+	    
+	    void  Mouse::GetCursorPos(POINT*target)
+	    {
+	        Window dummy;
+	        int root_x,root_y,win_x,win_y;
+	        unsigned idummy;
+	        XQueryPointer(display,window_handle,&last_root,&dummy,&root_x,&root_y,&win_x,&win_y,&idummy);
+	        target->x = root_x;
+	        target->y = root_y;
+	        //cout << "query: "<<root_x<<", "<<root_y<<endl;
+	    }
+	    
+	    void  Mouse::SetCursorPos(int x, int y)
+	    {
+	    	//cout << "set: "<<x<<", "<<y<<endl;
+	        XWarpPointer(display,last_root,/*window_handle*/last_root,0,0,0,0,x,y);
+	    }
+	    
+
+	#endif
+
+	
+	void	Mouse::LoadCursors()
+	{
+		#if SYSTEM==WINDOWS
+			cursor_reference[CursorType::Default] = LoadCursor(NULL,IDC_ARROW);
+			cursor_reference[CursorType::EditText] = LoadCursor(NULL,IDC_IBEAM);
+			cursor_reference[CursorType::Waiting] = LoadCursor(NULL,IDC_WAIT);
+			cursor_reference[CursorType::HalfWaiting] = LoadCursor(NULL,IDC_APPSTARTING);
+			cursor_reference[CursorType::CrossHair] = LoadCursor(NULL,IDC_CROSS);
+			cursor_reference[CursorType::CrossHair] = LoadCursor(NULL,IDC_HAND);
+			cursor_reference[CursorType::Help] = LoadCursor(NULL,IDC_HELP);
+			cursor_reference[CursorType::No] = LoadCursor(NULL,IDC_NO);
+			cursor_reference[CursorType::SizeAll] = LoadCursor(NULL,IDC_SIZEALL);
+			cursor_reference[CursorType::ResizeRight] =
+			cursor_reference[CursorType::ResizeLeft] = LoadCursor(NULL,IDC_SIZEWE);
+			cursor_reference[CursorType::ResizeUp] =
+			cursor_reference[CursorType::ResizeDown] = LoadCursor(NULL,IDC_SIZENS);
+			cursor_reference[CursorType::ResizeUpLeft] =
+			cursor_reference[CursorType::ResizeDownRight] = LoadCursor(NULL,IDC_SIZENWSE);
+			cursor_reference[CursorType::ResizeUpRight] =
+			cursor_reference[CursorType::ResizeDownLeft] = LoadCursor(NULL,IDC_SIZENESW);
+		#elif SYSTEM_VARIANCE==LINUX
+			
+			
+			cursor_reference[CursorType::Default] = XCreateFontCursor(display, XC_arrow);	//None does NOT work here... stupid documentation
+			cursor_reference[CursorType::EditText] = XCreateFontCursor(display, XC_xterm);
+			cursor_reference[CursorType::Waiting] = XCreateFontCursor(display, XC_watch);
+			cursor_reference[CursorType::HalfWaiting] = XCreateFontCursor(display, XC_clock);
+			cursor_reference[CursorType::CrossHair] = XCreateFontCursor(display, XC_crosshair);
+			cursor_reference[CursorType::Hand] = XCreateFontCursor(display, XC_hand2);
+			cursor_reference[CursorType::Help] = XCreateFontCursor(display, XC_question_arrow);
+			cursor_reference[CursorType::No] = XCreateFontCursor(display, XC_cross);
+			cursor_reference[CursorType::SizeAll] = XCreateFontCursor(display, XC_sizing);
+			cursor_reference[CursorType::ResizeRight] = XCreateFontCursor(display, XC_right_side);
+			cursor_reference[CursorType::ResizeLeft] = XCreateFontCursor(display, XC_left_side);
+			cursor_reference[CursorType::ResizeUp] = XCreateFontCursor(display, XC_top_side);
+			cursor_reference[CursorType::ResizeDown] = XCreateFontCursor(display, XC_bottom_side);
+			cursor_reference[CursorType::ResizeDownRight] = XCreateFontCursor(display, XC_bottom_right_corner);
+			cursor_reference[CursorType::ResizeUpRight] = XCreateFontCursor(display, XC_top_right_corner);
+			cursor_reference[CursorType::ResizeUpLeft] = XCreateFontCursor(display, XC_top_left_corner);
+			cursor_reference[CursorType::ResizeDownLeft] = XCreateFontCursor(display, XC_bottom_left_corner);
+			
+			/*for (unsigned i = 0; i < ARRAYSIZE(cursor_reference); i++)
+				cout << cursorToString((cursor_t)i)<<" set to "<<cursor_reference[i]<<endl;*/
+			
+		#else
+			#error stub
+		#endif
+	}
+	
+	Mouse::Mouse(InputMap&map_):map(map_),locked(false),focus(true),cursor_visible(true),force_invisible(false),wheel_link(NULL),custom_loaded(false)
+	#if SYSTEM==UNIX
+	    ,blank_cursor((Cursor)0)
+	#endif
+	{
+	    buttons.left_down   = false;
+	    buttons.middle_down = false;
+	    buttons.right_down  = false;
+	    buttons.pressed     = false;
+	    speed.x = 1;
+	    speed.y = 1;
+		memset(cursor_reference,0,sizeof(cursor_reference));
+		loaded_cursor = NULL;
+
+	    #if SYSTEM==WINDOWS
+	        GetClipCursor(&initial_clip);
+	        window = screen_clip = initial_clip;
+		    mx = (screen_clip.left+screen_clip.right)/2;
+		    my = (screen_clip.top+screen_clip.bottom)/2;		
+			
+	        UpdateNoClip();
+
+
+
+			lastPosition.x = 0;
+			lastPosition.y = 0;
+			hasLastPosition = false;
+		
+	    #else
+	        window.left = window.top = window.right = window.bottom = 0;
+			
+			
+		
+	    #endif
+		
+	}
+
+
+	void Mouse::RedefineWindow(RECT window_, HWND hwnd)
+	{
+	    window = window_;
+		mx = (window.left+window.right)/2;
+		my = (window.top+window.bottom)/2;		
+
+		#if SYSTEM==WINDOWS
+			RAWINPUTDEVICE dev;
+			
+			dev.usUsagePage = 0x01; 
+			dev.usUsage = 0x02; 
+			dev.dwFlags = 0;//RIDEV_INPUTSINK;//RIDEV_INPUTSINK;//RIDEV_NOLEGACY;   // adds HID mouse and also ignores legacy mouse messages
+			dev.hwndTarget = hwnd;
+			if (!RegisterRawInputDevices(&dev,1,sizeof(dev)))
+				FATAL__(System::getLastError());
+		#endif
+	    //ShowMessage("window set to "+IntToStr(window.left)+", "+IntToStr(window.top)+" - "+IntToStr(window.right)+", "+IntToStr(window.bottom));
+	}
+
+	void Mouse::SetRegion(int width, int height)
+	{
+	    mx = width/2;
+	    my = height/2;
+	    screen_clip.left = 0;
+	    screen_clip.top = 0;
+	    screen_clip.right = width;
+	    screen_clip.bottom = height;
+	//    ShowMessage("region updated to "+IntToStr(width)+", "+IntToStr(height));
+	    #if SYSTEM==WINDOWS
+	        UpdateNoClip();
+	        if (locked)
+	            ClipCursor(&window);
+	        else
+	            ClipCursor(NULL);
+	    #endif
+	}
+
+	void Mouse::ResetRegion()
+	{
+	    #if SYSTEM==WINDOWS
+	        SetRegion(initial_clip);
+	    #endif
+	}
+
+	void Mouse::SetRegion(RECT region)
+	{
+	    mx = (region.left+region.right)/2;
+	    my = (region.top+region.bottom)/2;
+	    screen_clip = region;
+	    #if SYSTEM==WINDOWS
+	        UpdateNoClip();
+	        if (locked)
+	            ClipCursor(&window);
+	        else
+	            ClipCursor(NULL);
+	    #endif
+	}
+	
+	void Mouse::RegAnalogInputs()
+	{
+		map.RegAnalog("MouseX",location.windowRelative.x,0,1);
+		map.RegAnalog("MouseY",location.windowRelative.y,0,1);
+	}
+
+	void	Mouse::RecordAbsoluteMouseMovement(long x, long y)
+	{
+		if (!hasLastPosition)
+		{
+			hasLastPosition = true;
+			lastPosition.x = x;
+			lastPosition.y = y;
+			return;
+		}
+		RecordRelativeMouseMovement(x - lastPosition.x, y - lastPosition.y);
+		lastPosition.x = x;
+		lastPosition.y = y;
+	}
+	void	Mouse::RecordRelativeMouseMovement(long x, long y)
+	{
+		if (locked)
+		{
+			delta.x += float(x)*0.01f * speed.x;
+			delta.y += float(y)*0.01f * speed.y;
+		}
+	}
+
+
+	void Mouse::Update()
+	{
+		#if SYSTEM!=WINDOWS
+			previous_location = location;
+			delta.x = 0;
+			delta.y = 0;
+			if (locked&&focus)
+			{
+				POINT mp;
+				GetCursorPos(&mp);
+				short delta_x = mp.x-mx,
+					  delta_y = my-mp.y;
+				SetCursorPos(mx,my);
+				delta.x = speed.x*delta_x/(screen_clip.right-screen_clip.left);
+				delta.y = speed.y*delta_y/(screen_clip.bottom-screen_clip.top);
+				return;
+			}
+			POINT p;
+			GetCursorPos(&p);
+			location.absolute.x = p.x;
+			location.absolute.y = p.y;
+			//ShowMessage(String(location.x)+", "+String(location.y)+" / "+String(window.left)+", "+String(window.top)+", "+String(window.right)+", "+String(window.bottom));
+			location.windowRelative.x = ((float)location.absolute.x-window.left)/(window.right-window.left);
+			location.windowRelative.y = (1-((float)location.absolute.y-window.top)/(window.bottom-window.top));
+		#else
+			delta.x = 0;
+			delta.y = 0;
+			if (!locked || !focus)
+			{
+				previous_location = location;
+				_Feed();
+			}
+		#endif
+		
+#if 0
+		#if SYSTEM==WINDOWS
+			if (loaded_cursor)
+			{
+				#if SYSTEM==WINDOWS
+					SetCursor(loaded_cursor);
+				#elif SYSTEM_VARIANCE==LINUX
+					setCursor(loaded_cursor);
+				#else
+					#error stub
+				#endif
+			}
+		#endif
+#endif /*0*/	
+	}
+
+	void Mouse::Release()
+	{
+	    if (!locked)
+	        return;
+	    
+	    ::SetCursorPos(location.absolute.x,location.absolute.y);
+	    
+	    locked = false;
+	    #if SYSTEM==WINDOWS
+	        ClipCursor(NULL);
+	    #endif
+	}
+
+	void Mouse::Trap()
+	{
+	    if (locked)
+	        return;
+		_Feed();
+	    mx = (window.right+window.left)/2;
+	    my = (window.bottom+window.top)/2;
+	    #if SYSTEM!=WINDOWS
+		    SetCursorPos(mx,my);
+		#endif
+	 
+	    locked = true;
+	    #if SYSTEM==WINDOWS
+	        //ClipCursor(&no_clip);
+			if (focus)
+				::ClipCursor(&window);
+	    #endif
+	}
+
+	void	Mouse::SetFocused(bool focused)
+	{
+		if (focused)
+			RestoreFocus();
+		else
+			LooseFocus();
+	}
+
+	bool	Mouse::IsFocused()	const
+	{
+		return focus;
+	}
+
+
+	void Mouse::LooseFocus()
+	{
+	    if (!focus)
+	        return;
+	    if (locked)
+		{
+			#if SYSTEM==WINDOWS
+				ClipCursor(NULL);
+			#endif
+			SetCursorPos(location.absolute.x,location.absolute.y);
+		}
+		if (!cursor_visible)
+		{
+		    #if SYSTEM==WINDOWS
+		        ShowCursor(TRUE);
+		    #elif SYSTEM==UNIX
+		        setCursor(None);    //None means no custom cursor thus default to standard cursor
+		    #endif
+		}
+			
+	       
+	    focus = false;
+	}
+
+	void	Mouse::_Feed()
+	{
+		POINT p;
+		GetCursorPos(&p);
+		location.absolute.x = p.x;
+		location.absolute.y = p.y;
+	    location.windowRelative.x = ((float)p.x-window.left)/(window.right-window.left);
+	    location.windowRelative.y = 1-((float)p.y-window.top)/(window.bottom-window.top);
+	}
+
+
+	void Mouse::RestoreFocus()
+	{
+	    if (focus)
+	        return;
+		_Feed();
+	    if (locked)
+	    {
+	        #if SYSTEM==WINDOWS
+	            ::ClipCursor(&window);
+	        #else
+				SetCursorPos(mx,my);
+			#endif
+	    }
+		if (!cursor_visible)
+		{
+		    #if SYSTEM==WINDOWS
+		        ShowCursor(FALSE);
+		    #elif SYSTEM==UNIX
+		        BYTE blank_cdata[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+		        BYTE blank_cmask[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+		        if (!blank_cursor)
+		            blank_cursor = createCursor(blank_cdata,blank_cmask,8,8,0,0,screen);
+		        setCursor(blank_cursor);
+		    #endif
+		}
+	    focus = true;
+	}
+
+	bool Mouse::IsIn(float left, float bottom, float right, float top)	const
+	{
+		return location.windowRelative.x >= left && location.windowRelative.y >= bottom && location.windowRelative.x <= right && location.windowRelative.y <= top;
+	}
+
+	void Mouse::Lock()
+	{
+	    if (locked)
+	        return;
+		_Feed();
+	    locked = true;
+	    #if SYSTEM==WINDOWS
+	        ClipCursor(&window);
+	    #endif
+	}
+
+	void Mouse::Unlock()
+	{
+	    locked = false;
+	    #if SYSTEM==WINDOWS
+	        ::ClipCursor(NULL);
+	    #endif
+	}
+
+	bool Mouse::IsLocked()	const
+	{
+	    return locked;
+	}
+
+	#if SYSTEM==UNIX
+
+	bool Mouse::SetCursor(Cursor cursor)
+	{
+	    if (!display || !cursor || !window_handle)
+	    {
+	    	/*if (!display)
+	    		cout << "display not set"<<endl;
+	    	elif (!cursor)
+	    		cout << "cursor not set"<<endl;
+	    	else
+	    		cout << "window not set"<<endl;
+	    	flush(cout);*/
+	        return false;
+	    }
+	    //cout << "attempting to set linux cursor "<<cursor<<" on display "<<display<<" and window "<<window_handle<<endl;
+	    return !XDefineCursor(display, window_handle, cursor);
+	}
+
+	void Mouse::DestroyCursor(Cursor cursor)
+	{
+	    if (!cursor || !display)
+	        return;
+	    XFreeCursor(display, cursor);
+	    XSync(display, False);
+	}
+
+
+	Cursor Mouse::CreateCursor(BYTE*data, BYTE*mask, int w, int h, int hot_x, int hot_y, int screen)
+	{
+	    if (!display)
+	        return (Cursor)0;
+
+		XGCValues GCvalues;
+		GC        GCcursor;
+		XImage     *data_image, *mask_image;
+		Pixmap     data_pixmap, mask_pixmap;
+		char       *x_data, *x_mask;
+		static     XColor black = {  0,  0,  0,  0 };
+		static     XColor white = { 0xffff, 0xffff, 0xffff, 0xffff };
+
+
+		/* Mix the mask and the data */
+		unsigned clen = (w/8)*h;
+		//Array<char>	x_data(clen),	x_mask(clen);
+		alloc(x_data, clen);
+		alloc(x_mask, clen);
+		
+		for (unsigned i = 0; i < clen; i++)
+	    {
+			/* The mask is OR'd with the data to turn inverted color
+			   pixels black since inverted color cursors aren't supported
+			   under X11.
+			 */
+			x_mask[i] = data[i] | mask[i];
+			x_data[i] = data[i];
+		}
+
+		/* Create the data image */
+		data_image = XCreateImage(display,DefaultVisual(display, screen), 1, XYBitmap, 0, x_data, w, h, 8, w/8);
+		data_image->byte_order = MSBFirst;
+		data_image->bitmap_bit_order = MSBFirst;
+		data_pixmap = XCreatePixmap(display, window_handle, w, h, 1);
+
+		/* Create the data mask */
+		mask_image = XCreateImage(display,DefaultVisual(display, screen),1, XYBitmap, 0, x_mask, w, h, 8, w/8);
+		mask_image->byte_order = MSBFirst;
+		mask_image->bitmap_bit_order = MSBFirst;
+		mask_pixmap = XCreatePixmap(display, window_handle, w, h, 1);
+
+		/* Create the graphics context */
+		GCvalues.function = GXcopy;
+		GCvalues.foreground = ~0;
+		GCvalues.background =  0;
+		GCvalues.plane_mask = AllPlanes;
+		GCcursor = XCreateGC(display, data_pixmap,
+				(GCFunction|GCForeground|GCBackground|GCPlaneMask),
+									&GCvalues);
+
+		/* Blit the images to the pixmaps */
+		XPutImage(display, data_pixmap, GCcursor, data_image,
+								0, 0, 0, 0, w, h);
+		XPutImage(display, mask_pixmap, GCcursor, mask_image,
+								0, 0, 0, 0, w, h);
+		XFreeGC(display, GCcursor);
+
+		/* These free the x_data and x_mask memory pointers */
+		XDestroyImage(data_image);
+		XDestroyImage(mask_image);
+
+		/* Create the cursor */
+		Cursor result = XCreatePixmapCursor(display, data_pixmap,
+					mask_pixmap, &black, &white, hot_x, hot_y);
+		XFreePixmap(display, data_pixmap);
+		XFreePixmap(display, mask_pixmap);
+	    XSync(display, False);
+	    
+	    //deloc(x_data);	//delocating this memory section causes a segmentation fault. i believe it is automatically delocated in the above functions.
+	    //deloc(x_mask);
+
+		return result;
+	}
+
+	//inv: 81 63 55 70
+	//bas: 75 51 41 60
+	#endif
+	
+	bool	Mouse::CursorIsNotDefault()	const
+	{
+		return (loaded_cursor != cursor_reference[CursorType::Default]);
+	}
+
+	void	Mouse::SetCursor(eCursor cursor)
+	{
+		if (cursor == CursorType::None || cursor >= CursorType::Count)
+			return;
+		if (cursor != CursorType::Hidden && !cursor_visible)
+			ShowCursor(false);
+		if (cursor == CursorType::Hidden)
+		{
+			HideCursor(false);
+			return;
+		}
+		if (!cursor_reference[CursorType::EditText])
+			LoadCursors();
+		
+		if (loaded_cursor == cursor_reference[cursor])
+			return;
+		
+		if (cursor_visible)
+		{
+			#if SYSTEM==WINDOWS
+				::SetCursor(cursor_reference[cursor]);
+			#elif SYSTEM_VARIANCE==LINUX
+				//cout << "setting cursor "<<cursorToString(cursor)<<endl;
+				SetCursor(cursor_reference[cursor]);	//for some reason this may fail occasionally, during startup at least. it does work most of the time though
+				//ASSERT2__(setCursor(cursor_reference[cursor]),cursorToString(cursor),cursor_reference[cursor]); //so, no assertion here
+			#else
+				#error stub
+			#endif
+			loaded_cursor = cursor_reference[cursor];
+			custom_loaded = false;
+		}
+	}
+
+	void	Mouse::SetCustomCursor(HCURSOR cursor)
+	{
+		if (!cursor_visible)
+			ShowCursor(false);
+		
+		if (loaded_cursor == cursor)
+			return;
+		
+		if (cursor_visible)
+		{
+			#if SYSTEM==WINDOWS
+				::SetCursor(cursor);
+			#elif SYSTEM_VARIANCE==LINUX
+				//cout << "setting cursor "<<cursorToString(cursor)<<endl;
+				SetCursor(cursor);	//for some reason this may fail occasionally, during startup at least. it does work most of the time though
+				//ASSERT2__(setCursor(cursor_reference[cursor]),cursorToString(cursor),cursor_reference[cursor]); //so, no assertion here
+			#else
+				#error stub
+			#endif
+			loaded_cursor = cursor;
+			custom_loaded = true;
+		}
+	}
+	
+
+	bool Mouse::HideCursor(bool force)
+	{
+		force_invisible	= force;
+		if (!cursor_visible)
+			return true;
+		cursor_visible = false;
+		if (!focus)
+			return true;
+	    #if SYSTEM==WINDOWS
+	        ShowCursor(FALSE);
+	        return true;
+	    #elif SYSTEM==UNIX
+	        BYTE blank_cdata[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+	        BYTE blank_cmask[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+	        if (!blank_cursor)
+	            blank_cursor = createCursor(blank_cdata,blank_cmask,8,8,0,0,screen);
+	        return setCursor(blank_cursor);
+	    #endif
+	}
+
+	void Mouse::ShowCursor(bool override)
+	{
+		if (force_invisible && !override)
+			return;
+		force_invisible = false;
+		if (cursor_visible)
+			return;
+		cursor_visible = true;
+		if (!focus)
+			return;
+
+	    #if SYSTEM==WINDOWS
+	        ::ShowCursor(TRUE);
+	    #elif SYSTEM==UNIX
+	        SetCursor(None);    //None means no custom cursor thus default to standard cursor
+	    #endif
+	}
+
+
+
+	Mouse mouse(input);
+}

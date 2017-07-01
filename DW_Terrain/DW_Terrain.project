@@ -1,0 +1,10 @@
+<project type="StaticLibrary">
+	<referenceProject name="DW_Engine" />
+
+	<source path="." include="true">
+		<exclude find="mvc"/>
+		<exclude dir="maker" />
+	</source>
+	<macro name="_CRT_SECURE_NO_WARNINGS" />
+	<macro name="_SCL_SECURE_NO_WARNINGS" />
+</project>
