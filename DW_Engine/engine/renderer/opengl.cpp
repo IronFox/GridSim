@@ -1,4 +1,3 @@
-#include "../../global_root.h"
 #include "opengl.h"
 
 
@@ -500,14 +499,14 @@ namespace Engine
 		
 		void	Query::adoptData(Query&other)
 		{
-			Container<GLuint>::adoptData(other);
+			Handle<GLuint>::adoptData(other);
 			geometry_handle = other.geometry_handle;
 			other.geometry_handle = 0;
 		}
 
 		void	Query::swap(Query&other)
 		{
-			Container<GLuint>::swap(other);
+			Handle<GLuint>::swap(other);
 			swp(geometry_handle,other.geometry_handle);
 		}
 	
@@ -524,7 +523,7 @@ namespace Engine
 		
 		void	Query::flush()
 		{
-			Container<GLuint>::flush();
+			Handle<GLuint>::flush();
 			geometry_handle = 0;
 		}
 		
@@ -612,7 +611,7 @@ namespace Engine
 	
 		void		Shader::flush()
 		{
-			Container<GLShader::Template*>::flush();
+			Handle<GLShader::Template*>::flush();
 			requires_tangents = false;
 		}
 
@@ -667,7 +666,7 @@ namespace Engine
 		void			Texture::flush()
 		{
 			GenericTexture::flush();
-			Container<GLuint>::flush();
+			Handle<GLuint>::flush();
 		}
 		
 		void			Texture::overrideSetHandle(GLuint h, unsigned width, unsigned height, BYTE num_channels, PixelType type, bool do_clear)
@@ -685,12 +684,12 @@ namespace Engine
 		
 		void			Texture::adoptData(Texture&other)
 		{
-			Container<GLuint>::adoptData(other);
+			Handle<GLuint>::adoptData(other);
 			GenericTexture::adoptData(other);
 		}
 		void			Texture::swap(Texture&other)
 		{
-			Container<GLuint>::swap(other);
+			Handle<GLuint>::swap(other);
 			GenericTexture::swap(other);
 		}
 		
@@ -794,20 +793,20 @@ namespace Engine
 		
 		void	Buffer::flush()
 		{
-			Container<GLuint>::flush();
+			Handle<GLuint>::flush();
 			data_size = 0;
 		}
 
 		void	Buffer::adoptData(Buffer&other)
 		{
-			Container<GLuint>::adoptData(other);
+			Handle<GLuint>::adoptData(other);
 			data_size = other.data_size;
 			other.data_size = 0;
 		}
 	
 		void	Buffer::swap(Buffer&other)
 		{
-			Container<GLuint>::swap(other);
+			Handle<GLuint>::swap(other);
 			swp(data_size,other.data_size);
 		}
 		
@@ -1030,7 +1029,7 @@ namespace Engine
 		
 		void		FBO::flush()
 		{
-			Container<GLuint>::flush();
+			Handle<GLuint>::flush();
 			config = TFBOConfig();
 		}
 		
@@ -1047,17 +1046,17 @@ namespace Engine
 		
 		void		FBO::adoptData(FBO&other)
 		{
-			Container<GLuint>::adoptData(other);
+			Handle<GLuint>::adoptData(other);
 			config = other.config;
 			other.config = TFBOConfig();
 		}
 		void		FBO::swap(FBO&other)
 		{
-			Container<GLuint>::swap(other);
+			Handle<GLuint>::swap(other);
 			swp(config,other.config);
 		}
 
-		void		FBO::resize(const ::Resolution&res)
+		void		FBO::resize(const Resolution&res)
 		{
 			if (res == config.resolution)
 				return;
@@ -1290,7 +1289,7 @@ namespace Engine
 			if (lighting_enabled)
 				for (unsigned i = 0; i < num_enabled_lights; i++)
 				{
-					Light*light = enabled_light_field[i];
+					PLight light = enabled_light_field[i];
 					target << '&' << (unsigned)light->GetType();
 				}
 		}
@@ -1322,7 +1321,7 @@ namespace Engine
 	//ModularDataTable<GLuint>		OpenGL::texture_table;
 	int								OpenGL::error_code;					//error-code from the last operation
 	OpenGL							*OpenGL::globalInstance(NULL);
-	/*static*/		Buffer<OpenGL::GLBinding,4>	OpenGL::created_contexts;		//!< All created contexts
+	/*static*/		Ctr::Buffer<OpenGL::GLBinding,4>	OpenGL::created_contexts;		//!< All created contexts
 	
 	//HashContainer<CGLShader>		OpenGL::shader_cache;
 
@@ -1538,7 +1537,7 @@ namespace Engine
 
 
 
-	void OpenGL::enableLight(Light*light)
+	void OpenGL::enableLight(const PLight&light)
 	{
 		GL_BEGIN
 		if (getLightSceneOf(light) != active_scene || state.render_setup.num_enabled_lights >= state.render_setup.enabled_light_field.length())	//can't enable
@@ -1553,7 +1552,7 @@ namespace Engine
 		GL_END
 	}
 
-	void OpenGL::disableLight(Light*light)
+	void OpenGL::disableLight(const PLight&light)
 	{
 		GL_BEGIN
 		if (getLightSceneOf(light) != active_scene)
@@ -1582,7 +1581,7 @@ namespace Engine
 	}
 
 
-	void OpenGL::updateLight(Light*light)
+	void OpenGL::updateLight(const PLight&light)
 	{
 		GL_BEGIN
 		index_t index = getIndexOf(light);
@@ -1635,7 +1634,7 @@ namespace Engine
 		GL_END
 	}
 
-	void OpenGL::updateLightPosition(Light*light)
+	void OpenGL::updateLightPosition(const PLight&light)
 	{
 		GL_BEGIN
 		index_t index = getIndexOf(light);
@@ -2205,7 +2204,7 @@ namespace Engine
 	                width,height, //Dimensionen
 	                HWND_DESKTOP,
 	                NULL,
-	                getInstance(), //Application
+	                GetInstance(), //Application
 	                NULL);
 
 	            if (!window)

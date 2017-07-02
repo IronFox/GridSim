@@ -7,8 +7,12 @@ keycode-definitions.
 
 ******************************************************************/
 
+#include "../global_root.h"
 
-#if SYSTEM==UNIX
+
+#if SYSTEM==WINDOWS
+	#include <Winuser.h>
+#elif SYSTEM==UNIX
 
 	#define VK_SHIFT		50 //54
 	#define VK_CAPITAL		21
@@ -29,7 +33,7 @@ keycode-definitions.
 	
 	#define VK_PRINT		111
 
-#elif SYSTEM!=WINDOWS
+#else
 
 	#define VK_SHIFT		0x10
 	#define VK_CONTROL		0x11

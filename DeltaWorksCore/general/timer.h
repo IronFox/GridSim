@@ -8,6 +8,8 @@ Works under linux and windows so far.
 
 ******************************************************************/
 
+#include "../global_root.h"
+
 #if SYSTEM==UNIX
 	#include <sys/time.h>
 #endif

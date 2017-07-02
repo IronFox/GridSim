@@ -8,11 +8,12 @@ Language-independent simple geometry-container.
 ******************************************************************/
 
 
-#include "../math/vector.h"
-#include "../container/buffer.h"
+#include <math/vector.h>
+#include <container/buffer.h>
 
 namespace Engine
 {
+	using namespace DeltaWorks;
 
 	struct	TVertex:public TVec4<> //! Basic vertex. Homogenous coordinates (4th component should usually be 1.0f)
 	{};
@@ -77,7 +78,7 @@ namespace Engine
 
 	public:
 
-			Buffer<TColorVertex>	field[3];	//!< One colored vertex field for each lines, triangles and quads
+			Ctr::Vector0<TColorVertex>	field[3];	//!< One colored vertex field for each lines, triangles and quads
 
 									SimpleGeometry();
 			void					compact();

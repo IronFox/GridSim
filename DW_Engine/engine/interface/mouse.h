@@ -7,6 +7,8 @@ eve mouse-interface.
 
 ******************************************************************/
 
+#include <global_root.h>
+
 #if SYSTEM==UNIX
 	#ifndef Status
 		typedef int	Status;
@@ -18,7 +20,7 @@ eve mouse-interface.
 #endif
 
 #include "input.h"
-#include "../../math/vector.h"
+#include <math/vector.h>
 
 namespace Engine
 {

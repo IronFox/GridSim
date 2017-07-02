@@ -136,6 +136,16 @@ Global super-include. This file is included by all local .h-files.
 namespace DeltaWorks
 {
 
+	namespace GlobalTest
+	{
+		static const bool IsDefined = true;
+	}
+
+	namespace GlobalTest2
+	{
+		static const bool IsGlobal = ::DeltaWorks::GlobalTest::IsDefined;
+	}
+
 
 	/**
 		@brief Type that indicates, well, nothing. Constructors that accept this type should behave just like parameter-less constructors

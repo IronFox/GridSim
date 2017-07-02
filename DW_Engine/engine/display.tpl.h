@@ -24,7 +24,7 @@ namespace Engine
 	template <class GL> 
 	void						Display<GL>::renderLights()
 	{
-		Array<Light*>	lights;
+		Array<PLight>	lights;
 		GL::getSceneLights(lights, true);
 		if (!lights_defined)
 		{
@@ -122,7 +122,7 @@ namespace Engine
 					float angle = pow(0.94,lights[i]->GetSpotExponent());
 					/*if (angle*45 > lights[i]->getSpotCutoff())
 						angle = lights[i]->getSpotCutoff()/45;*/
-					float z_scale = 1.0/clamped(angle,0.1,1);
+					float z_scale = 1.0/M::clamped(angle,0.1,1);
 					Mat::makeAxisSystem(lights[i]->GetPosition(),lights[i]->GetSpotDirection(),2,system);
 					Vec::mult(system.x.xyz,scale/z_scale);
 					Vec::mult(system.y.xyz,scale/z_scale);

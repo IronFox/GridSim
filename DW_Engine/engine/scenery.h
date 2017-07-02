@@ -12,13 +12,9 @@ to provide a simplified interface.
 #include "display.h"
 #include "renderer/renderer.h"
 #include "aspect.h"
-#include "../container/lvector.h"
-#include "../container/sortedlist.h"
-#include "../container/binarytree.h"
-#include "../container/linkedlist.h"
-#include "../container/buffer.h"
-#include "../container/incremental_hash_list.h"
-#include "../geometry/cgs.h"
+#include <container/buffer.h>
+#include <container/hashMappedList.h>
+#include <geometry/cgs.h>
 
 
 
@@ -37,7 +33,11 @@ namespace Engine
 	//template <class> class ObjectField;
 	template <class> class StructureField;
 	template <class> class ObjectEntity;
+	template <class C>
+		using PObjectEntity = std::shared_ptr<ObjectEntity<C> >;
 	template <class> class StructureEntity;
+	template <class C>
+		using PStructureEntity = std::shared_ptr<StructureEntity<C> >;
 	template <class> class RenderBuffer;
 	template <class> class VisualObject;
 	template <class> class VisualContainer;
@@ -57,7 +57,6 @@ namespace Engine
 
 	*/
 
-	MAKE_SORT_CLASS(SystemSort, system)
 
 
 	namespace StructureConfig	//! Structure flags
@@ -110,7 +109,7 @@ namespace Engine
 		class TextureTable /*: public Signature*/
 		{
 		public:
-				PointerContainer<ReferencedTexture<GL> >	storage;
+				Ctr::PointerContainer<ReferencedTexture<GL> >	storage;
 				float										anisotropy;
 							
 															TextureTable():anisotropy(1.0f)
@@ -126,8 +125,22 @@ namespace Engine
 	/*template <class Def=CGS::StdDef> class ObjectField:public Sorted<List::Vector<ObjectEntity<Def> >,SystemSort >
 	{};*/
 
-	template <class Def=CGS::StdDef> class StructureField:public Sorted<List::Vector<StructureEntity<Def> >,SystemSort >
-	{};
+	template <class Def=CGS::StdDef> class StructureField
+		//:public Sorted<List::Vector<StructureEntity<Def> >,SystemSort >
+	{
+		struct TEntry
+		{
+			PStructureEntity<Def>	entity;
+
+			friend hash_t	Hash(const TEntry&e)
+			{
+				return (hash_t)e->system;
+			}
+		};
+
+
+		Ctr::GenericHashSet<TEntry>	entries;
+	};
 
 	/*!
 		\brief Link between a texture resource and a loaded texture reference
@@ -227,8 +240,8 @@ namespace Engine
 			TMatrix4<typename Def::SystemType>	*system;								//!< Pointer to a system matrix (4x4) (possibly to a GeometryInstance::system) (not NULL)
 			CGS::Geometry<Def>					*target;								//!< Actual geometrical source pointer (not NULL). Multiple StructureEntity instances may point to the same CGS::Geometry instance.
 
-			Buffer<ObjectEntity<Def>,8>	object_entities;						//!< List of object entities
-			PointerTable<index_t>		object_entity_map;						//!< System-pointer to index map
+			Ctr::Buffer<PObjectEntity<Def>,8>	object_entities;						//!< List of object entities
+			Ctr::PointerTable<index_t>		object_entity_map;						//!< System-pointer to index map
 
 			unsigned					detail,									//!< Calculated detail of this structure entity
 										max_detail,								//!< Maximum detail level provided by the respective structure
@@ -266,12 +279,12 @@ namespace Engine
 		class VisualDetail
 		{
 		public:
-				List::ReferenceVector<List::ReferenceVector<ObjectEntity<Def> > >		objects;	//!< One list instance per structure entity. Each object in the inner list corresponds with the respective entry in robjects.
-				List::ReferenceVector<CGS::RenderObjectA<Def> >							robjects;	//!< List of render objects in this detail layer
-				Array<unsigned>															offset;		//!< Index offset of the respective render object in the index buffer
-				Buffer<index_t>															object_index;	//!< Per render object. Points to the respective render objects.
+			Ctr::Vector0<Ctr::Vector0<PObjectEntity<Def> > >objects;	//!< One list instance per structure entity. Each object in the inner list corresponds with the respective entry in robjects.
+			Ctr::Vector0<CGS::RenderObjectA<Def>*>			robjects;	//!< List of render objects in this detail layer
+			Array<unsigned>									offset;		//!< Index offset of the respective render object in the index buffer
+			Ctr::Buffer<index_t>							object_index;	//!< Per render object. Points to the respective render objects.
 				
-				void																	adoptData(VisualDetail<Def>&other);
+			void											adoptData(VisualDetail<Def>&other);
 		};
 		
 		
@@ -280,19 +293,21 @@ namespace Engine
 		class RenderGroup	//! Groups all render objects of the same geometry
 		{
 		public:
-				Sorted<List::ReferenceVector<StructureEntity<Def> >,PointerSort>	entities;	//!< Structure entities created from this the local geometry
-				CGS::MaterialA<Def>													*ident;		//!< Pointer to the respective material. This pointer should be unique throughout the scenery
+			Ctr::GenericHashSet<PStructureEntity<Def> >		entities;	//!< Structure entities created from this the local geometry
+			CGS::MaterialA<Def>								*ident;		//!< Pointer to the respective material. This pointer should be unique throughout the scenery
 				
-				List::ReferenceVector<CGS::RenderObjectA<Def> >						robjects;	//!< List of render objects stored in the material
+			Ctr::Vector0<CGS::RenderObjectA<Def>*>			robjects;	//!< List of render objects stored in the material
 				
-				Array<VisualDetail<Def>,Adopt>										detail_layers;	//!< Array of detail groups
+			Array<VisualDetail<Def>,Adopt>					detail_layers;	//!< Array of detail groups
 
-																					RenderGroup():ident(NULL)
-																					{}
+															RenderGroup():ident(NULL)
+															{}
 				
-				void																merge(CGS::MaterialA<Def>&material, StructureEntity<Def>*entity, UINT32&flags);	//!< Merges the specified material's data into the local rendering group (only if of the same geometry) @param flags [out] Flag out. Any occured flags will be or'ed to the current content 
+			void											merge(CGS::MaterialA<Def>&material, StructureEntity<Def>*entity, UINT32&flags);	//!< Merges the specified material's data into the local rendering group (only if of the same geometry) @param flags [out] Flag out. Any occured flags will be or'ed to the current content 
 		};
 
+	template <class Def>
+		using PRenderGroup = std::shared_ptr<RenderGroup<Def> >;
 
 	/*!
 		\brief Material mapping
@@ -307,7 +322,7 @@ namespace Engine
 			void													init();		//!< Updates the local material and constructs the local shader. @a texture_table must not be NULL
 			bool													initialized;
 		public:
-		
+			
 			Sorted<List::Vector<RenderGroup<Def> >,IdentSort>		groups;		//!< Lists all groups, loaded to this visual. Ideally this would be one group per merged geometry material.
 			PointerTable<RenderGroup<Def>*>							group_map;	//!< Maps StructureEntities to render groups for unmapping purposes
 			

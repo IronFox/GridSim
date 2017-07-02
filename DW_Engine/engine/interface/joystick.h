@@ -3,7 +3,7 @@
 
 #if SYSTEM==WINDOWS
 
-#include "../../math/basic.h"
+#include <math/basic.h>
 #include "input.h"
 
 #pragma comment(lib,"Winmm.lib")
@@ -43,7 +43,7 @@ namespace Engine
 			friend class Joystick;
 		};
 	private:
-		Buffer<State,NumJoysticks>	active;
+		Ctr::Buffer<State,NumJoysticks>	active;
 		bool			registered;
 	public:
 		count_t			CountActive()	const	{return active.count();}

@@ -70,7 +70,7 @@ template <class C> MFUNC2 (typename Frustum<C>::Visibility) Frustum<C>::CheckSph
 template <class C> MFUNC3 (bool) Frustum<C>::visible(const C0&x, const C1&y, const C2&z) const
 	{
 		TVec3<C0> center={x,y,z};
-		C error = getError<C>();
+		C error = M::getError<C>();
 		return	(Vec::planePointDistanceN(near_bottom_left,bottom_normal,center)<=error)
 				&&
 				(Vec::planePointDistanceN(near_bottom_right,right_normal,center)<=error)
@@ -93,15 +93,15 @@ template <class C>
 		return
 			Obj::detTriangleRayIntersection(p0, p1, p2, e0, d, rs)
 			&& 
-			rs.z >= -getError<C0>() 
+			rs.z >= -M::getError<C0>() 
 			&& 
-			rs.z <= (C0)1+getError<C0>() 
+			rs.z <= (C0)1+M::getError<C0>() 
 			&& 
-			rs.x >= getError<C0>() 
+			rs.x >= M::getError<C0>() 
 			&& 
-			rs.y >= getError<C0>() 
+			rs.y >= M::getError<C0>() 
 			&& 
-			rs.x+rs.y <= (C0)1+getError<C0>();
+			rs.x+rs.y <= (C0)1+M::getError<C0>();
 	}
 
 template <class C>
@@ -938,16 +938,16 @@ template <class C> MF_DECLARE (void) AngularCamera<C>::UpdateView()
 				mbuffer2,
 				mbuffer3;
 
-	Vec::def(mbuffer0.x, vcos(a1),0,-vsin(a1));
+	Vec::def(mbuffer0.x, cos(a1),0,-sin(a1));
 	Vec::def(mbuffer0.y, 0, 1, 0);
-	Vec::def(mbuffer0.z, vsin(a1), 0, vcos(a1));
+	Vec::def(mbuffer0.z, sin(a1), 0, cos(a1));
 
 	Vec::def(mbuffer1.x, 1,0,0);
-	Vec::def(mbuffer1.y, 0, vcos(a0), -vsin(a0));
-	Vec::def(mbuffer1.z, 0, vsin(a0), vcos(a0));
+	Vec::def(mbuffer1.y, 0, cos(a0), -sin(a0));
+	Vec::def(mbuffer1.z, 0, sin(a0), cos(a0));
 
-	Vec::def(mbuffer2.x, vcos(a2),-vsin(a2),0);
-	Vec::def(mbuffer2.y, vsin(a2), vcos(a2), 0);
+	Vec::def(mbuffer2.x, cos(a2),-sin(a2),0);
+	Vec::def(mbuffer2.y, sin(a2), cos(a2), 0);
 	Vec::def(mbuffer2.z, 0, 0, 1);
 
 	Mat::Mult(mbuffer1,mbuffer2,mbuffer3);

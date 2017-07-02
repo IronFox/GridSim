@@ -112,8 +112,8 @@ namespace Engine
 		
 		void				renderOrthographic();
 		void				renderPerspective();
-inline	void				renderPerspectiveGraphs()	{renderPerspective();}
-inline	void				render3dGraphs()	{renderPerspective();}
+		inline	void		renderPerspectiveGraphs()	{renderPerspective();}
+		inline	void		render3dGraphs()	{renderPerspective();}
 		
 		
 		const Timer::Time&	lastChange();
@@ -186,7 +186,8 @@ inline	void				render3dGraphs()	{renderPerspective();}
 			Solid
 		};
 		
-		
+
+
 		/*abstract*/ class Graph
 		{
 		public:
@@ -340,8 +341,8 @@ inline	void				render3dGraphs()	{renderPerspective();}
 			protected:
 					typename GL::VBO					vbo;
 					typename GL::IBO					ibo;
-					Buffer<typename GL::FloatType>		vertices;
-					Buffer<typename GL::IndexType>		indices;
+					Ctr::Buffer<typename GL::FloatType>	vertices;
+					Ctr::Buffer<typename GL::IndexType>	indices;
 					Array<float,Primitive>				h_field,
 														h_block;
 					MaterialConfig						material;
@@ -515,7 +516,7 @@ inline	void				render3dGraphs()	{renderPerspective();}
 			};
 			
 			
-			extern List::ReferenceVector<Graph>			orthographic_graphs, perspective_graphs;
+			extern Ctr::Vector0<Graph*>					orthographic_graphs, perspective_graphs;
 	}
 
 

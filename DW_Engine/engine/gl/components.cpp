@@ -1,4 +1,3 @@
-#include "../../global_root.h"
 #include "components.h"
 
 

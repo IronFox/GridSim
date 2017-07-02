@@ -1,19 +1,18 @@
 #ifndef engine_interface_inputH
 #define engine_interface_inputH
 
-#include "../../string/keys.h"
+#include <string/keys.h>
 //#include "../../io/config.h"
-#include "../../container/buffer.h"
-#include "../../container/lvector.h"
-#include "../../container/hashtable.h"
-#include "../../global_string.h"
-#include "../../string/string_converter.h"	//for string name lookup
+#include <container/buffer.h>
+#include <container/hashtable.h>
+#include <global_string.h>
+#include <string/string_converter.h>	//for string name lookup
 #include <iostream>
 #include <functional>
 
 namespace Engine
 {
-
+	using namespace DeltaWorks;
 
 
 
@@ -97,16 +96,15 @@ namespace Engine
 			InputProfile			default_profile,
 									*active_profile;
 			
-			Buffer<TKeyPreparation,0,Swap>	preparation;
+			Ctr::Buffer<TKeyPreparation,0,Swap>	preparation;
 
-			List::ReferenceVector<InputProfile>
-									binding_stack;
+			Ctr::Vector0<InputProfile*>	binding_stack;
 			unsigned				//active_binding,
 									stack_forward_depth;
 			
-			StringTable<TAnalogSource>	analog_sources;
+			Ctr::StringTable<TAnalogSource>	analog_sources;
 			TAnalogSource				empty_source;
-			Buffer<TAnalogSource,0>		linear_analog_list;
+			Ctr::Buffer<TAnalogSource,0>		linear_analog_list;
 
 	public:
 			bool				verbose;			//!< Set true to print input changes and events to the console. False by default

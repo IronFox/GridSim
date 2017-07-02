@@ -1,4 +1,3 @@
-#include "../../global_root.h"
 #include "screen.h"
 
 /******************************************************************
@@ -132,7 +131,7 @@ namespace Engine
 
 	    void ResolutionList::insert(const DEVMODE&mode)
 	    {
-	        add(mode)->insertFrequency(mode.dmDisplayFrequency);
+			Append(ScreenResolution(mode)).insertFrequency(mode.dmDisplayFrequency);
 	    }
 
 	#endif
@@ -141,8 +140,7 @@ namespace Engine
 	String ResolutionList::list()
 	{
 	    String result;
-	    reset();
-	    while (ScreenResolution*res = each())
+		foreach (*this,res)
 	    {
 	        result += IntToStr(res->width)+"*"+IntToStr(res->height)+" (";
 	        TDisplayFrequency*f = res->frequency;

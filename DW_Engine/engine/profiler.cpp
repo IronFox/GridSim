@@ -1,4 +1,3 @@
-#include "../global_root.h"
 #include "profiler.h"
 
 namespace Engine
@@ -15,7 +14,7 @@ namespace Engine
 		static OrthographicAspect<>		orthographic_aspect;
 		static Camera<>					projected_aspect;
 
-		List::ReferenceVector<Graph>	orthographic_graphs, 
+		Ctr::Vector0<Graph*>			orthographic_graphs, 
 										perspective_graphs;
 	
 		Data		time_data,
@@ -29,13 +28,13 @@ namespace Engine
 
 		/*virtual*/ void			OrthographicGraph::install()
 		{
-			if (!orthographic_graphs(this))
+			if (!orthographic_graphs.Contains(this))
 				orthographic_graphs.append(this);
 		}
 		
 		/*virtual*/ void			OrthographicGraph::uninstall()
 		{
-			orthographic_graphs.drop(this);
+			orthographic_graphs.FindAndErase(this);
 		}
 		
 		TVec3<>			C3dGraph::light = {1,1,1},
@@ -44,12 +43,12 @@ namespace Engine
 		
 		/*virtual*/ void			C3dGraph::install()
 		{
-			if (!perspective_graphs(this))
-				perspective_graphs.append(this);
+			if (!perspective_graphs.Contains(this))
+				perspective_graphs.Append(this);
 		}
 		/*virtual*/ void			C3dGraph::uninstall()
 		{
-			perspective_graphs.drop(this);
+			perspective_graphs.FindAndErase(this);
 		}
 
 
@@ -119,8 +118,8 @@ namespace Engine
 			{
 				if (accumulated > 0)
 				{
-					minimum_history.last() = vmin(fminimum,timer.toSecondsf(minimum));
-					maximum_history.last() = vmax(fmaximum,timer.toSecondsf(maximum));
+					minimum_history.last() = M::vmin(fminimum,timer.toSecondsf(minimum));
+					maximum_history.last() = M::vmax(fmaximum,timer.toSecondsf(maximum));
 				}
 				else
 				{
@@ -167,10 +166,10 @@ namespace Engine
 			}
 			else
 			{
-				fmaximum = vmax(fmaximum,fframe_accumulated);
-				fminimum = vmin(fminimum,fframe_accumulated);
-				maximum = vmax(maximum,frame_accumulated);
-				minimum = vmin(minimum,frame_accumulated);
+				fmaximum = M::vmax(fmaximum,fframe_accumulated);
+				fminimum = M::vmin(fminimum,fframe_accumulated);
+				maximum = M::vmax(maximum,frame_accumulated);
+				minimum = M::vmin(minimum,frame_accumulated);
 			}
 			
 			frame_accumulated = 0;
@@ -434,7 +433,7 @@ namespace Engine
 							return old_channel;
 						}
 		
-		static Buffer<Channel*>	channel_stack;
+		static Ctr::Buffer<Channel*>	channel_stack;
 		
 		Channel*		replace(unsigned major_channel, unsigned minor_channel)
 						{
@@ -481,7 +480,7 @@ namespace Engine
 							for (index_t i = 0; i < ARRAYSIZE(times)-1; i++)
 								times[i] = times[i+1];
 							times[ARRAYSIZE(times)-1] = d;
-							float base = vmin(vmin(vmin(times[0],times[1]),vmin(times[2],times[3])),times[4]);
+							float base = M::vmin(M::vmin(M::vmin(times[0],times[1]),M::vmin(times[2],times[3])),times[4]);
 							float weight = d > base*2;;
 
 							
@@ -508,27 +507,23 @@ namespace Engine
 								last_change = timer.now();
 								if (active_channel)
 									active_channel->start();
-								orthographic_graphs.reset();
-								while (Graph*graph = orthographic_graphs.each())
-									graph->update();
-								perspective_graphs.reset();
-								while (Graph*graph = perspective_graphs.each())
-									graph->update();
+								foreach (orthographic_graphs,graph)
+									(*graph)->update();
+								foreach (perspective_graphs,graph)
+									(*graph)->update();
 							}
 							return has_changed;
 
 						}
 		void			renderOrthographic()
 						{
-							orthographic_graphs.reset();
-							while (Graph*graph = orthographic_graphs.each())
-								graph->Draw();
+							foreach (orthographic_graphs,graph)
+								(*graph)->Draw();
 						}
 		void			renderPerspective()
 						{
-							perspective_graphs.reset();
-							while (Graph*graph = perspective_graphs.each())
-								graph->Draw();
+							foreach (perspective_graphs,graph)
+								(*graph)->Draw();
 						}
 	}
 }

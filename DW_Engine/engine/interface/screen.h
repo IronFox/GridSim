@@ -8,12 +8,13 @@ Collection of screen-query containers.
 ******************************************************************/
 
 
-#include "../../container/lvector.h"
-#include "../../container/sortedlist.h"
-#include "../../global_string.h"
+#include <global_string.h>
+#include <container/buffer.h>
 
 namespace Engine
 {
+	using namespace DeltaWorks;
+
 	struct					TDisplayFrequency;
 	class					SupportedResolution;
 	class					ResolutionList;
@@ -67,13 +68,13 @@ namespace Engine
 	#endif
 	};
 
-	class ResolutionList:public Sorted<List::Vector<ScreenResolution>, OperatorSort>		//! Display mode (screen resolution) list
+	class ResolutionList:public Ctr::Vector0<ScreenResolution>
 	{
 	public:
-	#if SYSTEM==WINDOWS
-			void						insert(const DEVMODE&mode);
-	#endif
-			String						list();		//!< Retrieves a string listing of the local list content
+		#if SYSTEM==WINDOWS
+			void					insert(const DEVMODE&mode);
+		#endif
+		String						list();		//!< Retrieves a string listing of the local list content
 	};
 
 	class FrequencyList	//! Display frequency (screen refresh rate) list. Holds up to 255 different display frequencies

@@ -8,31 +8,28 @@ Universal visual language-interface and rendering related definitions
 
 ********************************************************************/
 
-#include "../../math/matrix.h"
-#include "../../image/image.h"
+#include <math/matrix.h>
+#include <image/image.h>
 #include "../../geometry/simple_geometry.h"
-#include "../../geometry/cgs.h"
+#include <geometry/cgs.h>
 #include "../enumerations.h"
-#include "../../general/system.h"
-#include "../../general/thread_system.h"
-#include "../../container/hashtable.h"
+#include <general/system.h>
+#include <general/thread_system.h>
+#include <container/hashtable.h>
 #include "../objects/texture.h"
-#include "../../interface/hashable.h"
-#include "../../general/orthographic_comparator.h"
+#include <interface/hashable.h>
+#include <general/orthographic_comparator.h>
 
 #if SYSTEM==UNIX
 
 	#include <X11/Xlib.h>
 #endif
 
-#include "../../general/undef.h"
+#include <general/undef.h>
 
 namespace Engine
 {
-
-
-
-
+	using namespace DeltaWorks;
 
 	//errors
 	#define		ERR_NO_ERROR		0
@@ -85,13 +82,14 @@ namespace Engine
 	};
 
 	class Light;
+	typedef std::shared_ptr<Light>		PLight;
 
 	/**
 		\brief Light setting
 
 		Container for a light setting
 	*/
-	typedef List::Vector<Light> LightScene;
+	typedef Ctr::Vector0<PLight> LightScene;
 
 
 	class LightData
@@ -159,84 +157,84 @@ namespace Engine
 	public:
 
 	protected:
-			friend class VisualInterface;
+		friend class VisualInterface;
 			
-			index_t						index,		//!< Index of this light. Assigned by the visual interface. (light is disabled if index == UNSIGNED_UNDEF (-1))
-										origin;		//!< Index of this light in the light list. Assigned by the visual interface.
-			LightScene					*scene;		//!< Home light scene
-			VisualInterface				*parent_interface;	//!< Parent visual interface
+		index_t						index,		//!< Index of this light. Assigned by the visual interface. (light is disabled if index == UNSIGNED_UNDEF (-1))
+									origin;		//!< Index of this light in the light list. Assigned by the visual interface.
+		LightScene					*scene;		//!< Home light scene
+		VisualInterface				*parent_interface;	//!< Parent visual interface
 			
-			bool						moved,				//!< Signales the parent visual interface to update the light position when lighting is enabled the next time (set only if lighting is currently disabled)
-										modified;			//!< Signales the parent visual interface to update the light configuration (and position) when lighting is enabled the next time (set only if lighting is currently disabled)
+		bool						moved,				//!< Signales the parent visual interface to update the light position when lighting is enabled the next time (set only if lighting is currently disabled)
+									modified;			//!< Signales the parent visual interface to update the light configuration (and position) when lighting is enabled the next time (set only if lighting is currently disabled)
 		
 										
-										Light(LightScene*scene_,VisualInterface*interface_);
-			void						update();
+									Light(LightScene*scene_,VisualInterface*interface_);
+		void						update();
 
 	public:
 
-	virtual								~Light();
+		virtual						~Light();
 
-			Light*						setType(Type type);		//!< Set light type @return this
+		Light*						setType(Type type);		//!< Set light type @return this
 			
-			bool						isShining() const;		//!< Checks if local light is enabled, its light scene the active scene and lighting enabled
-			bool						isEnabled()	const;		//!< Checks if this light is enabled
-			Light*						enable();				//!< Enable light @return this
-			Light*						disable();				//!< Disable light @return this
-			Light*						setEnabled(bool);		//!< Set light enabled status @return this
+		bool						isShining() const;		//!< Checks if local light is enabled, its light scene the active scene and lighting enabled
+		bool						isEnabled()	const;		//!< Checks if this light is enabled
+		Light*						enable();				//!< Enable light @return this
+		Light*						disable();				//!< Disable light @return this
+		Light*						setEnabled(bool);		//!< Set light enabled status @return this
 			
-			void						destroy();				//!< Disables and discards (deletes) the local object.
-			void						discard();				//!< Disables and discards (deletes) the local object.
+		void						destroy();				//!< Disables and discards (deletes) the local object.
+		void						discard();				//!< Disables and discards (deletes) the local object.
 			
 
-			Light*						setPosition(float x, float y, float z);		//!< Set light position. Auto normalized if type is Direct @return this
-		template <typename T>
-			Light*						setPosition(const TVec3<T>&p)				//!< Set light position {x,y,z}. Auto normalized if type is Direct @return this
-										{
-											return setPosition((float)p.x,(float)p.y,(float)p.z);
-										}
-			Light*						moveTo(float x, float y, float z);			//!< Identical to setPosition() @return this
-		template <typename T>
-			Light*						moveTo(const TVec3<T>&p)						//!< Identical to setPosition() @return this
-										{
-											return setPosition((float)p.x,(float)p.y,(float)p.z);
-										}
+		Light*						setPosition(float x, float y, float z);		//!< Set light position. Auto normalized if type is Direct @return this
+	template <typename T>
+		Light*						setPosition(const TVec3<T>&p)				//!< Set light position {x,y,z}. Auto normalized if type is Direct @return this
+									{
+										return setPosition((float)p.x,(float)p.y,(float)p.z);
+									}
+		Light*						moveTo(float x, float y, float z);			//!< Identical to setPosition() @return this
+	template <typename T>
+		Light*						moveTo(const TVec3<T>&p)						//!< Identical to setPosition() @return this
+									{
+										return setPosition((float)p.x,(float)p.y,(float)p.z);
+									}
 			
-			Light*						SetDirection(float x, float y, float z);			//!< Set spot direction if spot or negative position otherwise (auto normalized) @return this
-			Light*						SetDirection(const TVec3<float>&c);				//!< Set spot direction if spot or negative position otherwise (auto normalized) @return this
-			Light*						SetDirection(const TVec3<double>&c);				//!< Set spot direction if spot or negative position otherwise (auto normalized) @return this
-			Light*						setNegativeDirection(float x, float y, float z);	//!< Set negative spot direction if spot or positive position otherwise (auto normalized) @return this
-			Light*						setNegativeDirection(const TVec3<float>&c);		//!< Set negative spot direction if spot or positive position otherwise (auto normalized) @return this
-			Light*						setNegativeDirection(const TVec3<double>&c);		//!< Set negative spot direction if spot or positive position otherwise (auto normalized) @return this
+		Light*						SetDirection(float x, float y, float z);			//!< Set spot direction if spot or negative position otherwise (auto normalized) @return this
+		Light*						SetDirection(const TVec3<float>&c);				//!< Set spot direction if spot or negative position otherwise (auto normalized) @return this
+		Light*						SetDirection(const TVec3<double>&c);				//!< Set spot direction if spot or negative position otherwise (auto normalized) @return this
+		Light*						setNegativeDirection(float x, float y, float z);	//!< Set negative spot direction if spot or positive position otherwise (auto normalized) @return this
+		Light*						setNegativeDirection(const TVec3<float>&c);		//!< Set negative spot direction if spot or positive position otherwise (auto normalized) @return this
+		Light*						setNegativeDirection(const TVec3<double>&c);		//!< Set negative spot direction if spot or positive position otherwise (auto normalized) @return this
 			
-			Light*						setSpotDirection(const TVec3<float>&c);	//!< Set spot direction {x, y, z} (auto normalized) @return this
-			Light*						setSpotDirection(const TVec3<double>&c);	//!< Set spot direction {x, y, z} (auto normalized) @return this
-			Light*						setSpotDirection(float x, float y, float z);//!< Set spot direction (auto normalized) @return this
+		Light*						setSpotDirection(const TVec3<float>&c);	//!< Set spot direction {x, y, z} (auto normalized) @return this
+		Light*						setSpotDirection(const TVec3<double>&c);	//!< Set spot direction {x, y, z} (auto normalized) @return this
+		Light*						setSpotDirection(float x, float y, float z);//!< Set spot direction (auto normalized) @return this
 
-			Light*						setDiffuse(const TVec3<float>&c);		//!< Set diffuse color component {r, g, b} @return this
-			Light*						setDiffuse(const TVec3<double>&c);		//!< Set diffuse color component {r, g, b} @return this
-			Light*						setDiffuse(const TVec3<float>&c,float factor);		//!< Set diffuse color component {r, g, b} @return this
-			Light*						setDiffuse(const TVec3<double>&c,double factor);		//!< Set diffuse color component {r, g, b} @return this
-			Light*						setDiffuse(float r, float g, float b);		//!< Set diffuse color component @return this
-			Light*						setDiffuse(float intensity);				//!< Set diffuse color component (r, g, b to \b intensity ) @return this
-			Light*						setAmbient(const TVec3<float>&c);		//!< Set ambient color component {r, g, b} @return this
-			Light*						setAmbient(const TVec3<double>&c);		//!< Set ambient color component {r, g, b} @return this
-			Light*						setAmbient(const TVec3<float>&c,float factor);		//!< Set ambient color component {r, g, b} @return this
-			Light*						setAmbient(const TVec3<double>&c,double factor);		//!< Set ambient color component {r, g, b} @return this
-			Light*						setAmbient(float r, float g, float b);		//!< Set ambient color component @return this
-			Light*						setAmbient(float intensity);				//!< Set ambient color component (r, g, b to \b intensity ) @return this
-			Light*						setSpecular(const TVec3<float>&c);		//!< Set specular color component {r,g,b} @return this
-			Light*						setSpecular(const TVec3<double>&c);		//!< Set specular color component {r,g,b} @return this
-			Light*						setSpecular(const TVec3<float>&c,float factor);		//!< Set specular color component {r,g,b} @return this
-			Light*						setSpecular(const TVec3<double>&c,double factor);		//!< Set specular color component {r,g,b} @return this
-			Light*						setSpecular(float r, float g, float b);		//!< Set specular color component @return this
-			Light*						setSpecular(float intensity);				//!< Set specular color component (r, g, b to \b intensity ) @return this
+		Light*						setDiffuse(const TVec3<float>&c);		//!< Set diffuse color component {r, g, b} @return this
+		Light*						setDiffuse(const TVec3<double>&c);		//!< Set diffuse color component {r, g, b} @return this
+		Light*						setDiffuse(const TVec3<float>&c,float factor);		//!< Set diffuse color component {r, g, b} @return this
+		Light*						setDiffuse(const TVec3<double>&c,double factor);		//!< Set diffuse color component {r, g, b} @return this
+		Light*						setDiffuse(float r, float g, float b);		//!< Set diffuse color component @return this
+		Light*						setDiffuse(float intensity);				//!< Set diffuse color component (r, g, b to \b intensity ) @return this
+		Light*						setAmbient(const TVec3<float>&c);		//!< Set ambient color component {r, g, b} @return this
+		Light*						setAmbient(const TVec3<double>&c);		//!< Set ambient color component {r, g, b} @return this
+		Light*						setAmbient(const TVec3<float>&c,float factor);		//!< Set ambient color component {r, g, b} @return this
+		Light*						setAmbient(const TVec3<double>&c,double factor);		//!< Set ambient color component {r, g, b} @return this
+		Light*						setAmbient(float r, float g, float b);		//!< Set ambient color component @return this
+		Light*						setAmbient(float intensity);				//!< Set ambient color component (r, g, b to \b intensity ) @return this
+		Light*						setSpecular(const TVec3<float>&c);		//!< Set specular color component {r,g,b} @return this
+		Light*						setSpecular(const TVec3<double>&c);		//!< Set specular color component {r,g,b} @return this
+		Light*						setSpecular(const TVec3<float>&c,float factor);		//!< Set specular color component {r,g,b} @return this
+		Light*						setSpecular(const TVec3<double>&c,double factor);		//!< Set specular color component {r,g,b} @return this
+		Light*						setSpecular(float r, float g, float b);		//!< Set specular color component @return this
+		Light*						setSpecular(float intensity);				//!< Set specular color component (r, g, b to \b intensity ) @return this
 			
-			Light*						setSpotCutoff(float angle);					//!< Set spot cutoff angle (0-90) @return this
-			Light*						setSpotExponent(BYTE exponent);				//!< Set spot exponent (0-128) @return this
-			Light*						setExponent(BYTE exponent);					//!< Set spot exponent (0-128)
+		Light*						setSpotCutoff(float angle);					//!< Set spot cutoff angle (0-90) @return this
+		Light*						setSpotExponent(BYTE exponent);				//!< Set spot exponent (0-128) @return this
+		Light*						setExponent(BYTE exponent);					//!< Set spot exponent (0-128)
 			
-			Light*						setAttenuation(float constant, float linear, float quadratic);	//!< Set attenuation @return this
+		Light*						setAttenuation(float constant, float linear, float quadratic);	//!< Set attenuation @return this
 	};
 
 
@@ -248,8 +246,8 @@ namespace Engine
 	class Fog
 	{
 	public:
-			float						near_range, //!< Fog start (should be small compared to the scene)
-										far_range,	//!< Fog end (should be large compared to the scene)
+			float						nearRange, //!< Fog start (should be small compared to the scene)
+										farRange,	//!< Fog end (should be large compared to the scene)
 										density;	//!< Fog density
 			TVec4<float>				color;	//!< Fog color - the 4th component should be 1.0f
 			enum
@@ -259,24 +257,24 @@ namespace Engine
 				Exp2					//!< Exp2 fog
 			}							type;		//!< Fog type
 			
-										Fog():near_range(0.1),far_range(100),density(1.0),type(Linear)
+										Fog():nearRange(0.1),farRange(100),density(1.0),type(Linear)
 										{
 											Vec::set(color,1);
 										}
-										Fog(float range, float red=1, float green=1, float blue=1):near_range(0.1),far_range(range),density(1.0),type(Linear)
+										Fog(float range, float red=1, float green=1, float blue=1):nearRange(0.1),farRange(range),density(1.0),type(Linear)
 										{
 											Vec::def(color,red,green,blue,1);
 										}
-										Fog(float near_range_,float range, float red, float green, float blue):near_range(near_range_),far_range(range),density(1.0),type(Linear)
+										Fog(float near_range_,float range, float red, float green, float blue):nearRange(near_range_),farRange(range),density(1.0),type(Linear)
 										{
 											Vec::def(color,red,green,blue,1);
 										}
-										Fog(float range, const TVec3<>&fog_color):near_range(0.1),far_range(range),density(1.0),type(Linear)
+										Fog(float range, const TVec3<>&fog_color):nearRange(0.1),farRange(range),density(1.0),type(Linear)
 										{
 											color.rgb = fog_color;
 											color.alpha = 1;
 										}
-										Fog(float near_range_, float range, const TVec3<>&fog_color):near_range(near_range_),far_range(range),density(1.0),type(Linear)
+										Fog(float near_range_, float range, const TVec3<>&fog_color):nearRange(near_range_),farRange(range),density(1.0),type(Linear)
 										{
 											color.rgb = fog_color;
 											color.alpha = 1;
@@ -650,7 +648,7 @@ namespace Engine
 
 			inline	char		compareTo(const MaterialComposition<Texture>&other)	const
 			{
-				return OrthographicComparison(MaterialConfiguration::compareTo(other)).addComparison(textures,other.textures);
+				return OrthographicComparison(MaterialConfiguration::compareTo(other)).AddComparison(textures,other.textures);
 			}
 
 			inline	bool		operator!=(const MaterialComposition<Texture>&other)	const	{return !operator==(other);}
@@ -745,27 +743,27 @@ namespace Engine
 	class VisualInterface
 	{
 	protected:
-			index_t							active_scene_index,		//!< Current light scenario index
-											scene_index_counter;
-			IndexContainer<LightScene>		scenes;				//!< Light scenario container (index mapped)
-			LightScene						*active_scene;		//!< Currently active light scenario
-			bool							lighting_enabled;	//!< Lighting is currently enabled (some rendering processes behave differently when lighting is enabled)
+		index_t							active_scene_index,		//!< Current light scenario index
+										scene_index_counter;
+		Ctr::IndexContainer<LightScene>	scenes;				//!< Light scenario container (index mapped)
+		LightScene						*active_scene;		//!< Currently active light scenario
+		bool							lighting_enabled;	//!< Lighting is currently enabled (some rendering processes behave differently when lighting is enabled)
 		
-			friend class Light;
+		friend class Light;
 
 
-	virtual void							enableLight(Light*)=0;
-	virtual	void							disableLight(Light*)=0;
-	virtual	void							updateLight(Light*)=0;
-	virtual void							updateLightPosition(Light*)=0;
+		virtual void					enableLight(const PLight&)=0;
+		virtual	void					disableLight(const PLight&)=0;
+		virtual	void					updateLight(const PLight&)=0;
+		virtual void					updateLightPosition(const PLight&)=0;
 
-	static	index_t							getIndexOf(Light*);
-	static	void							setIndexOf(Light*,index_t);
-	static	LightScene*						getLightSceneOf(Light*);
-	static	bool							hasMoved(Light*);
-	static	bool							wasModified(Light*);
-	static	void							setHasMoved(Light*,bool);
-	static	void							setWasModified(Light*,bool);
+		static	index_t					getIndexOf(const PLight&);
+		static	void					setIndexOf(const PLight&,index_t);
+		static	LightScene*				getLightSceneOf(const PLight&);
+		static	bool					hasMoved(const PLight&);
+		static	bool					wasModified(const PLight&);
+		static	void					setHasMoved(const PLight&,bool);
+		static	void					setWasModified(const PLight&,bool);
 			
 			
 
@@ -773,88 +771,23 @@ namespace Engine
 	public:
 
 		/**
-			Interface mutex to shield the underlieing visual language (i.e. OpenGL or Direct3D) from multiple parallel calls.
+		Interface mutex to shield the underlieing visual language (i.e. OpenGL or Direct3D) from multiple parallel calls.
 		*/
-	static	Mutex							vs_mutex;
+		static	Sys::Mutex					vs_mutex;
 
 											VisualInterface();
 		
-	virtual	Light*							createLight(bool enable=true);			//!< Creates a new light. \param enable Directly enable created light (if possible). \return New light in the currently active light scenario
-	virtual	void							discardLight(Light*light);			//!< Discards a light. \param light Light to discard. The light is not required to belong to the currently active light scenario.
-	virtual	void							clearLights();							//!< Discards all lights in the active light scenery
-	virtual	void							resetLighting();						//!< Discards all light scenarios except the primary and clears the primary light scenario
+		virtual	PLight						createLight(bool enable=true);			//!< Creates a new light. \param enable Directly enable created light (if possible). \return New light in the currently active light scenario
+		virtual	void						discardLight(const PLight&light);			//!< Discards a light. \param light Light to discard. The light is not required to belong to the currently active light scenario.
+		virtual	void						clearLights();							//!< Discards all lights in the active light scenery
+		virtual	void						resetLighting();						//!< Discards all light scenarios except the primary and clears the primary light scenario
 		
-			index_t							createLightScene();						//!< Creates a new light scenario (collection of lights). \return Index of a new light scenario.
-			void							discardLightScene(index_t scenario);	//!< Erases a given light scenario. \param scenario Index of an existing scenario that should be erased.
-			bool							isLightScene(index_t scenario)	const;	//!< Queries if the specified light scenario exists. \param scenario Index of the light scenario that should be queried.
-	virtual	bool							pickLightScene(index_t  scenario)=0;	//!< Picks a light scenario as active scenario (may be slow). \param scenario Index of an existing scenario that should be used from this point on (0 = default scenario). \return true on success
-			index_t							getLightScene()	const;
-			void							getSceneLights(ArrayData<Light*>&array, bool enabled_only);	//!< Retrieves pointers to all lights in the active light scene
-			void							getSceneLights(ArrayData<LightData*>&array, bool enabled_only);	//!< Retrieves pointers to all lights in the active light scene
-
-	/*
-
-		typedef			<>				FloatType;			//used for vertex-data
-		typedef			<>				IndexType;			//used for index-data
-		typedef			<>				VBOReference;		//reference to uploaded vertex data
-		typedef			<>				IBOReference;		//reference to uploaded index data
-		typedef			<>				TextureReference;	//reference to uploaded texture data
-		typedef			<>				ShaderReference;	//reference to uploaded shader data
-
-
-		static			bool			textureObject(TextureObject&target,const Image*image, unsigned faces = 1, unsigned texture_mode=TM_TRILINEAR, bool patternize=true);
-		static			TextureObject	textureObject(const Image*image, unsigned faces = 1, unsigned texture_mode=TM_TRILINEAR, bool patternize=true);
-		static			bool			textureObject(TextureObject&target,const Image**image,unsigned faces = 1, unsigned texture_mode=TM_TRILINEAR, bool patternize=true);
-		static			TextureObject	textureObject(const Image**image, unsigned faces = 1, unsigned texture_mode=TM_TRILINEAR, bool patternize=true);
-		static			bool			vertexObject(VertexObject&target,FloatType*data,unsigned length);
-		static			VertexObject	vertexObject(FloatType*data, unsigned length);
-		static			bool			indexObject(IndexObject&target,IndexType*data,unsigned length);
-		static			IndexObject		indexObject(GLuint*data, unsigned length);
-		static inline	TextureObject	emptyTextureObject();
-		static inline	VertexObject	emptyVertexObject();
-		static inline	IndexObject		emptyIndexObject();
-		static			void			duplicateTexture(const TextureObject&object);
-		static			void			discardTexture(const TextureObject&object);
-		static			void			discardVertices(const VertexObject&object);
-		static			void			discardIndices(const IndexObject&object);
-		static			void			alterBinding(TextureObject*list);
-		static			void			alterBinding(unsigned layer, const TextureObject&object);
-	T	static			void			bindMaterial(CVMaterialInfo<C>*info,TextureObject*list);
-	T	static			void			bindVertexObject(C*vdata, const VertexObject&vobj, unsigned coord_band=3, unsigned tlyr=0);
-		static			void			bindIndexObject(const IndexObject&iobj);
-	T2	static inline	void			render(C0*system, C1*idata, unsigned vertex_offset, unsigned vertex_count);
-	T	static inline	void			render(C*idata, unsigned vertex_offset, unsigned vertex_count);
-	T2	static inline	void			renderStrip(C0*system, C1*idata, unsigned vertex_offset, unsigned vertex_count);
-	T	static inline	void			renderStrip(C*idata, unsigned vertex_offset, unsigned vertex_count);
-		static			void			render(const Structure&structure);
-	T	static inline	void			enterSubSystem(C*system);
-		static inline	void			exitSubSystem();
-		static			void			unbindAll();
-	T	static			void			loadModelview(const C*matrix);
-	T	static			void			loadProjection(const C*matrix);
-						void			nextFrameNoClr();
-						void			nextFrame();
-
-		static			String			status();
-
-
-	#if SYSTEM==WINDOWS
-						bool			createContext(HINSTANCE hInstance, HWND hWnd, VisualConfig&config);
-	#elif SYSTEM==UNIX
-						XVisualInfo*	createContext(Display*connection, VisualConfig&config);
-						bool			bindContext(Window window);
-	#endif
-						void			destroyContext();
-						void			setRegion(const RECT&region);
-						const char*		GetErrorStr();
-						int				getErrorCode();
-						const char*		name();
-	#if SYSTEM==WINDOWS
-						HDC				getDC();
-	#elif SYSTEM==UNIX
-						XVisual*		getVisual();
-	#endif
-	*/
+		index_t								createLightScene();						//!< Creates a new light scenario (collection of lights). \return Index of a new light scenario.
+		void								discardLightScene(index_t scenario);	//!< Erases a given light scenario. \param scenario Index of an existing scenario that should be erased.
+		bool								isLightScene(index_t scenario)	const;	//!< Queries if the specified light scenario exists. \param scenario Index of the light scenario that should be queried.
+		virtual	bool						pickLightScene(index_t  scenario)=0;	//!< Picks a light scenario as active scenario (may be slow). \param scenario Index of an existing scenario that should be used from this point on (0 = default scenario). \return true on success
+		index_t								getLightScene()	const;
+		void								getSceneLights(ArrayData<PLight>&array, bool enabled_only);	//!< Retrieves pointers to all lights in the active light scene
 	};
 }
 

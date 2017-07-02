@@ -916,8 +916,8 @@ namespace Engine
 	        glEnable(GL_FOG);
 	    else
 	        glDisable(GL_FOG);
-	    float   near = fabs(fog.near_range),
-	            far = fabs(fog.far_range);
+	    float   near = fabs(fog.nearRange),
+	            far = fabs(fog.farRange);
 	    if (far < near)
 	        swp(near,far);
 

@@ -1,4 +1,3 @@
-#include "../../global_root.h"
 #include "extensions.h"
 
 /******************************************************************
@@ -16,7 +15,7 @@ whose functions are derived in groups.
 	#endif
 	Engine::GLShader::Template::RenderConfiguration		Engine::GLShader::Template::globalRenderConfig;
 
-	Buffer<Engine::GLShader::Template::LightShadowAttachment,0,Swap>		Engine::GLShader::Template::shadowAttachments;
+	DeltaWorks::Ctr::Buffer<Engine::GLShader::Template::LightShadowAttachment,0,DeltaWorks::Swap>		Engine::GLShader::Template::shadowAttachments;
 
 
 	#define EXT_CONTEXT(name)					{group	= #name;}
@@ -28,6 +27,9 @@ whose functions are derived in groups.
 	#undef glBindBuffer
 	#undef glBufferData
 	#undef glDeleteBuffers
+
+
+	//namespace Ctr = DeltaWorks::Ctr;
 
 	namespace OpenGLExtPointer
 	{
@@ -948,7 +950,7 @@ namespace Engine
 					
 					for (unsigned k	= 0; k < ARRAYSIZE(type); k++)
 					{
-						const char*myAt = ::CharFunctions::strstr(at,type[k].c_str());
+						const char*myAt = DeltaWorks::CharFunctions::strstr(at,type[k].c_str());
 						if (!myAt)
 							continue;
 						if (!min || myAt < min)
@@ -991,7 +993,7 @@ namespace Engine
 					config.trim_characters.set('\n');
 					config.trim_characters.set('\r');
 				}
-				static StringList tokens;
+				static DeltaWorks::Ctr::StringList tokens;
 				Tokenizer::tokenize(source, config, tokens);	//!< @overload
 
 				for (index_t i = 0; i+1 < tokens.count();)
@@ -1174,28 +1176,28 @@ namespace Engine
 				throw Except::Renderer::ShaderRejected(Report());
 		}
 
-		/*static*/ void				Instance::_ParseUniformVariableInitializers(String&source,BasicBuffer<Initializer,Strategy::Swap>& initializers)
+		/*static*/ void				Instance::_ParseUniformVariableInitializers(String&source,Ctr::BasicBuffer<Initializer,Strategy::Swap>& initializers)
 		{
 			const char*str = source.c_str(),*begin = NULL;
 			index_t offset = initializers.count();
-			while ((begin = ::CharFunctions::strstr(str,"<:=")))
+			while ((begin = CharFunctions::strstr(str,"<:=")))
 			{
 				const char*valueBegin = begin+3;
 				const char*foundAt = begin;
 				begin--;
-				while (begin > str && isWhitespace( *begin ) )
+				while (begin > str && IsWhitespace( *begin ) )
 					begin--;
 				const char*nameEnd = begin+1;
-				while (begin > str && (::CharFunctions::isalnum(*begin) || *begin == '_'))
+				while (begin > str && (CharFunctions::isalnum(*begin) || *begin == '_'))
 					begin--;
 				begin++;
 				Initializer&init = initializers.append();
 				init.variableName = String(begin,nameEnd-begin);
 
-				while (*valueBegin && isWhitespace( *valueBegin ))
+				while (*valueBegin && IsWhitespace( *valueBegin ))
 					valueBegin++;
 				const char*valueEnd = valueBegin;
-				while (*valueEnd && *valueEnd != '>' && !isWhitespace(*valueEnd))
+				while (*valueEnd && *valueEnd != '>' && !IsWhitespace(*valueEnd))
 					valueEnd++;
 				ASSERT__(convert(valueBegin,valueEnd-valueBegin,init.intValue));
 				str = strchr(valueEnd,'>');
@@ -1226,7 +1228,7 @@ namespace Engine
 			Clear();
 			this->composition = composition_;
 			glGetError();//flush errors
-			Buffer<Initializer,0,Strategy::Swap>	initializers;
+			Ctr::Buffer<Initializer,0,Strategy::Swap>	initializers;
 			_ParseUniformVariableInitializers(composition.sharedSource,initializers);
 			_ParseUniformVariableInitializers(composition.vertexSource,initializers);
 			_ParseUniformVariableInitializers(composition.fragmentSource,initializers);
@@ -1384,13 +1386,13 @@ namespace Engine
 			glGetObjectParameteriv(programHandle, GL_OBJECT_INFO_LOG_LENGTH_ARB, &logLen);
 			if (logLen > 0)
 			{
-				char	*logStr	= SHIELDED_ARRAY(new char[logLen],logLen);
+				char	*logStr	= alloc<char>(logLen);
 				int		written(0);
 				glGetInfoLog(programHandle, logLen, &written, logStr);
 				log<<"\n-- program validation --\n";
 				log<<logStr;
 				log<<nl;
-				DISCARD_ARRAY(logStr);
+				dealloc(logStr);
 			}
 
 			int validated;
@@ -1523,13 +1525,13 @@ namespace Engine
 				glGetObjectParameteriv(programHandle, GL_OBJECT_INFO_LOG_LENGTH_ARB, &logLen);
 				if (logLen > 0)
 				{
-					char	*logStr	= SHIELDED_ARRAY(new char[logLen],logLen);
+					char	*logStr	= alloc<char>(logLen);
 					int		written(0);
 					glGetInfoLog(programHandle, logLen, &written, logStr);
 					log<<"\n-- program validation --\n";
 					log<<logStr;
 					log<<nl;
-					DISCARD_ARRAY(logStr);
+					dealloc(logStr);
 				}
 
 				int validated;
@@ -1757,7 +1759,7 @@ namespace Engine
 			{
 				if (type == LightLoop)
 					return true;
-				for (index_t i = 0; i < children; i++)
+				for (index_t i = 0; i < children.Count(); i++)
 					if (children[i]->UsesLighting())
 						return true;
 				return false;
@@ -1778,9 +1780,9 @@ namespace Engine
 							innerLines[i].includes->Block::Assemble(target,userConfig,renderConfig,type,lightIndex);*/
 					}
 				bool isElse = false;
-				for (index_t i = 0; i < children; i++)
+				for (index_t i = 0; i < children.Count(); i++)
 				{
-					Block*child = children[i];
+					PBlock child = children[i];
 					bool doAssemble=false;
 					switch (child->type)
 					{
@@ -1830,7 +1832,7 @@ namespace Engine
 			}
 	
 	
-			Template::Expression*	Template::RootBlock::_ProcessLayer(TokenList&tokens,VariableMap&map, index_t begin, index_t end, String&error)
+			Template::PExpression	Template::RootBlock::_ProcessLayer(TokenList&tokens,VariableMap&map, index_t begin, index_t end, String&error)
 			{
 				index_t level = 0,
 						blockBegin;
@@ -1841,11 +1843,11 @@ namespace Engine
 				cout << endl;
 		 */		
 		
-				List::Vector<Expression>	expressions;
+				Ctr::Vector<PExpression>	expressions;
 				for (index_t i = begin; i < end; i++)
 				{
 					const TToken&token = tokens[i];
-					Expression*expression=NULL;
+					PExpression expression;
 			
 					switch (token.ident&Token::Mask)
 					{
@@ -1868,13 +1870,13 @@ namespace Engine
 						switch (token.ident&Token::Mask)
 						{
 							case Token::And:
-								expression = SignalNew(new AndExpression());
+								expression.reset(new AndExpression());
 							break;
 							case Token::Or:
-								expression = SignalNew(new OrExpression());
+								expression.reset(new OrExpression());
 							break;
 							case Token::Not:
-								expression = SignalNew(new NegationExpression());
+								expression.reset(new NegationExpression());
 							break;
 							case Token::String:
 							{
@@ -1888,64 +1890,58 @@ namespace Engine
 										convertable = false;
 								if (convertable)
 								{
-									expression = SignalNew(new ConstantExpression());
-									((ConstantExpression*)expression)->value = val;
+									expression.reset(new ConstantExpression(val));
 								}
 								else
 								{
 									if (token.content == "omni")
 									{
-										expression = SignalNew(new LightTypeExpression());
-										((LightTypeExpression*)expression)->type = Light::Omni;
+										expression.reset(new LightTypeExpression(Light::Omni));
 									}
 									elif (token.content == "direct")
 									{
-										expression = SignalNew(new LightTypeExpression());
-										((LightTypeExpression*)expression)->type = Light::Direct;
+										expression.reset(new LightTypeExpression(Light::Direct));
 									}
 									elif (token.content == "spot")
 									{
-										expression = SignalNew(new LightTypeExpression());
-										((LightTypeExpression*)expression)->type = Light::Spot;
+										expression .reset(new LightTypeExpression(Light::Spot));
 									}
 									else
 									{
-										expression = SignalNew(new VariableExpression());
-										((VariableExpression*)expression)->name = token.content;
-										((VariableExpression*)expression)->index = map.Define(token.content);
+										expression.reset(new VariableExpression(token.content,map.Define(token.content)));
 									}
 								}
 							}
 							break;
 							case Token::Plus:
-								expression = SignalNew(new SumExpression());
+								expression.reset(new SumExpression());
 							break;
 							case Token::Minus:
-								expression = SignalNew(new DifferenceExpression());
+								expression.reset(new DifferenceExpression());
 							break;
 							case Token::Times:
-								expression = SignalNew(new ProductExpression());
+								expression.reset(new ProductExpression());
 							break;
 							case Token::Divide:
-								expression = SignalNew(new QuotientExpression());
+								expression .reset(new QuotientExpression());
 							break;
 							case Token::Equals:
-								expression = SignalNew(new EqualExpression());
+								expression .reset(new EqualExpression());
 							break;
 							case Token::Differs:
-								expression = SignalNew(new NotEqualExpression());
+								expression .reset(new NotEqualExpression());
 							break;
 							case Token::Greater:
-								expression = SignalNew(new GreaterExpression());
+								expression .reset(new GreaterExpression());
 							break;
 							case Token::Less:
-								expression = SignalNew(new LessExpression());
+								expression .reset(new LessExpression());
 							break;
 							case Token::GreaterOrEqual:
-								expression = SignalNew(new GreaterOrEqualExpression());
+								expression .reset(new GreaterOrEqualExpression());
 							break;
 							case Token::LessOrEqual:
-								expression = SignalNew(new LessOrEqualExpression());
+								expression .reset(new LessOrEqualExpression());
 							break;
 						}
 					if (expression)
@@ -1956,30 +1952,30 @@ namespace Engine
 				}
 				for (unsigned level = 1; level <= 5; level++)
 				{
-					for (unsigned i = 0; i < expressions; i++)
+					for (index_t i = 0; i < expressions.Count(); i++)
 					{
-						Expression*expression = expressions[i];
+						PExpression expression = expressions[i];
 						if (expression->level == level*0x1000)
 						{
 							if (expression->AdoptRight(expressions[i+1]))
-								expressions.drop(i+1);
-							if (expression->AdoptLeft(expressions[i-1]))
+								expressions.Erase(i+1);
+							if (i > 0 && expression->AdoptLeft(expressions[i-1]))
 							{
-								if (expressions.drop(i-1))
-									i--;
+								expressions.Erase(i-1);
+								i--;
 							}
 						}
 					}
 				}
-				if (expressions != 1)
+				if (expressions.Count() != 1)
 				{
 					error = "Expression parsing failed";
-					return NULL;
+					return PExpression();
 				}
-				return expressions.drop(TypeInfo<index_t>::zero);
+				return expressions.First();
 			}
 	
-			Template::Expression*	Template::RootBlock::_ParseCondition(const char*condition, VariableMap&map, String&error)
+			Template::PExpression	Template::RootBlock::_ParseCondition(const char*condition, VariableMap&map, String&error)
 			{
 				static StringTokenizer	tokenizer;
 				static bool				initialized = false;
@@ -2020,15 +2016,12 @@ namespace Engine
 		
 				tokenizer.parse(condition,tokens);
 		
-				Expression*result = _ProcessLayer(tokens,map,0,tokens.count(),error);
+				PExpression result = _ProcessLayer(tokens,map,0,tokens.count(),error);
 				if (result && !result->Validate())
 				{
 					error = "Expression '"+result->ConvertToString()+"' failed to validate";
-					Discard(result);
-					return NULL;
+					return PExpression();
 				}
-		/* 		if (result)
-					cout << result->ToString()<<endl; */
 				return result;
 			}
 	
@@ -2042,7 +2035,7 @@ namespace Engine
 				{
 					if (inComment)
 					{
-						c = ::CharFunctions::strstr(c,"*/");
+						c = CharFunctions::strstr(c,"*/");
 						if (c)
 						{
 							unsigned index = commentStart-line.c_str();
@@ -2059,7 +2052,7 @@ namespace Engine
 					}
 			
 			
-					c = ::CharFunctions::strchr(c,'/');
+					c = CharFunctions::strchr(c,'/');
 					if (!c)
 						return;
 					c++;
@@ -2107,8 +2100,8 @@ namespace Engine
 				omnilightInvoked = source.findWord("omniLight")!=0;
 				directlightInvoked = source.findWord("directLight")!=0;
 
-				Clear();
-				Block*current = this;
+				root.reset(new Block());
+				PBlock current = root;
 				index_t blockBegin = 0;
 				Array<String,Adopt>	lines;
 		
@@ -2151,17 +2144,17 @@ namespace Engine
 				for (index_t i = 0; i < lines.count(); i++)
 				{
 					const char*c = lines[i].c_str();
-					while (*c && isWhitespace(*c))
+					while (*c && IsWhitespace(*c))
 						c++;
 					if (*c != '#')
 						continue;
 			
 
 					c++;
-					while (*c && isWhitespace(*c))
+					while (*c && IsWhitespace(*c))
 						c++;
 					const char*w = c;
-					while (*c && !isWhitespace(*c))
+					while (*c && !IsWhitespace(*c))
 						c++;
 					String	word(w,c-w);
 			
@@ -2170,7 +2163,7 @@ namespace Engine
 			
 			
 			
-					Array<Line,Adopt>&target = current->children
+					Array<Line,Adopt>&target = current->children.IsNotEmpty()
 												? current->children.last()->trailingLines
 												: current->innerLines;
 			
@@ -2189,12 +2182,12 @@ namespace Engine
 
 					if (word=="endlight")
 					{
-						if (current->parent && (current->type == LightLoop))
+						if (current->parent && (current->type == Block::LightLoop))
 							current = current->parent;
 						else
 						{
 							logOut << "misplaced #"<<word<<" in line "<<(line+i+1)<<nl;
-							if (current->parent && (current->type == Conditional || current->type == ElseConditional || current->type == Else))
+							if (current->parent && (current->type == Block::Conditional || current->type == Block::ElseConditional || current->type == Block::Else))
 								logOut << "    (expected #endif)"<<nl;
 							LogLine(lines,i,logOut);
 							return false;
@@ -2202,12 +2195,12 @@ namespace Engine
 					}
 					elif (word=="endif")
 					{
-						if (current->parent && (current->type == Conditional || current->type == ElseConditional || current->type == Else))
+						if (current->parent && (current->type == Block::Conditional || current->type == Block::ElseConditional || current->type == Block::Else))
 							current = current->parent;
 						else
 						{
 							logOut << "misplaced #"<<word<<" in line "<<(line+i+1)<<nl;
-							if (current->parent && (current->type == LightLoop))
+							if (current->parent && (current->type == Block::LightLoop))
 								logOut << "    (expected #endlight)"<<nl;
 							LogLine(lines,i,logOut);
 							return false;
@@ -2218,11 +2211,12 @@ namespace Engine
 						if (*c)
 							c++;
 						/*...*/
-						Block*parent = current;
-						current = current->children.append();
+						PBlock parent = current;
+						current.reset(new Block());
+						parent->children.append(current);
 						current->parent = parent;
 						current->lightLoopConstant = parent->lightLoopConstant;
-						current->type = Conditional;
+						current->type = Block::Conditional;
 						String error;
 						current->condition = _ParseCondition(c,map,error);
 						if (!current->condition)
@@ -2245,19 +2239,20 @@ namespace Engine
 						}
 				
 						{
-							Block*predecessor = current->parent->children.last();
-							if (!predecessor || (predecessor->type != Conditional && predecessor->type != ElseConditional))
+							PBlock predecessor = current->parent->children.last();
+							if (!predecessor || (predecessor->type != Block::Conditional && predecessor->type != Block::ElseConditional))
 							{
 								logOut << "misplaced #"<<word<<" in line "<<(line+i+1)<<nl;
 								LogLine(lines,i,logOut);
 								return false;
 							}
 						}
-						Block*parent = current->parent;
-						current = current->parent->children.append();
+						PBlock parent = current->parent;
+						current.reset(new Block());
+						parent->children.append(current);
 						current->parent = parent;
 						current->lightLoopConstant = parent->lightLoopConstant;
-						current->type = ElseConditional;
+						current->type = Block::ElseConditional;
 						String  error;
 						current->condition = _ParseCondition(c,map,error);
 						if (!current->condition)
@@ -2278,28 +2273,30 @@ namespace Engine
 						}
 				
 						{
-							Block*predecessor = current->parent->children.last();
-							if (!predecessor || (predecessor->type != Conditional && predecessor->type != ElseConditional))
+							PBlock predecessor = current->parent->children.last();
+							if (!predecessor || (predecessor->type != Block::Conditional && predecessor->type != Block::ElseConditional))
 							{
 								logOut << "misplaced #"<<word<<" in line "<<(line+i+1)<<nl;
 								LogLine(lines,i,logOut);
 								return false;
 							}
 						}
-						Block*parent = current->parent;
-						current = current->parent->children.append();
+						PBlock parent = current->parent;
+						current.reset(new Block());
+						parent->children.Append(current);
 						current->parent = parent;
 						current->lightLoopConstant = parent->lightLoopConstant;
-						current->type = Else;
+						current->type = Block::Else;
 					}
 					elif (word.beginsWith("light"))
 					{
 						if (*c)
 							c++;
-						Block*parent = current;
-						current = current->children.append();
+						PBlock parent = current;
+						current.reset(new Block());
+						parent->children.Append(current);
 						current->parent = parent;
-						current->type = LightLoop;
+						current->type = Block::LightLoop;
 						current->lightLoopConstant = c;
 						current->lightLoopConstant.trimThis();
 						if (current->lightLoopConstant.firstChar() != '<' || current->lightLoopConstant.lastChar() != '>')
@@ -2316,7 +2313,7 @@ namespace Engine
 						return false;
 					}
 				}
-				if (current != this)
+				if (current != root)
 				{
 					logOut << "missing #endif directive at line "<<lines.count()<<nl;
 					LogLine(lines,lines.count()-1,logOut);
@@ -2324,12 +2321,12 @@ namespace Engine
 				}
 		
 				{
-					Array<Line,Adopt>&target = current->children
+					Array<Line,Adopt>&target = current->children.IsNotEmpty()
 												? current->children.last()->trailingLines
 												: current->innerLines;
 			
 					target.SetSize(lines.count()-blockBegin);
-					for (unsigned j = 0; j < target.size(); j++)
+					for (index_t j = 0; j < target.size(); j++)
 					{
 						explode(current->lightLoopConstant,lines[blockBegin+j],target[j].segments);
 					}
@@ -2355,7 +2352,7 @@ namespace Engine
 			{
 				if (shadeInvoked || shade2Invoked || customShadeInvoked)
 					return true;
-				return Block::UsesLighting();
+				return root && root->UsesLighting();
 			}
 		
 			/*static*/ void		Template::RootBlock::_ShadowFunction(index_t level,StringBuffer&buffer)
@@ -2708,7 +2705,7 @@ namespace Engine
 
 	
 	
-				Block::Assemble(buffer,userConfig,renderConfig,Light::None,0);
+				root->Assemble(buffer,userConfig,renderConfig,Light::None,0);
 			}
 	
 	
@@ -2828,13 +2825,13 @@ namespace Engine
 						{
 							float position[4];
 							glGetLightfv(index,GL_POSITION,position);
-							if (nearingZero(position[3]))
+							if (M::nearingZero(position[3]))
 								lights << Light::Direct;
 							else
 							{
 								float cutoff;
 								glGetLightfv(index,GL_SPOT_CUTOFF,&cutoff);
-								if (cutoff < 180-getError<float>())
+								if (cutoff < 180-M::getError<float>())
 									lights << Light::Spot;
 								else
 									lights << Light::Omni;
@@ -2868,7 +2865,7 @@ namespace Engine
 			{
 				if (changed)
 				{
-					for (index_t i = 0; i < attachedConfigurations; i++)
+					for (index_t i = 0; i < attachedConfigurations.Count(); i++)
 						attachedConfigurations[i]->Adapt();
 					changed = false;
 				}
@@ -3017,25 +3014,25 @@ namespace Engine
 			}
 
 	
-			static HashContainer<String>	globalShaderIncludables;
+			static Ctr::HashContainer<String>	globalShaderIncludables;
 
 
 
 			Template::ConfigurationComponent::~ConfigurationComponent()
 			{
 				if (!application_shutting_down)
-					for (index_t i = 0; i < linkedConfigs; i++)
+					for (index_t i = 0; i < linkedConfigs.Count(); i++)
 						linkedConfigs[i]->SignalComponentDestroyed(this);
 			}
 
 			void	Template::ConfigurationComponent::Unreg(Configuration*config)
 			{
-				linkedConfigs.drop(config);
+				linkedConfigs.FindAndErase(config);
 			}
 
 			void	Template::ConfigurationComponent::Reg(Configuration*config)
 			{
-				linkedConfigs.append(config);
+				linkedConfigs.Append(config);
 			}
 
 			void	Template::ConfigurationComponent::SignalHasChanged()
@@ -3449,8 +3446,8 @@ namespace Engine
 	
 	
 	/*static*/	Extension::ResolutionTable		Extension::depthBufferTable;
-	/*static*/ Buffer<Extension::DepthBuffer,0>	Extension::depthBufferList;
-	/*static*/ IndexTable<index_t>				Extension::depthBufferMap;
+	/*static*/ Ctr::Buffer<Extension::DepthBuffer,0>	Extension::depthBufferList;
+	/*static*/ Ctr::IndexTable<index_t>				Extension::depthBufferMap;
 
 	/*static*/ GLuint		Extension::AllocateDepthBuffer(const Resolution&res)
 	{

@@ -457,26 +457,26 @@ namespace Engine
 		    updateSectionPositions();
 		}
 
-	template <class GL, class Font>
-		void	VisualConsole<GL,Font>::loadDefaults(TextureResource<GL>&archive, int window_width, int window_height, Key::Name close_key, const String&head_name, const String&head_light,const String&body,const String&foot, const String&foot_light)
-		{
-			float   wscale = 1024.0f/((float)window_width),
-		            hscale = vabs(768.0f/((float)window_height));
-		    setFinalRegion(0,1.0-0.5*hscale,0.4*wscale,0.5*hscale);
-		    setFontSize(0.015*wscale,0.02*hscale);
-		    setTextures(Console::Head,   archive.getTexture(head_name),
-		                                    archive.getTexture(head_light));
-		    setTexture(Console::Body,    archive.getTexture(body));
-		    setTextures(Console::Foot,   archive.getTexture(foot),
-		                                    archive.getTexture(foot_light));
-		    setPrimaryTranslation(0.38*wscale,0,Console::Head|Console::Body|Console::Foot);
-		    setSecondaryTranslation(0,-0.46*hscale,Console::Body|Console::Foot);
-		    setRelativeTextureArea(Console::Head,0,0.85,1,1);
-		    setRelativeTextureArea(Console::Body,0,0,1,1);
-		    setRelativeTextureArea(Console::Foot,0,0,1,0.15);
-		    setRelativeTextArea(Console::Body,0.01,0.05,0.94,0.95);
-			bindCloseKey(close_key);
-		}
+	//template <class GL, class Font>
+	//	void	VisualConsole<GL,Font>::loadDefaults(TextureResource<GL>&archive, int window_width, int window_height, Key::Name close_key, const String&head_name, const String&head_light,const String&body,const String&foot, const String&foot_light)
+	//	{
+	//		float   wscale = 1024.0f/((float)window_width),
+	//	            hscale = vabs(768.0f/((float)window_height));
+	//	    setFinalRegion(0,1.0-0.5*hscale,0.4*wscale,0.5*hscale);
+	//	    setFontSize(0.015*wscale,0.02*hscale);
+	//	    setTextures(Console::Head,   archive.getTexture(head_name),
+	//	                                    archive.getTexture(head_light));
+	//	    setTexture(Console::Body,    archive.getTexture(body));
+	//	    setTextures(Console::Foot,   archive.getTexture(foot),
+	//	                                    archive.getTexture(foot_light));
+	//	    setPrimaryTranslation(0.38*wscale,0,Console::Head|Console::Body|Console::Foot);
+	//	    setSecondaryTranslation(0,-0.46*hscale,Console::Body|Console::Foot);
+	//	    setRelativeTextureArea(Console::Head,0,0.85,1,1);
+	//	    setRelativeTextureArea(Console::Body,0,0,1,1);
+	//	    setRelativeTextureArea(Console::Foot,0,0,1,0.15);
+	//	    setRelativeTextArea(Console::Body,0.01,0.05,0.94,0.95);
+	//		bindCloseKey(close_key);
+	//	}
 
 }
 

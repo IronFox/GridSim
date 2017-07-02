@@ -10,12 +10,13 @@ resulting render depends on the used font.
 
 
 
-#include "../global_string.h"
-#include "../math/vector.h"
-#include "../io/str_stream.h"
+#include <global_string.h>
+#include <math/vector.h>
+#include <io/str_stream.h>
 
 namespace Engine
 {
+	using namespace DeltaWorks;
 
 	BYTE hexStr(const char*line);
 	BYTE hexChar(char c);

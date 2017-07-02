@@ -15,9 +15,8 @@ Engine Display
 #include "interface/screen.h"
 #include "timing.h"
 #include "aspect.h"
-#include "texture_resource.h"
 #include "textout.h"
-#include "../math/resolution.h"
+#include <math/resolution.h>
 
 #if SYSTEM==WINDOWS
 
@@ -29,7 +28,7 @@ Engine Display
 	typedef int DEVMODE;
 #endif
 
-#include "../io/log.h"
+#include <io/log.h>
 
 /*!
 	\brief Game engine modules
@@ -179,7 +178,6 @@ namespace Engine
 		*/
 		#define FORWARD static inline
 
-		TextureResource<GL>			archive;			//!< gl specific archive
 		TVisualConfig				config;			 	//!< startup configuration
 
 		/**/						Display();

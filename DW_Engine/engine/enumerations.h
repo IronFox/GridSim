@@ -1,6 +1,8 @@
 #ifndef engine_enumerationsH
 #define engine_enumerationsH
 
+#include <global_root.h>
+
 /******************************************************************
 
 E:\include\engine\enumerations.h
@@ -9,7 +11,7 @@ E:\include\engine\enumerations.h
 
 namespace Engine
 {
-
+	using namespace DeltaWorks;
 
 	/** \brief Enum Space
 		

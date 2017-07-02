@@ -234,13 +234,14 @@ Collection of template matrix-math-functions.
 			MFUNC (String) ToStringD(const C*m, count_t rows, count_t cols)
 			{
 				String rs = "matrix  ("+String(rows)+"x"+String(cols)+")";
-				rs.set(7,vChar<C>());
+				rs.set(7,M::vChar<C>());
         
+				using StringConversion::ToString;
 				for (index_t row = 0; row < rows; row++)
 				{
 					rs+='\n';
 					for (index_t col = 0; col < cols; col++)
-						rs+=v2str(m[col*rows+row])+' ';
+						rs+=ToString(m[col*rows+row])+' ';
 
 				}
 				return rs;
@@ -379,10 +380,11 @@ Collection of template matrix-math-functions.
 				VecUnroll<Dimensions*Dimensions>::copy(m,buffer);
 				Eye<C0,Dimensions>(&buffer[Dimensions*Dimensions]);
 
+				using std::fabs;
 				for (index_t line = 0; line < Dimensions; line++)
 				{
 					index_t targetline = line;
-					while (vabs(buffer[line*Dimensions+targetline]) <= getError<C0>() && targetline < Dimensions)
+					while (fabs(buffer[line*Dimensions+targetline]) <= M::getError<C0>() && targetline < Dimensions)
 						targetline++;
 					if (targetline == Dimensions)
 						return false;

@@ -1,4 +1,3 @@
-#include "../global_root.h"
 #include "display.h"
 
 #include "renderer/opengl.h"
@@ -25,6 +24,8 @@ bool operator==(const RECT&a, const RECT&b)
 
 
 #define WM_OLEDROP WM_USER + 1 
+
+using namespace DeltaWorks;
 
 class CtxDropTarget : public IDropTarget 
 { 
@@ -538,7 +539,7 @@ namespace Engine
 	{
 		if (!class_created)
 			return;
-		hInstance = getInstance();
+		hInstance = GetInstance();
 		UnregisterClassW(ENGINE_CLASS_NAME,hInstance);
 		class_created = false;
 	}
@@ -584,7 +585,7 @@ namespace Engine
 			break;
 		}
 		_error = ERR_NO_ERROR;
-		hInstance = getInstance();
+		hInstance = GetInstance();
 
 		WNDCLASSEXW wc;
 		wc.cbSize = sizeof (wc);
@@ -691,7 +692,7 @@ namespace Engine
 			style |= WS_DISABLED;
 		
 		_error = ERR_NO_ERROR;
-		hInstance = getInstance();
+		hInstance = GetInstance();
 
 		WNDCLASSEXW wc;
 		wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
@@ -1657,7 +1658,7 @@ namespace Engine
 		{
 			for (ResolutionList::iterator res = r_list->begin(); res != r_list->end(); ++res)
 			{
-				TDisplayFrequency*f = (*res)->frequency;
+				TDisplayFrequency*f = res->frequency;
 				while (f)
 				{
 					f->index = f_list->find(f->rate);

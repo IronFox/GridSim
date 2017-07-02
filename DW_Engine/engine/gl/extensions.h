@@ -1,10 +1,11 @@
 #ifndef engine_gl_extensionsH
 #define engine_gl_extensionsH
 
+#include <global_root.h>
 
 #include "../../gl/gl.h"
 #include "../../gl/glext.h"
-#include "../../general/undef.h"
+#include <general/undef.h>
 
 #undef glBlendFuncSeparate
 #undef glGenBuffers
@@ -17,12 +18,12 @@
 	#include "../../gl/gl_enhancement.h"
 	#include <stdio.h>
 	#include "../renderer/renderer.h"
-	#include "../../container/string_list.h"
-	#include "../../string/string_buffer.h"
+	#include <container/string_list.h>
+	#include <string/string_buffer.h>
 	//#include "../../container/string_list.h"
-	#include "../../string/tokenizer.h"
-	#include "../../math/resolution.h"
-	#include "../../io/file_stream.h"
+	#include <string/tokenizer.h>
+	#include <math/resolution.h>
+	#include <io/file_stream.h>
 
 	#if SYSTEM==WINDOWS
 		#include "../../gl/wglext.h"
@@ -317,7 +318,8 @@
 					LightingVariableIndex = 2
 				};
 
-
+				class Expression;
+				typedef std::shared_ptr<Expression>	PExpression;
 		
 				class Expression:public IToString
 				{
@@ -326,8 +328,8 @@
 		
 					virtual						~Expression()	{}
 					virtual	int					Evaluate(const UserConfiguration&, Light::Type)=0;			//!< Evaluate the value of the local expression
-					virtual	bool				AdoptLeft(Expression*)		{return false;}	//!< Attempts to adopt the next expression to the left as a sub expression @return true if the expression has been adopted, false otherwise
-					virtual	bool				AdoptRight(Expression*)	{return false;}	//!< Attempts to adopt the next expression to the right as a sub expression @return true if the expression has been adopted, false otherwise
+					virtual	bool				AdoptLeft(const PExpression&)		{return false;}	//!< Attempts to adopt the next expression to the left as a sub expression @return true if the expression has been adopted, false otherwise
+					virtual	bool				AdoptRight(const PExpression&)	{return false;}	//!< Attempts to adopt the next expression to the right as a sub expression @return true if the expression has been adopted, false otherwise
 					virtual	bool				Validate()	{return true;}					//!< Check the integrity of the local expression and all its children
 				};
 		
@@ -341,24 +343,15 @@
 				class BinaryExpression:public Expression
 				{
 				public:
-					Expression				*first,		//!< First sub expression
-											*second;	//!< Second sub expression
-				
-					BinaryExpression()		:first(NULL),second(NULL)
-											{}
-					virtual					~BinaryExpression()
-											{
-												if (first)
-													Discard(first);
-												if (second)
-													Discard(second);
-											}
-					virtual	bool			AdoptLeft(Expression*exp)	override
+					PExpression				first,		//!< First sub expression
+											second;	//!< Second sub expression
+
+					virtual	bool			AdoptLeft(const PExpression&exp)	override
 											{
 												first = exp;
 												return true;
 											}
-					virtual	bool			AdoptRight(Expression*exp)	override
+					virtual	bool			AdoptRight(const PExpression&exp)	override
 											{
 												second = exp;
 												return true;
@@ -367,7 +360,7 @@
 											{
 												return "<"+(first?first->ConvertToString():String("NULL"))+", "+(second?second->ConvertToString():String("NULL"))+">";
 											}
-					virtual	bool			Validate()	override	{return first!=NULL && second!=NULL && first->Validate() && second->Validate();}
+					virtual	bool			Validate()	override	{return first && second && first->Validate() && second->Validate();}
 				};
 
 				#undef DEFINE_GL_TEMPLATE_OPERATOR_EXPRESSION
@@ -403,21 +396,14 @@
 				class NegationExpression:public Expression
 				{
 				public:
-					Expression				*inner;
+					PExpression				inner;
 				
-											NegationExpression():inner(NULL)
-											{}
-					virtual					~NegationExpression()
-											{
-												if (inner)
-													Discard(inner);
-											}
 					virtual	int				Evaluate(const UserConfiguration&status, Light::Type type)	override
 											{
 												ASSERT_NOT_NULL__(inner);
 												return !inner->Evaluate(status,type);
 											}
-					virtual	bool			AdoptRight(Expression*exp)	override
+					virtual	bool			AdoptRight(const PExpression&exp)	override
 											{
 												inner = exp;
 												return true;
@@ -438,7 +424,10 @@
 				class ConstantExpression:public Expression
 				{
 				public:
-					int						value;
+					int						value=0;
+
+					/**/					ConstantExpression()	{}
+					/**/					ConstantExpression(int val):value(val)	{}
 				
 					virtual	int				Evaluate(const UserConfiguration&, Light::Type)	override	{return value;}
 					virtual	String			ConvertToString()	const	override
@@ -457,7 +446,8 @@
 					String					name;	//!< Variable name
 				
 				
-					VariableExpression()	:index(0)	{}
+					/**/					VariableExpression():index(0)	{}
+					/**/					VariableExpression(const String&name, index_t index):name(name),index(index)	{}
 					virtual	int				Evaluate(const UserConfiguration&values, Light::Type)	override;
 					virtual	String			ConvertToString()	const	override
 											{
@@ -473,7 +463,9 @@
 				public:
 					Light::Type				type;	//!< Stored light type
 								
-					LightTypeExpression()	:type(Light::None){}
+					/**/					LightTypeExpression():type(Light::None){}
+					/**/					LightTypeExpression(Light::Type t):type(t){}
+					
 					virtual	int				Evaluate(const UserConfiguration&, Light::Type lightType)	override
 											{
 												return lightType == type;
@@ -506,7 +498,7 @@
 					String					sharedAttachment,
 											vertexShaderAttachment,
 											fragmentShadowCode;
-					Buffer<SamplerAssignment,0,Swap>
+					Ctr::Buffer<SamplerAssignment,0,Swap>
 											samplerAssignments;
 
 					void					swap(LightShadowAttachment&other)
@@ -526,7 +518,7 @@
 											}
 				};
 
-				static	Buffer<LightShadowAttachment,0,Swap>		shadowAttachments;
+				static	Ctr::Buffer<LightShadowAttachment,0,Swap>		shadowAttachments;
 
 
 				/**
@@ -544,6 +536,8 @@
 				};
 		
 
+				class Block;
+				typedef std::shared_ptr<Block>	PBlock;
 		
 				/**
 				@brief A block of shader code lines
@@ -561,25 +555,19 @@
 					};
 			
 					Type					type;					//!< Local block type
-					Expression				*condition;				//!< Condition expression. May be NULL. The condition expression is automatically deleted on object destruction.
+					PExpression				condition;				//!< Condition expression. May be NULL. The condition expression is automatically deleted on object destruction.
 					String					lightLoopConstant;	//!< Constant expression used to address the current light loop iteration (typically something like "<i>"). Unless overriden, this expression is inherited from the respective parent block during construction.
 			
 					Array<Line,Adopt>		innerLines,	//!< Inner lines preceeding any conditional sub block. Lines following condition blocks are found in the @a trailingLines member of sub blocks
 											trailingLines;	//!< Lines trailing the local block. They lie, in fact, outside this block on the next parent layer
-					List::Vector<Block>		children;		//!< Child blocks
-					Block					*parent;		//!< Parent block (if any). may be NULL
+					Ctr::Vector0<PBlock>	children;		//!< Child blocks
+					PBlock					 parent;		//!< Parent block (if any). may be NULL
 				
 					Block()					:type(Any),condition(NULL),parent(NULL)	{}
-					virtual					~Block()
-											{
-												if (condition)
-													Discard(condition);
-											}
+
 					void					Clear()
 											{
-												if (condition)
-													Discard(condition);
-												condition = NULL;
+												condition.reset();
 												innerLines.free();
 												trailingLines.free();
 												children.clear();
@@ -607,7 +595,7 @@
 				/**
 				@brief Root template block
 				*/
-				class RootBlock:public Block
+				class RootBlock
 				{
 				private:
 					struct Token	//! Expression token identifier
@@ -652,11 +640,13 @@
 						};
 					};
 				
-					Expression*					_ParseCondition(const char*condition, VariableMap&map, String&error);
-					Expression*					_ProcessLayer(TokenList&tokens,VariableMap&map, index_t begin, index_t end, String&error);
+					PExpression					_ParseCondition(const char*condition, VariableMap&map, String&error);
+					PExpression					_ProcessLayer(TokenList&tokens,VariableMap&map, index_t begin, index_t end, String&error);
 					static	void				_ShadowFunction(index_t level,StringBuffer&buffer);
 
 				public:
+					PBlock						root = PBlock(new Block());
+
 					bool 						shadeInvoked,				//!< Specifies that the shade() function is called in this block
 												shade2Invoked,
 												customShadeInvoked,		//!< Specifies that the customShade() function is called in this block
@@ -669,13 +659,15 @@
 					String						Assemble(const RenderConfiguration&,const UserConfiguration&, bool isShared);
 					void						Assemble(const RenderConfiguration&,const UserConfiguration&,StringBuffer&target, bool isShared=false);
 					bool						UsesLighting()	const;		//!< Queries whether or not lighting-relevant constants will be queried during assembly. If this value is false then RenderConfiguration will not be queried
+
+					void						Clear(){root.reset(new Block());}
 				};
 		
 				class VariableMap
 				{
 				protected:
-					StringTable<index_t>			variableMap;
-					List::ReferenceVector<UserConfiguration>
+					Ctr::StringTable<index_t>	variableMap;
+					Ctr::Vector0<UserConfiguration*>
 												attachedConfigurations;
 					bool						changed;
 
@@ -683,8 +675,8 @@
 					friend class				Instance;
 					friend class				UserConfiguration;
 
-					void						Reg(UserConfiguration*config)	{attachedConfigurations.append(config);}
-					void						Unreg(UserConfiguration*config){attachedConfigurations.drop(config);}
+					void						Reg(UserConfiguration*config)	{attachedConfigurations.Append(config);}
+					void						Unreg(UserConfiguration*config){attachedConfigurations.FindAndErase(config);}
 
 					index_t						Define(const String&variableName);
 				public:
@@ -700,8 +692,7 @@
 				class ConfigurationComponent
 				{
 				private:
-					List::ReferenceVector<Configuration>
-												linkedConfigs;
+					Ctr::Vector0<Configuration*>linkedConfigs;
 				protected:
 					friend class				Configuration;
 
@@ -718,7 +709,7 @@
 				class RenderConfiguration:public ConfigurationComponent	//! Configuration container for pipeline related settings that are relevant for shader assembly
 				{
 				protected:
-					Buffer<Light::Type,8>		lights;		//!< Known light types
+					Ctr::Buffer<Light::Type,8>	lights;		//!< Known light types
 					bool						lightingEnabled,
 												fogEnabled;
 					friend class				UserConfiguration;
@@ -843,7 +834,7 @@
 				Configuration					localConfig,
 												*currentConfig;
 				StringBuffer					log;
-				GenericHashContainer<Array<int,Primitive>,GLShader::Instance>	container;	//!< All assembled shaders mapped to their respective keys
+				Ctr::GenericHashContainer<Array<int,Primitive>,GLShader::Instance>	container;	//!< All assembled shaders mapped to their respective keys
 				
 
 				struct TUniformInit	//! Uniform pInherit structure
@@ -865,7 +856,7 @@
 					Type						type;	//!< Contained type
 				};
 				
-				Buffer<TUniformInit,4>			uniformInit;	//!< Predefined variables
+				Ctr::Buffer<TUniformInit,4>		uniformInit;	//!< Predefined variables
 				
 			public:
 		
@@ -964,7 +955,7 @@
 
 				bool							_ExtractFileContent(const String&filename, String&target);
 				GLhandleARB						_LoadShader(const String&source, GLenum programType);
-				static void						_ParseUniformVariableInitializers(String&source,BasicBuffer<Initializer,Strategy::Swap>& initializers);
+				static void						_ParseUniformVariableInitializers(String&source,Ctr::BasicBuffer<Initializer,Strategy::Swap>& initializers);
 
 				/**/							Instance(const Instance&other){}
 				void							operator=(const Instance&other){}
@@ -1079,12 +1070,12 @@
 				Resolution						resolution;
 			};
 			CONSTRUCT_ENUMERATION3(VRAMQueryMethod,None, NVIDIA,ATI);
-			typedef GenericHashTable<Resolution,index_t>	ResolutionTable;
+			typedef Ctr::GenericHashTable<Resolution,index_t>	ResolutionTable;
 			
 
 			static ResolutionTable				depthBufferTable;
-			static Buffer<DepthBuffer,0>		depthBufferList;
-			static IndexTable<index_t>			depthBufferMap;
+			static Ctr::Buffer<DepthBuffer,0>		depthBufferList;
+			static Ctr::IndexTable<index_t>			depthBufferMap;
 
 			GLint								maxTextureLayers,
 												maxTexcoordLayers,

@@ -1,4 +1,3 @@
-#include "../../global_root.h"
 #include "input.h"
 
 
@@ -35,7 +34,7 @@ namespace Engine
 	{
 		if (verbose)
 			std::cout << " input: forward down "<<index<<".";
-		if (index >= NumKeys || !binding_stack)
+		if (index >= NumKeys || binding_stack.IsEmpty())
 		{
 			if (verbose)
 				std::cout << " index invalid or binding stack empty"<<std::endl;
@@ -43,8 +42,8 @@ namespace Engine
 		}
 		stack_forward_depth++;
 		if (verbose)
-			std::cout << " profile is "<<(binding_stack-stack_forward_depth)<<".";
-		InputProfile*profile = binding_stack[binding_stack-stack_forward_depth];
+			std::cout << " profile is "<<(binding_stack.Count()-stack_forward_depth)<<".";
+		InputProfile*profile = binding_stack[binding_stack.Count()-stack_forward_depth];
 		if (!profile)
 		{
 			if (verbose)
@@ -74,7 +73,7 @@ namespace Engine
 	{
 		if (verbose)
 			std::cout << " input: forward up "<<index<<".";
-		if (index >= NumKeys || !binding_stack)
+		if (index >= NumKeys || binding_stack.IsEmpty())
 		{
 			if (verbose)
 				std::cout << " index invalid or binding stack empty"<<std::endl;
@@ -82,9 +81,9 @@ namespace Engine
 		}
 		stack_forward_depth++;
 		if (verbose)
-			std::cout << " profile is "<<(binding_stack-stack_forward_depth)<<".";
+			std::cout << " profile is "<<(binding_stack.Count()-stack_forward_depth)<<".";
 		
-		InputProfile*profile = binding_stack[binding_stack-stack_forward_depth];
+		InputProfile*profile = binding_stack[binding_stack.Count()-stack_forward_depth];
 		if (!profile)
 		{
 			if (verbose)
@@ -404,12 +403,12 @@ namespace Engine
 
 	void InputMap::popProfile()
 	{
-		if (!binding_stack)
+		if (binding_stack.IsEmpty())
 			return;
 		if (verbose)
 			std::cout << " input: popping profile, thus overwriting "<<active_profile<<std::endl;
 		active_profile->importFrom(this);
-		active_profile = binding_stack.drop(binding_stack-1);
+		active_profile = binding_stack.Pop();
 		active_profile->exportTo(this);
 		if (verbose)
 			std::cout << " input: now active profile is "<<active_profile<<std::endl;

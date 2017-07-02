@@ -23,11 +23,13 @@
 #include "../gl/extensions.h"
 //#include "../../container/data_table.h"
 #include "../../gl/gl_enhancement.h"
-#include "../../io/log.h"
-#include "../../string/string_buffer.h"
+#include <io/log.h>
+#include <string/string_buffer.h>
+#include <math/resolution.h>
 
 namespace Engine
 {
+	using namespace DeltaWorks;
 
 	#define ERR_TABLE_ENTRY				10
 	#define ERR_CONFIG_UNSUPPORTED		(-2)
@@ -56,7 +58,7 @@ namespace Engine
 
 
 		template <typename T>
-			class		Container:public DW::Object	//! Base OpenGL object providing one handle
+			class Handle	//! Base OpenGL object providing one handle
 			{
 			public:
 				typedef T		handle_t;
@@ -64,30 +66,30 @@ namespace Engine
 
 				handle_t		handle;				//!< Handle to the referenced data
 
-				/**/			Container(handle_t h):handle(h) {}
+				/**/			Handle(handle_t h):handle(h) {}
 			private:
-				/**/			Container(const Container<T>&other):handle(0)	{FATAL__("Call to illegal operation");}	//private. never use
-				Container<T>&	operator=(const Container<T>&)	/** private. derivative classes should never copy on assignment*/ { FATAL__("Call to illegal operation");return *this;};
+				/**/			Handle(const Handle<T>&other):handle(0)	{FATAL__("Call to illegal operation");}	//private. never use
+				Handle<T>&		operator=(const Handle<T>&)	/** private. derivative classes should never copy on assignment*/ { FATAL__("Call to illegal operation");return *this;};
 				friend class	Engine::OpenGL;
 			public:
-				/**/			Container():handle(0) {}
-				virtual			~Container()				{}
+				/**/			Handle():handle(0) {}
+				virtual			~Handle()				{}
 				virtual	void	clear()=0;// 					{handle=0;}		//!< Erases the local handle and sets it to 0 
 				inline void		Clear()	{clear();}
 				virtual	void	flush()						{handle=0;}		//!< Flushes (unsets but does not erase) the local handle and sets it to 0
 				inline void		Flush()	{flush();}
-				void			adoptData(Container<T>&other)
+				void			adoptData(Handle<T>&other)
 								{
 									clear();
 									handle = other.handle;
 									other.handle = 0;	//don't call flush() here, inheriting object may call this method before adopting its other content. flush() would drop that content
 								}
-				void			swap(Container<T>&other)
+				void			swap(Handle<T>&other)
 								{
 									swp(handle,other.handle);
 								}
-				friend void		swap(Container<T>&a, Container<T>&b)	{a.swap(b);}
-				inline int		compareTo(const Container<T>&other) const
+				friend void		swap(Handle<T>&a, Handle<T>&b)	{a.swap(b);}
+				inline int		compareTo(const Handle<T>&other) const
 								{
 									if (handle > other.handle)
 										return 1;
@@ -95,20 +97,20 @@ namespace Engine
 										return -1;
 									return 0;
 								}
-				inline int		CompareTo(const Container<T>&other) const {return compareTo(other);}
-				inline bool		operator==(const Container<T>&other) const
+				inline int		CompareTo(const Handle<T>&other) const {return compareTo(other);}
+				inline bool		operator==(const Handle<T>&other) const
 								{
 									return handle == other.handle;
 								}
-				inline bool		operator!=(const Container<T>&other) const
+				inline bool		operator!=(const Handle<T>&other) const
 								{
 									return handle != other.handle;
 								}
-				inline bool		operator<(const Container<T>&other) const
+				inline bool		operator<(const Handle<T>&other) const
 								{
 									return handle < other.handle;
 								}
-				inline bool		operator>(const Container<T>&other) const
+				inline bool		operator>(const Handle<T>&other) const
 								{
 									return handle > other.handle;
 								}
@@ -128,7 +130,7 @@ namespace Engine
 				inline void		OverrideSetHandle(handle_t h, bool doClear=true)	{overrideSetHandle(h,doClear);}
 			};
 
-		class	Query:public Container<GLuint>	//! Query type. The Container<GLuint> handle is used for the query handle
+		class	Query:public Handle<GLuint>	//! Query type. The Container<GLuint> handle is used for the query handle
 		{
 		protected:
 			GLuint						geometry_handle;
@@ -238,7 +240,7 @@ namespace Engine
 			
 			Texture instances can hold textures of 1 to 4 channels, and read their content from either a pixel buffer object or host memory.
 		*/
-		class Texture:public Container<GLuint>, public GenericTexture
+		class Texture:public Handle<GLuint>, public GenericTexture
 		{
 		protected:
 			template <typename GLType>
@@ -394,7 +396,7 @@ namespace Engine
 		};
 
 		
-		class	Shader:public Container<GLShader::Template*>, public TExtShaderConfiguration
+		class	Shader:public Handle<GLShader::Template*>, public TExtShaderConfiguration
 		{
 		protected:
 			friend class Engine::OpenGL;
@@ -445,7 +447,7 @@ namespace Engine
 			The object automatically discards any loaded OpenGL data.
 			Not associated with the OpenGL renderer structure.
 		*/
-		class Buffer:public Container<GLuint>
+		class Buffer:public Handle<GLuint>
 		{
 		protected:
 				size_t		data_size;		//!< Size of buffered data in bytes
@@ -504,7 +506,7 @@ namespace Engine
 			public:
 				inline	bool	load(const T*field, size_t num_units);	//!< Loads the specified data into the local buffer. @a field must be at least @a num_units units long but may be NULL if @a num_units is 0
 				inline	bool	load(const Array<T>&field)	{return load(field.pointer(),field.length());}	
-				inline	bool	load(const ::Buffer<T>&field)	{return load(field.pointer(),field.length());}
+				inline	bool	load(const Ctr::Buffer<T>&field)	{return load(field.pointer(),field.length());}
 
 				void	adoptData(GeometryBuffer<T>&other)
 				{
@@ -694,13 +696,13 @@ namespace Engine
 
 				inline	void		load(const T*field, count_t num_units);	//!< Loads the specified data into the local buffer. @a field must be at least @a num_units units long but may be NULL if @a num_units is 0
 				inline	void		load(const ArrayData<T>&field)		{load(field.pointer(),field.length());}	
-				inline	void		load(const BasicBuffer<T>&field)	{load(field.pointer(),field.length());}
+				inline	void		load(const Ctr::BasicBuffer<T>&field)	{load(field.pointer(),field.length());}
 				template <typename StructType>
 					inline	void	loadStructs(const StructType*field, count_t num_structs)	{load((const T*)field,num_structs * sizeof(StructType)/sizeof(T));}
 				template <typename StructType>
 					inline	void	loadStructs(const ArrayData<StructType>&field)	{loadStructs(field.pointer(),field.length());}
 				template <typename StructType>
-					inline	void	loadStructs(const BasicBuffer<StructType>&field)	{loadStructs(field.pointer(),field.length());}
+					inline	void	loadStructs(const Ctr::BasicBuffer<StructType>&field)	{loadStructs(field.pointer(),field.length());}
 				inline	const T*	getHostData() const		{return static_cast<const T*>(SmartBuffer::getHostData());}//!< Retrieves a pointer to any internally stored host data, or NULL if no such is available. Also returns NULL if the buffered data resides in device space
 				inline	count_t		countPrimitives()	const			//! Retrieves the number of primitives currently loaded into the buffer.
 									{
@@ -713,7 +715,7 @@ namespace Engine
 		typedef SmartGeometryBuffer<GLfloat>	VBO;
 		typedef SmartGeometryBuffer<GLuint>		IBO;
 
-		class FBO:public Container<GLuint>
+		class FBO:public Handle<GLuint>
 		{
 			typedef FBO				Self;
 		protected:
@@ -815,7 +817,7 @@ namespace Engine
 											lighting_enabled,			//!< Lighting was enabled during last call
 											changed;					//!< Render configuration changed since the last render call
 				const MaterialConfiguration*material;					//!< Pointer to the last installed material. May be NULL or invalid out of rendering sequence
-				Array<Light*>				enabled_light_field;		//!<link from the assigned light to its origin
+				Array<PLight>				enabled_light_field;		//!<link from the assigned light to its origin
 				count_t						num_enabled_lights;			//!<number of linked (enabled) lights
 				SystemType					matrix_type[32];			//!<type of the bound matrix (MT_IDENTITY by default)
 				TextureDimension			texture_type[32];			//!<type of bound texture
@@ -1000,7 +1002,7 @@ namespace Engine
 						Window				wnd;				//!< Handle of the active window
 		#endif
 						GLContext			gl_context,clone;			//!< Handle of the OpenGL context
-		static			Buffer<GLBinding,4>	created_contexts;		//!< All created contexts
+		static			Ctr::Buffer<GLBinding,4>	created_contexts;		//!< All created contexts
 
 						bool				last_full_screen,			//!< specifies whether or not fullscreen was applied earlier
 											verbose;
@@ -1025,10 +1027,10 @@ namespace Engine
 						void				TargetBackbuffer();
 		inline			void				onModelviewChange();
 
-		virtual			void				enableLight(Light*);
-		virtual			void				disableLight(Light*);
-		virtual			void				updateLight(Light*);
-		virtual			void				updateLightPosition(Light*);
+		virtual			void				enableLight(const PLight&) override;
+		virtual			void				disableLight(const PLight&) override;
+		virtual			void				updateLight(const PLight&) override;
+		virtual			void				updateLightPosition(const PLight&) override;
 
 
 

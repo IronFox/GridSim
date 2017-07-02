@@ -8,10 +8,12 @@ Engine timing-unit.
 ******************************************************************/
 
 
-#include "../general/timer.h"
+#include <general/timer.h>
 
 namespace Engine
 {
+
+	using namespace DeltaWorks;
 
 	class Timing
 	{

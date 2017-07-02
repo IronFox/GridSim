@@ -1,7 +1,6 @@
-#include "../global_root.h"
 #include "control.h"
 //#include "../math/graph.h"
-#include "../container/sorter.h"
+#include <container/sorter.h>
 
 namespace Engine
 {
@@ -16,7 +15,7 @@ namespace Engine
 		ASSERT__(!isSealed);
 		isSealed = true;
 
-		Sorting::ByMethod::quickSort(wrappers);
+		DeltaWorks::Sorting::ByMethod::quickSort(wrappers);
 	}
 
 

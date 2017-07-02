@@ -1,6 +1,5 @@
-#include "../../global_root.h"
 #include "mouse.h"
-#include "../../general/system.h"
+#include <general/system.h>
 
     //#include <iostream>
     //using namespace std;

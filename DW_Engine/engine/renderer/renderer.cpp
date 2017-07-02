@@ -1,4 +1,3 @@
-#include "../../global_root.h"
 #include "renderer.h"
 
 /********************************************************************
@@ -14,379 +13,11 @@ namespace Engine
 	TVisualConfig         	default_buffer_config={24,24,0,0,8,0,0,0};
 	TMatrix4<float>         environment_matrix={1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1};
 	bool                    erase_unused_textures(true);
-	Mutex                  VisualInterface::vs_mutex;
 
 
 	
 	
 	
-
-
-	
-	Light::Light(LightScene*scene_,VisualInterface*interface_):origin(scene_->count()),scene(scene_),parent_interface(interface_),moved(false),modified(false),index(InvalidIndex)
-	{}
-
-
-	Light::~Light()
-	{}
-
-	void		Light::update()
-	{
-		if (isShining())
-			parent_interface->updateLight(this);
-		else
-			modified = true;
-	}
-
-
-	Light*		Light::setType(Type type_)
-	{
-		type = type_;
-		if (type == Direct)
-			Vec::normalize0(position);
-		update();
-		return this;
-	}
-
-	bool		Light::isShining() const
-	{
-		return isEnabled() && scene == parent_interface->active_scene && parent_interface->lighting_enabled;
-	}
-
-	bool		Light::isEnabled()	const
-	{
-		return index != InvalidIndex;
-	}
-		
-	void		Light::destroy()
-	{
-		disable();
-		parent_interface->discardLight(this);
-	}
-
-	void		Light::discard()
-	{
-		destroy();
-	}
-
-
-
-	Light*		Light::enable()
-	{
-		if (isEnabled())
-			return this;
-		parent_interface->enableLight(this);
-		return this;
-	}
-
-	Light*		Light::disable()
-	{
-		if (!isEnabled())
-			return this;
-		parent_interface->disableLight(this);
-		return this;
-	}
-
-	Light*		Light::setEnabled(bool b)
-	{
-		if (b)
-			enable();
-		else
-			disable();
-		return this;
-	}
-
-
-	
-	Light*			Light::moveTo(float x, float y, float z)
-	{
-		setPosition(x,y,z);
-		return this;
-	}
-	
-
-	Light*			Light::setPosition(float x, float y, float z)
-	{
-		Vec::def(position,x,y,z);
-		if (type == Direct)
-			Vec::normalize0(position);
-
-		if (isShining())
-			parent_interface->updateLightPosition(this);
-		else
-			moved = true;
-		return this;
-	}
-
-
-	Light*			Light::SetDirection(float x, float y, float z)
-	{
-		if (type == Spot)
-			setSpotDirection(x,y,z);
-		else
-			setPosition(-x,-y,-z);
-		return this;
-	}
-
-	Light*			Light::SetDirection(const TVec3<float>&c)
-	{
-		if (type == Spot)
-			setSpotDirection(c);
-		else
-			setPosition(-c.x,-c.y,-c.z);
-		return this;
-	}
-
-
-	Light*			Light::SetDirection(const TVec3<double>&c)
-	{
-		if (type == Spot)
-			setSpotDirection(c);
-		else
-			setPosition(-c.x,-c.y,-c.z);
-		return this;
-	}
-
-
-	Light*			Light::setNegativeDirection(float x, float y, float z)
-	{
-		if (type == Spot)
-			setSpotDirection(-x,-y,-z);
-		else
-			setPosition(x,y,z);
-		return this;
-	}
-
-	Light*			Light::setNegativeDirection(const TVec3<float>&c)
-	{
-		if (type == Spot)
-			setSpotDirection(-c.x,-c.y,-c.z);
-		else
-			setPosition(c);
-		return this;
-	}
-
-
-	Light*			Light::setNegativeDirection(const TVec3<double>&c)
-	{
-		if (type == Spot)
-			setSpotDirection(-c.x,-c.y,-c.z);
-		else
-			setPosition(c);
-		return this;
-	}
-
-
-
-
-	Light*			Light::setSpotDirection(const TVec3<float>&c)
-	{
-		spotDirection = c;
-		Vec::normalize0(spotDirection);
-		update();
-		return this;
-	}
-	
-	Light*			Light::setSpotDirection(const TVec3<double>&c)
-	{
-		Vec::copy(c,spotDirection);
-		Vec::normalize0(spotDirection);
-		update();
-		return this;
-	}
-
-	Light*			Light::setSpotDirection(float x, float y, float z)
-	{
-		Vec::def(spotDirection,x,y,z);
-		Vec::normalize0(spotDirection);
-		update();
-		return this;
-	}
-
-
-	Light*			Light::setDiffuse(const TVec3<float>&c)
-	{
-		diffuse.rgb = c;
-		//diffuse[3] = 1.0f;
-		update();
-		return this;
-	}
-
-	Light*			Light::setDiffuse(const TVec3<double>&c)
-	{
-		Vec::copy(c,diffuse.rgb);
-		//diffuse[3] = 1.0f;
-		update();
-		return this;
-	}
-	Light*			Light::setDiffuse(const TVec3<float>&c,float factor)
-	{
-		Vec::mult(c,factor,diffuse.rgb);
-		//diffuse[3] = 1.0f;
-		update();
-		return this;
-	}
-
-	Light*			Light::setDiffuse(const TVec3<double>&c,double factor)
-	{
-		Vec::mult(c,factor,diffuse.rgb);
-		//diffuse[3] = 1.0f;
-		update();
-		return this;
-	}
-
-	Light*			Light::setDiffuse(float r, float g, float b)
-	{
-		Vec::def(diffuse.rgb,r,g,b);
-		update();
-		return this;
-	}
-
-	Light*			Light::setDiffuse(float intensity)
-	{
-		Vec::set(diffuse.rgb,intensity);
-		update();
-		return this;
-	}
-
-
-
-	Light*			Light::setAmbient(const TVec3<float>&c)
-	{
-		ambient.rgb = c;
-		//ambient[3] = 1.0f;
-		update();
-		return this;
-	}
-	
-	Light*			Light::setAmbient(const TVec3<double>&c)
-	{
-		Vec::copy(c,ambient.rgb);
-		//ambient[3] = 1.0f;
-		update();
-		return this;
-	}
-
-	Light*			Light::setAmbient(const TVec3<float>&c, float factor)
-	{
-		Vec::mult(c,factor,ambient.rgb);
-		//ambient[3] = 1.0f;
-		update();
-		return this;
-	}
-	
-	Light*			Light::setAmbient(const TVec3<double>&c, double factor)
-	{
-		Vec::mult(c,factor,ambient.rgb);
-		//ambient[3] = 1.0f;
-		update();
-		return this;
-	}
-	
-	Light*			Light::setAmbient(float intensity)
-	{
-		Vec::set(ambient.rgb,intensity);
-		update();
-		return this;
-	}
-
-	Light*			Light::setAmbient(float r, float g, float b)
-	{
-		Vec::def(ambient.rgb,r,g,b);
-		update();
-		return this;
-	}
-
-
-	Light*			Light::setSpecular(const TVec3<float>&c)
-	{
-		specular.rgb = c;
-		//specular[3] = 1.0f;
-		update();
-		return this;
-	}
-	
-	Light*			Light::setSpecular(const TVec3<double>&c)
-	{
-		Vec::copy(c,specular.rgb);
-		//specular[3] = 1.0f;
-		update();
-		return this;
-	}
-
-	Light*			Light::setSpecular(const TVec3<float>&c, float factor)
-	{
-		Vec::mult(c,factor,specular.rgb);
-		//specular[3] = 1.0f;
-		update();
-		return this;
-	}
-	
-	Light*			Light::setSpecular(const TVec3<double>&c, double factor)
-	{
-		Vec::mult(c,factor,specular.rgb);
-		//specular[3] = 1.0f;
-		update();
-		return this;
-	}
-
-	Light*			Light::setSpecular(float intensity)
-	{
-		Vec::set(specular.rgb,intensity);
-		update();
-		return this;
-	}
-
-	Light*			Light::setSpecular(float r, float g, float b)
-	{
-		Vec::def(specular.rgb,r,g,b);
-		update();
-		return this;
-	}
-
-
-	Light*			Light::setSpotCutoff(float angle)
-	{
-		//if (type == Spot)
-		{
-			spotCutoff = angle;
-			if (type == Spot)
-				update();
-		}
-		return this;
-	}
-
-
-	Light*			Light::setSpotExponent(BYTE exponent)
-	{
-		spotExponent = exponent;
-		update();
-		return this;
-	}
-	
-	Light*			Light::setExponent(BYTE exponent)
-	{
-		spotExponent = exponent;
-		update();
-		return this;
-	}
-
-			
-
-
-
-	Light*			Light::setAttenuation(float constant, float linear, float quadratic)
-	{
-		Vec::def(attenuation,constant,linear,quadratic);
-		update();
-		return this;
-	}
-
-
-
-
-
-
 
 
 
@@ -411,7 +42,7 @@ namespace Engine
 		if (!length || !other.length)
 			return OrthographicComparison(length,other.length);
 
-		return OrthographicComparison(offset,other.offset).addComparison(length,other.length);
+		return OrthographicComparison(offset,other.offset).AddComparison(length,other.length);
 	}
 
 
@@ -435,14 +66,14 @@ namespace Engine
 		OrthographicComparison comparison(system_type, other.system_type);
 
 		comparison
-				.addComparison(content_type, other.content_type)
-				.addComparison(clamp_x, other.clamp_x)
-				.addComparison(clamp_y, other.clamp_y)
-				.addComparison(clamp_z, other.clamp_z)
-				//.addComparison(reflect, other.reflect)
-				.addComparison(combiner,other.combiner);
+				.AddComparison(content_type, other.content_type)
+				.AddComparison(clamp_x, other.clamp_x)
+				.AddComparison(clamp_y, other.clamp_y)
+				.AddComparison(clamp_z, other.clamp_z)
+				//.AddComparison(reflect, other.reflect)
+				.AddComparison(combiner,other.combiner);
 		if (system_type == SystemType::Custom)
-			comparison.addComparison(custom_system,other.custom_system);
+			comparison.AddComparison(custom_system,other.custom_system);
 		return comparison;
 	}
 
@@ -467,20 +98,20 @@ namespace Engine
 	bool	MaterialColors::operator==(const MaterialColors&other) const
 	{
 		return diffuse == other.diffuse && specular == other.specular && emission == other.emission && alpha_test == other.alpha_test && shininess_exponent == other.shininess_exponent
-				&& (!alpha_test || similar(alpha_threshold, other.alpha_threshold)) && (fully_reflective == other.fully_reflective);
+				&& (!alpha_test || M::similar(alpha_threshold, other.alpha_threshold)) && (fully_reflective == other.fully_reflective);
 	}
 
 	char	MaterialColors::compareTo(const MaterialColors&other)	const
 	{
 		OrthographicComparison rs(ambient.compareTo(other.ambient));
-		rs	.addCompareTo(diffuse,other.diffuse)
-			.addCompareTo(specular,other.specular)
-			.addCompareTo(emission,other.emission)
-			.addComparison(alpha_test,other.alpha_test)
-			.addComparison(fully_reflective,other.fully_reflective)
-			.addComparison(shininess_exponent,other.shininess_exponent);
+		rs	.AddCompareTo(diffuse,other.diffuse)
+			.AddCompareTo(specular,other.specular)
+			.AddCompareTo(emission,other.emission)
+			.AddComparison(alpha_test,other.alpha_test)
+			.AddComparison(fully_reflective,other.fully_reflective)
+			.AddComparison(shininess_exponent,other.shininess_exponent);
 		if (alpha_test)
-			rs.addComparison(alpha_threshold, other.alpha_threshold);
+			rs.AddComparison(alpha_threshold, other.alpha_threshold);
 		return rs;
 	}
 
@@ -515,11 +146,11 @@ namespace Engine
 	char	VertexBinding::compareTo(const VertexBinding&other) const
 	{
 		return OrthographicComparison(vertex.compareTo(other.vertex))
-			.addCompareTo(tangent,other.tangent)
-			.addCompareTo(normal,other.normal)
-			.addCompareTo(color,other.color)
-			.addCompareTo(texcoords,other.texcoords)
-			.addComparison(floats_per_vertex,other.floats_per_vertex);
+			.AddCompareTo(tangent,other.tangent)
+			.AddCompareTo(normal,other.normal)
+			.AddCompareTo(color,other.color)
+			.AddCompareTo(texcoords,other.texcoords)
+			.AddComparison(floats_per_vertex,other.floats_per_vertex);
 	}
 
 	bool	VertexBinding::operator==(const VertexBinding&other) const
@@ -630,9 +261,9 @@ namespace Engine
 
 	UINT16 VertexBinding::minFloatsPerVertex() const
 	{
-		UINT16 rs = vmax(vmax(vertex.requiredFloats(),normal.requiredFloats()),vmax(color.requiredFloats(),tangent.requiredFloats()));
+		UINT16 rs = M::vmax(M::vmax(vertex.requiredFloats(),normal.requiredFloats()),M::vmax(color.requiredFloats(),tangent.requiredFloats()));
 		for (index_t i = 0; i < texcoords.count(); i++)
-			rs = vmax(rs,texcoords[i].requiredFloats());
+			rs = M::vmax(rs,texcoords[i].requiredFloats());
 		return rs;
 	}
 
@@ -746,43 +377,43 @@ namespace Engine
 
 	char	MaterialConfiguration::compareTo(const MaterialConfiguration&other)	const
 	{
-		return OrthographicComparison(MaterialColors::compareTo(other)).addCompareTo(layers,other.layers);
+		return OrthographicComparison(MaterialColors::compareTo(other)).AddCompareTo(layers,other.layers);
 	}
 
 
-	bool				VisualInterface::hasMoved(Light*light)
+	bool				VisualInterface::hasMoved(const PLight&light)
 	{
 		return light->moved;
 	}
 
-	bool				VisualInterface::wasModified(Light*light)
+	bool				VisualInterface::wasModified(const PLight&light)
 	{
 		return light->modified;
 	}
 
-	void				VisualInterface::setHasMoved(Light*light,bool b)
+	void				VisualInterface::setHasMoved(const PLight&light,bool b)
 	{
 		light->moved = b;
 	}
 
-	void				VisualInterface::setWasModified(Light*light,bool b)
+	void				VisualInterface::setWasModified(const PLight&light,bool b)
 	{
 		light->modified = b;
 
 	}
 
 
-	index_t			VisualInterface::getIndexOf(Light*light)
+	index_t			VisualInterface::getIndexOf(const PLight&light)
 	{
 		return light->index;
 	}
 
-	void				VisualInterface::setIndexOf(Light*light,index_t index)
+	void				VisualInterface::setIndexOf(const PLight&light,index_t index)
 	{
 		light->index = index;
 	}
 
-	LightScene*		VisualInterface::getLightSceneOf(Light*light)
+	LightScene*		VisualInterface::getLightSceneOf(const PLight&light)
 	{
 		return light->scene;
 	}
@@ -793,35 +424,34 @@ namespace Engine
 	    active_scene = scenes.define(scene_index_counter++);
 	}
 
-	Light*	VisualInterface::createLight(bool enable)
+	PLight	VisualInterface::createLight(bool enable)
 	{
-		Light*light = SignalNew(new Light(active_scene,this));
-		active_scene->append(light);
+		PLight light(new Light(active_scene,this));
+		active_scene->Append(light);
 		
 		if (enable)
 			light->enable();
 		return light;
 	}
 
-	void		VisualInterface::discardLight(Light*light)
+	void		VisualInterface::discardLight(const PLight&light)
 	{
 		LightScene*scene = light->scene;
 		
-	    if (scene->get(light->origin) != light)
+	    if (scene->at(light->origin) != light)
 	        FATAL__("bad light");
 			
 	    light->disable();
 	    index_t index = light->origin;
 	    scene->erase(light->origin);
 	    for (index_t i = index; i < scene->count(); i++)
-	        scene->get(i)->origin = i;
+	        scene->at(i)->origin = i;
 	}
 
 	void		VisualInterface::clearLights()
 	{
-		active_scene->reset();
-		while (Light*light = active_scene->each())
-			light->disable();
+		foreach (*active_scene,light)
+			(*light)->disable();
 		active_scene->clear();
 	}
 
@@ -833,9 +463,8 @@ namespace Engine
 		scenes.exportTo(exported);
 		for (index_t i = 0; i < exported.count(); i++)
 		{
-			exported[i]->reset();
-			while (Light*light = exported[i]->each())
-				light->disable();
+			foreach (*exported[i],light)
+				(*light)->disable();
 		}
 		scenes.clear();
 		active_scene_index = 0;
@@ -866,9 +495,8 @@ namespace Engine
 			return;
 		if (scene == active_scene)
 			pickLightScene(0);
-		scene->reset();
-		while (Light*light = scene->each())
-			light->disable();
+		foreach (*scene,light)
+			(*light)->disable();
 		Discard(scene);
 	}
 	
@@ -877,24 +505,20 @@ namespace Engine
 		return active_scene_index;
 	}
 	
-	void			VisualInterface::getSceneLights(ArrayData<Light*>&array, bool enabled_only)
+	void			VisualInterface::getSceneLights(ArrayData<PLight>&array, bool enabled_only)
 	{
 		size_t	count = 0;
 		if (!enabled_only)
 			count = active_scene->count();
 		else
 			for (unsigned i = 0; i < active_scene->count(); i++)
-				if (active_scene->get(i)->isEnabled())
+				if (active_scene->at(i)->isEnabled())
 					count++;
 		array.SetSize(count);
 		count = 0;
 		for (unsigned i = 0; i < active_scene->count(); i++)
-			if (!enabled_only || active_scene->get(i)->isEnabled())
-				array[count++] = active_scene->get(i);
+			if (!enabled_only || active_scene->at(i)->isEnabled())
+				array[count++] = active_scene->at(i);
 	}
 	
-	void			VisualInterface::getSceneLights(ArrayData<LightData*>&array, bool enabled_only)
-	{
-		getSceneLights(*(ArrayData<Light*>*)&array,enabled_only);	//this is ugly but works because the array only contains pointers, which are the same size and Light inherits LightData
-	}
 }

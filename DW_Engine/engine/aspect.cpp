@@ -1,4 +1,3 @@
-#include "../global_root.h"
 #include "aspect.h"
 
 namespace Engine

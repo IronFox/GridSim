@@ -9,9 +9,9 @@ engine keyboard-interface.
 
 
 #include "../timing.h"
-#include "../../io/config.h"
+#include <io/config.h>
 
-#include "../../string/keys.h"
+#include <string/keys.h>
 
 #if SYSTEM==UNIX
 	#include <X11/Xlib.h>
@@ -66,9 +66,9 @@ namespace Engine
 		*/
 		typedef CommonStrategy<SecurePlugin>	SecureStrategy;
 
-		class CharacterBuffer : private Buffer0<char,SecureStrategy>
+		class CharacterBuffer : private Ctr::Buffer0<char,SecureStrategy>
 		{
-			typedef Buffer0<char,SecureStrategy>	Super;
+			typedef Ctr::Buffer0<char,SecureStrategy>	Super;
 
 
 		public:
