@@ -864,21 +864,24 @@ namespace Statistics
 		mergeLock.unlock();
 	}
 
+	String ToExt(MergeStrategy strategy)
+	{
+		switch (strategy)
+		{
+			case MergeStrategy::Exclusive:
+				return "_Ex";
+			case MergeStrategy::ExclusiveWithPositionCorrection:
+				return "_ExPC";
+		};
+		return "";
+	}
+
 	void CaptureMergeResult(const IC::Comparator&comp, MergeStrategy strategy,const TStateDifference&postMerge)
 	{
 		using namespace Details::MergeMeasurement;
 	
-		String ext;
-		switch (strategy)
-		{
-			case MergeStrategy::Exclusive:
-				ext = "_Ex";
-				break;
-			case MergeStrategy::ExclusiveWithPositionCorrection:
-				ext = "_ExPC";
-				break;
-		};
-
+		String ext = ToExt(strategy);
+	
 		mergeLock.lock();
 			auto&entry = mergeCaptures.Set(String(comp.GetName())+ext);
 			entry.postMerge.AddMean(postMerge);
@@ -933,8 +936,9 @@ namespace Statistics
 
 		String		MakeName(const TStateDifference&source) const
 		{
-			double val = f(source).Get();
-			return String(name)+" \\("+String(ToDisplay(val))+unit+"\\)";
+			return name;
+			//double val = f(source).Get();
+			//return String(name)+" \\("+String(ToDisplay(val))+unit+"\\)";
 		}
 
 	};
@@ -953,24 +957,14 @@ namespace Statistics
 			//fill:
 			texFile << "\\draw [draw=black, pattern=north west lines, pattern color=black!50] (axis cs:"<<h0<<","<<(index)<<".0) rectangle (axis cs:"<<h1<<","<<index<<".9);"<<nl;
 
-			//describe:
+			//describe max:
 			String smax = ToDisplay(max);
-			//if (smax.contains('.'))
-			//{
-			//	while (smax.length() > 3)
-			//	{
-			//		if (smax.endsWith('.'))
-			//		{
-			//			smax.eraseRight(1);
-			//			break;
-			//		}
-			//		smax.eraseRight(1);
-			//	}
-			//	if (smax.endsWith('.'))
-			//		smax.eraseRight(1);
-			//}
-
 			texFile << "\\node[anchor=west,align=left] at (axis cs:0.8333,"<<index<<".5) {"<<smax<<c.unit<<"};"<<nl;
+
+			//describe current:
+			float current = c.f(cap.postMerge).Get();
+			texFile << "\\node[anchor=west,fill=white,inner sep=0.5pt,align=left] at (axis cs:"<<(current/max+0.01f) <<","<<index<<".45) {"<<ToDisplay(current)<<c.unit<<"};"<<nl;
+
 
 			//lower:
 			texFile << "\\addplot+[draw=black,solid,name path=lower"<<index<<",mark=] plot coordinates {"<<nl
@@ -1104,17 +1098,10 @@ namespace Statistics
 		using namespace MergeMeasurement;
 		if (mergeCaptures.IsNotEmpty())
 		{
-			ExportTexFile("Binary");
-			const auto&ref = ExportTexFile("Binary_Ex");
-
-			TMergeCapture erase;
-			erase.postMerge = ref.postMerge;
-			erase.postMerge.inconsistency = TSDSample<double>(0,1);
-			erase.postMerge.missingEntities = ref.postMerge.entitiesInInconsistentArea;
-			erase.postMerge.omega = TSDSample<double>(0,1);
-			erase.postMerge.overAccountedEntities = TSDSample<double>(0,1);
-
-			ExportTexFile("Flush",erase);
+			for (int i = 0; i < (int)MergeStrategy::Count; i++)
+			{
+				ExportTexFile("Binary"+ToExt((MergeStrategy)i));
+			}
 		}
 	}
 
