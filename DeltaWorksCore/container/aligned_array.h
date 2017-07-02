@@ -10,26 +10,27 @@
 	#define wcswcs	wcsstr
 #endif
 
+namespace DeltaWorks
+{
 
-/*!
-
+	/*!
 	\brief	Generalized aligned array container
 	
 	AlignedArray is a generalized array management structure, implicitly performing many operations that manual array handling
 	requires. The contained array content is automatically copied, allocated or deallocated where needed and shielded
 	from inappropriate (and usually undesired) operations.
-*/
-template <class C, size_t A> class AlignedArray: public SerializableObject, public Arrays
-{
-	protected:
-				C*				data;
-				BYTE*			root;
-				count_t			elements;
+	*/
+	template <class C, size_t A> class AlignedArray: public SerializableObject, public Arrays
+	{
+		protected:
+			C*				data;
+			BYTE*			root;
+			count_t			elements;
 				
 				
 				
-	template <class C0, size_t A0>
-		static inline void		allocAligned(BYTE*&root, C0*&data, Arrays::count_t elements)
+			template <class C0, size_t A0>
+				static inline void		allocAligned(BYTE*&root, C0*&data, Arrays::count_t elements)
 				{
 					if (!elements)
 					{
@@ -37,7 +38,7 @@ template <class C, size_t A> class AlignedArray: public SerializableObject, publ
 						data = NULL;
 						return;
 					}
-					root = SHIELDED_ARRAY(new BYTE[sizeof(C0)*elements+A0-1],sizeof(C0)*elements+A0-1);
+					root = alloc<BYTE>(sizeof(C0)*elements+A0-1);
 					BYTE*data_root = root;
 					#ifndef __GNUC__
 						while (((size_t)data_root)&(A0-1))
@@ -48,47 +49,47 @@ template <class C, size_t A> class AlignedArray: public SerializableObject, publ
 					#endif
 					data = (C0*)data_root;
 				}
-	template <class C0, size_t A0>
-		static inline void		re_allocAligned(BYTE*&root, C0*&array, Arrays::count_t elements)
+			template <class C0, size_t A0>
+				static inline void		re_allocAligned(BYTE*&root, C0*&array, Arrays::count_t elements)
 				{
-				    if (root)
-				        DISCARD_ARRAY(root);
+					if (root)
+						dealloc(root);
 					allocAligned<C0,A0>(root,array,elements);
 				}				
 		
-	template <class C0, size_t A0>
-		static inline void 		relocAligned(BYTE*&root,C0*&data,Arrays::count_t&length, Arrays::count_t new_length)
+			template <class C0, size_t A0>
+				static inline void 		relocAligned(BYTE*&root,C0*&data,Arrays::count_t&length, Arrays::count_t new_length)
 				{
-				    if (length == new_length || new_length == Undefined)
-				        return;
-				    length = new_length;
-				    re_allocAligned<C0,A0>(root,data,length);
+					if (length == new_length || new_length == Undefined)
+						return;
+					length = new_length;
+					re_allocAligned<C0,A0>(root,data,length);
 				}
 				
 	
 				
 				
-	public:
-				AlignedArray(count_t length=0):elements(length)	//!< Creates a new array \param length Length of the new array object
-				{
-					allocAligned<C,A>(root,data,elements);
-				}
+		public:
+			/**/	AlignedArray(count_t length=0):elements(length)	//!< Creates a new array \param length Length of the new array object
+			{
+				allocAligned<C,A>(root,data,elements);
+			}
 
 				
-				inline AlignedArray(const C*string)
+			inline AlignedArray(const C*string)
+			{
+				if (string)
 				{
-					if (string)
-					{
-						register const C*terminator(string);
-						while (*terminator++);
-						elements = terminator-string;
-					}
-					else
-						elements = 0;
-					allocAligned<C,A>(root,data,elements);
-					for (register count_t i = 0; i < elements; i++)
-						data[i] = string[i];
+					register const C*terminator(string);
+					while (*terminator++);
+					elements = terminator-string;
 				}
+				else
+					elements = 0;
+				allocAligned<C,A>(root,data,elements);
+				for (register count_t i = 0; i < elements; i++)
+					data[i] = string[i];
+			}
 			
 			template <class T>
 				inline AlignedArray(const T*field, count_t length):elements(length)	//!< Array copy constructor \param field Array that should be copies \param length Number of elements, field contains
@@ -113,20 +114,20 @@ template <class C, size_t A> class AlignedArray: public SerializableObject, publ
 						data[i] = other[i];
 				}
 				
-	virtual		~AlignedArray()
-				{
-					dealloc(root);
-				}
+			virtual	~AlignedArray()
+			{
+				dealloc(root);
+			}
 				
-				inline AlignedArray<C,A>& operator=(const AlignedArray<C,A>&other) //! Assignment operator
-				{
-					if (&other == this)
-						return *this;
-					relocAligned<C,A>(root,data,elements,other.elements);
-					for (register count_t i = 0; i < elements; i++)
-						data[i] = other.data[i];
+			inline AlignedArray<C,A>& operator=(const AlignedArray<C,A>&other) //! Assignment operator
+			{
+				if (&other == this)
 					return *this;
-				}
+				relocAligned<C,A>(root,data,elements,other.elements);
+				for (register count_t i = 0; i < elements; i++)
+					data[i] = other.data[i];
+				return *this;
+			}
 				
 			template <class T, size_t A1>
 				inline AlignedArray<C,A>& operator=(const AlignedArray<T,A1>&other) //! Assignment operator. Copies each element via the = operator
@@ -168,15 +169,15 @@ template <class C, size_t A> class AlignedArray: public SerializableObject, publ
 					return result;
 				}
 				
-				inline C*			operator+(signed_index_t rel)	//!< Retrieves a pointer to the nth element @param rel Relative index. 0 points to the first element in the array. 	@return Pointer to the requested element for sub array access
-				{
-					return data+rel;
-				}
+			inline C*			operator+(signed_index_t rel)	//!< Retrieves a pointer to the nth element @param rel Relative index. 0 points to the first element in the array. 	@return Pointer to the requested element for sub array access
+			{
+				return data+rel;
+			}
 				
-				inline const C*			operator+(signed_index_t rel) const	//!< @overload
-				{
-					return data+rel;
-				}
+			inline const C*			operator+(signed_index_t rel) const	//!< @overload
+			{
+				return data+rel;
+			}
 			
 								
 			template <class T, size_t A1>
@@ -253,50 +254,50 @@ template <class C, size_t A> class AlignedArray: public SerializableObject, publ
 					return true;
 				}
 				
-				inline	void	free()		//! Frees the contained data and resets the local array length to 0
-				{
-					dealloc(root);
-					elements = 0;
-					data = NULL;
-					root = NULL;
-				}
-				inline	C*		pointer()			//! Explict type conversion to a native array of the contained type \return Pointer to the first contained element or NULL if the local array is empty.
-				{
-					return data;
-				}
-				inline const C* pointer() const		//! @overload
-				{
-					return data;
-				}				
-				inline	C&		operator[](index_t index)		//! Sub-element access \param index Index of the requested element (0 = first element) \return Reference to the requested element
-				{
-					return data[index];
-				}
-				inline	const C&		operator[](index_t index) const	//!< @overload
-				{
-					return data[index];
-				}
+			inline	void	free()		//! Frees the contained data and resets the local array length to 0
+			{
+				dealloc(root);
+				elements = 0;
+				data = NULL;
+				root = NULL;
+			}
+			inline	C*		pointer()			//! Explict type conversion to a native array of the contained type \return Pointer to the first contained element or NULL if the local array is empty.
+			{
+				return data;
+			}
+			inline const C* pointer() const		//! @overload
+			{
+				return data;
+			}				
+			inline	C&		operator[](index_t index)		//! Sub-element access \param index Index of the requested element (0 = first element) \return Reference to the requested element
+			{
+				return data[index];
+			}
+			inline	const C&		operator[](index_t index) const	//!< @overload
+			{
+				return data[index];
+			}
 
 			
-				inline	C		shiftLeft()	//!< Moves all array elements down, starting with the first, finishing with one before the last element. Elements are copied via the = operator. The original first element of the array will be removed from the array, the last one duplicated. @return Original (dropped) first element
-				{
-					if (!elements)
-						return C();
-					C first = data[0];
-					for (unsigned i = 0; i < elements-1; i++)
-						data[i] = data[i+1];
-					return first;
-				}
+			inline	C		shiftLeft()	//!< Moves all array elements down, starting with the first, finishing with one before the last element. Elements are copied via the = operator. The original first element of the array will be removed from the array, the last one duplicated. @return Original (dropped) first element
+			{
+				if (!elements)
+					return C();
+				C first = data[0];
+				for (unsigned i = 0; i < elements-1; i++)
+					data[i] = data[i+1];
+				return first;
+			}
 				
-				inline	C		shiftRight()	//!< Moves all array elements up, starting with the last, finishing with one past the first element. Elements are copied via the = operator. The original last element of the array will be removed from the array, the first one duplicated. @return Original (dropped) last element
-				{
-					if (!elements)
-						return C();
-					C last = data[elements-1];
-					for (unsigned i = elements-1; i >0; i--)
-						data[i] = data[i-1];
-					return last;
-				}
+			inline	C		shiftRight()	//!< Moves all array elements up, starting with the last, finishing with one past the first element. Elements are copied via the = operator. The original last element of the array will be removed from the array, the first one duplicated. @return Original (dropped) last element
+			{
+				if (!elements)
+					return C();
+				C last = data[elements-1];
+				for (unsigned i = elements-1; i >0; i--)
+					data[i] = data[i-1];
+				return last;
+			}
 				
 			template <typename T>
 				inline	void	Fill(const T&element, count_t offset=0, count_t max=Undefined)	//! Sets up to \b max elements starting from @b offset of the local array to \b element \param element Element to repeat @param offset First index \param max If specified: Maximum number of elements to set to \b element
@@ -322,33 +323,33 @@ template <class C, size_t A> class AlignedArray: public SerializableObject, publ
 						data[i] = (C)origin[i];
 				}
 				
-				inline	void	adoptData(AlignedArray<C,A>&other)	//! Clears any existing local data, adopts pointer and size and sets both NULL of the specified origin array.
-				{
-					if (this == &other)
-						return;
-					dealloc(root);
-					data = other.data;
-					root = other.root;
-					elements = other.elements;
-					other.data = NULL;
-					other.root = NULL;
-					other.elements = 0;
-				}
+			inline	void	adoptData(AlignedArray<C,A>&other)	//! Clears any existing local data, adopts pointer and size and sets both NULL of the specified origin array.
+			{
+				if (this == &other)
+					return;
+				dealloc(root);
+				data = other.data;
+				root = other.root;
+				elements = other.elements;
+				other.data = NULL;
+				other.root = NULL;
+				other.elements = 0;
+			}
 			
-				inline	void	adoptData(const C*origin, count_t max=Undefined)	//!< Adopts up to @b max elements from origin
-				{
-					if (max > elements)
-						max = elements;
-					for (register count_t i = 0; i < max; i++)
-						data[i].adoptData(origin[i]);
-				}
+			inline	void	adoptData(const C*origin, count_t max=Undefined)	//!< Adopts up to @b max elements from origin
+			{
+				if (max > elements)
+					max = elements;
+				for (register count_t i = 0; i < max; i++)
+					data[i].adoptData(origin[i]);
+			}
 				
-				inline	void	resizeAdoptFrom(const C*origin, count_t length)	//!< Resizes the local field and adopts the specified number of elements
-				{
-					resize(length);
-					for (register count_t i = 0; i < length; i++)
-						data[i].adoptData(origin[i]);
-				}
+			inline	void	resizeAdoptFrom(const C*origin, count_t length)	//!< Resizes the local field and adopts the specified number of elements
+			{
+				resize(length);
+				for (register count_t i = 0; i < length; i++)
+					data[i].adoptData(origin[i]);
+			}
 				
 				
 			template <class T, size_t A1>
@@ -361,23 +362,23 @@ template <class C, size_t A> class AlignedArray: public SerializableObject, publ
 						data[i] = origin.data[i];
 				}
 			
-				inline C&	append()	//!< Appends a singular element to the end of the array and returns a reference to it. append() has to allocate a new array, copy the contents of the old array and delete the old array. Copying is performed via the = operator @return Reference to the appended element
-				{
-					resizeCopy(elements+1);
-					return data[elements-1];
-				}
+			inline C&	append()	//!< Appends a singular element to the end of the array and returns a reference to it. append() has to allocate a new array, copy the contents of the old array and delete the old array. Copying is performed via the = operator @return Reference to the appended element
+			{
+				resizeCopy(elements+1);
+				return data[elements-1];
+			}
 			
-				inline C&	appendAdopt()	//!< Appends a singular element to the end of the array and returns a reference to it. appendAdopt() has to allocate a new array, adopt the contents of the old array and delete the old array. Copying is performed via the adoptData() method. The contained class has to provide the adoptData method for this method to work. @return Reference to the appended element
-				{
-					resizeAdopt(elements+1);
-					return data[elements-1];
-				}
+			inline C&	appendAdopt()	//!< Appends a singular element to the end of the array and returns a reference to it. appendAdopt() has to allocate a new array, adopt the contents of the old array and delete the old array. Copying is performed via the adoptData() method. The contained class has to provide the adoptData method for this method to work. @return Reference to the appended element
+			{
+				resizeAdopt(elements+1);
+				return data[elements-1];
+			}
 			
-				inline C&	appendAdoptSingular()	//!< @overload
-				{
-					resizeAdopt(elements+1);
-					return data[elements-1];
-				}
+			inline C&	appendAdoptSingular()	//!< @overload
+			{
+				resizeAdopt(elements+1);
+				return data[elements-1];
+			}
 			
 			template <class T, size_t A1>
 				inline void append(const AlignedArray<T,A1>&origin, count_t max=Undefined)	//! Appends some or all elements of \b origin to the end of the local array. Elements are duplicated using the = operator \param origin Array to copy from \param max Maximum number of elements to append
@@ -463,121 +464,121 @@ template <class C, size_t A> class AlignedArray: public SerializableObject, publ
 					}
 				}
 			
-				inline void	erase(count_t index, count_t count=1)	//! Erases a number of elements from the array. The remaining elements (if any) are copied via the = operator. \param index Index of the first element to erase with 0 being the first entry \param count Number of elements to erase
-				{
-					if (index >= elements)
-						return;
-					if (count > elements-index)
-						count = elements-index;
-					if (!count)
-						return;
-					elements -= count;
+			inline void	erase(count_t index, count_t count=1)	//! Erases a number of elements from the array. The remaining elements (if any) are copied via the = operator. \param index Index of the first element to erase with 0 being the first entry \param count Number of elements to erase
+			{
+				if (index >= elements)
+					return;
+				if (count > elements-index)
+					count = elements-index;
+				if (!count)
+					return;
+				elements -= count;
 
-					C	*new_field;
-					BYTE*new_root;
-					allocAligned<C,A>(new_root,new_field,elements);
+				C	*new_field;
+				BYTE*new_root;
+				allocAligned<C,A>(new_root,new_field,elements);
 					
-					for (unsigned i = 0; i < index; i++)
-						new_field[i] = data[i];
-					for (unsigned i = index; i < elements; i++)
-						new_field[i] = data[i+count];
-					dealloc(root);
-					data = new_field;
-					root = new_root;
-				}
+				for (unsigned i = 0; i < index; i++)
+					new_field[i] = data[i];
+				for (unsigned i = index; i < elements; i++)
+					new_field[i] = data[i+count];
+				dealloc(root);
+				data = new_field;
+				root = new_root;
+			}
 			
-				inline void	eraseAdopt(count_t index, count_t count=1)	//! Erases a number of elements from the array. The remaining elements (if any) are adopted via adoptData(). The contained type must provide an adoptData() method for this method to work. \param index Index of the first element to erase with 0 being the first entry \param count Number of elements to erase
-				{
-					if (index >= elements)
-						return;
-					if (count > elements-index)
-						count = elements-index;
-					if (!count)
-						return;
-					elements -= count;
+			inline void	eraseAdopt(count_t index, count_t count=1)	//! Erases a number of elements from the array. The remaining elements (if any) are adopted via adoptData(). The contained type must provide an adoptData() method for this method to work. \param index Index of the first element to erase with 0 being the first entry \param count Number of elements to erase
+			{
+				if (index >= elements)
+					return;
+				if (count > elements-index)
+					count = elements-index;
+				if (!count)
+					return;
+				elements -= count;
 					
-					C	*new_field;
-					BYTE*new_root;
-					allocAligned<C,A>(new_root,new_field,elements);
+				C	*new_field;
+				BYTE*new_root;
+				allocAligned<C,A>(new_root,new_field,elements);
 					
-					for (unsigned i = 0; i < index; i++)
-						new_field[i].adoptData(data[i]);
-					for (unsigned i = index; i < elements; i++)
-						new_field[i].adoptData(data[i+count]);
-					dealloc(root);
-					data = new_field;
-					root = new_root;
-				}
+				for (unsigned i = 0; i < index; i++)
+					new_field[i].adoptData(data[i]);
+				for (unsigned i = index; i < elements; i++)
+					new_field[i].adoptData(data[i+count]);
+				dealloc(root);
+				data = new_field;
+				root = new_root;
+			}
 				
-				inline void revert()	//!< Reverses the order of elements in the local field
-				{
-					for (unsigned i = 0; i < elements/2; i++)
-						swp(data[i],data[elements-1-i]);
-				}
+			inline void revert()	//!< Reverses the order of elements in the local field
+			{
+				for (unsigned i = 0; i < elements/2; i++)
+					swp(data[i],data[elements-1-i]);
+			}
 				
-				inline void revertAdopt()	//!< Identical to revert() except that adoptData() is invoked on each element.  The contained type must provide an adoptData() method for this method to work. 
+			inline void revertAdopt()	//!< Identical to revert() except that adoptData() is invoked on each element.  The contained type must provide an adoptData() method for this method to work. 
+			{
+				C	dump;
+				for (unsigned i = 0; i < elements/2; i++)
 				{
-					C	dump;
-					for (unsigned i = 0; i < elements/2; i++)
-					{
-						dump.adoptData(data[i]);
-						data[i].adoptData(data[elements-1-i]);
-						data[elements-1-i].adoptData(dump);
-					}
+					dump.adoptData(data[i]);
+					data[i].adoptData(data[elements-1-i]);
+					data[elements-1-i].adoptData(dump);
 				}
+			}
 				
-				inline bool concludedBy(const C*element)	const	//! Queries if the specifed entry pointer points exactly one past the last element.
-				{
-					return element == data+elements;
-				}
+			inline bool concludedBy(const C*element)	const	//! Queries if the specifed entry pointer points exactly one past the last element.
+			{
+				return element == data+elements;
+			}
 				
-				inline bool Owns(const C*element)	const	//! Queries if the specified entry pointer was taken from the local array. Actual pointer address is checked, not what it points to.
-				{
-					return element >= data && element < data+elements;
-				}
+			inline bool Owns(const C*element)	const	//! Queries if the specified entry pointer was taken from the local array. Actual pointer address is checked, not what it points to.
+			{
+				return element >= data && element < data+elements;
+			}
 				
-				inline count_t GetIndexOf(const C*element)	const	//! Queries the index of the specifed element with 0 being the first element. To determine whether ot not the specified element is member of this array use the Owns() method.
-				{
-					return element-data;
-				}				
+			inline count_t GetIndexOf(const C*element)	const	//! Queries the index of the specifed element with 0 being the first element. To determine whether ot not the specified element is member of this array use the Owns() method.
+			{
+				return element-data;
+			}				
 				
-				inline	void	SetSize(count_t new_size)	//! Resizes the array. The new array's content is uninitialized. \param new_size New array size in elements (may be 0)
-				{
-					relocAligned<C,A>(root,data,elements,new_size);
-				}
-				inline	void	resizeCopy(count_t new_size) //! Resizes the array. The new array's content is filled with the elements of the old array as far as possible. \param new_size New array size in elements (may be 0)
-				{
-					if (new_size == elements || new_size == Undefined)
-						return;
-					C	*new_field;
-					BYTE*new_root;
-					allocAligned<C,A>(new_root,new_field,new_size);
+			inline	void	SetSize(count_t new_size)	//! Resizes the array. The new array's content is uninitialized. \param new_size New array size in elements (may be 0)
+			{
+				relocAligned<C,A>(root,data,elements,new_size);
+			}
+			inline	void	resizeCopy(count_t new_size) //! Resizes the array. The new array's content is filled with the elements of the old array as far as possible. \param new_size New array size in elements (may be 0)
+			{
+				if (new_size == elements || new_size == Undefined)
+					return;
+				C	*new_field;
+				BYTE*new_root;
+				allocAligned<C,A>(new_root,new_field,new_size);
 
-					count_t copy = new_size<elements?new_size:elements;
-					for (count_t i = 0; i < copy; i++)
-						new_field[i] = data[i];
-					dealloc(root);
-					root = new_root;
-					data = new_field;
-					elements = new_size;
-				}
-				inline	void	resizeAdopt(count_t new_size)	//! Resizes the array similar to resizeCopy(). This method is only applicable if the contained type is again of type AlignedArray<...> or any other class providing the 'adoptData' method. For arrays of arrays this method is considerably faster than resizeCopy()
-				{
-					if (new_size == elements || new_size == Undefined)
-						return;
+				count_t copy = new_size<elements?new_size:elements;
+				for (count_t i = 0; i < copy; i++)
+					new_field[i] = data[i];
+				dealloc(root);
+				root = new_root;
+				data = new_field;
+				elements = new_size;
+			}
+			inline	void	resizeAdopt(count_t new_size)	//! Resizes the array similar to resizeCopy(). This method is only applicable if the contained type is again of type AlignedArray<...> or any other class providing the 'adoptData' method. For arrays of arrays this method is considerably faster than resizeCopy()
+			{
+				if (new_size == elements || new_size == Undefined)
+					return;
 					
-					C	*new_field;
-					BYTE*new_root;
-					allocAligned<C,A>(new_root,new_field,new_size);
+				C	*new_field;
+				BYTE*new_root;
+				allocAligned<C,A>(new_root,new_field,new_size);
 
-					count_t copy = new_size<elements?new_size:elements;
-					for (count_t i = 0; i < copy; i++)
-						new_field[i].adoptData(data[i]);
-					dealloc(root);
-					root = new_root;
-					data = new_field;
-					elements = new_size;
-				}
+				count_t copy = new_size<elements?new_size:elements;
+				for (count_t i = 0; i < copy; i++)
+					new_field[i].adoptData(data[i]);
+				dealloc(root);
+				root = new_root;
+				data = new_field;
+				elements = new_size;
+			}
 				
 			template <class T>
 				inline count_t findFirst(const T&entry) const	//!< Finds the index of the first occurance of the specified entry. Entries are compared via the == operator. @param entry Entry to look for @return Index of the found match plus one or 0 if no match was found
@@ -665,208 +666,208 @@ template <class C, size_t A> class AlignedArray: public SerializableObject, publ
 					return findLast(other.data,other.elements);
 				}
 				
-				inline C&	first()	//!< Retrieves a reference to the first element in the field. The method will return an undefined result if the local array is empty
-				{
-					return data[0];
-				}
-				
-				inline const C& first()	const
-				{
-					return data[0];
-				}
-				
-				inline C&	last()
-				{
-					return data[elements-1];
-				}
-				
-				inline const C& last()	const
-				{
-					return data[elements-1];
-				}
-				
-				inline count_t length()	const		//! Queries the current array size in elements \return Number of elements 
-				{
-					return elements;
-				}
-				inline count_t count()	const		//! Queries the current array size in elements \return Number of elements 
-				{
-					return elements;
-				}
-				inline count_t size()	const		//! Queries the current array size in elements \return Number of elements 
-				{
-					return elements;
-				}
-				inline size_t GetContentSize()	const		//! Returns the summarized size of all contained elements in bytes \return Size of all elements
-				{
-					return (size_t)elements*sizeof(C);
-				}
-				inline bool isTerminated()	const		//! Queries whether or not the local data ends with an object resolvable to bool that returns false (i.e. a char array with the last character being zero).
-				{
-					return elements && !data[elements-1];
-				}
-				
-				
-		virtual	serial_size_t			GetSerialSize(bool export_size) const	override
-		{
-			serial_size_t result = export_size?GetSerialSizeOfSize((serial_size_t)elements):0;
-			for (index_t i = 0; i < elements; i++)
-				result += GetSerialSizeOf((const C*)data+i,sizeof(C),true);//must pass true here because the individual object size cannot be restored from the global data size
-			return result;
-		}
-		
-		virtual	void			Serialize(IWriteStream&out_stream, bool export_size) const	override
-		{
-			if (export_size)
-				out_stream.WriteSize(elements);
-
-			if (!IsISerializable(data))
+			inline C&	first()	//!< Retrieves a reference to the first element in the field. The method will return an undefined result if the local array is empty
 			{
-				out_stream.Write(data,(serial_size_t)GetContentSize());
-				return;
+				return data[0];
 			}
-
-			for (index_t i = 0; i < elements; i++)
-				SerializeObject(data+i,sizeof(C),out_stream,true);
-		}
-		
-		virtual	void			Deserialize(IReadStream&in_stream, serial_size_t fixed_size)	override
-		{
-			count_t size;
-			if (fixed_size == EmbeddedSize)
+				
+			inline const C& first()	const
 			{
-				in_stream.ReadSize(size);
+				return data[0];
 			}
-			else
+				
+			inline C&	last()
+			{
+				return data[elements-1];
+			}
+				
+			inline const C& last()	const
+			{
+				return data[elements-1];
+			}
+				
+			inline count_t length()	const		//! Queries the current array size in elements \return Number of elements 
+			{
+				return elements;
+			}
+			inline count_t count()	const		//! Queries the current array size in elements \return Number of elements 
+			{
+				return elements;
+			}
+			inline count_t size()	const		//! Queries the current array size in elements \return Number of elements 
+			{
+				return elements;
+			}
+			inline size_t GetContentSize()	const		//! Returns the summarized size of all contained elements in bytes \return Size of all elements
+			{
+				return (size_t)elements*sizeof(C);
+			}
+			inline bool isTerminated()	const		//! Queries whether or not the local data ends with an object resolvable to bool that returns false (i.e. a char array with the last character being zero).
+			{
+				return elements && !data[elements-1];
+			}
+				
+				
+			virtual	serial_size_t			GetSerialSize(bool export_size) const	override
+			{
+				serial_size_t result = export_size?GetSerialSizeOfSize((serial_size_t)elements):0;
+				for (index_t i = 0; i < elements; i++)
+					result += GetSerialSizeOf((const C*)data+i,sizeof(C),true);//must pass true here because the individual object size cannot be restored from the global data size
+				return result;
+			}
+		
+			virtual	void			Serialize(IWriteStream&out_stream, bool export_size) const	override
+			{
+				if (export_size)
+					out_stream.WriteSize(elements);
+
 				if (!IsISerializable(data))
-					size = (count_t)(fixed_size/sizeof(C));
-				else
-					throw Except::Memory::SerializationFault(CLOCATION,"Trying to deserialize an array containing serializable objects from a fixed size stream data section not including any element count");
-
-			SetSize(size);
-			if (!IsISerializable(data))
-			{
-				in_stream.Read(data,(serial_size_t)GetContentSize());
-				return;
-			}
-
-			for (index_t i = 0; i < elements; i++)
-				DeserializeObject(data+i,sizeof(C),in_stream,0);
-		}
-
-};
-
-
-
-/**
-	\brief two dimensional aligned array
-	
-	The AlignedArray2D class maps 2d access to a single-dimensional field. Internally it behaves like a normal AlignedArray instance, but it provides some 2d access helper method.
-*/
-template <class C, size_t A>
-	class AlignedArray2D:public AlignedArray<C,A>
-	{
-	protected:
-			
-			Arrays::count_t	w;
-			
-				AlignedArray<C,A>::resize;
-				AlignedArray<C,A>::resizeCopy;
-				AlignedArray<C,A>::resizeAdopt;
-				AlignedArray<C,A>::erase;
-				AlignedArray<C,A>::eraseAdopt;
-				AlignedArray<C,A>::append;
-				AlignedArray<C,A>::appendAdopt;
-	public:
-				AlignedArray2D():w(0)
-				{}
-			template <class T, size_t A1>
-				inline AlignedArray2D(const AlignedArray2D<T,A1>&other):AlignedArray<C,A>(other),w(other.w)
-				{}
-				
-				inline AlignedArray2D(const AlignedArray2D<C,A>&other):AlignedArray<C,A>(other),w(other.w)
-				{}
-				
-				inline AlignedArray2D(Arrays::count_t width, Arrays::count_t height):AlignedArray<C,A>(width*height),w(width)
-				{}
-				
-			
-	inline	Arrays::count_t	width()	const	//! Retrieves this array's width \return width
-			{
-				return w;
-			}
-	inline	Arrays::count_t	height() const	//! Retrieves this array's height \return height
-			{
-				return w?AlignedArray<C,A>::elements/w:0;
-			}
-	inline	void		resize(Arrays::count_t width, Arrays::count_t height)	//! Resizes the local 2d array to match the specified dimensions. The local array content is lost if the array's total size is changed
-			{
-				AlignedArray<C,A>::resize(width*height);
-				w = width;
-			}
-	template <typename T>
-		inline	void		set(Arrays::count_t x, Arrays::count_t y, const T&value)	//! Updates a singular element at the specified position	\param x X coordinate. Must be less than width() \param y Y coordinate. Must be less than height() @param value Value to set \return Reference to the requested element
 				{
-					AlignedArray<C,A>::data[y*w+x] = value;
+					out_stream.Write(data,(serial_size_t)GetContentSize());
+					return;
 				}
+
+				for (index_t i = 0; i < elements; i++)
+					SerializeObject(data+i,sizeof(C),out_stream,true);
+			}
 		
-	inline	C&			get(Arrays::count_t x, Arrays::count_t y)	//! Retrieves a singular element at the specified position	\param x X coordinate. Must be less than width() \param y Y coordinate. Must be less than height() \return Reference to the requested element
+			virtual	void			Deserialize(IReadStream&in_stream, serial_size_t fixed_size)	override
 			{
-				return AlignedArray<C,A>::data[y*w+x];
+				count_t size;
+				if (fixed_size == EmbeddedSize)
+				{
+					in_stream.ReadSize(size);
+				}
+				else
+					if (!IsISerializable(data))
+						size = (count_t)(fixed_size/sizeof(C));
+					else
+						throw Except::Memory::SerializationFault(CLOCATION,"Trying to deserialize an array containing serializable objects from a fixed size stream data section not including any element count");
+
+				SetSize(size);
+				if (!IsISerializable(data))
+				{
+					in_stream.Read(data,(serial_size_t)GetContentSize());
+					return;
+				}
+
+				for (index_t i = 0; i < elements; i++)
+					DeserializeObject(data+i,sizeof(C),in_stream,0);
 			}
-	
-	inline	const C&	get(Arrays::count_t x, Arrays::count_t y)	const	//! Retrieves a singular element at the specified position \param x X coordinate. Must be less than width() \param y Y coordinate. Must be less than height() \return Reference to the requested element
-			{
-				return AlignedArray<C,A>::data[y*w+x];
-			}
-	inline	void	adoptData(AlignedArray2D<C,A>&other)	//! Adopts pointer and size and sets both NULL of the specified origin array.
-			{
-				w = other.w;
-				AlignedArray<C,A>::adoptData(other);
-				other.w = 0;
-			}			
+
 	};
 
 
 
-
-
-
-
-/*!
-	\brief Array dealloc function to prevent accidental access violations.
-*/
-template <class C, size_t A> inline void dealloc(AlignedArray<C,A>&array)
-{
-	array.free();
-}
-
-/*!
-	\brief Array re_alloc function to prevent accidental access violations.
-*/
-template <class C, size_t A> inline void re_alloc(AlignedArray<C,A>&array, Arrays::count_t elements)
-{
-	array.resize(elements);
-}
-
-/*!
-	\brief Array reloc function to prevent accidental access violations.
-*/
-template <class FieldType, size_t A, class IndexType0, class IndexType1> inline void   reloc(AlignedArray<FieldType,A>&array, IndexType0&length, IndexType1 new_length)
-{
-	array.resize(new_length);
-	length = array.length();
-}
-
-/*!
-	\brief Array alloc function to prevent accidental access violations.
-*/
-template <class C, size_t A>  inline void alloc(AlignedArray<C,A>&target, Arrays::count_t elements)
-{
-	target.resize(elements);
-}
-
+	/**
+		\brief two dimensional aligned array
+	
+		The AlignedArray2D class maps 2d access to a single-dimensional field. Internally it behaves like a normal AlignedArray instance, but it provides some 2d access helper method.
+	*/
+	template <class C, size_t A>
+		class AlignedArray2D:public AlignedArray<C,A>
+		{
+		protected:
 			
+				Arrays::count_t	w;
+			
+					AlignedArray<C,A>::resize;
+					AlignedArray<C,A>::resizeCopy;
+					AlignedArray<C,A>::resizeAdopt;
+					AlignedArray<C,A>::erase;
+					AlignedArray<C,A>::eraseAdopt;
+					AlignedArray<C,A>::append;
+					AlignedArray<C,A>::appendAdopt;
+		public:
+					AlignedArray2D():w(0)
+					{}
+				template <class T, size_t A1>
+					inline AlignedArray2D(const AlignedArray2D<T,A1>&other):AlignedArray<C,A>(other),w(other.w)
+					{}
+				
+					inline AlignedArray2D(const AlignedArray2D<C,A>&other):AlignedArray<C,A>(other),w(other.w)
+					{}
+				
+					inline AlignedArray2D(Arrays::count_t width, Arrays::count_t height):AlignedArray<C,A>(width*height),w(width)
+					{}
+				
+			
+		inline	Arrays::count_t	width()	const	//! Retrieves this array's width \return width
+				{
+					return w;
+				}
+		inline	Arrays::count_t	height() const	//! Retrieves this array's height \return height
+				{
+					return w?AlignedArray<C,A>::elements/w:0;
+				}
+		inline	void		resize(Arrays::count_t width, Arrays::count_t height)	//! Resizes the local 2d array to match the specified dimensions. The local array content is lost if the array's total size is changed
+				{
+					AlignedArray<C,A>::resize(width*height);
+					w = width;
+				}
+		template <typename T>
+			inline	void		set(Arrays::count_t x, Arrays::count_t y, const T&value)	//! Updates a singular element at the specified position	\param x X coordinate. Must be less than width() \param y Y coordinate. Must be less than height() @param value Value to set \return Reference to the requested element
+					{
+						AlignedArray<C,A>::data[y*w+x] = value;
+					}
+		
+		inline	C&			get(Arrays::count_t x, Arrays::count_t y)	//! Retrieves a singular element at the specified position	\param x X coordinate. Must be less than width() \param y Y coordinate. Must be less than height() \return Reference to the requested element
+				{
+					return AlignedArray<C,A>::data[y*w+x];
+				}
+	
+		inline	const C&	get(Arrays::count_t x, Arrays::count_t y)	const	//! Retrieves a singular element at the specified position \param x X coordinate. Must be less than width() \param y Y coordinate. Must be less than height() \return Reference to the requested element
+				{
+					return AlignedArray<C,A>::data[y*w+x];
+				}
+		inline	void	adoptData(AlignedArray2D<C,A>&other)	//! Adopts pointer and size and sets both NULL of the specified origin array.
+				{
+					w = other.w;
+					AlignedArray<C,A>::adoptData(other);
+					other.w = 0;
+				}			
+		};
+
+
+
+
+
+
+
+	/*!
+		\brief Array dealloc function to prevent accidental access violations.
+	*/
+	template <class C, size_t A> inline void dealloc(AlignedArray<C,A>&array)
+	{
+		array.free();
+	}
+
+	/*!
+		\brief Array re_alloc function to prevent accidental access violations.
+	*/
+	template <class C, size_t A> inline void re_alloc(AlignedArray<C,A>&array, Arrays::count_t elements)
+	{
+		array.resize(elements);
+	}
+
+	/*!
+		\brief Array reloc function to prevent accidental access violations.
+	*/
+	template <class FieldType, size_t A, class IndexType0, class IndexType1> inline void   reloc(AlignedArray<FieldType,A>&array, IndexType0&length, IndexType1 new_length)
+	{
+		array.resize(new_length);
+		length = array.length();
+	}
+
+	/*!
+		\brief Array alloc function to prevent accidental access violations.
+	*/
+	template <class C, size_t A>  inline void alloc(AlignedArray<C,A>&target, Arrays::count_t elements)
+	{
+		target.resize(elements);
+	}
+
+}			
 
 
 #endif

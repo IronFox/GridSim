@@ -446,16 +446,16 @@ functions:
 				swp(v:i,w:i);
 				
 	sphereCoords(planar_angle, height_angle, radius, [3] result)
-		result:1 = vsin(height_angle*M_PI/180)*radius;
-		:float	r2 = vcos(height_angle*M_PI/180)*radius;
-		result:0 = vcos(planar_angle*M_PI/180)*r2;
-		result:2 = vsin(planar_angle*M_PI/180)*r2;
+		result:1 = sin(height_angle*M_PI/180)*radius;
+		:float	r2 = cos(height_angle*M_PI/180)*radius;
+		result:0 = cos(planar_angle*M_PI/180)*r2;
+		result:2 = sin(planar_angle*M_PI/180)*r2;
 	
 	sphereCoordsRad(planar_angle, height_angle, [3] result)
-		result:1 = vsin(height_angle);
-		:float	r2 = vcos(height_angle);
-		result:0 = vcos(planar_angle)*r2;
-		result:2 = vsin(planar_angle)*r2;
+		result:1 = sin(height_angle);
+		:float	r2 = cos(height_angle);
+		result:0 = cos(planar_angle)*r2;
+		result:2 = sin(planar_angle)*r2;
 		
 	
 	copy,c<16>(const[] origin {array to copy from}, [] destination {array to copy to})

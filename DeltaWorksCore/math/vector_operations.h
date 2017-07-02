@@ -8902,10 +8902,10 @@ namespace Vec
 	template <typename T0, typename T1, typename T2, typename T3>
 		inline	void	__fastcall	sphereCoords(T0 planar_angle, T1 height_angle, T2 radius, TVec3<T3>& result)throw()
 		{
-			result.y = vsin(height_angle*M_PI/180)*radius;
-			T3	r2 = vcos(height_angle*M_PI/180)*radius;
-			result.x = vcos(planar_angle*M_PI/180)*r2;
-			result.z = vsin(planar_angle*M_PI/180)*r2;
+			result.y = sin(height_angle*M_PI/180)*radius;
+			T3	r2 = cos(height_angle*M_PI/180)*radius;
+			result.x = cos(planar_angle*M_PI/180)*r2;
+			result.z = sin(planar_angle*M_PI/180)*r2;
 		}
 
 	//now implementing template definition 'void sphereCoordsRad (<planar_angle>, <height_angle>, <[3] result>) direct='

@@ -24,9 +24,9 @@ namespace DeltaWorks
 				typedef WorkPipe<T,MyStrategy>Self;
 				volatile bool				locked;
 				//Mutex						mutex;
-				SpinLock					lock;
+				System::SpinLock			lock;
 				index_t						readAt;
-				Signal						contentSignal;
+				System::Signal				contentSignal;
 			public:
 				typedef typename Super::iterator		iterator;
 				typedef typename Super::const_iterator		const_iterator;

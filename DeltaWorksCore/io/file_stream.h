@@ -2,7 +2,8 @@
 #define file_streamH
 
 #include <fcntl.h>
-
+#include "../interface/read_stream.h"
+#include "../interface/write_stream.h"
 
 #if SYSTEM!=WINDOWS
 	#include <sys/io.h>
@@ -51,12 +52,14 @@
 #endif
 
 
-/**
-	@brief Abstracted IO file class
-*/
-class FileStream:public IReadStream, public IWriteStream
+namespace DeltaWorks
 {
-protected:
+	/**
+	@brief Abstracted IO file class
+	*/
+	class FileStream:public IReadStream, public IWriteStream
+	{
+	protected:
 		int				handle;
 		
 						FileStream(const FileStream&):handle(-1)
@@ -65,7 +68,7 @@ protected:
 						{
 							return *this;
 						}
-public:
+	public:
 		enum flag_t	//!< Renamed and predefined flag combinations
 		{
 			ReadOnly = __O_RDONLY,        //!< open for reading only
@@ -97,7 +100,7 @@ public:
 						{
 							open(filename,flags);
 						}
-virtual					~FileStream()
+		virtual			~FileStream()
 						{
 							close();
 						}
@@ -143,8 +146,8 @@ virtual					~FileStream()
 
 		uint64_t		GetByteSize()	const	{return size();}
 		
-	virtual void		Write(const void*data, serial_size_t size) override;	//!< Writes a section of binary data to the local file. File must be opened in write mode or this operation will fail
-	virtual void		Read(void*data, serial_size_t size) override;			//!< Reads a section of binary data from the local file. File must be opened in read mode or this operation will fail
+		virtual void	Write(const void*data, serial_size_t size) override;	//!< Writes a section of binary data to the local file. File must be opened in write mode or this operation will fail
+		virtual void	Read(void*data, serial_size_t size) override;			//!< Reads a section of binary data from the local file. File must be opened in read mode or this operation will fail
 	#ifdef _WIN32
 		serial_size_t	GetRemainingBytes() const override {return isOpen()? (serial_size_t)(_filelengthi64(handle) - _telli64(handle)): 0;}
 	#else
@@ -153,17 +156,17 @@ virtual					~FileStream()
 	#endif
 
 
-	template <typename T>
-		inline	bool	readPrimitive(T&target)
-						{
-							return read(&target,sizeof(target));
-						}
-	template <typename T>
-		inline	bool	writePrimitive(const T&primitive)
-						{
-							return write(&primitive,sizeof(primitive));
-						}
-};
-
+		template <typename T>
+			inline	bool	readPrimitive(T&target)
+							{
+								return read(&target,sizeof(target));
+							}
+		template <typename T>
+			inline	bool	writePrimitive(const T&primitive)
+							{
+								return write(&primitive,sizeof(primitive));
+							}
+	};
+}
 
 #endif
