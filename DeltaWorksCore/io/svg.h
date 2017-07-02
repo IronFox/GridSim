@@ -32,9 +32,9 @@ namespace DeltaWorks
 			/**Creates a new image child element in the local SVG element. Local element must be a group*/
 			Element		CreateImage(const Rect<>&, const PathString&path);
 			/**Creates a new polyline child element in the local SVG element. Local element must be a group*/
-			Element		CreatePolyline(const ArrayRef<float2>&);
+			Element		CreatePolyline(const Ctr::ArrayRef<float2>&);
 			/**Creates a new polygon child element in the local SVG element. Local element must be a group*/
-			Element		CreatePolygon(const ArrayRef<float2>&);
+			Element		CreatePolygon(const Ctr::ArrayRef<float2>&);
 			/**Creates a new polygon child element in the local SVG element. Local element must be a group*/
 			Element		CreatePolygon(const Rect<>&);
 			/**Creates a new circle child element in the local SVG element. Local element must be a group*/

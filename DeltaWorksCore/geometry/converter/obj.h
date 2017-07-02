@@ -327,12 +327,12 @@ namespace DeltaWorks
 					return rs;
 				}
 
-				void											exportToField(Array<Vertex>&out)	const
+				void											exportToField(Ctr::Array<Vertex>&out)	const
 				{
 					out.SetSize(Super::count());
 					{
-						Array<Vertex>		out_field;
-						Array<index_t>		out_index_field;
+						Ctr::Array<Vertex>		out_field;
+						Ctr::Array<index_t>		out_index_field;
 						Super::exportTo(out_field,out_index_field);
 						Concurrency::parallel_for((index_t)0,out_index_field.length(),[&out,&out_field,&out_index_field](index_t i)
 						{
@@ -477,7 +477,7 @@ namespace DeltaWorks
 			ObjTexture*			LoadObjNormalMap(const PathString&normal_map) throw();
 			void				resetImport() throw();
 				
-			static void			writeObject(const CGS::Geometry<>&geometry, const Array<Container::PointerContainer<Array<TFace> > >&conversion_table,const CGS::SubGeometryA<>&object,StringFile&out) throw();
+			static void			writeObject(const CGS::Geometry<>&geometry, const Ctr::Array<Container::PointerContainer<Ctr::Array<TFace> > >&conversion_table,const CGS::SubGeometryA<>&object,StringFile&out) throw();
 			void				ExportTexture(const CGS::TextureA*texture, const PathString&outname, StringFile&out) throw();
 
 			inline void			logMessage(const String&message) throw()

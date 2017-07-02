@@ -215,7 +215,7 @@ namespace DeltaWorks
 		cout << "starting with line "<<cinfo.next_scanline<<endl;
 	
 		row_stride = cinfo.image_width*cinfo.input_components;
-		Array<JSAMPLE>	sample(row_stride);
+		Ctr::Array<JSAMPLE>	sample(row_stride);
 
 		while (cinfo.next_scanline < cinfo.image_height)
 		{

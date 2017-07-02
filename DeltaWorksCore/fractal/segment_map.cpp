@@ -310,7 +310,7 @@ namespace DeltaWorks
 						(pvi++)->origin[3] = getIndex(vertex_range / 2 - x, vertex_range - y - 1);
 			}
 	
-			Array<unsigned>	forward_map(vertex_count * 4);
+			Ctr::Array<unsigned>	forward_map(vertex_count * 4);
 			if (parent_vertex_count > 0)
 			{
 				for (unsigned i = 0; i < parent_vertex_count; i++)
@@ -375,7 +375,7 @@ namespace DeltaWorks
 	
 	
 			/*
-			Array<bool>	test_map(vertex_count);
+			Ctr::Array<bool>	test_map(vertex_count);
 			memset(test_map,false,vertex_count);
 		
 			for (unsigned i = 0; i < parent_vertex_count; i++)

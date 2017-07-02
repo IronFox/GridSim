@@ -366,7 +366,7 @@ namespace DeltaWorks
 	}
 
 
-	/*static*/	void		PNG::CompressToArray(const Image&source_image, Array<BYTE>&data)
+	/*static*/	void		PNG::CompressToArray(const Image&source_image, Ctr::Array<BYTE>&data)
 	{
 		out_buffer.reset();
 		png_structp png = png_create_write_struct(PNG_LIBPNG_VER_STRING,(void*)pngError,writeError,handleWarning);
@@ -476,7 +476,7 @@ namespace DeltaWorks
 		}
 	}
 
-	/*static*/	void		PNG::DecompressArray(Image&out_image, const Array<BYTE>&data)
+	/*static*/	void		PNG::DecompressArray(Image&out_image, const Ctr::Array<BYTE>&data)
 	{
 		DecompressData(out_image,data.pointer(),data.size());
 

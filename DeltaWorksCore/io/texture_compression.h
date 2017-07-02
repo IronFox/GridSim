@@ -36,7 +36,7 @@ namespace DeltaWorks
 		};
 
 
-		PixelType	extractContentType(const ArrayData<BYTE>&source);	//!< Extracts the content type of a compressed image
+		PixelType	extractContentType(const Ctr::ArrayData<BYTE>&source);	//!< Extracts the content type of a compressed image
 		/**
 			\brief  Extracts the specified compressed binary image and writes the result to a new Image object
 			\param source Pointer to the first byte of the source data field
@@ -54,7 +54,7 @@ namespace DeltaWorks
 
 			The client application is responsible for discarding the returned object.
 		*/
-		Image*     decompress(const ArrayData<BYTE>&source);
+		Image*     decompress(const Ctr::ArrayData<BYTE>&source);
     
 		/**
 			\brief  Extracts the specified compressed binary image and writes the result to the provided Image object
@@ -69,7 +69,7 @@ namespace DeltaWorks
 			\param source Reference to an array containing the compressed data
 			\return true on success
 		*/
-		bool        decompress(const ArrayData<BYTE>&source, Image&to);
+		bool        decompress(const Ctr::ArrayData<BYTE>&source, Image&to);
 	
 		/*!
 		\brief Compresses an image
@@ -81,7 +81,7 @@ namespace DeltaWorks
 		\param codec	Compression codec to use
 	
 		*/
-		size_t		compress(const Image&source, Array<BYTE>&buffer_out, Codec codec=PNGCompression);
+		size_t		compress(const Image&source, Ctr::Array<BYTE>&buffer_out, Codec codec=PNGCompression);
 	
 		const String&	getError();
 		const String&	errorStr();

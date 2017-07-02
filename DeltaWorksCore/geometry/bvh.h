@@ -79,7 +79,7 @@ namespace DeltaWorks
 	template <typename Object, typename Bounds, count_t MaxObjectsPerLeaf>
 		struct BVHStorage
 		{
-			Array<Object*>	objects;
+			Ctr::Array<Object*>	objects;
 
 			void			Store(const BVHEntry<Object, Bounds>*elements, count_t numElements)
 			{
@@ -262,7 +262,7 @@ namespace DeltaWorks
 					}
 				}
 			}
-			void				Insert(const ArrayData<Entry>&entries)	{Insert(entries.pointer(),entries.count());}
+			void				Insert(const Ctr::ArrayData<Entry>&entries)	{Insert(entries.pointer(),entries.count());}
 			void				Remove(Object*element)
 			{
 				//lock(_allItems)
@@ -321,7 +321,7 @@ namespace DeltaWorks
 				return _this;
 			}
 
-			static Node*		_BuildNode(Entry*const elements, const count_t numElements, ArrayData<Bucket>&buckets)
+			static Node*		_BuildNode(Entry*const elements, const count_t numElements, Ctr::ArrayData<Bucket>&buckets)
 			{
 				Box<Float> boundingBox = Box<Float>::Invalid();
 				Bounds	effectiveBounds = Bounds::Invalid();
@@ -564,7 +564,7 @@ namespace DeltaWorks
 						//_root = null;
 						return;
 					}
-					Array<Bucket>	buckets(_numBuckets);
+					Ctr::Array<Bucket>	buckets(_numBuckets);
 					_root = _BuildNode(_allItems.pointer(),_allItems.count(),buckets);
 					//if (verbose)
 					  //  printNode(_root,0);
@@ -619,7 +619,7 @@ namespace DeltaWorks
 				}
 			}
 
-			void	Compact(Array<TCompactNode>&outNodes)
+			void	Compact(Ctr::Array<TCompactNode>&outNodes)
 			{
 				Node*root = _root;
 				outNodes.SetSize(root->RecursiveCount());

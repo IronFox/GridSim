@@ -318,7 +318,7 @@ namespace DeltaWorks
 
 						SHA1();
 		void			Append(const void*source, size_t size);
-		void			Append(const Array<BYTE>&source)	{Append(source.GetPointer(),source.GetLength());}
+		void			Append(const Ctr::Array<BYTE>&source)	{Append(source.GetPointer(),source.GetLength());}
 		void			Finish(void*target);
 		void			Finish(HashContainer&target);
 		template <typename T>
@@ -346,7 +346,7 @@ namespace DeltaWorks
 		void			Append(const void*source, size_t size);
 		template <typename T>
 			inline void	AppendPOD(const T&object) {Append(&object,sizeof(T));}
-		inline void		Append(const ArrayData<BYTE>&data) {Append(data.pointer(),data.GetLength());}
+		inline void		Append(const Ctr::ArrayData<BYTE>&data) {Append(data.pointer(),data.GetLength());}
 		void			Finish(HashContainer&target);
 	};
 

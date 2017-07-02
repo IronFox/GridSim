@@ -916,7 +916,7 @@ namespace DeltaWorks
 			
 					ThreadMainObject	*init_object;	//!< Object executed once by each new worker thread. May be NULL
 					Thread::pMethod	init_method;	//!< Initialization method to invoke on the specified init_object. May be NULL resulting in init_object->ThreadMain() to be called instead (unless init_object is NULL)
-					Array<Worker>		workers;		//!< Worker field
+					Ctr::Array<Worker>	workers;		//!< Worker field
 					//BlockingPipe   	job_pipe;
 					Queue				job_pipe;		//!< Pipe used to channel jobs to the workers
 					//bool				terminated;		
@@ -969,9 +969,9 @@ namespace DeltaWorks
 				void				process(ThreadMainObject*object,Thread::pMethod method, ThreadPoolContext*context);	//!< Enqueues a singular job
 				void				process(ThreadMainObject&object,Thread::pMethod method, ThreadPoolContext*context);		//!< Enqueues a singular job
 				void				process4(ThreadMainObject*obj0,ThreadMainObject*obj1,ThreadMainObject*obj2,ThreadMainObject*obj3,Thread::pMethod method, ThreadPoolContext*context);	//!< Enqueues 4 jobs using the same method and context on 4 different objects
-				void				split(Array<ThreadMainObject*>&objects,Thread::pMethod method, ThreadPoolContext*context=&global_context);									//!< Separates the specified objects into quad jobs and mass enqueues them using the specified method and context
-				void				split(Array<ThreadMainObject*>&objects,size_t count, Thread::pMethod method, ThreadPoolContext*context=&global_context);									//!< Separates the specified objects into quad jobs and mass enqueues them using the specified method and context. Only the first @b count objects are enqueued
-				void				splitIndividually(Array<ThreadMainObject*>&objects,Thread::pMethod method, ThreadPoolContext*context=&global_context);
+				void				split(Ctr::Array<ThreadMainObject*>&objects,Thread::pMethod method, ThreadPoolContext*context=&global_context);									//!< Separates the specified objects into quad jobs and mass enqueues them using the specified method and context
+				void				split(Ctr::Array<ThreadMainObject*>&objects,size_t count, Thread::pMethod method, ThreadPoolContext*context=&global_context);									//!< Separates the specified objects into quad jobs and mass enqueues them using the specified method and context. Only the first @b count objects are enqueued
+				void				splitIndividually(Ctr::Array<ThreadMainObject*>&objects,Thread::pMethod method, ThreadPoolContext*context=&global_context);
 			
 				ThreadPool&		operator<<(const Job&job);
 
@@ -1008,28 +1008,28 @@ namespace DeltaWorks
 				/**
 					@brief Enqueues a series of objects using the same method and context
 				
-					@param objects Array of objects to enqueue. May be empty causing the method to simply return.
+					@param objects Ctr::Array of objects to enqueue. May be empty causing the method to simply return.
 					@param method Method to use on all objects. May be NULL causing the processor to invoke the ThreadMain() method of each object
 					@param context Counter context associated with each object
 				*/
-				void					split(Array<ThreadMainObject*>&objects,Thread::pMethod method, ThreadPoolContext*context);
+				void					split(Ctr::Array<ThreadMainObject*>&objects,Thread::pMethod method, ThreadPoolContext*context);
 				/**
 					@brief Enqueues a series of objects using the same method and context
 				
 					Similar to the above except that only the first @a count objects are actually enqueued. Any following objects are ignored.
 				*/
-				void					split(Array<ThreadMainObject*>&objects,size_t count, Thread::pMethod method, ThreadPoolContext*context);
+				void					split(Ctr::Array<ThreadMainObject*>&objects,size_t count, Thread::pMethod method, ThreadPoolContext*context);
 				/**
 					@brief Quad job override version of the above method
 				
 					splitIndividually() overrides the QUAD_JOB macro switch and enforces one object per job. If said macro is false then splitIndividually() behaves identical
 					to split()
 				
-					@param objects Array of objects to enqueue. May be empty causing the method to simply return.
+					@param objects Ctr::Array of objects to enqueue. May be empty causing the method to simply return.
 					@param method Method to use on all objects. May be NULL causing the processor to invoke the ThreadMain() method of each object
 					@param context Counter context associated with each object
 				*/
-				void					splitIndividually(Array<ThreadMainObject*>&objects,Thread::pMethod method, ThreadPoolContext*context);
+				void					splitIndividually(Ctr::Array<ThreadMainObject*>&objects,Thread::pMethod method, ThreadPoolContext*context);
 		};
 	
 		/*!
@@ -1054,8 +1054,8 @@ namespace DeltaWorks
 				void				process(int priority, ThreadMainObject*object,Thread::pMethod method, ThreadPoolContext*context);
 				void				process(int priority, ThreadMainObject&object,Thread::pMethod method, ThreadPoolContext*context);	
 				void				process4(int priority, ThreadMainObject*obj0,ThreadMainObject*obj1,ThreadMainObject*obj2,ThreadMainObject*obj3,Thread::pMethod method, ThreadPoolContext*context);
-				void				split(const Array<int>&priorities, Array<ThreadMainObject*>&objects,Thread::pMethod method, ThreadPoolContext*context=&global_context);
-				void				splitIndividually(const Array<int>&priorities, Array<ThreadMainObject*>&objects,Thread::pMethod method, ThreadPoolContext*context=&global_context);
+				void				split(const Ctr::Array<int>&priorities, Ctr::Array<ThreadMainObject*>&objects,Thread::pMethod method, ThreadPoolContext*context=&global_context);
+				void				splitIndividually(const Ctr::Array<int>&priorities, Ctr::Array<ThreadMainObject*>&objects,Thread::pMethod method, ThreadPoolContext*context=&global_context);
 			
 			
 		};
@@ -1170,7 +1170,7 @@ namespace DeltaWorks
 			friend class Worker;					//!< Should be implied but better to be safe than sorry
 			count_t						iterationsPerJob;	//!< Number of iterations per job
 			Operator					*op;
-			Array<Worker>				workers;		//!< Worker field
+			Ctr::Array<Worker>			workers;		//!< Worker field
 			
 		public:
 
@@ -1242,7 +1242,7 @@ namespace DeltaWorks
 					class Instance:public ParallelLoopBase
 					{
 					public:
-							Array<Worker>			workers;		//!< Worker field
+							Ctr::Array<Worker>			workers;		//!< Worker field
 							const Parameter			*parameter;
 
 													Instance();

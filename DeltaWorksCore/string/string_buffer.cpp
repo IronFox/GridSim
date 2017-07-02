@@ -172,7 +172,7 @@ namespace DeltaWorks
 	}
 
 
-	StringBuffer&		StringBuffer::operator<<(const ArrayData<char>&data)
+	StringBuffer&		StringBuffer::operator<<(const Ctr::ArrayData<char>&data)
 	{
 		if (data.IsEmpty())
 			return *this;

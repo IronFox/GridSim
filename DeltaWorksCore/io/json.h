@@ -81,7 +81,7 @@ namespace DeltaWorks
 		
 			Object&			SetObject();
 		
-			Array<Entity>&	SetArray()
+			Ctr::Array<Entity>&	SetArray()
 			{
 				Clear();
 				type = ArrayValue;
@@ -102,14 +102,14 @@ namespace DeltaWorks
 			const String&	AsString() const {return stringValue;}
 			INT64			AsInt() const {return intBoolValue;}
 			bool			AsBool() const {return intBoolValue!=0;}
-			const Array<Entity>& AsArray() const {return arrayValue;}
+			const Ctr::Array<Entity>& AsArray() const {return arrayValue;}
 			const Object&	AsObject() const {return *objectValue;}
 			double			AsDouble() const {return doubleValue;}
 		
 		private:
 			type_t			type = Null;
 			String			stringValue;
-			Array<Entity>	arrayValue;
+			Ctr::Array<Entity>	arrayValue;
 			std::shared_ptr<Object>			objectValue;
 			INT64			intBoolValue=0;
 			double			doubleValue=0;

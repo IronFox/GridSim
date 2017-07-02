@@ -3,7 +3,7 @@
 
 
 template <typename T>
-	void		ByteStream::Assign(Array<T>&array)
+	void		ByteStream::Assign(Ctr::Array<T>&array)
 	{
 		Assign(array.pointer(),array.GetContentSize());
 	}

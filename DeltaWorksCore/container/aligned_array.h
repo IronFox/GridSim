@@ -30,7 +30,7 @@ namespace DeltaWorks
 				
 				
 			template <class C0, size_t A0>
-				static inline void		allocAligned(BYTE*&root, C0*&data, Arrays::count_t elements)
+				static inline void		allocAligned(BYTE*&root, C0*&data, count_t elements)
 				{
 					if (!elements)
 					{
@@ -50,7 +50,7 @@ namespace DeltaWorks
 					data = (C0*)data_root;
 				}
 			template <class C0, size_t A0>
-				static inline void		re_allocAligned(BYTE*&root, C0*&array, Arrays::count_t elements)
+				static inline void		re_allocAligned(BYTE*&root, C0*&array, count_t elements)
 				{
 					if (root)
 						dealloc(root);
@@ -58,7 +58,7 @@ namespace DeltaWorks
 				}				
 		
 			template <class C0, size_t A0>
-				static inline void 		relocAligned(BYTE*&root,C0*&data,Arrays::count_t&length, Arrays::count_t new_length)
+				static inline void 		relocAligned(BYTE*&root,C0*&data,count_t&length, count_t new_length)
 				{
 					if (length == new_length || new_length == Undefined)
 						return;
@@ -92,7 +92,7 @@ namespace DeltaWorks
 			}
 			
 			template <class T>
-				inline AlignedArray(const T*field, count_t length):elements(length)	//!< Array copy constructor \param field Array that should be copies \param length Number of elements, field contains
+				inline AlignedArray(const T*field, count_t length):elements(length)	//!< Ctr::Array copy constructor \param field Ctr::Array that should be copies \param length Number of elements, field contains
 				{
 					allocAligned<C,A>(root,data,elements);
 					for (register count_t i = 0; i < elements; i++)
@@ -315,7 +315,7 @@ namespace DeltaWorks
 
 			
 			template <class T>
-				inline void	copyFrom(const T*origin, count_t max=Undefined) //! Copies all elements from \b origin via the = operator \param origin Array to copy from (may be of a different entry type) \param max Maximum number of elements to read
+				inline void	copyFrom(const T*origin, count_t max=Undefined) //! Copies all elements from \b origin via the = operator \param origin Ctr::Array to copy from (may be of a different entry type) \param max Maximum number of elements to read
 				{
 					if (max > elements)
 						max = elements;
@@ -353,7 +353,7 @@ namespace DeltaWorks
 				
 				
 			template <class T, size_t A1>
-				inline void	readFrom(const AlignedArray<T,A1>&origin, count_t max=Undefined) //! Copies all elements from \b origin via the = operator overwriting any existing local elements \param origin Array to copy from (may be of a different entry type) \param max Maximum number of elements to read
+				inline void	readFrom(const AlignedArray<T,A1>&origin, count_t max=Undefined) //! Copies all elements from \b origin via the = operator overwriting any existing local elements \param origin Ctr::Array to copy from (may be of a different entry type) \param max Maximum number of elements to read
 				{
 					if (max > origin.elements)
 						max = origin.elements;
@@ -381,7 +381,7 @@ namespace DeltaWorks
 			}
 			
 			template <class T, size_t A1>
-				inline void append(const AlignedArray<T,A1>&origin, count_t max=Undefined)	//! Appends some or all elements of \b origin to the end of the local array. Elements are duplicated using the = operator \param origin Array to copy from \param max Maximum number of elements to append
+				inline void append(const AlignedArray<T,A1>&origin, count_t max=Undefined)	//! Appends some or all elements of \b origin to the end of the local array. Elements are duplicated using the = operator \param origin Ctr::Array to copy from \param max Maximum number of elements to append
 				{
 					if (max> origin.elements)
 						max = origin.elements;
@@ -392,7 +392,7 @@ namespace DeltaWorks
 				}
 			
 			template <class T, size_t A1>
-				inline void appendAdopt(const AlignedArray<T,A1>&origin, count_t max=Undefined)	//! Appends some or all elements of \b origin to the end of the local array using adoptData(). The contained type must provide an adoptData() implementation for this method to work \param origin Array to copy from \param max Maximum number of elements to append
+				inline void appendAdopt(const AlignedArray<T,A1>&origin, count_t max=Undefined)	//! Appends some or all elements of \b origin to the end of the local array using adoptData(). The contained type must provide an adoptData() implementation for this method to work \param origin Ctr::Array to copy from \param max Maximum number of elements to append
 				{
 					if (max> origin.elements)
 						max = origin.elements;
@@ -403,7 +403,7 @@ namespace DeltaWorks
 				}
 			
 			template <class T, size_t A1>
-				inline void insert(unsigned offset, const AlignedArray<T,A1>&origin, count_t max=Undefined)	//! Inserts some or all elements of \b origin before the specified offset (0=first element). Elements are duplicated using the = operator @param offset Offset to insert in front of (0= first element) \param origin Array to copy from \param max Maximum number of elements to append
+				inline void insert(unsigned offset, const AlignedArray<T,A1>&origin, count_t max=Undefined)	//! Inserts some or all elements of \b origin before the specified offset (0=first element). Elements are duplicated using the = operator @param offset Offset to insert in front of (0= first element) \param origin Ctr::Array to copy from \param max Maximum number of elements to append
 				{
 					if (offset >= elements)
 						append(origin,max);
@@ -434,7 +434,7 @@ namespace DeltaWorks
 				}
 			
 			template <class T, size_t A1>
-				inline void insertAdopt(unsigned offset, const AlignedArray<T,A1>&origin, count_t max=Undefined)	//! Inserts some or all elements of \b origin before the specified offset (0=first element) using adoptData(). The contained type must provide an adoptData() implementation for this method to work @param offset Offset to insert in front of (0= first element) \param origin Array to copy from \param max Maximum number of elements to append
+				inline void insertAdopt(unsigned offset, const AlignedArray<T,A1>&origin, count_t max=Undefined)	//! Inserts some or all elements of \b origin before the specified offset (0=first element) using adoptData(). The contained type must provide an adoptData() implementation for this method to work @param offset Offset to insert in front of (0= first element) \param origin Ctr::Array to copy from \param max Maximum number of elements to append
 				{
 					if (offset >= elements)
 						appendAdopt(origin,max);
@@ -769,7 +769,7 @@ namespace DeltaWorks
 		{
 		protected:
 			
-				Arrays::count_t	w;
+				count_t	w;
 			
 					AlignedArray<C,A>::resize;
 					AlignedArray<C,A>::resizeCopy;
@@ -788,35 +788,35 @@ namespace DeltaWorks
 					inline AlignedArray2D(const AlignedArray2D<C,A>&other):AlignedArray<C,A>(other),w(other.w)
 					{}
 				
-					inline AlignedArray2D(Arrays::count_t width, Arrays::count_t height):AlignedArray<C,A>(width*height),w(width)
+					inline AlignedArray2D(count_t width, count_t height):AlignedArray<C,A>(width*height),w(width)
 					{}
 				
 			
-		inline	Arrays::count_t	width()	const	//! Retrieves this array's width \return width
+		inline	count_t	width()	const	//! Retrieves this array's width \return width
 				{
 					return w;
 				}
-		inline	Arrays::count_t	height() const	//! Retrieves this array's height \return height
+		inline	count_t	height() const	//! Retrieves this array's height \return height
 				{
 					return w?AlignedArray<C,A>::elements/w:0;
 				}
-		inline	void		resize(Arrays::count_t width, Arrays::count_t height)	//! Resizes the local 2d array to match the specified dimensions. The local array content is lost if the array's total size is changed
+		inline	void		resize(count_t width, count_t height)	//! Resizes the local 2d array to match the specified dimensions. The local array content is lost if the array's total size is changed
 				{
 					AlignedArray<C,A>::resize(width*height);
 					w = width;
 				}
 		template <typename T>
-			inline	void		set(Arrays::count_t x, Arrays::count_t y, const T&value)	//! Updates a singular element at the specified position	\param x X coordinate. Must be less than width() \param y Y coordinate. Must be less than height() @param value Value to set \return Reference to the requested element
+			inline	void		set(count_t x, count_t y, const T&value)	//! Updates a singular element at the specified position	\param x X coordinate. Must be less than width() \param y Y coordinate. Must be less than height() @param value Value to set \return Reference to the requested element
 					{
 						AlignedArray<C,A>::data[y*w+x] = value;
 					}
 		
-		inline	C&			get(Arrays::count_t x, Arrays::count_t y)	//! Retrieves a singular element at the specified position	\param x X coordinate. Must be less than width() \param y Y coordinate. Must be less than height() \return Reference to the requested element
+		inline	C&			get(count_t x, count_t y)	//! Retrieves a singular element at the specified position	\param x X coordinate. Must be less than width() \param y Y coordinate. Must be less than height() \return Reference to the requested element
 				{
 					return AlignedArray<C,A>::data[y*w+x];
 				}
 	
-		inline	const C&	get(Arrays::count_t x, Arrays::count_t y)	const	//! Retrieves a singular element at the specified position \param x X coordinate. Must be less than width() \param y Y coordinate. Must be less than height() \return Reference to the requested element
+		inline	const C&	get(count_t x, count_t y)	const	//! Retrieves a singular element at the specified position \param x X coordinate. Must be less than width() \param y Y coordinate. Must be less than height() \return Reference to the requested element
 				{
 					return AlignedArray<C,A>::data[y*w+x];
 				}
@@ -835,7 +835,7 @@ namespace DeltaWorks
 
 
 	/*!
-		\brief Array dealloc function to prevent accidental access violations.
+		\brief Ctr::Array dealloc function to prevent accidental access violations.
 	*/
 	template <class C, size_t A> inline void dealloc(AlignedArray<C,A>&array)
 	{
@@ -843,15 +843,15 @@ namespace DeltaWorks
 	}
 
 	/*!
-		\brief Array re_alloc function to prevent accidental access violations.
+		\brief Ctr::Array re_alloc function to prevent accidental access violations.
 	*/
-	template <class C, size_t A> inline void re_alloc(AlignedArray<C,A>&array, Arrays::count_t elements)
+	template <class C, size_t A> inline void re_alloc(AlignedArray<C,A>&array, count_t elements)
 	{
 		array.resize(elements);
 	}
 
 	/*!
-		\brief Array reloc function to prevent accidental access violations.
+		\brief Ctr::Array reloc function to prevent accidental access violations.
 	*/
 	template <class FieldType, size_t A, class IndexType0, class IndexType1> inline void   reloc(AlignedArray<FieldType,A>&array, IndexType0&length, IndexType1 new_length)
 	{
@@ -860,9 +860,9 @@ namespace DeltaWorks
 	}
 
 	/*!
-		\brief Array alloc function to prevent accidental access violations.
+		\brief Ctr::Array alloc function to prevent accidental access violations.
 	*/
-	template <class C, size_t A>  inline void alloc(AlignedArray<C,A>&target, Arrays::count_t elements)
+	template <class C, size_t A>  inline void alloc(AlignedArray<C,A>&target, count_t elements)
 	{
 		target.resize(elements);
 	}

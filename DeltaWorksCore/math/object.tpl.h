@@ -583,7 +583,7 @@ namespace ObjectMath
 
 
 	template <class Def, class IndexType>
-		MF_DECLARE (void)		_oMakeGraph(Mesh<TFaceGraphDef<Def> >&object, const ArrayData<IndexType>&triangle_index_field, const ArrayData<IndexType>&quad_index_field)
+		MF_DECLARE (void)		_oMakeGraph(Mesh<TFaceGraphDef<Def> >&object, const Ctr::ArrayData<IndexType>&triangle_index_field, const Ctr::ArrayData<IndexType>&quad_index_field)
 		{
 			object.clear();
 			typedef MeshVertex<TFaceGraphDef<Def> > Vtx;
@@ -668,7 +668,7 @@ namespace ObjectMath
 		}
 	
 	template <class Def, class IndexType>
-		MF_DECLARE (void)		_oMakeGraph(DynamicMesh<TFaceGraphDef<Def> >&object, const ArrayData<IndexType>&triangle_index_field, const ArrayData<IndexType>&quad_index_field)
+		MF_DECLARE (void)		_oMakeGraph(DynamicMesh<TFaceGraphDef<Def> >&object, const Ctr::ArrayData<IndexType>&triangle_index_field, const Ctr::ArrayData<IndexType>&quad_index_field)
 		{
 			object.clear();
 			typedef MeshVertex<TFaceGraphDef<Def> > Vtx;
@@ -753,7 +753,7 @@ namespace ObjectMath
 		}	
 	
 
-	template <class Def, class IndexType> MF_DECLARE (void) _oMakeTriangleGraph(Mesh<TGraphDef<Def> >&object, const ArrayData<IndexType>&field)
+	template <class Def, class IndexType> MF_DECLARE (void) _oMakeTriangleGraph(Mesh<TGraphDef<Def> >&object, const Ctr::ArrayData<IndexType>&field)
 	{
 		object.clear();
 		typedef MeshVertex<TGraphDef<Def> > Vtx;
@@ -904,7 +904,7 @@ namespace ObjectMath
 	}
 	
 	template <class Def, class IndexType>
-		MF_DECLARE (bool)		_oMakeGraph(Mesh<TFaceGraphDef<Def> >&object, const ArrayData<IndexType>&index_field, const ArrayData<IndexType>&tsegment_field, const ArrayData<IndexType>&qsegment_field)
+		MF_DECLARE (bool)		_oMakeGraph(Mesh<TFaceGraphDef<Def> >&object, const Ctr::ArrayData<IndexType>&index_field, const Ctr::ArrayData<IndexType>&tsegment_field, const Ctr::ArrayData<IndexType>&qsegment_field)
 		{
 			object.clear();
 			typedef MeshVertex<TFaceGraphDef<Def> > Vtx;
@@ -1102,7 +1102,7 @@ namespace ObjectMath
 		}
 	
 	template <class Def, class IndexType>
-		MF_DECLARE (bool)		_oMakeGraph(DynamicMesh<TFaceGraphDef<Def> >&object, const ArrayData<IndexType>&index_field, const ArrayData<IndexType>&tsegment_field, const ArrayData<IndexType>&qsegment_field)
+		MF_DECLARE (bool)		_oMakeGraph(DynamicMesh<TFaceGraphDef<Def> >&object, const Ctr::ArrayData<IndexType>&index_field, const Ctr::ArrayData<IndexType>&tsegment_field, const Ctr::ArrayData<IndexType>&qsegment_field)
 		{
 			object.clear();
 			typedef MeshVertex<TFaceGraphDef<Def> > Vtx;
@@ -1385,7 +1385,7 @@ namespace ObjectMath
 	}
 
 
-	MFUNC2 (bool)		_oTriangulate(const ArrayData<TVec2<C0> >&vertex_field, Mesh<C1>&target)
+	MFUNC2 (bool)		_oTriangulate(const Ctr::ArrayData<TVec2<C0> >&vertex_field, Mesh<C1>&target)
 	{
 		return _oTriangulate(vertex_field.pointer(),vertex_field.count(),target);
 	}
@@ -2454,7 +2454,7 @@ namespace ObjectMath
 		
 		
 	template <class Def>
-		MF_DECLARE (bool) TFaceGraphDefVertex<Def>::walkLeft(TMeshFaceLink<TFaceGraphDef<Def> > face, ArrayData<TMeshFaceLink<TFaceGraphDef<Def> > >&fbuffer, count_t&fcnt)
+		MF_DECLARE (bool) TFaceGraphDefVertex<Def>::walkLeft(TMeshFaceLink<TFaceGraphDef<Def> > face, Ctr::ArrayData<TMeshFaceLink<TFaceGraphDef<Def> > >&fbuffer, count_t&fcnt)
 		{
 			while (face && !face.marked())
 			{
@@ -2491,7 +2491,7 @@ namespace ObjectMath
 			//cout << "bypassing v"<<self->index<<endl;
 			
 			count_t result = 0;
-			static Array<Link>	fbuffer;
+			static Ctr::Array<Link>	fbuffer;
 			
 			if (fbuffer.length() < degree*2)
 				fbuffer.SetSize(degree*2);
@@ -3820,11 +3820,11 @@ namespace ObjectMath
 		MF_DECLARE	(void)	DynamicMesh<Def>::determineVertexWeights()	//GraphDef or FaceGraphDef only
 		{
 			
-			Array<Point<typename Def::Type> >	face_normals(triangles+quads),
+			Ctr::Array<Point<typename Def::Type> >	face_normals(triangles+quads),
 												side_face_normals(triangles*3+quads*4),
 												vertex_normals(vertices),
 												outer_vertex_normals(vertices);
-			Array<typename Def::Type>			side_face_size(triangles*3+quads*4),
+			Ctr::Array<typename Def::Type>			side_face_size(triangles*3+quads*4),
 												face_size(triangles+quads);
 
 			for (index_t i = 0; i < vertex_normals.count(); i++)
@@ -4171,10 +4171,10 @@ namespace ObjectMath
 				return;
 			//typedef TGraphDef<TDef<typename Def::Type> >	GraphDef;
 
-			Array<Buffer<index_t,2>	>		vertex_edge_list(vertex_field.length());
+			Ctr::Array<Buffer<index_t,2>	>		vertex_edge_list(vertex_field.length());
 			Buffer<MeshEdge<Def> >			edge_buffer;
 
-			/*Array<MeshVertex<GraphDef> >	vtx(vertex_field.length());
+			/*Ctr::Array<MeshVertex<GraphDef> >	vtx(vertex_field.length());
 			for (index_t i = 0; i < vertex_field.length(); i++)
 			{
 				vtx[i].marked = false;
@@ -4183,8 +4183,8 @@ namespace ObjectMath
 
 			
 			
-			//Array<MeshTriangle<GraphDef> >	tri(triangle_field.length());
-			//Array<MeshQuad<GraphDef> >		quad(quad_field.length());
+			//Ctr::Array<MeshTriangle<GraphDef> >	tri(triangle_field.length());
+			//Ctr::Array<MeshQuad<GraphDef> >		quad(quad_field.length());
 
 			for (index_t i = 0; i < triangle_field.length(); i++)
 			{
@@ -4981,7 +4981,7 @@ namespace ObjectMath
 				return sum;
 			}
 		
-			Array<typename Def::Type>	volume_field(triangle_field.length()+2*quad_field.length());
+			Ctr::Array<typename Def::Type>	volume_field(triangle_field.length()+2*quad_field.length());
 			if (!volume_field.length())
 				return 0;
 			typename Def::Type	*p = volume_field.pointer();
@@ -5057,8 +5057,8 @@ namespace ObjectMath
 	template <class Def> MF_DECLARE	(void) Mesh<Def>::correct(unsigned selection)
 	{
 			
-		Array<MeshTriangle<Def> >	new_triangles;
-		Array<MeshQuad<Def> >	new_quads;
+		Ctr::Array<MeshTriangle<Def> >	new_triangles;
+		Ctr::Array<MeshQuad<Def> >	new_quads;
 		
 		bool 	replace_triangles(false),
 				replace_quads(false);
@@ -5147,7 +5147,7 @@ namespace ObjectMath
 			
 			if (marked)
 			{
-				Array<MeshEdge<Def> >	new_edges(edge_field.length()-marked);
+				Ctr::Array<MeshEdge<Def> >	new_edges(edge_field.length()-marked);
 				MeshEdge<Def>*at = new_edges.pointer();
 				for (index_t i = 0; i < edge_field.length(); i++)
 					if (!edge_field[i].marked)
@@ -5414,7 +5414,7 @@ namespace ObjectMath
 		}
 
 	template <class Def>
-		MF_DECLARE	(void)	Mesh<Def>::join(const Array<Mesh<Def> >&others)
+		MF_DECLARE	(void)	Mesh<Def>::join(const Ctr::Array<Mesh<Def> >&others)
 		{
 			join(others.pointer(),others.count());
 		}
@@ -5437,10 +5437,10 @@ namespace ObjectMath
 			if (!join_vertices)
 				return;
 			
-			Array<MeshVertex<Def> >	vfield(vertex_field.length()+join_vertices);
-			Array<MeshEdge<Def> >		efield(edge_field.length()+join_edges);
-			Array<MeshTriangle<Def> >	tfield(triangle_field.length()+join_triangles);
-			Array<MeshQuad<Def> >		qfield(quad_field.length()+join_quads);
+			Ctr::Array<MeshVertex<Def> >	vfield(vertex_field.length()+join_vertices);
+			Ctr::Array<MeshEdge<Def> >		efield(edge_field.length()+join_edges);
+			Ctr::Array<MeshTriangle<Def> >	tfield(triangle_field.length()+join_triangles);
+			Ctr::Array<MeshQuad<Def> >		qfield(quad_field.length()+join_quads);
 			
 			MeshVertex<Def>*voffset = vfield;
 			MeshEdge<Def>*eoffset = efield;
@@ -6024,7 +6024,7 @@ namespace ObjectMath
 
 		if (object.vertex_field.length())
 		{
-			Array<MeshVertex<Def>*> list(nvc);
+			Ctr::Array<MeshVertex<Def>*> list(nvc);
 			MeshVertex<Def>**c = list.pointer();
 			for (index_t i = 0; i < vertex_field.length(); i++)
 			{
@@ -6041,7 +6041,7 @@ namespace ObjectMath
 		}
 		if (object.edge_field.length())
 		{
-			Array<MeshEdge<Def>*>list(nec);
+			Ctr::Array<MeshEdge<Def>*>list(nec);
 			MeshEdge<Def>**c = list.pointer();
 			for (index_t i = 0; i < edge_field.length(); i++)
 				(*c++) = edge_field[i];
@@ -6056,7 +6056,7 @@ namespace ObjectMath
 		}
 		if (object.triangle_field.length())
 		{
-			Array<MeshTriangle<Def>*>list(ntc);
+			Ctr::Array<MeshTriangle<Def>*>list(ntc);
 			MeshTriangle<Def>**c = list.pointer();
 			for (index_t i = 0; i < triangle_field.length(); i++)
 				(*c++) = triangle_field[i];
@@ -6071,7 +6071,7 @@ namespace ObjectMath
 		}
 		if (object.quad_field.length())
 		{
-			Array<MeshQuad<Def>*>list(nqc);
+			Ctr::Array<MeshQuad<Def>*>list(nqc);
 			MeshQuad<Def>**c = list.pointer();
 			for (index_t i = 0; i < quad_field.length(); i++)
 				(*c++) = quad_field[i];
@@ -6084,10 +6084,10 @@ namespace ObjectMath
 			ASSERT_CONCLUSION(list,c);
 			quad_field.adoptData(list);
 		}
-		Array<MeshVertex<Def>*>		vbuffer[8];
-		Array<MeshEdge<Def>*>			ebuffer[8];
-		Array<MeshTriangle<Def>*>		tbuffer[8];
-		Array<MeshQuad<Def>*>			qbuffer[8];
+		Ctr::Array<MeshVertex<Def>*>		vbuffer[8];
+		Ctr::Array<MeshEdge<Def>*>			ebuffer[8];
+		Ctr::Array<MeshTriangle<Def>*>		tbuffer[8];
+		Ctr::Array<MeshQuad<Def>*>			qbuffer[8];
 		for (BYTE k = 0; k < 8; k++)
 		{
 			vbuffer[k].SetSize(vertex_field.length());
@@ -6119,7 +6119,7 @@ namespace ObjectMath
 	}
 	
 
-	template <class Def>MF_DECLARE	(void) ObjMap<Def>::recursiveMap(ArrayData<MeshVertex<Def>*> vbuffer[8], ArrayData<MeshEdge<Def>*> ebuffer[8], ArrayData<MeshTriangle<Def>*> tbuffer[8],ArrayData<MeshQuad<Def>*> qbuffer[8],BYTE tag)
+	template <class Def>MF_DECLARE	(void) ObjMap<Def>::recursiveMap(Ctr::ArrayData<MeshVertex<Def>*> vbuffer[8], Ctr::ArrayData<MeshEdge<Def>*> ebuffer[8], Ctr::ArrayData<MeshTriangle<Def>*> tbuffer[8],Ctr::ArrayData<MeshQuad<Def>*> qbuffer[8],BYTE tag)
 	{
 		if (!this)
 			ShowMessage("child does not exist");
@@ -6491,10 +6491,10 @@ namespace ObjectMath
 
 	template <class Def>MF_DECLARE	(void) ObjMap<Def>::recursiveMap(ObjMap<Def>*source,BYTE tag)
 	{
-		static Array<MeshVertex<Def>*>		temp_vertex_field;
-		static Array<MeshEdge<Def>*>		temp_edge_field;
-		static Array<MeshQuad<Def>*>		temp_quad_field;
-		static Array<MeshTriangle<Def>*>		temp_triangle_field;
+		static Ctr::Array<MeshVertex<Def>*>		temp_vertex_field;
+		static Ctr::Array<MeshEdge<Def>*>		temp_edge_field;
+		static Ctr::Array<MeshQuad<Def>*>		temp_quad_field;
+		static Ctr::Array<MeshTriangle<Def>*>		temp_triangle_field;
 		
 		if (temp_vertex_field.length() < source->vertex_field.length())
 			temp_vertex_field.SetSize(source->vertex_field.length());
@@ -6764,7 +6764,7 @@ namespace ObjectMath
 					remaining--;
 			if (remaining != vertex_field.length())
 			{
-				Array<MeshVertex<Def>*>list(remaining);
+				Ctr::Array<MeshVertex<Def>*>list(remaining);
 				index_t at = 0;
 				if (remaining)
 					for (index_t i = 0; i < vertex_field.length(); i++)
@@ -6782,7 +6782,7 @@ namespace ObjectMath
 					remaining--;
 			if (remaining != edge_field.length())
 			{
-				Array<MeshEdge<Def>*>list(remaining);
+				Ctr::Array<MeshEdge<Def>*>list(remaining);
 				index_t at = 0;
 				if (remaining)
 					for (index_t i = 0; i < edge_field.length(); i++)
@@ -6800,7 +6800,7 @@ namespace ObjectMath
 					remaining--;
 			if (remaining != triangle_field.length())
 			{
-				Array<MeshTriangle<Def>*>list(remaining);
+				Ctr::Array<MeshTriangle<Def>*>list(remaining);
 				index_t at = 0;
 				if (remaining)
 					for (index_t i = 0; i < triangle_field.length(); i++)
@@ -6818,7 +6818,7 @@ namespace ObjectMath
 					remaining--;
 			if (remaining != quad_field.length())
 			{
-				Array<MeshQuad<Def>*>list(remaining);
+				Ctr::Array<MeshQuad<Def>*>list(remaining);
 				index_t at = 0;
 				if (remaining)
 					for (index_t i = 0; i < quad_field.length(); i++)
@@ -8018,7 +8018,7 @@ namespace ObjectMath
 	template <class Def>
 		MF_DECLARE	(void)			ConvexHullBuilder<Float>::ExportToMesh(Mesh<Def>&object)	const
 		{
-			Array<UINT32>	vmap(vertices.count());
+			Ctr::Array<UINT32>	vmap(vertices.count());
 			vmap.Fill(UNSIGNED_UNDEF);
 			for (index_t i = 0; i < triangles.count(); i++)
 			{

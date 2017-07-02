@@ -419,7 +419,7 @@ namespace DeltaWorks
 			\overload
 			\param vertex_field Vertex float field. Each vertex is required to provide two components (x and y). Thus the number of polygon vertices is vertex_field.length()/2
 		*/
-		MFUNC2	(bool)		_oTriangulate(const ArrayData<TVec2<C0> >&vertex_field, Mesh<C1>&target);//two entries per vertex
+		MFUNC2	(bool)		_oTriangulate(const Ctr::ArrayData<TVec2<C0> >&vertex_field, Mesh<C1>&target);//two entries per vertex
 
 		/*!
 			\brief Checks if the two specified edges intersect in R3 (given a certain tollerance)
@@ -465,9 +465,9 @@ namespace DeltaWorks
 			However since no vertex information is specified vertex positions are undefined.
 		
 			\param mesh Target mesh
-			\param triangle_index_field Array containing the triangle vertex indices. Each three indices form one triangle.
+			\param triangle_index_field Ctr::Array containing the triangle vertex indices. Each three indices form one triangle.
 		*/
-		MFUNC2	(void)		_oMakeTriangleGraph(Mesh<TGraphDef<C0> >&mesh, const ArrayData<C1>&triangle_index_field);
+		MFUNC2	(void)		_oMakeTriangleGraph(Mesh<TGraphDef<C0> >&mesh, const Ctr::ArrayData<C1>&triangle_index_field);
 	
 		/*!
 			\brief Enhanced version of _oMakeTriangleGraph(). Creates a TFaceGraphDef object from a triangle and a quad index path
@@ -476,10 +476,10 @@ namespace DeltaWorks
 			However since no vertex information is specified vertex positions are undefined.
 		
 			\param mesh Target mesh
-			\param triangle_index_field Array containing the triangle vertex indices. Each three indices form one triangle.
-			\param quad_index_field Array containing the quad vertex indices. Each four indices form one quad.
+			\param triangle_index_field Ctr::Array containing the triangle vertex indices. Each three indices form one triangle.
+			\param quad_index_field Ctr::Array containing the quad vertex indices. Each four indices form one quad.
 		*/
-		MFUNC2	(void)		_oMakeGraph(Mesh<TFaceGraphDef<C0> >&mesh, const ArrayData<C1>&triangle_index_field, const ArrayData<C1>&quad_index_field);
+		MFUNC2	(void)		_oMakeGraph(Mesh<TFaceGraphDef<C0> >&mesh, const Ctr::ArrayData<C1>&triangle_index_field, const Ctr::ArrayData<C1>&quad_index_field);
 	
 		/*!
 			\brief Dynamic enhanced version of _oMakeTriangleGraph(). Creates a dynamic TFaceGraphDef mesh from a triangle and a quad index path
@@ -488,10 +488,10 @@ namespace DeltaWorks
 			However since no vertex information is specified vertex positions are undefined.
 		
 			\param mesh Target dynamic mesh
-			\param triangle_index_field Array containing the triangle vertex indices. Each three indices form one triangle.
-			\param quad_index_field Array containing the quad vertex indices. Each four indices form one quad.
+			\param triangle_index_field Ctr::Array containing the triangle vertex indices. Each three indices form one triangle.
+			\param quad_index_field Ctr::Array containing the quad vertex indices. Each four indices form one quad.
 		*/
-		MFUNC2	(void)		_oMakeGraph(DynamicMesh<TFaceGraphDef<C0> >&mesh, const ArrayData<C1>&triangle_index_field, const ArrayData<C1>&quad_index_field);
+		MFUNC2	(void)		_oMakeGraph(DynamicMesh<TFaceGraphDef<C0> >&mesh, const Ctr::ArrayData<C1>&triangle_index_field, const Ctr::ArrayData<C1>&quad_index_field);
 	
 		/*!
 			\brief Creates a TFaceGraphDef mesh from a general index path containing triangles, triangle strips, quads, and quad strips
@@ -504,7 +504,7 @@ namespace DeltaWorks
 			\param tsegment_field Triangle index array. The first element of the array specifies the number of indices in raw triangles with each three indices forming one triangle. Subsequent entries describe each the number of indices of one triangle strip (following any preceeding triangles/triangle strips)
 			\param qsegment_field Quad index array. The first element of the array specifies the number of indices in raw quads (following any preceding triangles/triangle strips). with each four indices forming one quad. Subsequent entries describe each the number of indices of one quad strip (following any preceeding triangles/triangle strips/quads/quad strips)
 		*/
-		MFUNC2	(bool)		_oMakeGraph(Mesh<TFaceGraphDef<C0> >&mesh, const ArrayData<C1>&index_field, const ArrayData<C1>&tsegment_field, const ArrayData<C1>&qsegment_field);
+		MFUNC2	(bool)		_oMakeGraph(Mesh<TFaceGraphDef<C0> >&mesh, const Ctr::ArrayData<C1>&index_field, const Ctr::ArrayData<C1>&tsegment_field, const Ctr::ArrayData<C1>&qsegment_field);
 
 		/*!
 			\brief Creates a dynamic TFaceGraphDef mesh from a general index path containing triangles, triangle strips, quads, and quad strips
@@ -517,7 +517,7 @@ namespace DeltaWorks
 			\param tsegment_field Triangle index array. The first element of the array specifies the number of indices in raw triangles with each three indices forming one triangle. Subsequent entries describe each the number of indices of one triangle strip (following any preceeding triangles/triangle strips)
 			\param qsegment_field Quad index array. The first element of the array specifies the number of indices in raw quads (following any preceeding triangles/triangle strips). with each four indices forming one quad. Subsequent entries describe each the number of indices of one quad strip (following any preceeding triangles/triangle strips/quads/quad strips)
 		*/
-		MFUNC2	(bool)		_oMakeGraph(DynamicMesh<TFaceGraphDef<C0> >&mesh, const ArrayData<C1>&index_field, const ArrayData<C1>&tsegment_field, const ArrayData<C1>&qsegment_field);
+		MFUNC2	(bool)		_oMakeGraph(DynamicMesh<TFaceGraphDef<C0> >&mesh, const Ctr::ArrayData<C1>&index_field, const Ctr::ArrayData<C1>&tsegment_field, const Ctr::ArrayData<C1>&qsegment_field);
 	
 	
 		MFUNC	(void)		_oUnlink(MeshEdge<TGraphDef<C> >*edge);				//!< Unlinks the specified edge from its vertices (if any)
@@ -595,7 +595,7 @@ namespace DeltaWorks
 			struct TGraphDefVertex:public Def::Vertex	//! Additional vertex information (msvc++ apparently crashes with internal errors when processing methods of classes nested in template classes)
 			{
 			private:
-				MF_DECLARE (bool)							walkLeft(TMeshFaceLink<TGraphDef<Def> > face, ArrayData<TMeshFaceLink<TGraphDef<Def> > >&fbuffer, count_t&fcnt);
+				MF_DECLARE (bool)							walkLeft(TMeshFaceLink<TGraphDef<Def> > face, Ctr::ArrayData<TMeshFaceLink<TGraphDef<Def> > >&fbuffer, count_t&fcnt);
 			public:
 				MeshEdge<TGraphDef<Def> >			*first,		//!< Pointer to the first connected edge or NULL if no edge is connected
 													*last;		//!< Pointer to the last connected edge or NULL if no edge is connected
@@ -614,8 +614,8 @@ namespace DeltaWorks
 				{
 					struct
 					{
-						TMeshFaceLink<TGraphDef<Def> >	n[3];			//!< Array access link to all neighbors
-						MeshEdge<TGraphDef<Def> >		*edge[3];		//!< Array access link to all edges
+						TMeshFaceLink<TGraphDef<Def> >	n[3];			//!< Ctr::Array access link to all neighbors
+						MeshEdge<TGraphDef<Def> >		*edge[3];		//!< Ctr::Array access link to all edges
 					};
 					struct
 					{
@@ -652,8 +652,8 @@ namespace DeltaWorks
 				{
 					struct
 					{
-						TMeshFaceLink<TGraphDef<Def> >	n[4];			//!< Array access link to all neighbors
-						MeshEdge<TGraphDef<Def> >		*edge[4];		//!< Array access link to all edges
+						TMeshFaceLink<TGraphDef<Def> >	n[4];			//!< Ctr::Array access link to all neighbors
+						MeshEdge<TGraphDef<Def> >		*edge[4];		//!< Ctr::Array access link to all edges
 					};
 					struct
 					{
@@ -721,7 +721,7 @@ namespace DeltaWorks
 			struct TFaceGraphDefVertex:public Def::Vertex		//! Additional vertex information
 			{
 			private:
-				MF_DECLARE (bool)							walkLeft(TMeshFaceLink<TFaceGraphDef<Def> > face, ArrayData<TMeshFaceLink<TFaceGraphDef<Def> > >&fbuffer, count_t&fcnt);
+				MF_DECLARE (bool)							walkLeft(TMeshFaceLink<TFaceGraphDef<Def> > face, Ctr::ArrayData<TMeshFaceLink<TFaceGraphDef<Def> > >&fbuffer, count_t&fcnt);
 			public:
 				typedef TMeshFaceLink<TFaceGraphDef<Def> >FaceLink;		//!< Shortcut
 
@@ -760,8 +760,8 @@ namespace DeltaWorks
 				{
 					struct
 					{
-						TMeshFaceLink<TFaceGraphDef<Def> >	n[3],				//!< Array access link to all neighbors
-															next[3];			//!< Array access link to the respective next faces in the vertex face lists
+						TMeshFaceLink<TFaceGraphDef<Def> >	n[3],				//!< Ctr::Array access link to all neighbors
+															next[3];			//!< Ctr::Array access link to the respective next faces in the vertex face lists
 					};
 					struct
 					{
@@ -797,8 +797,8 @@ namespace DeltaWorks
 				{
 					struct
 					{
-						TMeshFaceLink<TFaceGraphDef<Def> >	n[4],				//!< Array access link to all neighbors
-															next[4];			//!< Array access link to the respective next faces in the vertex face lists
+						TMeshFaceLink<TFaceGraphDef<Def> >	n[4],				//!< Ctr::Array access link to all neighbors
+															next[4];			//!< Ctr::Array access link to the respective next faces in the vertex face lists
 					};
 					struct
 					{
@@ -992,7 +992,7 @@ namespace DeltaWorks
 			public:
 					count_t					vertices;	//!< Total number of vertices
 					unsigned				band;		//!< Number of components per vertex
-					Array<C>				data;		//!< Actual vertex field
+					Ctr::Array<C>				data;		//!< Actual vertex field
 
 											TriangleMesh():vertices(0),band(0)	{}
 											TriangleMesh(count_t vertices, unsigned band);
@@ -1044,10 +1044,10 @@ namespace DeltaWorks
 					typedef MeshTriangle<Def>		Triangle;
 					typedef MeshQuad<Def>			Quad;
 
-					Array<Vertex>					vertex_field;		//!< Vertex array
-					Array<Edge>						edge_field;			//!< Edge array
-					Array<Triangle>					triangle_field;		//!< Triangle array
-					Array<Quad>						quad_field;			//!< Quad array
+					Ctr::Array<Vertex>					vertex_field;		//!< Vertex array
+					Ctr::Array<Edge>						edge_field;			//!< Edge array
+					Ctr::Array<Triangle>					triangle_field;		//!< Triangle array
+					Ctr::Array<Quad>						quad_field;			//!< Quad array
 				
 			MF_CONSTRUCTOR							Mesh();
 			MF_CONSTRUCTOR							Mesh(const Mesh<Def>&other);
@@ -1146,7 +1146,7 @@ namespace DeltaWorks
 			MF_DECLARE	(String)					ToString()	const;										//!< Retrieves a string representation of the local mesh. Does not contain any actual components.
 				
 			MF_DECLARE	(void)						join(const Mesh<Def>*others, count_t count);		//!< Adds a number of mesh objects to the local mesh
-			MF_DECLARE	(void)						join(const Array<Mesh<Def> >&others);				//!< Adds a number of mesh objects to the local mesh
+			MF_DECLARE	(void)						join(const Ctr::Array<Mesh<Def> >&others);				//!< Adds a number of mesh objects to the local mesh
 				
 			MF_DECLARE	(void)						adoptData(Mesh<Def>&other);
 			MF_DECLARE	(void)						swap(Mesh<Def>&other);
@@ -1173,15 +1173,15 @@ namespace DeltaWorks
 				typedef typename Def::Type	C;
 
 				MF_DECLARE	(void)			recursiveMap(ObjMap<Def>*source,BYTE tag); //upwards (slow)
-				MF_DECLARE	(void)			recursiveMap(ArrayData<MeshVertex<Def>*> vbuffer[8], ArrayData<MeshEdge<Def>*> ebuffer[8], ArrayData<MeshTriangle<Def>*> tbuffer[8],ArrayData<MeshQuad<Def>*> qbuffer[8],BYTE tag); //downwards (fast)
+				MF_DECLARE	(void)			recursiveMap(Ctr::ArrayData<MeshVertex<Def>*> vbuffer[8], Ctr::ArrayData<MeshEdge<Def>*> ebuffer[8], Ctr::ArrayData<MeshTriangle<Def>*> tbuffer[8],Ctr::ArrayData<MeshQuad<Def>*> qbuffer[8],BYTE tag); //downwards (fast)
 				MF_DECLARE	(bool)			recursiveLookup(const C*lower_corner, const C*upper_corner);
 				MF_DECLARE	(count_t)		recursiveLookupEdge(const C*p0, const C*p1);
 				MF_DECLARE	(count_t)		recursiveLookupSphere(const C*p, const C&r);
 
-				Array<MeshVertex<Def>*>		vertex_field;
-				Array<MeshTriangle<Def>*>	triangle_field;
-				Array<MeshQuad<Def>*>		quad_field;
-				Array<MeshEdge<Def>*>		edge_field;
+				Ctr::Array<MeshVertex<Def>*>		vertex_field;
+				Ctr::Array<MeshTriangle<Def>*>	triangle_field;
+				Ctr::Array<MeshQuad<Def>*>		quad_field;
+				Ctr::Array<MeshEdge<Def>*>		edge_field;
 			public:
 				static Container::Buffer<ObjMap<Def>*>sector_map;					//!< Global sector lookup buffer
 	
@@ -1291,8 +1291,8 @@ namespace DeltaWorks
 			public:
 				typedef FloatType			Float;
 			
-				Array<AbstractSphere<Float> >spheres;
-				Array<AbstractCylinder<Float> >cylinders;
+				Ctr::Array<AbstractSphere<Float> >spheres;
+				Ctr::Array<AbstractCylinder<Float> >cylinders;
 		
 				MF_CONSTRUCTOR				AbstractHull(count_t spheres=0, count_t cylinders=0);
 				virtual						~AbstractHull()	{}

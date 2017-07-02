@@ -197,7 +197,7 @@ namespace DeltaWorks
 				throw Except::Program::DataConsistencyFault(CLOCATION,"'"+String(myWord)+"' is no valid JSON value");
 		}
 
-		static	void				DeserializeArray(Array<Entity>&target, IReadStream&stream,LineCounter&lineCounter);
+		static	void				DeserializeArray(Ctr::Array<Entity>&target, IReadStream&stream,LineCounter&lineCounter);
 
 		static void DeserializeAny(Entity&e, char firstChar, IReadStream&stream,LineCounter&counter)
 		{
@@ -235,7 +235,7 @@ namespace DeltaWorks
 			}
 		}
 
-		static	void				DeserializeArray(Array<Entity>&target, IReadStream&stream,LineCounter&lineCounter)
+		static	void				DeserializeArray(Ctr::Array<Entity>&target, IReadStream&stream,LineCounter&lineCounter)
 		{
 			Container::Vector0<Entity,Swap> tmp;
 			char ch;

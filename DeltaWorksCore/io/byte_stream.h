@@ -26,7 +26,7 @@ namespace DeltaWorks
 		void			Clear() {Reset();}
 		void			Resize(size_t len);
 		template <typename T>
-		void			Assign(Array<T>&array);
+		void			Assign(Ctr::Array<T>&array);
 		void			Assign(void*pntr, size_t size);
 		char*			pointer();
 		const char*		pointer()	const;
@@ -47,7 +47,7 @@ namespace DeltaWorks
 		template <class C>
 		bool			operator>>(C&object);
 
-		void			CopyToArray(Array<BYTE>&outArray)const	{outArray.resizeAndCopy(begin,GetFillLevel());}
+		void			CopyToArray(Ctr::Array<BYTE>&outArray)const	{outArray.resizeAndCopy(begin,GetFillLevel());}
 
 		virtual	void	Write(const void*data, serial_size_t size)	override {_PushData(data,size);}
 		virtual	void	Read(void*target_data, serial_size_t size)	override {_GetData(target_data,size);}
@@ -99,7 +99,7 @@ namespace DeltaWorks
 
 		/**/			ByteReadStream() :begin(NULL), current(NULL), end(NULL)	{}
 		/**/			ByteReadStream(const void*begin, const void*end) :begin((const char*)begin), current((const char*)begin), end((const char*)end)	{}
-		/**/			ByteReadStream(const Array<BYTE>&data) : begin((const char*)data.begin()),current((const char*)data.begin()),end((const char*)data.end()){}
+		/**/			ByteReadStream(const Ctr::Array<BYTE>&data) : begin((const char*)data.begin()),current((const char*)data.begin()),end((const char*)data.end()){}
 	
 		void			Rewind()	{ current = begin; }
 		bool			ReachedEnd() const { return current == end; }

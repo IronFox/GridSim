@@ -942,7 +942,7 @@ namespace DeltaWorks
 
 		void	PeerWriter::ThreadMain()
 		{
-			Ctr::Vector0<Array<BYTE>,Swap>	storage;
+			Ctr::Vector0<Ctr::Array<BYTE>,Swap>	storage;
 			for (;;)
 			{
 
@@ -1510,7 +1510,7 @@ namespace DeltaWorks
 		}
 	
 
-		void		Server::SendSerializedObject(UINT32 channel, const ArrayRef<BYTE>&object, unsigned minUserLevel)
+		void		Server::SendSerializedObject(UINT32 channel, const Ctr::ArrayRef<BYTE>&object, unsigned minUserLevel)
 		{
 			if (verbose)
 				std::cout << "Server::sendObject(): acquiring read lock for message send"<<std::endl;
@@ -1567,7 +1567,7 @@ namespace DeltaWorks
 		}
 
 
-		void		Server::SendSerializedObject(UINT32 channel, const PPeer&exclude, const ArrayRef<BYTE>&object, unsigned minUserLevel)
+		void		Server::SendSerializedObject(UINT32 channel, const PPeer&exclude, const Ctr::ArrayRef<BYTE>&object, unsigned minUserLevel)
 		{
 			if (verbose)
 				std::cout << "Server::sendObject(): acquiring read lock for message send"<<std::endl;
@@ -1634,7 +1634,7 @@ namespace DeltaWorks
 				return;
 			}
 			const serial_size_t size = object.GetSerialSize(false);
-			Array<BYTE>		out_buffer(size);
+			Ctr::Array<BYTE>		out_buffer(size);
 			serial_size_t written=0;
 			SerializeToMemory(object,out_buffer.pointer(),size,false,&written);
 			if (written != size)
@@ -1653,7 +1653,7 @@ namespace DeltaWorks
 				return;
 			}
 			const serial_size_t size = object.GetSerialSize(false);
-			Array<BYTE>		out_buffer(size);
+			Ctr::Array<BYTE>		out_buffer(size);
 			serial_size_t written=0;
 			SerializeToMemory(object,out_buffer.pointer(),size,false,&written);
 			if (written != size)

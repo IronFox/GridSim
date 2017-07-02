@@ -909,7 +909,7 @@ namespace DeltaWorks
 					{
 						count_t iframe_length = source_robj.ipool.idata.length();
 						target_robj.ipool.idata.SetSize(iframe_length*repeat);
-						//Array<CGS::StdDef::IndexType>	new_field(iframe_length*repeat);
+						//Ctr::Array<CGS::StdDef::IndexType>	new_field(iframe_length*repeat);
 						CGS::StdDef::IndexType*at = target_robj.ipool.idata.pointer();
 						//for (index_t k = 0; k < robj.ipool.sdata.length(); k++)
 						{

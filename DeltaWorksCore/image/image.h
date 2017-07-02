@@ -360,7 +360,7 @@ namespace DeltaWorks
 			void						AppendAlphaAndDelete(Self*other);												//!< Performs AppendAlpha(), then deletes \b other. \param other Pointer to another Image object. \b other is required to be of the exact same dimensions as the local image but will be deleted even if that should not be the case.
 			inline	size_t				size()																const;		//!< Retrieves the size of the local pixel data. \return Size of the local pixel map in bytes (identical to GetWidth()*GetHeight()*GetChannels()).
 			void						readFrom(const Self*other);																	//!< Adapts the local image data to the specified image's data. Deprecated. \param other Image to copy data from.
-			void						read(const T* data);																			//!< Adopts the local image data to the specified array content. \param data Array to copy from. Must be the exact same size as what size() returns.
+			void						read(const T* data);																			//!< Adopts the local image data to the specified array content. \param data Ctr::Array to copy from. Must be the exact same size as what size() returns.
 			/** 
 			Exports a rectangular pixel area from the local pixel data.
 			@param x Pixel offset (x). The method fails if this value is greater or equal to the local image width
@@ -371,8 +371,8 @@ namespace DeltaWorks
 			@return true if the specified parameters were valid and any pixels were exported as a result. @a target will be resized to 0x0 otherwise.
 			*/
 			bool						ExportRectangle(dimension_t x, dimension_t y, dimension_t width, dimension_t height, Self&target)	const;
-			bool						ExportRectangle(dimension_t x, dimension_t y, dimension_t width, dimension_t height, T*target)	const;	//!< Exports a rectangular pixel area from the local pixel data. \param x Pixel offset (x) \param y Pixel offset (y) \param width Pixels in x-direction to export \param height Pixels in y-direction to export. \param target Array to write to. Must be at least (\b width * \b height * GetChannels()) elements long.
-			bool						ImportRectangle(dimension_t x, dimension_t y, dimension_t width, dimension_t height, const T*target);	//!< Overwrites a section in the local pixel data. \param x Pixel offset (x) \param y Pixel offset (y) \param width Pixels in x-direction to overwrite \param height Pixels in y-direction to overwrite. \param target Array to read from. Must be at least (\b width * \b height * GetChannels()) elements long.
+			bool						ExportRectangle(dimension_t x, dimension_t y, dimension_t width, dimension_t height, T*target)	const;	//!< Exports a rectangular pixel area from the local pixel data. \param x Pixel offset (x) \param y Pixel offset (y) \param width Pixels in x-direction to export \param height Pixels in y-direction to export. \param target Ctr::Array to write to. Must be at least (\b width * \b height * GetChannels()) elements long.
+			bool						ImportRectangle(dimension_t x, dimension_t y, dimension_t width, dimension_t height, const T*target);	//!< Overwrites a section in the local pixel data. \param x Pixel offset (x) \param y Pixel offset (y) \param width Pixels in x-direction to overwrite \param height Pixels in y-direction to overwrite. \param target Ctr::Array to read from. Must be at least (\b width * \b height * GetChannels()) elements long.
 			void						ExtractChannels(BYTE channel, BYTE c_num, Self&target);								//!< Extracts the specified channel range into the specified target image
 
 			bool						TruncateToOpaque();																	//!< Reduces the image to the minimum necessary rectangle covering all opaque pixels. This method has no effect if the image does not have 2 (intensity+opacity) or 4 (rgb+opacity) channels @return True if the local image has been changed, false otherwise

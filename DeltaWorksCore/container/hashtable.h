@@ -18,7 +18,7 @@ namespace DeltaWorks
 			template <typename T>
 				inline static hash_t	ComputeHash(const T&e)
 				{
-					using namespace GlobalHashFunctions;
+					using GlobalHashFunctions::Hash;
 					return Hash(e);
 				}
 		};
@@ -144,7 +144,7 @@ namespace DeltaWorks
 			protected:
 				static const size_t 			InitialSize = 4;	//!< Initial entries in the table.
 			
-				Array<Carrier,AdoptStrategy>	array;				//!< Entry table
+				Ctr::Array<Carrier,AdoptStrategy>	array;				//!< Entry table
 				size_t							entries;			//!< Number of entries that are occupied in the table
 			
 												GenericHashBase();
@@ -213,7 +213,7 @@ namespace DeltaWorks
 				inline	void					Clear()										/** @copydoc clear() */ {clear();}
 				inline	void					import(GenericHashBase<Carrier>&list);		//!< Imports the content of the specified other hashset/hashtable in addition to the already contained entries. Existing entries are overwritten. \param list Hashset to import entries from.
 			template <class Key>
-				inline	void					exportKeys(ArrayData<Key>&keys)	const;			//!< Exports the keys to the specified array. \param keys Reference to an array containing all associated keys after execution. 
+				inline	void					exportKeys(Ctr::ArrayData<Key>&keys)	const;			//!< Exports the keys to the specified array. \param keys Reference to an array containing all associated keys after execution. 
 
 				inline	void					calculateUnion(const GenericHashBase<Carrier>&other);	//!< Calculates the union of the local and the remote Hash table/set. Duplicate entries are taken once from the local table/set. @param other Hash table/set to calculate the union with.
 				inline	void					calculateIntersection(const GenericHashBase<Carrier>&other);	//!< Calculates the intersection of the local and the remote Hash table/set. Local entries that are not also contained by the remote table/set are dropped. @param other Hash table/set to calculate the intersection with.
@@ -275,7 +275,7 @@ namespace DeltaWorks
 				template <class Key>
 					inline	bool					SetNew(const Key&ident);		//!< Attemps to insert the specified new identifier. @return true, if the key was not previously set, false otherwise
 				template <class Key>
-					inline	void					setAll(const ArrayData<Key>&idents);				//!< Sets the specified range of keys (if not set already). @param idents Array of keys to set
+					inline	void					setAll(const Ctr::ArrayData<Key>&idents);				//!< Sets the specified range of keys (if not set already). @param idents Ctr::Array of keys to set
 			};
 
 	
@@ -326,17 +326,17 @@ namespace DeltaWorks
 				*/
 				inline	void						FilterEntries(const std::function<bool(const K&, DataType&)>&f);
 				template <class Entry>
-					inline	void					exportTo(ArrayData<K>&keys, ArrayData<Entry>&values)	const;	//!< Exports keys and values to the respective arrays. \param keys Reference to an array containing all associated keys after execution. \param values Reference to an object array containing all contained data elements after execution. \b keys and \b values will be of the same size with each entry of \b keys associated with the entry in \b values of the same index.
+					inline	void					exportTo(Ctr::ArrayData<K>&keys, Ctr::ArrayData<Entry>&values)	const;	//!< Exports keys and values to the respective arrays. \param keys Reference to an array containing all associated keys after execution. \param values Reference to an object array containing all contained data elements after execution. \b keys and \b values will be of the same size with each entry of \b keys associated with the entry in \b values of the same index.
 				template <class Entry>
-					inline	void					exportTo(ArrayData<Entry>&values)		const;	//!< Exports all entries. \param values Reference to an array containing all entries after execution.
+					inline	void					exportTo(Ctr::ArrayData<Entry>&values)		const;	//!< Exports all entries. \param values Reference to an array containing all entries after execution.
 				template <class Entry>
-					inline	void					exportAddressesTo(ArrayData<const K*>&keys, ArrayData<Entry*>&values);
+					inline	void					exportAddressesTo(Ctr::ArrayData<const K*>&keys, Ctr::ArrayData<Entry*>&values);
 				template <class Entry>
-					inline	void					exportAddressesTo(ArrayData<Entry*>&values);
+					inline	void					exportAddressesTo(Ctr::ArrayData<Entry*>&values);
 				template <class Entry>
-					inline	void					exportAddressesTo(ArrayData<const K*>&keys, ArrayData<const Entry*>&values)const;
+					inline	void					exportAddressesTo(Ctr::ArrayData<const K*>&keys, Ctr::ArrayData<const Entry*>&values)const;
 				template <class Entry>
-					inline	void					exportAddressesTo(ArrayData<const Entry*>&values)	const;
+					inline	void					exportAddressesTo(Ctr::ArrayData<const Entry*>&values)	const;
 				template <class Entry>
 					inline	bool					findKeyOf(const Entry&entry, K&key)const;	//!< Finds the key of the specified entry and stores it in \b key. Operates in O(n). \param entry Entry to look for. Comparison will be done via operator== . \param key Out key variable. Found key will be assigned via operator= . \return True if the requested element could be found, false otherwise.
 				inline	bool						query(const K&ident, DataType&target)	const;	//!< Requests the content associated with the specified key without setting it. \param ident Key to look for \param target Out reference to copy the respective content to \return True if an entry matching the specified key could be found, false otherwise. \b target remains unchanged if \b key could not be found.
@@ -458,12 +458,12 @@ namespace DeltaWorks
 					using Root::exportTo;
 					#else
 				template <class Key, class Entry>
-					inline	void					exportTo(ArrayData<Key>&keys, ArrayData<Entry>&values)	const
+					inline	void					exportTo(Ctr::ArrayData<Key>&keys, Ctr::ArrayData<Entry>&values)	const
 					{
 						Root::exportTo(keys,values);
 					}
 				template <class Entry>
-					inline	void					exportTo(ArrayData<Entry>&values)		const
+					inline	void					exportTo(Ctr::ArrayData<Entry>&values)		const
 					{
 						Root::exportTo(values);
 					}

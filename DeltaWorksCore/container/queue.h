@@ -140,14 +140,14 @@ namespace DeltaWorks
 
 
 		template <class Entry, class MyStrategy=typename StrategySelector<Entry>::Default>
-			class Queue:protected Array<QueueElement<Entry,MyStrategy>,Strategy::Adopt>
+			class Queue:protected Ctr::Array<QueueElement<Entry,MyStrategy>,Strategy::Adopt>
 			{
 			private:
 				typedef QueueElement<Entry,MyStrategy>	Element;
+				typedef Ctr::Array<Element,Strategy::Adopt>	Super;
 				Element				*section_begin,
 									*section_end,
 									*field_end;
-				typedef Array<Element,Strategy::Adopt>	Array;
 				void				increaseSize(count_t new_size);
 				Element*			Increment(Element*el)	const;
 			public:
@@ -169,7 +169,7 @@ namespace DeltaWorks
 				count_t				Pop(Entry*out_field, count_t count);			//!< Pops up to @a count of the oldest elements to the specified out field @return Number of elements that were actually popped (which may be less than the resquested number if not enough elements are stored)
 				void				EraseFront();							//!< Erases the (oldest) element out-front. Identical to Pop() but without any copy constructors
 				void				EraseBack();							//!< Erases the (newest) element out-back
-				void				Push(const ArrayData<Entry>&entries);	//!< Pushes multiple elements into the queue, increasing the number of stored elements by <em>entries.count()</em>. The queue automatically increases the size of its data field if appropriate
+				void				Push(const Ctr::ArrayData<Entry>&entries);	//!< Pushes multiple elements into the queue, increasing the number of stored elements by <em>entries.count()</em>. The queue automatically increases the size of its data field if appropriate
 				void				Push(const Entry*, count_t count);	//!< Pushes multiple elements into the queue, increasing the number of stored elements by <em>count</em>. The queue automatically increases the size of its data field if appropriate
 				void				Push(const Entry&data);				//!< Pushes an element into the queue, increasing the number of stored elements by one. The queue automatically increases the size of its data field if appropriate
 				Entry&				Push();								//!< Pushes a new empty element into the queue.
@@ -203,8 +203,8 @@ namespace DeltaWorks
 				friend void			swap(Self&a, Self&b)	{a.swap(b);}
 				void				adoptData(Self&other);
 
-				void				CopyToArray(ArrayData<Entry>&out) const;
-				void				MoveToArray(ArrayData<Entry>&out, bool clearSelfWhenDone=true);
+				void				CopyToArray(Ctr::ArrayData<Entry>&out) const;
+				void				MoveToArray(Ctr::ArrayData<Entry>&out, bool clearSelfWhenDone=true);
 			
 				inline count_t		count()						const	{return length();};	//!< Returns the current number of element stored in the queue
 				inline count_t		Count()						const	{return length();}
@@ -219,8 +219,8 @@ namespace DeltaWorks
 			protected:
 					typedef QueueElement<Entry,EntryStrategy>	Element;
 
-					typedef	Array<Priority>			PriorityArray;
-					typedef Array<Element,Strategy::Swap>	EntryArray;
+					typedef	Ctr::Array<Priority>			PriorityArray;
+					typedef Ctr::Array<Element,Strategy::Swap>	EntryArray;
 
 					EntryArray					entry_field;
 					PriorityArray				priority_field;

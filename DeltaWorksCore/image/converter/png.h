@@ -27,9 +27,9 @@ namespace DeltaWorks
 		virtual	void		SaveToFilePointer(const Image&image, FILE*file)			override;
 		virtual	void		LoadFromFilePointer(Image&image, FILE*file)				override;
 		void				SaveToFileQ(const Image&image, const PathString&filename);	//!< Identical to saveToFile() using weaker compression
-		static	void		CompressToArray(const Image&image, Array<BYTE>&data);
+		static	void		CompressToArray(const Image&image, Ctr::Array<BYTE>&data);
 		static	void		CompressToStream(const Image&image, IWriteStream&stream);
-		static	void		DecompressArray(Image&image, const Array<BYTE>&data);
+		static	void		DecompressArray(Image&image, const Ctr::Array<BYTE>&data);
 		static	void		DecompressData(Image&image, const void*data, size_t data_size);
 		static	void		DecompressStream(Image&out_image, IReadStream&stream);
 	};

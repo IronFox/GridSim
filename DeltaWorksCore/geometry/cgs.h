@@ -174,7 +174,7 @@ namespace DeltaWorks
 			class Constructor;
 
 
-		typedef Array<index_t>					Path;
+		typedef Ctr::Array<index_t>					Path;
 		typedef Container::BasicBuffer<index_t>	BuildPath;
 
 		TextureA* cloneTexture(TextureA*source);
@@ -284,7 +284,7 @@ namespace DeltaWorks
 		{
 		public:
 			name64_t								name;		//!< 64 bit integer name of this texture
-			Array<Array<BYTE>,Adopt>				face_field;	//!< (compressed) face data
+			Ctr::Array<Ctr::Array<BYTE>,Adopt>				face_field;	//!< (compressed) face data
 			hash_t									data_hash;	//!< Hash value of the provided data
 
 													TextureA();
@@ -353,7 +353,7 @@ namespace DeltaWorks
 
 															VertexContainerA(const VertexContainerA<Def>&)	{}
 			public:
-					Array<typename Def::FloatType>			vdata;	//!< Actual vertex data. Each vertex is stored in the form [position[3],normal[3],{tangent[3]},{color[4]},texcoord[vlyr][2]].
+					Ctr::Array<typename Def::FloatType>			vdata;	//!< Actual vertex data. Each vertex is stored in the form [position[3],normal[3],{tangent[3]},{color[4]},texcoord[vlyr][2]].
 					UINT16									vlyr;	//!< Number of texture coordinates (2 components each) provided by each vertex
 					UINT32									vcnt,	//!< Total number of vertices in this vertex container
 															vflags,
@@ -389,7 +389,7 @@ namespace DeltaWorks
 															IndexContainerA(const IndexContainerA<Def>&)	{}
 
 			public:
-					Array<typename Def::IndexType>			idata;	//!< Raw index data
+					Ctr::Array<typename Def::IndexType>			idata;	//!< Raw index data
 					UINT32									index_crc;		//!< crc32 of the local index data (for fast distinguishing)
 				union
 				{
@@ -398,7 +398,7 @@ namespace DeltaWorks
 						UINT32								triangles,		//!< Number of triangles in the idata field. Each triangle occupies 3 indices. Triangles are put before quads
 															quads;			//!< Number of quads in the idata field. Each quad occupies 4 indices. Quads are put after triangles.
 					};
-					UINT32									composition[2];	//!< Array access for faster IO operations
+					UINT32									composition[2];	//!< Ctr::Array access for faster IO operations
 				};
 				
 
@@ -449,7 +449,7 @@ namespace DeltaWorks
 			
 					IndexContainerA<Def> 					ipool;			//!< Index data of the local render object
 					VertexContainerA<Def>					vpool;			//!< Vertex data of the local render object
-					Array<TParticle<Def> >					particle_field;	//!< Particles of the local render object. See TParticle for details.
+					Ctr::Array<TParticle<Def> >					particle_field;	//!< Particles of the local render object. See TParticle for details.
 					unsigned								particle_config;//!< Particle configuration flags
 
 															RenderObjectA();
@@ -511,7 +511,7 @@ namespace DeltaWorks
 		public:
 			std::weak_ptr<MaterialObject>				attachment;
 
-			Array<TLayer>								layer_field;		//!< Array of texture layers. The number of texture layers must correspond to the number of texture coordinates provided by the vertex container of each rendering object (of this material)
+			Ctr::Array<TLayer>								layer_field;		//!< Ctr::Array of texture layers. The number of texture layers must correspond to the number of texture coordinates provided by the vertex container of each rendering object (of this material)
 
 														MaterialInfo();
 			bool										similar(const MaterialInfo&other)	const;	//!< Determines whether or not the local material info is similar to the specified other material info. This method may return false where the finally loaded appearance is in fact similar, however never the other way around. \param other Material info to compare to \return true if the local material info is similar to the specified material info, false otherwise.
@@ -542,7 +542,7 @@ namespace DeltaWorks
 
 		public:
 													
-				Array<RenderObjectA<Def>,Adopt>			object_field;				//!< Rendering objects provided by the local material
+				Ctr::Array<RenderObjectA<Def>,Adopt>			object_field;				//!< Rendering objects provided by the local material
 				UINT16									coord_layers;				//!< Global number of 2 component texture coordinates provided by all vertices of this material
 
 														MaterialData()	{}
@@ -627,7 +627,7 @@ namespace DeltaWorks
 			public:
 					String									tname;			//!< Target name
 					T										*target;		//!< Target pointer (object, wheel, or accelerator depending on type)
-					Array<TStep<B> >						step_field;		//!< Steps of this trace
+					Ctr::Array<TStep<B> >						step_field;		//!< Steps of this trace
 
 															TraceA();
 														
@@ -648,18 +648,18 @@ namespace DeltaWorks
 				void									operator=(const Animator<Def>&other) const {}*/
 			
 		template <class T, unsigned B>
-			static void 								loadTraces(ArrayData<TraceA<T,B> >&traces,Riff::File&riff,const char*riff_name0, const char*riff_name1);
+			static void 								loadTraces(Ctr::ArrayData<TraceA<T,B> >&traces,Riff::File&riff,const char*riff_name0, const char*riff_name1);
 		template <class T, unsigned B>
-			static void									saveTraces(const ArrayData<TraceA<T,B> >&traces,Riff::Chunk*riff,const char*riff_name);
+			static void									saveTraces(const Ctr::ArrayData<TraceA<T,B> >&traces,Riff::Chunk*riff,const char*riff_name);
 		template <class T, unsigned B>
-			static void 								storeTargetNames(ArrayData<TraceA<T,B> >&field);
+			static void 								storeTargetNames(Ctr::ArrayData<TraceA<T,B> >&field);
 		
 		public:
 
 				String									name;				//!< Animator name
-				Array<TraceA<SubGeometryA<Def>,6>,Adopt>	obj_trace_field;//!< Object animation traces. Each trace animates one SubGeometry<Def> instance. The first three components of the change vectors are linear translation, the next three components represent the rotation momentum
-				Array<TraceA<TAccelerator<Def>,1>,Adopt>	acc_trace_field;//!< Accelerator animation traces. Each trace animates one TAccelerator<Def> instance. Each step vector consists of just one value, the effective acceleration strength [0,1].
-				Array<TraceA<TWheel<Def>,2>,Adopt>		whl_trace_field;	//!< Wheel animation traces. Each trace animates one TWheel<Def> instance. Each step vector consists of two components, the first being the acceleration strength [0,1], the second the brake strength [0,1].
+				Ctr::Array<TraceA<SubGeometryA<Def>,6>,Adopt>	obj_trace_field;//!< Object animation traces. Each trace animates one SubGeometry<Def> instance. The first three components of the change vectors are linear translation, the next three components represent the rotation momentum
+				Ctr::Array<TraceA<TAccelerator<Def>,1>,Adopt>	acc_trace_field;//!< Accelerator animation traces. Each trace animates one TAccelerator<Def> instance. Each step vector consists of just one value, the effective acceleration strength [0,1].
+				Ctr::Array<TraceA<TWheel<Def>,2>,Adopt>		whl_trace_field;	//!< Wheel animation traces. Each trace animates one TWheel<Def> instance. Each step vector consists of two components, the first being the acceleration strength [0,1], the second the brake strength [0,1].
 
 														AnimatorA();
 			template <class Def1>
@@ -703,7 +703,7 @@ namespace DeltaWorks
 				};
 
 				SubGeometryA<Def>						*domain;		//!< Link to the sub geometry that currently contains this construct
-				Array<Member>							member_field;	//!< All wheels that are part of the local tracks compound
+				Ctr::Array<Member>							member_field;	//!< All wheels that are part of the local tracks compound
 				//AnimatorA<Def>							rotation;		//!< Rotation animation
 				UINT32									flags;			//!< Non-persistent general purpose flags
 			
@@ -797,7 +797,7 @@ namespace DeltaWorks
 		class LocalTexResource:public TextureResource
 		{
 		public:
-				Array<TextureA,Adopt>					entry_field;		//!< Linear texture field
+				Ctr::Array<TextureA,Adopt>					entry_field;		//!< Linear texture field
 
 		virtual	count_t									countEntries();				//!< Returns the number of entries in the local texture resource
 		virtual	TextureA*								retrieve(const tName&name);	//!< Retrieves a texture via its name
@@ -809,7 +809,7 @@ namespace DeltaWorks
 			class Iterator		//! SubGeometry iterator class. Can be used to iterate through all sub geometries of a Geometry instance
 			{
 			private:
-					typedef ArrayData<SubGeometryA<Def> > 	Context;
+					typedef Ctr::ArrayData<SubGeometryA<Def> > 	Context;
 
 					Container::Vector0<Context*>			context_stack;
 					Container::Vector0<SubGeometryA<Def>*>	entry_stack;
@@ -888,13 +888,13 @@ namespace DeltaWorks
 				typedef TVsDef<typename Def::PhHullFloatType>	PhDef;		//!< Physical definition for the phHull object. VsDef suffices in what is needed these days
 				//typedef TPhFileDef<typename Def::PhFloatType>	PhFileDef;
 
-				Array<SubGeometryA<Def>,Adopt>					child_field;		//!< Children
+				Ctr::Array<SubGeometryA<Def>,Adopt>					child_field;		//!< Children
 				Mesh<PhDef>										phHull;			//!< Physical hull
-				Array<Mesh<VsDef>,Adopt>						vs_hull_field;		//!< Visual hulls (one for each detail level with 0 being the highest detail)
-				Array<Tracks<Def>,Adopt>						tracks_field;		//!< Chained wheels
-				Array<TAccelerator<Def> >						accelerator_field;	//!< Accelerators
-				Array<TMounting<Def> >							mounting_field;		//!< Mountings
-				Array<TWheel<Def> >								wheel_field;		//!< Wheels
+				Ctr::Array<Mesh<VsDef>,Adopt>						vs_hull_field;		//!< Visual hulls (one for each detail level with 0 being the highest detail)
+				Ctr::Array<Tracks<Def>,Adopt>						tracks_field;		//!< Chained wheels
+				Ctr::Array<TAccelerator<Def> >						accelerator_field;	//!< Accelerators
+				Ctr::Array<TMounting<Def> >							mounting_field;		//!< Mountings
+				Ctr::Array<TWheel<Def> >								wheel_field;		//!< Wheels
 				String											name;				//!< Sub geometry name
 				TMetaInfo<Def>									meta;				//!< Sub geometry meta information
 				TMatrix4<typename Def::SystemType>			path,				//!< Local path (A path is the product of the local system and all parent systems and must be updated whenever one of the parent systems changed)
@@ -1047,12 +1047,12 @@ namespace DeltaWorks
 			
 			
 				Float									radius;				//!< Visual radius (updated when loaded)
-				Array<SubGeometryA<Def>,Adopt>			object_field;		//!< Primary sub geometry field
+				Ctr::Array<SubGeometryA<Def>,Adopt>			object_field;		//!< Primary sub geometry field
 				LocalTexResource						local_textures;			//!< Local texture resource
 				TextureResource							*texture_resource;		//!< Actually used texture resource
-				Array<AnimatorA<Def>,Adopt>				animator_field;		//!< Global animator field
-				Array<TConnector<Def> >					connector_field;	//!< Track connectors
-				Array<MaterialA<Def>,Adopt>				material_field;		//!< Material field
+				Ctr::Array<AnimatorA<Def>,Adopt>				animator_field;		//!< Global animator field
+				Ctr::Array<TConnector<Def> >					connector_field;	//!< Track connectors
+				Ctr::Array<MaterialA<Def>,Adopt>				material_field;		//!< Material field
 				String									info,				//!< Abstract info
 														xml;				//!< XML formated information
 				TMatrix4<typename Def::SystemType>	*system_link;		//!< Current system link
@@ -1226,7 +1226,7 @@ namespace DeltaWorks
 			public:
 			typedef GeometryInstance<Def>					Super;
 				
-					Array<StaticSubInstanceA<Def>,Adopt>	child_field;	//!< Primary children
+					Ctr::Array<StaticSubInstanceA<Def>,Adopt>	child_field;	//!< Primary children
 
 															StaticInstance();
 					void									update();			//!< Recursivly updates all path variables. Call this method whenever the system matrix has been changed
@@ -1264,7 +1264,7 @@ namespace DeltaWorks
 			{
 				typedef SubGeometryInstance<Def>	Super;
 			public:
-					Array<StaticSubInstanceA<Def>,Adopt>	child_field;	//!< Sub children
+					Ctr::Array<StaticSubInstanceA<Def>,Adopt>	child_field;	//!< Sub children
 														
 															StaticSubInstanceA();
 					void									updatePath(const TMatrix4<typename Def::SystemType>&parent);	//!< Recursivly updates the local path variable using the specified parent system
@@ -1332,9 +1332,9 @@ namespace DeltaWorks
 					double								progress;	//!< Current progress of this animation in seconds
 					bool								active;
 				
-					Array<TSubGeometryAnimator<Def> >	obj_animator_field;
-					Array<TAcceleratorAnimator<Def> >	acc_animator_field;
-					Array<TWheelAnimator<Def> >			whl_animator_field;
+					Ctr::Array<TSubGeometryAnimator<Def> >	obj_animator_field;
+					Ctr::Array<TAcceleratorAnimator<Def> >	acc_animator_field;
+					Ctr::Array<TWheelAnimator<Def> >			whl_animator_field;
 				
 														AnimatorInstanceA();
 					void								build(AnimatorA<Def>*target);
@@ -1362,7 +1362,7 @@ namespace DeltaWorks
 			typedef GeometryInstance<Def>					Super;
 					using Super::target;
 				
-					Array<AnimatorInstanceA<Def>,Adopt>		animator_field;
+					Ctr::Array<AnimatorInstanceA<Def>,Adopt>		animator_field;
 				
 					struct	TAnimationMap	//! Performance optimization map
 					{
@@ -1373,7 +1373,7 @@ namespace DeltaWorks
 					};
 					TAnimationMap							animation_map;
 				
-					Array<AnimatableSubInstanceA<Def>,Adopt>child_field;	//!< Primary children
+					Ctr::Array<AnimatableSubInstanceA<Def>,Adopt>child_field;	//!< Primary children
 
 															AnimatableInstance();
 					void									update();				//!< Recursivly updates all path variables and animations. Call this method whenever the system matrix has been changed
@@ -1384,10 +1384,10 @@ namespace DeltaWorks
 				
 					void									updateAnimationMap();	//!< Recursivly maps elements of animation_map based on the flags of their respective targets
 					double*									findStatusOf(TWheel<Def>*wheel);	//!< Recursivly searches for the status field of the specified wheel @param wheel Wheel to look for @return Pointer to the 2 element status vector of the specified wheel or NULL if the wheel could not be found
-					double*									findStatusOfWheel(const ArrayData<index_t>&path);	//!< Locates the status of a wheel via its index path @param path Index path to the requested wheel. Each entry except for the last specifies the index of a sub geometry instance, the last specifies the index of the wheel in its parent sub geometry. @return status array or NULL if the path is invalid
-					double*									findStatusOfAccelerator(const ArrayData<index_t>&path);	//!< Locates the status of an accelerator via its index path @param path Index path to the requested wheel. Each entry except for the last specifies the index of a sub geometry instance, the last specifies the index of the accelerator in its parent sub geometry. @return status variable pointer or NULL if the path is invalid
-					AnimatorInstanceA<Def>*					findRotationAnimatorOfWheel(const ArrayData<index_t>&path);	//!< Locates the rotation animator of a wheel via its index path @param path Index path to the requested wheel. Each entry except for the last specifies the index of a sub geometry instance, the last specifies the index of the wheel in its parent sub geometry. @return Animator instance or NULL if the path is invalid
-					AnimatorInstanceA<Def>*					findSuspensionAnimatorOfWheel(const ArrayData<index_t>&path);	//!< Locates the suspension animator of a wheel via its index path @param path Index path to the requested wheel. Each entry except for the last specifies the index of a sub geometry instance, the last specifies the index of the wheel in its parent sub geometry. @return Animator instance or NULL if the path is invalid
+					double*									findStatusOfWheel(const Ctr::ArrayData<index_t>&path);	//!< Locates the status of a wheel via its index path @param path Index path to the requested wheel. Each entry except for the last specifies the index of a sub geometry instance, the last specifies the index of the wheel in its parent sub geometry. @return status array or NULL if the path is invalid
+					double*									findStatusOfAccelerator(const Ctr::ArrayData<index_t>&path);	//!< Locates the status of an accelerator via its index path @param path Index path to the requested wheel. Each entry except for the last specifies the index of a sub geometry instance, the last specifies the index of the accelerator in its parent sub geometry. @return status variable pointer or NULL if the path is invalid
+					AnimatorInstanceA<Def>*					findRotationAnimatorOfWheel(const Ctr::ArrayData<index_t>&path);	//!< Locates the rotation animator of a wheel via its index path @param path Index path to the requested wheel. Each entry except for the last specifies the index of a sub geometry instance, the last specifies the index of the wheel in its parent sub geometry. @return Animator instance or NULL if the path is invalid
+					AnimatorInstanceA<Def>*					findSuspensionAnimatorOfWheel(const Ctr::ArrayData<index_t>&path);	//!< Locates the suspension animator of a wheel via its index path @param path Index path to the requested wheel. Each entry except for the last specifies the index of a sub geometry instance, the last specifies the index of the wheel in its parent sub geometry. @return Animator instance or NULL if the path is invalid
 
 					void									adoptData(AnimatableInstance<Def>&other)
 															{
@@ -1411,7 +1411,7 @@ namespace DeltaWorks
 			public:
 					typedef	SubGeometryInstance<Def>		Super;
 
-					Array<AnimatorInstanceA<Def>,Adopt>		wheel_rotation_animators,
+					Ctr::Array<AnimatorInstanceA<Def>,Adopt>		wheel_rotation_animators,
 															wheel_suspension_animators;
 															//construct_rotation_animators;
 					#ifdef __GNUC__
@@ -1420,10 +1420,10 @@ namespace DeltaWorks
 						using SubGeometryInstance<Def>::target;
 					#endif
 				
-					Array<AnimatableSubInstanceA<Def>,Adopt>	child_field;	//!< Sub children
+					Ctr::Array<AnimatableSubInstanceA<Def>,Adopt>	child_field;	//!< Sub children
 					TAnimationStatus						animation_status;	//!< Animation status vector
 					TMatrix4<typename Def::SystemType>	animated_system;	//!< Mutated local system
-					Array<double>							wheel_status,		//!< Contains two floats - one for acceleration, one for braking - per wheel
+					Ctr::Array<double>							wheel_status,		//!< Contains two floats - one for acceleration, one for braking - per wheel
 															accelerator_status;	//!< Contains one float per accelerator
 				
 															AnimatableSubInstanceA();

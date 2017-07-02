@@ -22,7 +22,7 @@ template <class Carrier>
 	{
 
 
-		Array<Carrier>	old_array;
+		Ctr::Array<Carrier>	old_array;
 		old_array.adoptData(array);
 		array.SetSize(new_size);
 			
@@ -57,7 +57,7 @@ template <class Carrier>
 template <class Carrier>
 	inline	void					GenericHashBase<Carrier>::calculateIntersection(const GenericHashBase<Carrier>&other)
 	{
-		Array<THashSetCarrier<typename Carrier::Key, typename Carrier::AppliedKeyStrategy> >	occupied_keys(entries);
+		Ctr::Array<THashSetCarrier<typename Carrier::Key, typename Carrier::AppliedKeyStrategy> >	occupied_keys(entries);
 		index_t at = 0;
 		for (index_t i = 0; i < array.length(); i++)
 		{
@@ -77,7 +77,7 @@ template <class Carrier>
 template <class Carrier>
 	inline	void					GenericHashBase<Carrier>::calculateDifference(const GenericHashBase<Carrier>&other)
 	{
-		Array<THashSetCarrier<typename Carrier::Key, typename Carrier::AppliedKeyStrategy> >	occupied_keys(entries);
+		Ctr::Array<THashSetCarrier<typename Carrier::Key, typename Carrier::AppliedKeyStrategy> >	occupied_keys(entries);
 		index_t at = 0;
 		for (index_t i = 0; i < array.length(); i++)
 		{
@@ -221,7 +221,7 @@ template <class Carrier>
 
 template <class Carrier>
 	template <class Key>
-		inline	void	GenericHashBase<Carrier>::exportKeys(ArrayData<Key>&keys)	const
+		inline	void	GenericHashBase<Carrier>::exportKeys(Ctr::ArrayData<Key>&keys)	const
 		{
 			keys.SetSize(entries);
 			if (!entries)
@@ -313,7 +313,7 @@ template <class K, class Hash, class KeyStrategy>
 
 template <class K, class Hash, class KeyStrategy>
 	template <class Key>
-		inline	void		GenericHashSet<K,Hash,KeyStrategy>::setAll(const ArrayData<Key>&idents)						//!< Sets the specified key (if not set already). The data associated with this key will not be (re)initialized. \param ident Key to set
+		inline	void		GenericHashSet<K,Hash,KeyStrategy>::setAll(const Ctr::ArrayData<Key>&idents)						//!< Sets the specified key (if not set already). The data associated with this key will not be (re)initialized. \param ident Key to set
 		{
 			for (index_t i = 0; i < idents.count(); i++)
 				Base::find(Hash::ComputeHash(idents[i]),idents[i],true);
@@ -381,7 +381,7 @@ template <class K, class C, class Hash, class KeyStrategy, class DataStrategy>
 
 template <class K, class C, class Hash, class KeyStrategy, class DataStrategy>
 		template <class Entry>
-			inline	void					GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::exportAddressesTo(ArrayData<const K*>&keys, ArrayData<Entry*>&values)
+			inline	void					GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::exportAddressesTo(Ctr::ArrayData<const K*>&keys, Ctr::ArrayData<Entry*>&values)
 			{
 				keys.SetSize(Base::entries);
 				values.SetSize(Base::entries);
@@ -400,7 +400,7 @@ template <class K, class C, class Hash, class KeyStrategy, class DataStrategy>
 
 template <class K, class C, class Hash, class KeyStrategy, class DataStrategy>
 		template <class Entry>
-			inline	void					GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::exportAddressesTo(ArrayData<Entry*>&values)
+			inline	void					GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::exportAddressesTo(Ctr::ArrayData<Entry*>&values)
 			{
 				values.SetSize(Base::entries);
 				if (!Base::entries)
@@ -416,7 +416,7 @@ template <class K, class C, class Hash, class KeyStrategy, class DataStrategy>
 
 template <class K, class C, class Hash, class KeyStrategy, class DataStrategy>
 		template <class Entry>
-			inline	void					GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::exportAddressesTo(ArrayData<const K*>&keys, ArrayData<const Entry*>&values)const
+			inline	void					GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::exportAddressesTo(Ctr::ArrayData<const K*>&keys, Ctr::ArrayData<const Entry*>&values)const
 			{
 				keys.SetSize(Base::entries);
 				values.SetSize(Base::entries);
@@ -435,7 +435,7 @@ template <class K, class C, class Hash, class KeyStrategy, class DataStrategy>
 
 template <class K, class C, class Hash, class KeyStrategy, class DataStrategy>
 		template <class Entry>
-			inline	void					GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::exportAddressesTo(ArrayData<const Entry*>&values)	const
+			inline	void					GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::exportAddressesTo(Ctr::ArrayData<const Entry*>&values)	const
 			{
 				values.SetSize(Base::entries);
 				if (!Base::entries)
@@ -453,7 +453,7 @@ template <class K, class C, class Hash, class KeyStrategy, class DataStrategy>
 
 template <class K, class C, class Hash, class KeyStrategy, class DataStrategy>
 	template <class Entry>
-	inline  void  GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::exportTo(ArrayData<K>&keys, ArrayData<Entry>&values)	const 
+	inline  void  GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::exportTo(Ctr::ArrayData<K>&keys, Ctr::ArrayData<Entry>&values)	const 
 	{
 		keys.SetSize(Base::entries);
 		values.SetSize(Base::entries);
@@ -471,7 +471,7 @@ template <class K, class C, class Hash, class KeyStrategy, class DataStrategy>
 	
 
 template <class K, class C, class Hash, class KeyStrategy, class DataStrategy>	template <class Entry>
-	inline  void  GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::exportTo(ArrayData<Entry>&values)	const
+	inline  void  GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::exportTo(Ctr::ArrayData<Entry>&values)	const
 	{
 		values.SetSize(Base::entries);
 		if (!Base::entries)

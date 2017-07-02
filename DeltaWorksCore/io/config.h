@@ -140,12 +140,12 @@ namespace DeltaWorks
 				
 			bool						IsMode() const	{return isMode;};
 			bool						IsEmpty() 											const;
-			void						ExportModes(ArrayData<Context*>&out);
-			void						ExportModes(ArrayData<const Context*>&out)			const;
-			void						ExportChildren(ArrayData<Context*>&out);
-			void						ExportChildren(ArrayData<const Context*>&out)			const;
-			void						ExportAttributes(ArrayData<Attribute*>&out);
-			void						ExportAttributes(ArrayData<const Attribute*>&out)		const;
+			void						ExportModes(Ctr::ArrayData<Context*>&out);
+			void						ExportModes(Ctr::ArrayData<const Context*>&out)			const;
+			void						ExportChildren(Ctr::ArrayData<Context*>&out);
+			void						ExportChildren(Ctr::ArrayData<const Context*>&out)			const;
+			void						ExportAttributes(Ctr::ArrayData<Attribute*>&out);
+			void						ExportAttributes(Ctr::ArrayData<const Attribute*>&out)		const;
 
 			virtual	void				Clear();
 			void						WriteContent(StringBuffer&, size_t max_name_len, size_t max_value_len, const String&indent="") const;
@@ -235,20 +235,20 @@ namespace DeltaWorks
 		class CXContext
 		{
 		public:
-			typedef Array<String,Adopt>	Variable;	//!< Variable type. Variables may provide any number of elements
+			typedef Ctr::Array<String,Adopt>	Variable;	//!< Variable type. Variables may provide any number of elements
 		protected:
 			bool						variables_finalized;	//!< True if variable contents of all local variables have been processed
-			Array<XML::TAttribute>		conditions;			//!< Context conditions to be evaluated during finalization
+			Ctr::Array<XML::TAttribute>		conditions;			//!< Context conditions to be evaluated during finalization
 			CXContext					*parent;			//!< Pointer to the next superior context. NULL if this context Is the top most
 			Vector0<PCXContext>			pre_finalize_children;	//!< Sub contexts prior to finalization. Multiple contexts with the same name may co-exist if conditional variables are exclusive
 				
 			void						parse(const String&content);	//!< Parses a coherent variable block as extracted from XML inner and following content
 			bool						process(String&expression, bool singular, String*error_out)	const;	//!< Processes an expression that may contain variables
 	
-			Variable*					innerFindVariable(const ArrayData<String>&segments);		//!< Recursively looks for a variable via its path
-			const Variable*				innerFindVariable(const ArrayData<String>&segments) const;	//!< @overload
-			CXContext*					innerFindContext(const ArrayData<String>&segments);		//!< Recursively looks for a context via its path
-			const CXContext*			innerFindContext(const ArrayData<String>&segments) const;	//!< @overload
+			Variable*					innerFindVariable(const Ctr::ArrayData<String>&segments);		//!< Recursively looks for a variable via its path
+			const Variable*				innerFindVariable(const Ctr::ArrayData<String>&segments) const;	//!< @overload
+			CXContext*					innerFindContext(const Ctr::ArrayData<String>&segments);		//!< Recursively looks for a context via its path
+			const CXContext*			innerFindContext(const Ctr::ArrayData<String>&segments) const;	//!< @overload
 			void						finalizeVariables();	//!< Processes all variables and removes inner variable expressions. Invocation will fail if one or more inner variables cannot be found. The method will only actually change anything if @a variables_finalized Is false and set same variable to true
 			void						trimVariables();					//!< Trims all variables and removes empty and ($*) variable segments
 				

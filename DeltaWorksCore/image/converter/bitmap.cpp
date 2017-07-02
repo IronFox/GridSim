@@ -115,7 +115,7 @@ namespace DeltaWorks
     
 		ULONG filesize,dummy,data_offset,header_size,width,height,compression,colors,bitmap_data_size,vres,hres;
 		USHORT  planes,bpp;
-		Array<BYTE>	color_map;
+		Ctr::Array<BYTE>	color_map;
 		read(filesize,f);
 		if (filesize != true_size)
 		{
@@ -170,7 +170,7 @@ namespace DeltaWorks
 			if (!bitmap_data_size)
 				throw Except::IO::DriveAccess::FileFormatFault("Data size mismatch ("+IntToStr(bitmap_data_size)+")");
 		}
-		Array<BYTE>	data(bitmap_data_size);
+		Ctr::Array<BYTE>	data(bitmap_data_size);
 		fread(data.pointer(),bitmap_data_size,1,f);
 		target.SetContentType(PixelType::Color);
 		target.SetSize(width,height,3);

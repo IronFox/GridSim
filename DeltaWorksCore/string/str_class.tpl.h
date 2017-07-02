@@ -598,7 +598,7 @@ template <typename T>
 #endif
 
 template <typename T0, typename T1, typename T2>
-	void	explode(const T0*delimiter, size_t delimiter_length, const T1*string, ArrayData<T2>&result)
+	void	explode(const T0*delimiter, size_t delimiter_length, const T1*string, Ctr::ArrayData<T2>&result)
 	{
 		if (!string)
 			return;
@@ -607,7 +607,7 @@ template <typename T0, typename T1, typename T2>
 
 	
 template <typename T0, typename T1, typename T2>
-	void	explode(const T0*delimiter, size_t delimiter_length, const StringType::ReferenceExpression<T1>&string, ArrayData<T2>&result)
+	void	explode(const T0*delimiter, size_t delimiter_length, const StringType::ReferenceExpression<T1>&string, Ctr::ArrayData<T2>&result)
 	{
 		if (!delimiter || !delimiter_length)
 			return;
@@ -619,7 +619,7 @@ template <typename T0, typename T1, typename T2>
 		}
 		const T0*const delimiterEnd = delimiter+delimiter_length;
 		
-		//ArrayData<T1>	buffer(string);
+		//Ctr::ArrayData<T1>	buffer(string);
 		const T1*at = string.pointer();
 		const T1*const end = at+string.length();
 		size_t count = 0;
@@ -654,7 +654,7 @@ template <typename T0, typename T1, typename T2>
 	}
 
 template <typename T0, typename T1, typename T2>
-	void	explode(const T0*delimiter, size_t delimiter_length, const StringType::Template<T1>&string, ArrayData<T2>&result)
+	void	explode(const T0*delimiter, size_t delimiter_length, const StringType::Template<T1>&string, Ctr::ArrayData<T2>&result)
 	{
 		explode(delimiter,delimiter_length,string.ref(),result);
 	}
@@ -664,27 +664,27 @@ template <typename T0, typename T1, typename T2>
 
 
 template <typename T0, typename T1, typename T2>
-	void	explode(const StringType::Template<T0>&delimiter, const StringType::Template<T1>&string, ArrayData<T2>&result)
+	void	explode(const StringType::Template<T0>&delimiter, const StringType::Template<T1>&string, Ctr::ArrayData<T2>&result)
 	{
 		explode(delimiter.c_str(),delimiter.length(),string,result);
 	}
 
 
 template <typename T0, typename T1, typename T2>
-	void	explode(const T0*delimiter, const StringType::Template<T1>&string, ArrayData<T2>&result)
+	void	explode(const T0*delimiter, const StringType::Template<T1>&string, Ctr::ArrayData<T2>&result)
 	{
 		explode(delimiter,CharFunctions::strlen(delimiter),string,result);
 	}
 
 
 template <typename T0, typename T1, typename T2>
-	void	explode(const T0*delimiter, const T1*string, ArrayData<T2>&result)
+	void	explode(const T0*delimiter, const T1*string, Ctr::ArrayData<T2>&result)
 	{
 		explode(delimiter,CharFunctions::strlen(delimiter),string,result);
 	}
 
 template <typename T0, typename T1>
-	void	explode(T0 delimiter, const T0*string, ArrayData<T1>&result)
+	void	explode(T0 delimiter, const T0*string, Ctr::ArrayData<T1>&result)
 	{
 		if (!string)
 			return;
@@ -692,9 +692,9 @@ template <typename T0, typename T1>
 	}
 
 template <typename T0, typename T1>
-	void	explode(T0 delimiter, const StringType::ReferenceExpression<T0>&string, ArrayData<T1>&result)
+	void	explode(T0 delimiter, const StringType::ReferenceExpression<T0>&string, Ctr::ArrayData<T1>&result)
 	{
-		//ArrayData<T0>	buffer(string);
+		//Ctr::ArrayData<T0>	buffer(string);
 		const T0*at = string.pointer();
 		const T0*const end = at + string.length();
 		size_t count = 0;
@@ -729,13 +729,13 @@ template <typename T0, typename T1>
 	}
 
 template <typename T0, typename T1>
-	void	explode(T0 delimiter, const StringType::Template<T0>&string, ArrayData<T1>&result)
+	void	explode(T0 delimiter, const StringType::Template<T0>&string, Ctr::ArrayData<T1>&result)
 	{
 		explode(delimiter,string.ref(),result);
 	}
 
 template <typename T0, typename T1>
-	void	explodeCallback(bool isDelimiter(T0), const T0*string, ArrayData<T1>&result)
+	void	explodeCallback(bool isDelimiter(T0), const T0*string, Ctr::ArrayData<T1>&result)
 	{
 		if (!string)
 			return;
@@ -743,9 +743,9 @@ template <typename T0, typename T1>
 	}
 
 template <typename T0, typename T1>
-	void	explodeCallback(bool isDelimiter(T0), const StringType::ReferenceExpression<T0>&string, ArrayData<T1>&result)
+	void	explodeCallback(bool isDelimiter(T0), const StringType::ReferenceExpression<T0>&string, Ctr::ArrayData<T1>&result)
 	{
-		//ArrayData<T0>	buffer(string);
+		//Ctr::ArrayData<T0>	buffer(string);
 		const T0*at = string.pointer();
 		const T0*const end = at + string.length();
 		size_t count = 0;
@@ -780,7 +780,7 @@ template <typename T0, typename T1>
 	}
 
 template <typename T0, typename T1>
-	void	explodeCallback(bool isDelimiter(T0), const StringType::Template<T0>&string, ArrayData<T1>&result)
+	void	explodeCallback(bool isDelimiter(T0), const StringType::Template<T0>&string, Ctr::ArrayData<T1>&result)
 	{
 		explodeCallback(isDelimiter,string.ref(),result);
 	}
@@ -950,7 +950,7 @@ template <typename T0, typename T1>
 	}
 
 template <typename T0, typename T1>
-	StringType::Template<T1>		implode(const StringType::Template<T0>&glue, const ArrayRef<StringType::Template<T1> >&pieces)
+	StringType::Template<T1>		implode(const StringType::Template<T0>&glue, const Ctr::ArrayRef<StringType::Template<T1> >&pieces)
 	{
 		if (!pieces.count())
 			return "";
@@ -977,7 +977,7 @@ template <typename T0, typename T1>
 	}
 
 template <typename T>
-	StringType::Template<T>		implode(T glue, const ArrayRef<StringType::Template<T> >&pieces)
+	StringType::Template<T>		implode(T glue, const Ctr::ArrayRef<StringType::Template<T> >&pieces)
 	{
 		if (!pieces.count())
 			return "";
@@ -1001,7 +1001,7 @@ template <typename T>
 	}
 	
 template <typename T0, typename T1>
-	StringType::Template<T1>		implode(const T0*glue_str, const ArrayRef<StringType::Template<T1> >&pieces)
+	StringType::Template<T1>		implode(const T0*glue_str, const Ctr::ArrayRef<StringType::Template<T1> >&pieces)
 	{
 		if (!pieces.count())
 			return "";
@@ -1111,7 +1111,7 @@ template <typename T0, typename T1, typename T2>
 	}
 	
 template <typename T0, typename T1, typename T2>
-	static void twrap(const T0*string, T1 max_line_length, T1 (*lengthFunction)(T0 character),ArrayData<StringType::Template<T2> >&result)
+	static void twrap(const T0*string, T1 max_line_length, T1 (*lengthFunction)(T0 character),Ctr::ArrayData<StringType::Template<T2> >&result)
 	{
 		size_t lines=0;
 		RunTWrap(string,max_line_length,lengthFunction,[&lines](const StringType::ReferenceExpression<T0>&)	{lines++;});
@@ -1138,38 +1138,38 @@ template <typename T>
 	}
 	
 template <typename T0, typename T1>
-	void 	wrap(const T0*string, size_t line_length, ArrayData<StringType::Template<T1> >&result)
+	void 	wrap(const T0*string, size_t line_length, Ctr::ArrayData<StringType::Template<T1> >&result)
 	{
 		twrap<T0,size_t,T1>(string,line_length,constantLengthFunction<T0>,result);
 	}
 
 template <typename T0, typename T1>
-	void 	wrap(const T0*string, size_t line_length, size_t (*lengthFunction)(T0),ArrayData<StringType::Template<T1> >&result)
+	void 	wrap(const T0*string, size_t line_length, size_t (*lengthFunction)(T0),Ctr::ArrayData<StringType::Template<T1> >&result)
 	{
 		twrap<T0, size_t, T1>(string,line_length,lengthFunction,result);
 	}
 
 template <typename T0, typename T1>
-	void 	wrapf(const T0*string, float line_length, float (*lengthFunction)(T0),ArrayData<StringType::Template<T1> >&result)
+	void 	wrapf(const T0*string, float line_length, float (*lengthFunction)(T0),Ctr::ArrayData<StringType::Template<T1> >&result)
 	{
 		twrap<T0, float, T1>(string,line_length,lengthFunction,result);
 	}
 	
 	
 template <typename T0, typename T1>
-	void 	wrap(const StringType::Template<T0>&string, size_t line_length, ArrayData<StringType::Template<T1> >&result)
+	void 	wrap(const StringType::Template<T0>&string, size_t line_length, Ctr::ArrayData<StringType::Template<T1> >&result)
 	{
 		twrap<T0,size_t,T1>(string.c_str(),line_length,constantLengthFunction<T0>,result);
 	}
 
 template <typename T0, typename T1>
-	void 	wrap(const StringType::Template<T0>&string, size_t line_length, size_t (*lengthFunction)(T0),ArrayData<StringType::Template<T1> >&result)
+	void 	wrap(const StringType::Template<T0>&string, size_t line_length, size_t (*lengthFunction)(T0),Ctr::ArrayData<StringType::Template<T1> >&result)
 	{
 		twrap<T0, size_t, T1>(string.c_str(),line_length,lengthFunction,result);
 	}
 
 template <typename T0, typename T1>
-	void 	wrapf(const StringType::Template<T0>&string, float line_length, float (*lengthFunction)(T0),ArrayData<StringType::Template<T1> >&result)
+	void 	wrapf(const StringType::Template<T0>&string, float line_length, float (*lengthFunction)(T0),Ctr::ArrayData<StringType::Template<T1> >&result)
 	{
 		twrap<T0, float, T1>(string.c_str(),line_length,lengthFunction,result);
 	}
@@ -1340,7 +1340,7 @@ namespace StringType
 			}	
 		
 	template <typename T>
-			Template<T>::Template(const ArrayData<T>&array)
+			Template<T>::Template(const Ctr::ArrayData<T>&array)
 			{
 				size_t len = array.length();
 				if (len > 0 && array.last() == (T)0)
@@ -4010,10 +4010,10 @@ namespace StringType
 	
 
 	template <typename T>
-		Template<T>&	Template<T>::operator=(const ArrayData<T>&string)
+		Template<T>&	Template<T>::operator=(const Ctr::ArrayData<T>&string)
 		{
 			//ASSERT_NOT_NULL__(field);
-			STRING_METHOD_BEGIN("(const ArrayData<T>&string)",string.pointer());
+			STRING_METHOD_BEGIN("(const Ctr::ArrayData<T>&string)",string.pointer());
 			count_t length = string.length();
 			if (length > 0 && string.last() == (T)0)
 				length--;

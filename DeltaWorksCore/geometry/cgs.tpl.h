@@ -281,7 +281,7 @@ template <class Def> void VertexContainerA<Def>::stretch(UINT16 layers, UINT32 f
 		layers = vlyr;
 	unsigned	step0 = VSIZE(vlyr,vflags),
 				step1 = VSIZE(layers,flags);
-	Array<typename Def::FloatType> new_field(vcnt*step1);
+	Ctr::Array<typename Def::FloatType> new_field(vcnt*step1);
 
 	typename Def::FloatType	*from = vdata.pointer(),
 							*to = new_field.pointer();
@@ -1294,13 +1294,13 @@ template <class Def> void SubGeometryA<Def>::saveToRiff(Riff::Chunk*riff)	const
 			typedef Mesh<VsDef>	VsMesh;
 			const VsMesh&hull = vs_hull_field[i];
 			{
-				Array<typename Def::FloatType> out(hull.vertex_field.length()*3);
+				Ctr::Array<typename Def::FloatType> out(hull.vertex_field.length()*3);
 				for (index_t j = 0; j < hull.vertex_field.length(); j++)
 					Vec::copy(hull.vertex_field[j].position,Vec::ref3(out + j*3));
 				inner->AppendBlock("VVX3",out);
     		}
 			{
-				Array<UINT32>	out(hull.triangle_field.length()*3);
+				Ctr::Array<UINT32>	out(hull.triangle_field.length()*3);
 				for (index_t j = 0; j < hull.triangle_field.length(); j++)
 				{
 					const typename VsMesh::Triangle	&tri = hull.triangle_field[j];
@@ -1311,7 +1311,7 @@ template <class Def> void SubGeometryA<Def>::saveToRiff(Riff::Chunk*riff)	const
 				inner->AppendBlock("VFC3",out);
 			}
 			{
-				Array<UINT32>	out(hull.quad_field.length()*4);
+				Ctr::Array<UINT32>	out(hull.quad_field.length()*4);
 				for (index_t j = 0; j < hull.quad_field.length(); j++)
 				{
 					const typename VsMesh::Quad	&quad = hull.quad_field[j];
@@ -1323,7 +1323,7 @@ template <class Def> void SubGeometryA<Def>::saveToRiff(Riff::Chunk*riff)	const
 				inner->AppendBlock("VFC4",out);
 			}			
 			{
-				Array<INT32>out(hull.edge_field.length()*4);	//2*vertex. 2*face. positive: triangle, negative: quad+1
+				Ctr::Array<INT32>out(hull.edge_field.length()*4);	//2*vertex. 2*face. positive: triangle, negative: quad+1
 				for (index_t j = 0; j < hull.edge_field.length(); j++)
 				{
 					const typename VsMesh::Edge	&edge = hull.edge_field[j];
@@ -1340,7 +1340,7 @@ template <class Def> void SubGeometryA<Def>::saveToRiff(Riff::Chunk*riff)	const
 		if (!phHull.IsEmpty())
 		{
 			{
-				Array<typename Def::PhHullFloatType> out(phHull.vertex_field.length()*3);
+				Ctr::Array<typename Def::PhHullFloatType> out(phHull.vertex_field.length()*3);
 				for (index_t j = 0; j < phHull.vertex_field.length(); j++)
 				{
 					Vec::copy(phHull.vertex_field[j].position,Vec::ref3(out + j*3));
@@ -1372,7 +1372,7 @@ template <class Def> void SubGeometryA<Def>::saveToRiff(Riff::Chunk*riff)	const
 			inner->AppendBlock("HQAD",out);
 
 			{
-				Array<UINT32>out(phHull.edge_field.length()*4);	//2*vertex. 2*face
+				Ctr::Array<UINT32>out(phHull.edge_field.length()*4);	//2*vertex. 2*face
 				for (index_t j = 0; j < phHull.edge_field.length(); j++)
 				{
 					const typename Mesh<PhDef>::Edge	&edge = phHull.edge_field[j];
@@ -1508,7 +1508,7 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(Riff::File&riff) //ass
 				VsMesh&hull = vs_hull_field[c];
 				hull.clear();
 				{
-					Array<typename Def::FloatType>	array;
+					Ctr::Array<typename Def::FloatType>	array;
 					riff.Get(array);
 					hull.vertex_field.SetSize(array.length()/4);
 					for (index_t i = 0; i < hull.vertex_field.length(); i++)
@@ -1520,7 +1520,7 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(Riff::File&riff) //ass
 				}
 				if (riff.FindNext("VFCE") && riff.IsMultipleOf(sizeof(UINT32)*4))
 				{
-					Array<UINT32>	array;
+					Ctr::Array<UINT32>	array;
 					riff.Get(array);
 					hull.triangle_field.SetSize(array.length()/4);
 					for (index_t i = 0; i < hull.triangle_field.length(); i++)
@@ -1535,7 +1535,7 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(Riff::File&riff) //ass
 				}
 				if (riff.FindNext("VEDG") && riff.IsMultipleOf(sizeof(UINT32)*4))
 				{
-					Array<UINT32>	array;
+					Ctr::Array<UINT32>	array;
 					riff.Get(array);
 					hull.edge_field.SetSize(array.length()/4);
 					for (index_t i = 0; i < hull.edge_field.length(); i++)
@@ -1562,7 +1562,7 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(Riff::File&riff) //ass
 				VsMesh	&hull = vs_hull_field[c];
 				hull.clear();
 				{
-					Array<typename Def::FloatType>	array;
+					Ctr::Array<typename Def::FloatType>	array;
 					riff.Get(array);
 					hull.vertex_field.SetSize(array.length()/3);
 					for (index_t i = 0; i < hull.vertex_field.length(); i++)
@@ -1574,7 +1574,7 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(Riff::File&riff) //ass
 				}
 				if (riff.FindNext("VFC3") && riff.IsMultipleOf(sizeof(UINT32)*3))
 				{
-					Array<UINT32>	array;
+					Ctr::Array<UINT32>	array;
 					riff.Get(array);
 					hull.triangle_field.SetSize(array.length()/3);
 					for (index_t i = 0; i < hull.triangle_field.length(); i++)
@@ -1589,7 +1589,7 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(Riff::File&riff) //ass
 				}
 				if (riff.FindNext("VFC4") && riff.IsMultipleOf(sizeof(UINT32)*4))
 				{
-					Array<UINT32>	array;
+					Ctr::Array<UINT32>	array;
 					riff.Get(array);
 					hull.quad_field.SetSize(array.length()/4);
 					for (index_t i = 0; i < hull.quad_field.length(); i++)
@@ -1605,7 +1605,7 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(Riff::File&riff) //ass
 				}
 				if (riff.FindNext("VEDG") && riff.IsMultipleOf(sizeof(UINT32)*4))
 				{
-					Array<INT32>	array;
+					Ctr::Array<INT32>	array;
 					riff.Get(array);
 					hull.edge_field.SetSize(array.length()/4);
 					for (index_t i = 0; i < hull.edge_field.length(); i++)
@@ -1629,7 +1629,7 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(Riff::File&riff) //ass
 	if (riff.FindFirst("HVTX") && riff.IsMultipleOf(sizeof(typename Def::PhHullFloatType)*4))
 	{
 		{
-			Array<typename Def::PhHullFloatType>	array;
+			Ctr::Array<typename Def::PhHullFloatType>	array;
 			riff.Get(array);
 			phHull.vertex_field.SetSize(array.length()/4);
 			for (index_t i = 0; i < phHull.vertex_field.length(); i++)
@@ -1673,7 +1673,7 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(Riff::File&riff) //ass
 		
 		if (riff.FindNext("HEDG") && riff.IsMultipleOf(sizeof(UINT32)*4))
 		{
-			Array<UINT32>	array;
+			Ctr::Array<UINT32>	array;
 			riff.Get(array);
 			phHull.edge_field.SetSize(array.length()/4);
 			for (index_t i = 0; i < phHull.edge_field.length(); i++)
@@ -1692,7 +1692,7 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(Riff::File&riff) //ass
 		if (riff.FindFirst("HVX3") && riff.IsMultipleOf(sizeof(typename Def::PhHullFloatType)*3))
 		{
 			{
-				Array<typename Def::PhHullFloatType>	array;
+				Ctr::Array<typename Def::PhHullFloatType>	array;
 				riff.Get(array);
 				phHull.vertex_field.SetSize(array.length()/3);
 				for (index_t i = 0; i < phHull.vertex_field.length(); i++)
@@ -1756,7 +1756,7 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(Riff::File&riff) //ass
 			
 			if (riff.FindNext("HEDG") && riff.IsMultipleOf(sizeof(UINT32)*4))
 			{
-				Array<UINT32>	array;
+				Ctr::Array<UINT32>	array;
 				riff.Get(array);
 				phHull.edge_field.SetSize(array.length()/4);
 				for (index_t i = 0; i < phHull.edge_field.length(); i++)
@@ -3210,7 +3210,7 @@ template <class Def> void Geometry<Def>::saveEmbedded(Riff::Chunk&riff, bool emb
 		riff.AppendBlock("INFO",info.c_str(),info.length());
 	if (xml.length())
 	{
-		Array<BYTE> buffer(xml.length()+4);
+		Ctr::Array<BYTE> buffer(xml.length()+4);
 		(*(UINT32*)buffer.pointer()) = (UINT32)xml.length();
 		size_t compressed = BZ2::compress(xml.c_str(),xml.length(),buffer.pointer()+4,buffer.GetContentSize()-4);
 		if (compressed)
@@ -3351,7 +3351,7 @@ template <class Def> void Geometry<Def>::loadMaterials(Riff::File&riff)//, bool 
 						
 					if (riff.FindFirst("NAME"))
 					{
-						Array<char> field(riff.GetSize()+1);
+						Ctr::Array<char> field(riff.GetSize()+1);
 						riff.Get(field.pointer());
 						field[field.size()-1] = 0;
 						material.name = field;
@@ -3735,10 +3735,10 @@ template <class Def> void Geometry<Def>::loadEmbedded(Riff::File&riff, TextureRe
 	
 	if (riff.FindFirst("CXML") && riff.GetSize())
 	{
-		Array<BYTE> buffer(riff.GetSize());
+		Ctr::Array<BYTE> buffer(riff.GetSize());
 		riff.Get(buffer.pointer());
 		UINT32 extracted = (*(UINT32*)buffer.pointer());
-		Array<char> extracted_buffer(extracted+1);
+		Ctr::Array<char> extracted_buffer(extracted+1);
 		size_t bz_result = BZ2::decompress(buffer.pointer()+4,buffer.GetContentSize()-4,extracted_buffer.pointer(),extracted_buffer.GetContentSize());
 		if (bz_result==(size_t)extracted)
 		{
@@ -3864,7 +3864,7 @@ template <class Def> void Geometry<Def>::loadEmbedded(Riff::File&riff, TextureRe
 		}
 		if (vcnt < material_field[i].data.object_field.length())
 		{
-			Array<RenderObjectA<Def>,Adopt>	npntr(vcnt);
+			Ctr::Array<RenderObjectA<Def>,Adopt>	npntr(vcnt);
 			vcnt = 0;
 			for (index_t j = 0; j < material_field[i].data.object_field.length(); j++)
 				if (material_field[i].data.object_field[j].target)
@@ -4572,7 +4572,7 @@ template <class Def>
 	{
 		if (!x_segments || !z_segments)
 			return;
-		Array<Float>	vertex_path((x_segments+1)*(z_segments+1)*6);
+		Ctr::Array<Float>	vertex_path((x_segments+1)*(z_segments+1)*6);
 		for (index_t x = 0; x < x_segments+1; x++)
 			for (index_t z = 0; z < z_segments+1; z++)
 			{
@@ -4581,7 +4581,7 @@ template <class Def>
 				Vec::def(Vec::ref3(vtx+3),0,1,0);
 			}
 		
-		Array<UINT32>	index_path((x_segments)*(z_segments)*6);
+		Ctr::Array<UINT32>	index_path((x_segments)*(z_segments)*6);
 		UINT32*at = index_path.pointer();
 		for (index_t x = 0; x < x_segments; x++)
 			for (index_t z = 0; z < z_segments; z++)
@@ -4616,7 +4616,7 @@ template <class Def>
 
 		typedef std::set<NormalPoint<float> > PointField;
 		PointField						point_field;
-		Array<PointField::iterator>		map(tobj.vertices);
+		Ctr::Array<PointField::iterator>		map(tobj.vertices);
 
 		index_t counter = 0;
 		for (index_t i = 0; i < tobj.vertices; i++)
@@ -4629,7 +4629,7 @@ template <class Def>
 			map[i] = pair.first;
 		}
 		ASSERT_EQUAL__(counter,point_field.size());
-		Array<float>	vfield(point_field.size()*6);
+		Ctr::Array<float>	vfield(point_field.size()*6);
 
 		foreach (point_field,item)
 		{
@@ -4638,7 +4638,7 @@ template <class Def>
 			Vec::ref3(vfield+at*6+3) = item->normal;
 		}
 		
-		Array<UINT32>	ifield(tobj.vertices);
+		Ctr::Array<UINT32>	ifield(tobj.vertices);
 		for (index_t i = 0; i < tobj.vertices; i++)
 			ifield[i] = UINT32(map[i]->index);
 		
@@ -5027,7 +5027,7 @@ template <class Def>
 	}
 	
 template <class Def>
-	double*		AnimatableInstance<Def>::findStatusOfWheel(const ArrayData<index_t>&path)
+	double*		AnimatableInstance<Def>::findStatusOfWheel(const Ctr::ArrayData<index_t>&path)
 	{
 		if (!path.length() || path.First() >= child_field.length())
 			return NULL;
@@ -5043,7 +5043,7 @@ template <class Def>
 	}
 	
 template <class Def>
-	double*		AnimatableInstance<Def>::findStatusOfAccelerator(const ArrayData<index_t>&path)
+	double*		AnimatableInstance<Def>::findStatusOfAccelerator(const Ctr::ArrayData<index_t>&path)
 	{
 		if (!path.length() || path.First() >= child_field.length())
 			return NULL;
@@ -5059,7 +5059,7 @@ template <class Def>
 	}
 
 template <class Def>
-	AnimatorInstanceA<Def>*		AnimatableInstance<Def>::findRotationAnimatorOfWheel(const ArrayData<index_t>&path)
+	AnimatorInstanceA<Def>*		AnimatableInstance<Def>::findRotationAnimatorOfWheel(const Ctr::ArrayData<index_t>&path)
 	{
 		if (!path.length() || path.First() >= child_field.length())
 			return NULL;
@@ -5075,7 +5075,7 @@ template <class Def>
 	}
 
 template <class Def>
-	AnimatorInstanceA<Def>*		AnimatableInstance<Def>::findSuspensionAnimatorOfWheel(const ArrayData<index_t>&path)
+	AnimatorInstanceA<Def>*		AnimatableInstance<Def>::findSuspensionAnimatorOfWheel(const Ctr::ArrayData<index_t>&path)
 	{
 		if (!path.length() || path.First() >= child_field.length())
 			return NULL;
@@ -5394,7 +5394,7 @@ template <class Def>	template <class C>
 
 
 template <class Def> template <class Obj, unsigned Band>
-	void AnimatorA<Def>::storeTargetNames(ArrayData<TraceA<Obj,Band> >&field)
+	void AnimatorA<Def>::storeTargetNames(Ctr::ArrayData<TraceA<Obj,Band> >&field)
 	{
 		for (index_t i = 0; i < field.length(); i++)
 			field[i].tname = field[i].target->name;
@@ -5566,7 +5566,7 @@ template <class T, unsigned B>
 
 template <class Def>
 template <class T, unsigned B>
-/*static*/	void AnimatorA<Def>::saveTraces(const ArrayData<TraceA<T,B> >&traces,Riff::Chunk*riff,const char*riff_name)
+/*static*/	void AnimatorA<Def>::saveTraces(const Ctr::ArrayData<TraceA<T,B> >&traces,Riff::Chunk*riff,const char*riff_name)
 {
 	for (index_t i = 0; i < traces.count(); i++)
 	{
@@ -5590,7 +5590,7 @@ template <class T, unsigned B>
 
 template <class Def>
 template <class T, unsigned B>
-void AnimatorA<Def>::loadTraces(ArrayData<TraceA<T,B> >&array,Riff::File&riff,const char*riff_name0, const char*riff_name1)
+void AnimatorA<Def>::loadTraces(Ctr::ArrayData<TraceA<T,B> >&array,Riff::File&riff,const char*riff_name0, const char*riff_name1)
 {
 	index_t format = 0;
 	const char* riff_name = riff_name0;
@@ -5734,7 +5734,7 @@ template <class Def> void AnimatorA<Def>::link(Geometry<Def>*domain)
 	}
 	if (invalid)
 	{
-		Array<TraceA<SubGeometryA<Def>,6>,Adopt>	new_field(obj_trace_field.length()-invalid);
+		Ctr::Array<TraceA<SubGeometryA<Def>,6>,Adopt>	new_field(obj_trace_field.length()-invalid);
 		index_t at = 0;
 		for (index_t i = 0; i < obj_trace_field.length(); i++)
 		{
@@ -5754,7 +5754,7 @@ template <class Def> void AnimatorA<Def>::link(Geometry<Def>*domain)
 	}
 	if (invalid)
 	{
-		Array<TraceA<TAccelerator<Def>,1>,Adopt>	new_field(acc_trace_field.length()-invalid);
+		Ctr::Array<TraceA<TAccelerator<Def>,1>,Adopt>	new_field(acc_trace_field.length()-invalid);
 		index_t at = 0;
 		for (index_t i = 0; i < acc_trace_field.length(); i++)
 		{
@@ -5773,7 +5773,7 @@ template <class Def> void AnimatorA<Def>::link(Geometry<Def>*domain)
 	}
 	if (invalid)
 	{
-		Array<TraceA<TWheel<Def>,2>,Adopt>		new_field(whl_trace_field.length()-invalid);
+		Ctr::Array<TraceA<TWheel<Def>,2>,Adopt>		new_field(whl_trace_field.length()-invalid);
 		index_t at = 0;
 		for (index_t i = 0; i < whl_trace_field.length(); i++)
 		{
@@ -5894,7 +5894,7 @@ template <class Def>
 			}
 			if (verifyAllVerticesAreUsed)
 			{
-				Array<bool>	used(numVertices);
+				Ctr::Array<bool>	used(numVertices);
 				used.Fill(false);
 				for (index_t i = 0; i < lod.triangleIndices.length(); i++)
 					used[lod.triangleIndices[i]] = true;

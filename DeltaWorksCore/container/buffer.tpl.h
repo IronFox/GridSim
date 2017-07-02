@@ -332,7 +332,7 @@ template <typename T, typename MyStrategy>
 	}
 
 template <typename T, typename MyStrategy>
-	BasicBuffer<T, MyStrategy>&		BasicBuffer<T, MyStrategy>::operator=(const ArrayData<T>&other)
+	BasicBuffer<T, MyStrategy>&		BasicBuffer<T, MyStrategy>::operator=(const Ctr::ArrayData<T>&other)
 	{
 		Clear();
 		T*field = AppendRow(other.Count());
@@ -887,7 +887,7 @@ template <typename T, typename MyStrategy> template <typename Strategy2>
 	}
 
 template <typename T, typename MyStrategy>
-	BasicBuffer<T, MyStrategy>&		BasicBuffer<T, MyStrategy>::moveAppend(ArrayData<T>&array, bool clearSourceOnCompletion/*=true*/)
+	BasicBuffer<T, MyStrategy>&		BasicBuffer<T, MyStrategy>::moveAppend(Ctr::ArrayData<T>&array, bool clearSourceOnCompletion/*=true*/)
 	{
 		moveAppend(array.pointer(),array.length());
 		if (clearSourceOnCompletion)
@@ -949,7 +949,7 @@ template <typename T, typename MyStrategy> template <typename T2, typename Strat
 
 
 template <typename T, typename MyStrategy> template <typename T2>
-	BasicBuffer<T, MyStrategy>&		BasicBuffer<T, MyStrategy>::append(const ArrayData<T2>&data)
+	BasicBuffer<T, MyStrategy>&		BasicBuffer<T, MyStrategy>::append(const Ctr::ArrayData<T2>&data)
 	{
 		return append(data.pointer(),data.count());
 	}
@@ -962,7 +962,7 @@ template <typename T, typename MyStrategy> template <typename T2, typename Strat
 
 
 template <typename T, typename MyStrategy> template <typename T2>
-	BasicBuffer<T, MyStrategy>&		BasicBuffer<T, MyStrategy>::appendAddresses(ArrayData<T2>&data)
+	BasicBuffer<T, MyStrategy>&		BasicBuffer<T, MyStrategy>::appendAddresses(Ctr::ArrayData<T2>&data)
 	{
 		return appendAddresses(data.pointer(),data.count());
 	}
@@ -1175,7 +1175,7 @@ template <typename T, typename MyStrategy>
 		}
 
 template <typename T, typename MyStrategy>
-	void			BasicBuffer<T, MyStrategy>::copyToArray(ArrayData<T>&target)	const
+	void			BasicBuffer<T, MyStrategy>::copyToArray(Ctr::ArrayData<T>&target)	const
 	{
 		target.SetSize(usage_end-storage_begin);
 		const T*from = storage_begin;
@@ -1187,14 +1187,14 @@ template <typename T, typename MyStrategy>
 	}
 
 template <typename T, typename MyStrategy>
-	Array<T,MyStrategy>			BasicBuffer<T, MyStrategy>::copyToArray()	const
+	Ctr::Array<T,MyStrategy>			BasicBuffer<T, MyStrategy>::copyToArray()	const
 	{
-		return Array<T,MyStrategy>(storage_begin,usage_end-storage_begin);
+		return Ctr::Array<T,MyStrategy>(storage_begin,usage_end-storage_begin);
 	}
 
 
 template <typename T, typename MyStrategy>
-	void			BasicBuffer<T, MyStrategy>::moveToArray(ArrayData<T>&target, bool reset_buffer)
+	void			BasicBuffer<T, MyStrategy>::moveToArray(Ctr::ArrayData<T>&target, bool reset_buffer)
 	{
 		target.SetSize(usage_end-storage_begin);
 		T*from = storage_begin;

@@ -9,17 +9,17 @@ namespace DeltaWorks
 		/**
 		@brief Three dimensional, row-major array
 		
-		The Array3D class maps 3d access to a single-dimensional field. Internally it behaves like a normal Array instance, but it provides some 3d access helper method.
+		The Array3D class maps 3d access to a single-dimensional field. Internally it behaves like a normal Ctr::Array instance, but it provides some 3d access helper method.
 		*/
 		template <typename T, class MyStrategy=typename Strategy::StrategySelector<T>::Default>
-			class Array3D:public Array<T,MyStrategy>
+			class Array3D:public Ctr::Array<T,MyStrategy>
 			{
 			public:
 				typedef Array3D<T,MyStrategy>	Self;
-				typedef Array<T,MyStrategy>	Super;
+				typedef Ctr::Array<T,MyStrategy>	Super;
 			protected:
 				
-				Arrays::count_t	w,h;
+				count_t	w,h;
 				
 				using Super::SetSize;
 				using Super::resizePreserveContent;
@@ -77,9 +77,9 @@ namespace DeltaWorks
 
 				Array3D():w(0),h(0)
 				{}
-				Array3D(Arrays::count_t width, Arrays::count_t height, Arrays::count_t depth):Super(width*height*depth),w(width),h(height)
+				Array3D(count_t width, count_t height, count_t depth):Super(width*height*depth),w(width),h(height)
 				{}
-				Array3D(Arrays::count_t width, Arrays::count_t height, Arrays::count_t depth, const T&initial):Super(width*height*depth),w(width),h(height)
+				Array3D(count_t width, count_t height, count_t depth, const T&initial):Super(width*height*depth),w(width),h(height)
 				{
 					Fill(initial);
 				}
@@ -108,15 +108,15 @@ namespace DeltaWorks
 					h = other.h;
 				}
 				
-				inline	Arrays::count_t	GetWidth()	const	//! Retrieves this array's width \return width
+				inline	count_t	GetWidth()	const	//! Retrieves this array's width \return width
 				{
 					return w;
 				}
-				inline	Arrays::count_t	GetDepth()	const	//! Retrieves this array's depth \return depth
+				inline	count_t	GetDepth()	const	//! Retrieves this array's depth \return depth
 				{
 					return w&&h?Super::elements/w/h:0;
 				}
-				inline	Arrays::count_t	GetHeight() const	//! Retrieves this array's height \return height
+				inline	count_t	GetHeight() const	//! Retrieves this array's height \return height
 				{
 					return h;
 				}
@@ -142,7 +142,7 @@ namespace DeltaWorks
 				}
 
 
-				void		SetSize(Arrays::count_t width, Arrays::count_t height, Arrays::count_t depth)	//! Resizes the local 2d array to match the specified dimensions. The local array content is lost if the array's total size is changed
+				void		SetSize(count_t width, count_t height, count_t depth)	//! Resizes the local 2d array to match the specified dimensions. The local array content is lost if the array's total size is changed
 				{
 					Super::SetSize(width*height*depth);
 					w = width;

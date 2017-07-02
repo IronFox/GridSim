@@ -15,7 +15,7 @@ template <typename T>
 						Mapping2D(T*data_, unsigned width_,unsigned height_):data(data_),data_width(width_),data_height(height_)
 						{}
 
-						Mapping2D(ArrayData<T>&data_, unsigned width_,unsigned height_):data(data_.pointer()),data_width(width_),data_height(height_)
+						Mapping2D(Ctr::ArrayData<T>&data_, unsigned width_,unsigned height_):data(data_.pointer()),data_width(width_),data_height(height_)
 						{}
 	
 			void		setInterpretation(unsigned width_, unsigned height_)

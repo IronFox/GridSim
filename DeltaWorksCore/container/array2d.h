@@ -11,14 +11,14 @@ namespace DeltaWorks
 		/**
 		@brief Two dimensional, row-major array
 		
-		The Array2D class maps 2d access to a single-dimensional field. Internally it behaves like a normal Array instance, but it provides some 2d access helper method.
+		The Array2D class maps 2d access to a single-dimensional field. Internally it behaves like a normal Ctr::Array instance, but it provides some 2d access helper method.
 		*/
 		template <class C, class MyStrategy=typename Strategy::StrategySelector<C>::Default>
-			class Array2D:public Array<C,MyStrategy>
+			class Array2D:public Ctr::Array<C,MyStrategy>
 			{
 			public:
 				typedef Array2D<C,MyStrategy>	Self;
-				typedef Array<C,MyStrategy>	Super;
+				typedef Ctr::Array<C,MyStrategy>	Super;
 			protected:
 				
 				index_t	w;
@@ -111,7 +111,7 @@ namespace DeltaWorks
 				}
 				inline	index_t	height() const	//! Retrieves this array's height \return height
 				{
-					return w?Array<C,MyStrategy>::elements/w:0;
+					return w?Ctr::Array<C,MyStrategy>::elements/w:0;
 				}
 				inline	index_t	GetWidth()	const	//! Retrieves this array's width \return width
 				{
@@ -119,7 +119,7 @@ namespace DeltaWorks
 				}
 				inline	index_t	GetHeight() const	//! Retrieves this array's height \return height
 				{
-					return w?Array<C,MyStrategy>::elements/w:0;
+					return w?Ctr::Array<C,MyStrategy>::elements/w:0;
 				}
 
 				Axis<true>			Horizontal() const {return Axis<true>(GetWidth());}
@@ -181,7 +181,7 @@ namespace DeltaWorks
 					swap(temp);
 				}
 
-				void		CopyRowTo(index_t row, ArrayData<C>&target) const
+				void		CopyRowTo(index_t row, Ctr::ArrayData<C>&target) const
 				{
 					#ifdef __ARRAY_DBG_RANGE_CHECK__
 						if (row >= GetHeight())
@@ -191,7 +191,7 @@ namespace DeltaWorks
 					MyStrategy::copyElements(Super::pointer()+row*w,target.pointer(),w);
 				}
 
-				void		CopyColumnTo(index_t col, ArrayData<C>&target) const
+				void		CopyColumnTo(index_t col, Ctr::ArrayData<C>&target) const
 				{
 					#ifdef __ARRAY_DBG_RANGE_CHECK__
 						if (col >= w)
@@ -205,7 +205,7 @@ namespace DeltaWorks
 					}
 				}
 
-				void		CopyRowFrom(index_t row, const ArrayData<C>&source)
+				void		CopyRowFrom(index_t row, const Ctr::ArrayData<C>&source)
 				{
 					#ifdef __ARRAY_DBG_RANGE_CHECK__
 						if (row >= GetHeight())
@@ -215,7 +215,7 @@ namespace DeltaWorks
 					MyStrategy::copyElements(source.pointer(),Super::pointer()+row*w,w);
 				}
 
-				void		CopyColumnFrom(index_t col, const ArrayData<C>&source)
+				void		CopyColumnFrom(index_t col, const Ctr::ArrayData<C>&source)
 				{
 					count_t h = GetHeight();
 					#ifdef __ARRAY_DBG_RANGE_CHECK__

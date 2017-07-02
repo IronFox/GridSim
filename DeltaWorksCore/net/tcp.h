@@ -350,7 +350,7 @@ namespace DeltaWorks
 			private:
 				bool		sealed;
 				T			element;
-				Array<BYTE>	serialized;
+				Ctr::Array<BYTE>	serialized;
 			public:
 				/**/		Serial():sealed(false)
 				{}
@@ -370,7 +370,7 @@ namespace DeltaWorks
 					SerializeToMemory(element,serialized.pointer(),(serial_size_t)serialized.GetContentSize(),false);
 				}
 
-				const Array<BYTE>&	Get() const
+				const Ctr::Array<BYTE>&	Get() const
 				{
 					ASSERT__(sealed);
 					return serialized;
@@ -890,7 +890,7 @@ namespace DeltaWorks
 
 		class PeerWriter : public TCPThreadObject
 		{
-			Ctr::WorkPipe<Array<BYTE> >		pipe;
+			Ctr::WorkPipe<Ctr::Array<BYTE> >		pipe;
 			SocketAccess				*volatile accessPointer;
 			Sys::SpinLock				accessPointerLock;
 		public:
@@ -911,7 +911,7 @@ namespace DeltaWorks
 				if (connectionLost)
 					throw Except::IO::Network::ConnectionLost(CLOCATION,"Cannot write data on channel "+String(channel));
 				serial_size_t size = s.GetSerialSize(false);
-				Array<BYTE>	data(8 + size);
+				Ctr::Array<BYTE>	data(8 + size);
 				(*(UINT32*)data.pointer()) = channel;
 				(*(((UINT32*)data.pointer())+1)) = (UINT32)size;
 
@@ -922,14 +922,14 @@ namespace DeltaWorks
 			{
 				if (connectionLost)
 					throw Except::IO::Network::ConnectionLost(CLOCATION,"Cannot write data on channel "+String(channel));
-				Array<BYTE>	data(8 + numBytes);
+				Ctr::Array<BYTE>	data(8 + numBytes);
 				(*(UINT32*)data.pointer()) = channel;
 				(*(((UINT32*)data.pointer())+1)) = (UINT32)numBytes;
 				memcpy(data.pointer()+8,rawData,numBytes);
 				pipe.MoveAppend(data);
 			}
 
-			bool						Write(const Array<BYTE>&packet)
+			bool						Write(const Ctr::Array<BYTE>&packet)
 			{
 				if (connectionLost)
 					return false;
@@ -941,7 +941,7 @@ namespace DeltaWorks
 			{
 				if (connectionLost)
 					return false;
-				Array<BYTE>	data(8);
+				Ctr::Array<BYTE>	data(8);
 				(*(UINT32*)data.pointer()) = signal;
 				(*(((UINT32*)data.pointer())+1)) = (UINT32)0;
 				pipe.MoveAppend(data);
@@ -1210,7 +1210,7 @@ namespace DeltaWorks
 
 			SocketAccess		*socketAccess;
 
-			//Array<BYTE>		out_buffer;
+			//Ctr::Array<BYTE>		out_buffer;
 			
 			void				ThreadMain() override;
 		protected:
@@ -1219,8 +1219,8 @@ namespace DeltaWorks
 			void				SendObject(UINT32 channel, const ISerializable&object, unsigned minUserLevel) override;
 			void				SendObject(UINT32 channel, const PPeer&exclude, const ISerializable&object, unsigned minUserLevel) override;
 		
-			void				SendSerializedObject(UINT32 channel, const ArrayRef<BYTE>&object, unsigned minUserLevel);
-			void				SendSerializedObject(UINT32 channel, const PPeer&exclude, const ArrayRef<BYTE>&object, unsigned minUserLevel);
+			void				SendSerializedObject(UINT32 channel, const Ctr::ArrayRef<BYTE>&object, unsigned minUserLevel);
+			void				SendSerializedObject(UINT32 channel, const PPeer&exclude, const Ctr::ArrayRef<BYTE>&object, unsigned minUserLevel);
 
 			bool				IsShuttingDown() const {return is_shutting_down;}
 

@@ -21,8 +21,8 @@ namespace DeltaWorks
 	{
 		extern	ImageFormat*	format[];
 
-		void			GetExtensions(ArrayData<PathString>&extensions);	//!< Fills the specified array with all supported file extensions (lower case) \param extensions String array to write to
-		void			GetExtensions(ArrayData<PathString>&extensions, ArrayData<ImageFormat*>&formats);	//!< Similar to the above but also exports the respective matching format descriptors \param extensions String array to write all supported extensions to \param formats Field to write the respective matching format descriptors to. Both fields are filled with the same number of items
+		void			GetExtensions(Ctr::ArrayData<PathString>&extensions);	//!< Fills the specified array with all supported file extensions (lower case) \param extensions String array to write to
+		void			GetExtensions(Ctr::ArrayData<PathString>&extensions, Ctr::ArrayData<ImageFormat*>&formats);	//!< Similar to the above but also exports the respective matching format descriptors \param extensions String array to write all supported extensions to \param formats Field to write the respective matching format descriptors to. Both fields are filled with the same number of items
 
 		/**
 		@brief Attempts to load an image file from the specified filename

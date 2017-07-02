@@ -62,7 +62,7 @@ namespace DeltaWorks
 			if (!name.contains('/'))
 				return protectedDefine(name.trim(),value);
 
-			Array<String>	components;
+			Ctr::Array<String>	components;
 			explode('/',name,components);
 			return protectedDefineContext(components.pointer(),components.count()-1).protectedDefine(components.last().trim(),value);
 		}
@@ -94,7 +94,7 @@ namespace DeltaWorks
 			if (!name.contains('/'))
 				return protectedDefineContext(name.trim());
 
-			Array<String>	components;
+			Ctr::Array<String>	components;
 			explode('/',name,components);
 			return protectedDefineContext(components.pointer(),components.count());
 		}
@@ -144,42 +144,42 @@ namespace DeltaWorks
 		}
 
 
-		void						Context::ExportModes(ArrayData<Context*>&out)
+		void						Context::ExportModes(Ctr::ArrayData<Context*>&out)
 		{
 			out.SetSize(modes.Count());
 			for (index_t i = 0; i < modes.Count(); i++)
 				out[i] = modes + i;
 		}
 	
-		void						Context::ExportModes(ArrayData<const Context*>&out)				const
+		void						Context::ExportModes(Ctr::ArrayData<const Context*>&out)				const
 		{
 			out.SetSize(modes.Count());
 			for (index_t i = 0; i < modes.Count(); i++)
 				out[i] = modes+i;
 		}
 	
-		void						Context::ExportChildren(ArrayData<Context*>&out)
+		void						Context::ExportChildren(Ctr::ArrayData<Context*>&out)
 		{
 			out.SetSize(children.Count());
 			for (index_t i = 0; i < children.Count(); i++)
 				out[i] = children + i;
 		}
 	
-		void						Context::ExportChildren(ArrayData<const Context*>&out)			const
+		void						Context::ExportChildren(Ctr::ArrayData<const Context*>&out)			const
 		{
 			out.SetSize(children.Count());
 			for (index_t i = 0; i < children.Count(); i++)
 				out[i] = children + i;
 		}
 	
-		void						Context::ExportAttributes(ArrayData<Attribute*>&out)
+		void						Context::ExportAttributes(Ctr::ArrayData<Attribute*>&out)
 		{
 			out.SetSize(attributes.Count());
 			for (index_t i = 0; i < attributes.Count(); i++)
 				out[i] = attributes + i;
 		}
 	
-		void						Context::ExportAttributes(ArrayData<const Attribute*>&out)		const
+		void						Context::ExportAttributes(Ctr::ArrayData<const Attribute*>&out)		const
 		{
 			out.SetSize(attributes.Count());
 			for (index_t i = 0; i < attributes.Count(); i++)
@@ -189,7 +189,7 @@ namespace DeltaWorks
 
 		Context::Attribute*					Context::GetAttrib(const String&path)
 		{
-			Array<String,Adopt>	segments;
+			Ctr::Array<String,Adopt>	segments;
 			explode('/',path,segments);
 			if (!segments.count())
 				return nullptr;
@@ -227,7 +227,7 @@ namespace DeltaWorks
 
 		const Context::Attribute*				Context::GetAttrib(const String&path)						const
 		{
-			Array<String,Adopt>	segments;
+			Ctr::Array<String,Adopt>	segments;
 			explode('/',path,segments);
 			if (!segments.count())
 				return nullptr;
@@ -384,7 +384,7 @@ namespace DeltaWorks
 
 		Context*					Context::GetContext(const String&path)
 		{
-			Array<String,Adopt>	segments;
+			Ctr::Array<String,Adopt>	segments;
 			explode('/',path,segments);
 			if (!segments.count())
 				return NULL;
@@ -410,7 +410,7 @@ namespace DeltaWorks
 	
 		const Context*					Context::GetContext(const String&path) const
 		{
-			Array<String,Adopt>	segments;
+			Ctr::Array<String,Adopt>	segments;
 			explode('/',path,segments);
 			if (!segments.count())
 				return nullptr;
@@ -507,7 +507,7 @@ namespace DeltaWorks
 					//	tabs++;
 					//for (index_t i = 0; i <= tabs; i++)
 					//	buffer << '\t';
-					Array<String>	lines;
+					Ctr::Array<String>	lines;
 					wrap(attrib->name+": "+ attrib->comment.trimRef(),80,lines);
 					foreach (lines,line)
 						buffer << indent << ";"<<*line<<nl;
@@ -560,7 +560,7 @@ namespace DeltaWorks
 			{
 				if (child->comment.IsNotEmpty())
 				{
-					Array<String>	lines;
+					Ctr::Array<String>	lines;
 					wrap(child->name+": "+child->comment.trimRef(),80,lines);
 					foreach (lines,line)
 						buffer << indent << ";"<<*line<<nl;
@@ -896,7 +896,7 @@ namespace DeltaWorks
 			return true;
 		}
 	
-		CXContext::Variable*					CXContext::innerFindVariable(const ArrayData<String>&segments)
+		CXContext::Variable*					CXContext::innerFindVariable(const Ctr::ArrayData<String>&segments)
 		{
 			CXContext *context = this;
 			for (index_t i = 0; i+1 < segments.count(); i++)
@@ -911,7 +911,7 @@ namespace DeltaWorks
 			return context->variables.QueryPointer(segments.last());
 		}
 	
-		const CXContext::Variable*					CXContext::innerFindVariable(const ArrayData<String>&segments) const
+		const CXContext::Variable*					CXContext::innerFindVariable(const Ctr::ArrayData<String>&segments) const
 		{
 			const CXContext*context = this;
 			for (index_t i = 0; i+1 < segments.count(); i++)
@@ -927,7 +927,7 @@ namespace DeltaWorks
 	
 		CXContext::Variable*					CXContext::FindVariable(const String&path)
 		{
-			Array<String,Adopt>	segments;
+			Ctr::Array<String,Adopt>	segments;
 			explodeCallback(IsPathSeparator,path,segments);
 			CXContext*context = this;
 			while (context->parent)
@@ -937,7 +937,7 @@ namespace DeltaWorks
 	
 		const CXContext::Variable*					CXContext::FindVariable(const String&path)	const
 		{
-			Array<String,Adopt>	segments;
+			Ctr::Array<String,Adopt>	segments;
 			explodeCallback(IsPathSeparator,path,segments);
 			const CXContext*context = this;
 			while (context->parent)
@@ -946,7 +946,7 @@ namespace DeltaWorks
 		}
 	
 	
-		PCXContext					CXContext::innerFindContext(const ArrayData<String>&segments)
+		PCXContext					CXContext::innerFindContext(const Ctr::ArrayData<String>&segments)
 		{
 			CXContext*context = this;
 			for (index_t i = 0; i < segments.count(); i++)
@@ -958,7 +958,7 @@ namespace DeltaWorks
 			return context;
 		}
 	
-		const CXContext*					CXContext::innerFindContext(const ArrayData<String>&segments) const
+		const CXContext*					CXContext::innerFindContext(const Ctr::ArrayData<String>&segments) const
 		{
 			const CXContext*context = this;
 			for (index_t i = 0; i < segments.count(); i++)
@@ -972,7 +972,7 @@ namespace DeltaWorks
 	
 		CXContext*					CXContext::FindContext(const String&path)
 		{
-			Array<String,Adopt>	segments;
+			Ctr::Array<String,Adopt>	segments;
 			explodeCallback(IsPathSeparator,path,segments);
 			CXContext*context = this;
 			while (context->parent)
@@ -982,7 +982,7 @@ namespace DeltaWorks
 	
 		const CXContext*					CXContext::FindContext(const String&path)	const
 		{
-			Array<String,Adopt>	segments;
+			Ctr::Array<String,Adopt>	segments;
 			explodeCallback(IsPathSeparator,path,segments);
 			const CXContext*context = this;
 			while (context->parent)
@@ -1028,7 +1028,7 @@ namespace DeltaWorks
 		void	CXContext::parse(const String&content)
 		{
 			std::cout << "parsing content '"<<content<<"'"<<std::endl;
-			Array<String,Adopt>	lines,segments;
+			Ctr::Array<String,Adopt>	lines,segments;
 			explode(';',content,lines);
 			if (!lines.count())
 				return;
@@ -1154,7 +1154,7 @@ namespace DeltaWorks
 							continue;
 						}
 
-						Array<String,Adopt>	inherit;
+						Ctr::Array<String,Adopt>	inherit;
 						explode(',',value,inherit);
 						child->finalizeVariables();
 
@@ -1172,8 +1172,8 @@ namespace DeltaWorks
 							}
 							if (target->IsChildOf(child) || child->IsChildOf(target))
 								continue;
-							Array<String,Adopt>		names;
-							Array<Variable*>	variables;
+							Ctr::Array<String,Adopt>		names;
+							Ctr::Array<Variable*>	variables;
 							target->variables.exportTo(names, variables);
 							for (index_t i = 0; i < names.count(); i++)
 							{
@@ -1191,7 +1191,7 @@ namespace DeltaWorks
 										{
 											std::cout << "found ($*) in parameter #"<<j<<std::endl;
 											(*var)[j].replaceSubString(at-1,4,implode(',',*variables[i]));
-											Array<String,Adopt>	sub;
+											Ctr::Array<String,Adopt>	sub;
 											explode(',',(*var)[j],sub);
 											for (index_t k = 0; k < sub.count(); k++)
 												sub[k].trimThis();
@@ -1277,7 +1277,7 @@ namespace DeltaWorks
 	
 		bool	CXContext::Set(const String&variable_name, const String&variable_value)
 		{
-			Array<String,Adopt>	segments;
+			Ctr::Array<String,Adopt>	segments;
 			explodeCallback(IsPathSeparator,variable_name,segments);
 			CXContext*context = this;
 			CXContext*result;
@@ -1308,8 +1308,8 @@ namespace DeltaWorks
 		void	CXContext::PrintToCOut(unsigned indent)	const
 		{
 			std::cout << tabSpace(indent)<<name<<std::endl;
-			Array<String,Adopt>		names;
-			Array<const Variable*>	variables;
+			Ctr::Array<String,Adopt>		names;
+			Ctr::Array<const Variable*>	variables;
 			this->variables.exportTo(names, variables);
 			for (index_t i = 0; i < names.count(); i++)
 				std::cout << tabSpace(indent+1)<<names[i]<<" := '"<<implode("', '",*(variables[i]))<<"'"<<std::endl;

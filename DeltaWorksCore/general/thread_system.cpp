@@ -937,7 +937,7 @@ namespace DeltaWorks
 		{}
 
 	
-		void		JobSequence::split(Array<ThreadMainObject*>&objects,Thread::pMethod method, ThreadPoolContext*context)
+		void		JobSequence::split(Ctr::Array<ThreadMainObject*>&objects,Thread::pMethod method, ThreadPoolContext*context)
 		{
 			if (!objects.count())
 				return;
@@ -976,7 +976,7 @@ namespace DeltaWorks
 	
 		}
 	
-		void		JobSequence::split(Array<ThreadMainObject*>&objects,count_t count, Thread::pMethod method, ThreadPoolContext*context)
+		void		JobSequence::split(Ctr::Array<ThreadMainObject*>&objects,count_t count, Thread::pMethod method, ThreadPoolContext*context)
 		{
 			if (!count)
 				return;
@@ -1015,7 +1015,7 @@ namespace DeltaWorks
 			THREAD_REPORT("enqueued")
 	
 		}
-		void			JobSequence::splitIndividually(Array<ThreadMainObject*>&objects,Thread::pMethod method, ThreadPoolContext*context)
+		void			JobSequence::splitIndividually(Ctr::Array<ThreadMainObject*>&objects,Thread::pMethod method, ThreadPoolContext*context)
 		{
 			if (!objects.count())
 				return;
@@ -1031,13 +1031,13 @@ namespace DeltaWorks
 		}
 
 	
-		void			ThreadPool::split(Array<ThreadMainObject*>&objects,count_t count, Thread::pMethod method, ThreadPoolContext*context)
+		void			ThreadPool::split(Ctr::Array<ThreadMainObject*>&objects,count_t count, Thread::pMethod method, ThreadPoolContext*context)
 		{
 			JobSequence	sequence(*this);
 			sequence.split(objects,count,method,context);
 		}
 		
-		void			ThreadPool::split(Array<ThreadMainObject*>&objects,Thread::pMethod method, ThreadPoolContext*context)
+		void			ThreadPool::split(Ctr::Array<ThreadMainObject*>&objects,Thread::pMethod method, ThreadPoolContext*context)
 		{
 			JobSequence	sequence(*this);
 			sequence.split(objects,method,context);
@@ -1087,7 +1087,7 @@ namespace DeltaWorks
 			#endif
 		}
 	
-		void			ThreadPool::splitIndividually(Array<ThreadMainObject*>&objects,Thread::pMethod method, ThreadPoolContext*context)
+		void			ThreadPool::splitIndividually(Ctr::Array<ThreadMainObject*>&objects,Thread::pMethod method, ThreadPoolContext*context)
 		{
 			if (!objects.count())
 				return;
@@ -1191,7 +1191,7 @@ namespace DeltaWorks
 
 	
 	
-		void			PriorityThreadPool::split(const Array<int>&priorities, Array<ThreadMainObject*>&objects,Thread::pMethod method, ThreadPoolContext*context)
+		void			PriorityThreadPool::split(const Ctr::Array<int>&priorities, Ctr::Array<ThreadMainObject*>&objects,Thread::pMethod method, ThreadPoolContext*context)
 		{
 			if (!objects.count() || priorities.count() != objects.count())
 				return;
@@ -1235,7 +1235,7 @@ namespace DeltaWorks
 			THREAD_REPORT("enqueued")
 		}
 	
-		void			PriorityThreadPool::splitIndividually(const Array<int>&priorities, Array<ThreadMainObject*>&objects,Thread::pMethod method, ThreadPoolContext*context)
+		void			PriorityThreadPool::splitIndividually(const Ctr::Array<int>&priorities, Ctr::Array<ThreadMainObject*>&objects,Thread::pMethod method, ThreadPoolContext*context)
 		{
 			if (!objects.count() || priorities.count() != objects.count())
 				return;

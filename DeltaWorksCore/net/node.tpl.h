@@ -70,12 +70,12 @@ template <class C> inline void Net::Connection::send(UINT16 channel, BYTE flags,
     write(channel,flags,data,sizeof(C)*elements);
 }
 
-template <class C> inline void Net::Connection::sendArray(UINT16 channel, BYTE flags, const Array<C>&data)
+template <class C> inline void Net::Connection::sendArray(UINT16 channel, BYTE flags, const Ctr::Array<C>&data)
 {
     write(channel,flags,data.pointer(),data.GetContentSize());
 }
 
-template <class C> inline void Net::Connection::sendArray(UINT16 channel, const Array<C>&data)
+template <class C> inline void Net::Connection::sendArray(UINT16 channel, const Ctr::Array<C>&data)
 {
     write(channel,NET_CONFIRM|NET_SERIAL,data.pointer(),data.GetContentSize());
 }
@@ -95,12 +95,12 @@ template <class C> inline void Net::Connection::send(UINT16 channel, const C&dat
     write(channel,NET_CONFIRM|NET_SERIAL,&data,sizeof(data));
 }
 
-template <class C> inline void Net::Server::sendArray(UINT16 channel, BYTE flags, const Array<C>&data)
+template <class C> inline void Net::Server::sendArray(UINT16 channel, BYTE flags, const Ctr::Array<C>&data)
 {
     write(channel,flags,data.pointer(),data.GetContentSize());
 }
 
-template <class C> inline void Net::Server::sendArray(UINT16 channel, const Array<C>&data)
+template <class C> inline void Net::Server::sendArray(UINT16 channel, const Ctr::Array<C>&data)
 {
     write(channel,NET_CONFIRM|NET_SERIAL,data.pointer(),data.GetContentSize());
 }

@@ -59,11 +59,11 @@ namespace DeltaWorks
 				#endif
 				/**/					BasicBuffer(std::initializer_list<T> items);
 				virtual				   ~BasicBuffer();
-				ArrayRef<T>				ToRef() {return ArrayRef<T>(pointer(),Count());}
-				ArrayRef<const T>		ToRef() const {return ArrayRef<const T>(pointer(),Count());}
-				ArrayRef<T>				SubRef(index_t start, count_t count=InvalidIndex) {if (start >= Count()) return ArrayRef<T>(); return ArrayRef<T>(pointer()+start,vmin(count, Count()-start));}
-				ArrayRef<const T>		SubRef(index_t start, count_t count=InvalidIndex) const {if (start >= Count()) return ArrayRef<const T>(); return ArrayRef<const T>(pointer()+start,vmin(count, Count()-start));}
-				Self&					operator=(const ArrayData<T>&array);
+				Ctr::ArrayRef<T>				ToRef() {return Ctr::ArrayRef<T>(pointer(),Count());}
+				Ctr::ArrayRef<const T>		ToRef() const {return Ctr::ArrayRef<const T>(pointer(),Count());}
+				Ctr::ArrayRef<T>				SubRef(index_t start, count_t count=InvalidIndex) {if (start >= Count()) return Ctr::ArrayRef<T>(); return Ctr::ArrayRef<T>(pointer()+start,vmin(count, Count()-start));}
+				Ctr::ArrayRef<const T>		SubRef(index_t start, count_t count=InvalidIndex) const {if (start >= Count()) return Ctr::ArrayRef<const T>(); return Ctr::ArrayRef<const T>(pointer()+start,vmin(count, Count()-start));}
+				Self&					operator=(const Ctr::ArrayData<T>&array);
 				Self&					operator=(const Self&other);
 				Self&					operator=(std::initializer_list<T> items);
 				#if __BUFFER_RVALUE_REFERENCES__
@@ -86,8 +86,8 @@ namespace DeltaWorks
 					Self&				moveAppend(BasicBuffer<T,Strategy2>&buffer, bool clearSourceOnCompletion=true);	//!< Appends all elements in the specified other buffer to the end of the local buffer. The elements will be moved, leaving the parameter buffer empty upon completion.
 				template <typename Strategy2>
 					inline Self&		MoveAppend(BasicBuffer<T,Strategy2>&buffer, bool clearSourceOnCompletion=true)	/**@copydoc moveAppend()*/ {return moveAppend(buffer,clearSourceOnCompletion);}
-				Self&					moveAppend(ArrayData<T>&array, bool clearSourceOnCompletion=true);					//!< Appends all elements in the specified array to the end of the local buffer. The elements will be moved, leaving the parameter array empty upon completion.	
-				inline Self&			MoveAppend(ArrayData<T>&array, bool clearSourceOnCompletion=true)	/**@copydoc moveAppend()*/ {return moveAppend(array,clearSourceOnCompletion);}
+				Self&					moveAppend(Ctr::ArrayData<T>&array, bool clearSourceOnCompletion=true);					//!< Appends all elements in the specified array to the end of the local buffer. The elements will be moved, leaving the parameter array empty upon completion.	
+				inline Self&			MoveAppend(Ctr::ArrayData<T>&array, bool clearSourceOnCompletion=true)	/**@copydoc moveAppend()*/ {return moveAppend(array,clearSourceOnCompletion);}
 				Self&					moveAppend(T*data, count_t elements);			//!< Appends all elements in the specified range to the end of the local buffer. The elements will be moved, leaving the individual objects of the parameter field empty upon completion.
 				inline Self&			MoveAppend(T*data, count_t elements)	/**@copydoc moveAppend()*/ {return moveAppend(data,elements);}
 				inline Self&			MoveAppend(std::initializer_list<T> items);
@@ -100,9 +100,9 @@ namespace DeltaWorks
 				template <typename T2>
 					Self&				Append(std::initializer_list<T2> items);
 				template <typename T2>
-					Self&				append(const ArrayData<T2>&array);				//!< Appends a number of elements to the end of the buffer, advancing the buffer cursor by the specified array's contained of elements. The buffer will automatically be resized if necessary.
+					Self&				append(const Ctr::ArrayData<T2>&array);				//!< Appends a number of elements to the end of the buffer, advancing the buffer cursor by the specified array's contained of elements. The buffer will automatically be resized if necessary.
 				template <typename T2>
-					inline Self&		Append(const ArrayData<T2>&array)			/**@copydoc append()*/ {return append(array);}
+					inline Self&		Append(const Ctr::ArrayData<T2>&array)			/**@copydoc append()*/ {return append(array);}
 				template <typename T2, typename Strategy2>
 					Self&				append(const BasicBuffer<T2,Strategy2>&buffer);	//!< Appends a number of elements to the end of the buffer, advancing the buffer cursor by the specified array's contained of elements. The buffer will automatically be resized if necessary.
 				template <typename T2, typename Strategy2>
@@ -112,9 +112,9 @@ namespace DeltaWorks
 				template <typename T2>
 					inline Self&		AppendAddresses(T2*data, count_t elements)	/**@copydoc appendAddresses()*/ {return appendAddresses(data,elements);}
 				template <typename T2>
-					Self&				appendAddresses(ArrayData<T2>&array);	//!< Appends the addresses of the specified array's elements to the end of the buffer (assuming T is a pointer type fo T2). The buffer will automatically be resized if necessary.
+					Self&				appendAddresses(Ctr::ArrayData<T2>&array);	//!< Appends the addresses of the specified array's elements to the end of the buffer (assuming T is a pointer type fo T2). The buffer will automatically be resized if necessary.
 				template <typename T2>
-					inline Self&		AppendAddresses(ArrayData<T2>&array)	/**@copydoc appendAddresses()*/ {return appendAddresses(array);}
+					inline Self&		AppendAddresses(Ctr::ArrayData<T2>&array)	/**@copydoc appendAddresses()*/ {return appendAddresses(array);}
 				template <typename T2>
 					Self&				appendVA(count_t elements, ...);		//!< Appends a number of elements to the buffer
 				inline void				reset();							//!< Resets the buffer cursor to the beginning. Does \b not resize the local buffer.
@@ -201,12 +201,12 @@ namespace DeltaWorks
 				inline const T&			GetFromEnd(index_t)			const;	//!< @copydoc GetFromEnd()
 				void					compact();							//!< Reduces the local buffer size to the exact fill level and copies all contained elements. Any succeeding push operation will automatically increase buffer size again. The method returns if the stack is already of compact size
 				inline void				Compact()							/**@copydoc compact()*/	{compact();}
-				Array<T,MyStrategy>		copyToArray()						const;	//!< Exports the local data up to the current fill level to the returned array.
-				inline Array<T,MyStrategy>CopyToArray()						const	/**@copydoc copyToArray()*/	{return copyToArray();}
-				void					copyToArray(ArrayData<T>&target)	const;	//!< Exports the local data up to the current fill level to the specified array. The target array will be resized if necessary
-				inline void				CopyToArray(ArrayData<T>&target)	const	/**@copydoc copyToArray()*/	{copyToArray(target);}
-				void					moveToArray(ArrayData<T>&target, bool clearBuffer=true);		//!< Moves local data up to the current fill level to the specified array. Move behavior is defined by the used Strategy class. @param reset_buffer Set true to automatically reset the buffer once element movement is completed
-				inline void				MoveToArray(ArrayData<T>&target, bool clearBuffer=true)	/**@copydoc moveToArray()*/	{moveToArray(target,clearBuffer);}
+				Ctr::Array<T,MyStrategy>		copyToArray()						const;	//!< Exports the local data up to the current fill level to the returned array.
+				inline Ctr::Array<T,MyStrategy>CopyToArray()						const	/**@copydoc copyToArray()*/	{return copyToArray();}
+				void					copyToArray(Ctr::ArrayData<T>&target)	const;	//!< Exports the local data up to the current fill level to the specified array. The target array will be resized if necessary
+				inline void				CopyToArray(Ctr::ArrayData<T>&target)	const	/**@copydoc copyToArray()*/	{copyToArray(target);}
+				void					moveToArray(Ctr::ArrayData<T>&target, bool clearBuffer=true);		//!< Moves local data up to the current fill level to the specified array. Move behavior is defined by the used Strategy class. @param reset_buffer Set true to automatically reset the buffer once element movement is completed
+				inline void				MoveToArray(Ctr::ArrayData<T>&target, bool clearBuffer=true)	/**@copydoc moveToArray()*/	{moveToArray(target,clearBuffer);}
 				template <typename T2>
 					inline bool			contains(const T2&element)	const;	//!< Determines whether or not an equivalent to the specified element is currently stored in the active region of the buffer. Comparison is done via the ==operator.
 				template <typename T2>
@@ -267,7 +267,7 @@ namespace DeltaWorks
 					Self&			operator=(Self&&other) { Super::adoptData(other); return *this; }
 					Self&			operator=(Super&&other) { Super::adoptData(other); return *this; }
 				#endif
-				Self&				operator=(const ArrayData<T>&array){Super::operator=(array); return *this;}
+				Self&				operator=(const Ctr::ArrayData<T>&array){Super::operator=(array); return *this;}
 				Self&				operator=(const Self&other) { Super::operator=(other); return *this; }
 				Self&				operator=(const Super&other) { Super::operator=(other); return *this; }
 
@@ -307,7 +307,7 @@ namespace DeltaWorks
 					Self&			operator=(Self&&other){Super::adoptData(other); return *this;}
 					Self&			operator=(Super&&other){Super::adoptData(other); return *this;}
 				#endif
-				Self&				operator=(const ArrayData<T>&array){Super::operator=(array); return *this;}
+				Self&				operator=(const Ctr::ArrayData<T>&array){Super::operator=(array); return *this;}
 				Self&				operator=(const Self&other) { Super::operator=(other); return *this; }
 				Self&				operator=(const Super&other) { Super::operator=(other); return *this; }
 

@@ -82,7 +82,7 @@ namespace DeltaWorks
 		void				regWord(const String&pattern, unsigned ident);
 		void				setStringIdent(unsigned ident);
 		void				parse(const String&string, TokenList&target)	const;
-		void				parse(Array<char>&field, TokenList&target)	const;
+		void				parse(Ctr::Array<char>&field, TokenList&target)	const;
 		String				status();
 		
 		void				finalizeInitialization();

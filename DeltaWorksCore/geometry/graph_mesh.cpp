@@ -13,7 +13,7 @@ namespace DeltaWorks
 		static inline void	parse(const XML::Node&node, const char*attrib_name,TVec2<T>&out)
 		{
 			static String string;
-			static Array<String>	segments;
+			static Ctr::Array<String>	segments;
 		
 			if (!node.Query(attrib_name,string))
 				throw Except::IO::DriveAccess::FileFormatFault("Unable to retrieve attribute '"+String(attrib_name)+"' from XML node '"+node.name+"'");
@@ -999,7 +999,7 @@ namespace DeltaWorks
 		hull.triangle_field.SetSize(desc.triangleIndices.count()/3);
 	
 		static VertexTable		vertex_table;
-		static Array<index_t>	vertex_map;
+		static Ctr::Array<index_t>	vertex_map;
 
 		vertex_table.setTolerance(1e-8f);
 		//vertex_table.clear();	done by setTolerance()
@@ -2261,7 +2261,7 @@ namespace DeltaWorks
 		return *this;
 	}
 
-	/*static*/ void SurfaceNetwork::MakeEven(Array<float>&subdivison_field)
+	/*static*/ void SurfaceNetwork::MakeEven(Ctr::Array<float>&subdivison_field)
 	{
 		for (index_t i = 0; i < subdivison_field.length(); i++)
 		{
@@ -2455,7 +2455,7 @@ namespace DeltaWorks
 			float	projected_x;
 		};
 
-		Array<SortEntry>	sort(need_slots);
+		Ctr::Array<SortEntry>	sort(need_slots);
 		SortEntry*out = sort.pointer();
 
 		float3 x;
@@ -2780,9 +2780,9 @@ namespace DeltaWorks
 
 		const count_t numVerticesPerSlice = (profile.count()-1)*2;
 
-		Array<float>	texcoord(profile.count());
-		Array<float2>	tangent(profile.count()-1);
-		Array<float2>	normal(profile.count()-1);
+		Ctr::Array<float>	texcoord(profile.count());
+		Ctr::Array<float2>	tangent(profile.count()-1);
+		Ctr::Array<float2>	normal(profile.count()-1);
 		float2 center(0);
 		{
 			float at = 0.f;
@@ -3421,7 +3421,7 @@ namespace DeltaWorks
 			FATAL__("Unable to compile barrier: insufficient compiled surfaces");
 			return;
 		}
-		static Array<SurfaceDescription>					lods;
+		static Ctr::Array<SurfaceDescription>					lods;
 
 		lods.SetSize(SurfaceNetwork::numLODs);
 
@@ -3459,7 +3459,7 @@ namespace DeltaWorks
 			FATAL__("Unable to compile rail: insufficient compiled surfaces");
 			return;
 		}
-		static Array<SurfaceDescription>					lods;
+		static Ctr::Array<SurfaceDescription>					lods;
 
 		lods.SetSize(SurfaceNetwork::numLODs);
 
@@ -3485,7 +3485,7 @@ namespace DeltaWorks
 			FATAL__("Unable to compile rail: insufficient compiled surfaces");
 			return;
 		}
-		static Array<SurfaceDescription>					lods;
+		static Ctr::Array<SurfaceDescription>					lods;
 
 		lods.SetSize(SurfaceNetwork::numLODs);
 
@@ -3509,8 +3509,8 @@ namespace DeltaWorks
 	/*static*/ void SurfaceNetwork::CompileArcGeometry(CGS::Geometry<>&target, const Node&node, float near_distance, float far_distance, float extend_along_track,name64_t texture, name64_t normal_texture, bool nodeIsFlipped, CGS::TextureResource*resource /*=NULL*/)
 	{
 
-		static Array<Container::Buffer<SurfaceDescription::TVertex> >	arc_vertices;
-		static Array<SurfaceDescription>					arc_descriptions;
+		static Ctr::Array<Container::Buffer<SurfaceDescription::TVertex> >	arc_vertices;
+		static Ctr::Array<SurfaceDescription>					arc_descriptions;
 
 		arc_vertices.SetSize(SurfaceNetwork::numLODs);
 		arc_descriptions.SetSize(SurfaceNetwork::numLODs);
@@ -3545,7 +3545,7 @@ namespace DeltaWorks
 
 
 
-	/*static*/ void SurfaceNetwork::CompileFromDescriptions(CGS::Geometry<>&target, const Array<SurfaceDescription>&lods, float shortest_edge, name64_t texture, name64_t normal_texture, CGS::TextureResource*resource /*=NULL*/)
+	/*static*/ void SurfaceNetwork::CompileFromDescriptions(CGS::Geometry<>&target, const Ctr::Array<SurfaceDescription>&lods, float shortest_edge, name64_t texture, name64_t normal_texture, CGS::TextureResource*resource /*=NULL*/)
 	{
 		target.object_field.SetSize(1);
 		target.object_field[0].name = str2name("object");
@@ -3676,7 +3676,7 @@ namespace DeltaWorks
 
 
 
-	/*static*/ void SurfaceNetwork::CompileFromDescriptions(CGS::Geometry<>&target, const Array<SurfaceDescription>&lods, const SurfaceDescription&phHull, float shortest_edge, name64_t texture, name64_t normal_texture, CGS::TextureResource*resource /*=NULL*/)
+	/*static*/ void SurfaceNetwork::CompileFromDescriptions(CGS::Geometry<>&target, const Ctr::Array<SurfaceDescription>&lods, const SurfaceDescription&phHull, float shortest_edge, name64_t texture, name64_t normal_texture, CGS::TextureResource*resource /*=NULL*/)
 	{
 		target.object_field.SetSize(1);
 		target.object_field[0].name = str2name("object");

@@ -207,7 +207,7 @@ namespace DeltaWorks
 		//Buffer<Parser::Connection,0>				connections;
 		Ctr::IndexTable<Parser::Connection>			root;
 		
-		Array<Parser::PNode>						node_export;
+		Ctr::Array<Parser::PNode>						node_export;
 
 
 		friend class Parser::Node;

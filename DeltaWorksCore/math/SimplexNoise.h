@@ -64,7 +64,7 @@ namespace DeltaWorks
 			};
 
 
-
+			using std::fabs;
 			double x = fabs(x0);
 			double x2 = x*x;
 			double x3 = x2*x;

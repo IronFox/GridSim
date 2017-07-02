@@ -23,7 +23,7 @@ namespace DeltaWorks
 		StringBuffer&		operator<<(const TNewLine&);
 		StringBuffer&		operator<<(const TSpace&);
 		StringBuffer&		operator<<(const TTabSpace&);
-		StringBuffer&		operator<<(const ArrayData<char>&);
+		StringBuffer&		operator<<(const Ctr::ArrayData<char>&);
 		StringBuffer&		operator<<(const StringRef&);
 		StringBuffer&		operator<<(char);
 		StringBuffer&		operator<<(BYTE);

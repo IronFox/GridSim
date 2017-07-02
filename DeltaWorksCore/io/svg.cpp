@@ -79,7 +79,7 @@ namespace DeltaWorks
 					);
 		}
 	
-		Element BaseElement::CreatePolyline(const ArrayRef<float2>&points)
+		Element BaseElement::CreatePolyline(const Ctr::ArrayRef<float2>&points)
 		{
 			DBG_ASSERT__(IsGroup());
 			static StringBuffer strPoints;
@@ -91,7 +91,7 @@ namespace DeltaWorks
 					);
 		}
 
-		Element BaseElement::CreatePolygon(const ArrayRef<float2>&points)
+		Element BaseElement::CreatePolygon(const Ctr::ArrayRef<float2>&points)
 		{
 			DBG_ASSERT__(IsGroup());
 			static StringBuffer strPoints;
@@ -328,7 +328,7 @@ namespace DeltaWorks
 						stringParameters.DropLastChar();
 					}
 					ASSERT__(Tokenizer::Tokenize(stringParameters,config,sp));
-					Array<float> p(sp.Count());
+					Ctr::Array<float> p(sp.Count());
 					for (index_t i = 0; i < sp.Count(); i++)
 					{
 						const StringRef&s = sp[i];
@@ -397,7 +397,7 @@ namespace DeltaWorks
 			elif (node.name=="polygon" || node.name =="polyline")
 			{
 				const String&spoints = node.attributes.Require("points");
-				Array<StringRef> points,coords;
+				Ctr::Array<StringRef> points,coords;
 				explode(' ',spoints,points);
 				Rect<> primitive = Rect<>::Invalid;
 				foreach (points,p)

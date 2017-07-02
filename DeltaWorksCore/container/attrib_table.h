@@ -100,8 +100,8 @@ namespace DeltaWorks
 				class Storage
 				{
 				public:
-						Array<TAttributeData<T> >	attributes;
-						Array<T>					values;
+						Ctr::Array<TAttributeData<T> >	attributes;
+						Ctr::Array<T>					values;
 				
 				
 						void						adoptData(Storage<T>&other)

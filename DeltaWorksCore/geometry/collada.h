@@ -157,10 +157,10 @@ namespace Collada
 	{
 	public:
 			unsigned					count;	//number of vertices
-			Array<unsigned>			vcount;	//number of bones per vertex
+			Ctr::Array<unsigned>			vcount;	//number of bones per vertex
 			Input						joint_input;
 			List<Input>				other_inputs;
-			Array<float>				v;	//whatever
+			Ctr::Array<float>				v;	//whatever
 			//List<Extra>				extras;
 	};
 	

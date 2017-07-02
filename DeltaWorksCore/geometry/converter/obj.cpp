@@ -195,7 +195,7 @@ namespace DeltaWorks
 				Mat::makeAxisSystem(zero,normal,1,matrix);
 				Mat::invertSystem(matrix,in_matrix);
 			
-				Array<TVec2<Def::FloatType> >	tfield(vertices);
+				Ctr::Array<TVec2<Def::FloatType> >	tfield(vertices);
 				for (index_t i = 0; i < vertices; i++)
 				{
 					TVec3<float> temp;
@@ -274,7 +274,7 @@ namespace DeltaWorks
 		void			ObjConverter::LoadObjColor(const String&line,TVec4<Def::FloatType>&target) throw()
 		{
 			target.alpha = 1.0;
-			Array<String>	segments;
+			Ctr::Array<String>	segments;
 			explode(' ',line,segments);
 			if (segments.count() != 3)
 				return;
@@ -377,7 +377,7 @@ namespace DeltaWorks
 					color_image.SetChannel(1,255);
 					color_image.SetChannel(2,255);
 				}
-			Array<BYTE>	buffer;
+			Ctr::Array<BYTE>	buffer;
 			sendMessage("Compressing...");
 			//color_image.free();
 			size_t out_size = TextureCompression::compress(color_image,buffer);
@@ -386,7 +386,7 @@ namespace DeltaWorks
 				logMessage("Compression failed of '"+String(key)+"' ("+TextureCompression::getError()+")");
 		
 			result->data.face_field.SetSize(1);
-			result->data.face_field[0].importFrom(buffer.pointer(),(Arrays::count_t)out_size);
+			result->data.face_field[0].importFrom(buffer.pointer(),(count_t)out_size);
 			result->data.updateHash();
 		
 			sendMessage("Parsing");
@@ -436,7 +436,7 @@ namespace DeltaWorks
 				incrementName(result->data.name);
 			texture_name_table64.set(result->data.name);
 		
-			Array<BYTE>	buffer;
+			Ctr::Array<BYTE>	buffer;
 			sendMessage("Compressing...");
 			size_t out_size = TextureCompression::compress(image,buffer);
 
@@ -444,7 +444,7 @@ namespace DeltaWorks
 				logMessage("Compression failed of '"+String(key)+"' ("+TextureCompression::getError()+")");
 		
 			result->data.face_field.SetSize(1);
-			result->data.face_field[0].importFrom(buffer.pointer(),(Arrays::count_t)out_size);
+			result->data.face_field[0].importFrom(buffer.pointer(),(count_t)out_size);
 			result->data.updateHash();
 		
 			sendMessage("Parsing");
@@ -461,7 +461,7 @@ namespace DeltaWorks
 			static Container::StringList	segments;
 			Tokenizer::tokenize(line,config,segments);
 			Tokenizer::dequote(segments,config);
-			/*Array<String>	segments;
+			/*Ctr::Array<String>	segments;
 			explode(' ',line,segments);*/
 		
 			//sendMessage("extracting map '"+implode('#',segments)+"'");
@@ -792,7 +792,7 @@ namespace DeltaWorks
 			//current_material->name = "nil";
 			fseek(f,0,SEEK_SET);
 		
-			Array<char>	file_content(fsize+1);
+			Ctr::Array<char>	file_content(fsize+1);
 		
 			if (!fread(file_content.pointer(), fsize, 1, f))
 			{
@@ -1102,7 +1102,7 @@ namespace DeltaWorks
 			
 			}
 		
-			Array<ObjTexture*>	exp;
+			Ctr::Array<ObjTexture*>	exp;
 			texture_field.exportTo(exp);
 		
 			target.local_textures.entry_field.SetSize(exp.length());
@@ -1159,7 +1159,7 @@ namespace DeltaWorks
 					CGS::IndexContainerA<>&chunk = ro.ipool;
 					if (s->vertices.IsNotEmpty())
 					{
-						Array<ObjVertexN>	vertex_field;
+						Ctr::Array<ObjVertexN>	vertex_field;
 						s->vertices.exportToField(vertex_field);
 
 						render_vertices += s->vertices.Count();
@@ -1199,7 +1199,7 @@ namespace DeltaWorks
 					}
 					else
 					{
-						Array<ObjVertexNT>	vertex_field;
+						Ctr::Array<ObjVertexNT>	vertex_field;
 						s->tex_vertices.exportToField(vertex_field);
 
 						render_vertices += s->tex_vertices.Count();
@@ -1254,7 +1254,7 @@ namespace DeltaWorks
 				update_step = 1;
 		
 			count_t vertices = render_vertices;//vertexBuffer.Count()/3;	//3 floats per vertex
-			Array<UINT32>	history(vertexBuffer.Count());
+			Ctr::Array<UINT32>	history(vertexBuffer.Count());
 		
 			//PointerTable<bool>	inversion_field;	//map of all objects with negative volume
 
@@ -1325,7 +1325,7 @@ namespace DeltaWorks
 				Vec::clear(child.meta.center);
 				logMessage(__LINE__);
 
-				Array<PoolVertex>	vertex_field;
+				Ctr::Array<PoolVertex>	vertex_field;
 				pool.exportToField(vertex_field);
 			
 				if (vertex_field.length())
@@ -1606,13 +1606,13 @@ namespace DeltaWorks
 
 
 	
-		void	ObjConverter::writeObject(const CGS::Geometry<>&geometry, const Array<Container::PointerContainer<Array<TFace> > >&conversion_table,const CGS::SubGeometryA<>&object,StringFile&out) throw()
+		void	ObjConverter::writeObject(const CGS::Geometry<>&geometry, const Ctr::Array<Container::PointerContainer<Ctr::Array<TFace> > >&conversion_table,const CGS::SubGeometryA<>&object,StringFile&out) throw()
 		{
 			/*console->print("  "+name2str(object.name).Trim()+"...");
 			console->update();*/
 			out << "g "<<object.name.trim()<<nl;
 		
-			Array<TFace>*face_field;
+			Ctr::Array<TFace>*face_field;
 			for (UINT32 i = 0; i < conversion_table.length(); i++)
 				if (conversion_table[i].query(&object,face_field))
 				{
@@ -1689,7 +1689,7 @@ namespace DeltaWorks
 		
 			sendMessage(" Mapping vertices");
 		
-			Array<Container::PointerContainer<Array<TFace> > >	conversion_table(geometry.material_field.length());
+			Ctr::Array<Container::PointerContainer<Ctr::Array<TFace> > >	conversion_table(geometry.material_field.length());
 		
 			PoolSet		vertex_field, normal_field, texcoord_field;
 			index_t		vcounter = 1, ncounter = 1, tcounter = 1;
@@ -1721,7 +1721,7 @@ namespace DeltaWorks
 					if (!robj.ipool.idata.length())
 						continue;
 
-					Array<PoolSet::iterator>vlink_map(robj.vpool.vcnt),
+					Ctr::Array<PoolSet::iterator>vlink_map(robj.vpool.vcnt),
 											nlink_map(robj.vpool.vcnt),
 											tlink_map(robj.vpool.vlyr>0?robj.vpool.vcnt:0);
 					unsigned vsize = robj.vpool.vsize();
@@ -1741,7 +1741,7 @@ namespace DeltaWorks
 					// log << "inserted"<<nl;
 
 					const CGS::IndexContainerA<>&chunk = robj.ipool;
-					Array<TFace>*field_pntr = conversion_table[i].define(robj.target),
+					Ctr::Array<TFace>*field_pntr = conversion_table[i].define(robj.target),
 								&field = *field_pntr;
 					field.SetSize(chunk.countFaces());
 					UINT32	index_offset(0),

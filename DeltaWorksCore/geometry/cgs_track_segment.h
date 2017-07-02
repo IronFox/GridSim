@@ -71,8 +71,8 @@ namespace DeltaWorks
 		class TrackConnector:public BaseTrackConnector
 		{
 		public:
-				Array<TTrackNode>			nodes;			//!< Override connector nodes retrieved from the local stub. If non empty then segment must be NULL and stub non NULL.
-				Array<BaseTrackConnector>	connectors;		//!< Must be of the same size as nodes. Lists one base track connector per node.
+				Ctr::Array<TTrackNode>			nodes;			//!< Override connector nodes retrieved from the local stub. If non empty then segment must be NULL and stub non NULL.
+				Ctr::Array<BaseTrackConnector>	connectors;		//!< Must be of the same size as nodes. Lists one base track connector per node.
 				Tile						*stub;			//!< A stub is a geometry that is placed before or after the governing track node. The geometry is not altered and treated as an instance. Attaching a stub enforces the governing node's scale to be {1,1} and segment to be NULL.
 				std::shared_ptr<CGS::StaticInstance<> >	instance;		//!< Stub instance. Valid only if @a stub is not NULL
 			

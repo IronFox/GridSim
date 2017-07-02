@@ -69,7 +69,7 @@ namespace DeltaWorks
 
 
 
-	PixelType	TextureCompression::extractContentType(const ArrayData<BYTE>&source)
+	PixelType	TextureCompression::extractContentType(const Ctr::ArrayData<BYTE>&source)
 	{
 		if (source.size() < sizeof(Image::THeader))
 			return PixelType::None;
@@ -149,7 +149,7 @@ namespace DeltaWorks
 		return result;
 	}
 
-	Image*    TextureCompression::decompress(const ArrayData<BYTE>&data)
+	Image*    TextureCompression::decompress(const Ctr::ArrayData<BYTE>&data)
 	{
 		return decompress(data.pointer(),data.length());
 	}
@@ -224,14 +224,14 @@ namespace DeltaWorks
 	}
 
 
-	bool TextureCompression::decompress(const ArrayData<BYTE>&data, Image&to)
+	bool TextureCompression::decompress(const Ctr::ArrayData<BYTE>&data, Image&to)
 	{
 		return decompress(data.pointer(),data.length(),to);
 	}
 
-	static size_t autoCompressImage(const Image&source, Array<BYTE>&buffer)	//this is extremely inefficient but i can't be bothered right now.
+	static size_t autoCompressImage(const Image&source, Ctr::Array<BYTE>&buffer)	//this is extremely inefficient but i can't be bothered right now.
 	{
-		Array<BYTE>	temp;
+		Ctr::Array<BYTE>	temp;
 		size_t current = TextureCompression::compress(source,buffer,TextureCompression::NoCompression);
 		for (unsigned i = 1; i < TextureCompression::RegularCodecCount; i++)
 		{
@@ -245,7 +245,7 @@ namespace DeltaWorks
 		return current;
 	}
 
-	size_t TextureCompression::compress(const Image&source, Array<BYTE>&buffer, Codec codec)
+	size_t TextureCompression::compress(const Image&source, Ctr::Array<BYTE>&buffer, Codec codec)
 	{
 		if (codec == SmallestCompression)
 			return autoCompressImage(source,buffer);
@@ -290,7 +290,7 @@ namespace DeltaWorks
 			break;
 			case BZ2Compression:
 			{
-				Array<BYTE>	temp((unsigned)(from->size()));
+				Ctr::Array<BYTE>	temp((unsigned)(from->size()));
 				compressed_size = BZ2::compress(from->GetData(), from->size(), temp.pointer(), temp.GetContentSize());
 				if (!compressed_size)
 				{

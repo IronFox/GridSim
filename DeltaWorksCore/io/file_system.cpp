@@ -1065,7 +1065,7 @@ namespace DeltaWorks
 			return SetWorkingDirectory(folder.GetLocation());
 		}
 
-		void		GetDriveList(Array<Drive>&out)
+		void		GetDriveList(Ctr::Array<Drive>&out)
 		{
     		count_t cnt = GetDriveList(NULL,0);
 			out.SetSize(cnt);
@@ -1545,7 +1545,7 @@ namespace DeltaWorks
 			#if SYSTEM==WINDOWS
 				bool absoluteWide = folder_name.beginsWith(ABS_MARKER);
 				out.location.replace(L'/',L'\\');
-				Array<PathString>	segments;
+				Ctr::Array<PathString>	segments;
 				explode(L'\\',out.location,segments);
 				for (index_t i = 1; i <= segments.count(); i++)
 				{
@@ -1746,7 +1746,7 @@ namespace DeltaWorks
 			}
 
 			{
-				Array<char> field(getenv("PATH"));
+				Ctr::Array<char> field(getenv("PATH"));
 				char*segment_begin = field.pointer();
 				for (index_t i = 1; i < field.length()-1; i++)
 					if (field[i] == ENV_PATH_SEPARATOR)

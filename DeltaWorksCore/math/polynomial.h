@@ -67,12 +67,12 @@ namespace DeltaWorks
 					return true;
 				}
 			
-				bool		Approximate(const ArrayRef<TVec3<T> >&points)
+				bool		Approximate(const Ctr::ArrayRef<TVec3<T> >&points)
 				{
 					static const count_t TotCoef =  NumCoefX * NumCoefY;
 
 					Array2D<T> XT(TotCoef,points.Count()),X(points.Count(),TotCoef);
-					Array<T> yv(points.Count());
+					Ctr::Array<T> yv(points.Count());
 					for (index_t i = 0; i < points.Count(); i++)
 					{
 						const TVec3<T>&p = points[i];
@@ -148,10 +148,10 @@ namespace DeltaWorks
 
 
 			
-				bool		Approximate(const ArrayRef<TVec2<T> >&points)
+				bool		Approximate(const Ctr::ArrayRef<TVec2<T> >&points)
 				{
 					Array2D<T> XT(NumCoef,points.Count()),X(points.Count(),NumCoef);
-					Array<T> yv(points.Count());
+					Ctr::Array<T> yv(points.Count());
 					for (index_t i = 0; i < points.Count(); i++)
 					{
 						float x = points[i].x;
@@ -224,10 +224,10 @@ namespace DeltaWorks
 					return true;
 				}
 			
-				bool		Approximate(const ArrayRef<TVec2<T> >&points)
+				bool		Approximate(const Ctr::ArrayRef<TVec2<T> >&points)
 				{
 					Array2D<T> XT(NumCoef,points.Count()),X(points.Count(),NumCoef);
-					Array<T> yv(points.Count());
+					Ctr::Array<T> yv(points.Count());
 					for (index_t i = 0; i < points.Count(); i++)
 					{
 						float x = points[i].x;
@@ -310,12 +310,12 @@ namespace DeltaWorks
 					return true;
 				}
 			
-				bool		Approximate(const ArrayRef<TVec3<T> >&points)
+				bool		Approximate(const Ctr::ArrayRef<TVec3<T> >&points)
 				{
 					static const count_t TotCoef =  NumCoefX * NumCoefY;
 
 					Array2D<T> XT(TotCoef,points.Count()),X(points.Count(),TotCoef);
-					Array<T> yv(points.Count());
+					Ctr::Array<T> yv(points.Count());
 					for (index_t i = 0; i < points.Count(); i++)
 					{
 						const TVec3<T>&p = points[i];

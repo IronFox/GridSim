@@ -27,7 +27,7 @@ bool File::Stream(C*obj, count_t num)
 }
 
 template <class C>
-count_t File::Get(ArrayData<C>&out)
+count_t File::Get(Ctr::ArrayData<C>&out)
 {
     if (streaming)
         FATAL__("get does not work during streaming-operation");
@@ -45,19 +45,19 @@ inline bool File::Exit()
 }
 
 template <typename T>
-bool	File::InsertBlock(TID id, const ArrayData<T>&data)
+bool	File::InsertBlock(TID id, const Ctr::ArrayData<T>&data)
 {
 	return InsertBlock(id,data.pointer(),(RIFF_SIZE)data.GetContentSize());
 }
 
 template <typename T>
-bool	File::AppendBlock(TID id, const ArrayData<T>&data)
+bool	File::AppendBlock(TID id, const Ctr::ArrayData<T>&data)
 {
 	return AppendBlock(id,data.pointer(),(RIFF_SIZE)data.GetContentSize());
 }
 
 template <typename T>
-count_t	Chunk::Get(ArrayData<T>&out) const
+count_t	Chunk::Get(Ctr::ArrayData<T>&out) const
 {
 	count_t count = count_t(_info.size)/sizeof(T);
 	out.SetSize(count);
@@ -66,13 +66,13 @@ count_t	Chunk::Get(ArrayData<T>&out) const
 }
 
 template<typename T>
-Chunk*		Chunk::InsertBlock(TID id, const ArrayData<T>&data)
+Chunk*		Chunk::InsertBlock(TID id, const Ctr::ArrayData<T>&data)
 {
 	return insertBlock(id,data.pointer(),data.GetContentSize());
 }
 
 template<typename T>
-Chunk*		Chunk::AppendBlock(TID id, const ArrayData<T>&data)
+Chunk*		Chunk::AppendBlock(TID id, const Ctr::ArrayData<T>&data)
 {
 	return AppendBlock(id,data.pointer(),data.GetContentSize());
 }

@@ -240,16 +240,16 @@ namespace DeltaWorks
 		void	 checkTracedString(const char*from);	//<- use this function at any point in your program to check wether the traced string has been modified or not. Only works if both COUNT_STRING_ID and TRACE_STRING_ID are defined.
 
 		/*
-		void	explode(const String&delimiter, const String&string, ArrayData<String>&result);
-		void	explode(const char*delimiter, const String&string, ArrayData<String>&result);
-		void	explode(const char*delimiter, const char*string, ArrayData<String>&result);
-		void	explode(char delimiter, const char*string, ArrayData<String>&result);
-		void	explode(char delimiter, const String&string, ArrayData<String>&result);
-		String	implode(const String&glue, const ArrayData<String>&pieces);
-		String	implode(char glue, const ArrayData<String>&pieces);
-		void 	wrap(const char*string, size_t line_length, ArrayData<String>&result);
-		void 	wrap(const char*string, size_t line_length, size_t (*lengthFunction)(const char*begin, const char*end),ArrayData<String>&result);
-		void 	wrapf(const char*string, float line_length, float (*lengthFunction)(const char*begin, const char*end),ArrayData<String>&result);
+		void	explode(const String&delimiter, const String&string, Ctr::ArrayData<String>&result);
+		void	explode(const char*delimiter, const String&string, Ctr::ArrayData<String>&result);
+		void	explode(const char*delimiter, const char*string, Ctr::ArrayData<String>&result);
+		void	explode(char delimiter, const char*string, Ctr::ArrayData<String>&result);
+		void	explode(char delimiter, const String&string, Ctr::ArrayData<String>&result);
+		String	implode(const String&glue, const Ctr::ArrayData<String>&pieces);
+		String	implode(char glue, const Ctr::ArrayData<String>&pieces);
+		void 	wrap(const char*string, size_t line_length, Ctr::ArrayData<String>&result);
+		void 	wrap(const char*string, size_t line_length, size_t (*lengthFunction)(const char*begin, const char*end),Ctr::ArrayData<String>&result);
+		void 	wrapf(const char*string, float line_length, float (*lengthFunction)(const char*begin, const char*end),Ctr::ArrayData<String>&result);
 		*/
 
 
@@ -365,7 +365,7 @@ namespace DeltaWorks
 									stream << "\", "<<length()<<">";
 								}
 	
-				inline T*		writeTo(T*target)	const				//! Writes the local expression content to a character array. The array must be sufficiently large since the operation does not perform any length checks. @param target Character array to write to @return Array position once the operation is completed. The returned pointer points one character past the last written character
+				inline T*		writeTo(T*target)	const				//! Writes the local expression content to a character array. The array must be sufficiently large since the operation does not perform any length checks. @param target Character array to write to @return Ctr::Array position once the operation is completed. The returned pointer points one character past the last written character
 								{
 									memcpy(target,reference,len*sizeof(T));
 									return target+len;
@@ -378,7 +378,7 @@ namespace DeltaWorks
 									return target;
 								}
 						
-				inline T*		writeTo(T*target, T*end)	const		//! Writes the local expression content to a character array of constrained size. @param target Character array to write to @param end Pointer to one past the last writable character. @return Array position once the operation is completed. The returned pointer points one character past the last written character. The returned pointer will not point further than @a end
+				inline T*		writeTo(T*target, T*end)	const		//! Writes the local expression content to a character array of constrained size. @param target Character array to write to @param end Pointer to one past the last writable character. @return Ctr::Array position once the operation is completed. The returned pointer points one character past the last written character. The returned pointer will not point further than @a end
 								{
 									size_t cpy = end-target;
 									if (len < cpy)
@@ -510,7 +510,7 @@ namespace DeltaWorks
 									stream << ", "<<length()<<">";
 								}
 	
-			inline	T*			writeTo(T*target)	const				//! Writes the local expression content to a character array. The array must be sufficiently large since the operation does not perform any length checks. @param target Character array to write to @return Array position once the operation is completed. The returned pointer points one character past the last written character
+			inline	T*			writeTo(T*target)	const				//! Writes the local expression content to a character array. The array must be sufficiently large since the operation does not perform any length checks. @param target Character array to write to @return Ctr::Array position once the operation is completed. The returned pointer points one character past the last written character
 								{
 									*target++ = ch;
 									return target;
@@ -522,7 +522,7 @@ namespace DeltaWorks
 									return target;
 								}
 						
-			inline	T*			writeTo(T*target, T*end)	const		//! Writes the local expression content to a character array of constrained size. @param target Character array to write to @param end Pointer to one past the last writable character. @return Array position once the operation is completed. The returned pointer points one character past the last written character. The returned pointer will not point further than @a end
+			inline	T*			writeTo(T*target, T*end)	const		//! Writes the local expression content to a character array of constrained size. @param target Character array to write to @param end Pointer to one past the last writable character. @return Ctr::Array position once the operation is completed. The returned pointer points one character past the last written character. The returned pointer will not point further than @a end
 								{
 									if (target < end)
 										*target++ = ch;
@@ -696,12 +696,12 @@ namespace DeltaWorks
 									return exp0.length()+exp1.length();
 								}
 			template <typename T2>
-				inline	T2*		writeTo(T2*target)	const				//! Writes the local expression content to a character array. The array must be sufficiently large since the operation does not perform any length checks. @param target Character array to write to @return Array position once the operation is completed. The returned pointer points one character past the last written character
+				inline	T2*		writeTo(T2*target)	const				//! Writes the local expression content to a character array. The array must be sufficiently large since the operation does not perform any length checks. @param target Character array to write to @return Ctr::Array position once the operation is completed. The returned pointer points one character past the last written character
 								{
 									return exp1.writeTo(exp0.writeTo(target));
 								}
 			template <typename T2>
-				inline	T2*		writeTo(T2*target, T2*end)	const		//! Writes the local expression content to a character array of constrained size. @param target Character array to write to @param end Pointer to one past the last writable character. @return Array position once the operation is completed. The returned pointer points one character past the last written character. The returned pointer will not point further than @a end
+				inline	T2*		writeTo(T2*target, T2*end)	const		//! Writes the local expression content to a character array of constrained size. @param target Character array to write to @param end Pointer to one past the last writable character. @return Ctr::Array position once the operation is completed. The returned pointer points one character past the last written character. The returned pointer will not point further than @a end
 								{
 									return exp1.writeTo(exp0.writeTo(target,end),end);
 								}
@@ -1251,7 +1251,7 @@ namespace DeltaWorks
 											Template(long double, unsigned char precision=10, bool force_trailing_zeros=false);
 											Template(long long);
 											Template(unsigned long long);
-											Template(const ArrayData<T>&array);
+											Template(const Ctr::ArrayData<T>&array);
 											Template(const void*);
 									
 										#ifdef DSTRING_H
@@ -1556,7 +1556,7 @@ namespace DeltaWorks
 				#if __STR_RVALUE_REFERENCES__
 					Template<T>&		operator=(Template<T>&&);					//!< Overwrites the local string content with the content of the specified Template object. \return Reference to the local string object.
 				#endif
-				Template<T>&		operator=(const ArrayData<T>&array);
+				Template<T>&		operator=(const Ctr::ArrayData<T>&array);
 			
 				template <typename T2>
 					Template<T>&		operator=(const T2*);						//!< Overwrites the local string content with the content of the specified const char array. \return Reference to the local string object.
@@ -1874,44 +1874,44 @@ namespace DeltaWorks
 
 
 	template <typename T0, typename T1, typename T2>
-		void	explode(const StringType::Template<T0>&delimiter, const StringType::Template<T1>&string, ArrayData<T2>&result);
+		void	explode(const StringType::Template<T0>&delimiter, const StringType::Template<T1>&string, Ctr::ArrayData<T2>&result);
 	template <typename T0, typename T1, typename T2>
-		void	explode(const StringType::Template<T0>&delimiter, const StringType::ReferenceExpression<T1>&string, ArrayData<T2>&result);
+		void	explode(const StringType::Template<T0>&delimiter, const StringType::ReferenceExpression<T1>&string, Ctr::ArrayData<T2>&result);
 	template <typename T0, typename T1, typename T2>
-		void	explode(const T0*delimiter, const StringType::Template<T1>&string, ArrayData<T2>&result);
+		void	explode(const T0*delimiter, const StringType::Template<T1>&string, Ctr::ArrayData<T2>&result);
 	template <typename T0, typename T1, typename T2>
-		void	explode(const T0*delimiter, const StringType::ReferenceExpression<T1>&string, ArrayData<T2>&result);
+		void	explode(const T0*delimiter, const StringType::ReferenceExpression<T1>&string, Ctr::ArrayData<T2>&result);
 	template <typename T0, typename T1, typename T2>
-		void	explode(const T0*delimiter, const T1*string, ArrayData<T2>&result);
+		void	explode(const T0*delimiter, const T1*string, Ctr::ArrayData<T2>&result);
 	template <typename T0, typename T1>
-		void	explode(T0 delimiter, const T0*string, ArrayData<T1>&result);
+		void	explode(T0 delimiter, const T0*string, Ctr::ArrayData<T1>&result);
 	template <typename T0, typename T1>
-		void	explode(T0 delimiter, const StringType::Template<T0>&string, ArrayData<T1>&result);
+		void	explode(T0 delimiter, const StringType::Template<T0>&string, Ctr::ArrayData<T1>&result);
 	template <typename T0, typename T1>
-		void	explode(T0 delimiter, const StringType::ReferenceExpression<T0>&string, ArrayData<T1>&result);
+		void	explode(T0 delimiter, const StringType::ReferenceExpression<T0>&string, Ctr::ArrayData<T1>&result);
 	template <typename T0, typename T1>
-		void	explodeCallback(bool isDelimiter(T0), const T0*string, ArrayData<T1>&result);
+		void	explodeCallback(bool isDelimiter(T0), const T0*string, Ctr::ArrayData<T1>&result);
 	template <typename T0, typename T1>
-		void	explodeCallback(bool isDelimiter(T0), const StringType::Template<T0>&string, ArrayData<T1>&result);
+		void	explodeCallback(bool isDelimiter(T0), const StringType::Template<T0>&string, Ctr::ArrayData<T1>&result);
 	template <typename T0, typename T1>
-		void	explodeCallback(bool isDelimiter(T0), const StringType::ReferenceExpression<T0>&string, ArrayData<T1>&result);
+		void	explodeCallback(bool isDelimiter(T0), const StringType::ReferenceExpression<T0>&string, Ctr::ArrayData<T1>&result);
 
 
 
 
 	template <typename T0, typename T1>
-		StringType::Template<T1>		implode(const StringType::Template<T0>&glue, const ArrayRef<StringType::ReferenceExpression<T1> >&pieces);
+		StringType::Template<T1>		implode(const StringType::Template<T0>&glue, const Ctr::ArrayRef<StringType::ReferenceExpression<T1> >&pieces);
 	template <typename T>
-		StringType::Template<T>		implode(T glue, const ArrayRef<StringType::ReferenceExpression<T> >&pieces);
+		StringType::Template<T>		implode(T glue, const Ctr::ArrayRef<StringType::ReferenceExpression<T> >&pieces);
 	template <typename T0, typename T1>
-		StringType::Template<T1>		implode(const T0*glue, const ArrayRef<StringType::ReferenceExpression<T1> >&pieces);
+		StringType::Template<T1>		implode(const T0*glue, const Ctr::ArrayRef<StringType::ReferenceExpression<T1> >&pieces);
 
 	template <typename T0, typename T1>
-		StringType::Template<T1>		implode(const StringType::Template<T0>&glue, const ArrayRef<StringType::Template<T1> >&pieces);
+		StringType::Template<T1>		implode(const StringType::Template<T0>&glue, const Ctr::ArrayRef<StringType::Template<T1> >&pieces);
 	template <typename T>
-		StringType::Template<T>		implode(T glue, const ArrayRef<StringType::Template<T> >&pieces);
+		StringType::Template<T>		implode(T glue, const Ctr::ArrayRef<StringType::Template<T> >&pieces);
 	template <typename T0, typename T1>
-		StringType::Template<T1>		implode(const T0*glue, const ArrayRef<StringType::Template<T1> >&pieces);
+		StringType::Template<T1>		implode(const T0*glue, const Ctr::ArrayRef<StringType::Template<T1> >&pieces);
 	template <typename T0, typename T1>
 		StringType::Template<T1>		implode(const StringType::Template<T0>&glue, const StringType::Template<T1>*pieces, count_t numPieces);
 	template <typename T>
@@ -1921,19 +1921,19 @@ namespace DeltaWorks
 
 
 	template <typename T0, typename T1>
-		void 	wrap(const T0*string, size_t line_length, ArrayData<StringType::Template<T1> >&result);
+		void 	wrap(const T0*string, size_t line_length, Ctr::ArrayData<StringType::Template<T1> >&result);
 	template <typename T0, typename T1>
-		void 	wrap(const T0*string, size_t line_length, size_t (*lengthFunction)(T0 character),ArrayData<StringType::Template<T1> >&result);
+		void 	wrap(const T0*string, size_t line_length, size_t (*lengthFunction)(T0 character),Ctr::ArrayData<StringType::Template<T1> >&result);
 	template <typename T0, typename T1>
-		void 	wrapf(const T0*string, float line_length, float (*lengthFunction)(T0 character),ArrayData<StringType::Template<T1> >&result);
+		void 	wrapf(const T0*string, float line_length, float (*lengthFunction)(T0 character),Ctr::ArrayData<StringType::Template<T1> >&result);
 
 
 	template <typename T0, typename T1>
-		void 	wrap(const StringType::Template<T0>&string, size_t line_length, ArrayData<StringType::Template<T1> >&result);
+		void 	wrap(const StringType::Template<T0>&string, size_t line_length, Ctr::ArrayData<StringType::Template<T1> >&result);
 	template <typename T0, typename T1>
-		void 	wrap(const StringType::Template<T0>&string, size_t line_length, size_t (*lengthFunction)(T0 character),ArrayData<StringType::Template<T1> >&result);
+		void 	wrap(const StringType::Template<T0>&string, size_t line_length, size_t (*lengthFunction)(T0 character),Ctr::ArrayData<StringType::Template<T1> >&result);
 	template <typename T0, typename T1>
-		void 	wrapf(const StringType::Template<T0>&string, float line_length, float (*lengthFunction)(T0 character),ArrayData<StringType::Template<T1> >&result);
+		void 	wrapf(const StringType::Template<T0>&string, float line_length, float (*lengthFunction)(T0 character),Ctr::ArrayData<StringType::Template<T1> >&result);
 
 
 

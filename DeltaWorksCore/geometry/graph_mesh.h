@@ -203,8 +203,8 @@ namespace DeltaWorks
 
 		struct Node : public SurfaceDescription::TControl
 		{
-			Array<float>					subdivision[2];	//!< Describes the subdivision steps for outbound segments. Only contains borders between each two steps. All must be in the range (0,1), pairwise different, and ascending in order.
-			Array<index_t>					segments[2];		//!< Index of the segment bound to each subdivision. This field must be one element larger than subdivision
+			Ctr::Array<float>					subdivision[2];	//!< Describes the subdivision steps for outbound segments. Only contains borders between each two steps. All must be in the range (0,1), pairwise different, and ascending in order.
+			Ctr::Array<index_t>					segments[2];		//!< Index of the segment bound to each subdivision. This field must be one element larger than subdivision
 			SurfaceDescription::TControl	slope;
 			UINT32							lodIndex;			//!< Strictly client variable that is merely provided but not used by the local structures
 			index_t							nodeID;			//!< Temporary variable used during compactification. Not used otherwise
@@ -291,7 +291,7 @@ namespace DeltaWorks
 
 			SurfaceDescription::TControl	controls[2];
 			Connector						connector[2];
-			Array<SurfaceDescription>		compiledSurfaces;	//three per lod: 0: stitched to fit lower resolution node[0], 1: stitched to fit lower resolution node[1], 2: not stitched (in case both nodes have reduced lod, use less detailed surface)
+			Ctr::Array<SurfaceDescription>		compiledSurfaces;	//three per lod: 0: stitched to fit lower resolution node[0], 1: stitched to fit lower resolution node[1], 2: not stitched (in case both nodes have reduced lod, use less detailed surface)
 
 			PAttachment						attachment;		//!< Custom attachment. Initialized with NULL, and moved if the container is resized, but not deleted automatically
 			index_t							segID;				//!< Temporary variable used during compactification. Not used otherwise, but valid afterwards
@@ -324,9 +324,9 @@ namespace DeltaWorks
 
 		struct Compacted
 		{
-			Array<Node>						nodes;
-			Array<Segment>					segments;
-			Array<bool>						nodeIsFlipped;
+			Ctr::Array<Node>						nodes;
+			Ctr::Array<Segment>					segments;
+			Ctr::Array<bool>						nodeIsFlipped;
 
 			void							adoptData(Compacted&other)
 											{
@@ -390,14 +390,14 @@ namespace DeltaWorks
 
 		bool								NodeIsFlipped(index_t node)	const;
 
-		static void							MakeEven(Array<float>&subdivison_field);
+		static void							MakeEven(Ctr::Array<float>&subdivison_field);
 
 		static void							CompileBarrierGeometry(CGS::Geometry<>&target,const Segment&segment, float position,float height0,float height1,name64_t texture, CGS::TextureResource*resource=NULL);
 		static void							CompileArcGeometry(CGS::Geometry<>&target, const Node&node, float near_distance, float far_distance, float extend_along_track, name64_t texture, name64_t normal_texture, bool node_is_flipped, CGS::TextureResource*resource=NULL);
 		static void							CompileRailGeometry(CGS::Geometry<>&target, const Segment&segment, float innerExtend, float outerExtend, float upperExtend, float lowerExtend, name64_t texture, name64_t normal_texture, CGS::TextureResource*resource=NULL);
 		static void							CompileRailGeometry(CGS::Geometry<>&target, const Segment&segment, const Container::BasicBuffer<float2>&profile, name64_t texture, name64_t normal_texture, CGS::TextureResource*resource=NULL);
-		static void							CompileFromDescriptions(CGS::Geometry<>&target, const Array<SurfaceDescription>&lods, float shortest_edge, name64_t texture, name64_t normal_texture, CGS::TextureResource*resource =NULL);
-		static void							CompileFromDescriptions(CGS::Geometry<>&target, const Array<SurfaceDescription>&lods, const SurfaceDescription&phHull, float shortest_edge, name64_t texture, name64_t normal_texture, CGS::TextureResource*resource =NULL);
+		static void							CompileFromDescriptions(CGS::Geometry<>&target, const Ctr::Array<SurfaceDescription>&lods, float shortest_edge, name64_t texture, name64_t normal_texture, CGS::TextureResource*resource =NULL);
+		static void							CompileFromDescriptions(CGS::Geometry<>&target, const Ctr::Array<SurfaceDescription>&lods, const SurfaceDescription&phHull, float shortest_edge, name64_t texture, name64_t normal_texture, CGS::TextureResource*resource =NULL);
 
 	private:
 		index_t								SmartMakeRoom(Node&node,index_t node_index,bool outbound,const Node&opposing_node);

@@ -13,7 +13,7 @@ namespace DeltaWorks
 
 	ImageFormat*	Magic::format[] = {&bitmap,&jpeg,&png,&tga};
 
-	void			Magic::GetExtensions(ArrayData<PathString>&extensions)
+	void			Magic::GetExtensions(Ctr::ArrayData<PathString>&extensions)
 	{
 		count_t cnt = 0;
 		for (index_t i = 0; i < ARRAYSIZE(format); i++)
@@ -28,7 +28,7 @@ namespace DeltaWorks
 		ASSERT_CONCLUSION(extensions,to);
 	}
 
-	void			Magic::GetExtensions(ArrayData<PathString>&extensions, ArrayData<ImageFormat*>&formats)
+	void			Magic::GetExtensions(Ctr::ArrayData<PathString>&extensions, Ctr::ArrayData<ImageFormat*>&formats)
 	{
 		count_t cnt = 0;
 		for (index_t i = 0; i < ARRAYSIZE(format); i++)

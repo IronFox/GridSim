@@ -64,7 +64,7 @@ void gotoxy(int x, int y)
 	{
 		iconv_t	iv = iconv_open("WCHAR_T", "UTF-8");
 		size_t maxLen = str.length() * 4;
-		Array<char>	field(maxLen);
+		Ctr::Array<char>	field(maxLen);
 		char*source = const_cast<char*>((const char*)str.c_str());
 		char*dest = field.pointer();
 		size_t sourceBytes = (str.length()) * sizeof(wchar_t);
@@ -335,7 +335,7 @@ namespace DeltaWorks
 	template <typename T0, typename T1>
 		static void _displayMessage(const T0*head_, const T1&line, bool prefixProgramName)
 		{
-			Array<StringType::Template<T0> >	lines;
+			Ctr::Array<StringType::Template<T0> >	lines;
 			explode((T0)'\n',line,lines);
 			StringType::Template<T0> head = prefixProgramName ? _getApplicationName<T0>() + head_ : head_;
 			if (!lines.count())

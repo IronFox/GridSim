@@ -122,11 +122,11 @@ namespace DeltaWorks
 			return;
         
 
-		Array<char>	field(string.c_str(),len+1);
+		Ctr::Array<char>	field(string.c_str(),len+1);
 		parse(field,out);
 	}
 
-	void	StringTokenizer::parse(Array<char>&field,TokenList&out)	const
+	void	StringTokenizer::parse(Ctr::Array<char>&field,TokenList&out)	const
 	{
 		char  *current = field.pointer(),
 			  *end = field+field.length()-1;

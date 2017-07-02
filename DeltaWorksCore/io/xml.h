@@ -158,7 +158,7 @@ namespace DeltaWorks
 			The specified char field must include the terminating 0 and be mutable. The array length will not be altered but dividing zeroes will be inserted as necessary
 			@param field Char array as specified
 			*/
-			void				LoadFromCharArray(ArrayData<char>&field);
+			void				LoadFromCharArray(Ctr::ArrayData<char>&field);
 			/**
 			@brief Attempts to load the local XML configuration from the specified file
 			@param filename Name of the file to load

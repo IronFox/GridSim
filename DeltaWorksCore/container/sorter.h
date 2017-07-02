@@ -39,36 +39,36 @@ namespace DeltaWorks
 
 		
 		template <typename Entry, typename MyStrategy>
-			class Accessor<Array<Entry,MyStrategy> >
+			class Accessor<Ctr::Array<Entry,MyStrategy> >
 			{
 			public:
 			typedef	Entry*				accessor_t;
 			typedef const Entry*		const_accessor_t;
 
 		
-			static	accessor_t			resolve(Array<Entry,MyStrategy>&container)
+			static	accessor_t			resolve(Ctr::Array<Entry,MyStrategy>&container)
 										{
 											return container.pointer();
 										}
-			static	const_accessor_t	resolve(const Array<Entry,MyStrategy>&container)
+			static	const_accessor_t	resolve(const Ctr::Array<Entry,MyStrategy>&container)
 										{
 											return container.pointer();
 										}
 			};
 
 		template <typename Entry>
-			class Accessor<ArrayData<Entry> >
+			class Accessor<Ctr::ArrayData<Entry> >
 			{
 			public:
 			typedef	Entry*				accessor_t;
 			typedef const Entry*		const_accessor_t;
 
 		
-			static	accessor_t			resolve(ArrayData<Entry>&container)
+			static	accessor_t			resolve(Ctr::ArrayData<Entry>&container)
 										{
 											return container.pointer();
 										}
-			static	const_accessor_t	resolve(const ArrayData<Entry>&container)
+			static	const_accessor_t	resolve(const Ctr::ArrayData<Entry>&container)
 										{
 											return container.pointer();
 										}

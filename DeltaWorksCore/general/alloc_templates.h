@@ -10,7 +10,7 @@ Collection of useful memory-allocation/-delocation functions.
 namespace DeltaWorks
 {
 
-	namespace AllocTemplates //! Array helper functions
+	namespace AllocTemplates //! Ctr::Array helper functions
 	{
 
 	template <class C>  inline C*   alloc(size_t elements);

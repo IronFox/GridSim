@@ -26,7 +26,7 @@ namespace DeltaWorks
 
 
 
-	static void tgaColor(const Array<BYTE>&color, index_t offset, BYTE bpp, BYTE*out)
+	static void tgaColor(const Ctr::Array<BYTE>&color, index_t offset, BYTE bpp, BYTE*out)
 	{
 		if (bpp >= 24)
 		{
@@ -68,7 +68,7 @@ namespace DeltaWorks
 
 	void	TGA::LoadFromFilePointer(Image&target, FILE*f)
 	{
-		Array<BYTE>	color_map,
+		Ctr::Array<BYTE>	color_map,
 						final_map,
 						image;
 

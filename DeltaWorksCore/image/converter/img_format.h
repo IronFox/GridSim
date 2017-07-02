@@ -49,8 +49,8 @@ namespace DeltaWorks
 
 	public:
 		const String		name;			//!< Image format name (ie. 'JPEG')
-		Array<PathString>	extensions;		//!< Extensions supported by this image format
-		Array<BYTE>			magic_bytes;	//!< Magic bytes (if any). May be up to 10 bytes
+		Ctr::Array<PathString>	extensions;		//!< Extensions supported by this image format
+		Ctr::Array<BYTE>			magic_bytes;	//!< Magic bytes (if any). May be up to 10 bytes
 		
 						ImageFormat(const String&name_, const PathString&ext):name(name_)	{explode((PathString::char_t)' ',ext,extensions);}
 		

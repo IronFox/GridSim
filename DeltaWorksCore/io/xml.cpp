@@ -438,7 +438,7 @@ namespace DeltaWorks
 	//	return XML::Encoding::UTF8;
 	}
 
-	void	XML::Container::LoadFromCharArray(ArrayData<char>&field)
+	void	XML::Container::LoadFromCharArray(Ctr::ArrayData<char>&field)
 	{
 		encoding = Encoding::UTF8;
 		Buffer<Node*,4>	parse_stack;
@@ -588,7 +588,7 @@ namespace DeltaWorks
 	{
 		Clear();
 	
-		Array<char>	field(content.c_str(),content.length()+1);
+		Ctr::Array<char>	field(content.c_str(),content.length()+1);
 		size_t len = content.length();
 	
 		field[len] = 0;
@@ -611,7 +611,7 @@ namespace DeltaWorks
 		unsigned len = ftell(f);
 		fseek(f,0,SEEK_SET);
 	
-		Array<char>	field;
+		Ctr::Array<char>	field;
 		field.SetSize(len+1);
 	
 		if (fread(field.pointer(),1,len,f)!=len)
@@ -634,7 +634,7 @@ namespace DeltaWorks
 		return c == '\n' || c == '\r';
 	}
 
-	inline static void trim(Array<String,Adopt>&field)
+	inline static void trim(Ctr::Array<String,Adopt>&field)
 	{
 		for (unsigned i = 0; i < field.length(); i++)
 		{
@@ -700,7 +700,7 @@ namespace DeltaWorks
 				break;
 				case XML::Nice:
 				{
-					Array<String,Adopt>	lines;
+					Ctr::Array<String,Adopt>	lines;
 					explodeCallback(isNewLine,entry->inner_content,lines);
 					trim(lines);
 					if (lines.count() > 1)
@@ -728,7 +728,7 @@ namespace DeltaWorks
 				break;
 				case XML::Tidy:
 				{
-					Array<String,Adopt>	lines;
+					Ctr::Array<String,Adopt>	lines;
 					explodeCallback(isNewLine,entry->inner_content,lines);
 					trim(lines);
 					for (index_t i = 0; i < lines.count(); i++)
@@ -763,7 +763,7 @@ namespace DeltaWorks
 				break;
 				case XML::Nice:
 				{
-					Array<String,Adopt>	lines;
+					Ctr::Array<String,Adopt>	lines;
 					explodeCallback(isNewLine,entry->following_content,lines);
 					trim(lines);
 					outfile << nl;
@@ -777,7 +777,7 @@ namespace DeltaWorks
 				break;
 				case XML::Tidy:
 				{
-					Array<String,Adopt>	lines;
+					Ctr::Array<String,Adopt>	lines;
 					explodeCallback(isNewLine,entry->inner_content,lines);
 					trim(lines);
 					for (index_t i = 0; i < lines.count(); i++)
@@ -912,7 +912,7 @@ namespace DeltaWorks
 	static XML::Node&	createIn(XML::Node*context, const String&path, const String&inner_content)
 	{
 		ASSERT_NOT_NULL__(context);
-		Array<String,Adopt>	components;
+		Ctr::Array<String,Adopt>	components;
 		explode('/',path,components);
 		if (!components.count())
 			throw Except::IO::ParameterFault("Trying to create empty XML segment");

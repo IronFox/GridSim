@@ -180,7 +180,7 @@ namespace DeltaWorks
 									return write(&data,sizeof(C));
 								}
 			template <class C>
-				bool			writeArray(const ArrayRef<C>&data)						 //!< Writes one unit of POD data \param data Reference to the object to read from
+				bool			writeArray(const Ctr::ArrayRef<C>&data)						 //!< Writes one unit of POD data \param data Reference to the object to read from
 								{
 									return write(data.pointer(),data.GetContentSize());
 								}
@@ -212,7 +212,7 @@ namespace DeltaWorks
 									return rval;
 								}
 			template <class C>
-				bool			readArray(ArrayRef<C>&data)
+				bool			readArray(Ctr::ArrayRef<C>&data)
 								{
 									return read(data.pointer(),data.GetContentSize());
 								}
@@ -256,7 +256,7 @@ namespace DeltaWorks
 									return write(&data,sizeof(C));
 								}
 			template <class C>
-			bool				writeArray(const ArrayRef<C>&data)						 //!< Writes one unit of POD data \param data Reference to the object to read from
+			bool				writeArray(const Ctr::ArrayRef<C>&data)						 //!< Writes one unit of POD data \param data Reference to the object to read from
 								{
 									return write(data.pointer(),data.GetContentSize());
 								}
