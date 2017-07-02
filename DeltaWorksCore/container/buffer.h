@@ -59,10 +59,10 @@ namespace DeltaWorks
 				#endif
 				/**/					BasicBuffer(std::initializer_list<T> items);
 				virtual				   ~BasicBuffer();
-				Ctr::ArrayRef<T>				ToRef() {return Ctr::ArrayRef<T>(pointer(),Count());}
-				Ctr::ArrayRef<const T>		ToRef() const {return Ctr::ArrayRef<const T>(pointer(),Count());}
-				Ctr::ArrayRef<T>				SubRef(index_t start, count_t count=InvalidIndex) {if (start >= Count()) return Ctr::ArrayRef<T>(); return Ctr::ArrayRef<T>(pointer()+start,vmin(count, Count()-start));}
-				Ctr::ArrayRef<const T>		SubRef(index_t start, count_t count=InvalidIndex) const {if (start >= Count()) return Ctr::ArrayRef<const T>(); return Ctr::ArrayRef<const T>(pointer()+start,vmin(count, Count()-start));}
+				Ctr::ArrayRef<T>		ToRef() {return Ctr::ArrayRef<T>(pointer(),Count());}
+				Ctr::ArrayRef<const T>	ToRef() const {return Ctr::ArrayRef<const T>(pointer(),Count());}
+				Ctr::ArrayRef<T>		SubRef(index_t start, count_t count=InvalidIndex) {if (start >= Count()) return Ctr::ArrayRef<T>(); return Ctr::ArrayRef<T>(pointer()+start,std::min(count, Count()-start));}
+				Ctr::ArrayRef<const T>	SubRef(index_t start, count_t count=InvalidIndex) const {if (start >= Count()) return Ctr::ArrayRef<const T>(); return Ctr::ArrayRef<const T>(pointer()+start,std::min(count, Count()-start));}
 				Self&					operator=(const Ctr::ArrayData<T>&array);
 				Self&					operator=(const Self&other);
 				Self&					operator=(std::initializer_list<T> items);

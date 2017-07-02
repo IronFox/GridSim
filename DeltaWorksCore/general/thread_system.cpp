@@ -38,7 +38,7 @@ namespace DeltaWorks
 			{
 				#if SYSTEM == WINDOWS
 					bool success = kernel_library.load("kernel32.dll");
-					const char*const error = success?"":kernel_library.getError();
+					const char*const error = success?"":kernel_library.GetError();
 					ASSERT__(success);
 
 					if (!kernel_library.locate("CancelSynchronousIo",cancelSynchronousIo))

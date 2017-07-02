@@ -295,7 +295,7 @@ namespace Math
 				C0 len = 0;
 				VECTOR_LOOP(el_count)
 					len+=v[el]*v[el];
-				if (len <= getError<C0>()*getError<C0>())
+				if (len <= GetError<C0>()*GetError<C0>())
 					v[0] = alength;
 				else
 				{
@@ -310,7 +310,7 @@ namespace Math
 			(void)		_setLen0(C0 v[3], const C1&alength)
 			{
 				C0 val = v[0]*v[0]+v[1]*v[1]+v[2]*v[2];
-				if (val <= getError<C0>()*getError<C0>())
+				if (val <= GetError<C0>()*GetError<C0>())
 					v[0] = alength;
 				else
 				{
@@ -326,7 +326,7 @@ namespace Math
 			(void)		_setLen02(C0 v[2], const C1&alength)
 			{
 				C0 val = v[0]*v[0]+v[1]*v[1];
-				if (val <= getError<C0>()*getError<C0>())
+				if (val <= GetError<C0>()*GetError<C0>())
 					v[0] = alength;
 				else
 				{
@@ -339,7 +339,7 @@ namespace Math
 			(void)		_setLen04(C0 v[4], const C1&alength)
 			{
 				C0 val = v[0]*v[0]+v[1]*v[1]+v[2]*v[2]+v[3]*v[3];
-				if (val <= getError<C0>()*getError<C0>())
+				if (val <= GetError<C0>()*GetError<C0>())
 					v[0] = alength;
 				else
 				{
@@ -355,7 +355,7 @@ namespace Math
 			(void)		_setLen0V(C0*v, const C1&alength)
 			{
 				C0 len = QDot<C0,C0,Dimensions>::perform(v,v);
-				if (len <= getError<C0>()*getError<C0>())
+				if (len <= GetError<C0>()*GetError<C0>())
 					v[0] = alength;
 				else
 					QScale<C0,C1,Dimensions>::perform(v,(C0)alength/vsqrt(len));
@@ -424,7 +424,7 @@ namespace Math
 				_subtractV<C0,C1,C2,Dimensions>(v,center,temp);
 				C2 len=QDot<C2,C2,Dimensions>::perform(temp);
 				len = vsqrt(len);
-				if (len > getError<C2>())
+				if (len > GetError<C2>())
 					QMad<C0,C2,C2,C1,Dimensions>::perform(center,temp,distance/len,v);
 				else
 					v[0] += distance;
@@ -439,7 +439,7 @@ namespace Math
 					len+=sqr(v[el]-center[el]);
 					
 				len = vsqrt(len);
-				if (len > getError<C2>())
+				if (len > GetError<C2>())
 				{
 					VECTOR_LOOP(el_count)
 						v[el] = center[el]+(v[el]-center[el])*factor/len;
@@ -454,7 +454,7 @@ namespace Math
 			{
 				C1 len = vsqrt(sqr(v[0]-center[0])+sqr(v[1]-center[1])+sqr(v[2]-center[2]));
 				
-				if (len > getError<C1>())
+				if (len > GetError<C1>())
 				{
 					v[0] = center[0]+(v[0]-center[0])*factor/len;
 					v[1] = center[1]+(v[1]-center[1])*factor/len;
@@ -1338,7 +1338,7 @@ namespace Math
 
 	MFUNC2 (char)		_compare(const C0 v0[3], const C1 v1[3])
 	{
-		C0	tolerance = getError<C0>(),
+		C0	tolerance = GetError<C0>(),
 			delta;
 
 		COMPARE(v0[0],v1[0])
@@ -1350,7 +1350,7 @@ namespace Math
 
 	MFUNC2 (char)		_compare2(const C0 v0[2], const C1 v1[2])
 	{
-		C0	tolerance = getError<C0>(),
+		C0	tolerance = GetError<C0>(),
 			delta;
 
 		COMPARE(v0[0],v1[0])
@@ -1362,7 +1362,7 @@ namespace Math
 
 	MFUNC2 (char)		_compare4(const C0 v0[4], const C1 v1[4])
 	{
-		C0	tolerance = getError<C0>(),
+		C0	tolerance = GetError<C0>(),
 			delta;
 
 		COMPARE(v0[0],v1[0])
@@ -1376,7 +1376,7 @@ namespace Math
 
 	MFUNC2 (char)		_compare6(const C0 v0[6], const C1 v1[6])
 	{
-		C0	tolerance = getError<C0>(),
+		C0	tolerance = GetError<C0>(),
 			delta;
 
 		COMPARE(v0[0],v1[0])
@@ -1392,7 +1392,7 @@ namespace Math
 
 	MFUNC2 (char)		_compare8(const C0 v0[8], const C1 v1[8])
 	{
-		C0	tolerance = getError<C0>(),
+		C0	tolerance = GetError<C0>(),
 			delta;
 
 		COMPARE(v0[0],v1[0])
@@ -1410,7 +1410,7 @@ namespace Math
 
 	MFUNC2V (char)		_compareV(const C0*v0, const C1*v1)
 	{
-		return _compareV<C0,C1,Elements>(v0,v1,getError<C0>());
+		return _compareV<C0,C1,Elements>(v0,v1,GetError<C0>());
 	}
 
 	#undef COMPARE
@@ -1995,7 +1995,7 @@ namespace Math
 			C0 len = 0;
 			VECTOR_LOOP(el_count)
 				len+=v[el]*v[el];
-			if (len <= getError<C0>()*getError<C0>())
+			if (len <= GetError<C0>()*GetError<C0>())
 				v[0] = alength;
 			else
 			{
@@ -2009,7 +2009,7 @@ namespace Math
 		(void)		_setLen0(C0 v[3], C1 alength)
 		{
 			C0 val = v[0]*v[0]+v[1]*v[1]+v[2]*v[2];
-			if (val <= getError<C0>()*getError<C0>())
+			if (val <= GetError<C0>()*GetError<C0>())
 				v[0] = alength;
 			else
 			{
@@ -2024,7 +2024,7 @@ namespace Math
 		(void)		_setLen02(C0 v[2], C1 alength)
 		{
 			C0 val = v[0]*v[0]+v[1]*v[1];
-			if (val <= getError<C0>()*getError<C0>())
+			if (val <= GetError<C0>()*GetError<C0>())
 				v[0] = alength;
 			else
 			{
@@ -2037,7 +2037,7 @@ namespace Math
 		(void)		_setLen04(C0 v[4], C1 alength)
 		{
 			C0 val = v[0]*v[0]+v[1]*v[1]+v[2]*v[2]+v[3]*v[3];
-			if (val <= getError<C0>()*getError<C0>())
+			if (val <= GetError<C0>()*GetError<C0>())
 				v[0] = alength;
 			else
 			{
@@ -2053,7 +2053,7 @@ namespace Math
 		(void)		_setLen0V(C0*v, C1 alength)
 		{
 			C0 len = QDot<C0,C0,Dimensions>::perform(v,v);
-			if (len <= getError<C0>()*getError<C0>())
+			if (len <= GetError<C0>()*GetError<C0>())
 				v[0] = alength;
 			else
 				QScale<C0,C1,Dimensions>::perform(v,(C0)alength/vsqrt(len));
@@ -2400,7 +2400,7 @@ namespace Math
 	MFUNC (void)		_normalize02(C v[2])
 	{
 		C dlen = v[0]*v[0]+v[1]*v[1];
-		if (dlen<=getError<C>())
+		if (dlen<=GetError<C>())
 		{
 			v[0] = 1;
 			return;
@@ -2413,7 +2413,7 @@ namespace Math
 	MFUNC (void)		_normalize04(C v[4])
 	{
 		C dlen = v[0]*v[0]+v[1]*v[1]+v[2]*v[2]+v[3]*v[3];
-		if (dlen<=getError<C>())
+		if (dlen<=GetError<C>())
 		{
 			v[0] = 1;
 			return;
@@ -2429,7 +2429,7 @@ namespace Math
 	MFUNCV (void)	_normalize0V(C*v)
 	{
 		C len = QDot<C,C,Dimensions>::perform(v,v);
-		if (len<=getError<C>())
+		if (len<=GetError<C>())
 		{
 			v[0] = 1;
 			return;
@@ -2444,7 +2444,7 @@ namespace Math
 		C len = 0;
 		VECTOR_LOOP(el_count)
 			len+=v[el]*v[el];
-		if (len<=getError<C>())
+		if (len<=GetError<C>())
 		{
 			v[0] = 1;
 			return;
@@ -2457,7 +2457,7 @@ namespace Math
 	MFUNC (void) _normalize0(C v[3])
 	{
 		C len = v[0]*v[0]+v[1]*v[1]+v[2]*v[2];
-		if (isnan(len) || len<=getError<C>())
+		if (isnan(len) || len<=GetError<C>())
 		{
 			v[0] = 1;
 			v[1] = 0;
@@ -2529,7 +2529,7 @@ namespace Math
 			_subtractV<C0,C1,C2,Dimensions>(v,center,temp);
 			C2 len=QDot<C2,C2,Dimensions>::perform(temp);
 			len = vsqrt(len);
-			if (len > getError<C2>())
+			if (len > GetError<C2>())
 				QMad<C0,C2,C2,C1,Dimensions>::perform(center,temp,distance/len,v);
 			else
 				v[0] += distance;
@@ -2543,7 +2543,7 @@ namespace Math
 				len+=sqr(v[el]-center[el]);
 				
 			len = vsqrt(len);
-			if (len > getError<C2>())
+			if (len > GetError<C2>())
 			{
 				VECTOR_LOOP(el_count)
 					v[el] = center[el]+(v[el]-center[el])*factor/len;
@@ -2557,7 +2557,7 @@ namespace Math
 		{
 			C1 len = vsqrt(sqr(v[0]-center[0])+sqr(v[1]-center[1])+sqr(v[2]-center[2]));
 			
-			if (len > getError<C1>())
+			if (len > GetError<C1>())
 			{
 				v[0] = center[0]+(v[0]-center[0])*factor/len;
 				v[1] = center[1]+(v[1]-center[1])*factor/len;
@@ -3536,24 +3536,24 @@ namespace Math
 	MFUNC2
 		(bool)		_similar(const C0*v, const C1*w)
 		{
-			return sqr(v[0]-w[0])+sqr(v[1]-w[1])+sqr(v[2]-w[2]) < getError<C0>()*getError<C0>();
+			return sqr(v[0]-w[0])+sqr(v[1]-w[1])+sqr(v[2]-w[2]) < GetError<C0>()*GetError<C0>();
 		}
 
 	MFUNC2 (bool)		_similar2(const C0*v, const C1*w)
 	{
-		return sqr(v[0]-w[0])+sqr(v[1]-w[1]) < getError<C0>()*getError<C0>();
+		return sqr(v[0]-w[0])+sqr(v[1]-w[1]) < GetError<C0>()*GetError<C0>();
 	}
 
 	MFUNC2 (bool)		_similar4(const C0*v, const C1*w)
 	{
-		return sqr(v[0]-w[0])+sqr(v[1]-w[1])+sqr(v[2]-w[2])+sqr(v[3]-w[3]) < getError<C0>()*getError<C0>();
+		return sqr(v[0]-w[0])+sqr(v[1]-w[1])+sqr(v[2]-w[2])+sqr(v[3]-w[3]) < GetError<C0>()*GetError<C0>();
 	}
 
 	MFUNC2V (bool) _similarV(const C0*v, const C1*w)
 	{
 		C0 temp[Dimensions];
 		_subtractV<C0,C1,C0,Dimensions>(v,w,temp);
-		return QDot<C0,C1,Dimensions>::perform(temp,temp)<getError<C0>()*getError<C0>();
+		return QDot<C0,C1,Dimensions>::perform(temp,temp)<GetError<C0>()*GetError<C0>();
 	}
 
 

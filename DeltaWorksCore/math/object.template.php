@@ -140,9 +140,9 @@ functions:
 		:<sub>(b,center,delta);
 		:float	pa = 1,
 				pb = 2*:<dot>(d,delta),
-				pc = :<dot>(delta)-sqr(radius),
+				pc = :<dot>(delta)-M::sqr(radius),
 				rs[2];
-		BYTE num_rs = solveSqrEquation(pa,pb,pc,rs);
+		BYTE num_rs = Math::solveSqrEquation(pa,pb,pc,rs);
 		return num_rs > 0;
 		
 	detectOpticalSphereIntersection(const [3] center, radius, const [3] b, const [3] d, &distance) -> bool
@@ -150,9 +150,9 @@ functions:
 		:<sub>(b,center,delta);
 		:float	pa = 1,
 				pb = 2*:<dot>(d,delta),
-				pc = :<dot>(delta)-sqr(radius),
+				pc = :<dot>(delta)-M::sqr(radius),
 				rs[2];
-		BYTE num_rs = solveSqrEquation(pa,pb,pc,rs);
+		BYTE num_rs = Math::solveSqrEquation(pa,pb,pc,rs);
 		if (!num_rs)
 			return false;
 		:float	alpha = smallestPositiveResult(rs,num_rs);
@@ -162,7 +162,7 @@ functions:
 		return true;
 
 	SphereContainsPoint(const [] center, radius, const [] p) -> bool
-		return :<quadraticDistance>(center,p) <= sqr(radius);
+		return :<quadraticDistance>(center,p) <= M::sqr(radius);
 	
 	
 	detectSphereEdgeIntersection,DetectSphereEdgeIntersection(const [] center, radius, const [] e0, const [] e1) -> bool
@@ -174,9 +174,9 @@ functions:
 		:<sub>(e0,center,delta);
 		:float	pa = :<dot>(d,d),
 				pb = 2*:<dot>(d,delta),
-				pc = :<dot>(delta)-sqr(radius),
+				pc = :<dot>(delta)-M::sqr(radius),
 				rs[2];
-		BYTE num_rs = solveSqrEquation(pa,pb,pc,rs);
+		BYTE num_rs = Math::solveSqrEquation(pa,pb,pc,rs);
 		if (!num_rs)
 			return false;
 		:float	alpha = smallestPositiveResult(rs,num_rs);
@@ -193,9 +193,9 @@ functions:
 		:<sub>(e0,center,delta);
 		:float	pa = :<dot>(d,d),
 				pb = 2*:<dot>(d,delta),
-				pc = :<dot>(delta)-sqr(radius),
+				pc = :<dot>(delta)-M::sqr(radius),
 				rs[2];
-		BYTE num_rs = solveSqrEquation(pa,pb,pc,rs);
+		BYTE num_rs = Math::solveSqrEquation(pa,pb,pc,rs);
 		if (!num_rs)
 			return false;
 		if (num_rs == 1)

@@ -201,7 +201,7 @@ namespace ObjectMath
 		_cross(n,d1,n1);
 		C0	sub0 = _dot(n0,d1),
 			sub1 = _dot(n1,d0);
-		if (vabs(sub0) < Math::getError<C0>() || vabs(sub1) < Math::getError<C0>())
+		if (vabs(sub0) < Math::GetError<C0>() || vabs(sub1) < Math::GetError<C0>())
 			return false;
 		_sub(p,p0,bd);
 		x = _dot(n0,bd)/sub0;
@@ -260,7 +260,7 @@ namespace ObjectMath
 	MFUNC1
 		(bool)		_oValidTriangleEdgeIntersection(const C0 factors[3])
 		{
-			return factors[0]>=-Math::getError<C0>() && factors[1] >= -Math::getError<C0>() && factors[0]+factors[1]<=(C0)1+Math::getError<C0>() && factors[2] >= -Math::getError<C0>() && factors[2] <= (C0)1+Math::getError<C0>();
+			return factors[0]>=-Math::GetError<C0>() && factors[1] >= -Math::GetError<C0>() && factors[0]+factors[1]<=(C0)1+Math::GetError<C0>() && factors[2] >= -Math::GetError<C0>() && factors[2] <= (C0)1+Math::GetError<C0>();
 		}
 	
 	MFUNC4 (void)		_oProject(const C0 base[3], const C1 normal[3], const C2 p[3], C3 out[3])
@@ -316,7 +316,7 @@ namespace ObjectMath
 					//_dot(n0,dif)/_dot(n0,d1),
 			gamma = (n1[0]*dif[0]+n1[1]*dif[1]+n1[2]*dif[2])/(n1[0]*d0[0]+n1[1]*d0[1]+n1[2]*d0[2]);
 					//_dot(n1,dif)/_dot(n1,d0);
-		if (beta > -Math::getError<C5>() && gamma > -Math::getError<C5>() && beta + gamma < (C5)1+ Math::getError<C5>())
+		if (beta > -Math::GetError<C5>() && gamma > -Math::GetError<C5>() && beta + gamma < (C5)1+ Math::GetError<C5>())
 		{
 			distance = alpha;
 			return true;
@@ -366,7 +366,7 @@ namespace ObjectMath
 					//_dot(n0,dif)/_dot(n0,d1),
 			gamma = (n1.x*dif.x + n1.y*dif.y + n1.z*dif.z) / (n1.x*d0.x + n1.y*d0.y + n1.z*d0.z);
 					//_dot(n1,dif)/_dot(n1,d0);
-		if (beta > -Math::getError<C5>() && gamma > -Math::getError<C5>() && beta + gamma < (C5)1+ Math::getError<C5>())
+		if (beta > -Math::GetError<C5>() && gamma > -Math::GetError<C5>() && beta + gamma < (C5)1+ Math::GetError<C5>())
 		{
 			distance = alpha;
 			return true;
@@ -416,7 +416,7 @@ namespace ObjectMath
 					//_dot(n0,dif)/_dot(n0,d1),
 			gamma = (n1[0]*dif[0]+n1[1]*dif[1]+n1[2]*dif[2])/(n1[0]*d0[0]+n1[1]*d0[1]+n1[2]*d0[2]);
 					//_dot(n1,dif)/_dot(n1,d0);
-		if (beta > -Math::getError<C5>() && gamma > -Math::getError<C5>() && beta < (C5)1+ Math::getError<C5>() && gamma < (C5)1+ Math::getError<C5>())
+		if (beta > -Math::GetError<C5>() && gamma > -Math::GetError<C5>() && beta < (C5)1+ Math::GetError<C5>() && gamma < (C5)1+ Math::GetError<C5>())
 		{
 			distance = alpha;
 			return true;
@@ -480,7 +480,7 @@ namespace ObjectMath
 			d2x = b1[0]-b0[0],
 			d2y = b1[1]-b0[1],
 			sub = d2x*d1y-d2y*d1x,
-			error = Math::getError<C4>();
+			error = Math::GetError<C4>();
 		if (vabs(sub)<error)
 			return false;
 		C4 	a = (d0y*d2x-d0x*d2y)/sub,
@@ -1321,7 +1321,7 @@ namespace ObjectMath
 				BYTE	i = (k+1)%3,
 						j = (k+2)%3;
 				C2 f = (box.axis[k].min-b.v[k])/(d.v[k]),x,y;
-				if (f >= -Math::getError<C2>() && f < distance)
+				if (f >= -Math::GetError<C2>() && f < distance)
 				{
 					x = b.v[i]+(d.v[i])*f;
 					y = b.v[j]+(d.v[j])*f;
@@ -1361,7 +1361,7 @@ namespace ObjectMath
 				BYTE	i = (k+1)%3,
 						j = (k+2)%3;
 				C2 f = (box.axis[k].min-p0.v[k])/(p1.v[k]-p0.v[k]),x,y;
-				if (f >= -Math::getError<C2>() && f <= (C2)1+Math::getError<C2>())
+				if (f >= -Math::GetError<C2>() && f <= (C2)1+Math::GetError<C2>())
 				{
 					x = p0.v[i]+(p1.v[i]-p0.v[i])*f;
 					y = p0.v[j]+(p1.v[j]-p0.v[j])*f;
@@ -3845,7 +3845,7 @@ namespace ObjectMath
 				typename Def::Type normal[3];
 				_oTriangleNormal(t->v0->position,t->v1->position,t->v2->position,normal);
 				(*f) = _length(normal);
-				if (*f > Math::getError<typename Def::Type>())
+				if (*f > Math::GetError<typename Def::Type>())
 					_div(normal,*f,p->vector);
 				else
 					_clear(p->vector);
@@ -3861,7 +3861,7 @@ namespace ObjectMath
 						_sub(t->vertex[(k+1)%3]->position,t->vertex[k]->position,vec);
 						_cross(vec,p->vector,side_normal);
 						(*sf) = _length(side_normal);
-						if (*sf > Math::getError<typename Def::Type>())
+						if (*sf > Math::GetError<typename Def::Type>())
 							_div(side_normal,*sf,sp->vector);
 						else
 							_clear(sp->vector);
@@ -3886,7 +3886,7 @@ namespace ObjectMath
 				_oTriangleNormal(q->v0->position,q->v1->position,q->v2->position,normal);
 				_oAddTriangleNormal(q->v0->position,q->v2->position,q->v3->position,normal);
 				(*f) = _length(normal);
-				if (*f > Math::getError<typename Def::Type>())
+				if (*f > Math::GetError<typename Def::Type>())
 					_div(normal,*f,p->vector);
 				else
 					_clear(p->vector);
@@ -3903,7 +3903,7 @@ namespace ObjectMath
 						_sub(q->vertex[(k+1)%4]->position,q->vertex[k]->position,vec);
 						_cross(vec,p->vector,side_normal);
 						(*sf) = _length(side_normal);
-						if (*sf > Math::getError<typename Def::Type>())
+						if (*sf > Math::GetError<typename Def::Type>())
 							_div(side_normal,*sf,sp->vector);
 						else
 							_clear(sp->vector);
@@ -7378,7 +7378,7 @@ namespace ObjectMath
 			TVec3<Float> v;
 			Vec::sub(remote.p1,remote.p0,v);
 			Float alpha = (Vec::dot(Super::center,v)-Vec::dot(remote.p0,v))/Vec::dot(v);
-			if (alpha < -Math::getError<Float>() || alpha > (Float)1+Math::getError<Float>())
+			if (alpha < -Math::GetError<Float>() || alpha > (Float)1+Math::GetError<Float>())
 				return false;
 			TVec3<Float> p;
 			Vec::mad(remote.p0,v,alpha,p);
@@ -7416,7 +7416,7 @@ namespace ObjectMath
 			TVec3<Float> v;
 			Vec::sub(remote.p1,remote.p0,v);
 			Float alpha = (Vec::dot(Super::center,v)-Vec::dot(remote.p0,v))/Vec::dot(v);
-			if (alpha < -Math::getError<Float>() || alpha > (Float)1+Math::getError<Float>())
+			if (alpha < -Math::GetError<Float>() || alpha > (Float)1+Math::GetError<Float>())
 				return;
 			TVec3<Float> p;
 			Vec::mad(remote.p0,v,alpha,p);
@@ -7449,7 +7449,7 @@ namespace ObjectMath
 			TVec3<Float> v;
 			Vec::sub(p1,p0,v);
 			Float alpha = (Vec::dot(remote.center,v)-Vec::dot(p0,v))/Vec::dot(v);
-			if (alpha < -Math::getError<Float>() || alpha > (Float)1+Math::getError<Float>())
+			if (alpha < -Math::GetError<Float>() || alpha > (Float)1+Math::GetError<Float>())
 				return false;
 			TVec3<Float> p;
 			Vec::mad(p0,v,alpha,p);
@@ -7470,17 +7470,17 @@ namespace ObjectMath
 				return false;
 			Vec::cross(h,w,n);
 			Float vn = Vec::dot(v,n);
-			if (vabs(vn) <= Math::getError<Float>())
+			if (vabs(vn) <= Math::GetError<Float>())
 				return false;
 			Float alpha = (Vec::dot(remote.p0,n)-Vec::dot(p0,n))/vn;
-			if (alpha < -Math::getError<Float>() || alpha > (Float)1+Math::getError<Float>())
+			if (alpha < -Math::GetError<Float>() || alpha > (Float)1+Math::GetError<Float>())
 				return false;
 			Vec::cross(h,v,n);
 			Float wn = Vec::dot(w,n);
-			if (vabs(wn) <= Math::getError<Float>())
+			if (vabs(wn) <= Math::GetError<Float>())
 				return false;
 			Float beta = (Vec::dot(p0,n)-Vec::dot(remote.p0,n))/wn;
-			if (beta < -Math::getError<Float>() || beta > (Float)1+Math::getError<Float>())
+			if (beta < -Math::GetError<Float>() || beta > (Float)1+Math::GetError<Float>())
 				return false;
 			TVec3<Float> lp,rp;
 			Vec::mad(p0,v,alpha,lp);
@@ -7501,7 +7501,7 @@ namespace ObjectMath
 			TVec3<Float> v;
 			Vec::sub(p1,p0,v);
 			Float alpha = (Vec::dot(remote.center,v)-Vec::dot(p0,v))/Vec::dot(v);
-			if (alpha < -Math::getError<Float>() || alpha > (Float)1+Math::getError<Float>())
+			if (alpha < -Math::GetError<Float>() || alpha > (Float)1+Math::GetError<Float>())
 				return;
 			TVec3<Float> p;
 			Vec::mad(p0,v,alpha,p);
@@ -7530,17 +7530,17 @@ namespace ObjectMath
 				return;
 			Vec::cross(h,w,n);
 			Float vn = Vec::dot(v,n);
-			if (vabs(vn) <= Math::getError<Float>())
+			if (vabs(vn) <= Math::GetError<Float>())
 				return;
 			Float alpha = (Vec::dot(remote.p0,n)-Vec::dot(p0,n))/vn;
-			if (alpha < -Math::getError<Float>() || alpha > (Float)1+Math::getError<Float>())
+			if (alpha < -Math::GetError<Float>() || alpha > (Float)1+Math::GetError<Float>())
 				return;
 			Vec::cross(h,v,n);
 			Float wn = Vec::dot(w,n);
-			if (vabs(wn) <= Math::getError<Float>())
+			if (vabs(wn) <= Math::GetError<Float>())
 				return;
 			Float beta = (Vec::dot(p0,n)-Vec::dot(remote.p0,n))/wn;
-			if (beta < -Math::getError<Float>() || beta > (Float)1+Math::getError<Float>())
+			if (beta < -Math::GetError<Float>() || beta > (Float)1+Math::GetError<Float>())
 				return;
 			TVec3<Float> lp,rp;
 			Vec::mad(p0,v,alpha,lp);

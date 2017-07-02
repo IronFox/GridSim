@@ -11417,13 +11417,13 @@ template <count_t Current, count_t Dimensions>
 		template <typename T0, typename T1, typename T2>
 			static inline	void	__fastcall	User34_max(const T0 __p0[Dimensions], const T1 __p1[Dimensions], T2 __p2[Dimensions])throw()
 			{
-				__p2[Current] = max( __p0[Current], __p1[Current]);
+				__p2[Current] = Math::Max( __p0[Current], __p1[Current]);
 			}
 
 		template <typename T0, typename T1, typename T2>
 			static inline	void	__fastcall	User35_min(const T0 __p0[Dimensions], const T1 __p1[Dimensions], T2 __p2[Dimensions])throw()
 			{
-				__p2[Current] = min( __p0[Current], __p1[Current]);
+				__p2[Current] = Math::Min( __p0[Current], __p1[Current]);
 			}
 
 		template <typename T0, typename T1>
@@ -11803,7 +11803,7 @@ template <count_t Current, count_t Dimensions>
 		template <typename T0, typename T1, typename T2>
 			static inline	void	__fastcall	User34_max(const T0 __p0[Dimensions], const T1 __p1[Dimensions], T2 __p2[Dimensions])throw()
 			{
-				__p2[Current] = max( __p0[Current], __p1[Current]);
+				__p2[Current] = Math::Max( __p0[Current], __p1[Current]);
 				VecV_Include__<Current+1,Dimensions, GreaterOrEqual<Current+2,Dimensions>::eval>::User34_max(__p0,__p1,__p2);
 			}
 
@@ -11812,6 +11812,7 @@ template <count_t Current, count_t Dimensions>
 		template <typename T0, typename T1, typename T2>
 			static inline	void	__fastcall	User35_min(const T0 __p0[Dimensions], const T1 __p1[Dimensions], T2 __p2[Dimensions])throw()
 			{
+				using std::min;
 				__p2[Current] = min( __p0[Current], __p1[Current]);
 				VecV_Include__<Current+1,Dimensions, GreaterOrEqual<Current+2,Dimensions>::eval>::User35_min(__p0,__p1,__p2);
 			}

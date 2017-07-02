@@ -39,17 +39,17 @@ namespace Math
 		
 		MFUNC (bool)		nearingZero(const C&value)
 		{
-			return vabs(value)<=getError<C>();
+			return vabs(value)<=GetError<C>();
 		}
 		
 		MFUNC (bool)		nearingOne(const C&value)
 		{
-			return vabs(value-1) <= getError<C>();
+			return vabs(value-1) <= GetError<C>();
 		}
 
 		MFUNC2 (bool)		similar(const C0&v0, const C1&v1)
 		{
-			return vabs(v0-v1) <= getError<C0>();
+			return vabs(v0-v1) <= GetError<C0>();
 		}
 		
 		MFUNC3 (bool)		similar(const C0&v0, const C1&v1, const C2&tolerance)
@@ -92,9 +92,9 @@ namespace Math
 		}
 		MFUNC  (int)        sign(const C&f)
 		{
-			if (f < -getError<C>()/100)
+			if (f < -GetError<C>()/100)
 				return -1;
-			if (f <= getError<C>()/100)
+			if (f <= GetError<C>()/100)
 				return 0;
 			return 1;
 		}
@@ -325,9 +325,9 @@ namespace Math
 			C0 root = b*b - 4*a*c;
 			if (root < 0)
 				return false;
-			return vabs(a) > getError<C0>()
+			return vabs(a) > GetError<C0>()
 					||
-					vabs(b) > getError<C1>();
+					vabs(b) > GetError<C1>();
 		}
 
 		MFUNC4 (BYTE)     solveSqrEquation(const C0&a, const C1&b, const C2&c, C3 rs[2])
@@ -335,9 +335,9 @@ namespace Math
 			C3 root = b*b - 4*a*c;
 			if (root < 0)
 				return 0;
-			if (vabs(a) <= getError<C0>())
+			if (vabs(a) <= GetError<C0>())
 			{
-				if (vabs(b) <= getError<C1>())
+				if (vabs(b) <= GetError<C1>())
 					return 0;
 				rs[0] = -c/b;
 				return 1;
@@ -421,18 +421,18 @@ namespace Math
 
 	MFUNC (bool)		nearingZero(C value)
 	{
-		return vabs(value)<=getError<C>();
+		return vabs(value)<=GetError<C>();
 	}
 
 	MFUNC (bool)		nearingOne(C value)
 	{
-		return vabs(value-1) <= getError<C>();
+		return vabs(value-1) <= GetError<C>();
 	}
 	
 
 	MFUNC2 (bool)		similar(C0 v0, C1 v1)
 	{
-		return vabs(v0-v1) <= getError<C0>();
+		return vabs(v0-v1) <= GetError<C0>();
 	}
 
 	MFUNC3 (bool)		similar(C0 v0, C1 v1, C2 tolerance)
@@ -575,10 +575,11 @@ namespace Math
 	MF_SPECIALIZED	(char) vChar<unsigned long long>() {return 'U'; }
 	
 	
-    MFUNC	(C)        getError()
-    {
-		return std::numeric_limits<C>::epsilon()*10;
-	}
+	template <typename T>
+		constexpr T GetError()
+		{
+			return std::numeric_limits<T>::epsilon()*10;
+		}
 
 
     MFUNC3	(C0)          clamped(C0 v, C1 min, C2 max)
@@ -610,9 +611,9 @@ namespace Math
 
     MFUNC (int)        sign(C f)
     {
-        if (f < -getError<C>()/100)
+        if (f < -GetError<C>()/100)
             return -1;
-        if (f <= getError<C>()/100)
+        if (f <= GetError<C>()/100)
             return 0;
         return 1;
     }
@@ -943,9 +944,9 @@ namespace Math
 		C0 root = b*b - 4*a*c;
 		if (root < 0)
 			return false;
-		return vabs(a) > getError<C0>()
+		return vabs(a) > GetError<C0>()
 				||
-				vabs(b) > getError<C1>();
+				vabs(b) > GetError<C1>();
 	}
 
     MFUNC4	(BYTE)     solveSqrEquation(C0 a, C1 b, C2 c, C3 rs[2])
@@ -953,9 +954,9 @@ namespace Math
 		C3 root = b*b - 4*a*c;
 		if (root < 0)
 			return 0;
-		if (vabs(a) <= getError<C0>())
+		if (vabs(a) <= GetError<C0>())
 		{
-			if (vabs(b) <= getError<C1>())
+			if (vabs(b) <= GetError<C1>())
 				return 0;
 			rs[0] = -c/b;
 			return 1;

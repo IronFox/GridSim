@@ -91,7 +91,7 @@ namespace DeltaWorks
 								return target!=NULL;
 							}
 				const char*	errorStr();
-				const char*	getError()	{return errorStr();}
+				const char*	GetError()	{return errorStr();}
 
 				void		adoptData(SharedLibrary&other);
 		};

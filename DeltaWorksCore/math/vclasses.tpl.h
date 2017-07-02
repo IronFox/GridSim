@@ -167,7 +167,7 @@
     MF_VNT MF_DECLARE (bool) VecN<C,Len>::operator==(const TVec<C0,Len0>&other) const
     {
 		return VecUnroll<M::Eval<Len,Len0>::Min>::equal(v,other.v);
-		//return VecUnroll<Eval<Len,Len0>::Min>::similar(v,other.v,getError<C>());
+		//return VecUnroll<Eval<Len,Len0>::Min>::similar(v,other.v,GetError<C>());
     }
 
     template <class C, count_t Len>
@@ -179,19 +179,19 @@
     template <class C, count_t Len>
     MFUNC1 (bool) VecN<C,Len>::operator> (const TVec<C0,Len>&other) const
     {
-		return VecUnroll<Len>::compare(v,other.v,getError<C>())>0;
+		return VecUnroll<Len>::compare(v,other.v,GetError<C>())>0;
     }
 
     template <class C, count_t Len>
     MFUNC1 (bool) VecN<C,Len>::operator< (const TVec<C0,Len>&other) const
     {
-		return VecUnroll<Len>::compare(v,other.v,getError<C>())<0;
+		return VecUnroll<Len>::compare(v,other.v,GetError<C>())<0;
     }
 
 	template <class C, count_t Len>
 	MFUNC1 (char) VecN<C,Len>::compareTo (const TVec<C0,Len>&other) const
 	{
-		return VecUnroll<Len>::compare(v,other.v,getError<C>());
+		return VecUnroll<Len>::compare(v,other.v,GetError<C>());
 	}
 
 /*
@@ -427,7 +427,7 @@
     template <class C0> MF_DECLARE  (bool)        Vec3<C>::operator==(const TVec3<C0>&other)   const
     {
 		return Vec::equal(*this,other);
-        //return Math::sqr(x-other.x)+Math::sqr(y-other.y)+Math::sqr(z-other.z) <= getError<C>()*getError<C0>();
+        //return Math::sqr(x-other.x)+Math::sqr(y-other.y)+Math::sqr(z-other.z) <= GetError<C>()*GetError<C0>();
     }
 
     template <class C>
@@ -616,7 +616,7 @@
     MFUNC1  (bool)        Vec2<C>::operator==(const TVec2<C0>&other)   const
     {
 		return Vec::equal(*this,other);
-//        return Math::sqr(x-other.x)+Math::sqr(y-other.y) <= getError<C>() * getError<C0>();
+//        return Math::sqr(x-other.x)+Math::sqr(y-other.y) <= GetError<C>() * GetError<C0>();
     }
 
     template <class C>
@@ -916,7 +916,7 @@
     MFUNC1  (bool)        Vec4<C>::operator==(const TVec4<C0>&other)   const
     {
 		return Vec::equal(*this,other);
-        //return Math::sqr(x-other.x)+Math::sqr(y-other.y)+Math::sqr(z-other.z)+Math::sqr(w-other.w) <= getError<C>()*getError<C0>();
+        //return Math::sqr(x-other.x)+Math::sqr(y-other.y)+Math::sqr(z-other.z)+Math::sqr(w-other.w) <= GetError<C>()*GetError<C0>();
     }
 
     template <class C>

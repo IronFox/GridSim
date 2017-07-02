@@ -5226,7 +5226,7 @@ template <class Def> void AnimatableSubInstanceA<Def>::updatePath(const TMatrix4
 
 	angle = Vec::length(animation_status.rotation);
 
-	if (vabs(angle)>getError<double>())
+	if (vabs(angle)>GetError<double>())
 	{
 		ASSERT__(target->meta.flags&AnimationTargetFlag);
 		Vec::div(animation_status.rotation,angle,vector);

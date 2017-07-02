@@ -473,7 +473,7 @@ namespace DeltaWorks
 				bool			online();								//!< Queries status \return true if the service is currently active/connected to a server
 				bool			isOnline();								//!< Queries status \return true if the service is currently active/connected to a server
 				void			resolve();								//!< Resolves outbound events (must be called by the client application each frame if in resolvable mode)
-				const String&	getError();								//!< Retrieves an error description of the last occured error
+				const String&	GetError();								//!< Retrieves an error description of the last occured error
 		};
 
 

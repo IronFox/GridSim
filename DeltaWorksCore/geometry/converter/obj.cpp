@@ -383,7 +383,7 @@ namespace DeltaWorks
 			size_t out_size = TextureCompression::compress(color_image,buffer);
 			color_image.free();
 			if (!out_size)
-				logMessage("Compression failed of '"+String(key)+"' ("+TextureCompression::getError()+")");
+				logMessage("Compression failed of '"+String(key)+"' ("+TextureCompression::GetError()+")");
 		
 			result->data.face_field.SetSize(1);
 			result->data.face_field[0].importFrom(buffer.pointer(),(count_t)out_size);
@@ -441,7 +441,7 @@ namespace DeltaWorks
 			size_t out_size = TextureCompression::compress(image,buffer);
 
 			if (!out_size)
-				logMessage("Compression failed of '"+String(key)+"' ("+TextureCompression::getError()+")");
+				logMessage("Compression failed of '"+String(key)+"' ("+TextureCompression::GetError()+")");
 		
 			result->data.face_field.SetSize(1);
 			result->data.face_field[0].importFrom(buffer.pointer(),(count_t)out_size);

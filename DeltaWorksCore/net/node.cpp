@@ -933,7 +933,7 @@ namespace DeltaWorks
 				time_thread.terminate();
 		}
 
-		const String& DOMAIN_A	Node::getError()
+		const String& DOMAIN_A	Node::GetError()
 		{
 			return error;
 		}

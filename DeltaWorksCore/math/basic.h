@@ -391,9 +391,9 @@ namespace DeltaWorks
 		MFUNC3	(C0)		normalDistribution(C0 x, C1 mean, C2 deviation);				//!< Estimates the normal distributed probability
 	
 	
-		MFUNC	(bool)		nearingZero(C value);											//!< Checks if the specified value is approximately 0 (using getError<C>())
-		MFUNC	(bool)		nearingOne(C value);											//!< Checks if the specified value is approximately 1 (using getError<C>())
-		MFUNC2	(bool)		similar(C0 v0, C1 v1);											//!< Checks if the two specified values are similar (using getError<C>())
+		MFUNC	(bool)		nearingZero(C value);											//!< Checks if the specified value is approximately 0 (using GetError<C>())
+		MFUNC	(bool)		nearingOne(C value);											//!< Checks if the specified value is approximately 1 (using GetError<C>())
+		MFUNC2	(bool)		similar(C0 v0, C1 v1);											//!< Checks if the two specified values are similar (using GetError<C>())
 		MFUNC3	(bool)		similar(C0 v0, C1 v1, C2 tolerance);							//!< Checks if the two specified values are similar (using tolerance)
 
 		template <unsigned Value>
@@ -424,10 +424,14 @@ namespace DeltaWorks
 		MFUNC	(char)		vChar();														//!< Determines type-specific character \return character abbreviation of the specified type
 		MFUNC	(const char*)	vName();
 		MFUNC	(String)	v2str(const C&value);											//!< Converts value to string. \param value Value to convert \return String containing converted value
-		MFUNC	(C)			getError();													 //!< Query error constant \return A type-specific error-constant
-
+		template <typename T>
+			constexpr T		GetError();
 		MFUNC	(C)			gaussian(C value);											//!< Retrieves the normal distributed probability for the specified value
 
+		MFUNC2	(C0)		Min(C0 value0, C1 value1)	{return vmin(value0,value1);}
+		MFUNC2	(C0)		Max(C0 value0, C1 value1)	{return vmax(value0,value1);}						 				//!< Calculate max \return Greater of both values (parsed to C0)
+		MFUNC3	(C0)		Min(C0 value0, C1 value1, C2 value2)	{return vmin(value0,value1,value2);}
+		MFUNC3	(C0)		Max(C0 value0, C1 value1, C2 value2)	{return vmax(value0,value1,value2);}
 	
 		/**
 			@brief Variants of standard math functions for by-reference parameters

@@ -151,7 +151,7 @@ Collection of template matrix-math-functions.
 		_c3(x,out);
 		_normalize0(out);
 		_cross(out,y,out+8);
-		if (_dot(out+8)<getError<C3>())
+		if (_dot(out+8)<GetError<C3>())
 		{
 			_v3(out+4,vabs(out[1])+1,out[2],out[0]);
 			_cross(out,out+4,out+8);
@@ -338,7 +338,7 @@ Collection of template matrix-math-functions.
 				for (index_t line = 0; line < dimension; line++)
 				{
 					index_t targetline = line;
-					while (vabs(buffer[line*dimension+targetline]) <= getError<C0>() && targetline < dimension)
+					while (vabs(buffer[line*dimension+targetline]) <= GetError<C0>() && targetline < dimension)
 						targetline++;
 					if (targetline == dimension)
 					{
@@ -384,7 +384,7 @@ Collection of template matrix-math-functions.
 				for (index_t line = 0; line < Dimensions; line++)
 				{
 					index_t targetline = line;
-					while (fabs(buffer[line*Dimensions+targetline]) <= M::getError<C0>() && targetline < Dimensions)
+					while (fabs(buffer[line*Dimensions+targetline]) <= M::GetError<C0>() && targetline < Dimensions)
 						targetline++;
 					if (targetline == Dimensions)
 						return false;
@@ -504,7 +504,8 @@ Collection of template matrix-math-functions.
 			//d *= 3;
 			//x *= 3;
 			//y *= 3;
-			Vec::def(result.axis[x],	vabs(axis.y)+1,axis.z,axis.x);
+			using std::fabs;
+			Vec::def(result.axis[x],	fabs(axis.y)+1,axis.z,axis.x);
 			Vec::copy(axis, result.axis[d]);
 			Vec::cross(result.axis[x],result.axis[d],result.axis[y]);
 			Vec::cross(result.axis[d],result.axis[y],result.axis[x]);
@@ -1291,7 +1292,7 @@ Collection of template matrix-math-functions.
         for (index_t row = 0; row < dim-1; row++)
         {
             index_t x = row;
-            while (vabs(temp[row*Rows+x]) < getError<C>() && x < dim)
+            while (vabs(temp[row*Rows+x]) < GetError<C>() && x < dim)
                 x++;
             if (x == dim)
                 return 0;
@@ -1321,7 +1322,7 @@ Collection of template matrix-math-functions.
         for (index_t row = 0; row < dim-1; row++)
         {
             index_t x = row;
-            while (vabs(temp[row*rows+x]) < getError<C>() && x < dim)
+            while (vabs(temp[row*rows+x]) < GetError<C>() && x < dim)
                 x++;
             if (x == dim)
                 return 0;
@@ -1484,7 +1485,7 @@ Collection of template matrix-math-functions.
     {
         for (index_t x = 0; x < dimension; x++)
             for (index_t y = 0; y < dimension; y++)
-                if (vabs((C)(x==y) - matrix[x*4+y]) > getError<C>)
+                if (vabs((C)(x==y) - matrix[x*4+y]) > GetError<C>)
                     return false;
         return true;
     }
@@ -1492,7 +1493,7 @@ Collection of template matrix-math-functions.
 	#ifndef __CUDACC__
     MFUNC (bool)        __isIdentity3(const C matrix[3*3])
     {
-        return vabs(matrix[0]-(C)1)+vabs(matrix[1])+vabs(matrix[2])+vabs(matrix[3])+vabs(matrix[4]-(C)1)+vabs(matrix[5])+vabs(matrix[6])+vabs(matrix[7])+vabs(matrix[8]-(C)1)<=getError<C>*9;
+        return vabs(matrix[0]-(C)1)+vabs(matrix[1])+vabs(matrix[2])+vabs(matrix[3])+vabs(matrix[4]-(C)1)+vabs(matrix[5])+vabs(matrix[6])+vabs(matrix[7])+vabs(matrix[8]-(C)1)<=GetError<C>*9;
     }
 	#endif
     
@@ -1514,7 +1515,7 @@ Collection of template matrix-math-functions.
                 +vabs(matrix[13])
                 +vabs(matrix[14])
                 +vabs(matrix[15]-(C)1)
-                <=getError<C>()*16;
+                <=GetError<C>()*16;
     }
     
     #ifndef __CUDACC__
@@ -1523,7 +1524,7 @@ Collection of template matrix-math-functions.
         C eye[Dimensions*Dimensions];
         Mat::Raw::Eye<C,Dimensions>(eye);
 		VecUnroll<16>::sub(eye,matrix);
-        return VecUnroll<16>::sum(eye) < getError<C>*Dimensions*Dimensions;
+        return VecUnroll<16>::sum(eye) < GetError<C>*Dimensions*Dimensions;
     }
 	#endif
 

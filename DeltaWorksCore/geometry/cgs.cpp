@@ -257,7 +257,7 @@ namespace DeltaWorks
 			if (!TextureCompression::decompress(face_field[i],extracted))
 			{
 				if (error_out)
-					(*error_out) += "Face #"+String(i)+": extraction failed ("+TextureCompression::getError()+")";
+					(*error_out) += "Face #"+String(i)+": extraction failed ("+TextureCompression::GetError()+")";
 				continue;
 			}
 			if (header.x_exp > 1+modifier)
@@ -295,7 +295,7 @@ namespace DeltaWorks
 			if (!TextureCompression::decompress(face_field[i],extracted))
 			{
 				if (error_out)
-					(*error_out) += "Face #"+String(i)+": extraction failed ("+TextureCompression::getError()+")";
+					(*error_out) += "Face #"+String(i)+": extraction failed ("+TextureCompression::GetError()+")";
 				continue;
 			}
 			if (header.x_exp > max_exponent)

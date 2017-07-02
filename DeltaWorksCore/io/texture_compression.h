@@ -83,7 +83,7 @@ namespace DeltaWorks
 		*/
 		size_t		compress(const Image&source, Ctr::Array<BYTE>&buffer_out, Codec codec=PNGCompression);
 	
-		const String&	getError();
+		const String&	GetError();
 		const String&	errorStr();
 
 	}

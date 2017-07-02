@@ -385,7 +385,7 @@ namespace DeltaWorks
 		}*/
 	}
 
-	const String&	TextureCompression::getError()
+	const String&	TextureCompression::GetError()
 	{
 		return ext_error;
 	}

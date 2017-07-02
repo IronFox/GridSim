@@ -349,7 +349,7 @@ namespace Obj
 			};
 			T5	beta = (n0.x*dif.x + n0.y*dif.y + n0.z*dif.z)/(n0.x*d1.x + n0.y*d1.y + n0.z*d1.z),
 					gamma = (n1.x*dif.x + n1.y*dif.y + n1.z*dif.z)/(n1.x*d0.x + n1.y*d0.y + n1.z*d0.z);
-			if (beta > -getError<T5>() && gamma > -getError<T5>() && beta + gamma < (T5)1+ getError<T5>())
+			if (beta > -M::GetError<T5>() && gamma > -M::GetError<T5>() && beta + gamma < (T5)1+ M::GetError<T5>())
 			{
 				distance = alpha;
 				return true;
@@ -402,7 +402,7 @@ namespace Obj
 			};
 			vn = (n.x*n.x + n.y*n.y + n.z*n.z);
 			using std::fabs;
-			if (fabs(vn) <= Math::getError<T0>())
+			if (fabs(vn) <= Math::GetError<T0>())
 				return 0;
 			return ((p0.x*n.x + p0.y*n.y + p0.z*n.z)-(p3.x*n.x + p3.y*n.y + p3.z*n.z)) / (vn*6);
 		}
@@ -451,7 +451,7 @@ namespace Obj
 			};
 			vn = (n.x*n.x + n.y*n.y + n.z*n.z);
 			using std::fabs;
-			if (fabs(vn) <= Math::getError<T0>())
+			if (fabs(vn) <= Math::GetError<T0>())
 				return 0;
 			return ((p0.x*n.x + p0.y*n.y + p0.z*n.z)-(p3.x*n.x + p3.y*n.y + p3.z*n.z)) / (vn*6);
 		}
@@ -581,7 +581,7 @@ namespace Obj
 			};
 			vn = (n.x*n.x + n.y*n.y + n.z*n.z);
 			using std::fabs;
-			if (fabs(vn) <= Math::getError<T0>())
+			if (fabs(vn) <= Math::GetError<T0>())
 				return 0;
 			return (p2.x*n.x + p2.y*n.y + p2.z*n.z) / (vn*6);
 		}
@@ -658,7 +658,7 @@ namespace Obj
 				d2.y = b1.y - b0.y;
 			};
 			T4	sub = d2.x * d1.y - d2.y * d1.x,
-					error = Math::getError<T4>();
+					error = Math::GetError<T4>();
 			using std::fabs;
 			if (fabs(sub)<error)
 				return false;
@@ -1248,9 +1248,9 @@ namespace Obj
 			};
 			T4	pa = (d.x*d.x + d.y*d.y + d.z*d.z),
 					pb = 2*(d.x*delta.x + d.y*delta.y + d.z*delta.z),
-					pc = (delta.x*delta.x + delta.y*delta.y + delta.z*delta.z)-sqr(radius),
+					pc = (delta.x*delta.x + delta.y*delta.y + delta.z*delta.z)-M::sqr(radius),
 					rs[2];
-			BYTE num_rs = solveSqrEquation(pa,pb,pc,rs);
+			BYTE num_rs = Math::solveSqrEquation(pa,pb,pc,rs);
 			if (!num_rs)
 				return false;
 			if (num_rs == 1)
@@ -1630,7 +1630,7 @@ namespace Obj
 			};
 			T4	sub_alpha = (normal.x*normal.x + normal.y*normal.y + normal.z*normal.z);
 			using std::fabs;
-			if (fabs(sub_alpha) <= getError<T4>())
+			if (fabs(sub_alpha) <= GetError<T4>())
 				return (Math::sqr(t0.x - p.x) + Math::sqr(t0.y - p.y) + Math::sqr(t0.z - p.z));
 			T4	alpha = (normal.x*dif.x + normal.y*dif.y + normal.z*dif.z)/sub_alpha;
 			

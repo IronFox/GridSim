@@ -1920,7 +1920,7 @@ namespace DeltaWorks
 				}
 			}
 			MFUNC(void)				Merge(const Sphere<C>&sphere)	{Merge(sphere.center,sphere.radius);}
-			MFUNC(bool)				Contains(const TVec3<C>&point)	const	{return Vec::quadraticDistance(center,point) <= sqr(radius);}
+			MFUNC(bool)				Contains(const TVec3<C>&point)	const	{return Vec::quadraticDistance(center,point) <= M::sqr(radius);}
 			MFUNC(bool)				Contains(const Sphere<C>&sphere)	const	{ return radius >= sphere.radius && Vec::quadraticDistance(center, sphere.center) <= sqr(radius-sphere.radius); }
 			MF_DECLARE(T)			volume()	const
 									{

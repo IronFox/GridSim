@@ -8,13 +8,14 @@ namespace DeltaWorks
 	template <typename T>
 		inline bool	Convert(const String&source, T&numericTarget)
 		{
-			return convert(source.c_str(),source.GetLength(),numericTarget);
+			return convert(source.c_str(),source.length(),numericTarget);
 		}
 
 	template <>
 		inline bool	Convert<String>(const String&source, String&stringTarget)
 		{
 			stringTarget = source;
+			return true;
 		}
 
 	template <typename T>
