@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<root>
+	<run reliability="0.99684" reliabilityLevel="20" recoveryIterations="2" numLayers="2" maxSiblingSyncOperations="1" siblingSyncDelay="1" numEntities="262144" endlessRuns="0" numRuns="0">
+		<deadNodes mean="NaN" deviation="NaN" sum="0" squareSum="0" sampleCount="0" />
+		<recoveringNodes mean="NaN" deviation="NaN" sum="0" squareSum="0" sampleCount="0" />
+		<revivalDepth mean="NaN" deviation="NaN" sum="0" squareSum="0" sampleCount="0" />
+		<survived mean="NaN" deviation="NaN" sum="0" squareSum="0" sampleCount="0" />
+		<recoveryOps mean="NaN" deviation="NaN" sum="0" squareSum="0" sampleCount="0" />
+		<recoverCompletedSDS mean="NaN" deviation="NaN" sum="0" squareSum="0" sampleCount="0" />
+		<syncTotalCopied mean="NaN" deviation="NaN" sum="0" squareSum="0" sampleCount="0" />
+		<syncTotalMerged mean="NaN" deviation="NaN" sum="0" squareSum="0" sampleCount="0" />
+		<syncFailedMerges mean="NaN" deviation="NaN" sum="0" squareSum="0" sampleCount="0" />
+		<syncImprovingMerges mean="NaN" deviation="NaN" sum="0" squareSum="0" sampleCount="0" />
+		<syncICReducingMerges mean="NaN" deviation="NaN" sum="0" squareSum="0" sampleCount="0" />
+		<syncPerfectMerges mean="NaN" deviation="NaN" sum="0" squareSum="0" sampleCount="0" />
+	</run>
+</root>

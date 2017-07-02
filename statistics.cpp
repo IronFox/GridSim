@@ -142,7 +142,7 @@ namespace Statistics
 			r.setup.siblingSyncDelay = numLayers > 1 ? (int)siblingSyncDelay : 0;
 
 			#ifndef D3
-				r.setup.numEntities = 20000;
+				r.setup.numEntities = 16*16*4*256;
 			#endif
 		}
 		
@@ -864,12 +864,23 @@ namespace Statistics
 		mergeLock.unlock();
 	}
 
-	void CaptureMergeResult(const IC::Comparator&comp, bool exclusive,const TStateDifference&postMerge)
+	void CaptureMergeResult(const IC::Comparator&comp, MergeStrategy strategy,const TStateDifference&postMerge)
 	{
 		using namespace Details::MergeMeasurement;
 	
+		String ext;
+		switch (strategy)
+		{
+			case MergeStrategy::Exclusive:
+				ext = "_Ex";
+				break;
+			case MergeStrategy::ExclusiveWithPositionCorrection:
+				ext = "_ExPC";
+				break;
+		};
+
 		mergeLock.lock();
-			auto&entry = mergeCaptures.Set(String(comp.GetName())+(exclusive?"_Ex":""));
+			auto&entry = mergeCaptures.Set(String(comp.GetName())+ext);
 			entry.postMerge.AddMean(postMerge);
 		mergeLock.unlock();
 	}

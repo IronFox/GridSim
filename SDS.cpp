@@ -750,7 +750,7 @@ void	InsertEntityUpdateOmega(EntityStorage&outEntities,Entity input,const Grid::
 static PCoreShardDomainState		Merge(
 	const CoreShardDomainState&a, const CoreShardDomainState&b, const IC::Comparator&comp, index_t currentGen
 	, const TGridCoords&shardOffset
-	, bool exclusive
+	, Statistics::MergeStrategy strategy
 	, const Grid::Layer*consistentComparison
 	, Statistics::TSDSample<double>*outInconsistentEntitiesOutsideIC
 //,const PCoreShardDomainState&consistentMatch
@@ -810,7 +810,7 @@ static PCoreShardDomainState		Merge(
 	}
 
 	static const float searchScope = 0.5f;
-	if (exclusive)
+	if (strategy == Statistics::MergeStrategy::Exclusive ||strategy == Statistics::MergeStrategy::ExclusiveWithPositionCorrection)
 	{
 		int balance = 0;
 		for (index_t i = 0; i < a.ic.GetGrid().Count(); i++)
@@ -827,13 +827,24 @@ static PCoreShardDomainState		Merge(
 			if (merged.entities.FindEntity(e0->guid))
 				continue;	//already good
 
-			TEntityCoords c0 = Frac(e0->coordinates);
+			const TEntityCoords c0 = Frac(e0->coordinates);
 			if (merged.ic.IsInconsistent(c0))
 			{
 				merged.entities.InsertEntity(*e0);
 			}
 			else
 			{
+				if (strategy == Statistics::MergeStrategy::ExclusiveWithPositionCorrection)
+				{
+					TEntityCoords c = c0;
+					if (merged.ic.FindInconsistentPlacementCandidate(c,searchScope))
+					{
+						Entity me = *e0;
+						me.coordinates = c + shardOffset;
+						InsertEntityUpdateOmega(merged.entities,me,consistentComparison, a.generation);
+					}
+
+				}
 				//only increases overaccounted entities:
 				//if (merged.ic.FindInconsistentPlacementCandidate(c0,searchScope))
 				//{
@@ -1100,10 +1111,10 @@ Statistics::TStateDifference	CompareStates(const CoreShardDomainState&approx, co
 
 
 static void		CompareMerge(const CoreShardDomainState&a, const CoreShardDomainState&b, 
-							const IC::Comparator&comp, bool exclusive, index_t currentGen, const Grid::Layer&consistentLayer, const PCoreShardDomainState&consistent, const IC&mask, const TGridCoords&shardOffset)
+							const IC::Comparator&comp, Statistics::MergeStrategy strategy, index_t currentGen, const Grid::Layer&consistentLayer, const PCoreShardDomainState&consistent, const IC&mask, const TGridCoords&shardOffset)
 {
 	Statistics::TSDSample<double> incSample;
-	auto merged = Merge(a,b,comp,currentGen,shardOffset,exclusive,&consistentLayer,&incSample);
+	auto merged = Merge(a,b,comp,currentGen,shardOffset,strategy,&consistentLayer,&incSample);
 
 
 	for (index_t i = 0; i < merged->ic.GetGrid().Count(); i++)
@@ -1114,7 +1125,7 @@ static void		CompareMerge(const CoreShardDomainState&a, const CoreShardDomainSta
 	Statistics::TStateDifference diffM = CompareStates(*merged,*consistent,merged->ic);
 	diffM.inconsistentEntitiesOutsideIC = incSample;
 
-	Statistics::CaptureMergeResult(comp, exclusive,diffM);
+	Statistics::CaptureMergeResult(comp, strategy,diffM);
 
 
 
@@ -1165,7 +1176,7 @@ void				FullShardDomainState::SynchronizeWithSibling(Shard&myShard,  Shard&sibli
 
 	const auto&a = *GetOutput();
 	const auto&b = *sibling.GetOutput();
-	PCoreShardDomainState merged  = Merge(a,b,comp,currentTimestep,myShard.gridCoords,false, layer,nullptr);
+	PCoreShardDomainState merged  = Merge(a,b,comp,currentTimestep,myShard.gridCoords,Statistics::MergeStrategy::Exclusive, layer,nullptr);
 
 	AssertSelectiveEquality(merged,consistentOutput);
 
@@ -1177,17 +1188,15 @@ void				FullShardDomainState::SynchronizeWithSibling(Shard&myShard,  Shard&sibli
 
 		Statistics::CapturePreMerge(diffA,diffB);
 
-		CompareMerge(a,b,IC::BinaryComparator(),false,currentTimestep,*layer,consistentOutput,merged->ic,myShard.gridCoords);
-		CompareMerge(a,b,IC::OrthographicComparator(),false,currentTimestep,*layer,consistentOutput,merged->ic,myShard.gridCoords);
-		CompareMerge(a,b,IC::ReverseOrthographicComparator(),false,currentTimestep,*layer,consistentOutput,merged->ic,myShard.gridCoords);
-		CompareMerge(a,b,IC::DepthComparator(),false,currentTimestep,*layer,consistentOutput,merged->ic,myShard.gridCoords);
-		CompareMerge(a,b,IC::ExtentComparator(),false,currentTimestep,*layer,consistentOutput,merged->ic,myShard.gridCoords);
-
-		CompareMerge(a,b,IC::BinaryComparator(),true,currentTimestep,*layer,consistentOutput,merged->ic,myShard.gridCoords);
-		CompareMerge(a,b,IC::OrthographicComparator(),true,currentTimestep,*layer,consistentOutput,merged->ic,myShard.gridCoords);
-		CompareMerge(a,b,IC::ReverseOrthographicComparator(),true,currentTimestep,*layer,consistentOutput,merged->ic,myShard.gridCoords);
-		CompareMerge(a,b,IC::DepthComparator(),true,currentTimestep,*layer,consistentOutput,merged->ic,myShard.gridCoords);
-		CompareMerge(a,b,IC::ExtentComparator(),true,currentTimestep,*layer,consistentOutput,merged->ic,myShard.gridCoords);
+		for (int i = 0; i < (int)Statistics::MergeStrategy::Count; i++)
+		{
+			const Statistics::MergeStrategy s = (Statistics::MergeStrategy)i;
+			CompareMerge(a,b,IC::BinaryComparator(),s,currentTimestep,*layer,consistentOutput,merged->ic,myShard.gridCoords);
+			CompareMerge(a,b,IC::OrthographicComparator(),s,currentTimestep,*layer,consistentOutput,merged->ic,myShard.gridCoords);
+			CompareMerge(a,b,IC::ReverseOrthographicComparator(),s,currentTimestep,*layer,consistentOutput,merged->ic,myShard.gridCoords);
+			CompareMerge(a,b,IC::DepthComparator(),s,currentTimestep,*layer,consistentOutput,merged->ic,myShard.gridCoords);
+			CompareMerge(a,b,IC::ExtentComparator(),s,currentTimestep,*layer,consistentOutput,merged->ic,myShard.gridCoords);
+		}
 	}
 
 

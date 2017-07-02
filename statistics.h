@@ -260,10 +260,16 @@ namespace Statistics
 
 	};
 
-
+	enum class MergeStrategy
+	{
+		EntitySelective,
+		Exclusive,
+		ExclusiveWithPositionCorrection,
+		Count
+	};
 
 	void	CapturePreMerge(const TStateDifference&preMergeA, const TStateDifference&preMergeB);
-	void	CaptureMergeResult(const IC::Comparator&comp, bool exclusive,const TStateDifference&postMerge);
+	void	CaptureMergeResult(const IC::Comparator&comp, MergeStrategy,const TStateDifference&postMerge);
 	void	ExportMergeResults();
 	void	ImportMergeResults();
 }

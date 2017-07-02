@@ -1107,7 +1107,7 @@ namespace Build
 					}
 
 
-					if (!isHistory && sds->GetOutput())
+					if (!isHistory && sds->GetOutput() && sds->GetOutput()->entities.Count() < 256)
 						foreach (sds->GetOutput()->entities,e)
 						{
 							RenderEntity(*e,1.5f);
@@ -1258,6 +1258,8 @@ void Simulation::Rebuild()
 		Scene::SetLayer(l - simulated.layers.pointer());
 		foreach (l->shardGrid,s)
 		{
+			if (s->sds.IsEmpty() || s->sds.First().processed.Count() > 256)
+				continue;
 			Scene::PushOffset();
 				Scene::AlterOffset(float2(1.1f * (s->gridCoords.x - offset.x) ,1.1f * (s->gridCoords.y - offset.y) /*+ 1.1f*h*/));
 				//for (index_t g = s->sds.First().GetGeneration(); g <= control.topGeneration; g++)
