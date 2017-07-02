@@ -1436,7 +1436,7 @@ namespace DeltaWorks
 		}
 
 
-		Script*ScriptList::find(const	String&alias)
+		Script*ScriptList::Find(const	String&alias)
 		{
 			for	(index_t i = 0;	i < count(); i++)
 				if (get(i)->name == alias)
@@ -1444,9 +1444,9 @@ namespace DeltaWorks
 			return	NULL;
 		}
 
-		bool	ScriptList::execute(const	String&alias,Interpreter*parser)
+		bool	ScriptList::Execute(const	String&alias,Interpreter*parser)
 		{
-			Script*script = find(alias);
+			Script*script = Find(alias);
 			if	(!script)
 				return	false;
 			for	(index_t i = 0;	i < script->count(); i++)
