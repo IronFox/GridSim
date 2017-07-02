@@ -1367,15 +1367,15 @@ namespace DeltaWorks
 		}
 
 
-		Script::Script(const	String&Name):StringList(64),name(Name)
+		Script::Script(const String&Name):StringList(64),name(Name)
 		{}
 
-		Script::Script(const	String&Name,	const	String&filename):StringList(64),name(Name)
+		Script::Script(const String&Name, const PathString&filename):StringList(64),name(Name)
 		{
-			load(filename);
+			Load(filename);
 		}
 
-		void	Script::loadFromStream(char*buffer,	size_t len)
+		void	Script::LoadFromStream(char*buffer,	size_t len)
 		{
 			char*pntr=buffer;
 			do
@@ -1397,51 +1397,53 @@ namespace DeltaWorks
 			while	(pntr);
 		}
 
-		bool	Script::load(const	String&filename)
+		void	Script::Load(const PathString&filename)
 		{
 			clear();
-			FILE*f = fopen(filename.c_str(),"rb");
-			if	(!f)
-				return	false;
+			FILE*f = FOPEN(filename.c_str(),"rb");
+			if (!f)
+				throw Except::IO::DriveAccess(CLOCATION,"Unable to open '"+filename+"'");
 			fseek(f,0,SEEK_END);
 			size_t size = ftell(f);
 			fseek(f,0,SEEK_SET);
-			char*buffer = SHIELDED_ARRAY(new char[size+1],size+1);
+			char*buffer = alloc<char>(size+1);
 			fread(buffer,size,1,f);
 			buffer[size] = 0;
 			fclose(f);
-			loadFromStream(buffer,size+1);
-			DISCARD_ARRAY(buffer);
-			return	true;
+			LoadFromStream(buffer,size+1);
+			dealloc(buffer);
 		}
 
 
-		bool	ScriptList::load(const	String&filename,	const	String&alias)
+		void	ScriptList::Load(const PathString&filename, const String&alias)
 		{
-			Script*script = find(alias);
-			if	(!script)
-				script = append(SignalNew(new	Script(alias)));
-			return	script->load(filename);
+			Script*script = Find(alias);
+			if (!script)
+			{
+				script = &Append();
+				script->name = alias;
+			}
+			script->Load(filename);
 		}
 
-		bool	ScriptList::erase(const	String&alias)
+		bool	ScriptList::Erase(const	String&alias)
 		{
 			for	(index_t i = 0; i < count(); i++)
-				if (get(i)->name == alias)
+				if (at(i).name == alias)
 				{
 					erase(i);
-					return	true;
+					return true;
 				}
 			return	false;
 		}
 
 
-		Script*ScriptList::Find(const	String&alias)
+		Script*ScriptList::Find(const String&alias)
 		{
 			for	(index_t i = 0;	i < count(); i++)
-				if (get(i)->name == alias)
-					return	get(i);
-			return	NULL;
+				if (at(i).name == alias)
+					return&at(i);
+			return nullptr;
 		}
 
 		bool	ScriptList::Execute(const	String&alias,Interpreter*parser)

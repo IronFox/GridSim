@@ -1,5 +1,6 @@
 #include "../global_root.h"
 #include "texture_buffer.h"
+#include "../string/encoding.h"
 
 /******************************************************************
 
@@ -8,107 +9,57 @@ Texture-buffer allowing to buffer/write simple texture-collections.
 ******************************************************************/
 
 
-char    TextureSort::last(0);
-
-
-
-CGS::TextureA*TextureBuffer::lookupData(CGS::TextureA*data)
+namespace DeltaWorks
 {
-    return data_tree.lookup(data);
-}
-
-
-void TextureBuffer::add(CGS::TextureA*texture)
-{
-    if (!texture)
-        return;
-    if (texture->signature == this && texture->reference)
-        return;
-    texture->reference = data_tree.lookup(texture);
-    texture->signature = this;
-    if (!texture->reference)
-    {
-        while (lookup(texture->name))
-            incrementName(texture->name);
-        insert(texture);
-        data_tree.insert(texture);
-        texture->reference = texture;
-    }
-}
 
 
 
-CGS::TextureA* TextureBuffer::addDuplicate(CGS::TextureA*texture)
-{
-    if (!texture)
-        return NULL;
-    if (texture->signature == this && texture->reference)
-        return (CGS::TextureA*)texture->reference;
-    texture->reference = data_tree.lookup(texture);
-    texture->signature = this;
-    if (!texture->reference)
-    {
-        CGS::TextureA*clone = SignalNew(new CGS::TextureA(*texture));
-        while (lookup(clone->name))
-            incrementName(clone->name);
-        insert(clone);
-        data_tree.insert(clone);
-        clone->reference = clone;
-        clone->signature = this;
-        texture->reference = clone;
-    }
-    return (CGS::TextureA*)texture->reference;
-}
-
-void TextureBuffer::flush()
-{
-    data_tree.flush();
-    Named<Vector<CGS::TextureA> >::flush();
-}
-
-void TextureBuffer::clear()
-{
-    data_tree.clear();
-    Named<Vector<CGS::TextureA> >::clear();
-}
 
 
-bool TextureBuffer::write(const PathString&filename)
-{
-    Riff::File  riff;
-	if (comment.length() > TypeInfo<Riff::RIFF_SIZE>::max)
-		return false;
-    if (!riff.Create(filename.c_str()))
-        return false;
-    UINT32 version = 0x0103;
-    riff.AppendBlock("VERS",&version,sizeof(version));
-    riff.AppendBlock("CONT",comment.c_str(),Riff::RIFF_SIZE(comment.length()));
-    reset();
-    while (CGS::TextureA*texture = each())
-    {
-        riff.AppendBlock("ID  ",&texture->name,sizeof(texture->name));
-        for (BYTE k = 0; k < texture->face_field.length(); k++)
+
+
+	void TextureBuffer::Add(const CGS::TextureA&texture)
+	{
+		if (Super::IsSet(texture))
+			return;
+		Super::Set(texture);
+	}
+
+
+
+	void TextureBuffer::Write(const PathString&filename)
+	{
+		Riff::File  riff;
+		if (comment.length() > TypeInfo<Riff::RIFF_SIZE>::max)
+			throw Except::IO::ParameterFault(CLOCATION,"Specified comment exceeds maximum allowed size");
+		if (!riff.Create(filename.c_str()))
+			throw Except::IO::DriveAccess(CLOCATION,"Unable to create file '"+String(filename)+"'");
+		UINT32 version = 0x0103;
+		riff.AppendBlock("VERS",&version,sizeof(version));
+		riff.AppendBlock("CONT",comment.c_str(),Riff::RIFF_SIZE(comment.length()));
+		Super::VisitAllKeys([&riff](const CGS::TextureA&tex)
 		{
-			if (texture->face_field[k].size() > TypeInfo<Riff::RIFF_SIZE>::max)
+			riff.AppendBlock("ID  ",&tex.name,sizeof(tex.name));
+			for (BYTE k = 0; k < tex.face_field.length(); k++)
 			{
-				riff.Close();
-				return false;
+				if (tex.face_field[k].size() > TypeInfo<Riff::RIFF_SIZE>::max)
+					throw Except::IO::ParameterFault(CLOCATION,"Specified face exceeds maximum allowed size");
+				riff.AppendBlock("FACE",tex.face_field[k].pointer(),Riff::RIFF_SIZE(tex.face_field[k].size()));
 			}
-            riff.AppendBlock("FACE",texture->face_field[k].pointer(),Riff::RIFF_SIZE(texture->face_field[k].size()));
-		}
-    }
-    riff.Close();
-    return true;
-}
+		});
+	}
 
-String TextureBuffer::state()
-{
-    String rs = String(count())+" entry/ies\n";
-    reset();
-    for (unsigned i = 0; i < count(); i++)
-    {
-		CGS::TextureA*texture = each();
-        rs+=" ("+String(i)+"): \""+name2str(texture->name)+"\" "+String(texture->face_field.length())+" face(s)\n";
-    }
-    return rs;
+	String TextureBuffer::GetState()
+	{
+		String rs = String(Count())+" entry/ies\n";
+
+		index_t cnt = 0;
+		Super::VisitAllKeys([&rs,&cnt](const CGS::TextureA&tex)
+		{
+			rs+=" ("+String(cnt)+"): \""+name2str(tex.name)+"\" "+String(tex.face_field.length())+" face(s)\n";
+			cnt++;
+		});
+		return rs;
+	}
+
 }

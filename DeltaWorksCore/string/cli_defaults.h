@@ -10,32 +10,34 @@ E:\include\string\cli_defaults.h
 
 ******************************************************************/
 
-namespace CLI
+namespace DeltaWorks
 {
-	typedef	void	(*pPrintln)(const String&);
-	typedef	void	(*pOnFocusChange)();
+	namespace CLI
+	{
+		typedef	void	(*pPrintln)(const String&);
+		typedef	void	(*pOnFocusChange)();
 	
-	extern pPrintln			println;
-	extern pOnFocusChange	onFocusChange;
+		extern pPrintln			println;
+		extern pOnFocusChange	onFocusChange;
 
 	
-	/**
-	@brief Initializes all standard functions to the specified target interpretor
+		/**
+		@brief Initializes all standard functions to the specified target interpretor
 		
-	Currently only one interpretor may use the standard interface at a time.
-	@param target Target interpretor to register standard commands to
-	@param println Pointer to a print line function that will be used to print results to a console
-	@param onFocusChange Function pointer to execute if the cd command was successfuly executed
-	*/
-	void			InitDefaults(Interpreter&target, pPrintln println, pOnFocusChange onFocusChange=NULL, bool echoSetOperation = true);
+		Currently only one interpretor may use the standard interface at a time.
+		@param target Target interpretor to register standard commands to
+		@param println Pointer to a print line function that will be used to print results to a console
+		@param onFocusChange Function pointer to execute if the cd command was successfuly executed
+		*/
+		void			InitDefaults(Interpreter&target, pPrintln println, pOnFocusChange onFocusChange=NULL, bool echoSetOperation = true);
 
 
 	
 
+
+	}
 
 }
-
-
 
 
 #endif

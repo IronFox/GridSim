@@ -19,16 +19,16 @@ namespace DeltaWorks
 	
 		struct TMapVertex:public TVertexDescriptor	//!< VertexMap information regarding one abstract vertex
 		{
-				unsigned				index,			//!< Index of this vertex in the vertex field
-										indexAlongBorder;	//!< Index along the border (if along a border, 0 otherwise)
-				BYTE					dir;			//!< Direction of the closest border (0xFF = NA)
-				union
-				{
-					unsigned			sibling[4];		//!< Index of the nth (0-3) sibling vertex (if existing, otherwise 0xFFFFFFFF). Valid ONLY if @a grid_vertex is @b false
-					unsigned			child[6];		//!< Index of the nth (0-5) child vertex (if existing, otherwise 0xFFFFFFFF). Valid ONLY if @a grid_vertex is @b true
-				};
+			unsigned				index,			//!< Index of this vertex in the vertex field
+									indexAlongBorder;	//!< Index along the border (if along a border, 0 otherwise)
+			BYTE					dir;			//!< Direction of the closest border (0xFF = NA)
+			union
+			{
+				unsigned			sibling[4];		//!< Index of the nth (0-3) sibling vertex (if existing, otherwise 0xFFFFFFFF). Valid ONLY if @a grid_vertex is @b false
+				unsigned			child[6];		//!< Index of the nth (0-5) child vertex (if existing, otherwise 0xFFFFFFFF). Valid ONLY if @a grid_vertex is @b true
+			};
 
-				//bool					grid_vertex;	//!< True if this vertex is directly derived from the respective parent surface
+			//bool					grid_vertex;	//!< True if this vertex is directly derived from the respective parent surface
 		};
 	
 
@@ -43,38 +43,35 @@ namespace DeltaWorks
 		class VertexMap
 		{
 		public:
-				struct TParentInfo	//! Abstract information about one parent-derived vertex
-				{
-					unsigned			index,		//!< Index in a local face vertex field
-										origin[4];	//!< Index in the respective parent face vertex field (given the respective parent orientation)
-				};
+			struct TParentInfo	//! Abstract information about one parent-derived vertex
+			{
+				unsigned			index,		//!< Index in a local face vertex field
+									origin[4];	//!< Index in the respective parent face vertex field (given the respective parent orientation)
+			};
 			
-				TMapVertex				*vertex_descriptor;					//!< Vertex map
-				unsigned				exponent,						//!< Base map exponent
-										vertex_range,					//!< Maximum number of vertices in one direction in a face
-										vertex_maximum,					//!< Highest possible vertex index in one direction (vertex_range-1)
-										vertex_count,					//!< Total number of vertices in one face
-										child_border_vertex_count,		//!< Number of non-grid vertices along one edge
-										child_vertex_count,				//!< Number of newly generated vertices
-										inner_vertex_count,				//!< Number of vertices that are not part of any edge
-										parent_vertex_count,			//!< Number of vertices copied from the respective parent face
-										inner_parent_vertex_count;		//!< Number of vertices copied from the respective parent face that are not part of any border
-				unsigned				*border_index[3],				//!< Outer border vertex index map
-										*child_border_index[3],			//!< Outer border vertex index map featuring only non-grid vertices
-										*inner_border_index[3];			//!< Inner border vertex index map
-				unsigned				*child_vertex_index,			//!< Child vertex index map
-										*inner_vertex_index;			//!< Inner vertex index map (pointing to all vertices not part of an edge)
-				TParentInfo				*parent_vertex_info,			//!< Parent vertex information map
-										*inner_parent_vertex_info;		//!< Parent vertex information map covering only inner parents (parents that are not part of any edge)
+			TMapVertex				*vertex_descriptor;					//!< Vertex map
+			unsigned				exponent,						//!< Base map exponent
+									vertex_range,					//!< Maximum number of vertices in one direction in a face
+									vertex_maximum,					//!< Highest possible vertex index in one direction (vertex_range-1)
+									vertex_count,					//!< Total number of vertices in one face
+									child_border_vertex_count,		//!< Number of non-grid vertices along one edge
+									child_vertex_count,				//!< Number of newly generated vertices
+									inner_vertex_count,				//!< Number of vertices that are not part of any edge
+									parent_vertex_count,			//!< Number of vertices copied from the respective parent face
+									inner_parent_vertex_count;		//!< Number of vertices copied from the respective parent face that are not part of any border
+			unsigned				*border_index[3],				//!< Outer border vertex index map
+									*child_border_index[3],			//!< Outer border vertex index map featuring only non-grid vertices
+									*inner_border_index[3];			//!< Inner border vertex index map
+			unsigned				*child_vertex_index,			//!< Child vertex index map
+									*inner_vertex_index;			//!< Inner vertex index map (pointing to all vertices not part of an edge)
+			TParentInfo				*parent_vertex_info,			//!< Parent vertex information map
+									*inner_parent_vertex_info;		//!< Parent vertex information map covering only inner parents (parents that are not part of any edge)
 			
 	
-				void					build();
+			void					build();
 			
-		protected:
-										//VertexMap(TMapVertex*const,unsigned, unsigned, unsigned, unsigned, unsigned, unsigned, unsigned*, unsigned*,unsigned*,  unsigned*,unsigned*,unsigned*, unsigned*,unsigned*,unsigned*, unsigned*const, unsigned*const, unsigned*const, TParentInfo*const);
-		public:
-
-		/**
+	
+			/**
 			@brief Queries the absolute index of a vertex via its grid coordinates
 
 			Converts vertex grid coordinates (column, row) to a linear index.
@@ -84,14 +81,14 @@ namespace DeltaWorks
 			@param col Column of the vertex in the range [0,row]
 			@param row Row of the vertex in the range [0,vertex_maximum]
 			@return Linear vertex index
-		*/
-		inline	unsigned				getIndex(unsigned col, unsigned row)	const
-										{
-											if (row >= vertex_range || col > row)
-												FATAL__("Index-Retrival-Error for ("+IntToStr(col)+", "+IntToStr(row)+") range="+IntToStr(vertex_range));
-											return row*(row+1)/2+col;
-										}
-		/**
+			*/
+			inline	unsigned			getIndex(unsigned col, unsigned row)	const
+			{
+				if (row >= vertex_range || col > row)
+					FATAL__("Index-Retrival-Error for ("+IntToStr(col)+", "+IntToStr(row)+") range="+IntToStr(vertex_range));
+				return row*(row+1)/2+col;
+			}
+			/**
 			@brief Queries the absolute index of a vertex via its grid coordinates
 
 			Converts vertex grid coordinates (column, row) to a linear index.
@@ -100,14 +97,13 @@ namespace DeltaWorks
 			@param col Column of the vertex in the range [0,row]
 			@param row Row of the vertex in the range [0,vertex_maximum]
 			@return Linear vertex index or 0xFFFFFFFF if the specified grid coordinates are invalid
-		*/
-		inline	unsigned				getIndexC(unsigned col, unsigned row) const
-										{
-											if (row >= vertex_range || col > row)
-												return UNSIGNED_UNDEF;
-											return row*(row+1)/2+col;
-										}
-				//void					assembleDeviceFields();
+			*/
+			inline	unsigned			getIndexC(unsigned col, unsigned row) const
+			{
+				if (row >= vertex_range || col > row)
+					return UNSIGNED_UNDEF;
+				return row*(row+1)/2+col;
+			}
 		};
 
 

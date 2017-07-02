@@ -1,6 +1,7 @@
 #ifndef hashtableH
 #define hashtableH
 
+#include "common.h"
 #include "../global_string.h"
 #include "../interface/hashable.h"
 

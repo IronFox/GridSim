@@ -283,17 +283,22 @@ namespace DeltaWorks
 		class TextureA:public Reference<TextureObject>, public TextureObject	//! Texture data object
 		{
 		public:
-				name64_t								name;		//!< 64 bit integer name of this texture
-				Array<Array<BYTE>,Adopt>				face_field;	//!< (compressed) face data
-				hash_t									data_hash;	//!< Hash value of the provided data
+			name64_t								name;		//!< 64 bit integer name of this texture
+			Array<Array<BYTE>,Adopt>				face_field;	//!< (compressed) face data
+			hash_t									data_hash;	//!< Hash value of the provided data
 
-														TextureA();
-				void									adoptData(TextureA&other);
-				void									updateHash();
-				void									downSample(BYTE exponent_modifier, String*error_out=NULL);	//!< Downsamples the local texture by the specified exponent. \param exponent_modifier Value to decrement the size exponents by. 1 would halve both width and height of all textures, 2 scale down to 1/4 and so on. \param error_out Optional pointer to a string to contain error descriptions (if any)
-				void									limitSizeExponent(BYTE max_exponent, String*error_out=NULL);	//!< Limites the size (width/height) exponent to the specified exponent. \param max_exponent Maximum size exponent allowed once this method finished  \param error_out Optional pointer to a string to contain error descriptions (if any)
-				bool									IsEmpty()	const;	//!< Queries whether or not the local texture holds data
-				bool									isSimilar(const TextureA&other)	const;
+													TextureA();
+			void									adoptData(TextureA&other);
+			void									updateHash();
+			void									downSample(BYTE exponent_modifier, String*error_out=NULL);	//!< Downsamples the local texture by the specified exponent. \param exponent_modifier Value to decrement the size exponents by. 1 would halve both width and height of all textures, 2 scale down to 1/4 and so on. \param error_out Optional pointer to a string to contain error descriptions (if any)
+			void									limitSizeExponent(BYTE max_exponent, String*error_out=NULL);	//!< Limites the size (width/height) exponent to the specified exponent. \param max_exponent Maximum size exponent allowed once this method finished  \param error_out Optional pointer to a string to contain error descriptions (if any)
+			bool									IsEmpty()	const;	//!< Queries whether or not the local texture holds data
+			bool									isSimilar(const TextureA&other)	const;
+
+			friend hash_t							ToHash(const TextureA&t)
+			{
+				return t.data_hash;
+			}
 		};
 		CGS_DECLARE_ADOPTING(TextureA);
 

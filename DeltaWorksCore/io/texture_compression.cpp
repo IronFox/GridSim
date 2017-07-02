@@ -40,7 +40,7 @@ namespace DeltaWorks
 	
 	}
 
-	static Buffer<BYTE>	out_buffer;
+	static Ctr::Buffer<BYTE>	out_buffer;
 
 	static const BYTE*global_source = NULL;
 	static unsigned global_at = 0,
@@ -84,7 +84,7 @@ namespace DeltaWorks
 			return NULL;
 		}
 		const Image::THeader*head = (Image::THeader*)data;
-		UINT32 crc = CRC32::getChecksum(&head->settings,size-4);
+		UINT32 crc = CRC32::Sequence().Append(&head->settings,size-4).Finish();
 		if (crc != head->crc)
 		{
 			ext_error = "CRC mismatch";
@@ -162,7 +162,7 @@ namespace DeltaWorks
 			return false;
 		}
 		Image::THeader*head = (Image::THeader*)data;
-		UINT32 crc = CRC32::getChecksum(&head->settings,size-4);
+		UINT32 crc = CRC32::Sequence().Append(&head->settings,size-4).Finish();
 		if (crc != head->crc)
 		{
 			ext_error = "CRC mismatch";

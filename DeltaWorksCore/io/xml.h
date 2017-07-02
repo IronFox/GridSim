@@ -58,7 +58,7 @@ namespace DeltaWorks
 			size_t				size() const {return attributeList.size();}
 
 			void				Set(const String&attrib_name, const String&attrib_value);
-
+			const String&		Require(const String&attribName) const;
 			bool				Query(const String&attrib_name, String&val_out)	const;	//!< Queries the string content of the specified attribute of the local node. The method does not crash if @a this is NULL. \param attrib_name Name of the requested attribute \param val_out String reference to store the respective attribute's value in \return true if the local object is not NULL and the requested attribute exists, false otherwise.
 			bool				Query(const char*attrib_name, String&val_out)	const;	//!< @copydoc Query()
 			bool				Query(const String&attrib_name, StringRef&val_out)	const;	//!< Queries the string content of the specified attribute of the local node. The method does not crash if @a this is NULL. \param attrib_name Name of the requested attribute \param val_out String reference to store the respective attribute's value in \return true if the local object is not NULL and the requested attribute exists, false otherwise.
@@ -94,6 +94,7 @@ namespace DeltaWorks
 								inner_content,
 								following_content;
 			Vector0<Node,Swap>	children;
+			AttributeTable		attributes;
 								
 			Node&				NewChild(const String&name);
 			Node&				AddChild(const String&name)			{return NewChild(name);}
@@ -123,8 +124,6 @@ namespace DeltaWorks
 			bool				Query(const String&name, StringRef&outResult)	const	{return this && attributes.Query(name,outResult);}
 			bool				Query(const char*name, StringRef&outResult)	const	/** @copydoc Query() */ {return this && attributes.Query(name,outResult);}
 
-			const String&		GetName() const {return name;}
-			const AttributeTable& GetAttributes() const {return attributes;}
 
 			void				swap(Node&other);
 			friend void			swap(Node&a, Node&b)	{a.swap(b);}
@@ -135,7 +134,6 @@ namespace DeltaWorks
 
 	                    
 			//Node          			*parent;
-			AttributeTable		attributes;
 		};
 
 		class Container

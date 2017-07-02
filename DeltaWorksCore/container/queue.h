@@ -9,7 +9,7 @@ Collection of different queues.
 
 
 //#include "dynamic_elements.h"
-#include "../global_root.h"
+#include "common.h"
 #include "array.h"
 
 namespace DeltaWorks

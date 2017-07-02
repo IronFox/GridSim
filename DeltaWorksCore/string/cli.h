@@ -547,16 +547,23 @@ namespace DeltaWorks
 		{
 		public:
 			String		name;	//!< Script name
-						Script(const String&Name);
-						Script(const String&Name, const String&filename);
-			bool		Load(const String&filename);		//!< Loads script content from the specified text file
+			/**/		Script()	{}
+			/**/		Script(const String&Name);
+			/**/		Script(const String&Name, const PathString&filename);
+			void		Load(const PathString&filename);		//!< Loads script content from the specified text file
 			void		LoadFromStream(char*line, size_t len);	//!< Loads script content from a field of characters
+
+			void		swap(Script&other)
+			{
+				name.swap(other.name);
+				StringList::swap(other);
+			}
 		};
 
 		class ScriptList:public Vector0<Script,Swap>	//! List of scripts
 		{
 		public:
-			bool		Load(const String&filename, const String&alias);	//!< Attempts to load a new script to the end of the script list
+			void		Load(const PathString&filename, const String&alias);	//!< Attempts to load a new script to the end of the script list
 			bool		Erase(const String&alias);							//!< Erases the specified script
 			Script*		Find(const String&alias);							//!< Attempts to locate a loaded script
 			bool		Execute(const String&alias,Interpreter*parser);	//!< Executes a script

@@ -1,7 +1,7 @@
 #ifndef bufferH
 #define bufferH
 
-
+#include "common.h"
 #include <exception>
 #include <new>
 #include <algorithm>

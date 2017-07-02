@@ -437,6 +437,14 @@ namespace DeltaWorks
 			bool				IsSorted()													const;
 			void				QuickSort();
 			void				RadixSort();
+			void				swap(StringList&other)
+			{
+				Super::swap(other);
+			}
+			void				adoptData(StringList&other)
+			{
+				Super::adoptData(other);
+			}
 
 			using Super::clear;
 			using Super::Clear;
@@ -453,6 +461,7 @@ namespace DeltaWorks
 			using Super::copyToArray;
 			using Super::begin;
 			using Super::end;
+			
 		};
 
 

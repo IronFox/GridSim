@@ -332,6 +332,8 @@ namespace DeltaWorks
 
 	}
 
+
+	namespace Sys = System;
 }
 
 #endif

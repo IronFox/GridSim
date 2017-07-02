@@ -1,7 +1,7 @@
 #ifndef arrayH
 #define arrayH
 
-
+#include "common.h"
 #include <wchar.h>
 #include "../interface/serializable.h"
 #include "strategy.h"

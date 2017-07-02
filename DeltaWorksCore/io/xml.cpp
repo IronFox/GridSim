@@ -351,6 +351,17 @@ namespace DeltaWorks
 	}
 	*/
 
+
+	const String&	XML::AttributeTable::Require(const String&attribName) const
+	{
+		index_t at;
+		if (!attributeMap.Query(attribName,at))
+			throw Except::Program::MemberNotFound(CLOCATION,"Required XML attribute '"+attribName+"' not found in this context");
+		DBG_ASSERT_EQUAL__(attributeList[at].name,attribName);
+		return attributeList[at].value;
+	}
+
+
 	bool			XML::AttributeTable::Query(const String&name, String&out) const
 	{
 		index_t at;
@@ -663,9 +674,9 @@ namespace DeltaWorks
 			outfile << tabSpace(indent);
 		outfile << "<";
 		EncodeToStream(outfile, enc,trimmed);
-		foreach (entry->GetAttributes(),p)
+		foreach (entry->attributes,p)
 		{
-			if (style != XML::Tidy || p == entry->GetAttributes().begin())
+			if (style != XML::Tidy || p == entry->attributes.begin())
 				outfile << " ";
 			EncodeToStream(outfile, enc,p->name);
 			outfile << "=\"";
@@ -823,7 +834,7 @@ namespace DeltaWorks
 		//cout << "searching for local='"<<local<<"' among "<<children.count()<<" children"<<endl;
 		XML::Node*result;
 		for (index_t i = 0; i < children.count(); i++)
-			if (children[i].GetName() == local)
+			if (children[i].name == local)
 			{
 				if (sub.IsEmpty())
 					return children+i;
