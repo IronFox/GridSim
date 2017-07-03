@@ -12,7 +12,7 @@ namespace Engine
 
 	VirtualTextout::VirtualTextout():stackDepth(0),colorStackDepth(0)
 	{
-		Vec::set(state,1);
+		M::Vec::set(state,1);
 	    state.left = 0;
 	    state.top = 1;
 		state.depth = 0;
@@ -36,81 +36,81 @@ namespace Engine
 	}
 
 
-	void	VirtualTextout::SetColor(const TVec3<>&color)
+	void	VirtualTextout::SetColor(const M::TVec3<>&color)
 	{
 		state.rgb = color;
 		state.alpha = 1;
 	}
-	void	VirtualTextout::SetColor(const TVec3<double>&color)
+	void	VirtualTextout::SetColor(const M::TVec3<double>&color)
 	{
-		Vec::copy(color,state.rgb);
+		M::Vec::copy(color,state.rgb);
 		state.alpha = 1;
 	}
-	void	VirtualTextout::SetColor(const TVec3<>&color,float alpha)
+	void	VirtualTextout::SetColor(const M::TVec3<>&color,float alpha)
 	{
 		state.rgb = color;
 		state.alpha = alpha;
 	}
 
 
-	void	VirtualTextout::SetColor(const TVec3<double>&color, double alpha)
+	void	VirtualTextout::SetColor(const M::TVec3<double>&color, double alpha)
 	{
-		Vec::copy(color,state.rgb);
+		M::Vec::copy(color,state.rgb);
 		state.alpha = alpha;
 	}
 
-	void	VirtualTextout::SetColor(const TVec4<>&color)
+	void	VirtualTextout::SetColor(const M::TVec4<>&color)
 	{
-		Vec::copy(color,state);
+		M::Vec::copy(color,state);
 	}
 
-	void	VirtualTextout::SetColor(const TVec4<double>&color)
+	void	VirtualTextout::SetColor(const M::TVec4<double>&color)
 	{
-		Vec::copy(color,state);
+		M::Vec::copy(color,state);
 	}
 
 	
 	void VirtualTextout::SetColor(float red, float green, float blue, float alpha)
 	{
-	    Vec::def(state,red,green,blue,alpha);
+	    M::Vec::def(state,red,green,blue,alpha);
 	}
 
 	void VirtualTextout::SetColor4fv(const float*color)
 	{
-		Vec::copy(Vec::ref4(color),state);
+		M::Vec::copy(M::Vec::ref4(color),state);
 	}
 
 	void VirtualTextout::SetColor4dv(const double*color)
 	{
-		Vec::copy(Vec::ref4(color),state);
+		M::Vec::copy(M::Vec::ref4(color),state);
 	}
 
 	void VirtualTextout::SetColor(float red, float green, float blue)
 	{
-	    Vec::def(state,red,green,blue,1);
+	    M::Vec::def(state,red,green,blue,1);
 	}
 
 	void VirtualTextout::SetColor3fv(const float*color)
 	{
-		Vec::copy(Vec::ref3(color),state.rgb);
+		M::Vec::copy(M::Vec::ref3(color),state.rgb);
 	    state.alpha = 1;
 	}
 
 	void VirtualTextout::SetColor3dv(const double*color)
 	{
-		Vec::copy(Vec::ref3(color),state.rgb);
+		M::Vec::copy(M::Vec::ref3(color),state.rgb);
 	    state.alpha = 1;
 	}
 
 	void VirtualTextout::SetColor3fv(const float*color, float alpha)
 	{
-		Vec::copy(Vec::ref3(color),state.rgb);
+		M::Vec::copy(M::Vec::ref3(color),state.rgb);
 	    state.alpha = alpha;
 	}
 
 	void VirtualTextout::SetColor3dv(const double*color, float alpha)
 	{
-		Vec::copy(Vec::ref3(color),state.rgb);
+		M::Vec::copy(M::Vec::ref3(color),state.rgb);
 	    state.alpha = alpha;
 	}
 	
@@ -137,12 +137,12 @@ namespace Engine
 		state.indent = 0;
 	}
 
-	void VirtualTextout::MoveTo(const TVec3<>&p)
+	void VirtualTextout::MoveTo(const M::TVec3<>&p)
 	{
 		MoveTo(p.x,p.y,p.z);
 	}
 
-	void VirtualTextout::MoveTo(const TVec2<>&p)
+	void VirtualTextout::MoveTo(const M::TVec2<>&p)
 	{
 		MoveTo(p.x,p.y);
 	}

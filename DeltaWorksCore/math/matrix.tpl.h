@@ -234,7 +234,7 @@ Collection of template matrix-math-functions.
 			MFUNC (String) ToStringD(const C*m, count_t rows, count_t cols)
 			{
 				String rs = "matrix  ("+String(rows)+"x"+String(cols)+")";
-				rs.set(7,M::vChar<C>());
+				rs.set(7,vChar<C>());
         
 				using StringConversion::ToString;
 				for (index_t row = 0; row < rows; row++)
@@ -384,7 +384,7 @@ Collection of template matrix-math-functions.
 				for (index_t line = 0; line < Dimensions; line++)
 				{
 					index_t targetline = line;
-					while (fabs(buffer[line*Dimensions+targetline]) <= M::GetError<C0>() && targetline < Dimensions)
+					while (fabs(buffer[line*Dimensions+targetline]) <= GetError<C0>() && targetline < Dimensions)
 						targetline++;
 					if (targetline == Dimensions)
 						return false;

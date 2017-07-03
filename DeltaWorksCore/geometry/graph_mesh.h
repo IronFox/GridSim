@@ -31,10 +31,10 @@ namespace DeltaWorks
 	public:
 		struct TVertex
 		{
-			float3					position,
+			M::float3				position,
 									normal,
 									tangent;	//!< Vertex tangent, perpendicular to the track's direction, and the normal (pointing to the right, when looking along track)
-			float2					tcoord;
+			M::float2				tcoord;
 			float					tx;			//!< In the range [0,1], describes the t-position from the left to the right edge of the track
 		};
 
@@ -45,10 +45,10 @@ namespace DeltaWorks
 			{
 				struct
 				{
-					TVec3<>			position,
+					M::TVec3<>			position,
 									direction,
 									up;				//!< Up axis. Must be normalized and orthogonal to @a direction
-					TVec2<>			scale;
+					M::TVec2<>			scale;
 					float			angle0,
 									angle1,
 									texcoord0,
@@ -61,17 +61,17 @@ namespace DeltaWorks
 		struct InterpolatedSlice : public TControl
 		{
 			bool					buildLocal;
-			float3					right;
+			M::float3					right;
 			float					t,
 									texcoordY;
 
 			/**/					InterpolatedSlice():buildLocal(false)	{}
-			/**/					InterpolatedSlice(const TControl&slice, float t_):TControl(slice),t(t_),buildLocal(false){Vec::cross(direction,up,right);}
+			/**/					InterpolatedSlice(const TControl&slice, float t_):TControl(slice),t(t_),buildLocal(false){M::Vec::cross(direction,up,right);}
 
 			void					MakeVertex(float x, TVertex&vtx)	const;
-			void					MakePoint(float x, TVec3<>&pt)	const;
-			void					MakePoint(float x, TVec3<>&pt, TVec3<>&normal)	const;
-			void					MakePoint(float x, TVec3<>&pt, TVec3<>&normal, TVec3<>&tangent)	const;
+			void					MakePoint(float x, M::TVec3<>&pt)	const;
+			void					MakePoint(float x, M::TVec3<>&pt, M::TVec3<>&normal)	const;
+			void					MakePoint(float x, M::TVec3<>&pt, M::TVec3<>&normal, M::TVec3<>&tangent)	const;
 			count_t					CalculateSteps(float tolerance0,float tolerance1)	const;
 			count_t					CalculateSteps(float tolerance)	const;
 			float					EstimateLength()	const;
@@ -143,11 +143,11 @@ namespace DeltaWorks
 
 		void						BuildSegment(const SurfaceDescription::TConnector&begin, const SurfaceDescription::TConnector&end,const SurfaceDescription::TControl control_points[2], float tolerance0, float tolerance1);
 		void						BuildArc(const OutVertexContainer&arc_vertices, float near_distance, float far_distance, float extend_along_track);
-		void						BuildRails(const SurfaceDescription&source, const Container::BasicBuffer<float2>&profile, const TVec3<>&relativeTo);
-		void						BuildRails(const SurfaceDescription&source, float innerExtend, float outerExtend, float upperExtend, float lowerExtend, const TVec3<>&relativeTo);
-		void						BuildBarriers(const SurfaceDescription&source, float barrierPosition, float barrierHeight0, float barrierHeight1, const TVec3<>&relativeTo);
-		float3						GetEdgeCenter()	const;
-		void						GetEdgeExtend(const TMatrix4<>&transformBy, Box<>&result)	const;
+		void						BuildRails(const SurfaceDescription&source, const Container::BasicBuffer<M::float2>&profile, const M::TVec3<>&relativeTo);
+		void						BuildRails(const SurfaceDescription&source, float innerExtend, float outerExtend, float upperExtend, float lowerExtend, const M::TVec3<>&relativeTo);
+		void						BuildBarriers(const SurfaceDescription&source, float barrierPosition, float barrierHeight0, float barrierHeight1, const M::TVec3<>&relativeTo);
+		M::float3						GetEdgeCenter()	const;
+		void						GetEdgeExtend(const M::TMatrix4<>&transformBy, M::Box<>&result)	const;
 
 		static void					Interpolate(const SurfaceDescription::TConnector&begin, const SurfaceDescription::TConnector&end,const SurfaceDescription::TControl control_points[2], float t, InterpolatedSlice&out);
 		static void					BuildControlPoints(const SurfaceDescription::TConnector&begin, const SurfaceDescription::TConnector&end,SurfaceDescription::TControl control_points[2], float control_factor0=COMMON_CONTROL_FACTOR, float control_factor1=COMMON_CONTROL_FACTOR);
@@ -220,12 +220,12 @@ namespace DeltaWorks
 
 												angle0 = -0.25f;
 												angle1 = 0.25f;
-												Vec::def(direction,1,0,0);
-												Vec::clear(position);
-												Vec::set(scale,1);
+												M::Vec::def(direction,1,0,0);
+												M::Vec::clear(position);
+												M::Vec::set(scale,1);
 												texcoord0 = 0;
 												texcoord1 = 1;
-												Vec::def(up,0,1,0);
+												M::Vec::def(up,0,1,0);
 											}
 
 			void							adoptData(Node&other)
@@ -265,12 +265,12 @@ namespace DeltaWorks
 			bool							BuildState(bool outbound, index_t subdiv, bool second_node, SurfaceDescription::TControl&out_state)	const;
 
 			void							BuildArc(Container::BasicBuffer<SurfaceDescription::TVertex>&arc_out, index_t lod, bool flip, bool global)	const;
-			Node&							SetPosition(float x,float y,float z)	{Vec::def(position,x,y,z); return *this;}
-			Node&							SetDirection(float x,float y,float z)	{Vec::def(direction,x,y,z); Vec::normalize(direction); return *this;}
-			Node&							SetUpAxis(float x, float y, float z)	{Vec::def(up,x,y,z); Vec::normalize(up); return *this;}
+			Node&							SetPosition(float x,float y,float z)	{M::Vec::def(position,x,y,z); return *this;}
+			Node&							SetDirection(float x,float y,float z)	{M::Vec::def(direction,x,y,z); M::Vec::normalize(direction); return *this;}
+			Node&							SetUpAxis(float x, float y, float z)	{M::Vec::def(up,x,y,z); M::Vec::normalize(up); return *this;}
 			Node&							SetTexCoords(float x0, float x1)		{texcoord0 = x0; texcoord1 = x1; return *this;}
 			Node&							SetAngles(float a0, float a1)			{angle0 = a0; angle1 = a1; return *this;}
-			Node&							SetScale(float scale_x, float scale_y)	{Vec::def(scale,scale_x,scale_y); return *this;}
+			Node&							SetScale(float scale_x, float scale_y)	{M::Vec::def(scale,scale_x,scale_y); return *this;}
 			Node&							SplitEvenly(bool outbound, count_t num);
 		};
 
@@ -318,7 +318,7 @@ namespace DeltaWorks
 												FATAL__("Integrity violated");
 												return 0;
 											}
-			float							GetMinimalDistanceTo(const TVec3<>&referencePointer, count_t scanResolution=10)	const;
+			float							GetMinimalDistanceTo(const M::TVec3<>&referencePointer, count_t scanResolution=10)	const;
 		};
 
 
@@ -395,7 +395,7 @@ namespace DeltaWorks
 		static void							CompileBarrierGeometry(CGS::Geometry<>&target,const Segment&segment, float position,float height0,float height1,name64_t texture, CGS::TextureResource*resource=NULL);
 		static void							CompileArcGeometry(CGS::Geometry<>&target, const Node&node, float near_distance, float far_distance, float extend_along_track, name64_t texture, name64_t normal_texture, bool node_is_flipped, CGS::TextureResource*resource=NULL);
 		static void							CompileRailGeometry(CGS::Geometry<>&target, const Segment&segment, float innerExtend, float outerExtend, float upperExtend, float lowerExtend, name64_t texture, name64_t normal_texture, CGS::TextureResource*resource=NULL);
-		static void							CompileRailGeometry(CGS::Geometry<>&target, const Segment&segment, const Container::BasicBuffer<float2>&profile, name64_t texture, name64_t normal_texture, CGS::TextureResource*resource=NULL);
+		static void							CompileRailGeometry(CGS::Geometry<>&target, const Segment&segment, const Container::BasicBuffer<M::float2>&profile, name64_t texture, name64_t normal_texture, CGS::TextureResource*resource=NULL);
 		static void							CompileFromDescriptions(CGS::Geometry<>&target, const Ctr::Array<SurfaceDescription>&lods, float shortest_edge, name64_t texture, name64_t normal_texture, CGS::TextureResource*resource =NULL);
 		static void							CompileFromDescriptions(CGS::Geometry<>&target, const Ctr::Array<SurfaceDescription>&lods, const SurfaceDescription&phHull, float shortest_edge, name64_t texture, name64_t normal_texture, CGS::TextureResource*resource =NULL);
 
@@ -410,7 +410,7 @@ namespace DeltaWorks
 	class GraphNode
 	{
 	public:
-		TVec2<>								position,
+		M::TVec2<>								position,
 											direction;
 		bool								processed,
 											selected;
@@ -423,7 +423,7 @@ namespace DeltaWorks
 		class Node
 		{
 		public:
-			TVec2<>							position,
+			M::TVec2<>							position,
 											normal;
 		};
 		
@@ -471,13 +471,13 @@ namespace DeltaWorks
 		{
 		public:
 				float		control_dist[2];	//!< control point distances, both in the range [0,1], along GraphNode::direction. control_dist[0] is used for connections to the predecessor, control_dist[1] to the successor
-				TVec2<>		control[2];			//!< provided for convenience only. not used by the local system
+				M::TVec2<>		control[2];			//!< provided for convenience only. not used by the local system
 				
 				
 				Node&		reset()
 							{
-								Vec::clear(position);
-								Vec::def(direction,1,0);
+								M::Vec::clear(position);
+								M::Vec::def(direction,1,0);
 								control_dist[0] = control_dist[1] = 0;
 								processed = false;
 								selected = false;
@@ -485,7 +485,7 @@ namespace DeltaWorks
 							}
 				Node&		moveTo(float x, float y)
 							{
-								Vec::def(position,x,y);
+								M::Vec::def(position,x,y);
 								return *this;
 							}
 		};
@@ -569,7 +569,7 @@ namespace DeltaWorks
 				processed = false;
 				selected = false;
 				x_coord = 0;
-				Vec::def(direction,1,0);
+				M::Vec::def(direction,1,0);
 			}
 		};
 
@@ -583,7 +583,7 @@ namespace DeltaWorks
 
 
 			//#ifdef GRAPH_EDIT
-				TVec2<>	control[2];	//needed by graph editor
+				M::TVec2<>	control[2];	//needed by graph editor
 			//#endif
 				
 				
@@ -655,10 +655,10 @@ namespace DeltaWorks
 									Edge&edge = edges[i];
 									const Graph::Node	&n0 = nodes[edge.node[0]],
 														&n1 = nodes[edge.node[1]];
-									float len = Vec::distance(n0.position,n1.position);
+									float len = M::Vec::distance(n0.position,n1.position);
 
-									Vec::mad(n0.position,n0.direction,len*control_factor0*edge.control_dist[0],edge.control[0]);
-									Vec::mad(n1.position,n1.direction,-len*control_factor1*edge.control_dist[1],edge.control[1]);
+									M::Vec::mad(n0.position,n0.direction,len*control_factor0*edge.control_dist[0],edge.control[0]);
+									M::Vec::mad(n1.position,n1.direction,-len*control_factor1*edge.control_dist[1],edge.control[1]);
 								}
 							}
 

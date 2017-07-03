@@ -69,9 +69,9 @@ namespace Fractal
 	struct TVertex
 	{
 		TChannelConfig	channel;		//!< Vertex channel configuration
-		TVec3<>			position;		//!< Vertex position in segment space
+		M::TVec3<>			position;		//!< Vertex position in segment space
 		float			height;			//!< Vertex height in the range [-1,1]
-		TVec3<>			normal;			//!< Vertex normal (not normalized)
+		M::TVec3<>			normal;			//!< Vertex normal (not normalized)
 						
 						#define FRACTAL_HEIGHT	height
 			
@@ -100,7 +100,7 @@ namespace Fractal
 		@param vector Vector to retrieve the x-coordinate of
 		@return vector[0]
 	*/
-	inline float xCoord(const TVec3<>&vector)
+	inline float xCoord(const M::TVec3<>&vector)
 	{
 		return vector.x;
 	}
@@ -113,7 +113,7 @@ namespace Fractal
 		@param vector Vector to retrieve the x-coordinate of
 		@return vector[0]
 	*/
-	inline float xCoord(const volatile TVec3<>&vector)
+	inline float xCoord(const volatile M::TVec3<>&vector)
 	{
 		return vector.x;
 	}
@@ -138,7 +138,7 @@ namespace Fractal
 	*/
 	struct TCrater
 	{
-		TVec3<>			orientation,	//!< Normalized crater orientation vector
+		M::TVec3<>			orientation,	//!< Normalized crater orientation vector
 						base;			//!< Crater base point
 		float			radius,			//!< Crater radius
 						depth;			//!< Crater depth. This would usually relate to the radius but is not required to do so.
@@ -152,7 +152,7 @@ namespace Fractal
 	*/
 	struct TSSECrater
 	{
-		TVec3<SSE_VECTOR>	orientation,
+		M::TVec3<SSE_VECTOR>	orientation,
 							base;
 		SSE_VECTOR			radius,
 							depth;
@@ -176,7 +176,7 @@ namespace Fractal
 		bool			isset;						//!< true if the ground was detected, false otherwise
 		float			height_over_ground,			//!< Height of the querying point over the detected ground as a factor of the direction vector used during detection
 						ground_height;				//!< Ground height factor
-		TVec3<>			normal,					//!< Interpolated normal
+		M::TVec3<>			normal,					//!< Interpolated normal
 						position;				//!< Sector relative ground position
 	};
 	
@@ -185,7 +185,7 @@ namespace Fractal
 	*/
 	struct TVertexAppearance
 	{
-		TVec3<>			up,			//!< Normalized up axis from this vertex
+		M::TVec3<>			up,			//!< Normalized up axis from this vertex
 						normal;		//!< Normalized ground normal
 		float			snow_line,		//!< Snow coverage height barrier
 						snow,			//!< Snow density
@@ -205,7 +205,7 @@ namespace Fractal
 	{
 		TChannelConfig	channel;		//!< Base channel configuration of this vertex
 		float			height;			//!< Vertex height factor
-		TVec3<>			position;	//!< Sector relative vertex position
+		M::TVec3<>			position;	//!< Sector relative vertex position
 	};
 	
 
@@ -235,7 +235,7 @@ namespace Fractal
 		};
 	
 	
-		TVec3<Composite::sector_t>	sector;		//!< Sector coordinates of this surface
+		M::TVec3<Composite::sector_t>	sector;		//!< Sector coordinates of this surface
 		//TComposite		central_height;	//!< Absolute height of the center of this surface
 		unsigned		depth;			//!< Face depth with 0 being the deepest possible face
 		unsigned char	child_index;	//!< Index of this child as seen from its parent

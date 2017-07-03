@@ -14,12 +14,12 @@ Predefined image generators.
 namespace DeltaWorks
 {
 
-	class CGColor:public TVec4<>	//! Image generator color structure. A color structure holds one typename Nature::float_type_t for each red, green, blue, and alpha component.
+	class CGColor:public M::TVec4<>	//! Image generator color structure. A color structure holds one typename Nature::float_type_t for each red, green, blue, and alpha component.
 	{
 	public:
 					CGColor(float red=1, float green=1, float blue=1, float alpha=1);	//! Constructor. Default color is opaque white.
-					CGColor(const TVec4<>&v)	:TVec4<>(v)	{}
-					CGColor(const TVec3<>&v, float alpha=1) {this->xyz = v; a = alpha;}
+					CGColor(const M::TVec4<>&v)	:M::TVec4<>(v)	{}
+					CGColor(const M::TVec3<>&v, float alpha=1) {this->xyz = v; a = alpha;}
 	};
 
 

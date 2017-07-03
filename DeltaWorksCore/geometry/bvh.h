@@ -16,7 +16,7 @@ namespace DeltaWorks
 		class BoxBVH
 		{
 		public:
-			typedef Box<Float>	Bounds;
+			typedef M::Box<Float>	Bounds;
 			static void ProgressiveInclude(Bounds&box, Bounds&, const Bounds&bounds)
 			{
 				box.Include(bounds);
@@ -39,19 +39,19 @@ namespace DeltaWorks
 		class SphereBVHNature
 		{
 		public:
-			typedef Sphere<Float>	Bounds;
-			static void ProgressiveInclude(Box<Float>&box, Bounds&outBounds, const Bounds&bounds)
+			typedef M::Sphere<Float>	Bounds;
+			static void ProgressiveInclude(M::Box<Float>&box, Bounds&outBounds, const Bounds&bounds)
 			{
-				static Box<Float>	b;
+				static M::Box<Float>	b;
 				b.SetCenter(bounds.center,bounds.radius);
 				box.Include(b);
 				outBounds.Include(bounds);
 			}
-			static void FinalizeEffectiveBounds(Bounds&effectiveBounds,const Box<Float>&boundingBox)
+			static void FinalizeEffectiveBounds(Bounds&effectiveBounds,const M::Box<Float>&boundingBox)
 			{
 			
 			}
-			static void IncludeCenterIntoBox(Box<Float>&box, const Bounds&bounds)
+			static void IncludeCenterIntoBox(M::Box<Float>&box, const Bounds&bounds)
 			{
 				box.Include(bounds.center);
 			}
@@ -323,7 +323,7 @@ namespace DeltaWorks
 
 			static Node*		_BuildNode(Entry*const elements, const count_t numElements, Ctr::ArrayData<Bucket>&buckets)
 			{
-				Box<Float> boundingBox = Box<Float>::Invalid();
+				M::Box<Float> boundingBox = M::Box<Float>::Invalid();
 				Bounds	effectiveBounds = Bounds::Invalid();
 
 				for (index_t i = 0; i < numElements; i++)
@@ -339,7 +339,7 @@ namespace DeltaWorks
 				}
 
 
-				Box<Float> centerVolume = Box<Float>::Invalid();
+				M::Box<Float> centerVolume = M::Box<Float>::Invalid();
 				for (index_t i = 0; i < numElements; i++)
 					Nature::IncludeCenterIntoBox(centerVolume,elements[i].bounds);
 
@@ -354,7 +354,7 @@ namespace DeltaWorks
 						useAxis = i;
 					}
 				}
-				const TFloatRange<Float> axisRange2 = centerVolume.axis[useAxis];
+				const M::TFloatRange<Float> axisRange2 = centerVolume.axis[useAxis];
 				const Float extend2 = axisRange2.GetExtent();
 
 
@@ -502,7 +502,7 @@ namespace DeltaWorks
 				}
 				return 0;
 			}
-			static void _RecursivelyWalkNode(Node*node, const TVec3<Float>&point, Container::BasicBuffer<Object*>&found)
+			static void _RecursivelyWalkNode(Node*node, const M::TVec3<Float>&point, Container::BasicBuffer<Object*>&found)
 			{
 				if (node->isLeaf)
 				{
@@ -521,18 +521,18 @@ namespace DeltaWorks
 				}
 			}
 
-			static void _RecursivelyFindClosest(Node*node, const TVec3<Float>&point, Object*&closest, Float&distance)
+			static void _RecursivelyFindClosest(Node*node, const M::TVec3<Float>&point, Object*&closest, Float&distance)
 			{
 				if (node->isLeaf)
 				{
-					TVec3<Float>	c;
+					M::TVec3<Float>	c;
 					LeafNode*leaf = (LeafNode*)node;
 					if (leaf->bounds.Contains(point))
 						//foreach (leaf->elements,e)
 						//    if (e->bounds.Contains(point))
 							{
 								leaf->bounds.GetCenter(c);
-								Float d = Vec::quadraticDistance(c, point);
+								Float d = M::Vec::quadraticDistance(c, point);
 								if (d < distance)
 								{
 									distance = d;
@@ -591,14 +591,14 @@ namespace DeltaWorks
 					return 0;
 				return _WalkNode(root, space);
 			}
-			void Lookup(const TVec3<Float>&position, Container::BasicBuffer<Object*>&found)	const
+			void Lookup(const M::TVec3<Float>&position, Container::BasicBuffer<Object*>&found)	const
 			{
 				Node*root = _root;
 				if (!root)
 					return;
 				_RecursivelyWalkNode(root, position, found);
 			}
-			Object* LookupClosest(const TVec3<Float>&position)	const
+			Object* LookupClosest(const M::TVec3<Float>&position)	const
 			{
 				Node*root = _root;
 				if (!root)

@@ -37,7 +37,7 @@ namespace Engine
 			orthographic_graphs.FindAndErase(this);
 		}
 		
-		TVec3<>			C3dGraph::light = {1,1,1},
+		M::TVec3<>			C3dGraph::light = {1,1,1},
 						C3dGraph::background = {0.5,0.5,0.5};
 		
 		
@@ -58,9 +58,9 @@ namespace Engine
 			return last_change;
 		}
 		
-		static void pickColor(TVec3<>&color)
+		static void pickColor(M::TVec3<>&color)
 		{
-			static const TVec3<>	colors[] = {
+			static const M::TVec3<>	colors[] = {
 				{0,1,0},
 				{1,1,0},
 				{0,0,1},
@@ -198,9 +198,9 @@ namespace Engine
 			color[2] = (float)((channel_index/9)%3)/2.0f;
 			_normalize0(color);*/
 			if (channel_index%2)
-				Vec::set(color,0.2);
+				M::Vec::set(color,0.2);
 			else
-				Vec::set(color,1);
+				M::Vec::set(color,1);
 		}
 		
 		bool		Channel::isActive()	const
@@ -210,7 +210,7 @@ namespace Engine
 		
 		void		Channel::setColor(float r, float g, float b)
 		{
-			Vec::def(color,r,g,b);
+			M::Vec::def(color,r,g,b);
 		}
 		
 		void		Channel::adoptData(Channel&other)

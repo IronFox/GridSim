@@ -707,14 +707,14 @@ namespace Engine
 			FINISH_VARIABLE_UPDATE
 		}
 
-		bool					Variable::set(const TVec3<>&vector)
+		bool					Variable::set(const M::TVec3<>&vector)
 		{
 			INIT_VARIABLE_UPDATE
 			glUniform3f(handle, vector.x,vector.y,vector.z);
 			FINISH_VARIABLE_UPDATE
 		}
 	
-		bool					Variable::set(const TVec2<>&vector)
+		bool					Variable::set(const M::TVec2<>&vector)
 		{
 			INIT_VARIABLE_UPDATE
 			glUniform2f(handle, vector.x,vector.y);
@@ -745,21 +745,21 @@ namespace Engine
 		}
 
 
-		bool			Variable::set(const TVec4<>&vector)
+		bool			Variable::set(const M::TVec4<>&vector)
 		{
 			INIT_VARIABLE_UPDATE
 			glUniform4f(handle, vector.x,vector.y,vector.z,vector.w);
 			FINISH_VARIABLE_UPDATE
 		}
 	
-		bool					Variable::set(const TMatrix3<>&matrix)
+		bool					Variable::set(const M::TMatrix3<>&matrix)
 		{
 			INIT_VARIABLE_UPDATE
 			glUniformMatrix3fv(handle,1,false,matrix.v);
 			FINISH_VARIABLE_UPDATE
 		}
 	
-		bool					Variable::set(const TMatrix4<>&matrix)
+		bool					Variable::set(const M::TMatrix4<>&matrix)
 		{
 			INIT_VARIABLE_UPDATE
 			glUniformMatrix4fv(handle,1,false,matrix.v);
@@ -3205,7 +3205,7 @@ namespace Engine
 				return *this;
 			}
 
-			Template&				Template::PredefineUniformVec(const String&name, const TVec3<>&value)
+			Template&				Template::PredefineUniformVec(const String&name, const M::TVec3<>&value)
 			{
 				TUniformInit&init = uniformInit.append();
 				init.name = name;
@@ -4184,8 +4184,8 @@ namespace Engine
 		#undef BSTR
 		#define BSTR(b)		String(b?"enabled":"disabled")
 		GLfloat	projection[16], modelview[16], raster_distance;
-		TVec4<GLfloat>	raster, raster_color, raster_texcoords,color,coords;
-		TVec3<GLfloat>	normal;
+		M::TVec4<GLfloat>	raster, raster_color, raster_texcoords,color,coords;
+		M::TVec3<GLfloat>	normal;
 
 		GLuint		program=0;
 		GLint		array_buffer_binding = 0,
@@ -4237,15 +4237,15 @@ namespace Engine
   Modelview:\n"+Mat::Raw::ToString4x4(modelview)+"\n\
   Program: "+String(program)+"\n\
   FBO: "+String(fbo)+"\n\
-  Viewport: "+(Vec::toString(Vec::ref4(viewport)))+"\n\
+  Viewport: "+(M::Vec::toString(M::Vec::ref4(viewport)))+"\n\
   Active texture layer: "+String(active_texture!=-1?active_texture-GL_TEXTURE0:-1)+"\n\
   Client active texture layer: "+String(client_active_texture!=-1?client_active_texture-GL_TEXTURE0:-1)+"\n\
-  Color: "+Vec::toString(color)+"\n\
-  Normal: "+Vec::toString(normal)+"\n\
-  RasterPos: "+Vec::toString(raster)+"\n\
-  RasterColor: "+Vec::toString(raster_color)+"\n\
+  Color: "+M::Vec::toString(color)+"\n\
+  Normal: "+M::Vec::toString(normal)+"\n\
+  RasterPos: "+M::Vec::toString(raster)+"\n\
+  RasterColor: "+M::Vec::toString(raster_color)+"\n\
   RasterDistance: "+FloatToStr(raster_distance)+"\n\
-  RasterCoords: "+Vec::toString(raster_texcoords)+"\n\
+  RasterCoords: "+M::Vec::toString(raster_texcoords)+"\n\
   RasterValid: "+(raster_valid?"true":"false")+"\n\
   AlphaTest: ";
   
@@ -4424,8 +4424,8 @@ namespace Engine
 				
 				rs += "CoordLayer "+IntToStr(i)+"/"+String(maxTexcoordLayers) +"\n";
 				rs += "  CoordArray: "+array+"\n";
-				rs += "  Coords: "+Vec::toString(coords)+"\n";
-				rs += "  Matrix "+Vec::toString(Vec::ref4(modelview))+"; "+Vec::toString(Vec::ref4(modelview+4))+"; "+Vec::toString(Vec::ref4(modelview+8))+"; "+Vec::toString(Vec::ref4(modelview+12))+"\n";
+				rs += "  Coords: "+M::Vec::toString(coords)+"\n";
+				rs += "  Matrix "+M::Vec::toString(M::Vec::ref4(modelview))+"; "+M::Vec::toString(M::Vec::ref4(modelview+4))+"; "+M::Vec::toString(M::Vec::ref4(modelview+8))+"; "+M::Vec::toString(M::Vec::ref4(modelview+12))+"\n";
 			}
 			glClientActiveTexture(client_active_texture);
 		}

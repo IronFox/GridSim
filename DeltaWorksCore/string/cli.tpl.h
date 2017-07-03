@@ -205,13 +205,13 @@ template <count_t Components>
 	VectorVariable<Components>::VectorVariable(const String&name, float content_[Components], unsigned protection):Variable(name,"FloatVector",Components,protection)
 	{
 		if (content_)
-			VecUnroll<Components>::copy(content_,content);
+			M::VecUnroll<Components>::copy(content_,content);
 	}
 	
 template <count_t Components>
 	String			VectorVariable<Components>::ConvertToString()					const
 	{
-		return VecUnroll<Components>::toString(content);
+		return M::VecUnroll<Components>::toString(content);
 	}
 	
 template <count_t Components>
@@ -231,13 +231,13 @@ template <count_t Components>
 	DoubleVectorVariable<Components>::DoubleVectorVariable(const String&name, double content_[Components], unsigned protection):Variable(name,"DoubleVector",Components,protection)
 	{
 		if (content_)
-			VecUnroll<Components>::copy(content_,content);
+			M::VecUnroll<Components>::copy(content_,content);
 	}
 	
 template <count_t Components>
 	String		DoubleVectorVariable<Components>::ConvertToString()					const
 	{
-		return VecUnroll<Components>::toString(content);
+		return M::VecUnroll<Components>::toString(content);
 	}
 
 template <count_t Components>	

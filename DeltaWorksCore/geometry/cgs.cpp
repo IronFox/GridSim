@@ -23,7 +23,7 @@ namespace DeltaWorks
 	namespace CGS
 	{
 
-	TVec4<float>	ambient_default = {0.2f,0.2f,0.2f,1.f},
+	M::TVec4<float>	ambient_default = {0.2f,0.2f,0.2f,1.f},
 					diffuse_default = {0.8f,0.8f,0.8f,1.f },
 					specular_default = {0,0,0,1.f },
 					emission_default = {0,0,0,1.f };
@@ -109,13 +109,13 @@ namespace DeltaWorks
 		if (fully_reflective != other.fully_reflective)
 			return false;
 		typedef float Float;
-		if (!Vec::similar(ambient,other.ambient))
+		if (!M::Vec::similar(ambient,other.ambient))
 			return false;
-		if (!Vec::similar(diffuse,other.diffuse))
+		if (!M::Vec::similar(diffuse,other.diffuse))
 			return false;
-		if (!Vec::similar(specular,other.specular))
+		if (!M::Vec::similar(specular,other.specular))
 			return false;
-		if (!Vec::similar(emission,other.emission))
+		if (!M::Vec::similar(emission,other.emission))
 			return false;
 		if (shininess != other.shininess)
 			return false;

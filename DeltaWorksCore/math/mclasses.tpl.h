@@ -158,30 +158,30 @@ namespace Math
     template <class C>
     MFUNC4 (void) SystemMatrix<C>::buildRotation(const C0&angle, const C1&x, const C2&y, const C3&z)
     {
-		TMatrix3<C>	temp;
+		M::TMatrix3<C>	temp;
 		Mat::BuildRotationMatrix(angle,x,y,z,temp);
 		x.xyz = temp.x;
 		y.xyz = temp.y;
 		z.xyz = temp.z;
-		Vec::clear(w.xyz);
+		M::Vec::clear(w.xyz);
 		Mat::resetBottomRow(*this);
     }
 
     template <class C>
-    MFUNC2 (void) SystemMatrix<C>::buildRotation(const C0&angle, const TVec3<C1>& axis)
+    MFUNC2 (void) SystemMatrix<C>::buildRotation(const C0&angle, const M::TVec3<C1>& axis)
     {
-		TMatrix3<C>	temp;
+		M::TMatrix3<C>	temp;
 		Mat::BuildRotationMatrix(angle,axis,temp);
 		x.xyz = temp.x;
 		y.xyz = temp.y;
 		z.xyz = temp.z;
-		Vec::clear(w.xyz);
+		M::Vec::clear(w.xyz);
 		Mat::resetBottomRow(*this);
     }
 	
 	template <class C> MFUNC4 (void)	SystemMatrix<C>::rotate(const C0&angle, const C1&axis_x, const C2&axis_y, const C3&axis_z)
 		{
-			TMatrix3<C>	rsystem;
+			M::TMatrix3<C>	rsystem;
 			Mat::BuildRotationMatrix(angle,axis_x,axis_y,axis_z,rsystem);
 
 			Mat::Mult(rsystem,x.xyz);
@@ -190,9 +190,9 @@ namespace Math
 			Mat::Mult(rsystem,w.xyz);
 		}
 	
-	template <class C> MFUNC2 (void)	SystemMatrix<C>::rotate(const C0&angle, const TVec3<C1>& axis)
+	template <class C> MFUNC2 (void)	SystemMatrix<C>::rotate(const C0&angle, const M::TVec3<C1>& axis)
 		{
-			TMatrix3<C>	rsystem;
+			M::TMatrix3<C>	rsystem;
 			Mat::BuildRotationMatrix(angle,axis,rsystem);
 
 			Mat::Mult(rsystem,x.xyz);
@@ -202,53 +202,53 @@ namespace Math
 		}
     
     template <class C>
-    MFUNC2 (void) SystemMatrix<C>::buildSystem(const TVec3<C0>&position, const TVec3<C1>& axis, BYTE direction)
+    MFUNC2 (void) SystemMatrix<C>::buildSystem(const M::TVec3<C0>&position, const M::TVec3<C1>& axis, BYTE direction)
     {
 		Mat::makeAxisSystem(position,axis,direction,*this);
     }
 
     template <class C> MF_DECLARE  (void) SystemMatrix<C>::normalize()
     {
-		Vec::normalize(x.xyz);
-		Vec::normalize(y.xyz);
-		Vec::normalize(z.xyz);
+		M::Vec::normalize(x.xyz);
+		M::Vec::normalize(y.xyz);
+		M::Vec::normalize(z.xyz);
     }
     
     template <class C>
-    MFUNC1  (void) SystemMatrix<C>::operator+=(const TVec3<C0>&vec)
+    MFUNC1  (void) SystemMatrix<C>::operator+=(const M::TVec3<C0>&vec)
     {
-        Vec::add(w.xyz,vec.v);
+        M::Vec::add(w.xyz,vec.v);
     }
 
     template <class C>
     MFUNC1  (void) SystemMatrix<C>::operator-=(const SystemMatrix<C0>&sys)
     {
-        Vec::sub(x.xyz,sys.x.xyz);
-        Vec::sub(y.xyz,sys.y.xyz);
-        Vec::sub(z.xyz,sys.z.xyz);
-        Vec::sub(w.xyz,sys.w.xyz);
+        M::Vec::sub(x.xyz,sys.x.xyz);
+        M::Vec::sub(y.xyz,sys.y.xyz);
+        M::Vec::sub(z.xyz,sys.z.xyz);
+        M::Vec::sub(w.xyz,sys.w.xyz);
     }
     
     template <class C>
-    MFUNC1  (void) SystemMatrix<C>::operator-=(const TVec3<C0>&vec)
+    MFUNC1  (void) SystemMatrix<C>::operator-=(const M::TVec3<C0>&vec)
     {
-        Vec::sub(w.xyz,vec);
+        M::Vec::sub(w.xyz,vec);
     }
 
 
     template <class C>
     MFUNC1  (void) SystemMatrix<C>::operator+=(const SystemMatrix<C0>&other)
     {
-        Vec::add(x.xyz,sys.x.xyz);
-        Vec::add(y.xyz,sys.y.xyz);
-        Vec::add(z.xyz,sys.z.xyz);
-        Vec::add(w.xyz,sys.w.xyz);
+        M::Vec::add(x.xyz,sys.x.xyz);
+        M::Vec::add(y.xyz,sys.y.xyz);
+        M::Vec::add(z.xyz,sys.z.xyz);
+        M::Vec::add(w.xyz,sys.w.xyz);
     }
 
     template <class C>
     MFUNC1  (void) SystemMatrix<C>::operator*=(const SystemMatrix<C0>&other)
     {
-        TVec3<C>   _x,_y,_z,_b;
+        M::TVec3<C>   _x,_y,_z,_b;
 		Mat::rotate(*this,other.x.xyz,_x);
 		Mat::rotate(*this,other.y.xyz,_y);
 		Mat::rotate(*this,other.z.xyz,_z);
@@ -263,19 +263,19 @@ namespace Math
     MFUNC1  (SystemMatrix<C>) SystemMatrix<C>::operator+(const SystemMatrix<C0>&other)    const
     {
         SystemMatrix<C>    result;
-        Vec::add(x.xyz,other.x.xyz,result.x.xyz);
-        Vec::add(y.xyz,other.y.xyz,result.y.xyz);
-        Vec::add(z.xyz,other.z.xyz,result.z.xyz);
-        Vec::add(w.xyz,other.w.xyz,result.w.xyz);
+        M::Vec::add(x.xyz,other.x.xyz,result.x.xyz);
+        M::Vec::add(y.xyz,other.y.xyz,result.y.xyz);
+        M::Vec::add(z.xyz,other.z.xyz,result.z.xyz);
+        M::Vec::add(w.xyz,other.w.xyz,result.w.xyz);
 		Mat::resetBottomRow(result);
         return result;
     }
 
     template <class C>
-    MFUNC1  (SystemMatrix<C>) SystemMatrix<C>::operator+(const TVec3<C0>&translation)    const
+    MFUNC1  (SystemMatrix<C>) SystemMatrix<C>::operator+(const M::TVec3<C0>&translation)    const
     {
         SystemMatrix<C>    result = *this;
-		Vec::add(result.w.xyz,translation);
+		M::Vec::add(result.w.xyz,translation);
         return result;
     }
 
@@ -283,19 +283,19 @@ namespace Math
     MFUNC1  (SystemMatrix<C>) SystemMatrix<C>::operator-(const SystemMatrix<C0>&other)    const
     {
         SystemMatrix<C>    result;
-        Vec::sub(x.xyz,other.x.xyz,result.x.xyz);
-        Vec::sub(y.xyz,other.y.xyz,result.y.xyz);
-        Vec::sub(z.xyz,other.z.xyz,result.z.xyz);
-        Vec::sub(w.xyz,other.w.xyz,result.w.xyz);
+        M::Vec::sub(x.xyz,other.x.xyz,result.x.xyz);
+        M::Vec::sub(y.xyz,other.y.xyz,result.y.xyz);
+        M::Vec::sub(z.xyz,other.z.xyz,result.z.xyz);
+        M::Vec::sub(w.xyz,other.w.xyz,result.w.xyz);
 		Mat::resetBottomRow(result);
         return result;
     }
 
     template <class C>
-    MFUNC1  (SystemMatrix<C>) SystemMatrix<C>::operator-(const TVec3<C0>&translation)    const
+    MFUNC1  (SystemMatrix<C>) SystemMatrix<C>::operator-(const M::TVec3<C0>&translation)    const
     {
         SystemMatrix<C>    result = *this;
-		Vec::sub(result.w.xyz,translation);
+		M::Vec::sub(result.w.xyz,translation);
         return result;
     }
 
@@ -312,17 +312,17 @@ namespace Math
     }
 
     template <class C>
-    MFUNC1  (TVec3<C>)   SystemMatrix<C>::operator*(const TVec3<C0>&other) const
+    MFUNC1  (M::TVec3<C>)   SystemMatrix<C>::operator*(const M::TVec3<C0>&other) const
     {
-		TVec3<C> result;
+		M::TVec3<C> result;
 		Mat::transform(*this,other,result);
 		return result;
     }
 
     template <class C>
-    MFUNC1  (TVec4<C>)   SystemMatrix<C>::operator*(const TVec4<C0>&other) const
+    MFUNC1  (M::TVec4<C>)   SystemMatrix<C>::operator*(const M::TVec4<C0>&other) const
     {
-		TVec4<C> result;
+		M::TVec4<C> result;
 		Mat::Mult(*this,other,result);
 		return result;
     }
@@ -347,7 +347,7 @@ namespace Math
 
     template <class C>  MF_DECLARE(SystemMatrix<C>&)    SystemMatrix<C>::invertThis()
     {
-        TMatrix4<C>    temp=*this;
+        M::TMatrix4<C>    temp=*this;
         Mat::invertSystem(temp,*this);
         return *this;
     }

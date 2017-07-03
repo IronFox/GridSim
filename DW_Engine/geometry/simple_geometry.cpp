@@ -11,7 +11,7 @@ namespace Engine
 
 	SimpleGeometry::SimpleGeometry():at(0),m(Triangles),sealed(false)
 	{
-	    Vec::def(v.color,1,1,1,1);
+	    M::Vec::def(v.color,1,1,1,1);
 	}
 
 	void SimpleGeometry::resize(unsigned len_)
@@ -57,34 +57,34 @@ namespace Engine
 
 	void SimpleGeometry::translate(float x_delta, float y_delta, float z_delta)
 	{
-	    TVec3<>	delta = {x_delta,y_delta,z_delta};
+	    M::TVec3<>	delta = {x_delta,y_delta,z_delta};
 	    for (unsigned i = 0; i < field[Triangles].length(); i++)
-	        Vec::add(field[Triangles][i].xyz,delta);
+	        M::Vec::add(field[Triangles][i].xyz,delta);
 	        
 	    for (unsigned i = 0; i < field[Quads].length(); i++)
-	        Vec::add(field[Quads][i].xyz,delta);
+	        M::Vec::add(field[Quads][i].xyz,delta);
 
 	    for (unsigned i = 0; i < field[Lines].length(); i++)
-	        Vec::add(field[Lines][i].xyz,delta);
+	        M::Vec::add(field[Lines][i].xyz,delta);
 	}
 
 
 	void SimpleGeometry::color(float r, float g, float b, float a)
 	{
-	    Vec::def(v.color,r,g,b,a);
+	    M::Vec::def(v.color,r,g,b,a);
 	}
 
-	void SimpleGeometry::color(const TVec4<>&color)
+	void SimpleGeometry::color(const M::TVec4<>&color)
 	{
 		v.color = color;
 	}
 
-	void SimpleGeometry::color(const TVec3<>&color)
+	void SimpleGeometry::color(const M::TVec3<>&color)
 	{
 		v.color.rgb = color;
 		v.color.alpha = 1;
 	}
-	void SimpleGeometry::color(const TVec3<>&color, float alpha)
+	void SimpleGeometry::color(const M::TVec3<>&color, float alpha)
 	{
 		v.color.rgb = color;
 		v.color.alpha = alpha;
@@ -93,23 +93,23 @@ namespace Engine
 
 	void	SimpleGeometry::color3fv(const float*c)
 	{
-		Vec::def(v.color,c[0],c[1],c[2],1);
+		M::Vec::def(v.color,c[0],c[1],c[2],1);
 	}
 	
 	void	SimpleGeometry::color4fv(const float*c)
 	{
-		Vec::def(v.color,c[0],c[1],c[2],c[3]);
+		M::Vec::def(v.color,c[0],c[1],c[2],c[3]);
 	}
 	
 	void	SimpleGeometry::color3fva(const float*c, float a)
 	{
-		Vec::def(v.color,c[0],c[1],c[2],a);
+		M::Vec::def(v.color,c[0],c[1],c[2],a);
 	}
 	
 
 	void SimpleGeometry::vertex(float x, float y, float z, float w)
 	{
-		Vec::def(v,x,y,z,w);
+		M::Vec::def(v,x,y,z,w);
 	    pushVertex();
 	}
 }

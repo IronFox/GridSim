@@ -32,7 +32,7 @@ template <class Nature>
 	void        igExtRadial(GenericImage<Nature>&target, const CGColor&inner, const CGColor&outer, bool smooth)
 	{
 		typedef typename Nature::float_type_t	F;
-		TVec4<F> color;
+		M::TVec4<F> color;
 		target.SetChannels(4);
 		F		a = sqr(target.GetWidth()/2),
 				b = sqr(target.GetHeight()/2);
@@ -47,8 +47,8 @@ template <class Nature>
 				f-=0.1;
 				if (f < 0)
 					f = 0;
-				Vec::interpolate(outer,inner,f,color);
-				Vec::clamp(color,0,1);
+				M::Vec::interpolate(outer,inner,f,color);
+				M::Vec::clamp(color,0,1);
 				target.set4f(x,y,color.v);
 			}
 	}
@@ -58,7 +58,7 @@ template <class Nature>
 	static void generateCubeSide(GenericImage<Nature>&target, UINT32 resolution, char x0, char y0, char z0, char x1, char y1, char z1, BYTE x_axis, BYTE y_axis, BYTE ignored_axis)
 	{
 		typedef typename Nature::float_type_t	F;
-		TVec3<F>	n0 = {x0,y0,z0},
+		M::TVec3<F>	n0 = {x0,y0,z0},
 					nd = {x1-x0, y1-y0, z1-z0};
 		target.SetSize(resolution,resolution,3);
 		target.setContentType(PixelType::ObjectSpaceNormal);
@@ -67,11 +67,11 @@ template <class Nature>
 			{
 				F		fx = (F)x/(resolution-1),
 						fy = (F)y/(resolution-1);
-				TVec3<F>	n;
+				M::TVec3<F>	n;
 				n.v[x_axis] = n0.v[x_axis]+fx*nd.v[x_axis];
 				n.v[y_axis] = n0.v[y_axis]+fy*nd.v[y_axis];
 				n.v[ignored_axis] = n0.v[ignored_axis];
-				Vec::normalize0(n);
+				M::Vec::normalize0(n);
 				target.setNormal(x,y,n);
 			}
 	}
@@ -95,7 +95,7 @@ template <class Nature>
 	{
 		typedef typename Nature::float_type_t	F;
 		F r = vmin(target.GetWidth(),target.GetHeight());
-		TVec4<F>	color;
+		M::TVec4<F>	color;
 		target.SetChannels(4);
     
 		for (UINT32 x = 0; x < target.GetWidth(); x++)
@@ -106,13 +106,13 @@ template <class Nature>
 					color = outer;
 				else
 					if (dist >= 0.95)
-						Vec::interpolate(outer_ring,outer,(dist-0.95)/0.03,color);
+						M::Vec::interpolate(outer_ring,outer,(dist-0.95)/0.03,color);
 					else
 						if (dist >= 0.95-width)
-							Vec::interpolate(inner_ring,outer_ring,(dist-0.95+width)/width,color);
+							M::Vec::interpolate(inner_ring,outer_ring,(dist-0.95+width)/width,color);
 						else
 							if (dist >= 0.92-width)
-								Vec::interpolate(inner,inner_ring,(dist-0.92+width)/0.03,color);
+								M::Vec::interpolate(inner,inner_ring,(dist-0.92+width)/0.03,color);
 							else
 								color = inner;
 				target.set4f(x,y,color.v);
@@ -124,7 +124,7 @@ template <class Nature>
 	void        igVertical(GenericImage<Nature>&target, const CGColor&top, const CGColor&center, const CGColor&bottom, bool use_cos)
 	{
 		typedef typename Nature::float_type_t	F;
-		TVec4<F> c;
+		M::TVec4<F> c;
 		target.SetChannels(4);
 		for (UINT32 x = 0; x < target.GetWidth(); x++)
 			for (UINT32 y = 0; y < target.GetHeight()/2; y++)
@@ -132,7 +132,7 @@ template <class Nature>
 				F fc = (F)y/(F)target.GetHeight()*2;
 				if (use_cos)
 					fc = cosFactor(fc);
-				Vec::interpolate(bottom,center,fc,c);
+				M::Vec::interpolate(bottom,center,fc,c);
 				target.set4f(x,y,c.v);
 			}
 		for (UINT32 x = 0; x < target.GetWidth(); x++)
@@ -141,7 +141,7 @@ template <class Nature>
 				F fc = (F)((F)y-target.GetHeight()/2)/(F)target.GetHeight()*2;
 				if (use_cos)
 					fc = cosFactor(fc);
-				Vec::interpolate(center,top,fc,c);
+				M::Vec::interpolate(center,top,fc,c);
 				target.set4f(x,y,c.v);
 			}
 	}
@@ -150,7 +150,7 @@ template <class Nature>
 	void        igHorizontal(GenericImage<Nature>&target, const CGColor&top, const CGColor&center, const CGColor&bottom, bool use_cos)
 	{
 		typedef typename Nature::float_type_t	F;
-		TVec4<F> c;
+		M::TVec4<F> c;
 		target.SetChannels(4);
 		for (UINT32 x = 0; x < target.GetWidth()/2; x++)
 			for (UINT32 y = 0; y < target.GetHeight(); y++)
@@ -158,7 +158,7 @@ template <class Nature>
 				F fc = (F)x/(F)target.GetWidth()*2;
 				if (use_cos)
 					fc = cosFactor(fc);
-				Vec::interpolate(bottom,center,fc,c);
+				M::Vec::interpolate(bottom,center,fc,c);
 				target.set4f(x,y,c.v);
 			}
         
@@ -168,7 +168,7 @@ template <class Nature>
 				F fc = (F)((F)x-target.GetWidth()/2)/(F)target.GetWidth()*2;
 				if (use_cos)
 					fc = cosFactor(fc);
-				Vec::interpolate(center,top,fc,c);
+				M::Vec::interpolate(center,top,fc,c);
 				target.set4f(x,y,c.v);
 			}
 
@@ -183,13 +183,13 @@ template <class Nature>
 	void        igHorizontalCubic(GenericImage<Nature>&target, const CGColor&bottom, const CGColor&top, UINT begin, UINT width)
 	{
 		typedef typename Nature::float_type_t	F;
-		TVec4<F> c;
+		M::TVec4<F> c;
 		target.SetChannels(4);
 		for (UINT32 x = begin; x < begin + width; x++)
 		{
 			F fc = cubicStep<F, F, F>(x, begin, begin + width);
 			//sin((F)(x-begin) / width * 2 * M_PI)*0.5 + 0.5;
-			Vec::interpolate(bottom, top, fc, c);
+			M::Vec::interpolate(bottom, top, fc, c);
 
 			for (UINT32 y = 0; y < target.GetHeight(); y++)
 			{
@@ -202,13 +202,13 @@ template <class Nature>
 	void        igVerticalSinus(GenericImage<Nature>&target, const CGColor&bottom, const CGColor&top)
 	{
 		typedef typename Nature::float_type_t	F;
-		TVec4<F> c;
+		M::TVec4<F> c;
 		target.SetChannels(4);
 		for (UINT32 x = 0; x < target.GetWidth(); x++)
 			for (UINT32 y = 0; y < target.GetHeight(); y++)
 			{
 				F fc = sin((F)y/target.GetHeight()*2*M_PI)*0.5+0.5;
-				Vec::interpolate(bottom,top,fc,c);
+				M::Vec::interpolate(bottom,top,fc,c);
 				target.set4f(x,y,c.v);
 			}
 	}
@@ -219,7 +219,7 @@ template <class Nature>
 		typedef typename Nature::float_type_t	F;
 		F		half_width = target.GetWidth()/2,
 				half_height = target.GetHeight()/2;
-		TVec4<F>	color;
+		M::TVec4<F>	color;
 	
 		for (UINT32 x = 0; x < target.GetWidth(); x++)
 			for (UINT32 y = 0; y < target.GetHeight(); y++)
@@ -233,7 +233,7 @@ template <class Nature>
 				{
 					if (use_cos)
 						fc = cosFactor(fc);
-					Vec::interpolate(inner,outer,fc,color);
+					M::Vec::interpolate(inner,outer,fc,color);
 					target.set4f(x,y,color.v);
 				}
 			}
@@ -245,22 +245,22 @@ template <class Nature>
 	{
 		typedef typename Nature::float_type_t	F;
 		target.SetChannels(4);
-		TVec2<F>axis = {axis_x,axis_y},
+		M::TVec2<F>axis = {axis_x,axis_y},
 				normal = {axis_y,-axis_x};
 		F		growth = sin(angle_border*M_PI/180);
 		for (UINT32 x = 0; x < target.width(); x++)
 			for (UINT32 y = 0; y < target.height(); y++)
 			{
-				TVec2<F> f = {	(F)x/(F)(target.width()-1)*2.0f-1.0f,
+				M::TVec2<F> f = {	(F)x/(F)(target.width()-1)*2.0f-1.0f,
 								(F)y/(F)(target.height()-1)*2.0f-1.0f};
 				F alpha = 0;
-				TVec4<F>	color;
-				F len = Vec::dot(f);
+				M::TVec4<F>	color;
+				F len = M::Vec::dot(f);
 				if (len < sqr(center_radius))
 					alpha = 1;
 				else
 				{
-					F distance = (fabs(Vec::dot(normal,f))-center_radius)-fabs(Vec::dot(axis,f))*growth;
+					F distance = (fabs(M::Vec::dot(normal,f))-center_radius)-fabs(M::Vec::dot(axis,f))*growth;
 					alpha = 1.0-cosStep(distance,0,smoothing);
 				}
 				alpha *= (1/(pow(len,1)*100+1));
@@ -272,7 +272,7 @@ template <class Nature>
 			
 				alpha = vmin(alpha,1);
 			
-				Vec::interpolate(outer,inner_color,alpha,color);
+				M::Vec::interpolate(outer,inner_color,alpha,color);
 				target.set4f(x,y,color.v);
 			
 				/*
@@ -289,7 +289,7 @@ template <class Nature>
 	{
 		typedef typename Nature::float_type_t	F;
 		static const F	a0 = 0, a1 = M_PI/3.0, a2 = M_PI*2.0/3.0;
-		static const TVec2<F>	axis0 = {sin(a0),cos(a0)},
+		static const M::TVec2<F>	axis0 = {sin(a0),cos(a0)},
 								axis1 = {sin(a1),cos(a1)},
 								axis2 = {sin(a2),cos(a2)};
 
@@ -297,24 +297,24 @@ template <class Nature>
 		for (UINT32 x = 0; x < target.width(); x++)
 			for (UINT32 y = 0; y < target.height(); y++)
 			{
-				TVec2<F> f =	{(F)x/(F)(target.width()-1)*2.0f-1.0f,
+				M::TVec2<F> f =	{(F)x/(F)(target.width()-1)*2.0f-1.0f,
 								(F)y/(F)(target.height()-1)*2.0f-1.0f};
 				F alpha = 0;
-				TVec4<F>	color;
-				alpha = vmax(vmax(fabs(Vec::dot(f,axis0)),fabs(Vec::dot(f,axis1))),fabs(Vec::dot(f,axis2)))*1.2*(1.0+smoothing*2);
+				M::TVec4<F>	color;
+				alpha = vmax(vmax(fabs(M::Vec::dot(f,axis0)),fabs(M::Vec::dot(f,axis1))),fabs(M::Vec::dot(f,axis2)))*1.2*(1.0+smoothing*2);
 				if (alpha <= 1)
-					Vec::interpolate(inner,border,alpha,color);
+					M::Vec::interpolate(inner,border,alpha,color);
 				else
 				{
 					alpha = cosStep(alpha,1.0f,1.0f+smoothing);
-					Vec::interpolate(border,outer,alpha,color);
+					M::Vec::interpolate(border,outer,alpha,color);
 				}
 						//a1 = _dot2(f,axis1),
 			
 			
 			
 			
-				Vec::clamp(color,0,1);
+				M::Vec::clamp(color,0,1);
 				target.set4f(x,y,color.v);
 			}
 	}

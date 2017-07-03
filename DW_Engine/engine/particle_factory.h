@@ -14,23 +14,23 @@ namespace Engine
 
 	struct TParticle
 	{
-		TVec3<>				position;
+		M::TVec3<>				position;
 		float				size;
 	};
 
 	struct TColoredParticle:public TParticle
 	{
-		TVec4<>				color[4];
+		M::TVec4<>				color[4];
 
 		TColoredParticle()	{
 								color[0] = color[1] = color[2] = color[3] = Vector4<>::one;
 	                        }
 		void				setColor(float red, float green, float blue, float alpha)
 	                        {
-	                            Vec::def(color[0],red,green,blue,alpha);
-	                            Vec::def(color[1],red,green,blue,alpha);
-	                            Vec::def(color[2],red,green,blue,alpha);
-	                            Vec::def(color[3],red,green,blue,alpha);
+	                            M::Vec::def(color[0],red,green,blue,alpha);
+	                            M::Vec::def(color[1],red,green,blue,alpha);
+	                            M::Vec::def(color[2],red,green,blue,alpha);
+	                            M::Vec::def(color[3],red,green,blue,alpha);
 	                        }
 	};
 
@@ -53,9 +53,9 @@ namespace Engine
 			Particles()					{setup();};
 		template <class Float>
 		    void						render(const Aspect<Float>&aspect);
-		    void						renderAsLines(const TVec3<>&delta0, const TVec3<>&delta1);
-		    Particle&					add(const TVec3<>&position, float size=1);
-		    void						translate(const TVec3<>&delta);
+		    void						renderAsLines(const M::TVec3<>&delta0, const M::TVec3<>&delta1);
+		    Particle&					add(const M::TVec3<>&position, float size=1);
+		    void						translate(const M::TVec3<>&delta);
 		    void						translate(float dx, float dy, float dz);
 			void						setTexture(const typename GL::Texture::Reference&texture);
 			void						setTexture(const typename GL::Texture&texture)	{setTexture(texture.reference());}
@@ -74,7 +74,7 @@ namespace Engine
 		template <class Float>
 	        void						render(const Aspect<Float>&aspect);
 		template <class Float>
-		    void						render(const Aspect<Float>&aspect, const TVec3<>&color_override);
+		    void						render(const Aspect<Float>&aspect, const M::TVec3<>&color_override);
 		};
 
 }

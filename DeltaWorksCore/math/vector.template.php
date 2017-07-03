@@ -411,13 +411,15 @@ functions:
 	
 	max(const[] v, const[] w, [] result)
 		{Writes the component-wise maximum of <paramref>v</paramref> and <paramref>w</paramref> to <paramref>result</paramref>}
+		using Math::Max;
 		:iterate
-			result:i = Math::Max( v:i, w:i);
+			result:i = Max( v:i, w:i);
 
 	min(const[] v, const[] w, [] result)
 		{Writes the component-wise minimum of <paramref>v</paramref> and <paramref>w</paramref> to <paramref>result</paramref>}
+		using Math::Min;
 		:iterate
-			result:i = Math::Min( v:i, w:i);
+			result:i = Min( v:i, w:i);
 			
 	oneLess(const[] v, const[] w) -> bool
 		{Tests if at least one element of <paramref>v</paramref> is less than the respective element of <paramref>w</paramref>}

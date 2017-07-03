@@ -32,7 +32,7 @@ namespace DeltaWorks
 
 	
 	
-		void		TrackConnector::update(const TMatrix4<>&parent_system, bool final)
+		void		TrackConnector::update(const M::TMatrix4<>&parent_system, bool final)
 		{
 			if (segment)
 			{
@@ -42,7 +42,7 @@ namespace DeltaWorks
 				end_point = *parent;
 			
 				if (flipped)
-					Vec::mult(end_point.direction,-1);
+					M::Vec::mult(end_point.direction,-1);
 			
 				segment->changed = true;
 				segment->OnChanged(final);
@@ -62,10 +62,10 @@ namespace DeltaWorks
 		
 			if (is_outbound)
 			{
-				Vec::mult(instance->matrix.x.xyz,-1);
-				Vec::mult(instance->matrix.z.xyz,-1);
+				M::Vec::mult(instance->matrix.x.xyz,-1);
+				M::Vec::mult(instance->matrix.z.xyz,-1);
 			}
-			Vec::mad(instance->matrix.w.xyz,instance->matrix.z.xyz,offset);
+			M::Vec::mad(instance->matrix.w.xyz,instance->matrix.z.xyz,offset);
 		
 			instance->update();
 		
@@ -76,12 +76,12 @@ namespace DeltaWorks
 				const CGS::TConnector<>&cc=stub->geometry.connector_field[i];
 				TTrackNode&tn = nodes[i];
 			
-				Vec::set(tn.scale,Vec::distance(cc.p0,cc.p1)/2.0f);
-				Vec::center(cc.p0,cc.p1,tn.coordinates.remainder);
-				TVec3<> d,dir;
-				Vec::sub(cc.p0,cc.p1,d);
+				M::Vec::set(tn.scale,M::Vec::distance(cc.p0,cc.p1)/2.0f);
+				M::Vec::center(cc.p0,cc.p1,tn.coordinates.remainder);
+				M::TVec3<> d,dir;
+				M::Vec::sub(cc.p0,cc.p1,d);
 	
-				Vec::copy(cc.direction,dir);
+				M::Vec::copy(cc.direction,dir);
 
 				tn.coordinates.remainder.z += offset;
 				if (is_outbound)
@@ -95,12 +95,12 @@ namespace DeltaWorks
 				}
 			
 				Mat::transform(parent_system,tn.coordinates.remainder);
-				Vec::copy(parent->coordinates.sector,tn.coordinates.sector);
+				M::Vec::copy(parent->coordinates.sector,tn.coordinates.sector);
 				
-				Vec::cross(d,dir,tn.up);
-				Vec::normalize0(tn.up);
-				Vec::copy(dir,tn.direction);
-				Vec::normalize0(tn.direction);
+				M::Vec::cross(d,dir,tn.up);
+				M::Vec::normalize0(tn.up);
+				M::Vec::copy(dir,tn.direction);
+				M::Vec::normalize0(tn.direction);
 				/*if (is_outbound)
 				{
 					tn.direction.x *= -1;
@@ -110,7 +110,7 @@ namespace DeltaWorks
 				Mat::rotate(parent_system,tn.direction);
 				Mat::rotate(parent_system,tn.up);
 						
-				Vec::clear(tn.scale_direction);
+				M::Vec::clear(tn.scale_direction);
 			
 				if (connectors[i].segment)
 				{
@@ -119,8 +119,8 @@ namespace DeltaWorks
 					end_point = nodes[i];
 				
 					if (connectors[i].flipped)
-						Vec::mult(end_point.direction,-1);
-					//lout << "  final end point direction is "<<Vec::toString(end_point.direction)<<nl;
+						M::Vec::mult(end_point.direction,-1);
+					//lout << "  final end point direction is "<<M::Vec::toString(end_point.direction)<<nl;
 					connectors[i].segment->changed = true;
 					connectors[i].segment->OnChanged(final);
 				}
@@ -240,7 +240,7 @@ namespace DeltaWorks
 			parent->scale.x = 1;
 			parent->scale.y = 1;
 		
-			TMatrix4<> system;
+			M::TMatrix4<> system;
 			parent->makeSystem(system);
 			update(system,true);
 		
@@ -318,7 +318,7 @@ namespace DeltaWorks
 				segment_->connector[0] = this;
 				((TTrackNode&)segment_->end_point[0]) = nodes[index];
 				if (flip)
-					Vec::mult(segment_->end_point[0].direction,-1);
+					M::Vec::mult(segment_->end_point[0].direction,-1);
 
 			}
 			elif (!segment_->connector[1])
@@ -326,7 +326,7 @@ namespace DeltaWorks
 				segment_->connector[1] = this;
 				((TTrackNode&)segment_->end_point[1]) = nodes[index];
 				if (flip)
-					Vec::mult(segment_->end_point[1].direction,-1);
+					M::Vec::mult(segment_->end_point[1].direction,-1);
 			}
 			else
 				return false;
@@ -357,14 +357,14 @@ namespace DeltaWorks
 				segment_->connector[0] = this;
 				((TTrackNode&)segment_->end_point[0]) = *parent;
 				if (flip)
-					Vec::mult(segment_->end_point[0].direction,-1);
+					M::Vec::mult(segment_->end_point[0].direction,-1);
 			}
 			elif (!segment_->connector[1])
 			{
 				segment_->connector[1] = this;
 				((TTrackNode&)segment_->end_point[1]) = *parent;
 				if (flip)
-					Vec::mult(segment_->end_point[1].direction,-1);
+					M::Vec::mult(segment_->end_point[1].direction,-1);
 
 			}
 			else
@@ -463,7 +463,7 @@ namespace DeltaWorks
 			TrackConnector*connector=NULL;
 			index_t index=0;
 			float dist=Composite::distanceSquare(reference,coordinates,sector_size);
-			TVec3<>	axis;
+			M::TVec3<>	axis;
 			Composite::sub(coordinates,reference,axis,sector_size);
 			if (outbound.stub)
 			{
@@ -498,12 +498,12 @@ namespace DeltaWorks
 			{
 				slot.is_outbound = connector == &outbound;
 				slot.slot_index = index;
-				slot.flipped = Vec::dot(connector->nodes[index].direction,axis)>=0;
+				slot.flipped = M::Vec::dot(connector->nodes[index].direction,axis)>=0;
 				return true;
 			}
 			else
 			{
-				bool flip = (Vec::dot(direction,axis)<0);
+				bool flip = (M::Vec::dot(direction,axis)<0);
 				/*if (end)
 					flip = !flip;*/
 				if (!outbound.stub && !outbound.segment)
@@ -535,7 +535,7 @@ namespace DeltaWorks
 			TrackConnector*connector=NULL;
 			index_t index=0;
 			float dist=Composite::distanceSquare(reference,coordinates,sector_size);
-			TVec3<>	axis;
+			M::TVec3<>	axis;
 			Composite::sub(coordinates,reference,axis,sector_size);
 			if (outbound.stub)
 			{
@@ -568,12 +568,12 @@ namespace DeltaWorks
 
 			if (connector)
 			{
-				connector->setStubSegment(index,seg,Vec::dot(connector->nodes[index].direction,axis)<0);
+				connector->setStubSegment(index,seg,M::Vec::dot(connector->nodes[index].direction,axis)<0);
 				return true;
 			}
 			else
 			{
-				bool flip = (Vec::dot(direction,axis)<0);
+				bool flip = (M::Vec::dot(direction,axis)<0);
 				/*if (end)
 					flip = !flip;*/
 				if (!outbound.stub && !outbound.segment)
@@ -635,25 +635,25 @@ namespace DeltaWorks
 	
 	
 	
-		void	TrackNode::makeSystem(TMatrix4<>&system)	const
+		void	TrackNode::makeSystem(M::TMatrix4<>&system)	const
 		{
 			system.z.xyz = direction;
 			system.y.xyz = up;
-			Vec::cross(up,direction,system.x.xyz);
-			Vec::normalize0(system.x.xyz);
+			M::Vec::cross(up,direction,system.x.xyz);
+			M::Vec::normalize0(system.x.xyz);
 			system.w.xyz = coordinates.remainder;
 			Mat::resetBottomRow(system);
 		}
 	
 		void			TrackNode::update(bool final)
 		{
-			TMatrix4<> system;
+			M::TMatrix4<> system;
 			makeSystem(system);
 			inbound.update(system,final);
 			outbound.update(system,final);
 		}
 
-		void			TrackNode::update(const TMatrix4<>&precompiled_system, bool final)
+		void			TrackNode::update(const M::TMatrix4<>&precompiled_system, bool final)
 		{
 			inbound.update(precompiled_system,final);
 			outbound.update(precompiled_system,final);
@@ -673,33 +673,33 @@ namespace DeltaWorks
 	
 		void	TrackSegment::updateControls(float sector_size, float control_factor0, float control_factor1)
 		{
-			TVec3<>	d;
-			TVec2<>	sd;
+			M::TVec3<>	d;
+			M::TVec2<>	sd;
 			float	len,slen;
 		
-			TVec3<>	delta;
-			Vec::sub(end_point[1].coordinates.sector,end_point[0].coordinates.sector,delta);
-			Vec::mult(delta,sector_size);
+			M::TVec3<>	delta;
+			M::Vec::sub(end_point[1].coordinates.sector,end_point[0].coordinates.sector,delta);
+			M::Vec::mult(delta,sector_size);
 		
 			end_point[1].coordinates.sector = end_point[0].coordinates.sector;
-			Vec::add(end_point[1].coordinates.remainder,delta);
+			M::Vec::add(end_point[1].coordinates.remainder,delta);
 		
 		
 		
 			Composite::sub(end_point[1].coordinates,end_point[0].coordinates,d,sector_size);
-			Vec::sub(end_point[1].scale,end_point[0].scale,sd);
-			len = Vec::length(d);
-			slen = Vec::length(sd);
+			M::Vec::sub(end_point[1].scale,end_point[0].scale,sd);
+			len = M::Vec::length(d);
+			slen = M::Vec::length(sd);
 		
 			//lout << "updating segment controls with end point directions:"<<nl;
-			//lout << " "<<Vec::toString(end_point[0].direction)<<nl;
-			//lout << " "<<Vec::toString(end_point[1].direction)<<nl;
+			//lout << " "<<M::Vec::toString(end_point[0].direction)<<nl;
+			//lout << " "<<M::Vec::toString(end_point[1].direction)<<nl;
 		
-			Vec::mad(end_point[0].coordinates.remainder,end_point[0].direction,control_factor0*len,end_point[0].position_control);
+			M::Vec::mad(end_point[0].coordinates.remainder,end_point[0].direction,control_factor0*len,end_point[0].position_control);
 			end_point[0].scale_control.x = end_point[0].scale.x + end_point[0].scale_direction.x*control_factor0*(end_point[1].scale.x-end_point[0].scale.x);
 			end_point[0].scale_control.y = end_point[0].scale.y + end_point[0].scale_direction.y*control_factor0*(end_point[1].scale.y-end_point[0].scale.y);
 		
-			Vec::mad(end_point[1].coordinates.remainder,end_point[1].direction,control_factor1*len,end_point[1].position_control);
+			M::Vec::mad(end_point[1].coordinates.remainder,end_point[1].direction,control_factor1*len,end_point[1].position_control);
 			end_point[1].scale_control.x = end_point[1].scale.x + end_point[1].scale_direction.x*control_factor1*(end_point[1].scale.x-end_point[0].scale.x);
 			end_point[1].scale_control.y = end_point[1].scale.y + end_point[1].scale_direction.y*control_factor1*(end_point[1].scale.y-end_point[0].scale.y);
 		}
@@ -708,24 +708,24 @@ namespace DeltaWorks
 		void	TrackSegment::interpolate(float fc, TFrame&rs)	const
 		{
 			//cout << _toString(end_point[0].scale,2)<<", "<<_toString(end_point[0].scale_control,2)<<", "<<_toString(end_point[1].scale_control,2)<<", "<<_toString(end_point[1].scale,2)<<" ("<<fc<<") => "<<rs.position
-			Vec::resolveBezierCurvePoint(end_point[0].scale, end_point[0].scale_control, end_point[1].scale_control, end_point[1].scale, fc, rs.scale);
+			M::Vec::resolveBezierCurvePoint(end_point[0].scale, end_point[0].scale_control, end_point[1].scale_control, end_point[1].scale, fc, rs.scale);
 		
 			#if 1
-				Vec::resolveBezierCurvePoint(end_point[0].coordinates.remainder, end_point[0].position_control, end_point[1].position_control, end_point[1].coordinates.remainder, fc, rs.position);
-				Vec::resolveBezierCurveAxis(end_point[0].coordinates.remainder, end_point[0].position_control, end_point[1].position_control, end_point[1].coordinates.remainder, fc, rs.system.z);
+				M::Vec::resolveBezierCurvePoint(end_point[0].coordinates.remainder, end_point[0].position_control, end_point[1].position_control, end_point[1].coordinates.remainder, fc, rs.position);
+				M::Vec::resolveBezierCurveAxis(end_point[0].coordinates.remainder, end_point[0].position_control, end_point[1].position_control, end_point[1].coordinates.remainder, fc, rs.system.z);
 			#else
-				Vec::resolveUCBS(end_point[0].coordinates.remainder, end_point[0].position_control, end_point[1].position_control, end_point[1].coordinates.remainder, fc, rs.position);
-				Vec::resolveUCBSaxis(end_point[0].coordinates.remainder, end_point[0].position_control, end_point[1].position_control, end_point[1].coordinates.remainder, fc, rs.system.z);
+				M::Vec::resolveUCBS(end_point[0].coordinates.remainder, end_point[0].position_control, end_point[1].position_control, end_point[1].coordinates.remainder, fc, rs.position);
+				M::Vec::resolveUCBSaxis(end_point[0].coordinates.remainder, end_point[0].position_control, end_point[1].position_control, end_point[1].coordinates.remainder, fc, rs.system.z);
 			#endif
 		
 		
-			Vec::normalize0(rs.system.z);
-			Vec::mult(rs.system.z,-1);
-			Vec::interpolate(end_point[0].up,end_point[1].up,fc,rs.system.y);
-			Vec::cross(rs.system.y,rs.system.z,rs.system.x);
-			Vec::normalize0(rs.system.x);
-			Vec::cross(rs.system.z,rs.system.x,rs.system.y);
-			Vec::normalize0(rs.system.y);
+			M::Vec::normalize0(rs.system.z);
+			M::Vec::mult(rs.system.z,-1);
+			M::Vec::interpolate(end_point[0].up,end_point[1].up,fc,rs.system.y);
+			M::Vec::cross(rs.system.y,rs.system.z,rs.system.x);
+			M::Vec::normalize0(rs.system.x);
+			M::Vec::cross(rs.system.z,rs.system.x,rs.system.y);
+			M::Vec::normalize0(rs.system.y);
 		}
 
 
@@ -781,27 +781,27 @@ namespace DeltaWorks
 			geometry.resetLinkage();
 
 		
-			ASSERT2__(Vec::equal(end_point[0].coordinates.sector,end_point[1].coordinates.sector),Vec::toString(end_point[0].coordinates.sector),Vec::toString(end_point[1].coordinates.sector));
+			ASSERT2__(M::Vec::equal(end_point[0].coordinates.sector,end_point[1].coordinates.sector),M::Vec::toString(end_point[0].coordinates.sector),M::Vec::toString(end_point[1].coordinates.sector));
 		
 			/*TFrame		frame[Resolution];
 			for (index_t i = 0; i < Resolution; i++)*/
 		
-			TVec3<>	range = source.dim.GetExtent();
+			M::TVec3<>	range = source.dim.GetExtent();
 		
 			//::lout << "bending segment with"<<nl;
-			//lout << " dim="<<Vec::toString(source.dim.lower)<<'-'<<Vec::toString(source.dim.upper)<<nl;
+			//lout << " dim="<<M::Vec::toString(source.dim.lower)<<'-'<<M::Vec::toString(source.dim.upper)<<nl;
 			#undef REPORT
-			#define REPORT(CON)	{}	//lout << " "#CON":"<<nl<<"  .coordinates="<<CON.coordinates.ToString()<<nl<<"  .position_control="<<Vec::toString(CON.position_control)<<nl<<"  .scale="<<Vec::toString(CON.scale)<<nl<<"  .scale_control="<<Vec::toString(CON.scale_control)<<nl;
+			#define REPORT(CON)	{}	//lout << " "#CON":"<<nl<<"  .coordinates="<<CON.coordinates.ToString()<<nl<<"  .position_control="<<M::Vec::toString(CON.position_control)<<nl<<"  .scale="<<M::Vec::toString(CON.scale)<<nl<<"  .scale_control="<<M::Vec::toString(CON.scale_control)<<nl;
 			REPORT(end_point[0])
 			REPORT(end_point[1])
 		
 			float stretch = (end_point[0].scale.x+end_point[1].scale.x)/2.0;	//average stretch
 
-			float spline_length = Vec::distance(end_point[0].coordinates.remainder,end_point[1].coordinates.remainder);
+			float spline_length = M::Vec::distance(end_point[0].coordinates.remainder,end_point[1].coordinates.remainder);
 
-			TVec3<>	center;
+			M::TVec3<>	center;
 
-			Vec::center(end_point[0].coordinates.remainder,end_point[1].coordinates.remainder,center);
+			M::Vec::center(end_point[0].coordinates.remainder,end_point[1].coordinates.remainder,center);
 		
 			//lout << " stretch="<<stretch<<nl;
 		
@@ -840,17 +840,17 @@ namespace DeltaWorks
 					{
 					//for (UINT32 k = 0; k < robj.vpool.vcnt; k++)
 					//{
-						TVec3<> p,n,t;
+						M::TVec3<> p,n,t;
 						float	*vfield = target_robj.vpool.vdata + vsize*k;
 						float	*v=vfield;
-						Mat::transform(source_robj.target->path,Vec::ref3(v),p);	v+=3;
+						Mat::transform(source_robj.target->path,M::Vec::ref3(v),p);	v+=3;
 						if (source_robj.vpool.vflags&CGS::HasNormalFlag)
 						{
-							Mat::rotate(source_robj.target->path,Vec::ref3(v),n); v+=3;
+							Mat::rotate(source_robj.target->path,M::Vec::ref3(v),n); v+=3;
 						}
 						if (source_robj.vpool.vflags&CGS::HasTangentFlag)
 						{
-							Mat::rotate(source_robj.target->path,Vec::ref3(v),t); v+=3;
+							Mat::rotate(source_robj.target->path,M::Vec::ref3(v),t); v+=3;
 						}
 					
 						for (UINT l = repeat-1; l < repeat; l--)
@@ -861,29 +861,29 @@ namespace DeltaWorks
 							TFrame vec;
 							interpolate(rel,vec);
 							{
-								TVec3<>&ref = Vec::ref3(vout);
-								Vec::mad(vec.position,vec.system.x,p.x*vec.scale.x, ref);
-								Vec::mad(ref,vec.system.y,p.y*vec.scale.y);
-								Vec::sub(ref,center);
+								M::TVec3<>&ref = M::Vec::ref3(vout);
+								M::Vec::mad(vec.position,vec.system.x,p.x*vec.scale.x, ref);
+								M::Vec::mad(ref,vec.system.y,p.y*vec.scale.y);
+								M::Vec::sub(ref,center);
 							}
 							vout+=3;
 						
 							if (source_robj.vpool.vflags&CGS::HasNormalFlag)
 							{
-								TVec3<> n2,n3;
-								Vec::def(n2,n.x*vec.scale.y/vec.scale.x,n.y*vec.scale.x/vec.scale.y,n.z);
-								Mat::Mult(vec.system,n2,Vec::ref3(vout));
-								Vec::normalize0(Vec::ref3(vout));
-								//Vec::copy(vec.system.x,Vec::ref3(vout));
+								M::TVec3<> n2,n3;
+								M::Vec::def(n2,n.x*vec.scale.y/vec.scale.x,n.y*vec.scale.x/vec.scale.y,n.z);
+								Mat::Mult(vec.system,n2,M::Vec::ref3(vout));
+								M::Vec::normalize0(M::Vec::ref3(vout));
+								//M::Vec::copy(vec.system.x,M::Vec::ref3(vout));
 								vout += 3;
 							}
 							if (source_robj.vpool.vflags&CGS::HasTangentFlag)
 							{
-								TVec3<> t2,t3;
-								Vec::def(t2,	t.x*vec.scale.y/vec.scale.x,t.y*vec.scale.x/vec.scale.y,t.z);
-								Mat::Mult(vec.system,t2,Vec::ref3(vout));
-								Vec::normalize0(Vec::ref3(vout));
-								//Vec::copy(vec.system.x,Vec::ref3(vout));
+								M::TVec3<> t2,t3;
+								M::Vec::def(t2,	t.x*vec.scale.y/vec.scale.x,t.y*vec.scale.x/vec.scale.y,t.z);
+								Mat::Mult(vec.system,t2,M::Vec::ref3(vout));
+								M::Vec::normalize0(M::Vec::ref3(vout));
+								//M::Vec::copy(vec.system.x,M::Vec::ref3(vout));
 								vout += 3;
 							}
 							/*if (scale_texture)
@@ -897,10 +897,10 @@ namespace DeltaWorks
 								}
 							}
 							else*/
-								Vec::copyD(v,vout,2*source_robj.vpool.vlyr);
+								M::Vec::copyD(v,vout,2*source_robj.vpool.vlyr);
 						}
 						/*for (index_t l = 1; l < repeat; l++)
-							Vec::copyD(vfield+3+3,vfield+l*frame_length+3+3,source_robj.vpool.vlyr*2);*/
+							M::Vec::copyD(vfield+3+3,vfield+l*frame_length+3+3,source_robj.vpool.vlyr*2);*/
 						//vfield += vsize;
 					});
 					target_robj.vpool.vcnt*=repeat;
@@ -947,7 +947,7 @@ namespace DeltaWorks
 				ASSERT_EQUAL__(objects[i]->vs_hull_field.length(),source_objects[i]->vs_hull_field.length());	//TRANSITORY
 
 				objects[i]->meta.shortest_edge_length = source_objects[i]->meta.shortest_edge_length * spline_length / repeat;
-				const TMatrix4<CGS::StdDef::SystemType>&path = source_objects[i]->path;
+				const M::TMatrix4<CGS::StdDef::SystemType>&path = source_objects[i]->path;
 
 				for (index_t j = 0; j < objects[i]->vs_hull_field.length(); j++)
 				{
@@ -1031,11 +1031,11 @@ namespace DeltaWorks
 			connector[0] = NULL;
 			connector[1] = NULL;
 
-			TVec3<> axis;
+			M::TVec3<> axis;
 			Composite::sub(to_.parent->coordinates,from_.parent->coordinates,axis,sector_size);
 			
-			from_.setSegment(this,Vec::dot(from_.parent->direction,axis)<0);
-			to_.setSegment(this,Vec::dot(to_.parent->direction,axis)<0);
+			from_.setSegment(this,M::Vec::dot(from_.parent->direction,axis)<0);
+			to_.setSegment(this,M::Vec::dot(to_.parent->direction,axis)<0);
 		}
 	
 		void	TrackSegment::connectStub(TrackConnector&from_, index_t stub_connector, TrackConnector&to_, float sector_size)
@@ -1049,13 +1049,13 @@ namespace DeltaWorks
 			connector[0] = NULL;
 			connector[1] = NULL;
 
-			TVec3<> axis;
+			M::TVec3<> axis;
 			Composite::sub(to_.parent->coordinates,from_.parent->coordinates,axis, sector_size);
 		
-			if (!from_.setStubSegment(stub_connector,this,Vec::dot(from_.nodes[stub_connector].direction,axis)<0))
+			if (!from_.setStubSegment(stub_connector,this,M::Vec::dot(from_.nodes[stub_connector].direction,axis)<0))
 				return;
 		
-			to_.setSegment(this,Vec::dot(to_.parent->direction,axis)<0);
+			to_.setSegment(this,M::Vec::dot(to_.parent->direction,axis)<0);
 		
 		}
 	
@@ -1071,11 +1071,11 @@ namespace DeltaWorks
 			connector[0] = NULL;
 			connector[1] = NULL;
 
-			TVec3<> axis;
+			M::TVec3<> axis;
 			Composite::sub(to_.parent->coordinates,from_.parent->coordinates,axis,sector_size);
 		
-			from_.setSegment(this,Vec::dot(from_.parent->direction,axis)<0);
-			if (!to_.setStubSegment(stub_connector,this,Vec::dot(to_.nodes[stub_connector].direction,axis)<0))
+			from_.setSegment(this,M::Vec::dot(from_.parent->direction,axis)<0);
+			if (!to_.setStubSegment(stub_connector,this,M::Vec::dot(to_.nodes[stub_connector].direction,axis)<0))
 				return;
 		}
 	
@@ -1090,13 +1090,13 @@ namespace DeltaWorks
 			connector[0] = NULL;
 			connector[1] = NULL;
 
-			TVec3<> axis;
+			M::TVec3<> axis;
 			Composite::sub(to_.parent->coordinates,from_.parent->coordinates,axis,sector_size);
 		
-			if (!from_.setStubSegment(from_stub_connector,this,Vec::dot(from_.nodes[from_stub_connector].direction,axis)<0))
+			if (!from_.setStubSegment(from_stub_connector,this,M::Vec::dot(from_.nodes[from_stub_connector].direction,axis)<0))
 				return;
 		
-			if (!to_.setStubSegment(to_stub_connector,this,Vec::dot(to_.nodes[to_stub_connector].direction,axis)<0))
+			if (!to_.setStubSegment(to_stub_connector,this,M::Vec::dot(to_.nodes[to_stub_connector].direction,axis)<0))
 				return;
 		}
 	

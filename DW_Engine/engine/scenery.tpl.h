@@ -219,9 +219,9 @@ namespace Engine
 
 	template <class Def> void ObjectEntity<Def>::rescale()
 	{
-		TVec3<typename Def::FloatType>	len = {	(typename Def::FloatType)Vec::length(system->x.xyz),
-												(typename Def::FloatType)Vec::length(system->y.xyz),
-												(typename Def::FloatType)Vec::length(system->z.xyz)};
+		M::TVec3<typename Def::FloatType>	len = {	(typename Def::FloatType)M::Vec::length(system->x.xyz),
+												(typename Def::FloatType)M::Vec::length(system->y.xyz),
+												(typename Def::FloatType)M::Vec::length(system->z.xyz)};
 	    sys_scale = (len.x + len.y + len.z)/3;
 		typename Def::FloatType r_scale = std::max(std::max(len.x,len.y),len.z);
 	    radius = src_radius*r_scale;
@@ -230,30 +230,30 @@ namespace Engine
 		scaled_dim.y.Scale(len.y);
 		scaled_dim.z.Scale(len.z);
 
-	    //sys_scale = (typename Def::FloatType)(Vec::length(system->x.xyz)+Vec::length(system->y.xyz)+Vec::length(system->z.xyz))/3;
+	    //sys_scale = (typename Def::FloatType)(M::Vec::length(system->x.xyz)+M::Vec::length(system->y.xyz)+M::Vec::length(system->z.xyz))/3;
 	    updateCage();
 	}
 
 	template <class Def> void ObjectEntity<Def>::updateCage()
 	{
 		const auto& dim = scaled_dim;
-	    Vec::def(cage[0],dim.x.min,dim.y.min,dim.z.min,1);
-	    Vec::def(cage[1],dim.x.min,dim.y.min,dim.z.max,1);
-	    Vec::def(cage[2],dim.x.min,dim.y.max,dim.z.min,1);
-	    Vec::def(cage[3],dim.x.min,dim.y.max,dim.z.max,1);
-	    Vec::def(cage[4],dim.x.max,dim.y.min,dim.z.min,1);
-	    Vec::def(cage[5],dim.x.max,dim.y.min,dim.z.max,1);
-	    Vec::def(cage[6],dim.x.max,dim.y.max,dim.z.min,1);
-	    Vec::def(cage[7],dim.x.max,dim.y.max,dim.z.max,1);
+	    M::Vec::def(cage[0],dim.x.min,dim.y.min,dim.z.min,1);
+	    M::Vec::def(cage[1],dim.x.min,dim.y.min,dim.z.max,1);
+	    M::Vec::def(cage[2],dim.x.min,dim.y.max,dim.z.min,1);
+	    M::Vec::def(cage[3],dim.x.min,dim.y.max,dim.z.max,1);
+	    M::Vec::def(cage[4],dim.x.max,dim.y.min,dim.z.min,1);
+	    M::Vec::def(cage[5],dim.x.max,dim.y.min,dim.z.max,1);
+	    M::Vec::def(cage[6],dim.x.max,dim.y.max,dim.z.min,1);
+	    M::Vec::def(cage[7],dim.x.max,dim.y.max,dim.z.max,1);
 	    /*
-	    Vec::multiply(cage[0],sys_scale);
-	    Vec::multiply(cage[1],sys_scale);
-	    Vec::multiply(cage[2],sys_scale);
-	    Vec::multiply(cage[3],sys_scale);
-	    Vec::multiply(cage[4],sys_scale);
-	    Vec::multiply(cage[5],sys_scale);
-	    Vec::multiply(cage[6],sys_scale);
-	    Vec::multiply(cage[7],sys_scale);*/
+	    M::Vec::multiply(cage[0],sys_scale);
+	    M::Vec::multiply(cage[1],sys_scale);
+	    M::Vec::multiply(cage[2],sys_scale);
+	    M::Vec::multiply(cage[3],sys_scale);
+	    M::Vec::multiply(cage[4],sys_scale);
+	    M::Vec::multiply(cage[5],sys_scale);
+	    M::Vec::multiply(cage[6],sys_scale);
+	    M::Vec::multiply(cage[7],sys_scale);*/
 	}
 
 
@@ -297,9 +297,9 @@ namespace Engine
 
 	template <class Def> void StructureEntity<Def>::rescale()
 	{
-		TVec3<typename Def::FloatType>	len = {	(typename Def::FloatType)Vec::length(system->x.xyz),
-												(typename Def::FloatType)Vec::length(system->y.xyz),
-												(typename Def::FloatType)Vec::length(system->z.xyz)};
+		M::TVec3<typename Def::FloatType>	len = {	(typename Def::FloatType)M::Vec::length(system->x.xyz),
+												(typename Def::FloatType)M::Vec::length(system->y.xyz),
+												(typename Def::FloatType)M::Vec::length(system->z.xyz)};
 	    sys_scale = (len.x + len.y + len.z)/3;
 		typename Def::FloatType r_scale = std::max(std::max(len.x,len.y),len.z);
 	    radius = src_radius*r_scale;
@@ -361,13 +361,13 @@ namespace Engine
 
 	    for (unsigned i = 0; i < ident.detail_layer_field.length(); i++)
 	    {
-	        Vec::add(ident.detail_layer_field[i].idata.pointer(),v_offset,i_out + i_offset,ident.detail_layer_field[i].idata.length());
+	        M::Vec::add(ident.detail_layer_field[i].idata.pointer(),v_offset,i_out + i_offset,ident.detail_layer_field[i].idata.length());
 	        offset[i] = i_offset;
 	        i_offset+=ident.detail_layer_field[i].idata.length();
 	    }
 	    
 		SCENERY_LOG("vertex-pool does not have additional data");
-		Vec::copy(ident.vpool.vdata.pointer(),v_out + v_offset*vsize,ident.vpool.vlen());
+		M::Vec::copy(ident.vpool.vdata.pointer(),v_out + v_offset*vsize,ident.vpool.vlen());
 		checkRange(v_out+v_offset*vsize,ident.vpool.vlen(),warn_out);
 
 		
@@ -541,12 +541,12 @@ namespace Engine
 						if (warn_out)
 							(*warn_out) << "vsize mismatch (should be "+String(vertex_size)+" but is "+String(robj->vpool.vsize())+"("+String(robj->vpool.vsize())+"))";
 
-				    Vec::addValD(robj->ipool.idata.pointer(),v_offset,buffer.index_field + i_offset,robj->ipool.idata.length());
+				    M::Vec::addValD(robj->ipool.idata.pointer(),v_offset,buffer.index_field + i_offset,robj->ipool.idata.length());
 				    
 					if (vertex_size == robj->vpool.vsize())
 					{
 						SCENERY_LOG("same vertex size detected. copying "+String(robj->vpool.vlen())+" floats");
-						Vec::copyD(robj->vpool.vdata.pointer(),buffer.vertex_field + v_offset*vertex_size,robj->vpool.vlen());
+						M::Vec::copyD(robj->vpool.vdata.pointer(),buffer.vertex_field + v_offset*vertex_size,robj->vpool.vlen());
 					}
 					else
 					{
@@ -807,9 +807,9 @@ namespace Engine
 	                    if (now[k] == last[l])
 	                        matches++;
 	            copy3(&buffer.vertex_field[now[0]*vsize],nowp);
-	            Vec::add(nowp,&buffer.vertex_field[now[1]*vsize]);
-	            Vec::add(nowp,&buffer.vertex_field[now[2]*vsize]);
-	            Vec::divide(nowp,3);
+	            M::Vec::add(nowp,&buffer.vertex_field[now[1]*vsize]);
+	            M::Vec::add(nowp,&buffer.vertex_field[now[2]*vsize]);
+	            M::Vec::divide(nowp,3);
 	            if (matches == 2)
 	            {
 	                copy3(lastp,out.append(SHIELDED_ARRAY(new typename Def::FloatType[3],3)));
@@ -1364,9 +1364,9 @@ namespace Engine
 	template <class C0, class C1, class C2>
 	void Scenery<GL,Def>::Resolve(const Aspect<C0>&aspect, const C1&visual_range,const C2&resolutionModifier)
 	{
-	    TMatrix4<C0>	matrix,path;
-		TVec4<C0>		cage[8];
-		TVec3<C0>		box0={-1,-1,-1},
+	    M::TMatrix4<C0>	matrix,path;
+		M::TVec4<C0>		cage[8];
+		M::TVec3<C0>		box0={-1,-1,-1},
 						box1={1,1,1},
 						center,
 						lower,
@@ -1382,7 +1382,7 @@ namespace Engine
 	            continue;
 	        }
 	        Mat::transform(aspect.view,entity->system->w.xyz,center);
-	        C0   distance = clamped(Vec::length(center)-entity->radius,0,100000);
+	        C0   distance = clamped(M::Vec::length(center)-entity->radius,0,100000);
 	        if (!(entity->config & StructureConfig::AlwaysHighestDetail))
 	            entity->detail = EstimateLOD(aspect,distance,entity->shortest_edge_length*entity->sys_scale,resolutionModifier);
 	        else
@@ -1400,7 +1400,7 @@ namespace Engine
 		            for (BYTE k = 0; k < 8; k++)
 		            {
 		                Mat::Mult(path,oentity->cage[k],cage[k]);
-		                Vec::divide(cage[k].xyz,cage[k].w);
+		                M::Vec::divide(cage[k].xyz,cage[k].w);
 		            }
 		            lower.x = vmin(vmin(vmin(cage[0].x,cage[1].x),vmin(cage[2].x,cage[3].x)),vmin(vmin(cage[4].x,cage[5].x),vmin(cage[6].x,cage[7].x)));
 		            lower.y = vmin(vmin(vmin(cage[0].y,cage[1].y),vmin(cage[2].y,cage[3].y)),vmin(vmin(cage[4].y,cage[5].y),vmin(cage[6].y,cage[7].y)));
@@ -1408,7 +1408,7 @@ namespace Engine
 		            upper.x = vmax(vmax(vmax(cage[0].x,cage[1].x),vmax(cage[2].x,cage[3].x)),vmax(vmax(cage[4].x,cage[5].x),vmax(cage[6].x,cage[7].x)));
 		            upper.y = vmax(vmax(vmax(cage[0].y,cage[1].y),vmax(cage[2].y,cage[3].y)),vmax(vmax(cage[4].y,cage[5].y),vmax(cage[6].y,cage[7].y)));
 		            upper.z = vmax(vmax(vmax(cage[0].z,cage[1].z),vmax(cage[2].z,cage[3].z)),vmax(vmax(cage[4].z,cage[5].z),vmax(cage[6].z,cage[7].z)));
-		            bool out =  (Vec::oneGreater(lower,box1) || Vec::oneLess(upper,box0));
+		            bool out =  (M::Vec::oneGreater(lower,box1) || M::Vec::oneLess(upper,box0));
 		            oentity->visible = !out;
 				}
 			}
@@ -1425,7 +1425,7 @@ namespace Engine
 		
 
 	    //C0   matrix[16],path[16],cage[8][4],box0[3]={-1,-1,-1},box1[3]={1,1,1},center[3],lower[3],upper[3];
-		TVec3<C0> center;
+		M::TVec3<C0> center;
 
 	    structures.reset();
 	    while (StructureEntity<Def>*entity = structures.each())
@@ -1436,7 +1436,7 @@ namespace Engine
 	            continue;
 	        }
 	        Mat::transform(aspect.view,entity->system->w.xyz,center);
-	        C0   distance = clamped(Vec::length(center)-entity->radius,0,100000);
+	        C0   distance = clamped(M::Vec::length(center)-entity->radius,0,100000);
 	        if (!(entity->config & StructureConfig::AlwaysHighestDetail))
 	            entity->detail = EstimateLOD(aspect,distance,entity->shortest_edge_length*entity->sys_scale,resolutionModifier);
 	        else
@@ -1794,16 +1794,16 @@ namespace Engine
 				has_children = false;
 			}
 	        dominating = source->first()->structure;
-			Vec::clear(split);
+			M::Vec::clear(split);
 	        source->reset();
 	        while (Object*section = source->each())
 	        {
-				Box<Float> box;
+				M::Box<Float> box;
 				box.SetCenter(section->system->w.xyz,section->radius);
 				if (!volume.Intersects(box))
 	                continue;
 
-				Vec::add(split,section->system->w.xyz);
+				M::Vec::add(split,section->system->w.xyz);
 	            elements.insert(section);
 	            if (dominating != section->structure)
 	                dominating = NULL;
@@ -1813,11 +1813,11 @@ namespace Engine
 				SCENERY_END
 	            return;
 			}
-			Vec::div(split,elements.count());
+			M::Vec::div(split,elements.count());
 
 			BYTE greatest(0),collapsed(0);
 			Float greatest_range(0);
-			TVec3<Float>	new_split;
+			M::TVec3<Float>	new_split;
 			for (BYTE k = 0; k < 3; k++)
 			{
 				Float delta = (volume.axis[k].max-volume.axis[k].min);
@@ -1890,7 +1890,7 @@ namespace Engine
 							(BYTE)(k % 4 / 2),
 							(BYTE)(k % 4 % 2)};
 				bool collapsed(false);
-				TVec3<typename Def::FloatType>	min,max,out_min,out_max;
+				M::TVec3<typename Def::FloatType>	min,max,out_min,out_max;
 				volume.GetMin(min);
 				volume.GetMax(max);
 
@@ -1957,7 +1957,7 @@ namespace Engine
 	                Object*object = elements[i];
 					if (object->structure == exclude)
 						continue;
-					Box<Float> box;
+					M::Box<Float> box;
 					box.SetCenter(object->system->w.xyz,object->radius);
 					if (!volume.Intersects(box))
 	                    continue;
@@ -1991,8 +1991,8 @@ namespace Engine
 			SCENERY_BEGIN
 	        const count_t cnt = elements.count();
 			
-			TVec3<Float> center;
-			Vec::center(volume.lower,volume.upper,center);
+			M::TVec3<Float> center;
+			M::Vec::center(volume.lower,volume.upper,center);
 			
 			typename Frustum<T>::Visibility vs = space.checkSphereVisibility(center,_distance(volume.lower,center));
 			//space.checkBoxVisibility(volume.lower,volume.upper);
@@ -2121,7 +2121,7 @@ namespace Engine
 			{
 				//elements.insert(object);
 				//_add(center,object->system+12);
-				Box<Float> box;
+				M::Box<Float> box;
 				box.SetCenter(object->system->w.xyz,object->radius);
 				volume.Include(box);
 				/*float absolute[3];
@@ -2236,7 +2236,7 @@ namespace Engine
 		}
 		
 	template <class Def>
-		const TVec3<typename Def::FloatType>&						SceneryTree<Def>::getSplitVector()
+		const M::TVec3<typename Def::FloatType>&						SceneryTree<Def>::getSplitVector()
 		{
 			return split;
 		}
@@ -2480,7 +2480,7 @@ namespace Engine
 		}
 		
 	template <class GL, class Def> template <typename T>
-		void 			MappedScenery<GL,Def>::lookup(const Box<T>&box, Buffer<ObjectEntity<Def>*>&out, const StructureEntity<Def>*exclude)
+		void 			MappedScenery<GL,Def>::lookup(const M::Box<T>&box, Buffer<ObjectEntity<Def>*>&out, const StructureEntity<Def>*exclude)
 		{
 			tree.lookup(box, out, exclude);
 		}
@@ -2530,7 +2530,7 @@ namespace Engine
 
 		    //C0   matrix[16],path[16],cage[8][4],box0[3]={-1,-1,-1},box1[3]={1,1,1},center[3],lower[3],upper[3];
 		    //__mult4(aspect.projection,aspect.view,matrix);
-			TVec3<C0> center;
+			M::TVec3<C0> center;
 		
 			structure_buffer.reset();
 			object_buffer.reset();
@@ -2580,15 +2580,15 @@ namespace Engine
 
 		
 	template <class GL, class Def> template <class C0, class C1, class C2, class C3>
-		ObjectEntity<Def>*	MappedScenery<GL,Def>::lookupClosest(const TVec3<C0>&center, const C1&radius, TVec3<C2>&position_out, TVec3<C3>&normal_out)
+		ObjectEntity<Def>*	MappedScenery<GL,Def>::lookupClosest(const M::TVec3<C0>&center, const C1&radius, M::TVec3<C2>&position_out, M::TVec3<C3>&normal_out)
 		{
 			SCENERY_BEGIN
 			C0 least_distance(1000000000);
 			ObjectEntity<Def>*	closest_entity(NULL);
 			
 			typename SceneryTree<Def>::Volume volume;
-			Vec::subVal(center,radius,volume.lower);
-			Vec::addVal(center,radius,volume.upper);
+			M::Vec::subVal(center,radius,volume.lower);
+			M::Vec::addVal(center,radius,volume.upper);
 			static Buffer<ObjectEntity<Def>*> obj_buffer;
 			obj_buffer.reset();
 			tree.lookup(volume,obj_buffer);
@@ -2606,71 +2606,71 @@ namespace Engine
 					obj.map = obj.buildMap(O_ALL,4);
 					
 					for (index_t i = 0; i < obj.vertex_field.length(); i++)
-						Vec::clear(obj.vertex_field[i].normal);
+						M::Vec::clear(obj.vertex_field[i].normal);
 					for (index_t i = 0; i < obj.triangle_field.length(); i++)
 					{
 						MeshTriangle<VsDef>&t = obj.triangle_field[i];
 						Obj::triangleNormal(t.v0->position,t.v1->position,t.v2->position,t.normal);
-						Vec::add(t.v0->normal,t.normal);
-						Vec::add(t.v1->normal,t.normal);
-						Vec::add(t.v2->normal,t.normal);
-						Vec::normalize0(t.normal);
+						M::Vec::add(t.v0->normal,t.normal);
+						M::Vec::add(t.v1->normal,t.normal);
+						M::Vec::add(t.v2->normal,t.normal);
+						M::Vec::normalize0(t.normal);
 					}
 					for (index_t i = 0; i < obj.quad_field.length(); i++)
 					{
 						MeshQuad<VsDef>&q = obj.quad_field[i];
 						Obj::triangleNormal(q.v0->position,q.v1->position,q.v2->position,q.normal[0]);
-						Vec::add(q.v0->normal,q.normal[0]);
-						Vec::add(q.v1->normal,q.normal[0]);
-						Vec::add(q.v2->normal,q.normal[0]);
+						M::Vec::add(q.v0->normal,q.normal[0]);
+						M::Vec::add(q.v1->normal,q.normal[0]);
+						M::Vec::add(q.v2->normal,q.normal[0]);
 						Obj::triangleNormal(q.v0->position,q.v2->position,q.v3->position,q.normal[1]);
-						Vec::add(q.v0->normal,q.normal[1]);
-						Vec::add(q.v2->normal,q.normal[1]);
-						Vec::add(q.v3->normal,q.normal[1]);
-						Vec::normalize0(q.normal[0]);
-						Vec::normalize0(q.normal[1]);
+						M::Vec::add(q.v0->normal,q.normal[1]);
+						M::Vec::add(q.v2->normal,q.normal[1]);
+						M::Vec::add(q.v3->normal,q.normal[1]);
+						M::Vec::normalize0(q.normal[0]);
+						M::Vec::normalize0(q.normal[1]);
 					}
 					for (index_t i = 0; i < obj.vertex_field.length(); i++)
-						Vec::normalize0(obj.vertex_field[i].normal);
+						M::Vec::normalize0(obj.vertex_field[i].normal);
 					for (index_t i = 0; i < obj.edge_field.length(); i++)
 					{
 						MeshEdge<VsDef>&e = obj.edge_field[i];
-						Vec::clear(e.normal);
+						M::Vec::clear(e.normal);
 						if (e.n[0])
 						{
 							if (e.n[0].is_quad)
 							{
-								Vec::mult(e.n[0].quad->normal[0],0.5,e.normal);
-								Vec::mad(e.normal,e.n[0].quad->normal[1],0.5);
+								M::Vec::mult(e.n[0].quad->normal[0],0.5,e.normal);
+								M::Vec::mad(e.normal,e.n[0].quad->normal[1],0.5);
 							}
 							else
-								Vec::copy(e.n[0].triangle->normal,e.normal);
+								M::Vec::copy(e.n[0].triangle->normal,e.normal);
 						}
 						if (e.n[1])
 						{
 							if (e.n[1].is_quad)
 							{
-								Vec::mad(e.normal,e.n[1].quad->normal[0],0.5);
-								Vec::mad(e.normal,e.n[1].quad->normal[1],0.5);
+								M::Vec::mad(e.normal,e.n[1].quad->normal[0],0.5);
+								M::Vec::mad(e.normal,e.n[1].quad->normal[1],0.5);
 							}
 							else
-								Vec::add(e.normal,e.n[1].triangle->normal);
+								M::Vec::add(e.normal,e.n[1].triangle->normal);
 						}
-						Vec::normalize0(e.normal);
+						M::Vec::normalize0(e.normal);
 					}
 				}
 					
-				TVec3<C0> inner_center;
+				M::TVec3<C0> inner_center;
 				if (!entity->invert_set)
 				{
 					Mat::invertSystem(entity->system,entity->invert);
 					entity->invert_set = true;
 				}
 				Mat::transform(entity->invert,center,inner_center);
-				Box<typename VsDef::Type> inner_volume;
+				M::Box<typename VsDef::Type> inner_volume;
 				inner_volume.SetCenter(inner_center,radius);
-				//Vec::sub(inner_center,radius,inner_volume.lower);
-				//Vec::add(inner_center,radius,inner_volume.upper);
+				//M::Vec::sub(inner_center,radius,inner_volume.lower);
+				//M::Vec::add(inner_center,radius,inner_volume.upper);
 				unsigned cnt = obj.map->lookup(inner_volume);
 				if (!cnt)
 					continue;
@@ -2688,7 +2688,7 @@ namespace Engine
 				{
 					for (unsigned i = 0; i < cnt; i++)
 					{
-						C0 dist = Vec::quadraticDistance(vbuffer[i]->position,inner_center);
+						C0 dist = M::Vec::quadraticDistance(vbuffer[i]->position,inner_center);
 						if (dist < least_distance)
 						{
 							least_distance = dist;
@@ -2704,9 +2704,9 @@ namespace Engine
 					for (unsigned i = 0; i < cnt; i++)
 					{
 						MeshTriangle<VsDef>*t = tbuffer[i];
-						TVec3<C0> factors,e1,e2;
-						Vec::mad(inner_center,tbuffer[i]->normal,-radius,e2);
-						Vec::mad(inner_center,tbuffer[i]->normal,radius,e1);
+						M::TVec3<C0> factors,e1,e2;
+						M::Vec::mad(inner_center,tbuffer[i]->normal,-radius,e2);
+						M::Vec::mad(inner_center,tbuffer[i]->normal,radius,e1);
 						if (!_oDetTriangleEdgeIntersection(t->v0->position,t->v1->position,t->v2->position,e1,e2,factors))
 							continue;
 						if (!_oValidTriangleEdgeIntersection(factors))
@@ -2715,7 +2715,7 @@ namespace Engine
 						if (sqr(factors.z*radius) < least_distance)
 						{
 							least_distance = sqr(factors.z*radius);
-							Vec::mad(inner_center,tbuffer[i]->normal,-factors[2]*radius,e2);
+							M::Vec::mad(inner_center,tbuffer[i]->normal,-factors[2]*radius,e2);
 							Mat::transform(entity->system,e2,position_out);
 							Mat::rotate(entity->system,tbuffer[i]->normal,normal_out);
 							closest_entity = entity;
@@ -2729,10 +2729,10 @@ namespace Engine
 					{
 						MeshQuad<VsDef>*q = qbuffer[i];
 						C0 dist = _oProjectionFactor(q->v0->position,q->normal[0],inner_center);
-						TVec3<C0>	collapsed,factors,e1,e2;
+						M::TVec3<C0>	collapsed,factors,e1,e2;
 							
-						Vec::mad(inner_center,q->normal[0],-radius,e2);
-						Vec::mad(inner_center,q->normal[0],radius,e1);
+						M::Vec::mad(inner_center,q->normal[0],-radius,e2);
+						M::Vec::mad(inner_center,q->normal[0],radius,e1);
 						if (_oDetTriangleEdgeIntersection(q->v0->position,q->v1->position,q->v2->position,e1,e2,factors)
 							&&
 							_oValidTriangleEdgeIntersection(factors))
@@ -2742,15 +2742,15 @@ namespace Engine
 							{
 								//ShowMessage("got quad");
 								least_distance = sqr(factor*radius);
-								Vec::mad(inner_center,q->normal[0],-factor*radius,e2);
+								M::Vec::mad(inner_center,q->normal[0],-factor*radius,e2);
 								Mat::transform(entity->system,e2,position_out);
 								Mat::rotate(entity->system,q->normal[0],normal_out);
 								closest_entity = entity;
 							}
 						}
 						
-						Vec::mad(inner_center,q->normal[1],-radius,e2);
-						Vec::mad(inner_center,q->normal[1],radius,e1);
+						M::Vec::mad(inner_center,q->normal[1],-radius,e2);
+						M::Vec::mad(inner_center,q->normal[1],radius,e1);
 						if (_oDetTriangleEdgeIntersection(q->v0->position,q->v2->position,q->v3->position,e1,e2,factors)
 							&&
 							_oValidTriangleEdgeIntersection(factors))
@@ -2760,7 +2760,7 @@ namespace Engine
 							{
 								//ShowMessage("got quad2");
 								least_distance = sqr(factors[2]*radius);
-								Vec::mad(inner_center,q->normal[1],-factors[2]*radius,e2);
+								M::Vec::mad(inner_center,q->normal[1],-factors[2]*radius,e2);
 								Mat::transform(entity->system,e2,position_out);
 								Mat::rotate(entity->system,q->normal[1],normal_out);
 								closest_entity = entity;
@@ -2775,24 +2775,24 @@ namespace Engine
 				{
 					for (unsigned i = 0; i < cnt; i++)
 					{
-						TVec3<C0> d;
-						Vec::sub(ebuffer[i]->v1->position,ebuffer[i]->v0->position,d);
-						C0 sub = Vec::dot(d);
+						M::TVec3<C0> d;
+						M::Vec::sub(ebuffer[i]->v1->position,ebuffer[i]->v0->position,d);
+						C0 sub = M::Vec::dot(d);
 						if (sub < getError<C0>())
 							continue;
-						C0 fc = (Vec::dot(inner_center,d)-Vec::dot(ebuffer[i]->v0->position,d))/sub;
+						C0 fc = (M::Vec::dot(inner_center,d)-M::Vec::dot(ebuffer[i]->v0->position,d))/sub;
 						if (fc < -getError<C0>() || fc > 1.0f+getError<C0>())
 							continue;
-						TVec3<C0> p;
-						Vec::mad(ebuffer[i]->v0->position,d,fc,p);
-						C0 dist = Vec::quadraticDistance(p,inner_center);
+						M::TVec3<C0> p;
+						M::Vec::mad(ebuffer[i]->v0->position,d,fc,p);
+						C0 dist = M::Vec::quadraticDistance(p,inner_center);
 						if (dist < least_distance)
 						{
-							TVec3<C0> normal;
+							M::TVec3<C0> normal;
 							least_distance = dist;
-							Vec::copy(ebuffer[i]->normal,normal);
-							Vec::normalize0(normal);
-							Vec::copy(p,position_out);
+							M::Vec::copy(ebuffer[i]->normal,normal);
+							M::Vec::normalize0(normal);
+							M::Vec::copy(p,position_out);
 							Mat::transform(entity->system,p,position_out);
 							Mat::rotate(entity->system,normal,normal_out);
 							closest_entity = entity;
@@ -2858,12 +2858,12 @@ namespace Engine
 	{
 	    unsigned v_size = VSIZE(object.vbnd,object.vlyr)*object.vcnt;
 	    vdata = v_size?new FloatType[v_size]:NULL;
-	    Vec::copy(object.vdata,vdata,v_size);
+	    M::Vec::copy(object.vdata,vdata,v_size);
 	    vcnt = object.vcnt;
 	    vlyr = object.vlyr;
 	    idata.length() = object.idata.length();
 	    idata = idata.length()?new IndexType[idata.length()]:NULL;
-	    Vec::copy(object.idata,idata,idata.length());
+	    M::Vec::copy(object.idata,idata,idata.length());
 	    sections = object.sdata.length();
 	    section = sections?new RenderSection<C>[sections]:NULL;
 	    for (unsigned i = 0; i < sections; i++)
@@ -2921,7 +2921,7 @@ namespace Engine
 	template <class Def> Material<C,GL>::Material(CGS::Material<Def>*src, SystemList<C,Def>*translation):source(src),masked(src->masked),layer_field.length()(src->layer_field.length()),object_field.length()(src->object_field.length())
 	{
 	    layer = layer_field.length()?new TextureLayer<GL>[layer_field.length()]:NULL;
-	    Vec::copyV<Def::FloatType,GL::FloatType,17>(source->colors,colors);
+	    M::Vec::copyV<Def::FloatType,GL::FloatType,17>(source->colors,colors);
 	    for (unsigned i = 0; i < layer_field.length(); i++)
 	    {
 	        layer_field[i].tex_combiner = source->layer_field[i].combiner;
@@ -2941,8 +2941,8 @@ namespace Engine
 	        unsigned vsize = VSIZE(v_bnd,l_cnt),
 	                 vn = v_cnt*vsize;
 	        GL::FloatType*vertex_field = vn?new GL::FloatType[vn]:NULL;
-	        Vec::copy(src->object_field[i].idata,index_field,i_cnt);
-	        Vec::copy(src->object_field[i].vdata,vertex_field,vn);
+	        M::Vec::copy(src->object_field[i].idata,index_field,i_cnt);
+	        M::Vec::copy(src->object_field[i].vdata,vertex_field,vn);
 	        for (unsigned j = 0; j < src->object_field[i].sdata.length(); j++)
 	        {
 	            C*system = translation->lookup(src->object_field[i].sdata[j].target)->system;
@@ -3026,14 +3026,14 @@ namespace Engine
 	void Scenery<GL,Def>::render(Aspect<C>&aspect)
 	{
 	        __transform(aspect.view,&system[12],center);
-	        float distance = Vec::length(center);
+	        float distance = M::Vec::length(center);
 	        int layer = log(distance/structure.data.dimension)/M_LN2;
 	        if (layer < 0)
 	           layer = 0;
 	        if (layer > 4)
 	           continue;
-	        Vec::add(center,structure.data.radius,upper);
-	        Vec::subtract(center,structure.data.radius,lower);
+	        M::Vec::add(center,structure.data.radius,upper);
+	        M::Vec::subtract(center,structure.data.radius,lower);
 	        upper[2] *= -1;
 	        lower[2] *= -1;
 	        for (BYTE k = 0; k < 2; k++)
@@ -3042,7 +3042,7 @@ namespace Engine
 	            lower[k] = lower[k]<0?lower[k]/lower[2]:lower[k]/upper[2];
 	        }
 	        swap(upper[2],lower[2]);
-	        if (_oneGreater(lower,visual_upper) || Vec::oneLesser(upper,visual_lower))
+	        if (_oneGreater(lower,visual_upper) || M::Vec::oneLesser(upper,visual_lower))
 	            continue;
 	}
 	*/

@@ -34,19 +34,19 @@ namespace DeltaWorks
 
 		struct Edge
 		{
-				TVec3<C>                normal;
+				M::TVec3<C>				normal;
 				C						grip;
 		};
 
 		struct Vertex
 		{
-				TVec3<C>                normal,p0,p1;
+				M::TVec3<C>				normal,p0,p1;
 				C						grip;
 		};
 
 		struct Triangle
 		{
-				TVec3<C>                normal,center,gcenter;
+				M::TVec3<C>				normal,center,gcenter;
 				C						grip,updrift;
 				__int64                 name;
 				UINT32                  group;
@@ -91,23 +91,23 @@ namespace DeltaWorks
 
 		struct Edge
 		{
-				TVec3<C>                normal;
-				TVec3<C>				orientation;
+				M::TVec3<C>				normal;
+				M::TVec3<C>				orientation;
 		};
 
 		struct Vertex
 		{
-				TVec3<C>				normal;
+				M::TVec3<C>				normal;
 		};
 
 		struct Triangle
 		{
-				TVec3<C>				normal;
+				M::TVec3<C>				normal;
 		};
 	
 		struct Quad
 		{
-				TVec3<C>				normal;	//!< normal[0] covers v0,v1, and v2; normal[1] covers v0,v2, and v3
+				M::TVec3<C>				normal;	//!< normal[0] covers v0,v1, and v2; normal[1] covers v0,v2, and v3
 		};
     
 		struct Mesh

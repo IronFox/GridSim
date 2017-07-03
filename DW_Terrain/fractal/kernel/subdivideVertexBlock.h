@@ -73,7 +73,7 @@ PARALLEL_OPERATION subdivideVertexBlock(unsigned iteration,const UnifiedOperatio
 	FILL_PARENTS(3)
 
 
-	ALIGNED16	TVec4<INT32>		seeds;
+	ALIGNED16	M::TVec4<INT32>		seeds;
 	
 	
 	#define FILL_SEED(_INDEX_)\
@@ -108,7 +108,7 @@ PARALLEL_OPERATION subdivideVertexBlock(unsigned iteration,const UnifiedOperatio
 	FILL_SEED(3)
 	
 	
-	TVec3<SSE_VECTOR>	p0_position =
+	M::TVec3<SSE_VECTOR>	p0_position =
 					{
 						_mm_setr_ps(p0[0]->position.x,p0[1]->position.x,p0[2]->position.x,p0[3]->position.x),
 						_mm_setr_ps(p0[0]->position.y,p0[1]->position.y,p0[2]->position.y,p0[3]->position.y),
@@ -126,7 +126,7 @@ PARALLEL_OPERATION subdivideVertexBlock(unsigned iteration,const UnifiedOperatio
 						p0_position.y-p1_position.y,
 						p0_position.z-p1_position.z
 					};
-	SSE_VECTOR	distance = _mm_sqrt_ps( Vec::dot(d));
+	SSE_VECTOR	distance = _mm_sqrt_ps( M::Vec::dot(d));
 	
 
 	
@@ -371,7 +371,7 @@ PARALLEL_OPERATION subdivideVertexBlock(unsigned iteration,const UnifiedOperatio
 	
 	#if LINEAR_INTERPOLATION == 1
 		
-		TVec3<SSE_VECTOR>	v = 
+		M::TVec3<SSE_VECTOR>	v = 
 					{
 						(p0_position.x+p1_position.x)*SSE::half,
 						(p0_position.y+p1_position.y)*SSE::half,

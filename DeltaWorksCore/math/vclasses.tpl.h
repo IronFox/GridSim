@@ -37,10 +37,10 @@
     }
 
     template <class C, count_t Len>
-    MF_VNT MF_INIT VecN<C,M::Eval<Len,Len0>::Min> MF_CC VecN<C,Len>::operator+ (const TVec<C0,Len0>&other) const
+    MF_VNT MF_INIT VecN<C,Eval<Len,Len0>::Min> MF_CC VecN<C,Len>::operator+ (const TVec<C0,Len0>&other) const
     {
-	    VecN<C,M::Eval<Len,Len0>::Min> result;
-        VecUnroll<M::Eval<Len,Len0>::Min>::add(v,other.v,result.v);
+	    VecN<C,Eval<Len,Len0>::Min> result;
+        VecUnroll<Eval<Len,Len0>::Min>::add(v,other.v,result.v);
 		return result;
     }
     
@@ -54,7 +54,7 @@
     template <class C, count_t Len>
     MF_VNT MF_DECLARE (void) VecN<C,Len>::operator+=(const TVec<C0,Len0>&other)
     {
-		VecUnroll< M::Eval<Len,Len0>::Min >::add(v,other.v);
+		VecUnroll< Eval<Len,Len0>::Min >::add(v,other.v);
     }
     
     template <class C, count_t Len> MF_DECLARE (void) VecN<C,Len>::operator+=(const C&scalar)
@@ -97,10 +97,10 @@
 
 
     template <class C, count_t Len>
-    MF_VNT MF_INIT VecN<C,M::Eval<Len,Len0>::Min> MF_CC VecN<C,Len>::operator- (const TVec<C0,Len0>&other) const
+    MF_VNT MF_INIT VecN<C,Eval<Len,Len0>::Min> MF_CC VecN<C,Len>::operator- (const TVec<C0,Len0>&other) const
     {
-	    VecN<C,M::Eval<Len,Len0>::Min> result;
-        VecUnroll<M::Eval<Len,Len0>::Min>::subtract(v,other.v,result.v);
+	    VecN<C,Eval<Len,Len0>::Min> result;
+        VecUnroll<Eval<Len,Len0>::Min>::subtract(v,other.v,result.v);
 		return result;
     }
     
@@ -121,7 +121,7 @@
     template <class C, count_t Len>
     MF_VNT MF_DECLARE (void) VecN<C,Len>::operator-=(const TVec<C0,Len0>&other)
     {
-        VecUnroll<M::Eval<Len,Len0>::Min>::subtract(v,other.v);
+        VecUnroll<Eval<Len,Len0>::Min>::subtract(v,other.v);
     }
     
     template <class C, count_t Len> MF_DECLARE (void) VecN<C,Len>::operator-=(const C&scalar)
@@ -141,32 +141,32 @@
     template <class C, count_t Len>
     MF_VNT MF_DECLARE (void) VecN<C,Len>::operator= (const TVec<C0,Len0>&other)
     {
-		VecUnroll<M::Eval<Len,Len0>::Min>::copy(other.v,v);
+		VecUnroll<Eval<Len,Len0>::Min>::copy(other.v,v);
     }
 
     template <class C, count_t Len>
     template <class C0> MF_DECLARE (void) VecN<C,Len>::operator= (const TVec2<C0>&other)
     {
-        VecUnroll<M::Eval<Len,2>::Min>::copy(other.v,v);
+        VecUnroll<Eval<Len,2>::Min>::copy(other.v,v);
     }
 
 
     template <class C, count_t Len>
     template <class C0> MF_DECLARE (void) VecN<C,Len>::operator= (const TVec3<C0>&other)
     {
-        VecUnroll<M::Eval<Len,3>::Min>::copy(other.v,v);
+        VecUnroll<Eval<Len,3>::Min>::copy(other.v,v);
     }
 
     template <class C, count_t Len>
     template <class C0> MF_DECLARE (void) VecN<C,Len>::operator= (const TVec4<C0>&other)
     {
-        VecUnroll<M::Eval<Len,4>::Min>::copy(other.v,v);
+        VecUnroll<Eval<Len,4>::Min>::copy(other.v,v);
     }
 
     template <class C, count_t Len>
     MF_VNT MF_DECLARE (bool) VecN<C,Len>::operator==(const TVec<C0,Len0>&other) const
     {
-		return VecUnroll<M::Eval<Len,Len0>::Min>::equal(v,other.v);
+		return VecUnroll<Eval<Len,Len0>::Min>::equal(v,other.v);
 		//return VecUnroll<Eval<Len,Len0>::Min>::similar(v,other.v,GetError<C>());
     }
 

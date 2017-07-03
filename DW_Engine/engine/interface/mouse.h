@@ -28,12 +28,12 @@ namespace Engine
 
 
 
-	typedef TVec2<>	TMouseDelta;	//! Mouse movement vector
+	typedef M::TVec2<>	TMouseDelta;	//! Mouse movement vector
 
 	struct TMousePosition	//! Mouse position container
 	{
-		TVec2<>			windowRelative;
-		TVec2<int>		absolute;
+		M::TVec2<>			windowRelative;
+		M::TVec2<int>		absolute;
 	};
 
 	struct TMouseButtons	//! Mouse button state
@@ -81,7 +81,7 @@ namespace Engine
 		unsigned				mx,	my;
 		RECT			 		screen_clip,window;
 		BYTE					button_id;
-		TVec2<long>				lastPosition;
+		M::TVec2<long>				lastPosition;
 		bool					hasLastPosition;
 		FWheelLink				wheel_link;		//!< Mouse wheel event handler. Altered by the working context - should not be written to by the client application.
 			
@@ -124,7 +124,7 @@ namespace Engine
 
 
 	public:
-		TVec2<>		speed;				//!< The speed vector (x,y) scales the delta vector while the mouse is caught or locked (the unscaled delta vector is very small). \b speed is usually (100,100). 
+		M::TVec2<>		speed;				//!< The speed vector (x,y) scales the delta vector while the mouse is caught or locked (the unscaled delta vector is very small). \b speed is usually (100,100). 
 			
 		TMouseDelta		delta;				//!< Delta vector containing the mouse movement during the previous frame. Only updated while the mouse is caught or locked.
 		TMousePosition	location,			//!< Current cursor location. Only updated while the mouse is not caught or locked.

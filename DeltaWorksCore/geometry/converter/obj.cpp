@@ -12,6 +12,7 @@ namespace DeltaWorks
 
 	namespace Converter
 	{
+		using namespace Math;
 
 		template <typename T>
 			std::shared_ptr<T>	Append(Container::Vector0<std::shared_ptr<T> >&container)
@@ -33,12 +34,12 @@ namespace DeltaWorks
 
 
 
-		void			ObjConverter::parseObjPoint(Container::Buffer<TVec3<Def::FloatType> >&target, char*start, char*end) throw()
+		void			ObjConverter::parseObjPoint(Container::Buffer<M::TVec3<Def::FloatType> >&target, char*start, char*end) throw()
 		{
 			BYTE section(0);
 			while (*start == ' ')
 				start++;
-			TVec3<Def::FloatType>&v = target.append();
+			M::TVec3<Def::FloatType>&v = target.append();
 			while (start < end && section < 3)
 			{
 				char*seg_end = start;
@@ -56,12 +57,12 @@ namespace DeltaWorks
 				v.v[k] = 0;
 		}
 
-		void			ObjConverter::parseObjPoint(Container::Buffer<TVec2<Def::FloatType> >&target, char*start, char*end) throw()
+		void			ObjConverter::parseObjPoint(Container::Buffer<M::TVec2<Def::FloatType> >&target, char*start, char*end) throw()
 		{
 			BYTE section(0);
 			while (*start == ' ')
 				start++;
-			TVec2<Def::FloatType>&v = target.append();
+			M::TVec2<Def::FloatType>&v = target.append();
 			while (start < end && section < 2)
 			{
 				char*seg_end = start;
@@ -181,26 +182,26 @@ namespace DeltaWorks
 			elif (ibuffer.Count()>12)
 			{
 				count_t vertices = ibuffer.Count()/3;
-				TVec3<Def::FloatType>	normal={0,0,0},
+				M::TVec3<Def::FloatType>	normal={0,0,0},
 											zero={0,0,0};
-				TMatrix4<Def::FloatType>	matrix,
+				M::TMatrix4<Def::FloatType>	matrix,
 											in_matrix;
 								//dim[6],
-				TVec3<Def::FloatType>			*v = getVertex(ibuffer[0]);
+				M::TVec3<Def::FloatType>			*v = getVertex(ibuffer[0]);
 				for (index_t i = 1; i < vertices-1; i++)
 				{
 					_oAddTriangleNormal(*v,*getVertex(ibuffer[i*3]),*getVertex(ibuffer[i*3+3]),normal);
 				}
-				Vec::normalize0(normal);
+				M::Vec::normalize0(normal);
 				Mat::makeAxisSystem(zero,normal,1,matrix);
 				Mat::invertSystem(matrix,in_matrix);
 			
-				Ctr::Array<TVec2<Def::FloatType> >	tfield(vertices);
+				Ctr::Array<M::TVec2<Def::FloatType> >	tfield(vertices);
 				for (index_t i = 0; i < vertices; i++)
 				{
-					TVec3<float> temp;
+					M::TVec3<float> temp;
 					Mat::rotate(in_matrix,*(getVertex(ibuffer[i*3])),temp);
-					Vec::def(tfield[i],temp.x,temp.z);
+					M::Vec::def(tfield[i],temp.x,temp.z);
 					//_v2(tfield+i*2,getVertex(ibuffer[i*3])[0],getVertex(ibuffer[i*3])[1]);
 				}
 			
@@ -231,7 +232,7 @@ namespace DeltaWorks
 					}
 				else
 				{
-					logMessage("Warning: Triangulation failed for: (n"+Vec::toString(normal)+") "+String(tfield.length()));
+					logMessage("Warning: Triangulation failed for: (n"+M::Vec::toString(normal)+") "+String(tfield.length()));
 					for (index_t i = 1; i < vertices-1; i++)
 					{
 						TObjFace&face = current_group->face_buffer.append();
@@ -271,7 +272,7 @@ namespace DeltaWorks
 			console->printDirect(p);*/
 		}
 
-		void			ObjConverter::LoadObjColor(const String&line,TVec4<Def::FloatType>&target) throw()
+		void			ObjConverter::LoadObjColor(const String&line,M::TVec4<Def::FloatType>&target) throw()
 		{
 			target.alpha = 1.0;
 			Ctr::Array<String>	segments;
@@ -419,7 +420,7 @@ namespace DeltaWorks
 			image.SetContentType(PixelType::ObjectSpaceNormal);
 		
 			{
-				TVec3<> normal;
+				M::TVec3<> normal;
 				for (UINT32 x = 0; x < image.GetWidth(); x++)
 					for (UINT32 y = 0; y < image.GetHeight(); y++)
 					{
@@ -455,7 +456,7 @@ namespace DeltaWorks
 		}
 
 
-		PathString			ObjConverter::ParseMap(CFSFolder&folder, const String&line, TVec3<>&scale) throw()
+		PathString			ObjConverter::ParseMap(CFSFolder&folder, const String&line, M::TVec3<>&scale) throw()
 		{
 			static Tokenizer::Configuration	config(" "," \r\n","","","\'\"","",'\\',true,true,true);
 			static Container::StringList	segments;
@@ -597,12 +598,12 @@ namespace DeltaWorks
 							{
 								case 'a':
 									LoadObjColor(line.c_str()+3,material->info.ambient);
-									Vec::addVal(material->info.ambient,0.1);
-									Vec::clamp(material->info.ambient,0,1);
+									M::Vec::addVal(material->info.ambient,0.1);
+									M::Vec::clamp(material->info.ambient,0,1);
 								break;
 								case 'd':
 									LoadObjColor(line.c_str()+3,material->info.diffuse);
-									Vec::clamp(material->info.diffuse,0,1);
+									M::Vec::clamp(material->info.diffuse,0,1);
 								break;
 								case 's':
 									LoadObjColor(line.c_str()+3,material->info.specular);
@@ -885,7 +886,7 @@ namespace DeltaWorks
 				for (unsigned i = 0; i < 10 && !must_normalize; i++)
 				{
 					index_t index = (i*normal_buffer.Count())/10;
-					must_normalize = fabs(Vec::dot(normal_buffer[index])-1.0f) > 0.01;
+					must_normalize = fabs(M::Vec::dot(normal_buffer[index])-1.0f) > 0.01;
 				}
 			}
 	/*		if (texcoord_buffer.Count()/3)
@@ -946,7 +947,7 @@ namespace DeltaWorks
 				normal_buffer.Clear();
 				normal_buffer.AppendRow(vertexBuffer.Count()*smooth_groups);
 				normal_buffer.Compact();
-				normal_buffer.Fill(Vector<>::null);
+				normal_buffer.Fill(Vector3<>::null);
 				index_t index = 0;
 				update_step = total/100;
 				if (!update_step)
@@ -969,7 +970,7 @@ namespace DeltaWorks
 						//ASSERT_LESS__((index_t)i2,vertexBuffer.size());
 						//if (face.v[3] != 0)
 						//	ASSERT_LESS__((index_t)i3,vertexBuffer.size());
-						TVec3<>	*t0 = vertexBuffer+i0,
+						M::TVec3<>	*t0 = vertexBuffer+i0,
 								*t1 = vertexBuffer+i1,
 								*t2 = vertexBuffer+i2,
 								*t3 = face.v[3]?vertexBuffer+i3:NULL,
@@ -977,11 +978,11 @@ namespace DeltaWorks
 						_oTriangleNormal(*t0,*t1,*t2,normal);
 						if (face.v[3])
 							_oAddTriangleNormal(*t0,*t2,*t3,normal);
-						Vec::add(normal_buffer[i0*smooth_groups+face.smooth_group],normal);
-						Vec::add(normal_buffer[i1*smooth_groups+face.smooth_group],normal);
-						Vec::add(normal_buffer[i2*smooth_groups+face.smooth_group],normal);
+						M::Vec::add(normal_buffer[i0*smooth_groups+face.smooth_group],normal);
+						M::Vec::add(normal_buffer[i1*smooth_groups+face.smooth_group],normal);
+						M::Vec::add(normal_buffer[i2*smooth_groups+face.smooth_group],normal);
 						if (t3)
-							Vec::add(normal_buffer[i3*smooth_groups+face.smooth_group],normal);
+							M::Vec::add(normal_buffer[i3*smooth_groups+face.smooth_group],normal);
 						face.n[0] = i0*smooth_groups+face.smooth_group+1;
 						face.n[1] = i1*smooth_groups+face.smooth_group+1;
 						face.n[2] = i2*smooth_groups+face.smooth_group+1;
@@ -989,8 +990,8 @@ namespace DeltaWorks
 					}
 				}
 				for (index_t i = 0; i < vertexBuffer.Count()*smooth_groups; i++)
-					if (Vec::dot(normal_buffer[i])>0)
-						Vec::normalize(normal_buffer[i]);
+					if (M::Vec::dot(normal_buffer[i])>0)
+						M::Vec::normalize(normal_buffer[i]);
 			}
 				
 
@@ -1167,11 +1168,11 @@ namespace DeltaWorks
 						for (UINT32 k = 0; k < ro.vpool.vcnt; k++)
 						{
 							const ObjVertexN&v = vertex_field[k];
-							Vec::ref3(ro.vpool.vdata+k*6) = v.p;
-							Vec::ref3(ro.vpool.vdata+k*6+3) = v.n;
+							M::Vec::ref3(ro.vpool.vdata+k*6) = v.p;
+							M::Vec::ref3(ro.vpool.vdata+k*6+3) = v.n;
 
-							if (must_normalize && fabs(Vec::dot(v.n)-1.0) > 0.01)
-								sendMessage("Conversion error: Normal of vertex "+String(k)+" of render object "+String(j)+" of material "+String(i)+" is not normalized ("+Vec::toString(v.n)+")");
+							if (must_normalize && fabs(M::Vec::dot(v.n)-1.0) > 0.01)
+								sendMessage("Conversion error: Normal of vertex "+String(k)+" of render object "+String(j)+" of material "+String(i)+" is not normalized ("+M::Vec::toString(v.n)+")");
 							//s->vertices[k]->index = k;
 						}
 						chunk.idata.SetSize(s->triangles.count()*3+s->quads.count()*4);
@@ -1207,11 +1208,11 @@ namespace DeltaWorks
 						for (UINT32 k = 0; k < ro.vpool.vcnt; k++)
 						{
 							const ObjVertexNT&v = vertex_field[k];
-							Vec::ref3(ro.vpool.vdata+k*8) =v.p;
-							Vec::ref3(ro.vpool.vdata+k*8+3) =v.n;
-							Vec::ref2(ro.vpool.vdata+k*8+6) =v.t;
-							if (must_normalize && fabs(Vec::dot(v.n)-1.0) > 0.01)
-								sendMessage("Conversion error: Normal of vertex "+String(k)+" of render object "+String(j)+" of material "+String(i)+" is not normalized ("+Vec::toString(v.n)+")");
+							M::Vec::ref3(ro.vpool.vdata+k*8) =v.p;
+							M::Vec::ref3(ro.vpool.vdata+k*8+3) =v.n;
+							M::Vec::ref2(ro.vpool.vdata+k*8+6) =v.t;
+							if (must_normalize && fabs(M::Vec::dot(v.n)-1.0) > 0.01)
+								sendMessage("Conversion error: Normal of vertex "+String(k)+" of render object "+String(j)+" of material "+String(i)+" is not normalized ("+M::Vec::toString(v.n)+")");
 							//s->tex_vertices[k]->index = k;
 						}
 						chunk.idata.SetSize(s->tex_triangles.count()*3+s->tex_quads.count()*4);
@@ -1322,7 +1323,7 @@ namespace DeltaWorks
 				Mat::Eye(child.meta.system);
 				child.meta.volume = 1.0;
 				child.meta.density = 1.0;
-				Vec::clear(child.meta.center);
+				M::Vec::clear(child.meta.center);
 				logMessage(__LINE__);
 
 				Ctr::Array<PoolVertex>	vertex_field;
@@ -1330,7 +1331,7 @@ namespace DeltaWorks
 			
 				if (vertex_field.length())
 				{
-					Box<Def::FloatType> dim(vertex_field.first().p,vertex_field.first().p);
+					M::Box<Def::FloatType> dim(vertex_field.first().p,vertex_field.first().p);
 					//pool[0]->index = 0;
 
 					vs_hull.vertex_field[0].position = dim.min();
@@ -1348,7 +1349,7 @@ namespace DeltaWorks
 					{
 						dim.GetCenter(child.meta.system.w.xyz);
 						for (index_t j = 0; j < vs_hull.vertex_field.length(); j++)
-							Vec::sub(vs_hull.vertex_field[j].position, child.meta.system.w.xyz);
+							M::Vec::sub(vs_hull.vertex_field[j].position, child.meta.system.w.xyz);
 					}
 					else
 						dim.GetCenter(child.meta.center);
@@ -1418,7 +1419,7 @@ namespace DeltaWorks
 						Def::FloatType*p = robj.vpool.vdata.pointer();
 						for (UINT32 k = 0; k < robj.vpool.vcnt; k++)
 						{
-							Vec::sub(Vec::ref3(p),robj.target->meta.system.w.xyz);
+							M::Vec::sub(M::Vec::ref3(p),robj.target->meta.system.w.xyz);
 							if (!(index++%update_step))
 								setProgress((float)index/(float)render_vertices);
 							p += vsize;
@@ -1520,7 +1521,7 @@ namespace DeltaWorks
 		
 			if (out.GetContentType() != PixelType::Color)
 			{
-				TVec3<> normal;
+				M::TVec3<> normal;
 				for (UINT32 x = 0; x < out.GetWidth(); x++)
 					for (UINT32 y = 0; y < out.GetHeight(); y++)
 					{
@@ -1579,7 +1580,7 @@ namespace DeltaWorks
 					out.SetChannels(3);
 				if (out.GetContentType() != PixelType::Color)
 				{
-					TVec3<> normal;
+					M::TVec3<> normal;
 					for (UINT32 x = 0; x < out.GetWidth(); x++)
 						for (UINT32 y = 0; y < out.GetHeight(); y++)
 						{
@@ -1726,12 +1727,12 @@ namespace DeltaWorks
 											tlink_map(robj.vpool.vlyr>0?robj.vpool.vcnt:0);
 					unsigned vsize = robj.vpool.vsize();
 					const Def::FloatType*p = robj.vpool.vdata.pointer();
-					TVec3<Def::FloatType>	transformed;
+					M::TVec3<Def::FloatType>	transformed;
 					for (unsigned k = 0; k < robj.vpool.vcnt; k++)
 					{
-						Mat::transform(robj.target->path,Vec::ref3(p),transformed);
+						Mat::transform(robj.target->path,M::Vec::ref3(p),transformed);
 						vlink_map[k] = InsertIndexed(vertex_field,IndexedPoolVertex(transformed),vcounter);
-						Mat::rotate(robj.target->path,Vec::ref3(p+3),transformed);
+						Mat::rotate(robj.target->path,M::Vec::ref3(p+3),transformed);
 						nlink_map[k] = InsertIndexed(normal_field,IndexedPoolVertex(transformed),ncounter);
 						if (robj.vpool.vlyr>0)
 							tlink_map[k] = InsertIndexed(texcoord_field,IndexedPoolVertex(p[6],p[7],(Def::FloatType)0),tcounter);

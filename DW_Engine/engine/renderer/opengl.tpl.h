@@ -720,7 +720,7 @@ namespace Engine
 
 
 	template <class C>
-		inline void		OpenGL::replaceCamera(const TMatrix4<C>&modelview, const TMatrix4<C>&projection)
+		inline void		OpenGL::replaceCamera(const M::TMatrix4<C>&modelview, const M::TMatrix4<C>&projection)
 		{
 			storeCamera();
 
@@ -751,7 +751,7 @@ namespace Engine
 
 
 	template <class C>
-	void					OpenGL::SetCameraMatrices(const TMatrix4<C>&view, const TMatrix4<C>&projection, const TMatrix4<C>&viewInvert)
+	void					OpenGL::SetCameraMatrices(const M::TMatrix4<C>&view, const M::TMatrix4<C>&projection, const M::TMatrix4<C>&viewInvert)
 	{
 		GL_BEGIN
 	    glLoadMatrix(view.v);
@@ -847,7 +847,7 @@ namespace Engine
 	}
 
 
-	template <class C> inline   void OpenGL::enterSubSystem(const TMatrix4<C>&system)
+	template <class C> inline   void OpenGL::enterSubSystem(const M::TMatrix4<C>&system)
 	{
 		GL_BEGIN
 	    glPushMatrix();
@@ -954,12 +954,12 @@ namespace Engine
 	    glClearColor(red,green,blue,alpha);
 	}
 
-	inline   void OpenGL::SetBackbufferClearColor(const TVec3<>&color, float alpha)
+	inline   void OpenGL::SetBackbufferClearColor(const M::TVec3<>&color, float alpha)
 	{
 	    glClearColor(color.red,color.green,color.blue,alpha);
 	}
 
-	inline   void OpenGL::SetBackbufferClearColor(const TVec4<>&color)
+	inline   void OpenGL::SetBackbufferClearColor(const M::TVec4<>&color)
 	{
 	    glClearColor(color.red,color.green,color.blue,color.alpha);
 	}
@@ -1014,7 +1014,7 @@ namespace Engine
 		glBlendFunc(GL_SRC_ALPHA,GL_ONE);
 	}
 
-	/*static*/	inline	void	OpenGL::overrideEmission(const TVec4<>&emission_color)
+	/*static*/	inline	void	OpenGL::overrideEmission(const M::TVec4<>&emission_color)
 	{
 		//float color[4] = {emission_color.red,emission_color.green, emission_color.blue,1.0f};
 		glMaterialfv(GL_FRONT_AND_BACK,GL_EMISSION,emission_color.v);

@@ -15,32 +15,32 @@ namespace Engine
 {
 	using namespace DeltaWorks;
 
-	struct	TVertex:public TVec4<> //! Basic vertex. Homogenous coordinates (4th component should usually be 1.0f)
+	struct	TVertex:public M::TVec4<> //! Basic vertex. Homogenous coordinates (4th component should usually be 1.0f)
 	{};
 
 	struct	TColorVertex:public TVertex //! Colored vertex
 	{
-			TVec4<>					color; //!< RGBA color components
+			M::TVec4<>					color; //!< RGBA color components
 	};
 
 	struct	TNormalVertex:public TVertex //! Vertex with a normal
 	{
-			TVec3<>					normal; //!< 3d normal
+			M::TVec3<>					normal; //!< 3d normal
 	};
 
 	struct TNormalTextureVertex:public TNormalVertex //! Vertex with a normal and 2d texture-coordinates
 	{
-			TVec2<>					coord; //!< 2d texture coordinates
+			M::TVec2<>					coord; //!< 2d texture coordinates
 	};
 
 	struct TColorTextureVertex:public TColorVertex	//! Colored vertex with 2d texture-coordinates
 	{
-			TVec2<>					coord; //!< 2d texture coordinates
+			M::TVec2<>					coord; //!< 2d texture coordinates
 	};
 
 	struct TTextureVertex:public TVertex	//! Vertex with 2d texture-coordinates
 	{
-			TVec2<>					coord; //!< 2d texture coordinates
+			M::TVec2<>					coord; //!< 2d texture coordinates
 	};
 
 
@@ -88,9 +88,9 @@ namespace Engine
 			void					seal();													//!< Seals the structure disallowing further editing. Also compactifies the fields
 			void					translate(float x_delta, float y_delta, float z_delta); //!< Translates all primitives by the specified delta values.
 			void					color(float r, float g, float b, float a=1.0f);			//!< Specifies the color of the current vertex
-			void					color(const TVec4<>&color);
-			void					color(const TVec3<>&color);
-			void					color(const TVec3<>&color, float alpha);
+			void					color(const M::TVec4<>&color);
+			void					color(const M::TVec3<>&color);
+			void					color(const M::TVec3<>&color, float alpha);
 			void					color3fv(const float*c);								//!< Specifies the color of the current vertex
 			void					color4fv(const float*c);								//!< Specifies the color of the current vertex
 			void					color3fva(const float*c, float a);						//!< Specifies the color of the current vertex

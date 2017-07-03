@@ -95,7 +95,7 @@ namespace Engine
 		virtual void		FixedUpdate(float delta)					{};					//!< Called with a fixed frame delta
 		virtual void		PostAdvance()								{};					//!< Called once Advance() and FixedUpdate() have been called for the frame
 
-		virtual	bool		DetectNearestGroundHeight(const TVec3<>&referencePosition,float&outHeight, TVec3<>&outNormal)	{return false;};
+		virtual	bool		DetectNearestGroundHeight(const M::TVec3<>&referencePosition,float&outHeight, M::TVec3<>&outNormal)	{return false;};
 		virtual void		OnResolutionChange(const Resolution&newResolution, bool isFinal)		{};
 		virtual void		Shutdown()									{};					//!< Signals that the applications is being shut down
 
@@ -133,7 +133,7 @@ namespace Engine
 
 		void				Install(Control*);
 		void				Uninstall(Control*);
-		bool				DetectNearestGroundHeight(const TVec3<>&referencePosition,float&outHeight, TVec3<>&outNormal);
+		bool				DetectNearestGroundHeight(const M::TVec3<>&referencePosition,float&outHeight, M::TVec3<>&outNormal);
 		void				SignalResolutionChange(const Resolution&newResolution, bool isFinal);
 	};
 

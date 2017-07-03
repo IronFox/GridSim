@@ -20,7 +20,7 @@ namespace Engine
 			String						caption;	//!< Single line (complete) caption of the label
 			Array<String>				lines;			//!< Split (wrapped) caption
 			bool						textChanged;	//!< Indicates that the text changed and the text should be re-wrapped before printing it the next time
-			TVec4<GLfloat>				textColor;			//!< Label text color (solid white by default)
+			M::TVec4<GLfloat>				textColor;			//!< Label text color (solid white by default)
 			float						lastWidth;
 			Quad<float>					textMargin;	//!< Distance between text and the respective edge. All positive values (even up and right)
 				
@@ -31,7 +31,7 @@ namespace Engine
 		public:
 			bool						wrapText,			//!< Indicates that the caption should be wrapped at t
 										fillBackground;	//!< Fills the label background before writing the label caption (false by default)
-			TVec3<GLfloat>				backgroundColor;	//!< Label background used if @b fillBackground is true (light blueish by default)
+			M::TVec3<GLfloat>				backgroundColor;	//!< Label background used if @b fillBackground is true (light blueish by default)
 			TIcon						icon;				//!< Label icon (empty by default)
 				
 			/**/						Label():Component("Label")	{_Setup();}
@@ -40,12 +40,12 @@ namespace Engine
 			virtual	void				OnColorPaint(ColorRenderer&, bool parentIsEnabled)	override;
 			const String&				GetText() const	{return caption;}	//!< Retrieves the current caption
 			Label*						SetText(const String&text);		//!< Updates label caption
-			inline Label*				SetTextColor(const TVec4<>&color)	{return SetColor(color);}
-			Label*						SetColor(const TVec4<>&color);	//!< Updates label text color
+			inline Label*				SetTextColor(const M::TVec4<>&color)	{return SetColor(color);}
+			Label*						SetColor(const M::TVec4<>&color);	//!< Updates label text color
 			void						SetTextMargin(const Quad<float>&margin);
 			const Quad<float>&			GetTextMargin() const	{return textMargin;}
 			String						ConvertToString()	const override	{return caption;}	//!< Simple IToString::ConvertToString() override
-			virtual	void				UpdateLayout(const Rect<float>&parent_region)	override;
+			virtual	void				UpdateLayout(const M::Rect<float>&parent_region)	override;
 		};
 		
 		typedef std::shared_ptr<Label>		PLabel;
@@ -149,7 +149,7 @@ namespace Engine
 										cursorBottom,
 										upButton,
 										downButton;
-			Rect<float>					cursorRegion;
+			M::Rect<float>					cursorRegion;
 				
 			void						_Setup();
 			static void					_PaintColor(const TCell&);
@@ -191,7 +191,7 @@ namespace Engine
 										}
 			void						ScrollTo(float v);
 			virtual	void				OnScroll();	//!< Triggered if the scrollbar changes. Invokes the local event container and notifies the linked scrollable by default
-			virtual	void				UpdateLayout(const Rect<float>&parent_region) override;
+			virtual	void				UpdateLayout(const M::Rect<float>&parent_region) override;
 			virtual	float				GetClientMinWidth()	const override;
 			virtual	float				GetClientMinHeight()	const override;
 			virtual	void				OnColorPaint(ColorRenderer&, bool parentIsEnabled) override;
@@ -225,7 +225,7 @@ namespace Engine
 										slideRange;
 			float						current,
 										max;
-			Rect<float>					cursorRegion;
+			M::Rect<float>					cursorRegion;
 				
 			void						_Setup();
 			void						_UpdateCursorRegion();
@@ -245,7 +245,7 @@ namespace Engine
 											height = GetMinHeight(false);
 										}
 			virtual	void				OnSlide();	//!< Triggered if the slider changes. Invokes the local event container by default
-			virtual	void				UpdateLayout(const Rect<float>&parent_region) override;
+			virtual	void				UpdateLayout(const M::Rect<float>&parent_region) override;
 			virtual	float				GetClientMinWidth()	const override;
 			virtual	float				GetClientMinHeight()	const override;
 			virtual	void				OnColorPaint(ColorRenderer&, bool parentIsEnabled) override;
@@ -290,13 +290,13 @@ namespace Engine
 											layout = globalLayout.Refer();
 											anchored.SetAll(true);
 										}
-			virtual	void				UpdateLayout(const Rect<float>&parent_region) override;
+			virtual	void				UpdateLayout(const M::Rect<float>&parent_region) override;
 			virtual	float				GetClientMinWidth()	const override;
 			virtual	float				GetClientMinHeight()	const override;
 			virtual	void				OnColorPaint(ColorRenderer&, bool parentIsEnabled) override;
 			virtual	void				OnNormalPaint(NormalRenderer&, bool parentIsEnabled) override;
 			virtual PComponent			GetComponent(float x, float y, ePurpose purpose, bool&outIsEnabled) override;
-			bool						GetChildSpace(Rect<float>&out_rect)	const;	//!< Retrieves the space currently occupied by the children of this panel @param out_rect Rectangle container to store the child space in @return true if the local panel has at least one child, false otherwise
+			bool						GetChildSpace(M::Rect<float>&out_rect)	const;	//!< Retrieves the space currently occupied by the children of this panel @param out_rect Rectangle container to store the child space in @return true if the local panel has at least one child, false otherwise
 		
 			void						Append(const PComponent&component);	//!< Appends  the specified component beneath the last member component of the local panel
 			void						AppendRight(const PComponent&component);	//!< Appends the specified component to the right of the last member component of the local panel
@@ -367,7 +367,7 @@ namespace Engine
 		{
 			typedef Panel				Super;
 
-			Rect<float>						effectiveClientRegion;
+			M::Rect<float>						effectiveClientRegion;
 			Buffer<PComponent,4>	visible_children;
 				
 
@@ -394,7 +394,7 @@ namespace Engine
 											return std::static_pointer_cast<Scrollable, ScrollBox>(std::static_pointer_cast<ScrollBox, Component>(shared_from_this()));
 										}
 		//virtual	void				OnScroll();
-			virtual	void				UpdateLayout(const Rect<float>&parent_region) override;
+			virtual	void				UpdateLayout(const M::Rect<float>&parent_region) override;
 			virtual	float				GetClientMinWidth()	const override;
 			virtual	float				GetClientMinHeight()	const override;
 			virtual	void				OnColorPaint(ColorRenderer&, bool parentIsEnabled) override;
@@ -562,7 +562,7 @@ namespace Engine
 			virtual	eEventResult		OnMouseUp(float x, float y)	override;
 			virtual	eEventResult		OnTick()	override;
 			virtual	bool				IsTabFocusable()	const	override				{return true;}
-			virtual	void				UpdateLayout(const Rect<float>&parent_region)	override;
+			virtual	void				UpdateLayout(const M::Rect<float>&parent_region)	override;
 		};
 		typedef std::shared_ptr<Edit>		PEdit;
 		typedef std::shared_ptr<const Edit>	PConstEdit;
@@ -611,7 +611,7 @@ namespace Engine
 			virtual	eEventResult		OnKeyDown(Key::Name key) override;
 
 			virtual	void				OnMenuClose(const std::shared_ptr<MenuEntry>&child);
-			virtual	void				UpdateLayout(const Rect<float>&parent_region) override;
+			virtual	void				UpdateLayout(const M::Rect<float>&parent_region) override;
 		};
 		typedef std::shared_ptr<MenuEntry>		PMenuEntry;
 		typedef std::shared_ptr<const MenuEntry>	PConstMenuEntry;
@@ -630,8 +630,8 @@ namespace Engine
 			index_t						selectedEntry;	//!< Currently GetSelected menu entry
 			PComponent					selectedComponent;
 			bool						horizontal,autoResize;
-			TVec4<>						leftBackgroundColor,rightBackgroundColor,entryTextColor;
-			TVec3<>						entryBackgroundColor;
+			M::TVec4<>						leftBackgroundColor,rightBackgroundColor,entryTextColor;
+			M::TVec3<>						entryBackgroundColor;
 			friend class MenuEntry;
 			using ScrollBox::Append;
 			void						_Setup();
@@ -647,14 +647,14 @@ namespace Engine
 			void						SetHorizontal(bool b);
 			inline bool					DoesAutoResize() const { return autoResize;}
 			inline void					SetAutoResize(bool b)	{autoResize = b; _ArrangeItems();}
-			inline void					SetBackgroundColor(const TVec4<>&color)	{leftBackgroundColor = rightBackgroundColor = color; SignalVisualChange();}
-			inline void					SetBackgroundColor(const TVec4<>&left, const TVec4<>&right)	{leftBackgroundColor = left; rightBackgroundColor = right; SignalVisualChange();}
-			inline const TVec4<>&		GetLeftBackgroundColor()	const	{return leftBackgroundColor;}
-			inline const TVec4<>&		GetRightBackgroundColor()	const	{return rightBackgroundColor;}
-			void						SetEntryTextColor(const TVec4<>&);
-			inline const TVec4<>&		GetEntryTextColor() const	{return entryTextColor;}
-			void						SetEntryBackgroundColor(const TVec3<>&color);
-			inline const TVec3<>&		GetEntryBackgroundColor() const {return entryBackgroundColor;}
+			inline void					SetBackgroundColor(const M::TVec4<>&color)	{leftBackgroundColor = rightBackgroundColor = color; SignalVisualChange();}
+			inline void					SetBackgroundColor(const M::TVec4<>&left, const M::TVec4<>&right)	{leftBackgroundColor = left; rightBackgroundColor = right; SignalVisualChange();}
+			inline const M::TVec4<>&		GetLeftBackgroundColor()	const	{return leftBackgroundColor;}
+			inline const M::TVec4<>&		GetRightBackgroundColor()	const	{return rightBackgroundColor;}
+			void						SetEntryTextColor(const M::TVec4<>&);
+			inline const M::TVec4<>&		GetEntryTextColor() const	{return entryTextColor;}
+			void						SetEntryBackgroundColor(const M::TVec3<>&color);
+			inline const M::TVec3<>&		GetEntryBackgroundColor() const {return entryBackgroundColor;}
 
 			virtual	PMenuEntry			Add(const String&caption);	//!< Adds a new simple menu entry to this menu @param caption Caption of the menu entry @return Pointer to the newly created menu entry
 			virtual	bool				Add(const PComponent&component) override;	//!< Adds a component to this menu. Must of a MenuEntry of derivative class. @param component Menu entry to Add. The method fails if the passed pointer is NULL or not of type MenuEntry @return true on success
@@ -670,7 +670,7 @@ namespace Engine
 			virtual	bool				MoveChildToBottom(index_t index) override;
 			virtual	void				OnColorPaint(ColorRenderer&, bool parentIsEnabled) override;	
 		
-			virtual	TVec2<>				GetIdealSize()	const;		//!< Retrieves the ideal width/height of this menu
+			virtual	M::TVec2<>				GetIdealSize()	const;		//!< Retrieves the ideal width/height of this menu
 
 			virtual	eEventResult		OnKeyDown(Key::Name key) override;
 		};
@@ -694,7 +694,7 @@ namespace Engine
 				
 			/**/					ComboBox():MenuEntry("ComboBox"){_Setup();}
 			virtual	float			GetMinWidth(bool includeOffsets)	const override;
-			virtual	void			UpdateLayout(const Rect<float>&parent_space) override;
+			virtual	void			UpdateLayout(const M::Rect<float>&parent_space) override;
 			void					Select(index_t index);
 			index_t					GetSelected()	const	{return selectedEntry;}
 			virtual	void			OnMenuClose(const PMenuEntry&child) override;
@@ -747,9 +747,9 @@ namespace Engine
 											return this;
 										}
 			inline float				GetBoxSize()	const	{return 16.f;}
-			Rect<>						GetBoxRect() const
+			M::Rect<>						GetBoxRect() const
 										{
-											Rect<> rect=cellLayout.client;
+											M::Rect<> rect=cellLayout.client;
 											float cy = rect.y.center();
 											float size = GetBoxSize();
 											rect.x.max = rect.x.min + size;

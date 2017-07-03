@@ -1,7 +1,7 @@
 #ifndef vector_operationsH
 #define vector_operationsH
 /*
-This file was generated from template definition 'vector.template.php' on 2017 July 1st 16:04:43
+This file was generated from template definition 'vector.template.php' on 2017 July 3rd 11:55:43
 Do not edit
 */
 
@@ -1834,10 +1834,10 @@ namespace Vec
 	template <typename T0, typename T1, typename T2>
 		inline	void	__fastcall	maxD(const T0 *v, const T1 *w, T2 *result, count_t dimensions)throw()
 		{
-			using std::max;
+			using Math::Max;
 			for (register index_t iterator__=0; iterator__ < dimensions; iterator__++)
 			{
-				result[iterator__] = max( v[iterator__], w[iterator__]);
+				result[iterator__] = Max( v[iterator__], w[iterator__]);
 			}
 		}
 
@@ -1855,10 +1855,10 @@ namespace Vec
 	template <typename T0, typename T1, typename T2>
 		inline	void	__fastcall	minD(const T0 *v, const T1 *w, T2 *result, count_t dimensions)throw()
 		{
-			using std::min;
+			using Math::Min;
 			for (register index_t iterator__=0; iterator__ < dimensions; iterator__++)
 			{
-				result[iterator__] = min( v[iterator__], w[iterator__]);
+				result[iterator__] = Min( v[iterator__], w[iterator__]);
 			}
 		}
 
@@ -2048,7 +2048,7 @@ namespace Vec
 		@param[out] result 
 	*/
 	template <typename T0, typename T1, typename T2>
-		inline	void	__fastcall	addValue(const TVec2<T0>& v, T1 value, TVec2<T2>& result)throw()
+		inline	void	__fastcall	addValue(const M::TVec2<T0>& v, T1 value, M::TVec2<T2>& result)throw()
 		{
 			result.x = v.x + value;
 			result.y = v.y + value;
@@ -2066,7 +2066,7 @@ namespace Vec
 		@param[out] result 
 	*/
 	template <typename T0, typename T1, typename T2>
-		inline	void	__fastcall	addVal(const TVec2<T0>& v, T1 value, TVec2<T2>& result)throw()
+		inline	void	__fastcall	addVal(const M::TVec2<T0>& v, T1 value, M::TVec2<T2>& result)throw()
 		{
 			result.x = v.x + value;
 			result.y = v.y + value;
@@ -2122,7 +2122,7 @@ namespace Vec
 		@param[out] result 
 	*/
 	template <typename T0, typename T1, typename T2>
-		inline	void	__fastcall	addValue(const TVec4<T0>& v, T1 value, TVec4<T2>& result)throw()
+		inline	void	__fastcall	addValue(const M::TVec4<T0>& v, T1 value, M::TVec4<T2>& result)throw()
 		{
 			result.x = v.x + value;
 			result.y = v.y + value;
@@ -2142,7 +2142,7 @@ namespace Vec
 		@param[out] result 
 	*/
 	template <typename T0, typename T1, typename T2>
-		inline	void	__fastcall	addVal(const TVec4<T0>& v, T1 value, TVec4<T2>& result)throw()
+		inline	void	__fastcall	addVal(const M::TVec4<T0>& v, T1 value, M::TVec4<T2>& result)throw()
 		{
 			result.x = v.x + value;
 			result.y = v.y + value;
@@ -2162,7 +2162,7 @@ namespace Vec
 		@param[in] value Value to add
 	*/
 	template <typename T0, typename T1>
-		inline	void	__fastcall	addValue(TVec2<T0>& v, T1 value)throw()
+		inline	void	__fastcall	addValue(M::TVec2<T0>& v, T1 value)throw()
 		{
 			v.x += value;
 			v.y += value;
@@ -2179,7 +2179,7 @@ namespace Vec
 		@param[in] value Value to add
 	*/
 	template <typename T0, typename T1>
-		inline	void	__fastcall	addVal(TVec2<T0>& v, T1 value)throw()
+		inline	void	__fastcall	addVal(M::TVec2<T0>& v, T1 value)throw()
 		{
 			v.x += value;
 			v.y += value;
@@ -2232,7 +2232,7 @@ namespace Vec
 		@param[in] value Value to add
 	*/
 	template <typename T0, typename T1>
-		inline	void	__fastcall	addValue(TVec4<T0>& v, T1 value)throw()
+		inline	void	__fastcall	addValue(M::TVec4<T0>& v, T1 value)throw()
 		{
 			v.x += value;
 			v.y += value;
@@ -2251,7 +2251,7 @@ namespace Vec
 		@param[in] value Value to add
 	*/
 	template <typename T0, typename T1>
-		inline	void	__fastcall	addVal(TVec4<T0>& v, T1 value)throw()
+		inline	void	__fastcall	addVal(M::TVec4<T0>& v, T1 value)throw()
 		{
 			v.x += value;
 			v.y += value;
@@ -2272,7 +2272,7 @@ namespace Vec
 		@param[out] result 
 	*/
 	template <typename T0, typename T1, typename T2, typename T3>
-		inline	void	__fastcall	add(const TVec2<T0>& u, const TVec2<T1>& v, const TVec2<T2>& w, TVec2<T3>& result)throw()
+		inline	void	__fastcall	add(const M::TVec2<T0>& u, const M::TVec2<T1>& v, const M::TVec2<T2>& w, M::TVec2<T3>& result)throw()
 		{
 			result.x = u.x + v.x + w.x;
 			result.y = u.y + v.y + w.y;
@@ -2309,7 +2309,7 @@ namespace Vec
 		@param[out] result 
 	*/
 	template <typename T0, typename T1, typename T2, typename T3>
-		inline	void	__fastcall	add(const TVec4<T0>& u, const TVec4<T1>& v, const TVec4<T2>& w, TVec4<T3>& result)throw()
+		inline	void	__fastcall	add(const M::TVec4<T0>& u, const M::TVec4<T1>& v, const M::TVec4<T2>& w, M::TVec4<T3>& result)throw()
 		{
 			result.x = u.x + v.x + w.x;
 			result.y = u.y + v.y + w.y;
@@ -2329,7 +2329,7 @@ namespace Vec
 		@param[out] result 
 	*/
 	template <typename T0, typename T1, typename T2>
-		inline	void	__fastcall	add(const TVec2<T0>& v, const TVec2<T1>& w, TVec2<T2>& result)throw()
+		inline	void	__fastcall	add(const M::TVec2<T0>& v, const M::TVec2<T1>& w, M::TVec2<T2>& result)throw()
 		{
 			result.x = v.x+w.x;
 			result.y = v.y+w.y;
@@ -2364,7 +2364,7 @@ namespace Vec
 		@param[out] result 
 	*/
 	template <typename T0, typename T1, typename T2>
-		inline	void	__fastcall	add(const TVec4<T0>& v, const TVec4<T1>& w, TVec4<T2>& result)throw()
+		inline	void	__fastcall	add(const M::TVec4<T0>& v, const M::TVec4<T1>& w, M::TVec4<T2>& result)throw()
 		{
 			result.x = v.x+w.x;
 			result.y = v.y+w.y;
@@ -2383,7 +2383,7 @@ namespace Vec
 		@param[in] w 
 	*/
 	template <typename T0, typename T1>
-		inline	void	__fastcall	add(TVec2<T0>& v, const TVec2<T1>& w)throw()
+		inline	void	__fastcall	add(M::TVec2<T0>& v, const M::TVec2<T1>& w)throw()
 		{
 			v.x += w.x;
 			v.y += w.y;
@@ -2416,7 +2416,7 @@ namespace Vec
 		@param[in] w 
 	*/
 	template <typename T0, typename T1>
-		inline	void	__fastcall	add(TVec4<T0>& v, const TVec4<T1>& w)throw()
+		inline	void	__fastcall	add(M::TVec4<T0>& v, const M::TVec4<T1>& w)throw()
 		{
 			v.x += w.x;
 			v.y += w.y;
@@ -2436,7 +2436,7 @@ namespace Vec
 		@param[out] result 
 	*/
 	template <typename T0, typename T1, typename T2>
-		inline	void	__fastcall	subtract(const TVec2<T0>& v, const TVec2<T1>& w, TVec2<T2>& result)throw()
+		inline	void	__fastcall	subtract(const M::TVec2<T0>& v, const M::TVec2<T1>& w, M::TVec2<T2>& result)throw()
 		{
 			result.x = v.x - w.x;
 			result.y = v.y - w.y;
@@ -2453,7 +2453,7 @@ namespace Vec
 		@param[out] result 
 	*/
 	template <typename T0, typename T1, typename T2>
-		inline	void	__fastcall	sub(const TVec2<T0>& v, const TVec2<T1>& w, TVec2<T2>& result)throw()
+		inline	void	__fastcall	sub(const M::TVec2<T0>& v, const M::TVec2<T1>& w, M::TVec2<T2>& result)throw()
 		{
 			result.x = v.x - w.x;
 			result.y = v.y - w.y;
@@ -2506,7 +2506,7 @@ namespace Vec
 		@param[out] result 
 	*/
 	template <typename T0, typename T1, typename T2>
-		inline	void	__fastcall	subtract(const TVec4<T0>& v, const TVec4<T1>& w, TVec4<T2>& result)throw()
+		inline	void	__fastcall	subtract(const M::TVec4<T0>& v, const M::TVec4<T1>& w, M::TVec4<T2>& result)throw()
 		{
 			result.x = v.x - w.x;
 			result.y = v.y - w.y;
@@ -2525,7 +2525,7 @@ namespace Vec
 		@param[out] result 
 	*/
 	template <typename T0, typename T1, typename T2>
-		inline	void	__fastcall	sub(const TVec4<T0>& v, const TVec4<T1>& w, TVec4<T2>& result)throw()
+		inline	void	__fastcall	sub(const M::TVec4<T0>& v, const M::TVec4<T1>& w, M::TVec4<T2>& result)throw()
 		{
 			result.x = v.x - w.x;
 			result.y = v.y - w.y;
@@ -2544,7 +2544,7 @@ namespace Vec
 		@param[in] w 
 	*/
 	template <typename T0, typename T1>
-		inline	void	__fastcall	subtract(TVec2<T0>& v, const TVec2<T1>& w)throw()
+		inline	void	__fastcall	subtract(M::TVec2<T0>& v, const M::TVec2<T1>& w)throw()
 		{
 			v.x -= w.x;
 			v.y -= w.y;
@@ -2560,7 +2560,7 @@ namespace Vec
 		@param[in] w 
 	*/
 	template <typename T0, typename T1>
-		inline	void	__fastcall	sub(TVec2<T0>& v, const TVec2<T1>& w)throw()
+		inline	void	__fastcall	sub(M::TVec2<T0>& v, const M::TVec2<T1>& w)throw()
 		{
 			v.x -= w.x;
 			v.y -= w.y;
@@ -2610,7 +2610,7 @@ namespace Vec
 		@param[in] w 
 	*/
 	template <typename T0, typename T1>
-		inline	void	__fastcall	subtract(TVec4<T0>& v, const TVec4<T1>& w)throw()
+		inline	void	__fastcall	subtract(M::TVec4<T0>& v, const M::TVec4<T1>& w)throw()
 		{
 			v.x -= w.x;
 			v.y -= w.y;
@@ -2628,7 +2628,7 @@ namespace Vec
 		@param[in] w 
 	*/
 	template <typename T0, typename T1>
-		inline	void	__fastcall	sub(TVec4<T0>& v, const TVec4<T1>& w)throw()
+		inline	void	__fastcall	sub(M::TVec4<T0>& v, const M::TVec4<T1>& w)throw()
 		{
 			v.x -= w.x;
 			v.y -= w.y;
@@ -2649,7 +2649,7 @@ namespace Vec
 		@param[out] result 
 	*/
 	template <typename T0, typename T1, typename T2>
-		inline	void	__fastcall	subtractValue(const TVec2<T0>& v, T1 value, TVec2<T2>& result)throw()
+		inline	void	__fastcall	subtractValue(const M::TVec2<T0>& v, T1 value, M::TVec2<T2>& result)throw()
 		{
 			result.x = v.x - value;
 			result.y = v.y - value;
@@ -2667,7 +2667,7 @@ namespace Vec
 		@param[out] result 
 	*/
 	template <typename T0, typename T1, typename T2>
-		inline	void	__fastcall	subVal(const TVec2<T0>& v, T1 value, TVec2<T2>& result)throw()
+		inline	void	__fastcall	subVal(const M::TVec2<T0>& v, T1 value, M::TVec2<T2>& result)throw()
 		{
 			result.x = v.x - value;
 			result.y = v.y - value;
@@ -2723,7 +2723,7 @@ namespace Vec
 		@param[out] result 
 	*/
 	template <typename T0, typename T1, typename T2>
-		inline	void	__fastcall	subtractValue(const TVec4<T0>& v, T1 value, TVec4<T2>& result)throw()
+		inline	void	__fastcall	subtractValue(const M::TVec4<T0>& v, T1 value, M::TVec4<T2>& result)throw()
 		{
 			result.x = v.x - value;
 			result.y = v.y - value;
@@ -2743,7 +2743,7 @@ namespace Vec
 		@param[out] result 
 	*/
 	template <typename T0, typename T1, typename T2>
-		inline	void	__fastcall	subVal(const TVec4<T0>& v, T1 value, TVec4<T2>& result)throw()
+		inline	void	__fastcall	subVal(const M::TVec4<T0>& v, T1 value, M::TVec4<T2>& result)throw()
 		{
 			result.x = v.x - value;
 			result.y = v.y - value;
@@ -2763,7 +2763,7 @@ namespace Vec
 		@param[in] value Value to subtract
 	*/
 	template <typename T0, typename T1>
-		inline	void	__fastcall	subtractValue(TVec2<T0>& v, T1 value)throw()
+		inline	void	__fastcall	subtractValue(M::TVec2<T0>& v, T1 value)throw()
 		{
 			v.x -= value;
 			v.y -= value;
@@ -2780,7 +2780,7 @@ namespace Vec
 		@param[in] value Value to subtract
 	*/
 	template <typename T0, typename T1>
-		inline	void	__fastcall	subVal(TVec2<T0>& v, T1 value)throw()
+		inline	void	__fastcall	subVal(M::TVec2<T0>& v, T1 value)throw()
 		{
 			v.x -= value;
 			v.y -= value;
@@ -2833,7 +2833,7 @@ namespace Vec
 		@param[in] value Value to subtract
 	*/
 	template <typename T0, typename T1>
-		inline	void	__fastcall	subtractValue(TVec4<T0>& v, T1 value)throw()
+		inline	void	__fastcall	subtractValue(M::TVec4<T0>& v, T1 value)throw()
 		{
 			v.x -= value;
 			v.y -= value;
@@ -2852,7 +2852,7 @@ namespace Vec
 		@param[in] value Value to subtract
 	*/
 	template <typename T0, typename T1>
-		inline	void	__fastcall	subVal(TVec4<T0>& v, T1 value)throw()
+		inline	void	__fastcall	subVal(M::TVec4<T0>& v, T1 value)throw()
 		{
 			v.x -= value;
 			v.y -= value;
@@ -2873,7 +2873,7 @@ namespace Vec
 		@param[out] result 
 	*/
 	template <typename T0, typename T1, typename T2>
-		inline	void	__fastcall	multiply(const TVec2<T0>& v, T1 factor, TVec2<T2>& result)throw()
+		inline	void	__fastcall	multiply(const M::TVec2<T0>& v, T1 factor, M::TVec2<T2>& result)throw()
 		{
 			result.x = v.x * factor;
 			result.y = v.y * factor;
@@ -2891,7 +2891,7 @@ namespace Vec
 		@param[out] result 
 	*/
 	template <typename T0, typename T1, typename T2>
-		inline	void	__fastcall	mult(const TVec2<T0>& v, T1 factor, TVec2<T2>& result)throw()
+		inline	void	__fastcall	mult(const M::TVec2<T0>& v, T1 factor, M::TVec2<T2>& result)throw()
 		{
 			result.x = v.x * factor;
 			result.y = v.y * factor;
@@ -2909,7 +2909,7 @@ namespace Vec
 		@param[out] result 
 	*/
 	template <typename T0, typename T1, typename T2>
-		inline	void	__fastcall	mul(const TVec2<T0>& v, T1 factor, TVec2<T2>& result)throw()
+		inline	void	__fastcall	mul(const M::TVec2<T0>& v, T1 factor, M::TVec2<T2>& result)throw()
 		{
 			result.x = v.x * factor;
 			result.y = v.y * factor;
@@ -2984,7 +2984,7 @@ namespace Vec
 		@param[out] result 
 	*/
 	template <typename T0, typename T1, typename T2>
-		inline	void	__fastcall	multiply(const TVec4<T0>& v, T1 factor, TVec4<T2>& result)throw()
+		inline	void	__fastcall	multiply(const M::TVec4<T0>& v, T1 factor, M::TVec4<T2>& result)throw()
 		{
 			result.x = v.x * factor;
 			result.y = v.y * factor;
@@ -3004,7 +3004,7 @@ namespace Vec
 		@param[out] result 
 	*/
 	template <typename T0, typename T1, typename T2>
-		inline	void	__fastcall	mult(const TVec4<T0>& v, T1 factor, TVec4<T2>& result)throw()
+		inline	void	__fastcall	mult(const M::TVec4<T0>& v, T1 factor, M::TVec4<T2>& result)throw()
 		{
 			result.x = v.x * factor;
 			result.y = v.y * factor;
@@ -3024,7 +3024,7 @@ namespace Vec
 		@param[out] result 
 	*/
 	template <typename T0, typename T1, typename T2>
-		inline	void	__fastcall	mul(const TVec4<T0>& v, T1 factor, TVec4<T2>& result)throw()
+		inline	void	__fastcall	mul(const M::TVec4<T0>& v, T1 factor, M::TVec4<T2>& result)throw()
 		{
 			result.x = v.x * factor;
 			result.y = v.y * factor;
@@ -3044,7 +3044,7 @@ namespace Vec
 		@param[in] factor 
 	*/
 	template <typename T0, typename T1>
-		inline	void	__fastcall	multiply(TVec2<T0>& v, T1 factor)throw()
+		inline	void	__fastcall	multiply(M::TVec2<T0>& v, T1 factor)throw()
 		{
 			v.x *= factor;
 			v.y *= factor;
@@ -3061,7 +3061,7 @@ namespace Vec
 		@param[in] factor 
 	*/
 	template <typename T0, typename T1>
-		inline	void	__fastcall	mult(TVec2<T0>& v, T1 factor)throw()
+		inline	void	__fastcall	mult(M::TVec2<T0>& v, T1 factor)throw()
 		{
 			v.x *= factor;
 			v.y *= factor;
@@ -3078,7 +3078,7 @@ namespace Vec
 		@param[in] factor 
 	*/
 	template <typename T0, typename T1>
-		inline	void	__fastcall	mul(TVec2<T0>& v, T1 factor)throw()
+		inline	void	__fastcall	mul(M::TVec2<T0>& v, T1 factor)throw()
 		{
 			v.x *= factor;
 			v.y *= factor;
@@ -3149,7 +3149,7 @@ namespace Vec
 		@param[in] factor 
 	*/
 	template <typename T0, typename T1>
-		inline	void	__fastcall	multiply(TVec4<T0>& v, T1 factor)throw()
+		inline	void	__fastcall	multiply(M::TVec4<T0>& v, T1 factor)throw()
 		{
 			v.x *= factor;
 			v.y *= factor;
@@ -3168,7 +3168,7 @@ namespace Vec
 		@param[in] factor 
 	*/
 	template <typename T0, typename T1>
-		inline	void	__fastcall	mult(TVec4<T0>& v, T1 factor)throw()
+		inline	void	__fastcall	mult(M::TVec4<T0>& v, T1 factor)throw()
 		{
 			v.x *= factor;
 			v.y *= factor;
@@ -3187,7 +3187,7 @@ namespace Vec
 		@param[in] factor 
 	*/
 	template <typename T0, typename T1>
-		inline	void	__fastcall	mul(TVec4<T0>& v, T1 factor)throw()
+		inline	void	__fastcall	mul(M::TVec4<T0>& v, T1 factor)throw()
 		{
 			v.x *= factor;
 			v.y *= factor;
@@ -3208,7 +3208,7 @@ namespace Vec
 		@param[out] result 
 	*/
 	template <typename T0, typename T1, typename T2>
-		inline	void	__fastcall	divide(const TVec2<T0>& v, T1 value, TVec2<T2>& result)throw()
+		inline	void	__fastcall	divide(const M::TVec2<T0>& v, T1 value, M::TVec2<T2>& result)throw()
 		{
 			result.x = v.x / value;
 			result.y = v.y / value;
@@ -3226,7 +3226,7 @@ namespace Vec
 		@param[out] result 
 	*/
 	template <typename T0, typename T1, typename T2>
-		inline	void	__fastcall	div(const TVec2<T0>& v, T1 value, TVec2<T2>& result)throw()
+		inline	void	__fastcall	div(const M::TVec2<T0>& v, T1 value, M::TVec2<T2>& result)throw()
 		{
 			result.x = v.x / value;
 			result.y = v.y / value;
@@ -3282,7 +3282,7 @@ namespace Vec
 		@param[out] result 
 	*/
 	template <typename T0, typename T1, typename T2>
-		inline	void	__fastcall	divide(const TVec4<T0>& v, T1 value, TVec4<T2>& result)throw()
+		inline	void	__fastcall	divide(const M::TVec4<T0>& v, T1 value, M::TVec4<T2>& result)throw()
 		{
 			result.x = v.x / value;
 			result.y = v.y / value;
@@ -3302,7 +3302,7 @@ namespace Vec
 		@param[out] result 
 	*/
 	template <typename T0, typename T1, typename T2>
-		inline	void	__fastcall	div(const TVec4<T0>& v, T1 value, TVec4<T2>& result)throw()
+		inline	void	__fastcall	div(const M::TVec4<T0>& v, T1 value, M::TVec4<T2>& result)throw()
 		{
 			result.x = v.x / value;
 			result.y = v.y / value;
@@ -3322,7 +3322,7 @@ namespace Vec
 		@param[in] value 
 	*/
 	template <typename T0, typename T1>
-		inline	void	__fastcall	divide(TVec2<T0>& v, T1 value)throw()
+		inline	void	__fastcall	divide(M::TVec2<T0>& v, T1 value)throw()
 		{
 			v.x /= value;
 			v.y /= value;
@@ -3339,7 +3339,7 @@ namespace Vec
 		@param[in] value 
 	*/
 	template <typename T0, typename T1>
-		inline	void	__fastcall	div(TVec2<T0>& v, T1 value)throw()
+		inline	void	__fastcall	div(M::TVec2<T0>& v, T1 value)throw()
 		{
 			v.x /= value;
 			v.y /= value;
@@ -3392,7 +3392,7 @@ namespace Vec
 		@param[in] value 
 	*/
 	template <typename T0, typename T1>
-		inline	void	__fastcall	divide(TVec4<T0>& v, T1 value)throw()
+		inline	void	__fastcall	divide(M::TVec4<T0>& v, T1 value)throw()
 		{
 			v.x /= value;
 			v.y /= value;
@@ -3411,7 +3411,7 @@ namespace Vec
 		@param[in] value 
 	*/
 	template <typename T0, typename T1>
-		inline	void	__fastcall	div(TVec4<T0>& v, T1 value)throw()
+		inline	void	__fastcall	div(M::TVec4<T0>& v, T1 value)throw()
 		{
 			v.x /= value;
 			v.y /= value;
@@ -3431,7 +3431,7 @@ namespace Vec
 		@param[out] result 
 	*/
 	template <typename T0, typename T1, typename T2>
-		inline	void	__fastcall	resolve(const TVec2<T0>& v, const TVec2<T1>& w, TVec2<T2>& result)throw()
+		inline	void	__fastcall	resolve(const M::TVec2<T0>& v, const M::TVec2<T1>& w, M::TVec2<T2>& result)throw()
 		{
 			result.x = v.x / w.x;
 			result.y = v.y / w.y;
@@ -3466,7 +3466,7 @@ namespace Vec
 		@param[out] result 
 	*/
 	template <typename T0, typename T1, typename T2>
-		inline	void	__fastcall	resolve(const TVec4<T0>& v, const TVec4<T1>& w, TVec4<T2>& result)throw()
+		inline	void	__fastcall	resolve(const M::TVec4<T0>& v, const M::TVec4<T1>& w, M::TVec4<T2>& result)throw()
 		{
 			result.x = v.x / w.x;
 			result.y = v.y / w.y;
@@ -3486,7 +3486,7 @@ namespace Vec
 		@param[out] result 
 	*/
 	template <typename T0, typename T1, typename T2>
-		inline	void	__fastcall	stretch(const TVec2<T0>& v, const TVec2<T1>& w, TVec2<T2>& result)throw()
+		inline	void	__fastcall	stretch(const M::TVec2<T0>& v, const M::TVec2<T1>& w, M::TVec2<T2>& result)throw()
 		{
 			result.x = v.x * w.x;
 			result.y = v.y * w.y;
@@ -3521,7 +3521,7 @@ namespace Vec
 		@param[out] result 
 	*/
 	template <typename T0, typename T1, typename T2>
-		inline	void	__fastcall	stretch(const TVec4<T0>& v, const TVec4<T1>& w, TVec4<T2>& result)throw()
+		inline	void	__fastcall	stretch(const M::TVec4<T0>& v, const M::TVec4<T1>& w, M::TVec4<T2>& result)throw()
 		{
 			result.x = v.x * w.x;
 			result.y = v.y * w.y;
@@ -3543,7 +3543,7 @@ namespace Vec
 		@param[out] result 
 	*/
 	template <typename T0, typename T1, typename T2, typename T3>
-		inline	void	__fastcall	interpolate(const TVec2<T0>& v, const TVec2<T1>& w, T2 f, TVec2<T3>& result)throw()
+		inline	void	__fastcall	interpolate(const M::TVec2<T0>& v, const M::TVec2<T1>& w, T2 f, M::TVec2<T3>& result)throw()
 		{
 			T3 i_ = T3(1)-f;
 			result.x = v.x * i_ + w.x * f;
@@ -3584,7 +3584,7 @@ namespace Vec
 		@param[out] result 
 	*/
 	template <typename T0, typename T1, typename T2, typename T3>
-		inline	void	__fastcall	interpolate(const TVec4<T0>& v, const TVec4<T1>& w, T2 f, TVec4<T3>& result)throw()
+		inline	void	__fastcall	interpolate(const M::TVec4<T0>& v, const M::TVec4<T1>& w, T2 f, M::TVec4<T3>& result)throw()
 		{
 			T3 i_ = T3(1)-f;
 			result.x = v.x * i_ + w.x * f;
@@ -3605,7 +3605,7 @@ namespace Vec
 		@param[out] result 
 	*/
 	template <typename T0, typename T1, typename T2>
-		inline	void	__fastcall	center(const TVec2<T0>& v, const TVec2<T1>& w, TVec2<T2>& result)throw()
+		inline	void	__fastcall	center(const M::TVec2<T0>& v, const M::TVec2<T1>& w, M::TVec2<T2>& result)throw()
 		{
 			result.x = (v.x + w.x)/T2(2);
 			result.y = (v.y + w.y)/T2(2);
@@ -3640,7 +3640,7 @@ namespace Vec
 		@param[out] result 
 	*/
 	template <typename T0, typename T1, typename T2>
-		inline	void	__fastcall	center(const TVec4<T0>& v, const TVec4<T1>& w, TVec4<T2>& result)throw()
+		inline	void	__fastcall	center(const M::TVec4<T0>& v, const M::TVec4<T1>& w, M::TVec4<T2>& result)throw()
 		{
 			result.x = (v.x + w.x)/T2(2);
 			result.y = (v.y + w.y)/T2(2);
@@ -3661,7 +3661,7 @@ namespace Vec
 		@param[out] result 
 	*/
 	template <typename T0, typename T1, typename T2, typename T3>
-		inline	void	__fastcall	center(const TVec2<T0>& u, const TVec2<T1>& v, const TVec2<T2>& w, TVec2<T3>& result)throw()
+		inline	void	__fastcall	center(const M::TVec2<T0>& u, const M::TVec2<T1>& v, const M::TVec2<T2>& w, M::TVec2<T3>& result)throw()
 		{
 			result.x = (u.x + v.x + w.x)/T3(3);
 			result.y = (u.y + v.y + w.y)/T3(3);
@@ -3698,7 +3698,7 @@ namespace Vec
 		@param[out] result 
 	*/
 	template <typename T0, typename T1, typename T2, typename T3>
-		inline	void	__fastcall	center(const TVec4<T0>& u, const TVec4<T1>& v, const TVec4<T2>& w, TVec4<T3>& result)throw()
+		inline	void	__fastcall	center(const M::TVec4<T0>& u, const M::TVec4<T1>& v, const M::TVec4<T2>& w, M::TVec4<T3>& result)throw()
 		{
 			result.x = (u.x + v.x + w.x)/T3(3);
 			result.y = (u.y + v.y + w.y)/T3(3);
@@ -3719,7 +3719,7 @@ namespace Vec
 		@param[in] scalar 
 	*/
 	template <typename T0, typename T1, typename T2>
-		inline	void	__fastcall	multAdd(TVec2<T0>& current, const TVec2<T1>& vector, T2 scalar)throw()
+		inline	void	__fastcall	multAdd(M::TVec2<T0>& current, const M::TVec2<T1>& vector, T2 scalar)throw()
 		{
 			current.x += vector.x * scalar;
 			current.y += vector.y * scalar;
@@ -3737,7 +3737,7 @@ namespace Vec
 		@param[in] scalar 
 	*/
 	template <typename T0, typename T1, typename T2>
-		inline	void	__fastcall	mad(TVec2<T0>& current, const TVec2<T1>& vector, T2 scalar)throw()
+		inline	void	__fastcall	mad(M::TVec2<T0>& current, const M::TVec2<T1>& vector, T2 scalar)throw()
 		{
 			current.x += vector.x * scalar;
 			current.y += vector.y * scalar;
@@ -3793,7 +3793,7 @@ namespace Vec
 		@param[in] scalar 
 	*/
 	template <typename T0, typename T1, typename T2>
-		inline	void	__fastcall	multAdd(TVec4<T0>& current, const TVec4<T1>& vector, T2 scalar)throw()
+		inline	void	__fastcall	multAdd(M::TVec4<T0>& current, const M::TVec4<T1>& vector, T2 scalar)throw()
 		{
 			current.x += vector.x * scalar;
 			current.y += vector.y * scalar;
@@ -3813,7 +3813,7 @@ namespace Vec
 		@param[in] scalar 
 	*/
 	template <typename T0, typename T1, typename T2>
-		inline	void	__fastcall	mad(TVec4<T0>& current, const TVec4<T1>& vector, T2 scalar)throw()
+		inline	void	__fastcall	mad(M::TVec4<T0>& current, const M::TVec4<T1>& vector, T2 scalar)throw()
 		{
 			current.x += vector.x * scalar;
 			current.y += vector.y * scalar;
@@ -3835,7 +3835,7 @@ namespace Vec
 		@param[out] result 
 	*/
 	template <typename T0, typename T1, typename T2, typename T3>
-		inline	void	__fastcall	multAdd(const TVec2<T0>& base, const TVec2<T1>& vector, T2 scalar, TVec2<T3>& result)throw()
+		inline	void	__fastcall	multAdd(const M::TVec2<T0>& base, const M::TVec2<T1>& vector, T2 scalar, M::TVec2<T3>& result)throw()
 		{
 			result.x = base.x + vector.x * scalar;
 			result.y = base.y + vector.y * scalar;
@@ -3854,7 +3854,7 @@ namespace Vec
 		@param[out] result 
 	*/
 	template <typename T0, typename T1, typename T2, typename T3>
-		inline	void	__fastcall	mad(const TVec2<T0>& base, const TVec2<T1>& vector, T2 scalar, TVec2<T3>& result)throw()
+		inline	void	__fastcall	mad(const M::TVec2<T0>& base, const M::TVec2<T1>& vector, T2 scalar, M::TVec2<T3>& result)throw()
 		{
 			result.x = base.x + vector.x * scalar;
 			result.y = base.y + vector.y * scalar;
@@ -3913,7 +3913,7 @@ namespace Vec
 		@param[out] result 
 	*/
 	template <typename T0, typename T1, typename T2, typename T3>
-		inline	void	__fastcall	multAdd(const TVec4<T0>& base, const TVec4<T1>& vector, T2 scalar, TVec4<T3>& result)throw()
+		inline	void	__fastcall	multAdd(const M::TVec4<T0>& base, const M::TVec4<T1>& vector, T2 scalar, M::TVec4<T3>& result)throw()
 		{
 			result.x = base.x + vector.x * scalar;
 			result.y = base.y + vector.y * scalar;
@@ -3934,7 +3934,7 @@ namespace Vec
 		@param[out] result 
 	*/
 	template <typename T0, typename T1, typename T2, typename T3>
-		inline	void	__fastcall	mad(const TVec4<T0>& base, const TVec4<T1>& vector, T2 scalar, TVec4<T3>& result)throw()
+		inline	void	__fastcall	mad(const M::TVec4<T0>& base, const M::TVec4<T1>& vector, T2 scalar, M::TVec4<T3>& result)throw()
 		{
 			result.x = base.x + vector.x * scalar;
 			result.y = base.y + vector.y * scalar;
@@ -3954,7 +3954,7 @@ namespace Vec
 		@return  
 	*/
 	template <typename T0, typename T1>
-		inline	T0	__fastcall	dot(const TVec2<T0>& v, const TVec2<T1>& w)throw()
+		inline	T0	__fastcall	dot(const M::TVec2<T0>& v, const M::TVec2<T1>& w)throw()
 		{
 			return v.x*w.x + v.y*w.y;
 		}
@@ -3986,7 +3986,7 @@ namespace Vec
 		@return  
 	*/
 	template <typename T0, typename T1>
-		inline	T0	__fastcall	dot(const TVec4<T0>& v, const TVec4<T1>& w)throw()
+		inline	T0	__fastcall	dot(const M::TVec4<T0>& v, const M::TVec4<T1>& w)throw()
 		{
 			return v.x*w.x + v.y*w.y + v.z*w.z + v.w*w.w;
 		}
@@ -4002,7 +4002,7 @@ namespace Vec
 		@return  
 	*/
 	template <typename T0>
-		inline	T0	__fastcall	dot(const TVec2<T0>& v)throw()
+		inline	T0	__fastcall	dot(const M::TVec2<T0>& v)throw()
 		{
 			return v.x*v.x + v.y*v.y;
 		}
@@ -4032,7 +4032,7 @@ namespace Vec
 		@return  
 	*/
 	template <typename T0>
-		inline	T0	__fastcall	dot(const TVec4<T0>& v)throw()
+		inline	T0	__fastcall	dot(const M::TVec4<T0>& v)throw()
 		{
 			return v.x*v.x + v.y*v.y + v.z*v.z + v.w*v.w;
 		}
@@ -4048,7 +4048,7 @@ namespace Vec
 		@return  
 	*/
 	template <typename T0>
-		inline	T0	__fastcall	sum(const TVec2<T0>& v)throw()
+		inline	T0	__fastcall	sum(const M::TVec2<T0>& v)throw()
 		{
 			return v.x + v.y;
 		}
@@ -4078,7 +4078,7 @@ namespace Vec
 		@return  
 	*/
 	template <typename T0>
-		inline	T0	__fastcall	sum(const TVec4<T0>& v)throw()
+		inline	T0	__fastcall	sum(const M::TVec4<T0>& v)throw()
 		{
 			return v.x + v.y + v.z + v.w;
 		}
@@ -4094,7 +4094,7 @@ namespace Vec
 		@return  
 	*/
 	template <typename T0>
-		inline	bool	__fastcall	zero(const TVec2<T0>& v)throw()
+		inline	bool	__fastcall	zero(const M::TVec2<T0>& v)throw()
 		{
 			return !v.x && !v.y;
 		}
@@ -4124,7 +4124,7 @@ namespace Vec
 		@return  
 	*/
 	template <typename T0>
-		inline	bool	__fastcall	zero(const TVec4<T0>& v)throw()
+		inline	bool	__fastcall	zero(const M::TVec4<T0>& v)throw()
 		{
 			return !v.x && !v.y && !v.z && !v.w;
 		}
@@ -4140,7 +4140,7 @@ namespace Vec
 		@return Length of <paramref>v</paramref> 
 	*/
 	template <typename T0>
-		inline	T0	__fastcall	length(const TVec2<T0>& v)throw()
+		inline	T0	__fastcall	length(const M::TVec2<T0>& v)throw()
 		{
 			return sqrt((v.x*v.x + v.y*v.y));
 		}
@@ -4170,7 +4170,7 @@ namespace Vec
 		@return Length of <paramref>v</paramref> 
 	*/
 	template <typename T0>
-		inline	T0	__fastcall	length(const TVec4<T0>& v)throw()
+		inline	T0	__fastcall	length(const M::TVec4<T0>& v)throw()
 		{
 			return sqrt((v.x*v.x + v.y*v.y + v.z*v.z + v.w*v.w));
 		}
@@ -4187,7 +4187,7 @@ namespace Vec
 		@return  
 	*/
 	template <typename T0, typename T1>
-		inline	T0	__fastcall	quadraticDistance(const TVec2<T0>& v, const TVec2<T1>& w)throw()
+		inline	T0	__fastcall	quadraticDistance(const M::TVec2<T0>& v, const M::TVec2<T1>& w)throw()
 		{
 			return Math::sqr(v.x - w.x) + Math::sqr(v.y - w.y);
 		}
@@ -4219,7 +4219,7 @@ namespace Vec
 		@return  
 	*/
 	template <typename T0, typename T1>
-		inline	T0	__fastcall	quadraticDistance(const TVec4<T0>& v, const TVec4<T1>& w)throw()
+		inline	T0	__fastcall	quadraticDistance(const M::TVec4<T0>& v, const M::TVec4<T1>& w)throw()
 		{
 			return Math::sqr(v.x - w.x) + Math::sqr(v.y - w.y) + Math::sqr(v.z - w.z) + Math::sqr(v.w - w.w);
 		}
@@ -4236,7 +4236,7 @@ namespace Vec
 		@return  
 	*/
 	template <typename T0, typename T1>
-		inline	T0	__fastcall	distance(const TVec2<T0>& v, const TVec2<T1>& w)throw()
+		inline	T0	__fastcall	distance(const M::TVec2<T0>& v, const M::TVec2<T1>& w)throw()
 		{
 			return sqrt( (Math::sqr(v.x - w.x) + Math::sqr(v.y - w.y)) );
 		}
@@ -4268,7 +4268,7 @@ namespace Vec
 		@return  
 	*/
 	template <typename T0, typename T1>
-		inline	T0	__fastcall	distance(const TVec4<T0>& v, const TVec4<T1>& w)throw()
+		inline	T0	__fastcall	distance(const M::TVec4<T0>& v, const M::TVec4<T1>& w)throw()
 		{
 			return sqrt( (Math::sqr(v.x - w.x) + Math::sqr(v.y - w.y) + Math::sqr(v.z - w.z) + Math::sqr(v.w - w.w)) );
 		}
@@ -4286,7 +4286,7 @@ namespace Vec
 		@param[out] out [out] Result
 	*/
 	template <typename T0, typename T1, typename T2, typename T3>
-		inline	void	__fastcall	reflectN(const TVec2<T0>& base, const TVec2<T1>& normal, const TVec2<T2>& p, TVec2<T3>& out)throw()
+		inline	void	__fastcall	reflectN(const M::TVec2<T0>& base, const M::TVec2<T1>& normal, const M::TVec2<T2>& p, M::TVec2<T3>& out)throw()
 		{
 			T3 fc = 2*( (base.x*normal.x + base.y*normal.y) - (p.x*normal.x + p.y*normal.y) );
 			
@@ -4333,7 +4333,7 @@ namespace Vec
 		@param[out] out [out] Result
 	*/
 	template <typename T0, typename T1, typename T2, typename T3>
-		inline	void	__fastcall	reflectN(const TVec4<T0>& base, const TVec4<T1>& normal, const TVec4<T2>& p, TVec4<T3>& out)throw()
+		inline	void	__fastcall	reflectN(const M::TVec4<T0>& base, const M::TVec4<T1>& normal, const M::TVec4<T2>& p, M::TVec4<T3>& out)throw()
 		{
 			T3 fc = 2*( (base.x*normal.x + base.y*normal.y + base.z*normal.z + base.w*normal.w) - (p.x*normal.x + p.y*normal.y + p.z*normal.z + p.w*normal.w) );
 			
@@ -4358,7 +4358,7 @@ namespace Vec
 		@param[out] p [inout] The point being reflected
 	*/
 	template <typename T0, typename T1, typename T2>
-		inline	void	__fastcall	reflectN(const TVec2<T0>& base, const TVec2<T1>& normal, TVec2<T2>& p)throw()
+		inline	void	__fastcall	reflectN(const M::TVec2<T0>& base, const M::TVec2<T1>& normal, M::TVec2<T2>& p)throw()
 		{
 			T2 fc = 2*( (base.x*normal.x + base.y*normal.y) - (p.x*normal.x + p.y*normal.y) );
 			
@@ -4403,7 +4403,7 @@ namespace Vec
 		@param[out] p [inout] The point being reflected
 	*/
 	template <typename T0, typename T1, typename T2>
-		inline	void	__fastcall	reflectN(const TVec4<T0>& base, const TVec4<T1>& normal, TVec4<T2>& p)throw()
+		inline	void	__fastcall	reflectN(const M::TVec4<T0>& base, const M::TVec4<T1>& normal, M::TVec4<T2>& p)throw()
 		{
 			T2 fc = 2*( (base.x*normal.x + base.y*normal.y + base.z*normal.z + base.w*normal.w) - (p.x*normal.x + p.y*normal.y + p.z*normal.z + p.w*normal.w) );
 			
@@ -4429,7 +4429,7 @@ namespace Vec
 		@param[out] out [out] Result
 	*/
 	template <typename T0, typename T1, typename T2, typename T3>
-		inline	void	__fastcall	reflect(const TVec2<T0>& base, const TVec2<T1>& normal, const TVec2<T2>& p, TVec2<T3>& out)throw()
+		inline	void	__fastcall	reflect(const M::TVec2<T0>& base, const M::TVec2<T1>& normal, const M::TVec2<T2>& p, M::TVec2<T3>& out)throw()
 		{
 			T3 fc = 2*( (base.x*normal.x + base.y*normal.y) - (p.x*normal.x + p.y*normal.y) ) / (normal.x*normal.x + normal.y*normal.y);
 			
@@ -4476,7 +4476,7 @@ namespace Vec
 		@param[out] out [out] Result
 	*/
 	template <typename T0, typename T1, typename T2, typename T3>
-		inline	void	__fastcall	reflect(const TVec4<T0>& base, const TVec4<T1>& normal, const TVec4<T2>& p, TVec4<T3>& out)throw()
+		inline	void	__fastcall	reflect(const M::TVec4<T0>& base, const M::TVec4<T1>& normal, const M::TVec4<T2>& p, M::TVec4<T3>& out)throw()
 		{
 			T3 fc = 2*( (base.x*normal.x + base.y*normal.y + base.z*normal.z + base.w*normal.w) - (p.x*normal.x + p.y*normal.y + p.z*normal.z + p.w*normal.w) ) / (normal.x*normal.x + normal.y*normal.y + normal.z*normal.z + normal.w*normal.w);
 			
@@ -4501,7 +4501,7 @@ namespace Vec
 		@param[out] p The point being reflected
 	*/
 	template <typename T0, typename T1, typename T2>
-		inline	void	__fastcall	reflect(const TVec2<T0>& base, const TVec2<T1>& normal, TVec2<T2>& p)throw()
+		inline	void	__fastcall	reflect(const M::TVec2<T0>& base, const M::TVec2<T1>& normal, M::TVec2<T2>& p)throw()
 		{
 			T2 fc = 2*( (base.x*normal.x + base.y*normal.y) - (p.x*normal.x + p.y*normal.y) ) / (normal.x*normal.x + normal.y*normal.y);
 			
@@ -4546,7 +4546,7 @@ namespace Vec
 		@param[out] p The point being reflected
 	*/
 	template <typename T0, typename T1, typename T2>
-		inline	void	__fastcall	reflect(const TVec4<T0>& base, const TVec4<T1>& normal, TVec4<T2>& p)throw()
+		inline	void	__fastcall	reflect(const M::TVec4<T0>& base, const M::TVec4<T1>& normal, M::TVec4<T2>& p)throw()
 		{
 			T2 fc = 2*( (base.x*normal.x + base.y*normal.y + base.z*normal.z + base.w*normal.w) - (p.x*normal.x + p.y*normal.y + p.z*normal.z + p.w*normal.w) ) / (normal.x*normal.x + normal.y*normal.y + normal.z*normal.z + normal.w*normal.w);
 			
@@ -4571,7 +4571,7 @@ namespace Vec
 		@param[out] out Reflection result
 	*/
 	template <typename T0, typename T1, typename T2>
-		inline	void	__fastcall	reflectVectorN(const TVec2<T0>& normal, const TVec2<T1>& v, TVec2<T2>& out)throw()
+		inline	void	__fastcall	reflectVectorN(const M::TVec2<T0>& normal, const M::TVec2<T1>& v, M::TVec2<T2>& out)throw()
 		{
 			T2 fc = 2*( - (v.x*normal.x + v.y*normal.y) );
 			
@@ -4616,7 +4616,7 @@ namespace Vec
 		@param[out] out Reflection result
 	*/
 	template <typename T0, typename T1, typename T2>
-		inline	void	__fastcall	reflectVectorN(const TVec4<T0>& normal, const TVec4<T1>& v, TVec4<T2>& out)throw()
+		inline	void	__fastcall	reflectVectorN(const M::TVec4<T0>& normal, const M::TVec4<T1>& v, M::TVec4<T2>& out)throw()
 		{
 			T2 fc = 2*( - (v.x*normal.x + v.y*normal.y + v.z*normal.z + v.w*normal.w) );
 			
@@ -4640,7 +4640,7 @@ namespace Vec
 		@param[out] v [inout] The vector being reflected. May be of any length.
 	*/
 	template <typename T0, typename T1>
-		inline	void	__fastcall	reflectVectorN(const TVec2<T0>& normal, TVec2<T1>& v)throw()
+		inline	void	__fastcall	reflectVectorN(const M::TVec2<T0>& normal, M::TVec2<T1>& v)throw()
 		{
 			T1 fc = 2*( - (v.x*normal.x + v.y*normal.y) );
 			
@@ -4683,7 +4683,7 @@ namespace Vec
 		@param[out] v [inout] The vector being reflected. May be of any length.
 	*/
 	template <typename T0, typename T1>
-		inline	void	__fastcall	reflectVectorN(const TVec4<T0>& normal, TVec4<T1>& v)throw()
+		inline	void	__fastcall	reflectVectorN(const M::TVec4<T0>& normal, M::TVec4<T1>& v)throw()
 		{
 			T1 fc = 2*( - (v.x*normal.x + v.y*normal.y + v.z*normal.z + v.w*normal.w) );
 			
@@ -4708,7 +4708,7 @@ namespace Vec
 		@param[out] out [out] Reflection result
 	*/
 	template <typename T0, typename T1, typename T2>
-		inline	void	__fastcall	reflectVector(const TVec2<T0>& normal, const TVec2<T1>& v, TVec2<T2>& out)throw()
+		inline	void	__fastcall	reflectVector(const M::TVec2<T0>& normal, const M::TVec2<T1>& v, M::TVec2<T2>& out)throw()
 		{
 			T2 fc = 2*( - (v.x*normal.x + v.y*normal.y) )/(normal.x*normal.x + normal.y*normal.y);
 			
@@ -4753,7 +4753,7 @@ namespace Vec
 		@param[out] out [out] Reflection result
 	*/
 	template <typename T0, typename T1, typename T2>
-		inline	void	__fastcall	reflectVector(const TVec4<T0>& normal, const TVec4<T1>& v, TVec4<T2>& out)throw()
+		inline	void	__fastcall	reflectVector(const M::TVec4<T0>& normal, const M::TVec4<T1>& v, M::TVec4<T2>& out)throw()
 		{
 			T2 fc = 2*( - (v.x*normal.x + v.y*normal.y + v.z*normal.z + v.w*normal.w) )/(normal.x*normal.x + normal.y*normal.y + normal.z*normal.z + normal.w*normal.w);
 			
@@ -4777,7 +4777,7 @@ namespace Vec
 		@param[out] v [inout] The vector being reflected. May be of any length.
 	*/
 	template <typename T0, typename T1>
-		inline	void	__fastcall	reflectVector(const TVec2<T0>& normal, TVec2<T1>& v)throw()
+		inline	void	__fastcall	reflectVector(const M::TVec2<T0>& normal, M::TVec2<T1>& v)throw()
 		{
 			T1 fc = 2*( - (v.x*normal.x + v.y*normal.y) )/(normal.x*normal.x + normal.y*normal.y);
 			
@@ -4820,7 +4820,7 @@ namespace Vec
 		@param[out] v [inout] The vector being reflected. May be of any length.
 	*/
 	template <typename T0, typename T1>
-		inline	void	__fastcall	reflectVector(const TVec4<T0>& normal, TVec4<T1>& v)throw()
+		inline	void	__fastcall	reflectVector(const M::TVec4<T0>& normal, M::TVec4<T1>& v)throw()
 		{
 			T1 fc = 2*( - (v.x*normal.x + v.y*normal.y + v.z*normal.z + v.w*normal.w) )/(normal.x*normal.x + normal.y*normal.y + normal.z*normal.z + normal.w*normal.w);
 			
@@ -4849,7 +4849,7 @@ namespace Vec
 		@param[out] result 
 	*/
 	template <typename T0, typename T1, typename T2, typename T3, typename T4, typename T5>
-		inline	void	__fastcall	resolveUCBS(const TVec2<T0>& p0, const TVec2<T1>& p1, const TVec2<T2>& p2, const TVec2<T3>& p3, T4 t, TVec2<T5>& result)throw()
+		inline	void	__fastcall	resolveUCBS(const M::TVec2<T0>& p0, const M::TVec2<T1>& p1, const M::TVec2<T2>& p2, const M::TVec2<T3>& p3, T4 t, M::TVec2<T5>& result)throw()
 		{
 			T5	//i = 1-t,
 					f0 = (-t*t*t+3*t*t-3*t+1)/6,
@@ -4902,7 +4902,7 @@ namespace Vec
 		@param[out] result 
 	*/
 	template <typename T0, typename T1, typename T2, typename T3, typename T4, typename T5>
-		inline	void	__fastcall	resolveUCBS(const TVec4<T0>& p0, const TVec4<T1>& p1, const TVec4<T2>& p2, const TVec4<T3>& p3, T4 t, TVec4<T5>& result)throw()
+		inline	void	__fastcall	resolveUCBS(const M::TVec4<T0>& p0, const M::TVec4<T1>& p1, const M::TVec4<T2>& p2, const M::TVec4<T3>& p3, T4 t, M::TVec4<T5>& result)throw()
 		{
 			T5	//i = 1-t,
 					f0 = (-t*t*t+3*t*t-3*t+1)/6,
@@ -4931,7 +4931,7 @@ namespace Vec
 		@param[out] result 
 	*/
 	template <typename T0, typename T1, typename T2, typename T3, typename T4, typename T5>
-		inline	void	__fastcall	resolveUCBSaxis(const TVec2<T0>& p0, const TVec2<T1>& p1, const TVec2<T2>& p2, const TVec2<T3>& p3, T4 t, TVec2<T5>& result)throw()
+		inline	void	__fastcall	resolveUCBSaxis(const M::TVec2<T0>& p0, const M::TVec2<T1>& p1, const M::TVec2<T2>& p2, const M::TVec2<T3>& p3, T4 t, M::TVec2<T5>& result)throw()
 		{
 			T5	//i = 1-t,
 					f0 = (t*t-2*t+1)/2,
@@ -4982,7 +4982,7 @@ namespace Vec
 		@param[out] result 
 	*/
 	template <typename T0, typename T1, typename T2, typename T3, typename T4, typename T5>
-		inline	void	__fastcall	resolveUCBSaxis(const TVec4<T0>& p0, const TVec4<T1>& p1, const TVec4<T2>& p2, const TVec4<T3>& p3, T4 t, TVec4<T5>& result)throw()
+		inline	void	__fastcall	resolveUCBSaxis(const M::TVec4<T0>& p0, const M::TVec4<T1>& p1, const M::TVec4<T2>& p2, const M::TVec4<T3>& p3, T4 t, M::TVec4<T5>& result)throw()
 		{
 			T5	//i = 1-t,
 					f0 = (t*t-2*t+1)/2,
@@ -5010,7 +5010,7 @@ namespace Vec
 		@param[out] result 
 	*/
 	template <typename T0, typename T1, typename T2, typename T3, typename T4, typename T5>
-		inline	void	__fastcall	resolveBezierCurvePoint(const TVec2<T0>& p0, const TVec2<T1>& p1, const TVec2<T2>& p2, const TVec2<T3>& p3, T4 t, TVec2<T5>& result)throw()
+		inline	void	__fastcall	resolveBezierCurvePoint(const M::TVec2<T0>& p0, const M::TVec2<T1>& p1, const M::TVec2<T2>& p2, const M::TVec2<T3>& p3, T4 t, M::TVec2<T5>& result)throw()
 		{
 			T5	i = 1-t,
 					f3 = t*t*t,
@@ -5063,7 +5063,7 @@ namespace Vec
 		@param[out] result 
 	*/
 	template <typename T0, typename T1, typename T2, typename T3, typename T4, typename T5>
-		inline	void	__fastcall	resolveBezierCurvePoint(const TVec4<T0>& p0, const TVec4<T1>& p1, const TVec4<T2>& p2, const TVec4<T3>& p3, T4 t, TVec4<T5>& result)throw()
+		inline	void	__fastcall	resolveBezierCurvePoint(const M::TVec4<T0>& p0, const M::TVec4<T1>& p1, const M::TVec4<T2>& p2, const M::TVec4<T3>& p3, T4 t, M::TVec4<T5>& result)throw()
 		{
 			T5	i = 1-t,
 					f3 = t*t*t,
@@ -5092,7 +5092,7 @@ namespace Vec
 		@param[out] result 
 	*/
 	template <typename T0, typename T1, typename T2, typename T3, typename T4, typename T5>
-		inline	void	__fastcall	resolveBezierCurveAxis(const TVec2<T0>& p0, const TVec2<T1>& p1, const TVec2<T2>& p2, const TVec2<T3>& p3, T4 t, TVec2<T5>& result)throw()
+		inline	void	__fastcall	resolveBezierCurveAxis(const M::TVec2<T0>& p0, const M::TVec2<T1>& p1, const M::TVec2<T2>& p2, const M::TVec2<T3>& p3, T4 t, M::TVec2<T5>& result)throw()
 		{
 			T5	i = 1-t,
 					f2 = t*t,
@@ -5173,7 +5173,7 @@ namespace Vec
 		@param[out] result 
 	*/
 	template <typename T0, typename T1, typename T2, typename T3, typename T4, typename T5>
-		inline	void	__fastcall	resolveBezierCurveAxis(const TVec4<T0>& p0, const TVec4<T1>& p1, const TVec4<T2>& p2, const TVec4<T3>& p3, T4 t, TVec4<T5>& result)throw()
+		inline	void	__fastcall	resolveBezierCurveAxis(const M::TVec4<T0>& p0, const M::TVec4<T1>& p1, const M::TVec4<T2>& p2, const M::TVec4<T3>& p3, T4 t, M::TVec4<T5>& result)throw()
 		{
 			T5	i = 1-t,
 					f2 = t*t,
@@ -5222,7 +5222,7 @@ namespace Vec
 		@param[out] out3 
 	*/
 	template <typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8>
-		inline	void	__fastcall	SplitBezierCurveAxis(const TVec2<T0>& p0, const TVec2<T1>& p1, const TVec2<T2>& p2, const TVec2<T3>& p3, T4 t, TVec2<T5>& out0, TVec2<T6>& out1, TVec2<T7>& out2, TVec2<T8>& out3)throw()
+		inline	void	__fastcall	SplitBezierCurveAxis(const M::TVec2<T0>& p0, const M::TVec2<T1>& p1, const M::TVec2<T2>& p2, const M::TVec2<T3>& p3, T4 t, M::TVec2<T5>& out0, M::TVec2<T6>& out1, M::TVec2<T7>& out2, M::TVec2<T8>& out3)throw()
 		{
 			{
 				T5 x01 = (p1.x - p0.x)*t + p0.x;
@@ -5326,7 +5326,7 @@ namespace Vec
 		@param[out] out3 
 	*/
 	template <typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8>
-		inline	void	__fastcall	SplitBezierCurveAxis(const TVec4<T0>& p0, const TVec4<T1>& p1, const TVec4<T2>& p2, const TVec4<T3>& p3, T4 t, TVec4<T5>& out0, TVec4<T6>& out1, TVec4<T7>& out2, TVec4<T8>& out3)throw()
+		inline	void	__fastcall	SplitBezierCurveAxis(const M::TVec4<T0>& p0, const M::TVec4<T1>& p1, const M::TVec4<T2>& p2, const M::TVec4<T3>& p3, T4 t, M::TVec4<T5>& out0, M::TVec4<T6>& out1, M::TVec4<T7>& out2, M::TVec4<T8>& out3)throw()
 		{
 			{
 				T5 x01 = (p1.x - p0.x)*t + p0.x;
@@ -5392,7 +5392,7 @@ namespace Vec
 		@return -1 if <paramref>v0</paramref> is lexicographically less than <paramref>v1</paramref>, 0 if they are identical, +1 if <paramref>v0</paramref> is lexicographically greater than <paramref>v1</paramref> 
 	*/
 	template <typename T0, typename T1, typename T2>
-		inline	char	__fastcall	compare(const TVec2<T0>& v0, const TVec2<T1>& v1, T2 tolerance)throw()
+		inline	char	__fastcall	compare(const M::TVec2<T0>& v0, const M::TVec2<T1>& v1, T2 tolerance)throw()
 		{
 			{
 				T0 delta = v0.x - v1.x;
@@ -5463,7 +5463,7 @@ namespace Vec
 		@return -1 if <paramref>v0</paramref> is lexicographically less than <paramref>v1</paramref>, 0 if they are identical, +1 if <paramref>v0</paramref> is lexicographically greater than <paramref>v1</paramref> 
 	*/
 	template <typename T0, typename T1, typename T2>
-		inline	char	__fastcall	compare(const TVec4<T0>& v0, const TVec4<T1>& v1, T2 tolerance)throw()
+		inline	char	__fastcall	compare(const M::TVec4<T0>& v0, const M::TVec4<T1>& v1, T2 tolerance)throw()
 		{
 			{
 				T0 delta = v0.x - v1.x;
@@ -6606,7 +6606,7 @@ namespace Vec
 		@return -1 if <paramref>v0</paramref> is lexicographically less than <paramref>v1</paramref>, 0 if they are identical, +1 if <paramref>v0</paramref> is lexicographically greater than <paramref>v1</paramref> 
 	*/
 	template <typename T0, typename T1>
-		inline	char	__fastcall	compare(const TVec2<T0>& v0, const TVec2<T1>& v1)throw()
+		inline	char	__fastcall	compare(const M::TVec2<T0>& v0, const M::TVec2<T1>& v1)throw()
 		{
 			return compare(v0,v1,(TypeInfo<T0>::error));
 		}
@@ -6638,7 +6638,7 @@ namespace Vec
 		@return -1 if <paramref>v0</paramref> is lexicographically less than <paramref>v1</paramref>, 0 if they are identical, +1 if <paramref>v0</paramref> is lexicographically greater than <paramref>v1</paramref> 
 	*/
 	template <typename T0, typename T1>
-		inline	char	__fastcall	compare(const TVec4<T0>& v0, const TVec4<T1>& v1)throw()
+		inline	char	__fastcall	compare(const M::TVec4<T0>& v0, const M::TVec4<T1>& v1)throw()
 		{
 			return compare(v0,v1,(TypeInfo<T0>::error));
 		}
@@ -6847,7 +6847,7 @@ namespace Vec
 		@return  
 	*/
 	template <typename T0, typename T1>
-		inline	bool	__fastcall	equal(const TVec2<T0>& v, const TVec2<T1>& w)throw()
+		inline	bool	__fastcall	equal(const M::TVec2<T0>& v, const M::TVec2<T1>& w)throw()
 		{
 			return v.x == w.x && v.y == w.y;
 		}
@@ -6879,7 +6879,7 @@ namespace Vec
 		@return  
 	*/
 	template <typename T0, typename T1>
-		inline	bool	__fastcall	equal(const TVec4<T0>& v, const TVec4<T1>& w)throw()
+		inline	bool	__fastcall	equal(const M::TVec4<T0>& v, const M::TVec4<T1>& w)throw()
 		{
 			return v.x == w.x && v.y == w.y && v.z == w.z && v.w == w.w;
 		}
@@ -6898,7 +6898,7 @@ namespace Vec
 		@return true, if <paramref>v</paramref> and <paramref>w</paramref> are similar in accordance to the specified distance, false otherwise 
 	*/
 	template <typename T0, typename T1, typename T2>
-		inline	bool	__fastcall	similar(const TVec2<T0>& v, const TVec2<T1>& w, T2 tolerance)throw()
+		inline	bool	__fastcall	similar(const M::TVec2<T0>& v, const M::TVec2<T1>& w, T2 tolerance)throw()
 		{
 			return Math::sqr(v.x - w.x) + Math::sqr(v.y - w.y) < tolerance*tolerance;
 		}
@@ -6934,7 +6934,7 @@ namespace Vec
 		@return true, if <paramref>v</paramref> and <paramref>w</paramref> are similar in accordance to the specified distance, false otherwise 
 	*/
 	template <typename T0, typename T1, typename T2>
-		inline	bool	__fastcall	similar(const TVec4<T0>& v, const TVec4<T1>& w, T2 tolerance)throw()
+		inline	bool	__fastcall	similar(const M::TVec4<T0>& v, const M::TVec4<T1>& w, T2 tolerance)throw()
 		{
 			return Math::sqr(v.x - w.x) + Math::sqr(v.y - w.y) + Math::sqr(v.z - w.z) + Math::sqr(v.w - w.w) < tolerance*tolerance;
 		}
@@ -6951,7 +6951,7 @@ namespace Vec
 		@return true, if <paramref>v</paramref> and <paramref>w</paramref> are similar, false otherwise 
 	*/
 	template <typename T0, typename T1>
-		inline	bool	__fastcall	similar(const TVec2<T0>& v, const TVec2<T1>& w)throw()
+		inline	bool	__fastcall	similar(const M::TVec2<T0>& v, const M::TVec2<T1>& w)throw()
 		{
 			return (Math::sqr(v.x - w.x) + Math::sqr(v.y - w.y) < (TypeInfo<T0>::error)*(TypeInfo<T0>::error));
 		}
@@ -6983,7 +6983,7 @@ namespace Vec
 		@return true, if <paramref>v</paramref> and <paramref>w</paramref> are similar, false otherwise 
 	*/
 	template <typename T0, typename T1>
-		inline	bool	__fastcall	similar(const TVec4<T0>& v, const TVec4<T1>& w)throw()
+		inline	bool	__fastcall	similar(const M::TVec4<T0>& v, const M::TVec4<T1>& w)throw()
 		{
 			return (Math::sqr(v.x - w.x) + Math::sqr(v.y - w.y) + Math::sqr(v.z - w.z) + Math::sqr(v.w - w.w) < (TypeInfo<T0>::error)*(TypeInfo<T0>::error));
 		}
@@ -7000,7 +7000,7 @@ namespace Vec
 		@return Greatest axial distance between v and w 
 	*/
 	template <typename T0, typename T1>
-		inline	T0	__fastcall	maxAxisDistance(const TVec2<T0>& v, const TVec2<T1>& w)throw()
+		inline	T0	__fastcall	maxAxisDistance(const M::TVec2<T0>& v, const M::TVec2<T1>& w)throw()
 		{
 			using std::fabs;
 			return vmax(fabs(v.x-w.x), fabs(v.y-w.y));
@@ -7034,7 +7034,7 @@ namespace Vec
 		@return Greatest axial distance between v and w 
 	*/
 	template <typename T0, typename T1>
-		inline	T0	__fastcall	maxAxisDistance(const TVec4<T0>& v, const TVec4<T1>& w)throw()
+		inline	T0	__fastcall	maxAxisDistance(const M::TVec4<T0>& v, const M::TVec4<T1>& w)throw()
 		{
 			using std::fabs;
 			return vmax(vmax(fabs(v.x-w.x), fabs(v.y-w.y)), vmax(fabs(v.z-w.z), fabs(v.w-w.w)));
@@ -7053,7 +7053,7 @@ namespace Vec
 		@return absolute distance 
 	*/
 	template <typename T0, typename T1, typename T2>
-		inline	T0	__fastcall	planePointDistanceN(const TVec2<T0>& base, const TVec2<T1>& normal, const TVec2<T2>& p)throw()
+		inline	T0	__fastcall	planePointDistanceN(const M::TVec2<T0>& base, const M::TVec2<T1>& normal, const M::TVec2<T2>& p)throw()
 		{
 			return ((p.x*normal.x + p.y*normal.y) - (base.x*normal.x + base.y*normal.y));
 		}
@@ -7087,7 +7087,7 @@ namespace Vec
 		@return absolute distance 
 	*/
 	template <typename T0, typename T1, typename T2>
-		inline	T0	__fastcall	planePointDistanceN(const TVec4<T0>& base, const TVec4<T1>& normal, const TVec4<T2>& p)throw()
+		inline	T0	__fastcall	planePointDistanceN(const M::TVec4<T0>& base, const M::TVec4<T1>& normal, const M::TVec4<T2>& p)throw()
 		{
 			return ((p.x*normal.x + p.y*normal.y + p.z*normal.z + p.w*normal.w) - (base.x*normal.x + base.y*normal.y + base.z*normal.z + base.w*normal.w));
 		}
@@ -7105,7 +7105,7 @@ namespace Vec
 		@return absolute distance 
 	*/
 	template <typename T0, typename T1, typename T2>
-		inline	T0	__fastcall	planePointDistance(const TVec2<T0>& base, const TVec2<T1>& normal, const TVec2<T2>& p)throw()
+		inline	T0	__fastcall	planePointDistance(const M::TVec2<T0>& base, const M::TVec2<T1>& normal, const M::TVec2<T2>& p)throw()
 		{
 			return ((p.x*normal.x + p.y*normal.y) - (base.x*normal.x + base.y*normal.y)) / (sqrt((normal.x*normal.x + normal.y*normal.y)));
 		}
@@ -7139,7 +7139,7 @@ namespace Vec
 		@return absolute distance 
 	*/
 	template <typename T0, typename T1, typename T2>
-		inline	T0	__fastcall	planePointDistance(const TVec4<T0>& base, const TVec4<T1>& normal, const TVec4<T2>& p)throw()
+		inline	T0	__fastcall	planePointDistance(const M::TVec4<T0>& base, const M::TVec4<T1>& normal, const M::TVec4<T2>& p)throw()
 		{
 			return ((p.x*normal.x + p.y*normal.y + p.z*normal.z + p.w*normal.w) - (base.x*normal.x + base.y*normal.y + base.z*normal.z + base.w*normal.w)) / (sqrt((normal.x*normal.x + normal.y*normal.y + normal.z*normal.z + normal.w*normal.w)));
 		}
@@ -7157,7 +7157,7 @@ namespace Vec
 		@param[out] current 
 	*/
 	template <typename T0, typename T1, typename T2>
-		inline	void	__fastcall	scale(const TVec2<T0>& center, T1 factor, TVec2<T2>& current)throw()
+		inline	void	__fastcall	scale(const M::TVec2<T0>& center, T1 factor, M::TVec2<T2>& current)throw()
 		{
 			current.x = center.x+(current.x-center.x)*factor;
 			current.y = center.y+(current.y-center.y)*factor;
@@ -7194,7 +7194,7 @@ namespace Vec
 		@param[out] current 
 	*/
 	template <typename T0, typename T1, typename T2>
-		inline	void	__fastcall	scale(const TVec4<T0>& center, T1 factor, TVec4<T2>& current)throw()
+		inline	void	__fastcall	scale(const M::TVec4<T0>& center, T1 factor, M::TVec4<T2>& current)throw()
 		{
 			current.x = center.x+(current.x-center.x)*factor;
 			current.y = center.y+(current.y-center.y)*factor;
@@ -7215,7 +7215,7 @@ namespace Vec
 		@param[out] current 
 	*/
 	template <typename T0, typename T1, typename T2>
-		inline	void	__fastcall	scaleAbsolute(const TVec2<T0>& center, T1 distance, TVec2<T2>& current)throw()
+		inline	void	__fastcall	scaleAbsolute(const M::TVec2<T0>& center, T1 distance, M::TVec2<T2>& current)throw()
 		{
 			T2 len = (sqrt( (Math::sqr(current.x - center.x) + Math::sqr(current.y - center.y)) ));
 			
@@ -7262,7 +7262,7 @@ namespace Vec
 		@param[out] current 
 	*/
 	template <typename T0, typename T1, typename T2>
-		inline	void	__fastcall	scaleAbsolute(const TVec4<T0>& center, T1 distance, TVec4<T2>& current)throw()
+		inline	void	__fastcall	scaleAbsolute(const M::TVec4<T0>& center, T1 distance, M::TVec4<T2>& current)throw()
 		{
 			T2 len = (sqrt( (Math::sqr(current.x - center.x) + Math::sqr(current.y - center.y) + Math::sqr(current.z - center.z) + Math::sqr(current.w - center.w)) ));
 			
@@ -7288,7 +7288,7 @@ namespace Vec
 		@param[out] current 
 	*/
 	template <typename T0, typename T1, typename T2>
-		inline	void	__fastcall	scaleAbsolute0(const TVec2<T0>& center, T1 distance, TVec2<T2>& current)throw()
+		inline	void	__fastcall	scaleAbsolute0(const M::TVec2<T0>& center, T1 distance, M::TVec2<T2>& current)throw()
 		{
 			T2 len = (sqrt( (Math::sqr(current.x - center.x) + Math::sqr(current.y - center.y)) ));
 			if (len > TypeInfo<T2>::error)
@@ -7345,7 +7345,7 @@ namespace Vec
 		@param[out] current 
 	*/
 	template <typename T0, typename T1, typename T2>
-		inline	void	__fastcall	scaleAbsolute0(const TVec4<T0>& center, T1 distance, TVec4<T2>& current)throw()
+		inline	void	__fastcall	scaleAbsolute0(const M::TVec4<T0>& center, T1 distance, M::TVec4<T2>& current)throw()
 		{
 			T2 len = (sqrt( (Math::sqr(current.x - center.x) + Math::sqr(current.y - center.y) + Math::sqr(current.z - center.z) + Math::sqr(current.w - center.w)) ));
 			if (len > TypeInfo<T2>::error)
@@ -7373,7 +7373,7 @@ namespace Vec
 		@param[out] vector 
 	*/
 	template <typename T0>
-		inline	void	__fastcall	normalize(TVec2<T0>& vector)throw()
+		inline	void	__fastcall	normalize(M::TVec2<T0>& vector)throw()
 		{
 			T0 len = sqrt((vector.x*vector.x + vector.y*vector.y));
 			vector.x /= len;
@@ -7406,7 +7406,7 @@ namespace Vec
 		@param[out] vector 
 	*/
 	template <typename T0>
-		inline	void	__fastcall	normalize(TVec4<T0>& vector)throw()
+		inline	void	__fastcall	normalize(M::TVec4<T0>& vector)throw()
 		{
 			T0 len = sqrt((vector.x*vector.x + vector.y*vector.y + vector.z*vector.z + vector.w*vector.w));
 			vector.x /= len;
@@ -7425,7 +7425,7 @@ namespace Vec
 		@param[out] vector 
 	*/
 	template <typename T0>
-		inline	void	__fastcall	normalize0(TVec2<T0>& vector)throw()
+		inline	void	__fastcall	normalize0(M::TVec2<T0>& vector)throw()
 		{
 			T0 len = (vector.x*vector.x + vector.y*vector.y);
 			if (isnan(len) || len == 0)
@@ -7473,7 +7473,7 @@ namespace Vec
 		@param[out] vector 
 	*/
 	template <typename T0>
-		inline	void	__fastcall	normalize0(TVec4<T0>& vector)throw()
+		inline	void	__fastcall	normalize0(M::TVec4<T0>& vector)throw()
 		{
 			T0 len = (vector.x*vector.x + vector.y*vector.y + vector.z*vector.z + vector.w*vector.w);
 			if (isnan(len) || len == 0)
@@ -7501,7 +7501,7 @@ namespace Vec
 		@param[out] v 
 	*/
 	template <typename T0>
-		inline	void	__fastcall	abs(TVec2<T0>& v)throw()
+		inline	void	__fastcall	abs(M::TVec2<T0>& v)throw()
 		{
 			using std::fabs;
 			v.x = fabs(v.x);
@@ -7534,7 +7534,7 @@ namespace Vec
 		@param[out] v 
 	*/
 	template <typename T0>
-		inline	void	__fastcall	abs(TVec4<T0>& v)throw()
+		inline	void	__fastcall	abs(M::TVec4<T0>& v)throw()
 		{
 			using std::fabs;
 			v.x = fabs(v.x);
@@ -7555,7 +7555,7 @@ namespace Vec
 		@param[in] length new length
 	*/
 	template <typename T0, typename T1>
-		inline	void	__fastcall	setLen(TVec2<T0>& current, T1 length)throw()
+		inline	void	__fastcall	setLen(M::TVec2<T0>& current, T1 length)throw()
 		{
 			T0 len = sqrt( (current.x*current.x + current.y*current.y) );
 			T0 fc = T0(length)/len;
@@ -7602,7 +7602,7 @@ namespace Vec
 		@param[in] length new length
 	*/
 	template <typename T0, typename T1>
-		inline	void	__fastcall	setLen(TVec4<T0>& current, T1 length)throw()
+		inline	void	__fastcall	setLen(M::TVec4<T0>& current, T1 length)throw()
 		{
 			T0 len = sqrt( (current.x*current.x + current.y*current.y + current.z*current.z + current.w*current.w) );
 			T0 fc = T0(length)/len;
@@ -7628,7 +7628,7 @@ namespace Vec
 		@param[in] length new length
 	*/
 	template <typename T0, typename T1>
-		inline	void	__fastcall	setLen0(TVec2<T0>& current, T1 length)throw()
+		inline	void	__fastcall	setLen0(M::TVec2<T0>& current, T1 length)throw()
 		{
 			T0 len = sqrt( (current.x*current.x + current.y*current.y) );
 			using std::fabs;
@@ -7687,7 +7687,7 @@ namespace Vec
 		@param[in] length new length
 	*/
 	template <typename T0, typename T1>
-		inline	void	__fastcall	setLen0(TVec4<T0>& current, T1 length)throw()
+		inline	void	__fastcall	setLen0(M::TVec4<T0>& current, T1 length)throw()
 		{
 			T0 len = sqrt( (current.x*current.x + current.y*current.y + current.z*current.z + current.w*current.w) );
 			using std::fabs;
@@ -7738,7 +7738,7 @@ namespace Vec
 		@return absolute angle of @v in the range [0,1] 
 	*/
 	template <typename T0>
-		inline	T0	__fastcall	angleOne(const TVec2<T0>& v)throw()
+		inline	T0	__fastcall	angleOne(const M::TVec2<T0>& v)throw()
 		{
 			return angleOne((v.x),(v.y));
 		}
@@ -7769,7 +7769,7 @@ namespace Vec
 		@return absolute angle of @v in the range [0,360] 
 	*/
 	template <typename T0>
-		inline	T0	__fastcall	angle360(const TVec2<T0>& v)throw()
+		inline	T0	__fastcall	angle360(const M::TVec2<T0>& v)throw()
 		{
 			return (angleOne((v.x),(v.y))) *360;
 		}
@@ -7805,7 +7805,7 @@ namespace Vec
 		@return absolute angle of @v in the range [0,2*PI] 
 	*/
 	template <typename T0>
-		inline	T0	__fastcall	angle2PI(const TVec2<T0>& v)throw()
+		inline	T0	__fastcall	angle2PI(const M::TVec2<T0>& v)throw()
 		{
 			return angle2PI((v.x),(v.y));
 		}
@@ -7822,7 +7822,7 @@ namespace Vec
 		@return angle in the range [0,180] 
 	*/
 	template <typename T0, typename T1>
-		inline	T0	__fastcall	angle(const TVec2<T0>& v, const TVec2<T1>& w)throw()
+		inline	T0	__fastcall	angle(const M::TVec2<T0>& v, const M::TVec2<T1>& w)throw()
 		{
 			return acos(Math::clamp((v.x*w.x + v.y*w.y)/((sqrt((v.x*v.x + v.y*v.y)))*(sqrt((w.x*w.x + w.y*w.y)))),-1,1))*180/M_PI;
 		}
@@ -7854,7 +7854,7 @@ namespace Vec
 		@return angle in the range [0,180] 
 	*/
 	template <typename T0, typename T1>
-		inline	T0	__fastcall	angle(const TVec4<T0>& v, const TVec4<T1>& w)throw()
+		inline	T0	__fastcall	angle(const M::TVec4<T0>& v, const M::TVec4<T1>& w)throw()
 		{
 			return acos(Math::clamp((v.x*w.x + v.y*w.y + v.z*w.z + v.w*w.w)/((sqrt((v.x*v.x + v.y*v.y + v.z*v.z + v.w*v.w)))*(sqrt((w.x*w.x + w.y*w.y + w.z*w.z + w.w*w.w)))),-1,1))*180/M_PI;
 		}
@@ -7870,7 +7870,7 @@ namespace Vec
 		@return  
 	*/
 	template <typename T0>
-		inline	bool	__fastcall	isNAN(const TVec2<T0>& v)throw()
+		inline	bool	__fastcall	isNAN(const M::TVec2<T0>& v)throw()
 		{
 			return isnan(v.x) || isnan(v.y);
 		}
@@ -7900,7 +7900,7 @@ namespace Vec
 		@return  
 	*/
 	template <typename T0>
-		inline	bool	__fastcall	isNAN(const TVec4<T0>& v)throw()
+		inline	bool	__fastcall	isNAN(const M::TVec4<T0>& v)throw()
 		{
 			return isnan(v.x) || isnan(v.y) || isnan(v.z) || isnan(v.w);
 		}
@@ -7917,7 +7917,7 @@ namespace Vec
 		@return  
 	*/
 	template <typename T0, typename T1>
-		inline	T0	__fastcall	intensity(const TVec2<T0>& v, const TVec2<T1>& w)throw()
+		inline	T0	__fastcall	intensity(const M::TVec2<T0>& v, const M::TVec2<T1>& w)throw()
 		{
 			return (v.x*w.x + v.y*w.y)/((sqrt((v.x*v.x + v.y*v.y)))*(sqrt((w.x*w.x + w.y*w.y))));
 		}
@@ -7949,7 +7949,7 @@ namespace Vec
 		@return  
 	*/
 	template <typename T0, typename T1>
-		inline	T0	__fastcall	intensity(const TVec4<T0>& v, const TVec4<T1>& w)throw()
+		inline	T0	__fastcall	intensity(const M::TVec4<T0>& v, const M::TVec4<T1>& w)throw()
 		{
 			return (v.x*w.x + v.y*w.y + v.z*w.z + v.w*w.w)/((sqrt((v.x*v.x + v.y*v.y + v.z*v.z + v.w*v.w)))*(sqrt((w.x*w.x + w.y*w.y + w.z*w.z + w.w*w.w))));
 		}
@@ -7966,7 +7966,7 @@ namespace Vec
 		@param[in] value 
 	*/
 	template <typename T0, typename T1>
-		inline	void	__fastcall	set(TVec2<T0>& v, T1 value)throw()
+		inline	void	__fastcall	set(M::TVec2<T0>& v, T1 value)throw()
 		{
 			v.x = value;
 			v.y = value;
@@ -8001,7 +8001,7 @@ namespace Vec
 		@param[in] value 
 	*/
 	template <typename T0, typename T1>
-		inline	void	__fastcall	set(TVec4<T0>& v, T1 value)throw()
+		inline	void	__fastcall	set(M::TVec4<T0>& v, T1 value)throw()
 		{
 			v.x = value;
 			v.y = value;
@@ -8328,7 +8328,7 @@ namespace Vec
 		@param[in] max 
 	*/
 	template <typename T0, typename T1, typename T2>
-		inline	void	__fastcall	clamp(TVec2<T0>& v, T1 min, T2 max)throw()
+		inline	void	__fastcall	clamp(M::TVec2<T0>& v, T1 min, T2 max)throw()
 		{
 			v.x = M::clamped(v.x,min,max);
 			v.y = M::clamped(v.y,min,max);
@@ -8365,7 +8365,7 @@ namespace Vec
 		@param[in] max 
 	*/
 	template <typename T0, typename T1, typename T2>
-		inline	void	__fastcall	clamp(TVec4<T0>& v, T1 min, T2 max)throw()
+		inline	void	__fastcall	clamp(M::TVec4<T0>& v, T1 min, T2 max)throw()
 		{
 			v.x = M::clamped(v.x,min,max);
 			v.y = M::clamped(v.y,min,max);
@@ -8383,7 +8383,7 @@ namespace Vec
 		@param[out] v 
 	*/
 	template <typename T0>
-		inline	void	__fastcall	clear(TVec2<T0>& v)throw()
+		inline	void	__fastcall	clear(M::TVec2<T0>& v)throw()
 		{
 			v.x = 0;
 			v.y = 0;
@@ -8414,7 +8414,7 @@ namespace Vec
 		@param[out] v 
 	*/
 	template <typename T0>
-		inline	void	__fastcall	clear(TVec4<T0>& v)throw()
+		inline	void	__fastcall	clear(M::TVec4<T0>& v)throw()
 		{
 			v.x = 0;
 			v.y = 0;
@@ -8433,7 +8433,7 @@ namespace Vec
 		@return  
 	*/
 	template <typename T0>
-		inline	T0	__fastcall	min(const TVec2<T0>& v)throw()
+		inline	T0	__fastcall	min(const M::TVec2<T0>& v)throw()
 		{
 			return vmin(v.x, v.y);
 		}
@@ -8463,7 +8463,7 @@ namespace Vec
 		@return  
 	*/
 	template <typename T0>
-		inline	T0	__fastcall	min(const TVec4<T0>& v)throw()
+		inline	T0	__fastcall	min(const M::TVec4<T0>& v)throw()
 		{
 			return vmin(vmin(v.x, v.y), vmin(v.z, v.w));
 		}
@@ -8479,7 +8479,7 @@ namespace Vec
 		@return  
 	*/
 	template <typename T0>
-		inline	T0	__fastcall	max(const TVec2<T0>& v)throw()
+		inline	T0	__fastcall	max(const M::TVec2<T0>& v)throw()
 		{
 			return vmax(v.x, v.y);
 		}
@@ -8509,7 +8509,7 @@ namespace Vec
 		@return  
 	*/
 	template <typename T0>
-		inline	T0	__fastcall	max(const TVec4<T0>& v)throw()
+		inline	T0	__fastcall	max(const M::TVec4<T0>& v)throw()
 		{
 			return vmax(vmax(v.x, v.y), vmax(v.z, v.w));
 		}
@@ -8526,11 +8526,11 @@ namespace Vec
 		@param[out] result 
 	*/
 	template <typename T0, typename T1, typename T2>
-		inline	void	__fastcall	max(const TVec2<T0>& v, const TVec2<T1>& w, TVec2<T2>& result)throw()
+		inline	void	__fastcall	max(const M::TVec2<T0>& v, const M::TVec2<T1>& w, M::TVec2<T2>& result)throw()
 		{
-			using std::max;
-			result.x = max( v.x, w.x);
-			result.y = max( v.y, w.y);
+			using Math::Max;
+			result.x = Max( v.x, w.x);
+			result.y = Max( v.y, w.y);
 		}
 
 	/**
@@ -8546,10 +8546,10 @@ namespace Vec
 	template <typename T0, typename T1, typename T2>
 		inline	void	__fastcall	max(const TVec3<T0>& v, const TVec3<T1>& w, TVec3<T2>& result)throw()
 		{
-			using std::max;
-			result.x = max( v.x, w.x);
-			result.y = max( v.y, w.y);
-			result.z = max( v.z, w.z);
+			using Math::Max;
+			result.x = Max( v.x, w.x);
+			result.y = Max( v.y, w.y);
+			result.z = Max( v.z, w.z);
 		}
 
 	/**
@@ -8563,13 +8563,13 @@ namespace Vec
 		@param[out] result 
 	*/
 	template <typename T0, typename T1, typename T2>
-		inline	void	__fastcall	max(const TVec4<T0>& v, const TVec4<T1>& w, TVec4<T2>& result)throw()
+		inline	void	__fastcall	max(const M::TVec4<T0>& v, const M::TVec4<T1>& w, M::TVec4<T2>& result)throw()
 		{
-			using std::max;
-			result.x = max( v.x, w.x);
-			result.y = max( v.y, w.y);
-			result.z = max( v.z, w.z);
-			result.w = max( v.w, w.w);
+			using Math::Max;
+			result.x = Max( v.x, w.x);
+			result.y = Max( v.y, w.y);
+			result.z = Max( v.z, w.z);
+			result.w = Max( v.w, w.w);
 		}
 
 	//now implementing template definition 'void min (2..4) (<const [*] v>, <const [*] w>, <[*] result>) direct='
@@ -8584,11 +8584,11 @@ namespace Vec
 		@param[out] result 
 	*/
 	template <typename T0, typename T1, typename T2>
-		inline	void	__fastcall	min(const TVec2<T0>& v, const TVec2<T1>& w, TVec2<T2>& result)throw()
+		inline	void	__fastcall	min(const M::TVec2<T0>& v, const M::TVec2<T1>& w, M::TVec2<T2>& result)throw()
 		{
-			using std::min;
-			result.x = min( v.x, w.x);
-			result.y = min( v.y, w.y);
+			using Math::Min;
+			result.x = Min( v.x, w.x);
+			result.y = Min( v.y, w.y);
 		}
 
 	/**
@@ -8604,10 +8604,10 @@ namespace Vec
 	template <typename T0, typename T1, typename T2>
 		inline	void	__fastcall	min(const TVec3<T0>& v, const TVec3<T1>& w, TVec3<T2>& result)throw()
 		{
-			using std::min;
-			result.x = min( v.x, w.x);
-			result.y = min( v.y, w.y);
-			result.z = min( v.z, w.z);
+			using Math::Min;
+			result.x = Min( v.x, w.x);
+			result.y = Min( v.y, w.y);
+			result.z = Min( v.z, w.z);
 		}
 
 	/**
@@ -8621,13 +8621,13 @@ namespace Vec
 		@param[out] result 
 	*/
 	template <typename T0, typename T1, typename T2>
-		inline	void	__fastcall	min(const TVec4<T0>& v, const TVec4<T1>& w, TVec4<T2>& result)throw()
+		inline	void	__fastcall	min(const M::TVec4<T0>& v, const M::TVec4<T1>& w, M::TVec4<T2>& result)throw()
 		{
-			using std::min;
-			result.x = min( v.x, w.x);
-			result.y = min( v.y, w.y);
-			result.z = min( v.z, w.z);
-			result.w = min( v.w, w.w);
+			using Math::Min;
+			result.x = Min( v.x, w.x);
+			result.y = Min( v.y, w.y);
+			result.z = Min( v.z, w.z);
+			result.w = Min( v.w, w.w);
 		}
 
 	//now implementing template definition 'bool oneLess (2..4) (<const [*] v>, <const [*] w>) direct='
@@ -8642,7 +8642,7 @@ namespace Vec
 		@return  
 	*/
 	template <typename T0, typename T1>
-		inline	bool	__fastcall	oneLess(const TVec2<T0>& v, const TVec2<T1>& w)throw()
+		inline	bool	__fastcall	oneLess(const M::TVec2<T0>& v, const M::TVec2<T1>& w)throw()
 		{
 			return v.x < w.x || v.y < w.y;
 		}
@@ -8674,7 +8674,7 @@ namespace Vec
 		@return  
 	*/
 	template <typename T0, typename T1>
-		inline	bool	__fastcall	oneLess(const TVec4<T0>& v, const TVec4<T1>& w)throw()
+		inline	bool	__fastcall	oneLess(const M::TVec4<T0>& v, const M::TVec4<T1>& w)throw()
 		{
 			return v.x < w.x || v.y < w.y || v.z < w.z || v.w < w.w;
 		}
@@ -8691,7 +8691,7 @@ namespace Vec
 		@return  
 	*/
 	template <typename T0, typename T1>
-		inline	bool	__fastcall	oneGreater(const TVec2<T0>& v, const TVec2<T1>& w)throw()
+		inline	bool	__fastcall	oneGreater(const M::TVec2<T0>& v, const M::TVec2<T1>& w)throw()
 		{
 			return v.x > w.x || v.y > w.y;
 		}
@@ -8723,7 +8723,7 @@ namespace Vec
 		@return  
 	*/
 	template <typename T0, typename T1>
-		inline	bool	__fastcall	oneGreater(const TVec4<T0>& v, const TVec4<T1>& w)throw()
+		inline	bool	__fastcall	oneGreater(const M::TVec4<T0>& v, const M::TVec4<T1>& w)throw()
 		{
 			return v.x > w.x || v.y > w.y || v.z > w.z || v.w > w.w;
 		}
@@ -8740,7 +8740,7 @@ namespace Vec
 		@return  
 	*/
 	template <typename T0, typename T1>
-		inline	bool	__fastcall	allLess(const TVec2<T0>& v, const TVec2<T1>& w)throw()
+		inline	bool	__fastcall	allLess(const M::TVec2<T0>& v, const M::TVec2<T1>& w)throw()
 		{
 			return v.x < w.x && v.y < w.y;
 		}
@@ -8772,7 +8772,7 @@ namespace Vec
 		@return  
 	*/
 	template <typename T0, typename T1>
-		inline	bool	__fastcall	allLess(const TVec4<T0>& v, const TVec4<T1>& w)throw()
+		inline	bool	__fastcall	allLess(const M::TVec4<T0>& v, const M::TVec4<T1>& w)throw()
 		{
 			return v.x < w.x && v.y < w.y && v.z < w.z && v.w < w.w;
 		}
@@ -8789,7 +8789,7 @@ namespace Vec
 		@return  
 	*/
 	template <typename T0, typename T1>
-		inline	bool	__fastcall	allGreater(const TVec2<T0>& v, const TVec2<T1>& w)throw()
+		inline	bool	__fastcall	allGreater(const M::TVec2<T0>& v, const M::TVec2<T1>& w)throw()
 		{
 			return v.x > w.x && v.y > w.y;
 		}
@@ -8821,7 +8821,7 @@ namespace Vec
 		@return  
 	*/
 	template <typename T0, typename T1>
-		inline	bool	__fastcall	allGreater(const TVec4<T0>& v, const TVec4<T1>& w)throw()
+		inline	bool	__fastcall	allGreater(const M::TVec4<T0>& v, const M::TVec4<T1>& w)throw()
 		{
 			return v.x > w.x && v.y > w.y && v.z > w.z && v.w > w.w;
 		}
@@ -8837,7 +8837,7 @@ namespace Vec
 		@param[out] w 
 	*/
 	template <typename T0, typename T1>
-		inline	void	__fastcall	vectorSort(TVec2<T0>& v, TVec2<T1>& w)throw()
+		inline	void	__fastcall	vectorSort(M::TVec2<T0>& v, M::TVec2<T1>& w)throw()
 		{
 			if (w.x<v.x)
 				swp(v.x,w.x);
@@ -8875,7 +8875,7 @@ namespace Vec
 		@param[out] w 
 	*/
 	template <typename T0, typename T1>
-		inline	void	__fastcall	vectorSort(TVec4<T0>& v, TVec4<T1>& w)throw()
+		inline	void	__fastcall	vectorSort(M::TVec4<T0>& v, M::TVec4<T1>& w)throw()
 		{
 			if (w.x<v.x)
 				swp(v.x,w.x);
@@ -8922,10 +8922,10 @@ namespace Vec
 	template <typename T0, typename T1, typename T2>
 		inline	void	__fastcall	sphereCoordsRad(T0 planar_angle, T1 height_angle, TVec3<T2>& result)throw()
 		{
-			result.y = vsin(height_angle);
-			T2	r2 = vcos(height_angle);
-			result.x = vcos(planar_angle)*r2;
-			result.z = vsin(planar_angle)*r2;
+			result.y = sin(height_angle);
+			T2	r2 = cos(height_angle);
+			result.x = cos(planar_angle)*r2;
+			result.z = sin(planar_angle)*r2;
 		}
 
 	//now implementing template definition 'void copy|c (2..16) (<const [*] origin>, <[*] destination>) direct=1'
@@ -8939,7 +8939,7 @@ namespace Vec
 		@param[out] destination array to copy to
 	*/
 	template <typename T0, typename T1>
-		inline	void	__fastcall	copy(const TVec2<T0>& origin, TVec2<T1>& destination)throw()
+		inline	void	__fastcall	copy(const M::TVec2<T0>& origin, M::TVec2<T1>& destination)throw()
 		{
 			destination.x = (T1)origin.x;
 			destination.y = (T1)origin.y;
@@ -8955,7 +8955,7 @@ namespace Vec
 		@param[out] destination array to copy to
 	*/
 	template <typename T0, typename T1>
-		inline	void	__fastcall	c(const TVec2<T0>& origin, TVec2<T1>& destination)throw()
+		inline	void	__fastcall	c(const M::TVec2<T0>& origin, M::TVec2<T1>& destination)throw()
 		{
 			destination.x = (T1)origin.x;
 			destination.y = (T1)origin.y;
@@ -9005,7 +9005,7 @@ namespace Vec
 		@param[out] destination array to copy to
 	*/
 	template <typename T0, typename T1>
-		inline	void	__fastcall	copy(const TVec4<T0>& origin, TVec4<T1>& destination)throw()
+		inline	void	__fastcall	copy(const M::TVec4<T0>& origin, M::TVec4<T1>& destination)throw()
 		{
 			destination.x = (T1)origin.x;
 			destination.y = (T1)origin.y;
@@ -9023,7 +9023,7 @@ namespace Vec
 		@param[out] destination array to copy to
 	*/
 	template <typename T0, typename T1>
-		inline	void	__fastcall	c(const TVec4<T0>& origin, TVec4<T1>& destination)throw()
+		inline	void	__fastcall	c(const M::TVec4<T0>& origin, M::TVec4<T1>& destination)throw()
 		{
 			destination.x = (T1)origin.x;
 			destination.y = (T1)origin.y;
@@ -9760,7 +9760,7 @@ namespace Vec
 		@return time of intersection, or 0 if no such could be determined 
 	*/
 	template <typename T0, typename T1, typename T2, typename T3>
-		inline	T3	__fastcall	intercept(const TVec2<T0>& position, const TVec2<T1>& velocity, T2 interception_velocity, TVec2<T3>& result)throw()
+		inline	T3	__fastcall	intercept(const M::TVec2<T0>& position, const M::TVec2<T1>& velocity, T2 interception_velocity, M::TVec2<T3>& result)throw()
 		{
 			T3	rs[2],
 					a = (velocity.x*velocity.x + velocity.y*velocity.y) - interception_velocity*interception_velocity,
@@ -9848,7 +9848,7 @@ namespace Vec
 		@return time of intersection, or 0 if no such could be determined 
 	*/
 	template <typename T0, typename T1, typename T2, typename T3>
-		inline	T3	__fastcall	intercept(const TVec4<T0>& position, const TVec4<T1>& velocity, T2 interception_velocity, TVec4<T3>& result)throw()
+		inline	T3	__fastcall	intercept(const M::TVec4<T0>& position, const M::TVec4<T1>& velocity, T2 interception_velocity, M::TVec4<T3>& result)throw()
 		{
 			T3	rs[2],
 					a = (velocity.x*velocity.x + velocity.y*velocity.y + velocity.z*velocity.z + velocity.w*velocity.w) - interception_velocity*interception_velocity,
@@ -9892,7 +9892,7 @@ namespace Vec
 		@return  
 	*/
 	template <typename T0>
-		inline	String	__fastcall	toString(const TVec2<T0>& vector)throw()
+		inline	String	__fastcall	toString(const M::TVec2<T0>& vector)throw()
 		{
 			return '('+ String(vector.x) +", "+ String(vector.y)+')';
 		}
@@ -9922,7 +9922,7 @@ namespace Vec
 		@return  
 	*/
 	template <typename T0>
-		inline	String	__fastcall	toString(const TVec4<T0>& vector)throw()
+		inline	String	__fastcall	toString(const M::TVec4<T0>& vector)throw()
 		{
 			return '('+ String(vector.x) +", "+ String(vector.y) +", "+ String(vector.z) +", "+ String(vector.w)+')';
 		}
@@ -11417,13 +11417,13 @@ template <count_t Current, count_t Dimensions>
 		template <typename T0, typename T1, typename T2>
 			static inline	void	__fastcall	User34_max(const T0 __p0[Dimensions], const T1 __p1[Dimensions], T2 __p2[Dimensions])throw()
 			{
-				__p2[Current] = Math::Max( __p0[Current], __p1[Current]);
+				__p2[Current] = Max( __p0[Current], __p1[Current]);
 			}
 
 		template <typename T0, typename T1, typename T2>
 			static inline	void	__fastcall	User35_min(const T0 __p0[Dimensions], const T1 __p1[Dimensions], T2 __p2[Dimensions])throw()
 			{
-				__p2[Current] = Math::Min( __p0[Current], __p1[Current]);
+				__p2[Current] = Min( __p0[Current], __p1[Current]);
 			}
 
 		template <typename T0, typename T1>
@@ -11567,13 +11567,13 @@ template <count_t Current, count_t Dimensions>
 		template <typename T0, typename T1, typename T2>
 			static inline	void	__fastcall	User59_max(const T0 __p0[Dimensions], const T1 __p1[Dimensions], T2 __p2[Dimensions])throw()
 			{
-				__p2[Current] = max( __p0[Current], __p1[Current]);
+				__p2[Current] = Max( __p0[Current], __p1[Current]);
 			}
 
 		template <typename T0, typename T1, typename T2>
 			static inline	void	__fastcall	User60_min(const T0 __p0[Dimensions], const T1 __p1[Dimensions], T2 __p2[Dimensions])throw()
 			{
-				__p2[Current] = min( __p0[Current], __p1[Current]);
+				__p2[Current] = Min( __p0[Current], __p1[Current]);
 			}
 
 		template <typename T0, typename T1>
@@ -11799,21 +11799,20 @@ template <count_t Current, count_t Dimensions>
 			}
 
 
-		/* --- Now processing 'Pointers/User:||const [*]|const [*]|[*]|<>|__p2:i = max( __p0:i, __p1:i);' --- */
+		/* --- Now processing 'Pointers/User:||const [*]|const [*]|[*]|<>|__p2:i = Max( __p0:i, __p1:i);' --- */
 		template <typename T0, typename T1, typename T2>
 			static inline	void	__fastcall	User34_max(const T0 __p0[Dimensions], const T1 __p1[Dimensions], T2 __p2[Dimensions])throw()
 			{
-				__p2[Current] = Math::Max( __p0[Current], __p1[Current]);
+				__p2[Current] = Max( __p0[Current], __p1[Current]);
 				VecV_Include__<Current+1,Dimensions, GreaterOrEqual<Current+2,Dimensions>::eval>::User34_max(__p0,__p1,__p2);
 			}
 
 
-		/* --- Now processing 'Pointers/User:||const [*]|const [*]|[*]|<>|__p2:i = min( __p0:i, __p1:i);' --- */
+		/* --- Now processing 'Pointers/User:||const [*]|const [*]|[*]|<>|__p2:i = Min( __p0:i, __p1:i);' --- */
 		template <typename T0, typename T1, typename T2>
 			static inline	void	__fastcall	User35_min(const T0 __p0[Dimensions], const T1 __p1[Dimensions], T2 __p2[Dimensions])throw()
 			{
-				using std::min;
-				__p2[Current] = min( __p0[Current], __p1[Current]);
+				__p2[Current] = Min( __p0[Current], __p1[Current]);
 				VecV_Include__<Current+1,Dimensions, GreaterOrEqual<Current+2,Dimensions>::eval>::User35_min(__p0,__p1,__p2);
 			}
 
@@ -12057,20 +12056,20 @@ template <count_t Current, count_t Dimensions>
 			}
 
 
-		/* --- Now processing 'Objects/User:||const [*]|const [*]|[*]|<>|__p2:i = max( __p0:i, __p1:i);' --- */
+		/* --- Now processing 'Objects/User:||const [*]|const [*]|[*]|<>|__p2:i = Max( __p0:i, __p1:i);' --- */
 		template <typename T0, typename T1, typename T2>
 			static inline	void	__fastcall	User59_max(const T0 __p0[Dimensions], const T1 __p1[Dimensions], T2 __p2[Dimensions])throw()
 			{
-				__p2[Current] = max( __p0[Current], __p1[Current]);
+				__p2[Current] = Max( __p0[Current], __p1[Current]);
 				VecV_Include__<Current+1,Dimensions, GreaterOrEqual<Current+2,Dimensions>::eval>::User59_max(__p0,__p1,__p2);
 			}
 
 
-		/* --- Now processing 'Objects/User:||const [*]|const [*]|[*]|<>|__p2:i = min( __p0:i, __p1:i);' --- */
+		/* --- Now processing 'Objects/User:||const [*]|const [*]|[*]|<>|__p2:i = Min( __p0:i, __p1:i);' --- */
 		template <typename T0, typename T1, typename T2>
 			static inline	void	__fastcall	User60_min(const T0 __p0[Dimensions], const T1 __p1[Dimensions], T2 __p2[Dimensions])throw()
 			{
-				__p2[Current] = min( __p0[Current], __p1[Current]);
+				__p2[Current] = Min( __p0[Current], __p1[Current]);
 				VecV_Include__<Current+1,Dimensions, GreaterOrEqual<Current+2,Dimensions>::eval>::User60_min(__p0,__p1,__p2);
 			}
 
@@ -14355,7 +14354,7 @@ template <count_t Current, count_t Dimensions>
 		template <typename T0, typename T1, typename T2>
 			static	inline	void	__fastcall	max(const T0 v[Dimensions], const T1 w[Dimensions], T2 result[Dimensions])throw()
 			{
-				using std::max;
+				using Math::Max;
 				VecV_Include__<0,Dimensions,false>::User34_max(v, w, result);
 			}
 
@@ -14372,7 +14371,7 @@ template <count_t Current, count_t Dimensions>
 		template <typename T0, typename T1, typename T2>
 			static	inline	void	__fastcall	min(const T0 v[Dimensions], const T1 w[Dimensions], T2 result[Dimensions])throw()
 			{
-				using std::min;
+				using Math::Min;
 				VecV_Include__<0,Dimensions,false>::User35_min(v, w, result);
 			}
 
@@ -15275,7 +15274,7 @@ template <count_t Current, count_t Dimensions>
 		template <typename T0, typename T1, typename T2>
 			static	inline	void	__fastcall	max(const TVec<T0,Dimensions>& v, const TVec<T1,Dimensions>& w, TVec<T2,Dimensions>& result)throw()
 			{
-				using std::max;
+				using Math::Max;
 				VecV_Include__<0,Dimensions,false>::User59_max(v.v, w.v, result.v);
 			}
 
@@ -15292,7 +15291,7 @@ template <count_t Current, count_t Dimensions>
 		template <typename T0, typename T1, typename T2>
 			static	inline	void	__fastcall	min(const TVec<T0,Dimensions>& v, const TVec<T1,Dimensions>& w, TVec<T2,Dimensions>& result)throw()
 			{
-				using std::min;
+				using Math::Min;
 				VecV_Include__<0,Dimensions,false>::User60_min(v.v, w.v, result.v);
 			}
 

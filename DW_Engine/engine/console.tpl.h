@@ -13,33 +13,33 @@ namespace Engine
 	template <class GL, class Font>
 		VisualConsole<GL,Font>::Section::Section():relative(0,0,1,1),absolute(0,0,1,1),current(0,0,1,1)
 		{
-		    Vec::clear(trans0);
-		    Vec::clear(trans1);
-		    Vec::clear(translation);
+		    M::Vec::clear(trans0);
+		    M::Vec::clear(trans1);
+		    M::Vec::clear(translation);
 		}
 
 	template <class GL, class Font>
 		void VisualConsole<GL,Font>::Section::setPrimaryTranslation(float x, float y)
 		{
-		    Vec::def(trans0,-x,-y);
+		    M::Vec::def(trans0,-x,-y);
 		}
 
 	template <class GL, class Font>
 		void VisualConsole<GL,Font>::Section::setSecondaryTranslation(float x, float y)
 		{
-		    Vec::def(trans1,-x,-y);
+		    M::Vec::def(trans1,-x,-y);
 		}
 
 	template <class GL, class Font>
 		void VisualConsole<GL,Font>::Section::updateState(float state)
 		{
 		    if (state < 0.5)
-		        Vec::mad(trans1,trans0,1-state*2,translation);
+		        M::Vec::mad(trans1,trans0,1-state*2,translation);
 		    else
-		        Vec::mult(trans1,1-(state-0.5)*2,translation);
+		        M::Vec::mult(trans1,1-(state-0.5)*2,translation);
 			absolute.Translate(translation);
-		    //Vec::add(absolute.min(),translation,current.dim);
-		    //Vec::add(absolute.dim+2,translation,current.dim+2);
+		    //M::Vec::add(absolute.min(),translation,current.dim);
+		    //M::Vec::add(absolute.dim+2,translation,current.dim+2);
 		}
 
 	template <class GL, class Font>
@@ -58,18 +58,18 @@ namespace Engine
 		    if (primary.IsEmpty())
 		        return;
 		    Engine::TColorTextureVertex v0,v1,v2,v3;
-		    Vec::def(v0,current.x.min,current.y.min,0,1);
-		    Vec::def(v1,current.x.max,current.y.min,0,1);
-		    Vec::def(v2,current.x.max,current.y.max,0,1);
-		    Vec::def(v3,current.x.min,current.y.max,0,1);
-		    Vec::set(v0.color,1);
-		    Vec::set(v1.color,1);
-		    Vec::set(v2.color,1);
-		    Vec::set(v3.color,1);
-		    Vec::def(v0.coord,0,0);
-		    Vec::def(v1.coord,1,0);
-		    Vec::def(v2.coord,1,1);
-		    Vec::def(v3.coord,0,1);
+		    M::Vec::def(v0,current.x.min,current.y.min,0,1);
+		    M::Vec::def(v1,current.x.max,current.y.min,0,1);
+		    M::Vec::def(v2,current.x.max,current.y.max,0,1);
+		    M::Vec::def(v3,current.x.min,current.y.max,0,1);
+		    M::Vec::set(v0.color,1);
+		    M::Vec::set(v1.color,1);
+		    M::Vec::set(v2.color,1);
+		    M::Vec::set(v3.color,1);
+		    M::Vec::def(v0.coord,0,0);
+		    M::Vec::def(v1.coord,1,0);
+		    M::Vec::def(v2.coord,1,1);
+		    M::Vec::def(v3.coord,0,1);
 		    if (!shiny.IsEmpty())
 		    {
 		        v0.color.a = 0.3-cos(timing.now)*0.25;
@@ -392,10 +392,10 @@ namespace Engine
 		            float x = absolute_text.x.min-displace+textout.GetUnscaledWidth(keyboard.GetInput())*font_x,
 		                  y = absolute_text.y.min,
 		                  light = cos(Engine::timing.now);
-		            Vec::def(v0,x,y+font_y*0.1,0,1);
-		            Vec::def(v1,x,y+font_y*0.9,0,1);
-		            Vec::def(v0.color,1,1,1,0.6+0.2*light);
-		            Vec::def(v1.color,1,1,1,0.6+0.2*light);
+		            M::Vec::def(v0,x,y+font_y*0.1,0,1);
+		            M::Vec::def(v1,x,y+font_y*0.9,0,1);
+		            M::Vec::def(v0.color,1,1,1,0.6+0.2*light);
+		            M::Vec::def(v1.color,1,1,1,0.6+0.2*light);
 		            renderer->segment(v0,v1);
 		        }
 		    }

@@ -15,7 +15,7 @@ using namespace Engine;
 struct TTracedVertex	//! Point describing a traced point on the water surface of the respective planet
 {
 	bool							isset;			//!< True if this point is defined, false otherwise. If @b isset is false then the following variables are undefined.
-	TVec3<>							position,	//!< Surface positiion of the traced point relative to the point of view
+	M::TVec3<>							position,	//!< Surface positiion of the traced point relative to the point of view
 									normal;		//!< Normalized surface normal of the traced point
 	double							range;			//!< Distance of this point from the point of view
 };
@@ -62,17 +62,17 @@ static const double		relative_height_step;	//!< Base factor to determine the roo
 						y_fov,	//!< Half  y field of view (in radians) as derived from the applied frustum
 						view_x,	//!< Horizontal view angle (0-2PI, in radians) as derived from the applied frustum
 						view_y;	//!< Vertical view angle (0-2PI, in radians) as derived from the applied frustum
-		TMatrix3<>		world_matrix;
-		TVec3<>			world_offset;
-		TMatrix4<>		world_system;
+		M::TMatrix3<>		world_matrix;
+		M::TVec3<>			world_offset;
+		M::TMatrix4<>		world_system;
 		SpherePhase	phase[16];
-		TVec3<double>	delta;	//!< Vector from sphere center to point of view
+		M::TVec3<double>	delta;	//!< Vector from sphere center to point of view
 		double			height,	//!< Camera distance from sphere center (length of delta)
 						radius;	//!< Sphere radius
 		Frustum<>		frustum;
 
 						Sphere();
-						Sphere(const Frustum<>&frustum, double radius, double height, const TVec3<double>&delta);
+						Sphere(const Frustum<>&frustum, double radius, double height, const M::TVec3<double>&delta);
 						/**
 							@brief Updates the configuration to use for succeeding renderCircular() or renderOutline() calls
 							
@@ -81,7 +81,7 @@ static const double		relative_height_step;	//!< Base factor to determine the roo
 							@param height_ Observer distance from the sphere center (equals length(delta_))
 							@param delta_ Absolute vector pointing from the sphere center to the observer
 						*/
-		void			apply(const Frustum<>&frustrum_, double radius_, double height_,const TVec3<double>&delta_);
+		void			apply(const Frustum<>&frustrum_, double radius_, double height_,const M::TVec3<double>&delta_);
 		void			checkDisplayLists(const String&domain);
 					
 					
@@ -95,7 +95,7 @@ static const double		relative_height_step;	//!< Base factor to determine the roo
 			@param position [out] position vector
 			@param normal [out] normal vector
 		*/
-inline	void			radialPoint(float angular, float radial, double dh, TVec3<>&position, TVec3<>&normal)
+inline	void			radialPoint(float angular, float radial, double dh, M::TVec3<>&position, M::TVec3<>&normal)
 						{
 							double	ca = cos(radial),
 									h = dh+radius,
@@ -124,18 +124,18 @@ inline	void			radialPoint(float angular, float radial, double dh, TVec3<>&positi
 									cosr = cos(beta),
 									r = sinr*radius,
 									z = (1.0f-cosr)*radius;//+(height-radius);
-							Vec::def(normal,cosa*sinr,sina*sinr,cosr);
-							Vec::def(position,cosa*r,sina*r,-z);
+							M::Vec::def(normal,cosa*sinr,sina*sinr,cosr);
+							M::Vec::def(position,cosa*r,sina*r,-z);
 						}
 
-inline	void			radialPoint(float angular, float radial, double dh, TVec3<>&position)
+inline	void			radialPoint(float angular, float radial, double dh, M::TVec3<>&position)
 						{
 							radialPoint(angular,radial,dh,position,Vector<>::dummy);
 						}
 
 inline	void			radialPoint(float angular, float radial, double dh)
 						{
-							TVec3<> p,n;
+							M::TVec3<> p,n;
 							radialPoint(angular,radial,dh,p,n);
 							glNormal3fv(n.v);
 							glVertex3fv(p.v);

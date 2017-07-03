@@ -117,16 +117,16 @@ namespace Engine
 			{
 				case Light::Spot:
 				{
-					float scale = Vec::distance(camera_location,lights[i]->GetPosition())/5;
-					TMatrix4<> system;
+					float scale = M::Vec::distance(camera_location,lights[i]->GetPosition())/5;
+					M::TMatrix4<> system;
 					float angle = pow(0.94,lights[i]->GetSpotExponent());
 					/*if (angle*45 > lights[i]->getSpotCutoff())
 						angle = lights[i]->getSpotCutoff()/45;*/
 					float z_scale = 1.0/M::clamped(angle,0.1,1);
 					Mat::makeAxisSystem(lights[i]->GetPosition(),lights[i]->GetSpotDirection(),2,system);
-					Vec::mult(system.x.xyz,scale/z_scale);
-					Vec::mult(system.y.xyz,scale/z_scale);
-					Vec::mult(system.z.xyz,scale*z_scale);
+					M::Vec::mult(system.x.xyz,scale/z_scale);
+					M::Vec::mult(system.y.xyz,scale/z_scale);
+					M::Vec::mult(system.z.xyz,scale*z_scale);
 					
 					GL::enterSubSystem(system);
 						GL::render(spot);
@@ -137,13 +137,13 @@ namespace Engine
 				break;
 				case Light::Omni:
 				{
-					float scale = Vec::distance(camera_location,lights[i]->GetPosition())/10;
-					TMatrix4<> system;
+					float scale = M::Vec::distance(camera_location,lights[i]->GetPosition())/10;
+					M::TMatrix4<> system;
 					Mat::Eye(system);
-					Vec::copy(lights[i]->GetPosition(),system.w.xyz);
-					Vec::mult(system.x.xyz,scale);
-					Vec::mult(system.y.xyz,scale);
-					Vec::mult(system.z.xyz,scale);
+					M::Vec::copy(lights[i]->GetPosition(),system.w.xyz);
+					M::Vec::mult(system.x.xyz,scale);
+					M::Vec::mult(system.y.xyz,scale);
+					M::Vec::mult(system.z.xyz,scale);
 					GL::enterSubSystem(system);
 						GL::render(omni);
 					GL::exitSubSystem();
@@ -151,14 +151,14 @@ namespace Engine
 				break;
 				case Light::Direct:
 				{
-					float scale = Vec::length(camera_location)/4;
-					TMatrix4<> system;
-					TVec3<>	offset;
-					Vec::mult(lights[i]->GetPosition(),scale,offset);
+					float scale = M::Vec::length(camera_location)/4;
+					M::TMatrix4<> system;
+					M::TVec3<>	offset;
+					M::Vec::mult(lights[i]->GetPosition(),scale,offset);
 					Mat::makeAxisSystem(offset,lights[i]->GetPosition(),2,system);
-					Vec::mult(system.x.xyz,scale);
-					Vec::mult(system.y.xyz,scale);
-					Vec::mult(system.z.xyz,scale*2);
+					M::Vec::mult(system.x.xyz,scale);
+					M::Vec::mult(system.y.xyz,scale);
+					M::Vec::mult(system.z.xyz,scale*2);
 					GL::enterSubSystem(system);
 						GL::render(direct);
 					GL::exitSubSystem();
@@ -857,9 +857,9 @@ namespace Engine
 		}
 		if (GlobalAspectConfiguration::loadAsProjection)
 		{
-			TMatrix4<>	view_projection;
+			M::TMatrix4<>	view_projection;
 			Mat::Mult(aspect.projection,aspect.view,view_projection);
-			GL::SetCameraMatrices(Matrix<>::eye4,view_projection,Matrix<>::eye4);
+			GL::SetCameraMatrices(M::Matrix<>::eye4,view_projection,M::Matrix<>::eye4);
 		}
 		else
 		{
@@ -880,17 +880,17 @@ namespace Engine
 			Resolution res = currentTargetResolution();
 	        GL::SetViewport(transform(aspect.region,res),res);
 		}
-	    TMatrix4<C>   view;
+	    M::TMatrix4<C>   view;
 		view.x = aspect.view.x;
 		view.y = aspect.view.y;
 		view.z = aspect.view.z;
-	    Vec::def(view.w,0,0,0,1);
+	    M::Vec::def(view.w,0,0,0,1);
 
 		if (GlobalAspectConfiguration::loadAsProjection)
 		{
-			TMatrix4<>	view_projection;
+			M::TMatrix4<>	view_projection;
 			Mat::Mult(aspect.projection,view,view_projection);
-			GL::loadModelview(Matrix<>::eye4);
+			GL::loadModelview(M::Matrix<>::eye4);
 			GL::loadProjection(view_projection);
 		}
 		else

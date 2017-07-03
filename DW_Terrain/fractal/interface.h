@@ -216,7 +216,7 @@ namespace Fractal
 	class Geometry 
 	{
 	public:
-			typedef TVec3<>	Vertex;
+			typedef M::TVec3<>	Vertex;
 
 			Array<Vertex>			vertexField;	//!< Geometrical vertices
 			Array<UINT32>			triangleField,	//!< Triangular index path. Each three indices form one triangle using the vertices stored in \b vertex_field
@@ -351,21 +351,21 @@ namespace Fractal
 			//Engine::Aspect<>	aspect;				//!< View aspect (projection, modelview matrix, etc)
 			Engine::Frustum<>	frustum;				//!< Frustrum for visibility checks. Extracted from the currently applied camera object
 			Composite::Coordinates	relative_coordinates;	//!< Central view position. Relative to the system of the applied body
-			TVec3<float>		retraction_delta;		//!< Retraction offset from the aspect coordinates to the actual point of view. Unless the applied camera is a focused 3rd-person camera this would be a zero-vector. Note that the calculated frustum volume must already include this vector
+			M::TVec3<float>		retraction_delta;		//!< Retraction offset from the aspect coordinates to the actual point of view. Unless the applied camera is a focused 3rd-person camera this would be a zero-vector. Note that the calculated frustum volume must already include this vector
 			bool				require_reflection;		//!< True if patch reflection should be checked for visibility
 			unsigned			min_layer;				//!< Minimum visible layer. Layers whoes depth value is less or equal to  this value are not subdivided
 			float				lod;					//!< Level of detail. Typically in the range [1,5] but the ideal value largely depends on the used detail exponent and noise level.
 			
 								Aspect():require_reflection(true),min_layer(0),lod(1)
 								{
-									Vec::clear(retraction_delta);
+									M::Vec::clear(retraction_delta);
 								}
 								/**
 									@brief Calculates the translation vector from aspect to segment space
 								
 								*/
 		template<typename T>
-			void				getTranslation(const TVec3<sector_t>&segment_sector, TVec3<T>&out, float sector_size)	const
+			void				getTranslation(const M::TVec3<sector_t>&segment_sector, M::TVec3<T>&out, float sector_size)	const
 								{
 									out.x = (T)(segment_sector.x-relative_coordinates.sector.x)*(T)sector_size - (T)relative_coordinates.remainder.x;
 									out.y = (T)(segment_sector.y-relative_coordinates.sector.y)*(T)sector_size - (T)relative_coordinates.remainder.y;
@@ -532,7 +532,7 @@ namespace Fractal
 				@param intersection [out] Reference to an intersection object that should hold all available information of the detected intersection
 				@return true if an intersection was detected, false otherwise
 			*/
-			bool					rayCast(const Composite::Coordinates&b, const TVec3<>& d, TRayIntersection&intersection);
+			bool					rayCast(const Composite::Coordinates&b, const M::TVec3<>& d, TRayIntersection&intersection);
 
 			/**
 				@brief Performs a recursive ground query on the currently available data
@@ -555,14 +555,14 @@ namespace Fractal
 */
 	
 	template <typename T>
-		inline	void				getTranslation(const TVec3<sector_t>& from_sector, const TVec3<sector_t>&to_sector,TVec3<T> &out_vector)	//! Retrieves the translation vector between two sectors
+		inline	void				getTranslation(const M::TVec3<sector_t>& from_sector, const M::TVec3<sector_t>&to_sector,M::TVec3<T> &out_vector)	//! Retrieves the translation vector between two sectors
 									{
 										out_vector.x = (T)context->sector_size * (T)(to_sector.x-from_sector.x);
 										out_vector.y = (T)context->sector_size * (T)(to_sector.y-from_sector.y);
 										out_vector.z = (T)context->sector_size * (T)(to_sector.z-from_sector.z);
 									}
 	template <typename T0, typename T1>
-		inline void					convertToAbsolute(const TVec3<sector_t>& sector, const TVec3<T0>& vertex, TVec3<T1>& absolute_vertex)	const	//! Converts the specified local vertex to its counterpart in absolute space
+		inline void					convertToAbsolute(const M::TVec3<sector_t>& sector, const M::TVec3<T0>& vertex, M::TVec3<T1>& absolute_vertex)	const	//! Converts the specified local vertex to its counterpart in absolute space
 									{
 										absolute_vertex.x = (T1)context->sector_size * (T1)sector.x + (T1)vertex.x;
 										absolute_vertex.y = (T1)context->sector_size * (T1)sector.y + (T1)vertex.y;
@@ -644,7 +644,7 @@ namespace Fractal
 									water_center;		//!< Water sphere center (sector relative)
 	
 			Body*					super;				//!< Governing Body
-			TVec3<>					translation;		//!< Temporal translation vector of this surface relative to the view coordinates used during the last project() operation. Valid only if this surface was inserted into the project buffer
+			M::TVec3<>					translation;		//!< Temporal translation vector of this surface relative to the view coordinates used during the last project() operation. Valid only if this surface was inserted into the project buffer
 			float					distance_square,	//!< Squared distance between view coordinates and the global sphere of this surface
 									noisiness;			//!< Maximum occuring height variance relative to the local segement radius. Resampled during finishBuild(). Approximated in the range [0,1]
 
@@ -695,7 +695,7 @@ namespace Fractal
 
 	virtual							~SurfaceSegment();
 		template <typename T0, typename T1>
-			inline void	convertToAbsolute(const TVec3<T0>&vertex, TVec3<T1>&absolute_vertex)	const	//!< Converts the specified local vertex to its counterpart in absolute space
+			inline void	convertToAbsolute(const M::TVec3<T0>&vertex, M::TVec3<T1>&absolute_vertex)	const	//!< Converts the specified local vertex to its counterpart in absolute space
 			{
 				absolute_vertex.x = (T1)super->context->sector_size * (T1)sector.x + (T1)vertex.x;
 				absolute_vertex.y = (T1)super->context->sector_size * (T1)sector.y + (T1)vertex.y;
@@ -703,7 +703,7 @@ namespace Fractal
 			}
 		
 		template <typename T0, typename T1>
-			inline void	convertToRelative(const TVec3<T0>&absolute_vertex, TVec3<T1>&relative_vertex)	const	//!< Converts the specified global vertex to its counterpart in local space
+			inline void	convertToRelative(const M::TVec3<T0>&absolute_vertex, M::TVec3<T1>&relative_vertex)	const	//!< Converts the specified global vertex to its counterpart in local space
 			{
 				relative_vertex.x = (T1)(absolute_vertex.x-(T0)super->context->sector_size * (T0)sector.x);
 				relative_vertex.y = (T1)(absolute_vertex.y-(T0)super->context->sector_size * (T0)sector.y);
@@ -750,7 +750,7 @@ namespace Fractal
 				@param intersection [out] Resulting closest intersection (if any)
 				@return true if an intersection has been detected, false otherwise
 			*/
-			bool					rayCast(const Composite::Coordinates&b, const TVec3<>& d, TRayIntersection&intersection);
+			bool					rayCast(const Composite::Coordinates&b, const M::TVec3<>& d, TRayIntersection&intersection);
 			/**
 				@brief Recursively determines the nearest ground coordinate of this segment (and all its children)
 
@@ -759,7 +759,7 @@ namespace Fractal
 				@param min_layer Minimum layer that the recursive process may reach. Further subdivided surface segments are ignored
 				@return true if a ground point was found among this segment and all its children, false otherwise
 			*/
-			bool					groundQuery(const Composite::Coordinates&b, const TVec3<>&d, unsigned min_layer, TGroundInfo&ground);
+			bool					groundQuery(const Composite::Coordinates&b, const M::TVec3<>&d, unsigned min_layer, TGroundInfo&ground);
 			
 //			void					synchronizeBorders();
 			
@@ -958,7 +958,7 @@ namespace Fractal
 			
 									DataSurface(unsigned exponent, unsigned vertex_count);
 
-			static	bool			faceCollision(const TVertex&v0, const TVertex&v1, const TVertex&v2, const TVec3<>&coord, TVec3<>&point_out, TVec3<>&normal_out);
+			static	bool			faceCollision(const TVertex&v0, const TVertex&v1, const TVertex&v2, const M::TVec3<>&coord, M::TVec3<>&point_out, M::TVec3<>&normal_out);
 			
 			friend class Body;
 
@@ -1238,18 +1238,18 @@ namespace Fractal
 	private:
 			void	mod(double&val)	const;
 	public:
-			TMatrix4<double>	invert;		//!< Final (unscaled) system to load to a graphics context. Use exportTo() to create a scaled version
-			TVec3<double>		texture_root,	//!< Current texture zero space. This is the absolute location of the texture point of origin
+			M::TMatrix4<double>	invert;		//!< Final (unscaled) system to load to a graphics context. Use exportTo() to create a scaled version
+			M::TVec3<double>		texture_root,	//!< Current texture zero space. This is the absolute location of the texture point of origin
 								texture_up,		//!< Vertical texture space axis pointing along the (invisible) up axis of an applied texture
 								texture_x,		//!< Horizontal texture space axis pointing along the x axis of an applied texture
 								texture_y;		//!< Depth texture space axis pointing along the y axis of an applied texture
 			double				modal_range;		//!< Coordinate range to capture \b texture_root in. Texture coordinates generated by RollSpace can become very large and unclipped texture offsets would soon create undesired effects.
 			
 					RollSpace(double modal_range=Composite::Coordinates::default_sector_size);							//!< Creates a new roll space with texture_up pointing along the y-axis in space. \param modal_range Coordinate range to capture \b texture_root in. Texture coordinates generated by RollSpace can become very large and unclipped texture offsets would soon create undesired effects.
-			void	roll(const TVec3<double>&up, const TVec3<double>&translation);		//!< Rolls the local system so that the new texture up coordinate matches \b up. \param up Vertical direction \param translation Observer movement
-			void	roll(const TVec3<float>&up, const TVec3<float>& translation);		//!< Rolls the local system so that the new texture up coordinate matches \b up. \param up Vertical direction \param translation Observer movement
-			void	roll(const TVec3<float>&up, const TVec3<double>&translation);		//!< Rolls the local system so that the new texture up coordinate matches \b up. \param up Vertical direction \param translation Observer movement
-			void	exportTo(TMatrix4<float>&system, double range, bool include_translation=true) const;			//!< Creates a scaled system \param system Out pointer to a system matrix to write to \param range Size of one texture pattern @param include_translation Set true to include system translation. False will set the translation column of the target matrix to 0
+			void	roll(const M::TVec3<double>&up, const M::TVec3<double>&translation);		//!< Rolls the local system so that the new texture up coordinate matches \b up. \param up Vertical direction \param translation Observer movement
+			void	roll(const M::TVec3<float>&up, const M::TVec3<float>& translation);		//!< Rolls the local system so that the new texture up coordinate matches \b up. \param up Vertical direction \param translation Observer movement
+			void	roll(const M::TVec3<float>&up, const M::TVec3<double>&translation);		//!< Rolls the local system so that the new texture up coordinate matches \b up. \param up Vertical direction \param translation Observer movement
+			void	exportTo(M::TMatrix4<float>&system, double range, bool include_translation=true) const;			//!< Creates a scaled system \param system Out pointer to a system matrix to write to \param range Size of one texture pattern @param include_translation Set true to include system translation. False will set the translation column of the target matrix to 0
 	};
 	
 	

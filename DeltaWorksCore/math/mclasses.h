@@ -81,35 +81,35 @@ namespace Math
 
 
 	template <class C>
-		class SystemMatrix : public TMatrix4<C>
+		class SystemMatrix : public M::TMatrix4<C>
 		{
 		public:
 
 		MF_DECLARE(void)						loadIdentity();							//loads the identity-matrix to the local data
 		MFUNC1 (void)							loadInvert(const SystemMatrix<C0>&);			//creates the system-invert of the given matrix in the local data
 		MFUNC4 (void)							buildRotation(const C0&angle, const C1&ax, const C2&ay, const C3&az);
-		MFUNC2 (void)							buildRotation(const C0&angle, const TVec3<C1>& axis);
-		MFUNC2 (void)							buildSystem(const TVec3<C0>&position, const TVec3<C1>& axis, BYTE direction);
+		MFUNC2 (void)							buildRotation(const C0&angle, const M::TVec3<C1>& axis);
+		MFUNC2 (void)							buildSystem(const M::TVec3<C0>&position, const M::TVec3<C1>& axis, BYTE direction);
 		MFUNC4 (void)							rotate(const C0&angle, const C1&axis_x, const C2&axis_y, const C3&axis_z);
-		MFUNC2 (void)							rotate(const C0&angle, const TVec3<C1>&axis);
+		MFUNC2 (void)							rotate(const C0&angle, const M::TVec3<C1>&axis);
 		MF_DECLARE(void)						normalize();							//normalizes v0,v1 und v2
 		MF_DECLARE(SystemMatrix<C>&)			invertThis();
 		MF_DECLARE(SystemMatrix<C>)				invert()								const;
 		MF_DECLARE(String)						ToString()								const;
 		//faster operators:
 		MFUNC1 (void)							operator+=(const SystemMatrix<C0>&);			//adds all coords from the given system to the local data
-		MFUNC1 (void)							operator+=(const TVec3<C0>&);			//translates the system
+		MFUNC1 (void)							operator+=(const M::TVec3<C0>&);			//translates the system
 		MFUNC1 (void)							operator-=(const SystemMatrix<C0>&);
-		MFUNC1 (void)							operator-=(const TVec3<C0>&);
+		MFUNC1 (void)							operator-=(const M::TVec3<C0>&);
 		MFUNC1 (void)							operator*=(const SystemMatrix<C0>&);
 		//slower operators:
-		MFUNC1 (SystemMatrix<C>)				operator+(const TVec3<C0>&)				const;
+		MFUNC1 (SystemMatrix<C>)				operator+(const M::TVec3<C0>&)				const;
 		MFUNC1 (SystemMatrix<C>)				operator+(const SystemMatrix<C0>&)		const;
-		MFUNC1 (SystemMatrix<C>)				operator-(const TVec3<C0>&)				const;
+		MFUNC1 (SystemMatrix<C>)				operator-(const M::TVec3<C0>&)				const;
 		MFUNC1 (SystemMatrix<C>)				operator-(const SystemMatrix<C0>&)		const;
 		MFUNC1 (SystemMatrix<C>)				operator*(const SystemMatrix<C0>&)		const;
-		MFUNC1 (TVec3<C>)						operator*(const TVec3<C0>&)				const;
-		MFUNC1 (TVec4<C>)						operator*(const TVec4<C0>&)				const;
+		MFUNC1 (M::TVec3<C>)						operator*(const M::TVec3<C0>&)				const;
+		MFUNC1 (M::TVec4<C>)						operator*(const M::TVec4<C0>&)				const;
 		MFUNC1 (Line<C>)						operator*(const Line<C0>&)				const;
 	
 		};

@@ -45,7 +45,7 @@ namespace Engine
 											hovered;//last hovered component
 		
 		
-			TVec2<float>					last;
+			M::TVec2<float>					last;
 			PWindow							dragging;
 			Window::ClickResult::value_t	dragType = Window::ClickResult::Missed;
 		
@@ -392,7 +392,7 @@ namespace Engine
 				case 1:
 				{
 					//-90 degrees z
-					TMatrix3<> rotation = {Vector<>::negative_y_axis,Vector<>::x_axis,Vector<>::z_axis};
+					M::TMatrix3<> rotation = {Vector<>::negative_y_axis,Vector<>::x_axis,Vector<>::z_axis};
 					TransformNormals(rotation);
 					glBegin(GL_QUADS);
 						glTexCoord2f(1,0); glVertex2f(cell.region.x.min,cell.region.y.min);
@@ -404,7 +404,7 @@ namespace Engine
 				break;
 				case 2:
 				{
-					TMatrix3<> rotation = {Vector<>::negative_x_axis,Vector<>::negative_y_axis,Vector<>::z_axis};
+					M::TMatrix3<> rotation = {Vector<>::negative_x_axis,Vector<>::negative_y_axis,Vector<>::z_axis};
 					TransformNormals(rotation);
 					glBegin(GL_QUADS);
 						glTexCoord2f(1,1); glVertex2f(cell.region.x.min,cell.region.y.min);
@@ -416,7 +416,7 @@ namespace Engine
 				break;
 				case 3:
 				{
-					TMatrix3<> rotation = {Vector<>::y_axis,Vector<>::negative_x_axis,Vector<>::z_axis};
+					M::TMatrix3<> rotation = {Vector<>::y_axis,Vector<>::negative_x_axis,Vector<>::z_axis};
 					TransformNormals(rotation);
 					glBegin(GL_QUADS);
 						glTexCoord2f(0,1); glVertex2f(cell.region.x.min,cell.region.y.min);
@@ -619,7 +619,7 @@ namespace Engine
 		}
 		
 		
-		void Operator::project(Window*window, float x, float y, TVec2<float>&p)	const
+		void Operator::project(Window*window, float x, float y, M::TVec2<float>&p)	const
 		{
 			/*cout << "x="<<x<<endl;
 			cout << "y="<<y<<endl;
@@ -645,19 +645,19 @@ namespace Engine
 			
 			/*cout << "radial="<<radial<<endl;
 			cout << "equation=sqrt("<<r<<"*"<<r<<"-sqr("<<radial<<"))"<<endl;*/
-			TVec3<float>	mp = {px,py,-h};
+			M::TVec3<float>	mp = {px,py,-h};
 			//cout << "mp="<<_toString(mp)<<endl;
 			projected_space.PointToScreen(mp,p);
 			p.x = (p.x*0.5+0.5)*(float)display->clientWidth();
 			p.y = (p.y*0.5+0.5)*(float)display->clientHeight();
 		}
 		
-		void Operator::unproject(const TVec3<float>&f_, TVec2<float>&p) const	//f required to be normalized
+		void Operator::unproject(const M::TVec3<float>&f_, M::TVec2<float>&p) const	//f required to be normalized
 		{
-			TVec3<float> f = {f_.x/3,0,f_.z};
+			M::TVec3<float> f = {f_.x/3,0,f_.z};
 			float	y=f_.y;
-			float len = Vec::length(f);
-			Vec::div(f,len);
+			float len = M::Vec::length(f);
+			M::Vec::div(f,len);
 			y/=len;
 			float x = f.x * 3;
 
@@ -665,17 +665,17 @@ namespace Engine
 			p.y = y * (float)display->clientHeight()/2.0f;
 		}
 
-		void	Operator::unprojectMouse(TVec2<float>&p)	const
+		void	Operator::unprojectMouse(M::TVec2<float>&p)	const
 		{
-			TVec3<float> f;
+			M::TVec3<float> f;
 			projected_space.ScreenToVector(mouse->location.windowRelative.x*2.f-1.f,mouse->location.windowRelative.y*2.f-1.f,Vector<>::dummy,f);
-			Vec::normalize0(f);
+			M::Vec::normalize0(f);
 			unproject(f,p);
 		}
 
 			
 			
-		static inline void drawRect(const Rect<float>&rect)
+		static inline void drawRect(const M::Rect<float>&rect)
 		{
 			glBegin(GL_LINE_LOOP);
 				glVertex2f(rect.x.min,rect.y.min);
@@ -717,8 +717,8 @@ namespace Engine
 					}
 					float	dx = ((float)px1[0]-(float)px0[0])*x_bump_scale,
 							dy = ((float)py1[0]-(float)py0[0])*y_bump_scale;
-					TVec3<float>		n = {-dx,-dy,1};
-					Vec::normalize(n);
+					M::TVec3<float>		n = {-dx,-dy,1};
+					M::Vec::normalize(n);
 					target.setNormal(x,y,n);
 					target.get(x,y)[3] = alpha?p[3]:255;
 				}						
@@ -937,7 +937,7 @@ namespace Engine
 				variableRows++;
 		}
 		
-		void	Layout::applyArea(Rect<float>&target, const Rect<float>&window, const Rect<float>&relative)
+		void	Layout::applyArea(M::Rect<float>&target, const M::Rect<float>&window, const M::Rect<float>&relative)
 		{
 			for (BYTE k = 0; k < 4; k++)
 			{
@@ -948,7 +948,7 @@ namespace Engine
 			}
 		}
 		
-		void	Layout::UpdateCells(const Rect<float>&window_location, TCellLayout&layout)	const
+		void	Layout::UpdateCells(const M::Rect<float>&window_location, TCellLayout&layout)	const
 		{
 			layout.cells.SetSize(cellCount);
 			
@@ -1018,10 +1018,10 @@ namespace Engine
 		}
 		
 
-		void TCellLayout::Clear(const Rect<>&windowLocation)
+		void TCellLayout::Clear(const M::Rect<>&windowLocation)
 		{
 			border = client = windowLocation;
-			title = Rect<>(0,0,0,0);
+			title = M::Rect<>(0,0,0,0);
 			cells.Free();
 		}
 		
@@ -1062,7 +1062,7 @@ namespace Engine
 			result->title = config.windowName;
 			result->sizeChange = config.initialPosition.sizeChange;
 			result->fixedPosition = config.initialPosition.fixedPosition;
-			Rect<float> reg(0,0,result->size.width,result->size.height);
+			M::Rect<float> reg(0,0,result->size.width,result->size.height);
 			if (layout)
 				layout->UpdateCells(reg,result->cellLayout);
 			else
@@ -1105,9 +1105,9 @@ namespace Engine
 				ASSERT_IS_CONSTRAINED__(window->x,-100000,100000);
 				ASSERT_IS_CONSTRAINED__(window->y,-100000,100000);
 			#endif
-			TVec2<> p;
+			M::TVec2<> p;
 			project(window.get(),-1,-1,p);
-			Rect<>	rect(p,p);
+			M::Rect<>	rect(p,p);
 			project(window.get(),1,-1,p);
 			rect.Include(p);
 			project(window.get(),1,1,p);
@@ -1137,7 +1137,7 @@ namespace Engine
 			
 			
 			rect.Expand(5);
-			rect.ConstrainBy(Rect<float>(0,0,w,h));
+			rect.ConstrainBy(M::Rect<float>(0,0,w,h));
 			if (rect.width() <= 0 || rect.height() <= 0)
 				return;
 			
@@ -1276,7 +1276,7 @@ namespace Engine
 			layoutChanged = visualChanged = true;
 		}
 		
-		void	Window::Drag(const TVec2<float>&d)
+		void	Window::Drag(const M::TVec2<float>&d)
 		{
 			#ifdef DEEP_GUI
 				destination.x += d.x;
@@ -1291,7 +1291,7 @@ namespace Engine
 			#endif
 		}
 		
-		void	Window::DragResize(TVec2<float>&d,ClickResult::value_t click_result)
+		void	Window::DragResize(M::TVec2<float>&d,ClickResult::value_t click_result)
 		{
 			float	dx = d.x,
 					dy = d.y;
@@ -1362,12 +1362,12 @@ namespace Engine
 		
 		void	Window::UpdateLayout()
 		{
-			Rect<float>	reg(0,0,/*ceil*/(size.width),/*ceil*/(size.height));
+			M::Rect<float>	reg(0,0,/*ceil*/(size.width),/*ceil*/(size.height));
 			if (layout)
 				layout->UpdateCells(reg,cellLayout);
 			else
 				cellLayout.Clear(reg);
-			const Rect<float>&client = cellLayout.client;
+			const M::Rect<float>&client = cellLayout.client;
 			if (rootComponent)
 				rootComponent->UpdateLayout(client);
 			layoutChanged = false;			
@@ -1549,11 +1549,11 @@ namespace Engine
 		/*static*/ GLShader::Variable	NormalRenderer::normalSystemVariable;
 
 
-		void		Renderer::_SetView(const Rect<int>&port)
+		void		Renderer::_SetView(const M::Rect<int>&port)
 		{
 			static const float zFar = 1.f;
 			static const float zNear = -1.f;
-			TMatrix4<>	projection;
+			M::TMatrix4<>	projection;
 			float	xscale = 1.f/float(port.width())*2.f,
 					yscale = 1.f/float(port.height())*2.f,
 					zscale = 1.f/(zFar-zNear)*2.f,
@@ -1561,10 +1561,10 @@ namespace Engine
 					yoffset = -float(port.y.min)*yscale-1.f,
 					zoffset = -(zNear+zFar)/2.f*zscale;
 
-			Vec::def(projection.x,	xscale,0,0,0);
-			Vec::def(projection.y, 0,yscale,0,0);
-			Vec::def(projection.z, 0,0,-zscale,0);
-			Vec::def(projection.w, xoffset,yoffset,zoffset,1);
+			M::Vec::def(projection.x,	xscale,0,0,0);
+			M::Vec::def(projection.y, 0,yscale,0,0);
+			M::Vec::def(projection.z, 0,0,-zscale,0);
+			M::Vec::def(projection.w, xoffset,yoffset,zoffset,1);
 
 			glMatrixMode(GL_PROJECTION);
 			glLoadMatrixf(projection.v);
@@ -1573,15 +1573,15 @@ namespace Engine
 
 		
 		
-		void		Renderer::_Apply(const Rect<int>&port)
+		void		Renderer::_Apply(const M::Rect<int>&port)
 		{
 			glViewport(port.x.min,port.y.min,port.width(),port.height());
 			_SetView(port);
 		}
 		
-		void		Renderer::Clip(const Rect<float>&region)	//!< Focuses on an area by applying the current viewport and translation to the specified region and further limiting the viewport. The existing translation will be modified by dx and dy
+		void		Renderer::Clip(const M::Rect<float>&region)	//!< Focuses on an area by applying the current viewport and translation to the specified region and further limiting the viewport. The existing translation will be modified by dx and dy
 		{
-			Rect<int>&next = clipStack.append();
+			M::Rect<int>&next = clipStack.append();
 			//next = region;
 			next.x.min = (int)floor(region.x.min);
 			next.y.min = (int)floor(region.y.min);
@@ -1589,7 +1589,7 @@ namespace Engine
 			next.y.max = (int)ceil(region.y.max);
 			if (clipStack.count() > 1)
 			{
-				const Rect<int>&prev = clipStack.GetFromEnd(1);
+				const M::Rect<int>&prev = clipStack.GetFromEnd(1);
 				next.ConstrainBy(prev);
 			}
 			_Apply(next);
@@ -1602,10 +1602,10 @@ namespace Engine
 			if (clipStack.IsNotEmpty())
 				_Apply(clipStack.last());
 			else
-				_Apply(Rect<int>(0,0,subRes.width,subRes.height));
+				_Apply(M::Rect<int>(0,0,subRes.width,subRes.height));
 		}
 
-		void		Renderer::TextureRect(const Rect<>&rect)
+		void		Renderer::TextureRect(const M::Rect<>&rect)
 		{
 			glBegin(GL_QUADS);
 				glTexCoord2f(0,0); glVertex2f(rect.x.min,rect.y.min);
@@ -1615,7 +1615,7 @@ namespace Engine
 			glEnd();
 			layerIsDirty = true;
 		}
-		void		Renderer::TextureRect(const Rect<>&rect,const Rect<>&texCoordRect)
+		void		Renderer::TextureRect(const M::Rect<>&rect,const M::Rect<>&texCoordRect)
 		{
 			glBegin(GL_QUADS);
 				glTexCoord2f(texCoordRect.x.min,texCoordRect.y.min); glVertex2f(rect.x.min,rect.y.min);
@@ -1625,7 +1625,7 @@ namespace Engine
 			glEnd();
 			layerIsDirty = true;
 		}
-		void		Renderer::TextureQuad(const TVec2<>&p0, const TVec2<>&p1, const TVec2<>&p2, const TVec2<>&p3)
+		void		Renderer::TextureQuad(const M::TVec2<>&p0, const M::TVec2<>&p1, const M::TVec2<>&p2, const M::TVec2<>&p3)
 		{
 			glBegin(GL_QUADS);
 				glTexCoord2f(0,0); glVertex2fv(p0.v);
@@ -1636,7 +1636,7 @@ namespace Engine
 			layerIsDirty = true;
 		}
 
-		void		Renderer::FillRect(const Rect<>&rect)
+		void		Renderer::FillRect(const M::Rect<>&rect)
 		{
 			glBegin(GL_QUADS);
 				glVertex2f(rect.x.min,rect.y.min);
@@ -1647,7 +1647,7 @@ namespace Engine
 			layerIsDirty = true;
 		}
 
-		void		Renderer::FillQuad(const TVec2<>&p0, const TVec2<>&p1, const TVec2<>&p2, const TVec2<>&p3)
+		void		Renderer::FillQuad(const M::TVec2<>&p0, const M::TVec2<>&p1, const M::TVec2<>&p2, const M::TVec2<>&p3)
 		{
 			glBegin(GL_QUADS);
 				glVertex2fv(p0.v);
@@ -1705,7 +1705,7 @@ namespace Engine
 			glMatrixMode(GL_MODELVIEW);
 			glPushMatrix();
 			glLoadIdentity();
-			_SetView(Rect<int>(0,0,subRes.width,subRes.height));
+			_SetView(M::Rect<int>(0,0,subRes.width,subRes.height));
 
 
 
@@ -1752,9 +1752,9 @@ namespace Engine
 			{
 				//if (layerCounter <= 2)
 				{
-					TVec2<>	targetUsage = {float(subRes.width) / float(stackedTargets[!targetingFinal].resolution.width),
+					M::TVec2<>	targetUsage = {float(subRes.width) / float(stackedTargets[!targetingFinal].resolution.width),
 										float(subRes.height) / float(stackedTargets[!targetingFinal].resolution.height)};
-					TVec2<>	layerUsage = {float(subRes.width) / float(layerTarget.resolution.width),
+					M::TVec2<>	layerUsage = {float(subRes.width) / float(layerTarget.resolution.width),
 										float(subRes.height) / float(layerTarget.resolution.height)};
 
 					glBindTexture(GL_TEXTURE_2D,stackedTargets[!targetingFinal].colorTarget[0].textureHandle);
@@ -1789,7 +1789,7 @@ namespace Engine
 			if (clipStack.IsNotEmpty())
 				_Apply(clipStack.last());
 			else
-				_Apply(Rect<int>(0,0,subRes.width,subRes.height));
+				_Apply(M::Rect<int>(0,0,subRes.width,subRes.height));
 
 
 		}
@@ -1863,12 +1863,12 @@ namespace Engine
 		}
 		
 
-		void					ColorRenderer::ModulateColor(const TVec4<>&color)
+		void					ColorRenderer::ModulateColor(const M::TVec4<>&color)
 		{
 			ModulateColor(color.red,color.green,color.blue,color.alpha);
 		}
 		
-		void					ColorRenderer::ModulateColor(const TVec3<>&color, float alpha/*=1.f*/)
+		void					ColorRenderer::ModulateColor(const M::TVec3<>&color, float alpha/*=1.f*/)
 		{
 			ModulateColor(color.red,color.green,color.blue,alpha);
 		}
@@ -1926,14 +1926,14 @@ namespace Engine
 			layerIsDirty = true;
 		}
 
-		void					ColorRenderer::FillRect(const Rect<>&rect)
+		void					ColorRenderer::FillRect(const M::Rect<>&rect)
 		{
 			_UpdateState();
 			Renderer::FillRect(rect);
 		}
 
 
-		void		ColorRenderer::FillQuad(const TVec2<>&p0, const TVec4<>&color0, const TVec2<>&p1, const TVec4<>&color1, const TVec2<>&p2, const TVec4<>&color2, const TVec2<>&p3,const TVec4<>&color3)
+		void		ColorRenderer::FillQuad(const M::TVec2<>&p0, const M::TVec4<>&color0, const M::TVec2<>&p1, const M::TVec4<>&color1, const M::TVec2<>&p2, const M::TVec4<>&color2, const M::TVec2<>&p3,const M::TVec4<>&color3)
 		{
 			_UpdateState();
 			glBegin(GL_QUADS);
@@ -1949,19 +1949,19 @@ namespace Engine
 			glColor4fv(color.v);
 			layerIsDirty = true;
 		}
-		void					ColorRenderer::TextureRect(const Rect<>&rect,const GL::Texture::Reference&ref)
+		void					ColorRenderer::TextureRect(const M::Rect<>&rect,const GL::Texture::Reference&ref)
 		{
 			_UpdateState(ref);
 			Renderer::TextureRect(rect);
 		}
 
-		void					ColorRenderer::TextureRect(const Rect<>&rect, const Rect<>&texCoordRect,const GL::Texture::Reference&ref)
+		void					ColorRenderer::TextureRect(const M::Rect<>&rect, const M::Rect<>&texCoordRect,const GL::Texture::Reference&ref)
 		{
 			_UpdateState(ref);
 			Renderer::TextureRect(rect,texCoordRect);
 		}
 		
-		void					ColorRenderer::TextureRect(const Rect<>&rect,const GL::Texture::Reference&ref0,const GL::Texture::Reference&ref1)
+		void					ColorRenderer::TextureRect(const M::Rect<>&rect,const GL::Texture::Reference&ref0,const GL::Texture::Reference&ref1)
 		{
 			_UpdateState(ref0,ref1);
 			glBegin(GL_QUADS);
@@ -1973,7 +1973,7 @@ namespace Engine
 			layerIsDirty = true;
 		}
 		
-		void					ColorRenderer::TextureRect(const Rect<>&rect, const Rect<>&texCoordRect,const GL::Texture::Reference&ref0,const GL::Texture::Reference&ref1)
+		void					ColorRenderer::TextureRect(const M::Rect<>&rect, const M::Rect<>&texCoordRect,const GL::Texture::Reference&ref0,const GL::Texture::Reference&ref1)
 		{
 			_UpdateState(ref0,ref1);
 			glBegin(GL_QUADS);
@@ -1985,12 +1985,12 @@ namespace Engine
 			layerIsDirty = true;
 		}
 
-		void					ColorRenderer::TextureQuad(const TVec2<>&p0, const TVec2<>&p1, const TVec2<>&p2, const TVec2<>&p3, const GL::Texture::Reference&ref)
+		void					ColorRenderer::TextureQuad(const M::TVec2<>&p0, const M::TVec2<>&p1, const M::TVec2<>&p2, const M::TVec2<>&p3, const GL::Texture::Reference&ref)
 		{
 			_UpdateState(ref);
 			Renderer::TextureQuad(p0,p1,p2,p3);
 		}
-		void					ColorRenderer::TextureQuad(const TVec2<>&p0, const TVec2<>&p1, const TVec2<>&p2, const TVec2<>&p3, const GL::Texture::Reference&ref0, const GL::Texture::Reference&ref1)
+		void					ColorRenderer::TextureQuad(const M::TVec2<>&p0, const M::TVec2<>&p1, const M::TVec2<>&p2, const M::TVec2<>&p3, const GL::Texture::Reference&ref0, const GL::Texture::Reference&ref1)
 		{
 			_UpdateState(ref0,ref1);
 			glBegin(GL_QUADS);
@@ -2030,7 +2030,7 @@ namespace Engine
 
 		void					ColorRenderer::Configure(const TFrameBuffer&buffer, const Resolution& usage)
 		{
-			Vec::set(color,1);
+			M::Vec::set(color,1);
 			glWhite();
 			colorStack.clear();
 			glEnable(GL_POINT_SMOOTH);
@@ -2047,25 +2047,25 @@ namespace Engine
 
 		void					NormalRenderer::ScaleNormals(float x, float y)
 		{
-			Vec::mult(normalSystem.x,x);
-			Vec::mult(normalSystem.y,y);
+			M::Vec::mult(normalSystem.x,x);
+			M::Vec::mult(normalSystem.y,y);
 			DBG_VERIFY__(normalSystemVariable.Set(normalSystem));
 		}
 
-		void					NormalRenderer::ScaleNormals(const TVec2<>&v)
+		void					NormalRenderer::ScaleNormals(const M::TVec2<>&v)
 		{
 			ScaleNormals(v.x,v.y);
 		}
 
 		void					NormalRenderer::ScaleNormals(float x, float y, float z)
 		{
-			Vec::mult(normalSystem.x,x);
-			Vec::mult(normalSystem.y,y);
-			Vec::mult(normalSystem.z,z);
+			M::Vec::mult(normalSystem.x,x);
+			M::Vec::mult(normalSystem.y,y);
+			M::Vec::mult(normalSystem.z,z);
 			DBG_VERIFY__(normalSystemVariable.Set(normalSystem));
 		}
 
-		void					NormalRenderer::ScaleNormals(const TVec3<>&v)
+		void					NormalRenderer::ScaleNormals(const M::TVec3<>&v)
 		{
 			ScaleNormals(v.x,v.y,v.z);
 		}
@@ -2087,9 +2087,9 @@ namespace Engine
 			DBG_VERIFY__(normalSystemVariable.Set(normalSystem));
 		}
 
-		void					NormalRenderer::TransformNormals(const TMatrix3<>&m)
+		void					NormalRenderer::TransformNormals(const M::TMatrix3<>&m)
 		{
-			TMatrix3<> temp;
+			M::TMatrix3<> temp;
 			Mat::Mult(m,normalSystem,temp);
 			normalSystem = temp;
 			DBG_VERIFY__(normalSystemVariable.Set(normalSystem));
@@ -2097,19 +2097,19 @@ namespace Engine
 
 
 
-		void					NormalRenderer::TextureRect(const Rect<>&rect,const GL::Texture::Reference&ref)
+		void					NormalRenderer::TextureRect(const M::Rect<>&rect,const GL::Texture::Reference&ref)
 		{
 			_UpdateState(ref);
 			Renderer::TextureRect(rect);
 		}
 
-		void					NormalRenderer::TextureRect(const Rect<>&rect, const Rect<>&texCoordRect,const GL::Texture::Reference&ref)
+		void					NormalRenderer::TextureRect(const M::Rect<>&rect, const M::Rect<>&texCoordRect,const GL::Texture::Reference&ref)
 		{
 			_UpdateState(ref);
 			Renderer::TextureRect(rect,texCoordRect);
 		}
 
-		void					NormalRenderer::TextureQuad(const TVec2<>&p0, const TVec2<>&p1, const TVec2<>&p2, const TVec2<>&p3, const GL::Texture::Reference&ref)
+		void					NormalRenderer::TextureQuad(const M::TVec2<>&p0, const M::TVec2<>&p1, const M::TVec2<>&p2, const M::TVec2<>&p3, const GL::Texture::Reference&ref)
 		{
 			_UpdateState(ref);
 			Renderer::TextureQuad(p0,p1,p2,p3);
@@ -2229,7 +2229,7 @@ namespace Engine
 			return focused.get() == this;
 		}
 		
-		void		Component::Locate(const Rect<float>&parent_region,Rect<float>&region)	const
+		void		Component::Locate(const M::Rect<float>&parent_region,M::Rect<float>&region)	const
 		{
 			float	w = parent_region.width(),
 					h = parent_region.height();
@@ -2262,7 +2262,7 @@ namespace Engine
 		
 		}
 		
-		void		Component::UpdateLayout(const Rect<float>&parent_region)
+		void		Component::UpdateLayout(const M::Rect<float>&parent_region)
 		{
 			Locate(parent_region,currentRegion);
 			
@@ -2374,7 +2374,7 @@ namespace Engine
 			//glLoadIdentity();
 			//glMatrixMode(GL_MODELVIEW);
 			//
-			//Rect<float>	view(0,0,size.width,size.height);
+			//M::Rect<float>	view(0,0,size.width,size.height);
 				//ASSERT__(glExtensions.bindFrameBuffer(normalBuffer));
 				//glClearColor(0,0,0,0);
 				//glClear(GL_COLOR_BUFFER_BIT);
@@ -2553,7 +2553,7 @@ namespace Engine
 
 		PComponent					Operator::GetComponentUnderMouse(bool*enabledOut/*=NULL*/)	const
 		{
-			TVec2<float> m;
+			M::TVec2<float> m;
 			unprojectMouse(m);
 		
 			for (index_t i = windowStack.count()-1; i < windowStack.count(); i--)
@@ -2573,7 +2573,7 @@ namespace Engine
 		}
 		PWindow			Operator::GetWindowUnderMouse()	const
 		{
-			TVec2<float> m;
+			M::TVec2<float> m;
 			unprojectMouse(m);
 		
 			for (index_t i = windowStack.count()-1; i < windowStack.count(); i--)
@@ -2614,10 +2614,10 @@ namespace Engine
 				}
 			}
 				
-			TVec2<float> m;
-			static	TVec2<float> last_m={-100000,-10000};
+			M::TVec2<float> m;
+			static	M::TVec2<float> last_m={-100000,-10000};
 			unprojectMouse(m);
-			if (!Vec::similar(m,last_m) || stack_changed)
+			if (!M::Vec::similar(m,last_m) || stack_changed)
 			{
 				stack_changed = false;
 				last_m = m;
@@ -2627,7 +2627,7 @@ namespace Engine
 					if (dragging)
 					{
 						cursor_mode = dragType;
-						TVec2<float>	d =	{m.x-last.x,
+						M::TVec2<float>	d =	{m.x-last.x,
 											m.y-last.y};
 						if (d.x || d.y)
 						{
@@ -3067,7 +3067,7 @@ namespace Engine
 		
 		bool			Operator::mouseDown()
 		{
-			TVec2<float> m;
+			M::TVec2<float> m;
 			unprojectMouse(m);
 			last = m;
 			owns_mouse_down = false;
@@ -3145,7 +3145,7 @@ namespace Engine
 		
 		bool			Operator::mouseWheel(short delta)
 		{
-			TVec2<float> m;
+			M::TVec2<float> m;
 			unprojectMouse(m);
 			for (index_t i = menu_stack.count()-1; i < menu_stack.count(); i--)
 			{
@@ -3234,7 +3234,7 @@ namespace Engine
 			handlingEvent = true;
 			if (clicked)
 			{
-				TVec2<float> m;
+				M::TVec2<float> m;
 				unprojectMouse(m);
 				clicked->GetWindow()->SignalMouseUp(m.x,m.y);
 			}

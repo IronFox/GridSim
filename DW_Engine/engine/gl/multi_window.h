@@ -435,7 +435,7 @@ namespace Engine
 		void					getRelativeMouse(float&x, float&y)	const;
 		void					relativate(const POINT&p, float&x, float &y)	const;
 		template <typename T>
-			void				GetAbsoluteClientRegion(Rect<T>&rect)		const
+			void				GetAbsoluteClientRegion(M::Rect<T>&rect)		const
 			{
 				rect.x.min = location.left+client_offset_x;
 				rect.y.min = location.top+client_offset_y;

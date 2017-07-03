@@ -553,7 +553,7 @@ namespace DeltaWorks
 			typedef Nature	ImageNature;
 
 			template <typename Float>
-				void					sampleNormal(Float x0, Float y0, Float x1, Float y1, TVec3<Float>&target)		const;
+				void					sampleNormal(Float x0, Float y0, Float x1, Float y1, M::TVec3<Float>&target)		const;
 
 			
 		public:
@@ -746,7 +746,7 @@ namespace DeltaWorks
 											unexpectedly or even crash if the contained data is not a 3 channel normal map or if the specified coordinates are invalid.
 										*/
 			template <typename Float>
-				void					setNormal(dimension_t x, dimension_t y, const TVec3<Float>&data); //-1.0f .. 1.0f will be translated to normal_offset+p*normal_scale
+				void					setNormal(dimension_t x, dimension_t y, const M::TVec3<Float>&data); //-1.0f .. 1.0f will be translated to normal_offset+p*normal_scale
 
 										/*!
 											\brief Modifies the color of the specified pixel.
@@ -813,9 +813,9 @@ namespace DeltaWorks
 			template <typename Float>
 				void					BlendF(dimension_t x, dimension_t y, const Float*data, Float alpha, BYTE channels);
 			template <typename Float>
-				void					GetNormal(dimension_t x, dimension_t y, TVec3<Float>&out)						const;		//!< Retrieves the normal content of a pixel. The method behavior is undefined for invalid pixel coordinates. \param x x-coordinate of the pixel \param y y-coordinate of the pixel  \param out Normal output field
+				void					GetNormal(dimension_t x, dimension_t y, M::TVec3<Float>&out)						const;		//!< Retrieves the normal content of a pixel. The method behavior is undefined for invalid pixel coordinates. \param x x-coordinate of the pixel \param y y-coordinate of the pixel  \param out Normal output field
 			template <typename Float>
-				bool					GetNormalVerified(dimension_t x, dimension_t y, TVec3<Float>&out)				const;		//!< Retrieves the normal content of a pixel. \param x x-coordinate of the pixel \param y y-coordinate of the pixel  \param out Normal output field \return true if the specified pixel exists and a normal could be extracted, false otherwise.
+				bool					GetNormalVerified(dimension_t x, dimension_t y, M::TVec3<Float>&out)				const;		//!< Retrieves the normal content of a pixel. \param x x-coordinate of the pixel \param y y-coordinate of the pixel  \param out Normal output field \return true if the specified pixel exists and a normal could be extracted, false otherwise.
 			template <typename Float>
 				bool					ImportRectangleF(dimension_t x, dimension_t y, dimension_t w, dimension_t h, const Float*target);
 			template <typename Float>

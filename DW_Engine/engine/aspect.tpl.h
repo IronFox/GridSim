@@ -15,37 +15,37 @@ namespace Engine
 	/*static*/ const Aspect<C>		Aspect<C>::identity;
 
 template <class C>
-MFUNC2 (bool) Frustum<C>::visible(const TVec3<C0>&center, const C1&radius) const
+MFUNC2 (bool) Frustum<C>::visible(const M::TVec3<C0>&center, const C1&radius) const
 {
-	return	(Vec::planePointDistanceN(near_bottom_left,bottom_normal,center)<radius)
+	return	(M::Vec::planePointDistanceN(near_bottom_left,bottom_normal,center)<radius)
 			&&
-			(Vec::planePointDistanceN(near_bottom_right,right_normal,center)<radius)
+			(M::Vec::planePointDistanceN(near_bottom_right,right_normal,center)<radius)
 			&&
-			(Vec::planePointDistanceN(near_top_right,top_normal,center)<radius)
+			(M::Vec::planePointDistanceN(near_top_right,top_normal,center)<radius)
 			&&
-			(Vec::planePointDistanceN(near_top_left,left_normal,center)<radius)
+			(M::Vec::planePointDistanceN(near_top_left,left_normal,center)<radius)
 			&&
-			(Vec::planePointDistanceN(near_bottom_left,near_normal,center)<radius)
+			(M::Vec::planePointDistanceN(near_bottom_left,near_normal,center)<radius)
 			&&
-			(Vec::planePointDistanceN(far_bottom_left,far_normal,center)<radius);
+			(M::Vec::planePointDistanceN(far_bottom_left,far_normal,center)<radius);
 }
 
 template <class C>
-	MFUNC2 (bool) Frustum<C>::IntersectsCone(const TVec3<C0>&center, const C1&radius) const
+	MFUNC2 (bool) Frustum<C>::IntersectsCone(const M::TVec3<C0>&center, const C1&radius) const
 		{
-			return	(Vec::planePointDistanceN(near_bottom_left,bottom_normal,center)<radius)
+			return	(M::Vec::planePointDistanceN(near_bottom_left,bottom_normal,center)<radius)
 					&&
-					(Vec::planePointDistanceN(near_bottom_right,right_normal,center)<radius)
+					(M::Vec::planePointDistanceN(near_bottom_right,right_normal,center)<radius)
 					&&
-					(Vec::planePointDistanceN(near_top_right,top_normal,center)<radius)
+					(M::Vec::planePointDistanceN(near_top_right,top_normal,center)<radius)
 					&&
-					(Vec::planePointDistanceN(near_top_left,left_normal,center)<radius);
+					(M::Vec::planePointDistanceN(near_top_left,left_normal,center)<radius);
 		}
 
 
-template <class C> MFUNC2 (typename Frustum<C>::Visibility) Frustum<C>::CheckSphereVisibility(const TVec3<C0>&center, const C1&radius) const
+template <class C> MFUNC2 (typename Frustum<C>::Visibility) Frustum<C>::CheckSphereVisibility(const M::TVec3<C0>&center, const C1&radius) const
 	{
-		const TVec3<C>* base[6] =
+		const M::TVec3<C>* base[6] =
 			{
 				&near_bottom_left,
 				&far_bottom_left,
@@ -57,7 +57,7 @@ template <class C> MFUNC2 (typename Frustum<C>::Visibility) Frustum<C>::CheckSph
 		bool fully_visible = true;
 		for (BYTE k = 0; k < 6; k++)
 		{
-			C0 dist = Vec::planePointDistance(* (base[k]),normal[k],center);
+			C0 dist = M::Vec::planePointDistance(* (base[k]),normal[k],center);
 			if (dist > -radius)
 				fully_visible = false;
 			if (dist > radius)
@@ -69,27 +69,27 @@ template <class C> MFUNC2 (typename Frustum<C>::Visibility) Frustum<C>::CheckSph
 
 template <class C> MFUNC3 (bool) Frustum<C>::visible(const C0&x, const C1&y, const C2&z) const
 	{
-		TVec3<C0> center={x,y,z};
+		M::TVec3<C0> center={x,y,z};
 		C error = M::getError<C>();
-		return	(Vec::planePointDistanceN(near_bottom_left,bottom_normal,center)<=error)
+		return	(M::Vec::planePointDistanceN(near_bottom_left,bottom_normal,center)<=error)
 				&&
-				(Vec::planePointDistanceN(near_bottom_right,right_normal,center)<=error)
+				(M::Vec::planePointDistanceN(near_bottom_right,right_normal,center)<=error)
 				&&
-				(Vec::planePointDistanceN(near_top_right,top_normal,center)<=error)
+				(M::Vec::planePointDistanceN(near_top_right,top_normal,center)<=error)
 				&&
-				(Vec::planePointDistanceN(near_top_left,left_normal,center)<=error)
+				(M::Vec::planePointDistanceN(near_top_left,left_normal,center)<=error)
 				&&
-				(Vec::planePointDistanceN(near_bottom_left,near_normal,center)<=error)
+				(M::Vec::planePointDistanceN(near_bottom_left,near_normal,center)<=error)
 				&&
-				(Vec::planePointDistanceN(far_bottom_left,far_normal,center)<=error);
+				(M::Vec::planePointDistanceN(far_bottom_left,far_normal,center)<=error);
 	}
 	
 	
 	
 template <class C>
-	/*static*/ MFUNC1(bool) Frustum<C>::TestTriangle(const TVec3<C0>&p0,const TVec3<C0>&p1,const TVec3<C0>&p2,const TVec3<C0>&e0,const TVec3<C0>&d)
+	/*static*/ MFUNC1(bool) Frustum<C>::TestTriangle(const M::TVec3<C0>&p0,const M::TVec3<C0>&p1,const M::TVec3<C0>&p2,const M::TVec3<C0>&e0,const M::TVec3<C0>&d)
 	{
-		TVec3<C0> rs;
+		M::TVec3<C0> rs;
 		return
 			Obj::detTriangleRayIntersection(p0, p1, p2, e0, d, rs)
 			&& 
@@ -105,9 +105,9 @@ template <class C>
 	}
 
 template <class C>
-	MFUNC1 (bool) Frustum<C>::intersects(const C0&x0, const C0&y0, const C0&z0,const C0&x1, const C0&y1, const C0&z1,const TVec3<C>&p0, const TVec3<C>&p1, const TVec3<C>&p2, const TVec3<C>&p3)
+	MFUNC1 (bool) Frustum<C>::intersects(const C0&x0, const C0&y0, const C0&z0,const C0&x1, const C0&y1, const C0&z1,const M::TVec3<C>&p0, const M::TVec3<C>&p1, const M::TVec3<C>&p2, const M::TVec3<C>&p3)
 	{
-		TVec3<C0>	e0 = {x0,y0,z0},
+		M::TVec3<C0>	e0 = {x0,y0,z0},
 //						e1 = {x1,y1,z1},
 						d = {x1-x0,y1-y0,z1-z0};
 						
@@ -115,7 +115,7 @@ template <class C>
 	}
 	
 
-template <class C> MFUNC1 (bool) Frustum<C>::intersects(const Box<C0>&box, const TVec3<C>&p0, const TVec3<C>&p1, const TVec3<C>&p2, const TVec3<C>&p3)
+template <class C> MFUNC1 (bool) Frustum<C>::intersects(const M::Box<C0>&box, const M::TVec3<C>&p0, const M::TVec3<C>&p1, const M::TVec3<C>&p2, const M::TVec3<C>&p3)
 	{
 		return	intersects(box.x.min,box.y.min,box.z.min,box.x.max,box.y.min,box.z.min,p0,p1,p2,p3)
 				||
@@ -144,20 +144,20 @@ template <class C> MFUNC1 (bool) Frustum<C>::intersects(const Box<C0>&box, const
 
 
 template <class C> 
-	MFUNC1 (bool) Frustum<C>::IsVisible_UnpreciseExpensiveDoNotUse(const Box<C0>&box)	const
+	MFUNC1 (bool) Frustum<C>::IsVisible_UnpreciseExpensiveDoNotUse(const M::Box<C0>&box)	const
 	{
 		return CheckBoxVisibility_UnpreciseExpensiveDoNotUse(box) != NotVisible;
 	}
 
 	
 template <class C>
-	MF_DECLARE (typename Frustum<C>::Visibility) Frustum<C>::CheckBoxVisibility_UnpreciseExpensiveDoNotUse(const Box<C>&box)	const
+	MF_DECLARE (typename Frustum<C>::Visibility) Frustum<C>::CheckBoxVisibility_UnpreciseExpensiveDoNotUse(const M::Box<C>&box)	const
 	{
 		bool all_in_box=true;
 		for (BYTE k = 0; k < 8; k++)
 		{
 			all_in_box = box.Contains(corner[k]);
-			//!Vec::oneLess(corner[k],box.axis[k].min) && !Vec::oneGreater(corner[k],box.axis[k].max);
+			//!M::Vec::oneLess(corner[k],box.axis[k].min) && !M::Vec::oneGreater(corner[k],box.axis[k].max);
 			if (!all_in_box)
 				break;
 		}
@@ -236,49 +236,49 @@ template <class C>
 template <class C>
 	MF_DECLARE(String)		Frustum<C>::ToString()	const
 	{
-		String rs = "volume:\r\nnear: "+Vec::toString(near_bottom_left)+", "+Vec::toString(near_bottom_right)+", "+Vec::toString(near_top_right)+", "+Vec::toString(near_top_left)+"\r\n";
-		rs += "far: "+Vec::toString(far_bottom_left)+", "+Vec::toString(far_bottom_right)+", "+Vec::toString(far_top_right)+", "+Vec::toString(far_top_left)+"\r\n";
-		rs += "normals: left="+Vec::toString(left_normal)+", right="+Vec::toString(right_normal)+", bottom="+Vec::toString(bottom_normal)+", top="+Vec::toString(top_normal);
+		String rs = "volume:\r\nnear: "+M::Vec::toString(near_bottom_left)+", "+M::Vec::toString(near_bottom_right)+", "+M::Vec::toString(near_top_right)+", "+M::Vec::toString(near_top_left)+"\r\n";
+		rs += "far: "+M::Vec::toString(far_bottom_left)+", "+M::Vec::toString(far_bottom_right)+", "+M::Vec::toString(far_top_right)+", "+M::Vec::toString(far_top_left)+"\r\n";
+		rs += "normals: left="+M::Vec::toString(left_normal)+", right="+M::Vec::toString(right_normal)+", bottom="+M::Vec::toString(bottom_normal)+", top="+M::Vec::toString(top_normal);
 		return rs;
 	}
 
 template <class C>
-	MFUNC2 (bool)	Frustum<C>::IsVisible(const TVec3<C0>&center, const C1&radius)	const
+	MFUNC2 (bool)	Frustum<C>::IsVisible(const M::TVec3<C0>&center, const C1&radius)	const
 	{
 		return visible(center,radius);
 	}
 
 
 template <class C>
-	MF_DECLARE(void) Frustum<C>::defNormal(const TVec3<C>&p0, const TVec3<C>&p1, const TVec3<C>&p2, TVec3<C>&out)
+	MF_DECLARE(void) Frustum<C>::defNormal(const M::TVec3<C>&p0, const M::TVec3<C>&p1, const M::TVec3<C>&p2, M::TVec3<C>&out)
 	{
-		TVec3<C> edge0,edge1;
-		Vec::sub(p1,p0,edge0);
-		Vec::sub(p2,p0,edge1);
-		Vec::cross(edge0,edge1,out);
-		Vec::normalize0(out);
+		M::TVec3<C> edge0,edge1;
+		M::Vec::sub(p1,p0,edge0);
+		M::Vec::sub(p2,p0,edge1);
+		M::Vec::cross(edge0,edge1,out);
+		M::Vec::normalize0(out);
 	}
 
 template <class C>
 	template <typename SubType>
-		MF_DECLARE (void) Frustum<C>::defNormalST(const TVec3<C>&p0, const TVec3<C>&p1, const TVec3<C>&p2, TVec3<C>&out)
+		MF_DECLARE (void) Frustum<C>::defNormalST(const M::TVec3<C>&p0, const M::TVec3<C>&p1, const M::TVec3<C>&p2, M::TVec3<C>&out)
 		{
-			TVec3<SubType>	edge0,edge1,tmp;
-			Vec::sub(p1,p0,edge0);
-			Vec::sub(p2,p0,edge1);
-			Vec::cross(edge0,edge1,tmp);
-			Vec::normalize0(tmp);
-			Vec::copy(tmp,out);
+			M::TVec3<SubType>	edge0,edge1,tmp;
+			M::Vec::sub(p1,p0,edge0);
+			M::Vec::sub(p2,p0,edge1);
+			M::Vec::cross(edge0,edge1,tmp);
+			M::Vec::normalize0(tmp);
+			M::Vec::copy(tmp,out);
 		}
 template <class C>
 	MF_DECLARE(void)	Frustum<C>::FlipNormals()
 	{
-		Vec::mult(normal[0],-1);
-		Vec::mult(normal[1],-1);
-		Vec::mult(normal[2],-1);
-		Vec::mult(normal[3],-1);
-		Vec::mult(normal[4],-1);
-		Vec::mult(normal[5],-1);
+		M::Vec::mult(normal[0],-1);
+		M::Vec::mult(normal[1],-1);
+		M::Vec::mult(normal[2],-1);
+		M::Vec::mult(normal[3],-1);
+		M::Vec::mult(normal[4],-1);
+		M::Vec::mult(normal[5],-1);
 
 
 	}
@@ -292,21 +292,21 @@ template <class C>
 		defNormal(corner[3],corner[7],corner[4],left_normal);
 		//defNormal(corner[0],corner[1],corner[2],near_normal);	//near field may be too small
 		{
-			TVec3<C>	far_center = far[0],
+			M::TVec3<C>	far_center = far[0],
 						near_center = near[0];
 
-			Vec::add(near_center,near[1]);
-			Vec::add(near_center,near[2]);
-			Vec::add(near_center,near[3]);
-			Vec::div(near_center,(C)4);
+			M::Vec::add(near_center,near[1]);
+			M::Vec::add(near_center,near[2]);
+			M::Vec::add(near_center,near[3]);
+			M::Vec::div(near_center,(C)4);
 	
-			Vec::add(far_center,far[1]);
-			Vec::add(far_center,far[2]);
-			Vec::add(far_center,far[3]);
-			Vec::div(far_center,(C)4);
+			M::Vec::add(far_center,far[1]);
+			M::Vec::add(far_center,far[2]);
+			M::Vec::add(far_center,far[3]);
+			M::Vec::div(far_center,(C)4);
 	
-			Vec::sub(near_center,far_center,near_normal);
-			Vec::normalize0(near_normal);
+			M::Vec::sub(near_center,far_center,near_normal);
+			M::Vec::normalize0(near_normal);
 		}
 	
 		defNormal(corner[7],corner[6],corner[5],far_normal);
@@ -339,9 +339,9 @@ template <class C>
 	MFUNC1(Frustum<C>&)	Frustum<C>::operator=(const Frustum<C0>&other)
 		{
 			for (BYTE k = 0; k < 8; k++)
-				Vec::copy(other.corner[k],corner[k]);
+				M::Vec::copy(other.corner[k],corner[k]);
 			for (BYTE k = 0; k < 6; k++)
-				Vec::copy(other.normal[k],normal[k]);
+				M::Vec::copy(other.normal[k],normal[k]);
 			return *this;
 		}
 
@@ -359,11 +359,11 @@ template <class C> MF_CONSTRUCTOR Aspect<C>::Aspect(VisualEnum::eDepthTest dtest
 
 template <class C> MF_DECLARE(void)	Aspect<C>::LoadIdentity()
 {
-	view = Matrix<C>::eye4;
-	viewInvert = Matrix<C>::eye4;
-	projectionInvert = Matrix<C>::eye4;
-	projection = Matrix<C>::eye4;
-	Vec::clear(location);
+	view = M::Matrix<C>::eye4;
+	viewInvert = M::Matrix<C>::eye4;
+	projectionInvert = M::Matrix<C>::eye4;
+	projection = M::Matrix<C>::eye4;
+	M::Vec::clear(location);
 }
 
 template <class C> MF_DECLARE(void) Aspect<C>::UpdateInvert()
@@ -372,7 +372,7 @@ template <class C> MF_DECLARE(void) Aspect<C>::UpdateInvert()
 	Mat::invert(projection,projectionInvert);
 }
 
-template <class C> MF_DECLARE(const TVec3<C>&) Aspect<C>::GetAbsoluteLocation()	const
+template <class C> MF_DECLARE(const M::TVec3<C>&) Aspect<C>::GetAbsoluteLocation()	const
 {
 	return viewInvert.w.xyz;
 }
@@ -381,74 +381,74 @@ template <class C> MF_DECLARE(const TVec3<C>&) Aspect<C>::GetAbsoluteLocation()	
 template <class C>
 MFUNC3 (void) Aspect<C>::Translate(const C0&x, const C1&y, const C2&z)
 {
-	TVec3<C> vec={x,y,z},out;
+	M::TVec3<C> vec={x,y,z},out;
 	Mat::rotate(view,vec,out);
-	Vec::add(ref3(view+12),out);
+	M::Vec::add(ref3(view+12),out);
 	Mat::invertSystem(view,viewInvert);
 }
 
 
 template <class C>
-MFUNC1 (void) Aspect<C>::Translate(const TVec3<C0>&delta)
+MFUNC1 (void) Aspect<C>::Translate(const M::TVec3<C0>&delta)
 {
-	TVec3<C> out;
+	M::TVec3<C> out;
 	Mat::rotate(view,delta,out);
-	Vec::add(ref3(view+12),out);
+	M::Vec::add(ref3(view+12),out);
 	Mat::invertSystem(view,viewInvert);
 }
 
 template <class C>
 MFUNC4 (void) Aspect<C>::Rotate(const C0&angle, const C1&x, const C2&y, const C3&z)
 {
-	TVec4<C> a = {x,y,z,angle},q[4];
-	Vec::normalize0(a);	//normalize first 3 components
+	M::TVec4<C> a = {x,y,z,angle},q[4];
+	M::Vec::normalize0(a);	//normalize first 3 components
 	_q2Quaternion(a,q);
 	Rotate(q);
 }
 
 template <class C>
-MFUNC2 (void) Aspect<C>::Rotate(const C0&angle, const TVec3<C1>&v)
+MFUNC2 (void) Aspect<C>::Rotate(const C0&angle, const M::TVec3<C1>&v)
 {
-	TVec4<C> a = {v.x,v.y,v.z,angle},q[4];
-	Vec::normalize0(a);	//normalize first 3 components
+	M::TVec4<C> a = {v.x,v.y,v.z,angle},q[4];
+	M::Vec::normalize0(a);	//normalize first 3 components
 	_q2Quaternion(a,q);
 	Rotate(q);
 }
 
 template <class C>
-MFUNC1 (void) Aspect<C>::Rotate(const TVec4<C0>&quaternion)
+MFUNC1 (void) Aspect<C>::Rotate(const M::TVec4<C0>&quaternion)
 {
 	_qRotateSystemCW(quaternion,view);
 	Mat::invertSystem(view,viewInvert);
 }
 
 template <class C>
-MFUNC2 (bool) Aspect<C>::PointToScreen(const TVec3<C0>&point, TVec2<C1>&screenPoint)	const
+MFUNC2 (bool) Aspect<C>::PointToScreen(const M::TVec3<C0>&point, M::TVec2<C1>&screenPoint)	const
 {
-	TVec4<C>	temp0,temp1;
+	M::TVec4<C>	temp0,temp1;
 	Mat::transform(view,point,temp0.xyz);
 	temp0.w = 1;
 	Mat::Mult(projection,temp0,temp1);
 	if (vabs(temp1.w) <= TypeInfo<C>::error)
 		return false;
-	Vec::divide(temp1.xy,temp1.w,screenPoint);
+	M::Vec::divide(temp1.xy,temp1.w,screenPoint);
 	return temp1.z >= -temp1.w && temp1.z <= temp1.w;	//[-1,+1]
 }
 template <class C>
-MFUNC2 (bool) Aspect<C>::Project(const TVec3<C0>&point, TVec3<C1>&projected)	const
+MFUNC2 (bool) Aspect<C>::Project(const M::TVec3<C0>&point, M::TVec3<C1>&projected)	const
 {
-	TVec4<C>	temp0,temp1;
+	M::TVec4<C>	temp0,temp1;
 	Mat::transform(view,point,temp0.xyz);
 	temp0.w = 1;
 	Mat::Mult(projection,temp0,temp1);
 	if (vabs(temp1.w) < getError<C>())
 		return false;
-	Vec::divide(temp1.xyz,temp1.w,projected);
+	M::Vec::divide(temp1.xyz,temp1.w,projected);
 	return projected.z >= -1 && projected.z <= 1;
 }
 
 template <class C>
-MFUNC2 (bool) Aspect<C>::ProjectToRegion(const TVec3<C0>&point, TVec3<C1>&projected)	const
+MFUNC2 (bool) Aspect<C>::ProjectToRegion(const M::TVec3<C0>&point, M::TVec3<C1>&projected)	const
 {
 	bool rs = Project(point,projected);
 	region.Derelativate(C(projected.x * (C1)0.5+(C1)0.5),C(projected.y * (C1)0.5+(C1)0.5),projected.x,projected.y);
@@ -458,46 +458,46 @@ MFUNC2 (bool) Aspect<C>::ProjectToRegion(const TVec3<C0>&point, TVec3<C1>&projec
 }
 
 template <class C>
-MFUNC2 (bool) Aspect<C>::VectorToScreen(const TVec3<C0>&vector, TVec2<C1>&screenPoint)	const
+MFUNC2 (bool) Aspect<C>::VectorToScreen(const M::TVec3<C0>&vector, M::TVec2<C1>&screenPoint)	const
 {
-	TVec4<C>	temp0,temp1;
+	M::TVec4<C>	temp0,temp1;
 	Mat::rotate(view,vector,temp0.xyz);
 	temp0.w = 1;
 	Mat::Mult(projection,temp0,temp1);
 	if (vabs(temp1.w) < getError<C>())
 		return false;
-	Vec::divide(temp1.xy,temp1.w,screenPoint);
+	M::Vec::divide(temp1.xy,temp1.w,screenPoint);
 	return temp1.w >= 0;
 }
 
 template <class C>
-	MFUNC4 (void)				Aspect<C>::ScreenToVector(const C0&x, const C1&y, TVec3<C2>&position, TVec3<C3>&direction)	const
+	MFUNC4 (void)				Aspect<C>::ScreenToVector(const C0&x, const C1&y, M::TVec3<C2>&position, M::TVec3<C3>&direction)	const
 		{
-			TVec2<C>	point = {x,y};
+			M::TVec2<C>	point = {x,y};
 			ScreenToVector(point,position,direction);
 		}
 
 template <class C>
-MFUNC3 (void) Aspect<C>::ScreenToVector(const TVec2<C0>&point, TVec3<C1>&position, TVec3<C2>&direction)	const
+MFUNC3 (void) Aspect<C>::ScreenToVector(const M::TVec2<C0>&point, M::TVec3<C1>&position, M::TVec3<C2>&direction)	const
 {
 	//_c3(&viewInvert[12],position);
-	TVec4<C>	p0 = {point.x,point.y,-1,1},
+	M::TVec4<C>	p0 = {point.x,point.y,-1,1},
 				temp;
 	Mat::Mult(projectionInvert,p0,temp);
 	if (vabs(temp.w) > getError<C>())
-		Vec::div(temp.xyz,temp.w);
+		M::Vec::div(temp.xyz,temp.w);
 	Mat::rotate(viewInvert,temp.xyz,direction);
 	Mat::transform(viewInvert,temp.xyz,position);
 }
 
 template <class C>
-MFUNC2 (void)				Aspect<C>::ReverseProject(const TVec3<C0>&point, TVec3<C1>&position)					const
+MFUNC2 (void)				Aspect<C>::ReverseProject(const M::TVec3<C0>&point, M::TVec3<C1>&position)					const
 	{
-		TVec4<C>		p0 = {point.x,point.y,point.z,1},
+		M::TVec4<C>		p0 = {point.x,point.y,point.z,1},
 						temp;
 		Mat::Mult(projectionInvert,p0,temp);
 		if (vabs(temp.w) > getError<C>())
-			Vec::div(temp.xyz,temp.w);
+			M::Vec::div(temp.xyz,temp.w);
 		Mat::transform(viewInvert,temp.xyz,position);
 	}
 
@@ -541,50 +541,50 @@ template <class C>
 		{
 			Frustum<SubType>	result;
 
-			TVec4<SubType>	temp;
+			M::TVec4<SubType>	temp;
 
-			TVec4<SubType>	p = {-1,-1,-1,1};
+			M::TVec4<SubType>	p = {-1,-1,-1,1};
 
 							Mat::Mult(projectionInvert,p,temp);
 							if (temp.w)
-								Vec::divide(temp.xyz,temp.w);
+								M::Vec::divide(temp.xyz,temp.w);
 							Mat::transform(viewInvert,temp.xyz,result.corner[0]);
-			Vec::def(p.xy,1,-1);
+			M::Vec::def(p.xy,1,-1);
 							Mat::Mult(projectionInvert,p,temp);
 							if (temp.w)
-								Vec::divide(temp.xyz,temp.w);
+								M::Vec::divide(temp.xyz,temp.w);
 							Mat::transform(viewInvert,temp.xyz,result.corner[1]);
-			Vec::def(p.xy,1,1);
+			M::Vec::def(p.xy,1,1);
 							Mat::Mult(projectionInvert,p,temp);
 							if (temp.w)
-								Vec::divide(temp.xyz,temp.w);
+								M::Vec::divide(temp.xyz,temp.w);
 							Mat::transform(viewInvert,temp.xyz,result.corner[2]);
-			Vec::def(p.xy,-1,1);
+			M::Vec::def(p.xy,-1,1);
 							Mat::Mult(projectionInvert,p,temp);
 							if (temp.w)
-								Vec::divide(temp.xyz,temp.w);
+								M::Vec::divide(temp.xyz,temp.w);
 							Mat::transform(viewInvert,temp.xyz,result.corner[3]);
 
 
-			Vec::def(p.xyz,-1,-1,1);
+			M::Vec::def(p.xyz,-1,-1,1);
 							Mat::Mult(projectionInvert,p,temp);
 							if (temp.w)
-								Vec::divide(temp.xyz,temp.w);
+								M::Vec::divide(temp.xyz,temp.w);
 							Mat::transform(viewInvert,temp.xyz,result.corner[4]);
-			Vec::def(p.xy,1,-1);
+			M::Vec::def(p.xy,1,-1);
 							Mat::Mult(projectionInvert,p,temp);
 							if (temp.w)
-								Vec::divide(temp.xyz,temp.w);
+								M::Vec::divide(temp.xyz,temp.w);
 							Mat::transform(viewInvert,temp.xyz,result.corner[5]);
-			Vec::def(p.xy,1,1);
+			M::Vec::def(p.xy,1,1);
 							Mat::Mult(projectionInvert,p,temp);
 							if (temp.w)
-								Vec::divide(temp.xyz,temp.w);
+								M::Vec::divide(temp.xyz,temp.w);
 							Mat::transform(viewInvert,temp.xyz,result.corner[6]);
-			Vec::def(p.xy,-1,1);
+			M::Vec::def(p.xy,-1,1);
 							Mat::Mult(projectionInvert,p,temp);
 							if (temp.w)
-								Vec::divide(temp.xyz,temp.w);
+								M::Vec::divide(temp.xyz,temp.w);
 							Mat::transform(viewInvert,temp.xyz,result.corner[7]);
 
 			result.updateNormalsP();
@@ -594,49 +594,49 @@ template <class C>
 template <class C>
 	MF_DECLARE (void) Aspect<C>::ResolveVolume(Volume&result) const
 	{
-		TVec4<C>	temp;
+		M::TVec4<C>	temp;
 
-		TVec4<C>	p = {-1,-1,-1,1};
+		M::TVec4<C>	p = {-1,-1,-1,1};
 						Mat::Mult(projectionInvert,p,temp);
 						if (temp.w)
-							Vec::divide(temp.xyz,temp.w);
+							M::Vec::divide(temp.xyz,temp.w);
 						Mat::transform(viewInvert,temp.xyz,result.corner[0]);
-		Vec::def(p.xy,1,-1);
+		M::Vec::def(p.xy,1,-1);
 						Mat::Mult(projectionInvert,p,temp);
 						if (temp.w)
-							Vec::divide(temp.xyz,temp.w);
+							M::Vec::divide(temp.xyz,temp.w);
 						Mat::transform(viewInvert,temp.xyz,result.corner[1]);
-		Vec::def(p.xy,1,1);
+		M::Vec::def(p.xy,1,1);
 						Mat::Mult(projectionInvert,p,temp);
 						if (temp.w)
-							Vec::divide(temp.xyz,temp.w);
+							M::Vec::divide(temp.xyz,temp.w);
 						Mat::transform(viewInvert,temp.xyz,result.corner[2]);
-		Vec::def(p.xy,-1,1);
+		M::Vec::def(p.xy,-1,1);
 						Mat::Mult(projectionInvert,p,temp);
 						if (temp.w)
-							Vec::divide(temp.xyz,temp.w);
+							M::Vec::divide(temp.xyz,temp.w);
 						Mat::transform(viewInvert,temp.xyz,result.corner[3]);
 
 
-		Vec::def(p.xyz,-1,-1,1);
+		M::Vec::def(p.xyz,-1,-1,1);
 						Mat::Mult(projectionInvert,p,temp);
 						if (temp.w)
-							Vec::divide(temp.xyz,temp.w);
+							M::Vec::divide(temp.xyz,temp.w);
 						Mat::transform(viewInvert,temp.xyz,result.corner[4]);
-		Vec::def(p.xy,1,-1);
+		M::Vec::def(p.xy,1,-1);
 						Mat::Mult(projectionInvert,p,temp);
 						if (temp.w)
-							Vec::divide(temp.xyz,temp.w);
+							M::Vec::divide(temp.xyz,temp.w);
 						Mat::transform(viewInvert,temp.xyz,result.corner[5]);
-		Vec::def(p.xy,1,1);
+		M::Vec::def(p.xy,1,1);
 						Mat::Mult(projectionInvert,p,temp);
 						if (temp.w)
-							Vec::divide(temp.xyz,temp.w);
+							M::Vec::divide(temp.xyz,temp.w);
 						Mat::transform(viewInvert,temp.xyz,result.corner[6]);
-		Vec::def(p.xy,-1,1);
+		M::Vec::def(p.xy,-1,1);
 						Mat::Mult(projectionInvert,p,temp);
 						if (temp.w)
-							Vec::divide(temp.xyz,temp.w);
+							M::Vec::divide(temp.xyz,temp.w);
 						Mat::transform(viewInvert,temp.xyz,result.corner[7]);
 
 		result.UpdateNormals();
@@ -651,7 +651,7 @@ template <class C> MF_DECLARE (String) Aspect<C>::ToString() const
 
 template <class C> MF_CONSTRUCTOR OrthographicAspect<C>::OrthographicAspect(VisualEnum::eDepthTest depthTest /*= VisualEnum::NoDepthTest*/):Aspect<C>(depthTest)
 {
-	Vec::clear(location);
+	M::Vec::clear(location);
 	Mat::Eye(orientation);
 }
 
@@ -662,10 +662,10 @@ MFUNC (void) OrthographicAspect<C>::UpdateProjection(const C&aspect, const C&zoo
 		offset = -(zNear+zFar)/2*scale,	//endless -0.5
 		pa = (C)1.0/region.pixelAspect()/aspect;
 
-	Vec::def(projection.x,	pa*zoom,0,0,0);
-	Vec::def(projection.y,	0,zoom,0,0);
-	Vec::def(projection.z,	0,0,-scale,0);
-	Vec::def(projection.w,	0,0,offset,1);
+	M::Vec::def(projection.x,	pa*zoom,0,0,0);
+	M::Vec::def(projection.y,	0,zoom,0,0);
+	M::Vec::def(projection.z,	0,0,-scale,0);
+	M::Vec::def(projection.w,	0,0,offset,1);
 	Mat::invert(projection,projectionInvert);
 }
 
@@ -675,10 +675,10 @@ MFUNC (void) OrthographicAspect<C>::UpdateProjection(const C&aspect, const C&zoo
 //		offset = -(zNear+zFar)/2*scale,	//endless -0.5
 //		pa = (C)1.0/region.pixelAspect()/aspect;
 //
-//	Vec::def(projection.x,	pa*zoom,0,0,0);
-//	Vec::def(projection.y,	0,zoom,0,0);
-//	Vec::def(projection.z,	0,0,-scale*0.5f,0);
-//	Vec::def(projection.w,	0,0,offset+0.5f,1);
+//	M::Vec::def(projection.x,	pa*zoom,0,0,0);
+//	M::Vec::def(projection.y,	0,zoom,0,0);
+//	M::Vec::def(projection.z,	0,0,-scale*0.5f,0);
+//	M::Vec::def(projection.w,	0,0,offset+0.5f,1);
 //	Mat::invert(projection,projectionInvert);
 //}
 
@@ -695,13 +695,13 @@ MFUNC2 (void) OrthographicAspect<C>::AlterDepthRange(const C0&zNear, const C1&zF
 
 
 template <class C>
-MFUNC1 (void) OrthographicAspect<C>::UpdateProjection(const Rect<C0>&area, const C&zNear, const C&zFar)
+MFUNC1 (void) OrthographicAspect<C>::UpdateProjection(const M::Rect<C0>&area, const C&zNear, const C&zFar)
 {
 	UpdateProjection(area.x.min,area.y.min,area.x.max,area.y.max,zNear,zFar);
 }
 
 template <class C>
-MFUNC1 (void) OrthographicAspect<C>::UpdateProjection2(const Rect<C0>&area, const C&zNear, const C&zFar)
+MFUNC1 (void) OrthographicAspect<C>::UpdateProjection2(const M::Rect<C0>&area, const C&zNear, const C&zFar)
 {
 	UpdateProjection2(area.x.min,area.y.min,area.x.max,area.y.max,zNear,zFar);
 }
@@ -716,10 +716,10 @@ MFUNC (void) OrthographicAspect<C>::UpdateProjection(const C&left, const C&botto
 		yoffset = (C)-(bottom)*yscale-1,
 		zoffset = (C)-(zNear+zFar)/2*zscale;
 
-	Vec::def(projection.x,	xscale,0,0,0);
-	Vec::def(projection.y, 0,yscale,0,0);
-	Vec::def(projection.z, 0,0,-zscale,0);
-	Vec::def(projection.w, xoffset,yoffset,zoffset,1);
+	M::Vec::def(projection.x,	xscale,0,0,0);
+	M::Vec::def(projection.y, 0,yscale,0,0);
+	M::Vec::def(projection.z, 0,0,-zscale,0);
+	M::Vec::def(projection.w, xoffset,yoffset,zoffset,1);
 
 
 	Mat::invert(projection,projectionInvert);
@@ -734,10 +734,10 @@ MFUNC (void) OrthographicAspect<C>::UpdateProjection2(const C&left, const C&bott
 		yoffset = (C)-(bottom)*yscale-1,
 		zoffset = (C)-(zNear+zFar)/2*zscale;
 
-	Vec::def(projection.x,	xscale,0,0,0);
-	Vec::def(projection.y, 0,yscale,0,0);
-	Vec::def(projection.z, 0,0,-zscale*(C)0.5,0);
-	Vec::def(projection.w, xoffset,yoffset,zoffset+(C)0.5,1);
+	M::Vec::def(projection.x,	xscale,0,0,0);
+	M::Vec::def(projection.y, 0,yscale,0,0);
+	M::Vec::def(projection.z, 0,0,-zscale*(C)0.5,0);
+	M::Vec::def(projection.w, xoffset,yoffset,zoffset+(C)0.5,1);
 
 
 	Mat::invert(projection,projectionInvert);
@@ -765,8 +765,8 @@ template <class C> MF_DECLARE (void) OrthographicAspect<C>::UpdateScaledView()
 
 template <class C> MF_CONSTRUCTOR Camera<C>::Camera()
 {
-	Vec::clear(location);
-	Vec::clear(retraction);
+	M::Vec::clear(location);
+	M::Vec::clear(retraction);
 	Mat::Eye(orientation);
 
 	system = orientation;
@@ -779,10 +779,10 @@ template <class C> MF_DECLARE (void) Camera<C>::UpdateProjection(const C&aspect,
 	C	extent = (C)1.0/vtan(vfov*M_PI/180/2),
 		pa = (C)1.0/region.pixelAspect()/aspect;
 
-	Vec::def(projection.x,	pa*extent,0,0,0);
-	Vec::def(projection.y,	0,extent,0,0);
-	Vec::def(projection.z,	0,0,(C)((C)zNear+zFar)/((C)zNear-zFar),-1);	//endless -1, -1
-	Vec::def(projection.w,	0,0,(C)2.0*zNear*zFar/(zNear-zFar),0);	//endless 0
+	M::Vec::def(projection.x,	pa*extent,0,0,0);
+	M::Vec::def(projection.y,	0,extent,0,0);
+	M::Vec::def(projection.z,	0,0,(C)((C)zNear+zFar)/((C)zNear-zFar),-1);	//endless -1, -1
+	M::Vec::def(projection.w,	0,0,(C)2.0*zNear*zFar/(zNear-zFar),0);	//endless 0
 	Mat::invert(projection,projectionInvert);
 }
 
@@ -792,10 +792,10 @@ template <class C> MF_DECLARE (void) Camera<C>::UpdateProjection2(const C&aspect
 	C	extent = (C)1.0/vtan(vfov*M_PI/180/2),
 		pa = (C)1.0/region.pixelAspect()/aspect;
 
-	Vec::def(projection.x,	pa*extent,0,0,0);
-	Vec::def(projection.y,	0,extent,0,0);
-	Vec::def(projection.z,	0,0,(C)((C)zFar)/((C)zNear-zFar),-1);	//endless -1, -1
-	Vec::def(projection.w,	0,0,(C)zNear*zFar/(zNear-zFar),0);	//endless 0
+	M::Vec::def(projection.x,	pa*extent,0,0,0);
+	M::Vec::def(projection.y,	0,extent,0,0);
+	M::Vec::def(projection.z,	0,0,(C)((C)zFar)/((C)zNear-zFar),-1);	//endless -1, -1
+	M::Vec::def(projection.w,	0,0,(C)zNear*zFar/(zNear-zFar),0);	//endless 0
 	Mat::invert(projection,projectionInvert);
 }
 
@@ -854,7 +854,7 @@ template <class C> MF_DECLARE (void) Camera<C>::UpdateView()
 		view.x.xyz = orientation.x;
 		view.y.xyz = orientation.z;
 		view.z.xyz = orientation.y;
-		Vec::mult(view.y.xyz,-1);
+		M::Vec::mult(view.y.xyz,-1);
 	}
 	else
 	{
@@ -864,21 +864,21 @@ template <class C> MF_DECLARE (void) Camera<C>::UpdateView()
 	}
 	view.w.xyz = retraction;
 	Mat::resetBottomRow(view);
-	TVec3<C> temp;
+	M::TVec3<C> temp;
 	Mat::rotate(view,location,temp);
-	Vec::subtract(view.w.xyz,temp);
+	M::Vec::subtract(view.w.xyz,temp);
 
 	Mat::invertSystem(view,viewInvert);
 }
 
 template <class C>
-	MF_DECLARE (TVec3<C>&)			Aspect<C>::GetViewingDirection()
+	MF_DECLARE (M::TVec3<C>&)			Aspect<C>::GetViewingDirection()
 	{
 		return viewInvert.z.xyz;
 	}
 	
 template <class C>
-	MF_DECLARE (const TVec3<C>&)	Aspect<C>::GetViewingDirection()		const
+	MF_DECLARE (const M::TVec3<C>&)	Aspect<C>::GetViewingDirection()		const
 	{
 		return viewInvert.z.xyz;
 	}
@@ -886,41 +886,41 @@ template <class C>
 template <class C>
 MFUNC3 (void) Camera<C>::Translate(const C0&x, const C1&y, const C2&z)
 {
-	TVec3<C>	vec = {x,y,z},out;
+	M::TVec3<C>	vec = {x,y,z},out;
 	Mat::rotate(viewInvert,vec,out);
-	Vec::add(location,out);
-	Vec::add(viewInvert.w.xyz,out);
-	Vec::subtract(view.w.xyz,vec);
+	M::Vec::add(location,out);
+	M::Vec::add(viewInvert.w.xyz,out);
+	M::Vec::subtract(view.w.xyz,vec);
 }
 
 template <class C>
-MFUNC1 (void) Camera<C>::Translate(const TVec3<C0>& delta)
+MFUNC1 (void) Camera<C>::Translate(const M::TVec3<C0>& delta)
 {
-	TVec3<C>	out;
+	M::TVec3<C>	out;
 	Mat::rotate(viewInvert,delta,out);
-	Vec::add(location,out);
-	Vec::add(viewInvert.w.xyz,out);
-	Vec::subtract(view.w.xyz,delta);
+	M::Vec::add(location,out);
+	M::Vec::add(viewInvert.w.xyz,out);
+	M::Vec::subtract(view.w.xyz,delta);
 }
 
 
 template <class C>
 MFUNC3 (void) Camera<C>::SetPosition(const C0&x, const C1&y, const C2&z)
 {
-	Vec::def(location,x,y,z);
+	M::Vec::def(location,x,y,z);
 	UpdateView();
 }
 
 template <class C>
-MFUNC1 (void) Camera<C>::SetPosition(const TVec3<C0>&position)
+MFUNC1 (void) Camera<C>::SetPosition(const M::TVec3<C0>&position)
 {
-	Vec::copy(position,location);
+	M::Vec::copy(position,location);
 	UpdateView();			//could be removed
 }
 
 template <class C> MF_CONSTRUCTOR AngularCamera<C>::AngularCamera()
 {
-	Vec::clear(angle);
+	M::Vec::clear(angle);
 }
 
 template <class C> MF_DECLARE (void) AngularCamera<C>::UpdateView()
@@ -933,22 +933,22 @@ template <class C> MF_DECLARE (void) AngularCamera<C>::UpdateView()
 		swp(a1,a2);
 	}
 
-	TMatrix3<C>	mbuffer0,
+	M::TMatrix3<C>	mbuffer0,
 				mbuffer1,
 				mbuffer2,
 				mbuffer3;
 
-	Vec::def(mbuffer0.x, cos(a1),0,-sin(a1));
-	Vec::def(mbuffer0.y, 0, 1, 0);
-	Vec::def(mbuffer0.z, sin(a1), 0, cos(a1));
+	M::Vec::def(mbuffer0.x, cos(a1),0,-sin(a1));
+	M::Vec::def(mbuffer0.y, 0, 1, 0);
+	M::Vec::def(mbuffer0.z, sin(a1), 0, cos(a1));
 
-	Vec::def(mbuffer1.x, 1,0,0);
-	Vec::def(mbuffer1.y, 0, cos(a0), -sin(a0));
-	Vec::def(mbuffer1.z, 0, sin(a0), cos(a0));
+	M::Vec::def(mbuffer1.x, 1,0,0);
+	M::Vec::def(mbuffer1.y, 0, cos(a0), -sin(a0));
+	M::Vec::def(mbuffer1.z, 0, sin(a0), cos(a0));
 
-	Vec::def(mbuffer2.x, cos(a2),-sin(a2),0);
-	Vec::def(mbuffer2.y, sin(a2), cos(a2), 0);
-	Vec::def(mbuffer2.z, 0, 0, 1);
+	M::Vec::def(mbuffer2.x, cos(a2),-sin(a2),0);
+	M::Vec::def(mbuffer2.y, sin(a2), cos(a2), 0);
+	M::Vec::def(mbuffer2.z, 0, 0, 1);
 
 	Mat::Mult(mbuffer1,mbuffer2,mbuffer3);
 	Mat::Mult(mbuffer0,mbuffer3,system);
@@ -962,21 +962,21 @@ template <class C>
 MFUNC3 (void) AngularCamera<C>::TranslatePlanar(const C0&x, const C1&y, const C2&z)
 {
 	C a =angle.y;
-	TVec3<C>	delta;
+	M::TVec3<C>	delta;
 	if (GlobalAspectConfiguration::worldZIsUp)
 	{
 		a = (C)180.0-angle.z;
-		Vec::def (delta ,vcos(a*M_PI/180)*x+vsin(a*M_PI/180)*y,-vsin(a*M_PI/180)*x+vcos(a*M_PI/180)*y, z);
+		M::Vec::def (delta ,vcos(a*M_PI/180)*x+vsin(a*M_PI/180)*y,-vsin(a*M_PI/180)*x+vcos(a*M_PI/180)*y, z);
 	}
 	else
-		Vec::def (delta ,vcos(a*M_PI/180)*x+vsin(a*M_PI/180)*z,y,-vsin(a*M_PI/180)*x+vcos(a*M_PI/180)*z);
+		M::Vec::def (delta ,vcos(a*M_PI/180)*x+vsin(a*M_PI/180)*z,y,-vsin(a*M_PI/180)*x+vcos(a*M_PI/180)*z);
 
-	Vec::add(location,delta);
+	M::Vec::add(location,delta);
 	UpdateView(); //could be removed...
 }
 
 template <class C>
-MFUNC1 (void) AngularCamera<C>::TranslatePlanar(const TVec3<C0>&delta)
+MFUNC1 (void) AngularCamera<C>::TranslatePlanar(const M::TVec3<C0>&delta)
 {
 	TranslatePlanar(delta.x,delta.y,delta.z);
 }
@@ -991,41 +991,41 @@ MFUNC3 (void) AngularCamera<C>::AlterAngles(const C0&alpha, const C1&beta, const
 }
 
 template <class C>
-MFUNC1 (void) AngularCamera<C>::LookAtPlanar(const TVec3<C0>&vector)
+MFUNC1 (void) AngularCamera<C>::LookAtPlanar(const M::TVec3<C0>&vector)
 {
-	angle.y = Vec::angle360(location.x-vector.x,location.z-vector.z);
+	angle.y = M::Vec::angle360(location.x-vector.x,location.z-vector.z);
 	UpdateView();
 }
 
 template <class C>
-MFUNC1 (void) AngularCamera<C>::LookAt(const TVec3<C0>&vector)
+MFUNC1 (void) AngularCamera<C>::LookAt(const M::TVec3<C0>&vector)
 {
-	TVec3<C>	delta;
-	Vec::sub(location,vector,delta);
+	M::TVec3<C>	delta;
+	M::Vec::sub(location,vector,delta);
 	if (GlobalAspectConfiguration::worldZIsUp)
 	{
-		angle.z = 90.f + Vec::angle360(delta.x,delta.y);
+		angle.z = 90.f + M::Vec::angle360(delta.x,delta.y);
 		angle.x = vatan2(delta.z,vsqrt(sqr(delta.x)+sqr(delta.y)))*(C)180/M_PI;
 		angle.y = 0;
 	}
 	else
 	{
-		angle.y = 90.f - Vec::angle360(delta.x,delta.z);
+		angle.y = 90.f - M::Vec::angle360(delta.x,delta.z);
 		angle.x = vatan2(delta.y,vsqrt(sqr(delta.x)+sqr(delta.z)))*(C)180/M_PI;
 		angle.z = 0;
 	}
 	UpdateView();
 
-	//const TVec3<>&	view = GetViewingDirection();
-	//if (!Vec::similar(view,delta))
+	//const M::TVec3<>&	view = GetViewingDirection();
+	//if (!M::Vec::similar(view,delta))
 	//	FATAL__("Expected similarity");
 }
 
 
 template <class C>
-MFUNC1 (void) AngularCamera<C>::AlterAngles(const TVec3<C0>&delta)
+MFUNC1 (void) AngularCamera<C>::AlterAngles(const M::TVec3<C0>&delta)
 {
-	Vec::add(angle,delta);
+	M::Vec::add(angle,delta);
 	UpdateView();
 }
 
@@ -1049,42 +1049,42 @@ template <class C> MF_DECLARE(VectorCamera<C>) AngularCamera<C>::ToVectorCamera(
 template <class C>
 	MF_CONSTRUCTOR VectorCamera<C>::VectorCamera(const Camera<C>&c):Camera<C>(c)
 	{
-		Vec::def(direction,0,0,-1);
-		Vec::def(upAxis,0,1,0);
+		M::Vec::def(direction,0,0,-1);
+		M::Vec::def(upAxis,0,1,0);
 		vsystem = system;
 	}
 
 
 template <class C> MF_CONSTRUCTOR VectorCamera<C>::VectorCamera()
 {
-	Vec::def(direction,0,0,-1);
-	Vec::def(upAxis,0,1,0);
+	M::Vec::def(direction,0,0,-1);
+	M::Vec::def(upAxis,0,1,0);
 	vsystem = system;
 }
 
 template <class C>
 MFUNC3 (void) VectorCamera<C>::TranslatePlanar(const C0&x, const C1&y, const C2&z)
 {
-	TVec3<C>	temp = {x,y,z};
+	M::TVec3<C>	temp = {x,y,z};
 	TranslatePlanar(temp);
 }
 
 template <class C>
-MFUNC1 (void) VectorCamera<C>::TranslatePlanar(const TVec3<C0>&delta)
+MFUNC1 (void) VectorCamera<C>::TranslatePlanar(const M::TVec3<C0>&delta)
 {
-	TVec3<C>	temp0,temp1;
+	M::TVec3<C>	temp0,temp1;
 	Mat::Mult(vsystem,delta,temp0);
 	Mat::rotate(view,temp0,temp1);
-	Vec::add(location,temp1);
+	M::Vec::add(location,temp1);
 	view.w.xyz = location;
 	Mat::invertSystem(view,viewInvert);
 }
 
 template <class C>
-MFUNC2 (void) VectorCamera<C>::Align(const TVec3<C0>&dir, const TVec3<C1>&vert)
+MFUNC2 (void) VectorCamera<C>::Align(const M::TVec3<C0>&dir, const M::TVec3<C1>&vert)
 {
-	Vec::copy(dir,direction);
-	Vec::copy(vert,upAxis);
+	M::Vec::copy(dir,direction);
+	M::Vec::copy(vert,upAxis);
 	UpdateView();
 }
 
@@ -1092,21 +1092,21 @@ MFUNC2 (void) VectorCamera<C>::Align(const TVec3<C0>&dir, const TVec3<C1>&vert)
 template <class C>
 	MF_DECLARE (void) VectorCamera<C>::AdjustUpAxis()
 	{
-		TVec3<C>	n0,n1;
-		Vec::cross(direction,upAxis,n0);
-		Vec::cross(n0,direction,n1);
-		Vec::normalize0(n1);
-		if (Vec::dot(n1,upAxis)>0)
+		M::TVec3<C>	n0,n1;
+		M::Vec::cross(direction,upAxis,n0);
+		M::Vec::cross(n0,direction,n1);
+		M::Vec::normalize0(n1);
+		if (M::Vec::dot(n1,upAxis)>0)
 			upAxis = n1;
 		else
-			Vec::mult(n1,-1,upAxis);
+			M::Vec::mult(n1,-1,upAxis);
 	}
 
 template <class C>
 	template <typename T>
-		MF_DECLARE (void) VectorCamera<C>::SetDirection(const TVec3<T>&d, bool doUpdate)
+		MF_DECLARE (void) VectorCamera<C>::SetDirection(const M::TVec3<T>&d, bool doUpdate)
 		{
-			Vec::copy(d,direction);
+			M::Vec::copy(d,direction);
 			/*C	intensity = vabs(_intensity(upAxis,direction));
 			if (intensity > 0.9)
 				AdjustUpAxis();*/
@@ -1116,9 +1116,9 @@ template <class C>
 
 template <class C>
 	template <typename T>
-		MF_DECLARE (void) VectorCamera<C>::SetUpAxis(const TVec3<T>&v,bool doUpdate)
+		MF_DECLARE (void) VectorCamera<C>::SetUpAxis(const M::TVec3<T>&v,bool doUpdate)
 		{
-			Vec::copy(v,upAxis);
+			M::Vec::copy(v,upAxis);
 			/*C	intensity = vabs(_intensity(v,direction));
 			if (intensity > 0.99)
 				return;*/
@@ -1132,34 +1132,34 @@ template <class C> MF_DECLARE (void) VectorCamera<C>::UpdateView()
 {
 	if (GlobalAspectConfiguration::worldZIsUp)
 	{
-		TVec3<C> direction = this->direction;
-		TVec3<C> upAxis = this->upAxis;
+		M::TVec3<C> direction = this->direction;
+		M::TVec3<C> upAxis = this->upAxis;
 		std::swap(direction.y,direction.z);	direction.z =-direction.z;
 		std::swap(upAxis.y,upAxis.z); upAxis.z =-upAxis.z;
 
 		system.z = direction;
-		Vec::cross(upAxis,direction,system.x);
-		Vec::cross(direction,system.x,system.y);
+		M::Vec::cross(upAxis,direction,system.x);
+		M::Vec::cross(direction,system.x,system.y);
 
 		vsystem.y = upAxis;
-		Vec::cross(upAxis,direction,vsystem.x);
-		Vec::cross(vsystem.x,upAxis,vsystem.z);
+		M::Vec::cross(upAxis,direction,vsystem.x);
+		M::Vec::cross(vsystem.x,upAxis,vsystem.z);
 	}
 	else
 	{
 		system.z = direction;
-		Vec::cross(upAxis,direction,system.x);
-		Vec::cross(direction,system.x,system.y);
+		M::Vec::cross(upAxis,direction,system.x);
+		M::Vec::cross(direction,system.x,system.y);
 
 		vsystem.y = upAxis;
-		Vec::cross(upAxis,direction,vsystem.x);
-		Vec::cross(vsystem.x,upAxis,vsystem.z);
+		M::Vec::cross(upAxis,direction,vsystem.x);
+		M::Vec::cross(vsystem.x,upAxis,vsystem.z);
 	}
 
 
-	Vec::normalize(system.x);
-	Vec::normalize(system.y);
-	Vec::normalize(system.z);
+	M::Vec::normalize(system.x);
+	M::Vec::normalize(system.y);
+	M::Vec::normalize(system.z);
 
 	Mat::transpose(system,orientation);
 	Camera<C>::UpdateView();
@@ -1168,10 +1168,10 @@ template <class C> MF_DECLARE (void) VectorCamera<C>::UpdateView()
 template <class C>
 MFUNC2 (void) VectorCamera<C>::RotatePlanar(const C0&alpha, const C1&beta)
 {
-	TVec3<C>	axis0;
-	TMatrix3<C>	matrix,temp;
-	Vec::cross(upAxis,direction,axis0);
-	Vec::normalize0(axis0);
+	M::TVec3<C>	axis0;
+	M::TMatrix3<C>	matrix,temp;
+	M::Vec::cross(upAxis,direction,axis0);
+	M::Vec::normalize0(axis0);
 	//_v3(axis0,-1,0,0);
 	Mat::BuildRotationMatrix(-alpha,axis0,matrix);
 	//_q2RotMatrixCCW(alpha,axis0,matrix);
@@ -1189,10 +1189,10 @@ MFUNC2 (void) VectorCamera<C>::RotatePlanar(const C0&alpha, const C1&beta)
 template <class C>
 MFUNC1 (void) VectorCamera<C>::RotateDirectional(const C0&alpha, bool rebuild)
 {
-	TMatrix3<C>		matrix,tempm;
-	TVec3<C>		v=direction;
+	M::TMatrix3<C>		matrix,tempm;
+	M::TVec3<C>		v=direction;
 
-	Vec::normalize0(v);
+	M::Vec::normalize0(v);
 	Mat::BuildRotationMatrix(alpha,v,matrix);
     //__rotationMatrix(alpha, matrix, 3);
 	Mat::Mult(matrix,upAxis);

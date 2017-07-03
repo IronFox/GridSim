@@ -14,7 +14,7 @@ namespace DeltaWorks
 		{
 		public:
 				CGS::Geometry<>			geometry;	//!< Loaded geometry (may be empty, but usually isn't)
-				Box<>					dim;		//!< Dimension of the loaded geometry
+				M::Box<>					dim;		//!< Dimension of the loaded geometry
 				PathString				filename;	//!< Filename that this geometry was originally loaded from
 				index_t					index;		//!< Linearized index of this tile.
 			
@@ -30,9 +30,9 @@ namespace DeltaWorks
 		struct TTrackNode
 		{
 				Composite::Coordinates	coordinates;	//!< Node coordinates
-				TVec2<>					scale,			//!< Node scale: first component is width scale, second component height scale
+				M::TVec2<>					scale,			//!< Node scale: first component is width scale, second component height scale
 										scale_direction;	//!< Scale direction. May be any length
-				TVec3<>					up,				//!< Normalized node up axis
+				M::TVec3<>					up,				//!< Normalized node up axis
 										direction;		//!< Normalized directional axis
 		};
 	
@@ -84,7 +84,7 @@ namespace DeltaWorks
 		virtual								~TrackConnector()
 											{}
 			
-				void						update(const TMatrix4<>&parent_system, bool final);	//!< Repositions connectors and instance if appropriate
+				void						update(const M::TMatrix4<>&parent_system, bool final);	//!< Repositions connectors and instance if appropriate
 				bool						isValid(String*error_out=NULL)	const;	//!< Checks if the local connector is valid
 
 				void						swap(TrackConnector&other)
@@ -163,10 +163,10 @@ namespace DeltaWorks
 									
 											TrackNode():inbound(this,false),outbound(this,true)
 											{
-												Vec::set(scale,1);
-												Vec::def(up,0,1,0);
-												Vec::def(direction,1,0,0);
-												Vec::clear(scale_direction);
+												M::Vec::set(scale,1);
+												M::Vec::def(up,0,1,0);
+												M::Vec::def(direction,1,0,0);
+												M::Vec::clear(scale_direction);
 											}
 		virtual								~TrackNode();
 				void						swap(TrackNode&other)
@@ -175,9 +175,9 @@ namespace DeltaWorks
 												inbound.swap(other.inbound);
 												outbound.swap(other.outbound);
 											}
-				void						makeSystem(TMatrix4<>& system_out)	const;
+				void						makeSystem(M::TMatrix4<>& system_out)	const;
 				void						update(bool final);
-				void						update(const TMatrix4<>&precompiled_matrix, bool final);
+				void						update(const M::TMatrix4<>&precompiled_matrix, bool final);
 				/**
 					@brief Attempts to link the specified segment to the best free slot
 				
@@ -213,8 +213,8 @@ namespace DeltaWorks
 		public:
 				struct TEndPoint:public TTrackNode
 				{
-						TVec3<>					position_control;	//!< NURBS control point
-						TVec2<>					scale_control;		//!< NURBS control point
+						M::TVec3<>					position_control;	//!< NURBS control point
+						M::TVec2<>					scale_control;		//!< NURBS control point
 				};
 	
 				/**
@@ -224,9 +224,9 @@ namespace DeltaWorks
 				*/
 				struct TFrame
 				{
-						TVec3<>					position;
-						TVec2<>					scale;		//first component is width scale, second component height scale
-						TMatrix3<>				system;
+						M::TVec3<>					position;
+						M::TVec2<>					scale;		//first component is width scale, second component height scale
+						M::TMatrix3<>				system;
 				};
 			
 			
@@ -240,7 +240,7 @@ namespace DeltaWorks
 			
 												TrackSegment():repetitive(true),tile(NULL),changed(false)
 												{
-													Vec::clear(Vec::ref2(connector));
+													M::Vec::clear(M::Vec::ref2(connector));
 												}
 		virtual									~TrackSegment();
 	
@@ -293,7 +293,7 @@ namespace DeltaWorks
 
 		private:
 			template <typename Def>
-				void							bendHull(const Mesh<Def>&source_hull, Mesh<Def>&target_hull, count_t repeat, float lower_z_boundary, float zrange, float segment_length, float stretch,const TMatrix4<CGS::StdDef::SystemType>&path, const TVec3<>&center) const
+				void							bendHull(const Mesh<Def>&source_hull, Mesh<Def>&target_hull, count_t repeat, float lower_z_boundary, float zrange, float segment_length, float stretch,const M::TMatrix4<CGS::StdDef::SystemType>&path, const M::TVec3<>&center) const
 												{
 													count_t	vframe_length = source_hull.vertex_field.length();
 													ASSERT1__(source_hull.valid(),source_hull.errorStr());	//TRANSITORY
@@ -307,7 +307,7 @@ namespace DeltaWorks
 													//for (index_t k = 0; k < vframe_length; k++)
 													//{
 														const typename Mesh<Def>::Vertex	*vfrom = source_hull.vertex_field + k;
-														TVec3<> p,n;
+														M::TVec3<> p,n;
 														Mat::transform(path,vfrom->position,p);
 														Mat::rotate(path,vfrom->normal,n);
 					
@@ -318,14 +318,14 @@ namespace DeltaWorks
 															float rel = 1.0f-((z-lower_z_boundary)/zrange+segment_length*l);
 															TFrame vec;
 															interpolate(rel,vec);
-															Vec::mad(vec.position,vec.system.x,p.x*vec.scale.x, vto.position);
-															Vec::mad(vto.position,vec.system.y,p.y*vec.scale.y);
-															Vec::sub(vto.position,center);
+															M::Vec::mad(vec.position,vec.system.x,p.x*vec.scale.x, vto.position);
+															M::Vec::mad(vto.position,vec.system.y,p.y*vec.scale.y);
+															M::Vec::sub(vto.position,center);
 						
-															TVec3<> n2,n3;
-															Vec::def(n2,n.x/vec.scale.x,n.y/vec.scale.y,n.z/stretch);
+															M::TVec3<> n2,n3;
+															M::Vec::def(n2,n.x/vec.scale.x,n.y/vec.scale.y,n.z/stretch);
 															Mat::Mult(vec.system,n2,vto.normal);
-															Vec::normalize0(vto.normal);
+															M::Vec::normalize0(vto.normal);
 														}
 														//vfrom++;
 													});

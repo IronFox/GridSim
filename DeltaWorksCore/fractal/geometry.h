@@ -33,7 +33,7 @@ namespace DeltaWorks
 	namespace Fractal
 	{
 	
-		typedef Composite::sector_t	sector_t;		//!< Sector coordinate type. Typically int32
+		typedef M::Composite::sector_t	sector_t;		//!< Sector coordinate type. Typically int32
 
 		struct TMapVertex;
 	
@@ -59,7 +59,7 @@ namespace DeltaWorks
 		class Geometry 
 		{
 		public:
-			typedef TVec3<>	Vertex;
+			typedef M::TVec3<>	Vertex;
 
 			Ctr::Array<Vertex>			vertexField;	//!< Geometrical vertices
 			Ctr::Array<UINT32>			triangleField,	//!< Triangular index path. Each three indices form one triangle using the vertices stored in \b vertex_field

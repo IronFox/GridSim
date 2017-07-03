@@ -156,7 +156,7 @@ namespace Engine
 			Resolution					target_buffer_resolution,
 										overridden_client_resolution;
 			bool						framebuffer_alpha;
-			TVec3<float>				camera_location;
+			M::TVec3<float>				camera_location;
 	static  SimpleGeometry				pivot,omni,spot,direct;
 	static  bool						pivot_defined,
 										lights_defined;
@@ -385,7 +385,7 @@ namespace Engine
 		/**/					Context();
 
 		template <typename T>
-			void				GetAbsoluteClientRegion(Rect<T>&rect)		const
+			void				GetAbsoluteClientRegion(M::Rect<T>&rect)		const
 			{
 				rect.x.min = client_area.left;
 				rect.y.min = client_area.top;

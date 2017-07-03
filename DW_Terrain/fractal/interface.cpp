@@ -193,7 +193,7 @@ namespace Fractal
 		return rs;
 	}
 	
-	void	setRadialHeight(TVec3<> &v,double height, const SurfaceSegment*context)
+	void	setRadialHeight(M::TVec3<> &v,double height, const SurfaceSegment*context)
 	{
 		/*if (!_zero(context->sector.v))
 		{
@@ -202,16 +202,16 @@ namespace Fractal
 			v[2] += (double)context->sector.z*(double)context->super->context->sector_size;
 			return;
 		}*/
-		TVec3<double>	absolute_vector,delta_vector;
+		M::TVec3<double>	absolute_vector,delta_vector;
 		double			len,delta;
 		context->convertToAbsolute(v,absolute_vector);
 		
-		len = Vec::length(absolute_vector);
+		len = M::Vec::length(absolute_vector);
 		delta = height-len;
 		if (vabs(len) < getError<double>())
 			return;
-		Vec::mult(absolute_vector,delta/len,delta_vector);
-		Vec::add(v,delta_vector);
+		M::Vec::mult(absolute_vector,delta/len,delta_vector);
+		M::Vec::add(v,delta_vector);
 	}
 	
 	
@@ -394,7 +394,7 @@ namespace Fractal
 		if (parent)
 			sector = parent->sector;
 		else
-			Vec::clear(sector);
+			M::Vec::clear(sector);
 		//central_height = Composite::build(0,0);
 		flags = RequiresUpdate;
 		num_sectors++;
@@ -414,7 +414,7 @@ namespace Fractal
 		
 		depth = 0;
 		child_index = 0;
-		Vec::clear(sector);
+		M::Vec::clear(sector);
 		//central_height = Composite::build(0,0);
 		flags = RequiresUpdate;
 		num_sectors++;
@@ -463,10 +463,10 @@ namespace Fractal
 		#else
 			SurfaceSegment::water_center = middle.position;
 		#endif
-		TVec3<>	dir;
+		M::TVec3<>	dir;
 		resolveDirection(middle.position, *this, *super->context, dir);
 		
-		Vec::mad(water_center,dir,-super->context->variance*middle.height);
+		M::Vec::mad(water_center,dir,-super->context->variance*middle.height);
 		//Adaption::setHeight(SurfaceSegment::water_center.v,0, middle.height,*this,*super->context);		
 
 		//DEBUG_POINT(f)
@@ -675,7 +675,7 @@ namespace Fractal
 		//mutex.lock();	//To ensure fixed child creation order (no children of neighbors created this very instance) - no longer necessary since children are generated sequentially
 		ASSERT_IS_NULL__(c0);
 			c0 = new SurfaceSegment(exponent, vertex_count, super,this,0,time);
-				Vec::def3(c0->neighbor_link,resolveChild(neighbor_link[0],1),TSurfaceSegmentLink(),resolveChild(neighbor_link[2],0));
+				M::Vec::def3(c0->neighbor_link,resolveChild(neighbor_link[0],1),TSurfaceSegmentLink(),resolveChild(neighbor_link[2],0));
 				c0->outer_seed[0].implant(outer_seed[0],orderOfEdge(0));
 				c0->outer_seed[1].implant(inner_seed,0);
 				c0->outer_seed[2].implant(outer_seed[2],!orderOfEdge(2));
@@ -683,7 +683,7 @@ namespace Fractal
 				c0->reinit();
 				c0->flags |= flags & (Edge0Open|Edge2Open);
 			c1 = new SurfaceSegment(exponent, vertex_count, super,this,1,time);
-				Vec::def3(c1->neighbor_link,resolveChild(neighbor_link[0],0),resolveChild(neighbor_link[1],1),TSurfaceSegmentLink());
+				M::Vec::def3(c1->neighbor_link,resolveChild(neighbor_link[0],0),resolveChild(neighbor_link[1],1),TSurfaceSegmentLink());
 				c1->outer_seed[0].implant(outer_seed[0],!orderOfEdge(0));
 				c1->outer_seed[1].implant(outer_seed[1],orderOfEdge(1));
 				c1->outer_seed[2].implant(inner_seed,1);
@@ -691,7 +691,7 @@ namespace Fractal
 				c1->reinit();
 				c1->flags |= flags & (Edge0Open|Edge1Open);
 			c2 = new SurfaceSegment(exponent, vertex_count, super,this,2,time);
-				Vec::def3(c2->neighbor_link,TSurfaceSegmentLink(),resolveChild(neighbor_link[1],0),resolveChild(neighbor_link[2],1));
+				M::Vec::def3(c2->neighbor_link,TSurfaceSegmentLink(),resolveChild(neighbor_link[1],0),resolveChild(neighbor_link[2],1));
 				c2->outer_seed[0].implant(inner_seed,2);
 				c2->outer_seed[1].implant(outer_seed[1],!orderOfEdge(1));
 				c2->outer_seed[2].implant(outer_seed[2],orderOfEdge(2));
@@ -699,7 +699,7 @@ namespace Fractal
 				c2->reinit();
 				c2->flags |= flags & (Edge1Open|Edge2Open);
 			c3 = new SurfaceSegment(exponent, vertex_count, super,this,3,time);
-				Vec::def3(c3->neighbor_link,link(c2,0),link(c0,1),link(c1,2));
+				M::Vec::def3(c3->neighbor_link,link(c2,0),link(c0,1),link(c1,2));
 				c3->outer_seed[0] = c2->outer_seed[0];
 				c3->outer_seed[1] = c0->outer_seed[1];
 				c3->outer_seed[2] = c1->outer_seed[2];
@@ -741,9 +741,9 @@ namespace Fractal
 		parameter.segment = parent;	//accessing parent vertices. hence the surrounding segment is not this but rather the parent
 		parameter.map = super->full_map;
 
-		TVec3<>		transition;
-		Vec::sub(parent->sector,sector,transition);
-		Vec::mult(transition,super->context->sector_size);
+		M::TVec3<>		transition;
+		M::Vec::sub(parent->sector,sector,transition);
+		M::Vec::mult(transition,super->context->sector_size);
 
 		ASSERT__(vbo_edge[edge].count() > 0);
 		{
@@ -766,7 +766,7 @@ namespace Fractal
 				ASSERT_NOT_NULL__(parent);
 				ASSERT2__(index < parent->vertex_field.length(),index,parent->vertex_field.length());
 				compileVBOVertex(parent->vertex_field[index],info,parameter,to);
-				Vec::add(Vec::ref3(to),transition);
+				M::Vec::add(M::Vec::ref3(to),transition);
 				to += floats_per_vbo_vertex;
 			}
 		}
@@ -796,7 +796,7 @@ namespace Fractal
 			for (unsigned j = 0; j < num_vertices; j++)
 			{
 				//fractal_log<<"  translating raw vertex "<<j<<" at "<<_toString(from);
-				Vec::add(Vec::ref3(from),transition,Vec::ref3(to)); from+=3; to+=3;	//translate coordinates
+				M::Vec::add(M::Vec::ref3(from),transition,M::Vec::ref3(to)); from+=3; to+=3;	//translate coordinates
 				//fractal_log<<" to "<<_toString(to-3)<<endl;
 				Fractal::_c4(from,to); from+=4; to+=4;	//copy height and normal, now left to texture coordinates which must not be copied from parent
 				Fractal::_c2(vbo_edge[edge][i-1]+j*2*floats_per_vbo_vertex+floats_per_vbo_vertex-2,to);	from+=2; to+=2;	//copy texture coordinates from next lower level
@@ -833,34 +833,34 @@ namespace Fractal
 			corner[1] = parent->vertex_field[pi1].position;
 			corner[2] = parent->vertex_field[pi2].position;
 
-			TVec3<> center;
-			Vec::center(corner[0],corner[1],corner[2],center);
+			M::TVec3<> center;
+			M::Vec::center(corner[0],corner[1],corner[2],center);
 			
 				
 
-			TVec3<sector_t> sdelta;
+			M::TVec3<sector_t> sdelta;
 			
 			sdelta.x = Round(center.x/super->context->sector_size);
 			sdelta.y = Round(center.y/super->context->sector_size);
 			sdelta.z = Round(center.z/super->context->sector_size);
-			//Vec::div(center,super->context->sector_size,sdelta);
-			Vec::add(sector,sdelta);
+			//M::Vec::div(center,super->context->sector_size,sdelta);
+			M::Vec::add(sector,sdelta);
 			
 			if (parent->crater_field.length())
 			{
-				TVec3<double>	absolute;
-				Vec::copy(sdelta,absolute);
-				Vec::mult(absolute,super->context->sector_size);
-				float radius = Vec::distance(corner[0],center);
+				M::TVec3<double>	absolute;
+				M::Vec::copy(sdelta,absolute);
+				M::Vec::mult(absolute,super->context->sector_size);
+				float radius = M::Vec::distance(corner[0],center);
 				
 				for (unsigned j = 0; j < parent->crater_field.count(); j++)
 				{
-					if (Vec::distance(parent->crater_field[j].base,center)-parent->crater_field[j].radius > radius*1.2)
+					if (M::Vec::distance(parent->crater_field[j].base,center)-parent->crater_field[j].radius > radius*1.2)
 						continue;
 					
 					TCrater&spawn = crater_field.append();
 					spawn = parent->crater_field[j];
-					Vec::sub(spawn.base,absolute);
+					M::Vec::sub(spawn.base,absolute);
 				}
 				crater_field.compact();
 			}
@@ -898,7 +898,7 @@ namespace Fractal
 			vbo_edge[1].free();
 			vbo_edge[2].free();
 
-			Vec::clear(sector);
+			M::Vec::clear(sector);
 			if (super)
 				depth = super->context->recursive_depth-1;
 			else
@@ -908,9 +908,9 @@ namespace Fractal
 			
 		
 		
-		TVec3<double> absolute;
-		Vec::copy(sector,absolute);
-		double sector_height = Vec::length(absolute);
+		M::TVec3<double> absolute;
+		M::Vec::copy(sector,absolute);
+		double sector_height = M::Vec::length(absolute);
 		//central_height.offset = (int)sector_height;
 		//central_height.remainder = (float)(sector_height-(double)central_height.offset)*super->context->sector_size;
 		
@@ -1275,7 +1275,7 @@ namespace Fractal
 		
 		//const Aspect&view = *project_parameters.view;
 		
-		TVec3<> view_relative_center,axis,normal,sector_relative_view;
+		M::TVec3<> view_relative_center,axis,normal,sector_relative_view;
 		
 		//getTranslation(view.coordinates,super->center,this->sector,translation,super->context->sector_size);
 		view.getTranslation(this->sector,translation,super->context->sector_size);
@@ -1290,18 +1290,18 @@ namespace Fractal
 		
 			float	d = distance_square = _dot(axis);
 		#else
-			Vec::add(translation,global_sphere.center,view_relative_center);
-			Vec::sub(view_relative_center,view.retraction_delta,axis);
+			M::Vec::add(translation,global_sphere.center,view_relative_center);
+			M::Vec::sub(view_relative_center,view.retraction_delta,axis);
 
-			Vec::sub(view.retraction_delta,translation,sector_relative_view);
+			M::Vec::sub(view.retraction_delta,translation,sector_relative_view);
 			float d = Obj::quadraticTriangleDistance(corner[0],corner[1],corner[2],sector_relative_view,normal);
-			Vec::normalize0(normal);
+			M::Vec::normalize0(normal);
 		#endif
 		float	r = sqr(global_sphere.radius);
 		float	fc = (float)(depth+1)/(float)super->context->recursive_depth,
 				fc2 = vpow(2.0,-double(super->context->recursive_depth-depth));
 		
-		Vec::normalize(axis);
+		M::Vec::normalize(axis);
 		float	effective_distance = d,
 				focus_barrier = r*sqr(2*(0.35+0.65*fc)*view.lod);//*(1.0f+noisiness);	//vmax(0.0f,-_dot(axis,normal))+
 				//focus_barrier = r*variance*sqr(2*view.lod*(fc+(1.0f-fc)*vmax(0.0f,-_dot(axis,normal))));
@@ -1468,39 +1468,39 @@ namespace Fractal
 		
 		//const Aspect&view = *project_parameters.view;
 		
-		TVec3<> center,axis,normal;
+		M::TVec3<> center,axis,normal;
 		view.getTranslation(this->sector,translation,super->context->sector_size);
 		//getTranslation(view.coordinates,super->center,this->sector,translation,super->context->sector_size);
-		Vec::add(translation,global_sphere.center,center);
+		M::Vec::add(translation,global_sphere.center,center);
 		
-		Vec::sub(center,view.retraction_delta,axis);
+		M::Vec::sub(center,view.retraction_delta,axis);
 		_oTriangleNormal(corner[0],corner[1],corner[2],normal);
-		Vec::normalize(normal);
+		M::Vec::normalize(normal);
 		
 
 		
-		float	d = distance_square = Vec::dot(axis),
+		float	d = distance_square = M::Vec::dot(axis),
 				r = sqr(global_sphere.radius);
 		float fc = (float)(depth+1)/(float)super->context->recursive_depth;
 		
-		Vec::normalize(axis);
+		M::Vec::normalize(axis);
 
 				
-		TVec3<double> abs;
-		Vec::copy(sector,abs);
-		Vec::mult(abs,super->context->sector_size);
-		Vec::add(abs,global_sphere.center);
-		double h = Vec::length(abs)-super->context->base_heightf;
+		M::TVec3<double> abs;
+		M::Vec::copy(sector,abs);
+		M::Vec::mult(abs,super->context->sector_size);
+		M::Vec::add(abs,global_sphere.center);
+		double h = M::Vec::length(abs)-super->context->base_heightf;
 		if (h+global_sphere.radius > 0 /*&& h-global_sphere.radius < super->context->variance/4*/)
 		{
 			float	effective_distance = d,
-					focus_barrier = r*10.0f*64.0f/(1<<super->exponent) *sqr((0.35+0.65*fc)*(view.lod*0.8))*(fc+(1.0f-fc)*vmax(0.0f,-Vec::dot(axis,normal)));
+					focus_barrier = r*10.0f*64.0f/(1<<super->exponent) *sqr((0.35+0.65*fc)*(view.lod*0.8))*(fc+(1.0f-fc)*vmax(0.0f,-M::Vec::dot(axis,normal)));
 				
-			TVec3<> reflected_center;
-			Vec::copy(global_sphere.center,reflected_center);
+			M::TVec3<> reflected_center;
+			M::Vec::copy(global_sphere.center,reflected_center);
 			
 			Height::apply(reflected_center,-h,*this,*super->context);
-			Vec::add(reflected_center,translation);
+			M::Vec::add(reflected_center,translation);
 			if (view.frustum.IsVisible(reflected_center,global_sphere.radius))
 			{
 				visibility |= Visibility::Reflection;
@@ -1534,14 +1534,14 @@ namespace Fractal
 		
 		//const Aspect&view = *project_parameters.view;
 		
-		TVec3<> center,axis,normal;
+		M::TVec3<> center,axis,normal;
 		
-		TVec3<double> abs;
-		Vec::copy(sector,abs);
-		Vec::mult(abs,super->context->sector_size);
-		Vec::add(abs,global_sphere.center);
-		double h = Vec::length(abs);
-		Vec::div(abs,h,normal);
+		M::TVec3<double> abs;
+		M::Vec::copy(sector,abs);
+		M::Vec::mult(abs,super->context->sector_size);
+		M::Vec::add(abs,global_sphere.center);
+		double h = M::Vec::length(abs);
+		M::Vec::div(abs,h,normal);
 		h-=super->context->base_heightf;
 		
 		
@@ -1549,27 +1549,27 @@ namespace Fractal
 		//getTranslation(view.coordinates,super->center,this->sector,translation,super->context->sector_size);
 		view.getTranslation(this->sector,translation,super->context->sector_size);
 		
-		Vec::add(translation,global_sphere.center,center);
-		Vec::sub(center,view.retraction_delta,axis);
+		M::Vec::add(translation,global_sphere.center,center);
+		M::Vec::sub(center,view.retraction_delta,axis);
 		
 		
 
 		
-		float	d = distance_square = Vec::dot(axis),
+		float	d = distance_square = M::Vec::dot(axis),
 				r = sqr(global_sphere.radius);
 		float fc = (float)(depth+1)/(float)super->context->recursive_depth;
 		
-		Vec::normalize(axis);
+		M::Vec::normalize(axis);
 
 				
 
 		if (h-global_sphere.radius < 0)
 		{
 			float	effective_distance = d,
-					focus_barrier = r*10.0f*64.0f/(1<<super->exponent) *sqr((0.35+0.65*fc)*(view.lod*0.9))*(fc+(1.0f-fc)*vmax(0.0f,-Vec::dot(axis,normal)));
+					focus_barrier = r*10.0f*64.0f/(1<<super->exponent) *sqr((0.35+0.65*fc)*(view.lod*0.9))*(fc+(1.0f-fc)*vmax(0.0f,-M::Vec::dot(axis,normal)));
 		
-			TVec3<> water_center;
-			Vec::add(this->water_center,translation,water_center);
+			M::TVec3<> water_center;
+			M::Vec::add(this->water_center,translation,water_center);
 
 			if (view.frustum.IsVisible(water_center,global_sphere.radius))
 			{
@@ -1803,27 +1803,27 @@ namespace Fractal
 	
 	void		SurfaceSegment::include(SurfaceSegment*child)
 	{
-		TVec3<> delta,center;
+		M::TVec3<> delta,center;
 		super->getTranslation(child->sector,this->sector,delta);
-		Vec::sub(child->global_sphere.center,delta,center);
+		M::Vec::sub(child->global_sphere.center,delta,center);
 		global_sphere.Include(center,child->global_sphere.radius);
 	}
 	
 	void		SurfaceSegment::defaultDefineSphere(AbstractSphere<float>&sphere)
 	{
-		Vec::center(corner[0],corner[1],corner[2],sphere.center);
-		sphere.radius = sqrt(vmax(vmax(Vec::quadraticDistance(corner[0],sphere.center),Vec::quadraticDistance(corner[1],sphere.center)),Vec::quadraticDistance(corner[2],sphere.center)));
+		M::Vec::center(corner[0],corner[1],corner[2],sphere.center);
+		sphere.radius = sqrt(vmax(vmax(M::Vec::quadraticDistance(corner[0],sphere.center),M::Vec::quadraticDistance(corner[1],sphere.center)),M::Vec::quadraticDistance(corner[2],sphere.center)));
 	}
 	
-	bool		SurfaceSegment::rayCast(const Composite::Coordinates&b_, const TVec3<>&d, TRayIntersection&intersection)
+	bool		SurfaceSegment::rayCast(const Composite::Coordinates&b_, const M::TVec3<>&d, TRayIntersection&intersection)
 	{
 		intersection.isset = false;
 		if (!(flags&HasData))
 			return false;
-		TVec3<> b;
-		Vec::sub(b_.sector,sector,b);
-		Vec::mult(b,super->context->sector_size);
-		Vec::add(b,b_.remainder);
+		M::TVec3<> b;
+		M::Vec::sub(b_.sector,sector,b);
+		M::Vec::mult(b,super->context->sector_size);
+		M::Vec::add(b,b_.remainder);
 		//lout << "inner base ("<<_toString(b_.sector)<<"relative to "<<_toString(sector)<<") is "<<_toString(b)<<nl;
 		if (!Obj::detectOpticalSphereIntersection(global_sphere.center, global_sphere.radius, b, d))
 			return false;
@@ -1864,15 +1864,15 @@ namespace Fractal
 		return false;
 	}
 
-	bool		SurfaceSegment::groundQuery(const Composite::Coordinates&b_, const TVec3<>&d, unsigned min_layer, TGroundInfo&ground)
+	bool		SurfaceSegment::groundQuery(const Composite::Coordinates&b_, const M::TVec3<>&d, unsigned min_layer, TGroundInfo&ground)
 	{
 		if (!(flags&HasData))
 			return false;
-		TVec3<> b;
-		Vec::sub(b_.sector,sector,b);
-		Vec::mult(b,super->context->sector_size);
-		Vec::add(b,b_.remainder);
-		float b2 = Vec::dot(b);
+		M::TVec3<> b;
+		M::Vec::sub(b_.sector,sector,b);
+		M::Vec::mult(b,super->context->sector_size);
+		M::Vec::add(b,b_.remainder);
+		float b2 = M::Vec::dot(b);
 		if (b2 > sqr(super->context->base_heightf)*1.5)
 		//if (b2 > sqr(global_sphere.radius)*1.5)
 		{
@@ -1883,20 +1883,20 @@ namespace Fractal
 		
 		//lout << "inner base ("<<_toString(b_.sector)<<"relative to "<<_toString(sector)<<") is "<<_toString(b)<<nl;
 		
-		TVec3<>	d1,r;
-		Vec::subtract(b,global_sphere.center,d1);
-		if (Vec::dot(d1) > sqr(super->context->base_heightf)*1.5)
+		M::TVec3<>	d1,r;
+		M::Vec::subtract(b,global_sphere.center,d1);
+		if (M::Vec::dot(d1) > sqr(super->context->base_heightf)*1.5)
 		//if (b2 > sqr(global_sphere.radius)*1.5)
 		{
 			return false;
 		}
 		
-		Vec::cross(d,d1,r);
-		float dist2 = Vec::dot(r);
+		M::Vec::cross(d,d1,r);
+		float dist2 = M::Vec::dot(r);
 		if (dist2 > sqr(global_sphere.radius))
 			return false;
 			
-		TVec3<> fc;
+		M::TVec3<> fc;
 		if (!Obj::detTriangleRayIntersection(corner[0], corner[1], corner[2], b, d, fc))
 			return false;
 		if (fc.x < -0.01 || fc.y < -0.01 || fc.x+fc.y>1.01)
@@ -1918,13 +1918,13 @@ namespace Fractal
 			return false;
 		}
 
-		if (/*depth > 2 ||*/ Vec::quadraticDistance(global_sphere.center,b) > sqr(global_sphere.radius*2.5))
+		if (/*depth > 2 ||*/ M::Vec::quadraticDistance(global_sphere.center,b) > sqr(global_sphere.radius*2.5))
 		{
 			ground.segment = this;
 			ground.isset = true;
 			ground.height_over_ground = fc.z;
 			ground.ground_height = 0; //erm...
-			Vec::mad(b,d,fc.z,ground.position);
+			M::Vec::mad(b,d,fc.z,ground.position);
 
 			_oTriangleNormal(corner[0],corner[1],corner[2],ground.normal);
 			return true;
@@ -2380,7 +2380,7 @@ namespace Fractal
 			faces[i]->dropChildren();
 	}
 	
-	bool		Body::rayCast(const Composite::Coordinates&b, const TVec3<>&d, TRayIntersection&intersection)
+	bool		Body::rayCast(const Composite::Coordinates&b, const M::TVec3<>&d, TRayIntersection&intersection)
 	{
 		
 		intersection.isset = false;
@@ -2396,11 +2396,11 @@ namespace Fractal
 	bool		Body::groundQuery(const Composite::Coordinates&b, unsigned min_layer, TGroundInfo&ground)
 	{
 		BackgroundSubDiv::end();
-		TVec3<> d;
+		M::TVec3<> d;
 		ground.isset = false;
 		b.convertToAbsolute(d,context->sector_size);
-		Vec::normalize0(d);
-		Vec::mult(d,-1);
+		M::Vec::normalize0(d);
+		M::Vec::mult(d,-1);
 		for (index_t i = 0; i < faces.count(); i++)
 			if (faces[i]->groundQuery(b,d,min_layer,ground))
 				return true;
@@ -2462,14 +2462,14 @@ namespace Fractal
 				
 			
 				
-			TVec3<> d,dx,dy;
+			M::TVec3<> d,dx,dy;
 			
 			const Geometry::Vertex	&v0 = geometry.vertexField[geometry.triangleField[i*3+0]],
 									&v1 = geometry.vertexField[geometry.triangleField[i*3+1]],
 									&v2 = geometry.vertexField[geometry.triangleField[i * 3 + 2]];
 			
-			Vec::sub(v1,v0,dx);
-			Vec::sub(v2,v0,dy);
+			M::Vec::sub(v1,v0,dx);
+			M::Vec::sub(v2,v0,dy);
 			
 			for (unsigned j = 0; j < num_craters; j++)
 			{
@@ -2485,15 +2485,15 @@ namespace Fractal
 						break;
 				}
 				
-				Vec::mad(v0,dx,x,d);
-				Vec::mad(d,dy,y);
-				Vec::normalize0(d);
+				M::Vec::mad(v0,dx,x,d);
+				M::Vec::mad(d,dy,y);
+				M::Vec::normalize0(d);
 				
 				TCrater&crater = craters.append();
 				crater.orientation = d;
 				crater.radius = context->crater_radius*r;
 				crater.depth = context->crater_depth;
-				Vec::mult(crater.orientation,context->base_heightf,crater.base);
+				M::Vec::mult(crater.orientation,context->base_heightf,crater.base);
 			}
 		}
 		
@@ -2563,15 +2563,15 @@ namespace Fractal
 				const Geometry::Vertex&vertex = geometry.vertexField[geometry.triangleField[i * 3 + k]];
 				corner = vertex_field[geometry.triangleField[i * 3 + k]];
 				
-				Vec::copy(vertex,(corner.position));
-				Vec::setLen((corner.position),context->base_heightf);
+				M::Vec::copy(vertex,(corner.position));
+				M::Vec::setLen((corner.position),context->base_heightf);
 			}
-			TVec3<> center;
-			Vec::center((corner_field[0]->position),(corner_field[1]->position),(corner_field[2]->position),center);
-			float radius =  Vec::distance((corner_field[0]->position),center);
+			M::TVec3<> center;
+			M::Vec::center((corner_field[0]->position),(corner_field[1]->position),(corner_field[2]->position),center);
+			float radius =  M::Vec::distance((corner_field[0]->position),center);
 			for (index_t j = 0; j < craters.count(); j++)
 			{
-				if (Vec::distance(craters[j].base,center)-craters[j].radius > radius)
+				if (M::Vec::distance(craters[j].base,center)-craters[j].radius > radius)
 					continue;
 				
 				f->crater_field << craters[j];
@@ -3112,9 +3112,9 @@ namespace Fractal
 		float step = 360.0f/resolution;
 		Geometry::Vertex*v = geometry.vertexField.pointer();
 		for (unsigned i = 0; i < resolution; i++)
-			Vec::sphereCoords(step*i,-step/2,1,(*v++));
+			M::Vec::sphereCoords(step*i,-step/2,1,(*v++));
 		for (unsigned i = 0; i < resolution; i++)
-			Vec::sphereCoords(step*i+step/2,step/2,1,(*v++));
+			M::Vec::sphereCoords(step*i+step/2,step/2,1,(*v++));
 		
 		ASSERT_CONCLUSION(geometry.vertexField, v);
 	}
@@ -3258,43 +3258,43 @@ namespace Fractal
 		ASSERT_CONCLUSION(geometry.edgeField,e);
 
 
-		Vec::sphereCoords(0,90,1,geometry.vertexField[0]);
+		M::Vec::sphereCoords(0,90,1,geometry.vertexField[0]);
 	    
-		Vec::sphereCoords(0, 30, 1, geometry.vertexField[1]);
-		Vec::sphereCoords(-72, 30, 1, geometry.vertexField[2]);
-		Vec::sphereCoords(-144, 30, 1, geometry.vertexField[3]);
-		Vec::sphereCoords(-216, 30, 1, geometry.vertexField[4]);
-		Vec::sphereCoords(-288, 30, 1, geometry.vertexField[5]);
+		M::Vec::sphereCoords(0, 30, 1, geometry.vertexField[1]);
+		M::Vec::sphereCoords(-72, 30, 1, geometry.vertexField[2]);
+		M::Vec::sphereCoords(-144, 30, 1, geometry.vertexField[3]);
+		M::Vec::sphereCoords(-216, 30, 1, geometry.vertexField[4]);
+		M::Vec::sphereCoords(-288, 30, 1, geometry.vertexField[5]);
 
-		Vec::sphereCoords(-36, -30, 1, geometry.vertexField[6]);
-		Vec::sphereCoords(-108, -30, 1, geometry.vertexField[7]);
-		Vec::sphereCoords(-180, -30, 1, geometry.vertexField[8]);
-		Vec::sphereCoords(-252, -30, 1, geometry.vertexField[9]);
-		Vec::sphereCoords(-324, -30, 1, geometry.vertexField[10]);
+		M::Vec::sphereCoords(-36, -30, 1, geometry.vertexField[6]);
+		M::Vec::sphereCoords(-108, -30, 1, geometry.vertexField[7]);
+		M::Vec::sphereCoords(-180, -30, 1, geometry.vertexField[8]);
+		M::Vec::sphereCoords(-252, -30, 1, geometry.vertexField[9]);
+		M::Vec::sphereCoords(-324, -30, 1, geometry.vertexField[10]);
 
-		Vec::sphereCoords(0, -90, 1, geometry.vertexField[11]);
+		M::Vec::sphereCoords(0, -90, 1, geometry.vertexField[11]);
 		
 	}
 	
 	RollSpace::RollSpace(double modal_range_):modal_range(modal_range_)
 	{
-		Vec::clear(texture_root);
-		Vec::def(texture_up,0,1,0);
-		Vec::def(texture_x,1,0,0);
-		Vec::def(texture_y,0,0,1);
+		M::Vec::clear(texture_root);
+		M::Vec::def(texture_up,0,1,0);
+		M::Vec::def(texture_x,1,0,0);
+		M::Vec::def(texture_y,0,0,1);
 		Mat::Eye(invert);
 	}
 	
-	void	RollSpace::roll(const TVec3<>&up, const TVec3<>&location)
+	void	RollSpace::roll(const M::TVec3<>&up, const M::TVec3<>&location)
 	{
-		TVec3<double>	up_ = {up.x,up.y,up.z},
+		M::TVec3<double>	up_ = {up.x,up.y,up.z},
 						location_ = {location.x,location.y,location.z};
 		roll(up_,location_);
 	}
 	
-	void	RollSpace::roll(const TVec3<>&up, const TVec3<double>&location)
+	void	RollSpace::roll(const M::TVec3<>&up, const M::TVec3<double>&location)
 	{
-		TVec3<double> up_ = {up.x,up.y,up.z};
+		M::TVec3<double> up_ = {up.x,up.y,up.z};
 		roll(up_,location);
 	}
 
@@ -3306,22 +3306,22 @@ namespace Fractal
 		val -= modal_range*step;
 	}
 	
-	void	RollSpace::roll(const TVec3<double>& up, const TVec3<double>&delta)
+	void	RollSpace::roll(const M::TVec3<double>& up, const M::TVec3<double>&delta)
 	{
-	    TMatrix4<double> sys;
-		TVec3<double>	projection,temp;
-		double translation = Vec::dot(delta,up);
+	    M::TMatrix4<double> sys;
+		M::TVec3<double>	projection,temp;
+		double translation = M::Vec::dot(delta,up);
 		//_mad(texture_root,up,-translation);
 		//_add(texture_root,delta);
 		
 	
-	    Vec::add(up,texture_up,projection);
-	    Vec::mad(texture_x,projection,-Vec::dot(texture_x,up)/Vec::dot(projection,up));
-	    Vec::copy(up,texture_up);
-	    Vec::cross(texture_x,up,texture_y);
-	    Vec::normalize0(texture_up);
-	    Vec::normalize0(texture_x);
-	    Vec::normalize0(texture_y);
+	    M::Vec::add(up,texture_up,projection);
+	    M::Vec::mad(texture_x,projection,-M::Vec::dot(texture_x,up)/M::Vec::dot(projection,up));
+	    M::Vec::copy(up,texture_up);
+	    M::Vec::cross(texture_x,up,texture_y);
+	    M::Vec::normalize0(texture_up);
+	    M::Vec::normalize0(texture_x);
+	    M::Vec::normalize0(texture_y);
 		
 		//texture_root[0] = fmod(texture_root[0],modal_range);
 		//texture_root[1] = fmod(texture_root[1],modal_range);
@@ -3334,18 +3334,18 @@ namespace Fractal
 		
 	    //shiver me timbers. the seas have got me - yar.
 		//project root to plane:
-		Vec::mad(texture_root,texture_x,-Vec::dot(texture_x,delta));
-		Vec::mad(texture_root,texture_y,-Vec::dot(texture_y,delta));
-		Vec::mad(texture_root,texture_up,-Vec::dot(texture_up,texture_root));
+		M::Vec::mad(texture_root,texture_x,-M::Vec::dot(texture_x,delta));
+		M::Vec::mad(texture_root,texture_y,-M::Vec::dot(texture_y,delta));
+		M::Vec::mad(texture_root,texture_up,-M::Vec::dot(texture_up,texture_root));
 		
 		//modulate root:
 		{
-			double	x = Vec::dot(texture_root,texture_x),
-					y = Vec::dot(texture_root,texture_y);
+			double	x = M::Vec::dot(texture_root,texture_x),
+					y = M::Vec::dot(texture_root,texture_y);
 			mod(x);
 			mod(y);
-			Vec::mult(texture_x,x,texture_root);
-			Vec::mad(texture_root,texture_y,y);
+			M::Vec::mult(texture_x,x,texture_root);
+			M::Vec::mad(texture_root,texture_y,y);
 		}
 		/*
 		mod(texture_root[0]);
@@ -3357,24 +3357,24 @@ namespace Fractal
 		_mad(texture_root,mod,-modal_range);*/
 		
 
-	    Vec::copy(texture_x,sys.x.xyz);
-	    Vec::copy(texture_y,sys.y.xyz);
-	    Vec::copy(texture_up,sys.z.xyz);
-	    Vec::copy(texture_root,sys.w.xyz);
+	    M::Vec::copy(texture_x,sys.x.xyz);
+	    M::Vec::copy(texture_y,sys.y.xyz);
+	    M::Vec::copy(texture_up,sys.z.xyz);
+	    M::Vec::copy(texture_root,sys.w.xyz);
 		Mat::resetBottomRow(sys);
 	    Mat::invertSystem(sys,invert);
 	}
 
 
-	void	RollSpace::exportTo(TMatrix4<>&system, double range, bool include_translation)	const
+	void	RollSpace::exportTo(M::TMatrix4<>&system, double range, bool include_translation)	const
 	{
-	    Vec::div(invert.x.xyz,range,system.x.xyz);
-	    Vec::div(invert.y.xyz,range,system.y.xyz);
-		Vec::div(invert.z.xyz,range,system.z.xyz);
+	    M::Vec::div(invert.x.xyz,range,system.x.xyz);
+	    M::Vec::div(invert.y.xyz,range,system.y.xyz);
+		M::Vec::div(invert.z.xyz,range,system.z.xyz);
 		if (include_translation)
-			Vec::div(invert.w.xyz,range,system.w.xyz);
+			M::Vec::div(invert.w.xyz,range,system.w.xyz);
 		else
-			Vec::clear(system.w.xyz);
+			M::Vec::clear(system.w.xyz);
 		Mat::resetBottomRow(system);
 	}
 

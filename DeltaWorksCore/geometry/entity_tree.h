@@ -17,7 +17,7 @@ namespace DeltaWorks
 	class EntityTree
 	{
 	public:
-		typedef Box<>	Volume;
+		typedef M::Box<>	Volume;
 		
 		class Entity
 		{
@@ -34,15 +34,15 @@ namespace DeltaWorks
 	protected:
 		Container::Buffer<Entity*>		entities;		//!< Entities mapped to the local tree node
 		Volume							volume;			//!< Effective volume of the local tree node
-		TVec3<>							split;			//!< Composite used to split the local volume into up to 8 child volumes.
+		M::TVec3<>							split;			//!< Composite used to split the local volume into up to 8 child volumes.
 		EntityTree						*child[8];		//!< Pointer to the respective children (up to 8). Any of these may be NULL.
 		unsigned						level;			//!< Recursive level with 0 being the bottom-most level.
 		bool							hasChildren;	//!< True if at least one SceneryTree::child pointer is not NULL
 
 		void							_RecursiveRemap(const Container::Buffer<Entity*>&source);		//!< Recursivly maps the elements of the specified list to the local tree node overwriting any existing mapped object entities.
 		count_t							_RecursiveLookup(const Volume&space, Container::Buffer<Entity*>&buffer);	//!< Volume based recursive lookup call \param space Volume to lookup \param exclude Structure entity to exclude the objects of during lookup or NULL to not exclude any object entities \param buffer Outbuffer for found object entities. The same object entity may be listed multiple times
-		count_t							_RecursiveLookup(const TVec3<>&edge_point0, const TVec3<>&edge_point1, Container::Buffer<Entity*>&buffer);
-		count_t							_RecursionEnd(const TVec3<>&edge_point0, const TVec3<>&edge_point1, Container::Buffer<Entity*>&buffer);
+		count_t							_RecursiveLookup(const M::TVec3<>&edge_point0, const M::TVec3<>&edge_point1, Container::Buffer<Entity*>&buffer);
+		count_t							_RecursionEnd(const M::TVec3<>&edge_point0, const M::TVec3<>&edge_point1, Container::Buffer<Entity*>&buffer);
 	public:
 		static	bool					verbose;		//!< Print events to the console
 
@@ -61,14 +61,14 @@ namespace DeltaWorks
 		@param out Outbuffer for found object entities. The out buffer may contain the same entry multiple times
 		*/
 		void 								Lookup(const Volume&space, Container::Buffer<Entity*>&out);
-		void								Lookup(const TVec3<>&edge_point0, const TVec3<>&edge_point1, Container::Buffer<Entity*>&out);
+		void								Lookup(const M::TVec3<>&edge_point0, const M::TVec3<>&edge_point1, Container::Buffer<Entity*>&out);
 		EntityTree&							operator=(const EntityTree&other);				//!< Copy operator
 		
 		EntityTree*							GetChild(BYTE index);			//!< Retrieves the tree child associated with the respective index, \param index Index of the child to retrieve in the range [0,7]. \return Pointer to the respective child or NULL if the child does not exist or the specified index is greater than 7
 		const EntityTree*					GetChild(BYTE index)const;			//!< Retrieves the tree child associated with the respective index, \param index Index of the child to retrieve in the range [0,7]. \return Pointer to the respective child or NULL if the child does not exist or the specified index is greater than 7
 		bool								HasChildren()		const;		//!< Returns true if the node has at least one child, false otherwise
 		unsigned							GetLevel()			const;		//!< Retrieves the recursive level of the local tree node (0 = bottom most node/leaf).
-		const TVec3<>&						GetSplitVector()	const;		//!< Retrieves the split point (3 components) used to determine the volumes of the local children. The returned vector is undefined if the local node has no children.
+		const M::TVec3<>&						GetSplitVector()	const;		//!< Retrieves the split point (3 components) used to determine the volumes of the local children. The returned vector is undefined if the local node has no children.
 		const Volume&						GetVolume()			const;		//!< Retrieves the actual volume of the local tree node
 		count_t								CountElements()		const;		//!< Retrieves the number of elements mapped in this node
 		void								GetElements(Container::Buffer<Entity*>&out)	const;//!< Copies the pointers of all locally mapped object entities to the target list.
@@ -89,11 +89,11 @@ namespace DeltaWorks
 		
 		struct Volume	//! Lookup volume (box)
 		{
-			Composite::Coordinates			lower,
+			M::Composite::Coordinates		lower,
 											upper;
 
-			const Composite::Coordinates&	coordinates(BYTE index)	const {return index?upper:lower;}
-			Composite::Coordinates&		coordinates(BYTE index)	{return index?upper:lower;};
+			const M::Composite::Coordinates&coordinates(BYTE index)	const {return index?upper:lower;}
+			M::Composite::Coordinates&		coordinates(BYTE index)	{return index?upper:lower;};
 
 			bool							containsAlongAxis(BYTE axis, double v, float sector_size)	const
 			{
@@ -120,7 +120,7 @@ namespace DeltaWorks
 	protected:
 		Container::Buffer<Entity*>			entities;		//!< Entities mapped to the local tree node
 		Volume								volume;			//!< Effective volume of the local tree node
-		Composite::Coordinates				split;			//!< Composite used to split the local volume into up to 8 child volumes.
+		M::Composite::Coordinates			split;			//!< Composite used to split the local volume into up to 8 child volumes.
 		CompositeEntityTree					*child[8];		//!< Pointer to the respective children (up to 8). Any of these may be NULL.
 		unsigned							level;			//!< Recursive level with 0 being the bottom-most level.
 		bool								has_children;	//!< True if at least one SceneryTree::child pointer is not NULL
@@ -128,7 +128,7 @@ namespace DeltaWorks
 
 		void								recursiveRemap(const Container::Buffer<Entity*>&source, float sector_size);		//!< Recursivly maps the elements of the specified list to the local tree node overwriting any existing mapped object entities.
 		count_t								recursiveLookup(const Volume&space, Container::Buffer<Entity*>&buffer, float sector_size);	//!< Volume based recursive lookup call \param space Volume to lookup \param exclude Structure entity to exclude the objects of during lookup or NULL to not exclude any object entities \param buffer Outbuffer for found object entities. The same object entity may be listed multiple times
-		count_t								recursiveLookup(const Composite::Coordinates&edge_point0, const Composite::Coordinates&edge_point1, Container::Buffer<Entity*>&buffer, float sector_size);
+		count_t								recursiveLookup(const M::Composite::Coordinates&edge_point0, const M::Composite::Coordinates&edge_point1, Container::Buffer<Entity*>&buffer, float sector_size);
 
 	public:
 		static	bool						verbose;		//!< Print events to the console
@@ -149,13 +149,13 @@ namespace DeltaWorks
 		\param out Outbuffer for found object entities. The out buffer may contain the same entry multiple times
 		*/
 		void 								lookup(const Volume&space, Container::Buffer<Entity*>&out);
-		void								lookup(const Composite::Coordinates&edge_point0, const Composite::Coordinates&edge_point1, Container::Buffer<Entity*>&out);
+		void								lookup(const M::Composite::Coordinates&edge_point0, const M::Composite::Coordinates&edge_point1, Container::Buffer<Entity*>&out);
 		CompositeEntityTree&				operator=(const CompositeEntityTree&other);				//!< Copy operator
 		
 		CompositeEntityTree*				getChild(BYTE index);			//!< Retrieves the tree child associated with the respective index, \param index Index of the child to retrieve in the range [0,7]. \return Pointer to the respective child or NULL if the child does not exist or the specified index is greater than 7
 		bool								hasChildren()		const;		//!< Returns true if the node has at least one child, false otherwise
 		unsigned							getLevel()			const;		//!< Retrieves the recursive level of the local tree node (0 = bottom most node/leaf).
-		const Composite::Coordinates&		getSplitVector()	const;		//!< Retrieves the split point (3 components) used to determine the volumes of the local children. The returned vector is undefined if the local node has no children.
+		const M::Composite::Coordinates&	getSplitVector()	const;		//!< Retrieves the split point (3 components) used to determine the volumes of the local children. The returned vector is undefined if the local node has no children.
 		const Volume&						getVolume()			const;		//!< Retrieves the actual volume of the local tree node
 		count_t								countElements()		const;		//!< Retrieves the number of elements mapped in this node
 		void								getElements(Container::Buffer<Entity*>&out)	const;//!< Copies the pointers of all locally mapped object entities to the target list.

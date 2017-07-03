@@ -313,7 +313,7 @@ namespace Fractal
 			for (unsigned i = 0; i < parent_vertex_count; i++)
 			{
 				ASSERT__(parent_vertex_info[i].index < vertex_count);
-				Vec::ref4(forward_map + parent_vertex_info[i].index * 4) = Vec::ref4(parent_vertex_info[i].origin);
+				M::Vec::ref4(forward_map + parent_vertex_info[i].index * 4) = M::Vec::ref4(parent_vertex_info[i].origin);
 			}
 
 			TParentInfo	*ipvi = inner_parent_vertex_info;

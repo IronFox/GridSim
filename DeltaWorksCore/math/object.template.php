@@ -39,7 +39,8 @@ functions:
 		:<sub>(cross_point,p0,dif);
 		:float	beta = :<dot>(n0,dif)/:<dot>(n0,d1),
 				gamma = :<dot>(n1,dif)/:<dot>(n1,d0);
-		if (beta > -getError<:float>() && gamma > -getError<:float>() && beta + gamma < (:float)1+ getError<:float>())
+		using Math::GetError;
+		if (beta > -GetError<:float>() && gamma > -GetError<:float>() && beta + gamma < (:float)1+ GetError<:float>())
 		{
 			distance = alpha;
 			return true;
@@ -56,7 +57,8 @@ functions:
 		:<triangleNormal>(p0,p1,p2,n);
 		vn = :<dot>(n);
 		using std::fabs;
-		if (fabs(vn) <= Math::getError<:float>())
+		using Math::GetError;
+		if (fabs(vn) <= GetError<:float>())
 			return 0;
 		return (:<dot>(p0,n)-:<dot>(p3,n)) / (vn*6);		
 
@@ -108,7 +110,8 @@ functions:
 		:<cross>(p0,p1,n);
 		vn = :<dot>(n);
 		using std::fabs;
-		if (fabs(vn) <= Math::getError<:float>())
+		using Math::GetError;
+		if (fabs(vn) <= GetError<:float>())
 			return 0;
 		return :<dot>(p2,n) / (vn*6);
 
@@ -124,8 +127,9 @@ functions:
 		:<sub>(b0,a0,d0);
 		:<sub>(a1,a0,d1);
 		:<sub>(b1,b0,d2);
+		using Math::GetError;
 		:float	sub = d2:0 * d1:1 - d2:1 * d1:0,
-				error = Math::getError<:float>();
+				error = GetError<:float>();
 		using std::fabs;
 		if (fabs(sub)<error)
 			return false;
@@ -269,7 +273,8 @@ functions:
 		:<sub>(p,t0,dif);
 		:float	sub_alpha = :<dot>(normal);
 		using std::fabs;
-		if (fabs(sub_alpha) <= getError<:float>())
+		using Math::GetError;
+		if (fabs(sub_alpha) <= GetError<:float>())
 			return :<quadraticDistance>(t0,p);
 		:float	alpha = :<dot>(normal,dif)/sub_alpha;
 		:<cross>(normal,d0,n0);

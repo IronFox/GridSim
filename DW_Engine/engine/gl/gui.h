@@ -74,7 +74,7 @@ namespace Engine
 				
 		struct TFreeCell	//! Free component layout cell
 		{
-			Rect<float>				region;			//!< Effective cell region
+			M::Rect<float>				region;			//!< Effective cell region
 			BYTE					orientation;	//!< Cell orientation. Rotation is 90 degress times orientation
 			const OpenGL::Texture	*color,			//!< Cell color texture
 									*normal;			//!< Cell normal texture
@@ -148,11 +148,11 @@ namespace Engine
 		class Layout
 		{
 		protected:
-			static void				applyArea(Rect<float>&target, const Rect<float>&window, const Rect<float>&relative);
+			static void				applyArea(M::Rect<float>&target, const M::Rect<float>&window, const M::Rect<float>&relative);
 			Layout&					operator=(const Layout&other) {return *this;}
 		public:
 			Array<TRow>				rows;				//!< Collection of rows
-			Rect<float>				titlePosition;		//!< Title position.	Negative values are interpreted relative to the right/top edges, positive ones to the left, bottom edges
+			M::Rect<float>				titlePosition;		//!< Title position.	Negative values are interpreted relative to the right/top edges, positive ones to the left, bottom edges
 			Quad<float>				borderEdge,		//!< Distance from the window/component edge to the effective (visual) edge of the layout. All values are >= 0
 									clientEdge;		//!< Distance from the window/component edge to the client edge of the layout. All values are >= 0
 			float					minWidth,			//!< Minimum width of this layout
@@ -172,7 +172,7 @@ namespace Engine
 			@param scale Relative scale that should be applied to the loaded layout
 			*/
 			void					LoadFromFile(const PathString&filename, float scale=1.0f);	
-			void					UpdateCells(const Rect<float>&window_location, TCellLayout&layout)	const;		//!< Updates the final layout of a window or component depending on the window's location
+			void					UpdateCells(const M::Rect<float>&window_location, TCellLayout&layout)	const;		//!< Updates the final layout of a window or component depending on the window's location
 			Layout*					Refer()	{return override!=NULL?override:this;}
 		};
 		
@@ -185,7 +185,7 @@ namespace Engine
 		*/
 		struct TCellInstance
 		{
-			Rect<float>				region;			//!< Effective cell region (in pixels)
+			M::Rect<float>				region;			//!< Effective cell region (in pixels)
 			const OpenGL::Texture	*colorTexture,	//!< Color texture to Fill the cell with
 									*normalTexture;	//!< Normal texture to Fill the cell with
 			//float					width;			//!< Effective width of the cell.
@@ -201,11 +201,11 @@ namespace Engine
 		struct TCellLayout
 		{
 			Array<TCellInstance>	cells;				//!< Container for all cell instances (generally unsorted)
-			Rect<float>				title,				//!< Effective (absolute) title region
+			M::Rect<float>				title,				//!< Effective (absolute) title region
 									border,				//!< Effective (absolute) region of the visual border. Mouse clicks outside this border are generally applied to the next lower window
 									client;				//!< Effective (absolute) region of the client area of the layout.
 		
-			void					Clear(const Rect<>&windowLocation);
+			void					Clear(const M::Rect<>&windowLocation);
 		};
 		
 		
@@ -215,29 +215,29 @@ namespace Engine
 		private:
 			static GLShader::Instance	layerMerger;
 			static GLShader::Variable	clearColorVariable;
-			Buffer<Rect<int>,0>		clipStack;
-			TVec3<>					clearColor;
+			Buffer<M::Rect<int>,0>		clipStack;
+			M::TVec3<>					clearColor;
 			Resolution				subRes;
 			TFrameBuffer			stackedTargets[2],
 									layerTarget;
 			bool					targetingFinal;
 			count_t					layerCounter;
-			void					_Apply(const Rect<int>&port);
+			void					_Apply(const M::Rect<int>&port);
 			void					_Swap();
-			void					_SetView(const Rect<int>&port);
+			void					_SetView(const M::Rect<int>&port);
 		protected:
 
 			bool					layerIsDirty;
 			//Display<OpenGL>			&display;
-			/**/					Renderer(float clearColorR, float clearColorG, float clearColorB) : layerIsDirty(false) {Vec::def(clearColor,clearColorR,clearColorG,clearColorB);}
+			/**/					Renderer(float clearColorR, float clearColorG, float clearColorB) : layerIsDirty(false) {M::Vec::def(clearColor,clearColorR,clearColorG,clearColorB);}
 
 			const Resolution&		GetTargetResolution()	const	{return subRes;}
 
-			void					FillRect(const Rect<>&rect);
-			void					FillQuad(const TVec2<>&p0, const TVec2<>&p1, const TVec2<>&p2, const TVec2<>&p3);
-			void					TextureRect(const Rect<>&rect);
-			void					TextureRect(const Rect<>&rect, const Rect<>&texCoordRect);
-			void					TextureQuad(const TVec2<>&p0, const TVec2<>&p1, const TVec2<>&p2, const TVec2<>&p3);
+			void					FillRect(const M::Rect<>&rect);
+			void					FillQuad(const M::TVec2<>&p0, const M::TVec2<>&p1, const M::TVec2<>&p2, const M::TVec2<>&p3);
+			void					TextureRect(const M::Rect<>&rect);
+			void					TextureRect(const M::Rect<>&rect, const M::Rect<>&texCoordRect);
+			void					TextureQuad(const M::TVec2<>&p0, const M::TVec2<>&p1, const M::TVec2<>&p2, const M::TVec2<>&p3);
 
 			void					Configure(const TFrameBuffer&, const Resolution& usage);
 			void					Finish();
@@ -245,7 +245,7 @@ namespace Engine
 		public:
 			virtual					~Renderer();
 
-			void					Clip(const Rect<float>&region);	//!< Focuses on an area by applying the current viewport and translation to the specified region and further limiting the viewport. The existing translation will be modified by dx and dy
+			void					Clip(const M::Rect<float>&region);	//!< Focuses on an area by applying the current viewport and translation to the specified region and further limiting the viewport. The existing translation will be modified by dx and dy
 			void					Unclip();	//!< Reverts the focus process by jumping back to the next upper focus
 			
 			//inline void				ResetFocus()	{focusStack.clear();}
@@ -254,16 +254,16 @@ namespace Engine
 		class ColorRenderer : public Renderer
 		{
 		private:
-			TVec4<>					color;
-			Buffer<TVec4<>,0>		colorStack;
+			M::TVec4<>					color;
+			Buffer<M::TVec4<>,0>		colorStack;
 			void					_UpdateState();
 			void					_UpdateState(const GL::Texture::Reference&);
 			void					_UpdateState(const GL::Texture::Reference&,const GL::Texture::Reference&);
 		public:
 			static Textout<GLTextureFont2>		textout;		//!< Global textout used to render text
 			/**/					ColorRenderer() : Renderer(0,0,0)	{}
-			void					ModulateColor(const TVec4<>&);
-			void					ModulateColor(const TVec3<>&, float alpha=1.f);
+			void					ModulateColor(const M::TVec4<>&);
+			void					ModulateColor(const M::TVec3<>&, float alpha=1.f);
 			void					ModulateColor(float greyTone, float alpha=1.f);
 			void					ModulateColor(float r, float g, float b, float a = 1.f);
 
@@ -279,14 +279,14 @@ namespace Engine
 			void					PaintPoint(float x, float y);
 			void					RenderLine(float x0, float y0, float x1, float y1);
 
-			void					FillRect(const Rect<>&rect);
-			void					FillQuad(const TVec2<>&p0, const TVec4<>&color0, const TVec2<>&p1, const TVec4<>&color1, const TVec2<>&p2, const TVec4<>&color2, const TVec2<>&p3,const TVec4<>&color3);
-			void					TextureRect(const Rect<>&rect,const GL::Texture::Reference&);
-			void					TextureRect(const Rect<>&rect, const Rect<>&texCoordRect,const GL::Texture::Reference&);
-			void					TextureRect(const Rect<>&rect,const GL::Texture::Reference&,const GL::Texture::Reference&);
-			void					TextureRect(const Rect<>&rect, const Rect<>&texCoordRect,const GL::Texture::Reference&,const GL::Texture::Reference&);
-			void					TextureQuad(const TVec2<>&p0, const TVec2<>&p1, const TVec2<>&p2, const TVec2<>&p3, const GL::Texture::Reference&);
-			void					TextureQuad(const TVec2<>&p0, const TVec2<>&p1, const TVec2<>&p2, const TVec2<>&p3, const GL::Texture::Reference&, const GL::Texture::Reference&);
+			void					FillRect(const M::Rect<>&rect);
+			void					FillQuad(const M::TVec2<>&p0, const M::TVec4<>&color0, const M::TVec2<>&p1, const M::TVec4<>&color1, const M::TVec2<>&p2, const M::TVec4<>&color2, const M::TVec2<>&p3,const M::TVec4<>&color3);
+			void					TextureRect(const M::Rect<>&rect,const GL::Texture::Reference&);
+			void					TextureRect(const M::Rect<>&rect, const M::Rect<>&texCoordRect,const GL::Texture::Reference&);
+			void					TextureRect(const M::Rect<>&rect,const GL::Texture::Reference&,const GL::Texture::Reference&);
+			void					TextureRect(const M::Rect<>&rect, const M::Rect<>&texCoordRect,const GL::Texture::Reference&,const GL::Texture::Reference&);
+			void					TextureQuad(const M::TVec2<>&p0, const M::TVec2<>&p1, const M::TVec2<>&p2, const M::TVec2<>&p3, const GL::Texture::Reference&);
+			void					TextureQuad(const M::TVec2<>&p0, const M::TVec2<>&p1, const M::TVec2<>&p2, const M::TVec2<>&p3, const GL::Texture::Reference&, const GL::Texture::Reference&);
 
 			void					PushColor();
 			void					PopColor();
@@ -309,18 +309,18 @@ namespace Engine
 		private:
 			static GLShader::Instance	normalRenderer;
 			static GLShader::Variable	normalSystemVariable;
-			TMatrix3<>				normalSystem;
-			Buffer<TMatrix3<>,0>	normalSystemStack;
+			M::TMatrix3<>				normalSystem;
+			Buffer<M::TMatrix3<>,0>	normalSystemStack;
 
 			void					_UpdateState(const GL::Texture::Reference&);
 		public:
 			/**/					NormalRenderer() : Renderer(0.5f,0.5f,1.f)	{}
 
 			void					ScaleNormals(float x, float y);
-			void					ScaleNormals(const TVec2<>&);
+			void					ScaleNormals(const M::TVec2<>&);
 			void					ScaleNormals(float x, float y, float z);
-			void					ScaleNormals(const TVec3<>&);
-			void					TransformNormals(const TMatrix3<>&);
+			void					ScaleNormals(const M::TVec3<>&);
+			void					TransformNormals(const M::TMatrix3<>&);
 
 			void					PushNormalMatrix();
 			void					PopNormalMatrix();
@@ -328,9 +328,9 @@ namespace Engine
 
 			void					Paint(const TFreeCell&, bool invertNormals);
 
-			void					TextureRect(const Rect<>&rect,const GL::Texture::Reference&);
-			void					TextureRect(const Rect<>&rect, const Rect<>&texCoordRect,const GL::Texture::Reference&);
-			void					TextureQuad(const TVec2<>&p0, const TVec2<>&p1, const TVec2<>&p2, const TVec2<>&p3, const GL::Texture::Reference&);
+			void					TextureRect(const M::Rect<>&rect,const GL::Texture::Reference&);
+			void					TextureRect(const M::Rect<>&rect, const M::Rect<>&texCoordRect,const GL::Texture::Reference&);
+			void					TextureQuad(const M::TVec2<>&p0, const M::TVec2<>&p1, const M::TVec2<>&p2, const M::TVec2<>&p3, const GL::Texture::Reference&);
 
 			void					MarkNewLayer();
 	
@@ -391,7 +391,7 @@ namespace Engine
 				//shared_ptr<Component>			caught_by;		//!< Component that actually caught the event
 			};
 
-			Rect<float>							currentRegion;	//!< Current component region. This rectangle completely surrounds the component including all cells of its layout (if any)
+			M::Rect<float>							currentRegion;	//!< Current component region. This rectangle completely surrounds the component including all cells of its layout (if any)
 			Quad<float>							offset;			//!< Signed offset from the parent region. Effective only if @b anchored.coord[x] is true. should be negative for right/top offset
 			Quad<bool>							anchored;		//!< Indicates that the respective coordinates of the final component region is calculated relative to the respective parent edge.
 			float								width,			//!< Fixed component width if either anchored.left or anchored.right is false. Has no effect if both anchored.left and anchored.right are true
@@ -407,7 +407,7 @@ namespace Engine
 				
 												Component(const String&typeName);	//!< Constructs a new component. Requires a typeName
 			virtual								~Component();
-			virtual	void						UpdateLayout(const Rect<float>&parentRegion);	//!< Updates the applied layout and possibly existing other components to the changed parent region rectangle. Also updates @b current_region @param parent_region Absolute location of the respective parent component or window
+			virtual	void						UpdateLayout(const M::Rect<float>&parentRegion);	//!< Updates the applied layout and possibly existing other components to the changed parent region rectangle. Also updates @b current_region @param parent_region Absolute location of the respective parent component or window
 			virtual	float						GetClientMinWidth()	const	{return 0;}			//!< Queries the minimum width of the inner content of this component (excluding the minimum size of the layout)
 			virtual	float						GetClientMinHeight()	const	{return 0;}			//!< Queries the minimum height of the inner content of this component (excluding the minimum size of the layout)
 			virtual	float						GetMinWidth(bool includeOffsets)	const;			//!< Queries the effective minimum width of this component	@param includeOffsets Set true to also include anchor offsets @return Minimum width of this component
@@ -439,7 +439,7 @@ namespace Engine
 			virtual	count_t						CountChildren()	const {return 0;}											//!< Queries the number of children of this component (if any) @return Number of children
 			virtual	index_t						GetIndexOfChild(const PComponent&child) const;							//!< Determines the index of the specified child or 0xFFFFFFFF if the specified component is no child of this component.
 			PComponent							GetSuccessorOfChild(const PComponent&child);									//!< Queries the successor element of the specified one @return successor or NULL if no successor could be found
-			void								Locate(const Rect<float>&parentRegion,Rect<float>&region)	const;	//!< Resolves the absolute location of the local item based on the specified parent region.
+			void								Locate(const M::Rect<float>&parentRegion,M::Rect<float>&region)	const;	//!< Resolves the absolute location of the local item based on the specified parent region.
 			virtual void						SetEnabled(bool enabled);				//!< Enables/disables the ability of this component to receive events. Disabled components may have a different style. A redraw is automatically issued
 			bool								IsEnabled()	const	{return enabled;}
 			virtual void						SetVisible(bool visible);				//!< Changes the visibility of this component. A redraw is automatically issued
@@ -464,7 +464,7 @@ namespace Engine
 		struct TIcon
 		{
 			float								aspect;	//!< Pixel aspect (width/height) of the icon
-			Rect<float>							texcoords;	//!< Texture coordinates of the icon in the specified texture
+			M::Rect<float>							texcoords;	//!< Texture coordinates of the icon in the specified texture
 			OpenGL::Texture						texture;	//!< Effective (color) texture
 		};
 
@@ -496,14 +496,14 @@ namespace Engine
 		class WindowPosition
 		{
 		public:
-			TVec2<>			center;	//!< Window center position in pixels relative to the center of the screen. Actual size depending on to the current display resolution. (0,0) always points to the center of the screen. Defaults to (0,0)
-			TVec2<>			size;	//!< Window size (x = width, y = height) in pixels. Actual size depending on to the current display resolution. Must be > 0 at all times. Defaults to 100x100
+			M::TVec2<>			center;	//!< Window center position in pixels relative to the center of the screen. Actual size depending on to the current display resolution. (0,0) always points to the center of the screen. Defaults to (0,0)
+			M::TVec2<>			size;	//!< Window size (x = width, y = height) in pixels. Actual size depending on to the current display resolution. Must be > 0 at all times. Defaults to 100x100
 			SizeChange		sizeChange;
 			bool			fixedPosition;	//!< True if the position of the finished window should be unchangeable, false otherwise. Defaults to false.
 
-			/**/			WindowPosition(SizeChange sizeChange=SizeChange::Free, bool fixedPosition=false):sizeChange(sizeChange),fixedPosition(fixedPosition)	{Vec::clear(center);Vec::set(size,100);}
-			/**/			WindowPosition(const TVec2<>&center, const TVec2<>&size,SizeChange sizeChange=SizeChange::Free, bool fixedPosition=false):center(center),size(size),sizeChange(sizeChange),fixedPosition(fixedPosition)	{}
-			/**/			WindowPosition(float x, float y, float width, float height,SizeChange sizeChange=SizeChange::Free, bool fixedPosition=false):sizeChange(sizeChange),fixedPosition(fixedPosition)	{Vec::def(center,x,y); Vec::def(size,width,height);}
+			/**/			WindowPosition(SizeChange sizeChange=SizeChange::Free, bool fixedPosition=false):sizeChange(sizeChange),fixedPosition(fixedPosition)	{M::Vec::clear(center);M::Vec::set(size,100);}
+			/**/			WindowPosition(const M::TVec2<>&center, const M::TVec2<>&size,SizeChange sizeChange=SizeChange::Free, bool fixedPosition=false):center(center),size(size),sizeChange(sizeChange),fixedPosition(fixedPosition)	{}
+			/**/			WindowPosition(float x, float y, float width, float height,SizeChange sizeChange=SizeChange::Free, bool fixedPosition=false):sizeChange(sizeChange),fixedPosition(fixedPosition)	{M::Vec::def(center,x,y); M::Vec::def(size,width,height);}
 		};
 
 		class NewWindowConfig
@@ -563,9 +563,9 @@ namespace Engine
 				float				x,				//!< Central window X position (center point) in the range [-display.clientWidth()/2, display.clientWidth()/2]
 									y;				//!< Central window Y position (center point) in the range [-display.clientHeight()/2, display.clientHeight()/2]
 			#endif
-			TVec2<UINT>				exp;			//!< Current texture exponent along the respective axis
+			M::TVec2<UINT>				exp;			//!< Current texture exponent along the respective axis
 			Resolution				size;			//!< Window size
-			TVec2<>					fsize,			//!< Window size as float
+			M::TVec2<>					fsize,			//!< Window size as float
 									usage;			//!< Usage of the texture buffers in the respective direction (0-1)
 
 			float					progress;		//!< Animation progress from @b origin to @b destination (0-1)
@@ -602,8 +602,8 @@ namespace Engine
 			void					SetSize(float width, float height);				//!< Updates window dimensions
 			void					SetWidth(float width);							//!< Updates window width
 			void					SetHeight(float height);						//!< Updates window height
-			void					Drag(const TVec2<float>&d);								//!< Causes the window to move by the specified delta vector. The specified vector is modifable to allow the method to reduce it if dragging is not possible
-			void					DragResize(TVec2<float>&d,ClickResult::value_t resolved);	//!< Causes the window to be resized by the specified delta vector.  The specified vector is modifable to allow the method to reduce it if resizing is not possible
+			void					Drag(const M::TVec2<float>&d);								//!< Causes the window to move by the specified delta vector. The specified vector is modifable to allow the method to reduce it if dragging is not possible
+			void					DragResize(M::TVec2<float>&d,ClickResult::value_t resolved);	//!< Causes the window to be resized by the specified delta vector.  The specified vector is modifable to allow the method to reduce it if resizing is not possible
 			void					SignalMouseUp(float x, float y);						//!< Signals that the mouse has been released
 			ClickResult::value_t	Resolve(float x_, float y_, float&inner_x, float&inner_y);	//!< Resolves how a click would be handled given the current mouse position @param x_ Mouse x coordinate @param y_ Mouse y coordinate @param inner_x X coordinate of the resulting window relative mouse position @param inner_y Y coordinate of the resulting window relative mouse position @return Resolve result
 			void					RenderBuffers(Display<OpenGL>&display);							//!< Rerenders the window content into the buffers
@@ -679,10 +679,10 @@ namespace Engine
 			@param x Window relative x coordinate (-1 to 1)
 			@param y Window relative y coordinate (-1 to 1)
 			*/
-			void						project(Window*window, float x, float y, TVec2<float>&p)	const;
-			void						unproject(const TVec3<float>&f, TVec2<float>&p) const;	//f required to be normalized
+			void						project(Window*window, float x, float y, M::TVec2<float>&p)	const;
+			void						unproject(const M::TVec3<float>&f, M::TVec2<float>&p) const;	//f required to be normalized
 
-			void						unprojectMouse(TVec2<float>&p)	const;
+			void						unprojectMouse(M::TVec2<float>&p)	const;
 			void						render(const PWindow&window, float w, float h, bool is_menu);//!< Renders this window given the current display dimensions @param w Display width @param h Display Height @param is_menu True if this window is rendered as a menu, false otherwise
 			void						renderBox(const PWindow&window, float w, float h, bool is_menu);
 			float						radiusOf(index_t stack_layer)	const;

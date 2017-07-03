@@ -7,17 +7,17 @@ namespace DeltaWorks
 	bool			CompositeEntityTree::verbose(false),
 					EntityTree::verbose(false);
 
-
+	using namespace Math;
 
 	static bool		intersect(const CompositeEntityTree::Volume&a, const CompositeEntityTree::Volume&b, float sector_size)
 	{
-		TVec3<> dif;
+		M::TVec3<> dif;
 		Composite::sub(a.lower,b.upper,dif,sector_size);
-		if (Vec::oneGreater(dif,Vector<>::zero))
+		if (M::Vec::oneGreater(dif,Vector3<>::zero))
 			return false;
 	
 		Composite::sub(b.lower,a.upper,dif,sector_size);
-		if (Vec::oneGreater(dif,Vector<>::zero))
+		if (M::Vec::oneGreater(dif,Vector3<>::zero))
 			return false;
 	
 		return true;
@@ -26,12 +26,12 @@ namespace DeltaWorks
 
 	static bool		intersect(const Composite::Coordinates&e0, const Composite::Coordinates&e1, const CompositeEntityTree::Volume&b, float sector_size)
 	{
-		TVec3<double>	_e0,_e1,box_extend;
+		M::TVec3<double>	_e0,_e1,box_extend;
 		Composite::sub(e0,b.lower,_e0,sector_size);
 		Composite::sub(e1,b.lower,_e1,sector_size);
 		Composite::sub(b.upper,b.lower,box_extend,sector_size);
 
-		Box<double>	box(Vector<double>::zero,box_extend);
+		M::Box<double>	box(Vector3<double>::zero,box_extend);
 		return _oIntersectsBox(_e0, _e1, box);
 	}
 
@@ -40,11 +40,11 @@ namespace DeltaWorks
 	static bool		intersect(const EntityTree::Volume&a, const EntityTree::Volume&b)
 	{
 		return a.Intersects(b);
-		//TVec3<> dif;
-		//if (Vec::oneGreater(a.lower,b.upper))
+		//M::TVec3<> dif;
+		//if (M::Vec::oneGreater(a.lower,b.upper))
 		//	return false;
 		//
-		//if (Vec::oneGreater(b.lower,a.upper))
+		//if (M::Vec::oneGreater(b.lower,a.upper))
 		//	return false;
 		//
 		//return true;
@@ -329,7 +329,7 @@ namespace DeltaWorks
 			return c;
 		}
 		const Composite::Coordinates	edge[2] = {edge_point0,edge_point1};
-		//TVec3<double>			half;
+		//M::TVec3<double>			half;
 		//Composite::center(volume.lower,volume.upper,half,sector_size);
 		bool set[8] = {false,false,false,false,false,false,false,false};
 		BYTE define[3];
@@ -344,7 +344,7 @@ namespace DeltaWorks
 					BYTE k = define[0] *4+ define[1] *2 + define[2];
 					set[k] = true;
 				}
-		TVec3<double>	dir,p0,dsplit;
+		M::TVec3<double>	dir,p0,dsplit;
 		Composite::sub(edge_point1, edge_point0, dir, sector_size);
 		edge_point0.convertToAbsolute(p0,sector_size);
 		split.convertToAbsolute(dsplit,sector_size);
@@ -642,7 +642,7 @@ namespace DeltaWorks
 				}
 			hasChildren = false;
 		}
-		Vec::clear(split);
+		M::Vec::clear(split);
 
 		if (verbose)
 			std::cout << " determining center"<<std::endl;
@@ -654,10 +654,10 @@ namespace DeltaWorks
 			if (!intersect(volume,entity->volume))
 				continue;
 		
-			TVec3<> center = entity->volume.center();
-			//Vec::center(entity->volume.lower,entity->volume.upper,center);
+			M::TVec3<> center = entity->volume.center();
+			//M::Vec::center(entity->volume.lower,entity->volume.upper,center);
 		
-			Vec::add(split,center);
+			M::Vec::add(split,center);
 
 			if (!self)
 				entities << entity;
@@ -673,18 +673,18 @@ namespace DeltaWorks
 	
 			return;
 		}
-		Vec::div(split,entities.count());
+		M::Vec::div(split,entities.count());
 		if (verbose)
-			std::cout << " center is "<<Vec::toString(split)<<std::endl;
+			std::cout << " center is "<<M::Vec::toString(split)<<std::endl;
 	
 	
 		BYTE greatest(0),collapsed(0);
 		float greatest_range(0);
 	
-		TVec3<> min,max;
+		M::TVec3<> min,max;
 		volume.GetMin(min);
 		volume.GetMax(max);
-		TVec3<> new_split;
+		M::TVec3<> new_split;
 		for (BYTE k = 0; k < 3; k++)
 		{
 			if (verbose)
@@ -716,7 +716,7 @@ namespace DeltaWorks
 					Entity*object = entities[i];
 				
 					float upper,lower,separation;
-					const TFloatRange<>&axis = object->volume.axis[k];
+					const M::TFloatRange<>&axis = object->volume.axis[k];
 					lower = axis.min;
 					upper = axis.max;
 					separation = (upper-lower)/20;
@@ -874,7 +874,7 @@ namespace DeltaWorks
 		}
 	}
 
-	count_t EntityTree::_RecursionEnd(const TVec3<>&edge_point0, const TVec3<>&edge_point1, C::Buffer<Entity*>&buffer)
+	count_t EntityTree::_RecursionEnd(const M::TVec3<>&edge_point0, const M::TVec3<>&edge_point1, C::Buffer<Entity*>&buffer)
 	{
 		count_t c = 0;
 		for (index_t i = 0; i < entities.count(); i++)
@@ -889,16 +889,16 @@ namespace DeltaWorks
 		return c;
 	}
 
-	count_t	EntityTree::_RecursiveLookup(const TVec3<>&p0, const TVec3<>&p1, C::Buffer<Entity*>&buffer)
+	count_t	EntityTree::_RecursiveLookup(const M::TVec3<>&p0, const M::TVec3<>&p1, C::Buffer<Entity*>&buffer)
 	{
 		const count_t cnt = entities.count();
 		if (!cnt)
 			return 0;
 		if (!level)
 			return _RecursionEnd(p0,p1,buffer);
-		const TVec3<>	edge[2] = {p0,p1};
-		//TVec3<>			half;
-		//Vec::center(volume.min,volume.max,half);
+		const M::TVec3<>	edge[2] = {p0,p1};
+		//M::TVec3<>			half;
+		//M::Vec::center(volume.min,volume.max,half);
 		bool set[8] = {false,false,false,false,false,false,false,false};
 		BYTE define[3];
 
@@ -910,14 +910,14 @@ namespace DeltaWorks
 					BYTE k = define[0] *4+ define[1] *2 + define[2];
 					set[k] = true;
 				}
-		TVec3<>	dir;
-		Vec::subtract(p1, p0, dir);
+		M::TVec3<>	dir;
+		M::Vec::subtract(p1, p0, dir);
 		for (BYTE k = 0; k < 3; k++)
 			if (dir.v[k])
 			{
 				BYTE	x = (k+1)%3,
 						y = (k+2)%3;
-				TVec3<> corner[2] = {volume.min(),volume.max()};
+				M::TVec3<> corner[2] = {volume.min(),volume.max()};
 				for (BYTE j = 0; j < 2; j++)
 				{
 					define[k] = j;
@@ -1073,7 +1073,7 @@ namespace DeltaWorks
 		_RecursiveRemap(source);
 	}
 
-	void	EntityTree::Lookup(const TVec3<>&edge_point0, const TVec3<>&edge_point1, C::Buffer<Entity*>&out)
+	void	EntityTree::Lookup(const M::TVec3<>&edge_point0, const M::TVec3<>&edge_point1, C::Buffer<Entity*>&out)
 	{
 		_RecursiveLookup(edge_point0,edge_point1, out);
 	}
@@ -1139,7 +1139,7 @@ namespace DeltaWorks
 		return level;
 	}
 
-	const TVec3<>&								EntityTree::GetSplitVector()	const
+	const M::TVec3<>&								EntityTree::GetSplitVector()	const
 	{
 		return split;
 	}

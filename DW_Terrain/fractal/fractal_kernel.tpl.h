@@ -24,19 +24,19 @@ namespace Fractal
 
 	namespace Height
 	{
-		inline	void	applyDifferentially(const TVec3<SSE_VECTOR>&current_position, const SSE_VECTOR&current_height, const SSE_VECTOR&target_height,TVec3<>&p0, TVec3<>&p1, TVec3<>&p2, TVec3<>&p3, const TSurfaceSegment&segment, const TContext&context)
+		inline	void	applyDifferentially(const M::TVec3<SSE_VECTOR>&current_position, const SSE_VECTOR&current_height, const SSE_VECTOR&target_height,M::TVec3<>&p0, M::TVec3<>&p1, M::TVec3<>&p2, M::TVec3<>&p3, const TSurfaceSegment&segment, const TContext&context)
 		{
 			SSE_VECTOR	delta = (target_height - current_height)*context.sse_variance;
 			
-			TVec3<SSE_VECTOR> vd = {
+			M::TVec3<SSE_VECTOR> vd = {
 								current_position.x + _mm_set1_ps((float)segment.sector.x*context.sector_size),
 								current_position.y + _mm_set1_ps((float)segment.sector.y*context.sector_size),
 								current_position.z + _mm_set1_ps((float)segment.sector.z*context.sector_size)
 							};
 			SSE_VECTOR	factor = _mm_rsqrt_ps( vd.x*vd.x + vd.y*vd.y + vd.z*vd.z)*delta;
 			
-			TVec3<SSE_VECTOR> final;
-			Vec::mad(current_position,vd,factor,final);
+			M::TVec3<SSE_VECTOR> final;
+			M::Vec::mad(current_position,vd,factor,final);
 
 			ALIGNED16 float interchange[4];
 
@@ -60,60 +60,60 @@ namespace Fractal
 			p3.z = interchange[3];
 		}
 
-		inline	void	applyDifferentially(TVec3<>&vector,float current_height, float target_height, const TSurfaceSegment&surface, const TContext&context)
+		inline	void	applyDifferentially(M::TVec3<>&vector,float current_height, float target_height, const TSurfaceSegment&surface, const TContext&context)
 		{
-			TVec3<>	direction=
+			M::TVec3<>	direction=
 			{
 				vector.x + (float)surface.sector.x*context.sector_size,
 				vector.y + (float)surface.sector.y*context.sector_size,
 				vector.z + (float)surface.sector.z*context.sector_size
 			};
 
-			Vec::normalize(direction);
+			M::Vec::normalize(direction);
 			//dvNormalize(direction);
 
-			Vec::mad(vector,direction,(target_height-current_height)*context.variance);
+			M::Vec::mad(vector,direction,(target_height-current_height)*context.variance);
 		}
 
-		inline	void	apply(TVec3<>&vector, float scaled_relative_height, const TSurfaceSegment&surface, const TContext&context)
+		inline	void	apply(M::TVec3<>&vector, float scaled_relative_height, const TSurfaceSegment&surface, const TContext&context)
 		{
-			TVec3<> direction=
+			M::TVec3<> direction=
 			{
 				vector.x + (float)surface.sector.x*context.sector_size,
 				vector.y + (float)surface.sector.y*context.sector_size,
 				vector.z + (float)surface.sector.z*context.sector_size
 			};
 
-			Vec::normalize(direction);
+			M::Vec::normalize(direction);
 
 
 
-			TVec3<> p;
-			Vec::mult(direction,context.base_heightf,p);
+			M::TVec3<> p;
+			M::Vec::mult(direction,context.base_heightf,p);
 			p.x -= context.sector_size*surface.sector.x;
 			p.y -= context.sector_size*surface.sector.y;
 			p.z -= context.sector_size*surface.sector.z;
 			
-			Vec::mad(p,direction,scaled_relative_height,vector);
+			M::Vec::mad(p,direction,scaled_relative_height,vector);
 		}
 
 
 	}
 
-	inline	void	resolveDirection(const TVec3<float>&vector, const TSurfaceSegment&surface, const TContext&context, TVec3<float>&out)
+	inline	void	resolveDirection(const M::TVec3<float>&vector, const TSurfaceSegment&surface, const TContext&context, M::TVec3<float>&out)
 	{
 		out.x = vector.x + (float)surface.sector.x*context.sector_size;
 		out.y = vector.y + (float)surface.sector.y*context.sector_size;
 		out.z = vector.z + (float)surface.sector.z*context.sector_size;
-		Vec::normalize(out);
+		M::Vec::normalize(out);
 	}	
 
-	inline	void	resolveDirection(const float vector[3], const TSurfaceSegment&surface, const TContext&context, TVec3<float>&out)
+	inline	void	resolveDirection(const float vector[3], const TSurfaceSegment&surface, const TContext&context, M::TVec3<float>&out)
 	{
 		out.x = vector[0] + (float)surface.sector.x*context.sector_size;
 		out.y = vector[1] + (float)surface.sector.y*context.sector_size;
 		out.z = vector[2] + (float)surface.sector.z*context.sector_size;
-		Vec::normalize(out);
+		M::Vec::normalize(out);
 	}	
 	
 	inline	void	resolveDirection(const float vector[3], const TSurfaceSegment&surface, const TContext&context, float out[3])
@@ -121,13 +121,13 @@ namespace Fractal
 		out[0] = vector[0] + (float)surface.sector.x*context.sector_size;
 		out[1] = vector[1] + (float)surface.sector.y*context.sector_size;
 		out[2] = vector[2] + (float)surface.sector.z*context.sector_size;
-		Vec::normalize(Vec::ref3(out));
+		M::Vec::normalize(M::Vec::ref3(out));
 	}	
 	
 	
-	inline void		resolveDirectionBlock(const TVec3<>&p0, const TVec3<>&p1, const TVec3<>&p2, const TVec3<>&p3, 
+	inline void		resolveDirectionBlock(const M::TVec3<>&p0, const M::TVec3<>&p1, const M::TVec3<>&p2, const M::TVec3<>&p3, 
 											const TSurfaceSegment&segment, const TContext&context, 
-											TVec3<>&out0, TVec3<>&out1, TVec3<>&out2, TVec3<>&out3)
+											M::TVec3<>&out0, M::TVec3<>&out1, M::TVec3<>&out2, M::TVec3<>&out3)
 	{
 		SSE_VECTOR	px = SSE_DEFINE4(p0.x,p1.x,p2.x,p3.x)+SSE_DEFINE1((float)segment.sector.x*context.sector_size),
 					py = SSE_DEFINE4(p0.y,p1.y,p2.y,p3.y)+SSE_DEFINE1((float)segment.sector.y*context.sector_size),
@@ -156,7 +156,7 @@ namespace Fractal
 
 	inline void		resolveDirectionBlock(const float p0[3], const float p1[3], const float p2[3], const float p3[3], 
 											const TSurfaceSegment&segment, const TContext&context, 
-											TVec3<>&out0, TVec3<>&out1, TVec3<>&out2, TVec3<>&out3)
+											M::TVec3<>&out0, M::TVec3<>&out1, M::TVec3<>&out2, M::TVec3<>&out3)
 	{
 		SSE_VECTOR	px = SSE_DEFINE4(p0[0],p1[0],p2[0],p3[0])+SSE_DEFINE1((float)segment.sector.x*context.sector_size),
 					py = SSE_DEFINE4(p0[1],p1[1],p2[1],p3[1])+SSE_DEFINE1((float)segment.sector.y*context.sector_size),
@@ -464,7 +464,7 @@ namespace Fractal
 		#if SSE_COORDINATES
 			float distance = SSE::floatDistance(p0.position,p1.position);	
 		#else
-			float distance = Vec::distance(p0.position,p1.position);
+			float distance = M::Vec::distance(p0.position,p1.position);
 		#endif
 		
 		
@@ -655,7 +655,7 @@ namespace Fractal
 	
 	inline void		generate3center(const TVertex&p0, const TVertex&p1, const TVertex&p2, VMOD TVertex&result, unsigned seed, const TSurfaceSegment&surface, const TContext&context, const TCrater*crater_field, count_t crater_count)
 	{
-		Vec::center(p0.position, p1.position, result.position);
+		M::Vec::center(p0.position, p1.position, result.position);
 
 		generate3inner(p0,p1,p2,result,seed,surface,context,crater_field,crater_count);
 	}
@@ -663,7 +663,7 @@ namespace Fractal
 
 	inline void		generate4inner(const TVertex&p0, const TVertex&p1, const TVertex&p2, const TVertex&p3, VMOD TVertex&result, int seed, const TSurfaceSegment&surface, const TContext&context, const TCrater*crater_field, count_t crater_count)
 	{
-		float distance = Vec::distance(p0.position,p1.position);
+		float distance = M::Vec::distance(p0.position,p1.position);
 
 		
 		float noise = getNoise(distance,surface,context);
@@ -797,16 +797,16 @@ namespace Fractal
 	
 	inline void		generate4center(const TVertex&p0, const TVertex&p1, const TVertex&p2, const TVertex&p3, VMOD TVertex&result, unsigned seed, const TSurfaceSegment&surface, const TContext&context, const TCrater*crater_field, count_t crater_count)
 	{
-		Vec::center(p0.position, p1.position, result.position);
+		M::Vec::center(p0.position, p1.position, result.position);
 		generate4inner(p0,p1,p2,p3, result,seed,surface,context,crater_field,crater_count);
 	}
 	
 	inline	void		compileVBOVertex(const TVertex&vertex, const TVertexDescriptor&info, const TVBOCompileParameter&parameter, float out[TSurfaceSegment::floats_per_vbo_vertex])
 	{
-		Vec::ref3(out) = vertex.position;
+		M::Vec::ref3(out) = vertex.position;
 		out[3] = vertex.height;//*context.variance;
 				
-		resolveDirection(vertex.position,*parameter.segment,*parameter.context,Vec::ref3(out+4));
+		resolveDirection(vertex.position,*parameter.segment,*parameter.context,M::Vec::ref3(out+4));
 		out[7] = (float)info.x*parameter.coord_stretch;
 		out[8] = parameter.coord_base+(float)info.y*parameter.coord_stretch;
 	}
@@ -819,7 +819,7 @@ namespace Fractal
 		resolveDirection(vertex.position,surface,context,vout.up);
 		
 		vout.normal = vertex.normal;
-		Vec::normalize(vout.normal);
+		M::Vec::normalize(vout.normal);
 		
 		
 
@@ -832,7 +832,7 @@ namespace Fractal
 			* snow is water too. if you increase snow due to lack of temperature, increase water too
 		*/
 		
-		vout.planarity = Vec::dot(vout.normal,vout.up);
+		vout.planarity = M::Vec::dot(vout.normal,vout.up);
 		vout.temperature = (1.0f-sqr(vout.up.y))*context.temperature;
 		float	//surficial = dbLinearStep(vertex.height,-0.01f,0.0f),
 				snow_fade,
@@ -1018,13 +1018,13 @@ namespace Fractal
 	
 	*/
 	
-	inline void	resolveCraterDelta(const TVec3<>&p, const TCrater&crater, float&imprint, float&strength)
+	inline void	resolveCraterDelta(const M::TVec3<>&p, const TCrater&crater, float&imprint, float&strength)
 	{
 		//return 0;
-		TVec3<>	d1,radial;
-		Vec::subtract(crater.base,p,d1);
-		Vec::cross(crater.orientation,d1,radial);
-		float x0 = Vec::length(radial)/crater.radius*2.0f-1.0f;
+		M::TVec3<>	d1,radial;
+		M::Vec::subtract(crater.base,p,d1);
+		M::Vec::cross(crater.orientation,d1,radial);
+		float x0 = M::Vec::length(radial)/crater.radius*2.0f-1.0f;
 		if (x0 > 1)
 		{
 			imprint = 0;
@@ -1051,10 +1051,10 @@ namespace Fractal
 		ALIGNED16 static const SSE_VECTOR c0 = _mm_set1_ps(2.8f),
 									c1 = _mm_set1_ps(2.026944824306054581095813539164f),
 									c2 = _mm_set1_ps(0.27609113417640907818006659315573f);
-		TVec3<SSE_VECTOR>	d1={crater.base.x-x, crater.base.y-y, crater.base.z-z},
+		M::TVec3<SSE_VECTOR>	d1={crater.base.x-x, crater.base.y-y, crater.base.z-z},
 							radial;
 		//_subtract(crater.base,p,d1);
-		Vec::cross(crater.orientation,d1,radial);
+		M::Vec::cross(crater.orientation,d1,radial);
 		SSE_VECTOR	x0 = _mm_max_ps(_mm_min_ps(_mm_sqrt_ps(radial.x*radial.x+radial.y*radial.y+radial.z*radial.z)/crater.radius*SSE::two-SSE::one,SSE::one),SSE::zero);
 		
 		//return (x0-SSE::one)*crater.depth;

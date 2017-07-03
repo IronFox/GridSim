@@ -30,7 +30,7 @@ namespace Engine
 				
 				void				setResolution(unsigned res);
 		public:
-				TVec3<float>		color;
+				M::TVec3<float>		color;
 				String				name;
 		
 									Group();
@@ -54,7 +54,7 @@ namespace Engine
 				void				set(const String name, float red, float green, float blue)
 									{
 										this->name = name;
-										Vec::def(color,red,green,blue);
+										M::Vec::def(color,red,green,blue);
 									}
 		};
 		
@@ -151,7 +151,7 @@ namespace Engine
 				void				generateColor(index_t channel_index);
 		public:
 				Timer::Time			total;		//!< Total time accumulated by this channel
-				TVec3<float>		color;
+				M::TVec3<float>		color;
 				String				name;
 				Array<float,Primitive>
 									history,	//!< History of average time consumptions
@@ -171,7 +171,7 @@ namespace Engine
 				void				set(const String name, float red, float green, float blue)
 									{
 										this->name = name;
-										Vec::def(color,red,green,blue);
+										M::Vec::def(color,red,green,blue);
 									}
 		};
 
@@ -242,16 +242,16 @@ namespace Engine
 				float			width,
 								height,
 								depth;
-				TMatrix4<>		system;
+				M::TMatrix4<>		system;
 
-				Array<TVec3<> >text_location;
+				Array<M::TVec3<> >text_location;
 		
-		static	TVec3<>			light,
+		static	M::TVec3<>			light,
 								background;
 								
 								C3dGraph(Data*data_=&time_data):Graph(data_),width(1),height(1),depth(1)
 								{
-									system = Matrix<>::eye4;
+									system = M::Matrix<>::eye4;
 
 									frame.select(SimpleGeometry::Lines);
 									frame.color(1,1,1,0.5);
@@ -406,7 +406,7 @@ namespace Engine
 
 					
 					
-					void								addRow(const TVec3<>&color, unsigned res);
+					void								addRow(const M::TVec3<>&color, unsigned res);
 			public:
 					bool								caption_left;
 					
@@ -441,9 +441,9 @@ namespace Engine
 
 					
 					
-					void								addLineRow(const TVec3<>&color);
-					void								addMaxRow(const TVec3<>&color);
-					void								addRow(const TVec3<>&color);
+					void								addLineRow(const M::TVec3<>&color);
+					void								addMaxRow(const M::TVec3<>&color);
+					void								addRow(const M::TVec3<>&color);
 			public:
 					bool								caption_left;
 					
@@ -478,7 +478,7 @@ namespace Engine
 					String								str_current;
 					
 					
-					void								addRow(const TVec3<>&color, float depth);
+					void								addRow(const M::TVec3<>&color, float depth);
 			public:
 					
 														StairGraph(Data*data_=&time_data);

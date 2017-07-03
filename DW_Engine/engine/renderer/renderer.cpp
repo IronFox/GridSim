@@ -11,7 +11,7 @@ namespace Engine
 {
 
 	TVisualConfig         	default_buffer_config={24,24,0,0,8,0,0,0};
-	TMatrix4<float>         environment_matrix={1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1};
+	M::TMatrix4<float>         environment_matrix={1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1};
 	bool                    erase_unused_textures(true);
 
 

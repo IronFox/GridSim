@@ -27,7 +27,7 @@ namespace Engine
 				unsigned		width,
 								height,
 								yoffset;
-				Rect<float>		texcoords;
+				M::Rect<float>		texcoords;
 			};
 			
 	        GLuint              base,		//!< Display list base used to store the final characters

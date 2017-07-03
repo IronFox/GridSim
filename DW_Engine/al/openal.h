@@ -47,7 +47,7 @@ namespace Engine
 		struct TSourceData
 		{
 			ALuint			handle=0;
-			TVec3<>			position;
+			M::TVec3<>			position;
 			bool			isRelative=false,
 							wantsToPlay=false,
 							isPaused=false,
@@ -106,13 +106,13 @@ namespace Engine
 			bool			IsPaused()	const;
 			void			SetLooping(bool do_loop);
 			bool			IsLooping()	const;
-			void			SetVelocity(const TVec3<>&velocity);
+			void			SetVelocity(const M::TVec3<>&velocity);
 			void			SetVelocity(float x, float y, float z);
-			void			GetVelocity(TVec3<>&velocity_out)	const;
+			void			GetVelocity(M::TVec3<>&velocity_out)	const;
 			void			SetPosition(float x, float y, float z, bool relative=false);
-			void			SetPosition(const TVec3<>&position, bool relative=false);
-			void			GetLocation(TVec3<>&positionOut);
-			inline void		GetPosition(TVec3<>&positionOut)	{GetLocation(positionOut);}
+			void			SetPosition(const M::TVec3<>&position, bool relative=false);
+			void			GetLocation(M::TVec3<>&positionOut);
+			inline void		GetPosition(M::TVec3<>&positionOut)	{GetLocation(positionOut);}
 			bool			IsRelativeLocation()	const;
 			void			SetPitch(float pitch);
 			float			GetPitch()	const;
@@ -155,7 +155,7 @@ namespace Engine
 	
 	
 		bool				PlayOnce(float x, float y, float z, const WaveBuffer&buffer, float gain=1.f, float referenceDistance=1.f);
-		bool				PlayOnce(const TVec3<>&position, const WaveBuffer&buffer, float gain=1.f, float referenceDistance=1.f);
+		bool				PlayOnce(const M::TVec3<>&position, const WaveBuffer&buffer, float gain=1.f, float referenceDistance=1.f);
 	
 		/**
 		Signals OpenAL that a an existing window focus has been lost.
@@ -172,19 +172,19 @@ namespace Engine
 		{
 			void					CheckSources();	//!< Called by SetPosition automatically
 
-			void					SetOrientation(const TVec3<>&direction, const TVec3<>&up, bool negate_direction=false, bool negate_up=false);
-			const TVec3<>&			GetDirectionVector();
-			const TVec3<>&			GetUpVector();
+			void					SetOrientation(const M::TVec3<>&direction, const M::TVec3<>&up, bool negate_direction=false, bool negate_up=false);
+			const M::TVec3<>&			GetDirectionVector();
+			const M::TVec3<>&			GetUpVector();
 			void					SetVelocity(float x, float y, float z);
-			void					SetVelocity(const TVec3<>&velocity);
-			const TVec3<>&			GetVelocity();
+			void					SetVelocity(const M::TVec3<>&velocity);
+			const M::TVec3<>&			GetVelocity();
 			/**
 			Changes the listener position in the world.
 			This function doubles as a priority cleanup. It is assumed you call this function around once per frame.
 			*/
-			void					SetPosition(const TVec3<>&position);
-			const TVec3<>&			GetLocation();
-			inline const TVec3<>&	GetPosition()	{return GetLocation();}
+			void					SetPosition(const M::TVec3<>&position);
+			const M::TVec3<>&			GetLocation();
+			inline const M::TVec3<>&	GetPosition()	{return GetLocation();}
 			void					SetGain(float volume);
 
 			void					SetMaxPlayingSources(count_t);

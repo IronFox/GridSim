@@ -9,7 +9,7 @@
 namespace DeltaWorks
 {
 
-	struct TVertexIntPosition:public TVec3<__int64>	//!< Internal integer vertex position
+	struct TVertexIntPosition:public M::TVec3<__int64>	//!< Internal integer vertex position
 	{
 	
 		bool		operator!=(const TVertexIntPosition&other)	const
@@ -34,7 +34,7 @@ namespace DeltaWorks
 	class VertexTable:protected Container::GenericHashTable<TVertexIntPosition,index_t>
 	{
 	public:
-		typedef TVec3<>	TPosition;
+		typedef M::TVec3<>	TPosition;
 
 
 	protected:

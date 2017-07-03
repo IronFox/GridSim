@@ -45,11 +45,11 @@ namespace Engine
 	
 		bool				PlayOnce(float x, float y, float z, const WaveBuffer&buffer, float gain/*=1.f*/, float referenceDistance/*=1.f*/)
 		{
-			TVec3<>	field = {x,y,z};
+			M::TVec3<>	field = {x,y,z};
 			return PlayOnce(field,buffer,gain,referenceDistance);
 		}
 	
-		bool				PlayOnce(const TVec3<>&position, const WaveBuffer&buffer, float gain/*=1.f*/, float referenceDistance/*=1.f*/)
+		bool				PlayOnce(const M::TVec3<>&position, const WaveBuffer&buffer, float gain/*=1.f*/, float referenceDistance/*=1.f*/)
 		{
 			for (index_t i = 0; i < ARRAYSIZE(source_field); i++)
 			{
@@ -262,21 +262,21 @@ namespace Engine
 	
 		void	Source::SetVelocity(float x, float y, float z)
 		{
-			TVec3<> v = {x,y,z};
+			M::TVec3<> v = {x,y,z};
 			SetVelocity(v);
 		}
 	
-		void	Source::SetVelocity(const TVec3<>&velocity)
+		void	Source::SetVelocity(const M::TVec3<>&velocity)
 		{
 			alSourcefv(handle, AL_VELOCITY, velocity.v);
 		}
 	
-		void	Source::GetVelocity(TVec3<>&velocity_out)	const
+		void	Source::GetVelocity(M::TVec3<>&velocity_out)	const
 		{
 			alGetSourcefv(handle, AL_VELOCITY, velocity_out.v);
 		}
 	
-		void	Source::SetPosition(const TVec3<>&position, bool relative)
+		void	Source::SetPosition(const M::TVec3<>&position, bool relative)
 		{
 			alSourcefv(handle, AL_POSITION, position.v);
 			alSourcei(handle,AL_SOURCE_RELATIVE,relative?AL_TRUE:AL_FALSE);
@@ -286,11 +286,11 @@ namespace Engine
 	
 		void	Source::SetPosition(float x, float y, float z, bool relative)
 		{
-			TVec3<> v = {x,y,z};
+			M::TVec3<> v = {x,y,z};
 			SetPosition(v,relative);
 		}
 	
-		void	Source::GetLocation(TVec3<>&position_out)
+		void	Source::GetLocation(M::TVec3<>&position_out)
 		{
 			alGetSourcefv(handle, AL_POSITION,position_out.v);
 		}
@@ -535,7 +535,7 @@ namespace Engine
 		{
 			namespace Status
 			{
-				TVec3<> velocity,location;
+				M::TVec3<> velocity,location;
 				count_t	maxPlayingSources = 16;
 				float	baseVolume = 1.f;
 				bool (*reduceCallback)(count_t) = nullptr;
@@ -557,19 +557,19 @@ namespace Engine
 				Status::baseVolume = volume;
 			}
 
-			void			SetOrientation(const TVec3<float>&direction, const TVec3<float>&up, bool negate_direction, bool negate_up)
+			void			SetOrientation(const M::TVec3<float>&direction, const M::TVec3<float>&up, bool negate_direction, bool negate_up)
 			{
 				ALfloat field[6];
-				TVec3<float>	&d = Vec::ref3(field),
-								&u = Vec::ref3(field+3);
+				M::TVec3<float>	&d = M::Vec::ref3(field),
+								&u = M::Vec::ref3(field+3);
 				d = direction;
 				u = up;
-				Vec::normalize0(d);
-				Vec::normalize0(u);
+				M::Vec::normalize0(d);
+				M::Vec::normalize0(u);
 				if (negate_direction)
-					Vec::mult(d,-1);
+					M::Vec::mult(d,-1);
 				if (negate_up)
-					Vec::mult(u,-1);
+					M::Vec::mult(u,-1);
 				//field[2] *= -1;
 				//field[5] *= -1;
 				alListenerfv(AL_ORIENTATION,field);
@@ -577,36 +577,36 @@ namespace Engine
 			
 			static float field[6];
 			
-			const TVec3<>&	GetDirectionVector()
+			const M::TVec3<>&	GetDirectionVector()
 			{
 				alGetListenerfv(AL_ORIENTATION,field);
-				return Vec::ref3(field);
+				return M::Vec::ref3(field);
 			}
 			
-			const TVec3<>&	GetUpVector()
+			const M::TVec3<>&	GetUpVector()
 			{
 				alGetListenerfv(AL_ORIENTATION,field);
-				return Vec::ref3(field+3);
+				return M::Vec::ref3(field+3);
 			}
 			void			SetVelocity(float x, float y, float z)
 			{
-				TVec3<> v = {x,y,z};
+				M::TVec3<> v = {x,y,z};
 				SetVelocity(v);
 			}
 			
-			void			SetVelocity(const TVec3<>& velocity)
+			void			SetVelocity(const M::TVec3<>& velocity)
 			{
 				alListenerfv(AL_VELOCITY,velocity.v);
 			}
 			
 			
-			const TVec3<>&	GetVelocity()
+			const M::TVec3<>&	GetVelocity()
 			{
 				alGetListenerfv(AL_VELOCITY,Status::velocity.v);
 				return Status::velocity;
 			}
 			
-			void			SetPosition(const TVec3<>&position)
+			void			SetPosition(const M::TVec3<>&position)
 			{
 				if (!OpenAL::Status::initialized)
 					return;
@@ -721,7 +721,7 @@ namespace Engine
 
 			}
 			
-			const TVec3<>&	GetLocation()
+			const M::TVec3<>&	GetLocation()
 			{
 				alGetListenerfv(AL_POSITION,Status::location.v);
 				return Status::location;
@@ -731,7 +731,7 @@ namespace Engine
 
 		void	Source::UpdatePriority()
 		{
-			float distance = isRelative ? Vec::length(position) : Vec::distance(position,Listener::Status::location);
+			float distance = isRelative ? M::Vec::length(position) : M::Vec::distance(position,Listener::Status::location);
 
 			float attenuation = refDistance / (refDistance + (rollOffFactor * (distance - refDistance)));
 

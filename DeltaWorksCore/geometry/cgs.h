@@ -134,7 +134,7 @@ namespace DeltaWorks
 
 
 
-		extern TVec4<>			ambient_default,	//!< Global default ambient material color
+		extern M::TVec4<>			ambient_default,	//!< Global default ambient material color
 								diffuse_default,	//!< Global default diffuse material color
 								specular_default,	//!< Global default specular material color
 								emission_default;	//!< Global default emission material color
@@ -220,7 +220,7 @@ namespace DeltaWorks
 
 		struct TAnimationStatus
 		{
-				TVec3<double>							translation,	//!< Translation vector
+				M::TVec3<double>							translation,	//!< Translation vector
 														rotation;		//!< Rotation momentum vector
 		};
 	
@@ -251,7 +251,7 @@ namespace DeltaWorks
 		template <class Def=StdDef>
 			struct TConnector	//! Static connector for NURBS tracks. Connectors are global objects.
 			{
-				TVec3<typename Def::PhFloatType>		p0,	//!< Connector beginning
+				M::TVec3<typename Def::PhFloatType>		p0,	//!< Connector beginning
 														p1,	//!< Connector end
 														direction;	//!< Connector direction
 			};
@@ -267,7 +267,7 @@ namespace DeltaWorks
 				};
 			
 				UINT32									flags;			//!< Usage flags
-				TVec3<typename Def::FloatType>			position,	//!< Relative mounting position (relative to the respective parent sub geometry)
+				M::TVec3<typename Def::FloatType>			position,	//!< Relative mounting position (relative to the respective parent sub geometry)
 														direction,	//!< Relative mounting (negative Z) direction
 														vertical,	//!< Relative vertical (positive Y) direction
 														dimension;	//!< Maximum attached width, height, and depth. The bounding box is described by -dimension/2 -> dimension/2
@@ -321,26 +321,26 @@ namespace DeltaWorks
 		class DimensionParser //! Structure used to determine the dimensions of a structure.
 		{
 		public:
-			Box<C>										dimension;	//!< Effective dimensions
+			M::Box<C>										dimension;	//!< Effective dimensions
 			bool										set;			//!< True if dimensions are defined
 
 														DimensionParser();
 			template <class C0>
 				void									parse(const C0 point[3]);	//!< Includes a point into the given dimension space
 			template <class C0>
-				void									parse(const TVec3<C0>&point);	//!< Includes a point into the given dimension space
+				void									parse(const M::TVec3<C0>&point);	//!< Includes a point into the given dimension space
 			template <class C0>
-				void									parse(const Box<C0>&box);	//!< Includes a box into the given dimension space
+				void									parse(const M::Box<C0>&box);	//!< Includes a box into the given dimension space
 		};
 
 		template <class Def>
 			struct TParticle	//! Particle definition. A particle is a rectangular textured face that faces the camera at all times.
 			{
-				TVec3<typename Def::FloatType>			center;		//!< Particle center (relative to the respective parent system)
+				M::TVec3<typename Def::FloatType>			center;		//!< Particle center (relative to the respective parent system)
 				typename Def::FloatType					width,		//!< Particle width
 														height,		//!< Particle height
 														z_angle;	//!< Rotation angle around the relative particle z-axis (-360..360)
-				TVec2<typename Def::FloatType>			texcoord[4];	//!< Particle texture coordinates in the order: lower left, lower right, upper right, upper left. Usually (0,0), (1,0), (1,1), (0,1)
+				M::TVec2<typename Def::FloatType>			texcoord[4];	//!< Particle texture coordinates in the order: lower left, lower right, upper right, upper left. Usually (0,0), (1,0), (1,1), (0,1)
 			};
 
 
@@ -358,7 +358,7 @@ namespace DeltaWorks
 					UINT32									vcnt,	//!< Total number of vertices in this vertex container
 															vflags,
 															vertex_crc;		//!< crc32 of the local vertex data
-					TVec3<typename Def::FloatType>			cage[8];		//!< Reserved for client usage (not filled or referenced by the internal CGS system)
+					M::TVec3<typename Def::FloatType>			cage[8];		//!< Reserved for client usage (not filled or referenced by the internal CGS system)
 			
 															VertexContainerA();
 					void									updateCRC();	//!< Updates crc32 checksum on vertex change
@@ -487,7 +487,7 @@ namespace DeltaWorks
 		public:
 			bool										alpha_test,			//!< Set true if the local material is masked (transparency tested). Masked material fragments are either fully opaque or invisible but never blended.
 														fully_reflective;	//!< Set true to apply any environment map everywhere on the material. All other material properties are ignored
-			TVec4<float>								ambient,			//!< Material ambient color. The last component is supposed to be 1.
+			M::TVec4<float>								ambient,			//!< Material ambient color. The last component is supposed to be 1.
 														diffuse,			//!< Material diffuse color. The last component is supposed to be 1.
 														specular,			//!< Material specular color. The last component is supposed to be 1.
 														emission;			//!< Material emission. The last component is supposed to be 1.
@@ -728,7 +728,7 @@ namespace DeltaWorks
 		{
 				SubGeometryA<Def>						*domain;		//!< Link to the sub geometry that currently contains this wheel
 				String									name;			//!< Name of this wheel
-				TVec3<typename Def::PhFloatType>		position,		//!< 3d coordinates of the wheel center relative to the respective parent SubGeometry<Def> instance system.
+				M::TVec3<typename Def::PhFloatType>		position,		//!< 3d coordinates of the wheel center relative to the respective parent SubGeometry<Def> instance system.
 														contraction,	//!< Vector describing to what direction and extent the wheel moves during a suspension animation (relative to its base position and the respective parent system orientation)
 														axis;			//!< Wheel rotation axis (relative to the respective parent system orientation)
 													
@@ -765,13 +765,13 @@ namespace DeltaWorks
 				SubGeometryA<Def>						*domain;		//!< Link to the sub geometry that currently contains this accelerator
 				//name64_t								name;			//!< Accelerator name
 				String									name;
-				TVec3<typename Def::PhFloatType>		position,		//!< 3d coordinates of the accelerator base relative to the respective parent SubGeometry<Def> instance system.
+				M::TVec3<typename Def::PhFloatType>		position,		//!< 3d coordinates of the accelerator base relative to the respective parent SubGeometry<Def> instance system.
 														direction;		//!< Accelerator force direction (relative to the respective parent system orientation)
 				typename Def::PhFloatType				power,			//!< Maximum acceleration power
 														zero_efficiency;	//!< Accelerator efficiency in atmosphere-less environments [0,1]
 				typename Def::FloatType					flame_length,	//!< Optical flame length
 														flame_width;	//!< Optical flame diameter
-				TVec3<typename Def::FloatType>			flame_color;	//!< Flame base color
+				M::TVec3<typename Def::FloatType>			flame_color;	//!< Flame base color
 				UINT32									flags;			//!< Non-persistent general purpose flags
 			};
 
@@ -781,8 +781,8 @@ namespace DeltaWorks
 		template <class Def=StdDef>
 			struct TMetaInfo
 			{
-				TMatrix4<typename Def::SystemType>		system;		//!< System relative to the respective parent system
-				TVec3<typename Def::SystemType>			center;		//!< Mass center relative to the local system matrix
+				M::TMatrix4<typename Def::SystemType>		system;		//!< System relative to the respective parent system
+				M::TVec3<typename Def::SystemType>			center;		//!< Mass center relative to the local system matrix
 				typename Def::SystemType				radius,			//!< Average mass distribution from center relative to the local system matrix
 														volume,			//!< Volume of the local SubGeometry<Def>
 														density;		//!< Material density to calculate the local weight
@@ -857,17 +857,17 @@ namespace DeltaWorks
 				void									postCopyLink(Geometry<Def>*domain);
 
 				template <class C>
-				bool									extractDimensions(const TMatrix4<typename Def::SystemType>&system, DimensionParser<C>&parser) const;
+				bool									extractDimensions(const M::TMatrix4<typename Def::SystemType>&system, DimensionParser<C>&parser) const;
 				void									checkLinkage();
 				template <class C>
 				void									extractAbsoluteRadius(C&radius) const;
 				template <class C>
-				void									extractAbsoluteRadius(const TVec3<C>&center, C&radius) const;
+				void									extractAbsoluteRadius(const M::TVec3<C>&center, C&radius) const;
 				template <class C>
 				void									extractRadiusRec(C&radius) const;
 				template <class C>
-				void									extractRadiusRec(const TVec3<C>&center, C&radius) const;
-				void									setSystemRec(const TMatrix4<typename Def::SystemType>&system);
+				void									extractRadiusRec(const M::TVec3<C>&center, C&radius) const;
+				void									setSystemRec(const M::TMatrix4<typename Def::SystemType>&system);
 				void									resetLinkageRec();
 				void									toInstance(StaticSubInstanceA<Def>&tree);
 				void									toInstance(AnimatableSubInstanceA<Def>&tree);
@@ -897,7 +897,7 @@ namespace DeltaWorks
 				Ctr::Array<TWheel<Def> >								wheel_field;		//!< Wheels
 				String											name;				//!< Sub geometry name
 				TMetaInfo<Def>									meta;				//!< Sub geometry meta information
-				TMatrix4<typename Def::SystemType>			path,				//!< Local path (A path is the product of the local system and all parent systems and must be updated whenever one of the parent systems changed)
+				M::TMatrix4<typename Def::SystemType>			path,				//!< Local path (A path is the product of the local system and all parent systems and must be updated whenever one of the parent systems changed)
 																*system_link;		//!< Linked path. This pointer initially points to the local path variable but may be relinked to identify a different sub geometry instance of the local geometry.
 
 
@@ -916,7 +916,7 @@ namespace DeltaWorks
 
 			
 			template <class C>
-				bool									extractDimensions(Box<C>&dim) const;			//!< Determines the relative dimensions of the first visual detail layer of the local sub geometry instance (non recursive) \param dim Dimension field to store the visual dimensions in \return true if the local visual hull contained at least one vertex, false otherwise
+				bool									extractDimensions(M::Box<C>&dim) const;			//!< Determines the relative dimensions of the first visual detail layer of the local sub geometry instance (non recursive) \param dim Dimension field to store the visual dimensions in \return true if the local visual hull contained at least one vertex, false otherwise
 			template <class C>
 				void									extractRadius(C&radius) const;				//!< Determines the local visual radius (distance between the point of origin an the furthest vertex) and stores it in out(non recursive) \param radius Out radius
 			template <class C>
@@ -963,7 +963,7 @@ namespace DeltaWorks
 					virtual		void					onSystemChange()=0;
 					};
 		
-					TMatrix4<T>						matrix;
+					M::TMatrix4<T>						matrix;
 					Callback							*const callback;
 			
 														System(Callback*callback);
@@ -978,35 +978,35 @@ namespace DeltaWorks
 				
 					inline void							setPosition(const T&x, const T&y, const T&z);			//!< Sets the local system base position \param x X-component of the new system position \param y Y-component of the new system position \param z Z-component of the new system position
 					inline void							setPositionNoCallback(const T&x, const T&y, const T&z);	//!< Identical to the above except that it does not execute the callback link
-					TMatrix4<T>*						getMatrix()	{return &matrix;}
+					M::TMatrix4<T>*						getMatrix()	{return &matrix;}
 				template <typename T2>
-					inline void							setPosition(const TVec3<T2>&point);							//!< Sets the local system base position \param point New system base position
+					inline void							setPosition(const M::TVec3<T2>&point);							//!< Sets the local system base position \param point New system base position
 				template <typename T2>
-					inline void							setPositionNoCallback(const TVec3<T2>&point);				//!< Identical to the above except that it does not execute the callback link
+					inline void							setPositionNoCallback(const M::TVec3<T2>&point);				//!< Identical to the above except that it does not execute the callback link
 					inline void							moveTo(const T&x, const T&y, const T&z);				//!< Identical to setPosition()
 					inline void							moveToNoCallback(const T&x, const T&y, const T&z);		//!< Identical to the above except that it does not execute the callback link
 				template <typename T2>
-					inline void							moveTo(const TVec3<T2>&point);								//!< Identical to setPosition()
+					inline void							moveTo(const M::TVec3<T2>&point);								//!< Identical to setPosition()
 				template <typename T2>
-					inline void							moveToNoCallback(const TVec3<T2>&point);					//!< Identical to the above except that it does not execute the callback link
+					inline void							moveToNoCallback(const M::TVec3<T2>&point);					//!< Identical to the above except that it does not execute the callback link
 				
 					inline void							translate(const T&x, const T&y, const T&z);				//!< Translates the local system matrix and executes the assigned callback link (if any) \param x Delta vector x component \param y Delta vector y component \param z Delta vector z component \param do_update Set true to automatically update path matrices of all local instance children when done
 					inline void							translateBy(const T&x, const T&y, const T&z);			//!< Identical to translate()
 					inline void							translateNoCallback(const T&x, const T&y, const T&z);	//!< Identical to translate() except that it does not execute the callback link
 				template <typename T2>
-					inline void							translate(const TVec3<T2>&vector);							//!< Translates the local system matrix and executes the assigned callback link (if any) \param vector Delta vector
+					inline void							translate(const M::TVec3<T2>&vector);							//!< Translates the local system matrix and executes the assigned callback link (if any) \param vector Delta vector
 				template <typename T2>
-					inline void							translateNoCallback(const TVec3<T2>&vector);				//!< Identical to the above except that it does not execute the callback link
+					inline void							translateNoCallback(const M::TVec3<T2>&vector);				//!< Identical to the above except that it does not execute the callback link
 				template <typename T2>
-					inline void							translate(const TVec3<T2>&vector, const T&factor);			//!< Translates the local system matrix and executes the assigned callback link (if any) \param vector Base delta vector \param factor Factor to scale \b vector by
+					inline void							translate(const M::TVec3<T2>&vector, const T&factor);			//!< Translates the local system matrix and executes the assigned callback link (if any) \param vector Base delta vector \param factor Factor to scale \b vector by
 				template <typename T2>
-					inline void							translateNoCallback(const TVec3<T2>&vector, const T&factor);//!< Identical to the above except that it does not execute the callback link
+					inline void							translateNoCallback(const M::TVec3<T2>&vector, const T&factor);//!< Identical to the above except that it does not execute the callback link
 					void								rotate(const T&angle, const T&axis_x,const T&axis_y, const T&axis_z);	//!< Rotates the axis vectors of the local system about an arbitrary axis and executes the assigned callback link (if any). The system base position is left unchanged. The given axis may be of any length greater 0. \param angle (360 degrees angle) \param axis_x X component of the rotation axis \param y Y component of the rotation axis \param z Z component of the rotation axis \param do_update Set true to automatically update path matrices of all local instance children when done
 					void								rotateNoCallback(const T&angle, const T&axis_x,const T&axis_y, const T&axis_z);	//!< Identical to the above except that it does not execute the callback link
 				template <typename T2>
-					void								rotate(const T&angle, const TVec3<T2>&axis);	//!< Rotates the axis vectors of the the local system about an arbitrary axis and executes the assigned callback link (if any). The system base position is left unchanged. The given axis is required to be normalized. \param angle (360 degrees angle) \param axis Normalized axis to rotate about \param do_update Set true to automatically update path matrices of all local instance children when done
+					void								rotate(const T&angle, const M::TVec3<T2>&axis);	//!< Rotates the axis vectors of the the local system about an arbitrary axis and executes the assigned callback link (if any). The system base position is left unchanged. The given axis is required to be normalized. \param angle (360 degrees angle) \param axis Normalized axis to rotate about \param do_update Set true to automatically update path matrices of all local instance children when done
 				template <typename T2>
-					void								rotateNoCallback(const T&angle, const TVec3<T2>&axis);	//!< Identical to the above except that it does not execute the callback link
+					void								rotateNoCallback(const T&angle, const M::TVec3<T2>&axis);	//!< Identical to the above except that it does not execute the callback link
 				
 					inline void							update()	//! Executes the assigned callback link (if any)
 														{
@@ -1055,7 +1055,7 @@ namespace DeltaWorks
 				Ctr::Array<MaterialA<Def>,Adopt>				material_field;		//!< Material field
 				String									info,				//!< Abstract info
 														xml;				//!< XML formated information
-				TMatrix4<typename Def::SystemType>	*system_link;		//!< Current system link
+				M::TMatrix4<typename Def::SystemType>	*system_link;		//!< Current system link
 				System<typename Def::SystemType>		root_system;		//!< Local system
 			
 
@@ -1118,7 +1118,7 @@ namespace DeltaWorks
 
 
 			template <class C>
-				bool									extractDimensions(Box<C>&dim)				const;				//!< Determines the visual dimensions of the local geometry. \param dim Dimension field to write the dimensions to \return true if the geometry is not empty and the dimensions could be extracted, false otherwise.
+				bool									extractDimensions(M::Box<C>&dim)				const;				//!< Determines the visual dimensions of the local geometry. \param dim Dimension field to write the dimensions to \return true if the geometry is not empty and the dimensions could be extracted, false otherwise.
 			template <class C>
 				void									extractRadius(C&radius)					const;				//!< Extracts the visual radius (the distance between the geometry point of origin and the furthest sub geometry vertex) of the local geometry
 			template <class C>
@@ -1127,7 +1127,7 @@ namespace DeltaWorks
 				void									extractShortestVisualEdgeLength(index_t layer, T&length)	const;
 			
 			template <class C>
-				C										extractRadiusAround(const TVec3<C>&center)	const;				//!< Determines the visual radius around a specific center
+				C										extractRadiusAround(const M::TVec3<C>&center)	const;				//!< Determines the visual radius around a specific center
 			template <class C>
 				void									resolveWeight(C&weight)					const;				//!< Calculates the weight of the local geometry based on the volumes of the children and their respective material densities. The result of this method is undefined if the volumes were not properly calculated
 				void									updateRadius();												//!< Updates the local visual radius variable
@@ -1135,7 +1135,7 @@ namespace DeltaWorks
 				void									scale(const C&factor);								//!< Scales the entire geometry (materials, objects, systems) by the specified factor. Normals are left unchanged.
 				void									swapComponents(BYTE c0, BYTE c1);					//!< Swaps the two specified coordinate components of the entire geometry (materials, objects, systems)
 			template <class C>
-				void									translate(const TVec3<C>&delta);						//!< Translates all local objects by the specified delta vector \param delta Vector to translate by
+				void									translate(const M::TVec3<C>&delta);						//!< Translates all local objects by the specified delta vector \param delta Vector to translate by
 				void									checkLinkage();										//!< Checks linkage pointers and throws an exception in case of an error
 				template <class Def0>
 				Geometry<Def>&							operator=(const Geometry<Def0>&other);
@@ -1178,7 +1178,7 @@ namespace DeltaWorks
 				void									makeSimpleObject(const Float*vertex,count_t vertices,count_t layers, const Index*index,count_t indices);	//!< Clears any existing local data and generates a simple triangular visual geometry with a number of pre-generated empty texture layers and one SubGeometry<Def> instance from the provided data \param vertex Float field. Each vertex is required to provide 3 elements for the position, 3 for the normal plus 2 for each layer. \param vertices Total number of vertices \param layers Number of (empty) texture layers that should be generated. \param index Index field. Each triangle requires three indices. \param indices Total number of indices (should be 3*number of triangles)
 				void									makeSphere(Float radius, count_t iterations);		//!< Clears any existing data and generates a simple textureless sphere \param radius Sphere radius \param iterations Sphere resolution. The more iterations, the higher the detail. Usually 5 means rather low, 50 means very high and everything above overkill.
 			template <typename T0>
-				void									makeBox(const Box<T0>&);	//!< Clears any existing data and generates a simple textureless box \param lower_corner Lower corner of the box \param upper_corner Upper corner of the box
+				void									makeBox(const M::Box<T0>&);	//!< Clears any existing data and generates a simple textureless box \param lower_corner Lower corner of the box \param upper_corner Upper corner of the box
 				void									makeBox(Float lower_x, Float lower_y, Float lower_z, Float upper_x, Float upper_y, Float upper_z);	//!< \overload
 				void									makePlane(Float width, Float depth, count_t x_segments, count_t z_segments);
 		//		String								difference(Geometry*other);
@@ -1240,7 +1240,7 @@ namespace DeltaWorks
 															}
 				
 				template <typename T0, typename T1, typename T2>
-					bool									detectOpticalIntersection(const TVec3<T0>&b, const TVec3<T1>&d, T2&distance)	const;	//!< Detects optical intersections of the local instance and the specified ray. \param b Base vector of the casting ray \param d Normalized direction vector of the casting ray \param distance In/out distance to the nearest intersection \return true if the ray intersects the local geometry at the location of the instance closer than the specified distance, false otherwise.
+					bool									detectOpticalIntersection(const M::TVec3<T0>&b, const M::TVec3<T1>&d, T2&distance)	const;	//!< Detects optical intersections of the local instance and the specified ray. \param b Base vector of the casting ray \param d Normalized direction vector of the casting ray \param distance In/out distance to the nearest intersection \return true if the ray intersects the local geometry at the location of the instance closer than the specified distance, false otherwise.
 			};
 			CGS_DECLARE_ADOPTING_DEF(StaticInstance);
 
@@ -1250,13 +1250,13 @@ namespace DeltaWorks
 			{
 			public:
 					SubGeometryA<Def>						*target;		//!< Target (origin) sub geometry instance
-					TMatrix4<typename Def::SystemType>	system,		//!< Local system
+					M::TMatrix4<typename Def::SystemType>	system,		//!< Local system
 															path;		//!< Local path (product of parent path and local system)
 		
 															SubGeometryInstance();
 			virtual											~SubGeometryInstance()	{}
 
-					TMatrix4<typename Def::SystemType>*	GetPath()	{return&path;}
+					M::TMatrix4<typename Def::SystemType>*	GetPath()	{return&path;}
 			};
 		
 		template <class Def=StdDef>
@@ -1267,7 +1267,7 @@ namespace DeltaWorks
 					Ctr::Array<StaticSubInstanceA<Def>,Adopt>	child_field;	//!< Sub children
 														
 															StaticSubInstanceA();
-					void									updatePath(const TMatrix4<typename Def::SystemType>&parent);	//!< Recursivly updates the local path variable using the specified parent system
+					void									updatePath(const M::TMatrix4<typename Def::SystemType>&parent);	//!< Recursivly updates the local path variable using the specified parent system
 					void									linkObjects();									//!< Recursivly links to the respective target sub geometry instance
 					void									restoreFromGeometry();							//!< Recursivly restores all system matrices from the respective origin sub geometry instance.
 
@@ -1278,7 +1278,7 @@ namespace DeltaWorks
 
 
 				template <typename T0, typename T1, typename T2>
-					bool									detectOpticalIntersection(const TVec3<T0>&b, const TVec3<T1>&d, T2&distance)	const;	//!< Detects optical intersections of the local instance and the specified ray. \param b Base vector of the casting ray \param d Normalized direction vector of the casting ray \param distance In/out distance to the nearest intersection \return true if the ray intersects the local geometry at the location of the instance closer than the specified distance, false otherwise.
+					bool									detectOpticalIntersection(const M::TVec3<T0>&b, const M::TVec3<T1>&d, T2&distance)	const;	//!< Detects optical intersections of the local instance and the specified ray. \param b Base vector of the casting ray \param d Normalized direction vector of the casting ray \param distance In/out distance to the nearest intersection \return true if the ray intersects the local geometry at the location of the instance closer than the specified distance, false otherwise.
 			};
 			CGS_DECLARE_ADOPTING_DEF(StaticSubInstanceA);
 
@@ -1402,7 +1402,7 @@ namespace DeltaWorks
 				
 				
 				template <typename T0, typename T1, typename T2>
-					bool									detectOpticalIntersection(const TVec3<T0>&b, const TVec3<T1>&d, T2&distance)	const;	//!< Detects optical intersections of the local instance and the specified ray. \param b Base vector of the casting ray \param d Normalized direction vector of the casting ray \param distance In/out distance to the nearest intersection \return true if the ray intersects the local geometry at the location of the instance closer than the specified distance, false otherwise.
+					bool									detectOpticalIntersection(const M::TVec3<T0>&b, const M::TVec3<T1>&d, T2&distance)	const;	//!< Detects optical intersections of the local instance and the specified ray. \param b Base vector of the casting ray \param d Normalized direction vector of the casting ray \param distance In/out distance to the nearest intersection \return true if the ray intersects the local geometry at the location of the instance closer than the specified distance, false otherwise.
 			};
 
 		template <class Def=StdDef>
@@ -1422,7 +1422,7 @@ namespace DeltaWorks
 				
 					Ctr::Array<AnimatableSubInstanceA<Def>,Adopt>	child_field;	//!< Sub children
 					TAnimationStatus						animation_status;	//!< Animation status vector
-					TMatrix4<typename Def::SystemType>	animated_system;	//!< Mutated local system
+					M::TMatrix4<typename Def::SystemType>	animated_system;	//!< Mutated local system
 					Ctr::Array<double>							wheel_status,		//!< Contains two floats - one for acceleration, one for braking - per wheel
 															accelerator_status;	//!< Contains one float per accelerator
 				
@@ -1441,9 +1441,9 @@ namespace DeltaWorks
 
 																other.animation_status.translation = Vector<double>::zero;
 																other.animation_status.rotation = Vector<double>::zero;
-																other.animated_system = Matrix<typename Def::SystemType>::eye4;
+																other.animated_system = M::Matrix<typename Def::SystemType>::eye4;
 															}
-					void									updatePath(const TMatrix4<typename Def::SystemType>&parent);	//!< Recursivly updates the local path variable using the specified parent system
+					void									updatePath(const M::TMatrix4<typename Def::SystemType>&parent);	//!< Recursivly updates the local path variable using the specified parent system
 					void									linkObjects();									//!< Recursivly links to the respective target sub geometry instance
 					void									restoreFromGeometry(bool reset_animations);		//!< Recursivly restores all system matrices from the respective origin sub geometry instance.
 					void									mapEntities(PointerTable<double*>&, PointerTable<TAnimationStatus*>&);			//!< Recursivly maps instances (sub geometries, wheels, accelerators) to their respecitive local status variables
@@ -1453,7 +1453,7 @@ namespace DeltaWorks
 					AnimatorInstanceA<Def>*					findInstanceOf(AnimatorA<Def>*animator);		//!< Attempts to recursivly locate the animator instance of the specified animator @param animator Pointer to the animator to look for @return Pointer to the matching animator instance or NULL if no such could be found
 					void									fillAnimationMap(typename AnimatableInstance<Def>::TAnimationMap&map);	//!< Recursivly maps elements of animation_map based on the flags of their respective targets
 				template <typename T0, typename T1, typename T2>
-					bool									detectOpticalIntersection(const TVec3<T0>&b, const TVec3<T1>&d, T2&distance)	const;	//!< Detects optical intersections of the local instance and the specified ray. \param b Base vector of the casting ray \param d Normalized direction vector of the casting ray \param distance In/out distance to the nearest intersection \return true if the ray intersects the local geometry at the location of the instance closer than the specified distance, false otherwise.
+					bool									detectOpticalIntersection(const M::TVec3<T0>&b, const M::TVec3<T1>&d, T2&distance)	const;	//!< Detects optical intersections of the local instance and the specified ray. \param b Base vector of the casting ray \param d Normalized direction vector of the casting ray \param distance In/out distance to the nearest intersection \return true if the ray intersects the local geometry at the location of the instance closer than the specified distance, false otherwise.
 					double*									findStatusOf(TWheel<Def>*wheel);	//!< Recursivly searches for the status field of the specified wheel @param wheel Wheel to look for @return Pointer to the 2 element status vector of the specified wheel or NULL if the wheel could not be found				
 			};
 			CGS_DECLARE_ADOPTING_DEF(AnimatableSubInstanceA);
@@ -1507,7 +1507,7 @@ namespace DeltaWorks
 										normalsFromQuad;
 					Index				voffset;
 					VConfig				config;
-					TMatrix4<SysFloat>system;
+					M::TMatrix4<SysFloat>system;
 					LOD					*currentLOD;
 
 					void				_OnActiveLODChange()
@@ -1518,7 +1518,7 @@ namespace DeltaWorks
 											normalsFromVertex = 0;
 										}
 				public:
-					/**/				Object():voffset(0),normalsFromVertex(0),normalsFromTriangle(0),normalsFromQuad(0), system(Matrix<typename Def::SystemType>::eye4)	{currentLOD = &lods.append();}
+					/**/				Object():voffset(0),normalsFromVertex(0),normalsFromTriangle(0),normalsFromQuad(0), system(M::Matrix<typename Def::SystemType>::eye4)	{currentLOD = &lods.append();}
 					void				Clear()
 										{
 											lods.Truncate(1);
@@ -1570,8 +1570,8 @@ namespace DeltaWorks
 					index_t				GetActiveLOD() const	{return currentLOD - lods.pointer();}
 					const LOD&			GetLOD(index_t lodIndex) const { return lods[lodIndex]; }
 					template <typename T>
-						void			SetSystem(const TMatrix4<T>&m){Mat::copy(m,system);}
-					const TMatrix4<SysFloat>& GetSystem()	const {return system;}
+						void			SetSystem(const M::TMatrix4<T>&m){Mat::copy(m,system);}
+					const M::TMatrix4<SysFloat>& GetSystem()	const {return system;}
 					count_t				CountTextureLayers()	const	{return config.numTextureLayers;}
 					UINT				GetVertexFlags()		const	{return config.vertexFlags;}
 					count_t				GetVertexSize()			const	{return config.vsize;}
@@ -1628,109 +1628,109 @@ namespace DeltaWorks
 					count_t				CountQuads(index_t lod)		const {return CountQuadIndices(lod)/4;}
 					count_t				CountFloats(index_t lod)	const {return lods[lod].vertexData.length();}
 					count_t				CountVertices(index_t lod)	const {return CountFloats(lod) / config.vsize;}
-					Box<Float>			GetBoundingBox(index_t lod=0)const;
+					M::Box<Float>			GetBoundingBox(index_t lod=0)const;
 
 					void				VerifyIntegrity(bool verifyAllVerticesAreUsed)	const;
 
 					template <typename T>
-						Index			MakeVertex(const TVec3<T>&location)
+						Index			MakeVertex(const M::TVec3<T>&location)
 						{
 							Index result = (Index)(currentLOD->vertexData.length() / config.vsize);
 							Float*out = currentLOD->vertexData.appendRow(config.vsize);
 							Float*end = out + config.vsize;
-							Vec::copy(location,Vec::ref3(out)); out+=3;
+							M::Vec::copy(location,M::Vec::ref3(out)); out+=3;
 							for (;out != end; ++out)
 								(*out) = Float(0);
 							return result;
 						}
 					template <typename T>
-						Index			MakeVertex(const TVec3<T>&location, const TVec2<T>&texcoords0)
+						Index			MakeVertex(const M::TVec3<T>&location, const M::TVec2<T>&texcoords0)
 						{
 							Index result = (Index)(currentLOD->vertexData.length() / config.vsize);
 							Float*out = currentLOD->vertexData.appendRow(config.vsize);
 							Float*end = out + config.vsize;
-							Vec::copy(location,Vec::ref3(out)); out+=3;
+							M::Vec::copy(location,M::Vec::ref3(out)); out+=3;
 							if (config.vertexFlags&HasNormalFlag)
 							{
-								Vec::clear(Vec::ref3(out)); out+=3;
+								M::Vec::clear(M::Vec::ref3(out)); out+=3;
 							}
 							if (config.vertexFlags&HasTangentFlag)
 							{
-								Vec::clear(Vec::ref3(out)); out+=3;
+								M::Vec::clear(M::Vec::ref3(out)); out+=3;
 							}
 							if (config.vertexFlags&HasColorFlag)
 							{
-								Vec::clear(Vec::ref4(out)); out+=4;
+								M::Vec::clear(M::Vec::ref4(out)); out+=4;
 							}
 							if (config.numTextureLayers > 0)
 							{
-								Vec::copy(texcoords0,Vec::ref2(out)); out+=2;
+								M::Vec::copy(texcoords0,M::Vec::ref2(out)); out+=2;
 							}
 							for (;out != end; ++out)
 								(*out) = Float(0);
 							return result;
 						}
 					template <typename T>
-						Index			MakeVertex(const TVec3<T>&location, const TVec2<T>&texcoords0, const TVec2<T>&texcoords1)
+						Index			MakeVertex(const M::TVec3<T>&location, const M::TVec2<T>&texcoords0, const M::TVec2<T>&texcoords1)
 						{
 							Index result = (Index)(currentLOD->vertexData.length() / config.vsize);
 							Float*out = currentLOD->vertexData.appendRow(config.vsize);
 							Float*end = out + config.vsize;
-							Vec::copy(location,Vec::ref3(out)); out+=3;
+							M::Vec::copy(location,M::Vec::ref3(out)); out+=3;
 							if (config.vertexFlags&HasNormalFlag)
 							{
-								Vec::clear(Vec::ref3(out)); out+=3;
+								M::Vec::clear(M::Vec::ref3(out)); out+=3;
 							}
 							if (config.vertexFlags&HasTangentFlag)
 							{
-								Vec::clear(Vec::ref3(out)); out+=3;
+								M::Vec::clear(M::Vec::ref3(out)); out+=3;
 							}
 							if (config.vertexFlags&HasColorFlag)
 							{
-								Vec::clear(Vec::ref4(out)); out+=4;
+								M::Vec::clear(M::Vec::ref4(out)); out+=4;
 							}
 							if (config.numTextureLayers > 0)
 							{
-								Vec::copy(texcoords0,Vec::ref2(out)); out+=2;
+								M::Vec::copy(texcoords0,M::Vec::ref2(out)); out+=2;
 							}
 							if (config.numTextureLayers > 1)
 							{
-								Vec::copy(texcoords1,Vec::ref2(out)); out+=2;
+								M::Vec::copy(texcoords1,M::Vec::ref2(out)); out+=2;
 							}
 							for (;out != end; ++out)
 								(*out) = Float(0);
 							return result;
 						}
 					template <typename T>
-						Index			MakeVertex(const TVec3<T>&location, const TVec2<T>&texcoords0, const TVec2<T>&texcoords1, const TVec2<T>&texcoords2)
+						Index			MakeVertex(const M::TVec3<T>&location, const M::TVec2<T>&texcoords0, const M::TVec2<T>&texcoords1, const M::TVec2<T>&texcoords2)
 						{
 							Index result = (Index)(currentLOD->vertexData.length() / config.vsize);
 							Float*out = currentLOD->vertexData.appendRow(config.vsize);
 							Float*end = out + config.vsize;
-							Vec::copy(location,Vec::ref3(out)); out+=3;
+							M::Vec::copy(location,M::Vec::ref3(out)); out+=3;
 							if (config.vertexFlags&HasNormalFlag)
 							{
-								Vec::clear(Vec::ref3(out)); out+=3;
+								M::Vec::clear(M::Vec::ref3(out)); out+=3;
 							}
 							if (config.vertexFlags&HasTangentFlag)
 							{
-								Vec::clear(Vec::ref3(out)); out+=3;
+								M::Vec::clear(M::Vec::ref3(out)); out+=3;
 							}
 							if (config.vertexFlags&HasColorFlag)
 							{
-								Vec::clear(Vec::ref4(out)); out+=4;
+								M::Vec::clear(M::Vec::ref4(out)); out+=4;
 							}
 							if (config.numTextureLayers > 0)
 							{
-								Vec::copy(texcoords0,Vec::ref2(out)); out+=2;
+								M::Vec::copy(texcoords0,M::Vec::ref2(out)); out+=2;
 							}
 							if (config.numTextureLayers > 1)
 							{
-								Vec::copy(texcoords1,Vec::ref2(out)); out+=2;
+								M::Vec::copy(texcoords1,M::Vec::ref2(out)); out+=2;
 							}
 							if (config.numTextureLayers > 2)
 							{
-								Vec::copy(texcoords2,Vec::ref2(out)); out+=2;
+								M::Vec::copy(texcoords2,M::Vec::ref2(out)); out+=2;
 							}
 							for (;out != end; ++out)
 								(*out) = Float(0);
@@ -1739,108 +1739,108 @@ namespace DeltaWorks
 
 
 					template <typename T>
-						Index			MakeVertex(const TVec3<T>&location, const TVec3<T>&normal)
+						Index			MakeVertex(const M::TVec3<T>&location, const M::TVec3<T>&normal)
 						{
 							Index result = (Index)(currentLOD->vertexData.length() / config.vsize);
 							Float*out = currentLOD->vertexData.appendRow(config.vsize);
 							Float*end = out + config.vsize;
-							Vec::copy(location,Vec::ref3(out)); out+=3;
+							M::Vec::copy(location,M::Vec::ref3(out)); out+=3;
 							if (config.vertexFlags&HasNormalFlag)
 							{
-								Vec::copy(normal,Vec::ref3(out)); out+=3;
+								M::Vec::copy(normal,M::Vec::ref3(out)); out+=3;
 							}
 							for (;out != end; ++out)
 								(*out) = Float(0);
 							return result;
 						}
 					template <typename T>
-						Index		MakeVertex(const TVec3<T>&location, const TVec3<T>&normal, const TVec2<T>&texcoords0)
+						Index		MakeVertex(const M::TVec3<T>&location, const M::TVec3<T>&normal, const M::TVec2<T>&texcoords0)
 						{
 							Index result = (Index)(currentLOD->vertexData.length() / config.vsize);
 							Float*out = currentLOD->vertexData.appendRow(config.vsize);
 							Float*end = out + config.vsize;
-							Vec::copy(location,Vec::ref3(out)); out+=3;
+							M::Vec::copy(location,M::Vec::ref3(out)); out+=3;
 							if (config.vertexFlags&HasNormalFlag)
 							{
-								Vec::copy(normal,Vec::ref3(out)); out+=3;
+								M::Vec::copy(normal,M::Vec::ref3(out)); out+=3;
 							}
 							if (config.vertexFlags&HasTangentFlag)
 							{
-								Vec::clear(Vec::ref3(out)); out+=3;
+								M::Vec::clear(M::Vec::ref3(out)); out+=3;
 							}
 							if (config.vertexFlags&HasColorFlag)
 							{
-								Vec::clear(Vec::ref4(out)); out+=4;
+								M::Vec::clear(M::Vec::ref4(out)); out+=4;
 							}
 							if (config.numTextureLayers > 0)
 							{
-								Vec::copy(texcoords0,Vec::ref2(out)); out+=2;
+								M::Vec::copy(texcoords0,M::Vec::ref2(out)); out+=2;
 							}
 							for (;out != end; ++out)
 								(*out) = Float(0);
 							return result;
 						}
 					template <typename T>
-						Index			MakeVertex(const TVec3<T>&location, const TVec3<T>&normal, const TVec2<T>&texcoords0, const TVec2<T>&texcoords1)
+						Index			MakeVertex(const M::TVec3<T>&location, const M::TVec3<T>&normal, const M::TVec2<T>&texcoords0, const M::TVec2<T>&texcoords1)
 						{
 							Index result = (Index)(currentLOD->vertexData.length() / config.vsize);
 							Float*out = currentLOD->vertexData.appendRow(config.vsize);
 							Float*end = out + config.vsize;
-							Vec::copy(location,Vec::ref3(out)); out+=3;
+							M::Vec::copy(location,M::Vec::ref3(out)); out+=3;
 							if (config.vertexFlags&HasNormalFlag)
 							{
-								Vec::copy(normal,Vec::ref3(out)); out+=3;
+								M::Vec::copy(normal,M::Vec::ref3(out)); out+=3;
 							}
 							if (config.vertexFlags&HasTangentFlag)
 							{
-								Vec::clear(Vec::ref3(out)); out+=3;
+								M::Vec::clear(M::Vec::ref3(out)); out+=3;
 							}
 							if (config.vertexFlags&HasColorFlag)
 							{
-								Vec::clear(Vec::ref4(out)); out+=4;
+								M::Vec::clear(M::Vec::ref4(out)); out+=4;
 							}
 							if (config.numTextureLayers > 0)
 							{
-								Vec::copy(texcoords0,Vec::ref2(out)); out+=2;
+								M::Vec::copy(texcoords0,M::Vec::ref2(out)); out+=2;
 							}
 							if (config.numTextureLayers > 1)
 							{
-								Vec::copy(texcoords1,Vec::ref2(out)); out+=2;
+								M::Vec::copy(texcoords1,M::Vec::ref2(out)); out+=2;
 							}
 							for (;out != end; ++out)
 								(*out) = Float(0);
 							return result;
 						}
 					template <typename T>
-						Index			MakeVertex(const TVec3<T>&location, const TVec3<T>&normal, const TVec2<T>&texcoords0, const TVec2<T>&texcoords1, const TVec2<T>&texcoords2)
+						Index			MakeVertex(const M::TVec3<T>&location, const M::TVec3<T>&normal, const M::TVec2<T>&texcoords0, const M::TVec2<T>&texcoords1, const M::TVec2<T>&texcoords2)
 						{
 							Index result = (Index)(currentLOD->vertexData.length() / config.vsize);
 							Float*out = currentLOD->vertexData.appendRow(config.vsize);
 							Float*end = out + config.vsize;
-							Vec::copy(location,Vec::ref3(out)); out+=3;
+							M::Vec::copy(location,M::Vec::ref3(out)); out+=3;
 							if (config.vertexFlags&HasNormalFlag)
 							{
-								Vec::copy(normal,Vec::ref3(out)); out+=3;
+								M::Vec::copy(normal,M::Vec::ref3(out)); out+=3;
 							}
 							if (config.vertexFlags&HasTangentFlag)
 							{
-								Vec::clear(Vec::ref3(out)); out+=3;
+								M::Vec::clear(M::Vec::ref3(out)); out+=3;
 							}
 							if (config.vertexFlags&HasColorFlag)
 							{
-								Vec::clear(Vec::ref4(out)); out+=4;
+								M::Vec::clear(M::Vec::ref4(out)); out+=4;
 							}
 							if (config.numTextureLayers > 0)
 							{
-								Vec::copy(texcoords0,Vec::ref2(out)); out+=2;
+								M::Vec::copy(texcoords0,M::Vec::ref2(out)); out+=2;
 							}
 							if (config.numTextureLayers > 1)
 							{
-								Vec::copy(texcoords1,Vec::ref2(out)); out+=2;
+								M::Vec::copy(texcoords1,M::Vec::ref2(out)); out+=2;
 							}
 							if (config.numTextureLayers > 2)
 							{
-								Vec::copy(texcoords2,Vec::ref2(out)); out+=2;
+								M::Vec::copy(texcoords2,M::Vec::ref2(out)); out+=2;
 							}
 							for (;out != end; ++out)
 								(*out) = Float(0);
@@ -1855,116 +1855,116 @@ namespace DeltaWorks
 
 
 					template <typename T>
-						Index		MakeVertex(const TVec3<T>&location, const TVec4<T>&color)
+						Index		MakeVertex(const M::TVec3<T>&location, const M::TVec4<T>&color)
 						{
 							Index result = (Index)(currentLOD->vertexData.length() / config.vsize);
 							Float*out = currentLOD->vertexData.appendRow(config.vsize);
 							Float*end = out + config.vsize;
-							Vec::copy(location,Vec::ref3(out)); out+=3;
+							M::Vec::copy(location,M::Vec::ref3(out)); out+=3;
 							if (config.vertexFlags&HasNormalFlag)
 							{
-								Vec::clear(Vec::ref3(out)); out+=3;
+								M::Vec::clear(M::Vec::ref3(out)); out+=3;
 							}
 							if (config.vertexFlags&HasTangentFlag)
 							{
-								Vec::clear(Vec::ref3(out)); out+=3;
+								M::Vec::clear(M::Vec::ref3(out)); out+=3;
 							}
 							if (config.vertexFlags&HasColorFlag)
 							{
-								Vec::copy(color,Vec::ref4(out)); out+=4;
+								M::Vec::copy(color,M::Vec::ref4(out)); out+=4;
 							}
 							for (;out != end; ++out)
 								(*out) = Float(0);
 							return result;
 						}
 					template <typename T>
-						Index			MakeVertex(const TVec3<T>&location, const TVec4<T>&color, const TVec2<T>&texcoords0)
+						Index			MakeVertex(const M::TVec3<T>&location, const M::TVec4<T>&color, const M::TVec2<T>&texcoords0)
 						{
 							Index result = (Index)(currentLOD->vertexData.length() / config.vsize);
 							Float*out = currentLOD->vertexData.appendRow(config.vsize);
 							Float*end = out + config.vsize;
-							Vec::copy(location,Vec::ref3(out)); out+=3;
+							M::Vec::copy(location,M::Vec::ref3(out)); out+=3;
 							if (config.vertexFlags&HasNormalFlag)
 							{
-								Vec::clear(Vec::ref3(out)); out+=3;
+								M::Vec::clear(M::Vec::ref3(out)); out+=3;
 							}
 							if (config.vertexFlags&HasTangentFlag)
 							{
-								Vec::clear(Vec::ref3(out)); out+=3;
+								M::Vec::clear(M::Vec::ref3(out)); out+=3;
 							}
 							if (config.vertexFlags&HasColorFlag)
 							{
-								Vec::copy(color,Vec::ref4(out)); out+=4;
+								M::Vec::copy(color,M::Vec::ref4(out)); out+=4;
 							}
 							if (config.numTextureLayers > 0)
 							{
-								Vec::copy(texcoords0,Vec::ref2(out)); out+=2;
+								M::Vec::copy(texcoords0,M::Vec::ref2(out)); out+=2;
 							}
 							for (;out != end; ++out)
 								(*out) = Float(0);
 							return result;
 						}
 					template <typename T>
-						Index			MakeVertex(const TVec3<T>&location, const TVec4<T>&color, const TVec2<T>&texcoords0, const TVec2<T>&texcoords1)
+						Index			MakeVertex(const M::TVec3<T>&location, const M::TVec4<T>&color, const M::TVec2<T>&texcoords0, const M::TVec2<T>&texcoords1)
 						{
 							Index result = (Index)(currentLOD->vertexData.length() / config.vsize);
 							Float*out = currentLOD->vertexData.appendRow(config.vsize);
 							Float*end = out + config.vsize;
-							Vec::copy(location,Vec::ref3(out)); out+=3;
+							M::Vec::copy(location,M::Vec::ref3(out)); out+=3;
 							if (config.vertexFlags&HasNormalFlag)
 							{
-								Vec::clear(Vec::ref3(out)); out+=3;
+								M::Vec::clear(M::Vec::ref3(out)); out+=3;
 							}
 							if (config.vertexFlags&HasTangentFlag)
 							{
-								Vec::clear(Vec::ref3(out)); out+=3;
+								M::Vec::clear(M::Vec::ref3(out)); out+=3;
 							}
 							if (config.vertexFlags&HasColorFlag)
 							{
-								Vec::copy(color,Vec::ref4(out)); out+=4;
+								M::Vec::copy(color,M::Vec::ref4(out)); out+=4;
 							}
 							if (config.numTextureLayers > 0)
 							{
-								Vec::copy(texcoords0,Vec::ref2(out)); out+=2;
+								M::Vec::copy(texcoords0,M::Vec::ref2(out)); out+=2;
 							}
 							if (config.numTextureLayers > 1)
 							{
-								Vec::copy(texcoords1,Vec::ref2(out)); out+=2;
+								M::Vec::copy(texcoords1,M::Vec::ref2(out)); out+=2;
 							}
 							for (;out != end; ++out)
 								(*out) = Float(0);
 							return result;
 						}
 					template <typename T>
-						Index			MakeVertex(const TVec3<T>&location, const TVec4<T>&color, const TVec2<T>&texcoords0, const TVec2<T>&texcoords1, const TVec2<T>&texcoords2)
+						Index			MakeVertex(const M::TVec3<T>&location, const M::TVec4<T>&color, const M::TVec2<T>&texcoords0, const M::TVec2<T>&texcoords1, const M::TVec2<T>&texcoords2)
 						{
 							Index result = (Index)(currentLOD->vertexData.length() / config.vsize);
 							Float*out = currentLOD->vertexData.appendRow(config.vsize);
 							Float*end = out + config.vsize;
-							Vec::copy(location,Vec::ref3(out)); out+=3;
+							M::Vec::copy(location,M::Vec::ref3(out)); out+=3;
 							if (config.vertexFlags&HasNormalFlag)
 							{
-								Vec::clear(Vec::ref3(out)); out+=3;
+								M::Vec::clear(M::Vec::ref3(out)); out+=3;
 							}
 							if (config.vertexFlags&HasTangentFlag)
 							{
-								Vec::clear(Vec::ref3(out)); out+=3;
+								M::Vec::clear(M::Vec::ref3(out)); out+=3;
 							}
 							if (config.vertexFlags&HasColorFlag)
 							{
-								Vec::copy(color,Vec::ref4(out)); out+=4;
+								M::Vec::copy(color,M::Vec::ref4(out)); out+=4;
 							}
 							if (config.numTextureLayers > 0)
 							{
-								Vec::copy(texcoords0,Vec::ref2(out)); out+=2;
+								M::Vec::copy(texcoords0,M::Vec::ref2(out)); out+=2;
 							}
 							if (config.numTextureLayers > 1)
 							{
-								Vec::copy(texcoords1,Vec::ref2(out)); out+=2;
+								M::Vec::copy(texcoords1,M::Vec::ref2(out)); out+=2;
 							}
 							if (config.numTextureLayers > 2)
 							{
-								Vec::copy(texcoords2,Vec::ref2(out)); out+=2;
+								M::Vec::copy(texcoords2,M::Vec::ref2(out)); out+=2;
 							}
 							for (;out != end; ++out)
 								(*out) = Float(0);
@@ -1973,116 +1973,116 @@ namespace DeltaWorks
 
 
 					template <typename T>
-						Index			MakeVertex(const TVec3<T>&location, const TVec3<T>&normal, const TVec4<T>&color)
+						Index			MakeVertex(const M::TVec3<T>&location, const M::TVec3<T>&normal, const M::TVec4<T>&color)
 						{
 							Index result = (Index)(currentLOD->vertexData.length() / config.vsize);
 							Float*out = currentLOD->vertexData.appendRow(config.vsize);
 							Float*end = out + config.vsize;
-							Vec::copy(location,Vec::ref3(out)); out+=3;
+							M::Vec::copy(location,M::Vec::ref3(out)); out+=3;
 							if (config.vertexFlags&HasNormalFlag)
 							{
-								Vec::copy(normal,Vec::ref3(out)); out+=3;
+								M::Vec::copy(normal,M::Vec::ref3(out)); out+=3;
 							}
 							if (config.vertexFlags&HasTangentFlag)
 							{
-								Vec::clear(Vec::ref3(out)); out+=3;
+								M::Vec::clear(M::Vec::ref3(out)); out+=3;
 							}
 							if (config.vertexFlags&HasColorFlag)
 							{
-								Vec::copy(color,Vec::ref4(out)); out+=4;
+								M::Vec::copy(color,M::Vec::ref4(out)); out+=4;
 							}
 							for (;out != end; ++out)
 								(*out) = Float(0);
 							return result;
 						}
 					template <typename T>
-						Index			MakeVertex(const TVec3<T>&location, const TVec3<T>&normal, const TVec4<T>&color, const TVec2<T>&texcoords0)
+						Index			MakeVertex(const M::TVec3<T>&location, const M::TVec3<T>&normal, const M::TVec4<T>&color, const M::TVec2<T>&texcoords0)
 						{
 							Index result = (Index)(currentLOD->vertexData.length() / config.vsize);
 							Float*out = currentLOD->vertexData.appendRow(config.vsize);
 							Float*end = out + config.vsize;
-							Vec::copy(location,Vec::ref3(out)); out+=3;
+							M::Vec::copy(location,M::Vec::ref3(out)); out+=3;
 							if (config.vertexFlags&HasNormalFlag)
 							{
-								Vec::copy(normal,Vec::ref3(out)); out+=3;
+								M::Vec::copy(normal,M::Vec::ref3(out)); out+=3;
 							}
 							if (config.vertexFlags&HasTangentFlag)
 							{
-								Vec::clear(Vec::ref3(out)); out+=3;
+								M::Vec::clear(M::Vec::ref3(out)); out+=3;
 							}
 							if (config.vertexFlags&HasColorFlag)
 							{
-								Vec::copy(color,Vec::ref4(out)); out+=4;
+								M::Vec::copy(color,M::Vec::ref4(out)); out+=4;
 							}
 							if (config.numTextureLayers > 0)
 							{
-								Vec::copy(texcoords0,Vec::ref2(out)); out+=2;
+								M::Vec::copy(texcoords0,M::Vec::ref2(out)); out+=2;
 							}
 							for (;out != end; ++out)
 								(*out) = Float(0);
 							return result;
 						}
 					template <typename T>
-						Index			MakeVertex(const TVec3<T>&location, const TVec3<T>&normal, const TVec4<T>&color, const TVec2<T>&texcoords0, const TVec2<T>&texcoords1)
+						Index			MakeVertex(const M::TVec3<T>&location, const M::TVec3<T>&normal, const M::TVec4<T>&color, const M::TVec2<T>&texcoords0, const M::TVec2<T>&texcoords1)
 						{
 							Index result = (Index)(currentLOD->vertexData.length() / config.vsize);
 							Float*out = currentLOD->vertexData.appendRow(config.vsize);
 							Float*end = out + config.vsize;
-							Vec::copy(location,Vec::ref3(out)); out+=3;
+							M::Vec::copy(location,M::Vec::ref3(out)); out+=3;
 							if (config.vertexFlags&HasNormalFlag)
 							{
-								Vec::copy(normal,Vec::ref3(out)); out+=3;
+								M::Vec::copy(normal,M::Vec::ref3(out)); out+=3;
 							}
 							if (config.vertexFlags&HasTangentFlag)
 							{
-								Vec::clear(Vec::ref3(out)); out+=3;
+								M::Vec::clear(M::Vec::ref3(out)); out+=3;
 							}
 							if (config.vertexFlags&HasColorFlag)
 							{
-								Vec::copy(color,Vec::ref4(out)); out+=4;
+								M::Vec::copy(color,M::Vec::ref4(out)); out+=4;
 							}
 							if (config.numTextureLayers > 0)
 							{
-								Vec::copy(texcoords0,Vec::ref2(out)); out+=2;
+								M::Vec::copy(texcoords0,M::Vec::ref2(out)); out+=2;
 							}
 							if (config.numTextureLayers > 1)
 							{
-								Vec::copy(texcoords1,Vec::ref2(out)); out+=2;
+								M::Vec::copy(texcoords1,M::Vec::ref2(out)); out+=2;
 							}
 							for (;out != end; ++out)
 								(*out) = Float(0);
 							return result;
 						}
 					template <typename T>
-						Index			MakeVertex(const TVec3<T>&location, const TVec3<T>&normal, const TVec4<T>&color, const TVec2<T>&texcoords0, const TVec2<T>&texcoords1, const TVec2<T>&texcoords2)
+						Index			MakeVertex(const M::TVec3<T>&location, const M::TVec3<T>&normal, const M::TVec4<T>&color, const M::TVec2<T>&texcoords0, const M::TVec2<T>&texcoords1, const M::TVec2<T>&texcoords2)
 						{
 							Index result = (Index)(currentLOD->vertex_data.length() / config.vsize);
 							Float*out = currentLOD->vertex_data.appendRow(config.vsize);
 							Float*end = out + config.vsize;
-							Vec::copy(location,Vec::ref3(out)); out+=3;
+							M::Vec::copy(location,M::Vec::ref3(out)); out+=3;
 							if (config.vertexFlags&HasNormalFlag)
 							{
-								Vec::copy(normal,Vec::ref3(out)); out+=3;
+								M::Vec::copy(normal,M::Vec::ref3(out)); out+=3;
 							}
 							if (config.vertexFlags&HasTangentFlag)
 							{
-								Vec::clear(Vec::ref3(out)); out+=3;
+								M::Vec::clear(M::Vec::ref3(out)); out+=3;
 							}
 							if (config.vertexFlags&HasColorFlag)
 							{
-								Vec::copy(color,Vec::ref4(out)); out+=4;
+								M::Vec::copy(color,M::Vec::ref4(out)); out+=4;
 							}
 							if (config.numTextureLayers > 0)
 							{
-								Vec::copy(texcoords0,Vec::ref2(out)); out+=2;
+								M::Vec::copy(texcoords0,M::Vec::ref2(out)); out+=2;
 							}
 							if (config.numTextureLayers > 1)
 							{
-								Vec::copy(texcoords1,Vec::ref2(out)); out+=2;
+								M::Vec::copy(texcoords1,M::Vec::ref2(out)); out+=2;
 							}
 							if (config.numTextureLayers > 2)
 							{
-								Vec::copy(texcoords2,Vec::ref2(out)); out+=2;
+								M::Vec::copy(texcoords2,M::Vec::ref2(out)); out+=2;
 							}
 							for (;out != end; ++out)
 								(*out) = Float(0);
@@ -2092,112 +2092,112 @@ namespace DeltaWorks
 
 
 					template <typename T>
-						Index			MakeVertex(const TVec3<T>&location, const TVec3<T>&normal, const TVec3<T>&tangent)
+						Index			MakeVertex(const M::TVec3<T>&location, const M::TVec3<T>&normal, const M::TVec3<T>&tangent)
 						{
 							Index result = (Index)(currentLOD->vertexData.length() / config.vsize);
 							Float*out = currentLOD->vertexData.appendRow(config.vsize);
 							Float*end = out + config.vsize;
-							Vec::copy(location,Vec::ref3(out)); out+=3;
+							M::Vec::copy(location,M::Vec::ref3(out)); out+=3;
 							if (config.vertexFlags&HasNormalFlag)
 							{
-								Vec::copy(normal,Vec::ref3(out)); out+=3;
+								M::Vec::copy(normal,M::Vec::ref3(out)); out+=3;
 							}
 							if (config.vertexFlags&HasTangentFlag)
 							{
-								Vec::copy(tangent,Vec::ref3(out)); out+=3;
+								M::Vec::copy(tangent,M::Vec::ref3(out)); out+=3;
 							}
 							for (;out != end; ++out)
 								(*out) = Float(0);
 							return result;
 						}
 					template <typename T>
-						Index			MakeVertex(const TVec3<T>&location, const TVec3<T>&normal, const TVec3<T>&tangent, const TVec2<T>&texcoords0)
+						Index			MakeVertex(const M::TVec3<T>&location, const M::TVec3<T>&normal, const M::TVec3<T>&tangent, const M::TVec2<T>&texcoords0)
 						{
 							Index result = (Index)(currentLOD->vertexData.length() / config.vsize);
 							Float*out = currentLOD->vertexData.appendRow(config.vsize);
 							Float*end = out + config.vsize;
-							Vec::copy(location,Vec::ref3(out)); out+=3;
+							M::Vec::copy(location,M::Vec::ref3(out)); out+=3;
 							if (config.vertexFlags&HasNormalFlag)
 							{
-								Vec::copy(normal,Vec::ref3(out)); out+=3;
+								M::Vec::copy(normal,M::Vec::ref3(out)); out+=3;
 							}
 							if (config.vertexFlags&HasTangentFlag)
 							{
-								Vec::copy(tangent,Vec::ref3(out)); out+=3;
+								M::Vec::copy(tangent,M::Vec::ref3(out)); out+=3;
 							}
 							if (config.vertexFlags&HasColorFlag)
 							{
-								Vec::clear(Vec::ref4(out)); out+=4;
+								M::Vec::clear(M::Vec::ref4(out)); out+=4;
 							}
 							if (config.numTextureLayers > 0)
 							{
-								Vec::copy(texcoords0,Vec::ref2(out)); out+=2;
+								M::Vec::copy(texcoords0,M::Vec::ref2(out)); out+=2;
 							}
 							for (;out != end; ++out)
 								(*out) = Float(0);
 							return result;
 						}
 					template <typename T>
-						Index			MakeVertex(const TVec3<T>&location, const TVec3<T>&normal, const TVec3<T>&tangent, const TVec2<T>&texcoords0, const TVec2<T>&texcoords1)
+						Index			MakeVertex(const M::TVec3<T>&location, const M::TVec3<T>&normal, const M::TVec3<T>&tangent, const M::TVec2<T>&texcoords0, const M::TVec2<T>&texcoords1)
 						{
 							Index result = (Index)(currentLOD->vertexData.length() / config.vsize);
 							Float*out = currentLOD->vertexData.appendRow(config.vsize);
 							Float*end = out + config.vsize;
-							Vec::copy(location,Vec::ref3(out)); out+=3;
+							M::Vec::copy(location,M::Vec::ref3(out)); out+=3;
 							if (config.vertexFlags&HasNormalFlag)
 							{
-								Vec::copy(normal,Vec::ref3(out)); out+=3;
+								M::Vec::copy(normal,M::Vec::ref3(out)); out+=3;
 							}
 							if (config.vertexFlags&HasTangentFlag)
 							{
-								Vec::copy(tangent,Vec::ref3(out)); out+=3;
+								M::Vec::copy(tangent,M::Vec::ref3(out)); out+=3;
 							}
 							if (config.vertexFlags&HasColorFlag)
 							{
-								Vec::clear(Vec::ref4(out)); out+=4;
+								M::Vec::clear(M::Vec::ref4(out)); out+=4;
 							}
 							if (config.numTextureLayers > 0)
 							{
-								Vec::copy(texcoords0,Vec::ref2(out)); out+=2;
+								M::Vec::copy(texcoords0,M::Vec::ref2(out)); out+=2;
 							}
 							if (config.numTextureLayers > 1)
 							{
-								Vec::copy(texcoords1,Vec::ref2(out)); out+=2;
+								M::Vec::copy(texcoords1,M::Vec::ref2(out)); out+=2;
 							}
 							for (;out != end; ++out)
 								(*out) = Float(0);
 							return result;
 						}
 					template <typename T>
-						Index			MakeVertex(const TVec3<T>&location, const TVec3<T>&normal, const TVec3<T>&tangent, const TVec2<T>&texcoords0, const TVec2<T>&texcoords1, const TVec2<T>&texcoords2)
+						Index			MakeVertex(const M::TVec3<T>&location, const M::TVec3<T>&normal, const M::TVec3<T>&tangent, const M::TVec2<T>&texcoords0, const M::TVec2<T>&texcoords1, const M::TVec2<T>&texcoords2)
 						{
 							Index result = (Index)(currentLOD->vertexData.length() / config.vsize);
 							Float*out = currentLOD->vertexData.appendRow(config.vsize);
 							Float*end = out + config.vsize;
-							Vec::copy(location,Vec::ref3(out)); out+=3;
+							M::Vec::copy(location,M::Vec::ref3(out)); out+=3;
 							if (config.vertexFlags&HasNormalFlag)
 							{
-								Vec::copy(normal,Vec::ref3(out)); out+=3;
+								M::Vec::copy(normal,M::Vec::ref3(out)); out+=3;
 							}
 							if (config.vertexFlags&HasTangentFlag)
 							{
-								Vec::copy(tangent,Vec::ref3(out)); out+=3;
+								M::Vec::copy(tangent,M::Vec::ref3(out)); out+=3;
 							}
 							if (config.vertexFlags&HasColorFlag)
 							{
-								Vec::clear(Vec::ref4(out)); out+=4;
+								M::Vec::clear(M::Vec::ref4(out)); out+=4;
 							}
 							if (config.numTextureLayers > 0)
 							{
-								Vec::copy(texcoords0,Vec::ref2(out)); out+=2;
+								M::Vec::copy(texcoords0,M::Vec::ref2(out)); out+=2;
 							}
 							if (config.numTextureLayers > 1)
 							{
-								Vec::copy(texcoords1,Vec::ref2(out)); out+=2;
+								M::Vec::copy(texcoords1,M::Vec::ref2(out)); out+=2;
 							}
 							if (config.numTextureLayers > 2)
 							{
-								Vec::copy(texcoords2,Vec::ref2(out)); out+=2;
+								M::Vec::copy(texcoords2,M::Vec::ref2(out)); out+=2;
 							}
 							for (;out != end; ++out)
 								(*out) = Float(0);

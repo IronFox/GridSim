@@ -9,7 +9,6 @@
 #include "../container/aligned_array.h"
 //#include "../engine/gl/buffer_object.h"
 //#include "../engine/gl/texture.h"
-#include "../math/sse.h"
 #include "../geometry/coordinates.h"
 #include "../math/vector.h"
 #include "../container/buffer.h"

@@ -81,14 +81,14 @@ namespace Engine
 					Textout<Font>*textout = TextoutManager<Font>::get();
 					if (data->countChannels() != text_location.length())
 						return;
-					const TVec3<>*location = text_location.pointer();
+					const M::TVec3<>*location = text_location.pointer();
 					for (index_t i = 0; i < data->groups(); i++)
 					{
 						const Group&group = data->group(i);
 						for (index_t j = 0; j < group.channels(); j++)
 						{
-							TVec3<> color;
-							Vec::interpolate(group.color,group.channel(j).color,0.25,color);
+							M::TVec3<> color;
+							M::Vec::interpolate(group.color,group.channel(j).color,0.25,color);
 							textout->SetColor(color);
 							textout->MoveTo(*location);
 							textout->Print(group.channel(j).name);
@@ -106,11 +106,11 @@ namespace Engine
 					return;
 				unsigned stride = (4+dimensions);
 				unsigned vcnt = vertices.count()/stride;
-				Array<TVec3<> >	normals(vcnt);
+				Array<M::TVec3<> >	normals(vcnt);
 				normals.Fill(0);
 				for (unsigned i = 0; i < indices.count()/4; i++)
 				{
-					TVec3<>	n0,
+					M::TVec3<>	n0,
 							n1;
 					_oTriangleNormal(vertices+indices[i*4]*stride,
 									vertices+indices[i*4+1]*stride,
@@ -120,21 +120,21 @@ namespace Engine
 									vertices+indices[i*4+2]*stride,
 									vertices+indices[i*4+3]*stride,
 									n1.v);
-					Vec::add(n0,n1);
-					Vec::add(normals[indices[i*4]],n0);
-					Vec::add(normals[indices[i*4+1]],n0);
-					Vec::add(normals[indices[i*4+2]],n0);
-					Vec::add(normals[indices[i*4+3]],n0);
+					M::Vec::add(n0,n1);
+					M::Vec::add(normals[indices[i*4]],n0);
+					M::Vec::add(normals[indices[i*4+1]],n0);
+					M::Vec::add(normals[indices[i*4+2]],n0);
+					M::Vec::add(normals[indices[i*4+3]],n0);
 				}
-				if (vabs(Vec::dot(C3dGraph::light)-1.0f)>getError<float>())
-					Vec::normalize0(C3dGraph::light);
+				if (vabs(M::Vec::dot(C3dGraph::light)-1.0f)>getError<float>())
+					M::Vec::normalize0(C3dGraph::light);
 
 				for (unsigned i = 0; i < vcnt; i++)
 				{
-					TVec3<>&n = normals[i];
-					Vec::normalize0(n);
-					float nd = vmax(Vec::dot(n,C3dGraph::light),0.0f)*0.8+0.2;
-					Vec::mult(Vec::ref3(vertices+i*stride+dimensions),nd);
+					M::TVec3<>&n = normals[i];
+					M::Vec::normalize0(n);
+					float nd = vmax(M::Vec::dot(n,C3dGraph::light),0.0f)*0.8+0.2;
+					M::Vec::mult(M::Vec::ref3(vertices+i*stride+dimensions),nd);
 				}
 			}
 
@@ -152,7 +152,7 @@ namespace Engine
 					for (index_t i = 0; i < vcnt; i++)
 					{
 						float alpha = vertices[i*stride+dimensions+3]*fade_intensity + (1.0f-fade_intensity);
-						Vec::interpolate(C3dGraph::background,Vec::ref3(vertices+i*stride+dimensions),alpha,Vec::ref3(vertices+i*stride+dimensions));
+						M::Vec::interpolate(C3dGraph::background,M::Vec::ref3(vertices+i*stride+dimensions),alpha,M::Vec::ref3(vertices+i*stride+dimensions));
 						vertices[i*stride+dimensions+3] = 1.0f;
 					}
 				}
@@ -249,8 +249,8 @@ namespace Engine
 						for (unsigned j = 0; j < group.channels(); j++)
 						{
 							const Channel&channel = group.channel(j);
-							TVec3<> color;
-							Vec::interpolate(group.color,channel.color,0.25,color);
+							M::TVec3<> color;
+							M::Vec::interpolate(group.color,channel.color,0.25,color);
 							active_textout->MoveTo(x,y);
 							active_textout->SetColor(color);
 							y+=active_textout->state.scale_y*active_textout->GetFont().GetHeight();
@@ -273,7 +273,7 @@ namespace Engine
 	
 	
 	template <class GL, class Font>
-		void		ColumnGraph<GL,Font>::addRow(const TVec3<>&color, unsigned res)
+		void		ColumnGraph<GL,Font>::addRow(const M::TVec3<>&color, unsigned res)
 		{
 			index_t offset = Base::vertices.count()/(Base::dimensions+4);
 			float	lowest = 1000000,
@@ -375,11 +375,11 @@ namespace Engine
 					
 					if (view == Detailed)
 					{
-						TVec3<> color;
+						M::TVec3<> color;
 						if (group.channels()>1)
-							Vec::interpolate(group.color,channel.color,0.25,color);
+							M::Vec::interpolate(group.color,channel.color,0.25,color);
 						else
-							Vec::copy(group.color,color);
+							M::Vec::copy(group.color,color);
 						addRow(color,res);
 					}
 				}
@@ -388,10 +388,10 @@ namespace Engine
 			}
 			if (view == Solid)
 			{
-				TVec3<> color={0,0,0};
+				M::TVec3<> color={0,0,0};
 				for (index_t i = 0; i < data->groups(); i++)
-					Vec::add(color,data->group(i).color);
-				Vec::div(color,data->groups());
+					M::Vec::add(color,data->group(i).color);
+				M::Vec::div(color,data->groups());
 				
 				addRow(color,res);
 			}
@@ -438,7 +438,7 @@ namespace Engine
 			GL*renderer = Base::getRenderer();
 			if (!renderer)
 				return;
-			TMatrix4<> matrix = Matrix<>::eye4;
+			M::TMatrix4<> matrix = M::Matrix<>::eye4;
 			matrix.w.xy = Base::position.min();
 			matrix.x.x = Base::position.width();
 			matrix.y.y = Base::position.height();
@@ -508,8 +508,8 @@ namespace Engine
 						for (index_t j = 0; j < group.channels(); j++)
 						{
 							const Channel&channel = group.channel(j);
-							TVec3<> color;
-							Vec::interpolate(group.color,channel.color,0.25,color);
+							M::TVec3<> color;
+							M::Vec::interpolate(group.color,channel.color,0.25,color);
 							active_textout->MoveTo(x,y);
 							if (!exclusive || exclusive==&channel)
 								active_textout->SetColor(color);
@@ -530,11 +530,11 @@ namespace Engine
 							float this_height = channel.history.last()*scale*Base::position.height();
 							if (this_height>font_height)
 							{
-								TVec3<> color;
+								M::TVec3<> color;
 								if (group.channels() > 1)
-									Vec::interpolate(group.color,channel.color,0.25,color);
+									M::Vec::interpolate(group.color,channel.color,0.25,color);
 								else
-									Vec::copy(group.color,color);
+									M::Vec::copy(group.color,color);
 								active_textout->SetColor(color,0.5);
 								active_textout->MoveTo(x,y);
 								
@@ -565,7 +565,7 @@ namespace Engine
 	
 	
 	template <class GL, class Font>
-		void		StackedGraph<GL,Font>::addRow(const TVec3<>&color)
+		void		StackedGraph<GL,Font>::addRow(const M::TVec3<>&color)
 		{
 			unsigned res = data->resolution();
 			index_t offset = Base::vertices.count()/(Base::dimensions+4);
@@ -607,7 +607,7 @@ namespace Engine
 		}
 	
 	template <class GL, class Font>
-		void		StackedGraph<GL,Font>::addMaxRow(const TVec3<>&color)
+		void		StackedGraph<GL,Font>::addMaxRow(const M::TVec3<>&color)
 		{
 			unsigned res = data->resolution();
 			index_t offset = Base::vertices.count()/(Base::dimensions+4);
@@ -649,7 +649,7 @@ namespace Engine
 		}
 
 	template <class GL, class Font>
-		void		StackedGraph<GL,Font>::addLineRow(const TVec3<>&color)
+		void		StackedGraph<GL,Font>::addLineRow(const M::TVec3<>&color)
 		{
 			unsigned res = data->resolution();
 			index_t	offset = Base::vertices.count()/(Base::dimensions+4);
@@ -717,11 +717,11 @@ namespace Engine
 						
 						if (view == Detailed)
 						{
-							TVec3<>	color;
+							M::TVec3<>	color;
 							if (group.channels()>1)
-								Vec::interpolate(group.color,channel.color,0.25,color);
+								M::Vec::interpolate(group.color,channel.color,0.25,color);
 							else
-								Vec::copy(group.color,color);
+								M::Vec::copy(group.color,color);
 							addRow(color);
 						}
 					}
@@ -730,10 +730,10 @@ namespace Engine
 				}
 				if (view == Solid)
 				{
-					TVec3<> color={0,0,0};
+					M::TVec3<> color={0,0,0};
 					for (index_t i = 0; i < data->groups(); i++)
-						Vec::add(color,data->group(i).color);
-					Vec::div(color,data->groups());
+						M::Vec::add(color,data->group(i).color);
+					M::Vec::div(color,data->groups());
 					
 					addRow(color);
 				}
@@ -913,7 +913,7 @@ namespace Engine
 	
 	
 	template <class GL, class Font>
-		void		StairGraph<GL,Font>::addRow(const TVec3<>&color, float depth)
+		void		StairGraph<GL,Font>::addRow(const M::TVec3<>&color, float depth)
 		{
 			unsigned res = data->resolution();
 			if (res < 2)
@@ -1122,14 +1122,14 @@ namespace Engine
 					
 					if (view == Detailed)
 					{
-						TVec3<>	color;
+						M::TVec3<>	color;
 						if (group.channels()>1)
-							Vec::interpolate(group.color,channel.color,0.25,color);
+							M::Vec::interpolate(group.color,channel.color,0.25,color);
 						else
-							Vec::copy(group.color,color);
+							M::Vec::copy(group.color,color);
 						addRow(color,depth);
 					}
-					Vec::def(Base::text_location[cnt],Base::width,h_field.last()+h_block.last(),depth*Base::depth);
+					M::Vec::def(Base::text_location[cnt],Base::width,h_field.last()+h_block.last(),depth*Base::depth);
 					depth *= 0.8;
 					cnt++;
 				}
@@ -1139,10 +1139,10 @@ namespace Engine
 			}
 			if (view == Solid)
 			{
-				TVec3<> color={0,0,0};
+				M::TVec3<> color={0,0,0};
 				for (index_t i = 0; i < data->groups(); i++)
-					Vec::add(color,data->group(i).color);
-				Vec::div(color,data->groups());
+					M::Vec::add(color,data->group(i).color);
+				M::Vec::div(color,data->groups());
 				
 				addRow(color,1.0f);
 			}
@@ -1335,13 +1335,13 @@ namespace Engine
 						ASSERT2__(channel.history.length() == res,channel.history.length(),res);
 						const float*h = channel.history.pointer();
 
-						TVec3<> color;
+						M::TVec3<> color;
 						if (group.channels()>1)
-							Vec::interpolate(group.color,channel.color,0.25,color);
+							M::Vec::interpolate(group.color,channel.color,0.25,color);
 						else
-							Vec::copy(group.color,color);
+							M::Vec::copy(group.color,color);
 						//addRow(color,depth);
-						Vec::def(Base::text_location[cnt],width,h[res-1],(offset*scale*2-1)*depth+scale/2.0);
+						M::Vec::def(Base::text_location[cnt],width,h[res-1],(offset*scale*2-1)*depth+scale/2.0);
 						for (unsigned k = 0; k < res; k++)
 						{
 							if (h[k] > highest)
@@ -1434,10 +1434,10 @@ namespace Engine
 			}
 			if (view == Solid)
 			{
-				TVec3<> color={0,0,0};
+				M::TVec3<> color={0,0,0};
 				for (index_t i = 0; i < data->groups(); i++)
-					Vec::add(color,data->group(i).color);
-				Vec::div(color,data->groups());
+					M::Vec::add(color,data->group(i).color);
+				M::Vec::div(color,data->groups());
 				
 			}
 			str_current = "";

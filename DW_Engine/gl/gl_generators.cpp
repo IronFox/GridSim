@@ -483,7 +483,7 @@ GLuint Generator::glGridSystem(unsigned width, unsigned height, unsigned depth)
 GLuint Generator::glTextureSphere(float radius, unsigned iterations)
 {
     GLuint result = glGenLists(1);
-    TVec3<GLfloat> p[4],c,n;
+    M::TVec3<GLfloat> p[4],c,n;
     glNewList(result,GL_COMPILE);
         glBegin(GL_QUADS);
         for (BYTE d = 0; d < 3; d++)
@@ -509,7 +509,7 @@ GLuint Generator::glTextureSphere(float radius, unsigned iterations)
                     float least(1),max(0);
                     for (BYTE k = 0; k < 4; k++)
                     {
-                        float tx = Vec::angleOne(p[k].v[0],p[k].v[2]);
+                        float tx = M::Vec::angleOne(p[k].v[0],p[k].v[2]);
                         if (tx < least)
                             least = tx;
                         if (tx > max)
@@ -519,9 +519,9 @@ GLuint Generator::glTextureSphere(float radius, unsigned iterations)
                     for (BYTE k = 0; k < 4; k++)
                     {
 
-                        Vec::divide(p[k],Vec::length(p[k]),n);
-                        Vec::multiply(n,radius,c);
-                        float tx = Vec::angleOne(c.x,c.z);
+                        M::Vec::divide(p[k],M::Vec::length(p[k]),n);
+                        M::Vec::multiply(n,radius,c);
+                        float tx = M::Vec::angleOne(c.x,c.z);
                         if (crossed && tx < 0.25)
                             tx++;
                         glTexCoord2f(tx, atan2(n.v[1],(GLfloat)vsqrt(sqr(n.x)+sqr(n.z))) /M_PI+0.5);
@@ -531,9 +531,9 @@ GLuint Generator::glTextureSphere(float radius, unsigned iterations)
                     for (BYTE k = 3; k < 4; k--)
                     {
                         p[k].v[d] = -1;
-                        Vec::divide(p[k],Vec::length(p[k]),n);
-                        Vec::multiply(n,radius,c);
-                        float tx = Vec::angleOne(c.v[0],c.v[2]);
+                        M::Vec::divide(p[k],M::Vec::length(p[k]),n);
+                        M::Vec::multiply(n,radius,c);
+                        float tx = M::Vec::angleOne(c.v[0],c.v[2]);
                         if (crossed && tx < 0.25)
                             tx++;
 //                        ShowMessage(_toString(n)+" -> "+FloatToStr(atan2(n[1],(GLfloat)vsqrt(sqr(n[0])+sqr(n[2]))) /M_PI+0.5));
@@ -551,7 +551,7 @@ GLuint Generator::glTextureSphere(float radius, unsigned iterations)
 GLuint Generator::glCubeCoordSphere(float radius, unsigned iterations)
 {
     GLuint result = glGenLists(1);
-    TVec3<GLfloat> p[4],c,n;
+    M::TVec3<GLfloat> p[4],c,n;
     glNewList(result,GL_COMPILE);
         glBegin(GL_QUADS);
         for (BYTE d = 0; d < 3; d++)
@@ -576,8 +576,8 @@ GLuint Generator::glCubeCoordSphere(float radius, unsigned iterations)
 
                     for (BYTE k = 0; k < 4; k++)
                     {
-                        Vec::divide(p[k],Vec::length(p[k]),n);
-                        Vec::multiply(n,radius,c);
+                        M::Vec::divide(p[k],M::Vec::length(p[k]),n);
+                        M::Vec::multiply(n,radius,c);
                         glNormal3fv(n.v);
                         glTexCoord3fv(n.v);
                         glVertex3fv(c.v);
@@ -585,8 +585,8 @@ GLuint Generator::glCubeCoordSphere(float radius, unsigned iterations)
                     for (BYTE k = 3; k < 4; k--)
                     {
                         p[k].v[d] = -1;
-                        Vec::divide(p[k],Vec::length(p[k]),n);
-                        Vec::multiply(n,radius,c);
+                        M::Vec::divide(p[k],M::Vec::length(p[k]),n);
+                        M::Vec::multiply(n,radius,c);
                         glNormal3fv(n.v);
                         glTexCoord3fv(n.v);
                         glVertex3fv(c.v);
@@ -601,7 +601,7 @@ GLuint Generator::glCubeCoordSphere(float radius, unsigned iterations)
 GLuint Generator::glSphere(float radius, unsigned iterations)
 {
     GLuint result = glGenLists(1);
-    TVec3<GLfloat> p[4],c,n;
+    M::TVec3<GLfloat> p[4],c,n;
     glNewList(result,GL_COMPILE);
         glBegin(GL_QUADS);
         for (BYTE d = 0; d < 3; d++)
@@ -626,16 +626,16 @@ GLuint Generator::glSphere(float radius, unsigned iterations)
 
                     for (BYTE k = 0; k < 4; k++)
                     {
-                        Vec::divide(p[k],Vec::length(p[k]),n);
-                        Vec::multiply(n,radius,c);
+                        M::Vec::divide(p[k],M::Vec::length(p[k]),n);
+                        M::Vec::multiply(n,radius,c);
                         glNormal3fv(n.v);
                         glVertex3fv(c.v);
                     }
                     for (BYTE k = 3; k < 4; k--)
                     {
                         p[k].v[d] = -1;
-                        Vec::divide(p[k],Vec::length(p[k]),n);
-                        Vec::multiply(n,radius,c);
+                        M::Vec::divide(p[k],M::Vec::length(p[k]),n);
+                        M::Vec::multiply(n,radius,c);
                         glNormal3fv(n.v);
                         glVertex3fv(c.v);
                     }
@@ -650,7 +650,7 @@ GLuint Generator::glSphere(float radius, unsigned iterations)
 GLuint Generator::glSphereSide(float radius, unsigned iterations)
 {
     GLuint result = glGenLists(1);
-    TVec3<GLfloat> buffer[8];
+    M::TVec3<GLfloat> buffer[8];
     glNewList(result,GL_COMPILE);
         glBegin(GL_TRIANGLES);
             for (unsigned x = 1; x < iterations; x++)
@@ -668,14 +668,14 @@ GLuint Generator::glSphereSide(float radius, unsigned iterations)
                     buffer[3].x =1-(float)(x-1)/(float)(iterations-1)*2;
                     buffer[3].z=1-(float)(y)/(float)(iterations-1)*2;
                     buffer[3].y=1;
-                    float l1 = Vec::length(buffer[0]),
-                          l2 = Vec::length(buffer[1]),
-                          l3 = Vec::length(buffer[2]),
-                          l4 = Vec::length(buffer[3]);
-                    Vec::multiply(buffer[0],radius/l1,buffer[4]);
-                    Vec::multiply(buffer[1],radius/l2,buffer[5]);
-                    Vec::multiply(buffer[2],radius/l3,buffer[6]);
-                    Vec::multiply(buffer[3],radius/l4,buffer[7]);
+                    float l1 = M::Vec::length(buffer[0]),
+                          l2 = M::Vec::length(buffer[1]),
+                          l3 = M::Vec::length(buffer[2]),
+                          l4 = M::Vec::length(buffer[3]);
+                    M::Vec::multiply(buffer[0],radius/l1,buffer[4]);
+                    M::Vec::multiply(buffer[1],radius/l2,buffer[5]);
+                    M::Vec::multiply(buffer[2],radius/l3,buffer[6]);
+                    M::Vec::multiply(buffer[3],radius/l4,buffer[7]);
                     glTexCoord2f((float)x/(float)iterations,(float)(y-1)/(float)iterations);
                     glNormal3f(buffer[5].x/radius,buffer[5].y/radius,buffer[5].z/radius);
                     glVertex3fv(buffer[5].v);
@@ -1314,12 +1314,12 @@ GLuint Generator::glGeoHull(float radius, unsigned segments)
                 for (unsigned j = 0; j < segments/2; j++)
                 {
                     float r2 = 90.0f*((float)j-segments/4)/(float)(segments/4);
-					TVec3<>	p;
-                    Vec::sphereCoords(r0,r2,radius,p);
+					M::TVec3<>	p;
+                    M::Vec::sphereCoords(r0,r2,radius,p);
                     glTexCoord2f(1.0-x0,(float)j/(segments/2-1));
                     glNormal3f(p.x/radius,p.z/radius,p.y/radius);
                     glVertex3f(p.x,p.z,p.y);
-                    Vec::sphereCoords(r1,r2,radius,p);
+                    M::Vec::sphereCoords(r1,r2,radius,p);
                     glTexCoord2f(1.0-x1,(float)j/(segments/2-1));
                     glNormal3f(p.x/radius,p.z/radius,p.y/radius);
                     glVertex3f(p.x,p.z,p.y);

@@ -114,7 +114,7 @@ namespace Engine
 				TFloatRect		relative,			//!< Relative console base region (relative to the parent console location and size)
 								absolute,			//!< Absolute base screen region of this section
 								current;			//!< Current (animated) absolute screen region of this section
-				TVec2<>			trans0,				//!< Primary translation of this section (during the first half of the animation)
+				M::TVec2<>			trans0,				//!< Primary translation of this section (during the first half of the animation)
 								trans1,				//!< Secondary translation of this section (during the second half of the animation) in addition to the primary translation
 								translation;		//!< Effective current (animated) translation
 				Texture			primary,			//!< Background texture of this section (if any)

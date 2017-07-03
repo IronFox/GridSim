@@ -1602,7 +1602,7 @@ namespace Engine
 		glLightfv(l,GL_AMBIENT,light->GetAmbient().v);
 		glLightfv(l,GL_SPECULAR,light->GetSpecular().v);
 		if (verbose)
-			log_file << "updateLight("<<index<<"): color set to diffuse: "<<Vec::toString(light->GetDiffuse())<<" ambient: "<<Vec::toString(light->GetAmbient())<<" specular: "<<Vec::toString(light->GetSpecular())<<nl;
+			log_file << "updateLight("<<index<<"): color set to diffuse: "<<M::Vec::toString(light->GetDiffuse())<<" ambient: "<<M::Vec::toString(light->GetAmbient())<<" specular: "<<M::Vec::toString(light->GetSpecular())<<nl;
 		if (light->GetType() == Light::Spot)
 		{
 			glLightf(l,GL_SPOT_CUTOFF,light->GetSpotCutoff());
@@ -1638,13 +1638,13 @@ namespace Engine
 	{
 		GL_BEGIN
 		index_t index = getIndexOf(light);
-		TVec4<> p;
+		M::TVec4<> p;
 		p.xyz = light->GetPosition();
 		p.w = light->GetType() == Light::Direct?0.0f:1.0f;
 		glEnable(GL_LIGHT0+GLenum(index));	//just in case
 		glLightfv(GL_LIGHT0+GLenum(index),GL_POSITION,p.v);
 			if (verbose)
-				log_file<<"updateLightPosition(): light position ("<<index<<") updated to "<<Vec::toString(p)<<nl;
+				log_file<<"updateLightPosition(): light position ("<<index<<") updated to "<<M::Vec::toString(p)<<nl;
 		if (light->GetType() == Light::Spot)
 			glLightfv(GL_LIGHT0+GLenum(index),GL_SPOT_DIRECTION,light->GetSpotDirection().v);
 		setHasMoved(light,false);
@@ -1937,7 +1937,7 @@ namespace Engine
 		GL_END
 	}
 
-	void OpenGL::castPointQuery(const Query&query, const TVec3<>&point)
+	void OpenGL::castPointQuery(const Query&query, const M::TVec3<>&point)
 	{
 		GL_BEGIN
 		if (!state.in_query)

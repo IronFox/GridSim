@@ -25,7 +25,7 @@ namespace DeltaWorks
 	index_t	VertexTable::map(const float position[3])
 	{
 		TVertexIntPosition ip;
-		Vec::def(ip,(__int64)M::Round(position[0]/tolerance),(__int64)M::Round(position[1]/tolerance),(__int64)M::Round(position[2]/tolerance));
+		M::Vec::def(ip,(__int64)M::Round(position[0]/tolerance),(__int64)M::Round(position[1]/tolerance),(__int64)M::Round(position[2]/tolerance));
 	
 	
 		using namespace GlobalHashFunctions;
@@ -50,7 +50,7 @@ namespace DeltaWorks
 	index_t	VertexTable::map(const TPosition&position)
 	{
 		TVertexIntPosition ip;
-		Vec::def(ip,(__int64)M::Round(position.x/tolerance),(__int64)M::Round(position.y/tolerance),(__int64)M::Round(position.z/tolerance));
+		M::Vec::def(ip,(__int64)M::Round(position.x/tolerance),(__int64)M::Round(position.y/tolerance),(__int64)M::Round(position.z/tolerance));
 	
 		using namespace GlobalHashFunctions;
 		hash_t hashed = Hash(ip);

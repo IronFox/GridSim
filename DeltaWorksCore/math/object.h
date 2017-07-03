@@ -48,7 +48,7 @@ Also provides template-structures for abstract objects.
 namespace DeltaWorks
 {
 
-	namespace ObjectMath	//! Collection of geometry related mathematical functions and classes
+	namespace Math	//! Collection of geometry related mathematical functions and classes
 	{
 
 		#include "object_operations.h"
@@ -82,8 +82,8 @@ namespace DeltaWorks
 
 
 
-		MFUNC4	(void)			_oTriangleNormal(const TVec3<C0>&p0, const TVec3<C1>&p1, const TVec3<C2>&p2, TVec3<C3>&result);		//!< Calculates the normal of the specified triangle and stores it in \b out. The result is not normalized \param p0 First triangle vertex, \param p1 Second triangle vertex \param p2 Third triangle vertex \param result [out] Vector for the resulting normal
-		MFUNC4	(void)			_oAddTriangleNormal(const TVec3<C0>&p0, const TVec3<C1>&p1, const TVec3<C2>&p2, TVec3<C3>&inout);	//!< Calculates the normal of the specified triangle and adds it to the provided \b inout normal vector. The resulting local normal is not normalized before adding. \param p0 First triangle vertex, \param p1 Second triangle vertex \param p2 Third triangle vertex \param inout In/out vector to add the local triangle normal to
+		MFUNC4	(void)			_oTriangleNormal(const M::TVec3<C0>&p0, const M::TVec3<C1>&p1, const M::TVec3<C2>&p2, M::TVec3<C3>&result);		//!< Calculates the normal of the specified triangle and stores it in \b out. The result is not normalized \param p0 First triangle vertex, \param p1 Second triangle vertex \param p2 Third triangle vertex \param result [out] Vector for the resulting normal
+		MFUNC4	(void)			_oAddTriangleNormal(const M::TVec3<C0>&p0, const M::TVec3<C1>&p1, const M::TVec3<C2>&p2, M::TVec3<C3>&inout);	//!< Calculates the normal of the specified triangle and adds it to the provided \b inout normal vector. The resulting local normal is not normalized before adding. \param p0 First triangle vertex, \param p1 Second triangle vertex \param p2 Third triangle vertex \param inout In/out vector to add the local triangle normal to
 		MFUNC	(C)				_oTriangleSize(const C*o, unsigned band);								//!< Calculates the size of the specified 3 dimensional triangle \param o Field of floats defining the triangle \param band Number of floats per vertex \return Size of the specified triangle
 		MFUNC3	(C0)			_oTriangleSize(const C0*v1, const C1*v2,const C2*v3);					//!< Calculates the size of the specified 3 dimensional triangle \param p0 First triangle vertex, \param p1 Second triangle vertex \param p2 Third triangle vertex \return Size of the specified triangle
 		MFUNC3	(char)			_oTriangleOrientation2(const C0 p0[2], const C1 p1[2], const C2 p2[2]);	//!< Calculates the orientation of the specified 2 dimensional triangle. The respective sign results from the triangle orientation (clockwise = negative, counter clockwise = positive) \param p0 First triangle vertex, \param p1 Second triangle vertex \param p2 Third triangle vertex \return Triangle orientation
@@ -241,8 +241,8 @@ namespace DeltaWorks
 			\param dimensions Out dimension field
 			\param band Number of dimensions
 		*/
-		MFUNC2	(void)		_oDetDimension(const TVec3<C0>&vertex, Box<C1>&dimensions);
-		MFUNC3	(void)		_oDetDimension(const TVec3<C0>&vertex, TVec3<C1>&lower, TVec3<C2>&upper);	//!< Identical to the above for separate lower/upper boundaries
+		MFUNC2	(void)		_oDetDimension(const M::TVec3<C0>&vertex, M::Box<C1>&dimensions);
+		MFUNC3	(void)		_oDetDimension(const M::TVec3<C0>&vertex, M::TVec3<C1>&lower, M::TVec3<C2>&upper);	//!< Identical to the above for separate lower/upper boundaries
 		MFUNC2V (void)		_oDetDimensionV(const C0*vertex, C1*dimensions);			//!< Compile time defined variable version of _oDetDimension()
 	
 		/*!
@@ -364,7 +364,7 @@ namespace DeltaWorks
 			\param distance In/out distance scalar. This value will be updated if a closer (positive) intersection was detected.
 			\return true if a positive intersection closer than the specified distance was detected, false otherwise. The specified distance value remains unchanged if the result is false.
 		*/
-		MFUNC4	(bool)		_oDetectOpticalBoxIntersection(const Box<C0>&box, const TVec3<C1>&b, const TVec3<C2>&d, C3&distance );
+		MFUNC4	(bool)		_oDetectOpticalBoxIntersection(const M::Box<C0>&box, const M::TVec3<C1>&b, const M::TVec3<C2>&d, C3&distance );
 	
 		/*!
 			\brief Checks if the specified edge and box intersect
@@ -374,7 +374,7 @@ namespace DeltaWorks
 			\param box Volume field with the first three components describing the lower, the last three components the upper boundaries of the box.
 			\return true if an intersection was detected, false otherwise.
 		*/
-		MFUNC3	(bool)		_oIntersectsBox(const TVec3<C0>&p0, const TVec3<C1>&p1, const Box<C2>&box);
+		MFUNC3	(bool)		_oIntersectsBox(const M::TVec3<C0>&p0, const M::TVec3<C1>&p1, const M::Box<C2>&box);
 	
 		/*!
 			\brief Projects a point onto a plane
@@ -410,7 +410,7 @@ namespace DeltaWorks
 			\param target Out object that should contain the finished triangulation
 			\return true if the specified polygon could be completely triangulated, false otherwise.
 		*/
-		MFUNC2	(bool)		_oTriangulate(const TVec2<C0>*vertex, count_t vertices, Mesh<C1>&target);//two entries per vertex
+		MFUNC2	(bool)		_oTriangulate(const M::TVec2<C0>*vertex, count_t vertices, Mesh<C1>&target);//two entries per vertex
 	
 		template <typename ContainerT, typename Index>
 			MF_DECLARE	(bool)	_oTriangulate3(const ContainerT&vertex_field, Container::BasicBuffer<Index>&target);
@@ -419,7 +419,7 @@ namespace DeltaWorks
 			\overload
 			\param vertex_field Vertex float field. Each vertex is required to provide two components (x and y). Thus the number of polygon vertices is vertex_field.length()/2
 		*/
-		MFUNC2	(bool)		_oTriangulate(const Ctr::ArrayData<TVec2<C0> >&vertex_field, Mesh<C1>&target);//two entries per vertex
+		MFUNC2	(bool)		_oTriangulate(const Ctr::ArrayData<M::TVec2<C0> >&vertex_field, Mesh<C1>&target);//two entries per vertex
 
 		/*!
 			\brief Checks if the two specified edges intersect in R3 (given a certain tollerance)
@@ -526,7 +526,7 @@ namespace DeltaWorks
 		MFUNC	(void)		_oUnlinkFromVertices(MeshQuad<TFaceGraphDef<C> >*quad, MeshVertex<TFaceGraphDef<C> >*except);			//!< Unlinks the specified quad from all its vertices except the specified \b except vertex
 	
  	
-		MFUNC	(count_t)		_oCountUnmarked(const Vector<C>&list);		//!< Counts the number of elements whoes 'marked' member is false
+		MFUNC	(count_t)		_oCountUnmarked(const Ctr::BasicBuffer<C>&list);		//!< Counts the number of elements whoes 'marked' member is false
 
 
 		MFUNC	(TriangleMesh<C>*)	_oSphere(const C&radius, count_t iterations);	//!< Generates a spherical triangle mesh \param radius Sphere radius \param iterations Surface resolution (5 = very low, 50 = very high)
@@ -538,17 +538,17 @@ namespace DeltaWorks
 
 		template <class Float> struct TVertex2	//! 2 dimensional vertex
 		{
-				TVec2<Float>					p;
+				M::TVec2<Float>					p;
 		};
 	
 		template <class Float> struct TVertex3	//! 3 dimensional vertex
 		{
-				TVec3<Float>					p;
+				M::TVec3<Float>					p;
 		};
 	
 		template <class Float> struct TVertex3N:public TVertex3<Float>	//! 3 dimensional vertex providing a normal
 		{
-				TVec3<Float>					n;
+				M::TVec3<Float>					n;
 				bool							added;
 		};
 
@@ -892,7 +892,7 @@ namespace DeltaWorks
 			class MeshVertex:public TMeshPrimitive, public Def::Vertex	//! Base vertex of a Mesh<> instance
 			{
 			public:
-					TVec3<typename Def::Type>	position;		//!< Position of this vertex in R3
+					M::TVec3<typename Def::Type>	position;		//!< Position of this vertex in R3
 			};
 	
 
@@ -1136,8 +1136,8 @@ namespace DeltaWorks
 			MF_DECLARE	(void)						verifyIntegrity()									const;	//!< Checks the validity of the local geometry and triggers a fatal exception if it isn't.
 			MF_DECLARE	(bool)						valid(bool check_range=true)						const;	//!< Checks the validity of the local geometry. \param check_range Set true to also check link pointers for broken links, otherwise just for broken neighbor links and collapsed vertex pointers. \return true if the local geometry is found valid, false otherwise. Use errorStr() to retrieve an error description if the method returns false.
 			MF_DECLARE	(String)					errorStr()											const;	//!< Generates a string representation of the last occured error
-			MF_DECLARE	(void)						vertexDimensions(Box<typename Def::Type>&field)	const;	//!< Determines a box enclosing all local vertices \param field Out bounding box with the first three components defining the lower corner and the last three components defining the upper corner
-			MF_DECLARE	(void)						getBoundingBox(Box<typename Def::Type>&field)		const	{vertexDimensions(field);}	//!< Determines a box enclosing all local vertices \param field Out bounding box with the first three components defining the lower corner and the last three components defining the upper corner
+			MF_DECLARE	(void)						vertexDimensions(M::Box<typename Def::Type>&field)	const;	//!< Determines a box enclosing all local vertices \param field Out bounding box with the first three components defining the lower corner and the last three components defining the upper corner
+			MF_DECLARE	(void)						getBoundingBox(M::Box<typename Def::Type>&field)		const	{vertexDimensions(field);}	//!< Determines a box enclosing all local vertices \param field Out bounding box with the first three components defining the lower corner and the last three components defining the upper corner
 
 			template <typename T>
 			MF_DECLARE	(void)						scale(const T&factor);									//!< Scales the local geometry by the specified factor.
@@ -1185,7 +1185,7 @@ namespace DeltaWorks
 			public:
 				static Container::Buffer<ObjMap<Def>*>sector_map;					//!< Global sector lookup buffer
 	
-				Box<C>						dim;								//!< Bounding box
+				M::Box<C>						dim;								//!< Bounding box
 				ObjMap<Def>*				child[8];							//!< Pointer to node children or NULL if the respective child does not exist
 				unsigned					level;								//!< Recursive level of the local map (0=lowest level/leaf)
 				count_t						bad_hits;							//!< Number of double mappings encountered during the last lookup
@@ -1196,7 +1196,7 @@ namespace DeltaWorks
 
 											ObjMap(unsigned depth, bool keep = false);		//!< Default map constructor \param depth Maximum recursion depth \param keep Forwarded to the local \b keep_dimensions variable
 											ObjMap(const ObjMap<Def>&other);				//!< Copy constructor
-											ObjMap(const Box<C>&dimension, unsigned level);	//!< Default child constructor \param dimension Bounding box of this node \param level Recursive level of this node
+											ObjMap(const M::Box<C>&dimension, unsigned level);	//!< Default child constructor \param dimension Bounding box of this node \param level Recursive level of this node
 				virtual						~ObjMap();
 				MF_DECLARE	(void)			map(Mesh<Def>&mesh, BYTE tag);					//!< Recursivly maps the specified mesh into the local tree \param mesh Mesh to map \param tag Components that should be mapped. May be any combination of O_VERTICES, O_EDGES, O_TRIANGLES, and O_QUADS. Additionally O_FACES combine O_TRIANGLES and O_QUADS and O_ALL means all components. Non specified components are not mapped. 
 				MF_DECLARE	(void)			drop(index_t index, BYTE tag = O_ALL);				//!< Drops all elements of the specified type and index
@@ -1217,7 +1217,7 @@ namespace DeltaWorks
 
 
 		template <class FloatType=float>
-			class Point:public TVec3<FloatType>	//! General usage 3d point structure
+			class Point:public M::TVec3<FloatType>	//! General usage 3d point structure
 			{
 			public:
 				typedef FloatType			Float;
@@ -1225,12 +1225,12 @@ namespace DeltaWorks
 
 				MF_CONSTRUCTOR				Point();
 				MF_CONSTRUCTOR				Point(const Float&x, const Float&y, const Float&z);
-				MF_CONSTRUCTOR				Point(const TVec3<Float>&position);
-				MFUNC	(bool)				operator>(const TVec3<C>&other)	const;	//!< Vector order priorizing x over y and y over z
-				MFUNC	(bool)				operator<(const TVec3<C>&other)	const;	//!< Vector order priorizing x over y and y over z
+				MF_CONSTRUCTOR				Point(const M::TVec3<Float>&position);
+				MFUNC	(bool)				operator>(const M::TVec3<C>&other)	const;	//!< Vector order priorizing x over y and y over z
+				MFUNC	(bool)				operator<(const M::TVec3<C>&other)	const;	//!< Vector order priorizing x over y and y over z
 				MF_DECLARE	(String)		ToString()	const
 											{
-												return Vec::toString(*this);
+												return M::Vec::toString(*this);
 											}
 			};
 	
@@ -1239,11 +1239,11 @@ namespace DeltaWorks
 			{
 			public:
 				typedef FloatType			Float;
-				TVec3<Float>				normal;		//!< Point normal
+				M::TVec3<Float>				normal;		//!< Point normal
 
 				MF_CONSTRUCTOR				NormalPoint();
 				MF_CONSTRUCTOR				NormalPoint(const Float&x, const Float&y, const Float&z,const Float&nx, const Float&ny, const Float&nz);
-				MF_CONSTRUCTOR				NormalPoint(const TVec3<Float>&position, const TVec3<Float>&normal);
+				MF_CONSTRUCTOR				NormalPoint(const M::TVec3<Float>&position, const M::TVec3<Float>&normal);
 				MFUNC(bool)					operator>(const NormalPoint<C>&other)	const;	//!< Point order priorizing position over normal
 				MFUNC(bool)					operator<(const NormalPoint<C>&other)	const;	//!< Point order priorizing position over normal
 			};
@@ -1256,8 +1256,8 @@ namespace DeltaWorks
 				typedef Sphere<FloatType>	Super;
 				typedef FloatType			Float;
 			
-				MF_DECLARE	(void)			resolveIndentation(const AbstractSphere<Float>&remote, Float&indentation, TVec3<Float>&indentation_vector, bool verbose)	const;	//!< Attempts to determine the direction and intensity of an intersection between the local sphere and a remote abstract geometry  \param remote Geometry to determine the indentation/intersection of \param indentation_vector Out vector that the local sphere would have to be moved by to deintersect the two geometries. The resulting vector is of length 0 if the two geometries don't intersect.
-				MF_DECLARE	(void)			resolveIndentation(const AbstractCylinder<Float>&remote, Float&indentation, TVec3<Float>&indentation_vector, bool verbose)	const;	//!< Attempts to determine the direction and intensity of an intersection between the local sphere and a remote abstract geometry  \param remote Geometry to determine the indentation/intersection of \param indentation_vector Out vector that the local sphere would have to be moved by to deintersect the two geometries. The resulting vector is of length 0 if the two geometries don't intersect.
+				MF_DECLARE	(void)			resolveIndentation(const AbstractSphere<Float>&remote, Float&indentation, M::TVec3<Float>&indentation_vector, bool verbose)	const;	//!< Attempts to determine the direction and intensity of an intersection between the local sphere and a remote abstract geometry  \param remote Geometry to determine the indentation/intersection of \param indentation_vector Out vector that the local sphere would have to be moved by to deintersect the two geometries. The resulting vector is of length 0 if the two geometries don't intersect.
+				MF_DECLARE	(void)			resolveIndentation(const AbstractCylinder<Float>&remote, Float&indentation, M::TVec3<Float>&indentation_vector, bool verbose)	const;	//!< Attempts to determine the direction and intensity of an intersection between the local sphere and a remote abstract geometry  \param remote Geometry to determine the indentation/intersection of \param indentation_vector Out vector that the local sphere would have to be moved by to deintersect the two geometries. The resulting vector is of length 0 if the two geometries don't intersect.
 				MF_DECLARE(bool)			intersects(const AbstractSphere<Float>&remote)		const;
 				MF_DECLARE(bool)			intersects(const AbstractCylinder<Float>&remote)	const;
 			};
@@ -1273,13 +1273,13 @@ namespace DeltaWorks
 				Float						radius;		//!< Cylinder radius (scalar)
 			
 				MF_CONSTRUCTOR				AbstractCylinder(const Float&radius=1);
-				MF_CONSTRUCTOR				AbstractCylinder(const TVec3<Float>&p0, const TVec3<Float>&p1, const Float&radius=1);
+				MF_CONSTRUCTOR				AbstractCylinder(const M::TVec3<Float>&p0, const M::TVec3<Float>&p1, const Float&radius=1);
 
-				MF_DECLARE	(void)			resolveIndentation(const AbstractSphere<Float>&remote, Float&indentation, TVec3<Float>& indentation_vector, bool verbose)	const;	//!< Attempts to determine the direction and intensity of an intersection between the local geometry and a remote abstract geometry  \param remote Geometry to determine the indentation/intersection of \param indentation_vector Out vector that the local cylinder would have to be moved by to deintersect the two geometries. The resulting vector is of length 0 if the two geometries don't intersect.
-				MF_DECLARE	(void)			resolveIndentation(const AbstractCylinder<Float>&remote, Float&indentation, TVec3<Float>& indentation_vector, bool verbose)	const;//!< Attempts to determine the direction and intensity of an intersection between the local and a remote abstract geometry  \param remote Geometry to determine the indentation/intersection of \param indentation_vector Out vector that the local cylinder would have to be moved by to deintersect the two geometries. The resulting vector is of length 0 if the two geometries don't intersect.
+				MF_DECLARE	(void)			resolveIndentation(const AbstractSphere<Float>&remote, Float&indentation, M::TVec3<Float>& indentation_vector, bool verbose)	const;	//!< Attempts to determine the direction and intensity of an intersection between the local geometry and a remote abstract geometry  \param remote Geometry to determine the indentation/intersection of \param indentation_vector Out vector that the local cylinder would have to be moved by to deintersect the two geometries. The resulting vector is of length 0 if the two geometries don't intersect.
+				MF_DECLARE	(void)			resolveIndentation(const AbstractCylinder<Float>&remote, Float&indentation, M::TVec3<Float>& indentation_vector, bool verbose)	const;//!< Attempts to determine the direction and intensity of an intersection between the local and a remote abstract geometry  \param remote Geometry to determine the indentation/intersection of \param indentation_vector Out vector that the local cylinder would have to be moved by to deintersect the two geometries. The resulting vector is of length 0 if the two geometries don't intersect.
 				MF_DECLARE(bool)			intersects(const AbstractSphere<Float>&remote)		const;
 				MF_DECLARE(bool)			intersects(const AbstractCylinder<Float>&remote)	const;
-				MFUNC(bool)					contains(const TVec3<C>&point)	const;
+				MFUNC(bool)					contains(const M::TVec3<C>&point)	const;
 			};
 			
 			
@@ -1300,10 +1300,10 @@ namespace DeltaWorks
 				MF_DECLARE(bool)			intersects(const AbstractHull<Float>&remote)		const;
 				MF_DECLARE(bool)			intersects(const AbstractSphere<Float>&remote)		const;
 				MF_DECLARE(bool)			intersects(const AbstractCylinder<Float>&remote)	const;
-				MF_DECLARE(void)			resolveIndentation(const AbstractSphere<Float>&remote, Float&indentation, TVec3<Float>& indentation_vector, bool verbose)	const;	//!< Attempts to determine the direction and intensity of an intersection between the local geometry and a remote abstract geometry  \param remote Geometry to determine the indentation/intersection of \param indentation_vector Out vector that the local cylinder would have to be moved by to deintersect the two geometries. The resulting vector is of length 0 if the two geometries don't intersect.
-				MF_DECLARE(void)			resolveIndentation(const AbstractCylinder<Float>&remote, Float&indentation, TVec3<Float>& indentation_vector, bool verbose)	const;//!< Attempts to determine the direction and intensity of an intersection between the local and a remote abstract geometry  \param remote Geometry to determine the indentation/intersection of \param indentation_vector Out vector that the local cylinder would have to be moved by to deintersect the two geometries. The resulting vector is of length 0 if the two geometries don't intersect.
-				MF_DECLARE(bool)			detectMaximumIndentation(const AbstractHull<Float>&remote, TVec3<>&indentation_out, bool verbose)	const;	//!< Detects the maximum indentation/intersection vector of the local and a remote abstract hull \param remote Hull to determine the indentation/intersection of \param indentation_out Out vector that the local hull would have to be moved by to deintersect the two hulls. The resulting vector is of length 0 if the two hulls don't intersect.
-				MFUNC(void)					translate(const TVec3<C>&delta);	//!< Translates the entire hull (all spheres and cylinders)
+				MF_DECLARE(void)			resolveIndentation(const AbstractSphere<Float>&remote, Float&indentation, M::TVec3<Float>& indentation_vector, bool verbose)	const;	//!< Attempts to determine the direction and intensity of an intersection between the local geometry and a remote abstract geometry  \param remote Geometry to determine the indentation/intersection of \param indentation_vector Out vector that the local cylinder would have to be moved by to deintersect the two geometries. The resulting vector is of length 0 if the two geometries don't intersect.
+				MF_DECLARE(void)			resolveIndentation(const AbstractCylinder<Float>&remote, Float&indentation, M::TVec3<Float>& indentation_vector, bool verbose)	const;//!< Attempts to determine the direction and intensity of an intersection between the local and a remote abstract geometry  \param remote Geometry to determine the indentation/intersection of \param indentation_vector Out vector that the local cylinder would have to be moved by to deintersect the two geometries. The resulting vector is of length 0 if the two geometries don't intersect.
+				MF_DECLARE(bool)			detectMaximumIndentation(const AbstractHull<Float>&remote, M::TVec3<>&indentation_out, bool verbose)	const;	//!< Detects the maximum indentation/intersection vector of the local and a remote abstract hull \param remote Hull to determine the indentation/intersection of \param indentation_out Out vector that the local hull would have to be moved by to deintersect the two hulls. The resulting vector is of length 0 if the two hulls don't intersect.
+				MFUNC(void)					translate(const M::TVec3<C>&delta);	//!< Translates the entire hull (all spheres and cylinders)
 				MF_DECLARE	(String)		ToString()	const;				//!< Generates a string representation of the local hull
 				void						adoptData(AbstractHull<Float>&other)	{spheres.adoptData(other.spheres); cylinders.adoptData(other.cylinders);}
 				void						swap(AbstractHull<Float>&other)			{spheres.swap(other.spheres); cylinders.swap(other.cylinders);}
@@ -1313,10 +1313,10 @@ namespace DeltaWorks
 		template <class Float>
 			MF_DECLARE (void)				makeSphere(const Float&radius,AbstractHull<Float>&out_hull);	//!< Generates an abstract hull that contains just one sphere (at the point of origin) of the specified radius
 		template <class Float>
-			MF_DECLARE (void)				makeSphere(const TVec3<Float>&center, const Float&radius,AbstractHull<Float>&out_hull);	//!< Generates an abstract hull that contains just one sphere at the specified center of the specified radius
+			MF_DECLARE (void)				makeSphere(const M::TVec3<Float>&center, const Float&radius,AbstractHull<Float>&out_hull);	//!< Generates an abstract hull that contains just one sphere at the specified center of the specified radius
 
 		template <class Float>
-			MF_DECLARE (void)				makeCapsule(const TVec3<Float>&p0, const TVec3<Float>&p1, const Float&radius,AbstractHull<Float>&out_hull);	//!< Generates an abstract hull consisting of two spheres and a connecting cylinder \param p0 Center of the first sphere/cylinder circle \param p1 Center of the second sphere/cylinder circle \param radius Radius of the spheres and cylinder \return new hull containing a cylinder and two spheres
+			MF_DECLARE (void)				makeCapsule(const M::TVec3<Float>&p0, const M::TVec3<Float>&p1, const Float&radius,AbstractHull<Float>&out_hull);	//!< Generates an abstract hull consisting of two spheres and a connecting cylinder \param p0 Center of the first sphere/cylinder circle \param p1 Center of the second sphere/cylinder circle \param radius Radius of the spheres and cylinder \return new hull containing a cylinder and two spheres
 
 
 		template <typename Float=float>
@@ -1342,9 +1342,9 @@ namespace DeltaWorks
 												n[3];
 							};
 						};
-						TVec3<Float>			normal;
+						M::TVec3<Float>			normal;
 						bool					flagged;
-						TVec3<UINT32>			link;
+						M::TVec3<UINT32>			link;
 					
 						MF_DECLARE (TTriangle&)		set(UINT32 v0_, UINT32 v1_, UINT32 v2_, UINT32 n0_, UINT32 n1_, UINT32 n2_)
 												{
@@ -1370,11 +1370,11 @@ namespace DeltaWorks
 				
 					struct TPoint
 					{
-						TVec3<Float>			vector;
+						M::TVec3<Float>			vector;
 						UINT32					index0,
 												index1;
 						template <typename T>
-						MF_DECLARE (TPoint&)	set(const TVec3<T>&v, UINT32 i0, UINT32 i1)
+						MF_DECLARE (TPoint&)	set(const M::TVec3<T>&v, UINT32 i0, UINT32 i1)
 												{
 													vector = v;
 													index0 = i0;
@@ -1395,7 +1395,7 @@ namespace DeltaWorks
 				
 					MF_DECLARE (void)				Reset();						//!< Resets the local hull building process
 				template <typename T>
-					MF_DECLARE (void)				Include(const TVec3<T>&point);		//!< Includes a point into the convex hull.
+					MF_DECLARE (void)				Include(const M::TVec3<T>&point);		//!< Includes a point into the convex hull.
 				template <typename T>
 					MF_DECLARE (void)				Include(const Point<T>&point);	//!< Includes a point into the convex hull.
 				
@@ -1455,12 +1455,11 @@ namespace DeltaWorks
 					*/
 			MF_DECLARE	(void)		build(const C p0[3], const C n0[3], const C p1[3], const C n1[3], const C p2[3], const C n2[3], const C p3[3], const C n3[3], const C&control_factor=0.45);
 			};
+		#include "object.tpl.h"
 
 	}
 
-	using namespace ObjectMath;
 
-	#include "object.tpl.h"
 }
 
 #endif

@@ -40,7 +40,7 @@ namespace DeltaWorks
 				Matches the local polynomial to match the given set of points.
 				The X-coordinates of all points must be pairwise different.
 				*/
-				bool			MatchPoints(const std::array<TVec3<T>,NumCoefX*NumCoefY>&points)
+				bool			MatchPoints(const std::array<M::TVec3<T>,NumCoefX*NumCoefY>&points)
 				{
 					static const count_t TotCoef =  NumCoefX * NumCoefY;
 					TMatrix<T,TotCoef,TotCoef>	mX,mInv;
@@ -48,7 +48,7 @@ namespace DeltaWorks
 
 					for (index_t at = 0; at < TotCoef; at++)
 					{
-						const TVec3<T>&p = points[at];
+						const M::TVec3<T>&p = points[at];
 						vY.v[at] = p.z;
 
 						const T fx = p.x;
@@ -67,7 +67,7 @@ namespace DeltaWorks
 					return true;
 				}
 			
-				bool		Approximate(const Ctr::ArrayRef<TVec3<T> >&points)
+				bool		Approximate(const Ctr::ArrayRef<M::TVec3<T> >&points)
 				{
 					static const count_t TotCoef =  NumCoefX * NumCoefY;
 
@@ -75,7 +75,7 @@ namespace DeltaWorks
 					Ctr::Array<T> yv(points.Count());
 					for (index_t i = 0; i < points.Count(); i++)
 					{
-						const TVec3<T>&p = points[i];
+						const M::TVec3<T>&p = points[i];
 						yv[i] = p.z;
 						for (index_t eX = 0; eX < NumCoefX; eX++)
 						for (index_t eY = 0; eY < NumCoefY; eY++)
@@ -121,7 +121,7 @@ namespace DeltaWorks
 				Matches the local polynomial to match the given set of points.
 				The X-coordinates of all points must be pairwise different.
 				*/
-				bool			MatchPoints(const std::array<TVec2<T>,NumCoef>&points)
+				bool			MatchPoints(const std::array<M::TVec2<T>,NumCoef>&points)
 				{
 					TMatrix<T,NumCoef,NumCoef>	mX,mInv;
 					TVec<T,NumCoef>	vY;
@@ -148,7 +148,7 @@ namespace DeltaWorks
 
 
 			
-				bool		Approximate(const Ctr::ArrayRef<TVec2<T> >&points)
+				bool		Approximate(const Ctr::ArrayRef<M::TVec2<T> >&points)
 				{
 					Array2D<T> XT(NumCoef,points.Count()),X(points.Count(),NumCoef);
 					Ctr::Array<T> yv(points.Count());
@@ -199,7 +199,7 @@ namespace DeltaWorks
 				Matches the local polynomial to match the given set of points.
 				The X-coordinates of all points must be pairwise different.
 				*/
-				bool			MatchPoints(const std::array<TVec2<T>,NumCoef>&points)
+				bool			MatchPoints(const std::array<M::TVec2<T>,NumCoef>&points)
 				{
 					TMatrix<T,NumCoef,NumCoef>	mX,mInv;
 					TVec<T,NumCoef>	vY;
@@ -224,7 +224,7 @@ namespace DeltaWorks
 					return true;
 				}
 			
-				bool		Approximate(const Ctr::ArrayRef<TVec2<T> >&points)
+				bool		Approximate(const Ctr::ArrayRef<M::TVec2<T> >&points)
 				{
 					Array2D<T> XT(NumCoef,points.Count()),X(points.Count(),NumCoef);
 					Ctr::Array<T> yv(points.Count());
@@ -283,7 +283,7 @@ namespace DeltaWorks
 				Matches the local polynomial to match the given set of points.
 				The X-coordinates of all points must be pairwise different.
 				*/
-				bool			MatchPoints(const std::array<TVec3<T>,NumCoefX*NumCoefY>&points)
+				bool			MatchPoints(const std::array<M::TVec3<T>,NumCoefX*NumCoefY>&points)
 				{
 					static const count_t TotCoef =  NumCoefX * NumCoefY;
 					TMatrix<T,TotCoef,TotCoef>	mX,mInv;
@@ -291,7 +291,7 @@ namespace DeltaWorks
 
 					for (index_t at = 0; at < TotCoef; at++)
 					{
-						const TVec3<T>&p = points[at];
+						const M::TVec3<T>&p = points[at];
 						vY.v[at] = p.z;
 
 						const T fx = p.x;
@@ -310,7 +310,7 @@ namespace DeltaWorks
 					return true;
 				}
 			
-				bool		Approximate(const Ctr::ArrayRef<TVec3<T> >&points)
+				bool		Approximate(const Ctr::ArrayRef<M::TVec3<T> >&points)
 				{
 					static const count_t TotCoef =  NumCoefX * NumCoefY;
 
@@ -318,7 +318,7 @@ namespace DeltaWorks
 					Ctr::Array<T> yv(points.Count());
 					for (index_t i = 0; i < points.Count(); i++)
 					{
-						const TVec3<T>&p = points[i];
+						const M::TVec3<T>&p = points[i];
 						yv[i] = p.z;
 						for (index_t eX = 0; eX < NumCoefX; eX++)
 						for (index_t eY = 0; eY < NumCoefY; eY++)

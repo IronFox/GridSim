@@ -27,7 +27,7 @@ namespace Flare
 		bool						primary,	//!< Attribute set for sprites directly relating to the light source (i.e. at position 0)
 									sensitive;	//!< True if this light is sensitive to and dimmed by ambient light
 		
-		TVec3<OpenGL::FloatType>	color;	//!< Color modifier
+		M::TVec3<OpenGL::FloatType>	color;	//!< Color modifier
 	};
 
 
@@ -41,7 +41,7 @@ namespace Flare
 							visibility,		//!< Current visibility based on occlusion
 							intensity,		//!< Current intensity based on direction (if directional)
 							distance;		//!< Distance between the camera and this flare point
-			TVec2<>			projected;		//!< Last projected screen coordinates
+			M::TVec2<>			projected;		//!< Last projected screen coordinates
 			bool			clipped,		//!< True if the light currently resides outside the screen clipping area
 							was_clipped,	//!< True if the light was outside the screen clipping area before the last map() call. Reset (to false) by render() in case it is now visible
 							occluded,		//!< Specifies whether or not this light is occluded by some object in the viewport. Valid only if @a clipped is false
@@ -114,9 +114,9 @@ namespace Flare
 
 	struct FlareCenter
 	{
-		TVec3<>		coordinates;
+		M::TVec3<>		coordinates;
 		float		size;
-		TVec3<>		color;
+		M::TVec3<>		color;
 	};
 
 	void			SetFlareSequence(const FlareCenter*centers, count_t numCenters);

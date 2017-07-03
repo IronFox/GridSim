@@ -29,19 +29,19 @@ namespace Fractal
 	{
 	protected:
 			//__m128				current;
-			TVec4<INT32>		seeds;
+			M::TVec4<INT32>		seeds;
 	public:
 	
 	static	const __m128i		random_mask /*=_mm_set1_epi32(0x7FFF)*/;
 	static	const __m128		random_result_factor /*=_mm_set1_ps(2.0f/32767.0f)*/;
 
 
-								CSSE3Random(const TVec4<INT32>&seeds_):seeds(seeds_)
+								CSSE3Random(const M::TVec4<INT32>&seeds_):seeds(seeds_)
 								{}
 	inline	__m128				advance()	throw()
 								{
-									Vec::mult(seeds,1103515245);
-									Vec::addVal(seeds,12345);
+									M::Vec::mult(seeds,1103515245);
+									M::Vec::addVal(seeds,12345);
 									int rnd0 = (seeds.x>>16);
 									int rnd1 = (seeds.y>>16);
 									int rnd2 = (seeds.z>>16);
@@ -69,12 +69,12 @@ namespace Fractal
 		static	const __m128i		random_shuffle_mask /*= _mm_set_epi32(0xB0B00F0E,0xB0B00B0A,0xB0B00706,0xB0B00302)*/,
 									random_offset /*= _mm_set1_epi32(12345)*/;
 
-									SupplementalSSE3Random(const TVec4<INT32>&seeds_):CSSE3Random(seeds_)
+									SupplementalSSE3Random(const M::TVec4<INT32>&seeds_):CSSE3Random(seeds_)
 									{}
 
 		inline	__m128				advance()	throw()
 									{
-										Vec::mult(seeds,1103515245);
+										M::Vec::mult(seeds,1103515245);
 										__m128i seed = _mm_add_epi32(_mm_load_si128((const __m128i*)seeds.v),random_offset);
 										_mm_store_si128((__m128i*)seeds.v,seed);
 										return _mm_sub_ps(
@@ -101,7 +101,7 @@ namespace Fractal
 		static	const __m128i		random_seed_factor;/* = _mm_set1_epi32(1103515245) */
 				__m128i				seed;
 
-									CSSE4Random(const TVec4<INT32>&seeds_):SupplementalSSE3Random(seeds_),seed(_mm_load_si128((const __m128i*)seeds_.v))
+									CSSE4Random(const M::TVec4<INT32>&seeds_):SupplementalSSE3Random(seeds_),seed(_mm_load_si128((const __m128i*)seeds_.v))
 									{}
 		inline	__m128				advance()	throw()
 									{
@@ -151,7 +151,7 @@ namespace Fractal
 		@param context Vertex parent context
 	*/
 	inline	void		resolveDirection(const float position[3], const TSurfaceSegment&segment, const TContext&context, float out[3]);	//!< @overload
-	inline	void		resolveDirection(const float position[3], const TSurfaceSegment&segment, const TContext&context, TVec3<>&out);	//!< @overload
+	inline	void		resolveDirection(const float position[3], const TSurfaceSegment&segment, const TContext&context, M::TVec3<>&out);	//!< @overload
 	inline	void		resolveDirectionBlock(	const float p0[3], const float p1[3], const float p2[3], const float p3[3], 
 											const TSurfaceSegment&segment, const TContext&context, 
 											float out0[3], float out1[3], float out2[3], float out3[3]);		//!< Block version of resolveDirection(), processing four elements at once using SSE
@@ -170,10 +170,10 @@ namespace Fractal
 
 	namespace Height
 	{
-		inline	void	applyDifferentially(const TVec3<SSE_VECTOR>&current_position, const SSE_VECTOR&current_height, const SSE_VECTOR&target_height,TVec3<>&p0, TVec3<>&p1, TVec3<>&p2, TVec3<>&p3, const TSurfaceSegment&segment, const TContext&context);
+		inline	void	applyDifferentially(const M::TVec3<SSE_VECTOR>&current_position, const SSE_VECTOR&current_height, const SSE_VECTOR&target_height,M::TVec3<>&p0, M::TVec3<>&p1, M::TVec3<>&p2, M::TVec3<>&p3, const TSurfaceSegment&segment, const TContext&context);
 		inline	void	applyDifferentially(float vector[3],float current_height, float target_height, const TSurfaceSegment&segment, const TContext&context);	//!< Differential version of the above. The vertex will be positioned relative to its current position depending on the difference between @a current_height and @b target_height
 
-		inline	void	apply(TVec3<>&vector, float scaled_relative_height, const TSurfaceSegment&surface, const TContext&context);	//!< Sets the absolute height of an individual position @param vector Position to set the height of @param scaled_relative_height New height relative to body base height @param segment Parent surface segment @param context Parent context
+		inline	void	apply(M::TVec3<>&vector, float scaled_relative_height, const TSurfaceSegment&surface, const TContext&context);	//!< Sets the absolute height of an individual position @param vector Position to set the height of @param scaled_relative_height New height relative to body base height @param segment Parent surface segment @param context Parent context
 	}
 
 	#define VERTEX_INDEX(_X_,_Y_)	((((_Y_)*((_Y_)+1))>>1)+(_X_))
@@ -204,7 +204,7 @@ namespace Fractal
 											TVertexAppearance&a0, TVertexAppearance&a1, TVertexAppearance&a2, TVertexAppearance&a3);	//!< Identical to the above but compiles four vertices to four vertex appearances at once using SSE
 
 
-	inline	void		resolveCraterDelta(const TVec3<>&p, const TCrater&crater, float&imprint, float&strength);
+	inline	void		resolveCraterDelta(const M::TVec3<>&p, const TCrater&crater, float&imprint, float&strength);
 	inline	void		resolveCraterDeltaBlock(const SSE_VECTOR&x, const SSE_VECTOR&y, const SSE_VECTOR&z, const TSSECrater&crater, SSE_VECTOR&imprint, SSE_VECTOR&strength);
 
 
@@ -239,7 +239,7 @@ namespace Fractal
 				{
 					VMOD TVertex		*vertex_field;			//!< Vertex field to operate on
 					const TVertex		*parent_vertex_field;	//!< Reference vertex field to retrieve parent vertices from
-					TVec3<float>		transition;				//!< Transition between parent and child vertex space
+					M::TVec3<float>		transition;				//!< Transition between parent and child vertex space
 					TSSECrater			*sse_crater_field;		//!< Relevant crater field, pre-converted to SSE
 					TCrater				*crater_field;			//!< Relevant crater field, non-SSE
 					count_t				crater_count;			//!< Number of relevant craters provided by both sse_crater_field and crater_field
@@ -256,7 +256,7 @@ namespace Fractal
 										*neighbor_vertex_field;		//!< Vertex field of the respective neighbor
 					const unsigned		*edge,						//!< Edge indices in this segment
 										*neighbor_edge;				//!< Edge indices in the neighboring segment
-					TVec3<float>		edge_transition;			//!< Edge transition (translation) between this segment and the neighbor
+					M::TVec3<float>		edge_transition;			//!< Edge transition (translation) between this segment and the neighbor
 					TCrater				*crater_field;				//!< Relevant crater field, non-SSE
 					count_t				crater_count;				//!< Number of relevant craters
 				}						mergeEdge;				//!< Variables required by mergeEdge operations (edge synchronization)
@@ -267,7 +267,7 @@ namespace Fractal
 										*source_edge;				//!< Indices of the vertices to copy from
 					TVertex				*destination_vertex_field;	//!< Vertex field to copy to
 					const TVertex		*source_vertex_field;		//!< Vertex field to copy from
-					TVec3<float>		edge_transition;			//!< Edge transition (translation) between this segment and the neighbor
+					M::TVec3<float>		edge_transition;			//!< Edge transition (translation) between this segment and the neighbor
 				}						copyEdge;					//!< Variables required by copyEdge operations (edge synchronization)
 				
 				struct
@@ -302,7 +302,7 @@ namespace Fractal
 					const unsigned		*triangle_indices;			//!< Triangle vertex indices (three per triangle)
 					const TVertex		*vertex_field;				//!< Vertex field to retrieve source vertices from
 					TBaseRayIntersection*intersection;				//!< Out intersection structure (one, not NULL)
-					TVec3<float>		b,							//!< Sector relative ray base position
+					M::TVec3<float>		b,							//!< Sector relative ray base position
 										d;							//!< Sector relative normalized ray direction vector
 				}						cast;						//!< Variables required for ray-landscape-intersection
 				
@@ -311,7 +311,7 @@ namespace Fractal
 					const unsigned		*triangle_indices;			//!< Triangle vertex indices (three per triangle)
 					const TVertex		*vertex_field;				//!< Vertex field to retrieve source vertices from
 					TBaseGroundInfo		*ground;					//!< Out intersection structure (one, not NULL)
-					TVec3<float>		b,							//!< Sector relative ray base position
+					M::TVec3<float>		b,							//!< Sector relative ray base position
 										d;							//!< Sector relative normalized ground-ray direction vector
 				}						groundCast;					//!< Variables required for ground detection (underneath the observer)
 
@@ -456,7 +456,7 @@ namespace Fractal
 			@param intersection [out] Intersection data to hold detailed information on the detected intersection. Except for the @a isset member variable, the referenced structure remains unchanged if no intersection was detected
 			@return true if an intersection was detected, false otherwise
 		*/
-		bool			rayCast(const TSurfaceSegment&segment,const TVec3<float>&b, const TVec3<float>&d, const ArrayData<unsigned>&triangles, TBaseRayIntersection&intersection);
+		bool			rayCast(const TSurfaceSegment&segment,const M::TVec3<float>&b, const M::TVec3<float>&d, const ArrayData<unsigned>&triangles, TBaseRayIntersection&intersection);
 		/**
 			@brief Performs a vertical ray intersection check to find a ground data beneath a specific location
 			@param surface Surface to check against
@@ -466,7 +466,7 @@ namespace Fractal
 			@param ground [out] Reference to a ground info struct to hold more detailed information.
 			@return true if the specified point is above (or beneath) the specified surface, false if no intersection was detected
 		*/
-		bool			groundQuery(const TSurfaceSegment&segment, const TVec3<>&b, const TVec3<>&down, const ArrayData<unsigned>&triangles, TBaseGroundInfo&ground);
+		bool			groundQuery(const TSurfaceSegment&segment, const M::TVec3<>&b, const M::TVec3<>&down, const ArrayData<unsigned>&triangles, TBaseGroundInfo&ground);
 
 
 
@@ -485,7 +485,7 @@ namespace Fractal
 		w[3] = v[3];
 	}
 
-	inline void  _c4(const float v[4], TVec4<>&w)
+	inline void  _c4(const float v[4], M::TVec4<>&w)
 	{
 		w.x = v[0];
 		w.y = v[1];
@@ -510,7 +510,7 @@ namespace Fractal
 		w[2] = v[2];
 	}
 
-	inline void  _c3(const float v[3], TVec3<>&w)
+	inline void  _c3(const float v[3], M::TVec3<>&w)
 	{
 		w.x = v[0];
 		w.y = v[1];
@@ -532,7 +532,7 @@ namespace Fractal
 		w[1] = v[1];
 	}
 
-	inline void  _c2(const float v[2], TVec2<>&w)
+	inline void  _c2(const float v[2], M::TVec2<>&w)
 	{
 		w.x = v[0];
 		w.y = v[1];

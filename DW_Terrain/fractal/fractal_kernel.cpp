@@ -120,7 +120,7 @@ namespace Fractal
 
 	void		generate6position(const TVertex&p0, const TVertex&p1, const TVertex&p2, const TVertex&p3, const TVertex&p4, const TVertex&p5, VMOD TVertex&result, unsigned seed, const TSurfaceSegment&segment, const TContext&context, const TCrater*crater_field, count_t crater_count)
 	{
-		float distance = Vec::distance(p0.position,result.position);
+		float distance = M::Vec::distance(p0.position,result.position);
 
 		
 		float noise = getNoise(distance,segment,context)*FRACTAL_DEGENERATION;
@@ -316,7 +316,7 @@ namespace Fractal
 				_c3(parent_vertex_field[parent_index].position,result.position);
 				_c3(parent_vertex_field[parent_index].normal,result.normal);*/
 				
-				Vec::add(result.position,parameter.generateVertex.transition);
+				M::Vec::add(result.position,parameter.generateVertex.transition);
 				
 				
 				#if 0
@@ -505,7 +505,7 @@ namespace Fractal
 
 
 					
-				TVec3<SSE_VECTOR> v = {
+				M::TVec3<SSE_VECTOR> v = {
 									_mm_setr_ps(result[0]->position.x,result[1]->position.x,result[2]->position.x,result[3]->position.x),
 									_mm_setr_ps(result[0]->position.y,result[1]->position.y,result[2]->position.y,result[3]->position.y),
 									_mm_setr_ps(result[0]->position.z,result[1]->position.z,result[2]->position.z,result[3]->position.z)
@@ -521,7 +521,7 @@ namespace Fractal
 									v.y-p0_position.y,
 									v.z-p0_position.z
 								};
-				SSE_VECTOR	distance = _mm_sqrt_ps( Vec::dot(d)),
+				SSE_VECTOR	distance = _mm_sqrt_ps( M::Vec::dot(d)),
 							current_height = _mm_setr_ps(result[0]->FRACTAL_HEIGHT,result[1]->FRACTAL_HEIGHT,result[2]->FRACTAL_HEIGHT,result[3]->FRACTAL_HEIGHT);
 
 					
@@ -647,15 +647,15 @@ namespace Fractal
 					
 
 				SSE_VECTOR	delta = (h - current_height)*context.sse_variance;
-				TVec3<SSE_VECTOR>	vd = {
+				M::TVec3<SSE_VECTOR>	vd = {
 										v.x + _mm_set1_ps((float)segment.sector.x*context.sector_size),
 										v.y + _mm_set1_ps((float)segment.sector.y*context.sector_size),
 										v.z + _mm_set1_ps((float)segment.sector.z*context.sector_size)
 									};
 				SSE_VECTOR	factor = _mm_rsqrt_ps( vd.x*vd.x + vd.y*vd.y + vd.z*vd.z)*delta;
 						
-				TVec3<SSE_VECTOR> final;
-				Vec::mad(v,vd,factor,final);
+				M::TVec3<SSE_VECTOR> final;
+				M::Vec::mad(v,vd,factor,final);
 					
 				_mm_store_ps((float*)interchange,final.x);
 				result[0]->position.x = interchange[0];
@@ -696,9 +696,9 @@ namespace Fractal
 				const TVertexDescriptor	&info = map.vertex_descriptor[iteration];
 				
 				TVertex	&v = vertices[iteration];
-				TVec3<>&normal = v.normal;
-				const TVec3<>&vp = v.position;
-				Vec::clear(normal);
+				M::TVec3<>&normal = v.normal;
+				const M::TVec3<>&vp = v.position;
+				M::Vec::clear(normal);
 			
 				
 				if (info.y > 0)
@@ -747,7 +747,7 @@ namespace Fractal
 						&v2 = vertices[((iteration<<2)+2)%map.vertex_count],
 						&v3 = vertices[((iteration<<2)+3)%map.vertex_count];
 				
-				TVec3<SSE_VECTOR>	normal = {
+				M::TVec3<SSE_VECTOR>	normal = {
 								_mm_setzero_ps(),
 								_mm_setzero_ps(),
 								_mm_setzero_ps()
@@ -765,22 +765,22 @@ namespace Fractal
 				#undef SET_OUTER5
 				
 				#define SET_OUTER0(_INDEX_)\
-					const TVec3<>&outer##_INDEX_##_0 = info##_INDEX_.x > 0 && info##_INDEX_.y > 0?vertices[vertexIndex(info##_INDEX_.x-1,info##_INDEX_.y-1)].position:v##_INDEX_.position;
+					const M::TVec3<>&outer##_INDEX_##_0 = info##_INDEX_.x > 0 && info##_INDEX_.y > 0?vertices[vertexIndex(info##_INDEX_.x-1,info##_INDEX_.y-1)].position:v##_INDEX_.position;
 					
 				#define SET_OUTER1(_INDEX_)\
-					const TVec3<>&outer##_INDEX_##_1 = info##_INDEX_.x > 0?vertices[vertexIndex(info##_INDEX_.x-1,info##_INDEX_.y)].position:v##_INDEX_.position;
+					const M::TVec3<>&outer##_INDEX_##_1 = info##_INDEX_.x > 0?vertices[vertexIndex(info##_INDEX_.x-1,info##_INDEX_.y)].position:v##_INDEX_.position;
 				
 				#define SET_OUTER2(_INDEX_)\
-					const TVec3<>&outer##_INDEX_##_2 = info##_INDEX_.y < max_row?vertices[vertexIndex(info##_INDEX_.x,info##_INDEX_.y+1)].position:v##_INDEX_.position;
+					const M::TVec3<>&outer##_INDEX_##_2 = info##_INDEX_.y < max_row?vertices[vertexIndex(info##_INDEX_.x,info##_INDEX_.y+1)].position:v##_INDEX_.position;
 				
 				#define SET_OUTER3(_INDEX_)\
-					const TVec3<>&outer##_INDEX_##_3 = info##_INDEX_.y < max_row?vertices[vertexIndex(info##_INDEX_.x+1,info##_INDEX_.y+1)].position:v##_INDEX_.position;
+					const M::TVec3<>&outer##_INDEX_##_3 = info##_INDEX_.y < max_row?vertices[vertexIndex(info##_INDEX_.x+1,info##_INDEX_.y+1)].position:v##_INDEX_.position;
 					
 				#define SET_OUTER4(_INDEX_)\
-					const TVec3<>&outer##_INDEX_##_4 = info##_INDEX_.x < info##_INDEX_.y?vertices[vertexIndex(info##_INDEX_.x+1,info##_INDEX_.y)].position:v##_INDEX_.position;
+					const M::TVec3<>&outer##_INDEX_##_4 = info##_INDEX_.x < info##_INDEX_.y?vertices[vertexIndex(info##_INDEX_.x+1,info##_INDEX_.y)].position:v##_INDEX_.position;
 				
 				#define SET_OUTER5(_INDEX_)\
-					const TVec3<>&outer##_INDEX_##_5 = info##_INDEX_.x < info##_INDEX_.y?vertices[vertexIndex(info##_INDEX_.x,info##_INDEX_.y-1)].position:v##_INDEX_.position;
+					const M::TVec3<>&outer##_INDEX_##_5 = info##_INDEX_.x < info##_INDEX_.y?vertices[vertexIndex(info##_INDEX_.x,info##_INDEX_.y-1)].position:v##_INDEX_.position;
 					
 
 				SET_OUTER0(0)
@@ -813,7 +813,7 @@ namespace Fractal
 				SET_OUTER5(2)
 				SET_OUTER5(3)
 						
-				TVec3<SSE_VECTOR>
+				M::TVec3<SSE_VECTOR>
 						o0 = {
 									_mm_setr_ps(outer0_0.x,outer1_0.x,outer2_0.x,outer3_0.x),
 									_mm_setr_ps(outer0_0.y,outer1_0.y,outer2_0.y,outer3_0.y),
@@ -943,10 +943,10 @@ namespace Fractal
 					}
 					that_v.channel = this_v.channel;
 					that_v.height = this_v.height;
-					Vec::sub((this_v.position),parameter.mergeEdge.edge_transition,(that_v.position));
+					M::Vec::sub((this_v.position),parameter.mergeEdge.edge_transition,(that_v.position));
 				}
-				Vec::add((this_v.normal),(that_v.normal),(this_v.normal));
-				Vec::copy(this_v.normal,that_v.normal);
+				M::Vec::add((this_v.normal),(that_v.normal),(this_v.normal));
+				M::Vec::copy(this_v.normal,that_v.normal);
 			}
 
 			/**
@@ -1010,7 +1010,7 @@ namespace Fractal
 					}
 					that_v.channel = this_v.channel;
 					that_v.height = this_v.height;
-					Vec::sub((this_v.position),parameter.mergeEdge.edge_transition,(that_v.position));
+					M::Vec::sub((this_v.position),parameter.mergeEdge.edge_transition,(that_v.position));
 				}
 				/*_add(this_v.normal,that_v.normal,this_v.normal);
 				_c3(this_v.normal,that_v.normal);*/
@@ -1031,9 +1031,9 @@ namespace Fractal
 					destination_v.channel = source_v.channel;
 					destination_v.height = source_v.height;
 					
-					Vec::sub((source_v.position),parameter.copyEdge.edge_transition,(destination_v.position));
+					M::Vec::sub((source_v.position),parameter.copyEdge.edge_transition,(destination_v.position));
 				}
-				Vec::copy(source_v.normal,destination_v.normal);
+				M::Vec::copy(source_v.normal,destination_v.normal);
 			}
 			
 
@@ -1044,7 +1044,7 @@ namespace Fractal
 
 				vout.channel = vertex.channel;
 				
-				Vec::copy(vertex.position,vout.position);
+				M::Vec::copy(vertex.position,vout.position);
 				
 				vout.height = vertex.height;
 				
@@ -1079,10 +1079,10 @@ namespace Fractal
 				vout2.channel = v2.channel;
 				vout3.channel = v3.channel;
 				
-				Vec::copy(v0.position,vout0.position);
-				Vec::copy(v1.position,vout1.position);
-				Vec::copy(v2.position,vout2.position);
-				Vec::copy(v3.position,vout3.position);
+				M::Vec::copy(v0.position,vout0.position);
+				M::Vec::copy(v1.position,vout1.position);
+				M::Vec::copy(v2.position,vout2.position);
+				M::Vec::copy(v3.position,vout3.position);
 				
 				vout0.height = v0.height;
 				vout1.height = v1.height;
@@ -1119,10 +1119,10 @@ namespace Fractal
 				vout2.channel = v2.channel;
 				vout3.channel = v3.channel;
 				
-				Vec::copy(v0.position,vout0.position);
-				Vec::copy(v1.position,vout1.position);
-				Vec::copy(v2.position,vout2.position);
-				Vec::copy(v3.position,vout3.position);
+				M::Vec::copy(v0.position,vout0.position);
+				M::Vec::copy(v1.position,vout1.position);
+				M::Vec::copy(v2.position,vout2.position);
+				M::Vec::copy(v3.position,vout3.position);
 				
 				vout0.height = v0.height;
 				vout1.height = v1.height;
@@ -1156,10 +1156,10 @@ namespace Fractal
 				vout2.channel = v2.channel;
 				vout3.channel = v3.channel;
 				
-				Vec::copy(v0.position,vout0.position);
-				Vec::copy(v1.position,vout1.position);
-				Vec::copy(v2.position,vout2.position);
-				Vec::copy(v3.position,vout3.position);
+				M::Vec::copy(v0.position,vout0.position);
+				M::Vec::copy(v1.position,vout1.position);
+				M::Vec::copy(v2.position,vout2.position);
+				M::Vec::copy(v3.position,vout3.position);
 				
 				vout0.height = v0.height;
 				vout1.height = v1.height;
@@ -1177,10 +1177,10 @@ namespace Fractal
 				const TVertex&vertex = parameter.generateVBO.in_vertices[index];
 				const VertexMap&map = *parameter.map;
 				const TVertexDescriptor&info = map.vertex_descriptor[index];
-				Vec::copy(vertex.position,Vec::ref3(v));
+				M::Vec::copy(vertex.position,M::Vec::ref3(v));
 				v[3] = vertex.height;//*context.variance;
 				
-				resolveDirection(vertex.position,*parameter.segment,*parameter.context,Vec::ref3(v+4));
+				resolveDirection(vertex.position,*parameter.segment,*parameter.context,M::Vec::ref3(v+4));
 				v[7] = (float)info.x*parameter.generateVBO.stretch;
 				v[8] = parameter.generateVBO.base+(float)info.y*parameter.generateVBO.stretch;
 			}
@@ -1210,7 +1210,7 @@ namespace Fractal
 							
 
 				const TVertex&vertex = parameter.generateTexel.vertex_field[iteration];
-				float nlen = Vec::length(vertex.normal);
+				float nlen = M::Vec::length(vertex.normal);
 				
 				normal_texel[0] = (unsigned char)(255.0f*(0.5f+vertex.normal.x/nlen*0.5f));
 				normal_texel[1] = (unsigned char)(255.0f*(0.5f+vertex.normal.y/nlen*0.5f));
@@ -1290,10 +1290,10 @@ namespace Fractal
 
 			static inline float heightError(const TVertex&vertex, const TSurfaceSegment&segment, const TContext&context)
 			{
-				TVec3<double> p;
-				Vec::mult(segment.sector,context.sector_size,p);
-				Vec::add(p,vertex.position);
-				double h = (Vec::length(p)-(double)context.base_heightf)/(double)context.variance;
+				M::TVec3<double> p;
+				M::Vec::mult(segment.sector,context.sector_size,p);
+				M::Vec::add(p,vertex.position);
+				double h = (M::Vec::length(p)-(double)context.base_heightf)/(double)context.variance;
 				return fabs(h-vertex.height)*100;
 			}
 			
@@ -1505,22 +1505,22 @@ namespace Fractal
 				const TVertex	&v0 = vertices[triangle_indices[iteration*3]],
 								&v1 = vertices[triangle_indices[iteration*3+1]],
 								&v2 = vertices[triangle_indices[iteration*3+2]];
-				TVec3<>	d0,d1,n,dif,n0,n1,cross_point;
+				M::TVec3<>	d0,d1,n,dif,n0,n1,cross_point;
 
-				Vec::sub((v1.position),(v0.position),d0);
-				Vec::sub((v2.position),(v0.position),d1);
-				Vec::cross(d0,d1,n);
-				Vec::sub((v0.position),parameter.cast.b,dif);
-				float	sub_alpha = Vec::dot(n,parameter.cast.d);
+				M::Vec::sub((v1.position),(v0.position),d0);
+				M::Vec::sub((v2.position),(v0.position),d1);
+				M::Vec::cross(d0,d1,n);
+				M::Vec::sub((v0.position),parameter.cast.b,dif);
+				float	sub_alpha = M::Vec::dot(n,parameter.cast.d);
 				if (sub_alpha==0.0f)
 					return;
-				float	alpha = Vec::dot(n,dif)/sub_alpha;
-				Vec::cross(n,d0,n0);
-				Vec::cross(n,d1,n1);
-				Vec::mad(parameter.cast.b,parameter.cast.d,alpha,cross_point);
-				Vec::sub(cross_point,(v0.position),dif);
-				float	beta = Vec::dot(n0,dif)/Vec::dot(n0,d1),
-						gamma = Vec::dot(n1,dif)/Vec::dot(n1,d0);
+				float	alpha = M::Vec::dot(n,dif)/sub_alpha;
+				M::Vec::cross(n,d0,n0);
+				M::Vec::cross(n,d1,n1);
+				M::Vec::mad(parameter.cast.b,parameter.cast.d,alpha,cross_point);
+				M::Vec::sub(cross_point,(v0.position),dif);
+				float	beta = M::Vec::dot(n0,dif)/M::Vec::dot(n0,d1),
+						gamma = M::Vec::dot(n1,dif)/M::Vec::dot(n1,d0);
 				if (beta >= 0 && gamma >= 0 && beta+gamma <= 1 && alpha >= 0)
 				{
 					TBaseRayIntersection&intersection = *parameter.cast.intersection;
@@ -1548,24 +1548,24 @@ namespace Fractal
 				
 				
 				
-				TVec3<>	d0,d1,n,dif,n0,n1,cross_point;
-				if (Vec::dot((v0.normal),parameter.groundCast.d)>0.0f)
+				M::TVec3<>	d0,d1,n,dif,n0,n1,cross_point;
+				if (M::Vec::dot((v0.normal),parameter.groundCast.d)>0.0f)
 					return;
 
-				Vec::sub((v1.position),(v0.position),d0);
-				Vec::sub((v2.position),(v0.position),d1);
-				Vec::cross(d0,d1,n);
-				Vec::sub((v0.position),parameter.groundCast.b,dif);
-				float	sub_alpha = Vec::dot(n,parameter.groundCast.d);
+				M::Vec::sub((v1.position),(v0.position),d0);
+				M::Vec::sub((v2.position),(v0.position),d1);
+				M::Vec::cross(d0,d1,n);
+				M::Vec::sub((v0.position),parameter.groundCast.b,dif);
+				float	sub_alpha = M::Vec::dot(n,parameter.groundCast.d);
 				if (sub_alpha==0.0f)
 					return;
-				float	alpha = Vec::dot(n,dif)/sub_alpha;
-				Vec::cross(n,d0,n0);
-				Vec::cross(n,d1,n1);
-				Vec::mad(parameter.groundCast.b,parameter.groundCast.d,alpha,cross_point);
-				Vec::sub(cross_point,(v0.position),dif);
-				float	beta = Vec::dot(n0,dif)/Vec::dot(n0,d1),
-						gamma = Vec::dot(n1,dif)/Vec::dot(n1,d0);
+				float	alpha = M::Vec::dot(n,dif)/sub_alpha;
+				M::Vec::cross(n,d0,n0);
+				M::Vec::cross(n,d1,n1);
+				M::Vec::mad(parameter.groundCast.b,parameter.groundCast.d,alpha,cross_point);
+				M::Vec::sub(cross_point,(v0.position),dif);
+				float	beta = M::Vec::dot(n0,dif)/M::Vec::dot(n0,d1),
+						gamma = M::Vec::dot(n1,dif)/M::Vec::dot(n1,d0);
 				
 				if (beta >= 0 && gamma >= 0 && beta+gamma <= 1 /*&& alpha >= -0.1*/)
 				{
@@ -1576,15 +1576,15 @@ namespace Fractal
 						ground.isset = true;
 						ground.height_over_ground = alpha;
 						ground.ground_height = v0.height + (v1.height-v0.height)*gamma + (v2.height-v0.height)*beta;
-						Vec::mad((v0.position),d0,gamma,ground.position);
-						Vec::mad(ground.position,d1,beta);
+						M::Vec::mad((v0.position),d0,gamma,ground.position);
+						M::Vec::mad(ground.position,d1,beta);
 						
-						TVec3<>	nd0,
+						M::TVec3<>	nd0,
 								nd1;
-						Vec::sub((v1.normal),(v0.normal),nd0);
-						Vec::sub((v2.normal),(v0.normal),nd1);
-						Vec::mad((v0.normal),nd0,gamma,ground.normal);
-						Vec::mad(ground.normal,nd1,beta);
+						M::Vec::sub((v1.normal),(v0.normal),nd0);
+						M::Vec::sub((v2.normal),(v0.normal),nd1);
+						M::Vec::mad((v0.normal),nd0,gamma,ground.normal);
+						M::Vec::mad(ground.normal,nd1,beta);
 					}
 					parameter.output_mutex->release();
 				}
@@ -1669,7 +1669,7 @@ namespace Fractal
 			
 			
 			
-			Vec::clear(parameter.generateVertex.transition);
+			M::Vec::clear(parameter.generateVertex.transition);
 
 			unsigned num_iterations = numBlockIterations(map.child_vertex_count);
 
@@ -1742,10 +1742,10 @@ namespace Fractal
 			parameter.generateVertex.crater_count = unsigned(segment.crater_field.length());
 			
 			
-			TVec3<> delta;
-			Vec::sub(segment.parent->sector,segment.sector,delta);
+			M::TVec3<> delta;
+			M::Vec::sub(segment.parent->sector,segment.sector,delta);
 			
-			Vec::mult(delta,context.sector_size,parameter.generateVertex.transition);
+			M::Vec::mult(delta,context.sector_size,parameter.generateVertex.transition);
 
 			//Kernel::Operation::execute(Kernel::Operation::copyParentVertex,map.parent_vertex_count,256);
 			/*if (Kernel::background)
@@ -1928,7 +1928,7 @@ namespace Fractal
 				{
 					bool merge_forward = segment.neighbor_link[k].primary;
 						//segment.inner_int_seed > neighbor->inner_int_seed;	//crude... but effective. well with a 1 in 4bil fail probability. let's try the primary attribute instead
-					TVec3<> delta;
+					M::TVec3<> delta;
 					if (merge_forward)
 					{
 						parameter.mergeEdge.crater_field = segment.crater_field.pointer();
@@ -1941,7 +1941,7 @@ namespace Fractal
 						parameter.mergeEdge.neighbor_edge = map.border_index[norientation];
 						parameter.segment = &segment;
 
-						Vec::sub(neighbor->sector,segment.sector,delta);
+						M::Vec::sub(neighbor->sector,segment.sector,delta);
 						
 					}
 					else
@@ -1957,10 +1957,10 @@ namespace Fractal
 
 						parameter.segment = neighbor;
 
-						Vec::sub(segment.sector,neighbor->sector,delta);
+						M::Vec::sub(segment.sector,neighbor->sector,delta);
 						
 					}
-					Vec::mult(delta,context.sector_size,parameter.mergeEdge.edge_transition);
+					M::Vec::mult(delta,context.sector_size,parameter.mergeEdge.edge_transition);
 					
 			
 					//Kernel::Operation::execute(Kernel::Operation::mergeEdge,map.vertex_range);
@@ -2007,10 +2007,10 @@ namespace Fractal
 					parameter.copyEdge.source_vertex_field = neighbor->vertex_field.pointer();
 					parameter.segment = &segment;
 					
-					TVec3<> delta;
-					Vec::sub(segment.sector,neighbor->sector,delta);
+					M::TVec3<> delta;
+					M::Vec::sub(segment.sector,neighbor->sector,delta);
 					
-					Vec::mult(delta,context.sector_size,parameter.copyEdge.edge_transition);
+					M::Vec::mult(delta,context.sector_size,parameter.copyEdge.edge_transition);
 					
 					
 					//DEBUG_POINT(k)
@@ -2036,10 +2036,10 @@ namespace Fractal
 					parameter.copyEdge.destination_vertex_field = neighbor->vertex_field.pointer();
 					parameter.segment = &segment;
 					
-					TVec3<> delta;
-					Vec::sub(neighbor->sector,segment.sector,delta);
+					M::TVec3<> delta;
+					M::Vec::sub(neighbor->sector,segment.sector,delta);
 					
-					Vec::mult(delta,context.sector_size,parameter.copyEdge.edge_transition);
+					M::Vec::mult(delta,context.sector_size,parameter.copyEdge.edge_transition);
 					
 					
 					
@@ -2219,7 +2219,7 @@ namespace Fractal
 							const float	*predecessor_corner = segment.vbo_edge[(k+2)%3][i].pointer()+copy_length,
 										*successor_corner = segment.vbo_edge[k][i].pointer();
 
-							ASSERT3__(Vec::similar(Vec::ref3(predecessor_corner),Vec::ref3(successor_corner)),Vec::toString(Vec::ref3(predecessor_corner)),Vec::toString(Vec::ref3(successor_corner)),i);
+							ASSERT3__(M::Vec::similar(M::Vec::ref3(predecessor_corner),M::Vec::ref3(successor_corner)),M::Vec::toString(M::Vec::ref3(predecessor_corner)),M::Vec::toString(M::Vec::ref3(successor_corner)),i);
 						}
 					}
 					else
@@ -2357,7 +2357,7 @@ namespace Fractal
 		}
 		
 		
-		bool	rayCast(const TSurfaceSegment&segment,const TVec3<>&b, const TVec3<>&d, const ArrayData<unsigned>&triangles, TBaseRayIntersection&intersection)
+		bool	rayCast(const TSurfaceSegment&segment,const M::TVec3<>&b, const M::TVec3<>&d, const ArrayData<unsigned>&triangles, TBaseRayIntersection&intersection)
 		{
 			BEGIN
 			UnifiedOperationParameter parameter;
@@ -2371,8 +2371,8 @@ namespace Fractal
 			parameter.cast.triangle_indices = triangles.pointer();
 			parameter.cast.vertex_field = segment.vertex_field.pointer();
 			parameter.cast.intersection = &intersection;
-			Vec::copy(b,parameter.cast.b);
-			Vec::copy(d,parameter.cast.d);
+			M::Vec::copy(b,parameter.cast.b);
+			M::Vec::copy(d,parameter.cast.d);
 			
 			//Kernel::Operation::execute(Kernel::Operation::cast,unsigned(triangles.count()/3));
 			Concurrency::parallel_for(unsigned(0),unsigned(triangles.count()/3),[&](unsigned i)
@@ -2393,7 +2393,7 @@ namespace Fractal
 			return intersection.isset;
 		}
 		
-		bool	groundQuery(const TSurfaceSegment&segment, const TVec3<>&b, const TVec3<>&down, const ArrayData<unsigned>&triangles, TBaseGroundInfo&ground)
+		bool	groundQuery(const TSurfaceSegment&segment, const M::TVec3<>&b, const M::TVec3<>&down, const ArrayData<unsigned>&triangles, TBaseGroundInfo&ground)
 		{
 			BEGIN
 			UnifiedOperationParameter parameter;
@@ -2407,8 +2407,8 @@ namespace Fractal
 			parameter.groundCast.triangle_indices = triangles.pointer();
 			parameter.groundCast.vertex_field = segment.vertex_field.pointer();
 			parameter.groundCast.ground = &ground;
-			Vec::copy(b,parameter.groundCast.b);
-			Vec::copy(down,parameter.groundCast.d);
+			M::Vec::copy(b,parameter.groundCast.b);
+			M::Vec::copy(down,parameter.groundCast.d);
 			
 			
 		

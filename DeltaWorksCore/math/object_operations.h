@@ -1,7 +1,7 @@
 #ifndef object_operationsH
 #define object_operationsH
 /*
-This file was generated from template definition 'object.template.php' on 2017 July 1st 16:45:30
+This file was generated from template definition 'object.template.php' on 2017 July 3rd 12:23:40
 Do not edit
 */
 
@@ -53,7 +53,7 @@ namespace Obj
 	template <typename T0, typename T1, typename T2>
 		inline	bool	__fastcall	SphereContainsPointD(const T0 *center, T1 radius, const T2 *p, count_t dimensions)throw()
 		{
-			return (Obj::Operator0_sumD(center, p, dimensions)/*Math::sqr(center:i - p:i)*/) <= sqr(radius);
+			return (Obj::Operator0_sumD(center, p, dimensions)/*Math::sqr(center:i - p:i)*/) <= M::sqr(radius);
 		}
 
 	//now implementing template definition 'bool detectSphereEdgeIntersection|DetectSphereEdgeIntersection (2..4) (<const [*] center>, <radius>, <const [*] e0>, <const [*] e1>) direct='
@@ -73,7 +73,7 @@ namespace Obj
 	template <typename T0, typename T1, typename T2, typename T3>
 		inline	bool	__fastcall	detectSphereEdgeIntersectionD(const T0 *center, T1 radius, const T2 *e0, const T3 *e1, count_t dimensions)throw()
 		{
-			if (((Obj::Operator0_sumD(center, e0, dimensions)/*Math::sqr(center:i - e0:i)*/) <= sqr(radius)) || ((Obj::Operator0_sumD(center, e1, dimensions)/*Math::sqr(center:i - e1:i)*/) <= sqr(radius)))
+			if (((Obj::Operator0_sumD(center, e0, dimensions)/*Math::sqr(center:i - e0:i)*/) <= M::sqr(radius)) || ((Obj::Operator0_sumD(center, e1, dimensions)/*Math::sqr(center:i - e1:i)*/) <= M::sqr(radius)))
 				return true;
 			CArray<T0> d(dimensions);
 			
@@ -95,9 +95,9 @@ namespace Obj
 			};
 			T0	pa = (Obj::Operator1_sumD(d, d, dimensions)/*d:i*d:i*/),
 					pb = 2*(Obj::Operator1_sumD(d, delta, dimensions)/*d:i*delta:i*/),
-					pc = (Obj::Operator2_sumD(delta, dimensions)/*delta:i*delta:i*/)-sqr(radius),
+					pc = (Obj::Operator2_sumD(delta, dimensions)/*delta:i*delta:i*/)-M::sqr(radius),
 					rs[2];
-			BYTE num_rs = solveSqrEquation(pa,pb,pc,rs);
+			BYTE num_rs = Math::solveSqrEquation(pa,pb,pc,rs);
 			if (!num_rs)
 				return false;
 			T0	alpha = smallestPositiveResult(rs,num_rs);
@@ -120,7 +120,7 @@ namespace Obj
 	template <typename T0, typename T1, typename T2, typename T3>
 		inline	bool	__fastcall	DetectSphereEdgeIntersectionD(const T0 *center, T1 radius, const T2 *e0, const T3 *e1, count_t dimensions)throw()
 		{
-			if (((Obj::Operator0_sumD(center, e0, dimensions)/*Math::sqr(center:i - e0:i)*/) <= sqr(radius)) || ((Obj::Operator0_sumD(center, e1, dimensions)/*Math::sqr(center:i - e1:i)*/) <= sqr(radius)))
+			if (((Obj::Operator0_sumD(center, e0, dimensions)/*Math::sqr(center:i - e0:i)*/) <= M::sqr(radius)) || ((Obj::Operator0_sumD(center, e1, dimensions)/*Math::sqr(center:i - e1:i)*/) <= M::sqr(radius)))
 				return true;
 			CArray<T0> d(dimensions);
 			
@@ -142,9 +142,9 @@ namespace Obj
 			};
 			T0	pa = (Obj::Operator1_sumD(d, d, dimensions)/*d:i*d:i*/),
 					pb = 2*(Obj::Operator1_sumD(d, delta, dimensions)/*d:i*delta:i*/),
-					pc = (Obj::Operator2_sumD(delta, dimensions)/*delta:i*delta:i*/)-sqr(radius),
+					pc = (Obj::Operator2_sumD(delta, dimensions)/*delta:i*delta:i*/)-M::sqr(radius),
 					rs[2];
-			BYTE num_rs = solveSqrEquation(pa,pb,pc,rs);
+			BYTE num_rs = Math::solveSqrEquation(pa,pb,pc,rs);
 			if (!num_rs)
 				return false;
 			T0	alpha = smallestPositiveResult(rs,num_rs);
@@ -189,9 +189,9 @@ namespace Obj
 			};
 			T4	pa = (Obj::Operator1_sumD(d, d, dimensions)/*d:i*d:i*/),
 					pb = 2*(Obj::Operator1_sumD(d, delta, dimensions)/*d:i*delta:i*/),
-					pc = (Obj::Operator2_sumD(delta, dimensions)/*delta:i*delta:i*/)-sqr(radius),
+					pc = (Obj::Operator2_sumD(delta, dimensions)/*delta:i*delta:i*/)-M::sqr(radius),
 					rs[2];
-			BYTE num_rs = solveSqrEquation(pa,pb,pc,rs);
+			BYTE num_rs = Math::solveSqrEquation(pa,pb,pc,rs);
 			if (!num_rs)
 				return false;
 			if (num_rs == 1)
@@ -241,9 +241,9 @@ namespace Obj
 			};
 			T4	pa = (Obj::Operator1_sumD(d, d, dimensions)/*d:i*d:i*/),
 					pb = 2*(Obj::Operator1_sumD(d, delta, dimensions)/*d:i*delta:i*/),
-					pc = (Obj::Operator2_sumD(delta, dimensions)/*delta:i*delta:i*/)-sqr(radius),
+					pc = (Obj::Operator2_sumD(delta, dimensions)/*delta:i*delta:i*/)-M::sqr(radius),
 					rs[2];
-			BYTE num_rs = solveSqrEquation(pa,pb,pc,rs);
+			BYTE num_rs = Math::solveSqrEquation(pa,pb,pc,rs);
 			if (!num_rs)
 				return false;
 			if (num_rs == 1)
@@ -349,7 +349,8 @@ namespace Obj
 			};
 			T5	beta = (n0.x*dif.x + n0.y*dif.y + n0.z*dif.z)/(n0.x*d1.x + n0.y*d1.y + n0.z*d1.z),
 					gamma = (n1.x*dif.x + n1.y*dif.y + n1.z*dif.z)/(n1.x*d0.x + n1.y*d0.y + n1.z*d0.z);
-			if (beta > -M::GetError<T5>() && gamma > -M::GetError<T5>() && beta + gamma < (T5)1+ M::GetError<T5>())
+			using Math::GetError;
+			if (beta > -GetError<T5>() && gamma > -GetError<T5>() && beta + gamma < (T5)1+ GetError<T5>())
 			{
 				distance = alpha;
 				return true;
@@ -402,7 +403,8 @@ namespace Obj
 			};
 			vn = (n.x*n.x + n.y*n.y + n.z*n.z);
 			using std::fabs;
-			if (fabs(vn) <= Math::GetError<T0>())
+			using Math::GetError;
+			if (fabs(vn) <= GetError<T0>())
 				return 0;
 			return ((p0.x*n.x + p0.y*n.y + p0.z*n.z)-(p3.x*n.x + p3.y*n.y + p3.z*n.z)) / (vn*6);
 		}
@@ -451,7 +453,8 @@ namespace Obj
 			};
 			vn = (n.x*n.x + n.y*n.y + n.z*n.z);
 			using std::fabs;
-			if (fabs(vn) <= Math::GetError<T0>())
+			using Math::GetError;
+			if (fabs(vn) <= GetError<T0>())
 				return 0;
 			return ((p0.x*n.x + p0.y*n.y + p0.z*n.z)-(p3.x*n.x + p3.y*n.y + p3.z*n.z)) / (vn*6);
 		}
@@ -581,7 +584,8 @@ namespace Obj
 			};
 			vn = (n.x*n.x + n.y*n.y + n.z*n.z);
 			using std::fabs;
-			if (fabs(vn) <= Math::GetError<T0>())
+			using Math::GetError;
+			if (fabs(vn) <= GetError<T0>())
 				return 0;
 			return (p2.x*n.x + p2.y*n.y + p2.z*n.z) / (vn*6);
 		}
@@ -657,8 +661,9 @@ namespace Obj
 				d2.x = b1.x - b0.x;
 				d2.y = b1.y - b0.y;
 			};
+			using Math::GetError;
 			T4	sub = d2.x * d1.y - d2.y * d1.x,
-					error = Math::GetError<T4>();
+					error = GetError<T4>();
 			using std::fabs;
 			if (fabs(sub)<error)
 				return false;
@@ -695,9 +700,9 @@ namespace Obj
 			};
 			T0	pa = 1,
 					pb = 2*(d.x*delta.x + d.y*delta.y + d.z*delta.z),
-					pc = (delta.x*delta.x + delta.y*delta.y + delta.z*delta.z)-sqr(radius),
+					pc = (delta.x*delta.x + delta.y*delta.y + delta.z*delta.z)-M::sqr(radius),
 					rs[2];
-			BYTE num_rs = solveSqrEquation(pa,pb,pc,rs);
+			BYTE num_rs = Math::solveSqrEquation(pa,pb,pc,rs);
 			return num_rs > 0;
 		}
 
@@ -728,9 +733,9 @@ namespace Obj
 			};
 			T4	pa = 1,
 					pb = 2*(d.x*delta.x + d.y*delta.y + d.z*delta.z),
-					pc = (delta.x*delta.x + delta.y*delta.y + delta.z*delta.z)-sqr(radius),
+					pc = (delta.x*delta.x + delta.y*delta.y + delta.z*delta.z)-M::sqr(radius),
 					rs[2];
-			BYTE num_rs = solveSqrEquation(pa,pb,pc,rs);
+			BYTE num_rs = Math::solveSqrEquation(pa,pb,pc,rs);
 			if (!num_rs)
 				return false;
 			T4	alpha = smallestPositiveResult(rs,num_rs);
@@ -756,7 +761,7 @@ namespace Obj
 	template <typename T0, typename T1, typename T2>
 		inline	bool	__fastcall	SphereContainsPoint(const TVec2<T0>& center, T1 radius, const TVec2<T2>& p)throw()
 		{
-			return (Math::sqr(center.x - p.x) + Math::sqr(center.y - p.y)) <= sqr(radius);
+			return (Math::sqr(center.x - p.x) + Math::sqr(center.y - p.y)) <= M::sqr(radius);
 		}
 
 	/**
@@ -774,7 +779,7 @@ namespace Obj
 	template <typename T0, typename T1, typename T2>
 		inline	bool	__fastcall	SphereContainsPoint(const TVec3<T0>& center, T1 radius, const TVec3<T2>& p)throw()
 		{
-			return (Math::sqr(center.x - p.x) + Math::sqr(center.y - p.y) + Math::sqr(center.z - p.z)) <= sqr(radius);
+			return (Math::sqr(center.x - p.x) + Math::sqr(center.y - p.y) + Math::sqr(center.z - p.z)) <= M::sqr(radius);
 		}
 
 	/**
@@ -792,7 +797,7 @@ namespace Obj
 	template <typename T0, typename T1, typename T2>
 		inline	bool	__fastcall	SphereContainsPoint(const TVec4<T0>& center, T1 radius, const TVec4<T2>& p)throw()
 		{
-			return (Math::sqr(center.x - p.x) + Math::sqr(center.y - p.y) + Math::sqr(center.z - p.z) + Math::sqr(center.w - p.w)) <= sqr(radius);
+			return (Math::sqr(center.x - p.x) + Math::sqr(center.y - p.y) + Math::sqr(center.z - p.z) + Math::sqr(center.w - p.w)) <= M::sqr(radius);
 		}
 
 	//now implementing template definition 'bool detectSphereEdgeIntersection|DetectSphereEdgeIntersection (2..4) (<const [*] center>, <radius>, <const [*] e0>, <const [*] e1>) direct='
@@ -812,7 +817,7 @@ namespace Obj
 	template <typename T0, typename T1, typename T2, typename T3>
 		inline	bool	__fastcall	detectSphereEdgeIntersection(const TVec2<T0>& center, T1 radius, const TVec2<T2>& e0, const TVec2<T3>& e1)throw()
 		{
-			if (((Math::sqr(center.x - e0.x) + Math::sqr(center.y - e0.y)) <= sqr(radius)) || ((Math::sqr(center.x - e1.x) + Math::sqr(center.y - e1.y)) <= sqr(radius)))
+			if (((Math::sqr(center.x - e0.x) + Math::sqr(center.y - e0.y)) <= M::sqr(radius)) || ((Math::sqr(center.x - e1.x) + Math::sqr(center.y - e1.y)) <= M::sqr(radius)))
 				return true;
 			TVec2<T0> d;
 			
@@ -830,9 +835,9 @@ namespace Obj
 			};
 			T0	pa = (d.x*d.x + d.y*d.y),
 					pb = 2*(d.x*delta.x + d.y*delta.y),
-					pc = (delta.x*delta.x + delta.y*delta.y)-sqr(radius),
+					pc = (delta.x*delta.x + delta.y*delta.y)-M::sqr(radius),
 					rs[2];
-			BYTE num_rs = solveSqrEquation(pa,pb,pc,rs);
+			BYTE num_rs = Math::solveSqrEquation(pa,pb,pc,rs);
 			if (!num_rs)
 				return false;
 			T0	alpha = smallestPositiveResult(rs,num_rs);
@@ -855,7 +860,7 @@ namespace Obj
 	template <typename T0, typename T1, typename T2, typename T3>
 		inline	bool	__fastcall	DetectSphereEdgeIntersection(const TVec2<T0>& center, T1 radius, const TVec2<T2>& e0, const TVec2<T3>& e1)throw()
 		{
-			if (((Math::sqr(center.x - e0.x) + Math::sqr(center.y - e0.y)) <= sqr(radius)) || ((Math::sqr(center.x - e1.x) + Math::sqr(center.y - e1.y)) <= sqr(radius)))
+			if (((Math::sqr(center.x - e0.x) + Math::sqr(center.y - e0.y)) <= M::sqr(radius)) || ((Math::sqr(center.x - e1.x) + Math::sqr(center.y - e1.y)) <= M::sqr(radius)))
 				return true;
 			TVec2<T0> d;
 			
@@ -873,9 +878,9 @@ namespace Obj
 			};
 			T0	pa = (d.x*d.x + d.y*d.y),
 					pb = 2*(d.x*delta.x + d.y*delta.y),
-					pc = (delta.x*delta.x + delta.y*delta.y)-sqr(radius),
+					pc = (delta.x*delta.x + delta.y*delta.y)-M::sqr(radius),
 					rs[2];
-			BYTE num_rs = solveSqrEquation(pa,pb,pc,rs);
+			BYTE num_rs = Math::solveSqrEquation(pa,pb,pc,rs);
 			if (!num_rs)
 				return false;
 			T0	alpha = smallestPositiveResult(rs,num_rs);
@@ -898,7 +903,7 @@ namespace Obj
 	template <typename T0, typename T1, typename T2, typename T3>
 		inline	bool	__fastcall	detectSphereEdgeIntersection(const TVec3<T0>& center, T1 radius, const TVec3<T2>& e0, const TVec3<T3>& e1)throw()
 		{
-			if (((Math::sqr(center.x - e0.x) + Math::sqr(center.y - e0.y) + Math::sqr(center.z - e0.z)) <= sqr(radius)) || ((Math::sqr(center.x - e1.x) + Math::sqr(center.y - e1.y) + Math::sqr(center.z - e1.z)) <= sqr(radius)))
+			if (((Math::sqr(center.x - e0.x) + Math::sqr(center.y - e0.y) + Math::sqr(center.z - e0.z)) <= M::sqr(radius)) || ((Math::sqr(center.x - e1.x) + Math::sqr(center.y - e1.y) + Math::sqr(center.z - e1.z)) <= M::sqr(radius)))
 				return true;
 			TVec3<T0> d;
 			
@@ -918,9 +923,9 @@ namespace Obj
 			};
 			T0	pa = (d.x*d.x + d.y*d.y + d.z*d.z),
 					pb = 2*(d.x*delta.x + d.y*delta.y + d.z*delta.z),
-					pc = (delta.x*delta.x + delta.y*delta.y + delta.z*delta.z)-sqr(radius),
+					pc = (delta.x*delta.x + delta.y*delta.y + delta.z*delta.z)-M::sqr(radius),
 					rs[2];
-			BYTE num_rs = solveSqrEquation(pa,pb,pc,rs);
+			BYTE num_rs = Math::solveSqrEquation(pa,pb,pc,rs);
 			if (!num_rs)
 				return false;
 			T0	alpha = smallestPositiveResult(rs,num_rs);
@@ -943,7 +948,7 @@ namespace Obj
 	template <typename T0, typename T1, typename T2, typename T3>
 		inline	bool	__fastcall	DetectSphereEdgeIntersection(const TVec3<T0>& center, T1 radius, const TVec3<T2>& e0, const TVec3<T3>& e1)throw()
 		{
-			if (((Math::sqr(center.x - e0.x) + Math::sqr(center.y - e0.y) + Math::sqr(center.z - e0.z)) <= sqr(radius)) || ((Math::sqr(center.x - e1.x) + Math::sqr(center.y - e1.y) + Math::sqr(center.z - e1.z)) <= sqr(radius)))
+			if (((Math::sqr(center.x - e0.x) + Math::sqr(center.y - e0.y) + Math::sqr(center.z - e0.z)) <= M::sqr(radius)) || ((Math::sqr(center.x - e1.x) + Math::sqr(center.y - e1.y) + Math::sqr(center.z - e1.z)) <= M::sqr(radius)))
 				return true;
 			TVec3<T0> d;
 			
@@ -963,9 +968,9 @@ namespace Obj
 			};
 			T0	pa = (d.x*d.x + d.y*d.y + d.z*d.z),
 					pb = 2*(d.x*delta.x + d.y*delta.y + d.z*delta.z),
-					pc = (delta.x*delta.x + delta.y*delta.y + delta.z*delta.z)-sqr(radius),
+					pc = (delta.x*delta.x + delta.y*delta.y + delta.z*delta.z)-M::sqr(radius),
 					rs[2];
-			BYTE num_rs = solveSqrEquation(pa,pb,pc,rs);
+			BYTE num_rs = Math::solveSqrEquation(pa,pb,pc,rs);
 			if (!num_rs)
 				return false;
 			T0	alpha = smallestPositiveResult(rs,num_rs);
@@ -988,7 +993,7 @@ namespace Obj
 	template <typename T0, typename T1, typename T2, typename T3>
 		inline	bool	__fastcall	detectSphereEdgeIntersection(const TVec4<T0>& center, T1 radius, const TVec4<T2>& e0, const TVec4<T3>& e1)throw()
 		{
-			if (((Math::sqr(center.x - e0.x) + Math::sqr(center.y - e0.y) + Math::sqr(center.z - e0.z) + Math::sqr(center.w - e0.w)) <= sqr(radius)) || ((Math::sqr(center.x - e1.x) + Math::sqr(center.y - e1.y) + Math::sqr(center.z - e1.z) + Math::sqr(center.w - e1.w)) <= sqr(radius)))
+			if (((Math::sqr(center.x - e0.x) + Math::sqr(center.y - e0.y) + Math::sqr(center.z - e0.z) + Math::sqr(center.w - e0.w)) <= M::sqr(radius)) || ((Math::sqr(center.x - e1.x) + Math::sqr(center.y - e1.y) + Math::sqr(center.z - e1.z) + Math::sqr(center.w - e1.w)) <= M::sqr(radius)))
 				return true;
 			TVec4<T0> d;
 			
@@ -1010,9 +1015,9 @@ namespace Obj
 			};
 			T0	pa = (d.x*d.x + d.y*d.y + d.z*d.z + d.w*d.w),
 					pb = 2*(d.x*delta.x + d.y*delta.y + d.z*delta.z + d.w*delta.w),
-					pc = (delta.x*delta.x + delta.y*delta.y + delta.z*delta.z + delta.w*delta.w)-sqr(radius),
+					pc = (delta.x*delta.x + delta.y*delta.y + delta.z*delta.z + delta.w*delta.w)-M::sqr(radius),
 					rs[2];
-			BYTE num_rs = solveSqrEquation(pa,pb,pc,rs);
+			BYTE num_rs = Math::solveSqrEquation(pa,pb,pc,rs);
 			if (!num_rs)
 				return false;
 			T0	alpha = smallestPositiveResult(rs,num_rs);
@@ -1035,7 +1040,7 @@ namespace Obj
 	template <typename T0, typename T1, typename T2, typename T3>
 		inline	bool	__fastcall	DetectSphereEdgeIntersection(const TVec4<T0>& center, T1 radius, const TVec4<T2>& e0, const TVec4<T3>& e1)throw()
 		{
-			if (((Math::sqr(center.x - e0.x) + Math::sqr(center.y - e0.y) + Math::sqr(center.z - e0.z) + Math::sqr(center.w - e0.w)) <= sqr(radius)) || ((Math::sqr(center.x - e1.x) + Math::sqr(center.y - e1.y) + Math::sqr(center.z - e1.z) + Math::sqr(center.w - e1.w)) <= sqr(radius)))
+			if (((Math::sqr(center.x - e0.x) + Math::sqr(center.y - e0.y) + Math::sqr(center.z - e0.z) + Math::sqr(center.w - e0.w)) <= M::sqr(radius)) || ((Math::sqr(center.x - e1.x) + Math::sqr(center.y - e1.y) + Math::sqr(center.z - e1.z) + Math::sqr(center.w - e1.w)) <= M::sqr(radius)))
 				return true;
 			TVec4<T0> d;
 			
@@ -1057,9 +1062,9 @@ namespace Obj
 			};
 			T0	pa = (d.x*d.x + d.y*d.y + d.z*d.z + d.w*d.w),
 					pb = 2*(d.x*delta.x + d.y*delta.y + d.z*delta.z + d.w*delta.w),
-					pc = (delta.x*delta.x + delta.y*delta.y + delta.z*delta.z + delta.w*delta.w)-sqr(radius),
+					pc = (delta.x*delta.x + delta.y*delta.y + delta.z*delta.z + delta.w*delta.w)-M::sqr(radius),
 					rs[2];
-			BYTE num_rs = solveSqrEquation(pa,pb,pc,rs);
+			BYTE num_rs = Math::solveSqrEquation(pa,pb,pc,rs);
 			if (!num_rs)
 				return false;
 			T0	alpha = smallestPositiveResult(rs,num_rs);
@@ -1100,9 +1105,9 @@ namespace Obj
 			};
 			T4	pa = (d.x*d.x + d.y*d.y),
 					pb = 2*(d.x*delta.x + d.y*delta.y),
-					pc = (delta.x*delta.x + delta.y*delta.y)-sqr(radius),
+					pc = (delta.x*delta.x + delta.y*delta.y)-M::sqr(radius),
 					rs[2];
-			BYTE num_rs = solveSqrEquation(pa,pb,pc,rs);
+			BYTE num_rs = Math::solveSqrEquation(pa,pb,pc,rs);
 			if (!num_rs)
 				return false;
 			if (num_rs == 1)
@@ -1148,9 +1153,9 @@ namespace Obj
 			};
 			T4	pa = (d.x*d.x + d.y*d.y),
 					pb = 2*(d.x*delta.x + d.y*delta.y),
-					pc = (delta.x*delta.x + delta.y*delta.y)-sqr(radius),
+					pc = (delta.x*delta.x + delta.y*delta.y)-M::sqr(radius),
 					rs[2];
-			BYTE num_rs = solveSqrEquation(pa,pb,pc,rs);
+			BYTE num_rs = Math::solveSqrEquation(pa,pb,pc,rs);
 			if (!num_rs)
 				return false;
 			if (num_rs == 1)
@@ -1198,9 +1203,9 @@ namespace Obj
 			};
 			T4	pa = (d.x*d.x + d.y*d.y + d.z*d.z),
 					pb = 2*(d.x*delta.x + d.y*delta.y + d.z*delta.z),
-					pc = (delta.x*delta.x + delta.y*delta.y + delta.z*delta.z)-sqr(radius),
+					pc = (delta.x*delta.x + delta.y*delta.y + delta.z*delta.z)-M::sqr(radius),
 					rs[2];
-			BYTE num_rs = solveSqrEquation(pa,pb,pc,rs);
+			BYTE num_rs = Math::solveSqrEquation(pa,pb,pc,rs);
 			if (!num_rs)
 				return false;
 			if (num_rs == 1)
@@ -1300,9 +1305,9 @@ namespace Obj
 			};
 			T4	pa = (d.x*d.x + d.y*d.y + d.z*d.z + d.w*d.w),
 					pb = 2*(d.x*delta.x + d.y*delta.y + d.z*delta.z + d.w*delta.w),
-					pc = (delta.x*delta.x + delta.y*delta.y + delta.z*delta.z + delta.w*delta.w)-sqr(radius),
+					pc = (delta.x*delta.x + delta.y*delta.y + delta.z*delta.z + delta.w*delta.w)-M::sqr(radius),
 					rs[2];
-			BYTE num_rs = solveSqrEquation(pa,pb,pc,rs);
+			BYTE num_rs = Math::solveSqrEquation(pa,pb,pc,rs);
 			if (!num_rs)
 				return false;
 			if (num_rs == 1)
@@ -1352,9 +1357,9 @@ namespace Obj
 			};
 			T4	pa = (d.x*d.x + d.y*d.y + d.z*d.z + d.w*d.w),
 					pb = 2*(d.x*delta.x + d.y*delta.y + d.z*delta.z + d.w*delta.w),
-					pc = (delta.x*delta.x + delta.y*delta.y + delta.z*delta.z + delta.w*delta.w)-sqr(radius),
+					pc = (delta.x*delta.x + delta.y*delta.y + delta.z*delta.z + delta.w*delta.w)-M::sqr(radius),
 					rs[2];
-			BYTE num_rs = solveSqrEquation(pa,pb,pc,rs);
+			BYTE num_rs = Math::solveSqrEquation(pa,pb,pc,rs);
 			if (!num_rs)
 				return false;
 			if (num_rs == 1)
@@ -1630,6 +1635,7 @@ namespace Obj
 			};
 			T4	sub_alpha = (normal.x*normal.x + normal.y*normal.y + normal.z*normal.z);
 			using std::fabs;
+			using Math::GetError;
 			if (fabs(sub_alpha) <= GetError<T4>())
 				return (Math::sqr(t0.x - p.x) + Math::sqr(t0.y - p.y) + Math::sqr(t0.z - p.z));
 			T4	alpha = (normal.x*dif.x + normal.y*dif.y + normal.z*dif.z)/sub_alpha;
@@ -1925,7 +1931,7 @@ template <count_t Current, count_t Dimensions>
 		template <typename T0, typename T1, typename T2>
 			static	inline	bool	__fastcall	SphereContainsPoint(const T0 center[Dimensions], T1 radius, const T2 p[Dimensions])throw()
 			{
-				return (ObjV_Include__<0,Dimensions,false>::Operator3_sum(center, p)/*Math::sqr(center:i - p:i)*/) <= sqr(radius);
+				return (ObjV_Include__<0,Dimensions,false>::Operator3_sum(center, p)/*Math::sqr(center:i - p:i)*/) <= M::sqr(radius);
 			}
 
 		//now implementing template definition 'bool detectSphereEdgeIntersection|DetectSphereEdgeIntersection (2..4) (<const [*] center>, <radius>, <const [*] e0>, <const [*] e1>) direct='
@@ -1944,7 +1950,7 @@ template <count_t Current, count_t Dimensions>
 		template <typename T0, typename T1, typename T2, typename T3>
 			static	inline	bool	__fastcall	detectSphereEdgeIntersection(const T0 center[Dimensions], T1 radius, const T2 e0[Dimensions], const T3 e1[Dimensions])throw()
 			{
-				if (((ObjV_Include__<0,Dimensions,false>::Operator3_sum(center, e0)/*Math::sqr(center:i - e0:i)*/) <= sqr(radius)) || ((ObjV_Include__<0,Dimensions,false>::Operator3_sum(center, e1)/*Math::sqr(center:i - e1:i)*/) <= sqr(radius)))
+				if (((ObjV_Include__<0,Dimensions,false>::Operator3_sum(center, e0)/*Math::sqr(center:i - e0:i)*/) <= M::sqr(radius)) || ((ObjV_Include__<0,Dimensions,false>::Operator3_sum(center, e1)/*Math::sqr(center:i - e1:i)*/) <= M::sqr(radius)))
 					return true;
 				T0 d[Dimensions];
 				
@@ -1962,9 +1968,9 @@ template <count_t Current, count_t Dimensions>
 				};
 				T0	pa = (ObjV_Include__<0,Dimensions,false>::Operator4_sum(d, d)/*d:i*d:i*/),
 						pb = 2*(ObjV_Include__<0,Dimensions,false>::Operator4_sum(d, delta)/*d:i*delta:i*/),
-						pc = (ObjV_Include__<0,Dimensions,false>::Operator5_sum(delta)/*delta:i*delta:i*/)-sqr(radius),
+						pc = (ObjV_Include__<0,Dimensions,false>::Operator5_sum(delta)/*delta:i*delta:i*/)-M::sqr(radius),
 						rs[2];
-				BYTE num_rs = solveSqrEquation(pa,pb,pc,rs);
+				BYTE num_rs = Math::solveSqrEquation(pa,pb,pc,rs);
 				if (!num_rs)
 					return false;
 				T0	alpha = smallestPositiveResult(rs,num_rs);
@@ -1986,7 +1992,7 @@ template <count_t Current, count_t Dimensions>
 		template <typename T0, typename T1, typename T2, typename T3>
 			static	inline	bool	__fastcall	DetectSphereEdgeIntersection(const T0 center[Dimensions], T1 radius, const T2 e0[Dimensions], const T3 e1[Dimensions])throw()
 			{
-				if (((ObjV_Include__<0,Dimensions,false>::Operator3_sum(center, e0)/*Math::sqr(center:i - e0:i)*/) <= sqr(radius)) || ((ObjV_Include__<0,Dimensions,false>::Operator3_sum(center, e1)/*Math::sqr(center:i - e1:i)*/) <= sqr(radius)))
+				if (((ObjV_Include__<0,Dimensions,false>::Operator3_sum(center, e0)/*Math::sqr(center:i - e0:i)*/) <= M::sqr(radius)) || ((ObjV_Include__<0,Dimensions,false>::Operator3_sum(center, e1)/*Math::sqr(center:i - e1:i)*/) <= M::sqr(radius)))
 					return true;
 				T0 d[Dimensions];
 				
@@ -2004,9 +2010,9 @@ template <count_t Current, count_t Dimensions>
 				};
 				T0	pa = (ObjV_Include__<0,Dimensions,false>::Operator4_sum(d, d)/*d:i*d:i*/),
 						pb = 2*(ObjV_Include__<0,Dimensions,false>::Operator4_sum(d, delta)/*d:i*delta:i*/),
-						pc = (ObjV_Include__<0,Dimensions,false>::Operator5_sum(delta)/*delta:i*delta:i*/)-sqr(radius),
+						pc = (ObjV_Include__<0,Dimensions,false>::Operator5_sum(delta)/*delta:i*delta:i*/)-M::sqr(radius),
 						rs[2];
-				BYTE num_rs = solveSqrEquation(pa,pb,pc,rs);
+				BYTE num_rs = Math::solveSqrEquation(pa,pb,pc,rs);
 				if (!num_rs)
 					return false;
 				T0	alpha = smallestPositiveResult(rs,num_rs);
@@ -2046,9 +2052,9 @@ template <count_t Current, count_t Dimensions>
 				};
 				T4	pa = (ObjV_Include__<0,Dimensions,false>::Operator4_sum(d, d)/*d:i*d:i*/),
 						pb = 2*(ObjV_Include__<0,Dimensions,false>::Operator4_sum(d, delta)/*d:i*delta:i*/),
-						pc = (ObjV_Include__<0,Dimensions,false>::Operator5_sum(delta)/*delta:i*delta:i*/)-sqr(radius),
+						pc = (ObjV_Include__<0,Dimensions,false>::Operator5_sum(delta)/*delta:i*delta:i*/)-M::sqr(radius),
 						rs[2];
-				BYTE num_rs = solveSqrEquation(pa,pb,pc,rs);
+				BYTE num_rs = Math::solveSqrEquation(pa,pb,pc,rs);
 				if (!num_rs)
 					return false;
 				if (num_rs == 1)
@@ -2093,9 +2099,9 @@ template <count_t Current, count_t Dimensions>
 				};
 				T4	pa = (ObjV_Include__<0,Dimensions,false>::Operator4_sum(d, d)/*d:i*d:i*/),
 						pb = 2*(ObjV_Include__<0,Dimensions,false>::Operator4_sum(d, delta)/*d:i*delta:i*/),
-						pc = (ObjV_Include__<0,Dimensions,false>::Operator5_sum(delta)/*delta:i*delta:i*/)-sqr(radius),
+						pc = (ObjV_Include__<0,Dimensions,false>::Operator5_sum(delta)/*delta:i*delta:i*/)-M::sqr(radius),
 						rs[2];
-				BYTE num_rs = solveSqrEquation(pa,pb,pc,rs);
+				BYTE num_rs = Math::solveSqrEquation(pa,pb,pc,rs);
 				if (!num_rs)
 					return false;
 				if (num_rs == 1)
@@ -2125,7 +2131,7 @@ template <count_t Current, count_t Dimensions>
 		template <typename T0, typename T1, typename T2>
 			static	inline	bool	__fastcall	SphereContainsPoint(const TVec<T0,Dimensions>& center, T1 radius, const TVec<T2,Dimensions>& p)throw()
 			{
-				return (ObjV_Include__<0,Dimensions,false>::Operator6_sum(center.v, p.v)/*Math::sqr(center:i - p:i)*/) <= sqr(radius);
+				return (ObjV_Include__<0,Dimensions,false>::Operator6_sum(center.v, p.v)/*Math::sqr(center:i - p:i)*/) <= M::sqr(radius);
 			}
 
 		//now implementing template definition 'bool detectSphereEdgeIntersection|DetectSphereEdgeIntersection (2..4) (<const [*] center>, <radius>, <const [*] e0>, <const [*] e1>) direct='
@@ -2144,7 +2150,7 @@ template <count_t Current, count_t Dimensions>
 		template <typename T0, typename T1, typename T2, typename T3>
 			static	inline	bool	__fastcall	detectSphereEdgeIntersection(const TVec<T0,Dimensions>& center, T1 radius, const TVec<T2,Dimensions>& e0, const TVec<T3,Dimensions>& e1)throw()
 			{
-				if (((ObjV_Include__<0,Dimensions,false>::Operator6_sum(center.v, e0.v)/*Math::sqr(center:i - e0:i)*/) <= sqr(radius)) || ((ObjV_Include__<0,Dimensions,false>::Operator6_sum(center.v, e1.v)/*Math::sqr(center:i - e1:i)*/) <= sqr(radius)))
+				if (((ObjV_Include__<0,Dimensions,false>::Operator6_sum(center.v, e0.v)/*Math::sqr(center:i - e0:i)*/) <= M::sqr(radius)) || ((ObjV_Include__<0,Dimensions,false>::Operator6_sum(center.v, e1.v)/*Math::sqr(center:i - e1:i)*/) <= M::sqr(radius)))
 					return true;
 				TVec<T0,Dimensions> d;
 				
@@ -2162,9 +2168,9 @@ template <count_t Current, count_t Dimensions>
 				};
 				T0	pa = (ObjV_Include__<0,Dimensions,false>::Operator7_sum(d.v, d.v)/*d:i*d:i*/),
 						pb = 2*(ObjV_Include__<0,Dimensions,false>::Operator7_sum(d.v, delta.v)/*d:i*delta:i*/),
-						pc = (ObjV_Include__<0,Dimensions,false>::Operator8_sum(delta.v)/*delta:i*delta:i*/)-sqr(radius),
+						pc = (ObjV_Include__<0,Dimensions,false>::Operator8_sum(delta.v)/*delta:i*delta:i*/)-M::sqr(radius),
 						rs[2];
-				BYTE num_rs = solveSqrEquation(pa,pb,pc,rs);
+				BYTE num_rs = Math::solveSqrEquation(pa,pb,pc,rs);
 				if (!num_rs)
 					return false;
 				T0	alpha = smallestPositiveResult(rs,num_rs);
@@ -2186,7 +2192,7 @@ template <count_t Current, count_t Dimensions>
 		template <typename T0, typename T1, typename T2, typename T3>
 			static	inline	bool	__fastcall	DetectSphereEdgeIntersection(const TVec<T0,Dimensions>& center, T1 radius, const TVec<T2,Dimensions>& e0, const TVec<T3,Dimensions>& e1)throw()
 			{
-				if (((ObjV_Include__<0,Dimensions,false>::Operator6_sum(center.v, e0.v)/*Math::sqr(center:i - e0:i)*/) <= sqr(radius)) || ((ObjV_Include__<0,Dimensions,false>::Operator6_sum(center.v, e1.v)/*Math::sqr(center:i - e1:i)*/) <= sqr(radius)))
+				if (((ObjV_Include__<0,Dimensions,false>::Operator6_sum(center.v, e0.v)/*Math::sqr(center:i - e0:i)*/) <= M::sqr(radius)) || ((ObjV_Include__<0,Dimensions,false>::Operator6_sum(center.v, e1.v)/*Math::sqr(center:i - e1:i)*/) <= M::sqr(radius)))
 					return true;
 				TVec<T0,Dimensions> d;
 				
@@ -2204,9 +2210,9 @@ template <count_t Current, count_t Dimensions>
 				};
 				T0	pa = (ObjV_Include__<0,Dimensions,false>::Operator7_sum(d.v, d.v)/*d:i*d:i*/),
 						pb = 2*(ObjV_Include__<0,Dimensions,false>::Operator7_sum(d.v, delta.v)/*d:i*delta:i*/),
-						pc = (ObjV_Include__<0,Dimensions,false>::Operator8_sum(delta.v)/*delta:i*delta:i*/)-sqr(radius),
+						pc = (ObjV_Include__<0,Dimensions,false>::Operator8_sum(delta.v)/*delta:i*delta:i*/)-M::sqr(radius),
 						rs[2];
-				BYTE num_rs = solveSqrEquation(pa,pb,pc,rs);
+				BYTE num_rs = Math::solveSqrEquation(pa,pb,pc,rs);
 				if (!num_rs)
 					return false;
 				T0	alpha = smallestPositiveResult(rs,num_rs);
@@ -2246,9 +2252,9 @@ template <count_t Current, count_t Dimensions>
 				};
 				T4	pa = (ObjV_Include__<0,Dimensions,false>::Operator7_sum(d.v, d.v)/*d:i*d:i*/),
 						pb = 2*(ObjV_Include__<0,Dimensions,false>::Operator7_sum(d.v, delta.v)/*d:i*delta:i*/),
-						pc = (ObjV_Include__<0,Dimensions,false>::Operator8_sum(delta.v)/*delta:i*delta:i*/)-sqr(radius),
+						pc = (ObjV_Include__<0,Dimensions,false>::Operator8_sum(delta.v)/*delta:i*delta:i*/)-M::sqr(radius),
 						rs[2];
-				BYTE num_rs = solveSqrEquation(pa,pb,pc,rs);
+				BYTE num_rs = Math::solveSqrEquation(pa,pb,pc,rs);
 				if (!num_rs)
 					return false;
 				if (num_rs == 1)
@@ -2293,9 +2299,9 @@ template <count_t Current, count_t Dimensions>
 				};
 				T4	pa = (ObjV_Include__<0,Dimensions,false>::Operator7_sum(d.v, d.v)/*d:i*d:i*/),
 						pb = 2*(ObjV_Include__<0,Dimensions,false>::Operator7_sum(d.v, delta.v)/*d:i*delta:i*/),
-						pc = (ObjV_Include__<0,Dimensions,false>::Operator8_sum(delta.v)/*delta:i*delta:i*/)-sqr(radius),
+						pc = (ObjV_Include__<0,Dimensions,false>::Operator8_sum(delta.v)/*delta:i*delta:i*/)-M::sqr(radius),
 						rs[2];
-				BYTE num_rs = solveSqrEquation(pa,pb,pc,rs);
+				BYTE num_rs = Math::solveSqrEquation(pa,pb,pc,rs);
 				if (!num_rs)
 					return false;
 				if (num_rs == 1)

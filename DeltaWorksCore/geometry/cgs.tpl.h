@@ -222,7 +222,7 @@ template <class Def> template <class C>
 		typename Def::FloatType*at = vdata.pointer();
 		Concurrency::parallel_for(UINT32(0),vcnt,[at,stride,factor](UINT32 i)
 		{
-			Vec::mult(Vec::ref3(at+i*stride),factor);
+			M::Vec::mult(M::Vec::ref3(at+i*stride),factor);
 		});
 	}
 
@@ -319,7 +319,7 @@ template <class Def> void VertexContainerA<Def>::stretch(UINT16 layers, UINT32 f
 		}
 		elif (flags&HasColorFlag)
 			to+=4;
-		Vec::copyD(from,to,lyr*2);
+		M::Vec::copyD(from,to,lyr*2);
 		from+=vlyr*2;
 		to+=layers*2;
 	}
@@ -782,23 +782,23 @@ template <typename T>
 	}
 	
 template <typename T> template <typename T2>
-	inline void	System<T>::setPosition(const TVec3<T2>&p)
+	inline void	System<T>::setPosition(const M::TVec3<T2>&p)
 	{
-		Vec::copy(p,matrix.w.xyz);
+		M::Vec::copy(p,matrix.w.xyz);
 		if (callback)
 			callback->onSystemChange();
 	}
 	
 template <typename T> template <typename T2>
-	inline void	System<T>::setPositionNoCallback(const TVec3<T2>&p)
+	inline void	System<T>::setPositionNoCallback(const M::TVec3<T2>&p)
 	{
-		Vec::copy(p,matrix.w.xyz);
+		M::Vec::copy(p,matrix.w.xyz);
 	}
 	
 template <typename T>
 	inline void	System<T>::moveTo(const T&x, const T&y, const T&z)
 	{
-		Vec::def(matrix.w.xyz,x,y,z);
+		M::Vec::def(matrix.w.xyz,x,y,z);
 		if (callback)
 			callback->onSystemChange();
 	}
@@ -806,21 +806,21 @@ template <typename T>
 template <typename T>
 	inline void	System<T>::moveToNoCallback(const T&x, const T&y, const T&z)
 	{
-		Vec::def(matrix.w.xyz,x,y,z);
+		M::Vec::def(matrix.w.xyz,x,y,z);
 	}
 	
 template <typename T> template <typename T2>
-	inline void	System<T>::moveTo(const TVec3<T2>&p)
+	inline void	System<T>::moveTo(const M::TVec3<T2>&p)
 	{
-		Vec::copy(p,matrix.w.xyz);
+		M::Vec::copy(p,matrix.w.xyz);
 		if (callback)
 			callback->onSystemChange();
 	}
 	
 template <typename T> template <typename T2>
-	inline void	System<T>::moveToNoCallback(const TVec3<T2>&p)
+	inline void	System<T>::moveToNoCallback(const M::TVec3<T2>&p)
 	{
-		Vec::copy(p,matrix.w.xyz);
+		M::Vec::copy(p,matrix.w.xyz);
 	}
 	
 	
@@ -846,17 +846,17 @@ template <typename T>
 	}
 	
 template <typename T> template <typename T2>
-	inline void	System<T>::translate(const TVec3<T2>&vector)
+	inline void	System<T>::translate(const M::TVec3<T2>&vector)
 	{
-		Vec::add(matrix.w.xyz,vector);
+		M::Vec::add(matrix.w.xyz,vector);
 		if (callback)
 			callback->onSystemChange();
 	}
 	
 template <typename T> template <typename T2>
-	inline void	System<T>::translate(const TVec3<T2>&vector, const T&factor)
+	inline void	System<T>::translate(const M::TVec3<T2>&vector, const T&factor)
 	{
-		Vec::mad(matrix.w.xyz,vector,factor);
+		M::Vec::mad(matrix.w.xyz,vector,factor);
 		if (callback)
 			callback->onSystemChange();
 	}
@@ -864,7 +864,7 @@ template <typename T> template <typename T2>
 template <typename T>
 	void	System<T>::rotate(const T&angle, const T&axis_x,const T&axis_y, const T&axis_z)
 	{
-		TMatrix3<T>	rotation_matrix;
+		M::TMatrix3<T>	rotation_matrix;
 
 		Mat::BuildRotationMatrix(angle,axis_x,axis_y,axis_z,rotation_matrix);
 
@@ -877,9 +877,9 @@ template <typename T>
 	}
 	
 template <typename T> template <typename T2>
-	void	System<T>::rotate(const T&angle, const TVec3<T2>&axis)
+	void	System<T>::rotate(const T&angle, const M::TVec3<T2>&axis)
 	{
-		TMatrix3<T>	rotation_matrix;
+		M::TMatrix3<T>	rotation_matrix;
 		Mat::BuildRotationMatrix(angle,axis,rotation_matrix);
 
 		Mat::Mult(rotation_matrix,matrix.x.xyz);
@@ -900,21 +900,21 @@ template <typename T>
 	
 	
 template <typename T> template <typename T2>
-	inline void	System<T>::translateNoCallback(const TVec3<T2>&vector)
+	inline void	System<T>::translateNoCallback(const M::TVec3<T2>&vector)
 	{
-		Vec::add(matrix.w.xyz,vector);
+		M::Vec::add(matrix.w.xyz,vector);
 	}
 	
 template <typename T> template <typename T2>
-	inline void	System<T>::translateNoCallback(const TVec3<T2>&vector, const T&factor)
+	inline void	System<T>::translateNoCallback(const M::TVec3<T2>&vector, const T&factor)
 	{
-		Vec::mad(matrix.w.xyz,vector,factor);
+		M::Vec::mad(matrix.w.xyz,vector,factor);
 	}
 	
 template <typename T>
 	void	System<T>::rotateNoCallback(const T&angle, const T&axis_x,const T&axis_y, const T&axis_z)
 	{
-		TMatrix3<T>	rotation_matrix;
+		M::TMatrix3<T>	rotation_matrix;
 
 		Mat::BuildRotationMatrix(angle,axis_x,axis_y,axis_z,rotation_matrix);
 
@@ -924,9 +924,9 @@ template <typename T>
 	}
 	
 template <typename T> template <typename T2>
-	void	System<T>::rotateNoCallback(const T&angle, const TVec3<T2>&axis)
+	void	System<T>::rotateNoCallback(const T&angle, const M::TVec3<T2>&axis)
 	{
-		TMatrix3<T>	rotation_matrix;
+		M::TMatrix3<T>	rotation_matrix;
 		Mat::BuildRotationMatrix(angle,axis,rotation_matrix);
 
 		Mat::Mult(rotation_matrix,matrix.x.xyz);
@@ -1131,57 +1131,57 @@ template <class Def>
 	{
 		if (detail < vs_hull_field.count() && !vs_hull_field[detail].getMap())
 		{
-			typedef ObjectMath::Mesh<VsDef>	VsMesh;
+			typedef Math::Mesh<VsDef>	VsMesh;
 			VsMesh&obj = vs_hull_field[detail];
 			obj.buildMap(O_ALL,max_depth);
 		
 			for (index_t i = 0; i < obj.vertex_field.length(); i++)
-				Vec::clear(obj.vertex_field[i].normal);
+				M::Vec::clear(obj.vertex_field[i].normal);
 			for (index_t i = 0; i < obj.triangle_field.length(); i++)
 			{
 				typename VsMesh::Triangle & t = obj.triangle_field[i];
 				_oTriangleNormal(t.v0->position,t.v1->position,t.v2->position,t.normal);
-				Vec::add(t.v0->normal,t.normal);
-				Vec::add(t.v1->normal,t.normal);
-				Vec::add(t.v2->normal,t.normal);
-				Vec::normalize0(t.normal);
+				M::Vec::add(t.v0->normal,t.normal);
+				M::Vec::add(t.v1->normal,t.normal);
+				M::Vec::add(t.v2->normal,t.normal);
+				M::Vec::normalize0(t.normal);
 			}
 			for (index_t i = 0; i < obj.quad_field.length(); i++)
 			{
 				typename VsMesh::Quad&q = obj.quad_field[i];
 				_oTriangleNormal(q.v0->position,q.v1->position,q.v2->position,q.normal);
 				_oAddTriangleNormal(q.v0->position,q.v2->position,q.v3->position,q.normal);
-				Vec::add(q.v0->normal,q.normal);
-				Vec::add(q.v1->normal,q.normal);
-				Vec::add(q.v2->normal,q.normal);
-				Vec::add(q.v3->normal,q.normal);
-				Vec::normalize0(q.normal);
+				M::Vec::add(q.v0->normal,q.normal);
+				M::Vec::add(q.v1->normal,q.normal);
+				M::Vec::add(q.v2->normal,q.normal);
+				M::Vec::add(q.v3->normal,q.normal);
+				M::Vec::normalize0(q.normal);
 			}
 			for (index_t i = 0; i < obj.vertex_field.length(); i++)
-				Vec::normalize0(obj.vertex_field[i].normal);
+				M::Vec::normalize0(obj.vertex_field[i].normal);
 			for (index_t i = 0; i < obj.edge_field.length(); i++)
 			{
 				typename VsMesh::Edge&e = obj.edge_field[i];
-				Vec::clear(e.normal);
+				M::Vec::clear(e.normal);
 				if (e.n[0])
 				{
 					if (e.n[0].is_quad)
 					{
-						Vec::copy(e.n[0].quad->normal,e.normal);
+						M::Vec::copy(e.n[0].quad->normal,e.normal);
 					}
 					else
-						Vec::copy(e.n[0].triangle->normal,e.normal);
+						M::Vec::copy(e.n[0].triangle->normal,e.normal);
 				}
 				if (e.n[1])
 				{
 					if (e.n[1].is_quad)
 					{
-						Vec::add(e.normal,e.n[1].quad->normal);
+						M::Vec::add(e.normal,e.n[1].quad->normal);
 					}
 					else
-						Vec::add(e.normal,e.n[1].triangle->normal);
+						M::Vec::add(e.normal,e.n[1].triangle->normal);
 				}
-				Vec::normalize0(e.normal);
+				M::Vec::normalize0(e.normal);
 			}
 		}
 		
@@ -1201,8 +1201,8 @@ template <class Def>	template <class C>
 		
 		for (index_t i = 0; i < wheel_field.length(); i++)
 		{
-			Vec::mult(wheel_field[i].position,factor);
-			Vec::mult(wheel_field[i].contraction,factor);
+			M::Vec::mult(wheel_field[i].position,factor);
+			M::Vec::mult(wheel_field[i].contraction,factor);
 			wheel_field[i].radius*=factor;
 			wheel_field[i].width*=factor;
 			wheel_field[i].suspension.scale(factor);
@@ -1210,13 +1210,13 @@ template <class Def>	template <class C>
 		}
 			
 		for (index_t i = 0; i < accelerator_field.length(); i++)
-			Vec::mult(accelerator_field[i].position,factor);
+			M::Vec::mult(accelerator_field[i].position,factor);
 		
 		for (index_t i = 0; i < mounting_field.length(); i++)
-			Vec::mult(mounting_field[i].position,factor);
+			M::Vec::mult(mounting_field[i].position,factor);
 		
-		Vec::mult(meta.system.w.xyz,factor);
-		Vec::mult(meta.center,factor);
+		M::Vec::mult(meta.system.w.xyz,factor);
+		M::Vec::mult(meta.center,factor);
 		meta.radius *= factor;
 		meta.volume *= factor*factor*factor;
 		meta.shortest_edge_length *= factor;
@@ -1296,7 +1296,7 @@ template <class Def> void SubGeometryA<Def>::saveToRiff(Riff::Chunk*riff)	const
 			{
 				Ctr::Array<typename Def::FloatType> out(hull.vertex_field.length()*3);
 				for (index_t j = 0; j < hull.vertex_field.length(); j++)
-					Vec::copy(hull.vertex_field[j].position,Vec::ref3(out + j*3));
+					M::Vec::copy(hull.vertex_field[j].position,M::Vec::ref3(out + j*3));
 				inner->AppendBlock("VVX3",out);
     		}
 			{
@@ -1343,7 +1343,7 @@ template <class Def> void SubGeometryA<Def>::saveToRiff(Riff::Chunk*riff)	const
 				Ctr::Array<typename Def::PhHullFloatType> out(phHull.vertex_field.length()*3);
 				for (index_t j = 0; j < phHull.vertex_field.length(); j++)
 				{
-					Vec::copy(phHull.vertex_field[j].position,Vec::ref3(out + j*3));
+					M::Vec::copy(phHull.vertex_field[j].position,M::Vec::ref3(out + j*3));
 					//ASSERT_IS_CONSTRAINED3__(out + j*3,-30,30);
 
 				}
@@ -1513,7 +1513,7 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(Riff::File&riff) //ass
 					hull.vertex_field.SetSize(array.length()/4);
 					for (index_t i = 0; i < hull.vertex_field.length(); i++)
 					{
-						hull.vertex_field[i].position = Vec::ref3(array + i*4);
+						hull.vertex_field[i].position = M::Vec::ref3(array + i*4);
 						hull.vertex_field[i].index = i;
 						hull.vertex_field[i].marked = false;
 					}
@@ -1567,7 +1567,7 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(Riff::File&riff) //ass
 					hull.vertex_field.SetSize(array.length()/3);
 					for (index_t i = 0; i < hull.vertex_field.length(); i++)
 					{
-						hull.vertex_field[i].position = Vec::ref3(array + i*3);
+						hull.vertex_field[i].position = M::Vec::ref3(array + i*3);
 						hull.vertex_field[i].index = i;
 						hull.vertex_field[i].marked = false;
 					}
@@ -1636,8 +1636,8 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(Riff::File&riff) //ass
 			{
 				typename Mesh<PhDef>::Vertex	&vertex = phHull.vertex_field[i];
 				/*vertex.p0 = vertex.p1 = */
-				vertex.position = Vec::ref3(array + i*4);
-				Vec::clear(vertex.normal);
+				vertex.position = M::Vec::ref3(array + i*4);
+				M::Vec::clear(vertex.normal);
 				//vertex.grip = 0;
 				vertex.index = i;
 				vertex.marked = false;
@@ -1699,8 +1699,8 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(Riff::File&riff) //ass
 				{
 					typename Mesh<PhDef>::Vertex	&vertex = phHull.vertex_field[i];
 					//vertex.p0 = vertex.p1 = 
-					vertex.position = Vec::ref3(array + i*3);
-					Vec::clear(vertex.normal);
+					vertex.position = M::Vec::ref3(array + i*3);
+					M::Vec::clear(vertex.normal);
 					//ASSERT_IS_CONSTRAINED3__(array+i*3,-30,30);
 					//vertex.grip = 0;
 					vertex.index = i;
@@ -1783,9 +1783,9 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(Riff::File&riff) //ass
 	{
 		typename Mesh<PhDef>::Triangle	&face = phHull.triangle_field[i];
 		Obj::triangleNormal(face.vertex[0]->position,face.vertex[1]->position,face.vertex[2]->position,face.normal);
-		Vec::add(face.vertex[0]->normal,face.normal);
-		Vec::add(face.vertex[1]->normal,face.normal);
-		Vec::add(face.vertex[2]->normal,face.normal);
+		M::Vec::add(face.vertex[0]->normal,face.normal);
+		M::Vec::add(face.vertex[1]->normal,face.normal);
+		M::Vec::add(face.vertex[2]->normal,face.normal);
 		/*face.vertex[0]->grip += face.grip;
 		face.vertex[1]->grip += face.grip;
 		face.vertex[2]->grip += face.grip;*/
@@ -1793,8 +1793,8 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(Riff::File&riff) //ass
 		/*face.vertex[0]->index++;
 		face.vertex[1]->index++;
 		face.vertex[2]->index++;*/
-		//Vec::center(face.vertex[0]->position,face.vertex[1]->position,face.vertex[2]->position,face.center);
-		//Vec::copy(face.center,face.gcenter);
+		//M::Vec::center(face.vertex[0]->position,face.vertex[1]->position,face.vertex[2]->position,face.center);
+		//M::Vec::copy(face.center,face.gcenter);
 	}
 	
 	for (index_t i = 0; i < phHull.quad_field.length(); i++)
@@ -1802,10 +1802,10 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(Riff::File&riff) //ass
 		typename Mesh<PhDef>::Quad	&face = phHull.quad_field[i];
 		_oTriangleNormal(face.vertex[0]->position,face.vertex[1]->position,face.vertex[2]->position,face.normal);
 		_oAddTriangleNormal(face.vertex[0]->position,face.vertex[2]->position,face.vertex[3]->position,face.normal);
-		Vec::add(face.vertex[0]->normal,face.normal);
-		Vec::add(face.vertex[1]->normal,face.normal);
-		Vec::add(face.vertex[2]->normal,face.normal);
-		Vec::add(face.vertex[3]->normal,face.normal);
+		M::Vec::add(face.vertex[0]->normal,face.normal);
+		M::Vec::add(face.vertex[1]->normal,face.normal);
+		M::Vec::add(face.vertex[2]->normal,face.normal);
+		M::Vec::add(face.vertex[3]->normal,face.normal);
 		/*face.vertex[0]->grip += face.grip;
 		face.vertex[1]->grip += face.grip;
 		face.vertex[2]->grip += face.grip;
@@ -1815,12 +1815,12 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(Riff::File&riff) //ass
 		face.vertex[1]->index++;
 		face.vertex[2]->index++;
 		face.vertex[3]->index++;*/
-		/*Vec::copy(face.vertex[0]->position,face.center);
-		Vec::add(face.center,face.vertex[1]->position);
-		Vec::add(face.center,face.vertex[2]->position);
-		Vec::add(face.center,face.vertex[3]->position);
-		Vec::div(face.center,4.0);
-		Vec::copy(face.center,face.gcenter);*/
+		/*M::Vec::copy(face.vertex[0]->position,face.center);
+		M::Vec::add(face.center,face.vertex[1]->position);
+		M::Vec::add(face.center,face.vertex[2]->position);
+		M::Vec::add(face.center,face.vertex[3]->position);
+		M::Vec::div(face.center,4.0);
+		M::Vec::copy(face.center,face.gcenter);*/
 	}
 	
 	
@@ -1828,7 +1828,7 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(Riff::File&riff) //ass
 	{
 		if (phHull.vertex_field[i].index)
 		{
-			Vec::normalize0(phHull.vertex_field[i].normal);
+			M::Vec::normalize0(phHull.vertex_field[i].normal);
 			//phHull.vertex_field[i].grip /= phHull.vertex_field[i].index;
 		}
 		//phHull.vertex_field[i].index = i;
@@ -1837,36 +1837,36 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(Riff::File&riff) //ass
 	for (index_t i = 0; i < phHull.edge_field.length(); i++)
 	{
 		typename Mesh<PhDef>::Edge	&edge = phHull.edge_field[i];
-		Vec::clear(edge.normal);
+		M::Vec::clear(edge.normal);
 		
 		if (edge.n[0].is_quad)
 		{
-			Vec::copy(edge.n[0].quad->normal,edge.normal);
+			M::Vec::copy(edge.n[0].quad->normal,edge.normal);
 			//edge.grip = edge.n[0].quad->grip;
 		}
 		else
 		{
-			Vec::copy(edge.n[0].triangle->normal,edge.normal);
+			M::Vec::copy(edge.n[0].triangle->normal,edge.normal);
 			//edge.grip = edge.n[0].triangle->grip;
 		}
 
 		if (edge.n[1].triangle)
 			if (edge.n[1].is_quad)
 			{
-				Vec::add(edge.normal,edge.n[1].quad->normal);
+				M::Vec::add(edge.normal,edge.n[1].quad->normal);
 				//edge.grip = (edge.grip+edge.n[1].quad->grip)/2;
 			}
 			else
 			{
-				Vec::add(edge.normal,edge.n[1].triangle->normal);
+				M::Vec::add(edge.normal,edge.n[1].triangle->normal);
 				//edge.grip = (edge.grip+edge.n[1].triangle->grip)/2;
 			}
 	}
 	
 	for (index_t i = 0; i < phHull.triangle_field.length(); i++)
-		Vec::normalize(phHull.triangle_field[i].normal);
+		M::Vec::normalize(phHull.triangle_field[i].normal);
 	for (index_t i = 0; i < phHull.quad_field.length(); i++)
-		Vec::normalize(phHull.quad_field[i].normal);
+		M::Vec::normalize(phHull.quad_field[i].normal);
 	
 	
 	static const size_t AcceleratorSize = sizeof(tName)+8*sizeof(typename Def::PhFloatType),
@@ -1953,7 +1953,7 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(Riff::File&riff) //ass
 
 						accelerator_field[accelerators].flame_length = 0;
 						accelerator_field[accelerators].flame_width = 0;
-						Vec::def(accelerator_field[accelerators].flame_color,1,0.5,0);
+						M::Vec::def(accelerator_field[accelerators].flame_color,1,0.5,0);
 
 					}
 					elif (riff.GetSize() == ExtAcceleratorSize)
@@ -2307,18 +2307,18 @@ template <class Def> void SubGeometryA<Def>::checkLinkage()
 
 
 template <class Def>
-template <class C> bool SubGeometryA<Def>::extractDimensions(const TMatrix4<typename Def::SystemType>&system, DimensionParser<C>&parser) const
+template <class C> bool SubGeometryA<Def>::extractDimensions(const M::TMatrix4<typename Def::SystemType>&system, DimensionParser<C>&parser) const
 {
 	bool def;
-	TMatrix4<typename Def::SystemType> lsystem;
+	M::TMatrix4<typename Def::SystemType> lsystem;
 	Mat::transformSystem(system,meta.system,lsystem);
 	if (vs_hull_field.length() && vs_hull_field[0].vertex_field.length())
 	{
 		def = true;
-		TVec3<C>	p;
+		M::TVec3<C>	p;
 
 		Mat::transform(lsystem,vs_hull_field[0].vertex_field[0].position,p);
-		Box<C>		local(p,p);
+		M::Box<C>		local(p,p);
 
 		for (index_t i = 1; i < vs_hull_field[0].vertex_field.length(); i++)
 		{
@@ -2336,7 +2336,7 @@ template <class C> bool SubGeometryA<Def>::extractDimensions(const TMatrix4<type
 }
 
 template <class Def>
-template <class C> bool SubGeometryA<Def>::extractDimensions(Box<C>&dim) const
+template <class C> bool SubGeometryA<Def>::extractDimensions(M::Box<C>&dim) const
 {
 	bool def;
 	if (vs_hull_field.length()&&vs_hull_field[0].vertex_field.length())
@@ -2362,7 +2362,7 @@ template <class C> void SubGeometryA<Def>::extractRadius(C&radius) const
 	if (vs_hull_field.length())
 		for (index_t i = 0; i < vs_hull_field[0].vertex_field.length(); i++)
 		{
-			C r = Vec::dot(vs_hull_field[0].vertex_field[i].position);
+			C r = M::Vec::dot(vs_hull_field[0].vertex_field[i].position);
 			if (r > vr)
 				vr = r;
 		}
@@ -2377,7 +2377,7 @@ template <class C> void SubGeometryA<Def>::extractAverageVisualEdgeLength(index_
 	{
 		for (index_t i = 0; i < vs_hull_field[layer].edge_field.length(); i++)
 		{
-			length += (C)Vec::quadraticDistance(vs_hull_field[layer].edge_field[i].vertex[0]->position,vs_hull_field[layer].edge_field[i].vertex[1]->position);
+			length += (C)M::Vec::quadraticDistance(vs_hull_field[layer].edge_field[i].vertex[0]->position,vs_hull_field[layer].edge_field[i].vertex[1]->position);
 		}
 		length = vsqrt(length)/(C)vs_hull_field[layer].edge_field.length();
 	}
@@ -2398,7 +2398,7 @@ template <class Def>
 					for (index_t i = 0; i < mesh.edge_field.length(); i++)
 					{
 						const typename Mesh<VsDef>::Edge&edge = mesh.edge_field[i];
-						_IncludeEdgeLength(length,Vec::quadraticDistance(edge.v0->position,edge.v1->position));
+						_IncludeEdgeLength(length,M::Vec::quadraticDistance(edge.v0->position,edge.v1->position));
 					}
 				}
 				else
@@ -2406,18 +2406,18 @@ template <class Def>
 					for (index_t i = 0; i < mesh.triangle_field.length(); i++)
 					{
 						const typename Mesh<VsDef>::Triangle&t = mesh.triangle_field[i];
-						_IncludeEdgeLength(length,Vec::quadraticDistance(t.v0->position,t.v1->position));
-						_IncludeEdgeLength(length,Vec::quadraticDistance(t.v1->position,t.v2->position));
-						_IncludeEdgeLength(length,Vec::quadraticDistance(t.v2->position,t.v0->position));
+						_IncludeEdgeLength(length,M::Vec::quadraticDistance(t.v0->position,t.v1->position));
+						_IncludeEdgeLength(length,M::Vec::quadraticDistance(t.v1->position,t.v2->position));
+						_IncludeEdgeLength(length,M::Vec::quadraticDistance(t.v2->position,t.v0->position));
 					}
 
 					for (index_t i = 0; i < mesh.quad_field.length(); i++)
 					{
 						const typename Mesh<VsDef>::Quad&q = mesh.quad_field[i];
-						_IncludeEdgeLength(length,Vec::quadraticDistance(q.v0->position,q.v1->position));
-						_IncludeEdgeLength(length,Vec::quadraticDistance(q.v1->position,q.v2->position));
-						_IncludeEdgeLength(length,Vec::quadraticDistance(q.v2->position,q.v3->position));
-						_IncludeEdgeLength(length,Vec::quadraticDistance(q.v3->position,q.v0->position));
+						_IncludeEdgeLength(length,M::Vec::quadraticDistance(q.v0->position,q.v1->position));
+						_IncludeEdgeLength(length,M::Vec::quadraticDistance(q.v1->position,q.v2->position));
+						_IncludeEdgeLength(length,M::Vec::quadraticDistance(q.v2->position,q.v3->position));
+						_IncludeEdgeLength(length,M::Vec::quadraticDistance(q.v3->position,q.v0->position));
 					}
 				}
 
@@ -2436,9 +2436,9 @@ template <class C> void SubGeometryA<Def>::extractAbsoluteRadius(C&radius) const
 		for (index_t i = 0; i < vs_hull_field[0].vertex_field.length(); i++)
 		{
 			C r;
-			TVec3<C>	p;
+			M::TVec3<C>	p;
 			Mat::transform(path,vs_hull_field[0].vertex_field[i].position,p);
-			r = Vec::dot(p);
+			r = M::Vec::dot(p);
 			if (r > vr)
 				vr = r;
 		}
@@ -2447,17 +2447,17 @@ template <class C> void SubGeometryA<Def>::extractAbsoluteRadius(C&radius) const
 }
 
 template <class Def>
-template <class C> void SubGeometryA<Def>::extractAbsoluteRadius(const TVec3<C>&center, C&radius) const
+template <class C> void SubGeometryA<Def>::extractAbsoluteRadius(const M::TVec3<C>&center, C&radius) const
 {
 	C vr = radius*radius;
 	if (vs_hull_field.length())
 		for (index_t i = 0; i < vs_hull_field[0].vertex_field.length(); i++)
 		{
 			C r;
-			TVec3<C>	p;
+			M::TVec3<C>	p;
 			Mat::transform(path,vs_hull_field[0].vertex_field[i].position,p);
-			Vec::sub(p,center);
-			r = Vec::dot(p);
+			M::Vec::sub(p,center);
+			r = M::Vec::dot(p);
 			if (r > vr)
 				vr = r;
 		}
@@ -2491,7 +2491,7 @@ template <class C> void SubGeometryA<Def>::extractRadiusRec(C&radius) const
 }
 
 template <class Def>
-template <class C> void SubGeometryA<Def>::extractRadiusRec(const TVec3<C>&center, C&radius) const
+template <class C> void SubGeometryA<Def>::extractRadiusRec(const M::TVec3<C>&center, C&radius) const
 {
 	
 	extractAbsoluteRadius(center,radius);
@@ -2500,7 +2500,7 @@ template <class C> void SubGeometryA<Def>::extractRadiusRec(const TVec3<C>&cente
 }
 
 
-template <class Def> void SubGeometryA<Def>::setSystemRec(const TMatrix4<typename Def::SystemType>&system)
+template <class Def> void SubGeometryA<Def>::setSystemRec(const M::TMatrix4<typename Def::SystemType>&system)
 {
 	Mat::transformSystem(system,meta.system,path);
 	for (index_t i = 0; i < child_field.length(); i++)
@@ -2528,8 +2528,8 @@ template <class Def> void SubGeometryA<Def>::toInstance(AnimatableSubInstanceA<D
 {
 	tree.target = this;
 	
-	Vec::clear(tree.animation_status.translation);
-	Vec::clear(tree.animation_status.rotation);
+	M::Vec::clear(tree.animation_status.translation);
+	M::Vec::clear(tree.animation_status.rotation);
 
 	tree.wheel_rotation_animators.SetSize(wheel_field.length());
 	tree.wheel_suspension_animators.SetSize(wheel_field.length());
@@ -2735,11 +2735,11 @@ template <class C> DimensionParser<C>::DimensionParser():set(false)
 template <class C>
 template <class C0> void DimensionParser<C>::parse(const C0 point[3])
 {
-	parse(Vec::ref3(point));
+	parse(M::Vec::ref3(point));
 }
 
 template <class C>
-template <class C0> void DimensionParser<C>::parse(const TVec3<C0>&point)
+template <class C0> void DimensionParser<C>::parse(const M::TVec3<C0>&point)
 {
 	if (set)
 		dimension.Include(point);
@@ -2751,7 +2751,7 @@ template <class C0> void DimensionParser<C>::parse(const TVec3<C0>&point)
 }
 
 template <class C>
-template <class C0> void DimensionParser<C>::parse(const Box<C0>&box)
+template <class C0> void DimensionParser<C>::parse(const M::Box<C0>&box)
 {
 	if (set)
 	{
@@ -2852,21 +2852,21 @@ template <class Def>template <class C>
 			animator_field[i].scale(factor);
 		for (index_t i = 0; i < connector_field.length(); i++)
 		{
-			Vec::mult(connector_field[i].p0,factor);
-			Vec::mult(connector_field[i].p1,factor);
+			M::Vec::mult(connector_field[i].p0,factor);
+			M::Vec::mult(connector_field[i].p1,factor);
 		}
-		Vec::mult(root_system.matrix.w.xyz,factor);
+		M::Vec::mult(root_system.matrix.w.xyz,factor);
 		for (index_t i = 0; i < object_field.length(); i++)
 			object_field[i].setSystemRec(root_system.matrix);		
 	}
 	
 template <class Def>
 	template <class C>
-		void	Geometry<Def>::translate(const TVec3<C>&delta)
+		void	Geometry<Def>::translate(const M::TVec3<C>&delta)
 		{
 			for (index_t i = 0; i < object_field.length(); i++)
 			{
-				Vec::add(object_field[i].meta.system.w.xyz,delta);
+				M::Vec::add(object_field[i].meta.system.w.xyz,delta);
 				object_field[i].setSystemRec(root_system.matrix);		
 			}
 		}
@@ -3008,7 +3008,7 @@ template <class Def> String Geometry<Def>::ToString(bool details)	const
 	rs+=" Connectors: "+String(connector_field.length())+"\n";
 	if (details)
 		for (index_t i = 0; i < connector_field.length(); i++)
-			rs+="	("+String(i)+") "+Vec::toString(connector_field[i].p0)+" - "+Vec::toString(connector_field[i].p1)+" -> "+Vec::toString(connector_field[i].direction)+"\n";
+			rs+="	("+String(i)+") "+M::Vec::toString(connector_field[i].p0)+" - "+M::Vec::toString(connector_field[i].p1)+" -> "+M::Vec::toString(connector_field[i].direction)+"\n";
 	rs+=" "+info;
 	return rs;
 }
@@ -4194,12 +4194,12 @@ template <class Def> const AnimatorA<Def>*Geometry<Def>::lookupAnimator(const St
 
 
 template <class Def>
-template <class C> bool Geometry<Def>::extractDimensions(Box<C>&dim) const
+template <class C> bool Geometry<Def>::extractDimensions(M::Box<C>&dim) const
 {
 	if (!object_field.length())
 		return false;
 	DimensionParser<C> parser;
-	TMatrix4<typename Def::SystemType> matrix = Matrix<typename Def::SystemType>::eye4;
+	M::TMatrix4<typename Def::SystemType> matrix = M::Matrix<typename Def::SystemType>::eye4;
 	bool def = false;
 	for (index_t i = 0; i < object_field.length(); i++)
 		def = object_field[i].extractDimensions(matrix,parser)||def;
@@ -4236,7 +4236,7 @@ void	Geometry<Def>::extractAverageVisualEdgeLength(unsigned layer, C&length)	con
 
 
 template <class Def>
-template <class C> C Geometry<Def>::extractRadiusAround(const TVec3<C>&center) const
+template <class C> C Geometry<Def>::extractRadiusAround(const M::TVec3<C>&center) const
 {
 	C radius = 0;
 	for (index_t i = 0; i < object_field.length(); i++)
@@ -4380,7 +4380,7 @@ template <class Def> void Geometry<Def>::makeSimpleObject(const Float*vertex,cou
 	UINT32 band = UINT32(3+3+layers*2);
 	for (index_t i = 0; i < vertices; i++)
 	{
-		Vec::clear(obj.vertex_field[i].position);
+		M::Vec::clear(obj.vertex_field[i].position);
 		copy3(vertex+i*band,obj.vertex_field[i].position.v);
 		obj.vertex_field[i].index = i;
 		obj.vertex_field[i].marked = false;
@@ -4404,7 +4404,7 @@ template <class Def> void Geometry<Def>::makeSimpleObject(const Float*vertex,cou
 	
 	object_field[0].name = str2name("child");
 	Mat::Eye(object_field[0].meta.system);
-	Vec::clear(object_field[0].meta.center);
+	M::Vec::clear(object_field[0].meta.center);
 	object_field[0].meta.radius = 1;
 	object_field[0].meta.volume = 1;
 	object_field[0].meta.density = 1;
@@ -4460,7 +4460,7 @@ template <class Def>
 				const Float*vertex = cobj.GetVertices(l);
 				for (index_t j = 0; j < vertices; j++)
 				{
-					Vec::clear(obj.vertex_field[j].position);
+					M::Vec::clear(obj.vertex_field[j].position);
 					copy3(vertex+j*band,obj.vertex_field[j].position.v);
 					obj.vertex_field[j].index = j;
 					obj.vertex_field[j].marked = false;
@@ -4491,7 +4491,7 @@ template <class Def>
 
 			//Mat::Eye(object_field[i].meta.system);
 			object_field[i].meta.system = cobj.GetSystem();
-			Vec::clear(object_field[i].meta.center);
+			M::Vec::clear(object_field[i].meta.center);
 			object_field[i].meta.radius = 1;
 			object_field[i].meta.volume = 1;
 			object_field[i].meta.density = 1;
@@ -4512,9 +4512,9 @@ template <class Def>
 
 
 template <class Def> template <typename T0>
-	void	Geometry<Def>::makeBox(const Box<T0>&b)
+	void	Geometry<Def>::makeBox(const M::Box<T0>&b)
 	{
-		TVec3<T0>	lv,uv;
+		M::TVec3<T0>	lv,uv;
 		b.GetMin(lv);
 		b.GetMax(uv);
 		const T0*l = lv.v,
@@ -4577,8 +4577,8 @@ template <class Def>
 			for (index_t z = 0; z < z_segments+1; z++)
 			{
 				Float*vtx = vertex_path+((x_segments+1)*z+x)*6;
-				Vec::def(Vec::ref3(vtx),((float)x/x_segments-0.5)*width,0,((float)z/z_segments-0.5)*depth);
-				Vec::def(Vec::ref3(vtx+3),0,1,0);
+				M::Vec::def(M::Vec::ref3(vtx),((float)x/x_segments-0.5)*width,0,((float)z/z_segments-0.5)*depth);
+				M::Vec::def(M::Vec::ref3(vtx+3),0,1,0);
 			}
 		
 		Ctr::Array<UINT32>	index_path((x_segments)*(z_segments)*6);
@@ -4602,7 +4602,7 @@ template <class Def>
 template <class Def>	
 	void	Geometry<Def>::makeBox(Float lower_x, Float lower_y, Float lower_z, Float upper_x, Float upper_y, Float upper_z)
 	{
-		Box<Float> box ( lower_x, lower_y, lower_z,
+		M::Box<Float> box ( lower_x, lower_y, lower_z,
 							upper_x, upper_y, upper_z);
 		makeBox(box);
 	}
@@ -4621,7 +4621,7 @@ template <class Def>
 		index_t counter = 0;
 		for (index_t i = 0; i < tobj.vertices; i++)
 		{
-			NormalPoint<float> np(Vec::ref3(tobj.data+i*tobj.band),Vec::ref3(tobj.data+i*tobj.band+3));
+			NormalPoint<float> np(M::Vec::ref3(tobj.data+i*tobj.band),M::Vec::ref3(tobj.data+i*tobj.band+3));
 			np.index = counter;
 			auto pair = point_field.insert(np);
 			if (pair.second)
@@ -4634,8 +4634,8 @@ template <class Def>
 		foreach (point_field,item)
 		{
 			index_t at = item->index;
-			Vec::ref3(vfield+at*6) = *item;
-			Vec::ref3(vfield+at*6+3) = item->normal;
+			M::Vec::ref3(vfield+at*6) = *item;
+			M::Vec::ref3(vfield+at*6+3) = item->normal;
 		}
 		
 		Ctr::Array<UINT32>	ifield(tobj.vertices);
@@ -4763,7 +4763,7 @@ template <class Def> StaticInstance<Def>::StaticInstance()
 
 
 template <class Def> template <typename T0, typename T1, typename T2>
-	bool	StaticInstance<Def>::detectOpticalIntersection(const TVec3<T0>&b, const TVec3<T1>&d, T2&distance)	const
+	bool	StaticInstance<Def>::detectOpticalIntersection(const M::TVec3<T0>&b, const M::TVec3<T1>&d, T2&distance)	const
 	{
 		for (index_t i = 0; i < child_field.length(); i++)
 			if (child_field[i].detectOpticalIntersection(b,d,distance))
@@ -4773,14 +4773,14 @@ template <class Def> template <typename T0, typename T1, typename T2>
 
 
 template <class Def> template <typename T0, typename T1, typename T2>
-	bool	StaticSubInstanceA<Def>::detectOpticalIntersection(const TVec3<T0>&b_, const TVec3<T1>&d_, T2&distance)	const
+	bool	StaticSubInstanceA<Def>::detectOpticalIntersection(const M::TVec3<T0>&b_, const M::TVec3<T1>&d_, T2&distance)	const
 	{
 		if (!SubGeometryInstance<Def>::target)
 			return false;
 		if (SubGeometryInstance<Def>::target->vs_hull_field.length())
 		{
-			TMatrix4<typename Def::FloatType>	inverse;
-			TVec3<typename Def::FloatType>		d,b;
+			M::TMatrix4<typename Def::FloatType>	inverse;
+			M::TVec3<typename Def::FloatType>		d,b;
 			Mat::invertSystem(SubGeometryInstance<Def>::path,inverse);
 			Mat::transform(inverse,b_,b);
 			Mat::rotate(inverse,d_,d);
@@ -4824,7 +4824,7 @@ template <class Def> void StaticInstance<Def>::restoreFromGeometry()
 template <class Def> void StaticInstance<Def>::link()
 {
 	ASSERT_NOT_NULL__(GeometryInstance<Def>::target);
-	TMatrix4<typename Def::SystemType>&m = Super::matrix;
+	M::TMatrix4<typename Def::SystemType>&m = Super::matrix;
 	GeometryInstance<Def>::target->system_link = &m;
 	for (index_t i = 0; i < child_field.length(); i++)
 		child_field[i].linkObjects();
@@ -4868,8 +4868,8 @@ template <class Def>
 		{
 			obj_animator_field[i].target = target->obj_trace_field[i].target;
 			obj_animator_field[i].target_trace = target->obj_trace_field+i;
-			Vec::clear(obj_animator_field[i].current.translation);
-			Vec::clear(obj_animator_field[i].current.rotation);
+			M::Vec::clear(obj_animator_field[i].current.translation);
+			M::Vec::clear(obj_animator_field[i].current.rotation);
 			obj_animator_field[i].out_target = NULL;
 		}
 		for (index_t i = 0; i < whl_animator_field.length(); i++)
@@ -4916,17 +4916,17 @@ template <class Def>
 		{
 			double field[6];
 			obj_animator_field[i].target_trace->current(progress,field);
-			obj_animator_field[i].current.translation = Vec::ref3(field);
-			obj_animator_field[i].current.rotation = Vec::ref3(field+3);
+			obj_animator_field[i].current.translation = M::Vec::ref3(field);
+			obj_animator_field[i].current.rotation = M::Vec::ref3(field+3);
 			//if (_dot(obj_animator_field[i].current+3))
 				//CGS_MSG("Adding "+_toString(obj_animator_field[i].current+3)+" to target, which is "+_toString(obj_animator_field[i].out_target+3));
-			Vec::add(obj_animator_field[i].out_target->translation,obj_animator_field[i].current.translation);
-			Vec::add(obj_animator_field[i].out_target->rotation,obj_animator_field[i].current.rotation);
+			M::Vec::add(obj_animator_field[i].out_target->translation,obj_animator_field[i].current.translation);
+			M::Vec::add(obj_animator_field[i].out_target->rotation,obj_animator_field[i].current.rotation);
 		}
 		for (index_t i = 0; i < whl_animator_field.length(); i++)
 		{
 			whl_animator_field[i].target_trace->current(progress,whl_animator_field[i].current);
-			Vec::add(Vec::ref2(whl_animator_field[i].out_target),Vec::ref2(whl_animator_field[i].current));
+			M::Vec::add(M::Vec::ref2(whl_animator_field[i].out_target),M::Vec::ref2(whl_animator_field[i].current));
 		}
 		for (index_t i = 0; i < acc_animator_field.length(); i++)
 		{
@@ -5000,11 +5000,11 @@ template <class Def>
 			return;
 		for (index_t i = 0; i < animation_map.animated_sub_field.length(); i++)
 		{
-			Vec::clear(animation_map.animated_sub_field[i]->animation_status.translation);
-			Vec::clear(animation_map.animated_sub_field[i]->animation_status.rotation);
+			M::Vec::clear(animation_map.animated_sub_field[i]->animation_status.translation);
+			M::Vec::clear(animation_map.animated_sub_field[i]->animation_status.rotation);
 		}
 		for (index_t i = 0; i < animation_map.animated_wheel_status_field.length(); i++)
-			Vec::clear(Vec::ref2(animation_map.animated_wheel_status_field[i]));
+			M::Vec::clear(M::Vec::ref2(animation_map.animated_wheel_status_field[i]));
 		for (index_t i = 0; i < animation_map.animated_accel_status_field.length(); i++)
 			(*animation_map.animated_accel_status_field[i])=0;
 		
@@ -5124,7 +5124,7 @@ template <class Def>
 	
 	
 
-template <class Def> SubGeometryInstance<Def>::SubGeometryInstance():target(NULL),system(Matrix<typename Def::SystemType>::eye4),path(Matrix<typename Def::SystemType>::eye4)
+template <class Def> SubGeometryInstance<Def>::SubGeometryInstance():target(NULL),system(M::Matrix<typename Def::SystemType>::eye4),path(M::Matrix<typename Def::SystemType>::eye4)
 {}
 
 
@@ -5137,7 +5137,7 @@ template <class Def> void StaticSubInstanceA<Def>::linkObjects()
 {
 	if (SubGeometryInstance<Def>::target)
 	{
-		TMatrix4<typename Def::SystemType>&m = SubGeometryInstance<Def>::path;
+		M::TMatrix4<typename Def::SystemType>&m = SubGeometryInstance<Def>::path;
 		SubGeometryInstance<Def>::target->system_link = &m;
 	}
 	else
@@ -5146,10 +5146,10 @@ template <class Def> void StaticSubInstanceA<Def>::linkObjects()
 		child_field[i].linkObjects();
 }
 
-template <class Def> void StaticSubInstanceA<Def>::updatePath(const TMatrix4<typename Def::SystemType>&parent)
+template <class Def> void StaticSubInstanceA<Def>::updatePath(const M::TMatrix4<typename Def::SystemType>&parent)
 {
 	Mat::transformSystem(parent,SubGeometryInstance<Def>::system,SubGeometryInstance<Def>::path);
-	//DBG_ASSERT_LESS__(Vec::dot(SubGeometryInstance<Def>::path.x.xyz),10000);
+	//DBG_ASSERT_LESS__(M::Vec::dot(SubGeometryInstance<Def>::path.x.xyz),10000);
 	for (index_t i = 0; i < child_field.length(); i++)
 		child_field[i].updatePath(SubGeometryInstance<Def>::path);
 }
@@ -5217,19 +5217,19 @@ template <class Def> void AnimatableSubInstanceA<Def>::linkObjects()
 
 #ifndef __CUDACC__
 
-template <class Def> void AnimatableSubInstanceA<Def>::updatePath(const TMatrix4<typename Def::SystemType>&parent)
+template <class Def> void AnimatableSubInstanceA<Def>::updatePath(const M::TMatrix4<typename Def::SystemType>&parent)
 {
-	TVec3<>	vector;
+	M::TVec3<>	vector;
 	float	angle;
-	TMatrix3<>	rotation_matrix;
-	TMatrix4<>	final_matrix;
+	M::TMatrix3<>	rotation_matrix;
+	M::TMatrix4<>	final_matrix;
 
-	angle = Vec::length(animation_status.rotation);
+	angle = M::Vec::length(animation_status.rotation);
 
 	if (vabs(angle)>GetError<double>())
 	{
 		ASSERT__(target->meta.flags&AnimationTargetFlag);
-		Vec::div(animation_status.rotation,angle,vector);
+		M::Vec::div(animation_status.rotation,angle,vector);
 		Mat::BuildRotationMatrix(angle,vector,rotation_matrix);
 		Mat::Mult(rotation_matrix,system.x.xyz,animated_system.x.xyz);
 		Mat::Mult(rotation_matrix,system.y.xyz,animated_system.y.xyz);
@@ -5238,7 +5238,7 @@ template <class Def> void AnimatableSubInstanceA<Def>::updatePath(const TMatrix4
 	}
 	else
 		Mat::copyOrientation(system,animated_system);
-	Vec::add(system.w.xyz,animation_status.translation,animated_system.w.xyz);	//translation
+	M::Vec::add(system.w.xyz,animation_status.translation,animated_system.w.xyz);	//translation
 
 	Mat::resetBottomRow(animated_system);
 	//copy3(animation_status,final_matrix+12);
@@ -5386,9 +5386,9 @@ template <class Def>	template <class C>
 		for (index_t i = 0; i < obj_trace_field.count(); i++)
 			for (index_t j = 0; j < obj_trace_field[i].step_field.length(); j++)
 			{
-				Vec::mult(Vec::ref3(obj_trace_field[i].step_field[j].range),factor);	//only affect translaction
-				Vec::mult(Vec::ref3(obj_trace_field[i].step_field[j].slope0),factor);
-				Vec::mult(Vec::ref3(obj_trace_field[i].step_field[j].slope1),factor);
+				M::Vec::mult(M::Vec::ref3(obj_trace_field[i].step_field[j].range),factor);	//only affect translaction
+				M::Vec::mult(M::Vec::ref3(obj_trace_field[i].step_field[j].slope0),factor);
+				M::Vec::mult(M::Vec::ref3(obj_trace_field[i].step_field[j].slope1),factor);
 			}
 	}
 
@@ -5833,42 +5833,42 @@ template <class Def>
 		for (index_t i = normalsFromVertex; i < numVertices; i++)
 		{
 			Float*nrm = vertexData + i * config.vsize + 3;
-			Vec::clear(Vec::ref3(nrm));
+			M::Vec::clear(M::Vec::ref3(nrm));
 		}
 		const Index*indexData = currentLOD->triangleIndices.pointer();
 		for (index_t i = normalsFromTriangle; i < numTriIndices; i+=3)
 		{
-			TVec3<Float>	normal;
+			M::TVec3<Float>	normal;
 			Float	*v0 = vertexData + indexData[i] * config.vsize,
 					*v1 = vertexData + indexData[i+1] * config.vsize,
 					*v2 = vertexData + indexData[i+2] * config.vsize;
 
-			Obj::triangleNormal(Vec::ref3(v0),Vec::ref3(v1),Vec::ref3(v2),normal);
-			Vec::add(Vec::ref3(v0+3),normal);
-			Vec::add(Vec::ref3(v1+3),normal);
-			Vec::add(Vec::ref3(v2+3),normal);
+			Obj::triangleNormal(M::Vec::ref3(v0),M::Vec::ref3(v1),M::Vec::ref3(v2),normal);
+			M::Vec::add(M::Vec::ref3(v0+3),normal);
+			M::Vec::add(M::Vec::ref3(v1+3),normal);
+			M::Vec::add(M::Vec::ref3(v2+3),normal);
 		}
 		const Index*quadData = currentLOD->quadIndices.pointer();
 		for (index_t i = normalsFromQuad; i < numQuadIndices; i+=4)
 		{
-			TVec3<Float>	normal,normal2;
+			M::TVec3<Float>	normal,normal2;
 			Float	*v0 = vertexData + quadData[i] * config.vsize,
 					*v1 = vertexData + quadData[i+1] * config.vsize,
 					*v2 = vertexData + quadData[i+2] * config.vsize,
 					*v3 = vertexData + quadData[i+3] * config.vsize;
 
-			Obj::triangleNormal(Vec::ref3(v0),Vec::ref3(v1),Vec::ref3(v2),normal);
-			Obj::triangleNormal(Vec::ref3(v0),Vec::ref3(v2),Vec::ref3(v3),normal2);
-			Vec::add(normal,normal2);
-			Vec::add(Vec::ref3(v0+3),normal);
-			Vec::add(Vec::ref3(v1+3),normal);
-			Vec::add(Vec::ref3(v2+3),normal);
-			Vec::add(Vec::ref3(v3+3),normal);
+			Obj::triangleNormal(M::Vec::ref3(v0),M::Vec::ref3(v1),M::Vec::ref3(v2),normal);
+			Obj::triangleNormal(M::Vec::ref3(v0),M::Vec::ref3(v2),M::Vec::ref3(v3),normal2);
+			M::Vec::add(normal,normal2);
+			M::Vec::add(M::Vec::ref3(v0+3),normal);
+			M::Vec::add(M::Vec::ref3(v1+3),normal);
+			M::Vec::add(M::Vec::ref3(v2+3),normal);
+			M::Vec::add(M::Vec::ref3(v3+3),normal);
 		}
 		for (index_t i = normalsFromVertex; i < numVertices; i++)
 		{
 			Float*nrm = vertexData + i * config.vsize + 3;
-			Vec::normalize0(Vec::ref3(nrm));
+			M::Vec::normalize0(M::Vec::ref3(nrm));
 		}
 		SetComputeNormalsBegin();
 	}
@@ -5920,17 +5920,17 @@ template <class Def>
 
 
 template <class Def>
-	Box<typename Constructor<Def>::Float>			Constructor<Def>::Object::GetBoundingBox(index_t lod /*=0*/)const
+	M::Box<typename Constructor<Def>::Float>			Constructor<Def>::Object::GetBoundingBox(index_t lod /*=0*/)const
 	{
 		Float	min = std::numeric_limits<Float>::max(),	//no error
 				max = std::numeric_limits<Float>::min();
-		Box<Float>	result(min,min,min,max,max,max);
+		M::Box<Float>	result(min,min,min,max,max,max);
 		const count_t numVertices = lods[lod].vertexData.length()/config.vsize;
 		const Float*vdata = lods[lod].vertexData.pointer();
 		for (index_t i = 0; i < numVertices; i++)
 		{
 			const Float*vtx = vdata + i*config.vsize;
-			result.Include(Vec::ref3(vtx));
+			result.Include(M::Vec::ref3(vtx));
 		}
 		return result;
 	}

@@ -46,41 +46,41 @@ namespace DeltaWorks
 		{
 		public:
 			#undef index
-			TVec3<Def::FloatType>		p;
+			M::TVec3<Def::FloatType>		p;
 			//index_t				index;
 			
 								PoolVertex() /*:index(UNSIGNED_UNDEF)*/
 								{
-									p = Vector<Def::FloatType>::zero;
+									p = M::Vector3<Def::FloatType>::zero;
 								}
 								PoolVertex(Def::FloatType x, Def::FloatType y, Def::FloatType z) /*:index(UNSIGNED_UNDEF)*/
 								{
-									Vec::def(p,x,y,z);
+									M::Vec::def(p,x,y,z);
 								}
-								PoolVertex(const TVec3<Def::FloatType>&p_) /*:index(UNSIGNED_UNDEF)*/
+								PoolVertex(const M::TVec3<Def::FloatType>&p_) /*:index(UNSIGNED_UNDEF)*/
 								{
 									p = p_;
 								}
 
 			bool				operator>(const PoolVertex&other)	const throw()
 								{
-									return Vec::compare(p,other.p)>0;
+									return M::Vec::compare(p,other.p)>0;
 								}
 			bool				operator<(const PoolVertex&other)	const throw()
 								{
-									return Vec::compare(p,other.p)<0;
+									return M::Vec::compare(p,other.p)<0;
 								}
 			int					compareTo(const PoolVertex&other) const throw()
 								{
-									return Vec::compare(p,other.p);
+									return M::Vec::compare(p,other.p);
 								}
 			bool				operator==(const PoolVertex&other) const throw()
 								{
-									return Vec::similar(p,other.p);
+									return M::Vec::similar(p,other.p);
 								}
 			bool				operator!=(const PoolVertex&other) const throw()
 								{
-									return !Vec::similar(p,other.p);
+									return !M::Vec::similar(p,other.p);
 								}
 			friend hash_t		Hash(const PoolVertex&v)
 								{
@@ -96,32 +96,32 @@ namespace DeltaWorks
 			index_t				index;
 								IndexedPoolVertex() :index(InvalidIndex)
 								{
-									p = Vector<Def::FloatType>::zero;
+									p = M::Vector3<Def::FloatType>::zero;
 								}
 								IndexedPoolVertex(Def::FloatType x, Def::FloatType y, Def::FloatType z) :index(InvalidIndex)
 								{
-									Vec::def(p,x,y,z);
+									M::Vec::def(p,x,y,z);
 								}
-								IndexedPoolVertex(const TVec3<Def::FloatType>&p_) :index(InvalidIndex)
+								IndexedPoolVertex(const M::TVec3<Def::FloatType>&p_) :index(InvalidIndex)
 								{
 									p = p_;
 								}
 
 			bool				operator>(const PoolVertex&other)	const throw()
 								{
-									return Vec::compare(p,other.p)>0;
+									return M::Vec::compare(p,other.p)>0;
 								}
 			bool				operator<(const PoolVertex&other)	const throw()
 								{
-									return Vec::compare(p,other.p)<0;
+									return M::Vec::compare(p,other.p)<0;
 								}
 			bool				operator==(const PoolVertex&other) const throw()
 								{
-									return Vec::similar(p,other.p);
+									return M::Vec::similar(p,other.p);
 								}
 			bool				operator!=(const PoolVertex&other) const throw()
 								{
-									return !Vec::similar(p,other.p);
+									return !M::Vec::similar(p,other.p);
 								}
 
 		};
@@ -135,8 +135,8 @@ namespace DeltaWorks
 		class ObjVertexNT:public ObjVertexRoot
 		{
 		public:
-			TVec3<Def::FloatType>	p,n;
-			TVec2<Def::FloatType>	t;
+			M::TVec3<Def::FloatType>	p,n;
+			M::TVec2<Def::FloatType>	t;
 								
 			//UINT32						index;
 
@@ -146,12 +146,12 @@ namespace DeltaWorks
 								
 								ObjVertexNT(Def::FloatType v)
 								{
-									Vec::set(p,v);
-									Vec::set(n,v);
-									Vec::set(t,v);
+									M::Vec::set(p,v);
+									M::Vec::set(n,v);
+									M::Vec::set(t,v);
 								}
 								
-								ObjVertexNT(const TVec3<Def::FloatType>&p_, const TVec3<Def::FloatType>&n_, const TVec2<Def::FloatType>&t_)
+								ObjVertexNT(const M::TVec3<Def::FloatType>&p_, const M::TVec3<Def::FloatType>&n_, const M::TVec2<Def::FloatType>&t_)
 								{
 									p = p_;
 									n = n_;
@@ -167,19 +167,19 @@ namespace DeltaWorks
 								}
 			bool				operator==(const ObjVertexNT&other) const throw()
 								{
-									return Vec::similar(p,other.p) && Vec::similar(n,other.n) && Vec::similar(t,other.t);
+									return M::Vec::similar(p,other.p) && M::Vec::similar(n,other.n) && M::Vec::similar(t,other.t);
 								}
 			bool				operator!=(const ObjVertexNT&other) const throw()
 								{
-									return !Vec::similar(p,other.p) || !Vec::similar(n,other.n) || !Vec::similar(t,other.t);
+									return !M::Vec::similar(p,other.p) || !M::Vec::similar(n,other.n) || !M::Vec::similar(t,other.t);
 								}
 			int					compareTo(const ObjVertexNT&other) const throw()
 								{
-									OrthographicComparison cmp(Vec::compare(p,other.p));
+									OrthographicComparison cmp(M::Vec::compare(p,other.p));
 									if (!cmp.IsDecided())
-										cmp.AddComparisonResult(Vec::compare(n,other.n));
+										cmp.AddComparisonResult(M::Vec::compare(n,other.n));
 									if (!cmp.IsDecided())
-										cmp.AddComparisonResult(Vec::compare(t,other.t));
+										cmp.AddComparisonResult(M::Vec::compare(t,other.t));
 									return cmp;
 								}
 			friend hash_t		Hash(const ObjVertexNT&v)
@@ -199,7 +199,7 @@ namespace DeltaWorks
 		class ObjVertexN:public ObjVertexRoot
 		{
 		public:
-			TVec3<Def::FloatType>p,n;
+			M::TVec3<Def::FloatType>p,n;
 			//UINT32					index;
 			
 			
@@ -208,14 +208,14 @@ namespace DeltaWorks
 								
 								ObjVertexN(Def::FloatType v)
 								{
-									Vec::set(p,v);
-									Vec::set(n,v);
+									M::Vec::set(p,v);
+									M::Vec::set(n,v);
 								}
 															
 								
 				
 								
-								ObjVertexN(const TVec3<Def::FloatType>&p_, const TVec3<Def::FloatType>&n_)
+								ObjVertexN(const M::TVec3<Def::FloatType>&p_, const M::TVec3<Def::FloatType>&n_)
 								{
 									p = p_;
 									n = n_;
@@ -230,15 +230,15 @@ namespace DeltaWorks
 								}
 			bool				operator==(const ObjVertexN&other)	const throw()
 								{
-									return Vec::similar(p,other.p) && Vec::similar(n,other.n);
+									return M::Vec::similar(p,other.p) && M::Vec::similar(n,other.n);
 								}
 			bool				operator!=(const ObjVertexN&other)	const throw()
 								{
-									return !Vec::similar(p,other.p) || !Vec::similar(n,other.n);
+									return !M::Vec::similar(p,other.p) || !M::Vec::similar(n,other.n);
 								}
 			int					compareTo(const ObjVertexN&other) const throw()
 								{
-									return OrthographicComparison(Vec::compare(p,other.p)).AddComparisonResult(Vec::compare(n,other.n));
+									return OrthographicComparison(M::Vec::compare(p,other.p)).AddComparisonResult(M::Vec::compare(n,other.n));
 								}
 			friend hash_t		Hash(const ObjVertexN&v)
 								{
@@ -300,9 +300,9 @@ namespace DeltaWorks
 			public:
 				typedef Container::GenericHashTable<Vertex,UINT32> Super;
 				/*
-										Vec::stretch(q.v[0]->t,m->scale.xy,q.v[0]->t);
-						Vec::stretch(q.v[1]->t,m->scale.xy,q.v[1]->t);
-						Vec::stretch(q.v[2]->t,m->scale.xy,q.v[2]->t);
+										M::Vec::stretch(q.v[0]->t,m->scale.xy,q.v[0]->t);
+						M::Vec::stretch(q.v[1]->t,m->scale.xy,q.v[1]->t);
+						M::Vec::stretch(q.v[2]->t,m->scale.xy,q.v[2]->t);
 */
 				//Buffer<Vertex>									list;
 
@@ -382,12 +382,12 @@ namespace DeltaWorks
 			PObjMaterialSection							selected_section;
 			ObjTexture									*texture,
 														*normal_map;
-			TVec3<>										scale;
+			M::TVec3<>										scale;
 			CGS::MaterialInfo							info;
 			
 														ObjMaterial():selected_section(NULL),texture(NULL),normal_map(NULL)
 														{
-															scale = Vector<>::one;
+															scale = M::Vector3<>::one;
 														}
 		};
 		typedef std::shared_ptr<ObjMaterial>	PObjMaterial;
@@ -439,9 +439,9 @@ namespace DeltaWorks
 		{
 		protected:
 
-			Container::Buffer<TVec3<Def::FloatType> >		vertexBuffer,
+			Container::Buffer<M::TVec3<Def::FloatType> >		vertexBuffer,
 												normal_buffer;
-			Container::Buffer<TVec2<Def::FloatType> >		texcoord_buffer;
+			Container::Buffer<M::TVec2<Def::FloatType> >		texcoord_buffer;
 			CFSFolder							object_system;
 			Container::Vector0<PObjFaceGroup>	group_buffer;
 			PObjFaceGroup						current_group;
@@ -465,11 +465,11 @@ namespace DeltaWorks
 			
 
 			
-			void				LoadObjColor(const String&line,TVec4<Def::FloatType>&target) throw();
-			PathString			ParseMap(CFSFolder&folder, const String&line, TVec3<>&scale) throw();
+			void				LoadObjColor(const String&line,M::TVec4<Def::FloatType>&target) throw();
+			PathString			ParseMap(CFSFolder&folder, const String&line, M::TVec3<>&scale) throw();
 			void				LoadObjMaterialLibrary(const CFSFile*file) throw();
-			void				parseObjPoint(Container::Buffer<TVec3<Def::FloatType> >&target, char*start, char*end) throw();
-			void				parseObjPoint(Container::Buffer<TVec2<Def::FloatType> >&target, char*start, char*end) throw();
+			void				parseObjPoint(Container::Buffer<M::TVec3<Def::FloatType> >&target, char*start, char*end) throw();
+			void				parseObjPoint(Container::Buffer<M::TVec2<Def::FloatType> >&target, char*start, char*end) throw();
 			void				parseObjFaceVertex(char*start, char*end, int&v, int&n, int&t) throw();
 			void				parseObjFace(char*start, char*end) throw();
 			void				parseObjLine(char*start, char*end) throw();
@@ -502,13 +502,13 @@ namespace DeltaWorks
 				return (int)count+index+1;
 			}
 
-			inline TVec3<Def::FloatType>*getVertex(int index) throw()
+			inline M::TVec3<Def::FloatType>*getVertex(int index) throw()
 			{
 				if (!index)
 					return NULL;
 				return vertexBuffer+(index-1);
 			}
-			inline TVec3<Def::FloatType>*GetNormal(int index) throw()
+			inline M::TVec3<Def::FloatType>*GetNormal(int index) throw()
 			{
 				if (!index)
 					return NULL;
@@ -516,7 +516,7 @@ namespace DeltaWorks
 					return normal_buffer+(index-1);
 				return normal_buffer+normal_buffer.Count()+index;
 			}
-			inline TVec2<Def::FloatType>*getTexcoord(int index) throw()
+			inline M::TVec2<Def::FloatType>*getTexcoord(int index) throw()
 			{
 				if (!index)
 					return NULL;

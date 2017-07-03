@@ -19,7 +19,7 @@ namespace Engine
 	
 	
 	
-		bool		Panel::GetChildSpace(Rect<float>&outRect)	const
+		bool		Panel::GetChildSpace(M::Rect<float>&outRect)	const
 		{
 			if (children.IsEmpty())
 				return false;
@@ -182,7 +182,7 @@ namespace Engine
 			return false;
 		}
 		
-		void		Panel::UpdateLayout(const Rect<float>&parent_region)
+		void		Panel::UpdateLayout(const M::Rect<float>&parent_region)
 		{
 			Component::UpdateLayout(parent_region);
 			for (index_t i = 0; i < children.count(); i++)
@@ -381,7 +381,7 @@ namespace Engine
 		
 		
 		
-		void		Slider::UpdateLayout(const Rect<float>&parent_region)
+		void		Slider::UpdateLayout(const M::Rect<float>&parent_region)
 		{
 			Component::UpdateLayout(parent_region);
 			_UpdateCursorRegion();
@@ -561,7 +561,7 @@ namespace Engine
 		
 		
 		
-		void		ScrollBar::UpdateLayout(const Rect<float>&parent_region)
+		void		ScrollBar::UpdateLayout(const M::Rect<float>&parent_region)
 		{
 			Component::UpdateLayout(parent_region);
 			if (scrollLayout)
@@ -942,7 +942,7 @@ namespace Engine
 		
 
 		
-		/*virtual override*/	void		ScrollBox::UpdateLayout(const Rect<float>&parent_region)
+		/*virtual override*/	void		ScrollBox::UpdateLayout(const M::Rect<float>&parent_region)
 		{
 			Component::UpdateLayout(parent_region);
 			
@@ -951,7 +951,7 @@ namespace Engine
 			if (verticalBar->scrollable.expired())
 				verticalBar->scrollable = toScrollable();
 
-			Rect<float>	current;
+			M::Rect<float>	current;
 			if (children.IsEmpty())
 			{
 				current.Set(0,0,1,1);
@@ -962,11 +962,11 @@ namespace Engine
 			{
 				float	w = cellLayout.client.width(),
 						h = cellLayout.client.height();
-				Rect<float>	region(0,0,w,h);
+				M::Rect<float>	region(0,0,w,h);
 				for (index_t i = 0; i < children.count(); i++)
 				{
 					//children[i]->UpdateLayout(cellLayout.client);
-					Rect<float>	child_region;
+					M::Rect<float>	child_region;
 					const PComponent&child = children[i];
 					if (verticalBar->IsVisible())
 					{
@@ -1064,7 +1064,7 @@ namespace Engine
 			float	offset_x = horizontalBar->IsVisible()?-(horizontal.current * hrange):0,
 					offset_y = verticalBar->IsVisible()?(vertical.current * vrange):0;
 			
-			Rect<float>	space = effectiveClientRegion;
+			M::Rect<float>	space = effectiveClientRegion;
 			space.Translate(offset_x,offset_y);
 			
 			visible_children.reset();
@@ -1347,7 +1347,7 @@ namespace Engine
 					float	left = cellLayout.client.left()+_GetTextWidth(text.pointer()+viewBegin,sel_begin-viewBegin),
 							right = cellLayout.client.left()+_GetTextWidth(text.pointer()+viewBegin,sel_end-viewBegin);
 						//glColor4f(0.4,0.6,1,0.7);
-					renderer.FillRect(Rect<>(left-2,bottom,right+2,top));
+					renderer.FillRect(M::Rect<>(left-2,bottom,right+2,top));
 					renderer.MarkNewLayer();
 					renderer.PeekColor();
 					
@@ -1698,7 +1698,7 @@ namespace Engine
 			cursorOffset = cellLayout.client.left()+_GetTextWidth(text.pointer()+viewBegin,cursor-viewBegin);
 		}
 		
-		void	Edit::UpdateLayout(const Rect<float>&parent_region)
+		void	Edit::UpdateLayout(const M::Rect<float>&parent_region)
 		{
 			Component::UpdateLayout(parent_region);
 			_UpdateView();
@@ -1755,7 +1755,7 @@ namespace Engine
 
 			if (caption.IsNotEmpty())
 			{
-				const Rect<float>&rect=cellLayout.client;
+				const M::Rect<float>&rect=cellLayout.client;
 				renderer.SetTextPosition(rect.x.center()-ColorRenderer::textout.GetUnscaledWidth(caption)*0.5+pressed,rect.y.center()-ColorRenderer::textout.GetFont().GetHeight()/2+font_offset);
 				renderer.PushColor();
 				renderer.ModulateColor(1.0-0.2*(pressed||!enabled));
@@ -1835,7 +1835,7 @@ namespace Engine
 			renderer.PushColor();
 			Component::OnColorPaint(renderer,parentIsEnabled);
 			
-			const Rect<> rect=GetBoxRect();
+			const M::Rect<> rect=GetBoxRect();
 			if (style && !style->boxColor.IsEmpty())
 			{
 				renderer.TextureRect(rect,style->boxColor);
@@ -1942,7 +1942,7 @@ namespace Engine
 		
 		
 		
-		void			Label::UpdateLayout(const Rect<float>&parent_space)
+		void			Label::UpdateLayout(const M::Rect<float>&parent_space)
 		{
 			Component::UpdateLayout(parent_space);
 			if (wrapText)
@@ -1971,8 +1971,8 @@ namespace Engine
 			wrapText = false;
 			textChanged = true;
 			fillBackground = false;
-			Vec::set(backgroundColor,1);
-			Vec::set(textColor,1);
+			M::Vec::set(backgroundColor,1);
+			M::Vec::set(textColor,1);
 			textMargin.SetAll(0.f);
 			height = GetMinHeight(false);
 			width = GetMinWidth(false);
@@ -2002,7 +2002,7 @@ namespace Engine
 			SignalLayoutChange();
 			return this;
 		}
-		Label*			Label::SetColor(const TVec4<>&color)
+		Label*			Label::SetColor(const M::TVec4<>&color)
 		{
 			textColor = color;
 			SignalVisualChange();
@@ -2078,7 +2078,7 @@ namespace Engine
 			//ShowMessage(width);
 		}
 		
-		void	ComboBox::UpdateLayout(const Rect<float>&parent_space)
+		void	ComboBox::UpdateLayout(const M::Rect<float>&parent_space)
 		{
 			if (!selectedObject && GetMenu()->CountChildren()>2)
 			{
@@ -2099,7 +2099,7 @@ namespace Engine
 			bool changed = false;
 			//float mw = menuWindow->GetMinWidth();
 			Menu*	menu = (Menu*)menuWindow->rootComponent.get();
-			TVec2<> size = menu->GetIdealSize();
+			M::TVec2<> size = menu->GetIdealSize();
 			if (menuWindow->GetLayout())	//this is NOT included in the result of GetIdealSize(), since it cannot know the window layout (only component layouts)
 			{
 				size.y += menuWindow->GetLayout()->clientEdge.top+menuWindow->GetLayout()->clientEdge.bottom;
@@ -2181,7 +2181,7 @@ namespace Engine
 		}
 
 		
-		void	MenuEntry::UpdateLayout(const Rect<float>&parent_space)
+		void	MenuEntry::UpdateLayout(const M::Rect<float>&parent_space)
 		{
 			Label::UpdateLayout(parent_space);
 			
@@ -2204,7 +2204,7 @@ namespace Engine
 				{
 					ASSERT_NOT_NULL__(menuWindow->rootComponent);
 					
-					Rect<float>	absolute = cellLayout.border;
+					M::Rect<float>	absolute = cellLayout.border;
 					PWindow parent = GetWindow();
 					ASSERT__(parent);
 					
@@ -2398,7 +2398,7 @@ namespace Engine
 			{
 				//renderer.PushColor();
 					//renderer.ModulateColor(backgroundColor);
-				TVec2<>	p0 = {cellLayout.client.x.min,cellLayout.client.y.min},
+				M::TVec2<>	p0 = {cellLayout.client.x.min,cellLayout.client.y.min},
 						p1 = {cellLayout.client.x.max,cellLayout.client.y.min},
 						p2 = {cellLayout.client.x.max,cellLayout.client.y.max},
 						p3 = {cellLayout.client.x.min,cellLayout.client.y.max};
@@ -2410,9 +2410,9 @@ namespace Engine
 		}
 
 		
-		TVec2<>		Menu::GetIdealSize()	const
+		M::TVec2<>		Menu::GetIdealSize()	const
 		{
-			TVec2<> res = {0,0};
+			M::TVec2<> res = {0,0};
 			if (horizontal)
 			{
 				for (index_t i = 0; i < children.count(); i++)
@@ -2480,7 +2480,7 @@ namespace Engine
 			return true;
 		}
 
-		void		Menu::SetEntryTextColor(const TVec4<>&color)
+		void		Menu::SetEntryTextColor(const M::TVec4<>&color)
 		{
 			entryTextColor = color;
 			foreach(children,c)
@@ -2491,7 +2491,7 @@ namespace Engine
 			}
 		}
 
-		void		Menu::SetEntryBackgroundColor(const TVec3<>&color)
+		void		Menu::SetEntryBackgroundColor(const M::TVec3<>&color)
 		{
 			entryBackgroundColor = color;
 			foreach(children,c)
@@ -2629,7 +2629,7 @@ namespace Engine
 			}
 			if (autoResize)
 			{
-				TVec2<> size = GetIdealSize();
+				M::TVec2<> size = GetIdealSize();
 				width = size.x;
 				height = size.y;
 			}
@@ -2644,10 +2644,10 @@ namespace Engine
 			//level = 0;
 			horizontal = false;
 			autoResize = true;
-			Vec::clear(leftBackgroundColor);
-			Vec::clear(rightBackgroundColor);
-			Vec::set(entryTextColor,1);
-			Vec::def(entryBackgroundColor,0.5,0.5,1);
+			M::Vec::clear(leftBackgroundColor);
+			M::Vec::clear(rightBackgroundColor);
+			M::Vec::set(entryTextColor,1);
+			M::Vec::def(entryBackgroundColor,0.5,0.5,1);
 
 			selectedEntry = InvalidIndex;
 			layout = globalLayout.Refer();

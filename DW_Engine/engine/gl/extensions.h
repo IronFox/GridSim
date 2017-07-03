@@ -169,16 +169,16 @@
 				inline bool				Set(float x, float y, float z, float w)		{return set4f(x,y,z,w);}
 				bool					Set(float x, float y, float z);
 				bool					Set(float x, float y);
-				bool					set(const TVec2<>&);
-				inline bool				Set(const TVec2<>&v)	{return set(v);}
-				bool					set(const TVec3<>&);
-				inline bool				Set(const TVec3<>&v)	{return set(v);}
-				bool					set(const TVec4<>&);
-				inline bool				Set(const TVec4<>&v)	{return set(v);}
-				bool					set(const TMatrix3<>&);
-				inline bool				Set(const TMatrix3<>&m)	{return set(m);}
-				bool					set(const TMatrix4<>&);
-				inline bool				Set(const TMatrix4<>&m)	{return set(m);}
+				bool					set(const M::TVec2<>&);
+				inline bool				Set(const M::TVec2<>&v)	{return set(v);}
+				bool					set(const M::TVec3<>&);
+				inline bool				Set(const M::TVec3<>&v)	{return set(v);}
+				bool					set(const M::TVec4<>&);
+				inline bool				Set(const M::TVec4<>&v)	{return set(v);}
+				bool					set(const M::TMatrix3<>&);
+				inline bool				Set(const M::TMatrix3<>&m)	{return set(m);}
+				bool					set(const M::TMatrix4<>&);
+				inline bool				Set(const M::TMatrix4<>&m)	{return set(m);}
 				bool					seti(int value);
 				inline bool				SetInt(int value)		{return seti(value);}
 				bool					set2i(int x, int y);
@@ -851,7 +851,7 @@
 					{
 						int						ival;	//!< Integer value
 						float					fval;	//!< Float value
-						TVec3<>					f3val;
+						M::TVec3<>					f3val;
 					};
 					Type						type;	//!< Contained type
 				};
@@ -910,7 +910,7 @@
 				
 				Template&						PredefineUniformInt(const String&name, int value);	//!< Presets the specified uniform variable to the specified value on construction
 				Template&						PredefineUniformFloat(const String&name, float value);	//!< Presets the specified uniform variable to the specified value on construction
-				Template&						PredefineUniformVec(const String&name, const TVec3<>& value);	//!< Presets the specified uniform variable to the specified value on construction
+				Template&						PredefineUniformVec(const String&name, const M::TVec3<>& value);	//!< Presets the specified uniform variable to the specified value on construction
 				static String*					FindShaderIncludable(const String&filename);	//!< Attempts to locate or load a block template described by the specified filename. @return Existing or loaded block or NULL if loading failed
 				static void						DefineShaderIncludable(const String&filename, const String&blockCode);	//!< Defines a new or overwrites an existing includable block template
 			};
@@ -1171,7 +1171,7 @@
 			GLuint								frameBuffer,
 												resultTexture,
 												depthBuffer;	
-			TVec4<GLfloat>						previousClearColor;
+			M::TVec4<GLfloat>						previousClearColor;
 			Resolution							resolution;
 			bool								alpha,mipmapping;
 		

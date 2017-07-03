@@ -54,10 +54,10 @@ namespace DeltaWorks
 			{
 				/**/	VecTester()
 				{
-					Vec::assertConsistency<float>();
-					Vec::assertConsistency<double>();
-					Vec::assertConsistency<half>();
-					Vec::assertConsistency<bool>();
+					M::Vec::assertConsistency<float>();
+					M::Vec::assertConsistency<double>();
+					M::Vec::assertConsistency<half>();
+					M::Vec::assertConsistency<bool>();
 				}
 
 			}	tester;

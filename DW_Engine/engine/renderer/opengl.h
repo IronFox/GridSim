@@ -1096,7 +1096,7 @@ namespace Engine
 		static			bool						queryBegin(bool depthTest=true);											//!< Set up query environment (disable rendering etc.) \param depthTest if set true then rendered pixels may be occluded by objects \return true if the query-environment could be set up
 		static			void						queryEnd();																//!< Ends querying and returns the original state.
 		static			void						castQuery(const Query&query);										//!< Renders the linked object. To extract the number of pixels on the screen call resolveObjectSize(const OpenGL::QueryObject&) \param query Handle of the respective query object
-		static			void						castPointQuery(const Query&query, const TVec3<>&point);				//!< Dynamically renders one point. To extract the number of pixels on the screen call resolveObjectSize(const OpenGL::QueryObject&) \param query Handle of the respective query object \param point Pointer to a location array in R
+		static			void						castPointQuery(const Query&query, const M::TVec3<>&point);				//!< Dynamically renders one point. To extract the number of pixels on the screen call resolveObjectSize(const OpenGL::QueryObject&) \param query Handle of the respective query object \param point Pointer to a location array in R
 		static			GLuint 						resolveQuery(const Query&query);										//!< Resolves the number of pixels drawn during the last queryBegin()/queryEnd() sequence at the time @a query was cast
 
 		static inline	void						cullNormal();		//!< Sets face cull mode to normal (back face culling)
@@ -1118,8 +1118,8 @@ namespace Engine
 		static inline	void						setFog(const Fog&fog,bool enabled=true);							//!< Applies given fog configuration \param fog Fog configuration \param enabled Set true to enable fog
 		static inline	void						setFog(bool enabled);													//!< Dynamically enables or disables fog \param enabled Set true to enable fog
 		static inline	void						SetBackbufferClearColor(float red, float green, float blue, float alpha);	//!< Changes the active clear color \param red Red color component (0.0f - 1.0f) \param green Green color component (0.0f - 1.0f) \param blue Blue color component (0.0f - 1.0f) \param alpha Transparency color component (0.0f - 1.0f)
-		static inline	void						SetBackbufferClearColor(const TVec3<>&color, float alpha);						//!< Changes the active clear color \param color Pointer to a color vector in R \param alpha Transparency color component (0.0f - 1.0f)
-		static inline	void						SetBackbufferClearColor(const TVec4<>&color);									//!< Changes the active clear color \param color Pointer to a 4d color vector.
+		static inline	void						SetBackbufferClearColor(const M::TVec3<>&color, float alpha);						//!< Changes the active clear color \param color Pointer to a color vector in R \param alpha Transparency color component (0.0f - 1.0f)
+		static inline	void						SetBackbufferClearColor(const M::TVec4<>&color);									//!< Changes the active clear color \param color Pointer to a 4d color vector.
 
 						bool						useTexture(const Texture&, bool clamp = false, bool override_safety = false);
 						bool						useTexture(const Texture*, bool clamp = false, bool override_safety = false);
@@ -1142,7 +1142,7 @@ namespace Engine
 						void						bindMaterialIgnoreShader(const MaterialConfiguration&config)	{bindMaterialIgnoreShader(config,(const Texture::Reference*)NULL);}
 						void						bindMaterialIgnoreShader(const Material&material)				{bindMaterialIgnoreShader(material,material.textures.pointer());}
 
-		static	inline	void						overrideEmission(const TVec4<>&emission_color);	//!< Overrides the emission color specified by the last bindMaterial() or bindMaterilIgnoreShader() call
+		static	inline	void						overrideEmission(const M::TVec4<>&emission_color);	//!< Overrides the emission color specified by the last bindMaterial() or bindMaterilIgnoreShader() call
 
 						void						bindVertices(const VBO&vobj, const VertexBinding&binding);
 						void						bindVertices(const VBO::Reference&vobj, const VertexBinding&binding);
@@ -1173,12 +1173,12 @@ namespace Engine
 		static			void						face(const TVertex&v0, const TVertex&v1, const TVertex&v2);								//!< Renders a triangle using the three specified vertices
 		static			void						segment(const tCVertex&v0, const tCVertex&v1);												//!< Renders a line segment using the two specified color-vertices
 		static			void						segment(const TVertex&v0, const TVertex&v1);												//!< Renders a line segment using the two specified vertices
-	T_	static inline	void						enterSubSystem(const TMatrix4<C>&system);																	//!< Enters a sub-system affecting all following render-calls \param system Pointer to a 4x4 system matrix
+	T_	static inline	void						enterSubSystem(const M::TMatrix4<C>&system);																	//!< Enters a sub-system affecting all following render-calls \param system Pointer to a 4x4 system matrix
 		static inline	void						exitSubSystem();																				//!< Returns from a sub-system to the next higher system
 						void						unbindAll();																					//!< Unbinds the currently bound material, all textures and all vertex/index objects
 	
-	T_ void					SetCameraMatrices(const TMatrix4<C>&view, const TMatrix4<C>&projection, const TMatrix4<C>&viewInvert);
-	T_					void						replaceCamera(const TMatrix4<C>&modelview, const TMatrix4<C>&projection);								//!< Pushes the current modelview and projection matrices to the stack and loads the specified ones. restoreCamera() must be called when done working with the replacement
+	T_ void					SetCameraMatrices(const M::TMatrix4<C>&view, const M::TMatrix4<C>&projection, const M::TMatrix4<C>&viewInvert);
+	T_					void						replaceCamera(const M::TMatrix4<C>&modelview, const M::TMatrix4<C>&projection);								//!< Pushes the current modelview and projection matrices to the stack and loads the specified ones. restoreCamera() must be called when done working with the replacement
 		inline			void						storeCamera();																					//!< Pushes the current modelview and projection matrices to the stack
 		inline			void						restoreCamera();																				//!< Restores the modelview and projection matrices from the stack, overwriting the currently loaded modelview and projection matrices
 		

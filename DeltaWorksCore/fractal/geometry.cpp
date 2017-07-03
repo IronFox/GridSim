@@ -35,9 +35,9 @@ namespace DeltaWorks
 			float step = 360.0f/resolution;
 			Geometry::Vertex*v = geometry.vertexField.pointer();
 			for (unsigned i = 0; i < resolution; i++)
-				Vec::sphereCoords(step*i,-step/2,1,(*v++));
+				M::Vec::sphereCoords(step*i,-step/2,1,(*v++));
 			for (unsigned i = 0; i < resolution; i++)
-				Vec::sphereCoords(step*i+step/2,step/2,1,(*v++));
+				M::Vec::sphereCoords(step*i+step/2,step/2,1,(*v++));
 		
 			ASSERT_CONCLUSION(geometry.vertexField, v);
 		}
@@ -181,21 +181,21 @@ namespace DeltaWorks
 			ASSERT_CONCLUSION(geometry.edgeField,e);
 
 
-			Vec::sphereCoords(0,90,1,geometry.vertexField[0]);
+			M::Vec::sphereCoords(0,90,1,geometry.vertexField[0]);
 	    
-			Vec::sphereCoords(0, 30, 1, geometry.vertexField[1]);
-			Vec::sphereCoords(-72, 30, 1, geometry.vertexField[2]);
-			Vec::sphereCoords(-144, 30, 1, geometry.vertexField[3]);
-			Vec::sphereCoords(-216, 30, 1, geometry.vertexField[4]);
-			Vec::sphereCoords(-288, 30, 1, geometry.vertexField[5]);
+			M::Vec::sphereCoords(0, 30, 1, geometry.vertexField[1]);
+			M::Vec::sphereCoords(-72, 30, 1, geometry.vertexField[2]);
+			M::Vec::sphereCoords(-144, 30, 1, geometry.vertexField[3]);
+			M::Vec::sphereCoords(-216, 30, 1, geometry.vertexField[4]);
+			M::Vec::sphereCoords(-288, 30, 1, geometry.vertexField[5]);
 
-			Vec::sphereCoords(-36, -30, 1, geometry.vertexField[6]);
-			Vec::sphereCoords(-108, -30, 1, geometry.vertexField[7]);
-			Vec::sphereCoords(-180, -30, 1, geometry.vertexField[8]);
-			Vec::sphereCoords(-252, -30, 1, geometry.vertexField[9]);
-			Vec::sphereCoords(-324, -30, 1, geometry.vertexField[10]);
+			M::Vec::sphereCoords(-36, -30, 1, geometry.vertexField[6]);
+			M::Vec::sphereCoords(-108, -30, 1, geometry.vertexField[7]);
+			M::Vec::sphereCoords(-180, -30, 1, geometry.vertexField[8]);
+			M::Vec::sphereCoords(-252, -30, 1, geometry.vertexField[9]);
+			M::Vec::sphereCoords(-324, -30, 1, geometry.vertexField[10]);
 
-			Vec::sphereCoords(0, -90, 1, geometry.vertexField[11]);
+			M::Vec::sphereCoords(0, -90, 1, geometry.vertexField[11]);
 		
 		}
 	

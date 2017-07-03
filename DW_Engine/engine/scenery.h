@@ -158,12 +158,12 @@ namespace Engine
 		class OrderedMatrixReference
 		{
 		public:
-				TMatrix4<typename Def::SystemType>	*reference;
+				M::TMatrix4<typename Def::SystemType>	*reference;
 				index_t								order_index;
 
 													OrderedMatrixReference():reference(NULL),order_index(InvalidIndex)
 													{}
-													OrderedMatrixReference(TMatrix4<typename Def::SystemType>*matrix, index_t index):reference(matrix),order_index(index)
+													OrderedMatrixReference(M::TMatrix4<typename Def::SystemType>*matrix, index_t index):reference(matrix),order_index(index)
 													{}
 		inline	bool								operator<(const OrderedMatrixReference<Def>&other)	const
 													{
@@ -199,20 +199,20 @@ namespace Engine
 			{};
 			
 			StructureEntity<Def>				*structure;		//!< Parent structure instance (not NULL)
-			TMatrix4<typename Def::SystemType>	*system;			//!< Pointer to a system matrix (4x4) (possibly to a CGS::SubGeometryInstance::path) (not NULL)
+			M::TMatrix4<typename Def::SystemType>	*system;			//!< Pointer to a system matrix (4x4) (possibly to a CGS::SubGeometryInstance::path) (not NULL)
 			CGS::SubGeometryA<Def>				*source;		//!< Actual geometrical source pointer (not NULL). Multiple ObjectEntity instances may point to the same CGS::SubGeometry instance.
 			bool								visible,		//!< True if this object entity passed the last visibility check
 												client_visible,	//!< Reserved for custom client application usage
 												added,			//!< Should be false at all times. Used to distinctly map object entities to the lookup buffer by SceneryTree
 												invert_set;		//!< True if the provided system invert is calculated (false by default. only makes sense if the local entity is mostly stationary)
-			Box<typename Def::FloatType>		src_dim,			//!< System relative bounding box of the local object (updated when the local entity is created)
+			M::Box<typename Def::FloatType>		src_dim,			//!< System relative bounding box of the local object (updated when the local entity is created)
 												scaled_dim;			//!< Scaled dimensions
-			TVec4<typename Def::FloatType>		cage[8];		//!< System relative cage for determining visibility (created using dim)
+			M::TVec4<typename Def::FloatType>		cage[8];		//!< System relative cage for determining visibility (created using dim)
 			typename Def::FloatType				shortest_edge_length,	//!< Average edge length on maximum detail
 												src_radius,			//!< Radius of the local entity (distance between the furthest vertex and the local object center)
 												radius, 			//!< Scaled radius
 												sys_scale;		//!< Local system scale. Should be 1.0
-			TMatrix4<typename Def::FloatType>	invert; 	//!< Invert of the specified system matrix.
+			M::TMatrix4<typename Def::FloatType>	invert; 	//!< Invert of the specified system matrix.
 			Reference<Attachment>				attachment;		//!< Custom data attachment
 
 										ObjectEntity(CGS::SubGeometryA<Def>*target, StructureEntity<Def>*structure);
@@ -237,7 +237,7 @@ namespace Engine
 			
 			
 
-			TMatrix4<typename Def::SystemType>	*system;								//!< Pointer to a system matrix (4x4) (possibly to a GeometryInstance::system) (not NULL)
+			M::TMatrix4<typename Def::SystemType>	*system;								//!< Pointer to a system matrix (4x4) (possibly to a GeometryInstance::system) (not NULL)
 			CGS::Geometry<Def>					*target;								//!< Actual geometrical source pointer (not NULL). Multiple StructureEntity instances may point to the same CGS::Geometry instance.
 
 			Ctr::Buffer<PObjectEntity<Def>,8>	object_entities;						//!< List of object entities
@@ -246,7 +246,7 @@ namespace Engine
 			unsigned					detail,									//!< Calculated detail of this structure entity
 										max_detail,								//!< Maximum detail level provided by the respective structure
 										config;									//!< Structure configuration (any combination of StructureConfig::StructureFlags ). This value affects all ObjectEntity instances linked to this instance.
-			TVec4<>						tint;									//!< Tint to apply to this structure. Applied as emission color. Black by default
+			M::TVec4<>						tint;									//!< Tint to apply to this structure. Applied as emission color. Black by default
 			bool						visible,								//!< True if this structure passed the last visibility check.
 										added;									//!< Should be false at all times. Used to distinctly map structure entities to the lookup buffer by SceneryTree
 			typename Def::FloatType		src_radius,								//!< Unscaled geometrical radius as extracted from the linked Geometry instance.
@@ -544,12 +544,12 @@ namespace Engine
 				typedef typename Def::FloatType		Float;
 				typedef SceneryTree<Def>			Tree;
 				
-				typedef Box<Float>					Volume;
+				typedef M::Box<Float>					Volume;
 			
 		protected:
 				List								elements;		//!< (Reference)list of all object entities that are mapped in the local tree node
 				Volume								volume;			//!< Effective volume of the local tree node
-				TVec3<Float>						split;		//!< Composite used to split the local volume into up to 8 child volumes.
+				M::TVec3<Float>						split;		//!< Composite used to split the local volume into up to 8 child volumes.
 				Tree								*child[8];		//!< Pointer to the respective children (up to 8). Any of these may be NULL.
 				Structure							*dominating;	//!< Set non-NULL if the local tree node exclusivly contains objects of the specified structure entity.
 				unsigned							level;			//!< Recursive level with 0 being the bottom-most level.
@@ -577,7 +577,7 @@ namespace Engine
 				Structure*							getDominating();				//!< Retrieves the dominating structure entity of the local tree node.(if any)
 				bool								hasChildren();					//!< Returns true if the node has at least one child, false otherwise
 				unsigned							getLevel();						//!< Retrieves the recursive level of the local tree node (0 = bottom most node/leaf).
-				const TVec3<Float>&					getSplitVector();				//!< Retrieves the split point (3 components) used to determine the volumes of the local children. The returned vector is undefined if the local node has no children.
+				const M::TVec3<Float>&					getSplitVector();				//!< Retrieves the split point (3 components) used to determine the volumes of the local children. The returned vector is undefined if the local node has no children.
 				const Volume&						getVolume();					//!< Retrieves the actual volume of the local tree node
 				count_t								countElements();				//!< Retrieves the number of elements mapped in this node
 				void								getElements(List&out);			//!< Copies the pointers of all locally mapped object entities to the target list.
@@ -634,7 +634,7 @@ namespace Engine
 				void								remap();	//!< Remaps the local scenery. Invoke this whenever objects have been moved. If the local scenery is static then this method need not be called manually 
 				
 			template <typename T>
-				void 								lookup(const Box<T>&vol, Buffer<ObjectEntity<Def>*>&out, const MyStructureEntity*exclude=NULL);	//!< Performs a recursive lookup on the local tree. For this method to work correctly the local tree is required to be up to date. \param lower Lower corner of the lookup volume \param upper Upper corner of the lookup volume \param out Outbuffer for (distinct) found object entities \param exclude Structure entity to exclude the object entities of or NULL to not exclude any object entities
+				void 								lookup(const M::Box<T>&vol, Buffer<ObjectEntity<Def>*>&out, const MyStructureEntity*exclude=NULL);	//!< Performs a recursive lookup on the local tree. For this method to work correctly the local tree is required to be up to date. \param lower Lower corner of the lookup volume \param upper Upper corner of the lookup volume \param out Outbuffer for (distinct) found object entities \param exclude Structure entity to exclude the object entities of or NULL to not exclude any object entities
 				
 				void								clear(bool disconnected=false) override; 		//!< Clears the local scenery. When erasing materials Scenery assumes that the linked CGS::Geometry instances still exist. \param disconnected Pass true if referenced CGS::Geometry/SubGeometry instances do no longer exist-
 				
@@ -654,7 +654,7 @@ namespace Engine
 	
 
 			template <class C0, class C1, class C2, class C3>
-				ObjectEntity<Def>*					lookupClosest(const TVec3<C0>&center, const C1&radius, TVec3<C2>&position_out, TVec3<C3>&normal_out);	//!< Determines the closest hull point approximately inside the specified sphere. Invisible entities are ignored. The method does not miss points that should be inside but may return a point that lies outside the specified radius. \param center Sphere center \param radius Sphere radius, \param position_out 3 component out vector for the closest hull point \param normal_out 3 component out vector for the normal of the closest hull point \return Pointer to the closest object entity or NULL if no object is close enough to the sphere center.
+				ObjectEntity<Def>*					lookupClosest(const M::TVec3<C0>&center, const C1&radius, M::TVec3<C2>&position_out, M::TVec3<C3>&normal_out);	//!< Determines the closest hull point approximately inside the specified sphere. Invisible entities are ignored. The method does not miss points that should be inside but may return a point that lies outside the specified radius. \param center Sphere center \param radius Sphere radius, \param position_out 3 component out vector for the closest hull point \param normal_out 3 component out vector for the normal of the closest hull point \return Pointer to the closest object entity or NULL if no object is close enough to the sphere center.
 		
 		protected:
 			virtual void						PostRenderCleanup() override;						//!< Perform post render cleanup

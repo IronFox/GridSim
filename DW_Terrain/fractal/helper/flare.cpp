@@ -117,14 +117,14 @@ namespace Flare
 				LightInfo&info = lights[i];
 				LightData*light = info.reference;
 				info.occluded = false;
-				TVec3<> sample_point;
+				M::TVec3<> sample_point;
 				info.was_clipped=info.clipped;
 				switch (light->GetType())
 				{
 					case Light::Omni:
 						info.clipped = !camera.PointToScreen(light->GetPosition(),info.projected);
 						info.intensity = 1;
-						info.distance = Vec::distance(camera.GetAbsoluteLocation(),light->GetPosition());
+						info.distance = M::Vec::distance(camera.GetAbsoluteLocation(),light->GetPosition());
 						sample_point = light->GetPosition();
 					break;
 					case Light::Direct:
@@ -134,7 +134,7 @@ namespace Flare
 						info.distance = 0.5*info.GetSize();
 						if (!info.clipped)
 						{
-							Vec::mad(camera.GetAbsoluteLocation(),light->GetPosition(),barrier,sample_point);
+							M::Vec::mad(camera.GetAbsoluteLocation(),light->GetPosition(),barrier,sample_point);
 							/*float projected[3];
 							_c2(info->projected,projected);
 							projected[2] = 0.95;
@@ -145,11 +145,11 @@ namespace Flare
 					break;
 					case Light::Spot:
 					{
-						TVec3<> projected_direction;
+						M::TVec3<> projected_direction;
 						info.clipped = !camera.PointToScreen(light->GetPosition(),info.projected);
 						Mat::rotate(camera.view,light->GetSpotDirection(),projected_direction);
 						info.intensity = vpow(vmax(projected_direction.z,0),light->GetSpotExponent());
-						info.distance = Vec::distance(camera.GetAbsoluteLocation(),light->GetPosition());
+						info.distance = M::Vec::distance(camera.GetAbsoluteLocation(),light->GetPosition());
 						sample_point = light->GetPosition();
 					}
 					break;
@@ -158,7 +158,7 @@ namespace Flare
 				}
 				if (!info.clipped)
 					info.clipped = info.projected.x < -1.1 || info.projected.x > 1.1 || info.projected.y < -1.1 || info.projected.y > 1.1;
-				info.intensity *= vmin(Vec::sum(light->GetDiffuse())/2.0f,1);
+				info.intensity *= vmin(M::Vec::sum(light->GetDiffuse())/2.0f,1);
 					
 				if (!info.clipped && info.intensity > 0)
 				{
@@ -204,14 +204,14 @@ namespace Flare
 			LightData*light = info.reference;
 			if (info.clipped || info.occluded || info.intensity<=0)
 				continue;
-			TVec3<> sample_point;
+			M::TVec3<> sample_point;
 			switch (light->GetType())
 			{
 				case Light::Omni:
 					sample_point = light->GetPosition();
 				break;
 				case Light::Direct:
-					Vec::mad(camera.GetAbsoluteLocation(),light->GetPosition(),barrier,sample_point);
+					M::Vec::mad(camera.GetAbsoluteLocation(),light->GetPosition(),barrier,sample_point);
 				break;
 				case Light::Spot:
 					sample_point = light->GetPosition();
@@ -287,7 +287,7 @@ namespace Flare
 		sprite.position = fc;
 		sprite.primary = primary;
 		sprite.sensitive = false;
-		Vec::set(sprite.color,1);
+		M::Vec::set(sprite.color,1);
 		return sprite;
 		/*
 		float at[2];
@@ -319,7 +319,7 @@ namespace Flare
 		sprite.position = fc;
 		sprite.primary = false;
 		sprite.sensitive = false;
-		Vec::def(sprite.color,r,g,b);
+		M::Vec::def(sprite.color,r,g,b);
 		return sprite;
 	
 	/*
@@ -355,7 +355,7 @@ namespace Flare
 				sprite.height = size;
 				sprite.position = (fc0+(float)i/(res-1)*length);
 				sprite.primary = false;
-				Vec::def(sprite.color,r,g,b);			
+				M::Vec::def(sprite.color,r,g,b);			
 				if (!i || i == res-1)
 					sprite.intensity = a/2;
 				else
@@ -396,9 +396,9 @@ namespace Flare
 			for (unsigned i = 0; i < 10; i++)
 			{
 				float angle = random.NextFloat();
-				TVec3<> c = {0.5f,random.NextFloat()*0.25f+0.5f,random.NextFloat()+0.5f};
-				Vec::setLen0(c,1.2f);
-				Vec::clamp(c,0,1);
+				M::TVec3<> c = {0.5f,random.NextFloat()*0.25f+0.5f,random.NextFloat()+0.5f};
+				M::Vec::setLen0(c,1.2f);
+				M::Vec::clamp(c,0,1);
 				
 				while (counter[(unsigned)(8*angle)] > i/8)
 					angle = random.NextFloat();
@@ -485,12 +485,12 @@ namespace Flare
 		tCTVertex c0,c1,c2,c3;
 		c0.w = 1;
 		c0.z = 0;
-		Vec::set(c0.color,1);
+		M::Vec::set(c0.color,1);
 		c1 = c2 = c3 = c0;
-		Vec::def(c0.coord,0,0);
-		Vec::def(c1.coord,1,0);
-		Vec::def(c2.coord,1,1);
-		Vec::def(c3.coord,0,1);
+		M::Vec::def(c0.coord,0,0);
+		M::Vec::def(c1.coord,1,0);
+		M::Vec::def(c2.coord,1,1);
+		M::Vec::def(c3.coord,0,1);
 
 		display.disableLighting();
 		display.setFlareBlendFunc();
@@ -540,10 +540,10 @@ namespace Flare
 			//cout << light->visibility << "/"<<light->intensity<<" @"<<_toString(light->projected,2)<<endl;
 			if (light->clipped || light->visibility*light->intensity <= getError<float>())
 				continue;
-			float intensity = vmax(light->visibility*light->intensity*(1.5f-Vec::length(light->projected)),0)/2;
+			float intensity = vmax(light->visibility*light->intensity*(1.5f-M::Vec::length(light->projected)),0)/2;
 			c0.color.rgb = light->reference->GetDiffuse();
-			TVec3<> base_color;
-			TVec4<>	color;
+			M::TVec3<> base_color;
+			M::TVec4<>	color;
 			
 			base_color.red = 1.0-((1.0-c0.color.red)*0.7);
 			base_color.green = 1.0-((1.0-c0.color.green)*0.7);
@@ -551,13 +551,13 @@ namespace Flare
 			//_mult(c0.color,1.2);
 			//_clamp(c0.color,0,1);
 			//cout << _toString(base_color)<<endl;
-			float base_size = light->visibility*light->intensity*vmin(Vec::dot(c0.color.rgb)*light->GetSize()/light->distance,2.0);//(light->reference->getConstantAttenuation()+light->reference->getLinearAttenuation()*light->distance+light->reference->getQuadraticAttenuation()*sqr(light->distance));
+			float base_size = light->visibility*light->intensity*vmin(M::Vec::dot(c0.color.rgb)*light->GetSize()/light->distance,2.0);//(light->reference->getConstantAttenuation()+light->reference->getLinearAttenuation()*light->distance+light->reference->getQuadraticAttenuation()*sqr(light->distance));
 			for (index_t j = 0; j < sprites.Count(); j++)
 			{
 				if (sprites[j].texture->IsEmpty() || !sprites[j].primary)
 					continue;
-				TVec2<OpenGL::FloatType> at;
-				Vec::mult(light->projected,sprites[j].position,at);
+				M::TVec2<OpenGL::FloatType> at;
+				M::Vec::mult(light->projected,sprites[j].position,at);
 				float	w = sprites[j].width/display.pixelAspect(),
 						h = sprites[j].height;
 				if (true) //sprites[j].distance_dependent)
@@ -567,17 +567,17 @@ namespace Flare
 				}
 				
 				
-				Vec::def(c0.xy,at.x-w,at.y-h);
-				Vec::def(c1.xy,at.x+w,at.y-h);
-				Vec::def(c2.xy,at.x+w,at.y+h);
-				Vec::def(c3.xy,at.x-w,at.y+h);
+				M::Vec::def(c0.xy,at.x-w,at.y-h);
+				M::Vec::def(c1.xy,at.x+w,at.y-h);
+				M::Vec::def(c2.xy,at.x+w,at.y+h);
+				M::Vec::def(c3.xy,at.x-w,at.y+h);
 				//*vmax(1.2f-_length2(light->projected)*(float)!sprites[j].primary,0)/1.2
 				color.alpha = light->visibility*light->intensity*sprites[j].intensity;
 				if (sprites[j].sensitive)
 				{
 					color.alpha *= clamped((1.2-ambient_light),0,1.2);
 				}
-				Vec::stretch(base_color,sprites[j].color,color.rgb);
+				M::Vec::stretch(base_color,sprites[j].color,color.rgb);
 				glColor4fv(color.v);
 				display.useTexture(sprites[j].texture);
 				/*if (!j)
@@ -615,7 +615,7 @@ namespace Flare
 
 		display.unbindAll();
 		
-		TVec2<float> screen_center = {screen_center_x,screen_center_y};
+		M::TVec2<float> screen_center = {screen_center_x,screen_center_y};
 		
 		
 		
@@ -644,12 +644,12 @@ namespace Flare
 		tCTVertex c0,c1,c2,c3;
 		c0.w = 1;
 		c0.z = 0;
-		Vec::set(c0.color,1);
+		M::Vec::set(c0.color,1);
 		c1 = c2 = c3 = c0;
-		Vec::def(c0.coord,0,0);
-		Vec::def(c1.coord,1,0);
-		Vec::def(c2.coord,1,1);
-		Vec::def(c3.coord,0,1);
+		M::Vec::def(c0.coord,0,0);
+		M::Vec::def(c1.coord,1,0);
+		M::Vec::def(c2.coord,1,1);
+		M::Vec::def(c3.coord,0,1);
 
 		display.disableLighting();
 		display.setFlareBlendFunc();
@@ -669,24 +669,24 @@ namespace Flare
 		{
 			if (light->clipped || light->visibility*light->intensity <= getError<float>())
 				continue;
-			float intensity = vmax(light->visibility*light->intensity*(1.5f-Vec::distance(light->projected,screen_center)*screen_scale),0)/2;
+			float intensity = vmax(light->visibility*light->intensity*(1.5f-M::Vec::distance(light->projected,screen_center)*screen_scale),0)/2;
 			c0.color.rgb = light->reference->GetDiffuse();
-			TVec3<> base_color;
-			TVec4<>	color;
+			M::TVec3<> base_color;
+			M::TVec4<>	color;
 			
 			base_color.red = 1.0-((1.0-c0.color.red)*0.7);
 			base_color.green = 1.0-((1.0-c0.color.green)*0.7);
 			base_color.blue = 1.0-((1.0-c0.color.blue)*0.7);
 			//_mult(c0.color,1.2);
 			//_clamp(c0.color,0,1);
-			float base_size = light->visibility*light->intensity*vmin(Vec::dot(c0.color.rgb)*light->GetSize()/light->distance,2.0);//(light->reference->getConstantAttenuation()+light->reference->getLinearAttenuation()*light->distance+light->reference->getQuadraticAttenuation()*sqr(light->distance));
+			float base_size = light->visibility*light->intensity*vmin(M::Vec::dot(c0.color.rgb)*light->GetSize()/light->distance,2.0);//(light->reference->getConstantAttenuation()+light->reference->getLinearAttenuation()*light->distance+light->reference->getQuadraticAttenuation()*sqr(light->distance));
 			for (index_t j = 0; j < sprites.Count(); j++)
 			{
 				if (sprites[j].texture->IsEmpty())
 					continue;
-				TVec2<OpenGL::FloatType> at,vec;
-				Vec::sub(light->projected,screen_center,vec);
-				Vec::mad(screen_center,vec,sprites[j].position,at);
+				M::TVec2<OpenGL::FloatType> at,vec;
+				M::Vec::sub(light->projected,screen_center,vec);
+				M::Vec::mad(screen_center,vec,sprites[j].position,at);
 				float	w = sprites[j].width/display.pixelAspect()/screen_scale,
 						h = sprites[j].height/screen_scale;
 				if (true) //sprites[j].distance_dependent)
@@ -696,17 +696,17 @@ namespace Flare
 				}
 				
 				
-				Vec::def(c0.xy,at.x-w,at.y-h);
-				Vec::def(c1.xy,at.x+w,at.y-h);
-				Vec::def(c2.xy,at.x+w,at.y+h);
-				Vec::def(c3.xy,at.x-w,at.y+h);
+				M::Vec::def(c0.xy,at.x-w,at.y-h);
+				M::Vec::def(c1.xy,at.x+w,at.y-h);
+				M::Vec::def(c2.xy,at.x+w,at.y+h);
+				M::Vec::def(c3.xy,at.x-w,at.y+h);
 				//*vmax(1.2f-_length2(light->projected)*(float)!sprites[j].primary,0)/1.2
 				color.alpha = light->visibility*light->intensity*sprites[j].intensity;
 				if (sprites[j].sensitive)
 				{
 					color.alpha *= clamped((1.2-ambient_light),0,1.2);
 				}
-				Vec::stretch(base_color,sprites[j].color,color.rgb);
+				M::Vec::stretch(base_color,sprites[j].color,color.rgb);
 				glColor4fv(color.v);
 				display.useTexture(sprites[j].texture);
 				glBegin(GL_QUADS);

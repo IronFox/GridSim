@@ -108,9 +108,9 @@ namespace Engine
 			
 		Type						type;		//!< Type of this light.
 			
-		TVec3<float>				position,		//!< Position of this light in R3
+		M::TVec3<float>				position,		//!< Position of this light in R3
 									spotDirection;	//!< Spot direction in R3. Needed if light type is not Omni.
-		TVec4<float>				diffuse,		//!< Diffuse light vector - the 4th component is supposed to be 1.0f.
+		M::TVec4<float>				diffuse,		//!< Diffuse light vector - the 4th component is supposed to be 1.0f.
 									ambient,		//!< Ambient light vector - the 4th component is supposed to be 1.0f.
 									specular;		//!< Specular light vector - the 4th component is supposed to be 1.0f.
 		float						spotCutoff;		//!< Cutoff angle (0.0f - 180.0f). Only needed if light type is Spot.
@@ -118,7 +118,7 @@ namespace Engine
 		float						size;			//!< Geometrical size of the light. Ignored by renderers. Initialized to 1.
 		union
 		{
-			TVec3<float>			attenuation;
+			M::TVec3<float>			attenuation;
 			struct
 			{
 				float				constantAttenuation,	//!< Constant component of an exponential light source. 1 (linear) by default.
@@ -132,14 +132,14 @@ namespace Engine
 										constantAttenuation(1),linearAttenuation(0),quadraticAttenuation(0)		{}
 	public:
 		Type						GetType()			const	/** Retrieves light type */			{return type;}
-		const TVec3<float>&			GetPosition()		const	/** Get light position {x,y,z} */	{return position;}
-		const TVec3<float>&			GetSpotDirection()	const	/** Get light spot direction */		{return spotDirection;}
-		const TVec3<float>&			GetDiffuse()		const	/** Get diffuse color (rgb)*/		{return diffuse.rgb;}
-		const TVec3<float>&			GetAmbient()		const	/** Get ambient color (rgb)*/		{return ambient.rgb;}
-		const TVec3<float>&			GetSpecular()		const	/** Get specular color (rgb)*/		{return specular.rgb;}
+		const M::TVec3<float>&			GetPosition()		const	/** Get light position {x,y,z} */	{return position;}
+		const M::TVec3<float>&			GetSpotDirection()	const	/** Get light spot direction */		{return spotDirection;}
+		const M::TVec3<float>&			GetDiffuse()		const	/** Get diffuse color (rgb)*/		{return diffuse.rgb;}
+		const M::TVec3<float>&			GetAmbient()		const	/** Get ambient color (rgb)*/		{return ambient.rgb;}
+		const M::TVec3<float>&			GetSpecular()		const	/** Get specular color (rgb)*/		{return specular.rgb;}
 		float						GetSpotCutoff()		const	/** Get spot cutoff angle (0-90)*/	{return spotCutoff;}
 		BYTE						GetSpotExponent()	const	/** Get spot exponent (0-128)*/		{return spotExponent;}
-		const TVec3<float>&			GetAttenuation()	const	/** Get attenuation {constant, linear, quadratic} */	{return attenuation;}
+		const M::TVec3<float>&			GetAttenuation()	const	/** Get attenuation {constant, linear, quadratic} */	{return attenuation;}
 		float						GetConstantAttenuation()	const	/** Get constant attenuation */		{return constantAttenuation;}
 		float						GetLinearAttenuation()		const	/** Get linear attenuation */		{return linearAttenuation;}
 		float						GetQuadraticAttenuation()	const	/** Get quadratic attenuation */	{return quadraticAttenuation;}
@@ -189,44 +189,44 @@ namespace Engine
 
 		Light*						setPosition(float x, float y, float z);		//!< Set light position. Auto normalized if type is Direct @return this
 	template <typename T>
-		Light*						setPosition(const TVec3<T>&p)				//!< Set light position {x,y,z}. Auto normalized if type is Direct @return this
+		Light*						setPosition(const M::TVec3<T>&p)				//!< Set light position {x,y,z}. Auto normalized if type is Direct @return this
 									{
 										return setPosition((float)p.x,(float)p.y,(float)p.z);
 									}
 		Light*						moveTo(float x, float y, float z);			//!< Identical to setPosition() @return this
 	template <typename T>
-		Light*						moveTo(const TVec3<T>&p)						//!< Identical to setPosition() @return this
+		Light*						moveTo(const M::TVec3<T>&p)						//!< Identical to setPosition() @return this
 									{
 										return setPosition((float)p.x,(float)p.y,(float)p.z);
 									}
 			
 		Light*						SetDirection(float x, float y, float z);			//!< Set spot direction if spot or negative position otherwise (auto normalized) @return this
-		Light*						SetDirection(const TVec3<float>&c);				//!< Set spot direction if spot or negative position otherwise (auto normalized) @return this
-		Light*						SetDirection(const TVec3<double>&c);				//!< Set spot direction if spot or negative position otherwise (auto normalized) @return this
+		Light*						SetDirection(const M::TVec3<float>&c);				//!< Set spot direction if spot or negative position otherwise (auto normalized) @return this
+		Light*						SetDirection(const M::TVec3<double>&c);				//!< Set spot direction if spot or negative position otherwise (auto normalized) @return this
 		Light*						setNegativeDirection(float x, float y, float z);	//!< Set negative spot direction if spot or positive position otherwise (auto normalized) @return this
-		Light*						setNegativeDirection(const TVec3<float>&c);		//!< Set negative spot direction if spot or positive position otherwise (auto normalized) @return this
-		Light*						setNegativeDirection(const TVec3<double>&c);		//!< Set negative spot direction if spot or positive position otherwise (auto normalized) @return this
+		Light*						setNegativeDirection(const M::TVec3<float>&c);		//!< Set negative spot direction if spot or positive position otherwise (auto normalized) @return this
+		Light*						setNegativeDirection(const M::TVec3<double>&c);		//!< Set negative spot direction if spot or positive position otherwise (auto normalized) @return this
 			
-		Light*						setSpotDirection(const TVec3<float>&c);	//!< Set spot direction {x, y, z} (auto normalized) @return this
-		Light*						setSpotDirection(const TVec3<double>&c);	//!< Set spot direction {x, y, z} (auto normalized) @return this
+		Light*						setSpotDirection(const M::TVec3<float>&c);	//!< Set spot direction {x, y, z} (auto normalized) @return this
+		Light*						setSpotDirection(const M::TVec3<double>&c);	//!< Set spot direction {x, y, z} (auto normalized) @return this
 		Light*						setSpotDirection(float x, float y, float z);//!< Set spot direction (auto normalized) @return this
 
-		Light*						setDiffuse(const TVec3<float>&c);		//!< Set diffuse color component {r, g, b} @return this
-		Light*						setDiffuse(const TVec3<double>&c);		//!< Set diffuse color component {r, g, b} @return this
-		Light*						setDiffuse(const TVec3<float>&c,float factor);		//!< Set diffuse color component {r, g, b} @return this
-		Light*						setDiffuse(const TVec3<double>&c,double factor);		//!< Set diffuse color component {r, g, b} @return this
+		Light*						setDiffuse(const M::TVec3<float>&c);		//!< Set diffuse color component {r, g, b} @return this
+		Light*						setDiffuse(const M::TVec3<double>&c);		//!< Set diffuse color component {r, g, b} @return this
+		Light*						setDiffuse(const M::TVec3<float>&c,float factor);		//!< Set diffuse color component {r, g, b} @return this
+		Light*						setDiffuse(const M::TVec3<double>&c,double factor);		//!< Set diffuse color component {r, g, b} @return this
 		Light*						setDiffuse(float r, float g, float b);		//!< Set diffuse color component @return this
 		Light*						setDiffuse(float intensity);				//!< Set diffuse color component (r, g, b to \b intensity ) @return this
-		Light*						setAmbient(const TVec3<float>&c);		//!< Set ambient color component {r, g, b} @return this
-		Light*						setAmbient(const TVec3<double>&c);		//!< Set ambient color component {r, g, b} @return this
-		Light*						setAmbient(const TVec3<float>&c,float factor);		//!< Set ambient color component {r, g, b} @return this
-		Light*						setAmbient(const TVec3<double>&c,double factor);		//!< Set ambient color component {r, g, b} @return this
+		Light*						setAmbient(const M::TVec3<float>&c);		//!< Set ambient color component {r, g, b} @return this
+		Light*						setAmbient(const M::TVec3<double>&c);		//!< Set ambient color component {r, g, b} @return this
+		Light*						setAmbient(const M::TVec3<float>&c,float factor);		//!< Set ambient color component {r, g, b} @return this
+		Light*						setAmbient(const M::TVec3<double>&c,double factor);		//!< Set ambient color component {r, g, b} @return this
 		Light*						setAmbient(float r, float g, float b);		//!< Set ambient color component @return this
 		Light*						setAmbient(float intensity);				//!< Set ambient color component (r, g, b to \b intensity ) @return this
-		Light*						setSpecular(const TVec3<float>&c);		//!< Set specular color component {r,g,b} @return this
-		Light*						setSpecular(const TVec3<double>&c);		//!< Set specular color component {r,g,b} @return this
-		Light*						setSpecular(const TVec3<float>&c,float factor);		//!< Set specular color component {r,g,b} @return this
-		Light*						setSpecular(const TVec3<double>&c,double factor);		//!< Set specular color component {r,g,b} @return this
+		Light*						setSpecular(const M::TVec3<float>&c);		//!< Set specular color component {r,g,b} @return this
+		Light*						setSpecular(const M::TVec3<double>&c);		//!< Set specular color component {r,g,b} @return this
+		Light*						setSpecular(const M::TVec3<float>&c,float factor);		//!< Set specular color component {r,g,b} @return this
+		Light*						setSpecular(const M::TVec3<double>&c,double factor);		//!< Set specular color component {r,g,b} @return this
 		Light*						setSpecular(float r, float g, float b);		//!< Set specular color component @return this
 		Light*						setSpecular(float intensity);				//!< Set specular color component (r, g, b to \b intensity ) @return this
 			
@@ -249,7 +249,7 @@ namespace Engine
 			float						nearRange, //!< Fog start (should be small compared to the scene)
 										farRange,	//!< Fog end (should be large compared to the scene)
 										density;	//!< Fog density
-			TVec4<float>				color;	//!< Fog color - the 4th component should be 1.0f
+			M::TVec4<float>				color;	//!< Fog color - the 4th component should be 1.0f
 			enum
 			{
 				Linear,					//!< Linear fog (commonly used)
@@ -259,22 +259,22 @@ namespace Engine
 			
 										Fog():nearRange(0.1),farRange(100),density(1.0),type(Linear)
 										{
-											Vec::set(color,1);
+											M::Vec::set(color,1);
 										}
 										Fog(float range, float red=1, float green=1, float blue=1):nearRange(0.1),farRange(range),density(1.0),type(Linear)
 										{
-											Vec::def(color,red,green,blue,1);
+											M::Vec::def(color,red,green,blue,1);
 										}
 										Fog(float near_range_,float range, float red, float green, float blue):nearRange(near_range_),farRange(range),density(1.0),type(Linear)
 										{
-											Vec::def(color,red,green,blue,1);
+											M::Vec::def(color,red,green,blue,1);
 										}
-										Fog(float range, const TVec3<>&fog_color):nearRange(0.1),farRange(range),density(1.0),type(Linear)
+										Fog(float range, const M::TVec3<>&fog_color):nearRange(0.1),farRange(range),density(1.0),type(Linear)
 										{
 											color.rgb = fog_color;
 											color.alpha = 1;
 										}
-										Fog(float near_range_, float range, const TVec3<>&fog_color):nearRange(near_range_),farRange(range),density(1.0),type(Linear)
+										Fog(float near_range_, float range, const M::TVec3<>&fog_color):nearRange(near_range_),farRange(range),density(1.0),type(Linear)
 										{
 											color.rgb = fog_color;
 											color.alpha = 1;
@@ -365,7 +365,7 @@ namespace Engine
 									clamp_z,			//!< Clamp texture coordinates along z axis. Disabled by default
 									enabled;			//!< Layer is enabled. Other values are not reliable and may be filled with garbage if this value is set false. Defaults to true
 		UINT32						combiner;			//!< GL combiner (usually GL_MODULATE or GL_DECAL). Somewhat deprecated.
-		const TMatrix4<>			*custom_system;		//!< Remote texcoord 4x4 system matrix. Must be set non-NULL if system_type is SystemType::Custom. This pointer may be invalid if system_type is NOT SystemType::Custom.
+		const M::TMatrix4<>			*custom_system;		//!< Remote texcoord 4x4 system matrix. Must be set non-NULL if system_type is SystemType::Custom. This pointer may be invalid if system_type is NOT SystemType::Custom.
 			
 									MaterialLayer()
 									{
@@ -415,9 +415,9 @@ namespace Engine
 	/**
 		@brief Color definition
 	*/
-	struct TColor:public TVec4<>
+	struct TColor:public M::TVec4<>
 	{
-		typedef TVec4<>	Super;
+		typedef M::TVec4<>	Super;
 
 		void						set(float intensity)	//! Sets the intensity of the local color. red, green, and blue are set to the specified value, alpha is set to 1.0
 									{
@@ -431,7 +431,7 @@ namespace Engine
 										blue = new_blue;
 										alpha = new_alpha;
 									}
-		void						set(const TVec3<float>&channel_values)	//!< Updates the local color vector. The alpha channel is set to 1.0
+		void						set(const M::TVec3<float>&channel_values)	//!< Updates the local color vector. The alpha channel is set to 1.0
 									{
 										rgb = channel_values;
 										alpha = 1.0f;
@@ -439,12 +439,12 @@ namespace Engine
 
 		bool						operator==(const TColor&other) const
 									{
-										return Vec::similar(*this,other);
+										return M::Vec::similar(*this,other);
 									}
 
 		char						compareTo(const TColor&other) const
 									{
-										return Vec::compare(*this,other);
+										return M::Vec::compare(*this,other);
 									}
 
 		bool						operator!=(const TColor&other)	const		{return !operator==(other);}
@@ -452,7 +452,7 @@ namespace Engine
 		bool						operator<(const TColor&other)	const		{return compareTo(other) < 0;}
 
 
-		TColor&						operator=(const TVec4<>&other)	{Super::operator=(other); return*this;}
+		TColor&						operator=(const M::TVec4<>&other)	{Super::operator=(other); return*this;}
 	};
 
 	/**
@@ -591,7 +591,7 @@ namespace Engine
 	typedef MaterialConfiguration	MaterialConfig;
 
 	extern TVisualConfig				default_buffer_config;
-	extern TMatrix4<float>				environment_matrix;
+	extern M::TMatrix4<float>				environment_matrix;
 	extern bool							erase_unused_textures;
 
 

@@ -7,6 +7,7 @@ namespace DeltaWorks
 
 	namespace SVG
 	{
+		using namespace Math;
 
 		template <typename T>
 			static bool Convert(const String&str, T&rs)
@@ -19,11 +20,11 @@ namespace DeltaWorks
 				return convert(str.pointer(),str.length(),rs);
 			}
 
-		void BaseElement::SetRGB(const String&name, const TVec3<>&rgb)
+		void BaseElement::SetRGB(const String&name, const M::TVec3<>&rgb)
 		{
-			TVec3<int> scaled;
-			Vec::mul(rgb,255,scaled);
-			Vec::clamp(scaled,0,255);
+			M::TVec3<int> scaled;
+			M::Vec::mul(rgb,255,scaled);
+			M::Vec::clamp(scaled,0,255);
 			node.Set(name,"rgb("+String(scaled.r)+','+String(scaled.g)+','+String(scaled.b)+')');
 		}
 
@@ -56,7 +57,7 @@ namespace DeltaWorks
 			return Element(node.AddChild("g"));
 		}
 
-		Element BaseElement::CreateLine(const TVec2<>&p0, const TVec2<>&p1)
+		Element BaseElement::CreateLine(const M::TVec2<>&p0, const M::TVec2<>&p1)
 		{
 			DBG_ASSERT__(IsGroup());
 			return Element(node.AddChild("line")
@@ -67,7 +68,7 @@ namespace DeltaWorks
 					);
 		}
 
-		Element BaseElement::CreateImage(const Rect<>&rect, const PathString & path)
+		Element BaseElement::CreateImage(const M::Rect<>&rect, const PathString & path)
 		{
 			DBG_ASSERT__(IsGroup());
 			return Element(node.AddChild("image")
@@ -79,7 +80,7 @@ namespace DeltaWorks
 					);
 		}
 	
-		Element BaseElement::CreatePolyline(const Ctr::ArrayRef<float2>&points)
+		Element BaseElement::CreatePolyline(const Ctr::ArrayRef<M::float2>&points)
 		{
 			DBG_ASSERT__(IsGroup());
 			static StringBuffer strPoints;
@@ -91,7 +92,7 @@ namespace DeltaWorks
 					);
 		}
 
-		Element BaseElement::CreatePolygon(const Ctr::ArrayRef<float2>&points)
+		Element BaseElement::CreatePolygon(const Ctr::ArrayRef<M::float2>&points)
 		{
 			DBG_ASSERT__(IsGroup());
 			static StringBuffer strPoints;
@@ -103,7 +104,7 @@ namespace DeltaWorks
 					);
 		}
 
-		Element BaseElement::CreatePolygon(const Rect<>&r)
+		Element BaseElement::CreatePolygon(const M::Rect<>&r)
 		{
 			DBG_ASSERT__(IsGroup());
 			static StringBuffer strPoints;
@@ -118,7 +119,7 @@ namespace DeltaWorks
 					);
 		}
 
-		Element BaseElement::CreateCircle(const TVec2<>& center, float radius)
+		Element BaseElement::CreateCircle(const M::TVec2<>& center, float radius)
 		{
 			DBG_ASSERT__(IsGroup());
 			return Element(node.AddChild("circle")
@@ -129,7 +130,7 @@ namespace DeltaWorks
 
 		}
 
-		Element BaseElement::CreateText(const TVec2<>&p, const String & text)
+		Element BaseElement::CreateText(const M::TVec2<>&p, const String & text)
 		{
 			DBG_ASSERT__(IsGroup());
 			Element rs = Element(node.AddChild("text")
@@ -146,13 +147,13 @@ namespace DeltaWorks
 			return *this;
 		}
 
-		Element & Element::Stroke(const float3 &c)
+		Element & Element::Stroke(const M::float3 &c)
 		{
 			SetRGB("stroke",c);
 			return *this;
 		}
 
-		Element & Element::Stroke(const float4 &c)
+		Element & Element::Stroke(const M::float4 &c)
 		{
 			SetRGB("stroke",c.rgb);
 			node.Set("stroke-opacity",c.a);
@@ -183,13 +184,13 @@ namespace DeltaWorks
 			return *this;
 		}
 
-		Element & Element::Fill(const float3 &c)
+		Element & Element::Fill(const M::float3 &c)
 		{
 			SetRGB("fill",c);
 			return *this;
 		}
 
-		Element & Element::Fill(const float4 &c)
+		Element & Element::Fill(const M::float4 &c)
 		{
 			SetRGB("fill",c.rgb);
 			node.Set("fill-opacity",c.a);
@@ -202,13 +203,13 @@ namespace DeltaWorks
 			return *this;
 		}
 
-		Element & Element::Scale(const TVec2<>&s)
+		Element & Element::Scale(const M::TVec2<>&s)
 		{
 			TransformFront("scale("+String(s.x)+' '+String(s.y)+")");
 			return *this;
 		}
 
-		Element & Element::Translate(const TVec2<>&t)
+		Element & Element::Translate(const M::TVec2<>&t)
 		{
 			TransformFront("translate("+String(t.x)+' '+String(t.y)+")");
 			return *this;
@@ -220,7 +221,7 @@ namespace DeltaWorks
 			return *this;
 		}
 
-		Element & Element::Rotate(float angle, const TVec2<>&pivot)
+		Element & Element::Rotate(float angle, const M::TVec2<>&pivot)
 		{
 			TransformFront("rotate("+String(angle)+' '+String(pivot.x)+' '+String(pivot.y)+")");
 			return *this;
@@ -244,9 +245,9 @@ namespace DeltaWorks
 			return *this;
 		}
 
-		static void TransMatrix(TMatrix3<>&mat, float m00,float m10,float m01, float m11,float m02, float m12)
+		static void TransMatrix(M::TMatrix3<>&mat, float m00,float m10,float m01, float m11,float m02, float m12)
 		{
-			TMatrix3<> sub,temp;
+			M::TMatrix3<> sub,temp;
 			sub.x.x = m00;
 			sub.x.y = m10;
 			sub.y.x = m01;
@@ -258,19 +259,19 @@ namespace DeltaWorks
 			mat = temp;
 		}
 
-		static void Include(Rect<>&r, const TMatrix3<>&transform, const TVec2<>&p)
+		static void Include(M::Rect<>&r, const M::TMatrix3<>&transform, const M::TVec2<>&p)
 		{
-			TVec2<> final=transform.z.xy;
-			Vec::mad(final,transform.x.xy,p.x);
-			Vec::mad(final,transform.y.xy,p.y);
+			M::TVec2<> final=transform.z.xy;
+			M::Vec::mad(final,transform.x.xy,p.x);
+			M::Vec::mad(final,transform.y.xy,p.y);
 			r.Include(final);
 		}
-		static void Include(Rect<>&r, const TMatrix3<>&transform, const Rect<>&outline)
+		static void Include(M::Rect<>&r, const M::TMatrix3<>&transform, const M::Rect<>&outline)
 		{
 			Include(r,transform,outline.min());
-			Include(r,transform,float2(outline.x.max,outline.y.min));
+			Include(r,transform,M::float2(outline.x.max,outline.y.min));
 			Include(r,transform,outline.max());
-			Include(r,transform,float2(outline.x.min,outline.y.max));
+			Include(r,transform,M::float2(outline.x.min,outline.y.max));
 		}
 
 		static void Get(const XML::Node&n, const char*p, float&rs)
@@ -280,15 +281,15 @@ namespace DeltaWorks
 			ASSERT1__(Convert(val,rs),val);
 		}
 
-		static TVec2<> MakePoint(const XML::Node&n, const char*p0, const char*p1)
+		static M::TVec2<> MakePoint(const XML::Node&n, const char*p0, const char*p1)
 		{
-			TVec2<> rs;
+			M::TVec2<> rs;
 			Get(n,p0,rs.x);
 			Get(n,p1,rs.y);
 			return rs;
 		}
 
-		Rect<> BaseElement::GetBoundingBox(TMatrix3<> transform, float strokeWidth, float fontSize, const String&textAnchor) const
+		M::Rect<> BaseElement::GetBoundingBox(M::TMatrix3<> transform, float strokeWidth, float fontSize, const String&textAnchor) const
 		{
 			StringRef attrib;
 			if (node.Query("stroke-width",attrib))
@@ -383,11 +384,11 @@ namespace DeltaWorks
 						FATAL__("Unsupported transformation '"+trans+"'");
 				}
 			}
-			const float strokeExtend = strokeWidth * sqrt(M::vmax(Vec::dot(transform.x.xy),Vec::dot(transform.y.xy))) / 2.f;
-			Rect<> rs = Rect<>::Invalid;
+			const float strokeExtend = strokeWidth * sqrt(M::vmax(M::Vec::dot(transform.x.xy),M::Vec::dot(transform.y.xy))) / 2.f;
+			M::Rect<> rs = M::Rect<>::Invalid;
 			if (node.name=="line")
 			{
-				Rect<> line = Rect<>::Invalid;
+				M::Rect<> line = M::Rect<>::Invalid;
 				Include(line, transform,MakePoint(node,"x1","y1"));
 				Include(line, transform,MakePoint(node,"x2","y2"));
 				line.Expand(strokeExtend);
@@ -399,12 +400,12 @@ namespace DeltaWorks
 				const String&spoints = node.attributes.Require("points");
 				Ctr::Array<StringRef> points,coords;
 				explode(' ',spoints,points);
-				Rect<> primitive = Rect<>::Invalid;
+				M::Rect<> primitive = M::Rect<>::Invalid;
 				foreach (points,p)
 				{
 					explode(',',*p,coords);
 					ASSERT_EQUAL__(coords.Count(),2);
-					TVec2<> p2;
+					M::TVec2<> p2;
 					ASSERT1__(Convert(coords[0],p2.x),coords[0]);
 					ASSERT1__(Convert(coords[1],p2.y),coords[1]);
 					Include(primitive,transform,p2);
@@ -419,11 +420,11 @@ namespace DeltaWorks
 				Get(node,"y",y);
 				Get(node,"width",w);
 				Get(node,"height",h);
-				Rect<> primitive = Rect<>::Invalid;
-				Include(primitive,transform,float2(x,y));
-				Include(primitive,transform,float2(x+w,y));
-				Include(primitive,transform,float2(x+w,y+h));
-				Include(primitive,transform,float2(x,y+h));
+				M::Rect<> primitive = M::Rect<>::Invalid;
+				Include(primitive,transform,M::float2(x,y));
+				Include(primitive,transform,M::float2(x+w,y));
+				Include(primitive,transform,M::float2(x+w,y+h));
+				Include(primitive,transform,M::float2(x,y+h));
 				primitive.Expand(strokeExtend);
 				rs.Include(primitive);
 			}
@@ -433,11 +434,11 @@ namespace DeltaWorks
 				Get(node,"cx",x);
 				Get(node,"cy",y);
 				Get(node,"r",r);
-				Rect<> primitive = Rect<>::Invalid;
-				Include(primitive,transform,float2(x-r,y-r));
-				Include(primitive,transform,float2(x+r,y-r));
-				Include(primitive,transform,float2(x+r,y+r));
-				Include(primitive,transform,float2(x-r,y+r));
+				M::Rect<> primitive = M::Rect<>::Invalid;
+				Include(primitive,transform,M::float2(x-r,y-r));
+				Include(primitive,transform,M::float2(x+r,y-r));
+				Include(primitive,transform,M::float2(x+r,y+r));
+				Include(primitive,transform,M::float2(x-r,y+r));
 				primitive.Expand(strokeExtend);
 				rs.Include(primitive);
 			}
@@ -447,15 +448,15 @@ namespace DeltaWorks
 				Get(node,"x",x);
 				Get(node,"y",y);
 			
-				Rect<> primitive = Rect<>::Invalid;
-				Rect<> rect;
+				M::Rect<> primitive = M::Rect<>::Invalid;
+				M::Rect<> rect;
 				const float w = fontSize*0.75f *node.inner_content.length();
 				if (*outAnchor == "start")
-					rect = Rect<>(x,y-fontSize,x+w,y);
+					rect = M::Rect<>(x,y-fontSize,x+w,y);
 				elif (*outAnchor == "middle")
-					rect = Rect<>(x-w/2.f,y-fontSize,x+w/2.f,y);
+					rect = M::Rect<>(x-w/2.f,y-fontSize,x+w/2.f,y);
 				elif (*outAnchor == "end")
-					rect = Rect<>(x-w,y-fontSize,x,y);
+					rect = M::Rect<>(x-w,y-fontSize,x,y);
 				else
 					return rs;
 				Include(primitive,transform,rect);
@@ -476,13 +477,13 @@ namespace DeltaWorks
 		}
 
 
-		void		Document::AutoDetectDocumentSize(const TVec2<>&extra)
+		void		Document::AutoDetectDocumentSize(const M::TVec2<>&extra)
 		{
-			Rect<> rect = this->GetBoundingBox();
+			M::Rect<> rect = this->GetBoundingBox();
 			DefineCustomDocumentSize(rect.max()+extra);
 		}
 
-		void		Document::DefineCustomDocumentSize(const TVec2<>&size)
+		void		Document::DefineCustomDocumentSize(const M::TVec2<>&size)
 		{
 			container.root_node.SetMore("width",size.x);
 			container.root_node.SetMore("height",size.y);
@@ -493,7 +494,7 @@ namespace DeltaWorks
 			container.SaveToFile(path);
 		}
 
-		Element SVG::Document::CreatePattern(const String & name, const Rect<>&rect)
+		Element SVG::Document::CreatePattern(const String & name, const M::Rect<>&rect)
 		{
 			XML::Node* defs=container.root_node.Find("defs");
 			return Element(defs->AddChild("pattern")

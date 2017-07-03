@@ -20,7 +20,7 @@ namespace DeltaWorks
 			friend class Document;
 
 			XML::Node	&node;
-			void		SetRGB(const String&keyName, const TVec3<>&rgb);
+			void		SetRGB(const String&keyName, const M::TVec3<>&rgb);
 
 			/**/		BaseElement(XML::Node&node):node(node)	{}
 		public:
@@ -28,20 +28,20 @@ namespace DeltaWorks
 			/**Creates a new group child element in the local SVG element. Local element must be a group*/
 			Element		CreateGroup();
 			/**Creates a new line child element in the local SVG element. Local element must be a group*/
-			Element		CreateLine(const TVec2<>&,const TVec2<>&);
+			Element		CreateLine(const M::TVec2<>&,const M::TVec2<>&);
 			/**Creates a new image child element in the local SVG element. Local element must be a group*/
-			Element		CreateImage(const Rect<>&, const PathString&path);
+			Element		CreateImage(const M::Rect<>&, const PathString&path);
 			/**Creates a new polyline child element in the local SVG element. Local element must be a group*/
-			Element		CreatePolyline(const Ctr::ArrayRef<float2>&);
+			Element		CreatePolyline(const Ctr::ArrayRef<M::float2>&);
 			/**Creates a new polygon child element in the local SVG element. Local element must be a group*/
-			Element		CreatePolygon(const Ctr::ArrayRef<float2>&);
+			Element		CreatePolygon(const Ctr::ArrayRef<M::float2>&);
 			/**Creates a new polygon child element in the local SVG element. Local element must be a group*/
-			Element		CreatePolygon(const Rect<>&);
+			Element		CreatePolygon(const M::Rect<>&);
 			/**Creates a new circle child element in the local SVG element. Local element must be a group*/
-			Element		CreateCircle(const TVec2<>&center, float radius);
-			Element		CreateText(const TVec2<>&,const String&text);
+			Element		CreateCircle(const M::TVec2<>&center, float radius);
+			Element		CreateText(const M::TVec2<>&,const String&text);
 
-			Rect<>		GetBoundingBox(TMatrix3<> transform, float strokeWidth, float fontSize, const String&textAnchor) const;
+			M::Rect<>		GetBoundingBox(M::TMatrix3<> transform, float strokeWidth, float fontSize, const String&textAnchor) const;
 
 		};
 
@@ -56,12 +56,12 @@ namespace DeltaWorks
 				container.root_node.SetMore("xmlns","http://www.w3.org/2000/svg").SetMore("xmlns:xlink","http://www.w3.org/1999/xlink").SetMore("version","1.1");
 				container.root_node.AddChild("defs");
 			}
-			Rect<>		GetBoundingBox() const	{return Super::GetBoundingBox(Matrix<>::eye3,1.f,1.f,"start");}
+			M::Rect<>	GetBoundingBox() const	{return Super::GetBoundingBox(M::Matrix<>::eye3,1.f,1.f,"start");}
 
-			void		AutoDetectDocumentSize(const TVec2<>&extra);
-			void		DefineCustomDocumentSize(const TVec2<>&size);
+			void		AutoDetectDocumentSize(const M::TVec2<>&extra);
+			void		DefineCustomDocumentSize(const M::TVec2<>&size);
 			void		SaveToFile(const PathString&) const;
-			Element		CreatePattern(const String&name, const Rect<>&);
+			Element		CreatePattern(const String&name, const M::Rect<>&);
 		};
 
 
@@ -82,21 +82,21 @@ namespace DeltaWorks
 			/**/		Element(XML::Node&node):Super(node)	{}
 		public:
 
-			Element&	Scale(const TVec2<>&);
-			Element&	Translate(const TVec2<>&);
+			Element&	Scale(const M::TVec2<>&);
+			Element&	Translate(const M::TVec2<>&);
 			Element&	Rotate(float angle);
-			Element&	Rotate(float angle, const TVec2<>&rotationPivot);
+			Element&	Rotate(float angle, const M::TVec2<>&rotationPivot);
 			Element&	SkewX(float);
 			Element&	SkewY(float);
 
 
 
 			Element&	SetStrokeWidth(float w);
-			Element&	Stroke(const float3&);
-			Element&	Stroke(const float4&);
+			Element&	Stroke(const M::float3&);
+			Element&	Stroke(const M::float4&);
 			Element&	NoStroke();
-			Element&	Fill(const float3&);
-			Element&	Fill(const float4&);
+			Element&	Fill(const M::float3&);
+			Element&	Fill(const M::float4&);
 			Element&	FillPattern(const String&patternName);
 			Element&	NoFill();
 			Element&	SetFontSize(float);
