@@ -7,7 +7,7 @@ OpenGL texture-font.
 
 ******************************************************************/
 
-
+#include <global_root.h>
 #include "../textout.h"
 #include "../../gl/gl.h"
 

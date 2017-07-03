@@ -7,6 +7,7 @@ Rastered OpenGL font.
 
 ******************************************************************/
 
+#include <global_root.h>
 #include "../../gl/gl.h"
 #include "../textout.h"
 #if SYSTEM==UNIX

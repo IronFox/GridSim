@@ -409,7 +409,7 @@ namespace Math
 	MFUNC	(char)		vChar();														//!< Determines type-specific character \return character abbreviation of the specified type
 	MFUNC	(const char*)	vName();
 	MFUNC	(String)	v2str(const C&value);											//!< Converts value to string. \param value Value to convert \return String containing converted value
-	MFUNC	(C)	constexpr	getError();													 //!< Query error constant \return A type-specific error-constant
+	MFUNC	(C)			getError();													 //!< Query error constant \return A type-specific error-constant
 
 	MFUNC	(C)			gaussian(C value);											//!< Retrieves the normal distributed probability for the specified value
 

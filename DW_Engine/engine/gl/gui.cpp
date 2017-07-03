@@ -2,20 +2,12 @@
 #include <cmath>
 
 
-inline static float _Round(float x)
-{
-	#if _MSC_VER >= 1800	//vs12
-		return std::round(x);
-	#else
-		return Math::Round(x);
-	#endif
-}
-
 
 namespace Engine
 {
 	namespace GUI
 	{
+		using namespace Math;
 
 		#ifdef DEEP_GUI
 			MAKE_SORT_CLASS(DepthSort,current_center.shellRadius);
@@ -392,7 +384,7 @@ namespace Engine
 				case 1:
 				{
 					//-90 degrees z
-					M::TMatrix3<> rotation = {Vector<>::negative_y_axis,Vector<>::x_axis,Vector<>::z_axis};
+					M::TMatrix3<> rotation = {M::Vector3<>::negative_y_axis,M::Vector3<>::x_axis,M::Vector3<>::z_axis};
 					TransformNormals(rotation);
 					glBegin(GL_QUADS);
 						glTexCoord2f(1,0); glVertex2f(cell.region.x.min,cell.region.y.min);
@@ -404,7 +396,7 @@ namespace Engine
 				break;
 				case 2:
 				{
-					M::TMatrix3<> rotation = {Vector<>::negative_x_axis,Vector<>::negative_y_axis,Vector<>::z_axis};
+					M::TMatrix3<> rotation = {M::Vector3<>::negative_x_axis,M::Vector3<>::negative_y_axis,M::Vector3<>::z_axis};
 					TransformNormals(rotation);
 					glBegin(GL_QUADS);
 						glTexCoord2f(1,1); glVertex2f(cell.region.x.min,cell.region.y.min);
@@ -416,7 +408,7 @@ namespace Engine
 				break;
 				case 3:
 				{
-					M::TMatrix3<> rotation = {Vector<>::y_axis,Vector<>::negative_x_axis,Vector<>::z_axis};
+					M::TMatrix3<> rotation = {M::Vector3<>::y_axis,M::Vector3<>::negative_x_axis,M::Vector3<>::z_axis};
 					TransformNormals(rotation);
 					glBegin(GL_QUADS);
 						glTexCoord2f(0,1); glVertex2f(cell.region.x.min,cell.region.y.min);
@@ -668,7 +660,7 @@ namespace Engine
 		void	Operator::unprojectMouse(M::TVec2<float>&p)	const
 		{
 			M::TVec3<float> f;
-			projected_space.ScreenToVector(mouse->location.windowRelative.x*2.f-1.f,mouse->location.windowRelative.y*2.f-1.f,Vector<>::dummy,f);
+			projected_space.ScreenToVector(mouse->location.windowRelative.x*2.f-1.f,mouse->location.windowRelative.y*2.f-1.f,M::Vector3<>::dummy,f);
 			M::Vec::normalize0(f);
 			unproject(f,p);
 		}
@@ -758,7 +750,7 @@ namespace Engine
 			
 			titlePosition.SetMinAndMax(0);
 			
-			List::Vector<TIORow>	iorows;
+			Ctr::Vector0<TIORow>	iorows;
 			
 			XML::Container	xml;
 			xml.LoadFromFile(filename);
@@ -847,8 +839,8 @@ namespace Engine
 					}
 					
 					
-					TIORow*row = iorows.append();
-					row->variable_height = attrib == "stretch";
+					TIORow&row = iorows.Append();
+					row.variableHeight = attrib == "stretch";
 					
 					for (index_t j = 0; j < xrow.children.count(); j++)
 					{
@@ -860,8 +852,8 @@ namespace Engine
 								ErrMessage("type attribute not defined of cell. Ignoring cell.");
 								continue;
 							}
-							TIOCell*cell = row->cells.append();
-							cell->variableWidth = attrib == "stretch";
+							TIOCell&cell = row.cells.Append();
+							cell.variableWidth = attrib == "stretch";
 							
 							String error;
 							if (xcell.Query("background",attrib))
@@ -869,22 +861,22 @@ namespace Engine
 								FileSystem::File	file;
 								if (folder.FindFile(PathString("bump/"+attrib),file))
 								{
-									LoadBump(file.GetLocation(),cell->normal);
+									LoadBump(file.GetLocation(),cell.normal);
 								}
 								else
 									ErrMessage("Failed to locate bump component of '"+attrib+"'");
 								if (folder.FindFile(PathString("color/"+attrib),file))
 								{
-									Magic::LoadFromFile(cell->color,file.GetLocation());
-									if (cell->color.width() == 1)
-										cell->color.ScaleTo(64,cell->color.height());
-									if (cell->color.height() == 1)
-										cell->color.ScaleTo(cell->color.width(),64);
+									Magic::LoadFromFile(cell.color,file.GetLocation());
+									if (cell.color.width() == 1)
+										cell.color.ScaleTo(64,cell.color.height());
+									if (cell.color.height() == 1)
+										cell.color.ScaleTo(cell.color.width(),64);
 								}
-								if (!cell->color.width() || !cell->color.height())
+								if (!cell.color.width() || !cell.color.height())
 								{
-									cell->color.SetSize(32,32,4);
-									cell->color.Fill(0,0,0,0);
+									cell.color.SetSize(32,32,4);
+									cell.color.Fill(0,0,0,0);
 								}
 							}
 						}
@@ -896,29 +888,29 @@ namespace Engine
 			minHeight = 0;
 			variableRows = 0;
 			cellCount = 0;
-			rows.SetSize(iorows);
-			for (unsigned i = 0; i < iorows; i++)
+			rows.SetSize(iorows.Count());
+			for (index_t i = 0; i < iorows.Count(); i++)
 			{
 				TRow&row = rows[i];
-				row.cells.SetSize(iorows[i]->cells);
-				row.variable_height = iorows[i]->variable_height;
+				row.cells.SetSize(iorows[i].cells.Count());
+				row.variable_height = iorows[i].variableHeight;
 				row.height = 0;
 				row.variable_cells = 0;
 				row.fixed_width = 0;
 				
 				cellCount += row.cells.count();
 				
-				for (unsigned j = 0; j < row.cells.count(); j++)
+				for (index_t j = 0; j < row.cells.count(); j++)
 				{
-					TIOCell*icell = iorows[i]->cells[j];
+					const TIOCell&icell = iorows[i].cells[j];
 					TCell&cell = row.cells[j];
-					cell.width = icell->normal.width()*scale;
-					cell.variableWidth = icell->variableWidth;
+					cell.width = icell.normal.width()*scale;
+					cell.variableWidth = icell.variableWidth;
 					
-					cell.normalTexture.load(icell->normal,global_anisotropy,true,TextureFilter::Trilinear,false);
-					cell.colorTexture.load(icell->color,global_anisotropy,true,TextureFilter::Trilinear,false);
-					if (icell->normal.height()*scale>rows[i].height)
-						row.height = icell->normal.height()*scale;
+					cell.normalTexture.load(icell.normal,global_anisotropy,true,TextureFilter::Trilinear,false);
+					cell.colorTexture.load(icell.color,global_anisotropy,true,TextureFilter::Trilinear,false);
+					if (icell.normal.height()*scale>rows[i].height)
+						row.height = icell.normal.height()*scale;
 					if (cell.variableWidth)
 						row.variable_cells++;
 					else
@@ -984,7 +976,7 @@ namespace Engine
 				if (variableWidth < 0)
 					variableWidth = 0;
 				float x = window_location.x.min;
-				for (unsigned j = 0; j < row.cells.count(); j++)
+				for (index_t j = 0; j < row.cells.count(); j++)
 				{
 
 					const TCell&cell = row.cells[j];
@@ -1007,10 +999,10 @@ namespace Engine
 				y-=row_height;
 			}
 			ASSERT_EQUAL__(cell_index,layout.cells.count());
-			layout.client.x.min = /* floor */_Round(window_location.x.min+clientEdge.left);
-			layout.client.x.max = /* ceil */_Round(window_location.x.max - clientEdge.right);
-			layout.client.y.min = /* floor */_Round(window_location.y.min + clientEdge.bottom);
-			layout.client.y.max = /* ceil */_Round(window_location.y.max - clientEdge.top);
+			layout.client.x.min = /* floor */M::Round(window_location.x.min+clientEdge.left);
+			layout.client.x.max = /* ceil */M::Round(window_location.x.max - clientEdge.right);
+			layout.client.y.min = /* floor */M::Round(window_location.y.min + clientEdge.bottom);
+			layout.client.y.max = /* ceil */M::Round(window_location.y.max - clientEdge.top);
 			layout.border.x.min = window_location.x.min+borderEdge.left;
 			layout.border.x.max = window_location.x.max-borderEdge.right;
 			layout.border.y.min = window_location.y.min+borderEdge.bottom;
@@ -1056,8 +1048,8 @@ namespace Engine
 			ASSERT_GREATER__(config.initialPosition.size.y,0);
 			result->fsize.x = config.initialPosition.size.x;
 			result->fsize.y = config.initialPosition.size.y;
-			result->size.width = (unsigned)_Round(result->fsize.x);
-			result->size.height = (unsigned)_Round(result->fsize.y);
+			result->size.width = (unsigned)M::Round(result->fsize.x);
+			result->size.height = (unsigned)M::Round(result->fsize.y);
 			result->SetComponent(component);
 			result->title = config.windowName;
 			result->sizeChange = config.initialPosition.sizeChange;
@@ -1354,8 +1346,8 @@ namespace Engine
 				y += d.y /2;
 			#endif
 			sizeChanged = layoutChanged = visualChanged = true;
-			size.width = (unsigned)_Round(fsize.x);
-			size.height = (unsigned)_Round(fsize.y);
+			size.width = (unsigned)M::Round(fsize.x);
+			size.height = (unsigned)M::Round(fsize.y);
 			//UpdateLayout();
 		}
 		
@@ -1390,15 +1382,15 @@ namespace Engine
 		void	Window::SetSize(float width, float height)
 		{
 			fsize.x = width;
-			size.width = (unsigned)_Round(fsize.x);
+			size.width = (unsigned)M::Round(fsize.x);
 			fsize.y = height;
-			size.height = (unsigned)_Round(fsize.y);
+			size.height = (unsigned)M::Round(fsize.y);
 			sizeChanged = layoutChanged = visualChanged = true;
 		}
 		
 		void	Window::SetHeight(float height)
 		{
-			unsigned heighti = (unsigned)_Round(height);
+			unsigned heighti = (unsigned)M::Round(height);
 			{
 				fsize.y = height;
 				if (size.height != heighti)
@@ -1412,7 +1404,7 @@ namespace Engine
 		
 		void	Window::SetWidth(float width)
 		{
-			unsigned widthi = (unsigned)_Round(width);
+			unsigned widthi = (unsigned)M::Round(width);
 			fsize.x = width;
 			if (widthi != size.width)
 			{
@@ -2090,7 +2082,7 @@ namespace Engine
 		void					NormalRenderer::TransformNormals(const M::TMatrix3<>&m)
 		{
 			M::TMatrix3<> temp;
-			Mat::Mult(m,normalSystem,temp);
+			M::Mat::Mult(m,normalSystem,temp);
 			normalSystem = temp;
 			DBG_VERIFY__(normalSystemVariable.Set(normalSystem));
 		}
@@ -2150,7 +2142,7 @@ namespace Engine
 			Renderer::Configure(buffer,usage);
 
 			normalRenderer.Install();
-			Mat::Eye(normalSystem);
+			M::Mat::Eye(normalSystem);
 			DBG_VERIFY__(normalSystemVariable.Set(normalSystem));
 		}
 
@@ -2917,7 +2909,7 @@ namespace Engine
 			
 			
 			float f[3];
-			projected_space.screenToVector(mouse.location.fx*2-1,mouse.location.fy*2-1,Vector<float>::dummy,f);
+			projected_space.screenToVector(mouse.location.fx*2-1,mouse.location.fy*2-1,M::Vector3<float>::dummy,f);
 			_normalize0(f);
 			float p[2];
 			unproject(f,p);

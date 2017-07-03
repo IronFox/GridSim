@@ -542,7 +542,7 @@ namespace DeltaWorks
 
 		};
 
-		class Server:private Sorted<List::Vector<Connection>,IdentSort>,public Node	//! Server
+		class Server:private Sorted<List::M::Vector3<Connection>,IdentSort>,public Node	//! Server
 		{
 		private:
 				Name			incoming_name;

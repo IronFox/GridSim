@@ -737,7 +737,7 @@ template <typename T>
 template <typename T> template <typename T2>
 	System<T>::System(const System<T2>&other):callback(NULL)
 	{
-		Mat::copy(other.matrix,matrix);
+		M::Mat::copy(other.matrix,matrix);
 	}
 	
 template <typename T>
@@ -750,7 +750,7 @@ template <typename T>
 template <typename T> template <typename T2>
 	System<T>&				System<T>::operator=(const System<T2>&other)
 	{
-		Mat::copy(other.matrix,matrix);
+		M::Mat::copy(other.matrix,matrix);
 		return *this;
 	}
 	
@@ -758,7 +758,7 @@ template <typename T> template <typename T2>
 template <typename T>
 	inline void	System<T>::loadIdentity(bool do_callback)
 	{
-		Mat::Eye(matrix);
+		M::Mat::Eye(matrix);
 		if (do_callback && callback)
 			callback->onSystemChange();
 	}
@@ -866,11 +866,11 @@ template <typename T>
 	{
 		M::TMatrix3<T>	rotation_matrix;
 
-		Mat::BuildRotationMatrix(angle,axis_x,axis_y,axis_z,rotation_matrix);
+		M::Mat::BuildRotationMatrix(angle,axis_x,axis_y,axis_z,rotation_matrix);
 
-		Mat::Mult(rotation_matrix,matrix.x.xyz);
-		Mat::Mult(rotation_matrix,matrix.y.xyz);
-		Mat::Mult(rotation_matrix,matrix.z.xyz);
+		M::Mat::Mult(rotation_matrix,matrix.x.xyz);
+		M::Mat::Mult(rotation_matrix,matrix.y.xyz);
+		M::Mat::Mult(rotation_matrix,matrix.z.xyz);
 		
 		if (callback)
 			callback->onSystemChange();
@@ -880,11 +880,11 @@ template <typename T> template <typename T2>
 	void	System<T>::rotate(const T&angle, const M::TVec3<T2>&axis)
 	{
 		M::TMatrix3<T>	rotation_matrix;
-		Mat::BuildRotationMatrix(angle,axis,rotation_matrix);
+		M::Mat::BuildRotationMatrix(angle,axis,rotation_matrix);
 
-		Mat::Mult(rotation_matrix,matrix.x.xyz);
-		Mat::Mult(rotation_matrix,matrix.y.xyz);
-		Mat::Mult(rotation_matrix,matrix.z.xyz);
+		M::Mat::Mult(rotation_matrix,matrix.x.xyz);
+		M::Mat::Mult(rotation_matrix,matrix.y.xyz);
+		M::Mat::Mult(rotation_matrix,matrix.z.xyz);
 	
 		if (callback)
 			callback->onSystemChange();
@@ -916,22 +916,22 @@ template <typename T>
 	{
 		M::TMatrix3<T>	rotation_matrix;
 
-		Mat::BuildRotationMatrix(angle,axis_x,axis_y,axis_z,rotation_matrix);
+		M::Mat::BuildRotationMatrix(angle,axis_x,axis_y,axis_z,rotation_matrix);
 
-		Mat::Mult(rotation_matrix,matrix.x.xyz);
-		Mat::Mult(rotation_matrix,matrix.y.xyz);
-		Mat::Mult(rotation_matrix,matrix.z.xyz);
+		M::Mat::Mult(rotation_matrix,matrix.x.xyz);
+		M::Mat::Mult(rotation_matrix,matrix.y.xyz);
+		M::Mat::Mult(rotation_matrix,matrix.z.xyz);
 	}
 	
 template <typename T> template <typename T2>
 	void	System<T>::rotateNoCallback(const T&angle, const M::TVec3<T2>&axis)
 	{
 		M::TMatrix3<T>	rotation_matrix;
-		Mat::BuildRotationMatrix(angle,axis,rotation_matrix);
+		M::Mat::BuildRotationMatrix(angle,axis,rotation_matrix);
 
-		Mat::Mult(rotation_matrix,matrix.x.xyz);
-		Mat::Mult(rotation_matrix,matrix.y.xyz);
-		Mat::Mult(rotation_matrix,matrix.z.xyz);
+		M::Mat::Mult(rotation_matrix,matrix.x.xyz);
+		M::Mat::Mult(rotation_matrix,matrix.y.xyz);
+		M::Mat::Mult(rotation_matrix,matrix.z.xyz);
 	}
 
 
@@ -1026,7 +1026,7 @@ template <class Def> SubGeometryA<Def>::SubGeometryA():system_link(&path),name(0
 	meta.volume = 0;
 	meta.density = 1;
 	meta.shortest_edge_length = 0.1f;
-	Mat::Eye(meta.system);
+	M::Mat::Eye(meta.system);
 }
 
 
@@ -1044,7 +1044,7 @@ template <class Def> void SubGeometryA<Def>::clear()
 	meta.density = 1;
 	meta.shortest_edge_length = 0.1f;
 	meta.flags = 0;
-	Mat::Eye(meta.system);
+	M::Mat::Eye(meta.system);
 	system_link = &path;
 }
 
@@ -2311,18 +2311,18 @@ template <class C> bool SubGeometryA<Def>::extractDimensions(const M::TMatrix4<t
 {
 	bool def;
 	M::TMatrix4<typename Def::SystemType> lsystem;
-	Mat::transformSystem(system,meta.system,lsystem);
+	M::Mat::transformSystem(system,meta.system,lsystem);
 	if (vs_hull_field.length() && vs_hull_field[0].vertex_field.length())
 	{
 		def = true;
 		M::TVec3<C>	p;
 
-		Mat::transform(lsystem,vs_hull_field[0].vertex_field[0].position,p);
+		M::Mat::transform(lsystem,vs_hull_field[0].vertex_field[0].position,p);
 		M::Box<C>		local(p,p);
 
 		for (index_t i = 1; i < vs_hull_field[0].vertex_field.length(); i++)
 		{
-			Mat::transform(lsystem,vs_hull_field[0].vertex_field[i].position,p);
+			M::Mat::transform(lsystem,vs_hull_field[0].vertex_field[i].position,p);
 			_oDetDimension(p,local);
 		}
 		parser.parse(local.min());
@@ -2437,7 +2437,7 @@ template <class C> void SubGeometryA<Def>::extractAbsoluteRadius(C&radius) const
 		{
 			C r;
 			M::TVec3<C>	p;
-			Mat::transform(path,vs_hull_field[0].vertex_field[i].position,p);
+			M::Mat::transform(path,vs_hull_field[0].vertex_field[i].position,p);
 			r = M::Vec::dot(p);
 			if (r > vr)
 				vr = r;
@@ -2455,7 +2455,7 @@ template <class C> void SubGeometryA<Def>::extractAbsoluteRadius(const M::TVec3<
 		{
 			C r;
 			M::TVec3<C>	p;
-			Mat::transform(path,vs_hull_field[0].vertex_field[i].position,p);
+			M::Mat::transform(path,vs_hull_field[0].vertex_field[i].position,p);
 			M::Vec::sub(p,center);
 			r = M::Vec::dot(p);
 			if (r > vr)
@@ -2502,7 +2502,7 @@ template <class C> void SubGeometryA<Def>::extractRadiusRec(const M::TVec3<C>&ce
 
 template <class Def> void SubGeometryA<Def>::setSystemRec(const M::TMatrix4<typename Def::SystemType>&system)
 {
-	Mat::transformSystem(system,meta.system,path);
+	M::Mat::transformSystem(system,meta.system,path);
 	for (index_t i = 0; i < child_field.length(); i++)
 		child_field[i].setSystemRec(path);
 }
@@ -3309,7 +3309,7 @@ template <class Def> void Geometry<Def>::loadMaterials(Riff::File&riff)//, bool 
 {
 	Buffer<MaterialA<Def>,0,AdoptStrategy>		mbuffer;
 	Buffer<RenderObjectA<Def>,0,AdoptStrategy>	obuffer;
-	//Vector<IndexContainer<Def> >		cbuffer;
+	//M::Vector3<IndexContainer<Def> >		cbuffer;
 	Buffer<TLayer,0>							lbuffer;
 
 	//TFMaterialInfo<Def> info;
@@ -4403,13 +4403,13 @@ template <class Def> void Geometry<Def>::makeSimpleObject(const Float*vertex,cou
 	
 	
 	object_field[0].name = str2name("child");
-	Mat::Eye(object_field[0].meta.system);
+	M::Mat::Eye(object_field[0].meta.system);
 	M::Vec::clear(object_field[0].meta.center);
 	object_field[0].meta.radius = 1;
 	object_field[0].meta.volume = 1;
 	object_field[0].meta.density = 1;
 	object_field[0].extractShortestVisualEdgeLength(0,object_field[0].meta.shortest_edge_length);
-	Mat::Eye(object_field[0].path);
+	M::Mat::Eye(object_field[0].path);
 	object_field[0].system_link = &object_field[0].path;
 	robj.tname = object_field[0].name;
 	
@@ -4489,7 +4489,7 @@ template <class Def>
 				ASSERT1__(obj.valid(),obj.errorStr());
 			}
 
-			//Mat::Eye(object_field[i].meta.system);
+			//M::Mat::Eye(object_field[i].meta.system);
 			object_field[i].meta.system = cobj.GetSystem();
 			M::Vec::clear(object_field[i].meta.center);
 			object_field[i].meta.radius = 1;
@@ -4497,7 +4497,7 @@ template <class Def>
 			object_field[i].meta.density = 1;
 			object_field[i].extractShortestVisualEdgeLength(0,object_field[i].meta.shortest_edge_length);
 			object_field[i].path = object_field[i].meta.system;
-			//Mat::Eye(object_field[i].path);
+			//M::Mat::Eye(object_field[i].path);
 			object_field[i].system_link = &object_field[i].path;
 		}
 		material_field[0].info = ctr.colors;
@@ -4681,7 +4681,7 @@ template <class Def>
 		instance.updateAnimationMap();
 		
 		instance.update();
-		CGS_MSG(Mat::Raw::ToString4x4(instance.child_field.last().path.v));
+		CGS_MSG(M::Mat::Raw::ToString4x4(instance.child_field.last().path.v));
 	}
 
 
@@ -4727,7 +4727,7 @@ template <class Def> void		Geometry<Def>::resetLinkage()
 
 template <class Def> void		Geometry<Def>::resetSystems()
 {
-	Mat::Eye(root_system.matrix);
+	M::Mat::Eye(root_system.matrix);
 	for (index_t i = 0; i < object_field.length(); i++)
 	{
 		object_field[i].resetLinkageRec();
@@ -4781,9 +4781,9 @@ template <class Def> template <typename T0, typename T1, typename T2>
 		{
 			M::TMatrix4<typename Def::FloatType>	inverse;
 			M::TVec3<typename Def::FloatType>		d,b;
-			Mat::invertSystem(SubGeometryInstance<Def>::path,inverse);
-			Mat::transform(inverse,b_,b);
-			Mat::rotate(inverse,d_,d);
+			M::Mat::invertSystem(SubGeometryInstance<Def>::path,inverse);
+			M::Mat::transform(inverse,b_,b);
+			M::Mat::rotate(inverse,d_,d);
 			
 			typedef Mesh<typename SubGeometryA<Def>::VsDef>	VsMesh;
 			const VsMesh	&hull = SubGeometryInstance<Def>::target->vs_hull_field.First();
@@ -5113,7 +5113,7 @@ template <class Def>
 				for (index_t i = 0; i < animator_field.length(); i++)
 					animator_field[i].progress = 0;
 			}
-			Mat::copy(GeometryInstance<Def>::target->root_system.matrix,Super::matrix);
+			M::Mat::copy(GeometryInstance<Def>::target->root_system.matrix,Super::matrix);
 			for (index_t i = 0; i < child_field.length(); i++)
 				child_field[i].restoreFromGeometry(reset_animations);
 			update();
@@ -5148,7 +5148,7 @@ template <class Def> void StaticSubInstanceA<Def>::linkObjects()
 
 template <class Def> void StaticSubInstanceA<Def>::updatePath(const M::TMatrix4<typename Def::SystemType>&parent)
 {
-	Mat::transformSystem(parent,SubGeometryInstance<Def>::system,SubGeometryInstance<Def>::path);
+	M::Mat::transformSystem(parent,SubGeometryInstance<Def>::system,SubGeometryInstance<Def>::path);
 	//DBG_ASSERT_LESS__(M::Vec::dot(SubGeometryInstance<Def>::path.x.xyz),10000);
 	for (index_t i = 0; i < child_field.length(); i++)
 		child_field[i].updatePath(SubGeometryInstance<Def>::path);
@@ -5230,22 +5230,22 @@ template <class Def> void AnimatableSubInstanceA<Def>::updatePath(const M::TMatr
 	{
 		ASSERT__(target->meta.flags&AnimationTargetFlag);
 		M::Vec::div(animation_status.rotation,angle,vector);
-		Mat::BuildRotationMatrix(angle,vector,rotation_matrix);
-		Mat::Mult(rotation_matrix,system.x.xyz,animated_system.x.xyz);
-		Mat::Mult(rotation_matrix,system.y.xyz,animated_system.y.xyz);
-		Mat::Mult(rotation_matrix,system.z.xyz,animated_system.z.xyz);
+		M::Mat::BuildRotationMatrix(angle,vector,rotation_matrix);
+		M::Mat::Mult(rotation_matrix,system.x.xyz,animated_system.x.xyz);
+		M::Mat::Mult(rotation_matrix,system.y.xyz,animated_system.y.xyz);
+		M::Mat::Mult(rotation_matrix,system.z.xyz,animated_system.z.xyz);
 		//CGS_MSG("Angle is "+String(angle)+". vector is "+_toString(vector)+". base vector was "+_toString(animation_status+3));
 	}
 	else
-		Mat::copyOrientation(system,animated_system);
+		M::Mat::copyOrientation(system,animated_system);
 	M::Vec::add(system.w.xyz,animation_status.translation,animated_system.w.xyz);	//translation
 
-	Mat::resetBottomRow(animated_system);
+	M::Mat::resetBottomRow(animated_system);
 	//copy3(animation_status,final_matrix+12);
 	/*if (_dot(animation_status))
 		CGS_MSG("Translation is "+_toString(final_matrix+12));*/
 	
-	Mat::transformSystem(parent,animated_system,path);
+	M::Mat::transformSystem(parent,animated_system,path);
 
 	for (index_t i = 0; i < child_field.length(); i++)
 		child_field[i].updatePath(path);

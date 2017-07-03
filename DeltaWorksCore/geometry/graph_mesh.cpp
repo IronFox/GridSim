@@ -1214,12 +1214,12 @@ namespace DeltaWorks
 		obj.meta.shortest_edge_length = step * z_factor;
 		//ShowMessage("generated "+String(robjs.count())+" sub defail level(s)");
 	
-		Mat::Eye(target.object_field[0].meta.system);
+		M::Mat::Eye(target.object_field[0].meta.system);
 		M::Vec::clear(target.object_field[0].meta.center);
 		target.object_field[0].meta.radius = 1;
 		target.object_field[0].meta.volume = 1;
 		target.object_field[0].meta.density = 1;
-		Mat::Eye(target.object_field[0].path);
+		M::Mat::Eye(target.object_field[0].path);
 		target.object_field[0].system_link = &target.object_field[0].path;
 
 		if (layout == Graph::Split)
@@ -2765,7 +2765,7 @@ namespace DeltaWorks
 			foreach (*edge,index)
 			{
 				M::TVec3<> rotated;
-				Mat::transform(transformBy,vertices[*index].position,rotated);
+				M::Mat::transform(transformBy,vertices[*index].position,rotated);
 				result.Include(rotated);
 			}
 	}
@@ -3539,7 +3539,7 @@ namespace DeltaWorks
 		M::Vec::cross(target.root_system.matrix.y.xyz,node.up,target.root_system.matrix.x.xyz);
 		M::Vec::normalize0(target.root_system.matrix.x.xyz);
 		M::Vec::cross(target.root_system.matrix.x.xyz,target.root_system.matrix.y.xyz,target.root_system.matrix.z.xyz);
-		Mat::resetBottomRow(target.root_system.matrix);
+		M::Mat::resetBottomRow(target.root_system.matrix);
 		target.root_system.update();
 	}
 
@@ -3661,12 +3661,12 @@ namespace DeltaWorks
 		obj.meta.shortest_edge_length = shortest_edge*0.2f;
 		//ShowMessage("generated "+String(robjs.count())+" sub defail level(s)");
 	
-		Mat::Eye(target.object_field[0].meta.system);
+		M::Mat::Eye(target.object_field[0].meta.system);
 		M::Vec::clear(target.object_field[0].meta.center);
 		target.object_field[0].meta.radius = 1;
 		target.object_field[0].meta.volume = 1;
 		target.object_field[0].meta.density = 1;
-		Mat::Eye(target.object_field[0].path);
+		M::Mat::Eye(target.object_field[0].path);
 		target.object_field[0].system_link = &target.object_field[0].path;
 
 		target.connector_field.free();
@@ -3792,12 +3792,12 @@ namespace DeltaWorks
 		obj.meta.shortest_edge_length = shortest_edge*0.2f;
 		//ShowMessage("generated "+String(robjs.count())+" sub defail level(s)");
 	
-		Mat::Eye(target.object_field[0].meta.system);
+		M::Mat::Eye(target.object_field[0].meta.system);
 		M::Vec::clear(target.object_field[0].meta.center);
 		target.object_field[0].meta.radius = 1;
 		target.object_field[0].meta.volume = 1;
 		target.object_field[0].meta.density = 1;
-		Mat::Eye(target.object_field[0].path);
+		M::Mat::Eye(target.object_field[0].path);
 		target.object_field[0].system_link = &target.object_field[0].path;
 
 		target.connector_field.free();

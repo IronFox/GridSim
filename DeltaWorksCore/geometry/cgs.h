@@ -1439,8 +1439,8 @@ namespace DeltaWorks
 																wheel_status.adoptData(other.wheel_status);
 																accelerator_status.adoptData(other.accelerator_status);
 
-																other.animation_status.translation = Vector<double>::zero;
-																other.animation_status.rotation = Vector<double>::zero;
+																other.animation_status.translation = M::Vector3<double>::zero;
+																other.animation_status.rotation = M::Vector3<double>::zero;
 																other.animated_system = M::Matrix<typename Def::SystemType>::eye4;
 															}
 					void									updatePath(const M::TMatrix4<typename Def::SystemType>&parent);	//!< Recursivly updates the local path variable using the specified parent system
@@ -1570,7 +1570,7 @@ namespace DeltaWorks
 					index_t				GetActiveLOD() const	{return currentLOD - lods.pointer();}
 					const LOD&			GetLOD(index_t lodIndex) const { return lods[lodIndex]; }
 					template <typename T>
-						void			SetSystem(const M::TMatrix4<T>&m){Mat::copy(m,system);}
+						void			SetSystem(const M::TMatrix4<T>&m){M::Mat::copy(m,system);}
 					const M::TMatrix4<SysFloat>& GetSystem()	const {return system;}
 					count_t				CountTextureLayers()	const	{return config.numTextureLayers;}
 					UINT				GetVertexFlags()		const	{return config.vertexFlags;}

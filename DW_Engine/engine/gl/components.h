@@ -22,7 +22,7 @@ namespace Engine
 			bool						textChanged;	//!< Indicates that the text changed and the text should be re-wrapped before printing it the next time
 			M::TVec4<GLfloat>				textColor;			//!< Label text color (solid white by default)
 			float						lastWidth;
-			Quad<float>					textMargin;	//!< Distance between text and the respective edge. All positive values (even up and right)
+			M::Quad<float>					textMargin;	//!< Distance between text and the respective edge. All positive values (even up and right)
 				
 			void						_Setup();
 			static	float				_CharLen(char c);
@@ -42,8 +42,8 @@ namespace Engine
 			Label*						SetText(const String&text);		//!< Updates label caption
 			inline Label*				SetTextColor(const M::TVec4<>&color)	{return SetColor(color);}
 			Label*						SetColor(const M::TVec4<>&color);	//!< Updates label text color
-			void						SetTextMargin(const Quad<float>&margin);
-			const Quad<float>&			GetTextMargin() const	{return textMargin;}
+			void						SetTextMargin(const M::Quad<float>&margin);
+			const M::Quad<float>&			GetTextMargin() const	{return textMargin;}
 			String						ConvertToString()	const override	{return caption;}	//!< Simple IToString::ConvertToString() override
 			virtual	void				UpdateLayout(const M::Rect<float>&parent_region)	override;
 		};
@@ -61,7 +61,7 @@ namespace Engine
 										minHeight;
 			static  SliderLayout		global;	//!< Global slider layout, applied by default to the appearance of a new slider
 
-			void						LoadFromFile(const FileSystem::PathString&filename, float scale=1.0f);
+			void						LoadFromFile(const PathString&filename, float scale=1.0f);
 		};
 		
 		/**
@@ -90,7 +90,7 @@ namespace Engine
 			@param error_out String to store an error description in (in case of an error) or NULL if the error output should be ignored.
 			@return true on success
 			*/
-			void						LoadFromFile(const FileSystem::PathString&filename, float scale=1.0f);
+			void						LoadFromFile(const PathString&filename, float scale=1.0f);
 				
 			static  ScrollBarLayout		global;	//!< Global scrollbar layout, applied by default to the appearance of a new scrollbar
 		};
@@ -463,7 +463,7 @@ namespace Engine
 												return;
 											caption = caption_;
 											float newWidth = GetMinWidth(false);
-											if (!similar(newWidth,width))
+											if (!M::similar(newWidth,width))
 											{
 												SignalLayoutChange();
 												width = newWidth;

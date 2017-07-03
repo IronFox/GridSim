@@ -872,13 +872,13 @@ namespace Fractal
 				v2.normal.z = exported[2];
 				v3.normal.z = exported[3];
 				
-				/*if (_dot(v0.normal) <= getError<float>())
+				/*if (_dot(v0.normal) <= GetError<float>())
 					v0.normal[0] = 1;
-				if (_dot(v1.normal) <= getError<float>())
+				if (_dot(v1.normal) <= GetError<float>())
 					v1.normal[0] = 1;
-				if (_dot(v2.normal) <= getError<float>())
+				if (_dot(v2.normal) <= GetError<float>())
 					v2.normal[0] = 1;
-				if (_dot(v3.normal) <= getError<float>())
+				if (_dot(v3.normal) <= GetError<float>())
 					v3.normal[0] = 1;*/
 					
 

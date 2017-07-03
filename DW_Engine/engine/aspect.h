@@ -83,10 +83,10 @@ public:
 MFUNC3	(bool)				visible(const C0&x, const C1&y, const C2&z) const;		//!< Determines visibility of a point \return true if the specified point lies within the local frustum
 MFUNC2	(bool)				visible(const M::TVec3<C0>&center, const C1&radius)	const;	//!< Determines visibility of a sphere \param center Center of the sphere \param radius Radius of the sphere \return true if the specified sphere is inside or intersects the volume, false otherwise
 MFUNC2	(bool)				IsVisible(const M::TVec3<C0>&center, const C1&radius)	const;	//!< Identical to visible()
-MFUNC1	(bool)				IsVisible(const Sphere<C0>&sphere)	const	{return IsVisible(sphere.center,sphere.radius);}
+MFUNC1	(bool)				IsVisible(const M::Sphere<C0>&sphere)	const	{return IsVisible(sphere.center,sphere.radius);}
 MFUNC1	(bool)				IsVisible_UnpreciseExpensiveDoNotUse(const M::Box<C0>&)	const;
 MFUNC2	(Visibility)		CheckSphereVisibility(const M::TVec3<C0>&center, const C1&radius)	const;	//!< Determines visibility of a sphere \param center Center of the sphere \param radius Radius of the sphere \return sphere visibility
-MFUNC1	(Visibility)		CheckSphereVisibility(const Sphere<C0>&sphere)	const	{return CheckSphereVisibility(sphere.center,sphere.radius);}
+MFUNC1	(Visibility)		CheckSphereVisibility(const M::Sphere<C0>&sphere)	const	{return CheckSphereVisibility(sphere.center,sphere.radius);}
 MF_DECLARE (Visibility)		CheckBoxVisibility_UnpreciseExpensiveDoNotUse(const M::Box<C>&)	const;	 //!< Determines visibility of a box \return box visibility
 
 MFUNC2	(bool)				IntersectsCone(const M::TVec3<C0>&center, const C1&radius) const;	//!< Similar to visible(), however ignoring the znear and zfar planes, making the frustum infinitly long
@@ -118,13 +118,13 @@ public:
 	typedef C					Type;				//!< Local type
 
 
-	M::TMatrix4<Type>				view,					//!< 4x4 out view matrix (primary). Set to identity by default
+	M::TMatrix4<Type>			view,					//!< 4x4 out view matrix (primary). Set to identity by default
 								viewInvert,			//!< 4x4 in view matrix (inverted). Set to identity by default
 								projection,				//!< 4x4 out projection matrix (primary). Set to identity by default
 								projectionInvert;		//!< 4x4 in projection matrix (inverted). Set to identity by default
 	M::TVec3<Type>					location;				//!< Central aspect location. Set to (0,0,0) by default
 
-	TFloatRect					region;					//!< Aspect screen region (set to 0,0,1,1 by default)
+	M::TFloatRect				region;					//!< Aspect screen region (set to 0,0,1,1 by default)
 	eDepthTest					depthTest;	//!< Depth test configuration of this aspect ( Engine::VisualEnum::NormalDepthTest by default)
 
 	static const Aspect<C>		identity;	//!< identity aspect using normal depth test

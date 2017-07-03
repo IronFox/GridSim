@@ -353,8 +353,8 @@ namespace DeltaWorks
 			PObjFaceGroup								target;
 			VertexHashTable<ObjVertexNT>				tex_vertices;
 			VertexHashTable<ObjVertexN>					vertices;
-			//Sorted<List::Vector<ObjVertexNT>,OperatorSort>	tex_vertices;
-			//Sorted<List::Vector<ObjVertexN>,OperatorSort>	vertices;
+			//Sorted<List::M::Vector3<ObjVertexNT>,OperatorSort>	tex_vertices;
+			//Sorted<List::M::Vector3<ObjVertexN>,OperatorSort>	vertices;
 			
 			Container::Buffer<TObjTriangle>				triangles;
 			Container::Buffer<TObjTriangleT>			tex_triangles;

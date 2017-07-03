@@ -111,7 +111,7 @@ namespace Engine
 			*/
 			struct	Section
 			{
-				TFloatRect		relative,			//!< Relative console base region (relative to the parent console location and size)
+				M::TFloatRect		relative,			//!< Relative console base region (relative to the parent console location and size)
 								absolute,			//!< Absolute base screen region of this section
 								current;			//!< Current (animated) absolute screen region of this section
 				M::TVec2<>			trans0,				//!< Primary translation of this section (during the first half of the animation)
@@ -124,12 +124,12 @@ namespace Engine
 				void			setPrimaryTranslation(float x, float y);	//!< Updates the (negative) primary translation of this section
 				void			setSecondaryTranslation(float x, float y);	//!< Updates the (negative) secondary translation of this section
 				void			updateState(float state);					//!< Updates \b current and \b translation based on the specified state scalar (0-1)
-				void			updateAbsolutePosition(const TFloatRect&parentLocation);	//!< Updates absolute base position relative the specified parent console location
+				void			updateAbsolutePosition(const M::TFloatRect&parentLocation);	//!< Updates absolute base position relative the specified parent console location
 				void			render(GL*renderer);						//!< Renders this section using the specified renderer
 			};
 
 			Textout<Font>		textout;							//!< Console textout. Must be initialized externally to work
-			TFloatRect			location;
+			M::TFloatRect			location;
 			float				//x,									//!< Left border of the console
 								//y,									//!< Bottom border of the console
 								//width,								//!< Width of the console
@@ -140,7 +140,7 @@ namespace Engine
 								body,								//!< Body section
 								foot;								//!< Footer section
 			unsigned			history_state;						//!< History scroll position
-			TFloatRect			relative_text,						//!< History render position relative to the text target section
+			M::TFloatRect			relative_text,						//!< History render position relative to the text target section
 								absolute_text;						//!< Current absolute history frame
 			Section				*text_target;						//!< Target section to adjust the visual history to (usually the body)
 				

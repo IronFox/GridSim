@@ -123,7 +123,7 @@ namespace Engine
 					/*if (angle*45 > lights[i]->getSpotCutoff())
 						angle = lights[i]->getSpotCutoff()/45;*/
 					float z_scale = 1.0/M::clamped(angle,0.1,1);
-					Mat::makeAxisSystem(lights[i]->GetPosition(),lights[i]->GetSpotDirection(),2,system);
+					M::Mat::makeAxisSystem(lights[i]->GetPosition(),lights[i]->GetSpotDirection(),2,system);
 					M::Vec::mult(system.x.xyz,scale/z_scale);
 					M::Vec::mult(system.y.xyz,scale/z_scale);
 					M::Vec::mult(system.z.xyz,scale*z_scale);
@@ -139,7 +139,7 @@ namespace Engine
 				{
 					float scale = M::Vec::distance(camera_location,lights[i]->GetPosition())/10;
 					M::TMatrix4<> system;
-					Mat::Eye(system);
+					M::Mat::Eye(system);
 					M::Vec::copy(lights[i]->GetPosition(),system.w.xyz);
 					M::Vec::mult(system.x.xyz,scale);
 					M::Vec::mult(system.y.xyz,scale);
@@ -155,7 +155,7 @@ namespace Engine
 					M::TMatrix4<> system;
 					M::TVec3<>	offset;
 					M::Vec::mult(lights[i]->GetPosition(),scale,offset);
-					Mat::makeAxisSystem(offset,lights[i]->GetPosition(),2,system);
+					M::Mat::makeAxisSystem(offset,lights[i]->GetPosition(),2,system);
 					M::Vec::mult(system.x.xyz,scale);
 					M::Vec::mult(system.y.xyz,scale);
 					M::Vec::mult(system.z.xyz,scale*2);
@@ -809,7 +809,7 @@ namespace Engine
 		@param rect Viewport to transform
 		@param clientSize Size of the client viewport (in pixels) to use, if no frame buffer object is currently bound
 	*/
-	template <class GL> RECT Display<GL>::transformViewport(const TFloatRect&rect, const Resolution&client_size)
+	template <class GL> RECT Display<GL>::transformViewport(const M::TFloatRect&rect, const Resolution&client_size)
 	{
 		if (framebuffer_bound)
 			return transform(rect);
@@ -823,13 +823,13 @@ namespace Engine
 
 	}
 
-	template <class GL> RECT Display<GL>::transform(const TFloatRect&rect)
+	template <class GL> RECT Display<GL>::transform(const M::TFloatRect&rect)
 	{
 		Resolution res = currentTargetResolution();
 		return transform(rect,res);
 	}
 
-	template <class GL> RECT Display<GL>::transform(const TFloatRect&rect, const Resolution&res)
+	template <class GL> RECT Display<GL>::transform(const M::TFloatRect&rect, const Resolution&res)
 	{
 	    RECT result;
 	    result.left     = (LONG)(rect.x.min		*res.width);
@@ -840,7 +840,7 @@ namespace Engine
 	}
 
 
-	template <class GL> void Display<GL>::pickRegion(const TFloatRect&rect)
+	template <class GL> void Display<GL>::pickRegion(const M::TFloatRect&rect)
 	{
 		Resolution res = currentTargetResolution();
 	    GL::SetViewport(transform(rect,res),res);
@@ -858,7 +858,7 @@ namespace Engine
 		if (GlobalAspectConfiguration::loadAsProjection)
 		{
 			M::TMatrix4<>	view_projection;
-			Mat::Mult(aspect.projection,aspect.view,view_projection);
+			M::Mat::Mult(aspect.projection,aspect.view,view_projection);
 			GL::SetCameraMatrices(M::Matrix<>::eye4,view_projection,M::Matrix<>::eye4);
 		}
 		else
@@ -889,7 +889,7 @@ namespace Engine
 		if (GlobalAspectConfiguration::loadAsProjection)
 		{
 			M::TMatrix4<>	view_projection;
-			Mat::Mult(aspect.projection,view,view_projection);
+			M::Mat::Mult(aspect.projection,view,view_projection);
 			GL::loadModelview(M::Matrix<>::eye4);
 			GL::loadProjection(view_projection);
 		}

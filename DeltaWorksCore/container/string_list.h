@@ -345,10 +345,10 @@ namespace DeltaWorks
 	namespace Container
 	{
 		class StringList:private Buffer<String,0,SwapStrategy>
-		//	private List::Vector<String>
+		//	private List::M::Vector3<String>
 		{
 		private:
-			//typedef	List::Vector<String>	Super;
+			//typedef	List::M::Vector3<String>	Super;
 			typedef Buffer<String,0,SwapStrategy>	Super;
 
 			

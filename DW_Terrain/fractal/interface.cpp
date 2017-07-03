@@ -208,7 +208,7 @@ namespace Fractal
 		
 		len = M::Vec::length(absolute_vector);
 		delta = height-len;
-		if (vabs(len) < getError<double>())
+		if (vabs(len) < GetError<double>())
 			return;
 		M::Vec::mult(absolute_vector,delta/len,delta_vector);
 		M::Vec::add(v,delta_vector);
@@ -3282,7 +3282,7 @@ namespace Fractal
 		M::Vec::def(texture_up,0,1,0);
 		M::Vec::def(texture_x,1,0,0);
 		M::Vec::def(texture_y,0,0,1);
-		Mat::Eye(invert);
+		M::Mat::Eye(invert);
 	}
 	
 	void	RollSpace::roll(const M::TVec3<>&up, const M::TVec3<>&location)
@@ -3361,8 +3361,8 @@ namespace Fractal
 	    M::Vec::copy(texture_y,sys.y.xyz);
 	    M::Vec::copy(texture_up,sys.z.xyz);
 	    M::Vec::copy(texture_root,sys.w.xyz);
-		Mat::resetBottomRow(sys);
-	    Mat::invertSystem(sys,invert);
+		M::Mat::resetBottomRow(sys);
+	    M::Mat::invertSystem(sys,invert);
 	}
 
 
@@ -3375,7 +3375,7 @@ namespace Fractal
 			M::Vec::div(invert.w.xyz,range,system.w.xyz);
 		else
 			M::Vec::clear(system.w.xyz);
-		Mat::resetBottomRow(system);
+		M::Mat::resetBottomRow(system);
 	}
 
 

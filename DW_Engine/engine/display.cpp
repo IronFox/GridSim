@@ -1257,7 +1257,7 @@ namespace Engine
 
 
 
-	RECT Context::transform(const TFloatRect&rect)	const
+	RECT Context::transform(const M::TFloatRect&rect)	const
 	{
 		DWORD   width = client_area.right-client_area.left,
 				height = client_area.bottom-client_area.top;

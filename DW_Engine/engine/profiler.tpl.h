@@ -126,7 +126,7 @@ namespace Engine
 					M::Vec::add(normals[indices[i*4+2]],n0);
 					M::Vec::add(normals[indices[i*4+3]],n0);
 				}
-				if (vabs(M::Vec::dot(C3dGraph::light)-1.0f)>getError<float>())
+				if (vabs(M::Vec::dot(C3dGraph::light)-1.0f)>GetError<float>())
 					M::Vec::normalize0(C3dGraph::light);
 
 				for (unsigned i = 0; i < vcnt; i++)

@@ -127,8 +127,8 @@ namespace Engine
 			};
 		};
 
-		/**/						LightData():type(Omni),position(Vector<>::zero),diffuse(Vector4<>::one),ambient(Vector4<>::one),
-										specular(Vector4<>::one),spotDirection(Vector<>::x_axis),spotCutoff(180),spotExponent(0),size(1),
+		/**/						LightData():type(Omni),position(M::Vector3<>::zero),diffuse(M::Vector4<>::one),ambient(M::Vector4<>::one),
+										specular(M::Vector4<>::one),spotDirection(M::Vector3<>::x_axis),spotCutoff(180),spotExponent(0),size(1),
 										constantAttenuation(1),linearAttenuation(0),quadraticAttenuation(0)		{}
 	public:
 		Type						GetType()			const	/** Retrieves light type */			{return type;}

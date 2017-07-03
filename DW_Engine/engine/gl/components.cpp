@@ -264,7 +264,7 @@ namespace Engine
 		
 
 		
-		void	ScrollBarLayout::LoadFromFile(const FileSystem::PathString&filename, float scale)
+		void	ScrollBarLayout::LoadFromFile(const PathString&filename, float scale)
 		{
 			/*
 				TTexture				backCenter,
@@ -301,13 +301,13 @@ namespace Engine
 			
 			
 			buttonIndent *= scale;
-			minWidth = vmax(vmax(vmax(backCenter.width,backBottom.width),vmax(cursorCenter.width,cursorBottom.width)),bottomButton.width);
+			minWidth = M::Max(M::Max(M::Max(backCenter.width,backBottom.width),M::Max(cursorCenter.width,cursorBottom.width)),bottomButton.width);
 			minHeight = 2*(bottomButton.height-buttonIndent+backBottom.height);
 		}
 		
 		
 		
-		void	SliderLayout::LoadFromFile(const FileSystem::PathString&filename, float scale)
+		void	SliderLayout::LoadFromFile(const PathString&filename, float scale)
 		{
 			/*
 				TTexture				backCenter,
@@ -335,8 +335,8 @@ namespace Engine
 			TTexture::load(xbar,"center",folder,barCenter,scale);
 			TTexture::load(xslider,"background",folder,slider,scale);
 
-			minWidth = vmax(2*barLeft.width+barCenter.width,slider.width);
-			minHeight = vmax(vmax(barLeft.height,barCenter.height),slider.height);
+			minWidth = M::Max(2*barLeft.width+barCenter.width,slider.width);
+			minHeight = M::Max(M::Max(barLeft.height,barCenter.height),slider.height);
 		}
 		
 		
@@ -467,7 +467,7 @@ namespace Engine
 			{
 				float	relative = x-cursorRegion.left(),
 						delta = (relative-cursorHook[0])*max/slideRange;
-				current = clamped(current+delta,0,max);
+				current = M::clamped(current+delta,0,max);
 				
 				_UpdateCursorRegion();
 				
@@ -501,7 +501,7 @@ namespace Engine
 		
 		Component::eEventResult		Slider::OnMouseWheel(float x, float y, short delta)
 		{
-			float new_current = clamped(current + delta/max,0,1);
+			float new_current = M::Clamp01(current + delta/max);
 
 			if (current != new_current)
 			{
@@ -566,7 +566,7 @@ namespace Engine
 			Component::UpdateLayout(parent_region);
 			if (scrollLayout)
 			{
-				float 	current = clamped(scrollData.current,0,1);
+				float 	current = M::Clamp01(scrollData.current);
 				if (!horizontal)
 				{
 					upButton.region = cellLayout.client;
@@ -776,14 +776,14 @@ namespace Engine
 					float	relative = x-cursorRegion.left(),
 							delta = (relative-cursorHook[0])/cursorRange;
 					scrollData.current+=delta;
-					scrollData.current = clamped(scrollData.current,0,1);
+					scrollData.current = M::Clamp01(scrollData.current);
 				}
 				else
 				{
 					float	relative = y-cursorRegion.bottom(),
 							delta = (relative-cursorHook[1])/cursorRange;
 					scrollData.current-=delta;
-					scrollData.current = clamped(scrollData.current,0,1);
+					scrollData.current = M::Clamp01(scrollData.current);
 				}
 				OnScroll();
 				return RequestingReshape;
@@ -804,7 +804,7 @@ namespace Engine
 				upPressed = true;
 				if ((scrollData.max-scrollData.min) > 0)
 				{
-					scrollData.current = clamped(scrollData.current - scrollData.window,0,1);
+					scrollData.current = M::Clamp01(scrollData.current - scrollData.window);
 					OnScroll();
 				}
 			}
@@ -813,7 +813,7 @@ namespace Engine
 				downPressed = true;
 				if ((scrollData.max-scrollData.min) > 0)
 				{
-					scrollData.current = clamped(scrollData.current + scrollData.window,0,1);
+					scrollData.current = M::Clamp01(scrollData.current + scrollData.window);
 					OnScroll();
 				}
 			}
@@ -833,8 +833,8 @@ namespace Engine
 		/*virtual override*/	Component::eEventResult		ScrollBar::OnMouseWheel(float x, float y, short delta)
 		{
 			float new_current = horizontal?
-									clamped(scrollData.current + delta/(scrollData.max-scrollData.min),0,1):
-									clamped(scrollData.current - delta/(scrollData.max-scrollData.min),0,1);
+									M::Clamp01(scrollData.current + delta/(scrollData.max-scrollData.min)):
+									M::Clamp01(scrollData.current - delta/(scrollData.max-scrollData.min));
 			if (scrollData.current != new_current)
 			{
 				scrollData.current = new_current;
@@ -1315,7 +1315,7 @@ namespace Engine
 
 			renderer.PeekColor();
 
-			size_t end = vmin(viewEnd,text.length());
+			size_t end = M::Min(viewEnd,text.length());
 			if (end>viewBegin)
 			{
 				renderer.Clip(cellLayout.client);
@@ -1416,7 +1416,7 @@ namespace Engine
 			{
 				//ShowMessage(String(x)+", "+String(y)+" is in "+cellLayout.client.ToString());
 				float rx = x - cellLayout.client.left();
-				size_t end = vmin(viewEnd-1+viewRightMost,text.length());
+				size_t end = M::Min(viewEnd-1+viewRightMost,text.length());
 				index_t index=viewBegin;
 				for (; index < end; index++)
 				{
@@ -1440,7 +1440,7 @@ namespace Engine
 		{
 			float rx = x - cellLayout.client.left();
 			goLeft = rx < 0;
-			size_t end = vmin(viewEnd-1+viewRightMost,text.length());
+			size_t end = M::Min(viewEnd-1+viewRightMost,text.length());
 			index_t index=viewBegin;
 			for (; index < end; index++)
 			{
@@ -1477,11 +1477,11 @@ namespace Engine
 						{
 							if (cursor >= text.length())
 								cursor = text.length()-1;
-							while (cursor && isWhitespace(text[cursor-1]))
+							while (cursor && IsWhitespace(text[cursor-1]))
 								cursor--;
-							while (cursor && !isWhitespace(text[cursor-1]))
+							while (cursor && !IsWhitespace(text[cursor-1]))
 								cursor--;
-							if (isWhitespace(text[cursor]))
+							if (IsWhitespace(text[cursor]))
 								cursor++;
 						}
 						if (!input.pressed[Key::Shift])
@@ -1497,9 +1497,9 @@ namespace Engine
 							cursor++;
 						else
 						{
-							while (cursor<text.length() && !isWhitespace(text[cursor]))
+							while (cursor<text.length() && !IsWhitespace(text[cursor]))
 								cursor++;
-							while (cursor<text.length() && isWhitespace(text[cursor]))
+							while (cursor<text.length() && IsWhitespace(text[cursor]))
 								cursor++;
 							//if (cursor && !isWhitespace(text[cursor-1])
 						}
@@ -2056,7 +2056,7 @@ namespace Engine
 			renderer.PopColor();
 		}
 
-		void	Label::SetTextMargin(const Quad<float>&margin)
+		void	Label::SetTextMargin(const M::Quad<float>&margin)
 		{
 			ASSERT_GREATER_OR_EQUAL__(margin.right,0.f);
 			ASSERT_GREATER_OR_EQUAL__(margin.top,0.f);
@@ -2110,7 +2110,7 @@ namespace Engine
 				menuWindow->SetWidth(size.x);
 				changed = true;
 			}
-			float h = vmin(150,size.y);
+			float h = M::Min(150,size.y);
 			if (menuWindow->fsize.y != h)
 			{
 				menuWindow->SetHeight(h);
@@ -2132,7 +2132,7 @@ namespace Engine
 				if (menuWindow->layoutChanged)
 					menuWindow->UpdateLayout();
 				CorrectMenuWindowSize();
-				return vmax(MenuEntry::GetMinWidth(includeOffsets),menuWindow->GetMinWidth());
+				return M::Max(MenuEntry::GetMinWidth(includeOffsets),menuWindow->GetMinWidth());
 			}
 			return MenuEntry::GetMinWidth(includeOffsets);
 		}
@@ -2469,7 +2469,7 @@ namespace Engine
 			entry->parent = std::static_pointer_cast<Menu,Component>(shared_from_this());
 			entry->SetTextColor(entryTextColor);
 			entry->backgroundColor = entryBackgroundColor;
-			entry->SetTextMargin(Quad<float>(5,0,5,0));
+			entry->SetTextMargin(M::Quad<float>(5,0,5,0));
 			entry->openDown = horizontal;
 			//((MenuEntry*)component)->level = level;
 			component->SetWindow(windowLink);		
@@ -2804,7 +2804,7 @@ namespace Engine
 		}
 		
 		
-		void		LoadTheme(const FileSystem::PathString&filename,float outer_scale)
+		void		LoadTheme(const PathString&filename,float outer_scale)
 		{
 			XML::Container	xml;
 			xml.LoadFromFile(filename);

@@ -58,7 +58,7 @@ namespace DeltaWorks
 			//(is_outbound)?-stub->dim[2]:-stub->dim[5];	//stubs are rotated. always upper boundary :P
 			//lout << "outbound is "<<(is_outbound?"true":"false")<<nl;
 			//lout << "stub offset is "<<offset<<nl;
-			Mat::copy(parent_system,instance->matrix);
+			M::Mat::copy(parent_system,instance->matrix);
 		
 			if (is_outbound)
 			{
@@ -94,7 +94,7 @@ namespace DeltaWorks
 					dir.z *= -1;
 				}
 			
-				Mat::transform(parent_system,tn.coordinates.remainder);
+				M::Mat::transform(parent_system,tn.coordinates.remainder);
 				M::Vec::copy(parent->coordinates.sector,tn.coordinates.sector);
 				
 				M::Vec::cross(d,dir,tn.up);
@@ -107,8 +107,8 @@ namespace DeltaWorks
 					tn.direction.z *= -1;
 				}*/
 			
-				Mat::rotate(parent_system,tn.direction);
-				Mat::rotate(parent_system,tn.up);
+				M::Mat::rotate(parent_system,tn.direction);
+				M::Mat::rotate(parent_system,tn.up);
 						
 				M::Vec::clear(tn.scale_direction);
 			
@@ -642,7 +642,7 @@ namespace DeltaWorks
 			M::Vec::cross(up,direction,system.x.xyz);
 			M::Vec::normalize0(system.x.xyz);
 			system.w.xyz = coordinates.remainder;
-			Mat::resetBottomRow(system);
+			M::Mat::resetBottomRow(system);
 		}
 	
 		void			TrackNode::update(bool final)
@@ -843,14 +843,14 @@ namespace DeltaWorks
 						M::TVec3<> p,n,t;
 						float	*vfield = target_robj.vpool.vdata + vsize*k;
 						float	*v=vfield;
-						Mat::transform(source_robj.target->path,M::Vec::ref3(v),p);	v+=3;
+						M::Mat::transform(source_robj.target->path,M::Vec::ref3(v),p);	v+=3;
 						if (source_robj.vpool.vflags&CGS::HasNormalFlag)
 						{
-							Mat::rotate(source_robj.target->path,M::Vec::ref3(v),n); v+=3;
+							M::Mat::rotate(source_robj.target->path,M::Vec::ref3(v),n); v+=3;
 						}
 						if (source_robj.vpool.vflags&CGS::HasTangentFlag)
 						{
-							Mat::rotate(source_robj.target->path,M::Vec::ref3(v),t); v+=3;
+							M::Mat::rotate(source_robj.target->path,M::Vec::ref3(v),t); v+=3;
 						}
 					
 						for (UINT l = repeat-1; l < repeat; l--)
@@ -872,7 +872,7 @@ namespace DeltaWorks
 							{
 								M::TVec3<> n2,n3;
 								M::Vec::def(n2,n.x*vec.scale.y/vec.scale.x,n.y*vec.scale.x/vec.scale.y,n.z);
-								Mat::Mult(vec.system,n2,M::Vec::ref3(vout));
+								M::Mat::Mult(vec.system,n2,M::Vec::ref3(vout));
 								M::Vec::normalize0(M::Vec::ref3(vout));
 								//M::Vec::copy(vec.system.x,M::Vec::ref3(vout));
 								vout += 3;
@@ -881,7 +881,7 @@ namespace DeltaWorks
 							{
 								M::TVec3<> t2,t3;
 								M::Vec::def(t2,	t.x*vec.scale.y/vec.scale.x,t.y*vec.scale.x/vec.scale.y,t.z);
-								Mat::Mult(vec.system,t2,M::Vec::ref3(vout));
+								M::Mat::Mult(vec.system,t2,M::Vec::ref3(vout));
 								M::Vec::normalize0(M::Vec::ref3(vout));
 								//M::Vec::copy(vec.system.x,M::Vec::ref3(vout));
 								vout += 3;
@@ -969,7 +969,7 @@ namespace DeltaWorks
 				bendHull(source_hull,target_hull,repeat,source.dim.z.min, zrange, segment_length, stretch, path, center);
 			}
 			/*for (index_t i = 0; i < objects.count(); i++)
-				Mat::Eye(objects[i]->meta.system);*/
+				M::Mat::Eye(objects[i]->meta.system);*/
 			geometry.resetSystems();
 			//geometry.root_system.loadIdentity(false);
 			geometry.root_system.setPosition(center);

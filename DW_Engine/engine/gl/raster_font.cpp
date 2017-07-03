@@ -1,4 +1,3 @@
-#include "../../global_root.h"
 #include "raster_font.h"
 #include "../../X11/displayConnection.h"
 

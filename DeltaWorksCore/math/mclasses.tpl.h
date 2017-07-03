@@ -136,7 +136,7 @@ namespace Math
 
     template <class C, unsigned Rows, unsigned Cols>    MF_DECLARE  (String)                VariableMatrix<C,Rows,Cols>::ToString()
     {
-        return Mat::Raw::ToString4x4(field,Rows,Cols);
+        return M::Mat::Raw::ToString4x4(field,Rows,Cols);
     }
 
 
@@ -146,65 +146,65 @@ namespace Math
 
     template <class C> MF_DECLARE  (void) SystemMatrix<C>::loadIdentity()
     {
-		Mat::Eye(*this);
+		M::Mat::Eye(*this);
     }
 
     template <class C>
     MFUNC1  (void) SystemMatrix<C>::loadInvert(const SystemMatrix<C0>&sys)
     {
-        Mat::invertSystem(sys,*this);
+        M::Mat::invertSystem(sys,*this);
     }
     
     template <class C>
     MFUNC4 (void) SystemMatrix<C>::buildRotation(const C0&angle, const C1&x, const C2&y, const C3&z)
     {
 		M::TMatrix3<C>	temp;
-		Mat::BuildRotationMatrix(angle,x,y,z,temp);
+		M::Mat::BuildRotationMatrix(angle,x,y,z,temp);
 		x.xyz = temp.x;
 		y.xyz = temp.y;
 		z.xyz = temp.z;
 		M::Vec::clear(w.xyz);
-		Mat::resetBottomRow(*this);
+		M::Mat::resetBottomRow(*this);
     }
 
     template <class C>
     MFUNC2 (void) SystemMatrix<C>::buildRotation(const C0&angle, const M::TVec3<C1>& axis)
     {
 		M::TMatrix3<C>	temp;
-		Mat::BuildRotationMatrix(angle,axis,temp);
+		M::Mat::BuildRotationMatrix(angle,axis,temp);
 		x.xyz = temp.x;
 		y.xyz = temp.y;
 		z.xyz = temp.z;
 		M::Vec::clear(w.xyz);
-		Mat::resetBottomRow(*this);
+		M::Mat::resetBottomRow(*this);
     }
 	
 	template <class C> MFUNC4 (void)	SystemMatrix<C>::rotate(const C0&angle, const C1&axis_x, const C2&axis_y, const C3&axis_z)
 		{
 			M::TMatrix3<C>	rsystem;
-			Mat::BuildRotationMatrix(angle,axis_x,axis_y,axis_z,rsystem);
+			M::Mat::BuildRotationMatrix(angle,axis_x,axis_y,axis_z,rsystem);
 
-			Mat::Mult(rsystem,x.xyz);
-			Mat::Mult(rsystem,y.xyz);
-			Mat::Mult(rsystem,z.xyz);
-			Mat::Mult(rsystem,w.xyz);
+			M::Mat::Mult(rsystem,x.xyz);
+			M::Mat::Mult(rsystem,y.xyz);
+			M::Mat::Mult(rsystem,z.xyz);
+			M::Mat::Mult(rsystem,w.xyz);
 		}
 	
 	template <class C> MFUNC2 (void)	SystemMatrix<C>::rotate(const C0&angle, const M::TVec3<C1>& axis)
 		{
 			M::TMatrix3<C>	rsystem;
-			Mat::BuildRotationMatrix(angle,axis,rsystem);
+			M::Mat::BuildRotationMatrix(angle,axis,rsystem);
 
-			Mat::Mult(rsystem,x.xyz);
-			Mat::Mult(rsystem,y.xyz);
-			Mat::Mult(rsystem,z.xyz);
-			Mat::Mult(rsystem,w.xyz);
+			M::Mat::Mult(rsystem,x.xyz);
+			M::Mat::Mult(rsystem,y.xyz);
+			M::Mat::Mult(rsystem,z.xyz);
+			M::Mat::Mult(rsystem,w.xyz);
 		}
     
     template <class C>
     MFUNC2 (void) SystemMatrix<C>::buildSystem(const M::TVec3<C0>&position, const M::TVec3<C1>& axis, BYTE direction)
     {
-		Mat::makeAxisSystem(position,axis,direction,*this);
+		M::Mat::makeAxisSystem(position,axis,direction,*this);
     }
 
     template <class C> MF_DECLARE  (void) SystemMatrix<C>::normalize()
@@ -249,10 +249,10 @@ namespace Math
     MFUNC1  (void) SystemMatrix<C>::operator*=(const SystemMatrix<C0>&other)
     {
         M::TVec3<C>   _x,_y,_z,_b;
-		Mat::rotate(*this,other.x.xyz,_x);
-		Mat::rotate(*this,other.y.xyz,_y);
-		Mat::rotate(*this,other.z.xyz,_z);
-		Mat::transform(*this,other.w.xyz,_b);
+		M::Mat::rotate(*this,other.x.xyz,_x);
+		M::Mat::rotate(*this,other.y.xyz,_y);
+		M::Mat::rotate(*this,other.z.xyz,_z);
+		M::Mat::transform(*this,other.w.xyz,_b);
 		x.xyz = _x;
 		y.xyz = _y;
 		z.xyz = _z;
@@ -267,7 +267,7 @@ namespace Math
         M::Vec::add(y.xyz,other.y.xyz,result.y.xyz);
         M::Vec::add(z.xyz,other.z.xyz,result.z.xyz);
         M::Vec::add(w.xyz,other.w.xyz,result.w.xyz);
-		Mat::resetBottomRow(result);
+		M::Mat::resetBottomRow(result);
         return result;
     }
 
@@ -287,7 +287,7 @@ namespace Math
         M::Vec::sub(y.xyz,other.y.xyz,result.y.xyz);
         M::Vec::sub(z.xyz,other.z.xyz,result.z.xyz);
         M::Vec::sub(w.xyz,other.w.xyz,result.w.xyz);
-		Mat::resetBottomRow(result);
+		M::Mat::resetBottomRow(result);
         return result;
     }
 
@@ -303,11 +303,11 @@ namespace Math
     MFUNC1  (SystemMatrix<C>)   SystemMatrix<C>::operator*(const SystemMatrix<C0>&other)   const
     {
         SystemMatrix<C>       result;
-		Mat::rotate(*this,other.x.xyz,result.x.xyz);
-		Mat::rotate(*this,other.y.xyz,result.y.xyz);
-		Mat::rotate(*this,other.z.xyz,result.z.xyz);
-		Mat::transform(*this,other.w.xyz,result.w.xyz);
-		Mat::resetBottomRow(result);
+		M::Mat::rotate(*this,other.x.xyz,result.x.xyz);
+		M::Mat::rotate(*this,other.y.xyz,result.y.xyz);
+		M::Mat::rotate(*this,other.z.xyz,result.z.xyz);
+		M::Mat::transform(*this,other.w.xyz,result.w.xyz);
+		M::Mat::resetBottomRow(result);
         return result;
     }
 
@@ -315,7 +315,7 @@ namespace Math
     MFUNC1  (M::TVec3<C>)   SystemMatrix<C>::operator*(const M::TVec3<C0>&other) const
     {
 		M::TVec3<C> result;
-		Mat::transform(*this,other,result);
+		M::Mat::transform(*this,other,result);
 		return result;
     }
 
@@ -323,7 +323,7 @@ namespace Math
     MFUNC1  (M::TVec4<C>)   SystemMatrix<C>::operator*(const M::TVec4<C0>&other) const
     {
 		M::TVec4<C> result;
-		Mat::Mult(*this,other,result);
+		M::Mat::Mult(*this,other,result);
 		return result;
     }
 
@@ -332,8 +332,8 @@ namespace Math
     MFUNC1 (Line<C>)  SystemMatrix<C>::operator*(const Line<C0>&other) const
     {
         Line<C>  result;
-        Mat::transform(*this,other.position,result.position);
-        Mat::rotate(*this,other.direction,result.direction);
+        M::Mat::transform(*this,other.position,result.position);
+        M::Mat::rotate(*this,other.direction,result.direction);
         return result;
     }
 
@@ -341,20 +341,20 @@ namespace Math
     template <class C>  MF_DECLARE(SystemMatrix<C>)    SystemMatrix<C>::invert()                         const
     {
         SystemMatrix<C>    result;
-		Mat::invertSystem(*this,result.system);
+		M::Mat::invertSystem(*this,result.system);
         return result;
     }
 
     template <class C>  MF_DECLARE(SystemMatrix<C>&)    SystemMatrix<C>::invertThis()
     {
         M::TMatrix4<C>    temp=*this;
-        Mat::invertSystem(temp,*this);
+        M::Mat::invertSystem(temp,*this);
         return *this;
     }
 
     template <class C>  MF_DECLARE(String)    SystemMatrix<C>::ToString()                        const
     {
-        return Mat::Raw::ToString4x4(v,4,4);
+        return M::Mat::Raw::ToString4x4(v,4,4);
     }
     
     

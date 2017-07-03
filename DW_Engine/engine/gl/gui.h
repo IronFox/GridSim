@@ -5,14 +5,14 @@
 
 #include "../renderer/opengl.h"
 #include "../display.h"
-#include "../../math/vector.h"
-#include "../../io/file_system.h"
-#include "../../io/xml.h"
-#include "../../image/converter/magic.h"
-#include "../../container/sorter.h"
+#include <math/vector.h>
+#include <io/file_system.h>
+#include <io/xml.h>
+#include <image/converter/magic.h>
+#include <container/sorter.h>
 
 #include "texture_font2.h"
-#include "../../structure/event.h"
+#include <structure/event.h>
 #include <memory> 
 
 //#include "../../boost_integration/pointer.h"
@@ -114,12 +114,32 @@ namespace Engine
 			Image					normal,	//!< Raw normal image
 									color;	//!< Raw color image
 			bool					variableWidth;	//!< Cell is of variable width
+
+			void					swap(TIOCell&other)
+			{
+				normal.swap(other.normal);
+				color.swap(other.color);
+				swp(variableWidth,other.variableWidth);
+			}
+			friend void				swap(TIOCell&a, TIOCell&b)
+			{
+				a.swap(b);
+			}
 		};
 		
 		struct TIORow	//!< Simplified io layout row used during layout loading
 		{
-			List::Vector<TIOCell>	cells;	//!< Cell container
-			bool					variable_height;	//!< Row is of variable height
+			Ctr::Vector0<TIOCell,Swap>	cells;	//!< Cell container
+			bool					variableHeight;	//!< Row is of variable height
+			void					swap(TIORow&other)
+			{
+				cells.swap(other.cells);
+				swp(variableHeight,other.variableHeight);
+			}
+			friend void				swap(TIORow&a, TIORow&b)
+			{
+				a.swap(b);
+			}
 		};
 
 
@@ -152,8 +172,8 @@ namespace Engine
 			Layout&					operator=(const Layout&other) {return *this;}
 		public:
 			Array<TRow>				rows;				//!< Collection of rows
-			M::Rect<float>				titlePosition;		//!< Title position.	Negative values are interpreted relative to the right/top edges, positive ones to the left, bottom edges
-			Quad<float>				borderEdge,		//!< Distance from the window/component edge to the effective (visual) edge of the layout. All values are >= 0
+			M::Rect<float>			titlePosition;		//!< Title position.	Negative values are interpreted relative to the right/top edges, positive ones to the left, bottom edges
+			M::Quad<float>			borderEdge,		//!< Distance from the window/component edge to the effective (visual) edge of the layout. All values are >= 0
 									clientEdge;		//!< Distance from the window/component edge to the client edge of the layout. All values are >= 0
 			float					minWidth,			//!< Minimum width of this layout
 									minHeight;			//!< Minimum height of this layout
@@ -391,9 +411,9 @@ namespace Engine
 				//shared_ptr<Component>			caught_by;		//!< Component that actually caught the event
 			};
 
-			M::Rect<float>							currentRegion;	//!< Current component region. This rectangle completely surrounds the component including all cells of its layout (if any)
-			Quad<float>							offset;			//!< Signed offset from the parent region. Effective only if @b anchored.coord[x] is true. should be negative for right/top offset
-			Quad<bool>							anchored;		//!< Indicates that the respective coordinates of the final component region is calculated relative to the respective parent edge.
+			M::Rect<float>						currentRegion;	//!< Current component region. This rectangle completely surrounds the component including all cells of its layout (if any)
+			M::Quad<float>						offset;			//!< Signed offset from the parent region. Effective only if @b anchored.coord[x] is true. should be negative for right/top offset
+			M::Quad<bool>						anchored;		//!< Indicates that the respective coordinates of the final component region is calculated relative to the respective parent edge.
 			float								width,			//!< Fixed component width if either anchored.left or anchored.right is false. Has no effect if both anchored.left and anchored.right are true
 												height;			//!< Fixed component height if either anchored.bottom or anchored.top is false. Has no effect if both anchored.bottom and anchored.top are true
 			const String						typeName;		//!< Constant type name of this component. Assigned during construction (usually the class name without the leading 'C')

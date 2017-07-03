@@ -1,4 +1,3 @@
-#include "../../global_root.h"
 #include "texture_font2.h"
 #include <io/file_system.h>
 

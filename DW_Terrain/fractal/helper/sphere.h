@@ -130,7 +130,7 @@ inline	void			radialPoint(float angular, float radial, double dh, M::TVec3<>&pos
 
 inline	void			radialPoint(float angular, float radial, double dh, M::TVec3<>&position)
 						{
-							radialPoint(angular,radial,dh,position,Vector<>::dummy);
+							radialPoint(angular,radial,dh,position,M::Vector3<>::dummy);
 						}
 
 inline	void			radialPoint(float angular, float radial, double dh)

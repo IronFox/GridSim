@@ -11,8 +11,8 @@ OpenGL texture-font.
 #include "../textout.h"
 #include "../../gl/gl.h"
 #include "../../gl/glu.h"
-#include "../../image/converter/magic.h"
-#include "../../io/xml.h"
+#include <image/converter/magic.h>
+#include <io/xml.h>
 
 namespace Engine
 {

@@ -3,9 +3,9 @@
 
 #include "textout.h"
 #include "aspect.h"
-#include "../container/buffer.h"
-#include "../container/hashtable.h"
-#include "../math/resolution.h"
+#include <container/buffer.h>
+#include <container/hashtable.h>
+#include <math/resolution.h>
 
 namespace Engine
 {

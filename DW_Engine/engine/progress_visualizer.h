@@ -69,7 +69,7 @@ namespace Engine
 
 	EveParallelAspect<float>			aspect;
 	aspect.make(1, 1.9, -1, 1);
-	aspect.region = TFloatRect(0.2,0.2,0.8,0.8);
+	aspect.region = M::TFloatRect(0.2,0.2,0.8,0.8);
 	_v3(aspect.location,0.5,0.5,0);
 	aspect.build();
 	eve.pick(aspect);

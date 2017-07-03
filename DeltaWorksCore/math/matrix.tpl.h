@@ -448,7 +448,7 @@ Collection of template matrix-math-functions.
 			Vec::normalize(out.z.xyz);
 			Vec::cross(out.z.xyz,out.x.xyz,out.y.xyz);
 			Vec::normalize(out.y.xyz);
-			Mat::resetBottomRow(out);
+			M::Mat::resetBottomRow(out);
 		}
 
 		MFUNC4(void)	reflectSystemN(const TVec3<C0>&base, const TVec3<C1>&normal, const TMatrix4<C2>&matrix, TMatrix4<C3>&result)
@@ -1144,7 +1144,7 @@ Collection of template matrix-math-functions.
     {
         C0*buffer = alloc<C0>(2*dimension*dimension);
         _copy(m,buffer,dimension*dimension);
-        Mat::Raw::Eye(&buffer[dimension*dimension],dimension);
+        M::Mat::Raw::Eye(&buffer[dimension*dimension],dimension);
         for (index_t line = 1; line < dimension; line++)
             for (index_t i = 0; i < line; i++)
             {
@@ -1522,7 +1522,7 @@ Collection of template matrix-math-functions.
     MFUNCV (bool)        __isIdentity(const C*matrix)
     {
         C eye[Dimensions*Dimensions];
-        Mat::Raw::Eye<C,Dimensions>(eye);
+        M::Mat::Raw::Eye<C,Dimensions>(eye);
 		VecUnroll<16>::sub(eye,matrix);
         return VecUnroll<16>::sum(eye) < GetError<C>*Dimensions*Dimensions;
     }

@@ -193,14 +193,14 @@ namespace DeltaWorks
 					_oAddTriangleNormal(*v,*getVertex(ibuffer[i*3]),*getVertex(ibuffer[i*3+3]),normal);
 				}
 				M::Vec::normalize0(normal);
-				Mat::makeAxisSystem(zero,normal,1,matrix);
-				Mat::invertSystem(matrix,in_matrix);
+				M::Mat::makeAxisSystem(zero,normal,1,matrix);
+				M::Mat::invertSystem(matrix,in_matrix);
 			
 				Ctr::Array<M::TVec2<Def::FloatType> >	tfield(vertices);
 				for (index_t i = 0; i < vertices; i++)
 				{
 					M::TVec3<float> temp;
-					Mat::rotate(in_matrix,*(getVertex(ibuffer[i*3])),temp);
+					M::Mat::rotate(in_matrix,*(getVertex(ibuffer[i*3])),temp);
 					M::Vec::def(tfield[i],temp.x,temp.z);
 					//_v2(tfield+i*2,getVertex(ibuffer[i*3])[0],getVertex(ibuffer[i*3])[1]);
 				}
@@ -1275,7 +1275,7 @@ namespace DeltaWorks
 		
 				VertexHashTable<PoolVertex>	pool;
 
-				//Sorted<List::Vector<PoolVertex>,OperatorSort>	pool;
+				//Sorted<List::M::Vector3<PoolVertex>,OperatorSort>	pool;
 				logMessage(__LINE__);
 			
 
@@ -1320,7 +1320,7 @@ namespace DeltaWorks
 				Mesh<CGS::SubGeometryA<>::VsDef>	&vs_hull = child.vs_hull_field[0];
 				vs_hull.vertex_field.SetSize(pool.Count());
 			
-				Mat::Eye(child.meta.system);
+				M::Mat::Eye(child.meta.system);
 				child.meta.volume = 1.0;
 				child.meta.density = 1.0;
 				M::Vec::clear(child.meta.center);
@@ -1440,11 +1440,11 @@ namespace DeltaWorks
 			/*
 				Buffer<Def::FloatType>				vertexBuffer,normal_buffer,texcoord_buffer;
 				CFSFolder							object_system;
-				Vector<ObjFaceGroup>				group_buffer;
+				M::Vector3<ObjFaceGroup>				group_buffer;
 				ObjFaceGroup						*current_group;
 				ArrayList<TObjFace,512> 			*current_smooth_group;
 				unsigned							current_smooth_group_index;
-				Vector<CGS::Material<>	>		material_list;
+				M::Vector3<CGS::Material<>	>		material_list;
 				StringTable<CGS::Material<>*>	material_table;
 				CGS::Material<>*				current_material;
 				HashContainer<CGS::Texture>		texture_field;
@@ -1730,9 +1730,9 @@ namespace DeltaWorks
 					M::TVec3<Def::FloatType>	transformed;
 					for (unsigned k = 0; k < robj.vpool.vcnt; k++)
 					{
-						Mat::transform(robj.target->path,M::Vec::ref3(p),transformed);
+						M::Mat::transform(robj.target->path,M::Vec::ref3(p),transformed);
 						vlink_map[k] = InsertIndexed(vertex_field,IndexedPoolVertex(transformed),vcounter);
-						Mat::rotate(robj.target->path,M::Vec::ref3(p+3),transformed);
+						M::Mat::rotate(robj.target->path,M::Vec::ref3(p+3),transformed);
 						nlink_map[k] = InsertIndexed(normal_field,IndexedPoolVertex(transformed),ncounter);
 						if (robj.vpool.vlyr>0)
 							tlink_map[k] = InsertIndexed(texcoord_field,IndexedPoolVertex(p[6],p[7],(Def::FloatType)0),tcounter);

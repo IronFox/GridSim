@@ -43,7 +43,7 @@ namespace Engine
 		}
 
 	template <class GL, class Font>
-		void VisualConsole<GL,Font>::Section::updateAbsolutePosition(const TFloatRect&parentLocation)
+		void VisualConsole<GL,Font>::Section::updateAbsolutePosition(const M::TFloatRect&parentLocation)
 		{
 			parentLocation.MakeAbsolute(relative,absolute);
 		    //absolute.x0 = x + width*relative.x0;
@@ -222,7 +222,7 @@ namespace Engine
 		void VisualConsole<GL,Font>::setRelativeTextureArea(eConsoleSection section, float left, float bottom, float right, float top)
 		{
 		    Section&sec = getSec(section);
-		    sec.relative = TFloatRect(left,bottom,right,top);
+		    sec.relative = M::TFloatRect(left,bottom,right,top);
 		    sec.updateAbsolutePosition(location);
 		    sec.updateState(status);
 		}
@@ -231,7 +231,7 @@ namespace Engine
 		void VisualConsole<GL,Font>::setRelativeTextArea(eConsoleSection section, float left, float bottom, float right, float top)
 		{
 		    text_target = &getSec(section);
-		    relative_text = TFloatRect(left,bottom,right,top);
+		    relative_text = M::TFloatRect(left,bottom,right,top);
 			text_target->current.MakeAbsolute(relative_text,absolute_text);
 		}
 

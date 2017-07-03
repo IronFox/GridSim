@@ -1843,7 +1843,7 @@ namespace Engine
 				cout << endl;
 		 */		
 		
-				Ctr::Vector<PExpression>	expressions;
+				Ctr::Vector0<PExpression>	expressions;
 				for (index_t i = begin; i < end; i++)
 				{
 					const TToken&token = tokens[i];
@@ -2831,7 +2831,7 @@ namespace Engine
 							{
 								float cutoff;
 								glGetLightfv(index,GL_SPOT_CUTOFF,&cutoff);
-								if (cutoff < 180-M::getError<float>())
+								if (cutoff < 180-M::GetError<float>())
 									lights << Light::Spot;
 								else
 									lights << Light::Omni;
@@ -4233,8 +4233,8 @@ namespace Engine
 		
 
 		String rs	= "OpenGL state:\n\
-  Projection:\n"+Mat::Raw::ToString4x4(projection)+"\n\
-  Modelview:\n"+Mat::Raw::ToString4x4(modelview)+"\n\
+  Projection:\n"+M::Mat::Raw::ToString4x4(projection)+"\n\
+  Modelview:\n"+M::Mat::Raw::ToString4x4(modelview)+"\n\
   Program: "+String(program)+"\n\
   FBO: "+String(fbo)+"\n\
   Viewport: "+(M::Vec::toString(M::Vec::ref4(viewport)))+"\n\

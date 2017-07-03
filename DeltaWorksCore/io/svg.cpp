@@ -254,8 +254,8 @@ namespace DeltaWorks
 			sub.y.y = m11;
 			sub.z.x = m02;
 			sub.z.y = m12;
-			Mat::resetBottomRow(sub);
-			Mat::Mult(mat,sub,temp);
+			M::Mat::resetBottomRow(sub);
+			M::Mat::Mult(mat,sub,temp);
 			mat = temp;
 		}
 

@@ -215,7 +215,7 @@ namespace Engine
 		class OrthographicGraph:public Graph
 		{
 		public:
-				TFloatRect		position;
+				M::TFloatRect		position;
 				
 								OrthographicGraph(Data*data_=&time_data):Graph(data_),position(0,0,1,1)
 								{

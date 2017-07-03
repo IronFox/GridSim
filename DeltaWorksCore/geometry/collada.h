@@ -13,7 +13,7 @@ E:\include\structure\collada.h
 
 namespace Collada
 {
-	template <class C> class List:public Vector<C>{};
+	template <class C> class List:public M::Vector3<C>{};
 	template <class C> class Map:public StringMappedList<C>{};
 
 

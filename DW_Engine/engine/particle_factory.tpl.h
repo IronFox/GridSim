@@ -130,7 +130,7 @@ namespace Engine
 				M::Vec::def(c2.coord,1,1);
 				M::Vec::def(c3.coord,0,1);
 
-				Mat::copyOrientation(aspect.viewInvert,matrix);
+				M::Mat::copyOrientation(aspect.viewInvert,matrix);
 				M::Vec::clear(matrix.w.xyz);
 				matrix.w.w = 1.f;
 				GL::enterSubSystem(matrix);
@@ -138,7 +138,7 @@ namespace Engine
 					for (typename Super::iterator particle = Super::begin(); particle != Super::end(); ++particle)
 					{
 						typename M::TVec3<GL::FloatType> final;
-						Mat::rotate(aspect.view,(particle)->position,final);
+						M::Mat::rotate(aspect.view,(particle)->position,final);
 						M::Vec::mad(final,corner0,(particle)->size,c0.xyz);
 						M::Vec::mad(final,corner1,(particle)->size,c1.xyz);
 						M::Vec::mad(final,corner2,(particle)->size,c2.xyz);
@@ -221,7 +221,7 @@ namespace Engine
 				M::Vec::def(c3.coord,0,1);
 
 
-				Mat::copyOrientation(aspect.modelviewInvert,matrix);
+				M::Mat::copyOrientation(aspect.modelviewInvert,matrix);
 				M::Vec::clear(matrix.w.xyz);
 				matrix.w.w = 1.f;
 				GL::enterSubSystem(matrix);
@@ -229,7 +229,7 @@ namespace Engine
 				for (typename Super::iterator particle = Super::begin(); particle != Super::end(); ++particle)
 				{
 					typename M::TVec3<GL::FloatType>  final;
-					Mat::rotate(aspect.modelview,particle->position,final);
+					M::Mat::rotate(aspect.modelview,particle->position,final);
 					M::Vec::mad(final,corner0,particle->size,c0.xyz);
 					M::Vec::mad(final,corner1,particle->size,c1.xyz);
 					M::Vec::mad(final,corner2,particle->size,c2.xyz);
@@ -272,7 +272,7 @@ namespace Engine
 				M::Vec::def(c3.coord,0,1);
 
 
-				Mat::copyOrientation(aspect.modelviewInvert,matrix);
+				M::Mat::copyOrientation(aspect.modelviewInvert,matrix);
 				M::Vec::clear(matrix.w.xyz);
 				matrix.w.w = 1.f;
 				GL::enterSubSystem(matrix);
@@ -280,7 +280,7 @@ namespace Engine
 				for (typename Super::iterator particle = Super::begin(); particle != Super::end(); ++particle)
 				{
 					typename M::TVec3<GL::FloatType>  final;
-					Mat::rotate(aspect.modelview,particle->position,final);
+					M::Mat::rotate(aspect.modelview,particle->position,final);
 					M::Vec::mad(final,corner0,particle->size,c0.xyz);
 					M::Vec::mad(final,corner1,particle->size,c1.xyz);
 					M::Vec::mad(final,corner2,particle->size,c2.xyz);

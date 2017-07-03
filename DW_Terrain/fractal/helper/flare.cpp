@@ -147,7 +147,7 @@ namespace Flare
 					{
 						M::TVec3<> projected_direction;
 						info.clipped = !camera.PointToScreen(light->GetPosition(),info.projected);
-						Mat::rotate(camera.view,light->GetSpotDirection(),projected_direction);
+						M::Mat::rotate(camera.view,light->GetSpotDirection(),projected_direction);
 						info.intensity = vpow(vmax(projected_direction.z,0),light->GetSpotExponent());
 						info.distance = M::Vec::distance(camera.GetAbsoluteLocation(),light->GetPosition());
 						sample_point = light->GetPosition();
@@ -538,7 +538,7 @@ namespace Flare
 				//cout << "occluded"<<endl;
 			}
 			//cout << light->visibility << "/"<<light->intensity<<" @"<<_toString(light->projected,2)<<endl;
-			if (light->clipped || light->visibility*light->intensity <= getError<float>())
+			if (light->clipped || light->visibility*light->intensity <= GetError<float>())
 				continue;
 			float intensity = vmax(light->visibility*light->intensity*(1.5f-M::Vec::length(light->projected)),0)/2;
 			c0.color.rgb = light->reference->GetDiffuse();
@@ -667,7 +667,7 @@ namespace Flare
 		
 		foreach (lights,light)
 		{
-			if (light->clipped || light->visibility*light->intensity <= getError<float>())
+			if (light->clipped || light->visibility*light->intensity <= GetError<float>())
 				continue;
 			float intensity = vmax(light->visibility*light->intensity*(1.5f-M::Vec::distance(light->projected,screen_center)*screen_scale),0)/2;
 			c0.color.rgb = light->reference->GetDiffuse();

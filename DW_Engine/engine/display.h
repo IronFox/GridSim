@@ -166,8 +166,8 @@ namespace Engine
 	#elif SYSTEM==UNIX
 	inline  void						process(XEvent&event);
 	#endif
-			RECT						transform(const TFloatRect&rect);
-			RECT						transform(const TFloatRect&rect, const Resolution&res);
+			RECT						transform(const M::TFloatRect&rect);
+			RECT						transform(const M::TFloatRect&rect, const Resolution&res);
 
 	public:
 
@@ -235,7 +235,7 @@ namespace Engine
 		FORWARD	Resolution			dimensions();					//!< Identical to size()
 		FORWARD void				queryScreen(ResolutionList*r_list, FrequencyList*f_list=NULL, DWORD w_min=0, DWORD h_min=0, DWORD f_min=0);
 		FORWARD	Resolution			getScreenSize();
-		RECT						transformViewport(const TFloatRect&rect, const Resolution&clientSize);
+		RECT						transformViewport(const M::TFloatRect&rect, const Resolution&clientSize);
 		inline  void				setScreen(const TDisplayMode&mode);
 		FORWARD short				getRefreshRate();
 		FORWARD bool				IsMaximized();
@@ -298,7 +298,7 @@ namespace Engine
 
 		void						lockRegion();					   //!< Prevent subsequent pick(...) or pickCentered(...) calls from affecting the render region
 		void						unlockRegion();					 //!< Allow subsequent pick(...) or pickCentered(...) calls to affect the render region
-		void						pickRegion(const TFloatRect&rect);   //!< Pick rendering region \param rect New render region
+		void						pickRegion(const M::TFloatRect&rect);   //!< Pick rendering region \param rect New render region
 		template <class C>
 			void					pick(const Aspect<C>&aspect);	//!< Picks aspect (i.e. a camera) for rendering \param aspect Aspect that should be used from now on
 		template <class C>
@@ -432,8 +432,8 @@ namespace Engine
 			Resolution			clientSize()							const;
 			UINT				clientWidth()							const;
 			UINT				clientHeight()							const;
-			RECT				transform(const TFloatRect&field)		const;
-			static RECT			transform(const TFloatRect&field, const Resolution&);
+			RECT				transform(const M::TFloatRect&field)		const;
+			static RECT			transform(const M::TFloatRect&field, const Resolution&);
 			void				destroyWindow();
 
 			void				SignalResize(UINT32 flags);

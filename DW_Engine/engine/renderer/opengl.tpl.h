@@ -460,7 +460,7 @@ namespace Engine
 								}
 							break;
 							case SystemType::Custom:
-								if (!layer.custom_system || VecUnroll<16>::zero(layer.custom_system->v))
+								if (!layer.custom_system || M::VecUnroll<16>::zero(layer.custom_system->v))
 									FATAL__("trying to bind zero matrix to layer "+String(source_layer)+" of material '"+config.name+"'");
 								glMatrixMode(GL_TEXTURE);
 									glLoadMatrixf(layer.custom_system->v);

@@ -61,9 +61,9 @@ namespace DeltaWorks
 							mX.axis[eat].v[at] = xN;
 						}
 					}
-					if (!Mat::Invert(mX,mInv))
+					if (!M::Mat::Invert(mX,mInv))
 						return false;
-					Mat::Mult(mInv,vY, this->coefficients.asVector);
+					M::Mat::Mult(mInv,vY, this->coefficients.asVector);
 					return true;
 				}
 			
@@ -86,12 +86,12 @@ namespace DeltaWorks
 						}
 					}
 					Array2D<T> product{TotCoef,TotCoef},inverted{TotCoef,TotCoef},finalProduct{TotCoef,points.Count()};
-					Mat::Raw::MultD(XT.pointer(),X.pointer(),product.pointer(),TotCoef,points.Count(),TotCoef);
-					bool success = Mat::Raw::InvertD(product.pointer(),inverted.pointer(),TotCoef);
+					M::Mat::Raw::MultD(XT.pointer(),X.pointer(),product.pointer(),TotCoef,points.Count(),TotCoef);
+					bool success = M::Mat::Raw::InvertD(product.pointer(),inverted.pointer(),TotCoef);
 					if (!success)
 						return false;
-					Mat::Raw::MultD(inverted.pointer(),XT.pointer(),finalProduct.pointer(),TotCoef,TotCoef,points.Count());
-					Mat::Raw::MultD(finalProduct.pointer(),yv.pointer(),coefficients.v,TotCoef,points.Count(),1);
+					M::Mat::Raw::MultD(inverted.pointer(),XT.pointer(),finalProduct.pointer(),TotCoef,TotCoef,points.Count());
+					M::Mat::Raw::MultD(finalProduct.pointer(),yv.pointer(),coefficients.v,TotCoef,points.Count(),1);
 					return true;
 				}
 
@@ -140,9 +140,9 @@ namespace DeltaWorks
 							mX.axis[e].v[at] = xN;
 						}
 					}
-					if (!Mat::Invert(mX,mInv))
+					if (!M::Mat::Invert(mX,mInv))
 						return false;
-					Mat::Mult(mInv,vY,this->coefficients);
+					M::Mat::Mult(mInv,vY,this->coefficients);
 					return true;
 				}
 
@@ -163,12 +163,12 @@ namespace DeltaWorks
 						}
 					}
 					Array2D<T> product{NumCoef,NumCoef},inverted{NumCoef,NumCoef},finalProduct{NumCoef,points.Count()};
-					Mat::Raw::MultD(XT.pointer(),X.pointer(),product.pointer(),NumCoef,points.Count(),NumCoef);
-					bool success = Mat::Raw::InvertD(product.pointer(),inverted.pointer(),NumCoef);
+					M::Mat::Raw::MultD(XT.pointer(),X.pointer(),product.pointer(),NumCoef,points.Count(),NumCoef);
+					bool success = M::Mat::Raw::InvertD(product.pointer(),inverted.pointer(),NumCoef);
 					if (!success)
 						return false;
-					Mat::Raw::MultD(inverted.pointer(),XT.pointer(),finalProduct.pointer(),NumCoef,NumCoef,points.Count());
-					Mat::Raw::MultD(finalProduct.pointer(),yv.pointer(),coefficients.v,NumCoef,points.Count(),1);
+					M::Mat::Raw::MultD(inverted.pointer(),XT.pointer(),finalProduct.pointer(),NumCoef,NumCoef,points.Count());
+					M::Mat::Raw::MultD(finalProduct.pointer(),yv.pointer(),coefficients.v,NumCoef,points.Count(),1);
 					return true;
 				}
 			};
@@ -218,9 +218,9 @@ namespace DeltaWorks
 							mX.axis[e].v[at] = xN;
 						}
 					}
-					if (!Mat::Invert(mX,mInv))
+					if (!M::Mat::Invert(mX,mInv))
 						return false;
-					Mat::Mult(mInv,vY,this->coefficients);
+					M::Mat::Mult(mInv,vY,this->coefficients);
 					return true;
 				}
 			
@@ -239,12 +239,12 @@ namespace DeltaWorks
 						}
 					}
 					Array2D<T> product{NumCoef,NumCoef},inverted{NumCoef,NumCoef},finalProduct{NumCoef,points.Count()};
-					Mat::Raw::MultD(XT.pointer(),X.pointer(),product.pointer(),NumCoef,points.Count(),NumCoef);
-					bool success = Mat::Raw::InvertD(product.pointer(),inverted.pointer(),NumCoef);
+					M::Mat::Raw::MultD(XT.pointer(),X.pointer(),product.pointer(),NumCoef,points.Count(),NumCoef);
+					bool success = M::Mat::Raw::InvertD(product.pointer(),inverted.pointer(),NumCoef);
 					if (!success)
 						return false;
-					Mat::Raw::MultD(inverted.pointer(),XT.pointer(),finalProduct.pointer(),NumCoef,NumCoef,points.Count());
-					Mat::Raw::MultD(finalProduct.pointer(),yv.pointer(),coefficients.v,NumCoef,points.Count(),1);
+					M::Mat::Raw::MultD(inverted.pointer(),XT.pointer(),finalProduct.pointer(),NumCoef,NumCoef,points.Count());
+					M::Mat::Raw::MultD(finalProduct.pointer(),yv.pointer(),coefficients.v,NumCoef,points.Count(),1);
 					return true;
 				}
 
@@ -304,9 +304,9 @@ namespace DeltaWorks
 							mX.axis[eat].v[at] = xN;
 						}
 					}
-					if (!Mat::Invert(mX,mInv))
+					if (!M::Mat::Invert(mX,mInv))
 						return false;
-					Mat::Mult(mInv,vY, this->coefficients.asVector);
+					M::Mat::Mult(mInv,vY, this->coefficients.asVector);
 					return true;
 				}
 			
@@ -329,12 +329,12 @@ namespace DeltaWorks
 						}
 					}
 					Array2D<T> product{TotCoef,TotCoef},inverted{TotCoef,TotCoef},finalProduct{TotCoef,points.Count()};
-					Mat::Raw::MultD(XT.pointer(),X.pointer(),product.pointer(),TotCoef,points.Count(),TotCoef);
-					bool success = Mat::Raw::InvertD(product.pointer(),inverted.pointer(),TotCoef);
+					M::Mat::Raw::MultD(XT.pointer(),X.pointer(),product.pointer(),TotCoef,points.Count(),TotCoef);
+					bool success = M::Mat::Raw::InvertD(product.pointer(),inverted.pointer(),TotCoef);
 					if (!success)
 						return false;
-					Mat::Raw::MultD(inverted.pointer(),XT.pointer(),finalProduct.pointer(),TotCoef,TotCoef,points.Count());
-					Mat::Raw::MultD(finalProduct.pointer(),yv.pointer(),coefficients.v,TotCoef,points.Count(),1);
+					M::Mat::Raw::MultD(inverted.pointer(),XT.pointer(),finalProduct.pointer(),TotCoef,TotCoef,points.Count());
+					M::Mat::Raw::MultD(finalProduct.pointer(),yv.pointer(),coefficients.v,TotCoef,points.Count(),1);
 					return true;
 				}
 

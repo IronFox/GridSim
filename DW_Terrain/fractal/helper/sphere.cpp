@@ -23,20 +23,20 @@ void			::Sphere::apply(const Frustum<>&frustrum_, double radius_, double height_
 	M::Vec::div(delta,height,axis);
 	M::TMatrix4<>		system;
 	M::Vec::mult(axis,-(height-radius),world_offset);
-	Mat::makeAxisSystem(world_offset,axis,2,world_system);
+	M::Mat::makeAxisSystem(world_offset,axis,2,world_system);
 	world_matrix.x = world_system.x.xyz;
 	world_matrix.y = world_system.y.xyz;
 	world_matrix.z = world_system.z.xyz;
 	
-	Mat::invertSystem(world_system,system);
+	M::Mat::invertSystem(world_system,system);
 	
 
 	M::TVec3<> axis0,axis1;
 	
 	M::Vec::sub(frustum.far_bottom_right,frustum.near_bottom_right,axis0);
 	M::Vec::sub(frustum.far_top_left,frustum.near_top_left,axis1);
-	Mat::rotate(system,axis0);
-	Mat::rotate(system,axis1);
+	M::Mat::rotate(system,axis0);
+	M::Mat::rotate(system,axis1);
 	M::Vec::center(axis0,axis1,axis);
 	
 	y_fov = M::Vec::angle(axis0,axis1)*M_PI/180/2*1.35;
@@ -172,7 +172,7 @@ bool			SphereSector::isVisible(::Sphere*super, double distance)		const
 	super->radialPoint(abegin,rend,distance,p3);
 	super->radialPoint((abegin+aend)/2,(rbegin+rend)/2,distance,sphere_center);
 	sphere_radius = vsqrt(vmax(vmax(M::Vec::quadraticDistance(p0,sphere_center),M::Vec::quadraticDistance(p1,sphere_center)),vmax(M::Vec::quadraticDistance(p2,sphere_center),M::Vec::quadraticDistance(p3,sphere_center))));
-	Mat::transform(super->world_system,sphere_center,center);
+	M::Mat::transform(super->world_system,sphere_center,center);
 	bool rs = super->frustum.IsVisible(center,sphere_radius);
 	return rs;
 	

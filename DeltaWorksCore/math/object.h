@@ -1009,10 +1009,10 @@ namespace DeltaWorks
 			class DynamicMesh:public Def::Mesh
 			{
 			public:
-					Vector<MeshVertex<Def> >		vertices;		//!< List of vertex objects
-					Vector<MeshEdge<Def> >		edges;			//!< List of edge objects
-					Vector<MeshQuad<Def> >		quads;			//!< List of quad objects
-					Vector<MeshTriangle<Def> >	triangles;		//!< List of triangle objects
+					M::Vector3<MeshVertex<Def> >		vertices;		//!< List of vertex objects
+					M::Vector3<MeshEdge<Def> >		edges;			//!< List of edge objects
+					M::Vector3<MeshQuad<Def> >		quads;			//!< List of quad objects
+					M::Vector3<MeshTriangle<Def> >	triangles;		//!< List of triangle objects
 
 			static	String							error;
 			
@@ -1250,10 +1250,10 @@ namespace DeltaWorks
 	
 
 		template <class FloatType=float>
-			class AbstractSphere : public Sphere<FloatType>	//! Sphere definition
+			class AbstractSphere : public M::Sphere<FloatType>	//! Sphere definition
 			{
 			public:
-				typedef Sphere<FloatType>	Super;
+				typedef M::Sphere<FloatType>	Super;
 				typedef FloatType			Float;
 			
 				MF_DECLARE	(void)			resolveIndentation(const AbstractSphere<Float>&remote, Float&indentation, M::TVec3<Float>&indentation_vector, bool verbose)	const;	//!< Attempts to determine the direction and intensity of an intersection between the local sphere and a remote abstract geometry  \param remote Geometry to determine the indentation/intersection of \param indentation_vector Out vector that the local sphere would have to be moved by to deintersect the two geometries. The resulting vector is of length 0 if the two geometries don't intersect.

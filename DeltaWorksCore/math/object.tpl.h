@@ -769,7 +769,7 @@ template <class Def, class IndexType> MF_DECLARE (void) _oMakeTriangleGraph(Mesh
 	object.vregion.first = min;
 	object.vregion.last = max;
 
-	Vector<Edg>	edge_buffer;
+	M::Vector3<Edg>	edge_buffer;
 
 	for (index_t i = 0; i < object.vertex_field.length(); i++)
 	{
@@ -7783,7 +7783,7 @@ template <typename Float> template <typename T>
 			M::Vec::center(vertices[triangles.first().v0].vector,vertices[triangles.first().v1].vector,vertices[triangles.first().v2].vector,c);
 			M::Vec::sub(point,c,axis);
 			M::Vec::cross(triangles.first().normal,axis,plane_normal);
-			if (M::Vec::similar(plane_normal,Vector<Float>::zero))
+			if (M::Vec::similar(plane_normal,M::Vector3<Float>::zero))
 			{
 				M::TVec3<Float> v2;
 				M::Vec::def(v2,vabs(axis.y)+1,axis.z,axis.x);
