@@ -1,5 +1,5 @@
 <project type="StaticLibrary">
-	<referenceProject name="DW_Engine" />
+	<referenceProject name="DeltaWorksEngine" />
 
 	<source path="." include="true">
 		<exclude find="mvc"/>
