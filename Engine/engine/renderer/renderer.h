@@ -152,7 +152,7 @@ namespace Engine
 		
 		Configuration structure for a single light.
 	*/
-	class Light : public LightData
+	class Light : public LightData, public std::enable_shared_from_this<Light>
 	{
 	public:
 
