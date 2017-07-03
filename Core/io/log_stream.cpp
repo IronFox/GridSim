@@ -4,7 +4,7 @@
 namespace DeltaWorks
 {
 
-	LogSession::LogSession(LogStream*stream):parent(stream),counter(SignalNew(new unsigned(1)))
+	LogSession::LogSession(LogStream*stream):parent(stream),counter(SignalNew(new count_t(1)))
 	{
 		stream->mutex.lock();
 	}

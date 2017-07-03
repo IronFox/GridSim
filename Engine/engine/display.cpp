@@ -289,7 +289,7 @@ namespace Engine
 			{
 				if (!hHook)
 				{
-					hHook = SetWindowsHookEx(WH_MOUSE_LL,mouseHook,getInstance(),0);
+					hHook = SetWindowsHookEx(WH_MOUSE_LL,mouseHook,GetInstance(),0);
 				}
 				hook_counter++;
 			}
