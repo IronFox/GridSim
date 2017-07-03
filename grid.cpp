@@ -378,7 +378,7 @@ Grid::TCStat Grid::LockstepCorrectSome(const TExperiment&exp, const std::functio
 	
 	if (maxDemandRequestsPerShardToDatabase > 0)
 	{
-		demandRegistries.SetSize(ParallelLoop::GetGlobalWorkerCount());
+		demandRegistries.SetSize(Sys::ParallelLoop::GetGlobalWorkerCount());
 		ShardParallelW([this,maxDemandRequestsPerShardToDatabase](Layer&l, Shard&s, index_t i)	//parallel
 		{
 			if (s.IsFullyAvailable())
@@ -773,7 +773,7 @@ Grid::TCorrectionStatistics	Grid::LockstepCorrectSelective(const std::function<i
 	ASSERT__(layers.IsNotEmpty());
 
 	if (statistics.IsEmpty())
-		statistics.SetSize(ParallelLoop::GetGlobalWorkerCount());
+		statistics.SetSize(Sys::ParallelLoop::GetGlobalWorkerCount());
 	else
 		statistics.Fill(TCStat());
 
@@ -1131,7 +1131,7 @@ void	Grid::ShardParallelW(const std::function<void(Layer&, Shard&, index_t)>&f)
 		return;
 	const count_t shardsPerLayer = layers.First().shardGrid.Count();
 	const count_t totalShards = shardsPerLayer * layers.Count();
-	ParallelFor(totalShards,JobsPerExec,[shardsPerLayer,this,f](index_t at, index_t worker)
+	Sys::ParallelFor(totalShards,JobsPerExec,[shardsPerLayer,this,f](index_t at, index_t worker)
 	//for (index_t at = 0; at < totalShards; at++)
 	{
 		index_t layer = at / shardsPerLayer;
@@ -1148,7 +1148,7 @@ void	Grid::ShardParallelW(const std::function<void(const Layer&, const Shard&, i
 		return;
 	const count_t shardsPerLayer = layers.First().shardGrid.Count();
 	const count_t totalShards = shardsPerLayer * layers.Count();
-	ParallelFor(totalShards,JobsPerExec,[shardsPerLayer,this,f](index_t at, index_t worker)
+	Sys::ParallelFor(totalShards,JobsPerExec,[shardsPerLayer,this,f](index_t at, index_t worker)
 	//for (index_t at = 0; at < totalShards; at++)
 	{
 		const index_t layer = at / shardsPerLayer;

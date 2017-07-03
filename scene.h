@@ -5,6 +5,8 @@
 #include <engine/aspect.h>
 #include <io/xml.h>
 
+using namespace DeltaWorks;
+using namespace DeltaWorks::Math;
 
 namespace Scene3D
 {

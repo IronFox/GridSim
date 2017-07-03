@@ -106,7 +106,7 @@ namespace Database
 			};
 
 			Buffer0<TUpload>	uploadList;
-			mutable SpinLock	uploadLock,downloadLock;
+			mutable Sys::SpinLock	uploadLock,downloadLock;
 
 
 			void			Clear() {cache.Clear(); uploadList.Clear();}

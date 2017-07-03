@@ -142,7 +142,7 @@ namespace Database
 
 	class RCSStack
 	{
-		mutable SpinLock	lock;
+		mutable Sys::SpinLock	lock;
 
 
 
@@ -273,7 +273,7 @@ namespace Database
 
 	class ShardState
 	{
-		mutable SpinLock		lock;
+		mutable Sys::SpinLock		lock;
 
 		Requestable<SDS_ID,SDS>	current;
 		Buffer0<Requestable<SDS_ID,SDS> > dump;
@@ -440,7 +440,7 @@ namespace Database
 
 
 
-	SpinLock			clientListLock;
+	Sys::SpinLock		clientListLock;
 	Buffer0<Client*>	clientList;
 
 

@@ -358,7 +358,7 @@ void FullShardDomainState::FinalizeComputation(Shard&shard, const TCodeLocation&
 	out->finalizeCaller = caller;
 	out->ic.VerifyIntegrity(CLOCATION);
 	static InconsistencyCoverage bad;
-	static SpinLock badLock;
+	static Sys::SpinLock badLock;
 	if (bad.GetGrid().IsEmpty())
 	{
 		badLock.lock();
@@ -661,15 +661,15 @@ void		FullShardDomainState::LosePermanence(bool isFirst)
 void FullShardDomainState::ExecuteLogic(CS & outLocal, index_t generation, const TGridCoords&gridCoords, const TBoundaries&motionSpace)
 {
 	CRC32::Sequence seq;
-	seq.append(&gridCoords,sizeof(gridCoords));
-	seq.append(&generation,sizeof(generation));
+	seq.AppendPOD(gridCoords);
+	seq.AppendPOD(generation);
 
 
 	foreach (processed,e)
 	{
 
 		CRC32::Sequence seq2 = seq;
-		seq2.append(&e->guid,sizeof(e->guid));
+		seq2.AppendPOD(e->guid);
 		//float2	motion;
 		MessageDispatcher dispatcher;
 		EntityShape shape = *e;
@@ -686,8 +686,8 @@ void FullShardDomainState::ExecuteLogic(CS & outLocal, index_t generation, const
 			CRC32::Sequence seq3 = seq2;
 			seq3.AppendPOD(l->process);
 			
-			Random rnd(seq3.finish());
-			ByMethod::QuickSort(l->receiver);
+			Random rnd(seq3.Finish());
+			Sorting::ByMethod::QuickSort(l->receiver);
 			dispatcher.fromProcess = l->process;
 			l->process(l->state,generation,*e,shape,rnd,l->receiver,dispatcher);
 		}

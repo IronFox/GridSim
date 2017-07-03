@@ -171,7 +171,7 @@ namespace Scene
 					glColor4fv(sph->center.color.v);
 					glPushMatrix();
 					glTranslatef(sph->center.coords.x,sph->center.coords.y,0);
-					glScale(sph->radius);
+					Engine::glScale(sph->radius);
 					glCallList(sph->isCircle ? circle : sphere);
 					glPopMatrix();
 				}

@@ -14,7 +14,6 @@
 #include <string/string_converter.h>
 #include <general/random.h>
 #include <image/converter/magic.h>
-#include <structure/mapping.h>
 #include <engine/gl/texture_font2.h>
 #include <io/config.h>
 #include <container/string_list.h>
@@ -68,7 +67,7 @@ namespace EntityFlags
 Engine::Display<Engine::OpenGL>	display;
 Engine::Textout<Engine::GLTextureFont2>	textout;
 Buffer0<String>	messageLog;
-SpinLock	messageLogLock;
+Sys::SpinLock	messageLogLock;
 
 count_t		connectionSamples=0,connectedSamples=0;
 

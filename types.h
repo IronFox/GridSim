@@ -11,6 +11,8 @@
 #include <math/vclasses.h>
 #include <Rpc.h>
 
+using namespace DeltaWorks;
+using namespace DeltaWorks::Math;
 
 //#define DBG_SHARD_HISTORY
 //#define RECOVERY_TEST
@@ -87,7 +89,7 @@ typedef SHA1	Hasher;
 typedef CoreShardDomainState	CSDS;
 
 String ToString(const GUID&guid, bool full=false);
-extern SpinLock	messageLogLock;
+extern Sys::SpinLock	messageLogLock;
 extern Buffer0<String>	messageLog;
 
 struct TExperiment;

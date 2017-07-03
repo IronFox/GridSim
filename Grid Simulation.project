@@ -4,7 +4,8 @@
 		<exclude dir="SimpleSimulation" />
 		<exclude dir="Worker" />
 	</source>
-	<referenceProject name="DeltaWorks" />
+	<referenceProject name="DeltaWorksEngine" />
+	<referenceProject name="DeltaWorksCore" />
 	<macro name="USE_CHEBYSHEV_DISTANCE" />
 	<manifest>DeclareDPIAware.manifest</manifest>
 </project>

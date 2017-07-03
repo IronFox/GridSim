@@ -1,5 +1,7 @@
 #pragma once
-#include <global_root.h>
+#include <container/array.h>
+
+using namespace DeltaWorks;
 
 struct TExperiment
 {

@@ -429,7 +429,7 @@ namespace Statistics
 
 		namespace MergeMeasurement
 		{
-			SpinLock mergeLock;
+			Sys::SpinLock mergeLock;
 
 			TStateDifference		betterPreMerge,
 									worsePreMerge;
