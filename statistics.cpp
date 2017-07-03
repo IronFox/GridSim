@@ -950,7 +950,8 @@ namespace Statistics
 		for (index_t index = 0; index < channels.Count(); index++)
 		{
 			const auto&c = channels[index];
-			const float max = std::max(c.f(worsePreMerge).Get(),c.f(cap.postMerge).Get())*1.2f;
+			const float rawMax = std::max(c.f(worsePreMerge).Get(),c.f(cap.postMerge).Get());
+			const float max = rawMax*1.2f;
 			float h0 = c.f(betterPreMerge).Get()/max;
 			float h1 = c.f(worsePreMerge).Get()/max;
 
@@ -958,8 +959,7 @@ namespace Statistics
 			texFile << "\\draw [draw=black, pattern=north west lines, pattern color=black!50] (axis cs:"<<h0<<","<<(index)<<".0) rectangle (axis cs:"<<h1<<","<<index<<".9);"<<nl;
 
 			//describe max:
-			String smax = ToDisplay(max);
-			texFile << "\\node[anchor=west,align=left] at (axis cs:0.8333,"<<index<<".5) {"<<smax<<c.unit<<"};"<<nl;
+			texFile << "\\node[anchor=west,align=left] at (axis cs:0.8333,"<<index<<".5) {"<<ToDisplay(rawMax)<<c.unit<<"};"<<nl;
 
 			//describe current:
 			float current = c.f(cap.postMerge).Get();
@@ -1006,11 +1006,11 @@ namespace Statistics
 				//{
 				//	return diff.icSize;
 				//}),
-				ExportChannel("$\\Phi$","\\%",[](const TStateDifference&diff)
+				ExportChannel("$M$","\\%",[](const TStateDifference&diff)
 				{
 					return diff.missingEntities / diff.entitiesInInconsistentArea.Get() * 100;
 				}),
-				ExportChannel("$\\Theta$","\\%",[](const TStateDifference&diff)
+				ExportChannel("$U$","\\%",[](const TStateDifference&diff)
 				{
 					return diff.overAccountedEntities / diff.entitiesInInconsistentArea.Get() * 100;
 				}),
@@ -1052,8 +1052,10 @@ namespace Statistics
 			texFile << "\\addplot+[xbar, color=black,mark=] coordinates {"<<nl;
 			foreach (channels,ch)
 			{
-				float max = std::max(ch->f(worsePreMerge).Get(),ch->f(source.postMerge).Get()) * 1.2f;
-				float v = ch->f(source.postMerge).Get() / max;
+				const float current = ch->f(source.postMerge).Get();
+				const float worse = ch->f(worsePreMerge).Get();
+				const float max = std::max(worse,current) * 1.2f;
+				const float v = current / max;
 				texFile << tab<<"("<<v<<","<<ch->MakeName(source.postMerge)<<")"<<nl;
 			}
 			texFile << "};"<<nl;
