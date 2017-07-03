@@ -1,6 +1,0 @@
-/*
-	generate4edge() function content for inclusion in cuda kernel and cpu adaptions
-*/
-
-#include "generate4.function"
-

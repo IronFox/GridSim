@@ -1,8 +1,0 @@
-/*
-	getRandom() function content for inclusion in cuda kernel and cpu adaptions
-	
-	Common format: float getRandom(unsigned&seed)
-*/
-
-    seed = seed * 1103515245 + 12345;
-    return (float)((unsigned)(seed/65536) % 32768)/(float)32767*2.0f-1.0f;
