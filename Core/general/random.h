@@ -171,7 +171,9 @@ namespace DeltaWorks
 			template <typename Int>
 				Int			NextT(Int max)
 				{
-					return std::min(max,Int(big_type_t(Super::operator()()-Super::min()) * (big_type_t(max)+1) / big_type_t(Super::max() - Super::min())));
+					const double inputRange = big_type_t(Super::max() - Super::min());
+					const double zeroRandom = double(Super::operator()()-Super::min());
+					return std::min(max,Int(zeroRandom * (double(max)+1) / inputRange));
 				}
 			/**
 			Queries a random value in the range [min,max]
@@ -179,7 +181,10 @@ namespace DeltaWorks
 			template <typename Int>
 				Int			NextT(Int min, Int max)
 				{
-					return min + std::min(max - min,Int((big_type_t)(Super::operator()()-Super::min()) * (big_type_t(max-min)+1) / (big_type_t)(Super::max() - Super::min())));
+					const double inputRange = big_type_t(Super::max() - Super::min());
+					const double wantRange = double(max-min)+1;
+					const double zeroRandom = double(Super::operator()()-Super::min());
+					return min + std::min(max - min,Int(zeroRandom * wantRange / inputRange));	//some very big types apparently cause overflows
 				}
 		
 			/**
