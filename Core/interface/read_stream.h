@@ -83,6 +83,7 @@ namespace DeltaWorks
 					ReadSize(v);
 					if (v > std::numeric_limits<T>::max())
 						throw Except::Memory::SerializationFault(CLOCATION,"Given variable type cannot contain read value");
+					sizeOut = static_cast<T>(v);
 				}
 
 	};
