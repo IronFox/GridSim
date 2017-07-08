@@ -113,45 +113,9 @@ namespace DeltaWorks
 				Write(elements, (serial_size_t)(sizeof(T)*num_elements));
 			}
 
-		void		WriteSize(serial_size_t size)	//! Reads the content of a size variable in little endian 
-		{
-			BYTE b[4];
-			if (size <= 0x3F)
-			{
-				b[0] = ((BYTE)size);
-				Write(b,1);
-				return;
-			}
-			if (size <= 0x3FFF)
-			{
-				b[0] = (BYTE)((size >> 8)&0x3F) | 0x40;
-				b[1] = (BYTE)(size&0xFF);
-				Write(b,2);
-				return;
-			}
-			if (size <= 0x3FFFFF)
-			{
-				b[0] = (BYTE)((size >> 16)&0x3F) | 0x80;
-				b[1] = (BYTE)((size>>8)&0xFF);
-				b[2] = (BYTE)((size)&0xFF);
-				Write(b,3);
-				return;
-			}
-			if (size >= (1U<<29))
-				throw Except::Memory::SerializationFault(CLOCATION, "Trying to serialize size exceeding maximum size of 2^29-1");
-			b[0] = (BYTE)((size >> 24)&0x3F) | 0xC0;
-			b[1] = (BYTE)((size >> 16)&0xFF);
-			b[2] = (BYTE)((size >> 8)&0xFF);
-			b[3] = (BYTE)((size)&0xFF);
-			Write(b,4);
-		}
+		void		WriteSize(serial_size32_t size);	//! Writes the content of a 32bit size variable in big endian. This operation cannot fail unless the local stream fails
+		void		WriteSize(serial_size64_t size);	//! Writes the content of a 64bit size variable in bit endian. This operation may throw an exception of @a size exceeds 2^61-1
 
-		void	WriteSize(UINT64 size)
-		{
-			if (size > 0xFFFFFFFF)
-				throw Except::Memory::SerializationFault(CLOCATION, "Attempting to write serial size larger than can be expressed in 32 bit");
-			WriteSize((serial_size_t)size);
-		}
 
 	};
 

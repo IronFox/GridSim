@@ -297,7 +297,8 @@ namespace DeltaWorks
 
 
 
-	typedef uint32_t	serial_size_t;	//!< Size type for serial IO operations
+	typedef uint32_t	serial_size32_t,serial_size_t;		//!< Size type for serial IO operations
+	typedef uint64_t	serial_size64_t;					//!< Size type for serial IO operations
 	static const serial_size_t MaxSerialSize = (1U << 29) - 1;	//first three bits can't be used
 	typedef size_t		hash_t;
 

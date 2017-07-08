@@ -72,17 +72,37 @@ namespace DeltaWorks
 		static const serial_size_t		EmbeddedSize=(serial_size_t)-1;	//!< Constant that may be passed as the @b fixed_size parameter of the Deserialize() operation. It indicates that no fixed size is available and any dynamic size of the local object should be extracted from the stream.
 
 
-		static	serial_size_t			GetSerialSizeOfSize(serial_size_t size)
-										{
-											if (size <= 0x3F)
-												return 1;
-											if (size <= 0x3FFF)
-												return 2;
-											if (size <= 0x3FFFFF)
-												return 3;
-											return 4;
-										}
+		/*
+		Size serialization convention:
+		big ending (large -> small)
+		bytes used as needed.
+		The first 2-3 bits indicate number of bytes used:
 
+		00: 6 bit value, 1 byte
+		01: 14 bit value, 2 bytes
+		10: 22 bit value, 3 bytes
+		110: 29 bit value, 4 bytes
+		111: 61 bit value, 8 bytes
+		*/
+
+		/**
+		Retrieves the byte-size of a given non-negative size variable that should be serialized using IWriteStream::WriteSize().
+		@param size Size variable to determine the byte size of. Must be non-negative
+		@return Number of bytes occupied by a given size variable when written using IWriteStream::WriteSize(). May be 1,2,3,4, or 8
+		*/
+		template <typename T>
+			static	serial_size_t		GetSerialSizeOfSize(T size)
+			{
+				if (size <= 0x3F)
+					return 1;
+				if (size <= 0x3FFF)
+					return 2;
+				if (size <= 0x3FFFFF)
+					return 3;
+				if (size < (1U<<29))
+					return 4;
+				return 8;
+			}
 
 		/**
 		Queries the byte size of the serialized data of this object
