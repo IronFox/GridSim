@@ -497,7 +497,7 @@ namespace DeltaWorks
 			template <typename T>
 				Chunk*			AppendNamedBlock(const T&podIdentifier)
 				{
-					return AppendNamedChunk(&podIdentifier,sizeof(podIdentifier));
+					return AppendNamedBlock(&podIdentifier,sizeof(podIdentifier));
 				}
 		};
 
