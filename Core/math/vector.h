@@ -270,6 +270,57 @@ namespace DeltaWorks
 			}
 
 
+		template <typename T>
+			inline void SerialSync(IWriteStream&s, const TVec2<T>&v)
+			{
+				using Serialization::SerialSync;
+				SerialSync(s,v.x);
+				SerialSync(s,v.y);
+			}
+		template <typename T>
+			inline void SerialSync(IReadStream&s, TVec2<T>&v)
+			{
+				using Serialization::SerialSync;
+				SerialSync(s,v.x);
+				SerialSync(s,v.y);
+			}
+
+		template <typename T>
+			inline void SerialSync(IWriteStream&s, const TVec3<T>&v)
+			{
+				using Serialization::SerialSync;
+				SerialSync(s,v.x);
+				SerialSync(s,v.y);
+				SerialSync(s,v.z);
+			}
+		template <typename T>
+			inline void SerialSync(IReadStream&s, TVec3<T>&v)
+			{
+				using Serialization::SerialSync;
+				SerialSync(s,v.x);
+				SerialSync(s,v.y);
+				SerialSync(s,v.z);
+			}
+
+
+		template <typename T>
+			inline void SerialSync(IWriteStream&s, const TVec4<T>&v)
+			{
+				using Serialization::SerialSync;
+				SerialSync(s,v.x);
+				SerialSync(s,v.y);
+				SerialSync(s,v.z);
+				SerialSync(s,v.w);
+			}
+		template <typename T>
+			inline void SerialSync(IReadStream&s, TVec4<T>&v)
+			{
+				using Serialization::SerialSync;
+				SerialSync(s,v.x);
+				SerialSync(s,v.y);
+				SerialSync(s,v.z);
+				SerialSync(s,v.w);
+			}
 
 
 		template <typename T=float>
@@ -278,6 +329,7 @@ namespace DeltaWorks
 			public:
 				typedef typename TypeInfo<T>::UnionCompatibleBase
 					Type;
+				typedef TFloatRange<T>	Self;
 
 				union
 				{
@@ -472,11 +524,25 @@ namespace DeltaWorks
 											max /= factor;
 										}
 
-				friend String			ToString(const TFloatRange<T>&r)
+				friend String			ToString(const Self&r)
 										{
 											using StringConversion::ToString;
 											return "["+ToString(r.min)+","+ToString(r.max)+"]";
 										}
+
+				friend void SerialSync(IWriteStream&s, const Self&v)
+				{
+					using Serialization::SerialSync;
+					SerialSync(s,v.min);
+					SerialSync(s,v.max);
+				}
+				friend void SerialSync(IReadStream&s, Self&v)
+				{
+					using Serialization::SerialSync;
+					SerialSync(s,v.min);
+					SerialSync(s,v.max);
+				}
+	
 			};
 
 		template <typename T>
@@ -489,6 +555,7 @@ namespace DeltaWorks
 			public:
 				typedef typename TypeInfo<T>::UnionCompatibleBase
 					Type;
+				typedef TIntRange<T>	Self;
 
 				union
 				{
@@ -584,6 +651,19 @@ namespace DeltaWorks
 											using StringConversion::ToString;
 											return "["+ToString(r.start)+","+ToString(r.end)+")";
 										}
+				friend void SerialSync(IWriteStream&s, const Self&v)
+				{
+					using Serialization::SerialSync;
+					SerialSync(s,v.start);
+					SerialSync(s,v.end);
+				}
+				friend void SerialSync(IReadStream&s, Self&v)
+				{
+					using Serialization::SerialSync;
+					SerialSync(s,v.start);
+					SerialSync(s,v.end);
+				}
+
 			};
 
 		template <typename T>
@@ -713,7 +793,8 @@ namespace DeltaWorks
 					TFloatRange<T>		axis[2];
 				};
 
-				static Rect<T>			Invalid;
+				typedef Rect<T>			Self;
+				static Self				Invalid;
 
 				/**/					Rect(){}
 				/**/					Rect(const T&left, const T& bottom, const T& right, const T& top)
@@ -1197,6 +1278,20 @@ namespace DeltaWorks
 											x /= factor;
 											y /= factor;
 										}
+
+				friend void SerialSync(IWriteStream&s, const Self&v)
+				{
+					using Serialization::SerialSync;
+					SerialSync(s,v.x);
+					SerialSync(s,v.y);
+				}
+				friend void SerialSync(IReadStream&s, Self&v)
+				{
+					using Serialization::SerialSync;
+					SerialSync(s,v.x);
+					SerialSync(s,v.y);
+				}
+
 			};
 	
 		typedef Rect<float>	TFloatRect;
@@ -1212,6 +1307,7 @@ namespace DeltaWorks
 			public:
 				typedef typename TFloatRange<T>::Type	Type;	//union compatible. all references must use this
 
+				typedef Box<T>			Self;
 				union
 				{
 					struct
@@ -1683,6 +1779,21 @@ namespace DeltaWorks
 											y *= factor;
 											z *= factor;
 										}
+
+				friend void SerialSync(IWriteStream&s, const Self&v)
+				{
+					using Serialization::SerialSync;
+					SerialSync(s,v.x);
+					SerialSync(s,v.y);
+					SerialSync(s,v.z);
+				}
+				friend void SerialSync(IReadStream&s, Self&v)
+				{
+					using Serialization::SerialSync;
+					SerialSync(s,v.x);
+					SerialSync(s,v.y);
+					SerialSync(s,v.z);
+				}
 			};
 
 

@@ -12,7 +12,6 @@ namespace DeltaWorks
 
 		template class Channel<String,0,0>;
 		template class ObjectSender<String,0>;
-		template class ConstrainedObject<String,32>;
 
 
 
@@ -133,15 +132,15 @@ namespace DeltaWorks
 
 
 
-		void RootChannel::SendObject(Destination&target, const ISerializable&object, unsigned minUserLevel)
-		{
-			target.SendObject(id,object,minUserLevel);
-		}
+		//void RootChannel::SendObject(Destination&target, Package&object, unsigned minUserLevel)
+		//{
+		//	target.SendObject(id,object,minUserLevel);
+		//}
 
-		void RootChannel::SendObject(Destination&target, const PPeer&exclude, const ISerializable&object, unsigned minUserLevel)
-		{
-			target.SendObject(id,exclude,object,minUserLevel);
-		}
+		//void RootChannel::SendPackage(Destination&target, const PPeer&exclude, const ISerializable&object, unsigned minUserLevel)
+		//{
+		//	target.SendObject(id,exclude,object,minUserLevel);
+		//}
 
 
 		void	Dispatcher::OnDoneResolving(const std::function<void()>&f)
@@ -157,7 +156,7 @@ namespace DeltaWorks
 		}
 
 
-		void	Dispatcher::HandleObject(RootChannel*receiver, Peer&sender, const PSerializableObject&object)
+		void	Dispatcher::HandleObject(RootChannel*receiver, Peer&sender, const PDispatchable&object)
 		{
 			if (!object)
 				return;
@@ -511,7 +510,7 @@ namespace DeltaWorks
 				
 				try
 				{
-					PSerializableObject object = receiver->Deserialize(stream,stream.GetRemainingBytes(),sender);
+					PDispatchable object = receiver->Deserialize(stream,sender);
 					if (stream.GetRemainingBytes()!=0)
 						throw Except::Memory::SerializationFault(CLOCATION,"Object deserialization did not consume all available data. "+String(stream.GetRemainingBytes())+" byte(s) left in stream");
 					if (verbose)
@@ -821,11 +820,11 @@ namespace DeltaWorks
 			return false;
 		}
 	
-		void	Peer::SendData(UINT32 channel_id, const void*data, size_t size)
+		void	Peer::SendData(const Package&p)
 		{
 			if (socketAccess->IsClosed())
 				throw Except::IO::Network::ConnectionLost(CLOCATION,"Socket access is closed");
-			writer.Write(channel_id,data,size);
+			writer.Write(p);
 		}
 	
 	
@@ -887,13 +886,13 @@ namespace DeltaWorks
 		//}
 	
 		static BYTE	dump_buffer[2048];
-		void	Peer::SendObject(UINT32 channel_id, const ISerializable&object, unsigned minUserLevel)
+		void	Peer::SendPackage(const Package&object, unsigned minUserLevel)
 		{
 			if (this->userLevel < minUserLevel)
 				return;
 			if (writer.connectionLost)
 				return;
-			writer.Write(channel_id,object);
+			writer.Write(object);
 		}
 
 
@@ -1510,7 +1509,7 @@ namespace DeltaWorks
 		}
 	
 
-		void		Server::SendSerializedObject(UINT32 channel, const Ctr::ArrayRef<BYTE>&object, unsigned minUserLevel)
+		void		Server::SendPackage(const Package&object, unsigned minUserLevel)
 		{
 			if (verbose)
 				std::cout << "Server::sendObject(): acquiring read lock for message send"<<std::endl;
@@ -1526,7 +1525,7 @@ namespace DeltaWorks
 						continue;
 					try
 					{
-						peer->SendData(channel,object.pointer(),object.size());
+						peer->SendData(object.GetData());
 					}
 					catch (const std::exception&ex)
 					{
@@ -1567,7 +1566,7 @@ namespace DeltaWorks
 		}
 
 
-		void		Server::SendSerializedObject(UINT32 channel, const PPeer&exclude, const Ctr::ArrayRef<BYTE>&object, unsigned minUserLevel)
+		void		Server::SendPackage(const PPeer&exclude, const Package&p, unsigned minUserLevel)
 		{
 			if (verbose)
 				std::cout << "Server::sendObject(): acquiring read lock for message send"<<std::endl;
@@ -1583,7 +1582,7 @@ namespace DeltaWorks
 						continue;
 					try
 					{
-						peer->SendData(channel,object.pointer(),object.size());
+						peer->SendData(p);
 					}
 					catch (const std::exception&ex)
 					{
@@ -1622,45 +1621,8 @@ namespace DeltaWorks
 			}
 		}
 	
-		void		Server::SendObject(UINT32 channel, const ISerializable&object, unsigned minUserLevel)
-		{
-			if (verbose)
-				std::cout << "Server::sendObject() enter: channel="<<channel<<std::endl;
-
-			if (is_shutting_down)
-			{
-				if (verbose)
-					std::cout << "Server::sendObject() exit: service is being shut down"<<std::endl;
-				return;
-			}
-			const serial_size_t size = object.GetSerialSize(false);
-			Ctr::Array<BYTE>		out_buffer(size);
-			serial_size_t written=0;
-			SerializeToMemory(object,out_buffer.pointer(),size,false,&written);
-			if (written != size)
-				throw Except::Memory::SerializationFault(CLOCATION,"Serializable object actually wrote "+String(written)+" bytes. GetSerialSize() returned "+size);
-			SendSerializedObject(channel,out_buffer,minUserLevel);
-		}
+		
 	
-		void		Server::SendObject(UINT32 channel, const PPeer&exclude, const ISerializable&object, unsigned minUserLevel)
-		{
-			if (verbose)
-				std::cout << "Server::sendObject() enter: channel="<<channel<<", exclude="<<exclude->ToString()<<std::endl;
-			if (is_shutting_down)
-			{
-				if (verbose)
-					std::cout << "Server::sendObject() exit: service is being shut down"<<std::endl;
-				return;
-			}
-			const serial_size_t size = object.GetSerialSize(false);
-			Ctr::Array<BYTE>		out_buffer(size);
-			serial_size_t written=0;
-			SerializeToMemory(object,out_buffer.pointer(),size,false,&written);
-			if (written != size)
-				throw Except::Memory::SerializationFault(CLOCATION,"Serializable object actually wrote "+String(written)+" bytes. GetSerialSize() returned "+size);
-			SendSerializedObject(channel, exclude,out_buffer,minUserLevel);
-		}
-
 
 
 	 }

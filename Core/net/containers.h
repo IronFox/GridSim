@@ -8,12 +8,16 @@
 namespace DeltaWorks
 {
 
+
+
 	namespace Package
 	{
 		template <serial_size_t max_size>
 			class NetString:public String
 			{
 			public:
+				typedef NetString<max_size>	Self;
+
 				static const size_t	MaxSize = max_size;
 			static	bool			IsValidChar(char c)
 					{
@@ -59,28 +63,24 @@ namespace DeltaWorks
 						}
 					return true;
 				}
-		
-				virtual	void		Deserialize(IReadStream&in_stream, serial_size_t fixed_size)	override
-									{
-										if (fixed_size == EmbeddedSize)
-										{
-											serial_size_t len;
-											in_stream.ReadSize(len);
-											fixed_size = len;
-										}
-										if (fixed_size > max_size)
-											throw Except::Memory::SerializationFault(CLOCATION,"Deserialized string length "+String(fixed_size)+" exceeds maximum safe size "+String(max_size));
-										String::Deserialize(in_stream,fixed_size);
-										if (!IsValid(*this))
-											throw Except::Memory::SerializationFault(CLOCATION,"Deserialized string contains invalid characters");
-									}
+
+				friend void			SerialSync(IReadStream&s,Self&v)
+				{
+					const serial_size_t len=s.ReadSize();
+					if (len > max_size)
+						throw Except::Memory::SerializationFault(CLOCATION,"Deserialized string length "+String(len)+" exceeds maximum safe size "+String(max_size));
+					v.SetLength(len);
+					s.Read(v.mutablePointer(),len);
+					if (!IsValid(v))
+						throw Except::Memory::SerializationFault(CLOCATION,"Deserialized string contains invalid characters");
+				}
 				
 				
-					String::operator=;
+				String::operator=;
 			};
 
 
-	
+			#if 0
 		template <typename T>
 			class Native:public SerializableObject
 			{
@@ -93,21 +93,19 @@ namespace DeltaWorks
 												Native(T value_):value(value_)
 												{}
 											
-				virtual	serial_size_t			GetSerialSize(bool export_size) const	override
+				virtual	serial_size_t			GetSerialSize() const	override
 				{
 					return sizeof(T);
 				}
 				
-				virtual	void					Serialize(IWriteStream&out_stream, bool export_size) const	override
+				virtual	void					Serialize(IWriteStream&outStream) const	override
 				{
-					out_stream.Write(&value,sizeof(value));
+					outStream.Write(&value,sizeof(value));
 				}
 				
-				virtual	void					Deserialize(IReadStream&in_stream, serial_size_t fixed_size)	override
+				virtual	void					Deserialize(IReadStream&inStream)	override
 				{
-					if (fixed_size != EmbeddedSize && fixed_size != sizeof(T))
-						throw Except::Memory::SerializationFault(CLOCATION,"Expected given fixed size "+String(fixed_size)+" to match size of local primitive "+String(sizeof(T)));
-					in_stream.Read(&value,sizeof(value));
+					inStream.Read(&value,sizeof(value));
 				}
 
 				virtual	bool					HasFixedSize() const	override
@@ -143,6 +141,7 @@ namespace DeltaWorks
 					return value;
 				}				
 			};
+			#endif /*0*/
 		
 		template <class C0, class C1>
 			class Tuple:public SerializableObject
@@ -157,13 +156,13 @@ namespace DeltaWorks
 
 
 		
-				virtual	serial_size_t				GetSerialSize(bool export_size) const	override
+				virtual	serial_size_t				GetSerialSize() const	override
 				{
 					if (b.HasFixedSize())
-						return a.GetSerialSize(export_size) + b.GetSerialSize(true);
+						return a.GetSerialSize(export_size) + b.GetSerialSize();
 					if (a.HasFixedSize())
-						return a.GetSerialSize(true) + b.GetSerialSize(export_size);
-					return 	a.GetSerialSize(true) + b.GetSerialSize(true);
+						return a.GetSerialSize() + b.GetSerialSize(export_size);
+					return 	a.GetSerialSize() + b.GetSerialSize();
 				}
 				
 				virtual	bool						HasFixedSize() const	override
@@ -171,35 +170,35 @@ namespace DeltaWorks
 					return a.HasFixedSize() && b.HasFixedSize();
 				}				
 				
-				virtual	bool						Serialize(IWriteStream&out_stream, bool export_size) const	override
+				virtual	bool						Serialize(IWriteStream&outStream) const	override
 				{
 					if (b.HasFixedSize())
-						return 	a.Serialize(out_stream,export_size) && b.Serialize(out_stream,true);
+						return 	a.Serialize(outStream,export_size) && b.Serialize(outStream,true);
 					if (a.HasFixedSize())
-						return 	a.Serialize(out_stream,true) && b.Serialize(out_stream,export_size);
-					return 	a.Serialize(out_stream,true) && b.Serialize(out_stream,true);
+						return 	a.Serialize(outStream,true) && b.Serialize(outStream,export_size);
+					return 	a.Serialize(outStream,true) && b.Serialize(outStream,true);
 				}
 				
-				virtual	bool						Deserialize(IReadStream&in_stream, serial_size_t fixed_size)	override
+				virtual	bool						Deserialize(IReadStream&inStream)	override
 				{
 					if (fixed_size != EmbeddedSize)
 					{
 						if (a.HasFixedSize())
 						{
-							if (!a.Deserialize(in_stream,EmbeddedSize))
+							if (!a.Deserialize(inStream))
 								return false;
-							fixed_size -= a.GetSerialSize(true);
-							return b.Deserialize(in_stream,fixed_size);
+							fixed_size -= a.GetSerialSize();
+							return b.Deserialize(inStream,fixed_size);
 						}
 						if (b.HasFixedSize())
 						{
-							if (!a.Deserialize(in_stream,fixed_size-b.GetSerialSize(true)))
+							if (!a.Deserialize(inStream,fixed_size-b.GetSerialSize()))
 								return false;
-							return b.Deserialize(in_stream,EmbeddedSize);
+							return b.Deserialize(inStream);
 						}
 					}
 					//cout << "deserializing tupel elements with embedded size"<<endl;
-					return	a.Deserialize(in_stream,EmbeddedSize) && b.Deserialize(in_stream,EmbeddedSize);
+					return	a.Deserialize(inStream) && b.Deserialize(inStream);
 				}
 
 				void						swap(Self&other)
@@ -252,53 +251,41 @@ namespace DeltaWorks
 								is_compressed = other.is_compressed;
 							}
 
-			virtual	serial_size_t	GetSerialSize(bool export_size) const	override
-			{
-				if (is_compressed)
-					return sizeof(is_compressed) + sizeof(UINT32)+compressed.GetSerialSize(export_size);
-				return sizeof(is_compressed) + uncompressed.GetSerialSize(export_size);
-			}
+
 			
-			virtual	void			Serialize(IWriteStream&out_stream, bool export_size) const	override
+			friend void SerialSync(IWriteStream&s, const CompressedString&v)
 			{
-				out_stream.Write(&is_compressed,sizeof(is_compressed));
-				if (is_compressed)
+				using Serialization::SerialSync;
+				s.WritePrimitive(v.is_compressed);
+				if (v.is_compressed)
 				{
-					UINT32 decompressed_size = UINT32(uncompressed.length());
-					out_stream.WriteSize(uncompressed.length());
-					compressed.Serialize(out_stream,export_size);
-					return;
+					UINT32 decompressed_size = UINT32(v.uncompressed.length());
+					s.WriteSize(v.uncompressed.length());
+					SerialSync(s,v.compressed);
 				}
-				uncompressed.Serialize(out_stream,export_size);
+				else
+					SerialSync(s,v.uncompressed);
 			}
 			
-			virtual	void			Deserialize(IReadStream&in_stream, serial_size_t fixed_size)	override
+			friend void SerialSync(IReadStream&s, CompressedString&v)
 			{
-				in_stream.Read(&is_compressed,sizeof(is_compressed));
-				if (fixed_size != EmbeddedSize)
-					fixed_size -= sizeof(is_compressed);
-				if (is_compressed)
+				using Serialization::SerialSync;
+				s.ReadPrimitive(v.is_compressed);
+				if (v.is_compressed)
 				{
-					serial_size_t	decompressed_size;
-					in_stream.ReadSize(decompressed_size);
-					if (fixed_size != EmbeddedSize)
-						fixed_size -= GetSerialSizeOfSize(decompressed_size);
-					compressed.Deserialize(in_stream,fixed_size);
+					const serial_size_t	decompressed_size = s.ReadSize();
+					SerialSync(s,v.compressed);
 					//cout << "extracted "<<compressed.GetContentSize()<<" compressed byte(s). uncompressed="<<decompressed_size<<endl;
-					uncompressed.setLength(decompressed_size);
-					serial_size_t result = (serial_size_t)BZ2::decompress(compressed.pointer(),compressed.GetContentSize(),uncompressed.mutablePointer(),decompressed_size);
+					v.uncompressed.setLength(decompressed_size);
+					const serial_size_t result = (serial_size_t)BZ2::decompress(v.compressed.pointer(),v.compressed.GetContentSize(),v.uncompressed.mutablePointer(),decompressed_size);
 					if (result != decompressed_size)
 						throw Except::Memory::SerializationFault(CLOCATION,"Decompression returned "+String(result)+". Expected "+String(decompressed_size)+".ignoring package");
-
-					for (serial_size_t i = 0; i < decompressed_size; i++)
-					{
-						char c = uncompressed.get(i);
-						if (!isgraph(c) && !isspace(c))
-							throw Except::Memory::SerializationFault(CLOCATION,"Decompression string contains invalid character at location "+String(i));
-					}
-					return;
 				}
-				uncompressed.Deserialize(in_stream,fixed_size);
+				else
+					SerialSync(s,v.uncompressed);
+
+				if (!NetString<256>::IsValid(v.uncompressed))
+					throw Except::Memory::SerializationFault(CLOCATION,"Decompression string contains invalid character");
 			}	
 			
 			void			set(const String&string)
@@ -313,7 +300,7 @@ namespace DeltaWorks
 				if (buffer.length() < uncompressed.length())
 					buffer.SetSize(uncompressed.length());
 				size_t compressed_size = BZ2::compress(uncompressed.c_str(),uncompressed.length(),buffer.pointer(),buffer.length());
-				is_compressed = compressed_size>0 && compressed_size+GetSerialSizeOfSize((serial_size_t)uncompressed.length()) < uncompressed.length();
+				is_compressed = compressed_size>0 && compressed_size+SerialSizeScanner::GetSerialSizeOfSize((serial_size_t)uncompressed.length()) < uncompressed.length();
 				if (is_compressed)
 					compressed.copyFrom(buffer.pointer(),(count_t)compressed_size);
 				else
@@ -348,30 +335,30 @@ namespace DeltaWorks
 									is_compressed = other.is_compressed;
 								}
 		
-				virtual	serial_size_t	GetSerialSize(bool export_size) const	override
+				virtual	serial_size_t	GetSerialSize() const	override
 								{
 									if (is_compressed)
 										return sizeof(is_compressed) + GetSerialSizeOfSize((serial_size_t)serialized.length())+compressed.GetSerialSize(export_size);
-									//cout << (sizeof(is_compressed) + serialized.GetSerialSize(true))<<" count="<<uncompressed.count()<<endl;
+									//cout << (sizeof(is_compressed) + serialized.GetSerialSize())<<" count="<<uncompressed.count()<<endl;
 									return sizeof(is_compressed) + serialized.GetSerialSize(export_size);
 								}
 				
-				virtual	bool			Serialize(IWriteStream&out_stream, bool export_size) const	override
+				virtual	bool			Serialize(IWriteStream&outStream) const	override
 								{
-									if (!out_stream.Write(&is_compressed,sizeof(is_compressed)))
+									if (!outStream.Write(&is_compressed,sizeof(is_compressed)))
 										return false;
 									if (is_compressed)
 									{
 										size_t decompressed_size = serialized.length();
-										return out_stream.WriteSize(decompressed_size) && compressed.Serialize(out_stream,export_size);
+										return outStream.WriteSize(decompressed_size) && compressed.Serialize(outStream,export_size);
 									}
 									//cout << "serialize count="<<uncompressed.count()<<endl;
-									return serialized.Serialize(out_stream,export_size);
+									return serialized.Serialize(outStream,export_size);
 								}
 				
-				virtual	bool			Deserialize(IReadStream&in_stream, serial_size_t fixed_size)	override
+				virtual	bool			Deserialize(IReadStream&inStream)	override
 								{
-									if (!in_stream.Read(&is_compressed,sizeof(is_compressed)))
+									if (!inStream.Read(&is_compressed,sizeof(is_compressed)))
 										return false;
 									if (fixed_size != EmbeddedSize)
 										fixed_size -= sizeof(is_compressed);
@@ -380,20 +367,20 @@ namespace DeltaWorks
 									{
 										//cout << "compressed"<<endl;
 										serial_size_t	serial_size;
-										if (!in_stream.ReadSize(serial_size))
+										if (!inStream.ReadSize(serial_size))
 											return false;
 										if (fixed_size != EmbeddedSize)
 											fixed_size -= GetSerialSizeOfSize(serial_size);
-										if (!compressed.Deserialize(in_stream,fixed_size))
+										if (!compressed.Deserialize(inStream,fixed_size))
 											return false;
 										serialized.SetSize(serial_size);
 										if (BZ2::decompress(compressed.pointer(),compressed.GetContentSize(),serialized.pointer(),serial_size) != serial_size)
 											return false;
 										MemReadStream stream(serialized.pointer(),(serial_size_t)serialized.GetContentSize());
-										return uncompressed.Deserialize(stream,EmbeddedSize);
+										return uncompressed.Deserialize(stream);
 									}
 									//cout << "deserialized array is not compressed"<<endl;
-									if (!serialized.Deserialize(in_stream,fixed_size))
+									if (!serialized.Deserialize(inStream,fixed_size))
 										return false;
 									//cout << "primary deserialization succeeded"<<endl;
 									/*for (index_t i = 0; i < serialized.size(); i++)
@@ -405,7 +392,7 @@ namespace DeltaWorks
 									}
 									cout << endl;*/
 									MemReadStream	inner_read(serialized.pointer(),(serial_size_t)serialized.GetContentSize());
-									return uncompressed.Deserialize(inner_read,EmbeddedSize);
+									return uncompressed.Deserialize(inner_read);
 								}	
 				
 				void			serializeAndCompress()
@@ -442,7 +429,7 @@ namespace DeltaWorks
 }
 DECLARE__(Package::CompressedString,Swappable);
 DECLARE_T__(Package::CompressedArray,Swappable);
-DECLARE_T__(Package::Native,Swappable);
+//DECLARE_T__(Package::Native,Swappable);
 DECLARE_T2__(Package::Tuple,typename,typename,Swappable);
 
 #endif

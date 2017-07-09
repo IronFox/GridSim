@@ -86,6 +86,8 @@ namespace DeltaWorks
 					sizeOut = static_cast<T>(v);
 				}
 
+			serial_size_t			ReadSize()	{serial_size_t rs; ReadSize(rs); return rs;}
+
 	};
 
 
@@ -111,6 +113,7 @@ namespace DeltaWorks
 						{
 							field = (const BYTE*)data;
 							end = field+size;
+							DBG_ASSERT__(size == 0 || data != nullptr);
 						}
 		const BYTE*		GetCurrent()	const
 						{

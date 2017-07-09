@@ -47,7 +47,7 @@ namespace DeltaWorks
 
 
 		Container::Buffer<BYTE>	out_buffer;
-		IWriteStream	*out_stream = NULL;
+		IWriteStream	*outStream = NULL;
 		IReadStream		*inStream = NULL;
 		const	BYTE	*global_source = NULL;
 		index_t			global_at = 0;
@@ -60,7 +60,7 @@ namespace DeltaWorks
 
 		void writeSectionToStream(png_structp png, png_bytep data, png_size_t size)
 		{
-			out_stream->Write(data,(serial_size_t)size);
+			outStream->Write(data,(serial_size_t)size);
 		}
 
 		void	flushSection(png_structp png)
@@ -295,7 +295,7 @@ namespace DeltaWorks
 
 	/*static*/	void		PNG::CompressToStream(const Image&source_image, IWriteStream&stream)
 	{
-		out_stream = &stream;
+		outStream = &stream;
 		png_structp png = png_create_write_struct(PNG_LIBPNG_VER_STRING,(void*)pngError,writeError,handleWarning);
 		png_infop info= png_create_info_struct(png);
 		png_set_compression_level(png,9);	//maximum compression

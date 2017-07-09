@@ -55,8 +55,12 @@ namespace DeltaWorks
 		String	ToString(const addrinfo&address);
 		String	ToString(const sockaddr_storage&address, socklen_t addrLen, bool includePort = true);
 		String	StripPort(const String&host);
+
+
+		class Dispatchable
+		{};
 	
-		typedef std::shared_ptr<SerializableObject>	PSerializableObject;
+		typedef std::shared_ptr<Dispatchable>	PDispatchable;
 
 
 		/**
@@ -322,26 +326,64 @@ namespace DeltaWorks
 		};
 
 
-		/**
-			@brief Size constrained serializable
-		
-			This class imposes a maximum size to the underlying serializable class.
-		*/
-		template <class Serializable, serial_size_t MaxSize>
-			class ConstrainedObject:public Serializable
+		class Package
+		{
+		public:
+			/**/		Package():dataIncludingHeaderSpace(8)	{}
+
+			template <typename Serializable>
+				/**/		Package(const Serializable&s)
+				{
+					Update(s);
+				}
+
+			template <typename Serializable>
+				/**/		Package(const Serializable&s, UINT32 channelID)
+				{
+					Update(s);
+					UpdateChannelID(channelID);
+				}
+
+			const Array<BYTE>& GetData() const
 			{
-			public:
-					/**
-						@brief Deserializes data from an abstract stream source into the local object as defined by the abstract ISerializable interface.
-					*/
-				virtual	void	Deserialize(IReadStream&stream, serial_size_t fixedSize)	override
-								{
-									if (fixedSize > MaxSize)
-										throw Except::Memory::SerializationFault(CLOCATION,"Given fixed package size "+String(fixedSize)+" exceeds maximum safe size "+String(MaxSize));
-									Serializable::Deserialize(stream,fixedSize);
-								}
-			};
-	
+				return dataIncludingHeaderSpace;
+			}
+			UINT32	GetChannel() const
+			{
+				return Header()[0];
+			}
+
+			void	UpdateChannelID(UINT32 id)
+			{
+				Header()[0] = id;
+			}
+
+
+			template <typename Serializable>
+				void	Update(const Serializable&s)
+				{
+					using Serialization::SerialSync;
+
+					SerialSizeScanner scanner;
+					SerialSync(scanner,s);
+
+					dataIncludingHeaderSpace.SetSize(scanner.GetTotalSize()+8);
+					SerializeToCompactMemory(s,dataIncludingHeaderSpace+8,scanner.GetTotalSize());
+					Header()[0] = 0;
+					Header()[1] = (UINT32)scanner.GetTotalSize();
+				}
+		private:
+
+			UINT32*	Header()
+			{
+				return (UINT32*)dataIncludingHeaderSpace.pointer();
+			}
+			const UINT32*	Header()const
+			{
+				return (const UINT32*)dataIncludingHeaderSpace.pointer();
+			}
+			Array<BYTE>	dataIncludingHeaderSpace;
+		};
 	
 
 		template <typename T>
@@ -350,7 +392,7 @@ namespace DeltaWorks
 			private:
 				bool		sealed;
 				T			element;
-				Ctr::Array<BYTE>	serialized;
+				Package		serialized;
 			public:
 				/**/		Serial():sealed(false)
 				{}
@@ -366,11 +408,17 @@ namespace DeltaWorks
 					if (sealed)
 						return;
 					sealed = true;
-					serialized.SetSize(element.GetSerialSize(false));
-					SerializeToMemory(element,serialized.pointer(),(serial_size_t)serialized.GetContentSize(),false);
+					serialized.Update(element);
 				}
 
-				const Ctr::Array<BYTE>&	Get() const
+				const Package&	IncludeChannelID(UINT32 channelID)
+				{
+					ASSERT__(sealed);
+					serialized.UpdateChannelID(channelID);
+					return serialized;
+				}
+
+				const Package&	Get() const
 				{
 					ASSERT__(sealed);
 					return serialized;
@@ -387,15 +435,17 @@ namespace DeltaWorks
 		class VoidSerializable:public SerializableObject
 		{
 		public:
-			virtual	serial_size_t	GetSerialSize(bool) const	override	{return 0;};
-			virtual	void			Serialize(IWriteStream&stream,bool) const		override	{}
-			virtual	void			Deserialize(IReadStream&stream,serial_size_t)	override	{}
+			virtual	void			Serialize(IWriteStream&stream) const		override	{}
+			virtual	void			Deserialize(IReadStream&stream)	override	{}
 		};
 	
+
+
+
 		/**
 		@brief Abstract data destination
 		
-		Peer (client) or Server (all clients) are of this type and implement the abstract SendObject() method
+		Peer (client) or Server (all clients) are of this type and implement the abstract SendPackage() method
 		*/
 		class Destination
 		{
@@ -404,13 +454,13 @@ namespace DeltaWorks
 			/**
 			@brief Abstract data send method
 				
-			SendObject() sends a serializable data structure on the specified channel to the remote destination described by the local structure
+			SendPackage() sends a serializable data structure on the specified channel to the remote destination described by the local structure
 			@param channel Channel to send the data on
-			@param serializable Data to send on the specified channel
+			@param serialized Data to send on the specified channel
 			@return true on success, false otherwise
 			*/
-			virtual	void		SendObject(UINT32 channel, const ISerializable&serializable, unsigned minUserLevel)=0;
-			virtual	void		SendObject(UINT32 channel, const PPeer&exclude, const ISerializable&serializable, unsigned minUserLevel)	{SendObject(channel,serializable,minUserLevel);};
+			virtual	void		SendPackage(const Package&serialized, unsigned minUserLevel)=0;
+			virtual	void		SendPackage(const PPeer&exclude, const Package&serialized, unsigned minUserLevel)	{SendPackage(serialized,minUserLevel);};
 		};
 		typedef std::shared_ptr<Destination>	PDestination;
 		/**
@@ -430,21 +480,16 @@ namespace DeltaWorks
 								RootChannel(UINT32 id_):id(id_)
 								{}
 			
-			/**
-			@brief Sends an object to the specified destination
-			*/
-			void				SendObject(Destination&destination, const ISerializable&object, unsigned minUserLevel=0);
-			void				SendObject(Destination&destination, const PPeer&exclude, const ISerializable&object, unsigned minUserLevel=0);
 							
 			/**
 			@brief Deserializes the stream into a new object
 
 			This method is called asynchronously by the respective connection's worker thread.
 			*/
-			virtual	PSerializableObject	Deserialize(IReadStream&stream,serial_size_t fixed_size,Peer&sender)
+			virtual	PDispatchable	Deserialize(IReadStream&stream,Peer&sender)
 			{
 				DBG_FATAL__("TCP: Trying to deserialize on a pure root channel");
-				return PSerializableObject();
+				return PDispatchable();
 			}
 		public:
 			/**
@@ -453,7 +498,7 @@ namespace DeltaWorks
 			The method is invoked only, if Deserialize() returned a new non-NULL object.
 			Depending on whether the connection is synchronous or asynchronous, this method is called my the main thread, or the connection's worker thread.
 			*/
-			virtual	void				Handle(const PSerializableObject&serializable,const TDualLink&sender)	{FATAL__("Channel failed to override handle()");};
+			virtual	void				Handle(const PDispatchable&serializable,const TDualLink&sender)	{FATAL__("Channel failed to override handle()");};
 		};
 
 
@@ -464,23 +509,25 @@ namespace DeltaWorks
 			class ObjectSender:public RootChannel
 			{
 			protected:
-				virtual	PSerializableObject	Deserialize(IReadStream&stream,serial_size_t fixed_size,Peer&sender)	override
+				virtual	PDispatchable	Deserialize(IReadStream&stream,Peer&sender)	override
 				{
 					DBG_FATAL__("TCP: Trying to deserialize on a pure object sender channel");
-					return PSerializableObject();
+					return PDispatchable();
 				}
 			public:
 				/**/					ObjectSender():RootChannel(Channel)
 										{}
+
+				
 				void					SendTo(Destination&destination, const SerializableObject&object, unsigned minUserLevel=0)
 				{
-					SendObject(destination,object,minUserLevel);
+					destination.SendPackage(Package(object,RootChannel::id),minUserLevel);
 				}
 				void					SendTo(const PDestination&destination, const SerializableObject&object, unsigned minUserLevel=0)
 				{
 					if (!destination)
 						return;	//silently ignore this
-					SendObject(*destination,object,minUserLevel);
+					SendTo(*destination,object,minUserLevel);
 				}
 				/**
 				@brief Special overload form of sendTo for servers only
@@ -495,23 +542,23 @@ namespace DeltaWorks
 				{
 					if (!destination)
 						return;	//silently ignore this
-					SendObject(*destination,exclude,object,minUserLevel);
+					SendTo(*destination,exclude,object,minUserLevel);
 				}
 				void				SendTo(Destination&destination, const PPeer&exclude, const SerializableObject&object, unsigned minUserLevel=0)
 				{
-					SendObject(destination,exclude,object);
+					destination.SendPackage(exclude,Package(object,RootChannel::id), minUserLevel);
 				}
 
 
-				void					SendTo(Destination&destination, const Serial<SerializableObject>&object, unsigned minUserLevel=0)
+				void					SendTo(Destination&destination, Serial<SerializableObject>&object, unsigned minUserLevel=0)
 				{
-					SendObject(destination,object.Get(),minUserLevel);
+					destination.SendPackage(object.IncludeChannelID(RootChannel::id), minUserLevel);
 				}
-				void					SendTo(const PDestination&destination, const Serial<SerializableObject>&object, unsigned minUserLevel=0)
+				void					SendTo(const PDestination&destination, Serial<SerializableObject>&object, unsigned minUserLevel=0)
 				{
 					if (!destination)
 						return;	//silently ignore this
-					SendObject(*destination,object.Get(),minUserLevel);
+					SendTo(*destination,object,minUserLevel);
 				}
 				/**
 				@brief Special overload form of sendTo for servers only
@@ -522,15 +569,15 @@ namespace DeltaWorks
 				@param exclude Peer to specifically exclude
 				@param object Serializable object to send
 				*/
-				void				SendTo(const PDestination&destination, const PPeer&exclude, const Serial<SerializableObject>&object, unsigned minUserLevel=0)
+				void				SendTo(const PDestination&destination, const PPeer&exclude, Serial<SerializableObject>&object, unsigned minUserLevel=0)
 				{
 					if (!destination)
 						return;	//silently ignore this
-					SendObject(*destination,exclude,object.Get(),minUserLevel);
+					SendTo(*destination,exclude,object,minUserLevel);
 				}
-				void				SendTo(Destination&destination, const PPeer&exclude, const Serial<SerializableObject>&object, unsigned minUserLevel=0)
+				void				SendTo(Destination&destination, const PPeer&exclude, Serial<SerializableObject>&object, unsigned minUserLevel=0)
 				{
-					SendObject(destination,exclude,object.Get(),minUserLevel);
+					destination.SendPackage(exclude,object.IncludeChannelID(RootChannel::id), minUserLevel);
 				}
 												
 			};
@@ -542,10 +589,10 @@ namespace DeltaWorks
 			class SignalSender:public RootChannel
 			{
 			protected:
-				virtual	PSerializableObject	Deserialize(IReadStream&stream,serial_size_t fixed_size,Peer&sender)	override
+				virtual	PDispatchable	Deserialize(IReadStream&stream,Peer&sender)	override
 				{
 					DBG_FATAL__("TCP: Trying to deserialize on a pure signal sender");
-					return PSerializableObject();
+					return PDispatchable();
 				}
 			public:
 				/**/				SignalSender():RootChannel(ChannelID)
@@ -631,7 +678,7 @@ namespace DeltaWorks
 
 				UINT32					channel;	//only if type==Signal
 
-				PSerializableObject		object;		//only if type==Object
+				PDispatchable			object;		//only if type==Object
 				RootChannel				*receiver;	//only if type==Object
 			
 				TDualLink				sender;
@@ -664,7 +711,7 @@ namespace DeltaWorks
 		protected:
 			bool						PostResolveTerminationIsImminent() const {return resolving && terminateAfterResolve;}
 			virtual void				HandleSignal(UINT32 signal, Peer&sender);
-			virtual void				HandleObject(RootChannel*receiver, Peer&sender, const PSerializableObject&object);
+			virtual void				HandleObject(RootChannel*receiver, Peer&sender, const PDispatchable&object);
 			RootChannel*				getReceiver(UINT32 channel_id, unsigned user_level);
 			bool						QuerySignalMap(UINT32 channelID, unsigned&outMinChannelID) const;
 			String						DebugGetOpenSignalChannels() const;
@@ -905,35 +952,41 @@ namespace DeltaWorks
 
 			void						ThreadMain() override;			//!< Socket write thread main
 
-
-			void						Write(UINT32 channel, const ISerializable&s)
+			template <typename Serializable>
+			void						Write(UINT32 channel, const Serializable&s)
 			{
 				if (connectionLost)
 					throw Except::IO::Network::ConnectionLost(CLOCATION,"Cannot write data on channel "+String(channel));
-				serial_size_t size = s.GetSerialSize(false);
-				Ctr::Array<BYTE>	data(8 + size);
-				(*(UINT32*)data.pointer()) = channel;
-				(*(((UINT32*)data.pointer())+1)) = (UINT32)size;
+				using Serialization::SerialSync;
+				SerialSizeScanner scanner;
+				SerialSync(scanner,s);
 
-				SerializeToCompactMemory(s,data.pointer()+8,size,false);
+				const serial_size_t size = scanner.GetTotalSize();
+				Array<BYTE>	data(8 + size);
+				UINT32*header = (UINT32*)data.pointer();
+				header[0] = channel;
+				header[1] = (UINT32)size;
+
+				SerializeToCompactMemory(s,data.pointer()+8,size);
 				pipe.MoveAppend(data);
 			}
 			void						Write(UINT32 channel, const void*rawData, size_t numBytes)
 			{
 				if (connectionLost)
 					throw Except::IO::Network::ConnectionLost(CLOCATION,"Cannot write data on channel "+String(channel));
-				Ctr::Array<BYTE>	data(8 + numBytes);
-				(*(UINT32*)data.pointer()) = channel;
-				(*(((UINT32*)data.pointer())+1)) = (UINT32)numBytes;
+				Array<BYTE>	data(8 + numBytes);
+				UINT32*header = (UINT32*)data.pointer();
+				header[0] = channel;
+				header[1] = (UINT32)numBytes;
 				memcpy(data.pointer()+8,rawData,numBytes);
 				pipe.MoveAppend(data);
 			}
 
-			bool						Write(const Ctr::Array<BYTE>&packet)
+			bool						Write(const Package&packet)
 			{
 				if (connectionLost)
 					return false;
-				pipe << packet;
+				pipe << packet.GetData();
 				return true;
 			}
 
@@ -941,7 +994,7 @@ namespace DeltaWorks
 			{
 				if (connectionLost)
 					return false;
-				Ctr::Array<BYTE>	data(8);
+				Array<BYTE>	data(8);
 				(*(UINT32*)data.pointer()) = signal;
 				(*(((UINT32*)data.pointer())+1)) = (UINT32)0;
 				pipe.MoveAppend(data);
@@ -973,7 +1026,7 @@ namespace DeltaWorks
 			//volatile SOCKET				socket_handle;	//!< Handle to the occupied socket
 			serial_size_t				remaining_size,			//!< Size remaining for reading streams 
 										remaining_write_size;	//!< Size remaining for writing streams in the announced memory frame
-			ByteStream					serial_buffer;		//!< Buffer used to serialize package data
+			ByteStreamBuffer			serial_buffer;		//!< Buffer used to serialize package data
 			SocketAccess				*socketAccess;
 			std::weak_ptr<Peer>			self;
 			friend class Server;
@@ -981,7 +1034,7 @@ namespace DeltaWorks
 			friend class PeerWriter;
 			
 			void						ThreadMain() override;			//!< Socket read thread main
-			void						SendData(UINT32 channel_id, const void*data, size_t size);	//!< Sends raw data to the TCP stream. Used by server
+			void						SendData(const Package&p);		//!< Sends a finished package to the TCP stream. Used by server
 			bool						succeeded(int result, size_t desired);							//!< Handles the result of a TCP socket send operation. @param result Actual value returned by send() @param desired Valued expected to be returned by send() @return true if both values match, false otherwise. The connection is automatically closed, events triggered and error values set if the operation failed.
 			void						handleUnexpectedSendResult(int result);
 			void						Read(void*target, serial_size_t size) override;								//!< IInStream override for direct TCP stream input
@@ -1117,7 +1170,7 @@ namespace DeltaWorks
 			virtual bool				SendSignal(UINT32 channel);		//!< Sends a data-less package to the other end of this peer
 			
 			bool						HandleIsValid()	const	{return !socketAccess->IsClosed();}
-			void						SendObject(UINT32 channel, const ISerializable&object, unsigned minUserLevel=0) override;		//!< Sends a serializable object to the TCP stream on the specified channel
+			void						SendPackage(const Package&object, unsigned minUserLevel=0) override;		//!< Sends a serializable object to the TCP stream on the specified channel
 			/**
 			Retrieves the high-resolution time of last receiving of any package from the remote end. Even partial packages count
 			*/
@@ -1216,11 +1269,10 @@ namespace DeltaWorks
 		protected:
 			void				OnDisconnect(const Peer*, event_t) override;	//!< Executed by a peer if its connection died
 			void				Fail(const String&message);					//!< Executed if an operation failed
-			void				SendObject(UINT32 channel, const ISerializable&object, unsigned minUserLevel) override;
-			void				SendObject(UINT32 channel, const PPeer&exclude, const ISerializable&object, unsigned minUserLevel) override;
+			void				SendPackage(const Package&object, unsigned minUserLevel) override;
+			void				SendPackage(const PPeer&exclude, const Package&object, unsigned minUserLevel) override;
 		
-			void				SendSerializedObject(UINT32 channel, const Ctr::ArrayRef<BYTE>&object, unsigned minUserLevel);
-			void				SendSerializedObject(UINT32 channel, const PPeer&exclude, const Ctr::ArrayRef<BYTE>&object, unsigned minUserLevel);
+
 
 			bool				IsShuttingDown() const {return is_shutting_down;}
 
@@ -1346,13 +1398,13 @@ namespace DeltaWorks
 				void					(*onSimpleObjectReceive)(Object&object);
 				
 				
-				virtual	void			Handle(const PSerializableObject&serializable,const TDualLink&sender)	override
+				virtual	void			Handle(const PDispatchable&obj,const TDualLink&sender)	override
 				{
 					PPeer p = sender.s.lock();
 					Peer*ptr = p ? p.get() : sender.p;
 					if (ptr && ptr->userLevel >= MinUserLevel)
 					{
-						OnReceive((Object&)*serializable,*ptr);
+						OnReceive(*(Object*)obj.get(),*ptr);
 					}
 					else if (!ptr)
 					{
@@ -1362,12 +1414,26 @@ namespace DeltaWorks
 				}
 			protected:
 
-								
-								
-				virtual	PSerializableObject	Deserialize(IReadStream&stream,serial_size_t fixed_size,Peer&sender)	override
+				static void MyDelete(Dispatchable*p)
 				{
-					PSerializableObject result (new Object());
-					result->Deserialize(stream,fixed_size);
+					delete (Object*)p;
+				}
+								
+				virtual	PDispatchable	Deserialize(IReadStream&stream,Peer&sender)	override
+				{
+					Object*rsObject = new Object();
+					PDispatchable result;
+					try
+					{
+						using Serialization::SerialSync;
+						SerialSync(stream,*rsObject);
+						result.reset((Dispatchable*)rsObject,MyDelete);
+					}
+					catch (const std::exception&ex)
+					{
+						delete rsObject;
+						throw;
+					}
 					return result;
 				}
 								

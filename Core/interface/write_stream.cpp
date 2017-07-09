@@ -3,10 +3,6 @@
 
 namespace DeltaWorks
 {
-	void		IWriteStream::WriteSize(serial_size32_t size)
-	{
-		WriteSize((serial_size64_t)size);
-	}
 
 	void		IWriteStream::WriteSize(serial_size64_t size)
 	{

@@ -98,6 +98,60 @@ namespace DeltaWorks
 			{};
 
 
+
+
+		template <typename T>
+			inline void SerialSync(IWriteStream&s, const TMatrix2<T>&v)
+			{
+				using Serialization::SerialSync;
+				SerialSync(s,v.x);
+				SerialSync(s,v.y);
+			}
+		template <typename T>
+			inline void SerialSync(IReadStream&s, TMatrix2<T>&v)
+			{
+				using Serialization::SerialSync;
+				SerialSync(s,v.x);
+				SerialSync(s,v.y);
+			}
+
+
+		template <typename T>
+			inline void SerialSync(IWriteStream&s, const TMatrix3<T>&v)
+			{
+				using Serialization::SerialSync;
+				SerialSync(s,v.x);
+				SerialSync(s,v.y);
+				SerialSync(s,v.z);
+			}
+		template <typename T>
+			inline void SerialSync(IReadStream&s, TMatrix3<T>&v)
+			{
+				using Serialization::SerialSync;
+				SerialSync(s,v.x);
+				SerialSync(s,v.y);
+				SerialSync(s,v.z);
+			}
+
+		template <typename T>
+			inline void SerialSync(IWriteStream&s, const TMatrix4<T>&v)
+			{
+				using Serialization::SerialSync;
+				SerialSync(s,v.x);
+				SerialSync(s,v.y);
+				SerialSync(s,v.z);
+				SerialSync(s,v.w);
+			}
+		template <typename T>
+			inline void SerialSync(IReadStream&s, TMatrix4<T>&v)
+			{
+				using Serialization::SerialSync;
+				SerialSync(s,v.x);
+				SerialSync(s,v.y);
+				SerialSync(s,v.z);
+				SerialSync(s,v.w);
+			}
+
 		#define MFUNCM(_return_type_)	template <class T0, class T1, class T2, count_t MHeight, count_t MWidth, count_t NWidth> MF_DECLARE(_return_type_)
 		#define MFUNCD(_return_type_)	template <class C, count_t Rows, count_t Cols> MF_DECLARE(_return_type_)
 		#define MFUNCC(_return_type_)	template <class C, count_t Rows, count_t Cols, index_t Col0, index_t Col1> MF_DECLARE(_return_type_)

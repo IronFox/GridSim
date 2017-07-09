@@ -62,124 +62,6 @@ namespace DeltaWorks
 
 
 
-	/**
-		@brief Overload serilizable check (void*)
-
-		The compiler defaults to this if the checked class is not a derivative of ISerializable.
-		@return Always false
-	*/
-	inline	bool		IsISerializable(const void*)
-						{
-							return false;
-						}
-	inline	bool		IsISerializable(const volatile void*)
-						{
-							return false;
-						}
-	inline	size_t		GetFixedSize(const void*)
-						{
-							return 0;
-						}
-
-	/**
-		@brief Overload serilizable check (ISerializable*)
-
-		@return Always true
-	*/
-	inline	bool		IsISerializable(const ISerializable*)
-						{
-							return true;
-						}
-	inline	bool		IsISerializable(const volatile ISerializable*)
-						{
-							return true;
-						}
-	inline	size_t		GetFixedSize(const ISerializable*serial)
-						{
-							return serial->HasFixedSize() ? serial->GetSerialSize(true) : 0;
-						}
-
-	/**
-		@brief Overload serilizable size query (void*)
-
-		The compiler defaults to this if the checked class is not a derivative of ISerializable.
-
-		@param	native_size Size of the passed object. This matches the effective return
-				value of this function overload
-		@param	export_size Unused. Defines whether or not any dynamic object size should be
-				exported along with the object's payload. Not applicable for non-serializable
-				objects
-		@return The provided (native) data size
-	*/
-	inline	serial_size_t		GetSerialSizeOf(const void*, serial_size_t native_size, bool export_size)
-												{
-													//throw ERROR_MAKE__("bad");
-													return native_size;
-												}
-	inline	serial_size_t		GetSerialSizeOf(volatile const void*, serial_size_t native_size, bool export_size)
-												{
-													//throw ERROR_MAKE__("bad");
-													return native_size;
-												}
-
-	/**
-		@brief Overload serilizable size query (ISerializable*)
-
-		@param	object Serializable object to query the size of
-		@param	native_size Size of the passed object. Unused by this function overload
-		@param	export_size Defines whether or not any dynamic object size should be
-				exported along with the object's payload. The object may or may not
-				apply this parameter.
-		@return The passed object's serial size
-	*/
-	inline	serial_size_t		GetSerialSizeOf(const ISerializable*object, serial_size_t native_size, bool export_size)
-												{
-													//throw ERROR_MAKE__("good");
-													return object->GetSerialSize(export_size);
-												}
-	inline	serial_size_t		GetSerialSizeOf(volatile const ISerializable*object, serial_size_t native_size, bool export_size)
-												{
-													return const_cast<const ISerializable*>(object)->GetSerialSize(export_size);
-												}
-
-
-	inline	void		SerializeObject(const void*object, serial_size_t native_object_size, IWriteStream&out_stream, bool export_size)
-						{
-							out_stream.Write(object,native_object_size);
-						}
-	inline	void		SerializeObject(const volatile void*object, serial_size_t native_object_size, IWriteStream&out_stream, bool export_size)
-						{
-							out_stream.Write(object,native_object_size);
-						}
-
-	inline	void		SerializeObject(const ISerializable*object, serial_size_t native_object_size, IWriteStream&out_stream, bool export_size)
-						{
-							object->Serialize(out_stream,export_size);
-						}
-	inline	void		SerializeObject(const volatile ISerializable*object, serial_size_t native_object_size, IWriteStream&out_stream, bool export_size)
-						{
-							const_cast<const ISerializable*>(object)->Serialize(out_stream,export_size);
-						}
-
-
-	inline	void		DeserializeObject(void*object, serial_size_t native_object_size, IReadStream&in_stream,serial_size_t fixed_size)
-						{
-							in_stream.Read(object,native_object_size);
-						}
-	inline	void		DeserializeObject(volatile void*object, serial_size_t native_object_size, IReadStream&in_stream,serial_size_t fixed_size)
-						{
-							in_stream.Read(object,native_object_size);
-						}
-
-	inline	void		DeserializeObject(ISerializable*object, serial_size_t native_object_size, IReadStream&in_stream,serial_size_t fixed_size)
-						{
-							object->Deserialize(in_stream,fixed_size);
-						}
-	inline	void		DeserializeObject(volatile ISerializable*object, serial_size_t native_object_size, IReadStream&in_stream,serial_size_t fixed_size)
-						{
-							const_cast<ISerializable*>(object)->Deserialize(in_stream,fixed_size);
-						}
-
 	namespace Container
 	{
 
@@ -191,7 +73,7 @@ namespace DeltaWorks
 			FixedArray 
 		*/
 		template <typename T, size_t Length, class MyStrategy=typename StrategySelector<T>::Default>
-			class FixedArray:public std::array<T,Length>, public SerializableObject
+			class FixedArray:public std::array<T,Length>
 			{
 			public:	
 				typedef FixedArray<T,Length,MyStrategy>	Self;
@@ -258,42 +140,19 @@ namespace DeltaWorks
 					Super::fill(pattern);
 				}
 
-				virtual	serial_size_t	GetSerialSize(bool export_size) const	override
+				friend void			SerialSync(IWriteStream&s, const Self&v)
 				{
-					serial_size_t result = 0;
-					for (Super::const_iterator i = Super::begin(); i != Super::end(); ++i)
-						result += GetSerialSizeOf(&*i,sizeof(T),true);//must pass true here because the individual object size cannot be restored from the global data size
-					return result;
+					using Serialization::SerialSync;
+					for (Super::const_iterator i = v.begin(); i != v.end(); ++i)
+						SerialSync(s,*i);
 				}
-			
-				virtual	void			Serialize(IWriteStream&out_stream, bool export_size) const	override
+				friend void			SerialSync(IReadStream&s, Self&v)
 				{
-					if (!IsISerializable(Super::data()))
-					{
-						out_stream.Write(Super::data(),sizeof(T)*Length);
-						return;
-					}
-	
-					for (Super::const_iterator i = Super::begin(); i != Super::end(); ++i)
-						SerializeObject(&*i,sizeof(T),out_stream,true);
+					using Serialization::SerialSync;
+					for (Super::iterator i = v.begin(); i != v.end(); ++i)
+						SerialSync(s,*i);
 				}
-			
-				virtual	void			Deserialize(IReadStream&in_stream, serial_size_t)	override
-				{
-					if (!IsISerializable(Super::data()))
-					{
-						in_stream.Read(Super::data(),sizeof(T)*Length);
-						return;
-					}
-	
-					for (Super::iterator i = Super::begin(); i != Super::end(); ++i)
-						DeserializeObject(&*i,sizeof(T),in_stream,EmbeddedSize);
-				}	
-		
-				virtual bool			HasFixedSize() const override
-				{
-					return GetFixedSize(Super::data()) != 0;
-				}
+
 
 				constexpr size_t		GetContentSize() const {return sizeof(T)*Length;}
 
@@ -838,6 +697,14 @@ namespace DeltaWorks
 				{
 					return HashField(data.data,data.elements);
 				}
+
+				friend void			SerialSync(IWriteStream&s, const ArrayRef<T>&v)
+				{
+					using Serialization::SerialSync;
+					s.WriteSize(v.elements);
+					for (index_t i = 0; i < v.elements; i++)
+						SerialSync(s,v.data[i]);
+				}
 			};
 
 
@@ -863,7 +730,7 @@ namespace DeltaWorks
 		ArrayData provides all non-strategy dependent functionality that array usage requires. Methods or functions that do not require strategy-dependent functionality may accept ArrayData instead.
 		*/
 		template <class C>
-			class ArrayData: public ArrayRef<C>, public SerializableObject, public Arrays
+			class ArrayData: public ArrayRef<C>, public Arrays
 			{
 				typedef ArrayRef<C>	Super;
 				typedef ArrayData<C>	Self;
@@ -1003,70 +870,14 @@ namespace DeltaWorks
 				//template <class T>
 
 
-				virtual	serial_size_t	GetSerialSize(bool export_size) const	override
-									{
-										serial_size_t result = 0;
-										if (export_size || (IsISerializable(data) && !FixedSizeSerializable<C>::GetSize()))
-											result = GetSerialSizeOfSize((serial_size_t)elements);
-										for (index_t i = 0; i < elements; i++)
-											result += GetSerialSizeOf((const C*)data+i,sizeof(C),true);//must pass true here because the individual object size cannot be restored from the global data size
-										return result;
-									}
 
-				virtual	void		Serialize(IWriteStream&out_stream, bool export_size) const	override
-									{
-										if (export_size || (IsISerializable(data) && !FixedSizeSerializable<C>::GetSize()))
-											out_stream.WriteSize(elements);
-										if (!IsISerializable(data))
-										{
-											out_stream.Write(data,(serial_size_t)Super::GetContentSize());
-											return;
-										}
-
-										for (index_t i = 0; i < elements; i++)
-											SerializeObject(data+i,sizeof(C),out_stream,true);
-									}
-
-				virtual	void		Deserialize(IReadStream&in_stream, serial_size_t fixed_size)	override
-									{
-										count_t size;
-										if (fixed_size == EmbeddedSize)
-										{
-											//cout << "reading embedded size "<<endl;
-											in_stream.ReadSize(size);
-											//cout << "deciphered "<<size<<" elements"<<endl;
-										}
-										else
-										{
-											//cout << "using fixed size "<<endl;
-											if (!IsISerializable(data))
-												size = (count_t)(fixed_size/sizeof(C));
-											else
-											{
-												size_t fixedElementSize = FixedSizeSerializable<C>::GetSize();
-												if (fixedElementSize != 0)
-												{
-													size = (count_t)(fixed_size/fixedElementSize);
-												}
-												else
-													in_stream.ReadSize(size);
-											}
-						
-												//FATAL__("trying to Deserialize an array containing serializable objects from a fixed size stream data section not including any element count");
-										}
-
-										SetSize(size);
-										if (!IsISerializable(data))
-										{
-											//cout << "data is not of i-serializable type. reading plain"<<endl;
-											in_stream.Read(data,(serial_size_t)Super::GetContentSize());
-											return;
-										}
-
-										//cout << "data is of i-serializable type. invoking deserializers"<<endl;
-										for (index_t i = 0; i < elements; i++)
-											DeserializeObject(data+i,sizeof(C),in_stream,EmbeddedSize);
-									}
+				friend void			SerialSync(IReadStream&s, Self&v)
+				{
+					using Serialization::SerialSync;
+					v.SetSize(s.ReadSize());
+					for (index_t i = 0; i < v.elements; i++)
+						SerialSync(s,v.data[i]);
+				}
 			};
 
 

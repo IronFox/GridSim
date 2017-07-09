@@ -113,9 +113,56 @@ namespace DeltaWorks
 				Write(elements, (serial_size_t)(sizeof(T)*num_elements));
 			}
 
-		void		WriteSize(serial_size32_t size);	//! Writes the content of a 32bit size variable in big endian. This operation cannot fail unless the local stream fails
 		void		WriteSize(serial_size64_t size);	//! Writes the content of a 64bit size variable in bit endian. This operation may throw an exception of @a size exceeds 2^61-1
 
+		template <typename Numeric>
+			void	WriteSize(Numeric size)
+			{
+				WriteSize((serial_size64_t)size);
+			}
+
+	};
+
+
+	/**
+	Helper class to detect the serial size of an object. No data is actually stored or written anywhere.
+	This replaces the use of GetSerialSize() as was common before. <br />
+	Example:<br />
+		SerialSizeScanner scanner;<br />
+		object.Serialize(scanner);<br />
+		byteSize = scanner.GetTotalSize();
+	*/
+	class SerialSizeScanner : public IWriteStream
+	{
+	public:
+		/**
+		Retrieves the byte-size of a given non-negative size variable that should be serialized using IWriteStream::WriteSize().
+		@param size Size variable to determine the byte size of. Must be non-negative
+		@return Number of bytes occupied by a given size variable when written using IWriteStream::WriteSize(). May be 1,2,3,4, or 8
+		*/
+		template <typename T>
+			static	serial_size_t		GetSerialSizeOfSize(T size)
+			{
+				if (size <= 0x3F)
+					return 1;
+				if (size <= 0x3FFF)
+					return 2;
+				if (size <= 0x3FFFFF)
+					return 3;
+				if (size < (1U<<29))
+					return 4;
+				return 8;
+			}
+
+		virtual void	Write(const void*, serial_size_t size)	override
+		{
+			this->size += size;
+		}
+
+		serial_size_t	GetTotalSize() const {return size;}
+
+	private:
+		serial_size_t	size = 0;
 
 	};
 

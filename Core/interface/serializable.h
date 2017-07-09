@@ -68,9 +68,7 @@ namespace DeltaWorks
 	interface ISerializable
 	{
 	public:
-
-		static const serial_size_t		EmbeddedSize=(serial_size_t)-1;	//!< Constant that may be passed as the @b fixed_size parameter of the Deserialize() operation. It indicates that no fixed size is available and any dynamic size of the local object should be extracted from the stream.
-
+		
 
 		/*
 		Size serialization convention:
@@ -85,41 +83,18 @@ namespace DeltaWorks
 		111: 61 bit value, 8 bytes
 		*/
 
-		/**
-		Retrieves the byte-size of a given non-negative size variable that should be serialized using IWriteStream::WriteSize().
-		@param size Size variable to determine the byte size of. Must be non-negative
-		@return Number of bytes occupied by a given size variable when written using IWriteStream::WriteSize(). May be 1,2,3,4, or 8
-		*/
-		template <typename T>
-			static	serial_size_t		GetSerialSizeOfSize(T size)
-			{
-				if (size <= 0x3F)
-					return 1;
-				if (size <= 0x3FFF)
-					return 2;
-				if (size <= 0x3FFFFF)
-					return 3;
-				if (size < (1U<<29))
-					return 4;
-				return 8;
-			}
 
-		/**
-		Queries the byte size of the serialized data of this object
-		@param exportSize True if the result should include additional space required for any size variable such as a string or array length.
-			If false, then an external variable will hold the serialized data size, which will be passed into Deserialize() as fixedSize.
-			If true, then no size data will be stored externally, and the local structure should serialize any variable size data manually. Deserialize() will receive fixedSize=EmbeddedSize in this case.
-		@return Serial size (in bytes) of this object
-		*/
-		virtual	serial_size_t			GetSerialSize(bool exportSize) const=0;
 		/**
 		Writes the serialized content of the local object to the specified stream.
 		The size of the written data must match the current result of GetSerialSize() as long as the object remains unchanged.
-		@param outStream Stream to write to @param exportSize True if the object is expected to export any dynamic size such as string or array length @return true if the object could be fully written to the out stream, false otherwise
+		@param outStream Stream to write to
 		*/
-		virtual	void					Serialize(IWriteStream&outStream, bool exportSize) const=0;
-		virtual	void					Deserialize(IReadStream&inStream, serial_size_t fixedSize)=0;			//!< Reads the content of the local object from the specified stream @param inStream Stream to read from @param fixedSize ISerializable::EmbeddedSize if any dynamic object size should be read from the stream or the size in bytes that the local object should adopt to otherwise. If this parameter is ISerializable::EmbeddedSize then the object data was serialized with @b export_size set to true @return true if the object data could be fully read from the out stream, false otherwise
-		virtual	bool					HasFixedSize() const {return false;}									//!< Queries whether this object is of fixed size (always the same no matter what content)
+		virtual	void					Serialize(IWriteStream&outStream) const=0;
+		/**
+		Reads the content of the local object from the specified stream
+		@param inStream Stream to read from
+		*/
+		virtual	void					Deserialize(IReadStream&inStream)=0;
 	};
 
 	/**
@@ -132,32 +107,110 @@ namespace DeltaWorks
 	};
 
 
+	namespace Serialization
+	{
+
+		template <typename T>
+			inline void	SerialSyncPOD(IReadStream&stream, T&val)
+			{
+				stream.ReadPrimitive(val);
+			}
+		template <typename T>
+			inline void	SerialSyncPOD(IWriteStream&stream, const T&val)
+			{
+				stream.WritePrimitive(val);
+			}
+
+		#undef SERIAL_PRIM
+		#define SERIAL_PRIM(TYPE)	inline void SerialSync(IReadStream&stream, TYPE&val){SerialSyncPOD(stream, val);} inline void SerialSync(IWriteStream&stream, TYPE val){SerialSyncPOD(stream, val);}
+
+		SERIAL_PRIM(signed char);
+		SERIAL_PRIM(unsigned char);
+		SERIAL_PRIM(signed short);
+		SERIAL_PRIM(unsigned short);
+		SERIAL_PRIM(signed long);
+		SERIAL_PRIM(unsigned long);
+		SERIAL_PRIM(signed long long);
+		SERIAL_PRIM(unsigned long long);
+		SERIAL_PRIM(signed int);
+		SERIAL_PRIM(unsigned int);
+		SERIAL_PRIM(bool);
+		SERIAL_PRIM(float);
+		SERIAL_PRIM(double);
+		SERIAL_PRIM(long double);
+
+		inline void SerialSync(IReadStream&stream, ISerializable&serializable)
+		{
+			serializable.Deserialize(stream);
+		}
+		inline void SerialSync(IWriteStream&stream, const ISerializable&serializable)
+		{
+			serializable.Serialize(stream);
+		}
+
+		template <typename A, typename B>
+			inline void SerialSync(IReadStream&stream, std::pair<A,B>&p)
+			{
+				SerialSync(stream,p.first);
+				SerialSync(stream,p.second);
+			}
+		template <typename A, typename B>
+			inline void SerialSync(IWriteStream&stream, const std::pair<A,B>&p)
+			{
+				SerialSync(stream,p.first);
+				SerialSync(stream,p.second);
+			}
+
+	};
+
+
 	/**
 	Simplified interface to serialized to a pre-allocated memory section. 
 	@param targetData Pointer to the memory section to write to (may be NULL causing the method to fail)
 	@param availableSpace Space (in bytes) available in the appointed memory section for serialization
-	@param exportSize True if the object is expected to export any dynamic size such as string or array length
 	@param[out] outUsedSize Optional resulting serialized size in memory
 	*/
-	void			SerializeToMemory(const ISerializable&serializable, void*targetData, serial_size_t availableSpace, bool exportSize, serial_size_t*outUsedSize=nullptr);
+	template <typename Serializable>
+	inline void			SerializeToMemory(const Serializable&serializable, void*targetData, serial_size_t availableSpace, serial_size_t*outUsedSize=nullptr)
+	{
+		using Serialization::SerialSync;
+		MemWriteStream	writer(targetData,availableSpace);
+		SerialSync(writer,serializable);
+		if (outUsedSize)
+			(*outUsedSize) = writer.GetCurrent()-(BYTE*)targetData;
+	}
 
+	
 	/**
 	Simplified interface to serialized to a pre-allocated memory section. 
 	If the memory consumed during serialization does not exactly match the amount available, an exception is thrown
 	@param targetData Pointer to the memory section to write to (may be NULL causing the method to fail)
 	@param availableSpace Space (in bytes) available in the appointed memory section for serialization
-	@param exportSize True if the object is expected to export any dynamic size such as string or array length
 	*/
-	void			SerializeToCompactMemory(const ISerializable&serializable, void*targetData, serial_size_t availableSpace, bool exportSize);
+	template <typename Serializable>
+	inline void			SerializeToCompactMemory(const Serializable&serializable, void*targetData, serial_size_t availableSpace)
+	{
+		using Serialization::SerialSync;
+		MemWriteStream	writer(targetData,availableSpace);
+		SerialSync(writer,serializable);
+		if (writer.GetRemainingSpace() != 0)
+			throw Except::Memory::SerializationFault(CLOCATION, "Memory consumed during serialization does not match available memory");
+	}
+
 
 	/**
 	Simplified interface to read from a loaded memory section.
 	@param data Pointer to the memory section to read from
 	@param dataSize Size (in bytes) of the memory section that should be deserialized
-	@param embeddedSize True if the object was serialized with @b export_size set true
-	@return true if Deserialization succeeded, false otherwise.
 	*/
-	void			DeserializeFromMemory(ISerializable&serializable, const void*data, serial_size_t dataSize, bool embeddedSize);
+	template <typename Serializable>
+	inline void			DeserializeFromMemory(Serializable&serializable, const void*data, serial_size_t dataSize)
+	{
+		using Serialization::SerialSync;
+		MemReadStream	reader(data,dataSize);
+		SerialSync(reader,serializable);
+
+	}
 
 
 	/**
@@ -165,10 +218,17 @@ namespace DeltaWorks
 	If the data consumed during deserialization does not exactly match the amount available, an exception is thrown
 	@param data Pointer to the memory section to read from
 	@param dataSize Size (in bytes) of the memory section that should be deserialized
-	@param embeddedSize True if the object was serialized with @b export_size set true
-	@return true if Deserialization succeeded, false otherwise.
 	*/
-	void			DeserializeFromCompactMemory(ISerializable&serializable, const void*data, serial_size_t dataSize, bool embeddedSize);
+	template <typename Serializable>
+	inline void			DeserializeFromCompactMemory(Serializable&serializable, const void*data, serial_size_t dataSize)
+	{
+		using Serialization::SerialSync;
+		MemReadStream	reader(data,dataSize);
+		SerialSync(reader,serializable);
+		if (reader.GetRemainingBytes() != 0)
+			throw Except::Memory::SerializationFault(CLOCATION, "Data consumed during deserialization does not match available data");
+	}
+
 }
 
 #endif

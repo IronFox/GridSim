@@ -1275,7 +1275,7 @@ template <class Def> void SubGeometryA<Def>::saveToRiff(Riff::Chunk*riff)	const
 
 	Riff::Chunk*inner = riff->AppendBlock(RIFF_LIST);
 		{
-			ByteStream	m;
+			ByteStreamBuffer	m;
 			//typename Def::SystemType	field[22];
 			m.Append(meta.system.v,16);
 			m.Append(meta.center.v,3);
@@ -1350,7 +1350,7 @@ template <class Def> void SubGeometryA<Def>::saveToRiff(Riff::Chunk*riff)	const
 				inner->AppendBlock("HVX3",out);
     		}
 		
-			ByteStream	out;	//3*vindex, group, name, grip, updrift
+			ByteStreamBuffer	out;	//3*vindex, group, name, grip, updrift
 			for (index_t i = 0; i < phHull.triangle_field.length(); i++)
 			{
 				const typename Mesh<PhDef>::Triangle	&triangle = phHull.triangle_field[i];
@@ -1389,7 +1389,7 @@ template <class Def> void SubGeometryA<Def>::saveToRiff(Riff::Chunk*riff)	const
 		if (accelerator_field.length())
 		{
 			Buffer<BYTE>	write_buffer;
-			ByteStream	a;
+			ByteStreamBuffer	a;
 			for (index_t i = 0; i < accelerator_field.length(); i++)
 			{
 				a.Clear();
@@ -1407,7 +1407,7 @@ template <class Def> void SubGeometryA<Def>::saveToRiff(Riff::Chunk*riff)	const
 		{
 			
 		
-			ByteStream	a(sizeof(UINT32)+13*sizeof(typename Def::FloatType));
+			ByteStreamBuffer	a;//(sizeof(UINT32)+13*sizeof(typename Def::FloatType));
 			for (index_t i = 0; i < mounting_field.length(); i++)
 			{
 				a.Clear();
@@ -1423,7 +1423,7 @@ template <class Def> void SubGeometryA<Def>::saveToRiff(Riff::Chunk*riff)	const
 
 		if (wheel_field.length())
 		{
-			ByteStream	w;
+			ByteStreamBuffer	w;
 			for (index_t i = 0; i < wheel_field.length(); i++)
 			{
 				w.Clear();
@@ -1444,7 +1444,7 @@ template <class Def> void SubGeometryA<Def>::saveToRiff(Riff::Chunk*riff)	const
 		}
 		if (tracks_field.IsNotEmpty())
 		{
-			ByteStream	c;
+			ByteStreamBuffer	c;
 			for (index_t i = 0; i < tracks_field.length(); i++)
 			{
 				const Tracks<Def>&t = tracks_field[i];
@@ -3226,7 +3226,7 @@ template <class Def> void Geometry<Def>::saveEmbedded(Riff::Chunk&riff, bool emb
 					tlist->AppendBlock("FACE",local_textures.entry_field[i].face_field[k]);
 			}
 	}
-	ByteStream	buffer;
+	ByteStreamBuffer	buffer;
 	
 	Riff::Chunk*mlist = openBlock(riff,DATA_MATERIAL);
 		for (index_t i = 0; i < material_field.length(); i++)
@@ -5570,7 +5570,7 @@ template <class T, unsigned B>
 {
 	for (index_t i = 0; i < traces.count(); i++)
 	{
-		ByteStream trace;
+		ByteStreamBuffer trace;
 		trace << (UINT32)traces[i].target->name.length();
 		trace.Append(traces[i].target->name.c_str(),traces[i].target->name.length());
 		double delta;
