@@ -332,7 +332,7 @@ namespace DeltaWorks
 			/**/		Package():dataIncludingHeaderSpace(8)	{}
 
 			template <typename Serializable>
-				/**/		Package(const Serializable&s)
+				explicit	Package(const Serializable&s)
 				{
 					Update(s);
 				}

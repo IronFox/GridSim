@@ -1525,7 +1525,7 @@ namespace DeltaWorks
 						continue;
 					try
 					{
-						peer->SendData(object.GetData());
+						peer->SendData(object);
 					}
 					catch (const std::exception&ex)
 					{
