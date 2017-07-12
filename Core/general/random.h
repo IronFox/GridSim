@@ -138,7 +138,7 @@ namespace DeltaWorks
 			*/
 			type_t			Next(type_t max)
 			{
-				return std::min(max,type_t(big_type_t(Super::operator()()-Super::min()) * big_type_t(max+1) / big_type_t(Super::max() - Super::min())));
+				return std::min(max,type_t(big_type_t(Super::operator()()-Super::min()) * (big_type_t(max)+1) / big_type_t(Super::max() - Super::min())));
 			}
 
 			/**
@@ -162,8 +162,30 @@ namespace DeltaWorks
 			*/
 			int				Next(int min, int max)
 			{
-				return min + std::min(max - min,int((big_type_t)(Super::operator()()-Super::min()) * (big_type_t)(max-min+1) / (big_type_t)(Super::max() - Super::min())));
+				return min + std::min(max - min,int((big_type_t)(Super::operator()()-Super::min()) * (big_type_t(max-min)+1) / (big_type_t)(Super::max() - Super::min())));
 			}
+
+			/**
+			Queries the next random value up to the specified max value (inclusive)
+			*/
+			template <typename Int>
+				Int			NextT(Int max)
+				{
+					const double inputRange = big_type_t(Super::max() - Super::min());
+					const double zeroRandom = double(Super::operator()()-Super::min());
+					return std::min(max,Int(zeroRandom * (double(max)+1) / inputRange));
+				}
+			/**
+			Queries a random value in the range [min,max]
+			*/
+			template <typename Int>
+				Int			NextT(Int min, Int max)
+				{
+					const double inputRange = big_type_t(Super::max() - Super::min());
+					const double wantRange = double(max-min)+1;
+					const double zeroRandom = double(Super::operator()()-Super::min());
+					return min + std::min(max - min,Int(zeroRandom * wantRange / inputRange));	//some very big types apparently cause overflows
+				}
 		
 			/**
 			Queries a random float point value in the range [0,1]

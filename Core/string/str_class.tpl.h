@@ -4233,37 +4233,6 @@ namespace StringType
 			}
 
 
-	template <typename T>
-		/*virtual override*/ serial_size_t			Template<T>::GetSerialSize(bool export_size) const
-		{
-			return (serial_size_t)(string_length*sizeof(T))+(export_size?GetSerialSizeOfSize((serial_size_t)string_length):0);
-		}
-
-	template <typename T>
-		/*virtual override*/ void			Template<T>::Serialize(IWriteStream&out_stream, bool export_size) const
-		{
-			if (export_size)
-			{
-				//cout << "encoding string length "<<string_length<<endl;
-				out_stream.WriteSize(string_length);
-			}
-			out_stream.Write(field,(serial_size_t)(string_length*sizeof(T)));
-		}
-
-	template <typename T>
-		/*virtual override*/ void			Template<T>::Deserialize(IReadStream&in_stream, serial_size_t fixed_size)
-		{
-			if (fixed_size != EmbeddedSize)
-				setLength((fixed_size/sizeof(T)));
-			else
-			{
-				serial_size_t len;
-				in_stream.ReadSize(len);
-				//cout << "decoded string length "<<len<<endl;
-				setLength(len);
-			}
-			in_stream.Read(field,(serial_size_t)(string_length*sizeof(T)));
-		}
 
 
 

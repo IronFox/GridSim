@@ -61,39 +61,33 @@ namespace DeltaWorks
 				#endif
 				Read(elements, (serial_size_t)(sizeof(T)*num_elements));
 			}
-		template <typename T>
-			void					ReadSize(T&sizeOut)	//! Reads the content of a size variable in little endian 
-			{
-				BYTE b[4];
-				Read(b,1);
-				BYTE flags = b[0] & 0xC0;
 
-				switch (flags)
+			/**
+			Reads the next big-endian encoded variable-length size value from the local stream.
+			The method may throw an exception if the stream fails.
+			1,2,3,4, or 8 bytes may be read from the stream
+			@param[out] sizeOut Size destination
+			*/
+			void					ReadSize(serial_size64_t&sizeOut);
+
+			/**
+			Reads the next big-endian encoded variable-length size value from the local stream.
+			The method may throw an exception if the read value exceeds the capacities of the given target, or if the stream fails.
+			1,2,3,4, or 8 bytes may be read from the stream
+			@param[out] sizeOut Size destination
+			*/
+			template <typename T>
+				void				ReadSize(T&sizeOut)
 				{
-					case 0:
-						sizeOut = b[0];
-						return;
-					break;
-					case 0x40:
-						Read(b+1,1);
-						sizeOut = (((T)(b[0] & 0x3F)) << 8) | b[1];
-						return;
-					break;
-					case 0x80:
-						Read(b+1,2);
-						sizeOut = (((T)(b[0] & 0x3F)) << 16) | (((T)b[1])<<8) | (((T)b[2]));
-						return;
-					break;
-					case 0xC0:
-						Read(b+1,3);
-						sizeOut = (((T)(b[0] & 0x3F)) << 24) | (((T)b[1])<<16) | (((T)b[2])<<8) | (((T)b[3]));
-						return;
-					break;
-					default:
-						FATAL__("Logical issue");	//this should be impossible due to the mask above
-						return;
+					serial_size64_t v;
+					ReadSize(v);
+					if (v > std::numeric_limits<T>::max())
+						throw Except::Memory::SerializationFault(CLOCATION,"Given variable type cannot contain read value");
+					sizeOut = static_cast<T>(v);
 				}
-			}
+
+			serial_size_t			ReadSize()	{serial_size_t rs; ReadSize(rs); return rs;}
+
 	};
 
 
@@ -119,6 +113,7 @@ namespace DeltaWorks
 						{
 							field = (const BYTE*)data;
 							end = field+size;
+							DBG_ASSERT__(size == 0 || data != nullptr);
 						}
 		const BYTE*		GetCurrent()	const
 						{

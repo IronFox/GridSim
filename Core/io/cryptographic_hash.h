@@ -242,6 +242,8 @@ namespace DeltaWorks
 	template <UINT32 int32_count>
 		struct THash
 		{
+			typedef THash<int32_count>	Self;
+
 			static const count_t num_bytes = int32_count*4;
 			static const count_t NumBytes = int32_count*4;
 			static const count_t NumInts = int32_count;
@@ -261,9 +263,18 @@ namespace DeltaWorks
 					}
 
 
-			friend hash_t	Hash(const THash<int32_count>&h)
+			friend hash_t	Hash(const Self&h)
 			{
 				return StdMemHash(h.bytes,num_bytes);
+			}
+
+			friend void		SerialSync(IReadStream&s, Self&v)
+			{
+				s.Read(v.bytes,num_bytes);
+			}
+			friend void		SerialSync(IWriteStream&s, const Self&v)
+			{
+				s.Write(v.bytes,num_bytes);
 			}
 
 			static const THash	Empty;

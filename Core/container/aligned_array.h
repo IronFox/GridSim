@@ -708,7 +708,7 @@ namespace DeltaWorks
 			}
 				
 				
-			virtual	serial_size_t			GetSerialSize(bool export_size) const	override
+			virtual	serial_size_t			GetSerialSize() const	override
 			{
 				serial_size_t result = export_size?GetSerialSizeOfSize((serial_size_t)elements):0;
 				for (index_t i = 0; i < elements; i++)
@@ -716,27 +716,27 @@ namespace DeltaWorks
 				return result;
 			}
 		
-			virtual	void			Serialize(IWriteStream&out_stream, bool export_size) const	override
+			virtual	void			Serialize(IWriteStream&outStream) const	override
 			{
 				if (export_size)
-					out_stream.WriteSize(elements);
+					outStream.WriteSize(elements);
 
 				if (!IsISerializable(data))
 				{
-					out_stream.Write(data,(serial_size_t)GetContentSize());
+					outStream.Write(data,(serial_size_t)GetContentSize());
 					return;
 				}
 
 				for (index_t i = 0; i < elements; i++)
-					SerializeObject(data+i,sizeof(C),out_stream,true);
+					SerializeObject(data+i,sizeof(C),outStream,true);
 			}
 		
-			virtual	void			Deserialize(IReadStream&in_stream, serial_size_t fixed_size)	override
+			virtual	void			Deserialize(IReadStream&inStream)	override
 			{
 				count_t size;
 				if (fixed_size == EmbeddedSize)
 				{
-					in_stream.ReadSize(size);
+					inStream.ReadSize(size);
 				}
 				else
 					if (!IsISerializable(data))
@@ -747,12 +747,12 @@ namespace DeltaWorks
 				SetSize(size);
 				if (!IsISerializable(data))
 				{
-					in_stream.Read(data,(serial_size_t)GetContentSize());
+					inStream.Read(data,(serial_size_t)GetContentSize());
 					return;
 				}
 
 				for (index_t i = 0; i < elements; i++)
-					DeserializeObject(data+i,sizeof(C),in_stream,0);
+					DeserializeObject(data+i,sizeof(C),inStream,0);
 			}
 
 	};

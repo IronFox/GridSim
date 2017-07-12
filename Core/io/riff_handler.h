@@ -325,7 +325,7 @@ namespace DeltaWorks
 			RIFF_SIZE			Get(void*out);				//extrudes data
 			RIFF_SIZE			Get(void*out,size_t max);//extrudes data but not more than max - returns FULL size
 			template <class C>
-				count_t			Get(Ctr::ArrayData<C>&out);			//extracts data into an array
+				count_t			Get(ArrayData<C>&out);			//extracts data into an array
 			const char_t*		GetFileName();
 			TID					GetID();					//returns block's type-id
 			unsigned			GetIndex();					//returns block's index (in present context)
@@ -346,13 +346,15 @@ namespace DeltaWorks
 			void				CloseStream();
 		
 			bool				InsertBlock(TID ID, const void*data=NULL, size_t size=0);	//insert a new block between the previous and the present block. Works too if inside an empty list-block. DATA can be NULL.
-			bool				InsertBlock(TID ID, const ByteStream&data)	{return InsertBlock(ID,data.data(),data.GetFillLevel());}
+			bool				InsertBlock(TID id, const ArrayRef<const BYTE>&data) {return InsertBlock(id,data.GetPointer(),data.GetLength());}
+			bool				InsertBlock(TID ID, const ByteStreamBuffer&data)	{return InsertBlock(ID,data.GetWrittenData());}
 		template <typename T>
-			bool				InsertBlock(TID id, const Ctr::ArrayData<T>&data);
+			bool				InsertBlock(TID id, const ArrayRef<T>&data);
 			bool				AppendBlock(TID ID, const void*data=NULL, size_t size=0);	//append a new block behind the last block. Works too if inside an empty list-block. DATA can be NULL.
-			bool				AppendBlock(TID ID, const ByteStream&data)	{return AppendBlock(ID,data.data(),data.GetFillLevel());}
+			bool				AppendBlock(TID id, const ArrayRef<const BYTE>&data) {return AppendBlock(id,data.GetPointer(),data.GetLength());}
+			bool				AppendBlock(TID ID, const ByteStreamBuffer&data)	{return AppendBlock(ID,data.GetWrittenData());}
 		template <typename T>
-			bool				AppendBlock(TID id, const Ctr::ArrayData<T>&data);
+			bool				AppendBlock(TID id, const ArrayRef<T>&data);
 			bool				AppendBlocks(File&other);
 			bool				DropBlock();	//erase selected block (and all subblocks)
 			bool				Overwrite(const void*data, size_t check_size);
@@ -395,18 +397,18 @@ namespace DeltaWorks
 
 				void*			SetData(size_t dataSize);
 				void			SetData(const void*data, size_t dataSize);
-				void			SetData(const ByteStream&stream)	{SetData(stream.pointer(),stream.GetFillLevel());}
+				void			SetData(const ByteStreamBuffer&stream)	{SetData(stream.GetWrittenData());}
 			template <typename T>
 				void			SetPODData(const T&podData) {SetData(&podData,sizeof(podData));}
 			template <typename T>
-				void			SetData(const Ctr::ArrayRef<T>&ar) {SetData(ar.pointer(),ar.GetContentSize());}
+				void			SetData(const ArrayRef<T>&ar) {SetData(ar.pointer(),ar.GetContentSize());}
 
 				RIFF_SIZE		Get(void*out)	const;				//extracts data
 				RIFF_SIZE		Get(void*out,size_t max)	const;//extracts data but not more than max - returns FULL size
 				const BYTE*		pointer()	const	/** @brief Retrieves the pointer to the beginning of the data of the local chunk*/	{return _data;}
 			template <typename T>
-				count_t			Get(Ctr::ArrayData<T>&out)	const;
-				Ctr::ArrayRef<const BYTE>	ReferenceData() const {return Ctr::ArrayRef<const BYTE>(pointer(),size());}
+				count_t			Get(ArrayData<T>&out)	const;
+				Ctr::ArrayRef<const BYTE>	ReferenceData() const {return ArrayRef<const BYTE>(pointer(),size());}
 				void			SetID(TID ID);
 				TID				GetID() const;
 				bool			IsID(TID id)	const;				//checks wether or not this chunk's id is equal to given one
@@ -468,13 +470,13 @@ namespace DeltaWorks
 				bool			EraseCurrent();
 				bool			ResizeCurrent(size_t size);
 				Chunk*			InsertBlock(TID ID, const void*data=NULL, size_t size=0);	//insert a new block between the previous and the present block. Works too if inside an empty list-block. DATA can be NULL.
-				Chunk*			InsertBlock(TID ID, const ByteStream&data)	{return InsertBlock(ID,data.data(),data.GetFillLevel());}
+				Chunk*			InsertBlock(TID ID, const ByteStreamBuffer&data)	{return InsertBlock(ID,data.GetWrittenData());}
 			template<typename T>
-				Chunk*			InsertBlock(TID id, const Ctr::ArrayData<T>&data);
+				Chunk*			InsertBlock(TID id, const ArrayRef<T>&data);
 				Chunk*			AppendBlock(TID ID, const void*data=NULL, size_t size=0);	//insert a new block between the previous and the present block. Works too if inside an empty list-block. DATA can be NULL.
-				Chunk*			AppendBlock(TID ID, const ByteStream&data)	{return AppendBlock(ID,data.data(),data.GetFillLevel());}
+				Chunk*			AppendBlock(TID ID, const ByteStreamBuffer&data)	{return AppendBlock(ID,data.GetWrittenData());}
 			template<typename T>
-				Chunk*			AppendBlock(TID id, const Ctr::ArrayData<T>&data);
+				Chunk*			AppendBlock(TID id, const ArrayRef<T>&data);
 
 				Chunk*			AppendNamedList(const void*namePtr, size_t nameSize)
 				{
@@ -497,7 +499,7 @@ namespace DeltaWorks
 			template <typename T>
 				Chunk*			AppendNamedBlock(const T&podIdentifier)
 				{
-					return AppendNamedChunk(&podIdentifier,sizeof(podIdentifier));
+					return AppendNamedBlock(&podIdentifier,sizeof(podIdentifier));
 				}
 		};
 

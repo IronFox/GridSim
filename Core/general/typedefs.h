@@ -291,7 +291,8 @@ static const index_t		InvalidIndex = static_cast<index_t>(-1);
 namespace DeltaWorks
 {
 
-	typedef uint32_t	serial_size_t;	//!< Size type for serial IO operations
+	typedef uint32_t	serial_size32_t,serial_size_t;		//!< Size type for serial IO operations
+	typedef uint64_t	serial_size64_t;					//!< Size type for serial IO operations
 	typedef size_t		hash_t;
 
 
