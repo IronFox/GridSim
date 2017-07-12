@@ -514,6 +514,17 @@ namespace DeltaWorks
 											end = (T)other.end;
 											return *this;
 										}
+
+				void					operator+=(T delta)
+				{
+					start += delta;
+					end += delta;
+				}
+				void					operator-=(T delta)
+				{
+					start -= delta;
+					end -= delta;
+				}
 									
 				MF_DECLARE(void)		Set(const T&start, const T& end)
 										{
