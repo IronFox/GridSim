@@ -289,12 +289,6 @@ namespace DeltaWorks
 	static const index_t		InvalidIndex = static_cast<index_t>(-1);
 
 
-	#if defined(_WIN64) || defined(_M_X64)
-		typedef __int64	signed_index_t;
-	#else
-		typedef int signed_index_t;
-	#endif
-
 
 
 	typedef uint32_t	serial_size_t;	//!< Size type for serial IO operations

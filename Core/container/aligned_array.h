@@ -169,12 +169,12 @@ namespace DeltaWorks
 					return result;
 				}
 				
-			inline C*			operator+(signed_index_t rel)	//!< Retrieves a pointer to the nth element @param rel Relative index. 0 points to the first element in the array. 	@return Pointer to the requested element for sub array access
+			inline C*			operator+(sindex_t rel)	//!< Retrieves a pointer to the nth element @param rel Relative index. 0 points to the first element in the array. 	@return Pointer to the requested element for sub array access
 			{
 				return data+rel;
 			}
 				
-			inline const C*			operator+(signed_index_t rel) const	//!< @overload
+			inline const C*			operator+(sindex_t rel) const	//!< @overload
 			{
 				return data+rel;
 			}

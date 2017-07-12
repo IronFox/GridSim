@@ -4093,17 +4093,17 @@ template <class Def> MF_DECLARE	(bool) Mesh<Def>::isValid(const TMeshFaceLink<De
 	return triangle_field.Owns(link.triangle) && (may_be_marked || !link.triangle->marked);
 }
 	
-template <class Def> MF_DECLARE	(signed_index_t)	Mesh<Def>::linkToIndex(const TMeshFaceLink<Def>&link)	const
+template <class Def> MF_DECLARE	(sindex_t)	Mesh<Def>::linkToIndex(const TMeshFaceLink<Def>&link)	const
 {
 	if (!link.triangle)
-		return TypeInfo<signed_index_t>::max;
+		return TypeInfo<sindex_t>::max;
 		
 	if (link.is_quad)
-		return -1-(int)(link.quad-quad_field);
+		return -1-(sindex_t)(link.quad-quad_field);
 	return link.triangle-triangle_field;
 }
 	
-template <class Def> MF_DECLARE	(bool) Mesh<Def>::indexToLink(signed_index_t index, TMeshFaceLink<Def>&link)
+template <class Def> MF_DECLARE	(bool) Mesh<Def>::indexToLink(sindex_t index, TMeshFaceLink<Def>&link)
 {
 	if (index >= 0)
 	{
