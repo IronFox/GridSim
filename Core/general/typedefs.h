@@ -281,18 +281,17 @@ in the foundation.
 
 #endif
 
+typedef size_t	index_t,count_t;
+typedef ptrdiff_t sindex_t;
+
+static const index_t		InvalidIndex = static_cast<index_t>(-1);
+
+
+
 namespace DeltaWorks
 {
-	typedef size_t	index_t,count_t;
-	typedef ptrdiff_t sindex_t;
-
-	static const index_t		InvalidIndex = static_cast<index_t>(-1);
-
-
-
 
 	typedef uint32_t	serial_size_t;	//!< Size type for serial IO operations
-	static const serial_size_t MaxSerialSize = (1U << 29) - 1;	//first three bits can't be used
 	typedef size_t		hash_t;
 
 
