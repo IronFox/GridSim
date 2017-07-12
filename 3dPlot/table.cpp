@@ -2,6 +2,8 @@
 #include "table.h"
 #include "rendering.h"
 
+using namespace DeltaWorks;
+using namespace Math;
 
 Buffer0<Table,Swap>	tables;
 Table rangeTable(true);
@@ -632,7 +634,7 @@ bool Table::LoadSamples(const FileSystem::File&f, const std::function<bool(const
 	bool hasInconsistencyAge = false;
 	while (file >> line)
 	{
-		if (Template::isalpha(line.firstChar()))
+		if (CharFunctions::isalpha(line.firstChar()))
 		{
 			//attribute or metric
 			index_t eqAt = line.find('=');
@@ -842,7 +844,7 @@ Table::TSurfacePoint	Table::GetGeometryPoint(SampleType t, index_t ix, index_t i
 
 	}
 	else
-		rs.color = color;
+		rs.color = float4(1);//color;
 
 	return rs;
 }
@@ -1129,7 +1131,7 @@ void	Table::UpdatePlotGeometry(SampleType t, bool window)
 				//						);
 			}
 		#else
-			ByComparator::QuickSort(tables,[](const Table&a, const Table&b)
+			Sorting::ByComparator::QuickSort(tables,[](const Table&a, const Table&b)
 			{
 				if (a.currentRange.average < b.currentRange.average)
 					return -1;
@@ -1231,42 +1233,27 @@ void	Table::UpdatePlotGeometry(SampleType t, bool window)
 	obj.ComputeNormals();
 	holeShape.ComputeNormals();
 
-	FinishConstruction(constructor,transparentConstructor, holeConstructor);
+	FinishConstruction(obj,tobj, holeShape);
 }
 
-void	Table::FinishConstruction(const CGS::Constructor<>&constructor, const CGS::Constructor<>&transparentConstructor,const CGS::Constructor<>&holeConstructor)
+void	Table::FinishConstruction(const CGS::Constructor<>::Object&constructor, const CGS::Constructor<>::Object&transparentConstructor,const CGS::Constructor<>::Object&holeConstructor)
 {
 	RemovePlotGeometry();
 
-	solidPlotGeometry.makeFromConstructor(constructor);
-	plotHoleGeometry.makeFromConstructor(holeConstructor);
-	transparentGeometry.makeFromConstructor(transparentConstructor);
-
-	EmbedPlotGeometry();
+	solidPlotGeometryHandle = scenery.Embed(constructor);
+	plotHoleGeometryHandle = holeScenery.Embed(holeConstructor);
+	transparentGeometryHandle = transparentScenery.Embed(transparentConstructor);
 
 }
 
 void Table::RemovePlotGeometry()
 {
-	if (isEmbedded)
-	{
-		scenery.Remove(solidPlotGeometry);
-		holeScenery.Remove(plotHoleGeometry);
-		transparentScenery.Remove(transparentGeometry);
-	}
-	isEmbedded = false;
+	scenery.Remove(solidPlotGeometryHandle);
+	holeScenery.Remove(plotHoleGeometryHandle);
+	transparentScenery.Remove(transparentGeometryHandle);
 }
 
-void Table::EmbedPlotGeometry()
-{
-	if (!isEmbedded)
-	{
-		scenery.Embed(solidPlotGeometry);
-		holeScenery.Embed(plotHoleGeometry);
-		transparentScenery.Embed(transparentGeometry);
-	}
-	isEmbedded = true;
-}
+
 
 void RemoveAllPlotGeometries()
 {

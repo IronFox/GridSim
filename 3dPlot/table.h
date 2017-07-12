@@ -8,6 +8,9 @@
 #include <array>
 #include <math/polynomial.h>
 
+namespace D = DeltaWorks;
+namespace M = DeltaWorks::Math;
+
 struct TLinearFunction
 {
 	float	base = 0,
@@ -20,7 +23,10 @@ struct TLinearFunction
 
 	/**/	TLinearFunction(float base=0, float inclination=0.1f):base(base),inclination(inclination)	{}
 
-	String	ToString() const {return String(base)+"+X*"+String(inclination);}
+	friend D::String	ToString(const TLinearFunction&f)
+	{
+		return D::String(f.base)+"+X*"+D::String(f.inclination);
+	}
 
 	void	Set(float x0, float y0, float x1, float y1)
 	{
@@ -45,8 +51,8 @@ struct TAgeHypothesis
 	static const count_t	TDegree = 5,TNCoef = TDegree+1;
 	static const count_t	SDegree = 8,SNCoef = SDegree+1;
 
-	Math::Polynomial<double,TNCoef>		temporalProfile;
-	Math::Polynomial<double,SNCoef>		spatialProfile0,spatialProfile1;
+	M::Polynomial<double,TNCoef>		temporalProfile;
+	M::Polynomial<double,SNCoef>		spatialProfile0,spatialProfile1;
 
 	float					max = 1;
 	count_t					maxSpatialDistance=0,
@@ -59,7 +65,7 @@ struct TAgeHypothesis
 
 	bool					useLinearApproximation = true;
 
-	float3					linearPlaneFunc;	//x,y: axial inclination, z: offset
+	M::float3				linearPlaneFunc;	//x,y: axial inclination, z: offset
 
 
 
@@ -76,8 +82,8 @@ struct TAgeHypothesis
 struct TStaticAgeHypothesis
 {
 	typedef double PFloat;
-	NegativePolynomial2D<PFloat,4,7>	pBase;
-	NegativePolynomial2D<PFloat,4,7>	pX;
+	M::NegativePolynomial2D<PFloat,4,7>	pBase;
+	M::NegativePolynomial2D<PFloat,4,7>	pX;
 	float					Sample(float spatialDistance, float temporalDistance, float density, float relativeSensorRange) const;
 };
 
@@ -97,7 +103,7 @@ struct THypothesisData
 	float					Sample(float spatialDistance, float temporalDistance, SampleType t) const;
 	void					Train(index_t sourceTableID, SampleType t);
 
-	static void				TrainRow(const Table&table, index_t rowIndex, Math::Polynomial<double,TAgeHypothesis::SNCoef>&poly, bool smooth);
+	static void				TrainRow(const Table&table, index_t rowIndex, M::Polynomial<double,TAgeHypothesis::SNCoef>&poly, bool smooth);
 };
 
 class Table
@@ -107,7 +113,7 @@ private:
 	struct TSurfacePoint
 	{
 		float				height;
-		float4				color;
+		M::float4			color;
 
 
 		bool				operator>(const TSurfacePoint&other) const
@@ -139,23 +145,23 @@ private:
 	TSurfacePoint			GetGeometryPoint(SampleType t, index_t ix, index_t iy) const;
 	TInclinedSurfacePoint	GetInclinedGeometryPoint(SampleType t, index_t ix, index_t iy) const;
 	static TSurfacePoint	SampleRangePixelAt(SampleType t, index_t ix, index_t iy, index_t at);
-	void					TraceLine(const TIntRange<UINT>&range, const std::function<float3(UINT)>&);
+	void					TraceLine(const M::TIntRange<UINT>&range, const std::function<M::float3(UINT)>&);
 
-	static void				BuildPlotSurface(CGS::Constructor<>::Object&target, const std::function<TSurfaceSample(index_t,index_t)>&surfaceFunction);
-	static void				BuildPlotHoleWalls(CGS::Constructor<>::Object&obj,const std::function<TInclinedSurfacePoint(index_t,index_t)>&surfaceFunction, UINT xExtent, UINT yExtent, float thickness = 0.03f);
-	void					FinishConstruction(const CGS::Constructor<>&constructor, const CGS::Constructor<>&transparentConstructor, const CGS::Constructor<>&holeConstructor);
+	static void				BuildPlotSurface(D::CGS::Constructor<>::Object&target, const std::function<TSurfaceSample(index_t,index_t)>&surfaceFunction);
+	static void				BuildPlotHoleWalls(D::CGS::Constructor<>::Object&obj,const std::function<TInclinedSurfacePoint(index_t,index_t)>&surfaceFunction, UINT xExtent, UINT yExtent, float thickness = 0.03f);
+	void					FinishConstruction(const D::CGS::Constructor<>::Object&constructor, const D::CGS::Constructor<>::Object&transparentConstructor, const D::CGS::Constructor<>::Object&holeConstructor);
 
 public:
 	struct TLineSegment
 	{
-		float4				color;
+		M::float4			color;
 		float				width=2;
-		Buffer0<TVec3<> >	points;
+		D::Buffer0<M::TVec3<> >points;
 
 		void				swap(TLineSegment&other)
 		{
-			swp(color,other.color);
-			swp(width,other.width);
+			D::swp(color,other.color);
+			D::swp(width,other.width);
 			points.swap(other.points);
 		}
 	};
@@ -179,14 +185,14 @@ public:
 
 	struct TValueRange
 	{
-		TFloatRange<>		range;
+		M::TFloatRange<>	range;
 		float				average;
 	};
 
 
-	Buffer0<TLineSegment,Swap>	lineSegments;
-	Buffer0<Buffer0<TSample> >	samples;
-	String					sourceFile;
+	D::Buffer0<TLineSegment,D::Swap>	lineSegments;
+	D::Buffer0<D::Buffer0<TSample> >samples;
+	D::String					sourceFile;
 	TValueRange				currentRange;
 	TMetrics				metrics;
 
@@ -196,9 +202,10 @@ public:
 	static const constexpr unsigned Resolution = 400;
 	static const constexpr float step = 1.0f/Resolution;
 	
-	CGS::Geometry<>			solidPlotGeometry, plotHoleGeometry,transparentGeometry;
-	bool					isEmbedded=false;
-	float4					color = float4(1);
+	index_t					solidPlotGeometryHandle = InvalidIndex,
+							plotHoleGeometryHandle = InvalidIndex,
+							transparentGeometryHandle = InvalidIndex;
+	M::float4				color = M::float4(1);
 
 	const bool				IsRangeTable;
 	
@@ -206,9 +213,9 @@ public:
 
 	void					swap(Table&other)
 	{
-		swp(metrics,other.metrics);
-		swp(hypothesis,other.hypothesis);
-		swp(currentRange,other.currentRange);
+		D::swp(metrics,other.metrics);
+		D::swp(hypothesis,other.hypothesis);
+		D::swp(currentRange,other.currentRange);
 		lineSegments.swap(other.lineSegments);
 		samples.swap(other.samples); 
 		sourceFile.swap(other.sourceFile); 
@@ -219,13 +226,12 @@ public:
 	float					Get(index_t spatialDistance, index_t temporalDistance, SampleType t)	const;
 	float					GetSmoothed(float spatialDistance, float temporalDistance,SampleType t) const;
 
-	bool					LoadSamples(const FileSystem::File&f, const std::function<bool(const TMetrics&)> mFilter=std::function<bool(const TMetrics&)>());
+	bool					LoadSamples(const D::FileSystem::File&f, const std::function<bool(const TMetrics&)> mFilter=std::function<bool(const TMetrics&)>());
 	void					UpdateCurrentRange(SampleType type);
 	void					UpdatePlotGeometry(SampleType type, bool window);
 
 	void					TrainHypothesis(index_t sourceTableID, SampleType t);
 
-	void					EmbedPlotGeometry();
 	void					RemovePlotGeometry();
 
 	void					RenderLines()	const;
@@ -239,15 +245,15 @@ public:
 
 
 void RemoveAllPlotGeometries();
-extern Buffer0<Table,Swap>	tables;
+extern D::Buffer0<Table,D::Swap>	tables;
 
 extern Table				rangeTable;
 
 
 float Relative2TextureHeight(float h);
 
-void LoadTables(const std::initializer_list<const FileSystem::File>&files);
-void LoadTables(const Buffer0<FileSystem::File>&files);
+void LoadTables(const std::initializer_list<const D::FileSystem::File>&files);
+void LoadTables(const D::Buffer0<D::FileSystem::File>&files);
 void UpdateColors();
 /**
 Updates all table currentRange contents by calling t->UpdateCurrentRange(type)

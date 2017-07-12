@@ -1,13 +1,16 @@
 #pragma once
 #include <container/buffer.h>
+#include <container/array2d.h>
+
+namespace D = DeltaWorks;
 
 class Hypothesis
 {
 	bool		active = false;
 
-	Array2D<float>	spatialInconsistency;
+	D::Array2D<float>	spatialInconsistency;
 public:
-	Array<float>sigma,
+	D::Array<float>sigma,
 				mu,
 				height;
 
@@ -23,7 +26,7 @@ public:
 	float		GetBeta(float spatialDistance) const;
 
 
-	float		Sample(const Array<float>&ref, float spatialDistance) const;
+	float		Sample(const D::Array<float>&ref, float spatialDistance) const;
 };
 
 double Erf3(double x);

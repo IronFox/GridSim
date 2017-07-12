@@ -14,17 +14,16 @@ Profiler::StackedGraph<OpenGL,GLTextureFont2>	fps_graph(&Profiler::fps_data);	//
 
 GLShader::Instance	shader,back_shader,holeShader,wallShader;
 
-CGS::Geometry<>		walls;
 
 Renderer::FBO		shadow_fbo0,shadow_fbo1;
 
-Scenery<Renderer>	scenery,holeScenery,wallScenery,transparentScenery;
+Geometry				scenery,holeScenery,wallScenery,transparentScenery;
 
 
-Box<>				range = Box<>(0,0,0,/*T=*/128,/*S=*/256,1.1);
-float3				markerSteps = float3(32, 64, 0.2);
-float3				markerLabelFactor = float3(1,0.5,1);
-TVec3<const char*>	arrowLabel = {"T","S","P"};
+M::Box<>				range = M::Box<>(0,0,0,/*T=*/128,/*S=*/256,1.1);
+M::float3				markerSteps = M::float3(32, 64, 0.2);
+M::float3				markerLabelFactor = M::float3(1,0.5,1);
+M::TVec3<const char*>	arrowLabel = {"T","S","P"};
 
 enum class Axis
 {
@@ -35,17 +34,17 @@ enum class Axis
 
 struct TLabel
 {
-	float3	coords;
+	M::float3	coords;
 	float	value;
 	const char*	cValue=nullptr;
 	bool	isFloat = true;
 	static bool	enabled;
-	static float3 translation;
-	static TMatrix4<> system;
+	static M::float3 translation;
+	static M::TMatrix4<> system;
 };
 
-float3 TLabel::translation;
-TMatrix4<> TLabel::system = Matrix<>::eye4;
+M::float3 TLabel::translation;
+M::TMatrix4<> TLabel::system = M::Matrix<>::eye4;
 bool	TLabel::enabled = true;
 
 Buffer0<TLabel>	labels;
@@ -61,8 +60,8 @@ void RenderShadows()
 			glViewport(0,0,ShadowResolution,ShadowResolution);
 			glEnable(GL_CULL_FACE);
 			glClear(GL_DEPTH_BUFFER_BIT);
-			scenery.RenderIgnoreMaterials();
-			holeScenery.RenderIgnoreMaterials();
+			scenery.Render();
+			holeScenery.Render();
 //			wallScenery.RenderIgnoreMaterials();
 		display.TargetBackbuffer();
 	display.pick(shadow_aspect1);
@@ -71,8 +70,8 @@ void RenderShadows()
 			glViewport(0,0,ShadowResolution,ShadowResolution);
 			glEnable(GL_CULL_FACE);
 			glClear(GL_DEPTH_BUFFER_BIT);
-			scenery.RenderIgnoreMaterials();
-			holeScenery.RenderIgnoreMaterials();
+			scenery.Render();
+			holeScenery.Render();
 //			wallScenery.RenderIgnoreMaterials();
 		display.TargetBackbuffer();
 		
@@ -85,8 +84,8 @@ void RenderPlot()
 	glEnable(GL_DEPTH_TEST);
 	glMatrixMode(GL_TEXTURE);
 		glActiveTexture(GL_TEXTURE0);
-			TMatrix4<> matrix;
-			Mat::Mult(shadow_aspect0.projection,shadow_aspect0.view,matrix);
+			M::TMatrix4<> matrix;
+			M::Mat::Mult(shadow_aspect0.projection,shadow_aspect0.view,matrix);
 			glLoadMatrixf(matrix.v);
 			display.useTexture(shadow_fbo0.ReferDepth());
 			glEnable(GL_TEXTURE_2D);
@@ -96,7 +95,7 @@ void RenderPlot()
 				//glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_COMPARE_MODE,GL_NONE);
 				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_COMPARE_FUNC,GL_LEQUAL);
 		glActiveTexture(GL_TEXTURE1);
-			Mat::Mult(shadow_aspect1.projection,shadow_aspect1.view,matrix);
+			M::Mat::Mult(shadow_aspect1.projection,shadow_aspect1.view,matrix);
 			glLoadMatrixf(matrix.v);
 			display.useTexture(shadow_fbo1.ReferDepth());
 			glEnable(GL_TEXTURE_2D);
@@ -113,7 +112,7 @@ void RenderPlot()
 	{
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
-		wallScenery.RenderIgnoreMaterials();
+		wallScenery.Render();
 	}
 
 	glsl(shader)
@@ -122,10 +121,10 @@ void RenderPlot()
 		glCullFace(GL_BACK);
 		//scenery.RenderIgnoreMaterials();
 		//scenery.RenderIgnoreMaterials();
-		scenery.RenderIgnoreMaterials();
+		scenery.Render();
 		glDepthMask(GL_FALSE);
-		transparentScenery.RenderIgnoreMaterials();
-		transparentScenery.RenderIgnoreMaterials();
+		transparentScenery.Render();
+		transparentScenery.Render();
 		glDepthMask(GL_TRUE);
 	}
 
@@ -133,7 +132,7 @@ void RenderPlot()
 	{
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
-		holeScenery.RenderIgnoreMaterials();
+		holeScenery.Render();
 	}
 
 	{
@@ -142,10 +141,10 @@ void RenderPlot()
 		{
 			glEnable(GL_CULL_FACE);
 			glCullFace(GL_FRONT);
-			scenery.RenderIgnoreMaterials();
+			scenery.Render();
 			glDepthMask(GL_FALSE);
-			transparentScenery.RenderIgnoreMaterials();
-			transparentScenery.RenderIgnoreMaterials();
+			transparentScenery.Render();
+			transparentScenery.Render();
 			glDepthMask(GL_TRUE);
 			glCullFace(GL_BACK);
 		}
@@ -165,13 +164,13 @@ void 	RenderAxisLabel(float x, float value, Axis axis)
 {
 	if (!TLabel::enabled)
 		return;
-	float3 global,projected;
-	float3 p = float3(x, 0, 0);
-	float dir = Vec::dot(TLabel::system.z.xyz, camera.GetAbsoluteLocation());
+	M::float3 global,projected;
+	M::float3 p = M::float3(x, 0, 0);
+	float dir = M::Vec::dot(TLabel::system.z.xyz, camera.GetAbsoluteLocation());
 
 	//if (axis == Axis::X && dir > 0)
 	//	p.z = 2;
-	Mat::transform(TLabel::system, p, global);
+	M::Mat::transform(TLabel::system, p, global);
 	camera.Project(global, projected);
 	labels.Append().coords = projected;
 	labels.Last().value = value * markerLabelFactor.v[(int)axis];
@@ -181,8 +180,8 @@ void 	PutStringLabel(float x, const char*value)
 {
 	if (!TLabel::enabled)
 		return;
-	float3 global, projected;
-	Mat::transform(TLabel::system, float3(x, 0, 0), global);
+	M::float3 global, projected;
+	M::Mat::transform(TLabel::system, M::float3(x, 0, 0), global);
 	camera.Project(global, projected);
 	labels.Append().coords = projected;
 	labels.Last().cValue = value;
@@ -190,16 +189,16 @@ void 	PutStringLabel(float x, const char*value)
 }
 
 
-TMatrix4<> mat = Matrix<>::eye4;
-void RenderAxis(const TFloatRange<>&range, float labelSteps, const TMatrix3<>&system, float length, const char*label, Axis axis)
+M::TMatrix4<> mat = M::Matrix<>::eye4;
+void RenderAxis(const M::TFloatRange<>&range, float labelSteps, const M::TMatrix3<>&system, float length, const char*label, Axis axis)
 {
 	glPushMatrix();
-		Mat::copyOrientation(system, mat);
-		float dir = Vec::dot(system.z, camera.GetAbsoluteLocation());
+		M::Mat::copyOrientation(system, mat);
+		float dir = M::Vec::dot(system.z, camera.GetAbsoluteLocation());
 		if (axis != Axis::Z && dir > 0)
-			Vec::mul(system.z, 2, mat.w.xyz);
+			M::Vec::mul(system.z, 2, mat.w.xyz);
 		else
-			Vec::clear(mat.w.xyz);
+			M::Vec::clear(mat.w.xyz);
 
 		TLabel::system = mat;
 		TLabel::system.w.xyz += TLabel::translation;
@@ -247,7 +246,7 @@ void RenderAxis(const TFloatRange<>&range, float labelSteps, const TMatrix3<>&sy
 		PutStringLabel(h + 0.2, label);
 
 
-		Vec::clear(mat.w.xyz);
+		M::Vec::clear(mat.w.xyz);
 
 
 	glPopMatrix();
@@ -255,12 +254,12 @@ void RenderAxis(const TFloatRange<>&range, float labelSteps, const TMatrix3<>&sy
 }
 
 
-void RenderGrid(const TMatrix3<>&sys, float xExtent, const TFloatRange<>&yRange, const TFloatRange<>&zRange, float yMarkerSteps, float zMarkerSteps, float yExtent, float zExtent)
+void RenderGrid(const M::TMatrix3<>&sys, float xExtent, const M::TFloatRange<>&yRange, const M::TFloatRange<>&zRange, float yMarkerSteps, float zMarkerSteps, float yExtent, float zExtent)
 {
-	float dir = Vec::dot(sys.x, camera.GetAbsoluteLocation());
+	float dir = M::Vec::dot(sys.x, camera.GetAbsoluteLocation());
 
 	glPushMatrix();
-		Mat::copyOrientation(sys, mat);
+		M::Mat::copyOrientation(sys, mat);
 		glMultMatrixf(mat.v);
 		if (dir < 0)
 			glTranslatef(xExtent, 0, 0);
@@ -311,26 +310,26 @@ void RenderExtendedAxes()
 
 	glEnable(GL_DEPTH_TEST);
 	glPushMatrix();
-		TLabel::translation = float3(-1, -1, 0);
+		TLabel::translation = M::float3(-1, -1, 0);
 		glTranslatef(-1, -1, 0);
 		glBlack();
 		//glScalef(2, 2, 2);
 		glDisable(GL_CULL_FACE);
 
-		static const TMatrix3<> xSystem =
+		static const M::TMatrix3<> xSystem =
 		{
 			1,0,0,
 			0,0,1,
 			0,1,0,
 		};
-		static const TMatrix3<> zSystem =
+		static const M::TMatrix3<> zSystem =
 		{
 			0,0,1,
 			1,0,0,
 			0,1,0,
 		};
 
-		static const TMatrix3<> ySystem =
+		static const M::TMatrix3<> ySystem =
 		{
 			0,1,0,
 			0,0,1,
@@ -366,7 +365,7 @@ void RenderExtendedAxesLabels()
 			textout.MoveTo(l->coords.x*0.5+0.5, l->coords.y*0.5+0.5);
 			if (l->isFloat)
 			{
-				int s = sign(l->value);
+				int s = M::sign(l->value);
 				float v =fabs(l->value);
 
 				if (v == 0)
@@ -374,7 +373,7 @@ void RenderExtendedAxesLabels()
 				else
 				{
 					int degree = log(v) / log(10.f);
-					float factor = Pow10(degree-1);
+					float factor = M::Pow10(degree-1);
 					v = round(v / factor) * factor * s;
 					textout << v;
 				}
@@ -738,33 +737,32 @@ void SetupRenderer()
 	float x = 1.01f;
 	float y = x;
 	float h = 1.4f;
-	float4 c(h,h,h,1);
+	M::float4 c(h,h,h,1);
 	obj.SetVertexOffsetToCurrent();
-	obj.MakeVertex(float3(-x,-y,z),c);
-	obj.MakeVertex(float3(x,-y,z),c);
-	obj.MakeVertex(float3(x,y,z),c);
-	obj.MakeVertex(float3(-x,y,z),c);
+	obj.MakeVertex(M::float3(-x,-y,z),c);
+	obj.MakeVertex(M::float3(x,-y,z),c);
+	obj.MakeVertex(M::float3(x,y,z),c);
+	obj.MakeVertex(M::float3(-x,y,z),c);
 	obj.MakeQuad(0,1,2,3);
 
 	obj.SetVertexOffsetToCurrent();
-	obj.MakeVertex(float3(-x,-y,1),c);
-	obj.MakeVertex(float3(x,-y,1),c);
-	obj.MakeVertex(float3(x,-y,z),c);
-	obj.MakeVertex(float3(-x,-y,z),c);
+	obj.MakeVertex(M::float3(-x,-y,1),c);
+	obj.MakeVertex(M::float3(x,-y,1),c);
+	obj.MakeVertex(M::float3(x,-y,z),c);
+	obj.MakeVertex(M::float3(-x,-y,z),c);
 	obj.MakeQuad(0,1,2,3);
 
 	obj.SetVertexOffsetToCurrent();
-	obj.MakeVertex(float3(x,-y,1),c);
-	obj.MakeVertex(float3(x,y,1),c);
-	obj.MakeVertex(float3(x,y,z),c);
-	obj.MakeVertex(float3(x,-y,z),c);
+	obj.MakeVertex(M::float3(x,-y,1),c);
+	obj.MakeVertex(M::float3(x,y,1),c);
+	obj.MakeVertex(M::float3(x,y,z),c);
+	obj.MakeVertex(M::float3(x,-y,z),c);
 	obj.MakeQuad(0,1,2,3);
 
 
 
 	obj.ComputeNormals();
 
-	walls.makeFromConstructor(constructor);
-	wallScenery.Embed(walls);
+	wallScenery.Embed(obj);
 
 }

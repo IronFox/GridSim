@@ -1,5 +1,7 @@
 <project type="Application:Console">
 	<source path="./" />
-	<referenceProject name="DeltaWorks" />
+	<referenceProject name="DeltaWorksEngine" />
+	<referenceProject name="DeltaWorksCore" />
+	<macro name="_SCL_SECURE_NO_WARNINGS" />
 	<manifest>../DeclareDPIAware.manifest</manifest>
 </project>

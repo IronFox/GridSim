@@ -111,7 +111,7 @@ float		Hypothesis::Sample(const Array<float>&ref, float spatialDistance) const
 		return v0;
 	}
 	float v1 = ref[upper];
-	float a = frac(spatialDistance);
+	float a = M::frac(spatialDistance);
 	return v0 * (1.f - a) + v1 * a;
 }
 
@@ -155,7 +155,7 @@ static double LogNormalDerivative(double x, double sigma, double mu = 0.0)
 		x = 0.0000000001;
 
 	return	1.0 / (x * sigma * sqrt(2.0 * M_PI))
-			* exp(sqr(log(x)-mu)/(-2.0 * sqr(sigma)) );
+			* exp(M::sqr(log(x)-mu)/(-2.0 * M::sqr(sigma)) );
 }
 
 float		Hypothesis::operator()(index_t iSpatialDistance, index_t iTemporalDistance) const

@@ -11,6 +11,7 @@
 #include "table.h"
 #include <io/delta_crc32.h>
 
+using namespace DeltaWorks::Math;
 
 float l[3] = {0,1,0};
 
@@ -129,7 +130,7 @@ bool loop()		//main loop function
 {
 	if (mouse.buttons.pressed)		//rotate the camera if any mouse button is currently pressed
 	{
-		TVec2<> d = mouse.location.windowRelative - mouse.previous_location.windowRelative;
+		M::TVec2<> d = mouse.location.windowRelative - mouse.previous_location.windowRelative;
 		camera.AlterAngles(-d.y*100.0f,0,-d.x*100.0f);						//rotate the camera (also rebuild the camera)
 	}
 	static Timer::Time lastLoad = timer.Now();
@@ -255,13 +256,13 @@ bool loop()		//main loop function
 						BYTE*pixel = image.Get(x,y);
 						if (pixel[3])
 						{
-							float a = float(Vec::max(Vec::ref4(pixel))) / 255.f;
+							float a = float(M::Vec::max(M::Vec::ref4(pixel))) / 255.f;
 								//float(pixel[3])/255.f;
-							float3 c0 = float3(pixel)/255.f;
+							M::float3 c0 = float3(pixel)/255.f;
 						
-							float3 c = c0 / a;
-							Vec::clamp(c,0,1);
-							Vec::mult(c,255.f,Vec::ref3(pixel));
+							M::float3 c = c0 / a;
+							M::Vec::clamp(c,0,1);
+							M::Vec::mult(c,255.f,M::Vec::ref3(pixel));
 						}
 
 					}
@@ -818,7 +819,7 @@ int main()	//main entry point
 		});
 
 
-#if 1
+#if 0
 		foreach (files,f)
 		{
 			tables.Append().LoadSamples(*f);
@@ -990,7 +991,7 @@ int main()	//main entry point
 		if (false)
 		{
 			::sources.Clear();
-			ByComparator::QuickSort(files,[](const FileSystem::File&a, const FileSystem::File&b)->int
+			Sorting::ByComparator::QuickSort(files,[](const FileSystem::File&a, const FileSystem::File&b)->int
 			{
 				float mA = GetMotionProportion(String(a.GetName()));
 				float mB = GetMotionProportion(String(b.GetName()));
