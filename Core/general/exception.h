@@ -568,7 +568,7 @@ namespace DeltaWorks
 		#define DISPLAY__(_MESSAGE_)    {std::cout<<"Fatal Error\n"<<(_MESSAGE_)<<std::endl;};
 	#endif
 
-	#define CLOCATION   TCodeLocation((const char*)__FILE__,__func__,__LINE__)
+	#define CLOCATION   ::DeltaWorks::TCodeLocation((const char*)__FILE__,__func__,__LINE__)
 
 
 	namespace Except
@@ -614,7 +614,7 @@ namespace DeltaWorks
 			}
 	}
 
-	#define FATAL__(_MESSAGE_)					{if (Except::enterFatalPhase()) Except::finalizeFatalPhase(CLOCATION,(_MESSAGE_));}
+	#define FATAL__(_MESSAGE_)					{if (::DeltaWorks::Except::enterFatalPhase()) ::DeltaWorks::Except::finalizeFatalPhase(CLOCATION,(_MESSAGE_));}
 
 	#ifdef _DEBUG
 		#define DBG_FATAL__(_MESSAGE_)			FATAL__(_MESSAGE_)
@@ -622,7 +622,7 @@ namespace DeltaWorks
 		#define DBG_FATAL__(_MESSAGE_)			{}
 	#endif
 
-	#define THROW_FATAL__(_message_)			throw Except::Fatal(CLOCATION,message);
+	#define THROW_FATAL__(_message_)			throw ::DeltaWorks::Except::Fatal(CLOCATION,message);
 	#define THROW_FATAL_EXCEPTION__(_message_)	THROW_FATAL__(_message_)
 
 
