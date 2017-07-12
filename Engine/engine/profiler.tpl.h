@@ -465,17 +465,17 @@ namespace Engine
 			if (caption_left)
 			{
 				float width = 0;
-				
+
 				if (Base::view != Solid)
 				{
 					for (index_t i = 0; i < Base::data->groups(); i++)
 					{
 						const Group&group = Base::data->group(i);
-						width = vmax(width,active_textout->GetScaledWidth(group.name));
+						width = M::Max(width,active_textout->GetScaledWidth(group.name));
 						if (Base::view == Detailed && group.channels()>1)
 						{
 							for (index_t j = 0; j < group.channels(); j++)
-								width = vmax(width,active_textout->GetScaledWidth(group.channel(j).name)+indent);
+								width = M::Max(width,active_textout->GetScaledWidth(group.channel(j).name)+indent);
 						}
 					}
 				}

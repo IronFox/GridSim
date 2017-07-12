@@ -1628,7 +1628,7 @@ namespace DeltaWorks
 					count_t				CountQuads(index_t lod)		const {return CountQuadIndices(lod)/4;}
 					count_t				CountFloats(index_t lod)	const {return lods[lod].vertexData.length();}
 					count_t				CountVertices(index_t lod)	const {return CountFloats(lod) / config.vsize;}
-					M::Box<Float>			GetBoundingBox(index_t lod=0)const;
+					M::Box<Float>		GetBoundingBox(index_t lod=0)const;
 
 					void				VerifyIntegrity(bool verifyAllVerticesAreUsed)	const;
 

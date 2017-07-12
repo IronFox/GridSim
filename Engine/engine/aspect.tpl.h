@@ -444,7 +444,8 @@ MFUNC2 (bool) Aspect<C>::Project(const M::TVec3<C0>&point, M::TVec3<C1>&projecte
 	M::Mat::transform(view,point,temp0.xyz);
 	temp0.w = 1;
 	M::Mat::Mult(projection,temp0,temp1);
-	if (vabs(temp1.w) < GetError<C>())
+	using std::fabs;
+	if (fabs(temp1.w) < M::GetError<C>())
 		return false;
 	M::Vec::divide(temp1.xyz,temp1.w,projected);
 	return projected.z >= -1 && projected.z <= 1;
