@@ -10,8 +10,10 @@
 #include "hypothesis.h"
 #include "table.h"
 #include <io/delta_crc32.h>
+#include <string/converter.h>
 
 using namespace DeltaWorks::Math;
+using namespace DeltaWorks;
 
 float l[3] = {0,1,0};
 
@@ -24,7 +26,8 @@ SampleType	currentSampleType = SampleType::DivergenceDepth;
 
 float h0 = 0;
 
-float fontScale = 2.f;
+float fontScale = 1.f;
+//2.f;
 
 
 
@@ -87,7 +90,7 @@ void UpdatePlotGeometry()
 		//rangeTable.UpdatePlotGeometry(currentSampleType);
 
 		foreach (tables,t)
-			if (t == tables.begin())
+			//if (t == tables.begin())
 				t->UpdatePlotGeometry(currentSampleType,false);
 	}
 
@@ -130,7 +133,7 @@ bool loop()		//main loop function
 {
 	if (mouse.buttons.pressed)		//rotate the camera if any mouse button is currently pressed
 	{
-		M::TVec2<> d = mouse.location.windowRelative - mouse.previous_location.windowRelative;
+		TVec2<> d = mouse.location.windowRelative - mouse.previous_location.windowRelative;
 		camera.AlterAngles(-d.y*100.0f,0,-d.x*100.0f);						//rotate the camera (also rebuild the camera)
 	}
 	static Timer::Time lastLoad = timer.Now();
@@ -256,13 +259,13 @@ bool loop()		//main loop function
 						BYTE*pixel = image.Get(x,y);
 						if (pixel[3])
 						{
-							float a = float(M::Vec::max(M::Vec::ref4(pixel))) / 255.f;
+							float a = float(Vec::max(Vec::ref4(pixel))) / 255.f;
 								//float(pixel[3])/255.f;
-							M::float3 c0 = float3(pixel)/255.f;
+							float3 c0 = float3(pixel)/255.f;
 						
-							M::float3 c = c0 / a;
-							M::Vec::clamp(c,0,1);
-							M::Vec::mult(c,255.f,M::Vec::ref3(pixel));
+							float3 c = c0 / a;
+							Vec::clamp(c,0,1);
+							Vec::mult(c,255.f,Vec::ref3(pixel));
 						}
 
 					}
@@ -404,7 +407,64 @@ struct Source
 	void				Load(const Source&successor)
 	{
 		LoadTables({sampleFile});
-		tables.Append(Table(false,true,trainStatic)).TrainHypothesis(0,currentSampleType);
+
+		if (false)
+		{
+			//let's try to create a mapping
+			//DD is X
+			//Error is Y
+			TFloatRange<double> range = MaxInvalidRange<double>();
+			foreach (tables.First().samples,row)
+				foreach (*row,s)
+				{
+					range.Include(s->Get(SampleType::LocationError));
+				}
+			//range is now used DD range. we can now split it into sub-ranges
+			struct TSubRange
+			{
+				count_t				numSamples = 0;
+				double				sum = 0;
+				TFloatRange<double> valueRange = MaxInvalidRange<double>();
+			};
+
+			Array<TSubRange> subRanges(100);
+			foreach (tables.First().samples,row)
+				foreach (*row,s)
+				{
+					const double x = s->Get(SampleType::LocationError);
+					const double y = s->Get(SampleType::Inconsistency);
+					const index_t subIndex = M::Min(subRanges.Count()-1,index_t( ((x - range.min) / range.GetExtent()) * subRanges.Count()));
+					subRanges[subIndex].numSamples++;
+					subRanges[subIndex].valueRange.Include(y);
+					subRanges[subIndex].sum += y;
+				}
+
+			StringFile csv;
+			csv.Create("DD_Err_Mapping.csv");
+			csv << "high";
+			foreach (subRanges,r)
+				csv << ","<<r->valueRange.max;
+			csv << nl;
+			csv << "mean";
+			foreach (subRanges,r)
+				csv << ","<<(r->sum/r->numSamples);
+			csv << nl;
+			csv << "low";
+			foreach (subRanges,r)
+				csv << ","<<r->valueRange.min;
+			csv << nl;
+			csv.Close();
+		}
+
+		//tables.Append();
+		//tables.Last().SetTransformed(tables.GetFromEnd(1),
+		//	[](TSample s)->TSample
+		//	{
+		//		s.locationError = pow(s.Get(SampleType::DivergenceDepth),0.3) * s.numEntities * 4;
+		//		return s;
+		//	}, 
+		//	float4(1,0,0,0.5));
+		//tables.Append(Table(false,true,trainStatic)).TrainHypothesis(0,currentSampleType);
 		UpdateColors();
 	}
 
@@ -799,13 +859,25 @@ int main()	//main entry point
 
 		GetFilesIn(FileSystem::Folder("./data"),files,[](const PathString&path)->bool
 		{
-			const index_t dD = path.GetIndexOf("data");
+			const index_t dDat = path.GetIndexOf("data");
+			index_t dD = path.FindFrom(dDat,"D" FOLDER_SLASH_STR);
+			if (!dD)
+				return false;
+			dD-=3;
 			const index_t dI = path.FindFrom(dD,FOLDER_SLASH_STR"d");
 			if (!dI)
 				return false;
 			const index_t sI = path.FindFrom(dI,FOLDER_SLASH);
 			if (!sI)
 				return false;
+
+			count_t dimensions;
+			const String sdim = String(path.subStringRef(dD+1,dI-dD-3));
+			if (!Convert(sdim,dimensions))
+				return false;
+			if (dimensions != 2)
+				return false;
+
 			float density;
 			const String sdensity = String(path.subStringRef(dI+1,sI-dI-2));
 			if (!convert(sdensity.c_str(),sdensity.length(),density))
@@ -813,8 +885,8 @@ int main()	//main entry point
 			const int idensity = (int) density;
 			if (density != idensity)
 				return false;
-			if (idensity%5)
-				return false;
+			//if (idensity%5)
+			//	return false;
 			return path.contains("m0.5_");	//half motion/sensor
 		});
 
@@ -987,6 +1059,8 @@ int main()	//main entry point
 
 		foreach (files,f)
 			::sources.Append().Setup(*f);
+		
+
 
 		if (false)
 		{

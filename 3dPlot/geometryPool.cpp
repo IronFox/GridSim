@@ -40,18 +40,18 @@ index_t				Geometry::Embed(const D::CGS::Constructor<>::Object&cgs)
 			vertexBinding.texcoords[i].set(offset,2);
 			offset+=2;
 		}
-		ASSERT_EQUAL__(vertexFloats,offset);
+		ASSERT_EQUAL__(vertexBinding.floats_per_vertex,offset);
 
 		//#define VSIZE(vlyr, flags) (3+2*vlyr+(flags&CGS::HasTangentFlag?3:0)+(flags&CGS::HasNormalFlag?3:0)+(flags&CGS::HasColorFlag?4:0))
 	}
 	else
-		ASSERT_EQUAL__(vertexFloats,cgs.GetVertexSize());
+		ASSERT_EQUAL__(vertexBinding.floats_per_vertex,cgs.GetVertexSize());
 
 	index_t idx = idxCounter++;
 
 	TSection&section = sectionMap.Set(idx);
 	section.iRange.start = indexData.Count();
-	section.vRange.start = vertexData.Count() / this->vertexFloats;
+	section.vRange.start = vertexData.Count() / this->vertexBinding.floats_per_vertex;
 	vertexData.Append(lod.vertexData);
 	indexData.Append(lod.triangleIndices);
 	count_t numQuads = lod.quadIndices.Count()/4;
@@ -60,8 +60,11 @@ index_t				Geometry::Embed(const D::CGS::Constructor<>::Object&cgs)
 		indexData << lod.quadIndices[i*4] << lod.quadIndices[i*4+1] << lod.quadIndices[i*4+2];
 		indexData << lod.quadIndices[i*4] << lod.quadIndices[i*4+2] << lod.quadIndices[i*4+3];
 	}
-	section.vRange.end = vertexData.Count() / this->vertexFloats;
+	section.vRange.end = vertexData.Count() / this->vertexBinding.floats_per_vertex;
 	section.iRange.end = indexData.Count();
+
+	for (index_t i = section.iRange.start; i < section.iRange.end; i++)
+		indexData[i] += section.vRange.start;
 
 	isDirty = true;
 
@@ -94,7 +97,7 @@ void				Geometry::Remove(index_t&idx)
 
 	const count_t vCount = section.vRange.GetExtent();
 	const count_t iCount = section.iRange.GetExtent();
-	vertexData.Erase(section.vRange.start * vertexFloats, vCount * vertexFloats);
+	vertexData.Erase(section.vRange.start * vertexBinding.floats_per_vertex, vCount * vertexBinding.floats_per_vertex);
 	indexData.Erase(section.iRange.start, section.iRange.GetExtent());
 	for (index_t i = section.iRange.start; i < indexData.Count(); i++)
 		indexData[i] -= vCount;

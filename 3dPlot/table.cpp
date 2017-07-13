@@ -1098,6 +1098,21 @@ void	Table::UpdateCurrentRange(SampleType t)
 }
 
 
+void	Table::SetTransformed(const Table&source, const std::function<TSample(TSample)>&transformFunction, const Math::float4&color)
+{
+	this->color = color;
+	this->samples = source.samples;
+	foreach (samples,row)
+	{
+		foreach (*row,s)
+		{
+			*s = transformFunction(*s);
+		}
+	}
+	
+}
+
+
 void	Table::UpdatePlotGeometry(SampleType t, bool window)
 {
 	ASSERT__(tables.Count() < 0x100);

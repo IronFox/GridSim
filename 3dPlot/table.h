@@ -103,7 +103,7 @@ struct THypothesisData
 	float					Sample(float spatialDistance, float temporalDistance, SampleType t) const;
 	void					Train(index_t sourceTableID, SampleType t);
 
-	static void				TrainRow(const Table&table, index_t rowIndex, M::Polynomial<double,TAgeHypothesis::SNCoef>&poly, bool smooth);
+	static void				TrainRow(const Table&table, index_t rowIndex, D::M::Polynomial<double,TAgeHypothesis::SNCoef>&poly, bool smooth);
 };
 
 class Table
@@ -113,7 +113,7 @@ private:
 	struct TSurfacePoint
 	{
 		float				height;
-		M::float4			color;
+		D::M::float4		color;
 
 
 		bool				operator>(const TSurfacePoint&other) const
@@ -145,7 +145,7 @@ private:
 	TSurfacePoint			GetGeometryPoint(SampleType t, index_t ix, index_t iy) const;
 	TInclinedSurfacePoint	GetInclinedGeometryPoint(SampleType t, index_t ix, index_t iy) const;
 	static TSurfacePoint	SampleRangePixelAt(SampleType t, index_t ix, index_t iy, index_t at);
-	void					TraceLine(const M::TIntRange<UINT>&range, const std::function<M::float3(UINT)>&);
+	void					TraceLine(const D::M::TIntRange<UINT>&range, const std::function<D::M::float3(UINT)>&);
 
 	static void				BuildPlotSurface(D::CGS::Constructor<>::Object&target, const std::function<TSurfaceSample(index_t,index_t)>&surfaceFunction);
 	static void				BuildPlotHoleWalls(D::CGS::Constructor<>::Object&obj,const std::function<TInclinedSurfacePoint(index_t,index_t)>&surfaceFunction, UINT xExtent, UINT yExtent, float thickness = 0.03f);
@@ -154,9 +154,9 @@ private:
 public:
 	struct TLineSegment
 	{
-		M::float4			color;
+		D::M::float4		color;
 		float				width=2;
-		D::Buffer0<M::TVec3<> >points;
+		D::Buffer0<D::M::TVec3<> >points;
 
 		void				swap(TLineSegment&other)
 		{
@@ -185,7 +185,7 @@ public:
 
 	struct TValueRange
 	{
-		M::TFloatRange<>	range;
+		D::M::TFloatRange<>	range;
 		float				average;
 	};
 
@@ -205,7 +205,7 @@ public:
 	index_t					solidPlotGeometryHandle = InvalidIndex,
 							plotHoleGeometryHandle = InvalidIndex,
 							transparentGeometryHandle = InvalidIndex;
-	M::float4				color = M::float4(1);
+	D::M::float4			color = D::M::float4(1);
 
 	const bool				IsRangeTable;
 	
@@ -235,6 +235,8 @@ public:
 	void					RemovePlotGeometry();
 
 	void					RenderLines()	const;
+
+	void					SetTransformed(const Table&source, const std::function<TSample(TSample)>&transformFunction, const D::M::float4&color);
 
 	float					SmoothGeometryHeightFunction(SampleType t, float x, float y) const;
 	float					FindLevelSpatialDistance(SampleType t, index_t temporalDistance, float level) const;

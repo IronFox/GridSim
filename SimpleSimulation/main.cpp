@@ -41,11 +41,12 @@ typedef	uint32_t	UINT32;
 typedef	uint16_t	UINT16;
 typedef uint8_t		BYTE;
 
-typedef size_t count_t, index_t;
+typedef std::size_t		count_t, index_t;
+typedef std::ptrdiff_t	sindex_t;
 static const constexpr index_t InvalidIndex = std::numeric_limits<index_t>::max();
 
 #ifndef DIMENSIONS
-	#define DIMENSIONS 3
+	#define DIMENSIONS 2
 #endif
 
 static const constexpr count_t Dimensions=DIMENSIONS;
@@ -938,7 +939,17 @@ struct State
 		parallelIterationsAfter = parallelIterationsBefore;
 	}
 
-
+	TSample& GetSampleOf(std::vector<TSample>&line, const TEntity&e, const count_t samplesPerSector)
+	{
+		if (e.IsDead())
+			throw std::out_of_range("Given entity is dead");
+		const index_t rawSampleID = index_t(fabs(e.GetXLocation()) * samplesPerSector);
+		if (rawSampleID > line.size()+1)
+		{
+			throw std::out_of_range("Sector out of range: "+std::to_string(rawSampleID)+"/"+std::to_string(line.size())+", derived from entity location "+std::to_string(e.GetXLocation()));
+		}
+		return line[std::min(rawSampleID,line.size()-1)];
+	}
 
 	void Accumulate(const State&correct, index_t iteration, const Config&cfg, std::vector<std::vector<TSample> >	&samples)
 	{
@@ -953,28 +964,41 @@ struct State
 			TEntity&inconsistentEntity = entities[i];
 			const TEntity&consistentEntity = correct.entities[i];
 
+			TSample&s1 = GetSampleOf(line,consistentEntity,samplesPerSector);
 
-			TSample&s0 = line[std::min( index_t(fabs(inconsistentEntity.GetXLocation()) * samplesPerSector),line.size()-1)];
-			s0.numEntities ++;
-
-			if (inconsistentEntity.inconsistencyAge)
-				inconsistentEntity.inconsistencyAge++;
-			else 
-				if (inconsistentEntity != consistentEntity && inconsistentEntity.FlagInconsistent())
-					s0.newlyInconsistentEntities ++;
-			double error = Difference(inconsistentEntity.location, consistentEntity.location);
-			if (cfg.range.movementRange != 0)
-				error /= cfg.range.movementRange;
-
-			if (inconsistentEntity.inconsistencyAge)
+			if (!inconsistentEntity.IsDead())
 			{
-				s0.inconsistentEntities ++;
-				s0.positionErrorSum += error;
-				s0.inconsistencyAgeSum += inconsistentEntity.inconsistencyAge;
-			}
+				TSample&s0 = GetSampleOf(line,inconsistentEntity,samplesPerSector);
+				s0.numEntities ++;
+				s1.numEntities ++;
 
-			if (inconsistentEntity.IsDead())
-				s0.missingEntities++;
+				if (inconsistentEntity.inconsistencyAge)
+					inconsistentEntity.inconsistencyAge++;
+				else 
+					if (inconsistentEntity != consistentEntity && inconsistentEntity.FlagInconsistent())
+					{
+						s0.newlyInconsistentEntities ++;
+						s1.newlyInconsistentEntities ++;
+					}
+				double error = Difference(inconsistentEntity.location, consistentEntity.location);
+				if (cfg.range.movementRange != 0)
+					error /= cfg.range.movementRange;
+
+				if (inconsistentEntity.inconsistencyAge)
+				{
+					s0.inconsistentEntities ++;
+					s0.positionErrorSum += error;
+					s0.inconsistencyAgeSum += inconsistentEntity.inconsistencyAge;
+					s1.inconsistentEntities ++;
+					s1.positionErrorSum += error;
+					s1.inconsistencyAgeSum += inconsistentEntity.inconsistencyAge;
+				}
+			}
+			else
+			{
+				s1.numEntities += 2;	//count double (the inconsistent half won't be accounted for)
+				s1.missingEntities+=2;
+			}
 		}
 
 	}
@@ -1556,6 +1580,12 @@ int main( int argc, const char* argv[])
 	}
 	catch (const std::exception&ex)
 	{
+		#ifdef WIN32
+			OutputDebugStringA(typeid( ex ).name());
+			OutputDebugStringA(": ");
+			OutputDebugStringA(ex.what());
+			OutputDebugStringA("\n");
+		#endif
 		std::cerr << ex.what()<<std::endl;
 	}
 	catch (...)

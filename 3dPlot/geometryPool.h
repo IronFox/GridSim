@@ -42,7 +42,6 @@ private:
 	bool				isDirty = true;
 	index_t				idxCounter = 0;
 
-	size_t				vertexFloats=1;
 	D::Buffer0<float>	vertexData;
 	D::Buffer0<UINT32>	indexData;
 };

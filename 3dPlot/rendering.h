@@ -17,27 +17,27 @@ using namespace Engine;
 namespace M = DeltaWorks::M;
 
 typedef OpenGL			Renderer;
-extern 	Display<Renderer> 				display;
-extern 	Textout<GLTextureFont2>			textout;
-extern 	AngularCamera<float>			camera;
-extern 	OrthographicAspect<float>		hud;
+extern Display<Renderer> 				display;
+extern Textout<GLTextureFont2>			textout;
+extern AngularCamera<float>			camera;
+extern OrthographicAspect<float>		hud;
 extern VectorCamera<float>				shadow_aspect0,
 										shadow_aspect1;
 extern Profiler::StackedGraph<OpenGL,GLTextureFont2>	fps_graph;
 extern GLShader::Instance				shader,back_shader,holeShader;
 extern Renderer::FBO					shadow_fbo0,shadow_fbo1;
-extern M::Box<>							range;
-extern M::float3						markerSteps;
-extern M::float3						markerLabelFactor;
+extern D::M::Box<>						range;
+extern D::M::float3						markerSteps;
+extern D::M::float3						markerLabelFactor;
 extern Geometry							scenery,holeScenery,transparentScenery;
-extern M::TVec3<const char*>			arrowLabel;
+extern D::M::TVec3<const char*>			arrowLabel;
 
 
 
 static const constexpr unsigned ShadowResolution=2048;
 static const constexpr bool		DoubleSided = true;
 
-static const M::TVec3<>			light_direction0 = {-0.577f,0.577f,0.577f},
+static const Math::TVec3<>			light_direction0 = {-0.577f,0.577f,0.577f},
 								light_direction1 = {0.577f,0.577f,0.577f};
 
 

@@ -1,4 +1,3 @@
 <project type="Application:Console">
 	<source path="./" />
-	<referenceProject name="DeltaWorks" />
 </project>

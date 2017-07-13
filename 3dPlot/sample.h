@@ -11,7 +11,8 @@ CONSTRUCT_ENUMERATION10(SampleType, Inconsistency,
 									ConsistencyDeltaHypothesis, 
 									DivergenceDepth,
 									LocationError,
-									LocationErrorHypothesis,
+									//LocationErrorHypothesis,
+									BadnessEstimation,
 									MissingEntities,
 									EntityCount
 									);
@@ -32,6 +33,8 @@ struct TSample
 
 	float		GetInconsistentEntities() const {return inconsistentEntities ? float(inconsistentEntities) / float(numEntities) : 0.f; }
 	float		GetDelta(const TSample&other) const {return GetInconsistentEntities() - other.GetInconsistentEntities(); }
+
+	count_t		GetLivingEntities() const {return numEntities - missingEntities;}
 
 	void		Include(const TSample&other);
 
