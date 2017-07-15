@@ -103,7 +103,7 @@ namespace DeltaWorks
 								Operation(ThreadMainObject*object);
 								Operation(ThreadMainObject*object, pMethod method_pointer);
 			
-		inline	void			execute()	//!< Executes the operation
+		inline	void			Execute()	//!< Executes the operation
 								{
 									executing = true;
 									if (method_pointer)
@@ -961,13 +961,13 @@ namespace DeltaWorks
 			
 									ThreadPool(size_t num_threads=0,ThreadMainObject*init_object=NULL, Thread::pMethod init_method=NULL); 
 									
-				void				process(const Job&job);			//!< Enqueues a singular job
-				void				process(ThreadMainObject*object,Thread::pMethod method=NULL);	//!< Enqueues a singular job
-				void				process(ThreadMainObject&object,Thread::pMethod method=NULL);	//!< Enqueues a singular job
-				void				process(ThreadMainObject*object,ThreadPoolContext*context);	//!< Enqueues a singular job
-				void				process(ThreadMainObject&object,ThreadPoolContext*context);	//!< Enqueues a singular job
-				void				process(ThreadMainObject*object,Thread::pMethod method, ThreadPoolContext*context);	//!< Enqueues a singular job
-				void				process(ThreadMainObject&object,Thread::pMethod method, ThreadPoolContext*context);		//!< Enqueues a singular job
+				void				Process(const Job&job);			//!< Enqueues a singular job
+				void				Process(ThreadMainObject*object,Thread::pMethod method=NULL);	//!< Enqueues a singular job
+				void				Process(ThreadMainObject&object,Thread::pMethod method=NULL);	//!< Enqueues a singular job
+				void				Process(ThreadMainObject*object,ThreadPoolContext*context);	//!< Enqueues a singular job
+				void				Process(ThreadMainObject&object,ThreadPoolContext*context);	//!< Enqueues a singular job
+				void				Process(ThreadMainObject*object,Thread::pMethod method, ThreadPoolContext*context);	//!< Enqueues a singular job
+				void				Process(ThreadMainObject&object,Thread::pMethod method, ThreadPoolContext*context);		//!< Enqueues a singular job
 				void				process4(ThreadMainObject*obj0,ThreadMainObject*obj1,ThreadMainObject*obj2,ThreadMainObject*obj3,Thread::pMethod method, ThreadPoolContext*context);	//!< Enqueues 4 jobs using the same method and context on 4 different objects
 				void				split(Ctr::Array<ThreadMainObject*>&objects,Thread::pMethod method, ThreadPoolContext*context=&global_context);									//!< Separates the specified objects into quad jobs and mass enqueues them using the specified method and context
 				void				split(Ctr::Array<ThreadMainObject*>&objects,size_t count, Thread::pMethod method, ThreadPoolContext*context=&global_context);									//!< Separates the specified objects into quad jobs and mass enqueues them using the specified method and context. Only the first @b count objects are enqueued
@@ -1046,13 +1046,13 @@ namespace DeltaWorks
 	
 									PriorityThreadPool(size_t num_threads=0,ThreadMainObject*init_object=NULL, Thread::pMethod init_method=NULL); 
 			
-				void				process(int priority, const Job&job);
-				void				process(int priority, ThreadMainObject*object,Thread::pMethod method=NULL);
-				void				process(int priority, ThreadMainObject&object,Thread::pMethod method=NULL);
-				void				process(int priority, ThreadMainObject*object,ThreadPoolContext*context);
-				void				process(int priority, ThreadMainObject&object,ThreadPoolContext*context);
-				void				process(int priority, ThreadMainObject*object,Thread::pMethod method, ThreadPoolContext*context);
-				void				process(int priority, ThreadMainObject&object,Thread::pMethod method, ThreadPoolContext*context);	
+				void				Process(int priority, const Job&job);
+				void				Process(int priority, ThreadMainObject*object,Thread::pMethod method=NULL);
+				void				Process(int priority, ThreadMainObject&object,Thread::pMethod method=NULL);
+				void				Process(int priority, ThreadMainObject*object,ThreadPoolContext*context);
+				void				Process(int priority, ThreadMainObject&object,ThreadPoolContext*context);
+				void				Process(int priority, ThreadMainObject*object,Thread::pMethod method, ThreadPoolContext*context);
+				void				Process(int priority, ThreadMainObject&object,Thread::pMethod method, ThreadPoolContext*context);	
 				void				process4(int priority, ThreadMainObject*obj0,ThreadMainObject*obj1,ThreadMainObject*obj2,ThreadMainObject*obj3,Thread::pMethod method, ThreadPoolContext*context);
 				void				split(const Ctr::Array<int>&priorities, Ctr::Array<ThreadMainObject*>&objects,Thread::pMethod method, ThreadPoolContext*context=&global_context);
 				void				splitIndividually(const Ctr::Array<int>&priorities, Ctr::Array<ThreadMainObject*>&objects,Thread::pMethod method, ThreadPoolContext*context=&global_context);
@@ -1183,10 +1183,10 @@ namespace DeltaWorks
 			/**
 			@brief Executes a function on this object.
 				
-			execute() splits the specified number of iterations into jobs of equal size depending on @a iterations_per_job . The remainder is executed by the calling thread.
-			No two operations may be executed at the same time by a single object. If multiple threads execute operations on ParallelLoop instances, then create one instance per thread or protect execute()
+			Execute() splits the specified number of iterations into jobs of equal size depending on @a iterations_per_job . The remainder is executed by the calling thread.
+			No two operations may be executed at the same time by a single object. If multiple threads execute operations on ParallelLoop instances, then create one instance per thread or protect Execute()
 			using an external mutex.
-			execute() itself is not mutex protected.
+			Execute() itself is not mutex protected.
 			*/
 			void						Execute(Operator*op, count_t iterations, count_t iterationsPerJob);
 

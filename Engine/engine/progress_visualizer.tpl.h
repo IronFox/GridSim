@@ -77,7 +77,7 @@ namespace Engine
 	    aspect.region = M::TFloatRect(0.2,0.2,0.8,0.8);
 	    _v3(aspect.location,0.5,0.5,0);
 	    aspect.build();
-	    display.pick(aspect);
+	    display.Pick(aspect);
 	    textout.setScale(PROG_LH,PROG_LH);
 	    textout.color(1.0f,0.75f,0);
 	    __eye4(sub_system);

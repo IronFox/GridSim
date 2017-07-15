@@ -109,7 +109,7 @@ namespace Engine
 		void		HandleMouseWheel(short delta);
 
 		#if SYSTEM==UNIX
-			void				assign(Display*display, Window window, int screen);
+			void				Assign(Display*display, Window window, int screen);
 		#endif
 		bool		SignalButtonDown(BYTE id, bool update_if_bound=false);				//!< Evokes a button down event for the specified mouse button. Invoked by the working context - should not be invoked by the client application. \param id Button id (0=left button, 1=middle button, 2=right button) \param update_if_bound Forces the mouse handler to update before evoking the bound event \return true if an event handler was executed
 		bool		SignalButtonUp(BYTE id, bool update_if_bound=false);					//!< Evokes a button up event for the specified mouse button. Invoked by the working context - should not be invoked by the client application. \param id Button id (0=left button, 1=middle button, 2=right button) \param update_if_bound Forces the mouse handler to update before evoking the bound event \return true if an event handler was executed

@@ -127,7 +127,7 @@ namespace DeltaWorks
 				job_signal.wait();
 				while (remaining_runs)
 				{
-					operation.execute();
+					operation.Execute();
 					mutex.lock();
 						if (remaining_runs && decrement)
 							remaining_runs--;
@@ -201,14 +201,14 @@ namespace DeltaWorks
 		void* Thread::thread_exec(void*self_)
 		{
 			Thread*self = reinterpret_cast<Thread*>(self_);
-			self->operation.execute();
+			self->operation.Execute();
 			return NULL;
 		}
 		#elif SYSTEM==WINDOWS
 		DWORD WINAPI Thread::thread_exec(LPVOID self_)
 		{
 			Thread*self = reinterpret_cast<Thread*>(self_);
-			self->operation.execute();
+			self->operation.Execute();
 			if (cancelSynchronousIo)
 				cancelSynchronousIo(self->handle);
 
@@ -1107,7 +1107,7 @@ namespace DeltaWorks
 			THREAD_REPORT("enqueued")
 		}
 
-		void			ThreadPool::process(const Job&job)
+		void			ThreadPool::Process(const Job&job)
 		{
 			THREAD_REPORT("enqueueing singular job")
 			job.context->counter_mutex.lock();
@@ -1118,40 +1118,40 @@ namespace DeltaWorks
 			THREAD_REPORT("job enqueued")
 		}
 	
-		void			ThreadPool::process(ThreadMainObject*object,Thread::pMethod method)
+		void			ThreadPool::Process(ThreadMainObject*object,Thread::pMethod method)
 		{
-			process(Job(object,method));
+			Process(Job(object,method));
 		}
 	
-		void			ThreadPool::process(ThreadMainObject&object,Thread::pMethod method)
+		void			ThreadPool::Process(ThreadMainObject&object,Thread::pMethod method)
 		{
-			process(Job(object,method));
+			Process(Job(object,method));
 		}
 	
-		void			ThreadPool::process(ThreadMainObject*object,ThreadPoolContext*context)
+		void			ThreadPool::Process(ThreadMainObject*object,ThreadPoolContext*context)
 		{
-			process(Job(object,context));
+			Process(Job(object,context));
 		}
 	
-		void			ThreadPool::process(ThreadMainObject&object,ThreadPoolContext*context)
+		void			ThreadPool::Process(ThreadMainObject&object,ThreadPoolContext*context)
 		{
-			process(Job(object,context));
+			Process(Job(object,context));
 		}
 	
-		void			ThreadPool::process(ThreadMainObject*object,Thread::pMethod method, ThreadPoolContext*context)
+		void			ThreadPool::Process(ThreadMainObject*object,Thread::pMethod method, ThreadPoolContext*context)
 		{
-			process(Job(object,method,context));
+			Process(Job(object,method,context));
 		}
 	
-		void			ThreadPool::process(ThreadMainObject&object,Thread::pMethod method, ThreadPoolContext*context)
+		void			ThreadPool::Process(ThreadMainObject&object,Thread::pMethod method, ThreadPoolContext*context)
 		{
-			process(Job(object,method,context));
+			Process(Job(object,method,context));
 		}
 	
 		void			ThreadPool::process4(ThreadMainObject*obj0,ThreadMainObject*obj1,ThreadMainObject*obj2,ThreadMainObject*obj3,Thread::pMethod method, ThreadPoolContext*context)
 		{
 			#if QUAD_JOBS
-				process(Job(obj0,obj1,obj2,obj3,method,context));
+				Process(Job(obj0,obj1,obj2,obj3,method,context));
 			#else
 				THREAD_REPORT("enqueueing quad job")
 				context->counter_mutex.lock();
@@ -1173,7 +1173,7 @@ namespace DeltaWorks
 
 		ThreadPool&	ThreadPool::operator<<(const Job&job)
 		{
-			process(job);
+			Process(job);
 			return *this;
 		}
 
@@ -1252,7 +1252,7 @@ namespace DeltaWorks
 			THREAD_REPORT("enqueued")
 		}
 
-		void			PriorityThreadPool::process(int priority, const Job&job)
+		void			PriorityThreadPool::Process(int priority, const Job&job)
 		{
 			THREAD_REPORT("enqueueing singular job")
 			job.context->counter_mutex.lock();
@@ -1263,40 +1263,40 @@ namespace DeltaWorks
 			THREAD_REPORT("job enqueued")
 		}
 	
-		void			PriorityThreadPool::process(int priority, ThreadMainObject*object,Thread::pMethod method)
+		void			PriorityThreadPool::Process(int priority, ThreadMainObject*object,Thread::pMethod method)
 		{
-			process(priority, Job(object,method));
+			Process(priority, Job(object,method));
 		}
 	
-		void			PriorityThreadPool::process(int priority, ThreadMainObject&object,Thread::pMethod method)
+		void			PriorityThreadPool::Process(int priority, ThreadMainObject&object,Thread::pMethod method)
 		{
-			process(priority,Job(object,method));
+			Process(priority,Job(object,method));
 		}
 	
-		void			PriorityThreadPool::process(int priority, ThreadMainObject*object,ThreadPoolContext*context)
+		void			PriorityThreadPool::Process(int priority, ThreadMainObject*object,ThreadPoolContext*context)
 		{
-			process(priority,Job(object,context));
+			Process(priority,Job(object,context));
 		}
 	
-		void			PriorityThreadPool::process(int priority, ThreadMainObject&object,ThreadPoolContext*context)
+		void			PriorityThreadPool::Process(int priority, ThreadMainObject&object,ThreadPoolContext*context)
 		{
-			process(priority,Job(object,context));
+			Process(priority,Job(object,context));
 		}
 	
-		void			PriorityThreadPool::process(int priority, ThreadMainObject*object,Thread::pMethod method, ThreadPoolContext*context)
+		void			PriorityThreadPool::Process(int priority, ThreadMainObject*object,Thread::pMethod method, ThreadPoolContext*context)
 		{
-			process(priority,Job(object,method,context));
+			Process(priority,Job(object,method,context));
 		}
 	
-		void			PriorityThreadPool::process(int priority, ThreadMainObject&object,Thread::pMethod method, ThreadPoolContext*context)
+		void			PriorityThreadPool::Process(int priority, ThreadMainObject&object,Thread::pMethod method, ThreadPoolContext*context)
 		{
-			process(priority,Job(object,method,context));
+			Process(priority,Job(object,method,context));
 		}
 	
 		void			PriorityThreadPool::process4(int priority, ThreadMainObject*obj0,ThreadMainObject*obj1,ThreadMainObject*obj2,ThreadMainObject*obj3,Thread::pMethod method, ThreadPoolContext*context)
 		{
 			#if QUAD_JOBS
-				process(priority,Job(obj0,obj1,obj2,obj3,method,context));
+				Process(priority,Job(obj0,obj1,obj2,obj3,method,context));
 			#else
 				THREAD_REPORT("enqueueing quad job")
 				context->counter_mutex.lock();

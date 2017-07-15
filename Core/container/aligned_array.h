@@ -792,11 +792,11 @@ namespace DeltaWorks
 					{}
 				
 			
-		inline	count_t	width()	const	//! Retrieves this array's width \return width
+		inline	count_t	GetWidth()	const	//! Retrieves this array's width \return width
 				{
 					return w;
 				}
-		inline	count_t	height() const	//! Retrieves this array's height \return height
+		inline	count_t	GetHeight() const	//! Retrieves this array's height \return height
 				{
 					return w?AlignedArray<C,A>::elements/w:0;
 				}
@@ -806,17 +806,17 @@ namespace DeltaWorks
 					w = width;
 				}
 		template <typename T>
-			inline	void		set(count_t x, count_t y, const T&value)	//! Updates a singular element at the specified position	\param x X coordinate. Must be less than width() \param y Y coordinate. Must be less than height() @param value Value to set \return Reference to the requested element
+			inline	void		set(count_t x, count_t y, const T&value)	//! Updates a singular element at the specified position	\param x X coordinate. Must be less than GetWidth() \param y Y coordinate. Must be less than GetHeight() @param value Value to set \return Reference to the requested element
 					{
 						AlignedArray<C,A>::data[y*w+x] = value;
 					}
 		
-		inline	C&			get(count_t x, count_t y)	//! Retrieves a singular element at the specified position	\param x X coordinate. Must be less than width() \param y Y coordinate. Must be less than height() \return Reference to the requested element
+		inline	C&			get(count_t x, count_t y)	//! Retrieves a singular element at the specified position	\param x X coordinate. Must be less than GetWidth() \param y Y coordinate. Must be less than GetHeight() \return Reference to the requested element
 				{
 					return AlignedArray<C,A>::data[y*w+x];
 				}
 	
-		inline	const C&	get(count_t x, count_t y)	const	//! Retrieves a singular element at the specified position \param x X coordinate. Must be less than width() \param y Y coordinate. Must be less than height() \return Reference to the requested element
+		inline	const C&	get(count_t x, count_t y)	const	//! Retrieves a singular element at the specified position \param x X coordinate. Must be less than GetWidth() \param y Y coordinate. Must be less than GetHeight() \return Reference to the requested element
 				{
 					return AlignedArray<C,A>::data[y*w+x];
 				}

@@ -788,17 +788,17 @@ Collection of template matrix-math-functions.
 			rotate(system,temp,vec);
 		}
 
-		MFUNC3 (void)    transform(const TMatrix4<C0>&system, const TVec3<C1>&vec, TVec3<C2>&result)
+		MFUNC3 (void)    Transform(const TMatrix4<C0>&system, const TVec3<C1>&vec, TVec3<C2>&result)
 		{
 			result.x = system.x.x*vec.x + system.y.x*vec.y + system.z.x *vec.z + system.w.x;
 			result.y = system.x.y*vec.x + system.y.y*vec.y + system.z.y *vec.z + system.w.y;
 			result.z = system.x.z*vec.x + system.y.z*vec.y + system.z.z *vec.z + system.w.z;
 		}
 
-		MFUNC2(void)    transform(const TMatrix4<C0>&system, TVec3<C1>&vec)
+		MFUNC2(void)    Transform(const TMatrix4<C0>&system, TVec3<C1>&vec)
 		{
 			TVec3<C1>	temp = vec;
-			transform(system,temp,vec);
+			Transform(system,temp,vec);
 		}
 
 
@@ -812,15 +812,15 @@ Collection of template matrix-math-functions.
 			rotate(*system,temp,vec);
 		}
 
-		MFUNC3 (void)    transform(const TMatrix4<C0>*system, const TVec3<C1>&vec, TVec3<C2>&result)
+		MFUNC3 (void)    Transform(const TMatrix4<C0>*system, const TVec3<C1>&vec, TVec3<C2>&result)
 		{
-			transform(*system,vec,result);
+			Transform(*system,vec,result);
 		}
 
-		MFUNC2(void)    transform(const TMatrix4<C0>*system, TVec3<C1>&vec)
+		MFUNC2(void)    Transform(const TMatrix4<C0>*system, TVec3<C1>&vec)
 		{
 			TVec3<C1>	temp = vec;
-			transform(*system,temp,vec);
+			Transform(*system,temp,vec);
 		}
 
 
@@ -829,7 +829,7 @@ Collection of template matrix-math-functions.
 			rotate(system0,system1.x.xyz,result.x.xyz);
 			rotate(system0,system1.y.xyz,result.y.xyz);
 			rotate(system0,system1.z.xyz,result.z.xyz);
-			transform(system0,system1.w.xyz,result.w.xyz);
+			Transform(system0,system1.w.xyz,result.w.xyz);
 			result.x.w = result.y.w = result.z.w = 0;
 			result.w.w = 1;
 		}

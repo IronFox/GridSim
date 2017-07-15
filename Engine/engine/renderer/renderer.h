@@ -183,7 +183,7 @@ namespace Engine
 		Light*						disable();				//!< Disable light @return this
 		Light*						setEnabled(bool);		//!< Set light enabled status @return this
 			
-		void						destroy();				//!< Disables and discards (deletes) the local object.
+		void						Destroy();				//!< Disables and discards (deletes) the local object.
 		void						discard();				//!< Disables and discards (deletes) the local object.
 			
 

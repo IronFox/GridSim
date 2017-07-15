@@ -1117,7 +1117,7 @@ namespace DeltaWorks
 	MD5::MD5():_a(0x67452301UL),_b(0xEFCDAB89UL),_c(0x98BADCFEUL),_d(0x10325476UL),_total(0)
 	{}
 
-	void MD5::transform(UINT32*data)
+	void MD5::Transform(UINT32*data)
 	{
 		UINT32 A, B, C, D, X[16];
 		for (BYTE k = 0; k < 16; k++)
@@ -1238,7 +1238,7 @@ namespace DeltaWorks
 		if(left && len >= Fill )
 		{
 			memcpy(&_data[left], source, Fill);
-			transform((UINT32*)_data);
+			Transform((UINT32*)_data);
 			len -= Fill;
 			source += Fill;
 			left = 0;
@@ -1246,7 +1246,7 @@ namespace DeltaWorks
 
 		while(len >= 64)
 		{
-			transform((UINT32*)source);
+			Transform((UINT32*)source);
 			len -= 64;
 			source += 64;
 		}
@@ -1299,7 +1299,7 @@ namespace DeltaWorks
 	SHA1::SHA1():h0(0x67452301),h1(0xEFCDAB89),h2(0x98BADCFE),h3(0x10325476),h4(0xC3D2E1F0),sz0(0),sz1(0)
 	{}
 
-	void SHA1::transform(UINT32*data)
+	void SHA1::Transform(UINT32*data)
 	{
 		UINT32 temp, W[16], A, B, C, D, E;
 		for (BYTE k = 0; k < 16; k++)
@@ -1478,7 +1478,7 @@ namespace DeltaWorks
 		if(left && size >= Fill)
 		{
 			memcpy(&data[left],source, Fill);
-			transform((UINT32*)data);
+			Transform((UINT32*)data);
 			size -= Fill;
 			source  += Fill;
 			left = 0;
@@ -1486,7 +1486,7 @@ namespace DeltaWorks
 
 		while(size >= 64)
 		{
-			transform((UINT32*)source);
+			Transform((UINT32*)source);
 			size   -= 64;
 			source  += 64;
 		}

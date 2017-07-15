@@ -286,11 +286,11 @@ namespace Engine
 
 		void						Operator::showMenu(const PWindow&menuWindow)
 		{
-			/*			result->x = region.x.center()-display->clientWidth()/2;
-				result->y = region.y.center()-display->clientHeight()/2;*/
+			/*			result->x = region.x.center()-display->GetClientWidth()/2;
+				result->y = region.y.center()-display->GetClientHeight()/2;*/
 
-			float	w = display->clientWidth()/2,
-					h = display->clientHeight()/2;
+			float	w = display->GetClientWidth()/2,
+					h = display->GetClientHeight()/2;
 			if (menuWindow->x - menuWindow->fsize.x/2 < -w)
 				menuWindow->x = -w+menuWindow->fsize.x/2;
 			if (menuWindow->x + menuWindow->fsize.x/2 > w)
@@ -438,20 +438,20 @@ namespace Engine
 			{
 				Magic::LoadFromFile(image,file.GetLocation());
 				out.color.load(image,global_anisotropy,true);
-				out.width = image.width();
-				out.height = image.height();
+				out.width = image.GetWidth();
+				out.height = image.GetHeight();
 			}
 			if (folder.FindFile(PathString("bump/"+attrib),file))
 			{
 				LoadBump(file.GetLocation(),image);
 
-				if (out.width != 0 && (out.width != image.width() || out.height != image.height()))
+				if (out.width != 0 && (out.width != image.GetWidth() || out.height != image.GetHeight()))
 				{
 					throw Except::IO::StructureCompositionFault("Trying to match bump texture of different size (color image was "+String(out.width)+"*"+String(out.height)+", bump texture is "+image.ToString()+")");
 				}
 				out.normal.load(image,global_anisotropy,true);
-				out.width = image.width();
-				out.height = image.height();
+				out.width = image.GetWidth();
+				out.height = image.GetHeight();
 			}
 			out.width *= scale;
 			out.height *= scale;
@@ -586,12 +586,12 @@ namespace Engine
 		void Operator::cylindricVertex(Window*window, float x, float y)	const
 		{
 			#ifdef DEEP_GUI
-				float	px = (window->current_center.x*window->current_center.shellRadius+window->fsize.x*x/2)/display->clientWidth()*2,
-						py = (window->current_center.y*window->current_center.shellRadius+window->fsize.y*y/2)/display->clientHeight()*2;
+				float	px = (window->current_center.x*window->current_center.shellRadius+window->fsize.x*x/2)/display->GetClientWidth()*2,
+						py = (window->current_center.y*window->current_center.shellRadius+window->fsize.y*y/2)/display->GetClientHeight()*2;
 				project(px,py,(x*0.5+0.5)*window->usage.x,(y*0.5+0.5)*window->usage.y,window->current_center.shellRadius);
 			#else
-				float	px = (window->x+window->fsize.x*x/2)/display->clientWidth()*2,
-						py = (window->y+window->fsize.y*y/2)/display->clientHeight()*2;
+				float	px = (window->x+window->fsize.x*x/2)/display->GetClientWidth()*2,
+						py = (window->y+window->fsize.y*y/2)/display->GetClientHeight()*2;
 				cylindricVertex(px,py,(x*0.5f+0.5f)*window->usage.x,(y*0.5f+0.5f)*window->usage.y);
 			#endif
 		}
@@ -605,8 +605,8 @@ namespace Engine
 		
 		void Operator::planarVertex(Window*window, float x, float y)	const
 		{
-			float	px = (window->x+window->fsize.x*x/2)/display->clientWidth()*2,
-					py = (window->y+window->fsize.y*y/2)/display->clientHeight()*2;
+			float	px = (window->x+window->fsize.x*x/2)/display->GetClientWidth()*2,
+					py = (window->y+window->fsize.y*y/2)/display->GetClientHeight()*2;
 			planarVertex(px,py,(x*0.5f+0.5f)*window->usage.x,(y*0.5f+0.5f)*window->usage.y);
 		}
 		
@@ -620,17 +620,17 @@ namespace Engine
 			cout << "shell.y="<<window->current_center.y<<endl;
 			cout << "fsize.x="<<window->fsize.x<<endl;
 			cout << "fsize.y="<<window->fsize.y<<endl;
-			cout << "client width="<<display->clientWidth()<<endl;
-			cout << "client height="<<display->clientHeight()<<endl;*/
+			cout << "client width="<<display->GetClientWidth()<<endl;
+			cout << "client height="<<display->GetClientHeight()<<endl;*/
 			#ifdef DEEP_GUI
 				float	r = window->current_center.shellRadius,
-						px = (window->current_center.x*r+window->fsize.x*x/2)/display->clientWidth()*2,
-						py = (window->current_center.y*r+window->fsize.y*y/2)/display->clientHeight()*2,
+						px = (window->current_center.x*r+window->fsize.x*x/2)/display->GetClientWidth()*2,
+						py = (window->current_center.y*r+window->fsize.y*y/2)/display->GetClientHeight()*2,
 						radial = px/3,
 						h = sqrt(r*r-sqr(radial));
 			#else
-				float	px = (window->x+window->fsize.x*x/2)/display->clientWidth()*2,
-						py = (window->y+window->fsize.y*y/2)/display->clientHeight()*2,
+				float	px = (window->x+window->fsize.x*x/2)/display->GetClientWidth()*2,
+						py = (window->y+window->fsize.y*y/2)/display->GetClientHeight()*2,
 						radial = px/3,
 						h = sqrt(1.0f-sqr(radial));
 			#endif
@@ -640,8 +640,8 @@ namespace Engine
 			M::TVec3<float>	mp = {px,py,-h};
 			//cout << "mp="<<_toString(mp)<<endl;
 			projected_space.PointToScreen(mp,p);
-			p.x = (p.x*0.5+0.5)*(float)display->clientWidth();
-			p.y = (p.y*0.5+0.5)*(float)display->clientHeight();
+			p.x = (p.x*0.5+0.5)*(float)display->GetClientWidth();
+			p.y = (p.y*0.5+0.5)*(float)display->GetClientHeight();
 		}
 		
 		void Operator::unproject(const M::TVec3<float>&f_, M::TVec2<float>&p) const	//f required to be normalized
@@ -653,8 +653,8 @@ namespace Engine
 			y/=len;
 			float x = f.x * 3;
 
-			p.x = x * (float)display->clientWidth()/2.0f;
-			p.y = y * (float)display->clientHeight()/2.0f;
+			p.x = x * (float)display->GetClientWidth()/2.0f;
+			p.y = y * (float)display->GetClientHeight()/2.0f;
 		}
 
 		void	Operator::unprojectMouse(M::TVec2<float>&p)	const
@@ -684,16 +684,16 @@ namespace Engine
 			Magic::LoadFromFile(image,filename);
 
 			bool alpha = image.channels()==4;
-			target.SetSize(image.width(),image.height(),4);
+			target.SetSize(image.GetWidth(),image.GetHeight(),4);
 			
-			float	x_bump_scale = (float)image.width()/512.0f/5.0f,
-					y_bump_scale = (float)image.height()/512.0f/5.0f;
-			for (unsigned x = 0; x < image.width(); x++)
-				for (unsigned y = 0; y < image.height(); y++)
+			float	x_bump_scale = (float)image.GetWidth()/512.0f/5.0f,
+					y_bump_scale = (float)image.GetHeight()/512.0f/5.0f;
+			for (unsigned x = 0; x < image.GetWidth(); x++)
+				for (unsigned y = 0; y < image.GetHeight(); y++)
 				{
 					const BYTE	*p = image.get(x,y),
-								*px1 = image.get(std::min(x+1,image.width()-1),y),
-								*py1 = image.get(x,std::min(y+1,image.height()-1)),
+								*px1 = image.get(std::min(x+1,image.GetWidth()-1),y),
+								*py1 = image.get(x,std::min(y+1,image.GetHeight()-1)),
 								*px0 = image.get(x?x-1:0,y),
 								*py0 = image.get(x,y?y-1:0);
 					if (image.channels())
@@ -714,10 +714,10 @@ namespace Engine
 					target.setNormal(x,y,n);
 					target.get(x,y)[3] = alpha?p[3]:255;
 				}						
-			if (target.width() == 1)
-				target.ScaleTo(64,target.height());
-			if (target.height() == 1)
-				target.ScaleTo(target.width(),64);
+			if (target.GetWidth() == 1)
+				target.ScaleTo(64,target.GetHeight());
+			if (target.GetHeight() == 1)
+				target.ScaleTo(target.GetWidth(),64);
 			
 		}
 		
@@ -868,12 +868,12 @@ namespace Engine
 								if (folder.FindFile(PathString("color/"+attrib),file))
 								{
 									Magic::LoadFromFile(cell.color,file.GetLocation());
-									if (cell.color.width() == 1)
-										cell.color.ScaleTo(64,cell.color.height());
-									if (cell.color.height() == 1)
-										cell.color.ScaleTo(cell.color.width(),64);
+									if (cell.color.GetWidth() == 1)
+										cell.color.ScaleTo(64,cell.color.GetHeight());
+									if (cell.color.GetHeight() == 1)
+										cell.color.ScaleTo(cell.color.GetWidth(),64);
 								}
-								if (!cell.color.width() || !cell.color.height())
+								if (!cell.color.GetWidth() || !cell.color.GetHeight())
 								{
 									cell.color.SetSize(32,32,4);
 									cell.color.Fill(0,0,0,0);
@@ -904,13 +904,13 @@ namespace Engine
 				{
 					const TIOCell&icell = iorows[i].cells[j];
 					TCell&cell = row.cells[j];
-					cell.width = icell.normal.width()*scale;
+					cell.width = icell.normal.GetWidth()*scale;
 					cell.variableWidth = icell.variableWidth;
 					
 					cell.normalTexture.load(icell.normal,global_anisotropy,true,TextureFilter::Trilinear,false);
 					cell.colorTexture.load(icell.color,global_anisotropy,true,TextureFilter::Trilinear,false);
-					if (icell.normal.height()*scale>rows[i].height)
-						row.height = icell.normal.height()*scale;
+					if (icell.normal.GetHeight()*scale>rows[i].height)
+						row.height = icell.normal.GetHeight()*scale;
 					if (cell.variableWidth)
 						row.variable_cells++;
 					else
@@ -946,8 +946,8 @@ namespace Engine
 			
 			//applyArea(layout.body,window_location,body_location);
 			//applyArea(layout.title,window_location,title_location);
-			float	width = window_location.width(),
-				height = window_location.height();
+			float	width = window_location.GetWidth(),
+				height = window_location.GetHeight();
 
 			float variable_height = (height-minHeight)/variableRows;
 			if (variable_height < 0)
@@ -1130,13 +1130,13 @@ namespace Engine
 			
 			rect.Expand(5);
 			rect.ConstrainBy(M::Rect<float>(0,0,w,h));
-			if (rect.width() <= 0 || rect.height() <= 0)
+			if (rect.GetWidth() <= 0 || rect.GetHeight() <= 0)
 				return;
 			
 			if ((blurEffect || refractEffect) && !is_menu)	//menu reuses the copy before the top most non-menu window
 			{
 				glGetError();
-				glCopyTexSubImage2D(GL_TEXTURE_2D, 0, (int)rect.x.min, (int)rect.y.min, (int)rect.x.min, (int)rect.y.min,  (int)rect.width(), (int)rect.height());
+				glCopyTexSubImage2D(GL_TEXTURE_2D, 0, (int)rect.x.min, (int)rect.y.min, (int)rect.x.min, (int)rect.y.min,  (int)rect.GetWidth(), (int)rect.GetHeight());
 				if (glGetError())
 				{
 					//FATAL__("Failed to copy "+rect.ToString());
@@ -1546,8 +1546,8 @@ namespace Engine
 			static const float zFar = 1.f;
 			static const float zNear = -1.f;
 			M::TMatrix4<>	projection;
-			float	xscale = 1.f/float(port.width())*2.f,
-					yscale = 1.f/float(port.height())*2.f,
+			float	xscale = 1.f/float(port.GetWidth())*2.f,
+					yscale = 1.f/float(port.GetHeight())*2.f,
 					zscale = 1.f/(zFar-zNear)*2.f,
 					xoffset = -float(port.x.min)*xscale-1.f,
 					yoffset = -float(port.y.min)*yscale-1.f,
@@ -1567,7 +1567,7 @@ namespace Engine
 		
 		void		Renderer::_Apply(const M::Rect<int>&port)
 		{
-			glViewport(port.x.min,port.y.min,port.width(),port.height());
+			glViewport(port.x.min,port.y.min,port.GetWidth(),port.GetHeight());
 			_SetView(port);
 		}
 		
@@ -2223,8 +2223,8 @@ namespace Engine
 		
 		void		Component::Locate(const M::Rect<float>&parent_region,M::Rect<float>&region)	const
 		{
-			float	w = parent_region.width(),
-					h = parent_region.height();
+			float	w = parent_region.GetWidth(),
+					h = parent_region.GetHeight();
 			for (BYTE k = 0; k < 4; k++)
 				if (anchored.value[k])
 					region[k] = parent_region[k]+offset.value[k];
@@ -2359,7 +2359,7 @@ namespace Engine
 			glWhite();
 		
 			//normal renderer:
-			//display.lockRegion();
+			//display.LockRegion();
 			//
 			//normalShader.install();
 			//glMatrixMode(GL_TEXTURE);
@@ -2387,7 +2387,7 @@ namespace Engine
 			//glClear(GL_COLOR_BUFFER_BIT);
 			//glDisable(GL_BLEND);
 			//all finish:
-			//display.unlockRegion();
+			//display.UnlockRegion();
 			//glExtensions.unbindFrameBuffer();
 
 
@@ -2415,7 +2415,7 @@ namespace Engine
 					const TCellInstance&cell = cellLayout.cells[j];
 					op->colorRenderer.TextureRect(cell.region,cell.colorTexture);
 				}
-				if (cellLayout.title.width()>0)
+				if (cellLayout.title.GetWidth()>0)
 				{
 					op->colorRenderer.MarkNewLayer();
 					op->colorRenderer.SetTextPosition(cellLayout.title.x.min,cellLayout.title.y.center()-ColorRenderer::textout.GetFont().GetHeight()/2+font_offset);
@@ -2635,7 +2635,7 @@ namespace Engine
 					{
 					/*	if (last_x != mouse.location.fx || last_y != mouse.location.fy)
 						{
-							windowStack.last()->mouseMove((float)(mouse.location.fx*display->clientWidth()),(float)(mouse.location.fy*display->clientHeight()));
+							windowStack.last()->mouseMove((float)(mouse.location.fx*display->GetClientWidth()),(float)(mouse.location.fy*display->GetClientHeight()));
 							last_x = mouse.location.fx;
 							last_y = mouse.location.fy;
 						}*/
@@ -2815,7 +2815,7 @@ namespace Engine
 				windowStack.revert();
 			#endif
 
-			display->pick(projected_space);
+			display->Pick(projected_space);
 
 			glDisable(GL_CULL_FACE);
 			
@@ -2837,8 +2837,8 @@ namespace Engine
 
 			
 			ASSERT__(currentWindowShader->Install());
-			float	w = display->clientWidth(),
-					h = display->clientHeight();
+			float	w = display->GetClientWidth(),
+					h = display->GetClientHeight();
 			glWhite();
 			for (index_t i = 0; i < windowStack.count(); i++)
 			{
@@ -2914,8 +2914,8 @@ namespace Engine
 			float p[2];
 			unproject(f,p);
 
-			float	px = (p[0])/display->clientWidth()*2,
-					py = (p[1])/display->clientHeight()*2;
+			float	px = (p[0])/display->GetClientWidth()*2,
+					py = (p[1])/display->GetClientHeight()*2;
 			
 			glBegin(GL_LINE_LOOP);
 				project(px-0.05,py,0,0,1);
@@ -2924,7 +2924,7 @@ namespace Engine
 				project(px,py+0.05,0,0,1);
 			glEnd();
 			
-			display->pick(window_space);
+			display->Pick(window_space);
 			
 			drawRect(rect);
 			*/
@@ -3307,8 +3307,8 @@ namespace Engine
 
 		void	Operator::updateDisplaySize()
 		{
-			float	w = display->clientWidth(),
-					h = display->clientHeight();
+			float	w = display->GetClientWidth(),
+					h = display->GetClientHeight();
 			window_space.UpdateProjection(0,0,
 								w,h,
 								-1,
@@ -3319,7 +3319,7 @@ namespace Engine
 			glBindTexture(GL_TEXTURE_2D,layer_texture);
 				glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
 				glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
-				glTexImage2D(GL_TEXTURE_2D,0,GL_RGB,display->clientWidth(),display->clientHeight(),0,GL_RGB,GL_UNSIGNED_BYTE,NULL);
+				glTexImage2D(GL_TEXTURE_2D,0,GL_RGB,display->GetClientWidth(),display->GetClientHeight(),0,GL_RGB,GL_UNSIGNED_BYTE,NULL);
 			glBindTexture(GL_TEXTURE_2D,0);
 
 			float	min_x = -w/2,

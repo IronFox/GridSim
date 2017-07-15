@@ -317,7 +317,7 @@ namespace Engine
 			}
 			else
 				image = faces;
-			loadCube(image[0].GetData(),image[1].GetData(),image[2].GetData(),image[3].GetData(),image[4].GetData(),image[5].GetData(),image[0].width(),image[0].height(),image[0].channels(),filter,compress);
+			loadCube(image[0].GetData(),image[1].GetData(),image[2].GetData(),image[3].GetData(),image[4].GetData(),image[5].GetData(),image[0].GetWidth(),image[0].GetHeight(),image[0].channels(),filter,compress);
 		}
 
 	template <typename Nature>
@@ -346,7 +346,7 @@ namespace Engine
 				image[4] = &temp[4];
 				image[5] = &temp[5];
 			}
-			loadCube(image[0]->GetData(),image[1]->GetData(),image[2]->GetData(),image[3]->GetData(),image[4]->GetData(),image[5]->GetData(),image[0]->width(),image[0]->height(),image[0]->channels(),filter,compress);
+			loadCube(image[0]->GetData(),image[1]->GetData(),image[2]->GetData(),image[3]->GetData(),image[4]->GetData(),image[5]->GetData(),image[0]->GetWidth(),image[0]->GetHeight(),image[0]->channels(),filter,compress);
 		}
 
 
@@ -490,8 +490,8 @@ namespace Engine
 
 							if (list && !list[source_layer]->IsEmpty())
 							{
-								state.render_setup.texture_type[source_layer] = list[source_layer]->dimension();
-								switch (list[source_layer]->dimension())
+								state.render_setup.texture_type[source_layer] = list[source_layer]->GetDimension();
+								switch (list[source_layer]->GetDimension())
 								{
 									case TextureDimension::Linear:
 										glDisable(GL_TEXTURE_2D);	glBindTexture(GL_TEXTURE_2D,0);
@@ -541,7 +541,7 @@ namespace Engine
 							glDisable(GL_TEXTURE_3D);	glBindTexture(GL_TEXTURE_3D,0);
 							if (!list[source_layer]->IsEmpty())
 							{
-								state.render_setup.texture_type[source_layer] = list[source_layer]->dimension();
+								state.render_setup.texture_type[source_layer] = list[source_layer]->GetDimension();
 								glEnable(GL_TEXTURE_CUBE_MAP);
 								glBindTexture(GL_TEXTURE_CUBE_MAP,list[source_layer]->getHandle());
 							}

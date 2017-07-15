@@ -2317,12 +2317,12 @@ template <class C> bool SubGeometryA<Def>::extractDimensions(const M::TMatrix4<t
 		def = true;
 		M::TVec3<C>	p;
 
-		M::Mat::transform(lsystem,vs_hull_field[0].vertex_field[0].position,p);
+		M::Mat::Transform(lsystem,vs_hull_field[0].vertex_field[0].position,p);
 		M::Box<C>		local(p,p);
 
 		for (index_t i = 1; i < vs_hull_field[0].vertex_field.length(); i++)
 		{
-			M::Mat::transform(lsystem,vs_hull_field[0].vertex_field[i].position,p);
+			M::Mat::Transform(lsystem,vs_hull_field[0].vertex_field[i].position,p);
 			_oDetDimension(p,local);
 		}
 		parser.parse(local.min());
@@ -2437,7 +2437,7 @@ template <class C> void SubGeometryA<Def>::extractAbsoluteRadius(C&radius) const
 		{
 			C r;
 			M::TVec3<C>	p;
-			M::Mat::transform(path,vs_hull_field[0].vertex_field[i].position,p);
+			M::Mat::Transform(path,vs_hull_field[0].vertex_field[i].position,p);
 			r = M::Vec::dot(p);
 			if (r > vr)
 				vr = r;
@@ -2455,7 +2455,7 @@ template <class C> void SubGeometryA<Def>::extractAbsoluteRadius(const M::TVec3<
 		{
 			C r;
 			M::TVec3<C>	p;
-			M::Mat::transform(path,vs_hull_field[0].vertex_field[i].position,p);
+			M::Mat::Transform(path,vs_hull_field[0].vertex_field[i].position,p);
 			M::Vec::sub(p,center);
 			r = M::Vec::dot(p);
 			if (r > vr)
@@ -4782,7 +4782,7 @@ template <class Def> template <typename T0, typename T1, typename T2>
 			M::TMatrix4<typename Def::FloatType>	inverse;
 			M::TVec3<typename Def::FloatType>		d,b;
 			M::Mat::invertSystem(SubGeometryInstance<Def>::path,inverse);
-			M::Mat::transform(inverse,b_,b);
+			M::Mat::Transform(inverse,b_,b);
 			M::Mat::rotate(inverse,d_,d);
 			
 			typedef Mesh<typename SubGeometryA<Def>::VsDef>	VsMesh;

@@ -94,7 +94,7 @@ namespace DeltaWorks
 					dir.z *= -1;
 				}
 			
-				M::Mat::transform(parent_system,tn.coordinates.remainder);
+				M::Mat::Transform(parent_system,tn.coordinates.remainder);
 				M::Vec::copy(parent->coordinates.sector,tn.coordinates.sector);
 				
 				M::Vec::cross(d,dir,tn.up);
@@ -843,7 +843,7 @@ namespace DeltaWorks
 						M::TVec3<> p,n,t;
 						float	*vfield = target_robj.vpool.vdata + vsize*k;
 						float	*v=vfield;
-						M::Mat::transform(source_robj.target->path,M::Vec::ref3(v),p);	v+=3;
+						M::Mat::Transform(source_robj.target->path,M::Vec::ref3(v),p);	v+=3;
 						if (source_robj.vpool.vflags&CGS::HasNormalFlag)
 						{
 							M::Mat::rotate(source_robj.target->path,M::Vec::ref3(v),n); v+=3;

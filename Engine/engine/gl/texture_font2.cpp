@@ -69,8 +69,8 @@ namespace Engine
 
 		clear();
 
-		for (UINT32 x = 0; x < image.width(); x++)
-			for (UINT32 y = 0; y < image.height(); y++)
+		for (UINT32 x = 0; x < image.GetWidth(); x++)
+			for (UINT32 y = 0; y < image.GetHeight(); y++)
 			{
 				BYTE*pixel = image.get(x,y);
 				if (pixel[3] == 0)
@@ -108,8 +108,8 @@ namespace Engine
 			if (chars[id].height > height)
 				height = chars[id].height;
 			chars[id].texcoords.Set(left,bottom,right,top);
-			chars[id].texcoords.x /= (float)(image.width()-1);
-			chars[id].texcoords.y /= (float)(image.height()-1);
+			chars[id].texcoords.x /= (float)(image.GetWidth()-1);
+			chars[id].texcoords.y /= (float)(image.GetHeight()-1);
 		}
 		for (unsigned i = 0; i < ARRAYSIZE(chars); i++)
 			chars[i].yoffset -= lowest;

@@ -324,12 +324,12 @@ namespace DeltaWorks
 
 			MFUNC3(void)		rotate(const TMatrix4<C0>&system, const TVec3<C1>&vec, TVec3<C2>&result);
 			MFUNC2(void)		rotate(const TMatrix4<C0>&system, TVec3<C1>&vec);
-			MFUNC3(void)		transform(const TMatrix4<C0>&system, const TVec3<C1>&vec, TVec3<C2>&result);
-			MFUNC2(void)		transform(const TMatrix4<C0>&system, TVec3<C1>&vec);
+			MFUNC3(void)		Transform(const TMatrix4<C0>&system, const TVec3<C1>&vec, TVec3<C2>&result);
+			MFUNC2(void)		Transform(const TMatrix4<C0>&system, TVec3<C1>&vec);
 			MFUNC3(void)		rotate(const TMatrix4<C0>*system, const TVec3<C1>&vec, TVec3<C2>&result);
 			MFUNC2(void)		rotate(const TMatrix4<C0>*system, TVec3<C1>&vec);
-			MFUNC3(void)		transform(const TMatrix4<C0>*system, const TVec3<C1>&vec, TVec3<C2>&result);
-			MFUNC2(void)		transform(const TMatrix4<C0>*system, TVec3<C1>&vec);
+			MFUNC3(void)		Transform(const TMatrix4<C0>*system, const TVec3<C1>&vec, TVec3<C2>&result);
+			MFUNC2(void)		Transform(const TMatrix4<C0>*system, TVec3<C1>&vec);
 
 			MFUNC4(void)		reflectSystemN(const TVec3<C0>&base, const TVec3<C1>&normal, const TMatrix4<C2>&matrix, TMatrix4<C3>&result);
 			MFUNC4(void)		reflectMatrixN(const TVec3<C0>&base, const TVec3<C1>&normal, const TMatrix4<C2>&matrix, TMatrix4<C3>&result);

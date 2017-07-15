@@ -25,7 +25,7 @@ namespace DeltaWorks
         
                     BitStream(void*field, unsigned max_len);
                     BitStream(const void*read_field, unsigned max_len);
-        void        assign(void*field, unsigned max_len);
+        void        Assign(void*field, unsigned max_len);
         void        assignRead(const void*field, unsigned max_len);
         void        push(unsigned char bit);
         void        push(const void*pntr, unsigned bits);

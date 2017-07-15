@@ -428,7 +428,7 @@ template <class C>
 MFUNC2 (bool) Aspect<C>::PointToScreen(const M::TVec3<C0>&point, M::TVec2<C1>&screenPoint)	const
 {
 	M::TVec4<C>	temp0,temp1;
-	M::Mat::transform(view,point,temp0.xyz);
+	M::Mat::Transform(view,point,temp0.xyz);
 	temp0.w = 1;
 	M::Mat::Mult(projection,temp0,temp1);
 	using std::fabs;
@@ -441,7 +441,7 @@ template <class C>
 MFUNC2 (bool) Aspect<C>::Project(const M::TVec3<C0>&point, M::TVec3<C1>&projected)	const
 {
 	M::TVec4<C>	temp0,temp1;
-	M::Mat::transform(view,point,temp0.xyz);
+	M::Mat::Transform(view,point,temp0.xyz);
 	temp0.w = 1;
 	M::Mat::Mult(projection,temp0,temp1);
 	using std::fabs;
@@ -492,7 +492,7 @@ MFUNC3 (void) Aspect<C>::ScreenToVector(const M::TVec2<C0>&point, M::TVec3<C1>&p
 	if (fabs(temp.w) > M::GetError<C>())
 		M::Vec::div(temp.xyz,temp.w);
 	M::Mat::rotate(viewInvert,temp.xyz,direction);
-	M::Mat::transform(viewInvert,temp.xyz,position);
+	M::Mat::Transform(viewInvert,temp.xyz,position);
 }
 
 template <class C>
@@ -503,7 +503,7 @@ MFUNC2 (void)				Aspect<C>::ReverseProject(const M::TVec3<C0>&point, M::TVec3<C1
 		M::Mat::Mult(projectionInvert,p0,temp);
 		if (vabs(temp.w) > GetError<C>())
 			M::Vec::div(temp.xyz,temp.w);
-		M::Mat::transform(viewInvert,temp.xyz,position);
+		M::Mat::Transform(viewInvert,temp.xyz,position);
 	}
 
 
@@ -553,44 +553,44 @@ template <class C>
 							M::Mat::Mult(projectionInvert,p,temp);
 							if (temp.w)
 								M::Vec::divide(temp.xyz,temp.w);
-							M::Mat::transform(viewInvert,temp.xyz,result.corner[0]);
+							M::Mat::Transform(viewInvert,temp.xyz,result.corner[0]);
 			M::Vec::def(p.xy,1,-1);
 							M::Mat::Mult(projectionInvert,p,temp);
 							if (temp.w)
 								M::Vec::divide(temp.xyz,temp.w);
-							M::Mat::transform(viewInvert,temp.xyz,result.corner[1]);
+							M::Mat::Transform(viewInvert,temp.xyz,result.corner[1]);
 			M::Vec::def(p.xy,1,1);
 							M::Mat::Mult(projectionInvert,p,temp);
 							if (temp.w)
 								M::Vec::divide(temp.xyz,temp.w);
-							M::Mat::transform(viewInvert,temp.xyz,result.corner[2]);
+							M::Mat::Transform(viewInvert,temp.xyz,result.corner[2]);
 			M::Vec::def(p.xy,-1,1);
 							M::Mat::Mult(projectionInvert,p,temp);
 							if (temp.w)
 								M::Vec::divide(temp.xyz,temp.w);
-							M::Mat::transform(viewInvert,temp.xyz,result.corner[3]);
+							M::Mat::Transform(viewInvert,temp.xyz,result.corner[3]);
 
 
 			M::Vec::def(p.xyz,-1,-1,1);
 							M::Mat::Mult(projectionInvert,p,temp);
 							if (temp.w)
 								M::Vec::divide(temp.xyz,temp.w);
-							M::Mat::transform(viewInvert,temp.xyz,result.corner[4]);
+							M::Mat::Transform(viewInvert,temp.xyz,result.corner[4]);
 			M::Vec::def(p.xy,1,-1);
 							M::Mat::Mult(projectionInvert,p,temp);
 							if (temp.w)
 								M::Vec::divide(temp.xyz,temp.w);
-							M::Mat::transform(viewInvert,temp.xyz,result.corner[5]);
+							M::Mat::Transform(viewInvert,temp.xyz,result.corner[5]);
 			M::Vec::def(p.xy,1,1);
 							M::Mat::Mult(projectionInvert,p,temp);
 							if (temp.w)
 								M::Vec::divide(temp.xyz,temp.w);
-							M::Mat::transform(viewInvert,temp.xyz,result.corner[6]);
+							M::Mat::Transform(viewInvert,temp.xyz,result.corner[6]);
 			M::Vec::def(p.xy,-1,1);
 							M::Mat::Mult(projectionInvert,p,temp);
 							if (temp.w)
 								M::Vec::divide(temp.xyz,temp.w);
-							M::Mat::transform(viewInvert,temp.xyz,result.corner[7]);
+							M::Mat::Transform(viewInvert,temp.xyz,result.corner[7]);
 
 			result.updateNormalsP();
 			result_ = result;
@@ -605,44 +605,44 @@ template <class C>
 						M::Mat::Mult(projectionInvert,p,temp);
 						if (temp.w)
 							M::Vec::divide(temp.xyz,temp.w);
-						M::Mat::transform(viewInvert,temp.xyz,result.corner[0]);
+						M::Mat::Transform(viewInvert,temp.xyz,result.corner[0]);
 		M::Vec::def(p.xy,1,-1);
 						M::Mat::Mult(projectionInvert,p,temp);
 						if (temp.w)
 							M::Vec::divide(temp.xyz,temp.w);
-						M::Mat::transform(viewInvert,temp.xyz,result.corner[1]);
+						M::Mat::Transform(viewInvert,temp.xyz,result.corner[1]);
 		M::Vec::def(p.xy,1,1);
 						M::Mat::Mult(projectionInvert,p,temp);
 						if (temp.w)
 							M::Vec::divide(temp.xyz,temp.w);
-						M::Mat::transform(viewInvert,temp.xyz,result.corner[2]);
+						M::Mat::Transform(viewInvert,temp.xyz,result.corner[2]);
 		M::Vec::def(p.xy,-1,1);
 						M::Mat::Mult(projectionInvert,p,temp);
 						if (temp.w)
 							M::Vec::divide(temp.xyz,temp.w);
-						M::Mat::transform(viewInvert,temp.xyz,result.corner[3]);
+						M::Mat::Transform(viewInvert,temp.xyz,result.corner[3]);
 
 
 		M::Vec::def(p.xyz,-1,-1,1);
 						M::Mat::Mult(projectionInvert,p,temp);
 						if (temp.w)
 							M::Vec::divide(temp.xyz,temp.w);
-						M::Mat::transform(viewInvert,temp.xyz,result.corner[4]);
+						M::Mat::Transform(viewInvert,temp.xyz,result.corner[4]);
 		M::Vec::def(p.xy,1,-1);
 						M::Mat::Mult(projectionInvert,p,temp);
 						if (temp.w)
 							M::Vec::divide(temp.xyz,temp.w);
-						M::Mat::transform(viewInvert,temp.xyz,result.corner[5]);
+						M::Mat::Transform(viewInvert,temp.xyz,result.corner[5]);
 		M::Vec::def(p.xy,1,1);
 						M::Mat::Mult(projectionInvert,p,temp);
 						if (temp.w)
 							M::Vec::divide(temp.xyz,temp.w);
-						M::Mat::transform(viewInvert,temp.xyz,result.corner[6]);
+						M::Mat::Transform(viewInvert,temp.xyz,result.corner[6]);
 		M::Vec::def(p.xy,-1,1);
 						M::Mat::Mult(projectionInvert,p,temp);
 						if (temp.w)
 							M::Vec::divide(temp.xyz,temp.w);
-						M::Mat::transform(viewInvert,temp.xyz,result.corner[7]);
+						M::Mat::Transform(viewInvert,temp.xyz,result.corner[7]);
 
 		result.UpdateNormals();
 	}
@@ -665,7 +665,7 @@ MFUNC (void) OrthographicAspect<C>::UpdateProjection(const C&aspect, const C&zoo
 {
 	C	scale = (C)1/(zFar-zNear),		//endless 0
 		offset = -(zNear+zFar)/2*scale,	//endless -0.5
-		pa = (C)1.0/region.pixelAspect()/aspect;
+		pa = (C)1.0/region.GetPixelAspect()/aspect;
 
 	M::Vec::def(projection.x,	pa*zoom,0,0,0);
 	M::Vec::def(projection.y,	0,zoom,0,0);
@@ -678,7 +678,7 @@ MFUNC (void) OrthographicAspect<C>::UpdateProjection(const C&aspect, const C&zoo
 //{
 //	C	scale = (C)1/(zFar-zNear),		//endless 0
 //		offset = -(zNear+zFar)/2*scale,	//endless -0.5
-//		pa = (C)1.0/region.pixelAspect()/aspect;
+//		pa = (C)1.0/region.GetPixelAspect()/aspect;
 //
 //	M::Vec::def(projection.x,	pa*zoom,0,0,0);
 //	M::Vec::def(projection.y,	0,zoom,0,0);
@@ -782,7 +782,7 @@ template <class C> MF_DECLARE (void) Camera<C>::UpdateProjection(const C&aspect,
 {
 	vfov = vFov;
 	C	extent = (C)1.0/M::vtan(vfov*M_PI/180/2),
-		pa = (C)1.0/region.pixelAspect()/aspect;
+		pa = (C)1.0/region.GetPixelAspect()/aspect;
 
 	M::Vec::def(projection.x,	pa*extent,0,0,0);
 	M::Vec::def(projection.y,	0,extent,0,0);
@@ -795,7 +795,7 @@ template <class C> MF_DECLARE (void) Camera<C>::UpdateProjection2(const C&aspect
 {
 	vfov = vFov;
 	C	extent = (C)1.0/vtan(vfov*M_PI/180/2),
-		pa = (C)1.0/region.pixelAspect()/aspect;
+		pa = (C)1.0/region.GetPixelAspect()/aspect;
 
 	M::Vec::def(projection.x,	pa*extent,0,0,0);
 	M::Vec::def(projection.y,	0,extent,0,0);

@@ -27,11 +27,11 @@ namespace DeltaWorks
 										width = width_;
 										height = height_;
 									}
-		float						pixelAspect()	const
+		float						GetPixelAspect()	const
 									{
 										return static_cast<float>(width) / static_cast<float>(height);
 									}
-		float						GetAspect()	const	{return pixelAspect();}
+		float						GetAspect()	const	{return GetPixelAspect();}
 		count_t						CountPixels()	const	{return (count_t)width*(count_t)height;}
 
 		bool						operator==(const Resolution&other)	const

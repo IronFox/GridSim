@@ -658,7 +658,7 @@ namespace Engine
 		}
 		ShowWindow(hWnd, SW_SHOW);
 		UpdateWindow(hWnd);
-		LocateWindow();
+		ApplyWindowPosition();
 		SetForegroundWindow(hWnd);
 		SetFocus(hWnd);
 		timing.initialize();
@@ -735,7 +735,7 @@ namespace Engine
 		}
 		ShowWindow(hWnd, SW_SHOW);
 		UpdateWindow(hWnd);
-		LocateWindow();
+		ApplyWindowPosition();
 		SetForegroundWindow(hWnd);
 		SetFocus(hWnd);
 		timing.initialize();
@@ -849,7 +849,7 @@ namespace Engine
 
 		bool		Context::CheckFullscreen(const WINDOWINFO&info) const
 		{
-			Resolution screen = getScreenSize();
+			Resolution screen = GetScreenSize();
 			return info.rcClient == info.rcWindow
 					 && info.rcClient.left == 0 && info.rcClient.top == 0 && info.rcClient.right == screen.width && info.rcClient.bottom == screen.height;
 		}
@@ -880,7 +880,7 @@ namespace Engine
 		#endif
 	}
 
-	UINT32 Context::LocateWindow()
+	UINT32 Context::ApplyWindowPosition()
 	{
 		UINT32 result = 0;
 		#if SYSTEM==WINDOWS
@@ -947,67 +947,73 @@ namespace Engine
 		#endif
 	}
 
-	UINT32 Context::ResizeWindow(unsigned width, unsigned height, DisplayConfig::border_style_t style)
+	void	Context::SetBorderStyle(DisplayConfig::border_style_t style)
 	{
-		#if SYSTEM==WINDOWS
 		if (style != border_style)
 		{
-			LONG lStyle = GetWindowLong(window(), GWL_STYLE);
-			switch (style)
-			{
-				case DisplayConfig::NoBorder:
-					lStyle &= ~(WS_CAPTION | WS_THICKFRAME | WS_MINIMIZE | WS_MAXIMIZE | WS_SYSMENU);
-				break;
-				case DisplayConfig::FixedBorder:
-					lStyle |= WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX;
-					lStyle &= ~(WS_MAXIMIZEBOX | WS_THICKFRAME);
-				break;
-				case DisplayConfig::ResizableBorder:
-					lStyle |= WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MAXIMIZEBOX | WS_MINIMIZEBOX | WS_THICKFRAME;
-				break;
-			}
-			SetWindowLong(window(), GWL_STYLE, lStyle);
-			SetWindowPos(window(), NULL, 0,0,0,0, SWP_FRAMECHANGED | SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOOWNERZORDER);
+			#if SYSTEM==WINDOWS
+				LONG lStyle = GetWindowLong(window(), GWL_STYLE);
+				switch (style)
+				{
+					case DisplayConfig::NoBorder:
+						lStyle &= ~(WS_CAPTION | WS_THICKFRAME | WS_MINIMIZE | WS_MAXIMIZE | WS_SYSMENU);
+					break;
+					case DisplayConfig::FixedBorder:
+						lStyle |= WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX;
+						lStyle &= ~(WS_MAXIMIZEBOX | WS_THICKFRAME);
+					break;
+					case DisplayConfig::ResizableBorder:
+						lStyle |= WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MAXIMIZEBOX | WS_MINIMIZEBOX | WS_THICKFRAME;
+					break;
+				}
+				SetWindowLong(window(), GWL_STYLE, lStyle);
+				SetWindowPos(window(), NULL, 0,0,0,0, SWP_FRAMECHANGED | SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOOWNERZORDER);
+			#elif SYSTEM==LINUX
+				if (display)
+				{
+					XSetWindowAttributes attrib;
+					attrib.colormap = colormap;
+					attrib.border_pixel = style == DisplayConfig::NoBorder ?0:CopyFromParent;
+					attrib.event_mask = ExposureMask|ButtonPressMask|ButtonReleaseMask|StructureNotifyMask|KeyPressMask|KeyReleaseMask|SubstructureRedirectMask;
+					attrib.override_redirect = style == DisplayConfig::NoBorder;
+					XChangeWindowAttributes(display,window,CWBorderPixel|CWColormap|CWEventMask|CWOverrideRedirect,&attrib);
+					if (style == DisplayConfig::NoBorder)
+						XGrabKeyboard(display, window, True, GrabModeAsync, GrabModeAsync, CurrentTime);
+					else
+						XUngrabKeyboard(display,CurrentTime);
+				}
+			#else
+				#error stub
+			#endif
 			border_style = style;
 		}
-		#elif SYSTEM_VARIANCE==LINUX
-			if (display)
-			{
-				XSetWindowAttributes attrib;
-				attrib.colormap = colormap;
-				attrib.border_pixel = style == DisplayConfig::NoBorder ?0:CopyFromParent;
-				attrib.event_mask = ExposureMask|ButtonPressMask|ButtonReleaseMask|StructureNotifyMask|KeyPressMask|KeyReleaseMask|SubstructureRedirectMask;
-				attrib.override_redirect = style == DisplayConfig::NoBorder;
-				XChangeWindowAttributes(display,window,CWBorderPixel|CWColormap|CWEventMask|CWOverrideRedirect,&attrib);
-				if (style == DisplayConfig::NoBorder)
-					XGrabKeyboard(display, window, True, GrabModeAsync, GrabModeAsync, CurrentTime);
-				else
-					XUngrabKeyboard(display,CurrentTime);
-			}
-		#else
-			#error stub
-		#endif
-		_location.right = _location.left + width;
-		_location.bottom = _location.top + height;
-		return LocateWindow();
+
 	}
 
-	UINT32 Context::LocateWindow(unsigned left, unsigned top, unsigned width, unsigned height)
+
+	UINT32 Context::ResizeWindow(unsigned width, unsigned height)
+	{
+		_location.right = _location.left + width;
+		_location.bottom = _location.top + height;
+		return ApplyWindowPosition();
+	}
+
+	UINT32 Context::PositionWindow(unsigned left, unsigned top, unsigned width, unsigned height)
 	{
 		_location.left = left;
 		_location.top = top;
 		_location.right = left+width;
 		_location.bottom = top+height;
-		return LocateWindow();
+		return ApplyWindowPosition();
 	}
 
-	UINT32 Context::LocateWindow(const RECT&dimensions)
+	UINT32 Context::PositionWindow(const RECT&dimensions)
 	{
 		_location = dimensions;
-		return LocateWindow();
+		return ApplyWindowPosition();
 	}
 
-	const RECT& Context::windowLocation()	const
+	const RECT& Context::GetWindowLocation()	const
 	{
 		return _location;
 	}
@@ -1017,25 +1023,25 @@ namespace Engine
 		return client_area;
 	}
 
-	Resolution Context::windowSize()	const
+	Resolution Context::GetWindowSize()	const
 	{
 		return Resolution(
 				_location.right-_location.left,
 				_location.bottom-_location.top);
 	}
 
-	Resolution	Context::clientSize()	const
+	Resolution	Context::GetClientSize()	const
 	{
 		return Resolution(
 			client_area.right-client_area.left,
 			client_area.bottom-client_area.top);
 	}
 
-	UINT	Context::clientWidth()	const
+	UINT	Context::GetClientWidth()	const
 	{
 		return client_area.right-client_area.left;
 	}
-	UINT	Context::clientHeight()	const
+	UINT	Context::GetClientHeight()	const
 	{
 		return client_area.bottom-client_area.top;
 	}
@@ -1137,12 +1143,12 @@ namespace Engine
 	}
 
 
-	void Context::setScreen(DEVMODE&screen)
+	void Context::SetScreen(DEVMODE&screen)
 	{
 		_target = screen;
 	}
 
-	void Context::setScreen(const TDisplayMode&mode)
+	void Context::SetScreen(const TDisplayMode&mode)
 	{
 	#if SYSTEM==WINDOWS
 		_target.dmPelsWidth = mode.width;
@@ -1158,17 +1164,17 @@ namespace Engine
 		}
 	#elif SYSTEM==UNIX
 		_trate = mode.frequency;
-		_target = findScreen(mode.width,mode.height,_trate);
+		_target = FindScreen(mode.width,mode.height,_trate);
 	#endif
 	}
 
 
-	void Context::setScreen(DEVMODE*screen)
+	void Context::SetScreen(DEVMODE*screen)
 	{
 		_target = (*screen);
 	}
 
-	bool Context::applyScreen()
+	bool Context::ApplyScreen()
 	{
 	#if SYSTEM==WINDOWS
 		_applied = (ChangeDisplaySettings(&_target,CDS_FULLSCREEN)==DISP_CHANGE_SUCCESSFUL);
@@ -1195,7 +1201,7 @@ namespace Engine
 		return _applied;
 	}
 
-	bool Context::applyWindowScreen(DWORD refresh_rate)
+	bool Context::ApplyWindowScreen(DWORD refresh_rate)
 	{
 	#if SYSTEM==WINDOWS
 		if (!hWnd)
@@ -1218,30 +1224,30 @@ namespace Engine
 			mouse.SetRegion(_current.dmPelsWidth,_current.dmPelsHeight);
 			_target = _current;
 			_applied = true;
-			LocateWindow();
+			ApplyWindowPosition();
 			return true;
 		}
 		else
 			if (_applied)
-				applyScreen();
+				ApplyScreen();
 			else
-				resetScreen();
+				ResetScreen();
 		return false;
 	#elif SYSTEM==UNIX
 		if (!window || !display)
 			return false;
-		int size = findScreen(_location.right,_location.bottom,refresh_rate);
+		int size = FindScreen(_location.right,_location.bottom,refresh_rate);
 		if (size==-1)
 			return false;
 		_target = size;
 		_trate = refresh_rate;
-		_applied = applyScreen();
+		_applied = ApplyScreen();
 		LocateWindow();
 		return _applied;
 	#endif
 	}
 
-	void Context::resetScreen()
+	void Context::ResetScreen()
 	{
 		if (_applied)
 		#if SYSTEM==WINDOWS
@@ -1257,7 +1263,7 @@ namespace Engine
 
 
 
-	RECT Context::transform(const M::TFloatRect&rect)	const
+	RECT Context::Transform(const M::TFloatRect&rect)	const
 	{
 		DWORD   width = client_area.right-client_area.left,
 				height = client_area.bottom-client_area.top;
@@ -1286,7 +1292,7 @@ namespace Engine
 	}
 
 	#if SYSTEM==WINDOWS
-	DEVMODE*Context::getScreen(unsigned index)	const
+	DEVMODE*Context::GetScreen(unsigned index)	const
 	{
 		DEVMODE rs;
 		rs.dmSize = sizeof(rs);
@@ -1299,44 +1305,44 @@ namespace Engine
 		return NULL;
 	}
 
-	bool Context::isCurrent(const DEVMODE&screen)	const
+	bool Context::IsCurrent(const DEVMODE&screen)	const
 	{
 		return _current.dmPelsWidth == screen.dmPelsWidth && _current.dmPelsHeight == screen.dmPelsHeight && _current.dmDisplayFrequency == screen.dmDisplayFrequency;
 	}
 
-	bool Context::getScreen(DEVMODE*mode)	const
+	bool Context::GetScreen(DEVMODE*mode)	const
 	{
 		EnumDisplaySettings(NULL,ENUM_CURRENT_SETTINGS,mode);
 		return _applied;
 	}
 
-	bool Context::getScreen(DEVMODE&mode)	const
+	bool Context::GetScreen(DEVMODE&mode)	const
 	{
-		return getScreen(&mode);
+		return GetScreen(&mode);
 	}
 
-	short Context::getRefreshRate()
+	short Context::GetRefreshRate()
 	{
 		DEVMODE mode;
-		getScreen(&mode);
+		GetScreen(&mode);
 		return mode.dmDisplayFrequency;
 	}
 	
-	Resolution	Context::getScreenSize()	const
+	Resolution	Context::GetScreenSize()	const
 	{
 		DEVMODE mode;
-		getScreen(&mode);
+		GetScreen(&mode);
 		return Resolution(mode.dmPelsWidth,mode.dmPelsHeight);
 	}
 
 	#elif SYSTEM==UNIX
 
-	static const XRRScreenSize& getScreen(unsigned index)
+	static const XRRScreenSize& GetScreen(unsigned index)
 	{
 		 return res_map[index];
 	}
 
-	static bool getScreen(XRRScreenSize*size)
+	static bool GetScreen(XRRScreenSize*size)
 	{
 		context.connect();
 		_current = XRRConfigCurrentConfiguration(config,0);
@@ -1344,7 +1350,7 @@ namespace Engine
 		 return _applied;
 	}
 	
-	Resolution Context::getScreenSize()
+	Resolution Context::GetScreenSize()
 	{
 		if (!res_map)
 		{
@@ -1394,17 +1400,17 @@ namespace Engine
 		return Resolution(res_map[_current].width,res_map[_current].height);
 	}
 
-	static bool getScreen(XRRScreenSize&size)
+	static bool GetScreen(XRRScreenSize&size)
 	{
-		 return getScreen(&size);
+		 return GetScreen(&size);
 	}
 
-	static bool isCurrent(const XRRScreenSize&size)
+	static bool IsCurrent(const XRRScreenSize&size)
 	{
 		 return res_map[_current].width == size.width && res_map[_current].height == size.height;
 	}
 
-	int Context::findScreen(DWORD width, DWORD height, DWORD&refresh_rate)
+	int Context::FindScreen(DWORD width, DWORD height, DWORD&refresh_rate)
 	{
 		 for (int i = 0; i < res_count; i++)
 			  if (res_map[i].width == width && res_map[i].height == height)
@@ -1427,7 +1433,7 @@ namespace Engine
 	}
 
 
-	short Context::getRefreshRate()
+	short Context::GetRefreshRate()
 	{
 		return XRRConfigCurrentRate(config);
 	}
@@ -1459,7 +1465,7 @@ namespace Engine
 			onLoseFocus();
 	}
 
-	void Context::assign(pEngineExec target)
+	void Context::Assign(pEngineExec target)
 	{
 		exec_target = target;
 	}
@@ -1490,7 +1496,7 @@ namespace Engine
 	}
 
 
-	void Context::execute()
+	void Context::Execute()
 	{
 		if (!exec_target
 		#if SYSTEM==WINDOWS
@@ -1582,13 +1588,13 @@ namespace Engine
 			close();
 		#if SYSTEM==WINDOWS
 		else
-			resetScreen();
+			ResetScreen();
 		#endif
 	}
 
 	void Context::close()
 	{
-		resetScreen();
+		ResetScreen();
 		destroyWindow();
 		#if SYSTEM==UNIX
 			disconnect();
@@ -1621,7 +1627,7 @@ namespace Engine
 	}
 
 
-	void Context::queryScreen(ResolutionList*r_list, FrequencyList*f_list, DWORD w_min, DWORD h_min, DWORD f_min)
+	void Context::QueryScreen(ResolutionList*r_list, FrequencyList*f_list, DWORD w_min, DWORD h_min, DWORD f_min)
 	{
 		unsigned cnt(0);
 		#if SYSTEM==WINDOWS

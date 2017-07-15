@@ -72,7 +72,7 @@ namespace Engine
 	aspect.region = M::TFloatRect(0.2,0.2,0.8,0.8);
 	_v3(aspect.location,0.5,0.5,0);
 	aspect.build();
-	eve.pick(aspect);
+	eve.Pick(aspect);
 
 		GL::render(bg);
 		eve.finishFrame(false);

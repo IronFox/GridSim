@@ -878,7 +878,7 @@ template <class Nature>
 template <typename T>
 	void			ImageTemplate<T>::CopyChannel(const ImageTemplate<T>&source_image, BYTE source_channel, BYTE target_channel)
 	{
-		if (source_image.width() != width() || source_image.height() != height() || source_channel >= source_image.channels() || target_channel >= channels())
+		if (source_image.GetWidth() != GetWidth() || source_image.GetHeight() != GetHeight() || source_channel >= source_image.channels() || target_channel >= channels())
 		{
 			FATAL__("Copy operation cannot be performed due to image incompatibility or parameter invalidity");
 			return;
@@ -2348,8 +2348,8 @@ template <class Nature0>
 			return;
 
 		using std::min;
-		dimension_t	xext = min(other->width(),image_width-x),
-					yext = min(other->height(),image_height-y);
+		dimension_t	xext = min(other->GetWidth(),image_width-x),
+					yext = min(other->GetHeight(),image_height-y);
              
 		if (!xext || !yext)
 			return;
@@ -2534,7 +2534,7 @@ template <class Nature>
 	
 			F		x_bump_scale = height_scale/x_texel_distance,
 					y_bump_scale = height_scale/y_texel_distance;
-				//Image normal(bump.width(),bump.height(),3);
+				//Image normal(bump.GetWidth(),bump.GetHeight(),3);
 		
 			Concurrency::parallel_for(dimension_t(0),image_width,[this,&target,seamless,x_bump_scale,y_bump_scale,height_channel](dimension_t x)
 			{
@@ -2578,7 +2578,7 @@ template <class Nature>
 			F		scale = (F(512)*F(max)),
 					x_bump_scale = F(image_width)/scale*intensity,
 					y_bump_scale = F(image_height)/scale*intensity;
-				//Image normal(bump.width(),bump.height(),3);
+				//Image normal(bump.GetWidth(),bump.GetHeight(),3);
 		
 			Concurrency::parallel_for(dimension_t(0),image_width,[this,&target,seamless,x_bump_scale,y_bump_scale,height_channel](dimension_t x)
 			{

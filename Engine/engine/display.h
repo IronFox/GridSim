@@ -162,12 +162,12 @@ namespace Engine
 										lights_defined;
 
 	#if SYSTEM==WINDOWS
-	inline  void						process(const MSG&msg);
+	inline  void						Process(const MSG&msg);
 	#elif SYSTEM==UNIX
-	inline  void						process(XEvent&event);
+	inline  void						Process(XEvent&event);
 	#endif
-			RECT						transform(const M::TFloatRect&rect);
-			RECT						transform(const M::TFloatRect&rect, const Resolution&res);
+			RECT						Transform(const M::TFloatRect&rect);
+			RECT						Transform(const M::TFloatRect&rect, const Resolution&res);
 
 	public:
 
@@ -190,10 +190,9 @@ namespace Engine
 		has been destroyed via close(). The window and rendering context will
 		be destroyed automatically if the Display object instance is deleted.
 		*/
-		inline	bool				create(const DisplayConfig&config = DisplayConfig());	//!< @overload
-		inline	bool				Create(const DisplayConfig&config = DisplayConfig())	/**@copydoc create()*/ {return create(config);}
-		FORWARD bool				hideCursor();   				//!< Hides the mouse cursor while above the active window. A created context is required. \return true if cursor is hidden
-		FORWARD void				showCursor();   				//!< Shows cursor again if it has previously been hidden.
+		inline	bool				Create(const DisplayConfig&config = DisplayConfig());	//!< @overload
+		FORWARD bool				HideCursor();   				//!< Hides the mouse cursor while above the active window. A created context is required. \return true if cursor is hidden
+		FORWARD void				ShowCursor();   				//!< Shows cursor again if it has previously been hidden.
 		/*!
 		\brief Changes the location and size of the associated window
 		\param left New left coordinate of the window in pixels (relative to the left screen border)
@@ -206,9 +205,8 @@ namespace Engine
 		Depending on the underlying system, the window size either specifies the size
 		of the inner client area or the windoe including its border (if any).
 		*/
-		inline  void				locateWindow(unsigned left, unsigned top, unsigned width, unsigned height);
-		inline  void				LocateWindow(unsigned left, unsigned top, unsigned width, unsigned height)	/**@copydoc locateWindow()*/	{locateWindow(left,top,width,height);}
-		inline  void				locateWindow(const RECT&rect);	//!< Identical to the above localeWindow() using a RECT struct.
+		inline  void				PositionWindow(unsigned left, unsigned top, unsigned width, unsigned height);
+		inline  void				PositionWindow(const RECT&rect);	//!< Identical to the above localeWindow() using a RECT struct.
 		/*!
 		\brief Changes the size of the associated window
 		\param width New window width in pixels
@@ -217,36 +215,38 @@ namespace Engine
 		resizeWindow() redefines the size of the active window. If no window is active then
 		the specified window dimension will be applied during the next create() call.
 		*/
-		inline  void				resizeWindow(unsigned width, unsigned height, DisplayConfig::border_style_t style);
-		inline	void				SetSize(unsigned width, unsigned height, DisplayConfig::border_style_t style);	//!< @copydoc resizeWindow()
+		inline  void				ResizeWindow(unsigned width, unsigned height);
+		inline	void				SetSize(unsigned width, unsigned height);	//!< @copydoc resizeWindow()
+		FORWARD	void				SetBorderStyle(DisplayConfig::border_style_t style);
+		FORWARD DisplayConfig::border_style_t	GetBorderStyle();
 
 		void						SignalWindowResize(UINT32 displayConfigFlags);
 
-		FORWARD const RECT&			windowLocation();	//!< Retrieves the current window location and size \return RECT Struct containing the current window location.
-		FORWARD	unsigned			width();			//!< Queries the current window width
-		FORWARD	unsigned			height();				//!< Queries the current window height
-		inline	UINT				clientWidth()			const;	//!< Queries the current window's inner width
-		inline	UINT				clientHeight()			const;	//!< Queries the current window's inner height
-		inline	float				pixelAspect()	const;	   //!< window pixel-aspect
-		FORWARD	Resolution			size();							//!< Queries the current window size
-		inline	Resolution			clientSize()			const;	//!< Queries the current window's inner size
-		inline	Resolution			currentTargetResolution()				const;
-		FORWARD	Resolution			dimension();					//!< Identical to size()
-		FORWARD	Resolution			dimensions();					//!< Identical to size()
-		FORWARD void				queryScreen(ResolutionList*r_list, FrequencyList*f_list=NULL, DWORD w_min=0, DWORD h_min=0, DWORD f_min=0);
-		FORWARD	Resolution			getScreenSize();
-		RECT						transformViewport(const M::TFloatRect&rect, const Resolution&clientSize);
-		inline  void				setScreen(const TDisplayMode&mode);
-		FORWARD short				getRefreshRate();
+		FORWARD const RECT&			GetWindowLocation();	//!< Retrieves the current window location and size \return RECT Struct containing the current window location.
+		FORWARD	unsigned			GetWidth();			//!< Queries the current window width
+		FORWARD	unsigned			GetHeight();				//!< Queries the current window height
+		inline	UINT				GetClientWidth()			const;	//!< Queries the current window's inner width
+		inline	UINT				GetClientHeight()			const;	//!< Queries the current window's inner height
+		inline	float				GetPixelAspect()	const;	   //!< window pixel-aspect
+		FORWARD	Resolution			GetSize();							//!< Queries the current window size
+		inline	Resolution			GetClientSize()			const;	//!< Queries the current window's inner size
+		inline	Resolution			GetTargetResolution()				const;
+		FORWARD	Resolution			GetDimension();					//!< Identical to size()
+		FORWARD	Resolution			GetDimensions();					//!< Identical to size()
+		FORWARD void				QueryScreen(ResolutionList*r_list, FrequencyList*f_list=NULL, DWORD w_min=0, DWORD h_min=0, DWORD f_min=0);
+		FORWARD	Resolution			GetScreenSize();
+		RECT						TransformViewport(const M::TFloatRect&rect, const Resolution&clientSize);
+		inline  void				SetScreen(const TDisplayMode&mode);
+		FORWARD short				GetRefreshRate();
 		FORWARD bool				IsMaximized();
 		FORWARD void				Maximize();
 		FORWARD bool				IsMinimized();
 		FORWARD void				Minimize();
 		FORWARD void				RegisterFocusCallbacks(const PCallback&onFocusLost, const PCallback&onFocusRestored);
 		#if SYSTEM==WINDOWS
-			FORWARD bool			getScreen(DEVMODE&mode);
-			FORWARD bool			getScreen(DEVMODE*mode);
-			FORWARD bool			isCurrent(const DEVMODE&screen);
+			FORWARD bool			GetScreen(DEVMODE&mode);
+			FORWARD bool			GetScreen(DEVMODE*mode);
+			FORWARD bool			IsCurrent(const DEVMODE&screen);
 			/**
 			Signals that file drops are allowed and specified handler functions to check whether or not a set of files is accepted, and what to do if they are actually dropped.
 			@param onDrag Function to determine whether or not a group of files being dragged atop the window is accepted for dropping. The function must either accept all files, or none.
@@ -268,46 +268,44 @@ namespace Engine
 			FORWARD void			BlockFileDrop();
 
 		#elif SYSTEM==UNIX
-			FORWARD int							findScreen(DWORD width, DWORD height, DWORD&refresh_rate);
-			/*FORWARD const XRRScreenSize&		getScreen(unsigned index);
-			FORWARD bool						getScreen(XRRScreenSize*size);
-			FORWARD bool						getScreen(XRRScreenSize&size);
-			FORWARD bool						isCurrent(const XRRScreenSize&size);*/
+			FORWARD int							FindScreen(DWORD width, DWORD height, DWORD&refresh_rate);
+			/*FORWARD const XRRScreenSize&		GetScreen(unsigned index);
+			FORWARD bool						GetScreen(XRRScreenSize*size);
+			FORWARD bool						GetScreen(XRRScreenSize&size);
+			FORWARD bool						IsCurrent(const XRRScreenSize&size);*/
 		#endif
 
-		void						renderSomething();
-		inline	void				renderPivot();		//!< Identical to renderSomething()
-		inline	void				renderToken();		//!< Identical to renderSomething()
-		void						renderLights();		//!< Renders the active light scenario in line geometries
+		void						RenderSomething();
+		inline	void				RenderPivot();		//!< Identical to RenderSomething()
+		inline	void				RenderToken();		//!< Identical to RenderSomething()
+		void						RenderLights();		//!< Renders the active light scenario in line geometries
 
-		inline  bool				applyScreen();
-		inline  bool				applyWindowScreen(DWORD refresh_rate=0);
-		inline  void				resetScreen();
+		inline  bool				ApplyScreen();
+		inline  bool				ApplyWindowScreen(DWORD refresh_rate=0);
+		inline  void				ResetScreen();
 		inline	void				Capture(FloatImage&target);
 		inline	void				Capture(Image&target);
 		inline	void				Capture(typename GL::Texture&target);
-		inline	void				captureDepth(typename GL::Texture&target);
+		inline	void				CaptureDepth(typename GL::Texture&target);
 
-		void						interruptCheckEvents();
-		void						assign(pEngineExec target);		//!< Assigns a new loop-function \param target Callback function of the form bool func(). The function may return false causing execute() to return
-		void						execute();					  	//!< Executes the assigned loop-function
-		void						executeNoClr();				 //!< Executes the assigned loop-function without clearing the screen per loop
-		void						destroy();					//!< Terminates engine execution
-		void						terminate();				//!< \deprecated {use close() instead}
-		String						errorStr();					 //!< Returns a string representation of the last occured error. \return String representation of the last occured error
+		void						InterruptCheckEvents();
+		void						Assign(pEngineExec target);		//!< Assigns a new loop-function \param target Callback function of the form bool func(). The function may return false causing Execute() to return
+		void						Execute();					  	//!< Executes the assigned loop-function
+		void						ExecuteNoClr();				 //!< Executes the assigned loop-function without clearing the screen per loop
+		void						Destroy();					//!< Terminates engine execution
+		void						Terminate();				//!< \deprecated {use close() instead}
+		String						GetErrorStr();					 //!< Returns a string representation of the last occured error. \return String representation of the last occured error
 
-		void						lockRegion();					   //!< Prevent subsequent pick(...) or pickCentered(...) calls from affecting the render region
-		void						unlockRegion();					 //!< Allow subsequent pick(...) or pickCentered(...) calls to affect the render region
-		void						pickRegion(const M::TFloatRect&rect);   //!< Pick rendering region \param rect New render region
+		void						LockRegion();					   //!< Prevent subsequent Pick(...) or PickCentered(...) calls from affecting the render region
+		void						UnlockRegion();					 //!< Allow subsequent Pick(...) or PickCentered(...) calls to affect the render region
+		void						PickRegion(const M::TFloatRect&rect);   //!< Pick rendering region \param rect New render region
 		template <class C>
-			void					pick(const Aspect<C>&aspect);	//!< Picks aspect (i.e. a camera) for rendering \param aspect Aspect that should be used from now on
+			void					Pick(const Aspect<C>&aspect);	//!< Picks aspect (i.e. a camera) for rendering \param aspect Aspect that should be used from now on
 		template <class C>
-			void					Pick(const Aspect<C>&aspect)	/**@copydoc pick()*/ {pick(aspect);}
-		template <class C>
-			void					pickCentered(const Aspect<C>&aspect);				//!< Picks aspect (i.e. a camera) as if it were located in the point of origin \param aspect Aspect that should be used from now on
+			void					PickCentered(const Aspect<C>&aspect);				//!< Picks aspect (i.e. a camera) as if it were located in the point of origin \param aspect Aspect that should be used from now on
 		bool						TargetFBO(const typename GL::FBO&pobj);	 //!< Binds a pixel buffer object for rendering \param pobj Pixel buffer object that should be rendered to
 		void						TargetBackbuffer();										//!< Unbinds bound pixel buffer object
-		void						overrideSetClientResolution(const Resolution&res);
+		void						OverrideSetClientResolution(const Resolution&res);
 	};
 
 
@@ -365,7 +363,7 @@ namespace Engine
 
 		void					looseFocus();
 		void					restoreFocus();
-		UINT32					LocateWindow();
+		UINT32					ApplyWindowPosition();
 		void					eventClose();
 
 		static UINT32			displayConfigFlags;
@@ -420,20 +418,22 @@ namespace Engine
 			Window				createWindow(const String&window_name, const TWindowAttributes&attributes, DisplayConfig::border_style_t border_style, const DisplayConfig::FOnResize&onResize, const DisplayConfig::Icon&icon);
 			void				setWindow(Window);
 	#endif
+			DisplayConfig::border_style_t	GetBorderStyle()		const	{return border_style;}
+			void				SetBorderStyle(DisplayConfig::border_style_t style);
 
 			bool				hideCursor();
 			void				showCursor();
-			UINT32				ResizeWindow(unsigned width, unsigned height, DisplayConfig::border_style_t border_style);
-			UINT32				LocateWindow(unsigned left, unsigned top, unsigned width, unsigned height);
-			UINT32				LocateWindow(const RECT&dimensions);
-			const RECT&			windowLocation()						const;
+			UINT32				ResizeWindow(unsigned width, unsigned height);
+			UINT32				PositionWindow(unsigned left, unsigned top, unsigned width, unsigned height);
+			UINT32				PositionWindow(const RECT&dimensions);
+			const RECT&			GetWindowLocation()						const;
 			const RECT&			windowClientArea()						const;
-			Resolution			windowSize()							const;
-			Resolution			clientSize()							const;
-			UINT				clientWidth()							const;
-			UINT				clientHeight()							const;
-			RECT				transform(const M::TFloatRect&field)		const;
-			static RECT			transform(const M::TFloatRect&field, const Resolution&);
+			Resolution			GetWindowSize()							const;
+			Resolution			GetClientSize()							const;
+			UINT				GetClientWidth()							const;
+			UINT				GetClientHeight()							const;
+			RECT				Transform(const M::TFloatRect&field)		const;
+			static RECT			Transform(const M::TFloatRect&field, const Resolution&);
 			void				destroyWindow();
 
 			void				SignalResize(UINT32 flags);
@@ -469,37 +469,37 @@ namespace Engine
 			double				windowAspectd()							const;
 
 			unsigned			countScreenModes();
-			short				getRefreshRate();
+			short				GetRefreshRate();
 	#if SYSTEM==WINDOWS
 			
 			void				AcceptFileDrop(const DragEventHandler&, const DropEventHandler&);
 			void				AcceptFileDrop();
 			void				BlockFileDrop();
-			Resolution			getScreenSize()							const;
+			Resolution			GetScreenSize()							const;
 
 
-			DEVMODE*			getScreen(unsigned index)				const;
-			bool				isCurrent(const DEVMODE&screen)			const;
-			bool				getScreen(DEVMODE*mode)					const;
-			bool				getScreen(DEVMODE&mode)					const;
+			DEVMODE*			GetScreen(unsigned index)				const;
+			bool				IsCurrent(const DEVMODE&screen)			const;
+			bool				GetScreen(DEVMODE*mode)					const;
+			bool				GetScreen(DEVMODE&mode)					const;
 	#elif SYSTEM==UNIX
 
-			Resolution			getScreenSize();
-			int							findScreen(DWORD width, DWORD height, DWORD&refresh_rate);
+			Resolution			GetScreenSize();
+			int							FindScreen(DWORD width, DWORD height, DWORD&refresh_rate);
 	#endif
 
 
-			void						setScreen(DEVMODE&screen);
-			void						setScreen(const TDisplayMode&mode);
-			void						setScreen(DEVMODE*screen);
-			bool						applyScreen();
-			bool						applyWindowScreen(DWORD refresh_rate=0);
-			void						resetScreen();
+			void						SetScreen(DEVMODE&screen);
+			void						SetScreen(const TDisplayMode&mode);
+			void						SetScreen(DEVMODE*screen);
+			bool						ApplyScreen();
+			bool						ApplyWindowScreen(DWORD refresh_rate=0);
+			void						ResetScreen();
 
-			void						queryScreen(ResolutionList*r_list, FrequencyList*f_list=NULL, DWORD w_min=0, DWORD h_min=0, DWORD f_min=0);
+			void						QueryScreen(ResolutionList*r_list, FrequencyList*f_list=NULL, DWORD w_min=0, DWORD h_min=0, DWORD f_min=0);
 
-			void						assign(pEngineExec target);
-			void						execute();
+			void						Assign(pEngineExec target);
+			void						Execute();
 			void						handleEvents();
 			void						close();
 
@@ -513,7 +513,7 @@ namespace Engine
 	/*!
 
 
-		\fn void Display::queryScreen(ResolutionList*r_list, FrequencyList*f_list=NULL, DWORD w_min=0, DWORD h_min=0, DWORD f_min=0)
+		\fn void Display::QueryScreen(ResolutionList*r_list, FrequencyList*f_list=NULL, DWORD w_min=0, DWORD h_min=0, DWORD f_min=0)
 		\brief Queries possible screen resolutions
 		\param r_list Pointer to output resolution list
 		\param f_list Pointer to output frequency list or NULL
@@ -521,40 +521,40 @@ namespace Engine
 		\param h_min  Minimum screen height (for resolution to be listed)
 		\param f_min  Minimum refresh rate (for resolution to be listed)
 
-		queryScreen() queries the main screen for all possible resolutions and writes them to \a r_list. If \a f_list is not \a NULL then all possible
+		QueryScreen() queries the main screen for all possible resolutions and writes them to \a r_list. If \a f_list is not \a NULL then all possible
 		refresh rates are listed separatly to \a f_list. \a w_min, \a h_min and \a f_min can be used to exclude smaller screen resolutions.
 
 
-		\fn void Display::setScreen(const DisplayMode&mode)
+		\fn void Display::SetScreen(const DisplayMode&mode)
 		\brief Sets the active screen resolution target
 		\param mode Const reference to the target screen mode
 
-		The method merely sets the resolution target. To change the resolution to the specified target call \a applyScreen()
+		The method merely sets the resolution target. To change the resolution to the specified target call \a ApplyScreen()
 
 
-		\fn short Display::getRefreshRate()
+		\fn short Display::GetRefreshRate()
 		\brief Returns the current screen refresh rate
 		\return Current screen refresh rate
 
 
-		\fn void Display::renderSomething()
+		\fn void Display::RenderSomething()
 		\brief Renders a 1x1x1 colored non-textured token to the point of origin
 
-		renderSomething() (renderPivot()/renderToken()) can be very useful when setting up a new application where cameras may be misplaced.
+		RenderSomething() (renderPivot()/renderToken()) can be very useful when setting up a new application where cameras may be misplaced.
 		The rendering process of this token is fairly rubust and can cope with most aversive rendering setups.
 
-		\fn bool Display::applyScreen()
+		\fn bool Display::ApplyScreen()
 		\brief Applies the target screen resolution to the screen
 		\return true on success
 
-		This method applies the target screen resolution (set by \a setScreen(...) ) to the main screen.
+		This method applies the target screen resolution (set by \a SetScreen(...) ) to the main screen.
 
-		\fn bool  Display::applyWindowScreen(DWORD refresh_rate=0)
+		\fn bool  Display::ApplyWindowScreen(DWORD refresh_rate=0)
 		\brief Uses the active window dimensions as screen resolution
 		\param refresh_rate Target refresh rate. 0 implies highest possible.
 		\return true on success
 
-		\fn void  Display::resetScreen()
+		\fn void  Display::ResetScreen()
 		\brief Restores the native screen resolution
 
 

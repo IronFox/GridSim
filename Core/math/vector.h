@@ -984,13 +984,13 @@ namespace DeltaWorks
 				@brief	Calculate aspect of the rectangle
 				@return Aspect
 				*/
-				MF_DECLARE(T)			pixelAspect()	const
+				MF_DECLARE(T)			GetPixelAspect()	const
 										{
 											return x.GetExtent()/y.GetExtent();
 										}
-				MF_DECLARE(T)			GetAspect()	const	/** @copydoc pixelAspect() */
+				MF_DECLARE(T)			GetAspect()	const	/** @copydoc GetPixelAspect() */
 										{
-											return pixelAspect();
+											return GetPixelAspect();
 										}
 				/*!
 				@brief	Determines whether or not the specified point lies within the local rectangle
@@ -1062,20 +1062,18 @@ namespace DeltaWorks
 					\brief Calculates the width of the rectangle
 					\return Rectangle width
 				*/
-				MF_DECLARE(T)			width()		const
+				MF_DECLARE(T)			GetWidth()		const
 										{
 											return x.GetExtent();
 										}
-				MF_DECLARE(T)			GetWidth()		const /** @copydoc width()*/ {return width();}
 				/*!
 					\brief Calculates the height of the rectangle
 					\return Rectangle height
 				*/
-				MF_DECLARE(T)			height()	const
+				MF_DECLARE(T)			GetHeight()	const
 										{
 											return y.GetExtent();
 										}
-				MF_DECLARE(T)			GetHeigth()		const /** @copydoc height()*/ {return height();}
 									
 				template <typename T0, typename T1>
 					MF_DECLARE(void)	Translate(const T0&delta_x, const T1&delta_y)
@@ -1607,20 +1605,18 @@ namespace DeltaWorks
 				\brief Calculates the width of the box
 				\return Box extent along the x axis
 				*/
-				MF_DECLARE(T)			width()		const
+				MF_DECLARE(T)			GetWidth()		const
 										{
 											return x.GetExtent();
 										}
-				MF_DECLARE(T)			GetWidth()		const	/** @copydoc width() */ {return width();}
 				/*!
 				\brief Calculates the height of the box
 				\return Box extent along the y axis
 				*/
-				MF_DECLARE(T)			height()	const
+				MF_DECLARE(T)			GetHeight()	const
 										{
 											return y.GetExtent();
 										}
-				MF_DECLARE(T)			GetHeight()		const	/** @copydoc height() */ {return height();}
 				/*!
 				\brief Calculates the depth of the box
 				\return Box extent along the z axis
@@ -1632,13 +1628,13 @@ namespace DeltaWorks
 				MF_DECLARE(T)			GetDepth()		const	/** @copydoc depth() */ {return depth();}
 				MF_DECLARE(T)			volume()	const
 										{
-											return width() * height() * depth();
+											return GetWidth() * GetHeight() * depth();
 										}
 				MF_DECLARE(T)			GetVolume()		const	/** @copydoc volume() */ {return volume();}
 				template <typename T0>
 					MF_DECLARE(void)	GetVolume(T0&result)	const
 										{
-											result = (T0)width() * (T0)height() * (T0)depth();
+											result = (T0)GetWidth() * (T0)GetHeight() * (T0)depth();
 										}
 
 									

@@ -580,8 +580,8 @@ namespace Engine
 									origin,			//!< Origin shell location
 									destination;	//!< Target shell location
 			#else
-				float				x,				//!< Central window X position (center point) in the range [-display.clientWidth()/2, display.clientWidth()/2]
-									y;				//!< Central window Y position (center point) in the range [-display.clientHeight()/2, display.clientHeight()/2]
+				float				x,				//!< Central window X position (center point) in the range [-display.GetClientWidth()/2, display.GetClientWidth()/2]
+									y;				//!< Central window Y position (center point) in the range [-display.GetClientHeight()/2, display.GetClientHeight()/2]
 			#endif
 			M::TVec2<UINT>				exp;			//!< Current texture exponent along the respective axis
 			Resolution				size;			//!< Window size

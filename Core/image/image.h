@@ -161,11 +161,8 @@ namespace DeltaWorks
 		virtual				~BaseImage()	{};
 		Axis<true>			Horizontal() const {return Axis<true>(GetWidth());}
 		Axis<false>			Vertical() const {return Axis<false>(GetHeight());}
-		dimension_t			width()																const;	//!< Queries current image width \return Image width in pixels
 		dimension_t			GetWidth()															const;	//!< Queries current image width \return Image width in pixels
-		dimension_t			height()															const;	//!< Queries current image height \return Image height in pixels
 		dimension_t			GetHeight()															const;	//!< Queries current image height \return Image height in pixels
-		float				pixelAspect()														const;	//!< Queries the pixel aspect (width/height) of the local image
 		float				GetPixelAspect()													const;	//!< Queries the pixel aspect (width/height) of the local image
 		dimension_t			dimension(BYTE axis)												const; 	//!< Queries current image width/height \param axis Coordinate axis to retrieve (0=width, 1=height) \return Image width or height in pixels
 		dimension_t			GetDimension(BYTE axis)												const; 	//!< Queries current image width/height \param axis Coordinate axis to retrieve (0=width, 1=height) \return Image width or height in pixels
