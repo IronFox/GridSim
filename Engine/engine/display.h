@@ -443,6 +443,7 @@ namespace Engine
 			bool				isFocused()								const;
 			bool				isMinimized()							const;
 
+			DisplayConfig::FOnResize	ReplaceOnResize(const DisplayConfig::FOnResize&);
 
 			/**
 			Checks whether or not the managed window exists and is currently the top-most

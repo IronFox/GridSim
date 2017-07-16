@@ -913,6 +913,14 @@ namespace Engine
 		return result;
 	}
 
+	DisplayConfig::FOnResize	Context::ReplaceOnResize(const DisplayConfig::FOnResize&newCallback)
+	{
+		DisplayConfig::FOnResize old = onResize;
+		onResize = newCallback;
+		return old;
+	}
+
+
 	void Context::SignalResize(UINT32 flags)
 	{
 		#if SYSTEM==WINDOWS
