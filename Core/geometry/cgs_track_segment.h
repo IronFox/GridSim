@@ -308,7 +308,7 @@ namespace DeltaWorks
 													//{
 														const typename Mesh<Def>::Vertex	*vfrom = source_hull.vertex_field + k;
 														M::TVec3<> p,n;
-														M::Mat::transform(path,vfrom->position,p);
+														M::Mat::Transform(path,vfrom->position,p);
 														M::Mat::rotate(path,vfrom->normal,n);
 					
 														for (index_t l = 0; l < repeat; l++)

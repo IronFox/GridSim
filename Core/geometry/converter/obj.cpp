@@ -1734,7 +1734,7 @@ namespace DeltaWorks
 					M::TVec3<Def::FloatType>	transformed;
 					for (unsigned k = 0; k < robj.vpool.vcnt; k++)
 					{
-						M::Mat::transform(robj.target->path,M::Vec::ref3(p),transformed);
+						M::Mat::Transform(robj.target->path,M::Vec::ref3(p),transformed);
 						vlink_map[k] = InsertIndexed(vertex_field,IndexedPoolVertex(transformed),vcounter);
 						M::Mat::rotate(robj.target->path,M::Vec::ref3(p+3),transformed);
 						nlink_map[k] = InsertIndexed(normal_field,IndexedPoolVertex(transformed),ncounter);

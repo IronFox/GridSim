@@ -11,18 +11,18 @@ namespace Engine
 	}
 
 
-	template <class GL> inline void Display<GL>::renderToken()
+	template <class GL> inline void Display<GL>::RenderToken()
 	{
-		renderSomething();
+		RenderSomething();
 	}
 
-	template <class GL> inline void Display<GL>::renderPivot()
+	template <class GL> inline void Display<GL>::RenderPivot()
 	{
-		renderSomething();
+		RenderSomething();
 	}
 	
 	template <class GL> 
-	void						Display<GL>::renderLights()
+	void						Display<GL>::RenderLights()
 	{
 		Array<PLight>	lights;
 		GL::getSceneLights(lights, true);
@@ -173,7 +173,7 @@ namespace Engine
 		
 	}
 
-	template <class GL> void Display<GL>::renderSomething()
+	template <class GL> void Display<GL>::RenderSomething()
 	{
 	    if (!pivot_defined)
 	    {
@@ -220,7 +220,7 @@ namespace Engine
 
 	
 	#if SYSTEM==WINDOWS
-	template <class GL>bool Display<GL>::create(const DisplayConfig&dconfig)
+	template <class GL>bool Display<GL>::Create(const DisplayConfig&dconfig)
 	{
 
 	    framebuffer_bound = false;
@@ -233,7 +233,7 @@ namespace Engine
 	            context_error = true;
 	            return false;
 	        }
-			if (!GL::CreateContext(hWnd,config,context.clientSize()))
+			if (!GL::CreateContext(hWnd,config,context.GetClientSize()))
 	        {
 	            context.destroyWindow();
 	            if (GL::GetErrorCode() == ERR_RETRY)
@@ -241,14 +241,14 @@ namespace Engine
 	            context_error = false;
 	            return false;
 	        }
-			Resolution res = context.clientSize();
+			Resolution res = context.GetClientSize();
 	        GL::SetViewport(rect(0,res.height,res.width,0),res);
 	        return true;
 	    }
 
 	}
-	#elif SYSTEM==UNIX
-	template <class GL>bool Display<GL>::create(const DisplayConfig&dconfig)
+	#elif SYSTEM==LINUX
+	template <class GL>bool Display<GL>::Create(const DisplayConfig&dconfig)
 	{
 	    framebuffer_bound = false;
 	    ::Display*connection = context.connect();
@@ -286,12 +286,12 @@ namespace Engine
 	            context_error = false;
 	            return false;
 	        }
-			Resolution res = context.clientSize();
+			Resolution res = context.GetClientSize();
 	        GL::SetViewport(rect(0,res.height,res.width,0),res);
 
 	        //current_target_resolution = 
 			//window_client_resolution = res;
-			//pixel_aspect = window_client_resolution.pixelAspect();
+			//pixel_aspect = window_client_resolution.GetPixelAspect();
 
 	        return true;
 	    }
@@ -299,7 +299,7 @@ namespace Engine
 	#endif
 
 
-	template <class GL>String Display<GL>::errorStr()
+	template <class GL>String Display<GL>::GetErrorStr()
 	{
 	    if (context_error)
 	        return "Context returns ("+IntToStr(context.errorCode())+"): "+String(context.errorStr());
@@ -307,46 +307,55 @@ namespace Engine
 	}
 
 
-	template <class GL> inline bool Display<GL>::hideCursor()
+	template <class GL> inline bool Display<GL>::HideCursor()
 	{
 	    return mouse.HideCursor();
 	}
 
-	template <class GL> inline void Display<GL>::showCursor()
+	template <class GL> inline void Display<GL>::ShowCursor()
 	{
 	    mouse.ShowCursor();
 	}
 
-	template <class GL> inline  void  Display<GL>::locateWindow(unsigned left, unsigned top, unsigned width, unsigned height)
+	template <class GL> inline  void  Display<GL>::PositionWindow(unsigned left, unsigned top, unsigned width, unsigned height)
 	{
-		SignalWindowResize(context.LocateWindow(left,top,width,height));
+		SignalWindowResize(context.PositionWindow(left,top,width,height));
 	}
 
 
 
-	template <class GL>	inline	void	Display<GL>::overrideSetClientResolution(const Resolution&region)
+	template <class GL>	inline	void	Display<GL>::OverrideSetClientResolution(const Resolution&region)
 	{
 		overridden_client_resolution = region;
 		resolution_overridden = true;
 	}
 
-	template <class GL> inline  void Display<GL>::locateWindow(const RECT&rect)
+	template <class GL> inline  void Display<GL>::PositionWindow(const RECT&rect)
 	{
-		SignalWindowResize(context.LocateWindow(rect));
+		SignalWindowResize(context.PositionWindow(rect));
 	}
 
-	template <class GL> inline  void Display<GL>::resizeWindow(unsigned width, unsigned height, DisplayConfig::border_style_t style)
+	template <class GL> inline /*static*/ void Display<GL>::SetBorderStyle(DisplayConfig::border_style_t style)
 	{
-	    
-		SignalWindowResize(context.ResizeWindow(width,height,style));
+		context.SetBorderStyle(style);
+	}
+
+	template <class GL> inline /*static*/ DisplayConfig::border_style_t Display<GL>::GetBorderStyle()
+	{
+		return context.GetBorderStyle();
+	}
+
+	template <class GL> inline  void Display<GL>::ResizeWindow(unsigned width, unsigned height)
+	{
+		SignalWindowResize(context.ResizeWindow(width,height));
 	}
 
 	template <class GL> inline void Display<GL>::SignalWindowResize(UINT32 flags)
 	{
-		//overrideSetClientResolution(context.clientSize());
+		//OverrideSetClientResolution(context.GetClientSize());
 		if (flags & DisplayConfig::ResizeDragHasEnded)
 		{
-			Resolution res = currentTargetResolution();
+			Resolution res = GetTargetResolution();
 			GL::SignalWindowResize(res);
 			GL::SetViewport(rect(0,res.height,res.width,0),res);
 		}
@@ -355,131 +364,131 @@ namespace Engine
 
 
 	template <class GL>
-		inline	void		Display<GL>::SetSize(unsigned width, unsigned height, DisplayConfig::border_style_t style)
+		inline	void		Display<GL>::SetSize(unsigned width, unsigned height)
 		{
-			resizeWindow(width,height,style);
+			ResizeWindow(width,height);
 		}
 
 
 	template <class GL>
-		/*static*/ inline  const RECT& Display<GL>::windowLocation()
+		/*static*/ inline  const RECT& Display<GL>::GetWindowLocation()
 		{
-			return context.windowLocation();
+			return context.GetWindowLocation();
 		}
 
 	template <class GL> inline
-		/*static*/ unsigned			Display<GL>::width()
+		/*static*/ unsigned			Display<GL>::GetWidth()
 		{
-			const RECT&	dim = context.windowLocation();
+			const RECT&	dim = context.GetWindowLocation();
 			return dim.right-dim.left;
 		}
 
 	template <class GL> inline
-		UINT			Display<GL>::clientWidth()	const
+		UINT			Display<GL>::GetClientWidth()	const
 		{
-			return resolution_overridden ? overridden_client_resolution.width : context.clientWidth();
+			return resolution_overridden ? overridden_client_resolution.width : context.GetClientWidth();
 		}
 	
 	template <class GL> inline
-		UINT			Display<GL>::clientHeight()	const
+		UINT			Display<GL>::GetClientHeight()	const
 		{
-			return resolution_overridden ? overridden_client_resolution.height : context.clientHeight();
+			return resolution_overridden ? overridden_client_resolution.height : context.GetClientHeight();
 		}
 	
 		
 
 	template <class GL> inline
-		/*static*/ unsigned			Display<GL>::height()
+		/*static*/ unsigned			Display<GL>::GetHeight()
 		{
-			const RECT& dim = context.windowLocation();
+			const RECT& dim = context.GetWindowLocation();
 			return dim.bottom-dim.top;
 		}
 
 	template <class GL> inline
-		Resolution				Display<GL>::clientSize()	const
+		Resolution				Display<GL>::GetClientSize()	const
 		{
-			return resolution_overridden ? overridden_client_resolution : context.clientSize();
+			return resolution_overridden ? overridden_client_resolution : context.GetClientSize();
 		}
 		
 	template <class GL>
-		inline Resolution					Display<GL>::currentTargetResolution()	const
+		inline Resolution					Display<GL>::GetTargetResolution()	const
 		{
 			if (framebuffer_bound)
 				return target_buffer_resolution;
 			if (resolution_overridden)
 				return overridden_client_resolution;
-			return context.clientSize();
+			return context.GetClientSize();
 		}
 		
 	template <class GL> inline
-		/*static*/ Resolution				Display<GL>::size()
+		/*static*/ Resolution				Display<GL>::GetSize()
 		{
-			return context.windowSize();
+			return context.GetWindowSize();
 		}
 
 	template <class GL> inline
-		float				Display<GL>::pixelAspect()	const
+		float				Display<GL>::GetPixelAspect()	const
 		{
 			if (framebuffer_bound)
-				return target_buffer_resolution.pixelAspect();
+				return target_buffer_resolution.GetPixelAspect();
 			if (resolution_overridden)
-				return overridden_client_resolution.pixelAspect();
+				return overridden_client_resolution.GetPixelAspect();
 			return context.pixelAspectf();
 		}
 
 
 	template <class GL> inline
-		/*static*/ Resolution				Display<GL>::dimension()
+		/*static*/ Resolution				Display<GL>::GetDimension()
 		{
-			return context.windowSize();
+			return context.GetWindowSize();
 		}
 
 	template <class GL> inline
-		/*static*/ Resolution				Display<GL>::dimensions()
+		/*static*/ Resolution				Display<GL>::GetDimensions()
 		{
-			return context.windowSize();
+			return context.GetWindowSize();
 		}
 
 
 
 
 
-	template <class GL> inline void Display<GL>::setScreen(const TDisplayMode&mode)
+	template <class GL> inline void Display<GL>::SetScreen(const TDisplayMode&mode)
 	{
-	    context.setScreen(mode);
-		overrideSetClientResolution(context.clientSize());
+	    context.SetScreen(mode);
+		OverrideSetClientResolution(context.GetClientSize());
 	}
 
-	template <class GL> inline void Display<GL>::queryScreen(ResolutionList*r_list, FrequencyList*f_list, DWORD w_min, DWORD h_min, DWORD f_min)
+	template <class GL> inline void Display<GL>::QueryScreen(ResolutionList*r_list, FrequencyList*f_list, DWORD w_min, DWORD h_min, DWORD f_min)
 	{
-	    context.queryScreen(r_list,f_list,w_min,h_min,f_min);
+	    context.QueryScreen(r_list,f_list,w_min,h_min,f_min);
 	}
 
 	template <class GL>
-		/*static*/ inline Resolution		Display<GL>::getScreenSize()
+		/*static*/ inline Resolution		Display<GL>::GetScreenSize()
 		{
-			return context.getScreenSize();
+			return context.GetScreenSize();
 		}
 
 	
 	#if SYSTEM==WINDOWS
 
 	template <class GL>
-		/*static*/ inline bool Display<GL>::getScreen(DEVMODE&mode)
+		/*static*/ inline bool Display<GL>::GetScreen(DEVMODE&mode)
 		{
-			return context.getScreen(mode);
+			return context.GetScreen(mode);
 		}
 
 	template <class GL>
-		/*static*/ inline bool Display<GL>::getScreen(DEVMODE*mode)
+		/*static*/ inline bool Display<GL>::GetScreen(DEVMODE*mode)
 		{
-			return context.getScreen(mode);
+			return context.GetScreen(mode);
 		}
 
 	template <class GL>
-		/*static*/ inline bool Display<GL>::isCurrent(const DEVMODE&screen)
+		/*static*/ inline bool Display<GL>::IsCurrent(const DEVMODE&screen)
 		{
-			return context.isCurrent(screen);
+			return context.IsCurrent(screen);
 		}
 
 	template <class GL>
@@ -501,39 +510,39 @@ namespace Engine
 
 	#elif SYSTEM==UNIX
 
-	template <class GL> inline  int Display<GL>::findScreen(DWORD width, DWORD height, DWORD&refresh_rate)
+	template <class GL> inline  int Display<GL>::FindScreen(DWORD width, DWORD height, DWORD&refresh_rate)
 	{
-	    return context.findScreen(width,height,refresh_rate);
+	    return context.FindScreen(width,height,refresh_rate);
 	}
 
 /*
-	template <class GL> inline const XRRScreenSize&   Display<GL>::getScreen(unsigned index)
+	template <class GL> inline const XRRScreenSize&   Display<GL>::GetScreen(unsigned index)
 	{
-	    return context.getScreen(index);
+	    return context.GetScreen(index);
 	}
 
-	template <class GL> inline bool Display<GL>::getScreen(XRRScreenSize*size)
+	template <class GL> inline bool Display<GL>::GetScreen(XRRScreenSize*size)
 	{
-	    return context.getScreen(size);
+	    return context.GetScreen(size);
 	}
 
-	template <class GL> inline bool Display<GL>::getScreen(XRRScreenSize&size)
+	template <class GL> inline bool Display<GL>::GetScreen(XRRScreenSize&size)
 	{
-	    return context.getScreen(size);
+	    return context.GetScreen(size);
 	}
 
-	template <class GL> inline bool Display<GL>::isCurrent(const XRRScreenSize&size)
+	template <class GL> inline bool Display<GL>::IsCurrent(const XRRScreenSize&size)
 	{
-	    return context.isCurrent(size);
+	    return context.IsCurrent(size);
 	}
 */
 
 
 	#endif
 
-	template <class GL> inline short Display<GL>::getRefreshRate()
+	template <class GL> inline short Display<GL>::GetRefreshRate()
 	{
-	    return context.getRefreshRate();
+	    return context.GetRefreshRate();
 	}
 
 	template <class GL> inline bool Display<GL>::IsMaximized()	{return context.WindowIsMaximized();}
@@ -544,25 +553,25 @@ namespace Engine
 
 
 
-	template <class GL> inline bool Display<GL>::applyScreen()
+	template <class GL> inline bool Display<GL>::ApplyScreen()
 	{
-	    bool result = context.applyScreen();
-		overrideSetClientResolution(context.clientSize());
+	    bool result = context.ApplyScreen();
+		OverrideSetClientResolution(context.GetClientSize());
 	    return result;
 	}
 
 
-	template <class GL> inline  bool Display<GL>::applyWindowScreen(DWORD refresh_rate)
+	template <class GL> inline  bool Display<GL>::ApplyWindowScreen(DWORD refresh_rate)
 	{
-	    bool result = context.applyWindowScreen(refresh_rate);
-		overrideSetClientResolution(context.clientSize());
+	    bool result = context.ApplyWindowScreen(refresh_rate);
+		OverrideSetClientResolution(context.GetClientSize());
 	    return result;
 	}
 
-	template <class GL> inline  void Display<GL>::resetScreen()
+	template <class GL> inline  void Display<GL>::ResetScreen()
 	{
-	    context.resetScreen();
-		overrideSetClientResolution(context.clientSize());
+	    context.ResetScreen();
+		OverrideSetClientResolution(context.GetClientSize());
 	}
 
 	template <class GL> inline	void	Display<GL>::Capture(Image&target)
@@ -572,7 +581,7 @@ namespace Engine
 			if (resolution_overridden)
 				target.SetSize(overridden_client_resolution.width,overridden_client_resolution.height,config.alpha_buffer_bits?4:3);
 			else
-				target.SetSize(context.clientWidth(),context.clientHeight(),config.alpha_buffer_bits?4:3);
+				target.SetSize(context.GetClientWidth(),context.GetClientHeight(),config.alpha_buffer_bits?4:3);
 		}
 		else
 			target.SetSize(target_buffer_resolution.width,target_buffer_resolution.height,framebuffer_alpha?4:3);
@@ -585,7 +594,7 @@ namespace Engine
 			if (resolution_overridden)
 				target.SetSize(overridden_client_resolution.width,overridden_client_resolution.height,config.alpha_buffer_bits?4:3);
 			else
-				target.SetSize(context.clientWidth(),context.clientHeight(),config.alpha_buffer_bits?4:3);
+				target.SetSize(context.GetClientWidth(),context.GetClientHeight(),config.alpha_buffer_bits?4:3);
 		}
 		else
 			target.SetSize(target_buffer_resolution.width,target_buffer_resolution.height,framebuffer_alpha?4:3);
@@ -594,24 +603,24 @@ namespace Engine
 
 	template <class GL> inline	void	Display<GL>::Capture(typename GL::Texture&target)
 	{
-		Resolution res = currentTargetResolution();
+		Resolution res = GetTargetResolution();
 		GL::Capture(target,res.width,res.height);
 	}
 
-	template <class GL> inline	void	Display<GL>::captureDepth(typename GL::Texture&target)
+	template <class GL> inline	void	Display<GL>::CaptureDepth(typename GL::Texture&target)
 	{
-		Resolution res = currentTargetResolution();
-		GL::captureDepth(target,res.width,res.height);
+		Resolution res = GetTargetResolution();
+		GL::CaptureDepth(target,res.width,res.height);
 	}
 
 
-	template <class GL>void Display<GL>::assign(pEngineExec target)
+	template <class GL>void Display<GL>::Assign(pEngineExec target)
 	{
 	    exec_target = target;
-	//    context.assign(target);
+	//    context.Assign(target);
 	}
 
-	template <class GL>void Display<GL>::interruptCheckEvents()
+	template <class GL>void Display<GL>::InterruptCheckEvents()
 	{
         #if SYSTEM==WINDOWS
             MSG msg;
@@ -620,7 +629,7 @@ namespace Engine
                 if (!GetMessage(&msg, NULL,0,0))
                     FATAL__("event-handling error");
                 TranslateMessage(&msg);
-                process(msg);
+                Process(msg);
 //                    DispatchMessage(&msg);
             }
         #elif SYSTEM==UNIX
@@ -629,13 +638,13 @@ namespace Engine
             {
                 if (XNextEvent(context.connection(),&event))
                     FATAL__("event-handling error");
-                process(event);
+                Process(event);
             }
         #endif
 
 	}
 
-	template <class GL>void Display<GL>::execute()
+	template <class GL>void Display<GL>::Execute()
 	{
 	    if (!exec_target)
 	        return;
@@ -676,12 +685,12 @@ namespace Engine
 			}
 
 	        mouse.Update();	//set here to reset motion
-			interruptCheckEvents();
+			InterruptCheckEvents();
 	        GL::NextFrame();
 	    }
 	}
 
-	template <class GL>void Display<GL>::executeNoClr()
+	template <class GL>void Display<GL>::ExecuteNoClr()
 	{
 	    if (!exec_target)
 	        return;
@@ -732,7 +741,7 @@ namespace Engine
 	                if (!GetMessage(&msg, NULL,0,0))
 	                    FATAL__("event-handling error");
 	                TranslateMessage(&msg);
-	                process(msg);
+	                Process(msg);
 	//                    DispatchMessage(&msg);
 	            }
 	        #elif SYSTEM==UNIX
@@ -741,7 +750,7 @@ namespace Engine
 	            {
 	                if (!XNextEvent(connection,&event))
 	                    FATAL__("event-handling error");
-	                process(event);
+	                Process(event);
 	            }
 	        #endif
 
@@ -750,27 +759,27 @@ namespace Engine
 	}
 
 	#if SYSTEM==WINDOWS
-	    template <class GL>inline void Display<GL>::process(const MSG&msg)
+	    template <class GL>inline void Display<GL>::Process(const MSG&msg)
 	    {
 	        if ((msg.message == WM_DESTROY || msg.message == WM_CLOSE || msg.message == WM_QUIT) && !context.shutting_down)
-	            destroy();
+	            Destroy();
 	        else
 	            DispatchMessage(&msg);
 	    }
 
 	#elif SYSTEM==UNIX
 
-	    template <class GL>inline void Display<GL>::process(XEvent&event)
+	    template <class GL>inline void Display<GL>::Process(XEvent&event)
 	    {
 	        if (event.type == DestroyNotify && !context.shutting_down)
-	            destroy();
+	            Destroy();
 	        else
 	            Engine::ExecuteEvent(event);
 	    }
 
 	#endif
 
-	template <class GL>void Display<GL>::destroy()
+	template <class GL>void Display<GL>::Destroy()
 	{
 	    TargetBackbuffer();
 	    GL::DestroyContext();
@@ -779,17 +788,17 @@ namespace Engine
 	}
 
 	template <class GL>
-		void Display<GL>::terminate()
+		void Display<GL>::Terminate()
 		{
-			destroy();
+			Destroy();
 		}
 
-	template <class GL> void Display<GL>::lockRegion()
+	template <class GL> void Display<GL>::LockRegion()
 	{
 	    region_locked = true;
 	}
 
-	template <class GL> void Display<GL>::unlockRegion()
+	template <class GL> void Display<GL>::UnlockRegion()
 	{
 	    region_locked = false;
 	}
@@ -809,10 +818,10 @@ namespace Engine
 		@param rect Viewport to transform
 		@param clientSize Size of the client viewport (in pixels) to use, if no frame buffer object is currently bound
 	*/
-	template <class GL> RECT Display<GL>::transformViewport(const M::TFloatRect&rect, const Resolution&client_size)
+	template <class GL> RECT Display<GL>::TransformViewport(const M::TFloatRect&rect, const Resolution&client_size)
 	{
 		if (framebuffer_bound)
-			return transform(rect);
+			return Transform(rect);
 
 	    RECT result;
 	    result.left     = (LONG)(rect.x.min       *client_size.width);
@@ -823,13 +832,13 @@ namespace Engine
 
 	}
 
-	template <class GL> RECT Display<GL>::transform(const M::TFloatRect&rect)
+	template <class GL> RECT Display<GL>::Transform(const M::TFloatRect&rect)
 	{
-		Resolution res = currentTargetResolution();
-		return transform(rect,res);
+		Resolution res = GetTargetResolution();
+		return Transform(rect,res);
 	}
 
-	template <class GL> RECT Display<GL>::transform(const M::TFloatRect&rect, const Resolution&res)
+	template <class GL> RECT Display<GL>::Transform(const M::TFloatRect&rect, const Resolution&res)
 	{
 	    RECT result;
 	    result.left     = (LONG)(rect.x.min		*res.width);
@@ -840,20 +849,20 @@ namespace Engine
 	}
 
 
-	template <class GL> void Display<GL>::pickRegion(const M::TFloatRect&rect)
+	template <class GL> void Display<GL>::PickRegion(const M::TFloatRect&rect)
 	{
-		Resolution res = currentTargetResolution();
-	    GL::SetViewport(transform(rect,res),res);
+		Resolution res = GetTargetResolution();
+	    GL::SetViewport(Transform(rect,res),res);
 	}
 
 
 	template <class GL>
-	template <class C>void Display<GL>::pick(const Aspect<C>&aspect)
+	template <class C>void Display<GL>::Pick(const Aspect<C>&aspect)
 	{
 	    if (!region_locked)
 		{
-			Resolution res = currentTargetResolution();
-	        GL::SetViewport(transform(aspect.region,res),res);
+			Resolution res = GetTargetResolution();
+	        GL::SetViewport(Transform(aspect.region,res),res);
 		}
 		if (GlobalAspectConfiguration::loadAsProjection)
 		{
@@ -873,12 +882,12 @@ namespace Engine
 	}
 
 	template <class GL>
-	template <class C>void Display<GL>::pickCentered(const Aspect<C>&aspect)
+	template <class C>void Display<GL>::PickCentered(const Aspect<C>&aspect)
 	{
 	    if (!region_locked)
 		{
-			Resolution res = currentTargetResolution();
-	        GL::SetViewport(transform(aspect.region,res),res);
+			Resolution res = GetTargetResolution();
+	        GL::SetViewport(Transform(aspect.region,res),res);
 		}
 	    M::TMatrix4<C>   view;
 		view.x = aspect.view.x;
@@ -919,7 +928,7 @@ namespace Engine
 			framebuffer_bound = true;
 	        target_buffer_resolution = pobj.GetResolution();
 			framebuffer_alpha = pobj.PrimaryHasAlpha();
-	        //pixelAspect = current_target_resolution.pixelAspect();
+	        //pixelAspect = current_target_resolution.GetPixelAspect();
 			//ShowMessage("pbuffer bound. region is "+String(region_size.x)+", "+String(region_size.y)+". aspect is "+String(pixelAspect));
 
 			GL::SetViewport(rect(0,target_buffer_resolution.height,target_buffer_resolution.width,0),target_buffer_resolution);	        
@@ -938,7 +947,7 @@ namespace Engine
 		
 	    framebuffer_bound = false;
 	    GL::TargetBackbuffer();
-		Resolution res = clientSize();
+		Resolution res = GetClientSize();
 	    GL::SetViewport(rect(0,res.height,res.width,0),res);
 	}
 

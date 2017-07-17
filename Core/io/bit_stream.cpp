@@ -17,7 +17,7 @@ namespace DeltaWorks
 	BitStream::BitStream(const void*Stream, unsigned Len):max_len(Len*8),stream(NULL),read_stream((unsigned char*)Stream),offset(0),markedn(0),error_(false)
 	{}
 
-	void BitStream::assign(void*field, unsigned len)
+	void BitStream::Assign(void*field, unsigned len)
 	{
 		read_stream = stream = (BYTE*)field;
 		offset = 0;

@@ -243,7 +243,7 @@ namespace DeltaWorks
 			Vector0<PCXContext>			pre_finalize_children;	//!< Sub contexts prior to finalization. Multiple contexts with the same name may co-exist if conditional variables are exclusive
 				
 			void						parse(const String&content);	//!< Parses a coherent variable block as extracted from XML inner and following content
-			bool						process(String&expression, bool singular, String*error_out)	const;	//!< Processes an expression that may contain variables
+			bool						Process(String&expression, bool singular, String*error_out)	const;	//!< Processes an expression that may contain variables
 	
 			Variable*					innerFindVariable(const Ctr::ArrayData<String>&segments);		//!< Recursively looks for a variable via its path
 			const Variable*				innerFindVariable(const Ctr::ArrayData<String>&segments) const;	//!< @overload

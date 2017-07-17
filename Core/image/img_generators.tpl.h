@@ -177,7 +177,7 @@ template <class Nature>
 template <class Nature>
 	void        igHorizontalCubic(GenericImage<Nature>&target, const CGColor&bottom, const CGColor&top)
 	{
-		igHorizontalCubic(target, bottom, top, 0, target.width());
+		igHorizontalCubic(target, bottom, top, 0, target.GetWidth());
 	}
 template <class Nature>
 	void        igHorizontalCubic(GenericImage<Nature>&target, const CGColor&bottom, const CGColor&top, UINT begin, UINT width)
@@ -248,11 +248,11 @@ template <class Nature>
 		M::TVec2<F>axis = {axis_x,axis_y},
 				normal = {axis_y,-axis_x};
 		F		growth = sin(angle_border*M_PI/180);
-		for (UINT32 x = 0; x < target.width(); x++)
-			for (UINT32 y = 0; y < target.height(); y++)
+		for (UINT32 x = 0; x < target.GetWidth(); x++)
+			for (UINT32 y = 0; y < target.GetHeight(); y++)
 			{
-				M::TVec2<F> f = {	(F)x/(F)(target.width()-1)*2.0f-1.0f,
-								(F)y/(F)(target.height()-1)*2.0f-1.0f};
+				M::TVec2<F> f = {	(F)x/(F)(target.GetWidth()-1)*2.0f-1.0f,
+								(F)y/(F)(target.GetHeight()-1)*2.0f-1.0f};
 				F alpha = 0;
 				M::TVec4<F>	color;
 				F len = M::Vec::dot(f);
@@ -294,11 +294,11 @@ template <class Nature>
 								axis2 = {sin(a2),cos(a2)};
 
 		target.SetChannels(4);
-		for (UINT32 x = 0; x < target.width(); x++)
-			for (UINT32 y = 0; y < target.height(); y++)
+		for (UINT32 x = 0; x < target.GetWidth(); x++)
+			for (UINT32 y = 0; y < target.GetHeight(); y++)
 			{
-				M::TVec2<F> f =	{(F)x/(F)(target.width()-1)*2.0f-1.0f,
-								(F)y/(F)(target.height()-1)*2.0f-1.0f};
+				M::TVec2<F> f =	{(F)x/(F)(target.GetWidth()-1)*2.0f-1.0f,
+								(F)y/(F)(target.GetHeight()-1)*2.0f-1.0f};
 				F alpha = 0;
 				M::TVec4<F>	color;
 				alpha = vmax(vmax(fabs(M::Vec::dot(f,axis0)),fabs(M::Vec::dot(f,axis1))),fabs(M::Vec::dot(f,axis2)))*1.2*(1.0+smoothing*2);

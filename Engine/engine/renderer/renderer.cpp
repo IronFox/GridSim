@@ -54,7 +54,7 @@ namespace Engine
 		return index != InvalidIndex;
 	}
 		
-	void		Light::destroy()
+	void		Light::Destroy()
 	{
 		disable();
 		parent_interface->discardLight(shared_from_this());
@@ -62,7 +62,7 @@ namespace Engine
 
 	void		Light::discard()
 	{
-		destroy();
+		Destroy();
 	}
 
 

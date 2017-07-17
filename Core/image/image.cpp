@@ -66,10 +66,6 @@ namespace DeltaWorks
 		return image_width;
 	}
 
-	UINT32					BaseImage::width()															const
-	{
-		return image_width;
-	}
 
 	UINT32					BaseImage::GetDimension(BYTE index)											const
 	{
@@ -86,20 +82,11 @@ namespace DeltaWorks
 		return image_height;
 	}
 
-	UINT32					BaseImage::height()															const
-	{
-		return image_height;
-	}
-
-	float					BaseImage::pixelAspect()															const
-	{
-		return float(image_width)/float(image_height);
-	}
-
 	float					BaseImage::GetPixelAspect()															const
 	{
 		return float(image_width)/float(image_height);
 	}
+
 
 
 	BYTE					BaseImage::channels()														const

@@ -12,6 +12,8 @@ namespace DeltaWorks
 
 		template class Channel<String,0,0>;
 		template class ObjectSender<String,0>;
+		template class SignalSender<0>;
+
 
 
 

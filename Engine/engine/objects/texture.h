@@ -47,12 +47,12 @@ namespace Engine
 								texture_dimension = TextureDimension::None;
 							}
 							
-		inline	unsigned	width()	const		//! Queries current texture width in pixels
+		inline	unsigned	GetWidth()	const		//! Queries current texture width in pixels
 							{
 								return texture_width;
 							}
 							
-		inline	unsigned	height()	const		//! Queries current texture height in pixels
+		inline	unsigned	GetHeight()	const		//! Queries current texture height in pixels
 							{
 								return texture_height;
 							}
@@ -66,7 +66,7 @@ namespace Engine
 							{
 								return texture_dimension == TextureDimension::Cube;
 							}
-		inline	TextureDim	dimension()	const
+		inline	TextureDim	GetDimension()	const
 							{
 								return texture_dimension;
 							}

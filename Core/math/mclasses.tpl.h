@@ -252,7 +252,7 @@ namespace Math
 		M::Mat::rotate(*this,other.x.xyz,_x);
 		M::Mat::rotate(*this,other.y.xyz,_y);
 		M::Mat::rotate(*this,other.z.xyz,_z);
-		M::Mat::transform(*this,other.w.xyz,_b);
+		M::Mat::Transform(*this,other.w.xyz,_b);
 		x.xyz = _x;
 		y.xyz = _y;
 		z.xyz = _z;
@@ -306,7 +306,7 @@ namespace Math
 		M::Mat::rotate(*this,other.x.xyz,result.x.xyz);
 		M::Mat::rotate(*this,other.y.xyz,result.y.xyz);
 		M::Mat::rotate(*this,other.z.xyz,result.z.xyz);
-		M::Mat::transform(*this,other.w.xyz,result.w.xyz);
+		M::Mat::Transform(*this,other.w.xyz,result.w.xyz);
 		M::Mat::resetBottomRow(result);
         return result;
     }
@@ -315,7 +315,7 @@ namespace Math
     MFUNC1  (M::TVec3<C>)   SystemMatrix<C>::operator*(const M::TVec3<C0>&other) const
     {
 		M::TVec3<C> result;
-		M::Mat::transform(*this,other,result);
+		M::Mat::Transform(*this,other,result);
 		return result;
     }
 
@@ -332,7 +332,7 @@ namespace Math
     MFUNC1 (Line<C>)  SystemMatrix<C>::operator*(const Line<C0>&other) const
     {
         Line<C>  result;
-        M::Mat::transform(*this,other.position,result.position);
+        M::Mat::Transform(*this,other.position,result.position);
         M::Mat::rotate(*this,other.direction,result.direction);
         return result;
     }

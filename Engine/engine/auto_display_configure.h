@@ -34,7 +34,7 @@ namespace Engine
 	template <typename GL>
 		void	CreateDisplay(Display<GL>&display, const PathString&configFolderPath, const String&displayName, Resolution resolution, DisplayConfig::f_on_resize onResize, const DisplayConfig::Icon&icon = DisplayConfig::Icon())
 		{
-			Resolution screenRes = display.getScreenSize();
+			Resolution screenRes = display.GetScreenSize();
 			resolution.width = std::min(resolution.width,screenRes.width);
 			resolution.height = std::min(resolution.height,screenRes.height);
 			String xmlBaseName = displayName;
@@ -100,9 +100,10 @@ namespace Engine
 				#endif
 			});
 			config.icon = icon;
-			display.SetSize(resolution.width, resolution.height, DisplayConfig::ResizableBorder);
-			if (!display.create(config))
-				FATAL__("Unable to create window (" + display.errorStr() + ")");
+			display.SetBorderStyle(DisplayConfig::ResizableBorder);
+			display.SetSize(resolution.width, resolution.height);
+			if (!display.Create(config))
+				FATAL__("Unable to create window (" + display.GetErrorStr() + ")");
 			if (updateFile)
 				Detail::UpdateXML(display,flags,resolution, xmlFileName);
 			if (flags & DisplayConfig::IsMaximized)

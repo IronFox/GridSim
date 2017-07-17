@@ -602,7 +602,7 @@ namespace Engine
 					backgroundCenter.orientation = 0;
 
 					
-					cursorRange = cellLayout.client.height()-2*scrollLayout->bottomButton.height+2*scrollLayout->buttonIndent;
+					cursorRange = cellLayout.client.GetHeight()-2*scrollLayout->bottomButton.height+2*scrollLayout->buttonIndent;
 					float	display_range = scrollData.max-scrollData.min,
 							cursorLength = display_range>scrollData.window?cursorRange*scrollData.window/display_range:cursorRange;
 					
@@ -671,7 +671,7 @@ namespace Engine
 					backgroundCenter.orientation = 1;
 					
 					
-					cursorRange = cellLayout.client.width()-2*scrollLayout->bottomButton.height+2*scrollLayout->buttonIndent;
+					cursorRange = cellLayout.client.GetWidth()-2*scrollLayout->bottomButton.height+2*scrollLayout->buttonIndent;
 					float	display_range = scrollData.max-scrollData.min,
 							cursorLength = display_range>scrollData.window?cursorRange*scrollData.window/display_range:cursorRange;
 					
@@ -960,8 +960,8 @@ namespace Engine
 			}
 			else
 			{
-				float	w = cellLayout.client.width(),
-						h = cellLayout.client.height();
+				float	w = cellLayout.client.GetWidth(),
+						h = cellLayout.client.GetHeight();
 				M::Rect<float>	region(0,0,w,h);
 				for (index_t i = 0; i < children.count(); i++)
 				{
@@ -990,9 +990,9 @@ namespace Engine
 			}
 			
 			horizontal.min = 0;
-			horizontal.max = current.width();
+			horizontal.max = current.GetWidth();
 			vertical.min = 0;
-			vertical.max = current.height();
+			vertical.max = current.GetHeight();
 			
 			
 			/*	horizontal.min -= cellLayout.client.left();
@@ -1000,8 +1000,8 @@ namespace Engine
 				vertical.min -= cellLayout.client.top();
 				vertical.max -= cellLayout.client.top();*/
 			
-			horizontal.window = cellLayout.client.width();
-			vertical.window = cellLayout.client.height();
+			horizontal.window = cellLayout.client.GetWidth();
+			vertical.window = cellLayout.client.GetHeight();
 			
 			if (horizontalBar->autoVisibility)
 				horizontalBar->SetVisible(horizontal.max>horizontal.window);
@@ -1048,8 +1048,8 @@ namespace Engine
 										cellLayout.client.top());
 			//effectiveClientRegion = cellLayout.client;
 			
-			float	hrange = (horizontal.max-effectiveClientRegion.width()),
-					vrange = (vertical.max-effectiveClientRegion.height());
+			float	hrange = (horizontal.max-effectiveClientRegion.GetWidth()),
+					vrange = (vertical.max-effectiveClientRegion.GetHeight());
 			if (hrange < 0)
 			{
 				hrange = 0;
@@ -1687,13 +1687,13 @@ namespace Engine
 			if (cursor < viewBegin)
 				viewBegin = cursor;
 			else
-				while (_GetTextWidth(text.pointer()+viewBegin,cursor-viewBegin)>cellLayout.client.width())
+				while (_GetTextWidth(text.pointer()+viewBegin,cursor-viewBegin)>cellLayout.client.GetWidth())
 					viewBegin++;
 			viewEnd = viewBegin+1;
-			while (viewEnd < text.length() && _GetTextWidth(text.pointer()+viewBegin,viewEnd-viewBegin)<cellLayout.client.width())
+			while (viewEnd < text.length() && _GetTextWidth(text.pointer()+viewBegin,viewEnd-viewBegin)<cellLayout.client.GetWidth())
 				viewEnd++;
-			viewRightMost = _GetTextWidth(text.pointer()+viewBegin,viewEnd-viewBegin)<cellLayout.client.width();
-			//if (textout.unscaledLength(text.root()+viewBegin,viewEnd-viewBegin)>=cellLayout.client.width())
+			viewRightMost = _GetTextWidth(text.pointer()+viewBegin,viewEnd-viewBegin)<cellLayout.client.GetWidth();
+			//if (textout.unscaledLength(text.root()+viewBegin,viewEnd-viewBegin)>=cellLayout.client.GetWidth())
 				//viewEnd--;
 			cursorOffset = cellLayout.client.left()+_GetTextWidth(text.pointer()+viewBegin,cursor-viewBegin);
 		}
@@ -1947,7 +1947,7 @@ namespace Engine
 			Component::UpdateLayout(parent_space);
 			if (wrapText)
 			{
-				float w = cellLayout.client.width();
+				float w = cellLayout.client.GetWidth();
 				if (w != lastWidth || textChanged)
 				{
 					textChanged = false;
@@ -2941,8 +2941,8 @@ namespace Engine
 			panel->Add(messageButton);
 			messageLabel->offset.bottom = messageButton->height;
 
-			//float	mx = op.getDisplay().clientWidth()/2,
-			//		my = op.getDisplay().clientHeight()/2;
+			//float	mx = op.getDisplay().GetClientWidth()/2,
+			//		my = op.getDisplay().GetClientHeight()/2;
 			messageWindow = Window::CreateNew(NewWindowConfig("Message",WindowPosition(0,0,400,200,SizeChange::Fixed),true),panel);
 		}
 		

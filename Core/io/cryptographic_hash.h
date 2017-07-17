@@ -307,7 +307,7 @@ namespace DeltaWorks
 
 		BYTE        _data[64];
 
-		void        transform(UINT32*in);
+		void        Transform(UINT32*in);
 
 	public:
 		/**/		MD5();
@@ -322,7 +322,7 @@ namespace DeltaWorks
 						sz0,sz1;
 			BYTE        data[64];
 
-			void        transform(UINT32*);
+			void        Transform(UINT32*);
 
 	public:
 		typedef THash<5>HashContainer;

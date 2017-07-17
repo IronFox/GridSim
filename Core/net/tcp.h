@@ -329,7 +329,11 @@ namespace DeltaWorks
 		class Package
 		{
 		public:
-			/**/		Package():dataIncludingHeaderSpace(8)	{}
+			/**/		Package():dataIncludingHeaderSpace(8)
+			{
+				Header()[0] = 0;
+				Header()[1] = 0;
+			}
 
 			template <typename Serializable>
 				explicit	Package(const Serializable&s)
@@ -427,17 +431,17 @@ namespace DeltaWorks
 			};
 
 
-		/**
-		@brief Signal serializable that does not hold any actual data.
-		
-		VoidSerializable is always of size 0 and ommits any decoding or encoding but returns success upon doing so
-		*/
-		class VoidSerializable:public SerializableObject
-		{
-		public:
-			virtual	void			Serialize(IWriteStream&stream) const		override	{}
-			virtual	void			Deserialize(IReadStream&stream)	override	{}
-		};
+		///**
+		//@brief Signal serializable that does not hold any actual data.
+		//
+		//VoidSerializable is always of size 0 and ommits any decoding or encoding but returns success upon doing so
+		//*/
+		//class VoidSerializable:public SerializableObject
+		//{
+		//public:
+		//	virtual	void			Serialize(IWriteStream&stream) const		override	{}
+		//	virtual	void			Deserialize(IReadStream&stream)	override	{}
+		//};
 	
 
 
@@ -459,8 +463,8 @@ namespace DeltaWorks
 			@param serialized Data to send on the specified channel
 			@return true on success, false otherwise
 			*/
-			virtual	void		SendPackage(const Package&serialized, unsigned minUserLevel)=0;
-			virtual	void		SendPackage(const PPeer&exclude, const Package&serialized, unsigned minUserLevel)	{SendPackage(serialized,minUserLevel);};
+			virtual	void		SendPackage(const Package&, unsigned minUserLevel)=0;
+			virtual	void		SendPackage(const PPeer&exclude, const Package&p, unsigned minUserLevel)	{SendPackage(p,minUserLevel);};
 		};
 		typedef std::shared_ptr<Destination>	PDestination;
 		/**
@@ -602,15 +606,13 @@ namespace DeltaWorks
 				*/
 				void				SendTo(Destination&destination, unsigned minUserLevel=0)
 				{
-					VoidSerializable object;
-					return SendObject(destination,object,minUserLevel);
+					destination.SendPackage(Package(),minUserLevel);
 				}
 				void				SendTo(const PDestination&destination, unsigned minUserLevel=0)
 				{
 					if (!destination)
 						return;
-					VoidSerializable object;
-					SendObject(*destination,object,minUserLevel);
+					destination->SendPackage(Package(),minUserLevel);
 				}
 				/**
 				@brief Special overload form of sendTo for servers only
@@ -625,13 +627,11 @@ namespace DeltaWorks
 				{
 					if (!destination)
 						return;
-					VoidSerializable object;
-					SendObject(*destination,exclude,object,minUserlevel);
+					destination->SendPackage(exclude,Package(),minUserLevel);
 				}
 				void				SendTo(Destination&destination, const PPeer&exclude, unsigned minUserLevel=0)
 				{
-					VoidSerializable object;
-					SendObject(destination,exclude,object,minUserlevel);
+					destination.SendPackage(exclude,Package(),minUserLevel);
 				}
 												
 			};

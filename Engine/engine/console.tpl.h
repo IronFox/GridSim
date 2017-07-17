@@ -118,7 +118,7 @@ namespace Engine
 	                                history_state(0),text_target(0),relative_text(0,0,1,1),absolute_text(0,0,1,1)
 		{
 		    textout.setScale(font_x,font_y);
-		    textout.MoveTo(location.x.min,location.y.max+EVE_PANEL_SIZE*location.height());
+		    textout.MoveTo(location.x.min,location.y.max+EVE_PANEL_SIZE*location.GetHeight());
 		}
 
 	template <class GL, class Font>
@@ -127,7 +127,7 @@ namespace Engine
 	                                history_state(0),text_target(0),relative_text(0,0,1,1),absolute_text(0,0,1,1)
 		{
 		    textout.setScale(font_x,font_y);
-		    textout.MoveTo(location.x.min,location.y.max+EVE_PANEL_SIZE*location.height());
+		    textout.MoveTo(location.x.min,location.y.max+EVE_PANEL_SIZE*location.GetHeight());
 		}
 
 	template <class GL, class Font>
@@ -136,7 +136,7 @@ namespace Engine
 	                                history_state(0),text_target(0),relative_text(0,0,1,1),absolute_text(0,0,1,1)
 		{
 		    textout.setScale(font_x,font_y);
-		    textout.MoveTo(location.x.min,location.y.max+EVE_PANEL_SIZE*location.height());
+		    textout.MoveTo(location.x.min,location.y.max+EVE_PANEL_SIZE*location.GetHeight());
 		}
 
 	template <class GL, class Font>
@@ -247,7 +247,7 @@ namespace Engine
 	template <class GL, class Font>
 		String VisualConsole<GL,Font>::Truncate(const String&origin)
 		{
-		    float len = absolute_text.width();
+		    float len = absolute_text.GetWidth();
 		    char buffer[0x100];
 		    memcpy(buffer,origin.c_str(),vmin(origin.length(),sizeof(buffer)));
 		    BYTE at = vmin(origin.length()+1,sizeof(buffer))-1;
@@ -263,7 +263,7 @@ namespace Engine
 		void VisualConsole<GL,Font>::printLine(const String&line)
 		{
 		    StringList list(line);
-		    float len = absolute_text.width();
+		    float len = absolute_text.GetWidth();
 		    while (list.count())
 		    {
 				bool split = false;
@@ -370,7 +370,7 @@ namespace Engine
 		        body.render(renderer);
 
 		            unsigned    //block = status*height/line_height,
-		                        frame_size = clamped((int)((absolute_text.height())/font_y)-1,0,1000),
+		                        frame_size = clamped((int)((absolute_text.GetHeight())/font_y)-1,0,1000),
 		                        offset = lines - clamped(history_state*frame_size+frame_size,0,lines),
 		                        count = lines - offset;
 		            textout.MoveTo(absolute_text.x.min,absolute_text.y.min+font_y*(count+1));
@@ -379,7 +379,7 @@ namespace Engine
 		                textout.line(i);
 		                textout.print(lines[offset+i],'$');
 		            }
-		        float displace = clamped(textout.GetUnscaledWidth(keyboard.GetInput())*font_x-(absolute_text.width()),0,100000);
+		        float displace = clamped(textout.GetUnscaledWidth(keyboard.GetInput())*font_x-(absolute_text.GetWidth()),0,100000);
 
 		        textout.MoveTo(absolute_text.x.min-displace,absolute_text.y.min+font_y);
 		        textout.line(0);

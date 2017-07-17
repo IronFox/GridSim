@@ -271,7 +271,7 @@ namespace Engine
 				template <typename Nature>
 					void				update(const GenericImage<Nature>&image,TextureFilter filter=TextureFilter::Trilinear, float anisotropy=1.f)
 										{
-											if (image.width() != texture_width || image.height() != texture_height || image.contentType() != texture_type || texture_channels != image.channels())
+											if (image.GetWidth() != texture_width || image.GetHeight() != texture_height || image.contentType() != texture_type || texture_channels != image.channels())
 											{
 												throw Renderer::TextureTransfer::ParameterFault(globalString("Image properties are incompatible to the local texture properties"));
 												return;
@@ -348,12 +348,12 @@ namespace Engine
 			template <typename Nature>
 				inline void				load(const GenericImage<Nature>&image, float anisotropy=1.0f, bool clamp_texcoords=true, TextureFilter filter=TextureFilter::Trilinear, bool compress=false)
 										{
-											loadPixels(image.GetData(), image.width(), image.height(), image.channels(), image.GetContentType(), anisotropy, clamp_texcoords, filter, compress);
+											loadPixels(image.GetData(), image.GetWidth(), image.GetHeight(), image.channels(), image.GetContentType(), anisotropy, clamp_texcoords, filter, compress);
 										}
 			template <typename Nature>
 				inline void				Load(const GenericImage<Nature>&image, float anisotropy=1.0f, bool clamp_texcoords=true, TextureFilter filter=TextureFilter::Trilinear, bool compress=false)
 										{
-											loadPixels(image.GetData(), image.width(), image.height(), image.channels(), image.GetContentType(), anisotropy, clamp_texcoords, filter, compress);
+											loadPixels(image.GetData(), image.GetWidth(), image.GetHeight(), image.channels(), image.GetContentType(), anisotropy, clamp_texcoords, filter, compress);
 										}
 								
 			/**
@@ -768,9 +768,9 @@ namespace Engine
 									{
 										return config.resolution;
 									}
-			inline UINT				width()	const	{return config.resolution.width;}
+			inline UINT				GetWidth()	const	{return config.resolution.width;}
 			inline UINT				Width()	const	{return config.resolution.width;}
-			inline UINT				height()const	{return config.resolution.height;}
+			inline UINT				GetHeight()const	{return config.resolution.height;}
 			inline UINT				Height()const	{return config.resolution.height;}
 			inline const Resolution&getResolution()	const	{return config.resolution;}
 			inline const Resolution&resolution()	const	{return config.resolution;}
@@ -1190,7 +1190,7 @@ namespace Engine
 		static			void						Capture(Image&target);																			//!< Copies the current visible image to the specified image
 		static			void						Capture(FloatImage&target);																			//!< Copies the current visible image to the specified image
 		static			void						Capture(Texture&target, unsigned width, unsigned height);										//!< Captures the current back buffer content to the specified texture
-		static			void						captureDepth(Texture&target, unsigned width, unsigned height);									//!< Captures the current back buffer depth content to the specified texture
+		static			void						CaptureDepth(Texture&target, unsigned width, unsigned height);									//!< Captures the current back buffer depth content to the specified texture
 
 													OpenGL();
 

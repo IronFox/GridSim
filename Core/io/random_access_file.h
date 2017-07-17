@@ -106,7 +106,7 @@ namespace DeltaWorks
 
 	/*!
 
-	\fn void RandomAccessFile::assign(const RandomAccessFile&other)
+	\fn void RandomAccessFile::Assign(const RandomAccessFile&other)
 	\brief Closes if active and duplicates the file-access-information from the other file-object.
 
 	Should the other file operate in buffered mode, then this file will operate on the same buffer in readonly mode.

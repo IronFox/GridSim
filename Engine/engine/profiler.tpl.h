@@ -193,8 +193,8 @@ namespace Engine
 			float matrix[16];
 			__eye4(matrix);
 			_c2(Base::position.v0,matrix+12);
-			matrix[0] = Base::position.width();
-			matrix[5] = Base::position.height();
+			matrix[0] = Base::position.GetWidth();
+			matrix[5] = Base::position.GetHeight();
 			renderer->enterSubSystem(matrix);
 				renderer->useTexture(NULL);
 				Base::init();
@@ -440,8 +440,8 @@ namespace Engine
 				return;
 			M::TMatrix4<> matrix = M::Matrix<>::eye4;
 			matrix.w.xy = Base::position.min();
-			matrix.x.x = Base::position.width();
-			matrix.y.y = Base::position.height();
+			matrix.x.x = Base::position.GetWidth();
+			matrix.y.y = Base::position.GetHeight();
 			renderer->enterSubSystem(matrix);
 			
 			
@@ -527,7 +527,7 @@ namespace Engine
 						for (index_t j = 0; j < group.channels(); j++)
 						{
 							const Channel&channel = group.channel(j);
-							float this_height = channel.history.last()*scale*Base::position.height();
+							float this_height = channel.history.last()*scale*Base::position.GetHeight();
 							if (this_height>font_height)
 							{
 								M::TVec3<> color;

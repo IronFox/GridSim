@@ -847,7 +847,7 @@ namespace DeltaWorks
 
 		#if 0
 	
-		bool									CXContext::process(String&expression, bool singular, String*error_out)	const
+		bool									CXContext::Process(String&expression, bool singular, String*error_out)	const
 		{
 			Buffer<index_t>	segment_start(2);
 			Buffer<bool>		Is_segment(2);
@@ -1001,7 +1001,7 @@ namespace DeltaWorks
 	
 		CXContext::Variable*					CXContext::Lookup(String path, String*error_out)
 		{
-			if (!process(path,true,error_out))
+			if (!Process(path,true,error_out))
 				return NULL;
 			Variable*rs = FindVariable(path);
 			if (!rs && error_out)
@@ -1011,7 +1011,7 @@ namespace DeltaWorks
 	
 		const CXContext::Variable*				CXContext::Lookup(String path, String*error_out)	const
 		{
-			if (!process(path,true,error_out))
+			if (!Process(path,true,error_out))
 				return NULL;
 			const Variable*rs = FindVariable(path);
 			if (!rs && error_out)
@@ -1114,7 +1114,7 @@ namespace DeltaWorks
 				String	value = variable->first();
 				String error;
 				std::cout << "finalizing variable = '"<<value<<"'"<<std::endl;
-				if (!process(value,false,&error))
+				if (!Process(value,false,&error))
 					throw Except::IO::DriveAccess::FileDataFault("Expression processing failed for expression '"+value+"' ("+error+")");
 			
 				explode(',',value,*variable);
@@ -1155,7 +1155,7 @@ namespace DeltaWorks
 					{
 						String value = attrib.value;
 						String error;
-						if (!process(value,false,&error))
+						if (!Process(value,false,&error))
 						{
 							error_message = "Failed to process inheritance '"+value+"' ("+error+")";
 							succeeded = false;

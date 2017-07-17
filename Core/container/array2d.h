@@ -105,14 +105,6 @@ namespace DeltaWorks
 					w = other.w;
 				}
 				
-				inline	index_t	width()	const	//! Retrieves this array's width \return width
-				{
-					return w;
-				}
-				inline	index_t	height() const	//! Retrieves this array's height \return height
-				{
-					return w?Ctr::Array<C,MyStrategy>::elements/w:0;
-				}
 				inline	index_t	GetWidth()	const	//! Retrieves this array's width \return width
 				{
 					return w;
@@ -233,7 +225,7 @@ namespace DeltaWorks
 				index_t		ToIndex(index_t x, index_t y) const
 				{
 					#ifdef __ARRAY_DBG_RANGE_CHECK__
-						if (x >= w || y >= height())
+						if (x >= w || y >= GetHeight())
 							FATAL__("Index out of bounds");
 					#endif
 					return ToIndexNoCheck(x,y);
@@ -249,49 +241,49 @@ namespace DeltaWorks
 					Super::SetSize(width*height);
 					w = width;
 				}
-				void		Set(index_t x, index_t y, const C&value)	//! Updates a singular element at the specified position	\param x X coordinate. Must be less than width() \param y Y coordinate. Must be less than height() @param value Value to set \return Reference to the requested element
+				void		Set(index_t x, index_t y, const C&value)	//! Updates a singular element at the specified position	\param x X coordinate. Must be less than GetWidth() \param y Y coordinate. Must be less than GetHeight() @param value Value to set \return Reference to the requested element
 				{
 					Super::data[ToIndex(x,y)] = value;
 				}
 			
-				C&			Get(index_t x, index_t y)	//! Retrieves a singular element at the specified position	\param x X coordinate. Must be less than width() \param y Y coordinate. Must be less than height() \return Reference to the requested element
+				C&			Get(index_t x, index_t y)	//! Retrieves a singular element at the specified position	\param x X coordinate. Must be less than GetWidth() \param y Y coordinate. Must be less than GetHeight() \return Reference to the requested element
 				{
 					return Super::data[ToIndex(x,y)];
 				}
-				C&			Get(const Iterator<true>&x, const Iterator<false>&y)	//! Retrieves a singular element at the specified position	\param x X coordinate. Must be less than width() \param y Y coordinate. Must be less than height() \return Reference to the requested element
+				C&			Get(const Iterator<true>&x, const Iterator<false>&y)	//! Retrieves a singular element at the specified position	\param x X coordinate. Must be less than GetWidth() \param y Y coordinate. Must be less than GetHeight() \return Reference to the requested element
 				{
 					return Get(*x,*y);
 				}
 			
-				C&			Get(const Iterator<true>&x, index_t y)	//! Retrieves a singular element at the specified position	\param x X coordinate. Must be less than width() \param y Y coordinate. Must be less than height() \return Reference to the requested element
+				C&			Get(const Iterator<true>&x, index_t y)	//! Retrieves a singular element at the specified position	\param x X coordinate. Must be less than GetWidth() \param y Y coordinate. Must be less than GetHeight() \return Reference to the requested element
 				{
 					return Get(*x,y);
 				}
 
-				C&			Get(index_t x, const Iterator<false>&y)	//! Retrieves a singular element at the specified position	\param x X coordinate. Must be less than width() \param y Y coordinate. Must be less than height() \return Reference to the requested element
+				C&			Get(index_t x, const Iterator<false>&y)	//! Retrieves a singular element at the specified position	\param x X coordinate. Must be less than GetWidth() \param y Y coordinate. Must be less than GetHeight() \return Reference to the requested element
 				{
 					return Get(x,*y);
 				}
 		
-				const C&	Get(index_t x, index_t y)	const	//! Retrieves a singular element at the specified position \param x X coordinate. Must be less than width() \param y Y coordinate. Must be less than height() \return Reference to the requested element
+				const C&	Get(index_t x, index_t y)	const	//! Retrieves a singular element at the specified position \param x X coordinate. Must be less than GetWidth() \param y Y coordinate. Must be less than GetHeight() \return Reference to the requested element
 				{
 					#ifdef __ARRAY_DBG_RANGE_CHECK__
-						if (x >= w || y >= height())
+						if (x >= w || y >= GetHeight())
 							FATAL__("Index out of bounds");
 					#endif
 					return Super::data[y*w+x];
 				}
-				const C&	Get(const Iterator<true>&x, const Iterator<false>&y)	const	//! Retrieves a singular element at the specified position \param x X coordinate. Must be less than width() \param y Y coordinate. Must be less than height() \return Reference to the requested element
+				const C&	Get(const Iterator<true>&x, const Iterator<false>&y)	const	//! Retrieves a singular element at the specified position \param x X coordinate. Must be less than GetWidth() \param y Y coordinate. Must be less than GetHeight() \return Reference to the requested element
 				{
 					return Get(*x,*y);
 				}
 			
-				const C&	Get(const Iterator<true>&x, index_t y)	const //! Retrieves a singular element at the specified position	\param x X coordinate. Must be less than width() \param y Y coordinate. Must be less than height() \return Reference to the requested element
+				const C&	Get(const Iterator<true>&x, index_t y)	const //! Retrieves a singular element at the specified position	\param x X coordinate. Must be less than GetWidth() \param y Y coordinate. Must be less than GetHeight() \return Reference to the requested element
 				{
 					return Get(*x,y);
 				}
 
-				const C&	Get(index_t x, const Iterator<false>&y)	const //! Retrieves a singular element at the specified position	\param x X coordinate. Must be less than width() \param y Y coordinate. Must be less than height() \return Reference to the requested element
+				const C&	Get(index_t x, const Iterator<false>&y)	const //! Retrieves a singular element at the specified position	\param x X coordinate. Must be less than GetWidth() \param y Y coordinate. Must be less than GetHeight() \return Reference to the requested element
 				{
 					return Get(x,*y);
 				}

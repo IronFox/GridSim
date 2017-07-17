@@ -2770,7 +2770,7 @@ namespace DeltaWorks
 			foreach (*edge,index)
 			{
 				M::TVec3<> rotated;
-				M::Mat::transform(transformBy,vertices[*index].position,rotated);
+				M::Mat::Transform(transformBy,vertices[*index].position,rotated);
 				result.Include(rotated);
 			}
 	}

@@ -76,9 +76,9 @@ namespace Engine
 
 
 
-		V2::Detail::TTextureInfo		V2::Detail::Describe(const Texture&t)	{return std::make_pair(t.GetHandle(),t.dimension());}
-		V2::Detail::TTextureInfo		V2::Detail::Describe(const Texture*t)	{return t ? std::make_pair(t->GetHandle(),t->dimension()) : std::make_pair<GLuint,TextureDimension>(0,TextureDimension::None);}
-		V2::Detail::TTextureInfo		V2::Detail::Describe(const Texture::Reference&ref) {return std::make_pair(ref.GetHandle(),ref.dimension());}
+		V2::Detail::TTextureInfo		V2::Detail::Describe(const Texture&t)	{return std::make_pair(t.GetHandle(),t.GetDimension());}
+		V2::Detail::TTextureInfo		V2::Detail::Describe(const Texture*t)	{return t ? std::make_pair(t->GetHandle(),t->GetDimension()) : std::make_pair<GLuint,TextureDimension>(0,TextureDimension::None);}
+		V2::Detail::TTextureInfo		V2::Detail::Describe(const Texture::Reference&ref) {return std::make_pair(ref.GetHandle(),ref.GetDimension());}
 		V2::Detail::TTextureInfo		V2::Detail::Describe(const FBO&object) {return Describe(object.Refer(0));}
 		void							V2::Detail::BindTexture(index_t layer, const TTextureInfo&handle)
 		{
@@ -269,7 +269,7 @@ namespace Engine
 
 			for (index_t i = 0; i < config.layers.count(); i++)
 			{
-				switch (config.textures[i].dimension())
+				switch (config.textures[i].GetDimension())
 				{
 					case TextureDimension::Linear:
 						samplers << "uniform sampler1D sampler"<<i<<";\n";
@@ -312,7 +312,7 @@ namespace Engine
 			for (index_t i = 0; i < config.layers.count(); i++)
 			{
 				const MaterialLayer&layer = config.layers[i];
-				if (config.textures[i].dimension() == TextureDimension::None)
+				if (config.textures[i].GetDimension() == TextureDimension::None)
 					continue;
 
 				if (layer.system_type == SystemType::Custom)
@@ -333,7 +333,7 @@ namespace Engine
 					else
 						fragment_transformations << "gl_NormalMatrix * (";
 
-					String sampled = sampleTexture(i,config.textures[i].dimension(),false,layer);
+					String sampled = sampleTexture(i,config.textures[i].GetDimension(),false,layer);
 					fragment_transformations << sampled<<".rgb*2.0-1.0";
 					fragment_transformations << ");\n";
 				}
@@ -400,13 +400,13 @@ namespace Engine
 			for (index_t i = 0; i < config.layers.count(); i++)
 			{
 				const MaterialLayer&layer = config.layers[i];
-				if (config.textures[i].dimension() == TextureDimension::None)
+				if (config.textures[i].GetDimension() == TextureDimension::None)
 					continue;
 				if (layer.IsNormalMap())
 					continue;
 				if (layer.combiner == GL_DECAL)
 					continue;
-				String sampled = sampleTexture(i,config.textures[i].dimension(),true,layer);
+				String sampled = sampleTexture(i,config.textures[i].GetDimension(),true,layer);
 				if (!colors_sampled++)
 				{
 					fragment_code << "vec4 texture_color = "<<sampled<<";\n";
@@ -430,13 +430,13 @@ namespace Engine
 			for (index_t i = 0; i < config.layers.count(); i++)
 			{
 				const MaterialLayer&layer = config.layers[i];
-				if (config.textures[i].dimension() == TextureDimension::None)
+				if (config.textures[i].GetDimension() == TextureDimension::None)
 					continue;
 				if (layer.IsNormalMap())
 					continue;
 				if (layer.combiner != GL_DECAL)
 					continue;
-				String sampled = sampleTexture(i,config.textures[i].dimension(),true,layer);
+				String sampled = sampleTexture(i,config.textures[i].GetDimension(),true,layer);
 				fragment_code << "{\nvec4 sampled = "<<sampled<<";\n"
 						"color = mix(color,sampled,sampled.w);\n}\n";
 			}
@@ -1386,7 +1386,7 @@ namespace Engine
 		glBindTexture(GL_TEXTURE_2D,texHandle);
 		ASSERT__(mipMapShader.Install());
 
-		Resolution res = Resolution(ref.width(),ref.height());
+		Resolution res = Resolution(ref.GetWidth(),ref.GetHeight());
 		unsigned layer = 0;
 		do
 		{
@@ -1460,7 +1460,7 @@ namespace Engine
 		if (width == 0 || height == 0)
 			return;
 		DBG_ASSERT__(hasCurrentContext());
-		if (target.width() != width || target.height() != height || target.channels() != 3)
+		if (target.GetWidth() != width || target.GetHeight() != height || target.channels() != 3)
 			target.loadPixels<GLbyte>(NULL, width, height, 3, PixelType::Color,1.0f, true, TextureFilter::Linear);
 		glGetError();
 		glBindTexture(GL_TEXTURE_2D,target.getHandle());
@@ -1470,12 +1470,12 @@ namespace Engine
 		ASSERT_EQUAL__(err, GL_NO_ERROR);
 	}
 	
-	void	OpenGL::captureDepth(Texture&target, unsigned width, unsigned height)
+	void	OpenGL::CaptureDepth(Texture&target, unsigned width, unsigned height)
 	{
 		if (width == 0 || height == 0)
 			return;
 		DBG_ASSERT__(hasCurrentContext());
-		if (target.width() != width || target.height() != height || target.channels() != 3)
+		if (target.GetWidth() != width || target.GetHeight() != height || target.channels() != 3)
 			target.loadPixels<GLDepthComponent>(NULL, width, height, 1, PixelType::Depth,1.0f, true, TextureFilter::Linear);
 		glGetError();
 		glBindTexture(GL_TEXTURE_2D,target.getHandle());
@@ -1782,7 +1782,7 @@ namespace Engine
 		GLenum target = img->GetHeight()>1?GL_TEXTURE_2D:GL_TEXTURE_1D;
 
 
-		glTexImage2D(target,0,GL_RGBA32F_ARB,clone.width(),clone.height(),0,GL_RGBA,GL_FLOAT,clone.data());
+		glTexImage2D(target,0,GL_RGBA32F_ARB,clone.GetWidth(),clone.GetHeight(),0,GL_RGBA,GL_FLOAT,clone.data());
 		if (use_mipmap)
 		{
 			UINT32 layer(1);
@@ -1795,7 +1795,7 @@ namespace Engine
 					GL_END
 					return;
 				}
-				glTexImage2D(target,layer++,GL_RGBA32F_ARB,clone.width(), clone.height(),0,GL_RGBA,GL_FLOAT,clone.data());
+				glTexImage2D(target,layer++,GL_RGBA32F_ARB,clone.GetWidth(), clone.GetHeight(),0,GL_RGBA,GL_FLOAT,clone.data());
 			}
 		}
 		GL_END
@@ -2904,7 +2904,7 @@ namespace Engine
 			GL_END
 			return false;
 		}
-		switch (object.dimension())
+		switch (object.GetDimension())
 		{
 			case	TextureDimension::Linear:
 				glDisable(GL_TEXTURE_2D);	glBindTexture(GL_TEXTURE_2D,0);
