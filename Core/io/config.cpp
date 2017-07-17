@@ -628,7 +628,11 @@ namespace DeltaWorks
 		bool	Container::LoadFromFile(const PathString&filename)
 		{
 			StringFile file(CM_STRIP_COMMENTS|CM_RECORD_COMMENTS|CM_STRIP_LINE_START_COMMENTS);
-			if (!file.Open(filename))
+			try
+			{
+				file.Open(filename);
+			}
+			catch (...)
 			{
 				error = "File not found: "+String(filename);
 				return false;
@@ -760,7 +764,11 @@ namespace DeltaWorks
 		bool						Container::SaveToFile(const PathString&filename, const String&generatorName)
 		{
 			StringFile	file;
-			if (!file.Create(filename))
+			try
+			{
+				file.Create(filename);
+			}
+			catch (...)
 			{
 				error = "Unable to create/overwrite file '"+String(filename)+"'";
 				return false;

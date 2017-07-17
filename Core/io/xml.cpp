@@ -800,8 +800,7 @@ namespace DeltaWorks
 	void				XML::Container::SaveToFile(const PathString&filename, export_style_t style) const
 	{
 		StringFile outfile;
-		if (!outfile.Create(filename))
-			throw Except::IO::DriveAccess::FileOpenFault(CLOCATION,"XML: Unable to open file '"+filename+"' for output");
+		outfile.Create(filename);
 
 		outfile << "<?xml version=\"1.0\" encoding=\"";
 		switch (encoding)

@@ -1654,7 +1654,11 @@ namespace DeltaWorks
 			alpha_names.clear();
 		
 	
-			if (!out.Create(material_lib_file))
+			try
+			{
+				out.Create(material_lib_file);
+			}
+			catch(...)
 			{
 				last_error = "Unable to create out file '"+String(material_lib_file)+"'";
 				return false;
@@ -1794,7 +1798,11 @@ namespace DeltaWorks
 			sendMessage(" Exporting vertices");
 
 
-			if (!out.Create(filename))
+			try
+			{
+				out.Create(filename);
+			}
+			catch(...)
 			{
 				last_error = "Unable to create out file '"+String(filename)+"'";
 				return false;

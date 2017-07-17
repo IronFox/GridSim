@@ -44,6 +44,7 @@ namespace DeltaWorks
 					fclose_on_destruct;
 		FILE		*f;
 		String		fragment;
+		PathString	filename;
 		char		buffer[0x1001],*string,*end;
 		const char  *e;
 
@@ -64,12 +65,12 @@ namespace DeltaWorks
 		virtual		~StringFile();
 
 		void		Assign(FILE*file);					//!< Assigns an already open file for reading. \param file File to read from. May be NULL.
-		bool		Open(const PathString&filename);		//!< Opens a text file in readonly mode.  \return true if the file could be opened, false otherwise.
-		bool		Create(const PathString&filename);		//!< (Re)creates a text file for output. If the file exists then it is overwritten. \return true if the file could be created/overwritten, false otherwise.
-		bool		Append(const PathString&filename);		//!< Opens a text file for output. If the file exists then any succeeding content will be appended to it. Otherwise a new file is created.
+		void		Open(const PathString&filename);		//!< Opens a text file in readonly mode.  \return true if the file could be opened, false otherwise.
+		void		Create(const PathString&filename);		//!< (Re)creates a text file for output. If the file exists then it is overwritten. \return true if the file could be created/overwritten, false otherwise.
+		void		Append(const PathString&filename);		//!< Opens a text file for output. If the file exists then any succeeding content will be appended to it. Otherwise a new file is created.
 		void		Close();							//!< Closes the local file handle (if open)
 		bool		IsActive();							//!< Queries the current file state. \return true if a file is currently opened.
-		bool		Reset();							//!< Resets the file pointer to the beginning of the file. \return true on success.
+		void		Rewind();							//!< Resets the file pointer to the beginning of the file. Only valid while in read-mode
 
 		/**
 		Loads temporary data into the local file for stream-processing.
@@ -140,6 +141,10 @@ namespace DeltaWorks
 		bool			operator>>(String&target);
 			
 		void			Flush();	//!< Flushes the file
+
+	private:
+		void			awrite(const void*data,size_t numBytes);
+	
 	};
 }
 

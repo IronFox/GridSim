@@ -9,10 +9,14 @@ Simplified string-file-handler.
 namespace DeltaWorks
 {
 
-	static inline void awrite(const void*data,size_t a,size_t b, FILE*f)
+	void StringFile::awrite(const void*data,size_t numBytes)
 	{
-		if (!f || fwrite(data,a,b,f)!=b)
-			throw Except::IO::DriveAccess::DataWriteFault("StringFile: Unable to write "+String(a*b)+" byte(s) to file");
+		if (!f)
+			throw Except::IO::DriveAccess::DataWriteFault("StringFile("+String(filename)+"): File is not opened for write access");
+
+		const size_t written = fwrite(data,1,numBytes,f);
+		if (written != numBytes)
+			throw Except::IO::DriveAccess::DataWriteFault("StringFile("+String(filename)+"): Failed to write all of "+String(numBytes)+" byte(s) to file. Operation did write "+String(written)+" byte(s)");
 
 	}
 
@@ -126,60 +130,57 @@ namespace DeltaWorks
 	void StringFile::Assign(FILE*file)
 	{
 		Close();
+		filename = "Assign()";
 		f = file;
 		active = f!=NULL;
 		write_mode = false;
 		read_mode = active;
 		fclose_on_destruct = false;
-		Reset();
+		Rewind();
 	}
 
-	bool StringFile::Open(const PathString&filename)
+	void StringFile::Open(const PathString&filename)
 	{
 		//log_file << "reading '"<<filename<<"'"<<nl;
 
 		Close();
-		#if SYSTEM==WINDOWS
-			f = _wfopen(filename.c_str(),L"rb");
-		#else
-			f = fopen(filename.c_str(),"rb");
-		#endif
-		active = f!=NULL;
+		f = FOPEN(filename.c_str(),"rb");
+		if (f == nullptr)
+			throw Except::IO::DriveAccess::FileOpenFault(CLOCATION,"Failed to append to file "+String(filename));
+		active = true;
 		write_mode = false;
-		read_mode = active;
+		read_mode = true;
 		fclose_on_destruct = true;
-		return Reset();
+		this->filename = filename;
+		Rewind();
 	}
 
-	bool StringFile::Create(const PathString&filename)
+	void StringFile::Create(const PathString&filename)
 	{
 		Close();
-		#if SYSTEM==WINDOWS
-			f = _wfopen(filename.c_str(),L"wb");
-		#else
-			f = fopen(filename.c_str(),"wb");
-		#endif
-		active = f!=NULL;
-		write_mode = active;
+		f = FOPEN(filename.c_str(),"wb");
+		if (f == nullptr)
+			throw Except::IO::DriveAccess::FileOpenFault(CLOCATION,"Failed to create file "+String(filename));
+		active = true;
+		write_mode = true;
 		read_mode = false;
 		fclose_on_destruct = true;
-		return active;
+		this->filename = filename;
 	}
 
 
-	bool StringFile::Append(const PathString&filename)
+	void StringFile::Append(const PathString&filename)
 	{
 		Close();
-		#if SYSTEM==WINDOWS
-			f = _wfopen(filename.c_str(),L"a+b");
-		#else
-			f = fopen(filename.c_str(),"a+b");
-		#endif
-		active = f!=NULL;
-		write_mode = active;
+		f = FOPEN(filename.c_str(),"a+b");
+		if (f == nullptr)
+			throw Except::IO::DriveAccess::FileOpenFault(CLOCATION,"Failed to append to file "+String(filename));
+		
+		active = true;
+		write_mode = true;
 		read_mode = false;
 		fclose_on_destruct = true;
-		return active;
+		this->filename = filename;
 	}
 
 	void StringFile::Close()
@@ -190,6 +191,7 @@ namespace DeltaWorks
 		end = string;
 		f = NULL;
 		active = false;
+		this->filename = "";
 	}
 
 	bool StringFile::IsActive()
@@ -197,10 +199,10 @@ namespace DeltaWorks
 		return active;
 	}
 
-	bool StringFile::Reset()
+	void StringFile::Rewind()
 	{
 		if (!read_mode)
-			return false;
+			return;
 		fseek(f,0,SEEK_SET);
 		string = buffer;
 		end = string;
@@ -208,7 +210,6 @@ namespace DeltaWorks
 		in_comment = false;
 		root_line = 0;
 		had13 = false;
-		return true;
 	}
 
 
@@ -283,27 +284,20 @@ namespace DeltaWorks
 		if (!write_mode)
 			return *this;
 		if (fputs(line,f) == EOF)
-			#if SYSTEM==WINDOWS
-				throw Except::IO::DriveAccess::DataWriteFault(__func__ ": Unable to write string '"+String(line)+"' to file");
-			#else
-				throw Except::IO::DriveAccess::DataWriteFault(String(__func__)+ ": Unable to write string '"+String(line)+"' to file");
-			#endif
+			throw Except::IO::DriveAccess::DataWriteFault("StringFile("+String(filename)+"): Unable to write string '"+String(line)+"' to file");
 		return *this;
 	}
 
 	StringFile& StringFile::operator<< (const String&line)
 	{
-		if (!write_mode)
-			return *this;
-		awrite(line.c_str(),1,line.length(),f);
-		return *this;
+		return operator<<(line.ref());
 	}
 
 	StringFile& StringFile::operator<< (const StringRef&line)
 	{
 		if (!write_mode)
 			return *this;
-		awrite(line.pointer(),1,line.length(),f);
+		awrite(line.pointer(),line.length());
 		return *this;
 	}
 
@@ -319,10 +313,10 @@ namespace DeltaWorks
 			return *this;
 		#if SYSTEM==WINDOWS
 			static const char c[2] = {'\r','\n'};
-			awrite(c,2,1,f);
+			awrite(c,2);
 		#else
 			static const char c = '\n';
-			awrite(&c,1,1,f);
+			awrite(&c,1);
 		#endif
 		return *this;
 	}
@@ -335,10 +329,10 @@ namespace DeltaWorks
 		unsigned len = (unsigned)space.length;
 		while (len > 16)
 		{
-			awrite(space16,16,1,f);
+			awrite(space16,16);
 			len -= 16;
 		}
-		awrite(space16,len,1,f);
+		awrite(space16,len);
 		return *this;
 	}
 
@@ -350,10 +344,10 @@ namespace DeltaWorks
 		unsigned len = (unsigned)space.length;
 		while (len > 16)
 		{
-			awrite(space16,16,1,f);
+			awrite(space16,16);
 			len -= 16;
 		}
-		awrite(space16,len,1,f);
+		awrite(space16,len);
 		return *this;
 	}
 
@@ -361,91 +355,115 @@ namespace DeltaWorks
 	{
 		if (!write_mode)
 			return *this;
-		awrite(&c,1,1,f);
+		awrite(&c,1);
 		return *this;
 	}
 
 	StringFile& StringFile::operator<< (BYTE item)
 	{
-		String str(item);
-		awrite(str.c_str(),1,str.length(),f);
+		if (!write_mode)
+			return *this;
+		if (fprintf(f,"%hhu",item) <= 0)
+			throw Except::IO::DriveAccess::DataWriteFault("StringFile("+String(filename)+"): Unable to write number "+String(item)+" to file");
 		return *this;
 	}
 
 	StringFile& StringFile::operator<< (long long item)
 	{
-		String str(item);
-		awrite(str.c_str(),1,str.length(),f);
+		if (!write_mode)
+			return *this;
+		if (fprintf(f,"%lli",item) <= 0)
+			throw Except::IO::DriveAccess::DataWriteFault("StringFile("+String(filename)+"): Unable to write number "+String(item)+" to file");
 		return *this;
 	}
 
 	StringFile& StringFile::operator<< (unsigned long long item)
 	{
-		String str(item);
-		awrite(str.c_str(),1,str.length(),f);
+		if (!write_mode)
+			return *this;
+		if (fprintf(f,"%llu",item) <= 0)
+			throw Except::IO::DriveAccess::DataWriteFault("StringFile("+String(filename)+"): Unable to write number "+String(item)+" to file");
 		return *this;
 	}
 
 	StringFile& StringFile::operator<< (int item)
 	{
-		String str(item);
-		awrite(str.c_str(),1,str.length(),f);
+		if (!write_mode)
+			return *this;
+		if (fprintf(f,"%i",item) <= 0)
+			throw Except::IO::DriveAccess::DataWriteFault("StringFile("+String(filename)+"): Unable to write number "+String(item)+" to file");
 		return *this;
 	}
 
 	StringFile& StringFile::operator<< (unsigned item)
 	{
-		String str(item);
-		awrite(str.c_str(),1,str.length(),f);
+		if (!write_mode)
+			return *this;
+		if (fprintf(f,"%u",item) <= 0)
+			throw Except::IO::DriveAccess::DataWriteFault("StringFile("+String(filename)+"): Unable to write number "+String(item)+" to file");
 		return *this;
 	}
 
 	StringFile& StringFile::operator<< (short item)
 	{
-		String str(item);
-		awrite(str.c_str(),1,str.length(),f);
+		if (!write_mode)
+			return *this;
+		if (fprintf(f,"%hi",item) <= 0)
+			throw Except::IO::DriveAccess::DataWriteFault("StringFile("+String(filename)+"): Unable to write number "+String(item)+" to file");
 		return *this;
 	}
 
 	StringFile& StringFile::operator<< (unsigned short item)
 	{
-		String str(item);
-		awrite(str.c_str(),1,str.length(),f);
+		if (!write_mode)
+			return *this;
+		if (fprintf(f,"%hu",item) <= 0)
+			throw Except::IO::DriveAccess::DataWriteFault("StringFile("+String(filename)+"): Unable to write number "+String(item)+" to file");
 		return *this;
 	}
 
 	StringFile& StringFile::operator<< (long item)
 	{
-		String str(item);
-		awrite(str.c_str(),1,str.length(),f);
+		if (!write_mode)
+			return *this;
+		if (fprintf(f,"%li",item) <= 0)
+			throw Except::IO::DriveAccess::DataWriteFault("StringFile("+String(filename)+"): Unable to write number "+String(item)+" to file");
 		return *this;
 	}
 
 	StringFile& StringFile::operator<< (unsigned long item)
 	{
-		String str(item);
-		awrite(str.c_str(),1,str.length(),f);
+		if (!write_mode)
+			return *this;
+		if (fprintf(f,"%lu",item) <= 0)
+			throw Except::IO::DriveAccess::DataWriteFault("StringFile("+String(filename)+"): Unable to write number "+String(item)+" to file");
 		return *this;
 	}
 
 	StringFile& StringFile::operator<< (float item)
 	{
-		String str(item);
-		awrite(str.c_str(),1,str.length(),f);
+		if (!write_mode)
+			return *this;
+		if (fprintf(f,"%f",item) <= 0)
+			throw Except::IO::DriveAccess::DataWriteFault("StringFile("+String(filename)+"): Unable to write number "+String(item)+" to file");
 		return *this;
 	}
 
 	StringFile& StringFile::operator<< (double item)
 	{
-		String str(item);
-		awrite(str.c_str(),1,str.length(),f);
+		if (!write_mode)
+			return *this;
+		if (fprintf(f,"%f",item) <= 0)
+			throw Except::IO::DriveAccess::DataWriteFault("StringFile("+String(filename)+"): Unable to write number "+String(item)+" to file");
 		return *this;
 	}
 
 	StringFile& StringFile::operator<< (long double item)
 	{
-		String str(item);
-		awrite(str.c_str(),1,str.length(),f);
+		if (!write_mode)
+			return *this;
+		if (fprintf(f,"%Lf",item) <= 0)
+			throw Except::IO::DriveAccess::DataWriteFault("StringFile("+String(filename)+"): Unable to write number "+String(item)+" to file");
 		return *this;
 	}
 
