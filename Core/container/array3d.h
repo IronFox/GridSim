@@ -6,6 +6,23 @@ namespace DeltaWorks
 {
 	namespace Container
 	{
+
+		class Size3D
+		{
+		public:
+			const count_t	width,
+							height,
+							depth;
+
+			explicit		Size3D(count_t size=0):width(size),height(size),depth(size)	{}
+			/**/			Size3D(count_t w, count_t h, count_t d):width(w),height(h),depth(d)	{}
+			bool			operator==(const Size3D&other) const {return width == other.width && height == other.height && depth == other.depth;}
+			bool			operator!=(const Size3D&other) const {return !operator==(other);}
+			count_t			CountElements() const {return width*height*depth;}
+		};
+
+
+
 		/**
 		@brief Three dimensional, row-major array
 		
@@ -17,15 +34,8 @@ namespace DeltaWorks
 			public:
 				typedef Array3D<T,MyStrategy>	Self;
 				typedef Ctr::Array<T,MyStrategy>	Super;
-			protected:
-				
-				count_t	w,h;
-				
-				using Super::SetSize;
-				using Super::resizePreserveContent;
-				using Super::erase;
-				using Super::append;
-			public:
+				typedef Size3D	Size;
+
 
 				template <int AxisIndex>
 					class Axis;
@@ -75,10 +85,13 @@ namespace DeltaWorks
 					};	
 
 
-				Array3D():w(0),h(0)
-				{}
-				Array3D(count_t width, count_t height, count_t depth):Super(width*height*depth),w(width),h(height)
-				{}
+				Array3D():w(0),h(0) {}
+				Array3D(const Size&res):Super(res.CountElements()),w(res.width),h(res.height) {}
+				Array3D(count_t width, count_t height, count_t depth):Super(width*height*depth),w(width),h(height) {}
+				Array3D(const Size&res, const T&initial):Super(res.CountElements()),w(res.width),h(res.height)
+				{
+					Fill(initial);
+				}
 				Array3D(count_t width, count_t height, count_t depth, const T&initial):Super(width*height*depth),w(width),h(height)
 				{
 					Fill(initial);
@@ -108,22 +121,23 @@ namespace DeltaWorks
 					h = other.h;
 				}
 				
-				inline	count_t	GetWidth()	const	//! Retrieves this array's width \return width
+				count_t		GetWidth()	const	//! Retrieves this array's width \return width
 				{
 					return w;
 				}
-				inline	count_t	GetDepth()	const	//! Retrieves this array's depth \return depth
+				count_t		GetDepth()	const	//! Retrieves this array's depth \return depth
 				{
 					return w&&h?Super::elements/w/h:0;
 				}
-				inline	count_t	GetHeight() const	//! Retrieves this array's height \return height
+				count_t		GetHeight() const	//! Retrieves this array's height \return height
 				{
 					return h;
 				}
+				Size		GetSize() const {return Size(GetWidth(),GetHeight(),GetDepth());}
 
-				Axis<0>			Horizontal() const {return Axis<0>(GetWidth());}
-				Axis<1>			Vertical() const {return Axis<1>(GetHeight());}
-				Axis<2>			Deep() const {return Axis<2>(GetDepth());}
+				Axis<0>		Horizontal() const {return Axis<0>(GetWidth());}
+				Axis<1>		Vertical() const {return Axis<1>(GetHeight());}
+				Axis<2>		Deep() const {return Axis<2>(GetDepth());}
 
 
 
@@ -141,7 +155,10 @@ namespace DeltaWorks
 					return z*w*h + y*w + x;
 				}
 
-
+				void		SetSize(const Size&res)
+				{
+					SetSize(res.width,res.height,res.depth);
+				}
 				void		SetSize(count_t width, count_t height, count_t depth)	//! Resizes the local 2d array to match the specified dimensions. The local array content is lost if the array's total size is changed
 				{
 					Super::SetSize(width*height*depth);
@@ -210,6 +227,14 @@ namespace DeltaWorks
 					SerialSync(s,(Super&)v);
 				}
 
+			protected:
+				
+				count_t	w,h;
+				
+				using Super::SetSize;
+				using Super::resizePreserveContent;
+				using Super::erase;
+				using Super::append;
 
 			};
 	}

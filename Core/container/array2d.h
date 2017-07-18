@@ -8,6 +8,20 @@ namespace DeltaWorks
 	namespace Container
 	{
 
+		class Size2D
+		{
+		public:
+			const count_t	width,
+							height;
+
+			explicit		Size2D(count_t size=0):width(size),height(size)	{}
+			/**/			Size2D(count_t w, count_t h):width(w),height(h)	{}
+			bool			operator==(const Size2D&other) const {return width == other.width && height == other.height;}
+			bool			operator!=(const Size2D&other) const {return !operator==(other);}
+			count_t			CountElements() const {return width*height;}
+		};
+
+
 		/**
 		@brief Two dimensional, row-major array
 		
@@ -19,15 +33,8 @@ namespace DeltaWorks
 			public:
 				typedef Array2D<C,MyStrategy>	Self;
 				typedef Ctr::Array<C,MyStrategy>	Super;
-			protected:
-				
-				index_t	w;
-				
-				using Super::SetSize;
-				using Super::resizePreserveContent;
-				using Super::erase;
-				using Super::append;
-			public:
+
+				typedef Size2D	Size;
 
 				template <bool IsHorizontal>
 					class Axis;
@@ -76,11 +83,14 @@ namespace DeltaWorks
 					};	
 
 
-				Array2D():w(0)
-				{}
-				Array2D(index_t width, index_t height):Super(width*height),w(width)
-				{}
+				Array2D():w(0) {}
+				Array2D(index_t width, index_t height):Super(width*height),w(width) {}
+				Array2D(const Size&res):Super(res.CountElements()),w(res.width) {}
 				Array2D(index_t width, index_t height, const C&initial):Super(width*height),w(width)
+				{
+					Fill(initial);
+				}
+				Array2D(const Size&res, const C&initial):Super(res.CountElements()),w(res.width)
 				{
 					Fill(initial);
 				}
@@ -105,17 +115,18 @@ namespace DeltaWorks
 					w = other.w;
 				}
 				
-				inline	index_t	GetWidth()	const	//! Retrieves this array's width \return width
+				index_t		GetWidth()	const	//! Retrieves this array's width \return width
 				{
 					return w;
 				}
-				inline	index_t	GetHeight() const	//! Retrieves this array's height \return height
+				index_t		GetHeight() const	//! Retrieves this array's height \return height
 				{
 					return w?Ctr::Array<C,MyStrategy>::elements/w:0;
 				}
+				Size		GetSize() const {return Size(GetWidth(),GetHeight());}
 
-				Axis<true>			Horizontal() const {return Axis<true>(GetWidth());}
-				Axis<false>			Vertical() const {return Axis<false>(GetHeight());}
+				Axis<true>	Horizontal() const {return Axis<true>(GetWidth());}
+				Axis<false>	Vertical() const {return Axis<false>(GetHeight());}
 
 
 				void		InsertRowBefore(index_t rowIndex)
@@ -236,6 +247,10 @@ namespace DeltaWorks
 					return y*w+x;
 				}
 
+				void		SetSize(const Size&res)
+				{
+					SetSize(res.width,res.height);
+				}
 				void		SetSize(index_t width, index_t height)	//! Resizes the local 2d array to match the specified dimensions. The local array content is lost if the array's total size is changed
 				{
 					Super::SetSize(width*height);
@@ -326,6 +341,13 @@ namespace DeltaWorks
 					s.ReadSize(v.w);
 					SerialSync(s,(Super&)v);
 				}
+			protected:
+				index_t	w;
+				
+				using Super::SetSize;
+				using Super::resizePreserveContent;
+				using Super::erase;
+				using Super::append;
 			};
 	}
 }

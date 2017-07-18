@@ -1012,6 +1012,7 @@ namespace DeltaWorks
 				public:
 					typedef typename Super::iterator iterator;
 					typedef typename Super::const_iterator const_iterator;
+					typedef count_t			Size;
 					static const count_t	Undefined=Arrays::Undefined;
 
 					typedef	MyStrategy	AppliedStrategy;
