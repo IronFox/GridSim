@@ -10,15 +10,15 @@ namespace DeltaWorks
 		class Size3D
 		{
 		public:
-			const count_t	width,
-							height,
-							depth;
+			count_t		width,
+						height,
+						depth;
 
-			explicit		Size3D(count_t size=0):width(size),height(size),depth(size)	{}
-			/**/			Size3D(count_t w, count_t h, count_t d):width(w),height(h),depth(d)	{}
-			bool			operator==(const Size3D&other) const {return width == other.width && height == other.height && depth == other.depth;}
-			bool			operator!=(const Size3D&other) const {return !operator==(other);}
-			count_t			CountElements() const {return width*height*depth;}
+			explicit	Size3D(count_t size=0):width(size),height(size),depth(size)	{}
+			/**/		Size3D(count_t w, count_t h, count_t d):width(w),height(h),depth(d)	{}
+			bool		operator==(const Size3D&other) const {return width == other.width && height == other.height && depth == other.depth;}
+			bool		operator!=(const Size3D&other) const {return !operator==(other);}
+			count_t		CountElements() const {return width*height*depth;}
 		};
 
 

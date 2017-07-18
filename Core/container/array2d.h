@@ -11,14 +11,14 @@ namespace DeltaWorks
 		class Size2D
 		{
 		public:
-			const count_t	width,
-							height;
+			count_t		width,
+						height;
 
-			explicit		Size2D(count_t size=0):width(size),height(size)	{}
-			/**/			Size2D(count_t w, count_t h):width(w),height(h)	{}
-			bool			operator==(const Size2D&other) const {return width == other.width && height == other.height;}
-			bool			operator!=(const Size2D&other) const {return !operator==(other);}
-			count_t			CountElements() const {return width*height;}
+			explicit	Size2D(count_t size=0):width(size),height(size)	{}
+			/**/		Size2D(count_t w, count_t h):width(w),height(h)	{}
+			bool		operator==(const Size2D&other) const {return width == other.width && height == other.height;}
+			bool		operator!=(const Size2D&other) const {return !operator==(other);}
+			count_t		CountElements() const {return width*height;}
 		};
 
 
