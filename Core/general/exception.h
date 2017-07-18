@@ -598,9 +598,9 @@ namespace DeltaWorks
 		//#define EBACK__         throw(C_Exception)
 
 		/**
-			@brief Invokes fatal exception handler, then terminates application.
+		@brief Invokes fatal exception handler, then terminates application.
 
-			Only the first thread to call this function, actually invokes the handler. Subsequent invocations of this function by any thread are rejected
+		Only the first thread to call this function, actually invokes the handler. Subsequent invocations of this function by any thread are rejected
 		*/
 		template <class C>
 			inline void fatal(const TCodeLocation&location, const C&message)
@@ -614,7 +614,7 @@ namespace DeltaWorks
 			}
 	}
 
-	#define FATAL__(_MESSAGE_)					{if (::DeltaWorks::Except::enterFatalPhase()) ::DeltaWorks::Except::finalizeFatalPhase(CLOCATION,(_MESSAGE_));}
+	#define FATAL__(_MESSAGE_)					{::DeltaWorks::Except::fatal(CLOCATION,(_MESSAGE_));}
 
 	#ifdef _DEBUG
 		#define DBG_FATAL__(_MESSAGE_)			FATAL__(_MESSAGE_)

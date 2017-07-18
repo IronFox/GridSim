@@ -55,8 +55,12 @@ namespace DeltaWorks
 
 		bool	enterFatalPhase()
 		{
-			if (IsDebuggerPresent())
+			static volatile bool doBreak = true;
+			if (IsDebuggerPresent() && doBreak)
+			{
+				doBreak = false;
 				DebugBreak();
+			}
 
 			if (!fatal_mutex.tryLock())
 				return false;
