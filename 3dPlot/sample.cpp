@@ -7,44 +7,35 @@
 Hypothesis hypothesis;
 
 
-
 float		TSample::Get(SampleType t) const
+{
+	return _Get(t);;
+
+}
+
+float		TSample::_Get(SampleType t) const
 { 
 	switch (t)
 	{
 		case SampleType::DivergenceDepth:
 		{
-			const count_t living = GetLivingEntities();
-			return inconsistencyAge ? float(inconsistencyAge) / float(living) : 0.f;
+			return inconsistencyAge ? float(inconsistencyAge) / float(numEntities) : 0.f;
 		}
 		case SampleType::Inconsistency:
 		{
-			const count_t living = GetLivingEntities();
-			return (inconsistentEntities ? float(inconsistentEntities) / float(living) : 0.f);
+			return (inconsistentEntities ? float(inconsistentEntities) / float(numEntities) : 0.f);
 		}
 		case SampleType::InconsistencyDelta:
 			return newlyInconsistentEntities ? float(newlyInconsistentEntities) / float(numEntities) : 0.f;
-		case SampleType::EntityCount:
+		case SampleType::LiveSamples:
 			return (float)numEntities;
 		case SampleType::LocationError:
 		{
-			const count_t living = GetLivingEntities();
-			return living > 0 ? locationError / living : 0;
-		}
-		//case SampleType::LocationErrorHypothesis:
-		//	return numEntities > 0 ? pow(float(inconsistencyAge) / float(numEntities),0.5) : 0;
-		case SampleType::BadnessEstimation:
-		{
-			const float loc = Get(SampleType::LocationError);
-			return loc;
-			//const float m = Get(SampleType::MissingEntities);
-			//const float p = 1.f - m;
-			//	//Get(SampleType::Inconsistency);
-			//return loc + loc / p * m;
+			return numEntities > 0 ? locationError / numEntities : 0;
 		}
 		case SampleType::MissingEntities:
 		{
-			return numEntities > 0 ? float(missingEntities) / numEntities: 0;
+			return missingEntities > 0 ? float(missingEntities) / (numEntities + missingEntities): 0;
 		}
 	}
 	return 0.f;

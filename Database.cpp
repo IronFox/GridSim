@@ -1024,21 +1024,20 @@ namespace Database
 		locked = false;
 	}
 
-	void			Reset(const TGridCoords&size)
+	void			Reset(const GridSize&size)
 	{
 		ASSERT__(!locked);
 		globalStore.Clear();	//make sure nothing is left over
+		globalStore.SetSize(size);
 		#ifdef D3
-			globalStore.SetSize(size.x,size.y,size.z);
-			for (int x = 0; x < size.x; x++)
-			for (int y = 0; y < size.y; y++)
-			for (int z = 0; z < size.z; z++)
-				globalStore.Get(x,y,z).Setup(TGridCoords(x,y,z));
+			for (index_t x = 0; x < size.width; x++)
+			for (index_t y = 0; y < size.height; y++)
+			for (index_t z = 0; z < size.depth; z++)
+				globalStore.Get(x,y,z).Setup(TGridCoords((int)x,(int)y,(int)z));
 		#else
-			globalStore.SetSize(size.x,size.y);
-			for (int x = 0; x < size.x; x++)
-			for (int y = 0; y < size.y; y++)
-				globalStore.Get(x,y).Setup(TGridCoords(x,y));
+			for (index_t x = 0; x < size.width; x++)
+			for (index_t y = 0; y < size.height; y++)
+				globalStore.Get(x,y).Setup(TGridCoords((int)x,(int)y));
 		#endif
 
 		distributionTimestep = 0;

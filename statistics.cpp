@@ -142,7 +142,11 @@ namespace Statistics
 			r.setup.siblingSyncDelay = numLayers > 1 ? (int)siblingSyncDelay : 0;
 
 			#ifndef D3
-				r.setup.numEntities = 16*16*4*256;
+				#ifndef _DEBUG	
+					r.setup.numEntities = 16*16*4*256;
+				#else
+					r.setup.numEntities = 256;
+				#endif
 			#endif
 		}
 		
@@ -647,9 +651,10 @@ void Statistics::Include(const IC::TSample& textureInconsistency, count_t incons
 void	Statistics::ExportToFile(const PathString&file)
 {
 	using namespace Details;
-	StringFile f;
-	if (f.Create(file))
+	try
 	{
+		StringFile f;
+		f.Create(file);
 		foreach (entries.Vertical(),v)
 		{
 			foreach(entries.Horizontal(), h)
@@ -659,17 +664,20 @@ void	Statistics::ExportToFile(const PathString&file)
 			}
 			f << nl;
 		}
-
-		f.Close();
+	}
+	catch (const std::exception&ex)
+	{
+		//...
 	}
 }
 
 void	Statistics::ImportMean(const PathString&file)
 {
 	using namespace Details;
-	StringFile f;
-	if (f.Open(file))
+	try
 	{
+		StringFile f;
+		f.Open(file);
 		index_t line = 0;
 		String sline;
 		Array<StringRef>	parts;
@@ -685,6 +693,8 @@ void	Statistics::ImportMean(const PathString&file)
 			line++;
 		}
 	}
+	catch (...)
+	{}
 
 }
 
@@ -769,7 +779,8 @@ TExperiment Statistics::Begin()
 			}
 	#else
 			//for (int l = 1; l <= 2; l++)
-			int l = 2;
+			//int l = 2;
+			int l = 1;
 			{
 				//count_t maxSync = l > 1 ? 1:0;
 				index_t s = 1;

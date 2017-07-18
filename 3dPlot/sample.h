@@ -4,17 +4,12 @@
 #include <container/buffer.h>
 #include "hypothesis.h"
 
-CONSTRUCT_ENUMERATION10(SampleType, Inconsistency, 
-									InconsistencyHypothesis, 
+CONSTRUCT_ENUMERATION6(SampleType, Inconsistency, 
 									InconsistencyDelta, 
-									ComputedConsistencyDelta, 
-									ConsistencyDeltaHypothesis, 
 									DivergenceDepth,
 									LocationError,
-									//LocationErrorHypothesis,
-									BadnessEstimation,
 									MissingEntities,
-									EntityCount
+									LiveSamples
 									);
 
 
@@ -34,7 +29,6 @@ struct TSample
 	float		GetInconsistentEntities() const {return inconsistentEntities ? float(inconsistentEntities) / float(numEntities) : 0.f; }
 	float		GetDelta(const TSample&other) const {return GetInconsistentEntities() - other.GetInconsistentEntities(); }
 
-	count_t		GetLivingEntities() const {return numEntities - missingEntities;}
 
 	void		Include(const TSample&other);
 
@@ -57,4 +51,8 @@ struct TSample
 		ConvertOptional(inconsistencyAge,this->inconsistencyAge);
 		ASSERT_LESS_OR_EQUAL__(inconsistentEntities,numEntities);
 	}
+
+private:
+	float		_Get(SampleType) const;
+
 };

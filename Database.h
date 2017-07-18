@@ -176,7 +176,7 @@ namespace Database
 	void				Unlock();
 	bool				IsLocked();
 
-	void				Reset(const TGridCoords&size);
+	void				Reset(const GridSize&size);
 	void				AssertIsWellDefined();
 
 

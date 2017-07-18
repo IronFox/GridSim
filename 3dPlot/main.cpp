@@ -64,8 +64,6 @@ const char* Shorten(const SampleType&t)
 	{
 		case SampleType::DivergenceDepth:
 			return "DD";
-		case SampleType::EntityCount:
-			return "EC";
 		case SampleType::Inconsistency:
 			return "IP";
 		case SampleType::InconsistencyDelta:
@@ -356,8 +354,15 @@ void LoadParameters(const FileSystem::File&f)
 	index_t cnt = 0;
 	if (!f.DoesExist())
 		return;
-	while (!file.Open(f.GetLocation()))
+	for (;;)
 	{
+		try
+		{
+			file.Open(f.GetLocation());
+			break;
+		}
+		catch (...)
+		{}
 		Sleep(200);
 		cnt++;
 		if (cnt > 5)
@@ -408,54 +413,6 @@ struct Source
 	{
 		LoadTables({sampleFile});
 
-		if (false)
-		{
-			//let's try to create a mapping
-			//DD is X
-			//Error is Y
-			TFloatRange<double> range = MaxInvalidRange<double>();
-			foreach (tables.First().samples,row)
-				foreach (*row,s)
-				{
-					range.Include(s->Get(SampleType::LocationError));
-				}
-			//range is now used DD range. we can now split it into sub-ranges
-			struct TSubRange
-			{
-				count_t				numSamples = 0;
-				double				sum = 0;
-				TFloatRange<double> valueRange = MaxInvalidRange<double>();
-			};
-
-			Array<TSubRange> subRanges(100);
-			foreach (tables.First().samples,row)
-				foreach (*row,s)
-				{
-					const double x = s->Get(SampleType::LocationError);
-					const double y = s->Get(SampleType::Inconsistency);
-					const index_t subIndex = M::Min(subRanges.Count()-1,index_t( ((x - range.min) / range.GetExtent()) * subRanges.Count()));
-					subRanges[subIndex].numSamples++;
-					subRanges[subIndex].valueRange.Include(y);
-					subRanges[subIndex].sum += y;
-				}
-
-			StringFile csv;
-			csv.Create("DD_Err_Mapping.csv");
-			csv << "high";
-			foreach (subRanges,r)
-				csv << ","<<r->valueRange.max;
-			csv << nl;
-			csv << "mean";
-			foreach (subRanges,r)
-				csv << ","<<(r->sum/r->numSamples);
-			csv << nl;
-			csv << "low";
-			foreach (subRanges,r)
-				csv << ","<<r->valueRange.min;
-			csv << nl;
-			csv.Close();
-		}
-
 		//tables.Append();
 		//tables.Last().SetTransformed(tables.GetFromEnd(1),
 		//	[](TSample s)->TSample
@@ -464,7 +421,60 @@ struct Source
 		//		return s;
 		//	}, 
 		//	float4(1,0,0,0.5));
-		//tables.Append(Table(false,true,trainStatic)).TrainHypothesis(0,currentSampleType);
+		//tables.Append().TrainHypothesis(0,currentSampleType,trainStatic);
+		float3 plane = tables.Append().TrainFlatOverestimation(0,SampleType::DivergenceDepth,0.001f);
+
+
+		if (false)
+		{
+			//let's try to create a mapping
+			//range is now used DD range. we can now split it into sub-ranges
+			struct TSubRange
+			{
+				count_t				numSamples = 0;
+				double				sum = 0;
+				TFloatRange<double> valueRange = MaxInvalidRange<double>();
+			};
+			StringFile csv;
+			csv.Create("Err_Mapping.csv");
+
+			for (index_t i = 0; i < SampleType::N; i++)
+			{
+				const SampleType st = SampleType::Reinterpret(i);
+				Array<TSubRange> subRanges(100);
+				for (index_t t = 1; t < tables.First().samples.Count(); t++)
+				{
+					const auto&sampled = tables.First().samples[t];
+					for (index_t s = 0; s < sampled.Count(); s++)
+					{
+						const double y = sampled[s].Get(st);
+						const double x = tables.Last().Get(s,t,st);
+						ASSERT__(x >= 0);
+						ASSERT__(x <= 1);
+						const index_t subIndex = Math::Min(subRanges.Count()-1,index_t( x * subRanges.Count()));
+						subRanges[subIndex].numSamples++;
+						subRanges[subIndex].valueRange.Include(y);
+						subRanges[subIndex].sum += y;
+					}
+				}
+				csv << st.ToString()<< "_high";
+				foreach (subRanges,r)
+					csv << ","<<r->valueRange.max;
+				csv << nl;
+				csv << st.ToString()<< "_mean";
+				foreach (subRanges,r)
+					csv << ","<<(r->sum/r->numSamples);
+				csv << nl;
+				csv << st.ToString()<< "_low";
+				foreach (subRanges,r)
+					csv << ","<<r->valueRange.min;
+				csv << nl;
+			}
+			csv.Close();
+		}
+
+
+
 		UpdateColors();
 	}
 
@@ -541,9 +551,10 @@ void ExportExtremePlotP(const PathString&path)
 {
 	count_t extreme = 32;
 	StringFile file;
-	if (file.Create(path))
+	try
 	{
-
+		file.Create(path);
+	
 		float max = 0;
 		
 		for (const auto&t:tables)
@@ -614,8 +625,10 @@ void ExportExtremePlotP(const PathString&path)
 		file <<"\\end{axis}"<<nl
 			<<"\\end{tikzpicture}"<<nl;
 	}
-	else
+	catch (...)
+	{
 		std::cerr << "Unable to create plot file at "<<String(path)<<std::endl;
+	}
 
 }
 

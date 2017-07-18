@@ -51,8 +51,8 @@ struct TAgeHypothesis
 	static const count_t	TDegree = 5,TNCoef = TDegree+1;
 	static const count_t	SDegree = 8,SNCoef = SDegree+1;
 
-	M::Polynomial<double,TNCoef>		temporalProfile;
-	M::Polynomial<double,SNCoef>		spatialProfile0,spatialProfile1;
+	D::M::Polynomial<double,TNCoef>		temporalProfile;
+	D::M::Polynomial<double,SNCoef>		spatialProfile0,spatialProfile1;
 
 	float					max = 1;
 	count_t					maxSpatialDistance=0,
@@ -65,7 +65,7 @@ struct TAgeHypothesis
 
 	bool					useLinearApproximation = true;
 
-	M::float3				linearPlaneFunc;	//x,y: axial inclination, z: offset
+	D::M::float3			linearPlaneFunc;	//x,y: axial inclination, z: offset
 
 
 
@@ -82,8 +82,8 @@ struct TAgeHypothesis
 struct TStaticAgeHypothesis
 {
 	typedef double PFloat;
-	M::NegativePolynomial2D<PFloat,4,7>	pBase;
-	M::NegativePolynomial2D<PFloat,4,7>	pX;
+	D::M::NegativePolynomial2D<PFloat,4,7>	pBase;
+	D::M::NegativePolynomial2D<PFloat,4,7>	pX;
 	float					Sample(float spatialDistance, float temporalDistance, float density, float relativeSensorRange) const;
 };
 
@@ -196,7 +196,9 @@ public:
 	TValueRange				currentRange;
 	TMetrics				metrics;
 
-	THypothesisData			hypothesis;
+	//THypothesisData			hypothesis;
+	std::function<float(float spatialDistance, float temporalDistance, SampleType)>		heightFunction;
+	std::function<D::M::TVec4<>(float spatialDistance, float temporalDistance, SampleType t)> colorFunction;
 	//FloatImage				image;
 
 	static const constexpr unsigned Resolution = 400;
@@ -209,12 +211,14 @@ public:
 
 	const bool				IsRangeTable;
 	
-	/**/					Table(bool isRangeTable=false, bool isHypothesis=false, bool isStaticHypothesis=false):IsRangeTable(isRangeTable),hypothesis(isHypothesis,isStaticHypothesis)	{}
+	/**/					Table(bool isRangeTable=false):IsRangeTable(isRangeTable)	{}
 
 	void					swap(Table&other)
 	{
 		D::swp(metrics,other.metrics);
-		D::swp(hypothesis,other.hypothesis);
+		//D::swp(hypothesis,other.hypothesis);
+		heightFunction.swap(other.heightFunction);
+		colorFunction.swap(other.colorFunction);
 		D::swp(currentRange,other.currentRange);
 		lineSegments.swap(other.lineSegments);
 		samples.swap(other.samples); 
@@ -230,7 +234,8 @@ public:
 	void					UpdateCurrentRange(SampleType type);
 	void					UpdatePlotGeometry(SampleType type, bool window);
 
-	void					TrainHypothesis(index_t sourceTableID, SampleType t);
+	void					TrainHypothesis(index_t sourceTableID, SampleType t, bool isStatic);
+	D::M::float3			TrainFlatOverestimation(index_t sourceTableID, SampleType t,float threshold);
 
 	void					RemovePlotGeometry();
 

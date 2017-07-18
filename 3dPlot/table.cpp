@@ -479,9 +479,90 @@ void	THypothesisData::Train(index_t sourceTableID, SampleType t)
 	}
 }
 
-void Table::TrainHypothesis(index_t sourceTableID, SampleType t)
+
+float3	Table::TrainFlatOverestimation(index_t sourceTableID, SampleType t,float threshold)
 {
+	const auto& source = tables[sourceTableID];
+
+
+	const float farSpatialBegin = source.FindLevelSpatialDistance(t,source.samples.Count()-1,threshold);
+	const float middleSpatialBegin = source.FindLevelSpatialDistance(t,source.samples.Count()/2,threshold);
+	const float closeSpatialBegin = source.FindLevelSpatialDistance(t,source.samples.Count()/4,threshold);
+
+	D::M::float3			linearPlaneFunc;	//x: spatial,y: temporal inclination, z: offset
+
+	if (farSpatialBegin < 0)
+		return linearPlaneFunc;
+
+	const float relative = closeSpatialBegin / farSpatialBegin;
+	const float D = 1.f - relative;
+	//linearPlaneFunc.z = 1.f - D*4/3;
+	linearPlaneFunc.z =  0.035;
+	linearPlaneFunc.y = (1.f - linearPlaneFunc.z) / source.samples.Count();
+	linearPlaneFunc.x = -1.f / farSpatialBegin;
+
+	//linearPlaneFunc.z = 0;
+	//linearPlaneFunc.y = 1.f / source.samples.Count();
+	//linearPlaneFunc.x = -1.f / farSpatialBegin;
+
+	this->heightFunction = [linearPlaneFunc,sourceTableID](float spatialDistance, float temporalDistance, SampleType t) -> float
+	{
+		//float h = D::M::Max(0.f, (linearPlaneFunc.z + linearPlaneFunc.x * spatialDistance + linearPlaneFunc.y * temporalDistance));
+		//return h;
+		//if (h == 0)
+		//	return 0;
+		const auto& source = tables[sourceTableID];
+		return source.GetSmoothed(spatialDistance,temporalDistance,t) * 1.1f;
+	};
+
+	this->colorFunction = [linearPlaneFunc,sourceTableID](float spatialDistance, float temporalDistance, SampleType t) -> float4
+	{
+		const float h = D::M::Max(0.f, (linearPlaneFunc.z + linearPlaneFunc.x * spatialDistance + linearPlaneFunc.y * temporalDistance));
+		const auto& source = tables[sourceTableID];
+		const float s = source.GetSmoothed(spatialDistance,temporalDistance,t);
+
+		//float level = s/h;
+		float4 rs;
+		rs.a = 1.f;
+		Vec::HSL2RGB(float3(fmod(h*20.f,1.f),1.f,0.5f),rs.rgb);
+		return rs;
+
+		//if (h == 0)
+		//	return 0;
+		//const auto& source = tables[sourceTableID];
+		//return source.GetSmoothed(spatialDistance,temporalDistance,t) / h;
+	};
+
+
+	this->sourceFile = source.sourceFile+" (H) T "+linearPlaneFunc.ToString();
+	return linearPlaneFunc;
+}
+
+
+void Table::TrainHypothesis(index_t sourceTableID, SampleType t, bool isStatic)
+{
+	THypothesisData hypothesis(true,isStatic);
 	hypothesis.Train(sourceTableID,t);
+	this->heightFunction = [hypothesis](float spatialDistance, float temporalDistance, SampleType t) -> float
+	{
+		return hypothesis.Sample(spatialDistance,temporalDistance,t);
+	};
+
+	this->colorFunction = [hypothesis](float spatialDistance, float temporalDistance, SampleType t) -> TVec4<>
+	{
+		const float shouldBe = tables[hypothesis.sourceTableID].SmoothGeometryHeightFunction(t,temporalDistance,spatialDistance);
+		const float error = (shouldBe-hypothesis.Sample(spatialDistance,temporalDistance,t));
+		//rs.height = fabs(shouldBe-rs.height);
+		TVec4<> rs;
+		rs.a = 1;
+		rs.r = 1;
+		rs.gb = 1.f - float2(fabs(error)*50);
+
+		return rs;
+	};
+
+
+
 	this->sourceFile = tables[sourceTableID].sourceFile+" (H) T "+hypothesis.age.linearPlaneFunc.ToString();
 }
 
@@ -590,7 +671,8 @@ float THypothesisData::Sample(float spatialDistance, float temporalDistance, Sam
 
 float Table::Get(index_t spatialDistance, index_t temporalDistance, SampleType t) const
 {
-
+	if (heightFunction)
+		return heightFunction(spatialDistance,temporalDistance,t);
 	return GetSample(spatialDistance,temporalDistance).Get(t);
 }
 
@@ -617,8 +699,15 @@ bool Table::LoadSamples(const FileSystem::File&f, const std::function<bool(const
 {
 	StringFile file;
 	count_t cnt = 0;
-	while (!file.Open(f.GetLocation()))
+	for(;;)
 	{
+		try
+		{
+			file.Open(f.GetLocation());
+			break;
+		}
+		catch (...)
+		{}
 		Sleep(200);
 		if (++cnt > 5)
 			return false;
@@ -779,8 +868,8 @@ inline float Interpolate(float v0, float v1, float x)
 
 float	Table::GetSmoothed(float spatialDistance, float temporalDistance,SampleType t) const
 {
-	if (hypothesis.isEnabled)
-		return hypothesis.Sample(spatialDistance,temporalDistance,t);
+	if (heightFunction)
+		return heightFunction(spatialDistance,temporalDistance,t);
 
 	float atX = spatialDistance;
 	float atY = temporalDistance;
@@ -822,29 +911,10 @@ Table::TSurfacePoint	Table::GetGeometryPoint(SampleType t, index_t ix, index_t i
 	TSurfacePoint rs;
 	rs.height =  SmoothGeometryHeightFunction(t,fx,fy);
 
-	if (hypothesis.isEnabled)
-	{
-		const float shouldBe = tables[hypothesis.sourceTableID].SmoothGeometryHeightFunction(t,fx,fy);
-		const float error = (shouldBe-rs.height);
-		//rs.height = fabs(shouldBe-rs.height);
-		rs.color.a = 1;
-		rs.color.r = 1;
-		rs.color.gb = 1.f - float2(fabs(error)*50);
-		//if (error > 0)
-		//{
-		//	rs.color.r = 1;
-		//	rs.color.b = rs.color.g = 1.f - error*1000;
-		//}
-		//else
-		//{
-		//	rs.color.r = 1;
-		//	rs.color.b = 1;
-		//	rs.color.g = 1.f + error*1000;
-		//}
-
-	}
+	if (colorFunction)
+		rs.color = colorFunction(fy,fx,t);
 	else
-		rs.color = float4(1);//color;
+		rs.color = color;
 
 	return rs;
 }

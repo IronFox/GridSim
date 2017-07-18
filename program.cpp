@@ -614,7 +614,7 @@ bool	Loop()
 	}
 
 
-	display.pick(Aspect::scene);
+	display.Pick(Aspect::scene);
 	#ifndef D3
 		Scene::Render(Aspect::scene);
 	#else
@@ -631,7 +631,7 @@ bool	Loop()
 
 	#endif
 
-	display.pick(Aspect::hud);
+	display.Pick(Aspect::hud);
 		#ifdef D3
 			glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
 			glStencilFunc(GL_NOTEQUAL, 1, 1);
@@ -705,7 +705,7 @@ bool	Loop()
 void	onWindowResize(const Resolution&res, UINT32)
 {
 	
-	textout.SetScale(1.f / display.clientWidth(), 1.f / display.clientHeight());
+	textout.SetScale(1.f / display.GetClientWidth(), 1.f / display.GetClientHeight());
 
 	Aspect::topDown.UpdateProjection(res.GetAspect(),Aspect::zoom,-1,1);
 	Aspect::scene.UpdateProjection(res.GetAspect(),0.1,1000);
@@ -1321,7 +1321,7 @@ namespace Logic
 void OnMouseWheel(short delta)
 {
 	Aspect::zoom *= pow(0.9f,-delta);
-	Aspect::topDown.UpdateProjection(display.pixelAspect(),Aspect::zoom,-1,1);
+	Aspect::topDown.UpdateProjection(display.GetPixelAspect(),Aspect::zoom,-1,1);
 	Aspect::scene.retraction = float3(0,0,-4.f/Aspect::zoom);
 	Aspect::scene.UpdateView();
 }
@@ -1350,7 +1350,7 @@ void	SetupScene()
 
 	{
 
-		const TGridCoords size(16);
+		const GridSize size(16);
 
 		Array<Entity> entities(currentSetup.numEntities);
 		{
@@ -1360,9 +1360,9 @@ void	SetupScene()
 			{
 				Entity&e = entities[i];
 				#ifdef D3
-					e.coordinates = float3(random.NextFloat(0, size.x), random.NextFloat(0, size.y), random.NextFloat(0, size.z));
+					e.coordinates = float3(random.NextFloat(0, size.width), random.NextFloat(0, size.height), random.NextFloat(0, size.depth));
 				#else
-					e.coordinates = float2(random.NextFloat(0, size.x), random.NextFloat(0, size.y));
+					e.coordinates = float2(random.NextFloat(0, size.width), random.NextFloat(0, size.height));
 				#endif
 				//e.coordinates = float2(random.NextFloat(0,testSimulation.GetGridWidth()),0.5f);//don't care about rest
 				e.shape = Entity::Shape::Sphere;
@@ -1384,7 +1384,7 @@ void	SetupScene()
 		#ifdef RECOVERY_TEST
 			seed = 0;
 			#ifdef _DEBUG
-				size = TGridCoords(5);
+				size = GridSize(5);
 			#endif
 		#endif
 		testSimulation.Reset(size,Statistics::DoCompareEntityConsistency(),seed,currentSetup.numLayers,entities);
@@ -1799,13 +1799,13 @@ int main( int argc, const char* argv[])
 
 //			Engine::mouse.bindWheel(Camera::Event::WheelAction);
 
-		textout.SetScale(1.f/display.clientWidth(),1.f/display.clientHeight());
+		textout.SetScale(1.f/display.GetClientWidth(),1.f/display.GetClientHeight());
 
 		Engine::GlobalAspectConfiguration::worldZIsUp = true;
 		Aspect::hud.UpdateProjection(0,0,1,1,-1,1);
 
 		Aspect::scene.retraction = float3(0,0,-4.f/Aspect::zoom);
-		Aspect::scene.UpdateProjection(display.pixelAspect(),0.1,1000);
+		Aspect::scene.UpdateProjection(display.GetPixelAspect(),0.1,1000);
 		#ifdef D3
 		Aspect::scene.angle.z = 45;
 		Aspect::scene.angle.x = 45;
@@ -1853,11 +1853,11 @@ int main( int argc, const char* argv[])
 		SetupScene();
 		testSimulation.Rebuild();
 
-		display.assign(Loop);
+		display.Assign(Loop);
 		StartSimulation();
-		display.execute();
+		display.Execute();
 
-		display.destroy();
+		display.Destroy();
 		application_shutting_down = true;
 
 		TerminateProcess(GetCurrentProcess(),0);	//self-terminate

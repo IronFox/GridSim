@@ -37,6 +37,14 @@ using namespace DeltaWorks::Math;
 	template <typename T,typename Strategy = typename Strategy::StrategySelector<T>::Default>
 		using GridArray = Array3D<T,Strategy>;
 
+	typedef Size3D GridSize;
+	inline TVec3<index_t>	ToVector(const Size3D&s)
+	{
+		TVec3<index_t> rs;
+		Vec::def(rs,s.width,s.height,s.depth);
+		return rs;
+	}
+
 #else
 	static const constexpr count_t Dimensions=2;
 	static const constexpr count_t NumNeighbors = 8;
@@ -47,6 +55,15 @@ using namespace DeltaWorks::Math;
 
 	template <typename T,typename Strategy = typename Strategy::StrategySelector<T>::Default>
 		using GridArray = Array2D<T,Strategy>;
+
+
+	typedef Size2D GridSize;
+	inline TVec2<index_t>	ToVector(const Size2D&s)
+	{
+		TVec2<index_t> rs;
+		Vec::def(rs,s.width,s.height);
+		return rs;
+	}
 #endif
 
 typedef VecN<int,Dimensions>	TGridCoords;
@@ -65,8 +82,11 @@ typedef std::shared_ptr<CoreShardDomainState> PCoreShardDomainState;
 class ChangeSet;
 class InconsistencyCoverage;
 class RemoteChangeSet;
+class HGrid;
+class ExtHGrid;
 struct Entity;
 struct EntityID;
+class EntityStorage;
 
 namespace Database
 {
@@ -89,6 +109,10 @@ typedef SHA1	Hasher;
 typedef CoreShardDomainState	CSDS;
 
 String ToString(const GUID&guid, bool full=false);
+namespace DeltaWorks
+{
+	String ToString(const Hasher::HashContainer&guid, bool full=false);
+}
 extern Sys::SpinLock	messageLogLock;
 extern Buffer0<String>	messageLog;
 

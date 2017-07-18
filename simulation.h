@@ -17,7 +17,7 @@ class Simulation
 					control;
 	Timer::Time		timeSpentSimulating=0,lastSceneChange;
 	count_t			numIterations = 0, nodeDeathGeneration=0;
-	TGridCoords		gridSize;
+	GridSize		gridSize;
 	bool			useControl=false,doNotVerify=false,forceRecovery=false,sceneOutdated=false;
 	SimplexNoise	simplexNoise = SimplexNoise(0);
 	RNG<std::mt19937_64>	random;
@@ -55,7 +55,7 @@ public:
 	@param numLayers Number of layers to use for the regular (faulty) simulation
 	@param forceRecovery Disallows faults around a specific shard, once any samples in its IC reach an age of 255. Automatically re-enables faults once it recovered to 0.
 	*/
-	void		Reset(const TGridCoords&size, bool useControl, int64_t simplexSeed, count_t numLayers, const ArrayRef<Entity>&initialState);
+	void		Reset(const GridSize&size, bool useControl, int64_t simplexSeed, count_t numLayers, const ArrayRef<Entity>&initialState);
 
 	/**
 	Runs a single simulation iteration
@@ -94,7 +94,7 @@ public:
 	void		Accumulate(Shard::TMergeStatistics&stat) const;
 
 
-	TGridCoords	GetGridSize() const {return gridSize;}
+	GridSize	GetGridSize() const {return gridSize;}
 
 	void		Rebuild();
 	void		RebuildIfOudatedFor(float seconds);

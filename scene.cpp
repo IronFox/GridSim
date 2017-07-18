@@ -206,8 +206,8 @@ namespace Scene
 					Image image2 = *r->image;
 					image2.ScaleDouble();
 					image2.ScaleDouble();
-					for (UINT32 x = 0; x < image2.width(); x++)
-						for (UINT32 y = 0; y < image2.width(); y++)
+					for (UINT32 x = 0; x < image2.GetWidth(); x++)
+						for (UINT32 y = 0; y < image2.GetHeight(); y++)
 						{
 							BYTE&px = *image2.get(x,y);
 							if (px == 0)

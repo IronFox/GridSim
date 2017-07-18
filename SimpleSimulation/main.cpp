@@ -964,21 +964,18 @@ struct State
 			TEntity&inconsistentEntity = entities[i];
 			const TEntity&consistentEntity = correct.entities[i];
 
-			TSample&s1 = GetSampleOf(line,consistentEntity,samplesPerSector);
 
 			if (!inconsistentEntity.IsDead())
 			{
-				TSample&s0 = GetSampleOf(line,inconsistentEntity,samplesPerSector);
-				s0.numEntities ++;
-				s1.numEntities ++;
+				TSample&s = GetSampleOf(line,inconsistentEntity,samplesPerSector);
+				s.numEntities ++;
 
 				if (inconsistentEntity.inconsistencyAge)
 					inconsistentEntity.inconsistencyAge++;
 				else 
 					if (inconsistentEntity != consistentEntity && inconsistentEntity.FlagInconsistent())
 					{
-						s0.newlyInconsistentEntities ++;
-						s1.newlyInconsistentEntities ++;
+						s.newlyInconsistentEntities ++;
 					}
 				double error = Difference(inconsistentEntity.location, consistentEntity.location);
 				if (cfg.range.movementRange != 0)
@@ -986,18 +983,15 @@ struct State
 
 				if (inconsistentEntity.inconsistencyAge)
 				{
-					s0.inconsistentEntities ++;
-					s0.positionErrorSum += error;
-					s0.inconsistencyAgeSum += inconsistentEntity.inconsistencyAge;
-					s1.inconsistentEntities ++;
-					s1.positionErrorSum += error;
-					s1.inconsistencyAgeSum += inconsistentEntity.inconsistencyAge;
+					s.inconsistentEntities ++;
+					s.positionErrorSum += error;
+					s.inconsistencyAgeSum += inconsistentEntity.inconsistencyAge;
 				}
 			}
 			else
 			{
-				s1.numEntities += 2;	//count double (the inconsistent half won't be accounted for)
-				s1.missingEntities+=2;
+				TSample&s = GetSampleOf(line,consistentEntity,samplesPerSector);
+				s.missingEntities++;
 			}
 		}
 

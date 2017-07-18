@@ -18,6 +18,9 @@ class Grid
 {
 public:
 	class Layer;
+
+	typedef GridArray<Shard>	ShardGrid;
+	typedef ShardGrid::Size		GridSize;
 private:
 	void				PrecomputeAll(index_t gen);
 	void				FinalizeAll(index_t gen);
@@ -47,10 +50,10 @@ public:
 	{
 	public:
 		count_t			numCurrentEntities=0;
-		GridArray<Shard>shardGrid;
+		ShardGrid		shardGrid;
 		index_t			index = InvalidIndex;
 
-		void			Create(const TGridCoords&size, Grid&, index_t layer);
+		void			Create(const GridSize&size, Grid&, index_t layer);
 		void			swap(Layer&other)	{shardGrid.swap(other.shardGrid);}
 		void			adoptData(Layer&other)	{shardGrid.adoptData(other.shardGrid);}
 
@@ -71,7 +74,7 @@ public:
 
 	/**/				Grid()	{}
 
-	void				Reset(const TGridCoords&size, count_t numLayers, const ArrayRef<Entity>&initialState)
+	void				Reset(const GridSize&size, count_t numLayers, const ArrayRef<Entity>&initialState)
 	{
 		topGeneration = oldestLivingGeneration=recoveryIteration=recoveryAt=0;
 		lockAutoTrim = false;
@@ -91,11 +94,11 @@ public:
 		}
 
 		#ifdef D3
-			boundaries  = Box<>(0,0,0,(float)size.x-0.001f,(float)size.y-0.001f,(float)size.z-0.001f);
+			boundaries  = Box<>(0,0,0,(float)size.width-0.001f,(float)size.height-0.001f,(float)size.depth-0.001f);
 		#else
-			boundaries  = Rect<>(0,0,(float)size.x-0.001f,(float)size.y-0.001f);
+			boundaries  = Rect<>(0,0,(float)size.width-0.001f,(float)size.height-0.001f);
 		#endif
-		Vec::copy(size,extent);
+		Vec::copy(ToVector(size),extent);
 		ShardParallel([](Layer&l, Shard&s)
 		{
 			s.UploadInitialStates();

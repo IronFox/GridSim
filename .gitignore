@@ -18,3 +18,10 @@ tex/
 3dPlot/data/
 3dPlot/config/
 config/
+*.png
+*.tex
+*.ods
+*.svg
+*.csv
+*.7z
+*.pdf

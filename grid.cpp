@@ -2,21 +2,20 @@
 #include "grid.h"
 #include "experiment.h"
 
-void Grid::Layer::Create(const TGridCoords&size, Grid&g, index_t layer)
+void Grid::Layer::Create(const GridSize&size, Grid&g, index_t layer)
 {
 	index = layer;
+	shardGrid.SetSize(size);
 	#ifdef D3
-		shardGrid.SetSize(size.x,size.y,size.z);
-		for (int x = 0; x < size.x; x++)
-			for (int y = 0; y < size.y; y++)
-				for (int z = 0; z < size.z; z++)
+		for (int x = 0; x < size.width; x++)
+			for (int y = 0; y < size.height; y++)
+				for (int z = 0; z < size.depth; z++)
 				{
 					shardGrid.Get(x,y,z).Setup(g,int3(x,y,z),shardGrid.ToIndexNoCheck(x,y,z),layer);
 				}
 	#else
-		shardGrid.SetSize(size.x,size.y);
-		for (int x = 0; x < size.x; x++)
-			for (int y = 0; y < size.y; y++)
+		for (int x = 0; x < size.width; x++)
+			for (int y = 0; y < size.height; y++)
 			{
 				shardGrid.Get(x,y).Setup(g,int2(x,y),shardGrid.ToIndexNoCheck(x,y),  layer);
 			}

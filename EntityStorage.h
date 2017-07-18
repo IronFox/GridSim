@@ -60,4 +60,5 @@ public:
 
 	bool				operator==(const EntityStorage&other) const;
 	bool				operator!=(const EntityStorage&other) const	{return !operator==(other);}
+	const Entity&		operator[](index_t i) const {return entities[i];}
 };

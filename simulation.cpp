@@ -9,7 +9,7 @@
 
 
 
-void Simulation::Reset(const TGridCoords&size, bool useControl, int64_t simplexSeed, count_t numLayers,  const ArrayRef<Entity>&initialState)
+void Simulation::Reset(const GridSize&size, bool useControl, int64_t simplexSeed, count_t numLayers,  const ArrayRef<Entity>&initialState)
 {
 	this->simplexNoise.Recreate(simplexSeed);
 	this->random = RNG<std::mt19937_64>(simplexSeed);
