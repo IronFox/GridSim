@@ -71,11 +71,13 @@ public:
 						recoveryIteration=0,
 						recoveryAt=0;
 	bool				lockAutoTrim=false;
+	GridSize			currentSize;
 
 	/**/				Grid()	{}
 
 	void				Reset(const GridSize&size, count_t numLayers, const ArrayRef<Entity>&initialState)
 	{
+		currentSize = size;
 		topGeneration = oldestLivingGeneration=recoveryIteration=recoveryAt=0;
 		lockAutoTrim = false;
 		layers.Clear();

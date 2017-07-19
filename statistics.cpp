@@ -779,8 +779,7 @@ TExperiment Statistics::Begin()
 			}
 	#else
 			//for (int l = 1; l <= 2; l++)
-			//int l = 2;
-			int l = 1;
+			int l = 2;
 			{
 				//count_t maxSync = l > 1 ? 1:0;
 				index_t s = 1;

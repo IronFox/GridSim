@@ -1,6 +1,6 @@
 #pragma once
 #include <container/array.h>
-
+#include "types.h"
 
 class BitArray
 {
@@ -24,6 +24,7 @@ public:
 	{
 		storage.Fill(std::numeric_limits<size_t>::max());
 	}
+	bool			AllZero() const;
 	
 	void			operator&=(const BitArray&other);
 	void			operator|=(const BitArray&other);
@@ -31,6 +32,7 @@ public:
 	
 	bool			operator[](index_t) const;
 	void			SetBit(index_t, bool);
+	void			Hash(Hasher&hasher) const;
 	
 private:
 	DeltaWorks::Array<size_t>	storage;

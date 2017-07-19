@@ -3,6 +3,7 @@
 #include <image/image.h>
 #include "types.h"
 #include <math/vclasses.h>
+#include "BitArray.h"
 
 class InconsistencyCoverage
 {
@@ -36,8 +37,39 @@ public:
 
 		void		IncreaseDepth();
 		void		SetWorst(const TSample&a, const TSample&b);
+		void		Include(const TSample&);
 		TSample&	IntegrateGrowingNeighbor(const TSample&n, UINT32 distance);
 		void		SetBest(const TSample&a, const TSample&b, const Comparator&comp);
+
+		void		Hash(Hasher&hasher) const
+		{
+			hasher.AppendPOD(blurExtent);
+			hasher.AppendPOD(depth);
+		}
+	};
+
+	struct TExtSample : public TSample
+	{
+		typedef TSample	Super;
+		BitArray	unavailableShards;
+
+		void		Hash(Hasher&hasher) const
+		{
+			Super::Hash(hasher);
+			unavailableShards.Hash(hasher);
+		}
+		void		SetWorst(const TExtSample&a, const TExtSample&b)
+		{
+			Super::SetWorst(a,b);
+			unavailableShards = a.unavailableShards;
+			unavailableShards |= b.unavailableShards;
+		}
+
+		void		Include(const TExtSample&s)
+		{
+			Super::Include(s);
+			unavailableShards |= s.unavailableShards;
+		}
 	};
 
 private:
@@ -45,7 +77,7 @@ private:
 	content_t	highest=0;
 	bool		sealed = false;
 
-	typedef GridArray<TSample,POD>	TGrid;
+	typedef GridArray<TExtSample>	TGrid;
 
 	TGrid	grid;
 
@@ -177,6 +209,7 @@ public:
 	@return true, if any inconsistency was imported
 	*/
 	bool		Include(const TGridCoords&sectorDelta, const InconsistencyCoverage&remote);
+	void		IncludeMissing(const TGridCoords&sectorDelta, index_t linearShardIndex, count_t numShards);
 
 	/**
 	Resizes the local area to at most Resolution*Resolution and copies all values from the specified remote ic map
@@ -196,9 +229,11 @@ public:
 	void		FlushInconsistency()
 	{
 		ASSERT__(!sealed);
-		grid.Fill(TSample());
+		grid.Fill(TExtSample());
 		highest = 0;
 	}
+
+	void		Hash(Hasher&inputHash)	const;
 
 	bool		IsSealed() const {return sealed;}
 	void		Seal() {sealed = true;}
@@ -231,7 +266,7 @@ public:
 	bool		IsInconsistent(const TEntityCoords&coords) const;
 	content_t	GetInconsistency(const TEntityCoords&coords) const;
 	content_t	GetPixelInconsistency(const TGridCoords&) const;
-	const TSample& GetSample(TGridCoords) const;
+	const TExtSample& GetSample(TGridCoords) const;
 	void		VerifyIsInconsistent(const TEntityCoords&coords, const TVerificationContext&context) const;
 	static TGridCoords	ToPixels(const TEntityCoords&coords);
 
@@ -260,5 +295,88 @@ public:
 
 	bool		operator==(const InconsistencyCoverage&other) const;
 	bool		operator!=(const InconsistencyCoverage&other) const	{return !operator==(other);}
+};
+
+
+
+
+
+
+/**
+N-dimensional map of hashed entity state histories.
+Empty hash values indicate data-loss as a result of merging
+*/
+class HGrid
+{
+public:
+	/*
+	Important: Empty Hash = unmergeable
+	*/
+	typedef Hasher::HashContainer	Cell;
+	typedef GridArray<Cell,POD>		TGrid;
+
+	static const count_t			Resolution=IC::Resolution;	//must match, unfortunately, so that merges can reconstruct a consistent state if ICs do not overlap
+	TGrid		grid;
+
+	void		Merge(const HGrid&,const HGrid&);
+	bool		IsMergeable(const TGridCoords&) const;
+	void		CreateEdgeGrid(HGrid&, const TGridCoords&edgeDelta) const;
+
+	const Cell&	GetCellOfW(const TEntityCoords&worldCoords, const TGridCoords&localOffset) const;
+	const Cell&	GetCellOfL(const TEntityCoords&localCoords) const;
+	const Cell&	GetCellOfL(const TGridCoords&localCoords) const;
+};
+
+
+
+class ExtHGrid
+{
+public:
+	/**
+	Core area. Maps all entities actually in the SD. Always up to date
+	*/
+	HGrid	core;
+	/**
+	Edge area. Maps entities from neighbors near the edge (up to 2*R far away).
+	One time-step outdated. May be empty if there is no neighbor, or no RCS was available
+	*/
+	FixedArray<HGrid,NumNeighbors> edge;
+
+	/**
+	Checks whether a location is consistent according to the two specified grids.
+	A location is consistent, if the hash values of the cell and all surrounding cells match among @a a and @a b
+	@param cellCoords Coords to sample in [0,IC::Resolution). Negative or values >= IC::Resolution are invalid
+	*/
+	static bool	IsConsistent(const ExtHGrid&a, const ExtHGrid&b,  const TGridCoords&cellCoords);
+
+	/**
+	Fetches the sample at the given location.
+	@param coords Coordinates to sample from. May be negative or exceed the valid maximum, thus sampling from this->edge instead of this->core
+	*/
+	const HGrid::Cell&		GetSample(const TGridCoords&coords);
+};
+
+class HashProcessGrid
+{
+public:
+	class Cell
+	{
+	public:
+		Hasher			hasher;
+		Sys::SpinLock	lock;
+	};
+	typedef GridArray<Cell>	TGrid;
+
+	const TGridCoords		localOffset;
+	TGrid		grid;
+
+	/**/		HashProcessGrid(const HGrid&,index_t timestep,const TGridCoords&localOffset);
+	/**/		HashProcessGrid(index_t timestep,const TGridCoords&localOffset);
+	void		Finish(HGrid&);
+	void		Include(const EntityStorage&e);
+
+	Cell&		GetCellOfW(const TEntityCoords&worldCoords);
+	Cell&		GetCellOfL(const TEntityCoords&localCoords);
+	Cell&		GetCellOfL(const TGridCoords&localCoords);
 };
 

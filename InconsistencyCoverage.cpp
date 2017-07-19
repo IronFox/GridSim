@@ -4,6 +4,120 @@
 
 #include <container/array2d.h>
 #include <container/array3d.h>
+#include "EntityStorage.h"
+
+
+
+HashProcessGrid::HashProcessGrid(const HGrid&h,index_t timestep,const TGridCoords&localOffset):localOffset(localOffset)
+{
+	grid.SetSize(h.grid.GetSize());
+
+	Concurrency::parallel_for(index_t(0),grid.Count(),[this,&h,timestep](index_t i)
+	{
+		grid[i].hasher.AppendPOD(h.grid[i]);
+		grid[i].hasher.AppendPOD(timestep);
+	});
+}
+
+HashProcessGrid::HashProcessGrid(index_t timestep,const TGridCoords&localOffset):localOffset(localOffset)
+{
+	static const auto Resolution = HGrid::Resolution;
+	grid.SetSize(TGrid::Size(Resolution));
+
+	Concurrency::parallel_for(index_t(0),grid.Count(),[this,timestep](index_t i)
+	{
+		grid[i].hasher.AppendPOD(timestep);
+	});
+}
+
+void		HashProcessGrid::Finish(HGrid&h)
+{
+	Concurrency::parallel_for(index_t(0),grid.Count(),[this,&h](index_t i)
+	{
+		grid[i].hasher.Finish(h.grid[i]);
+	});
+
+}
+
+void		HashProcessGrid::Include(const EntityStorage&store)
+{
+	Concurrency::parallel_for(index_t(0),store.Count(),[this,&store](index_t i)
+	{
+		const auto&e = store[i];
+		auto&cell = GetCellOfW(e.coordinates);
+		cell.lock.lock();
+		e.Hash(cell.hasher);
+		cell.lock.unlock();
+	});
+}
+
+HashProcessGrid::Cell&		HashProcessGrid::GetCellOfW(const TEntityCoords&worldCoords)
+{
+	return GetCellOfL(TEntityCoords(worldCoords - localOffset));
+}
+
+HashProcessGrid::Cell&		HashProcessGrid::GetCellOfL(const TEntityCoords&localCoords)
+{
+	TGridCoords c = localCoords / HGrid::Resolution;
+	Vec::clamp(c,0,HGrid::Resolution-1);
+	return GetCellOfL(c);
+}
+
+HashProcessGrid::Cell&		HashProcessGrid::GetCellOfL(const TGridCoords&localCoords)
+{
+	#ifdef D3
+		return grid.Get(localCoords.x,localCoords.y,localCoords.z);
+	#else
+		return grid.Get(localCoords.x,localCoords.y);
+	#endif
+}
+
+
+bool		HGrid::IsMergeable(const TGridCoords&c) const
+{
+	return GetCellOfL(c) != Hasher::HashContainer::Empty;
+}
+
+
+const HGrid::Cell&		HGrid::GetCellOfW(const TEntityCoords&worldCoords, const TGridCoords&localOffset) const
+{
+	return GetCellOfL(TEntityCoords(worldCoords - localOffset));
+}
+
+const HGrid::Cell&		HGrid::GetCellOfL(const TEntityCoords&localCoords) const
+{
+	TGridCoords c = localCoords / Resolution;
+	Vec::clamp(c,0,Resolution-1);
+	return GetCellOfL(c);
+}
+
+const HGrid::Cell&		HGrid::GetCellOfL(const TGridCoords&localCoords) const
+{
+	#ifdef D3
+		return grid.Get(localCoords.x,localCoords.y,localCoords.z);
+	#else
+		return grid.Get(localCoords.x,localCoords.y);
+	#endif
+}
+
+
+void		HGrid::Merge(const HGrid&a,const HGrid&b)
+{
+	grid.SetSize(TGrid::Size(Resolution));
+
+	for (index_t i = 0; i < a.grid.Count(); i++)
+	{
+		const auto&ac = a.grid[i];
+		const auto&bc = b.grid[i];
+		auto&c = grid[i];
+		if (ac == bc)
+			c = ac;
+		else
+			c = Hasher::HashContainer::Empty;
+	}
+}
+
+
 
 
 
@@ -56,6 +170,14 @@ void	InconsistencyCoverage::TSample::SetWorst(const TSample&a, const TSample&b)
 	depth = vmax(a.depth,b.depth);
 }
 
+void	InconsistencyCoverage::TSample::Include(const TSample&other)
+{
+	if (blurExtent == 0xFF || other.blurExtent == 0xFF)
+		blurExtent = 0xFF;
+	else
+		blurExtent = vmin(blurExtent,other.blurExtent);
+	depth = vmax(depth,other.depth);
+}
 
 
 InconsistencyCoverage::TSample&	InconsistencyCoverage::TSample::IntegrateGrowingNeighbor(const TSample&n, UINT32 distance)
@@ -167,12 +289,27 @@ bool		InconsistencyCoverage::operator==(const InconsistencyCoverage&other) const
 void InconsistencyCoverage::FillMinInconsistent()
 {
 	ASSERT__(!sealed);
-	TSample sample;
+	TExtSample sample;
 	sample.depth = 1;
 	sample.blurExtent = 0;
 	grid.Fill(sample);
 	highest = sample.depth;
 }
+
+
+void		InconsistencyCoverage::Hash(Hasher&inputHash)	const
+{
+	const auto size = grid.GetSize();
+	static_assert(sizeof(size) == sizeof(index_t)*Dimensions,"POD constraints violated");
+	inputHash.AppendPOD(size);
+
+	foreach (grid,c)
+	{
+		c->Hash(inputHash);
+	}
+
+}
+
 
 void InconsistencyCoverage::Grow(InconsistencyCoverage & rs) const
 {
@@ -246,7 +383,7 @@ void InconsistencyCoverage::Grow(InconsistencyCoverage & rs) const
 		for (UINT32 y = 0; y < this->grid.GetHeight(); y++)
 			for (UINT32 x = 0; x < this->grid.GetWidth(); x++)
 			{
-				const TSample&v = grid.Get(x, y);
+				const TExtSample&v = grid.Get(x, y);
 				auto&out = rs.grid.Get(x + expandBy, y + expandBy);
 				out = v;
 				if (!out.IsConsistent())
@@ -285,7 +422,7 @@ void InconsistencyCoverage::Grow(InconsistencyCoverage & rs) const
 }
 
 template <class S>
-static const InconsistencyCoverage::TSample*	GetVerified(const Array2D<InconsistencyCoverage::TSample,S>&array, const VecN<int,2>&c)
+static const InconsistencyCoverage::TExtSample*	GetVerified(const Array2D<InconsistencyCoverage::TExtSample,S>&array, const VecN<int,2>&c)
 {
 	if (c.x < 0 || c.y < 0)
 		return nullptr;
@@ -295,7 +432,7 @@ static const InconsistencyCoverage::TSample*	GetVerified(const Array2D<Inconsist
 }
 
 template <class S>
-static InconsistencyCoverage::TSample*	GetVerified(Array2D<InconsistencyCoverage::TSample,S>&array, const VecN<int,2>&c)
+static InconsistencyCoverage::TExtSample*	GetVerified(Array2D<InconsistencyCoverage::TExtSample,S>&array, const VecN<int,2>&c)
 {
 	if (c.x < 0 || c.y < 0)
 		return nullptr;
@@ -325,6 +462,49 @@ static InconsistencyCoverage::TSample*	GetVerified(Array3D<InconsistencyCoverage
 	return &array.Get(c.x,c.y,c.z);
 }
 
+void InconsistencyCoverage::IncludeMissing(const TGridCoords&sectorDelta, index_t linearShardIndex, count_t numShards)
+{
+	ASSERT__(!sealed);
+	VerifyIntegrity(CLOCATION);
+	TGridCoords pixelDelta = offset - sectorDelta * Resolution - (-1);
+
+	TExtSample v2;
+	v2.depth = 1;
+	v2.blurExtent = 0;
+	v2.unavailableShards.SetSize(numShards);
+	v2.unavailableShards.SetBit(linearShardIndex,true);
+
+	#ifdef D3
+		for (UINT32 z = 0; z < grid.GetDepth(); z++)
+	#endif
+	for (UINT32 y = 0; y < grid.GetHeight(); y++)
+		for (UINT32 x = 0; x < grid.GetWidth(); x++)
+		{
+			#ifdef D3
+				TGridCoords at2 = TGridCoords(x,y,z) + pixelDelta;
+			#else
+				TGridCoords at2 = TGridCoords(x,y) + pixelDelta;
+			#endif
+			if (at2.x < 0 || at2.x >= Resolution+2
+				|| at2.y < 0 || at2.y >= Resolution+2
+				#ifdef D3
+					|| at2.z < 0 || at2.z >= Resolution+2
+				#endif
+				)
+				continue;
+			#ifdef D3
+				TSample&v = grid.Get(x,y,z);
+			#else
+				TSample&v = grid.Get(x,y);
+			#endif
+			v.Include(v2);
+			highest = vmax(highest,v.depth);
+		}
+	VerifyIntegrity(CLOCATION);
+}
+
+
+
 bool InconsistencyCoverage::Include(const TGridCoords & sectorDelta, const InconsistencyCoverage & remote)
 {
 	ASSERT__(!sealed);
@@ -343,7 +523,7 @@ bool InconsistencyCoverage::Include(const TGridCoords & sectorDelta, const Incon
 			#else
 				TGridCoords at2 = TGridCoords(x,y) + pixelDelta;
 			#endif
-			const TSample*v2 = GetVerified(remote.grid,at2);
+			const TExtSample*v2 = GetVerified(remote.grid,at2);
 			if (!v2 || v2->IsConsistent())
 				continue;
 			#ifdef D3
@@ -351,7 +531,8 @@ bool InconsistencyCoverage::Include(const TGridCoords & sectorDelta, const Incon
 			#else
 				TSample&v = grid.Get(x,y);
 			#endif
-			v.SetWorst(v,*v2);
+			v.Include(*v2);
+			//v.SetWorst(v,*v2);
 			highest = vmax(highest,v.depth);
 			rs = true;
 		}
@@ -398,14 +579,14 @@ void InconsistencyCoverage::CopyCoreArea(const TGridCoords & sectorDelta, const 
 				TGridCoords at2 = TGridCoords(x,y) + pixelDelta;	//assume (ic.width()-1,0)=(Resolution-1,0)
 			#endif
 			//=> at2 = (-Resolution+1+Resolution-1, 1+0)=(0,1)
-			const TSample*v2 = GetVerified(remote.grid,at2);
+			const TExtSample*v2 = GetVerified(remote.grid,at2);
 			#ifdef D3
-				TSample&v = grid.Get(x,y,z);
+				TExtSample&v = grid.Get(x,y,z);
 			#else
-				TSample&v = grid.Get(x,y);
+				TExtSample&v = grid.Get(x,y);
 			#endif
 			if (!v2)
-				v = TSample();
+				v = TExtSample();
 			else
 			{
 				highest = vmax(highest,v2->depth);
@@ -512,9 +693,11 @@ InconsistencyCoverage::content_t		InconsistencyCoverage::GetPixelInconsistency(c
 	return GetSample(coords).depth;
 }
 
-const InconsistencyCoverage::TSample&		InconsistencyCoverage::GetSample(TGridCoords coords) const
+const InconsistencyCoverage::TExtSample&		InconsistencyCoverage::GetSample(TGridCoords coords) const
 {
-	static const constexpr TSample empty;
+	static const TExtSample empty;
+	//ASSERT__(empty.blurExtent == TExtSample().blurExtent);
+	//ASSERT__(empty.depth == TExtSample().depth);
 	static const TGridCoords zero,one(1);
 	if (Vec::oneLess(coords,zero))
 		return empty;

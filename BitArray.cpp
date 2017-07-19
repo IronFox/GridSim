@@ -1,9 +1,27 @@
 #include "BitArray.h"
 #include <math/basic.h>
 
+
+void			BitArray::Hash(Hasher&hasher) const
+{
+	hasher.AppendPOD(storage.Count());
+	hasher.Append(storage.pointer(),storage.GetContentSize());
+}
+
+
+bool			BitArray::AllZero() const
+{
+	foreach (storage,s)
+		if (*s)
+			return false;
+	return true;
+}
+
+
 	
 void			BitArray::operator&=(const BitArray&other)
 {
+	//if empty: stay empty
 	auto it0 = storage.begin();
 	auto it1 = other.storage.begin();
 	const auto end0 = storage.end();
@@ -19,15 +37,17 @@ void			BitArray::operator|=(const BitArray&other)
 {
 	if (storage.IsEmpty())
 	{
+		//copy other:
 		storage = other.storage;
 		return;
 	}
+	if (other.storage.Count() > storage.Count())
+		storage.ResizePreserveContent(other.storage.Count(),0);
 	auto it0 = storage.begin();
 	auto it1 = other.storage.begin();
-	const auto end0 = storage.end();
 	const auto end1 = other.storage.end();
 
-	for (; it0 != end0 && it1 != end1; ++it0, ++it1)
+	for (; it1 != end1; ++it0, ++it1)
 	{
 		*it0 |= *it1;
 	}
@@ -40,12 +60,13 @@ void			BitArray::operator^=(const BitArray&other)
 		storage = other.storage;
 		return;
 	}
+	if (other.storage.Count() > storage.Count())
+		storage.ResizePreserveContent(other.storage.Count(),0);
 	auto it0 = storage.begin();
 	auto it1 = other.storage.begin();
-	const auto end0 = storage.end();
 	const auto end1 = other.storage.end();
 
-	for (; it0 != end0 && it1 != end1; ++it0, ++it1)
+	for (; it1 != end1; ++it0, ++it1)
 	{
 		*it0 ^= *it1;
 	}

@@ -17,7 +17,7 @@ const PRCS edgeInboundRCS(new RCS(TCodeLocation()));
 void	CoreShardDomainState::Hash(Hasher&inputHash)	const
 {
 	entities.Hash(inputHash);
-	inputHash.Append(ic.GetGrid().pointer(),ic.GetGrid().GetContentSize());
+	ic.Hash(inputHash);
 	inputHash.AppendPOD(generation);
 }
 
@@ -401,7 +401,8 @@ void FullShardDomainState::FinalizeComputation(Shard&shard, const TCodeLocation&
 			ASSERT_NOT_NULL__(shard.neighbors[i].shard);
 			//if (shard.client.Exists(DB::ID(shard.neighbors[i].shard,&shard,GetOutput()->generation)))
 				inRCSPermanence[inbound].Request();
-			this->GetOutput()->ic.Include(shard.neighbors[i].delta,bad);
+			//this->GetOutput()->ic.Include(shard.neighbors[i].delta,bad);
+			this->GetOutput()->ic.IncludeMissing(shard.neighbors[i].delta,shard.linearCoords,shard.parentGrid->currentSize.CountElements());
 		}
 	}
 
