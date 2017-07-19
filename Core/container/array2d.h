@@ -345,7 +345,7 @@ namespace DeltaWorks
 				index_t	w;
 				
 				using Super::SetSize;
-				using Super::resizePreserveContent;
+				using Super::ResizePreserveContent;
 				using Super::erase;
 				using Super::append;
 			};

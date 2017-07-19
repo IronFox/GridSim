@@ -1209,7 +1209,7 @@ namespace DeltaWorks
 			
 							inline C&	append()	//!< Appends a singular element to the end of the array and returns a reference to it. append() has to allocate a new array, copy the contents of the old array and delete the old array. Copying is performed via the = operator @return Reference to the appended element
 							{
-								resizePreserveContent(elements+1);
+								ResizePreserveContent(elements+1);
 								return data[elements-1];
 							}
 
@@ -1253,14 +1253,14 @@ namespace DeltaWorks
 								if (max > origin.elements)
 									max = origin.elements;
 								count_t old_elements = elements;
-								resizePreserveContent(elements+max);
+								ResizePreserveContent(elements+max);
 								MyStrategy::moveElements(origin.data, data+old_elements, max);
 							}
 
 							inline void appendImport(C*import_data, count_t import_length)
 							{
 								count_t old_elements = elements;
-								resizePreserveContent(elements+import_length);
+								ResizePreserveContent(elements+import_length);
 								MyStrategy::moveElements(import_data, data+old_elements, import_length);
 							}
 			
@@ -1270,7 +1270,7 @@ namespace DeltaWorks
 								if (max > origin.count())
 									max = origin.count();
 								count_t old_elements = elements;
-								resizePreserveContent(elements+max);
+								ResizePreserveContent(elements+max);
 								HybridStrategy<MyStrategy,OtherStrategy>::copyElements(origin.pointer(),data+old_elements,max);
 							}
 
@@ -1279,7 +1279,7 @@ namespace DeltaWorks
 								if (max > origin.count())
 									max = origin.count();
 								count_t old_elements = elements;
-								resizePreserveContent(elements+max);
+								ResizePreserveContent(elements+max);
 								MyStrategy::copyElements(origin.pointer(),data+old_elements,max);
 							}
 
@@ -1287,7 +1287,7 @@ namespace DeltaWorks
 							inline void appendCopy(const T*copy_data, count_t copy_length)
 							{
 								count_t old_elements = elements;
-								resizePreserveContent(elements+copy_length);
+								ResizePreserveContent(elements+copy_length);
 								MyStrategy::copyElements(copy_data,data+old_elements,copy_length);
 							}
 			
@@ -1404,7 +1404,7 @@ namespace DeltaWorks
 			
 		
 				
-							inline	void	resizePreserveContent(count_t new_size) //! Resizes the array. The new array's content is filled with the elements of the old array as far as possible. Element movement is defined by the used strategy \param new_size New array size in elements (may be 0)
+							inline	void	ResizePreserveContent(count_t new_size) //! Resizes the array. The new array's content is filled with the elements of the old array as far as possible. Element movement is defined by the used strategy \param new_size New array size in elements (may be 0)
 							{
 								if (new_size == elements || new_size == Undefined)
 									return;
@@ -1416,6 +1416,24 @@ namespace DeltaWorks
 								elements = new_size;
 							}
 				
+							/**
+							Resizes the local array to match the new size.
+							The operation may delete elements from the end, or add new ones.
+							@param pattern Element to use to fill any added elements
+							*/
+							inline	void	ResizePreserveContent(count_t newSize, const C&pattern)
+							{
+								if (newSize == elements || newSize == Undefined)
+									return;
+								C*	new_field = alloc<C>(newSize);
+								count_t copy = newSize<elements?newSize:elements;
+								MyStrategy::moveElements(data,new_field,copy);
+								for (index_t i = elements; i < newSize; i++)
+									new_field[i] = pattern;
+								dealloc(data);
+								data = new_field;
+								elements = newSize;
+							}
 
 			};
 

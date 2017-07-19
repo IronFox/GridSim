@@ -79,8 +79,7 @@ namespace DeltaWorks
 				inline void				clear();								//!< @copydoc reset()
 				inline void				Clear(count_t len)	/**@copydoc clear(count_t len)*/ {clear(len);}
 				inline void				Clear()				/**@copydoc clear()*/ {clear();}
-				void					resizePreserveContent(count_t len);		//!< Resizes the local buffer size but preserves the old content and fill level where possible. If the old fill level exceeds the new size then all new elements will be occupied and initialized
-				inline void				ResizePreserveContent(count_t len)		/**@copydoc resizePreserveContent()*/ {resizePreserveContent(len);}
+				void					ResizePreserveContent(count_t len);		//!< Resizes the local buffer size but preserves the old content and fill level where possible. If the old fill level exceeds the new size then all new elements will be occupied and initialized
 				void					Fill(const T&pattern);					//!< Copies \b pattern to each element of the local buffer
 				template <typename Strategy2>
 					Self&				moveAppend(BasicBuffer<T,Strategy2>&buffer, bool clearSourceOnCompletion=true);	//!< Appends all elements in the specified other buffer to the end of the local buffer. The elements will be moved, leaving the parameter buffer empty upon completion.

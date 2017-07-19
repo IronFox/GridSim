@@ -16,9 +16,9 @@ namespace Engine
 
 	void SimpleGeometry::resize(unsigned len_)
 	{
-		field[0].resizePreserveContent(len_);
-		field[1].resizePreserveContent(len_);
-		field[2].resizePreserveContent(len_);
+		field[0].ResizePreserveContent(len_);
+		field[1].ResizePreserveContent(len_);
+		field[2].ResizePreserveContent(len_);
 	}
 	
 	void SimpleGeometry::reset()

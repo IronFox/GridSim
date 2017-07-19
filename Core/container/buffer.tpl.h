@@ -358,7 +358,7 @@ template <typename T, typename MyStrategy>
 
 
 template <typename T, typename MyStrategy>
-	void	BasicBuffer<T, MyStrategy>::resizePreserveContent(count_t new_len)
+	void	BasicBuffer<T, MyStrategy>::ResizePreserveContent(count_t new_len)
 	{
 		if ((count_t)(storage_end-storage_begin) == new_len)
 			return;

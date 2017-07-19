@@ -232,7 +232,7 @@ namespace DeltaWorks
 				count_t	w,h;
 				
 				using Super::SetSize;
-				using Super::resizePreserveContent;
+				using Super::ResizePreserveContent;
 				using Super::erase;
 				using Super::append;
 

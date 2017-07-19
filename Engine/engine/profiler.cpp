@@ -86,13 +86,13 @@ namespace Engine
 			if (res == history.length())
 				return;
 			count_t old = history.length();
-			history.resizePreserveContent(res);
+			history.ResizePreserveContent(res);
 			history.Fill(0,old);
 			//weighted_history.resizeCopy(res);
 			//weighted_history.Fill(0,old);
-			minimum_history.resizePreserveContent(res);
+			minimum_history.ResizePreserveContent(res);
 			minimum_history.Fill(0,old);
-			maximum_history.resizePreserveContent(res);
+			maximum_history.ResizePreserveContent(res);
 			maximum_history.Fill(0,old);
 		}
 		
@@ -338,7 +338,7 @@ namespace Engine
 			if (major_channel >= count())
 			{
 				count_t pre = count();
-				resizePreserveContent(major_channel+1);
+				ResizePreserveContent(major_channel+1);
 				for (index_t i = pre; i <= major_channel; i++)
 					Array<Group,Adopt>::operator[](i).setResolution(res);
 			}
@@ -346,7 +346,7 @@ namespace Engine
 			if (minor_channel >= group.channels())
 			{
 				count_t pre = group.channels();
-				group.resizePreserveContent(minor_channel+1);
+				group.ResizePreserveContent(minor_channel+1);
 				for (index_t i = pre; i <= minor_channel; i++)
 				{
 					group.channel(i).setResolution(res);

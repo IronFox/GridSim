@@ -3712,7 +3712,7 @@ template <class Def> void Geometry<Def>::loadTextures(Riff::File&riff)
 					{
 						CGS_POINT
 						index_t index = texture->face_field.length();
-						texture->face_field.resizePreserveContent(index+1);	//this has got to be the second most inefficient way to do this :S
+						texture->face_field.ResizePreserveContent(index+1);	//this has got to be the second most inefficient way to do this :S
 						texture->face_field[index].SetSize(riff.GetSize());
 						riff.Get(texture->face_field[index].pointer());
 						CGS_POINT

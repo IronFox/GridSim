@@ -555,7 +555,7 @@ namespace Engine
 
 		void						resetToDefault(bool colors=true, bool erase_layers=false); //!< Loads default values into the structure. \param colors If set true then default colors will be loaded. @param erase_layers If set true then the number of layers will be reduced to zero
 
-		virtual	void				setLayers(count_t num_layers)	{layers.resizePreserveContent(num_layers);/*texcoords.resizePreserveContent(num_layers);*/};	//!< Changes the number of layers. Copies the content of the existing layer array. \param layers New number of layers.
+		virtual	void				setLayers(count_t num_layers)	{layers.ResizePreserveContent(num_layers);/*texcoords.ResizePreserveContent(num_layers);*/};	//!< Changes the number of layers. Copies the content of the existing layer array. \param layers New number of layers.
 
 		virtual	void 				read(const CGS::MaterialInfo&info, UINT32 flags);	//!< Fills all local variables in accordance with the specified CGS material, floats per coordinate and flags
 
@@ -659,7 +659,7 @@ namespace Engine
 			virtual	void		setLayers(count_t num_layers)
 								{
 									MaterialConfiguration::setLayers(num_layers);
-									textures.resizePreserveContent(num_layers);
+									textures.ResizePreserveContent(num_layers);
 								}
 
 			virtual	void 		read(const CGS::MaterialInfo&info, UINT32 flags)

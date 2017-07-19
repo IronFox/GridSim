@@ -215,7 +215,7 @@ namespace DeltaWorks
 				for (index_t i = stub->geometry.connector_field.length(); i < connectors.count(); i++)
 					if (connectors[i].segment)
 						connectors[i].segment->disconnectFrom(this);
-				connectors.resizePreserveContent(stub->geometry.connector_field.length());
+				connectors.ResizePreserveContent(stub->geometry.connector_field.length());
 			
 				if (segment)
 				{

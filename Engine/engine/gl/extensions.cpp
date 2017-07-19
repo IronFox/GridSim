@@ -2972,7 +2972,7 @@ namespace Engine
 				}
 
 				count_t old = values.count();
-				values.resizePreserveContent(map->variableMap.count());
+				values.ResizePreserveContent(map->variableMap.count());
 				for (index_t i = old; i < values.count(); i++)
 					values[i] = 0;
 				if (old != values.count())
@@ -2993,7 +2993,7 @@ namespace Engine
 					if (Adapt)
 					{
 						count_t old = values.count();
-						values.resizePreserveContent(map->variableMap.count());
+						values.ResizePreserveContent(map->variableMap.count());
 						for (index_t i = old; i < values.count(); i++)
 							values[i] = 0;
 						if (old != values.count())
