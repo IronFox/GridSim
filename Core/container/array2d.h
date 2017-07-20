@@ -1,27 +1,13 @@
 #pragma once
 
 #include "array.h"
+#include "../math/sizeND.h"
 
 namespace DeltaWorks
 {
 
 	namespace Container
 	{
-
-		class Size2D
-		{
-		public:
-			count_t		width,
-						height;
-
-			explicit	Size2D(count_t size=0):width(size),height(size)	{}
-			/**/		Size2D(count_t w, count_t h):width(w),height(h)	{}
-			bool		operator==(const Size2D&other) const {return width == other.width && height == other.height;}
-			bool		operator!=(const Size2D&other) const {return !operator==(other);}
-			count_t		CountElements() const {return width*height;}
-		};
-
-
 		/**
 		@brief Two dimensional, row-major array
 		
@@ -34,7 +20,8 @@ namespace DeltaWorks
 				typedef Array2D<C,MyStrategy>	Self;
 				typedef Ctr::Array<C,MyStrategy>	Super;
 
-				typedef Size2D	Size;
+				typedef Size2D<count_t>		Size;
+				typedef Index2D<index_t>	Index;
 
 				template <bool IsHorizontal>
 					class Axis;
@@ -204,7 +191,7 @@ namespace DeltaWorks
 					target.SetSize(h);
 					for (index_t i= 0; i < h; i++)
 					{
-						target[i] = Super::data[ToIndexNoCheck(col,i)];
+						target[i] = Super::data[ToLinearIndexNoCheck(col,i)];
 					}
 				}
 
@@ -228,21 +215,52 @@ namespace DeltaWorks
 					#endif
 					for (index_t i= 0; i < h; i++)
 					{
-						Super::data[ToIndexNoCheck(col,i)] = source[i];
+						Super::data[ToLinearIndexNoCheck(col,i)] = source[i];
 					}
 				}
 
 
-				index_t		ToIndex(index_t x, index_t y) const
+				/**
+				Copies up to @a extent many elements along each axis from @a other, starting at @a offset.
+				The local array will be resized to match the copied elements
+				@param other Array to copy from
+				@param offset Starting index to copy from (inclusive) in @a other. Mapped to (0,0) in the local array. May exceed valid range, resulting in an empty array
+				@param extent Number of elements to copy along each axis. May exceed valid range, resulting in reduced numbers
+				*/
+				void		ResizeToAndCopyBlock(const Self&other, const Index&offset, Size extent)
+				{
+					if (offset.x >= other.GetWidth() || offset.y >= other.GetHeight())
+					{
+						SetSize(0,0);
+						return;
+					}
+					extent.Limit(other.GetSize() - offset);
+					SetSize(extent);
+					const Index end = offset + extent;
+					for (index_t x = offset.x; x < end.x; x++)
+						for (index_t y = offset.y; y < end.y; y++)
+							data[ToLinearIndexNoCheck(x - offset.x,y-offset.y)] = other.data[other.ToLinearIndexNoCheck(x,y)];
+				}
+
+				index_t		ToLinearIndex(const Index&idx) const
+				{
+					return ToLinearIndex(idx.x,idx.y);
+				}
+				index_t		ToLinearIndexNoCheck(const Index&idx) const
+				{
+					return ToLinearIndexNoCheck(idx.x,idx.y);
+				}
+
+				index_t		ToLinearIndex(index_t x, index_t y) const
 				{
 					#ifdef __ARRAY_DBG_RANGE_CHECK__
 						if (x >= w || y >= GetHeight())
 							FATAL__("Index out of bounds");
 					#endif
-					return ToIndexNoCheck(x,y);
+					return ToLinearIndexNoCheck(x,y);
 				}
 
-				index_t		ToIndexNoCheck(index_t x, index_t y) const
+				index_t		ToLinearIndexNoCheck(index_t x, index_t y) const
 				{
 					return y*w+x;
 				}
@@ -258,12 +276,16 @@ namespace DeltaWorks
 				}
 				void		Set(index_t x, index_t y, const C&value)	//! Updates a singular element at the specified position	\param x X coordinate. Must be less than GetWidth() \param y Y coordinate. Must be less than GetHeight() @param value Value to set \return Reference to the requested element
 				{
-					Super::data[ToIndex(x,y)] = value;
+					Super::data[ToLinearIndex(x,y)] = value;
 				}
 			
+				C&			Get(const Index&idx)
+				{
+					return Get(idx.x,idx.y);
+				}
 				C&			Get(index_t x, index_t y)	//! Retrieves a singular element at the specified position	\param x X coordinate. Must be less than GetWidth() \param y Y coordinate. Must be less than GetHeight() \return Reference to the requested element
 				{
-					return Super::data[ToIndex(x,y)];
+					return Super::data[ToLinearIndex(x,y)];
 				}
 				C&			Get(const Iterator<true>&x, const Iterator<false>&y)	//! Retrieves a singular element at the specified position	\param x X coordinate. Must be less than GetWidth() \param y Y coordinate. Must be less than GetHeight() \return Reference to the requested element
 				{
@@ -280,6 +302,10 @@ namespace DeltaWorks
 					return Get(x,*y);
 				}
 		
+				const C&	Get(const Index&idx) const
+				{
+					return Get(idx.x,idx.y);
+				}
 				const C&	Get(index_t x, index_t y)	const	//! Retrieves a singular element at the specified position \param x X coordinate. Must be less than GetWidth() \param y Y coordinate. Must be less than GetHeight() \return Reference to the requested element
 				{
 					#ifdef __ARRAY_DBG_RANGE_CHECK__

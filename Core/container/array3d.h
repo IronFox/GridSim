@@ -1,26 +1,12 @@
 #pragma once
 
 #include "array.h"
+#include "../math/sizeND.h"
 
 namespace DeltaWorks
 {
 	namespace Container
 	{
-
-		class Size3D
-		{
-		public:
-			count_t		width,
-						height,
-						depth;
-
-			explicit	Size3D(count_t size=0):width(size),height(size),depth(size)	{}
-			/**/		Size3D(count_t w, count_t h, count_t d):width(w),height(h),depth(d)	{}
-			bool		operator==(const Size3D&other) const {return width == other.width && height == other.height && depth == other.depth;}
-			bool		operator!=(const Size3D&other) const {return !operator==(other);}
-			count_t		CountElements() const {return width*height*depth;}
-		};
-
 
 
 		/**
@@ -34,7 +20,8 @@ namespace DeltaWorks
 			public:
 				typedef Array3D<T,MyStrategy>	Self;
 				typedef Ctr::Array<T,MyStrategy>	Super;
-				typedef Size3D	Size;
+				typedef Size3D<count_t>	Size;
+				typedef Index3D<index_t> Index;
 
 
 				template <int AxisIndex>
@@ -139,21 +126,31 @@ namespace DeltaWorks
 				Axis<1>		Vertical() const {return Axis<1>(GetHeight());}
 				Axis<2>		Deep() const {return Axis<2>(GetDepth());}
 
+				index_t		ToLinearIndex(const Index&idx) const
+				{
+					return ToLinearIndex(idx.x,idx.y,idx.z);
+				}
+				index_t		ToLinearIndexNoCheck(const Index&idx) const
+				{
+					return ToLinearIndexNoCheck(idx.x,idx.y,idx.z);
+				}
 
 
-				index_t		ToIndex(index_t x, index_t y, index_t z) const
+				index_t		ToLinearIndex(index_t x, index_t y, index_t z) const
 				{
 					#ifdef __ARRAY_DBG_RANGE_CHECK__
 						if (x >= w || y >= h || z >= GetDepth())
 							FATAL__("Index out of bounds");
 					#endif
-					return ToIndexNoCheck(x,y,z);
+					return ToLinearIndexNoCheck(x,y,z);
 				}
 
-				index_t		ToIndexNoCheck(index_t x, index_t y, index_t z) const
+				index_t		ToLinearIndexNoCheck(index_t x, index_t y, index_t z) const
 				{
 					return z*w*h + y*w + x;
 				}
+
+				
 
 				void		SetSize(const Size&res)
 				{
@@ -167,21 +164,46 @@ namespace DeltaWorks
 				}
 				void		Set(index_t x, index_t y, index_t z, const T&value)
 				{
-					Super::data[ToIndex(x,y,z)] = value;
+					Super::data[ToLinearIndex(x,y,z)] = value;
 				}
 			
 				T&			Get(index_t x, index_t y, index_t z)
 				{
-					return Super::data[ToIndex(x,y,z)];
+					return Super::data[ToLinearIndex(x,y,z)];
 				}
 				const T&			Get(index_t x, index_t y, index_t z) const
 				{
-					return Super::data[ToIndex(x,y,z)];
+					return Super::data[ToLinearIndex(x,y,z)];
 				}
 				T&			Get(const Iterator<0>&x, const Iterator<1>&y, const Iterator<2>&z)
 				{
 					return Get(*x,*y,*z);
 				}
+
+
+				/**
+				Copies up to @a extent many elements along each axis from @a other, starting at @a offset.
+				The local array will be resized to match the copied elements
+				@param other Array to copy from
+				@param offset Starting index to copy from (inclusive) in @a other. Mapped to (0,0) in the local array. May exceed valid range, resulting in an empty array
+				@param extent Number of elements to copy along each axis. May exceed valid range, resulting in reduced numbers
+				*/
+				void		ResizeToAndCopyBlock(const Self&other, const Index&offset, Size extent)
+				{
+					if (offset.x >= other.GetWidth() || offset.y >= other.GetHeight() || offset.z >= other.GetDepth())
+					{
+						SetSize(0,0,0);
+						return;
+					}
+					extent.Limit(other.GetSize() - offset);
+					SetSize(extent);
+					const Index end = offset + extent;
+					for (index_t x = offset.x; x < end.x; x++)
+						for (index_t y = offset.y; y < end.y; y++)
+							for (index_t z = offset.z; z < end.z; z++)
+								data[ToLinearIndexNoCheck(x - offset.x,y-offset.y,z-offset.z)] = other.data[other.ToLinearIndexNoCheck(x,y,z)];
+				}
+
 			
 				void	adoptData(Self&other)	//! Adopts pointer and size and sets both NULL of the specified origin array.
 				{

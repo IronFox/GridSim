@@ -4,7 +4,7 @@
 namespace DeltaWorks
 {
 
-	Resolution::Resolution(const Resolution3D&res):width(res.width),height(res.height)
+	Resolution::Resolution(const Resolution3D&res):Super(res.width,res.height)
 	{
 	//	DBG_ASSERT__(res.depth == 1);	going to tolerate this for now
 	}
