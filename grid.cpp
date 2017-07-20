@@ -11,13 +11,13 @@ void Grid::Layer::Create(const GridSize&size, Grid&g, index_t layer)
 			for (int y = 0; y < size.height; y++)
 				for (int z = 0; z < size.depth; z++)
 				{
-					shardGrid.Get(x,y,z).Setup(g,int3(x,y,z),shardGrid.ToIndexNoCheck(x,y,z),layer);
+					shardGrid.Get(x,y,z).Setup(g,int3(x,y,z),shardGrid.ToLinearIndexNoCheck(x,y,z),layer);
 				}
 	#else
 		for (int x = 0; x < size.width; x++)
 			for (int y = 0; y < size.height; y++)
 			{
-				shardGrid.Get(x,y).Setup(g,int2(x,y),shardGrid.ToIndexNoCheck(x,y),  layer);
+				shardGrid.Get(x,y).Setup(g,int2(x,y),shardGrid.ToLinearIndexNoCheck(x,y),  layer);
 			}
 	#endif
 }

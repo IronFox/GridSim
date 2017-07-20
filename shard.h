@@ -163,6 +163,7 @@ public:
 	bool					IsFullyAvailable() const {return liveliness.state == TLiveliness::Alive;}
 	void					Die(index_t topGeneration);
 	void					Setup(Grid&, const TGridCoords&myCoords, index_t myLinearCoords, index_t layer);
+	static index_t			NeighborToLinear(const TGridCoords&delta);
 	void					UploadInitialStates();
 
 	/**

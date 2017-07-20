@@ -27,6 +27,32 @@ index_t					Shard::NewestDefinedSDSIndex() const
 
 	
 
+/*static*/ index_t			Shard::NeighborToLinear(const TGridCoords&delta)
+{
+	#ifdef D3
+	index_t linear = (delta.x+1)*9
+					+(delta.y+1)*3
+					+(delta.z+1);
+	#else
+	index_t linear = (delta.x+1)*3
+					+(delta.y+1);
+	#endif
+
+	if (delta.x > 0 || 
+		(delta.x == 0 && 
+			(
+				delta.y > 0
+				#ifdef D3
+				||
+				(delta.y == 0 && delta.z > 0)
+				#endif
+			)
+		)
+	   )
+		linear--;
+	return linear;
+}
+
 
 
 void Shard::Setup(Grid&grid, const TGridCoords&myCoords, index_t myLinearCoords, index_t layer)
@@ -46,6 +72,11 @@ void Shard::Setup(Grid&grid, const TGridCoords&myCoords, index_t myLinearCoords,
 				if (x != 0 || y != 0)
 			#endif
 			{
+				#ifdef D3
+					ASSERT_EQUAL__(NeighborToLinear(TGridCoords(x,y,z)),at);
+				#else
+					ASSERT_EQUAL__(NeighborToLinear(TGridCoords(x,y)),at);
+				#endif
 				TNeighbor&n = neighbors[at++];
 				#ifdef D3
 					n.delta = TGridCoords(x,y,z);
@@ -63,14 +94,22 @@ void Shard::Setup(Grid&grid, const TGridCoords&myCoords, index_t myLinearCoords,
 				n2->inboundIndex = n-neighbors.begin();
 	}
 
-	sds.First().SetOpenEdgeRCS(*this);
-	VerifyIntegrity();
+	auto&s = sds.First();
+	s.SetOpenEdgeRCS(*this);
+
 }
 
 void	Shard::UploadInitialStates()
 {
 	ASSERT_EQUAL__(sds.Count(),1);
+	auto&s = sds.First();
+	s.pGrid.reset(new HashProcessGrid(s.GetGeneration(),gridCoords));
+	s.pGrid->Include(s.GetOutput()->entities);
+	s.pGrid->Finish(s.GetOutput()->hGrid.core);
+	s.pGrid.reset();
+
 	client.Upload(sds.First().GetOutput(),true);
+	VerifyIntegrity();
 }
 
 
@@ -88,10 +127,12 @@ void Shard::VerifyIntegrity() const
 {
 	foreach (sds,s)
 	{
-		if (s->GetOutput())
+		const auto &out = s->GetOutput();
+		if (out)
 		{
-			ASSERT_EQUAL__(s->GetOutput()->generation,s->GetGeneration());
-			ASSERT_GREATER_OR_EQUAL__(s->GetOutput()->createdInTimestep,s->GetOutput()->generation);
+			ASSERT__(out->hGrid.core.grid.IsNotEmpty());
+			ASSERT_EQUAL__(out->generation,s->GetGeneration());
+			ASSERT_GREATER_OR_EQUAL__(out->createdInTimestep,out->generation);
 		}
 	}
 
@@ -367,8 +408,10 @@ Shard::Shard():client(this)
 			(*ref) = emptyRCS;
 		}
 	}
-	sds.First().inputHash = Hasher::HashContainer::Empty;
-	sds.First().GetOutput()->ic.FlushInconsistency();
+	auto&s = sds.First();
+	s.inputHash = Hasher::HashContainer::Empty;
+	s.GetOutput()->ic.FlushInconsistency();
+
 	ASSERT__(emptyRCS);
 }
 

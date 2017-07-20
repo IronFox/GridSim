@@ -37,13 +37,24 @@ using namespace DeltaWorks::Math;
 	template <typename T,typename Strategy = typename Strategy::StrategySelector<T>::Default>
 		using GridArray = Array3D<T,Strategy>;
 
-	typedef Size3D GridSize;
-	inline TVec3<index_t>	ToVector(const Size3D&s)
+	typedef Size3D<index_t> GridSize;
+	inline TVec3<index_t>	ToVector(const GridSize&s)
 	{
 		TVec3<index_t> rs;
 		Vec::def(rs,s.width,s.height,s.depth);
 		return rs;
 	}
+	template <typename T>
+	inline Size3D<index_t>	VectorToSize(const TVec3<T>&v)
+	{
+		return Size3D<index_t> (v.x,v.y,v.z);
+	}
+	template <typename T>
+	inline Index3D<index_t>	VectorToIndex(const TVec3<T>&v)
+	{
+		return Index3D<index_t> (v.x,v.y,v.z);
+	}
+
 
 #else
 	static const constexpr count_t Dimensions=2;
@@ -57,12 +68,22 @@ using namespace DeltaWorks::Math;
 		using GridArray = Array2D<T,Strategy>;
 
 
-	typedef Size2D GridSize;
-	inline TVec2<index_t>	ToVector(const Size2D&s)
+	typedef Size2D<index_t> GridSize;
+	inline TVec2<index_t>	ToVector(const GridSize&s)
 	{
 		TVec2<index_t> rs;
 		Vec::def(rs,s.width,s.height);
 		return rs;
+	}
+	template <typename T>
+	inline Size2D<index_t>	VectorToSize(const TVec2<T>&v)
+	{
+		return Size2D<index_t> (v.x,v.y);
+	}
+	template <typename T>
+	inline Index2D<index_t>	VectorToIndex(const TVec2<T>&v)
+	{
+		return Index2D<index_t> (v.x,v.y);
 	}
 #endif
 

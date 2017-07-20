@@ -27,6 +27,7 @@ public:
 	Current inconsistency ic
 	*/
 	IC					ic;
+	ExtHGrid			hGrid;
 	const index_t		generation=0, createdInTimestep=0;
 	count_t				migrationCounter=0,
 						mergeCounter=0;
@@ -101,6 +102,7 @@ public:
 	PRCS					verifiedWith;
 	ChangeSet				cs;
 	InconsistencyCoverage	ic;
+	HGrid					hGrid;
 	const TCodeLocation		birthPlace;
 
 	/**/					RemoteChangeSet(const TCodeLocation&birthPlace):birthPlace(birthPlace){}
@@ -138,6 +140,8 @@ public:
 	*/
 	bool					inputConsistent=true;
 	Hasher::HashContainer	inputHash = Hasher::HashContainer::Empty;
+
+	std::shared_ptr<HashProcessGrid>	pGrid;
 
 	/**
 	'userMessages' are a serious problem.

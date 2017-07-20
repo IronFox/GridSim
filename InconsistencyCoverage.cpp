@@ -5,11 +5,12 @@
 #include <container/array2d.h>
 #include <container/array3d.h>
 #include "EntityStorage.h"
-
+#include "shard.h"
 
 
 HashProcessGrid::HashProcessGrid(const HGrid&h,index_t timestep,const TGridCoords&localOffset):localOffset(localOffset)
 {
+	ASSERT__(h.grid.IsNotEmpty());
 	grid.SetSize(h.grid.GetSize());
 
 	Concurrency::parallel_for(index_t(0),grid.Count(),[this,&h,timestep](index_t i)
@@ -32,9 +33,11 @@ HashProcessGrid::HashProcessGrid(index_t timestep,const TGridCoords&localOffset)
 
 void		HashProcessGrid::Finish(HGrid&h)
 {
+	ASSERT__(grid.IsNotEmpty());
+	h.grid.SetSize(grid.GetSize());
 	Concurrency::parallel_for(index_t(0),grid.Count(),[this,&h](index_t i)
 	{
-		grid[i].hasher.Finish(h.grid[i]);
+		grid[i].hasher.Finish(h.grid[i].history);
 	});
 
 }
@@ -73,48 +76,38 @@ HashProcessGrid::Cell&		HashProcessGrid::GetCellOfL(const TGridCoords&localCoord
 }
 
 
-bool		HGrid::IsMergeable(const TGridCoords&c) const
+void		HGrid::ExportEdge(HGrid&target, const TGridCoords&edgeDelta) const
 {
-	return GetCellOfL(c) != Hasher::HashContainer::Empty;
+	const Volume<int> local = Volume<int>(TGridCoords(0),TGridCoords(Resolution));
+	Volume<int> vol = local;
+	vol.Translate(edgeDelta * (Resolution -1));
+	vol.ConstrainBy(local);
+
+
+	target.grid.ResizeToAndCopyBlock(grid,VectorToIndex(vol.min()),VectorToSize(vol.GetExtent()));
+
 }
 
 
-const HGrid::Cell&		HGrid::GetCellOfW(const TEntityCoords&worldCoords, const TGridCoords&localOffset) const
+const HGrid::TCell&		HGrid::GetCellOfW(const TEntityCoords&worldCoords, const TGridCoords&localOffset) const
 {
 	return GetCellOfL(TEntityCoords(worldCoords - localOffset));
 }
 
-const HGrid::Cell&		HGrid::GetCellOfL(const TEntityCoords&localCoords) const
+const HGrid::TCell&		HGrid::GetCellOfL(const TEntityCoords&localCoords) const
 {
 	TGridCoords c = localCoords / Resolution;
 	Vec::clamp(c,0,Resolution-1);
 	return GetCellOfL(c);
 }
 
-const HGrid::Cell&		HGrid::GetCellOfL(const TGridCoords&localCoords) const
+const HGrid::TCell&		HGrid::GetCellOfL(const TGridCoords&localCoords) const
 {
 	#ifdef D3
 		return grid.Get(localCoords.x,localCoords.y,localCoords.z);
 	#else
 		return grid.Get(localCoords.x,localCoords.y);
 	#endif
-}
-
-
-void		HGrid::Merge(const HGrid&a,const HGrid&b)
-{
-	grid.SetSize(TGrid::Size(Resolution));
-
-	for (index_t i = 0; i < a.grid.Count(); i++)
-	{
-		const auto&ac = a.grid[i];
-		const auto&bc = b.grid[i];
-		auto&c = grid[i];
-		if (ac == bc)
-			c = ac;
-		else
-			c = Hasher::HashContainer::Empty;
-	}
 }
 
 
@@ -788,3 +781,72 @@ InconsistencyCoverage::TBadness	InconsistencyCoverage::GetTotalBadness() const
 	return rs;
 }
 
+/*static*/ bool	ExtHGrid::ExtMatch(const ExtHGrid&a, const ExtHGrid&b,  const TGridCoords&cellCoords)
+{
+	for (int x = cellCoords.x -1; x <= cellCoords.x+1; x++)
+		for (int y = cellCoords.y -1; y <= cellCoords.y+1; y++)
+			#ifdef D3
+				for (int z = cellCoords.z -1; z <= cellCoords.z+1; z++)
+			#endif
+			{
+				const TGridCoords coords = 
+					#ifdef D3
+						TGridCoords(x,y,z);
+					#else
+						TGridCoords(x,y);
+					#endif
+				const auto&as = a.GetSample(coords).history;
+				const auto&bs = b.GetSample(coords).history;
+				if (as != bs)
+					return false;
+			}
+	return true;
+}
+
+/*static*/ bool	ExtHGrid::CoreMatch(const ExtHGrid&a, const ExtHGrid&b,  const TGridCoords&cellCoords)
+{
+	const auto&as = a.core.GetCellOfL(cellCoords).history;
+	const auto&bs = b.core.GetCellOfL(cellCoords).history;
+	return as == bs;
+}
+
+const HGrid::TCell&		ExtHGrid::GetSample(const TGridCoords&coords) const
+{
+	TGridCoords nVector;
+	if (coords.x < 0)
+		nVector.x = -1;
+	elif (coords.x >= IC::Resolution)
+		nVector.x = 1;
+
+	if (coords.y < 0)
+		nVector.y = -1;
+	elif (coords.y >= IC::Resolution)
+		nVector.y = 1;
+
+	#ifdef D3
+		if (coords.z < 0)
+			nVector.z = -1;
+		elif (coords.z >= IC::Resolution)
+			nVector.z = 1;
+	#endif
+
+
+	if (Vec::zero(nVector))
+	{
+		return core.GetCellOfL(coords);
+	}
+
+
+	TGridCoords c2 = coords;	//factors along each axis
+	if (nVector.x != 0)
+		c2.x = 0;
+	if (nVector.y != 0)
+		c2.y = 0;
+	#ifdef D3
+		if (nVector.z != 0)
+			c2.z = 0;
+	#endif
+
+	const index_t linear = Shard::NeighborToLinear(nVector);
+	return edge[linear].GetCellOfL(c2);
+}

@@ -212,7 +212,7 @@ public:
 	void		IncludeMissing(const TGridCoords&sectorDelta, index_t linearShardIndex, count_t numShards);
 
 	/**
-	Resizes the local area to at most Resolution*Resolution and copies all values from the specified remote ic map
+	Resizes the local area to at most Resolution*Resolution[*Resolution] and copies all values from the specified remote ic map
 	*/
 	void		CopyCoreArea(const TGridCoords&sectorDelta, const InconsistencyCoverage&remote);
 
@@ -309,22 +309,22 @@ Empty hash values indicate data-loss as a result of merging
 class HGrid
 {
 public:
-	/*
-	Important: Empty Hash = unmergeable
-	*/
-	typedef Hasher::HashContainer	Cell;
-	typedef GridArray<Cell,POD>		TGrid;
+
+	struct TCell
+	{
+		Hasher::HashContainer		history;	//0: shallow history (last state only), 1: full history
+	};
+
+	typedef GridArray<TCell,POD>	TGrid;
 
 	static const count_t			Resolution=IC::Resolution;	//must match, unfortunately, so that merges can reconstruct a consistent state if ICs do not overlap
 	TGrid		grid;
 
-	void		Merge(const HGrid&,const HGrid&);
-	bool		IsMergeable(const TGridCoords&) const;
-	void		CreateEdgeGrid(HGrid&, const TGridCoords&edgeDelta) const;
+	void		ExportEdge(HGrid&target, const TGridCoords&edgeDelta) const;
 
-	const Cell&	GetCellOfW(const TEntityCoords&worldCoords, const TGridCoords&localOffset) const;
-	const Cell&	GetCellOfL(const TEntityCoords&localCoords) const;
-	const Cell&	GetCellOfL(const TGridCoords&localCoords) const;
+	const TCell&GetCellOfW(const TEntityCoords&worldCoords, const TGridCoords&localOffset) const;
+	const TCell&GetCellOfL(const TEntityCoords&localCoords) const;
+	const TCell&GetCellOfL(const TGridCoords&localCoords) const;
 };
 
 
@@ -346,14 +346,22 @@ public:
 	Checks whether a location is consistent according to the two specified grids.
 	A location is consistent, if the hash values of the cell and all surrounding cells match among @a a and @a b
 	@param cellCoords Coords to sample in [0,IC::Resolution). Negative or values >= IC::Resolution are invalid
+	@return true if all hash values match, false otherwise
 	*/
-	static bool	IsConsistent(const ExtHGrid&a, const ExtHGrid&b,  const TGridCoords&cellCoords);
+	static bool	ExtMatch(const ExtHGrid&a, const ExtHGrid&b,  const TGridCoords&cellCoords);
+	/**
+	Checks whether a location is consistent according to the two specified grids.
+	A location is consistent, if the hash values of the cell match among @a a and @a b.
+	The environment of the specified coordinates is NOT checked
+	@param cellCoords Coords to sample in [0,IC::Resolution). Negative or values >= IC::Resolution are invalid
+	*/
+	static bool	CoreMatch(const ExtHGrid&a, const ExtHGrid&b,  const TGridCoords&cellCoords);
 
 	/**
 	Fetches the sample at the given location.
 	@param coords Coordinates to sample from. May be negative or exceed the valid maximum, thus sampling from this->edge instead of this->core
 	*/
-	const HGrid::Cell&		GetSample(const TGridCoords&coords);
+	const HGrid::TCell&		GetSample(const TGridCoords&coords) const;
 };
 
 class HashProcessGrid

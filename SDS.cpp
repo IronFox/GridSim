@@ -57,8 +57,9 @@ void FullShardDomainState::PrecomputeSuccessor(Shard&shard, SDS & rs, const TBou
 	#endif
 
 	const auto input = this->GetOutput();
-
 	ASSERT__(input);
+	ASSERT__(input->hGrid.core.grid.IsNotEmpty());
+
 	ASSERT_EQUAL__(input->generation,generation);
 
 	const SDS*const consistentMatch = shard.consistentMatch ? shard.consistentMatch->FindGeneration(generation) : nullptr;
@@ -73,6 +74,7 @@ void FullShardDomainState::PrecomputeSuccessor(Shard&shard, SDS & rs, const TBou
 			AssertSelectiveEquality(*consistentMatch);
 	}
 
+	rs.pGrid.reset(new HashProcessGrid(input->hGrid.core,  generation+1,shard.gridCoords));
 
 	input->ic.VerifyIntegrity(CLOCATION);
 	Hasher	inputHash;
@@ -165,6 +167,7 @@ void FullShardDomainState::PrecomputeSuccessor(Shard&shard, SDS & rs, const TBou
 		rcs.ref.reset(new RCS(caller));
 		rcs.ref->ic.CopyCoreArea(-delta,ic);
 		rs.localCS.ExportEdge(delta,shard.gridCoords, rcs.ref->cs);
+		input->hGrid.core.ExportEdge(rcs.ref->hGrid,delta);
 		rcs.confirmed = shard.neighbors[i].shard == nullptr;
 		ASSERT_EQUAL__(rcs.confirmed,!motionSpace.Contains(shard.gridCoords + delta));
 
@@ -380,6 +383,7 @@ void FullShardDomainState::FinalizeComputation(Shard&shard, const TCodeLocation&
 		auto&rcs = inboundRCS[inbound];
 		if (rcs)
 		{
+			out->hGrid.edge[inbound] = rcs->hGrid;
 			if (rcs == edgeInboundRCS)
 			{
 				ASSERT__(rcs->ic.IsFullyConsistent());
@@ -410,6 +414,11 @@ void FullShardDomainState::FinalizeComputation(Shard&shard, const TCodeLocation&
 
 	cs.Apply(shard.gridCoords,*out);
 	out->ic.VerifyIntegrity(CLOCATION);
+
+	pGrid->Include(out->entities);
+	pGrid->Finish(out->hGrid.core);
+	pGrid.reset();
+
 	if (out->ic.IsFullyConsistent())
 	{
 		#ifdef DBG_SHARD_HISTORY
