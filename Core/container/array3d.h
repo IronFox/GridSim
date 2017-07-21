@@ -145,6 +145,22 @@ namespace DeltaWorks
 					return ToLinearIndexNoCheck(x,y,z);
 				}
 
+				Index		ToVectorIndex(index_t linear) const
+				{
+					#ifdef __ARRAY_DBG_RANGE_CHECK__
+						if (linear >= Count())
+							FATAL__("Index out of bounds");
+					#endif
+					return ToVectorIndexNoCheck(linear);
+				}
+
+				Index		ToVectorIndexNoCheck(index_t linear) const
+				{
+					const count_t slice = w*h;
+					return Index(linear % w, (linear%slice) / w, linear / slice);
+				}
+
+
 				index_t		ToLinearIndexNoCheck(index_t x, index_t y, index_t z) const
 				{
 					return z*w*h + y*w + x;
