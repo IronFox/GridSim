@@ -27,7 +27,6 @@ namespace DeltaWorks
 				this->x = x;
 				this->y = y;
 			}
-
 		};
 
 	template <typename T>
@@ -62,6 +61,17 @@ namespace DeltaWorks
 			{
 				width = diagonalSize;
 				height = diagonalSize;
+			}
+
+			friend Self max(const Self&a, const Self&b)
+			{
+				using std::max;
+				return Self(max(a.width,b.width),max(a.height,b.height));
+			}
+			friend Self min(const Self&a, const Self&b)
+			{
+				using std::min;
+				return Self(min(a.width,b.width),min(a.height,b.height));
 			}
 		};
 
@@ -125,6 +135,17 @@ namespace DeltaWorks
 				width = diagonalSize;
 				height = diagonalSize;
 				depth = diagonalSize;
+			}
+
+			friend Self max(const Self&a, const Self&b)
+			{
+				using std::max;
+				return Self(max(a.width,b.width),max(a.height,b.height),max(a.depth,b.depth));
+			}
+			friend Self min(const Self&a, const Self&b)
+			{
+				using std::min;
+				return Self(min(a.width,b.width),min(a.height,b.height),min(a.depth,b.depth));
 			}
 		};
 
