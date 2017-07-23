@@ -346,6 +346,15 @@ namespace DeltaWorks
 
 				bool					IsValid() const { return max >= min; }
 
+				bool					operator==(const Self&other) const
+				{
+					return min == other.min && max == other.max;
+				}
+				bool					operator!=(const Self&other) const
+				{
+					return !operator==(other);
+				}
+
 				template <typename T1>
 					TFloatRange<T>&		operator=(const TFloatRange<T1>&other)
 										{
@@ -828,6 +837,15 @@ namespace DeltaWorks
 											y = other.y;
 											return *this;
 										}
+
+				bool					operator==(const Self&other) const
+				{
+					return x == other.x && y == other.y;
+				}
+				bool					operator!=(const Self&other) const
+				{
+					return !operator==(other);
+				}
 									
 				/**
 				@brief Updates all values of the local rectangle
