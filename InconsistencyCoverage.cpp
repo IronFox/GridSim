@@ -824,7 +824,7 @@ InconsistencyCoverage::TBadness	InconsistencyCoverage::GetTotalBadness() const
 					#endif
 				const auto*as = a.GetSample(coords);
 				const auto*bs = b.GetSample(coords);
-				if (as == nullptr || bs == nullptr)
+				if (as == nullptr || bs == nullptr || as->next == Hasher::HashContainer::Empty || bs->next == Hasher::HashContainer::Empty)
 				{
 					if (t == MissingEdgeTreatment::Fail)
 						return false;
