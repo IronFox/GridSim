@@ -164,6 +164,7 @@ public:
 	void					Die(index_t topGeneration);
 	void					Setup(Grid&, const TGridCoords&myCoords, index_t myLinearCoords, index_t layer);
 	static index_t			NeighborToLinear(const TGridCoords&delta);
+	static TGridCoords		LinearToNeighbor(index_t);
 	void					UploadInitialStates();
 
 	/**

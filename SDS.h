@@ -272,7 +272,7 @@ public:
 	Asserts total equality between this and other.
 	The method assumes both the local and remote SDS are fully consistent
 	*/
-	void				AssertTotalEquality(const SDS&other)const;
+	void				AssertTotalEquality(const SDS&other, const TGridCoords&shardOffset)const;
 	/**
 	Asserts equality of space segments where both this and other are consistent.
 	Segments where either this or other are inconsistent are ignored.

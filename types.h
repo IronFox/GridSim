@@ -37,7 +37,6 @@ using namespace DeltaWorks::Math;
 	template <typename T,typename Strategy = typename Strategy::StrategySelector<T>::Default>
 		using GridArray = Array3D<T,Strategy>;
 
-	typedef Size3D<index_t> GridSize;
 	inline TVec3<index_t>	ToVector(const GridSize&s)
 	{
 		TVec3<index_t> rs;
@@ -68,29 +67,48 @@ using namespace DeltaWorks::Math;
 		using GridArray = Array2D<T,Strategy>;
 
 
-	typedef Size2D<index_t> GridSize;
-	inline TVec2<index_t>	ToVector(const GridSize&s)
-	{
-		TVec2<index_t> rs;
-		Vec::def(rs,s.width,s.height);
-		return rs;
-	}
-	template <typename T>
-	inline Size2D<index_t>	VectorToSize(const TVec2<T>&v)
-	{
-		return Size2D<index_t> (v.x,v.y);
-	}
-	template <typename T>
-	inline Index2D<index_t>	VectorToIndex(const TVec2<T>&v)
-	{
-		return Index2D<index_t> (v.x,v.y);
-	}
 #endif
+
+typedef GridArray<int>::Size	GridSize;
+typedef GridArray<int>::Index	GridIndex;
 
 typedef VecN<int,Dimensions>	TGridCoords;
 typedef VecN<float,Dimensions>	TEntityCoords;
 typedef Volume<>				TBoundaries;
 
+inline TVec2<index_t>	ToVector(const Size2D<count_t>&s)
+{
+	TVec2<index_t> rs;
+	Vec::def(rs,s.width,s.height);
+	return rs;
+}
+inline TVec3<index_t>	ToVector(const Size3D<count_t>&s)
+{
+	TVec3<index_t> rs;
+	Vec::def(rs,s.width,s.height,s.depth);
+	return rs;
+}
+
+template <typename T>
+inline Size2D<index_t>	VectorToSize(const TVec2<T>&v)
+{
+	return Size2D<index_t> (v.x,v.y);
+}
+template <typename T>
+inline Index2D<index_t>	VectorToIndex(const TVec2<T>&v)
+{
+	return Index2D<index_t> (v.x,v.y);
+}
+template <typename T>
+inline Size3D<index_t>	VectorToSize(const TVec3<T>&v)
+{
+	return Size3D<index_t> (v.x,v.y,v.z);
+}
+template <typename T>
+inline Index3D<index_t>	VectorToIndex(const TVec3<T>&v)
+{
+	return Index3D<index_t> (v.x,v.y,v.z);
+}
 
 
 class DataSize;
@@ -133,6 +151,15 @@ String ToString(const GUID&guid, bool full=false);
 namespace DeltaWorks
 {
 	String ToString(const Hasher::HashContainer&guid, bool full=false);
+	template <typename T>
+		inline String		ToString(const Size2D<T>&s)	{using StringConversion::ToString; return ToString(s.width)+"*"+ToString(s.height);}
+	template <typename T>
+		inline String		ToString(const Size3D<T>&s)	{using StringConversion::ToString; return ToString(s.width)+"*"+ToString(s.height)+"*"+ToString(s.depth);}
+	template <typename T>
+		inline String		ToString(const Index2D<T>&s)	{using StringConversion::ToString; return "["+ToString(s.x)+","+ToString(s.y)+"]";}
+	template <typename T>
+		inline String		ToString(const Index3D<T>&s)	{using StringConversion::ToString; return "["+ToString(s.x)+","+ToString(s.y)+","+ToString(s.z)+"]";}
+
 }
 extern Sys::SpinLock	messageLogLock;
 extern Buffer0<String>	messageLog;

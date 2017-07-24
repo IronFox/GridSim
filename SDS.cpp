@@ -69,12 +69,12 @@ void FullShardDomainState::PrecomputeSuccessor(Shard&shard, SDS & rs, const TBou
 	if (consistentMatch )
 	{
 		if (input->IsFullyConsistent())
-			AssertTotalEquality(*consistentMatch);
+			AssertTotalEquality(*consistentMatch,shard.gridCoords);
 		else
 			AssertSelectiveEquality(*consistentMatch);
 	}
 
-	rs.pGrid.reset(new HashProcessGrid(input->hGrid.core,  generation+1,shard.gridCoords));
+	rs.pGrid.reset(new HashProcessGrid(input->hGrid.core,  generation+1,shard.gridCoords,false));
 
 	input->ic.VerifyIntegrity(CLOCATION);
 	Hasher	inputHash;
@@ -383,7 +383,7 @@ void FullShardDomainState::FinalizeComputation(Shard&shard, const TCodeLocation&
 		auto&rcs = inboundRCS[inbound];
 		if (rcs)
 		{
-			out->hGrid.edge[inbound] = rcs->hGrid;
+			out->hGrid.edge[i] = rcs->hGrid;
 			if (rcs == edgeInboundRCS)
 			{
 				ASSERT__(rcs->ic.IsFullyConsistent());
@@ -428,7 +428,7 @@ void FullShardDomainState::FinalizeComputation(Shard&shard, const TCodeLocation&
 		shard.client.Upload(out);
 
 		if (consistentMatch)
-			AssertTotalEquality(*consistentMatch);
+			AssertTotalEquality(*consistentMatch,shard.gridCoords);
 	}
 	else
 	{
@@ -471,11 +471,29 @@ void FullShardDomainState::AssertEquality(const SDS & other) const
 
 	if (local && remote)
 	{
+
+		for (index_t i = 0; i < local->ic.GetGrid().Count(); i++)
+		{
+			const auto&ls = local->ic.GetGrid()[i];
+			const auto&rs = remote->ic.GetGrid()[i];
+			if (!ls.IsConsistent() || !rs.IsConsistent())
+				continue;
+			ASSERT__(ls.unavailableShards.AllZero());
+			ASSERT__(rs.unavailableShards.AllZero());
+
+			const auto&lh = local->hGrid.core.grid[i];
+			const auto&rh = remote->hGrid.core.grid[i];
+			ASSERT_EQUAL__(lh.prev, rh.prev);
+			ASSERT_EQUAL__(lh.next, rh.next);
+		}
+
+
 		foreach(local->entities, p)
 		{
 			const TEntityCoords c= Frac( p->coordinates);
 			if (local->ic.IsInconsistent(c) || remote->ic.IsInconsistent(c))
 				continue;
+
 
 			const Entity*p2 = remote->entities.FindEntity(p->guid);
 			ASSERT2__(p2 && (*p2) == *p, local->birthPlace,remote->birthPlace);
@@ -502,7 +520,7 @@ void				FullShardDomainState::AssertSelectiveEquality(const SDS&other)const
 }
 
 
-void FullShardDomainState::AssertTotalEquality(const SDS & other) const
+void FullShardDomainState::AssertTotalEquality(const SDS & other, const TGridCoords&shardOffset) const
 {
 	ASSERT_EQUAL__(generation,other.generation);
 	auto local = GetOutput();
@@ -523,6 +541,19 @@ void FullShardDomainState::AssertTotalEquality(const SDS & other) const
 			const Entity*p2 = local->entities.FindEntity(p->guid);
 			ASSERT_NOT_NULL2__(p2, local->birthPlace,remote->birthPlace);	//equality already checked if existent
 		}
+
+		for (index_t i = 0; i < local->ic.GetGrid().Count(); i++)
+		{
+			const auto&ls = local->ic.GetGrid()[i];
+			const auto&rs = remote->ic.GetGrid()[i];
+			ASSERT__(ls.unavailableShards.AllZero());
+			ASSERT__(rs.unavailableShards.AllZero());
+
+			const auto&lh = local->hGrid.core.grid[i].next;
+			const auto&rh = remote->hGrid.core.grid[i].next;
+			ASSERT_EQUAL__(lh, rh);
+		}
+
 
 	}
 	//ASSERT__(s->inputHash==o->inputHash);
@@ -756,69 +787,11 @@ void	InsertEntityUpdateOmega(EntityStorage&outEntities,Entity input,const Grid::
 	outEntities.InsertEntity(input);
 }
 
-
-static PCoreShardDomainState		Merge(
-	const CoreShardDomainState&a, const CoreShardDomainState&b, const IC::Comparator&comp, index_t currentGen
-	, const TGridCoords&shardOffset
-	, Statistics::MergeStrategy strategy
-	, const Grid::Layer*consistentComparison
-	, Statistics::TSDSample<double>*outInconsistentEntitiesOutsideIC
-//,const PCoreShardDomainState&consistentMatch
+void MergeInconsistentEntities(CoreShardDomainState&merged, const CoreShardDomainState&a, const CoreShardDomainState&b, 
+				const IC::Comparator&comp, const TGridCoords&shardOffset, 
+				Statistics::MergeStrategy strategy, const Grid::Layer*consistentComparison
 )
 {
-	PCoreShardDomainState rs(new CoreShardDomainState(a.generation,currentGen,CLOCATION,CLOCATION));
-	ASSERT_EQUAL__(a.generation,b.generation);
-
-	auto&merged = *rs;
-
-	merged.ic.LoadMinimum(a.ic, b.ic,comp);
-
-	foreach (a.entities,e)
-	{
-		if (a.ic.IsInconsistent(Frac(e->coordinates)))
-			continue;	//for now
-
-	//	CheckConsistent(consistentMatch,*e);
-
-		merged.entities.InsertEntity(*e);
-	}
-	foreach (b.entities,e)
-	{
-		if (b.ic.IsInconsistent(Frac(e->coordinates)))
-			continue;	//for now
-		if (merged.entities.FindEntity(e->guid))
-			continue;
-
-		//CheckConsistent(consistentMatch,*e);
-
-		merged.entities.InsertEntity(*e);
-	}
-	//at this point we merged all fully consistent entities from either. If the inconsistent areas did not overlap then the result should contain all entities in their consistent state
-	if (merged.ic.IsFullyConsistent())
-		return rs;
-
-	if (outInconsistentEntitiesOutsideIC)
-	{
-		foreach (a.entities,e)
-			if (!merged.entities.FindEntity(e->guid))
-			{
-				const auto c0 = Frac(e->coordinates);
-				if (merged.ic.IsInconsistent(c0))
-					(*outInconsistentEntitiesOutsideIC)+=0;
-				else
-					(*outInconsistentEntitiesOutsideIC)+=1;
-			}
-		foreach (b.entities,e)
-			if (!merged.entities.FindEntity(e->guid))
-			{
-				const auto c0 = Frac(e->coordinates);
-				if (merged.ic.IsInconsistent(c0))
-					(*outInconsistentEntitiesOutsideIC)+=0;
-				else
-					(*outInconsistentEntitiesOutsideIC)+=1;
-			}
-	}
-
 	static const float searchScope = 0.5f;
 	if (strategy == Statistics::MergeStrategy::Exclusive ||strategy == Statistics::MergeStrategy::ExclusiveWithPositionCorrection)
 	{
@@ -866,14 +839,16 @@ static PCoreShardDomainState		Merge(
 		}
 
 
+		{
+			HashProcessGrid grid(merged.hGrid.core,a.generation, shardOffset,true);
+			grid.Include(merged.entities);
+			grid.Finish(merged.hGrid.core);
+		}
 
-
-		return rs;
 	}
-
-
-	if (!merged.ic.IsFullyConsistent())
+	else
 	{
+
 		foreach (a.entities,e0)
 		{
 			const auto c0 = Frac(e0->coordinates);
@@ -1033,8 +1008,182 @@ static PCoreShardDomainState		Merge(
 		}
 	}
 
-	merged.mergeCounter = std::max(a.mergeCounter,b.mergeCounter)+1;
+}
 
+
+static PCoreShardDomainState		Merge(
+	const CoreShardDomainState&a, const CoreShardDomainState&b, const IC::Comparator&comp, index_t currentGen
+	, const Shard&myShard
+	, Statistics::MergeStrategy strategy
+	, const Grid::Layer*consistentComparison
+	, Statistics::TSDSample<double>*outInconsistentEntitiesOutsideIC
+//,const PCoreShardDomainState&consistentMatch
+)
+{
+	PCoreShardDomainState rs(new CoreShardDomainState(a.generation,currentGen,CLOCATION,CLOCATION));
+	ASSERT_EQUAL__(a.generation,b.generation);
+
+	auto&merged = *rs;
+
+
+	{
+		
+		const GridSize size(IC::Resolution);
+
+		const auto&g0 = a.ic.GetGrid();
+		const auto&g1 = b.ic.GetGrid();
+		GridArray<IC::TExtSample> gm;
+		ASSERT_EQUAL__(g0.GetSize(),size);
+		ASSERT_EQUAL__(g1.GetSize(),size);
+		gm.SetSize(size);
+
+		const auto&h0 = a.hGrid.core.grid;
+		const auto&h1 = b.hGrid.core.grid;
+		auto&hm = merged.hGrid.core.grid;
+		ASSERT_EQUAL__(h0.GetSize(),size);
+		ASSERT_EQUAL__(h1.GetSize(),size);
+		hm.SetSize(size);
+
+		for (index_t i = 0; i < g0.Count(); i++)
+		{
+			const auto	&s0 = g0[i],
+						&s1 = g1[i];
+			auto		&sm = gm[i];
+			const auto	&hs0 = h0[i],
+						&hs1 = h1[i];
+			auto		&hsm = hm[i];
+
+
+
+			const int choice = comp(s0,s1);
+
+			sm = choice <= 0 ? s0 : s1;
+			hsm = choice <= 0 ? hs0 : hs1;
+		}
+		merged.ic.SetGrid(std::move(gm));
+		merged.ic.Seal();
+
+
+		//now for the 'fun' part
+		for (index_t n = 0; n < NumNeighbors; n++)
+		{
+			const auto	&e0 = a.hGrid.edge[n].grid,
+						&e1 = b.hGrid.edge[n].grid;
+			auto		&em = merged.hGrid.edge[n].grid;
+			const GridSize size = max(e0.GetSize(),e1.GetSize());
+			em.SetSize(size);
+			const TGridCoords delta = Shard::LinearToNeighbor(n);
+
+			for (index_t i = 0; i < em.Count(); i++)
+			{
+				auto idx = em.ToVectorIndexNoCheck(i);
+				if (delta.x == 1)
+					idx.x = IC::Resolution-1;
+				if (delta.y == 1)
+					idx.y = IC::Resolution-1;
+				#ifdef D3
+					if (delta.z == 1)
+						idx.z = IC::Resolution-1;
+				#endif
+				const auto&s0 = g0.Get(idx);
+				const auto&s1 = g1.Get(idx);
+				const int choice = comp(s0,s1);
+				bool set = false;
+				if (choice < 0 || (choice == 0 && e1.IsEmpty()))
+				{
+					if (e0.IsNotEmpty())
+					{
+						em[i] = e0[i];
+						set = true;
+					}
+				}
+				else
+				{
+					if (e1.IsNotEmpty())
+					{
+						em[i] = e1[i];
+						set = true;
+					}
+				}
+
+				if (!set)
+				{
+					auto idSet = em.ToVectorIndexNoCheck(i);
+					if (delta.x == -1)
+						idSet.x = IC::Resolution-1;
+					if (delta.y == -1)
+						idSet.y = IC::Resolution-1;
+					#ifdef D3
+						if (delta.z == -1)
+							idSet.z = IC::Resolution-1;
+					#endif
+					em[i] = HGrid::EmptyCell(myShard.neighbors[n].shard->gridCoords,idSet);
+				}
+			}
+			
+		}
+
+
+		//merged.ic.LoadMinimum(a.ic, b.ic,comp);
+	}
+
+	foreach (a.entities,e)
+	{
+		if (a.ic.IsInconsistent(Frac(e->coordinates)))
+			continue;	//for now
+
+	//	CheckConsistent(consistentMatch,*e);
+
+		merged.entities.InsertEntity(*e);
+	}
+	foreach (b.entities,e)
+	{
+		if (b.ic.IsInconsistent(Frac(e->coordinates)))
+			continue;	//for now
+		if (merged.entities.FindEntity(e->guid))
+			continue;
+
+		//CheckConsistent(consistentMatch,*e);
+
+		merged.entities.InsertEntity(*e);
+	}
+	//at this point we merged all fully consistent entities from either. If the inconsistent areas did not overlap then the result should contain all entities in their consistent state
+	
+	
+	if (!merged.ic.IsFullyConsistent())
+	{
+		if (outInconsistentEntitiesOutsideIC)
+		{
+			foreach (a.entities,e)
+				if (!merged.entities.FindEntity(e->guid))
+				{
+					const auto c0 = Frac(e->coordinates);
+					if (merged.ic.IsInconsistent(c0))
+						(*outInconsistentEntitiesOutsideIC)+=0;
+					else
+						(*outInconsistentEntitiesOutsideIC)+=1;
+				}
+			foreach (b.entities,e)
+				if (!merged.entities.FindEntity(e->guid))
+				{
+					const auto c0 = Frac(e->coordinates);
+					if (merged.ic.IsInconsistent(c0))
+						(*outInconsistentEntitiesOutsideIC)+=0;
+					else
+						(*outInconsistentEntitiesOutsideIC)+=1;
+				}
+		}
+		MergeInconsistentEntities(merged,a,b,comp,myShard.gridCoords, strategy, consistentComparison);
+
+		merged.mergeCounter = std::max(a.mergeCounter,b.mergeCounter)+1;
+
+	}
+	
+	{
+		HashProcessGrid grid(merged.hGrid.core,a.generation, myShard.gridCoords,true);
+		grid.Include(merged.entities);
+		grid.Finish(merged.hGrid.core);
+	}
 
 	return rs;
 }
@@ -1121,10 +1270,10 @@ Statistics::TStateDifference	CompareStates(const CoreShardDomainState&approx, co
 
 
 static void		CompareMerge(const CoreShardDomainState&a, const CoreShardDomainState&b, 
-							const IC::Comparator&comp, Statistics::MergeStrategy strategy, index_t currentGen, const Grid::Layer&consistentLayer, const PCoreShardDomainState&consistent, const IC&mask, const TGridCoords&shardOffset)
+							const IC::Comparator&comp, Statistics::MergeStrategy strategy, index_t currentGen, const Grid::Layer&consistentLayer, const PCoreShardDomainState&consistent, const IC&mask, const Shard&shard)
 {
 	Statistics::TSDSample<double> incSample;
-	auto merged = Merge(a,b,comp,currentGen,shardOffset,strategy,&consistentLayer,&incSample);
+	auto merged = Merge(a,b,comp,currentGen,shard,strategy,&consistentLayer,&incSample);
 
 
 	for (index_t i = 0; i < merged->ic.GetGrid().Count(); i++)
@@ -1186,7 +1335,7 @@ void				FullShardDomainState::SynchronizeWithSibling(Shard&myShard,  Shard&sibli
 
 	const auto&a = *GetOutput();
 	const auto&b = *sibling.GetOutput();
-	PCoreShardDomainState merged  = Merge(a,b,comp,currentTimestep,myShard.gridCoords,Statistics::MergeStrategy::Exclusive, layer,nullptr);
+	PCoreShardDomainState merged  = Merge(a,b,comp,currentTimestep,myShard,Statistics::MergeStrategy::Exclusive, layer,nullptr);
 
 	AssertSelectiveEquality(merged,consistentOutput);
 
@@ -1201,11 +1350,11 @@ void				FullShardDomainState::SynchronizeWithSibling(Shard&myShard,  Shard&sibli
 		for (int i = 0; i < (int)Statistics::MergeStrategy::Count; i++)
 		{
 			const Statistics::MergeStrategy s = (Statistics::MergeStrategy)i;
-			CompareMerge(a,b,IC::BinaryComparator(),s,currentTimestep,*layer,consistentOutput,merged->ic,myShard.gridCoords);
-			CompareMerge(a,b,IC::OrthographicComparator(),s,currentTimestep,*layer,consistentOutput,merged->ic,myShard.gridCoords);
-			CompareMerge(a,b,IC::ReverseOrthographicComparator(),s,currentTimestep,*layer,consistentOutput,merged->ic,myShard.gridCoords);
-			CompareMerge(a,b,IC::DepthComparator(),s,currentTimestep,*layer,consistentOutput,merged->ic,myShard.gridCoords);
-			CompareMerge(a,b,IC::ExtentComparator(),s,currentTimestep,*layer,consistentOutput,merged->ic,myShard.gridCoords);
+			CompareMerge(a,b,IC::BinaryComparator(),s,currentTimestep,*layer,consistentOutput,merged->ic,myShard);
+			CompareMerge(a,b,IC::OrthographicComparator(),s,currentTimestep,*layer,consistentOutput,merged->ic,myShard);
+			CompareMerge(a,b,IC::ReverseOrthographicComparator(),s,currentTimestep,*layer,consistentOutput,merged->ic,myShard);
+			CompareMerge(a,b,IC::DepthComparator(),s,currentTimestep,*layer,consistentOutput,merged->ic,myShard);
+			CompareMerge(a,b,IC::ExtentComparator(),s,currentTimestep,*layer,consistentOutput,merged->ic,myShard);
 		}
 	}
 

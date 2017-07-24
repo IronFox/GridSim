@@ -514,6 +514,17 @@ String ToString(const GUID&guid, bool full/*=false*/)
 
 
 
+namespace DeltaWorks
+{
+	String ToString(const Hasher::HashContainer&guid, bool full/*=false*/)
+	{
+		int v = *(const USHORT*)&guid;
+		return full ?  IntToHex(*(const INT64*)&guid,16) : IntToHex(v,4);	//not quite full, but better
+
+	}
+
+}
+
 
 void Grid::VerifyIntegrity() const
 {

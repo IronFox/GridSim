@@ -25,7 +25,20 @@ index_t					Shard::NewestDefinedSDSIndex() const
 	return i;
 }
 
-	
+/*static*/ TGridCoords		Shard::LinearToNeighbor(index_t linear)
+{
+	if (linear*2 >= NumNeighbors)
+		linear++;
+	return TGridCoords 
+		(
+			#ifdef D3
+				int(linear/9)-1,
+			#endif
+			int((linear/3)%3)-1,
+			int(linear%3)-1
+		);
+}
+
 
 /*static*/ index_t			Shard::NeighborToLinear(const TGridCoords&delta)
 {
@@ -73,16 +86,15 @@ void Shard::Setup(Grid&grid, const TGridCoords&myCoords, index_t myLinearCoords,
 			#endif
 			{
 				#ifdef D3
-					ASSERT_EQUAL__(NeighborToLinear(TGridCoords(x,y,z)),at);
+					TGridCoords	delta(x,y,z);
 				#else
-					ASSERT_EQUAL__(NeighborToLinear(TGridCoords(x,y)),at);
+					TGridCoords	delta(x,y);
 				#endif
+				ASSERT_EQUAL__(NeighborToLinear(delta),at);
+				ASSERT_EQUAL__(delta,LinearToNeighbor(at));
+
 				TNeighbor&n = neighbors[at++];
-				#ifdef D3
-					n.delta = TGridCoords(x,y,z);
-				#else
-					n.delta = int2(x,y);
-				#endif
+				n.delta = delta;
 				n.shard = layerRef.GetShard(myCoords + n.delta);
 			}
 	ASSERT__(at == neighbors.size());
@@ -133,6 +145,36 @@ void Shard::VerifyIntegrity() const
 			ASSERT__(out->hGrid.core.grid.IsNotEmpty());
 			ASSERT_EQUAL__(out->generation,s->GetGeneration());
 			ASSERT_GREATER_OR_EQUAL__(out->createdInTimestep,out->generation);
+
+
+			for (index_t k = 0; k < NumNeighbors; k++)
+			{
+				const auto&grid = out->hGrid.edge[k].grid;
+				if (grid.IsNotEmpty())
+				{
+					auto delta = Shard::LinearToNeighbor(k);
+					foreach (grid,v)
+					{
+						ASSERT_EQUAL__(v->originShard,this->neighbors[k].shard->gridCoords);
+
+						if (delta.x < 0)
+							ASSERT_GREATER__(v->originCell.x,IC::Resolution/2)
+						elif (delta.x > 0)
+							ASSERT_LESS__(v->originCell.x,IC::Resolution/2);
+						if (delta.y < 0)
+							ASSERT_GREATER__(v->originCell.y,IC::Resolution/2)
+						elif (delta.y > 0)
+							ASSERT_LESS__(v->originCell.y,IC::Resolution/2);
+						#ifdef D3
+							if (delta.z < 0)
+								ASSERT_GREATER__(v->originCell.z,IC::Resolution/2)
+							elif (delta.z > 0)
+								ASSERT_LESS__(v->originCell.z,IC::Resolution/2);
+						#endif
+					}
+
+				}
+			}
 		}
 	}
 
@@ -368,7 +410,7 @@ void Shard::AssertIsEqual(const Shard&other) const
 	{
 		const SDS*o = other.FindGeneration(s->GetOutput()->generation);
 		ASSERT_NOT_NULL__(o);
-		s->AssertTotalEquality(*o);
+		s->AssertTotalEquality(*o,gridCoords);
 	}
 }
 
@@ -441,7 +483,7 @@ void Shard::CompareConsistent(const Shard & other) const
 			const SDS*o = other.FindGeneration(s->GetOutput()->generation);
 			if (!o || !o->GetOutput()->IsFullyConsistent())
 				continue;
-			o->AssertTotalEquality(*s);
+			o->AssertTotalEquality(*s,gridCoords);
 
 		}
 }

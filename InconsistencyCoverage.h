@@ -196,6 +196,7 @@ public:
 
 
 	const TGrid&	GetGrid() const {return grid;}
+	void		SetGrid(TGrid&&grid);
 
 	/**
 	Expands inconsistency by Entity::MaxOperationalRadius, and puts the result in @a rs.
@@ -312,7 +313,9 @@ public:
 
 	struct TCell
 	{
-		Hasher::HashContainer		history;	//0: shallow history (last state only), 1: full history
+		Hasher::HashContainer		prev,next;
+		TGridCoords					originShard;
+		GridIndex					originCell;
 	};
 
 	typedef GridArray<TCell,POD>	TGrid;
@@ -321,6 +324,7 @@ public:
 	TGrid		grid;
 
 	void		ExportEdge(HGrid&target, const TGridCoords&edgeDelta) const;
+	static TCell	EmptyCell(const TGridCoords&shardCoords,const GridIndex&cellIndex);
 
 	const TCell&GetCellOfW(const TEntityCoords&worldCoords, const TGridCoords&localOffset) const;
 	const TCell&GetCellOfL(const TEntityCoords&localCoords) const;
@@ -332,6 +336,13 @@ public:
 class ExtHGrid
 {
 public:
+
+	enum class MissingEdgeTreatment
+	{
+		Fail,
+		Ignore
+	};
+
 	/**
 	Core area. Maps all entities actually in the SD. Always up to date
 	*/
@@ -348,7 +359,7 @@ public:
 	@param cellCoords Coords to sample in [0,IC::Resolution). Negative or values >= IC::Resolution are invalid
 	@return true if all hash values match, false otherwise
 	*/
-	static bool	ExtMatch(const ExtHGrid&a, const ExtHGrid&b,  const TGridCoords&cellCoords);
+	static bool	ExtMatch(const ExtHGrid&a, const ExtHGrid&b,  const TGridCoords&cellCoords, MissingEdgeTreatment);
 	/**
 	Checks whether a location is consistent according to the two specified grids.
 	A location is consistent, if the hash values of the cell match among @a a and @a b.
@@ -361,7 +372,7 @@ public:
 	Fetches the sample at the given location.
 	@param coords Coordinates to sample from. May be negative or exceed the valid maximum, thus sampling from this->edge instead of this->core
 	*/
-	const HGrid::TCell&		GetSample(const TGridCoords&coords) const;
+	const HGrid::TCell*		GetSample(const TGridCoords&coords) const;
 };
 
 class HashProcessGrid
@@ -371,14 +382,14 @@ public:
 	{
 	public:
 		Hasher			hasher;
-		Sys::SpinLock	lock;
+		Hasher::HashContainer	prev;
 	};
 	typedef GridArray<Cell>	TGrid;
 
 	const TGridCoords		localOffset;
 	TGrid		grid;
 
-	/**/		HashProcessGrid(const HGrid&,index_t timestep,const TGridCoords&localOffset);
+	/**/		HashProcessGrid(const HGrid&,index_t timestep,const TGridCoords&localOffset, bool usePrev);
 	/**/		HashProcessGrid(index_t timestep,const TGridCoords&localOffset);
 	void		Finish(HGrid&);
 	void		Include(const EntityStorage&e);

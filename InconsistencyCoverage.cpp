@@ -8,15 +8,18 @@
 #include "shard.h"
 
 
-HashProcessGrid::HashProcessGrid(const HGrid&h,index_t timestep,const TGridCoords&localOffset):localOffset(localOffset)
+HashProcessGrid::HashProcessGrid(const HGrid&h,index_t timestep,const TGridCoords&localOffset, bool usePrev):localOffset(localOffset)
 {
 	ASSERT__(h.grid.IsNotEmpty());
 	grid.SetSize(h.grid.GetSize());
 
-	Concurrency::parallel_for(index_t(0),grid.Count(),[this,&h,timestep](index_t i)
+	Concurrency::parallel_for(index_t(0),grid.Count(),[this,&h,timestep,usePrev](index_t i)
 	{
-		grid[i].hasher.AppendPOD(h.grid[i]);
-		grid[i].hasher.AppendPOD(timestep);
+		auto&out = grid[i];
+		const auto&in = h.grid[i];
+		out.prev = usePrev ? in.prev: in.next;
+		out.hasher.AppendPOD(out.prev);
+		out.hasher.AppendPOD(timestep);
 	});
 }
 
@@ -27,6 +30,7 @@ HashProcessGrid::HashProcessGrid(index_t timestep,const TGridCoords&localOffset)
 
 	Concurrency::parallel_for(index_t(0),grid.Count(),[this,timestep](index_t i)
 	{
+		grid[i].prev = Hasher::HashContainer::Empty;
 		grid[i].hasher.AppendPOD(timestep);
 	});
 }
@@ -37,21 +41,23 @@ void		HashProcessGrid::Finish(HGrid&h)
 	h.grid.SetSize(grid.GetSize());
 	Concurrency::parallel_for(index_t(0),grid.Count(),[this,&h](index_t i)
 	{
-		grid[i].hasher.Finish(h.grid[i].history);
+		auto&out = h.grid[i];
+		out.prev = grid[i].prev;
+		grid[i].hasher.Finish(out.next);
+		out.originShard = this->localOffset;
+		out.originCell = grid.ToVectorIndex(i);
+		
 	});
 
 }
 
 void		HashProcessGrid::Include(const EntityStorage&store)
 {
-	Concurrency::parallel_for(index_t(0),store.Count(),[this,&store](index_t i)
+	foreach (store, e)
 	{
-		const auto&e = store[i];
-		auto&cell = GetCellOfW(e.coordinates);
-		cell.lock.lock();
-		e.Hash(cell.hasher);
-		cell.lock.unlock();
-	});
+		auto&cell = GetCellOfW(e->coordinates);
+		e->Hash(cell.hasher);
+	}
 }
 
 HashProcessGrid::Cell&		HashProcessGrid::GetCellOfW(const TEntityCoords&worldCoords)
@@ -61,7 +67,7 @@ HashProcessGrid::Cell&		HashProcessGrid::GetCellOfW(const TEntityCoords&worldCoo
 
 HashProcessGrid::Cell&		HashProcessGrid::GetCellOfL(const TEntityCoords&localCoords)
 {
-	TGridCoords c = localCoords / HGrid::Resolution;
+	TGridCoords c = localCoords * HGrid::Resolution;
 	Vec::clamp(c,0,HGrid::Resolution-1);
 	return GetCellOfL(c);
 }
@@ -73,6 +79,17 @@ HashProcessGrid::Cell&		HashProcessGrid::GetCellOfL(const TGridCoords&localCoord
 	#else
 		return grid.Get(localCoords.x,localCoords.y);
 	#endif
+}
+
+
+/*static*/ HGrid::TCell	HGrid::EmptyCell(const TGridCoords&shardCoords,const GridIndex&cellIndex)
+{
+	HGrid::TCell rs;
+	rs.next = Hasher::HashContainer::Empty;
+	rs.prev = Hasher::HashContainer::Empty;
+	rs.originCell = cellIndex;
+	rs.originShard = shardCoords;
+	return rs;
 }
 
 
@@ -96,7 +113,7 @@ const HGrid::TCell&		HGrid::GetCellOfW(const TEntityCoords&worldCoords, const TG
 
 const HGrid::TCell&		HGrid::GetCellOfL(const TEntityCoords&localCoords) const
 {
-	TGridCoords c = localCoords / Resolution;
+	TGridCoords c = localCoords * Resolution;
 	Vec::clamp(c,0,Resolution-1);
 	return GetCellOfL(c);
 }
@@ -737,6 +754,16 @@ void		InconsistencyCoverage::VerifyIntegrity(const TCodeLocation&loc) const
 		Except::fatal(loc, String(__func__) + ": Expected highest (" + String(highest)+") == this->highest ("+String(this->highest)+")");
 }
 
+void		InconsistencyCoverage::SetGrid(TGrid&&grid)
+{
+	ASSERT__(!sealed);
+	this->grid = std::move(grid);
+	highest = 0;
+	foreach (this->grid,c)
+		highest = Math::Max(highest,c->depth);
+	VerifyIntegrity(CLOCATION);
+}
+
 
 String	InconsistencyCoverage::TVerificationContext::ToString()	const
 {
@@ -781,7 +808,7 @@ InconsistencyCoverage::TBadness	InconsistencyCoverage::GetTotalBadness() const
 	return rs;
 }
 
-/*static*/ bool	ExtHGrid::ExtMatch(const ExtHGrid&a, const ExtHGrid&b,  const TGridCoords&cellCoords)
+/*static*/ bool	ExtHGrid::ExtMatch(const ExtHGrid&a, const ExtHGrid&b,  const TGridCoords&cellCoords,MissingEdgeTreatment t)
 {
 	for (int x = cellCoords.x -1; x <= cellCoords.x+1; x++)
 		for (int y = cellCoords.y -1; y <= cellCoords.y+1; y++)
@@ -795,9 +822,16 @@ InconsistencyCoverage::TBadness	InconsistencyCoverage::GetTotalBadness() const
 					#else
 						TGridCoords(x,y);
 					#endif
-				const auto&as = a.GetSample(coords).history;
-				const auto&bs = b.GetSample(coords).history;
-				if (as != bs)
+				const auto*as = a.GetSample(coords);
+				const auto*bs = b.GetSample(coords);
+				if (as == nullptr || bs == nullptr)
+				{
+					if (t == MissingEdgeTreatment::Fail)
+						return false;
+					continue;
+				}
+
+				if (as->next != bs->next)
 					return false;
 			}
 	return true;
@@ -805,12 +839,12 @@ InconsistencyCoverage::TBadness	InconsistencyCoverage::GetTotalBadness() const
 
 /*static*/ bool	ExtHGrid::CoreMatch(const ExtHGrid&a, const ExtHGrid&b,  const TGridCoords&cellCoords)
 {
-	const auto&as = a.core.GetCellOfL(cellCoords).history;
-	const auto&bs = b.core.GetCellOfL(cellCoords).history;
+	const auto&as = a.core.GetCellOfL(cellCoords).next;
+	const auto&bs = b.core.GetCellOfL(cellCoords).next;
 	return as == bs;
 }
 
-const HGrid::TCell&		ExtHGrid::GetSample(const TGridCoords&coords) const
+const HGrid::TCell*		ExtHGrid::GetSample(const TGridCoords&coords) const
 {
 	TGridCoords nVector;
 	if (coords.x < 0)
@@ -833,7 +867,7 @@ const HGrid::TCell&		ExtHGrid::GetSample(const TGridCoords&coords) const
 
 	if (Vec::zero(nVector))
 	{
-		return core.GetCellOfL(coords);
+		return &core.GetCellOfL(coords);
 	}
 
 
@@ -848,5 +882,7 @@ const HGrid::TCell&		ExtHGrid::GetSample(const TGridCoords&coords) const
 	#endif
 
 	const index_t linear = Shard::NeighborToLinear(nVector);
-	return edge[linear].GetCellOfL(c2);
+	if (edge[linear].grid.IsEmpty())
+		return nullptr;
+	return &edge[linear].GetCellOfL(c2);
 }
