@@ -25,6 +25,7 @@ public:
 		storage.Fill(std::numeric_limits<size_t>::max());
 	}
 	bool			AllZero() const;
+	bool			OverlapsWith(const BitArray&other) const;
 	
 	void			operator&=(const BitArray&other);
 	void			operator|=(const BitArray&other);

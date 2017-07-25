@@ -190,10 +190,10 @@ void	InconsistencyCoverage::TSample::Include(const TSample&other)
 }
 
 
-InconsistencyCoverage::TSample&	InconsistencyCoverage::TSample::IntegrateGrowingNeighbor(const TSample&n, UINT32 distance)
+bool	InconsistencyCoverage::TSample::IntegrateGrowingNeighbor(const TSample&n, UINT32 distance)
 {
 	if (n.depth <= distance)
-		return *this;
+		return false;
 	//if (blurExtent != 0xFF && distance != 0)	//else: copy from self
 	//{
 	//	DBG_ASSERT_LESS_OR_EQUAL__(n.depth-distance, depth);
@@ -221,7 +221,7 @@ InconsistencyCoverage::TSample&	InconsistencyCoverage::TSample::IntegrateGrowing
 		depth = nDepth;
 	}
 	//ASSERT__(!IsInvalid());
-	return *this;
+	return true;
 }
 
 void		InconsistencyCoverage::TSample::SetBest(const TSample&a, const TSample&b, const Comparator&comp)
@@ -231,8 +231,15 @@ void		InconsistencyCoverage::TSample::SetBest(const TSample&a, const TSample&b, 
 		*this = a;
 	else
 		*this = b;
-	//blurExtent = vmax(a.blurExtent,b.blurExtent);
-	//depth = vmin(a.depth,b.depth);
+}
+
+void		InconsistencyCoverage::TExtSample::SetBest(const TExtSample&a, const TExtSample&b, const Comparator&comp)
+{
+	int c = comp(a,b);
+	if (c <= 0)
+		*this = a;
+	else
+		*this = b;
 }
 
 
@@ -264,9 +271,9 @@ void		InconsistencyCoverage::LoadMinimum(const InconsistencyCoverage&a, const In
 					Vec::def(c,*x + offset.x,*y + offset.y,*z + offset.z);
 
 
-					const TSample&va = a.GetSample(c);
-					const TSample&vb = b.GetSample(c);
-					TSample&merged = grid.Get(x,y,z);
+					const TExtSample&va = a.GetSample(c);
+					const TExtSample&vb = b.GetSample(c);
+					TExtSample&merged = grid.Get(x,y,z);
 					merged.SetBest(va,vb,comp);
 					highest = vmax(highest,merged.depth);
 				}
@@ -277,9 +284,9 @@ void		InconsistencyCoverage::LoadMinimum(const InconsistencyCoverage&a, const In
 			{
 				TGridCoords c((int)*x + offset.x,(int)*y + offset.y);
 
-				const TSample&va = a.GetSample(c);
-				const TSample&vb = b.GetSample(c);
-				TSample&merged = grid.Get(x,y);
+				const TExtSample&va = a.GetSample(c);
+				const TExtSample&vb = b.GetSample(c);
+				TExtSample&merged = grid.Get(x,y);
 				merged.SetBest(va,vb,comp);
 				highest = vmax(highest,merged.depth);
 			}
@@ -403,7 +410,7 @@ void InconsistencyCoverage::Grow(InconsistencyCoverage & rs) const
 		for (UINT32 y = 0; y < grid.GetHeight(); y++)
 			for (UINT32 x = 0; x < grid.GetWidth(); x++)
 			{
-				TSample v = grid.Get(x,y);
+				TExtSample v = grid.Get(x,y);
 				if (!v.IsConsistent())
 					v.IncreaseDepth();
 				if (v.depth < 2)
@@ -503,9 +510,9 @@ void InconsistencyCoverage::IncludeMissing(const TGridCoords&sectorDelta, index_
 				)
 				continue;
 			#ifdef D3
-				TSample&v = grid.Get(x,y,z);
+				TExtSample&v = grid.Get(x,y,z);
 			#else
-				TSample&v = grid.Get(x,y);
+				TExtSample&v = grid.Get(x,y);
 			#endif
 			v.Include(v2);
 			highest = vmax(highest,v.depth);
@@ -537,9 +544,9 @@ bool InconsistencyCoverage::Include(const TGridCoords & sectorDelta, const Incon
 			if (!v2 || v2->IsConsistent())
 				continue;
 			#ifdef D3
-				TSample&v = grid.Get(x,y,z);
+				TExtSample&v = grid.Get(x,y,z);
 			#else
-				TSample&v = grid.Get(x,y);
+				TExtSample&v = grid.Get(x,y);
 			#endif
 			v.Include(*v2);
 			//v.SetWorst(v,*v2);
@@ -741,7 +748,11 @@ void		InconsistencyCoverage::VerifyIntegrity(const TCodeLocation&loc) const
 	content_t highest = 0;
 	foreach (grid,c)
 	{
-		const TSample&px = *c;
+		const TExtSample&px = *c;
+
+		const bool zero = px.unavailableShards.AllZero();
+		ASSERT_EQUAL__(zero,px.IsConsistent());
+
 
 		if (px.IsInvalid())
 			Except::fatal(loc, String(__func__)+": Invalid sample: "+String(px.depth)+"|"+String(px.blurExtent));

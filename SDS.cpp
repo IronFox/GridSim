@@ -360,20 +360,20 @@ void FullShardDomainState::FinalizeComputation(Shard&shard, const TCodeLocation&
 
 	out->finalizeCaller = caller;
 	out->ic.VerifyIntegrity(CLOCATION);
-	static InconsistencyCoverage bad;
-	static Sys::SpinLock badLock;
-	if (bad.GetGrid().IsEmpty())
-	{
-		badLock.lock();
-		if (bad.GetGrid().IsEmpty())
-		{
-			InconsistencyCoverage core;
-			core.AllocateDefaultSize();
-			core.FillMinInconsistent();
-			core.Grow(bad);
-		}
-		badLock.unlock();
-	}
+	//static InconsistencyCoverage bad;
+	//static Sys::SpinLock badLock;
+	//if (bad.GetGrid().IsEmpty())
+	//{
+	//	badLock.lock();
+	//	if (bad.GetGrid().IsEmpty())
+	//	{
+	//		InconsistencyCoverage core;
+	//		core.AllocateDefaultSize();
+	//		core.FillMinInconsistent();
+	//		core.Grow(bad);
+	//	}
+	//	badLock.unlock();
+	//}
 
 	CS cs = localCS;
 
@@ -1010,7 +1010,6 @@ void MergeInconsistentEntities(CoreShardDomainState&merged, const CoreShardDomai
 
 }
 
-
 static PCoreShardDomainState		Merge(
 	const CoreShardDomainState&a, const CoreShardDomainState&b, const IC::Comparator&comp, index_t currentGen
 	, const Shard&myShard
@@ -1120,10 +1119,7 @@ static PCoreShardDomainState		Merge(
 					em[i] = HGrid::EmptyCell(myShard.neighbors[n].shard->gridCoords,idSet);
 				}
 			}
-			
 		}
-
-
 		//merged.ic.LoadMinimum(a.ic, b.ic,comp);
 	}
 
@@ -1291,6 +1287,100 @@ static void		CompareMerge(const CoreShardDomainState&a, const CoreShardDomainSta
 }
 
 
+
+void				TestProbabilisticICReduction(const CoreShardDomainState&a, const ExtHGrid&ag, const CoreShardDomainState&b,const ExtHGrid&bg,
+	const Array2D<bool>&actuallyConsistent,const IC&mergedIC, Statistics::ICReductionFlags strat)
+{
+	const count_t fullSamples = mergedIC.GetGrid().Count();
+	count_t totalGuesses = 0,
+			consideredConsistent = 0,
+			correctGuesses = 0,
+			actuallyConsistentCount = 0,
+			shouldHaveConsideredConsistent = 0,
+			shouldNotHaveConsideredConsistent = 0;
+
+
+	for (index_t i = 0; i < fullSamples; i++)
+	{
+		if (mergedIC.GetGrid()[i].IsConsistent())
+		{
+			continue;
+		}
+		totalGuesses++;
+		bool match = true;
+		if (strat & Statistics::ICReductionFlags::RegardEnvironment)
+		{
+			if (!ExtHGrid::ExtMatch(ag,bg,ToVector( actuallyConsistent.ToVectorIndex(i) ),ExtHGrid::MissingEdgeTreatment::Fail))
+				match = false;
+		}
+		else
+			if (!ExtHGrid::CoreMatch(ag,bg,ToVector( actuallyConsistent.ToVectorIndex(i) )))
+				match = false;
+
+		if (match && (strat & Statistics::ICReductionFlags::RegardOriginBitField))
+		{
+			const BitArray&ba = a.ic.GetGrid()[i].unavailableShards;
+			const BitArray&bb = b.ic.GetGrid()[i].unavailableShards;
+			ASSERT__(!ba.AllZero());
+			ASSERT__(!bb.AllZero());
+			if (ba.OverlapsWith(bb))
+				match = false;
+		}
+		const bool consistent = actuallyConsistent[i];
+		if (consistent)
+			actuallyConsistentCount++;
+		if (match)
+		{
+			consideredConsistent++;
+			if (consistent)
+				correctGuesses ++;
+			else
+				shouldNotHaveConsideredConsistent ++;
+		}
+		else
+		{
+			if (consistent)
+				shouldHaveConsideredConsistent ++;
+			else
+				correctGuesses ++;
+		}
+
+	}
+
+	Statistics::TProbabilisticICReduction rs;
+	rs.flags = strat;
+
+	rs.actuallyConsistent = actuallyConsistentCount;
+	rs.correctGuesses = correctGuesses;
+	rs.consideredConsistent = consideredConsistent;
+	rs.shouldHaveConsideredConsistent = shouldHaveConsideredConsistent;
+	rs.shouldNotHaveConsideredConsistent = shouldNotHaveConsideredConsistent;
+	rs.totalGuesses = totalGuesses;
+
+	Statistics::CaptureICTest(rs);
+}
+
+void				TestProbabilisticICReduction(const CoreShardDomainState&a,const CoreShardDomainState&b,const Array2D<bool>&c,const IC&mergedIC, Statistics::ICReductionFlags strat)
+{
+	if (!Statistics::CanCheck(strat))
+		return;
+
+	if (!(strat & Statistics::ICReductionFlags::RegardHistory))
+	{
+		ExtHGrid ag,bg;
+		HashProcessGrid processorA(0,0),processorB(0,0);
+		processorA.Include(a.entities);
+		processorB.Include(b.entities);
+		processorA.Finish(ag.core);
+		processorB.Finish(bg.core);
+		TestProbabilisticICReduction(a,ag,b,bg,c,mergedIC,strat);
+	}
+	else
+		TestProbabilisticICReduction(a,a.hGrid,b,b.hGrid,c,mergedIC,strat);
+
+}
+
+
 void				FullShardDomainState::SynchronizeWithSibling(Shard&myShard,  Shard&siblingShard, SDS&sibling, const IC::Comparator&comp, index_t currentTimestep)
 {
 	if (GetOutput() == sibling.GetOutput())
@@ -1346,6 +1436,41 @@ void				FullShardDomainState::SynchronizeWithSibling(Shard&myShard,  Shard&sibli
 		const Statistics::TStateDifference diffB = CompareStates(b,*consistentOutput,merged->ic);
 
 		Statistics::CapturePreMerge(diffA,diffB);
+
+		{
+			Array2D<bool>	actuallyConsistent(IC::Resolution,IC::Resolution);
+			actuallyConsistent.Fill(true);
+			foreach (consistentOutput->entities,e)
+			{
+				const auto*e0 = a.entities.FindEntity(e->guid);
+				const auto*e1 = b.entities.FindEntity(e->guid);
+				if (!e0 || !e1 || (!e->operator==(*e0)) || (!e->operator==(*e1)))
+				{
+
+					actuallyConsistent.Get(VectorToIndex( IC::ToPixels(e->coordinates - myShard.gridCoords) )) = false;
+					if (e0)
+						actuallyConsistent.Get(VectorToIndex( IC::ToPixels(e0->coordinates - myShard.gridCoords) )) = false;
+					if (e1)
+						actuallyConsistent.Get(VectorToIndex( IC::ToPixels(e1->coordinates - myShard.gridCoords) )) = false;
+				}
+			}
+			foreach (a.entities,e)
+			{
+				if (!consistentOutput->entities.FindEntity(e->guid))
+					actuallyConsistent.Get(VectorToIndex( IC::ToPixels(e->coordinates - myShard.gridCoords) )) = false;
+			}
+			foreach (b.entities,e)
+			{
+				if (!consistentOutput->entities.FindEntity(e->guid))
+					actuallyConsistent.Get(VectorToIndex( IC::ToPixels(e->coordinates - myShard.gridCoords) )) = false;
+			}
+
+			for (index_t i = 0; i < (count_t)Statistics::ICReductionFlags::NumCombinations; i++)
+			{
+				TestProbabilisticICReduction(a,b,actuallyConsistent,merged->ic, Statistics::ICReductionFlags(i));
+			}
+		}
+
 
 		for (int i = 0; i < (int)Statistics::MergeStrategy::Count; i++)
 		{

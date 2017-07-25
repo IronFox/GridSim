@@ -265,9 +265,55 @@ namespace Statistics
 		EntitySelective,
 		Exclusive,
 		ExclusiveWithPositionCorrection,
+
 		Count
 	};
 
+
+	enum class ICReductionFlags
+	{
+		RegardOriginBitField = 0x1,
+		RegardEnvironment = 0x2,
+		RegardHistory = 0x4,
+
+		NumBits = 3,
+		NumCombinations = 1 << NumBits
+	};
+
+
+	inline ICReductionFlags operator|(ICReductionFlags a, ICReductionFlags b)
+	{
+		typedef std::underlying_type<ICReductionFlags>::type U;
+		return ICReductionFlags( U(a) | U(b) );
+	}
+	inline bool operator&(ICReductionFlags a, ICReductionFlags b)
+	{
+		typedef std::underlying_type<ICReductionFlags>::type U;
+		return ( U(a) & U(b) ) != 0;
+	}
+
+	inline bool	CanCheck(ICReductionFlags p)
+	{
+		return !(p & ICReductionFlags::RegardEnvironment) || (p & ICReductionFlags::RegardHistory);	//only have environment if history is available
+	}
+
+	struct TProbabilisticICReduction
+	{
+		ICReductionFlags	flags;
+		TSDSample<UINT64>	totalGuesses,
+							consideredConsistent,
+							correctGuesses,
+							actuallyConsistent,
+							shouldHaveConsideredConsistent,
+							shouldNotHaveConsideredConsistent;
+
+		void				Add(const TProbabilisticICReduction&);
+		void				Import(const XML::Node*n);
+		void				ToXML(XML::Node&n) const;
+	};
+
+
+	void	CaptureICTest(const TProbabilisticICReduction&);
 	void	CapturePreMerge(const TStateDifference&preMergeA, const TStateDifference&preMergeB);
 	void	CaptureMergeResult(const IC::Comparator&comp, MergeStrategy,const TStateDifference&postMerge);
 	void	ExportMergeResults();

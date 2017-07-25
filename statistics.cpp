@@ -1,6 +1,7 @@
 #include <global_root.h>
 #include "statistics.h"
 #include "InconsistencyCoverage.h"
+#include <string/converter.h>
 
 #include <general/thread_system.h>
 #include <global_string.h>
@@ -445,6 +446,7 @@ namespace Statistics
 			};
 
 			StringTable<TMergeCapture>	mergeCaptures;
+			IndexTable<TProbabilisticICReduction>	icReductionCaptures;
 		}
 		TExperiment Next()
 		{
@@ -886,6 +888,68 @@ namespace Statistics
 		return "";
 	}
 
+	void	CaptureICTest(const TProbabilisticICReduction&rs)
+	{
+		using namespace Details::MergeMeasurement;
+		mergeLock.lock();
+			auto&entry = icReductionCaptures.Set(index_t(rs.flags));
+			entry.Add(rs);
+		mergeLock.unlock();
+	}
+
+
+	void	TProbabilisticICReduction::Import(const XML::Node*n)
+	{
+		#undef IMPORT
+		#define IMPORT(X)		X.Import(n->Find(#X));
+		
+		IMPORT(totalGuesses);
+		IMPORT(consideredConsistent);
+		IMPORT(correctGuesses);
+		IMPORT(actuallyConsistent);
+		IMPORT(shouldHaveConsideredConsistent);
+		IMPORT(shouldNotHaveConsideredConsistent);
+	}
+
+	void	TProbabilisticICReduction::ToXML(XML::Node&n) const
+	{
+		#undef EXPORT
+		#define EXPORT(X)		X.ToXML(n.AddChild(#X));
+
+		EXPORT(totalGuesses);
+		EXPORT(consideredConsistent);
+		EXPORT(correctGuesses);
+		EXPORT(actuallyConsistent);
+		EXPORT(shouldHaveConsideredConsistent);
+		EXPORT(shouldNotHaveConsideredConsistent);
+
+		{
+			XML::Node&xflags = n.Create("flags");
+			String sflags = "";
+			if (flags & ICReductionFlags::RegardEnvironment)
+				sflags += " environment";
+			if (flags & ICReductionFlags::RegardHistory)
+				sflags += " history";
+			if (flags & ICReductionFlags::RegardOriginBitField)
+				sflags += " originBits";
+			xflags.inner_content = sflags;
+		}
+	}
+
+
+	void	TProbabilisticICReduction::Add(const TProbabilisticICReduction&other)
+	{
+		flags = other.flags;
+		totalGuesses += other.totalGuesses;
+		consideredConsistent += other.consideredConsistent;
+		correctGuesses += other.correctGuesses;
+		actuallyConsistent += other.actuallyConsistent;
+		shouldHaveConsideredConsistent += other.shouldHaveConsideredConsistent;
+		shouldNotHaveConsideredConsistent += other.shouldNotHaveConsideredConsistent;
+	}
+
+
+
 	void CaptureMergeResult(const IC::Comparator&comp, MergeStrategy strategy,const TStateDifference&postMerge)
 	{
 		using namespace Details::MergeMeasurement;
@@ -899,6 +963,7 @@ namespace Statistics
 	}
 
 	#define MERGE_FILENAME "mergeMeasurements.xml"
+	#define IC_FILENAME "icMeasurements.xml"
 
 	void ImportMergeResults()
 	{
@@ -921,6 +986,25 @@ namespace Statistics
 		}
 		catch(...){};
 	
+		try
+		{
+			XML::Container doc;
+			doc.LoadFromFile(IC_FILENAME);
+			using namespace MergeMeasurement;
+
+			String key;
+			foreach(doc.root_node.children,n)
+				if (n->name == "capture" && n->Query("flags",key))
+				{
+					index_t flags;
+					if (!Convert(key,flags))
+						continue;
+					auto&ic = icReductionCaptures.Set(flags);
+					ic.flags = (ICReductionFlags)flags;
+					ic.Import(n);
+				}
+		}
+		catch(...){};
 	}
 
 
@@ -1085,8 +1169,8 @@ namespace Statistics
 	void ExportMergeResults()
 	{
 		using namespace Details;
-		XML::Container doc;
 		{
+			XML::Container doc;
 			Array<String> keys;
 			Array<MergeMeasurement::TMergeCapture> values;
 			using namespace MergeMeasurement;
@@ -1106,6 +1190,24 @@ namespace Statistics
 
 			doc.SaveToFile(MERGE_FILENAME);
 		}
+		{
+			XML::Container doc;
+			Array<TProbabilisticICReduction> values;
+			using namespace MergeMeasurement;
+
+			icReductionCaptures.exportTo(values);
+			
+			for (index_t i = 0; i < values.Count(); i++)
+			{
+				XML::Node&node = doc.root_node.Create("capture");
+
+				node.Set("flags",index_t(values[i].flags));
+				values[i].ToXML(node);
+			}
+
+			doc.SaveToFile(IC_FILENAME);
+		}
+
 
 		using namespace MergeMeasurement;
 		if (mergeCaptures.IsNotEmpty())

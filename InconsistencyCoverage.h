@@ -36,16 +36,17 @@ public:
 		bool		IsInvalid() const { return blurExtent == 0xFF; }
 
 		void		IncreaseDepth();
-		void		SetWorst(const TSample&a, const TSample&b);
-		void		Include(const TSample&);
-		TSample&	IntegrateGrowingNeighbor(const TSample&n, UINT32 distance);
-		void		SetBest(const TSample&a, const TSample&b, const Comparator&comp);
 
 		void		Hash(Hasher&hasher) const
 		{
 			hasher.AppendPOD(blurExtent);
 			hasher.AppendPOD(depth);
 		}
+	protected:
+		void		SetWorst(const TSample&a, const TSample&b);
+		bool		IntegrateGrowingNeighbor(const TSample&n, UINT32 distance);
+		void		SetBest(const TSample&a, const TSample&b, const Comparator&comp);
+		void		Include(const TSample&);
 	};
 
 	struct TExtSample : public TSample
@@ -63,13 +64,28 @@ public:
 			Super::SetWorst(a,b);
 			unavailableShards = a.unavailableShards;
 			unavailableShards |= b.unavailableShards;
+			bool zero = unavailableShards.AllZero();
+			ASSERT_EQUAL__(zero,this->IsConsistent());
 		}
 
 		void		Include(const TExtSample&s)
 		{
 			Super::Include(s);
 			unavailableShards |= s.unavailableShards;
+			bool zero = unavailableShards.AllZero();
+			ASSERT_EQUAL__(zero,this->IsConsistent());
 		}
+		TExtSample&	IntegrateGrowingNeighbor(const TExtSample&n, UINT32 distance)
+		{
+			if (Super::IntegrateGrowingNeighbor(n,distance))
+			{
+				unavailableShards |= n.unavailableShards;
+				bool zero = unavailableShards.AllZero();
+				ASSERT_EQUAL__(zero,this->IsConsistent());
+			}
+			return *this;
+		}
+		void		SetBest(const TExtSample&a, const TExtSample&b, const Comparator&comp);
 	};
 
 private:

@@ -17,6 +17,21 @@ bool			BitArray::AllZero() const
 	return true;
 }
 
+bool			BitArray::OverlapsWith(const BitArray&other) const
+{
+	auto it0 = storage.begin();
+	auto it1 = other.storage.begin();
+	const auto end0 = storage.end();
+	const auto end1 = other.storage.end();
+
+	for (; it0 != end0 && it1 != end1; ++it0, ++it1)
+	{
+		if (*it0 & *it1)
+			return true;
+	}
+	return false;
+}
+
 
 	
 void			BitArray::operator&=(const BitArray&other)

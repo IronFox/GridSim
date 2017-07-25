@@ -76,16 +76,29 @@ typedef VecN<int,Dimensions>	TGridCoords;
 typedef VecN<float,Dimensions>	TEntityCoords;
 typedef Volume<>				TBoundaries;
 
-inline TVec2<index_t>	ToVector(const Size2D<count_t>&s)
+inline TVec2<count_t>	ToVector(const Size2D<count_t>&s)
 {
-	TVec2<index_t> rs;
+	TVec2<count_t> rs;
 	Vec::def(rs,s.width,s.height);
 	return rs;
 }
-inline TVec3<index_t>	ToVector(const Size3D<count_t>&s)
+inline TVec3<count_t>	ToVector(const Size3D<count_t>&s)
+{
+	TVec3<count_t> rs;
+	Vec::def(rs,s.width,s.height,s.depth);
+	return rs;
+
+}
+inline TVec2<index_t>	ToVector(const Index2D<index_t>&s)
+{
+	TVec2<index_t> rs;
+	Vec::def(rs,s.x,s.y);
+	return rs;
+}
+inline TVec3<index_t>	ToVector(const Index3D<index_t>&s)
 {
 	TVec3<index_t> rs;
-	Vec::def(rs,s.width,s.height,s.depth);
+	Vec::def(rs,s.x,s.y,s.z);
 	return rs;
 }
 
