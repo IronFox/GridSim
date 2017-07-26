@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xml>
+	<capture flags="0" correctConsistentGuesses="0.11182">
+		<totalGuesses mean="4.384824" deviation="11.0413395" sum="565901" squareSum="18215111" numSamples="129059" />
+		<consideredConsistent mean="0.66499818" deviation="3.02539019" sum="85824" squareSum="1238348" numSamples="129059" />
+		<correctGuesses mean="3.79418715" deviation="10.61125111" sum="489674" squareSum="16389784" numSamples="129059" />
+		<actuallyConsistent mean="0.07436134" deviation="0.55875647" sum="9597" squareSum="41007" numSamples="129059" />
+		<shouldHaveConsideredConsistent mean="0" deviation="0" sum="0" squareSum="0" numSamples="129059" />
+		<shouldNotHaveConsideredConsistent mean="0.59063684" deviation="2.87125303" sum="76227" squareSum="1108997" numSamples="129059" />
+		<flags />
+	</capture>
+	<capture flags="1" correctConsistentGuesses="0.76446">
+		<totalGuesses mean="4.384824" deviation="11.0413395" sum="565901" squareSum="18215111" numSamples="129059" />
+		<consideredConsistent mean="0.00736872" deviation="0.14001206" sum="951" squareSum="2537" numSamples="129059" />
+		<correctGuesses mean="4.3143601" deviation="10.94596314" sum="556807" squareSum="17865355" numSamples="129059" />
+		<actuallyConsistent mean="0.07436134" deviation="0.55875647" sum="9597" squareSum="41007" numSamples="129059" />
+		<shouldHaveConsideredConsistent mean="0.06872826" deviation="0.53763281" sum="8870" squareSum="37914" numSamples="129059" />
+		<shouldNotHaveConsideredConsistent mean="0.00173564" deviation="0.04654608" sum="224" squareSum="280" numSamples="129059" />
+		<flags>originBits</flags>
+	</capture>
+	<capture flags="4" correctConsistentGuesses="0.11182">
+		<totalGuesses mean="4.384824" deviation="11.0413395" sum="565901" squareSum="18215111" numSamples="129059" />
+		<consideredConsistent mean="0.66499043" deviation="3.02531122" sum="85823" squareSum="1238285" numSamples="129059" />
+		<correctGuesses mean="3.7941949" deviation="10.61126039" sum="489675" squareSum="16389817" numSamples="129059" />
+		<actuallyConsistent mean="0.07436134" deviation="0.55875647" sum="9597" squareSum="41007" numSamples="129059" />
+		<shouldHaveConsideredConsistent mean="0" deviation="0" sum="0" squareSum="0" numSamples="129059" />
+		<shouldNotHaveConsideredConsistent mean="0.59062909" deviation="2.87116962" sum="76226" squareSum="1108934" numSamples="129059" />
+		<flags>history</flags>
+	</capture>
+	<capture flags="5" correctConsistentGuesses="0.76446">
+		<totalGuesses mean="4.384824" deviation="11.0413395" sum="565901" squareSum="18215111" numSamples="129059" />
+		<consideredConsistent mean="0.00736872" deviation="0.14001206" sum="951" squareSum="2537" numSamples="129059" />
+		<correctGuesses mean="4.3143601" deviation="10.94596314" sum="556807" squareSum="17865355" numSamples="129059" />
+		<actuallyConsistent mean="0.07436134" deviation="0.55875647" sum="9597" squareSum="41007" numSamples="129059" />
+		<shouldHaveConsideredConsistent mean="0.06872826" deviation="0.53763281" sum="8870" squareSum="37914" numSamples="129059" />
+		<shouldNotHaveConsideredConsistent mean="0.00173564" deviation="0.04654608" sum="224" squareSum="280" numSamples="129059" />
+		<flags>history originBits</flags>
+	</capture>
+	<capture flags="6" correctConsistentGuesses="0.11672">
+		<totalGuesses mean="4.384824" deviation="11.0413395" sum="565901" squareSum="18215111" numSamples="129059" />
+		<consideredConsistent mean="0.23320342" deviation="1.79964939" sum="30097" squareSum="425007" numSamples="129059" />
+		<correctGuesses mean="4.13169946" deviation="10.69795611" sum="533233" squareSum="16973479" numSamples="129059" />
+		<actuallyConsistent mean="0.07436134" deviation="0.55875647" sum="9597" squareSum="41007" numSamples="129059" />
+		<shouldHaveConsideredConsistent mean="0.04714123" deviation="0.38131366" sum="6084" squareSum="19052" numSamples="129059" />
+		<shouldNotHaveConsideredConsistent mean="0.20598331" deviation="1.65551565" sum="26584" squareSum="359192" numSamples="129059" />
+		<flags>environment history</flags>
+	</capture>
+	<capture flags="7" correctConsistentGuesses="0.968">
+		<totalGuesses mean="4.384824" deviation="11.0413395" sum="565901" squareSum="18215111" numSamples="129059" />
+		<consideredConsistent mean="0.00096855" deviation="0.05871199" sum="125" squareSum="445" numSamples="129059" />
+		<correctGuesses mean="4.31136922" deviation="10.94116039" sum="556421" squareSum="17848459" numSamples="129059" />
+		<actuallyConsistent mean="0.07436134" deviation="0.55875647" sum="9597" squareSum="41007" numSamples="129059" />
+		<shouldHaveConsideredConsistent mean="0.07342378" deviation="0.55257131" sum="9476" squareSum="40102" numSamples="129059" />
+		<shouldNotHaveConsideredConsistent mean="0.00003099" deviation="0.00681831" sum="4" squareSum="6" numSamples="129059" />
+		<flags>environment history originBits</flags>
+	</capture>
+</xml>

@@ -1202,6 +1202,7 @@ namespace Statistics
 				XML::Node&node = doc.root_node.Create("capture");
 
 				node.Set("flags",index_t(values[i].flags));
+				node.Set("correctConsistentGuesses", 1.f - values[i].shouldNotHaveConsideredConsistent.Get() / values[i].consideredConsistent.Get()  );
 				values[i].ToXML(node);
 			}
 

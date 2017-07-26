@@ -342,6 +342,9 @@ public:
 	void		ExportEdge(HGrid&target, const TGridCoords&edgeDelta) const;
 	static TCell	EmptyCell(const TGridCoords&shardCoords,const GridIndex&cellIndex);
 
+	GridIndex	GetIndexOfW(const TEntityCoords&worldCoords, const TGridCoords&localOffset) const;
+	GridIndex	GetIndexOfL(const TEntityCoords&localCoords) const;
+
 	const TCell&GetCellOfW(const TEntityCoords&worldCoords, const TGridCoords&localOffset) const;
 	const TCell&GetCellOfL(const TEntityCoords&localCoords) const;
 	const TCell&GetCellOfL(const TGridCoords&localCoords) const;
@@ -376,6 +379,7 @@ public:
 	@return true if all hash values match, false otherwise
 	*/
 	static bool	ExtMatch(const ExtHGrid&a, const ExtHGrid&b,  const TGridCoords&cellCoords, MissingEdgeTreatment);
+	static void	RequireExtMismatch(const ExtHGrid&a, const ExtHGrid&b,  const TGridCoords&cellCoords, MissingEdgeTreatment, index_t expectedLinear);
 	/**
 	Checks whether a location is consistent according to the two specified grids.
 	A location is consistent, if the hash values of the cell match among @a a and @a b.
@@ -383,6 +387,7 @@ public:
 	@param cellCoords Coords to sample in [0,IC::Resolution). Negative or values >= IC::Resolution are invalid
 	*/
 	static bool	CoreMatch(const ExtHGrid&a, const ExtHGrid&b,  const TGridCoords&cellCoords);
+	static void	RequireCoreMismatch(const ExtHGrid&a, const ExtHGrid&b,  const TGridCoords&cellCoords, index_t expectedLinear);
 
 	/**
 	Fetches the sample at the given location.

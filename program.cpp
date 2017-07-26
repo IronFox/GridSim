@@ -1592,12 +1592,23 @@ void EvolveV(const TInputVector&vec)
 	//	Statistics::ExportToFile("capture.txt");
 	//}
 
-	if (System::getMemoryConsumption() >= System::getPhysicalMemory()/4*3)
-		return;
+
+	const size_t physical = System::getPhysicalMemory();
+	static const size_t window = 2000000000;
+	const size_t allowance = physical > window ? physical - window : window;
+
 
 	auto success = testSimulation.RunIterationAsync(currentSetup,true);
 	if (success == Simulation::Result::Delayed)
 		return;
+
+	bool forceReset = false;
+
+	if (System::getMemoryConsumption() >= allowance)
+	{
+		LogMessage("Max RAM consumption ("+String(allowance)+") reached. Forcing reset.");
+		forceReset = true;
+	}
 
 	#if defined RECOVERY_TEST && defined DBG_SHARD_HISTORY
 		if (testSimulation.GetTopGeneration() >= 50)
@@ -1613,7 +1624,7 @@ void EvolveV(const TInputVector&vec)
 		#endif
 	}
 	else
-		if (testSimulation.GetTopGeneration() > 10000)
+		if (testSimulation.GetTopGeneration() > 10000 || forceReset)
 			StartNext(false);
 
 	if (stopSimulation)

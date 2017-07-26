@@ -105,6 +105,18 @@ void		HGrid::ExportEdge(HGrid&target, const TGridCoords&edgeDelta) const
 
 }
 
+GridIndex			HGrid::GetIndexOfW(const TEntityCoords&worldCoords, const TGridCoords&localOffset) const
+{
+	return GetIndexOfL(TEntityCoords(worldCoords - localOffset));
+}
+
+GridIndex			HGrid::GetIndexOfL(const TEntityCoords&localCoords) const
+{
+	TGridCoords c = localCoords * Resolution;
+	Vec::clamp(c,0,Resolution-1);
+	return VectorToIndex(c);
+}
+
 
 const HGrid::TCell&		HGrid::GetCellOfW(const TEntityCoords&worldCoords, const TGridCoords&localOffset) const
 {
@@ -655,6 +667,8 @@ InconsistencyCoverage::content_t		InconsistencyCoverage::GetInconsistency(const 
 {
 	TGridCoords c;
 	Vec::mult(coords,Resolution,c);
+	ASSERT__(!Vec::oneLess(c,TGridCoords(0)));
+	ASSERT__(!Vec::oneGreater(c,TGridCoords(Resolution)));
 	Vec::clamp(c,0,Resolution-1);
 	return c;
 }
@@ -848,11 +862,58 @@ InconsistencyCoverage::TBadness	InconsistencyCoverage::GetTotalBadness() const
 	return true;
 }
 
+
+/*static*/ void	ExtHGrid::RequireExtMismatch(const ExtHGrid&a, const ExtHGrid&b,  const TGridCoords&cellCoords,MissingEdgeTreatment t, index_t expectedLinear)
+{
+	auto at = VectorToIndex(cellCoords);
+	ASSERT_EQUAL1__(expectedLinear,a.core.grid.ToLinearIndex(at),at);
+	ASSERT_EQUAL__(a.core.grid.GetSize(),GridSize(IC::Resolution));
+	ASSERT_EQUAL__(b.core.grid.GetSize(),GridSize(IC::Resolution));
+	count_t sampleMatches = 0;
+	count_t ignored = 0;
+	for (int x = cellCoords.x -1; x <= cellCoords.x+1; x++)
+		for (int y = cellCoords.y -1; y <= cellCoords.y+1; y++)
+			#ifdef D3
+				for (int z = cellCoords.z -1; z <= cellCoords.z+1; z++)
+			#endif
+			{
+				const TGridCoords coords = 
+					#ifdef D3
+						TGridCoords(x,y,z);
+					#else
+						TGridCoords(x,y);
+					#endif
+				const auto*as = a.GetSample(coords);
+				const auto*bs = b.GetSample(coords);
+				if (as == nullptr || bs == nullptr || as->next == Hasher::HashContainer::Empty || bs->next == Hasher::HashContainer::Empty)
+				{
+					if (t == MissingEdgeTreatment::Fail)
+						return;
+					ignored++;
+					continue;
+				}
+
+				if (as->next != bs->next)
+					return;
+				sampleMatches++;
+			}
+	FATAL__("Match with "+String(sampleMatches)+" matches, ignored="+String(ignored)+", at="+ToString(at)+" ("+String(expectedLinear)+")");
+}
+
 /*static*/ bool	ExtHGrid::CoreMatch(const ExtHGrid&a, const ExtHGrid&b,  const TGridCoords&cellCoords)
 {
 	const auto&as = a.core.GetCellOfL(cellCoords).next;
 	const auto&bs = b.core.GetCellOfL(cellCoords).next;
 	return as == bs;
+}
+
+/*static*/ void	ExtHGrid::RequireCoreMismatch(const ExtHGrid&a, const ExtHGrid&b,  const TGridCoords&cellCoords, index_t expectedLinear)
+{
+	auto at = VectorToIndex(cellCoords);
+	ASSERT_EQUAL1__(expectedLinear,a.core.grid.ToLinearIndex(at),at);
+	const auto&as = a.core.GetCellOfL(cellCoords).next;
+	const auto&bs = b.core.GetCellOfL(cellCoords).next;
+	ASSERT_NOT_EQUAL1__( as , bs , at);
 }
 
 const HGrid::TCell*		ExtHGrid::GetSample(const TGridCoords&coords) const
