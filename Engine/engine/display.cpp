@@ -668,8 +668,8 @@ namespace Engine
 		mouse.cursor_visible = true;
 		//UnregisterClassA(ENGINE_CLASS_NAME,hInstance);
 		
-				
-		
+		SignalResize(0);
+		//this->_restoredClientSize = 
 		
 		return hWnd;
 	}
@@ -913,10 +913,17 @@ namespace Engine
 		return result;
 	}
 
+	/*static*/ UINT32		Context::GetLastSignalledDisplayFlags()
+	{
+		return displayConfigFlags;
+	}
+
+
 	DisplayConfig::FOnResize	Context::ReplaceOnResize(const DisplayConfig::FOnResize&newCallback)
 	{
 		DisplayConfig::FOnResize old = onResize;
 		onResize = newCallback;
+
 		return old;
 	}
 
@@ -932,8 +939,18 @@ namespace Engine
 				_location = info.rcWindow;
 				client_area = info.rcClient;
 				mouse.RedefineWindow(client_area,hWnd);
+
+				const Resolution newRes = Resolution(client_area.right - client_area.left,client_area.bottom - client_area.top);
+
+				if (!(flags & (Engine::DisplayConfig::IsMaximized | Engine::DisplayConfig::IsMinimzed | Engine::DisplayConfig::IsFullscreen)))
+				{
+					_restoredLocation = _location;
+					_restoredClientSize = newRes;
+				}
+
+
 				if (onResize)
-					onResize(Resolution(client_area.right - client_area.left,client_area.bottom - client_area.top),flags);
+					onResize(newRes,flags);
 			}
 		#elif SYSTEM_VARIANCE==LINUX
 			if (!display)
@@ -1771,6 +1788,12 @@ namespace Engine
 						newFlags |= DisplayConfig::IsMaximized;
 					if (wParam == SIZE_MINIMIZED)
 						newFlags |= DisplayConfig::IsMinimzed;
+					WINDOWINFO	info;
+					if (GetWindowInfo(hWnd,&info))
+					{
+						if (context.CheckFullscreen(info))
+							newFlags |= DisplayConfig::IsFullscreen;
+					}
 
 					context.SignalResize(newFlags);
 					displayConfigFlags = newFlags;

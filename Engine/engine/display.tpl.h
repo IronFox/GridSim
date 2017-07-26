@@ -369,6 +369,17 @@ namespace Engine
 			ResizeWindow(width,height);
 		}
 
+	template <class GL>
+		/*static*/ inline  const RECT&			Display<GL>::GetPreMaxiMinimizeLocation()
+		{
+			return context.GetPreMaxiMinimizeLocation();
+		}
+	template <class GL>
+		/*static*/ inline  const Resolution&	Display<GL>::GetPreMaxiMinimizeSize()
+		{
+			return context.GetPreMaxiMinimizeSize();
+		}
+
 
 	template <class GL>
 		/*static*/ inline  const RECT& Display<GL>::GetWindowLocation()

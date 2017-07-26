@@ -222,6 +222,9 @@ namespace Engine
 
 		void						SignalWindowResize(UINT32 displayConfigFlags);
 
+		FORWARD const RECT&			GetPreMaxiMinimizeLocation();
+		FORWARD const Resolution&	GetPreMaxiMinimizeSize();
+
 		FORWARD const RECT&			GetWindowLocation();	//!< Retrieves the current window location and size \return RECT Struct containing the current window location.
 		FORWARD	unsigned			GetWidth();			//!< Queries the current window width
 		FORWARD	unsigned			GetHeight();				//!< Queries the current window height
@@ -443,7 +446,15 @@ namespace Engine
 			bool				isFocused()								const;
 			bool				isMinimized()							const;
 
-			DisplayConfig::FOnResize	ReplaceOnResize(const DisplayConfig::FOnResize&);
+
+			static UINT32		GetLastSignalledDisplayFlags();
+
+			/**
+			Replaces the on window resize callback function
+			@param newCallback Callback to replace the existing callback function
+			@return previous (replaced) callback function
+			*/
+			DisplayConfig::FOnResize	ReplaceOnResize(const DisplayConfig::FOnResize&newCallback);
 
 			/**
 			Checks whether or not the managed window exists and is currently the top-most
@@ -490,24 +501,30 @@ namespace Engine
 	#endif
 
 
-			void						SetScreen(DEVMODE&screen);
-			void						SetScreen(const TDisplayMode&mode);
-			void						SetScreen(DEVMODE*screen);
-			bool						ApplyScreen();
-			bool						ApplyWindowScreen(DWORD refresh_rate=0);
-			void						ResetScreen();
+		void						SetScreen(DEVMODE&screen);
+		void						SetScreen(const TDisplayMode&mode);
+		void						SetScreen(DEVMODE*screen);
+		bool						ApplyScreen();
+		bool						ApplyWindowScreen(DWORD refresh_rate=0);
+		void						ResetScreen();
 
-			void						QueryScreen(ResolutionList*r_list, FrequencyList*f_list=NULL, DWORD w_min=0, DWORD h_min=0, DWORD f_min=0);
+		void						QueryScreen(ResolutionList*r_list, FrequencyList*f_list=NULL, DWORD w_min=0, DWORD h_min=0, DWORD f_min=0);
 
-			void						Assign(pEngineExec target);
-			void						Execute();
-			void						handleEvents();
-			void						close();
+		void						Assign(pEngineExec target);
+		void						Execute();
+		void						handleEvents();
+		void						close();
 
 			
 
-			unsigned					errorCode();
-			const char*					errorStr();
+		unsigned				errorCode();
+		const char*				errorStr();
+
+		const RECT&				GetPreMaxiMinimizeLocation()	{return _restoredLocation;}
+		const Resolution&		GetPreMaxiMinimizeSize()	{return _restoredClientSize;}
+	private:
+		RECT				_restoredLocation;
+		Resolution			_restoredClientSize;
 	};
 
 
