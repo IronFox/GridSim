@@ -346,6 +346,12 @@ namespace DeltaWorks
 
 				bool					IsValid() const { return max >= min; }
 
+				void					AssertIsNotNaN() const
+				{
+					ASSERT__(!isnan(min));
+					ASSERT__(!isnan(max));
+				}
+
 				bool					operator==(const Self&other) const
 				{
 					return min == other.min && max == other.max;
@@ -838,6 +844,12 @@ namespace DeltaWorks
 											return *this;
 										}
 
+
+				void					AssertIsNotNaN() const
+				{
+					x.AssertIsNotNaN();
+					y.AssertIsNotNaN();
+				}
 				bool					operator==(const Self&other) const
 				{
 					return x == other.x && y == other.y;
@@ -1377,7 +1389,13 @@ namespace DeltaWorks
 											z.Set(other.z);
 											return *this;
 										}
-									
+
+				void					AssertIsNotNaN() const
+				{
+					x.AssertIsNotNaN();
+					y.AssertIsNotNaN();
+					z.AssertIsNotNaN();
+				}
 				bool					operator==(const Self&other) const
 				{
 					return x == other.x && y == other.y && z == other.z;
