@@ -16,14 +16,16 @@ namespace Engine
 	namespace Detail
 	{
 		template <typename GL>
-			void	UpdateXML(Display<GL>&display, UINT32 flags, const Resolution&restoredResolution, const PathString&xmlfilename)
+			void	UpdateXML(Display<GL>&display, UINT32 flags, const RECT&restoredLocation, const PathString&xmlfilename)
 			{
 				XML::Container xconfig;
 				XML::Node&xdisplay = xconfig.Create("config/display");
-				xdisplay.Set("width",restoredResolution.width);
-				xdisplay.Set("height",restoredResolution.height);
+				xdisplay.Set("width",restoredLocation.right - restoredLocation.left);
+				xdisplay.Set("height",restoredLocation.bottom - restoredLocation.top);
 				if (flags & DisplayConfig::IsMaximized)
 					xdisplay.Set("state","maximized");
+				elif (flags & DisplayConfig::IsFullscreen)
+					xdisplay.Set("state","fullScreen");
 				FileSystem::CreateFolder(FileSystem::ExtractFileDir(xmlfilename));
 				xconfig.SaveToFile(xmlfilename);
 			}
@@ -32,7 +34,7 @@ namespace Engine
 
 
 	template <typename GL>
-		void	CreateDisplay(Display<GL>&display, const PathString&configFolderPath, const String&displayName, Resolution resolution, DisplayConfig::f_on_resize onResize, const DisplayConfig::Icon&icon = DisplayConfig::Icon())
+		UINT32	CreateDisplay(Display<GL>&display, const PathString&configFolderPath, const String&displayName, Resolution resolution, DisplayConfig::f_on_resize onResize, const DisplayConfig::Icon&icon = DisplayConfig::Icon())
 		{
 			Resolution screenRes = display.GetScreenSize();
 			resolution.width = std::min(resolution.width,screenRes.width);
@@ -61,6 +63,8 @@ namespace Engine
 					{
 						if (value == "maximized")
 							flags |= DisplayConfig::IsMaximized;
+						if (value == "fullScreen")
+							flags |= DisplayConfig::IsFullscreen;
 						//elif (value == "minimized")
 						//	flags |= DisplayConfig::IsMinimized;
 					}
@@ -72,7 +76,7 @@ namespace Engine
 			}
 			
 			DisplayConfig config(displayName,[xmlFileName,onResize,&display, resolution](const Resolution&newRes, UINT32 flags){
-				static Resolution restoredResolution = resolution;
+				
 				Timer::Time tUpdateXML = 0;
 				Timer::Time t0 = timer.Now();
 				Timer::Time t1 = t0;
@@ -81,11 +85,7 @@ namespace Engine
 				t1 += tResizeDisplay;
 				if (flags & Engine::DisplayConfig::ResizeDragHasEnded)
 				{
-					if (!(flags & (Engine::DisplayConfig::IsMaximized | Engine::DisplayConfig::IsMinimzed | Engine::DisplayConfig::IsFullscreen)))
-					{
-						restoredResolution = newRes;
-					}
-					Detail::UpdateXML(display,flags, restoredResolution, xmlFileName);
+					Detail::UpdateXML(display,flags, display.GetPreMaxiMinimizeLocation(), xmlFileName);
 					tUpdateXML = timer.Now() - t1;
 					t1 += tUpdateXML;
 				}
@@ -105,12 +105,13 @@ namespace Engine
 			if (!display.Create(config))
 				FATAL__("Unable to create window (" + display.GetErrorStr() + ")");
 			if (updateFile)
-				Detail::UpdateXML(display,flags,resolution, xmlFileName);
+				Detail::UpdateXML(display,flags,display.GetPreMaxiMinimizeLocation(), xmlFileName);
 			if (flags & DisplayConfig::IsMaximized)
 				context.MaximizeWindow();
 			//elif (flags & DisplayConfig::IsMinimzed)
 			//	context.MinimizeWindow();
 			onResize(resolution,context.GetDisplayConfigFlags());
+			return flags;
 		}
 		
 		
