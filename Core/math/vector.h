@@ -1378,6 +1378,15 @@ namespace DeltaWorks
 											return *this;
 										}
 									
+				bool					operator==(const Self&other) const
+				{
+					return x == other.x && y == other.y && z == other.z;
+				}
+				bool					operator!=(const Self&other) const
+				{
+					return !operator==(other);
+				}
+																		
 				static Box<T>			Invalid()	{return Box(MaxInvalidRange<T>(),MaxInvalidRange<T>(),MaxInvalidRange<T>());}
 				bool					IsValid() const { return x.IsValid() && y.IsValid() && z.IsValid(); }
 				/**
