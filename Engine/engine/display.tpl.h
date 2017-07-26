@@ -560,6 +560,7 @@ namespace Engine
 	template <class GL> inline void Display<GL>::Maximize()		{context.MaximizeWindow();}
 	template <class GL> inline bool	Display<GL>::IsMinimized()	{return context.WindowIsMinimized();}
 	template <class GL> inline void Display<GL>::Minimize()		{context.MinimizeWindow();}
+	template <class GL> inline void Display<GL>::Restore()		{context.RestoreWindow();}
 
 
 

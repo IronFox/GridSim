@@ -463,6 +463,36 @@ namespace Engine
 
 	}
 
+	void	Context::RestoreWindow()
+	{
+		#if SYSTEM==WINDOWS
+			if (hWnd)
+				ShowWindow(hWnd,SW_RESTORE);
+		#elif SYSTEM_VARIANCE==LINUX
+			if (display)
+			{
+				XEvent xev;
+				Atom wm_state  =  XInternAtom(display, "_NET_WM_STATE", False);	//i hope this is correct
+				//Atom max_horz  =  XInternAtom(display, "_NET_WM_STATE_MAXIMIZED_HORZ", False);
+				//Atom max_vert  =  XInternAtom(display, "_NET_WM_STATE_MAXIMIZED_VERT", False);
+
+				memset(&xev, 0, sizeof(xev));
+				xev.type = ClientMessage;
+				xev.xclient.window = window;
+				xev.xclient.message_type = wm_state;
+				xev.xclient.format = 32;
+				xev.xclient.data.l[0] = 1;//_NET_WM_STATE_ADD;
+				//xev.xclient.data.l[1] = max_horz;
+				//xev.xclient.data.l[2] = max_vert;
+
+				XSendEvent(display, DefaultRootWindow(display), False, SubstructureNotifyMask, &xev);			
+			}
+		#else
+			#error stub
+		#endif	
+
+	}
+
 
 	#if SYSTEM==WINDOWS
 

@@ -245,6 +245,7 @@ namespace Engine
 		FORWARD void				Maximize();
 		FORWARD bool				IsMinimized();
 		FORWARD void				Minimize();
+		FORWARD void				Restore();
 		FORWARD void				RegisterFocusCallbacks(const PCallback&onFocusLost, const PCallback&onFocusRestored);
 		#if SYSTEM==WINDOWS
 			FORWARD bool			GetScreen(DEVMODE&mode);
@@ -471,6 +472,7 @@ namespace Engine
 
 			void				MaximizeWindow();
 			void				MinimizeWindow();
+			void				RestoreWindow();
 
 
 			void				checkFocus();	//sends isFocused() to eveMouse.setFocused()
