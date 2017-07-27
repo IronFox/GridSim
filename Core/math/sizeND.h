@@ -2,6 +2,11 @@
 
 namespace DeltaWorks
 {
+	#ifdef _DEBUG
+	#define __INDEX_DBG_RANGE_CHECK__		//!< Checks index ranges in debug mode
+	#endif
+
+
 	template <typename T>
 		class Size2D;
 	template <typename T>
@@ -12,6 +17,7 @@ namespace DeltaWorks
 		{
 		public:
 			typedef Index2D<T>	Self;
+			typedef Size2D<T>	Size;
 			
 			T			x,
 						y;
@@ -20,13 +26,22 @@ namespace DeltaWorks
 			/**/		Index2D(T x, T y):x(x),y(y)	{}
 			bool		operator==(const Self&other) const {return x == other.x && y == other.y;}
 			bool		operator!=(const Self&other) const {return !operator==(other);}
-			Self		operator+(const Size2D<T>&) const;
-			Size2D<T>	operator-(const Self&) const;
+			Self		operator+(const Size&) const;
+			Size		operator-(const Self&) const;
 			void		Set(T x, T y)
 			{
 				this->x = x;
 				this->y = y;
 			}
+			/**
+			Iterates over all immediate neighbors of the local vector, including diagonal neighbors and itself.
+			All created indexes are passed to the provided callback function.
+			Indexes outside the range [0,limit.*) are omitted.
+			@param function Callback function accepting a single Index parameter. Executed once for each matching index
+			@param limit Size constraint. No index is generated where any coordinate is greater or equal to the respective size dimension
+			*/
+			template <typename F>
+			void		IterateNeighborhood(F function, const Size&limit) const;
 		};
 
 	template <typename T>
@@ -34,6 +49,8 @@ namespace DeltaWorks
 		{
 		public:
 			typedef Size2D<T>	Self;
+			typedef Index2D<T>	Index;
+
 			T			width,
 						height;
 
@@ -62,6 +79,40 @@ namespace DeltaWorks
 				width = diagonalSize;
 				height = diagonalSize;
 			}
+			bool		IsInBounds(const Index&idx) const
+			{
+				return idx.x < width && idx.y < height;
+			}
+			index_t		ToLinearIndexNoCheck(const Index&idx) const
+			{
+				return idx.y*width+idx.x;
+			}
+			index_t		ToLinearIndex(const Index&idx) const
+			{
+				#ifdef __INDEX_DBG_RANGE_CHECK__
+					if (!IsInBounds(idx))
+						FATAL__("Index out of bounds");
+				#endif
+				return ToLinearIndexNoCheck(idx);
+			}
+
+
+			Index		ToVectorIndex(index_t linear) const
+			{
+				#ifdef __INDEX_DBG_RANGE_CHECK__
+					if (linear >= CountElements())
+						FATAL__("Index out of bounds");
+				#endif
+				return ToVectorIndexNoCheck(linear);
+			}
+
+			Index		ToVectorIndexNoCheck(index_t linear) const
+			{
+				return Index(linear % width, linear / width);
+			}
+
+
+
 
 			friend Self max(const Self&a, const Self&b)
 			{
@@ -80,7 +131,8 @@ namespace DeltaWorks
 		{
 		public:
 			typedef Index3D<T>	Self;
-			
+			typedef Size3D<T>	Size;
+
 			T			x,
 						y,
 						z;
@@ -89,14 +141,23 @@ namespace DeltaWorks
 			/**/		Index3D(T x, T y, T z):x(x),y(y),z(z)	{}
 			bool		operator==(const Self&other) const {return x == other.x && y == other.y && z == other.z;}
 			bool		operator!=(const Self&other) const {return !operator==(other);}
-			Self		operator+(const Size3D<T>&) const;
-			Size3D<T>	operator-(const Self&) const;
+			Self		operator+(const Size&) const;
+			Size		operator-(const Self&) const;
 			void		Set(T x, T y, T z)
 			{
 				this->x = x;
 				this->y = y;
 				this->z = z;
 			}
+			/**
+			Iterates over all immediate neighbors of the local vector, including diagonal neighbors and itself.
+			All created indexes are passed to the provided callback function.
+			Indexes outside the range [0,limit.*) are omitted.
+			@param function Callback function accepting a single Index parameter. Executed once for each matching index
+			@param limit Size constraint. No index is generated where any coordinate is greater or equal to the respective size dimension
+			*/
+			template <typename F>
+			void		IterateNeighborhood(F function, const Size&limit) const;
 		};
 
 	template <typename T>
@@ -104,6 +165,8 @@ namespace DeltaWorks
 		{
 		public:
 			typedef Size3D<T>	Self;
+			typedef Index3D<T>	Index;
+
 			T			width,
 						height,
 						depth;
@@ -137,6 +200,39 @@ namespace DeltaWorks
 				depth = diagonalSize;
 			}
 
+			bool		IsInBounds(const Index&idx) const
+			{
+				return idx.x < width && idx.y < height && idx.z < depth;
+			}
+
+			index_t		ToLinearIndexNoCheck(const Index&idx) const
+			{
+				return idx.z*width*height + idx.y*width + idx.x;
+			}
+			index_t		ToLinearIndex(const Index&idx) const
+			{
+				#ifdef __INDEX_DBG_RANGE_CHECK__
+					if (!IsInBounds(idx))
+						FATAL__("Index out of bounds");
+				#endif
+				return ToLinearIndexNoCheck(idx);
+			}
+
+			Index		ToVectorIndex(index_t linear) const
+			{
+				#ifdef __INDEX_DBG_RANGE_CHECK__
+					if (linear >= CountElements())
+						FATAL__("Index out of bounds");
+				#endif
+				return ToVectorIndexNoCheck(linear);
+			}
+
+			Index		ToVectorIndexNoCheck(index_t linear) const
+			{
+				const count_t slice = w*h;
+				return Index(linear % w, (linear%slice) / w, linear / slice);
+			}
+
 			friend Self max(const Self&a, const Self&b)
 			{
 				using std::max;
@@ -162,6 +258,35 @@ namespace DeltaWorks
 				y > other.y ? y - other.y : 0
 				);
 		}
+
+	template <typename T>
+		template <typename F>
+			void		Index2D<T>::IterateNeighborhood(F function, const Size&limit) const
+			{
+				const T xBegin = x > 1 ? x -1 : 0;
+				const T yBegin = y > 1 ? y -1 : 0;
+				const T xEnd = x+2 <= limit.width ? x+2 : limit.width;
+				const T yEnd = y+2 <= limit.height ? y+2 : limit.height;
+				for (T xi = xBegin; xi < xEnd; xi++)
+				for (T yi = yBegin; yi < yEnd; yi++)
+					function(Self(xi,yi));
+			}
+	template <typename T>
+		template <typename F>
+			void		Index3D<T>::IterateNeighborhood(F function, const Size&limit) const
+			{
+				const T xBegin = x > 1 ? x -1 : 0;
+				const T yBegin = y > 1 ? y -1 : 0;
+				const T zBegin = z > 1 ? z -1 : 0;
+				const T xEnd = x+2 <= limit.width ? x+2 : limit.width;
+				const T yEnd = y+2 <= limit.height ? y+2 : limit.height;
+				const T zEnd = z+2 <= limit.depth ? z+2 : limit.depth;
+				for (T xi = xBegin; xi < xEnd; xi++)
+				for (T yi = yBegin; yi < yEnd; yi++)
+				for (T zi = zBegin; zi < zEnd; zi++)
+					function(Self(xi,yi,zi));
+			}
+
 
 	template <typename T>
 		Index3D<T>	Index3D<T>::operator+(const Size3D<T>&s) const
