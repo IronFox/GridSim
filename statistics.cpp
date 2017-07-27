@@ -446,7 +446,7 @@ namespace Statistics
 			};
 
 			StringTable<TMergeCapture>	mergeCaptures;
-			IndexTable<TProbabilisticICReduction>	icReductionCaptures;
+			GenericHashTable<TICReductionConfig,TProbabilisticICReduction>	icReductionCaptures;
 		}
 		TExperiment Next()
 		{
@@ -892,7 +892,7 @@ namespace Statistics
 	{
 		using namespace Details::MergeMeasurement;
 		mergeLock.lock();
-			auto&entry = icReductionCaptures.Set(index_t(rs.flags));
+			auto&entry = icReductionCaptures.Set(rs.config);
 			entry.Add(rs);
 		mergeLock.unlock();
 	}
@@ -924,22 +924,29 @@ namespace Statistics
 		EXPORT(shouldNotHaveConsideredConsistent);
 
 		{
-			XML::Node&xflags = n.Create("flags");
+			XML::Node&xflags = n.Create("config");
 			String sflags = "";
-			if (flags & ICReductionFlags::RegardEnvironment)
-				sflags += " environment";
-			if (flags & ICReductionFlags::RegardHistory)
-				sflags += " history";
-			if (flags & ICReductionFlags::RegardOriginBitField)
+			if (config.flags & ICReductionFlags::RegardEntityEnvironment)
+				sflags += " entityEnvironment";
+			elif (config.flags & ICReductionFlags::RegardEntityState)
+				sflags += " entityState";
+			if (config.flags & ICReductionFlags::RegardOriginRange)
+				sflags += " originRange";
+			if (config.flags & ICReductionFlags::RegardFuzzyOriginRange)
+				sflags += " fuzzyOriginRange";
+			if (config.flags & ICReductionFlags::RegardOriginBitField)
 				sflags += " originBits";
 			xflags.inner_content = sflags;
+
+			xflags.Set("minEntityPresence",config.minEntityPresence);
+			xflags.Set("overlapTolerance",config.overlapTolerance);
 		}
 	}
 
 
 	void	TProbabilisticICReduction::Add(const TProbabilisticICReduction&other)
 	{
-		flags = other.flags;
+		config = other.config;
 		totalGuesses += other.totalGuesses;
 		consideredConsistent += other.consideredConsistent;
 		correctGuesses += other.correctGuesses;
@@ -964,6 +971,24 @@ namespace Statistics
 
 	#define MERGE_FILENAME "mergeMeasurements.xml"
 	#define IC_FILENAME "icMeasurements.xml"
+
+
+	template <typename T>
+	static bool Query(const XML::Node*n, const String&key, T&outValue)
+	{
+		StringRef str;
+		return n->Query(key,str) && Convert(str,outValue);
+	}
+	template <typename T>
+	static bool QueryEnum(const XML::Node*n, const String&key, T&outValue)
+	{
+		typedef typename std::underlying_type<T>::type V;
+		V v;
+		if (!Query(n,key,v))
+			return false;
+		outValue = T(v);
+		return true;
+	}
 
 	void ImportMergeResults()
 	{
@@ -992,16 +1017,21 @@ namespace Statistics
 			doc.LoadFromFile(IC_FILENAME);
 			using namespace MergeMeasurement;
 
-			String key;
+			TICReductionConfig cfg;
 			foreach(doc.root_node.children,n)
-				if (n->name == "capture" && n->Query("flags",key))
+				if (n->name == "capture" 
+					&& 
+					QueryEnum(n,"flags",cfg.flags) && 
+					Query(n,"overlapTolerance",cfg.overlapTolerance) &&
+					Query(n,"minEntityPresence",cfg.minEntityPresence)
+					)
 				{
-					index_t flags;
-					if (!Convert(key,flags))
-						continue;
-					auto&ic = icReductionCaptures.Set(flags);
-					ic.flags = (ICReductionFlags)flags;
-					ic.Import(n);
+					if (cfg.CanCheck())
+					{
+						auto&ic = icReductionCaptures.Set(cfg);
+						ic.config = cfg;
+						ic.Import(n);
+					}
 				}
 		}
 		catch(...){};
@@ -1201,7 +1231,9 @@ namespace Statistics
 			{
 				XML::Node&node = doc.root_node.Create("capture");
 
-				node.Set("flags",index_t(values[i].flags));
+				node.Set("flags",index_t(values[i].config.flags));
+				node.Set("overlapTolerance",values[i].config.overlapTolerance);
+				node.Set("minEntityPresence",values[i].config.minEntityPresence);
 				node.Set("correctConsistentGuesses", 1.f - values[i].shouldNotHaveConsideredConsistent.Get() / values[i].consideredConsistent.Get()  );
 				values[i].ToXML(node);
 			}
@@ -1218,6 +1250,44 @@ namespace Statistics
 				ExportTexFile("Binary"+ToExt((MergeStrategy)i));
 			}
 		}
+	}
+
+
+	bool	TICReductionConfig::CanCheck() const
+	{
+		count_t set = 0;
+		bool canOverlap = false;
+
+		if (!(flags & ICReductionFlags::RegardEntityState))
+		{
+			if (flags & ICReductionFlags::RegardEntityEnvironment)
+				return false;
+			if (minEntityPresence != 0)
+				return false;
+		}
+
+		if (flags & ICReductionFlags::RegardOriginRange)
+		{
+			canOverlap = true;
+			set++;
+		}
+		if (flags & ICReductionFlags::RegardFuzzyOriginRange)
+		{
+			canOverlap = true;
+			set++;
+		}
+		
+		if (flags & ICReductionFlags::RegardOriginBitField)
+			set++;
+		
+		if (set > 1)
+			return false;
+		if (!canOverlap && overlapTolerance > 0)
+			return false;
+
+		return set <= 1;
+		//return true;
+		//return !(p & ICReductionFlags::RegardEnvironment) || (p & ICReductionFlags::RegardHistory);	//only have environment if history is available
 	}
 
 }

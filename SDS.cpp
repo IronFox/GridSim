@@ -406,7 +406,8 @@ void FullShardDomainState::FinalizeComputation(Shard&shard, const TCodeLocation&
 			//if (shard.client.Exists(DB::ID(shard.neighbors[i].shard,&shard,GetOutput()->generation)))
 				inRCSPermanence[inbound].Request();
 			//this->GetOutput()->ic.Include(shard.neighbors[i].delta,bad);
-			this->GetOutput()->ic.IncludeMissing(shard.neighbors[i].delta,shard.linearCoords,shard.parentGrid->currentSize.CountElements());
+			ASSERT_LESS__(generation,std::numeric_limits<IC::generation_t>::max());
+			this->GetOutput()->ic.IncludeMissing(shard.neighbors[i].delta,VectorToIndex( shard.gridCoords),shard.parentGrid->currentSize,IC::generation_t(generation));
 		}
 	}
 
@@ -1070,15 +1071,28 @@ static PCoreShardDomainState		Merge(
 			auto		&hsm = hm[i];
 
 
-
-			int choice;
-			if (exclusiveChoice)
-				choice = s0.IsConsistent() ? -1 : (s1.IsConsistent()  ? 1 : exclusiveChoice);
+			if (s0.IsConsistent())
+			{
+				sm = s0;
+				hsm = hs0;
+			}
+			elif (s1.IsConsistent())
+			{
+				sm = s1;
+				hsm = hs1;
+			}
 			else
-				choice = comp(s0,s1);
+			{
+				int choice;
+				if (exclusiveChoice)
+					choice = exclusiveChoice;
+				else
+					choice = comp(s0,s1);
 
-			sm = choice <= 0 ? s0 : s1;
-			hsm = choice <= 0 ? hs0 : hs1;
+				sm = choice <= 0 ? s0 : s1;
+//				sm.SetWorst(s0,s1);
+				hsm = choice <= 0 ? hs0 : hs1;
+			}
 		}
 		merged.ic.SetGrid(std::move(gm));
 		merged.ic.Seal();
@@ -1332,7 +1346,7 @@ struct TTest
 
 #pragma optimize( "", off )
 void				TestProbabilisticICReduction(const CoreShardDomainState&a, const ExtHGrid&ag, const CoreShardDomainState&b,const ExtHGrid&bg,
-	const GridArray<bool>&actuallyConsistent,const GridArray<TTest>&shouldNotBeConsidered,const IC&mergedIC, Statistics::ICReductionFlags strat)
+	const GridArray<bool>&actuallyConsistent,const GridArray<TTest>&shouldNotBeConsidered,const IC&mergedIC, const Statistics::TICReductionConfig&strat)
 {
 	const count_t fullSamples = mergedIC.GetGrid().Count();
 	count_t totalGuesses = 0,
@@ -1349,18 +1363,22 @@ void				TestProbabilisticICReduction(const CoreShardDomainState&a, const ExtHGri
 		{
 			continue;
 		}
+		ASSERT__(!a.ic.GetGrid()[i].IsConsistent());
+		ASSERT__(!b.ic.GetGrid()[i].IsConsistent());
 		totalGuesses++;
 		bool match = true;
-		if (strat & Statistics::ICReductionFlags::RegardEnvironment)
+		if (strat.flags & Statistics::ICReductionFlags::RegardEntityState)
 		{
-			if (!ExtHGrid::ExtMatch(ag,bg,ToVector( actuallyConsistent.ToVectorIndex(i) ),ExtHGrid::MissingEdgeTreatment::Fail))
-				match = false;
+			if (strat.flags & Statistics::ICReductionFlags::RegardEntityEnvironment)
+			{
+				if (!ExtHGrid::ExtMatch(ag,bg,ToVector( actuallyConsistent.ToVectorIndex(i) ),ExtHGrid::MissingEdgeTreatment::Fail,strat.minEntityPresence))
+					match = false;
+			}
+			else
+				if (!ExtHGrid::CoreMatch(ag,bg,ToVector( actuallyConsistent.ToVectorIndex(i) ),strat.minEntityPresence))
+					match = false;
 		}
-		else
-			if (!ExtHGrid::CoreMatch(ag,bg,ToVector( actuallyConsistent.ToVectorIndex(i) )))
-				match = false;
-
-		if (match && (strat & Statistics::ICReductionFlags::RegardOriginBitField))
+		if (match && (strat.flags & Statistics::ICReductionFlags::RegardOriginBitField))
 		{
 			const BitArray&ba = a.ic.GetGrid()[i].unavailableShards;
 			const BitArray&bb = b.ic.GetGrid()[i].unavailableShards;
@@ -1369,10 +1387,29 @@ void				TestProbabilisticICReduction(const CoreShardDomainState&a, const ExtHGri
 			if (ba.OverlapsWith(bb))
 				match = false;
 		}
-		const auto&test = shouldNotBeConsidered[i];
-		if (match && test.isSet)
+		if (match && (strat.flags & Statistics::ICReductionFlags::RegardOriginRange))
 		{
-			if (strat & Statistics::ICReductionFlags::RegardEnvironment)
+			const auto&p0 = a.ic.GetGrid()[i].precise;
+			const auto&p1 = b.ic.GetGrid()[i].precise;
+			ASSERT__(!p0.AllUndefined());
+			ASSERT__(!p1.AllUndefined());
+			if (p0.OverlapsWith(p1,strat.overlapTolerance))
+				match = false;
+		}
+		if (match && (strat.flags & Statistics::ICReductionFlags::RegardFuzzyOriginRange))
+		{
+			const auto&p0 = a.ic.GetGrid()[i].fuzzy;
+			const auto&p1 = b.ic.GetGrid()[i].fuzzy;
+			ASSERT__(!p0.AllUndefined());
+			ASSERT__(!p1.AllUndefined());
+			if (p0.OverlapsWith(p1,strat.overlapTolerance))
+				match = false;
+		}
+
+		const auto&test = shouldNotBeConsidered[i];
+		if (match && test.isSet && (strat.flags & Statistics::ICReductionFlags::RegardEntityState))
+		{
+			if (strat.flags & Statistics::ICReductionFlags::RegardEntityEnvironment)
 			{
 				ExtHGrid::RequireExtMismatch(ag,bg,ToVector( actuallyConsistent.ToVectorIndex(i) ),ExtHGrid::MissingEdgeTreatment::Fail,i);
 			}
@@ -1403,7 +1440,7 @@ void				TestProbabilisticICReduction(const CoreShardDomainState&a, const ExtHGri
 	}
 
 	Statistics::TProbabilisticICReduction rs;
-	rs.flags = strat;
+	rs.config = strat;
 
 	rs.actuallyConsistent = actuallyConsistentCount;
 	rs.correctGuesses = correctGuesses;
@@ -1416,23 +1453,23 @@ void				TestProbabilisticICReduction(const CoreShardDomainState&a, const ExtHGri
 }
 #pragma optimize( "", on )
 
-void				TestProbabilisticICReduction(const CoreShardDomainState&a,const CoreShardDomainState&b,const GridArray<bool>&actuallyConsistent,const GridArray<TTest>&shouldNotBeConsidered,const IC&mergedIC, Statistics::ICReductionFlags strat, const TGridCoords&shardOffset)
+void				TestProbabilisticICReduction(const CoreShardDomainState&a,const CoreShardDomainState&b,const GridArray<bool>&actuallyConsistent,const GridArray<TTest>&shouldNotBeConsidered,const IC&mergedIC, const Statistics::TICReductionConfig&strat, const TGridCoords&shardOffset)
 {
-	if (!Statistics::CanCheck(strat))
+	if (!strat.CanCheck())
 		return;
 
-	if (!(strat & Statistics::ICReductionFlags::RegardHistory))
-	{
-		ExtHGrid ag,bg;
-		HashProcessGrid processorA(0,shardOffset),processorB(0,shardOffset);
-		processorA.Include(a.entities);
-		processorB.Include(b.entities);
-		processorA.Finish(ag.core);
-		processorB.Finish(bg.core);
-		TestProbabilisticICReduction(a,ag,b,bg,actuallyConsistent,shouldNotBeConsidered,mergedIC,strat);
-	}
-	else
-		TestProbabilisticICReduction(a,a.hGrid,b,b.hGrid,actuallyConsistent,shouldNotBeConsidered,mergedIC,strat);
+	//if (!(strat & Statistics::ICReductionFlags::RegardHistory))
+	//{
+	//	ExtHGrid ag,bg;
+	//	HashProcessGrid processorA(0,shardOffset),processorB(0,shardOffset);
+	//	processorA.Include(a.entities);
+	//	processorB.Include(b.entities);
+	//	processorA.Finish(ag.core);
+	//	processorB.Finish(bg.core);
+	//	TestProbabilisticICReduction(a,ag,b,bg,actuallyConsistent,shouldNotBeConsidered,mergedIC,strat);
+	//}
+	//else
+	TestProbabilisticICReduction(a,a.hGrid,b,b.hGrid,actuallyConsistent,shouldNotBeConsidered,mergedIC,strat);
 
 }
 
@@ -1536,10 +1573,16 @@ void				FullShardDomainState::SynchronizeWithSibling(Shard&myShard,  Shard&sibli
 					actuallyConsistent.Get(VectorToIndex( IC::ToPixels(e->coordinates - myShard.gridCoords) )) = false;
 			}
 
-			for (index_t i = 0; i < (count_t)Statistics::ICReductionFlags::NumCombinations; i++)
-			{
-				TestProbabilisticICReduction(a,b,actuallyConsistent,shouldNotBeConsidered,merged->ic, Statistics::ICReductionFlags(i),myShard.gridCoords);
-			}
+			for (index_t overlap = 0; overlap <= 2; overlap++)
+				for (index_t minPresence = 0; minPresence <= 2; minPresence++)
+					for (index_t i = 0; i < (count_t)Statistics::ICReductionFlags::NumCombinations; i++)
+					{
+						Statistics::TICReductionConfig cfg;
+						cfg.flags = Statistics::ICReductionFlags(i);
+						cfg.minEntityPresence = minPresence;
+						cfg.overlapTolerance = overlap;
+						TestProbabilisticICReduction(a,b,actuallyConsistent,shouldNotBeConsidered,merged->ic, cfg,myShard.gridCoords);
+					}
 		}
 
 

@@ -13,6 +13,22 @@ public:
 
 	class Comparator;
 
+	typedef UINT16	generation_t;
+
+	class RangeArray
+	{
+	public:
+		void	Include(index_t shardIndex, generation_t generation);
+		void	Merge(const RangeArray&);
+		void	ClearAndMerge(const RangeArray&, const RangeArray&);
+		bool	AllUndefined() const	{return allUndefined;}
+		bool	OverlapsWith(const RangeArray&other, count_t tolerance) const;
+	private:
+		Array<TFloatRange<generation_t> >	container;
+		bool	allUndefined = true;
+	};
+
+
 	struct TSample
 	{
 		/**
@@ -54,34 +70,51 @@ public:
 		typedef TSample	Super;
 		BitArray	unavailableShards;
 
+		RangeArray	precise,fuzzy;
+
 		void		Hash(Hasher&hasher) const
 		{
 			Super::Hash(hasher);
-			unavailableShards.Hash(hasher);
+			//unavailableShards.Hash(hasher);
 		}
 		void		SetWorst(const TExtSample&a, const TExtSample&b)
 		{
 			Super::SetWorst(a,b);
 			unavailableShards = a.unavailableShards;
 			unavailableShards |= b.unavailableShards;
-			bool zero = unavailableShards.AllZero();
-			ASSERT_EQUAL__(zero,this->IsConsistent());
+
+			precise.ClearAndMerge(a.precise,b.precise);
+			fuzzy.ClearAndMerge(a.fuzzy,b.fuzzy);
+
+			ASSERT_EQUAL__(unavailableShards.AllZero(),IsConsistent());
+			ASSERT_EQUAL__(precise.AllUndefined(),IsConsistent());
+			ASSERT_EQUAL__(fuzzy.AllUndefined(),IsConsistent());
 		}
 
 		void		Include(const TExtSample&s)
 		{
 			Super::Include(s);
 			unavailableShards |= s.unavailableShards;
-			bool zero = unavailableShards.AllZero();
-			ASSERT_EQUAL__(zero,this->IsConsistent());
+
+			precise.Merge(s.precise);
+			fuzzy.Merge(s.fuzzy);
+
+			ASSERT_EQUAL__(unavailableShards.AllZero(),IsConsistent());
+			ASSERT_EQUAL__(precise.AllUndefined(),IsConsistent());
+			ASSERT_EQUAL__(fuzzy.AllUndefined(),IsConsistent());
 		}
 		TExtSample&	IntegrateGrowingNeighbor(const TExtSample&n, UINT32 distance)
 		{
 			if (Super::IntegrateGrowingNeighbor(n,distance))
 			{
 				unavailableShards |= n.unavailableShards;
-				bool zero = unavailableShards.AllZero();
-				ASSERT_EQUAL__(zero,this->IsConsistent());
+
+				precise.Merge(n.precise);
+				fuzzy.Merge(n.fuzzy);
+
+				ASSERT_EQUAL__(unavailableShards.AllZero(),IsConsistent());
+				ASSERT_EQUAL__(precise.AllUndefined(),IsConsistent());
+				ASSERT_EQUAL__(fuzzy.AllUndefined(),IsConsistent());
 			}
 			return *this;
 		}
@@ -226,7 +259,7 @@ public:
 	@return true, if any inconsistency was imported
 	*/
 	bool		Include(const TGridCoords&sectorDelta, const InconsistencyCoverage&remote);
-	void		IncludeMissing(const TGridCoords&sectorDelta, index_t linearShardIndex, count_t numShards);
+	void		IncludeMissing(const TGridCoords&sectorDelta, const GridIndex&shardIndex, const GridSize&shardGridSize, generation_t generation);
 
 	/**
 	Resizes the local area to at most Resolution*Resolution[*Resolution] and copies all values from the specified remote ic map
@@ -330,6 +363,7 @@ public:
 	struct TCell
 	{
 		Hasher::HashContainer		prev,next;
+		count_t						numEntities = 0;
 		TGridCoords					originShard;
 		GridIndex					originCell;
 	};
@@ -378,7 +412,7 @@ public:
 	@param cellCoords Coords to sample in [0,IC::Resolution). Negative or values >= IC::Resolution are invalid
 	@return true if all hash values match, false otherwise
 	*/
-	static bool	ExtMatch(const ExtHGrid&a, const ExtHGrid&b,  const TGridCoords&cellCoords, MissingEdgeTreatment);
+	static bool	ExtMatch(const ExtHGrid&a, const ExtHGrid&b,  const TGridCoords&cellCoords, MissingEdgeTreatment, count_t minEntityCount);
 	static void	RequireExtMismatch(const ExtHGrid&a, const ExtHGrid&b,  const TGridCoords&cellCoords, MissingEdgeTreatment, index_t expectedLinear);
 	/**
 	Checks whether a location is consistent according to the two specified grids.
@@ -386,7 +420,7 @@ public:
 	The environment of the specified coordinates is NOT checked
 	@param cellCoords Coords to sample in [0,IC::Resolution). Negative or values >= IC::Resolution are invalid
 	*/
-	static bool	CoreMatch(const ExtHGrid&a, const ExtHGrid&b,  const TGridCoords&cellCoords);
+	static bool	CoreMatch(const ExtHGrid&a, const ExtHGrid&b,  const TGridCoords&cellCoords, count_t minEntityCount);
 	static void	RequireCoreMismatch(const ExtHGrid&a, const ExtHGrid&b,  const TGridCoords&cellCoords, index_t expectedLinear);
 
 	/**
@@ -404,6 +438,7 @@ public:
 	public:
 		Hasher			hasher;
 		Hasher::HashContainer	prev;
+		count_t			numEntities=0;
 	};
 	typedef GridArray<Cell>	TGrid;
 

@@ -8,6 +8,53 @@
 #include "shard.h"
 
 
+bool	IC::RangeArray::OverlapsWith(const RangeArray&other, count_t tolerance) const
+{
+	const count_t cnt = M::Min(container.Count(),other.container.Count());
+	for (index_t i = 0; i < cnt; i++)
+	{
+		const auto&a = container[i];
+		const auto&b = other.container[i];
+		if (a.Intersects(b))
+		{
+			const generation_t	min = M::Max(a.min,b.min),
+								max = M::Min(a.max,b.max);
+			if (max >= min && ((max - min)+1 > tolerance))
+				return true;
+		}
+	}
+	return false;
+}
+
+void	IC::RangeArray::Include(index_t shardIndex, generation_t generation)
+{
+	if (shardIndex >= container.Count())
+		container.ResizePreserveContent(shardIndex+1,Math::MaxInvalidRange<generation_t>());
+
+	container[shardIndex].Include(generation);
+
+	allUndefined = false;
+}
+
+void	IC::RangeArray::Merge(const RangeArray&other)
+{
+	if (other.container.Count() > container.Count())
+		container.ResizePreserveContent(other.container.Count(),Math::MaxInvalidRange<generation_t>());
+	for (index_t i = 0; i < container.Count() && i < other.container.Count(); i++)
+		container[i].Include(other.container[i]);
+	if (!other.allUndefined)
+		allUndefined = false;
+}
+
+void	IC::RangeArray::ClearAndMerge(const RangeArray&a, const RangeArray&b)
+{
+	container = a.container;
+	allUndefined = a.allUndefined;
+	Merge(b);
+}
+
+
+
 HashProcessGrid::HashProcessGrid(const HGrid&h,index_t timestep,const TGridCoords&localOffset, bool usePrev):localOffset(localOffset)
 {
 	ASSERT__(h.grid.IsNotEmpty());
@@ -41,12 +88,13 @@ void		HashProcessGrid::Finish(HGrid&h)
 	h.grid.SetSize(grid.GetSize());
 	Concurrency::parallel_for(index_t(0),grid.Count(),[this,&h](index_t i)
 	{
+		auto&in = grid[i];
 		auto&out = h.grid[i];
-		out.prev = grid[i].prev;
-		grid[i].hasher.Finish(out.next);
+		out.prev = in.prev;
+		in.hasher.Finish(out.next);
 		out.originShard = this->localOffset;
 		out.originCell = grid.ToVectorIndex(i);
-		
+		out.numEntities = in.numEntities;
 	});
 
 }
@@ -57,6 +105,7 @@ void		HashProcessGrid::Include(const EntityStorage&store)
 	{
 		auto&cell = GetCellOfW(e->coordinates);
 		e->Hash(cell.hasher);
+		cell.numEntities++;
 	}
 }
 
@@ -491,7 +540,7 @@ static InconsistencyCoverage::TSample*	GetVerified(Array3D<InconsistencyCoverage
 	return &array.Get(c.x,c.y,c.z);
 }
 
-void InconsistencyCoverage::IncludeMissing(const TGridCoords&sectorDelta, index_t linearShardIndex, count_t numShards)
+void InconsistencyCoverage::IncludeMissing(const TGridCoords&sectorDelta, const GridIndex&shardIndex, const GridSize&shardGridSize, generation_t generation)
 {
 	ASSERT__(!sealed);
 	VerifyIntegrity(CLOCATION);
@@ -500,8 +549,18 @@ void InconsistencyCoverage::IncludeMissing(const TGridCoords&sectorDelta, index_
 	TExtSample v2;
 	v2.depth = 1;
 	v2.blurExtent = 0;
-	v2.unavailableShards.SetSize(numShards);
-	v2.unavailableShards.SetBit(linearShardIndex,true);
+	//v2.unavailableShards.SetSize(numShards);
+	{
+		const index_t linear = shardGridSize.ToLinearIndex(shardIndex);
+		v2.unavailableShards.SetBit(linear,true);
+		v2.precise.Include(linear,generation);
+
+		shardIndex.IterateNeighborhood([&v2,shardGridSize,generation](const GridIndex&idx)
+		{
+			v2.fuzzy.Include(shardGridSize.ToLinearIndex(idx),generation);
+		},shardGridSize);
+	}
+
 
 	#ifdef D3
 		for (UINT32 z = 0; z < grid.GetDepth(); z++)
@@ -833,7 +892,7 @@ InconsistencyCoverage::TBadness	InconsistencyCoverage::GetTotalBadness() const
 	return rs;
 }
 
-/*static*/ bool	ExtHGrid::ExtMatch(const ExtHGrid&a, const ExtHGrid&b,  const TGridCoords&cellCoords,MissingEdgeTreatment t)
+/*static*/ bool	ExtHGrid::ExtMatch(const ExtHGrid&a, const ExtHGrid&b,  const TGridCoords&cellCoords,MissingEdgeTreatment t, count_t minEntityCount)
 {
 	for (int x = cellCoords.x -1; x <= cellCoords.x+1; x++)
 		for (int y = cellCoords.y -1; y <= cellCoords.y+1; y++)
@@ -856,6 +915,10 @@ InconsistencyCoverage::TBadness	InconsistencyCoverage::GetTotalBadness() const
 					continue;
 				}
 
+				if (as->numEntities != bs->numEntities)
+					return false;
+				if (as->numEntities < minEntityCount)
+					return false;
 				if (as->next != bs->next)
 					return false;
 			}
@@ -900,11 +963,17 @@ InconsistencyCoverage::TBadness	InconsistencyCoverage::GetTotalBadness() const
 	FATAL__("Match with "+String(sampleMatches)+" matches, ignored="+String(ignored)+", at="+ToString(at)+" ("+String(expectedLinear)+")");
 }
 
-/*static*/ bool	ExtHGrid::CoreMatch(const ExtHGrid&a, const ExtHGrid&b,  const TGridCoords&cellCoords)
+/*static*/ bool	ExtHGrid::CoreMatch(const ExtHGrid&a, const ExtHGrid&b,  const TGridCoords&cellCoords, count_t minEntityCount)
 {
-	const auto&as = a.core.GetCellOfL(cellCoords).next;
-	const auto&bs = b.core.GetCellOfL(cellCoords).next;
-	return as == bs;
+	const auto&as = a.core.GetCellOfL(cellCoords);
+	const auto&bs = b.core.GetCellOfL(cellCoords);
+
+	if (as.numEntities != bs.numEntities)
+		return false;
+	if (as.numEntities < minEntityCount)
+		return false;
+
+	return as.next == bs.next;
 }
 
 /*static*/ void	ExtHGrid::RequireCoreMismatch(const ExtHGrid&a, const ExtHGrid&b,  const TGridCoords&cellCoords, index_t expectedLinear)

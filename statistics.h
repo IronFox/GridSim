@@ -272,11 +272,15 @@ namespace Statistics
 
 	enum class ICReductionFlags
 	{
-		RegardOriginBitField = 0x1,
-		RegardEnvironment = 0x2,
-		RegardHistory = 0x4,
+		RegardEntityState = 0x1,
+		RegardEntityEnvironment = 0x2,	//requires RegardEntityState
 
-		NumBits = 3,
+		//exclusive (zero or one of these may be set):
+		RegardOriginBitField = 0x4,
+		RegardOriginRange = 0x8,
+		RegardFuzzyOriginRange = 0x10,
+
+		NumBits = 5,
 		NumCombinations = 1 << NumBits
 	};
 
@@ -292,14 +296,32 @@ namespace Statistics
 		return ( U(a) & U(b) ) != 0;
 	}
 
-	inline bool	CanCheck(ICReductionFlags p)
+
+	struct TICReductionConfig
 	{
-		return !(p & ICReductionFlags::RegardEnvironment) || (p & ICReductionFlags::RegardHistory);	//only have environment if history is available
-	}
+		ICReductionFlags	flags;
+		count_t				overlapTolerance=0,	//number of generations that are allowed to overlap between two IC ranges. Effective only if RegardRange or RegardFuzzyRange are set
+							minEntityPresence=0;
+
+		bool				operator==(const TICReductionConfig&other) const
+		{
+			return flags == other.flags && overlapTolerance == other.overlapTolerance && minEntityPresence == other.minEntityPresence;
+		}
+		bool				operator!=(const TICReductionConfig&other) const {return !operator==(other);}
+
+		friend hash_t		Hash(const TICReductionConfig&self)
+		{
+			return HashValue() << std::underlying_type<ICReductionFlags>::type(self.flags) << self.overlapTolerance << self.minEntityPresence;
+		}
+
+
+		bool				CanCheck() const;
+	};
+
 
 	struct TProbabilisticICReduction
 	{
-		ICReductionFlags	flags;
+		TICReductionConfig	config;
 		TSDSample<UINT64>	totalGuesses,
 							consideredConsistent,
 							correctGuesses,

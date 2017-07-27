@@ -101,6 +101,8 @@ void			BitArray::SetBit(index_t at, bool newBit)
 	const index_t element = at / (sizeof(size_t)*8);
 	const index_t bit = at % (sizeof(size_t)*8);
 
+	if (element >= storage.Count())
+		storage.ResizePreserveContent(element+1,0);
 	size_t&value = storage[element];
 	const size_t bitMask = (size_t(1) << bit);
 	if (newBit)
