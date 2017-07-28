@@ -1355,7 +1355,6 @@ void	SetupScene()
 		Array<Entity> entities(currentSetup.numEntities);
 		{
 
-
 			for (int i = 0; i < currentSetup.numEntities; i++)
 			{
 				Entity&e = entities[i];

@@ -117,9 +117,14 @@ namespace Statistics
 		}
 
 
-		float	Get() const
+		double	Get() const
 		{
-			return numSamples ? (float)sum / numSamples : 0;
+			return numSamples ? (double)sum / numSamples : 0;
+		}
+
+		double GetPlusOne() const
+		{
+			return (double)(sum+1) / (numSamples+1);
 		}
 	};
 

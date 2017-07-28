@@ -144,7 +144,10 @@ namespace Statistics
 
 			#ifndef D3
 				#ifndef _DEBUG	
-					r.setup.numEntities = 16*16*4*256;
+					//r.setup.numEntities = 16*16*4*2*2*8*8;	//16x16 grid, 8x8 R per SD, 4x4 to get to sensor range, x4 => each entity sees 16 others on average
+					//r.setup.numEntities = 16*4*256;
+					//r.setup.numEntities = 16*16*1*2*2*8*8;
+					r.setup.numEntities = 16*16*2*2*2*8*8;	//each sees on average _8_ others
 				#else
 					r.setup.numEntities = 256;
 				#endif
@@ -440,6 +443,8 @@ namespace Statistics
 									worsePreMerge;
 									
 
+			count_t					currentICMergeResultEntityCount=InvalidIndex;
+
 			struct TMergeCapture
 			{
 				TStateDifference	postMerge;
@@ -451,16 +456,15 @@ namespace Statistics
 		TExperiment Next()
 		{
 
+			XML::Container doc;
+
+			ExportMergeResults();
+
 			//do
 			{
 				currentRun = (currentRun+1)%runs.Count();
 			}
 			//while (currentRun != 0 && ( runs[currentRun].setup.maxSiblingSyncOperations == 0 || runs[currentRun].setup.numLayers == 1));	//skip for now
-
-			XML::Container doc;
-
-			ExportMergeResults();
-
 
 
 
@@ -891,7 +895,16 @@ namespace Statistics
 	void	CaptureICTest(const TProbabilisticICReduction&rs)
 	{
 		using namespace Details::MergeMeasurement;
+		using namespace Details;
 		mergeLock.lock();
+			const auto& run = runs[currentRun];
+
+			if (currentICMergeResultEntityCount != run.setup.numEntities)
+			{
+				icReductionCaptures.Clear();
+				currentICMergeResultEntityCount = run.setup.numEntities;
+			}
+
 			auto&entry = icReductionCaptures.Set(rs.config);
 			entry.Add(rs);
 		mergeLock.unlock();
@@ -1016,6 +1029,9 @@ namespace Statistics
 			XML::Container doc;
 			doc.LoadFromFile(IC_FILENAME);
 			using namespace MergeMeasurement;
+
+			if (!Query(&doc.root_node,"entities",currentICMergeResultEntityCount))
+				currentICMergeResultEntityCount = 16*16*4*2*2*8*8;
 
 			TICReductionConfig cfg;
 			foreach(doc.root_node.children,n)
@@ -1226,19 +1242,109 @@ namespace Statistics
 			using namespace MergeMeasurement;
 
 			icReductionCaptures.exportTo(values);
+
+
+			if (currentRun < runs.Count())
+			{
+				auto currentCfg = runs[currentRun];
+
+				doc.root_node.Set("entities",currentCfg.setup.numEntities);
+			}
 			
 			for (index_t i = 0; i < values.Count(); i++)
 			{
 				XML::Node&node = doc.root_node.Create("capture");
 
+				node.Set("effectivity", (values[i].consideredConsistent.Get() - values[i].shouldNotHaveConsideredConsistent.Get()) / (values[i].actuallyConsistent.Get())  );
+				node.Set("falsePositives", values[i].shouldNotHaveConsideredConsistent.Get() / values[i].totalGuesses.Get()  );
+				node.Set("correctGuesses", values[i].correctGuesses.Get() / values[i].totalGuesses.Get()  );
+
 				node.Set("flags",index_t(values[i].config.flags));
 				node.Set("overlapTolerance",values[i].config.overlapTolerance);
 				node.Set("minEntityPresence",values[i].config.minEntityPresence);
-				node.Set("correctConsistentGuesses", 1.f - values[i].shouldNotHaveConsideredConsistent.Get() / values[i].consideredConsistent.Get()  );
 				values[i].ToXML(node);
 			}
 
 			doc.SaveToFile(IC_FILENAME);
+
+			try
+			{
+				StringFile csv;
+				csv.Create(PathString("icTable"+String(currentICMergeResultEntityCount)+".csv"));
+
+				
+				Array2D<String>	table(7*3+2,3);
+				index_t at = 2;
+				table.Get(at,0) = "zero"; at+=3;
+				table.Get(at,0) = "state"; at+=3;
+				table.Get(at,0) = "state_env"; at+=3;
+				table.Get(at,0) = "originBits"; at+=3;
+				table.Get(at,0) = "originBits_env"; at+=3;
+				table.Get(at,0) = "originR"; at+=3;
+				table.Get(at,0) = "originR_env"; at+=3;
+				for (index_t i = 1; i < table.GetWidth(); i+= 3)
+				{
+					table.Get(i,1) = table.Get(i,0)+" effect.";
+					table.Get(i+1,1) = table.Get(i,0)+" false pos.";
+					table.Get(i+2,1) = table.Get(i,0)+" score";
+				}
+				table.Get(0,2) = String(currentICMergeResultEntityCount);
+				table.Get(1,1) = "consistentPercentage";
+				if (values.IsNotEmpty())
+					table.Get(1,2) = values.First().actuallyConsistent.Get() / values.First().totalGuesses.Get();
+
+				foreach (values,val)
+				{
+					if (!(val->config.flags & ICReductionFlags::RegardEntityState))
+					{
+						if (val->config.flags & ICReductionFlags::RegardOriginBitField)
+							continue;
+						if (val->config.flags & ICReductionFlags::RegardOriginRange)
+							continue;
+						if (val->config.flags & ICReductionFlags::RegardFuzzyOriginRange)
+							continue;
+					}
+					if (val->config.minEntityPresence > 0 || val->config.overlapTolerance > 0)
+						continue;
+					if (val->config.flags & ICReductionFlags::RegardFuzzyOriginRange)
+						continue;
+					const double positive = (val->consideredConsistent.Get() - val->shouldNotHaveConsideredConsistent.Get());
+					const double effectivity = positive / (val->actuallyConsistent.Get());
+					const double falsePositives = val->shouldNotHaveConsideredConsistent.Get() / (val->totalGuesses.Get()  -val->actuallyConsistent.Get()) ;
+//					const float correctGuesses = val->correctGuesses.Get() / val->totalGuesses.Get();
+
+					index_t x = 0;
+					if (val->config.flags & ICReductionFlags::RegardEntityState)
+						x++;
+					if (val->config.flags & ICReductionFlags::RegardOriginBitField)
+						x += 2;
+					elif (val->config.flags & ICReductionFlags::RegardOriginRange)
+						x += 4;
+					if (val->config.flags & ICReductionFlags::RegardEntityEnvironment)
+						x++;
+					x *= 3;
+					x += 2;
+
+					index_t y = 2;
+					ASSERT__(table.Get(x,y).IsEmpty());
+					ASSERT_LESS__(x+2,table.GetWidth());
+					ASSERT_LESS__(y,table.GetHeight());
+					table.Get(x,y) = String(effectivity,10);
+					table.Get(x+1,y) = String(falsePositives,10);
+					const double div = val->shouldNotHaveConsideredConsistent.GetPlusOne() / (val->totalGuesses.Get()  -val->actuallyConsistent.Get()) ;
+					table.Get(x+2,y) = String(effectivity / div,10);
+				}
+
+				for (index_t y = 1; y < table.GetHeight(); y++)
+				{
+					for (index_t x = 0; x < table.GetWidth(); x++)
+						csv << table.Get(x,y)<<',';
+					csv << nl;
+				}
+
+			}
+			catch (...)	{}
+
 		}
 
 
