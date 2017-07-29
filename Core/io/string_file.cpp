@@ -146,7 +146,7 @@ namespace DeltaWorks
 		Close();
 		f = FOPEN(filename.c_str(),"rb");
 		if (f == nullptr)
-			throw Except::IO::DriveAccess::FileOpenFault(CLOCATION,"Failed to append to file "+String(filename));
+			throw Except::IO::DriveAccess::FileOpenFault(CLOCATION,"Failed to open file "+String(filename)+" for read access");
 		active = true;
 		write_mode = false;
 		read_mode = true;
