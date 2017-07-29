@@ -565,7 +565,7 @@ namespace DeltaWorks
 		#define DISPLAY__(_MESSAGE_)    {MessageBoxA(NULL,(_MESSAGE_),"Fatal Error",MB_OK|MB_ICONERROR);}
 	#elif SYSTEM==UNIX
 		#include <iostream>
-		#define DISPLAY__(_MESSAGE_)    {std::cout<<"Fatal Error\n"<<(_MESSAGE_)<<std::endl;};
+		#define DISPLAY__(_MESSAGE_)    {std::cerr<<"Fatal Error\n"<<(_MESSAGE_)<<std::endl;};
 	#endif
 
 	#define CLOCATION   ::DeltaWorks::TCodeLocation((const char*)__FILE__,__func__,__LINE__)
