@@ -1282,24 +1282,24 @@ namespace DeltaWorks
 			if (node.out_edge != -1)
 			{
 				if (node.out_edge >= edges.count())
-					Except::fatal(location,"invalid out_edge index ("+String(node.out_edge)+"/"+String(edges.count())+")");
+					Except::TriggerFatal(location,"invalid out_edge index ("+String(node.out_edge)+"/"+String(edges.count())+")");
 			
 				const Edge&edge = edges[node.out_edge];
 				if (edge.node[1] == i)
-					Except::fatal(location,"edge node confusion");
+					Except::TriggerFatal(location,"edge node confusion");
 				if (edge.node[0] != i)
-					Except::fatal(location,"edge "+String(node.out_edge)+" doesn't know node "+String(i));
+					Except::TriggerFatal(location,"edge "+String(node.out_edge)+" doesn't know node "+String(i));
 			}
 			if (node.in_edge != -1)
 			{
 				if (node.in_edge >= edges.count())
-					Except::fatal(location,"invalid in_edge index ("+String(node.in_edge)+"/"+String(edges.count()));
+					Except::TriggerFatal(location,"invalid in_edge index ("+String(node.in_edge)+"/"+String(edges.count()));
 			
 				const Edge&edge = edges[node.in_edge];
 				if (edge.node[0] == i)
-					Except::fatal(location,"edge node confusion");
+					Except::TriggerFatal(location,"edge node confusion");
 				if (edge.node[1] != i)
-					Except::fatal(location,"edge "+String(node.in_edge)+" doesn't know node "+String(i));
+					Except::TriggerFatal(location,"edge "+String(node.in_edge)+" doesn't know node "+String(i));
 			}
 		}
 	
@@ -1308,19 +1308,19 @@ namespace DeltaWorks
 			const Edge&edge = edges[i];
 		
 			if (edge.node[0] >= nodes.count())
-				Except::fatal(location,"node.x ("+String(edge.node[0])+"), referenced by edge "+String(i)+" does not exist");
+				Except::TriggerFatal(location,"node.x ("+String(edge.node[0])+"), referenced by edge "+String(i)+" does not exist");
 			if (edge.node[1] >= nodes.count())
-				Except::fatal(location,"node.y ("+String(edge.node[1])+"), referenced by edge "+String(i)+" does not exist");
+				Except::TriggerFatal(location,"node.y ("+String(edge.node[1])+"), referenced by edge "+String(i)+" does not exist");
 		
 			if (nodes[edge.node[0]].in_edge == i)
-				Except::fatal(location,"edge node confusion at edge "+String(i));
+				Except::TriggerFatal(location,"edge node confusion at edge "+String(i));
 			if (nodes[edge.node[1]].out_edge == i)
-				Except::fatal(location,"edge node confusion at edge "+String(i));
+				Except::TriggerFatal(location,"edge node confusion at edge "+String(i));
 		
 			if (nodes[edge.node[0]].out_edge != i)
-				Except::fatal(location,"node "+String(edge.node[0])+" doesn't know edge "+String(i));
+				Except::TriggerFatal(location,"node "+String(edge.node[0])+" doesn't know edge "+String(i));
 			if (nodes[edge.node[1]].in_edge != i)
-				Except::fatal(location,"node "+String(edge.node[1])+" doesn't know edge "+String(i));
+				Except::TriggerFatal(location,"node "+String(edge.node[1])+" doesn't know edge "+String(i));
 		}
 	}
 

@@ -500,11 +500,11 @@ namespace DeltaWorks
 										if (is_recursive)
 										{
 											if (!recursive_reference->tryLock(1000))
-												Except::fatal(lock_location,"Failed to acquire lock in 1000 mseconds. Deadlock assumed.");
+												Except::TriggerFatal(lock_location,"Failed to acquire lock in 1000 mseconds. Deadlock assumed.");
 										}
 										else
 											if (!reference->tryLock(1000))
-												Except::fatal(lock_location,"Failed to acquire lock in 1000 mseconds. Deadlock assumed.");
+												Except::TriggerFatal(lock_location,"Failed to acquire lock in 1000 mseconds. Deadlock assumed.");
 										locked = true;
 									}
 								}

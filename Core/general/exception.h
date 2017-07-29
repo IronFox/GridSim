@@ -575,24 +575,11 @@ namespace DeltaWorks
 	{
 		extern	void (*onFatal)(const FatalDescriptor&descriptor);
 
-		void	endFatal();		//!< Leaves synchronizes fatal invokation
-		bool	enterFatalPhase();	//!< Attempts to enter fatal phase and return false if such is not possible. Only the first thread is allowed to enter fatal phase. All following threads are rejected
-		bool	isInFatalPhase();	//!< Returns true if the local thread is currently in fatal phase
+		void	EndFatal();		//!< Leaves synchronizes fatal invokation
+		void	BeginFatal();	//!< Begins fatal handling (synchronizes)
 
-		void	holyShit(const char*message);		//!< This is when shit hit the fan, most commonly somewhere where fatal event handling is no longer possible. Immediately shuts down application
-		void	terminateApplication();				//!< Immediately terminates the application
-
-		template <class C>
-			inline void	finalizeFatalPhase(const TCodeLocation&location, const C&message)
-			{
-				if (!isInFatalPhase())
-					return;
-
-					FatalDescriptor	descriptor(location,message);
-					onFatal(descriptor);
-					terminateApplication();
-				endFatal();
-			}
+		void	HolyShit(const char*message);		//!< This is when shit hit the fan, most commonly somewhere where fatal event handling is no longer possible. Immediately shuts down application
+		void	TerminateApplication();				//!< Immediately terminates the application
 
 
 		//#define EBACK__         throw(C_Exception)
@@ -603,18 +590,17 @@ namespace DeltaWorks
 		Only the first thread to call this function, actually invokes the handler. Subsequent invocations of this function by any thread are rejected
 		*/
 		template <class C>
-			inline void fatal(const TCodeLocation&location, const C&message)
+			inline void TriggerFatal(const TCodeLocation&location, const C&message)
 			{
-				if (!enterFatalPhase())
-				{
-					exit(-1);	//exit this thread
-					return;
-				}
-				finalizeFatalPhase(location,message);
+				BeginFatal();
+					FatalDescriptor	descriptor(location,message);
+					onFatal(descriptor);
+					TerminateApplication();
+				EndFatal();
 			}
 	}
 
-	#define FATAL__(_MESSAGE_)					{::DeltaWorks::Except::fatal(CLOCATION,(_MESSAGE_));}
+	#define FATAL__(_MESSAGE_)					{::DeltaWorks::Except::TriggerFatal(CLOCATION,(_MESSAGE_));}
 
 	#ifdef _DEBUG
 		#define DBG_FATAL__(_MESSAGE_)			FATAL__(_MESSAGE_)

@@ -18,7 +18,7 @@ namespace DeltaWorks
 
 
 		static System::RecursiveMutex	fatal_mutex;
-		static volatile	bool	fatal_occured = false;
+		//static volatile	bool	fatal_occured = false;
 
 
 		void	terminateApplication()
@@ -38,6 +38,7 @@ namespace DeltaWorks
 					#endif
 				#endif
 			#endif
+			throw Except::Fatal(CLOCATION,"terminate");
 				/*
 			#elif SYSTEM == WINDOWS
 				TerminateProcess(GetCurrentProcess(), 0);
@@ -48,12 +49,12 @@ namespace DeltaWorks
 			#endif*/
 		}
 
-		void	endFatal()
+		void	EndFatal()
 		{
 			fatal_mutex.release();
 		}
 
-		bool	enterFatalPhase()
+		void	BeginFatal()
 		{
 			static volatile bool doBreak = true;
 			if (IsDebuggerPresent() && doBreak)
@@ -62,23 +63,11 @@ namespace DeltaWorks
 				DebugBreak();
 			}
 
-			if (!fatal_mutex.tryLock())
-				return false;
-			if (fatal_occured)
-			{
-				fatal_mutex.unlock();
-				return false;
-			}
-			fatal_occured = true;
-			return true;
+			fatal_mutex.lock();
 		}
 
-		bool	isInFatalPhase()
-		{
-			return fatal_mutex.isLockedByMe();
-		}
 
-		void	holyShit(const char*message)
+		void	HolyShit(const char*message)
 		{
 			static System::Mutex	mutex;
 
@@ -87,7 +76,7 @@ namespace DeltaWorks
 				if (message != NULL)
 					DISPLAY__(message);
 			
-				terminateApplication();
+				TerminateApplication();
 
 		}
 
