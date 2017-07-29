@@ -21,7 +21,7 @@ namespace DeltaWorks
 		//static volatile	bool	fatal_occured = false;
 
 
-		void	terminateApplication()
+		void	TerminateApplication()
 		{
 			#ifdef __CUDACC__
 				exit(-1);
