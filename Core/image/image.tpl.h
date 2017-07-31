@@ -908,8 +908,8 @@ template <typename T>
 		}
 		else
 		{
-			x = clamped(x,0.f,1.f);
-			y = clamped(y,0.f,1.f);
+			x = M::clamped(x,0.f,1.f);
+			y = M::clamped(y,0.f,1.f);
 			x*=(image_width-1);
 			y*=(image_height-1);
 		}
@@ -959,8 +959,8 @@ template <typename T>
 		}
 		else
 		{
-			x = clamped(x,0.f,1.f);
-			y = clamped(y,0.f,1.f);
+			x = M::clamped(x,0.f,1.f);
+			y = M::clamped(y,0.f,1.f);
 			x*=(image_width-1);
 			y*=(image_height-1);
 		}
