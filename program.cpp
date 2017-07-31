@@ -1790,8 +1790,6 @@ int main( int argc, const char* argv[])
 
 	try
 	{
-		Statistics::ImportMergeResults();
-
 
 		display.config.fsaa_samples = 4;
 		display.config.vertical_sync = 1;

@@ -1,0 +1,507 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xml entities="65536">
+	<capture effectivity="1" falsePositives="0.80759766" correctGuesses="0.19240234" flags="0" overlapTolerance="0" minEntityPresence="0">
+		<totalGuesses mean="4.60788174" deviation="11.22826218" sum="1788024" squareSum="57160204" numSamples="388036" />
+		<consideredConsistent mean="4.60788174" deviation="11.22826218" sum="1788024" squareSum="57160204" numSamples="388036" />
+		<correctGuesses mean="0.88656723" deviation="2.44373181" sum="344020" squareSum="2622280" numSamples="388036" />
+		<actuallyConsistent mean="0.88656723" deviation="2.44373181" sum="344020" squareSum="2622280" numSamples="388036" />
+		<shouldHaveConsideredConsistent mean="0" deviation="0" sum="0" squareSum="0" numSamples="388036" />
+		<shouldNotHaveConsideredConsistent mean="3.72131452" deviation="10.16426981" sum="1444004" squareSum="45462516" numSamples="388036" />
+		<config minEntityPresence="0" overlapTolerance="0" />
+	</capture>
+	<capture effectivity="0.07089704" falsePositives="0.03068024" correctGuesses="0.79055818" flags="4" overlapTolerance="0" minEntityPresence="0">
+		<totalGuesses mean="4.60788174" deviation="11.22826218" sum="1788024" squareSum="57160204" numSamples="388036" />
+		<consideredConsistent mean="0.2042259" deviation="1.19731132" sum="79247" squareSum="572455" numSamples="388036" />
+		<correctGuesses mean="3.64279861" deviation="10.12637528" sum="1413537" squareSum="44939791" numSamples="388036" />
+		<actuallyConsistent mean="0.88656723" deviation="2.44373181" sum="344020" squareSum="2622280" numSamples="388036" />
+		<shouldHaveConsideredConsistent mean="0.82371223" deviation="2.37519059" sum="319630" squareSum="2452400" numSamples="388036" />
+		<shouldNotHaveConsideredConsistent mean="0.1413709" deviation="0.92327734" sum="54857" squareSum="338533" numSamples="388036" />
+		<config minEntityPresence="0" overlapTolerance="0">originBits</config>
+	</capture>
+	<capture effectivity="0.23866926" falsePositives="0.00884887" correctGuesses="0.84466931" flags="19" overlapTolerance="1" minEntityPresence="0">
+		<totalGuesses mean="4.60788174" deviation="11.22826218" sum="1788024" squareSum="57160204" numSamples="388036" />
+		<consideredConsistent mean="0.25237091" deviation="1.27892481" sum="97929" squareSum="659405" numSamples="388036" />
+		<correctGuesses mean="3.8921363" deviation="10.33454465" sum="1510289" squareSum="47321587" numSamples="388036" />
+		<actuallyConsistent mean="0.88656723" deviation="2.44373181" sum="344020" squareSum="2622280" numSamples="388036" />
+		<shouldHaveConsideredConsistent mean="0.67497088" deviation="1.82131561" sum="261913" squareSum="1463973" numSamples="388036" />
+		<shouldNotHaveConsideredConsistent mean="0.04077457" deviation="0.44332329" sum="15822" squareSum="76908" numSamples="388036" />
+		<config minEntityPresence="0" overlapTolerance="1">entityEnvironment fuzzyOriginRange</config>
+	</capture>
+	<capture effectivity="0.19696529" falsePositives="0.00716433" correctGuesses="0.83832991" flags="19" overlapTolerance="1" minEntityPresence="1">
+		<totalGuesses mean="4.60788174" deviation="11.22826218" sum="1788024" squareSum="57160204" numSamples="388036" />
+		<consideredConsistent mean="0.20763537" deviation="1.09048605" sum="80570" squareSum="478166" numSamples="388036" />
+		<correctGuesses mean="3.86292509" deviation="10.30158037" sum="1498954" squareSum="46969720" numSamples="388036" />
+		<actuallyConsistent mean="0.88656723" deviation="2.44373181" sum="344020" squareSum="2622280" numSamples="388036" />
+		<shouldHaveConsideredConsistent mean="0.71194425" deviation="1.91793076" sum="276260" squareSum="1624056" numSamples="388036" />
+		<shouldNotHaveConsideredConsistent mean="0.0330124" deviation="0.37357319" sum="12810" squareSum="54576" numSamples="388036" />
+		<config minEntityPresence="1" overlapTolerance="1">entityEnvironment fuzzyOriginRange</config>
+	</capture>
+	<capture effectivity="0.09168653" falsePositives="0.00311182" correctGuesses="0.82212655" flags="19" overlapTolerance="1" minEntityPresence="2">
+		<totalGuesses mean="4.60788174" deviation="11.22826218" sum="1788024" squareSum="57160204" numSamples="388036" />
+		<consideredConsistent mean="0.09562515" deviation="0.60053402" sum="37106" squareSum="143490" numSamples="388036" />
+		<correctGuesses mean="3.78826191" deviation="10.22382025" sum="1469982" squareSum="46128722" numSamples="388036" />
+		<actuallyConsistent mean="0.88656723" deviation="2.44373181" sum="344020" squareSum="2622280" numSamples="388036" />
+		<shouldHaveConsideredConsistent mean="0.80528095" deviation="2.18345453" sum="312478" squareSum="2101584" numSamples="388036" />
+		<shouldNotHaveConsideredConsistent mean="0.01433888" deviation="0.19281475" sum="5564" squareSum="14506" numSamples="388036" />
+		<config minEntityPresence="2" overlapTolerance="1">entityEnvironment fuzzyOriginRange</config>
+	</capture>
+	<capture effectivity="0.4900936" falsePositives="0.33481206" correctGuesses="0.56708076" flags="8" overlapTolerance="0" minEntityPresence="0">
+		<totalGuesses mean="4.60788174" deviation="11.22826218" sum="1788024" squareSum="57160204" numSamples="388036" />
+		<consideredConsistent mean="1.9772753" deviation="5.85330733" sum="767254" squareSum="14811654" numSamples="388036" />
+		<correctGuesses mean="2.61304106" deviation="8.56758216" sum="1013954" squareSum="31132690" numSamples="388036" />
+		<actuallyConsistent mean="0.88656723" deviation="2.44373181" sum="344020" squareSum="2622280" numSamples="388036" />
+		<shouldHaveConsideredConsistent mean="0.4520663" deviation="1.81552921" sum="175418" squareSum="1358324" numSamples="388036" />
+		<shouldNotHaveConsideredConsistent mean="1.54277438" deviation="5.03762939" sum="598652" squareSum="10771050" numSamples="388036" />
+		<config minEntityPresence="0" overlapTolerance="0">originRange</config>
+	</capture>
+	<capture effectivity="0.28814313" falsePositives="0.01600873" correctGuesses="0.84702834" flags="11" overlapTolerance="2" minEntityPresence="0">
+		<totalGuesses mean="4.60788174" deviation="11.22826218" sum="1788024" squareSum="57160204" numSamples="388036" />
+		<consideredConsistent mean="0.32922461" deviation="1.71571891" sum="127751" squareSum="1184317" numSamples="388036" />
+		<correctGuesses mean="3.90300642" deviation="10.34411313" sum="1514507" squareSum="47431245" numSamples="388036" />
+		<actuallyConsistent mean="0.88656723" deviation="2.44373181" sum="344020" squareSum="2622280" numSamples="388036" />
+		<shouldHaveConsideredConsistent mean="0.63110897" deviation="1.66361239" sum="244893" squareSum="1228485" numSamples="388036" />
+		<shouldNotHaveConsideredConsistent mean="0.07376635" deviation="0.68131128" sum="28624" squareSum="182232" numSamples="388036" />
+		<config minEntityPresence="0" overlapTolerance="2">entityEnvironment originRange</config>
+	</capture>
+	<capture effectivity="0.23705889" falsePositives="0.01286784" correctGuesses="0.84034051" flags="11" overlapTolerance="2" minEntityPresence="1">
+		<totalGuesses mean="4.60788174" deviation="11.22826218" sum="1788024" squareSum="57160204" numSamples="388036" />
+		<consideredConsistent mean="0.26946211" deviation="1.4526068" sum="104561" squareSum="846957" numSamples="388036" />
+		<correctGuesses mean="3.87218969" deviation="10.30828924" sum="1502549" squareSum="47051181" numSamples="388036" />
+		<actuallyConsistent mean="0.88656723" deviation="2.44373181" sum="344020" squareSum="2622280" numSamples="388036" />
+		<shouldHaveConsideredConsistent mean="0.67639858" deviation="1.78161315" sum="262467" squareSum="1409215" numSamples="388036" />
+		<shouldNotHaveConsideredConsistent mean="0.05929347" deviation="0.56633709" sum="23008" squareSum="125822" numSamples="388036" />
+		<config minEntityPresence="1" overlapTolerance="2">entityEnvironment originRange</config>
+	</capture>
+	<capture effectivity="0.10993838" falsePositives="0.00553572" correctGuesses="0.82321434" flags="11" overlapTolerance="2" minEntityPresence="2">
+		<totalGuesses mean="4.60788174" deviation="11.22826218" sum="1788024" squareSum="57160204" numSamples="388036" />
+		<consideredConsistent mean="0.1229757" deviation="0.78024383" sum="47719" squareSum="242097" numSamples="388036" />
+		<correctGuesses mean="3.79327434" deviation="10.22514741" sum="1471927" squareSum="46153999" numSamples="388036" />
+		<actuallyConsistent mean="0.88656723" deviation="2.44373181" sum="344020" squareSum="2622280" numSamples="388036" />
+		<shouldHaveConsideredConsistent mean="0.78909946" deviation="2.11119688" sum="306199" squareSum="1971157" numSamples="388036" />
+		<shouldNotHaveConsideredConsistent mean="0.02550794" deviation="0.28766991" sum="9898" squareSum="32364" numSamples="388036" />
+		<config minEntityPresence="2" overlapTolerance="2">entityEnvironment originRange</config>
+	</capture>
+	<capture effectivity="0.47120226" falsePositives="0.32465616" correctGuesses="0.57360192" flags="16" overlapTolerance="0" minEntityPresence="0">
+		<totalGuesses mean="4.60788174" deviation="11.22826218" sum="1788024" squareSum="57160204" numSamples="388036" />
+		<consideredConsistent mean="1.91372965" deviation="5.72136563" sum="742596" squareSum="14123108" numSamples="388036" />
+		<correctGuesses mean="2.64308982" deviation="8.64473079" sum="1025614" squareSum="31709252" numSamples="388036" />
+		<actuallyConsistent mean="0.88656723" deviation="2.44373181" sum="344020" squareSum="2622280" numSamples="388036" />
+		<shouldHaveConsideredConsistent mean="0.46881475" deviation="1.85548482" sum="181917" squareSum="1421225" numSamples="388036" />
+		<shouldNotHaveConsideredConsistent mean="1.49597718" deviation="4.92636789" sum="580493" squareSum="10285689" numSamples="388036" />
+		<config minEntityPresence="0" overlapTolerance="0">fuzzyOriginRange</config>
+	</capture>
+	<capture effectivity="0.27948375" falsePositives="0.01533536" correctGuesses="0.84603562" flags="19" overlapTolerance="2" minEntityPresence="0">
+		<totalGuesses mean="4.60788174" deviation="11.22826218" sum="1788024" squareSum="57160204" numSamples="388036" />
+		<consideredConsistent mean="0.31844468" deviation="1.66533687" sum="123568" squareSum="1115508" numSamples="388036" />
+		<correctGuesses mean="3.8984321" deviation="10.34661222" sum="1512732" squareSum="47437462" numSamples="388036" />
+		<actuallyConsistent mean="0.88656723" deviation="2.44373181" sum="344020" squareSum="2622280" numSamples="388036" />
+		<shouldHaveConsideredConsistent mean="0.63878609" deviation="1.6954087" sum="247872" squareSum="1273712" numSamples="388036" />
+		<shouldNotHaveConsideredConsistent mean="0.07066355" deviation="0.63939744" sum="27420" squareSum="160578" numSamples="388036" />
+		<config minEntityPresence="0" overlapTolerance="2">entityEnvironment fuzzyOriginRange</config>
+	</capture>
+	<capture effectivity="0.23012906" falsePositives="0.01234435" correctGuesses="0.83953068" flags="19" overlapTolerance="2" minEntityPresence="1">
+		<totalGuesses mean="4.60788174" deviation="11.22826218" sum="1788024" squareSum="57160204" numSamples="388036" />
+		<consideredConsistent mean="0.2609062" deviation="1.41240526" sum="101241" squareSum="800503" numSamples="388036" />
+		<correctGuesses mean="3.86845808" deviation="10.31059504" sum="1501101" squareSum="47058421" numSamples="388036" />
+		<actuallyConsistent mean="0.88656723" deviation="2.44373181" sum="344020" squareSum="2622280" numSamples="388036" />
+		<shouldHaveConsideredConsistent mean="0.68254234" deviation="1.80780334" sum="264851" squareSum="1448933" numSamples="388036" />
+		<shouldNotHaveConsideredConsistent mean="0.05688132" deviation="0.53546924" sum="22072" squareSum="112516" numSamples="388036" />
+		<config minEntityPresence="1" overlapTolerance="2">entityEnvironment fuzzyOriginRange</config>
+	</capture>
+	<capture effectivity="0.10682518" falsePositives="0.00533047" correctGuesses="0.82282061" flags="19" overlapTolerance="2" minEntityPresence="2">
+		<totalGuesses mean="4.60788174" deviation="11.22826218" sum="1788024" squareSum="57160204" numSamples="388036" />
+		<consideredConsistent mean="0.11926986" deviation="0.76302793" sum="46281" squareSum="231439" numSamples="388036" />
+		<correctGuesses mean="3.79146007" deviation="10.22642283" sum="1471223" squareSum="46158781" numSamples="388036" />
+		<actuallyConsistent mean="0.88656723" deviation="2.44373181" sum="344020" squareSum="2622280" numSamples="388036" />
+		<shouldHaveConsideredConsistent mean="0.79185952" deviation="2.1237264" sum="307270" squareSum="1993440" numSamples="388036" />
+		<shouldNotHaveConsideredConsistent mean="0.02456215" deviation="0.27630734" sum="9531" squareSum="29859" numSamples="388036" />
+		<config minEntityPresence="2" overlapTolerance="2">entityEnvironment fuzzyOriginRange</config>
+	</capture>
+	<capture effectivity="0.82636475" falsePositives="0.47261278" correctGuesses="0.49397939" flags="8" overlapTolerance="1" minEntityPresence="0">
+		<totalGuesses mean="4.60788174" deviation="11.22826218" sum="1788024" squareSum="57160204" numSamples="388036" />
+		<consideredConsistent mean="2.91037172" deviation="6.83135581" sum="1129329" squareSum="21395407" numSamples="388036" />
+		<correctGuesses mean="2.2761986" deviation="7.97812085" sum="883247" squareSum="26709097" numSamples="388036" />
+		<actuallyConsistent mean="0.88656723" deviation="2.44373181" sum="344020" squareSum="2622280" numSamples="388036" />
+		<shouldHaveConsideredConsistent mean="0.15393933" deviation="1.05889485" sum="59734" squareSum="444284" numSamples="388036" />
+		<shouldNotHaveConsideredConsistent mean="2.17774382" deviation="5.89751995" sum="845043" squareSum="15336467" numSamples="388036" />
+		<config minEntityPresence="0" overlapTolerance="1">originRange</config>
+	</capture>
+	<capture effectivity="0.99593338" falsePositives="0.12274388" correctGuesses="0.87647369" flags="1" overlapTolerance="0" minEntityPresence="0">
+		<totalGuesses mean="4.60788174" deviation="11.22826218" sum="1788024" squareSum="57160204" numSamples="388036" />
+		<consideredConsistent mean="1.44855117" deviation="3.90481429" sum="562090" squareSum="6730824" numSamples="388036" />
+		<correctGuesses mean="4.03868713" deviation="10.68859909" sum="1567156" squareSum="50660872" numSamples="388036" />
+		<actuallyConsistent mean="0.88656723" deviation="2.44373181" sum="344020" squareSum="2622280" numSamples="388036" />
+		<shouldHaveConsideredConsistent mean="0.00360534" deviation="0.06146452" sum="1399" squareSum="1471" numSamples="388036" />
+		<shouldNotHaveConsideredConsistent mean="0.56558928" deviation="2.27702727" sum="219469" squareSum="2136039" numSamples="388036" />
+		<config minEntityPresence="0" overlapTolerance="0">entityState</config>
+	</capture>
+	<capture effectivity="0.95331376" falsePositives="0.11853756" correctGuesses="0.8724799" flags="1" overlapTolerance="0" minEntityPresence="1">
+		<totalGuesses mean="4.60788174" deviation="11.22826218" sum="1788024" squareSum="57160204" numSamples="388036" />
+		<consideredConsistent mean="1.39138379" deviation="3.78484616" sum="539907" squareSum="6309857" numSamples="388036" />
+		<correctGuesses mean="4.0202842" deviation="10.66622278" sum="1560015" squareSum="50417903" numSamples="388036" />
+		<actuallyConsistent mean="0.88656723" deviation="2.44373181" sum="344020" squareSum="2622280" numSamples="388036" />
+		<shouldHaveConsideredConsistent mean="0.04139049" deviation="0.21696437" sum="16061" squareSum="18931" numSamples="388036" />
+		<shouldNotHaveConsideredConsistent mean="0.54620705" deviation="2.20414652" sum="211948" squareSum="2000948" numSamples="388036" />
+		<config minEntityPresence="1" overlapTolerance="0">entityState</config>
+	</capture>
+	<capture effectivity="0.83585257" falsePositives="0.10470441" correctGuesses="0.86371324" flags="1" overlapTolerance="0" minEntityPresence="2">
+		<totalGuesses mean="4.60788174" deviation="11.22826218" sum="1788024" squareSum="57160204" numSamples="388036" />
+		<consideredConsistent mean="1.22350504" deviation="3.41005156" sum="474764" squareSum="5093134" numSamples="388036" />
+		<correctGuesses mean="3.97988846" deviation="10.59930369" sum="1544340" squareSum="49740298" numSamples="388036" />
+		<actuallyConsistent mean="0.88656723" deviation="2.44373181" sum="344020" squareSum="2622280" numSamples="388036" />
+		<shouldHaveConsideredConsistent mean="0.14552773" deviation="0.47275242" sum="56470" squareSum="94942" numSamples="388036" />
+		<shouldNotHaveConsideredConsistent mean="0.48246554" deviation="1.97124157" sum="187214" squareSum="1598152" numSamples="388036" />
+		<config minEntityPresence="2" overlapTolerance="0">entityState</config>
+	</capture>
+	<capture effectivity="0.79895936" falsePositives="0.45288206" correctGuesses="0.50843725" flags="16" overlapTolerance="1" minEntityPresence="0">
+		<totalGuesses mean="4.60788174" deviation="11.22826218" sum="1788024" squareSum="57160204" numSamples="388036" />
+		<consideredConsistent mean="2.79515818" deviation="6.57727393" sum="1084622" squareSum="19818334" numSamples="388036" />
+		<correctGuesses mean="2.34281871" deviation="8.17144992" sum="909098" squareSum="28040022" numSamples="388036" />
+		<actuallyConsistent mean="0.88656723" deviation="2.44373181" sum="344020" squareSum="2622280" numSamples="388036" />
+		<shouldHaveConsideredConsistent mean="0.17823604" deviation="1.15258228" sum="69162" squareSum="527812" numSamples="388036" />
+		<shouldNotHaveConsideredConsistent mean="2.086827" deviation="5.67467047" sum="809764" squareSum="14185328" numSamples="388036" />
+		<config minEntityPresence="0" overlapTolerance="1">fuzzyOriginRange</config>
+	</capture>
+	<capture effectivity="0.07076914" falsePositives="0.00322479" correctGuesses="0.81798902" flags="5" overlapTolerance="0" minEntityPresence="0">
+		<totalGuesses mean="4.60788174" deviation="11.22826218" sum="1788024" squareSum="57160204" numSamples="388036" />
+		<consideredConsistent mean="0.07760105" deviation="0.52689834" sum="30112" squareSum="110064" numSamples="388036" />
+		<correctGuesses mean="3.76919667" deviation="10.20125534" sum="1462584" squareSum="45893970" numSamples="388036" />
+		<actuallyConsistent mean="0.88656723" deviation="2.44373181" sum="344020" squareSum="2622280" numSamples="388036" />
+		<shouldHaveConsideredConsistent mean="0.82382562" deviation="2.37526518" sum="319674" squareSum="2452610" numSamples="388036" />
+		<shouldNotHaveConsideredConsistent mean="0.01485945" deviation="0.1952724" sum="5766" squareSum="14882" numSamples="388036" />
+		<config minEntityPresence="0" overlapTolerance="0">entityState originBits</config>
+	</capture>
+	<capture effectivity="0.06740596" falsePositives="0.0030749" correctGuesses="0.81749182" flags="5" overlapTolerance="0" minEntityPresence="1">
+		<totalGuesses mean="4.60788174" deviation="11.22826218" sum="1788024" squareSum="57160204" numSamples="388036" />
+		<consideredConsistent mean="0.07392871" deviation="0.5085326" sum="28687" squareSum="102469" numSamples="388036" />
+		<correctGuesses mean="3.76690565" deviation="10.19956699" sum="1461695" squareSum="45873905" numSamples="388036" />
+		<actuallyConsistent mean="0.88656723" deviation="2.44373181" sum="344020" squareSum="2622280" numSamples="388036" />
+		<shouldHaveConsideredConsistent mean="0.82680731" deviation="2.37622259" sum="320831" squareSum="2456285" numSamples="388036" />
+		<shouldNotHaveConsideredConsistent mean="0.01416879" deviation="0.18858411" sum="5498" squareSum="13878" numSamples="388036" />
+		<config minEntityPresence="1" overlapTolerance="0">entityState originBits</config>
+	</capture>
+	<capture effectivity="0.057985" falsePositives="0.0026135" correctGuesses="0.81614061" flags="5" overlapTolerance="0" minEntityPresence="2">
+		<totalGuesses mean="4.60788174" deviation="11.22826218" sum="1788024" squareSum="57160204" numSamples="388036" />
+		<consideredConsistent mean="0.0634503" deviation="0.45246581" sum="24621" squareSum="81003" numSamples="388036" />
+		<correctGuesses mean="3.76067942" deviation="10.19518263" sum="1459279" squareSum="45821021" numSamples="388036" />
+		<actuallyConsistent mean="0.88656723" deviation="2.44373181" sum="344020" squareSum="2622280" numSamples="388036" />
+		<shouldHaveConsideredConsistent mean="0.83515962" deviation="2.38031239" sum="324072" squareSum="2469220" numSamples="388036" />
+		<shouldNotHaveConsideredConsistent mean="0.0120427" deviation="0.16615521" sum="4673" squareSum="10769" numSamples="388036" />
+		<config minEntityPresence="2" overlapTolerance="0">entityState originBits</config>
+	</capture>
+	<capture effectivity="0.48839021" falsePositives="0.03047386" correctGuesses="0.87109122" flags="9" overlapTolerance="0" minEntityPresence="0">
+		<totalGuesses mean="4.60788174" deviation="11.22826218" sum="1788024" squareSum="57160204" numSamples="388036" />
+		<consideredConsistent mean="0.57341071" deviation="1.7917122" sum="222504" squareSum="1373272" numSamples="388036" />
+		<correctGuesses mean="4.01388531" deviation="10.55832036" sum="1557532" squareSum="49509282" numSamples="388036" />
+		<actuallyConsistent mean="0.88656723" deviation="2.44373181" sum="344020" squareSum="2622280" numSamples="388036" />
+		<shouldHaveConsideredConsistent mean="0.45357647" deviation="1.81627803" sum="176004" squareSum="1359910" numSamples="388036" />
+		<shouldNotHaveConsideredConsistent mean="0.14041996" deviation="0.57603079" sum="54488" squareSum="136406" numSamples="388036" />
+		<config minEntityPresence="0" overlapTolerance="0">entityState originRange</config>
+	</capture>
+	<capture effectivity="0.90778443" falsePositives="0.54950101" correctGuesses="0.4327565" flags="8" overlapTolerance="2" minEntityPresence="0">
+		<totalGuesses mean="4.60788174" deviation="11.22826218" sum="1788024" squareSum="57160204" numSamples="388036" />
+		<consideredConsistent mean="3.33684761" deviation="7.71705837" sum="1294817" squareSum="27429311" numSamples="388036" />
+		<correctGuesses mean="1.99409075" deviation="7.32399291" sum="773779" squareSum="22357575" numSamples="388036" />
+		<actuallyConsistent mean="0.88656723" deviation="2.44373181" sum="344020" squareSum="2622280" numSamples="388036" />
+		<shouldHaveConsideredConsistent mean="0.0817553" deviation="0.75537567" sum="31724" squareSum="224004" numSamples="388036" />
+		<shouldNotHaveConsideredConsistent mean="2.53203569" deviation="6.64112636" sum="982521" squareSum="19601935" numSamples="388036" />
+		<config minEntityPresence="0" overlapTolerance="2">originRange</config>
+	</capture>
+	<capture effectivity="0.46624906" falsePositives="0.02912601" correctGuesses="0.86817906" flags="9" overlapTolerance="0" minEntityPresence="1">
+		<totalGuesses mean="4.60788174" deviation="11.22826218" sum="1788024" squareSum="57160204" numSamples="388036" />
+		<consideredConsistent mean="0.54757033" deviation="1.73821668" sum="212477" squareSum="1288757" numSamples="388036" />
+		<correctGuesses mean="4.00046645" deviation="10.54369514" sum="1552325" squareSum="49347795" numSamples="388036" />
+		<actuallyConsistent mean="0.88656723" deviation="2.44373181" sum="344020" squareSum="2622280" numSamples="388036" />
+		<shouldHaveConsideredConsistent mean="0.47320609" deviation="1.82156821" sum="183621" squareSum="1374437" numSamples="388036" />
+		<shouldNotHaveConsideredConsistent mean="0.1342092" deviation="0.55713155" sum="52078" squareSum="127434" numSamples="388036" />
+		<config minEntityPresence="1" overlapTolerance="0">entityState originRange</config>
+	</capture>
+	<capture effectivity="0.40586303" falsePositives="0.02489564" correctGuesses="0.86079102" flags="9" overlapTolerance="0" minEntityPresence="2">
+		<totalGuesses mean="4.60788174" deviation="11.22826218" sum="1788024" squareSum="57160204" numSamples="388036" />
+		<consideredConsistent mean="0.47454102" deviation="1.57190912" sum="184139" squareSum="1046179" numSamples="388036" />
+		<correctGuesses mean="3.96642322" deviation="10.49965277" sum="1539115" squareSum="48882921" numSamples="388036" />
+		<actuallyConsistent mean="0.88656723" deviation="2.44373181" sum="344020" squareSum="2622280" numSamples="388036" />
+		<shouldHaveConsideredConsistent mean="0.52674236" deviation="1.8461068" sum="204395" squareSum="1430133" numSamples="388036" />
+		<shouldNotHaveConsideredConsistent mean="0.11471616" deviation="0.49508591" sum="44514" squareSum="100218" numSamples="388036" />
+		<config minEntityPresence="2" overlapTolerance="0">entityState originRange</config>
+	</capture>
+	<capture effectivity="0.46957735" falsePositives="0.03041067" correctGuesses="0.86753478" flags="17" overlapTolerance="0" minEntityPresence="0">
+		<totalGuesses mean="4.60788174" deviation="11.22826218" sum="1788024" squareSum="57160204" numSamples="388036" />
+		<consideredConsistent mean="0.55644064" deviation="1.74861567" sum="215919" squareSum="1306627" numSamples="388036" />
+		<correctGuesses mean="3.99749765" deviation="10.53292" sum="1551173" squareSum="49250457" numSamples="388036" />
+		<actuallyConsistent mean="0.88656723" deviation="2.44373181" sum="344020" squareSum="2622280" numSamples="388036" />
+		<shouldHaveConsideredConsistent mean="0.47025534" deviation="1.85620556" sum="182476" squareSum="1422788" numSamples="388036" />
+		<shouldNotHaveConsideredConsistent mean="0.14012875" deviation="0.57559376" sum="54375" squareSum="136179" numSamples="388036" />
+		<config minEntityPresence="0" overlapTolerance="0">entityState fuzzyOriginRange</config>
+	</capture>
+	<capture effectivity="0.88341957" falsePositives="0.52870096" correctGuesses="0.4488687" flags="16" overlapTolerance="2" minEntityPresence="0">
+		<totalGuesses mean="4.60788174" deviation="11.22826218" sum="1788024" squareSum="57160204" numSamples="388036" />
+		<consideredConsistent mean="3.21940232" deviation="7.45520922" sum="1249244" squareSum="25588916" numSamples="388036" />
+		<correctGuesses mean="2.06833387" deviation="7.57043538" sum="802588" squareSum="23898942" numSamples="388036" />
+		<actuallyConsistent mean="0.88656723" deviation="2.44373181" sum="344020" squareSum="2622280" numSamples="388036" />
+		<shouldHaveConsideredConsistent mean="0.10335639" deviation="0.86063709" sum="40106" squareSum="291562" numSamples="388036" />
+		<shouldNotHaveConsideredConsistent mean="2.43619149" deviation="6.41158166" sum="945330" squareSum="18254536" numSamples="388036" />
+		<config minEntityPresence="0" overlapTolerance="2">fuzzyOriginRange</config>
+	</capture>
+	<capture effectivity="0.44801756" falsePositives="0.02906449" correctGuesses="0.8647328" flags="17" overlapTolerance="0" minEntityPresence="1">
+		<totalGuesses mean="4.60788174" deviation="11.22826218" sum="1788024" squareSum="57160204" numSamples="388036" />
+		<consideredConsistent mean="0.5311234" deviation="1.69536029" sum="206095" squareSum="1224773" numSamples="388036" />
+		<correctGuesses mean="3.98458648" deviation="10.51919249" sum="1546163" squareSum="49098327" numSamples="388036" />
+		<actuallyConsistent mean="0.88656723" deviation="2.44373181" sum="344020" squareSum="2622280" numSamples="388036" />
+		<shouldHaveConsideredConsistent mean="0.48936954" deviation="1.86112596" sum="189893" squareSum="1437003" numSamples="388036" />
+		<shouldNotHaveConsideredConsistent mean="0.13392572" deviation="0.55668614" sum="51968" squareSum="127212" numSamples="388036" />
+		<config minEntityPresence="1" overlapTolerance="0">entityState fuzzyOriginRange</config>
+	</capture>
+	<capture effectivity="0.38927097" falsePositives="0.02484139" correctGuesses="0.85765292" flags="17" overlapTolerance="0" minEntityPresence="2">
+		<totalGuesses mean="4.60788174" deviation="11.22826218" sum="1788024" squareSum="57160204" numSamples="388036" />
+		<consideredConsistent mean="0.45958107" deviation="1.5318463" sum="178334" squareSum="992506" numSamples="388036" />
+		<correctGuesses mean="3.95196322" deviation="10.47794545" sum="1533504" squareSum="48661792" numSamples="388036" />
+		<actuallyConsistent mean="0.88656723" deviation="2.44373181" sum="344020" squareSum="2622280" numSamples="388036" />
+		<shouldHaveConsideredConsistent mean="0.54145234" deviation="1.88401336" sum="210103" squareSum="1491097" numSamples="388036" />
+		<shouldNotHaveConsideredConsistent mean="0.11446618" deviation="0.4946673" sum="44417" squareSum="100035" numSamples="388036" />
+		<config minEntityPresence="2" overlapTolerance="0">entityState fuzzyOriginRange</config>
+	</capture>
+	<capture effectivity="0.82374862" falsePositives="0.07507226" correctGuesses="0.89101656" flags="9" overlapTolerance="1" minEntityPresence="0">
+		<totalGuesses mean="4.60788174" deviation="11.22826218" sum="1788024" squareSum="57160204" numSamples="388036" />
+		<consideredConsistent mean="1.07623262" deviation="2.5640744" sum="417617" squareSum="3000587" numSamples="388036" />
+		<correctGuesses mean="4.10569896" deviation="10.73946063" sum="1593159" squareSum="51295557" numSamples="388036" />
+		<actuallyConsistent mean="0.88656723" deviation="2.44373181" sum="344020" squareSum="2622280" numSamples="388036" />
+		<shouldHaveConsideredConsistent mean="0.1562587" deviation="1.06102324" sum="60634" squareSum="446314" numSamples="388036" />
+		<shouldNotHaveConsideredConsistent mean="0.34592409" deviation="1.28654183" sum="134231" squareSum="688707" numSamples="388036" />
+		<config minEntityPresence="0" overlapTolerance="1">entityState originRange</config>
+	</capture>
+	<capture effectivity="0.78814894" falsePositives="0.07267464" correctGuesses="0.88656472" flags="9" overlapTolerance="1" minEntityPresence="1">
+		<totalGuesses mean="4.60788174" deviation="11.22826218" sum="1788024" squareSum="57160204" numSamples="388036" />
+		<consideredConsistent mean="1.03362317" deviation="2.49134423" sum="401083" squareSum="2823029" numSamples="388036" />
+		<correctGuesses mean="4.0851854" deviation="10.71800774" sum="1585199" squareSum="51051735" numSamples="388036" />
+		<actuallyConsistent mean="0.88656723" deviation="2.44373181" sum="344020" squareSum="2622280" numSamples="388036" />
+		<shouldHaveConsideredConsistent mean="0.1878202" deviation="1.08593399" sum="72881" squareSum="471281" numSamples="388036" />
+		<shouldNotHaveConsideredConsistent mean="0.33487615" deviation="1.25482591" sum="129944" squareSum="654512" numSamples="388036" />
+		<config minEntityPresence="1" overlapTolerance="1">entityState originRange</config>
+	</capture>
+	<capture effectivity="0.68973606" falsePositives="0.06447397" correctGuesses="0.87583053" flags="9" overlapTolerance="1" minEntityPresence="2">
+		<totalGuesses mean="4.60788174" deviation="11.22826218" sum="1788024" squareSum="57160204" numSamples="388036" />
+		<consideredConsistent mean="0.9085858" deviation="2.25594183" sum="352564" squareSum="2295156" numSamples="388036" />
+		<correctGuesses mean="4.03572349" deviation="10.65260212" sum="1566006" squareSum="50353490" numSamples="388036" />
+		<actuallyConsistent mean="0.88656723" deviation="2.44373181" sum="344020" squareSum="2622280" numSamples="388036" />
+		<shouldHaveConsideredConsistent mean="0.27506984" deviation="1.17775443" sum="106737" squareSum="567607" numSamples="388036" />
+		<shouldNotHaveConsideredConsistent mean="0.29708841" deviation="1.13681802" sum="115281" squareSum="535729" numSamples="388036" />
+		<config minEntityPresence="2" overlapTolerance="1">entityState originRange</config>
+	</capture>
+	<capture effectivity="0.7964973" falsePositives="0.07254377" correctGuesses="0.88830183" flags="17" overlapTolerance="1" minEntityPresence="0">
+		<totalGuesses mean="4.60788174" deviation="11.22826218" sum="1788024" squareSum="57160204" numSamples="388036" />
+		<consideredConsistent mean="1.04042151" deviation="2.42624029" sum="403721" squareSum="2704269" numSamples="388036" />
+		<correctGuesses mean="4.09318981" deviation="10.72640147" sum="1588305" squareSum="51146983" numSamples="388036" />
+		<actuallyConsistent mean="0.88656723" deviation="2.44373181" sum="344020" squareSum="2622280" numSamples="388036" />
+		<shouldHaveConsideredConsistent mean="0.18041883" deviation="1.15452056" sum="70009" squareSum="529851" numSamples="388036" />
+		<shouldNotHaveConsideredConsistent mean="0.33427311" deviation="1.16165636" sum="129710" squareSum="566992" numSamples="388036" />
+		<config minEntityPresence="0" overlapTolerance="1">entityState fuzzyOriginRange</config>
+	</capture>
+	<capture effectivity="0.76202256" falsePositives="0.07021997" correctGuesses="0.88399261" flags="17" overlapTolerance="1" minEntityPresence="1">
+		<totalGuesses mean="4.60788174" deviation="11.22826218" sum="1788024" squareSum="57160204" numSamples="388036" />
+		<consideredConsistent mean="0.99914956" deviation="2.35827863" sum="387706" squareSum="2545430" numSamples="388036" />
+		<correctGuesses mean="4.0733334" deviation="10.70588612" sum="1580600" squareSum="50913444" numSamples="388036" />
+		<actuallyConsistent mean="0.88656723" deviation="2.44373181" sum="344020" squareSum="2622280" numSamples="388036" />
+		<shouldHaveConsideredConsistent mean="0.210983" deviation="1.17704435" sum="81869" squareSum="554871" numSamples="388036" />
+		<shouldNotHaveConsideredConsistent mean="0.32356534" deviation="1.13395742" sum="125555" squareSum="539585" numSamples="388036" />
+		<config minEntityPresence="1" overlapTolerance="1">entityState fuzzyOriginRange</config>
+	</capture>
+	<capture effectivity="0.66653102" falsePositives="0.06232299" correctGuesses="0.8735168" flags="17" overlapTolerance="1" minEntityPresence="2">
+		<totalGuesses mean="4.60788174" deviation="11.22826218" sum="1788024" squareSum="57160204" numSamples="388036" />
+		<consideredConsistent mean="0.87810152" deviation="2.14019593" sum="340735" squareSum="2076575" numSamples="388036" />
+		<correctGuesses mean="4.02506211" deviation="10.64298635" sum="1561869" squareSum="50240683" numSamples="388036" />
+		<actuallyConsistent mean="0.88656723" deviation="2.44373181" sum="344020" squareSum="2622280" numSamples="388036" />
+		<shouldHaveConsideredConsistent mean="0.29564267" deviation="1.26137565" sum="114720" squareSum="651308" numSamples="388036" />
+		<shouldNotHaveConsideredConsistent mean="0.28717696" deviation="1.03319269" sum="111435" squareSum="446225" numSamples="388036" />
+		<config minEntityPresence="2" overlapTolerance="1">entityState fuzzyOriginRange</config>
+	</capture>
+	<capture effectivity="0.90462473" falsePositives="0.09742822" correctGuesses="0.88422135" flags="9" overlapTolerance="2" minEntityPresence="0">
+		<totalGuesses mean="4.60788174" deviation="11.22826218" sum="1788024" squareSum="57160204" numSamples="388036" />
+		<consideredConsistent mean="1.25094837" deviation="3.13290611" sum="485413" squareSum="4415839" numSamples="388036" />
+		<correctGuesses mean="4.07438743" deviation="10.76431251" sum="1581009" squareSum="51403539" numSamples="388036" />
+		<actuallyConsistent mean="0.88656723" deviation="2.44373181" sum="344020" squareSum="2622280" numSamples="388036" />
+		<shouldHaveConsideredConsistent mean="0.08455659" deviation="0.75818543" sum="32811" squareSum="225835" numSamples="388036" />
+		<shouldNotHaveConsideredConsistent mean="0.44893773" deviation="1.6789124" sum="174204" squareSum="1171982" numSamples="388036" />
+		<config minEntityPresence="0" overlapTolerance="2">entityState originRange</config>
+	</capture>
+	<capture effectivity="0.86578687" falsePositives="0.09429795" correctGuesses="0.87987913" flags="9" overlapTolerance="2" minEntityPresence="1">
+		<totalGuesses mean="4.60788174" deviation="11.22826218" sum="1788024" squareSum="57160204" numSamples="388036" />
+		<consideredConsistent mean="1.20209207" deviation="3.04364881" sum="466455" squareSum="4155409" numSamples="388036" />
+		<correctGuesses mean="4.05437898" deviation="10.74032252" sum="1573245" squareSum="51140241" numSamples="388036" />
+		<actuallyConsistent mean="0.88656723" deviation="2.44373181" sum="344020" squareSum="2622280" numSamples="388036" />
+		<shouldHaveConsideredConsistent mean="0.11898896" deviation="0.79045457" sum="46172" squareSum="247946" numSamples="388036" />
+		<shouldNotHaveConsideredConsistent mean="0.43451381" deviation="1.63520599" sum="168607" squareSum="1110831" numSamples="388036" />
+		<config minEntityPresence="1" overlapTolerance="2">entityState originRange</config>
+	</capture>
+	<capture effectivity="0.75851695" falsePositives="0.08359787" correctGuesses="0.86994022" flags="9" overlapTolerance="2" minEntityPresence="2">
+		<totalGuesses mean="4.60788174" deviation="11.22826218" sum="1788024" squareSum="57160204" numSamples="388036" />
+		<consideredConsistent mean="1.05768537" deviation="2.75327821" sum="410420" squareSum="3375618" numSamples="388036" />
+		<correctGuesses mean="4.00858168" deviation="10.66871062" sum="1555474" squareSum="50402040" numSamples="388036" />
+		<actuallyConsistent mean="0.88656723" deviation="2.44373181" sum="344020" squareSum="2622280" numSamples="388036" />
+		<shouldHaveConsideredConsistent mean="0.21409096" deviation="0.90457021" sum="83075" squareSum="335295" numSamples="388036" />
+		<shouldNotHaveConsideredConsistent mean="0.3852091" deviation="1.47638577" sum="149475" squareSum="903387" numSamples="388036" />
+		<config minEntityPresence="2" overlapTolerance="2">entityState originRange</config>
+	</capture>
+	<capture effectivity="0.88039358" falsePositives="0.09441876" correctGuesses="0.88256869" flags="17" overlapTolerance="2" minEntityPresence="0">
+		<totalGuesses mean="4.60788174" deviation="11.22826218" sum="1788024" squareSum="57160204" numSamples="388036" />
+		<consideredConsistent mean="1.21559855" deviation="3.00202963" sum="471696" squareSum="4070444" numSamples="388036" />
+		<correctGuesses mean="4.06677216" deviation="10.76037424" sum="1578054" squareSum="51346588" numSamples="388036" />
+		<actuallyConsistent mean="0.88656723" deviation="2.44373181" sum="344020" squareSum="2622280" numSamples="388036" />
+		<shouldHaveConsideredConsistent mean="0.10603913" deviation="0.86335621" sum="41147" squareSum="293599" numSamples="388036" />
+		<shouldNotHaveConsideredConsistent mean="0.43507046" deviation="1.56449902" sum="168823" squareSum="1023229" numSamples="388036" />
+		<config minEntityPresence="0" overlapTolerance="2">entityState fuzzyOriginRange</config>
+	</capture>
+	<capture effectivity="0.84253822" falsePositives="0.09138132" correctGuesses="0.87832266" flags="17" overlapTolerance="2" minEntityPresence="1">
+		<totalGuesses mean="4.60788174" deviation="11.22826218" sum="1788024" squareSum="57160204" numSamples="388036" />
+		<consideredConsistent mean="1.16804111" deviation="2.91714641" sum="453242" squareSum="3831492" numSamples="388036" />
+		<correctGuesses mean="4.04720696" deviation="10.73715883" sum="1570462" squareSum="51091328" numSamples="388036" />
+		<actuallyConsistent mean="0.88656723" deviation="2.44373181" sum="344020" squareSum="2622280" numSamples="388036" />
+		<shouldHaveConsideredConsistent mean="0.13960045" deviation="0.89176244" sum="54170" squareSum="316144" numSamples="388036" />
+		<shouldNotHaveConsideredConsistent mean="0.42107433" deviation="1.52435061" sum="163392" squareSum="970458" numSamples="388036" />
+		<config minEntityPresence="1" overlapTolerance="2">entityState fuzzyOriginRange</config>
+	</capture>
+	<capture effectivity="0.73794547" falsePositives="0.08102688" correctGuesses="0.86855322" flags="17" overlapTolerance="2" minEntityPresence="2">
+		<totalGuesses mean="4.60788174" deviation="11.22826218" sum="1788024" squareSum="57160204" numSamples="388036" />
+		<consideredConsistent mean="1.02760053" deviation="2.64199682" sum="398746" squareSum="3118300" numSamples="388036" />
+		<correctGuesses mean="4.00219052" deviation="10.66742024" sum="1552994" squareSum="50371490" numSamples="388036" />
+		<actuallyConsistent mean="0.88656723" deviation="2.44373181" sum="344020" squareSum="2622280" numSamples="388036" />
+		<shouldHaveConsideredConsistent mean="0.23232896" deviation="0.99506959" sum="90152" squareSum="405164" numSamples="388036" />
+		<shouldNotHaveConsideredConsistent mean="0.37336227" deviation="1.37975372" sum="144878" squareSum="792804" numSamples="388036" />
+		<config minEntityPresence="2" overlapTolerance="2">entityState fuzzyOriginRange</config>
+	</capture>
+	<capture effectivity="0.32221673" falsePositives="0.02509418" correctGuesses="0.84449873" flags="3" overlapTolerance="0" minEntityPresence="0">
+		<totalGuesses mean="4.60788174" deviation="11.22826218" sum="1788024" squareSum="57160204" numSamples="388036" />
+		<consideredConsistent mean="0.40129782" deviation="2.22515982" sum="155718" squareSum="1983786" numSamples="388036" />
+		<correctGuesses mean="3.89135029" deviation="10.29430985" sum="1509984" squareSum="46997144" numSamples="388036" />
+		<actuallyConsistent mean="0.88656723" deviation="2.44373181" sum="344020" squareSum="2622280" numSamples="388036" />
+		<shouldHaveConsideredConsistent mean="0.60090043" deviation="1.54592448" sum="233171" squareSum="1067473" numSamples="388036" />
+		<shouldNotHaveConsideredConsistent mean="0.11563102" deviation="1.12390987" sum="44869" squareSum="495345" numSamples="388036" />
+		<config minEntityPresence="0" overlapTolerance="0">entityEnvironment</config>
+	</capture>
+	<capture effectivity="0.26418813" falsePositives="0.01979224" correctGuesses="0.83863583" flags="3" overlapTolerance="0" minEntityPresence="1">
+		<totalGuesses mean="4.60788174" deviation="11.22826218" sum="1788024" squareSum="57160204" numSamples="388036" />
+		<consideredConsistent mean="0.32542084" deviation="1.84291917" sum="126275" squareSum="1358999" numSamples="388036" />
+		<correctGuesses mean="3.86433475" deviation="10.27023926" sum="1499501" squareSum="46723763" numSamples="388036" />
+		<actuallyConsistent mean="0.88656723" deviation="2.44373181" sum="344020" squareSum="2622280" numSamples="388036" />
+		<shouldHaveConsideredConsistent mean="0.65234669" deviation="1.67901188" sum="253134" squareSum="1259036" numSamples="388036" />
+		<shouldNotHaveConsideredConsistent mean="0.0912003" deviation="0.89180242" sum="35389" squareSum="311837" numSamples="388036" />
+		<config minEntityPresence="1" overlapTolerance="0">entityEnvironment</config>
+	</capture>
+	<capture effectivity="0.1222022" falsePositives="0.00846409" correctGuesses="0.82264556" flags="3" overlapTolerance="0" minEntityPresence="2">
+		<totalGuesses mean="4.60788174" deviation="11.22826218" sum="1788024" squareSum="57160204" numSamples="388036" />
+		<consideredConsistent mean="0.147342" deviation="0.95363268" sum="57174" squareSum="361310" numSamples="388036" />
+		<correctGuesses mean="3.79065344" deviation="10.20945458" sum="1470910" squareSum="46021852" numSamples="388036" />
+		<actuallyConsistent mean="0.88656723" deviation="2.44373181" sum="344020" squareSum="2622280" numSamples="388036" />
+		<shouldHaveConsideredConsistent mean="0.77822676" deviation="2.05853299" sum="301980" squareSum="1879334" numSamples="388036" />
+		<shouldNotHaveConsideredConsistent mean="0.03900154" deviation="0.43047887" sum="15134" squareSum="72498" numSamples="388036" />
+		<config minEntityPresence="2" overlapTolerance="0">entityEnvironment</config>
+	</capture>
+	<capture effectivity="0.01219406" falsePositives="0.00000783" correctGuesses="0.809936" flags="7" overlapTolerance="0" minEntityPresence="0">
+		<totalGuesses mean="4.60788174" deviation="11.22826218" sum="1788024" squareSum="57160204" numSamples="388036" />
+		<consideredConsistent mean="0.01084693" deviation="0.2084663" sum="4209" squareSum="16909" numSamples="388036" />
+		<correctGuesses mean="3.73208929" deviation="10.17146488" sum="1448185" squareSum="45550455" numSamples="388036" />
+		<actuallyConsistent mean="0.88656723" deviation="2.44373181" sum="344020" squareSum="2622280" numSamples="388036" />
+		<shouldHaveConsideredConsistent mean="0.87575637" deviation="2.41069774" sum="339825" squareSum="2552661" numSamples="388036" />
+		<shouldNotHaveConsideredConsistent mean="0.00003608" deviation="0.00642121" sum="14" squareSum="16" numSamples="388036" />
+		<config minEntityPresence="0" overlapTolerance="0">entityEnvironment originBits</config>
+	</capture>
+	<capture effectivity="0.0103337" falsePositives="0.00000671" correctGuesses="0.80957918" flags="7" overlapTolerance="0" minEntityPresence="1">
+		<totalGuesses mean="4.60788174" deviation="11.22826218" sum="1788024" squareSum="57160204" numSamples="388036" />
+		<consideredConsistent mean="0.00919245" deviation="0.18037075" sum="3567" squareSum="12657" numSamples="388036" />
+		<correctGuesses mean="3.73044511" deviation="10.17009752" sum="1447547" squareSum="45534901" numSamples="388036" />
+		<actuallyConsistent mean="0.88656723" deviation="2.44373181" sum="344020" squareSum="2622280" numSamples="388036" />
+		<shouldHaveConsideredConsistent mean="0.8774057" deviation="2.41486117" sum="340465" squareSum="2561579" numSamples="388036" />
+		<shouldNotHaveConsideredConsistent mean="0.00003092" deviation="0.00600651" sum="12" squareSum="14" numSamples="388036" />
+		<config minEntityPresence="1" overlapTolerance="0">entityEnvironment originBits</config>
+	</capture>
+	<capture effectivity="0.00492704" falsePositives="0.0000028" correctGuesses="0.80854284" flags="7" overlapTolerance="0" minEntityPresence="2">
+		<totalGuesses mean="4.60788174" deviation="11.22826218" sum="1788024" squareSum="57160204" numSamples="388036" />
+		<consideredConsistent mean="0.00438104" deviation="0.10224511" sum="1700" squareSum="4064" numSamples="388036" />
+		<correctGuesses mean="3.72566978" deviation="10.16669676" sum="1445694" squareSum="45494248" numSamples="388036" />
+		<actuallyConsistent mean="0.88656723" deviation="2.44373181" sum="344020" squareSum="2622280" numSamples="388036" />
+		<shouldHaveConsideredConsistent mean="0.88219907" deviation="2.43018581" sum="342325" squareSum="2593663" numSamples="388036" />
+		<shouldNotHaveConsideredConsistent mean="0.00001289" deviation="0.0035896" sum="5" squareSum="5" numSamples="388036" />
+		<config minEntityPresence="2" overlapTolerance="0">entityEnvironment originBits</config>
+	</capture>
+	<capture effectivity="0.09596535" falsePositives="0.00037583" correctGuesses="0.82568578" flags="11" overlapTolerance="0" minEntityPresence="0">
+		<totalGuesses mean="4.60788174" deviation="11.22826218" sum="1788024" squareSum="57160204" numSamples="388036" />
+		<consideredConsistent mean="0.08681153" deviation="0.74658259" sum="33686" squareSum="219210" numSamples="388036" />
+		<correctGuesses mean="3.80466245" deviation="10.24939098" sum="1476346" squareSum="46380186" numSamples="388036" />
+		<actuallyConsistent mean="0.88656723" deviation="2.44373181" sum="344020" squareSum="2622280" numSamples="388036" />
+		<shouldHaveConsideredConsistent mean="0.80148749" deviation="2.15222842" sum="311006" squareSum="2046684" numSamples="388036" />
+		<shouldNotHaveConsideredConsistent mean="0.0017318" deviation="0.05700242" sum="672" squareSum="1262" numSamples="388036" />
+		<config minEntityPresence="0" overlapTolerance="0">entityEnvironment originRange</config>
+	</capture>
+	<capture effectivity="0.08068136" falsePositives="0.00031711" correctGuesses="0.82280383" flags="11" overlapTolerance="0" minEntityPresence="1">
+		<totalGuesses mean="4.60788174" deviation="11.22826218" sum="1788024" squareSum="57160204" numSamples="388036" />
+		<consideredConsistent mean="0.07299065" deviation="0.65002473" sum="28323" squareSum="166025" numSamples="388036" />
+		<correctGuesses mean="3.79138276" deviation="10.23321172" sum="1471193" squareSum="46212451" numSamples="388036" />
+		<actuallyConsistent mean="0.88656723" deviation="2.44373181" sum="344020" squareSum="2622280" numSamples="388036" />
+		<shouldHaveConsideredConsistent mean="0.81503778" deviation="2.19248473" sum="316264" squareSum="2123052" numSamples="388036" />
+		<shouldNotHaveConsideredConsistent mean="0.0014612" deviation="0.05157508" sum="567" squareSum="1033" numSamples="388036" />
+		<config minEntityPresence="1" overlapTolerance="0">entityEnvironment originRange</config>
+	</capture>
+	<capture effectivity="0.03863438" falsePositives="0.00014038" correctGuesses="0.81489063" flags="11" overlapTolerance="0" minEntityPresence="2">
+		<totalGuesses mean="4.60788174" deviation="11.22826218" sum="1788024" squareSum="57160204" numSamples="388036" />
+		<consideredConsistent mean="0.03489882" deviation="0.36969784" sum="13542" squareSum="53508" numSamples="388036" />
+		<correctGuesses mean="3.75491965" deviation="10.19393365" sum="1457044" squareSum="45794342" numSamples="388036" />
+		<actuallyConsistent mean="0.88656723" deviation="2.44373181" sum="344020" squareSum="2622280" numSamples="388036" />
+		<shouldHaveConsideredConsistent mean="0.85231525" deviation="2.31441961" sum="330729" squareSum="2360415" numSamples="388036" />
+		<shouldNotHaveConsideredConsistent mean="0.00064685" deviation="0.03165542" sum="251" squareSum="389" numSamples="388036" />
+		<config minEntityPresence="2" overlapTolerance="0">entityEnvironment originRange</config>
+	</capture>
+	<capture effectivity="0.08932039" falsePositives="0.00037583" correctGuesses="0.82440728" flags="19" overlapTolerance="0" minEntityPresence="0">
+		<totalGuesses mean="4.60788174" deviation="11.22826218" sum="1788024" squareSum="57160204" numSamples="388036" />
+		<consideredConsistent mean="0.08092033" deviation="0.71332455" sum="31400" squareSum="199986" numSamples="388036" />
+		<correctGuesses mean="3.79877125" deviation="10.2439383" sum="1474060" squareSum="46319444" numSamples="388036" />
+		<actuallyConsistent mean="0.88656723" deviation="2.44373181" sum="344020" squareSum="2622280" numSamples="388036" />
+		<shouldHaveConsideredConsistent mean="0.8073787" deviation="2.17182812" sum="313292" squareSum="2083248" numSamples="388036" />
+		<shouldNotHaveConsideredConsistent mean="0.0017318" deviation="0.05700242" sum="672" squareSum="1262" numSamples="388036" />
+		<config minEntityPresence="0" overlapTolerance="0">entityEnvironment fuzzyOriginRange</config>
+	</capture>
+	<capture effectivity="0.07498983" falsePositives="0.00031711" correctGuesses="0.82170877" flags="19" overlapTolerance="0" minEntityPresence="1">
+		<totalGuesses mean="4.60788174" deviation="11.22826218" sum="1788024" squareSum="57160204" numSamples="388036" />
+		<consideredConsistent mean="0.06794473" deviation="0.62044999" sum="26365" squareSum="151169" numSamples="388036" />
+		<correctGuesses mean="3.78633683" deviation="10.22885092" sum="1469235" squareSum="46162989" numSamples="388036" />
+		<actuallyConsistent mean="0.88656723" deviation="2.44373181" sum="344020" squareSum="2622280" numSamples="388036" />
+		<shouldHaveConsideredConsistent mean="0.8200837" deviation="2.20980916" sum="318222" squareSum="2155848" numSamples="388036" />
+		<shouldNotHaveConsideredConsistent mean="0.0014612" deviation="0.05157508" sum="567" squareSum="1033" numSamples="388036" />
+		<config minEntityPresence="1" overlapTolerance="0">entityEnvironment fuzzyOriginRange</config>
+	</capture>
+	<capture effectivity="0.03605023" falsePositives="0.00014038" correctGuesses="0.81439343" flags="19" overlapTolerance="0" minEntityPresence="2">
+		<totalGuesses mean="4.60788174" deviation="11.22826218" sum="1788024" squareSum="57160204" numSamples="388036" />
+		<consideredConsistent mean="0.0326078" deviation="0.35500064" sum="12653" squareSum="49315" numSamples="388036" />
+		<correctGuesses mean="3.75262862" deviation="10.19206514" sum="1456155" squareSum="45772887" numSamples="388036" />
+		<actuallyConsistent mean="0.88656723" deviation="2.44373181" sum="344020" squareSum="2622280" numSamples="388036" />
+		<shouldHaveConsideredConsistent mean="0.85460627" deviation="2.32351539" sum="331618" squareSum="2378302" numSamples="388036" />
+		<shouldNotHaveConsideredConsistent mean="0.00064685" deviation="0.03165542" sum="251" squareSum="389" numSamples="388036" />
+		<config minEntityPresence="2" overlapTolerance="0">entityEnvironment fuzzyOriginRange</config>
+	</capture>
+	<capture effectivity="0.24851171" falsePositives="0.00922247" correctGuesses="0.84618942" flags="11" overlapTolerance="1" minEntityPresence="0">
+		<totalGuesses mean="4.60788174" deviation="11.22826218" sum="1788024" squareSum="57160204" numSamples="388036" />
+		<consideredConsistent mean="0.2628184" deviation="1.32126067" sum="101983" squareSum="704209" numSamples="388036" />
+		<correctGuesses mean="3.8991408" deviation="10.33821482" sum="1513007" squareSum="47372205" numSamples="388036" />
+		<actuallyConsistent mean="0.88656723" deviation="2.44373181" sum="344020" squareSum="2622280" numSamples="388036" />
+		<shouldHaveConsideredConsistent mean="0.66624488" deviation="1.78567605" sum="258527" squareSum="1409549" numSamples="388036" />
+		<shouldNotHaveConsideredConsistent mean="0.04249606" deviation="0.46049504" sum="16490" squareSum="82986" numSamples="388036" />
+		<config minEntityPresence="0" overlapTolerance="1">entityEnvironment originRange</config>
+	</capture>
+	<capture effectivity="0.2048689" falsePositives="0.00747194" correctGuesses="0.83954298" flags="11" overlapTolerance="1" minEntityPresence="1">
+		<totalGuesses mean="4.60788174" deviation="11.22826218" sum="1788024" squareSum="57160204" numSamples="388036" />
+		<consideredConsistent mean="0.21605985" deviation="1.12692795" sum="83839" squareSum="510907" numSamples="388036" />
+		<correctGuesses mean="3.86851478" deviation="10.30415467" sum="1501123" squareSum="47007073" numSamples="388036" />
+		<actuallyConsistent mean="0.88656723" deviation="2.44373181" sum="344020" squareSum="2622280" numSamples="388036" />
+		<shouldHaveConsideredConsistent mean="0.70493717" deviation="1.88831282" sum="273541" squareSum="1576459" numSamples="388036" />
+		<shouldNotHaveConsideredConsistent mean="0.0344298" deviation="0.38935103" sum="13360" squareSum="59284" numSamples="388036" />
+		<config minEntityPresence="1" overlapTolerance="1">entityEnvironment originRange</config>
+	</capture>
+	<capture effectivity="0.0952619" falsePositives="0.00324772" correctGuesses="0.82267855" flags="11" overlapTolerance="1" minEntityPresence="2">
+		<totalGuesses mean="4.60788174" deviation="11.22826218" sum="1788024" squareSum="57160204" numSamples="388036" />
+		<consideredConsistent mean="0.09942119" deviation="0.61767709" sum="38579" squareSum="151881" numSamples="388036" />
+		<correctGuesses mean="3.79080549" deviation="10.2244618" sum="1470969" squareSum="46141293" numSamples="388036" />
+		<actuallyConsistent mean="0.88656723" deviation="2.44373181" sum="344020" squareSum="2622280" numSamples="388036" />
+		<shouldHaveConsideredConsistent mean="0.80211114" deviation="2.16961268" sum="311248" squareSum="2076226" numSamples="388036" />
+		<shouldNotHaveConsideredConsistent mean="0.01496511" deviation="0.20021029" sum="5807" squareSum="15641" numSamples="388036" />
+		<config minEntityPresence="2" overlapTolerance="1">entityEnvironment originRange</config>
+	</capture>
+</xml>

@@ -285,6 +285,25 @@ bool	InconsistencyCoverage::TSample::IntegrateGrowingNeighbor(const TSample&n, U
 	return true;
 }
 
+InconsistencyCoverage::TExtSample&	InconsistencyCoverage::TExtSample::IntegrateGrowingNeighbor(const TExtSample&n, UINT32 distance)
+{
+	if (Super::IntegrateGrowingNeighbor(n,distance))
+	{
+		ASSERT__(distance > 0);
+		ASSERT__(n.blurExtent + distance >= blurExtent);
+		unavailableShards |= n.unavailableShards;
+
+		precise.Merge(n.precise);
+		fuzzy.Merge(n.fuzzy);
+
+		ASSERT_EQUAL__(unavailableShards.AllZero(),IsConsistent());
+		ASSERT_EQUAL__(precise.AllUndefined(),IsConsistent());
+		ASSERT_EQUAL__(fuzzy.AllUndefined(),IsConsistent());
+	}
+	return *this;
+}
+
+
 void		InconsistencyCoverage::TSample::SetBest(const TSample&a, const TSample&b, const Comparator&comp)
 {
 	int c = comp(a,b);
@@ -694,10 +713,11 @@ void		InconsistencyCoverage::FlagInconsistent(const TEntityCoords&coords)
 	TGridCoords c;
 	Vec::mult(coords,Resolution,c);
 	Vec::clamp(c,0,Resolution-1);
-	static const constexpr TSample Max = {0,0xFE};
-	TSample&s = (*GetVerified(grid,c));
-	s = Max;	//force nullpointer exception if out of range
-	highest = Max.depth;
+	//static const constexpr TSample Max = {0,0xFE};
+	TExtSample&s = (*GetVerified(grid,c));
+	s.depth = 0xfe;
+	s.blurExtent = 0;
+	highest = M::Max(highest,s.depth);
 }
 
 bool		InconsistencyCoverage::IsInconsistent(const TEntityCoords&coords) const

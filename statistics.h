@@ -343,6 +343,7 @@ namespace Statistics
 	void	CaptureICTest(const TProbabilisticICReduction&);
 	void	CapturePreMerge(const TStateDifference&preMergeA, const TStateDifference&preMergeB);
 	void	CaptureMergeResult(const IC::Comparator&comp, MergeStrategy,const TStateDifference&postMerge);
+	void	ExportMergeResults(const TExperiment&);
+	void	ImportMergeResults(const TExperiment&);
 	void	ExportMergeResults();
-	void	ImportMergeResults();
 }

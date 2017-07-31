@@ -109,6 +109,8 @@ namespace Statistics
 
 		struct TRun
 		{
+			bool imported = false;
+
 			TExperiment setup;
 
 			TMetric	survived,
@@ -146,8 +148,8 @@ namespace Statistics
 				#ifndef _DEBUG	
 					//r.setup.numEntities = 16*16*4*2*2*8*8;	//16x16 grid, 8x8 R per SD, 4x4 to get to sensor range, x4 => each entity sees 16 others on average
 					//r.setup.numEntities = 16*4*256;
-					//r.setup.numEntities = 16*16*1*2*2*8*8;
-					r.setup.numEntities = 16*16*2*2*2*8*8;	//each sees on average _8_ others
+					r.setup.numEntities = 16*16*1*2*2*8*8;		//each sees on average 4 other
+					//r.setup.numEntities = 16*16*2*2*2*8*8;	//each sees on average _8_ others
 				#else
 					r.setup.numEntities = 256;
 				#endif
@@ -443,8 +445,6 @@ namespace Statistics
 									worsePreMerge;
 									
 
-			count_t					currentICMergeResultEntityCount=InvalidIndex;
-
 			struct TMergeCapture
 			{
 				TStateDifference	postMerge;
@@ -457,15 +457,18 @@ namespace Statistics
 		{
 
 			XML::Container doc;
+			if (currentRun != InvalidIndex)
+				ExportMergeResults(runs[currentRun].setup);
 
-			ExportMergeResults();
-
-			//do
 			{
 				currentRun = (currentRun+1)%runs.Count();
 			}
 			//while (currentRun != 0 && ( runs[currentRun].setup.maxSiblingSyncOperations == 0 || runs[currentRun].setup.numLayers == 1));	//skip for now
-
+			if (!runs[currentRun].imported)
+			{
+				runs[currentRun].imported = true;
+				ImportMergeResults(runs[currentRun].setup);
+			}
 
 
 			doc.Clear();
@@ -899,12 +902,6 @@ namespace Statistics
 		mergeLock.lock();
 			const auto& run = runs[currentRun];
 
-			if (currentICMergeResultEntityCount != run.setup.numEntities)
-			{
-				icReductionCaptures.Clear();
-				currentICMergeResultEntityCount = run.setup.numEntities;
-			}
-
 			auto&entry = icReductionCaptures.Set(rs.config);
 			entry.Add(rs);
 		mergeLock.unlock();
@@ -982,8 +979,25 @@ namespace Statistics
 		mergeLock.unlock();
 	}
 
-	#define MERGE_FILENAME "mergeMeasurements.xml"
-	#define IC_FILENAME "icMeasurements.xml"
+	//#define MERGE_FILENAME "mergeMeasurements.xml"
+	//#define IC_FILENAME "icMeasurements.xml"
+
+
+	PathString Filename(const TExperiment&ex, const PathString&coreName, const PathString&ext)
+	{
+		return "measurements/"+coreName+PathString(ex.numEntities)+"."+ext;
+	}
+
+	PathString MergeFilename(const TExperiment&ex)
+	{
+		return Filename(ex,"mergeMeasurements","xml");
+	}
+
+	PathString ICFilename(const TExperiment&ex)
+	{
+		return Filename(ex,"icMeasurements","xml");
+	}
+
 
 
 	template <typename T>
@@ -1003,14 +1017,16 @@ namespace Statistics
 		return true;
 	}
 
-	void ImportMergeResults()
+	void ImportMergeResults(const TExperiment&ex)
 	{
 		using namespace Details;
+		using namespace MergeMeasurement;
+		mergeCaptures.Clear();
+		icReductionCaptures.Clear();
 		try
 		{
 			XML::Container doc;
-			doc.LoadFromFile(MERGE_FILENAME);
-			using namespace MergeMeasurement;
+			doc.LoadFromFile(MergeFilename(ex));
 
 			betterPreMerge.Import(doc.root_node.Find("better"));
 			worsePreMerge.Import(doc.root_node.Find("worse"));
@@ -1027,11 +1043,11 @@ namespace Statistics
 		try
 		{
 			XML::Container doc;
-			doc.LoadFromFile(IC_FILENAME);
-			using namespace MergeMeasurement;
+			doc.LoadFromFile(ICFilename(ex));
 
-			if (!Query(&doc.root_node,"entities",currentICMergeResultEntityCount))
-				currentICMergeResultEntityCount = 16*16*4*2*2*8*8;
+			count_t numEntities;
+			if (Query(&doc.root_node,"entities",numEntities))
+				ASSERT_EQUAL__(numEntities,ex.numEntities);
 
 			TICReductionConfig cfg;
 			foreach(doc.root_node.children,n)
@@ -1215,6 +1231,12 @@ namespace Statistics
 	void ExportMergeResults()
 	{
 		using namespace Details;
+		ExportMergeResults(runs[currentRun].setup);
+	}
+
+	void ExportMergeResults(const TExperiment&ex)
+	{
+		using namespace Details;
 		{
 			XML::Container doc;
 			Array<String> keys;
@@ -1234,7 +1256,7 @@ namespace Statistics
 				values[i].postMerge.ToXML(node,betterPreMerge,worsePreMerge);
 			}
 
-			doc.SaveToFile(MERGE_FILENAME);
+			doc.SaveToFile(MergeFilename(ex));
 		}
 		{
 			XML::Container doc;
@@ -1265,16 +1287,16 @@ namespace Statistics
 				values[i].ToXML(node);
 			}
 
-			doc.SaveToFile(IC_FILENAME);
+			doc.SaveToFile(ICFilename(ex));
 
 			try
 			{
 				StringFile csv;
-				csv.Create(PathString("icTable"+String(currentICMergeResultEntityCount)+".csv"));
+				csv.Create(Filename(ex,"icTable","csv"));
 
 				
-				Array2D<String>	table(7*3+2,3);
-				index_t at = 2;
+				Array2D<String>	table(7*3+3,3);
+				index_t at = 3;
 				table.Get(at,0) = "zero"; at+=3;
 				table.Get(at,0) = "state"; at+=3;
 				table.Get(at,0) = "state_env"; at+=3;
@@ -1282,16 +1304,18 @@ namespace Statistics
 				table.Get(at,0) = "originBits_env"; at+=3;
 				table.Get(at,0) = "originR"; at+=3;
 				table.Get(at,0) = "originR_env"; at+=3;
-				for (index_t i = 1; i < table.GetWidth(); i+= 3)
+				for (index_t i = 3; i < table.GetWidth(); i+= 3)
 				{
 					table.Get(i,1) = table.Get(i,0)+" effect.";
 					table.Get(i+1,1) = table.Get(i,0)+" false pos.";
 					table.Get(i+2,1) = table.Get(i,0)+" score";
 				}
-				table.Get(0,2) = String(currentICMergeResultEntityCount);
-				table.Get(1,1) = "consistentPercentage";
+				table.Get(0,2) = ex.numEntities;
+				table.Get(2,1) = "consistentPercentage";
+				table.Get(1,1) = "can see";
 				if (values.IsNotEmpty())
-					table.Get(1,2) = values.First().actuallyConsistent.Get() / values.First().totalGuesses.Get();
+					table.Get(2,2) = values.First().actuallyConsistent.Get() / values.First().totalGuesses.Get();
+				table.Get(1,2) = double(ex.numEntities) / (16*16)/ sqr(1.0 / (2*Entity::MaxAdvertisementRadius));
 
 				foreach (values,val)
 				{
@@ -1323,7 +1347,7 @@ namespace Statistics
 					if (val->config.flags & ICReductionFlags::RegardEntityEnvironment)
 						x++;
 					x *= 3;
-					x += 2;
+					x += 3;
 
 					index_t y = 2;
 					ASSERT__(table.Get(x,y).IsEmpty());

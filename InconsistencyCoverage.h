@@ -58,7 +58,7 @@ public:
 			hasher.AppendPOD(blurExtent);
 			hasher.AppendPOD(depth);
 		}
-	protected:
+
 		void		SetWorst(const TSample&a, const TSample&b);
 		bool		IntegrateGrowingNeighbor(const TSample&n, UINT32 distance);
 		void		SetBest(const TSample&a, const TSample&b, const Comparator&comp);
@@ -103,22 +103,15 @@ public:
 			ASSERT_EQUAL__(precise.AllUndefined(),IsConsistent());
 			ASSERT_EQUAL__(fuzzy.AllUndefined(),IsConsistent());
 		}
-		TExtSample&	IntegrateGrowingNeighbor(const TExtSample&n, UINT32 distance)
-		{
-			if (Super::IntegrateGrowingNeighbor(n,distance))
-			{
-				unavailableShards |= n.unavailableShards;
-
-				precise.Merge(n.precise);
-				fuzzy.Merge(n.fuzzy);
-
-				ASSERT_EQUAL__(unavailableShards.AllZero(),IsConsistent());
-				ASSERT_EQUAL__(precise.AllUndefined(),IsConsistent());
-				ASSERT_EQUAL__(fuzzy.AllUndefined(),IsConsistent());
-			}
-			return *this;
-		}
+		TExtSample&	IntegrateGrowingNeighbor(const TExtSample&n, UINT32 distance);
 		void		SetBest(const TExtSample&a, const TExtSample&b, const Comparator&comp);
+
+	protected:
+		Super::SetWorst;
+		Super::IntegrateGrowingNeighbor;
+		Super::SetBest;
+		Super::Include;
+
 	};
 
 private:
