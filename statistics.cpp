@@ -148,7 +148,8 @@ namespace Statistics
 				#ifndef _DEBUG	
 					//r.setup.numEntities = 16*16*4*2*2*8*8;	//16x16 grid, 8x8 R per SD, 4x4 to get to sensor range, x4 => each entity sees 16 others on average
 					//r.setup.numEntities = 16*4*256;
-					r.setup.numEntities = 16*16*1*2*2*8*8;		//each sees on average 4 other
+					r.setup.numEntities = 16*16*1*1*2*8*8;		//each sees on average 2 other
+					//r.setup.numEntities = 16*16*1*2*2*8*8;		//each sees on average 4 other
 					//r.setup.numEntities = 16*16*2*2*2*8*8;	//each sees on average _8_ others
 				#else
 					r.setup.numEntities = 256;
@@ -985,7 +986,9 @@ namespace Statistics
 
 	PathString Filename(const TExperiment&ex, const PathString&coreName, const PathString&ext)
 	{
-		return "measurements/"+coreName+PathString(ex.numEntities)+"."+ext;
+		if (HashProcessGrid::RegardHistory)
+			return "measurements/"+coreName+PathString(ex.numEntities)+"."+ext;
+		return "measurements/"+coreName+PathString(ex.numEntities)+".NoHistoryState."+ext;
 	}
 
 	PathString MergeFilename(const TExperiment&ex)
@@ -1275,11 +1278,30 @@ namespace Statistics
 			
 			for (index_t i = 0; i < values.Count(); i++)
 			{
+				const auto&v = values[i];
 				XML::Node&node = doc.root_node.Create("capture");
 
-				node.Set("effectivity", (values[i].consideredConsistent.Get() - values[i].shouldNotHaveConsideredConsistent.Get()) / (values[i].actuallyConsistent.Get())  );
-				node.Set("falsePositives", values[i].shouldNotHaveConsideredConsistent.Get() / values[i].totalGuesses.Get()  );
-				node.Set("correctGuesses", values[i].correctGuesses.Get() / values[i].totalGuesses.Get()  );
+				const double truePositive = (v.consideredConsistent.Get() - values[i].shouldNotHaveConsideredConsistent.Get());
+				const double falsePositive = v.shouldNotHaveConsideredConsistent.Get();
+				const double falseNegative = v.shouldHaveConsideredConsistent.Get();
+				const double trueNegative = ( (v.totalGuesses.Get() - v.consideredConsistent.Get()) - v.shouldHaveConsideredConsistent.Get());
+				const double efficiency = truePositive / (values[i].actuallyConsistent.Get());
+				const double precision = /*rp / (rp + fp)*/ truePositive / (truePositive + falsePositive);
+				const double recall = /*rp / (rp + fn)*/ truePositive / (truePositive + falseNegative);
+				const double sensitivity = recall;
+				const double specificity = trueNegative / (trueNegative + falsePositive);
+				const double fallout = falsePositive / (falsePositive+trueNegative);
+				node.Set("sensitivity",  sensitivity );
+				node.Set("specificity",  specificity );
+				//node.Set("fallout",fallout);
+				//node.Set("F0", truePositive / (truePositive + falsePositive));
+				node.Set("imformedness", sensitivity + specificity - 1);
+				//node.Set("MCC", (truePositive * trueNegative - falsePositive * falseNegative) /
+				//	sqrt((truePositive + falsePositive)*(truePositive + falseNegative)*(trueNegative + falsePositive)*(trueNegative+falseNegative)  )
+				//	);
+				//node.Set("F1-score", 2.0 * precision * recall / (precision + recall));
+				//node.Set("falsePositives", falsePositive / values[i].totalGuesses.Get()  );
+				//node.Set("correctGuesses", values[i].correctGuesses.Get() / values[i].totalGuesses.Get()  );
 
 				node.Set("flags",index_t(values[i].config.flags));
 				node.Set("overlapTolerance",values[i].config.overlapTolerance);

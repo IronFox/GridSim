@@ -290,12 +290,12 @@ namespace Statistics
 	};
 
 
-	inline ICReductionFlags operator|(ICReductionFlags a, ICReductionFlags b)
+	inline constexpr ICReductionFlags operator|(ICReductionFlags a, ICReductionFlags b)
 	{
 		typedef std::underlying_type<ICReductionFlags>::type U;
 		return ICReductionFlags( U(a) | U(b) );
 	}
-	inline bool operator&(ICReductionFlags a, ICReductionFlags b)
+	inline constexpr bool operator&(ICReductionFlags a, ICReductionFlags b)
 	{
 		typedef std::underlying_type<ICReductionFlags>::type U;
 		return ( U(a) & U(b) ) != 0;
@@ -307,6 +307,7 @@ namespace Statistics
 		ICReductionFlags	flags;
 		count_t				overlapTolerance=0,	//number of generations that are allowed to overlap between two IC ranges. Effective only if RegardRange or RegardFuzzyRange are set
 							minEntityPresence=0;
+		IC::content_t		maxDepth=0xFF,minSpatialDistance=0;
 
 		bool				operator==(const TICReductionConfig&other) const
 		{

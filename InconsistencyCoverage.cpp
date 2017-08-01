@@ -53,10 +53,26 @@ void	IC::RangeArray::ClearAndMerge(const RangeArray&a, const RangeArray&b)
 	Merge(b);
 }
 
+void HashProcessGrid::SetupEmpty(index_t timestep)
+{
+	static const auto Resolution = HGrid::Resolution;
+	grid.SetSize(TGrid::Size(Resolution));
 
+	Concurrency::parallel_for(index_t(0),grid.Count(),[this,timestep](index_t i)
+	{
+		grid[i].prev = Hasher::HashContainer::Empty;
+		grid[i].hasher.AppendPOD(timestep);
+	});
+}
 
 HashProcessGrid::HashProcessGrid(const HGrid&h,index_t timestep,const TGridCoords&localOffset, bool usePrev):localOffset(localOffset)
 {
+	if (!RegardHistory)
+	{
+		SetupEmpty(timestep);
+		return;
+	}
+
 	ASSERT__(h.grid.IsNotEmpty());
 	grid.SetSize(h.grid.GetSize());
 
@@ -72,14 +88,7 @@ HashProcessGrid::HashProcessGrid(const HGrid&h,index_t timestep,const TGridCoord
 
 HashProcessGrid::HashProcessGrid(index_t timestep,const TGridCoords&localOffset):localOffset(localOffset)
 {
-	static const auto Resolution = HGrid::Resolution;
-	grid.SetSize(TGrid::Size(Resolution));
-
-	Concurrency::parallel_for(index_t(0),grid.Count(),[this,timestep](index_t i)
-	{
-		grid[i].prev = Hasher::HashContainer::Empty;
-		grid[i].hasher.AppendPOD(timestep);
-	});
+	SetupEmpty(timestep);
 }
 
 void		HashProcessGrid::Finish(HGrid&h)
@@ -848,14 +857,14 @@ void		InconsistencyCoverage::VerifyIntegrity(const TCodeLocation&loc) const
 
 
 		if (px.IsInvalid())
-			Except::fatal(loc, String(__func__)+": Invalid sample: "+String(px.depth)+"|"+String(px.blurExtent));
+			Except::TriggerFatal(loc, String(__func__)+": Invalid sample: "+String(px.depth)+"|"+String(px.blurExtent));
 
 		highest = vmax(highest,px.depth);
 		if (px.depth == 0 && px.blurExtent != 0xFE)
-			Except::fatal(loc, String(__func__)+": Unexpected px.depth/px.blurExtent: "+String(px.depth)+"|"+String(px.blurExtent));
+			Except::TriggerFatal(loc, String(__func__)+": Unexpected px.depth/px.blurExtent: "+String(px.depth)+"|"+String(px.blurExtent));
 	}	
 	if (highest != this->highest)
-		Except::fatal(loc, String(__func__) + ": Expected highest (" + String(highest)+") == this->highest ("+String(this->highest)+")");
+		Except::TriggerFatal(loc, String(__func__) + ": Expected highest (" + String(highest)+") == this->highest ("+String(this->highest)+")");
 }
 
 void		InconsistencyCoverage::SetGrid(TGrid&&grid)
@@ -1003,6 +1012,15 @@ InconsistencyCoverage::TBadness	InconsistencyCoverage::GetTotalBadness() const
 	const auto&as = a.core.GetCellOfL(cellCoords).next;
 	const auto&bs = b.core.GetCellOfL(cellCoords).next;
 	ASSERT_NOT_EQUAL1__( as , bs , at);
+}
+
+/*static*/ void	ExtHGrid::RequireCoreMatch(const ExtHGrid&a, const ExtHGrid&b,  const TGridCoords&cellCoords, index_t expectedLinear)
+{
+	auto at = VectorToIndex(cellCoords);
+	ASSERT_EQUAL1__(expectedLinear,a.core.grid.ToLinearIndex(at),at);
+	const auto&as = a.core.GetCellOfL(cellCoords).next;
+	const auto&bs = b.core.GetCellOfL(cellCoords).next;
+	ASSERT_EQUAL1__( as , bs , at);
 }
 
 const HGrid::TCell*		ExtHGrid::GetSample(const TGridCoords&coords) const

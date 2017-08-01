@@ -415,6 +415,7 @@ public:
 	*/
 	static bool	CoreMatch(const ExtHGrid&a, const ExtHGrid&b,  const TGridCoords&cellCoords, count_t minEntityCount);
 	static void	RequireCoreMismatch(const ExtHGrid&a, const ExtHGrid&b,  const TGridCoords&cellCoords, index_t expectedLinear);
+	static void	RequireCoreMatch(const ExtHGrid&a, const ExtHGrid&b,  const TGridCoords&cellCoords, index_t expectedLinear);
 
 	/**
 	Fetches the sample at the given location.
@@ -425,6 +426,8 @@ public:
 
 class HashProcessGrid
 {
+private:
+	void		SetupEmpty(index_t timestep);
 public:
 	class Cell
 	{
@@ -434,6 +437,8 @@ public:
 		count_t			numEntities=0;
 	};
 	typedef GridArray<Cell>	TGrid;
+
+	static const constexpr bool RegardHistory = false;
 
 	const TGridCoords		localOffset;
 	TGrid		grid;

@@ -1363,11 +1363,19 @@ void				TestProbabilisticICReduction(const CoreShardDomainState&a, const ExtHGri
 		{
 			continue;
 		}
-		ASSERT__(!a.ic.GetGrid()[i].IsConsistent());
-		ASSERT__(!b.ic.GetGrid()[i].IsConsistent());
+		const auto&as = a.ic.GetGrid()[i];
+		const auto&bs = b.ic.GetGrid()[i];
+		ASSERT__(!as.IsConsistent());
+		ASSERT__(!bs.IsConsistent());
 		totalGuesses++;
 		bool match = true;
-		if (strat.flags & Statistics::ICReductionFlags::RegardEntityState)
+		if (strat.maxDepth < as.depth && strat.maxDepth < bs.depth)
+			match = false;
+		if (strat.minSpatialDistance > as.blurExtent && strat.minSpatialDistance > bs.blurExtent)
+			match = false;
+
+
+		if (match && strat.flags & Statistics::ICReductionFlags::RegardEntityState)
 		{
 			if (strat.flags & Statistics::ICReductionFlags::RegardEntityEnvironment)
 			{
@@ -1405,20 +1413,34 @@ void				TestProbabilisticICReduction(const CoreShardDomainState&a, const ExtHGri
 			if (p0.OverlapsWith(p1,strat.overlapTolerance))
 				match = false;
 		}
-
+		
+		const bool consistent = actuallyConsistent[i];
 		const auto&test = shouldNotBeConsidered[i];
-		if (match && test.isSet && (strat.flags & Statistics::ICReductionFlags::RegardEntityState))
+
+		if (
+			(match && test.isSet && (strat.flags & Statistics::ICReductionFlags::RegardEntityState))
+			||
+			(!match && consistent
+				&& strat.minEntityPresence == 0
+				&& (strat.flags == Statistics::ICReductionFlags::RegardEntityState) 
+			)
+
+		)
 		{
-			if (strat.flags & Statistics::ICReductionFlags::RegardEntityEnvironment)
+			if (match)
 			{
-				ExtHGrid::RequireExtMismatch(ag,bg,ToVector( actuallyConsistent.ToVectorIndex(i) ),ExtHGrid::MissingEdgeTreatment::Fail,i);
+				if (strat.flags & Statistics::ICReductionFlags::RegardEntityEnvironment)
+				{
+					ExtHGrid::RequireExtMismatch(ag,bg,ToVector( actuallyConsistent.ToVectorIndex(i) ),ExtHGrid::MissingEdgeTreatment::Fail,i);
+				}
+				else
+					ExtHGrid::RequireCoreMismatch(ag,bg,ToVector( actuallyConsistent.ToVectorIndex(i) ),i);
 			}
 			else
-				ExtHGrid::RequireCoreMismatch(ag,bg,ToVector( actuallyConsistent.ToVectorIndex(i) ),i);
+				ExtHGrid::RequireCoreMatch(ag,bg,ToVector( actuallyConsistent.ToVectorIndex(i) ),i);
 			FATAL__("Consistency violation");
 		}
 
-		const bool consistent = actuallyConsistent[i];
 		if (consistent)
 			actuallyConsistentCount++;
 		if (match)
@@ -1573,16 +1595,21 @@ void				FullShardDomainState::SynchronizeWithSibling(Shard&myShard,  Shard&sibli
 					actuallyConsistent.Get(VectorToIndex( IC::ToPixels(e->coordinates - myShard.gridCoords) )) = false;
 			}
 
-			for (index_t overlap = 0; overlap <= 2; overlap++)
-				for (index_t minPresence = 0; minPresence <= 2; minPresence++)
-					for (index_t i = 0; i < (count_t)Statistics::ICReductionFlags::NumCombinations; i++)
-					{
-						Statistics::TICReductionConfig cfg;
-						cfg.flags = Statistics::ICReductionFlags(i);
-						cfg.minEntityPresence = minPresence;
-						cfg.overlapTolerance = overlap;
-						TestProbabilisticICReduction(a,b,actuallyConsistent,shouldNotBeConsidered,merged->ic, cfg,myShard.gridCoords);
-					}
+
+			for (IC::content_t maxD = 0; maxD <= 4; maxD++)
+				for (IC::content_t minS = 0; minS <= 4; minS++)
+					for (index_t overlap = 0; overlap <= 0; overlap++)
+						for (index_t minPresence = 0; minPresence <= 5; minPresence++)
+							for (index_t i = 0; i < (count_t)Statistics::ICReductionFlags::NumCombinations; i++)
+							{
+								Statistics::TICReductionConfig cfg;
+								cfg.flags = Statistics::ICReductionFlags(i);
+								cfg.maxDepth = maxD != 0 ? maxD : std::numeric_limits<IC::content_t>::max();
+								cfg.minSpatialDistance = minS;
+								cfg.minEntityPresence = minPresence;
+								cfg.overlapTolerance = overlap;
+								TestProbabilisticICReduction(a,b,actuallyConsistent,shouldNotBeConsidered,merged->ic, cfg,myShard.gridCoords);
+							}
 		}
 
 
