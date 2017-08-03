@@ -1369,10 +1369,17 @@ void				TestProbabilisticICReduction(const CoreShardDomainState&a, const ExtHGri
 		ASSERT__(!bs.IsConsistent());
 		totalGuesses++;
 		bool match = true;
+		bool icViolation = false;
 		if (strat.maxDepth < as.depth && strat.maxDepth < bs.depth)
+		{
 			match = false;
+			icViolation = true;
+		}
 		if (strat.minSpatialDistance > as.blurExtent && strat.minSpatialDistance > bs.blurExtent)
+		{
 			match = false;
+			icViolation = true;
+		}
 
 
 		if (match && strat.flags & Statistics::ICReductionFlags::RegardEntityState)
@@ -1421,7 +1428,7 @@ void				TestProbabilisticICReduction(const CoreShardDomainState&a, const ExtHGri
 			(match && test.isSet && (strat.flags & Statistics::ICReductionFlags::RegardEntityState))
 			||
 			(!match && consistent
-				&& strat.minEntityPresence == 0
+				&& strat.minEntityPresence == 0 && !icViolation
 				&& (strat.flags == Statistics::ICReductionFlags::RegardEntityState) 
 			)
 

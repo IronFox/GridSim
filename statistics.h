@@ -311,13 +311,13 @@ namespace Statistics
 
 		bool				operator==(const TICReductionConfig&other) const
 		{
-			return flags == other.flags && overlapTolerance == other.overlapTolerance && minEntityPresence == other.minEntityPresence;
+			return flags == other.flags && overlapTolerance == other.overlapTolerance && minEntityPresence == other.minEntityPresence && maxDepth == other.maxDepth && minSpatialDistance == other.minSpatialDistance;
 		}
 		bool				operator!=(const TICReductionConfig&other) const {return !operator==(other);}
 
 		friend hash_t		Hash(const TICReductionConfig&self)
 		{
-			return HashValue() << std::underlying_type<ICReductionFlags>::type(self.flags) << self.overlapTolerance << self.minEntityPresence;
+			return HashValue() << std::underlying_type<ICReductionFlags>::type(self.flags) << self.overlapTolerance << self.minEntityPresence << self.maxDepth << self.minSpatialDistance;
 		}
 
 

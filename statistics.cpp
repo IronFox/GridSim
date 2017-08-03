@@ -951,6 +951,8 @@ namespace Statistics
 
 			xflags.Set("minEntityPresence",config.minEntityPresence);
 			xflags.Set("overlapTolerance",config.overlapTolerance);
+			xflags.Set("maxDepth",config.maxDepth);
+			xflags.Set("minSpatialDistance",config.minSpatialDistance);
 		}
 	}
 
@@ -1057,10 +1059,15 @@ namespace Statistics
 				if (n->name == "capture" 
 					&& 
 					QueryEnum(n,"flags",cfg.flags) && 
-					Query(n,"overlapTolerance",cfg.overlapTolerance) &&
-					Query(n,"minEntityPresence",cfg.minEntityPresence)
+					Query(n,"overlapTolerance",cfg.overlapTolerance)
+					&&	Query(n,"minEntityPresence",cfg.minEntityPresence)
 					)
 				{
+					if (!Query(n,"minSpatialDistance",cfg.minSpatialDistance))
+						cfg.minSpatialDistance = 0;
+					if (!Query(n,"maxDepth",cfg.maxDepth))
+						cfg.maxDepth = std::numeric_limits<IC::content_t>::max();
+
 					if (cfg.CanCheck())
 					{
 						auto&ic = icReductionCaptures.Set(cfg);
@@ -1303,9 +1310,12 @@ namespace Statistics
 				//node.Set("falsePositives", falsePositive / values[i].totalGuesses.Get()  );
 				//node.Set("correctGuesses", values[i].correctGuesses.Get() / values[i].totalGuesses.Get()  );
 
-				node.Set("flags",index_t(values[i].config.flags));
-				node.Set("overlapTolerance",values[i].config.overlapTolerance);
-				node.Set("minEntityPresence",values[i].config.minEntityPresence);
+				node.Set("flags",index_t(v.config.flags));
+				node.Set("overlapTolerance",v.config.overlapTolerance);
+				node.Set("minEntityPresence",v.config.minEntityPresence);
+				node.Set("maxDepth",v.config.maxDepth);
+				node.Set("minSpatialDistance",v.config.minSpatialDistance);
+
 				values[i].ToXML(node);
 			}
 
@@ -1350,7 +1360,7 @@ namespace Statistics
 						if (val->config.flags & ICReductionFlags::RegardFuzzyOriginRange)
 							continue;
 					}
-					if (val->config.minEntityPresence > 0 || val->config.overlapTolerance > 0)
+					if (val->config.minEntityPresence > 0 || val->config.overlapTolerance > 0 || val->config.minSpatialDistance > 0 || val->config.maxDepth < std::numeric_limits<IC::content_t>::max())
 						continue;
 					if (val->config.flags & ICReductionFlags::RegardFuzzyOriginRange)
 						continue;
