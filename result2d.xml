@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <root>
-	<run reliability="0.99684" reliabilityLevel="20" recoveryIterations="2" numLayers="2" maxSiblingSyncOperations="1" siblingSyncDelay="1" numEntities="262144" endlessRuns="0" numRuns="0">
+	<run reliability="0.99684" reliabilityLevel="20" recoveryIterations="2" numLayers="2" maxSiblingSyncOperations="1" siblingSyncDelay="1" numEntities="16384" endlessRuns="0" numRuns="0">
 		<deadNodes mean="NaN" deviation="NaN" sum="0" squareSum="0" sampleCount="0" />
 		<recoveringNodes mean="NaN" deviation="NaN" sum="0" squareSum="0" sampleCount="0" />
 		<revivalDepth mean="NaN" deviation="NaN" sum="0" squareSum="0" sampleCount="0" />

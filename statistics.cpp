@@ -146,10 +146,11 @@ namespace Statistics
 
 			#ifndef D3
 				#ifndef _DEBUG	
-					r.setup.numEntities = 16*16*4*2*2*8*8;	//16x16 grid, 8x8 R per SD, 4x4 to get to sensor range, x4 => each entity sees 16 others on average
+					//r.setup.numEntities = 16*16*4*2*2*8*8;	//16x16 grid, 8x8 R per SD, 4x4 to get to sensor range, x4 => each entity sees 16 others on average
 					//r.setup.numEntities = 16*4*256;
-					//r.setup.numEntities = 16*16*1*1*2*8*8;		//each sees on average 2 other
-					//r.setup.numEntities = 16*16*1*2*2*8*8;		//each sees on average 4 other
+					r.setup.numEntities = 16*16*1*1*1*8*8;		//each sees on average 1 other
+					//r.setup.numEntities = 16*16*1*1*2*8*8;		//each sees on average 2 others
+					//r.setup.numEntities = 16*16*1*2*2*8*8;		//each sees on average 4 others
 					//r.setup.numEntities = 16*16*2*2*2*8*8;	//each sees on average _8_ others
 				#else
 					r.setup.numEntities = 256;
@@ -1151,9 +1152,20 @@ namespace Statistics
 
 					if (cfg.CanCheck())
 					{
-						auto&ic = icReductionCaptures.Set(cfg);
-						ic.config = cfg;
-						ic.Import(n);
+						const count_t presenceStep = (count_t)std::max(1.0,Statistics::GetEntityDensityPerRCube(ex)*0.25);	//keep in sync with SDS.cpp
+						bool good = false;
+						for (index_t i = 0; i <= 5; i++)	//keep in sync with SDS.cpp
+							if (cfg.minEntityPresence == i * presenceStep)	//keep in sync with SDS.cpp
+							{
+								good = true;
+								break;
+							}
+						if (good)
+						{
+							auto&ic = icReductionCaptures.Set(cfg);
+							ic.config = cfg;
+							ic.Import(n);
+						}
 					}
 				}
 		}

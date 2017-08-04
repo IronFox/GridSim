@@ -1603,19 +1603,19 @@ void				FullShardDomainState::SynchronizeWithSibling(Shard&myShard,  Shard&sibli
 			}
 
 
-			const count_t presenceStep = (count_t)std::max(1.0,Statistics::GetEntityDensityPerRCube()*0.25);
+			const count_t presenceStep = (count_t)std::max(1.0,Statistics::GetEntityDensityPerRCube()*0.25);	//keep in sync with statistics.cpp
 
 			for (IC::content_t maxD = 0; maxD <= 3; maxD++)
 				for (IC::content_t minS = 0; minS <= 8; minS++)
 					for (index_t overlap = 0; overlap <= 0; overlap++)
-						for (index_t minPresence = 0; minPresence <= 5; minPresence++)
+						for (index_t minPresence = 0; minPresence <= 5; minPresence++)	//keep in sync with statistics.cpp
 							for (index_t i = 0; i < (count_t)Statistics::ICReductionFlags::NumCombinations; i++)
 							{
 								Statistics::TICReductionConfig cfg;
 								cfg.flags = Statistics::ICReductionFlags(i);
 								cfg.maxDepth = maxD != 0 ? maxD : IC::MaxDepth;
 								cfg.minSpatialDistance = minS;
-								cfg.minEntityPresence = minPresence * presenceStep;
+								cfg.minEntityPresence = minPresence * presenceStep;	//keep in sync with statistics.cpp
 								cfg.overlapTolerance = overlap;
 								TestProbabilisticICReduction(a,b,actuallyConsistent,shouldNotBeConsidered,merged->ic, cfg,myShard.gridCoords);
 							}
