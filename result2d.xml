@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <root>
-	<run reliability="0.99684" reliabilityLevel="20" recoveryIterations="2" numLayers="2" maxSiblingSyncOperations="1" siblingSyncDelay="1" numEntities="32768" endlessRuns="1" numRuns="8">
-		<deadNodes mean="0.011313156149" deviation="0.00012845469" sum="0.101818405344" squareSum="0.001152036024" sampleCount="9" />
-		<recoveringNodes mean="0.026120484076" deviation="0.000627598028" sum="0.235084356687" squareSum="0.006144062109" sampleCount="9" />
-		<revivalDepth mean="3.065694642436" deviation="0.484355658728" sum="27.591251781922" squareSum="86.697756403214" sampleCount="9" />
-		<survived mean="4745.75" deviation="2262.342245881467" sum="37966" squareSum="221122684" sampleCount="8" />
-		<recoveryOps mean="0.623247770777" deviation="1.310528248097" sum="5.609229936995" squareSum="18.953298655562" sampleCount="9" />
-		<recoverCompletedSDS mean="0.004997718363" deviation="0.003273218947" sum="0.04497946527" squareSum="0.00032122036" sampleCount="9" />
-		<syncTotalCopied mean="0.085482406171" deviation="0.002818114614" sum="0.76934165554" squareSum="0.065836651813" sampleCount="9" />
-		<syncTotalMerged mean="0.156302410169" deviation="0.022844713235" sum="1.406721691521" squareSum="0.224570919127" sampleCount="9" />
-		<syncFailedMerges mean="0.405534701246" deviation="0.061181377871" sum="3.649812311216" squareSum="1.513813994217" sampleCount="9" />
-		<syncImprovingMerges mean="0.018177202246" deviation="0.006607760122" sum="0.163594820216" squareSum="0.003366658578" sampleCount="9" />
-		<syncICReducingMerges mean="0.089108979264" deviation="0.001787478186" sum="0.801980813378" squareSum="0.071492447374" sampleCount="9" />
-		<syncPerfectMerges mean="0.487179117243" deviation="0.066205157873" sum="4.384612055189" squareSum="2.175539536862" sampleCount="9" />
+	<run reliability="0.99684" reliabilityLevel="20" recoveryIterations="2" numLayers="2" maxSiblingSyncOperations="1" siblingSyncDelay="1" numEntities="262144" endlessRuns="0" numRuns="0">
+		<deadNodes mean="NaN" deviation="NaN" sum="0" squareSum="0" sampleCount="0" />
+		<recoveringNodes mean="NaN" deviation="NaN" sum="0" squareSum="0" sampleCount="0" />
+		<revivalDepth mean="NaN" deviation="NaN" sum="0" squareSum="0" sampleCount="0" />
+		<survived mean="NaN" deviation="NaN" sum="0" squareSum="0" sampleCount="0" />
+		<recoveryOps mean="NaN" deviation="NaN" sum="0" squareSum="0" sampleCount="0" />
+		<recoverCompletedSDS mean="NaN" deviation="NaN" sum="0" squareSum="0" sampleCount="0" />
+		<syncTotalCopied mean="NaN" deviation="NaN" sum="0" squareSum="0" sampleCount="0" />
+		<syncTotalMerged mean="NaN" deviation="NaN" sum="0" squareSum="0" sampleCount="0" />
+		<syncFailedMerges mean="NaN" deviation="NaN" sum="0" squareSum="0" sampleCount="0" />
+		<syncImprovingMerges mean="NaN" deviation="NaN" sum="0" squareSum="0" sampleCount="0" />
+		<syncICReducingMerges mean="NaN" deviation="NaN" sum="0" squareSum="0" sampleCount="0" />
+		<syncPerfectMerges mean="NaN" deviation="NaN" sum="0" squareSum="0" sampleCount="0" />
 	</run>
 </root>

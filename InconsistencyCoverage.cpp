@@ -916,7 +916,7 @@ InconsistencyCoverage::TBadness	InconsistencyCoverage::GetTotalBadness() const
 		if (!s->IsConsistent())
 		{
 			rs.inconsistentSamples++;
-			rs.total += (MaxInconsistency+1) + s->depth;
+			rs.total += (MaxDepth+1) + s->depth;
 		}
 	return rs;
 }

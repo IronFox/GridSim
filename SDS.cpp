@@ -1603,15 +1603,15 @@ void				FullShardDomainState::SynchronizeWithSibling(Shard&myShard,  Shard&sibli
 			}
 
 
-			for (IC::content_t maxD = 0; maxD <= 4; maxD++)
-				for (IC::content_t minS = 0; minS <= 4; minS++)
+			for (IC::content_t maxD = 0; maxD <= 3; maxD++)
+				for (IC::content_t minS = 0; minS <= 8; minS++)
 					for (index_t overlap = 0; overlap <= 0; overlap++)
 						for (index_t minPresence = 0; minPresence <= 5; minPresence++)
 							for (index_t i = 0; i < (count_t)Statistics::ICReductionFlags::NumCombinations; i++)
 							{
 								Statistics::TICReductionConfig cfg;
 								cfg.flags = Statistics::ICReductionFlags(i);
-								cfg.maxDepth = maxD != 0 ? maxD : std::numeric_limits<IC::content_t>::max();
+								cfg.maxDepth = maxD != 0 ? maxD : IC::MaxDepth;
 								cfg.minSpatialDistance = minS;
 								cfg.minEntityPresence = minPresence;
 								cfg.overlapTolerance = overlap;
@@ -1628,6 +1628,7 @@ void				FullShardDomainState::SynchronizeWithSibling(Shard&myShard,  Shard&sibli
 			CompareMerge(a,b,IC::ReverseOrthographicComparator(),s,currentTimestep,*layer,consistentOutput,merged->ic,myShard);
 			CompareMerge(a,b,IC::DepthComparator(),s,currentTimestep,*layer,consistentOutput,merged->ic,myShard);
 			CompareMerge(a,b,IC::ExtentComparator(),s,currentTimestep,*layer,consistentOutput,merged->ic,myShard);
+			CompareMerge(a,b,IC::PlaneComparator(float3(-0.00575048150,0.00748061994,0.0350000001)),s,currentTimestep,*layer,consistentOutput,merged->ic,myShard);
 		}
 	}
 

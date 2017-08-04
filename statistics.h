@@ -311,7 +311,7 @@ namespace Statistics
 
 		bool				operator==(const TICReductionConfig&other) const
 		{
-			return flags == other.flags && overlapTolerance == other.overlapTolerance && minEntityPresence == other.minEntityPresence && maxDepth == other.maxDepth && minSpatialDistance == other.minSpatialDistance;
+			return CompareTo(other) == 0;
 		}
 		bool				operator!=(const TICReductionConfig&other) const {return !operator==(other);}
 
@@ -320,6 +320,25 @@ namespace Statistics
 			return HashValue() << std::underlying_type<ICReductionFlags>::type(self.flags) << self.overlapTolerance << self.minEntityPresence << self.maxDepth << self.minSpatialDistance;
 		}
 
+		int					CompareTo(const TICReductionConfig&other) const
+		{
+			OrthographicComparison comp;
+			comp.AddComparison(flags,other.flags);
+			comp.AddComparison(overlapTolerance,other.overlapTolerance);
+			comp.AddComparison(minEntityPresence,other.minEntityPresence);
+			comp.AddComparison(maxDepth,other.maxDepth);
+			comp.AddComparison(minSpatialDistance,other.minSpatialDistance);
+			return comp;
+		}
+
+		bool				operator<(const TICReductionConfig&other) const
+		{
+			return CompareTo(other) < 0;
+		}
+		bool				operator>(const TICReductionConfig&other) const
+		{
+			return CompareTo(other) > 0;
+		}
 
 		bool				CanCheck() const;
 	};
@@ -338,6 +357,41 @@ namespace Statistics
 		void				Add(const TProbabilisticICReduction&);
 		void				Import(const XML::Node*n);
 		void				ToXML(XML::Node&n) const;
+
+		bool				operator<(const TProbabilisticICReduction&other) const {return config < other.config;}
+		bool				operator>(const TProbabilisticICReduction&other) const {return config > other.config;}
+
+
+		double				GetTruePositive() const
+		{
+			return (consideredConsistent.Get() - shouldNotHaveConsideredConsistent.Get());
+		}
+
+		double				GetFalsePositive() const
+		{
+			return shouldNotHaveConsideredConsistent.Get();
+		}
+		double				GetFalseNegative() const
+		{
+			return shouldHaveConsideredConsistent.Get();
+		}
+
+		double				GetTrueNegative() const
+		{
+			return ( (totalGuesses.Get() - consideredConsistent.Get()) - shouldHaveConsideredConsistent.Get());
+		}
+
+		float2				GetSensitivitySpecificality() const
+		{
+			const double truePositive = GetTruePositive();
+			const double falseNegative = GetFalseNegative();
+			const double trueNegative = GetTrueNegative();
+			const double falsePositive = GetFalsePositive();
+			return float2(
+				truePositive / (truePositive + falseNegative),
+				trueNegative / (trueNegative + falsePositive)
+			);
+		}
 	};
 
 

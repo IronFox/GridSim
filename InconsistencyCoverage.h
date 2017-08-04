@@ -9,7 +9,7 @@ class InconsistencyCoverage
 {
 public:
 	typedef BYTE	content_t;
-	static const constexpr content_t MaxInconsistency = 0xff;
+	static const constexpr content_t MaxDepth = std::numeric_limits<content_t>::max();
 
 	class Comparator;
 
@@ -138,7 +138,7 @@ public:
 		@return -1 if s0 is less bad than s1, +1 if s0 is worse than s1, and 0 if both are equal
 		*/
 		virtual int	operator()(const TSample&s0, const TSample&s1) const = 0;
-		virtual const char* GetName() const = 0;
+		virtual String	GetName() const = 0;
 
 		static int		Compare(int b0, int b1)
 		{
@@ -154,14 +154,14 @@ public:
 	{
 	public:
 		virtual int	operator()(const TSample&s0, const TSample&s1) const override;
-		virtual const char* GetName() const override {return "Orthographic (depth>extent)";}
+		virtual String GetName() const override {return "Orthographic (depth>extent)";}
 	};
 
 	class ReverseOrthographicComparator : public Comparator
 	{
 	public:
 		virtual int	operator()(const TSample&s0, const TSample&s1) const override;
-		virtual const char* GetName() const override {return "Orthographic (extent>depth)";}
+		virtual String GetName() const override {return "Orthographic (extent>depth)";}
 	};
 
 	class DepthComparator : public Comparator
@@ -171,7 +171,7 @@ public:
 		{
 			return Compare(s0.depth,s1.depth);
 		}
-		virtual const char* GetName() const override {return "Depth";}
+		virtual String GetName() const override {return "Depth";}
 	};
 
 	class ExtentComparator : public Comparator
@@ -181,7 +181,7 @@ public:
 		{
 			return Compare(s1.blurExtent, s0.blurExtent);	//must be flipped
 		}
-		virtual const char* GetName() const override {return "Extent";}
+		virtual String GetName() const override {return "Extent";}
 	};
 
 
@@ -194,10 +194,28 @@ public:
 			const int b1 = s1.IsConsistent() ? 0 : 1;
 			return Compare(b0,b1);
 		}
-		virtual const char* GetName() const override {return "Binary";}
+		virtual String GetName() const override {return "Binary";}
 	};
 
+	class PlaneComparator : public Comparator
+	{
+		float3	plane;
 
+		float	GetScore(const TSample&s) const
+		{
+			float spatialDistance = s.blurExtent;
+			float temporalDistance = float(s.depth) + s.blurExtent;
+			spatialDistance *= 2;
+			return M::Max(0.f, (plane.z + plane.x * spatialDistance + plane.y * temporalDistance));
+		}
+	public:
+		/**/		PlaneComparator(const float3&plane) : plane(plane)	{}
+		virtual int operator()(const TSample&s0, const TSample&s1) const override
+		{
+			return Compare(GetScore(s0),GetScore(s1));
+		}
+		virtual String GetName() const override {return "Plane "+ToString(plane);}
+	};
 	
 
 	/**/		InconsistencyCoverage()	{}
@@ -330,7 +348,7 @@ public:
 	struct TBadness
 	{
 		count_t	inconsistentSamples=0,
-				total=0;	//Sum of (MaxInconsistency+1)+depth of each inconsistent sample
+				total=0;	//Sum of (MaxDepth+1)+depth of each inconsistent sample
 	};
 	TBadness	GetTotalBadness() const;
 

@@ -146,9 +146,9 @@ namespace Statistics
 
 			#ifndef D3
 				#ifndef _DEBUG	
-					//r.setup.numEntities = 16*16*4*2*2*8*8;	//16x16 grid, 8x8 R per SD, 4x4 to get to sensor range, x4 => each entity sees 16 others on average
+					r.setup.numEntities = 16*16*4*2*2*8*8;	//16x16 grid, 8x8 R per SD, 4x4 to get to sensor range, x4 => each entity sees 16 others on average
 					//r.setup.numEntities = 16*4*256;
-					r.setup.numEntities = 16*16*1*1*2*8*8;		//each sees on average 2 other
+					//r.setup.numEntities = 16*16*1*1*2*8*8;		//each sees on average 2 other
 					//r.setup.numEntities = 16*16*1*2*2*8*8;		//each sees on average 4 other
 					//r.setup.numEntities = 16*16*2*2*2*8*8;	//each sees on average _8_ others
 				#else
@@ -1004,6 +1004,42 @@ namespace Statistics
 	}
 
 
+	class TexPlot
+	{
+		StringFile tex;
+		Array<String>	markers = {"*","x","o","+","asterisk","star", "-","|","square*","triangle*" };
+		index_t currentMarker = 0;
+	public:
+		/**/	TexPlot(const TExperiment&ex)
+		{
+			tex.Create(Filename(ex,"graph","tex"));
+			tex << "\\begin{axis}[width=0.8\\linewidth,xlabel=\\emph{Sensitivity},cycle list name=plotcolorlist,xmin=0,xmax=1,legend style={at={(0.01,0.2)},anchor=west},ylabel=\\emph{Specificity}]"<<nl;
+		}
+
+		/**/	~TexPlot()
+		{
+			tex << "\\end{axis}";
+			tex.Close();
+		}
+
+		void	AddPlot(const ArrayRef<TProbabilisticICReduction>&data, const String&name)
+		{
+			const String&marker = markers[currentMarker++];
+			currentMarker%= markers.count();
+
+			tex << "\\addplot+[mark="<<marker<<"] plot coordinates {"<<nl;
+			foreach (data,dat)
+			{
+				float2 xy = dat->GetSensitivitySpecificality();
+				tex << "  ("<<xy.x<<","<<xy.y<<")"<<nl;
+			}
+			tex << "};"<<nl
+				<< "\\addlegendentry{"<<name<<"}"<<nl;
+		}
+
+	};
+
+
 
 	template <typename T>
 	static bool Query(const XML::Node*n, const String&key, T&outValue)
@@ -1066,7 +1102,7 @@ namespace Statistics
 					if (!Query(n,"minSpatialDistance",cfg.minSpatialDistance))
 						cfg.minSpatialDistance = 0;
 					if (!Query(n,"maxDepth",cfg.maxDepth))
-						cfg.maxDepth = std::numeric_limits<IC::content_t>::max();
+						cfg.maxDepth = IC::MaxDepth;
 
 					if (cfg.CanCheck())
 					{
@@ -1244,6 +1280,38 @@ namespace Statistics
 		ExportMergeResults(runs[currentRun].setup);
 	}
 
+
+	Array<TProbabilisticICReduction> FilterICReduction(const std::function<bool(const TProbabilisticICReduction&)>&f)
+	{
+		Buffer0<TProbabilisticICReduction> filtered;
+		using namespace Details;
+		MergeMeasurement::icReductionCaptures.VisitAllValues([&filtered,f](const TProbabilisticICReduction&red)
+		{
+			if (f(red))
+				filtered << red;
+		});
+		Sorting::ByOperator::QuickSort(filtered);
+		return filtered.CopyToArray();
+	}
+
+
+	void AddDepthFilteredPlot(TexPlot&plot, IC::content_t maxD, ICReductionFlags flags = ICReductionFlags::RegardEntityState, const String&baseName = "EC-Limited")
+	{
+		plot.AddPlot(FilterICReduction([maxD, flags, baseName](const TProbabilisticICReduction&red)->bool
+		{
+			if (red.config.flags != flags)
+				return false;
+
+			if (red.config.overlapTolerance != 0)
+				return false;
+			if (red.config.minSpatialDistance != 0)
+				return false;
+			if (red.config.maxDepth != maxD)
+				return false;
+			return true;
+		}),baseName + (maxD != IC::MaxDepth ? " D"+String(maxD) : ""));
+	}
+
 	void ExportMergeResults(const TExperiment&ex)
 	{
 		using namespace Details;
@@ -1268,6 +1336,78 @@ namespace Statistics
 
 			doc.SaveToFile(MergeFilename(ex));
 		}
+		try
+		{
+			TexPlot plot(ex);
+			AddDepthFilteredPlot(plot,IC::MaxDepth);
+			AddDepthFilteredPlot(plot,IC::MaxDepth,ICReductionFlags::RegardEntityState | ICReductionFlags::RegardEntityEnvironment, "Env");
+			//for (IC::content_t maxD = 1; maxD <= 4; maxD++)
+			//	AddDepthFilteredPlot(plot,maxD);
+
+			plot.AddPlot(FilterICReduction([](const TProbabilisticICReduction&red)->bool
+			{
+				if (red.config.flags != ICReductionFlags::RegardEntityState)
+					return false;
+
+				if (red.config.overlapTolerance != 0)
+					return false;
+				if (red.config.minSpatialDistance != 0)
+					return false;
+				if (red.config.minEntityPresence != 0)
+					return false;
+				return true;
+			}),"T");
+
+			plot.AddPlot(FilterICReduction([](const TProbabilisticICReduction&red)->bool
+			{
+				if (red.config.flags != ICReductionFlags::RegardEntityState)
+					return false;
+
+				if (red.config.overlapTolerance != 0)
+					return false;
+				if (red.config.maxDepth != IC::MaxDepth)
+					return false;
+				if (red.config.minEntityPresence != 0)
+					return false;
+				return true;
+			}),"S");
+
+			plot.AddPlot(FilterICReduction([](const TProbabilisticICReduction&red)->bool
+			{
+				if (red.config.flags != (ICReductionFlags::RegardEntityState | ICReductionFlags::RegardOriginBitField))
+					return false;
+
+				if (red.config.overlapTolerance != 0)
+					return false;
+				if (red.config.maxDepth != IC::MaxDepth)
+					return false;
+				if (red.config.minEntityPresence != 0)
+					return false;
+				if (red.config.minSpatialDistance != 0)
+					return false;
+
+				return true;
+			}),"OBits");
+
+			plot.AddPlot(FilterICReduction([](const TProbabilisticICReduction&red)->bool
+			{
+				if (red.config.flags != (ICReductionFlags::RegardEntityState | ICReductionFlags::RegardOriginRange))
+					return false;
+
+				if (red.config.overlapTolerance != 0)
+					return false;
+				if (red.config.maxDepth != IC::MaxDepth)
+					return false;
+				if (red.config.minEntityPresence != 0)
+					return false;
+				if (red.config.minSpatialDistance != 0)
+					return false;
+
+				return true;
+			}),"ORange");
+		}
+		catch (...){};
+
 		{
 			XML::Container doc;
 			Array<TProbabilisticICReduction> values;
@@ -1360,7 +1500,7 @@ namespace Statistics
 						if (val->config.flags & ICReductionFlags::RegardFuzzyOriginRange)
 							continue;
 					}
-					if (val->config.minEntityPresence > 0 || val->config.overlapTolerance > 0 || val->config.minSpatialDistance > 0 || val->config.maxDepth < std::numeric_limits<IC::content_t>::max())
+					if (val->config.minEntityPresence > 0 || val->config.overlapTolerance > 0 || val->config.minSpatialDistance > 0 || val->config.maxDepth < IC::MaxDepth)
 						continue;
 					if (val->config.flags & ICReductionFlags::RegardFuzzyOriginRange)
 						continue;

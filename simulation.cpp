@@ -592,7 +592,7 @@ bool Simulation::RunIteration(const TExperiment&exp, bool correctionIterationsAf
 	bool brk = false;
 	simulated.ShardParallel([&brk](Grid::Layer&, Shard&s)
 	{
-		if (s.IsFullyAvailable() && s.sds.last().GetOutput()->ic.GetHighestInconsistency() == IC::MaxInconsistency)
+		if (s.IsFullyAvailable() && s.sds.last().GetOutput()->ic.GetHighestInconsistency() == IC::MaxDepth)
 			brk = true;
 	});
 
@@ -1059,7 +1059,7 @@ namespace Build
 					const float coreExtent = 0.125f;
 					if (s.sds.Count() > 1)
 					{
-						float relative = float(s.sds.Count()) / float(IC::MaxInconsistency) * (1.f - coreExtent) * 0.5f;
+						float relative = float(s.sds.Count()) / float(IC::MaxDepth) * (1.f - coreExtent) * 0.5f;
 						Scene::PutFilledRect(Rect<>(0.5f-coreExtent-relative,0.5f-coreExtent-relative,0.5f+coreExtent+relative,0.5f+coreExtent+relative));
 					}
 

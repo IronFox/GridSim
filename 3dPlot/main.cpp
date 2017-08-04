@@ -152,7 +152,7 @@ bool loop()		//main loop function
 
 	RenderShadows();
 
-	display.pick(camera);
+	display.Pick(camera);
 		//display.renderToken();
 		
 
@@ -329,7 +329,7 @@ void ZoomIn()								//handler for the up arrow key
 
 void	OnResize(const Resolution&res, UINT32 flags)
 {
-		camera.UpdateProjection(res.GetAspect(),
+	camera.UpdateProjection(res.GetAspect(),
 					0.1,
 					100,
 					45);
@@ -1135,10 +1135,10 @@ int main()	//main entry point
 		#else
 			textout.getFont().make(0);	//create default font
 		#endif
-		textout.SetScale(fontScale/display.clientWidth(),fontScale/display.clientHeight());	//set texture scale to the inverse pixel width and height
+		textout.SetScale(fontScale/display.GetClientWidth(),fontScale/display.GetClientHeight());	//set texture scale to the inverse pixel width and height
 
 
-		camera.UpdateProjection(display.pixelAspect(),	//create the perspective camera projection matrix using the current window pixel_aspect
+		camera.UpdateProjection(display.GetPixelAspect(),	//create the perspective camera projection matrix using the current window pixel_aspect
 					0.1,				//0.1 as near z plane
 					100,				//100 as far zplane
 					45);				//45 degrees as vertical field of view
@@ -1181,9 +1181,9 @@ int main()	//main entry point
 		LoadFile(0);
 
 
-		display.assign(loop);		//assign loop as next frame target
-		display.execute();			//and execute. this method returns if the frame function returned false or the window has been closed
-		display.terminate();		//clean up
+		display.Assign(loop);		//assign loop as next frame target
+		display.Execute();			//and execute. this method returns if the frame function returned false or the window has been closed
+		display.Terminate();		//clean up
 
 	}
 	catch (const std::exception&e)

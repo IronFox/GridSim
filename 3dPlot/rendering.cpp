@@ -56,7 +56,7 @@ void RenderShadows()
 {
 	glDisable(GL_FACE_CULL);
 	glColorMask(false,false,false,false);
-	display.pick(shadow_aspect0);
+	display.Pick(shadow_aspect0);
 		display.TargetFBO(shadow_fbo0);
 			glEnable(GL_DEPTH_TEST);
 			glViewport(0,0,ShadowResolution,ShadowResolution);
@@ -66,7 +66,7 @@ void RenderShadows()
 			holeScenery.Render();
 //			wallScenery.RenderIgnoreMaterials();
 		display.TargetBackbuffer();
-	display.pick(shadow_aspect1);
+	display.Pick(shadow_aspect1);
 		display.TargetFBO(shadow_fbo1);
 			glEnable(GL_DEPTH_TEST);
 			glViewport(0,0,ShadowResolution,ShadowResolution);
@@ -172,7 +172,7 @@ void 	RenderAxisLabel(float x, float value, Axis axis)
 
 	//if (axis == Axis::X && dir > 0)
 	//	p.z = 2;
-	Mat::transform(TLabel::system, p, global);
+	Mat::Transform(TLabel::system, p, global);
 	camera.Project(global, projected);
 	labels.Append().coords = projected;
 	labels.Last().value = value * markerLabelFactor.v[(int)axis];
@@ -183,7 +183,7 @@ void 	PutStringLabel(float x, const char*value)
 	if (!TLabel::enabled)
 		return;
 	float3 global, projected;
-	Mat::transform(TLabel::system, float3(x, 0, 0), global);
+	Mat::Transform(TLabel::system, float3(x, 0, 0), global);
 	camera.Project(global, projected);
 	labels.Append().coords = projected;
 	labels.Last().cValue = value;
@@ -358,7 +358,7 @@ void RenderExtendedAxes()
 
 void RenderExtendedAxesLabels()
 {
-	display.pick(hud);
+	display.Pick(hud);
 
 		textout.SetColor(1, 1, 1, 1);
 		textout.Scale(2);
