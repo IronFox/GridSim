@@ -765,6 +765,43 @@ static bool GetOptional(const XML::Node&node, const char*attrib, T&v)
 	//return convert(val.pointer(),val.GetLength(),v);
 }
 
+bool		Statistics::HasCurrentExperiment()
+{
+	using namespace Details;
+	return currentRun < runs.Count();
+}
+
+TExperiment	Statistics::GetCurrentExperiment()
+{
+	using namespace Details;
+	return runs[currentRun].setup;
+}
+
+double		Statistics::GetEntityDensityPerRCube()
+{
+	if (!HasCurrentExperiment())
+		return 0;
+	return GetEntityDensityPerRCube(GetCurrentExperiment());
+}
+
+double		Statistics::GetEntityDensityPerRCube(const TExperiment&ex)
+{
+	return double(ex.numEntities) / (16*16)/ sqr(1.0 / (Entity::MaxInfluenceRadius));
+}
+
+double		Statistics::GetEntityVisitionDensity()
+{
+	if (!HasCurrentExperiment())
+		return 0;
+	return GetEntityVisitionDensity(GetCurrentExperiment());
+}
+
+double		Statistics::GetEntityVisitionDensity(const TExperiment&ex)
+{
+	return double(ex.numEntities) / (16*16)/ sqr(1.0 / (2*Entity::MaxAdvertisementRadius));
+}
+
+
 TExperiment Statistics::Begin()
 {
 	using namespace Details;
@@ -1022,7 +1059,7 @@ namespace Statistics
 			tex.Close();
 		}
 
-		void	AddPlot(const ArrayRef<TProbabilisticICReduction>&data, const String&name)
+		void	AddPlot(const ArrayRef<std::pair<TProbabilisticICReduction, String> >&data, const String&name)
 		{
 			const String&marker = markers[currentMarker++];
 			currentMarker%= markers.count();
@@ -1030,11 +1067,19 @@ namespace Statistics
 			tex << "\\addplot+[mark="<<marker<<"] plot coordinates {"<<nl;
 			foreach (data,dat)
 			{
-				float2 xy = dat->GetSensitivitySpecificality();
+				float2 xy = dat->first.GetSensitivitySpecificality();
 				tex << "  ("<<xy.x<<","<<xy.y<<")"<<nl;
 			}
 			tex << "};"<<nl
 				<< "\\addlegendentry{"<<name<<"}"<<nl;
+			foreach (data,dat)
+			{
+				if (dat->second.IsNotEmpty())
+				{
+					float2 xy = dat->first.GetSensitivitySpecificality();
+					tex << "\\node [above] at (axis cs:  "<<xy.x<<",  "<<xy.y<<") {$"<<dat->second<<"$};"<<nl;
+				}
+			}
 		}
 
 	};
@@ -1281,7 +1326,7 @@ namespace Statistics
 	}
 
 
-	Array<TProbabilisticICReduction> FilterICReduction(const std::function<bool(const TProbabilisticICReduction&)>&f)
+	Array<std::pair<TProbabilisticICReduction,String> > FilterICReduction(const std::function<bool(const TProbabilisticICReduction&)>&f, const std::function<String(const TProbabilisticICReduction&)>&s)
 	{
 		Buffer0<TProbabilisticICReduction> filtered;
 		using namespace Details;
@@ -1291,7 +1336,13 @@ namespace Statistics
 				filtered << red;
 		});
 		Sorting::ByOperator::QuickSort(filtered);
-		return filtered.CopyToArray();
+		Array<std::pair<TProbabilisticICReduction,String> > rs(filtered.Count());
+		for (index_t i = 0; i < filtered.Count(); i++)
+		{
+			rs[i].first = filtered[i];
+			rs[i].second = s(filtered[i]);
+		}
+		return rs;
 	}
 
 
@@ -1309,7 +1360,12 @@ namespace Statistics
 			if (red.config.maxDepth != maxD)
 				return false;
 			return true;
-		}),baseName + (maxD != IC::MaxDepth ? " D"+String(maxD) : ""));
+		},
+		[](const TProbabilisticICReduction&red)->String
+		{
+			return red.config.minEntityPresence;
+		}
+		),baseName + (maxD != IC::MaxDepth ? " D"+String(maxD) : ""));
 	}
 
 	void ExportMergeResults(const TExperiment&ex)
@@ -1356,6 +1412,10 @@ namespace Statistics
 				if (red.config.minEntityPresence != 0)
 					return false;
 				return true;
+			},
+			[](const TProbabilisticICReduction&red)->String
+			{
+				return red.config.maxDepth;
 			}),"T");
 
 			plot.AddPlot(FilterICReduction([](const TProbabilisticICReduction&red)->bool
@@ -1370,6 +1430,10 @@ namespace Statistics
 				if (red.config.minEntityPresence != 0)
 					return false;
 				return true;
+			},
+			[](const TProbabilisticICReduction&red)->String
+			{
+				return red.config.minSpatialDistance;
 			}),"S");
 
 			plot.AddPlot(FilterICReduction([](const TProbabilisticICReduction&red)->bool
@@ -1387,6 +1451,10 @@ namespace Statistics
 					return false;
 
 				return true;
+			},
+			[](const TProbabilisticICReduction&red)->String
+			{
+				return (red.config.flags & ICReductionFlags::RegardOriginBitField) ? "set":"";
 			}),"OBits");
 
 			plot.AddPlot(FilterICReduction([](const TProbabilisticICReduction&red)->bool
@@ -1404,7 +1472,12 @@ namespace Statistics
 					return false;
 
 				return true;
-			}),"ORange");
+			},
+			[](const TProbabilisticICReduction&red)->String
+			{
+				return (red.config.flags & ICReductionFlags::RegardOriginRange) ? "set":"";
+			}
+			),"ORange");
 		}
 		catch (...){};
 
@@ -1487,7 +1560,7 @@ namespace Statistics
 				table.Get(1,1) = "can see";
 				if (values.IsNotEmpty())
 					table.Get(2,2) = values.First().actuallyConsistent.Get() / values.First().totalGuesses.Get();
-				table.Get(1,2) = double(ex.numEntities) / (16*16)/ sqr(1.0 / (2*Entity::MaxAdvertisementRadius));
+				table.Get(1,2) = GetEntityVisitionDensity(ex);
 
 				foreach (values,val)
 				{

@@ -23,8 +23,12 @@ namespace Statistics
 
 	TExperiment	Begin();
 
-
-
+	bool		HasCurrentExperiment();
+	TExperiment	GetCurrentExperiment();
+	double		GetEntityDensityPerRCube();
+	double		GetEntityDensityPerRCube(const TExperiment&);
+	double		GetEntityVisitionDensity();
+	double		GetEntityVisitionDensity(const TExperiment&);
 
 	template <typename T>
 	struct TSDSample
