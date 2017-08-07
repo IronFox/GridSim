@@ -29,6 +29,7 @@ namespace Statistics
 	double		GetEntityDensityPerRCube(const TExperiment&);
 	double		GetEntityVisitionDensity();
 	double		GetEntityVisitionDensity(const TExperiment&);
+	count_t		GetECStep(const TExperiment&ex);
 
 	template <typename T>
 	struct TSDSample

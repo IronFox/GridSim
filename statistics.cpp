@@ -148,10 +148,10 @@ namespace Statistics
 				#ifndef _DEBUG	
 					//r.setup.numEntities = 16*16*4*2*2*8*8;	//16x16 grid, 8x8 R per SD, 4x4 to get to sensor range, x4 => each entity sees 16 others on average
 					//r.setup.numEntities = 16*4*256;
-					r.setup.numEntities = 16*16*1*1*1*8*8;		//each sees on average 1 other
+					//r.setup.numEntities = 16*16*1*1*1*8*8;		//each sees on average 1 other - 16384 entities
 					//r.setup.numEntities = 16*16*1*1*2*8*8;		//each sees on average 2 others
 					//r.setup.numEntities = 16*16*1*2*2*8*8;		//each sees on average 4 others
-					//r.setup.numEntities = 16*16*2*2*2*8*8;	//each sees on average _8_ others
+					r.setup.numEntities = 16*16*2*2*2*8*8;		//each sees on average _8_ others
 				#else
 					r.setup.numEntities = 256;
 				#endif
@@ -1047,9 +1047,11 @@ namespace Statistics
 		StringFile tex;
 		Array<String>	markers = {"*","x","o","+","asterisk","star", "-","|","square*","triangle*" };
 		index_t currentMarker = 0;
+		double	eDensity = 1;
 	public:
 		/**/	TexPlot(const TExperiment&ex)
 		{
+			eDensity = GetEntityVisitionDensity(ex);
 			tex.Create(Filename(ex,"graph","tex"));
 			tex << "\\begin{axis}[width=0.8\\linewidth,xlabel=\\emph{Sensitivity},cycle list name=plotcolorlist,xmin=0,xmax=1,legend style={at={(0.01,0.2)},anchor=west},ylabel=\\emph{Specificity}]"<<nl;
 		}
@@ -1060,19 +1062,21 @@ namespace Statistics
 			tex.Close();
 		}
 
+		double	GetDensity() const {return eDensity;}
+
 		void	AddPlot(const ArrayRef<std::pair<TProbabilisticICReduction, String> >&data, const String&name)
 		{
 			const String&marker = markers[currentMarker++];
 			currentMarker%= markers.count();
 
-			tex << "\\addplot+[mark="<<marker<<"] plot coordinates {"<<nl;
+			tex << nl << "\\addplot+[mark="<<marker<<"] plot coordinates {"<<nl;
 			foreach (data,dat)
 			{
 				float2 xy = dat->first.GetSensitivitySpecificality();
 				tex << "  ("<<xy.x<<","<<xy.y<<")"<<nl;
 			}
 			tex << "};"<<nl
-				<< "\\addlegendentry{"<<name<<"}"<<nl;
+				<< "\\addlegendentry{"<<name<<" "<<String(eDensity)<<"}"<<nl;
 			foreach (data,dat)
 			{
 				if (dat->second.IsNotEmpty())
@@ -1102,6 +1106,11 @@ namespace Statistics
 			return false;
 		outValue = T(v);
 		return true;
+	}
+
+	count_t GetECStep(const TExperiment&ex)
+	{
+		return (count_t)std::max(1.0,Statistics::GetEntityDensityPerRCube(ex)*0.25);	//keep in sync with SDS.cpp
 	}
 
 	void ImportMergeResults(const TExperiment&ex)
@@ -1152,7 +1161,7 @@ namespace Statistics
 
 					if (cfg.CanCheck())
 					{
-						const count_t presenceStep = (count_t)std::max(1.0,Statistics::GetEntityDensityPerRCube(ex)*0.25);	//keep in sync with SDS.cpp
+						const count_t presenceStep = GetECStep(ex);
 						bool good = false;
 						for (index_t i = 0; i <= 5; i++)	//keep in sync with SDS.cpp
 							if (cfg.minEntityPresence == i * presenceStep)	//keep in sync with SDS.cpp
@@ -1358,7 +1367,7 @@ namespace Statistics
 	}
 
 
-	void AddDepthFilteredPlot(TexPlot&plot, IC::content_t maxD, ICReductionFlags flags = ICReductionFlags::RegardEntityState, const String&baseName = "EC-Limited")
+	void AddDepthFilteredPlot(TexPlot&plot, IC::content_t maxD, ICReductionFlags flags = ICReductionFlags::RegardEntityState, const String&baseName = "EC")
 	{
 		plot.AddPlot(FilterICReduction([maxD, flags, baseName](const TProbabilisticICReduction&red)->bool
 		{
