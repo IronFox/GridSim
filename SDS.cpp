@@ -420,6 +420,7 @@ void FullShardDomainState::FinalizeComputation(Shard&shard, const TCodeLocation&
 	pGrid->Finish(out->hGrid.core);
 	pGrid.reset();
 
+
 	if (out->ic.IsFullyConsistent())
 	{
 		#ifdef DBG_SHARD_HISTORY
@@ -433,8 +434,6 @@ void FullShardDomainState::FinalizeComputation(Shard&shard, const TCodeLocation&
 	}
 	else
 	{
-		if (consistentMatch)
-			AssertSelectiveEquality(*consistentMatch);
 	
 		if (shard.consistentMatch)
 		{
@@ -452,6 +451,12 @@ void FullShardDomainState::FinalizeComputation(Shard&shard, const TCodeLocation&
 			}
 		}
 
+		if (consistentMatch)
+		{
+			AssertSelectiveEquality(*consistentMatch);
+
+			Statistics::CaptureInconsistency(out->ic,out->entities,consistentMatch->GetOutput()->entities,shard.gridCoords);
+		}
 	}
 
 }
@@ -1375,7 +1380,7 @@ void				TestProbabilisticICReduction(const CoreShardDomainState&a, const ExtHGri
 			match = false;
 			icViolation = true;
 		}
-		if (strat.minSpatialDistance > as.blurExtent && strat.minSpatialDistance > bs.blurExtent)
+		if (strat.minSpatialDistance > as.spatialDistance && strat.minSpatialDistance > bs.spatialDistance)
 		{
 			match = false;
 			icViolation = true;
@@ -1484,7 +1489,7 @@ void				TestProbabilisticICReduction(const CoreShardDomainState&a, const ExtHGri
 
 void				TestProbabilisticICReduction(const CoreShardDomainState&a,const CoreShardDomainState&b,const GridArray<bool>&actuallyConsistent,const GridArray<TTest>&shouldNotBeConsidered,const IC&mergedIC, const Statistics::TICReductionConfig&strat, const TGridCoords&shardOffset)
 {
-	if (!strat.CanCheck())
+	if (!strat.IsPossible())
 		return;
 
 	//if (!(strat & Statistics::ICReductionFlags::RegardHistory))
@@ -1606,7 +1611,7 @@ void				FullShardDomainState::SynchronizeWithSibling(Shard&myShard,  Shard&sibli
 			const count_t presenceStep = (count_t)std::max(1.0,Statistics::GetEntityDensityPerRCube()*0.25);	//keep in sync with statistics.cpp
 
 			for (IC::content_t maxD = 0; maxD <= 3; maxD++)
-				for (IC::content_t minS = 0; minS <= 8; minS++)
+				for (IC::content_t minS = 0; minS <= 16; minS++)
 					for (index_t overlap = 0; overlap <= 0; overlap++)
 						for (index_t minPresence = 0; minPresence <= 5; minPresence++)	//keep in sync with statistics.cpp
 							for (index_t i = 0; i < (count_t)Statistics::ICReductionFlags::NumCombinations; i++)

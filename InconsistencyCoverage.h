@@ -10,6 +10,7 @@ class InconsistencyCoverage
 public:
 	typedef BYTE	content_t;
 	static const constexpr content_t MaxDepth = std::numeric_limits<content_t>::max();
+	static const constexpr content_t MaxDistance = std::numeric_limits<content_t>::max()-1;
 
 	class Comparator;
 
@@ -34,9 +35,9 @@ public:
 		/**
 		Captures the step-distance from the closest actual inconsistency source. Initialized to the maximum possible value.
 		Set to 0 when depth is set from some external source.
-		Must be 0xFE if depth is 0
+		Must be MaxDistance if depth is 0
 		*/
-		content_t	blurExtent=0xFE;
+		content_t	spatialDistance=MaxDistance;
 		/**
 		Divergence depth of this sample. Incremented when not zero during each growth phase.
 		Zero indicates that this sample is fully consistent
@@ -44,18 +45,18 @@ public:
 		content_t	depth = 0;
 
 		constexpr	TSample(){}
-		constexpr	TSample(content_t blur, content_t depth):blurExtent(blur),depth(depth)	{}
-		constexpr bool		operator==(const TSample&other)	const {return blurExtent == other.blurExtent && depth == other.depth;}
-		constexpr bool		operator!=(const TSample&other)	const {return blurExtent != other.blurExtent || depth != other.depth;}
+		constexpr	TSample(content_t blur, content_t depth):spatialDistance(blur),depth(depth)	{}
+		constexpr bool		operator==(const TSample&other)	const {return spatialDistance == other.spatialDistance && depth == other.depth;}
+		constexpr bool		operator!=(const TSample&other)	const {return spatialDistance != other.spatialDistance || depth != other.depth;}
 
 		bool		IsConsistent() const {return depth == 0;}
-		bool		IsInvalid() const { return blurExtent == 0xFF; }
+		bool		IsInvalid() const { return spatialDistance > MaxDistance; }
 
 		void		IncreaseDepth();
 
 		void		Hash(Hasher&hasher) const
 		{
-			hasher.AppendPOD(blurExtent);
+			hasher.AppendPOD(spatialDistance);
 			hasher.AppendPOD(depth);
 		}
 
@@ -179,7 +180,7 @@ public:
 	public:
 		virtual int	operator()(const TSample&s0, const TSample&s1) const override
 		{
-			return Compare(s1.blurExtent, s0.blurExtent);	//must be flipped
+			return Compare(s1.spatialDistance, s0.spatialDistance);	//must be flipped
 		}
 		virtual String GetName() const override {return "Extent";}
 	};
@@ -203,8 +204,8 @@ public:
 
 		float	GetScore(const TSample&s) const
 		{
-			float spatialDistance = s.blurExtent;
-			float temporalDistance = float(s.depth) + s.blurExtent;
+			float spatialDistance = s.spatialDistance;
+			float temporalDistance = float(s.depth) + s.spatialDistance;
 			spatialDistance *= 2;
 			return M::Max(0.f, (plane.z + plane.x * spatialDistance + plane.y * temporalDistance));
 		}

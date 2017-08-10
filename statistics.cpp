@@ -146,10 +146,10 @@ namespace Statistics
 
 			#ifndef D3
 				#ifndef _DEBUG	
-					r.setup.numEntities = 16*16*4*2*2*8*8;	//16x16 grid, 8x8 R per SD, 4x4 to get to sensor range, x4 => each entity sees 16 others on average
+					//r.setup.numEntities = 16*16*4*2*2*8*8;	//16x16 grid, 8x8 R per SD, 4x4 to get to sensor range, x4 => each entity sees 16 others on average
 					//r.setup.numEntities = 16*4*256;
 					//r.setup.numEntities = 16*16*1*1*1*8*8;		//each sees on average 1 other - 16384 entities
-					//r.setup.numEntities = 16*16*1*1*2*8*8;		//each sees on average 2 others
+					r.setup.numEntities = 16*16*1*1*2*8*8;		//each sees on average 2 others
 					//r.setup.numEntities = 16*16*1*2*2*8*8;		//each sees on average 4 others
 					//r.setup.numEntities = 16*16*2*2*2*8*8;		//each sees on average _8_ others
 				#else
@@ -644,7 +644,7 @@ namespace Statistics
 float	Statistics::GetMean(const IC::TSample& textureInconsistency)
 {
 	using namespace Details;
-	return entries.Get(textureInconsistency.blurExtent,textureInconsistency.depth).GetMean();
+	return entries.Get(textureInconsistency.spatialDistance,textureInconsistency.depth).GetMean();
 }
 
 
@@ -655,7 +655,7 @@ void Statistics::Include(const IC::TSample& textureInconsistency, count_t incons
 	ASSERT_LESS_OR_EQUAL__(inconsistentEntities,totalEntities);
 	//if (!totalEntities)
 	//	return;
-	entries.Get(textureInconsistency.blurExtent,textureInconsistency.depth).Include(inconsistentEntities,totalEntities);
+	entries.Get(textureInconsistency.spatialDistance,textureInconsistency.depth).Include(inconsistentEntities,totalEntities);
 
 }
 
@@ -912,6 +912,41 @@ TExperiment Statistics::Begin()
 namespace Statistics
 {
 
+	struct ICCell
+	{
+		Sys::SpinLock	lock;
+		count_t			totalEntities = 0,
+						inconsistentEntities = 0;
+		double			omegaSum=0,omegaSqrSum=0;
+	};
+
+	static Array2D<ICCell>	icMetricGrid = Array2D<ICCell>( count_t(IC::MaxDepth)+1, count_t(IC::MaxDistance)+1);
+
+	void	CaptureInconsistency(const IC&ic, const EntityStorage&inconsistent, const EntityStorage&consistent, const TGridCoords&shardOffset)
+	{
+		foreach (inconsistent,e0)
+		{
+			auto cellCoords = ic.ToPixels(e0->coordinates - shardOffset);
+			const auto&ics = ic.GetSample(cellCoords);
+			if (ics.IsConsistent())
+				continue;
+			ASSERT_LESS__(ics.depth,icMetricGrid.GetWidth());
+			ASSERT_LESS__(ics.spatialDistance,icMetricGrid.GetHeight());
+			ICCell&cell = icMetricGrid.Get(ics.depth,ics.spatialDistance);
+			cell.lock.lock();
+			{
+				cell.totalEntities ++;
+				if (e0->omega > 0)
+				{
+					cell.inconsistentEntities ++;
+					cell.omegaSum += e0->omega;
+					cell.omegaSqrSum += sqr(e0->omega);
+				}
+			}
+			cell.lock.unlock();
+		}
+	}
+
 
 	void	CapturePreMerge(const TStateDifference&preMergeA, const TStateDifference&preMergeB)
 	{
@@ -1069,27 +1104,41 @@ namespace Statistics
 			const String&marker = markers[currentMarker++];
 			currentMarker%= markers.count();
 
-			tex << nl << "\\addplot+[mark="<<marker<<"] plot coordinates {"<<nl;
+			tex << nl << "\\addplot+["<<nl
+				<< "mark="<<marker<<','<<nl
+				<< "mark options={solid},"<<nl
+				<< "visualization depends on=\\thisrow{alignment} \\as \\alignment,"<<nl
+				<< "nodes near coords,"<<nl //Place nodes near each coordinate	
+				<< "point meta=explicit symbolic,"<<nl //The meta data used in the nodes is not explicitly provided and not numeric
+				<< "every node near coord/.style={anchor=\\alignment},"<<nl //Align each coordinate at the anchor 40 degrees clockwise from the right edge
+				<< "] table [meta index=2] {"<<nl;
+
+			tex << "x\ty\tlabel\talignment"<<nl;
+
 			foreach (data,dat)
 			{
 				float2 xy = dat->first.GetSensitivitySpecificality();
-				tex << "  ("<<xy.x<<","<<xy.y<<")"<<nl;
+				tex << xy.x<<tab<<xy.y<<tab<<dat->second<<tab<<"0"<<nl;
 			}
 			tex << "};"<<nl
 				<< "\\addlegendentry{"<<name<<" "<<String(eDensity)<<"}"<<nl;
-			foreach (data,dat)
-			{
-				if (dat->second.IsNotEmpty())
-				{
-					float2 xy = dat->first.GetSensitivitySpecificality();
-					tex << "\\node [above] at (axis cs:  "<<xy.x<<",  "<<xy.y<<") {$"<<dat->second<<"$};"<<nl;
-				}
-			}
+			//foreach (data,dat)
+			//{
+			//	if (dat->second.IsNotEmpty())
+			//	{
+			//		float2 xy = dat->first.GetSensitivitySpecificality();
+			//		tex << "\\node [above] at (axis cs:  "<<xy.x<<",  "<<xy.y<<") {\\tiny $"<<dat->second<<"$};"<<nl;
+			//	}
+			//}
 		}
 
 	};
 
-
+	template <typename T>
+		static void AssertConvert(const StringRef&source, T&numericOut)
+		{
+			ASSERT1__(Convert(source,numericOut),source);
+		}
 
 	template <typename T>
 	static bool Query(const XML::Node*n, const String&key, T&outValue)
@@ -1119,6 +1168,40 @@ namespace Statistics
 		using namespace MergeMeasurement;
 		mergeCaptures.Clear();
 		icReductionCaptures.Clear();
+		icMetricGrid.Fill(ICCell());
+
+		try
+		{
+			StringFile file;
+			file.Open(Filename(ex,"icMetricGrid","csv"));
+			String line;
+			Array<StringRef> parts;
+			//vertical: depth
+			foreach (icMetricGrid.Vertical(),v)
+			{
+				ASSERT__(file >> line);
+				explode(',',line,parts);
+				if (parts.Count() != icMetricGrid.GetWidth()*4)
+				{
+					//FATAL__(String(*v));
+					break;
+				}
+				//horizontal: distance
+				for (index_t i = 0; i < icMetricGrid.GetWidth(); i++)
+				{
+					auto&cell = icMetricGrid.Get(i,v);
+					AssertConvert(parts[i*4],cell.totalEntities);
+					AssertConvert(parts[i*4+1],cell.inconsistentEntities);
+					AssertConvert(parts[i*4+2],cell.omegaSum);
+					AssertConvert(parts[i*4+3],cell.omegaSqrSum);
+					ASSERT_LESS_OR_EQUAL__(cell.inconsistentEntities,cell.totalEntities);
+				}
+			}
+		}
+		catch (...)
+		{}
+
+
 		try
 		{
 			XML::Container doc;
@@ -1159,7 +1242,7 @@ namespace Statistics
 					if (!Query(n,"maxDepth",cfg.maxDepth))
 						cfg.maxDepth = IC::MaxDepth;
 
-					if (cfg.CanCheck())
+					if (cfg.IsPossible())
 					{
 						const count_t presenceStep = GetECStep(ex);
 						bool good = false;
@@ -1393,6 +1476,31 @@ namespace Statistics
 	{
 		using namespace Details;
 		{
+			StringFile file;
+			file.Create(Filename(ex,"icMetricGrid","csv"));
+			//vertical: depth
+			count_t total = 0;
+			foreach (icMetricGrid.Vertical(),v)
+			{
+				bool first = true;
+				count_t c = 0;
+				//horizontal: distance
+				foreach (icMetricGrid.Horizontal(),h)
+				{
+					if (!first)
+						file << ',';
+					first = false;
+
+					const auto&cell = icMetricGrid.Get(h,v);
+					file << cell.totalEntities << ',' << cell.inconsistentEntities << ',' << cell.omegaSum << ','<<cell.omegaSqrSum;
+					c++;
+					total++;
+				}
+				file << nl;
+			}
+		}
+
+		{
 			XML::Container doc;
 			Array<String> keys;
 			Array<MergeMeasurement::TMergeCapture> values;
@@ -1456,6 +1564,78 @@ namespace Statistics
 			{
 				return red.config.minSpatialDistance;
 			}),"S");
+
+			plot.AddPlot(FilterICReduction([](const TProbabilisticICReduction&red)->bool
+			{
+				if (red.config.flags != (ICReductionFlags::RegardEntityState | ICReductionFlags::RegardOriginRange))
+					return false;
+
+				if (red.config.overlapTolerance != 0)
+					return false;
+				if (red.config.maxDepth != IC::MaxDepth)
+					return false;
+				if (red.config.minEntityPresence != 0)
+					return false;
+				return true;
+			},
+			[](const TProbabilisticICReduction&red)->String
+			{
+				return red.config.minSpatialDistance;
+			}),"SR");
+
+			plot.AddPlot(FilterICReduction([](const TProbabilisticICReduction&red)->bool
+			{
+				if (red.config.flags != (ICReductionFlags::RegardEntityState | ICReductionFlags::RegardOriginBitField))
+					return false;
+
+				if (red.config.overlapTolerance != 0)
+					return false;
+				if (red.config.maxDepth != IC::MaxDepth)
+					return false;
+				if (red.config.minEntityPresence != 0)
+					return false;
+				return true;
+			},
+			[](const TProbabilisticICReduction&red)->String
+			{
+				return red.config.minSpatialDistance;
+			}),"SB");
+
+			plot.AddPlot(FilterICReduction([](const TProbabilisticICReduction&red)->bool
+			{
+				if (red.config.flags != ICReductionFlags::RegardEntityState)
+					return false;
+
+				if (red.config.overlapTolerance != 0)
+					return false;
+				if (red.config.maxDepth != 1)
+					return false;
+				if (red.config.minEntityPresence != 0)
+					return false;
+				return true;
+			},
+			[](const TProbabilisticICReduction&red)->String
+			{
+				return red.config.minSpatialDistance;
+			}),"ST");
+
+			plot.AddPlot(FilterICReduction([](const TProbabilisticICReduction&red)->bool
+			{
+				if (red.config.flags != (ICReductionFlags)0)
+					return false;
+
+				if (red.config.overlapTolerance != 0)
+					return false;
+				if (red.config.maxDepth != IC::MaxDepth)
+					return false;
+				if (red.config.minEntityPresence != 0)
+					return false;
+				return true;
+			},
+			[](const TProbabilisticICReduction&red)->String
+			{
+				return red.config.minSpatialDistance;
+			}),"S-Pure");
 
 			plot.AddPlot(FilterICReduction([](const TProbabilisticICReduction&red)->bool
 			{
@@ -1649,11 +1829,10 @@ namespace Statistics
 	}
 
 
-	bool	TICReductionConfig::CanCheck() const
+	bool	TICReductionConfig::IsPossible() const
 	{
 		count_t set = 0;
 		bool canOverlap = false;
-
 		if (!(flags & ICReductionFlags::RegardEntityState))
 		{
 			if (flags & ICReductionFlags::RegardEntityEnvironment)

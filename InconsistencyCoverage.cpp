@@ -210,9 +210,9 @@ const HGrid::TCell&		HGrid::GetCellOfL(const TGridCoords&localCoords) const
 		return 1;
 	if (s0.depth == 0)
 		return 0;
-	if (s0.blurExtent > s1.blurExtent)
+	if (s0.spatialDistance > s1.spatialDistance)
 		return -1;	//larger extent means probably not as bad
-	if (s0.blurExtent < s1.blurExtent)
+	if (s0.spatialDistance < s1.spatialDistance)
 		return 1;
 	return 0;
 }
@@ -222,9 +222,9 @@ const HGrid::TCell&		HGrid::GetCellOfL(const TGridCoords&localCoords) const
 	int rs = Compare(s0.depth != 0, s1.depth != 0);
 	if (rs || s0.depth == 0)
 		return rs;
-	if (s0.blurExtent > s1.blurExtent)
+	if (s0.spatialDistance > s1.spatialDistance)
 		return -1;	//larger extent means probably not as bad
-	if (s0.blurExtent < s1.blurExtent)
+	if (s0.spatialDistance < s1.spatialDistance)
 		return 1;
 	if (s0.depth < s1.depth)
 		return -1;
@@ -243,19 +243,19 @@ void		InconsistencyCoverage::TSample::IncreaseDepth()
 
 void	InconsistencyCoverage::TSample::SetWorst(const TSample&a, const TSample&b)
 {
-	if (a.blurExtent == 0xFF || b.blurExtent == 0xFF)
-		blurExtent = 0xFF;
+	if (a.spatialDistance == 0xFF || b.spatialDistance == 0xFF)
+		spatialDistance = 0xFF;
 	else
-		blurExtent = vmin(a.blurExtent,b.blurExtent);
+		spatialDistance = vmin(a.spatialDistance,b.spatialDistance);
 	depth = vmax(a.depth,b.depth);
 }
 
 void	InconsistencyCoverage::TSample::Include(const TSample&other)
 {
-	if (blurExtent == 0xFF || other.blurExtent == 0xFF)
-		blurExtent = 0xFF;
+	if (spatialDistance == 0xFF || other.spatialDistance == 0xFF)
+		spatialDistance = 0xFF;
 	else
-		blurExtent = vmin(blurExtent,other.blurExtent);
+		spatialDistance = vmin(spatialDistance,other.spatialDistance);
 	depth = vmax(depth,other.depth);
 }
 
@@ -264,25 +264,25 @@ bool	InconsistencyCoverage::TSample::IntegrateGrowingNeighbor(const TSample&n, U
 {
 	if (n.depth <= distance)
 		return false;
-	//if (blurExtent != 0xFF && distance != 0)	//else: copy from self
+	//if (spatialDistance != 0xFF && distance != 0)	//else: copy from self
 	//{
 	//	DBG_ASSERT_LESS_OR_EQUAL__(n.depth-distance, depth);
 	//	DBG_ASSERT_GREATER__(n.depth, distance);
 	//	//return *this;
 	//}
-	//content_t oldBlur = blurExtent;
+	//content_t oldBlur = spatialDistance;
 	content_t nDepth = n.depth - distance;
-	if (blurExtent != 0xFF)
+	if (spatialDistance != 0xFF)
 	{
-		if (n.blurExtent == 0xFF)
-			blurExtent = 0xFF;
+		if (n.spatialDistance == 0xFF)
+			spatialDistance = 0xFF;
 		else
 		{
-			const content_t old = blurExtent;
-			const UINT32 nExt = (UINT32)n.blurExtent + distance;
-			blurExtent = (content_t)vmin(0xFE, vmin<UINT32>(blurExtent, nExt));
-			//if (blurExtent < old && old != 0xFE && nDepth <= depth)
-			//	blurExtent = 0xFF;
+			const content_t old = spatialDistance;
+			const UINT32 nExt = (UINT32)n.spatialDistance + distance;
+			spatialDistance = (content_t)vmin(MaxDistance, vmin<UINT32>(spatialDistance, nExt));
+			//if (spatialDistance < old && old != 0xFE && nDepth <= depth)
+			//	spatialDistance = 0xFF;
 		}
 	}
 
@@ -299,7 +299,7 @@ InconsistencyCoverage::TExtSample&	InconsistencyCoverage::TExtSample::IntegrateG
 	if (Super::IntegrateGrowingNeighbor(n,distance))
 	{
 		ASSERT__(distance > 0);
-		ASSERT__(n.blurExtent + distance >= blurExtent);
+		ASSERT__(n.spatialDistance + distance >= spatialDistance);
 		unavailableShards |= n.unavailableShards;
 
 		precise.Merge(n.precise);
@@ -397,7 +397,7 @@ void InconsistencyCoverage::FillMinInconsistent()
 	ASSERT__(!sealed);
 	TExtSample sample;
 	sample.depth = 1;
-	sample.blurExtent = 0;
+	sample.spatialDistance = 0;
 	grid.Fill(sample);
 	highest = sample.depth;
 }
@@ -576,7 +576,7 @@ void InconsistencyCoverage::IncludeMissing(const TGridCoords&sectorDelta, const 
 
 	TExtSample v2;
 	v2.depth = 1;
-	v2.blurExtent = 0;
+	v2.spatialDistance = 0;
 	//v2.unavailableShards.SetSize(numShards);
 	{
 		const index_t linear = shardGridSize.ToLinearIndex(shardIndex);
@@ -724,8 +724,8 @@ void		InconsistencyCoverage::FlagInconsistent(const TEntityCoords&coords)
 	Vec::clamp(c,0,Resolution-1);
 	//static const constexpr TSample Max = {0,0xFE};
 	TExtSample&s = (*GetVerified(grid,c));
-	s.depth = 0xfe;
-	s.blurExtent = 0;
+	s.depth = MaxDepth;
+	s.spatialDistance = 0;
 	highest = M::Max(highest,s.depth);
 }
 
@@ -815,7 +815,7 @@ InconsistencyCoverage::content_t		InconsistencyCoverage::GetPixelInconsistency(c
 const InconsistencyCoverage::TExtSample&		InconsistencyCoverage::GetSample(TGridCoords coords) const
 {
 	static const TExtSample empty;
-	//ASSERT__(empty.blurExtent == TExtSample().blurExtent);
+	//ASSERT__(empty.spatialDistance == TExtSample().spatialDistance);
 	//ASSERT__(empty.depth == TExtSample().depth);
 	static const TGridCoords zero,one(1);
 	if (Vec::oneLess(coords,zero))
@@ -857,11 +857,11 @@ void		InconsistencyCoverage::VerifyIntegrity(const TCodeLocation&loc) const
 
 
 		if (px.IsInvalid())
-			Except::TriggerFatal(loc, String(__func__)+": Invalid sample: "+String(px.depth)+"|"+String(px.blurExtent));
+			Except::TriggerFatal(loc, String(__func__)+": Invalid sample: "+String(px.depth)+"|"+String(px.spatialDistance));
 
 		highest = vmax(highest,px.depth);
-		if (px.depth == 0 && px.blurExtent != 0xFE)
-			Except::TriggerFatal(loc, String(__func__)+": Unexpected px.depth/px.blurExtent: "+String(px.depth)+"|"+String(px.blurExtent));
+		if (px.depth == 0 && px.spatialDistance != MaxDistance)
+			Except::TriggerFatal(loc, String(__func__)+": Unexpected px.depth/px.spatialDistance: "+String(px.depth)+"|"+String(px.spatialDistance));
 	}	
 	if (highest != this->highest)
 		Except::TriggerFatal(loc, String(__func__) + ": Expected highest (" + String(highest)+") == this->highest ("+String(this->highest)+")");

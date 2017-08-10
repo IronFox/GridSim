@@ -345,7 +345,7 @@ namespace Statistics
 			return CompareTo(other) > 0;
 		}
 
-		bool				CanCheck() const;
+		bool				IsPossible() const;
 	};
 
 
@@ -399,7 +399,7 @@ namespace Statistics
 		}
 	};
 
-
+	void	CaptureInconsistency(const IC&, const EntityStorage&inconsistent, const EntityStorage&consistent, const TGridCoords&shardOffset);
 	void	CaptureICTest(const TProbabilisticICReduction&);
 	void	CapturePreMerge(const TStateDifference&preMergeA, const TStateDifference&preMergeB);
 	void	CaptureMergeResult(const IC::Comparator&comp, MergeStrategy,const TStateDifference&postMerge);
