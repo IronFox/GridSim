@@ -44,7 +44,7 @@ namespace DeltaWorks
 				return *this;
 			}
 			
-		OrthographicComparison&		AddComparisonResult(char result)	//! Adds the result of an external comparison
+		OrthographicComparison&		AddComparisonResult(result_t result)	//! Adds the result of an external comparison
 		{
 			if (current == 0)
 				current = result;
