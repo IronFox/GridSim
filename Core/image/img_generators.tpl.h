@@ -187,7 +187,7 @@ template <class Nature>
 		target.SetChannels(4);
 		for (UINT32 x = begin; x < begin + width; x++)
 		{
-			F fc = cubicStep<F, F, F>(x, begin, begin + width);
+			F fc = M::CubicStep<F, F, F>(x, begin, begin + width);
 			//sin((F)(x-begin) / width * 2 * M_PI)*0.5 + 0.5;
 			M::Vec::interpolate(bottom, top, fc, c);
 

@@ -455,6 +455,7 @@ namespace DeltaWorks
 		MFUNC3	(C0)		Min(C0 value0, C1 value1, C2 value2)	{return vmin(value0,value1,value2);}
 		MFUNC3	(C0)		Max(C0 value0, C1 value1, C2 value2)	{return vmax(value0,value1,value2);}
 		MFUNC1	(C0)		Clamp01(C0 value)	{return clamp01(value);}
+		MFUNC3	(C0)		CubicStep(C0 v, C1 lower, C2 upper)	/**@copydoc cubicStep()*/ {return cubicStep(v,lower,upper);}
 
 	
 		/**
