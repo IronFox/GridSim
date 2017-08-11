@@ -447,7 +447,7 @@ namespace DeltaWorks
 	{
 		if (!write_mode)
 			return *this;
-		if (fprintf(f,"%f",item) <= 0)
+		if (fprintf(f,"%.6g",item) <= 0)
 			throw Except::IO::DriveAccess::DataWriteFault("StringFile("+String(filename)+"): Unable to write number "+String(item)+" to file");
 		return *this;
 	}
@@ -456,7 +456,7 @@ namespace DeltaWorks
 	{
 		if (!write_mode)
 			return *this;
-		if (fprintf(f,"%f",item) <= 0)
+		if (fprintf(f,"%.15g",item) <= 0)
 			throw Except::IO::DriveAccess::DataWriteFault("StringFile("+String(filename)+"): Unable to write number "+String(item)+" to file");
 		return *this;
 	}
@@ -465,7 +465,7 @@ namespace DeltaWorks
 	{
 		if (!write_mode)
 			return *this;
-		if (fprintf(f,"%Lf",item) <= 0)
+		if (fprintf(f,"%.19Lg",item) <= 0)
 			throw Except::IO::DriveAccess::DataWriteFault("StringFile("+String(filename)+"): Unable to write number "+String(item)+" to file");
 		return *this;
 	}
