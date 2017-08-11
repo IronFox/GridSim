@@ -804,7 +804,7 @@ namespace Engine
 			
 	    light->disable();
 	    index_t index = light->origin;
-	    scene->erase(light->origin);
+	    scene->Erase(light->origin);
 	    for (index_t i = index; i < scene->count(); i++)
 	        scene->at(i)->origin = i;
 	}

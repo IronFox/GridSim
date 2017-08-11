@@ -455,10 +455,15 @@ namespace DeltaWorks
 			using Super::IsEmpty;
 			using Super::IsNotEmpty;
 			using Super::erase;
+			using Super::Erase;
 			using Super::append;
+			using Super::Append;
 			using Super::moveAppend;
+			using Super::MoveAppend;
 			using Super::moveToArray;
+			using Super::MoveToArray;
 			using Super::copyToArray;
+			using Super::CopyToArray;
 			using Super::begin;
 			using Super::end;
 			

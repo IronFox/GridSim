@@ -693,7 +693,7 @@ namespace Engine
 			GenericTexture::swap(other);
 		}
 		
-		bool			Texture::resize(GLuint width_, GLuint height_, BYTE channels_)
+		bool			Texture::Resize(GLuint width_, GLuint height_, BYTE channels_)
 		{
 			if (!width_ || !height_ || !channels_ || channels_ > 4)
 				return false;
@@ -751,7 +751,7 @@ namespace Engine
 				return false;
 			ContextLock	context_lock;
 
-			if (!resize(width_,height_,channels_))
+			if (!Resize(width_,height_,channels_))
 				return false;
 
 
@@ -810,7 +810,7 @@ namespace Engine
 			swp(data_size,other.data_size);
 		}
 		
-		void	Buffer::resize(size_t size_, GLenum type)
+		void	Buffer::Resize(size_t size_, GLenum type)
 		{
 			ContextLock	context_lock;
 
@@ -890,7 +890,7 @@ namespace Engine
 			data_size = 0;
 		}
 		
-		void	SmartBuffer::resize(size_t size_, GLenum type)
+		void	SmartBuffer::Resize(size_t size_, GLenum type)
 		{
 			if (size_ == data_size)
 				return;
@@ -1056,7 +1056,7 @@ namespace Engine
 			swp(config,other.config);
 		}
 
-		void		FBO::resize(const Resolution&res)
+		void		FBO::Resize(const Resolution&res)
 		{
 			if (res == config.resolution)
 				return;
@@ -2711,7 +2711,7 @@ namespace Engine
 		glFinish();
 		for (index_t i = 0; i < created_contexts.count(); i++)
 			if (created_contexts[i].gl_context == gl_context)
-				created_contexts.erase(i--);
+				created_contexts.Erase(i--);
 		#if SYSTEM==WINDOWS
 			wglMakeCurrent(device_context, NULL);
 			wglDeleteContext(gl_context);

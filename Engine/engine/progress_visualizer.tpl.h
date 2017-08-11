@@ -13,7 +13,7 @@ namespace Engine
 	template <class Font, class GL> ProgressVisualizer<Font,GL>::ProgressVisualizer(Display<GL>&display_):display(display_)
 	{
 	    bg.select(EveStructure::Quads);
-	    bg.resize(3);
+	    bg.Resize(3);
 
 	    bg.color(0,0,0);
 	    bg.vertex(0,0);
@@ -33,7 +33,7 @@ namespace Engine
 	    bg.vertex(0,0);
 
 	    bg.select(EveStructure::Lines);
-	    bg.resize(3);
+	    bg.Resize(3);
 	    bg.vertex(0,1);
 	    bg.vertex(0,0);
 	    bg.vertex(1,0);
@@ -44,7 +44,7 @@ namespace Engine
 	    bg.seal();
 	    
 	    bar.select(EveStructure::Quads);
-	    bar.resize(2);
+	    bar.Resize(2);
 	    bar.color(0,0,0);
 	    bar.vertex(0,0.1);
 	    bar.vertex(1,0.1);
@@ -58,7 +58,7 @@ namespace Engine
 	    bar.vertex(0,0.8);
 	    
 	    bar.select(EveStructure::Lines);
-	    bar.resize(3);
+	    bar.Resize(3);
 	    bar.vertex(0,0.1);
 	    bar.vertex(1,0.1);
 	    bar.vertex(0,0.8);

@@ -356,8 +356,8 @@ namespace Engine
 			unsigned res = Profiler::Config::channelResolution();
 			if (!res)
 				return;
-			h_field.resize(res);
-			h_block.resize(res);
+			h_field.Resize(res);
+			h_block.Resize(res);
 			h_block.Fill(0);
 			h_field.Fill(0);
 			unsigned cnt = 0;
@@ -1103,8 +1103,8 @@ namespace Engine
 			unsigned res = data->resolution();
 			if (!res)
 				return;
-			h_field.resize(res);
-			h_block.resize(res);
+			h_field.Resize(res);
+			h_block.Resize(res);
 			h_block.Fill(0);
 			h_field.Fill(0);
 			unsigned cnt = 0;

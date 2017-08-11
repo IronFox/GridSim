@@ -83,7 +83,7 @@ namespace Engine
 									SimpleGeometry();
 			void					compact();
 			void					reset();												//!< Resets all buffers
-			void					resize(unsigned len);									//!< Resizes each of the buffers to the specified size
+			void					Resize(unsigned len);									//!< Resizes each of the buffers to the specified size
 			void					select(Mode mode);										//!< Selects the next primitive-type for definition. The previous primitive-type must be fully defined. \param mode New primitive type
 			void					seal();													//!< Seals the structure disallowing further editing. Also compactifies the fields
 			void					translate(float x_delta, float y_delta, float z_delta); //!< Translates all primitives by the specified delta values.

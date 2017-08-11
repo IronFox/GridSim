@@ -320,7 +320,7 @@ namespace Engine
 				return;
 			}
 		for (index_t i = 0; i < preparation.count(); i++)
-			if (preparation[i].name.equalsIgnoreCase(name))
+			if (preparation[i].name.EqualsIgnoreCase(name))
 			{
 				key[k].down_pntr = preparation[i].function_pointer;
 				key[k].up_pntr = preparation[i].snd_pointer;
@@ -416,7 +416,7 @@ namespace Engine
 	
 	void	InputMap::RegAnalog(const String&name, float&resource, float min, float max)
 	{
-		TAnalogSource&source = analog_sources.set(name.copyToLowerCase());
+		TAnalogSource&source = analog_sources.set(name.CopyToLowerCase());
 		source.value = &resource;
 		source.min = min;
 		source.max = max;
@@ -432,7 +432,7 @@ namespace Engine
 
 	TAnalogSource*		InputMap::FindAnalog(const String&name)
 	{
-		return analog_sources.queryPointer(name.copyToLowerCase());
+		return analog_sources.queryPointer(name.CopyToLowerCase());
 	}
 }
 

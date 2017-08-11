@@ -44,7 +44,7 @@ private:
 			for (unsigned i = 0; i < cnt; i++)
 			{
 				unsigned len = DragQueryFile(hDrop,i,NULL,0);
-				files[i].resize(len);
+				files[i].Resize(len);
 				DragQueryFileA(hDrop,i,files[i].mutablePointer(),len+1);
 				if (strlen(files[i].c_str()) != files[i].length())
 					FATAL__("File drop read error");
@@ -1878,7 +1878,7 @@ namespace Engine
 			//		for (unsigned i = 0; i < cnt; i++)
 			//		{
 			//			unsigned len = DragQueryFile(hDrop,i,NULL,0);
-			//			files[i].resize(len);
+			//			files[i].Resize(len);
 			//			DragQueryFileA(hDrop,i,files[i].mutablePointer(),len+1);
 			//			if (strlen(files[i].c_str()) != files[i].length())
 			//				FATAL__("File drop read error");

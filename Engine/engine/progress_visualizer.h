@@ -41,7 +41,7 @@ namespace Engine
 	top.state = 0;
 
 	bg.select(EVE_QUADS);
-	bg.resize(5);
+	bg.Resize(5);
 
 	bg.color(0,0,0);
 	bg.vertex(0,EVE_PROG_LH);
@@ -61,7 +61,7 @@ namespace Engine
 	bg.vertex(0,0);
 
 	bg.select(EVE_LINES);
-	bg.resize(2);
+	bg.Resize(2);
 	bg.vertex(0,1);
 	bg.vertex(0,0);
 	bg.vertex(1,0);
