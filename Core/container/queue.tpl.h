@@ -794,7 +794,7 @@ template <class Entry, class Priority, class MyStrategy>
 
 
 template <class Entry, class Priority, class MyStrategy>
-	void			PriorityQueue<Entry, Priority, MyStrategy>::erase(const iterator&it)
+	void			PriorityQueue<Entry, Priority, MyStrategy>::Erase(const iterator&it)
 	{
 		eraseAddr(it.index());
 
@@ -866,7 +866,7 @@ template <class Entry, class Priority, class MyStrategy>
 		iterator it;
 		if (!find(data,old_priority,it))
 			return false;
-		erase(it);
+		Erase(it);
 		Push(data,new_priority);
 		return true;
 	}
@@ -1124,7 +1124,7 @@ template <class C, class IndexType> const C&Queue<C,IndexType>::peek(IndexType e
     return loop[first+element];
 }
 
-template <class C, class IndexType> void Queue<C,IndexType>::insert(const C&item)
+template <class C, class IndexType> void Queue<C,IndexType>::Insert(const C&item)
 {
     if (last+1 == first)
         return;
@@ -1180,7 +1180,7 @@ template <class C, class IndexType> C*CPQueue<C,IndexType>::peek(IndexType eleme
     return loop[first+element];
 }
 
-template <class C, class IndexType> void CPQueue<C,IndexType>::insert(C*item)
+template <class C, class IndexType> void CPQueue<C,IndexType>::Insert(C*item)
 {
     if (last+1 == first)
     {
@@ -1254,7 +1254,7 @@ template <class C> const C& DynamicQueue<C>::get()
     return element;
 }
 
-template <class C> void DynamicQueue<C>::insert(const C&item)
+template <class C> void DynamicQueue<C>::Insert(const C&item)
 {
     SDynamicPath<C>*append = SignalNew(new SDynamicPath<C>());
     append->element = item;
@@ -1319,7 +1319,7 @@ template <class C> C*DynamicPQueue<C>::get()
     return element;
 }
 
-template <class C> void DynamicPQueue<C>::insert(C*item)
+template <class C> void DynamicPQueue<C>::Insert(C*item)
 {
     SDynamicPath<C*>*append = SignalNew(new SDynamicPath<C*>());
     append->element = item;

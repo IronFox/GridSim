@@ -35,10 +35,10 @@ namespace DeltaWorks
 		p.pattern = pattern;
 		p.length = p.pattern.length();
 		if (p.pre_open)
-			open[(BYTE)pattern.firstChar()] << p;
+			open[(BYTE)pattern.FirstChar()] << p;
 		else
 		{
-			list[(BYTE)pattern.firstChar()] << p;
+			list[(BYTE)pattern.FirstChar()] << p;
 	//        ShowMessage(String((BYTE)pattern[1])+" is now "+String(list[(BYTE)pattern[1]]));
 		}
 		sorted = false;

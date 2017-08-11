@@ -26,7 +26,7 @@ namespace DeltaWorks
 			void	makeValidName(String&name)
 			{
 				for (index_t i = 0; i < name.length(); i++)
-					if (!isAllowedCharacter(name.get(i)))
+					if (!isAllowedCharacter(name.GetChar(i)))
 						name.set(i,'_');
 			}
 		}
@@ -243,7 +243,7 @@ namespace DeltaWorks
 				return false;
 			}
 			detail::makeValidName(lookup.pathSegments.last());
-			lookup.folder = _Resolve(name.beginsWith('/'));
+			lookup.folder = _Resolve(name.BeginsWith('/'));
 			if (!lookup.folder)
 			{
 				error = "Unable to _Resolve parent folder";
@@ -442,8 +442,8 @@ namespace DeltaWorks
 		PFolder		Folder::CreateOrGetChild(const String&folderName)
 		{
 			for (index_t i = 0; i < folderName.length(); i++)
-				if (!isAllowedCharacter(folderName.get(i)))
-					throw Except::Program::ParameterFault("Character 0x"+IntToHex((int)folderName.get(i),2)+" ('"+folderName.get(i)+"') of variable '"+folderName+"' not allowed");
+				if (!isAllowedCharacter(folderName.GetChar(i)))
+					throw Except::Program::ParameterFault("Character 0x"+IntToHex((int)folderName.GetChar(i),2)+" ('"+folderName.GetChar(i)+"') of variable '"+folderName+"' not allowed");
 			PFolder f = folders.Query(folderName);
 			if (f)
 				return f;
@@ -455,8 +455,8 @@ namespace DeltaWorks
 		PVariable	Folder::SetVariable(const PVariable&v)
 		{
 			for (index_t i = 0; i < v->name.length(); i++)
-				if (!isAllowedCharacter(v->name.get(i)))
-					throw Except::Program::ParameterFault(CLOCATION,"Character 0x"+IntToHex((int)v->name.get(i),2)+" ('"+v->name.get(i)+"') of variable '"+v->name+"' not allowed");
+				if (!isAllowedCharacter(v->name.GetChar(i)))
+					throw Except::Program::ParameterFault(CLOCATION,"Character 0x"+IntToHex((int)v->name.GetChar(i),2)+" ('"+v->name.GetChar(i)+"') of variable '"+v->name+"' not allowed");
 
 			if (variables.IsSet(v->name))
 				throw Except::Program::UniquenessViolation(CLOCATION,"Variable '"+v->name+"' already defined in context '"+GetPath()+"'");
@@ -768,7 +768,7 @@ namespace DeltaWorks
 		
 			if (!lookup.pathSegments)
 				return PCommand();
-			PFolder folder = _Resolve(name.beginsWith('/'));
+			PFolder folder = _Resolve(name.BeginsWith('/'));
 			if (!folder)
 				return PCommand();
 			PCommand rs= folder->commands.Query(lookup.pathSegments.last());
@@ -797,7 +797,7 @@ namespace DeltaWorks
 			Tokenizer::tokenize(name,lookup.pathConfig,lookup.pathSegments);
 			if (!lookup.pathSegments)
 				return PVariable();
-			PFolder folder = _Resolve(name.beginsWith('/'));
+			PFolder folder = _Resolve(name.BeginsWith('/'));
 			if (!folder)
 				return PVariable();
 			if (folder_out)
@@ -829,7 +829,7 @@ namespace DeltaWorks
 				return PFolder();
 			}
 			lookup.pathSegments<<".";
-			return _Resolve(path.beginsWith('/'));
+			return _Resolve(path.BeginsWith('/'));
 		}
 
 
@@ -941,7 +941,7 @@ namespace DeltaWorks
 			if (!lookup.pathSegments)
 				return "";
 			
-			PFolder parent = _Resolve(line.beginsWith('/'));
+			PFolder parent = _Resolve(line.BeginsWith('/'));
 			if (!parent)
 				return "";
 		
@@ -950,22 +950,22 @@ namespace DeltaWorks
 			if (prefix.length())
 				prefix+= "/";
 				
-			if (line.beginsWith('/'))
+			if (line.BeginsWith('/'))
 				prefix = "/"+prefix;
 		
 			if (lookup.pathSegments==1)
 				for (index_t i = 0; i < globalCommands.count(); i++)
-					if (globalCommands[i]->name.beginsWith(inner))
+					if (globalCommands[i]->name.BeginsWith(inner))
 						out << prefix+globalCommands[i]->name;
 		
 			for (index_t i = 0; i < parent->commands.count(); i++)
-				if (parent->commands[i]->name.beginsWith(inner))
+				if (parent->commands[i]->name.BeginsWith(inner))
 					out << prefix+parent->commands[i]->name;
 			for (index_t i = 0; i < parent->variables.count(); i++)
-				if (parent->variables[i]->name.beginsWith(inner))
+				if (parent->variables[i]->name.BeginsWith(inner))
 					out << prefix+parent->variables[i]->name;
 			for (index_t i = 0; i < parent->folders.count(); i++)
-				if (parent->folders[i]->name.beginsWith(inner))
+				if (parent->folders[i]->name.BeginsWith(inner))
 					out << prefix+parent->folders[i]->name+"/";
 
 			if (!out.count())
@@ -983,11 +983,11 @@ namespace DeltaWorks
 				if (longest>longest_common.length())
 					same = false;
 				for (index_t i = 1; i < out.count() && same; i++)
-					same = out[i].beginsWith(longest_common);
+					same = out[i].BeginsWith(longest_common);
 				if (same)
 					longest++;
 			}
-			longest_common.erase(longest-1);
+			longest_common.Erase(longest-1);
 		
 		
 			return longest_common;
@@ -1002,7 +1002,7 @@ namespace DeltaWorks
 			if (!lookup.pathSegments)
 				return "";
 			
-			PFolder parent = _Resolve(line.beginsWith('/'));
+			PFolder parent = _Resolve(line.BeginsWith('/'));
 			if (!parent)
 				return "";
 		
@@ -1010,14 +1010,14 @@ namespace DeltaWorks
 					inner = lookup.pathSegments.last();
 			if (prefix.length())
 				prefix+= "/";
-			if (line.beginsWith('/'))
+			if (line.BeginsWith('/'))
 				prefix = "/"+prefix;
 		
 			for (index_t i = 0; i < parent->variables.count(); i++)
-				if (parent->variables[i]->name.beginsWith(inner))
+				if (parent->variables[i]->name.BeginsWith(inner))
 					out << prefix+parent->variables[i]->name;
 			for (index_t i = 0; i < parent->folders.count(); i++)
-				if (parent->folders[i]->name.beginsWith(inner))
+				if (parent->folders[i]->name.BeginsWith(inner))
 					out << prefix+parent->folders[i]->name+'/';
 		
 
@@ -1036,11 +1036,11 @@ namespace DeltaWorks
 				if (longest>longest_common.length())
 					same = false;
 				for (index_t i = 1; i < out.count() && same; i++)
-					same = out[i].beginsWith(longest_common);
+					same = out[i].BeginsWith(longest_common);
 				if (same)
 					longest++;
 			}
-			longest_common.erase(longest-1);
+			longest_common.Erase(longest-1);
 		
 			return longest_common;
 		}
@@ -1056,7 +1056,7 @@ namespace DeltaWorks
 			if (!lookup.pathSegments)
 				return "";
 			
-			PFolder parent = _Resolve(line.beginsWith('/'));
+			PFolder parent = _Resolve(line.BeginsWith('/'));
 			if (!parent)
 				return "";
 		
@@ -1065,11 +1065,11 @@ namespace DeltaWorks
 			if (prefix.length())
 				prefix+= "/";
 
-			if (line.beginsWith('/'))
+			if (line.BeginsWith('/'))
 				prefix = "/"+prefix;
 		
 			for (index_t i = 0; i < parent->folders.count(); i++)
-				if (parent->folders[i]->name.beginsWith(inner))
+				if (parent->folders[i]->name.BeginsWith(inner))
 					out << prefix+parent->folders[i]->name+"/";
 		
 
@@ -1088,11 +1088,11 @@ namespace DeltaWorks
 				if (longest>longest_common.length())
 					same = false;
 				for (index_t i = 1; i < out.count() && same; i++)
-					same = out[i].beginsWith(longest_common);
+					same = out[i].BeginsWith(longest_common);
 				if (same)
 					longest++;
 			}
-			longest_common.erase(longest-1);
+			longest_common.Erase(longest-1);
 		
 			return longest_common;
 		}
@@ -1238,7 +1238,7 @@ namespace DeltaWorks
 			if (!lookup.pathSegments)
 				return PFolder();
 		
-			PFolder parent = _Resolve(name.beginsWith('/'));
+			PFolder parent = _Resolve(name.BeginsWith('/'));
 			if (!parent)
 				return PFolder();
 			
@@ -1276,7 +1276,7 @@ namespace DeltaWorks
 			if (!lookup.pathSegments)
 				return;
 			
-			if (PFolder parent = _Resolve(name.beginsWith('/')))
+			if (PFolder parent = _Resolve(name.BeginsWith('/')))
 			{
 				if (focused->IsChildOf(parent))
 					focused = parent;
@@ -1289,7 +1289,7 @@ namespace DeltaWorks
 		{
 			Tokenizer::tokenize(context,lookup.pathConfig,lookup.pathSegments);
 			lookup.pathSegments << ".";	//dummy
-			PFolder new_focus = _Resolve(context.beginsWith('/'));
+			PFolder new_focus = _Resolve(context.BeginsWith('/'));
 			if (new_focus)
 			{
 				focused = new_focus;
@@ -1431,7 +1431,7 @@ namespace DeltaWorks
 			for	(index_t i = 0; i < count(); i++)
 				if (at(i).name == alias)
 				{
-					erase(i);
+					Erase(i);
 					return true;
 				}
 			return	false;
@@ -1452,7 +1452,7 @@ namespace DeltaWorks
 			if	(!script)
 				return	false;
 			for	(index_t i = 0;	i < script->count(); i++)
-				parser->Parse(script->get(i));
+				parser->Parse(script->Get(i));
 			return	true;
 		}
 	}

@@ -20,13 +20,13 @@ namespace DeltaWorks
 			#define ABS_MARKER_LENGTH	(ARRAYSIZE(ABS_MARKER)-1)
 		#endif
 
-		static	PathString addSlashes(const PathString&in)
+		static	PathString Escape(const PathString&in)
 		{
 			PathString rs = in;
 			for (index_t i = 0; i < rs.length(); i++)
-				if (rs.get(i) == '\\' || rs.get(i) == '\'' || rs.get(i) == '\"')
+				if (rs.GetChar(i) == '\\' || rs.GetChar(i) == '\'' || rs.GetChar(i) == '\"')
 				{
-					rs.insert(i,'\\');
+					rs.Insert(i,'\\');
 					i++;
 				}
 			return rs;
@@ -418,15 +418,15 @@ namespace DeltaWorks
 			bool valid_location = false;
 			#if SYSTEM==WINDOWS
 			
-				bool isAbs = path_string.beginsWith(ABS_MARKER);
-				if (isAbs || (isalpha(path_string.firstChar()) && path_string.get(1) == ':'))
+				bool isAbs = path_string.BeginsWith(ABS_MARKER);
+				if (isAbs || (isalpha(path_string.FirstChar()) && path_string.GetChar(1) == ':'))
 				{
 					if (isAbs)
 					{
 						local = path_string.subString(ABS_MARKER_LENGTH+3);
 						final = path_string.subString(0,ABS_MARKER_LENGTH+3);
 
-						if (isalpha(local.firstChar()) && local.get(1) == ':')
+						if (isalpha(local.FirstChar()) && local.GetChar(1) == ':')
 						{
 							local = local.subString(3);
 							final = ABS_MARKER + local.subString(0,3);
@@ -440,7 +440,7 @@ namespace DeltaWorks
 					valid_location = true;
 				}
 				else
-					if (path_string.firstChar() == '\\')
+					if (path_string.FirstChar() == '\\')
 					{
 						local = path_string.subString(1);
 						final = GetWorkingDirectory().subString(0, 3);
@@ -452,7 +452,7 @@ namespace DeltaWorks
 						valid_location = this->IsValidLocation();
 					}
 			#elif SYSTEM==UNIX
-				if (path_string.firstChar() == '/')
+				if (path_string.FirstChar() == '/')
 				{
 					local = path_string.subString(1);
 					final = "/";
@@ -478,15 +478,15 @@ namespace DeltaWorks
 			while (local.IsNotEmpty())
 			{
 				PathString step;
-				index_t	at0 = local.GetIndexOf('/'),
-						at1 = local.GetIndexOf('\\'),
-						at = !at0?at1:(!at1?at0:(std::min(at0,at1)));
+				index_t	at0 = local.Find('/'),
+						at1 = local.Find('\\'),
+						at = std::min(at0,at1);
 
 			
-				if (at)
+				if (at != InvalidIndex)
 				{
-					step = local.subString(0,at-1);
-					local.erase(0,at);
+					step = local.subString(0,at);
+					local.Erase(0,at+1);
 				}
 				else
 				{
@@ -504,9 +504,9 @@ namespace DeltaWorks
 				if (local.IsEmpty())
 					if (finalParent)
 						*finalParent = final;
-				if (final.lastChar() != '/'
+				if (final.LastChar() != '/'
 					&&
-					final.lastChar() != '\\')
+					final.LastChar() != '\\')
 					final += FOLDER_SLASH;
 				final += step;
 			}
@@ -537,10 +537,10 @@ namespace DeltaWorks
 		bool Folder::locate(const PathString&folder_string)
 		{
 			absolute_folder = folder_string;
-			if (absolute_folder.length() > 1 && (absolute_folder.lastChar() == '/' || absolute_folder.lastChar() == '\\'))
-				absolute_folder.erase(absolute_folder.length()-1);
+			if (absolute_folder.length() > 1 && (absolute_folder.LastChar() == '/' || absolute_folder.LastChar() == '\\'))
+				absolute_folder.Erase(absolute_folder.length()-1);
 			#if SYSTEM==WINDOWS
-				if (!absolute_folder.beginsWith(ABS_MARKER))
+				if (!absolute_folder.BeginsWith(ABS_MARKER))
 				{
 					absolute_folder = ABS_MARKER + absolute_folder;
 				}
@@ -726,7 +726,7 @@ namespace DeltaWorks
 			#if SYSTEM==WINDOWS
 				file.name = find_data.cFileName;
 				file.location = absolute_folder;
-				if (file.location.lastChar() != '/' && file.location.lastChar() != '\\')
+				if (file.location.LastChar() != '/' && file.location.LastChar() != '\\')
 					file.location+=FOLDER_SLASH;
 				file.location+= find_data.cFileName;
 				file.is_folder = (find_data.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)!=0;
@@ -745,7 +745,7 @@ namespace DeltaWorks
 				file.name = entry->d_name;
 
 				file.location = absolute_folder;
-				if (file.location.lastChar() != '/' && file.location.lastChar() != '\\')
+				if (file.location.LastChar() != '/' && file.location.LastChar() != '\\')
 					file.location+=FOLDER_SLASH;
 				file.location += entry->d_name;
 				struct stat s;
@@ -755,7 +755,7 @@ namespace DeltaWorks
 			#else
 				#error not supported
 			#endif
-			if (retry || !file.name.length() || file.name.firstChar() == '.')
+			if (retry || !file.name.length() || file.name.FirstChar() == '.')
 				return NextEntry(file);
 			return true;
 		}
@@ -808,7 +808,7 @@ namespace DeltaWorks
 			{
 				file = NextEntry();
 			}
-			while (file && (file->is_folder || !file->GetLocation().endsWith(extension)));
+			while (file && (file->is_folder || !file->GetLocation().EndsWith(extension)));
 			//while (file && (file->is_folder || strcmpi(file->GetExtensionPointer(),ext)));
 			return file;
 		}
@@ -817,7 +817,7 @@ namespace DeltaWorks
 		{
 			const PathString::char_t*ext = extension.c_str();
 			while (NextEntry(target))
-				if (!target.is_folder && target.GetLocation().endsWith(extension))
+				if (!target.is_folder && target.GetLocation().EndsWith(extension))
 					return true;
 			return false;
 		}
@@ -840,7 +840,7 @@ namespace DeltaWorks
 			out.name = ExtractFileNameExt(out.location);
 			out.is_folder = false;
 			#if SYSTEM==WINDOWS
-				if (out.name.endsWith(':'))
+				if (out.name.EndsWith(':'))
 				{
 					PathString driveName = out.name+L'\\';
 					UINT type = GetDriveTypeW(driveName.c_str());
@@ -905,7 +905,7 @@ namespace DeltaWorks
 			if (!IsValidLocation())
 				return NULL;
 			PathString location = absolute_folder;
-			if (location.lastChar() != '/' && location.lastChar() != '\\')
+			if (location.LastChar() != '/' && location.LastChar() != '\\')
 				location += FOLDER_SLASH;
 			location += name;
 			//locate(
@@ -919,7 +919,7 @@ namespace DeltaWorks
 			if (!IsValidLocation())
 				return false;
 			PathString location = absolute_folder;
-			if (location.lastChar() != '/' && location.lastChar() != '\\')
+			if (location.LastChar() != '/' && location.LastChar() != '\\')
 				location += FOLDER_SLASH;
 			location += name;
 			ResolvePath(location,nullptr,location);
@@ -1034,7 +1034,7 @@ namespace DeltaWorks
 				if (!GetCurrentDirectoryW(ARRAYSIZE(buffer)-1,buffer))
 					return L"";
 				PathString rs = buffer;
-				if (!rs.beginsWith(ABS_MARKER))
+				if (!rs.BeginsWith(ABS_MARKER))
 					rs = ABS_MARKER + rs;
 	//			size_t len = ABS_MARKER_LENGTH;
 				return rs;
@@ -1114,9 +1114,9 @@ namespace DeltaWorks
 				index_t last_dot(filename.length()),last_slash(0);
 				for (index_t i = 0; i < filename.length(); i++)
 				{
-					if (filename.get(i) == (T)'/' || filename.get(i) == (T)'\\')
+					if (filename.GetChar(i) == (T)'/' || filename.GetChar(i) == (T)'\\')
 						last_slash = i+1;
-					if (filename.get(i) == (T)'.')
+					if (filename.GetChar(i) == (T)'.')
 						last_dot = i;
 				}
 				if (last_dot < last_slash)
@@ -1133,8 +1133,8 @@ namespace DeltaWorks
 			static StringType::Template<T>	_extractFileExt(const StringType::Template<T>&filename)
 			{
 				index_t at(filename.length()-1);
-				while (filename.get(at) != (T)'/' && filename.get(at) != (T)'\\' && filename.get(at) != (T)'.' && --at < filename.length());
-				if (at >= filename.length() || filename.get(at) != (T)'.')
+				while (filename.GetChar(at) != (T)'/' && filename.GetChar(at) != (T)'\\' && filename.GetChar(at) != (T)'.' && --at < filename.length());
+				if (at >= filename.length() || filename.GetChar(at) != (T)'.')
 					return StringType::Template<T>();
 				return filename.subString(at+1);
 			}
@@ -1150,7 +1150,7 @@ namespace DeltaWorks
 				if (!filename.length())
 					return StringType::Template<T>();
 				index_t at = filename.length()-1;
-				while (filename.get(at) != (T)'\\' && filename.get(at) != (T)'/' && --at < filename.length());
+				while (filename.GetChar(at) != (T)'\\' && filename.GetChar(at) != (T)'/' && --at < filename.length());
 				if (at >= filename.length())
 					return (T)'.';
 				/*if (at)
@@ -1166,8 +1166,8 @@ namespace DeltaWorks
 				index_t at(filename.length()-1);
 				if (at >= filename.length())
 					return StringType::Template<T>();
-				while (filename.get(at) != (T)'/' && filename.get(at) != (T)'\\' && filename.get(at) != (T)'.' && --at < filename.length());
-				if (at >= filename.length() || filename.get(at) != (T)'.')
+				while (filename.GetChar(at) != (T)'/' && filename.GetChar(at) != (T)'\\' && filename.GetChar(at) != (T)'.' && --at < filename.length());
+				if (at >= filename.length() || filename.GetChar(at) != (T)'.')
 					return filename;
 				return filename.subString(0,at);
 			}
@@ -1180,7 +1180,7 @@ namespace DeltaWorks
 				index_t at = filename.length()-1;
 				if (at>= filename.length())
 					return StringType::Template<T>();
-				while (filename.get(at) != (T)'/' && filename.get(at) != (T)'\\' && --at < filename.length());
+				while (filename.GetChar(at) != (T)'/' && filename.GetChar(at) != (T)'\\' && --at < filename.length());
 				return filename.subString(at+1);
 			}
 
@@ -1190,14 +1190,20 @@ namespace DeltaWorks
 		template <typename T>
 			static StringType::Template<T>	_escapeSpaces(StringType::Template<T> path)
 			{
-				while (index_t at = path.GetIndexOf((T)'\\'))
-					path.erase(at-1,1);
+				for (;;)
+				{
+					index_t at = path.Find((T)'\\');
+					if (at != InvalidIndex)
+						path.Erase(at,1);
+					else
+						break;
+				}
 				StringType::Template<T> final;
 				for (index_t i = 0; i < path.length(); i++)
 				{
-					if (path.get(i) == (T)' ')
+					if (path.GetChar(i) == (T)' ')
 						final += (T)'\\';
-					final += path.get(i);
+					final += path.GetChar(i);
 				}
 				return final;
 			}
@@ -1213,7 +1219,7 @@ namespace DeltaWorks
 		bool IsFolder(const PathString&name)
 		{
 			#if SYSTEM==WINDOWS
-				if (name.endsWith(':'))
+				if (name.EndsWith(':'))
 				{
 					PathString driveName = name+L'\\';
 					UINT type = GetDriveTypeW(driveName.c_str());
@@ -1221,10 +1227,10 @@ namespace DeltaWorks
 					return valid;
 				}
 
-				if (name.contains('/'))//this is apparently bad when using extended path strings
+				if (name.Contains('/'))//this is apparently bad when using extended path strings
 				{
 					StringW copy(name);
-					copy.replace((PathString::char_t)'/',(PathString::char_t)'\\');
+					copy.FindAndReplace((PathString::char_t)'/',(PathString::char_t)'\\');
 					return IsFolder(copy);
 				}
 				DWORD attribs = GetFileAttributesW(name.c_str());
@@ -1252,7 +1258,7 @@ namespace DeltaWorks
 					{
 						//this is apparently bad when using extended path strings
 						StringW copy(name);
-						copy.replace((PathString::char_t)'/',(PathString::char_t)'\\');
+						copy.FindAndReplace((PathString::char_t)'/',(PathString::char_t)'\\');
 						return IsFile(copy.c_str());
 					}
 					chk++;
@@ -1271,7 +1277,7 @@ namespace DeltaWorks
 		bool DoesExist(const PathString&name)
 		{
 			#if SYSTEM==WINDOWS
-				if (name.endsWith(':'))
+				if (name.EndsWith(':'))
 				{
 					PathString driveName = name+L'\\';
 					UINT type = GetDriveTypeW(driveName.c_str());
@@ -1279,10 +1285,10 @@ namespace DeltaWorks
 					return valid;
 				}
 			
-				if (name.contains('/'))//this is apparently bad when using extended path strings
+				if (name.Contains('/'))//this is apparently bad when using extended path strings
 				{
 					StringW copy(name);
-					copy.replace((PathString::char_t)'/',(PathString::char_t)'\\');
+					copy.FindAndReplace((PathString::char_t)'/',(PathString::char_t)'\\');
 					return DoesExist(copy);
 				}
 				return GetFileAttributesW(name.c_str()) != INVALID_FILE_ATTRIBUTES;
@@ -1298,10 +1304,10 @@ namespace DeltaWorks
 		fsize_t		GetFileSize(const PathString&name)
 		{
 			#if SYSTEM==WINDOWS
-				if (name.contains('/'))//this is apparently bad when using extended path strings
+				if (name.Contains('/'))//this is apparently bad when using extended path strings
 				{
 					StringW copy(name);
-					copy.replace((PathString::char_t)'/',(PathString::char_t)'\\');
+					copy.FindAndReplace((PathString::char_t)'/',(PathString::char_t)'\\');
 					return GetFileSize(copy);
 				}
 				WIN32_FILE_ATTRIBUTE_DATA	data;
@@ -1324,10 +1330,10 @@ namespace DeltaWorks
 		ftime_t GetModificationTime(const PathString&name)
 		{
 			#if SYSTEM==WINDOWS
-				if (name.contains('/'))//this is apparently bad when using extended path strings
+				if (name.Contains('/'))//this is apparently bad when using extended path strings
 				{
 					StringW copy(name);
-					copy.replace((PathString::char_t)'/',(PathString::char_t)'\\');
+					copy.FindAndReplace((PathString::char_t)'/',(PathString::char_t)'\\');
 					return GetModificationTime(copy);
 				}
 
@@ -1364,11 +1370,11 @@ namespace DeltaWorks
 		const File*  Move(const PathString&source, const PathString&destination)
 		{
 			#if SYSTEM==WINDOWS
-				if (source.contains('/') || destination.contains('/'))//this is apparently bad when using extended path strings
+				if (source.Contains('/') || destination.Contains('/'))//this is apparently bad when using extended path strings
 				{
 					StringW copy0(source),copy1(destination);
-					copy0.replace((PathString::char_t)'/',(PathString::char_t)'\\');
-					copy1.replace((PathString::char_t)'/',(PathString::char_t)'\\');
+					copy0.FindAndReplace((PathString::char_t)'/',(PathString::char_t)'\\');
+					copy1.FindAndReplace((PathString::char_t)'/',(PathString::char_t)'\\');
 					return Move(copy0,copy1);
 				}
 
@@ -1426,7 +1432,7 @@ namespace DeltaWorks
 				}
 				else
 				{
-					if (!CopyFileW(source.c_str(),my_destination.c_str(),!overwrite_if_exist) && _wsystem((L"copy \""+addSlashes(source)+L"\" \""+addSlashes(destination)+L"\"").c_str()))
+					if (!CopyFileW(source.c_str(),my_destination.c_str(),!overwrite_if_exist) && _wsystem((L"copy \""+Escape(source)+L"\" \""+Escape(destination)+L"\"").c_str()))
 						return false;
 				}
 			#elif SYSTEM==UNIX
@@ -1539,18 +1545,18 @@ namespace DeltaWorks
 			if (!folder_name.length())
 				return false;
 			out.location = folder_name;
-			if (out.location.lastChar() == '/' || out.location.lastChar() == '\\')
-				out.location.erase(out.location.length()-1);
+			if (out.location.LastChar() == '/' || out.location.LastChar() == '\\')
+				out.location.Erase(out.location.length()-1);
 			out.is_folder = true;
 			#if SYSTEM==WINDOWS
-				bool absoluteWide = folder_name.beginsWith(ABS_MARKER);
-				out.location.replace(L'/',L'\\');
+				bool absoluteWide = folder_name.BeginsWith(ABS_MARKER);
+				out.location.FindAndReplace(L'/',L'\\');
 				Ctr::Array<PathString>	segments;
 				explode(L'\\',out.location,segments);
 				for (index_t i = 1; i <= segments.count(); i++)
 				{
 					PathString path = implode(L'\\',segments.pointer(),i);
-					if (path.IsEmpty() || path == L"\\\\?" || path.endsWith(L':') || path==L"\\")
+					if (path.IsEmpty() || path == L"\\\\?" || path.EndsWith(L':') || path==L"\\")
 						continue;
 					//if (absoluteWide)
 						//path = absMarker + path;
@@ -1611,7 +1617,7 @@ namespace DeltaWorks
 					return true;
 				int retry = 0;
 				PathString loc = location;
-				loc.replace(L'/',L'\\');
+				loc.FindAndReplace(L'/',L'\\');
 				while (!DeleteFileW(loc.c_str()))
 				{
 					if (retry > 10)

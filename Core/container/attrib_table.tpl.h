@@ -138,7 +138,7 @@ namespace Attrib
 	
 	
 	template <typename T>
-		bool						Table::get(const TAttribute&attrib, T*target, count_t len)
+		bool						Table::GetChar(const TAttribute&attrib, T*target, count_t len)
 		{
 			if (!finalized)
 				finalize();
@@ -179,7 +179,7 @@ namespace Attrib
 
 	
 	template <typename T>
-		bool						Table::get(const TAttribute&attrib, T*target)
+		bool						Table::GetChar(const TAttribute&attrib, T*target)
 		{
 			if (!finalized)
 				finalize();
@@ -216,7 +216,7 @@ namespace Attrib
 		}
 
 	template <typename T>
-		T						Table::get(const TAttribute&attrib)
+		T						Table::GetChar(const TAttribute&attrib)
 		{
 			if (!finalized)
 				finalize();
@@ -248,7 +248,7 @@ namespace Attrib
 	
 	
 	template <typename T>
-		bool						Instance::get(const TAttribute&attrib, T*target, unsigned len)	const
+		bool						Instance::GetChar(const TAttribute&attrib, T*target, unsigned len)	const
 		{
 			if (!Table::exists(attrib) || !attrib.copyable)
 				return false;
@@ -286,7 +286,7 @@ namespace Attrib
 
 	
 	template <typename T>
-		bool						Instance::get(const TAttribute&attrib, T*target)	const
+		bool						Instance::GetChar(const TAttribute&attrib, T*target)	const
 		{
 			if (!Table::exists(attrib) || !attrib.copyable)
 				return false;
@@ -320,7 +320,7 @@ namespace Attrib
 		}
 
 	template <typename T>
-		T						Instance::get(const TAttribute&attrib)	const
+		T						Instance::GetChar(const TAttribute&attrib)	const
 		{
 			unsigned config = attrib.copyable;
 			T result = (T)0.0f;

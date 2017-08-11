@@ -28,7 +28,7 @@ namespace DeltaWorks
 		{
 			do
 			{
-				if (file.GetName().equalsIgnoreCase(entry.szExeFile))
+				if (file.GetName().EqualsIgnoreCase(entry.szExeFile))
 				{
 					MODULEENTRY32 mentry;
 					mentry.dwSize = sizeof(MODULEENTRY32);
@@ -38,7 +38,7 @@ namespace DeltaWorks
 						FileSystem::File mfile;
 						if (folder.FindFile(mentry.szExePath,mfile))
 						{
-							if (mfile.GetLocation().equalsIgnoreCase(file.GetLocation()))
+							if (mfile.GetLocation().EqualsIgnoreCase(file.GetLocation()))
 							{
 								CloseHandle(msnapshot);
 								CloseHandle(snapshot);

@@ -45,10 +45,10 @@ namespace DeltaWorks
         unsigned    tellByte();
         unsigned    tellBits();
         BYTE        showByte();
-        void        get(void*pntr, unsigned bits);
-        void        get(unsigned offset, void*pntr, unsigned bits);
+        void        GetChar(void*pntr, unsigned bits);
+        void        GetChar(unsigned offset, void*pntr, unsigned bits);
         bool        get();
-        bool        get(unsigned offset);
+        bool        GetChar(unsigned offset);
 	};
 }
 

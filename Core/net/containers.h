@@ -56,7 +56,7 @@ namespace DeltaWorks
 					if (str.length() > max_size)
 						return false;
 					for (index_t i = 0; i < str.length(); i++)
-						if (!IsValidChar(str.get(i)))
+						if (!IsValidChar(str.GetChar(i)))
 						{
 							//cout << "invalid char '"<<
 							return false;

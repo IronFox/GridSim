@@ -133,7 +133,7 @@ namespace DeltaWorks
 	\param size Length of the section in bytes
 	\return true on success
 
-	\fn bool  RandomAccessFile::erase(unsigned offset, unsigned size)
+	\fn bool  RandomAccessFile::Erase(unsigned offset, unsigned size)
 	\brief Erases a section from the open file. Any trailing data will be moved to the beginning of the section,
 	causing the file to shrink by size bytes.
 	\param offset Index of the first byte (0=first byte in the file)
@@ -154,7 +154,7 @@ namespace DeltaWorks
 	\param size Length of the section in bytes
 	\return true if the section could successfully be overwritten, false otherwise.
 
-	\fn bool  RandomAccessFile::insert(unsigned offset, const void*data, unsigned size)
+	\fn bool  RandomAccessFile::Insert(unsigned offset, const void*data, unsigned size)
 	\brief Inserts a data-section of size bytes into the file before the specified offset (offset 0 = before the first byte).
 	Inserting at offsets >= file size will result in an append-call.
 	\param offset Index of the first byte (0=first byte in the file)
@@ -162,7 +162,7 @@ namespace DeltaWorks
 	\param data Pointer to the first byte of the data field
 	\return true if the section could successfully be inserted, false otherwise.
 
-	\fn bool  RandomAccessFile::insert(unsigned offset, BYTE value, unsigned size)
+	\fn bool  RandomAccessFile::Insert(unsigned offset, BYTE value, unsigned size)
 	\brief Inserts a sequence of size times value into the file before the specified offset (offset 0 = before the first
 	byte).
 	Inserting at offsets >= file size will result in an append-call.
@@ -184,9 +184,9 @@ namespace DeltaWorks
 	\return true if the sequence could successfully be appended, false otherwise.
 
 
-	\fn bool RandomAccessFile::insert(unsigned offset, const C&target)
+	\fn bool RandomAccessFile::Insert(unsigned offset, const C&target)
 	\brief Inserts the given item into the file at the specified offset.
-	Identical to \a insert(offset, &target, sizeof(target));
+	Identical to \a Insert(offset, &target, sizeof(target));
 	\param offset Index of the first byte (0=first byte in the file)
 	\param target Reference to the item to insert
 	\return true if the item could be inserted at the specified offset, false otherwise.

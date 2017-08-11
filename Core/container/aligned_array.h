@@ -346,7 +346,7 @@ namespace DeltaWorks
 				
 			inline	void	resizeAdoptFrom(const C*origin, count_t length)	//!< Resizes the local field and adopts the specified number of elements
 			{
-				resize(length);
+				Resize(length);
 				for (register count_t i = 0; i < length; i++)
 					data[i].adoptData(origin[i]);
 			}
@@ -357,7 +357,7 @@ namespace DeltaWorks
 				{
 					if (max > origin.elements)
 						max = origin.elements;
-					resize(max);
+					Resize(max);
 					for (register count_t i = 0; i < max; i++)
 						data[i] = origin.data[i];
 				}
@@ -403,7 +403,7 @@ namespace DeltaWorks
 				}
 			
 			template <class T, size_t A1>
-				inline void insert(unsigned offset, const AlignedArray<T,A1>&origin, count_t max=Undefined)	//! Inserts some or all elements of \b origin before the specified offset (0=first element). Elements are duplicated using the = operator @param offset Offset to insert in front of (0= first element) \param origin Ctr::Array to copy from \param max Maximum number of elements to append
+				inline void Insert(unsigned offset, const AlignedArray<T,A1>&origin, count_t max=Undefined)	//! Inserts some or all elements of \b origin before the specified offset (0=first element). Elements are duplicated using the = operator @param offset Offset to insert in front of (0= first element) \param origin Ctr::Array to copy from \param max Maximum number of elements to append
 				{
 					if (offset >= elements)
 						append(origin,max);
@@ -464,7 +464,7 @@ namespace DeltaWorks
 					}
 				}
 			
-			inline void	erase(count_t index, count_t count=1)	//! Erases a number of elements from the array. The remaining elements (if any) are copied via the = operator. \param index Index of the first element to erase with 0 being the first entry \param count Number of elements to erase
+			inline void	Erase(count_t index, count_t count=1)	//! Erases a number of elements from the array. The remaining elements (if any) are copied via the = operator. \param index Index of the first element to erase with 0 being the first entry \param count Number of elements to erase
 			{
 				if (index >= elements)
 					return;
@@ -800,9 +800,9 @@ namespace DeltaWorks
 				{
 					return w?AlignedArray<C,A>::elements/w:0;
 				}
-		inline	void		resize(count_t width, count_t height)	//! Resizes the local 2d array to match the specified dimensions. The local array content is lost if the array's total size is changed
+		inline	void		Resize(count_t width, count_t height)	//! Resizes the local 2d array to match the specified dimensions. The local array content is lost if the array's total size is changed
 				{
-					AlignedArray<C,A>::resize(width*height);
+					AlignedArray<C,A>::Resize(width*height);
 					w = width;
 				}
 		template <typename T>
@@ -811,12 +811,12 @@ namespace DeltaWorks
 						AlignedArray<C,A>::data[y*w+x] = value;
 					}
 		
-		inline	C&			get(count_t x, count_t y)	//! Retrieves a singular element at the specified position	\param x X coordinate. Must be less than GetWidth() \param y Y coordinate. Must be less than GetHeight() \return Reference to the requested element
+		inline	C&			GetChar(count_t x, count_t y)	//! Retrieves a singular element at the specified position	\param x X coordinate. Must be less than GetWidth() \param y Y coordinate. Must be less than GetHeight() \return Reference to the requested element
 				{
 					return AlignedArray<C,A>::data[y*w+x];
 				}
 	
-		inline	const C&	get(count_t x, count_t y)	const	//! Retrieves a singular element at the specified position \param x X coordinate. Must be less than GetWidth() \param y Y coordinate. Must be less than GetHeight() \return Reference to the requested element
+		inline	const C&	GetChar(count_t x, count_t y)	const	//! Retrieves a singular element at the specified position \param x X coordinate. Must be less than GetWidth() \param y Y coordinate. Must be less than GetHeight() \return Reference to the requested element
 				{
 					return AlignedArray<C,A>::data[y*w+x];
 				}
@@ -847,7 +847,7 @@ namespace DeltaWorks
 	*/
 	template <class C, size_t A> inline void re_alloc(AlignedArray<C,A>&array, count_t elements)
 	{
-		array.resize(elements);
+		array.Resize(elements);
 	}
 
 	/*!
@@ -855,7 +855,7 @@ namespace DeltaWorks
 	*/
 	template <class FieldType, size_t A, class IndexType0, class IndexType1> inline void   reloc(AlignedArray<FieldType,A>&array, IndexType0&length, IndexType1 new_length)
 	{
-		array.resize(new_length);
+		array.Resize(new_length);
 		length = array.length();
 	}
 
@@ -864,7 +864,7 @@ namespace DeltaWorks
 	*/
 	template <class C, size_t A>  inline void alloc(AlignedArray<C,A>&target, count_t elements)
 	{
-		target.resize(elements);
+		target.Resize(elements);
 	}
 
 }			

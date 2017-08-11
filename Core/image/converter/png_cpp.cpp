@@ -134,7 +134,7 @@ namespace DeltaWorks
 			image[i] = new png_byte[resource.GetWidth()*resource.GetChannels()];
 			for (unsigned j = 0; j < resource.GetWidth(); j++)
 			{
-				const BYTE*pixel = resource.get(j,resource.GetHeight()-1-i);
+				const BYTE*pixel = resource.Get(j,resource.GetHeight()-1-i);
 				for (BYTE k = 0; k < info->channels; k++)
 					image[i][j*info->channels+k] = pixel[k];
 			}
@@ -197,7 +197,7 @@ namespace DeltaWorks
 			image[i] = new png_byte[resource.GetWidth()*resource.GetChannels()];
 			for (unsigned j = 0; j < resource.GetWidth(); j++)
 			{
-				const BYTE*pixel = resource.get(j,resource.GetHeight()-1-i);
+				const BYTE*pixel = resource.Get(j,resource.GetHeight()-1-i);
 				for (BYTE k = 0; k < info->channels; k++)
 					image[i][j*info->channels+k] = pixel[k];
 			}
@@ -263,7 +263,7 @@ namespace DeltaWorks
 				for (unsigned x = 0; x < info->width; x++)
 					for (unsigned y = 0; y < info->height; y++)
 					{
-						BYTE*pixel = target.get(x,y);
+						BYTE*pixel = target.Get(x,y);
 						if (palette)
 							_c3(&info->palette[image[y][x]*info->channels].red,pixel);
 						else
@@ -281,12 +281,12 @@ namespace DeltaWorks
 		unsigned pass = png_set_interlace_handling(png);
 		for (unsigned i = 0; i < pass; i++)
 			for (unsigned j = 0; j < info->height; j++)
-				png_read_row(png,target.get(0,j),NULL);
+				png_read_row(png,target.GetChar(0,j),NULL);
 	*/
 		png_destroy_info_struct(png,&info);
 		png_destroy_read_struct(&png,NULL,NULL);
 		target.FlipVertically();
-	//    target.resize(128,128);
+	//    target.Resize(128,128);
 
 	}
 
@@ -327,7 +327,7 @@ namespace DeltaWorks
 				image[i] = new png_byte[source_image.GetWidth()*source_image.GetChannels()];
 				for (UINT32 j = 0; j < source_image.GetWidth(); j++)
 				{
-					const BYTE*pixel = source_image.get(j,i);
+					const BYTE*pixel = source_image.Get(j,i);
 					for (BYTE k = 0; k < info->channels; k++)
 						image[i][j*info->channels+k] = pixel[k];
 				}
@@ -399,7 +399,7 @@ namespace DeltaWorks
 				image[i] = new png_byte[source_image.GetWidth()*source_image.GetChannels()];
 				for (UINT32 j = 0; j < source_image.GetWidth(); j++)
 				{
-					const BYTE*pixel = source_image.get(j,i);
+					const BYTE*pixel = source_image.Get(j,i);
 					for (BYTE k = 0; k < info->channels; k++)
 						image[i][j*info->channels+k] = pixel[k];
 				}

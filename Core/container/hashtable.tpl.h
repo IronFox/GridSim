@@ -18,7 +18,7 @@ template <typename Tfrom, typename Tto>
 
 
 template <class Carrier>
-	inline void					GenericHashBase<Carrier>::resize(size_t new_size)
+	inline void					GenericHashBase<Carrier>::Resize(size_t new_size)
 	{
 
 
@@ -158,7 +158,7 @@ template <class Carrier>
 		count_t newSize = array.length() >> 1;
 		while (entries*5 < newSize && newSize > InitialSize)
 			newSize >>= 1;
-		resize(newSize);
+		Resize(newSize);
 		return true;
 	}
 	
@@ -275,7 +275,7 @@ template <class Carrier, class Hash>
 			}
 
 		if (anyChanged && !Base::Tidy())
-			Base::resize(array.Count());//will sort elements to where they should be
+			Base::Resize(array.Count());//will sort elements to where they should be
 	}
 
 
@@ -376,7 +376,7 @@ template <class K, class C, class Hash, class KeyStrategy, class DataStrategy>
 				}
 
 			if (anyChanged && !Base::Tidy())
-				Base::resize(array.Count());//will sort elements to where they should be
+				Base::Resize(array.Count());//will sort elements to where they should be
 		}
 
 template <class K, class C, class Hash, class KeyStrategy, class DataStrategy>
@@ -518,13 +518,13 @@ template <class K, class C, class Hash, class KeyStrategy, class DataStrategy>
 	}
 
 template <class K, class C, class Hash, class KeyStrategy, class DataStrategy>
-	inline	C&					GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::get(const K&ident, C&except)
+	inline	C&					GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::GetChar(const K&ident, C&except)
 	{
 		C*ptr = queryPointer(ident);
 		return ptr ? *ptr : except;
 	}
 template <class K, class C, class Hash, class KeyStrategy, class DataStrategy>
-	inline	const C&				GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::get(const K&ident, const C&except)	const
+	inline	const C&				GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::GetChar(const K&ident, const C&except)	const
 	{
 		const C*ptr = queryPointer(ident);
 		return ptr ? *ptr : except;
@@ -735,7 +735,7 @@ template <class K, class C, class Hash, class KeyStrategy> template <class Key>
 	}
 	
 template <class K, class C, class Hash, class KeyStrategy> template <class Key>
-	inline  bool GenericHashContainer<K,C,Hash,KeyStrategy>::erase(const Key&ident)
+	inline  bool GenericHashContainer<K,C,Hash,KeyStrategy>::Erase(const Key&ident)
 	{
 
 		DataType t = drop(ident);

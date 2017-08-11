@@ -190,11 +190,11 @@ namespace DeltaWorks
 		
 			
 			template <typename T>
-				static	bool						get(const TAttribute&attrib, T*target, count_t len);
+				static	bool						GetChar(const TAttribute&attrib, T*target, count_t len);
 			template <typename T>
-				static	bool						get(const TAttribute&attrib, T*target);
+				static	bool						GetChar(const TAttribute&attrib, T*target);
 			template <typename T>
-				static	T							get(const TAttribute&attrib);
+				static	T							GetChar(const TAttribute&attrib);
 
 			static	bool							set(const TAttribute&attrib, const int*values, count_t len);
 			static	bool							set(const TAttribute&attrib, const bool*values, count_t len);
@@ -224,11 +224,11 @@ namespace DeltaWorks
 														string_storage.adoptData(other.string_storage);
 													}
 				template <typename T>
-					bool							get(const TAttribute&attrib, T*target, unsigned len)	const;
+					bool							GetChar(const TAttribute&attrib, T*target, unsigned len)	const;
 				template <typename T>
-					bool							get(const TAttribute&attrib, T*target)	const;
+					bool							GetChar(const TAttribute&attrib, T*target)	const;
 				template <typename T>
-					T								get(const TAttribute&attrib)	const;
+					T								GetChar(const TAttribute&attrib)	const;
 
 					bool							set(const TAttribute&attrib, const int*values, unsigned len);
 					bool							set(const TAttribute&attrib, const double*values, unsigned len);

@@ -24,70 +24,73 @@ namespace DeltaWorks
 	void StringFile::stripComments(String&str)
 	{
 		//log_file << "stripping comments of '"<<str<<"'"<<nl;
-		index_t comment_start(1);
+		index_t comment_start(0);
 		while (true)
 		{
 			if (/*(conversion_flags&CM_RECORD_COMMENTS) && */in_comment)
 			{
-				index_t at = str.GetIndexOf(comment_end);
-				if (at)
+				index_t at = str.Find(comment_end);
+				if (at != InvalidIndex)
 				{
+					at++;
 					if (conversion_flags&CM_RECORD_COMMENTS)
-						comment += " "+str.subString(comment_start+comment_begin.length()-1,at-comment_start-comment_begin.length());
-					str.erase(comment_start-1,at+comment_end.length()-comment_start);
+						comment += " "+str.subString(comment_start+comment_begin.length(),at-comment_start-comment_begin.length()+1);
+					str.Erase(comment_start,at+comment_end.length()-comment_start + 1);
 					in_comment = false;
 				}
 				else
 				{
 					if (conversion_flags&CM_RECORD_COMMENTS)
-						comment += " "+str.subString(comment_start+comment_begin.length()-1);
-					str.erase(comment_start-1);
+						comment += " "+str.subString(comment_start+comment_begin.length());
+					str.Erase(comment_start);
 					//log_file << " => '"<<str<<"'"<<nl;
 					return;
 				}
 			}
-			index_t lcomment(0),lscomment(0),bcomment(0);
+			index_t lcommentAt(InvalidIndex),
+					lscommentAt(InvalidIndex),
+					bcommentAt(InvalidIndex);
 			if (conversion_flags&CM_STRIP_LINE_COMMENTS)
-				lcomment = str.GetIndexOf(lineComment);
+				lcommentAt = str.Find(lineComment);
 			if (conversion_flags&CM_STRIP_LINE_START_COMMENTS)
 			{
-				index_t candidate = str.GetIndexOf(lineStartComment);
-				bool valid = candidate > 0;
-				for (index_t i = 0; i+1 < candidate; i++)
+				index_t candidate = str.Find(lineStartComment);
+				bool valid = candidate != InvalidIndex;
+				for (index_t i = 0; i < candidate; i++)
 				{
-					if (!IsWhitespace(str.get(i)))
+					if (!IsWhitespace(str.GetChar(i)))
 					{
 						valid = false;
 						break;
 					}
 				}
 				if (valid)
-					lscomment = candidate;
+					lscommentAt = candidate;
 			}
 			if (conversion_flags&CM_STRIP_BLOCK_COMMENTS)
-				bcomment = str.GetIndexOf(comment_begin);
-			if (!bcomment && !lcomment && !lscomment)
+				bcommentAt = str.Find(comment_begin);
+			if (bcommentAt == InvalidIndex && lcommentAt ==InvalidIndex && lscommentAt == InvalidIndex)
 			{
 				//log_file << " => '"<<str<<"'"<<nl;
 				return;
 			}
-			if (lscomment)
-			{
-				if (conversion_flags&CM_RECORD_COMMENTS)
-					comment += " "+str.subString(lscomment+lineStartComment.length()-1);
-				str.erase(lscomment-1);
-				//log_file << " => '"<<str<<"'"<<nl;
-				return;
-			}
-			if (lcomment && (lcomment < bcomment || !bcomment))
+			if (lscommentAt != InvalidIndex)
 			{
 				if (conversion_flags&CM_RECORD_COMMENTS)
-					comment += " "+str.subString(lcomment+lineComment.length()-1);
-				str.erase(lcomment-1);
+					comment += " "+str.subString(lscommentAt+lineStartComment.length());
+				str.Erase(lscommentAt);
 				//log_file << " => '"<<str<<"'"<<nl;
 				return;
 			}
-			comment_start = bcomment;
+			if (lcommentAt < bcommentAt)
+			{
+				if (conversion_flags&CM_RECORD_COMMENTS)
+					comment += " "+str.subString(lcommentAt+lineComment.length());
+				str.Erase(lcommentAt);
+				//log_file << " => '"<<str<<"'"<<nl;
+				return;
+			}
+			comment_start = bcommentAt;
 			in_comment = true;
 		}
 		//log_file << " => '"<<str<<"'"<<nl;

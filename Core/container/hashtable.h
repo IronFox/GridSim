@@ -153,7 +153,7 @@ namespace DeltaWorks
 				inline Carrier*					find(hash_t Hash, const Key&key, bool occupy,bool*did_occupy=NULL)	//!< Carrier lookup via a key and its Hash-value. \param Hash Hashvalue of the provided string (usually the result of hashString(key)) \param key Key to look for \param occupy Forces the hashtable to occupy a new carrier for the specified key if it could not be found. \param did_occupy If non NULL then \b did_occupy will be set true if a carrier was occupied, false otherwise. \return Pointer to the occupied carrier if the key could be found or \b occupy was set true. Otherwise to a non-occupied carrier.
 												{
 													if (occupy && entries+1 >= array.length()*0.8)
-														resize(array.length()*2);
+														Resize(array.length()*2);
 													size_t offset = Hash%array.length();
 
 													Carrier*const raw = array.pointer();	//avoid redundant check
@@ -190,7 +190,7 @@ namespace DeltaWorks
 
 													return raw+offset;
 												}
-				inline void						resize(size_t new_size);							//!< Resizes the hashtable to the specified size and remaps all table entries \param new_size New number of entries to use
+				inline void						Resize(size_t new_size);							//!< Resizes the hashtable to the specified size and remaps all table entries \param new_size New number of entries to use
 				inline void 					remove(Carrier*c);									//!< Removes the specified carrier from the table. Invokes Tidy(). \param c Carrier to remove.
 
 				/**
@@ -360,10 +360,10 @@ namespace DeltaWorks
 				inline	DataType&					Set(const K&ident, const DataType&v)		{return set(ident,v);}
 				inline	DataType&					set(const K&ident);						//!< Sets the specified key if it is currently not set and returns a reference to it. No change occurs if the specified key is already set (merely returns a reference to it)
 				inline	DataType&					Set(const K&ident)						{return set(ident);}
-				inline	DataType&					get(const K&ident, DataType&except);		//!< Returns a (mutable) reference to the data associated with the specified key, or @a except if no such could be found.
-				inline	DataType&					Get(const K&ident, DataType&except)		{return get(ident,except);}
-				inline	const C&					get(const K&ident, const C&except)	const;			//!< Returns a (const) reference to the data associated with the specified key, or @a except if no such could be found.
-				inline	const C&					Get(const K&ident, const C&except)	const	{return get(ident,except);}
+				inline	DataType&					GetChar(const K&ident, DataType&except);		//!< Returns a (mutable) reference to the data associated with the specified key, or @a except if no such could be found.
+				inline	DataType&					Get(const K&ident, DataType&except)		{return GetChar(ident,except);}
+				inline	const C&					GetChar(const K&ident, const C&except)	const;			//!< Returns a (const) reference to the data associated with the specified key, or @a except if no such could be found.
+				inline	const C&					Get(const K&ident, const C&except)	const	{return GetChar(ident,except);}
 				inline	DataType&					require(const K&ident);					//!< Returns a (mutable) reference to the data associated with the specified key. An assertion will fire, if the requested element does not exist
 				inline	DataType&					Require(const K&ident)					{return require(ident);}
 				inline	const C&					require(const K&ident)	const;			//!< Returns a (const) reference to the data associated with the specified key. An assertion will fire, if the requested element does not exist
@@ -437,7 +437,7 @@ namespace DeltaWorks
 				template <class Key>
 					inline	DataType				drop(const Key&ident);						//!< Drops the data associated with the specified key without deleting it. Succeeding calls to lookup(ident) will return NULL. \param ident Key to look for. \return Pointer to the associated data or NULL if \b ident could not be found.
 				template <class Key>
-					inline	bool					erase(const Key&ident);
+					inline	bool					Erase(const Key&ident);
 
 				template <class Key>
 					inline	DataType				lookup(const Key&ident);					//!< Identical to lookup(ident)
@@ -452,7 +452,7 @@ namespace DeltaWorks
 			
 					using Root::isSet;
 					using Root::count;
-					using Root::get;
+					using Root::Get;
 					using Root::totalSize;
 					#ifndef __BORLANDC__
 					using Root::exportTo;

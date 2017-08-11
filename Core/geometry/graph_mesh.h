@@ -664,7 +664,7 @@ namespace DeltaWorks
 		void				LoadFromFile(const PathString&filename,bool compactify=true);
 		void				SaveToFile(const PathString&filename)	const;
 
-		void				writeTo(XML::Node&node)	const;
+		void				WriteTo(XML::Node&node)	const;
 		void				readFrom(const XML::Node*xnodes, const XML::Node*xedges);
 		
 		

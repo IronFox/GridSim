@@ -602,7 +602,7 @@ namespace DeltaWorks
 				count_t								degree;		//!< Number of edges connected to this vertex
 			
 				MF_CONSTRUCTOR						TGraphDefVertex();
-				MF_DECLARE (void)						insert(MeshEdge<TGraphDef<Def> >*edge);	//!< Inserts an edge into the local edge list
+				MF_DECLARE (void)						Insert(MeshEdge<TGraphDef<Def> >*edge);	//!< Inserts an edge into the local edge list
 				MF_DECLARE (bool)						unlink(MeshEdge<TGraphDef<Def> >*edge);	//!< Removes an edge from the local edge list
 				MF_DECLARE (MeshEdge<TGraphDef<Def> >*)	findEdgeTo(MeshVertex<TGraphDef<Def> >*vertex)	const;	//!< Attempts to find an edge leading from the local vertex to the specified target vertex \param vertex Target vertex \return Pointer to an edge connecting the local vertex and the target vertex or NULL if no such could be found.
 			};
@@ -636,11 +636,11 @@ namespace DeltaWorks
 				MF_DECLARE	(BYTE)					requireIndexOf(const MeshTriangle<TGraphDef<Def> >*t)	const;	//!< Identical to GetIndexOf() except that requireIndexOf() throws an exception if -1 would have been returned
 				MF_DECLARE	(BYTE)					requireIndexOf(const MeshEdge<TGraphDef<Def> >*e)		const;	//!< Identical to GetIndexOf() except that requireIndexOf() throws an exception if -1 would have been returned
 			
-				MF_DECLARE	(char)					replace(MeshQuad<TGraphDef<Def> >*neighbor, MeshQuad<TGraphDef<Def> >*with);
-				MF_DECLARE	(char)					replace(MeshQuad<TGraphDef<Def> >*neighbor, MeshTriangle<TGraphDef<Def> >*with);
-				MF_DECLARE	(char)					replace(MeshTriangle<TGraphDef<Def> >*neighbor, MeshTriangle<TGraphDef<Def> >*with);
-				MF_DECLARE	(char)					replace(MeshTriangle<TGraphDef<Def> >*neighbor, MeshQuad<TGraphDef<Def> >*with);
-				MF_DECLARE	(char)					replace(MeshEdge<TGraphDef<Def> >*e, MeshEdge<TGraphDef<Def> >*with);			
+				MF_DECLARE	(char)					FindAndReplace(MeshQuad<TGraphDef<Def> >*neighbor, MeshQuad<TGraphDef<Def> >*with);
+				MF_DECLARE	(char)					FindAndReplace(MeshQuad<TGraphDef<Def> >*neighbor, MeshTriangle<TGraphDef<Def> >*with);
+				MF_DECLARE	(char)					FindAndReplace(MeshTriangle<TGraphDef<Def> >*neighbor, MeshTriangle<TGraphDef<Def> >*with);
+				MF_DECLARE	(char)					FindAndReplace(MeshTriangle<TGraphDef<Def> >*neighbor, MeshQuad<TGraphDef<Def> >*with);
+				MF_DECLARE	(char)					FindAndReplace(MeshEdge<TGraphDef<Def> >*e, MeshEdge<TGraphDef<Def> >*with);			
 			
 				MF_DECLARE	(String)				ToString(bool full=true)	const;		//!< Generates a string representation of the local triangle
 			};
@@ -677,11 +677,11 @@ namespace DeltaWorks
 				MF_DECLARE	(BYTE)					requireIndexOf(const MeshTriangle<TGraphDef<Def> >*t)	const;	//!< Identical to GetIndexOf() except that requireIndexOf() throws an exception if -1 would have been returned
 				MF_DECLARE	(BYTE)					requireIndexOf(const MeshEdge<TGraphDef<Def> >*e)		const;	//!< Identical to GetIndexOf() except that requireIndexOf() throws an exception if -1 would have been returned
 			
-				MF_DECLARE	(char)					replace(MeshQuad<TGraphDef<Def> >*v, MeshQuad<TGraphDef<Def> >*with);
-				MF_DECLARE	(char)					replace(MeshQuad<TGraphDef<Def> >*v, MeshTriangle<TGraphDef<Def> >*with);
-				MF_DECLARE	(char)					replace(MeshTriangle<TGraphDef<Def> >*v, MeshTriangle<TGraphDef<Def> >*with);
-				MF_DECLARE	(char)					replace(MeshTriangle<TGraphDef<Def> >*v, MeshQuad<TGraphDef<Def> >*with);
-				MF_DECLARE	(char)					replace(MeshEdge<TGraphDef<Def> >*e, MeshEdge<TGraphDef<Def> >*with);
+				MF_DECLARE	(char)					FindAndReplace(MeshQuad<TGraphDef<Def> >*v, MeshQuad<TGraphDef<Def> >*with);
+				MF_DECLARE	(char)					FindAndReplace(MeshQuad<TGraphDef<Def> >*v, MeshTriangle<TGraphDef<Def> >*with);
+				MF_DECLARE	(char)					FindAndReplace(MeshTriangle<TGraphDef<Def> >*v, MeshTriangle<TGraphDef<Def> >*with);
+				MF_DECLARE	(char)					FindAndReplace(MeshTriangle<TGraphDef<Def> >*v, MeshQuad<TGraphDef<Def> >*with);
+				MF_DECLARE	(char)					FindAndReplace(MeshEdge<TGraphDef<Def> >*e, MeshEdge<TGraphDef<Def> >*with);
 			
 				MF_DECLARE	(String)				ToString(bool full=true)	const;		//!< Generates a string representation of the local quad
 			};
@@ -731,8 +731,8 @@ namespace DeltaWorks
 				typename Def::Type					weight;	//!< Vertex weight (for detail reduction)
 			
 				MF_CONSTRUCTOR						TFaceGraphDefVertex();
-				MF_DECLARE (void)						insert(MeshQuad<TFaceGraphDef<Def> >*quad);			//!< Inserts the specified quad into the local list of connected faces
-				MF_DECLARE (void)						insert(MeshTriangle<TFaceGraphDef<Def> >*triangle);	//!< Inserts the specified triangle into the local list of connected faces
+				MF_DECLARE (void)						Insert(MeshQuad<TFaceGraphDef<Def> >*quad);			//!< Inserts the specified quad into the local list of connected faces
+				MF_DECLARE (void)						Insert(MeshTriangle<TFaceGraphDef<Def> >*triangle);	//!< Inserts the specified triangle into the local list of connected faces
 				MF_DECLARE (bool)						unlink(MeshQuad<TFaceGraphDef<Def> >*quad);			//!< Removes the specified quad from the local list of connected faces
 				MF_DECLARE (bool)						unlink(MeshTriangle<TFaceGraphDef<Def> >*triangle);	//!< Removes the specified triangle from the local list of connected faces
 			
@@ -782,10 +782,10 @@ namespace DeltaWorks
 				MF_DECLARE	(BYTE)					requireIndexOf(const MeshTriangle<TFaceGraphDef<Def> >*t)	const;	//!< Identical to GetIndexOf() except that requireIndexOf() throws an exception if -1 would have been returned
 				MF_DECLARE	(BYTE)					requireIndexOfTriangle(const MeshTriangle<TFaceGraphDef<Def> >*t)	const;	//!< Explicit version of the above
 			
-				MF_DECLARE	(char)					replace(MeshQuad<TFaceGraphDef<Def> >*neighbor, MeshQuad<TFaceGraphDef<Def> >*with);
-				MF_DECLARE	(char)					replace(MeshQuad<TFaceGraphDef<Def> >*neighbor, MeshTriangle<TFaceGraphDef<Def> >*with);
-				MF_DECLARE	(char)					replace(MeshTriangle<TFaceGraphDef<Def> >*neighbor, MeshTriangle<TFaceGraphDef<Def> >*with);
-				MF_DECLARE	(char)					replace(MeshTriangle<TFaceGraphDef<Def> >*neighbor, MeshQuad<TFaceGraphDef<Def> >*with);
+				MF_DECLARE	(char)					FindAndReplace(MeshQuad<TFaceGraphDef<Def> >*neighbor, MeshQuad<TFaceGraphDef<Def> >*with);
+				MF_DECLARE	(char)					FindAndReplace(MeshQuad<TFaceGraphDef<Def> >*neighbor, MeshTriangle<TFaceGraphDef<Def> >*with);
+				MF_DECLARE	(char)					FindAndReplace(MeshTriangle<TFaceGraphDef<Def> >*neighbor, MeshTriangle<TFaceGraphDef<Def> >*with);
+				MF_DECLARE	(char)					FindAndReplace(MeshTriangle<TFaceGraphDef<Def> >*neighbor, MeshQuad<TFaceGraphDef<Def> >*with);
 			
 				MF_DECLARE	(String)					ToString(bool full=true)	const;		//!< Generates a string representation of the local triangle
 			};
@@ -820,10 +820,10 @@ namespace DeltaWorks
 				MF_DECLARE	(BYTE)					requireIndexOf(const MeshQuad<TFaceGraphDef<Def> >*q)		const;	//!< Identical to GetIndexOf() except that requireIndexOf() throws an exception if -1 would have been returned
 				MF_DECLARE	(BYTE)					requireIndexOf(const MeshTriangle<TFaceGraphDef<Def> >*t)	const;	//!< Identical to GetIndexOf() except that requireIndexOf() throws an exception if -1 would have been returned
 			
-				MF_DECLARE	(char)					replace(MeshQuad<TFaceGraphDef<Def> >*v, MeshQuad<TFaceGraphDef<Def> >*with);
-				MF_DECLARE	(char)					replace(MeshQuad<TFaceGraphDef<Def> >*v, MeshTriangle<TFaceGraphDef<Def> >*with);
-				MF_DECLARE	(char)					replace(MeshTriangle<TFaceGraphDef<Def> >*v, MeshTriangle<TFaceGraphDef<Def> >*with);
-				MF_DECLARE	(char)					replace(MeshTriangle<TFaceGraphDef<Def> >*v, MeshQuad<TFaceGraphDef<Def> >*with);
+				MF_DECLARE	(char)					FindAndReplace(MeshQuad<TFaceGraphDef<Def> >*v, MeshQuad<TFaceGraphDef<Def> >*with);
+				MF_DECLARE	(char)					FindAndReplace(MeshQuad<TFaceGraphDef<Def> >*v, MeshTriangle<TFaceGraphDef<Def> >*with);
+				MF_DECLARE	(char)					FindAndReplace(MeshTriangle<TFaceGraphDef<Def> >*v, MeshTriangle<TFaceGraphDef<Def> >*with);
+				MF_DECLARE	(char)					FindAndReplace(MeshTriangle<TFaceGraphDef<Def> >*v, MeshQuad<TFaceGraphDef<Def> >*with);
 		
 				MF_DECLARE	(String)					ToString(bool full=true)	const;		//!< Generates a string representation of the local quad
 			};
@@ -931,11 +931,11 @@ namespace DeltaWorks
 			MF_DECLARE	(BYTE)					requireIndexOf(const MeshTriangle<Def>*t)	const;	//!< Identical to GetIndexOf() except that requireIndexOf() throws an exception if -1 would have been returned
 			MF_DECLARE	(BYTE)					requireIndexOf(const MeshQuad<Def>*t)		const;	//!< Identical to GetIndexOf() except that requireIndexOf() throws an exception if -1 would have been returned
 	
-			MF_DECLARE	(char)					replace(MeshVertex<Def>*v, MeshVertex<Def>*with);
-			MF_DECLARE	(char)					replace(MeshQuad<Def>*v, MeshQuad<Def>*with);
-			MF_DECLARE	(char)					replace(MeshQuad<Def>*v, MeshTriangle<Def>*with);
-			MF_DECLARE	(char)					replace(MeshTriangle<Def>*v, MeshTriangle<Def>*with);
-			MF_DECLARE	(char)					replace(MeshTriangle<Def>*v, MeshQuad<Def>*with);
+			MF_DECLARE	(char)					FindAndReplace(MeshVertex<Def>*v, MeshVertex<Def>*with);
+			MF_DECLARE	(char)					FindAndReplace(MeshQuad<Def>*v, MeshQuad<Def>*with);
+			MF_DECLARE	(char)					FindAndReplace(MeshQuad<Def>*v, MeshTriangle<Def>*with);
+			MF_DECLARE	(char)					FindAndReplace(MeshTriangle<Def>*v, MeshTriangle<Def>*with);
+			MF_DECLARE	(char)					FindAndReplace(MeshTriangle<Def>*v, MeshQuad<Def>*with);
 			
 			};
 
@@ -956,7 +956,7 @@ namespace DeltaWorks
 
 			MF_DECLARE	(char)					GetIndexOf(const MeshVertex<Def>*v)	const;		//!< Determines the index of the specified vertex. \return requested index or -1 if the specified vertex is not linked by this triangle
 			MF_DECLARE	(BYTE)					requireIndexOf(const MeshVertex<Def>*v)	const;	//!< Identical to GetIndexOf() except that requireIndexOf() throws an exception if -1 would have been returned
-			MF_DECLARE	(char)					replace(MeshVertex<Def>*v, MeshVertex<Def>*with);
+			MF_DECLARE	(char)					FindAndReplace(MeshVertex<Def>*v, MeshVertex<Def>*with);
 			};
 	
 		template <class Def>
@@ -977,7 +977,7 @@ namespace DeltaWorks
 
 			MF_DECLARE	(char)					GetIndexOf(const MeshVertex<Def>*v)	const;		//!< Determines the index of the specified vertex. \return requested index or -1 if the specified vertex is not linked by this quad
 			MF_DECLARE	(BYTE)					requireIndexOf(const MeshVertex<Def>*v)	const;	//!< Identical to GetIndexOf() except that requireIndexOf() throws an exception if -1 would have been returned
-			MF_DECLARE	(char)					replace(MeshVertex<Def>*v, MeshVertex<Def>*with);
+			MF_DECLARE	(char)					FindAndReplace(MeshVertex<Def>*v, MeshVertex<Def>*with);
 			};
 	
 
@@ -1059,7 +1059,7 @@ namespace DeltaWorks
 			template <class T>MF_CONSTRUCTOR		Mesh(const Mesh<T>&other);
 			virtual									~Mesh();
 			MF_DECLARE	(void)						clear();			//!< Clears all local data
-			MF_DECLARE	(void)						resize(count_t vcnt, count_t ecnt, count_t tcnt, count_t qcnt);	//!< @deprecated Resizes all arrays to the respective sizes.
+			MF_DECLARE	(void)						Resize(count_t vcnt, count_t ecnt, count_t tcnt, count_t qcnt);	//!< @deprecated Resizes all arrays to the respective sizes.
 			MF_DECLARE	(void)						unmark(unsigned selection=O_ALL);	//!< Sets the 'marked' member of the specified member components to false \param selection May be any combination of O_VERTICES, O_EDGES, O_TRIANGLES, and O_QUADS. Additionally O_FACES combine O_TRIANGLES and O_QUADS and O_ALL means all components. Non specified components are left unchanged.
 
 			MF_DECLARE	(void)						correct(unsigned selection=O_ALL);	//!< Attempts to correct any existing link errors among the specified components. Incorrect components that cannot be repaired are dropped. \param selection May be any combination of O_VERTICES, O_EDGES, O_TRIANGLES, and O_QUADS. Additionally O_FACES combine O_TRIANGLES and O_QUADS and O_ALL means all components. Non specified components are left unchanged.
@@ -1115,7 +1115,7 @@ namespace DeltaWorks
 				
 				
 			MF_DECLARE	(bool)						IsEmpty()																				const;	//!< Returns true if the local mesh contains no vertices, egdes, or faces
-			MF_DECLARE	(bool)						isValid(const TMeshFaceLink<Def>&link, bool may_be_null=true, bool may_be_marked=true)	const;	//!< Checks if the specified face link is valid \param may_be_null Set true to allow an unset (NULL) target \param may_be_marked Set true to allow a marked target
+			MF_DECLARE	(bool)						IsValid(const TMeshFaceLink<Def>&link, bool may_be_null=true, bool may_be_marked=true)	const;	//!< Checks if the specified face link is valid \param may_be_null Set true to allow an unset (NULL) target \param may_be_marked Set true to allow a marked target
 			MF_DECLARE	(sindex_t)					linkToIndex(const TMeshFaceLink<Def>&link)												const;	//!< Converts a link to an integer index. The resulting int is negative for a quad target and positive for a triangle target. Quad indices start with -1 and decrease, triangle	indices start with 0 and increase. If the specified link is not set then the result will be the largest positive integer.
 			MF_DECLARE	(bool)						indexToLink(sindex_t index, TMeshFaceLink<Def>&link);													//!< Converts a link integer to an actual face link. The method effectivly reverts the result of linkToIndex(). \param index Face target index as retrieved from linkToIndex() \param link Target face link. The target face link will be unset if \b index is invalid. \return true if the specified index was valid and link could be set, false otherwise
 				
@@ -1279,7 +1279,7 @@ namespace DeltaWorks
 				MF_DECLARE	(void)			resolveIndentation(const AbstractCylinder<Float>&remote, Float&indentation, M::TVec3<Float>& indentation_vector, bool verbose)	const;//!< Attempts to determine the direction and intensity of an intersection between the local and a remote abstract geometry  \param remote Geometry to determine the indentation/intersection of \param indentation_vector Out vector that the local cylinder would have to be moved by to deintersect the two geometries. The resulting vector is of length 0 if the two geometries don't intersect.
 				MF_DECLARE(bool)			intersects(const AbstractSphere<Float>&remote)		const;
 				MF_DECLARE(bool)			intersects(const AbstractCylinder<Float>&remote)	const;
-				MFUNC(bool)					contains(const M::TVec3<C>&point)	const;
+				MFUNC(bool)					Contains(const M::TVec3<C>&point)	const;
 			};
 			
 			

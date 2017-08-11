@@ -731,7 +731,7 @@ namespace DeltaWorks
 
 	void		binaryToHex(const void*data, size_t data_size, String&target)
 	{
-		target.resize((unsigned)data_size<<1);
+		target.Resize((unsigned)data_size<<1);
 		const BYTE*pntr = (const BYTE*)data;
 		for (unsigned i = 0; i < data_size; i++)
 		{

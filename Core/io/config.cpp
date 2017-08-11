@@ -59,19 +59,19 @@ namespace DeltaWorks
 
 		Context::Attribute&		Context::Define(const String&name, const String&value)
 		{
-			if (!name.contains('/'))
-				return protectedDefine(name.trim(),value);
+			if (!name.Contains('/'))
+				return protectedDefine(name.Trim(),value);
 
 			Ctr::Array<String>	components;
 			explode('/',name,components);
-			return protectedDefineContext(components.pointer(),components.count()-1).protectedDefine(components.last().trim(),value);
+			return protectedDefineContext(components.pointer(),components.count()-1).protectedDefine(components.last().Trim(),value);
 		}
 
 		Context&					Context::protectedDefineContext(const String*names, count_t num_names)
 		{
 			Context*ctx = this;
 			for (index_t i = 0; i < num_names; i ++)
-				ctx = &ctx->protectedDefineContext(names[i].trim());
+				ctx = &ctx->protectedDefineContext(names[i].Trim());
 			return *ctx;
 		}
 	
@@ -91,8 +91,8 @@ namespace DeltaWorks
 		}
 		Context&					Context::DefineContext(const String&name)
 		{
-			if (!name.contains('/'))
-				return protectedDefineContext(name.trim());
+			if (!name.Contains('/'))
+				return protectedDefineContext(name.Trim());
 
 			Ctr::Array<String>	components;
 			explode('/',name,components);
@@ -194,12 +194,13 @@ namespace DeltaWorks
 			if (!segments.count())
 				return nullptr;
 			String mode;
-			if (index_t at = segments.first().GetIndexOf(':'))
+			index_t at= segments.first().Find(':');
+			if ( at != InvalidIndex)
 			{
-				mode = segments.first().subString(0,at-1);
-				segments.first().erase(0,at).trimThis();
+				mode = segments.first().subString(0,at);
+				segments.first().Erase(0,at+1).TrimThis();
 				if (!segments.first().length())
-					segments.erase(index_t(0));
+					segments.Erase(index_t(0));
 			
 			}
 			//std::cout << "retrieving attribute '"+implode(", ",segments)+"' ("+mode+")"<<std::endl;
@@ -232,12 +233,13 @@ namespace DeltaWorks
 			if (!segments.count())
 				return nullptr;
 			String mode;
-			if (index_t at = segments.first().GetIndexOf(':'))
+			index_t at = segments.first().Find(':');
+			if (at != InvalidIndex)
 			{
-				mode = segments.first().subString(0,at-1);
-				segments.first().erase(0,at).trimThis();
+				mode = segments.first().subString(0,at);
+				segments.first().Erase(0,at+1).TrimThis();
 				if (!segments.first().length())
-					segments.erase(index_t(0));
+					segments.Erase(index_t(0));
 			
 			}
 			const Context*context = (segments.count()>1||mode.length())?GetContext(segments.pointer(),segments.count()-1,mode):this;
@@ -389,10 +391,11 @@ namespace DeltaWorks
 			if (!segments.count())
 				return NULL;
 			String mode;
-			if (index_t at = segments.first().GetIndexOf(':'))
+			index_t at = segments.first().Find(':');
+			if (at != InvalidIndex)
 			{
-				mode = segments.first().subString(0,at-1);
-				segments.first().erase(0,at);
+				mode = segments.first().subString(0,at);
+				segments.first().Erase(0,at+1);
 			}
 			return GetContext(segments.pointer(),segments.count(),mode);
 		}
@@ -415,10 +418,11 @@ namespace DeltaWorks
 			if (!segments.count())
 				return nullptr;
 			String mode;
-			if (index_t at = segments.first().GetIndexOf(':'))
+			index_t at = segments.first().Find(':');
+			if (at != InvalidIndex)
 			{
-				mode = segments.first().subString(0,at-1);
-				segments.first().erase(0,at);
+				mode = segments.first().subString(0,at);
+				segments.first().Erase(0,at+1);
 			}
 			return GetContext(segments.pointer(),segments.count(),mode);
 		}
@@ -508,7 +512,7 @@ namespace DeltaWorks
 					//for (index_t i = 0; i <= tabs; i++)
 					//	buffer << '\t';
 					Ctr::Array<String>	lines;
-					wrap(attrib->name+": "+ attrib->comment.trimRef(),80,lines);
+					wrap(attrib->name+": "+ attrib->comment.TrimRef(),80,lines);
 					foreach (lines,line)
 						buffer << indent << ";"<<*line<<nl;
 				}
@@ -528,9 +532,9 @@ namespace DeltaWorks
 					String value = attrib->value;
 					//std::cout << "'"<<value<<"'"<<std::endl;
 					for (index_t i = 0; i < value.length(); i++)
-						if (value.get(i) == '\"')
+						if (value.GetChar(i) == '\"')
 						{
-							value.insert(i,'\\');
+							value.Insert(i,'\\');
 							//std::cout << "'"<<value<<"'"<<std::endl;
 							i++;
 						}
@@ -561,7 +565,7 @@ namespace DeltaWorks
 				if (child->comment.IsNotEmpty())
 				{
 					Ctr::Array<String>	lines;
-					wrap(child->name+": "+child->comment.trimRef(),80,lines);
+					wrap(child->name+": "+child->comment.TrimRef(),80,lines);
 					foreach (lines,line)
 						buffer << indent << ";"<<*line<<nl;
 				}
@@ -585,9 +589,9 @@ namespace DeltaWorks
 		{
 			if (string == '=')
 				return true;
-			if (string.length() != 2 || string.get(1) != '=')
+			if (string.length() != 2 || string.GetChar(1) != '=')
 				return false;
-			char c = string.firstChar();
+			char c = string.FirstChar();
 			switch (c)
 			{
 				case ':':
@@ -656,18 +660,18 @@ namespace DeltaWorks
 			StringBuffer	bufferedComments;
 			while (file>>line)
 			{
-				if (!line.trim().length())
+				if (!line.Trim().length())
 				{
 	//				String cmt = file.comment;
-					bufferedComments << ' ' << file.comment.trimRef();
+					bufferedComments << ' ' << file.comment.TrimRef();
 					continue;
 				}
 				//logfile << ' '<<line<<nl;
 				unsigned depth = GetDepth(line.c_str());
-				String group = line.getBetween('[',']').trimThis();
+				String group = line.GetBetween('[',']').TrimThis();
 				if (depth >= stack_elements.Count())
 				{
-					error += "\nNesting depth "+String(depth)+" of line "+String(file.root_line)+" exceeds context nesting depth ("+String(stack_elements.Count())+"):\n "+line.trim();
+					error += "\nNesting depth "+String(depth)+" of line "+String(file.root_line)+" exceeds context nesting depth ("+String(stack_elements.Count())+"):\n "+line.Trim();
 					errors = true;
 					continue;
 				}
@@ -680,18 +684,19 @@ namespace DeltaWorks
 				Context*context = stack_elements.last();
 			
 				String mode;
-				if (line.trim().endsWith(':'))
+				if (line.TrimRef().EndsWith(':'))
 				{
 					group = "";
-					mode = line.trim();
-					mode.erase(mode.length()-1);
+					mode = line.Trim();
+					mode.Erase(mode.length()-1);
 				}
 			
-				if (index_t at = group.GetIndexOf(':'))
+				index_t at = group.Find(':');
+				if (at != InvalidIndex)
 				{
-					mode = group.subString(0,at-1);
-					mode.trimThis();
-					group.erase(0,at).trimThis();
+					mode = group.subString(0,at);
+					mode.TrimThis();
+					group.Erase(0,at+1).TrimThis();
 				}
 			
 				if (mode.length())
@@ -722,9 +727,9 @@ namespace DeltaWorks
 					stack_elements.append(&child);
 					context = &child;
 					child.comment = bufferedComments.ToStringRef();
-					child.comment.trimThis();
-					while (child.comment.beginsWith(child.name+":"))
-						child.comment = child.comment.subString(child.name.length()+1).trimRef();
+					child.comment.TrimThis();
+					while (child.comment.BeginsWith(child.name+":"))
+						child.comment = child.comment.subString(child.name.length()+1).TrimRef();
 					bufferedComments.Clear();
 				}
 			
@@ -749,10 +754,10 @@ namespace DeltaWorks
 					attrib.value = Tokenizer::dequote(tokens[2],configuration);
 					attrib.comment = bufferedComments.ToStringRef();
 					attrib.comment += ' ';
-					attrib.comment += file.comment.trim();
-					attrib.comment.trimThis();
-					while (attrib.comment.beginsWith(attrib.name+":"))
-						attrib.comment = attrib.comment.subString(attrib.name.length()+1).trimRef();
+					attrib.comment += file.comment.Trim();
+					attrib.comment.TrimThis();
+					while (attrib.comment.BeginsWith(attrib.name+":"))
+						attrib.comment = attrib.comment.subString(attrib.name.length()+1).TrimRef();
 					bufferedComments.Clear();
 				}
 			}
@@ -801,8 +806,8 @@ namespace DeltaWorks
 						c--;
 					if (c==begin)
 						c = begin+line.length()/2;
-					comments.insert(i+1,line.subString(c-begin+1));
-					line.erase(c-begin);
+					comments.Insert(i+1,line.subString(c-begin+1));
+					line.Erase(c-begin);
 				}
 			}
 		
@@ -853,12 +858,12 @@ namespace DeltaWorks
 			Buffer<bool>		Is_segment(2);
 			for (index_t i = 0; i < expression.length(); i++)
 			{
-				if (expression.get(i) == '(')
+				if (expression.GetChar(i) == '(')
 				{
-					Is_segment << !(i+1 == expression.length() || expression.get(i+1)!='$');
+					Is_segment << !(i+1 == expression.length() || expression.GetChar(i+1)!='$');
 					segment_start << i;
 				}
-				elif (expression.get(i) == ')')
+				elif (expression.GetChar(i) == ')')
 				{
 					if (!segment_start.Count())
 					{
@@ -874,7 +879,7 @@ namespace DeltaWorks
 					{
 						if (singular)
 						{
-							expression.erase(start, i-start+1);
+							expression.Erase(start, i-start+1);
 							i = start;
 						}
 					}
@@ -889,13 +894,13 @@ namespace DeltaWorks
 						}
 						if (singular)
 						{
-							expression.replaceSubString(start, i-start+1, variable->first());
+							expression.ReplaceSubString(start, i-start+1, variable->first());
 							i = start+variable->first().length();
 						}
 						else
 						{
 							String imploded = implode(", ",*variable);
-							expression.replaceSubString(start, i-start+1, imploded);
+							expression.ReplaceSubString(start, i-start+1, imploded);
 							i = start+imploded.length();
 						}
 					}
@@ -1040,7 +1045,7 @@ namespace DeltaWorks
 			explode(';',content,lines);
 			if (!lines.count())
 				return;
-			lines.last().trimThis();
+			lines.last().TrimThis();
 			if (!lines.last().IsEmpty())
 				throw Except::IO::DriveAccess::FileDataFault("; expected at end of line '"+lines.last()+"'");
 		
@@ -1053,9 +1058,9 @@ namespace DeltaWorks
 				if (!at)
 					throw Except::IO::DriveAccess::FileDataFault("Expression lacks '=': '"+lines[i]+"'");
 
-				String	name = lines[i].subString(0,at-1).trim(),
-						value = lines[i].subString(at).trim();
-				if (name.IsEmpty() || !name.isValid(validNameChar))
+				String	name = lines[i].subString(0,at-1).Trim(),
+						value = lines[i].subString(at).Trim();
+				if (name.IsEmpty() || !name.IsValid(validNameChar))
 					throw Except::IO::DriveAccess::FileDataFault("Name validation failed. '"+name+"' Is no valid variable name");
 
 				std::cout << "defining variable '"<<name<<"' in "<<this->name<<std::endl;
@@ -1064,10 +1069,10 @@ namespace DeltaWorks
 				if (at = value.GetIndexOf("($*)"))
 				{
 					if (var->count())
-						value.replaceSubString(at-1,4,var->first());
+						value.ReplaceSubString(at-1,4,var->first());
 					else
-						value.erase(at-1,4);
-					value.insert(at-1,"($*),");
+						value.Erase(at-1,4);
+					value.Insert(at-1,"($*),");
 				}
 				var->SetSize(1);
 				var->first() = value;
@@ -1084,7 +1089,7 @@ namespace DeltaWorks
 			std::cout << "now processing node '"<<node->name<<"'"<<std::endl;
 			conditions.SetSize(node->attributes.count());
 			for (index_t i = 0; i < conditions.count(); i++)
-				conditions[i] = *node->attributes.get(i);
+				conditions[i] = *node->attributes.GetChar(i);
 			name = node->name;
 			parse(node->inner_content);
 		
@@ -1119,7 +1124,7 @@ namespace DeltaWorks
 			
 				explode(',',value,*variable);
 				for (index_t i = 0; i < variable->count(); i++)
-					(*variable)[i].trimThis();
+					(*variable)[i].TrimThis();
 			}
 			variables_finalized = true;
 		}
@@ -1130,10 +1135,10 @@ namespace DeltaWorks
 			{
 				for (unsigned i = 0; i < (*it)->count(); i++)
 				{
-					(*(*it))[i].trimThis();
+					(*(*it))[i].TrimThis();
 					if ((*(*it))[i].IsEmpty() || (*(*it))[i] == "($*)")
 					{
-						(*it)->erase(i--);
+						(*it)->Erase(i--);
 					}
 				}
 			}
@@ -1168,7 +1173,7 @@ namespace DeltaWorks
 
 						for (index_t k = 0; k < inherit.count(); k++)
 						{
-							inherit[k].trimThis();
+							inherit[k].TrimThis();
 							if (inherit[k].IsEmpty())
 								continue;
 							CXContext*target = FindContext(inherit[k]);
@@ -1198,12 +1203,12 @@ namespace DeltaWorks
 										while (at = (*var)[j].GetIndexOf("($*)"))
 										{
 											std::cout << "found ($*) in parameter #"<<j<<std::endl;
-											(*var)[j].replaceSubString(at-1,4,implode(',',*variables[i]));
+											(*var)[j].ReplaceSubString(at-1,4,implode(',',*variables[i]));
 											Ctr::Array<String,Adopt>	sub;
 											explode(',',(*var)[j],sub);
 											for (index_t k = 0; k < sub.count(); k++)
-												sub[k].trimThis();
-											var->erase(j);
+												sub[k].TrimThis();
+											var->Erase(j);
 											var->insertImport(j,sub);
 											break;
 										}
@@ -1290,7 +1295,7 @@ namespace DeltaWorks
 			CXContext*context = this;
 			CXContext*result;
 			String var_name = segments.last();
-			segments.erase(segments.count()-1);
+			segments.Erase(segments.count()-1);
 			while (context)
 			{
 				if (result = context->innerFindContext(segments))

@@ -38,7 +38,7 @@ template <class Item>
 	}
 
 template <class Item>
-	void Net::Queue<Item>::insert(Item*item)
+	void Net::Queue<Item>::Insert(Item*item)
 	{
 	    if (last+1 == first)
 	    {

@@ -2172,7 +2172,7 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(Riff::File&riff) //ass
 		{
 			child_field[children].name.setLength(riff.GetSize());
 			riff.Get(child_field[children].name.mutablePointer());
-			child_field[children].name.trimThis();
+			child_field[children].name.TrimThis();
 
 			//if (riff.GetSize() == sizeof(name))
 			{
@@ -3639,7 +3639,7 @@ template <class Def> void Geometry<Def>::loadObjects(Riff::File&riff)
 			{
 				object_field[at].name.setLength(riff.GetSize());
 				riff.Get(object_field[at].name.mutablePointer());
-				object_field[at].name.trimThis();
+				object_field[at].name.TrimThis();
 				//riff.Get(&object_field[at].name);
 				if (riff.Next() && riff.IsID(RIFF_LIST))
 				{
@@ -5631,7 +5631,7 @@ void AnimatorA<Def>::loadTraces(Ctr::ArrayData<TraceA<T,B> >&array,Riff::File&ri
 						name64_t	name64;
 						riff.Stream(name64);
 						trace.tname = name2str(name64);
-						trace.tname.trimThis();
+						trace.tname.TrimThis();
 
 						double time(0),len;
 						for (index_t i = 0; i < trace.step_field.length(); i++)
@@ -5688,7 +5688,7 @@ template <class Def> void AnimatorA<Def>::loadFromRiff(Riff::File&riff, index_t 
 	size_t name_length = riff.GetSize();
 	name.setLength(name_length);
 	riff.Get(name.mutablePointer());
-	name.trimThis();
+	name.TrimThis();
 
 
 	if (!riff.FindNext("LIST"))

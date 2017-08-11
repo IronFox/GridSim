@@ -269,7 +269,7 @@ namespace DeltaWorks
 					for (index_t i = 0; i < _allItems.count(); i++)
 						if (_allItems[i].element == element)
 						{
-							_allItems.erase(i);
+							_allItems.Erase(i);
 							if (!_locked)
 								ForceReconstruction();
 							else

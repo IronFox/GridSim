@@ -42,9 +42,9 @@ namespace DeltaWorks
 
 		String	StripPort(const String&host)
 		{
-			index_t at = host.GetIndexOf(':');
-			if (at)
-				return host.subString(0,at-1);
+			index_t at = host.Find(':');
+			if (at != InvalidIndex)
+				return host.subString(0,at);
 			return host;
 		}
 
@@ -88,7 +88,7 @@ namespace DeltaWorks
 			if (!includePort)
 				return hoststr;
 			String hstr = hoststr;
-			if (hstr.contains(':') && !hstr.beginsWith('['))
+			if (hstr.Contains(':') && !hstr.BeginsWith('['))
 				hstr = '[' + hstr + ']';
 			return hstr+":"+String(portstr);
 
@@ -596,8 +596,8 @@ namespace DeltaWorks
 				return;
 			}
 			const String&url = connect_target;
-			index_t separator = url.GetIndexOf(':');
-			if (!separator)
+			index_t separator = url.Find(':');
+			if (separator == InvalidIndex)
 			{
 				client->SetError("Missing port in address line '"+url+"'");
 				dispatcher->HandleEvent(Event::ConnectionFailed,*client);
@@ -605,8 +605,8 @@ namespace DeltaWorks
 					std::cout << "ConnectionAttempt::ThreadMain() exit: provided URL lacks port"<<std::endl;
 				return;
 			}
-			String addr = url.subString(0,separator-1),
-					s_port = url.subString(separator);
+			String addr = url.subString(0,separator),
+					s_port = url.subString(separator+1);
 			USHORT port;
 			if (!convert(s_port.c_str(),port))
 			{
@@ -726,9 +726,9 @@ namespace DeltaWorks
 				attemptHostCopyLock.unlock();
 				if (!includePort)
 				{
-					index_t at = copy.GetIndexOf(':');
-					if (at)
-						copy.erase(at-1);
+					index_t at = copy.Find(':');
+					if (at != InvalidIndex)
+						copy.Erase(at);
 				}
 				return copy;
 			}
@@ -1428,7 +1428,7 @@ namespace DeltaWorks
 				if (at != InvalidIndex)
 				{
 					p = clientList[at];
-					clientList.erase(at);
+					clientList.Erase(at);
 				}
 				clientMutex.EndWrite();
 				if (verbose)

@@ -127,7 +127,7 @@ namespace DeltaWorks
 			}
 		}
 	
-		bool		TrackConnector::isValid(String*error_out)	const
+		bool		TrackConnector::IsValid(String*error_out)	const
 		{
 			if (stub)
 			{
@@ -244,7 +244,7 @@ namespace DeltaWorks
 			parent->makeSystem(system);
 			update(system,true);
 		
-			ASSERT__(isValid());
+			ASSERT__(IsValid());
 		}
 	
 
@@ -334,7 +334,7 @@ namespace DeltaWorks
 			connectors[index].segment = segment_;
 		
 			String error;
-			ASSERT1__(isValid(&error),error);
+			ASSERT1__(IsValid(&error),error);
 			segment_->onConnectTo(this);
 		
 		
@@ -372,7 +372,7 @@ namespace DeltaWorks
 			
 			segment = segment_;
 			String error;
-			ASSERT1__(isValid(&error),error);
+			ASSERT1__(IsValid(&error),error);
 		
 			segment->onConnectTo(this);
 			return true;
@@ -403,7 +403,7 @@ namespace DeltaWorks
 			
 			segment = segment_;
 			String error;
-			ASSERT1__(isValid(&error),error);
+			ASSERT1__(IsValid(&error),error);
 		
 			segment->onConnectTo(this);
 			return true;

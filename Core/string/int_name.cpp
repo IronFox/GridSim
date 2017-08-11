@@ -26,7 +26,7 @@ namespace DeltaWorks
 		char    result[8];
 		for (BYTE k = 0; k < 8; k++)
 			if (k < (BYTE)str.length())
-				result[k] = str.get(k);
+				result[k] = str.GetChar(k);
 			else
 				result[k] = ' ';
 		return *(int64_t*)result;

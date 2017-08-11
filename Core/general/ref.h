@@ -7,7 +7,7 @@ Signature-objects.
 
 ******************************************************************/
 
-
+#if 0
 
 class Signature
 {};
@@ -33,5 +33,7 @@ template <class Type> struct Reference
 						}
 		operator bool()	const	{return reference != NULL;}
 };
+
+#endif /*0*/
 
 #endif

@@ -375,8 +375,8 @@ namespace DeltaWorks
 			void				add(String&&line);	//!< @overload
 			void				add(const Tokenizer::TSegment&segment);	//!< @overload
 			void				add(const StringRef&segment);	//!< @overload
-			void				insert(size_t index, const char*line);	//!< Inserts a string before the specified list index
-			void				insert(size_t index, const String&line);	//!< Inserts a string before the specified list index
+			void				Insert(size_t index, const char*line);	//!< Inserts a string before the specified list index
+			void				Insert(size_t index, const String&line);	//!< Inserts a string before the specified list index
 			void				addEntries(const StringList&other);		//!< Appends all entries of the specified other list
 			String&				longest();															//!< Returns a reference to the longest string found in the local list. Returns a reference to a global empty string if the local list is empty
 			const String&		longest()													const;	//!< Const @overload
@@ -398,8 +398,8 @@ namespace DeltaWorks
 			size_t				charactersInCommon(const String&sample)					const;	//!< Queries how many characters (starting from the beginning) all contained strings have in common with the specified sample. Comparison is case sensitive
 			
 			void				eraseOccurrences(const String&string, bool case_sensitive=true);	//!< Erases all entries that are equal (case sensitive or case ignore) to the specified string @param string String to match @param case_sensitive Set true to perform a case sensitive comparison, false otherwise
-			String&				get(size_t index);												//!< Retrieves a reference to the string of the specified index or a reference to a global empty string if the specified index is invalid
-			const String&		get(size_t index)											const;	//!< Const @overload
+			String&				Get(size_t index);												//!< Retrieves a reference to the string of the specified index or a reference to a global empty string if the specified index is invalid
+			const String&		Get(size_t index)											const;	//!< Const @overload
 			String&				getReverse(size_t index);											//!< Similar to get() but retrieves the element from the end of the list rather than the beginning
 			const String&		getReverse(size_t index)									const;	//!< Const @overload
 			size_t				find(const String&line)									const;

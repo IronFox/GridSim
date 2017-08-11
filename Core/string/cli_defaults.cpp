@@ -147,10 +147,11 @@ namespace DeltaWorks
 		static void	set(const String&variable, const String&value)
 		{
 			CLI::PVariable v;
-			if (index_t p = variable.GetIndexOf('.'))
+			index_t p = variable.Find('.');
+			if (p != InvalidIndex)
 			{
-				String var = variable.subString(0,p-1),
-						component = variable.subString(p);
+				String var = variable.subString(0,p),
+						component = variable.subString(p+1);
 				v = main_interpretor->FindVar(var);
 				if (!v)
 				{

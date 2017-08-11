@@ -344,7 +344,7 @@ namespace DeltaWorks
 			dealloc(out);
 		}
 
-		void DOMAIN_M Task::insert(UINT16 id, const void*pntr, UINT16 size)
+		void DOMAIN_M Task::Insert(UINT16 id, const void*pntr, UINT16 size)
 		{
 			if (id >= packages)
 			{
@@ -526,7 +526,7 @@ namespace DeltaWorks
 		{
 			access.lock();
 			Task*result = SignalNew(new Task(first+elements(),channel,data,size));
-			insert(result);
+			Insert(result);
 			access.release();
 			return result;
 		}
@@ -550,9 +550,9 @@ namespace DeltaWorks
 				return NULL;
 			sysmessage(sender, "TaskList: appending task ("+IntToStr(over)+")");
 			for (UINT16 i = 0; i < over; i++)
-				insert(SignalNew(new Task(first+el+i)));
+				Insert(SignalNew(new Task(first+el+i)));
 			Task*rs = SignalNew(new Task(first+elements(),size));
-			insert(rs);
+			Insert(rs);
 			return rs;
 		}
 
@@ -626,7 +626,7 @@ namespace DeltaWorks
 			if (_direct)
 				exec(target,para);
 			else
-				_queue.insert(SignalNew(new ClientEventItem(exec,target,para)));
+				_queue.Insert(SignalNew(new ClientEventItem(exec,target,para)));
 		}
 
 		void DOMAIN_M Node::event(_netClientDrop exec, Connection*connection, UINT32 para)
@@ -637,7 +637,7 @@ namespace DeltaWorks
 			}
 			else
 			{
-				_queue.insert(SignalNew(new ClientDropItem(exec,connection,para)));
+				_queue.Insert(SignalNew(new ClientDropItem(exec,connection,para)));
 			}
 		}
 
@@ -646,7 +646,7 @@ namespace DeltaWorks
 			if (_direct)
 				exec(connection);
 			else
-				_queue.insert(SignalNew(new EventItem(exec,connection)));
+				_queue.Insert(SignalNew(new EventItem(exec,connection)));
 		}
 
 
@@ -655,7 +655,7 @@ namespace DeltaWorks
 			if (_direct)
 				Discard(item)
 			else
-				_queue.insert(item);
+				_queue.Insert(item);
 		}
 
 		void DOMAIN_M Node::trash(Connection*connection)
@@ -663,7 +663,7 @@ namespace DeltaWorks
 			if (_direct)
 				Discard(connection)
 			else
-				_queue.insert(connection);
+				_queue.Insert(connection);
 		}
 
 
@@ -1219,7 +1219,7 @@ namespace DeltaWorks
 					if (receive.exec)
 						task->exec = receive.exec;
 					sysmessage(parent,"CONN: task located (bucket "+IntToStr(bucket)+")");
-					task->insert(package_id,package->data(),UINT16(package_size-sizeof(TPackageHead)));
+					task->Insert(package_id,package->data(),UINT16(package_size-sizeof(TPackageHead)));
 				}
 				else
 					sysmessage(parent,"CONN: could not find task for transfer "+IntToStr(package->head.hi)+" (bucket "+IntToStr(bucket)+")");
@@ -1322,7 +1322,7 @@ namespace DeltaWorks
 				return;
 			index--;
 			if (OnClientDisconnect) //call event
-				event(OnClientDisconnect,get(index),reason);
+				event(OnClientDisconnect,GetChar(index),reason);
 			trash(drop(index));
 			list_access.release();
 		}
@@ -1373,7 +1373,7 @@ namespace DeltaWorks
 
 				incoming_target = SignalNew(new Connection(incoming_name,this));
 				list_access.lock();
-					insert(incoming_target);
+					Insert(incoming_target);
 				list_access.release();
 				Node::sendMessage(incoming_name,NET_SV_CONFIRM_CONNECT); //tell the client that the connection was accepted
 		//		ShowMessage("got new client!");
@@ -1436,7 +1436,7 @@ namespace DeltaWorks
 
 		Connection* Server::getDirect(UINT32 index)
 		{
-			return get(index);
+			return GetChar(index);
 		}
 
 		void			Server::releaseClients()
@@ -1448,7 +1448,7 @@ namespace DeltaWorks
 		Connection* DOMAIN_A Server::getClient(UINT32 index)
 		{
 			list_access.lock();
-			Connection*connection = get(index);
+			Connection*connection = GetChar(index);
 			list_access.release();
 			return connection;
 		}
@@ -1466,7 +1466,7 @@ namespace DeltaWorks
 			list_access.lock();
 			for (UINT32 i = 0; i < count(); i++)
 			{
-				Connection*connection = get(i);
+				Connection*connection = GetChar(i);
 				if (connection) //connection might be dropped this second
 					connection->write(topic,flags,NULL,0);
 			}
@@ -1487,7 +1487,7 @@ namespace DeltaWorks
 			list_access.lock();
 			for (UINT32 i = 0; i < count(); i++)
 			{
-				Connection*connection = get(i);
+				Connection*connection = GetChar(i);
 				if (connection) //connection might be dropped this second
 					connection->write(topic,flags,data,size);
 			}
@@ -1502,7 +1502,7 @@ namespace DeltaWorks
 				return false;
 			index--;
 			Node::sendMessage(client->ident,NET_SV_FORCE_DISCONNECT);
-			erase(index);
+			Erase(index);
 			list_access.release();
 			return true;
 		}
