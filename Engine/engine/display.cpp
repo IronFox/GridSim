@@ -650,7 +650,7 @@ namespace Engine
 			Array<wchar_t>	w_name;
 			w_name.SetSize(window_name.length()+1);
 			for (index_t i = 0; i < window_name.length(); i++)
-				w_name[i] = (wchar_t)window_name.get(i);
+				w_name[i] = (wchar_t)window_name.GetChar(i);
 			w_name.last() = 0;
 				
 			
