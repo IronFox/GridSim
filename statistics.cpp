@@ -924,6 +924,7 @@ namespace Statistics
 
 	void	CaptureInconsistency(const IC&ic, const EntityStorage&inconsistent, const EntityStorage&consistent, const TGridCoords&shardOffset)
 	{
+		return;	//disabled while comparator sampling is active, so we don't have to lock in ProfileComparator::GetBadness()
 		foreach (inconsistent,e0)
 		{
 			auto cellCoords = ic.ToPixels(e0->coordinates - shardOffset);
@@ -1863,6 +1864,17 @@ namespace Statistics
 		return set <= 1;
 		//return true;
 		//return !(p & ICReductionFlags::RegardEnvironment) || (p & ICReductionFlags::RegardHistory);	//only have environment if history is available
+	}
+
+
+	float	ProfileComparator::GetBadness(const IC::TSample&ics) const
+	{
+		if (ics.IsConsistent())
+			return -2;
+		ASSERT_LESS__(ics.depth,icMetricGrid.GetWidth());
+		ASSERT_LESS__(ics.spatialDistance,icMetricGrid.GetHeight());
+		const ICCell&cell = icMetricGrid.Get(ics.depth,ics.spatialDistance);
+		return cell.inconsistentEntities > 0 ? cell.omegaSum / cell.inconsistentEntities : -1;
 	}
 
 }

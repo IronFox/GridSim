@@ -399,6 +399,18 @@ namespace Statistics
 		}
 	};
 
+	class ProfileComparator : public IC::Comparator
+	{
+		float	GetBadness(const IC::TSample&s) const;
+	public:
+		virtual int operator()(const IC::TSample&s0, const IC::TSample&s1) const override
+		{
+			return Compare(GetBadness(s0),GetBadness(s1));
+		}
+		virtual String GetName() const override {return "Profile";}
+	};
+
+
 	void	CaptureInconsistency(const IC&, const EntityStorage&inconsistent, const EntityStorage&consistent, const TGridCoords&shardOffset);
 	void	CaptureICTest(const TProbabilisticICReduction&);
 	void	CapturePreMerge(const TStateDifference&preMergeA, const TStateDifference&preMergeB);
