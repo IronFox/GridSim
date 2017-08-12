@@ -1755,13 +1755,7 @@ namespace StringType
 			string_length = new_length;
 			STRING_DEBUG("resize done");
 		}
-	
-	
-	template <typename T>
-		inline	size_t	Template<T>::length()	const
-		{
-			return string_length;
-		}
+
 	
 	template <typename T>
 		const T*			Template<T>::c_str()		const
