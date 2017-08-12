@@ -1512,15 +1512,15 @@ namespace DeltaWorks
 				@param offset Index to start from (first character). Reduced if necessary
 				@return Starting index of the found word (0=first char) or InvalidIndex if no occurance was found
 				*/
-				index_t					FindLastWord(const T*needle, index_t offset = 0) const	{return FindLastWord(ReferenceExpression<T>(needle),offset);}
+				index_t					FindLastWord(const T*needle, index_t offset = InvalidIndex) const	{return FindLastWord(ReferenceExpression<T>(needle),offset);}
 				/**
 				@copydoc FindLastWord()
 				*/
-				index_t					FindLastWord(const Template<T>&needle, index_t offset = 0) const	{return FindLastWord(needle.ToRef(),offset);}
+				index_t					FindLastWord(const Template<T>&needle, index_t offset = InvalidIndex) const	{return FindLastWord(needle.ToRef(),offset);}
 				/**
 				@copydoc FindLastWord()
 				*/
-				index_t					FindLastWord(const ReferenceExpression<T>&needle, index_t offset = 0) const;
+				index_t					FindLastWord(const ReferenceExpression<T>&needle, index_t offset = InvalidIndex) const;
 
 
 				
@@ -1560,15 +1560,15 @@ namespace DeltaWorks
 				@param offset Index to start from (first character). Reduced if necessary
 				@return Starting index of the found word (0=first char) or InvalidIndex if no occurance was found
 				*/
-				index_t					FindLastWordIgnoreCase(const T*needle, index_t offset = 0) const	{return FindLastWordIgnoreCase(ReferenceExpression<T>(needle),offset);}
+				index_t					FindLastWordIgnoreCase(const T*needle, index_t offset = InvalidIndex) const	{return FindLastWordIgnoreCase(ReferenceExpression<T>(needle),offset);}
 				/**
 				@copydoc FindLastWordIgnoreCase()
 				*/
-				index_t					FindLastWordIgnoreCase(const Template<T>&needle, index_t offset = 0) const	{return FindLastWordIgnoreCase(needle.ToRef(),offset);}
+				index_t					FindLastWordIgnoreCase(const Template<T>&needle, index_t offset = InvalidIndex) const	{return FindLastWordIgnoreCase(needle.ToRef(),offset);}
 				/**
 				@copydoc FindLastWordIgnoreCase()
 				*/
-				index_t					FindLastWordIgnoreCase(const ReferenceExpression<T>&needle, index_t offset = 0) const;
+				index_t					FindLastWordIgnoreCase(const ReferenceExpression<T>&needle, index_t offset = InvalidIndex) const;
 
 
 
