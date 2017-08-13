@@ -372,6 +372,8 @@ namespace DeltaWorks
 				inline	const DataType&				operator[](const K&ident)			const;	//!< Standard const access. If the specified key could not be found then an exception of type Program::MemberNotFound will be triggered. \param ident Key to look for \return Reference to the data associated with the specified key.
 			};
 
+		template <class K, class C, typename KeyStrategy = typename StrategySelector<K>::Default, typename DataStrategy = typename StrategySelector<C>::Default>
+			using HashTable = GenericHashTable<K,C,StdHash,KeyStrategy, DataStrategy>;
 
 		/*!
 		\brief Standard String-mapped Hashtable
