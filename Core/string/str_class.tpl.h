@@ -2943,7 +2943,6 @@ namespace StringType
 			while ((at = Find(needle,at))!=InvalidIndex)
 			{
 				rs++;
-				at--;
 				ReplaceSubString(at,needle.GetLength(),replacement);
 				at += replacement.GetLength();
 			}
@@ -2958,7 +2957,6 @@ namespace StringType
 			while ((at = Find(needle,at))!=InvalidIndex)
 			{
 				rs++;
-				at--;
 				ReplaceSubString(at,1,replacement);
 				at += replacement.length();
 			}
