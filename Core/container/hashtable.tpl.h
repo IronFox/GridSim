@@ -37,25 +37,34 @@ template <class Carrier>
 	}
 
 template <class Carrier>
-	inline	void				GenericHashBase<Carrier>::calculateUnion(const GenericHashBase<Carrier>&other)
-	{
-		for (index_t i = 0; i < other.array.length(); i++)
+	template <typename Carrier2>
+		inline	void				GenericHashBase<Carrier>::IncludeCast(const GenericHashBase<Carrier2>&other)
 		{
-			const Carrier*c = other.array+i;
-			if (c->occupied)
+			const auto& oarray = other.GetStore();
+			for (index_t i = 0; i < oarray.length(); i++)
 			{
-				bool did_occupy;
-				Carrier*local = find(c->hashed,c->key,true,&did_occupy);
-				if (did_occupy)
-					*local = *c;
+				const Carrier2*c = oarray+i;
+				if (c->occupied)
+				{
+					bool did_occupy;
+					Carrier*local = find(c->hashed,c->key,true,&did_occupy);
+					if (did_occupy)
+						*local = *c;
+				}
 			}
 		}
+
+
+template <class Carrier>
+	inline	void				GenericHashBase<Carrier>::Include(const Self&other)
+	{
+		IncludeCast(other);
 	}
 
 
 
 template <class Carrier>
-	inline	void					GenericHashBase<Carrier>::calculateIntersection(const GenericHashBase<Carrier>&other)
+	inline	void					GenericHashBase<Carrier>::Intersect(const Self&other)
 	{
 		Ctr::Array<THashSetCarrier<typename Carrier::Key, typename Carrier::AppliedKeyStrategy> >	occupied_keys(entries);
 		index_t at = 0;
@@ -75,7 +84,7 @@ template <class Carrier>
 	}
 
 template <class Carrier>
-	inline	void					GenericHashBase<Carrier>::calculateDifference(const GenericHashBase<Carrier>&other)
+	inline	void					GenericHashBase<Carrier>::Differentiate(const Self&other)
 	{
 		Ctr::Array<THashSetCarrier<typename Carrier::Key, typename Carrier::AppliedKeyStrategy> >	occupied_keys(entries);
 		index_t at = 0;
