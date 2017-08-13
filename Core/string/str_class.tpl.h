@@ -1787,18 +1787,18 @@ namespace StringType
 
 	template <typename T>
 		template <class Marker>
-			void					Template<T>::genericEraseCharacters(const Marker &marked, bool erase_matches)
+			count_t				Template<T>::genericEraseCharacters(Marker marked, bool erase_matches)
 			{
 				index_t erase_count = 0;
 				const T*read = field;
 				while (*read)
 					erase_count += (marked(*read++) == erase_matches);
 				if (!erase_count)
-					return;
+					return 0;
 				if (erase_count == string_length)
 				{
 					free();
-					return;
+					return erase_count;
 				}
 
 				T*n = allocate(string_length-erase_count);
@@ -1816,81 +1816,75 @@ namespace StringType
 				string_length -= erase_count;
 				delocate(field);
 				field = n;
+
+				return erase_count;
 			}
 
 	template <typename T>
-		Template<T>&		Template<T>::EraseCharacter(T chr)
+		count_t		Template<T>::EraseCharacter(T chr)
 		{
-			genericEraseCharacters(CharacterMarker(chr),true);
-			return *this;
+			return genericEraseCharacters(Marker::CharacterMarker<T>(chr),true);
 		}
 
 	template <typename T>
-		Template<T>&		Template<T>::EraseCharacters(const Template<T>& characters, bool erase_matches)
+		count_t		Template<T>::EraseCharacters(const Template<T>& characters, bool erase_matches)
 		{
 			if (!characters.string_length)
-				return *this;
-			genericEraseCharacters(FieldMarker(characters.field,characters.string_length),erase_matches);
-			return *this;
+				return 0;
+			return genericEraseCharacters(Marker::FieldMarker<T>(characters.field,characters.string_length),erase_matches);
 		}
 
 	template <typename T>
-		Template<T>&		Template<T>::EraseCharacters(const T* characters, bool erase_matches)
+		count_t		Template<T>::EraseCharacters(const T* characters, bool erase_matches)
 		{
 			if (!characters)
-				return *this;
+				return 0;
 			size_t len = CharFunctions::strlen(characters);
 			if (!len)
-				return *this;
-			genericEraseCharacters(FieldMarker(characters,len),erase_matches);
-			return *this;
+				return 0;
+			return genericEraseCharacters(Marker::FieldMarker<T>(characters,len),erase_matches);
 		}
 
 	template <typename T>
-		Template<T>&		Template<T>::EraseCharacters(const T* characters, count_t character_count, bool erase_matches)
+		count_t		Template<T>::EraseCharacters(const T* characters, count_t character_count, bool erase_matches)
 		{
 			if (!characters || !character_count)
-				return *this;
-			genericEraseCharacters(FieldMarker(characters,character_count),erase_matches);
-			return *this;
+				return 0;
+			return genericEraseCharacters(Marker::FieldMarker<T>(characters,character_count),erase_matches);
 		}
 
 	template <typename T>
-		Template<T>&		Template<T>::EraseCharacters(bool doReplace(T character), bool erase_matches)
+		count_t		Template<T>::EraseCharacters(bool doReplace(T character), bool erase_matches)
 		{
-			genericEraseCharacters(doReplace,erase_matches);
-			return *this;
+			return genericEraseCharacters(doReplace,erase_matches);
 		}
 
 	template <typename T>
-		Template<T>&		Template<T>::EraseCharactersIgnoreCase(const Template<T>& characters, bool erase_matches)
+		count_t		Template<T>::EraseCharactersIgnoreCase(const Template<T>& characters, bool erase_matches)
 		{
 			if (!characters.string_length)
-				return *this;
-			genericEraseCharacters(CaseInsensitiveFieldMarker(characters.field,characters.string_length),erase_matches);
-			return *this;
+				return 0;
+			return genericEraseCharacters(Marker::CaseInsensitiveFieldMarker<T>(characters.field,characters.string_length),erase_matches);
 		}
 
 	template <typename T>
-		Template<T>&		Template<T>::EraseCharactersIgnoreCase(const T* characters, bool erase_matches)										//!< Erases any character that is contained in the zero-terminated string specified by @a characters . Case insensitive
+		count_t		Template<T>::EraseCharactersIgnoreCase(const T* characters, bool erase_matches)										//!< Erases any character that is contained in the zero-terminated string specified by @a characters . Case insensitive
 		{
 			if (!characters)
-				return *this;
+				return 0;
 			size_t len = CharFunctions::strlen(characters);
 			if (!len)
-				return *this;
+				return 0;
 		
-			genericEraseCharacters(CaseInsensitiveFieldMarker(characters,len),erase_matches);
-			return *this;
+			return genericEraseCharacters(Marker::CaseInsensitiveFieldMarker<T>(characters,len),erase_matches);
 		}
 
 	template <typename T>
-		Template<T>&		Template<T>::EraseCharactersIgnoreCase(const T* characters, count_t character_count, bool erase_matches)
+		count_t		Template<T>::EraseCharactersIgnoreCase(const T* characters, count_t character_count, bool erase_matches)
 		{
 			if (!characters || !character_count)
-				return *this;
-			genericEraseCharacters(CaseInsensitiveFieldMarker(characters,character_count),erase_matches);
-			return *this;
+				return 0;
+			return genericEraseCharacters(Marker::CaseInsensitiveFieldMarker<T>(characters,character_count),erase_matches);
 		}
 
 
@@ -1911,7 +1905,7 @@ namespace StringType
 			if (!characters.string_length)
 				return 0;
 
-			return genericCountCharacters(FieldMarker(characters.field,characters.string_length),count_matches);
+			return genericCountCharacters(Marker::FieldMarker<T>(characters.field,characters.string_length),count_matches);
 		}
 	template <typename T>
 		count_t					Template<T>::CountCharacters(const T* characters, bool count_matches)	const
@@ -1921,7 +1915,7 @@ namespace StringType
 			size_t len = CharFunctions::strlen(characters);
 			if (!len)
 				return 0;
-			return genericCountCharacters(FieldMarker(characters,len),count_matches);
+			return genericCountCharacters(Marker::FieldMarker<T>(characters,len),count_matches);
 		}
 
 	template <typename T>
@@ -1929,7 +1923,7 @@ namespace StringType
 		{
 			if (!characters || !character_count)
 				return 0;
-			return genericCountCharacters(FieldMarker(characters,character_count),count_matches);
+			return genericCountCharacters(Marker::FieldMarker<T>(characters,character_count),count_matches);
 		}
 	template <typename T>
 		count_t					Template<T>::CountCharacters(bool isMatch(T character), bool count_matches)	const
@@ -1941,7 +1935,7 @@ namespace StringType
 		{
 			if (!characters.string_length)
 				return 0;
-			return genericCountCharacters(CaseInsensitiveFieldMarker(characters.field,characters.string_length),count_matches);
+			return genericCountCharacters(Marker::CaseInsensitiveFieldMarker<T>(characters.field,characters.string_length),count_matches);
 		}
 	template <typename T>
 		count_t					Template<T>::CountCharactersIgnoreCase(const T* characters, bool count_matches)	const
@@ -1952,14 +1946,14 @@ namespace StringType
 			if (!len)
 				return 0;
 
-			return genericCountCharacters(CaseInsensitiveFieldMarker(characters,len),count_matches);
+			return genericCountCharacters(Marker::CaseInsensitiveFieldMarker<T>(characters,len),count_matches);
 		}
 	template <typename T>
 		count_t					Template<T>::CountCharactersIgnoreCase(const T* characters, count_t character_count, bool count_matches)	const
 		{
 			if (!characters || !character_count)
 				return 0;
-			return genericCountCharacters(CaseInsensitiveFieldMarker(characters,character_count),count_matches);
+			return genericCountCharacters(Marker::CaseInsensitiveFieldMarker<T>(characters,character_count),count_matches);
 		}
 
 	template <typename T>
@@ -2027,7 +2021,7 @@ namespace StringType
 			size_t len = CharFunctions::strlen(before_characters);
 			if (!len)
 				return *this;		
-			genericAddSlashes(FieldMarker(before_characters,len));
+			genericAddSlashes(Marker::FieldMarker<T>(before_characters,len));
 			return *this;
 		}
 
@@ -2036,7 +2030,7 @@ namespace StringType
 		{
 			if (!before_characters || !before_character_count)
 				return *this;
-			genericAddSlashes(FieldMarker(before_characters,before_character_count));
+			genericAddSlashes(Marker::FieldMarker<T>(before_characters,before_character_count));
 			return *this;
 		}
 
@@ -2050,13 +2044,15 @@ namespace StringType
 	template <typename T>
 		Template<T>		Template<T>::StripSlashes()	const
 		{
-			return Template<T>(*this).StripSlashesFromThis();
+			Template<T> rs(*this);
+			rs.StripSlashesFromThis();
+			return rs;
 		}
 
 	template <typename T>
-		Template<T>&		Template<T>::StripSlashesFromThis()
+		count_t		Template<T>::StripSlashesFromThis()
 		{
-			return EraseCharacter('\\');
+			return genericEraseCharacters(Marker::UnEscapeMarker<T>(),true);
 		}
 
 

@@ -860,6 +860,82 @@ namespace DeltaWorks
 					{}
 		};
 
+		/**
+		General purpose character markers, used internally by some methods of Template<>.
+		They must provide a ()-operator that accepts a character, and returns true it the character is marked.
+		Typically, this operator is const, but is not required to be.
+		Some applications may fail if the operator is not const.
+		*/
+		namespace Marker
+		{
+
+			template <typename T>
+				struct UnEscapeMarker
+				{
+					bool	escaped = false;
+					const T	escapeChar;
+
+					/**/	UnEscapeMarker(T escapeChar = T('\\')):escapeChar(escapeChar) {}
+					bool	operator()(T c) throw()
+					{
+						if (c == escapeChar)
+							escaped = !escaped;
+						else
+							escaped = false;
+						return escaped;
+					}
+				};
+
+			template <typename T>
+				struct FieldMarker
+				{
+					const T	*begin,
+							*end;
+
+					/**/	FieldMarker(const T*begin_, const T*end_):begin(begin_),end(end_) {}
+					/**/	FieldMarker(const T*begin_, size_t length):begin(begin_),end(begin_+length) {}
+
+					bool	operator()(T c) const throw()
+					{
+						for (const T*it = begin; it < end; it++)
+							if ((*it) == c)
+								return true;
+						return false;
+					}
+				};
+
+			template <typename T>
+				struct CaseInsensitiveFieldMarker
+				{
+					const T	*begin,
+							*end;
+
+					/**/	CaseInsensitiveFieldMarker(const T*begin_, const T*end_):begin(begin_),end(end_) {}
+					/**/	CaseInsensitiveFieldMarker(const T*begin_, size_t length):begin(begin_),end(begin_+length){}
+
+					bool	operator()(T c) const throw()
+					{
+						c = CharFunctions::tolower(c);
+						for (const T*it = begin; it < end; it++)
+							if (CharFunctions::tolower(*it) == c)
+								return true;
+						return false;
+					}
+				};
+
+			template <typename T>
+				struct CharacterMarker
+				{
+					T		chr;
+							CharacterMarker(T chr_):chr(chr_) {}
+
+					bool	operator()(T c) const throw()
+					{
+						return c == chr;
+					}
+				};
+		}
+
 		#if !__STR_EXPRESSION_TMPLATES__
 			template <typename T0, typename T1>
 				inline Template<T1> operator+(const T0*c, const Template<T1>&);
@@ -1145,58 +1221,9 @@ namespace DeltaWorks
 
 			protected:
 
-					struct FieldMarker
-					{
-						const T				*begin,
-											*end;
-
-											FieldMarker(const T*begin_, const T*end_):begin(begin_),end(end_)
-											{}
-											FieldMarker(const T*begin_, size_t length):begin(begin_),end(begin_+length)
-											{}
-
-						bool				operator()(T c) const throw()
-											{
-												for (const T*it = begin; it < end; it++)
-													if ((*it) == c)
-														return true;
-												return false;
-											}
-					};
-
-					struct CaseInsensitiveFieldMarker
-					{
-						const T				*begin,
-											*end;
-
-											CaseInsensitiveFieldMarker(const T*begin_, const T*end_):begin(begin_),end(end_)
-											{}
-											CaseInsensitiveFieldMarker(const T*begin_, size_t length):begin(begin_),end(begin_+length)
-											{}
-
-						bool				operator()(T c) const throw()
-											{
-												c = CharFunctions::tolower(c);
-												for (const T*it = begin; it < end; it++)
-													if (CharFunctions::tolower(*it) == c)
-														return true;
-												return false;
-											}
-					};
-
-					struct CharacterMarker
-					{
-						T					chr;
-											CharacterMarker(T chr_):chr(chr_)
-											{}
-
-						bool				operator()(T c) const throw()
-											{
-												return c == chr;
-											}
-					};
+			
 				template <class Marker>
-					void					genericEraseCharacters(const Marker &marked, bool erase_matches);
+					count_t					genericEraseCharacters(Marker marked, bool erase_matches);
 				template <class Marker>
 					count_t					genericCountCharacters(const Marker&marked, bool count_matches)const;
 				template <class Marker>
@@ -1315,14 +1342,14 @@ namespace DeltaWorks
 
 				Template<T>&			Truncate(size_t maxLength);	//!< Removes characters from the end such that the total length of the local string is less or equal to the specified length. If the local string already contains at most that many characters, then nothing changes
 
-				Template<T>&			EraseCharacter(T chr);																				//!< Erases all occurrences of @a chr in the local string
-				Template<T>&			EraseCharacters(const Template<T>& characters, bool erase_matches=true);										//!< Erases any character that is contained in the zero-terminated string specified by @a characters
-				Template<T>&			EraseCharacters(const T* characters, bool erase_matches=true);										//!< Erases any character that is contained in the zero-terminated string specified by @a characters
-				Template<T>&			EraseCharacters(const T* characters, count_t character_count, bool erase_matches=true);				//!< Erases any character that is contained in the range starting at @a characters . Checks @a character_count characters 
-				Template<T>&			EraseCharacters(bool doReplace(T character), bool erase_matches=true);	//!< Erases any character for which the specified function returns true, if @a erase_matches is true / false, if @a erase_matches is false
-				Template<T>&			EraseCharactersIgnoreCase(const Template<T>& characters, bool erase_matches=true);										//!< Erases any character that is contained in the zero-terminated string specified by @a characters . Case insensitive
-				Template<T>&			EraseCharactersIgnoreCase(const T* characters, bool erase_matches=true);										//!< Erases any character that is contained in the zero-terminated string specified by @a characters . Case insensitive
-				Template<T>&			EraseCharactersIgnoreCase(const T* characters, count_t character_count, bool erase_matches=true);				//!< Erases any character that is contained in the range starting at @a characters . Checks @a character_count characters  . Case insensitive
+				count_t					EraseCharacter(T chr);																				//!< Erases all occurrences of @a chr in the local string @return Number of erased characters
+				count_t					EraseCharacters(const Template<T>& characters, bool erase_matches=true);										//!< Erases any character that is contained in the zero-terminated string specified by @a characters @return Number of erased characters
+				count_t					EraseCharacters(const T* characters, bool erase_matches=true);										//!< Erases any character that is contained in the zero-terminated string specified by @a characters @return Number of erased characters
+				count_t					EraseCharacters(const T* characters, count_t character_count, bool erase_matches=true);				//!< Erases any character that is contained in the range starting at @a characters . Checks @a character_count characters  @return Number of erased characters
+				count_t					EraseCharacters(bool doReplace(T character), bool erase_matches=true);	//!< Erases any character for which the specified function returns true, if @a erase_matches is true / false, if @a erase_matches is false @return Number of erased characters
+				count_t					EraseCharactersIgnoreCase(const Template<T>& characters, bool erase_matches=true);										//!< Erases any character that is contained in the zero-terminated string specified by @a characters . Case insensitive @return Number of erased characters
+				count_t					EraseCharactersIgnoreCase(const T* characters, bool erase_matches=true);										//!< Erases any character that is contained in the zero-terminated string specified by @a characters . Case insensitive @return Number of erased characters
+				count_t					EraseCharactersIgnoreCase(const T* characters, count_t character_count, bool erase_matches=true);				//!< Erases any character that is contained in the range starting at @a characters . Checks @a character_count characters  . Case insensitive @return Number of erased characters
 
 				count_t					CountCharacters(const Template<T>& characters, bool count_matches=true)	const;							//!< Counts how often each of the characters in the specified string is contained in the local string;	@param count_matches Set true to count matching characters, false to count non-matching characters
 				count_t					CountCharacters(const T* characters, bool count_matches=true)	const;											//!< Counts how often each of the characters in the specified string is contained in the local string;	@param count_matches Set true to count matching characters, false to count non-matching characters
@@ -1344,7 +1371,7 @@ namespace DeltaWorks
 				Template<T>&			EscapeThis(bool isMatch(T character));
 
 				Template<T>				StripSlashes()	const;		//!< Returns a copy with stripped \ characters
-				Template<T>&			StripSlashesFromThis();		//!< Strips \ characters
+				count_t					StripSlashesFromThis();		//!< Strips \ characters @return Number of stripped slashes
 
 				/**
 				Checks if the specified token is part of the local string
