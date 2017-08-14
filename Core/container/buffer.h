@@ -150,12 +150,9 @@ namespace DeltaWorks
 					inline T&			MoveAppend(T&&element)				/**@copydoc moveAppend()*/ { return append(std::remove(element)); }
 				#endif
 
-				inline T&				insert(index_t before_element);		//!< Inserts an element into the buffer and returns a reference to it
-				inline T&				Insert(index_t before_element)		/**@copydoc insert()*/ {return insert(before_element);}
+				inline T&				Insert(index_t before_element);		//!< Inserts an element into the buffer and returns a reference to it
 				template <typename T2>
-					inline T&			insert(index_t before_element, const T2&init_data);	//!< Inserts an element into the buffer and returns a reference to it. @a init_data is passed to the constructor or assignment operator of the new element
-				template <typename T2>
-					inline T&			Insert(index_t before_element, const T2&init_data)		/**@copydoc insert()*/ {return insert(before_element,init_data);}
+					inline T&			Insert(index_t before_element, const T2&init_data);	//!< Inserts an element into the buffer and returns a reference to it. @a init_data is passed to the constructor or assignment operator of the new element
 				inline T*				insertRow(index_t before_element, count_t length);		//!< Appends a number of elements and returns a pointer to the first element. The method returns NULL, if length is 0 @param length Number of elements to append. Must be greater 0 @return Pointer to the first of the appended elements or NULL, if an error occured
 				inline T*				InsertRow(index_t before_element, count_t length)		/**@copydoc insertRow()*/ {return insertRow(before_element,length);}
 
@@ -171,10 +168,8 @@ namespace DeltaWorks
 				inline const T&			last()	const;						//!< @overload
 				inline T&				Last()								/**@copydoc last()*/	{return last();}
 				inline const T&			Last()	const						/**@copydoc last()*/	{return last();}
-				inline void				erase(index_t index);				//!< Removes the specified element from the buffer. The buffer's contained element count decreases by one if the specified index is valid.
-				inline void				Erase(index_t index)				/**@copydoc erase()*/ {erase(index);}
-				inline void				erase(index_t index, index_t elements);		//!< Removes a range of elements from the buffer. The buffer's contained element count decreases by one if the specified index is valid. @a elements may be reduced if the range surpasses the end of the consumed buffer space
-				inline void				Erase(index_t index, index_t elements)		/**@copydoc erase()*/ {erase(index,elements);}
+				inline void				Erase(index_t index);				//!< Removes the specified element from the buffer. The buffer's contained element count decreases by one if the specified index is valid.
+				inline void				Erase(index_t index, index_t elements);		//!< Removes a range of elements from the buffer. The buffer's contained element count decreases by one if the specified index is valid. @a elements may be reduced if the range surpasses the end of the consumed buffer space
 
 				inline iterator			erase(iterator it);
 
@@ -207,9 +202,7 @@ namespace DeltaWorks
 				void					moveToArray(Ctr::ArrayData<T>&target, bool clearBuffer=true);		//!< Moves local data up to the current fill level to the specified array. Move behavior is defined by the used Strategy class. @param reset_buffer Set true to automatically reset the buffer once element movement is completed
 				inline void				MoveToArray(Ctr::ArrayData<T>&target, bool clearBuffer=true)	/**@copydoc moveToArray()*/	{moveToArray(target,clearBuffer);}
 				template <typename T2>
-					inline bool			contains(const T2&element)	const;	//!< Determines whether or not an equivalent to the specified element is currently stored in the active region of the buffer. Comparison is done via the ==operator.
-				template <typename T2>
-					inline bool			Contains(const T2&element)	const	/**@copydoc contains()*/	{return contains(element);}
+					inline bool			Contains(const T2&element)	const;	//!< Determines whether or not an equivalent to the specified element is currently stored in the active region of the buffer. Comparison is done via the ==operator.
 				template <typename T2>
 					inline index_t		GetIndexOf(const T2&element)	const;	//!< Determines the index of the specified element via == operator. If no match was found then index_t(-1)/InvalidIndex is returned
 				template <typename T2>

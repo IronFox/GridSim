@@ -311,14 +311,13 @@ namespace Engine
 			@param height New image height in pixels
 			@param channels New number of channels (1-4).
 			*/
-			bool						resize(GLuint width, GLuint height, BYTE channels);
-			inline bool					Resize(GLuint width, GLuint height, BYTE channels)	{return resize(width,height,channels);}
+			bool						Resize(GLuint width, GLuint height, BYTE channels);
 			bool						exportTo(Image&target)	const;
 			inline bool					ExportTo(Image&target)	const						{return exportTo(target);}
 			/**
 			@brief Fills the allocated texture with the pixel content of the specified pixel buffer object
 									
-			resize() is automatically invoked
+			Resize() is automatically invoked
 			*/
 			bool						load(const Buffer&object, GLuint width, GLuint height, BYTE channels);
 			inline bool					Load(const Buffer&object, GLuint width, GLuint height, BYTE channels)	{return load(object,width,height,channels);}
@@ -475,7 +474,7 @@ namespace Engine
 								@param size_ Size (in bytes) that the buffer should hold.
 								@param type GL_ARRAY_BUFFER_ARB for floats (GLfloat), GL_ELEMENT_ARRAY_BUFFER_ARB for indices (GLuint)
 							*/
-				void		resize(size_t size_, GLenum type);
+				void		Resize(size_t size_, GLenum type);
 							/**
 								@brief Resizes and loads data into the local buffer object
 								
@@ -647,7 +646,7 @@ namespace Engine
 			@param size_ Size (in bytes) that the buffer should hold.
 			@param type GL_ARRAY_BUFFER_ARB for floats (GLfloat), GL_ELEMENT_ARRAY_BUFFER_ARB for indices (GLuint)
 			*/
-			void				resize(size_t size_, GLenum type);
+			void				Resize(size_t size_, GLenum type);
 			/**
 			@brief Resizes and loads data into the local buffer object
 								
@@ -674,7 +673,7 @@ namespace Engine
 			{
 			protected:
 				using SmartBuffer::loadData;
-				using SmartBuffer::resize;
+				using SmartBuffer::Resize;
 				using SmartBuffer::streamData;
 
 			public:
@@ -752,8 +751,7 @@ namespace Engine
 			void					swap(FBO&other);
 			friend void				swap(Self&a, Self&b)	{a.swap(b);}
 		
-			void					resize(const Resolution&res);
-			inline void				Resize(const Resolution&res)	{resize(res);}
+			void					Resize(const Resolution&res);
 			inline bool				create(const Resolution&res, DepthStorage depthStorage, BYTE numColorTargets, const GLenum*format, bool filtered=true)	{return create(Configuration(res,depthStorage,numColorTargets,format,filtered));}
 			inline bool				Create(const Resolution&res, DepthStorage depthStorage, BYTE numColorTargets, const GLenum*format, bool filtered=true)	{return create(Configuration(res,depthStorage,numColorTargets,format,filtered));}
 			bool					create(const Configuration&config);

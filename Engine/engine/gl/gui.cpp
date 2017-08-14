@@ -1113,7 +1113,7 @@ namespace Engine
 					PWindow menu_ = menu_stack[i].lock();
 					if (!menu_)
 					{
-						menu_stack.erase(i--);
+						menu_stack.Erase(i--);
 						continue;
 					}
 					Window*menu = menu_.get();
@@ -2672,7 +2672,7 @@ namespace Engine
 						PWindow window = menu_stack[i].lock();
 						if (!window)
 						{
-							menu_stack.erase(i);
+							menu_stack.Erase(i);
 							continue;
 						}
 						window->fixedPosition = true;
@@ -2780,7 +2780,7 @@ namespace Engine
 				PWindow window = menu_stack[i].lock();
 				if (!window)
 				{
-					menu_stack.erase(i--);
+					menu_stack.Erase(i--);
 					continue;
 				}
 				if (window->visualChanged)
@@ -2853,7 +2853,7 @@ namespace Engine
 				PWindow window = menu_stack[i].lock();
 				if (!window)
 				{
-					menu_stack.erase(i--);
+					menu_stack.Erase(i--);
 					continue;
 				}
 				render(window,w,h,true);
@@ -2940,7 +2940,7 @@ namespace Engine
 		*/
 		bool			Operator::windowIsVisible(const PWindow&window)	const
 		{
-			return windowStack.contains(window);
+			return windowStack.Contains(window);
 		}
 		
 		/**
@@ -2986,7 +2986,7 @@ namespace Engine
 				index_t at = windowStack.size()-2;
 				while (at != InvalidIndex && windowStack[at]->isModal)
 					at--;
-				windowStack.insert(at+1,window);
+				windowStack.Insert(at+1,window);
 			}
 			else
 			{
@@ -3068,7 +3068,7 @@ namespace Engine
 				PWindow window = menu_stack[i].lock();
 				if (!window)
 				{
-					menu_stack.erase(i);
+					menu_stack.Erase(i);
 					continue;
 				}
 			
@@ -3093,7 +3093,7 @@ namespace Engine
 				{
 					window->hidden = timing.now64;
 					window->onHide();
-					menu_stack.erase(i);
+					menu_stack.Erase(i);
 				}
 			}
 			
@@ -3113,8 +3113,8 @@ namespace Engine
 						Component::ResetFocused();
 					if (i+1 != windowStack.count())
 					{
-						windowStack.last()->onFocusLost();
-						windowStack.erase(i);
+						windowStack.Last()->onFocusLost();
+						windowStack.Erase(i);
 						Component::ResetFocused();
 						windowStack << window;
 						window->onFocusGained();
@@ -3144,7 +3144,7 @@ namespace Engine
 				PWindow window = menu_stack[i].lock();
 				if (!window)
 				{
-					menu_stack.erase(i);
+					menu_stack.Erase(i);
 					continue;
 				}
 				
@@ -3158,7 +3158,7 @@ namespace Engine
 				if (!window->GetCellLayout().border.Contains(x,y))
 				{
 					window->hidden = timing.now64;
-					menu_stack.erase(i);
+					menu_stack.Erase(i);
 					continue;
 				}
 				
@@ -3204,8 +3204,8 @@ namespace Engine
 				}
 				if (i+1 != windowStack.count())
 				{
-					windowStack.last()->onFocusLost();
-					windowStack.erase(i);
+					windowStack.Last()->onFocusLost();
+					windowStack.Erase(i);
 					Component::ResetFocused();
 					windowStack << window;
 					window->onFocusGained();

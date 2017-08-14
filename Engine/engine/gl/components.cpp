@@ -36,7 +36,7 @@ namespace Engine
 		
 		void			Panel::Append(const PComponent&component)
 		{
-			DBG_ASSERT__(!children.contains(component));
+			DBG_ASSERT__(!children.Contains(component));
 			component->anchored.Set(true,false,false,true);
 			if (children.IsNotEmpty())
 				component->offset.top = children.last()->offset.top-children.last()->height;
@@ -51,7 +51,7 @@ namespace Engine
 		
 		void			Panel::AppendRight(const PComponent&component)
 		{
-			DBG_ASSERT__(!children.contains(component));
+			DBG_ASSERT__(!children.Contains(component));
 			if (children.IsNotEmpty())
 			{
 				component->anchored = children.last()->anchored;
@@ -72,7 +72,7 @@ namespace Engine
 		
 		bool					Panel::Add(const PComponent&component)
 		{
-			if (!component || children.contains(component))
+			if (!component || children.Contains(component))
 				return false;
 			children << component;
 			component->SetWindow(windowLink);
@@ -96,7 +96,7 @@ namespace Engine
 			if (index < children.count())
 			{
 				children[index]->SetWindow(PWindow());
-				children.erase(index);
+				children.Erase(index);
 				SignalLayoutChange();
 				return true;
 			}
@@ -153,7 +153,7 @@ namespace Engine
 			if (index+1 < children.count())
 			{
 				PComponent cmp = children[index];
-				children.erase(index);
+				children.Erase(index);
 				children << cmp;
 				SignalVisualChange();
 				return true;
@@ -174,8 +174,8 @@ namespace Engine
 			if (index && index < children.count())
 			{
 				PComponent cmp = children[index];
-				children.erase(index);
-				children.insert(0,cmp);
+				children.Erase(index);
+				children.Insert(0,cmp);
 				SignalVisualChange();
 				return true;
 			}
@@ -906,7 +906,7 @@ namespace Engine
 				return false;
 			visible_children.findAndErase(children[index]);
 			children[index]->SetWindow(PWindow());
-			children.erase(index);
+			children.Erase(index);
 			SignalLayoutChange();
 			return true;
 		}
@@ -1536,7 +1536,7 @@ namespace Engine
 						if (selectionStart == cursor)
 						{
 							selectionStart--;
-							text.erase(--cursor);
+							text.Erase(--cursor);
 							{
 								_UpdateView();
 								onChange();
@@ -1547,7 +1547,7 @@ namespace Engine
 						else
 							if (selectionStart > cursor)
 							{
-								text.erase(cursor,selectionStart-cursor);
+								text.Erase(cursor,selectionStart-cursor);
 								{
 									selectionStart = cursor;
 									_UpdateView();
@@ -1556,7 +1556,7 @@ namespace Engine
 								}
 							}
 							else
-								text.erase(selectionStart,cursor-selectionStart);
+								text.Erase(selectionStart,cursor-selectionStart);
 								{
 									cursor = selectionStart;
 									_UpdateView();
@@ -1570,7 +1570,7 @@ namespace Engine
 					{
 						if (selectionStart == cursor)
 						{
-							text.erase(cursor);
+							text.Erase(cursor);
 							{
 								_UpdateView();
 								onChange();
@@ -1581,7 +1581,7 @@ namespace Engine
 						else
 							if (selectionStart > cursor)
 							{
-								text.erase(cursor,selectionStart-cursor);
+								text.Erase(cursor,selectionStart-cursor);
 								{
 									selectionStart = cursor;
 									_UpdateView();
@@ -1590,7 +1590,7 @@ namespace Engine
 								}
 							}
 							else
-								text.erase(selectionStart,cursor-selectionStart);
+								text.Erase(selectionStart,cursor-selectionStart);
 								{
 									cursor = selectionStart;
 									_UpdateView();
@@ -1621,7 +1621,7 @@ namespace Engine
 						String sub = String(text.pointer()+begin,end-begin);
 						if (System::copyToClipboard(NULL,sub.c_str()) && !readOnly)
 						{
-							text.erase(begin,end-begin);
+							text.Erase(begin,end-begin);
 							if (cursor > begin)
 								cursor = begin;
 							selectionStart = cursor;
@@ -1641,11 +1641,11 @@ namespace Engine
 							{
 								if (cursor > selectionStart)
 								{
-									text.erase(selectionStart,cursor-selectionStart);
+									text.Erase(selectionStart,cursor-selectionStart);
 									cursor = selectionStart;
 								}
 								else
-									text.erase(cursor,selectionStart-cursor);
+									text.Erase(cursor,selectionStart-cursor);
 							}
 							size_t len = strlen(buffer);
 							text.Insert(cursor,buffer,len);
@@ -1714,14 +1714,14 @@ namespace Engine
 			{
 				if (cursor > selectionStart)
 				{
-					text.erase(selectionStart,cursor-selectionStart);
+					text.Erase(selectionStart,cursor-selectionStart);
 					cursor = selectionStart;
 				}
 				else
-					text.erase(cursor,selectionStart-cursor);
+					text.Erase(cursor,selectionStart-cursor);
 			}
 
-			text.insert(cursor++,c);
+			text.Insert(cursor++,c);
 			selectionStart = cursor;
 			_UpdateView();
 			onChange();

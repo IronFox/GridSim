@@ -54,7 +54,7 @@ namespace DeltaWorks
 	//					StrContainer():string(NULL),length(0) {}
 	//virtual            ~StrContainer()     {dealloc(string);}
 	//		char*       get()               {return string;}
-	//		char*       get(unsigned long len)   {if (len != length) re_alloc(string,len); len = length; return string;}
+	//		char*       GetChar(unsigned long len)   {if (len != length) re_alloc(string,len); len = length; return string;}
 	//};
 
 

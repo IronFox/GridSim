@@ -342,7 +342,7 @@ namespace DeltaWorks
 				Item*			peek();					//!< Queries the oldest element in the queue without removing it \return Pointer to the oldest element or NULL if the queue is empty
 				Item*			get();					//!< Retrieves the oldest element in the queue by removing it from the queue \return Pointer to the oldest element or NULL if the queue is empty
 				Item*			peek(UINT16 n);			//!< Queries the nth oldest element in the queue (with 0 being the oldest) without removing it \return Pointer to the nth oldest element or NULL if no such exists
-				void			insert(Item*item);		//!< Inserts a new item to the end of the queue \param item Pointer to the item that should be inserted
+				void			Insert(Item*item);		//!< Inserts a new item to the end of the queue \param item Pointer to the item that should be inserted
 				void			clear();				//!< Sequentially erases all elements in the queue
 				UINT16			elements();				//!< Counts the elements in the queue \return Number of elements in the queue
 		};
@@ -381,7 +381,7 @@ namespace DeltaWorks
 								Task(UINT16 transfer, UINT32 size);
 								Task(UINT16 transfer, UINT16 channel, const void*data, UINT32 size);
 		virtual					~Task();
-				void			insert(UINT16 package, const void*data, UINT16 size);	//!< Inserts package into the transfer field \param package Index of the package \param data Pointer to the data field \param size Size of the data field in bytes
+				void			Insert(UINT16 package, const void*data, UINT16 size);	//!< Inserts package into the transfer field \param package Index of the package \param data Pointer to the data field \param size Size of the data field in bytes
 				void			confirm(UINT16 package);								//!< Confirms that the specified package was received
 				bool			finished();																//!< Queries status \return true if the transfer is finished, false otherwise
 				void			timeOutSend(Timer::Time now, BYTE flags, Connection*connection);	//!< Resends all packages that timed out to the specified connection \param now Current system time in microseconds \param flags Package flags to use for resent packages

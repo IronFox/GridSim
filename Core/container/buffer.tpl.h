@@ -476,7 +476,7 @@ template <typename T, typename MyStrategy>
 
 	
 template <typename T, typename MyStrategy>
-	inline T&				BasicBuffer<T, MyStrategy>::insert(index_t before)
+	inline T&				BasicBuffer<T, MyStrategy>::Insert(index_t before)
 	{
 		if (usage_end == storage_end)
 		{
@@ -616,7 +616,7 @@ template <typename T, typename MyStrategy>
 
 template <typename T, typename MyStrategy>
 template <typename T2>
-	inline	T&				BasicBuffer<T, MyStrategy>::insert(index_t before, const T2&data)
+	inline	T&				BasicBuffer<T, MyStrategy>::Insert(index_t before, const T2&data)
 	{
 		if (usage_end == storage_end)
 		{
@@ -1227,7 +1227,7 @@ template <typename T, typename MyStrategy>
 	
 template <typename T, typename MyStrategy>
 	template <typename T2>
-		inline	bool		BasicBuffer<T, MyStrategy>::contains(const T2&element)	const
+		inline	bool		BasicBuffer<T, MyStrategy>::Contains(const T2&element)	const
 		{
 			const T*at = storage_begin;
 			while (at != usage_end)
@@ -1260,7 +1260,7 @@ template <typename T, typename MyStrategy>
 				index_t index = GetIndexOf(element);
 				if (index == InvalidIndex)
 					return false;
-				erase(index);
+				Erase(index);
 				return true;
 			}
 
@@ -1270,13 +1270,13 @@ template <typename T, typename MyStrategy>
 		index_t index = it - storage_begin;
 		if (index >= (count_t)(usage_end-storage_begin))
 			return end();
-		erase(index);
+		Erase(index);
 		return storage_begin + index;
 	}
 
 
 template <typename T, typename MyStrategy>
-	inline	void			BasicBuffer<T, MyStrategy>::erase(index_t index)
+	inline	void			BasicBuffer<T, MyStrategy>::Erase(index_t index)
 	{
 		if (index >= (count_t)(usage_end-storage_begin))
 			return;
@@ -1297,7 +1297,7 @@ template <typename T, typename MyStrategy>
 	
 
 template <typename T, typename MyStrategy>
-	inline	void			BasicBuffer<T, MyStrategy>::erase(index_t index, index_t elements)
+	inline	void			BasicBuffer<T, MyStrategy>::Erase(index_t index, index_t elements)
 	{
 		if (index >= (count_t)(usage_end-storage_begin) || !elements)
 			return;

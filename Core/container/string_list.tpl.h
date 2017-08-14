@@ -51,12 +51,12 @@ INLINE String StringList::implode(char glue)											const
 
 INLINE const String&StringList::operator[](size_t index)   const
 {
-	return get(index);
+	return Get(index);
 }
 
 INLINE String&StringList::operator[](size_t index)
 {
-	return get(index);
+	return Get(index);
 }
 
 

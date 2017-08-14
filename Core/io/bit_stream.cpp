@@ -68,7 +68,7 @@ namespace DeltaWorks
 	push(&value,bits);
 	finalize();
 	positionRecall();
-	get(&test,bits);
+	GetChar(&test,bits);
 	if (value!=test)
 	   ShowMessage("write-test failed: "+IntToStr(value)+" changed to "+IntToStr(test)+" at "+IntToStr(offset)+" with len "+IntToStr(bits));
 	definalize();   
@@ -195,7 +195,7 @@ namespace DeltaWorks
 		return offset;
 	}
 
-	void BitStream::get(void*pntr, unsigned bits)
+	void BitStream::GetChar(void*pntr, unsigned bits)
 	{
 		unsigned char*tpntr = reinterpret_cast<unsigned char*>(pntr);
 		for (unsigned i = 0; i < bits; i++)
@@ -205,10 +205,10 @@ namespace DeltaWorks
 		};
 	}
 
-	void BitStream::get(unsigned Offset, void*pntr, unsigned bits)
+	void BitStream::GetChar(unsigned Offset, void*pntr, unsigned bits)
 	{
 		offset = Offset;
-		get(pntr,bits);
+		GetChar(pntr,bits);
 	}
 
 	bool BitStream::get()
@@ -221,7 +221,7 @@ namespace DeltaWorks
 		return bit!=0;
 	}
 
-	bool BitStream::get(unsigned Offset)
+	bool BitStream::GetChar(unsigned Offset)
 	{
 		offset = Offset;
 		return get();

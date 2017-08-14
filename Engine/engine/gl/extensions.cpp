@@ -572,27 +572,27 @@ namespace Engine
 	{
 		unsigned elements	= 0;
 		for (unsigned i	= 1; i < line.length(); i++)
-			if (line.get(i) == ' ' && line.get(i-1) != ' ')
+			if (line.GetChar(i) == ' ' && line.GetChar(i-1) != ' ')
 				elements++;
-		if (line.length() && line.lastChar() != ' ')
+		if (line.length() && line.LastChar() != ' ')
 			elements++;
 		field.SetSize(elements);
 		for (index_t i	= 0; i < elements; i++)
 		{
-			index_t p	= line.GetIndexOf(' ');
-			if (!p)
+			index_t p	= line.Find(' ');
+			if (p == InvalidIndex)
 				field[i] = line;
 			else
 			{
-				field[i] = line.subString(0,p-1);
+				field[i] = line.subString(0,p);
 				index_t j	= i-1;
 				while (j < i && field[j+1] < field[j])
 				{
 					swp(field[j],field[j+1]);
 					j--;
 				}
-				line.erase(0,p);
-				line = line.trimLeft();
+				line.Erase(0,p);
+				line = line.TrimLeft();
 			}
 		}
 	}
@@ -861,7 +861,7 @@ namespace Engine
 				return false;
 			}
 			uint64_t size = file.size();
-			target.resize(static_cast<size_t>(size));
+			target.Resize(static_cast<size_t>(size));
 			try
 			{
 				file.Read(target.mutablePointer(),size);
@@ -884,7 +884,7 @@ namespace Engine
 				return false;
 			}
 			uint64_t size = file.size();
-			target.resize(static_cast<size_t>(size));
+			target.Resize(static_cast<size_t>(size));
 			try
 			{
 				file.Read(target.mutablePointer(),size);
@@ -934,7 +934,7 @@ namespace Engine
 
 		Composition&			Composition::Load(const String&source)
 		{
-			if (source.contains("[vertex]"))
+			if (source.Contains("[vertex]"))
 			{
 				static const String type[5]={"[object]","[shared]","[fragment]","[vertex]","[geometry]"};
 
@@ -1013,13 +1013,13 @@ namespace Engine
 					i++;
 					if (!sourceTarget)
 					{
-						if (group.trimRef().length() > 0)
+						if (group.TrimRef().length() > 0)
 							ErrMessage("Warning: unexpected code token(s) encountered: '"+group+"'");
 						continue;
 					}
 					for (; i < tokens.count(); )
 					{
-						StringRef	source = tokens[i++].trimRef();
+						StringRef	source = tokens[i++].TrimRef();
 						if (source.length() == 0)
 							continue;
 						
@@ -1144,10 +1144,10 @@ namespace Engine
 				while (copy.length())
 				{
 					log<<"\n("+IntToStr(line++)+") ";
-					if ((at = copy.GetIndexOf('\n')))
+					if ((at = copy.Find('\n'))!=InvalidIndex)
 					{
-						log<<copy.subString(0,at-1);
-						copy.erase(0,at);
+						log<<copy.subString(0,at);
+						copy.Erase(0,at+1);
 					}
 					else
 					{
@@ -1238,19 +1238,19 @@ namespace Engine
 			vertexShader	= _LoadShader(composition.sharedSource+composition.vertexSource,GL_VERTEX_SHADER_ARB);
 			fragmentShader	= _LoadShader(composition.sharedSource+composition.fragmentSource,GL_FRAGMENT_SHADER_ARB);
 			#ifdef GL_GEOMETRY_SHADER_EXT
-				bool hasGeometryShader = composition.geometrySource.GetIndexOf("main")!=0;
+				bool hasGeometryShader = composition.geometrySource.Contains("main");
 				if (hasGeometryShader)
 				{
 					String fullSource;
-					index_t p = composition.geometrySource.GetIndexOf('#');
-					if (!p)
+					index_t p = composition.geometrySource.Find('#');
+					if (p==InvalidIndex)
 						fullSource = 
 						"#version 120 \n"
 						"#extension GL_EXT_geometry_shader4 : enable	\n"
 						+composition.sharedSource+composition.geometrySource;
 					else
 					{
-						const char*c = composition.geometrySource.c_str()+p;
+						const char*c = composition.geometrySource.c_str()+p+1;
 						while (*c && *c != '\n')
 							c++;
 						fullSource = composition.geometrySource.subString(0,c-composition.geometrySource.c_str()+1)+composition.sharedSource+(c+1);
@@ -2039,14 +2039,14 @@ namespace Engine
 						if (c)
 						{
 							unsigned index = commentStart-line.c_str();
-							line.erase(commentStart-line.c_str(),c-commentStart+2);
+							line.Erase(commentStart-line.c_str(),c-commentStart+2);
 							c = line.c_str();
 							c+=index;
 							inComment = false;
 						}
 						else
 						{
-							line.erase(commentStart-line.c_str());
+							line.Erase(commentStart-line.c_str());
 							return;
 						}
 					}
@@ -2058,7 +2058,7 @@ namespace Engine
 					c++;
 					if (*c == '/')	//line comment
 					{
-						line.erase(c-line.c_str()-1);
+						line.Erase(c-line.c_str()-1);
 						return;
 					}
 					if (*c == '*')
@@ -2093,12 +2093,12 @@ namespace Engine
 	
 			bool			Template::RootBlock::Scan(const String&source, VariableMap&map, StringBuffer&logOut, index_t&line)
 			{
-				shadeInvoked = source.findWord("shade")!=0;
-				shade2Invoked = source.findWord("shade2")!=0;
-				customShadeInvoked = source.findWord("customShade")!=0;
-				spotlightInvoked = source.findWord("spotLight")!=0;
-				omnilightInvoked = source.findWord("omniLight")!=0;
-				directlightInvoked = source.findWord("directLight")!=0;
+				shadeInvoked = source.ContainsWord("shade");
+				shade2Invoked = source.ContainsWord("shade2");
+				customShadeInvoked = source.ContainsWord("customShade");
+				spotlightInvoked = source.ContainsWord("spotLight");
+				omnilightInvoked = source.ContainsWord("omniLight");
+				directlightInvoked = source.ContainsWord("directLight");
 
 				root.reset(new Block());
 				PBlock current = root;
@@ -2113,21 +2113,21 @@ namespace Engine
 				for (index_t i = 0; i < lines.count(); i++)
 				{
 					StripComments(lines[i],inComment);
-					lines[i].trimThis();
+					lines[i].TrimThis();
 
-					if (lines[i].beginsWith("#include"))
+					if (lines[i].BeginsWith("#include"))
 					{
-						String file = lines[i].subString(8).trimThis();
+						String file = lines[i].subString(8).TrimThis();
 						if (!file.length())
 						{
 							logOut << "#include directive broken in line "<<(i+1)<<nl;
 							LogLine(lines,i,logOut);					
 							return false;
 						}
-						if ((file.firstChar() == '"' && file.lastChar() == '"')
+						if ((file.FirstChar() == '"' && file.LastChar() == '"')
 							||
-							(file.firstChar() == '<' && file.lastChar() == '>'))
-							file = file.subString(1,file.length()-2).trimThis();
+							(file.FirstChar() == '<' && file.LastChar() == '>'))
+							file = file.subString(1,file.length()-2).TrimThis();
 						String*include = FindShaderIncludable(file);
 						if (!include)
 						{
@@ -2137,7 +2137,7 @@ namespace Engine
 						}
 						Array<String,AdoptStrategy>	temp;
 						explode('\n',*include,temp);
-						lines.erase(i);
+						lines.Erase(i);
 						lines.insertImport(i,temp);
 					}
 				}
@@ -2288,7 +2288,7 @@ namespace Engine
 						current->lightLoopConstant = parent->lightLoopConstant;
 						current->type = Block::Else;
 					}
-					elif (word.beginsWith("light"))
+					elif (word.BeginsWith("light"))
 					{
 						if (*c)
 							c++;
@@ -2298,8 +2298,8 @@ namespace Engine
 						current->parent = parent;
 						current->type = Block::LightLoop;
 						current->lightLoopConstant = c;
-						current->lightLoopConstant.trimThis();
-						if (current->lightLoopConstant.firstChar() != '<' || current->lightLoopConstant.lastChar() != '>')
+						current->lightLoopConstant.TrimThis();
+						if (current->lightLoopConstant.FirstChar() != '<' || current->lightLoopConstant.LastChar() != '>')
 						{
 							logOut << "illformatted lightloop variable '"<<current->lightLoopConstant<<"' found in line "<<(line+i+1)<<". Variables must be formatted '<NAME>'."<<nl;
 							LogLine(lines,i,logOut);
@@ -2741,7 +2741,7 @@ namespace Engine
 	/*
 			void		Configuration::toArray(Array<int>&target)	const
 			{
-				target.resize(lights.Count()+values.count());
+				target.Resize(lights.Count()+values.count());
 				for (unsigned i = 0; i < lights.Count(); i++)
 					target[i] = lights[i];
 				for (unsigned i = 0; i < values.count(); i++)
@@ -3505,7 +3505,7 @@ namespace Engine
 			glThrowError();
 			glDeleteRenderbuffers(1, &handle);
 			glThrowError();
-			depthBufferList.erase(index);
+			depthBufferList.Erase(index);
 		}
 	}
 

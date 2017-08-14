@@ -638,9 +638,9 @@ namespace DeltaWorks
 	{
 		for (unsigned i = 0; i < field.length(); i++)
 		{
-			field[i].trimThis();
+			field[i].TrimThis();
 			if (!field[i].length())
-				field.erase(i--);
+				field.Erase(i--);
 		}
 	}
 
@@ -665,8 +665,8 @@ namespace DeltaWorks
 	template <class OutStream>
 	static void writeToStream(OutStream&outfile, XML::Encoding enc, XML::Encoding hostEnc, const XML::Node*entry, XML::export_style_t style, unsigned indent=0)
 	{
-		StringRef trimmed = entry->name.trimRef();
-		//entry->name.trimThis();
+		StringRef trimmed = entry->name.TrimRef();
+		//entry->name.TrimThis();
 		if (trimmed.length() == 0)
 			throw Except::IO::StructureCompositionFault("XML: Local entry is empty");
 
@@ -821,11 +821,11 @@ namespace DeltaWorks
 	static XML::Node*	findIn(Container::BasicBuffer<XML::Node,SwapStrategy>&children, const String&path)
 	{
 		String local,sub;
-		index_t p = path.GetIndexOf('/');
-		if (p)
+		index_t p = path.Find('/');
+		if (p != InvalidIndex)
 		{
-			local = path.subString(0,p-1);
-			sub = path.subString(p);
+			local = path.subString(0,p);
+			sub = path.subString(p+1);
 		}
 		else
 			local = path;
@@ -845,11 +845,11 @@ namespace DeltaWorks
 	static const XML::Node*	findInConst(const Container::BasicBuffer<XML::Node,SwapStrategy>&children, const String&path)
 	{
 		String local,sub;
-		index_t p = path.GetIndexOf('/');
-		if (p)
+		index_t p = path.Find('/');
+		if (p != InvalidIndex)
 		{
-			local = path.subString(0,p-1);
-			sub = path.subString(p);
+			local = path.subString(0,p);
+			sub = path.subString(p+1);
 		}
 		else
 			local = path;
@@ -869,11 +869,11 @@ namespace DeltaWorks
 	static XML::Node*	findFrom(XML::Node*context, const String&path)
 	{
 		String local,sub;
-		index_t p = path.GetIndexOf('/');
-		if (p)
+		index_t p = path.Find('/');
+		if (p != InvalidIndex)
 		{
-			local = path.subString(0,p-1);
-			sub = path.subString(p);
+			local = path.subString(0,p);
+			sub = path.subString(p+1);
 		}
 		else
 			local = path;
@@ -892,11 +892,11 @@ namespace DeltaWorks
 	static const XML::Node*	findFromConst(const XML::Node*context, const String&path)
 	{
 		String local,sub;
-		index_t p = path.GetIndexOf('/');
-		if (p)
+		index_t p = path.Find('/');
+		if (p != InvalidIndex)
 		{
-			local = path.subString(0,p-1);
-			sub = path.subString(p);
+			local = path.subString(0,p);
+			sub = path.subString(p+1);
 		}
 		else
 			local = path;
@@ -971,11 +971,11 @@ namespace DeltaWorks
 	XML::Node&	XML::Container::Create(const String&path, const String&inner_content)
 	{
 		String local,sub;
-		index_t p = path.GetIndexOf('/');
-		if (p)
+		index_t p = path.Find('/');
+		if (p != InvalidIndex)
 		{
-			local = path.subString(0,p-1);
-			sub = path.subString(p);
+			local = path.subString(0,p);
+			sub = path.subString(p+1);
 		}
 		else
 			local = path;
@@ -1209,7 +1209,7 @@ namespace DeltaWorks
 				}
 				if (rule && rule->on_exit)
 					rule->on_exit(stack);		//execute rule
-				stack.erase(stack.count()-1);	//pop top stack element
+				stack.Erase(stack.count()-1);	//pop top stack element
 				rule = stack.Last().rule;
 			
 			

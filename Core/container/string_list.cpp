@@ -395,12 +395,12 @@ namespace DeltaWorks
 			size_t result = 1;
 			bool escaped=false;
 			
-			size_t quote_index = config.quotations.query(line.firstChar());
+			size_t quote_index = config.quotations.query(line.FirstChar());
 			if (!quote_index)
 				return 0;
 			for (size_t i = 1; i+1 < line.length(); i++)
 			{
-				char c = line.get(i);
+				char c = line.GetChar(i);
 				if (config.quotation_escape_character == c)
 				{
 					escaped=!escaped;
@@ -412,13 +412,13 @@ namespace DeltaWorks
 						return 0;
 					else
 					{
-						if (escaped && !config.quotations.query(line.get(i)))
+						if (escaped && !config.quotations.query(line.GetChar(i)))
 							result++;
 						escaped = false;
 						result++;
 					}
 			}
-			if (config.quotations.query(line.lastChar()) == quote_index)
+			if (config.quotations.query(line.LastChar()) == quote_index)
 				return result;
 			return 0;
 		}
@@ -456,7 +456,7 @@ namespace DeltaWorks
 					return false;
 				}
 				len--;
-				result.resize(len);
+				result.Resize(len);
 				innerDequote(line.c_str(),line.length(),result.mutablePointer(),len,config);
 			}
 			else
@@ -465,7 +465,7 @@ namespace DeltaWorks
 					return false;
 				len--;
 				String rs;
-				rs.resize(len);//= TStringLength(len);
+				rs.Resize(len);//= TStringLength(len);
 				innerDequote(line.c_str(),line.length(),rs.mutablePointer(),len,config);
 				result = rs;
 			}
@@ -576,25 +576,25 @@ namespace DeltaWorks
 			{
 				for (index_t i = 0; i < Super::count(); i++)
 					if (Super::at(i).operator==(string))
-						Super::erase(i--);
+						Super::Erase(i--);
 			}
 			else
 			{
 				const char*cstr = string.c_str();
 				for (index_t i = 0; i < Super::count(); i++)
 					if (!strcmpi(cstr,Super::at(i).c_str()))
-						Super::erase(i--);
+						Super::Erase(i--);
 			}
 		}
 
 		String& StringList::getReverse(size_t index)
 		{
-			return get(count()-index-1);
+			return Get(count()-index-1);
 		}
 
 		const String& StringList::getReverse(size_t index) const
 		{
-			return get(count()-index-1);
+			return Get(count()-index-1);
 		}
 
 		String StringList::fuse(size_t index, size_t length, const char*glue, size_t glue_len)  const
@@ -654,18 +654,18 @@ namespace DeltaWorks
 			Super::operator<<(l);
 		}
 
-		void	StringList::insert(size_t index, const char*line)
+		void	StringList::Insert(size_t index, const char*line)
 		{
-			Super::insert(index,line);
+			Super::Insert(index,line);
 		}
 
-		void	StringList::insert(size_t index, const String&l)
+		void	StringList::Insert(size_t index, const String&l)
 		{
-			Super::insert(index,l);
+			Super::Insert(index,l);
 		}
 
 
-		String&StringList::get(size_t index)
+		String&StringList::Get(size_t index)
 		{
 			if (index < Super::count())
 				return Super::at(index);
@@ -673,7 +673,7 @@ namespace DeltaWorks
 			return empty_string;
 		}
 
-		const String&StringList::get(size_t index) const
+		const String&StringList::Get(size_t index) const
 		{
 			if (index < Super::count())
 				return Super::at(index);
@@ -793,9 +793,9 @@ namespace DeltaWorks
 
 			for (size_t len = 0; len < max_len; len++)
 			{
-				char test = sample.get(len);
+				char test = sample.GetChar(len);
 				for (size_t i = 0; i < count(); i++)
-					if (Super::at(i).get(len) != test)
+					if (Super::at(i).GetChar(len) != test)
 						return len;
 			}
 			return max_len;
@@ -810,9 +810,9 @@ namespace DeltaWorks
 
 			for (size_t len = 0; len < max_len; len++)
 			{
-				char test = sample.get(len);
+				char test = sample.GetChar(len);
 				for (size_t i = 1; i < count(); i++)
-					if (Super::at(i).get(len) != test)
+					if (Super::at(i).GetChar(len) != test)
 						return len;
 			}
 			return max_len;
@@ -1012,7 +1012,7 @@ namespace DeltaWorks
 				for (index_t i = 0; i < Super::count(); i++)
 				{
 					String&str = Super::operator[](i);
-					BYTE c = (BYTE)(i <= str.length()?str.get(i-1):0);
+					BYTE c = (BYTE)(i <= str.length()?str.GetChar(i-1):0);
 					SBucket*&l = last[c];
 					if (!l)
 					{

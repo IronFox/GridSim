@@ -61,8 +61,8 @@ namespace DeltaWorks
 		{
 			//4 sided:
 			/*
-			geometry.vertex_field.resize(4);
-			geometry.index_field.resize(12);
+			geometry.vertex_field.Resize(4);
+			geometry.index_field.Resize(12);
 			unsigned *f = geometry.index_field;
 			#undef t
 			#define t(i0,i1,i2)	{(*f++) = i0; (*f++) = i1; (*f++) = i2;}
@@ -81,8 +81,8 @@ namespace DeltaWorks
 		
 			//8 sided:
 			/*
-			geometry.vertex_field.resize(6);
-			geometry.index_field.resize(24);
+			geometry.vertex_field.Resize(6);
+			geometry.index_field.Resize(24);
 			unsigned *f = geometry.index_field;
 			#undef t
 			#define t(i0,i1,i2)	{(*f++) = i0; (*f++) = i1; (*f++) = i2;}

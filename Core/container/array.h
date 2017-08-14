@@ -1213,12 +1213,8 @@ namespace DeltaWorks
 								return data[elements-1];
 							}
 
-							inline C&	Insert(index_t beforeIndex)
-							{
-								return insert(beforeIndex);
-							}
 
-							inline C&	insert(index_t beforeIndex)
+							inline C&	Insert(index_t beforeIndex)
 							{
 								if (beforeIndex >= elements)
 									return append();
@@ -1243,9 +1239,9 @@ namespace DeltaWorks
 								return data[beforeIndex];
 							}
 
-							inline void	insert(index_t offset, const C&element)
+							inline void	Insert(index_t offset, const C&element)
 							{
-								insert(offset) = element;
+								Insert(offset) = element;
 							}
 			
 							inline void appendImport(Array<C,MyStrategy>&origin, count_t max=Undefined)	//! Appends some or all elements of \b origin to the end of the local array. Movement behavior is defined by the used strategy \param origin Array to copy from \param max Maximum number of elements to append
@@ -1349,12 +1345,7 @@ namespace DeltaWorks
 							}
 			
 
-							inline void Erase(index_t fromIndex, count_t numElements=1)
-							{
-								erase(fromIndex,numElements);
-							}
-
-							inline void	erase(index_t index, count_t count=1)	//! Erases a number of elements from the array. The remaining elements (if any) are moved depending on the used strategy. \param index Index of the first element to erase with 0 being the first entry \param count Number of elements to erase
+							inline void	Erase(index_t index, count_t count=1)	//! Erases a number of elements from the array. The remaining elements (if any) are moved depending on the used strategy. \param index Index of the first element to erase with 0 being the first entry \param count Number of elements to erase
 							{
 								if (index >= elements)
 									return;
@@ -1376,13 +1367,13 @@ namespace DeltaWorks
 							inline iterator	erase(iterator position)
 							{
 								index_t index = position - Super::begin();
-								erase(index);
+								Erase(index);
 								return Super::begin() + index;
 							}
 							inline iterator	erase(iterator first, iterator end)
 							{
 								index_t index = first - Super::begin();
-								erase(index, end - first);
+								Erase(index, end - first);
 								return Super::begin() + index;
 							}
 						template <class T>
@@ -1391,7 +1382,7 @@ namespace DeltaWorks
 								index_t index = Super::findFirst (element);
 								if (index)
 								{
-									erase(index-1);
+									Erase(index-1);
 									return true;
 								}
 								return false;		

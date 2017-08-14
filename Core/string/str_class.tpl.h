@@ -76,6 +76,26 @@ namespace CharFunctions
 			}
 			return NULL;
 		}
+
+	template <typename T0, typename T1>
+		inline const T0*	__fastcall stristr(const T0*haystack, const T0*const haystackEnd, const T1*needle, const T1*const needleEnd) throw()
+		{
+			while (haystack != haystackEnd)
+			{
+				const T0	*p0 = haystack;
+				const T1	*p1 = needle;
+				while (p0 != haystackEnd && p1 != needleEnd && tolower(*p0) == (T0)tolower(*p1))
+				{
+					p0++;
+					p1++;
+				}
+				if (p1 == needleEnd)
+					return haystack;
+				haystack++;
+			}
+			return NULL;
+		}
+		
 		
 	template <typename T0, typename T1>
 		inline const T0*	__fastcall stristr(const T0*haystack, const T1*needle) throw()
@@ -1122,7 +1142,7 @@ template <typename T0, typename T1, typename T2>
 		RunTWrap(string,max_line_length,lengthFunction,[&result,&at](const StringType::ReferenceExpression<T0>&exp)
 		{
 			result[at] = StringType::Template<T2>(exp);
-			result[at].replaceCharacters(IsWhitespace<T2>,(T2)' ');
+			result[at].FindAndReplace(IsWhitespace<T2>,(T2)' ');
 			at++;
 		});
 		ASSERT_EQUAL__(at,lines);
@@ -1300,7 +1320,7 @@ namespace StringType
 			{
 				string_length = e.length();
 				field = allocate(string_length);
-				e.writeTo(field);
+				e.WriteTo(field);
 				//ASSERT_NOT_NULL__(field);
 			}
 
@@ -1624,7 +1644,7 @@ namespace StringType
 	
 	
 	template <typename T>
-		inline void Template<T>::resize(size_t new_length)
+		inline void Template<T>::Resize(size_t new_length)
 		{
 			//ASSERT_NOT_NULL__(field);
 			STRING_DEBUG("invoking resize. current length is "<<(string_length+1)<<", new length is "<<(new_length+1));
@@ -1735,13 +1755,7 @@ namespace StringType
 			string_length = new_length;
 			STRING_DEBUG("resize done");
 		}
-	
-	
-	template <typename T>
-		inline	size_t	Template<T>::length()	const
-		{
-			return string_length;
-		}
+
 	
 	template <typename T>
 		const T*			Template<T>::c_str()		const
@@ -1761,7 +1775,7 @@ namespace StringType
 	template <typename T>
 		void				Template<T>::free()
 		{
-			resize(0);
+			Resize(0);
 		}
 		/*
 	template <typename T>
@@ -1773,18 +1787,18 @@ namespace StringType
 
 	template <typename T>
 		template <class Marker>
-			void					Template<T>::genericEraseCharacters(const Marker &marked, bool erase_matches)
+			count_t				Template<T>::genericEraseCharacters(Marker marked, bool erase_matches)
 			{
 				index_t erase_count = 0;
 				const T*read = field;
 				while (*read)
 					erase_count += (marked(*read++) == erase_matches);
 				if (!erase_count)
-					return;
+					return 0;
 				if (erase_count == string_length)
 				{
 					free();
-					return;
+					return erase_count;
 				}
 
 				T*n = allocate(string_length-erase_count);
@@ -1802,81 +1816,75 @@ namespace StringType
 				string_length -= erase_count;
 				delocate(field);
 				field = n;
+
+				return erase_count;
 			}
 
 	template <typename T>
-		Template<T>&		Template<T>::eraseCharacter(T chr)
+		count_t		Template<T>::EraseCharacter(T chr)
 		{
-			genericEraseCharacters(CharacterMarker(chr),true);
-			return *this;
+			return genericEraseCharacters(Marker::CharacterMarker<T>(chr),true);
 		}
 
 	template <typename T>
-		Template<T>&		Template<T>::eraseCharacters(const Template<T>& characters, bool erase_matches)
+		count_t		Template<T>::EraseCharacters(const Template<T>& characters, bool erase_matches)
 		{
 			if (!characters.string_length)
-				return *this;
-			genericEraseCharacters(FieldMarker(characters.field,characters.string_length),erase_matches);
-			return *this;
+				return 0;
+			return genericEraseCharacters(Marker::FieldMarker<T>(characters.field,characters.string_length),erase_matches);
 		}
 
 	template <typename T>
-		Template<T>&		Template<T>::eraseCharacters(const T* characters, bool erase_matches)
+		count_t		Template<T>::EraseCharacters(const T* characters, bool erase_matches)
 		{
 			if (!characters)
-				return *this;
+				return 0;
 			size_t len = CharFunctions::strlen(characters);
 			if (!len)
-				return *this;
-			genericEraseCharacters(FieldMarker(characters,len),erase_matches);
-			return *this;
+				return 0;
+			return genericEraseCharacters(Marker::FieldMarker<T>(characters,len),erase_matches);
 		}
 
 	template <typename T>
-		Template<T>&		Template<T>::eraseCharacters(const T* characters, count_t character_count, bool erase_matches)
+		count_t		Template<T>::EraseCharacters(const T* characters, count_t character_count, bool erase_matches)
 		{
 			if (!characters || !character_count)
-				return *this;
-			genericEraseCharacters(FieldMarker(characters,character_count),erase_matches);
-			return *this;
+				return 0;
+			return genericEraseCharacters(Marker::FieldMarker<T>(characters,character_count),erase_matches);
 		}
 
 	template <typename T>
-		Template<T>&		Template<T>::eraseCharacters(bool doReplace(T character), bool erase_matches)
+		count_t		Template<T>::EraseCharacters(bool doReplace(T character), bool erase_matches)
 		{
-			genericEraseCharacters(doReplace,erase_matches);
-			return *this;
+			return genericEraseCharacters(doReplace,erase_matches);
 		}
 
 	template <typename T>
-		Template<T>&		Template<T>::eraseCharactersIgnoreCase(const Template<T>& characters, bool erase_matches)
+		count_t		Template<T>::EraseCharactersIgnoreCase(const Template<T>& characters, bool erase_matches)
 		{
 			if (!characters.string_length)
-				return *this;
-			genericEraseCharacters(CaseInsensitiveFieldMarker(characters.field,characters.string_length),erase_matches);
-			return *this;
+				return 0;
+			return genericEraseCharacters(Marker::CaseInsensitiveFieldMarker<T>(characters.field,characters.string_length),erase_matches);
 		}
 
 	template <typename T>
-		Template<T>&		Template<T>::eraseCharactersIgnoreCase(const T* characters, bool erase_matches)										//!< Erases any character that is contained in the zero-terminated string specified by @a characters . Case insensitive
+		count_t		Template<T>::EraseCharactersIgnoreCase(const T* characters, bool erase_matches)										//!< Erases any character that is contained in the zero-terminated string specified by @a characters . Case insensitive
 		{
 			if (!characters)
-				return *this;
+				return 0;
 			size_t len = CharFunctions::strlen(characters);
 			if (!len)
-				return *this;
+				return 0;
 		
-			genericEraseCharacters(CaseInsensitiveFieldMarker(characters,len),erase_matches);
-			return *this;
+			return genericEraseCharacters(Marker::CaseInsensitiveFieldMarker<T>(characters,len),erase_matches);
 		}
 
 	template <typename T>
-		Template<T>&		Template<T>::eraseCharactersIgnoreCase(const T* characters, count_t character_count, bool erase_matches)
+		count_t		Template<T>::EraseCharactersIgnoreCase(const T* characters, count_t character_count, bool erase_matches)
 		{
 			if (!characters || !character_count)
-				return *this;
-			genericEraseCharacters(CaseInsensitiveFieldMarker(characters,character_count),erase_matches);
-			return *this;
+				return 0;
+			return genericEraseCharacters(Marker::CaseInsensitiveFieldMarker<T>(characters,character_count),erase_matches);
 		}
 
 
@@ -1892,45 +1900,45 @@ namespace StringType
 			}
 
 	template <typename T>
-		count_t					Template<T>::countCharacters(const Template<T>& characters, bool count_matches)	const
+		count_t					Template<T>::CountCharacters(const Template<T>& characters, bool count_matches)	const
 		{
 			if (!characters.string_length)
 				return 0;
 
-			return genericCountCharacters(FieldMarker(characters.field,characters.string_length),count_matches);
+			return genericCountCharacters(Marker::FieldMarker<T>(characters.field,characters.string_length),count_matches);
 		}
 	template <typename T>
-		count_t					Template<T>::countCharacters(const T* characters, bool count_matches)	const
+		count_t					Template<T>::CountCharacters(const T* characters, bool count_matches)	const
 		{
 			if (!characters)
 				return 0;
 			size_t len = CharFunctions::strlen(characters);
 			if (!len)
 				return 0;
-			return genericCountCharacters(FieldMarker(characters,len),count_matches);
+			return genericCountCharacters(Marker::FieldMarker<T>(characters,len),count_matches);
 		}
 
 	template <typename T>
-		count_t					Template<T>::countCharacters(const T* characters, count_t character_count, bool count_matches)	const
+		count_t					Template<T>::CountCharacters(const T* characters, count_t character_count, bool count_matches)	const
 		{
 			if (!characters || !character_count)
 				return 0;
-			return genericCountCharacters(FieldMarker(characters,character_count),count_matches);
+			return genericCountCharacters(Marker::FieldMarker<T>(characters,character_count),count_matches);
 		}
 	template <typename T>
-		count_t					Template<T>::countCharacters(bool isMatch(T character), bool count_matches)	const
+		count_t					Template<T>::CountCharacters(bool isMatch(T character), bool count_matches)	const
 		{
 			return genericCountCharacters(isMatch,count_matches);
 		}
 	template <typename T>
-		count_t					Template<T>::countCharactersIgnoreCase(const Template<T>& characters, bool count_matches)	const
+		count_t					Template<T>::CountCharactersIgnoreCase(const Template<T>& characters, bool count_matches)	const
 		{
 			if (!characters.string_length)
 				return 0;
-			return genericCountCharacters(CaseInsensitiveFieldMarker(characters.field,characters.string_length),count_matches);
+			return genericCountCharacters(Marker::CaseInsensitiveFieldMarker<T>(characters.field,characters.string_length),count_matches);
 		}
 	template <typename T>
-		count_t					Template<T>::countCharactersIgnoreCase(const T* characters, bool count_matches)	const
+		count_t					Template<T>::CountCharactersIgnoreCase(const T* characters, bool count_matches)	const
 		{
 			if (!characters)
 				return 0;
@@ -1938,14 +1946,14 @@ namespace StringType
 			if (!len)
 				return 0;
 
-			return genericCountCharacters(CaseInsensitiveFieldMarker(characters,len),count_matches);
+			return genericCountCharacters(Marker::CaseInsensitiveFieldMarker<T>(characters,len),count_matches);
 		}
 	template <typename T>
-		count_t					Template<T>::countCharactersIgnoreCase(const T* characters, count_t character_count, bool count_matches)	const
+		count_t					Template<T>::CountCharactersIgnoreCase(const T* characters, count_t character_count, bool count_matches)	const
 		{
 			if (!characters || !character_count)
 				return 0;
-			return genericCountCharacters(CaseInsensitiveFieldMarker(characters,character_count),count_matches);
+			return genericCountCharacters(Marker::CaseInsensitiveFieldMarker<T>(characters,character_count),count_matches);
 		}
 
 	template <typename T>
@@ -1976,80 +1984,82 @@ namespace StringType
 
 
 	template <typename T>
-		Template<T>		Template<T>::addSlashes()	const
+		Template<T>		Template<T>::Escape()	const
 		{
-			return Template<T>(*this).addSlashesToThis();
+			return Template<T>(*this).EscapeThis();
 		}
 	template <typename T>
-		Template<T>		Template<T>::addSlashes(const T*	before_characters)	const
+		Template<T>		Template<T>::Escape(const T*	before_characters)	const
 		{
-			return Template<T>(*this).addSlashesToThis(before_characters);
-		}
-
-	template <typename T>
-		Template<T>		Template<T>::addSlashes(const T*	before_characters, count_t before_character_count)	const
-		{
-			return Template<T>(*this).addSlashesToThis(before_characters,before_character_count);
-		}
-	template <typename T>
-		Template<T>		Template<T>::addSlashes(bool isMatch(T character))	const
-		{
-			return Template<T>(*this).addSlashesToThis(isMatch);
+			return Template<T>(*this).EscapeThis(before_characters);
 		}
 
+	template <typename T>
+		Template<T>		Template<T>::Escape(const T*	before_characters, count_t before_character_count)	const
+		{
+			return Template<T>(*this).EscapeThis(before_characters,before_character_count);
+		}
+	template <typename T>
+		Template<T>		Template<T>::Escape(bool isMatch(T character))	const
+		{
+			return Template<T>(*this).EscapeThis(isMatch);
+		}
+
 
 	template <typename T>
-		Template<T>&		Template<T>::addSlashesToThis()
+		Template<T>&		Template<T>::EscapeThis()
 		{
 			genericAddSlashes(CharFunctions::isEscapable<T>);
 			return *this;
 		}
 
 	template <typename T>
-		Template<T>&		Template<T>::addSlashesToThis(const T*	before_characters)
+		Template<T>&		Template<T>::EscapeThis(const T*	before_characters)
 		{
 			if (!before_characters)
 				return *this;
 			size_t len = CharFunctions::strlen(before_characters);
 			if (!len)
 				return *this;		
-			genericAddSlashes(FieldMarker(before_characters,len));
+			genericAddSlashes(Marker::FieldMarker<T>(before_characters,len));
 			return *this;
 		}
 
 	template <typename T>
-		Template<T>&		Template<T>::addSlashesToThis(const T*	before_characters, count_t before_character_count)
+		Template<T>&		Template<T>::EscapeThis(const T*	before_characters, count_t before_character_count)
 		{
 			if (!before_characters || !before_character_count)
 				return *this;
-			genericAddSlashes(FieldMarker(before_characters,before_character_count));
+			genericAddSlashes(Marker::FieldMarker<T>(before_characters,before_character_count));
 			return *this;
 		}
 
 	template <typename T>
-		Template<T>&		Template<T>::addSlashesToThis(bool isMatch(T character))
+		Template<T>&		Template<T>::EscapeThis(bool isMatch(T character))
 		{
 			genericAddSlashes(isMatch);
 			return *this;
 		}
 
 	template <typename T>
-		Template<T>		Template<T>::stripSlashes()	const
+		Template<T>		Template<T>::StripSlashes()	const
 		{
-			return Template<T>(*this).stripSlashesInThis();
+			Template<T> rs(*this);
+			rs.StripSlashesFromThis();
+			return rs;
 		}
 
 	template <typename T>
-		Template<T>&		Template<T>::stripSlashesInThis()
+		count_t		Template<T>::StripSlashesFromThis()
 		{
-			return eraseCharacter('\\');
+			return genericEraseCharacters(Marker::UnEscapeMarker<T>(),true);
 		}
 
 
 
 
 	template <typename T>
-		Template<T>&		Template<T>::erase(size_t index,size_t count)
+		Template<T>&		Template<T>::Erase(size_t index,size_t count)
 		{
 			size_t old_len = string_length;
 			if (index >= string_length)
@@ -2069,7 +2079,7 @@ namespace StringType
 		}
 
 	template <typename T>
-		Template<T>&		Template<T>::eraseLeft(size_t count_)
+		Template<T>&		Template<T>::EraseLeft(size_t count_)
 		{
 			if (!count_)
 				return *this;
@@ -2130,12 +2140,12 @@ namespace StringType
 		{
 			if (string_length <= maxLength)
 				return *this;
-			return eraseRight(string_length - maxLength);
+			return EraseRight(string_length - maxLength);
 		}
 
 
 	template <typename T>
-		Template<T>&		Template<T>::eraseRight(size_t count)
+		Template<T>&		Template<T>::EraseRight(size_t count)
 		{
 			if (!count)
 				return *this;
@@ -2154,696 +2164,257 @@ namespace StringType
 		}
 
 
-	template <typename T>
-		bool			Template<T>::contains(const Template<T>&sub_str)	const
-		{
-			return find(sub_str) != 0;
-		}
-	template <typename T>
-		bool			Template<T>::contains(const T*sub_str, size_t length)	const
-		{
-			return find(sub_str,length) != 0;
-		}
-	template <typename T>
-		bool			Template<T>::contains(const T*sub_str)		const
-		{
-			return find(sub_str) != 0;
-		}
-	template <typename T>
-		bool			Template<T>::contains(T c)					const
-		{
-			return find(c) != 0;
-		}
-	template <typename T>
-		bool			Template<T>::containsWord(const T*sub_str) const
-		{
-			return findWord(sub_str) != 0;
-		}
-	template <typename T>
-		bool			Template<T>::containsWord(const Template<T>&sub_str) const
-		{
-			return findWord(sub_str) != 0;
-		}
-	template <typename T>
-		bool			Template<T>::containsIgnoreCase(const Template<T>&sub_str)	const
-		{
-			return findIgnoreCase(sub_str) != 0;
-		}
-	template <typename T>
-		bool			Template<T>::containsIgnoreCase(const T*sub_str, size_t length)	const
-		{
-			return findIgnoreCase(sub_str,length) != 0;
-		}
-	template <typename T>
-		bool			Template<T>::containsIgnoreCase(const T*sub_str)		const
-		{
-			return findIgnoreCase(sub_str) != 0;
-		}
-	template <typename T>
-		bool			Template<T>::containsIgnoreCase(T c)					const
-		{
-			return findIgnoreCase(c) != 0;
-		}
-
-	template <typename T>
-		bool			Template<T>::containsWordIgnoreCase(const T*sub_str) const
-		{
-			return findWordIgnoreCase(sub_str) != 0;
-		}
-	template <typename T>
-		bool			Template<T>::containsWordIgnoreCase(const Template<T>&sub_str) const
-		{
-			return findWordIgnoreCase(sub_str) != 0;
-		}
 
 
+	
 	template <typename T>
-		index_t			Template<T>::findWord(const T*sub_str) const
+		index_t			Template<T>::FindWord(const ReferenceExpression<T>&needle, index_t offset /*=0*/) const
 		{
-			if (!*sub_str)
-				return 0;
-			const T*offset = field;
-			size_t len = CharFunctions::strlen(sub_str);
+			if (needle.IsEmpty() || offset + needle.GetLength() > string_length)
+				return InvalidIndex;
+//			const T*offset = field + offset_;
+			const size_t len = needle.GetLength();
 			while (true)
 			{
-				const T*ptr = CharFunctions::strstr(offset,sub_str);
-				if (!ptr)
-					return 0;
-				if (!CharFunctions::isalnum(ptr[len]))
-					return ptr-field+1;
-				offset = ptr+len;
-				while (*offset && CharFunctions::isalnum(*offset))
+				index_t next = Find(needle,offset);
+				if (next == InvalidIndex)
+					return InvalidIndex;
+				if (!CharFunctions::isalnum(field[next+len]))
+					return next;
+				offset = next+len;
+				while (offset < string_length && CharFunctions::isalnum(field[offset]))
 					offset++;
-				if (!*offset)
-					return 0;
+				if (offset == string_length)
+					return InvalidIndex;
 			}
 		}
 	
+
 	template <typename T>
-		index_t			Template<T>::findWord(const Template<T>&sub_str) const
+		index_t			Template<T>::FindWordIgnoreCase(const ReferenceExpression<T>&needle, index_t offset /*=0*/) const
 		{
-			if (!sub_str.length())
-				return 0;
-			const T*offset = field;
-			size_t len = sub_str.length();
+			if (needle.IsEmpty() || offset + needle.GetLength() > string_length)
+				return InvalidIndex;
+//			const T*offset = field + offset_;
+			const size_t len = needle.GetLength();
 			while (true)
 			{
-				const T*ptr = CharFunctions::strstr(offset,sub_str.field);
-				if (!ptr)
-					return 0;
-				if (!CharFunctions::isalnum(ptr[len]))
-					return ptr-field+1;
-				offset = ptr+len;
-				while (*offset && CharFunctions::isalnum(*offset))
+				index_t next = FindIgnoreCase(needle,offset);
+				if (next == InvalidIndex)
+					return InvalidIndex;
+				if (!CharFunctions::isalnum(field[next+len]))
+					return next;
+				offset = next+len;
+				while (offset < string_length && CharFunctions::isalnum(field[offset]))
 					offset++;
-				if (!*offset)
-					return 0;
+				if (offset == string_length)
+					return InvalidIndex;
 			}
 		}
 	
 
-	template <typename T>
-		index_t			Template<T>::findWordIgnoreCase(const T*sub_str) const
-		{
-			if (!*sub_str)
-				return 0;
-			const T*offset = field;
-			size_t len = CharFunctions::strlen(sub_str);
-			while (true)
-			{
-				const T*ptr = CharFunctions::stristr(offset,sub_str);
-				if (!ptr)
-					return 0;
-				if (!CharFunctions::isalnum(ptr[len]))
-					return ptr-field+1;
-				offset = ptr+len;
-				while (*offset && CharFunctions::isalnum(*offset))
-					offset++;
-				if (!*offset)
-					return 0;
-			}
-		}
 	
 	template <typename T>
-		index_t			Template<T>::findWordIgnoreCase(const Template<T>&sub_str) const
+		index_t			Template<T>::Find(const ReferenceExpression<T>&needle, index_t offset /*=0*/)	const
 		{
-			if (!sub_str.length())
-				return 0;
-			const T*offset = field;
-			size_t len = sub_str.length();
-			while (true)
-			{
-				const T*ptr = CharFunctions::stristr(offset,sub_str.field);
-				if (!ptr)
-					return 0;
-				if (!CharFunctions::isalnum(ptr[len]))
-					return ptr-field+1;
-				offset = ptr+len;
-				while (*offset && CharFunctions::isalnum(*offset))
-					offset++;
-				if (!*offset)
-					return 0;
-			}
-		}
-
-	
-	template <typename T>
-		index_t			Template<T>::find(const Template<T>&sub_str)	const
-		{
-			if (!sub_str.length())
-				return 0;
-			const T*ptr = CharFunctions::strstr(field,sub_str.field);
-			return ptr?(ptr-field)+1:0;
-		}
-
-	template <typename T>
-		index_t			Template<T>::FindFrom(index_t offset, const Template<T>&sub_str)	const
-		{
-			if (!sub_str.length())
-				return 0;
-			if (sub_str.length() + offset >= string_length)
-				return 0;
-			const T*ptr = CharFunctions::strstr(field+offset,sub_str.field);
-			return ptr?(ptr-field)+1:0;
+			if (needle.IsEmpty() || offset+needle.GetLength() > string_length)
+				return InvalidIndex;
+			const T*ptr = CharFunctions::strstr(begin()+offset,end(),needle.begin(),needle.end());
+			if (ptr != nullptr)
+				return ptr - field;
+			return InvalidIndex;
 		}
 
 
 	template <typename T>
-		index_t			Template<T>::find(const T*needle, size_t length)	const
+		index_t			Template<T>::Find(T c, index_t offset /*=0*/)					const
 		{
-			if (!length)
-				return 0;
-			const T	*haystack = field,
-					*end = field+string_length,
-					*needle_end = needle+length;
-			while (haystack+length <= end)
-			{
-				const T	*p0 = haystack;
-				const T	*p1 = needle;
-				while (*p0 && p1 < needle_end && *p0 == *p1)
-				{
-					p0++;
-					p1++;
-				}
-				if (p1==needle_end)
-					return haystack-field+1;
-				haystack++;
-			}
-			return 0;
-		}
-
-	template <typename T>
-		index_t			Template<T>::FindFrom(index_t offset, const T*needle, size_t length)	const
-		{
-			if (!length)
-				return 0;
-			if (length + offset >= string_length)
-				return 0;
-			const T	*haystack = field+offset,
-					*end = field+string_length,
-					*needle_end = needle+length;
-			while (haystack+length <= end)
-			{
-				const T	*p0 = haystack;
-				const T	*p1 = needle;
-				while (*p0 && p1 < needle_end && *p0 == *p1)
-				{
-					p0++;
-					p1++;
-				}
-				if (p1==needle_end)
-					return haystack-field+1;
-				haystack++;
-			}
-			return 0;
-		}
-	
-	template <typename T>
-		index_t			Template<T>::find(const T*sub_str)	const
-		{
-			if (!*sub_str)
-				return 0;
-			const T*ptr = CharFunctions::strstr(field,sub_str);
-			return ptr?(ptr-field)+1:0;
-		}
-
-	template <typename T>
-		index_t			Template<T>::FindFrom(index_t offset, const T*sub_str)	const
-		{
-			if (!*sub_str)
-				return 0;
-			if (CharFunctions::strlen(sub_str) + offset >= string_length)
-				return 0;
-			const T*ptr = CharFunctions::strstr(field+offset,sub_str);
-			return ptr?(ptr-field)+1:0;
-		}
-
-	template <typename T>
-		index_t			Template<T>::find(T c)					const
-		{
-			const T*pntr = CharFunctions::strchr(field,c);
-			return pntr?(pntr-field)+1:0;
-		}
-
-	template <typename T>
-		index_t			Template<T>::FindFrom(index_t offset, T c)					const
-		{
-			if (1 + offset >= string_length)
-				return 0;
+			if (offset >= string_length)
+				return InvalidIndex;
 			const T*pntr = CharFunctions::strchr(field+offset,c);
-			return pntr?(pntr-field)+1:0;
-		}
-	
-	template <typename T>
-		index_t			Template<T>::GetIndexOf(const Template<T>&sub_str)	const
-		{
-			if (!sub_str.length())
-				return 0;
-			const T*ptr = CharFunctions::strstr(field,sub_str.field);
-			return ptr?(ptr-field)+1:0;
-		}
-
-	template <typename T>
-		index_t			Template<T>::GetIndexOf(const T*needle, size_t length)	const
-		{
-			if (!length)
-				return 0;
-			const T	*haystack = field,
-					*end = field+string_length,
-					*needle_end = needle+length;
-			while (haystack+length <= end)
-			{
-				const T	*p0 = haystack;
-				const T	*p1 = needle;
-				while (*p0 && p1 < needle_end && *p0 == *p1)
-				{
-					p0++;
-					p1++;
-				}
-				if (p1==needle_end)
-					return haystack-field+1;
-				haystack++;
-			}
-			return 0;
-		}
-	
-	template <typename T>
-		index_t			Template<T>::GetIndexOf(const T*sub_str)	const
-		{
-			if (!*sub_str)
-				return 0;
-			const T*ptr = CharFunctions::strstr(field,sub_str);
-			return ptr?(ptr-field)+1:0;
-		}
-
-	template <typename T>
-		index_t			Template<T>::GetIndexOf(T c)					const
-		{
-			const T*pntr = CharFunctions::strchr(field,c);
-			return pntr?(pntr-field)+1:0;
+			return pntr?(pntr-field):InvalidIndex;
 		}
 
 
 	
 	template <typename T>
-		index_t			Template<T>::find(bool callback(T))					const
-		{
-			const T *end = field+string_length,
-					*haystack = field;
-			while (haystack < end && !callback(*haystack))
-				haystack++;
-			return haystack < end?haystack-field+1:0;
-		}
-
-
-	template <typename T>
-		index_t			Template<T>::FindFrom(index_t offset, bool callback(T))					const
+		index_t			Template<T>::Find(bool callback(T), index_t offset /*=0*/)					const
 		{
 			const T *end = field+string_length,
 					*haystack = field+offset;
 			while (haystack < end && !callback(*haystack))
 				haystack++;
-			return haystack < end?haystack-field+1:0;
+			return haystack < end?haystack-field:InvalidIndex;
+		}
+
+
+
+	template <typename T>
+		index_t			Template<T>::FindIgnoreCase(const ReferenceExpression<T>&needle, index_t offset /*=0*/)	const
+		{
+			if (needle.IsEmpty() || offset+needle.GetLength() > string_length)
+				return InvalidIndex;
+			const T*ptr = CharFunctions::stristr(begin()+offset,end(),needle.begin(),needle.end());
+			if (ptr != nullptr)
+				return ptr - field;
+			return InvalidIndex;
+		}
+
+	template <typename T>
+		index_t			Template<T>::FindIgnoreCase(T c, index_t offset /*=0*/)					const
+		{
+			if (offset >= string_length)
+				return InvalidIndex;
+			const T*pntr = CharFunctions::strichr(field+offset,c);
+			return pntr?(pntr-field):InvalidIndex;
 		}
 
 
 
 
 
+
+
+
 	template <typename T>
-		index_t			Template<T>::findLastWord(const T*sub_str) const
+		index_t			Template<T>::FindLastWord(const ReferenceExpression<T>&needle, index_t offset_ /*=InvalidIndex*/ ) const
 		{
-			if (!*sub_str)
-				return 0;
-			size_t len = CharFunctions::strlen(sub_str);
-			const T*offset = field+string_length-len;
+			if (needle.GetLength() == 0 || needle.GetLength() > string_length)
+				return InvalidIndex;
+			const size_t len = needle.GetLength();
+			const T*offset = field+ std::min( string_length-len, offset_);
 			while (offset >= field)
 			{
 				while (offset > field && (CharFunctions::isalnum(offset[-1]) || CharFunctions::isalnum(offset[len])))
 					offset--;
 				if (CharFunctions::isalnum(offset[len]))
-					return 0;
-				if (!CharFunctions::strncmp(offset,sub_str, len))
-					return offset-field+1;
+					return InvalidIndex;
+				if (!CharFunctions::strncmp(offset,needle.pointer(), len))
+					return offset-field;
 				offset--;
 			}
-			return 0;
+			return InvalidIndex;
 		}
-	
+
+
+
+
 	template <typename T>
-		index_t			Template<T>::findLastWord(const Template<T>&sub_str) const
+		index_t			Template<T>::FindLastWordIgnoreCase(const ReferenceExpression<T>&needle, index_t offset_ /*=InvalidIndex*/ ) const
 		{
-			if (!sub_str.length())
-				return 0;
-			size_t len = sub_str.length();
-			const T*offset = field+string_length-len;
+			if (needle.GetLength() == 0 || needle.GetLength() > string_length)
+				return InvalidIndex;
+			const size_t len = needle.GetLength();
+			const T*offset = field+ std::min( string_length-len, offset_);
 			while (offset >= field)
 			{
 				while (offset > field && (CharFunctions::isalnum(offset[-1]) || CharFunctions::isalnum(offset[len])))
 					offset--;
 				if (CharFunctions::isalnum(offset[len]))
-					return 0;
-				if (!CharFunctions::strncmp(offset,sub_str.field, len))
-					return offset-field+1;
+					return InvalidIndex;
+				if (!CharFunctions::strncmpi(offset,needle.pointer(), len))
+					return offset-field;
 				offset--;
 			}
-			return 0;
-		}
-	
-	
-	template <typename T>
-		index_t			Template<T>::findLast(const Template<T>&sub_str)	const
-		{
-			return findLast(sub_str.c_str(),sub_str.length());
+			return InvalidIndex;
 		}
 
+	
+	
 	template <typename T>
-		index_t			Template<T>::findLast(const T*needle, size_t length)	const
+		index_t			Template<T>::FindLastIgnoreCase(const ReferenceExpression<T>&needle, index_t offset /*=InvalidIndex*/ )	const
 		{
-			if (!length)
-				return 0;
+			if (string_length < needle.GetLength() || needle.IsEmpty())
+				return InvalidIndex;
 			const T	
-					*end = field+string_length,
-					*haystack = end-length,
-					*needle_end = needle+length;
+					*haystack = field+std::min(string_length-needle.GetLength(), offset),
+					*end = haystack + needle.GetLength(),
+					*needle_end = needle.end();
 			while (haystack >= field)
 			{
 				const T	*p0 = haystack;
-				const T	*p1 = needle;
-				while (*p0 && p1 < needle_end && *p0 == *p1)
+				const T	*p1 = needle.begin();
+				while (p0 < end && p1 < needle_end && CharFunctions::tolower(*p0) == CharFunctions::tolower(*p1))
 				{
 					p0++;
 					p1++;
 				}
 				if (p1==needle_end)
-					return haystack-field+1;
+					return haystack-field;
 				haystack--;
 			}
-			return 0;
+			return InvalidIndex;
 		}
 	
+
+	
+	
 	template <typename T>
-		index_t			Template<T>::findLast(const T*sub_str)	const
+		index_t			Template<T>::FindLast(const ReferenceExpression<T>&needle, index_t offset /*=InvalidIndex*/ )	const
 		{
-			return findLast(sub_str,CharFunctions::strlen(sub_str));
+			if (string_length < needle.GetLength() || needle.IsEmpty())
+				return InvalidIndex;
+			const T	
+					*haystack = field+std::min(string_length-needle.GetLength(), offset),
+					*end = haystack + needle.GetLength(),
+					*needle_end = needle.end();
+			while (haystack >= field)
+			{
+				const T	*p0 = haystack;
+				const T	*p1 = needle.begin();
+				while (p0 < end && p1 < needle_end && *p0 == *p1)
+				{
+					p0++;
+					p1++;
+				}
+				if (p1==needle_end)
+					return haystack-field;
+				haystack--;
+			}
+			return InvalidIndex;
 		}
 
 	template <typename T>
-		index_t			Template<T>::findLast(T c)					const
+		index_t			Template<T>::FindLast(T c, index_t offset /*=InvalidIndex*/ )					const
 		{
-			const T *end = field+string_length,
-					*haystack = end-1;
+			const T 
+					*haystack = field+std::min(string_length-1, offset),
+					*end = haystack + 1;
 			while (haystack >= field && *haystack != c)
 				haystack--;
-			return haystack >= field?haystack-field+1:0;
-		}
-
-
-	template <typename T>
-		index_t			Template<T>::findLast(bool callback(T))					const
-		{
-			const T *end = field+string_length,
-					*haystack = end-1;
-			while (haystack >= field && !callback(*haystack))
-				haystack--;
-			return haystack >= field?haystack-field+1:0;
-		}
-	
-	template <typename T>
-		index_t			Template<T>::lastIndexOf(const Template<T>&sub_str)	const
-		{
-			return findLast(sub_str);
-		}
-
-	template <typename T>
-		index_t			Template<T>::lastIndexOf(const T*needle, size_t length)	const
-		{
-			return findLast(needle,length);
-		}
-	
-	template <typename T>
-		index_t			Template<T>::lastIndexOf(const T*sub_str)	const
-		{
-			return findLast(sub_str);
-		}
-
-	template <typename T>
-		index_t			Template<T>::lastIndexOf(T c)					const
-		{
-			return findLast(c);
+			return haystack >= field?haystack-field:InvalidIndex;
 		}
 
 
 
 
-
-
-
-
-
-
-
-
-
-	
 	template <typename T>
-		index_t			Template<T>::findIgnoreCase(const Template<T>&sub_str)	const
-		{
-			if (!sub_str.length())
-				return 0;
-			const T*ptr = CharFunctions::stristr(field,sub_str.field);
-			return ptr?(ptr-field)+1:0;
-		}
-
-	template <typename T>
-		index_t			Template<T>::findIgnoreCase(const T*needle, size_t length)	const
-		{
-			if (!length)
-				return 0;
-			const T	*haystack = field,
-					*end = field+string_length,
-					*needle_end = needle+length;
-			while (haystack+length <= end)
-			{
-				const T	*p0 = haystack;
-				const T	*p1 = needle;
-				while (*p0 && p1 < needle_end && CharFunctions::tolower(*p0) == CharFunctions::tolower(*p1))
-				{
-					p0++;
-					p1++;
-				}
-				if (p1==needle_end)
-					return haystack-field+1;
-				haystack++;
-			}
-			return 0;
-		}
-	
-	template <typename T>
-		index_t			Template<T>::findIgnoreCase(const T*sub_str)	const
-		{
-			if (!*sub_str)
-				return 0;
-			const T*ptr = CharFunctions::stristr(field,sub_str);
-			return ptr?(ptr-field)+1:0;
-		}
-
-	template <typename T>
-		index_t			Template<T>::findIgnoreCase(T c)					const
-		{
-			const T*pntr = CharFunctions::strichr(field,c);
-			return pntr?(pntr-field)+1:0;
-		}
-	
-	template <typename T>
-		index_t			Template<T>::indexOfIgnoreCase(const Template<T>&sub_str)	const
-		{
-			if (!sub_str.length())
-				return 0;
-			const T*ptr = CharFunctions::stristr(field,sub_str.field);
-			return ptr?(ptr-field)+1:0;
-		}
-
-	template <typename T>
-		index_t			Template<T>::indexOfIgnoreCase(const T*needle, size_t length)	const
-		{
-			if (!length)
-				return 0;
-			const T	*haystack = field,
-					*end = field+string_length,
-					*needle_end = needle+length;
-			while (haystack+length <= end)
-			{
-				const T	*p0 = haystack;
-				const T	*p1 = needle;
-				while (*p0 && p1 < needle_end && CharFunctions::tolower(*p0) == CharFunctions::tolower(*p1))
-				{
-					p0++;
-					p1++;
-				}
-				if (p1==needle_end)
-					return haystack-field+1;
-				haystack++;
-			}
-			return 0;
-		}
-	
-	template <typename T>
-		index_t			Template<T>::indexOfIgnoreCase(const T*sub_str)	const
-		{
-			if (!*sub_str)
-				return 0;
-			const T*ptr = CharFunctions::stristr(field,sub_str);
-			return ptr?(ptr-field)+1:0;
-		}
-
-	template <typename T>
-		index_t			Template<T>::indexOfIgnoreCase(T c)					const
-		{
-			const T*pntr = CharFunctions::strichr(field,c);
-			return pntr?(pntr-field)+1:0;
-		}
-
-
-
-
-
-
-
-	template <typename T>
-		index_t			Template<T>::findLastWordIgnoreCase(const T*sub_str) const
-		{
-			if (!*sub_str)
-				return 0;
-			size_t len = CharFunctions::strlen(sub_str);
-			const T*offset = field+string_length-len;
-			while (offset >= field)
-			{
-				while (offset > field && (CharFunctions::isalnum(offset[-1]) || CharFunctions::isalnum(offset[len])))
-					offset--;
-				if (CharFunctions::isalnum(offset[len]))
-					return 0;
-				if (!CharFunctions::strncmpi(offset,sub_str, len))
-					return offset-field+1;
-				offset--;
-			}
-			return 0;
-		}
-	
-	template <typename T>
-		index_t			Template<T>::findLastWordIgnoreCase(const Template<T>&sub_str) const
-		{
-			if (!sub_str.length())
-				return 0;
-			size_t len = sub_str.length();
-			const T*offset = field+string_length-len;
-			while (offset >= field)
-			{
-				while (offset > field && (CharFunctions::isalnum(offset[-1]) || CharFunctions::isalnum(offset[len])))
-					offset--;
-				if (CharFunctions::isalnum(offset[len]))
-					return 0;
-				if (!CharFunctions::strncmpi(offset,sub_str.field, len))
-					return offset-field+1;
-				offset--;
-			}
-			return 0;
-		}
-	
-	
-	template <typename T>
-		index_t			Template<T>::findLastIgnoreCase(const Template<T>&sub_str)	const
-		{
-			return findLastIgnoreCase(sub_str.c_str(),sub_str.length());
-		}
-
-	template <typename T>
-		index_t			Template<T>::findLastIgnoreCase(const T*needle, size_t length)	const
-		{
-			if (!length)
-				return 0;
-			const T	
-					*end = field+string_length,
-					*haystack = end-length,
-					*needle_end = needle+length;
-			while (haystack >= field)
-			{
-				const T	*p0 = haystack;
-				const T	*p1 = needle;
-				while (*p0 && p1 < needle_end && CharFunctions::tolower(*p0) == CharFunctions::tolower(*p1))
-				{
-					p0++;
-					p1++;
-				}
-				if (p1==needle_end)
-					return haystack-field+1;
-				haystack--;
-			}
-			return 0;
-		}
-	
-	template <typename T>
-		index_t			Template<T>::findLastIgnoreCase(const T*sub_str)	const
-		{
-			return findLastIgnoreCase(sub_str,CharFunctions::strlen(sub_str));
-		}
-
-	template <typename T>
-		index_t			Template<T>::findLastIgnoreCase(T c)					const
+		index_t			Template<T>::FindLastIgnoreCase(T c, index_t offset /*=InvalidIndex*/ )					const
 		{
 			c = CharFunctions::tolower(c);
-			const T *end = field+string_length,
-					*haystack = end-1;
+			const T 
+					*haystack = field+std::min(string_length-1, offset),
+					*end = haystack + 1;
 			while (haystack >= field && CharFunctions::tolower(*haystack) != c)
 				haystack--;
-			return haystack >= field?haystack-field+1:0;
+			return haystack >= field?haystack-field:InvalidIndex;
 		}
 
 
 
 	template <typename T>
-		index_t			Template<T>::lastIndexOfIgnoreCase(const Template<T>&sub_str)	const
+		index_t			Template<T>::FindLast(bool callback(T), index_t offset /*=InvalidIndex*/)					const
 		{
-			return findLastIgnoreCase(sub_str);
+			const T 
+					*haystack = field+std::min(string_length-1, offset),
+					*end = haystack + 1;
+			while (haystack >= field && !callback(*haystack))
+				haystack--;
+			return haystack >= field?haystack-field:InvalidIndex;
 		}
 
-	template <typename T>
-		index_t			Template<T>::lastIndexOfIgnoreCase(const T*needle, size_t length)	const
-		{
-			return findLastIgnoreCase(needle,length);
-		}
+
 	
-	template <typename T>
-		index_t			Template<T>::lastIndexOfIgnoreCase(const T*sub_str)	const
-		{
-			return findLastIgnoreCase(sub_str);
-		}
-
-	template <typename T>
-		index_t			Template<T>::lastIndexOfIgnoreCase(T c)					const
-		{
-			return findLastIgnoreCase(c);
-		}
 
 
 
@@ -2896,7 +2467,7 @@ namespace StringType
 
 	
 	template <typename T>
-		ReferenceExpression<T>				Template<T>::subStringRef(int index, size_t count) const
+		ReferenceExpression<T>				Template<T>::subStringRef(sindex_t index, size_t count) const
 		{
 			if (index<0)
 			{
@@ -2922,7 +2493,7 @@ namespace StringType
 
 
 	template <typename T>
-		Template<T>&				Template<T>::trimThis()
+		Template<T>&				Template<T>::TrimThis()
 		{
 			if (!string_length || (!IsWhitespace(field[0]) && !IsWhitespace(field[string_length-1])))
 				return *this;
@@ -3020,68 +2591,68 @@ namespace StringType
 	
 
 	template <typename T>
-		Template<T>				Template<T>::trim()			const
+		Template<T>				Template<T>::Trim()			const
 		{
-			return ref().Trim();
+			return ToRef().Trim();
 		}
 
 	template <typename T>
-		ReferenceExpression<T>				Template<T>::trimRef()			const
+		ReferenceExpression<T>				Template<T>::TrimRef()			const
 		{
-			return ref().Trim();
+			return ToRef().Trim();
 		}
 
 	template <typename T>
-		Template<T>				Template<T>::trimLeft()		const
+		Template<T>				Template<T>::TrimLeft()		const
 		{
-			return ref().TrimLeft();
+			return ToRef().TrimLeft();
 		}
 
 	template <typename T>
-		ReferenceExpression<T>				Template<T>::trimLeftRef()		const
+		ReferenceExpression<T>				Template<T>::TrimLeftRef()		const
 		{
-			return ref().TrimLeft();
+			return ToRef().TrimLeft();
 		}
 
 	template <typename T>
-		Template<T>				Template<T>::trimRight()		const
+		Template<T>				Template<T>::TrimRight()		const
 		{
-			return ref().TrimRight();
+			return ToRef().TrimRight();
 		}
 
 	template <typename T>
-		ReferenceExpression<T>				Template<T>::trimRightRef()		const
+		ReferenceExpression<T>				Template<T>::TrimRightRef()		const
 		{
-			return ref().TrimRight();
+			return ToRef().TrimRight();
 		}
 
 
 	template <typename T>
-		Template<T>&				Template<T>::insert(size_t index, const Template<T>&str)
+		Template<T>&				Template<T>::Insert(size_t index, const ReferenceExpression<T>&str)
 		{
-			if (!str.string_length)
+			if (str.IsEmpty())
 				return *this;
 			if (!string_length)
 				return this->operator=(str);
 
 			if (index >= string_length)
 				index = string_length-1;
-			T*n = allocate(string_length+str.string_length);
+			T*n = allocate(string_length+str.GetLength());
 		
 			memcpy(n,field,index*sizeof(T));
-			memcpy(n+index,str.field,str.string_length*sizeof(T));
-			memcpy(n+index+str.string_length,field+index,(string_length-index)*sizeof(T));
-			string_length += str.string_length;
+			memcpy(n+index,str.pointer(),str.GetLength()*sizeof(T));
+			memcpy(n+index+str.GetLength(),field+index,(string_length-index)*sizeof(T));
+			string_length += str.GetLength();
 			delocate(field);
 			field = n;
 			return *this;
 		}
 
 	template <typename T>
-		Template<T>&				Template<T>::replaceSubString(size_t index, size_t count, const Template<T>&str)
+		Template<T>&				Template<T>::ReplaceSubString(size_t index, size_t count, const ReferenceExpression<T>&str)
 		{
-			if (!str.string_length)
-				return erase(index,count);
+			if (str.IsEmpty())
+				return Erase(index,count);
 		
 			if (!string_length)
 				return this->operator=(str);
@@ -3091,11 +2662,11 @@ namespace StringType
 			if (count > string_length-index)
 				count = string_length-index;
 
-			size_t new_len = string_length-count+str.string_length;
+			size_t new_len = string_length-count+str.GetLength();
 			T*n = allocate(new_len);
 			memcpy(n,field,index*sizeof(T));
-			memcpy(n+index,str.field,str.string_length*sizeof(T));
-			memcpy(n+index+str.string_length,field+(index+count),(string_length-index-count)*sizeof(T));
+			memcpy(n+index,str.pointer(),str.GetLength()*sizeof(T));
+			memcpy(n+index+str.GetLength(),field+(index+count),(string_length-index-count)*sizeof(T));
 			string_length = new_len;
 			delocate(field);
 			field = n;
@@ -3103,7 +2674,7 @@ namespace StringType
 		}
 
 	template <typename T>
-		Template<T>&				Template<T>::insert(size_t index, T c)
+		Template<T>&				Template<T>::Insert(size_t index, T c)
 		{
 			if (!string_length)
 			{
@@ -3126,7 +2697,7 @@ namespace StringType
 
 
 	template <typename T>
-		Template<T>&				Template<T>::convertToLowerCase()
+		Template<T>&				Template<T>::ConvertToLowerCase()
 		{
 			#if __STR_REFERENCE_COUNT__
 				duplicate();
@@ -3136,7 +2707,7 @@ namespace StringType
 		}
 
 	template <typename T>
-		Template<T>&				Template<T>::convertToUpperCase()
+		Template<T>&				Template<T>::ConvertToUpperCase()
 		{
 			#if __STR_REFERENCE_COUNT__
 				duplicate();
@@ -3146,19 +2717,19 @@ namespace StringType
 		}
 
 	template <typename T>
-		Template<T>				Template<T>::copyToLowerCase()	const
+		Template<T>				Template<T>::CopyToLowerCase()	const
 		{
-			return Template<T>(*this).convertToLowerCase();
+			return Template<T>(*this).ConvertToLowerCase();
 		}
 
 	template <typename T>
-		Template<T>				Template<T>::copyToUpperCase()	const
+		Template<T>				Template<T>::CopyToUpperCase()	const
 		{
-			return Template<T>(*this).convertToUpperCase();
+			return Template<T>(*this).ConvertToUpperCase();
 		}
 
 	template <typename T>
-		Template<T>				Template<T>::getBetween(const Template<T>&left_delimiter, const Template<T>&right_delimiter)	const
+		Template<T>				Template<T>::GetBetween(const Template<T>&left_delimiter, const Template<T>&right_delimiter)	const
 		{
 			const T*begin = CharFunctions::strstr(field,left_delimiter.field);
 			if (!begin)
@@ -3171,7 +2742,7 @@ namespace StringType
 		}
 
 	template <typename T>
-		ReferenceExpression<T>				Template<T>::getBetweenRef(const Template<T>&left_delimiter, const Template<T>&right_delimiter)	const
+		ReferenceExpression<T>				Template<T>::GetBetweenRef(const Template<T>&left_delimiter, const Template<T>&right_delimiter)	const
 		{
 			const T*begin = CharFunctions::strstr(field,left_delimiter.field);
 			if (!begin)
@@ -3185,7 +2756,7 @@ namespace StringType
 
 
 	template <typename T>
-		bool				Template<T>::beginsWith(const T*string)		const
+		bool				Template<T>::BeginsWith(const T*string)		const
 		{
 			size_t len = CharFunctions::strlen(string);
 			if (len > string_length)
@@ -3194,7 +2765,7 @@ namespace StringType
 		}
 
 	template <typename T>
-		bool				Template<T>::beginsWith(const Template<T>&string)		const
+		bool				Template<T>::BeginsWith(const Template<T>&string)		const
 		{
 			if (string.string_length > string_length)
 				return false;
@@ -3202,7 +2773,7 @@ namespace StringType
 
 		}
 	template <typename T>
-		bool				Template<T>::beginsWith(const ReferenceExpression<T>&string)		const
+		bool				Template<T>::BeginsWith(const ReferenceExpression<T>&string)		const
 		{
 			if (string.length() > string_length)
 				return false;
@@ -3211,7 +2782,7 @@ namespace StringType
 		}
 
 	template <typename T>
-		bool				Template<T>::endsWith(const T*string)			const
+		bool				Template<T>::EndsWith(const T*string)			const
 		{
 			size_t len = CharFunctions::strlen(string);
 			if (len > string_length)
@@ -3220,7 +2791,7 @@ namespace StringType
 		}
 
 	template <typename T>
-		bool				Template<T>::endsWith(const Template<T>&string)		const
+		bool				Template<T>::EndsWith(const Template<T>&string)		const
 		{
 			if (string.string_length > string_length)
 				return false;
@@ -3228,7 +2799,7 @@ namespace StringType
 		}
 
 	template <typename T>
-		bool				Template<T>::endsWith(const ReferenceExpression<T>&string)		const
+		bool				Template<T>::EndsWith(const ReferenceExpression<T>&string)		const
 		{
 			if (string.length() > string_length)
 				return false;
@@ -3236,7 +2807,7 @@ namespace StringType
 		}
 
 	template <typename T>
-		bool				Template<T>::beginsWithCaseIgnore(const T*string)		const
+		bool				Template<T>::BeginsWithIgnoreCase(const T*string)		const
 		{
 			size_t len = CharFunctions::strlen(string);
 			if (len > string_length)
@@ -3245,7 +2816,7 @@ namespace StringType
 		}
 
 	template <typename T>
-		bool				Template<T>::beginsWithCaseIgnore(const Template<T>&string)		const
+		bool				Template<T>::BeginsWithIgnoreCase(const Template<T>&string)		const
 		{
 			if (string.string_length > string_length)
 				return false;
@@ -3253,7 +2824,7 @@ namespace StringType
 
 		}
 	template <typename T>
-		bool				Template<T>::beginsWithCaseIgnore(const ReferenceExpression<T>&string)		const
+		bool				Template<T>::BeginsWithIgnoreCase(const ReferenceExpression<T>&string)		const
 		{
 			if (string.length() > string_length)
 				return false;
@@ -3262,7 +2833,7 @@ namespace StringType
 		}
 
 	template <typename T>
-		bool				Template<T>::endsWithCaseIgnore(const T*string)			const
+		bool				Template<T>::EndsWithIgnoreCase(const T*string)			const
 		{
 			size_t len = CharFunctions::strlen(string);
 			if (len > string_length)
@@ -3271,7 +2842,7 @@ namespace StringType
 		}
 
 	template <typename T>
-		bool				Template<T>::endsWithCaseIgnore(const Template<T>&string)		const
+		bool				Template<T>::EndsWithIgnoreCase(const Template<T>&string)		const
 		{
 			if (string.string_length > string_length)
 				return false;
@@ -3279,7 +2850,7 @@ namespace StringType
 		}
 
 	template <typename T>
-		bool				Template<T>::endsWithCaseIgnore(const ReferenceExpression<T>&string)		const
+		bool				Template<T>::EndsWithIgnoreCase(const ReferenceExpression<T>&string)		const
 		{
 			if (string.length() > string_length)
 				return false;
@@ -3288,13 +2859,13 @@ namespace StringType
 
 	
 	template <typename T>
-		T				Template<T>::firstChar()							const
+		T				Template<T>::FirstChar()							const
 		{
 			return field[0];
 		}
 
 	template <typename T>
-		T				Template<T>::lastChar()							const
+		T				Template<T>::LastChar()							const
 		{
 			return field[string_length-1];
 		}
@@ -3308,7 +2879,7 @@ namespace StringType
 
 
 	template <typename T>
-		Template<T>				Template<T>::firstWord()							const
+		Template<T>				Template<T>::GetFirstWord()							const
 		{
 			const T*begin = field;
 			while (IsWhitespace(*begin))
@@ -3320,7 +2891,7 @@ namespace StringType
 		}
 
 	template <typename T>
-		ReferenceExpression<T>				Template<T>::firstWordRef()							const
+		ReferenceExpression<T>				Template<T>::GetFirstWordRef()							const
 		{
 			const T*begin = field;
 			while (IsWhitespace(*begin))
@@ -3332,7 +2903,7 @@ namespace StringType
 		}
 
 	template <typename T>
-		Template<T>				Template<T>::lastWord()							const
+		Template<T>				Template<T>::GetLastWord()							const
 		{
 			const T	*end = field+string_length-1,
 					*begin = field;
@@ -3348,7 +2919,7 @@ namespace StringType
 		}
 	
 	template <typename T>
-		ReferenceExpression<T>				Template<T>::lastWordRef()							const
+		ReferenceExpression<T>				Template<T>::GetLastWordRef()							const
 		{
 			const T	*end = field+string_length-1,
 					*begin = field;
@@ -3365,46 +2936,52 @@ namespace StringType
 
 
 	template <typename T>
-		Template<T>&				Template<T>::replace(const Template<T>&needle, const Template<T>&replacement)
+		count_t				Template<T>::FindAndReplace(const ReferenceExpression<T>&needle, const ReferenceExpression<T>&replacement)
 		{
 			index_t at = 0;
-			while (at = FindFrom(at,needle))
+			count_t rs = 0;
+			while ((at = Find(needle,at))!=InvalidIndex)
 			{
-				at--;
-				replaceSubString(at,needle.string_length,replacement);
-				at += replacement.length();
+				rs++;
+				ReplaceSubString(at,needle.GetLength(),replacement);
+				at += replacement.GetLength();
 			}
-			return *this;
+			return rs;
 		}
 
 	template <typename T>
-		Template<T>&				Template<T>::replace(T needle_char, const Template<T>&replacement)
+		count_t				Template<T>::FindAndReplace(T needle, const ReferenceExpression<T>&replacement)
 		{
+			count_t rs = 0;
 			index_t at = 0;
-			while (at = FindFrom(at,needle_char))
+			while ((at = Find(needle,at))!=InvalidIndex)
 			{
-				at--;
-				replaceSubString(at,1,replacement);
+				rs++;
+				ReplaceSubString(at,1,replacement);
 				at += replacement.length();
 			}
-			return *this;
+			return rs;
 		}
 
 	template <typename T>
-		Template<T>&	Template<T>::replaceCharacters(bool doReplace(T character), T replacement)
+		count_t	Template<T>::FindAndReplace(bool doReplace(T character), T replacement)
 		{
 			#if __STR_REFERENCE_COUNT__
 				duplicate();
 			#endif
+			count_t rs = 0;
 			for (size_t i = 0; i < string_length; i++)
 				if (doReplace(field[i]))
+				{
 					field[i] = replacement;
-			return *this;
+					rs++;
+				}
+			return rs;
 		}
 
 
 	template <typename T>
-		bool	Template<T>::isValid(bool validCharacter(T character))	const
+		bool	Template<T>::IsValid(bool validCharacter(T character))	const
 		{
 			for (size_t i = 0; i < string_length; i++)
 				if (!validCharacter(field[i]))
@@ -3413,15 +2990,19 @@ namespace StringType
 		}
 
 	template <typename T>
-		Template<T>&	Template<T>::replace(T replace_what, T replace_with)
+		count_t	Template<T>::FindAndReplace(T replace_what, T replace_with)
 		{
 			#if __STR_REFERENCE_COUNT__
 				duplicate();
 			#endif
+			count_t rs = 0;
 			for (size_t i = 0; i < string_length; i++)
 				if (field[i] == replace_what)
+				{
 					field[i] = replace_with;
-			return *this;
+					rs++;
+				}
+			return rs;
 		}
 
 	template <typename T>
@@ -3436,7 +3017,7 @@ namespace StringType
 		}
 
 	template <typename T>
-		T				Template<T>::get(size_t index) const
+		T				Template<T>::GetChar(size_t index) const
 		{
 			if (index >= string_length)
 				return 0;
@@ -3533,7 +3114,7 @@ namespace StringType
 				{
 					T*new_field = allocate(new_length);
 					memcpy(new_field,field,old_length*sizeof(T));
-					expression.writeTo(new_field+old_length);
+					expression.WriteTo(new_field+old_length);
 					delocate(field);
 					field = new_field;
 					string_length = new_length;
@@ -3541,7 +3122,7 @@ namespace StringType
 				else
 				{
 					resizeCopy(new_length);
-					expression.writeTo(field+old_length);
+					expression.WriteTo(field+old_length);
 				}
 			}
 
@@ -3745,56 +3326,56 @@ namespace StringType
 
 	template <typename T>	
 		template <typename T0, typename T1>
-			bool	Template<T>::equals(const ConcatExpression<T0,T1>&expression)	const
+			bool	Template<T>::Equals(const ConcatExpression<T0,T1>&expression)	const
 			{
 				return expression.compareTo(field,string_length)==0;
 			}
 		
 	template <typename T>	
 		template <class T0>
-			bool				Template<T>::equals(const ReferenceExpression<T0>&expression)	const
+			bool				Template<T>::Equals(const ReferenceExpression<T0>&expression)	const
 			{
 				return expression.compareTo(field,string_length)==0;
 			}
 				
 	template <typename T>	
 		template <class T0>
-			bool				Template<T>::equals(const CharacterExpression<T0>&expression)	const
+			bool				Template<T>::Equals(const CharacterExpression<T0>&expression)	const
 			{
 				return expression.compareTo(field,string_length)==0;
 			}
 		
 	template <typename T>
 		template <class T0>
-			bool				Template<T>::equals(const StringExpression<T0>&expression)	const
+			bool				Template<T>::Equals(const StringExpression<T0>&expression)	const
 			{
 				return expression.compareTo(field,string_length)==0;
 			}
 
 	template <typename T>	
 		template <typename T0, typename T1>
-			bool	Template<T>::equalsIgnoreCase(const ConcatExpression<T0,T1>&expression)	const
+			bool	Template<T>::EqualsIgnoreCase(const ConcatExpression<T0,T1>&expression)	const
 			{
 				return expression.compareToIgnoreCase(field,string_length)==0;
 			}
 		
 	template <typename T>	
 		template <class T0>
-			bool				Template<T>::equalsIgnoreCase(const ReferenceExpression<T0>&expression)	const
+			bool				Template<T>::EqualsIgnoreCase(const ReferenceExpression<T0>&expression)	const
 			{
 				return expression.compareToIgnoreCase(field,string_length)==0;
 			}
 				
 	template <typename T>	
 		template <class T0>
-			bool				Template<T>::equalsIgnoreCase(const CharacterExpression<T0>&expression)	const
+			bool				Template<T>::EqualsIgnoreCase(const CharacterExpression<T0>&expression)	const
 			{
 				return expression.compareToIgnoreCase(field,string_length)==0;
 			}
 		
 	template <typename T>
 		template <class T0>
-			bool				Template<T>::equalsIgnoreCase(const StringExpression<T0>&expression)	const
+			bool				Template<T>::EqualsIgnoreCase(const StringExpression<T0>&expression)	const
 			{
 				return expression.compareToIgnoreCase(field,string_length)==0;
 			}
@@ -3832,7 +3413,7 @@ namespace StringType
 			}
 
 		template <typename T>
-			bool				Template<T>::equals(const AnsiString&string)	const
+			bool				Template<T>::Equals(const AnsiString&string)	const
 			{
 				return CharFunctions::strcmp(field,string.c_str())==0;
 			}
@@ -3919,34 +3500,34 @@ namespace StringType
 		}
 
 	template <typename T>
-		bool				Template<T>::equals(const T*string)		const
+		bool				Template<T>::Equals(const T*string)		const
 		{
 			return CharFunctions::strcmp(field,string)==0;
 		}
 	template <typename T>
-		bool				Template<T>::equals(T chr)		const
+		bool				Template<T>::Equals(T chr)		const
 		{
 			return field[0] == chr && !field[1];;
 		}
 	template <typename T>
-		bool				Template<T>::equals(const Template<T>&string)		const
+		bool				Template<T>::Equals(const Template<T>&string)		const
 		{
 			return CharFunctions::strcmp(field,string.field)==0;
 		}
 
 	template <typename T>
-		bool				Template<T>::equalsIgnoreCase(const T*string)		const
+		bool				Template<T>::EqualsIgnoreCase(const T*string)		const
 		{
 			return CharFunctions::strcmpi(field,string)==0;
 		}
 
 	template <typename T>
-		bool				Template<T>::equalsIgnoreCase(const Template<T>&string)		const
+		bool				Template<T>::EqualsIgnoreCase(const Template<T>&string)		const
 		{
 			return CharFunctions::strcmpi(field,string.field)==0;
 		}
 	template <typename T>
-		bool				Template<T>::equalsIgnoreCase(T chr)		const
+		bool				Template<T>::EqualsIgnoreCase(T chr)		const
 		{
 			return CharFunctions::toupper(field[0]) == CharFunctions::toupper(chr) && !field[1];
 		}
@@ -4002,7 +3583,7 @@ namespace StringType
 		template <typename T>
 			Template<T>&	Template<T>::operator=(const AnsiString&string)
 			{
-				resize(string.Length());
+				Resize(string.Length());
 				CharFunctions::strncpy(field,string.c_str(),string_length);
 				return *this;
 			}
@@ -4018,14 +3599,14 @@ namespace StringType
 			if (length > 0 && string.last() == (T)0)
 				length--;
 			if (!length)
-				resize(0);
+				Resize(0);
 			else
 			{
 				const T	*first = string.pointer(),
 						*last = first+length-1;
 				while (last >= first && !*last)
 					last--;
-				resize(last-first+1);
+				Resize(last-first+1);
 				CharFunctions::strncpy(field,string.pointer(),string_length);
 			}
 			STRING_METHOD_END
@@ -4059,7 +3640,7 @@ namespace StringType
 				if (field != sz)
 					count(field)++;
 			#else
-				resize(string.string_length);
+				Resize(string.string_length);
 				memcpy(field,string.field,string_length*sizeof(T));
 			#endif
 			STRING_METHOD_END
@@ -4077,7 +3658,7 @@ namespace StringType
 					STRING_METHOD_END
 					return *this;
 				}
-				resize(CharFunctions::strlen(string));
+				Resize(CharFunctions::strlen(string));
 				for (size_t i = 0; i < string_length; i++)
 					field[i] = (T)string[i];
 				STRING_METHOD_END
@@ -4099,7 +3680,7 @@ namespace StringType
 				STRING_METHOD_END
 				return *this;
 			}
-			resize(CharFunctions::strlen(string));
+			Resize(CharFunctions::strlen(string));
 			memcpy(field,string,string_length*sizeof(T));
 			STRING_METHOD_END
 			return *this;
@@ -4112,7 +3693,7 @@ namespace StringType
 			STRING_METHOD_BEGIN("(char c)",c);
 			STRING_DEBUG("resize to 1");
 		
-			resize(1);
+			Resize(1);
 		
 			STRING_DEBUG("write char");
 		
@@ -4128,7 +3709,7 @@ namespace StringType
 		{
 			//ASSERT_NOT_NULL__(field);
 			STRING_METHOD_BEGIN("(wchar_t c)",(char)c);		
-			resize(1);
+			Resize(1);
 			field[0] = (T)c;
 			STRING_METHOD_END
 			return *this;
@@ -4158,7 +3739,7 @@ namespace StringType
 				}
 				if (c==end)
 					(*(--c)) = (T)'0';
-				resize(end-c+negative);
+				Resize(end-c+negative);
 				if (negative)
 					field[0] = '-';
 				memcpy(field+negative,c,(end-c)*sizeof(T));
@@ -4178,7 +3759,7 @@ namespace StringType
 				}
 				if (c==end)
 					(*(--c)) = (T)'0';
-				resize(end-c);
+				Resize(end-c);
 				memcpy(field,c,(end-c)*sizeof(T));
 			}
 		
@@ -4431,7 +4012,7 @@ namespace StringType
 				T	buffer[257],
 					*str = FloatToStr(value, 5, false,buffer+ARRAYSIZE(buffer)-1, buffer);
 
-				resize(buffer+ARRAYSIZE(buffer)-str-1);
+				Resize(buffer+ARRAYSIZE(buffer)-str-1);
 				memcpy(field,str,string_length*sizeof(T));
 			}
 
@@ -4448,14 +4029,14 @@ namespace StringType
 			}
 		
 	template <typename T>
-		inline	T*			Template<T>::writeTo(T*target)	const
+		inline	T*			Template<T>::WriteTo(T*target)	const
 							{
 								memcpy(target,field,string_length*sizeof(T));
 								return target+string_length;
 							}
 	template <typename T>
 		template <typename T2>
-			inline	T2*		Template<T>::writeTo(T2*target)	const
+			inline	T2*		Template<T>::WriteTo(T2*target)	const
 							{
 								for (size_t i = 0; i < string_length; i++)
 									(*target++) = field[i];
@@ -4463,7 +4044,7 @@ namespace StringType
 							}
 						
 	template <typename T>
-		inline	T*			Template<T>::writeTo(T*target, T*end)	const
+		inline	T*			Template<T>::WriteTo(T*target, T*end)	const
 							{
 								size_t cpy = end-target;
 								if (string_length < cpy)
@@ -4474,7 +4055,7 @@ namespace StringType
 						
 	template <typename T>
 		template <typename T2>
-			inline	T2*		Template<T>::writeTo(T2*target, T2*end)	const
+			inline	T2*		Template<T>::WriteTo(T2*target, T2*end)	const
 							{
 								for (size_t i = 0; i < string_length && target < end; i++)
 									(*target++) = field[i];
@@ -4513,7 +4094,7 @@ namespace StringType
 					size_t len = expression.length();
 					T*new_field = allocate(len);
 					STRING_DEBUG("writing expression to new field...");
-					expression.writeTo(new_field);
+					expression.WriteTo(new_field);
 					STRING_DEBUG("new field is filled with '"<<new_field<<"' now");
 					STRING_DEBUG("discarding old field");
 					delocate(field);
@@ -4522,8 +4103,8 @@ namespace StringType
 				}
 				else
 				{
-					resize(expression.length());
-					expression.writeTo(field);
+					Resize(expression.length());
+					expression.WriteTo(field);
 				}
 				//CHECK_STRING(*this);
 			}
@@ -4673,7 +4254,7 @@ namespace StringType
 							return *this;
 						Template<T> result = Template<T>(TStringLength(string_length+len));
 						memcpy(result.field,field,string_length*sizeof(T));
-						expression.writeTo(result.field+string_length);
+						expression.WriteTo(result.field+string_length);
 						return result;
 					}
 					
@@ -4687,7 +4268,7 @@ namespace StringType
 							return *this;
 						Template<T> result = Template<T>(TStringLength(string_length+len));
 						memcpy(result.field,field,string_length*sizeof(T));
-						expression.writeTo(result.field+string_length);
+						expression.WriteTo(result.field+string_length);
 						return result;
 					}
 				
@@ -4701,7 +4282,7 @@ namespace StringType
 							return *this;
 						Template<T> result = Template<T>(TStringLength(string_length+len));
 						memcpy(result.field,field,string_length*sizeof(T));
-						expression.writeTo(result.field+string_length);
+						expression.WriteTo(result.field+string_length);
 						return result;
 					}
 				
@@ -4715,7 +4296,7 @@ namespace StringType
 							return *this;
 						Template<T> result = Template<T>(TStringLength(string_length+len));
 						memcpy(result.field,field,string_length*sizeof(T));
-						expression.writeTo(result.field+string_length);
+						expression.WriteTo(result.field+string_length);
 						return result;
 					}
 

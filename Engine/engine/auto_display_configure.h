@@ -40,8 +40,8 @@ namespace Engine
 			resolution.width = std::min(resolution.width,screenRes.width);
 			resolution.height = std::min(resolution.height,screenRes.height);
 			String xmlBaseName = displayName;
-			xmlBaseName.eraseCharacters(validFileNameChar,false);
-			xmlBaseName.convertToLowerCase();
+			xmlBaseName.EraseCharacters(validFileNameChar,false);
+			xmlBaseName.ConvertToLowerCase();
 			PathString xmlFileName = configFolderPath + FOLDER_SLASH + xmlBaseName + ".xml";
 			XML::Container xconfig;
 			bool updateFile = false;

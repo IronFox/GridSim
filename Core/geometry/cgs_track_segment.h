@@ -85,7 +85,7 @@ namespace DeltaWorks
 											{}
 			
 				void						update(const M::TMatrix4<>&parent_system, bool final);	//!< Repositions connectors and instance if appropriate
-				bool						isValid(String*error_out=NULL)	const;	//!< Checks if the local connector is valid
+				bool						IsValid(String*error_out=NULL)	const;	//!< Checks if the local connector is valid
 
 				void						swap(TrackConnector&other)
 											{

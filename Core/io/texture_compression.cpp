@@ -336,7 +336,7 @@ namespace DeltaWorks
 					image[i] = new png_byte[from->GetWidth()*from->GetChannels()];
 					for (unsigned j = 0; j < from->GetWidth(); j++)
 					{
-						const BYTE*pixel = from->get(j,i);
+						const BYTE*pixel = from->Get(j,i);
 						for (BYTE k = 0; k < info->channels; k++)
 							image[i][j*info->channels+k] = pixel[k];
 					}

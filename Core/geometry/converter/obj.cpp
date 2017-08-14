@@ -469,7 +469,7 @@ namespace DeltaWorks
 			for (index_t i = 1; i < segments.count(); i++)
 			{
 				String&seg = segments[i];
-				if (seg.firstChar() == '-')
+				if (seg.FirstChar() == '-')
 				{
 					if (seg == "-mm")
 						i++;
@@ -525,18 +525,18 @@ namespace DeltaWorks
 		
 			while (in >> line)
 			{
-				line.trimThis();
-				switch (line.firstChar())
+				line.TrimThis();
+				switch (line.FirstChar())
 				{
 					case 'b':
-						if (line.beginsWith("bump ") && material)
+						if (line.BeginsWith("bump ") && material)
 						{
 							bump_map = ParseMap(folder,line,material->scale);
 							logMessage("bump map set to '"+String(bump_map)+"'");
 						}
 					break;
 					case 'n':
-						if (line.beginsWith("newmtl"))
+						if (line.BeginsWith("newmtl"))
 						{
 							if (color_map.length() || transparency_map.length() || bump_map.length())
 							{
@@ -576,25 +576,25 @@ namespace DeltaWorks
 					case 'm':
 						if (material)
 						{
-							if (line.beginsWithCaseIgnore("map_Kd "))
+							if (line.BeginsWithIgnoreCase("map_Kd "))
 							{
 								color_map = ParseMap(folder,line,material->scale);
 								logMessage("color map set to '"+String(color_map)+"'");
 							}
-							elif (line.beginsWithCaseIgnore("map_d "))
+							elif (line.BeginsWithIgnoreCase("map_d "))
 							{
 								transparency_map = ParseMap(folder,line,material->scale);
 								logMessage("transparency map set to '"+String(transparency_map)+"'");
 							}
 							else
-								logMessage("Warning: trying to set unknown map type '"+line.firstWord()+"'");
+								logMessage("Warning: trying to set unknown map type '"+line.GetFirstWord()+"'");
 						}
 						else
 							logMessage("Warning: trying to set map without material");
 					break;
 					case 'K':
 						if (material)
-							switch (line.get(1))
+							switch (line.GetChar(1))
 							{
 								case 'a':
 									LoadObjColor(line.c_str()+3,material->info.ambient);
@@ -611,7 +611,7 @@ namespace DeltaWorks
 							}
 					break;
 					case 'N':
-						if (line.get(1) == 's' && material && convert(line.c_str()+3,material->info.shininess))
+						if (line.GetChar(1) == 's' && material && convert(line.c_str()+3,material->info.shininess))
 						{
 							material->info.shininess /= 10.0;
 							material->info.shininess = Math::clamped(material->info.shininess,0.3,1);
@@ -682,7 +682,7 @@ namespace DeltaWorks
 					{
 						current_group = Append(group_buffer);
 						object_name_table.set(name,current_group);
-						name.trimThis().replace(' ','_');
+						name.TrimThis().FindAndReplace(' ','_');
 						if (!name.length())
 							name = "unnamend";
 					
@@ -1485,7 +1485,7 @@ namespace DeltaWorks
 		if (!texture->face_field.length())
 			return;
 
-		String tex_name = name2str(texture->name).trimThis();
+		String tex_name = name2str(texture->name).TrimThis();
 		if (!tex_name.length())
 		{
 			sendMessage("Failed to export texture. Target texture has no name");
@@ -1611,7 +1611,7 @@ namespace DeltaWorks
 		{
 			/*console->print("  "+name2str(object.name).Trim()+"...");
 			console->update();*/
-			out << "g "<<object.name.trim()<<nl;
+			out << "g "<<object.name.Trim()<<nl;
 		
 			Ctr::Array<TFace>*face_field;
 			for (UINT32 i = 0; i < conversion_table.length(); i++)
@@ -1642,7 +1642,7 @@ namespace DeltaWorks
 		{
 	#if 1
 			PathString filename = parameter;
-			if (!filename.endsWith(".obj"))
+			if (!filename.EndsWith(".obj"))
 				filename+=".obj";
 			
 		
@@ -1715,7 +1715,7 @@ namespace DeltaWorks
 					const CGS::RenderObjectA<>&robj = m.data.object_field[j];
 					if (!robj.target)
 					{
-						sendMessage("Warning: Render object target '"+robj.tname.trim()+"' not linked");
+						sendMessage("Warning: Render object target '"+robj.tname.Trim()+"' not linked");
 						sendMessage(" Mapping vertices");
 						continue;
 					}

@@ -7,6 +7,7 @@ Texture-buffer allowing to buffer/write simple texture-collections.
 
 ******************************************************************/
 
+#if 0
 
 
 #include "../io/riff_handler.h"
@@ -56,5 +57,8 @@ namespace DeltaWorks
 		String			GetState();
 	};
 }
+
+#endif /*0*/
+
 
 #endif

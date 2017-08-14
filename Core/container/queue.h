@@ -196,7 +196,6 @@ namespace DeltaWorks
 				void				clear();							//!< Clears the local queue of all entries. No objects are actually erased
 				inline void			Clear()	{clear();}
 				bool				Contains(const Entry&entry)	const;	//!< Checks if the queue contains the specified element
-				bool				contains(const Entry&entry)	const	/** @copydoc Contains()*/ {return Contains(entry);}
 
 				void				operator=(const Queue<Entry,MyStrategy>&other);	//!< Copies all elements from the remote queue to the local queue. The local buffer size is resized to match the remote buffer size but only actually used elements are copied
 				void				swap(Self&other);
@@ -263,7 +262,7 @@ namespace DeltaWorks
 				const Entry&		peekLeast()					const;	//!< Returns a reference to the next returned element (of greatest priority) in the queue @return next element in the queue
 				const Priority&		peekLeastPriority()			const;	//!< Returns the priority of the next returned element (of greatest priority) in the queue @return priority of the next element in the queue
 
-				void				erase(const iterator&it);			//!< Erases the specified element (the iterator stays valid but should probably be decremented after the operation)
+				void				Erase(const iterator&it);			//!< Erases the specified element (the iterator stays valid but should probably be decremented after the operation)
 				const Priority&		priorityOf(const iterator&it)	const;
 				void				clear();							//!< Clears the local queue of all entries. No objects are actually erased
 			

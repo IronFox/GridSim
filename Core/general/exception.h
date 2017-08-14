@@ -106,7 +106,7 @@ namespace DeltaWorks
 
 	template <class C>  FatalDescriptor(const TCodeLocation&location, const C&msg):TCodeLocation(location)
 						{
-							char*terminal = msg.writeTo(message,message+sizeof(message)-1);
+							char*terminal = msg.WriteTo(message,message+sizeof(message)-1);
 							*terminal = 0;
 							Reformat();
 						}

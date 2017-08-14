@@ -1,3 +1,5 @@
+#if 0
+
 #include "../global_root.h"
 #include "texture_buffer.h"
 #include "../string/encoding.h"
@@ -63,3 +65,5 @@ namespace DeltaWorks
 	}
 
 }
+
+#endif

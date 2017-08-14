@@ -26,11 +26,11 @@ namespace DeltaWorks
 			if (segments.count() != 2)
 				throw Except::IO::DriveAccess::FileFormatFault("Unexpected segment count in attribute '"+String(attrib_name)+"' of XML node '"+node.name+"': "+String(segments.count())+". Expected 2 comma separated segments in '"+string+"'");
 
-			if (!convert(segments[0].trim().c_str(),out.x))
-				throw Except::IO::DriveAccess::FileFormatFault("Conversion of segment 0 ('"+segments[0].trim()+"') for attribute '"+attrib_name+"' of XML node '"+node.name+"' failed");
+			if (!convert(segments[0].Trim().c_str(),out.x))
+				throw Except::IO::DriveAccess::FileFormatFault("Conversion of segment 0 ('"+segments[0].Trim()+"') for attribute '"+attrib_name+"' of XML node '"+node.name+"' failed");
 
-			if (!convert(segments[1].trim().c_str(),out.y))
-				throw Except::IO::DriveAccess::FileFormatFault("Conversion of segment 1 ('"+segments[0].trim()+"') for attribute '"+attrib_name+"' of XML node '"+node.name+"' failed");
+			if (!convert(segments[1].Trim().c_str(),out.y))
+				throw Except::IO::DriveAccess::FileFormatFault("Conversion of segment 1 ('"+segments[0].Trim()+"') for attribute '"+attrib_name+"' of XML node '"+node.name+"' failed");
 
 		
 		}
@@ -1045,7 +1045,7 @@ namespace DeltaWorks
 		target.object_field[0].name = str2name("object");
 	
 		target.material_field.SetSize(1);
-		//target.material_field[0].data.object_field.resize(detail_levels);
+		//target.material_field[0].data.object_field.Resize(detail_levels);
 		M::Vec::set(target.material_field[0].info.specular,0.7);
 		//target.material_field[0].info.shininess = 0;
 
@@ -1271,7 +1271,7 @@ namespace DeltaWorks
 		
 		nodes[edges[index].node[0]].out_edge = -1;
 		nodes[edges[index].node[1]].in_edge = -1;
-		edges.erase(index);
+		edges.Erase(index);
 	}
 
 	void	Graph::verifyIntegrity(const TCodeLocation&location)	const
@@ -1447,7 +1447,7 @@ namespace DeltaWorks
 	}
 
 
-	void		Graph::writeTo(XML::Node&xmesh)	const
+	void		Graph::WriteTo(XML::Node&xmesh)	const
 	{
 		{
 			XML::Node	&xnodes = xmesh.Create("nodes");
@@ -1488,8 +1488,8 @@ namespace DeltaWorks
 				for (index_t i = 0; i < physical_profile.nodes.count(); i++)
 					writeNode(xprofile,physical_profile.nodes[i]);
 			}
-			visual_graph.writeTo(xmesh.Create("graph"));
-			physical_graph.writeTo(xmesh.Create("physical_graph"));
+			visual_graph.WriteTo(xmesh.Create("graph"));
+			physical_graph.WriteTo(xmesh.Create("physical_graph"));
 	
 			xmesh.Set("caps",has_caps?"true":"false");
 		}
@@ -2222,7 +2222,7 @@ namespace DeltaWorks
 					Node&n = nodes.require(c.node);
 					ASSERT_LESS__(c.subdivisionStep,n.segments[c.outbound].count());
 
-					n.segments[c.outbound].erase(c.subdivisionStep);
+					n.segments[c.outbound].Erase(c.subdivisionStep);
 					for (index_t i = c.subdivisionStep; i < n.segments[c.outbound].count(); i++)
 						if (n.segments[c.outbound][i] != InvalidIndex)
 						{
@@ -3556,7 +3556,7 @@ namespace DeltaWorks
 		target.object_field[0].name = str2name("object");
 	
 		target.material_field.SetSize(1);
-		//target.material_field[0].data.object_field.resize(detail_levels);
+		//target.material_field[0].data.object_field.Resize(detail_levels);
 		M::Vec::set(target.material_field[0].info.specular,0.7);
 		//target.material_field[0].info.shininess = 0;
 
@@ -3687,7 +3687,7 @@ namespace DeltaWorks
 		target.object_field[0].name = str2name("object");
 	
 		target.material_field.SetSize(1);
-		//target.material_field[0].data.object_field.resize(detail_levels);
+		//target.material_field[0].data.object_field.Resize(detail_levels);
 		M::Vec::set(target.material_field[0].info.specular,0.7);
 		//target.material_field[0].info.shininess = 0;
 
@@ -3865,7 +3865,7 @@ namespace DeltaWorks
 			ASSERT_NOT_NULL__(n);
 			ASSERT_LESS__(c.subdivisionStep,n->segments[c.outbound].count());
 
-			n->segments[c.outbound].erase(c.subdivisionStep);
+			n->segments[c.outbound].Erase(c.subdivisionStep);
 			for (index_t i = c.subdivisionStep; i < n->segments[c.outbound].count(); i++)
 				if (n->segments[c.outbound][i] != InvalidIndex)
 				{

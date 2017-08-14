@@ -408,9 +408,9 @@ namespace Engine
 	template <class GL, class Font>
 		Console::Action VisualConsole<GL,Font>::resolve(const float pointer[2])
 		{
-		    bool in_head = head.current.contains(pointer),
-		         in_body = body.current.contains(pointer),
-		         in_foot = foot.current.contains(pointer);
+		    bool in_head = head.current.Contains(pointer),
+		         in_body = body.current.Contains(pointer),
+		         in_foot = foot.current.Contains(pointer);
 		    if (!in_head && !in_body && !in_foot)
 		        return Unfocus;
 		    if (in_head)

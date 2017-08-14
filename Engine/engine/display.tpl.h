@@ -179,7 +179,7 @@ namespace Engine
 	    {
 	        pivot_defined = true;
 	        pivot.select(SimpleGeometry::Triangles);
-	        pivot.resize(8);
+	        pivot.Resize(8);
 
 	        pivot.color(1,0,0); pivot.vertex(0,0,1);
 	        pivot.color(0,1,0); pivot.vertex(1,0,0);

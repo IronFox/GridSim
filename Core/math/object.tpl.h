@@ -635,9 +635,9 @@ template <class Def, class IndexType>
 			t.n0.setNeighbor(t.v1,&t);
 			t.n1.setNeighbor(t.v2,&t);
 			t.n2.setNeighbor(t.v0,&t);
-			t.v0->insert(&t);
-			t.v1->insert(&t);
-			t.v2->insert(&t);
+			t.v0->Insert(&t);
+			t.v1->Insert(&t);
+			t.v2->Insert(&t);
 		}
 		for (index_t i = 0; i < object.quad_field.length(); i++)
 		{
@@ -657,10 +657,10 @@ template <class Def, class IndexType>
 			q.n1.setNeighbor(q.v2,&q);
 			q.n2.setNeighbor(q.v3,&q);
 			q.n3.setNeighbor(q.v0,&q);
-			q.v0->insert(&q);
-			q.v1->insert(&q);
-			q.v2->insert(&q);
-			q.v3->insert(&q);
+			q.v0->Insert(&q);
+			q.v1->Insert(&q);
+			q.v2->Insert(&q);
+			q.v3->Insert(&q);
 		}
 	}
 	
@@ -719,9 +719,9 @@ template <class Def, class IndexType>
 			t.n0.setNeighbor(t.v1,&t);
 			t.n1.setNeighbor(t.v2,&t);
 			t.n2.setNeighbor(t.v0,&t);
-			t.v0->insert(&t);
-			t.v1->insert(&t);
-			t.v2->insert(&t);
+			t.v0->Insert(&t);
+			t.v1->Insert(&t);
+			t.v2->Insert(&t);
 		}
 		p = quad_index_field;
 		for (index_t i = 0; i < quad_index_field.length()/4; i++)
@@ -742,10 +742,10 @@ template <class Def, class IndexType>
 			q.n1.setNeighbor(q.v2,&q);
 			q.n2.setNeighbor(q.v3,&q);
 			q.n3.setNeighbor(q.v0,&q);
-			q.v0->insert(&q);
-			q.v1->insert(&q);
-			q.v2->insert(&q);
-			q.v3->insert(&q);
+			q.v0->Insert(&q);
+			q.v1->Insert(&q);
+			q.v2->Insert(&q);
+			q.v3->Insert(&q);
 		}
 	}	
 	
@@ -986,9 +986,9 @@ template <class Def, class IndexType>
 				t->n0.setNeighbor(t->v1,t);
 				t->n1.setNeighbor(t->v2,t);
 				t->n2.setNeighbor(t->v0,t);
-				t->v0->insert(t);
-				t->v1->insert(t);
-				t->v2->insert(t);
+				t->v0->Insert(t);
+				t->v1->Insert(t);
+				t->v2->Insert(t);
 				t++;
 			}
 			for (index_t j = 1; j < tsegment_field.length(); j++)
@@ -1020,9 +1020,9 @@ template <class Def, class IndexType>
 					t->n0.setNeighbor(t->v1,t);
 					t->n1.setNeighbor(t->v2,t);
 					t->n2.setNeighbor(t->v0,t);
-					t->v0->insert(t);
-					t->v1->insert(t);
-					t->v2->insert(t);
+					t->v0->Insert(t);
+					t->v1->Insert(t);
+					t->v2->Insert(t);
 					t++;
 						
 					i0 = i1;
@@ -1053,10 +1053,10 @@ template <class Def, class IndexType>
 				q->n1.setNeighbor(q->v2,q);
 				q->n2.setNeighbor(q->v3,q);
 				q->n3.setNeighbor(q->v0,q);
-				q->v0->insert(q);
-				q->v1->insert(q);
-				q->v2->insert(q);
-				q->v3->insert(q);
+				q->v0->Insert(q);
+				q->v1->Insert(q);
+				q->v2->Insert(q);
+				q->v3->Insert(q);
 				q++;
 			}
 			for (index_t j = 1; j < qsegment_field.length(); j++)
@@ -1082,10 +1082,10 @@ template <class Def, class IndexType>
 					q->n1.setNeighbor(q->v2,q);
 					q->n2.setNeighbor(q->v3,q);
 					q->n3.setNeighbor(q->v0,q);
-					q->v0->insert(q);
-					q->v1->insert(q);
-					q->v2->insert(q);
-					q->v3->insert(q);
+					q->v0->Insert(q);
+					q->v1->Insert(q);
+					q->v2->Insert(q);
+					q->v3->Insert(q);
 					q++;
 						
 					i0 = i2;
@@ -1164,9 +1164,9 @@ template <class Def, class IndexType>
 			for (index_t i = 0; i < tsegment_field[0]/3; i++)
 			{
 				Tri*t = object.triangles.append();
-				t->v0 = object.vertices.get((*index++)-min);
-				t->v1 = object.vertices.get((*index++)-min);
-				t->v2 = object.vertices.get((*index++)-min);
+				t->v0 = object.vertices.GetChar((*index++)-min);
+				t->v1 = object.vertices.GetChar((*index++)-min);
+				t->v2 = object.vertices.GetChar((*index++)-min);
 				t->marked = false;
 				t->index = object.triangles-1;
 				t->attrib = 0;
@@ -1176,9 +1176,9 @@ template <class Def, class IndexType>
 				t->n0.setNeighbor(t->v1,t);
 				t->n1.setNeighbor(t->v2,t);
 				t->n2.setNeighbor(t->v0,t);
-				t->v0->insert(t);
-				t->v1->insert(t);
-				t->v2->insert(t);
+				t->v0->Insert(t);
+				t->v1->Insert(t);
+				t->v2->Insert(t);
 			}
 			for (index_t j = 1; j < tsegment_field.length(); j++)
 			{
@@ -1191,15 +1191,15 @@ template <class Def, class IndexType>
 					IndexType i2 = (*index++);
 					if (!invert)
 					{
-						t->v0 = object.vertices.get(i0-min);
-						t->v1 = object.vertices.get(i1-min);
-						t->v2 = object.vertices.get(i2-min);
+						t->v0 = object.vertices.GetChar(i0-min);
+						t->v1 = object.vertices.GetChar(i1-min);
+						t->v2 = object.vertices.GetChar(i2-min);
 					}
 					else
 					{
-						t->v0 = object.vertices.get(i0-min);
-						t->v2 = object.vertices.get(i1-min);
-						t->v1 = object.vertices.get(i2-min);
+						t->v0 = object.vertices.GetChar(i0-min);
+						t->v2 = object.vertices.GetChar(i1-min);
+						t->v1 = object.vertices.GetChar(i2-min);
 					}
 					t->marked = false;
 					t->index = object.triangles-1;
@@ -1210,9 +1210,9 @@ template <class Def, class IndexType>
 					t->n0.setNeighbor(t->v1,t);
 					t->n1.setNeighbor(t->v2,t);
 					t->n2.setNeighbor(t->v0,t);
-					t->v0->insert(t);
-					t->v1->insert(t);
-					t->v2->insert(t);
+					t->v0->Insert(t);
+					t->v1->Insert(t);
+					t->v2->Insert(t);
 						
 					i0 = i1;
 					i1 = i2;
@@ -1226,10 +1226,10 @@ template <class Def, class IndexType>
 			for (index_t i = 0; i < qsegment_field[0]/4; i++)
 			{
 				Quad*q = object.quads.append();
-				q->v0 = object.vertices.get((*index++)-min);
-				q->v1 = object.vertices.get((*index++)-min);
-				q->v2 = object.vertices.get((*index++)-min);
-				q->v3 = object.vertices.get((*index++)-min);
+				q->v0 = object.vertices.GetChar((*index++)-min);
+				q->v1 = object.vertices.GetChar((*index++)-min);
+				q->v2 = object.vertices.GetChar((*index++)-min);
+				q->v3 = object.vertices.GetChar((*index++)-min);
 				q->marked = false;
 				q->attrib = 0;
 				q->index = i;
@@ -1241,10 +1241,10 @@ template <class Def, class IndexType>
 				q->n1.setNeighbor(q->v2,q);
 				q->n2.setNeighbor(q->v3,q);
 				q->n3.setNeighbor(q->v0,q);
-				q->v0->insert(q);
-				q->v1->insert(q);
-				q->v2->insert(q);
-				q->v3->insert(q);
+				q->v0->Insert(q);
+				q->v1->Insert(q);
+				q->v2->Insert(q);
+				q->v3->Insert(q);
 			}
 			for (index_t j = 1; j < qsegment_field.length(); j++)
 			{
@@ -1255,10 +1255,10 @@ template <class Def, class IndexType>
 					IndexType	i2 = (*index++),
 								i3 = (*index++);
 					Quad*q = object.quads.append();
-					q->v0 = object.vertices.get(i0-min);
-					q->v1 = object.vertices.get(i1-min);
-					q->v2 = object.vertices.get(i2-min);
-					q->v3 = object.vertices.get(i3-min);
+					q->v0 = object.vertices.GetChar(i0-min);
+					q->v1 = object.vertices.GetChar(i1-min);
+					q->v2 = object.vertices.GetChar(i2-min);
+					q->v3 = object.vertices.GetChar(i3-min);
 					q->marked = false;
 					q->index = object.quads-1;
 					q->attrib = 0;
@@ -1270,10 +1270,10 @@ template <class Def, class IndexType>
 					q->n1.setNeighbor(q->v2,q);
 					q->n2.setNeighbor(q->v3,q);
 					q->n3.setNeighbor(q->v0,q);
-					q->v0->insert(q);
-					q->v1->insert(q);
-					q->v2->insert(q);
-					q->v3->insert(q);
+					q->v0->Insert(q);
+					q->v1->Insert(q);
+					q->v2->Insert(q);
+					q->v3->Insert(q);
 						
 					i0 = i2;
 					i1 = i3;
@@ -1396,7 +1396,7 @@ template <typename ContainerT, typename Index>
 		//ReferenceVector<MeshVertex<C1> >	triangles;
 
 		Container::Buffer<Index>	indices;
-		/*target.resize(vertices,0,0,0);*/
+		/*target.Resize(vertices,0,0,0);*/
 		for (index_t i = 0; i < vertex_field.count(); i++)
 		{
 			indices<<i;
@@ -1464,7 +1464,7 @@ template <typename ContainerT, typename Index>
 			if (!failed)
 			{
 				target << index0 << index1 << index2;
-				indices.erase(current_index);
+				indices.Erase(current_index);
 				if (current_index >= indices.count())
 					current_index = 0;
 			}
@@ -1485,7 +1485,7 @@ MFUNC2 (bool)		_oTriangulate(const M::TVec2<C0>*vertex, count_t vertices, Mesh<C
 	Container::Buffer<index_t>					indices;
 	Container::Buffer<MeshVertex<C1>*>		triangles;
 
-	target.resize(vertices,0,0,0);
+	target.Resize(vertices,0,0,0);
 	for (index_t i = 0; i < vertices; i++)
 	{
 		indices<<i;
@@ -1554,7 +1554,7 @@ MFUNC2 (bool)		_oTriangulate(const M::TVec2<C0>*vertex, count_t vertices, Mesh<C
 			triangles.append(v1);
 			triangles.append(v2);
 			
-			indices.erase(current_index);
+			indices.Erase(current_index);
 			if (current_index >= indices.count())
 				current_index = 0;
 		}
@@ -1936,7 +1936,7 @@ template <class Def> MF_DECLARE (BYTE) MeshEdge<Def>::requireIndexOf(const MeshQ
 	return 0;
 }	
 	
-template <class Def> MF_DECLARE (char) MeshEdge<Def>::replace(MeshVertex<Def>*v, MeshVertex<Def>*with)
+template <class Def> MF_DECLARE (char) MeshEdge<Def>::FindAndReplace(MeshVertex<Def>*v, MeshVertex<Def>*with)
 {
 	if (v0 == v)
 	{
@@ -1951,7 +1951,7 @@ template <class Def> MF_DECLARE (char) MeshEdge<Def>::replace(MeshVertex<Def>*v,
 	return -1;
 }
 	
-template <class Def> MF_DECLARE (char) MeshEdge<Def>::replace(MeshQuad<Def>*v, MeshQuad<Def>*with)
+template <class Def> MF_DECLARE (char) MeshEdge<Def>::FindAndReplace(MeshQuad<Def>*v, MeshQuad<Def>*with)
 {
 	if (n[0].quad == v)
 	{
@@ -1973,7 +1973,7 @@ template <class Def> MF_DECLARE (char) MeshEdge<Def>::replace(MeshQuad<Def>*v, M
 	return -1;
 }
 	
-template <class Def> MF_DECLARE (char) MeshEdge<Def>::replace(MeshQuad<Def>*v, MeshTriangle<Def>*with)
+template <class Def> MF_DECLARE (char) MeshEdge<Def>::FindAndReplace(MeshQuad<Def>*v, MeshTriangle<Def>*with)
 {
 	if (n[0].quad == v)
 	{
@@ -1995,7 +1995,7 @@ template <class Def> MF_DECLARE (char) MeshEdge<Def>::replace(MeshQuad<Def>*v, M
 	return -1;
 }
 	
-template <class Def> MF_DECLARE (char) MeshEdge<Def>::replace(MeshTriangle<Def>*v, MeshTriangle<Def>*with)
+template <class Def> MF_DECLARE (char) MeshEdge<Def>::FindAndReplace(MeshTriangle<Def>*v, MeshTriangle<Def>*with)
 {
 	if (n[0].triangle == v)
 	{
@@ -2019,7 +2019,7 @@ template <class Def> MF_DECLARE (char) MeshEdge<Def>::replace(MeshTriangle<Def>*
 	
 	
 	
-template <class Def> MF_DECLARE (char) MeshEdge<Def>::replace(MeshTriangle<Def>*v, MeshQuad<Def>*with)
+template <class Def> MF_DECLARE (char) MeshEdge<Def>::FindAndReplace(MeshTriangle<Def>*v, MeshQuad<Def>*with)
 {
 	if (n[0].triangle == v)
 	{
@@ -2065,7 +2065,7 @@ template <class Def> MF_DECLARE (BYTE) MeshTriangle<Def>::requireIndexOf(const M
 	return 0;
 }
 	
-template <class Def> MF_DECLARE (char) MeshTriangle<Def>::replace(MeshVertex<Def>*v, MeshVertex<Def>*with)
+template <class Def> MF_DECLARE (char) MeshTriangle<Def>::FindAndReplace(MeshVertex<Def>*v, MeshVertex<Def>*with)
 {
 	if (v0 == v)
 	{
@@ -2113,7 +2113,7 @@ template <class Def> MF_DECLARE (BYTE) MeshQuad<Def>::requireIndexOf(const MeshV
 }
 	
 	
-template <class Def> MF_DECLARE (char) MeshQuad<Def>::replace(MeshVertex<Def>*v, MeshVertex<Def>*with)
+template <class Def> MF_DECLARE (char) MeshQuad<Def>::FindAndReplace(MeshVertex<Def>*v, MeshVertex<Def>*with)
 {
 	if (v0 == v)
 	{
@@ -2143,7 +2143,7 @@ template <class Def>
 	{}
 		
 template <class Def>
-	MF_DECLARE	(void)	TGraphDefVertex<Def>::insert(MeshEdge<TGraphDef<Def> >*edge)
+	MF_DECLARE	(void)	TGraphDefVertex<Def>::Insert(MeshEdge<TGraphDef<Def> >*edge)
 	{
 		degree++;
 		if (last)
@@ -2187,7 +2187,7 @@ template <class Def>
 	}
 		
 template <class Def>
-	MF_DECLARE (void)	TFaceGraphDefVertex<Def>::insert(MeshQuad<TFaceGraphDef<Def> >*quad)
+	MF_DECLARE (void)	TFaceGraphDefVertex<Def>::Insert(MeshQuad<TFaceGraphDef<Def> >*quad)
 	{
 		degree++;
 		if (last.triangle)
@@ -2216,7 +2216,7 @@ template <class Def>
 	}
 		
 template <class Def>
-	MF_DECLARE (void)	TFaceGraphDefVertex<Def>::insert(MeshTriangle<TFaceGraphDef<Def> >*triangle)
+	MF_DECLARE (void)	TFaceGraphDefVertex<Def>::Insert(MeshTriangle<TFaceGraphDef<Def> >*triangle)
 	{
 		degree++;
 		if (last.triangle)
@@ -2410,26 +2410,26 @@ template <class Def>
 template <class Def>
 	MF_DECLARE (void)		_oLinkToVertices(MeshEdge<TGraphDef<Def> >*edge)
 	{
-		edge->v0->insert(edge);
-		edge->v1->insert(edge);
+		edge->v0->Insert(edge);
+		edge->v1->Insert(edge);
 	}
 	
 template <class Def>
 	MF_DECLARE (void)		_oLinkToVertices(MeshTriangle<TFaceGraphDef<Def> >*triangle)
 	{
-		triangle->v0->insert(triangle);
-		triangle->v1->insert(triangle);
-		triangle->v2->insert(triangle);
+		triangle->v0->Insert(triangle);
+		triangle->v1->Insert(triangle);
+		triangle->v2->Insert(triangle);
 	}
 
 #ifndef	__CUDACC__
 template <class Def>
 	MF_DECLARE (void)		_oLinkToVertices(MeshQuad<TFaceGraphDef<Def> >*quad)
 	{
-		quad->v0->insert(quad);
-		quad->v1->insert(quad);
-		quad->v2->insert(quad);
-		quad->v3->insert(quad);
+		quad->v0->Insert(quad);
+		quad->v1->Insert(quad);
+		quad->v2->Insert(quad);
+		quad->v3->Insert(quad);
 	}
 #endif
 	
@@ -2578,7 +2578,7 @@ template <class Def>
 						BYTE index = q->requireIndexOf((Vertex*)this);
 						q->vertex[index]->unlink(q);
 						q->vertex[index] = pivot;
-						pivot->insert(q);
+						pivot->Insert(q);
 						q->marked = false;
 					}
 					else
@@ -2588,7 +2588,7 @@ template <class Def>
 						BYTE index = t->requireIndexOf((Vertex*)this);
 						t->vertex[index]->unlink(t);
 						t->vertex[index] = pivot;
-						pivot->insert(t);
+						pivot->Insert(t);
 						t->marked = false;
 					}
 				}
@@ -2684,7 +2684,7 @@ template <class Def>
 						BYTE index = q->requireIndexOf((Vertex*)this);
 						q->vertex[index]->unlink(q);
 						q->vertex[index] = pivot;
-						pivot->insert(q);
+						pivot->Insert(q);
 						q->marked = false;
 					}
 					else
@@ -2694,7 +2694,7 @@ template <class Def>
 						BYTE index = t->requireIndexOf((Vertex*)this);
 						t->vertex[index]->unlink(t);
 						t->vertex[index] = pivot;
-						pivot->insert(t);
+						pivot->Insert(t);
 						t->marked = false;
 					}
 				}
@@ -2841,7 +2841,7 @@ template <class Def> MF_DECLARE (BYTE) TFaceGraphDefTriangle<Def>::requireIndexO
 	
 
 
-template <class Def> MF_DECLARE (char) TFaceGraphDefTriangle<Def>::replace(MeshQuad<TFaceGraphDef<Def> >*v, MeshQuad<TFaceGraphDef<Def> >*with)
+template <class Def> MF_DECLARE (char) TFaceGraphDefTriangle<Def>::FindAndReplace(MeshQuad<TFaceGraphDef<Def> >*v, MeshQuad<TFaceGraphDef<Def> >*with)
 {
 	if (n0.quad == v)
 	{
@@ -2864,7 +2864,7 @@ template <class Def> MF_DECLARE (char) TFaceGraphDefTriangle<Def>::replace(MeshQ
 	return -1;
 }
 	
-template <class Def> MF_DECLARE (char) TFaceGraphDefTriangle<Def>::replace(MeshQuad<TFaceGraphDef<Def> >*v, MeshTriangle<TFaceGraphDef<Def> >*with)
+template <class Def> MF_DECLARE (char) TFaceGraphDefTriangle<Def>::FindAndReplace(MeshQuad<TFaceGraphDef<Def> >*v, MeshTriangle<TFaceGraphDef<Def> >*with)
 {
 	if (n0.quad == v)
 	{
@@ -2887,7 +2887,7 @@ template <class Def> MF_DECLARE (char) TFaceGraphDefTriangle<Def>::replace(MeshQ
 	return -1;
 }
 	
-template <class Def> MF_DECLARE (char) TFaceGraphDefTriangle<Def>::replace(MeshTriangle<TFaceGraphDef<Def> >*v, MeshTriangle<TFaceGraphDef<Def> >*with)
+template <class Def> MF_DECLARE (char) TFaceGraphDefTriangle<Def>::FindAndReplace(MeshTriangle<TFaceGraphDef<Def> >*v, MeshTriangle<TFaceGraphDef<Def> >*with)
 {
 	if (n0.triangle == v)
 	{
@@ -2910,7 +2910,7 @@ template <class Def> MF_DECLARE (char) TFaceGraphDefTriangle<Def>::replace(MeshT
 	return -1;
 }
 	
-template <class Def> MF_DECLARE (char) TFaceGraphDefTriangle<Def>::replace(MeshTriangle<TFaceGraphDef<Def> >*v, MeshQuad<TFaceGraphDef<Def> >*with)
+template <class Def> MF_DECLARE (char) TFaceGraphDefTriangle<Def>::FindAndReplace(MeshTriangle<TFaceGraphDef<Def> >*v, MeshQuad<TFaceGraphDef<Def> >*with)
 {
 	if (n0.triangle == v)
 	{
@@ -2990,7 +2990,7 @@ template <class Def> MF_DECLARE (BYTE) TFaceGraphDefQuad<Def>::requireIndexOf(co
 }
 	
 
-template <class Def> MF_DECLARE (char) TFaceGraphDefQuad<Def>::replace(MeshQuad<TFaceGraphDef<Def> >*v, MeshQuad<TFaceGraphDef<Def> >*with)
+template <class Def> MF_DECLARE (char) TFaceGraphDefQuad<Def>::FindAndReplace(MeshQuad<TFaceGraphDef<Def> >*v, MeshQuad<TFaceGraphDef<Def> >*with)
 {
 	if (n0.quad == v)
 	{
@@ -3019,7 +3019,7 @@ template <class Def> MF_DECLARE (char) TFaceGraphDefQuad<Def>::replace(MeshQuad<
 	return -1;
 }
 	
-template <class Def> MF_DECLARE (char) TFaceGraphDefQuad<Def>::replace(MeshQuad<TFaceGraphDef<Def> >*v, MeshTriangle<TFaceGraphDef<Def> >*with)
+template <class Def> MF_DECLARE (char) TFaceGraphDefQuad<Def>::FindAndReplace(MeshQuad<TFaceGraphDef<Def> >*v, MeshTriangle<TFaceGraphDef<Def> >*with)
 {
 	if (n0.quad == v)
 	{
@@ -3048,7 +3048,7 @@ template <class Def> MF_DECLARE (char) TFaceGraphDefQuad<Def>::replace(MeshQuad<
 	return -1;
 }
 	
-template <class Def> MF_DECLARE (char) TFaceGraphDefQuad<Def>::replace(MeshTriangle<TFaceGraphDef<Def> >*v, MeshTriangle<TFaceGraphDef<Def> >*with)
+template <class Def> MF_DECLARE (char) TFaceGraphDefQuad<Def>::FindAndReplace(MeshTriangle<TFaceGraphDef<Def> >*v, MeshTriangle<TFaceGraphDef<Def> >*with)
 {
 	if (n0.triangle == v)
 	{
@@ -3077,7 +3077,7 @@ template <class Def> MF_DECLARE (char) TFaceGraphDefQuad<Def>::replace(MeshTrian
 	return -1;
 }
 	
-template <class Def> MF_DECLARE (char) TFaceGraphDefQuad<Def>::replace(MeshTriangle<TFaceGraphDef<Def> >*v, MeshQuad<TFaceGraphDef<Def> >*with)
+template <class Def> MF_DECLARE (char) TFaceGraphDefQuad<Def>::FindAndReplace(MeshTriangle<TFaceGraphDef<Def> >*v, MeshQuad<TFaceGraphDef<Def> >*with)
 {
 	if (n0.triangle == v)
 	{
@@ -3208,7 +3208,7 @@ template <class Def> MF_DECLARE (BYTE) TGraphDefTriangle<Def>::requireIndexOf(co
 	FATAL__("linkage broken");
 }
 
-template <class Def> MF_DECLARE (char) TGraphDefTriangle<Def>::replace(MeshQuad<TGraphDef<Def> >*v, MeshQuad<TGraphDef<Def> >*with)
+template <class Def> MF_DECLARE (char) TGraphDefTriangle<Def>::FindAndReplace(MeshQuad<TGraphDef<Def> >*v, MeshQuad<TGraphDef<Def> >*with)
 {
 	if (n0.quad == v)
 	{
@@ -3231,7 +3231,7 @@ template <class Def> MF_DECLARE (char) TGraphDefTriangle<Def>::replace(MeshQuad<
 	return -1;
 }
 	
-template <class Def> MF_DECLARE (char) TGraphDefTriangle<Def>::replace(MeshQuad<TGraphDef<Def> >*v, MeshTriangle<TGraphDef<Def> >*with)
+template <class Def> MF_DECLARE (char) TGraphDefTriangle<Def>::FindAndReplace(MeshQuad<TGraphDef<Def> >*v, MeshTriangle<TGraphDef<Def> >*with)
 {
 	if (n0.quad == v)
 	{
@@ -3254,7 +3254,7 @@ template <class Def> MF_DECLARE (char) TGraphDefTriangle<Def>::replace(MeshQuad<
 	return -1;
 }
 	
-template <class Def> MF_DECLARE (char) TGraphDefTriangle<Def>::replace(MeshTriangle<TGraphDef<Def> >*v, MeshTriangle<TGraphDef<Def> >*with)
+template <class Def> MF_DECLARE (char) TGraphDefTriangle<Def>::FindAndReplace(MeshTriangle<TGraphDef<Def> >*v, MeshTriangle<TGraphDef<Def> >*with)
 {
 	if (n0.triangle == v)
 	{
@@ -3277,7 +3277,7 @@ template <class Def> MF_DECLARE (char) TGraphDefTriangle<Def>::replace(MeshTrian
 	return -1;
 }
 	
-template <class Def> MF_DECLARE (char) TGraphDefTriangle<Def>::replace(MeshTriangle<TGraphDef<Def> >*v, MeshQuad<TGraphDef<Def> >*with)
+template <class Def> MF_DECLARE (char) TGraphDefTriangle<Def>::FindAndReplace(MeshTriangle<TGraphDef<Def> >*v, MeshQuad<TGraphDef<Def> >*with)
 {
 	if (n0.triangle == v)
 	{
@@ -3300,7 +3300,7 @@ template <class Def> MF_DECLARE (char) TGraphDefTriangle<Def>::replace(MeshTrian
 	return -1;
 }
 	
-template <class Def> MF_DECLARE (char) TGraphDefTriangle<Def>::replace(MeshEdge<TGraphDef<Def> >*e, MeshEdge<TGraphDef<Def> >*with)
+template <class Def> MF_DECLARE (char) TGraphDefTriangle<Def>::FindAndReplace(MeshEdge<TGraphDef<Def> >*e, MeshEdge<TGraphDef<Def> >*with)
 {
 	if (edge[0] == e)
 	{
@@ -3403,7 +3403,7 @@ template <class Def> MF_DECLARE (BYTE) TGraphDefQuad<Def>::requireIndexOf(const 
 	FATAL__("linkage broken");
 }
 
-template <class Def> MF_DECLARE (char) TGraphDefQuad<Def>::replace(MeshQuad<TGraphDef<Def> >*v, MeshQuad<TGraphDef<Def> >*with)
+template <class Def> MF_DECLARE (char) TGraphDefQuad<Def>::FindAndReplace(MeshQuad<TGraphDef<Def> >*v, MeshQuad<TGraphDef<Def> >*with)
 {
 	if (n0.quad == v)
 	{
@@ -3432,7 +3432,7 @@ template <class Def> MF_DECLARE (char) TGraphDefQuad<Def>::replace(MeshQuad<TGra
 	return -1;
 }
 	
-template <class Def> MF_DECLARE (char) TGraphDefQuad<Def>::replace(MeshQuad<TGraphDef<Def> >*v, MeshTriangle<TGraphDef<Def> >*with)
+template <class Def> MF_DECLARE (char) TGraphDefQuad<Def>::FindAndReplace(MeshQuad<TGraphDef<Def> >*v, MeshTriangle<TGraphDef<Def> >*with)
 {
 	if (n0.quad == v)
 	{
@@ -3461,7 +3461,7 @@ template <class Def> MF_DECLARE (char) TGraphDefQuad<Def>::replace(MeshQuad<TGra
 	return -1;
 }
 	
-template <class Def> MF_DECLARE (char) TGraphDefQuad<Def>::replace(MeshTriangle<TGraphDef<Def> >*v, MeshTriangle<TGraphDef<Def> >*with)
+template <class Def> MF_DECLARE (char) TGraphDefQuad<Def>::FindAndReplace(MeshTriangle<TGraphDef<Def> >*v, MeshTriangle<TGraphDef<Def> >*with)
 {
 	if (n0.triangle == v)
 	{
@@ -3490,7 +3490,7 @@ template <class Def> MF_DECLARE (char) TGraphDefQuad<Def>::replace(MeshTriangle<
 	return -1;
 }
 	
-template <class Def> MF_DECLARE (char) TGraphDefQuad<Def>::replace(MeshTriangle<TGraphDef<Def> >*v, MeshQuad<TGraphDef<Def> >*with)
+template <class Def> MF_DECLARE (char) TGraphDefQuad<Def>::FindAndReplace(MeshTriangle<TGraphDef<Def> >*v, MeshQuad<TGraphDef<Def> >*with)
 {
 	if (n0.triangle == v)
 	{
@@ -3519,7 +3519,7 @@ template <class Def> MF_DECLARE (char) TGraphDefQuad<Def>::replace(MeshTriangle<
 	return -1;
 }
 	
-template <class Def> MF_DECLARE (char) TGraphDefQuad<Def>::replace(MeshEdge<TGraphDef<Def> >*e, MeshEdge<TGraphDef<Def> >*with)
+template <class Def> MF_DECLARE (char) TGraphDefQuad<Def>::FindAndReplace(MeshEdge<TGraphDef<Def> >*e, MeshEdge<TGraphDef<Def> >*with)
 {
 	if (edge[0] == e)
 	{
@@ -4061,9 +4061,9 @@ template <class Def>
 					return false;
 				}
 			}
-			if (!isValid(edge_field[i].n[0],false,true)
+			if (!IsValid(edge_field[i].n[0],false,true)
 				||
-				!isValid(edge_field[i].n[1],true,true))
+				!IsValid(edge_field[i].n[1],true,true))
 			{
 				_error = "Neighbor link(s) of edge "+String(i)+" is/are broken";
 				return false;
@@ -4084,7 +4084,7 @@ template <class Def> MF_DECLARE	(bool) Mesh<Def>::IsEmpty()																	cons
 	return !vertex_field.length();	//no vertices = no edges && no faces
 }
 	
-template <class Def> MF_DECLARE	(bool) Mesh<Def>::isValid(const TMeshFaceLink<Def>&link, bool may_be_null, bool may_be_marked)	const
+template <class Def> MF_DECLARE	(bool) Mesh<Def>::IsValid(const TMeshFaceLink<Def>&link, bool may_be_null, bool may_be_marked)	const
 {
 	if (!link.triangle)
 		return may_be_null;
@@ -4398,9 +4398,9 @@ template <class Def>
 			t.n0.setNeighbor(t.v1,&t);
 			t.n1.setNeighbor(t.v2,&t);
 			t.n2.setNeighbor(t.v0,&t);
-			t.v0->insert(&t);
-			t.v1->insert(&t);
-			t.v2->insert(&t);
+			t.v0->Insert(&t);
+			t.v1->Insert(&t);
+			t.v2->Insert(&t);
 			(*(typename Def::Triangle*)&t) = source;
 		}
 		for (index_t i = 0; i < object.quad_field.length(); i++)
@@ -4422,10 +4422,10 @@ template <class Def>
 			q.n1.setNeighbor(q.v2,&q);
 			q.n2.setNeighbor(q.v3,&q);
 			q.n3.setNeighbor(q.v0,&q);
-			q.v0->insert(&q);
-			q.v1->insert(&q);
-			q.v2->insert(&q);
-			q.v3->insert(&q);
+			q.v0->Insert(&q);
+			q.v1->Insert(&q);
+			q.v2->Insert(&q);
+			q.v3->Insert(&q);
 			(*(typename Def::Quad*)&q) = source;
 		}
 		if (include_edges)
@@ -4502,19 +4502,19 @@ template <class Def>
 			t->n0.setNeighbor(t->v1,t);
 			t->n1.setNeighbor(t->v2,t);
 			t->n2.setNeighbor(t->v0,t);				
-			t->v0->insert(t);
-			t->v1->insert(t);
-			t->v2->insert(t);
+			t->v0->Insert(t);
+			t->v1->Insert(t);
+			t->v2->Insert(t);
 			(*(typename Def::Triangle*)t) = source;
 		}
 		for (index_t i = 0; i < quad_field.length(); i++)
 		{
 			Quad&q = *object.quads.append();
 			const MeshQuad<Def>&source = quad_field[i];
-			q.v0 = object.vertices.get(source.v0-vertex_field);
-			q.v1 = object.vertices.get(source.v1-vertex_field);
-			q.v2 = object.vertices.get(source.v2-vertex_field);
-			q.v3 = object.vertices.get(source.v3-vertex_field);
+			q.v0 = object.vertices.GetChar(source.v0-vertex_field);
+			q.v1 = object.vertices.GetChar(source.v1-vertex_field);
+			q.v2 = object.vertices.GetChar(source.v2-vertex_field);
+			q.v3 = object.vertices.GetChar(source.v3-vertex_field);
 			q.marked = false;
 			q.attrib = 0;
 			q.index = i;
@@ -4526,10 +4526,10 @@ template <class Def>
 			q.n1.setNeighbor(q.v2,&q);
 			q.n2.setNeighbor(q.v3,&q);
 			q.n3.setNeighbor(q.v0,&q);				
-			q.v0->insert(&q);
-			q.v1->insert(&q);
-			q.v2->insert(&q);
-			q.v3->insert(&q);
+			q.v0->Insert(&q);
+			q.v1->Insert(&q);
+			q.v2->Insert(&q);
+			q.v3->Insert(&q);
 			(*(typename Def::Quad*)&q) = source;
 		}
 		if (include_edges)
@@ -4537,22 +4537,22 @@ template <class Def>
 			{
 				Edg&e = *object.edges.append();
 				const MeshEdge<Def>&source = edge_field[i];
-				e.v0 = object.vertices.get(source.v0-vertex_field);
-				e.v1 = object.vertices.get(source.v1-vertex_field);
+				e.v0 = object.vertices.GetChar(source.v0-vertex_field);
+				e.v1 = object.vertices.GetChar(source.v1-vertex_field);
 				e.marked = false;
 				e.index = i;
 				e.n0.is_quad = source.n0.is_quad;
 				e.n1.is_quad = source.n1.is_quad;
 				if (e.n0.is_quad)
-					e.n0.quad = object.quads.get(source.n0.quad-quad_field);
+					e.n0.quad = object.quads.GetChar(source.n0.quad-quad_field);
 				else
-					e.n0.triangle = object.triangles.get(source.n0.triangle-triangle_field);
+					e.n0.triangle = object.triangles.GetChar(source.n0.triangle-triangle_field);
 				if (source.n1.triangle)
 				{
 					if (e.n1.is_quad)
-						e.n1.quad = object.quads.get(source.n1.quad-quad_field);
+						e.n1.quad = object.quads.GetChar(source.n1.quad-quad_field);
 					else
-						e.n1.triangle = object.triangles.get(source.n1.triangle-triangle_field);
+						e.n1.triangle = object.triangles.GetChar(source.n1.triangle-triangle_field);
 				}
 				else
 					e.n1.triangle = NULL;
@@ -4658,8 +4658,8 @@ template <class Def>
 			e.next[0] = NULL;
 			e.next[1] = NULL;
 				
-			e.v0->insert(&e);
-			e.v1->insert(&e);
+			e.v0->Insert(&e);
+			e.v1->Insert(&e);
 				
 			if (e.n1.triangle)
 			{
@@ -4858,8 +4858,8 @@ template <class Def>
 			e->next[0] = NULL;
 			e->next[1] = NULL;
 				
-			e->v0->insert(e);
-			e->v1->insert(e);
+			e->v0->Insert(e);
+			e->v1->Insert(e);
 				
 			if (e->n1.triangle)
 			{
@@ -5129,14 +5129,14 @@ template <class Def> MF_DECLARE	(void) Mesh<Def>::correct(unsigned selection)
 								
 			if (!edge.marked)
 			{
-				if (!isValid(edge.n[0],false,false))
+				if (!IsValid(edge.n[0],false,false))
 				{
 					edge.n[0] = edge.n[1];
 					edge.n[1].triangle = NULL;
-					edge.marked = !isValid(edge.n[0]);
+					edge.marked = !IsValid(edge.n[0]);
 				}
 				else
-					if (!isValid(edge.n[1],true,false))
+					if (!IsValid(edge.n[1],true,false))
 						edge.n[1].triangle = NULL;
 			}
 			marked += edge.marked;
@@ -5484,7 +5484,7 @@ template <class Def> template <typename T>
 	
 
 
-template <class Def>MF_DECLARE	(void) Mesh<Def>::resize(count_t vcnt, count_t ecnt, count_t tcnt, count_t qcnt)
+template <class Def>MF_DECLARE	(void) Mesh<Def>::Resize(count_t vcnt, count_t ecnt, count_t tcnt, count_t qcnt)
 {
 	vertex_field.SetSize(vcnt);
 	edge_field.SetSize(ecnt);
@@ -7726,10 +7726,10 @@ template <typename Float>
 					/*if (vabs(vol) <= vmax(_distance(buffer[0].vector,buffer[i].vector),_distance(buffer[j].vector,buffer[k].vector))/2)
 						continue;*/
 					vertices << buffer[0] << buffer[i] << buffer[j] << buffer[k];
-					buffer.erase(k);
-					buffer.erase(j);
-					buffer.erase(i);
-					buffer.erase(index_t(0));
+					buffer.Erase(k);
+					buffer.Erase(j);
+					buffer.Erase(i);
+					buffer.Erase(index_t(0));
 					if (vol > 0)
 					{
 						updateNormal(triangles.append().Set(0,1,2,1,2,3));
@@ -7906,8 +7906,8 @@ template <typename Float> template <typename T>
 			if (!edges.count())
 			{
 				/*Log	error("error.log",true);
-				error<<"object.vertex_field.resize("<<vertices.count()<<");"<<nl;
-				error<<"object.triangle_field.resize("<<triangles.count()<<");"<<nl;
+				error<<"object.vertex_field.Resize("<<vertices.count()<<");"<<nl;
+				error<<"object.triangle_field.Resize("<<triangles.count()<<");"<<nl;
 				for (unsigned i = 0; i < vertices.count(); i++)
 					error << "_v3(object.vertex_field["<<i<<"].position,"<<vertices[i].vector[0]<<", "<<vertices[i].vector[1]<<", "<<vertices[i].vector[2]<<");"<<nl;
 				for (unsigned i = 0; i < triangles.count(); i++)

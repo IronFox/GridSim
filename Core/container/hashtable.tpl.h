@@ -18,7 +18,7 @@ template <typename Tfrom, typename Tto>
 
 
 template <class Carrier>
-	inline void					GenericHashBase<Carrier>::resize(size_t new_size)
+	inline void					GenericHashBase<Carrier>::Resize(size_t new_size)
 	{
 
 
@@ -37,25 +37,34 @@ template <class Carrier>
 	}
 
 template <class Carrier>
-	inline	void				GenericHashBase<Carrier>::calculateUnion(const GenericHashBase<Carrier>&other)
-	{
-		for (index_t i = 0; i < other.array.length(); i++)
+	template <typename Carrier2>
+		inline	void				GenericHashBase<Carrier>::IncludeCast(const GenericHashBase<Carrier2>&other)
 		{
-			const Carrier*c = other.array+i;
-			if (c->occupied)
+			const auto& oarray = other.GetStore();
+			for (index_t i = 0; i < oarray.length(); i++)
 			{
-				bool did_occupy;
-				Carrier*local = find(c->hashed,c->key,true,&did_occupy);
-				if (did_occupy)
-					*local = *c;
+				const Carrier2*c = oarray+i;
+				if (c->occupied)
+				{
+					bool did_occupy;
+					Carrier*local = find(c->hashed,c->key,true,&did_occupy);
+					if (did_occupy)
+						*local = *c;
+				}
 			}
 		}
+
+
+template <class Carrier>
+	inline	void				GenericHashBase<Carrier>::Include(const Self&other)
+	{
+		IncludeCast(other);
 	}
 
 
 
 template <class Carrier>
-	inline	void					GenericHashBase<Carrier>::calculateIntersection(const GenericHashBase<Carrier>&other)
+	inline	void					GenericHashBase<Carrier>::Intersect(const Self&other)
 	{
 		Ctr::Array<THashSetCarrier<typename Carrier::Key, typename Carrier::AppliedKeyStrategy> >	occupied_keys(entries);
 		index_t at = 0;
@@ -75,7 +84,7 @@ template <class Carrier>
 	}
 
 template <class Carrier>
-	inline	void					GenericHashBase<Carrier>::calculateDifference(const GenericHashBase<Carrier>&other)
+	inline	void					GenericHashBase<Carrier>::Differentiate(const Self&other)
 	{
 		Ctr::Array<THashSetCarrier<typename Carrier::Key, typename Carrier::AppliedKeyStrategy> >	occupied_keys(entries);
 		index_t at = 0;
@@ -158,7 +167,7 @@ template <class Carrier>
 		count_t newSize = array.length() >> 1;
 		while (entries*5 < newSize && newSize > InitialSize)
 			newSize >>= 1;
-		resize(newSize);
+		Resize(newSize);
 		return true;
 	}
 	
@@ -275,7 +284,7 @@ template <class Carrier, class Hash>
 			}
 
 		if (anyChanged && !Base::Tidy())
-			Base::resize(array.Count());//will sort elements to where they should be
+			Base::Resize(array.Count());//will sort elements to where they should be
 	}
 
 
@@ -376,7 +385,7 @@ template <class K, class C, class Hash, class KeyStrategy, class DataStrategy>
 				}
 
 			if (anyChanged && !Base::Tidy())
-				Base::resize(array.Count());//will sort elements to where they should be
+				Base::Resize(array.Count());//will sort elements to where they should be
 		}
 
 template <class K, class C, class Hash, class KeyStrategy, class DataStrategy>
@@ -518,13 +527,13 @@ template <class K, class C, class Hash, class KeyStrategy, class DataStrategy>
 	}
 
 template <class K, class C, class Hash, class KeyStrategy, class DataStrategy>
-	inline	C&					GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::get(const K&ident, C&except)
+	inline	C&					GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::GetChar(const K&ident, C&except)
 	{
 		C*ptr = queryPointer(ident);
 		return ptr ? *ptr : except;
 	}
 template <class K, class C, class Hash, class KeyStrategy, class DataStrategy>
-	inline	const C&				GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::get(const K&ident, const C&except)	const
+	inline	const C&				GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::GetChar(const K&ident, const C&except)	const
 	{
 		const C*ptr = queryPointer(ident);
 		return ptr ? *ptr : except;
@@ -735,7 +744,7 @@ template <class K, class C, class Hash, class KeyStrategy> template <class Key>
 	}
 	
 template <class K, class C, class Hash, class KeyStrategy> template <class Key>
-	inline  bool GenericHashContainer<K,C,Hash,KeyStrategy>::erase(const Key&ident)
+	inline  bool GenericHashContainer<K,C,Hash,KeyStrategy>::Erase(const Key&ident)
 	{
 
 		DataType t = drop(ident);

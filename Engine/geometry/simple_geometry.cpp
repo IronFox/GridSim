@@ -14,7 +14,7 @@ namespace Engine
 	    M::Vec::def(v.color,1,1,1,1);
 	}
 
-	void SimpleGeometry::resize(unsigned len_)
+	void SimpleGeometry::Resize(unsigned len_)
 	{
 		field[0].ResizePreserveContent(len_);
 		field[1].ResizePreserveContent(len_);

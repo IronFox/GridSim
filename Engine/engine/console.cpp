@@ -106,11 +106,11 @@ void Console::print(const String&line)
     String local = line;
     while (local.length())
     {
-        index_t nl = local.GetIndexOf('\n');
-        if (nl)
+        index_t nl = local.Find('\n');
+        if (nl != InvalidIndex)
         {
-            lines.add(local.subString(0,nl-1));
-            local.erase(0,nl);
+            lines.add(local.SubStringRef(0,nl));
+            local.Erase(0,nl+1);
         }
         else
         {
@@ -151,7 +151,7 @@ void Console::unfocus()
 
 void Console::forgetLastInput()
 {
-    inputs.erase(inputs.count()-1);
+    inputs.Erase(inputs.count()-1);
 }
 
 

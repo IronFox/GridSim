@@ -14,7 +14,7 @@ template <typename F>
 		Tokenizer::tokenize(def,lookup.pathConfig,lookup.pathSegments);
 		if (!lookup.pathSegments)
 			return NULL;
-		PFolder parent = _Resolve(def.beginsWith('/'));
+		PFolder parent = _Resolve(def.BeginsWith('/'));
 		if (!parent)
 			return NULL;
 		Command::Name name;
@@ -44,29 +44,30 @@ template <typename F>
 	}
 
 
+
 template <typename T, count_t Components>
-	bool				SetVectorVariableContent(T*content, const String&component, const String&value)
+	count_t				DecodeVectorContent(T*content,const String&value)
 	{
-		T temp[Components];
-		
-		index_t	begin = value.GetIndexOf('('),
-				end = value.GetIndexOf(')');
-		if (!begin || !end)
+		if (value.IsEmpty())
+			return 0;
+		index_t	begin = value.Find('('),
+				end = value.Find(')');
+		if (begin ==InvalidIndex || end == InvalidIndex)
 		{
-			begin = value.GetIndexOf('{');
-			end = value.GetIndexOf('}');
+			begin = value.Find('{');
+			end = value.Find('}');
 		}
 		
-		if (!begin || !end)
+		if (begin ==InvalidIndex || end == InvalidIndex)
 		{
-			begin = value.GetIndexOf('[');
-			end = value.GetIndexOf(']');
+			begin = value.Find('[');
+			end = value.Find(']');
 		}
 		
-		if (!begin || !end)
+		if (begin ==InvalidIndex|| end==InvalidIndex)
 		{
-			begin = 1;
-			end = value.length();
+			begin = 0;
+			end = value.length()-1;
 		}
 		else
 		{
@@ -76,20 +77,31 @@ template <typename T, count_t Components>
 		index_t	last = begin,
 				count = 0;
 		for (index_t i = begin; i <= end && count < Components; i++)
-			if (value.get(i-1)==',' || value.get(i-1)==';')
+			if (value.GetChar(i)==',' || value.GetChar(i)==';')
 			{
-				String sub = value.subString(last-1,i-last);
-				sub.trimThis();
-				if (!convert(sub.c_str(),temp[count++]))
-					return false;
+				String sub = value.subString(last,i-last);
+				sub.TrimThis();
+				if (!convert(sub.c_str(),content[count++]))
+					return 0;
 				last = i+1;
 			}
 		{
-			String sub = value.subString(last-1,end-last+1);
-			sub.trimThis();
-			if (!convert(sub.c_str(),temp[count++]))
-				return false;
+			String sub = value.subString(last,end-last+1);
+			sub.TrimThis();
+			if (!convert(sub.c_str(),content[count++]))
+				return 0;
 		}
+		return count;
+	}
+
+template <typename T, count_t Components>
+	bool				SetVectorVariableContent(T*content, const String&component, const String&value)
+	{
+		T temp[Components];
+		count_t count = DecodeVectorContent<T,Components>(temp,value);
+		if (count == 0)
+			return false;
+
 		if (count == 1 && component.length()>1)
 		{
 			count = M::vmin(component.length(),Components);
@@ -100,7 +112,7 @@ template <typename T, count_t Components>
 		index_t at = 0;
 		for (index_t i = 0; i < component.length() && at < count; i++)
 		{
-			switch (component.get(i))
+			switch (component.GetChar(i))
 			{
 				case 'r':
 				case 'R':
@@ -147,56 +159,14 @@ template <typename T, count_t Components>
 template <typename T, count_t Components>
 	bool				SetVectorVariableContent(T*content, const String&value)
 	{
-		index_t		begin = value.GetIndexOf('('),
-					end = value.GetIndexOf(')');
-		if (!begin || !end)
-		{
-			begin = value.GetIndexOf('{');
-			end = value.GetIndexOf('}');
-		}
-		
-		if (!begin || !end)
-		{
-			begin = value.GetIndexOf('[');
-			end = value.GetIndexOf(']');
-		}
-				
-		if (!begin || !end)
-		{
-			begin = 1;
-			end = value.length();
-		}
-		else
-		{
-			begin++;
-			end--;
-		}
-		
-		
-		index_t 	last = begin,
-					index = 0;
-		for (index_t i = begin; i <= end && index < Components; i++)
-			if (value.get(i-1)==',' || value.get(i-1)==';')
-			{
-				String sub = value.subString(last-1,i-last);
-				sub.trimThis();
-				if (!convert(sub.c_str(),content[index++]))
-					return false;
-				last = i+1;
-			}
-		{
-			String sub = value.subString(last-1,end-last+1);
-			sub.trimThis();
-			if (!convert(sub.c_str(),content[index++]))
-				return false;
-		}
-		if (index == 1)
+		count_t count = DecodeVectorContent<T,Components>(content,value);
+		if (count == 1)
 		{
 			for (index_t i = 1; i < Components; i++)
 				content[i] = content[0];
 			return true;
 		}
-		return index == Components;
+		return count == Components;
 	}
 
 	

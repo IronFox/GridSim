@@ -51,7 +51,7 @@ template <class Entry> bool Graph<Entry>::createTopologicalOrder(ReferenceVector
     {
         node->my_indeg = node->in.count();
         if (!node->my_indeg)
-            queue.insert(node);
+            queue.Insert(node);
     }
     
     out.flush();
@@ -66,7 +66,7 @@ template <class Entry> bool Graph<Entry>::createTopologicalOrder(ReferenceVector
         node->out.reset();
         while (CGNode<Entry>*tnode = node->out.each())
             if (!--tnode->my_indeg)
-                queue.insert(tnode);
+                queue.Insert(tnode);
     }
     return out.count() == nodes;
 }

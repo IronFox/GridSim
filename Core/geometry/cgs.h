@@ -280,7 +280,7 @@ namespace DeltaWorks
 		class TextureObject	//! Texture attachment base class
 		{};
 
-		class TextureA:public Reference<TextureObject>, public TextureObject	//! Texture data object
+		class TextureA:/*public Reference<TextureObject>,*/ public TextureObject	//! Texture data object
 		{
 		public:
 			name64_t								name;		//!< 64 bit integer name of this texture
@@ -434,7 +434,7 @@ namespace DeltaWorks
 			For each one SubGeometry<Def> instance only one RenderObjectA<Def> instance may exist per detail level and material.
 		*/
 		template <class Def=StdDef>
-			class RenderObjectA: public Reference<MaterialHook>
+			class RenderObjectA /*: public Reference<MaterialHook>*/
 			{
 			private:
 			static	bool									equal;
@@ -532,7 +532,7 @@ namespace DeltaWorks
 			The material data structure holds the actual geometrical rendering data.
 		*/
 		template <class Def=StdDef>
-		class MaterialData:public Reference<MaterialHook>
+		class MaterialData /*:public Reference<MaterialHook>*/
 		{
 		private:
 		static	bool									equal;
@@ -724,7 +724,7 @@ namespace DeltaWorks
 			\brief Wheel descriptor
 		*/
 		template <class Def=StdDef>
-		struct TWheel:public Reference<WheelCompatible>
+		struct TWheel /*:public Reference<WheelCompatible>*/
 		{
 				SubGeometryA<Def>						*domain;		//!< Link to the sub geometry that currently contains this wheel
 				String									name;			//!< Name of this wheel
@@ -760,7 +760,7 @@ namespace DeltaWorks
 			An accelerator describes a singular linear force.
 		*/
 		template <class Def=StdDef>
-			struct TAccelerator:public Reference<AcceleratorCompatible>
+			struct TAccelerator /*:public Reference<AcceleratorCompatible>*/
 			{
 				SubGeometryA<Def>						*domain;		//!< Link to the sub geometry that currently contains this accelerator
 				//name64_t								name;			//!< Accelerator name
@@ -846,7 +846,7 @@ namespace DeltaWorks
 			Each sub geometry provides relative geometrical information as well as physical data, wheels, accelerators and constructs.
 		*/
 		template <class Def=StdDef>
-		class SubGeometryA:public Reference<SubGeometryCompatible>
+		class SubGeometryA /*:public Reference<SubGeometryCompatible>*/
 		{
 		private:
 				static String							error;
@@ -1192,7 +1192,7 @@ namespace DeltaWorks
 			\brief Instance (spawn) of a Geometry<Def> instance
 		*/
 		template <class Def=StdDef>
-			class GeometryInstance:public Reference<TInstanceObject>, public System<typename Def::SystemType>, public System<typename Def::SystemType>::Callback
+			class GeometryInstance:/*public Reference<TInstanceObject>,*/ public System<typename Def::SystemType>, public System<typename Def::SystemType>::Callback
 			{
 			public:
 					void									onSystemChange()	{};

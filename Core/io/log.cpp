@@ -175,8 +175,10 @@ namespace DeltaWorks
 		}
 		if (time_)
 			timeStamp();
-		if (index_t at = line.GetIndexOf('\n'))
+		index_t at;
+		if ((at = line.Find('\n'))!= InvalidIndex)
 		{
+			at++;
 			if (fwrite(line.c_str(),1,at,f)!=at)
 			{
 				end();

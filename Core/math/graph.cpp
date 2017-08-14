@@ -44,7 +44,7 @@ namespace DeltaWorks
 				for (index_t i = 0; i < container.count(); i++)
 					if (container[i].lock() == element)
 					{
-						container.erase(i);
+						container.Erase(i);
 						return;
 					}
 			}
