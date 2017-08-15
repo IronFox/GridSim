@@ -1,6 +1,23 @@
 #pragma once
 
 #include "../global_root.h"
+#include <memory>	//shared_ptr
+
+namespace std
+{
+	template <typename T>
+		inline bool		operator==(const shared_ptr<T>&a, const weak_ptr<T>&b)
+		{
+			return a == b.lock();
+		}
+
+	template <typename T>
+		inline bool		operator==(const weak_ptr<T>&a, const shared_ptr<T>&b)
+		{
+			return b == a.lock();
+		}
+}
+
 
 namespace DeltaWorks
 {
