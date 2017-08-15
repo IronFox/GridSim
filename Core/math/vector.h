@@ -634,6 +634,10 @@ namespace DeltaWorks
 										{
 											return end - start;
 										}
+				MF_DECLARE(T)			GetCenter()	const
+										{
+											return (end + start) / 2;
+										}
 				template<typename T0>
 					MF_DECLARE(bool)	Contains(const T0&value)	const //! Checks if the specified value lies within the local range
 										{
