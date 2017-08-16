@@ -417,9 +417,9 @@ namespace Engine
 									(	
 										glActiveTexture!=NULL
 										?
-										config.layers.count()
+										config.layers.Count()
 										:
-										std::min<count_t>(1,config.layers.count())
+										std::min<count_t>(1,config.layers.Count())
 									)
 								);
 			//unsigned bound_layers = 0;

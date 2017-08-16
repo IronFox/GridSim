@@ -1561,12 +1561,12 @@ namespace DeltaWorks
 										}
 					void				AppendAndActivateNewLOD()
 										{
-											index_t result = lods.count();
+											index_t result = lods.Count();
 											currentLOD = &lods.append();
 											_OnActiveLODChange();
 										}
-					count_t				CountLODs()	const	{return lods.count();}
-					void				SetActiveLOD(index_t lodIndex)	{ASSERT_LESS__(lodIndex,lods.count()); currentLOD = lods + lodIndex;_OnActiveLODChange();}
+					count_t				CountLODs()	const	{return lods.Count();}
+					void				SetActiveLOD(index_t lodIndex)	{ASSERT_LESS__(lodIndex,lods.Count()); currentLOD = lods + lodIndex;_OnActiveLODChange();}
 					index_t				GetActiveLOD() const	{return currentLOD - lods.pointer();}
 					const LOD&			GetLOD(index_t lodIndex) const { return lods[lodIndex]; }
 					template <typename T>
@@ -2231,7 +2231,7 @@ namespace DeltaWorks
 				count_t			CountTextureLayers()	const	{return config.numTextureLayers;}
 				UINT			GetVertexFlags()		const	{return config.vertexFlags;}
 				count_t			GetVertexSize()			const	{return config.vsize;}
-				count_t			CountObjects()			const	{return objects.count();}
+				count_t			CountObjects()			const	{return objects.Count();}
 				count_t			CountLODs()				const;
 				#undef GetObject
 				Object&			GetObject(index_t index)		{return objects[index];}

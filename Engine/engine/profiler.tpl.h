@@ -20,7 +20,7 @@ namespace Engine
 			}
 			
 		template <class Font>
-			void				TextoutManager<Font>::set(Engine::Textout<Font>*textout)
+			void				TextoutManager<Font>::Set(Engine::Textout<Font>*textout)
 			{
 				active = textout;
 			}
@@ -105,10 +105,10 @@ namespace Engine
 				if (dimensions < 3)
 					return;
 				unsigned stride = (4+dimensions);
-				unsigned vcnt = vertices.count()/stride;
+				unsigned vcnt = vertices.Count()/stride;
 				Array<M::TVec3<> >	normals(vcnt);
 				normals.Fill(0);
-				for (unsigned i = 0; i < indices.count()/4; i++)
+				for (unsigned i = 0; i < indices.Count()/4; i++)
 				{
 					M::TVec3<>	n0,
 							n1;
@@ -146,7 +146,7 @@ namespace Engine
 				outlines.compact();
 				
 				unsigned stride = (dimensions+4);
-				count_t vcnt = vertices.count()/stride;
+				count_t vcnt = vertices.Count()/stride;
 				if (opaque)
 				{
 					for (index_t i = 0; i < vcnt; i++)
@@ -157,10 +157,10 @@ namespace Engine
 					}
 				}
 				
-				ASSERT2__(!(vertices.count()%(dimensions+4)),vertices.count(),dimensions);
-				ASSERT1__(!(indices.count()%4),indices.count());
+				ASSERT2__(!(vertices.Count()%(dimensions+4)),vertices.Count(),dimensions);
+				ASSERT1__(!(indices.Count()%4),indices.Count());
 				
-				for (index_t i = 0; i < indices.count(); i++)
+				for (index_t i = 0; i < indices.Count(); i++)
 					ASSERT3__(indices[i]<vcnt,i,indices[i],vcnt);
 				
 				if (dimensions == 3)
@@ -275,7 +275,7 @@ namespace Engine
 	template <class GL, class Font>
 		void		ColumnGraph<GL,Font>::addRow(const M::TVec3<>&color, unsigned res)
 		{
-			index_t offset = Base::vertices.count()/(Base::dimensions+4);
+			index_t offset = Base::vertices.Count()/(Base::dimensions+4);
 			float	lowest = 1000000,
 					highest = 0;
 			for (unsigned t = 0; t < res; t++)
@@ -395,7 +395,7 @@ namespace Engine
 				
 				addRow(color,res);
 			}
-			//ASSERT__(indices.count() == cnt*(res-1)*4);
+			//ASSERT__(indices.Count() == cnt*(res-1)*4);
 			
 			
 			
@@ -405,12 +405,12 @@ namespace Engine
 					highest = h_field[i];
 			float scale = highest?1.0f/(highest*1.25f):1.0f;
 			
-			for (index_t i = 0; i < Base::vertices.count()/(Base::dimensions+4); i++)
+			for (index_t i = 0; i < Base::vertices.Count()/(Base::dimensions+4); i++)
 			{
 				Base::vertices[i*(Base::dimensions+4)+1] *= scale;
 			}
 			
-			for (index_t i = 0; i < Base::outlines.field[SimpleGeometry::Lines].count(); i++)
+			for (index_t i = 0; i < Base::outlines.field[SimpleGeometry::Lines].Count(); i++)
 			{
 				Base::outlines.field[SimpleGeometry::Lines][i].position[1] *= scale;
 			
@@ -568,7 +568,7 @@ namespace Engine
 		void		StackedGraph<GL,Font>::addRow(const M::TVec3<>&color)
 		{
 			unsigned res = data->resolution();
-			index_t offset = Base::vertices.count()/(Base::dimensions+4);
+			index_t offset = Base::vertices.Count()/(Base::dimensions+4);
 			float	lowest = 1000000,
 					highest = 0;
 			for (unsigned t = 0; t < res; t++)
@@ -610,7 +610,7 @@ namespace Engine
 		void		StackedGraph<GL,Font>::addMaxRow(const M::TVec3<>&color)
 		{
 			unsigned res = data->resolution();
-			index_t offset = Base::vertices.count()/(Base::dimensions+4);
+			index_t offset = Base::vertices.Count()/(Base::dimensions+4);
 			float	lowest = 1000000,
 					highest = 0;
 			for (unsigned t = 0; t < res; t++)
@@ -652,7 +652,7 @@ namespace Engine
 		void		StackedGraph<GL,Font>::addLineRow(const M::TVec3<>&color)
 		{
 			unsigned res = data->resolution();
-			index_t	offset = Base::vertices.count()/(Base::dimensions+4);
+			index_t	offset = Base::vertices.Count()/(Base::dimensions+4);
 			float	lowest = 1000000,
 					highest = 0;
 			for (unsigned t = 0; t < res; t++)
@@ -773,7 +773,7 @@ namespace Engine
 				str_current = "~"+String(ch.history.last(),2)+" ["+String(ch.minimum_history.last(),2)+", "+String(ch.maximum_history.last(),2)+"]";
 				
 			}
-			//ASSERT__(indices.count() == cnt*(res-1)*4);
+			//ASSERT__(indices.Count() == cnt*(res-1)*4);
 			
 			
 			
@@ -783,12 +783,12 @@ namespace Engine
 					highest = h_field[i];
 			scale = highest?1.0f/(highest*1.25f):1.0f;
 			
-			for (index_t i = 0; i < Base::vertices.count()/(Base::dimensions+4); i++)
+			for (index_t i = 0; i < Base::vertices.Count()/(Base::dimensions+4); i++)
 			{
 				Base::vertices[i*(Base::dimensions+4)+1] *= scale;
 			}
 			
-			for (index_t i = 0; i < Base::outlines.field[SimpleGeometry::Lines].count(); i++)
+			for (index_t i = 0; i < Base::outlines.field[SimpleGeometry::Lines].Count(); i++)
 			{
 				Base::outlines.field[SimpleGeometry::Lines][i].y *= scale;
 			
@@ -918,7 +918,7 @@ namespace Engine
 			unsigned res = data->resolution();
 			if (res < 2)
 				return;
-			unsigned offset = Base::vertices.count()/(Base::dimensions+4);
+			unsigned offset = Base::vertices.Count()/(Base::dimensions+4);
 			float	lowest = 1000000,
 					highest = 0;
 			for (unsigned t = 0; t < res; t++)
@@ -993,7 +993,7 @@ namespace Engine
 				}
 				if (t<res-1)
 				{
-					//unsigned offset = Base::vertices.count()/(Base::dimensions+4)-6;
+					//unsigned offset = Base::vertices.Count()/(Base::dimensions+4)-6;
 					
 					Base::indices << offset+2-broken*2;
 					Base::indices << offset-broken*2;
@@ -1146,7 +1146,7 @@ namespace Engine
 				
 				addRow(color,1.0f);
 			}
-			//ASSERT__(indices.count() == cnt*(res-1)*4);
+			//ASSERT__(indices.Count() == cnt*(res-1)*4);
 			
 			
 			
@@ -1157,12 +1157,12 @@ namespace Engine
 			str_current = h_field.last();
 			float scale = highest?Base::height/(highest*1.25f):1.0f;
 			
-			for (index_t i = 0; i < Base::vertices.count()/(Base::dimensions+4); i++)
+			for (index_t i = 0; i < Base::vertices.Count()/(Base::dimensions+4); i++)
 			{
 				Base::vertices[i*(Base::dimensions+4)+1] *= scale;
 			}
 			
-			for (index_t i = 0; i < Base::outlines.field[SimpleGeometry::Lines].count(); i++)
+			for (index_t i = 0; i < Base::outlines.field[SimpleGeometry::Lines].Count(); i++)
 			{
 				Base::outlines.field[SimpleGeometry::Lines][i].position[1] *= scale;
 			
@@ -1324,7 +1324,7 @@ namespace Engine
 				const Group&group = data->group(i);
 				if (group.channels())
 				{
-					unsigned voffset = Base::vertices.count()/(Base::dimensions+4);
+					unsigned voffset = Base::vertices.Count()/(Base::dimensions+4);
 					unsigned row_stride = (res*2+4);
 					
 					float base_offset = offset;
@@ -1367,7 +1367,7 @@ namespace Engine
 								}
 							}
 						}
-						unsigned vat = Base::vertices.count()/(Base::dimensions+4);
+						unsigned vat = Base::vertices.Count()/(Base::dimensions+4);
 						Base::vertices << width << h[res-1] << (offset*scale*2-1)*depth-scale/2.0;
 						Base::vertices.append(color,3)<<0.9;
 						Base::vertices << width << h[res-1] << (offset*scale*2-1)*depth+scale/2.0;
@@ -1396,7 +1396,7 @@ namespace Engine
 					if (group.channels())
 					{
 						float end_offset = offset -1.0f;
-						unsigned vat = Base::vertices.count()/(Base::dimensions+4);
+						unsigned vat = Base::vertices.Count()/(Base::dimensions+4);
 						const float*h0 = group.channel(0).history.pointer(),
 									*h1 = group.channel(group.channels()-1).history.pointer();
 						for (unsigned k = 0; k < res; k++)
@@ -1443,12 +1443,12 @@ namespace Engine
 			str_current = "";
 			scale = highest?Base::height/(highest*1.25f):1.0f;
 			
-			for (index_t i = 0; i < Base::vertices.count()/(Base::dimensions+4); i++)
+			for (index_t i = 0; i < Base::vertices.Count()/(Base::dimensions+4); i++)
 			{
 				Base::vertices[i*(Base::dimensions+4)+1] *= scale;
 			}
 			
-			for (index_t i = 0; i < Base::outlines.field[SimpleGeometry::Lines].count(); i++)
+			for (index_t i = 0; i < Base::outlines.field[SimpleGeometry::Lines].Count(); i++)
 			{
 				Base::outlines.field[SimpleGeometry::Lines][i].position[1] *= scale;
 			

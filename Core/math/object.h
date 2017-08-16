@@ -583,9 +583,9 @@ namespace DeltaWorks
 					MF_DECLARE(String)					ToString(bool full=true)	const;						//!< Generates a string representation of the target face (if any)
 		
 					MFUNC1 (void)						setNeighbor(MeshVertex<Def>*v,C0*face);					//TGraphDef and TFaceGraphDef
-					MF_DECLARE(void)					set(MeshQuad<Def>*q);									//!< Sets the local face target to the specified quad
-					MF_DECLARE(void)					set(MeshTriangle<Def>*t);								//!< Sets the local face target to the specified triangle
-					MF_DECLARE(void)					unset();												//!< Unsets the local face target (quad/triangle are set to NULL)
+					MF_DECLARE(void)					Set(MeshQuad<Def>*q);									//!< Sets the local face target to the specified quad
+					MF_DECLARE(void)					Set(MeshTriangle<Def>*t);								//!< Sets the local face target to the specified triangle
+					MF_DECLARE(void)					Unset();												//!< Unsets the local face target (quad/triangle are set to NULL)
 					MF_DECLARE(MF_NO_TYPE)				operator bool() const {return triangle != NULL;}		//!< Implicit bool cast \return true if the local face target is set (not NULL), false otherwise
 			};
 
@@ -1203,7 +1203,7 @@ namespace DeltaWorks
 				MF_DECLARE	(void)			reset(unsigned depth, bool keep=false);				//!< Clears all local data and updates the initial configuration
 				MF_DECLARE	(void)			clear();											//!< Clears the local node and erases all children
 				MF_DECLARE	(bool)			empty()													const;	//!< Queries whether or not the local tree is empty
-				MF_DECLARE	(count_t)		count()													const;
+				MF_DECLARE	(count_t)		Count()													const;
 				MF_DECLARE	(count_t)		countSubMaps()											const;
 				MF_DECLARE	(count_t)		lookup(const C lower_corner[3], const C upper_corner[3]);		//!< Recursivly preforms a lookup for sectors intersecting (or residing inside) the specified volume. Found sectors are written to \b sector_map. Required for succeeding resolve calls \param lower_corner Lower volume corner \param upper_corner Upper volume corner \return Number of sectors found inside or on the border of the specified volume 
 				MF_DECLARE	(count_t)		lookupEdge(const C p0[3], const C p1[3]);						//!< Recursivly performs a lookup for sectors intersecting the specified edge. Found sectors are written to \b sector_map. Required for succeeding resolve calls \param p0 Composite of the first edge vertex \param p1 Composite of the second edge vertex \return Number of sectors found intersecting the specified edge
@@ -1346,7 +1346,7 @@ namespace DeltaWorks
 						bool					flagged;
 						M::TVec3<UINT32>			link;
 					
-						MF_DECLARE (TTriangle&)		set(UINT32 v0_, UINT32 v1_, UINT32 v2_, UINT32 n0_, UINT32 n1_, UINT32 n2_)
+						MF_DECLARE (TTriangle&)		Set(UINT32 v0_, UINT32 v1_, UINT32 v2_, UINT32 n0_, UINT32 n1_, UINT32 n2_)
 												{
 													v0 = v0_;
 													v1 = v1_;
@@ -1374,7 +1374,7 @@ namespace DeltaWorks
 						UINT32					index0,
 												index1;
 						template <typename T>
-						MF_DECLARE (TPoint&)	set(const M::TVec3<T>&v, UINT32 i0, UINT32 i1)
+						MF_DECLARE (TPoint&)	Set(const M::TVec3<T>&v, UINT32 i0, UINT32 i1)
 												{
 													vector = v;
 													index0 = i0;

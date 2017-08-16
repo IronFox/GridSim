@@ -1093,7 +1093,7 @@ namespace DeltaWorks
 					if (cnt < max)
 					{
 						target[cnt].root = "a:";
-						target[cnt].root.set(0,d);
+						target[cnt].root.Set(0,d);
 						target[cnt].name=volume_name;
 					}
 					cnt++;
@@ -1553,7 +1553,7 @@ namespace DeltaWorks
 				out.location.FindAndReplace(L'/',L'\\');
 				Ctr::Array<PathString>	segments;
 				explode(L'\\',out.location,segments);
-				for (index_t i = 1; i <= segments.count(); i++)
+				for (index_t i = 1; i <= segments.Count(); i++)
 				{
 					PathString path = implode(L'\\',segments.pointer(),i);
 					if (path.IsEmpty() || path == L"\\\\?" || path.EndsWith(L':') || path==L"\\")

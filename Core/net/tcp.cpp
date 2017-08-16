@@ -406,7 +406,7 @@ namespace DeltaWorks
 			if (relayTo)
 				return relayTo->getReceiver(channelID,user_level);
 			RootChannel*channel;
-			if (!channel_map.query(channelID,channel))	//not protecting this against invalid operations because netRead operations don't interfere with each other
+			if (!channel_map.Query(channelID,channel))	//not protecting this against invalid operations because netRead operations don't interfere with each other
 			{
 				#ifdef _DEBUG
 					String dbg;

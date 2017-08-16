@@ -289,31 +289,16 @@ namespace Engine
 	*/
 	struct TVertexSection
 	{
-		UINT16						offset, //!< First float used for the active component with 0 indicating the first float
-									length;	//!< Number of floats used for the active component. Must be 3 for normals or 0 if deactivated.
+		UINT16						offset=0, //!< First float used for the active component with 0 indicating the first float
+									length=0;	//!< Number of floats used for the active component. Must be 3 for normals or 0 if deactivated.
 
-		inline						TVertexSection():length(0)
-									{}
-		/**/						TVertexSection(UINT16 offset_, UINT16 length_):offset(offset_),length(length_)
-									{}
-										
-		void						set(UINT16 offset_,UINT16 length_)
-									{
-										offset = offset_;
-										length = length_;
-									}
-		void						unset()
-									{
-										length = 0;
-									}
-		bool						isSet() const
-									{
-										return length > 0;
-									}
-		bool						IsEmpty() const
-									{
-										return !length;
-									}
+		inline						TVertexSection() {}
+		/**/						TVertexSection(UINT16 offset, UINT16 length):offset(offset),length(length){}
+		void						Set(UINT16 offset,UINT16 length){this->offset = offset;this->length = length;}
+		void						Unset(){length = 0;}
+		bool						IsSet() const{return length > 0;}
+		bool						IsEmpty() const {return !length;}
+		bool						IsNotEmpty() const {return IsSet();}
 
 		char						compareTo(const TVertexSection&)	const;
 
@@ -419,19 +404,19 @@ namespace Engine
 	{
 		typedef M::TVec4<>	Super;
 
-		void						set(float intensity)	//! Sets the intensity of the local color. red, green, and blue are set to the specified value, alpha is set to 1.0
+		void						Set(float intensity)	//! Sets the intensity of the local color. red, green, and blue are set to the specified value, alpha is set to 1.0
 									{
 										red = green = blue = intensity;
 										alpha = 1.0f;
 									}
-		void						set(float new_red, float new_green, float new_blue, float new_alpha = 1.0f)	//!< Updates the local color vector to the specified color values
+		void						Set(float new_red, float new_green, float new_blue, float new_alpha = 1.0f)	//!< Updates the local color vector to the specified color values
 									{
 										red = new_red;
 										green = new_green;
 										blue = new_blue;
 										alpha = new_alpha;
 									}
-		void						set(const M::TVec3<float>&channel_values)	//!< Updates the local color vector. The alpha channel is set to 1.0
+		void						Set(const M::TVec3<float>&channel_values)	//!< Updates the local color vector. The alpha channel is set to 1.0
 									{
 										rgb = channel_values;
 										alpha = 1.0f;
@@ -583,7 +568,7 @@ namespace Engine
 
 		virtual	hash_t				ToHash() const	override;
 
-	//virtual	bool						isConsistent() const	{return VertexBinding::texcoords.count() == layers.count();}
+	//virtual	bool						isConsistent() const	{return VertexBinding::texcoords.Count() == layers.Count();}
 	};
 
 
@@ -665,7 +650,7 @@ namespace Engine
 			virtual	void 		read(const CGS::MaterialInfo&info, UINT32 flags)
 								{
 									MaterialConfiguration::read(info,flags);
-									textures.SetSize(MaterialConfiguration::layers.count());
+									textures.SetSize(MaterialConfiguration::layers.Count());
 								}
 
 			void				adoptData(MaterialComposition&other)
@@ -688,7 +673,7 @@ namespace Engine
 									return hash;
 								}
 
-			virtual	bool		isConsistent() const	{return MaterialConfiguration::layers.count() == textures.count();}
+			virtual	bool		isConsistent() const	{return MaterialConfiguration::layers.Count() == textures.Count();}
 
 		};
 	

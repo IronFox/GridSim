@@ -247,8 +247,8 @@ namespace DeltaWorks
 		public:
 			PipeFeed()			:write_handle(INVALID_HANDLE_VALUE)	{};
 
-			void				set(handle_t handle)	{write_handle = handle;}
-			bool				isSet()	const	{return write_handle != INVALID_HANDLE_VALUE;}
+			void				Set(handle_t handle)	{write_handle = handle;}
+			bool				IsSet()	const	{return write_handle != INVALID_HANDLE_VALUE;}
 			bool				write(const void*data, size_t bytes);	  //!< Writes data to the pipe \param data Pointer to the data to read from \param bytes Number of bytes to write to the pipe
 			template <class C>
 			bool				write(const C&data)						 //!< Writes one unit of POD data \param data Reference to the object to read from

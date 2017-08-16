@@ -23,8 +23,8 @@ namespace DeltaWorks
 				throw Except::IO::DriveAccess::FileFormatFault("Unable to retrieve attribute '"+String(attrib_name)+"' from XML node '"+node.name+"'");
 			
 			explode(',',string,segments);
-			if (segments.count() != 2)
-				throw Except::IO::DriveAccess::FileFormatFault("Unexpected segment count in attribute '"+String(attrib_name)+"' of XML node '"+node.name+"': "+String(segments.count())+". Expected 2 comma separated segments in '"+string+"'");
+			if (segments.Count() != 2)
+				throw Except::IO::DriveAccess::FileFormatFault("Unexpected segment count in attribute '"+String(attrib_name)+"' of XML node '"+node.name+"': "+String(segments.Count())+". Expected 2 comma separated segments in '"+string+"'");
 
 			if (!convert(segments[0].Trim().c_str(),out.x))
 				throw Except::IO::DriveAccess::FileFormatFault("Conversion of segment 0 ('"+segments[0].Trim()+"') for attribute '"+attrib_name+"' of XML node '"+node.name+"' failed");
@@ -49,7 +49,7 @@ namespace DeltaWorks
 		nodes.reset();
 		edges.reset();
 	
-		for (index_t i = 0; i < xnodes->children.count(); i++)
+		for (index_t i = 0; i < xnodes->children.Count(); i++)
 		{
 			const XML::Node&xnode = xnodes->children[i];
 			Node&node = nodes.append();
@@ -60,7 +60,7 @@ namespace DeltaWorks
 		}
 	
 	
-		for (index_t i = 0; i < xedges->children.count(); i++)
+		for (index_t i = 0; i < xedges->children.Count(); i++)
 		{
 			const XML::Node&xedge = xedges->children[i];
 			Edge&edge = edges.append();
@@ -79,8 +79,8 @@ namespace DeltaWorks
 				edges.pop();
 				continue;
 			}
-			nodes[edge.node[1]].in_edge = edges.count()-1;
-			nodes[edge.node[0]].out_edge = edges.count()-1;
+			nodes[edge.node[1]].in_edge = edges.Count()-1;
+			nodes[edge.node[0]].out_edge = edges.Count()-1;
 		}
 	
 		if (compact)
@@ -97,7 +97,7 @@ namespace DeltaWorks
 		XML::Node	&xgraph = xml.Create("graph");
 		{
 			XML::Node	&xnodes = xgraph.Create("nodes");
-			for (index_t i = 0; i < nodes.count(); i++)
+			for (index_t i = 0; i < nodes.Count(); i++)
 			{
 				const Node&node = nodes[i];
 				XML::Node	&xnode = xnodes.Create("node");
@@ -107,7 +107,7 @@ namespace DeltaWorks
 		}
 		{
 			XML::Node	&xedges = xgraph.Create("edges");
-			for (index_t i = 0; i < edges.count(); i++)
+			for (index_t i = 0; i < edges.Count(); i++)
 			{
 				const Edge&edge = edges[i];
 				XML::Node	&xedge = xedges.Create("edge");
@@ -172,14 +172,14 @@ namespace DeltaWorks
 		
 			shapes.reset();
 		
-			for (unsigned i = 0; i < xy_profile.nodes.count(); i++)
+			for (unsigned i = 0; i < xy_profile.nodes.Count(); i++)
 				xy_profile.nodes[i].processed = false;
 		
 			unsigned processed = 0;
-			while (processed < xy_profile.nodes.count())
+			while (processed < xy_profile.nodes.Count())
 			{
 				unsigned start_node = -1;
-				for (unsigned i = 0; i < xy_profile.nodes.count(); i++)
+				for (unsigned i = 0; i < xy_profile.nodes.Count(); i++)
 					if (!xy_profile.nodes[i].processed && xy_profile.nodes[i].in_edge==-1)
 					{
 						if (xy_profile.nodes[i].out_edge == -1)
@@ -191,10 +191,10 @@ namespace DeltaWorks
 						start_node = i;
 						break;
 					}
-				if (processed == xy_profile.nodes.count())
+				if (processed == xy_profile.nodes.Count())
 					break;
-				if (start_node < xy_profile.nodes.count())
-					for (unsigned i = 0; i < xy_profile.nodes.count(); i++)
+				if (start_node < xy_profile.nodes.Count())
+					for (unsigned i = 0; i < xy_profile.nodes.Count(); i++)
 						if (!xy_profile.nodes[i].processed)
 						{
 							start_node = i;
@@ -206,15 +206,15 @@ namespace DeltaWorks
 				points.reset();
 			
 				unsigned node = start_node;
-				while (node < xy_profile.nodes.count())
+				while (node < xy_profile.nodes.Count())
 				{
-					if (xy_profile.nodes[node].processed || xy_profile.nodes[node].out_edge>= xy_profile.edges.count())
+					if (xy_profile.nodes[node].processed || xy_profile.nodes[node].out_edge>= xy_profile.edges.Count())
 						break;
 					Graph::Edge	&edge = xy_profile.edges[xy_profile.nodes[node].out_edge];
 					unsigned next = edge.node[1];
 					if (next == node)
 						next = edge.node[0];
-					if (next >= xy_profile.nodes.count())
+					if (next >= xy_profile.nodes.Count())
 						break;
 				
 					Graph::Node	&n0 = xy_profile.nodes[node],
@@ -246,11 +246,11 @@ namespace DeltaWorks
 						}
 					}
 				}
-				if (points.count() > 2)
-					ASSERT__(_oTriangulate(points.pointer(), points.count()/2, shapes.appendAdopt()));
+				if (points.Count() > 2)
+					ASSERT__(_oTriangulate(points.pointer(), points.Count()/2, shapes.appendAdopt()));
 			}
 			caps[0].clear();
-			caps[0].join(shapes.pointer(),shapes.count());
+			caps[0].join(shapes.pointer(),shapes.Count());
 			step *= 2;
 		}
 	}
@@ -259,14 +259,14 @@ namespace DeltaWorks
 	void		Graph::generateOutline(float step, Outline&outline)
 	{
 
-		for (unsigned i = 0; i < nodes.count(); i++)
+		for (unsigned i = 0; i < nodes.Count(); i++)
 			nodes[i].processed = false;
 	
 		unsigned processed = 0;
-		while (processed < nodes.count())
+		while (processed < nodes.Count())
 		{
 			unsigned start_node = -1;
-			for (unsigned i = 0; i < nodes.count(); i++)
+			for (unsigned i = 0; i < nodes.Count(); i++)
 				if (!nodes[i].processed && nodes[i].in_edge==-1)
 				{
 					if (nodes[i].out_edge == -1)
@@ -278,10 +278,10 @@ namespace DeltaWorks
 					start_node = i;
 					break;
 				}
-			if (processed == nodes.count())
+			if (processed == nodes.Count())
 				break;
-			if (start_node < nodes.count())
-				for (unsigned i = 0; i < nodes.count(); i++)
+			if (start_node < nodes.Count())
+				for (unsigned i = 0; i < nodes.Count(); i++)
 					if (!nodes[i].processed)
 					{
 						start_node = i;
@@ -292,15 +292,15 @@ namespace DeltaWorks
 			Shape&shape = outline.shapes.appendAdopt();
 		
 			unsigned node = start_node;
-			while (node < nodes.count())
+			while (node < nodes.Count())
 			{
-				if (nodes[node].processed || nodes[node].out_edge >= edges.count())
+				if (nodes[node].processed || nodes[node].out_edge >= edges.Count())
 					break;
 				Graph::Edge	&edge = edges[nodes[node].out_edge];
 				unsigned next = edge.node[1];
 				if (next == node)
 					next = edge.node[0];
-				if (next >= xy_profile.nodes.count())
+				if (next >= xy_profile.nodes.Count())
 					break;
 			
 				Graph::Node	&n0 = nodes[node],
@@ -401,7 +401,7 @@ namespace DeltaWorks
 
 	bool		Graph::defineSurface(const Profile::Node&p0,const Profile::Node&p1,index_t edge_index,float x_step, float z_step,float texture_size_x, float texture_size_y,SurfaceDescription&desc, layout_t layout, float simplify_x)	const
 	{
-		index_t voffset = desc.vertices.count();
+		index_t voffset = desc.vertices.Count();
 	
 		const Edge	&edge = edges[edge_index];
 		const Node	&n0 = nodes[edge.node[0]],
@@ -546,7 +546,7 @@ namespace DeltaWorks
 				}
 				if (z && x)
 				{
-					ASSERT_EQUAL__(voffset+z*res_x+x,desc.vertices.count()-1);
+					ASSERT_EQUAL__(voffset+z*res_x+x,desc.vertices.Count()-1);
 					desc.quadIndices << UINT32(voffset+z*res_x+x);
 					desc.quadIndices << UINT32(voffset+z*res_x+x-1);
 					desc.quadIndices << UINT32(voffset+(z-1)*res_x+x-1);
@@ -882,7 +882,7 @@ namespace DeltaWorks
 
 	void		GraphTextureResource::Insert(const PathString&filename, name64_t as_name, bool bump_map,float bump_strength /*=0.01f*/)
 	{
-		if (container.isSet(as_name))
+		if (container.IsSet(as_name))
 			throw Except::Program::UniquenessViolation("64bit name '"+name2str(as_name)+"' is already defined");
 
 		Image	image;
@@ -910,14 +910,14 @@ namespace DeltaWorks
 
 	void		Graph::updateDirectionsAndXCoords()
 	{
-		for (index_t i = 0; i < nodes.count(); i++)
+		for (index_t i = 0; i < nodes.Count(); i++)
 			nodes[i].processed = false;
 		bool done = false;
 		count_t counter = 0;
 		while (!done)
 		{
 			done = true;
-			for (index_t i = 0; i < edges.count(); i++)
+			for (index_t i = 0; i < edges.Count(); i++)
 			{
 				Edge&e = edges[i];
 				Node&n0 = nodes[e.node[0]],
@@ -962,15 +962,15 @@ namespace DeltaWorks
 					n1.processed = true;
 				}
 			}
-			if (counter++ >= edges.count() * 2)
+			if (counter++ >= edges.Count() * 2)
 				break;
 		}
-		for (index_t i = 0; i < nodes.count(); i++)
+		for (index_t i = 0; i < nodes.Count(); i++)
 		{
 			M::TVec2<>	prev,
 					next;
 			Node&node = nodes[i];
-			if (node.in_edge < edges.count())
+			if (node.in_edge < edges.Count())
 			{
 				BYTE index = edges[node.in_edge].GetIndexOf(i);
 				if (edges[node.in_edge].control_dist[index])
@@ -979,7 +979,7 @@ namespace DeltaWorks
 			}
 			else
 				prev = node.position;
-			if (node.out_edge<edges.count())
+			if (node.out_edge<edges.Count())
 			{
 				BYTE index = edges[node.out_edge].GetIndexOf(i);
 				if (edges[node.out_edge].control_dist[index])
@@ -999,17 +999,17 @@ namespace DeltaWorks
 	static void	convertDescriptionToHull(const SurfaceDescription&desc, Hull&hull)
 	{
 		hull.clear();
-		hull.quad_field.SetSize(desc.quadIndices.count()/4);
-		hull.triangle_field.SetSize(desc.triangleIndices.count()/3);
+		hull.quad_field.SetSize(desc.quadIndices.Count()/4);
+		hull.triangle_field.SetSize(desc.triangleIndices.Count()/3);
 	
 		static VertexTable		vertex_table;
 		static Ctr::Array<index_t>	vertex_map;
 
 		vertex_table.setTolerance(1e-8f);
 		//vertex_table.clear();	done by setTolerance()
-		vertex_map.SetSize(desc.vertices.count());
+		vertex_map.SetSize(desc.vertices.Count());
 
-		for (UINT32 i = 0; i < desc.vertices.count(); i++)
+		for (UINT32 i = 0; i < desc.vertices.Count(); i++)
 			vertex_map[i] = vertex_table.map(desc.vertices[i].position);
 
 		hull.vertex_field.SetSize(vertex_table.vertices());
@@ -1018,14 +1018,14 @@ namespace DeltaWorks
 			M::Vec::copy(vertex_table.vertex(i),hull.vertex_field[i].position);
 
 		const UINT32*iat = desc.triangleIndices.pointer();
-		for (UINT32 i = 0; i < desc.triangleIndices.count()/3; i++)
+		for (UINT32 i = 0; i < desc.triangleIndices.Count()/3; i++)
 		{
 			hull.triangle_field[i].v0 = hull.vertex_field+vertex_map[*iat++];
 			hull.triangle_field[i].v1 = hull.vertex_field+vertex_map[*iat++];
 			hull.triangle_field[i].v2 = hull.vertex_field+vertex_map[*iat++];
 		}
 		iat = desc.quadIndices.pointer();
-		for (UINT32 i = 0; i < desc.quadIndices.count()/4; i++)
+		for (UINT32 i = 0; i < desc.quadIndices.Count()/4; i++)
 		{
 			hull.quad_field[i].v0 = hull.vertex_field+vertex_map[*iat++];
 			hull.quad_field[i].v1 = hull.vertex_field+vertex_map[*iat++];
@@ -1123,19 +1123,19 @@ namespace DeltaWorks
 			visual_hull.Clear();
 		
 			can_reduce = false;
-			for (index_t l = 0; l+1 < visual_profile.nodes.count(); l++)
+			for (index_t l = 0; l+1 < visual_profile.nodes.Count(); l++)
 			{
 				const Profile::Node		&n0 = visual_profile.nodes[l],
 										&n1 = visual_profile.nodes[l+1];
 			
-				for (index_t j = 0; j < visual_graph.edges.count(); j++)
+				for (index_t j = 0; j < visual_graph.edges.Count(); j++)
 				{
 					can_reduce |= visual_graph.defineSurface(n0,n1,j,this_step,this_step*z_factor,texture_size_x,texture_size_y,visual_hull,layout,true);
 				}
 			}
 
 
-		//	cout << "got "<<visual_iout.count()<<" visual triangle indices and "<<hull_iout.count()<<" hull triangle indices. that's a factor of "<<(float)visual_iout.count()/hull_iout.count()<<endl;
+		//	cout << "got "<<visual_iout.Count()<<" visual triangle indices and "<<hull_iout.Count()<<" hull triangle indices. that's a factor of "<<(float)visual_iout.Count()/hull_iout.Count()<<endl;
 
 			if (layout == Graph::Split)
 			{
@@ -1143,7 +1143,7 @@ namespace DeltaWorks
 				//Graph::splitHull(hull_iout,hull_vout,hull_triangle_iout);
 			}
 
-			robj.vpool.SetSize(visual_hull.vertices.count(),1,CGS::HasNormalFlag |CGS::HasTangentFlag);
+			robj.vpool.SetSize(visual_hull.vertices.Count(),1,CGS::HasNormalFlag |CGS::HasTangentFlag);
 			//ASSERT_EQUAL__(robj.vpool.vsize(),11 + 2*...yadda, you get idea);
 			float*vtx = robj.vpool.vdata.pointer();
 			for (index_t i = 0; i < visual_hull.vertices.length(); i++)
@@ -1160,40 +1160,40 @@ namespace DeltaWorks
 					//vtx += 2;
 				//vtx += 8;
 			}
-			ASSERT__(!(visual_hull.quadIndices.count()%4));
-			ASSERT__(!(visual_hull.triangleIndices.count()%3));
-			robj.ipool.SetSize(UINT32(visual_hull.triangleIndices.count()/3),UINT32(visual_hull.quadIndices.count()/4));
-			memcpy(robj.ipool.idata.pointer(),visual_hull.triangleIndices.pointer(),visual_hull.triangleIndices.count()*sizeof(UINT32));
-			memcpy(robj.ipool.idata.pointer()+visual_hull.triangleIndices.count(),visual_hull.quadIndices.pointer(),visual_hull.quadIndices.count()*sizeof(UINT32));
+			ASSERT__(!(visual_hull.quadIndices.Count()%4));
+			ASSERT__(!(visual_hull.triangleIndices.Count()%3));
+			robj.ipool.SetSize(UINT32(visual_hull.triangleIndices.Count()/3),UINT32(visual_hull.quadIndices.Count()/4));
+			memcpy(robj.ipool.idata.pointer(),visual_hull.triangleIndices.pointer(),visual_hull.triangleIndices.Count()*sizeof(UINT32));
+			memcpy(robj.ipool.idata.pointer()+visual_hull.triangleIndices.Count(),visual_hull.quadIndices.pointer(),visual_hull.quadIndices.Count()*sizeof(UINT32));
 			//robj.ipool.idata.copyFrom
 				//copyFrom(iout.pointer(),iout.length());
 			this_step*=2;
 		}
 
 
-		for (index_t l = 0; l+1 < physical_profile.nodes.count(); l++)
+		for (index_t l = 0; l+1 < physical_profile.nodes.Count(); l++)
 		{
 			const Profile::Node		&n0 = physical_profile.nodes[l],
 									&n1 = physical_profile.nodes[l+1];
 			
-			for (index_t j = 0; j < physical_graph.edges.count(); j++)
+			for (index_t j = 0; j < physical_graph.edges.Count(); j++)
 			{
 				physical_graph.defineSurface(n0,n1,j,step*0.5f,step*0.5f*z_factor, texture_size_x, texture_size_y,physical_hull,layout, false);
 			}
 		}
 
 		std::cout << "Physical hull complexity:"<<std::endl;
-		std::cout << " Vertices: "<<physical_hull.vertices.count()<<std::endl;
-		std::cout << " Triangles: "<<physical_hull.triangleIndices.count()<<std::endl;
-		std::cout << " Quads: "<<physical_hull.quadIndices.count()<<std::endl;
+		std::cout << " Vertices: "<<physical_hull.vertices.Count()<<std::endl;
+		std::cout << " Triangles: "<<physical_hull.triangleIndices.Count()<<std::endl;
+		std::cout << " Quads: "<<physical_hull.quadIndices.Count()<<std::endl;
 
 
 		if (layout == Graph::Split)
 			Graph::splitHull(physical_hull);
 
 
-		target.material_field[0].data.object_field.SetSize(robjs.count());
-		for (index_t i = 0; i < robjs.count(); i++)
+		target.material_field[0].data.object_field.SetSize(robjs.Count());
+		for (index_t i = 0; i < robjs.Count(); i++)
 		{
 			target.material_field[0].data.object_field[i].adoptData(robjs[i]);
 			target.material_field[0].data.object_field[i].detail = unsigned(i);
@@ -1203,7 +1203,7 @@ namespace DeltaWorks
 	
 		//const CGS::RenderObjectA<>&robj = target.material_field[0].data.object_field.first();
 		CGS::SubGeometryA<>&obj = target.object_field.first();
-		obj.vs_hull_field.SetSize(visual_hulls.count());
+		obj.vs_hull_field.SetSize(visual_hulls.Count());
 		for (index_t i = 0; i < obj.vs_hull_field.length(); i++)
 		{
 			Mesh<CGS::SubGeometryA<>::VsDef>&vs_hull = obj.vs_hull_field[i];
@@ -1217,7 +1217,7 @@ namespace DeltaWorks
 		convertDescriptionToHull(physical_hull,obj.phHull);
 	
 		obj.meta.shortest_edge_length = step * z_factor;
-		//ShowMessage("generated "+String(robjs.count())+" sub defail level(s)");
+		//ShowMessage("generated "+String(robjs.Count())+" sub defail level(s)");
 	
 		M::Mat::Eye(target.object_field[0].meta.system);
 		M::Vec::clear(target.object_field[0].meta.center);
@@ -1255,13 +1255,13 @@ namespace DeltaWorks
 		else
 			target.connector_field.free();
 	
-		return robjs.count();
+		return robjs.Count();
 		//target.updateSystems();
 	}
 
 	void	Graph::eraseEdge(index_t index)
 	{
-		for (index_t i = 0; i < nodes.count(); i++)
+		for (index_t i = 0; i < nodes.Count(); i++)
 		{
 			if (nodes[i].out_edge!=-1 && nodes[i].out_edge > index)
 				nodes[i].out_edge--;
@@ -1276,13 +1276,13 @@ namespace DeltaWorks
 
 	void	Graph::verifyIntegrity(const TCodeLocation&location)	const
 	{
-		for (index_t i = 0; i < nodes.count(); i++)
+		for (index_t i = 0; i < nodes.Count(); i++)
 		{
 			const Node&node = nodes[i];
 			if (node.out_edge != -1)
 			{
-				if (node.out_edge >= edges.count())
-					Except::TriggerFatal(location,"invalid out_edge index ("+String(node.out_edge)+"/"+String(edges.count())+")");
+				if (node.out_edge >= edges.Count())
+					Except::TriggerFatal(location,"invalid out_edge index ("+String(node.out_edge)+"/"+String(edges.Count())+")");
 			
 				const Edge&edge = edges[node.out_edge];
 				if (edge.node[1] == i)
@@ -1292,8 +1292,8 @@ namespace DeltaWorks
 			}
 			if (node.in_edge != -1)
 			{
-				if (node.in_edge >= edges.count())
-					Except::TriggerFatal(location,"invalid in_edge index ("+String(node.in_edge)+"/"+String(edges.count()));
+				if (node.in_edge >= edges.Count())
+					Except::TriggerFatal(location,"invalid in_edge index ("+String(node.in_edge)+"/"+String(edges.Count()));
 			
 				const Edge&edge = edges[node.in_edge];
 				if (edge.node[0] == i)
@@ -1303,13 +1303,13 @@ namespace DeltaWorks
 			}
 		}
 	
-		for (index_t i = 0; i < edges.count(); i++)
+		for (index_t i = 0; i < edges.Count(); i++)
 		{
 			const Edge&edge = edges[i];
 		
-			if (edge.node[0] >= nodes.count())
+			if (edge.node[0] >= nodes.Count())
 				Except::TriggerFatal(location,"node.x ("+String(edge.node[0])+"), referenced by edge "+String(i)+" does not exist");
-			if (edge.node[1] >= nodes.count())
+			if (edge.node[1] >= nodes.Count())
 				Except::TriggerFatal(location,"node.y ("+String(edge.node[1])+"), referenced by edge "+String(i)+" does not exist");
 		
 			if (nodes[edge.node[0]].in_edge == i)
@@ -1331,7 +1331,7 @@ namespace DeltaWorks
 		edges.reset();
 		if (!xnodes || !xedges)
 			return;
-		for (index_t i = 0; i < xnodes->children.count(); i++)
+		for (index_t i = 0; i < xnodes->children.Count(); i++)
 		{
 			const XML::Node	&xnode = xnodes->children[i];
 			Graph::Node&node = nodes.append();
@@ -1342,7 +1342,7 @@ namespace DeltaWorks
 		}
 	
 	
-		for (index_t i = 0; i < xedges->children.count(); i++)
+		for (index_t i = 0; i < xedges->children.Count(); i++)
 		{
 			const XML::Node	&xedge = xedges->children[i];
 			Graph::Edge&edge = edges.append();
@@ -1361,8 +1361,8 @@ namespace DeltaWorks
 				edges.eraseLast();
 				continue;
 			}
-			nodes[edge.node[1]].in_edge = edges.count()-1;
-			nodes[edge.node[0]].out_edge = edges.count()-1;
+			nodes[edge.node[1]].in_edge = edges.Count()-1;
+			nodes[edge.node[0]].out_edge = edges.Count()-1;
 		}
 
 
@@ -1374,7 +1374,7 @@ namespace DeltaWorks
 		nodes.reset();
 		if (!xprofile)
 			return;
-		for (index_t i = 0; i < xprofile->children.count(); i++)
+		for (index_t i = 0; i < xprofile->children.Count(); i++)
 		{
 			const XML::Node	&xnode = xprofile->children[i];
 			Profile::Node&node = nodes.append();
@@ -1451,7 +1451,7 @@ namespace DeltaWorks
 	{
 		{
 			XML::Node	&xnodes = xmesh.Create("nodes");
-			for (index_t i = 0; i < nodes.count(); i++)
+			for (index_t i = 0; i < nodes.Count(); i++)
 			{
 				const Graph::Node&node = nodes[i];
 				XML::Node	&xnode = xnodes.Create("node");
@@ -1461,7 +1461,7 @@ namespace DeltaWorks
 		}
 		{
 			XML::Node	&xedges = xmesh.Create("edges");
-			for (index_t i = 0; i < edges.count(); i++)
+			for (index_t i = 0; i < edges.Count(); i++)
 			{
 				const Graph::Edge&edge = edges[i];
 				XML::Node	&xedge = xedges.Create("edge");
@@ -1480,12 +1480,12 @@ namespace DeltaWorks
 			{
 				XML::Node	&xprofile = xmesh.Create("profile");
 
-				for (index_t i = 0; i < visual_profile.nodes.count(); i++)
+				for (index_t i = 0; i < visual_profile.nodes.Count(); i++)
 					writeNode(xprofile,visual_profile.nodes[i]);
 			}
 			{
 				XML::Node	&xprofile = xmesh.Create("physical_profile");
-				for (index_t i = 0; i < physical_profile.nodes.count(); i++)
+				for (index_t i = 0; i < physical_profile.nodes.Count(); i++)
 					writeNode(xprofile,physical_profile.nodes[i]);
 			}
 			visual_graph.WriteTo(xmesh.Create("graph"));
@@ -1713,7 +1713,7 @@ namespace DeltaWorks
 		steps << end;
 
 		float length = 0;
-		for (index_t i = 1; i < steps.count(); i++)
+		for (index_t i = 1; i < steps.Count(); i++)
 		{
 			float delta = M::Vec::distance(steps[i-1].position,steps[i].position);
 			float tlen = 1.0f/(steps[i-1].GetTexExtend() * 0.5f + steps[i].GetTexExtend()*0.5f);
@@ -1723,7 +1723,7 @@ namespace DeltaWorks
 		float factor = float(textureRepetitions) / length;
 		length = 0;
 		steps.first().texcoordY = 0;
-		for (index_t i = 1; i < steps.count(); i++)
+		for (index_t i = 1; i < steps.Count(); i++)
 		{
 			float delta = M::Vec::distance(steps[i-1].position,steps[i].position);
 			float tlen = 1.0f/(steps[i-1].GetTexExtend() * 0.5f + steps[i].GetTexExtend()*0.5f);
@@ -1767,7 +1767,7 @@ namespace DeltaWorks
 		}
 
 		index_t	vtx_offset = 0;
-		for (index_t i = 0; i+1 < steps.count(); i++)
+		for (index_t i = 0; i+1 < steps.Count(); i++)
 		{
 			const InterpolatedSlice	&prev = steps[i],
 									&next = steps[i+1];
@@ -1782,7 +1782,7 @@ namespace DeltaWorks
 				TVertex&vtx = this->vertices.append();
 				float fi = float(j) / float(next_resolution-1);
 				next.MakeVertex(fi,vtx);
-				if (i+2 == steps.count())
+				if (i+2 == steps.Count())
 					endEdges[1] << (UINT32)(vtx_offset+prev_resolution+j);
 			}
 
@@ -1954,9 +1954,9 @@ namespace DeltaWorks
 
 	void				SurfaceNetwork::Compact(Compacted&target)
 	{
-		target.nodes.SetSize(nodes.count());
-		target.segments.SetSize(segments.count());
-		target.nodeIsFlipped.SetSize(nodes.count());
+		target.nodes.SetSize(nodes.Count());
+		target.segments.SetSize(segments.Count());
+		target.nodeIsFlipped.SetSize(nodes.Count());
 
 		bool*node_flipped_to = target.nodeIsFlipped.pointer();
 		nodes.visitAllEntries([this,&target,&node_flipped_to](index_t key, Node&node)
@@ -1993,9 +1993,9 @@ namespace DeltaWorks
 
 	void				SurfaceNetwork::MoveCompact(Compacted&target)
 	{
-		target.nodes.SetSize(nodes.count());
-		target.segments.SetSize(segments.count());
-		target.nodeIsFlipped.SetSize(nodes.count());
+		target.nodes.SetSize(nodes.Count());
+		target.segments.SetSize(segments.Count());
+		target.nodeIsFlipped.SetSize(nodes.Count());
 
 		bool*node_flipped_to = target.nodeIsFlipped.pointer();
 		nodes.visitAllEntries([this,&target,&node_flipped_to](index_t key, Node&node)
@@ -2102,13 +2102,13 @@ namespace DeltaWorks
 
 		for (BYTE k = 0; k < 2; k++)
 		{
-			for (index_t i = 0; i < node.segments[k].count(); i++)
+			for (index_t i = 0; i < node.segments[k].Count(); i++)
 			{
 				index_t seg_index = node.segments[k][i];
 				if (seg_index != InvalidIndex)
 				{
 					if (affectedSegments)
-						affectedSegments->set(seg_index);
+						affectedSegments->Set(seg_index);
 
 					Segment*seg = segments.queryPointer(node.segments[k][i]);
 					DBG_ASSERT_NOT_NULL__(seg);
@@ -2164,7 +2164,7 @@ namespace DeltaWorks
 		{
 			for (BYTE k = 0; k < 2; k++)
 			{
-				for (index_t i = 0; i < node.segments[k].count(); i++)
+				for (index_t i = 0; i < node.segments[k].Count(); i++)
 					if (node.segments[k][i] != InvalidIndex)
 					{
 						UpdateControls(node.segments[k][i],rebuild_segments);
@@ -2220,10 +2220,10 @@ namespace DeltaWorks
 				{
 					const Segment::Connector&c = seg.connector[otherEnd];
 					Node&n = nodes.require(c.node);
-					ASSERT_LESS__(c.subdivisionStep,n.segments[c.outbound].count());
+					ASSERT_LESS__(c.subdivisionStep,n.segments[c.outbound].Count());
 
 					n.segments[c.outbound].Erase(c.subdivisionStep);
-					for (index_t i = c.subdivisionStep; i < n.segments[c.outbound].count(); i++)
+					for (index_t i = c.subdivisionStep; i < n.segments[c.outbound].Count(); i++)
 						if (n.segments[c.outbound][i] != InvalidIndex)
 						{
 							Segment&seg = segments.require(n.segments[c.outbound][i]);
@@ -2232,7 +2232,7 @@ namespace DeltaWorks
 					n.subdivision[c.outbound].SetSize(n.subdivision[c.outbound].length()-1);
 					MakeEven(n.subdivision[c.outbound]);
 				}
-				segments.unset(*segID);
+				segments.Unset(*segID);
 			}
 		}
 		if (updateConnectedSlopes)
@@ -2242,7 +2242,7 @@ namespace DeltaWorks
 				if (node)
 					UpdateSlopes(*node,false,false,affectedSegments);
 			}
-		nodes.unset(nodeIndex);
+		nodes.Unset(nodeIndex);
 
 		if (updateConnectedSegmentControls)
 			affectedSegments->visitAllKeys([this,build](index_t segID)
@@ -2256,7 +2256,7 @@ namespace DeltaWorks
 	SurfaceNetwork::Node&	SurfaceNetwork::Node::SplitEvenly(bool outbound, count_t num_slots)
 	{
 		ASSERT__(num_slots > 0);
-		ASSERT_EQUAL__(segments[outbound].count(),1);
+		ASSERT_EQUAL__(segments[outbound].Count(),1);
 		ASSERT_EQUAL__(segments[outbound].first(),InvalidIndex); 
 	
 		segments[outbound].SetSize(num_slots);
@@ -2276,11 +2276,11 @@ namespace DeltaWorks
 
 	bool								SurfaceNetwork::Node::BuildState(bool outbound, index_t subdiv, bool second_node, SurfaceDescription::TControl&out_state)	const
 	{
-		DBG_ASSERT_LESS_OR_EQUAL__(subdiv,this->subdivision[outbound].count());
+		DBG_ASSERT_LESS_OR_EQUAL__(subdiv,this->subdivision[outbound].Count());
 
-		if (subdiv >= segments[outbound].count())
+		if (subdiv >= segments[outbound].Count())
 			return false;
-			//subdiv = slopes[outbound].count()-1;
+			//subdiv = slopes[outbound].Count()-1;
 
 		out_state = *this;
 		bool flip;
@@ -2306,7 +2306,7 @@ namespace DeltaWorks
 			out_state.texcoord0 = texcoord0;
 			out_state.texcoord1 = texcoord0 + (texcoord1-texcoord0)*subdivision[outbound].first();
 		}
-		elif (subdiv == subdivision[outbound].count())
+		elif (subdiv == subdivision[outbound].Count())
 		{
 			out_state.angle0 = angle0 + (angle1-angle0)*subdivision[outbound].last();
 			out_state.angle1 = angle1;
@@ -2448,7 +2448,7 @@ namespace DeltaWorks
 	index_t							SurfaceNetwork::SmartMakeRoom(Node&node,index_t node_index,bool outbound,const Node&opposing_node)
 	{
 		count_t	need_slots = 1;
-		for (index_t i = 0; i < node.segments[outbound].count(); i++)
+		for (index_t i = 0; i < node.segments[outbound].Count(); i++)
 			need_slots += node.segments[outbound][i] != InvalidIndex;
 
 		struct SortEntry
@@ -2483,7 +2483,7 @@ namespace DeltaWorks
 		if (need_slots > 1)
 		{
 
-			for (index_t i = 0; i < node.segments[outbound].count(); i++)
+			for (index_t i = 0; i < node.segments[outbound].Count(); i++)
 				if (node.segments[outbound][i] != InvalidIndex)
 				{
 					out->segment_index = node.segments[outbound][i];
@@ -2509,16 +2509,16 @@ namespace DeltaWorks
 			sort.revert();
 
 		index_t result = InvalidIndex;
-		node.segments[outbound].SetSize(sort.count());
+		node.segments[outbound].SetSize(sort.Count());
 
-		node.subdivision[outbound].SetSize(sort.count()-1);
-		for (index_t i = 0; i < node.subdivision[outbound].count(); i++)
+		node.subdivision[outbound].SetSize(sort.Count()-1);
+		for (index_t i = 0; i < node.subdivision[outbound].Count(); i++)
 		{
-			node.subdivision[outbound][i] = float(i+1)/float(sort.count());
+			node.subdivision[outbound][i] = float(i+1)/float(sort.Count());
 		}
 
 		std::cout << "smart reorder of node "<<node_index<<" "<<(outbound?"outbound":"inbound")<<":"<<std::endl;
-		for (index_t i = 0; i < sort.count(); i++)
+		for (index_t i = 0; i < sort.Count(); i++)
 		{
 
 			const SortEntry&entry = sort[i];
@@ -2577,7 +2577,7 @@ namespace DeltaWorks
 		index_t result;
 		Segment&seg = segments.Create(result);
 		if (affectedSegments)
-			affectedSegments->set(result);
+			affectedSegments->Set(result);
 		//DBG_ASSERT_EQUAL__(segments.queryPointer(result),&seg);
 		index_t	subdiv0 = manage_slots ? SmartMakeRoom(*n0,node0,outbound0,*n1) : n0->GetFirstAvailable(outbound0);
 		//DBG_ASSERT_EQUAL__(segments.queryPointer(result),&seg);
@@ -2591,7 +2591,7 @@ namespace DeltaWorks
 		seg.connector[1] = Segment::Connector(node1,subdiv1,outbound1);
 
 
-		for (index_t i = 0; i < n0->segments[outbound0].count(); i++)
+		for (index_t i = 0; i < n0->segments[outbound0].Count(); i++)
 		{
 			if (n0->segments[outbound0][i] != InvalidIndex)
 			{
@@ -2600,7 +2600,7 @@ namespace DeltaWorks
 				DBG_ASSERT_EQUAL__(seg.connector[end_point].subdivisionStep ,i);
 			}
 		}
-		for (index_t i = 0; i < n1->segments[outbound1].count(); i++)
+		for (index_t i = 0; i < n1->segments[outbound1].Count(); i++)
 		{
 			if (n1->segments[outbound1][i] != InvalidIndex)
 			{
@@ -2621,27 +2621,27 @@ namespace DeltaWorks
 				if (*seg != result)
 				{
 					if (affectedSegments)
-						affectedSegments->set(*seg);
+						affectedSegments->Set(*seg);
 					UpdateControls(*seg,build);
 				}
 			foreach (n1->segments[outbound1],seg)
 				if (*seg != result)
 				{
 					if (affectedSegments)
-						affectedSegments->set(*seg);
+						affectedSegments->Set(*seg);
 					UpdateControls(*seg,build);
 				}
 
 			foreach (n0->segments[!outbound0],seg)
 			{
 				if (affectedSegments)
-					affectedSegments->set(*seg);
+					affectedSegments->Set(*seg);
 				UpdateControls(*seg,build);
 			}
 			foreach (n1->segments[!outbound1],seg)
 			{
 				if (affectedSegments)
-					affectedSegments->set(*seg);
+					affectedSegments->Set(*seg);
 				UpdateControls(*seg,build);
 			}
 		}
@@ -2664,7 +2664,7 @@ namespace DeltaWorks
 			for (int k = 0; k < 2; k++)
 			{
 				if (n.segments[k].IsNotEmpty())
-					ASSERT_EQUAL1__(n.subdivision[k].count()+1,n.segments[k].count(),k);
+					ASSERT_EQUAL1__(n.subdivision[k].Count()+1,n.segments[k].Count(),k);
 				foreach (n.subdivision[k],subdiv)
 					ASSERT_IS_CONSTRAINED__(*subdiv,0,1);
 				foreach (n.segments[k],sid)
@@ -2696,9 +2696,9 @@ namespace DeltaWorks
 					continue;	//shit happens
 				}
 
-				if (seg.connector[k].subdivisionStep >= n->segments[seg.connector[k].outbound].count())
+				if (seg.connector[k].subdivisionStep >= n->segments[seg.connector[k].outbound].Count())
 				{
-					FATAL__("Targeted subdivison "+String(seg.connector[k].subdivisionStep)+" points beyond node capacity "+String(n->segments[seg.connector[k].outbound].count()));
+					FATAL__("Targeted subdivison "+String(seg.connector[k].subdivisionStep)+" points beyond node capacity "+String(n->segments[seg.connector[k].outbound].Count()));
 					continue;
 				}
 				std::cout << "   Subdiv at "<<(seg.connector[k].subdivisionStep == 0 ? 0.f : n->subdivision[seg.connector[k].outbound][seg.connector[k].subdivisionStep-1])<<std::endl;
@@ -2717,7 +2717,7 @@ namespace DeltaWorks
 		{
 			if (edge->direction != Edge::Left && edge->direction != Edge::Right)
 				continue;
-			index_t vertex_offset = vertices.count();
+			index_t vertex_offset = vertices.Count();
 			TVertex*const vfield = vertices.appendRow(2*edge->length());
 			Concurrency::parallel_for(index_t(0),edge->length(),[vfield,&source,edge,barrierPosition,barrierHeight0,barrierHeight1,relativeTo](index_t i)
 			{
@@ -2783,18 +2783,18 @@ namespace DeltaWorks
 
 		//M::float2 texExt = M::float2(fabs(outerExtend - innerExtend), fabs(upperExtend - lowerExtend))*2.0f;
 
-		const count_t numVerticesPerSlice = (profile.count()-1)*2;
+		const count_t numVerticesPerSlice = (profile.Count()-1)*2;
 
-		Ctr::Array<float>	texcoord(profile.count());
-		Ctr::Array<M::float2>	tangent(profile.count()-1);
-		Ctr::Array<M::float2>	normal(profile.count()-1);
+		Ctr::Array<float>	texcoord(profile.Count());
+		Ctr::Array<M::float2>	tangent(profile.Count()-1);
+		Ctr::Array<M::float2>	normal(profile.Count()-1);
 		M::float2 center(0);
 		{
 			float at = 0.f;
 			texcoord[0] = 0;
 			center += profile[0];
 
-			for (index_t i = 1; i < profile.count(); i++)
+			for (index_t i = 1; i < profile.Count(); i++)
 			{
 				at += M::Vec::distance(profile[i-1],profile[i]);
 				texcoord[i] = at;
@@ -2803,7 +2803,7 @@ namespace DeltaWorks
 				center += profile[i];
 			}
 		}
-		center /= profile.count();
+		center /= profile.Count();
 
 
 		foreach (source.edges,edge)
@@ -2812,7 +2812,7 @@ namespace DeltaWorks
 				continue;
 
 			bool isLeftEdge = edge->direction == SurfaceDescription::Edge::Left;
-			index_t vertex_offset = vertices.count();
+			index_t vertex_offset = vertices.Count();
 			TVertex*const vfield = vertices.appendRow(numVerticesPerSlice*edge->length()+numVerticesPerSlice*2+2);	//top, top, left, left, bottom, bottom, right, right. two caps
 			//if (edge->leftEdge)
 			{
@@ -2942,7 +2942,7 @@ namespace DeltaWorks
 				continue;
 
 			bool isLeftEdge = edge->direction == SurfaceDescription::Edge::Left;
-			index_t vertex_offset = vertices.count();
+			index_t vertex_offset = vertices.Count();
 			TVertex*const vfield = vertices.appendRow(8*edge->length()+8);	//top, top, left, left, bottom, bottom, right, right. two caps
 			if (isLeftEdge)
 			{
@@ -3126,10 +3126,10 @@ namespace DeltaWorks
 
 	void	SurfaceDescription::GenerateNormals()
 	{
-		for (index_t i = 0; i < vertices.count(); i++)
+		for (index_t i = 0; i < vertices.Count(); i++)
 			M::Vec::clear(vertices[i].normal);
 		M::float3	normal,normal1;
-		for (index_t i = 0; i < triangleIndices.count(); i+=3)
+		for (index_t i = 0; i < triangleIndices.Count(); i+=3)
 		{
 			const UINT32*t = triangleIndices+i;
 			Obj::triangleNormal(vertices[t[0]].position,vertices[t[1]].position,vertices[t[2]].position,normal);
@@ -3137,7 +3137,7 @@ namespace DeltaWorks
 			M::Vec::add(vertices[t[1]].normal,normal);
 			M::Vec::add(vertices[t[2]].normal,normal);
 		}
-		for (index_t i = 0; i < quadIndices.count(); i+=4)
+		for (index_t i = 0; i < quadIndices.Count(); i+=4)
 		{
 			const UINT32*q = quadIndices+i;
 			Obj::triangleNormal(vertices[q[0]].position,vertices[q[1]].position,vertices[q[2]].position,normal);
@@ -3149,7 +3149,7 @@ namespace DeltaWorks
 			M::Vec::add(vertices[q[3]].normal,normal);
 		}
 
-		for (index_t i = 0; i < vertices.count(); i++)
+		for (index_t i = 0; i < vertices.Count(); i++)
 			M::Vec::normalize0(vertices[i].normal);
 
 	}
@@ -3158,7 +3158,7 @@ namespace DeltaWorks
 	void SurfaceDescription::BuildArc(const OutVertexContainer&arc_vertices, float near_distance, float far_distance, float extend_along_track)
 	{
 		vertices.reset();
-		for (index_t i = 0; i < arc_vertices.count(); i++)
+		for (index_t i = 0; i < arc_vertices.Count(); i++)
 		{
 			const TVertex&v = arc_vertices[i];
 			M::float3 binormal;
@@ -3379,7 +3379,7 @@ namespace DeltaWorks
 		triangleIndices.reset();
 		quadIndices.reset();
 		edges.reset();
-		for (index_t i = 0; i+1 < arc_vertices.count(); i++)
+		for (index_t i = 0; i+1 < arc_vertices.Count(); i++)
 		{
 			const UINT32	t = static_cast<UINT32>(i*8),
 							n = static_cast<UINT32>((i+1)*8);
@@ -3392,7 +3392,7 @@ namespace DeltaWorks
 		}
 
 		{
-			const UINT32 offset = static_cast<UINT32>(arc_vertices.count()*8);
+			const UINT32 offset = static_cast<UINT32>(arc_vertices.Count()*8);
 			quadIndices
 					<< offset << offset+1 << offset+2 << offset+3
 					<< offset+7 << offset+6 << offset+5 << offset+4
@@ -3406,7 +3406,7 @@ namespace DeltaWorks
 		const Node&node = *nodes.queryPointer(node_id);
 		for (BYTE outbound = 0; outbound < 2; outbound++)
 		{
-			for (index_t i = 0; i < node.segments[outbound].count(); i++)
+			for (index_t i = 0; i < node.segments[outbound].Count(); i++)
 				if (node.segments[outbound][i] != InvalidIndex)
 				{
 					const Segment&seg = *segments.queryPointer(node.segments[outbound][i]);
@@ -3421,7 +3421,7 @@ namespace DeltaWorks
 
 	/*static*/	void		SurfaceNetwork::CompileBarrierGeometry(CGS::Geometry<>&target,const Segment&segment, float position,float height0,float height1,name64_t texture, CGS::TextureResource*resource/*=NULL*/)
 	{
-		if (segment.compiledSurfaces.count() < 3*SurfaceNetwork::numLODs)
+		if (segment.compiledSurfaces.Count() < 3*SurfaceNetwork::numLODs)
 		{
 			FATAL__("Unable to compile barrier: insufficient compiled surfaces");
 			return;
@@ -3459,7 +3459,7 @@ namespace DeltaWorks
 
 	/*static*/	void		SurfaceNetwork::CompileRailGeometry(CGS::Geometry<>&target, const Segment&segment, float innerExtend, float outerExtend, float upperExtend, float lowerExtend, name64_t texture, name64_t normal_texture, CGS::TextureResource*resource /*=NULL*/)
 	{
-		if (segment.compiledSurfaces.count() < 3*SurfaceNetwork::numLODs)
+		if (segment.compiledSurfaces.Count() < 3*SurfaceNetwork::numLODs)
 		{
 			FATAL__("Unable to compile rail: insufficient compiled surfaces");
 			return;
@@ -3485,7 +3485,7 @@ namespace DeltaWorks
 
 	/*static*/	void		SurfaceNetwork::CompileRailGeometry(CGS::Geometry<>&target, const Segment&segment, const Container::BasicBuffer<M::float2>&profile, name64_t texture, name64_t normal_texture, CGS::TextureResource*resource /*=NULL*/)
 	{
-		if (segment.compiledSurfaces.count() < 3*SurfaceNetwork::numLODs)
+		if (segment.compiledSurfaces.Count() < 3*SurfaceNetwork::numLODs)
 		{
 			FATAL__("Unable to compile rail: insufficient compiled surfaces");
 			return;
@@ -3531,7 +3531,7 @@ namespace DeltaWorks
 		float shortest_edge = std::numeric_limits<float>::max();
 
 		using std::min;
-		for (index_t i = 1; i < arc_vertices.first().count(); i++)
+		for (index_t i = 1; i < arc_vertices.first().Count(); i++)
 			shortest_edge = min(shortest_edge,M::Vec::quadraticDistance(arc_vertices.first()[i-1].position,arc_vertices.first()[i].position));
 		shortest_edge = sqrt(shortest_edge);
 
@@ -3599,7 +3599,7 @@ namespace DeltaWorks
 		robjs.reset();
 
 
-		for (index_t i = 0; i < lods.count(); i++)
+		for (index_t i = 0; i < lods.Count(); i++)
 		{
 			CGS::RenderObjectA<>&robj = robjs.append();
 			robj.target = target.object_field.pointer();
@@ -3609,7 +3609,7 @@ namespace DeltaWorks
 
 			const SurfaceDescription&hull = lods[i];
 			bool has_texcoords = (texture != 0 || normal_texture != 0);
-			robj.vpool.SetSize(hull.vertices.count(),has_texcoords,CGS::HasNormalFlag |CGS::HasTangentFlag);
+			robj.vpool.SetSize(hull.vertices.Count(),has_texcoords,CGS::HasNormalFlag |CGS::HasTangentFlag);
 			//ASSERT_EQUAL__(robj.vpool.vsize(),11 + 2*...yadda, you get idea);
 			float*vtx = robj.vpool.vdata.pointer();
 			const int vsize = 9 + 2*has_texcoords;
@@ -3631,18 +3631,18 @@ namespace DeltaWorks
 				M::Vec::ref2(vtx+9) = hull.vertices[i].tcoord;
 				vtx += 11;
 			}*/
-			ASSERT__(!(hull.quadIndices.count()%4));
-			ASSERT__(!(hull.triangleIndices.count()%3));
-			robj.ipool.SetSize(UINT32(hull.triangleIndices.count()/3),UINT32(hull.quadIndices.count()/4));
-			memcpy(robj.ipool.idata.pointer(),hull.triangleIndices.pointer(),hull.triangleIndices.count()*sizeof(UINT32));
-			memcpy(robj.ipool.idata.pointer()+hull.triangleIndices.count(),hull.quadIndices.pointer(),hull.quadIndices.count()*sizeof(UINT32));
+			ASSERT__(!(hull.quadIndices.Count()%4));
+			ASSERT__(!(hull.triangleIndices.Count()%3));
+			robj.ipool.SetSize(UINT32(hull.triangleIndices.Count()/3),UINT32(hull.quadIndices.Count()/4));
+			memcpy(robj.ipool.idata.pointer(),hull.triangleIndices.pointer(),hull.triangleIndices.Count()*sizeof(UINT32));
+			memcpy(robj.ipool.idata.pointer()+hull.triangleIndices.Count(),hull.quadIndices.pointer(),hull.quadIndices.Count()*sizeof(UINT32));
 			//robj.ipool.idata.copyFrom
 				//copyFrom(iout.pointer(),iout.length());
 		}
 
 
-		target.material_field[0].data.object_field.SetSize(robjs.count());
-		for (index_t i = 0; i < robjs.count(); i++)
+		target.material_field[0].data.object_field.SetSize(robjs.Count());
+		for (index_t i = 0; i < robjs.Count(); i++)
 			target.material_field[0].data.object_field[i].adoptData(robjs[i]);
 
 		target.material_field[0].data.coord_layers = 1;//+ (normal_texture != 0);
@@ -3650,7 +3650,7 @@ namespace DeltaWorks
 	
 		//const CGS::RenderObjectA<>&robj = target.material_field[0].data.object_field.first();
 		CGS::SubGeometryA<>&obj = target.object_field.first();
-		obj.vs_hull_field.SetSize(lods.count());
+		obj.vs_hull_field.SetSize(lods.Count());
 		for (index_t i = 0; i < obj.vs_hull_field.length(); i++)
 		{
 			Mesh<CGS::SubGeometryA<>::VsDef>&vs_hull = obj.vs_hull_field[i];
@@ -3664,7 +3664,7 @@ namespace DeltaWorks
 		//convertDescriptionToHull(physical_hull,obj.phHull);
 	
 		obj.meta.shortest_edge_length = shortest_edge*0.2f;
-		//ShowMessage("generated "+String(robjs.count())+" sub defail level(s)");
+		//ShowMessage("generated "+String(robjs.Count())+" sub defail level(s)");
 	
 		M::Mat::Eye(target.object_field[0].meta.system);
 		M::Vec::clear(target.object_field[0].meta.center);
@@ -3676,7 +3676,7 @@ namespace DeltaWorks
 
 		target.connector_field.free();
 	
-		//return robjs.count();
+		//return robjs.Count();
 	}
 
 
@@ -3730,7 +3730,7 @@ namespace DeltaWorks
 		robjs.reset();
 
 
-		for (index_t i = 0; i < lods.count(); i++)
+		for (index_t i = 0; i < lods.Count(); i++)
 		{
 			CGS::RenderObjectA<>&robj = robjs.append();
 			robj.target = target.object_field.pointer();
@@ -3740,7 +3740,7 @@ namespace DeltaWorks
 
 			const SurfaceDescription&hull = lods[i];
 			bool has_texcoords = (texture != 0 || normal_texture != 0);
-			robj.vpool.SetSize(hull.vertices.count(),has_texcoords,CGS::HasNormalFlag |CGS::HasTangentFlag);
+			robj.vpool.SetSize(hull.vertices.Count(),has_texcoords,CGS::HasNormalFlag |CGS::HasTangentFlag);
 			//ASSERT_EQUAL__(robj.vpool.vsize(),11 + 2*...yadda, you get idea);
 			float*vtx = robj.vpool.vdata.pointer();
 			const int vsize = 9 + 2*has_texcoords;
@@ -3762,18 +3762,18 @@ namespace DeltaWorks
 				M::Vec::ref2(vtx+9) = hull.vertices[i].tcoord;
 				vtx += 11;
 			}*/
-			ASSERT__(!(hull.quadIndices.count()%4));
-			ASSERT__(!(hull.triangleIndices.count()%3));
-			robj.ipool.SetSize(UINT32(hull.triangleIndices.count()/3),UINT32(hull.quadIndices.count()/4));
-			memcpy(robj.ipool.idata.pointer(),hull.triangleIndices.pointer(),hull.triangleIndices.count()*sizeof(UINT32));
-			memcpy(robj.ipool.idata.pointer()+hull.triangleIndices.count(),hull.quadIndices.pointer(),hull.quadIndices.count()*sizeof(UINT32));
+			ASSERT__(!(hull.quadIndices.Count()%4));
+			ASSERT__(!(hull.triangleIndices.Count()%3));
+			robj.ipool.SetSize(UINT32(hull.triangleIndices.Count()/3),UINT32(hull.quadIndices.Count()/4));
+			memcpy(robj.ipool.idata.pointer(),hull.triangleIndices.pointer(),hull.triangleIndices.Count()*sizeof(UINT32));
+			memcpy(robj.ipool.idata.pointer()+hull.triangleIndices.Count(),hull.quadIndices.pointer(),hull.quadIndices.Count()*sizeof(UINT32));
 			//robj.ipool.idata.copyFrom
 				//copyFrom(iout.pointer(),iout.length());
 		}
 
 
-		target.material_field[0].data.object_field.SetSize(robjs.count());
-		for (index_t i = 0; i < robjs.count(); i++)
+		target.material_field[0].data.object_field.SetSize(robjs.Count());
+		for (index_t i = 0; i < robjs.Count(); i++)
 			target.material_field[0].data.object_field[i].adoptData(robjs[i]);
 
 		target.material_field[0].data.coord_layers = 1;//+ (normal_texture != 0);
@@ -3781,7 +3781,7 @@ namespace DeltaWorks
 	
 		//const CGS::RenderObjectA<>&robj = target.material_field[0].data.object_field.first();
 		CGS::SubGeometryA<>&obj = target.object_field.first();
-		obj.vs_hull_field.SetSize(lods.count());
+		obj.vs_hull_field.SetSize(lods.Count());
 		for (index_t i = 0; i < obj.vs_hull_field.length(); i++)
 		{
 			Mesh<CGS::SubGeometryA<>::VsDef>&vs_hull = obj.vs_hull_field[i];
@@ -3795,7 +3795,7 @@ namespace DeltaWorks
 		convertDescriptionToHull(phHull,obj.phHull);
 	
 		obj.meta.shortest_edge_length = shortest_edge*0.2f;
-		//ShowMessage("generated "+String(robjs.count())+" sub defail level(s)");
+		//ShowMessage("generated "+String(robjs.Count())+" sub defail level(s)");
 	
 		M::Mat::Eye(target.object_field[0].meta.system);
 		M::Vec::clear(target.object_field[0].meta.center);
@@ -3807,7 +3807,7 @@ namespace DeltaWorks
 
 		target.connector_field.free();
 	
-		//return robjs.count();
+		//return robjs.Count();
 	}
 
 
@@ -3817,9 +3817,9 @@ namespace DeltaWorks
 					*n1 = nodes.queryPointer(slot1.node);
 		if (n0 == n1 || !n0 || !n1)
 			return InvalidIndex;
-		if (slot0.subdivisionStep >= n0->segments[slot0.outbound].count())
+		if (slot0.subdivisionStep >= n0->segments[slot0.outbound].Count())
 			return InvalidIndex;
-		if (slot1.subdivisionStep >= n1->segments[slot1.outbound].count())
+		if (slot1.subdivisionStep >= n1->segments[slot1.outbound].Count())
 			return InvalidIndex;
 		if (n0->segments[slot0.outbound][slot0.subdivisionStep] == n1->segments[slot1.outbound][slot1.subdivisionStep])
 			return n0->segments[slot0.outbound][slot0.subdivisionStep];
@@ -3841,7 +3841,7 @@ namespace DeltaWorks
 			const Segment::Connector&c = seg->connector[k];
 			Node*n = nodes.queryPointer(c.node);
 			ASSERT_NOT_NULL__(n);
-			ASSERT_LESS__(c.subdivisionStep,n->segments[c.outbound].count());
+			ASSERT_LESS__(c.subdivisionStep,n->segments[c.outbound].Count());
 			n->segments[c.outbound][c.subdivisionStep] = InvalidIndex;
 		}
 
@@ -3863,10 +3863,10 @@ namespace DeltaWorks
 			const Segment::Connector&c = seg->connector[k];
 			Node*n = nodes_[k] = nodes.queryPointer(c.node);
 			ASSERT_NOT_NULL__(n);
-			ASSERT_LESS__(c.subdivisionStep,n->segments[c.outbound].count());
+			ASSERT_LESS__(c.subdivisionStep,n->segments[c.outbound].Count());
 
 			n->segments[c.outbound].Erase(c.subdivisionStep);
-			for (index_t i = c.subdivisionStep; i < n->segments[c.outbound].count(); i++)
+			for (index_t i = c.subdivisionStep; i < n->segments[c.outbound].Count(); i++)
 				if (n->segments[c.outbound][i] != InvalidIndex)
 				{
 					Segment*seg = segments.queryPointer(n->segments[c.outbound][i]);

@@ -1571,7 +1571,7 @@ namespace DeltaWorks
 
 	CRC4::CRC4(const void*data, size_t size)
 	{
-		set(data,size);
+		Set(data,size);
 	}
 
 	void CRC4::apply(const void*source, void*target, size_t size)
@@ -1638,7 +1638,7 @@ namespace DeltaWorks
 		#undef RC4_LOOP
 	}
 
-	void CRC4::set(const void*data, size_t size)
+	void CRC4::Set(const void*data, size_t size)
 	{
 		UINT32 tmp,*d=_data;
 		const BYTE*pntr = (const BYTE*)data;

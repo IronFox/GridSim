@@ -49,9 +49,9 @@ namespace Engine
 									}
 				count_t				channels()	const
 									{
-										return count();
+										return Count();
 									}
-				void				set(const String name, float red, float green, float blue)
+				void				Set(const String name, float red, float green, float blue)
 									{
 										this->name = name;
 										M::Vec::def(color,red,green,blue);
@@ -82,7 +82,7 @@ namespace Engine
 									}
 				count_t				groups()	const
 									{
-										return count();
+										return Count();
 									}
 				count_t				countChannels()	const;
 		};
@@ -168,7 +168,7 @@ namespace Engine
 				Timer::Time			stop();
 				void				accumulatei(const Timer::Time&t);
 				void				accumulate(float value);
-				void				set(const String name, float red, float green, float blue)
+				void				Set(const String name, float red, float green, float blue)
 									{
 										this->name = name;
 										M::Vec::def(color,red,green,blue);
@@ -330,7 +330,7 @@ namespace Engine
 			static	Engine::Textout<Font>		local,*active;
 			public:
 			static	Engine::Textout<Font>*		get();
-			static	void						set(Engine::Textout<Font>*);
+			static	void						Set(Engine::Textout<Font>*);
 			};
 		
 		template <class GL, class Base>
@@ -358,9 +358,9 @@ namespace Engine
 				
 														RenderGraph(Data*data_,unsigned dimensions_):Base(data_),material(0U),renderer(NULL),dimensions(dimensions_),opaque(dimensions_==3),fade_intensity(1)
 														{
-															binding.vertex.set(0,dimensions);
-															binding.color.set(dimensions,4);
-															binding.normal.unset();
+															binding.vertex.Set(0,dimensions);
+															binding.color.Set(dimensions,4);
+															binding.normal.Unset();
 															binding.floats_per_vertex = 4+dimensions;
 														}
 					

@@ -70,7 +70,7 @@ namespace DeltaWorks
 			{
 				return first_char[c];
 			}
-			using Super::isSet;
+			using Super::IsSet;
 		};
 
 
@@ -127,7 +127,7 @@ namespace DeltaWorks
 				return *this;
 			}
 			
-			inline	size_t	query(BYTE c) const	//! Queries the index entry of the specified character (cast to size_t char). The returned value will be the index of the specified character in the original string (plus 1) or 0 if the character is not defined in this table
+			inline	size_t	Query(BYTE c) const	//! Queries the index entry of the specified character (cast to size_t char). The returned value will be the index of the specified character in the original string (plus 1) or 0 if the character is not defined in this table
 			{
 				return field[c];
 			}
@@ -187,7 +187,7 @@ namespace DeltaWorks
 			{
 				memset(field,false,sizeof(field));
 			}
-			inline	void			set(BYTE c, bool b = true)
+			inline	void			Set(BYTE c, bool b = true)
 			{
 				field[c] = b;
 			}
@@ -448,7 +448,6 @@ namespace DeltaWorks
 
 			using Super::clear;
 			using Super::Clear;
-			using Super::count;
 			using Super::Count;
 			using Super::size;
 			using Super::revert;

@@ -673,7 +673,7 @@ template <typename T>
 	}
 
 template <typename T>
-	inline void		ImageTemplate<T>::set(dimension_t X, dimension_t Y, T red, T green, T blue)
+	inline void		ImageTemplate<T>::Set(dimension_t X, dimension_t Y, T red, T green, T blue)
 	{
 		T*pixel = image_data + (size_t(Y)*size_t(image_width)+size_t(X))*size_t(image_channels);
 		switch (image_channels)
@@ -696,7 +696,7 @@ template <typename T>
 	}
 
 template <typename T>
-	inline void		ImageTemplate<T>::set(dimension_t X, dimension_t Y, T red, T green, T blue, T alpha)
+	inline void		ImageTemplate<T>::Set(dimension_t X, dimension_t Y, T red, T green, T blue, T alpha)
 	{
 		T*pixel = image_data + (size_t(Y)*size_t(image_width)+size_t(X))*size_t(image_channels);
 		switch (image_channels)
@@ -739,7 +739,7 @@ template <typename T>
 	}
 	
 template <typename T>
-	inline void		ImageTemplate<T>::set(dimension_t X, dimension_t Y, const T*data)
+	inline void		ImageTemplate<T>::Set(dimension_t X, dimension_t Y, const T*data)
 	{
 		if (!image_data)
 			return;
@@ -750,7 +750,7 @@ template <typename T>
 
 
 template <typename T>
-	inline void		ImageTemplate<T>::set(dimension_t X, dimension_t Y, const T*data, BYTE channels)
+	inline void		ImageTemplate<T>::Set(dimension_t X, dimension_t Y, const T*data, BYTE channels)
 	{
 		if (!image_data || !channels)
 			return;
@@ -1154,8 +1154,8 @@ template <class Nature>
 				for (dimension_t x = 0; x < image_width/2; x++)
 				{
 					M::Vec::copyD(GetPixel(x,y),buffer,image_channels);
-					set(x,y,GetPixel(image_width-x-1,y));
-					set(image_width-x-1,y,buffer);
+					Set(x,y,GetPixel(image_width-x-1,y));
+					Set(image_width-x-1,y,buffer);
 				}
 			});
 		}
@@ -1206,8 +1206,8 @@ template <class Nature>
 				for (dimension_t y = 0; y < image_height/2; y++)
 				{
 					M::Vec::copyD(GetPixel(x,y),buffer,image_channels);
-					set(x,y,GetPixel(x,image_height-y-1));
-					set(x,image_height-y-1,buffer);
+					Set(x,y,GetPixel(x,image_height-y-1));
+					Set(x,image_height-y-1,buffer);
 				}
 			});
 		}
@@ -1241,7 +1241,7 @@ template <class Nature>
 			Concurrency::parallel_for(dimension_t(0),image_height,[this,&temp](dimension_t x)
 			{
 				for (dimension_t y = 0; y < image_width; y++)
-					temp.set(x,y,GetPixel(image_width-y-1,x));
+					temp.Set(x,y,GetPixel(image_width-y-1,x));
 			});
 
 		adoptData(temp);
@@ -1272,7 +1272,7 @@ template <class Nature>
 			Concurrency::parallel_for(dimension_t(0),image_height,[this,&temp](dimension_t x)
 			{
 				for (dimension_t y = 0; y < image_width; y++)
-					temp.set(x,y,GetPixel(y,image_height-x-1));
+					temp.Set(x,y,GetPixel(y,image_height-x-1));
 			});
 
 		adoptData(temp);
@@ -1500,7 +1500,7 @@ template <class Nature>
 		Concurrency::parallel_for(dimension_t(0),image_width,[this,&temp](dimension_t x)
 		{
 			for (dimension_t y = 0; y < image_height; y++)
-				temp.set(x*2,y*2,GetPixel(x,y));
+				temp.Set(x*2,y*2,GetPixel(x,y));
 		});
     
 		if (!loop)
@@ -1525,11 +1525,11 @@ template <class Nature>
 			});
 			Concurrency::parallel_for(dimension_t(0),image_height*2,[this,&temp](dimension_t y)
 			{
-				temp.set(image_width*2-1,y,temp.GetPixel(image_width*2-2,y));
+				temp.Set(image_width*2-1,y,temp.GetPixel(image_width*2-2,y));
 			});
 			Concurrency::parallel_for(dimension_t(0),image_width*2,[this,&temp](dimension_t x)
 			{
-				temp.set(x,image_height*2-1,temp.GetPixel(x,image_height*2-2));
+				temp.Set(x,image_height*2-1,temp.GetPixel(x,image_height*2-2));
 			});
 		}
 		else
@@ -1571,7 +1571,7 @@ template <class Nature>
 		{
 			for (dimension_t x = 0; x < image_width; x++)
 			{
-				temp.set(x*2,y,this->GetPixel(x,y));
+				temp.Set(x*2,y,this->GetPixel(x,y));
 				if (x == image_width-1)
 					continue;
 				if (IsNormalMap() && image_channels == 3)
@@ -1587,7 +1587,7 @@ template <class Nature>
 					for (BYTE c = 0; c < image_channels; c++)
 						temp.SetChannel(x*2+1,y,c,(T)(((F)this->GetPixel(x,y)[c]+this->GetPixel(x+1,y)[c])/2));
 			}
-			temp.set(image_width*2-1,y,this->GetPixel(image_width-1,y));
+			temp.Set(image_width*2-1,y,this->GetPixel(image_width-1,y));
 		});
 		adoptData(temp);
 
@@ -1606,7 +1606,7 @@ template <class Nature>
 		{
 			for (dimension_t y = 0; y < image_height; y++)
 			{
-				temp.set(x,y*2,this->GetPixel(x,y));
+				temp.Set(x,y*2,this->GetPixel(x,y));
 				if (y == image_height-1)
 					continue;
 				if (IsNormalMap() && image_channels == 3)
@@ -1622,7 +1622,7 @@ template <class Nature>
 					for (BYTE c = 0; c < image_channels; c++)
 						temp.SetChannel(x,y*2+1,c,(T)(((F)this->GetPixel(x,y)[c]+this->GetPixel(x,y+1)[c])/2));
 			}
-			temp.set(x,image_height*2-1,this->GetPixel(x,image_height-1));
+			temp.Set(x,image_height*2-1,this->GetPixel(x,image_height-1));
 		});
 		adoptData(temp);
 	}
@@ -1672,7 +1672,7 @@ template <class Nature>
 				for (dimension_t y = 0; y < h; y++)
 				{
 					sample((F)x/w,(F)y/h,(F)(x+1)/w,(F)(y+1)/h,pixel);
-					temp.set(x,y,pixel);
+					temp.Set(x,y,pixel);
 				}
 			});
 		adoptData(temp);
@@ -1908,7 +1908,7 @@ template <typename T>
 		Concurrency::parallel_for(dimension_t(0),image_width,[this,&target,channel](dimension_t x)
 		{
 			for (dimension_t y = 0; y < image_height; y++)
-				target.set(x,y,GetPixel(x,y)+channel);
+				target.Set(x,y,GetPixel(x,y)+channel);
 		});
 	}
 
@@ -2415,7 +2415,7 @@ template <class Nature0>
 					Concurrency::parallel_for(dimension_t(0),xext,[this,p,&other,x,y,yext,c_num](dimension_t X)
 					{
 						for (dimension_t Y = 0; Y < yext; Y++)
-							p->set(x+X,y+Y,other->GetPixel(X,Y),c_num);
+							p->Set(x+X,y+Y,other->GetPixel(X,Y),c_num);
 					});
 				}
 			break;

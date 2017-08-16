@@ -23,7 +23,7 @@ template <typename T,typename MyStrategy>
 	inline bool WorkPipe<T,MyStrategy>::operator>>(T&out)
 	{
 		DBG_ASSERT__(locked);
-		if (readAt >= Super::count())
+		if (readAt >= Super::Count())
 			return false;
 		MyStrategy::move(Super::at(readAt++), out);
 		return true;

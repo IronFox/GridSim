@@ -284,10 +284,10 @@ namespace DeltaWorks
 											\param y y-coordinate of the pixel
 											\param data Pointer to an array providing at least one entry per local channel
 									
-											set() overwrites the local pixel data with the specified color (\b data). The method does not check for correctness.
+											Set() overwrites the local pixel data with the specified color (\b data). The method does not check for correctness.
 											Corrupted x/y coordinates or insufficient entries in the \b data field will lead to access violations and/or segmentation faults.
 										*/
-			inline 	void				set(dimension_t x, dimension_t y, const T*data);
+			inline 	void				Set(dimension_t x, dimension_t y, const T*data);
 										/*!
 											\brief Overwrites the color of a specific pixel.
 											\param x x-coordinate of the pixel
@@ -295,12 +295,12 @@ namespace DeltaWorks
 											\param data Pointer to an array providing at least one entry per local channel
 											\param channels Number of entries in the provided \b data array.
 									
-											set() overwrites the local pixel data with the specified color (\b data). If \b channels is less than the local
+											Set() overwrites the local pixel data with the specified color (\b data). If \b channels is less than the local
 											number of channels then the last entry in the \b data field will be repeated for the remaining channels.
 											The method does not check for correctness. Corrupted x/y coordinates or insufficient entries in the \b data
 											field will lead to access violations and/or segmentation faults.
 										*/
-			inline 	void				set(dimension_t x, dimension_t y, const T*data, BYTE channels);
+			inline 	void				Set(dimension_t x, dimension_t y, const T*data, BYTE channels);
 										/*!
 											\brief Overwrites the color of a specific pixel.
 											\param x x-coordinate of the pixel
@@ -310,12 +310,12 @@ namespace DeltaWorks
 											\param blue Blue color component
 											\param alpha Opacity color component 
 									
-											set() overwrites the local pixel data with the specified color (\b red, \b green, \b blue, \b alpha). Color components that are not
+											Set() overwrites the local pixel data with the specified color (\b red, \b green, \b blue, \b alpha). Color components that are not
 											provided by the local image are ignored. Channels above 4 are left unchanged.
 											The method does not check for correctness. Corrupted x/y coordinates will lead to access violations and/or
 											segmentation faults.
 										*/
-			inline	void				set(dimension_t x, dimension_t y, T red, T green, T blue, T alpha); 
+			inline	void				Set(dimension_t x, dimension_t y, T red, T green, T blue, T alpha); 
 										/*!
 											\brief Overwrites the color of a specific pixel.
 											\param x x-coordinate of the pixel
@@ -324,12 +324,12 @@ namespace DeltaWorks
 											\param green Green color component
 											\param blue Blue color component
 									
-											set() overwrites the local pixel data with the specified color (\b red, \b green, \b blue). Color components that are not
+											Set() overwrites the local pixel data with the specified color (\b red, \b green, \b blue). Color components that are not
 											provided by the local image are ignored. Channels above 3 are left unchanged.
 											The method does not check for correctness. Corrupted x/y coordinates will lead to access violations and/or
 											segmentation faults.
 										*/
-			inline	void				set(dimension_t x, dimension_t y, T red, T green, T blue); 
+			inline	void				Set(dimension_t x, dimension_t y, T red, T green, T blue); 
 
 			float						SampleChannelAt(float x, float y, BYTE channel,bool loop)	const;
 			T							SmoothSampleChannelAt(float x, float y, BYTE channel,bool loop)	const;
@@ -675,7 +675,7 @@ namespace DeltaWorks
 											\param y y-coordinate of the pixel
 											\param data Pointer to an array providing at least one entry per local channel
 									
-											set() overwrites the local pixel data with the specified color (\b data). The method does not check for correctness.
+											Set() overwrites the local pixel data with the specified color (\b data). The method does not check for correctness.
 											Color values are expected in the range [0,1] and stretched the range of the local channel data type.
 											Corrupted x/y coordinates or insufficient entries in the \b data field will lead to access violations and/or segmentation faults.
 										*/
@@ -688,7 +688,7 @@ namespace DeltaWorks
 											\param data Pointer to an array providing at least one entry per local channel
 											\param channels Number of entries in the provided \b data array.
 									
-											set() overwrites the local pixel data with the specified color (\b data). If \b channels is less than the local
+											Set() overwrites the local pixel data with the specified color (\b data). If \b channels is less than the local
 											number of channels then the last entry in the \b data field will be repeated for the remaining channels.
 											Color values are expected in the range [0,1] and stretched the range of the local channel data type.
 											The method does not check for correctness. Corrupted x/y coordinates or insufficient entries in the \b data
@@ -705,7 +705,7 @@ namespace DeltaWorks
 											\param blue Blue color component
 											\param alpha Opacity color component 
 									
-											set() overwrites the local pixel data with the specified color (\b red, \b green, \b blue, \b alpha). Color components that are not
+											Set() overwrites the local pixel data with the specified color (\b red, \b green, \b blue, \b alpha). Color components that are not
 											provided by the local image are ignored. Channels above 4 are left unchanged. Color values are expected in the range [0,1] and stretched the range of the local channel data type.
 											The method does not check for correctness. Corrupted x/y coordinates will lead to access violations and/or
 											segmentation faults.
@@ -720,7 +720,7 @@ namespace DeltaWorks
 											\param green Green color component
 											\param blue Blue color component
 									
-											set() overwrites the local pixel data with the specified color (\b red, \b green, \b blue). Color components that are not
+											Set() overwrites the local pixel data with the specified color (\b red, \b green, \b blue). Color components that are not
 											provided by the local image are ignored. Channels above 3 are left unchanged.
 											Color values are expected in the range [0,1] and stretched the range of the local channel data type.
 											The method does not check for correctness. Corrupted x/y coordinates will lead to access violations and/or

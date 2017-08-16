@@ -972,17 +972,17 @@ template <typename T0, typename T1>
 template <typename T0, typename T1>
 	StringType::Template<T1>		implode(const StringType::Template<T0>&glue, const Ctr::ArrayRef<StringType::Template<T1> >&pieces)
 	{
-		if (!pieces.count())
+		if (!pieces.Count())
 			return "";
 		size_t len = 0;
-		for (size_t i = 0; i < pieces.count(); i++)
+		for (size_t i = 0; i < pieces.Count(); i++)
 			len += pieces[i].length();
 		const T0*glue_str = glue.c_str();
 		size_t glue_len = glue.length();
-		len += (pieces.count()-1)*glue_len;
+		len += (pieces.Count()-1)*glue_len;
 		StringType::Template<T1> result = TStringLength(len);
 		T1*out = result.mutablePointer();
-		for (size_t i = 0; i < pieces.count()-1;i++)
+		for (size_t i = 0; i < pieces.Count()-1;i++)
 		{
 			CharFunctions::strncpy(out,pieces[i].c_str(),pieces[i].length());
 			out+=pieces[i].length();
@@ -999,15 +999,15 @@ template <typename T0, typename T1>
 template <typename T>
 	StringType::Template<T>		implode(T glue, const Ctr::ArrayRef<StringType::Template<T> >&pieces)
 	{
-		if (!pieces.count())
+		if (!pieces.Count())
 			return "";
 		size_t len = 0;
-		for (size_t i = 0; i < pieces.count(); i++)
+		for (size_t i = 0; i < pieces.Count(); i++)
 			len += pieces[i].length();
-		len += (pieces.count()-1);
+		len += (pieces.Count()-1);
 		StringType::Template<T> result = StringType::TStringLength(len);
 		T*out = result.mutablePointer();
-		for (size_t i = 0; i < pieces.count()-1;i++)
+		for (size_t i = 0; i < pieces.Count()-1;i++)
 		{
 			CharFunctions::strncpy(out,pieces[i].c_str(),pieces[i].length());
 			out+=pieces[i].length();
@@ -1023,16 +1023,16 @@ template <typename T>
 template <typename T0, typename T1>
 	StringType::Template<T1>		implode(const T0*glue_str, const Ctr::ArrayRef<StringType::Template<T1> >&pieces)
 	{
-		if (!pieces.count())
+		if (!pieces.Count())
 			return "";
 		size_t len = 0;
-		for (size_t i = 0; i < pieces.count(); i++)
+		for (size_t i = 0; i < pieces.Count(); i++)
 			len += pieces[i].length();
 		size_t glue_len = CharFunctions::strlen(glue_str);
-		len += (pieces.count()-1)*glue_len;
+		len += (pieces.Count()-1)*glue_len;
 		StringType::Template<T1> result = StringType::TStringLength(len);
 		T1*out = result.mutablePointer();
-		for (size_t i = 0; i < pieces.count()-1;i++)
+		for (size_t i = 0; i < pieces.Count()-1;i++)
 		{
 			CharFunctions::strncpy(out,pieces[i].c_str(),pieces[i].length());
 			out+=pieces[i].length();
@@ -1598,7 +1598,7 @@ namespace StringType
 		template <typename T>
 			Template<T>::Template(const AnsiString&string)
 			{
-				string_length = string.Length();
+				string_length = string.GetLength();
 				field = allocate(string_length);
 				CharFunctions::strncpy(field,string.c_str(),string_length);
 			}
@@ -3006,7 +3006,7 @@ namespace StringType
 		}
 
 	template <typename T>
-		void				Template<T>::set(size_t index, T c)
+		void				Template<T>::Set(size_t index, T c)
 		{
 			if (index >= string_length)
 				return;
@@ -3583,7 +3583,7 @@ namespace StringType
 		template <typename T>
 			Template<T>&	Template<T>::operator=(const AnsiString&string)
 			{
-				Resize(string.Length());
+				Resize(string.GetLength());
 				CharFunctions::strncpy(field,string.c_str(),string_length);
 				return *this;
 			}

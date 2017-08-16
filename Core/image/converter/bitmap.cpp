@@ -77,7 +77,7 @@ namespace DeltaWorks
 					BYTE index = (source>>(8-bpp))&mask;
 					source<<=bpp;
 					BYTE color[3] = {color_map[index*4+2],color_map[index*4+1],color_map[index*4]};
-					result->set(x,y,color);
+					result->Set(x,y,color);
 					x++;
 				}
 			}
@@ -195,7 +195,7 @@ namespace DeltaWorks
 							byte <<= 1;
 							_c3(&color_map[(bit?1:0)*4],pixel);
 							swp(pixel[0],pixel[2]);
-							target.set(x*8+k,y,pixel);
+							target.Set(x*8+k,y,pixel);
 						}
 					}
 					offset = M::aligned(offset,4);
@@ -241,7 +241,7 @@ namespace DeltaWorks
 					{
 						_c3(&color_map[data[offset++]*4],pixel);
 						swp(pixel[0],pixel[2]);
-						target.set(x,y,pixel);
+						target.Set(x,y,pixel);
 					}
 					offset = M::aligned(offset,4);
 				}
@@ -265,7 +265,7 @@ namespace DeltaWorks
 						pixel[0] = blue *0xFF/0x1F;
 						pixel[1] = green * 0xFF/0x3F;
 						pixel[2] = red *0xFF/0x1F;
-						target.set(x,y,pixel);
+						target.Set(x,y,pixel);
 						offset+=2;
 					}
 					offset = M::aligned(offset,4);

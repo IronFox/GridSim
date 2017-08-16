@@ -49,7 +49,7 @@ template <class Entry> bool Graph<Entry>::createTopologicalOrder(ReferenceVector
     nodes.reset();
     while (CGNode<Entry>*node = nodes.each())
     {
-        node->my_indeg = node->in.count();
+        node->my_indeg = node->in.Count();
         if (!node->my_indeg)
             queue.Insert(node);
     }
@@ -68,7 +68,7 @@ template <class Entry> bool Graph<Entry>::createTopologicalOrder(ReferenceVector
             if (!--tnode->my_indeg)
                 queue.Insert(tnode);
     }
-    return out.count() == nodes;
+    return out.Count() == nodes;
 }
 
 template <class Entry> void Graph<Entry>::performDepthFirstSearch()

@@ -41,7 +41,7 @@ namespace DeltaWorks
 			template<typename T>
 			static	void _EraseIn(Container::BasicBuffer<std::weak_ptr<T> >&container, const std::shared_ptr<T>&element)
 			{
-				for (index_t i = 0; i < container.count(); i++)
+				for (index_t i = 0; i < container.Count(); i++)
 					if (container[i].lock() == element)
 					{
 						container.Erase(i);
@@ -60,7 +60,7 @@ namespace DeltaWorks
 
 		void				Graph::AddNodes(count_t count)
 		{
-			index_t offset = nodes.count();
+			index_t offset = nodes.Count();
 			PNode*stride = nodes.appendRow(count);
 			for (index_t i = 0; i < count; i++)
 				stride[i].reset(new GraphDef::Node(offset+i));
@@ -74,13 +74,13 @@ namespace DeltaWorks
 			ASSERT__(node0 != node1);
 			ASSERT__(!!node0);
 			ASSERT__(!!node1);
-			for (index_t i = 0; i < node0->out.count(); i++)
+			for (index_t i = 0; i < node0->out.Count(); i++)
 			{
 				PNode n = node0->out[i].lock();
 				if (n == node1)
 					return node0->outEdges[i].lock();
 			}
-			for (index_t i = 0; i < node0->in.count(); i++)
+			for (index_t i = 0; i < node0->in.Count(); i++)
 			{
 				PNode n = node0->in[i].lock();
 				if (n == node1)
@@ -98,7 +98,7 @@ namespace DeltaWorks
 			Container::Queue<PNode>	queue;
 			foreach (nodes,n)
 			{
-				(*n)->inDegree = (int)(*n)->in.count();
+				(*n)->inDegree = (int)(*n)->in.Count();
 				if (!(*n)->inDegree)
 					queue.Push(*n);
 			}
@@ -118,7 +118,7 @@ namespace DeltaWorks
 						queue.Push(n);
 				}
 			}
-			return out.count() == nodes.count();
+			return out.Count() == nodes.Count();
 		}
 		void				Graph::PerformDepthFirstSearch()
 		{

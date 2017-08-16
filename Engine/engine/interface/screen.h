@@ -88,7 +88,7 @@ namespace Engine
 			void						insert(short frequency);	//!< Inserts a display frequency into the list if it is not already listed.
 			unsigned					find(short frequency);		//!< Queries the index of the specified frequency. \return Index of the specified frequency (0 = first frequency) or UNSIGNED_UNDEF (0xFFFFFFFF) if it could not be found.
 			short						get(unsigned index);		//!< Retrieves the display frequency at the specified index. \param index Index of the frequency to retrieve
-			unsigned					count();					//!< Retrieves the number of display frequencies stored in the local display frequency list.
+			unsigned					Count();					//!< Retrieves the number of display frequencies stored in the local display frequency list.
 			String						list();						//!< Retrieves a string listing of the local frequencies
 	};
 }

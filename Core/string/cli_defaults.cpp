@@ -74,22 +74,22 @@ namespace DeltaWorks
 		{
 			PointerTable<bool>	listed_commands;
 
-			for (index_t i = 0; i < commands.count(); i++)
+			for (index_t i = 0; i < commands.Count(); i++)
 			{
 				CLI::PCommand cmd = commands[i];
-				if (!listed_commands.isSet(cmd.get()))
+				if (!listed_commands.IsSet(cmd.get()))
 				{
 					Buffer<CLI::PCommand>	temp;
 					temp.append(cmd);
-					for (index_t j = i+1; j < commands.count(); j++)
+					for (index_t j = i+1; j < commands.Count(); j++)
 						if (commands[j] == cmd)
 							temp.append(commands[j]);
 					String line = " *";
-					for (index_t j = 0; j < temp.count()-1; j++)
+					for (index_t j = 0; j < temp.Count()-1; j++)
 						line+=temp[j]->name+"/";
 					line+=temp.last()->fullSpecification+appendix;
 					println(line);
-					listed_commands.set(cmd.get(),true);
+					listed_commands.Set(cmd.get(),true);
 				}
 			}
 		}
@@ -105,31 +105,31 @@ namespace DeltaWorks
 		
 			//println(" ["+folder->path()+"]:");
 			println("-");
-			for (index_t i = 0; i < folder->variables.count(); i++)
+			for (index_t i = 0; i < folder->variables.Count(); i++)
 				println(" "+folder->variables[i]->name);
-			if (folder->variables.count())
+			if (folder->variables.Count())
 				println("-");
 		
 			printCommands(folder->commands,"");
 			if (folder->parent.expired())
 				printCommands(main_interpretor->globalCommands," (global)");
-			if (folder->commands.count())
+			if (folder->commands.Count())
 				println("-");
-			if (folder->folders.count() < 6)
-				for (index_t i = 0; i < folder->folders.count(); i++)
+			if (folder->folders.Count() < 6)
+				for (index_t i = 0; i < folder->folders.Count(); i++)
 					println(" ["+folder->folders[i]->name+"]");
 			else
 			{
-				count_t groups = folder->folders.count()/3;
+				count_t groups = folder->folders.Count()/3;
 				for (index_t i = 0; i < groups; i++)
 					println(" ["+folder->folders[i*3]->name+"] ["+folder->folders[i*3+1]->name+"] ["+folder->folders[i*3+2]->name+"]");
-				if (folder->folders.count()%3)
-					if (groups*3+1 == folder->folders.count())
+				if (folder->folders.Count()%3)
+					if (groups*3+1 == folder->folders.Count())
 						println(" ["+folder->folders[groups*3]->name+"]");
 					else
 						println(" ["+folder->folders[groups*3]->name+"] ["+folder->folders[groups*3+1]->name+"]");
 			}
-			if (folder->folders.count())
+			if (folder->folders.Count())
 				println("-");
 		}
 
@@ -144,7 +144,7 @@ namespace DeltaWorks
 
 
 
-		static void	set(const String&variable, const String&value)
+		static void	Set(const String&variable, const String&value)
 		{
 			CLI::PVariable v;
 			index_t p = variable.Find('.');
@@ -216,7 +216,7 @@ namespace DeltaWorks
 
 		}
 
-		static void	unset(const String&variable)
+		static void	Unset(const String&variable)
 		{
 			if (!main_interpretor->Unset(variable))
 				println(main_interpretor->GetErrorStr());
@@ -246,8 +246,8 @@ namespace DeltaWorks
 			parser.DefineGlobalCommand("list [folder]",list,CLI::FolderCompletion)->help = list_help;
 			//parser.defineGlobalCommand("list",list);
 
-			parser.DefineGlobalCommand("set variable value",set,CLI::VariableCompletion)->help = set_help;
-			parser.DefineGlobalCommand("unset variable",unset,CLI::VariableCompletion)->help = unset_help;
+			parser.DefineGlobalCommand("set variable value",Set,CLI::VariableCompletion)->help = set_help;
+			parser.DefineGlobalCommand("unset variable",Unset,CLI::VariableCompletion)->help = unset_help;
 			parser.DefineGlobalCommand("cd folder",cd,CLI::FolderCompletion)->help = cd_help;
 			parser.DefineGlobalCommand("typeof variable",showTypeof,CLI::VariableCompletion)->help = typeof_help;
 			parser.onVariableCall = variableCallBack;

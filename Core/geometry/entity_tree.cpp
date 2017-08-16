@@ -93,16 +93,16 @@ namespace DeltaWorks
 		}
 		entities.compact();
 		if (verbose)
-			std::cout << " compactified. keeping "<<entities.count()<<" relevant entity/ies"<<std::endl;
+			std::cout << " compactified. keeping "<<entities.Count()<<" relevant entity/ies"<<std::endl;
 	
-		if (!level || entities.count()<2)
+		if (!level || entities.Count()<2)
 		{
 			if (verbose)
-				if (entities.count()<2)
+				if (entities.Count()<2)
 					std::cout << " insufficient entities given for further subdivision. terminating effort"<<std::endl;
 			return;
 		}
-		split.divInt(int(entities.count()),sector_size);
+		split.divInt(int(entities.Count()),sector_size);
 		if (verbose)
 			std::cout << " center is "<<split.ConvertToString(sector_size)<<std::endl;
 	
@@ -142,7 +142,7 @@ namespace DeltaWorks
 			while (moved)
 			{
 				moved = false;
-				for (unsigned i = 0; i < entities.count(); i++)
+				for (unsigned i = 0; i < entities.Count(); i++)
 				{
 					Entity*object = entities[i];
 				
@@ -241,7 +241,7 @@ namespace DeltaWorks
 			if (verbose)
 				std::cout << " all collapsed"<<std::endl;
 	
-			if (entities.count() > 3)
+			if (entities.Count() > 3)
 			{
 				if (verbose)
 					std::cout << "  but split required"<<std::endl;
@@ -289,7 +289,7 @@ namespace DeltaWorks
 			if (child[k])
 			{
 				child[k]->recursiveRemap(entities,sector_size);
-				if (!child[k]->entities.count())
+				if (!child[k]->entities.Count())
 				{
 					Discard(child[k]);
 					child[k] = NULL;
@@ -312,13 +312,13 @@ namespace DeltaWorks
 
 	count_t	CompositeEntityTree::recursiveLookup(const Composite::Coordinates&edge_point0, const Composite::Coordinates&edge_point1, C::Buffer<Entity*>&buffer, float sector_size)
 	{
-		count_t cnt = entities.count();
+		count_t cnt = entities.Count();
 		if (!cnt)
 			return 0;
 		if (!level)
 		{
 			count_t c = 0;
-			for (index_t i = 0; i < entities.count(); i++)
+			for (index_t i = 0; i < entities.Count(); i++)
 			{
 				Entity*object = entities[i];
 				if (!intersect(edge_point0, edge_point1, object->volume,sector_size))
@@ -384,12 +384,12 @@ namespace DeltaWorks
 		index_t at = buffer.Count();
 		for (BYTE k = 0; k < 8; k++)
 			if (set[k])
-				if (child[k]->recursiveLookup(edge_point0,edge_point1,buffer,sector_size) == entities.count())
+				if (child[k]->recursiveLookup(edge_point0,edge_point1,buffer,sector_size) == entities.Count())
 				{
 					buffer.Truncate(at);
-					for (index_t i = 0; i < entities.count(); i++)
+					for (index_t i = 0; i < entities.Count(); i++)
 						buffer << entities[i];
-					return entities.count();
+					return entities.Count();
 				}
 		return 0;
 	}
@@ -398,7 +398,7 @@ namespace DeltaWorks
 
 	count_t	CompositeEntityTree::recursiveLookup(const Volume&space, C::Buffer<Entity*>&buffer, float sector_size)
 	{
-		const count_t cnt = entities.count();
+		const count_t cnt = entities.Count();
 	
 		if (!cnt || !intersect(space,volume,sector_size))
 		{
@@ -443,10 +443,10 @@ namespace DeltaWorks
 
 	CompositeEntityTree::CompositeEntityTree(const CompositeEntityTree&other)
 	{
-		for (unsigned i = 0; i < other.entities.count(); i++)
+		for (unsigned i = 0; i < other.entities.Count(); i++)
 			entities << other.entities[i];
 
-		if (level && entities.count())
+		if (level && entities.Count())
 		{
 			for (BYTE k = 0; k < 8; k++)
 				child[k] = SignalNew(new CompositeEntityTree(*other.child[k]));
@@ -492,17 +492,17 @@ namespace DeltaWorks
 		this->sector_size = sector_size;
 
 		clear();
-		if (!source.count())
+		if (!source.Count())
 			return;
 
 		level = depth?depth:(unsigned)log((float)source.length());	//may need to adjust this later
-		//ShowMessage(IntToStr(source->count())+" => "+IntToStr(level));
+		//ShowMessage(IntToStr(source->Count())+" => "+IntToStr(level));
 
 		{
 			Entity*object = source.first();
 			volume = object->volume;
 		}
-		for (unsigned i = 1; i < source.count(); i++)
+		for (unsigned i = 1; i < source.Count(); i++)
 		{
 			Entity*entity = source[i];
 		
@@ -548,10 +548,10 @@ namespace DeltaWorks
 			if (child[k])
 				Discard(child[k]);
 		entities.reset();
-		for (unsigned i = 0; i < other.entities.count(); i++)
+		for (unsigned i = 0; i < other.entities.Count(); i++)
 			entities << other.entities[i];
 
-		if (level && entities.count())
+		if (level && entities.Count())
 			for (BYTE k = 0; k < 8; k++)
 				child[k] = SignalNew(new CompositeEntityTree(*other.child[k]));
 		else
@@ -591,13 +591,13 @@ namespace DeltaWorks
 
 	count_t					CompositeEntityTree::countElements()	const
 	{
-		return entities.count();
+		return entities.Count();
 	}
 
 	void										CompositeEntityTree::getElements(C::Buffer<Entity*>&out)	const
 	{
 		out.reset();
-		for (index_t i = 0; i < entities.count(); i++)
+		for (index_t i = 0; i < entities.Count(); i++)
 			out << entities[i];
 	}
 
@@ -664,16 +664,16 @@ namespace DeltaWorks
 		}
 		entities.compact();
 		if (verbose)
-			std::cout << " compactified. keeping "<<entities.count()<<" relevant entity/ies"<<std::endl;
-		if (!level || entities.count()<2)
+			std::cout << " compactified. keeping "<<entities.Count()<<" relevant entity/ies"<<std::endl;
+		if (!level || entities.Count()<2)
 		{
 			if (verbose)
-				if (entities.count()<2)
+				if (entities.Count()<2)
 					std::cout << " insufficient entities given for further subdivision. terminating effort"<<std::endl;
 	
 			return;
 		}
-		M::Vec::div(split,entities.count());
+		M::Vec::div(split,entities.Count());
 		if (verbose)
 			std::cout << " center is "<<M::Vec::toString(split)<<std::endl;
 	
@@ -711,7 +711,7 @@ namespace DeltaWorks
 			while (moved)
 			{
 				moved = false;
-				for (unsigned i = 0; i < entities.count(); i++)
+				for (unsigned i = 0; i < entities.Count(); i++)
 				{
 					Entity*object = entities[i];
 				
@@ -806,7 +806,7 @@ namespace DeltaWorks
 			if (verbose)
 				std::cout << " all collapsed"<<std::endl;
 	
-			if (entities.count() > 3)
+			if (entities.Count() > 3)
 			{
 				if (verbose)
 					std::cout << "  but split required"<<std::endl;
@@ -854,7 +854,7 @@ namespace DeltaWorks
 			if (child[k])
 			{
 				child[k]->_RecursiveRemap(entities);
-				if (!child[k]->entities.count())
+				if (!child[k]->entities.Count())
 				{
 					Discard(child[k]);
 					child[k] = NULL;
@@ -877,7 +877,7 @@ namespace DeltaWorks
 	count_t EntityTree::_RecursionEnd(const M::TVec3<>&edge_point0, const M::TVec3<>&edge_point1, C::Buffer<Entity*>&buffer)
 	{
 		count_t c = 0;
-		for (index_t i = 0; i < entities.count(); i++)
+		for (index_t i = 0; i < entities.Count(); i++)
 		{
 			Entity*object = entities[i];
 			if (!_oIntersectsBox(edge_point0,edge_point1,object->volume))
@@ -891,7 +891,7 @@ namespace DeltaWorks
 
 	count_t	EntityTree::_RecursiveLookup(const M::TVec3<>&p0, const M::TVec3<>&p1, C::Buffer<Entity*>&buffer)
 	{
-		const count_t cnt = entities.count();
+		const count_t cnt = entities.Count();
 		if (!cnt)
 			return 0;
 		if (!level)
@@ -961,7 +961,7 @@ namespace DeltaWorks
 
 	count_t	EntityTree::_RecursiveLookup(const Volume&space, C::Buffer<Entity*>&buffer)
 	{
-		const count_t cnt = entities.count();
+		const count_t cnt = entities.Count();
 	
 		if (!cnt || !intersect(space,volume))
 		{
@@ -1006,10 +1006,10 @@ namespace DeltaWorks
 
 	EntityTree::EntityTree(const EntityTree&other)
 	{
-		for (unsigned i = 0; i < other.entities.count(); i++)
+		for (unsigned i = 0; i < other.entities.Count(); i++)
 			entities << other.entities[i];
 
-		if (level && entities.count())
+		if (level && entities.Count())
 		{
 			for (BYTE k = 0; k < 8; k++)
 				child[k] = SignalNew(new EntityTree(*other.child[k]));
@@ -1054,17 +1054,17 @@ namespace DeltaWorks
 	{
 
 		Clear();
-		if (!source.count())
+		if (!source.Count())
 			return;
 
 		level = depth?depth:(unsigned)log((float)source.length());	//may need to adjust this later
-		//ShowMessage(IntToStr(source->count())+" => "+IntToStr(level));
+		//ShowMessage(IntToStr(source->Count())+" => "+IntToStr(level));
 
 		{
 			Entity*object = source.first();
 			volume = object->volume;
 		}
-		for (index_t i = 1; i < source.count(); i++)
+		for (index_t i = 1; i < source.Count(); i++)
 		{
 			Entity*entity = source[i];
 
@@ -1105,10 +1105,10 @@ namespace DeltaWorks
 			if (child[k])
 				Discard(child[k]);
 		entities.reset();
-		for (index_t i = 0; i < other.entities.count(); i++)
+		for (index_t i = 0; i < other.entities.Count(); i++)
 			entities << other.entities[i];
 
-		if (level && entities.count())
+		if (level && entities.Count())
 			for (BYTE k = 0; k < 8; k++)
 				child[k] = SignalNew(new EntityTree(*other.child[k]));
 		else
@@ -1152,13 +1152,13 @@ namespace DeltaWorks
 
 	count_t					EntityTree::CountElements()	const
 	{
-		return entities.count();
+		return entities.Count();
 	}
 
 	void										EntityTree::GetElements(C::Buffer<Entity*>&out)	const
 	{
 		out.reset();
-		for (index_t i = 0; i < entities.count(); i++)
+		for (index_t i = 0; i < entities.Count(); i++)
 			out << entities[i];
 	}
 

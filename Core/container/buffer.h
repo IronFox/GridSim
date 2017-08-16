@@ -122,7 +122,6 @@ namespace DeltaWorks
 				inline count_t			GetCount()					const	/**@copydoc length()*/ {return length();}
 				inline count_t			GetLength()					const	/**@copydoc length()*/ {return length();}
 				inline count_t			size()						const	/**@copydoc length()*/ {return length();}
-				inline count_t			count()						const	/**@copydoc length()*/ {return length();}
 				inline count_t			Count()						const	/**@copydoc length()*/ {return length();}
 				inline count_t			operator()()				const	/**@copydoc length()*/ {return length();}
 				inline count_t			storageSize()				const;	//!< Queries the number of elements held in total. This also includes unconstructed incremental storage

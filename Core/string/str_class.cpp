@@ -338,17 +338,17 @@ namespace DeltaWorks
 			Ctr::Array<StringType::Template<T0> >	lines;
 			explode((T0)'\n',line,lines);
 			StringType::Template<T0> head = prefixProgramName ? _getApplicationName<T0>() + head_ : head_;
-			if (!lines.count())
+			if (!lines.Count())
 				_msgBox(_empty<T0>(),head.c_str(),MB_OK);
 			StringType::Template<T0> sum;
 			head += (T0)' ';
-			count_t rounds = lines.count() / 40;
-			if (lines.count() % 40)
+			count_t rounds = lines.Count() / 40;
+			if (lines.Count() % 40)
 				rounds ++;
-			for (index_t i = 0; i < lines.count(); i+= 40)
+			for (index_t i = 0; i < lines.Count(); i+= 40)
 			{
-				sum = implode((T0)'\n',lines + i,std::min<count_t>(40,lines.count() - i));
-				if (lines.count() > 40)
+				sum = implode((T0)'\n',lines + i,std::min<count_t>(40,lines.Count() - i));
+				if (lines.Count() > 40)
 				{
 					_msgBox(sum.c_str(),(head+ StringType::Template<T0>(i/40 +1)+(T0)'/'+ StringType::Template<T0>(rounds)).c_str(),MB_OK);
 				}
@@ -735,8 +735,8 @@ namespace DeltaWorks
 		const BYTE*pntr = (const BYTE*)data;
 		for (unsigned i = 0; i < data_size; i++)
 		{
-			target.set((i<<1),hexChar(((pntr[i]>>4)&0xF)));
-			target.set((i<<1)+1, hexChar((pntr[i])&0xF));
+			target.Set((i<<1),hexChar(((pntr[i]>>4)&0xF)));
+			target.Set((i<<1)+1, hexChar((pntr[i])&0xF));
 		}
 	}
 

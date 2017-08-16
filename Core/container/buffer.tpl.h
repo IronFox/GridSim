@@ -529,7 +529,7 @@ template <typename T, typename MyStrategy>
 		{
 			new (usage_end) T;
 			//T*el = std::min(storage_begin+before,usage_end);	//logically correct, but 'min' may fail for very large 'before' values (e.g. -1)
-			T*el = storage_begin+std::min(before,count());
+			T*el = storage_begin+std::min(before,Count());
 			for (T*c = usage_end; c > el; c--)
 				MyStrategy::move(*(c-1),*c);
 			usage_end++;
@@ -804,7 +804,7 @@ template <typename T, typename MyStrategy>
 		index_t index = GetIndexOf(el);
 		if (index == InvalidIndex)
 		{
-			index = count();
+			index = Count();
 			append(el);
 		}
 		return index;
@@ -951,20 +951,20 @@ template <typename T, typename MyStrategy> template <typename T2, typename Strat
 template <typename T, typename MyStrategy> template <typename T2>
 	BasicBuffer<T, MyStrategy>&		BasicBuffer<T, MyStrategy>::append(const Ctr::ArrayData<T2>&data)
 	{
-		return append(data.pointer(),data.count());
+		return append(data.pointer(),data.Count());
 	}
 
 template <typename T, typename MyStrategy> template <typename T2, typename Strategy2>
 	BasicBuffer<T, MyStrategy>&		BasicBuffer<T, MyStrategy>::append(const BasicBuffer<T2,Strategy2>&data)
 	{
-		return append(data.pointer(),data.count());
+		return append(data.pointer(),data.Count());
 	}
 
 
 template <typename T, typename MyStrategy> template <typename T2>
 	BasicBuffer<T, MyStrategy>&		BasicBuffer<T, MyStrategy>::appendAddresses(Ctr::ArrayData<T2>&data)
 	{
-		return appendAddresses(data.pointer(),data.count());
+		return appendAddresses(data.pointer(),data.Count());
 	}
 
 

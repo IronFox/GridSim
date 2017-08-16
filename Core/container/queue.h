@@ -169,7 +169,7 @@ namespace DeltaWorks
 				count_t				Pop(Entry*out_field, count_t count);			//!< Pops up to @a count of the oldest elements to the specified out field @return Number of elements that were actually popped (which may be less than the resquested number if not enough elements are stored)
 				void				EraseFront();							//!< Erases the (oldest) element out-front. Identical to Pop() but without any copy constructors
 				void				EraseBack();							//!< Erases the (newest) element out-back
-				void				Push(const Ctr::ArrayData<Entry>&entries);	//!< Pushes multiple elements into the queue, increasing the number of stored elements by <em>entries.count()</em>. The queue automatically increases the size of its data field if appropriate
+				void				Push(const Ctr::ArrayData<Entry>&entries);	//!< Pushes multiple elements into the queue, increasing the number of stored elements by <em>entries.Count()</em>. The queue automatically increases the size of its data field if appropriate
 				void				Push(const Entry*, count_t count);	//!< Pushes multiple elements into the queue, increasing the number of stored elements by <em>count</em>. The queue automatically increases the size of its data field if appropriate
 				void				Push(const Entry&data);				//!< Pushes an element into the queue, increasing the number of stored elements by one. The queue automatically increases the size of its data field if appropriate
 				Entry&				Push();								//!< Pushes a new empty element into the queue.
@@ -205,8 +205,7 @@ namespace DeltaWorks
 				void				CopyToArray(Ctr::ArrayData<Entry>&out) const;
 				void				MoveToArray(Ctr::ArrayData<Entry>&out, bool clearSelfWhenDone=true);
 			
-				inline count_t		count()						const	{return length();};	//!< Returns the current number of element stored in the queue
-				inline count_t		Count()						const	{return length();}
+				inline count_t		Count()						const	{return length();};	//!< Returns the current number of element stored in the queue
 
 				bool				operator==(const Self&other) const;
 				bool				operator!=(const Self&other) const;
@@ -227,7 +226,7 @@ namespace DeltaWorks
 												section_end;
 			inline	void						dec(size_t&offset);
 					bool						checkIntegrity();
-					void						eraseAddr(index_t index);				//!< Erases the specified element (0 pointing to the element with least priority and count()-1 to the element with the highest priority in the queue)
+					void						eraseAddr(index_t index);				//!< Erases the specified element (0 pointing to the element with least priority and Count()-1 to the element with the highest priority in the queue)
 
 			public:
 				typedef QueueIterator<Entry,Element,EntryStrategy>	iterator;
@@ -252,7 +251,7 @@ namespace DeltaWorks
 				bool				IsEmpty()					const;	//!< Identical to length()==0
 				bool				IsNotEmpty()				const;	//!< Identical to length()!=0
 				count_t				length()					const;	//!< Returns the current number of element stored in the queue
-				inline 	count_t		count()						const	{return length();};	//!< Returns the current number of element stored in the queue
+				inline 	count_t		Count()						const	{return length();};	//!< Returns the current number of element stored in the queue
 				inline	count_t		size()						const {return length();}		//!< Identical to length()
 				bool				operator>>(Entry&entry);			//!< Identical to pop()
 				Entry&				peek();								//!< Returns a reference to the next returned element (of greatest priority) in the queue @return next element in the queue

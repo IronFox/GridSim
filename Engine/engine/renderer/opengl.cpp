@@ -267,7 +267,7 @@ namespace Engine
 
 			bool	declared = false,need_refraction=false;	//true if normal/reflected/refracted have been declared before the fragment normal has been declared
 
-			for (index_t i = 0; i < config.layers.count(); i++)
+			for (index_t i = 0; i < config.layers.Count(); i++)
 			{
 				switch (config.textures[i].GetDimension())
 				{
@@ -293,7 +293,7 @@ namespace Engine
 			else
 				code_out.sky_lighting = false;
 
-			code_out.num_samplers = config.layers.count();
+			code_out.num_samplers = config.layers.Count();
 
 			String	uniform_variables = need_refraction?"uniform float eta;\n":"",
 				varying_variables = "varying vec3 frag_normal;\n"
@@ -309,7 +309,7 @@ namespace Engine
 				normal_retrieval;
 
 			count_t num_normal_maps = 0;
-			for (index_t i = 0; i < config.layers.count(); i++)
+			for (index_t i = 0; i < config.layers.Count(); i++)
 			{
 				const MaterialLayer&layer = config.layers[i];
 				if (config.textures[i].GetDimension() == TextureDimension::None)
@@ -342,10 +342,10 @@ namespace Engine
 			{
 				varying_variables += "varying mat3 tangent_space;\n";
 				varying_variables += "varying vec3 tangent,input_normal;\n";
-				vertex_transformations << 	"tangent_space[0] = gl_NormalMatrix*gl_MultiTexCoord"<<config.layers.count()<<".xyz;\n"
+				vertex_transformations << 	"tangent_space[0] = gl_NormalMatrix*gl_MultiTexCoord"<<config.layers.Count()<<".xyz;\n"
 					"tangent_space[1] = normalize(cross(frag_normal,tangent_space[0]));\n"
 					"tangent_space[2] = normalize(cross(tangent_space[0],tangent_space[1]));\n"
-					"tangent = gl_MultiTexCoord"<<config.layers.count()<<".xyz;\n"
+					"tangent = gl_MultiTexCoord"<<config.layers.Count()<<".xyz;\n"
 					//"input_normal = gl_Normal;\n"
 					;
 
@@ -377,10 +377,10 @@ namespace Engine
 				fragment_code <<
 						"	vec4 color = vec4(0.0,0.0,0.0,1.0);\n"
 						"	{\n"
-						//"		vec3 diffuse_color = textureCube(sky,(gl_TextureMatrix["<<config.layers.count()<<"]*vec4(-normal,0.0)).xyz).rgb;\n"
+						//"		vec3 diffuse_color = textureCube(sky,(gl_TextureMatrix["<<config.layers.Count()<<"]*vec4(-normal,0.0)).xyz).rgb;\n"
 						//"		if (gl_FrontMaterial.shininess > 0.0)\n"
 						"		{\n"
-						"			vec3 specular_color = textureCube(sky, (gl_TextureMatrix["<<config.layers.count()<<"]*vec4(-reflected,0.0)).xyz).rgb;\n"
+						"			vec3 specular_color = textureCube(sky, (gl_TextureMatrix["<<config.layers.Count()<<"]*vec4(-reflected,0.0)).xyz).rgb;\n"
 						//"			specular_color = pow(specular_color,gl_FrontMaterial.shininess*fresnel);\n"
 						"			color.rgb += specular_color*fresnel*gl_FrontMaterial.specular.rgb;\n"
 						"		}\n"
@@ -397,7 +397,7 @@ namespace Engine
 
 			count_t colors_sampled=0;
 				
-			for (index_t i = 0; i < config.layers.count(); i++)
+			for (index_t i = 0; i < config.layers.Count(); i++)
 			{
 				const MaterialLayer&layer = config.layers[i];
 				if (config.textures[i].GetDimension() == TextureDimension::None)
@@ -427,7 +427,7 @@ namespace Engine
 
 			if (colors_sampled)
 				fragment_code << "color *= texture_color;\n";
-			for (index_t i = 0; i < config.layers.count(); i++)
+			for (index_t i = 0; i < config.layers.Count(); i++)
 			{
 				const MaterialLayer&layer = config.layers[i];
 				if (config.textures[i].GetDimension() == TextureDimension::None)
@@ -731,7 +731,7 @@ namespace Engine
 			return true;
 		}
 	
-		bool	Texture::exportTo(Image&target)	const
+		bool	Texture::ExportTo(Image&target)	const
 		{
 			if (!handle)
 				return false;
@@ -2709,7 +2709,7 @@ namespace Engine
 	{
 		GL_BEGIN
 		glFinish();
-		for (index_t i = 0; i < created_contexts.count(); i++)
+		for (index_t i = 0; i < created_contexts.Count(); i++)
 			if (created_contexts[i].gl_context == gl_context)
 				created_contexts.Erase(i--);
 		#if SYSTEM==WINDOWS
@@ -3296,7 +3296,7 @@ namespace Engine
 			glDisableClientState(GL_COLOR_ARRAY);
 
 		glThrowError();
-		count_t texcoords = std::min((count_t)glExtensions.maxTexcoordLayers,binding.texcoords.count());
+		count_t texcoords = std::min((count_t)glExtensions.maxTexcoordLayers,binding.texcoords.Count());
 
 		for (index_t i = texcoords; i < state.render_setup.bound_texcoord_layers; i++)
 		{
@@ -3345,7 +3345,7 @@ namespace Engine
 			}
 		}
 
-		if (binding.tangent.isSet() && texcoords < (count_t)glExtensions.maxTexcoordLayers)
+		if (binding.tangent.IsSet() && texcoords < (count_t)glExtensions.maxTexcoordLayers)
 		{
 			index_t i = texcoords++;
 			glClientActiveTexture(GL_TEXTURE0+GLuint(i));

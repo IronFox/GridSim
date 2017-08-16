@@ -48,7 +48,7 @@ namespace DeltaWorks
 			TAttribute					Table::findAttribute(const String&name)	const
 			{
 				TAttribute	a;
-				if (name_map.query(name,a))
+				if (name_map.Query(name,a))
 					return a;
 				a.exists = false;
 				return a;
@@ -81,15 +81,15 @@ namespace DeltaWorks
 				switch (type)
 				{
 					case StringType:
-						return StaticTable<String>::configuration[index].attributes.count();
+						return StaticTable<String>::configuration[index].attributes.Count();
 					case BoolType:
-						return StaticTable<bool>::configuration[index].attributes.count();
+						return StaticTable<bool>::configuration[index].attributes.Count();
 					case IntType:
-						return StaticTable<int>::configuration[index].attributes.count();
+						return StaticTable<int>::configuration[index].attributes.Count();
 					case FloatType:
-						return StaticTable<float>::configuration[index].attributes.count();
+						return StaticTable<float>::configuration[index].attributes.Count();
 					case DoubleType:
-						return StaticTable<double>::configuration[index].attributes.count();
+						return StaticTable<double>::configuration[index].attributes.Count();
 				}
 				return 0;
 			}
@@ -131,7 +131,7 @@ namespace DeltaWorks
 			}
 	
 	
-			bool						Table::set(const TAttribute&attrib, const int*values, count_t len)
+			bool						Table::Set(const TAttribute&attrib, const int*values, count_t len)
 			{
 				if (!finalized)
 					finalize();
@@ -167,7 +167,7 @@ namespace DeltaWorks
 				return false;
 			}
 	
-			bool						Table::set(const TAttribute&attrib, const bool*values, count_t len)
+			bool						Table::Set(const TAttribute&attrib, const bool*values, count_t len)
 			{
 				if (!finalized)
 					finalize();
@@ -203,7 +203,7 @@ namespace DeltaWorks
 				return false;
 			}
 	
-			bool						Table::set(const TAttribute&attrib, const float*values, count_t len)
+			bool						Table::Set(const TAttribute&attrib, const float*values, count_t len)
 			{
 				if (!finalized)
 					finalize();
@@ -241,7 +241,7 @@ namespace DeltaWorks
 				return false;
 			}
 	
-			bool						Table::set(const TAttribute&attrib, const double*values, count_t len)
+			bool						Table::Set(const TAttribute&attrib, const double*values, count_t len)
 			{
 				if (!finalized)
 					finalize();
@@ -279,7 +279,7 @@ namespace DeltaWorks
 				return false;
 			}
 	
-			bool						Table::set(const TAttribute&attrib, const String*values, count_t len)
+			bool						Table::Set(const TAttribute&attrib, const String*values, count_t len)
 			{
 				if (!finalized)
 					finalize();
@@ -321,7 +321,7 @@ namespace DeltaWorks
 				return false;
 			}
 	
-			bool						Table::set(const TAttribute&attrib, const char*string)
+			bool						Table::Set(const TAttribute&attrib, const char*string)
 			{
 				if (!finalized)
 					finalize();

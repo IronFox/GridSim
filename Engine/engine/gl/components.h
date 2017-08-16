@@ -330,7 +330,7 @@ namespace Engine
 					this->Add(label);
 					x_offset = vmax(caption_width,label->width);
 					
-					component->anchored.set(true,false,true,true);
+					component->anchored.Set(true,false,true,true);
 					component->offset.left = x_offset;
 					component->offset.top = y_offset-h/2+component->height/2;
 					this->Add(component);
@@ -351,7 +351,7 @@ namespace Engine
 			virtual	bool				MoveChildToBottom(index_t index);			//!< Moves a component by index to the bottom of the order of child GUI	@return true on success
 			virtual	PConstComponent		GetChild(index_t index) const override	{return children[index];}
 			virtual	PComponent			GetChild(index_t index) override	{return children[index];}
-			virtual	count_t				CountChildren() const override {return children.count();}
+			virtual	count_t				CountChildren() const override {return children.Count();}
 			virtual	index_t				GetIndexOfChild(const PComponent&child)const	override {return children.GetIndexOf(child)+1;}	//!< Queries the index of a child +1. @return Index+1 or 0 if the child could not be found
 			virtual	void				clear() {children.clear();}
 		};

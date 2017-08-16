@@ -973,8 +973,8 @@ template <class Def>
 		//check termination (walk down all the way):
 		while (context && context->concludedBy(current))
 		{
-			context = context_stack.drop(context_stack.count()-1);
-			current = entry_stack.drop(entry_stack.count()-1);
+			context = context_stack.drop(context_stack.Count()-1);
+			current = entry_stack.drop(entry_stack.Count()-1);
 			if (current)
 				current++;
 		}
@@ -986,8 +986,8 @@ template <class Def>
 		//check termination (walk down by one):
 		if (context && context->concludedBy(current))
 		{
-			context = context_stack.drop(context_stack.count()-1);
-			current = entry_stack.drop(entry_stack.count()-1);
+			context = context_stack.drop(context_stack.Count()-1);
+			current = entry_stack.drop(entry_stack.Count()-1);
 			return current != NULL;
 		}
 		if (!context)
@@ -1129,7 +1129,7 @@ template <class Def>
 template <class Def>
 	void	SubGeometryA<Def>::createVisualMapsRec(unsigned detail, unsigned max_depth)
 	{
-		if (detail < vs_hull_field.count() && !vs_hull_field[detail].getMap())
+		if (detail < vs_hull_field.Count() && !vs_hull_field[detail].getMap())
 		{
 			typedef Math::Mesh<VsDef>	VsMesh;
 			VsMesh&obj = vs_hull_field[detail];
@@ -3584,7 +3584,7 @@ template <class Def> void Geometry<Def>::loadMaterials(Riff::File&riff)//, bool 
 							while (riff.FindNext(RIFF_LIST));
 						obuffer.moveToArray(material.data.object_field);
 						//material.data.object_field.adoptData(obuffer);
-						/*material->data.object_field.SetSize(obuffer.count());
+						/*material->data.object_field.SetSize(obuffer.Count());
 						for (index_t i = 0; i < material->data.object_field.length(); i++)
 						{
 							// CGS_MSG("casting object("+String(i)+"): "+String(obuffer[i]->vpool.vcnt)+"/"+String(obuffer[i]->countIndices()));
@@ -3595,7 +3595,7 @@ template <class Def> void Geometry<Def>::loadMaterials(Riff::File&riff)//, bool 
 					}
 					lbuffer.moveToArray(material.info.layer_field);
 					//material.info.layer_field.adoptData(lbuffer);
-						/*.SetSize(lbuffer.count());
+						/*.SetSize(lbuffer.Count());
 					for (index_t i = 0; i < material->info.layer_field.length(); i++)
 						material->info.layer_field[i] = *lbuffer[i];
 					lbuffer.clear();*/
@@ -3605,7 +3605,7 @@ template <class Def> void Geometry<Def>::loadMaterials(Riff::File&riff)//, bool 
 		while (riff.FindNext(RIFF_LIST));
 	mbuffer.moveToArray(material_field);
 	//material_field.adoptData(mbuffer);
-	/*material_field.SetSize(mbuffer.count());
+	/*material_field.SetSize(mbuffer.Count());
 	for (index_t i = 0; i < material_field.length(); i++)
 	{
 		// CGS_MSG("casting material("+String(i)+"): "+String(mbuffer[i]->data.countChunks()));
@@ -3614,7 +3614,7 @@ template <class Def> void Geometry<Def>::loadMaterials(Riff::File&riff)//, bool 
 	}
 	mbuffer.clear();*/
 	
-	CGS_MSG("materials loaded: "+String(mbuffer.count()));
+	CGS_MSG("materials loaded: "+String(mbuffer.Count()));
 	for (index_t i = 0; i < material_field.length(); i++)
 		CGS_MSG("material "+String(i)+" '"+material_field[i].name+"' has "+String(material_field[i].countFaces())+"("+String(material_field[i].countFaces(0))+") face(s) and "+String(material_field[i].countVertices())+" vertices in "+String(material_field[i].data.object_field.length())+" object(s)");
 }
@@ -3956,14 +3956,14 @@ template <class Def> SubGeometryA<Def>*Geometry<Def>::lookupObject(const String&
 {
 	const Path*p = object_table.queryPointer(name);
 
-	return p ? lookupChild(p->pointer(),p->count()) : NULL;
+	return p ? lookupChild(p->pointer(),p->Count()) : NULL;
 }
 
 template <class Def> const SubGeometryA<Def>*Geometry<Def>::lookupObject(const String&name) const
 {
 	const Path*p = object_table.queryPointer(name);
 
-	return p ? lookupChild(p->pointer(),p->count()) : NULL;
+	return p ? lookupChild(p->pointer(),p->Count()) : NULL;
 }
 
 
@@ -3972,22 +3972,22 @@ template <class Def>
 	void		SubGeometryA<Def>::remap(BuildPath&path, Geometry<Def>&geometry, UINT32 bits)
 	{
 		if (bits & ObjectBit)
-			geometry.object_table.set(name,path.copyToArray());
+			geometry.object_table.Set(name,path.copyToArray());
 
 		if (bits & (WheelBit | AnimatorBit))
 			for (index_t i = 0; i < wheel_field.length(); i++)
 			{
 				path << i;
 					if (bits & WheelBit)
-						geometry.wheel_table.set(wheel_field[i].name,path.copyToArray());
+						geometry.wheel_table.Set(wheel_field[i].name,path.copyToArray());
 
 					if (bits & AnimatorBit)
 					{
 						path << 1;
-							geometry.animator_table.set(wheel_field[i].name+'.'+wheel_field[i].suspension.name,path.copyToArray());
+							geometry.animator_table.Set(wheel_field[i].name+'.'+wheel_field[i].suspension.name,path.copyToArray());
 						path.eraseLast();
 						path << 2;
-							geometry.animator_table.set(wheel_field[i].name+'.'+wheel_field[i].rotation.name,path.copyToArray());
+							geometry.animator_table.Set(wheel_field[i].name+'.'+wheel_field[i].rotation.name,path.copyToArray());
 						path.eraseLast();
 					}
 
@@ -3997,7 +3997,7 @@ template <class Def>
 			for (index_t i = 0; i < accelerator_field.length(); i++)
 			{
 				path << i;
-					geometry.accelerator_table.set(accelerator_field[i].name,path.copyToArray());
+					geometry.accelerator_table.Set(accelerator_field[i].name,path.copyToArray());
 				path.eraseLast();
 			}
 
@@ -4039,7 +4039,7 @@ template <class Def>
 			{
 				path << i;
 				
-				animator_table.set(animator_field[i].name,path.copyToArray());
+				animator_table.Set(animator_field[i].name,path.copyToArray());
 
 				path.eraseLast();
 				ASSERT__(path.IsEmpty());
@@ -4055,9 +4055,9 @@ template <class Def> TWheel<Def>* Geometry<Def>::lookupWheel(const String&name)
 	const Path*p = wheel_table.queryPointer(name);
 	if (!p)
 		return NULL;
-	SubGeometryA<Def>*context = lookupChild(p->pointer(),p->count()-1);
+	SubGeometryA<Def>*context = lookupChild(p->pointer(),p->Count()-1);
 
-	const index_t*current = p->pointer() + p->count()-1;
+	const index_t*current = p->pointer() + p->Count()-1;
 	if (*current >= context->wheel_field.length())
 	{
 		FATAL__("Path entry "+String(current-p->pointer())+" points to an invalid wheel of sub geometry '"+context->name+"'");
@@ -4072,9 +4072,9 @@ template <class Def> const TWheel<Def>* Geometry<Def>::lookupWheel(const String&
 	const Path*p = wheel_table.queryPointer(name);
 	if (!p)
 		return NULL;
-	const SubGeometryA<Def>*context = lookupChild(p->pointer(),p->count()-1);
+	const SubGeometryA<Def>*context = lookupChild(p->pointer(),p->Count()-1);
 
-	const index_t*current = p->pointer() + p->count()-1;
+	const index_t*current = p->pointer() + p->Count()-1;
 	if (*current >= context->wheel_field.length())
 	{
 		FATAL__("Path entry "+String(current-p->pointer())+" points to an invalid wheel of sub geometry '"+context->name+"'");
@@ -4089,9 +4089,9 @@ template <class Def> TAccelerator<Def>*Geometry<Def>::lookupAccelerator(const St
 	const Path*p = accelerator_table.queryPointer(name);
 	if (!p)
 		return NULL;
-	SubGeometryA<Def>*context = lookupChild(p->pointer(),p->count()-1);
+	SubGeometryA<Def>*context = lookupChild(p->pointer(),p->Count()-1);
 
-	const index_t*current = p->pointer() + p->count()-1;
+	const index_t*current = p->pointer() + p->Count()-1;
 	if (*current >= context->accelerator_field.length())
 	{
 		FATAL__("Path entry "+String(current-p->pointer())+" points to an invalid accelerator of sub geometry '"+context->name+"'");
@@ -4106,9 +4106,9 @@ template <class Def> const TAccelerator<Def>*Geometry<Def>::lookupAccelerator(co
 	const Path*p = accelerator_table.queryPointer(name);
 	if (!p)
 		return NULL;
-	const SubGeometryA<Def>*context = lookupChild(p->pointer(),p->count()-1);
+	const SubGeometryA<Def>*context = lookupChild(p->pointer(),p->Count()-1);
 
-	const index_t*current = p->pointer() + p->count()-1;
+	const index_t*current = p->pointer() + p->Count()-1;
 	if (*current >= context->accelerator_field.length())
 	{
 		FATAL__("Path entry "+String(current-p->pointer())+" points to an invalid accelerator of sub geometry '"+context->name+"'");
@@ -4130,9 +4130,9 @@ template <class Def> AnimatorA<Def>*Geometry<Def>::lookupAnimator(const String&n
 		return animator_field + p->first();
 	}
 
-	SubGeometryA<Def>*context = lookupChild(p->pointer(),p->count()-2);
+	SubGeometryA<Def>*context = lookupChild(p->pointer(),p->Count()-2);
 
-	const index_t*current = p->pointer() + p->count()-2;
+	const index_t*current = p->pointer() + p->Count()-2;
 	if (*current >= context->wheel_field.length())
 	{
 		FATAL__("Path entry "+String(current-p->pointer())+" points to an invalid wheel of sub geometry '"+context->name+"'");
@@ -4140,7 +4140,7 @@ template <class Def> AnimatorA<Def>*Geometry<Def>::lookupAnimator(const String&n
 	}
 	TWheel<Def>*wheel = context->wheel_field+*current;
 	current++;
-	ASSERT_LESS__(current,p->pointer()+p->count());	//MARKED TRANSITORY
+	ASSERT_LESS__(current,p->pointer()+p->Count());	//MARKED TRANSITORY
 	switch (*current)
 	{
 		case 1:
@@ -4167,9 +4167,9 @@ template <class Def> const AnimatorA<Def>*Geometry<Def>::lookupAnimator(const St
 		return animator_field + p->first();
 	}
 
-	const SubGeometryA<Def>*context = lookupChild(p->pointer(),p->count()-2);
+	const SubGeometryA<Def>*context = lookupChild(p->pointer(),p->Count()-2);
 
-	const index_t*current = p->pointer() + p->count()-2;
+	const index_t*current = p->pointer() + p->Count()-2;
 	if (*current >= context->wheel_field.length())
 	{
 		FATAL__("Path entry "+String(current-p->pointer())+" points to an invalid wheel of sub geometry '"+context->name+"'");
@@ -4177,7 +4177,7 @@ template <class Def> const AnimatorA<Def>*Geometry<Def>::lookupAnimator(const St
 	}
 	const TWheel<Def>*wheel = context->wheel_field+*current;
 	current++;
-	ASSERT_LESS__(current,p->pointer()+p->count());	//MARKED TRANSITORY
+	ASSERT_LESS__(current,p->pointer()+p->Count());	//MARKED TRANSITORY
 	switch (*current)
 	{
 		case 1:
@@ -4642,7 +4642,7 @@ template <class Def>
 		for (index_t i = 0; i < tobj.vertices; i++)
 			ifield[i] = UINT32(map[i]->index);
 		
-		makeSimpleObject(vfield.pointer(),vfield.count(),ifield.pointer(),ifield.length());
+		makeSimpleObject(vfield.pointer(),vfield.Count(),ifield.pointer(),ifield.length());
 	}
 
 
@@ -4897,15 +4897,15 @@ template <class Def>
 	{
 		for (index_t i = 0; i < obj_animator_field.length(); i++)
 		{
-			ASSERT__(map2.query(obj_animator_field[i].target,obj_animator_field[i].out_target));
+			ASSERT__(map2.Query(obj_animator_field[i].target,obj_animator_field[i].out_target));
 		}
 		for (index_t i = 0; i < whl_animator_field.length(); i++)
 		{
-			ASSERT__(map.query(whl_animator_field[i].target,whl_animator_field[i].out_target));
+			ASSERT__(map.Query(whl_animator_field[i].target,whl_animator_field[i].out_target));
 		}
 		for (index_t i = 0; i < acc_animator_field.length(); i++)
 		{
-			ASSERT__(map.query(acc_animator_field[i].target,acc_animator_field[i].out_target));
+			ASSERT__(map.Query(acc_animator_field[i].target,acc_animator_field[i].out_target));
 		}
 	}
 	
@@ -5069,7 +5069,7 @@ template <class Def>
 				return NULL;
 			else
 				child = child->child_field+path[i];
-		if (path.last() >= child->wheel_rotation_animators.count())
+		if (path.last() >= child->wheel_rotation_animators.Count())
 			return NULL;
 		return child->wheel_rotation_animators+path.last();
 	}
@@ -5085,7 +5085,7 @@ template <class Def>
 				return NULL;
 			else
 				child = child->child_field+path[i];
-		if (path.last() >= child->wheel_suspension_animators.count())
+		if (path.last() >= child->wheel_suspension_animators.Count())
 			return NULL;
 		return child->wheel_suspension_animators+path.last();
 	}
@@ -5172,13 +5172,13 @@ template <class Def> AnimatableSubInstanceA<Def>::AnimatableSubInstanceA()
 template <class Def>
 	AnimatorInstanceA<Def>*				AnimatableSubInstanceA<Def>::findInstanceOf(AnimatorA<Def>*animator)
 	{
-		for (index_t i = 0; i < wheel_rotation_animators.count(); i++)
+		for (index_t i = 0; i < wheel_rotation_animators.Count(); i++)
 			if (wheel_rotation_animators[i].target == animator)
 				return wheel_rotation_animators+i;
-		/*for (index_t i = 0; i < construct_rotation_animators.count(); i++)
+		/*for (index_t i = 0; i < construct_rotation_animators.Count(); i++)
 			if (construct_rotation_animators[i].target == animator)
 				return construct_rotation_animators+i;*/
-		for (index_t i = 0; i < wheel_suspension_animators.count(); i++)
+		for (index_t i = 0; i < wheel_suspension_animators.Count(); i++)
 			if (wheel_suspension_animators[i].target == animator)
 				return wheel_suspension_animators+i;
 	
@@ -5275,11 +5275,11 @@ template <class Def>
 template <class Def>
 	void AnimatableSubInstanceA<Def>::mapEntities(PointerTable<double*>&map, PointerTable<TAnimationStatus*>&map2)
 	{
-		map2.set(target,&animation_status);
+		map2.Set(target,&animation_status);
 		for (index_t i = 0; i < target->wheel_field.length(); i++)
-			map.set(target->wheel_field+i,wheel_status+2*i);
+			map.Set(target->wheel_field+i,wheel_status+2*i);
 		for (index_t i = 0; i < target->accelerator_field.length(); i++)
-			map.set(target->accelerator_field+i,accelerator_status+i);
+			map.Set(target->accelerator_field+i,accelerator_status+i);
 	
 		for (index_t i = 0; i < child_field.length(); i++)
 			child_field[i].mapEntities(map,map2);
@@ -5368,13 +5368,13 @@ template <class Def>
 	double	AnimatorA<Def>::length()	const
 	{
 		double rs = 0;
-		for (index_t i = 0; i < obj_trace_field.count(); i++)
+		for (index_t i = 0; i < obj_trace_field.Count(); i++)
 			if (obj_trace_field[i].step_field.length())
 				rs = vmax(rs,obj_trace_field[i].step_field.last().end);
-		for (index_t i = 0; i < acc_trace_field.count(); i++)
+		for (index_t i = 0; i < acc_trace_field.Count(); i++)
 			if (acc_trace_field[i].step_field.length())
 				rs = vmax(rs,acc_trace_field[i].step_field.last().end);
-		for (index_t i = 0; i < whl_trace_field.count(); i++)
+		for (index_t i = 0; i < whl_trace_field.Count(); i++)
 			if (whl_trace_field[i].step_field.length())
 				rs = vmax(rs,whl_trace_field[i].step_field.last().end);
 		return rs;
@@ -5383,7 +5383,7 @@ template <class Def>
 template <class Def>	template <class C>
 	void	AnimatorA<Def>::scale(const C&factor)
 	{
-		for (index_t i = 0; i < obj_trace_field.count(); i++)
+		for (index_t i = 0; i < obj_trace_field.Count(); i++)
 			for (index_t j = 0; j < obj_trace_field[i].step_field.length(); j++)
 			{
 				M::Vec::mult(M::Vec::ref3(obj_trace_field[i].step_field[j].range),factor);	//only affect translaction
@@ -5568,7 +5568,7 @@ template <class Def>
 template <class T, unsigned B>
 /*static*/	void AnimatorA<Def>::saveTraces(const Ctr::ArrayData<TraceA<T,B> >&traces,Riff::Chunk*riff,const char*riff_name)
 {
-	for (index_t i = 0; i < traces.count(); i++)
+	for (index_t i = 0; i < traces.Count(); i++)
 	{
 		ByteStreamBuffer trace;
 		trace << (UINT32)traces[i].target->name.length();
@@ -5827,8 +5827,8 @@ template <class Def>
 		if (!(config.vertexFlags & HasNormalFlag))
 			return;
 		const count_t numVertices = currentLOD->vertexData.length() / config.vsize;
-		const count_t numQuadIndices = currentLOD->quadIndices.count();
-		const count_t numTriIndices = currentLOD->triangleIndices.count();
+		const count_t numQuadIndices = currentLOD->quadIndices.Count();
+		const count_t numTriIndices = currentLOD->triangleIndices.Count();
 		Float*vertexData = currentLOD->vertexData.pointer();
 		for (index_t i = normalsFromVertex; i < numVertices; i++)
 		{
@@ -5877,18 +5877,18 @@ template <class Def>
 template <class Def> 
 	void			Constructor<Def>::Object::VerifyIntegrity(bool verifyAllVerticesAreUsed)	const
 	{
-		for (index_t l = 0; l < lods.count(); l++)
+		for (index_t l = 0; l < lods.Count(); l++)
 		{
 			const LOD&lod = lods[l];
 			ASSERT__(!(lod.vertexData.length()%config.vsize));
 			const count_t numVertices = lod.vertexData.length()/config.vsize;
-			ASSERT__(!(lod.triangleIndices.count()%3));
-			ASSERT__(!(lod.quadIndices.count()%4));
-			for (index_t i = 0; i < lod.triangleIndices.count(); i++)
+			ASSERT__(!(lod.triangleIndices.Count()%3));
+			ASSERT__(!(lod.quadIndices.Count()%4));
+			for (index_t i = 0; i < lod.triangleIndices.Count(); i++)
 			{
 				ASSERT_LESS__(lod.triangleIndices[i],numVertices);
 			}
-			for (index_t i = 0; i < lod.quadIndices.count(); i++)
+			for (index_t i = 0; i < lod.quadIndices.Count(); i++)
 			{
 				ASSERT_LESS__(lod.quadIndices[i],numVertices);
 			}
@@ -5909,7 +5909,7 @@ template <class Def>
 template <class Def> 
 	void			Constructor<Def>::VerifyIntegrity(bool verifyAllVerticesAreUsed)	const
 	{
-		for (index_t i = 0; i < objects.count(); i++)
+		for (index_t i = 0; i < objects.Count(); i++)
 		{
 			ASSERT_EQUAL__(config.vsize,objects[i].config.vsize);
 			ASSERT_EQUAL__(config.numTextureLayers,objects[i].config.numTextureLayers);

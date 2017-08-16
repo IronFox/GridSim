@@ -943,7 +943,7 @@ namespace DeltaWorks
 					bool				busy(Context*context=&global_context);							 //!< Queries pool state \return true if busy
 					void				waitUntilIdle(Context*context=&global_context);					//!< Waits until ThreadPool is idle
 					void				implode();												//!< Send terminal symbols to all threads and waits until they finish
-					size_t				workerCount()	const	{return workers.count();}		//!< Retrieves the number of active workers
+					size_t				workerCount()	const	{return workers.Count();}		//!< Retrieves the number of active workers
 				
 			};
 	
@@ -1190,7 +1190,7 @@ namespace DeltaWorks
 			*/
 			void						Execute(Operator*op, count_t iterations, count_t iterationsPerJob);
 
-			count_t						GetWorkerCount()	const	{return workers.count();}
+			count_t						GetWorkerCount()	const	{return workers.Count();}
 			static count_t				GetGlobalWorkerCount() {return globalInstance.workers.Count();}
 		};
 

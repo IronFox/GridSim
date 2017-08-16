@@ -852,7 +852,7 @@ template <class Def, class IndexType> MF_DECLARE (void) _oMakeTriangleGraph(Mesh
 		}
 	}
 
-	object.edge_field.SetSize(edge_buffer.count());
+	object.edge_field.SetSize(edge_buffer.Count());
 	for (index_t i = 0; i < object.edge_field.length(); i++)
 		edge_buffer[i]->index = i;
 
@@ -1290,7 +1290,7 @@ template <class Def, class IndexType>
 template <class Element> MF_DECLARE (count_t)	_oCountUnmarked(const Ctr::BasicBuffer<Element>&list)
 {
 	count_t count(0);
-	for (index_t i = 0; i < list.count(); i++)
+	for (index_t i = 0; i < list.Count(); i++)
 		count += !list[i]->marked;
 	return count;
 }
@@ -1384,7 +1384,7 @@ MFUNC3 (bool)		_oIntersectsBox(const M::TVec3<C0>&p0, const M::TVec3<C1>&p1, con
 
 MFUNC2 (bool)		_oTriangulate(const Ctr::ArrayData<M::TVec2<C0> >&vertex_field, Mesh<C1>&target)
 {
-	return _oTriangulate(vertex_field.pointer(),vertex_field.count(),target);
+	return _oTriangulate(vertex_field.pointer(),vertex_field.Count(),target);
 }
 
 template <typename ContainerT, typename Index>
@@ -1397,7 +1397,7 @@ template <typename ContainerT, typename Index>
 
 		Container::Buffer<Index>	indices;
 		/*target.Resize(vertices,0,0,0);*/
-		for (index_t i = 0; i < vertex_field.count(); i++)
+		for (index_t i = 0; i < vertex_field.Count(); i++)
 		{
 			indices<<i;
 			/*M::Vec::def(target.vertex_field[i].position,vertex[i].x,vertex[i].y,0);
@@ -1420,7 +1420,7 @@ template <typename ContainerT, typename Index>
 		
 		index_t		current_index(0),
 					walk(0);
-		while (indices.count() > 3 && !failed)
+		while (indices.Count() > 3 && !failed)
 		{
 			walk = 0;
 			bool looping=true;
@@ -1438,23 +1438,23 @@ template <typename ContainerT, typename Index>
 					continue;
 				}
 				index0 = indices[current_index];
-				index1 = indices[(current_index+1)%indices.count()];
-				index2 = indices[(current_index+2)%indices.count()];
+				index1 = indices[(current_index+1)%indices.Count()];
+				index2 = indices[(current_index+2)%indices.Count()];
 				/*v0 = &(vertex_field[index0]);
 				v1 = &(vertex_field[index1]);
 				v2 = &(vertex_field[index2]);*/
 				current_index++;
-				if (current_index >= indices.count())
+				if (current_index >= indices.Count())
 					current_index = 0;
 				if (M::sign(Obj::signedTriangleSize(vertex_field[index0].xy,vertex_field[index1].xy,vertex_field[index2].xy)) != orientation)
 					continue;
 				bool hit(false);
 				Float	dummy;
-				Vertex &p0 = vertex_field[index2],	&p1 = vertex_field[indices[(current_index+2)%indices.count()]],	&p2=vertex_field[index0];
+				Vertex &p0 = vertex_field[index2],	&p1 = vertex_field[indices[(current_index+2)%indices.Count()]],	&p2=vertex_field[index0];
 				if (M::sign(Obj::signedTriangleSize(p0.xy,p1.xy,p2.xy)) != orientation)
 					continue;
 
-				for (index_t i = 0; i < indices.count()-1 && !hit; i++)
+				for (index_t i = 0; i < indices.Count()-1 && !hit; i++)
 					if (i <current_index || i > current_index+1)
 						hit = Obj::detEdgeIntersection(vertex_field[(indices[i])].xy,vertex_field[(indices[i+1])].xy,vertex_field[index0].xy,vertex_field[index2].xy,dummy,dummy);
 				hit = hit || Obj::detEdgeIntersection(vertex_field[(indices.last())].xy,vertex_field[(indices.first())].xy,vertex_field[index0].xy,vertex_field[index2].xy,dummy,dummy);
@@ -1465,11 +1465,11 @@ template <typename ContainerT, typename Index>
 			{
 				target << index0 << index1 << index2;
 				indices.Erase(current_index);
-				if (current_index >= indices.count())
+				if (current_index >= indices.Count())
 					current_index = 0;
 			}
 		}
-		if (indices.count() == 3)
+		if (indices.Count() == 3)
 		{
 			target << indices.first() << indices[1] << indices[2];
 		}
@@ -1508,7 +1508,7 @@ MFUNC2 (bool)		_oTriangulate(const M::TVec2<C0>*vertex, count_t vertices, Mesh<C
 		
 	index_t		current_index(0),
 				walk(0);
-	while (indices.count() > 3 && !failed)
+	while (indices.Count() > 3 && !failed)
 	{
 		walk = 0;
 		bool looping=true;
@@ -1525,23 +1525,23 @@ MFUNC2 (bool)		_oTriangulate(const M::TVec2<C0>*vertex, count_t vertices, Mesh<C
 				continue;
 			}
 			index_t		index0 = indices[current_index],
-						index1 = indices[(current_index+1)%indices.count()],
-						index2 = indices[(current_index+2)%indices.count()];
+						index1 = indices[(current_index+1)%indices.Count()],
+						index2 = indices[(current_index+2)%indices.Count()];
 			v0 = target.vertex_field+index0;
 			v1 = target.vertex_field+index1;
 			v2 = target.vertex_field+index2;
 			current_index++;
-			if (current_index >= indices.count())
+			if (current_index >= indices.Count())
 				current_index = 0;
 			if (M::sign(Obj::signedTriangleSize(v0->position.xy,v1->position.xy,v2->position.xy)) != orientation)
 				continue;
 			bool hit(false);
 			C0	dummy;
-			M::TVec3<typename C1::Type> &p0 = v2->position,&p1 = target.vertex_field[indices[(current_index+2)%indices.count()]].position,&p2=v0->position;
+			M::TVec3<typename C1::Type> &p0 = v2->position,&p1 = target.vertex_field[indices[(current_index+2)%indices.Count()]].position,&p2=v0->position;
 			if (M::sign(Obj::signedTriangleSize(p0.xy,p1.xy,p2.xy)) != orientation)
 				continue;
 
-			for (index_t i = 0; i < indices.count()-1 && !hit; i++)
+			for (index_t i = 0; i < indices.Count()-1 && !hit; i++)
 				if (i <current_index || i > current_index+1)
 					hit = Obj::detEdgeIntersection(vertex[(indices[i])],vertex[(indices[i+1])],vertex[v0->index],vertex[v2->index],dummy,dummy);
 			hit = hit || Obj::detEdgeIntersection(vertex[(indices.last())],vertex[(indices.first())],vertex[v0->index],vertex[v2->index],dummy,dummy);
@@ -1555,11 +1555,11 @@ MFUNC2 (bool)		_oTriangulate(const M::TVec2<C0>*vertex, count_t vertices, Mesh<C
 			triangles.append(v2);
 			
 			indices.Erase(current_index);
-			if (current_index >= indices.count())
+			if (current_index >= indices.Count())
 				current_index = 0;
 		}
 	}
-	if (indices.count() == 3)
+	if (indices.Count() == 3)
 	{
 		triangles.append(target.vertex_field+indices.first());
 		triangles.append(target.vertex_field+indices[1]);
@@ -1657,7 +1657,7 @@ template <class Def>
 				return triangle->n[index];
 			
 		static TMeshFaceLink<Def>	empty;
-		empty.unset();
+		empty.Unset();
 		return empty;
 	}
 	
@@ -1670,39 +1670,39 @@ template <class Def> MFUNC1
 		{
 			if (quad->n0.triangle == (MeshTriangle<Def>*)t)
 			{
-				quad->n0.unset();
+				quad->n0.Unset();
 				return;
 			}
 			if (quad->n1.triangle == (MeshTriangle<Def>*)t)
 			{
-				quad->n1.unset();
+				quad->n1.Unset();
 				return;
 			}
 			if (quad->n2.triangle == (MeshTriangle<Def>*)t)
 			{
-				quad->n2.unset();
+				quad->n2.Unset();
 				return;
 			}
 			if (quad->n3.triangle == (MeshTriangle<Def>*)t)
 			{
-				quad->n3.unset();
+				quad->n3.Unset();
 				return;
 			}
 			return;
 		}
 		if (triangle->n0.triangle == (MeshTriangle<Def>*)t)
 		{
-			triangle->n0.unset();
+			triangle->n0.Unset();
 			return;
 		}
 		if (triangle->n1.triangle == (MeshTriangle<Def>*)t)
 		{
-			triangle->n1.unset();
+			triangle->n1.Unset();
 			return;
 		}
 		if (triangle->n2.triangle == (MeshTriangle<Def>*)t)
 		{
-			triangle->n2.unset();
+			triangle->n2.Unset();
 			return;
 		}
 	}
@@ -1818,7 +1818,7 @@ template <class Def>
 			
 			
 		static TMeshFaceLink<Def>	empty;
-		empty.unset();
+		empty.Unset();
 		return empty;
 	}
 
@@ -1833,7 +1833,7 @@ template <class Def>
 		
 			
 		static TMeshFaceLink<Def>	empty;
-		empty.unset();
+		empty.Unset();
 		return empty;
 	}
 
@@ -1846,33 +1846,33 @@ template <class Def> MFUNC1	(void) TMeshFaceLink<Def>::setNeighbor(MeshVertex<De
 		{
 			char index = quad->GetIndexOf(v);
 			if (index != -1)
-				quad->n[index].set(face);
+				quad->n[index].Set(face);
 		}
 		else
 		{
 			char index = triangle->GetIndexOf(v);
 			if (index != -1)
-				triangle->n[index].set(face);
+				triangle->n[index].Set(face);
 		}
 	}
 
 	
 template <class Def>
-	MF_DECLARE (void) TMeshFaceLink<Def>::set(MeshQuad<Def>*q)
+	MF_DECLARE (void) TMeshFaceLink<Def>::Set(MeshQuad<Def>*q)
 	{
 		quad = q;
 		is_quad = true;
 	}
 	
 template <class Def>
-	MF_DECLARE (void) TMeshFaceLink<Def>::set(MeshTriangle<Def>*t)
+	MF_DECLARE (void) TMeshFaceLink<Def>::Set(MeshTriangle<Def>*t)
 	{
 		triangle = t;
 		is_quad = false;
 	}
 	
 template <class Def>
-	MF_DECLARE (void) TMeshFaceLink<Def>::unset()
+	MF_DECLARE (void) TMeshFaceLink<Def>::Unset()
 	{
 		triangle = NULL;
 	}
@@ -2195,19 +2195,19 @@ template <class Def>
 			if (last.is_quad)
 			{
 				BYTE index = last.quad->requireIndexOf((const MeshVertex<TFaceGraphDef<Def> >*)this);
-				last.quad->next[index].set(quad);
+				last.quad->next[index].Set(quad);
 				last = last.quad->next[index];
 			}
 			else
 			{
 				BYTE index = last.triangle->requireIndexOf((const MeshVertex<TFaceGraphDef<Def> >*)this);
-				last.triangle->next[index].set(quad);
+				last.triangle->next[index].Set(quad);
 				last = last.triangle->next[index];
 			}
 		}
 		else
 		{
-			first.set(quad);
+			first.Set(quad);
 			last = first;
 		}
 
@@ -2224,19 +2224,19 @@ template <class Def>
 			if (last.is_quad)
 			{
 				BYTE index = last.quad->requireIndexOf((const MeshVertex<TFaceGraphDef<Def> >*)this);
-				last.quad->next[index].set(triangle);
+				last.quad->next[index].Set(triangle);
 				last = last.quad->next[index];
 			}
 			else
 			{
 				BYTE index = last.triangle->requireIndexOf((const MeshVertex<TFaceGraphDef<Def> >*)this);
-				last.triangle->next[index].set(triangle);
+				last.triangle->next[index].Set(triangle);
 				last = last.triangle->next[index];
 			}
 		}
 		else
 		{
-			first.set(triangle);
+			first.Set(triangle);
 			last = first;
 		}
 			
@@ -2256,7 +2256,7 @@ template <class Def>
 			current = current.getNextAround((const MeshVertex<TFaceGraphDef<Def> >*)this);
 		}
 		FaceLink result;
-		result.unset();
+		result.Unset();
 		return result;
 	}
 	
@@ -2277,7 +2277,7 @@ template <class Def>
 			current = current.getNextAround((const MeshVertex<TFaceGraphDef<Def> >*)this);
 		}
 		FaceLink result;
-		result.unset();
+		result.Unset();
 		return result;
 	}
 		
@@ -2302,7 +2302,7 @@ template <class Def>
 						prev.triangle->next[prev.triangle->requireIndexOf((const MeshVertex<TFaceGraphDef<Def> >*)this)] = triangle->next[index];
 				else
 					first = triangle->next[index];
-				triangle->next[index].unset();
+				triangle->next[index].Unset();
 				if (last.triangle == link.triangle)
 					last = prev;
 				degree--;
@@ -2740,8 +2740,8 @@ template <class Def>
 			//if (!object.checkIntegrity())
 				//FATAL__("integrity exception");
 		}
-		first.unset();
-		last.unset();
+		first.Unset();
+		last.Unset();
 		degree = 0;
 		return result;
 	}
@@ -3824,7 +3824,7 @@ template <class Def>
 		Ctr::Array<typename Def::Type>			side_face_size(triangles*3+quads*4),
 											face_size(triangles+quads);
 
-		for (index_t i = 0; i < vertex_normals.count(); i++)
+		for (index_t i = 0; i < vertex_normals.Count(); i++)
 		{
 			_clear(vertex_normals[i].vector);
 			_clear(outer_vertex_normals[i].vector);
@@ -3917,7 +3917,7 @@ template <class Def>
 		ASSERT_CONCLUSION(face_size,f)
 		ASSERT_CONCLUSION(side_face_size,sf)
 
-		for (index_t i = 0; i < vertex_normals.count(); i++)
+		for (index_t i = 0; i < vertex_normals.Count(); i++)
 		{
 			_normalize0(vertex_normals[i].vector);
 			_normalize0(outer_vertex_normals[i].vector);
@@ -4203,7 +4203,7 @@ template <class Def>
 
 				MeshEdge<Def>*found = NULL;
 
-				for (index_t j = 0; j < vertex_edge_list[vtx_i0].count(); j++)
+				for (index_t j = 0; j < vertex_edge_list[vtx_i0].Count(); j++)
 				{
 					MeshEdge<Def>&e = edge_buffer[vertex_edge_list[vtx_i0][j]];
 					if (e.vertex[!e.requireIndexOf(vtx0)] == vtx1)
@@ -4266,7 +4266,7 @@ template <class Def>
 
 				MeshEdge<Def>*found = NULL;
 
-				for (index_t j = 0; j < vertex_edge_list[vtx_i0].count(); j++)
+				for (index_t j = 0; j < vertex_edge_list[vtx_i0].Count(); j++)
 				{
 					MeshEdge<Def>&e = edge_buffer[vertex_edge_list[vtx_i0][j]];
 					if (e.vertex[!e.requireIndexOf(vtx0)] == vtx1)
@@ -5267,15 +5267,15 @@ template <class Def>MF_DECLARE	(Mesh<Def>&) Mesh<Def>::operator=(const Mesh<Def>
 		edge_field[i].v0 = vertex_field + (other.edge_field[i].v0-other.vertex_field);
 		edge_field[i].v1 = vertex_field + (other.edge_field[i].v1-other.vertex_field);
 		if (other.edge_field[i].n[0].is_quad)
-			edge_field[i].n[0].set(quad_field + (other.edge_field[i].n[0].quad-other.quad_field));
+			edge_field[i].n[0].Set(quad_field + (other.edge_field[i].n[0].quad-other.quad_field));
 		else
-			edge_field[i].n[0].set(triangle_field + (other.edge_field[i].n[0].triangle-other.triangle_field));
+			edge_field[i].n[0].Set(triangle_field + (other.edge_field[i].n[0].triangle-other.triangle_field));
 		if (other.edge_field[i].n[1])
 		{
 			if (other.edge_field[i].n[1].is_quad)
-				edge_field[i].n[1].set(quad_field + (other.edge_field[i].n[1].quad-other.quad_field));
+				edge_field[i].n[1].Set(quad_field + (other.edge_field[i].n[1].quad-other.quad_field));
 			else
-				edge_field[i].n[1].set(triangle_field + (other.edge_field[i].n[1].triangle-other.triangle_field));
+				edge_field[i].n[1].Set(triangle_field + (other.edge_field[i].n[1].triangle-other.triangle_field));
 		}
 	}
 	for (index_t i = 0; i < triangle_field.length(); i++)
@@ -5413,7 +5413,7 @@ template <class Def>
 template <class Def>
 	MF_DECLARE	(void)	Mesh<Def>::join(const Ctr::Array<Mesh<Def> >&others)
 	{
-		join(others.pointer(),others.count());
+		join(others.pointer(),others.Count());
 	}
 
 		
@@ -5607,7 +5607,7 @@ template <class Def>
 			Float sny = vsin(ay);
 			Float csy = vcos(ay);
 				
-			index_t offset = vertexBuffer.count();
+			index_t offset = vertexBuffer.Count();
 
 			for (index_t ix = 0; ix < resolution; ix++)
 			{
@@ -5630,7 +5630,7 @@ template <class Def>
 
 		}
 
-		index_t end = vertexBuffer.count();
+		index_t end = vertexBuffer.Count();
 
 		_AddVertex(vertexBuffer,0, 0, 1);
 
@@ -5642,17 +5642,17 @@ template <class Def>
 		}
 
 		vertexBuffer.copyToArray(vertex_field);
-		quad_field.SetSize(quadBuffer.count()/4);
-		triangle_field.SetSize(triangleBuffer.count()/3);
+		quad_field.SetSize(quadBuffer.Count()/4);
+		triangle_field.SetSize(triangleBuffer.Count()/3);
 		edge_field.SetSize(0);
-		for (index_t i = 0; i < quad_field.count(); i++)
+		for (index_t i = 0; i < quad_field.Count(); i++)
 		{
 			quad_field[i].v0 = vertex_field + quadBuffer[i*4];
 			quad_field[i].v1 = vertex_field + quadBuffer[i*4+1];
 			quad_field[i].v2 = vertex_field + quadBuffer[i*4+2];
 			quad_field[i].v3 = vertex_field + quadBuffer[i*4+3];
 		}
-		for (index_t i = 0; i < triangle_field.count(); i++)
+		for (index_t i = 0; i < triangle_field.Count(); i++)
 		{
 			triangle_field[i].v0 = vertex_field + triangleBuffer[i*3];
 			triangle_field[i].v1 = vertex_field + triangleBuffer[i*3+1];
@@ -5675,7 +5675,7 @@ template <class Def>
 		Buffer<UINT32> quadBuffer;
 
 		{
-			index_t offset = vertexBuffer.count();
+			index_t offset = vertexBuffer.Count();
 
 			for (index_t ix = 0; ix < resolution; ix++)
 			{
@@ -5699,13 +5699,13 @@ template <class Def>
 
 		}
 
-		index_t end = vertexBuffer.count();
+		index_t end = vertexBuffer.Count();
 
 		vertexBuffer.copyToArray(vertex_field);
-		quad_field.SetSize(quadBuffer.count()/4);
+		quad_field.SetSize(quadBuffer.Count()/4);
 		triangle_field.Clear();
 		edge_field.SetSize(0);
-		for (index_t i = 0; i < quad_field.count(); i++)
+		for (index_t i = 0; i < quad_field.Count(); i++)
 		{
 			quad_field[i].v0 = vertex_field + quadBuffer[i*4];
 			quad_field[i].v1 = vertex_field + quadBuffer[i*4+1];
@@ -6866,7 +6866,7 @@ template <class Def>MF_DECLARE	(void) ObjMap<Def>::clear()
 
 template <class Def>MF_DECLARE	(count_t) ObjMap<Def>::recursiveLookupEdge(const C*p0, const C*p1)
 {
-	count_t cnt = count();
+	count_t cnt = Count();
 	if (!cnt)
 		return 0;
 	if (!level)
@@ -6937,7 +6937,7 @@ template <class Def>MF_DECLARE	(count_t) ObjMap<Def>::recursiveLookupEdge(const 
 	
 template <class Def>MF_DECLARE	(count_t) ObjMap<Def>::recursiveLookupSphere(const C*p, const C&r)
 {
-	count_t cnt = count();
+	count_t cnt = Count();
 	if (!cnt)
 		return 0;
 	if (!level)
@@ -7122,7 +7122,7 @@ template <class Def>MF_DECLARE	(count_t) ObjMap<Def>::recursiveLookupSphere(cons
 
 template <class Def>MF_DECLARE	(bool) ObjMap<Def>::recursiveLookup(const C*lower_corner, const C*upper_corner)
 {
-	count_t cnt = count();
+	count_t cnt = Count();
 	if (!cnt || _oneGreater(lower_corner,dim+3) || _oneLess(upper_corner,dim))
 		return false;
 	if (!level || (_allGreater(dim,lower_corner) && _allLess(dim+3,upper_corner)))
@@ -7176,7 +7176,7 @@ template <class Def>MF_DECLARE	(count_t) ObjMap<Def>::countSubMaps() const
 	return cnt;
 }
 
-template <class Def>MF_DECLARE	(count_t) ObjMap<Def>::count() const
+template <class Def>MF_DECLARE	(count_t) ObjMap<Def>::Count() const
 {
 	return vertex_field.length()+edge_field.length()+triangle_field.length()+quad_field.length();
 }
@@ -7565,10 +7565,10 @@ template <class FloatType> AbstractHull<FloatType>::AbstractHull(count_t spheres
 template <class FloatType> 
 	MF_DECLARE	(bool)			AbstractHull<FloatType>::intersects(const AbstractSphere<Float>&remote)	const
 	{
-		for (index_t i = 0; i < spheres.count(); i++)
+		for (index_t i = 0; i < spheres.Count(); i++)
 			if (spheres[i].intersects(remote))
 				return true;
-		for (index_t i = 0; i < cylinders.count(); i++)
+		for (index_t i = 0; i < cylinders.Count(); i++)
 			if (cylinders[i].intersects(remote))
 				return true;
 		return false;
@@ -7576,10 +7576,10 @@ template <class FloatType>
 template <class FloatType> 
 	MF_DECLARE	(bool)			AbstractHull<FloatType>::intersects(const AbstractCylinder<Float>&remote)	const
 	{
-		for (index_t i = 0; i < spheres.count(); i++)
+		for (index_t i = 0; i < spheres.Count(); i++)
 			if (spheres[i].intersects(remote))
 				return true;
-		for (index_t i = 0; i < cylinders.count(); i++)
+		for (index_t i = 0; i < cylinders.Count(); i++)
 			if (cylinders[i].intersects(remote))
 				return true;
 		return false;
@@ -7590,10 +7590,10 @@ template <class FloatType>
 template <class FloatType> 
 	MF_DECLARE	(bool)			AbstractHull<FloatType>::intersects(const AbstractHull<Float>&remote)	const
 	{
-		for (index_t j = 0; j < remote.spheres.count(); j++)
+		for (index_t j = 0; j < remote.spheres.Count(); j++)
 			if (intersects(remote.spheres[j]))
 				return true;
-		for (index_t j = 0; j < remote.cylinders.count(); j++)
+		for (index_t j = 0; j < remote.cylinders.Count(); j++)
 			if (intersects(remote.cylinders[j]))
 				return true;
 		return false;
@@ -7603,17 +7603,17 @@ template <class FloatType>
 template <class FloatType> 
 	MF_DECLARE	(void)			AbstractHull<FloatType>::resolveIndentation(const AbstractSphere<Float>&remote, Float&indentation, M::TVec3<Float>& indentation_out, bool verbose)	const
 	{
-		for (index_t i = 0; i < spheres.count(); i++)
+		for (index_t i = 0; i < spheres.Count(); i++)
 			spheres[i].resolveIndentation(remote,indentation,indentation_out,verbose);
-		for (index_t i = 0; i < cylinders.count(); i++)
+		for (index_t i = 0; i < cylinders.Count(); i++)
 			cylinders[i].resolveIndentation(remote,indentation,indentation_out,verbose);
 	}
 template <class FloatType> 
 	MF_DECLARE	(void)			AbstractHull<FloatType>::resolveIndentation(const AbstractCylinder<Float>&remote, Float&indentation, M::TVec3<Float>& indentation_out, bool verbose)	const
 	{
-		for (index_t i = 0; i < spheres.count(); i++)
+		for (index_t i = 0; i < spheres.Count(); i++)
 			spheres[i].resolveIndentation(remote,indentation,indentation_out,verbose);
-		for (index_t i = 0; i < cylinders.count(); i++)
+		for (index_t i = 0; i < cylinders.Count(); i++)
 			cylinders[i].resolveIndentation(remote,indentation,indentation_out,verbose);
 	}
 
@@ -7626,9 +7626,9 @@ template <class FloatType>
 			ShowMessage("local: "+ToString()+"\nremote: "+remote.ToString());
 		float indentation(0);
 
-		for (index_t j = 0; j < remote.spheres.count(); j++)
+		for (index_t j = 0; j < remote.spheres.Count(); j++)
 			resolveIndentation(remote.spheres[j],indentation,indentation_out,verbose);
-		for (index_t j = 0; j < remote.cylinders.count(); j++)
+		for (index_t j = 0; j < remote.cylinders.Count(); j++)
 			resolveIndentation(remote.cylinders[j],indentation,indentation_out,verbose);
 
 		if (verbose)
@@ -7641,10 +7641,10 @@ template <class FloatType>
 	MF_DECLARE	(String) AbstractHull<FloatType>::ToString() const
 	{
 		String rs;
-		for (index_t i = 0; i < spheres.count(); i++)
+		for (index_t i = 0; i < spheres.Count(); i++)
 			rs+=" ("+IntToStr(i)+") sphere: "+M::Vec::toString(spheres[i].center)+" r"+String(spheres[i].radius)+"\n";
-		for (index_t i = 0; i < cylinders.count(); i++)
-			rs+=" ("+IntToStr(i+spheres.count())+") cylinder: "+M::Vec::toString(cylinders[i].p0)+" "+M::Vec::toString(cylinders[i].p1)+" r"+String(spheres[i].radius)+"\n";
+		for (index_t i = 0; i < cylinders.Count(); i++)
+			rs+=" ("+IntToStr(i+spheres.Count())+") cylinder: "+M::Vec::toString(cylinders[i].p0)+" "+M::Vec::toString(cylinders[i].p1)+" r"+String(spheres[i].radius)+"\n";
 
 		return rs;
 	}
@@ -7652,9 +7652,9 @@ template <class FloatType>
 template <class FloatType>
 	MFUNC(void)	AbstractHull<FloatType>::translate(const M::TVec3<C>&delta)
 	{
-		for (index_t i = 0; i < spheres.count(); i++)
+		for (index_t i = 0; i < spheres.Count(); i++)
 			M::Vec::add(spheres[i].center,delta);
-		for (index_t i = 0; i < cylinders.count(); i++)
+		for (index_t i = 0; i < cylinders.Count(); i++)
 		{
 			M::Vec::add(cylinders[i].p0,delta);
 			M::Vec::add(cylinders[i].p1,delta);
@@ -7753,8 +7753,8 @@ template <typename Float> template <typename T>
 	MF_DECLARE	(void)			ConvexHullBuilder<Float>::Include(const M::TVec3<T>&point)
 	{
 		//static Log	logfile("include.log",true);
-		ASSERT2__((triangles.count()>0)==(vertices.count()>0),triangles.count(),vertices.count());
-		if (!vertices.count())
+		ASSERT2__((triangles.Count()>0)==(vertices.Count()>0),triangles.Count(),vertices.Count());
+		if (!vertices.Count())
 		{
 			buffer.append().Set(point,0,0);
 			if (!DetectTedrahedron())
@@ -7764,21 +7764,21 @@ template <typename Float> template <typename T>
 			for (index_t i = 0; i < buffer.length(); i++)
 				Include(buffer[i].vector);
 			buffer.reset();
-			ASSERT2__((triangles.count()>0)==(vertices.count()>0),triangles.count(),vertices.count());
+			ASSERT2__((triangles.Count()>0)==(vertices.Count()>0),triangles.Count(),vertices.Count());
 		}
 		else
 		{
 			/*verifyIntegrity();
 			logfile<< nl<<"begin"<<nl;
 			logfile<< "vertices:"<<nl;
-			for (unsigned i = 0; i < vertices.count(); i++)
+			for (unsigned i = 0; i < vertices.Count(); i++)
 				logfile << " "<<i<<": "<<_toString(vertices[i].vector)<<nl;
 			logfile<< "triangles:"<<nl;
-			for (unsigned i = 0; i < triangles.count(); i++)
+			for (unsigned i = 0; i < triangles.Count(); i++)
 				logfile << " "<<i<<": v"<<_toString(triangles[i].v)<<" n"<<_toString(triangles[i].n)<<nl;
 				
 			logfile<< "attempting to include point ("<<_toString(point)<<")"<<nl;*/
-			ASSERT__(triangles.count()>2);
+			ASSERT__(triangles.Count()>2);
 			M::TVec3<Float> axis,plane_normal,c;
 			M::Vec::center(vertices[triangles.first().v0].vector,vertices[triangles.first().v1].vector,vertices[triangles.first().v2].vector,c);
 			M::Vec::sub(point,c,axis);
@@ -7796,8 +7796,8 @@ template <typename Float> template <typename T>
 			count_t steps(0);
 			while (true)
 			{
-				//logfile<< " now analysing face "<<face<<"/"<<triangles.count()<<nl;
-				ASSERT__(steps++<=triangles.count());
+				//logfile<< " now analysing face "<<face<<"/"<<triangles.Count()<<nl;
+				ASSERT__(steps++<=triangles.Count());
 				const TTriangle&t = triangles[face];
 				M::TVec3<Float> axis;
 				M::Vec::sub(point,vertices[t.v0].vector,axis);
@@ -7854,7 +7854,7 @@ template <typename Float> template <typename T>
 			queue << face;
 			count_t flagged = 1;
 				
-			for (index_t i = 0; i < triangles.count(); i++)
+			for (index_t i = 0; i < triangles.Count(); i++)
 				if (triangles[i].flagged)
 					FATAL__("triangle "+String(i)+" flagged before flagging");
 				
@@ -7862,7 +7862,7 @@ template <typename Float> template <typename T>
 			triangles[face].flagged = true;
 			while (!queue.IsEmpty())
 			{
-				ASSERT__(steps++<=triangles.count());
+				ASSERT__(steps++<=triangles.Count());
 				queue >> face;
 				TTriangle&t = triangles[face];
 				//logfile<< " walking from face "<<face<<nl;
@@ -7870,7 +7870,7 @@ template <typename Float> template <typename T>
 				for (BYTE k = 0; k < 3; k++)
 				{
 					//logfile<< "  analysing edge "<<k<<nl;
-					ASSERT2__(t.n[k]<triangles.count(),t.n[k],triangles.count());
+					ASSERT2__(t.n[k]<triangles.Count(),t.n[k],triangles.Count());
 					if (triangles[t.n[k]].flagged)
 					{
 						//logfile<< "  neighbor "<<t.n[k]<<" already flagged"<<nl;
@@ -7903,14 +7903,14 @@ template <typename Float> template <typename T>
 					}
 				}
 			}
-			if (!edges.count())
+			if (!edges.Count())
 			{
 				/*Log	error("error.log",true);
-				error<<"object.vertex_field.Resize("<<vertices.count()<<");"<<nl;
-				error<<"object.triangle_field.Resize("<<triangles.count()<<");"<<nl;
-				for (unsigned i = 0; i < vertices.count(); i++)
+				error<<"object.vertex_field.Resize("<<vertices.Count()<<");"<<nl;
+				error<<"object.triangle_field.Resize("<<triangles.Count()<<");"<<nl;
+				for (unsigned i = 0; i < vertices.Count(); i++)
 					error << "_v3(object.vertex_field["<<i<<"].position,"<<vertices[i].vector[0]<<", "<<vertices[i].vector[1]<<", "<<vertices[i].vector[2]<<");"<<nl;
-				for (unsigned i = 0; i < triangles.count(); i++)
+				for (unsigned i = 0; i < triangles.Count(); i++)
 					error << "_v3(object.triangle_field["<<i<<"].vertex,object.vertex_field+"<<triangles[i].v0<<", object.vertex_field+"<<triangles[i].v1<<", object.vertex_field+"<<triangles[i].v2<<");"<<nl;
 					
 				error << "_v3(point,"<<point[0]<<", "<<point[1]<<", "<<point[2]<<");"<<nl;*/
@@ -7918,59 +7918,59 @@ template <typename Float> template <typename T>
 				
 				
 			}
-			ASSERT__(edges.count()>0);
-			ASSERT2__(flagged < triangles.count(),flagged,triangles.count());
+			ASSERT__(edges.Count()>0);
+			ASSERT2__(flagged < triangles.Count(),flagged,triangles.Count());
 			Buffer<TTriangle>	new_triangles;
 			//logfile<< "queue ran empty after "<<counter<<" iterations"<<nl;
 				
 				
-			UINT32 new_index = vertices.count();
+			UINT32 new_index = vertices.Count();
 			vertices.append().Set(point,0,0);
-			//logfile<< "new point inserted to a total of "<<vertices.count()<<" points"<<nl;
+			//logfile<< "new point inserted to a total of "<<vertices.Count()<<" points"<<nl;
 				
-			/*for (unsigned i = 0; i < vertices.count(); i++)
+			/*for (unsigned i = 0; i < vertices.Count(); i++)
 				vertices[i].index0 = vertices[i].index1 = UNSIGNED_UNDEF;*/
 				
-			for (index_t i = 0; i < edges.count(); i++)
+			for (index_t i = 0; i < edges.Count(); i++)
 			{
 				const TEdge&edge = edges[i];
-				//logfile<< " inserting new face for edge "<<i<<"/"<<edges.count()<<nl;
+				//logfile<< " inserting new face for edge "<<i<<"/"<<edges.Count()<<nl;
 				//logfile<< "  "<<edge.v0<<"-"<<edge.v1<<nl;
 				//ASSERT__(!triangles[edge.t1].flagged);
 				updateNormal(new_triangles.append().Set(edge.v0,edge.v1,new_index,edge.t1,UNSIGNED_UNDEF,UNSIGNED_UNDEF));
 					
-				triangles[edge.t0].link.v[edge.index] = new_triangles.count()-1;
+				triangles[edge.t0].link.v[edge.index] = new_triangles.Count()-1;
 					
 				/*ASSERT__(vertices[edge.v0].index0 == UNSIGNED_UNDEF);
 				ASSERT__(vertices[edge.v1].index1 == UNSIGNED_UNDEF);*/
-				vertices[edge.v0].index0 = new_triangles.count()-1;
-				vertices[edge.v1].index1 = new_triangles.count()-1;
-				//logfile<< "  i0["<<edge.v0<<"] <= "<<new_triangles.count()-1<<nl;
-				//logfile<< "  i1["<<edge.v1<<"] <= "<<new_triangles.count()-1<<nl;
+				vertices[edge.v0].index0 = new_triangles.Count()-1;
+				vertices[edge.v1].index1 = new_triangles.Count()-1;
+				//logfile<< "  i0["<<edge.v0<<"] <= "<<new_triangles.Count()-1<<nl;
+				//logfile<< "  i1["<<edge.v1<<"] <= "<<new_triangles.Count()-1<<nl;
 					
 			}
 				
 
-			for (index_t i = 0; i < edges.count(); i++)
+			for (index_t i = 0; i < edges.Count(); i++)
 			{
 				const TEdge&edge = edges[i];
-				//logfile<< " linking new face of edge "<<i<<"/"<<edges.count()<<nl;
+				//logfile<< " linking new face of edge "<<i<<"/"<<edges.Count()<<nl;
 				new_triangles[i].n1 = vertices[edges[i].v1].index0;
 				new_triangles[i].n2 = vertices[edges[i].v0].index1;
 				//logfile<< "  i0["<<edge.v1<<"] => "<<new_triangles[i].n1<<nl;
 				//logfile<< "  i1["<<edge.v0<<"] => "<<new_triangles[i].n2<<nl;
 			}
 				
-			for (index_t i = 0; i < triangles.count(); i++)
+			for (index_t i = 0; i < triangles.Count(); i++)
 				if (!triangles[i].flagged)
 				{
-					//logfile<< " copying preserved face "<<i<<"/"<<triangles.count()<<nl;
-					M::Vec::set(triangles[i].link,new_triangles.count());
+					//logfile<< " copying preserved face "<<i<<"/"<<triangles.Count()<<nl;
+					M::Vec::set(triangles[i].link,new_triangles.Count());
 					new_triangles << triangles[i];
 					new_triangles.last().flagged = false;
 					new_triangles.last().link.x = i;
 				}
-			for (index_t i = 0; i < edges.count(); i++)
+			for (index_t i = 0; i < edges.Count(); i++)
 				if (new_triangles[i].n0 != UNSIGNED_UNDEF)
 					for (BYTE j = 0; j < 3; j++)
 					{
@@ -7980,14 +7980,14 @@ template <typename Float> template <typename T>
 							break;
 						}
 					}
-			for (index_t i = edges.count(); i < new_triangles.count(); i++)
+			for (index_t i = edges.Count(); i < new_triangles.Count(); i++)
 				for (BYTE k = 0; k < 3; k++)
 				{
 					if (new_triangles[i].n[k] != UNSIGNED_UNDEF)
 						for (BYTE j = 0; j < 3; j++)
 							if (triangles[new_triangles[i].n[k]].v[(j+1)%3] == new_triangles[i].v[k])
 							{
-								//logfile<< " replacing neighbor "<<k<<" of triangle "<<i<<"/"<<triangles.count()<<" with link "<<j<<" of old triangle "<<new_triangles[i].n[k]<<nl;
+								//logfile<< " replacing neighbor "<<k<<" of triangle "<<i<<"/"<<triangles.Count()<<" with link "<<j<<" of old triangle "<<new_triangles[i].n[k]<<nl;
 								new_triangles[i].n[k] = triangles[new_triangles[i].n[k]].link.v[j];
 								break;
 							}
@@ -7998,16 +7998,16 @@ template <typename Float> template <typename T>
 			triangles.adoptData(new_triangles);
 /*
 			//logfile<< "vertices:"<<nl;
-			for (unsigned i = 0; i < vertices.count(); i++)
+			for (unsigned i = 0; i < vertices.Count(); i++)
 				logfile << " "<<i<<": "<<_toString(vertices[i].vector)<<nl;
-			//logfile<< "triangles ("+String(edges.count())+" are new):"<<nl;
-			for (unsigned i = 0; i < triangles.count(); i++)
+			//logfile<< "triangles ("+String(edges.Count())+" are new):"<<nl;
+			for (unsigned i = 0; i < triangles.Count(); i++)
 				logfile << " "<<i<<": v"<<_toString(triangles[i].v)<<" n"<<_toString(triangles[i].n)<<nl;
 			*/
 			//logfile<< "verifying integrity"<<nl;
 				
 			//verifyIntegrity();
-			ASSERT2__((triangles.count()>0)==(vertices.count()>0),triangles.count(),vertices.count());
+			ASSERT2__((triangles.Count()>0)==(vertices.Count()>0),triangles.Count(),vertices.Count());
 		}
 	}
 	
@@ -8015,29 +8015,29 @@ template <typename Float>
 template <class Def>
 	MF_DECLARE	(void)			ConvexHullBuilder<Float>::ExportToMesh(Mesh<Def>&object)	const
 	{
-		Ctr::Array<UINT32>	vmap(vertices.count());
+		Ctr::Array<UINT32>	vmap(vertices.Count());
 		vmap.Fill(UNSIGNED_UNDEF);
-		for (index_t i = 0; i < triangles.count(); i++)
+		for (index_t i = 0; i < triangles.Count(); i++)
 		{
 			vmap[triangles[i].v0] = 0;
 			vmap[triangles[i].v1] = 0;
 			vmap[triangles[i].v2] = 0;
 		}
 		count_t vcnt = 0;
-		for (index_t i = 0; i < vertices.count(); i++)
+		for (index_t i = 0; i < vertices.Count(); i++)
 			if (!vmap[i])
 				vcnt++;
 		object.vertex_field.SetSize(vcnt);
 		vcnt = 0;
-		for (index_t i = 0; i < vertices.count(); i++)
+		for (index_t i = 0; i < vertices.Count(); i++)
 			if (!vmap[i])
 			{
 				vmap[i] = vcnt;
 				_c3(vertices[i].vector,object.vertex_field[vcnt++].position);
 			}
 		object.quad_field.SetSize(0);
-		object.triangle_field.SetSize(triangles.count());
-		for (index_t i = 0; i < triangles.count(); i++)
+		object.triangle_field.SetSize(triangles.Count());
+		for (index_t i = 0; i < triangles.Count(); i++)
 		{
 			object.triangle_field[i].v0 = object.vertex_field+vmap[triangles[i].v0];
 			object.triangle_field[i].v1 = object.vertex_field+vmap[triangles[i].v1];
@@ -8049,33 +8049,33 @@ template <class Def>
 template <typename Float>
 	MF_DECLARE	(void)			ConvexHullBuilder<Float>::VerifyIntegrity()	const
 	{
-		for (index_t i = 0; i < triangles.count(); i++)
+		for (index_t i = 0; i < triangles.Count(); i++)
 		{
 			const TTriangle&t = triangles[i];
 			for (BYTE k = 0; k < 3; k++)
 			{
-				if (t.v[k] >= vertices.count())
-					FATAL__("Invalid vertex index ("+String(t.v[k])+"/"+String(vertices.count())+") of vertex "+String(k)+" of triangle "+String(i)+"/"+String(triangles.count()));
+				if (t.v[k] >= vertices.Count())
+					FATAL__("Invalid vertex index ("+String(t.v[k])+"/"+String(vertices.Count())+") of vertex "+String(k)+" of triangle "+String(i)+"/"+String(triangles.Count()));
 				for (BYTE j = k+1; j < 3; j++)
 					if (t.v[k] == t.v[j])
-						FATAL__("Vertices "+String(k)+", "+String(j)+" collapsed ("+String(t.v[k])+") of triangle "+String(i)+"/"+String(triangles.count()));
+						FATAL__("Vertices "+String(k)+", "+String(j)+" collapsed ("+String(t.v[k])+") of triangle "+String(i)+"/"+String(triangles.Count()));
 					
-				if (t.n[k] >= triangles.count())
-					FATAL__("Invalid neighbor index ("+String(t.n[k])+"/"+String(triangles.count())+") of neighbor "+String(k)+" of triangle "+String(i)+"/"+String(triangles.count()));
+				if (t.n[k] >= triangles.Count())
+					FATAL__("Invalid neighbor index ("+String(t.n[k])+"/"+String(triangles.Count())+") of neighbor "+String(k)+" of triangle "+String(i)+"/"+String(triangles.Count()));
 				const TTriangle&n = triangles[t.n[k]];
 				BYTE found = 255;
 				for (BYTE j = 0; j < 3; j++)
 					if (n.n[j] == i)
 						found = j;
 				if (found==255)
-					FATAL__("Neighbor "+String(k)+" ("+String(t.n[k])+"/"+String(triangles.count())+") does not know triangle "+String(i)+"/"+String(triangles.count()));
+					FATAL__("Neighbor "+String(k)+" ("+String(t.n[k])+"/"+String(triangles.Count())+") does not know triangle "+String(i)+"/"+String(triangles.Count()));
 				if (n.v[found] != t.v[(k+1)%3] || n.v[(found+1)%3] != t.v[k])
-					FATAL__("Vertices to neighbor "+String(k)+" ("+String(t.n[k])+"/"+String(triangles.count())+") do not match for triangle "+String(i)+"/"+String(triangles.count())
+					FATAL__("Vertices to neighbor "+String(k)+" ("+String(t.n[k])+"/"+String(triangles.Count())+") do not match for triangle "+String(i)+"/"+String(triangles.Count())
 							+" ("+String(n.v[(found+1)%3])+", "+String(n.v[found])+ "["+String(n.v[(found+2)%3])+ "] !="+String(t.v[k])+", "+String(t.v[(k+1)%3])+ ")");
 					
 				for (BYTE j = k+1; j < 3; j++)
 					if (t.n[k] == t.n[j])
-						FATAL__("Neighbors "+String(k)+", "+String(j)+" collapsed ("+String(t.n[k])+") of triangle "+String(i)+"/"+String(triangles.count()));
+						FATAL__("Neighbors "+String(k)+", "+String(j)+" collapsed ("+String(t.n[k])+") of triangle "+String(i)+"/"+String(triangles.Count()));
 			}
 		}
 		

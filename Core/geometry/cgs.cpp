@@ -207,9 +207,9 @@ namespace DeltaWorks
 	/*
 	Texture::type_t	Texture::type()	const
 	{
-		if (!face_field.count())
+		if (!face_field.Count())
 			return NoTexture;
-		if (face_field.count() >= 6)
+		if (face_field.Count() >= 6)
 			return TextureCube;
 		Image::THeader header = *(Image::THeader*)face_field.first().pointer();
 		if (!header.y_exp || !header.x_exp)

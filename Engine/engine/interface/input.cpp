@@ -311,7 +311,7 @@ namespace Engine
 	void InputMap::linkKey(const String&name, Key::Name kname)
 	{
 		BYTE k = (BYTE)kname;
-		for (index_t i = 0; i < preparation.count(); i++)
+		for (index_t i = 0; i < preparation.Count(); i++)
 			if (preparation[i].name == name)
 			{
 				key[k].down_pntr = preparation[i].function_pointer;
@@ -319,7 +319,7 @@ namespace Engine
 				preparation[i].done = true;
 				return;
 			}
-		for (index_t i = 0; i < preparation.count(); i++)
+		for (index_t i = 0; i < preparation.Count(); i++)
 			if (preparation[i].name.EqualsIgnoreCase(name))
 			{
 				key[k].down_pntr = preparation[i].function_pointer;
@@ -331,7 +331,7 @@ namespace Engine
 
 	void InputMap::linkOthers()
 	{
-		for (index_t i = 0; i < preparation.count(); i++)
+		for (index_t i = 0; i < preparation.Count(); i++)
 			if (!preparation[i].done && !key[preparation[i].key_id].down_pntr)
 			{
 				key[preparation[i].key_id].down_pntr = preparation[i].function_pointer;
@@ -361,7 +361,7 @@ namespace Engine
 			CopyStrategy::copyElements(from->key + 0x100,key + 0x100,(NumKeys-0x100));
 	}
 	
-	void InputProfile::exportTo(InputMap*to)
+	void InputProfile::ExportTo(InputMap*to)
 	{
 		if (to->verbose)
 			std::cout << " input: exporting profile "<<this<<" to map "<<to<<std::endl;
@@ -380,7 +380,7 @@ namespace Engine
 			return;
 		active_profile->importFrom(this);
 		active_profile = &profile;
-		active_profile->exportTo(this);
+		active_profile->ExportTo(this);
 	}
 
 	void InputMap::bindProfile(InputProfile& profile)
@@ -409,14 +409,14 @@ namespace Engine
 			std::cout << " input: popping profile, thus overwriting "<<active_profile<<std::endl;
 		active_profile->importFrom(this);
 		active_profile = binding_stack.Pop();
-		active_profile->exportTo(this);
+		active_profile->ExportTo(this);
 		if (verbose)
 			std::cout << " input: now active profile is "<<active_profile<<std::endl;
 	}
 	
 	void	InputMap::RegAnalog(const String&name, float&resource, float min, float max)
 	{
-		TAnalogSource&source = analog_sources.set(name.CopyToLowerCase());
+		TAnalogSource&source = analog_sources.Set(name.CopyToLowerCase());
 		source.value = &resource;
 		source.min = min;
 		source.max = max;
@@ -426,7 +426,7 @@ namespace Engine
 	
 	void	InputMap::UnregAnalog(const String&name)
 	{
-		analog_sources.unset(name);
+		analog_sources.Unset(name);
 	}
 
 

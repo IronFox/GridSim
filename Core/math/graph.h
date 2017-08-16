@@ -78,8 +78,8 @@ namespace DeltaWorks
 			Container::Buffer<PNode,0>		nodes;
 			Container::Buffer<PEdge,0>		edges;
 		public:
-			count_t				CountNodes()	const	{return nodes.count();}
-			count_t				CountEdge()		const	{return edges.count();}
+			count_t				CountNodes()	const	{return nodes.Count();}
+			count_t				CountEdge()		const	{return edges.Count();}
 			void				Clear()	{nodes.clear(); edges.clear();}
 			void				AddNodes(count_t count);
 			const PNode&		GetNode(index_t index)	{return nodes[index];}

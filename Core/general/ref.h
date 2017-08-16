@@ -26,7 +26,7 @@ template <class Type> struct Reference
 								return reference;
 							return NULL;
 						}
-		void			set(Type*ref, const Signature&sig)
+		void			Set(Type*ref, const Signature&sig)
 						{
 							signature = &sig;
 							reference = ref;

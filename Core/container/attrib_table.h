@@ -51,7 +51,7 @@ namespace DeltaWorks
 				String			name;
 				unsigned		flags;
 		
-				void			set(const String&name_, unsigned flags_)
+				void			Set(const String&name_, unsigned flags_)
 								{
 									name = name_;
 									flags = flags_;
@@ -88,7 +88,7 @@ namespace DeltaWorks
 						void						finalize()
 													{
 														T*offset = values.pointer();
-														for (unsigned i = 0; i < attributes.count(); i++)
+														for (unsigned i = 0; i < attributes.Count(); i++)
 														{
 															attributes[i].field = offset;
 															offset += attributes[i].length;
@@ -114,7 +114,7 @@ namespace DeltaWorks
 														root_config.values.copyToArray(values);
 														root_config.attributes.copyToArray(attributes);
 														T*offset = values.pointer();
-														for (unsigned i = 0; i < attributes.count(); i++)
+														for (unsigned i = 0; i < attributes.Count(); i++)
 														{
 															attributes[i].field = offset;
 															offset += attributes[i].length;
@@ -196,12 +196,12 @@ namespace DeltaWorks
 			template <typename T>
 				static	T							GetChar(const TAttribute&attrib);
 
-			static	bool							set(const TAttribute&attrib, const int*values, count_t len);
-			static	bool							set(const TAttribute&attrib, const bool*values, count_t len);
-			static	bool							set(const TAttribute&attrib, const double*values, count_t len);
-			static	bool							set(const TAttribute&attrib, const float*values, count_t len);
-			static	bool							set(const TAttribute&attrib, const String*values, count_t len);
-			static	bool							set(const TAttribute&attrib, const char*string);
+			static	bool							Set(const TAttribute&attrib, const int*values, count_t len);
+			static	bool							Set(const TAttribute&attrib, const bool*values, count_t len);
+			static	bool							Set(const TAttribute&attrib, const double*values, count_t len);
+			static	bool							Set(const TAttribute&attrib, const float*values, count_t len);
+			static	bool							Set(const TAttribute&attrib, const String*values, count_t len);
+			static	bool							Set(const TAttribute&attrib, const char*string);
 			
 			static	void							buildInstance(Instance&target);
 			};
@@ -230,11 +230,11 @@ namespace DeltaWorks
 				template <typename T>
 					T								GetChar(const TAttribute&attrib)	const;
 
-					bool							set(const TAttribute&attrib, const int*values, unsigned len);
-					bool							set(const TAttribute&attrib, const double*values, unsigned len);
-					bool							set(const TAttribute&attrib, const float*values, unsigned len);
-					bool							set(const TAttribute&attrib, const String*values, unsigned len);
-					bool							set(const TAttribute&attrib, const char*string);
+					bool							Set(const TAttribute&attrib, const int*values, unsigned len);
+					bool							Set(const TAttribute&attrib, const double*values, unsigned len);
+					bool							Set(const TAttribute&attrib, const float*values, unsigned len);
+					bool							Set(const TAttribute&attrib, const String*values, unsigned len);
+					bool							Set(const TAttribute&attrib, const char*string);
 	
 			};
 	

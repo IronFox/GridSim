@@ -51,7 +51,7 @@ void Console::fetchInput()
 
 void Console::prevInput()
 {
-    if (selected_input < inputs.count())
+    if (selected_input < inputs.Count())
     {
         selected_input++;
         keyboard.FillInput(inputs.getReverse(selected_input-1));
@@ -151,7 +151,7 @@ void Console::unfocus()
 
 void Console::forgetLastInput()
 {
-    inputs.Erase(inputs.count()-1);
+    inputs.Erase(inputs.Count()-1);
 }
 
 

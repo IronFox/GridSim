@@ -133,9 +133,9 @@ namespace DeltaWorks
 				for (unsigned x = 0; x < info->width; x++)
 					for (unsigned y = 0; y < info->height; y++)
 						if (palette)
-							result->set(x,y,&info->palette[image[y][x]*info->channels].red);
+							result->Set(x,y,&info->palette[image[y][x]*info->channels].red);
 						else
-							result->set(x,y,&image[y][x*info->channels]);
+							result->Set(x,y,&image[y][x*info->channels]);
 
 				png_destroy_info_struct(png,&info);
 				png_destroy_read_struct(&png,NULL,NULL);
@@ -208,9 +208,9 @@ namespace DeltaWorks
 				for (unsigned x = 0; x < info->width; x++)
 					for (unsigned y = 0; y < info->height; y++)
 						if (palette)
-							to.set(x,y,&info->palette[image[y][x]*info->channels].red);
+							to.Set(x,y,&info->palette[image[y][x]*info->channels].red);
 						else
-							to.set(x,y,&image[y][x*info->channels]);
+							to.Set(x,y,&image[y][x*info->channels]);
 
 				png_destroy_info_struct(png,&info);
 				png_destroy_read_struct(&png,NULL,NULL);

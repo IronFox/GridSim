@@ -291,7 +291,7 @@ namespace Engine
 		{
 			if (res == res_)
 				return;
-			for (unsigned i = 0; i < count(); i++)
+			for (unsigned i = 0; i < Count(); i++)
 				operator[](i).setResolution(res_);
 			res = res_;
 		}
@@ -327,7 +327,7 @@ namespace Engine
 		count_t		Data::countChannels()	const
 		{
 			count_t rs = 0;
-			for (index_t i = 0; i < count(); i++)
+			for (index_t i = 0; i < Count(); i++)
 				rs += operator[](i).channels();
 			return rs;
 		
@@ -335,9 +335,9 @@ namespace Engine
 		
 		Channel&		Data::openChannel(index_t major_channel, index_t minor_channel)
 		{
-			if (major_channel >= count())
+			if (major_channel >= Count())
 			{
-				count_t pre = count();
+				count_t pre = Count();
 				ResizePreserveContent(major_channel+1);
 				for (index_t i = pre; i <= major_channel; i++)
 					Array<Group,Adopt>::operator[](i).setResolution(res);
@@ -369,7 +369,7 @@ namespace Engine
 		{
 			if (res == res_)
 				return;
-			for (unsigned i = 0; i < count(); i++)
+			for (unsigned i = 0; i < Count(); i++)
 				Array<Group,Adopt>::operator[](i).setResolution(res_);
 			res = res_;
 		}
@@ -381,14 +381,14 @@ namespace Engine
 		
 		void			Data::update(float weight)
 		{
-			for (unsigned i = 0; i < count(); i++)
+			for (unsigned i = 0; i < Count(); i++)
 				for (unsigned j = 0; j < Array<Group,Adopt>::operator[](i).channels(); j++)
 					Array<Group,Adopt>::operator[](i).channel(j).nextFrame(weight);
 		}
 		
 		void			Data::advance()
 		{
-			for (unsigned i = 0; i < count(); i++)
+			for (unsigned i = 0; i < Count(); i++)
 				for (unsigned j = 0; j < Array<Group,Adopt>::operator[](i).channels(); j++)
 					Array<Group,Adopt>::operator[](i).channel(j).advance();
 		}
@@ -466,8 +466,8 @@ namespace Engine
 							Channel&fps_channel = fps_data.openChannel(0,0);
 							if (was_unset)
 							{
-								fps_data.group(0).set("FPS",0.8,0.85,1);
-								fps_channel.set("FPS",0.8,0.85,1);
+								fps_data.group(0).Set("FPS",0.8,0.85,1);
+								fps_channel.Set("FPS",0.8,0.85,1);
 							}
 							fps_channel.accumulate(timing.delta>0?1.0f/timing.delta:0);
 							

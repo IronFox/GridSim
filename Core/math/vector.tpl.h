@@ -1420,7 +1420,7 @@ namespace Math
 	MFUNC (String) _toString(const C*v, count_t el_count)
 	{
 		String rs = " (";
-		rs.set(0,vChar<C>());
+		rs.Set(0,vChar<C>());
 
 		if (el_count)
 		{

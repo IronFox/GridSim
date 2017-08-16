@@ -17,12 +17,12 @@ namespace DeltaWorks
 	{
 		count_t cnt = 0;
 		for (index_t i = 0; i < ARRAYSIZE(format); i++)
-			cnt += format[i]->extensions.count();
+			cnt += format[i]->extensions.Count();
 		extensions.SetSize(cnt);
 		PathString*to = extensions.pointer();
 		for (index_t i = 0; i < ARRAYSIZE(format); i++)
 		{
-			for (index_t j = 0; j < format[i]->extensions.count(); j++)
+			for (index_t j = 0; j < format[i]->extensions.Count(); j++)
 				(*to++) = format[i]->extensions[j];
 		}
 		ASSERT_CONCLUSION(extensions,to);
@@ -32,7 +32,7 @@ namespace DeltaWorks
 	{
 		count_t cnt = 0;
 		for (index_t i = 0; i < ARRAYSIZE(format); i++)
-			cnt += format[i]->extensions.count();
+			cnt += format[i]->extensions.Count();
 		extensions.SetSize(cnt);
 		formats.SetSize(cnt);
 		PathString*sto = extensions.pointer();
@@ -40,7 +40,7 @@ namespace DeltaWorks
 	
 		for (index_t i = 0; i < ARRAYSIZE(format); i++)
 		{
-			for (index_t j = 0; j < format[i]->extensions.count(); j++)
+			for (index_t j = 0; j < format[i]->extensions.Count(); j++)
 			{
 				(*sto++) = format[i]->extensions[j];
 				(*fto++) = format[i];
@@ -91,9 +91,9 @@ namespace DeltaWorks
 		for (index_t i = 0; i < ARRAYSIZE(format); i++)
 		{
 			ImageFormat*format = Magic::format[i];
-			if (format->magic_bytes.IsEmpty() || format->magic_bytes.count()>actual_bytes)
+			if (format->magic_bytes.IsEmpty() || format->magic_bytes.Count()>actual_bytes)
 				continue;	//process later or ignore
-			if (memcmp(format->magic_bytes.pointer(),magic_bytes,format->magic_bytes.count())!=0)
+			if (memcmp(format->magic_bytes.pointer(),magic_bytes,format->magic_bytes.Count())!=0)
 				continue;
 			//cout << " found direct match #"<<i<<" '"<<format->name<<"'"<<endl;
 			try

@@ -1726,8 +1726,7 @@ namespace DeltaWorks
 				count_t					FindAndReplace(bool doReplace(T character), T replacement);
 
 				bool					IsValid(bool validCharacter(T character))	const;					//!< Runs each character of the local string by the specified validation function. Returns true if all characters passed the validation, false otherwise.
-				void					set(size_t index, T c);
-				void					Set(size_t index, T c)	{set(index,c);}
+				void					Set(size_t index, T c);
 			
 									/*!	\brief Const character access method
 										\param Index of the character to retrieve in the range [0,length()-1]

@@ -81,7 +81,7 @@ namespace DeltaWorks
 		Parser::PNode node;
 		if (!nodes.Query(name,node) || !node)
 			FATAL__("addressed node '"+name+"' does not exist in the network");
-		Parser::Connection&connection = root.set(ident0);
+		Parser::Connection&connection = root.Set(ident0);
 		connection.target = node;
 		return connection;
 	}
@@ -91,8 +91,8 @@ namespace DeltaWorks
 		Parser::PNode node;
 		if (!nodes.Query(name,node) || !node)
 			FATAL__("addressed node '"+name+"' does not exist in the network");
-		root.set(ident0).target = node;
-		root.set(ident1).target = node;
+		root.Set(ident0).target = node;
+		root.Set(ident1).target = node;
 	}
 
 	void TokenParser::Define(const String&name, unsigned ident0, unsigned ident1, unsigned ident2)
@@ -100,9 +100,9 @@ namespace DeltaWorks
 		Parser::PNode node;
 		if (!nodes.Query(name,node) || !node)
 			FATAL__("addressed node '"+name+"' does not exist in the network");
-		root.set(ident0).target = node;
-		root.set(ident1).target = node;
-		root.set(ident2).target = node;
+		root.Set(ident0).target = node;
+		root.Set(ident1).target = node;
+		root.Set(ident2).target = node;
 	}
 
 	void TokenParser::Define(const String&name, unsigned ident0, unsigned ident1, unsigned ident2, unsigned ident3)
@@ -110,10 +110,10 @@ namespace DeltaWorks
 		Parser::PNode node;
 		if (!nodes.Query(name,node) || !node)
 			FATAL__("addressed node '"+name+"' does not exist in the network");
-		root.set(ident0).target = node;
-		root.set(ident1).target = node;
-		root.set(ident2).target = node;
-		root.set(ident3).target = node;
+		root.Set(ident0).target = node;
+		root.Set(ident1).target = node;
+		root.Set(ident2).target = node;
+		root.Set(ident3).target = node;
 	}
 
 	/*
@@ -169,7 +169,7 @@ namespace DeltaWorks
 		if (!nodes.Query(name_to,node1) || !node1)
 			FATAL__("addressed node '"+name_to+"' does not exist in the network");
 
-		Parser::Connection&connection = node0->connections.set(condition_ident);
+		Parser::Connection&connection = node0->connections.Set(condition_ident);
 		//if (!connection.target)
 		//   connections.append(connection);
 		connection.target = node1;
@@ -185,13 +185,13 @@ namespace DeltaWorks
 			FATAL__("addressed node '"+name_to+"' does not exist in the network");
 
 		{
-			Parser::Connection&connection = node0->connections.set(ident0);
+			Parser::Connection&connection = node0->connections.Set(ident0);
 			//if (!connection->target)
 			//    connections.append(connection);
 			connection.target = node1;
 		}
 		{
-			Parser::Connection&connection = node0->connections.set(ident1);
+			Parser::Connection&connection = node0->connections.Set(ident1);
 			//if (!connection->target)
 			//	connections.append(connection);
 			connection.target = node1;
@@ -209,7 +209,7 @@ namespace DeltaWorks
 		const unsigned ident[] = {ident0, ident1, ident2};
 		for (index_t i = 0; i < ARRAYSIZE(ident); i++)
 		{
-			Parser::Connection&connection = node0->connections.set(ident[i]);
+			Parser::Connection&connection = node0->connections.Set(ident[i]);
 			//if (!connection->target)
 			//	connections.append(connection);
 			connection.target = node1;
@@ -230,7 +230,7 @@ namespace DeltaWorks
 
 		for (index_t i = 0; i < ARRAYSIZE(ident); i++)
 		{
-			Parser::Connection&connection = node0->connections.set(ident[i]);
+			Parser::Connection&connection = node0->connections.Set(ident[i]);
 			//if (!connection->target)
 			//	connections.append(connection);
 			connection.target = node1;
@@ -242,14 +242,14 @@ namespace DeltaWorks
 
 	void               TokenParser::GlobalBlock(unsigned ident, unsigned block_ident, Parser::block_type_t type)
 	{
-		if (node_export.count() != nodes)
-			nodes.exportTo(node_export);
+		if (node_export.Count() != nodes)
+			nodes.ExportTo(node_export);
 
-		for (index_t i = 0; i < node_export.count(); i++)
+		for (index_t i = 0; i < node_export.Count(); i++)
 		{
 			Parser::PNode node = node_export[i];
 		
-			Parser::Connection&connection = node->connections.set(ident);
+			Parser::Connection&connection = node->connections.Set(ident);
 			if (connection.target.expired())
 			{
 				connection.block_change = type;
@@ -263,10 +263,10 @@ namespace DeltaWorks
 	void                TokenParser::GlobalDetour(unsigned begin_symbol, unsigned end_symbol, const String&state_name)
 	{
     
-		if (node_export.count() != nodes)
-			nodes.exportTo(node_export);
+		if (node_export.Count() != nodes)
+			nodes.ExportTo(node_export);
 
-		for (index_t i = 0; i < node_export.count(); i++)
+		for (index_t i = 0; i < node_export.Count(); i++)
 		{
 			Parser::PNode node = node_export[i];
 
@@ -274,13 +274,13 @@ namespace DeltaWorks
 			detour_nodes.Append(sleep_node);
 			sleep_node->name = state_name;
         
-			Parser::Connection&connection = node->connections.set(begin_symbol);
+			Parser::Connection&connection = node->connections.Set(begin_symbol);
 			if (connection.target.expired())
 			{
 				connection.target = sleep_node;
 				//connections.append(connection);
 				{
-					Parser::Connection&connection2 = sleep_node->connections.set(end_symbol);
+					Parser::Connection&connection2 = sleep_node->connections.Set(end_symbol);
 					//connections.append(connection2);
 					connection2.target = node;
 				}
@@ -311,8 +311,8 @@ namespace DeltaWorks
 	void					TokenParser::ParseTokenSequence(const TokenList&tokens, Parser::Result&result, index_t begin /*= 0*/, index_t end /*= InvalidIndex*/)	const
 	{
 		result.reset();
-		if (end > tokens.count())
-			end = tokens.count();
+		if (end > tokens.Count())
+			end = tokens.Count();
 		if (begin >= end)
 			return;
 
@@ -340,7 +340,7 @@ namespace DeltaWorks
 					{
 						if (stream.IsEmpty() || stream.last().state != ctarget->name)
 						{
-							stream.sequence_map.set(ctarget->name).append(stream.length());
+							stream.sequence_map.Set(ctarget->name).append(stream.length());
 							stream.append().setState(ctarget->name).setRange(token - tokens.pointer(),token - tokens.pointer() + 1);
 						}
 						else
@@ -417,7 +417,7 @@ namespace DeltaWorks
 					}
 					else
 					{
-						token = minor < tokens.count() ? tokens + minor : NULL;
+						token = minor < tokens.Count() ? tokens + minor : NULL;
 						minor++;
 						connection = token?status->connections.queryPointer(token->ident):NULL;
 						if (!connection)

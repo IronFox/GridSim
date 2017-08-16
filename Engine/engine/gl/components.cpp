@@ -26,7 +26,7 @@ namespace Engine
 			const PComponent&first = children.first();
 			outRect = first->currentRegion;
 				
-			for (index_t i = 1; i < children.count(); i++)
+			for (index_t i = 1; i < children.Count(); i++)
 			{
 				const PComponent&child = children[i];
 				outRect.Include(child->currentRegion);
@@ -93,7 +93,7 @@ namespace Engine
 		
 		bool					Panel::Erase(index_t index)
 		{
-			if (index < children.count())
+			if (index < children.Count())
 			{
 				children[index]->SetWindow(PWindow());
 				children.Erase(index);
@@ -114,7 +114,7 @@ namespace Engine
 		
 		bool					Panel::MoveChildUp(index_t index)
 		{
-			if (index+1 >= children.count())
+			if (index+1 >= children.Count())
 				return false;
 			Buffer<PComponent,4>::AppliedStrategy::swap(children[index],children[index+1]);
 			SignalVisualChange();
@@ -133,7 +133,7 @@ namespace Engine
 		
 		bool					Panel::MoveChildDown(index_t index)
 		{
-			if (!index || index >= children.count())
+			if (!index || index >= children.Count())
 				return false;
 			Buffer<PComponent,4>::AppliedStrategy::swap(children[index-1],children[index]);
 			SignalVisualChange();
@@ -150,7 +150,7 @@ namespace Engine
 		
 		bool					Panel::MoveChildToTop(index_t index)
 		{
-			if (index+1 < children.count())
+			if (index+1 < children.Count())
 			{
 				PComponent cmp = children[index];
 				children.Erase(index);
@@ -171,7 +171,7 @@ namespace Engine
 		
 		bool					Panel::MoveChildToBottom(index_t index)
 		{
-			if (index && index < children.count())
+			if (index && index < children.Count())
 			{
 				PComponent cmp = children[index];
 				children.Erase(index);
@@ -185,7 +185,7 @@ namespace Engine
 		void		Panel::UpdateLayout(const M::Rect<float>&parent_region)
 		{
 			Component::UpdateLayout(parent_region);
-			for (index_t i = 0; i < children.count(); i++)
+			for (index_t i = 0; i < children.Count(); i++)
 				children[i]->UpdateLayout(cellLayout.client);
 		}
 		
@@ -193,7 +193,7 @@ namespace Engine
 		{
 			float rs = 0;
 			
-			for (index_t i = 0; i < children.count(); i++)
+			for (index_t i = 0; i < children.Count(); i++)
 			{
 				float c = children[i]->GetMinWidth(true);
 				if (c > rs)
@@ -206,7 +206,7 @@ namespace Engine
 		{
 			float rs = 0;
 			
-			for (index_t i = 0; i < children.count(); i++)
+			for (index_t i = 0; i < children.Count(); i++)
 			{
 				float c = children[i]->GetMinHeight(true);
 				if (c > rs)
@@ -221,7 +221,7 @@ namespace Engine
 				Component::OnColorPaint(renderer,parentIsEnabled);
 				bool subEnabled = parentIsEnabled && IsEnabled();
 				renderer.Clip(cellLayout.client);
-					for (index_t i = 0; i < children.count(); i++)
+					for (index_t i = 0; i < children.Count(); i++)
 						if (children[i]->IsVisible())
 						{
 							renderer.PeekColor();
@@ -238,7 +238,7 @@ namespace Engine
 				bool subEnabled = parentIsEnabled && IsEnabled();
 			
 				renderer.Clip(cellLayout.client);
-					for (index_t i = 0; i < children.count(); i++)
+					for (index_t i = 0; i < children.Count(); i++)
 						if (children[i]->IsVisible())
 						{
 							renderer.PeekNormalMatrix();
@@ -251,7 +251,7 @@ namespace Engine
 		/*virtual override*/ PComponent			Panel::GetComponent(float x, float y, ePurpose purpose, bool&outIsEnabled)
 		{
 			outIsEnabled &= IsEnabled();
-			for (index_t i = children.count()-1; i < children.count(); i--)
+			for (index_t i = children.Count()-1; i < children.Count(); i--)
 			{
 				const PComponent&child = children[i];
 				if (child->IsVisible() && child->cellLayout.border.Contains(x,y))
@@ -902,7 +902,7 @@ namespace Engine
 		
 		/*virtual override*/	bool					ScrollBox::Erase(index_t index)
 		{
-			if (index >= children.count())
+			if (index >= children.Count())
 				return false;
 			visible_children.findAndErase(children[index]);
 			children[index]->SetWindow(PWindow());
@@ -913,9 +913,9 @@ namespace Engine
 		
 		/*virtual override*/	PConstComponent		ScrollBox::GetChild(index_t index) const
 		{
-			if (index < children.count())
+			if (index < children.Count())
 				return children[index];
-			index -= children.count();
+			index -= children.Count();
 			if (index == 0)
 				return horizontalBar;
 			if (index == 1)
@@ -925,9 +925,9 @@ namespace Engine
 		
 		/*virtual override*/	PComponent		ScrollBox::GetChild(index_t index)
 		{
-			if (index < children.count())
+			if (index < children.Count())
 				return children[index];
-			index -= children.count();
+			index -= children.Count();
 			if (index == 0)
 				return horizontalBar;
 			if (index == 1)
@@ -937,7 +937,7 @@ namespace Engine
 
 		/*virtual override*/	count_t	ScrollBox::CountChildren() const
 		{
-			return children.count()+2;
+			return children.Count()+2;
 		}
 		
 
@@ -963,7 +963,7 @@ namespace Engine
 				float	w = cellLayout.client.GetWidth(),
 						h = cellLayout.client.GetHeight();
 				M::Rect<float>	region(0,0,w,h);
-				for (index_t i = 0; i < children.count(); i++)
+				for (index_t i = 0; i < children.Count(); i++)
 				{
 					//children[i]->UpdateLayout(cellLayout.client);
 					M::Rect<float>	child_region;
@@ -1068,7 +1068,7 @@ namespace Engine
 			space.Translate(offset_x,offset_y);
 			
 			visible_children.reset();
-			for (index_t i = 0; i < children.count(); i++)
+			for (index_t i = 0; i < children.Count(); i++)
 			{
 				const PComponent&child = children[i];
 				if (!child->IsVisible())
@@ -1101,7 +1101,7 @@ namespace Engine
 			if (effectiveClientRegion.Contains(x,y))
 			{
 				
-				for (index_t i = visible_children.count()-1; i < visible_children.count(); i--)
+				for (index_t i = visible_children.Count()-1; i < visible_children.Count(); i--)
 				{
 					const PComponent&child = visible_children[i];
 					if (child->currentRegion.Contains(x,y))
@@ -1146,7 +1146,7 @@ namespace Engine
 			else
 			{
 				h = 0;
-				for (index_t i = 0; i < children.count(); i++)
+				for (index_t i = 0; i < children.Count(); i++)
 					h = std::max(children[i]->GetMinHeight(true),h);
 			}
 			if (horizontalBar->IsVisible())
@@ -1163,7 +1163,7 @@ namespace Engine
 			
 			bool subEnabled = parentIsEnabled && IsEnabled();
 
-			for (index_t i = 0; i < visible_children.count(); i++)
+			for (index_t i = 0; i < visible_children.Count(); i++)
 			{
 				renderer.PeekColor();
 				visible_children[i]->OnColorPaint(renderer,subEnabled);
@@ -1193,7 +1193,7 @@ namespace Engine
 			
 			bool subEnabled = parentIsEnabled && IsEnabled();
 			
-			for (index_t i = 0; i < visible_children.count(); i++)
+			for (index_t i = 0; i < visible_children.Count(); i++)
 			{
 				renderer.PeekNormalMatrix();
 				visible_children[i]->OnNormalPaint(renderer,subEnabled);
@@ -1234,7 +1234,7 @@ namespace Engine
 			}
 			if (effectiveClientRegion.Contains(x,y))
 			{
-				for (index_t i = visible_children.count()-1; i < visible_children.count(); i--)
+				for (index_t i = visible_children.Count()-1; i < visible_children.Count(); i--)
 				{
 					const PComponent&child = visible_children[i];
 					if (child->cellLayout.border.Contains(x,y))
@@ -1953,7 +1953,7 @@ namespace Engine
 					textChanged = false;
 					lastWidth = w;
 					wrapf(caption,w,_CharLen,lines);
-					//for (index_t i = 0; i < lines.count(); i++)
+					//for (index_t i = 0; i < lines.Count(); i++)
 					//	cout << "'"<<lines[i]<<"'"<<endl;
 					height = GetMinHeight(false);
 				}
@@ -1989,7 +1989,7 @@ namespace Engine
 		{
 			if (!wrapText)
 				return ColorRenderer::textout.GetFont().GetHeight() + textMargin.bottom + textMargin.top;
-			return ColorRenderer::textout.GetFont().GetHeight()*lines.count() + textMargin.bottom + textMargin.top;
+			return ColorRenderer::textout.GetFont().GetHeight()*lines.Count() + textMargin.bottom + textMargin.top;
 		
 		}
 		
@@ -2045,7 +2045,7 @@ namespace Engine
 				}
 				else
 				{
-					for (index_t i = 0; i < lines.count(); i++)
+					for (index_t i = 0; i < lines.Count(); i++)
 					{
 						renderer.SetTextPosition(cellLayout.client.left() + textMargin.left,cellLayout.client.top()-(ColorRenderer::textout.GetFont().GetHeight()*(i+1))-textMargin.top);
 						renderer.WriteText(lines[i]);
@@ -2415,7 +2415,7 @@ namespace Engine
 			M::TVec2<> res = {0,0};
 			if (horizontal)
 			{
-				for (index_t i = 0; i < children.count(); i++)
+				for (index_t i = 0; i < children.Count(); i++)
 					res.x += children[i]->width;
 				if (layout)
 					res.x += layout->clientEdge.left+layout->clientEdge.right;
@@ -2423,7 +2423,7 @@ namespace Engine
 			}
 			else
 			{
-				for (index_t i = 0; i < children.count(); i++)
+				for (index_t i = 0; i < children.Count(); i++)
 					res.y += children[i]->height;
 				if (layout)
 					res.y += layout->clientEdge.top+layout->clientEdge.bottom;
@@ -2605,7 +2605,7 @@ namespace Engine
 		void		Menu::_ArrangeItems()
 		{
 			float current=0;
-			for (index_t i = 0; i < children.count(); i++)
+			for (index_t i = 0; i < children.Count(); i++)
 			{
 				const PComponent&component = children[i];
 				
@@ -2667,7 +2667,7 @@ namespace Engine
 					}
 					return Handled;
 				case Key::Down:
-					if (selectedEntry+1<children.count())
+					if (selectedEntry+1<children.Count())
 					{
 						selectedEntry++;
 						SetFocused(children[selectedEntry]);
@@ -2870,8 +2870,8 @@ namespace Engine
 				return;
 			PLabel	message_label = PLabel(new Label());
 			PPanel	panel = PPanel(new Panel());
-			Array<PButton >	buttons(choices.count());
-			for (index_t i = 0; i < buttons.count(); i++)
+			Array<PButton >	buttons(choices.Count());
+			for (index_t i = 0; i < buttons.Count(); i++)
 			{
 				buttons[i] = PButton(new Button());
 				buttons[i]->anchored.Set(true,true,false,false);
@@ -2887,7 +2887,7 @@ namespace Engine
 			panel->Add(buttons.first());
 			buttons.first()->anchored.Set(true,true,false,false);
 
-			for (index_t i = 1; i < buttons.count(); i++)
+			for (index_t i = 1; i < buttons.Count(); i++)
 				panel->AppendRight(buttons[i]);
 
 			message_label->offset.bottom = buttons.first()->height;
@@ -2906,7 +2906,7 @@ namespace Engine
 			Component::SetFocused(buttons[0]);
 			
 			std::weak_ptr<GUI::Window>	weak_window = window;
-			for (index_t i = 0; i < buttons.count(); i++)
+			for (index_t i = 0; i < buttons.Count(); i++)
 				buttons[i]->onExecute += [weak_window,i,onSelect]()
 				{
 					PWindow	window = weak_window.lock();
