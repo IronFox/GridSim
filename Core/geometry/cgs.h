@@ -495,7 +495,7 @@ namespace DeltaWorks
 														alpha_threshold;	//!< Alpha border used to determine visibility. Effective only if \b masked is set true.
 
 														MaterialColors();
-			bool										similar(const MaterialColors&other)	const;	//!< Determines whether or not the local material info is similar to the specified other material info. This method may return false where the finally loaded appearance is in fact similar, however never the other way around. \param other Material info to compare to \return true if the local material info is similar to the specified material info, false otherwise.
+			bool										Similar(const MaterialColors&other)	const;	//!< Determines whether or not the local material info is similar to the specified other material info. This method may return false where the finally loaded appearance is in fact similar, however never the other way around. \param other Material info to compare to \return true if the local material info is similar to the specified material info, false otherwise.
 			bool										operator==(const MaterialColors&other) const;
 			bool										operator!=(const MaterialColors&other) const	{return !operator==(other);}
 
@@ -514,7 +514,7 @@ namespace DeltaWorks
 			Ctr::Array<TLayer>								layer_field;		//!< Ctr::Array of texture layers. The number of texture layers must correspond to the number of texture coordinates provided by the vertex container of each rendering object (of this material)
 
 														MaterialInfo();
-			bool										similar(const MaterialInfo&other)	const;	//!< Determines whether or not the local material info is similar to the specified other material info. This method may return false where the finally loaded appearance is in fact similar, however never the other way around. \param other Material info to compare to \return true if the local material info is similar to the specified material info, false otherwise.
+			bool										Similar(const MaterialInfo&other)	const;	//!< Determines whether or not the local material info is similar to the specified other material info. This method may return false where the finally loaded appearance is in fact similar, however never the other way around. \param other Material info to compare to \return true if the local material info is similar to the specified material info, false otherwise.
 			bool										operator==(const MaterialInfo&other) const;
 			bool										operator!=(const MaterialInfo&other) const	{return !operator==(other);}
 			MaterialInfo&								operator=(const MaterialColors&other);

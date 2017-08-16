@@ -47,12 +47,12 @@ namespace Math
 			return vabs(value-1) <= GetError<C>();
 		}
 
-		MFUNC2 (bool)		similar(const C0&v0, const C1&v1)
+		MFUNC2 (bool)		Similar(const C0&v0, const C1&v1)
 		{
 			return vabs(v0-v1) <= GetError<C0>();
 		}
 		
-		MFUNC3 (bool)		similar(const C0&v0, const C1&v1, const C2&tolerance)
+		MFUNC3 (bool)		Similar(const C0&v0, const C1&v1, const C2&tolerance)
 		{
 			return vabs(v0-v1) <= tolerance;
 		}
@@ -357,7 +357,7 @@ namespace Math
 			root = vsqrt(root);
 			rs[0] = (-p-root)/2;
 			rs[1] = (-p+root)/2;
-			return similar(rs[0],rs[1])?1:2;
+			return Similar(rs[0],rs[1])?1:2;
 		}
 
 		MFUNC (C)     sqr(const C&f)
@@ -430,12 +430,12 @@ namespace Math
 	}
 	
 
-	MFUNC2 (bool)		similar(C0 v0, C1 v1)
+	MFUNC2 (bool)		Similar(C0 v0, C1 v1)
 	{
 		return vabs(v0-v1) <= GetError<C0>();
 	}
 
-	MFUNC3 (bool)		similar(C0 v0, C1 v1, C2 tolerance)
+	MFUNC3 (bool)		Similar(C0 v0, C1 v1, C2 tolerance)
 	{
 		return vabs(v0-v1) <= tolerance;
 	}
@@ -976,7 +976,7 @@ namespace Math
 		root = vsqrt(root);
 		rs[0] = (-p-root)/2;
 		rs[1] = (-p+root)/2;
-		return similar(rs[0],rs[1])?1:2;
+		return Similar(rs[0],rs[1])?1:2;
 	}
 	
 

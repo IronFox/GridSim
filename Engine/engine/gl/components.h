@@ -463,7 +463,7 @@ namespace Engine
 												return;
 											caption = caption_;
 											float newWidth = GetMinWidth(false);
-											if (!M::similar(newWidth,width))
+											if (!M::Similar(newWidth,width))
 											{
 												SignalLayoutChange();
 												width = newWidth;

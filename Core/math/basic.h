@@ -415,8 +415,8 @@ namespace DeltaWorks
 	
 		MFUNC	(bool)		nearingZero(C value);											//!< Checks if the specified value is approximately 0 (using GetError<C>())
 		MFUNC	(bool)		nearingOne(C value);											//!< Checks if the specified value is approximately 1 (using GetError<C>())
-		MFUNC2	(bool)		similar(C0 v0, C1 v1);											//!< Checks if the two specified values are similar (using GetError<C>())
-		MFUNC3	(bool)		similar(C0 v0, C1 v1, C2 tolerance);							//!< Checks if the two specified values are similar (using tolerance)
+		MFUNC2	(bool)		Similar(C0 v0, C1 v1);											//!< Checks if the two specified values are similar (using GetError<C>())
+		MFUNC3	(bool)		Similar(C0 v0, C1 v1, C2 tolerance);							//!< Checks if the two specified values are similar (using tolerance)
 
 		template <unsigned Value>
 		MF_DECLARE	(unsigned)	factorial();													//!< Calculates factorial during compile-time \return Value!
@@ -489,8 +489,8 @@ namespace DeltaWorks
 		
 			MFUNC	(bool)		nearingZero(const C&value);									//!< By reference variant of Math::nearingZero()
 			MFUNC	(bool)		nearingOne(const C&value);									//!< By reference variant of Math::nearingOne()
-			MFUNC2	(bool)		similar(const C0&v0, const C1&v1);							//!< By reference variant of Math::similar()
-			MFUNC3	(bool)		similar(const C0&v0, const C1&v1, const C2&tolerance);		//!< By reference variant of Math::similar()
+			MFUNC2	(bool)		Similar(const C0&v0, const C1&v1);							//!< By reference variant of Math::Similar()
+			MFUNC3	(bool)		Similar(const C0&v0, const C1&v1, const C2&tolerance);		//!< By reference variant of Math::Similar()
 
 			MFUNC2	(C0)		vmin(const C0&value0, const C1&value1);						//!< By reference variant of Math::vmin()
 			MFUNC2	(C0)		vmax(const C0&value0, const C1&value1);						//!< By reference variant of Math::vmax()

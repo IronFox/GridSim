@@ -82,7 +82,6 @@ namespace DeltaWorks
 
 		void				Graph::MarkErased(const PNode&n)
 		{
-			n->attachment.reset();
 			nodes.Erase(n);
 		}
 
@@ -198,7 +197,7 @@ namespace DeltaWorks
 			for (index_t i = 0; i < edges.Count(); i++)
 			{
 				const auto&e = edges[i];
-				if (e->WasErased())
+				if (!e)
 					continue;
 				ASSERT__(e->index == i);
 				CheckValidity(CLOCATION, e->to);
@@ -218,7 +217,7 @@ namespace DeltaWorks
 			for (index_t i = 0; i < nodes.Count(); i++)
 			{
 				const auto&n = nodes[i];
-				if (n->WasErased())
+				if (!n)
 					continue;
 				ASSERT__(n->index == i);
 
@@ -285,7 +284,7 @@ namespace DeltaWorks
 			Container::Queue<PNode>	queue;
 			foreach (nodes,n)
 			{
-				if ((*n)->WasErased())
+				if (!(*n))
 					continue;
 				(*n)->inDegree = (int)(*n)->in.Count();
 				if (!(*n)->inDegree)
@@ -313,10 +312,10 @@ namespace DeltaWorks
 		{
 			count_t cnt(0);
 			foreach (nodes,n)
-				if (!(*n)->WasErased())
+				if ((*n))
 					(*n)->isSelected = false;
 			foreach (nodes,n)
-				if (!(*n)->WasErased() && (*n)->in.IsEmpty())
+				if ((*n) && (*n)->in.IsEmpty())
 					cnt = (*n)->Scan(cnt+1);
 		};
 

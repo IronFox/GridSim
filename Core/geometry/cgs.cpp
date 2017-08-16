@@ -76,11 +76,11 @@ namespace DeltaWorks
 	}
 
 
-	bool MaterialInfo::similar(const MaterialInfo&other) const
+	bool MaterialInfo::Similar(const MaterialInfo&other) const
 	{
 		if (layer_field.length() != other.layer_field.length())
 			return false;
-		if (!MaterialColors::similar(other))
+		if (!MaterialColors::Similar(other))
 			return false;
 		for (index_t i = 0; i < layer_field.length(); i++)
 		{
@@ -102,7 +102,7 @@ namespace DeltaWorks
 		return true;
 	}
 
-	bool MaterialColors::similar(const MaterialColors&other) const
+	bool MaterialColors::Similar(const MaterialColors&other) const
 	{
 		if (alpha_test != other.alpha_test)
 			return false;
@@ -133,12 +133,12 @@ namespace DeltaWorks
 
 	bool MaterialColors::operator==(const MaterialColors&other) const
 	{
-		return similar(other);
+		return Similar(other);
 	}
 
 	bool MaterialInfo::operator==(const MaterialInfo&other) const
 	{
-		if (!similar(other))
+		if (!Similar(other))
 			return false;
 		for (unsigned i = 0; i < layer_field.length(); i++)
 		{

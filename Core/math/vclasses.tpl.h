@@ -167,7 +167,7 @@
     MF_VNT MF_DECLARE (bool) VecN<C,Len>::operator==(const TVec<C0,Len0>&other) const
     {
 		return VecUnroll<Eval<Len,Len0>::Min>::equal(v,other.v);
-		//return VecUnroll<Eval<Len,Len0>::Min>::similar(v,other.v,GetError<C>());
+		//return VecUnroll<Eval<Len,Len0>::Min>::Similar(v,other.v,GetError<C>());
     }
 
     template <class C, count_t Len>

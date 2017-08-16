@@ -459,7 +459,7 @@ namespace Engine
 	bool	MaterialColors::operator==(const MaterialColors&other) const
 	{
 		return diffuse == other.diffuse && specular == other.specular && emission == other.emission && alpha_test == other.alpha_test && shininess_exponent == other.shininess_exponent
-				&& (!alpha_test || M::similar(alpha_threshold, other.alpha_threshold)) && (fully_reflective == other.fully_reflective);
+				&& (!alpha_test || M::Similar(alpha_threshold, other.alpha_threshold)) && (fully_reflective == other.fully_reflective);
 	}
 
 	char	MaterialColors::compareTo(const MaterialColors&other)	const

@@ -111,7 +111,7 @@ namespace Math
     template <class C, unsigned Rows, unsigned Cols>
     MFUNC1  (bool)                    VariableMatrix<C,Rows,Cols>::operator==(const VariableMatrix<C0,Rows,Cols>&m)                                const
     {
-        return VecUnroll<Rows*Cols>::similar(field,m.field,TypeInfo<C>::error);
+        return VecUnroll<Rows*Cols>::Similar(field,m.field,TypeInfo<C>::error);
     }
 
     template <class C, unsigned Rows, unsigned Cols>

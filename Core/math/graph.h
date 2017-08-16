@@ -37,21 +37,17 @@ namespace DeltaWorks
 			typedef std::shared_ptr<Edge>	PEdge;
 
 
-			class Erasable
+			class Indexed
 			{
 				friend class Graph;
 			public:
-				bool			WasErased() const {return erased;}
 				index_t			GetIndex() const {return index;}
-				void			SignalErasure() {erased = true;}
 				void			UpdateIndex(index_t idx) {index = idx;}
 			private:
-				bool			erased = false;
 				index_t			index = InvalidIndex;
-
 			};
 
-			class Node : public Erasable
+			class Node : public Indexed
 			{
 			public:
 				PBaseAttachment	attachment;
@@ -97,7 +93,7 @@ namespace DeltaWorks
 				friend class	Graph;
 			};
 
-			class Edge : public std::enable_shared_from_this<Edge>, public Erasable
+			class Edge : public std::enable_shared_from_this<Edge>, public Indexed
 			{
 			public:
 				void			LinkTo(const PNode&from, const PNode&to);
@@ -125,7 +121,7 @@ namespace DeltaWorks
 					{
 						Buffer0<Item>	next;
 						foreach (store,s)
-							if (!(*s)->WasErased())
+							if ((*s))
 							{
 								(*s)->UpdateIndex(next.Count());
 								next << *s;
@@ -156,8 +152,6 @@ namespace DeltaWorks
 					{
 						if (!item)
 							Except::TriggerFatal(loc,"Parameter is empty");
-						if (item->WasErased())
-							Except::TriggerFatal(loc,"Parameter has been erased");
 						if (item->GetIndex() >= store.Count() || item != store[item->GetIndex()])
 							Except::TriggerFatal(loc,"Given item is not part of the local graph");
 					}
@@ -166,9 +160,7 @@ namespace DeltaWorks
 					{
 						if (item->GetIndex() >= store.Count() || item != store[item->GetIndex()])
 							throw Except::Program::ParameterFault(CLOCATION,"Given node is not part of the local graph");
-
-						ASSERT__(!item->WasErased());
-						item->SignalErasure();
+						store[item->GetIndex()].reset();
 						erased++;
 						if (ShouldGarbageCollect())
 							GarbageCollect();
@@ -177,7 +169,6 @@ namespace DeltaWorks
 					void			operator<<(const Item&item)
 					{
 						item->UpdateIndex(store.Count());
-						ASSERT__(!item->WasErased());
 						store << item;
 					}
 
@@ -186,7 +177,7 @@ namespace DeltaWorks
 						outArray.SetSize(store.Count() - erased);
 						auto ptr = outArray.begin();
 						foreach (store,s)
-							if (!(*s)->WasErased())
+							if ((*s))
 								(*ptr++) = *s;
 						ASSERT__(ptr == outArray.end());
 					}
