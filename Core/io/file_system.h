@@ -134,7 +134,11 @@ namespace DeltaWorks
 			PathString			GetInnerName()						const;		//!< Returns the name of the local entry (without preceeding folder(s)) excluding any trailing extension \return Inner filename
 			const PathString&	GetLocation()						const;		//!< Returns the absolute filename (including any preceeding folder(s)) \return Absolute location
 			PathString			GetFolder()							const;		//!< Returns the absolute name of the parent folder without trailing slash \return Absolute location of the containing folder
-			PathString			GetExtension()						const;		//!< Returns the file extension (without preceeding dot) \return String containing the file extension
+			/**
+			Returns the file extension (without preceeding dot)
+			@return String containing the file extension
+			*/
+			PathString			GetExtension()						const;
 			const PathString::char_t*			GetExtensionPointer()				const;		//!< Returns the file extension (without preceeding dot) \return Pointer to the beginning of the local filename's file extension. Does not return NULL
 			bool				IsExtension(const PathString&ext)		const;		//!< Checks if the specified extension equals the local file's extension. Comparison is case insensitive. \return true if the specified extension matches the extension of the local file
 			bool				IsFolder()							const;		//!< Returns true if the local entry is a folder/directory (identical to IsDirectory())	\return true if folder
