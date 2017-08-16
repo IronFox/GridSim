@@ -87,7 +87,7 @@ namespace DeltaWorks
 			
 			/**/				Variable(const String&name, const String&type, count_t components=1, UINT32 protection=NoProtection);
 			virtual				~Variable()	{};
-			virtual	String		ConvertToString()			const=0;		//!< Virtual abstract out conversion method. Converts the local variable value(s) to a string representation. The returned string should be a valid parameter for set().
+			virtual	String		ConvertToString()			const=0;		//!< Virtual abstract out conversion method. Converts the local variable value(s) to a string representation. The returned string should be a valid parameter for Set().
 			virtual	bool		Set(const String&value)=0;			//!< Virtual abstract in conversion method. Converts the specified string value to the local variable value(s). @param value String containing the new value(s) \return true if the variable value could be updated, false otherwise
 			virtual bool		Set(const String&component, const String&value)	{return false;};	//!< Component-wise virtual conversion method. The method sets one or more components of the local variable value(s) as described by \b component to \b value @param component Description of one or more components to set @param value String containing the new value(s) \return true if the variable value(s) could be updated, false otherwise
 			/**
@@ -311,7 +311,6 @@ namespace DeltaWorks
 				typedef typename Super::const_iterator	const_iterator;
 
 				Super::Count;
-				Super::count;
 				Super::length;
 				Super::size;
 
@@ -320,7 +319,7 @@ namespace DeltaWorks
 				const_iterator			end() const		{return Super::end();}
 				const Type&				operator[](index_t element)	const {return Super::operator[](element);}
 			
-				bool					IsSet(const String&name) const	{return table.isSet(name);}
+				bool					IsSet(const String&name) const	{return table.IsSet(name);}
 				void					Unset(const String&name)
 				{
 					//ASSERT_EQUAL__(,Super::Count());
@@ -352,7 +351,7 @@ namespace DeltaWorks
 					ASSERT_EQUAL__(table.Count(),Super::Count());
 				}
 				void					Insert(const String&name, const Type&object)	{Set(name,object);}
-				Type					Query(const String&name) const	{ASSERT_EQUAL__(table.Count(),Super::Count()); index_t at; if (table.query(name,at)) return Super::at(at); return Type();}
+				Type					Query(const String&name) const	{ASSERT_EQUAL__(table.Count(),Super::Count()); index_t at; if (table.Query(name,at)) return Super::at(at); return Type();}
 				void					Clear()	{Super::Clear(); table.clear();ASSERT_EQUAL__(table.Count(),Super::Count());}
 			};
 
@@ -449,7 +448,7 @@ namespace DeltaWorks
 			/*!
 			\brief Attempts to set the content of a variable
 											
-			If a variable of the specified path exists then set() will attempt to update its value. The method fails if the matching variable is write-protected.
+			If a variable of the specified path exists then Set() will attempt to update its value. The method fails if the matching variable is write-protected.
 			Otherwise a new variable will be created depending on the content of \a value (float vector, float, int or string). The new variable is not protected.
 											
 			@param path Path of the new or existing variable
@@ -474,7 +473,7 @@ namespace DeltaWorks
 			\return true if the specified variable could be found and unset, false otherwise. The method fails if the found variable is protected against deletion.
 			*/
 			bool						Unset(const String& path);
-			void						UnsetIgnoreProtection(const String& path);	//!< Similar to unset(const String&) except that any protection of the target variable will be ignored
+			void						UnsetIgnoreProtection(const String& path);	//!< Similar to Unset(const String&) except that any protection of the target variable will be ignored
 			/*!
 			\brief Unsets an object variable
 											

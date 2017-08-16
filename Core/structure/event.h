@@ -65,7 +65,7 @@ namespace DeltaWorks
 			}
 			void					operator()(DomainClass*cl)	const
 			{
-				for (index_t i = 0; i < callbacks.count(); i++)
+				for (index_t i = 0; i < callbacks.Count(); i++)
 					callbacks[i].Execute(cl);
 			}
 			void					Clear()
@@ -84,7 +84,7 @@ namespace DeltaWorks
 		}
 		void			operator()()	const
 		{
-			for (index_t i = 0; i < callbacks.count(); i++)
+			for (index_t i = 0; i < callbacks.Count(); i++)
 				callbacks[i]();
 		}
 		void			Clear()		{callbacks.Clear();}

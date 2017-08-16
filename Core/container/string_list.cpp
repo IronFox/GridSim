@@ -16,7 +16,7 @@ namespace DeltaWorks
 				if (const char*found = strchr(at,' '))
 				{
 					size_t len = found-at;
-					set(String(at,len));
+					Set(String(at,len));
 					at = found +1;
 					if (len > max_len)
 						max_len = len;
@@ -26,7 +26,7 @@ namespace DeltaWorks
 					String str = at;
 					if (str.length() > max_len)
 						max_len = str.length();
-					set(str);
+					Set(str);
 					return;
 				}
 			}
@@ -81,7 +81,7 @@ namespace DeltaWorks
 					size_t qindex;
 					if (config.quotation_escape_character == c)
 						escaped = !escaped;
-					elif (!escaped && (qindex = config.quotations.query(c)) && qindex == status.in_string)
+					elif (!escaped && (qindex = config.quotations.Query(c)) && qindex == status.in_string)
 					{
 						status.in_string = 0;
 						if (!status.recursion_level && config.string_break)
@@ -94,7 +94,7 @@ namespace DeltaWorks
 				else
 				{
 					size_t rindex;
-					if ((status.in_string = config.quotations.query(c)))
+					if ((status.in_string = config.quotations.Query(c)))
 					{
 						escaped = false;
 						if (!status.recursion_level && config.string_break)
@@ -103,7 +103,7 @@ namespace DeltaWorks
 							continue;
 						}
 					}
-					elif ((rindex = config.recursion_up.query(c)))
+					elif ((rindex = config.recursion_up.Query(c)))
 					{
 						if (!status.recursion_level && config.recursion_break)
 							END_EXCLUSIVE
@@ -112,7 +112,7 @@ namespace DeltaWorks
 					}
 					elif (status.recursion_level)
 					{
-						if (config.recursion_down.query(c) == status.recursion_buffer[status.recursion_level-1])
+						if (config.recursion_down.Query(c) == status.recursion_buffer[status.recursion_level-1])
 						{
 							status.recursion_level--;
 							if (!status.recursion_level)
@@ -130,7 +130,7 @@ namespace DeltaWorks
 							size_t max = size_t(end-ch) >= config.operators.maxLength() ? config.operators.maxLength() : (end-ch);
 							bool found = false;
 							for (size_t j = max; j > 0; j--)
-								if (config.operators.isSet(StringRef(ch-1,j)))
+								if (config.operators.IsSet(StringRef(ch-1,j)))
 								{
 									END_EXCLUSIVE
 									ch += j-1;
@@ -250,7 +250,7 @@ namespace DeltaWorks
 					size_t qindex;
 					if (config.quotation_escape_character == c)
 						escaped = !escaped;
-					elif (!escaped && (qindex = config.quotations.query(c)) && qindex == status.in_string)
+					elif (!escaped && (qindex = config.quotations.Query(c)) && qindex == status.in_string)
 					{
 						status.in_string = 0;
 						if (!status.recursion_level && config.string_break)
@@ -263,7 +263,7 @@ namespace DeltaWorks
 				else
 				{
 					size_t rindex;
-					if ((status.in_string = config.quotations.query(c)))
+					if ((status.in_string = config.quotations.Query(c)))
 					{
 						escaped = false;
 						if (!status.recursion_level && config.string_break)
@@ -272,7 +272,7 @@ namespace DeltaWorks
 							continue;
 						}
 					}
-					elif ((rindex = config.recursion_up.query(c)))
+					elif ((rindex = config.recursion_up.Query(c)))
 					{
 						if (!status.recursion_level && config.recursion_break)
 							END_EXCLUSIVE
@@ -281,7 +281,7 @@ namespace DeltaWorks
 					}
 					elif (status.recursion_level)
 					{
-						if (config.recursion_down.query(c) == status.recursion_buffer[status.recursion_level-1])
+						if (config.recursion_down.Query(c) == status.recursion_buffer[status.recursion_level-1])
 						{
 							status.recursion_level--;
 							if (!status.recursion_level)
@@ -299,7 +299,7 @@ namespace DeltaWorks
 							size_t max = size_t(end-ch) >= config.operators.maxLength() ? config.operators.maxLength() : size_t(end-ch);
 							bool found = false;
 							for (size_t j = max; j > 0; j--)
-								if (config.operators.isSet(StringRef(ch-1,j)))
+								if (config.operators.IsSet(StringRef(ch-1,j)))
 								{
 									END_EXCLUSIVE
 									ch += j-1;
@@ -395,7 +395,7 @@ namespace DeltaWorks
 			size_t result = 1;
 			bool escaped=false;
 			
-			size_t quote_index = config.quotations.query(line.FirstChar());
+			size_t quote_index = config.quotations.Query(line.FirstChar());
 			if (!quote_index)
 				return 0;
 			for (size_t i = 1; i+1 < line.length(); i++)
@@ -408,17 +408,17 @@ namespace DeltaWorks
 						result++;
 				}
 				else
-					if (config.quotations.query(c) && !escaped)
+					if (config.quotations.Query(c) && !escaped)
 						return 0;
 					else
 					{
-						if (escaped && !config.quotations.query(line.GetChar(i)))
+						if (escaped && !config.quotations.Query(line.GetChar(i)))
 							result++;
 						escaped = false;
 						result++;
 					}
 			}
-			if (config.quotations.query(line.LastChar()) == quote_index)
+			if (config.quotations.Query(line.LastChar()) == quote_index)
 				return result;
 			return 0;
 		}
@@ -435,7 +435,7 @@ namespace DeltaWorks
 					escaped=true;
 				else
 				{
-					if (escaped && !is_escape && !config.quotations.query(c))
+					if (escaped && !is_escape && !config.quotations.Query(c))
 						(*out++) = config.quotation_escape_character;
 					escaped = false;
 					(*out++) = c;
@@ -484,7 +484,7 @@ namespace DeltaWorks
 		{
 			bool result = true;
 			String rs;
-			for (size_t i = 0; i < list.count(); i++)
+			for (size_t i = 0; i < list.Count(); i++)
 				result &= dequote(list[i],config,list[i]);
 			return result;
 		}
@@ -566,7 +566,7 @@ namespace DeltaWorks
 	*/
 		StringList::operator size_t()												  const
 		{
-			return Super::count();
+			return Super::Count();
 		}
 
 
@@ -574,14 +574,14 @@ namespace DeltaWorks
 		{
 			if (case_sensitive)
 			{
-				for (index_t i = 0; i < Super::count(); i++)
+				for (index_t i = 0; i < Super::Count(); i++)
 					if (Super::at(i).operator==(string))
 						Super::Erase(i--);
 			}
 			else
 			{
 				const char*cstr = string.c_str();
-				for (index_t i = 0; i < Super::count(); i++)
+				for (index_t i = 0; i < Super::Count(); i++)
 					if (!strcmpi(cstr,Super::at(i).c_str()))
 						Super::Erase(i--);
 			}
@@ -589,18 +589,18 @@ namespace DeltaWorks
 
 		String& StringList::getReverse(size_t index)
 		{
-			return Get(count()-index-1);
+			return Get(Count()-index-1);
 		}
 
 		const String& StringList::getReverse(size_t index) const
 		{
-			return Get(count()-index-1);
+			return Get(Count()-index-1);
 		}
 
 		String StringList::fuse(size_t index, size_t length, const char*glue, size_t glue_len)  const
 		{
 			size_t		len;
-			size_t	cnt(count());
+			size_t	cnt(Count());
 			if (index > cnt)
 				index = cnt;
 			if (length > cnt-index)
@@ -633,7 +633,7 @@ namespace DeltaWorks
 		size_t  StringList::countOccurrences(const String&string) const
 		{
 			size_t cnt = 0;
-			for (size_t i = 0; i < count(); i++)
+			for (size_t i = 0; i < Count(); i++)
 				if (Super::at(i).operator==(string))
 					cnt++;
 			return cnt;
@@ -667,7 +667,7 @@ namespace DeltaWorks
 
 		String&StringList::Get(size_t index)
 		{
-			if (index < Super::count())
+			if (index < Super::Count())
 				return Super::at(index);
 			empty_string = "";
 			return empty_string;
@@ -675,7 +675,7 @@ namespace DeltaWorks
 
 		const String&StringList::Get(size_t index) const
 		{
-			if (index < Super::count())
+			if (index < Super::Count())
 				return Super::at(index);
 			empty_string = "";
 			return empty_string;
@@ -691,7 +691,7 @@ namespace DeltaWorks
 
 		size_t	StringList::findCaseSensitive(const String&line) const
 		{
-			for (size_t i = 0; i < count(); i++)
+			for (size_t i = 0; i < Count(); i++)
 				if (Super::at(i)==line)
 					return i+1;
 			return 0;
@@ -699,7 +699,7 @@ namespace DeltaWorks
 
 		size_t StringList::findCaseIgnore(const String&line) const
 		{
-			for (size_t i = 0; i < count(); i++)
+			for (size_t i = 0; i < Count(); i++)
 			{
 				const String&str = Super::at(i);
 				if (!strcmpi(str.c_str(),line.c_str()))
@@ -710,22 +710,22 @@ namespace DeltaWorks
 
 		String StringList::list() const
 		{
-			String as="StringList ("+String(count())+")";
-			for (size_t i = 0; i < count(); i++)
+			String as="StringList ("+String(Count())+")";
+			for (size_t i = 0; i < Count(); i++)
 				as+="\n "+Super::at(i);
 			return as;
 		}
 
 		std::ostream&	StringList::printLines(std::ostream&stream, const char*indent)					const
 		{
-			for (size_t i = 0; i < count(); i++)
+			for (size_t i = 0; i < Count(); i++)
 				stream << indent << "("<<i<<") "<<Super::at(i)<<std::endl;
 			return stream;
 		}
 
 		std::ostream&	StringList::printLines(std::ostream&stream, const String&indent)					const
 		{
-			for (size_t i = 0; i < count(); i++)
+			for (size_t i = 0; i < Count(); i++)
 				stream << indent << "("<<i<<") "<<Super::at(i)<<std::endl;
 			return stream;
 		}
@@ -787,14 +787,14 @@ namespace DeltaWorks
 
 		size_t	StringList::charactersInCommon(const String&sample)					const
 		{
-			if (!count())
+			if (!Count())
 				return 0;
 			size_t	max_len = sample.length();
 
 			for (size_t len = 0; len < max_len; len++)
 			{
 				char test = sample.GetChar(len);
-				for (size_t i = 0; i < count(); i++)
+				for (size_t i = 0; i < Count(); i++)
 					if (Super::at(i).GetChar(len) != test)
 						return len;
 			}
@@ -811,7 +811,7 @@ namespace DeltaWorks
 			for (size_t len = 0; len < max_len; len++)
 			{
 				char test = sample.GetChar(len);
-				for (size_t i = 1; i < count(); i++)
+				for (size_t i = 1; i < Count(); i++)
 					if (Super::at(i).GetChar(len) != test)
 						return len;
 			}
@@ -821,7 +821,7 @@ namespace DeltaWorks
 		const String& StringList::longest() const
 		{
 			empty_string = "";
-			size_t cnt = Super::count();
+			size_t cnt = Super::Count();
 			if (!cnt)
 				return empty_string;
 			const String*result = &Super::first();
@@ -841,7 +841,7 @@ namespace DeltaWorks
 		String& StringList::longest()
 		{
 			empty_string = "";
-			size_t cnt = Super::count();
+			size_t cnt = Super::Count();
 			if (!cnt)
 				return empty_string;
 			String*result = &Super::first();
@@ -861,7 +861,7 @@ namespace DeltaWorks
 		String& StringList::shortest()
 		{
 			empty_string = "";
-			size_t cnt = Super::count();
+			size_t cnt = Super::Count();
 			if (!cnt)
 				return empty_string;
 			String*result = &Super::first();
@@ -881,7 +881,7 @@ namespace DeltaWorks
 		const String& StringList::shortest()	const
 		{
 			empty_string = "";
-			size_t cnt = Super::count();
+			size_t cnt = Super::Count();
 			if (!cnt)
 				return empty_string;
 			const String*result = &Super::first();
@@ -901,7 +901,7 @@ namespace DeltaWorks
 		String& StringList::max()
 		{
 			empty_string = "";
-			size_t cnt = Super::count();
+			size_t cnt = Super::Count();
 			if (!cnt)
 				return empty_string;
 			String*result = &Super::first();
@@ -917,7 +917,7 @@ namespace DeltaWorks
 		const String& StringList::max()	const
 		{
 			empty_string = "";
-			size_t cnt = Super::count();
+			size_t cnt = Super::Count();
 			if (!cnt)
 				return empty_string;
 			const String*result = &Super::first();
@@ -933,7 +933,7 @@ namespace DeltaWorks
 		String& StringList::min()	
 		{
 			empty_string = "";
-			size_t cnt = Super::count();
+			size_t cnt = Super::Count();
 			if (!cnt)
 				return empty_string;
 			String*result = &Super::first();
@@ -949,7 +949,7 @@ namespace DeltaWorks
 		const String& StringList::min()		const
 		{
 			empty_string = "";
-			size_t cnt = Super::count();
+			size_t cnt = Super::Count();
 			if (!cnt)
 				return empty_string;
 			const String*result = &Super::first();
@@ -1004,12 +1004,12 @@ namespace DeltaWorks
 		{
 			size_t iterations = longest().length();
 
-			SBucket *first[0x100],*last[0x100],*buckets = alloc<SBucket>(count());
+			SBucket *first[0x100],*last[0x100],*buckets = alloc<SBucket>(Count());
 			memset(last,0,sizeof(last));
 			for (size_t i = iterations-1; i <= iterations; i--)
 			{
 				SBucket*bucket = buckets;
-				for (index_t i = 0; i < Super::count(); i++)
+				for (index_t i = 0; i < Super::Count(); i++)
 				{
 					String&str = Super::operator[](i);
 					BYTE c = (BYTE)(i <= str.length()?str.GetChar(i-1):0);
@@ -1049,7 +1049,7 @@ namespace DeltaWorks
 		void StringList::QuickSort()
 		{
 			if (Count() > 1)
-				Sorting::ByOperator::quickSort<String*,SwapStrategy>(pointer(), 0,count()-1);
+				Sorting::ByOperator::quickSort<String*,SwapStrategy>(pointer(), 0,Count()-1);
 		}
 
 
@@ -1066,7 +1066,7 @@ namespace DeltaWorks
 		size_t StringList::lookupCaseSensitive(const String&line)					 const
 		{
 				size_t	lower = 0,
-						num = count(),
+						num = Count(),
 						upper = num;
 				const char*l = line.c_str();
 				while (lower< upper && upper <= num)
@@ -1088,7 +1088,7 @@ namespace DeltaWorks
 		size_t StringList::lookupCaseIgnore(const String&line)						const
 		{
 				size_t lower = 0,
-						 num = count(),
+						 num = Count(),
 						 upper = num;
 				const char*l = line.c_str();
 				while (lower< upper && upper <= num)

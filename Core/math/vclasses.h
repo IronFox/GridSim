@@ -70,15 +70,13 @@ namespace DeltaWorks
 			static MF_DECLARE(const Self&)	reinterpret(const TVec3<C>&vec)	{return reinterpret_cast<const Self&>(vec);}
 			static MF_DECLARE(const Self&)	Reinterpret(const TVec3<C>&vec)	{return reinterpret_cast<const Self&>(vec);}
 
-			MFUNC3 (void)					set(const C0&x, const C1&y, const C2&z)	{Vec::def(*this,x,y,z);}
 			MFUNC3 (void)					Set(const C0&x, const C1&y, const C2&z)	{Vec::def(*this,x,y,z);}
-			MFUNC1 (void)					set(const C0&v)							{Vec::set(*this,v);}
 			MFUNC1 (void)					Set(const C0&v)							{Vec::set(*this,v);}
 			MF_DECLARE(void)				clear()									{Vec::clear(*this);}
 			MF_DECLARE(void)				Clear()									{Vec::clear(*this);}
 			MF_DECLARE(String)				ToString()								const	{return Vec::toString(*this);}
 			MF_DECLARE(C)					length()								const	{return Vec::length(*this);}
-			MF_DECLARE(C)					Length()								const	{return Vec::length(*this);}
+			MF_DECLARE(C)					GetLength()								const	{return Vec::length(*this);}
 			MF_DECLARE(C)					quadraticLength()						const	{return Vec::dot(*this);}
 			MF_DECLARE(C)					QuadraticLength()						const	{return Vec::dot(*this);}
 			MF_DECLARE(C)					sqr()							 		const	{return Vec::dot(*this);}
@@ -146,13 +144,12 @@ namespace DeltaWorks
 			static MF_DECLARE(const Self&)	reinterpret(const TVec2<C>&vec)	{return reinterpret_cast<const Self&>(vec);}
 			static MF_DECLARE(const Self&)	Reinterpret(const TVec2<C>&vec)	{return reinterpret_cast<const Self&>(vec);}
 
-			MFUNC2 (void)					set(const C0&x, const C1&y)				{Vec::def(*this,x,y);}
 			MFUNC2 (void)					Set(const C0&x, const C1&y)				{Vec::def(*this,x,y);}
 			MF_DECLARE(void)				clear()									{Vec::clear(*this);}
 			MF_DECLARE(void)				Clear()									{Vec::clear(*this);}
 			MF_DECLARE(String)				ToString()								const	{return Vec::toString(*this);}
 			MF_DECLARE(C)					length()								const	{return Vec::length(*this);}
-			MF_DECLARE(C)					Length()								const	{return Vec::length(*this);}
+			MF_DECLARE(C)					GetLength()								const	{return Vec::length(*this);}
 			MF_DECLARE(C)					sqr()							 		const	{return Vec::dot(*this);}
 			MF_DECLARE(C)					Sqr()							 		const	{return Vec::dot(*this);}
 			MF_DECLARE(C)					summary()								const	{return x+y;}
@@ -224,13 +221,12 @@ namespace DeltaWorks
 			MF_CONSTRUCTOR3					Vec4(const C0&x, const C1&y, const TVec2<C2>&zw);
 			MF_CONSTRUCTOR1					Vec4(const C0 field[4]);
 
-			MFUNC4 (void)					set(const C0&x, const C1&y, const C2&z, const C3&w)	{Vec::def(*this,x,y,z,w);}
 			MFUNC4 (void)					Set(const C0&x, const C1&y, const C2&z, const C3&w)	{Vec::def(*this,x,y,z,w);}
 			MF_DECLARE(void)				clear()									{Vec::clear(*this);}
 			MF_DECLARE(void)				Clear()									{Vec::clear(*this);}
 			MF_DECLARE(String)				ToString()								const	{return Vec::toString(*this);}
 			MF_DECLARE(C)					length()								const	{return Vec::length(*this);}
-			MF_DECLARE(C)					Length()								const	{return Vec::length(*this);}
+			MF_DECLARE(C)					GetLength()								const	{return Vec::length(*this);}
 			MF_DECLARE(C)					sqr()							 		const	{return Vec::dot(*this);}
 			MF_DECLARE(C)					Sqr()							 		const	{return Vec::dot(*this);}
 			MF_DECLARE(C)					summary()								const	{return x+y+z+w;}
@@ -335,7 +331,7 @@ namespace DeltaWorks
 													}
 
 					MF_CONSTRUCTOR					VecN()									{}
-					MF_CONSTRUCTOR					VecN(C value)							{VecUnroll<Len>::set(v,value);}
+					MF_CONSTRUCTOR					VecN(C value)							{VecUnroll<Len>::Set(v,value);}
 					MF_CONSTRUCTOR					VecN(C x, C y)							{v[0] = x; v[1] = y;};
 					MF_CONSTRUCTOR					VecN(C x, C y, C z)						{v[0] = x; v[1] = y; v[2] = z;};
 					MF_CONSTRUCTOR					VecN(C x, C y, C z, C a)				{v[0] = x; v[1] = y; v[2] = z; v[3] = a;};
@@ -343,7 +339,7 @@ namespace DeltaWorks
 					MF_DECLARE(void)				clear();											//sets all values to 0
 					MF_DECLARE(String)				ToString()								const;		//returns string of vector-content
 					MF_DECLARE(C)					length()								const;		//calculates norm of the vector
-					MF_DECLARE(C)					Length()								const	{return length();}
+					MF_DECLARE(C)					GetLength()								const	{return length();}
 					MF_DECLARE(C)					sqr()							 		const;		//calculates square of the vector
 					MF_DECLARE(C)					summary()								const;		//calculates sum of all vector-components
 					MF_INIT VecN<C,Len> MF_CC		normalized()							const;		//returns normalized vector

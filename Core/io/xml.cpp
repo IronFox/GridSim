@@ -404,7 +404,7 @@ namespace DeltaWorks
 
 
 	/*
-	bool			XML::Node::query(const String&attrib_name, String&val_out) const
+	bool			XML::Node::Query(const String&attrib_name, String&val_out) const
 	{
 		if (!this)
 			return false;
@@ -703,10 +703,10 @@ namespace DeltaWorks
 					Ctr::Array<String,Adopt>	lines;
 					explodeCallback(isNewLine,entry->inner_content,lines);
 					trim(lines);
-					if (lines.count() > 1)
+					if (lines.Count() > 1)
 					{
 						outfile << nl;
-						for (index_t i = 0; i < lines.count(); i++)
+						for (index_t i = 0; i < lines.Count(); i++)
 						{
 							outfile << tabSpace(indent+1);
 							EncodeValueToStream(outfile,enc,hostEnc,lines[i]);
@@ -731,7 +731,7 @@ namespace DeltaWorks
 					Ctr::Array<String,Adopt>	lines;
 					explodeCallback(isNewLine,entry->inner_content,lines);
 					trim(lines);
-					for (index_t i = 0; i < lines.count(); i++)
+					for (index_t i = 0; i < lines.Count(); i++)
 					{
 						if (i)
 							outfile << nl;
@@ -742,7 +742,7 @@ namespace DeltaWorks
 			}
 		}
 
-		for (index_t i = 0; i < entry->children.count(); i++)
+		for (index_t i = 0; i < entry->children.Count(); i++)
 			writeToStream(outfile,enc,hostEnc,entry->children +i,style,indent+1);
 	
 		if (entry->children.IsNotEmpty() || entry->inner_content.IsNotEmpty())
@@ -767,7 +767,7 @@ namespace DeltaWorks
 					explodeCallback(isNewLine,entry->following_content,lines);
 					trim(lines);
 					outfile << nl;
-					for (index_t i = 0; i < lines.count(); i++)
+					for (index_t i = 0; i < lines.Count(); i++)
 					{
 						outfile << tabSpace(indent);
 						EncodeValueToStream(outfile,enc,hostEnc,lines[i]);
@@ -780,7 +780,7 @@ namespace DeltaWorks
 					Ctr::Array<String,Adopt>	lines;
 					explodeCallback(isNewLine,entry->inner_content,lines);
 					trim(lines);
-					for (index_t i = 0; i < lines.count(); i++)
+					for (index_t i = 0; i < lines.Count(); i++)
 					{
 						if (i)
 							outfile << nl;
@@ -830,9 +830,9 @@ namespace DeltaWorks
 		else
 			local = path;
 
-		//cout << "searching for local='"<<local<<"' among "<<children.count()<<" children"<<endl;
+		//cout << "searching for local='"<<local<<"' among "<<children.Count()<<" children"<<endl;
 		XML::Node*result;
-		for (index_t i = 0; i < children.count(); i++)
+		for (index_t i = 0; i < children.Count(); i++)
 			if (children[i].name == local)
 			{
 				if (sub.IsEmpty())
@@ -854,9 +854,9 @@ namespace DeltaWorks
 		else
 			local = path;
 
-		//cout << "searching for local='"<<local<<"' among "<<children.count()<<" children"<<endl;
+		//cout << "searching for local='"<<local<<"' among "<<children.Count()<<" children"<<endl;
 		XML::Node*result;
-		for (index_t i = 0; i < children.count(); i++)
+		for (index_t i = 0; i < children.Count(); i++)
 			if (children[i].name == local)
 			{
 				if (sub.IsEmpty())
@@ -885,7 +885,7 @@ namespace DeltaWorks
 		}
 		if (sub.IsEmpty())
 			return context;
-		//cout << "delegating search to "<<context->children.count()<<" children using sub path '"<<sub<<"'"<<endl;
+		//cout << "delegating search to "<<context->children.Count()<<" children using sub path '"<<sub<<"'"<<endl;
 		return findIn(context->children,sub);
 	}
 
@@ -913,13 +913,13 @@ namespace DeltaWorks
 		ASSERT_NOT_NULL__(context);
 		Ctr::Array<String,Adopt>	components;
 		explode('/',path,components);
-		if (!components.count())
+		if (!components.Count())
 			throw Except::IO::ParameterFault("Trying to create empty XML segment");
 
-		for (index_t i = 0; i < components.count()-1; i++)
+		for (index_t i = 0; i < components.Count()-1; i++)
 		{
 			index_t next = InvalidIndex;
-			for (index_t j = 0; j < context->children.count() && next == InvalidIndex; j++)
+			for (index_t j = 0; j < context->children.Count() && next == InvalidIndex; j++)
 				if (context->children[j].name == components[i])
 					next = j;
 
@@ -1001,7 +1001,7 @@ namespace DeltaWorks
 	{
 		PScannerRule result;
 		WScannerRule wresult;
-		if (connections.query(name,wresult))
+		if (connections.Query(name,wresult))
 		{
 			result = wresult.lock();
 			result->want_content = want_content;
@@ -1010,13 +1010,13 @@ namespace DeltaWorks
 			return result;
 		}
 		result.reset(new ScannerRule(name,want_content,on_enter,on_exit));
-		connections.set(name,result);
+		connections.Set(name,result);
 		return result;
 	}
 
 	XML::PScannerRule	XML::ScannerRule::Map(const PScannerRule&node)
 	{
-		connections.set(node->name,node);
+		connections.Set(node->name,node);
 		return node;
 	}
 
@@ -1181,7 +1181,7 @@ namespace DeltaWorks
 			{
 				if (!skip('<',f))	//go to next tag
 				{
-					error = stack.count()!=1;
+					error = stack.Count()!=1;
 					working = false;
 					error_string = "Unexpected end of file.";
 				}
@@ -1191,7 +1191,7 @@ namespace DeltaWorks
 			{
 				if (!skip("-->",f))
 				{
-					error = stack.count() != 1;
+					error = stack.Count() != 1;
 					working = false;
 					error_string = "Unexpected end of file.";
 				}
@@ -1209,13 +1209,13 @@ namespace DeltaWorks
 				}
 				if (rule && rule->on_exit)
 					rule->on_exit(stack);		//execute rule
-				stack.Erase(stack.count()-1);	//pop top stack element
+				stack.Erase(stack.Count()-1);	//pop top stack element
 				rule = stack.Last().rule;
 			
 			
 				if (!skip('<',f))
 				{
-					error = stack.count()!=1;
+					error = stack.Count()!=1;
 					working = false;
 					error_string = "Unexpected end of file.";
 				}
@@ -1226,7 +1226,7 @@ namespace DeltaWorks
 			String tag_name = field;
 			WScannerRule wnext;
 			PScannerRule next;
-			if (rule && rule->connections.query(tag_name,wnext))
+			if (rule && rule->connections.Query(tag_name,wnext))
 				next = wnext.lock();
 
 			{
@@ -1313,7 +1313,7 @@ namespace DeltaWorks
 		}
 	
 		fclose(f);
-		if (!error && stack.count()!=1)
+		if (!error && stack.Count()!=1)
 		{
 			error = true;
 			error_string = "Unexpected end of file.";

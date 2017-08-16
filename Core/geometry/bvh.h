@@ -262,11 +262,11 @@ namespace DeltaWorks
 					}
 				}
 			}
-			void				Insert(const Ctr::ArrayData<Entry>&entries)	{Insert(entries.pointer(),entries.count());}
+			void				Insert(const Ctr::ArrayData<Entry>&entries)	{Insert(entries.pointer(),entries.Count());}
 			void				Remove(Object*element)
 			{
 				//lock(_allItems)
-					for (index_t i = 0; i < _allItems.count(); i++)
+					for (index_t i = 0; i < _allItems.Count(); i++)
 						if (_allItems[i].element == element)
 						{
 							_allItems.Erase(i);
@@ -361,14 +361,14 @@ namespace DeltaWorks
 				for (index_t i = 0; i < numElements; i++)
 				{
 					const Entry&e = elements[i];
-					index_t bucketIndex = std::min(buckets.count() - 1, (index_t)(float(Nature::CenterOf(e.bounds,useAxis) - axisRange2.min) / extend2 * buckets.count()));
+					index_t bucketIndex = std::min(buckets.Count() - 1, (index_t)(float(Nature::CenterOf(e.bounds,useAxis) - axisRange2.min) / extend2 * buckets.Count()));
 					Bucket&bucket = buckets[bucketIndex];
 					bucket.numElements ++;
 					DBG_ASSERT_GREATER__(e.bounds.GetVolume(),0);
 					bucket.bounds.Include(e.bounds);
 					DBG_ASSERT_GREATER__(bucket.bounds.GetVolume(),0);
 				}
-				index_t from = 0, to = buckets.count()-1;
+				index_t from = 0, to = buckets.Count()-1;
 				while (buckets[from].numElements == 0)
 					from++;
 				while (buckets[to].numElements == 0)
@@ -395,7 +395,7 @@ namespace DeltaWorks
 				//bounds.GetVolume(volume);
 				DBG_ASSERT_GREATER__(volume,0);
 				buckets[to].volumeFromThis = volume;
-				for (index_t i = to - 1; i < buckets.count(); i--)
+				for (index_t i = to - 1; i < buckets.Count(); i--)
 				{
 					if (buckets[i].numElements > 0)
 					{
@@ -434,15 +434,15 @@ namespace DeltaWorks
 					while (i0 < i1)
 					{
 
-						index_t bucketIndex = std::min(buckets.count() - 1, (index_t)(float(Nature::CenterOf(i0->bounds,useAxis) - axisRange2.min) / extend2 * buckets.count()));
-							//std::min(buckets.count() - 1, (index_t)((i0->boundingBox.axis[useAxis].center() - axisRange2.min) / extend2 * buckets.count()));
+						index_t bucketIndex = std::min(buckets.Count() - 1, (index_t)(float(Nature::CenterOf(i0->bounds,useAxis) - axisRange2.min) / extend2 * buckets.Count()));
+							//std::min(buckets.Count() - 1, (index_t)((i0->boundingBox.axis[useAxis].center() - axisRange2.min) / extend2 * buckets.Count()));
 						if (bucketIndex >= splitAtBucket)
 							break;
 						i0++;
 					}
 					while (i0 < i1)
 					{
-						index_t bucketIndex = std::min(buckets.count() - 1, (index_t)(float(Nature::CenterOf(i1->bounds,useAxis) - axisRange2.min) / extend2 * buckets.count()));
+						index_t bucketIndex = std::min(buckets.Count() - 1, (index_t)(float(Nature::CenterOf(i1->bounds,useAxis) - axisRange2.min) / extend2 * buckets.Count()));
 						if (bucketIndex < splitAtBucket)
 							break;
 						i1--;
@@ -565,7 +565,7 @@ namespace DeltaWorks
 						return;
 					}
 					Ctr::Array<Bucket>	buckets(_numBuckets);
-					_root = _BuildNode(_allItems.pointer(),_allItems.count(),buckets);
+					_root = _BuildNode(_allItems.pointer(),_allItems.Count(),buckets);
 					//if (verbose)
 					  //  printNode(_root,0);
 				}

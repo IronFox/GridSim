@@ -277,7 +277,7 @@ namespace DeltaWorks
 			target.alpha = 1.0;
 			Ctr::Array<String>	segments;
 			explode(' ',line,segments);
-			if (segments.count() != 3)
+			if (segments.Count() != 3)
 				return;
 			convert(segments[0].c_str(),target.red);
 			convert(segments[1].c_str(),target.green);
@@ -291,7 +291,7 @@ namespace DeltaWorks
 				return NULL;
 			PathString key = color_map+"|"+alpha_map;
 			ObjTexture*result;
-			if (texture_field.query(key,result))
+			if (texture_field.Query(key,result))
 				return result;
 			current_callback->hideConverterProgressBar();
 			current_callback->dropLastConverterProgressUpdate();
@@ -363,9 +363,9 @@ namespace DeltaWorks
 			}
 			result = texture_field.define(key);
 			result->data.name = str2name(String(FileSystem::ExtractFileName(color_map)+FileSystem::ExtractFileName(alpha_map)));
-			while (texture_name_table64.isSet(result->data.name))
+			while (texture_name_table64.IsSet(result->data.name))
 				incrementName(result->data.name);
-			texture_name_table64.set(result->data.name);
+			texture_name_table64.Set(result->data.name);
 		
 			if (color && alpha)
 				color_image.AppendAlpha(&alpha_image);
@@ -403,7 +403,7 @@ namespace DeltaWorks
 				return NULL;
 			PathString key = normal_map;
 			ObjTexture*result;
-			if (texture_field.query(key,result))
+			if (texture_field.Query(key,result))
 				return result;
 			current_callback->hideConverterProgressBar();
 			current_callback->dropLastConverterProgressUpdate();
@@ -433,9 +433,9 @@ namespace DeltaWorks
 		
 			result = texture_field.define(key);
 			result->data.name = str2name(String(FileSystem::ExtractFileName(normal_map)));
-			while (texture_name_table64.isSet(result->data.name))
+			while (texture_name_table64.IsSet(result->data.name))
 				incrementName(result->data.name);
-			texture_name_table64.set(result->data.name);
+			texture_name_table64.Set(result->data.name);
 		
 			Ctr::Array<BYTE>	buffer;
 			sendMessage("Compressing...");
@@ -466,7 +466,7 @@ namespace DeltaWorks
 			explode(' ',line,segments);*/
 		
 			//sendMessage("extracting map '"+implode('#',segments)+"'");
-			for (index_t i = 1; i < segments.count(); i++)
+			for (index_t i = 1; i < segments.Count(); i++)
 			{
 				String&seg = segments[i];
 				if (seg.FirstChar() == '-')
@@ -475,11 +475,11 @@ namespace DeltaWorks
 						i++;
 					elif (seg == "-s")
 					{
-						if (i+1 < segments.count())
+						if (i+1 < segments.Count())
 							convert(segments[i+1].c_str(),scale.x);
-						if (i+2 < segments.count())
+						if (i+2 < segments.Count())
 							convert(segments[i+2].c_str(),scale.y);
-						if (i+3 < segments.count())
+						if (i+3 < segments.Count())
 							convert(segments[i+3].c_str(),scale.z);
 						i+=2;
 					}
@@ -569,7 +569,7 @@ namespace DeltaWorks
 							material.reset(new ObjMaterial());
 							material_list << material;
 							material->name = line.subString(7);
-							material_table.set(material->name,material);
+							material_table.Set(material->name,material);
 							logMessage("created material '"+material->name+"'");
 						}
 					break;
@@ -678,19 +678,19 @@ namespace DeltaWorks
 				case 'g':
 				{
 					String name = end-start>2?start+2:"";
-					if (!object_name_table.query(name,current_group))
+					if (!object_name_table.Query(name,current_group))
 					{
 						current_group = Append(group_buffer);
-						object_name_table.set(name,current_group);
+						object_name_table.Set(name,current_group);
 						name.TrimThis().FindAndReplace(' ','_');
 						if (!name.length())
 							name = "unnamend";
 					
 						current_group->name = name;
-						while (object_name_table64.isSet(current_group->name))
+						while (object_name_table64.IsSet(current_group->name))
 							current_group->name+='0';
 						logMessage("starting new group '"+current_group->name+"'");
-						object_name_table64.set(current_group->name);
+						object_name_table64.Set(current_group->name);
 					}
 					else
 						logMessage("continuing existing group '"+current_group->name+"'");
@@ -704,10 +704,10 @@ namespace DeltaWorks
 					unsigned	group;
 					if (convert(start+2,group))
 					{
-						if (!smooth_group_table.query(group,current_smooth_group))
+						if (!smooth_group_table.Query(group,current_smooth_group))
 						{
 							current_smooth_group = smooth_groups++;
-							smooth_group_table.set(group,current_smooth_group);
+							smooth_group_table.Set(group,current_smooth_group);
 							logMessage("smooth group not previously encountered ("+String(group)+") - mapped to "+String(current_smooth_group));
 						}
 						else
@@ -721,7 +721,7 @@ namespace DeltaWorks
 				break;
 				case 'u':
 					if (!strncmp(start,"usemtl",6) && end-start>6)
-						if (!material_table.query(start+7,current_material))
+						if (!material_table.Query(start+7,current_material))
 							logMessage("unable to find material '"+String(start+7)+"'");
 						else
 							logMessage("using material '"+String(start+7)+"'");
@@ -756,7 +756,7 @@ namespace DeltaWorks
 			current_smooth_group = 0;
 			smooth_groups = 1;
 			smooth_group_table.clear();
-			smooth_group_table.set(0,0);
+			smooth_group_table.Set(0,0);
 		}
 
 
@@ -836,8 +836,8 @@ namespace DeltaWorks
 			file_content.free();
 
 			count_t total = 0;
-			for (UINT32 i = 0; i < group_buffer.count(); i++)
-				total += group_buffer[i]->face_buffer.count();
+			for (UINT32 i = 0; i < group_buffer.Count(); i++)
+				total += group_buffer[i]->face_buffer.Count();
 
 			for (index_t i = 0; i < group_buffer.Count(); i++)
 			{
@@ -952,7 +952,7 @@ namespace DeltaWorks
 				update_step = total/100;
 				if (!update_step)
 					update_step = 1;
-				for (index_t i = 0; i < group_buffer.count(); i++)
+				for (index_t i = 0; i < group_buffer.Count(); i++)
 				{
 					PObjFaceGroup group = group_buffer[i];
 					logMessage("calculating normals of group '"+group->name+"'");
@@ -996,7 +996,7 @@ namespace DeltaWorks
 				
 
 			current_callback->hideConverterProgressBar();
-			sendMessage("Extracted "+String(vertexBuffer.Count())+" vertices, "+String(total)+" faces, "+String(group_buffer.count())+" groups, and "+String(material_list.count())+" materials");
+			sendMessage("Extracted "+String(vertexBuffer.Count())+" vertices, "+String(total)+" faces, "+String(group_buffer.Count())+" groups, and "+String(material_list.Count())+" materials");
 			if (broken_vertex_links)
 				sendMessage("Broken vertex links encountered: "+String(broken_vertex_links));
 			if (broken_normal_links)
@@ -1018,16 +1018,16 @@ namespace DeltaWorks
 			using std::fabs;
 
 
-			target.object_field.SetSize(group_buffer.count());
+			target.object_field.SetSize(group_buffer.Count());
 		
-			for (index_t i = 0; i < group_buffer.count(); i++)
+			for (index_t i = 0; i < group_buffer.Count(); i++)
 			{
 				PObjFaceGroup group = group_buffer[i];
 				logMessage("mapping group '"+group->name+"'");
 				group->target = target.object_field+i;
 			
 				target.object_field[i].name = group->name;
-				target.object_table.set(group->name).set(1,i);
+				target.object_table.Set(group->name).Set(1,i);
 				for (index_t j = 0; j < group->face_buffer.Count(); j++)
 				{
 					const TObjFace&face = group->face_buffer[j];
@@ -1104,7 +1104,7 @@ namespace DeltaWorks
 			}
 		
 			Ctr::Array<ObjTexture*>	exp;
-			texture_field.exportTo(exp);
+			texture_field.ExportTo(exp);
 		
 			target.local_textures.entry_field.SetSize(exp.length());
 			target.texture_resource = &target.local_textures;
@@ -1134,8 +1134,8 @@ namespace DeltaWorks
 		
 			count_t render_vertices(0);
 			sendMessage("Writing materials");
-			target.material_field.SetSize(material_list.count());
-			for (index_t i = 0; i < material_list.count(); i++)
+			target.material_field.SetSize(material_list.Count());
+			for (index_t i = 0; i < material_list.Count(); i++)
 			{
 				PObjMaterial material = material_list[i];
 				logMessage("Writing material '"+material->name+"'");
@@ -1175,18 +1175,18 @@ namespace DeltaWorks
 								sendMessage("Conversion error: Normal of vertex "+String(k)+" of render object "+String(j)+" of material "+String(i)+" is not normalized ("+M::Vec::toString(v.n)+")");
 							//s->vertices[k]->index = k;
 						}
-						chunk.idata.SetSize(s->triangles.count()*3+s->quads.count()*4);
-						chunk.triangles = UINT32(s->triangles.count());
-						chunk.quads = UINT32(s->quads.count());
+						chunk.idata.SetSize(s->triangles.Count()*3+s->quads.Count()*4);
+						chunk.triangles = UINT32(s->triangles.Count());
+						chunk.quads = UINT32(s->quads.Count());
 						UINT32*pi = chunk.idata.pointer();
-						for (index_t k = 0; k < s->triangles.count(); k++)
+						for (index_t k = 0; k < s->triangles.Count(); k++)
 						{
 							const TObjTriangle&t = s->triangles[k];
 							(*pi++) = t.v[0];
 							(*pi++) = t.v[1];
 							(*pi++) = t.v[2];
 						}
-						for (index_t k = 0; k < s->quads.count(); k++)
+						for (index_t k = 0; k < s->quads.Count(); k++)
 						{
 							const TObjQuad&t = s->quads[k];
 							(*pi++) = t.v[0];
@@ -1196,7 +1196,7 @@ namespace DeltaWorks
 						}
 						if (pi != chunk.idata+chunk.idata.length())
 							FATAL__("triangle Fill exception");
-						index += static_cast<UINT32>(s->triangles.count()+s->quads.count());
+						index += static_cast<UINT32>(s->triangles.Count()+s->quads.Count());
 					}
 					else
 					{
@@ -1215,19 +1215,19 @@ namespace DeltaWorks
 								sendMessage("Conversion error: Normal of vertex "+String(k)+" of render object "+String(j)+" of material "+String(i)+" is not normalized ("+M::Vec::toString(v.n)+")");
 							//s->tex_vertices[k]->index = k;
 						}
-						chunk.idata.SetSize(s->tex_triangles.count()*3+s->tex_quads.count()*4);
-						chunk.triangles = UINT32(s->tex_triangles.count());
-						chunk.quads = UINT32(s->tex_quads.count());
+						chunk.idata.SetSize(s->tex_triangles.Count()*3+s->tex_quads.Count()*4);
+						chunk.triangles = UINT32(s->tex_triangles.Count());
+						chunk.quads = UINT32(s->tex_quads.Count());
 						UINT32*pi = chunk.idata.pointer();
 
-						for (index_t k = 0; k < s->tex_triangles.count(); k++)
+						for (index_t k = 0; k < s->tex_triangles.Count(); k++)
 						{
 							const TObjTriangleT&t = s->tex_triangles[k];
 							(*pi++) = t.v[0];
 							(*pi++) = t.v[1];
 							(*pi++) = t.v[2];
 						}
-						for (index_t k = 0; k < s->tex_quads.count(); k++)
+						for (index_t k = 0; k < s->tex_quads.Count(); k++)
 						{
 							const TObjQuadT&t = s->tex_quads[k];
 							(*pi++) = t.v[0];
@@ -1238,7 +1238,7 @@ namespace DeltaWorks
 						if (pi != chunk.idata+chunk.idata.length())
 							FATAL__("triangle Fill exception");
 					
-						index += UINT32(s->tex_triangles.count()+s->tex_quads.count());
+						index += UINT32(s->tex_triangles.Count()+s->tex_quads.Count());
 					}
 					if (index/update_step>last_step)
 					{
@@ -1264,7 +1264,7 @@ namespace DeltaWorks
 			Container::Buffer<TPoolQuad>		quad_buffer;
 		
 			sendMessage("Creating geometric hull");
-			for (index_t i = 0; i < group_buffer.count(); i++)
+			for (index_t i = 0; i < group_buffer.Count(); i++)
 			{
 				logMessage(__LINE__);
 				CGS::SubGeometryA<>&child = target.object_field[i];
@@ -1357,8 +1357,8 @@ namespace DeltaWorks
 				}
 				logMessage(__LINE__);
 			
-				vs_hull.triangle_field.SetSize(triangle_buffer.count());
-				for (index_t j = 0; j < triangle_buffer.count(); j++)
+				vs_hull.triangle_field.SetSize(triangle_buffer.Count());
+				for (index_t j = 0; j < triangle_buffer.Count(); j++)
 				{
 					const TPoolTriangle&t = triangle_buffer[j];
 					vs_hull.triangle_field[j].v0 = vs_hull.vertex_field+t.v[0];
@@ -1367,8 +1367,8 @@ namespace DeltaWorks
 				}
 				logMessage(__LINE__);
 			
-				vs_hull.quad_field.SetSize(quad_buffer.count());
-				for (index_t j = 0; j < quad_buffer.count(); j++)
+				vs_hull.quad_field.SetSize(quad_buffer.Count());
+				for (index_t j = 0; j < quad_buffer.Count(); j++)
 				{
 					const TPoolQuad&q = quad_buffer[j];
 					ASSERT3__(q.v[0]<vs_hull.vertex_field.length(),j,q.v[0],vs_hull.vertex_field.length());
@@ -1396,7 +1396,7 @@ namespace DeltaWorks
 				{
 					child.meta.volume *= -1;
 					//vs_hull.invert();				//<- no good. volume calculation failes sometimes if hull is not closed
-					//inversion_field.set(&child,true);
+					//inversion_field.Set(&child,true);
 				}
 				logMessage(__LINE__);
 			
@@ -1424,7 +1424,7 @@ namespace DeltaWorks
 								setProgress((float)index/(float)render_vertices);
 							p += vsize;
 						}
-						/*if (inversion_field.isSet(robj.target))
+						/*if (inversion_field.IsSet(robj.target))
 							robj.invert();*/
 					}
 				}
@@ -1466,14 +1466,14 @@ namespace DeltaWorks
 		Image out;
 	
 		String string;
-		if (texture_names.query(texture,string))
+		if (texture_names.Query(texture,string))
 		{
 			sendMessage("  Texture already exported.");
 			if (TextureCompression::extractContentType(texture->face_field[0]) == PixelType::Color)
 			{
 				fout << "map_Kd "<<string<<nl;
 
-				if (alpha_names.query(texture,string))
+				if (alpha_names.Query(texture,string))
 					fout << "map_d "<<string<<nl;
 			}
 			else
@@ -1502,7 +1502,7 @@ namespace DeltaWorks
 		{
 			if (out.GetContentType() == PixelType::Color && out.GetChannels() > 3)
 			{
-				alpha_names.set(texture,tex_name+".alpha.bmp");
+				alpha_names.Set(texture,tex_name+".alpha.bmp");
 				Image alpha;
 				out.ExtractChannels(3,1,alpha);
 				try
@@ -1535,7 +1535,7 @@ namespace DeltaWorks
 			try
 			{
 				bitmap.SaveToFile(out,base_name+".bmp");
-				texture_names.set(texture,tex_name+".bmp");
+				texture_names.Set(texture,tex_name+".bmp");
 				if (out.GetContentType() == PixelType::Color)
 				{
 					sendMessage("  Color component of '"+tex_name+"' written to '"+base_name+".bmp'");
@@ -1615,7 +1615,7 @@ namespace DeltaWorks
 		
 			Ctr::Array<TFace>*face_field;
 			for (UINT32 i = 0; i < conversion_table.length(); i++)
-				if (conversion_table[i].query(&object,face_field))
+				if (conversion_table[i].Query(&object,face_field))
 				{
 					out << "usemtl "<<geometry.material_field[i].name<<nl;
 					TFace*field = face_field->pointer();

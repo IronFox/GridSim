@@ -59,7 +59,7 @@ namespace DeltaWorks
 				 y = index / target.GetWidth();
 		if (y >= target.GetHeight())
 			return;
-		target.set(x,y,color);
+		target.Set(x,y,color);
 	}
 
 
@@ -154,7 +154,7 @@ namespace DeltaWorks
 						USHORT index = tgaIndex(&image[(y*width+x)*pixel_stride],image_bpp);
 						if (index > map_len)
 							throw Except::IO::DriveAccess::FileFormatFault("Index out of bounds ("+String(index)+")");
-						target.set(x,y,&final_map[index*3]);
+						target.Set(x,y,&final_map[index*3]);
 					}
 			break;
 			case TGA_RGB:
@@ -163,7 +163,7 @@ namespace DeltaWorks
 					{
 						BYTE color[4];
 						tgaColor(image,(y*width+x)*pixel_stride,image_bpp, color);
-						target.set(x,y,color);
+						target.Set(x,y,color);
 					}
 			break;
 			case TGA_RLE_MAPPED:

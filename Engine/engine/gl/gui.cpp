@@ -309,7 +309,7 @@ namespace Engine
 			if (!this)
 				return;
 
-			for (index_t i = 0 ; i < menu_stack.count(); i++)
+			for (index_t i = 0 ; i < menu_stack.Count(); i++)
 			{
 				PWindow	window = menu_stack[i].lock();
 				if (window)
@@ -764,7 +764,7 @@ namespace Engine
 			{
 				Array<String>	segments;
 				explode(',',attrib,segments);
-				if (segments.count() != 4)
+				if (segments.Count() != 4)
 					throw Except::IO::DriveAccess::FileFormatFault(Except::globalString("'title_position' attribute of XML 'layout' node does not contain 4 comma-separated segments"));
 
 				if (!convert(segments[0].c_str(),titlePosition.x.min)
@@ -785,7 +785,7 @@ namespace Engine
 					
 				Array<String>	segments;
 				explode(',',attrib,segments);
-				if (segments.count() != 4)
+				if (segments.Count() != 4)
 					throw Except::IO::DriveAccess::FileFormatFault(Except::globalString("'border_edge' attribute of XML 'layout' node does not contain 4 comma-separated segments"));
 
 				if (!convert(segments[0].c_str(),borderEdge.left)
@@ -806,7 +806,7 @@ namespace Engine
 
 				Array<String>	segments;
 				explode(',',attrib,segments);
-				if (segments.count() != 4)
+				if (segments.Count() != 4)
 					throw Except::IO::DriveAccess::FileFormatFault(Except::globalString("'client_edge' attribute of XML 'layout' node does not contain 4 comma-separated segments"));
 
 				if (!convert(segments[0].c_str(),clientEdge.left)
@@ -827,7 +827,7 @@ namespace Engine
 				throw Except::IO::DriveAccess::FileFormatFault(Except::globalString("XML file lacks 'layout/rows' node"));
 			
 			
-			for (index_t i = 0; i < xrows->children.count(); i++)
+			for (index_t i = 0; i < xrows->children.Count(); i++)
 			{
 				const XML::Node&xrow = xrows->children[i];
 				if (xrow.name == "row")
@@ -842,7 +842,7 @@ namespace Engine
 					TIORow&row = iorows.Append();
 					row.variableHeight = attrib == "stretch";
 					
-					for (index_t j = 0; j < xrow.children.count(); j++)
+					for (index_t j = 0; j < xrow.children.Count(); j++)
 					{
 						const XML::Node&xcell = xrow.children[j];
 						if (xcell.name == "cell")
@@ -898,9 +898,9 @@ namespace Engine
 				row.variable_cells = 0;
 				row.fixed_width = 0;
 				
-				cellCount += row.cells.count();
+				cellCount += row.cells.Count();
 				
-				for (index_t j = 0; j < row.cells.count(); j++)
+				for (index_t j = 0; j < row.cells.Count(); j++)
 				{
 					const TIOCell&icell = iorows[i].cells[j];
 					TCell&cell = row.cells[j];
@@ -965,7 +965,7 @@ namespace Engine
 			
 			
 			
-			for (index_t i = 0; i < rows.count(); i++)
+			for (index_t i = 0; i < rows.Count(); i++)
 			{
 				const TRow&row = rows[i];
 				
@@ -976,7 +976,7 @@ namespace Engine
 				if (variableWidth < 0)
 					variableWidth = 0;
 				float x = window_location.x.min;
-				for (index_t j = 0; j < row.cells.count(); j++)
+				for (index_t j = 0; j < row.cells.Count(); j++)
 				{
 
 					const TCell&cell = row.cells[j];
@@ -998,7 +998,7 @@ namespace Engine
 				}
 				y-=row_height;
 			}
-			ASSERT_EQUAL__(cell_index,layout.cells.count());
+			ASSERT_EQUAL__(cell_index,layout.cells.Count());
 			layout.client.x.min = /* floor */M::Round(window_location.x.min+clientEdge.left);
 			layout.client.x.max = /* ceil */M::Round(window_location.x.max - clientEdge.right);
 			layout.client.y.min = /* floor */M::Round(window_location.y.min + clientEdge.bottom);
@@ -1030,9 +1030,9 @@ namespace Engine
 				result->destination.x = config.initialPosition.center.x;
 				result->destination.y = config.initialPosition.center.y;
 				
-				for (index_t i = 0; i < windowStack.count(); i++)
+				for (index_t i = 0; i < windowStack.Count(); i++)
 					windowStack[i]->destination.shellRadius = radiusOf(i);
-				//result->destination.shellRadius = radiusOf(windowStack.count()-1);
+				//result->destination.shellRadius = radiusOf(windowStack.Count()-1);
 				//result->destination.x *= result->destination.shellRadius;
 				//result->destination.y *= result->destination.shellRadius;
 				result->origin.x = 0;
@@ -1108,7 +1108,7 @@ namespace Engine
 			rect.Include(p);
 			
 			if (window == windowStack.last())	//top most window also copies for menu windows, which override the parent window rather than blurring over it
-				for (index_t i = 0; i < menu_stack.count(); i++)
+				for (index_t i = 0; i < menu_stack.Count(); i++)
 				{
 					PWindow menu_ = menu_stack[i].lock();
 					if (!menu_)
@@ -1165,7 +1165,7 @@ namespace Engine
 			{
 				case Cylindrical:
 				{
-					//float r = 1.0f+((float)windowStack.count()-window->has_depth)*0.1;
+					//float r = 1.0f+((float)windowStack.Count()-window->has_depth)*0.1;
 					#ifdef DEEP_GUI
 						unsigned res = (unsigned)((float)window->size.width/window->current_center.shellRadius/50);
 					#else
@@ -1214,7 +1214,7 @@ namespace Engine
 			{
 				case Cylindrical:
 				{
-					//float r = 1.0f+((float)windowStack.count()-window->has_depth)*0.1;
+					//float r = 1.0f+((float)windowStack.Count()-window->has_depth)*0.1;
 					#ifdef DEEP_GUI
 						unsigned res = (unsigned)((float)window->size.width/window->current_center.shellRadius/50);
 					#else
@@ -1531,7 +1531,7 @@ namespace Engine
 		
 		float Operator::radiusOf(index_t stack_layer)	const
 		{
-			return 0.9+0.1*(windowStack.count()-stack_layer);
+			return 0.9+0.1*(windowStack.Count()-stack_layer);
 		}
 
 
@@ -1579,7 +1579,7 @@ namespace Engine
 			next.y.min = (int)floor(region.y.min);
 			next.x.max = (int)ceil(region.x.max);
 			next.y.max = (int)ceil(region.y.max);
-			if (clipStack.count() > 1)
+			if (clipStack.Count() > 1)
 			{
 				const M::Rect<int>&prev = clipStack.GetFromEnd(1);
 				next.ConstrainBy(prev);
@@ -2397,7 +2397,7 @@ namespace Engine
 			{
 				op->normalRenderer.Configure(normalBuffer,Resolution(size.width,size.height));
 
-				for (index_t j = 0; j < cellLayout.cells.count(); j++)
+				for (index_t j = 0; j < cellLayout.cells.Count(); j++)
 				{
 					const TCellInstance&cell = cellLayout.cells[j];
 					op->normalRenderer.TextureRect(cell.region,cell.normalTexture);
@@ -2410,7 +2410,7 @@ namespace Engine
 		
 
 				op->colorRenderer.Configure(colorBuffer,Resolution(size.width,size.height));
-				for (index_t j = 0; j < cellLayout.cells.count(); j++)
+				for (index_t j = 0; j < cellLayout.cells.Count(); j++)
 				{
 					const TCellInstance&cell = cellLayout.cells[j];
 					op->colorRenderer.TextureRect(cell.region,cell.colorTexture);
@@ -2473,7 +2473,7 @@ namespace Engine
 				if (!enabled || !parentIsEnabled)
 					renderer.ModulateColor(0.5);
 
-				for (index_t j = 0; j < cellLayout.cells.count(); j++)
+				for (index_t j = 0; j < cellLayout.cells.Count(); j++)
 				{
 					const TCellInstance&cell = cellLayout.cells[j];
 					renderer.TextureRect(cell.region,cell.colorTexture);
@@ -2492,7 +2492,7 @@ namespace Engine
 				if (!enabled || !parentIsEnabled)
 					renderer.ScaleNormals(0.1f,0.1f,1.f);
 
-				for (index_t j = 0; j < cellLayout.cells.count(); j++)
+				for (index_t j = 0; j < cellLayout.cells.Count(); j++)
 				{
 					const TCellInstance&cell = cellLayout.cells[j];
 					renderer.TextureRect(cell.region,cell.normalTexture);
@@ -2548,7 +2548,7 @@ namespace Engine
 			M::TVec2<float> m;
 			unprojectMouse(m);
 		
-			for (index_t i = windowStack.count()-1; i < windowStack.count(); i--)
+			for (index_t i = windowStack.Count()-1; i < windowStack.Count(); i--)
 			{
 				const PWindow&window = windowStack[i];
 				float rx,ry;
@@ -2568,7 +2568,7 @@ namespace Engine
 			M::TVec2<float> m;
 			unprojectMouse(m);
 		
-			for (index_t i = windowStack.count()-1; i < windowStack.count(); i--)
+			for (index_t i = windowStack.Count()-1; i < windowStack.Count(); i--)
 			{
 				const PWindow&window = windowStack[i];
 				float rx,ry;
@@ -2667,7 +2667,7 @@ namespace Engine
 				elif (cursor_mode == Window::ClickResult::Missed)
 				{
 					bool isModal = false;
-					for (index_t i = menu_stack.count()-1; i < menu_stack.count(); i--)
+					for (index_t i = menu_stack.Count()-1; i < menu_stack.Count(); i--)
 					{
 						PWindow window = menu_stack[i].lock();
 						if (!window)
@@ -2696,7 +2696,7 @@ namespace Engine
 						}
 						isModal = true;
 					}
-					for (index_t i = windowStack.count()-1; i < windowStack.count(); i--)
+					for (index_t i = windowStack.Count()-1; i < windowStack.Count(); i--)
 					{
 						const PWindow&window = windowStack[i];
 						float rx,ry;
@@ -2721,7 +2721,7 @@ namespace Engine
 										cursor_mode = Window::ClickResult::DragWindow;
 								}
 								#ifdef DEEP_GUI
-									for (unsigned j = i-1; j < windowStack.count(); j--)
+									for (unsigned j = i-1; j < windowStack.Count(); j--)
 										windowStack[j]->setShellDestination(radiusOf(j));
 								#endif
 							}
@@ -2775,7 +2775,7 @@ namespace Engine
 			}
 
 			
-			for (index_t i = 0; i < menu_stack.count(); i++)
+			for (index_t i = 0; i < menu_stack.Count(); i++)
 			{
 				PWindow window = menu_stack[i].lock();
 				if (!window)
@@ -2790,7 +2790,7 @@ namespace Engine
 					window->RenderBuffers(*display);
 				}
 			}
-			for (index_t i = 0; i < windowStack.count(); i++)
+			for (index_t i = 0; i < windowStack.Count(); i++)
 			{
 				const PWindow&window = windowStack[i];
 				if (window->visualChanged)
@@ -2840,7 +2840,7 @@ namespace Engine
 			float	w = display->GetClientWidth(),
 					h = display->GetClientHeight();
 			glWhite();
-			for (index_t i = 0; i < windowStack.count(); i++)
+			for (index_t i = 0; i < windowStack.Count(); i++)
 			{
 				const PWindow&window = windowStack[i];
 				
@@ -2848,7 +2848,7 @@ namespace Engine
 
 			}
 			
-			for (index_t i = 0; i < menu_stack.count(); i++)
+			for (index_t i = 0; i < menu_stack.Count(); i++)
 			{
 				PWindow window = menu_stack[i].lock();
 				if (!window)
@@ -2883,7 +2883,7 @@ namespace Engine
 		
 			/*
 
-			for (index_t i = 0; i < windowStack.count(); i++)
+			for (index_t i = 0; i < windowStack.Count(); i++)
 			{
 				const PWindow&window = windowStack[i];
 				
@@ -2891,7 +2891,7 @@ namespace Engine
 
 			}
 			
-			for (index_t i = 0; i < menu_stack.count(); i++)
+			for (index_t i = 0; i < menu_stack.Count(); i++)
 			{
 				PWindow window = menu_stack[i].lock();
 				
@@ -3001,7 +3001,7 @@ namespace Engine
 			#endif
 
 			#ifdef DEEP_GUI
-				for (unsigned j = 0; j < windowStack.count(); j++)
+				for (unsigned j = 0; j < windowStack.Count(); j++)
 					windowStack[j]->setShellDestination(radiusOf(j));
 			#endif
 			stack_changed=true;
@@ -3022,7 +3022,7 @@ namespace Engine
 				}
 				window->operatorLink.reset();
 				#ifdef DEEP_GUI
-					for (index_t j = 0; j < windowStack.count(); j++)
+					for (index_t j = 0; j < windowStack.Count(); j++)
 						windowStack[j]->setShellDestination(radiusOf(j));
 				#endif
 				window->onHide();
@@ -3063,7 +3063,7 @@ namespace Engine
 			unprojectMouse(m);
 			last = m;
 			owns_mouse_down = false;
-			for (index_t i = menu_stack.count()-1; i < menu_stack.count(); i--)
+			for (index_t i = menu_stack.Count()-1; i < menu_stack.Count(); i--)
 			{
 				PWindow window = menu_stack[i].lock();
 				if (!window)
@@ -3097,7 +3097,7 @@ namespace Engine
 				}
 			}
 			
-			for (index_t i = windowStack.count()-1; i < windowStack.count(); i--)
+			for (index_t i = windowStack.Count()-1; i < windowStack.Count(); i--)
 			{
 				PWindow window = windowStack[i];
 			
@@ -3111,7 +3111,7 @@ namespace Engine
 							rs = window->fixedPosition?Window::ClickResult::Ignored:Window::ClickResult::DragWindow;
 					if (rs != Window::ClickResult::Component)
 						Component::ResetFocused();
-					if (i+1 != windowStack.count())
+					if (i+1 != windowStack.Count())
 					{
 						windowStack.Last()->onFocusLost();
 						windowStack.Erase(i);
@@ -3119,7 +3119,7 @@ namespace Engine
 						windowStack << window;
 						window->onFocusGained();
 						#ifdef DEEP_GUI
-							for (unsigned j = 0; j < windowStack.count(); j++)
+							for (unsigned j = 0; j < windowStack.Count(); j++)
 								windowStack[j]->setShellDestination(radiusOf(j));
 						#endif
 					}
@@ -3139,7 +3139,7 @@ namespace Engine
 		{
 			M::TVec2<float> m;
 			unprojectMouse(m);
-			for (index_t i = menu_stack.count()-1; i < menu_stack.count(); i--)
+			for (index_t i = menu_stack.Count()-1; i < menu_stack.Count(); i--)
 			{
 				PWindow window = menu_stack[i].lock();
 				if (!window)
@@ -3176,7 +3176,7 @@ namespace Engine
 				}
 				return true;
 			}
-			for (index_t i = windowStack.count()-1; i < windowStack.count(); i--)
+			for (index_t i = windowStack.Count()-1; i < windowStack.Count(); i--)
 			{
 				PWindow window = windowStack[i];
 				
@@ -3202,7 +3202,7 @@ namespace Engine
 							MouseHover(window,component,x,y);
 					}
 				}
-				if (i+1 != windowStack.count())
+				if (i+1 != windowStack.Count())
 				{
 					windowStack.Last()->onFocusLost();
 					windowStack.Erase(i);
@@ -3211,7 +3211,7 @@ namespace Engine
 					window->onFocusGained();
 				}
 				#ifdef DEEP_GUI
-					for (unsigned j = 0; j < windowStack.count(); j++)
+					for (unsigned j = 0; j < windowStack.Count(); j++)
 						windowStack[j]->setShellDestination(radiusOf(j));
 				#endif
 				return true;

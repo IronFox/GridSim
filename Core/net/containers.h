@@ -288,7 +288,7 @@ namespace DeltaWorks
 					throw Except::Memory::SerializationFault(CLOCATION,"Decompression string contains invalid character");
 			}	
 			
-			void			set(const String&string)
+			void			Set(const String&string)
 			{
 				uncompressed = string;
 				update();
@@ -339,7 +339,7 @@ namespace DeltaWorks
 								{
 									if (is_compressed)
 										return sizeof(is_compressed) + GetSerialSizeOfSize((serial_size_t)serialized.length())+compressed.GetSerialSize(export_size);
-									//cout << (sizeof(is_compressed) + serialized.GetSerialSize())<<" count="<<uncompressed.count()<<endl;
+									//cout << (sizeof(is_compressed) + serialized.GetSerialSize())<<" count="<<uncompressed.Count()<<endl;
 									return sizeof(is_compressed) + serialized.GetSerialSize(export_size);
 								}
 				
@@ -352,7 +352,7 @@ namespace DeltaWorks
 										size_t decompressed_size = serialized.length();
 										return outStream.WriteSize(decompressed_size) && compressed.Serialize(outStream,export_size);
 									}
-									//cout << "serialize count="<<uncompressed.count()<<endl;
+									//cout << "serialize count="<<uncompressed.Count()<<endl;
 									return serialized.Serialize(outStream,export_size);
 								}
 				

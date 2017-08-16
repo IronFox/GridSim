@@ -130,7 +130,7 @@ namespace DeltaWorks
 		*/
 		bool			Supports(const PathString::char_t*extension) const throw()
 		{
-			for (index_t i = 0; i < extensions.count(); i++)
+			for (index_t i = 0; i < extensions.Count(); i++)
 				if (extensions[i] == extension)
 					return true;
 			return false;

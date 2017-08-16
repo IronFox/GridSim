@@ -703,14 +703,14 @@ namespace DeltaWorks
 			TChannel c = {0,exec};
 			synchronized(channel_mutex)
 			{
-				channels.set(channel,c);
+				channels.Set(channel,c);
 			}
 		}
 
 		void DOMAIN_A Node::openChannel(UINT16 channel, _netReceive exec, UINT32 package_size)
 		{
 			TChannel c = {package_size,exec};
-			channels.set(channel,c);
+			channels.Set(channel,c);
 		}
 
 		void DOMAIN_A Node::closeChannel(UINT16 channel)
@@ -726,7 +726,7 @@ namespace DeltaWorks
 			bool is_open;
 			synchronized(channel_mutex)
 			{
-				is_open = channels.isSet(channel);
+				is_open = channels.IsSet(channel);
 			}
 			return is_open;
 		}
@@ -1198,7 +1198,7 @@ namespace DeltaWorks
 				{
 					synchronized(parent->channel_mutex)
 					{
-						if (!parent->channels.query(package->head.lo,receive))
+						if (!parent->channels.Query(package->head.lo,receive))
 						{
 							sysmessage(parent,"CONN: channel ("+IntToStr(package->head.lo)+") not found");
 							return;
@@ -1426,7 +1426,7 @@ namespace DeltaWorks
 
 		count_t DOMAIN_A Server::clients()
 		{
-			return count();
+			return Count();
 		}
 
 		void			Server::lockClients()
@@ -1464,7 +1464,7 @@ namespace DeltaWorks
 		void DOMAIN_A Server::message(UINT16 topic, BYTE flags)//empty package
 		{
 			list_access.lock();
-			for (UINT32 i = 0; i < count(); i++)
+			for (UINT32 i = 0; i < Count(); i++)
 			{
 				Connection*connection = GetChar(i);
 				if (connection) //connection might be dropped this second
@@ -1485,7 +1485,7 @@ namespace DeltaWorks
 		void DOMAIN_A Server::write(UINT16 topic, BYTE flags, const void*data, UINT32 size)
 		{
 			list_access.lock();
-			for (UINT32 i = 0; i < count(); i++)
+			for (UINT32 i = 0; i < Count(); i++)
 			{
 				Connection*connection = GetChar(i);
 				if (connection) //connection might be dropped this second

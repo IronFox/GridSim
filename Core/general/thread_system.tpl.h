@@ -126,8 +126,8 @@ namespace System
 		{
 			num_jobs = 0;
 			(*aligned_offset) = 1;
-			job_semaphore.release(unsigned(workers.count()));
-			for (index_t i = 0; i < workers.count(); i++)
+			job_semaphore.release(unsigned(workers.Count()));
+			for (index_t i = 0; i < workers.Count(); i++)
 				destruct_semaphore.enter();
 		}
 
@@ -527,18 +527,18 @@ namespace System
 		{
 				//if (!terminated)
 			{
-				THREAD_REPORT("sending terminal symbols ("<<workers.count()<<")")
+				THREAD_REPORT("sending terminal symbols ("<<workers.Count()<<")")
 				
-				job_pipe.insertPrimary(Job(),workers.count());
+				job_pipe.insertPrimary(Job(),workers.Count());
 				THREAD_REPORT("waiting for threads to finish")
-				for (unsigned i = 0; i < workers.count(); i++)
+				for (unsigned i = 0; i < workers.Count(); i++)
 				{
 					THREAD_REPORT("joining thread ("<<i<<")")
 					workers[i].awaitCompletion();
 				}
 			}
 			THREAD_REPORT("sleeping")
-			sleep((DWORD)workers.count());
+			sleep((DWORD)workers.Count());
 			THREAD_REPORT("delocating workers")
 			workers.free();
 			THREAD_REPORT("delocated")

@@ -110,7 +110,7 @@ namespace Engine
 			
 			
 		}
-		for (index_t i = 0; i < lights.count(); i++)
+		for (index_t i = 0; i < lights.Count(); i++)
 		{
 		
 			switch (lights[i]->GetType())

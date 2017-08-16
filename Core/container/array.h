@@ -654,11 +654,10 @@ namespace DeltaWorks
 										return elements;
 									}
 				inline count_t		GetLength()	const		/**@copydoc length()*/ {return length();}
-				inline count_t		count()	const		//! Queries the current array size in elements \return Number of elements 
+				inline count_t		Count()	const		//! Queries the current array size in elements \return Number of elements 
 									{
 										return elements;
 									}
-				inline count_t		Count()	const		/**@copydoc length()*/ {return length();}
 				inline count_t		size()	const		//! Queries the current array size in elements \return Number of elements 
 									{
 										return elements;
@@ -803,7 +802,7 @@ namespace DeltaWorks
 
 
 
-				inline	void		set(count_t num_values, ...)	//! Resizes the local array and fills it with the specified elements. The elements must be specified in the type of the local array's data
+				inline	void		Set(count_t num_values, ...)	//! Resizes the local array and fills it with the specified elements. The elements must be specified in the type of the local array's data
 									{
 										SetSize(num_values);
 										va_list vl;
@@ -1045,7 +1044,7 @@ namespace DeltaWorks
 						}
 				
 					template <class T,class OtherStrategy>
-						inline	Array(const Array<T,OtherStrategy>&other):Data(other.count())
+						inline	Array(const Array<T,OtherStrategy>&other):Data(other.Count())
 						{
 							HybridStrategy<MyStrategy,OtherStrategy>::copyElements(other.GetPointer(),data,elements);
 						}
@@ -1060,13 +1059,13 @@ namespace DeltaWorks
 							}
 						}
 				
-						inline	Array(const Array<C,MyStrategy>&other):Data(other.count())
+						inline	Array(const Array<C,MyStrategy>&other):Data(other.Count())
 						{
 							MyStrategy::copyElements(other.data,data,elements);
 						}
 				
 					template <class T>
-						inline	Array(const ArrayRef<T>&other):Data(other.count())
+						inline	Array(const ArrayRef<T>&other):Data(other.Count())
 						{
 							MyStrategy::copyElements(other.GetPointer(),data,elements);
 						}
@@ -1116,7 +1115,7 @@ namespace DeltaWorks
 							{
 								if ((const Array<C,MyStrategy>*)&other == this)	//this should not happen but anyway
 									return *this;
-								reloc(data,elements,other.count());
+								reloc(data,elements,other.Count());
 								HybridStrategy<MyStrategy,OtherStrategy>::copyElements(other.pointer(),data,elements);
 								return *this;
 							}
@@ -1127,7 +1126,7 @@ namespace DeltaWorks
 							{
 								if ((const ArrayRef<C>*)&other == this)	//this should not happen but anyway
 									return *this;
-								reloc(data,elements,other.count());
+								reloc(data,elements,other.Count());
 								MyStrategy::copyElements(other.GetPointer(),data,elements);
 								return *this;
 							}
@@ -1184,7 +1183,7 @@ namespace DeltaWorks
 			
 
 				
-							inline	void	resizeAndImport(C*origin, count_t length)	//!< Resizes the local field and imports the specified number of elements (see import())
+							inline	void	resizeAndImport(C*origin, count_t length)	//!< Resizes the local field and imports the specified number of elements (see Import())
 							{
 								Super::SetSize(length);
 								MyStrategy::moveElements(origin,data,length);
@@ -1201,8 +1200,8 @@ namespace DeltaWorks
 						template <class T, class OtherStrategy>
 							inline void	resizeAndCopy(const Array<T,OtherStrategy>&origin, count_t max=Undefined) //! Copies all elements from \b origin via the = operator overwriting any existing local elements \param origin Array to copy from (may be of a different entry type) \param max Maximum number of elements to read
 							{
-								if (max > origin.count())
-									max = origin.count();
+								if (max > origin.Count())
+									max = origin.Count();
 								Super::SetSize(max);
 								HybridStrategy<MyStrategy,OtherStrategy>::copyElements(origin.pointer(),data,max);
 							}
@@ -1263,8 +1262,8 @@ namespace DeltaWorks
 						template <class T, class OtherStrategy>
 							inline void appendCopy(const Array<T,OtherStrategy>&origin, count_t max=Undefined)	//! Appends some or all elements of \b origin to the end of the local array. Elements are duplicated explicitly using the = operator (strategy is ignored) \param origin Array to copy from \param max Maximum number of elements to append
 							{
-								if (max > origin.count())
-									max = origin.count();
+								if (max > origin.Count())
+									max = origin.Count();
 								count_t old_elements = elements;
 								ResizePreserveContent(elements+max);
 								HybridStrategy<MyStrategy,OtherStrategy>::copyElements(origin.pointer(),data+old_elements,max);
@@ -1272,8 +1271,8 @@ namespace DeltaWorks
 
 							inline void appendCopy(const ArrayData<C>&origin, count_t max=Undefined)	//! Appends some or all elements of \b origin to the end of the local array. Elements are duplicated explicitly using the = operator (strategy is ignored) \param origin Array to copy from \param max Maximum number of elements to append
 							{
-								if (max > origin.count())
-									max = origin.count();
+								if (max > origin.Count())
+									max = origin.Count();
 								count_t old_elements = elements;
 								ResizePreserveContent(elements+max);
 								MyStrategy::copyElements(origin.pointer(),data+old_elements,max);
@@ -1327,8 +1326,8 @@ namespace DeltaWorks
 									appendCopy(origin,max);
 								else
 								{
-									if (max > origin.count())
-										max = origin.count();
+									if (max > origin.Count())
+										max = origin.Count();
 									if (!max)
 										return;
 									C	*new_field = alloc<C>(elements+max);

@@ -707,14 +707,14 @@ namespace Engine
 			FINISH_VARIABLE_UPDATE
 		}
 
-		bool					Variable::set(const M::TVec3<>&vector)
+		bool					Variable::Set(const M::TVec3<>&vector)
 		{
 			INIT_VARIABLE_UPDATE
 			glUniform3f(handle, vector.x,vector.y,vector.z);
 			FINISH_VARIABLE_UPDATE
 		}
 	
-		bool					Variable::set(const M::TVec2<>&vector)
+		bool					Variable::Set(const M::TVec2<>&vector)
 		{
 			INIT_VARIABLE_UPDATE
 			glUniform2f(handle, vector.x,vector.y);
@@ -745,21 +745,21 @@ namespace Engine
 		}
 
 
-		bool			Variable::set(const M::TVec4<>&vector)
+		bool			Variable::Set(const M::TVec4<>&vector)
 		{
 			INIT_VARIABLE_UPDATE
 			glUniform4f(handle, vector.x,vector.y,vector.z,vector.w);
 			FINISH_VARIABLE_UPDATE
 		}
 	
-		bool					Variable::set(const M::TMatrix3<>&matrix)
+		bool					Variable::Set(const M::TMatrix3<>&matrix)
 		{
 			INIT_VARIABLE_UPDATE
 			glUniformMatrix3fv(handle,1,false,matrix.v);
 			FINISH_VARIABLE_UPDATE
 		}
 	
-		bool					Variable::set(const M::TMatrix4<>&matrix)
+		bool					Variable::Set(const M::TMatrix4<>&matrix)
 		{
 			INIT_VARIABLE_UPDATE
 			glUniformMatrix4fv(handle,1,false,matrix.v);
@@ -990,13 +990,13 @@ namespace Engine
 					config.recursion_up = "{";
 					config.recursion_down = "}";
 					config.recursion_break = true;
-					config.trim_characters.set('\n');
-					config.trim_characters.set('\r');
+					config.trim_characters.Set('\n');
+					config.trim_characters.Set('\r');
 				}
 				static DeltaWorks::Ctr::StringList tokens;
 				Tokenizer::tokenize(source, config, tokens);	//!< @overload
 
-				for (index_t i = 0; i+1 < tokens.count();)
+				for (index_t i = 0; i+1 < tokens.Count();)
 				{
 					String*sourceTarget = NULL;
 					const String&group = tokens[i];
@@ -1017,7 +1017,7 @@ namespace Engine
 							ErrMessage("Warning: unexpected code token(s) encountered: '"+group+"'");
 						continue;
 					}
-					for (; i < tokens.count(); )
+					for (; i < tokens.Count(); )
 					{
 						StringRef	source = tokens[i++].TrimRef();
 						if (source.length() == 0)
@@ -1179,7 +1179,7 @@ namespace Engine
 		/*static*/ void				Instance::_ParseUniformVariableInitializers(String&source,Ctr::BasicBuffer<Initializer,Strategy::Swap>& initializers)
 		{
 			const char*str = source.c_str(),*begin = NULL;
-			index_t offset = initializers.count();
+			index_t offset = initializers.Count();
 			while ((begin = CharFunctions::strstr(str,"<:=")))
 			{
 				const char*valueBegin = begin+3;
@@ -1207,7 +1207,7 @@ namespace Engine
 				init.start = foundAt - source.c_str();
 				init.length = str - foundAt;
 			}
-			if (offset == initializers.count())
+			if (offset == initializers.Count())
 				return;
 			StringBuffer	buffer;
 			const char*from = source.c_str();
@@ -1767,11 +1767,11 @@ namespace Engine
 
 			void	Template::Block::Assemble(StringBuffer&target, const UserConfiguration&userConfig, const RenderConfiguration&renderConfig, Light::Type type, index_t lightIndex)
 			{
-				for (index_t i = 0; i < innerLines.count(); i++)
-					if (innerLines[i].segments.count())
+				for (index_t i = 0; i < innerLines.Count(); i++)
+					if (innerLines[i].segments.Count())
 					{
 						const Array<String,Adopt>&segments = innerLines[i].segments;
-						for (index_t j = 0; j < segments.count()-1; j++)
+						for (index_t j = 0; j < segments.Count()-1; j++)
 						{
 							target << segments[j] << lightIndex;
 						}
@@ -1818,11 +1818,11 @@ namespace Engine
 						else
 							child->Assemble(target,userConfig,renderConfig,type,lightIndex);
 					}
-					for (index_t k = 0; k < child->trailingLines.count(); k++)
-						if (child->trailingLines[k].segments.count())
+					for (index_t k = 0; k < child->trailingLines.Count(); k++)
+						if (child->trailingLines[k].segments.Count())
 						{
 							const Array<String,Adopt>&segments = child->trailingLines[k].segments;
-							for (index_t j = 0; j < segments.count()-1; j++)
+							for (index_t j = 0; j < segments.Count()-1; j++)
 							{
 								target << segments[j] << lightIndex;
 							}
@@ -2016,7 +2016,7 @@ namespace Engine
 		
 				tokenizer.parse(condition,tokens);
 		
-				PExpression result = _ProcessLayer(tokens,map,0,tokens.count(),error);
+				PExpression result = _ProcessLayer(tokens,map,0,tokens.Count(),error);
 				if (result && !result->Validate())
 				{
 					error = "Expression '"+result->ConvertToString()+"' failed to validate";
@@ -2072,7 +2072,7 @@ namespace Engine
 			static void		LogLine(const Array<String,Adopt>&lines,index_t index, StringBuffer&logOut)
 			{
 				index_t begin = index >= 2?index-2:0,
-						end = index+3 < lines.count()?index+3:lines.count();
+						end = index+3 < lines.Count()?index+3:lines.Count();
 				//logOut << "-------- context --------"<<nl;
 				logOut << nl;
 				if (begin)
@@ -2087,7 +2087,7 @@ namespace Engine
 			
 					logOut<<nl;
 				}
-				if (end < lines.count())
+				if (end < lines.Count())
 					logOut << "     ..."<<nl;
 			}
 	
@@ -2110,7 +2110,7 @@ namespace Engine
 		
 		
 		
-				for (index_t i = 0; i < lines.count(); i++)
+				for (index_t i = 0; i < lines.Count(); i++)
 				{
 					StripComments(lines[i],inComment);
 					lines[i].TrimThis();
@@ -2141,7 +2141,7 @@ namespace Engine
 						lines.insertImport(i,temp);
 					}
 				}
-				for (index_t i = 0; i < lines.count(); i++)
+				for (index_t i = 0; i < lines.Count(); i++)
 				{
 					const char*c = lines[i].c_str();
 					while (*c && IsWhitespace(*c))
@@ -2315,8 +2315,8 @@ namespace Engine
 				}
 				if (current != root)
 				{
-					logOut << "missing #endif directive at line "<<lines.count()<<nl;
-					LogLine(lines,lines.count()-1,logOut);
+					logOut << "missing #endif directive at line "<<lines.Count()<<nl;
+					LogLine(lines,lines.Count()-1,logOut);
 					return false;
 				}
 		
@@ -2325,14 +2325,14 @@ namespace Engine
 												? current->children.last()->trailingLines
 												: current->innerLines;
 			
-					target.SetSize(lines.count()-blockBegin);
+					target.SetSize(lines.Count()-blockBegin);
 					for (index_t j = 0; j < target.size(); j++)
 					{
 						explode(current->lightLoopConstant,lines[blockBegin+j],target[j].segments);
 					}
 				}
 		
-				line += lines.count()-1;
+				line += lines.Count()-1;
 				return true;
 			}
 	
@@ -2367,7 +2367,7 @@ namespace Engine
 			{
 				if (isShared)
 				{
-					for (index_t i = 0; i < shadowAttachments.count(); i++)
+					for (index_t i = 0; i < shadowAttachments.Count(); i++)
 						if (!shadowAttachments[i].IsEmpty())
 						{
 							buffer << nl;
@@ -2379,7 +2379,7 @@ namespace Engine
 									<< '}'<<nl;
 							FATAL__("Unsupported");
 						}
-					for (index_t i = shadowAttachments.count(); i < renderConfig.lights.Count(); i++)
+					for (index_t i = shadowAttachments.Count(); i < renderConfig.lights.Count(); i++)
 							buffer << "float fragmentShadow"<<i<<"(vec3 position)"<<nl
 									<< '{'<<nl
 									<< "return 1.0;"<<nl
@@ -2719,8 +2719,8 @@ namespace Engine
 			void					Template::VariableMap::Clear()
 			{
 				variableMap.Clear();
-				variableMap.set("fog",FogVariableIndex);
-				variableMap.set("lighting",LightingVariableIndex);
+				variableMap.Set("fog",FogVariableIndex);
+				variableMap.Set("lighting",LightingVariableIndex);
 				changed = true;
 			}
 
@@ -2728,7 +2728,7 @@ namespace Engine
 			{
 				if (!application_shutting_down)
 				{
-					for (index_t i = 0; i < attachedConfigurations.count(); i++)
+					for (index_t i = 0; i < attachedConfigurations.Count(); i++)
 						attachedConfigurations[i]->SignalMapDestruction();
 				}
 
@@ -2741,10 +2741,10 @@ namespace Engine
 	/*
 			void		Configuration::toArray(Array<int>&target)	const
 			{
-				target.Resize(lights.Count()+values.count());
+				target.Resize(lights.Count()+values.Count());
 				for (unsigned i = 0; i < lights.Count(); i++)
 					target[i] = lights[i];
-				for (unsigned i = 0; i < values.count(); i++)
+				for (unsigned i = 0; i < values.Count(); i++)
 					target[i+lights.Count()] = values[i];
 			}*/
 	
@@ -2782,7 +2782,7 @@ namespace Engine
 
 			void Template::RenderConfiguration::Clear()
 			{
-				if (lights.count()!=0 || lightingEnabled || fogEnabled)
+				if (lights.Count()!=0 || lightingEnabled || fogEnabled)
 				{
 					lights.reset();
 					lightingEnabled = false;
@@ -2797,7 +2797,7 @@ namespace Engine
 				if (map)
 					map->Unreg(this);
 				map = NULL;
-				if (values.count() != 2 || values[0] != 0 || values[1] != 0)
+				if (values.Count() != 2 || values[0] != 0 || values[1] != 0)
 				{
 					values.SetSize(2);
 					values[0] = 0;
@@ -2847,10 +2847,10 @@ namespace Engine
 			{
 				if (values.IsEmpty())
 					return;
-				if (values[0] != (int)config.fogEnabled || (values.count() > 1 && values[1] != (int)config.lightingEnabled))
+				if (values[0] != (int)config.fogEnabled || (values.Count() > 1 && values[1] != (int)config.lightingEnabled))
 				{
 					values[FogVariableIndex-1] = config.fogEnabled;
-					if (values.count() > 1)
+					if (values.Count() > 1)
 						values[LightingVariableIndex-1] = config.lightingEnabled;
 					SignalHasChanged();
 				}
@@ -2884,8 +2884,8 @@ namespace Engine
 				index_t result;
 				if (variableMap.query(varName,result))
 					return result;
-				result = variableMap.count()+1;
-				variableMap.set(varName,result);
+				result = variableMap.Count()+1;
+				variableMap.Set(varName,result);
 				changed = true;
 				return result;
 			}
@@ -2894,7 +2894,7 @@ namespace Engine
 			bool		Template::UserConfiguration::Set(index_t variable, int value)
 			{
 				index_t index = variable-1;
-				if (index >= values.count())
+				if (index >= values.Count())
 					return false;
 				if (values[index] != value)
 				{
@@ -2909,7 +2909,7 @@ namespace Engine
 				if (!map)
 					return false;
 				index_t index = map->Lookup(varName)-1;
-				if (index >= values.count())
+				if (index >= values.Count())
 					return false;
 				if (values[index] != value)
 				{
@@ -2922,7 +2922,7 @@ namespace Engine
 			int			Template::UserConfiguration::GetValue(index_t variable)	const
 			{
 				index_t index = variable-1;
-				if (index >= values.count())
+				if (index >= values.Count())
 					return 0;
 				return values[index];
 			}
@@ -2932,7 +2932,7 @@ namespace Engine
 				if (!map)
 					return 0;
 				index_t index = map->Lookup(varName)-1;
-				if (index >= values.count())
+				if (index >= values.Count())
 					return 0;
 				return values[index];
 			}
@@ -2971,11 +2971,11 @@ namespace Engine
 					return;
 				}
 
-				count_t old = values.count();
-				values.ResizePreserveContent(map->variableMap.count());
-				for (index_t i = old; i < values.count(); i++)
+				count_t old = values.Count();
+				values.ResizePreserveContent(map->variableMap.Count());
+				for (index_t i = old; i < values.Count(); i++)
 					values[i] = 0;
-				if (old != values.count())
+				if (old != values.Count())
 					SignalHasChanged();
 			}
 
@@ -2992,11 +2992,11 @@ namespace Engine
 				{
 					if (Adapt)
 					{
-						count_t old = values.count();
-						values.ResizePreserveContent(map->variableMap.count());
-						for (index_t i = old; i < values.count(); i++)
+						count_t old = values.Count();
+						values.ResizePreserveContent(map->variableMap.Count());
+						for (index_t i = old; i < values.Count(); i++)
 							values[i] = 0;
-						if (old != values.count())
+						if (old != values.Count())
 							SignalHasChanged();
 					}
 
@@ -3007,7 +3007,7 @@ namespace Engine
 				map = newMap;
 				if (map)
 					map->Reg(this);
-				values.SetSize(map->variableMap.count());
+				values.SetSize(map->variableMap.Count());
 				values.Fill(0);
 
 				SignalHasChanged();
@@ -3057,10 +3057,10 @@ namespace Engine
 						renderConfig->Reg(this);
 						registered = true;
 					}
-					SetSize(renderConfig->lights.Count()+userConfig->values.count());
+					SetSize(renderConfig->lights.Count()+userConfig->values.Count());
 					for (unsigned i = 0; i < renderConfig->lights.Count(); i++)
 						data[i] = renderConfig->lights[i];
-					for (unsigned i = 0; i < userConfig->values.count(); i++)
+					for (unsigned i = 0; i < userConfig->values.Count(); i++)
 						data[i+renderConfig->lights.Count()] = userConfig->values[i];
 					structureChanged = false;
 					userConfigVersion = userConfig->version;
@@ -3466,8 +3466,8 @@ namespace Engine
 			glGenRenderbuffers( 1, &buffer.handle );
 			glBindRenderbuffer( GL_RENDERBUFFER, buffer.handle );
 			glRenderbufferStorage( GL_RENDERBUFFER, GL_DEPTH_COMPONENT, res.width, res.height );
-			depthBufferTable.set(res,index);
-			depthBufferMap.set(buffer.handle,index);
+			depthBufferTable.Set(res,index);
+			depthBufferMap.Set(buffer.handle,index);
 			return buffer.handle;
 		}
 	}
@@ -3488,14 +3488,14 @@ namespace Engine
 		buffer.referenceCount --;
 		if (!buffer.referenceCount)
 		{
-			depthBufferMap.unset(handle);
+			depthBufferMap.Unset(handle);
 			depthBufferMap.visitAllValues([index](index_t&value)
 			{
 				if (value > index)
 					value--;
 			});
 
-			depthBufferTable.unset(buffer.resolution);
+			depthBufferTable.Unset(buffer.resolution);
 			depthBufferTable.visitAllValues([index](index_t&value)
 			{
 				if (value > index)
@@ -4440,7 +4440,7 @@ namespace Engine
 
 	bool Extension::Init(GLuint index)
 	{
-		#define set(group_name)	EXT_CONTEXT(group_name)
+		#define Set(group_name)	EXT_CONTEXT(group_name)
 		#define get(var)			EXT_GET_EXTENSION(var)
 		#define silent(var)		EXT_GET_EXTENSION_NO_CHECK(var)
 
@@ -4459,7 +4459,7 @@ namespace Engine
 			#ifdef GL_ARB_multitexture
 				if (IsAvailable("GL_ARB_multitexture"))
 				{
-					set(ARB);
+					Set(ARB);
 					get(glMultiTexCoord1f);
 					get(glMultiTexCoord1fv);
 					get(glMultiTexCoord2f);
@@ -4498,7 +4498,7 @@ namespace Engine
 			#ifdef GL_NV_register_combiners
 				if (IsAvailable("GL_NV_register_combiners"))
 				{
-					set(NV);
+					Set(NV);
 					get(glCombinerParameterfv);
 					get(glCombinerParameterf);
 					get(glCombinerParameteriv);
@@ -4524,7 +4524,7 @@ namespace Engine
 			#ifdef GL_ARB_vertex_program
 				if (IsAvailable("GL_ARB_vertex_program"))
 				{
-					set(ARB);
+					Set(ARB);
 					get(glVertexAttrib2f);
 					get(glVertexAttrib2d);
 					get(glVertexAttrib3f);
@@ -4579,7 +4579,7 @@ namespace Engine
 			#ifdef GL_ARB_vertex_buffer_object
 				if (IsAvailable("GL_ARB_vertex_buffer_object"))
 				{
-					set(ARB);
+					Set(ARB);
 					get(glBindBuffer);
 					get(glDeleteBuffers);
 					get(glGenBuffers);
@@ -4603,7 +4603,7 @@ namespace Engine
 			#ifdef GL_EXT_compiled_vertex_array
 				if (IsAvailable("GL_EXT_compiled_vertex_array"))
 				{
-					set(EXT);
+					Set(EXT);
 					get(glLockArrays);
 					get(glUnlockArrays);
 				}
@@ -4618,7 +4618,7 @@ namespace Engine
 			#ifdef GL_ARB_shader_objects
 				if (IsAvailable("GL_ARB_shader_objects"))
 				{
-					set(ARB);
+					Set(ARB);
 					get(glDeleteObject);
 					get(glGetHandle);
 					get(glDetachObject);
@@ -4668,18 +4668,18 @@ namespace Engine
 		if (index&EXT_WIN_CONTROL_BIT)
 		{
 			#ifdef WGL_EXT_swap_control
-				set(EXT);
+				Set(EXT);
 				silent(wglSwapInterval);
 				silent(wglGetSwapInterval);
 			#endif
 			#ifdef WGL_ARB_pixel_format
-				set(ARB);
+				Set(ARB);
 				silent(wglChoosePixelFormat);
 				silent(wglGetPixelFormatAttribiv);
 				silent(wglGetPixelFormatAttribfv);
 			#endif
 			#if defined(GLX_SGIX_fbconfig) && !defined(GLX_VERSION_1_3)
-				set(SGIX);
+				Set(SGIX);
 				silent(glXGetFBConfigAttrib);
 				silent(glXChooseFBConfig);
 				silent(glXCreateGLXPixmapWithConfig);
@@ -4692,7 +4692,7 @@ namespace Engine
 		{
 			#if SYSTEM	==WINDOWS
 				#ifdef WGL_ARB_pbuffer
-					set(ARB);
+					Set(ARB);
 					if (IsAvailable("WGL_ARB_pbuffer"))
 					{
 						get(wglCreatePbuffer);
@@ -4713,7 +4713,7 @@ namespace Engine
 			#ifdef WGL_ARB_render_texture
 				if (IsAvailable("WGL_ARB_render_texture"))
 				{
-					set(ARB);
+					Set(ARB);
 					get(wglBindTexImage);
 					get(wglReleaseTexImage);
 					get(wglSetPbufferAttrib);
@@ -4730,7 +4730,7 @@ namespace Engine
 			#ifdef GL_ARB_occlusion_query
 				if (IsAvailable("GL_ARB_occlusion_query"))
 				{
-					set(ARB);
+					Set(ARB);
 					get(glGenQueries);
 					get(glDeleteQueries);
 					get(glIsQuery);
@@ -4752,7 +4752,7 @@ namespace Engine
 			#ifdef WGL_ARB_make_current_read
 				if (IsAvailable("WGL_ARB_make_current_read"))
 				{
-					set(ARB);
+					Set(ARB);
 					get(wglMakeContextCurrent);
 					get(wglGetCurrentReadDC);
 				}
@@ -4768,7 +4768,7 @@ namespace Engine
 			#ifdef GL_ARB_window_pos
 				if (IsAvailable("GL_ARB_window_pos"))
 				{
-					set(ARB);
+					Set(ARB);
 					get(glWindowPos2d);
 					get(glWindowPos2dv);
 					get(glWindowPos2f);
@@ -4797,7 +4797,7 @@ namespace Engine
 			#ifdef GL_ARB_framebuffer_object
 				if (IsAvailable("GL_ARB_framebuffer_object"))
 				{
-					//set(ARB);
+					//Set(ARB);
 					group = "";
 					get(glIsRenderbuffer);
 					get(glBindRenderbuffer);
@@ -4832,7 +4832,7 @@ namespace Engine
 			#ifdef GL_EXT_blend_func_separate
 				if (IsAvailable("GL_EXT_blend_func_separate"))
 				{
-					set(EXT);
+					Set(EXT);
 					get(glBlendFuncSeparate);
 				}
 				else

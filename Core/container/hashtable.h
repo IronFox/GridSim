@@ -218,18 +218,17 @@ namespace DeltaWorks
 			public:
 				virtual			~GenericHashBase()	{};
 	
-				inline size_t	totalSize()							const;	//!< Returns the total size of the set/table in bytes. \return Total size of the local set/table in bytes.
+				inline size_t	GetTotalSize()							const;	//!< Returns the total size of the set/table in bytes. \return Total size of the local set/table in bytes.
 				inline GenericHashBase<Carrier>&operator=(const GenericHashBase<Carrier>&other);
-				inline size_t	count()								const;	//!< Returns the number of entries currently stored in the set/table. \return Number of entries in the set/table.
-				inline size_t	Count()								const	/**@copydoc count()*/	{return count();}
+				inline size_t	Count()								const;	//!< Returns the number of entries currently stored in the set/table. \return Number of entries in the set/table.
 				inline operator size_t()							const;	//!< Implicit conversion to size_t. \return Returns the number of entries in the set/table.
 				inline	void	clear();									//!< Resizes back to the initial set size and un-occupies all carriers. If no resizing took place then the respective objects are not reinitialized.
 				inline	bool	IsEmpty()							const	/**!< Checks if the local table is empty**/	{return entries ==0;}
 				inline	bool	IsNotEmpty()						const	/**!< Checks if the local table contains at least one element*/ 	{return entries !=0;}
 				inline	void	Clear()										/** @copydoc clear() */ {clear();}
-				inline	void	import(GenericHashBase<Carrier>&list);		//!< Imports the content of the specified other hashset/hashtable in addition to the already contained entries. Existing entries are overwritten. \param list Hashset to import entries from.
+				inline	void	Import(GenericHashBase<Carrier>&list);		//!< Imports the content of the specified other hashset/hashtable in addition to the already contained entries. Existing entries are overwritten. \param list Hashset to import entries from.
 				template <class Key>
-					inline void	exportKeys(Ctr::ArrayData<Key>&keys)	const;			//!< Exports the keys to the specified array. \param keys Reference to an array containing all associated keys after execution. 
+					inline void	ExportKeys(Ctr::ArrayData<Key>&keys)	const;			//!< Exports the keys to the specified array. \param keys Reference to an array containing all associated keys after execution. 
 
 				inline	void	Include(const Self&other);	//!< Loads the union of the local and the remote Hash table/set. Duplicate entries are taken once from the local table/set. @param other Hash table/set to calculate the union with.
 				inline	void	Intersect(const Self&other);	//!< Loads the intersection of the local and the remote Hash table/set. Local entries that are not also contained by the remote table/set are dropped. @param other Hash table/set to calculate the intersection with.
@@ -254,11 +253,7 @@ namespace DeltaWorks
 				typedef typename Carrier::Key	K;
 
 				template <class Key>
-					inline	bool					isSet(const Key&ident)				const;	//!< Queries whether ot not data is associated with the specified key without setting it. \param ident Key to look for \return True if the specified key could be found, false otherwise.
-				template <class Key>
-					inline	bool					IsSet(const Key&ident)				const	/** @copydoc IsSet() */{return isSet(ident);}
-				template <class Key>
-					inline	bool					unset(const Key&ident)						/** @copydoc Unset() */{return Unset(ident);}
+					inline	bool					IsSet(const Key&ident)				const;	//!< Queries whether ot not data is associated with the specified key without setting it. \param ident Key to look for \return True if the specified key could be found, false otherwise.
 				template <class Key>
 					inline	bool					Unset(const Key&ident);						//!< Un-sets any data associated with the specifed key. Potentially resizes the internal set. \param ident Key to look for \return True if the specified key could be found and un-set, false otherwise.
 				template <typename F>
@@ -290,13 +285,11 @@ namespace DeltaWorks
 					typedef K						KeyType;	//!< Key type
 
 				template <class Key>
-					inline	void					set(const Key&ident);						//!< Sets the specified key (if not set already). \param ident Key to set
-				template <class Key>
-					inline	void					Set(const Key&ident)	/** @copydoc set()*/ {set(ident);}
+					inline	void					Set(const Key&ident);						//!< Sets the specified key (if not set already). \param ident Key to set
 				template <class Key>
 					inline	bool					SetNew(const Key&ident);		//!< Attemps to insert the specified new identifier. @return true, if the key was not previously set, false otherwise
 				template <class Key>
-					inline	void					setAll(const Ctr::ArrayData<Key>&idents);				//!< Sets the specified range of keys (if not set already). @param idents Ctr::Array of keys to set
+					inline	void					SetAll(const Ctr::ArrayData<Key>&idents);				//!< Sets the specified range of keys (if not set already). @param idents Ctr::Array of keys to set
 			};
 
 	
@@ -347,9 +340,9 @@ namespace DeltaWorks
 				*/
 				inline	void						FilterEntries(const std::function<bool(const K&, DataType&)>&f);
 				template <class Entry>
-					inline	void					exportTo(Ctr::ArrayData<K>&keys, Ctr::ArrayData<Entry>&values)	const;	//!< Exports keys and values to the respective arrays. \param keys Reference to an array containing all associated keys after execution. \param values Reference to an object array containing all contained data elements after execution. \b keys and \b values will be of the same size with each entry of \b keys associated with the entry in \b values of the same index.
+					inline	void					ExportTo(Ctr::ArrayData<K>&keys, Ctr::ArrayData<Entry>&values)	const;	//!< Exports keys and values to the respective arrays. \param keys Reference to an array containing all associated keys after execution. \param values Reference to an object array containing all contained data elements after execution. \b keys and \b values will be of the same size with each entry of \b keys associated with the entry in \b values of the same index.
 				template <class Entry>
-					inline	void					exportTo(Ctr::ArrayData<Entry>&values)		const;	//!< Exports all entries. \param values Reference to an array containing all entries after execution.
+					inline	void					ExportTo(Ctr::ArrayData<Entry>&values)		const;	//!< Exports all entries. \param values Reference to an array containing all entries after execution.
 				template <class Entry>
 					inline	void					exportAddressesTo(Ctr::ArrayData<const K*>&keys, Ctr::ArrayData<Entry*>&values);
 				template <class Entry>
@@ -359,10 +352,9 @@ namespace DeltaWorks
 				template <class Entry>
 					inline	void					exportAddressesTo(Ctr::ArrayData<const Entry*>&values)	const;
 				template <class Entry>
-					inline	bool					findKeyOf(const Entry&entry, K&key)const;	//!< Finds the key of the specified entry and stores it in \b key. Operates in O(n). \param entry Entry to look for. Comparison will be done via operator== . \param key Out key variable. Found key will be assigned via operator= . \return True if the requested element could be found, false otherwise.
-				inline	bool						query(const K&ident, DataType&target)	const;	//!< Requests the content associated with the specified key without setting it. \param ident Key to look for \param target Out reference to copy the respective content to \return True if an entry matching the specified key could be found, false otherwise. \b target remains unchanged if \b key could not be found.
+					inline	bool					FindKeyOf(const Entry&entry, K&key)const;	//!< Finds the key of the specified entry and stores it in \b key. Operates in O(n). \param entry Entry to look for. Comparison will be done via operator== . \param key Out key variable. Found key will be assigned via operator= . \return True if the requested element could be found, false otherwise.
+				inline	bool						Query(const K&ident, DataType&target)	const;	//!< Requests the content associated with the specified key without setting it. \param ident Key to look for \param target Out reference to copy the respective content to \return True if an entry matching the specified key could be found, false otherwise. \b target remains unchanged if \b key could not be found.
 				inline	bool						queryAndUnset(const K&ident, DataType&target); 	//!< Requests the content associated with the specified key and un-sets it. \param ident K to look for \param target Out reference to copy the respective content to \return True if an entry matching the specified key could be found, false otherwise. \b target remains unchanged if \b key could not be found.
-				inline	bool						Query(const K&ident, DataType&target)	const /*@copydoc query()*/ {return query(ident,target);}
 				inline	bool						QueryAndUnset(const K&ident, DataType&target)	/** @copydoc queryAndUnSet() */ {return queryAndUnset(ident,target);}
 				inline	DataType*					queryPointer(const K&ident);				//!< Requests the content associated with the specified key without setting it. The method returns a pointer to the element ot NULL if no such could be found. \param ident Key to look for \return Pointer to the object matching the specified key or NULL if no such could be found
 				inline	DataType*					QueryPointer(const K&ident)				/** @copydoc queryPointer() */{return queryPointer(ident);}
@@ -377,10 +369,8 @@ namespace DeltaWorks
 				template <class Entry>
 					inline	bool					UnsetEntry(const Entry&entry)				/** @copydoc unSetEntry() */{return unsetEntry(entry);}
 				inline	DataType&					Reference(const K&ident, const DataType&initValue);		//!< Sets the specified key (to the specified init value, if not set already) and returns the currently stored value as a reference. \param ident Key to set \param initValue Value to assign to the associated data if the specified key was not previously specified.
-				inline	DataType&					set(const K&ident, const DataType&v);		//!< Sets the specified key (if not set already) and assigns \b v to the associated data. \param ident Key to set \param v Value to assign to the associated data.
-				inline	DataType&					Set(const K&ident, const DataType&v)		{return set(ident,v);}
-				inline	DataType&					set(const K&ident);						//!< Sets the specified key if it is currently not set and returns a reference to it. No change occurs if the specified key is already set (merely returns a reference to it)
-				inline	DataType&					Set(const K&ident)						{return set(ident);}
+				inline	DataType&					Set(const K&ident, const DataType&v);		//!< Sets the specified key (if not set already) and assigns \b v to the associated data. \param ident Key to set \param v Value to assign to the associated data.
+				inline	DataType&					Set(const K&ident);						//!< Sets the specified key if it is currently not set and returns a reference to it. No change occurs if the specified key is already set (merely returns a reference to it)
 				inline	DataType&					GetChar(const K&ident, DataType&except);		//!< Returns a (mutable) reference to the data associated with the specified key, or @a except if no such could be found.
 				inline	DataType&					Get(const K&ident, DataType&except)		{return GetChar(ident,except);}
 				inline	const C&					GetChar(const K&ident, const C&except)	const;			//!< Returns a (const) reference to the data associated with the specified key, or @a except if no such could be found.
@@ -473,26 +463,26 @@ namespace DeltaWorks
 					inline	const DataType			operator[](const Key&ident)			const;	//!< Identical to lookup(ident)
 					inline	operator 				size_t()							const;	//!< Implicit conversion to size_t. \return Returns the number of entries in the table.
 			
-					using Root::isSet;
-					using Root::count;
+					using Root::IsSet;
+					using Root::Count;
 					using Root::Get;
-					using Root::totalSize;
+					using Root::GetTotalSize;
 					#ifndef __BORLANDC__
-					using Root::exportTo;
+					using Root::ExportTo;
 					#else
 				template <class Key, class Entry>
-					inline	void					exportTo(Ctr::ArrayData<Key>&keys, Ctr::ArrayData<Entry>&values)	const
+					inline	void					ExportTo(Ctr::ArrayData<Key>&keys, Ctr::ArrayData<Entry>&values)	const
 					{
-						Root::exportTo(keys,values);
+						Root::ExportTo(keys,values);
 					}
 				template <class Entry>
-					inline	void					exportTo(Ctr::ArrayData<Entry>&values)		const
+					inline	void					ExportTo(Ctr::ArrayData<Entry>&values)		const
 					{
-						Root::exportTo(values);
+						Root::ExportTo(values);
 					}
 					#endif
-					using Root::query;
-					using Root::findKeyOf;
+					using Root::Query;
+					using Root::FindKeyOf;
 			
 			
 			};

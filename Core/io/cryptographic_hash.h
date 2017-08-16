@@ -294,7 +294,7 @@ namespace DeltaWorks
 	public:
 						CRC4();
 						CRC4(const void*data, size_t size);
-			void        set(const void*data, size_t size);
+			void        Set(const void*data, size_t size);
 			void        apply(const void*source, void*target, size_t size);
 	};
 

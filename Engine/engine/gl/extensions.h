@@ -169,16 +169,16 @@
 				inline bool				Set(float x, float y, float z, float w)		{return set4f(x,y,z,w);}
 				bool					Set(float x, float y, float z);
 				bool					Set(float x, float y);
-				bool					set(const M::TVec2<>&);
-				inline bool				Set(const M::TVec2<>&v)	{return set(v);}
-				bool					set(const M::TVec3<>&);
-				inline bool				Set(const M::TVec3<>&v)	{return set(v);}
-				bool					set(const M::TVec4<>&);
-				inline bool				Set(const M::TVec4<>&v)	{return set(v);}
-				bool					set(const M::TMatrix3<>&);
-				inline bool				Set(const M::TMatrix3<>&m)	{return set(m);}
-				bool					set(const M::TMatrix4<>&);
-				inline bool				Set(const M::TMatrix4<>&m)	{return set(m);}
+				bool					Set(const M::TVec2<>&);
+				inline bool				Set(const M::TVec2<>&v)	{return Set(v);}
+				bool					Set(const M::TVec3<>&);
+				inline bool				Set(const M::TVec3<>&v)	{return Set(v);}
+				bool					Set(const M::TVec4<>&);
+				inline bool				Set(const M::TVec4<>&v)	{return Set(v);}
+				bool					Set(const M::TMatrix3<>&);
+				inline bool				Set(const M::TMatrix3<>&m)	{return Set(m);}
+				bool					Set(const M::TMatrix4<>&);
+				inline bool				Set(const M::TMatrix4<>&m)	{return Set(m);}
 				bool					seti(int value);
 				inline bool				SetInt(int value)		{return seti(value);}
 				bool					set2i(int x, int y);
@@ -888,7 +888,7 @@
 				void							ResetVariableMap()	{SetVariableMap(NULL);}
 				
 				inline	index_t					FindVariable(const String&variableName) const		{return currentMap->Lookup(variableName);}	//! Locates a template variable. See VariableMap::locate() for details
-				inline	bool					SetVariable(index_t variable, int value)			{return currentConfig->valid && currentConfig->GetUserConfig()->Set(variable,value);}	//!< Updates the value of a variable. See UserConfiguration::set() for details
+				inline	bool					SetVariable(index_t variable, int value)			{return currentConfig->valid && currentConfig->GetUserConfig()->Set(variable,value);}	//!< Updates the value of a variable. See UserConfiguration::Set() for details
 				/**
 				@brief Constructs a shader instance based on the current render and user configurations
 							

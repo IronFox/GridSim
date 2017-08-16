@@ -117,9 +117,9 @@ template <class List>  void    Sort<Class>::mergeSortRAL(List&list)
 		return;
     typedef typename List::Type Type;
     Type**buffer;
-    alloc(buffer,list.count());
+    alloc(buffer,list.Count());
     Class sort;
-    ::mergeSortRAL(list, 0, list.count(), buffer, sort);
+    ::mergeSortRAL(list, 0, list.Count(), buffer, sort);
     dealloc(buffer);
 }
 
@@ -170,8 +170,8 @@ template <class List>  void    Sort<Class>::bubbleSortRAL(List&list)
     if (list.empty())
         return;
     Class sort;
-    for (size_t i = 0; i < list.count(); i++)
-        for (size_t j=0; j < list.count()-1-i; j++)
+    for (size_t i = 0; i < list.Count(); i++)
+        for (size_t j=0; j < list.Count()-1-i; j++)
             if (sort.greaterObject(list[j],list[j+1]))
                 list.swap(j,j+1);
 }
@@ -265,7 +265,7 @@ template <class List>  void    Sort<Class>::quickSortRAL(List&list)
 	if (list.empty())
 		return;
     Class sort;
-    ::quickSortRAL(list,0,list.count()-1,sort);
+    ::quickSortRAL(list,0,list.Count()-1,sort);
 }
 
 
@@ -345,8 +345,8 @@ template <class Type, class Class> static void downheapField(Type field[], Class
 
 template <class List, class Class>  static void buildHeap(List&list, Class&sort)
 {
-    for (index_t i = list.count()/2-1; i != index_t(-1); i--)
-        downheap(list,sort,i, list.count());
+    for (index_t i = list.Count()/2-1; i != index_t(-1); i--)
+        downheap(list,sort,i, list.Count());
 }
 
 template <class Type, class Class>  static void buildFieldHeap(Type field[], size_t len, Class&sort)
@@ -363,7 +363,7 @@ template <class List>  void    Sort<Class>::heapSortRAL(List&list)
 		return;
     Class sort;
     buildHeap(list,sort);
-    size_t remaining = list.count();
+    size_t remaining = list.Count();
     while (--remaining)
     {
         list.swap(0,remaining);

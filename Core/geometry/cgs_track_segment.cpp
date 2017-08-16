@@ -51,8 +51,8 @@ namespace DeltaWorks
 			if (!stub)
 				return;
 	
-			ASSERT_EQUAL__(connectors.count(),stub->geometry.connector_field.length());
-			ASSERT_EQUAL__(nodes.count(),stub->geometry.connector_field.length());
+			ASSERT_EQUAL__(connectors.Count(),stub->geometry.connector_field.length());
+			ASSERT_EQUAL__(nodes.Count(),stub->geometry.connector_field.length());
 		
 			float offset = -stub->dim.z.max;
 			//(is_outbound)?-stub->dim[2]:-stub->dim[5];	//stubs are rotated. always upper boundary :P
@@ -137,16 +137,16 @@ namespace DeltaWorks
 						(*error_out) = "Both stub and segment are not NULL";
 					return false;
 				}
-				if (nodes.count() != stub->geometry.connector_field.length())
+				if (nodes.Count() != stub->geometry.connector_field.length())
 				{
 					if (error_out)
-						(*error_out) = "Node count ("+String(nodes.count())+") differs from base connector field length ("+String(stub->geometry.connector_field.length())+")";
+						(*error_out) = "Node count ("+String(nodes.Count())+") differs from base connector field length ("+String(stub->geometry.connector_field.length())+")";
 					return false;
 				}
-				if (connectors.count() != stub->geometry.connector_field.length())
+				if (connectors.Count() != stub->geometry.connector_field.length())
 				{
 					if (error_out)
-						(*error_out) = "Connector count ("+String(connectors.count())+") differs from base connector field length ("+String(stub->geometry.connector_field.length())+")";
+						(*error_out) = "Connector count ("+String(connectors.Count())+") differs from base connector field length ("+String(stub->geometry.connector_field.length())+")";
 					return false;
 				}
 				if (!instance || instance->target != &stub->geometry)
@@ -155,7 +155,7 @@ namespace DeltaWorks
 						(*error_out) = "Stub instance invalid or non existent";
 					return false;
 				}
-				for (index_t i = 0; i < connectors.count(); i++)
+				for (index_t i = 0; i < connectors.Count(); i++)
 					if (connectors[i].segment)
 					{
 						if (connectors[i].segment->connector[0] != this
@@ -206,20 +206,20 @@ namespace DeltaWorks
 		{
 			if (stub == stub_)
 				return;
-			unset(preserve_where_possible);
+			Unset(preserve_where_possible);
 			if (!stub_)
 				return;
 			stub = stub_;
 			if (preserve_where_possible)
 			{
-				for (index_t i = stub->geometry.connector_field.length(); i < connectors.count(); i++)
+				for (index_t i = stub->geometry.connector_field.length(); i < connectors.Count(); i++)
 					if (connectors[i].segment)
 						connectors[i].segment->disconnectFrom(this);
 				connectors.ResizePreserveContent(stub->geometry.connector_field.length());
 			
 				if (segment)
 				{
-					if (connectors.count())
+					if (connectors.Count())
 					{
 						connectors[0] = *this;
 						segment = NULL;
@@ -255,7 +255,7 @@ namespace DeltaWorks
 				return false;
 			if (stub != NULL)
 			{
-				for (index_t i = 0; i < connectors.count(); i++)
+				for (index_t i = 0; i < connectors.Count(); i++)
 					if (connectors[i].segment == segment)
 					{
 						slot_out.flipped = connectors[i].flipped;
@@ -280,14 +280,14 @@ namespace DeltaWorks
 
 			if (stub != NULL)
 			{
-				for (index_t i = 0; i < connectors.count(); i++)
+				for (index_t i = 0; i < connectors.Count(); i++)
 					if (connectors[i].segment == segment)
 					{
 						slot_out.flipped = connectors[i].flipped;
 						slot_out.slot_index = i;
 						return;
 					}
-				FATAL__("Stub is set, but none of the "+String(connectors.count())+" connectors matches the specifies segment");
+				FATAL__("Stub is set, but none of the "+String(connectors.Count())+" connectors matches the specifies segment");
 				return;
 			}
 			if (this->segment == segment)
@@ -305,7 +305,7 @@ namespace DeltaWorks
 		{
 			if (!stub)
 				return false;
-			if (index >= connectors.count())
+			if (index >= connectors.Count())
 				return false;
 			if (connectors[index].segment)
 				connectors[index].segment->disconnectFrom(this);
@@ -345,7 +345,7 @@ namespace DeltaWorks
 		{
 			if (segment == segment_)
 				return true;
-			unset();
+			Unset();
 			if (!segment_)
 				return false;
 			flipped = flip;
@@ -389,7 +389,7 @@ namespace DeltaWorks
 		{
 			if (segment == segment_)
 				return true;
-			unset();
+			Unset();
 			if (!segment_)
 				return false;
 			flipped = flip;
@@ -414,7 +414,7 @@ namespace DeltaWorks
 		{
 			if (stub)
 			{
-				for (index_t i = 0; i < connectors.count(); i++)
+				for (index_t i = 0; i < connectors.Count(); i++)
 					if (connectors[i].segment==seg)
 					{
 						if (cascade_event)
@@ -448,8 +448,8 @@ namespace DeltaWorks
 
 		/*virtual*/			TrackNode::~TrackNode()
 		{
-			inbound.unset(false);
-			outbound.unset(false);
+			inbound.Unset(false);
+			outbound.Unset(false);
 		}
 
 		void			TrackNode::disconnect(TrackSegment*seg, bool cascade_event)
@@ -467,7 +467,7 @@ namespace DeltaWorks
 			Composite::sub(coordinates,reference,axis,sector_size);
 			if (outbound.stub)
 			{
-				for (index_t i = 0; i < outbound.connectors.count(); i++)
+				for (index_t i = 0; i < outbound.connectors.Count(); i++)
 					if (!outbound.connectors[i].segment)
 					{
 						float d = Composite::distanceSquare(reference,outbound.nodes[i].coordinates,sector_size);
@@ -481,7 +481,7 @@ namespace DeltaWorks
 			}
 			if (inbound.stub)
 			{
-				for (index_t i = 0; i < inbound.connectors.count(); i++)
+				for (index_t i = 0; i < inbound.connectors.Count(); i++)
 					if (!inbound.connectors[i].segment)
 					{
 						float d = Composite::distanceSquare(reference,inbound.nodes[i].coordinates,sector_size);
@@ -539,7 +539,7 @@ namespace DeltaWorks
 			Composite::sub(coordinates,reference,axis,sector_size);
 			if (outbound.stub)
 			{
-				for (index_t i = 0; i < outbound.connectors.count(); i++)
+				for (index_t i = 0; i < outbound.connectors.Count(); i++)
 					if (!outbound.connectors[i].segment)
 					{
 						float d = Composite::distanceSquare(reference,outbound.nodes[i].coordinates,sector_size);
@@ -553,7 +553,7 @@ namespace DeltaWorks
 			}
 			if (inbound.stub)
 			{
-				for (index_t i = 0; i < inbound.connectors.count(); i++)
+				for (index_t i = 0; i < inbound.connectors.Count(); i++)
 					if (!inbound.connectors[i].segment)
 					{
 						float d = Composite::distanceSquare(reference,inbound.nodes[i].coordinates,sector_size);
@@ -590,14 +590,14 @@ namespace DeltaWorks
 			return false;
 		}
 	
-		void			TrackConnector::unset(bool preserve_connections)
+		void			TrackConnector::Unset(bool preserve_connections)
 		{
 			if (stub)
 			{
 				instance.reset();
 				if (!preserve_connections)
 				{
-					for (index_t i = 0; i < connectors.count(); i++)
+					for (index_t i = 0; i < connectors.Count(); i++)
 						if (connectors[i].segment)
 							connectors[i].segment->disconnectFrom(this);
 					connectors.free();
@@ -617,11 +617,11 @@ namespace DeltaWorks
 		{
 			if (!stub)
 				return;
-			unset(preserve_where_possible);
+			Unset(preserve_where_possible);
 			if (!preserve_where_possible)
 				return;
 			bool set = !segment;
-			for (index_t i = 0; i < connectors.count(); i++)
+			for (index_t i = 0; i < connectors.Count(); i++)
 				if (connectors[i].segment)
 					if (!set)
 					{
@@ -939,10 +939,10 @@ namespace DeltaWorks
 				linearize(source.geometry.object_field[i],source_objects,false);
 			}
 
-			ASSERT_EQUAL__(source_objects.count(),objects.count());	//TRANSITORY
+			ASSERT_EQUAL__(source_objects.Count(),objects.Count());	//TRANSITORY
 		
 		
-			for (index_t i = 0; i < objects.count(); i++)
+			for (index_t i = 0; i < objects.Count(); i++)
 			{
 				ASSERT_EQUAL__(objects[i]->vs_hull_field.length(),source_objects[i]->vs_hull_field.length());	//TRANSITORY
 
@@ -968,7 +968,7 @@ namespace DeltaWorks
 
 				bendHull(source_hull,target_hull,repeat,source.dim.z.min, zrange, segment_length, stretch, path, center);
 			}
-			/*for (index_t i = 0; i < objects.count(); i++)
+			/*for (index_t i = 0; i < objects.Count(); i++)
 				M::Mat::Eye(objects[i]->meta.system);*/
 			geometry.resetSystems();
 			//geometry.root_system.loadIdentity(false);

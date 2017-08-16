@@ -264,10 +264,10 @@ namespace Engine
 		{
 		    StringList list(line);
 		    float len = absolute_text.GetWidth();
-		    while (list.count())
+		    while (list.Count())
 		    {
 				bool split = false;
-		        for (unsigned i = list.count(); i; i--)
+		        for (unsigned i = list.Count(); i; i--)
 		        {
 		            String comb = list.fuse(0,i,' ');
 		            if (textout.GetUnscaledWidth(comb)*font_x <= len)

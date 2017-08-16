@@ -255,9 +255,9 @@ namespace DeltaWorks
 				for (unsigned x = 0; x < info->width; x++)
 					for (unsigned y = 0; y < info->height; y++)
 						if (palette)
-							target.set(x,y,&info->palette[image[y][x]*info->channels].red);
+							target.Set(x,y,&info->palette[image[y][x]*info->channels].red);
 						else
-							target.set(x,y,&image[y][x*info->channels]);
+							target.Set(x,y,&image[y][x*info->channels]);
 			break;
 			case 16:
 				for (unsigned x = 0; x < info->width; x++)
@@ -461,9 +461,9 @@ namespace DeltaWorks
 			for (UINT32 x = 0; x < info->width; x++)
 				for (UINT32 y = 0; y < info->height; y++)
 					if (palette)
-						out_image.set(x,y,&info->palette[image[y][x]*info->channels].red);
+						out_image.Set(x,y,&info->palette[image[y][x]*info->channels].red);
 					else
-						out_image.set(x,y,&image[y][x*info->channels]);
+						out_image.Set(x,y,&image[y][x*info->channels]);
 
 			png_destroy_info_struct(png,&info);
 			png_destroy_read_struct(&png,NULL,NULL);
@@ -503,9 +503,9 @@ namespace DeltaWorks
 			for (UINT32 x = 0; x < info->width; x++)
 				for (UINT32 y = 0; y < info->height; y++)
 					if (palette)
-						out_image.set(x,y,&info->palette[image[y][x]*info->channels].red);
+						out_image.Set(x,y,&info->palette[image[y][x]*info->channels].red);
 					else
-						out_image.set(x,y,&image[y][x*info->channels]);
+						out_image.Set(x,y,&image[y][x*info->channels]);
 
 			png_destroy_info_struct(png,&info);
 			png_destroy_read_struct(&png,NULL,NULL);

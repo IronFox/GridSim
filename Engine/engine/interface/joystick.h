@@ -46,8 +46,8 @@ namespace Engine
 		Ctr::Buffer<State,NumJoysticks>	active;
 		bool			registered;
 	public:
-		count_t			CountActive()	const	{return active.count();}
-		const State*	GetActive(index_t i) const {return i < active.count() ? active+i : NULL;}
+		count_t			CountActive()	const	{return active.Count();}
+		const State*	GetActive(index_t i) const {return i < active.Count() ? active+i : NULL;}
 		const State*	GetActive(const String&name) const;	
 
 

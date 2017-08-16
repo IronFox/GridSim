@@ -75,7 +75,7 @@ template <class Carrier>
 				occupied_keys[at++] = *c;
 		}
 		ASSERT_EQUAL__(at,entries);
-		for (index_t i = 0; i < occupied_keys.count(); i++)
+		for (index_t i = 0; i < occupied_keys.Count(); i++)
 		{
 			const THashSetCarrier<typename Carrier::Key, typename Carrier::AppliedKeyStrategy>&c = occupied_keys[i];
 			if (!other.find(c.hashed,c.key)->occupied)
@@ -95,7 +95,7 @@ template <class Carrier>
 				occupied_keys[at++] = *c;
 		}
 		ASSERT_EQUAL__(at,entries);
-		for (index_t i = 0; i < occupied_keys.count(); i++)
+		for (index_t i = 0; i < occupied_keys.Count(); i++)
 		{
 			const THashSetCarrier<typename Carrier::Key, typename Carrier::AppliedKeyStrategy>&c = occupied_keys[i];
 			if (other.find(c.hashed,c.key)->occupied)
@@ -196,14 +196,14 @@ template <class Carrier>
 	}
 	
 template <class Carrier>
-    inline	size_t				GenericHashBase<Carrier>::totalSize()							const
+    inline	size_t				GenericHashBase<Carrier>::GetTotalSize()							const
 	{
 		return sizeof(*this)+array.GetContentSize();
 	}
 	
 
 template <class Carrier>
-    inline  size_t				GenericHashBase<Carrier>::count()								const
+    inline  size_t				GenericHashBase<Carrier>::Count()								const
 	{
 		return entries;
 	}
@@ -218,7 +218,7 @@ template <class Carrier>
 	}
 
 template <class Carrier>
-	inline  void  GenericHashBase<Carrier>::import(GenericHashBase<Carrier>&list)
+	inline  void  GenericHashBase<Carrier>::Import(GenericHashBase<Carrier>&list)
 	{
 		for (size_t i = 0; i < list.array.length(); i++)
 			if (list.array[i].occupied)
@@ -230,7 +230,7 @@ template <class Carrier>
 
 template <class Carrier>
 	template <class Key>
-		inline	void	GenericHashBase<Carrier>::exportKeys(Ctr::ArrayData<Key>&keys)	const
+		inline	void	GenericHashBase<Carrier>::ExportKeys(Ctr::ArrayData<Key>&keys)	const
 		{
 			keys.SetSize(entries);
 			if (!entries)
@@ -253,7 +253,7 @@ template <class Carrier>
 
 template <class Carrier, class Hash>
 	template <class Key>
-		inline	bool		ExtendedHashBase<Carrier,Hash>::isSet(const Key&ident)				const
+		inline	bool		ExtendedHashBase<Carrier,Hash>::IsSet(const Key&ident)				const
 		{
 			return Base::find(Hash::ComputeHash(ident),ident)->occupied;
 		}
@@ -304,7 +304,7 @@ template <class Carrier, class Hash>
 
 template <class K, class Hash, class KeyStrategy>
 	template <class Key>
-		inline	void		GenericHashSet<K,Hash,KeyStrategy>::set(const Key&ident)						//!< Sets the specified key (if not set already). The data associated with this key will not be (re)initialized. \param ident Key to set
+		inline	void		GenericHashSet<K,Hash,KeyStrategy>::Set(const Key&ident)						//!< Sets the specified key (if not set already). The data associated with this key will not be (re)initialized. \param ident Key to set
 		{
 			Base::find(Hash::ComputeHash(ident),ident,true);
 		}	
@@ -322,9 +322,9 @@ template <class K, class Hash, class KeyStrategy>
 
 template <class K, class Hash, class KeyStrategy>
 	template <class Key>
-		inline	void		GenericHashSet<K,Hash,KeyStrategy>::setAll(const Ctr::ArrayData<Key>&idents)						//!< Sets the specified key (if not set already). The data associated with this key will not be (re)initialized. \param ident Key to set
+		inline	void		GenericHashSet<K,Hash,KeyStrategy>::SetAll(const Ctr::ArrayData<Key>&idents)						//!< Sets the specified key (if not set already). The data associated with this key will not be (re)initialized. \param ident Key to set
 		{
-			for (index_t i = 0; i < idents.count(); i++)
+			for (index_t i = 0; i < idents.Count(); i++)
 				Base::find(Hash::ComputeHash(idents[i]),idents[i],true);
 		}	
 
@@ -462,7 +462,7 @@ template <class K, class C, class Hash, class KeyStrategy, class DataStrategy>
 
 template <class K, class C, class Hash, class KeyStrategy, class DataStrategy>
 	template <class Entry>
-	inline  void  GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::exportTo(Ctr::ArrayData<K>&keys, Ctr::ArrayData<Entry>&values)	const 
+	inline  void  GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::ExportTo(Ctr::ArrayData<K>&keys, Ctr::ArrayData<Entry>&values)	const 
 	{
 		keys.SetSize(Base::entries);
 		values.SetSize(Base::entries);
@@ -480,7 +480,7 @@ template <class K, class C, class Hash, class KeyStrategy, class DataStrategy>
 	
 
 template <class K, class C, class Hash, class KeyStrategy, class DataStrategy>	template <class Entry>
-	inline  void  GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::exportTo(Ctr::ArrayData<Entry>&values)	const
+	inline  void  GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::ExportTo(Ctr::ArrayData<Entry>&values)	const
 	{
 		values.SetSize(Base::entries);
 		if (!Base::entries)
@@ -498,7 +498,7 @@ template <class K, class C, class Hash, class KeyStrategy, class DataStrategy>	t
 	
 
 template <class K, class C, class Hash, class KeyStrategy, class DataStrategy> template <class Entry>
-	inline	bool		GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::findKeyOf(const Entry&entry, K&key)const
+	inline	bool		GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::FindKeyOf(const Entry&entry, K&key)const
 	{
 		for (size_t i = 0; i < Base::array.length(); i++)
 			if (Base::array[i].occupied && Base::array[i].cast() == entry)
@@ -564,7 +564,7 @@ template <class K, class C, class Hash, class KeyStrategy, class DataStrategy>
 	}
 
 template <class K, class C, class Hash, class KeyStrategy, class DataStrategy>
-	inline	bool	GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::query(const K&ident, DataType&target)	const
+	inline	bool	GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::Query(const K&ident, DataType&target)	const
 	{
 		const Carrier*c = Base::find(Hash::ComputeHash(ident),ident);
 		if (!c->occupied)
@@ -593,13 +593,13 @@ template <class Entry>
 	inline	bool				GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::unsetEntry(const Entry&entry)
 	{
 		K key;
-		return findKeyOf(entry,key) && Base::Unset(key);
+		return FindKeyOf(entry,key) && Base::Unset(key);
 	}
 	
 		
 	
 template <class K, class C, class Hash, class KeyStrategy, class DataStrategy> 
-	inline	C&					GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::set(const K&ident, const DataType&v)
+	inline	C&					GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::Set(const K&ident, const DataType&v)
 	{
 		C&rs = Base::find(Hash::ComputeHash(ident),ident,true)->cast();
 		rs = v;
@@ -628,7 +628,7 @@ template <class K, class C, class Hash, class KeyStrategy, class DataStrategy>
 	}
 
 template <class K, class C, class Hash, class KeyStrategy, class DataStrategy>
-    inline  typename GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::DataType&           		GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::set(const K&ident)
+    inline  typename GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::DataType&           		GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::Set(const K&ident)
 	{
 		Carrier*c = Base::find(Hash::ComputeHash(ident),ident,true);
 		return c->cast();
@@ -676,7 +676,7 @@ template <class K, class C, class Hash, class KeyStrategy>
 	inline  void	GenericHashContainer<K,C,Hash,KeyStrategy>::importAndFlush(GenericHashContainer<K,C,Hash,KeyStrategy>&list)
 	{
 
-		Root::import(list);
+		Root::Import(list);
 		list.flush();
 
 	}

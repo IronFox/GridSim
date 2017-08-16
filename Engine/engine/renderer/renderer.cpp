@@ -19,7 +19,7 @@ namespace Engine
 	
 	
 		
-	Light::Light(LightScene*scene_,VisualInterface*interface_):origin(scene_->count()),scene(scene_),parent_interface(interface_),moved(false),modified(false),index(InvalidIndex)
+	Light::Light(LightScene*scene_,VisualInterface*interface_):origin(scene_->Count()),scene(scene_),parent_interface(interface_),moved(false),modified(false),index(InvalidIndex)
 	{}
 
 
@@ -499,7 +499,7 @@ namespace Engine
 			.AddGeneric(color)
 			.AddGeneric(floats_per_vertex)
 			;
-		for (index_t i = 0; i < texcoords.count(); i++)
+		for (index_t i = 0; i < texcoords.Count(); i++)
 			rs.AddGeneric(texcoords[i]);
 		return rs;
 	}
@@ -536,44 +536,44 @@ namespace Engine
 
 	void VertexBinding::read(const CGS::MaterialInfo&info, UINT32 flags)
 	{
-		vertex.set(0,3);
+		vertex.Set(0,3);
 		floats_per_vertex = 3;
 		if (flags&CGS::HasNormalFlag)
 		{
-			normal.set(floats_per_vertex,3);
+			normal.Set(floats_per_vertex,3);
 			floats_per_vertex += 3;
 		}
 		else
-			normal.set(0,0);
+			normal.Set(0,0);
 
 		if (flags&CGS::HasTangentFlag)
 		{
-			tangent.set(floats_per_vertex,3);
+			tangent.Set(floats_per_vertex,3);
 			floats_per_vertex += 3;
 		}
 		else
-			tangent.set(0,0);
+			tangent.Set(0,0);
 
 		if (flags&CGS::HasColorFlag)
 		{
-			color.set(floats_per_vertex,4);
+			color.Set(floats_per_vertex,4);
 			floats_per_vertex += 4;
 		}
 		else
-			color.set(0,0);
+			color.Set(0,0);
 
 		texcoords.SetSize(info.layer_field.length());
-		for (index_t i = 0; i < texcoords.count(); i++)
+		for (index_t i = 0; i < texcoords.Count(); i++)
 		{
 			if (CGS::layerRequiresTexCoords(info.layer_field[i]))
 			{
-				texcoords[i].set(floats_per_vertex,2);
+				texcoords[i].Set(floats_per_vertex,2);
 				floats_per_vertex += 2;
 				texcoords[i].generate_reflection_coords = false;
 			}
 			else
 			{
-				texcoords[i].unset();
+				texcoords[i].Unset();
 				texcoords[i].generate_reflection_coords = info.layer_field[i].mirror_map;
 			}
 		}
@@ -604,18 +604,18 @@ namespace Engine
 
 	void VertexBinding::resetToDefault(bool erase_layers)
 	{
-		vertex.set(0,3);
-		normal.set(3,3);
-		color.set(0,0);
-		tangent.set(0,0);
+		vertex.Set(0,3);
+		normal.Set(3,3);
+		color.Set(0,0);
+		tangent.Set(0,0);
 		floats_per_vertex = 6;
 
 		if (erase_layers)
 			texcoords.free();
 		else
-			for (index_t i = 0; i < texcoords.count(); i++)
+			for (index_t i = 0; i < texcoords.Count(); i++)
 			{
-				texcoords[i].set(floats_per_vertex,2);
+				texcoords[i].Set(floats_per_vertex,2);
 				floats_per_vertex += 2;
 			}
 	}
@@ -623,7 +623,7 @@ namespace Engine
 	UINT16 VertexBinding::minFloatsPerVertex() const
 	{
 		UINT16 rs = M::vmax(M::vmax(vertex.requiredFloats(),normal.requiredFloats()),M::vmax(color.requiredFloats(),tangent.requiredFloats()));
-		for (index_t i = 0; i < texcoords.count(); i++)
+		for (index_t i = 0; i < texcoords.Count(); i++)
 			rs = M::vmax(rs,texcoords[i].requiredFloats());
 		return rs;
 	}
@@ -647,7 +647,7 @@ namespace Engine
 		HashValue val(MaterialColors::ToHash());
 		//val.add(VertexBinding::hashCode());
 
-		for (index_t i = 0; i < layers.count(); i++)
+		for (index_t i = 0; i < layers.Count(); i++)
 			val.Add(layers[i].ToHash());
 
 		return val;
@@ -659,7 +659,7 @@ namespace Engine
 		//VertexBinding::read(info,floats_per_coordinate,flags);
 
 		layers.SetSize(info.layer_field.length());
-			//texcoords.count());
+			//texcoords.Count());
 
 		for (index_t i = 0; i < layers.length(); i++)
 		{
@@ -805,7 +805,7 @@ namespace Engine
 	    light->disable();
 	    index_t index = light->origin;
 	    scene->Erase(light->origin);
-	    for (index_t i = index; i < scene->count(); i++)
+	    for (index_t i = index; i < scene->Count(); i++)
 	        scene->at(i)->origin = i;
 	}
 
@@ -821,8 +821,8 @@ namespace Engine
 		if (application_shutting_down)
 			return;
 		Array<LightScene*>	exported;
-		scenes.exportTo(exported);
-		for (index_t i = 0; i < exported.count(); i++)
+		scenes.ExportTo(exported);
+		for (index_t i = 0; i < exported.Count(); i++)
 		{
 			foreach (*exported[i],light)
 				(*light)->disable();
@@ -844,7 +844,7 @@ namespace Engine
 
 	bool			VisualInterface::isLightScene(index_t scenario)	const
 	{
-		return scenes.isSet(scenario);
+		return scenes.IsSet(scenario);
 	}
 
 	void            VisualInterface::discardLightScene(index_t index)
@@ -870,14 +870,14 @@ namespace Engine
 	{
 		size_t	count = 0;
 		if (!enabled_only)
-			count = active_scene->count();
+			count = active_scene->Count();
 		else
-			for (unsigned i = 0; i < active_scene->count(); i++)
+			for (unsigned i = 0; i < active_scene->Count(); i++)
 				if (active_scene->at(i)->isEnabled())
 					count++;
 		array.SetSize(count);
 		count = 0;
-		for (unsigned i = 0; i < active_scene->count(); i++)
+		for (unsigned i = 0; i < active_scene->Count(); i++)
 			if (!enabled_only || active_scene->at(i)->isEnabled())
 				array[count++] = active_scene->at(i);
 	}

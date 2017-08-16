@@ -287,7 +287,7 @@ namespace DeltaWorks
 			{
 				if ((*n)->WasErased())
 					continue;
-				(*n)->inDegree = (int)(*n)->in.count();
+				(*n)->inDegree = (int)(*n)->in.Count();
 				if (!(*n)->inDegree)
 					queue.Push(*n);
 			}
@@ -307,7 +307,7 @@ namespace DeltaWorks
 						queue.Push(n);
 				}
 			}
-			return out.count() == nodes.Count();
+			return out.Count() == nodes.Count();
 		}
 		void				Graph::PerformDepthFirstSearch()
 		{

@@ -100,14 +100,14 @@ namespace DeltaWorks
 				}
 				
 			template <class T, size_t A1>
-				inline AlignedArray(const AlignedArray<T,A1>&other):elements(other.count())
+				inline AlignedArray(const AlignedArray<T,A1>&other):elements(other.Count())
 				{
 					allocAligned<C,A>(root,data,elements);
 					for (register count_t i = 0; i < elements; i++)
 						data[i] = other[i];
 				}
 				
-				inline AlignedArray(const AlignedArray<C,A>&other):elements(other.count())
+				inline AlignedArray(const AlignedArray<C,A>&other):elements(other.Count())
 				{
 					allocAligned<C,A>(root,data,elements);
 					for (register count_t i = 0; i < elements; i++)
@@ -690,7 +690,7 @@ namespace DeltaWorks
 			{
 				return elements;
 			}
-			inline count_t count()	const		//! Queries the current array size in elements \return Number of elements 
+			inline count_t Count()	const		//! Queries the current array size in elements \return Number of elements 
 			{
 				return elements;
 			}
@@ -806,7 +806,7 @@ namespace DeltaWorks
 					w = width;
 				}
 		template <typename T>
-			inline	void		set(count_t x, count_t y, const T&value)	//! Updates a singular element at the specified position	\param x X coordinate. Must be less than GetWidth() \param y Y coordinate. Must be less than GetHeight() @param value Value to set \return Reference to the requested element
+			inline	void		Set(count_t x, count_t y, const T&value)	//! Updates a singular element at the specified position	\param x X coordinate. Must be less than GetWidth() \param y Y coordinate. Must be less than GetHeight() @param value Value to set \return Reference to the requested element
 					{
 						AlignedArray<C,A>::data[y*w+x] = value;
 					}

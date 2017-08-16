@@ -20,32 +20,32 @@ INLINE String StringList::fuse(size_t index, size_t count, const String&glue) co
 
 INLINE String StringList::fuse(size_t index, const String&glue) const
 {
-	return fuse(index, count(), glue.c_str(), glue.length());
+	return fuse(index, Count(), glue.c_str(), glue.length());
 }
 
 INLINE String StringList::fuse(size_t index, const char*glue) const
 {
-	return fuse(index, count(), glue, (size_t)strlen(glue));
+	return fuse(index, Count(), glue, (size_t)strlen(glue));
 }
 
 INLINE String StringList::fuse(size_t index, char glue) const
 {
-	return fuse(index, count(), &glue, 1);
+	return fuse(index, Count(), &glue, 1);
 }
 
 INLINE String StringList::implode(const String&glue)									const
 {
-	return fuse(0,count(),glue.c_str(),glue.length());
+	return fuse(0,Count(),glue.c_str(),glue.length());
 }
 
 INLINE String StringList::implode(const char*glue)									const
 {
-	return fuse(0,count(),glue,(size_t)strlen(glue));
+	return fuse(0,Count(),glue,(size_t)strlen(glue));
 }
 
 INLINE String StringList::implode(char glue)											const
 {
-	return fuse(0,count(),&glue,1);
+	return fuse(0,Count(),&glue,1);
 }
 
 

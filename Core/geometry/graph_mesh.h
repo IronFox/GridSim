@@ -249,11 +249,11 @@ namespace DeltaWorks
 
 			bool							IsAvailable(bool outbound, index_t subdiv)	const
 											{
-												return subdiv < segments[outbound].count() && segments[outbound][subdiv] == InvalidIndex;
+												return subdiv < segments[outbound].Count() && segments[outbound][subdiv] == InvalidIndex;
 											}
 			index_t							GetFirstAvailable(bool outbound) const
 											{
-												for (index_t i = 0; i < segments[outbound].count(); i++)
+												for (index_t i = 0; i < segments[outbound].Count(); i++)
 													if (segments[outbound][i] == InvalidIndex)
 														return i;
 												return InvalidIndex;
@@ -448,8 +448,8 @@ namespace DeltaWorks
 		count_t					countNodes()	const
 								{
 									count_t rs = 0;
-									for (index_t i = 0; i < shapes.count(); i++)
-										rs += shapes[i].nodes.count();
+									for (index_t i = 0; i < shapes.Count(); i++)
+										rs += shapes[i].nodes.Count();
 									return rs;
 								}
 	};
@@ -649,7 +649,7 @@ namespace DeltaWorks
 		*/
 		void				updateEdgeControls(float control_factor0=COMMON_CONTROL_FACTOR, float control_factor1=COMMON_CONTROL_FACTOR)
 							{
-								for (index_t i = 0; i < edges.count(); i++)
+								for (index_t i = 0; i < edges.Count(); i++)
 								{
 									Edge&edge = edges[i];
 									const Graph::Node	&n0 = nodes[edge.node[0]],

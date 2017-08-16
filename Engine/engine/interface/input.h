@@ -75,7 +75,7 @@ namespace Engine
 
 					InputProfile(bool keyboard=true, bool device_buttons=true);
 		void		importFrom(InputMap*map);
-		void		exportTo(InputMap*map);
+		void		ExportTo(InputMap*map);
 	};
 
 	

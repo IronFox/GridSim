@@ -224,7 +224,7 @@ namespace Engine
 	    return result;
 	}
 
-	unsigned FrequencyList::count()
+	unsigned FrequencyList::Count()
 	{
 	    return fcnt;
 	}

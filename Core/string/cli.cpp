@@ -27,7 +27,7 @@ namespace DeltaWorks
 			{
 				for (index_t i = 0; i < name.length(); i++)
 					if (!isAllowedCharacter(name.GetChar(i)))
-						name.set(i,'_');
+						name.Set(i,'_');
 			}
 		}
 
@@ -954,24 +954,24 @@ namespace DeltaWorks
 				prefix = "/"+prefix;
 		
 			if (lookup.pathSegments==1)
-				for (index_t i = 0; i < globalCommands.count(); i++)
+				for (index_t i = 0; i < globalCommands.Count(); i++)
 					if (globalCommands[i]->name.BeginsWith(inner))
 						out << prefix+globalCommands[i]->name;
 		
-			for (index_t i = 0; i < parent->commands.count(); i++)
+			for (index_t i = 0; i < parent->commands.Count(); i++)
 				if (parent->commands[i]->name.BeginsWith(inner))
 					out << prefix+parent->commands[i]->name;
-			for (index_t i = 0; i < parent->variables.count(); i++)
+			for (index_t i = 0; i < parent->variables.Count(); i++)
 				if (parent->variables[i]->name.BeginsWith(inner))
 					out << prefix+parent->variables[i]->name;
-			for (index_t i = 0; i < parent->folders.count(); i++)
+			for (index_t i = 0; i < parent->folders.Count(); i++)
 				if (parent->folders[i]->name.BeginsWith(inner))
 					out << prefix+parent->folders[i]->name+"/";
 
-			if (!out.count())
+			if (!out.Count())
 				return "";
 		
-			if (out.count() == 1)
+			if (out.Count() == 1)
 			{
 				return out.first();
 			}
@@ -982,7 +982,7 @@ namespace DeltaWorks
 				longest_common = out.first().subString(0,longest);
 				if (longest>longest_common.length())
 					same = false;
-				for (index_t i = 1; i < out.count() && same; i++)
+				for (index_t i = 1; i < out.Count() && same; i++)
 					same = out[i].BeginsWith(longest_common);
 				if (same)
 					longest++;
@@ -1013,18 +1013,18 @@ namespace DeltaWorks
 			if (line.BeginsWith('/'))
 				prefix = "/"+prefix;
 		
-			for (index_t i = 0; i < parent->variables.count(); i++)
+			for (index_t i = 0; i < parent->variables.Count(); i++)
 				if (parent->variables[i]->name.BeginsWith(inner))
 					out << prefix+parent->variables[i]->name;
-			for (index_t i = 0; i < parent->folders.count(); i++)
+			for (index_t i = 0; i < parent->folders.Count(); i++)
 				if (parent->folders[i]->name.BeginsWith(inner))
 					out << prefix+parent->folders[i]->name+'/';
 		
 
-			if (!out.count())
+			if (!out.Count())
 				return "";
 		
-			if (out.count() == 1)
+			if (out.Count() == 1)
 			{
 				return out.first();
 			}
@@ -1035,7 +1035,7 @@ namespace DeltaWorks
 				longest_common = out.first().subString(0,longest);
 				if (longest>longest_common.length())
 					same = false;
-				for (index_t i = 1; i < out.count() && same; i++)
+				for (index_t i = 1; i < out.Count() && same; i++)
 					same = out[i].BeginsWith(longest_common);
 				if (same)
 					longest++;
@@ -1068,15 +1068,15 @@ namespace DeltaWorks
 			if (line.BeginsWith('/'))
 				prefix = "/"+prefix;
 		
-			for (index_t i = 0; i < parent->folders.count(); i++)
+			for (index_t i = 0; i < parent->folders.Count(); i++)
 				if (parent->folders[i]->name.BeginsWith(inner))
 					out << prefix+parent->folders[i]->name+"/";
 		
 
-			if (!out.count())
+			if (!out.Count())
 				return "";
 		
-			if (out.count() == 1)
+			if (out.Count() == 1)
 			{
 				return out.first();
 			}
@@ -1087,7 +1087,7 @@ namespace DeltaWorks
 				longest_common = out.first().subString(0,longest);
 				if (longest>longest_common.length())
 					same = false;
-				for (index_t i = 1; i < out.count() && same; i++)
+				for (index_t i = 1; i < out.Count() && same; i++)
 					same = out[i].BeginsWith(longest_common);
 				if (same)
 					longest++;
@@ -1161,16 +1161,16 @@ namespace DeltaWorks
 
 		count_t	Folder::CountCommands() const
 		{
-			count_t rs = commands.count();
-			for (index_t i = 0; i < folders.count(); i++)
+			count_t rs = commands.Count();
+			for (index_t i = 0; i < folders.Count(); i++)
 				rs += folders[i]->CountCommands();
 			return	rs;
 		}
 
 		count_t	Folder::CountVariables() const
 		{
-			count_t rs = variables.count();
-			for (index_t i = 0; i < folders.count(); i++)
+			count_t rs = variables.Count();
+			for (index_t i = 0; i < folders.Count(); i++)
 				rs += folders[i]->CountVariables();
 			return	rs;
 		}
@@ -1428,7 +1428,7 @@ namespace DeltaWorks
 
 		bool	ScriptList::Erase(const	String&alias)
 		{
-			for	(index_t i = 0; i < count(); i++)
+			for	(index_t i = 0; i < Count(); i++)
 				if (at(i).name == alias)
 				{
 					Erase(i);
@@ -1440,7 +1440,7 @@ namespace DeltaWorks
 
 		Script*ScriptList::Find(const String&alias)
 		{
-			for	(index_t i = 0;	i < count(); i++)
+			for	(index_t i = 0;	i < Count(); i++)
 				if (at(i).name == alias)
 					return&at(i);
 			return nullptr;
@@ -1451,7 +1451,7 @@ namespace DeltaWorks
 			Script*script = Find(alias);
 			if	(!script)
 				return	false;
-			for	(index_t i = 0;	i < script->count(); i++)
+			for	(index_t i = 0;	i < script->Count(); i++)
 				parser->Parse(script->Get(i));
 			return	true;
 		}

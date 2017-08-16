@@ -143,7 +143,7 @@ namespace DeltaWorks
 			if (last_open)
 			{
 				const PatternList&patterns = open[(BYTE)*current];
-				for (index_t i = 0; i < patterns.count(); i++)
+				for (index_t i = 0; i < patterns.Count(); i++)
 				{
 					const Pattern&p = patterns[i];
 					if (match(current,end,p))
@@ -165,7 +165,7 @@ namespace DeltaWorks
 			if (!found)
 			{
 				const PatternList&patterns = list[(BYTE)*current];
-				for (unsigned i = 0; i < patterns.count(); i++)
+				for (unsigned i = 0; i < patterns.Count(); i++)
 				{
 					const Pattern&p = patterns[i];
 					if (match(current,end,p))

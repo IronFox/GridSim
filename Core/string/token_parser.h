@@ -90,9 +90,9 @@ namespace DeltaWorks
 										end = end_;
 										return *this;
 									}
-			count_t					Length()	const	{return end - begin;}
-			index_t					operator[](index_t element)	const	{ASSERT_LESS__(element,Length()); return begin + element;}
-			index_t					at(index_t element) const 	{ASSERT_LESS__(element,Length()); return begin + element;}
+			count_t					GetLength()	const	{return end - begin;}
+			index_t					operator[](index_t element)	const	{ASSERT_LESS__(element,GetLength()); return begin + element;}
+			index_t					at(index_t element) const 	{ASSERT_LESS__(element,GetLength()); return begin + element;}
 
 			void					swap(Sequence&other)
 									{

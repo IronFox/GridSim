@@ -939,22 +939,22 @@ namespace DeltaWorks
 	
 		void		JobSequence::split(Ctr::Array<ThreadMainObject*>&objects,Thread::pMethod method, ThreadPoolContext*context)
 		{
-			if (!objects.count())
+			if (!objects.Count())
 				return;
-			THREAD_REPORT("enqueueing a total of "<<objects.count()<<" job(s)")
+			THREAD_REPORT("enqueueing a total of "<<objects.Count()<<" job(s)")
 			#if QUAD_JOBS
-				count_t rest = objects.count()%4;
+				count_t rest = objects.Count()%4;
 				context->counter_mutex.lock();
-					(context->counter)+=objects.count()/4;
+					(context->counter)+=objects.Count()/4;
 					if (rest)
 						(context->counter)++;
 					THREAD_REPORT("counter incremented to "<<context->counter)
 				context->counter_mutex.release();
-				for (unsigned i = 0; i < objects.count()/4; i++)
+				for (unsigned i = 0; i < objects.Count()/4; i++)
 					pool.job_pipe.writeElement(Job(objects[i*4],objects[i*4+1],objects[i*4+2],objects[i*4+3],method,context));
 				if (rest)
 				{
-					index_t offset = objects.count()-rest;
+					index_t offset = objects.Count()-rest;
 					Job job(objects[offset],method,context);
 					for (index_t i = 1; i < rest; i++)
 					{
@@ -964,12 +964,12 @@ namespace DeltaWorks
 				}			
 			#else
 				context->counter_mutex.lock();
-					(context->counter)+=objects.count();
+					(context->counter)+=objects.Count();
 					THREAD_REPORT("counter incremented to "<<context->counter)
 				context->counter_mutex.release();
-				/*for (unsigned i = 0; i < objects.count(); i++)
+				/*for (unsigned i = 0; i < objects.Count(); i++)
 					job_pipe << Job(objects[i],method,context);*/
-				for (unsigned i = 0; i < objects.count(); i++)
+				for (unsigned i = 0; i < objects.Count(); i++)
 					pool.job_pipe.writeElement(Job(objects[i],method,context));
 			#endif
 			THREAD_REPORT("enqueued")
@@ -980,7 +980,7 @@ namespace DeltaWorks
 		{
 			if (!count)
 				return;
-			ASSERT__(count <= objects.count());
+			ASSERT__(count <= objects.Count());
 			THREAD_REPORT("enqueueing a total of "<<count<<" job(s)")
 			#if QUAD_JOBS
 				count_t rest = count%4;
@@ -1007,7 +1007,7 @@ namespace DeltaWorks
 					(context->counter)+=count;
 					THREAD_REPORT("counter incremented to "<<context->counter)
 				context->counter_mutex.release();
-				/*for (unsigned i = 0; i < objects.count(); i++)
+				/*for (unsigned i = 0; i < objects.Count(); i++)
 					job_pipe << Job(objects[i],method,context);*/
 				for (index_t i = 0; i < count; i++)
 					pool.job_pipe.writeElement(Job(objects[i],method,context));
@@ -1017,15 +1017,15 @@ namespace DeltaWorks
 		}
 		void			JobSequence::splitIndividually(Ctr::Array<ThreadMainObject*>&objects,Thread::pMethod method, ThreadPoolContext*context)
 		{
-			if (!objects.count())
+			if (!objects.Count())
 				return;
-			THREAD_REPORT("enqueueing a total of "<<objects.count()<<" job(s)")
+			THREAD_REPORT("enqueueing a total of "<<objects.Count()<<" job(s)")
 			context->counter_mutex.lock();
-				(context->counter)+=objects.count();
+				(context->counter)+=objects.Count();
 			
 				THREAD_REPORT("counter incremented to "<<context->counter)
 			context->counter_mutex.release();
-			for (unsigned i = 0; i < objects.count(); i++)
+			for (unsigned i = 0; i < objects.Count(); i++)
 				pool.job_pipe.writeElement(Job(objects[i],method,context));
 			THREAD_REPORT("enqueued")
 		}
@@ -1043,26 +1043,26 @@ namespace DeltaWorks
 			sequence.split(objects,method,context);
 		
 			#if 0
-			if (!objects.count())
+			if (!objects.Count())
 				return;
-			THREAD_REPORT("enqueueing a total of "<<objects.count()<<" job(s)")
+			THREAD_REPORT("enqueueing a total of "<<objects.Count()<<" job(s)")
 			#if QUAD_JOBS
-				unsigned rest = objects.count()%4;
+				unsigned rest = objects.Count()%4;
 				context->counter_mutex.lock();
-					(context->counter)+=objects.count()/4;
+					(context->counter)+=objects.Count()/4;
 					if (rest)
 						(context->counter)++;
 				
 					THREAD_REPORT("counter incremented to "<<context->counter)
 				context->counter_mutex.release();
-				/*for (unsigned i = 0; i < objects.count(); i++)
+				/*for (unsigned i = 0; i < objects.Count(); i++)
 					job_pipe << Job(objects[i],method,context);*/
 				job_pipe.beginSequence();
-				for (unsigned i = 0; i < objects.count()/4; i++)
+				for (unsigned i = 0; i < objects.Count()/4; i++)
 					job_pipe.writeElement(Job(objects[i*4],objects[i*4+1],objects[i*4+2],objects[i*4+3],method,context));
 				if (rest)
 				{
-					unsigned offset = objects.count()-rest;
+					unsigned offset = objects.Count()-rest;
 					Job job(objects[offset],method,context);
 					for (unsigned i = 1; i < rest; i++)
 					{
@@ -1073,13 +1073,13 @@ namespace DeltaWorks
 				job_pipe.endSequence();
 			#else
 				context->counter_mutex.lock();
-					(context->counter)+=objects.count();
+					(context->counter)+=objects.Count();
 					THREAD_REPORT("counter incremented to "<<context->counter)
 				context->counter_mutex.release();
-				/*for (unsigned i = 0; i < objects.count(); i++)
+				/*for (unsigned i = 0; i < objects.Count(); i++)
 					job_pipe << Job(objects[i],method,context);*/
 				job_pipe.beginSequence();
-				for (unsigned i = 0; i < objects.count(); i++)
+				for (unsigned i = 0; i < objects.Count(); i++)
 					job_pipe.writeElement(Job(objects[i],method,context));
 				job_pipe.endSequence();
 			#endif
@@ -1089,18 +1089,18 @@ namespace DeltaWorks
 	
 		void			ThreadPool::splitIndividually(Ctr::Array<ThreadMainObject*>&objects,Thread::pMethod method, ThreadPoolContext*context)
 		{
-			if (!objects.count())
+			if (!objects.Count())
 				return;
-			THREAD_REPORT("enqueueing a total of "<<objects.count()<<" job(s)")
+			THREAD_REPORT("enqueueing a total of "<<objects.Count()<<" job(s)")
 			context->counter_mutex.lock();
-				(context->counter)+=objects.count();
+				(context->counter)+=objects.Count();
 			
 				THREAD_REPORT("counter incremented to "<<context->counter)
 			context->counter_mutex.release();
-			/*for (unsigned i = 0; i < objects.count(); i++)
+			/*for (unsigned i = 0; i < objects.Count(); i++)
 				job_pipe << Job(objects[i],method,context);*/
 			job_pipe.beginSequence();
-			for (unsigned i = 0; i < objects.count(); i++)
+			for (unsigned i = 0; i < objects.Count(); i++)
 				job_pipe.writeElement(Job(objects[i],method,context));
 			job_pipe.endSequence();
 
@@ -1193,24 +1193,24 @@ namespace DeltaWorks
 	
 		void			PriorityThreadPool::split(const Ctr::Array<int>&priorities, Ctr::Array<ThreadMainObject*>&objects,Thread::pMethod method, ThreadPoolContext*context)
 		{
-			if (!objects.count() || priorities.count() != objects.count())
+			if (!objects.Count() || priorities.Count() != objects.Count())
 				return;
-			THREAD_REPORT("enqueueing a total of "<<objects.count()<<" job(s)")
+			THREAD_REPORT("enqueueing a total of "<<objects.Count()<<" job(s)")
 			#if QUAD_JOBS
-				count_t rest = objects.count()%4;
+				count_t rest = objects.Count()%4;
 				context->counter_mutex.lock();
-					(context->counter)+=objects.count()/4;
+					(context->counter)+=objects.Count()/4;
 					if (rest)
 						(context->counter)++;
 				
 					THREAD_REPORT("counter incremented to "<<context->counter)
 				context->counter_mutex.release();
 				job_pipe.beginSequence();
-				for (index_t i = 0; i < objects.count()/4; i++)
+				for (index_t i = 0; i < objects.Count()/4; i++)
 					job_pipe.writeElement(Job(objects[i*4],objects[i*4+1],objects[i*4+2],objects[i*4+3],method,context),std::max(std::max(priorities[i*4],priorities[i*4+1]),std::max(priorities[i*4+2],priorities[i*4+3])));
 				if (rest)
 				{
-					index_t offset = objects.count()-rest;
+					index_t offset = objects.Count()-rest;
 					int priority = priorities[offset];
 					Job job(objects[offset],method,context);
 					for (index_t i = 1; i < rest; i++)
@@ -1223,12 +1223,12 @@ namespace DeltaWorks
 				job_pipe.endSequence();
 			#else
 				context->counter_mutex.lock();
-					(context->counter)+=objects.count();
+					(context->counter)+=objects.Count();
 				
 					THREAD_REPORT("counter incremented to "<<context->counter)
 				context->counter_mutex.release();
 				job_pipe.beginSequence();
-				for (unsigned i = 0; i < objects.count(); i++)
+				for (unsigned i = 0; i < objects.Count(); i++)
 					job_pipe.writeElement(Job(objects[i],method,context),priorities[i]);
 				job_pipe.endSequence();
 			#endif
@@ -1237,16 +1237,16 @@ namespace DeltaWorks
 	
 		void			PriorityThreadPool::splitIndividually(const Ctr::Array<int>&priorities, Ctr::Array<ThreadMainObject*>&objects,Thread::pMethod method, ThreadPoolContext*context)
 		{
-			if (!objects.count() || priorities.count() != objects.count())
+			if (!objects.Count() || priorities.Count() != objects.Count())
 				return;
-			THREAD_REPORT("enqueueing a total of "<<objects.count()<<" job(s)")
+			THREAD_REPORT("enqueueing a total of "<<objects.Count()<<" job(s)")
 			context->counter_mutex.lock();
-				(context->counter)+=objects.count();
+				(context->counter)+=objects.Count();
 			
 				THREAD_REPORT("counter incremented to "<<context->counter)
 			context->counter_mutex.release();
 			job_pipe.beginSequence();
-			for (unsigned i = 0; i < objects.count(); i++)
+			for (unsigned i = 0; i < objects.Count(); i++)
 				job_pipe.writeElement(Job(objects[i],method,context),priorities[i]);
 			job_pipe.endSequence();
 			THREAD_REPORT("enqueued")
@@ -1522,8 +1522,8 @@ namespace DeltaWorks
 		{
 			num_jobs = 0;
 			(*aligned_offset) = 1;
-			job_semaphore.release(unsigned(workers.count()));
-			for (index_t i = 0; i < workers.count(); i++)
+			job_semaphore.release(unsigned(workers.Count()));
+			for (index_t i = 0; i < workers.Count(); i++)
 				destruct_semaphore.enter();
 		}
 
@@ -1544,9 +1544,9 @@ namespace DeltaWorks
 				return;
 			if (num_jobs > 1)
 			{
-				/*if (unsigned remainder = num_jobs % workers.count())
+				/*if (unsigned remainder = num_jobs % workers.Count())
 				{
-					if (remainder < workers.count()/2)	//remove jobs
+					if (remainder < workers.Count()/2)	//remove jobs
 					{
 					
 				
@@ -1740,9 +1740,9 @@ namespace DeltaWorks
 				#else
 					jobOffset = 1;
 				#endif
-				job_semaphore.release(unsigned(workers.count()));
+				job_semaphore.release(unsigned(workers.Count()));
 				if (!application_shutting_down)
-					for (index_t i = 0; i < workers.count(); i++)
+					for (index_t i = 0; i < workers.Count(); i++)
 						destruct_semaphore.enter();
 			}
 

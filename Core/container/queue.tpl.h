@@ -91,10 +91,10 @@ template <class Entry,class MyStrategy>
 template <class Entry,class MyStrategy>
 	Queue<Entry,MyStrategy>::Queue(const Self&other)
 	{
-		Super::SetSize(other.Super::count());
+		Super::SetSize(other.Super::Count());
 		section_begin = section_end = Super::pointer();
 		field_end = section_begin + Super::length();
-		for (index_t i = 0; i < other.count(); i++)
+		for (index_t i = 0; i < other.Count(); i++)
 			(*section_end++).Copy(other[i]);
 		//DBG_ASSERT__(Super::Owns(section_end));
 		//DBG_ASSERT__(Super::Owns(section_begin));
@@ -109,10 +109,10 @@ template <class Entry,class MyStrategy>
 template <class Entry,class MyStrategy>
 	void Queue<Entry,MyStrategy>::operator=(const Queue<Entry,MyStrategy>&other)
 	{
-		Super::SetSize(other.Super::count());
+		Super::SetSize(other.Super::Count());
 		section_begin = section_end = Super::pointer();
 		field_end = section_begin + Super::length();
-		for (index_t i = 0; i < other.count(); i++)
+		for (index_t i = 0; i < other.Count(); i++)
 			(*section_end++).Copy(other[i]);
 		//DBG_ASSERT__(Super::Owns(section_end));
 		//DBG_ASSERT__(Super::Owns(section_begin));
@@ -299,7 +299,7 @@ template <class Entry, class MyStrategy>
 template <class Entry, class MyStrategy>
 	void	Queue<Entry,MyStrategy>::Push(const Ctr::ArrayData<Entry>&entries)
 	{
-		Push(entries.pointer(),entries.count());
+		Push(entries.pointer(),entries.Count());
 	}
 
 template <class Entry, class MyStrategy>
@@ -398,7 +398,7 @@ template <class Entry, class MyStrategy>
 //template <class Entry, class Strategy>
 //	void	Queue<Entry,Strategy>::push(const Ctr::ArrayData<Entry>&entries)
 //	{
-//		push(entries.pointer(),entries.count());
+//		push(entries.pointer(),entries.Count());
 //	}
 //
 //template <class Entry, class Strategy>
@@ -698,7 +698,7 @@ template <class Entry, class Priority, class MyStrategy>
 	{
 		if (section_begin == section_end)
 			return false;
-		index_t index = section_end?section_end-1:entry_field.count()-1;
+		index_t index = section_end?section_end-1:entry_field.Count()-1;
 		MyStrategy::move(entry_field[index].Cast(),out);
 		PriorityArray::AppliedStrategy::move(priority_field[index],pout);
 		entry_field[index].Destruct();
@@ -711,7 +711,7 @@ template <class Entry, class Priority, class MyStrategy>
 	{
 		if (section_begin == section_end)
 			return false;
-		index_t index = section_end?section_end-1:entry_field.count()-1;
+		index_t index = section_end?section_end-1:entry_field.Count()-1;
 		MyStrategy::move(entry_field[index].Cast(),out);
 		entry_field[index].Destruct();
 		section_end = index;
@@ -723,7 +723,7 @@ template <class Entry, class Priority, class MyStrategy>
 	{
 		if (section_begin == section_end)
 			return Entry();
-		index_t index = section_end?section_end-1:entry_field.count()-1;
+		index_t index = section_end?section_end-1:entry_field.Count()-1;
 		Entry rs = entry_field[index].Cast();
 		entry_field[index].Destruct();
 		section_end = index;
@@ -735,7 +735,7 @@ template <class Entry, class Priority, class MyStrategy>
 	{
 		if (section_begin == section_end)
 			return;
-		index_t index = section_end?section_end-1:entry_field.count()-1;
+		index_t index = section_end?section_end-1:entry_field.Count()-1;
 		entry_field[index].Destruct();
 		section_end = index;
 	}
@@ -1137,7 +1137,7 @@ template <class C, class IndexType> void Queue<C,IndexType>::clear()
     first = last;
 }
 
-template <class C, class IndexType> IndexType Queue<C, IndexType>::count() const
+template <class C, class IndexType> IndexType Queue<C, IndexType>::Count() const
 {
     return last-first;
 }
@@ -1205,7 +1205,7 @@ template <class C, class IndexType> void CPQueue<C,IndexType>::flush()
     first = last;
 }
 
-template <class C, class IndexType> IndexType CPQueue<C, IndexType>::count() const
+template <class C, class IndexType> IndexType CPQueue<C, IndexType>::Count() const
 {
     return last-first;
 }
@@ -1281,7 +1281,7 @@ template <class C> void DynamicQueue<C>::clear()
     volume = 0;
 }
 
-template <class C> size_t DynamicQueue<C>::count()              const
+template <class C> size_t DynamicQueue<C>::Count()              const
 {
     return volume;
 }
@@ -1362,7 +1362,7 @@ template <class C> void DynamicPQueue<C>::flush()
 }
 
 
-template <class C> size_t DynamicPQueue<C>::count()              const
+template <class C> size_t DynamicPQueue<C>::Count()              const
 {
     return volume;
 }

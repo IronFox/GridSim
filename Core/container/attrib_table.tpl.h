@@ -61,7 +61,7 @@ namespace Attrib
 			finalized = false;
 			bool copyable = (flags&Copyable)!=0;
 			StaticTable<T>::configuration[copyable].attributes.append().length = 1;
-			StaticTable<T>::configuration[copyable].attribute_names.append().set(name,flags);
+			StaticTable<T>::configuration[copyable].attribute_names.append().Set(name,flags);
 			StaticTable<T>::configuration[copyable].values.append()= initial_value;
 			TAttribute	&attrib = index_map.append();
 			attrib.type = typeOf<T>();
@@ -70,7 +70,7 @@ namespace Attrib
 			attrib.exists = true;
 			attrib.copyable = copyable;
 			
-			name_map.set(name,attrib);
+			name_map.Set(name,attrib);
 			return attrib;
 		}
 		
@@ -80,7 +80,7 @@ namespace Attrib
 			finalized = false;
 			bool copyable = (flags&Copyable)!=0;
 			StaticTable<T>::configuration[copyable].attributes.append().length = 2;
-			StaticTable<T>::configuration[copyable].attribute_names.append().set(name,flags);
+			StaticTable<T>::configuration[copyable].attribute_names.append().Set(name,flags);
 			StaticTable<T>::configuration[copyable].values.append()= initial_value0;
 			StaticTable<T>::configuration[copyable].values.append()= initial_value1;
 			TAttribute	&attrib = index_map.append();
@@ -90,7 +90,7 @@ namespace Attrib
 			attrib.exists = true;
 			attrib.copyable = copyable;
 			
-			name_map.set(name,attrib);
+			name_map.Set(name,attrib);
 			return attrib;
 		}
 		
@@ -100,7 +100,7 @@ namespace Attrib
 			finalized = false;
 			bool copyable = (flags&Copyable)!=0;
 			StaticTable<T>::configuration[copyable].attributes.append().length = 3;
-			StaticTable<T>::configuration[copyable].attribute_names.append().set(name,flags);
+			StaticTable<T>::configuration[copyable].attribute_names.append().Set(name,flags);
 			StaticTable<T>::configuration[copyable].values.append()= initial_value0;
 			StaticTable<T>::configuration[copyable].values.append()= initial_value1;
 			StaticTable<T>::configuration[copyable].values.append()= initial_value2;
@@ -111,7 +111,7 @@ namespace Attrib
 			attrib.exists = true;
 			attrib.copyable = copyable;
 			
-			name_map.set(name,attrib);
+			name_map.Set(name,attrib);
 			return attrib;
 		}
 	
@@ -121,7 +121,7 @@ namespace Attrib
 			finalized = false;
 			bool copyable = (flags&Copyable)!=0;
 			StaticTable<T>::configuration[copyable].attributes.append().length = length;
-			StaticTable<T>::configuration[copyable].attribute_names.append().set(name,flags);
+			StaticTable<T>::configuration[copyable].attribute_names.append().Set(name,flags);
 			for (unsigned i = 0; i < length; i++)
 				StaticTable<T>::configuration[copyable].values.append()= initial_values[i];
 			TAttribute	&attrib = index_map.append();
@@ -131,7 +131,7 @@ namespace Attrib
 			attrib.exists = true;
 			attrib.copyable = copyable;
 			
-			name_map.set(name,attrib);
+			name_map.Set(name,attrib);
 			return attrib;//.global_id;
 		}
 

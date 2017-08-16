@@ -105,7 +105,7 @@ namespace DeltaWorks
 					@a segment is set to NULL.
 					The tile is rotated by 180 degrees if this is an outbound connector.
 				
-					@param stub Tile to set as stub. May be NULL, which then behaves identical to unset()
+					@param stub Tile to set as stub. May be NULL, which then behaves identical to Unset()
 					@param preserve_where_possible Causes the method to preserve the current connector configuration as far as possible
 				*/
 				void						setStub(Tile*stub, bool preserve_where_possible=false);
@@ -123,7 +123,7 @@ namespace DeltaWorks
 					@a segment is set to the specified segment, the respective segment's connector link is set to the this, and its onConnectTo() method executed once.
 					The method fails if the specified segment is already connected on the required slot.
 				
-					@param segment Segment to set. May be NULL, which then behaves identical to unset()
+					@param segment Segment to set. May be NULL, which then behaves identical to Unset()
 					@param flip Set true if the local connector should be flipped
 				*/
 				bool						setSegment(TrackSegment*segment, bool flip);
@@ -142,14 +142,14 @@ namespace DeltaWorks
 				/**
 					@brief Identifies the slot, that the specified segment is currently connected to
 
-					If a stub exists, then the result may be in the range [0,connectors.count()-1], or InvalidIndex, if the specified segment could not be found.
+					If a stub exists, then the result may be in the range [0,connectors.Count()-1], or InvalidIndex, if the specified segment could not be found.
 					If no stub exists, then the result can only be 0 or InvalidIndex, depending on whether the local connector is connected to the specified stub
 
 				*/
 				bool						getIndexOfSegment(const TrackSegment*segment, TNodeSegmentSlot&slot_out)	const;
 				void						requireIndexOfSegment(const TrackSegment*segment, TNodeSegmentSlot&slot_out)	const;
 			
-				void						unset(bool preserve_connections=false);	//!< Clears the local connector @param preserve_connections Causes the method to preserve connectors and connection links
+				void						Unset(bool preserve_connections=false);	//!< Clears the local connector @param preserve_connections Causes the method to preserve connectors and connection links
 				void						disconnect(TrackSegment*, bool cascade_event);	//!< Clears any connection to the specified track segment			
 		};
 	
@@ -378,9 +378,9 @@ namespace DeltaWorks
 															for (BYTE m = 0; m < 2; m++)
 																if (efrom->n[m])
 																	if (efrom->n[m].is_quad)
-																		eto.n[m].set(target_hull.quad_field+(index_t)(efrom->n[m].quad-source_hull.quad_field)+l*source_hull.quad_field.length());
+																		eto.n[m].Set(target_hull.quad_field+(index_t)(efrom->n[m].quad-source_hull.quad_field)+l*source_hull.quad_field.length());
 																	else
-																		eto.n[m].set(target_hull.triangle_field+(index_t)(efrom->n[m].triangle-source_hull.triangle_field)+l*source_hull.triangle_field.length());
+																		eto.n[m].Set(target_hull.triangle_field+(index_t)(efrom->n[m].triangle-source_hull.triangle_field)+l*source_hull.triangle_field.length());
 														}
 														efrom++;
 													}

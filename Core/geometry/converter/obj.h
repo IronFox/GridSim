@@ -309,31 +309,31 @@ namespace DeltaWorks
 				UINT32											add(const Vertex&v)
 				{
 					UINT32 rs;
-					if (Super::query(v,rs))
+					if (Super::Query(v,rs))
 						return rs;
-					rs = (UINT32)Super::count();
+					rs = (UINT32)Super::Count();
 					//list << v;
-					Super::set(v,rs);
+					Super::Set(v,rs);
 					return rs;
 				}
 				UINT32											add(const Vertex&v, UINT32 index)
 				{
 					UINT32 rs;
-					if (Super::query(v,rs))
+					if (Super::Query(v,rs))
 						return rs;
 					rs = index;
 					//list << v;
-					Super::set(v,rs);
+					Super::Set(v,rs);
 					return rs;
 				}
 
 				void											exportToField(Ctr::Array<Vertex>&out)	const
 				{
-					out.SetSize(Super::count());
+					out.SetSize(Super::Count());
 					{
 						Ctr::Array<Vertex>		out_field;
 						Ctr::Array<index_t>		out_index_field;
-						Super::exportTo(out_field,out_index_field);
+						Super::ExportTo(out_field,out_index_field);
 						Concurrency::parallel_for((index_t)0,out_index_field.length(),[&out,&out_field,&out_index_field](index_t i)
 						{
 							out[out_index_field[i]] = out_field[i];

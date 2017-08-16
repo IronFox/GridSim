@@ -373,7 +373,7 @@ namespace DeltaWorks
 										return stream(target)<<" (="<<(sector.x*sector_size+remainder.x)<<", "<<(sector.y*sector_size+remainder.y)<<", "<<(sector.z*sector_size+remainder.z)<<')';
 									}
 							
-					void			set(float x, float y, float z)	//! Redefines the remainder. The local sector offset is left unchanged
+					void			Set(float x, float y, float z)	//! Redefines the remainder. The local sector offset is left unchanged
 									{
 										M::Vec::def(remainder,x,y,z);
 									}
