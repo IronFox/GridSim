@@ -313,7 +313,6 @@ namespace Engine
 			*/
 			bool						Resize(GLuint width, GLuint height, BYTE channels);
 			bool						ExportTo(Image&target)	const;
-			inline bool					ExportTo(Image&target)	const						{return ExportTo(target);}
 			/**
 			@brief Fills the allocated texture with the pixel content of the specified pixel buffer object
 									

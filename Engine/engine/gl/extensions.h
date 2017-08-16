@@ -170,15 +170,10 @@
 				bool					Set(float x, float y, float z);
 				bool					Set(float x, float y);
 				bool					Set(const M::TVec2<>&);
-				inline bool				Set(const M::TVec2<>&v)	{return Set(v);}
 				bool					Set(const M::TVec3<>&);
-				inline bool				Set(const M::TVec3<>&v)	{return Set(v);}
 				bool					Set(const M::TVec4<>&);
-				inline bool				Set(const M::TVec4<>&v)	{return Set(v);}
 				bool					Set(const M::TMatrix3<>&);
-				inline bool				Set(const M::TMatrix3<>&m)	{return Set(m);}
 				bool					Set(const M::TMatrix4<>&);
-				inline bool				Set(const M::TMatrix4<>&m)	{return Set(m);}
 				bool					seti(int value);
 				inline bool				SetInt(int value)		{return seti(value);}
 				bool					set2i(int x, int y);

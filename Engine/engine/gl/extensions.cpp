@@ -2874,7 +2874,7 @@ namespace Engine
 			index_t	Template::VariableMap::Lookup(const String&varName)	const
 			{
 				index_t result;
-				if (variableMap.query(varName,result))
+				if (variableMap.Query(varName,result))
 					return result;
 				return 0;
 			}
@@ -2882,7 +2882,7 @@ namespace Engine
 			index_t	Template::VariableMap::Define(const String&varName)
 			{
 				index_t result;
-				if (variableMap.query(varName,result))
+				if (variableMap.Query(varName,result))
 					return result;
 				result = variableMap.Count()+1;
 				variableMap.Set(varName,result);
@@ -3359,7 +3359,7 @@ namespace Engine
 				else
 					key = &currentConfig->GetUserConfig()->values;
 
-				if (container.query(*key,result))
+				if (container.Query(*key,result))
 				{
 					//cout << result->composition_code<<endl;
 					return result;
@@ -3452,7 +3452,7 @@ namespace Engine
 	/*static*/ GLuint		Extension::AllocateDepthBuffer(const Resolution&res)
 	{
 		index_t	index;
-		if (depthBufferTable.query(res,index))
+		if (depthBufferTable.Query(res,index))
 		{
 			DepthBuffer&buffer = depthBufferList[index];
 			buffer.referenceCount ++;
@@ -3477,7 +3477,7 @@ namespace Engine
 		if (!handle || application_shutting_down)
 			return;
 		index_t index;
-		if (!depthBufferMap.query(handle,index))
+		if (!depthBufferMap.Query(handle,index))
 		{
 			FATAL__("Depth buffer "+String(handle)+" is unknown");
 			return;
