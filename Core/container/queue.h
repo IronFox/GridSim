@@ -114,28 +114,39 @@ namespace DeltaWorks
 				//typedef QueueElement<Entry,Strategy>	Element;
 
 				Element			*field_begin = nullptr,
+								*sectionBegin = nullptr,
 								*current = nullptr,
 								*field_end = nullptr;
 
 				friend class Queue<Entry,MyStrategy>;
 			public:
 				typedef QueueIterator<Entry,Element,MyStrategy>	It;
+
+				typedef std::ptrdiff_t	difference_type;
+				typedef Entry			value_type;
+				typedef Entry*			pointer;
+				typedef Entry&			reference;
+				typedef std::bidirectional_iterator_tag	iterator_category;
 			
 				/**/			QueueIterator()	{};
-				/**/			QueueIterator(Element*begin,Element*end,Element*c);
+				/**/			QueueIterator(Element*begin,Element*end,Element*sectionBegin, Element*c);
 				///**/			QueueIterator(const QueueIterator<typename std::remove_const<Entry>::type,typename std::remove_const<Element>::type,Strategy>&other):field_begin(other.field_begin),current(other.current),field_end(other.field_end)	{}
 				It&				operator++();
 				It				operator++(int);
-				It				operator+(int delta)	const;
+				It				operator+(difference_type delta)	const;
 				It&				operator--();
 				It				operator--(int);
-				It				operator-(int delta)	const;
+				It				operator-(difference_type delta)	const;
+				difference_type	operator-(const It&other) const {return difference_type(GetIndex()) - difference_type(other.GetIndex());}
 				bool			operator==(const It&other)	const	{return current == other.current;}
 				bool			operator!=(const It&other)	const	{return current != other.current;}
 				Entry&			operator*()	{return current->Cast();}
 				Entry*			operator->()	{return &current->Cast();}
+				bool			operator<(const It&other) const {return GetIndex() < other.GetIndex();}
+				bool			operator>(const It&other) const {return GetIndex() > other.GetIndex();}
 			
-				size_t			index()	const;
+				index_t			GetIndex()	const;
+				index_t			GetAddr() const {return current - field_begin;}
 			};
 
 

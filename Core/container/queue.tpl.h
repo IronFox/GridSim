@@ -9,7 +9,7 @@ Collection of different queues.
 
 
 template <class Entry, class Element, class MyStrategy>
-	QueueIterator<Entry,Element,MyStrategy>::QueueIterator(Element*begin,Element*end,Element*c):field_begin(begin),field_end(end),current(c)
+	QueueIterator<Entry,Element,MyStrategy>::QueueIterator(Element*begin,Element*end,Element*sectionBegin,Element*c):field_begin(begin),field_end(end),sectionBegin(sectionBegin),current(c)
 	{}
 	
 template <class Entry, class Element, class MyStrategy>
@@ -30,7 +30,7 @@ template <class Entry, class Element, class MyStrategy>
 	}
 
 template <class Entry, class Element, class MyStrategy>
-	QueueIterator<Entry,Element,MyStrategy>	QueueIterator<Entry,Element,MyStrategy>::operator+(int delta)	const
+	QueueIterator<Entry,Element,MyStrategy>	QueueIterator<Entry,Element,MyStrategy>::operator+(difference_type delta)	const
 	{
 		It rs(*this);
 		rs.current += delta;
@@ -59,7 +59,7 @@ template <class Entry, class Element, class MyStrategy>
 	}
 
 template <class Entry, class Element, class MyStrategy>
-	QueueIterator<Entry,Element,MyStrategy>	QueueIterator<Entry,Element,MyStrategy>::operator-(int delta)	const
+	QueueIterator<Entry,Element,MyStrategy>	QueueIterator<Entry,Element,MyStrategy>::operator-(difference_type delta)	const
 	{
 		It rs(*this);
 		rs.current -= delta;
@@ -72,8 +72,10 @@ template <class Entry, class Element, class MyStrategy>
 		
 	
 template <class Entry, class Element, class MyStrategy>
-	size_t		QueueIterator<Entry,Element,MyStrategy>::index()	const
+	size_t		QueueIterator<Entry,Element,MyStrategy>::GetIndex()	const
 	{
+		if (current >= sectionBegin)
+			return current - sectionBegin;
 		return current-field_begin;
 	}
 	
@@ -149,25 +151,25 @@ template <class Entry,class MyStrategy>
 template <class Entry,class MyStrategy>
 	typename Queue<Entry,MyStrategy>::iterator	Queue<Entry,MyStrategy>::begin()
 	{
-		return iterator(Super::data,field_end,section_begin);
+		return iterator(Super::begin(),Super::end(),section_begin,section_begin);
 	}
 
 template <class Entry,class MyStrategy>
 	typename Queue<Entry,MyStrategy>::iterator	Queue<Entry,MyStrategy>::end()
 	{
-		return iterator(Super::data,field_end,section_end);
+		return iterator(Super::begin(),Super::end(),section_begin,section_end);
 	}
 
 template <class Entry,class MyStrategy>
 	typename Queue<Entry,MyStrategy>::const_iterator	Queue<Entry,MyStrategy>::begin()	const
 	{
-		return const_iterator(Super::data,field_end,section_begin);
+		return const_iterator(Super::begin(),Super::end(),section_begin,section_begin);
 	}
 
 template <class Entry,class MyStrategy>
 	typename Queue<Entry,MyStrategy>::const_iterator	Queue<Entry,MyStrategy>::end()	const
 	{
-		return const_iterator(Super::data,field_end,section_end);
+		return const_iterator(Super::begin(),Super::end(),section_begin,section_end);
 	}
 
 template <class Entry,class MyStrategy>
@@ -631,13 +633,13 @@ template <class Entry, class Priority, class MyStrategy>
 template <class Entry, class Priority, class MyStrategy>
 	typename PriorityQueue<Entry,Priority,MyStrategy>::iterator	PriorityQueue<Entry, Priority, MyStrategy>::begin()
 	{
-		return iterator(entry_field.pointer(),entry_field.pointer()+entry_field.length(),entry_field+section_begin);
+		return iterator(entry_field.begin(),entry_field.end(),entry_field+section_begin,entry_field+section_begin);
 	}
 		
 template <class Entry, class Priority, class MyStrategy>
 	typename PriorityQueue<Entry,Priority,MyStrategy>::iterator	PriorityQueue<Entry, Priority, MyStrategy>::end()
 	{
-		return iterator(entry_field.pointer(),entry_field.pointer()+entry_field.length(),entry_field+section_end);
+		return iterator(entry_field.begin(),entry_field.end(),entry_field+section_begin,entry_field+section_end);
 	}
 
 template <class Entry, class Priority, class MyStrategy>
@@ -796,7 +798,7 @@ template <class Entry, class Priority, class MyStrategy>
 template <class Entry, class Priority, class MyStrategy>
 	void			PriorityQueue<Entry, Priority, MyStrategy>::Erase(const iterator&it)
 	{
-		eraseAddr(it.index());
+		eraseAddr(it.GetAddr());
 
 	}
 
@@ -828,7 +830,7 @@ template <class Entry, class Priority, class MyStrategy>
 		index_t real = lower%len;
 		if (priority_field[real] == priority)
 		{
-			it = iterator(entry_field.pointer(),entry_field.pointer()+entry_field.length(),entry_field+real);
+			it = iterator(entry_field.begin(),entry_field.end(),entry_field+section_begin,entry_field+real);
 			return true;
 		}
 		return false;
@@ -1093,7 +1095,7 @@ template <class Entry, class Priority, class MyStrategy>
 template <class Entry, class Priority, class MyStrategy>
 	const Priority&			PriorityQueue<Entry, Priority, MyStrategy>::priorityOf(const iterator&it)	const
 	{
-		return priority_field[it.index()];
+		return priority_field[it.GetAddr()];
 	
 	
 	}
