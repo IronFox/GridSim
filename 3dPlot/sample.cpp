@@ -57,3 +57,17 @@ void		TSample::Include(const TSample&other)
 
 }
 
+void		TSample::IncludeMean(const TSample&other)
+{
+	static const UINT64 Resolution = 10000;
+
+	numEntities += Resolution;
+	if (other.numEntities)
+	{
+		inconsistentEntities += double(other.inconsistentEntities) / other.numEntities * Resolution;
+		newlyInconsistentEntities += double(other.newlyInconsistentEntities) / other.numEntities * Resolution;
+		missingEntities += double(other.missingEntities) / other.numEntities * Resolution;
+		locationError += other.locationError / other.numEntities * Resolution;
+	}
+
+}

@@ -110,6 +110,8 @@ void RenderPlot()
 	glMatrixMode(GL_MODELVIEW);
 
 
+	glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+
 	glsl(wallShader)
 	{
 		glEnable(GL_CULL_FACE);
@@ -160,6 +162,8 @@ void RenderPlot()
 			glDisable(GL_TEXTURE_2D);
 		glActiveTexture(GL_TEXTURE0);
 	glMatrixMode(GL_MODELVIEW);
+
+	glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
 }
 
 void 	RenderAxisLabel(float x, float value, Axis axis)
@@ -367,7 +371,7 @@ void RenderExtendedAxesLabels()
 			textout.MoveTo(l->coords.x*0.5+0.5, l->coords.y*0.5+0.5);
 			if (l->isFloat)
 			{
-				int s = sign(l->value);
+				int s = Sign(l->value);
 				float v =fabs(l->value);
 
 				if (v == 0)

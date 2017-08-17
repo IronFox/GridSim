@@ -1,7 +1,7 @@
 #include "geometryPool.h"
 
 
-index_t				Geometry::Embed(const D::CGS::Constructor<>::Object&cgs)
+index_t				Geometry::Embed(const CGS::Constructor<>::Object&cgs)
 {
 	const auto&lod = cgs.GetLOD(0);
 
@@ -15,29 +15,29 @@ index_t				Geometry::Embed(const D::CGS::Constructor<>::Object&cgs)
 		const UINT flags = cgs.GetVertexFlags();
 		const count_t numLayers = cgs.CountTextureLayers();
 
-		vertexBinding.color.unset();
+		vertexBinding.color.Unset();
 		vertexBinding.floats_per_vertex = (UINT16)vertexFloats;
-		vertexBinding.vertex.set(0,3);
+		vertexBinding.vertex.Set(0,3);
 		UINT16 offset = 3;
-		if (flags & D::CGS::HasNormalFlag)
+		if (flags & CGS::HasNormalFlag)
 		{
-			vertexBinding.normal.set(offset,3);
+			vertexBinding.normal.Set(offset,3);
 			offset += 3;
 		}
-		if (flags & D::CGS::HasTangentFlag)
+		if (flags & CGS::HasTangentFlag)
 		{
-			vertexBinding.tangent.set(offset,3);
+			vertexBinding.tangent.Set(offset,3);
 			offset += 3;
 		}
-		if (flags & D::CGS::HasColorFlag)
+		if (flags & CGS::HasColorFlag)
 		{
-			vertexBinding.color.set(offset,4);
+			vertexBinding.color.Set(offset,4);
 			offset += 4;
 		}
 		vertexBinding.texcoords.SetSize(numLayers);
 		for (index_t i = 0; i < numLayers; i++)
 		{
-			vertexBinding.texcoords[i].set(offset,2);
+			vertexBinding.texcoords[i].Set(offset,2);
 			offset+=2;
 		}
 		ASSERT_EQUAL__(vertexBinding.floats_per_vertex,offset);
@@ -77,7 +77,7 @@ void Geometry::Render()
 	display.bindIndices(ibo);
 	display.bindVertices(vbo,vertexBinding);
 
-	display.render(0,indexData.Count());
+	display.render(0,(UINT32)indexData.Count());
 
 	display.unbindIndices();
 	//display.unbindVertices();	undefined
@@ -100,7 +100,7 @@ void				Geometry::Remove(index_t&idx)
 	vertexData.Erase(section.vRange.start * vertexBinding.floats_per_vertex, vCount * vertexBinding.floats_per_vertex);
 	indexData.Erase(section.iRange.start, section.iRange.GetExtent());
 	for (index_t i = section.iRange.start; i < indexData.Count(); i++)
-		indexData[i] -= vCount;
+		indexData[i] -= (UINT32)vCount;
 
 	sectionMap.VisitAllEntries([section,idx](index_t key, TSection&sec)
 	{

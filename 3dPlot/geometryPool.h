@@ -8,8 +8,7 @@
 #include <container/buffer.h>
 
 
-namespace D = DeltaWorks;
-namespace M = DeltaWorks::Math;
+using namespace DeltaWorks;
 
 typedef Engine::OpenGL			Renderer;
 
@@ -21,7 +20,7 @@ public:
 
 
 	void				Render();
-	index_t				Embed(const D::CGS::Constructor<>::Object&);
+	index_t				Embed(const CGS::Constructor<>::Object&);
 	void				Remove(index_t&);
 	void				RebuildIfNeeded();
 
@@ -36,13 +35,13 @@ private:
 								iRange;
 	};
 
-	D::IndexTable<TSection>sectionMap;
+	IndexTable<TSection>sectionMap;
 
 
 	bool				isDirty = true;
 	index_t				idxCounter = 0;
 
-	D::Buffer0<float>	vertexData;
-	D::Buffer0<UINT32>	indexData;
+	Buffer0<float>	vertexData;
+	Buffer0<UINT32>	indexData;
 };
 

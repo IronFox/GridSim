@@ -88,7 +88,7 @@ void UpdatePlotGeometry()
 		//rangeTable.UpdatePlotGeometry(currentSampleType);
 
 		foreach (tables,t)
-			//if (t == tables.begin())
+			if (t != tables.begin())
 				t->UpdatePlotGeometry(currentSampleType,false);
 	}
 
@@ -343,7 +343,7 @@ void	OnResize(const Resolution&res, UINT32 flags)
 void Convert(StringRef&_str, float&result)
 {
 	String str = _str;
-	str.replace(',','.');
+	str.FindAndReplace(',','.');
 	ASSERT1__(convert(str.c_str(),str.length(),result),str);
 }
 
@@ -411,7 +411,7 @@ struct Source
 
 	void				Load(const Source&successor)
 	{
-		LoadTables({sampleFile});
+		LoadTables({sampleFile},true);
 
 		//tables.Append();
 		//tables.Last().SetTransformed(tables.GetFromEnd(1),
@@ -422,6 +422,8 @@ struct Source
 		//	}, 
 		//	float4(1,0,0,0.5));
 		//tables.Append().TrainHypothesis(0,currentSampleType,trainStatic);
+
+		#if 0
 		float3 plane = tables.Append().TrainFlatOverestimation(0,SampleType::DivergenceDepth,0.001f);
 
 
@@ -473,7 +475,7 @@ struct Source
 			csv.Close();
 		}
 
-
+		#endif /*0*/
 
 		UpdateColors();
 	}
@@ -589,7 +591,7 @@ void ExportExtremePlotP(const PathString&path)
 			file << "\\addplot+[mark=] plot coordinates {"<<nl;
 				for (index_t i = 1; i < t.samples.Count() && i <= extreme; i++)
 				{
-					float f = t.Get(1,i,currentSampleType);
+					float f = t.GetSample(1,i).Get(currentSampleType);
 					file << tab << "("<<i<<","<<f<<")"<<nl;
 				}
 			file << "};"<<nl;
@@ -796,15 +798,15 @@ namespace ResultTable
 
 float GetMotionProportion(const String&filename)
 {
-	index_t at = filename.GetIndexOf("_m");
-	ASSERT1__(at != 0,filename);
+	index_t at = filename.Find("_m");
+	ASSERT1__(at != InvalidIndex,filename);
 
-	index_t dot = filename.findLast('.');
-	index_t us = filename.findLast('_');
+	index_t dot = filename.FindLast('.');
+	index_t us = filename.FindLast('_');
 	if (us > at && us < dot)
 		dot = us;
 
-	StringRef number = filename.subStringRef(int(at)+1,dot-at-2);
+	StringRef number = filename.SubStringRef(at+2,dot-at-2);
 
 	float rs;
 	ASSERT1__(convert(number.pointer(),number.GetLength(),rs),number);
@@ -870,6 +872,9 @@ int main()	//main entry point
 		Buffer0<FileSystem::File>	files;
 		//GetFilesIn(FileSystem::Folder("../SimpleSimulation/results/compare"),files);
 
+		files << *FileSystem::Folder("./data").FindFile("icProfile262144.NoHistoryState.csv");
+
+		#if 0
 		GetFilesIn(FileSystem::Folder("./data"),files,[](const PathString&path)->bool
 		{
 			const index_t dDat = path.GetIndexOf("data");
@@ -902,7 +907,7 @@ int main()	//main entry point
 			//	return false;
 			return path.contains("m0.5_");	//half motion/sensor
 		});
-
+		#endif /*0*/
 
 #if 0
 		foreach (files,f)
@@ -1167,7 +1172,7 @@ int main()	//main entry point
 		
 		SetupRenderer();
 
-		Profiler::TextoutManager<GLTextureFont2>::set(&textout);	//set textout pointer to profiler font object so we don't have to create a second one
+		Profiler::TextoutManager<GLTextureFont2>::Set(&textout);	//set textout pointer to profiler font object so we don't have to create a second one
 		
 		fps_graph.position.Set(0.65,0.6,1,1);	//local graph
 		fps_graph.install();					//and install graph

@@ -7,9 +7,9 @@
 #include "sample.h"
 #include <array>
 #include <math/polynomial.h>
+#include <math/delaunay.h>
 
-namespace D = DeltaWorks;
-namespace M = DeltaWorks::Math;
+using namespace DeltaWorks;
 
 struct TLinearFunction
 {
@@ -23,9 +23,9 @@ struct TLinearFunction
 
 	/**/	TLinearFunction(float base=0, float inclination=0.1f):base(base),inclination(inclination)	{}
 
-	friend D::String	ToString(const TLinearFunction&f)
+	friend String	ToString(const TLinearFunction&f)
 	{
-		return D::String(f.base)+"+X*"+D::String(f.inclination);
+		return String(f.base)+"+X*"+String(f.inclination);
 	}
 
 	void	Set(float x0, float y0, float x1, float y1)
@@ -51,8 +51,8 @@ struct TAgeHypothesis
 	static const count_t	TDegree = 5,TNCoef = TDegree+1;
 	static const count_t	SDegree = 8,SNCoef = SDegree+1;
 
-	D::M::Polynomial<double,TNCoef>		temporalProfile;
-	D::M::Polynomial<double,SNCoef>		spatialProfile0,spatialProfile1;
+	M::Polynomial<double,TNCoef>		temporalProfile;
+	M::Polynomial<double,SNCoef>		spatialProfile0,spatialProfile1;
 
 	float					max = 1;
 	count_t					maxSpatialDistance=0,
@@ -65,7 +65,7 @@ struct TAgeHypothesis
 
 	bool					useLinearApproximation = true;
 
-	D::M::float3			linearPlaneFunc;	//x,y: axial inclination, z: offset
+	M::float3			linearPlaneFunc;	//x,y: axial inclination, z: offset
 
 
 
@@ -82,8 +82,8 @@ struct TAgeHypothesis
 struct TStaticAgeHypothesis
 {
 	typedef double PFloat;
-	D::M::NegativePolynomial2D<PFloat,4,7>	pBase;
-	D::M::NegativePolynomial2D<PFloat,4,7>	pX;
+	M::NegativePolynomial2D<PFloat,4,7>	pBase;
+	M::NegativePolynomial2D<PFloat,4,7>	pX;
 	float					Sample(float spatialDistance, float temporalDistance, float density, float relativeSensorRange) const;
 };
 
@@ -103,65 +103,92 @@ struct THypothesisData
 	float					Sample(float spatialDistance, float temporalDistance, SampleType t) const;
 	void					Train(index_t sourceTableID, SampleType t);
 
-	static void				TrainRow(const Table&table, index_t rowIndex, D::M::Polynomial<double,TAgeHypothesis::SNCoef>&poly, bool smooth);
+	static void				TrainRow(const Table&table, index_t rowIndex, M::Polynomial<double,TAgeHypothesis::SNCoef>&poly, bool smooth);
 };
+
+struct TSurfacePoint
+{
+	float				height;
+	M::float4		color;
+
+
+	bool				operator>(const TSurfacePoint&other) const
+	{
+		return height > other.height;
+	}
+	bool				operator<(const TSurfacePoint&other) const
+	{
+		return height < other.height;
+	}
+};
+
+struct TInclinedSurfacePoint : public TSurfacePoint
+{
+	float				xInclination,yInclination;
+		
+	float				ThicknessToOffsetX(float t) const;
+	float				ThicknessToOffsetY(float t) const;
+};
+
+struct TSurfaceSample : public TSurfacePoint
+{
+	bool				cover;
+};
+
 
 class Table
 {
+public:
+	typedef std::function<TSurfaceSample(float,float)> FSurface;
+
+	class Mesh
+	{
+	public:
+		struct TVertex
+		{
+			M::float2		st;
+			M::float4		color;
+			TSample			sample;
+		};
+
+		typedef M::Delaunay2D::Triangle	TTriangle;
+		typedef M::Delaunay2D::Edge	TEdge;
+
+		Array<TVertex>		vertices;
+		Array<TTriangle>	triangles;
+		Array<TEdge>		edges;
+
+
+		bool				IsNotEmpty() const {return triangles.IsNotEmpty();}
+		void				swap(Mesh&other)
+		{
+			triangles.swap(other.triangles);
+			vertices.swap(other.vertices);
+			edges.swap(other.edges);
+		}
+	};
+
+
 private:
-
-	struct TSurfacePoint
-	{
-		float				height;
-		D::M::float4		color;
-
-
-		bool				operator>(const TSurfacePoint&other) const
-		{
-			return height > other.height;
-		}
-		bool				operator<(const TSurfacePoint&other) const
-		{
-			return height < other.height;
-		}
-	};
-
-	struct TInclinedSurfacePoint : public TSurfacePoint
-	{
-		float				xInclination,yInclination;
-		
-		float				ThicknessToOffsetX(float t) const;
-		float				ThicknessToOffsetY(float t) const;
-	};
-
-	struct TSurfaceSample : public TSurfacePoint
-	{
-		bool				cover;
-	};
-
-
-
 	void					UpdateImage(SampleType t);
-	TSurfacePoint			GetGeometryPoint(SampleType t, index_t ix, index_t iy) const;
-	TInclinedSurfacePoint	GetInclinedGeometryPoint(SampleType t, index_t ix, index_t iy) const;
-	static TSurfacePoint	SampleRangePixelAt(SampleType t, index_t ix, index_t iy, index_t at);
-	void					TraceLine(const D::M::TIntRange<UINT>&range, const std::function<D::M::float3(UINT)>&);
+	TSurfacePoint			GetGeometryPointF(SampleType t, float spatialDistance, float temporalDistance) const;
+	void					TraceLineF(const M::TFloatRange<>&range, const std::function<M::float3(float)>&, count_t stResolution);
 
-	static void				BuildPlotSurface(D::CGS::Constructor<>::Object&target, const std::function<TSurfaceSample(index_t,index_t)>&surfaceFunction);
-	static void				BuildPlotHoleWalls(D::CGS::Constructor<>::Object&obj,const std::function<TInclinedSurfacePoint(index_t,index_t)>&surfaceFunction, UINT xExtent, UINT yExtent, float thickness = 0.03f);
-	void					FinishConstruction(const D::CGS::Constructor<>::Object&constructor, const D::CGS::Constructor<>::Object&transparentConstructor, const D::CGS::Constructor<>::Object&holeConstructor);
+	static void				BuildRegularSurface(CGS::Constructor<>::Object&target, const FSurface&surfaceFunction, count_t stResolution);
+	static void				BuildMeshSurface(CGS::Constructor<>::Object&target, const Mesh&mesh, SampleType);
+	void					FinishConstruction(const CGS::Constructor<>::Object&constructor, const CGS::Constructor<>::Object&transparentConstructor, const CGS::Constructor<>::Object&holeConstructor);
 
 public:
 	struct TLineSegment
 	{
-		D::M::float4		color;
+		M::float4		color;
 		float				width=2;
-		D::Buffer0<D::M::TVec3<> >points;
+		Buffer0<M::TVec3<> >points;
 
 		void				swap(TLineSegment&other)
 		{
-			D::swp(color,other.color);
-			D::swp(width,other.width);
+			swp(color,other.color);
+			swp(width,other.width);
 			points.swap(other.points);
 		}
 	};
@@ -185,29 +212,33 @@ public:
 
 	struct TValueRange
 	{
-		D::M::TFloatRange<>	range;
+		M::TFloatRange<>	range;
 		float				average;
 	};
 
 
-	D::Buffer0<TLineSegment,D::Swap>	lineSegments;
-	D::Buffer0<D::Buffer0<TSample> >samples;
-	D::String					sourceFile;
+	Buffer0<TLineSegment,Swap>	lineSegments;
+	typedef Buffer0<TSample>	SampleRow;
+
+	String				sourceFile;
 	TValueRange				currentRange;
 	TMetrics				metrics;
 
 	//THypothesisData			hypothesis;
+	Buffer0<SampleRow>	samples;
 	std::function<float(float spatialDistance, float temporalDistance, SampleType)>		heightFunction;
-	std::function<D::M::TVec4<>(float spatialDistance, float temporalDistance, SampleType t)> colorFunction;
+
+	std::function<M::TVec4<>(float spatialDistance, float temporalDistance, SampleType t)> colorFunction;
 	//FloatImage				image;
 
-	static const constexpr unsigned Resolution = 400;
-	static const constexpr float step = 1.0f/Resolution;
+//	static const constexpr unsigned Resolution = 400;
+//	static const constexpr float step = 1.0f/Resolution;
 	
 	index_t					solidPlotGeometryHandle = InvalidIndex,
 							plotHoleGeometryHandle = InvalidIndex,
 							transparentGeometryHandle = InvalidIndex;
-	D::M::float4			color = D::M::float4(1);
+	M::float4				color = M::float4(1);
+	Mesh					mesh;
 
 	const bool				IsRangeTable;
 	
@@ -215,35 +246,71 @@ public:
 
 	void					swap(Table&other)
 	{
-		D::swp(metrics,other.metrics);
-		//D::swp(hypothesis,other.hypothesis);
+		swp(metrics,other.metrics);
+		//swp(hypothesis,other.hypothesis);
 		heightFunction.swap(other.heightFunction);
 		colorFunction.swap(other.colorFunction);
-		D::swp(currentRange,other.currentRange);
+		swp(currentRange,other.currentRange);
 		lineSegments.swap(other.lineSegments);
 		samples.swap(other.samples); 
 		sourceFile.swap(other.sourceFile); 
+		mesh.swap(other.mesh);
 	}
 	friend void				swap(Table&a, Table&b)	{a.swap(b);}
 
-	const TSample&			GetSample(index_t iX, index_t iY)	const;
-	float					Get(index_t spatialDistance, index_t temporalDistance, SampleType t)	const;
+	const TSample&			GetSample(index_t spatialDistance, index_t temporalDistance)	const;
+	//float					Get(index_t spatialDistance, index_t temporalDistance, SampleType t)	const;
 	float					GetSmoothed(float spatialDistance, float temporalDistance,SampleType t) const;
 
-	bool					LoadSamples(const D::FileSystem::File&f, const std::function<bool(const TMetrics&)> mFilter=std::function<bool(const TMetrics&)>());
+
+	/**
+	Accumulates all samples found at a spatial distance of @a r around (iRow,iCol).
+	Distance is measured in chebyshev
+	@return Accumulated samples
+	*/
+	TSample					AccumulateAtR(index_t iRow, index_t iCol, index_t r) const;
+
+
+
+	/**
+	Constructs local samples from blurred data found in the given table.
+	The local data set is filled with one sample per source sample, and blurred as found necessary
+	*/
+	void					Blur(const Table&source);
+
+	/**
+	Loads samples from the specified file.
+	@param f File to load from
+	@param mFilter Optional function to check the loaded metrics before loading data from the file.
+		If set, metrics are found, and the function returns false, then loading will abort and LoadSamples() returns false
+	@return true if the file has successfully been loaded. False if the file could not be opened, or any set filter function returned false on loaded metrics
+	*/
+	bool					LoadSamples(const FileSystem::File&f, const std::function<bool(const TMetrics&)> mFilter=std::function<bool(const TMetrics&)>());
 	void					UpdateCurrentRange(SampleType type);
 	void					UpdatePlotGeometry(SampleType type, bool window);
 
 	void					TrainHypothesis(index_t sourceTableID, SampleType t, bool isStatic);
-	D::M::float3			TrainFlatOverestimation(index_t sourceTableID, SampleType t,float threshold);
+	M::float3			TrainFlatOverestimation(index_t sourceTableID, SampleType t,float threshold);
 
 	void					RemovePlotGeometry();
 
 	void					RenderLines()	const;
 
-	void					SetTransformed(const Table&source, const std::function<TSample(TSample)>&transformFunction, const D::M::float4&color);
+	/**
+	Flips S and T axes on local samples.
+	The first row is ignored as some methods expect it to be empty.
+	*/
+	void					TransposeSamples();
 
-	float					SmoothGeometryHeightFunction(SampleType t, float x, float y) const;
+	/**
+	Stretches samples along the S axis, such that between each two raw samples, a new interpolated sample is placed.
+	Use for data that is not 0.5-step precise
+	*/
+	void					StretchSamplesS();
+
+	void					SetTransformed(const Table&source, const std::function<TSample(TSample)>&transformFunction, const M::float4&color);
+
+	float					SmoothGeometryHeightFunctionF(SampleType t, float spatialDistance, float temporalDistance) const;
 	float					FindLevelSpatialDistance(SampleType t, index_t temporalDistance, float level) const;
 	float					FindNormalDeviation(SampleType t, index_t temporalDistance, float mean) const;
 	float					GetSpatialNormalError(SampleType t, index_t temporalDistance, float mean, float deviation) const;
@@ -252,15 +319,15 @@ public:
 
 
 void RemoveAllPlotGeometries();
-extern D::Buffer0<Table,D::Swap>	tables;
+extern Buffer0<Table,Swap>	tables;
 
 extern Table				rangeTable;
 
 
 float Relative2TextureHeight(float h);
 
-void LoadTables(const std::initializer_list<const D::FileSystem::File>&files);
-void LoadTables(const D::Buffer0<D::FileSystem::File>&files);
+void LoadTables(const std::initializer_list<const FileSystem::File>&files, bool addBlurredClone);
+void LoadTables(const Buffer0<FileSystem::File>&files, bool addBlurredClone);
 void UpdateColors();
 /**
 Updates all table currentRange contents by calling t->UpdateCurrentRange(type)

@@ -277,8 +277,8 @@ public:
 	Asserts equality of space segments where both this and other are consistent.
 	Segments where either this or other are inconsistent are ignored.
 	*/
-	void				AssertSelectiveEquality(const SDS&other)const;
-	static void			AssertSelectiveEquality(const PCoreShardDomainState&, const PCoreShardDomainState&);
+	void				AssertSelectiveEquality(const SDS&other, const TGridCoords&shardOffset)const;
+	static void			AssertSelectiveEquality(const PCoreShardDomainState&, const PCoreShardDomainState&, const TGridCoords&shardOffset);
 
 	void				SynchronizeWithSibling(Shard&myShard,Shard&siblingShard, SDS&sibling, const IC::Comparator&, index_t currentTimestep);
 };

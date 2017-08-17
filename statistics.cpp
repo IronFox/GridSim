@@ -146,10 +146,10 @@ namespace Statistics
 
 			#ifndef D3
 				#ifndef _DEBUG	
-					//r.setup.numEntities = 16*16*4*2*2*8*8;	//16x16 grid, 8x8 R per SD, 4x4 to get to sensor range, x4 => each entity sees 16 others on average
+					r.setup.numEntities = 16*16*4*2*2*8*8;	//16x16 grid, 8x8 R per SD, 4x4 to get to sensor range, x4 => each entity sees 16 others on average. Largest feasible on 32gb RAM in 2D
 					//r.setup.numEntities = 16*4*256;
 					//r.setup.numEntities = 16*16*1*1*1*8*8;		//each sees on average 1 other - 16384 entities
-					r.setup.numEntities = 16*16*1*1*2*8*8;		//each sees on average 2 others
+					//r.setup.numEntities = 16*16*1*1*2*8*8;		//each sees on average 2 others
 					//r.setup.numEntities = 16*16*1*2*2*8*8;		//each sees on average 4 others
 					//r.setup.numEntities = 16*16*2*2*2*8*8;		//each sees on average _8_ others
 				#else
@@ -294,7 +294,7 @@ namespace Statistics
 				FileSystem::CreateDirectory(outPath);
 				StringFile texFile;
 				String	filename(name);
-				filename.replace(' ','_');
+				filename.FindAndReplace(' ','_');
 				texFile.Create(outPath+PathString("/"+filename+".tex"));
 
 				texFile 
@@ -354,10 +354,10 @@ namespace Statistics
 				FileSystem::CreateDirectory(outPath);
 				StringFile texFile;
 				String	filename(ToString(cat));
-				filename.replace(' ','_');
-				filename.replace(',','_');
-				filename.replace('+','-');
-				filename.replace('.','_');
+				filename.FindAndReplace(' ','_');
+				filename.FindAndReplace(',','_');
+				filename.FindAndReplace('+','-');
+				filename.FindAndReplace('.','_');
 				texFile.Create(outPath+PathString("/"+filename+".tex"));
 
 				texFile 
@@ -911,41 +911,83 @@ TExperiment Statistics::Begin()
 
 namespace Statistics
 {
-
-	struct ICCell
+	struct ICInclusionCell
 	{
-		Sys::SpinLock	lock;
-		count_t			totalEntities = 0,
+		count_t			totalSamples = 0,	
+						totalEntities = 0,
 						inconsistentEntities = 0;
-		double			omegaSum=0,omegaSqrSum=0;
+		double			omegaSum=0;
 	};
 
-	static Array2D<ICCell>	icMetricGrid = Array2D<ICCell>( count_t(IC::MaxDepth)+1, count_t(IC::MaxDistance)+1);
+	struct ICCell : public ICInclusionCell
+	{
+						//totalSamples: number of IC inclusions, not number of entities
+						//Average entity count per inclusion = totalEntities / totalSamples
+		count_t			inconsistentSamples = 0;	//number of IC inclusions that had at least one inconsistent entity
+		double			//omegaSum = sum of mean omega values of all entities included during one IC inclusion.
+						omegaSqrSum=0;
+
+		void			Include(const ICInclusionCell&c)
+		{
+			if (c.totalSamples == 0)
+				return;
+			totalSamples += c.totalSamples;
+			totalEntities += c.totalEntities;
+			inconsistentEntities += c.inconsistentEntities;
+			if (c.inconsistentEntities > 0)
+			{
+				inconsistentSamples += c.totalSamples;
+
+				double omegaIn = c.omegaSum / c.inconsistentEntities;
+				omegaSum += omegaIn * c.totalSamples;
+				omegaSqrSum += sqr(omegaIn) * c.totalSamples;
+			}
+		}
+	};
+
+
+	static Array2D<ICCell>	icProfile = Array2D<ICCell>( count_t(IC::MaxDepth)+1, count_t(IC::MaxDistance)+1);
+	static Sys::SpinLock	icProfileLock;
+
+	static void AddInconsistency(Array2D<ICInclusionCell> &grid, const IC&ic, const TEntityCoords&c, float omega)
+	{
+		auto cellCoords = ic.ToPixels(c);
+		const auto&ics = ic.GetSample(cellCoords);
+		ASSERT_LESS__(ics.depth,grid.GetWidth());
+		ASSERT_LESS__(ics.spatialDistance,grid.GetHeight());
+		ICInclusionCell&cell = grid.Get(ics.depth,ics.spatialDistance);
+		{
+			cell.totalEntities ++;
+			if (omega > 0)
+			{
+				cell.inconsistentEntities ++;
+				cell.omegaSum += omega;
+			}
+		}
+	}
 
 	void	CaptureInconsistency(const IC&ic, const EntityStorage&inconsistent, const EntityStorage&consistent, const TGridCoords&shardOffset)
 	{
-		return;	//disabled while comparator sampling is active, so we don't have to lock in ProfileComparator::GetBadness()
+		//return;	//disabled while comparator sampling is active, so we don't have to lock in ProfileComparator::GetBadness()
+		Array2D<ICInclusionCell> inclusion = Array2D<ICInclusionCell>(count_t(IC::MaxDepth)+1, count_t(IC::MaxDistance)+1);
+		foreach (ic.GetGrid(),sample)
+			if (!sample->IsConsistent())
+			{
+				inclusion.Get(sample->depth,sample->spatialDistance).totalSamples ++;
+			}
 		foreach (inconsistent,e0)
 		{
-			auto cellCoords = ic.ToPixels(e0->coordinates - shardOffset);
-			const auto&ics = ic.GetSample(cellCoords);
-			if (ics.IsConsistent())
-				continue;
-			ASSERT_LESS__(ics.depth,icMetricGrid.GetWidth());
-			ASSERT_LESS__(ics.spatialDistance,icMetricGrid.GetHeight());
-			ICCell&cell = icMetricGrid.Get(ics.depth,ics.spatialDistance);
-			cell.lock.lock();
-			{
-				cell.totalEntities ++;
-				if (e0->omega > 0)
-				{
-					cell.inconsistentEntities ++;
-					cell.omegaSum += e0->omega;
-					cell.omegaSqrSum += sqr(e0->omega);
-				}
-			}
-			cell.lock.unlock();
+			AddInconsistency(inclusion,ic,e0->coordinates-shardOffset,e0->omega);
+			auto e1 = consistent.FindEntity(e0->guid);
+			if (e1)
+				AddInconsistency(inclusion,ic,e1->coordinates-shardOffset,e0->omega);	//same omega. e1 doesn't have any
 		}
+		icProfileLock.lock();
+			Concurrency::parallel_for(index_t(0),inclusion.Count(),[&ic,&inclusion](index_t i)
+			{
+				icProfile[i].Include(inclusion[i]);
+			});
+		icProfileLock.unlock();
 	}
 
 
@@ -1103,7 +1145,7 @@ namespace Statistics
 		void	AddPlot(const ArrayRef<std::pair<TProbabilisticICReduction, String> >&data, const String&name)
 		{
 			const String&marker = markers[currentMarker++];
-			currentMarker%= markers.count();
+			currentMarker%= markers.Count();
 
 			tex << nl << "\\addplot+["<<nl
 				<< "mark="<<marker<<','<<nl
@@ -1169,33 +1211,36 @@ namespace Statistics
 		using namespace MergeMeasurement;
 		mergeCaptures.Clear();
 		icReductionCaptures.Clear();
-		icMetricGrid.Fill(ICCell());
+		icProfile.Fill(ICCell());
 
 		try
 		{
 			StringFile file;
-			file.Open(Filename(ex,"icMetricGrid","csv"));
+			file.Open(Filename(ex,"icProfile","csv"));
 			String line;
 			Array<StringRef> parts;
 			//vertical: depth
-			foreach (icMetricGrid.Vertical(),v)
+			foreach (icProfile.Vertical(),v)
 			{
 				ASSERT__(file >> line);
 				explode(',',line,parts);
-				if (parts.Count() != icMetricGrid.GetWidth()*4)
+				if (parts.Count() != icProfile.GetWidth()*6)
 				{
 					//FATAL__(String(*v));
 					break;
 				}
 				//horizontal: distance
-				for (index_t i = 0; i < icMetricGrid.GetWidth(); i++)
+				for (index_t i = 0; i < icProfile.GetWidth(); i++)
 				{
-					auto&cell = icMetricGrid.Get(i,v);
-					AssertConvert(parts[i*4],cell.totalEntities);
-					AssertConvert(parts[i*4+1],cell.inconsistentEntities);
-					AssertConvert(parts[i*4+2],cell.omegaSum);
-					AssertConvert(parts[i*4+3],cell.omegaSqrSum);
+					auto&cell = icProfile.Get(i,v);
+					AssertConvert(parts[i*6+0],cell.inconsistentEntities);
+					AssertConvert(parts[i*6+1],cell.inconsistentSamples);
+					AssertConvert(parts[i*6+2],cell.omegaSqrSum);
+					AssertConvert(parts[i*6+3],cell.omegaSum);
+					AssertConvert(parts[i*6+4],cell.totalEntities);
+					AssertConvert(parts[i*6+5],cell.totalSamples);
 					ASSERT_LESS_OR_EQUAL__(cell.inconsistentEntities,cell.totalEntities);
+					ASSERT_LESS_OR_EQUAL__(cell.inconsistentSamples,cell.totalSamples);
 				}
 			}
 		}
@@ -1478,22 +1523,28 @@ namespace Statistics
 		using namespace Details;
 		{
 			StringFile file;
-			file.Create(Filename(ex,"icMetricGrid","csv"));
+			file.Create(Filename(ex,"icProfile","csv"));
 			//vertical: depth
 			count_t total = 0;
-			foreach (icMetricGrid.Vertical(),v)
+			foreach (icProfile.Vertical(),v)
 			{
 				bool first = true;
 				count_t c = 0;
 				//horizontal: distance
-				foreach (icMetricGrid.Horizontal(),h)
+				foreach (icProfile.Horizontal(),h)
 				{
 					if (!first)
 						file << ',';
 					first = false;
 
-					const auto&cell = icMetricGrid.Get(h,v);
-					file << cell.totalEntities << ',' << cell.inconsistentEntities << ',' << cell.omegaSum << ','<<cell.omegaSqrSum;
+					const auto&cell = icProfile.Get(h,v);
+					file 
+						<< cell.inconsistentEntities << ','
+						<< cell.inconsistentSamples << ','
+						<< cell.omegaSqrSum << ','
+						<< cell.omegaSum << ','
+						<< cell.totalEntities << ','
+						<< cell.totalSamples;
 					c++;
 					total++;
 				}
@@ -1510,7 +1561,7 @@ namespace Statistics
 			betterPreMerge.ToXML(doc.root_node.Create("better"));
 			worsePreMerge.ToXML(doc.root_node.Create("worse"));
 
-			mergeCaptures.exportTo(keys,values);
+			mergeCaptures.ExportTo(keys,values);
 			
 			for (index_t i = 0; i < keys.Count(); i++)
 			{
@@ -1688,7 +1739,7 @@ namespace Statistics
 			Array<TProbabilisticICReduction> values;
 			using namespace MergeMeasurement;
 
-			icReductionCaptures.exportTo(values);
+			icReductionCaptures.ExportTo(values);
 
 
 			if (currentRun < runs.Count())
@@ -1871,10 +1922,10 @@ namespace Statistics
 	{
 		if (ics.IsConsistent())
 			return -2;
-		ASSERT_LESS__(ics.depth,icMetricGrid.GetWidth());
-		ASSERT_LESS__(ics.spatialDistance,icMetricGrid.GetHeight());
-		const ICCell&cell = icMetricGrid.Get(ics.depth,ics.spatialDistance);
-		return cell.inconsistentEntities > 0 ? cell.omegaSum / cell.inconsistentEntities : -1;
+		ASSERT_LESS__(ics.depth,icProfile.GetWidth());
+		ASSERT_LESS__(ics.spatialDistance,icProfile.GetHeight());
+		const ICCell&cell = icProfile.Get(ics.depth,ics.spatialDistance);
+		return cell.inconsistentSamples > 0 ? cell.omegaSum / cell.inconsistentSamples : -1;
 	}
 
 }

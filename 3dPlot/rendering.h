@@ -14,7 +14,6 @@
 
 using namespace Engine;
 
-namespace M = DeltaWorks::M;
 
 typedef OpenGL			Renderer;
 extern Display<Renderer> 				display;
@@ -26,11 +25,11 @@ extern VectorCamera<float>				shadow_aspect0,
 extern Profiler::StackedGraph<OpenGL,GLTextureFont2>	fps_graph;
 extern GLShader::Instance				shader,back_shader,holeShader;
 extern Renderer::FBO					shadow_fbo0,shadow_fbo1;
-extern D::M::Box<>						range;
-extern D::M::float3						markerSteps;
-extern D::M::float3						markerLabelFactor;
+extern M::Box<>						range;
+extern M::float3						markerSteps;
+extern M::float3						markerLabelFactor;
 extern Geometry							scenery,holeScenery,transparentScenery;
-extern D::M::TVec3<const char*>			arrowLabel;
+extern M::TVec3<const char*>			arrowLabel;
 
 
 

@@ -1202,7 +1202,7 @@ namespace Build
 		if (!out)
 			return;
 		if (gen1)
-			gen->AssertSelectiveEquality(*gen1);
+			gen->AssertSelectiveEquality(*gen1,approx.gridCoords);
 
 		//foreach (out->entities,e)
 		//{

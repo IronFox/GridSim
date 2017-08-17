@@ -859,7 +859,7 @@ namespace Logic
 		void MaintainVelocity(Array<BYTE>&serialState, count_t generation, const Entity&e, EntityShape&inOutShape,Random&random, const MessageReceiver&, MessageDispatcher&)
 		{
 			inOutShape.velocity = e.velocity;
-			float speed = e.velocity.Length();
+			float speed = e.velocity.GetLength();
 			float wantSpeed = random.NextFloat(MinSpeed,MaxSpeed);
 			TEntityCoords wantDirection;
 			e.GetDirection(wantDirection);
@@ -1057,7 +1057,7 @@ namespace Logic
 				return;
 			center /= cnt;
 			TEntityCoords wantOutTo = center - e.coordinates;
-			float total = wantOutTo.Length();
+			float total = wantOutTo.GetLength();
 			//if (total < DistanceCutOff*0.5f)
 				//return;
 			static const float Max = MaxSpeed/10.f;
@@ -1736,7 +1736,7 @@ int main( int argc, const char* argv[])
 		Metric::Direction2D dir(random);
 		TVec2<> vector = dir.ToVector();
 		Metric::Direction2D dir2(vector);
-		ASSERT3__(similar(dir.value,dir2.value),dir.value,dir2.value,Vec::toString(vector));
+		ASSERT3__(Similar(dir.value,dir2.value),dir.value,dir2.value,Vec::toString(vector));
 	}
 
 

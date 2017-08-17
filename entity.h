@@ -131,7 +131,7 @@ struct EntityAppearance : public EntityID, public EntityShape, public Collider, 
 
 	virtual bool		Collider::TestEdge(const TEntityCoords&e0, const TEntityCoords&e1,bool prognosedPosition, float*optionalOutDistance=nullptr) const override
 	{
-		float r = scale.Length();
+		float r = scale.GetLength();
 		TVec2<> d;
 		bool rs = Obj::DetectSphereEdgeIntersection(prognosedPosition ? coordinates+velocity : coordinates,r,e0,e1,d);
 		if (optionalOutDistance)

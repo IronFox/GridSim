@@ -156,7 +156,7 @@ namespace Database
 			if (gen < stack.First().GetID().generation)
 				return 0;
 			if (gen > stack.Last().GetID().generation)
-				return stack.count();
+				return stack.Count();
 
 			index_t begin = 0;
 			index_t end = stack.Count();
