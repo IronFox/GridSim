@@ -85,7 +85,7 @@ template <class Entry,class MyStrategy>
 	Queue<Entry,MyStrategy>::Queue(size_t size):Super(size)
 	{
 		section_begin = section_end = Super::pointer();
-		field_end = section_begin + Super::length();
+		//field_end = section_begin + Super::length();
 	}
 
 
@@ -95,7 +95,7 @@ template <class Entry,class MyStrategy>
 	{
 		Super::SetSize(other.Super::Count());
 		section_begin = section_end = Super::pointer();
-		field_end = section_begin + Super::length();
+		//field_end = section_begin + Super::length();
 		for (index_t i = 0; i < other.Count(); i++)
 			(*section_end++).Copy(other[i]);
 		//DBG_ASSERT__(Super::Owns(section_end));
@@ -103,7 +103,7 @@ template <class Entry,class MyStrategy>
 	}
 
 template <class Entry,class MyStrategy>
-	Queue<Entry,MyStrategy>::Queue(Self&&other):section_begin(nullptr),section_end(nullptr),field_end(nullptr)
+	Queue<Entry,MyStrategy>::Queue(Self&&other):section_begin(nullptr),section_end(nullptr)//,field_end(nullptr)
 	{
 		this->adoptData(other);
 	}
@@ -113,7 +113,7 @@ template <class Entry,class MyStrategy>
 	{
 		Super::SetSize(other.Super::Count());
 		section_begin = section_end = Super::pointer();
-		field_end = section_begin + Super::length();
+		//field_end = section_begin + Super::length();
 		for (index_t i = 0; i < other.Count(); i++)
 			(*section_end++).Copy(other[i]);
 		//DBG_ASSERT__(Super::Owns(section_end));
@@ -127,7 +127,7 @@ template <class Entry,class MyStrategy>
 		Super::swap(other);
 		std::swap(section_begin,other.section_begin);
 		std::swap(section_end,other.section_end);
-		std::swap(field_end,other.field_end);
+		//std::swap(field_end,other.field_end);
 		//DBG_ASSERT__(Super::Owns(section_end));
 		//DBG_ASSERT__(Super::Owns(section_begin));
 
@@ -138,9 +138,9 @@ template <class Entry,class MyStrategy>
 		Super::adoptData(other);
 		section_begin = other.section_begin;
 		section_end = other.section_end;
-		field_end = other.field_end;
+		//field_end = other.field_end;
 
-		other.field_end = other.section_begin = other.section_end = NULL;
+		//other.field_end = other.section_begin = other.section_end = NULL;
 		//DBG_ASSERT__(Super::Owns(section_end));
 		//DBG_ASSERT__(Super::Owns(section_begin));
 
@@ -190,10 +190,8 @@ template <class Entry,class MyStrategy>
 		{
 			MyStrategy::move(section_begin->Cast(),*out_field);
 			section_begin->Destruct();
-			section_begin++;
 			out_field++;
-			if (section_begin >= field_end)
-				section_begin = Super::data;
+			WrapInc(section_begin);
 			count--;
 			written++;
 			//DBG_ASSERT__(Super::Owns(section_end));
@@ -211,9 +209,7 @@ template <class Entry,class MyStrategy>
 		//DBG_ASSERT__(Super::Owns(section_begin));
 		MyStrategy::move(section_begin->Cast(),out);
 		section_begin->Destruct();
-		section_begin++;
-		if (section_begin >= field_end)
-			section_begin = Super::data;
+		WrapInc(section_begin);
 		//DBG_ASSERT__(Super::Owns(section_end));
 		//DBG_ASSERT__(Super::Owns(section_begin));
 
@@ -230,9 +226,7 @@ template <class Entry,class MyStrategy>
 		Entry out;
 		MyStrategy::move(section_begin->Cast(),out);
 		section_begin->Destruct();
-		section_begin++;
-		if (section_begin >= field_end)
-			section_begin = Super::data;
+		WrapInc(section_begin);
 		//DBG_ASSERT__(Super::Owns(section_end));
 		//DBG_ASSERT__(Super::Owns(section_begin));
 		return out;
@@ -247,9 +241,7 @@ template <class Entry,class MyStrategy>
 		//DBG_ASSERT__(Super::Owns(section_begin));
 
 		section_begin->Destruct();
-		section_begin++;
-		if (section_begin >= field_end)
-			section_begin = Super::data;
+		WrapInc(section_begin);
 		//DBG_ASSERT__(Super::Owns(section_end));
 		//DBG_ASSERT__(Super::Owns(section_begin));
 
@@ -263,7 +255,7 @@ template <class Entry,class MyStrategy>
 		//DBG_ASSERT__(Super::Owns(section_end));
 		//DBG_ASSERT__(Super::Owns(section_begin));
 		if (section_end == Super::data)
-			section_end = field_end-1;
+			section_end = Super::end()-1;
 		else
 			section_end--;
 		section_end->Destruct();
@@ -283,17 +275,14 @@ template <class Entry, class MyStrategy>
 		{
 			out->adoptData(*section_begin);
 			out++;
-			section_begin++;
-			//Strategy::move(*section_begin++,*out++);
-			if (section_begin >= field_end)
-				section_begin = Super::data;
+			WrapInc(section_begin);
 		}
 		
 
 		Super::adoptData(new_field);
 		section_begin = Super::pointer();
 		section_end = section_begin+old_usage;
-		field_end = section_begin+Super::length();
+		//field_end = section_begin+Super::length();
 		//DBG_ASSERT__(Super::Owns(section_end));
 		//DBG_ASSERT__(Super::Owns(section_begin));
 	}
@@ -335,10 +324,7 @@ template <class Entry, class MyStrategy>
 			{
 				section_end->Construct(*data);
 				data ++;
-				section_end++;
-				//(*section_end++) = (*data++);
-				if (section_end >= field_end)
-					section_end = Super::data;
+				WrapInc(section_end);
 			}
 		}
 		//DBG_ASSERT__(Super::Owns(section_end));
@@ -356,9 +342,7 @@ template <class Entry, class MyStrategy>
 	Entry&	Queue<Entry,MyStrategy>::Push()
 	{
 		Element* newEnd = section_end;
-		newEnd++;
-		if (newEnd >= field_end)
-			newEnd = Super::data;
+		WrapInc(newEnd);
 		if (newEnd == section_begin)
 		{
 			size_t old_len = Super::length();
@@ -373,7 +357,7 @@ template <class Entry, class MyStrategy>
 			section_begin = Super::pointer();
 			section_end = old_len > 0 ? section_begin+old_len-1 : section_begin;
 			newEnd = section_end+1;
-			field_end = section_begin+Super::length();
+			//field_end = section_begin+Super::length();
 			#ifdef _DEBUG
 				for (iterator it = begin(); it != end(); ++it)
 				{
@@ -388,13 +372,14 @@ template <class Entry, class MyStrategy>
 	}
 
 template <class Entry, class MyStrategy>
-	typename Queue<Entry,MyStrategy>::Element*	Queue<Entry,MyStrategy>::Increment(Element*el)	const
-	{
-		el++;
-		if (el >= field_end)
-			el = Super::data;
-		return el;
-	}
+	template <typename T>
+		typename T*	Queue<Entry,MyStrategy>::Increment(T*el)	const
+		{
+			el++;
+			if (el >= Super::end())
+				el = Super::data;
+			return el;
+		}
 
 //
 //template <class Entry, class Strategy>
@@ -446,7 +431,7 @@ template <class Entry, class MyStrategy>
 
 		Element* newStart = section_begin;
 		if (newStart == Super::pointer())
-			newStart = Super::IsNotEmpty() ? field_end-1 : field_end;
+			newStart = Super::IsNotEmpty() ? Super::end()-1 : Super::end();
 		else
 			newStart--;
 		if (section_end == newStart)
@@ -462,7 +447,7 @@ template <class Entry, class MyStrategy>
 			Super::adoptData(new_field);
 			section_begin = Super::pointer();
 			section_end = out;
-			field_end = section_begin+Super::length();
+//			field_end = section_begin+Super::length();
 			//DBG_ASSERT__(old_len==length()+1);
 
 			//for (iterator it = begin(); it != end(); ++it)
@@ -476,6 +461,16 @@ template <class Entry, class MyStrategy>
 		return section_begin->ConstructAndCast();
 	}
 
+template <class Entry,class MyStrategy>
+	void				Queue<Entry,MyStrategy>::WrapInc(const Element*&ptr) const
+	{
+		ptr = Increment(ptr);
+	}
+template <class Entry,class MyStrategy>
+	void				Queue<Entry,MyStrategy>::WrapInc(Element*&ptr)
+	{
+		ptr = Increment(ptr);
+	}
 
 
 template <class Entry,class MyStrategy>
@@ -484,9 +479,7 @@ template <class Entry,class MyStrategy>
 		while (section_begin != section_end)
 		{
 			section_begin->Destruct();
-			section_begin++;
-			if (section_begin >= field_end)
-				section_begin = Super::pointer();
+			WrapInc(section_begin);
 		}
 		//section_end = section_begin;
 	}
@@ -596,21 +589,21 @@ template <class Entry, class MyStrategy>
 template <class Entry,class MyStrategy>
 	Entry&			Queue<Entry,MyStrategy>::GetNewest()
 	{
-		return (section_end!=Super::data?(section_end-1):field_end-1)->Cast();
+		return (section_end!=Super::data?(section_end-1):Super::end()-1)->Cast();
 	}
 	
 template <class Entry,class MyStrategy>
 	const Entry&	Queue<Entry,MyStrategy>::GetNewest()						const
 	{
-		return (section_end!=Super::data?(section_end-1):field_end-1)->Cast();
+		return (section_end!=Super::data?(section_end-1):Super::end()-1)->Cast();
 	}
 	
 template <class Entry,class MyStrategy>
 	Entry&			Queue<Entry,MyStrategy>::operator[](size_t index)
 	{
-		if (index >= index_t(field_end-section_begin))
+		if (section_begin + index >= Super::end())
 		{
-			return Super::at(index- (field_end-section_begin)).Cast();
+			return Super::at(index- (Super::end()-section_begin)).Cast();
 		}
 		return section_begin[index].Cast();
 	}
@@ -618,9 +611,9 @@ template <class Entry,class MyStrategy>
 template <class Entry,class MyStrategy>
 	const Entry&			Queue<Entry,MyStrategy>::operator[](size_t index)	const
 	{
-		if (index >= index_t(field_end-section_begin))
+		if (section_begin + index >= Super::end())
 		{
-			return Super::at(index- (field_end-section_begin)).Cast();
+			return Super::at(index- (Super::end()-section_begin)).Cast();
 		}
 		return section_begin[index].Cast();
 	}

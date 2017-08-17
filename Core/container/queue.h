@@ -157,10 +157,13 @@ namespace DeltaWorks
 				typedef QueueElement<Entry,MyStrategy>	Element;
 				typedef Ctr::Array<Element,Strategy::Adopt>	Super;
 				Element				*section_begin,
-									*section_end,
-									*field_end;
+									*section_end;
 				void				increaseSize(count_t new_size);
-				Element*			Increment(Element*el)	const;
+				template <typename T>
+					T*				Increment(T*el)	const;
+
+				void				WrapInc(const Element*&ptr) const;
+				void				WrapInc(Element*&ptr);
 			public:
 				typedef Queue<Entry,MyStrategy>	Self;
 				typedef QueueIterator<Entry,Element,MyStrategy>	iterator;
