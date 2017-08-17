@@ -197,6 +197,7 @@ namespace DeltaWorks
 				inline count_t		GetLength()					const {return length();}
 				inline count_t		CountEntries()				const {return length();}
 				inline count_t		size()						const {return length();}		//!< Identical to length()
+				iterator			erase(iterator it);
 				bool				operator>>(Entry&entry);			//!< Identical to pop()
 				Queue<Entry,MyStrategy>&	operator<<(const Entry&entry);		//!< Identical to push() @return *this
 				Entry&				Peek();								//!< Returns a reference to the last (oldest) element in the queue @return last element in the queue

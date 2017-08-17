@@ -183,6 +183,40 @@ template <class Entry,class MyStrategy>
 
 
 template <class Entry,class MyStrategy>
+	typename Queue<Entry,MyStrategy>::iterator			Queue<Entry,MyStrategy>::erase(iterator it)
+	{
+		ASSERT__(it.field_begin == Super::begin());
+		ASSERT__(it.field_end == Super::end());
+		ASSERT__(it.sectionBegin == section_begin);
+
+		if (it.current >= section_begin)
+		{
+			const index_t idx = it.current - section_begin;
+			if (idx == 0)
+			{
+				EraseFront();
+				return begin();
+			}
+
+			for (index_t i = idx; i > 0; i--)
+				MyStrategy::move(section_begin[i-1].Cast(),section_begin[i].Cast());
+			section_begin->Destruct();
+			section_begin++;
+		}
+		else
+		{
+			ASSERT__(it.current < section_end);
+			const index_t idx = it.current - Super::data;
+			const index_t ide = section_end - Super::data;
+
+			for (index_t i = idx; i+1 < ide; i++)
+				MyStrategy::move(Super::data[i+1].Cast(),Super::data[i].Cast());
+			EraseBack();
+		}
+		return it;
+	}
+
+template <class Entry,class MyStrategy>
 	count_t	Queue<Entry,MyStrategy>::Pop(Entry*out_field, count_t count)
 	{
 		count_t written = 0;
