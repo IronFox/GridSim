@@ -928,7 +928,7 @@ namespace DeltaWorks
 				{
 					e.x_coord[0] = n0.x_coord;
 					e.x_coord[1] = n1.x_coord;
-					if (!base_edge && (M::sign(n0.x_coord) != M::sign(n1.x_coord)))//must not happen. ever.
+					if (!base_edge && (M::Sign(n0.x_coord) != M::Sign(n1.x_coord)))//must not happen. ever.
 					{
 						e.x_coord[1] = n0.x_coord - M::Vec::distance(n0.position,n1.position);
 					}

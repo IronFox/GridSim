@@ -409,7 +409,7 @@ namespace DeltaWorks
 		MFUNC	(C)			sqr(C f);												 		//!< Calculates the square of f \param f Value to calculate square of \return f*f
 		MFUNC	(C)			cubic(C f);														//!< Calculates the cube of f \param f Value to calculate square of \return f*f*f
 		MFUNCV	(C)			resolveNURBSweight(unsigned element, const C&fc);				//!< Probably broken
-		MFUNC	(int)		sign(C f);														//!< Extracts the sign of f \param f Value to examine \return -1 for f < -error, 0 for	error >= f >= -error, 1 otherwise
+		MFUNC	(int)		Sign(C f);														//!< Extracts the sign of f \param f Value to examine \return -1 for f < -error, 0 for	error >= f >= -error, 1 otherwise
 		MFUNC3	(C0)		normalDistribution(C0 x, C1 mean, C2 deviation);				//!< Estimates the normal distributed probability
 	
 	
@@ -483,7 +483,7 @@ namespace DeltaWorks
 			MFUNC3	(BYTE)		solveSqrEquation(const C0&p, const C1&q, C2 rs[2]);				//!< By reference variant of Math::solveSqrEquation()
 			MFUNC	(C)			sqr(const C&f);												//!< By reference variant of Math::sqr()
 			MFUNC	(C)			cubic(const C&f);											//!< By reference variant of Math::cubic()
-			MFUNC	(int)		sign(const C&f);											//!< By reference variant of Math::sign()
+			MFUNC	(int)		Sign(const C&f);											//!< By reference variant of Math::Sign()
 			MFUNC3	(C0)		normalDistribution(const C0&x, const C1&mean, const C2&deviation);	//!< By reference variant of Math::normalDistribution()
 		
 		

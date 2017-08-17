@@ -90,7 +90,7 @@ namespace Math
 				return (C)1;
 			return v;
 		}
-		MFUNC  (int)        sign(const C&f)
+		MFUNC  (int)        Sign(const C&f)
 		{
 			if (f < -GetError<C>()/100)
 				return -1;
@@ -609,7 +609,7 @@ namespace Math
 		return v;
 	}
 
-    MFUNC (int)        sign(C f)
+    MFUNC (int)        Sign(C f)
     {
         if (f < -GetError<C>()/100)
             return -1;

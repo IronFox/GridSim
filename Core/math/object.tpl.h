@@ -119,7 +119,7 @@ MFUNC3 (C0)				_oTriangleSize(const C0*v1, const C1*v2, const C2*v3)
 	
 MFUNC3	(char)			_oTriangleOrientation2(const C0 p0[2], const C1 p1[2], const C2 p2[2])
 {
-	return M::sign( (p1[0]-p0[0])*(p2[1]-p0[1]) - (p2[0]-p0[0])*(p1[1]-p0[1]) );
+	return M::Sign( (p1[0]-p0[0])*(p2[1]-p0[1]) - (p2[0]-p0[0])*(p1[1]-p0[1]) );
 }
 
 MFUNC3 (C0)		_oSignedTriangleSize2(const C0 p0[2], const C1 p1[2], const C2 p2[2])
@@ -1415,7 +1415,7 @@ template <typename ContainerT, typename Index>
 			size += Obj::zeroTriangleSize(vertex_field[i].xy,vertex_field[i+1].xy);
 		}
 		size += Obj::zeroTriangleSize(vertex_field.last().xy,vertex_field.first().xy);
-		int orientation = M::sign(size);
+		int orientation = M::Sign(size);
 		bool failed(false);
 		
 		index_t		current_index(0),
@@ -1446,12 +1446,12 @@ template <typename ContainerT, typename Index>
 				current_index++;
 				if (current_index >= indices.Count())
 					current_index = 0;
-				if (M::sign(Obj::signedTriangleSize(vertex_field[index0].xy,vertex_field[index1].xy,vertex_field[index2].xy)) != orientation)
+				if (M::Sign(Obj::signedTriangleSize(vertex_field[index0].xy,vertex_field[index1].xy,vertex_field[index2].xy)) != orientation)
 					continue;
 				bool hit(false);
 				Float	dummy;
 				Vertex &p0 = vertex_field[index2],	&p1 = vertex_field[indices[(current_index+2)%indices.Count()]],	&p2=vertex_field[index0];
-				if (M::sign(Obj::signedTriangleSize(p0.xy,p1.xy,p2.xy)) != orientation)
+				if (M::Sign(Obj::signedTriangleSize(p0.xy,p1.xy,p2.xy)) != orientation)
 					continue;
 
 				for (index_t i = 0; i < indices.Count()-1 && !hit; i++)
@@ -1503,7 +1503,7 @@ MFUNC2 (bool)		_oTriangulate(const M::TVec2<C0>*vertex, count_t vertices, Mesh<C
 		size += Obj::zeroTriangleSize(current->position.xy,next->position.xy);
 	}
 	size += Obj::zeroTriangleSize(target.vertex_field[indices.last()].position.xy,target.vertex_field[indices.first()].position.xy);
-	char orientation = M::sign(size);
+	char orientation = M::Sign(size);
 	bool failed(false);
 		
 	index_t		current_index(0),
@@ -1533,12 +1533,12 @@ MFUNC2 (bool)		_oTriangulate(const M::TVec2<C0>*vertex, count_t vertices, Mesh<C
 			current_index++;
 			if (current_index >= indices.Count())
 				current_index = 0;
-			if (M::sign(Obj::signedTriangleSize(v0->position.xy,v1->position.xy,v2->position.xy)) != orientation)
+			if (M::Sign(Obj::signedTriangleSize(v0->position.xy,v1->position.xy,v2->position.xy)) != orientation)
 				continue;
 			bool hit(false);
 			C0	dummy;
 			M::TVec3<typename C1::Type> &p0 = v2->position,&p1 = target.vertex_field[indices[(current_index+2)%indices.Count()]].position,&p2=v0->position;
-			if (M::sign(Obj::signedTriangleSize(p0.xy,p1.xy,p2.xy)) != orientation)
+			if (M::Sign(Obj::signedTriangleSize(p0.xy,p1.xy,p2.xy)) != orientation)
 				continue;
 
 			for (index_t i = 0; i < indices.Count()-1 && !hit; i++)
