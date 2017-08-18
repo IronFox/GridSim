@@ -805,6 +805,428 @@ struct NodeAttachment : public M::Graph::NodeAttachment
 };
 
 
+
+
+class Tree
+{
+public:
+	typedef M::TIntRange<index_t>	TRange;
+	//axes are: S right, T down. NorthWest is lowest
+
+	class Node
+	{
+	public:
+
+		struct Neighbor
+		{
+			enum e_t
+			{
+				North, West, South, East, Count
+			};
+		};
+		struct Child
+		{
+			enum e_t
+			{
+				NorthWest, SouthWest, NorthEast, SouthEast, Count
+			};
+		};
+
+		static BYTE		AxesToChild(bool sUpper, bool tUpper, bool splitS, bool splitT)
+		{
+			if (!splitT)
+				tUpper = false;
+			if (!splitS)
+				sUpper = false;
+			return (sUpper ? 2 : 0) + (tUpper ? 1 : 0);
+		}
+
+
+
+		void		Setup(const index_t self, const index_t parent, const Table&source, const TRange&sR, const TRange&tR, const index_t level)
+		{
+			ASSERT__(self != InvalidIndex);
+			this->parent = parent;
+			this->level = level;
+			this->self = self;
+			sRange = sR;
+			tRange = tR;
+
+			actualCenter = M::float2(sR.GetCenter(),tR.GetCenter());
+			if (IsRockBottom())
+			{
+				aggregated = true;	//not gonna happen anyways
+				representativeCenter = M::float2{};
+				count_t wSum = 0;
+				for (index_t s = sRange.start; s < sRange.end; s++)
+					for (index_t t = tRange.start; t < tRange.end; t++)
+					{
+						const auto&sample = source.GetSample(s,t);
+						const count_t w = sample.numEntities;
+						representativeCenter += M::float2(s,t)*w;
+						wSum += w;
+						representativeSample.Include(sample);
+					}
+				if (wSum > 0)
+					representativeCenter /= wSum;
+				else
+					representativeCenter = actualCenter;
+
+				ASSERT__(sR.Contains(representativeCenter.x));
+				ASSERT__(tR.Contains(representativeCenter.y));
+			}
+		}
+
+		index_t		FindChild(const index_t s, const index_t t) const
+		{
+			const bool sUpper = s >= sRange.GetCenter();
+			const bool tUpper = t >= tRange.GetCenter();
+			return child[AxesToChild(sUpper,tUpper,splitS, splitT)];
+		}
+
+		void		LinkNeighbors(const Tree&t)
+		{
+			if (n[Neighbor::East] == InvalidIndex)
+				n[Neighbor::East] = t.FindNode(sRange.end,tRange.GetCenter(),level);
+			if (n[Neighbor::West] == InvalidIndex)
+				n[Neighbor::West] = t.FindNode(sRange.start-1,tRange.GetCenter(),level);
+			if (n[Neighbor::North] == InvalidIndex)
+				n[Neighbor::North] = t.FindNode(sRange.GetCenter(),tRange.start-1,level);
+			if (n[Neighbor::South] == InvalidIndex)
+				n[Neighbor::South] = t.FindNode(sRange.GetCenter(),tRange.end,level);
+		}
+
+		bool		IsRockBottom() const
+		{
+			return !CanSplitS() && !CanSplitT();
+		}
+
+		bool		CanSplitT() const
+		{
+			return tRange.GetExtent() > 1;
+		}
+
+		bool		CanSplitS() const
+		{
+			return sRange.GetExtent() > 1;
+		}
+
+		bool		ShouldAggregate(const count_t shouldHaveEntities, const BasicBuffer<Node>&nodes) const
+		{
+			if (!aggregated)
+				return false;
+			//ASSERT__(aggregated);
+			if (representativeSample.numEntities >= shouldHaveEntities)
+				return false;
+
+			for (int i = 0; i < Neighbor::Count; i++)
+				if (n[i] != InvalidIndex)
+				{
+					const auto&neighbor = nodes[n[i]];
+					if (!neighbor.dropped && neighbor.HasChildren())
+						return false;
+				}
+			return true;
+		}
+
+
+		static void		SetupChild(Node*children, const index_t childOffset, const index_t childIndex, const index_t mySelf, const index_t myLevel, const Table&source, const TRange&sRange, const TRange&tRange)
+		{
+			children[childIndex].Setup(childOffset + childIndex,mySelf, source,sRange,tRange,myLevel+1);
+		}
+
+		
+
+		bool		SpawnChildren(const Table&source, BasicBuffer<Node>&nodes)
+		{
+			ASSERT__(self != InvalidIndex);
+			if (IsRockBottom())
+				return false;
+			splitS = CanSplitS();
+			splitT = CanSplitT();
+
+			const index_t childrenOffset = nodes.Count();
+			ASSERT__(childrenOffset > self);
+			const auto sRange = this->sRange;
+			const auto tRange = this->tRange;
+			const auto self = this->self;
+			const auto level = this->level;
+
+			if (splitS && splitT)
+			{
+				for (int k = 0; k < Child::Count; k++)
+					child[k] = childrenOffset + k;
+
+				//this invalid beyond this point:
+				auto children = nodes.AppendRow(4);
+
+				SetupChild(children,childrenOffset,Child::NorthWest,self,level,source,sRange.GetLowerHalf(),tRange.GetLowerHalf());
+				SetupChild(children,childrenOffset,Child::NorthEast,self,level,source,sRange.GetUpperHalf(),tRange.GetLowerHalf());
+				SetupChild(children,childrenOffset,Child::SouthEast,self,level,source,sRange.GetUpperHalf(),tRange.GetUpperHalf());
+				SetupChild(children,childrenOffset,Child::SouthWest,self,level,source,sRange.GetLowerHalf(),tRange.GetUpperHalf());
+			}
+			elif (splitS)
+			{
+				const BYTE c0 = AxesToChild(false,false,true,false);
+				const BYTE c1 = AxesToChild(true,false,true,false);
+				child[c0] = childrenOffset;
+				child[c1] = childrenOffset+1;
+
+				//this invalid beyond this point:
+				auto children = nodes.AppendRow(2);
+
+				SetupChild(children,childrenOffset,0,self,level,source,sRange.GetLowerHalf(),tRange);
+				SetupChild(children,childrenOffset,1,self,level,source,sRange.GetUpperHalf(),tRange);
+			}
+			else
+			{
+				ASSERT__(splitT);
+
+				const BYTE lower = AxesToChild(false,false,false,true);
+				const BYTE upper = AxesToChild(false,true,false,true);
+				child[lower] = childrenOffset;
+				child[upper] = childrenOffset+1;
+
+				//this invalid beyond this point:
+				auto children = nodes.AppendRow(2);
+
+				SetupChild(children,childrenOffset,0,self,level,source,sRange,tRange.GetLowerHalf());
+				SetupChild(children,childrenOffset,1,self,level,source,sRange,tRange.GetUpperHalf());
+			}
+
+			return true;
+		}
+
+		void		InterLinkChildren(BasicBuffer<Node>&nodes)
+		{
+			ASSERT__(self != InvalidIndex);
+			if (splitS && splitT)
+			{
+				Node*c[Child::Count];
+				for (int i = 0; i < Child::Count; i++)
+					c[i] = nodes + child[i];
+				c[Child::NorthWest]->n[Neighbor::South] = child[Child::SouthWest];
+				c[Child::NorthWest]->n[Neighbor::East] = child[Child::NorthEast];
+
+				c[Child::SouthWest]->n[Neighbor::North] = child[Child::NorthWest];
+				c[Child::SouthWest]->n[Neighbor::East] = child[Child::SouthEast];
+
+				c[Child::SouthEast]->n[Neighbor::North] = child[Child::NorthEast];
+				c[Child::SouthEast]->n[Neighbor::West] = child[Child::SouthWest];
+
+				c[Child::NorthEast]->n[Neighbor::South] = child[Child::SouthEast];
+				c[Child::NorthEast]->n[Neighbor::West] = child[Child::NorthWest];
+			}
+		}
+
+		bool		HasChildren() const
+		{
+			return splitS || splitT;
+		}
+
+
+		static void	MakeFlatQuad(Table::Mesh&mesh, M::float2 raw, const float sScale, const float tScale, const TSample&s, const M::float3&color, const float sSize, const float tSize)
+		{
+			using std::swap;
+			raw.x *= sScale;
+			raw.y *= tScale;
+			swap(raw.x,raw.y);
+			mesh.MakeFlatQuad(raw,s,color,tSize,sSize);
+		}
+
+		void		BuildRec(const BasicBuffer<Node>&nodes, Table::Mesh&mesh, const float sScale, const float tScale, const count_t maxDepth) const
+		{
+			ASSERT__(self != InvalidIndex);
+			if (HasChildren())
+			{
+				for (int i = 0; i < Child::Count; i++)
+					if (child[i] != InvalidIndex)
+						nodes[child[i]].BuildRec(nodes,mesh,sScale,tScale,maxDepth);
+				return;
+			}
+			ASSERT_LESS_OR_EQUAL__(level,maxDepth);
+
+			index_t aggregations = maxDepth - level;
+			const float scale = (1 << aggregations);
+			const float sSize = scale*0.1f * sScale;
+			const float tSize = scale*0.1f * tScale;
+			//mesh.MakeFlatQuad(representativeCenter,   sScale, tScale, representativeSample, M::float3(1,0,0), sSize, tSize);
+			MakeFlatQuad(mesh,actualCenter, sScale, tScale, representativeSample, M::float3(0,0,1), sSize, tSize);
+		}
+		bool		HasParent() const {return parent != InvalidIndex;}
+		index_t		GetParent() const {ASSERT__(HasParent()); return parent;}
+		bool		Aggregate(BasicBuffer<Node>&nodes, const count_t shouldHaveEntities)
+		{
+			if (aggregated)
+				return false;
+			aggregated = true;
+			if (IsRockBottom())
+				return false;
+			ASSERT__(self != InvalidIndex);
+
+			bool shouldAggregate = true;
+
+			representativeCenter = M::float2();
+			count_t wSum = 0;
+			for (int i = 0; i < Child::Count; i++)
+				if (child[i] != InvalidIndex)
+				{
+					auto&c = nodes[child[i]];
+					if (!c.ShouldAggregate(shouldHaveEntities,nodes))
+						shouldAggregate = false;
+					const auto&sample = c.representativeSample;
+					const count_t w = M::Max( sample.numEntities,1);
+					representativeCenter += c.representativeCenter*w;
+					wSum += w;
+					representativeSample.Include(sample);
+				}
+			representativeCenter /= wSum;
+
+			if (shouldAggregate)
+			{
+				for (int i = 0; i < Child::Count; i++)
+					if (child[i] != InvalidIndex)
+					{
+						auto&c = nodes[child[i]];
+						c.dropped = true;
+						child[i] = InvalidIndex;
+					}
+				splitS = splitT = false;
+				ASSERT__(!HasChildren());
+				return true;
+			}
+			return false;
+		}
+
+		bool		ChildrenAggregated(const BasicBuffer<Node>&nodes)	const
+		{
+			for (int k = 0; k < Child::Count; k++)
+				if (child[k] != InvalidIndex && !nodes[child[k]].aggregated)
+					return false;
+			return true;
+		}
+
+		bool		NeighborChildrenAggregated(const BasicBuffer<Node>&nodes)	const
+		{
+			for (int k = 0; k < Neighbor::Count; k++)
+				if (n[k] != InvalidIndex)
+				{
+					if (!nodes[n[k]].ChildrenAggregated(nodes))
+						return false;
+				}
+
+			return true;
+		}
+
+
+		index_t		GetLevel() const {return level;}
+
+	private:
+		TSample		representativeSample;
+		M::double2	representativeCenter,actualCenter;
+		TRange		sRange = TRange::Invalid,
+					tRange = TRange::Invalid;
+		index_t		level=0;	//0 = top-most
+		index_t		parent=InvalidIndex,self=InvalidIndex;
+		bool		dropped = false,aggregated = false;
+		bool		splitS = false, splitT = false;
+
+		index_t		child[Child::Count] = {InvalidIndex,InvalidIndex,InvalidIndex,InvalidIndex};
+		index_t		n[Neighbor::Count] = {InvalidIndex,InvalidIndex,InvalidIndex,InvalidIndex};
+	};
+
+
+	index_t			FindNode(index_t s, index_t t, index_t level) const
+	{
+		if (!sRange.Contains(s) || !tRange.Contains(t))
+			return InvalidIndex;
+		index_t at = 0;
+		while (at < nodes.Count())
+		{
+			const auto&node = nodes[at];
+			if (node.GetLevel() == level)
+				return at;
+			index_t next = node.FindChild(s,t);
+			at = next;
+		}
+		return InvalidIndex;
+	}
+
+	void		Setup(const Table&source, const TRange&sR, const TRange&tR, const count_t shouldHaveEntities)
+	{
+		sRange = sR;
+		tRange = tR;
+		nodes.Clear();
+		nodes.Append().Setup(0,InvalidIndex, source,sR,tR,0);
+
+		index_t begin = 0;
+		index_t end = nodes.Count();
+
+		Queue<index_t>	aggregate;
+
+		index_t	bottomBegin = InvalidIndex;
+		while (begin < end)
+		{
+			bottomBegin = begin;
+			for (index_t i = begin; i < end; i++)
+			{
+				if (nodes[i].SpawnChildren(source,nodes))
+					nodes[i].InterLinkChildren(nodes);
+				else
+					aggregate << nodes[i].GetParent();
+			}
+
+			begin = end;
+			end = nodes.Count();
+
+			for (index_t i = begin; i < end; i++)
+				nodes[i].LinkNeighbors(*this);
+		}
+		bottomLevel = nodes.Last().GetLevel();;
+
+		Buffer0<index_t>temp;
+		foreach (aggregate,agg)
+			temp << *agg;
+		temp.Revert();
+		aggregate.Clear();
+		foreach (temp,t)
+			aggregate << *t;
+
+		index_t layer = bottomLevel -1;
+		index_t next;
+		while (aggregate >> next)
+		{
+			auto&n = nodes[next];
+
+			if (n.GetLevel() != layer)
+			{
+				ASSERT__(n.GetLevel() +1 == layer);
+				layer--;
+			}
+			if (n.Aggregate(nodes,shouldHaveEntities))
+			{
+				if (n.HasParent())
+					aggregate << n.GetParent();
+			}
+		}
+	}
+
+	void		Build(Table::Mesh&mesh)	const
+	{
+		if (nodes.IsEmpty())
+			return;
+		nodes.First().BuildRec(nodes, mesh,1.f / (sRange.end-1), 1.f / (tRange.end-1),bottomLevel);
+	}
+
+private:
+	friend class Node;
+	Buffer0<Node>	nodes;
+	TRange			sRange,tRange;
+	index_t			bottomLevel = 0;
+};
+
+
+
 void	Table::Blur(const Table&source)
 {
 	sourceFile = source.sourceFile;
@@ -825,140 +1247,10 @@ void	Table::Blur(const Table&source)
 
 	const count_t minSamples = maxSamples / 100;
 
-	M::Graph graph;
-//	Array2D<M::Graph::PNode>	nodeGrid(sSize,tSize);
-	PriorityQueue<M::Graph::WNode,UINT64>	queue;
 
-	static const count_t testSize = 5;
-	for (index_t s = 0; s < testSize; s++)
-		for (index_t t = 0; t < testSize; t++)
-		{
-			auto n = graph.AddNode();
-	//		nodeGrid.Get(s,t) = n;
-			const auto&sample = source.GetSample(s,t);
-			bool mergeable = sample.numEntities < minSamples;
-			Mesh::TVertex vtx;
-			vtx.sample = sample;
-			vtx.st = M::float2(float(s) / (testSize-1),float(t)/(testSize-1));
-			n->attachment.reset(new NodeAttachment(vtx,mergeable));
-		}
-
-
-	#if 0
-	{
-
-	for (index_t s = 0; s < sSize; s++)
-		for (index_t t = 0; t < tSize; t++)
-		{
-			auto n = graph.AddNode();
-			nodeGrid.Get(s,t) = n;
-			const auto&sample = source.GetSample(s,t);
-			bool mergeable = sample.numEntities < minSamples;
-			Mesh::TVertex vtx;
-			vtx.sample = sample;
-			vtx.st = M::float2(float(s) / (sSize-1),float(t)/(tSize-1));
-			n->attachment.reset(new NodeAttachment(vtx,mergeable));
-			if (mergeable)
-				queue.Push(n,sample.numEntities);
-		}
-
-	for (index_t s = 1; s+1 < sSize; s++)
-	{
-		if (s+2 < sSize)
-		{
-			graph.AddEdge(nodeGrid.Get(s,0),nodeGrid.Get(s+1,0));
-			graph.AddEdge(nodeGrid.Get(s,tSize-1),nodeGrid.Get(s+1,tSize-1));
-		}
-
-		for (index_t t = 1; t+1 < tSize; t++)
-		{
-			if (s+2 < sSize)
-				graph.AddEdge(nodeGrid.Get(s,t),nodeGrid.Get(s+1,t));
-			if (t+2 < tSize)
-			{
-				if (s+2 < sSize)
-				{
-					graph.AddEdge(nodeGrid.Get(s,t),nodeGrid.Get(s+1,t+1));
-					graph.AddEdge(nodeGrid.Get(s+1,t),nodeGrid.Get(s,t+1));
-				}
-				graph.AddEdge(nodeGrid.Get(s,t),nodeGrid.Get(s,t+1));
-			}
-		}
-	}
-
-	for (index_t t = 1; t+2 < tSize; t++)
-	{
-		graph.AddEdge(nodeGrid.Get(0,t),nodeGrid.Get(0,t+1));
-		graph.AddEdge(nodeGrid.Get(sSize-1,t),nodeGrid.Get(sSize-1,t+1));
-	}
-
-	//if (false)
-	{
-		M::Graph::WNode n;
-		while (queue.PopLeast(n))
-		{
-			auto node = n.lock();
-			if (!node)
-				continue;
-
-			M::Graph::PNode candidate;
-			const NodeAttachment*candidateAttachment = nullptr;
-
-			const NodeAttachment&a = *(const NodeAttachment*)node->attachment.get();
-			node->VisitAllNeighbors([&a,&candidate,&candidateAttachment,node](const M::Graph::PNode&n2)
-			{
-				const NodeAttachment&b = *(const NodeAttachment*)n2->attachment.get();
-				if (!b.mergeable || n2 == node)
-					return;
-				if (!candidateAttachment || b.vertex.sample.numEntities < candidateAttachment->vertex.sample.numEntities)
-				{
-					candidate = n2;
-					candidateAttachment = &b;
-				}
-			});
-			if (candidate)
-			{
-				M::Graph::PNode merged = graph.MergeNodes(node,candidate);
-				Mesh::TVertex vtx;
-
-				vtx.sample = a.vertex.sample;
-				vtx.sample.Include(candidateAttachment->vertex.sample);
-				M::float2 mergedAt = a.vertex.st * a.vertex.sample.numEntities + candidateAttachment->vertex.st * candidateAttachment->vertex.sample.numEntities;
-				if (vtx.sample.numEntities != 0)
-					mergedAt /= vtx.sample.numEntities;
-				else
-					mergedAt = (a.vertex.st + candidateAttachment->vertex.st) * 0.5f;
-				const bool mergedIsMergeable = vtx.sample.numEntities < minSamples;
-				const index_t mergedCollapseLevel = std::max(a.collapseLevel , candidateAttachment->collapseLevel) + 1;
-				merged->attachment.reset(new NodeAttachment(vtx,mergedIsMergeable,mergedCollapseLevel));
-				if (mergedIsMergeable)
-					queue.Push(merged,vtx.sample.numEntities);
-			}
-		}
-	}
-	}
-	#endif /*0*/
-
-	M::Delaunay2D delaunay;
-	Array<M::Graph::PNode>	graphNodes;
-	graph.ExportNodes(graphNodes);
-
-	for (index_t i = 0; i < graphNodes.Count(); i++)
-		delaunay.Add(((const NodeAttachment*)( graphNodes[i]->attachment.get()))->vertex.st);
-	delaunay.Triangulate();
-
-	mesh.vertices.SetSize(graphNodes.Count());
-	for (index_t i = 0; i < mesh.vertices.Count(); i++)
-	{
-		const NodeAttachment&a = *(const NodeAttachment*)graphNodes[i]->attachment.get();
-		auto&v = mesh.vertices[i];
-		v = a.vertex;
-		v.color = M::float4(1);
-	}
-	mesh.triangles = delaunay.GetTriangles();
-	delaunay.GetOpenEdges(mesh.edges);
-
-	
+	Tree t;
+	t.Setup(source,M::IntRange<index_t>(0,sSize),M::IntRange<index_t>(0,tSize),minSamples);
+	t.Build(mesh);
 
 
 	return;

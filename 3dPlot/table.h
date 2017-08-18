@@ -154,10 +154,48 @@ public:
 		typedef M::Delaunay2D::Triangle	TTriangle;
 		typedef M::Delaunay2D::Edge	TEdge;
 
-		Array<TVertex>		vertices;
-		Array<TTriangle>	triangles;
-		Array<TEdge>		edges;
+		Buffer0<TVertex>	vertices;
+		Buffer0<TTriangle>	triangles;
+		Buffer0<TEdge>		edges;
+		index_t				vOffset = 0;
 
+
+		void				SetIndexOffsetToVertexCount()
+		{
+			vOffset = vertices.Count();
+		}
+
+		void				AddTriangle(index_t v0, index_t v1, index_t v2)
+		{
+			TTriangle&t = triangles.Append();
+			t.v[0] = v0 + vOffset;
+			t.v[1] = v1 + vOffset;
+			t.v[2] = v2 + vOffset;
+		}
+
+		void				MakeFlatQuad(const M::float2&center, const TSample&sample, const M::float3&color, float sExt, float tExt)
+		{
+			const M::float2 ext{sExt,tExt};
+			SetIndexOffsetToVertexCount();
+			vertices.Append().sample = sample;
+			vertices.Last().st = center - ext;
+			vertices.Last().color = M::float4(color,1.f);
+
+			vertices.Append().sample = sample;
+			vertices.Last().st = center + M::float2(sExt,-tExt);
+			vertices.Last().color = M::float4(color,1.f);
+
+			vertices.Append().sample = sample;
+			vertices.Last().st = center + M::float2(sExt,tExt);
+			vertices.Last().color = M::float4(color,1.f);
+
+			vertices.Append().sample = sample;
+			vertices.Last().st = center + M::float2(-sExt,tExt);
+			vertices.Last().color = M::float4(color,1.f);
+
+			AddTriangle(0,1,2);
+			AddTriangle(0,2,3);
+		}
 
 		bool				IsNotEmpty() const {return triangles.IsNotEmpty();}
 		void				swap(Mesh&other)
