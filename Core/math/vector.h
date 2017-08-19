@@ -1004,7 +1004,14 @@ namespace DeltaWorks
 											y.Expand(by);
 											return *this;
 										}
-									
+				template <typename T2>
+					MF_DECLARE(Rect<T>&)ExpandRelatively(const T2& by)	//! Expands the rectangle using a relative factor on the current size. @b bottom is expected to be less than @b top
+										{
+											x.Expand(by * x.GetExtent());
+											y.Expand(by * y.GetExtent());
+											return *this;
+										}
+
 				MF_DECLARE(void)		ConstrainBy(const Rect<T>&constraint)	//! Modifies the local rectangle so that it lies within the specified constraint rectangle. @b bottom is expected to be less than @b top
 										{
 											x.ConstrainBy(constraint.x);
