@@ -12,6 +12,43 @@ namespace DeltaWorks
 
 	namespace Package
 	{
+		/**
+		Checks whether a character is a valid network-character.
+		Valid characters include all ASCII graph-characters, German umlauts (CP1251), space, tab, and newline (\n).
+		All other characters are rejected
+		@return true if the specified character is valid, false otherwise
+		*/
+		bool			IsValidChar(char c);
+		/**
+		Checks whether or not the specified string is a valid network string.
+		Each character must pass IsValidChar(), and the length of the local string must be less or equal than @a maxLength (if set)
+		@param str String to test
+		@param maxLength Maximum allowed string length
+		@return true if the specified string is valid, false otherwise
+		*/
+		bool			IsValid(const StringRef&str, const count_t maxLength=std::numeric_limits<count_t>::max());
+		/**
+		Similar to IsValid(), but triggers detailed fatals. Any found error terminates the local program
+		*/
+		void			AssertValidity(const StringRef&str, const count_t maxLength=std::numeric_limits<count_t>::max());
+		/**
+		Similar to IsValid(), but throws detailed exceptions
+		*/
+		void			CheckValidity(const StringRef&str, const count_t maxLength=std::numeric_limits<count_t>::max());
+		/**
+		@copydoc IsValid(const StringRef&,const count_t maxLength)
+		*/
+		inline bool		IsValid(const String&str, const count_t maxLength=std::numeric_limits<count_t>::max()) {return IsValid(str.ToRef(),maxLength);}
+		/**
+		@copydoc AssertValidity(const StringRef&,const count_t maxLength)
+		*/
+		inline void		AssertValidity(const String&str, const count_t maxLength=std::numeric_limits<count_t>::max()) {AssertValidity(str.ToRef(),maxLength);}
+		/**
+		@copydoc CheckValidity(const StringRef&,const count_t maxLength)
+		*/
+		inline void		CheckValidity(const String&str, const count_t maxLength=std::numeric_limits<count_t>::max()){CheckValidity(str.ToRef(),maxLength);}
+
+
 		template <serial_size_t max_size>
 			class NetString:public String
 			{
@@ -19,64 +56,38 @@ namespace DeltaWorks
 				typedef NetString<max_size>	Self;
 
 				static const size_t	MaxSize = max_size;
-			static	bool			IsValidChar(char c)
-					{
-						switch (c)
-						{
-							case 'ä':
-							case 'ö':
-							case 'ü':
-							case 'Ä':
-							case 'Ö':
-							case 'Ü':
-							case 'ß':
-								return true;
-						}
-						bool result = isgraph((BYTE)c) || c == ' ' || c == '\t' || c == '\n';
-						return result;
-					}
-			public:
+				static const size_t	MaxLength = max_size;
+
 				/**/				NetString()
 									{}
 				/**/				NetString(const String&string):String(string)
 									{
-										ASSERT1__(IsValid(*this),*this);
+										AssertValidity(*this,MaxLength);
 									}
 				/**/				NetString(const char*string):String(string)
 									{
-										ASSERT1__(IsValid(*this),*this);
+										AssertValidity(*this,MaxLength);
 									}
 				/**/				NetString(const StringRef&string):String(string)
 									{
-										ASSERT1__(IsValid(*this),*this);
+										AssertValidity(*this,MaxLength);
 									}
-
-				static bool			IsValid(const String&str)
-				{
-					if (str.length() > max_size)
-						return false;
-					for (index_t i = 0; i < str.length(); i++)
-						if (!IsValidChar(str.GetChar(i)))
-						{
-							//cout << "invalid char '"<<
-							return false;
-						}
-					return true;
-				}
 
 				friend void			SerialSync(IReadStream&s,Self&v)
 				{
 					const serial_size_t len=s.ReadSize();
-					if (len > max_size)
-						throw Except::Memory::SerializationFault(CLOCATION,"Deserialized string length "+String(len)+" exceeds maximum safe size "+String(max_size));
+					if (len > MaxLength)
+						throw Except::Memory::SerializationFault(CLOCATION,"Deserialized string length "+String(len)+" exceeds maximum safe size "+String(MaxLength));
 					v.SetLength(len);
 					s.Read(v.mutablePointer(),len);
-					if (!IsValid(v))
-						throw Except::Memory::SerializationFault(CLOCATION,"Deserialized string contains invalid characters");
+					CheckValidity(v,MaxLength);
 				}
 				
-				
-				String::operator=;
+				void				operator=(const String&other)
+				{
+					AssertValidity(other,MaxLength);
+					String::operator=(other);
+				}
 			};
 
 
@@ -284,7 +295,7 @@ namespace DeltaWorks
 				else
 					SerialSync(s,v.uncompressed);
 
-				if (!NetString<256>::IsValid(v.uncompressed))
+				if (!IsValid(v.uncompressed,std::numeric_limits<count_t>::max()))
 					throw Except::Memory::SerializationFault(CLOCATION,"Decompression string contains invalid character");
 			}	
 			
