@@ -21,6 +21,37 @@ namespace DeltaWorks
 	
 	
 	
+		static void Describe(const CLI::Variable&v, bool more)
+		{
+			String msg = "'"+v.name+"' ("+v.type;
+			if (v.components != 1)
+				msg += "["+String(v.components)+"]";
+			msg += ") ";
+			//println(msg);
+			if (v.protection != NoProtection)
+			{
+				if ( (v.protection & EraseProtection) && (v.protection & WriteProtection))
+					msg += "is fully protected (You may neither modify nor unset this variable)";
+				elif (v.protection & EraseProtection)
+					msg += "may be modified but not unset";
+				else
+					msg += "may be unset but not modified";
+			}
+			else
+				msg += "may be modified and/or unset as required";
+			String supported = v.GetSupportedValues();
+			if (supported.IsNotEmpty())
+			{
+				msg += '.';
+				if ((v.protection & WriteProtection) == 0)
+					msg += "\nSupported values are "+supported;
+				else
+					msg += "\nPossible values are "+supported;
+			}
+			if (more)
+				msg += '.';
+			println(msg);
+		}
 
 		static void	printHelp(const String&p)
 		{
@@ -32,18 +63,13 @@ namespace DeltaWorks
 				String message;
 				if (PVariable var = main_interpretor->FindVar(parameter))
 				{
+					Describe(*var,true);
 					String supported = var->GetSupportedValues();
 					if (var->help)
-						message = var->name+" ("+var->type+"):\n"+*var->help;
+						message = *var->help;
 					else
 					{
-						message = "No help text defined for variable '"+var->name+"' of type "+var->type;
-						if (supported.IsNotEmpty())
-							message += '.';
-					}
-					if (supported.IsNotEmpty())
-					{
-						message += "\nSupported values are "+supported;
+						message = "No additional information available :/";
 					}
 				}
 				elif (PCommand cmd = main_interpretor->Find(parameter))
@@ -51,19 +77,19 @@ namespace DeltaWorks
 					if (cmd->help)
 						message = cmd->fullSpecification+":\n"+*cmd->help;
 					else
-						message = "No help text defined for command '"+cmd->fullSpecification+"'";
+						message = "No additional information available for command '"+cmd->fullSpecification+"' :/";
 				}
 				elif (PFolder folder = main_interpretor->FindFolder(parameter))
 				{
 					if (folder->help)
 						message = folder->name+":\n"+*folder->help;
 					else
-						message = "No help text defined for folder '"+folder->name+"'";
+						message = "No additional information available for folder '"+folder->name+"' :/";
 				}
 			
 				if (!message.length())
 				{
-					message ="Unable to find requested entry '"+parameter+"'";
+					message ="Unable to find requested entry '"+parameter+"' :/";
 				}
 				println(message);
 			}
@@ -191,29 +217,7 @@ namespace DeltaWorks
 					println("Undefined variable: '"+var+"'");
 				return;
 			}
-			String msg = "'"+v->name+"' is of type "+v->type;
-			if (v->components != 1)
-				msg += "["+String(v->components)+"]";
-			//println(msg);
-		
-			msg += " and ";
-			if (v->protection != NoProtection)
-			{
-				if ( (v->protection & EraseProtection) && (v->protection & WriteProtection))
-					msg += "fully protected (You may neither modify nor unset this variable)";
-				elif (v->protection & EraseProtection)
-					msg += "may be modified but not unset";
-				else
-					msg += "may be unset but not modified";
-			}
-			else
-				msg += "may be modified and/or unset as required";
-			msg += '.';
-			String supported = v->GetSupportedValues();
-			if (supported.IsNotEmpty())
-				msg += "\nSupported values are "+supported;
-			println(msg);
-
+			Describe(*v,false);
 		}
 
 		static void	Unset(const String&variable)
@@ -225,7 +229,7 @@ namespace DeltaWorks
 		typedef std::shared_ptr<const String>	PString;
 	
 		static PString	list_help = PString(new String("Displays the content of the current folder.\nCommands are displayed with a leading asterisk (e.g. '*command'), folders in brackets (e.g. '[folder]'), and variables just plain (e.g. 'variable').")),
-								general_help = PString(new String("Enter 'ls' or 'list' to list all available commands.\nAdditionally 'help <variable/command>' will query the respective help entry.")),
+								general_help = PString(new String("Enter 'ls' or 'list' to list all available commands.\nAdditionally, 'help <variable/command>' will query the respective help entry.")),
 								set_help = PString(new String("Registers a new variable or updates the value of an existing one.\nVariables may be read-only preventing you from changing their value, others may execute arbitrary code upon modification.")),
 								unset_help = PString(new String("Unregisters a variable. Variables may be protected against this kind of operation.")),
 								cd_help = PString(new String("Changes the active folder. Use 'cd <folder>' to change into a specific folder.\nEntering 'cd ..' will change into the respective parent folder and 'cd /' will change the active directory to the root folder. You may also specify an entire path (e.g. 'cd ../path0/subpath/../othersubpath'). The respective target folder(s) must exist for this operation to be successful.")),
