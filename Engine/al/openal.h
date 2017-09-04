@@ -24,7 +24,7 @@ namespace Engine
 
 		namespace Listener
 		{
-			void					CheckSources();	//!< Called by SetPosition automatically
+			void				CheckSources();	//!< Called by SetPosition automatically
 		}
 
 		class WaveBuffer
@@ -46,7 +46,7 @@ namespace Engine
 		struct TSourceData
 		{
 			ALuint			handle=0;
-			M::TVec3<>			position;
+			M::TVec3<>		position;
 			bool			isRelative=false,
 							wantsToPlay=false,
 							isPaused=false,
@@ -167,23 +167,25 @@ namespace Engine
 		*/
 		void				SignalWindowFocusLoss();
 	
+		ALenum				FindFormat(count_t numChannels, count_t numBitsPerSample);
+
 		namespace Listener
 		{
 			void					CheckSources();	//!< Called by SetPosition automatically
 
 			void					SetOrientation(const M::TVec3<>&direction, const M::TVec3<>&up, bool negate_direction=false, bool negate_up=false);
-			const M::TVec3<>&			GetDirectionVector();
-			const M::TVec3<>&			GetUpVector();
+			const M::TVec3<>&		GetDirectionVector();
+			const M::TVec3<>&		GetUpVector();
 			void					SetVelocity(float x, float y, float z);
 			void					SetVelocity(const M::TVec3<>&velocity);
-			const M::TVec3<>&			GetVelocity();
+			const M::TVec3<>&		GetVelocity();
 			/**
 			Changes the listener position in the world.
 			This function doubles as a priority cleanup. It is assumed you call this function around once per frame.
 			*/
 			void					SetPosition(const M::TVec3<>&position);
-			const M::TVec3<>&			GetLocation();
-			inline const M::TVec3<>&	GetPosition()	{return GetLocation();}
+			const M::TVec3<>&		GetLocation();
+			inline const M::TVec3<>&GetPosition()	{return GetLocation();}
 			void					SetGain(float volume);
 
 			void					SetMaxPlayingSources(count_t);

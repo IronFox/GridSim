@@ -450,7 +450,6 @@ namespace Engine
 		{
 			return Status::initialized;
 		}
-	
 
 	
 		WaveBuffer			Load(const String&filename, String*error_out)
@@ -472,11 +471,14 @@ namespace Engine
 			WAVERESULT rs = wave_loader.LoadWaveFile(filename.c_str(), &WaveID);
 			if (WV_SUCCEEDED(rs))
 			{
+				WAVEFORMATEX	format;
 				if ((WV_SUCCEEDED(wave_loader.GetWaveSize(WaveID, (unsigned long*)&iDataSize))) &&
 					(WV_SUCCEEDED(wave_loader.GetWaveData(WaveID, (void**)&pData))) &&
 					(WV_SUCCEEDED(wave_loader.GetWaveFrequency(WaveID, (unsigned long*)&iFrequency))) &&
-					(WV_SUCCEEDED(wave_loader.GetWaveALBufferFormat(WaveID, &alGetEnumValue, (unsigned long*)&eBufferFormat))))
+					(WV_SUCCEEDED(wave_loader.GetWaveFormatExHeader(WaveID, &format))) 
+					)
 				{
+					eBufferFormat = FindFormat(format.nChannels,format.wBitsPerSample);
 					alGetError();
 					alGenBuffers(1,&result.bufferHandle);
 					alGetError();
@@ -747,6 +749,33 @@ namespace Engine
 		{
 			OpenAL::Status::focusLostMuted = true;
 			alListenerf(AL_GAIN,0);
+		}
+
+		ALenum FindFormat(count_t numChannels, count_t numBitsPerSample)
+		{
+			#undef FORMAT_ID
+			#define FORMAT_ID(CH,BITS)	((CH) * 64 + (BITS))
+			switch (FORMAT_ID(numChannels,numBitsPerSample))
+			{
+				case FORMAT_ID(1,8):
+					return alGetEnumValue("AL_FORMAT_MONO8");
+				case FORMAT_ID(1,16):
+					return alGetEnumValue("AL_FORMAT_MONO16");
+				case FORMAT_ID(2,8):
+					return alGetEnumValue("AL_FORMAT_STEREO8");
+				case FORMAT_ID(2,16):
+					return alGetEnumValue("AL_FORMAT_STEREO16");
+				case FORMAT_ID(4,16):
+					return alGetEnumValue("AL_FORMAT_QUAD16");
+				case FORMAT_ID(6,16):
+					return alGetEnumValue("AL_FORMAT_51CHN16");
+				case FORMAT_ID(7,16):
+					return alGetEnumValue("AL_FORMAT_61CHN16");
+				case FORMAT_ID(8,16):
+					return alGetEnumValue("AL_FORMAT_71CHN16");
+			}
+			throw Except::Program::ParameterFault(CLOCATION,"OpenAL: Unsupported paramter combination: "+String(numChannels)+", "+String(numBitsPerSample));
+			//return AL_NONE;
 		}
 
 	}
