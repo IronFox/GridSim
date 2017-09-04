@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <root>
-	<run reliability="0.99684" reliabilityLevel="20" recoveryIterations="2" numLayers="2" maxSiblingSyncOperations="1" siblingSyncDelay="1" numEntities="262144" endlessRuns="2" numRuns="0">
-		<deadNodes mean="0.011266125992" deviation="0.000031374538" sum="0.022532251983" squareSum="0.000253853158" sampleCount="2" />
-		<recoveringNodes mean="0.025828341645" deviation="0.000083519112" sum="0.05165668329" squareSum="0.001334220415" sampleCount="2" />
-		<revivalDepth mean="2.846980429175" deviation="0.000392381397" sum="5.693960858351" squareSum="16.21059543614" sampleCount="2" />
+	<run reliability="0.99684" reliabilityLevel="20" recoveryIterations="2" numLayers="2" maxSiblingSyncOperations="1" siblingSyncDelay="1" numEntities="262144" endlessRuns="3" numRuns="0">
+		<deadNodes mean="0.011302190093" deviation="0.000057073877" sum="0.03390657028" squareSum="0.000383228275" sampleCount="3" />
+		<recoveringNodes mean="0.02591459604" deviation="0.000139748821" sum="0.077743788121" squareSum="0.002014757453" sampleCount="3" />
+		<revivalDepth mean="2.85243628103" deviation="0.007722388286" sum="8.557308843091" squareSum="24.409357117857" sampleCount="3" />
 		<survived mean="NaN" deviation="NaN" sum="0" squareSum="0" sampleCount="0" />
-		<recoveryOps mean="0.044695530447" deviation="0.001199880061" sum="0.089391060894" squareSum="0.003998260308" sampleCount="2" />
-		<recoverCompletedSDS mean="0.015098490151" deviation="0.001099890038" sum="0.030196980302" squareSum="0.000458348326" sampleCount="2" />
-		<syncTotalCopied mean="0.086144510549" deviation="0.000292548757" sum="0.172289021098" squareSum="0.014841924565" sampleCount="2" />
-		<syncTotalMerged mean="0.145300899597" deviation="0.000086125358" sum="0.290601799195" squareSum="0.042224717683" sampleCount="2" />
-		<syncFailedMerges mean="0.374134331515" deviation="0.005792884881" sum="0.74826866303" squareSum="0.280020111067" sampleCount="2" />
-		<syncImprovingMerges mean="0.014461972345" deviation="0.000171532562" sum="0.02892394469" squareSum="0.000418356135" sampleCount="2" />
-		<syncICReducingMerges mean="0.090109856212" deviation="0.002075578572" sum="0.180219712425" squareSum="0.016248188426" sampleCount="2" />
-		<syncPerfectMerges mean="0.521293839927" deviation="0.003545774479" sum="1.042587679855" squareSum="0.543519680126" sampleCount="2" />
+		<recoveryOps mean="0.047695230477" deviation="0.004353872806" sum="0.143085691431" squareSum="0.006881373656" sampleCount="3" />
+		<recoverCompletedSDS mean="0.016098390161" deviation="0.001675143444" sum="0.048295170483" squareSum="0.000785892814" sampleCount="3" />
+		<syncTotalCopied mean="0.086854075009" deviation="0.001031513422" sum="0.260562225028" squareSum="0.022634083097" sampleCount="3" />
+		<syncTotalMerged mean="0.146340053495" deviation="0.001471267088" sum="0.439020160484" squareSum="0.064252727651" sampleCount="3" />
+		<syncFailedMerges mean="0.374796692357" deviation="0.004821734189" sum="1.124390077071" squareSum="0.421487429167" sampleCount="3" />
+		<syncImprovingMerges mean="0.014865150323" deviation="0.000587129059" sum="0.04459545097" squareSum="0.000663952244" sampleCount="3" />
+		<syncICReducingMerges mean="0.090789038897" deviation="0.001947972219" sum="0.272367116692" squareSum="0.024739332539" sampleCount="3" />
+		<syncPerfectMerges mean="0.519549118422" deviation="0.003803916917" sum="1.558647355267" squareSum="0.809837268712" sampleCount="3" />
 	</run>
 </root>

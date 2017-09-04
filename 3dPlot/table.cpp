@@ -872,9 +872,16 @@ public:
 				else
 					representativeCenter = actualCenter;
 
-				ASSERT__(sR.Contains(representativeCenter.x));
-				ASSERT__(tR.Contains(representativeCenter.y));
+				//ASSERT__(sR.Contains(representativeCenter.x));
+				//ASSERT__(tR.Contains(representativeCenter.y));
 			}
+			UpdateGeometricalCenter();
+		}
+
+		void	UpdateGeometricalCenter()
+		{
+			geometricalCenter.x = range.y.Relativate(representativeCenter.x);
+			geometricalCenter.y = range.x.Relativate(representativeCenter.y);
 		}
 
 		index_t		FindChild(const index_t s, const index_t t) const
@@ -1028,8 +1035,8 @@ public:
 		static void	MakeFlatQuad(Table::Mesh&mesh, M::float2 raw, const float sScale, const float tScale, const TSample&s, const M::float3&color, const float sSize, const float tSize)
 		{
 			using std::swap;
-			raw.x *= sScale;
-			raw.y *= tScale;
+			//raw.x *= sScale;
+			//raw.y *= tScale;
 			swap(raw.x,raw.y);
 			mesh.MakeFlatQuad(raw,s,color,tSize,sSize);
 		}
@@ -1046,12 +1053,14 @@ public:
 			}
 			ASSERT_LESS_OR_EQUAL__(level,maxDepth);
 
-			index_t aggregations = maxDepth - level;
-			const float scale = (1 << aggregations);
-			const float sSize = scale*0.1f * sScale;
-			const float tSize = scale*0.1f * tScale;
+
+			float2 xy = geometricalCenter;
+			const index_t aggS = this->sRange.GetExtent();
+			const index_t aggT = this->tRange.GetExtent();
+			const float sSize = aggS/**0.5f*/* sScale;
+			const float tSize = aggT/**0.5f*/ * tScale;
 			//mesh.MakeFlatQuad(representativeCenter,   sScale, tScale, representativeSample, M::float3(1,0,0), sSize, tSize);
-			MakeFlatQuad(mesh,actualCenter, sScale, tScale, representativeSample, M::float3(0,0,1), sSize, tSize);
+			MakeFlatQuad(mesh,xy, sScale, tScale, representativeSample, M::float3(0,0,1), sSize, tSize);
 		}
 		bool		HasParent() const {return parent != InvalidIndex;}
 		index_t		GetParent() const {ASSERT__(HasParent()); return parent;}
@@ -1065,7 +1074,7 @@ public:
 			ASSERT__(self != InvalidIndex);
 
 			bool shouldAggregate = true;
-
+			representativeSample = TSample();
 			representativeCenter = M::float2();
 			count_t wSum = 0;
 			for (int i = 0; i < Child::Count; i++)
@@ -1081,6 +1090,8 @@ public:
 					representativeSample.Include(sample);
 				}
 			representativeCenter /= wSum;
+
+			UpdateGeometricalCenter();
 
 			if (shouldAggregate)
 			{
@@ -1118,12 +1129,18 @@ public:
 			return true;
 		}
 
+		bool		Contains(index_t s, index_t t) const
+		{
+			return sRange.Contains(s) && tRange.Contains(t);
+ 		}
+
 
 		index_t		GetLevel() const {return level;}
 
 	private:
 		TSample		representativeSample;
 		M::double2	representativeCenter,actualCenter;
+		float2		geometricalCenter;
 		TRange		sRange = TRange::Invalid,
 					tRange = TRange::Invalid;
 		index_t		level=0;	//0 = top-most
@@ -1140,7 +1157,23 @@ public:
 	{
 		if (!sRange.Contains(s) || !tRange.Contains(t))
 			return InvalidIndex;
-		index_t at = 0;
+		foreach (rootNodes,rN)
+		{
+			index_t rs = FindNodeFrom(*rN, s,t,level);
+			if (rs != InvalidIndex)
+				return rs;
+		}
+		return InvalidIndex;
+	}
+
+	index_t		FindNodeFrom(index_t rootNode, index_t s, index_t t, index_t level) const
+	{
+		index_t at = rootNode;
+		{
+			const auto&n = nodes[at];
+			if (!n.Contains(s,t))
+				return InvalidIndex;
+		}
 		while (at < nodes.Count())
 		{
 			const auto&node = nodes[at];
@@ -1152,12 +1185,30 @@ public:
 		return InvalidIndex;
 	}
 
-	void		Setup(const Table&source, const TRange&sR, const TRange&tR, const count_t shouldHaveEntities)
+	void	MakeRootNode(const Table&source, const TRange&sR, const TRange&tR)
 	{
-		sRange = sR;
-		tRange = tR;
+		index_t myIndex=nodes.Count();
+		rootNodes << myIndex;
+		nodes.Append().Setup(myIndex, InvalidIndex, source,sR,tR,0);
+	}
+
+	void		Setup(const Table&source, const TRange&_sR, const TRange&_tR, const count_t shouldHaveEntities)
+	{
+		sRange = _sR;
+		tRange = _tR;
+
+
+		sRange.end = range.y.Clamp(sRange.end-1)+1;
+		tRange.end = range.x.Clamp(tRange.end-1)+1;
+
+		rootNodes.Clear();
 		nodes.Clear();
-		nodes.Append().Setup(0,InvalidIndex, source,sR,tR,0);
+
+		MakeRootNode(source,M::IntRange<index_t>(0,1),M::IntRange<index_t>(0,1));
+		MakeRootNode(source,M::IntRange<index_t>(1,sRange.end),M::IntRange<index_t>(0,1));
+		MakeRootNode(source,M::IntRange<index_t>(1,sRange.end),M::IntRange<index_t>(1,tRange.end));
+		MakeRootNode(source,M::IntRange<index_t>(0,1),M::IntRange<index_t>(1,tRange.end));
+
 
 		index_t begin = 0;
 		index_t end = nodes.Count();
@@ -1173,7 +1224,8 @@ public:
 				if (nodes[i].SpawnChildren(source,nodes))
 					nodes[i].InterLinkChildren(nodes);
 				else
-					aggregate << nodes[i].GetParent();
+					if (nodes[i].HasParent())
+						aggregate << nodes[i].GetParent();
 			}
 
 			begin = end;
@@ -1215,12 +1267,14 @@ public:
 	{
 		if (nodes.IsEmpty())
 			return;
-		nodes.First().BuildRec(nodes, mesh,1.f / (sRange.end-1), 1.f / (tRange.end-1),bottomLevel);
+		foreach (rootNodes,rN)
+			nodes[*rN].BuildRec(nodes, mesh,1.f / (sRange.end-1), 1.f / (tRange.end-1),bottomLevel);
 	}
 
 private:
 	friend class Node;
 	Buffer0<Node>	nodes;
+	Buffer0<index_t>	rootNodes;
 	TRange			sRange,tRange;
 	index_t			bottomLevel = 0;
 };
@@ -1567,7 +1621,9 @@ TSurfacePoint	Table::GetGeometryPointF(SampleType t, float spatialDistance, floa
 	{
 		float x = v->st.x * 2.f - 1.f;
 		float y = v->st.y * 2.f - 1.f;
-		float h = v->sample.Get(t);
+		float h = 
+			v->sample.Get(t);
+		h = range.z.Relativate(h);
 		obj.MakeVertex(M::float3(x,y,h),v->color,M::float2(Relative2TextureHeight(h)));
 	}
 

@@ -88,7 +88,7 @@ void UpdatePlotGeometry()
 		//rangeTable.UpdatePlotGeometry(currentSampleType);
 
 		foreach (tables,t)
-			if (t != tables.begin())
+			//if (t != tables.begin())
 				t->UpdatePlotGeometry(currentSampleType,false);
 	}
 
