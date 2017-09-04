@@ -603,6 +603,9 @@ namespace DeltaWorks
 					start -= delta;
 					end -= delta;
 				}
+
+				Self					GetLowerHalf() const {return Self{start,GetCenter()};}
+				Self					GetUpperHalf() const {return Self{GetCenter(),end};}
 									
 				MF_DECLARE(void)		Set(const T&start, const T& end)
 										{
@@ -2311,6 +2314,9 @@ namespace DeltaWorks
 		}
 		#include "vector_operations.h"
 	}
+
+	namespace Vec = Math::Vec;
+
 }
 
 
