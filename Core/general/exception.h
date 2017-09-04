@@ -298,6 +298,10 @@ namespace DeltaWorks
 					buffer[sizeof(buffer)-1] = 0;
 					return buffer;
 				};
+				/**
+				Queries the raw exception message (without any code location)
+				*/
+				const char*					GetRawMessage() const {return Super::what();}
 				static const Name&			StaticGetName()	{static const Name	name = Name("Except"); return name;}
 
 				const std::exception&		c_str()	const	{return *this;}		//ok, this is close to a hack. let's forget i had to do this :P. WHY did i have to do this again...?

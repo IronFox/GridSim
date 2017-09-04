@@ -1066,6 +1066,34 @@ namespace DeltaWorks
 
 		#include "vclasses.tpl.h"
 	}
+
+	typedef M::Vec2<float>	float2;
+	typedef M::Vec3<float>	float3;
+	typedef M::Vec4<float>	float4;
+	typedef M::Vec2<double>	double2;
+	typedef M::Vec3<double>	double3;
+	typedef M::Vec4<double>	double4;
+	typedef M::Vec2<int>		int2;
+	typedef M::Vec3<int>		int3;
+	typedef M::Vec4<int>		int4;
+	typedef M::Vec2<unsigned int>		uint2;
+	typedef M::Vec3<unsigned int>		uint3;
+	typedef M::Vec4<unsigned int>		uint4;
+	typedef M::Vec2<BYTE>				byte2;
+	typedef M::Vec3<BYTE>				byte3;
+	typedef M::Vec4<BYTE>				byte4;
+	typedef M::Vec2<signed char>		sbyte2;
+	typedef M::Vec3<signed char>		sbyte3;
+	typedef M::Vec4<signed char>		sbyte4;
+	typedef M::Vec2<short>		short2;
+	typedef M::Vec3<short>		short3;
+	typedef M::Vec4<short>		short4;
+	typedef M::Vec2<bool>		bool2;
+	typedef M::Vec3<bool>		bool3;
+	typedef M::Vec4<bool>		bool4;
+	typedef M::Vec2<half>		half2;
+	typedef ALIGN2 M::Vec3<half>		half3;
+	typedef M::Vec4<half>		half4;
 }
 
 #endif
