@@ -106,10 +106,14 @@ namespace DeltaWorks
 		inline	void			Execute()	//!< Executes the operation
 								{
 									executing = true;
-									if (method_pointer)
-										(object->*method_pointer)();
-									else
-										object->ThreadMain();
+									try
+									{
+										if (method_pointer)
+											(object->*method_pointer)();
+										else
+											object->ThreadMain();
+									}
+									catch (...){}
 									executing = false;
 								}
 		inline	bool			isExecuting()	const	//!< Returns true if this operation is currently being executed
