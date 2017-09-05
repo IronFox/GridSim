@@ -57,7 +57,12 @@ namespace DeltaWorks
 		};
 
 
-
+	/**
+	Audio codec decoder.
+	Uses Windows Media Foundation.
+	Heavily modified version of libAudioDecoder by Albert Santoni, Bill Good, RJ Ryan (2012).
+	https://github.com/asantoni/libaudiodecoder
+	*/
 	class AudioDecoder
 	{
 	public:
@@ -65,15 +70,42 @@ namespace DeltaWorks
 		typedef float SAMPLE;
 
 		virtual ~AudioDecoder();
+
+		/**
+		Clears the local decoder and opens the specified file.
+		Throws exceptions in case of errors.
+		*/
 		void	Open(const PathString&);
+		/**
+		Clears and deactivates the local decoder
+		*/
 		void	Clear();
+		/**
+		Attempts to seek the local audio document to the specified frame.
+		The local decoder must be active.
+		May throw exceptions
+		*/
 		void	SeekFrame(index_t frameIdx);
+		/**
+		Attempts to read the specified number of frames from the local document.
+		The local decoder must be active.
+		May throw exceptions
+		@param numFrames Number of frames to read. Less may be read if the stream end has been reached
+		@param destination Buffer to read samples to. Must be at least numFrames * GetFrameByteSize() in size
+		@return Number of frames actually read. May be less or equal to numFrames
+		*/
 		count_t	ReadFrames(const count_t numFrames, void *destination);
+		/**
+		Queries whether or not the local decoder is currently active
+		*/
 		bool	IsActive() const {return data.reader.IsNotEmpty();}
 		count_t CountSamples() const;
 		count_t	GetChannels() const {return data.numChannels;}
 		count_t	GetFramesPerSecond() const {return data.frameRate;}
 		void	Rewind()	{SeekFrame(0); data.eof=false;};
+		/**
+		Checks whether or not the local stream has reached the end.
+		*/
 		bool	IsAtEnd() const {return data.eof;}
 		count_t	GetBitsPerSample() const {return data.m_iBitsPerSample;}
 		count_t	GetFrameByteSize() const {return data.numChannels * data.m_iBitsPerSample/8;}

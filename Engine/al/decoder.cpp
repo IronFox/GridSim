@@ -25,6 +25,8 @@ void AudioDecoder::Open(const PathString&filename)
 {
 	try
 	{
+		Clear();
+
 		data.filename = filename;
 		//Defaults
 		data.numChannels = kNumChannels;
@@ -70,6 +72,8 @@ AudioDecoder::~AudioDecoder()
 
 void AudioDecoder::Clear()
 {
+	if (!IsActive())
+		return;
 	data = Data();
 	extra.Clear();
     MFShutdown();
@@ -123,6 +127,9 @@ count_t AudioDecoder::ReadFrames(const count_t numFrames, void *destination)
 {
 	try
 	{
+	    if (!IsActive())
+			throw Except::IO::GeneralFault(CLOCATION,"SSMF: Inactive");
+
 		BYTE *destBuffer = (BYTE*)destination;
 		size_t bytesNeeded = numFrames * data.numChannels * data.m_iBitsPerSample/8;
 		//size_t framesNeeded = numFrames;
