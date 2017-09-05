@@ -1,4 +1,4 @@
-#include "threadedDecoder.h"
+#include "musicPlayer.h"
 
 namespace Engine
 {
@@ -15,7 +15,7 @@ namespace Engine
 		}
 
 
-		void	ThreadedDecoder::Stop()
+		void	MusicPlayer::Stop()
 		{
 			if (!Super::IsActive())
 				return;
@@ -23,7 +23,7 @@ namespace Engine
 			
 		}
 
-		void	ThreadedDecoder::FadeOut(float fadeSeconds)
+		void	MusicPlayer::FadeOut(float fadeSeconds)
 		{
 			this->fadeSeconds = fadeSeconds;
 			this->fadeStarted = timer.Now();
@@ -31,7 +31,7 @@ namespace Engine
 		}
 
 
-		bool ThreadedDecoder::GetData(ALuint target, ALenum format, count_t samplesPerSecond)
+		bool MusicPlayer::GetData(ALuint target, ALenum format, count_t samplesPerSecond)
 		{
 			if (decoder.IsAtEnd())
 			{
@@ -48,7 +48,7 @@ namespace Engine
 
 
 
-		void	ThreadedDecoder::Begin(const PathString&source, bool loop)
+		void	MusicPlayer::Begin(const PathString&source, bool loop)
 		{
 			Stop();
 
@@ -69,13 +69,13 @@ namespace Engine
 
 
 			 
-		ThreadedDecoder::~ThreadedDecoder()
+		MusicPlayer::~MusicPlayer()
 		{
 		}
 
 
 
-		void	ThreadedDecoder::ThreadMain()
+		void	MusicPlayer::ThreadMain()
 		{
 			try
 			{

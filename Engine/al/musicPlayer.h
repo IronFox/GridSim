@@ -9,15 +9,15 @@ namespace Engine
 {
 	namespace OpenAL
 	{
-		class ThreadedDecoder : public Sys::ThreadObject
+		class MusicPlayer : public Sys::ThreadObject
 		{
 		public:
 			typedef Sys::ThreadObject	Super;
 
-			/**/		ThreadedDecoder() {};
-			/**/		ThreadedDecoder(const ThreadedDecoder&)=delete;
-			virtual		~ThreadedDecoder();
-			void		operator=(const ThreadedDecoder&)=delete;
+			/**/		MusicPlayer() {};
+			/**/		MusicPlayer(const MusicPlayer&)=delete;
+			virtual		~MusicPlayer();
+			void		operator=(const MusicPlayer&)=delete;
 
 			void		Begin(const PathString&source, bool loop);
 
