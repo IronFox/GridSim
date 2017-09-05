@@ -1793,13 +1793,13 @@ template <typename T>
 			Concurrency::parallel_for(dimension_t(0),new_data.image_width,[this,&new_data,left,bottom](dimension_t x)
 			{
 				for (dimension_t y = 0; y < new_data.image_height; y++)
-					VecUnroll<4>::copy(GetPixel(left+x,bottom+y),new_data.GetPixel(x,y));
+					M::VecUnroll<4>::copy(GetPixel(left+x,bottom+y),new_data.GetPixel(x,y));
 			});
 		else
 			Concurrency::parallel_for(dimension_t(0),new_data.image_width,[this,&new_data,left,bottom](dimension_t x)
 			{
 				for (dimension_t y = 0; y < new_data.image_height; y++)
-					VecUnroll<2>::copy(GetPixel(left+x,bottom+y),new_data.GetPixel(x,y));
+					M::VecUnroll<2>::copy(GetPixel(left+x,bottom+y),new_data.GetPixel(x,y));
 			});
 		adoptData(new_data);
 		return true;
