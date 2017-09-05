@@ -6,7 +6,6 @@
 #include <io/xml.h>
 
 using namespace DeltaWorks;
-using namespace DeltaWorks::Math;
 
 namespace Scene3D
 {
@@ -14,8 +13,8 @@ namespace Scene3D
 	void	SetOffset(float x, float y, float z);
 	void	Clear();
 	void	PutLine(const float3&, const float3&);
-	void	PutWireframe(const Box<>&);
-	void	PutSolid(const Box<>&);
+	void	PutWireframe(const M::Box<>&);
+	void	PutSolid(const M::Box<>&);
 	void	SetColor(float r, float g, float b);
 
 
@@ -28,9 +27,9 @@ namespace Scene
 {
 	struct Vertex
 	{
-		TVec3<>	coords;
-		TVec2<>	uv;
-		TVec4<>	color;
+		M::TVec3<>	coords;
+		M::TVec2<>	uv;
+		M::TVec4<>	color;
 	};
 	
 	struct Quad
@@ -62,8 +61,8 @@ namespace Scene
 
 
 	void	PushOffset();
-	void	AlterOffset(const TVec2<>&);
-	void	AlterOffset(const TVec3<>&);
+	void	AlterOffset(const M::TVec2<>&);
+	void	AlterOffset(const M::TVec3<>&);
 	void	AlterZOffset(float);
 	void	PopOffset();
 	void	SetLayer(index_t);
@@ -71,8 +70,8 @@ namespace Scene
 
 	void	SetColor3ub(BYTE r, BYTE g, BYTE b);
 	void	SetColor(float r, float g, float b, float a);
-	void	SetColor(const TVec3<>&rgb, float a = 1.f);
-	void	SetColor(const TVec4<>&rgba);
+	void	SetColor(const M::TVec3<>&rgb, float a = 1.f);
+	void	SetColor(const M::TVec4<>&rgba);
 	
 	void	PutInterlayerBeam(index_t targetLayer, float radius, float heightFactor=1.f);
 	void	PutSphere(float radius);
@@ -82,16 +81,16 @@ namespace Scene
 	void	PutRotatedOutlineCube(float orientation, const float3&scale);
 	void	PutRotatedFilledCube(float orientation, const float3&scale);
 	void	PutRotatedFilledRect(float orientation, const float2&scale);
-	void	PutFilledRect(const Rect<>&);
-	void	PutOutlinedRect(const Rect<>&);
-	void	PutFilledQuad(const TVec2<>&a, const TVec2<>&b, const TVec2<>&c, const TVec2<>&d);
-	void	PutOutlinedQuad(const TVec2<>&a, const TVec2<>&b, const TVec2<>&c, const TVec2<>&d);
+	void	PutFilledRect(const M::Rect<>&);
+	void	PutOutlinedRect(const M::Rect<>&);
+	void	PutFilledQuad(const M::TVec2<>&a, const M::TVec2<>&b, const M::TVec2<>&c, const M::TVec2<>&d);
+	void	PutOutlinedQuad(const M::TVec2<>&a, const M::TVec2<>&b, const M::TVec2<>&c, const M::TVec2<>&d);
 	/**
 	Places a rectangle in the range (0,0)-(1,1), using the current color and offset
 	*/
 	void	PutRegularFilledRect();
 	void	PutRegularTexturedRect(const Engine::OpenGL::Texture::Reference&, const Image&);
-	void	PutLineTo(const TVec2<>&);
+	void	PutLineTo(const M::TVec2<>&);
 	
 	count_t	CountLayers();
 	void	Create();

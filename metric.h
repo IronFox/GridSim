@@ -12,10 +12,10 @@ namespace Metric
 		float value;
 	public:
 		/**/	Distance():value(0)	{}
-		/**/	Distance(const TVec2<>&a, const TVec2<>&b);
-		/**/	Distance(const TVec3<>&a, const TVec3<>&b);
-		/**/	Distance(const TVec2<>&v);
-		/**/	Distance(const TVec3<>&v);
+		/**/	Distance(const M::TVec2<>&a, const M::TVec2<>&b);
+		/**/	Distance(const M::TVec3<>&a, const M::TVec3<>&b);
+		/**/	Distance(const M::TVec2<>&v);
+		/**/	Distance(const M::TVec3<>&v);
 
 		constexpr	Distance(float constant):
 			#if defined USE_CHEBYSHEV_DISTANCE || defined USE_RECTILINEAR_DISTANCE
@@ -107,7 +107,7 @@ namespace Metric
 
 		/**/		Direction2D():value(0)	{}
 		explicit	Direction2D(Random&random):value(Mod(random.NextFloat(MaxValue))){};
-		explicit	Direction2D(const TVec2<>&);
+		explicit	Direction2D(const M::TVec2<>&);
 		explicit	Direction2D(float linear01):value(Mod(linear01 * MaxValue))	{}
 
 		static const constexpr float MaxValue = 
@@ -155,8 +155,8 @@ namespace Metric
 		    return x - MaxValue * floor( x / MaxValue );
 		}
 
-		void	ToVector(TVec2<>&rs)	const;
-		TVec2<>	ToVector() const	{TVec2<> rs; ToVector(rs); return rs;}
+		void	ToVector(M::TVec2<>&rs)	const;
+		M::TVec2<>	ToVector() const	{M::TVec2<> rs; ToVector(rs); return rs;}
 	};
 
 	struct Direction3D
@@ -166,7 +166,7 @@ namespace Metric
 
 		/**/		Direction3D():value(0)	{}
 		explicit	Direction3D(Random&random):value(random.NextFloat(MaxValueX),random.NextFloat(MaxValueY)){};
-		explicit	Direction3D(const TVec3<>&);
+		explicit	Direction3D(const M::TVec3<>&);
 		explicit	Direction3D(float linear01X, float linear01Y):value(linear01X * MaxValueX,linear01Y*MaxValueY)	{}
 
 		static const constexpr float MaxValueX = 
@@ -183,7 +183,7 @@ namespace Metric
 				2.f * M_PIF;
 			#endif
 
-		static const constexpr TVec2<> MaxValue = {MaxValueX, MaxValueY};
+		static const constexpr M::TVec2<> MaxValue = {MaxValueX, MaxValueY};
 
 
 		Angle	GetAngle() const
@@ -203,8 +203,8 @@ namespace Metric
 			return x;
 		}
 
-		void	ToVector(TVec3<>&rs)	const;
-		TVec3<>	ToVector() const	{TVec3<> rs; ToVector(rs); return rs;}
+		void	ToVector(M::TVec3<>&rs)	const;
+		M::TVec3<>	ToVector() const	{M::TVec3<> rs; ToVector(rs); return rs;}
 	};
 
 

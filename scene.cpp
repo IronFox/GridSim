@@ -33,6 +33,8 @@ namespace Scene
 			}
 		};
 
+		using namespace Math;
+
 		Box<>	boundingBox;
 
 
@@ -201,7 +203,7 @@ namespace Scene
 				{
 					GUID	guid;
 					CoCreateGuid(&guid);
-					DBG_ASSERT__(imageFolder.lastChar() ==  (PathString::char_t) '\\');
+					DBG_ASSERT__(imageFolder.LastChar() ==  (PathString::char_t) '\\');
 					PathString name = imageFolder + ToString(guid,true)+".png";
 					Image image2 = *r->image;
 					image2.ScaleDouble();
@@ -569,7 +571,7 @@ namespace Scene3D
 
 	struct TBox : public TPrimitive
 	{
-		Box<>	space;
+		M::Box<>space;
 	};
 
 	struct TLine : public TPrimitive
@@ -600,14 +602,14 @@ namespace Scene3D
 		l.p1 = p1 + currentOffset;
 	}
 
-	void	PutWireframe(const Box<>&box)
+	void	PutWireframe(const M::Box<>&box)
 	{
 		TBox&b = wireBoxes.Append();
 		b.space = box;
 		b.space.Translate(currentOffset);
 	}
 
-	void	PutSolid(const Box<>&box)
+	void	PutSolid(const M::Box<>&box)
 	{
 		TBox&b = solidBoxes.Append();
 		b.space = box;
@@ -624,7 +626,7 @@ namespace Scene3D
 		glColor3fv(c.v);
 		glVertex3f(x,y,z);
 	}
-	void PutVertex(const Color&c, const TVec3<>&p)
+	void PutVertex(const Color&c, const M::TVec3<>&p)
 	{
 		glColor3fv(c.v);
 		glVertex3fv(p.v);

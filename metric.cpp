@@ -5,44 +5,44 @@
 namespace Metric
 {
 
-	static float RectilinearLength(const TVec2<>&v)
+	static float RectilinearLength(const M::TVec2<>&v)
 	{
-		return vabs(v.x) + vabs(v.y);
+		return fabs(v.x) + fabs(v.y);
 	}
 //		#if defined USE_CHEBYSHEV_DISTANCE || defined USE_RECTILINEAR_DISTANCE
-	static float	RectilinearDistance(const TVec2<>&a, const TVec2<>&b)
+	static float	RectilinearDistance(const M::TVec2<>&a, const M::TVec2<>&b)
 	{
-		TVec2<> v;
+		M::TVec2<> v;
 		Vec::sub(a, b, v);
 		return RectilinearLength(v);
 	}
 
 
-	static float	ChebyshevLength(const TVec2<>&v)
+	static float	ChebyshevLength(const M::TVec2<>&v)
 	{
-		return vmax( vabs(v.x),vabs(v.y));
+		return M::Max( fabs(v.x),fabs(v.y));
 	}
 
-	static float	ChebyshevDistance(const TVec2<>&a, const TVec2<>&b)
+	static float	ChebyshevDistance(const M::TVec2<>&a, const M::TVec2<>&b)
 	{
-		TVec2<> v;
+		M::TVec2<> v;
 		Vec::sub(a,b,v);
 		return ChebyshevLength(v);
 	}
 
-	static float	ChebyshevLength(const TVec3<>&v)
+	static float	ChebyshevLength(const M::TVec3<>&v)
 	{
-		return vmax(vabs(v.z), vmax( vabs(v.x),vabs(v.y)));
+		return M::Max(fabs(v.z), M::Max( fabs(v.x),fabs(v.y)));
 	}
 
-	static float	ChebyshevDistance(const TVec3<>&a, const TVec3<>&b)
+	static float	ChebyshevDistance(const M::TVec3<>&a, const M::TVec3<>&b)
 	{
-		TVec3<> v;
+		M::TVec3<> v;
 		Vec::sub(a,b,v);
 		return ChebyshevLength(v);
 	}
 
-	Distance::Distance(const TVec3<>&v)
+	Distance::Distance(const M::TVec3<>&v)
 	{
 		#ifdef USE_CHEBYSHEV_DISTANCE
 			value = ChebyshevLength(v);
@@ -53,7 +53,7 @@ namespace Metric
 		#endif
 	}
 
-	Distance::Distance(const TVec2<>&v)
+	Distance::Distance(const M::TVec2<>&v)
 	{
 		#ifdef USE_CHEBYSHEV_DISTANCE
 			value = ChebyshevLength(v);
@@ -64,7 +64,7 @@ namespace Metric
 		#endif
 	}
 
-	Distance::Distance(const TVec2<>&a, const TVec2<>&b)
+	Distance::Distance(const M::TVec2<>&a, const M::TVec2<>&b)
 	{
 		#ifdef USE_CHEBYSHEV_DISTANCE
 			value = ChebyshevDistance(a,b);
@@ -75,7 +75,7 @@ namespace Metric
 		#endif
 	}
 
-	Distance::Distance(const TVec3<>&a, const TVec3<>&b)
+	Distance::Distance(const M::TVec3<>&a, const M::TVec3<>&b)
 	{
 		#ifdef USE_CHEBYSHEV_DISTANCE
 			value = ChebyshevDistance(a,b);
@@ -96,7 +96,7 @@ namespace Metric
 	}
 
 
-	float DecodeChebyshevDirection(const TVec2<>&dir)
+	float DecodeChebyshevDirection(const M::TVec2<>&dir)
 	{
 		if (!dir.x && !dir.y)
 			return 0;
@@ -114,16 +114,16 @@ namespace Metric
 		return (1.f - y) * 0.5f + 1.f;
 	}
 
-	float DecodeRectilinearDirection(const TVec2<>&dir)
+	float DecodeRectilinearDirection(const M::TVec2<>&dir)
 	{
-		TVec2<> dir2;
+		M::TVec2<> dir2;
 		Vec::div(dir, RectilinearLength(dir),dir2);
 		if (dir2.y >= 0)
 			return 1.f - dir2.x;
 		return 3.f + dir2.x;
 	}
 
-	float DecodeDirection(const TVec2<>&dir)
+	float DecodeDirection(const M::TVec2<>&dir)
 	{
 		#ifdef USE_CHEBYSHEV_DISTANCE
 			return DecodeChebyshevDirection(dir);
@@ -134,9 +134,9 @@ namespace Metric
 		#endif
 	}
 
-	float2 DecodeChebyshevDirection(TVec3<> dir);
+	float2 DecodeChebyshevDirection(M::TVec3<> dir);
 
-	float2 DecodeDirection(const TVec3<>&dir)
+	float2 DecodeDirection(const M::TVec3<>&dir)
 	{
 		#ifdef USE_CHEBYSHEV_DISTANCE
 			return DecodeChebyshevDirection(dir);
@@ -148,7 +148,7 @@ namespace Metric
 	}
 
 
-	static void ChebychevToVector(float value, TVec2<>&rs)
+	static void ChebychevToVector(float value, M::TVec2<>&rs)
 	{
 		if (value < 1)
 		{
@@ -170,12 +170,12 @@ namespace Metric
 			rs.y = -1.f + (value - 3.f) * 2.f;
 			rs.x = 1.f;
 		}
-		DBG_ASSERT__(similar(1.f, *Distance(rs)));
+		DBG_ASSERT__(M::Similar(1.f, *Distance(rs)));
 	}
 
-	float2 DecodeChebyshevDirection(TVec3<> dir)
+	float2 DecodeChebyshevDirection(M::TVec3<> dir)
 	{
-		TVec3<> abs=dir;
+		M::TVec3<> abs=dir;
 		Vec::abs(abs);
 
 		float max = Vec::max(abs);
@@ -235,7 +235,7 @@ namespace Metric
 		return rs;
 	}
 
-	static void ChebychevToVector(const TVec2<>&value, TVec3<>&rs)
+	static void ChebychevToVector(const M::TVec2<>&value, M::TVec3<>&rs)
 	{
 		if (value.x < 1)
 		{
@@ -275,29 +275,29 @@ namespace Metric
 			rs.z = fmod(value.x,1)*2.f - 1.f;
 			rs.y = value.y*2.f - 1.f;
 		}
-		DBG_ASSERT__(similar(1.f, *Distance(rs)));
+		DBG_ASSERT__(M::Similar(1.f, *Distance(rs)));
 	}
-	static void RectilinearToVector(float value, TVec2<>&rs)
+	static void RectilinearToVector(float value, M::TVec2<>&rs)
 	{
 		if (value <= 2)
 		{
 			rs.x = 1.f - value;
-			rs.y = 1.f - vabs(1.f - value);
+			rs.y = 1.f - fabs(1.f - value);
 		}
 		else
 		{
 			rs.x = value - 3.f;
-			rs.y = -(1.f - vabs(3.f - value));
+			rs.y = -(1.f - fabs(3.f - value));
 		}
 	}
 
 
 
-	Direction2D::Direction2D(const TVec2<>&dir):value(DecodeDirection(dir))
+	Direction2D::Direction2D(const M::TVec2<>&dir):value(DecodeDirection(dir))
 	{}
 
 
-	void	Direction2D::ToVector(TVec2<>&rs)	const
+	void	Direction2D::ToVector(M::TVec2<>&rs)	const
 	{
 		#ifdef USE_CHEBYSHEV_DISTANCE
 			ChebychevToVector(Mod(value), rs);
@@ -313,11 +313,11 @@ namespace Metric
 
 
 
-	Direction3D::Direction3D(const TVec3<>&dir):value(DecodeDirection(dir))
+	Direction3D::Direction3D(const M::TVec3<>&dir):value(DecodeDirection(dir))
 	{}
 
 
-	void	Direction3D::ToVector(TVec3<>&rs)	const
+	void	Direction3D::ToVector(M::TVec3<>&rs)	const
 	{
 		#ifdef USE_CHEBYSHEV_DISTANCE
 			ChebychevToVector(value, rs);

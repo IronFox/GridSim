@@ -184,9 +184,9 @@ bool	ChangeSet::operator==(const ChangeSet&other)	const
 
 void ChangeSet::Apply(const TGridCoords&shardCoords,CoreShardDomainState &target) const
 {
-	const auto i2 = sqr(Entity::MaxInfluenceRadius);
-	const auto m2 = sqr(Entity::MaxMotionDistance);
-	const auto a2 = sqr(Entity::MaxAdvertisementRadius);
+	const auto i2 = M::Sqr(Entity::MaxInfluenceRadius);
+	const auto m2 = M::Sqr(Entity::MaxMotionDistance);
+	const auto a2 = M::Sqr(Entity::MaxAdvertisementRadius);
 
 	foreach (target.entities,e)
 		foreach (e->logic,l)
@@ -260,8 +260,8 @@ void ChangeSet::Apply(const TGridCoords&shardCoords,CoreShardDomainState &target
 					If one is consistent then that must be chosen
 				*/
 
-				BYTE currentInconsistency = target.ic.GetInconsistency(Frac(e->coordinates));
-				BYTE targetInconsistency = target.ic.GetInconsistency(Frac(op->target.coordinates));
+				BYTE currentInconsistency = target.ic.GetInconsistency(::Frac(e->coordinates));
+				BYTE targetInconsistency = target.ic.GetInconsistency(::Frac(op->target.coordinates));
 				if (currentInconsistency < targetInconsistency)
 				{
 					count_t overload = Find(op->target,motionOps);

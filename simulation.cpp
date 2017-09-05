@@ -796,14 +796,14 @@ namespace Build
 		Scene::SetColor(e.color.r,e.color.g,e.color.b,1.f);
 	}
 
-	void RenderEntitySphere(const TVec2<>&coords, float scale)
+	void RenderEntitySphere(const M::TVec2<>&coords, float scale)
 	{
 		Scene::PushOffset();
 		Scene::AlterOffset(coords);
 		Scene::PutSphere(scale * 0.02f);
 		Scene::PopOffset();
 	}
-	void RenderEntityShape(const TVec2<>&offset, const EntityAppearance&app,float scale, bool renderRanges, const TVec4<>&color, bool colorRanges)
+	void RenderEntityShape(const M::TVec2<>&offset, const EntityAppearance&app,float scale, bool renderRanges, const M::TVec4<>&color, bool colorRanges)
 	{
 		Scene::PushOffset();
 		Scene::AlterOffset(offset);
@@ -850,11 +850,11 @@ namespace Build
 	}
 
 
-	void RenderEntity(const Entity&e, float scale, bool overrideColor=false, const TVec4<>&color = Vector4<>::zero)
+	void RenderEntity(const Entity&e, float scale, bool overrideColor=false, const M::TVec4<>&color = M::Vector4<>::zero)
 	{
-		TVec2<> coords;
-		coords.x = frac(e.coordinates.x);
-		coords.y = frac(e.coordinates.y);
+		M::TVec2<> coords;
+		coords.x = M::Frac(e.coordinates.x);
+		coords.y = M::Frac(e.coordinates.y);
 		RenderEntityShape(coords, e,scale, /*e.logic.IsNotEmpty()*/ overrideColor, overrideColor ? color : float4(e.color,1.f),overrideColor);
 	}
 
@@ -883,8 +883,8 @@ namespace Build
 		if (e2)
 		{
 			//approx.VerifyIsInconsistent((*f)->coordinates,generation,ToString(e.guid)+ ", approximate location");
-			TVec2<> p = {frac(e.coordinates.x), frac(e.coordinates.y)};
-			TVec2<> p2 = {(e2)->coordinates.x - e.coordinates.x,
+			M::TVec2<> p = {M::Frac(e.coordinates.x), M::Frac(e.coordinates.y)};
+			M::TVec2<> p2 = {(e2)->coordinates.x - e.coordinates.x,
 						(e2)->coordinates.y - e.coordinates.y};
 			Scene::PushOffset();
 			Scene::AlterOffset(p);
@@ -920,15 +920,15 @@ namespace Build
 		float x = 0.5f + (0.5f - ext)*delta.x;
 		if (delta.y == 0)
 		{
-			Scene::PutFilledRect(Rect<>(x-ext,0,x+ext,1));
+			Scene::PutFilledRect(M::Rect<>(x-ext,0,x+ext,1));
 			return;
 		}
 		if (delta.x == 0)
 		{
-			Scene::PutFilledRect(Rect<>(0,y-ext,1,y+ext));
+			Scene::PutFilledRect(M::Rect<>(0,y-ext,1,y+ext));
 			return;
 		}
-		Scene::PutFilledRect(Rect<>(x-ext,y-ext,x+ext,y+ext));
+		Scene::PutFilledRect(M::Rect<>(x-ext,y-ext,x+ext,y+ext));
 
 	}
 
@@ -952,7 +952,7 @@ namespace Build
 				//	continue;
 
 
-				TVec2<> offset;
+				M::TVec2<> offset;
 				offset.x = 1.1f * (int)(x - offsetX);
 				offset.y = 1.1f * (int)(y - offsetY);
 				Scene::PushOffset();
@@ -1011,7 +1011,7 @@ namespace Build
 							Scene::SetColor(0.5,1,0.5,1);
 						break;
 					}
-					Scene::PutFilledRect(Rect<>(-0.05f,-0.05f,1.05f,1.05f));
+					Scene::PutFilledRect(M::Rect<>(-0.05f,-0.05f,1.05f,1.05f));
 
 
 					if (!sds)
@@ -1035,7 +1035,7 @@ namespace Build
 									const float fy = float(y) * Size;
 									float fc = 1.f / (1.f + 0.025f*sample.depth);
 									Scene::SetColor(1*fc,0.75*fc,0.75*fc,1);
-									Scene::PutFilledRect(Rect<>(fx,fy,fx+Size,fy+Size));
+									Scene::PutFilledRect(M::Rect<>(fx,fy,fx+Size,fy+Size));
 								}
 							}
 					}
@@ -1060,13 +1060,13 @@ namespace Build
 					if (s.sds.Count() > 1)
 					{
 						float relative = float(s.sds.Count()) / float(IC::MaxDepth) * (1.f - coreExtent) * 0.5f;
-						Scene::PutFilledRect(Rect<>(0.5f-coreExtent-relative,0.5f-coreExtent-relative,0.5f+coreExtent+relative,0.5f+coreExtent+relative));
+						Scene::PutFilledRect(M::Rect<>(0.5f-coreExtent-relative,0.5f-coreExtent-relative,0.5f+coreExtent+relative,0.5f+coreExtent+relative));
 					}
 
-					//Scene::PutFilledRect(Rect<>(0,0,relative,1));
-					//Scene::PutFilledRect(Rect<>(1.f - relative,0,1,1));
-					//Scene::PutFilledRect(Rect<>(relative,0,1.f-relative,relative));
-					//Scene::PutFilledRect(Rect<>(relative,1.f-relative,1.f-relative,1));
+					//Scene::PutFilledRect(M::Rect<>(0,0,relative,1));
+					//Scene::PutFilledRect(M::Rect<>(1.f - relative,0,1,1));
+					//Scene::PutFilledRect(M::Rect<>(relative,0,1.f-relative,relative));
+					//Scene::PutFilledRect(M::Rect<>(relative,1.f-relative,1.f-relative,1));
 
 					count_t delta = max - s.sds.Count();
 					if (delta <= 10)
@@ -1088,7 +1088,7 @@ namespace Build
 					//Scene::PutFilledQuad(float3(p3,0),float3(p0,0),float3(p0,h),float3(p3,h));
 
 					//for (index_t i = 1; i < s.sds.Count(); i++)
-					//	Scene::PutOutlinedRect(Rect<>(0,0,1,1).Expand(-0.03f * i));
+					//	Scene::PutOutlinedRect(M::Rect<>(0,0,1,1).Expand(-0.03f * i));
 					Scene::SetColor(0,0,0,1);
 
 					//if (sds->textureOutdated)
@@ -1248,7 +1248,7 @@ void Simulation::Rebuild()
 
 
 	int h = (int)control.layers.First().shardGrid.GetHeight();
-	TVec2<int> offset;
+	M::TVec2<int> offset;
 	Vec::def(offset,
 		control.layers.First().shardGrid.GetWidth() /2,
 		h /2
@@ -1299,8 +1299,8 @@ void Simulation::Verify()
 
 void Accumulate(Image16&outImage, BYTE channel, const TEntityCoords&coords)
 {
-	UINT32 x = vmin((UINT32)floor(frac(coords.x) * outImage.GetWidth()),outImage.GetWidth()-1);
-	UINT32 y = vmin((UINT32)floor(frac(coords.y) * outImage.GetHeight()),outImage.GetHeight()-1);
+	UINT32 x = M::Min((UINT32)floor(M::Frac(coords.x) * outImage.GetWidth()),outImage.GetWidth()-1);
+	UINT32 y = M::Min((UINT32)floor(M::Frac(coords.y) * outImage.GetHeight()),outImage.GetHeight()-1);
 	outImage.Get(x,y)[channel]++;
 }
 
@@ -1377,7 +1377,7 @@ void		Simulation::VerifyLocationConsistency(const Entity*e, index_t generation, 
 				{
 					if (e2->coordinates == e->coordinates)
 						return;
-					ASSERT__(ic.IsInconsistent(Frac(e2->coordinates)));
+					ASSERT__(ic.IsInconsistent(::Frac(e2->coordinates)));
 				}
 			}
 		}
@@ -1391,7 +1391,7 @@ void		Simulation::VerifyLocationConsistency(const Entity*e, index_t generation, 
 	ctx.id = e->guid;
 	ctx.layer = 0;
 
-	ic.VerifyIsInconsistent(Frac(e->coordinates),ctx);
+	ic.VerifyIsInconsistent(::Frac(e->coordinates),ctx);
 
 }
 

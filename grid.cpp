@@ -14,8 +14,8 @@ void Grid::Layer::Create(const GridSize&size, Grid&g, index_t layer)
 					shardGrid.Get(x,y,z).Setup(g,int3(x,y,z),shardGrid.ToLinearIndexNoCheck(x,y,z),layer);
 				}
 	#else
-		for (int x = 0; x < size.width; x++)
-			for (int y = 0; y < size.height; y++)
+		for (index_t x = 0; x < size.width; x++)
+			for (index_t y = 0; y < size.height; y++)
 			{
 				shardGrid.Get(x,y).Setup(g,int2(x,y),shardGrid.ToLinearIndexNoCheck(x,y),  layer);
 			}
@@ -65,7 +65,9 @@ const Entity*	Grid::Layer::FindFirstEntity(const EntityID&id, index_t generation
 bool	Grid::Layer::IsInconsistent(const TEntityCoords&coordinates, index_t generation) const
 {
 	TGridCoords at = Entity::GetShardCoords(coordinates);
-	TEntityCoords fr = Frac(coordinates);
+	
+	
+	TEntityCoords fr = ::Frac(coordinates);
 	const Shard*sh = GetShard(at);
 	if (!sh)
 		return false;
@@ -78,7 +80,7 @@ bool	Grid::Layer::IsInconsistent(const TEntityCoords&coordinates, index_t genera
 void	Grid::Layer::VerifyIsInconsistent(InconsistencyCoverage::TVerificationContext&ctx) const
 {
 	ctx.shardCoordinates = Entity::GetShardCoords(ctx.coordinates);
-	TEntityCoords fr = Frac(ctx.coordinates);
+	TEntityCoords fr = ::Frac(ctx.coordinates);
 	const Shard*sh = GetShard(ctx.shardCoordinates);
 	if (!sh)
 		FATAL__("No shard at requested grid coords ("+ctx.ToString()+")");
@@ -293,7 +295,7 @@ Grid::TCStat Grid::LockstepCorrectSome(const TExperiment&exp, const std::functio
 		{
 			if (s->IsFullyAvailable())
 			{
-				oldest = vmin(oldest,s->sds.First().GetGeneration());
+				oldest = M::Min(oldest,s->sds.First().GetGeneration());
 				s->recoveryOperations=0;
 			}
 			//while (s->recoveryOperations < extra && s->CorrectIsolatedSDS(boundaries,recoveryIteration))
@@ -475,13 +477,13 @@ void Grid::TrimTo(const Grid&reference)
 			if (s2->sds.IsEmpty())
 				continue;	//recoverying
 			index_t to = s2->sds.First().GetGeneration();
-			lowest = vmin(lowest,to);
+			lowest = M::Min(lowest,to);
 		}
 	}
 	if (lowest != InvalidIndex)
 	{
 		TrimTo(lowest);
-		oldestLivingGeneration = vmin(oldestLivingGeneration,lowest);
+		oldestLivingGeneration = M::Min(oldestLivingGeneration,lowest);
 	}
 
 
@@ -734,7 +736,7 @@ void	Grid::SynchronizeLayers()
 	{
 		Layer	&layer0 = layers[i],
 				&layer1 = layers[i+1];
-		Concurrency::parallel_for(index_t(0),vmin(layer0.shardGrid.Count(),layer1.shardGrid.Count()),[this,&layer0,&layer1,comp](index_t j)
+		Concurrency::parallel_for(index_t(0),M::Min(layer0.shardGrid.Count(),layer1.shardGrid.Count()),[this,&layer0,&layer1,comp](index_t j)
 		{
 			Shard	&s0 = layer0.shardGrid[j],
 					&s1 = layer1.shardGrid[j];
@@ -758,7 +760,7 @@ void	Grid::SynchronizeLayers()
 			//}
 
 
-			const index_t	genFrom = vmin(g0,g1),
+			const index_t	genFrom = M::Min(g0,g1),
 							genMax = gMax0;
 			if (genFrom > genMax)
 				return;	//nothing to sync
@@ -1055,7 +1057,7 @@ void		Grid::Trim()
 	ShardIterative([this](Layer&l, Shard&s)
 	{
 		if (s.IsFullyAvailable())
-			oldestLivingGeneration = vmin(oldestLivingGeneration,s.sds.first().GetGeneration());
+			oldestLivingGeneration = M::Min(oldestLivingGeneration,s.sds.first().GetGeneration());
 	});
 
 	VerifyIntegrity();

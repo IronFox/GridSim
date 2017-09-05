@@ -25,7 +25,7 @@ public:
 		bool	AllUndefined() const	{return allUndefined;}
 		bool	OverlapsWith(const RangeArray&other, count_t tolerance) const;
 	private:
-		Array<TFloatRange<generation_t> >	container;
+		Array<M::TFloatRange<generation_t> >	container;
 		bool	allUndefined = true;
 	};
 

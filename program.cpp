@@ -331,7 +331,7 @@ static count_t accumulation = 0;
 //				for (UINT32 i = 0; i < sh->badEntityDensity.GetWidth(); i++)
 //				{
 //					const USHORT*px = sh->badEntityDensity.Get(i,0);
-//					float h = float(px[0])/vmax(1,px[1])*(LayerHeight-BarHeight)*0.9f;
+//					float h = float(px[0])/M::Max(1,px[1])*(LayerHeight-BarHeight)*0.9f;
 //							///20.f/stackCount;
 //					coords << offset+float2((float(i))/(sh->badEntityDensity.GetWidth()-1),base-h);
 //				}
@@ -619,7 +619,7 @@ bool	Loop()
 		Scene::Render(Aspect::scene);
 	#else
 		const float sceneExt = TEntityCoords(testSimulation.GetGridSize()).Length();
-		float base = vmax(0.f,Vec::length(Aspect::scene.GetAbsoluteLocation()) - sceneExt);
+		float base = M::Max(0.f,Vec::length(Aspect::scene.GetAbsoluteLocation()) - sceneExt);
 		display.setFog(Engine::Fog(base,base+sceneExt*1.5f, float3()));
 		display.flareBlendFunc();
 	
@@ -680,7 +680,7 @@ bool	Loop()
 
 
 		display.useTexture(nullptr);
-		Rect<> rect(0.7f,0.05f,0.95f,0.3f);
+		M::Rect<> rect(0.7f,0.05f,0.95f,0.3f);
 		glColor4f(0,0,0,1);
 		glBegin(GL_LINE_STRIP);
 			glVertex2f(rect.x.max,rect.y.min);
@@ -790,7 +790,7 @@ namespace Logic
 			static const float minDist = 0.1f;
 			if (d2 < minDist)
 			{
-				if (nearingZero(*d2))
+				if (M::nearingZero(*d2))
 				{
 					float moveBy = (minDist) / 2;
 					TEntityCoords pdelta;
@@ -819,7 +819,7 @@ namespace Logic
 			static const float minDist = 0.1f;
 			if (d2 < minDist)
 			{
-				if (nearingZero(*d2))
+				if (M::nearingZero(*d2))
 				{
 					float moveBy = (minDist) / 2;
 					float pdelta = random.NextBool() ? -moveBy : moveBy;
@@ -847,7 +847,7 @@ namespace Logic
 
 			float AngularDistance (const Metric::Direction3D& a0, const Metric::Direction3D& a1)
 			{
-				TVec3<> v0,v1;
+				M::TVec3<> v0,v1;
 				a0.ToVector(v0);
 				a1.ToVector(v1);
 				return Vec::quadraticDistance(v0,v1);
@@ -943,7 +943,7 @@ namespace Logic
 */
 				TEntityCoords delta = best.loc + best.velocity * (generation - best.gen) - e.coordinates;
 				float pull = *Metric::Distance(delta);
-				float finalPull = vmin(pull,MinSpeed/10.f);
+				float finalPull = M::Min(pull,MinSpeed/10.f);
 				delta *= finalPull / pull;
 				inOutShape.velocity += delta;
 				inOutShape.orientation = Metric::Direction(inOutShape.velocity);
@@ -1125,7 +1125,7 @@ namespace Logic
 			}
 
 
-		speed = clamp(speed + speedGain,0,Entity::MaxMotionDistance);
+		speed = M::Clamp(speed + speedGain,0,Entity::MaxMotionDistance);
 		inOutShape.orientation += dirGain;
 		inOutShape.orientation.ToVector(inOutShape.velocity);
 		inOutShape.velocity *= speed;
@@ -1145,12 +1145,12 @@ namespace Logic
 
 	float3 HorizontalPotential(float3 gp)
 	{
-		float h = vmax(gp.x, 0.0f);
+		float h = M::Max(gp.x, 0.0f);
 		float uh = gp.y;
 		float vh = gp.z;
 
 		float h4 = h * h * h * h;
-		float u = sqrtf(2.0f) * h * uh / (sqrtf(h4 + vmax(h4, EPSILON)));
+		float u = sqrtf(2.0f) * h * uh / (sqrtf(h4 + M::Max(h4, EPSILON)));
 
 		float3 F;
 		F.x = u * h;
@@ -1161,12 +1161,12 @@ namespace Logic
 
 	float3 VerticalPotential(float3 gp)
 	{
-		float h = vmax(gp.x, 0.0f);
+		float h = M::Max(gp.x, 0.0f);
 		float uh = gp.y;
 		float vh = gp.z;
 
 		float h4 = h * h * h * h;
-		float v = sqrtf(2.0f) * h * vh / (sqrtf(h4 + vmax(h4, EPSILON)));
+		float v = sqrtf(2.0f) * h * vh / (sqrtf(h4 + M::Max(h4, EPSILON)));
 
 		float3 G;
 		G.x = v * h;
@@ -1177,7 +1177,7 @@ namespace Logic
 
 	float3 SlopeForce(float3 c, float3 n, float3 e, float3 s, float3 w)
 	{
-		float h = vmax(c.x, 0.0f);
+		float h = M::Max(c.x, 0.0f);
 
 		float3 H;
 		H.x = 0.0f;
@@ -1270,7 +1270,7 @@ namespace Logic
 			float3 u_east = 0.5f * ( right + mine ) - dt/(2*dx) * ( HorizontalPotential(right) - HorizontalPotential(mine) );
 
 			float3 u_center = mine /*+ dt * SlopeForce(mine, top, right, bottom, left)*/ - dt/dx * ( HorizontalPotential(u_east) - HorizontalPotential(u_west) ) - dt/dy * ( VerticalPotential(u_north) - VerticalPotential(u_south) );
-			u_center.x = vmax(0.0f, u_center.x);
+			u_center.x = M::Max(0.0f, u_center.x);
 
 			mine = u_center;
 
@@ -1280,8 +1280,8 @@ namespace Logic
 		foreach (e.neighborhood,n)
 			if (n->userFlags == EntityFlags::IsFocus)
 			{
-				float x = 1.f - Metric::Distance(n->coordinates,e.coordinates).Squared() / sqr(Entity::MaxAdvertisementRadius);
-//				Vec::quadraticDistance(n->coordinates,e.coordinates)/sqr(Entity::MaxAdvertisementRadius);
+				float x = 1.f - Metric::Distance(n->coordinates,e.coordinates).Squared() / M::Sqr(Entity::MaxAdvertisementRadius);
+//				Vec::quadraticDistance(n->coordinates,e.coordinates)/M::Sqr(Entity::MaxAdvertisementRadius);
 				//mine.x = x * (WavePlaneHeight +sin(generation*0.1f)* 0.1f) + (1.f - x) * mine.x;
 				#ifdef D3
 					mine.yz += n->velocity.xy * x *  WavePlaneHeight * 10.f;
@@ -1299,7 +1299,7 @@ namespace Logic
 			)
 			{
 				mine.x = WavePlaneHeight +sin(generation*dt*1.5f)* 0.2f;
-				mine.yz = Vector2<>::zero;
+				mine.yz = M::Vector2<>::zero;
 			}
 		if (isnan(mine.x))
 			mine = float3(WavePlaneHeight,0,0);
@@ -1593,7 +1593,7 @@ void EvolveV(const TInputVector&vec)
 
 
 	const size_t physical = System::getPhysicalMemory();
-	static const size_t window = 2000000000;
+	static const size_t window = 3000000000;
 	const size_t allowance = physical > window ? physical - window : window;
 
 
@@ -1734,9 +1734,9 @@ int main( int argc, const char* argv[])
 	for (int i = 0; i < 10000; i++)
 	{
 		Metric::Direction2D dir(random);
-		TVec2<> vector = dir.ToVector();
+		M::TVec2<> vector = dir.ToVector();
 		Metric::Direction2D dir2(vector);
-		ASSERT3__(Similar(dir.value,dir2.value),dir.value,dir2.value,Vec::toString(vector));
+		ASSERT3__(M::Similar(dir.value,dir2.value),dir.value,dir2.value,Vec::toString(vector));
 	}
 
 

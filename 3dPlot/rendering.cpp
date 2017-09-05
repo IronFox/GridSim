@@ -2,7 +2,6 @@
 #include "rendering.h"
 #include <math/vclasses.h>
 
-using namespace DeltaWorks::Math;
 
 
 Display<Renderer> 				display;
@@ -22,10 +21,10 @@ Renderer::FBO		shadow_fbo0,shadow_fbo1;
 Geometry				scenery,holeScenery,wallScenery,transparentScenery;
 
 
-Box<>				range = Box<>(0,0,0,/*T=*/128,/*S=*/256,1.1);
-float3				markerSteps = float3(32, 64, 0.2);
-float3				markerLabelFactor = float3(1,0.5,1);
-TVec3<const char*>	arrowLabel = {"T","S","P"};
+M::Box<>				range = M::Box<>(0,0,0,/*T=*/128,/*S=*/256,1.1);
+float3					markerSteps = float3(32, 64, 0.2);
+float3					markerLabelFactor = float3(1,0.5,1);
+M::TVec3<const char*>	arrowLabel = {"T","S","P"};
 
 enum class Axis
 {
@@ -42,11 +41,11 @@ struct TLabel
 	bool	isFloat = true;
 	static bool	enabled;
 	static float3 translation;
-	static TMatrix4<> system;
+	static M::TMatrix4<> system;
 };
 
 float3 TLabel::translation;
-TMatrix4<> TLabel::system = Matrix<>::eye4;
+M::TMatrix4<> TLabel::system = M::Matrix<>::eye4;
 bool	TLabel::enabled = true;
 
 Buffer0<TLabel>	labels;
@@ -86,7 +85,7 @@ void RenderPlot()
 	glEnable(GL_DEPTH_TEST);
 	glMatrixMode(GL_TEXTURE);
 		glActiveTexture(GL_TEXTURE0);
-			TMatrix4<> matrix;
+			M::TMatrix4<> matrix;
 			Mat::Mult(shadow_aspect0.projection,shadow_aspect0.view,matrix);
 			glLoadMatrixf(matrix.v);
 			display.useTexture(shadow_fbo0.ReferDepth());
@@ -195,8 +194,8 @@ void 	PutStringLabel(float x, const char*value)
 }
 
 
-TMatrix4<> mat = Matrix<>::eye4;
-void RenderAxis(const TFloatRange<>&range, float labelSteps, const TMatrix3<>&system, float length, const char*label, Axis axis)
+M::TMatrix4<> mat = M::Matrix<>::eye4;
+void RenderAxis(const M::TFloatRange<>&range, float labelSteps, const M::TMatrix3<>&system, float length, const char*label, Axis axis)
 {
 	glPushMatrix();
 		Mat::copyOrientation(system, mat);
@@ -260,7 +259,7 @@ void RenderAxis(const TFloatRange<>&range, float labelSteps, const TMatrix3<>&sy
 }
 
 
-void RenderGrid(const TMatrix3<>&sys, float xExtent, const TFloatRange<>&yRange, const TFloatRange<>&zRange, float yMarkerSteps, float zMarkerSteps, float yExtent, float zExtent)
+void RenderGrid(const M::TMatrix3<>&sys, float xExtent, const M::TFloatRange<>&yRange, const M::TFloatRange<>&zRange, float yMarkerSteps, float zMarkerSteps, float yExtent, float zExtent)
 {
 	float dir = Vec::dot(sys.x, camera.GetAbsoluteLocation());
 
@@ -322,20 +321,20 @@ void RenderExtendedAxes()
 		//glScalef(2, 2, 2);
 		glDisable(GL_CULL_FACE);
 
-		static const TMatrix3<> xSystem =
+		static const M::TMatrix3<> xSystem =
 		{
 			1,0,0,
 			0,0,1,
 			0,1,0,
 		};
-		static const TMatrix3<> zSystem =
+		static const M::TMatrix3<> zSystem =
 		{
 			0,0,1,
 			1,0,0,
 			0,1,0,
 		};
 
-		static const TMatrix3<> ySystem =
+		static const M::TMatrix3<> ySystem =
 		{
 			0,1,0,
 			0,0,1,
@@ -371,7 +370,7 @@ void RenderExtendedAxesLabels()
 			textout.MoveTo(l->coords.x*0.5+0.5, l->coords.y*0.5+0.5);
 			if (l->isFloat)
 			{
-				int s = Sign(l->value);
+				int s = M::Sign(l->value);
 				float v =fabs(l->value);
 
 				if (v == 0)
@@ -379,7 +378,7 @@ void RenderExtendedAxesLabels()
 				else
 				{
 					int degree = log(v) / log(10.f);
-					float factor = Pow10(degree-1);
+					float factor = M::Pow10(degree-1);
 					v = round(v / factor) * factor * s;
 					textout << v;
 				}
@@ -399,7 +398,9 @@ void SetupRenderer()
 	ASSERT__(shadow_fbo0.ReferDepth().IsNotEmpty());
 	ASSERT__(shadow_fbo1.ReferDepth().IsNotEmpty());
 		
-		
+	const float3				light_direction0 = float3{-0.577f,0.577f,0.577f}.Normalized(),
+								light_direction1 = float3{0.577f,0.577f,0.8f}.Normalized();
+
 		
 	static const constexpr float r = 1.7f;//1.5f;
 		

@@ -146,14 +146,14 @@ void	THypothesisData::TrainRow(const Table&raw, index_t rowIndex, Math::Polynomi
 	ASSERT__(poly.MatchPoints(samplePoints));
 }
 
-M::float3 AverageSpatialPoint(const Table&raw,SampleType t,index_t row, float z, float zRadius)
+float3 AverageSpatialPoint(const Table&raw,SampleType t,index_t row, float z, float zRadius)
 {
-	M::float3 rs;
+	float3 rs;
 	count_t numSamples = 0;
 	for (int x = -5; x <= 5; x++)
 		for (int y = -4; y <= 4; y++)
 		{
-			M::float3 p(0,row+x,z+zRadius*y/4);
+			float3 p(0,row+x,z+zRadius*y/4);
 			p.x = raw.FindLevelSpatialDistance(SampleType::DivergenceDepth,row+x,p.z)/raw.metrics.spatialSupersampling;
 			if (p.x >= 0)
 			{
@@ -300,9 +300,9 @@ void	THypothesisData::Train(index_t sourceTableID, SampleType t)
 		const float lowZ = max*0.35f,
 					highZ = max*0.65f;
 		const index_t	middleY = age.maxTemporalDistance/2;
-		M::float3 p1 = AverageSpatialPoint(raw,SampleType::DivergenceDepth,0.9f * age.maxTemporalDistance,lowZ,max*0.15f);
-		M::float3 p0 = AverageSpatialPoint(raw,SampleType::DivergenceDepth,0.9f * age.maxTemporalDistance,highZ,max*0.15f);
-		M::float3 p2 = AverageSpatialPoint(raw,SampleType::DivergenceDepth,middleY,lowZ,max*0.1f);
+		float3 p1 = AverageSpatialPoint(raw,SampleType::DivergenceDepth,0.9f * age.maxTemporalDistance,lowZ,max*0.15f);
+		float3 p0 = AverageSpatialPoint(raw,SampleType::DivergenceDepth,0.9f * age.maxTemporalDistance,highZ,max*0.15f);
+		float3 p2 = AverageSpatialPoint(raw,SampleType::DivergenceDepth,middleY,lowZ,max*0.1f);
 
 		//const float lowX = raw.FindLevelSpatialDistance(SampleType::DivergenceDepth,age.maxTemporalDistance,lowZ)/raw.metrics.spatialSupersampling;
 		//const float highX = raw.FindLevelSpatialDistance(SampleType::DivergenceDepth,age.maxTemporalDistance,highZ)/raw.metrics.spatialSupersampling;
@@ -312,7 +312,7 @@ void	THypothesisData::Train(index_t sourceTableID, SampleType t)
 		//p[1] = float3(lowX,age.maxTemporalDistance,lowZ);
 		//p[0] = float3(highX,age.maxTemporalDistance,highZ);
 		//p[2] = float3(middleX,middleY,lowZ);
-		M::float3 normal;
+		float3 normal;
 		M::Obj::triangleNormal(p0,p1,p2,normal);
 		M::Vec::normalize(normal);
 		float w = M::Vec::dot(normal,(p0+p1+p2)/3);
@@ -481,7 +481,7 @@ void	THypothesisData::Train(index_t sourceTableID, SampleType t)
 }
 
 
-M::float3	Table::TrainFlatOverestimation(index_t sourceTableID, SampleType t,float threshold)
+float3	Table::TrainFlatOverestimation(index_t sourceTableID, SampleType t,float threshold)
 {
 	const auto& source = tables[sourceTableID];
 
@@ -490,7 +490,7 @@ M::float3	Table::TrainFlatOverestimation(index_t sourceTableID, SampleType t,flo
 	const float middleSpatialBegin = source.FindLevelSpatialDistance(t,source.samples.Count()/2,threshold);
 	const float closeSpatialBegin = source.FindLevelSpatialDistance(t,source.samples.Count()/4,threshold);
 
-	M::float3			linearPlaneFunc;	//x: spatial,y: temporal inclination, z: offset
+	float3			linearPlaneFunc;	//x: spatial,y: temporal inclination, z: offset
 
 	if (farSpatialBegin < 0)
 		return linearPlaneFunc;
@@ -516,16 +516,16 @@ M::float3	Table::TrainFlatOverestimation(index_t sourceTableID, SampleType t,flo
 		return source.GetSmoothed(spatialDistance,temporalDistance,t) * 1.1f;
 	};
 
-	this->colorFunction = [linearPlaneFunc,sourceTableID](float spatialDistance, float temporalDistance, SampleType t) -> M::float4
+	this->colorFunction = [linearPlaneFunc,sourceTableID](float spatialDistance, float temporalDistance, SampleType t) -> float4
 	{
 		const float h = M::Max(0.f, (linearPlaneFunc.z + linearPlaneFunc.x * spatialDistance + linearPlaneFunc.y * temporalDistance));
 		const auto& source = tables[sourceTableID];
 		const float s = source.GetSmoothed(spatialDistance,temporalDistance,t);
 
 		//float level = s/h;
-		M::float4 rs;
+		float4 rs;
 		rs.a = 1.f;
-		M::Vec::HSL2RGB(M::float3(fmod(h*20.f,1.f),1.f,0.5f),rs.rgb);
+		M::Vec::HSL2RGB(float3(fmod(h*20.f,1.f),1.f,0.5f),rs.rgb);
 		return rs;
 
 		//if (h == 0)
@@ -557,7 +557,7 @@ void Table::TrainHypothesis(index_t sourceTableID, SampleType t, bool isStatic)
 		M::TVec4<> rs;
 		rs.a = 1;
 		rs.r = 1;
-		rs.gb = 1.f - M::float2(fabs(error)*50);
+		rs.gb = 1.f - float2(fabs(error)*50);
 
 		return rs;
 	};
@@ -597,7 +597,7 @@ float TAgeHypothesis::SpatialSample(float spatialDistance, float temporalDistanc
 
 float TStaticAgeHypothesis::Sample(float spatialDistance, float temporalDistance, float density, float relativeSensorRange) const
 {
-	M::float3 linearPlaneFunc(pX(density,relativeSensorRange),1,pBase(density,relativeSensorRange));  
+	float3 linearPlaneFunc(pX(density,relativeSensorRange),1,pBase(density,relativeSensorRange));  
 	float h = linearPlaneFunc.x * spatialDistance + linearPlaneFunc.y * temporalDistance + linearPlaneFunc.z;
 	return M::Max(h,0.f);
 }
@@ -852,20 +852,21 @@ public:
 			sRange = sR;
 			tRange = tR;
 
-			actualCenter = M::float2(sR.GetCenter(),tR.GetCenter());
+			actualCenter = float2(sR.GetCenter(),tR.GetCenter());
 			if (IsRockBottom())
 			{
 				aggregated = true;	//not gonna happen anyways
-				representativeCenter = M::float2{};
+				representativeCenter = float2{};
 				count_t wSum = 0;
 				for (index_t s = sRange.start; s < sRange.end; s++)
 					for (index_t t = tRange.start; t < tRange.end; t++)
 					{
 						const auto&sample = source.GetSample(s,t);
 						const count_t w = sample.numEntities;
-						representativeCenter += M::float2(s,t)*w;
+						representativeCenter += float2(s,t)*w;
 						wSum += w;
 						representativeSample.Include(sample);
+						numEntities += sample.numEntities;
 					}
 				if (wSum > 0)
 					representativeCenter /= wSum;
@@ -891,16 +892,31 @@ public:
 			return child[AxesToChild(sUpper,tUpper,splitS, splitT)];
 		}
 
+		void		FillNeighbor(const Tree&tree,Neighbor::e_t nI, index_t s, index_t t)
+		{
+			if (n[nI] == InvalidIndex)
+				n[nI] = tree.FindNode(s,t,level,false);
+			if (anyNeighbor[nI] == InvalidIndex)
+				if (n[nI] != InvalidIndex)
+					anyNeighbor[nI] = n[nI];
+				else
+					anyNeighbor[nI] = tree.FindNode(s,t,level,true);
+		}
+
 		void		LinkNeighbors(const Tree&t)
 		{
-			if (n[Neighbor::East] == InvalidIndex)
-				n[Neighbor::East] = t.FindNode(sRange.end,tRange.GetCenter(),level);
-			if (n[Neighbor::West] == InvalidIndex)
-				n[Neighbor::West] = t.FindNode(sRange.start-1,tRange.GetCenter(),level);
-			if (n[Neighbor::North] == InvalidIndex)
-				n[Neighbor::North] = t.FindNode(sRange.GetCenter(),tRange.start-1,level);
-			if (n[Neighbor::South] == InvalidIndex)
-				n[Neighbor::South] = t.FindNode(sRange.GetCenter(),tRange.end,level);
+			FillNeighbor(t,Neighbor::East,sRange.end,tRange.GetCenter());
+			FillNeighbor(t,Neighbor::West,sRange.start-1,tRange.GetCenter());
+			FillNeighbor(t,Neighbor::North,sRange.GetCenter(),tRange.start-1);
+			FillNeighbor(t,Neighbor::South,sRange.GetCenter(),tRange.end);
+			//if (n[Neighbor::East] == InvalidIndex)
+			//	n[Neighbor::East] = t.FindNode(sRange.end,tRange.GetCenter(),level,false);
+			//if (n[Neighbor::West] == InvalidIndex)
+			//	n[Neighbor::West] = t.FindNode(sRange.start-1,tRange.GetCenter(),level,false);
+			//if (n[Neighbor::North] == InvalidIndex)
+			//	n[Neighbor::North] = t.FindNode(sRange.GetCenter(),tRange.start-1,level,false);
+			//if (n[Neighbor::South] == InvalidIndex)
+			//	n[Neighbor::South] = t.FindNode(sRange.GetCenter(),tRange.end,level,false);
 		}
 
 		bool		IsRockBottom() const
@@ -923,16 +939,16 @@ public:
 			if (!aggregated)
 				return false;
 			//ASSERT__(aggregated);
-			if (representativeSample.numEntities >= shouldHaveEntities)
+			if (numEntities >= shouldHaveEntities)
 				return false;
 
-			for (int i = 0; i < Neighbor::Count; i++)
-				if (n[i] != InvalidIndex)
-				{
-					const auto&neighbor = nodes[n[i]];
-					if (!neighbor.dropped && neighbor.HasChildren())
-						return false;
-				}
+			//for (int i = 0; i < Neighbor::Count; i++)
+			//	if (n[i] != InvalidIndex)
+			//	{
+			//		const auto&neighbor = nodes[n[i]];
+			//		if (!neighbor.dropped && neighbor.HasChildren())
+			//			return false;
+			//	}
 			return true;
 		}
 
@@ -1032,15 +1048,97 @@ public:
 		}
 
 
-		static void	MakeFlatQuad(Table::Mesh&mesh, M::float2 raw, const float sScale, const float tScale, const TSample&s, const M::float3&color, const float sSize, const float tSize)
+		static void	MakeFlatQuad(Table::Mesh&mesh, float2 raw, const float sScale, const float tScale, const TSample&s, const float3&color, const float sSize, const float tSize)
 		{
 			using std::swap;
 			//raw.x *= sScale;
 			//raw.y *= tScale;
-			swap(raw.x,raw.y);
+			//swap(raw.x,raw.y);
 			mesh.MakeFlatQuad(raw,s,color,tSize,sSize);
 		}
 
+		float2		NeighborST(const BasicBuffer<Node>&nodes, Neighbor::e_t n0,Neighbor::e_t n1) const
+		{
+			float2 rs;
+			if (anyNeighbor[n0] != InvalidIndex && anyNeighbor[n1] != InvalidIndex)
+			{
+				return (nodes[anyNeighbor[n0]].geometricalCenter + nodes[anyNeighbor[n1]].geometricalCenter)*0.5f;
+			}
+			if (anyNeighbor[n0] != InvalidIndex)
+				return nodes[anyNeighbor[n0]].geometricalCenter;
+			if (anyNeighbor[n1] != InvalidIndex)
+				return nodes[anyNeighbor[n1]].geometricalCenter;
+			return geometricalCenter;
+		}
+
+		TSample		NeighborSample(const BasicBuffer<Node>&nodes, Neighbor::e_t n0,Neighbor::e_t n1) const
+		{
+			float2 rs;
+			if (anyNeighbor[n0] != InvalidIndex && anyNeighbor[n1] != InvalidIndex)
+			{
+				TSample sample;
+				sample.IncludeMean( nodes[anyNeighbor[n0]].representativeSample);
+				sample.IncludeMean( nodes[anyNeighbor[n1]].representativeSample);
+				return sample;
+			}
+			if (anyNeighbor[n0] != InvalidIndex)
+				return nodes[anyNeighbor[n0]].representativeSample;
+			if (anyNeighbor[n1] != InvalidIndex)
+				return nodes[anyNeighbor[n1]].representativeSample;
+			return representativeSample;
+		}
+
+
+		void		FixNeighborLinksRec(BasicBuffer<Node>&nodes)
+		{
+
+			for (index_t i = 0; i < Neighbor::Count; i++)
+			{
+				if (anyNeighbor[i] != InvalidIndex)
+					while (nodes[anyNeighbor[i]].HasParent() && !nodes[nodes[anyNeighbor[i]].parent].HasChildren())
+					{
+						anyNeighbor[i] = nodes[anyNeighbor[i]].parent;
+					}
+			}
+			if (HasChildren())
+			{
+				for (int i = 0; i < Child::Count; i++)
+					if (child[i] != InvalidIndex)
+						nodes[child[i]].FixNeighborLinksRec(nodes);
+			}
+		}
+
+		void	MakeNeighborTriangle(const BasicBuffer<Node>&nodes, Table::Mesh&mesh, Neighbor::e_t center, Neighbor::e_t right, Neighbor::e_t left) const
+		{
+			if (anyNeighbor[center] != InvalidIndex)
+			{
+				const Node&n = nodes[anyNeighbor[center]];
+				if (level >= n.level)
+				{
+					//if (level == n.level)
+					{
+						mesh.SetIndexOffsetToVertexCount();
+
+						mesh.vertices.Append().st = geometricalCenter;
+						mesh.vertices.Last().sample = representativeSample;
+						mesh.vertices.Last().color = float4(0,1,0,1);
+
+						mesh.vertices.Append().st = NeighborST(nodes, center,right);
+						mesh.vertices.Last().sample = NeighborSample(nodes, center,right);
+						mesh.vertices.Last().color = float4(1,1,0,1);
+
+
+						mesh.vertices.Append().st = NeighborST(nodes, center,left);
+						mesh.vertices.Last().sample = NeighborSample(nodes, center,left);
+						mesh.vertices.Last().color = float4(1,0,0,1);
+
+						mesh.AddTriangle(0,1,2);
+					}
+
+				}
+			}
+
+		}
 		void		BuildRec(const BasicBuffer<Node>&nodes, Table::Mesh&mesh, const float sScale, const float tScale, const count_t maxDepth) const
 		{
 			ASSERT__(self != InvalidIndex);
@@ -1053,17 +1151,28 @@ public:
 			}
 			ASSERT_LESS_OR_EQUAL__(level,maxDepth);
 
+			MakeNeighborTriangle(nodes,mesh,Neighbor::North,Neighbor::West,Neighbor::East);
+			MakeNeighborTriangle(nodes,mesh,Neighbor::South,Neighbor::East,Neighbor::West);
+
+
+
+
+
+			return;
+
+
 
 			float2 xy = geometricalCenter;
 			const index_t aggS = this->sRange.GetExtent();
 			const index_t aggT = this->tRange.GetExtent();
 			const float sSize = aggS/**0.5f*/* sScale;
 			const float tSize = aggT/**0.5f*/ * tScale;
-			//mesh.MakeFlatQuad(representativeCenter,   sScale, tScale, representativeSample, M::float3(1,0,0), sSize, tSize);
-			MakeFlatQuad(mesh,xy, sScale, tScale, representativeSample, M::float3(0,0,1), sSize, tSize);
+			//mesh.MakeFlatQuad(representativeCenter,   sScale, tScale, representativeSample, float3(1,0,0), sSize, tSize);
+			MakeFlatQuad(mesh,xy, sScale, tScale, representativeSample, float3(0,0,1), sSize, tSize);
 		}
 		bool		HasParent() const {return parent != InvalidIndex;}
 		index_t		GetParent() const {ASSERT__(HasParent()); return parent;}
+		const TSample&GetSample() const {return representativeSample;}
 		bool		Aggregate(BasicBuffer<Node>&nodes, const count_t shouldHaveEntities)
 		{
 			if (aggregated)
@@ -1075,8 +1184,10 @@ public:
 
 			bool shouldAggregate = true;
 			representativeSample = TSample();
-			representativeCenter = M::float2();
+			representativeCenter = float2();
+			numEntities = 0;
 			count_t wSum = 0;
+			aggregationLevel=0;
 			for (int i = 0; i < Child::Count; i++)
 				if (child[i] != InvalidIndex)
 				{
@@ -1084,13 +1195,15 @@ public:
 					if (!c.ShouldAggregate(shouldHaveEntities,nodes))
 						shouldAggregate = false;
 					const auto&sample = c.representativeSample;
-					const count_t w = M::Max( sample.numEntities,1);
+					const count_t w = 1;//M::Max( sample.numEntities,1);
 					representativeCenter += c.representativeCenter*w;
 					wSum += w;
-					representativeSample.Include(sample);
+					representativeSample.IncludeMean(sample);
+					numEntities += c.numEntities;
+					aggregationLevel=std::max(aggregationLevel,c.aggregationLevel);
 				}
 			representativeCenter /= wSum;
-
+			aggregationLevel++;
 			UpdateGeometricalCenter();
 
 			if (shouldAggregate)
@@ -1134,12 +1247,32 @@ public:
 			return sRange.Contains(s) && tRange.Contains(t);
  		}
 
+		TSample		SampleBlurred(const Buffer0<Node>&nodes, index_t s, index_t t) const
+		{
+			return representativeSample;
+	
+		}
+
+		index_t		MakeVertex(Table::Mesh&mesh)	const
+		{
+			if (vIndex == InvalidIndex)
+			{
+				vIndex = mesh.vertices.Count();
+				mesh.vertices.Append().st = geometricalCenter;
+				mesh.vertices.Last().sample = representativeSample;
+				float white = 1.f / (0.9f + 0.1f*(1<<aggregationLevel));
+				mesh.vertices.Last().color = float4(1,white,white,1);
+			}
+			return vIndex;
+		}
 
 		index_t		GetLevel() const {return level;}
 
+		mutable index_t	vIndex=InvalidIndex;
 	private:
 		TSample		representativeSample;
-		M::double2	representativeCenter,actualCenter;
+		count_t		numEntities=0;
+		double2		representativeCenter,actualCenter;
 		float2		geometricalCenter;
 		TRange		sRange = TRange::Invalid,
 					tRange = TRange::Invalid;
@@ -1147,26 +1280,28 @@ public:
 		index_t		parent=InvalidIndex,self=InvalidIndex;
 		bool		dropped = false,aggregated = false;
 		bool		splitS = false, splitT = false;
+		count_t		aggregationLevel = 0;
 
 		index_t		child[Child::Count] = {InvalidIndex,InvalidIndex,InvalidIndex,InvalidIndex};
 		index_t		n[Neighbor::Count] = {InvalidIndex,InvalidIndex,InvalidIndex,InvalidIndex};
+		index_t		anyNeighbor[Neighbor::Count] = {InvalidIndex,InvalidIndex,InvalidIndex,InvalidIndex};
 	};
 
 
-	index_t			FindNode(index_t s, index_t t, index_t level) const
+	index_t			FindNode(index_t s, index_t t, index_t level,bool allowParent) const
 	{
 		if (!sRange.Contains(s) || !tRange.Contains(t))
 			return InvalidIndex;
 		foreach (rootNodes,rN)
 		{
-			index_t rs = FindNodeFrom(*rN, s,t,level);
+			index_t rs = FindNodeFrom(*rN, s,t,level,allowParent);
 			if (rs != InvalidIndex)
 				return rs;
 		}
 		return InvalidIndex;
 	}
 
-	index_t		FindNodeFrom(index_t rootNode, index_t s, index_t t, index_t level) const
+	index_t		FindNodeFrom(index_t rootNode, index_t s, index_t t, index_t level,bool allowParent) const
 	{
 		index_t at = rootNode;
 		{
@@ -1180,9 +1315,20 @@ public:
 			if (node.GetLevel() == level)
 				return at;
 			index_t next = node.FindChild(s,t);
+			if (next == InvalidIndex && allowParent)
+				return at;
 			at = next;
 		}
 		return InvalidIndex;
+	}
+
+	TSample	SampleBlurred(index_t s, index_t t) const
+	{
+		index_t cn = FindNode(s,t,InvalidIndex,true);
+		if (cn == InvalidIndex)
+			return TSample();
+
+		return nodes[cn].SampleBlurred(nodes,s,t);
 	}
 
 	void	MakeRootNode(const Table&source, const TRange&sR, const TRange&tR)
@@ -1205,9 +1351,17 @@ public:
 		nodes.Clear();
 
 		MakeRootNode(source,M::IntRange<index_t>(0,1),M::IntRange<index_t>(0,1));
-		MakeRootNode(source,M::IntRange<index_t>(1,sRange.end),M::IntRange<index_t>(0,1));
-		MakeRootNode(source,M::IntRange<index_t>(1,sRange.end),M::IntRange<index_t>(1,tRange.end));
-		MakeRootNode(source,M::IntRange<index_t>(0,1),M::IntRange<index_t>(1,tRange.end));
+		MakeRootNode(source,M::IntRange<index_t>(sRange.end-1,sRange.end),M::IntRange<index_t>(0,1));
+		MakeRootNode(source,M::IntRange<index_t>(0,1),M::IntRange<index_t>(tRange.end-1,tRange.end));
+		MakeRootNode(source,M::IntRange<index_t>(sRange.end-1,sRange.end),M::IntRange<index_t>(tRange.end-1,tRange.end));
+
+		MakeRootNode(source,M::IntRange<index_t>(1,sRange.end-1),M::IntRange<index_t>(0,1));
+		MakeRootNode(source,M::IntRange<index_t>(1,sRange.end-1),M::IntRange<index_t>(tRange.end-1,tRange.end));
+
+		MakeRootNode(source,M::IntRange<index_t>(1,sRange.end-1),M::IntRange<index_t>(1,tRange.end-1));
+		
+		MakeRootNode(source,M::IntRange<index_t>(0,1),M::IntRange<index_t>(1,tRange.end-1));
+		MakeRootNode(source,M::IntRange<index_t>(sRange.end-1,sRange.end),M::IntRange<index_t>(1,tRange.end-1));
 
 
 		index_t begin = 0;
@@ -1252,7 +1406,7 @@ public:
 
 			if (n.GetLevel() != layer)
 			{
-				ASSERT__(n.GetLevel() +1 == layer);
+			//	ASSERT__(n.GetLevel() +1 == layer);
 				layer--;
 			}
 			if (n.Aggregate(nodes,shouldHaveEntities))
@@ -1261,14 +1415,52 @@ public:
 					aggregate << n.GetParent();
 			}
 		}
+
+
+		foreach (rootNodes,rN)
+		{
+			nodes[*rN].FixNeighborLinksRec(nodes);
+		}
 	}
 
+	void		MakeTriangle(Table::Mesh&mesh, index_t v0, index_t v1, index_t v2)	const
+	{
+		if (v0 != v1 && v1 != v2 && v0 != v2)
+		{
+			auto&t = mesh.triangles.Append();
+			t.v[0] = v0;
+			t.v[2] = v1;
+			t.v[1] = v2;
+		}
+	}
 	void		Build(Table::Mesh&mesh)	const
 	{
 		if (nodes.IsEmpty())
 			return;
-		foreach (rootNodes,rN)
-			nodes[*rN].BuildRec(nodes, mesh,1.f / (sRange.end-1), 1.f / (tRange.end-1),bottomLevel);
+		mesh.SetIndexOffsetToVertexCount();
+
+
+
+		Array2D<index_t>	vIndices{sRange.GetExtent(),tRange.GetExtent()};
+
+		for (index_t s = sRange.start; s < sRange.end; s++)
+			for (index_t t = tRange.start; t < tRange.end; t++)
+			{
+				const index_t nIndex = FindNode(s,t,InvalidIndex,true);
+				ASSERT__(nIndex != InvalidIndex);
+				const Node&n = nodes[nIndex];
+				vIndices.Get(s,t) = n.MakeVertex(mesh);
+			}
+		for (index_t s = sRange.start; s+1 < sRange.end; s++)
+			for (index_t t = tRange.start; t+1 < tRange.end; t++)
+			{
+				MakeTriangle(mesh,vIndices.Get(s,t),vIndices.Get(s+1,t),vIndices.Get(s+1,t+1));
+				MakeTriangle(mesh,vIndices.Get(s,t),vIndices.Get(s+1,t+1),vIndices.Get(s,t+1));
+			}
+
+
+		//foreach (rootNodes,rN)
+			//nodes[*rN].BuildRec(nodes, mesh,1.f / (sRange.end-1), 1.f / (tRange.end-1),bottomLevel);
 	}
 
 private:
@@ -1299,12 +1491,22 @@ void	Table::Blur(const Table&source)
 
 
 
-	const count_t minSamples = maxSamples / 100;
+	const count_t minSamples = maxSamples / 10000;
 
 
-	Tree t;
-	t.Setup(source,M::IntRange<index_t>(0,sSize),M::IntRange<index_t>(0,tSize),minSamples);
-	t.Build(mesh);
+	Tree tree;
+	tree.Setup(source,M::IntRange<index_t>(0,sSize),M::IntRange<index_t>(0,tSize),minSamples);
+	
+	//for (index_t t = 0; t < tSize; t++)
+	//{
+	//	auto&row = samples.Append();
+
+	//	for (index_t s = 0; s < sSize; s++)
+	//		row.Append(tree.SampleBlurred(s,t));
+	//}
+	
+	
+	tree.Build(mesh);
 
 
 	return;
@@ -1604,7 +1806,7 @@ TSurfacePoint	Table::GetGeometryPointF(SampleType t, float spatialDistance, floa
 
 			{
 				float h = s.height;
-				obj.MakeVertex(M::float3(fx,fy,h),s.color,M::float2(Relative2TextureHeight(h)));
+				obj.MakeVertex(float3(fx,fy,h),s.color,float2(Relative2TextureHeight(h)));
 			}
 			if (ix && iy && s.cover)
 				obj.MakeQuadInv( (ix-1)*resolution + (iy-1), (ix-1)*resolution + (iy),  (ix)*resolution + (iy),  (ix)*resolution + (iy-1));
@@ -1619,12 +1821,12 @@ TSurfacePoint	Table::GetGeometryPointF(SampleType t, float spatialDistance, floa
 
 	foreach (mesh.vertices,v)
 	{
-		float x = v->st.x * 2.f - 1.f;
-		float y = v->st.y * 2.f - 1.f;
+		float x = v->st.y * 2.f - 1.f;
+		float y = v->st.x * 2.f - 1.f;
 		float h = 
 			v->sample.Get(t);
 		h = range.z.Relativate(h);
-		obj.MakeVertex(M::float3(x,y,h),v->color,M::float2(Relative2TextureHeight(h)));
+		obj.MakeVertex(float3(x,y,h),v->color,float2(Relative2TextureHeight(h)));
 	}
 
 	foreach (mesh.triangles,t)
@@ -1650,12 +1852,12 @@ TSurfacePoint	Table::GetGeometryPointF(SampleType t, float spatialDistance, floa
 		{
 //			float h = image.get(res-1,iy)[0];
 			float h = s.height;
-			obj.MakeVertex(M::float3(fx,fy,h),s.color, M::float2(Relative2TextureHeight(h)));
+			obj.MakeVertex(float3(fx,fy,h),s.color, float2(Relative2TextureHeight(h)));
 		}
 		{
 			float t = s.ThicknessToOffsetY(thickness);
 
-			obj.MakeVertex(M::float3(fx,fy,M::Max(s.height-t,0)),s.color,M::float2());
+			obj.MakeVertex(float3(fx,fy,M::Max(s.height-t,0)),s.color,float2());
 		}
 		if (iy >= yExtent)
 		{
@@ -1680,11 +1882,11 @@ TSurfacePoint	Table::GetGeometryPointF(SampleType t, float spatialDistance, floa
 		s.xInclination *= range.x.GetExtent();
 		s.yInclination *= range.y.GetExtent();
 		float t = s.ThicknessToOffsetX(thickness);
-		obj.MakeVertex(M::float3(fx0,fy,M::Max(s.height-t,0)) ,s.color, coords);
+		obj.MakeVertex(float3(fx0,fy,M::Max(s.height-t,0)) ,s.color, coords);
 		{
 			float h = s.height;
 				//image.get(ix,0)[0];
-			obj.MakeVertex(M::float3(fx0,fy,h),s.color, M::float2(Relative2TextureHeight(h)));
+			obj.MakeVertex(float3(fx0,fy,h),s.color, float2(Relative2TextureHeight(h)));
 		}
 		if (ix > 0)
 			obj.MakeQuad((ix-1)*2,(ix-1)*2+1,(ix)*2+1,(ix)*2);
@@ -1708,7 +1910,7 @@ TSurfacePoint	Table::GetGeometryPointF(SampleType t, float spatialDistance, floa
 //	return values[at];
 //}
 
-void					Table::TraceLineF(const M::TFloatRange<>&range, const std::function<M::float3(float)>&f, count_t stResolution)
+void					Table::TraceLineF(const M::TFloatRange<>&range, const std::function<float3(float)>&f, count_t stResolution)
 {
 	TLineSegment&seg = this->lineSegments.Append();
 	seg.color = color;
@@ -1759,7 +1961,7 @@ void	Table::UpdateCurrentRange(SampleType t)
 }
 
 
-void	Table::SetTransformed(const Table&source, const std::function<TSample(TSample)>&transformFunction, const Math::float4&color)
+void	Table::SetTransformed(const Table&source, const std::function<TSample(TSample)>&transformFunction, const float4&color)
 {
 	this->color = color;
 	this->samples = source.samples;
@@ -1870,7 +2072,7 @@ void	Table::UpdatePlotGeometry(SampleType t, bool window)
 			{
 				float y = 0.f;
 				float h = GetGeometryPointF(t,y,x).height;
-				return M::float3(x,y,h);
+				return float3(x,y,h);
 			},400);
 			//TraceLine(IntRange<UINT>(0,Resolution),[this,t](UINT x)
 			//{
@@ -1880,13 +2082,13 @@ void	Table::UpdatePlotGeometry(SampleType t, bool window)
 			{
 				float x = 1.f;
 				float h = GetGeometryPointF(t,y,x).height;
-				return M::float3(x,y,h);
+				return float3(x,y,h);
 			},400);
 			TraceLineF(M::FloatRange(0.f,1.f),[this,t](float y)
 			{
 				float x = 0.f;
 				float h = GetGeometryPointF(t,y,x).height;
-				return M::float3(x,y,h);
+				return float3(x,y,h);
 			},400);
 
 		}
@@ -1926,7 +2128,7 @@ void RemoveAllPlotGeometries()
 void UpdateColors()
 {
 	for (index_t i = 0; i < tables.Count(); i++)
-		tables[i].color = M::float4( 1.f - float( i%2 ),1.f - float((i/2)%2),1.f - float((i/4)%2),1.f) * 0.5f + 0.5f;
+		tables[i].color = float4( 1.f - float( i%2 ),1.f - float((i/2)%2),1.f - float((i/4)%2),1.f) * 0.5f + 0.5f;
 }
 
 void LoadTables(const Buffer0<FileSystem::File>&files, bool addBlurredClone)

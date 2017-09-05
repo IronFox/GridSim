@@ -7,7 +7,6 @@
 #include "sample.h"
 #include <array>
 #include <math/polynomial.h>
-#include <math/delaunay.h>
 
 using namespace DeltaWorks;
 
@@ -65,7 +64,7 @@ struct TAgeHypothesis
 
 	bool					useLinearApproximation = true;
 
-	M::float3			linearPlaneFunc;	//x,y: axial inclination, z: offset
+	float3					linearPlaneFunc;	//x,y: axial inclination, z: offset
 
 
 
@@ -109,7 +108,7 @@ struct THypothesisData
 struct TSurfacePoint
 {
 	float				height;
-	M::float4		color;
+	float4				color;
 
 
 	bool				operator>(const TSurfacePoint&other) const
@@ -146,13 +145,23 @@ public:
 	public:
 		struct TVertex
 		{
-			M::float2		st;
-			M::float4		color;
+			float2		st;
+			float4		color;
 			TSample			sample;
 		};
 
-		typedef M::Delaunay2D::Triangle	TTriangle;
-		typedef M::Delaunay2D::Edge	TEdge;
+		struct TTriangle
+		{
+			index_t	v[3];
+		
+		};
+
+		struct TEdge
+		{
+			index_t	v[2];
+
+		};
+
 
 		Buffer0<TVertex>	vertices;
 		Buffer0<TTriangle>	triangles;
@@ -173,25 +182,25 @@ public:
 			t.v[2] = v2 + vOffset;
 		}
 
-		void				MakeFlatQuad(const M::float2&center, const TSample&sample, const M::float3&color, float sExt, float tExt)
+		void				MakeFlatQuad(const float2&center, const TSample&sample, const float3&color, float sExt, float tExt)
 		{
-			const M::float2 ext{sExt,tExt};
+			const float2 ext{sExt,tExt};
 			SetIndexOffsetToVertexCount();
 			vertices.Append().sample = sample;
 			vertices.Last().st = center - ext;
-			vertices.Last().color = M::float4(color,1.f);
+			vertices.Last().color = float4(color,1.f);
 
 			vertices.Append().sample = sample;
-			vertices.Last().st = center + M::float2(sExt,-tExt);
-			vertices.Last().color = M::float4(color,1.f);
+			vertices.Last().st = center + float2(sExt,-tExt);
+			vertices.Last().color = float4(color,1.f);
 
 			vertices.Append().sample = sample;
-			vertices.Last().st = center + M::float2(sExt,tExt);
-			vertices.Last().color = M::float4(color,1.f);
+			vertices.Last().st = center + float2(sExt,tExt);
+			vertices.Last().color = float4(color,1.f);
 
 			vertices.Append().sample = sample;
-			vertices.Last().st = center + M::float2(-sExt,tExt);
-			vertices.Last().color = M::float4(color,1.f);
+			vertices.Last().st = center + float2(-sExt,tExt);
+			vertices.Last().color = float4(color,1.f);
 
 			AddTriangle(0,1,2);
 			AddTriangle(0,2,3);
@@ -210,7 +219,7 @@ public:
 private:
 	void					UpdateImage(SampleType t);
 	TSurfacePoint			GetGeometryPointF(SampleType t, float spatialDistance, float temporalDistance) const;
-	void					TraceLineF(const M::TFloatRange<>&range, const std::function<M::float3(float)>&, count_t stResolution);
+	void					TraceLineF(const M::TFloatRange<>&range, const std::function<float3(float)>&, count_t stResolution);
 
 	static void				BuildRegularSurface(CGS::Constructor<>::Object&target, const FSurface&surfaceFunction, count_t stResolution);
 	static void				BuildMeshSurface(CGS::Constructor<>::Object&target, const Mesh&mesh, SampleType);
@@ -219,7 +228,7 @@ private:
 public:
 	struct TLineSegment
 	{
-		M::float4		color;
+		float4		color;
 		float				width=2;
 		Buffer0<M::TVec3<> >points;
 
@@ -275,7 +284,7 @@ public:
 	index_t					solidPlotGeometryHandle = InvalidIndex,
 							plotHoleGeometryHandle = InvalidIndex,
 							transparentGeometryHandle = InvalidIndex;
-	M::float4				color = M::float4(1);
+	float4				color = float4(1);
 	Mesh					mesh;
 
 	const bool				IsRangeTable;
@@ -328,7 +337,7 @@ public:
 	void					UpdatePlotGeometry(SampleType type, bool window);
 
 	void					TrainHypothesis(index_t sourceTableID, SampleType t, bool isStatic);
-	M::float3			TrainFlatOverestimation(index_t sourceTableID, SampleType t,float threshold);
+	float3			TrainFlatOverestimation(index_t sourceTableID, SampleType t,float threshold);
 
 	void					RemovePlotGeometry();
 
@@ -346,7 +355,7 @@ public:
 	*/
 	void					StretchSamplesS();
 
-	void					SetTransformed(const Table&source, const std::function<TSample(TSample)>&transformFunction, const M::float4&color);
+	void					SetTransformed(const Table&source, const std::function<TSample(TSample)>&transformFunction, const float4&color);
 
 	float					SmoothGeometryHeightFunctionF(SampleType t, float spatialDistance, float temporalDistance) const;
 	float					FindLevelSpatialDistance(SampleType t, index_t temporalDistance, float level) const;

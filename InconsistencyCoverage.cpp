@@ -19,7 +19,9 @@ bool	IC::RangeArray::OverlapsWith(const RangeArray&other, count_t tolerance) con
 		{
 			const generation_t	min = M::Max(a.min,b.min),
 								max = M::Min(a.max,b.max);
-			if (max >= min && ((max - min)+1 > tolerance))
+			
+			const generation_t delta = max-min+1;
+			if (max >= min && (delta > tolerance))
 				return true;
 		}
 	}
@@ -246,8 +248,8 @@ void	InconsistencyCoverage::TSample::SetWorst(const TSample&a, const TSample&b)
 	if (a.spatialDistance == 0xFF || b.spatialDistance == 0xFF)
 		spatialDistance = 0xFF;
 	else
-		spatialDistance = vmin(a.spatialDistance,b.spatialDistance);
-	depth = vmax(a.depth,b.depth);
+		spatialDistance = M::Min(a.spatialDistance,b.spatialDistance);
+	depth = M::Max(a.depth,b.depth);
 }
 
 void	InconsistencyCoverage::TSample::Include(const TSample&other)
@@ -255,8 +257,8 @@ void	InconsistencyCoverage::TSample::Include(const TSample&other)
 	if (spatialDistance == 0xFF || other.spatialDistance == 0xFF)
 		spatialDistance = 0xFF;
 	else
-		spatialDistance = vmin(spatialDistance,other.spatialDistance);
-	depth = vmax(depth,other.depth);
+		spatialDistance = M::Min(spatialDistance,other.spatialDistance);
+	depth = M::Max(depth,other.depth);
 }
 
 
@@ -280,7 +282,7 @@ bool	InconsistencyCoverage::TSample::IntegrateGrowingNeighbor(const TSample&n, U
 		{
 			const content_t old = spatialDistance;
 			const UINT32 nExt = (UINT32)n.spatialDistance + distance;
-			spatialDistance = (content_t)vmin(MaxDistance, vmin<UINT32>(spatialDistance, nExt));
+			spatialDistance = (content_t)M::Min(MaxDistance, M::Min<UINT32>(spatialDistance, nExt));
 			//if (spatialDistance < old && old != 0xFE && nDepth <= depth)
 			//	spatialDistance = 0xFF;
 		}
@@ -336,17 +338,17 @@ void		InconsistencyCoverage::LoadMinimum(const InconsistencyCoverage&a, const In
 {
 	ASSERT__(!sealed);
 	
-	offset.x = vmax(offset.x,a.offset.x);
-	offset.y = vmax(offset.y,a.offset.y);
+	offset.x = M::Max(offset.x,a.offset.x);
+	offset.y = M::Max(offset.y,a.offset.y);
 	#ifdef D3
-		offset.z = vmax(offset.z,a.offset.z);
+		offset.z = M::Max(offset.z,a.offset.z);
 	#endif
 
 	grid.SetSize(
-						vmin(a.grid.GetWidth(),b.grid.GetWidth()),
-						vmin(a.grid.GetHeight(),b.grid.GetHeight())
+						M::Min(a.grid.GetWidth(),b.grid.GetWidth()),
+						M::Min(a.grid.GetHeight(),b.grid.GetHeight())
 						#ifdef D3
-							,vmin(a.grid.GetDepth(),b.grid.GetDepth())
+							,M::Min(a.grid.GetDepth(),b.grid.GetDepth())
 						#endif
 					);
 	highest = 0;
@@ -364,7 +366,7 @@ void		InconsistencyCoverage::LoadMinimum(const InconsistencyCoverage&a, const In
 					const TExtSample&vb = b.GetSample(c);
 					TExtSample&merged = grid.Get(x,y,z);
 					merged.SetBest(va,vb,comp);
-					highest = vmax(highest,merged.depth);
+					highest = M::Max(highest,merged.depth);
 				}
 	#else
 
@@ -377,7 +379,7 @@ void		InconsistencyCoverage::LoadMinimum(const InconsistencyCoverage&a, const In
 				const TExtSample&vb = b.GetSample(c);
 				TExtSample&merged = grid.Get(x,y);
 				merged.SetBest(va,vb,comp);
-				highest = vmax(highest,merged.depth);
+				highest = M::Max(highest,merged.depth);
 			}
 	#endif
 
@@ -457,7 +459,7 @@ void InconsistencyCoverage::Grow(InconsistencyCoverage & rs) const
 							for (UINT32 k = 0; k <= expandBy; k++)
 							if (i || j || k)
 							{
-								UINT32 dist = vmax(k,vmax(i, j));
+								UINT32 dist = M::Max(k,M::Max(i, j));
 								rs.grid.Get(x + expandBy - i, y + expandBy - j, z + expandBy - k).IntegrateGrowingNeighbor(v, dist);
 								if (j != 0)
 									rs.grid.Get(x + expandBy - i, y + expandBy + j, z + expandBy - k).IntegrateGrowingNeighbor(v,dist);
@@ -508,7 +510,7 @@ void InconsistencyCoverage::Grow(InconsistencyCoverage & rs) const
 					for (UINT32 j = 0; j <= expandBy; j++)
 						if (i || j)
 						{
-							UINT32 dist = vmax(i, j);
+							UINT32 dist = M::Max(i, j);
 							rs.grid.Get(x + expandBy - i, y + expandBy - j).IntegrateGrowingNeighbor(v, dist);
 							if (j != 0)
 								rs.grid.Get(x + expandBy - i, y + expandBy + j).IntegrateGrowingNeighbor(v,dist);
@@ -528,7 +530,7 @@ void InconsistencyCoverage::Grow(InconsistencyCoverage & rs) const
 }
 
 template <class S>
-static const InconsistencyCoverage::TExtSample*	GetVerified(const Array2D<InconsistencyCoverage::TExtSample,S>&array, const VecN<int,2>&c)
+static const InconsistencyCoverage::TExtSample*	GetVerified(const Array2D<InconsistencyCoverage::TExtSample,S>&array, const M::VecN<int,2>&c)
 {
 	if (c.x < 0 || c.y < 0)
 		return nullptr;
@@ -538,7 +540,7 @@ static const InconsistencyCoverage::TExtSample*	GetVerified(const Array2D<Incons
 }
 
 template <class S>
-static InconsistencyCoverage::TExtSample*	GetVerified(Array2D<InconsistencyCoverage::TExtSample,S>&array, const VecN<int,2>&c)
+static InconsistencyCoverage::TExtSample*	GetVerified(Array2D<InconsistencyCoverage::TExtSample,S>&array, const M::VecN<int,2>&c)
 {
 	if (c.x < 0 || c.y < 0)
 		return nullptr;
@@ -549,7 +551,7 @@ static InconsistencyCoverage::TExtSample*	GetVerified(Array2D<InconsistencyCover
 
 
 template <class S>
-static const InconsistencyCoverage::TSample*	GetVerified(const Array3D<InconsistencyCoverage::TSample,S>&array, const VecN<int,3>&c)
+static const InconsistencyCoverage::TSample*	GetVerified(const Array3D<InconsistencyCoverage::TSample,S>&array, const M::VecN<int,3>&c)
 {
 	if (c.x < 0 || c.y < 0 || c.z < 0)
 		return nullptr;
@@ -559,7 +561,7 @@ static const InconsistencyCoverage::TSample*	GetVerified(const Array3D<Inconsist
 }
 
 template <class S>
-static InconsistencyCoverage::TSample*	GetVerified(Array3D<InconsistencyCoverage::TSample,S>&array, const VecN<int,3>&c)
+static InconsistencyCoverage::TSample*	GetVerified(Array3D<InconsistencyCoverage::TSample,S>&array, const M::VecN<int,3>&c)
 {
 	if (c.x < 0 || c.y < 0 || c.z < 0)
 		return nullptr;
@@ -614,7 +616,7 @@ void InconsistencyCoverage::IncludeMissing(const TGridCoords&sectorDelta, const 
 				TExtSample&v = grid.Get(x,y);
 			#endif
 			v.Include(v2);
-			highest = vmax(highest,v.depth);
+			highest = M::Max(highest,v.depth);
 		}
 	VerifyIntegrity(CLOCATION);
 }
@@ -649,7 +651,7 @@ bool InconsistencyCoverage::Include(const TGridCoords & sectorDelta, const Incon
 			#endif
 			v.Include(*v2);
 			//v.SetWorst(v,*v2);
-			highest = vmax(highest,v.depth);
+			highest = M::Max(highest,v.depth);
 			rs = true;
 		}
 	VerifyIntegrity(CLOCATION);
@@ -705,7 +707,7 @@ void InconsistencyCoverage::CopyCoreArea(const TGridCoords & sectorDelta, const 
 				v = TExtSample();
 			else
 			{
-				highest = vmax(highest,v2->depth);
+				highest = M::Max(highest,v2->depth);
 				v = *v2;
 			}
 		}
@@ -765,7 +767,7 @@ bool		InconsistencyCoverage::FindInconsistentPlacementCandidate(TEntityCoords&in
 {
 	TGridCoords c= ToPixels(inOutCoords);
 
-	const int maxDist2 = sqr(maxDist * Resolution);
+	const int maxDist2 = M::Sqr(maxDist * Resolution);
 	int d2 = maxDist2;
 	TGridCoords closest;
 	bool any = false;
@@ -791,7 +793,7 @@ bool		InconsistencyCoverage::FindInconsistentPlacementCandidate(TEntityCoords&in
 		{
 			if (grid.Get(x,y).IsConsistent())
 				continue;
-			int dist = sqr(x-c.x)+sqr(y-c.y);
+			int dist = M::Sqr(x-c.x)+M::Sqr(y-c.y);
 			if (dist >= d2)
 				continue;
 			d2 =dist;
@@ -859,7 +861,7 @@ void		InconsistencyCoverage::VerifyIntegrity(const TCodeLocation&loc) const
 		if (px.IsInvalid())
 			Except::TriggerFatal(loc, String(__func__)+": Invalid sample: "+String(px.depth)+"|"+String(px.spatialDistance));
 
-		highest = vmax(highest,px.depth);
+		highest = M::Max(highest,px.depth);
 		if (px.depth == 0 && px.spatialDistance != MaxDistance)
 			Except::TriggerFatal(loc, String(__func__)+": Unexpected px.depth/px.spatialDistance: "+String(px.depth)+"|"+String(px.spatialDistance));
 	}	

@@ -26,7 +26,7 @@ private:
 	void				FinalizeAll(index_t gen);
 	static bool			Deliver(Shard&,SDS&, Layer&l, bool require=false);
 	TBoundaries			boundaries;
-	TVec<count_t,Dimensions>		extent;
+	M::TVec<count_t,Dimensions>		extent;
 	Array<DownloadDemandRegistry>	demandRegistries;
 public:
 
@@ -96,9 +96,9 @@ public:
 		}
 
 		#ifdef D3
-			boundaries  = Box<>(0,0,0,(float)size.width-0.001f,(float)size.height-0.001f,(float)size.depth-0.001f);
+			boundaries  = M::Box<>(0,0,0,(float)size.width-0.001f,(float)size.height-0.001f,(float)size.depth-0.001f);
 		#else
-			boundaries  = Rect<>(0,0,(float)size.width-0.001f,(float)size.height-0.001f);
+			boundaries  = M::Rect<>(0,0,(float)size.width-0.001f,(float)size.height-0.001f);
 		#endif
 		Vec::copy(ToVector(size),extent);
 		ShardParallel([](Layer&l, Shard&s)

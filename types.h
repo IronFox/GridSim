@@ -12,7 +12,6 @@
 #include <Rpc.h>
 
 using namespace DeltaWorks;
-using namespace DeltaWorks::Math;
 
 //#define DBG_SHARD_HISTORY
 //#define RECOVERY_TEST
@@ -59,7 +58,7 @@ using namespace DeltaWorks::Math;
 	static const constexpr count_t Dimensions=2;
 	static const constexpr count_t NumNeighbors = 8;
 	template <typename T=float>
-		using Volume = Rect<T>;
+		using Volume = M::Rect<T>;
 
 	#include <container/array2d.h>
 
@@ -72,53 +71,53 @@ using namespace DeltaWorks::Math;
 typedef GridArray<int>::Size	GridSize;
 typedef GridArray<int>::Index	GridIndex;
 
-typedef VecN<int,Dimensions>	TGridCoords;
-typedef VecN<float,Dimensions>	TEntityCoords;
+typedef M::VecN<int,Dimensions>	TGridCoords;
+typedef M::VecN<float,Dimensions>	TEntityCoords;
 typedef Volume<>				TBoundaries;
 
-inline TVec2<count_t>	ToVector(const Size2D<count_t>&s)
+inline M::TVec2<count_t>	ToVector(const Size2D<count_t>&s)
 {
-	TVec2<count_t> rs;
+	M::TVec2<count_t> rs;
 	Vec::def(rs,s.width,s.height);
 	return rs;
 }
-inline TVec3<count_t>	ToVector(const Size3D<count_t>&s)
+inline M::TVec3<count_t>	ToVector(const Size3D<count_t>&s)
 {
-	TVec3<count_t> rs;
+	M::TVec3<count_t> rs;
 	Vec::def(rs,s.width,s.height,s.depth);
 	return rs;
 
 }
-inline TVec2<index_t>	ToVector(const Index2D<index_t>&s)
+inline M::TVec2<index_t>	ToVector(const Index2D<index_t>&s)
 {
-	TVec2<index_t> rs;
+	M::TVec2<index_t> rs;
 	Vec::def(rs,s.x,s.y);
 	return rs;
 }
-inline TVec3<index_t>	ToVector(const Index3D<index_t>&s)
+inline M::TVec3<index_t>	ToVector(const Index3D<index_t>&s)
 {
-	TVec3<index_t> rs;
+	M::TVec3<index_t> rs;
 	Vec::def(rs,s.x,s.y,s.z);
 	return rs;
 }
 
 template <typename T>
-inline Size2D<index_t>	VectorToSize(const TVec2<T>&v)
+inline Size2D<index_t>	VectorToSize(const M::TVec2<T>&v)
 {
 	return Size2D<index_t> (v.x,v.y);
 }
 template <typename T>
-inline Index2D<index_t>	VectorToIndex(const TVec2<T>&v)
+inline Index2D<index_t>	VectorToIndex(const M::TVec2<T>&v)
 {
 	return Index2D<index_t> (v.x,v.y);
 }
 template <typename T>
-inline Size3D<index_t>	VectorToSize(const TVec3<T>&v)
+inline Size3D<index_t>	VectorToSize(const M::TVec3<T>&v)
 {
 	return Size3D<index_t> (v.x,v.y,v.z);
 }
 template <typename T>
-inline Index3D<index_t>	VectorToIndex(const TVec3<T>&v)
+inline Index3D<index_t>	VectorToIndex(const M::TVec3<T>&v)
 {
 	return Index3D<index_t> (v.x,v.y,v.z);
 }

@@ -74,7 +74,7 @@ namespace Statistics
 		{
 			double mean = (double)sum/double(numSamples);
 			double sqrMean = (double)squareSum/double(numSamples);
-			double deviation = sqrt(sqrMean - sqr(mean));
+			double deviation = sqrt(sqrMean - M::Sqr(mean));
 
 			outNode.Set("mean",mean);
 			outNode.Set("deviation",deviation);
@@ -87,7 +87,7 @@ namespace Statistics
 		{
 			double mean = (double)sum/double(numSamples);
 			double sqrMean = (double)squareSum/double(numSamples);
-			double deviation = sqrt(sqrMean - sqr(mean));
+			double deviation = sqrt(sqrMean - M::Sqr(mean));
 
 			const float mn = min.Get();
 			const float mx = max.Get();

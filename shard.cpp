@@ -295,8 +295,8 @@ void Shard::UpdateOldestRecoverableGeneration()
 	oldestRecoverableGeneration = sds.last().GetGeneration();
 	foreach (neighbors,n)
 		if (n->shard && !n->shard->IsDead())
-			oldestRecoverableGeneration = vmin(oldestRecoverableGeneration,n->shard->oldestNonIsolatedInconsistentGeneration);
-	oldestRecoverableGeneration = vmax(oldestRecoverableGeneration,newestConsistentGeneration+1);
+			oldestRecoverableGeneration = M::Min(oldestRecoverableGeneration,n->shard->oldestNonIsolatedInconsistentGeneration);
+	oldestRecoverableGeneration = M::Max(oldestRecoverableGeneration,newestConsistentGeneration+1);
 }
 
 void Shard::TrimTo(index_t gen)

@@ -11,8 +11,8 @@
 #include "metric.h"
 
 
-inline float2 Frac(const TVec2<>&v)	{return float2(frac(v.x),frac(v.y));}
-inline float3 Frac(const TVec3<>&v)	{return float3(frac(v.x),frac(v.y),frac(v.z));}
+inline float2 Frac(const M::TVec2<>&v)	{return float2(M::Frac(v.x),M::Frac(v.y));}
+inline float3 Frac(const M::TVec3<>&v)	{return float3(M::Frac(v.x),M::Frac(v.y),M::Frac(v.z));}
 
 
 /**
@@ -132,8 +132,8 @@ struct EntityAppearance : public EntityID, public EntityShape, public Collider, 
 	virtual bool		Collider::TestEdge(const TEntityCoords&e0, const TEntityCoords&e1,bool prognosedPosition, float*optionalOutDistance=nullptr) const override
 	{
 		float r = scale.GetLength();
-		TVec2<> d;
-		bool rs = Obj::DetectSphereEdgeIntersection(prognosedPosition ? coordinates+velocity : coordinates,r,e0,e1,d);
+		M::TVec2<> d;
+		bool rs = M::Obj::DetectSphereEdgeIntersection(prognosedPosition ? coordinates+velocity : coordinates,r,e0,e1,d);
 		if (optionalOutDistance)
 		{
 			if (rs)
@@ -189,7 +189,7 @@ public:
 				if (!optionalOutDistance)
 					return true;
 				rs = true;
-				d = vmin(d,d2);
+				d = M::Min(d,d2);
 			}
 		}
 		if (optionalOutDistance)

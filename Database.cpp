@@ -36,13 +36,13 @@ namespace Database
 
 	count_t GetUploadTime(const InconsistencyCoverage&ic)
 	{
-		count_t rs = std::max<count_t>(1, Round(TransferDelayPerICCell * ic.GetGrid().Count()));
+		count_t rs = std::max<count_t>(1, M::Round(TransferDelayPerICCell * ic.GetGrid().Count()));
 		return rs;
 	}
 
 	count_t GetDownloadTime(const InconsistencyCoverage&ic)
 	{
-		count_t rs = std::max<count_t>(1, Round(TransferDelayPerICCell * DownloadDelayMultiplier * ic.GetGrid().Count()));
+		count_t rs = std::max<count_t>(1, M::Round(TransferDelayPerICCell * DownloadDelayMultiplier * ic.GetGrid().Count()));
 
 		return rs;
 	}
@@ -953,7 +953,7 @@ namespace Database
 	void Client::UpdateMinimumGeneration(index_t gen, const TCodeLocation&cause)
 	{
 		auto old = minimumGeneration;
-		minimumGeneration = vmax(minimumGeneration,gen);
+		minimumGeneration = M::Max(minimumGeneration,gen);
 		#ifdef DBG_SHARD_HISTORY
 			if (old != minimumGeneration)
 				owner->LogEvent("Updated min generation: "+String(old)+"->"+String(minimumGeneration)+ " called by "+String(cause));

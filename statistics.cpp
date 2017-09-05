@@ -86,7 +86,7 @@ namespace Statistics
 			{
 				outMean = sum/double(sampleCount);
 				double sqrMean = squareSum/double(sampleCount);
-				outDeviation = sqrt(sqrMean - sqr(outMean));
+				outDeviation = sqrt(sqrMean - M::Sqr(outMean));
 			}
 
 			void	Export(XML::Node&n, const String&baseName) const
@@ -787,7 +787,7 @@ double		Statistics::GetEntityDensityPerRCube()
 
 double		Statistics::GetEntityDensityPerRCube(const TExperiment&ex)
 {
-	return double(ex.numEntities) / (16*16)/ sqr(1.0 / (Entity::MaxInfluenceRadius));
+	return double(ex.numEntities) / (16*16)/ M::Sqr(1.0 / (Entity::MaxInfluenceRadius));
 }
 
 double		Statistics::GetEntityVisitionDensity()
@@ -799,7 +799,7 @@ double		Statistics::GetEntityVisitionDensity()
 
 double		Statistics::GetEntityVisitionDensity(const TExperiment&ex)
 {
-	return double(ex.numEntities) / (16*16)/ sqr(1.0 / (2*Entity::MaxAdvertisementRadius));
+	return double(ex.numEntities) / (16*16)/ M::Sqr(1.0 / (2*Entity::MaxAdvertisementRadius));
 }
 
 
@@ -940,7 +940,7 @@ namespace Statistics
 
 				double omegaIn = c.omegaSum / c.inconsistentEntities;
 				omegaSum += omegaIn * c.totalSamples;
-				omegaSqrSum += sqr(omegaIn) * c.totalSamples;
+				omegaSqrSum += M::Sqr(omegaIn) * c.totalSamples;
 			}
 		}
 	};
@@ -1317,7 +1317,7 @@ namespace Statistics
 		//if (fabs(v) > 1)
 		//	digits--;
 		double ex = pow(10.0,digits);
-		return Round(v /ex) * ex;
+		return M::Round(v /ex) * ex;
 	}
 
 	struct ExportChannel
