@@ -480,6 +480,11 @@ void	THypothesisData::Train(index_t sourceTableID, SampleType t)
 	}
 }
 
+static float SampleDensityToOpacity(float sampleDensity)
+{
+	//return sampleDensity > 50 ? 1 : -1;
+	return sampleDensity > 1000 ? 1 : -1;
+}
 
 float3	Table::TrainFlatOverestimation(index_t sourceTableID, SampleType t,float threshold)
 {
@@ -506,25 +511,27 @@ float3	Table::TrainFlatOverestimation(index_t sourceTableID, SampleType t,float 
 	//linearPlaneFunc.y = 1.f / source.samples.Count();
 	//linearPlaneFunc.x = -1.f / farSpatialBegin;
 
-	this->heightFunction = [linearPlaneFunc,sourceTableID](float spatialDistance, float temporalDistance, SampleType t) -> float
+	this->heightFunction = [linearPlaneFunc,sourceTableID](float spatialDistance, float temporalDistance, SampleType t) -> THeight
 	{
 		//float h = M::Max(0.f, (linearPlaneFunc.z + linearPlaneFunc.x * spatialDistance + linearPlaneFunc.y * temporalDistance));
 		//return h;
 		//if (h == 0)
 		//	return 0;
 		const auto& source = tables[sourceTableID];
-		return source.GetSmoothed(spatialDistance,temporalDistance,t) * 1.1f;
+		auto h = source.GetSmoothed(spatialDistance,temporalDistance,t);
+		h.height *= 1.1f;
+		return h;
 	};
 
 	this->colorFunction = [linearPlaneFunc,sourceTableID](float spatialDistance, float temporalDistance, SampleType t) -> float4
 	{
 		const float h = M::Max(0.f, (linearPlaneFunc.z + linearPlaneFunc.x * spatialDistance + linearPlaneFunc.y * temporalDistance));
 		const auto& source = tables[sourceTableID];
-		const float s = source.GetSmoothed(spatialDistance,temporalDistance,t);
+		const auto s = source.GetSmoothed(spatialDistance,temporalDistance,t);
 
 		//float level = s/h;
 		float4 rs;
-		rs.a = 1.f;
+		rs.a = SampleDensityToOpacity(s.sampleDensity);
 		M::Vec::HSL2RGB(float3(fmod(h*20.f,1.f),1.f,0.5f),rs.rgb);
 		return rs;
 
@@ -544,18 +551,21 @@ void Table::TrainHypothesis(index_t sourceTableID, SampleType t, bool isStatic)
 {
 	THypothesisData hypothesis(true,isStatic);
 	hypothesis.Train(sourceTableID,t);
-	this->heightFunction = [hypothesis](float spatialDistance, float temporalDistance, SampleType t) -> float
+	this->heightFunction = [hypothesis](float spatialDistance, float temporalDistance, SampleType t)
 	{
-		return hypothesis.Sample(spatialDistance,temporalDistance,t);
+		THeight rs;
+		rs.height = hypothesis.Sample(spatialDistance,temporalDistance,t);
+		rs.sampleDensity = 1000;
+		return rs;
 	};
 
 	this->colorFunction = [hypothesis](float spatialDistance, float temporalDistance, SampleType t) -> M::TVec4<>
 	{
-		const float shouldBe = tables[hypothesis.sourceTableID].SmoothGeometryHeightFunctionF(t,spatialDistance,temporalDistance);
-		const float error = (shouldBe-hypothesis.Sample(spatialDistance,temporalDistance,t));
+		const auto shouldBe = tables[hypothesis.sourceTableID].SmoothGeometryHeightFunctionF(t,spatialDistance,temporalDistance);
+		const float error = (shouldBe.height-hypothesis.Sample(spatialDistance,temporalDistance,t));
 		//rs.height = fabs(shouldBe-rs.height);
 		M::TVec4<> rs;
-		rs.a = 1;
+		rs.a = SampleDensityToOpacity(shouldBe.sampleDensity);
 		rs.r = 1;
 		rs.gb = 1.f - float2(fabs(error)*50);
 
@@ -1737,7 +1747,7 @@ inline float Interpolate(float v0, float v1, float x)
 	return v0 * (1.f - x) + v1 * x;
 }
 
-float	Table::GetSmoothed(float spatialDistance, float temporalDistance,SampleType t) const
+Table::THeight	Table::GetSmoothed(float spatialDistance, float temporalDistance,SampleType t) const
 {
 	if (heightFunction)
 		return heightFunction(spatialDistance,temporalDistance,t);
@@ -1746,24 +1756,46 @@ float	Table::GetSmoothed(float spatialDistance, float temporalDistance,SampleTyp
 	float atY = range.x.Derelativate( temporalDistance );
 
 
-	float s00,s01,s11,s10;
+	float h00,h01,h11,h10;
 
 	const index_t iX = (index_t)floor(atX);
 	const index_t iY = (index_t)floor(atY);
 
-	s00 = GetSample(iX,iY).Get(t);
-	s01 = GetSample(iX+1,iY).Get(t);
-	s10 = GetSample(iX, iY+1).Get(t);
-	s11 = GetSample(iX + 1, iY+1).Get(t);
-	float s0 = Interpolate(s00,s01,M::frac(atX));
-	float s1 = Interpolate(s10,s11,M::frac(atX));
-	return Interpolate(s0,s1,M::frac(atY));
+	const auto& s00 = GetSample(iX,iY);
+	const auto& s01 = GetSample(iX+1,iY);
+	const auto& s10 = GetSample(iX, iY+1);
+	const auto& s11 = GetSample(iX + 1, iY+1);
+
+
+	h00 = s00.Get(t);
+	h01 = s01.Get(t);
+	h10 = s10.Get(t);
+	h11 = s11.Get(t);
+
+	float d00 = s00.numEntities;
+	float d01 = s01.numEntities;
+	float d10 = s10.numEntities;
+	float d11 = s11.numEntities;
+
+
+	float s0 = Interpolate(h00,h01,M::Frac(atX));
+	float d0 = Interpolate(d00,d01,M::Frac(atX));
+	
+	float s1 = Interpolate(h10,h11,M::Frac(atX));
+	float d1 = Interpolate(d10,d11,M::Frac(atX));
+	THeight rs;
+	rs.height = Interpolate(s0,s1,M::Frac(atY));
+	rs.sampleDensity = Interpolate(d0,d1,M::Frac(atY));
+
+	return rs;
 }
 
 
-float Table::SmoothGeometryHeightFunctionF(SampleType t, float spatialDistance, float temporalDistance) const
+Table::THeight Table::SmoothGeometryHeightFunctionF(SampleType t, float spatialDistance, float temporalDistance) const
 {
-	return range.z.Relativate(GetSmoothed(spatialDistance,temporalDistance,t));
+	THeight h = GetSmoothed(spatialDistance,temporalDistance,t);
+	h.height = range.z.Relativate(h.height);
+	return h;
 }
 
 
@@ -1778,17 +1810,24 @@ float Relative2TextureHeight(float h)
 TSurfacePoint	Table::GetGeometryPointF(SampleType t, float spatialDistance, float temporalDistance) const
 {
 	TSurfacePoint rs;
-	rs.height =  SmoothGeometryHeightFunctionF(t,spatialDistance,temporalDistance);
+	THeight h = SmoothGeometryHeightFunctionF(t,spatialDistance,temporalDistance);
 
+	rs.height =  h.height;
 	if (colorFunction)
 		rs.color = colorFunction(spatialDistance,temporalDistance,t);
 	else
 		rs.color = color;
-
+	rs.color.a = SampleDensityToOpacity(h.sampleDensity);
 	return rs;
 }
 
-/*static*/ void	Table::BuildRegularSurface(CGS::Constructor<>::Object&obj,const FSurface&surfaceFunction, count_t resolution)
+Table::TEdgePoint::TEdgePoint(const float*cgsVertex):position(cgsVertex),color(cgsVertex+6)
+{
+	color *= 0.5;
+}
+
+
+/*static*/ void	Table::BuildRegularSurface(CGS::Constructor<>::Object&obj,const FSurface&surfaceFunction, count_t resolution, Buffer0<TEdge>&edgeOut)
 {
 	obj.SetVertexOffsetToCurrent();
 
@@ -1799,17 +1838,77 @@ TSurfacePoint	Table::GetGeometryPointF(SampleType t, float spatialDistance, floa
 		{
 			float fy = (float)iy/(resolution-1);
 			float fx = fx0;
-			const auto s = surfaceFunction(fy,fx);
+			auto s = surfaceFunction(fy,fx);
 
 			fx = fx * 2.f - 1.f;
 			fy = fy * 2.f - 1.f;
-
+			if (!s.cover)
+				s.color.a = -1;
 			{
 				float h = s.height;
 				obj.MakeVertex(float3(fx,fy,h),s.color,float2(Relative2TextureHeight(h)));
 			}
-			if (ix && iy && s.cover)
-				obj.MakeQuadInv( (ix-1)*resolution + (iy-1), (ix-1)*resolution + (iy),  (ix)*resolution + (iy),  (ix)*resolution + (iy-1));
+			
+		}
+	}
+	for (unsigned ix = 1; ix < resolution; ix++)
+	{
+		for (unsigned iy = 1; iy < resolution; iy++)
+		{
+			const index_t vi0 = (ix-1)*resolution + (iy-1),
+						vi1 = (ix-1)*resolution + (iy),
+						vi2 = (ix)*resolution + (iy), 
+						vi3 = (ix)*resolution + (iy-1);
+
+			static const index_t A = 9;
+			const auto	v0 = obj.GetVertex(vi0),
+						v1 = obj.GetVertex(vi1),
+						v2 = obj.GetVertex(vi2),
+						v3 = obj.GetVertex(vi3);
+			const auto	a0 = v0[A],
+						a1 = v1[A],
+						a2 = v2[A],
+						a3 = v3[A];
+			const auto b0 = a0 >= 0;	
+			const auto b1 = a1 >= 0;	
+			const auto b2 = a2 >= 0;	
+			const auto b3 = a3 >= 0;	
+			if (b0 && b1 && b2 && b3)
+				obj.MakeQuadInv(vi0,vi1,vi2,vi3);
+			else
+			{
+				if (b0 && b1 && b2)
+				{
+					obj.MakeTriangleInv(vi0,vi1,vi2);
+					edgeOut << TEdge{v0,v2};
+				}
+				elif (b0 && b1 && b3)
+				{
+					obj.MakeTriangleInv(vi0,vi1,vi3);
+					edgeOut << TEdge{v1,v3};
+				}
+				elif (b0 && b2 && b3)
+				{
+					obj.MakeTriangleInv(vi0,vi2,vi3);
+					edgeOut << TEdge{v0,v2};
+				}
+				elif (b1 && b2 && b3)
+				{
+					obj.MakeTriangleInv(vi1,vi2,vi3);
+					edgeOut << TEdge{v1,v3};
+				}
+				else
+				{
+					if (b0 && b1)
+						edgeOut << TEdge{v0,v1};
+					elif (b0 && b3)
+						edgeOut << TEdge{v0,v3};
+					elif (b1 && b2)
+						edgeOut << TEdge{v1,v2};
+					elif (b2 && b3)
+						edgeOut << TEdge{v2,v3};
+				}
+			}
 		}
 	}
 }
@@ -1912,18 +2011,29 @@ TSurfacePoint	Table::GetGeometryPointF(SampleType t, float spatialDistance, floa
 
 void					Table::TraceLineF(const M::TFloatRange<>&range, const std::function<float3(float)>&f, count_t stResolution)
 {
-	TLineSegment&seg = this->lineSegments.Append();
-	seg.color = color;
-	seg.color.rgb /= 2.f;
-	seg.width = 4;
 
 	count_t res = std::max<count_t>(2,range.GetExtent() * stResolution);
 
+	bool haveLine = false;
 	for (index_t i = 0; i < res; i++)
 	{
 		const float fx = range.Derelativate( float(i)/(res-1) );
-		M::TVec3<>&rel = seg.points.Append();
-		rel = f(fx);
+		const auto raw = f(fx);
+		if (raw.z < 0)
+		{
+			haveLine = false;
+			continue;
+		}
+		if (!haveLine)
+		{
+			TLineSegment&seg = this->lineSegments.Append();
+			seg.color = color;
+			seg.color.rgb /= 2.f;
+			seg.width = 4;
+			haveLine = true;
+		}
+		M::TVec3<>&rel = lineSegments.Last().points.Append();
+		rel = raw;
 		rel.xy *= 2.f;
 		rel.xy -= 1.f;
 	}
@@ -1940,6 +2050,17 @@ void					Table::RenderLines() const
 				glVertex3fv(p->v);
 		glEnd();
 	}
+
+	glLineWidth(4);
+	glBegin(GL_LINES);
+	foreach (edges,edge)
+	{
+		glColor3fv(edge->p0.color.v);
+		glVertex3fv(edge->p0.position.v);
+		glColor3fv(edge->p1.color.v);
+		glVertex3fv(edge->p1.position.v);
+	}
+	glEnd();
 }
 
 void	Table::UpdateCurrentRange(SampleType t)
@@ -1947,14 +2068,20 @@ void	Table::UpdateCurrentRange(SampleType t)
 	currentRange.average = 0;
 	currentRange.range = M::MaxInvalidRange<float>();
 	count_t numSamples = 0;
-	foreach (samples,row)
+	for (index_t r = 0; r < samples.Count(); r++)
 	{
-		numSamples += row->Count();
-		foreach (*row,col)
+		if (range.x.Contains(r))
 		{
-			float h = col->Get(t);
-			currentRange.range.Include(h);
-			currentRange.average += h;
+			const auto& row = samples[r];
+			for (index_t c = 0; c < row.Count(); c++)
+			if (range.y.Contains(c))
+			{
+				const auto&col = row[c];
+				float h = col.Get(t);
+				currentRange.range.Include(h);
+				currentRange.average += h;
+				numSamples++;
+			}
 		}
 	}
 	currentRange.average /= numSamples;
@@ -1987,6 +2114,7 @@ void	Table::UpdatePlotGeometry(SampleType t, bool window)
 	auto&tobj = transparentConstructor.AppendObject();
 	auto&holeShape = holeConstructor.AppendObject();
 	lineSegments.Clear();
+	edges.Clear();
 
 	if (mesh.IsNotEmpty())
 	{
@@ -2037,7 +2165,7 @@ void	Table::UpdatePlotGeometry(SampleType t, bool window)
 												(TSurfacePoint&)s = table->GetGeometryPointF(t,spatialDistance,temporalDistance);
 												s.cover = at == 0 ? true : temporalDistance > 1.f - width || spatialDistance < height;
 												return s;
-											},400
+											},400,edges
 											);
 					//if (at > 0)
 					//	BuildPlotHoleWalls(holeShape,	[t,this,at,&table](index_t x, index_t y){return table->GetGeometryPoint(t,x,y);},
@@ -2063,7 +2191,7 @@ void	Table::UpdatePlotGeometry(SampleType t, bool window)
 											rs.cover = true;
 											return rs;
 										},
-					400
+					400,edges
 			
 				);
 			}
@@ -2071,8 +2199,10 @@ void	Table::UpdatePlotGeometry(SampleType t, bool window)
 			TraceLineF(M::FloatRange(0.f,1.f),[this,t](float x)
 			{
 				float y = 0.f;
-				float h = GetGeometryPointF(t,y,x).height;
-				return float3(x,y,h);
+				auto p = GetGeometryPointF(t,y,x);
+				if (p.color.a < 0)
+					return float3(-1);
+				return float3(x,y,p.height);
 			},400);
 			//TraceLine(IntRange<UINT>(0,Resolution),[this,t](UINT x)
 			//{
@@ -2081,14 +2211,18 @@ void	Table::UpdatePlotGeometry(SampleType t, bool window)
 			TraceLineF(M::FloatRange(0.f,1.f),[this,t](float y)
 			{
 				float x = 1.f;
-				float h = GetGeometryPointF(t,y,x).height;
-				return float3(x,y,h);
+				auto p = GetGeometryPointF(t,y,x);
+				if (p.color.a < 0)
+					return float3(-1);
+				return float3(x,y,p.height);
 			},400);
 			TraceLineF(M::FloatRange(0.f,1.f),[this,t](float y)
 			{
 				float x = 0.f;
-				float h = GetGeometryPointF(t,y,x).height;
-				return float3(x,y,h);
+				auto p = GetGeometryPointF(t,y,x);
+				if (p.color.a < 0)
+					return float3(-1);
+				return float3(x,y,p.height);
 			},400);
 
 		}

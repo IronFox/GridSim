@@ -215,17 +215,36 @@ public:
 		}
 	};
 
+	struct TEdgePoint
+	{
+		float3		position;
+		float3		color;
+
+
+		/**/		TEdgePoint()	{}
+		/**/		TEdgePoint(const float*cgsVertex);
+	};
+
+	struct TEdge
+	{
+		TEdgePoint	p0,p1;
+
+		/**/		TEdge()	{}
+		/**/		TEdge(const float*cgsV0,const float*cgsV1):p0(cgsV0),p1(cgsV1)	{}
+	};
 
 private:
 	void					UpdateImage(SampleType t);
 	TSurfacePoint			GetGeometryPointF(SampleType t, float spatialDistance, float temporalDistance) const;
 	void					TraceLineF(const M::TFloatRange<>&range, const std::function<float3(float)>&, count_t stResolution);
 
-	static void				BuildRegularSurface(CGS::Constructor<>::Object&target, const FSurface&surfaceFunction, count_t stResolution);
+	static void				BuildRegularSurface(CGS::Constructor<>::Object&target, const FSurface&surfaceFunction, count_t stResolution, Buffer0<TEdge>&edgeOut);
 	static void				BuildMeshSurface(CGS::Constructor<>::Object&target, const Mesh&mesh, SampleType);
 	void					FinishConstruction(const CGS::Constructor<>::Object&constructor, const CGS::Constructor<>::Object&transparentConstructor, const CGS::Constructor<>::Object&holeConstructor);
 
 public:
+
+
 	struct TLineSegment
 	{
 		float4		color;
@@ -265,15 +284,23 @@ public:
 
 
 	Buffer0<TLineSegment,Swap>	lineSegments;
+	Buffer0<TEdge> edges;
 	typedef Buffer0<TSample>	SampleRow;
 
 	String				sourceFile;
 	TValueRange				currentRange;
 	TMetrics				metrics;
 
+	struct THeight
+	{
+		float	height;
+		float	sampleDensity;
+	};
+
+
 	//THypothesisData			hypothesis;
 	Buffer0<SampleRow>	samples;
-	std::function<float(float spatialDistance, float temporalDistance, SampleType)>		heightFunction;
+	std::function<THeight(float spatialDistance, float temporalDistance, SampleType)>		heightFunction;
 
 	std::function<M::TVec4<>(float spatialDistance, float temporalDistance, SampleType t)> colorFunction;
 	//FloatImage				image;
@@ -299,15 +326,19 @@ public:
 		colorFunction.swap(other.colorFunction);
 		swp(currentRange,other.currentRange);
 		lineSegments.swap(other.lineSegments);
+		edges.swap(other.edges);
 		samples.swap(other.samples); 
 		sourceFile.swap(other.sourceFile); 
 		mesh.swap(other.mesh);
 	}
 	friend void				swap(Table&a, Table&b)	{a.swap(b);}
 
+
+
+
 	const TSample&			GetSample(index_t spatialDistance, index_t temporalDistance)	const;
 	//float					Get(index_t spatialDistance, index_t temporalDistance, SampleType t)	const;
-	float					GetSmoothed(float spatialDistance, float temporalDistance,SampleType t) const;
+	THeight					GetSmoothed(float spatialDistance, float temporalDistance,SampleType t) const;
 
 
 	/**
@@ -357,7 +388,8 @@ public:
 
 	void					SetTransformed(const Table&source, const std::function<TSample(TSample)>&transformFunction, const float4&color);
 
-	float					SmoothGeometryHeightFunctionF(SampleType t, float spatialDistance, float temporalDistance) const;
+
+	THeight					SmoothGeometryHeightFunctionF(SampleType t, float spatialDistance, float temporalDistance) const;
 	float					FindLevelSpatialDistance(SampleType t, index_t temporalDistance, float level) const;
 	float					FindNormalDeviation(SampleType t, index_t temporalDistance, float mean) const;
 	float					GetSpatialNormalError(SampleType t, index_t temporalDistance, float mean, float deviation) const;

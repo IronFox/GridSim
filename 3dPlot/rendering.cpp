@@ -21,7 +21,8 @@ Renderer::FBO		shadow_fbo0,shadow_fbo1;
 Geometry				scenery,holeScenery,wallScenery,transparentScenery;
 
 
-M::Box<>				range = M::Box<>(0,0,0,/*T=*/128,/*S=*/256,1.1);
+//M::Box<>				range = M::Box<>(0,0,0,/*T=*/128,/*S=*/256,1.1);
+M::Box<>				range = M::Box<>(0,0,0,/*T=*/64,/*S=*/128,1.1);
 float3					markerSteps = float3(32, 64, 0.2);
 float3					markerLabelFactor = float3(1,0.5,1);
 M::TVec3<const char*>	arrowLabel = {"T","S","P"};
