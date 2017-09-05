@@ -21,6 +21,13 @@ namespace Engine
 
 			void		Begin(const PathString&source, bool loop);
 
+			/**
+			Updates playback volume.
+			*/
+			void		SetVolume(float volume);
+
+			float		GetVolume() const	{return volume;}
+
 			void		ThreadMain() override;
 			void		Stop();
 			void		FadeOut(float fadeSeconds);
@@ -32,7 +39,7 @@ namespace Engine
 			String			exception;
 			Array<BYTE>		buffer;
 			count_t			bufferFrameSize;
-			
+			float			volume = 1;
 			AudioDecoder	decoder;
 			PathString		source;
 			bool			loop;

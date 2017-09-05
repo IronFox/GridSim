@@ -10,7 +10,8 @@ namespace Engine
 			ALenum error = alGetError();
 			if (error != AL_NO_ERROR)
 			{
-				throw Except::Program::GeneralFault(loc,"OpenAL: "+String(alGetString(error)));
+				const String asString = alGetString(error);
+				throw Except::Program::GeneralFault(loc,"OpenAL: "+asString);
 			}
 		}
 
@@ -73,6 +74,10 @@ namespace Engine
 		{
 		}
 
+		void	MusicPlayer::SetVolume(float volume)
+		{
+			this->volume = volume;
+		}
 
 
 		void	MusicPlayer::ThreadMain()
@@ -82,7 +87,18 @@ namespace Engine
 				ALuint			output=0,buffer[4];
 
 				decoder.Open(source);
-				alGenSources( 1, &output );
+				for (index_t i = 0; i < 10; i++)
+				{
+					alGenSources( 1, &output );
+					if (i+1 < 10 && alGetError() == AL_NO_ERROR)
+						break;
+					if (quit)
+					{
+						decoder.Clear();
+						return;
+					}
+					Sleep(100);
+				}
 				CheckError(CLOCATION);
 				alGenBuffers(ARRAYSIZE(buffer),buffer);
 				CheckError(CLOCATION);
@@ -103,7 +119,9 @@ namespace Engine
 
 				alSourcePlay(output);
 				CheckError(CLOCATION);
-				alSourcef(output,AL_GAIN,0.5f);
+
+				float lastVolume = volume;
+				alSourcef(output,AL_GAIN,0.5f*volume);
 
 				while (!quit)
 				{
@@ -132,10 +150,15 @@ namespace Engine
 							break;
 						}
 
-						alSourcef(output,AL_GAIN,1.f-fadeAt);
+						alSourcef(output,AL_GAIN,M::CubicFactor(1.f-fadeAt) * 0.5f * volume);
 						
 					}
-
+					else
+						if (lastVolume != volume)
+						{
+							lastVolume = volume;
+							alSourcef(output,AL_GAIN,0.5f*volume);
+						}
 				}
 				alSourceStop(output);
 
