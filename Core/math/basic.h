@@ -459,6 +459,7 @@ namespace DeltaWorks
 		MFUNC3	(C0)		CubicStep(C0 v, C1 lower, C2 upper)	/**@copydoc cubicStep()*/ {return cubicStep(v,lower,upper);}
 		MFUNC	(C)			Sqr(C f)	{return f*f;}
 		MFUNC	(C)			Frac(C x)	{return frac(x);}
+		MFUNC3	(C0)		SmoothStep(C1 lower, C2 upper,C0 v)	{return cubicStep(v,lower,upper);}
 
 		/**
 			@brief Variants of standard math functions for by-reference parameters
