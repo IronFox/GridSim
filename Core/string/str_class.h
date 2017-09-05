@@ -2049,6 +2049,8 @@ namespace DeltaWorks
 		inline String			ToString(const wchar_t*ch)	{return String(ch);}
 		inline StringW			ToStringW(const wchar_t*ch)	{return StringW(ch);}
 
+		inline String			ToString(const void*p)		{return String(p);}
+		inline StringW			ToStringW(const void*p)		{return StringW(p);}
 
 		inline String			ToString(unsigned long long i)	{return String(i);}
 		inline StringW			ToStringW(unsigned long long i)	{return StringW(i);}
