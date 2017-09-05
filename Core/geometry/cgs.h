@@ -1565,6 +1565,16 @@ namespace DeltaWorks
 											currentLOD = &lods.append();
 											_OnActiveLODChange();
 										}
+					/**
+					Retrieves the address of the first float of the specified vertex in the current LOD
+					@param at Vertex index, relative to the current vertex offset
+					@return Pointer to the first float of the specified vertex in the current LOD
+					*/
+					const float*		GetVertex(index_t at) const
+					{
+						at += voffset;
+						return currentLOD->vertexData + at * config.vsize;
+					}
 					count_t				CountLODs()	const	{return lods.Count();}
 					void				SetActiveLOD(index_t lodIndex)	{ASSERT_LESS__(lodIndex,lods.Count()); currentLOD = lods + lodIndex;_OnActiveLODChange();}
 					index_t				GetActiveLOD() const	{return currentLOD - lods.pointer();}
