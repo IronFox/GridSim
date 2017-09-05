@@ -389,6 +389,9 @@ namespace DeltaWorks
 
 		#include "matrix.tpl.h"
 	}
+
+
+	namespace Mat = M::Mat;
 }
 
 #endif
