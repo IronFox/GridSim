@@ -794,7 +794,7 @@ template <class C> MF_DECLARE (void) Camera<C>::UpdateProjection(const C&aspect,
 template <class C> MF_DECLARE (void) Camera<C>::UpdateProjection2(const C&aspect, const C&zNear, const C&zFar, const C&vFov)
 {
 	vfov = vFov;
-	C	extent = (C)1.0/vtan(vfov*M_PI/180/2),
+	C	extent = (C)1.0/M::vtan(vfov*M_PI/180/2),
 		pa = (C)1.0/region.GetPixelAspect()/aspect;
 
 	M::Vec::def(projection.x,	pa*extent,0,0,0);

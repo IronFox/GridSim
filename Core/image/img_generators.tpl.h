@@ -13,15 +13,15 @@ template <class Nature>
 	{
 		typedef typename Nature::float_type_t	F;
 		target.SetChannels(4);
-		UINT32 r = vmin(target.GetWidth(),target.GetHeight());
-		F			a = sqr(target.GetWidth()/2),
-					b = sqr(target.GetHeight()/2);
+		UINT32 r = M::Min(target.GetWidth(),target.GetHeight());
+		F			a = M::Sqr(target.GetWidth()/2),
+					b = M::Sqr(target.GetHeight()/2);
 		for (UINT32 x = 0; x < target.GetWidth(); x++)
 			for (UINT32 y = 0; y < target.GetHeight(); y++)
 			{
-				F   dist = clamped(sqrt(sqr(x-target.GetWidth()/2)/a+sqr(y-target.GetHeight()/2)/b),0,1);
+				F   dist = M::Clamp(sqrt(M::Sqr(x-target.GetWidth()/2)/a+M::Sqr(y-target.GetHeight()/2)/b),0,1);
 				if (use_cos)
-					dist = cosFactor(dist);
+					dist = M::CubicFactor(dist);
 				F	idist(F(1)-dist),
 					color[] = {(dist)*outer.red + (idist)*inner.red, (dist)*outer.green + (idist)*inner.green, (dist)*outer.blue + (idist)*inner.blue, (dist)*outer.alpha + (idist)*inner.alpha};
 				target.set4f(x,y,color);
@@ -34,14 +34,14 @@ template <class Nature>
 		typedef typename Nature::float_type_t	F;
 		M::TVec4<F> color;
 		target.SetChannels(4);
-		F		a = sqr(target.GetWidth()/2),
-				b = sqr(target.GetHeight()/2);
+		F		a = M::Sqr(target.GetWidth()/2),
+				b = M::Sqr(target.GetHeight()/2);
 	
 		for (UINT32 x = 0; x < target.GetWidth(); x++)
 			for (UINT32 y = 0; y < target.GetHeight(); y++)
 			{
-				F   dist = sqrt(sqr(x-target.GetWidth()/2)/a+sqr(y-target.GetHeight()/2)/b);
-				F	f = smooth?-cos(M_PI/(dist*5+1))/2.0+0.5:vmin(1/(dist+0.0001)/15,1.1);
+				F   dist = sqrt(M::Sqr(x-target.GetWidth()/2)/a+M::Sqr(y-target.GetHeight()/2)/b);
+				F	f = smooth?-cos(M_PI/(dist*5+1))/2.0+0.5:M::Min(1/(dist+0.0001)/15,1.1);
 				//;
 				//f = f/15-0.1;
 				f-=0.1;
@@ -94,14 +94,14 @@ template <class Nature>
 	void        igRing(GenericImage<Nature>&target, typename Nature::float_type_t width, const CGColor&outer, const CGColor&outer_ring, const CGColor&inner_ring, const CGColor&inner, bool use_cos)
 	{
 		typedef typename Nature::float_type_t	F;
-		F r = vmin(target.GetWidth(),target.GetHeight());
+		F r = M::Min(target.GetWidth(),target.GetHeight());
 		M::TVec4<F>	color;
 		target.SetChannels(4);
     
 		for (UINT32 x = 0; x < target.GetWidth(); x++)
 			for (UINT32 y = 0; y < target.GetHeight(); y++)
 			{
-				F dist = clamped(sqrt((F)sqr(x-target.GetWidth()/2)+(F)sqr(y-target.GetHeight()/2))/(r/2),0,1);
+				F dist = M::Clamp(sqrt((F)M::Sqr(x-target.GetWidth()/2)+(F)M::Sqr(y-target.GetHeight()/2))/(r/2),0,1);
 				if (dist >= 0.98)
 					color = outer;
 				else
@@ -131,7 +131,7 @@ template <class Nature>
 			{
 				F fc = (F)y/(F)target.GetHeight()*2;
 				if (use_cos)
-					fc = cosFactor(fc);
+					fc = M::CubicFactor(fc);
 				M::Vec::interpolate(bottom,center,fc,c);
 				target.set4f(x,y,c.v);
 			}
@@ -140,7 +140,7 @@ template <class Nature>
 			{
 				F fc = (F)((F)y-target.GetHeight()/2)/(F)target.GetHeight()*2;
 				if (use_cos)
-					fc = cosFactor(fc);
+					fc = M::CubicFactor(fc);
 				M::Vec::interpolate(center,top,fc,c);
 				target.set4f(x,y,c.v);
 			}
@@ -157,7 +157,7 @@ template <class Nature>
 			{
 				F fc = (F)x/(F)target.GetWidth()*2;
 				if (use_cos)
-					fc = cosFactor(fc);
+					fc = M::CubicFactor(fc);
 				M::Vec::interpolate(bottom,center,fc,c);
 				target.set4f(x,y,c.v);
 			}
@@ -167,7 +167,7 @@ template <class Nature>
 			{
 				F fc = (F)((F)x-target.GetWidth()/2)/(F)target.GetWidth()*2;
 				if (use_cos)
-					fc = cosFactor(fc);
+					fc = M::CubicFactor(fc);
 				M::Vec::interpolate(center,top,fc,c);
 				target.set4f(x,y,c.v);
 			}
@@ -232,7 +232,7 @@ template <class Nature>
 				else
 				{
 					if (use_cos)
-						fc = cosFactor(fc);
+						fc = M::CubicFactor(fc);
 					M::Vec::interpolate(inner,outer,fc,color);
 					target.set4f(x,y,color.v);
 				}
@@ -256,7 +256,7 @@ template <class Nature>
 				F alpha = 0;
 				M::TVec4<F>	color;
 				F len = M::Vec::dot(f);
-				if (len < sqr(center_radius))
+				if (len < M::Sqr(center_radius))
 					alpha = 1;
 				else
 				{
@@ -264,13 +264,13 @@ template <class Nature>
 					alpha = 1.0-cosStep(distance,0,smoothing);
 				}
 				alpha *= (1/(pow(len,1)*100+1));
-				//alpha = clamped(alpha,0,1);
+				//alpha = M::Clamp(alpha,0,1);
 			
 			
 			
 				alpha *= intensity;
 			
-				alpha = vmin(alpha,1);
+				alpha = M::Min(alpha,1);
 			
 				M::Vec::interpolate(outer,inner_color,alpha,color);
 				target.set4f(x,y,color.v);
