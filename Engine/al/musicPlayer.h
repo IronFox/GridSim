@@ -19,7 +19,7 @@ namespace Engine
 			virtual		~MusicPlayer();
 			void		operator=(const MusicPlayer&)=delete;
 
-			void		Begin(const PathString&source, bool loop);
+			void		Begin(const PathString&source, bool loop, float fadeInSeconds = 0.5f);
 
 			/**
 			Updates playback volume.
@@ -30,19 +30,19 @@ namespace Engine
 
 			void		ThreadMain() override;
 			void		Stop();
-			void		FadeOut(float fadeSeconds);
+			void		FadeOut(float fadeOutSeconds);
 		private:
 			bool			GetData(ALuint target, ALenum format, count_t samplesPerSecond);
 
-			Timer::Time		fadeStarted;
-			float			fadeSeconds;
+			Timer::Time		fadeOutStarted,fadeInStarted;
+			float			fadeOutSeconds,fadeInSeconds;
 			String			exception;
 			Array<BYTE>		buffer;
 			count_t			bufferFrameSize;
 			float			volume = 1;
 			AudioDecoder	decoder;
 			PathString		source;
-			bool			loop;
+			bool			loop,doFadeIn=false;
 			volatile bool	quit=false,doFade=false;;
 		};
 

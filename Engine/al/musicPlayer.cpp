@@ -24,10 +24,10 @@ namespace Engine
 			
 		}
 
-		void	MusicPlayer::FadeOut(float fadeSeconds)
+		void	MusicPlayer::FadeOut(float fadeOutSeconds)
 		{
-			this->fadeSeconds = fadeSeconds;
-			this->fadeStarted = timer.Now();
+			this->fadeOutSeconds = fadeOutSeconds;
+			this->fadeOutStarted = timer.Now();
 			this->doFade = true;
 		}
 
@@ -49,7 +49,7 @@ namespace Engine
 
 
 
-		void	MusicPlayer::Begin(const PathString&source, bool loop)
+		void	MusicPlayer::Begin(const PathString&source, bool loop, float fadeInSeconds /*= 0.5f*/)
 		{
 			Stop();
 
@@ -65,6 +65,9 @@ namespace Engine
 			this->loop = loop;
 			this->doFade = false;
 			this->quit = false;
+			doFadeIn = fadeInSeconds > 0;
+			this->fadeInSeconds = fadeInSeconds;
+			fadeInStarted=timer.Now();
 			Super::Start();
 		}
 
@@ -121,11 +124,14 @@ namespace Engine
 				CheckError(CLOCATION);
 
 				float lastVolume = volume;
-				alSourcef(output,AL_GAIN,0.5f*volume);
+				if (doFadeIn)
+					alSourcef(output,AL_GAIN,0.f);
+				else
+					alSourcef(output,AL_GAIN,0.5f*volume);
 
 				while (!quit)
 				{
-					if (!doFade)
+					if (!doFade && !doFadeIn)
 						Sleep(100);
 					else
 						Sleep(1);
@@ -144,7 +150,7 @@ namespace Engine
 
 					if (doFade)
 					{
-						float fadeAt = timer.GetSecondsSince(fadeStarted) / fadeSeconds;
+						float fadeAt = timer.GetSecondsSince(fadeOutStarted) / fadeOutSeconds;
 						if (fadeAt > 1)
 						{
 							break;
@@ -152,6 +158,16 @@ namespace Engine
 
 						alSourcef(output,AL_GAIN,M::CubicFactor(1.f-fadeAt) * 0.5f * volume);
 						
+					}
+					elif (doFadeIn)
+					{
+						float fadeAt = timer.GetSecondsSince(fadeInStarted) / fadeInSeconds;
+						if (fadeAt > 1)
+						{
+							doFadeIn = false;
+							fadeAt = 1;
+						}
+						alSourcef(output,AL_GAIN,M::CubicFactor(fadeAt) * 0.5f * volume);
 					}
 					else
 						if (lastVolume != volume)
