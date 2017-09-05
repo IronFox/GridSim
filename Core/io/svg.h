@@ -32,9 +32,9 @@ namespace DeltaWorks
 			/**Creates a new image child element in the local SVG element. Local element must be a group*/
 			Element		CreateImage(const M::Rect<>&, const PathString&path);
 			/**Creates a new polyline child element in the local SVG element. Local element must be a group*/
-			Element		CreatePolyline(const Ctr::ArrayRef<M::float2>&);
+			Element		CreatePolyline(const Ctr::ArrayRef<float2>&);
 			/**Creates a new polygon child element in the local SVG element. Local element must be a group*/
-			Element		CreatePolygon(const Ctr::ArrayRef<M::float2>&);
+			Element		CreatePolygon(const Ctr::ArrayRef<float2>&);
 			/**Creates a new polygon child element in the local SVG element. Local element must be a group*/
 			Element		CreatePolygon(const M::Rect<>&);
 			/**Creates a new circle child element in the local SVG element. Local element must be a group*/
@@ -92,11 +92,11 @@ namespace DeltaWorks
 
 
 			Element&	SetStrokeWidth(float w);
-			Element&	Stroke(const M::float3&);
-			Element&	Stroke(const M::float4&);
+			Element&	Stroke(const float3&);
+			Element&	Stroke(const float4&);
 			Element&	NoStroke();
-			Element&	Fill(const M::float3&);
-			Element&	Fill(const M::float4&);
+			Element&	Fill(const float3&);
+			Element&	Fill(const float4&);
 			Element&	FillPattern(const String&patternName);
 			Element&	NoFill();
 			Element&	SetFontSize(float);

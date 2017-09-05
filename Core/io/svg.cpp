@@ -80,7 +80,7 @@ namespace DeltaWorks
 					);
 		}
 	
-		Element BaseElement::CreatePolyline(const Ctr::ArrayRef<M::float2>&points)
+		Element BaseElement::CreatePolyline(const Ctr::ArrayRef<float2>&points)
 		{
 			DBG_ASSERT__(IsGroup());
 			static StringBuffer strPoints;
@@ -92,7 +92,7 @@ namespace DeltaWorks
 					);
 		}
 
-		Element BaseElement::CreatePolygon(const Ctr::ArrayRef<M::float2>&points)
+		Element BaseElement::CreatePolygon(const Ctr::ArrayRef<float2>&points)
 		{
 			DBG_ASSERT__(IsGroup());
 			static StringBuffer strPoints;
@@ -147,13 +147,13 @@ namespace DeltaWorks
 			return *this;
 		}
 
-		Element & Element::Stroke(const M::float3 &c)
+		Element & Element::Stroke(const float3 &c)
 		{
 			SetRGB("stroke",c);
 			return *this;
 		}
 
-		Element & Element::Stroke(const M::float4 &c)
+		Element & Element::Stroke(const float4 &c)
 		{
 			SetRGB("stroke",c.rgb);
 			node.Set("stroke-opacity",c.a);
@@ -184,13 +184,13 @@ namespace DeltaWorks
 			return *this;
 		}
 
-		Element & Element::Fill(const M::float3 &c)
+		Element & Element::Fill(const float3 &c)
 		{
 			SetRGB("fill",c);
 			return *this;
 		}
 
-		Element & Element::Fill(const M::float4 &c)
+		Element & Element::Fill(const float4 &c)
 		{
 			SetRGB("fill",c.rgb);
 			node.Set("fill-opacity",c.a);
@@ -269,9 +269,9 @@ namespace DeltaWorks
 		static void Include(M::Rect<>&r, const M::TMatrix3<>&transform, const M::Rect<>&outline)
 		{
 			Include(r,transform,outline.min());
-			Include(r,transform,M::float2(outline.x.max,outline.y.min));
+			Include(r,transform,float2(outline.x.max,outline.y.min));
 			Include(r,transform,outline.max());
-			Include(r,transform,M::float2(outline.x.min,outline.y.max));
+			Include(r,transform,float2(outline.x.min,outline.y.max));
 		}
 
 		static void Get(const XML::Node&n, const char*p, float&rs)
@@ -421,10 +421,10 @@ namespace DeltaWorks
 				Get(node,"width",w);
 				Get(node,"height",h);
 				M::Rect<> primitive = M::Rect<>::Invalid;
-				Include(primitive,transform,M::float2(x,y));
-				Include(primitive,transform,M::float2(x+w,y));
-				Include(primitive,transform,M::float2(x+w,y+h));
-				Include(primitive,transform,M::float2(x,y+h));
+				Include(primitive,transform,float2(x,y));
+				Include(primitive,transform,float2(x+w,y));
+				Include(primitive,transform,float2(x+w,y+h));
+				Include(primitive,transform,float2(x,y+h));
 				primitive.Expand(strokeExtend);
 				rs.Include(primitive);
 			}
@@ -435,10 +435,10 @@ namespace DeltaWorks
 				Get(node,"cy",y);
 				Get(node,"r",r);
 				M::Rect<> primitive = M::Rect<>::Invalid;
-				Include(primitive,transform,M::float2(x-r,y-r));
-				Include(primitive,transform,M::float2(x+r,y-r));
-				Include(primitive,transform,M::float2(x+r,y+r));
-				Include(primitive,transform,M::float2(x-r,y+r));
+				Include(primitive,transform,float2(x-r,y-r));
+				Include(primitive,transform,float2(x+r,y-r));
+				Include(primitive,transform,float2(x+r,y+r));
+				Include(primitive,transform,float2(x-r,y+r));
 				primitive.Expand(strokeExtend);
 				rs.Include(primitive);
 			}

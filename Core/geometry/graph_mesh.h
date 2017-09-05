@@ -30,10 +30,10 @@ namespace DeltaWorks
 	public:
 		struct TVertex
 		{
-			M::float3				position,
+			float3				position,
 									normal,
 									tangent;	//!< Vertex tangent, perpendicular to the track's direction, and the normal (pointing to the right, when looking along track)
-			M::float2				tcoord;
+			float2				tcoord;
 			float					tx;			//!< In the range [0,1], describes the t-position from the left to the right edge of the track
 		};
 
@@ -60,7 +60,7 @@ namespace DeltaWorks
 		struct InterpolatedSlice : public TControl
 		{
 			bool					buildLocal;
-			M::float3					right;
+			float3					right;
 			float					t,
 									texcoordY;
 
@@ -142,10 +142,10 @@ namespace DeltaWorks
 
 		void						BuildSegment(const SurfaceDescription::TConnector&begin, const SurfaceDescription::TConnector&end,const SurfaceDescription::TControl control_points[2], float tolerance0, float tolerance1);
 		void						BuildArc(const OutVertexContainer&arc_vertices, float near_distance, float far_distance, float extend_along_track);
-		void						BuildRails(const SurfaceDescription&source, const Container::BasicBuffer<M::float2>&profile, const M::TVec3<>&relativeTo);
+		void						BuildRails(const SurfaceDescription&source, const Container::BasicBuffer<float2>&profile, const M::TVec3<>&relativeTo);
 		void						BuildRails(const SurfaceDescription&source, float innerExtend, float outerExtend, float upperExtend, float lowerExtend, const M::TVec3<>&relativeTo);
 		void						BuildBarriers(const SurfaceDescription&source, float barrierPosition, float barrierHeight0, float barrierHeight1, const M::TVec3<>&relativeTo);
-		M::float3						GetEdgeCenter()	const;
+		float3						GetEdgeCenter()	const;
 		void						GetEdgeExtend(const M::TMatrix4<>&transformBy, M::Box<>&result)	const;
 
 		static void					Interpolate(const SurfaceDescription::TConnector&begin, const SurfaceDescription::TConnector&end,const SurfaceDescription::TControl control_points[2], float t, InterpolatedSlice&out);
@@ -394,7 +394,7 @@ namespace DeltaWorks
 		static void							CompileBarrierGeometry(CGS::Geometry<>&target,const Segment&segment, float position,float height0,float height1,name64_t texture, CGS::TextureResource*resource=NULL);
 		static void							CompileArcGeometry(CGS::Geometry<>&target, const Node&node, float near_distance, float far_distance, float extend_along_track, name64_t texture, name64_t normal_texture, bool node_is_flipped, CGS::TextureResource*resource=NULL);
 		static void							CompileRailGeometry(CGS::Geometry<>&target, const Segment&segment, float innerExtend, float outerExtend, float upperExtend, float lowerExtend, name64_t texture, name64_t normal_texture, CGS::TextureResource*resource=NULL);
-		static void							CompileRailGeometry(CGS::Geometry<>&target, const Segment&segment, const Container::BasicBuffer<M::float2>&profile, name64_t texture, name64_t normal_texture, CGS::TextureResource*resource=NULL);
+		static void							CompileRailGeometry(CGS::Geometry<>&target, const Segment&segment, const Container::BasicBuffer<float2>&profile, name64_t texture, name64_t normal_texture, CGS::TextureResource*resource=NULL);
 		static void							CompileFromDescriptions(CGS::Geometry<>&target, const Ctr::Array<SurfaceDescription>&lods, float shortest_edge, name64_t texture, name64_t normal_texture, CGS::TextureResource*resource =NULL);
 		static void							CompileFromDescriptions(CGS::Geometry<>&target, const Ctr::Array<SurfaceDescription>&lods, const SurfaceDescription&phHull, float shortest_edge, name64_t texture, name64_t normal_texture, CGS::TextureResource*resource =NULL);
 

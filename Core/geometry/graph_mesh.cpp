@@ -1506,18 +1506,18 @@ namespace DeltaWorks
 	float				SurfaceDescription::InterpolatedSlice::GetTexExtend()	const
 	{
 		float len = 0;
-		M::float3	last_p;
+		float3	last_p;
 		{
 			const float	cs = cos(angle0*M_PI),
 						sn = sin(angle0*M_PI);
-			last_p = M::float3::reinterpret(position) + M::float3::reinterpret(up) * -cs * scale.y + right*sn*scale.x;
+			last_p = float3::reinterpret(position) + float3::reinterpret(up) * -cs * scale.y + right*sn*scale.x;
 		}
 		for (index_t i = 1; i <= 10; i++)
 		{
 			float angle = float(i)/10.0f * (angle1 - angle0) + angle0;
 			const float	cs = cos(angle*M_PI),
 						sn = sin(angle*M_PI);
-			M::float3	p = M::float3::reinterpret(position) + M::float3::reinterpret(up) * -cs * scale.y + right*sn*scale.x;
+			float3	p = float3::reinterpret(position) + float3::reinterpret(up) * -cs * scale.y + right*sn*scale.x;
 			len += M::Vec::distance(p,last_p);
 			last_p = p;
 		}
@@ -1556,7 +1556,7 @@ namespace DeltaWorks
 
 		const float	cs = cos(angle0*M_PI),
 					sn = sin(angle0*M_PI);
-		//pt = M::float3::reinterpret(position) + M::float3::reinterpret(up) * (1.f -cs) * scale.y + right*sn*scale.x;
+		//pt = float3::reinterpret(position) + float3::reinterpret(up) * (1.f -cs) * scale.y + right*sn*scale.x;
 		p0.x = sn*scale.x;
 		p0.y = (1.f -cs) * scale.y;
 
@@ -1568,7 +1568,7 @@ namespace DeltaWorks
 			const float	angle = (angle0 + range*x),
 						cs = cos(angle*M_PI),
 						sn = sin(angle*M_PI);
-			//pt = M::float3::reinterpret(position) + M::float3::reinterpret(up) * (1.f -cs) * scale.y + right*sn*scale.x;
+			//pt = float3::reinterpret(position) + float3::reinterpret(up) * (1.f -cs) * scale.y + right*sn*scale.x;
 			p1.x = sn*scale.x;
 			p1.y = (1.f -cs) * scale.y;
 
@@ -1604,7 +1604,7 @@ namespace DeltaWorks
 		}
 		else
 		{
-			//pt = M::float3::reinterpret(position) + M::float3::reinterpret(up) * (1.f -cs) * scale.y + right*sn*scale.x;
+			//pt = float3::reinterpret(position) + float3::reinterpret(up) * (1.f -cs) * scale.y + right*sn*scale.x;
 			M::Vec::mad(position,up,(1.f -cs) * scale.y,pt);
 			M::Vec::mad(pt,right,sn*scale.x);
 		}
@@ -1625,11 +1625,11 @@ namespace DeltaWorks
 		}
 		else
 		{
-			//pt = M::float3::reinterpret(position) + M::float3::reinterpret(up) * (1.f -cs) * scale.y + right*sn*scale.x;
+			//pt = float3::reinterpret(position) + float3::reinterpret(up) * (1.f -cs) * scale.y + right*sn*scale.x;
 			M::Vec::mad(position,up,(1.f -cs) * scale.y,pt);
 			M::Vec::mad(pt,right,sn*scale.x);
 
-			//normal = (M::float3::reinterpret(up) * cs * factor.x + right*-sn*factor.y).normalized();
+			//normal = (float3::reinterpret(up) * cs * factor.x + right*-sn*factor.y).normalized();
 			M::Vec::mult(up,cs*factor.x,normal);
 			M::Vec::mad(normal,right,-sn*factor.y);
 		}
@@ -1654,15 +1654,15 @@ namespace DeltaWorks
 		}
 		else
 		{
-			//pt = M::float3::reinterpret(position) + M::float3::reinterpret(up) * (1.f -cs) * scale.y + right*sn*scale.x;
+			//pt = float3::reinterpret(position) + float3::reinterpret(up) * (1.f -cs) * scale.y + right*sn*scale.x;
 			M::Vec::mad(position,up,(1.f -cs) * scale.y,pt);
 			M::Vec::mad(pt,right,sn*scale.x);
 
-			//normal = (M::float3::reinterpret(up) * cs * factor.x + right*-sn*factor.y).normalized();
+			//normal = (float3::reinterpret(up) * cs * factor.x + right*-sn*factor.y).normalized();
 			M::Vec::mult(up,cs*factor.x,normal);
 			M::Vec::mad(normal,right,-sn*factor.y);
 
-			//tangent = (M::float3::reinterpret(up) * sn * scale.y + right*cs*scale.x).normalized();
+			//tangent = (float3::reinterpret(up) * sn * scale.y + right*cs*scale.x).normalized();
 			M::Vec::mult(up,sn*scale.y,tangent);
 			M::Vec::mad(tangent,right,cs*scale.x);
 		}
@@ -1775,7 +1775,7 @@ namespace DeltaWorks
 							next_resolution = next.CalculateSteps(tolerance0,tolerance1)+1,
 							core_resolution = std::min(prev_resolution,next_resolution);
 
-			M::float3	right;
+			float3	right;
 			M::Vec::cross(next.direction,next.up,right);
 			for (index_t j = 0; j < next_resolution; j++)
 			{
@@ -2456,17 +2456,17 @@ namespace DeltaWorks
 			index_t	segment_index,
 					remote_node_index;
 			BYTE	segment_end_index;
-			M::float3	remote_node_position;
+			float3	remote_node_position;
 			float	projected_x;
 		};
 
 		Ctr::Array<SortEntry>	sort(need_slots);
 		SortEntry*out = sort.pointer();
 
-		M::float3 x;
+		float3 x;
 		M::Vec::cross(node.direction,node.up,x);
 
-		M::float3 d;
+		float3 d;
 		{
 			out->segment_index = InvalidIndex;
 			out->remote_node_index = InvalidIndex;
@@ -2555,7 +2555,7 @@ namespace DeltaWorks
 			*n1 = nodes.queryPointer(node1);
 		if (n0 == n1 || !n0 || !n1)
 			return InvalidIndex;
-		M::float3	delta;
+		float3	delta;
 		M::Vec::sub(n1->position,n0->position,delta);
 
 
@@ -2748,9 +2748,9 @@ namespace DeltaWorks
 
 	}
 
-	M::float3 SurfaceDescription::GetEdgeCenter() const
+	float3 SurfaceDescription::GetEdgeCenter() const
 	{
-		M::float3 result(0);
+		float3 result(0);
 		count_t counter = 0;
 		foreach (edges, edge)
 			foreach (*edge,index)
@@ -2775,20 +2775,20 @@ namespace DeltaWorks
 			}
 	}
 
-	void SurfaceDescription::BuildRails(const SurfaceDescription&source, const Container::BasicBuffer<M::float2>&profile, const M::TVec3<>&relativeTo)
+	void SurfaceDescription::BuildRails(const SurfaceDescription&source, const Container::BasicBuffer<float2>&profile, const M::TVec3<>&relativeTo)
 	{
 		vertices.reset();
 		quadIndices.reset();
 		triangleIndices.reset();
 
-		//M::float2 texExt = M::float2(fabs(outerExtend - innerExtend), fabs(upperExtend - lowerExtend))*2.0f;
+		//float2 texExt = float2(fabs(outerExtend - innerExtend), fabs(upperExtend - lowerExtend))*2.0f;
 
 		const count_t numVerticesPerSlice = (profile.Count()-1)*2;
 
 		Ctr::Array<float>	texcoord(profile.Count());
-		Ctr::Array<M::float2>	tangent(profile.Count()-1);
-		Ctr::Array<M::float2>	normal(profile.Count()-1);
-		M::float2 center(0);
+		Ctr::Array<float2>	tangent(profile.Count()-1);
+		Ctr::Array<float2>	normal(profile.Count()-1);
+		float2 center(0);
 		{
 			float at = 0.f;
 			texcoord[0] = 0;
@@ -2934,7 +2934,7 @@ namespace DeltaWorks
 		triangleIndices.reset();
 
 		using std::fabs;
-		M::float2 texExt = M::float2(fabs(outerExtend - innerExtend), fabs(upperExtend - lowerExtend))*2.0f;
+		float2 texExt = float2(fabs(outerExtend - innerExtend), fabs(upperExtend - lowerExtend))*2.0f;
 
 		foreach (source.edges,edge)
 		{
@@ -2988,16 +2988,16 @@ namespace DeltaWorks
 					vout[0].normal = v.normal | v.tangent;
 					vout[0].tangent = -v.tangent;
 					vout[0].position += v.tangent * innerExtend + v.normal * upperExtend;
-					vout[0].tcoord = M::float2(0,0);
+					vout[0].tcoord = float2(0,0);
 					vout[1] = vout[0];
 					vout[1].position = v.position + v.tangent * -outerExtend + v.normal * upperExtend;
-					vout[1].tcoord = M::float2(0,1);
+					vout[1].tcoord = float2(0,1);
 					vout[2] = vout[1];
 					vout[2].position -= v.normal * (upperExtend+lowerExtend);
-					vout[2].tcoord = M::float2(texExt.y,1);
+					vout[2].tcoord = float2(texExt.y,1);
 					vout[3] = vout[2];
 					vout[3].position += v.tangent * (innerExtend+outerExtend);
-					vout[3].tcoord = M::float2(texExt.y,0);
+					vout[3].tcoord = float2(texExt.y,0);
 				}
 				{
 					TVertex v = source.vertices[edge->last()];
@@ -3006,16 +3006,16 @@ namespace DeltaWorks
 					vout[0] = v;
 					vout[0].normal = v.tangent | v.normal;
 					vout[0].position += v.tangent * innerExtend + v.normal * upperExtend;
-					vout[0].tcoord = M::float2(0,0);
+					vout[0].tcoord = float2(0,0);
 					vout[1] = vout[0];
 					vout[1].position = v.position + v.tangent * -outerExtend + v.normal * upperExtend;
-					vout[1].tcoord = M::float2(0,1);
+					vout[1].tcoord = float2(0,1);
 					vout[2] = vout[1];
 					vout[2].position -= v.normal * (upperExtend+lowerExtend);
-					vout[2].tcoord = M::float2(texExt.y,1);
+					vout[2].tcoord = float2(texExt.y,1);
 					vout[3] = vout[2];
 					vout[3].position += v.tangent * (innerExtend+outerExtend);
-					vout[3].tcoord = M::float2(texExt.y,0);
+					vout[3].tcoord = float2(texExt.y,0);
 				}
 				for (index_t i = 0; i+1 < edge->length(); i++)
 				{
@@ -3076,16 +3076,16 @@ namespace DeltaWorks
 					vout[0].normal = v.tangent | v.normal;
 					vout[0].tangent = -v.tangent;
 					vout[0].position += v.tangent * -innerExtend + v.normal * upperExtend;
-					vout[0].tcoord = M::float2(0,0);
+					vout[0].tcoord = float2(0,0);
 					vout[1] = vout[0];
 					vout[1].position = v.position + v.tangent * outerExtend + v.normal * upperExtend;
-					vout[1].tcoord = M::float2(0,1);
+					vout[1].tcoord = float2(0,1);
 					vout[2] = vout[1];
 					vout[2].position -= v.normal * (upperExtend+lowerExtend);
-					vout[2].tcoord = M::float2(texExt.y,1);
+					vout[2].tcoord = float2(texExt.y,1);
 					vout[3] = vout[2];
 					vout[3].position -= v.tangent * (innerExtend+outerExtend);
-					vout[3].tcoord = M::float2(texExt.y,0);
+					vout[3].tcoord = float2(texExt.y,0);
 				}
 				{
 					TVertex v = source.vertices[edge->last()];
@@ -3094,16 +3094,16 @@ namespace DeltaWorks
 					vout[0] = v;
 					vout[0].normal = v.normal | v.tangent;
 					vout[0].position += v.tangent * -innerExtend + v.normal * upperExtend;
-					vout[0].tcoord = M::float2(0,0);
+					vout[0].tcoord = float2(0,0);
 					vout[1] = vout[0];
 					vout[1].position = v.position + v.tangent * outerExtend + v.normal * upperExtend;
-					vout[1].tcoord = M::float2(0,1);
+					vout[1].tcoord = float2(0,1);
 					vout[2] = vout[1];
 					vout[2].position -= v.normal * (upperExtend+lowerExtend);
-					vout[2].tcoord = M::float2(texExt.y,1);
+					vout[2].tcoord = float2(texExt.y,1);
 					vout[3] = vout[2];
 					vout[3].position -= v.tangent * (innerExtend+outerExtend);
-					vout[3].tcoord = M::float2(texExt.y,0);
+					vout[3].tcoord = float2(texExt.y,0);
 				}
 				for (index_t i = 0; i+1 < edge->length(); i++)
 				{
@@ -3128,7 +3128,7 @@ namespace DeltaWorks
 	{
 		for (index_t i = 0; i < vertices.Count(); i++)
 			M::Vec::clear(vertices[i].normal);
-		M::float3	normal,normal1;
+		float3	normal,normal1;
 		for (index_t i = 0; i < triangleIndices.Count(); i+=3)
 		{
 			const UINT32*t = triangleIndices+i;
@@ -3161,7 +3161,7 @@ namespace DeltaWorks
 		for (index_t i = 0; i < arc_vertices.Count(); i++)
 		{
 			const TVertex&v = arc_vertices[i];
-			M::float3 binormal;
+			float3 binormal;
 			M::Vec::cross(v.normal,v.tangent,binormal);
 			//need 8 versions per vertex, plus another 4 for the end and beginning vertices
 
@@ -3271,7 +3271,7 @@ namespace DeltaWorks
 		//left:
 		{
 			const TVertex&v = arc_vertices.first();
-			M::float3 binormal;
+			float3 binormal;
 			M::Vec::cross(v.normal,v.tangent,binormal);
 
 			//forward upper (front):
@@ -3279,7 +3279,7 @@ namespace DeltaWorks
 				TVertex&vtx = vertices.append();
 				M::Vec::mad(v.position,binormal,extend_along_track, vtx.position);
 				M::Vec::mad(vtx.position,v.normal,-near_distance);
-				vtx.normal = -M::float3::reinterpret(v.tangent);
+				vtx.normal = -float3::reinterpret(v.tangent);
 				vtx.tangent = -binormal;
 				vtx.tx = v.tx;
 				vtx.tcoord.x = 1.f;
@@ -3290,7 +3290,7 @@ namespace DeltaWorks
 				TVertex&vtx = vertices.append();
 				M::Vec::mad(v.position,binormal,extend_along_track, vtx.position);
 				M::Vec::mad(vtx.position,v.normal,-far_distance);
-				vtx.normal = -M::float3::reinterpret(v.tangent);
+				vtx.normal = -float3::reinterpret(v.tangent);
 				vtx.tangent = -binormal;
 				vtx.tx = v.tx;
 				vtx.tcoord.x = 1.f;
@@ -3302,7 +3302,7 @@ namespace DeltaWorks
 				TVertex&vtx = vertices.append();
 				M::Vec::mad(v.position,binormal,-extend_along_track, vtx.position);
 				M::Vec::mad(vtx.position,v.normal,-far_distance);
-				vtx.normal = -M::float3::reinterpret(v.tangent);
+				vtx.normal = -float3::reinterpret(v.tangent);
 				vtx.tangent = -binormal;
 				vtx.tx = v.tx;
 				vtx.tcoord.x = 0.f;
@@ -3313,7 +3313,7 @@ namespace DeltaWorks
 				TVertex&vtx = vertices.append();
 				M::Vec::mad(v.position,binormal,-extend_along_track, vtx.position);
 				M::Vec::mad(vtx.position,v.normal,-near_distance);
-				vtx.normal = -M::float3::reinterpret(v.tangent);
+				vtx.normal = -float3::reinterpret(v.tangent);
 				vtx.tangent = -binormal;
 				vtx.tx = v.tx;
 				vtx.tcoord.x = 0.f;
@@ -3325,7 +3325,7 @@ namespace DeltaWorks
 		//right:
 		{
 			const TVertex&v = arc_vertices.last();
-			M::float3 binormal;
+			float3 binormal;
 			M::Vec::cross(v.normal,v.tangent,binormal);
 
 			//forward upper (front):
@@ -3333,7 +3333,7 @@ namespace DeltaWorks
 				TVertex&vtx = vertices.append();
 				M::Vec::mad(v.position,binormal,extend_along_track, vtx.position);
 				M::Vec::mad(vtx.position,v.normal,-near_distance);
-				vtx.normal = M::float3::reinterpret(v.tangent);
+				vtx.normal = float3::reinterpret(v.tangent);
 				vtx.tangent = binormal;
 				vtx.tx = v.tx;
 				vtx.tcoord.x = 1.f;
@@ -3344,7 +3344,7 @@ namespace DeltaWorks
 				TVertex&vtx = vertices.append();
 				M::Vec::mad(v.position,binormal,extend_along_track, vtx.position);
 				M::Vec::mad(vtx.position,v.normal,-far_distance);
-				vtx.normal = M::float3::reinterpret(v.tangent);
+				vtx.normal = float3::reinterpret(v.tangent);
 				vtx.tangent = binormal;
 				vtx.tx = v.tx;
 				vtx.tcoord.x = 1.f;
@@ -3358,7 +3358,7 @@ namespace DeltaWorks
 				TVertex&vtx = vertices.append();
 				M::Vec::mad(v.position,binormal,-extend_along_track, vtx.position);
 				M::Vec::mad(vtx.position,v.normal,-far_distance);
-				vtx.normal = M::float3::reinterpret(v.tangent);
+				vtx.normal = float3::reinterpret(v.tangent);
 				vtx.tangent = binormal;
 				vtx.tx = v.tx;
 				vtx.tcoord.x = 0.f;
@@ -3369,7 +3369,7 @@ namespace DeltaWorks
 				TVertex&vtx = vertices.append();
 				M::Vec::mad(v.position,binormal,-extend_along_track, vtx.position);
 				M::Vec::mad(vtx.position,v.normal,-near_distance);
-				vtx.normal = M::float3::reinterpret(v.tangent);
+				vtx.normal = float3::reinterpret(v.tangent);
 				vtx.tangent = binormal;
 				vtx.tx = v.tx;
 				vtx.tcoord.x = 0.f;
@@ -3450,9 +3450,9 @@ namespace DeltaWorks
 
 		CompileFromDescriptions(target,lods,shortest_edge,texture,0,resource);
 
-		target.material_field.first().info.ambient.rgb = M::float3(1.f);
-		target.material_field.first().info.diffuse.rgb = M::float3(0.f);
-		target.material_field.first().info.specular.rgb = M::float3(0.f);
+		target.material_field.first().info.ambient.rgb = float3(1.f);
+		target.material_field.first().info.diffuse.rgb = float3(0.f);
+		target.material_field.first().info.specular.rgb = float3(0.f);
 		target.root_system.moveTo(center);
 	}
 
@@ -3483,7 +3483,7 @@ namespace DeltaWorks
 
 	}
 
-	/*static*/	void		SurfaceNetwork::CompileRailGeometry(CGS::Geometry<>&target, const Segment&segment, const Container::BasicBuffer<M::float2>&profile, name64_t texture, name64_t normal_texture, CGS::TextureResource*resource /*=NULL*/)
+	/*static*/	void		SurfaceNetwork::CompileRailGeometry(CGS::Geometry<>&target, const Segment&segment, const Container::BasicBuffer<float2>&profile, name64_t texture, name64_t normal_texture, CGS::TextureResource*resource /*=NULL*/)
 	{
 		if (segment.compiledSurfaces.Count() < 3*SurfaceNetwork::numLODs)
 		{

@@ -420,33 +420,33 @@ namespace DeltaWorks
 			};
 
 
-		typedef Vec2<float>	float2;
-		typedef Vec3<float>	float3;
-		typedef Vec4<float>	float4;
-		typedef Vec2<double>	double2;
-		typedef Vec3<double>	double3;
-		typedef Vec4<double>	double4;
-		typedef Vec2<int>		int2;
-		typedef Vec3<int>		int3;
-		typedef Vec4<int>		int4;
-		typedef Vec2<unsigned int>		uint2;
-		typedef Vec3<unsigned int>		uint3;
-		typedef Vec4<unsigned int>		uint4;
-		typedef Vec2<BYTE>				byte2;
-		typedef Vec3<BYTE>				byte3;
-		typedef Vec4<BYTE>				byte4;
-		typedef Vec2<signed char>		sbyte2;
-		typedef Vec3<signed char>		sbyte3;
-		typedef Vec4<signed char>		sbyte4;
-		typedef Vec2<short>		short2;
-		typedef Vec3<short>		short3;
-		typedef Vec4<short>		short4;
-		typedef Vec2<bool>		bool2;
-		typedef Vec3<bool>		bool3;
-		typedef Vec4<bool>		bool4;
-		typedef Vec2<half>		half2;
-		typedef ALIGN2 Vec3<half>		half3;
-		typedef Vec4<half>		half4;
+		//typedef Vec2<float>	float2;
+		//typedef Vec3<float>	float3;
+		//typedef Vec4<float>	float4;
+		//typedef Vec2<double>	double2;
+		//typedef Vec3<double>	double3;
+		//typedef Vec4<double>	double4;
+		//typedef Vec2<int>		int2;
+		//typedef Vec3<int>		int3;
+		//typedef Vec4<int>		int4;
+		//typedef Vec2<unsigned int>		uint2;
+		//typedef Vec3<unsigned int>		uint3;
+		//typedef Vec4<unsigned int>		uint4;
+		//typedef Vec2<BYTE>				byte2;
+		//typedef Vec3<BYTE>				byte3;
+		//typedef Vec4<BYTE>				byte4;
+		//typedef Vec2<signed char>		sbyte2;
+		//typedef Vec3<signed char>		sbyte3;
+		//typedef Vec4<signed char>		sbyte4;
+		//typedef Vec2<short>		short2;
+		//typedef Vec3<short>		short3;
+		//typedef Vec4<short>		short4;
+		//typedef Vec2<bool>		bool2;
+		//typedef Vec3<bool>		bool3;
+		//typedef Vec4<bool>		bool4;
+		//typedef Vec2<half>		half2;
+		//typedef ALIGN2 Vec3<half>		half3;
+		//typedef Vec4<half>		half4;
 
 
 

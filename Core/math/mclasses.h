@@ -117,7 +117,6 @@ namespace Math
 
 }
 
-using namespace Math;
 
 
 #include "mclasses.tpl.h"
