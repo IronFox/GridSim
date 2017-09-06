@@ -19,6 +19,10 @@ namespace Engine
 		{
 			bool		focusLostMuted = false;
 
+			bool		fadeGainIn = false;
+			Timer::Time	fadeGainFrom;
+			float		fadeGainSeconds = 0;
+
 			CWaves		wave_loader;
 			bool		initialized = false;
 			ALCdevice	*pDevice = NULL;
@@ -641,7 +645,19 @@ namespace Engine
 			{
 				GetLocation();
 
-
+				{
+					using namespace OpenAL::Status;
+					if (fadeGainIn && !focusLostMuted)
+					{
+						float at = timer.GetSecondsSince(fadeGainFrom) / fadeGainSeconds;
+						if (at > 1)
+						{
+							at = 1;
+							fadeGainIn = false;
+						}
+						alListenerf(AL_GAIN,Listener::Status::baseVolume * OpenAL::Status::globalMaxOverVolume * at);
+					}
+				}
 			
 
 
@@ -742,7 +758,9 @@ namespace Engine
 		void				SignalWindowFocusRestoration()
 		{
 			OpenAL::Status::focusLostMuted = false;
-			alListenerf(AL_GAIN,Listener::Status::baseVolume * OpenAL::Status::globalMaxOverVolume);
+			OpenAL::Status::fadeGainIn = true;
+			OpenAL::Status::fadeGainFrom = timer.Now();
+			OpenAL::Status::fadeGainSeconds = 2;
 		}
 
 		void				SignalWindowFocusLoss()
