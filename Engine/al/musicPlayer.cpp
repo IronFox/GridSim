@@ -5,16 +5,6 @@ namespace Engine
 	namespace OpenAL
 	{
 
-		static	void	CheckError(const TCodeLocation&loc)
-		{
-			ALenum error = alGetError();
-			if (error != AL_NO_ERROR)
-			{
-				const String asString = alGetString(error);
-				throw Except::Program::GeneralFault(loc,"OpenAL: "+asString);
-			}
-		}
-
 
 		void	MusicPlayer::Stop()
 		{
@@ -43,7 +33,6 @@ namespace Engine
 			}
 			count_t framesRead = decoder.ReadFrames(bufferFrameSize,buffer.pointer());
 			alBufferData(target, format, buffer.pointer(), framesRead * decoder.GetFrameByteSize(), samplesPerSecond);
-			CheckError(CLOCATION);
 			return true;
 		}
 
@@ -85,26 +74,14 @@ namespace Engine
 
 		void	MusicPlayer::ThreadMain()
 		{
+			ALuint			output=0,buffer[4]={0};
 			try
 			{
-				ALuint			output=0,buffer[4];
 
 				decoder.Open(source);
-				for (index_t i = 0; i < 10; i++)
-				{
-					alGenSources( 1, &output );
-					if (i+1 < 10 && alGetError() == AL_NO_ERROR)
-						break;
-					if (quit)
-					{
-						decoder.Clear();
-						return;
-					}
-					Sleep(100);
-				}
-				CheckError(CLOCATION);
+
+				alGenSources( 1, &output );
 				alGenBuffers(ARRAYSIZE(buffer),buffer);
-				CheckError(CLOCATION);
 
 				const count_t framesPerSecond = decoder.GetFramesPerSecond();
 				const count_t numChannels = decoder.GetChannels();
@@ -118,16 +95,16 @@ namespace Engine
 					GetData(buffer[i],format,framesPerSecond*numChannels);
 
 				alSourceQueueBuffers(output,ARRAYSIZE(buffer),buffer);
-				CheckError(CLOCATION);
 
-				alSourcePlay(output);
-				CheckError(CLOCATION);
 
 				float lastVolume = volume;
 				if (doFadeIn)
 					alSourcef(output,AL_GAIN,0.f);
 				else
 					alSourcef(output,AL_GAIN,0.5f*volume);
+
+				alSourcePlay(output);
+
 
 				while (!quit)
 				{
@@ -186,6 +163,10 @@ namespace Engine
 			}
 			catch (const std::exception&ex)
 			{
+				if (output)
+					alDeleteSources(1,&output);
+				if (buffer[0])
+					alDeleteBuffers(ARRAYSIZE(buffer),buffer);
 				exception = ex.what();
 			}
 			catch(...)
