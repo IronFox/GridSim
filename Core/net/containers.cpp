@@ -27,7 +27,8 @@ namespace DeltaWorks
 				//case '\r':	<- should not be in a network-string. Standard uses \n as newline
 					return true;
 			}
-			bool result = isgraph((BYTE)c);
+			const auto rs = isgraph((BYTE)c);
+			bool result = rs != 0;
 			return result;
 		}
 
