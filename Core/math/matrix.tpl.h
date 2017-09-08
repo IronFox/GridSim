@@ -788,6 +788,14 @@ Collection of template matrix-math-functions.
 			rotate(system,temp,vec);
 		}
 
+		MFUNC2 (void)    Rotate(const TMatrix4<C0>&system, TVec3<C1>&vec)
+		{
+			rotate(system,vec);
+		}
+		MFUNC3 (void)    Rotate(const TMatrix4<C0>&system, const TVec3<C1>&vec, TVec3<C2>&result)
+		{
+			rotate(system,vec,result);
+		}
 		MFUNC3 (void)    Transform(const TMatrix4<C0>&system, const TVec3<C1>&vec, TVec3<C2>&result)
 		{
 			result.x = system.x.x*vec.x + system.y.x*vec.y + system.z.x *vec.z + system.w.x;
