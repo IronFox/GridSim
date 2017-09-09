@@ -523,10 +523,10 @@ namespace DeltaWorks
 				{
 					if (onDeserializationFailed)
 						onDeserializationFailed(channelID,sender,ex.what());
-					#ifdef _DEBUG
-						else if (!sender.destroyed)
-							FATAL__("deserialization failed: "+String(ex.what()));	//for now, this is appropriate
-					#endif
+					//#ifdef _DEBUG
+					//	else if (!sender.destroyed)
+					//		FATAL__("deserialization failed: "+String(ex.what()));	//for now, this is appropriate
+					//#endif
 				}
 				//elif (verbose)
 				//{
