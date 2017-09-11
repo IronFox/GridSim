@@ -285,7 +285,11 @@ namespace DeltaWorks
 
 				/**/			ReferenceExpression():reference(NULL),len(0) {}
 				/**/			ReferenceExpression(const T*str):reference(str),len(CharFunctions::strlen(str)) {}
-				/**/			ReferenceExpression(const T*str, size_t length):reference(str),len(length) {}
+				/**/			ReferenceExpression(const T*str, size_t length):reference(str),len(length)
+				{
+					while (len > 0 && str[len-1] == 0)
+						len--;
+				}
 
 
 				friend hash_t	Hash(const ReferenceExpression<T>&ref)
