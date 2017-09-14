@@ -1408,7 +1408,7 @@ namespace DeltaWorks
 					}
 					else if (!ptr)
 					{
-						DBG_FATAL__("peer reference lost in transit for data on channel "+String(ChannelID));
+						//DBG_FATAL__("peer reference lost in transit for data on channel "+String(ChannelID));
 					}
 					//discard((Object*)serializable);
 				}
