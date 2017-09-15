@@ -1353,6 +1353,8 @@ namespace StringType
 		template <typename T2>
 			Template<T>::Template(const T2*string, size_t length)
 			{
+				while (length > 0 && string[length-1] == 0)
+					length--;
 				field = allocate(length);
 				string_length = length;
 				CharFunctions::Cast(string,field,length);
