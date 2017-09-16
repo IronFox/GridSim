@@ -196,6 +196,14 @@ namespace DeltaWorks
 					return Get(*x,*y,*z);
 				}
 
+				const T&	Get(const Index&idx) const
+				{
+					return Get(idx.x, idx.y, idx.z);
+				}
+				T&	Get(const Index&idx)
+				{
+					return Get(idx.x, idx.y, idx.z);
+				}
 
 				/**
 				Copies up to @a extent many elements along each axis from @a other, starting at @a offset.
