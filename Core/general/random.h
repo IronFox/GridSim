@@ -158,11 +158,16 @@ namespace DeltaWorks
 			}
 
 			/**
-			Queries a random value in the range [min,max]
+			Queries a random value in the range [min,max].
+			The behavior of this function is undefined if max is less than min
 			*/
 			int				Next(int min, int max)
 			{
-				return min + std::min(max - min,int((big_type_t)(Super::operator()()-Super::min()) * (big_type_t(max-min)+1) / (big_type_t)(Super::max() - Super::min())));
+				const big_type_t zeroRandom = (Super::operator()()-Super::min());
+				const big_type_t targetRange = big_type_t(max-min)+1;
+				const big_type_t inputRange = (Super::max() - Super::min());
+				const int scaled = int(zeroRandom * targetRange / inputRange);
+				return min + std::min(max - min,scaled);
 			}
 
 			/**
