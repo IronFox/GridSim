@@ -911,43 +911,43 @@ namespace std
 	public:
 		typedef DeltaWorks::THalf _Ty;
 
-		static _Ty min() _THROW0()
+		static _Ty min() throw()
 		{	// return minimum value
 			return DeltaWorks::half::min;
 		}
 
-		static _Ty max() _THROW0()
+		static _Ty max() throw()
 		{	// return maximum value
 			return DeltaWorks::half::max;
 		}
 
-		static _Ty lowest() _THROW0()
+		static _Ty lowest() throw()
 		{	// return most negative value
 			return (-(max)());
 		}
 
-		static _Ty epsilon() _THROW0()
+		static _Ty epsilon() throw()
 		{	// return smallest effective increment from 1.0
 			return DeltaWorks::half::epsilon;
 		}
 
-		static _Ty round_error() _THROW0()
+		static _Ty round_error() throw()
 		{	// return largest rounding error
 			return DeltaWorks::half::Make(0.5f);
 		}
 
 
-		static _Ty infinity() _THROW0()
+		static _Ty infinity() throw()
 		{	// return positive infinity
 			return DeltaWorks::half::infinity;
 		}
 
-		static _Ty quiet_NaN() _THROW0()
+		static _Ty quiet_NaN() throw()
 		{	// return non-signaling NaN
 			return DeltaWorks::half::quietNaN;
 		}
 
-		static _Ty signaling_NaN() _THROW0()
+		static _Ty signaling_NaN() throw()
 		{	// return signaling NaN
 			return DeltaWorks::half::signalingNaN;
 		}
@@ -972,43 +972,43 @@ namespace std
 	public:
 		typedef DeltaWorks::half _Ty;
 
-		static _Ty(min)() _THROW0()
+		static _Ty(min)() throw()
 		{	// return minimum value
 			return DeltaWorks::half::min;
 		}
 
-		static _Ty(max)() _THROW0()
+		static _Ty(max)() throw()
 		{	// return maximum value
 			return DeltaWorks::half::max;
 		}
 
-		static _Ty lowest() _THROW0()
+		static _Ty lowest() throw()
 		{	// return most negative value
 			return (-(max)());
 		}
 
-		static _Ty epsilon() _THROW0()
+		static _Ty epsilon() throw()
 		{	// return smallest effective increment from 1.0
 			return DeltaWorks::half::epsilon;
 		}
 
-		static _Ty round_error() _THROW0()
+		static _Ty round_error() throw()
 		{	// return largest rounding error
 			return DeltaWorks::half::Make(0.5f);
 		}
 
 
-		static _Ty infinity() _THROW0()
+		static _Ty infinity() throw()
 		{	// return positive infinity
 			return DeltaWorks::half::infinity;
 		}
 
-		static _Ty quiet_NaN() _THROW0()
+		static _Ty quiet_NaN() throw()
 		{	// return non-signaling NaN
 			return DeltaWorks::half::quietNaN;
 		}
 
-		static _Ty signaling_NaN() _THROW0()
+		static _Ty signaling_NaN() throw()
 		{	// return signaling NaN
 			return DeltaWorks::half::signalingNaN;
 		}
