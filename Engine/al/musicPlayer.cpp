@@ -32,7 +32,7 @@ namespace Engine
 					return false;
 			}
 			count_t framesRead = decoder.ReadFrames(bufferFrameSize,buffer.pointer());
-			alBufferData(target, format, buffer.pointer(), framesRead * decoder.GetFrameByteSize(), samplesPerSecond);
+			alBufferData(target, format, buffer.pointer(), ALsizei( framesRead * decoder.GetFrameByteSize()), ALsizei(samplesPerSecond));
 			return true;
 		}
 
