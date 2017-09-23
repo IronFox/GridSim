@@ -731,8 +731,8 @@ namespace DeltaWorks
 
 		#define DBG_CONSTRAINT_VIOLATION3__(exp0,exp1,exp2,exp3)
 		#define DBG_ASSERT_COMPONENT_IS_CONSTRAINED3__(exp0,exp1,exp2,exp3)
-		#define	DBG_ASSERT_IS_CONSTRAINED3__(exp0,exp1,exp2,exp3)
-		#define	DBG_ASSERT_IS_CONSTRAINED__(exp0,exp1,exp2,exp3)
+		#define	DBG_ASSERT_IS_CONSTRAINED3__(exp0,exp1,exp2)
+		#define	DBG_ASSERT_IS_CONSTRAINED__(exp0,exp1,exp2)
 
 		#define	DBG_ASSERT_EQUAL__(exp0,exp1)
 		#define	DBG_ASSERT_EQUAL1__(exp0,exp1,exp2)
