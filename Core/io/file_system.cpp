@@ -1605,7 +1605,7 @@ namespace DeltaWorks
 			{
 				PathString path = implode(localSlash,segments.pointer(),i);
 				if (path.IsEmpty() 
-					|| path==slash
+					|| path==localSlash
 					#if SYSTEM==WINDOWS
 						|| path == L"\\\\?" || path.EndsWith(L':')
 					#endif
