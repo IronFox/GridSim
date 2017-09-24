@@ -319,6 +319,8 @@ namespace DeltaWorks
 		};
 
 
+		typedef Folder	Directory;
+
 	}
 
 	typedef FileSystem::File		CFSFile;
