@@ -2242,9 +2242,11 @@ namespace DeltaWorks
 	#undef FOPEN
 	#if SYSTEM==WINDOWS
 		typedef StringW	PathString;
+		typedef StringRefW	PathStringRef;
 		#define FOPEN(_FILE_,_MODE_)	_wfopen((_FILE_),L##_MODE_)
 	#else
 		typedef String	PathString;	//uses UTF8
+		typedef StringRef	PathStringRef;
 		#define FOPEN(_FILE_,_MODE_)	fopen((_FILE_),_MODE_)
 	#endif
 
