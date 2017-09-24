@@ -83,10 +83,33 @@ namespace DeltaWorks
 		const File*		MoveFile(const PathString&source, const PathString&destination);					//!< Moves \b source to \b destination . \param source Source file \param destination Destination file \return pointer to a global file object pointing to the destination file or NULL on failure
 		const File*		MoveFile(const File*source, const PathString&destination);						//!< Moves \b source to \b destination . \param source Source file \param destination Destination file \return pointer to a global file object pointing to the destination file or NULL on failure
 		const File*		MoveFile(const File&source, const PathString&destination);						//!< Moves \b source to \b destination . \param source Source file \param destination Destination file \return pointer to a global file object pointing to the destination file or NULL on failure
-		const File*		CreateFolder(const PathString&folder_name);										//!< Creates one or more folders/directories specified by \b folder_name. Identical to createDirectory().	If \b folder_name is relative then it is created relative to the active working directory. \param folder_name Name of the folder to create \return pointer to a global file object pointing to the newly created folder or NULL on failure
-		bool			CreateFolder(const PathString&folder_name, File&out);							//!< Creates one or more folders/directories specified by \b folder_name. Identical to createDirectory().	If \b folder_name is relative then it is created relative to the active working directory. \param folder_name Name of the folder to create \param out File reference to hold the newly created directory (if any). \return true on success
-		const File*		CreateDirectory(const PathString&folder_name);									//!< Identical to CreateFolder(). Creates one or more folders/directories specified by \b folder_name. Identical to CreateFolder(). If \b folder_name is relative then it is created relative to the active working directory. \param folder_name Name of the folder to create \return pointer to a global file object pointing to the newly created folder or NULL on failure
-		bool			CreateDirectory(const PathString&folder_name, File&out);						//!< Identical to CreateFolder(). Creates one or more folders/directories specified by \b folder_name. Identical to CreateFolder(). If \b folder_name is relative then it is created relative to the active working directory. \param folder_name Name of the folder to create \param out File reference to hold the newly created directory (if any). \return true on success
+		/**
+		Recursively checks all segments of the specified path, and tries to create each as a directory.
+		If the specified path is found to be relative then it is assumed relative to the current working directory.
+		@param path Name(s) of the folder to create
+		@return pointer to a global file object pointing to the newly created folder or NULL on failure
+		*/
+		const File*		CreateDirectory(const PathString&path);
+		/**
+		@copydoc CreateDirectory(const PathString&)
+		@param[out] out Created folder
+		@return true on success, false otherwise
+		*/
+		bool			CreateDirectory(const PathString&folder_name, File&out);
+		/**
+		Recursively checks all segments of the specified path, and tries to create each as a directory.
+		Contrary to CreateDirectory()/CreateDirectory(), this function also checks if any files are found
+		matching the specified segment, and tries to erase them.
+		The function throws Except::IO::DriveAccess::GeneralFault in case of errors
+		@param path Path of the folder to create
+		*/
+		void			ForceCreateDirectory(const PathString&path);
+		/**
+		@copydoc ForceCreateDirectory(const PathString&);
+		@param[out] out Created folder
+		*/
+		void			ForceCreateDirectory(const PathString&path, File&out);
+		
 		bool			UnlinkFile(const PathString&filename);											//!< Unlinks (erases) the specified file \return true on success
 		bool			RemoveFolder(const PathString&foldername);										//!< Recursively erases the specified folder and all contained files \return true on success, false if any one file or directory could not be deleted
 		bool			RemoveFolderContents(const PathString&foldername);								//!< Recursively erases the contents of the specified folder \return true on success, false if any one file or directory could not be deleted
@@ -108,14 +131,13 @@ namespace DeltaWorks
 		private:
 			PathString		name,
 							location;
-			bool			is_folder;
 			friend class	Folder;
 			friend class	Drive;
-			friend bool		FileSystem::Copy(const PathString&source, const PathString&destination, File&outFile, bool overwrite_if_exist);
-			friend const File* FileSystem::Move(const PathString&source, const PathString&destination);
-			friend const File* FileSystem::Move(const File*, const PathString&);
-			friend const File* FileSystem::Move(const File&, const PathString&);
-			friend bool  FileSystem::CreateFolder(const PathString&folder_name, File&out);
+			friend bool			FileSystem::Copy(const PathString&source, const PathString&destination, File&outFile, bool overwrite_if_exist);
+			friend const File*	FileSystem::Move(const PathString&source, const PathString&destination);
+			friend const File*	FileSystem::Move(const File*, const PathString&);
+			friend const File*	FileSystem::Move(const File&, const PathString&);
+			friend void			_CreateDirectory(const PathString&, File&, bool, const TCodeLocation&loc);
 		public:
 			/**/				File();
 			/**/				File(const Drive&drive);
@@ -124,7 +146,6 @@ namespace DeltaWorks
 			{
 				name.swap(other.name);
 				location.swap(other.location);
-				swp(is_folder,other.is_folder);
 			}
 			friend void swap(File& a, File& b)	{a.swap(b);}
 
@@ -141,9 +162,8 @@ namespace DeltaWorks
 			PathString			GetExtension()						const;
 			const PathString::char_t*			GetExtensionPointer()				const;		//!< Returns the file extension (without preceeding dot) \return Pointer to the beginning of the local filename's file extension. Does not return NULL
 			bool				IsExtension(const PathString&ext)		const;		//!< Checks if the specified extension equals the local file's extension. Comparison is case insensitive. \return true if the specified extension matches the extension of the local file
-			bool				IsFolder()							const;		//!< Returns true if the local entry is a folder/directory (identical to IsDirectory())	\return true if folder
-			bool				IsDirectory()						const;		//!< Returns true if the local entry is a folder/directory (identical to IsFolder()) \return true if folder
-			String				ToString()							const;		//!< Creates a string representation of the local entry \return String representation
+			bool				IsDirectory()						const;		//!< Returns true if the local entry is a folder/directory \return true if folder
+			friend String		ToString(const File&);
 			bool				DoesExist()							const;		//!< Queries existence of the local file or folder
 
 			bool				Unlink()							const;		//!< Unlinks (erases) the local file/folder (making the local handle invalid) \return true on success
@@ -266,6 +286,8 @@ namespace DeltaWorks
 			
 				void				Reset();									//!< Resets the folder cursor to the beginning of the folder
 				void				Rewind();									//!< Identical to reset()
+				const File*			NextEntry(bool&outIsDirectory);				//!< Returns the next entry in the local folder \return Pointer to a file container pointing to the next entry in the local folder or NULL if no such exists
+				bool				NextEntry(File&out,bool&outIsDirectory);	//!< Identifies the next entry in the local folder \param out Target file structure to hold the next entry \return true if a next entry exists, false otherwise
 				const File*			NextEntry();								//!< Returns the next entry in the local folder \return Pointer to a file container pointing to the next entry in the local folder or NULL if no such exists
 				bool				NextEntry(File&out);						//!< Identifies the next entry in the local folder \param out Target file structure to hold the next entry \return true if a next entry exists, false otherwise
 				const File*			NextFolder();								//!< Returns the next folder in the local folder \return Pointer to a file container pointing to the next folder in the local folder or NULL if no such exists
@@ -274,14 +296,16 @@ namespace DeltaWorks
 				bool				NextFile(File&out);							//!< Identifies the next file in the local folder \param out Target file structure to hold the next file \return true if a next file exists, false otherwise
 				const File*			NextFile(const PathString&extension);				//!< Returns the next file in the local folder matching the specified extension \return Pointer to a file container pointing to the next file matching the specified extension in the local folder or NULL of no such exists
 				bool				NextFile(const PathString&extension, File&out);	//!< Identifies the next file in the local folder matching the specified extension \param extension File extension to look for (without succeeding dot) \param out Target file structure to hold the next matching file \return true if a next file of the specified extension exists, false otherwise
+				const File*			FindEntry(const PathString&path, bool&outIsDirectory,bool mustExist)						const;
+				bool				FindEntry(const PathString&path, File&out, bool&outIsDirectory,bool mustExist)			const;
 				const File*			Find(const PathString&path, bool mustExist=true)						const;	//!< Locates the specified file or folder starting from the current folder location. \param path Path to the file or folder that should be located \return Pointer to a file container pointing to the specified entry or NULL if the entry could not be located
 				bool				Find(const PathString&path, File&out, bool mustExist=true)			const;	//!< Locates the specified file or folder starting from the current folder location. \param path Path to the file or folder that should be located \param out Out File structure reference. \return true if the entry could be located
 				const File*			FindFile(const PathString&path, bool mustExist=true)					const;	//!< Locates the specified file starting from the current folder location \param path Path to the file that should be located \return Pointer to a file container pointing to the specified file or NULL if the file could not be located
 				bool				FindFile(const PathString&path, File&out, bool mustExist=true)		const;	//!< Locates the specified file starting from the current folder location. \param path Path to the file or folder that should be located \param out Out File structure reference. \return true if the entry could be located
 				const File*			FindFolder(const PathString&path, bool mustExist=true)				const;	//!< Locates the specified folder starting from the current folder location \param path Path to the folder that should be located \return Pointer to a file container pointing to the specified folder or NULL if the folder could not be located
 				bool				FindFolder(const PathString&path, File&out, bool mustExist=true)		const;	//!< Locates the specified folder starting from the current folder location. \param path Path to the file or folder that should be located \param out Out File structure reference. \return true if the entry could be located
-				const File*			CreateFolder(const PathString&name)				const;	//!< Creates the specified sub folder \param name Name of the sub folder to create \return Pointer to a file container pointing to the newly created folder or NULL if the folder could not be created
-				bool				CreateFolder(const PathString&name, File&out)	const;	//!< Creates the specified sub folder \param name Name of the sub folder to create \param out Out File structure reference. \return true if the new folder could be created, false otherwise.
+				const File*			CreateDirectory(const PathString&name)				const;	//!< Creates the specified sub folder \param name Name of the sub folder to create \return Pointer to a file container pointing to the newly created folder or NULL if the folder could not be created
+				bool				CreateDirectory(const PathString&name, File&out)	const;	//!< Creates the specified sub folder \param name Name of the sub folder to create \param out Out File structure reference. \return true if the new folder could be created, false otherwise.
 			
 				String				ToString()		const;						//!< Creates a string representation of the local folder
 			

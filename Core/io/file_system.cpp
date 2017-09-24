@@ -17,8 +17,10 @@ namespace DeltaWorks
 	{
 		#if SYSTEM==WINDOWS
 			#define ABS_MARKER	L"\\\\?\\"
-			#define ABS_MARKER_LENGTH	(ARRAYSIZE(ABS_MARKER)-1)
+		#else
+			#define ABS_MARKER "/"
 		#endif
+		#define ABS_MARKER_LENGTH	(ARRAYSIZE(ABS_MARKER)-1)
 
 		static	PathString Escape(const PathString&in)
 		{
@@ -40,7 +42,7 @@ namespace DeltaWorks
 		File::File()
 		{}
 
-		File::File(const Drive&drive):name(drive.root),location(drive.root),is_folder(true)
+		File::File(const Drive&drive):name(drive.root),location(drive.root)
 		{}
 
 		PathString	 File::GetName()  const
@@ -58,14 +60,10 @@ namespace DeltaWorks
 			return location;
 		}
 
-		bool		File::IsFolder() const
-		{
-			return is_folder;
-		}
 
 		bool		File::IsDirectory() const
 		{
-			return is_folder;
+			return FileSystem::IsDirectory(location);
 		}
 
 
@@ -187,9 +185,13 @@ namespace DeltaWorks
 
 
 
-		String File::ToString() const
+		String ToString(const File&f)
 		{
-			return is_folder?"Folder: "+String(location):"File: "+String(location);
+			if (f.IsDirectory())
+				return "Folder: "+String(f.location);
+			if (f.DoesExist())
+				return "File: "+String(f.location);
+			return "Non-existent: "+String(f.location);
 		}
 
 		bool File::Unlink() const
@@ -201,7 +203,7 @@ namespace DeltaWorks
 					return !rmdir(location.c_str());
 				return !::unlink(location.c_str());
 			#elif SYSTEM==WINDOWS
-				if (is_folder)
+				if (IsDirectory())
 					return !!RemoveDirectoryW(location.c_str());
 				return !!DeleteFileW(location.c_str());
 			#else
@@ -331,7 +333,6 @@ namespace DeltaWorks
 			File result;
 			result.location = root;
 			result.name = root;
-			result.is_folder = true;
 			return result;
 		}
 
@@ -713,12 +714,24 @@ namespace DeltaWorks
 
 		const Folder::File*  Folder::NextEntry()
 		{
-			if (NextEntry(file))
+			bool dummy;
+			return NextEntry(dummy);
+		}
+
+		bool  Folder::NextEntry(File&file)
+		{
+			bool dummy;
+			return NextEntry(file,dummy);
+		}
+
+		const Folder::File*  Folder::NextEntry(bool&outIsDirectory)
+		{
+			if (NextEntry(file,outIsDirectory))
 				return &file;
 			return NULL;
 		}
 
-		bool Folder::NextEntry(File&file)
+		bool Folder::NextEntry(File&file,bool&outIsDirectory)
 		{
 			if (!find_handle)
 				return false;
@@ -729,7 +742,7 @@ namespace DeltaWorks
 				if (file.location.LastChar() != '/' && file.location.LastChar() != '\\')
 					file.location+=FOLDER_SLASH;
 				file.location+= find_data.cFileName;
-				file.is_folder = (find_data.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)!=0;
+				outIsDirectory = (find_data.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)!=0;
 				if (!FindNextFileW(find_handle,&find_data))
 				{
 					FindClose(find_handle);
@@ -751,12 +764,12 @@ namespace DeltaWorks
 				struct stat s;
 				if (stat(file.location.c_str(),&s))
 					retry = true;
-				file.is_folder = s.st_mode&S_IFDIR;
+				outIsDirectory = s.st_mode&S_IFDIR;
 			#else
 				#error not supported
 			#endif
 			if (retry || !file.name.length() || file.name.FirstChar() == '.')
-				return NextEntry(file);
+				return NextEntry(file,outIsDirectory);
 			return true;
 		}
 
@@ -764,18 +777,20 @@ namespace DeltaWorks
 		const Folder::File*	 Folder::NextFolder()
 		{
 			const File*file;
+			bool wasDir;
 			do
 			{
-				file = NextEntry();
+				file = NextEntry(wasDir);
 			}
-			while (file && !file->is_folder);
+			while (file && !wasDir);
 			return file;
 		}
 
 		bool	Folder::NextFolder(File&target)
 		{
-			while (NextEntry(target))
-				if (target.is_folder)
+			bool wasDir;
+			while (NextEntry(target,wasDir))
+				if (wasDir)
 					return true;
 			return false;
 		}
@@ -783,18 +798,20 @@ namespace DeltaWorks
 		const Folder::File*	 Folder::NextFile()
 		{
 			const File*file;
+			bool wasDir;
 			do
 			{
-				file = NextEntry();
+				file = NextEntry(wasDir);
 			}
-			while (file && file->is_folder);
+			while (file && wasDir);
 			return file;
 		}
 
 		bool	Folder::NextFile(File&target)
 		{
-			while (NextEntry(target))
-				if (!target.is_folder)
+			bool wasDir;
+			while (NextEntry(target,wasDir))
+				if (!wasDir)
 					return true;
 			return false;
 		}
@@ -804,11 +821,12 @@ namespace DeltaWorks
 		{
 			const PathString::char_t*ext = extension.c_str();
 			const File*file;
+			bool wasDir;
 			do
 			{
-				file = NextEntry();
+				file = NextEntry(wasDir);
 			}
-			while (file && (file->is_folder || !file->GetLocation().EndsWith(extension)));
+			while (file && (wasDir || !file->GetLocation().EndsWith(extension)));
 			//while (file && (file->is_folder || strcmpi(file->GetExtensionPointer(),ext)));
 			return file;
 		}
@@ -816,48 +834,60 @@ namespace DeltaWorks
 		bool	Folder::NextFile(const PathString&extension, File&target)
 		{
 			const PathString::char_t*ext = extension.c_str();
-			while (NextEntry(target))
-				if (!target.is_folder && target.GetLocation().EndsWith(extension))
+			bool wasDir;
+			while (NextEntry(target,wasDir))
+				if (!wasDir && target.GetLocation().EndsWith(extension))
 					return true;
 			return false;
 		}
 
 
-
-		const Folder::File*	 Folder::Find(const PathString&folder_str, bool mustExist/*=true*/)	const
+		const File*			Folder::Find(const PathString&path, bool mustExist/*=true*/)						const
 		{
-			if (Find(folder_str,file,mustExist))
+			bool dummy;
+			return FindEntry(path,dummy,mustExist);
+		}
+
+		bool				Folder::Find(const PathString&path, File&out, bool mustExist/*=true*/)			const
+		{
+			bool dummy;
+			return FindEntry(path,out,dummy,mustExist);
+		}
+
+
+		const Folder::File*	 Folder::FindEntry(const PathString&folder_str, bool&outIsDirectory,bool mustExist/*=true*/)	const
+		{
+			if (FindEntry(folder_str,file,outIsDirectory,mustExist))
 				return &file;
 			return NULL;
 		}
 
-		bool	 Folder::Find(const PathString&folder_str, File&out, bool mustExist/*=true*/)	const
+		bool	 Folder::FindEntry(const PathString&folder_str, File&out, bool&outIsDirectory,bool mustExist/*=true*/)	const
 		{
 			if (!IsValidLocation())
 				return false;
 			if (!ResolvePath(folder_str,nullptr,out.location) && mustExist)
 				return false;
 			out.name = ExtractFileNameExt(out.location);
-			out.is_folder = false;
 			#if SYSTEM==WINDOWS
 				if (out.name.EndsWith(':'))
 				{
 					PathString driveName = out.name+L'\\';
 					UINT type = GetDriveTypeW(driveName.c_str());
 					bool valid = type == DRIVE_FIXED || type == DRIVE_REMOTE || type == DRIVE_CDROM || type == DRIVE_RAMDISK;
-					out.is_folder = true;
+					outIsDirectory = true;
 					return valid || !mustExist;
 				}
 
 				DWORD attributes = GetFileAttributesW(out.location.c_str());
 				if (attributes == INVALID_FILE_ATTRIBUTES)
 					return !mustExist;
-				out.is_folder = (attributes&FILE_ATTRIBUTE_DIRECTORY)!=0;
+				outIsDirectory = (attributes&FILE_ATTRIBUTE_DIRECTORY)!=0;
 			#elif SYSTEM==UNIX
 				struct stat s;
 				if (stat(out.location.c_str(),&s))
 					return !mustExist;
-				out.is_folder = s.st_mode&S_IFDIR;
+				outIsDirectory = s.st_mode&S_IFDIR;
 			#else
 				#error not supported
 			#endif
@@ -866,24 +896,27 @@ namespace DeltaWorks
 
 		const Folder::File*	 Folder::FindFile(const PathString&folder_str, bool mustExist/*=true*/)	const
 		{
-			const File*rs = Find(folder_str,mustExist);
-			if (!rs || rs->is_folder)
+			bool wasDir;
+			const File*rs = FindEntry(folder_str,wasDir, mustExist);
+			if (!rs || wasDir)
 				return NULL;
 			return rs;
 		}
 
 		bool	 Folder::FindFile(const PathString&folder_str, File&out, bool mustExist/*=true*/)	const
 		{
-			return Find(folder_str,out,mustExist) && !out.is_folder;
+			bool wasDir;
+			return FindEntry(folder_str,out,wasDir,mustExist) && !wasDir;
 		}
 
 		bool	 Folder::FindFolder(const PathString&folder_str, File&out, bool mustExist/*=true*/)	const
 		{
 			//return Find(folder_str,out,mustExist) && out.is_folder;
-			if (Find(folder_str,out,mustExist))
+			bool wasDir;
+			if (FindEntry(folder_str,out,wasDir,mustExist))
 			{
 				if (mustExist)
-					return out.is_folder;
+					return wasDir;
 				return !IsFile(out.location);
 			}
 			return false;
@@ -891,16 +924,17 @@ namespace DeltaWorks
 
 		const Folder::File*	 Folder::FindFolder(const PathString&folder_str, bool mustExist/*=true*/)	const
 		{
-			const File*rs = Find(folder_str,mustExist);
+			bool wasDir;
+			const File*rs = FindEntry(folder_str,wasDir,mustExist);
 			if (!rs)
 				return NULL;
 
 			if (mustExist)
-				return rs->is_folder ? rs : NULL;
+				return wasDir ? rs : NULL;
 			return IsFile(rs->location) ? NULL : rs;
 		}
 
-		const Folder::File*	 Folder::CreateFolder(const PathString&name)	const
+		const Folder::File*	 Folder::CreateDirectory(const PathString&name)	const
 		{
 			if (!IsValidLocation())
 				return NULL;
@@ -911,10 +945,10 @@ namespace DeltaWorks
 			//locate(
 			PathString final;
 			ResolvePath(location,nullptr,final);
-			return FileSystem::CreateFolder(final);
+			return FileSystem::CreateDirectory(final);
 		}
 
-		bool	 Folder::CreateFolder(const PathString&name, File&out)	const
+		bool	 Folder::CreateDirectory(const PathString&name, File&out)	const
 		{
 			if (!IsValidLocation())
 				return false;
@@ -923,7 +957,7 @@ namespace DeltaWorks
 				location += FOLDER_SLASH;
 			location += name;
 			ResolvePath(location,nullptr,location);
-			return FileSystem::CreateFolder(location, out);
+			return FileSystem::CreateDirectory(location, out);
 		}
 
 
@@ -954,7 +988,6 @@ namespace DeltaWorks
 				return NULL;
 			file.name = ExtractFileNameExt(absolute_folder);
 			file.location = absolute_folder;
-			file.is_folder = true;
 			return &file;
 		}
 
@@ -984,7 +1017,6 @@ namespace DeltaWorks
 			#endif
 			file.location = super;
 			file.name = ExtractFileNameExt(super);
-			file.is_folder = true;
 			return &file;
 		}
 
@@ -1388,7 +1420,6 @@ namespace DeltaWorks
 			#endif
 			fs_result.name = ExtractFileNameExt(destination);
 			fs_result.location = destination;
-			fs_result.is_folder = IsFolder(destination);
 			return &fs_result;
 		}
 
@@ -1413,7 +1444,7 @@ namespace DeltaWorks
 					if (!DoesExist(destination))
 					{
 						File dummy;
-						if (!CreateFolder(destination,dummy))
+						if (!CreateDirectory(destination,dummy))
 						{
 							return false;
 						}
@@ -1468,7 +1499,6 @@ namespace DeltaWorks
 			#endif
 			outFile.name = ExtractFileNameExt(destination);
 			outFile.location = destination;
-			outFile.is_folder = IsFolder(destination);
 			return true;
 		}
 
@@ -1524,65 +1554,116 @@ namespace DeltaWorks
 
 		const File*  CreateDirectory(const PathString&folder_name)
 		{
-			return CreateFolder(folder_name);
-		}
-
-		const File*  CreateFolder(const PathString&folder_name)
-		{
-			if (CreateFolder(folder_name,fs_result))
+			if (CreateDirectory(folder_name,fs_result))
 				return &fs_result;
 			return NULL;
 		}
 
 
-		bool  CreateDirectory(const PathString&folder_name, File&out)
-		{
-			return CreateFolder(folder_name,out);
-		}
 
-		bool  CreateFolder(const PathString&folder_name, File&out)
+		void _CreateLastDirectorySegment(const PathString&path, const TCodeLocation&loc)
 		{
-			if (!folder_name.length())
-				return false;
-			out.location = folder_name;
-			if (out.location.LastChar() == '/' || out.location.LastChar() == '\\')
-				out.location.Erase(out.location.length()-1);
-			out.is_folder = true;
 			#if SYSTEM==WINDOWS
-				bool absoluteWide = folder_name.BeginsWith(ABS_MARKER);
-				out.location.FindAndReplace(L'/',L'\\');
-				Ctr::Array<PathString>	segments;
-				explode(L'\\',out.location,segments);
-				for (index_t i = 1; i <= segments.Count(); i++)
+				if (!CreateDirectoryW(path.c_str(),NULL))
 				{
-					PathString path = implode(L'\\',segments.pointer(),i);
-					if (path.IsEmpty() || path == L"\\\\?" || path.EndsWith(L':') || path==L"\\")
-						continue;
-					//if (absoluteWide)
-						//path = absMarker + path;
-					if (IsDirectory(path))
-						continue;
-					if (!CreateDirectoryW(path.c_str(),NULL))
+					DWORD err = GetLastError();
+					if (err != ERROR_ALREADY_EXISTS)
 					{
-						DWORD err = GetLastError();
-						if (err != ERROR_ALREADY_EXISTS)
-						{
-							//char msg[0x1000];
-							//WindowsErrorToString(err,msg,sizeof(msg));
-							return false;
-						}
+						char buffer[0x1000];
+						System::WindowsErrorToString(err, buffer, sizeof(buffer));
+
+						throw Except::IO::DriveAccess::GeneralFault(loc,"Failed to create last directory segment of '"+String(path)+"': "+String(buffer));
 					}
 				}
-			#elif SYSTEM==UNIX
+			#elif SYSTEM==UNIX || SYSTEM==LINUX
 				if (mkdir(out.location.c_str(), S_IRUSR|S_IWUSR|S_IXUSR|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH) && errno != EEXIST)
-					return false;
+					throw Except::IO::DriveAccess::GeneralFault(loc,"Failed to create last directory segment of '"+String(path)+"'");
 			#else
 				#error not supported
 			#endif
-			//PathString copy = out.location;
-			//;
-			return Folder().FindFolder(out.location,out);
 		}
+
+		void  _CreateDirectory(const PathString&path, File&out, bool unlinkFoundFiles, const TCodeLocation&loc)
+		{
+			if (!path.length())
+				throw Except::IO::DriveAccess::GeneralFault(loc,"Path is empty");
+			out.location = path;
+			if (out.location.LastChar() == '/' || out.location.LastChar() == '\\')
+				out.location.Erase(out.location.length()-1);
+			if (out.IsDirectory())
+				return;
+
+			static const PathString::char_t slash = PathString::char_t('/');
+			static const PathString::char_t localSlash = PathString::char_t(FOLDER_SLASH);
+
+			out.location.FindAndReplace(PathString::char_t( '\\'),slash);//make uniform
+			Ctr::Array<PathStringRef>	segments;
+			explode(slash,out.location,segments);
+			bool absoluteWide = out.location.BeginsWith(ABS_MARKER);
+
+			for (index_t i = 1; i <= segments.Count(); i++)
+			{
+				PathString path = implode(localSlash,segments.pointer(),i);
+				if (path.IsEmpty() 
+					|| path==slash
+					#if SYSTEM==WINDOWS
+						|| path == L"\\\\?" || path.EndsWith(L':')
+					#endif
+					)
+					continue;
+				if (IsDirectory(path))
+					continue;
+				if (IsFile(path))
+				{
+					if (!unlinkFoundFiles || !UnlinkFile(path))
+					{
+						if (unlinkFoundFiles)
+						{
+							#if SYSTEM==WINDOWS
+								char buffer[0x1000];
+								System::WindowsErrorToString(GetLastError(), buffer, sizeof(buffer));
+
+								throw Except::IO::DriveAccess::GeneralFault(loc,"Failed to create last directory segment of '"+String(path)+"': File was found with that name but could not be deleted: "+String(buffer));
+							#else
+								throw Except::IO::DriveAccess::GeneralFault(loc,"Failed to create last directory segment of '"+String(path)+"': File was found with that name but could not be deleted");
+							#endif
+						}
+						else
+							throw Except::IO::DriveAccess::GeneralFault(loc,"Failed to create last directory segment of '"+String(path)+"': File was found with that name");
+					}
+				}
+				_CreateLastDirectorySegment(path,loc);
+			}
+			
+			if (slash != localSlash)
+				out.location.FindAndReplace(slash,localSlash);
+			ASSERT__( Folder().FindFolder(out.location,out) );
+		}
+
+		bool  CreateDirectory(const PathString&folder_name, File&out)
+		{
+			try
+			{
+				_CreateDirectory(folder_name, out,false,CLOCATION);
+				return true;
+			}
+			catch (...)
+			{
+				return false;
+			}
+		}
+
+		void			ForceCreateDirectory(const PathString&path)
+		{
+			File f;
+			ForceCreateDirectory(path,f);
+		}
+		void			ForceCreateDirectory(const PathString&path, File&out)
+		{
+			_CreateDirectory(path, out,true,CLOCATION);
+		}
+
+
 
 	#if SYSTEM==WINDOWS
 		void PrintLastError()
