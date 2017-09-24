@@ -26,7 +26,7 @@ namespace Engine
 					xdisplay.Set("state","maximized");
 				elif (flags & DisplayConfig::IsFullscreen)
 					xdisplay.Set("state","fullScreen");
-				FileSystem::CreateFolder(FileSystem::ExtractFileDir(xmlfilename));
+				FileSystem::ForceCreateDirectory(FileSystem::ExtractFileDir(xmlfilename));
 				xconfig.SaveToFile(xmlfilename);
 			}
 	}
