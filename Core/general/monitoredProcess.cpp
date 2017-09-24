@@ -96,7 +96,7 @@ namespace DeltaWorks
 		FileSystem::File file;
 		if (!folder.FindFile(executablePath,file))
 		{
-			DBG_FATAL__("Unable to find executable "+String(executablePath));
+			//DBG_FATAL__("Unable to find executable "+String(executablePath));
 			return false;
 		}
 		DWORD process = MapPathToProcess(file);
