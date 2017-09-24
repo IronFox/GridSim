@@ -31,8 +31,9 @@ void AudioDecoder::Open(const PathString&filename)
 		//Defaults
 		data.numChannels = kNumChannels;
 		data.frameRate = kSampleRate;
-		data.m_iBitsPerSample = kBitsPerSample;
- 
+		data.bitsPerSample = kBitsPerSample;
+
+
 
 		HRESULT hr(S_OK);
 		// Initialize the COM library.
@@ -92,7 +93,6 @@ void AudioDecoder::SeekFrame(index_t frameIdx)
     // enough for our calculatedFrameFromMF <= nextFrame assertion in ::read).
     // Has something to do with 100ns MF units being much smaller than most
     // frame offsets (in seconds) -bkgood
-   // long result = data.m_iCurrentPosition;
     if (!IsActive())
 		throw Except::IO::GeneralFault(CLOCATION,"SSMF: Inactive");
 
@@ -118,9 +118,15 @@ void AudioDecoder::SeekFrame(index_t frameIdx)
 
     // record the next frame so that we can make sure we're there the next
     // time we get a buffer from MFSourceReader
-    data.m_nextFrame = frameIdx;
-    data.m_seeking = true;
-    data.m_iCurrentPosition = frameIdx*data.numChannels;
+    data.seekTargetFrame = frameIdx;
+    data.isSeeking = true;
+    data.currentSamplePosition = frameIdx*data.numChannels;
+}
+
+count_t	AudioDecoder::BytesToFrames(size_t numBytes) const
+{
+	DBG_ASSERT2__((numBytes % data.bytesPerFrame) == 0,numBytes,data.bytesPerFrame)
+	return numBytes / data.bytesPerFrame;
 }
 
 count_t AudioDecoder::ReadFrames(const count_t numFrames, void *destination)
@@ -131,7 +137,7 @@ count_t AudioDecoder::ReadFrames(const count_t numFrames, void *destination)
 			throw Except::IO::GeneralFault(CLOCATION,"SSMF: Inactive");
 
 		BYTE *destBuffer = (BYTE*)destination;
-		size_t bytesNeeded = numFrames * data.numChannels * data.m_iBitsPerSample/8;
+		size_t bytesNeeded = numFrames * data.numChannels * data.bitsPerSample/8;
 		//size_t framesNeeded = numFrames;
 
 		while (bytesNeeded && (extra >> *destBuffer))
@@ -142,7 +148,7 @@ count_t AudioDecoder::ReadFrames(const count_t numFrames, void *destination)
 		if (!bytesNeeded)
 			return numFrames;
 
-		const count_t frameSize = data.numChannels * data.m_iBitsPerSample/8;
+		const count_t frameSize = data.bytesPerFrame;
 
 		while (bytesNeeded > 0)
 		{
@@ -168,7 +174,7 @@ count_t AudioDecoder::ReadFrames(const count_t numFrames, void *destination)
 			
 			if (dwFlags & MF_SOURCE_READERF_ENDOFSTREAM)
 			{
-				data.eof = true;
+				data.isEOF = true;
 				break;
 			}
 
@@ -191,33 +197,43 @@ count_t AudioDecoder::ReadFrames(const count_t numFrames, void *destination)
 				throw Except::IO::GeneralFault(CLOCATION, "SSMF: ConvertToContiguousBuffer() failed");
 			
 			BYTE *buffer = (NULL);
-			DWORD bufferLength = (0);
-			hr = pMBuffer->Lock(&buffer, NULL, &bufferLength);
+			DWORD bufferByteLength = (0);
+			hr = pMBuffer->Lock(&buffer, NULL, &bufferByteLength);
 			if (FAILED(hr))
 				throw Except::IO::GeneralFault(CLOCATION, "SSMF: Lock() failed");
 
+			const count_t bufferFrameLength = BytesToFrames( bufferByteLength );
+
+
 			//bufferLength /= (data.m_iBitsPerSample / 8 * data.numChannels); // now in frames
 
-			if (data.m_seeking)
+			if (data.isSeeking)
 			{
 				__int64 bufferPosition(frameFromMF(timestamp));
 
-				if (data.m_nextFrame >= bufferPosition &&
-					data.m_nextFrame < bufferPosition + bufferLength) {
+				if (data.seekTargetFrame >= bufferPosition &&
+					data.seekTargetFrame < bufferPosition + __int64(bufferFrameLength))
+				{
 					// m_nextFrame is in this buffer.
-					buffer += (data.m_nextFrame - bufferPosition) * frameSize;
-					bufferLength -= (data.m_nextFrame - bufferPosition) * frameSize;
-					data.m_seeking = false;
+					const count_t skipFrames = count_t(data.seekTargetFrame - bufferPosition);
+					data.currentSamplePosition += skipFrames;
+					const size_t skipBytes = skipFrames * frameSize;
+					buffer += skipBytes;
+					bufferByteLength -= DWORD(skipBytes);
+					data.isSeeking = false;
 				} else {
 					// we need to keep going forward
 					pMBuffer->Unlock();
+
+					data.currentSamplePosition += bufferFrameLength;
+
 					continue;
 				}
 			}
-			if (bytesNeeded <= bufferLength)
+			if (bytesNeeded <= bufferByteLength)
 			{
 				memcpy(destBuffer,buffer,bytesNeeded);
-				for (index_t i = bytesNeeded; i < bufferLength; i++)
+				for (index_t i = bytesNeeded; i < bufferByteLength; i++)
 					extra << buffer[i];
 				destBuffer += bytesNeeded;
 				bytesNeeded = 0;
@@ -225,19 +241,19 @@ count_t AudioDecoder::ReadFrames(const count_t numFrames, void *destination)
 			}
 			else
 			{
-				memcpy(destBuffer,buffer,bufferLength);
-				destBuffer += bufferLength;
-				bytesNeeded -= bufferLength;
+				memcpy(destBuffer,buffer,bufferByteLength);
+				destBuffer += bufferByteLength;
+				bytesNeeded -= bufferByteLength;
 			}
 			pMBuffer->Unlock();
 		}
 
 		const count_t bytesRead = destBuffer - (BYTE*)destination;
 		const count_t framesRead = bytesRead / frameSize;
-		const count_t samplesRead = bytesRead / (data.m_iBitsPerSample/8);
+		const count_t samplesRead = bytesRead / (data.bitsPerSample/8);
 
-		data.m_nextFrame += framesRead;
-		data.m_iCurrentPosition += samplesRead;
+		data.seekTargetFrame += framesRead;
+		data.currentSamplePosition += samplesRead;
 	
 		return framesRead;
 	}
@@ -248,9 +264,9 @@ count_t AudioDecoder::ReadFrames(const count_t numFrames, void *destination)
 	}
 }
 
-count_t AudioDecoder::CountSamples() const
+count_t AudioDecoder::CountTotalSamples() const
 {
-    return secondsFromMF(data.m_mfDuration) * data.frameRate * data.numChannels +data.numChannels-1;
+    return count_t(ceil( data.totalSeconds * data.frameRate * data.numChannels ));
 }
 
 //-------------------------------------------------------------------
@@ -327,13 +343,18 @@ void AudioDecoder::ConfigureAudioStream()
 
 	data.numChannels = numChannels;
 	data.frameRate = samplesPerSecond/numChannels;
-	data.m_iBitsPerSample = bitsPerSample;
+	data.bitsPerSample = bitsPerSample;
 	//For compressed files, the bits per sample is undefined, so by convention we're
 	//going to get 16-bit integers out.
-	if (data.m_iBitsPerSample == 0)
+	if (data.bitsPerSample == 0)
 	{
-		data.m_iBitsPerSample = kBitsPerSample;
+		data.bitsPerSample = kBitsPerSample;
 	}
+
+	data.bytesPerSample = data.bitsPerSample/8;
+	if ((data.bitsPerSample%8)!=0)
+		throw Except::IO::GeneralFault(CLOCATION, "SSMF: Bits per sample of loaded media ("+String(data.bitsPerSample)+") is not multiple of 8");
+	data.bytesPerFrame = data.bytesPerSample * data.numChannels;
 
     hr = MFCreateMediaType(data.audioType.Init());
     if (FAILED(hr))
@@ -440,9 +461,9 @@ void AudioDecoder::ReadProperties()
     // QuadPart isn't available on compilers that don't support _int64. Visual
     // Studio 6.0 introduced the type in 1998, so I think we're safe here
     // -bkgood
-    data.m_fDuration = secondsFromMF(prop.hVal.QuadPart);
-    data.m_mfDuration = prop.hVal.QuadPart;
-    std::cout << "SSMF: Duration: " << data.m_fDuration << std::endl;
+    data.totalSeconds = secondsFromMF(prop.hVal.QuadPart);
+    //data.m_mfDuration = prop.hVal.QuadPart;
+    std::cout << "SSMF: Duration: " << data.totalSeconds << std::endl;
     PropVariantClear(&prop);
 
 }

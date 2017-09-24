@@ -99,16 +99,16 @@ namespace DeltaWorks
 		Queries whether or not the local decoder is currently active
 		*/
 		bool	IsActive() const {return data.reader.IsNotEmpty();}
-		count_t CountSamples() const;
+		count_t CountTotalSamples() const;
 		count_t	GetChannels() const {return data.numChannels;}
 		count_t	GetFramesPerSecond() const {return data.frameRate;}
-		void	Rewind()	{SeekFrame(0); data.eof=false;};
+		void	Rewind()	{SeekFrame(0); data.isEOF=false;};
 		/**
 		Checks whether or not the local stream has reached the end.
 		*/
-		bool	IsAtEnd() const {return data.eof;}
-		count_t	GetBitsPerSample() const {return data.m_iBitsPerSample;}
-		count_t	GetFrameByteSize() const {return data.numChannels * data.m_iBitsPerSample/8;}
+		bool	IsAtEnd() const {return data.isEOF;}
+		count_t	GetBitsPerSample() const {return data.bitsPerSample;}
+		count_t	GetFrameByteSize() const {return data.numChannels * data.bitsPerSample/8;}
 	private:
 		void	ConfigureAudioStream();
 		void	ReadProperties();
@@ -118,23 +118,44 @@ namespace DeltaWorks
 		__int64 mfFromFrame(__int64 frame) const;
 		void	GetUINT32(const GUID&id, UINT32&v) const;
 
+		count_t	BytesToFrames(size_t numBytes) const;
+
+
 		struct Data
 		{
 			PathString filename;
 
-			count_t	numChannels=0,frameRate=0;
+			/**
+			Number of channels in the local medium.
+			Usually 2 (stereo)
+			*/
+			count_t	numChannels=0;
+			/**
+			Number of audio frames per second.
+			A frame contains one sample per channel.
+			frameRate = sampleRate / numChannels
+			sampleRate = frameRate * numChannels
+			*/
+			count_t	frameRate=0;
 
 			Handle<IMFSourceReader>	 reader;
 			Handle<IMFMediaType> audioType;
-			__int64 m_nextFrame = 0;
+			
+			/**
+			If isSeeking is true, specifies the frame that should be skipped to
+			*/
+			__int64 seekTargetFrame = 0;
+			/**
 
-			__int64 m_mfDuration = 0;
-			long m_iCurrentPosition = 0;
-			bool m_seeking = false;
-			double m_fDuration = 0;
-			unsigned int m_iBitsPerSample = 0;
-			bool	eof = false;
-		}		data;
+			*/
+			index_t currentSamplePosition = 0;
+			bool	isSeeking = false;
+			double	totalSeconds = 0;
+			count_t	bitsPerSample = 0;
+			count_t	bytesPerSample = 0;
+			count_t	bytesPerFrame = 0;
+			bool	isEOF = false;
+		}			data;
 
 		Queue<BYTE>	extra;
 		//Buffer<short> leftoverBuffer;
