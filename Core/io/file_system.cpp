@@ -909,7 +909,7 @@ namespace DeltaWorks
 			return FindEntry(folder_str,out,wasDir,mustExist) && !wasDir;
 		}
 
-		bool	 Folder::FindFolder(const PathString&folder_str, File&out, bool mustExist/*=true*/)	const
+		bool	 Folder::FindDirectory(const PathString&folder_str, File&out, bool mustExist/*=true*/)	const
 		{
 			//return Find(folder_str,out,mustExist) && out.is_folder;
 			bool wasDir;
@@ -922,7 +922,7 @@ namespace DeltaWorks
 			return false;
 		}
 
-		const Folder::File*	 Folder::FindFolder(const PathString&folder_str, bool mustExist/*=true*/)	const
+		const Folder::File*	 Folder::FindDirectory(const PathString&folder_str, bool mustExist/*=true*/)	const
 		{
 			bool wasDir;
 			const File*rs = FindEntry(folder_str,wasDir,mustExist);
@@ -1637,7 +1637,7 @@ namespace DeltaWorks
 			
 			if (slash != localSlash)
 				out.location.FindAndReplace(slash,localSlash);
-			ASSERT__( Folder().FindFolder(out.location,out) );
+			ASSERT__( Folder().FindDirectory(out.location,out) );
 		}
 
 		bool  CreateDirectory(const PathString&folder_name, File&out)
