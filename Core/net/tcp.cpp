@@ -685,6 +685,7 @@ namespace DeltaWorks
 			try
 			{
 				client->socketAccess->SetSocket(socketHandle);
+				client->lastReceivedPackage = timer.Now();
 			}
 			catch (const std::exception&exception)
 			{
