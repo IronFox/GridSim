@@ -842,32 +842,36 @@ namespace DeltaWorks
 		}
 
 
-		const File*			Folder::Find(const PathString&path, bool mustExist/*=true*/)						const
+		const File*			Folder::Find(const PathString&path, UINT32 findFlags)						const
 		{
-			bool dummy;
-			return FindEntry(path,dummy,mustExist);
+			bool dummy,dummy2;
+			return FindEntry(path,dummy,dummy2,findFlags);
 		}
 
-		bool				Folder::Find(const PathString&path, File&out, bool mustExist/*=true*/)			const
+		bool				Folder::Find(const PathString&path, File&out, UINT32 findFlags)			const
 		{
-			bool dummy;
-			return FindEntry(path,out,dummy,mustExist);
+			bool dummy,dummy2;
+			return FindEntry(path,out,dummy,dummy2,findFlags);
 		}
 
 
-		const Folder::File*	 Folder::FindEntry(const PathString&folder_str, bool&outIsDirectory,bool mustExist/*=true*/)	const
+		const Folder::File*	 Folder::FindEntry(const PathString&folder_str, bool&outIsDirectory,bool&outExists,UINT32 findFlags)	const
 		{
-			if (FindEntry(folder_str,file,outIsDirectory,mustExist))
+			if (FindEntry(folder_str,file,outIsDirectory,outExists,findFlags))
 				return &file;
 			return NULL;
 		}
 
-		bool	 Folder::FindEntry(const PathString&folder_str, File&out, bool&outIsDirectory,bool mustExist/*=true*/)	const
+		bool	 Folder::FindEntry(const PathString&folder_str, File&out, bool&outIsDirectory,bool&outExists,UINT32 findFlags)	const
 		{
+			outExists = false;
+			outIsDirectory = false;
 			if (!IsValidLocation())
 				return false;
-			if (!ResolvePath(folder_str,nullptr,out.location) && mustExist)
+			if (!ResolvePath(folder_str,nullptr,out.location) && (findFlags & FindFlags::MustExists) != 0)
+			{
 				return false;
+			}
 			out.name = ExtractFileNameExt(out.location);
 			#if SYSTEM==WINDOWS
 				if (out.name.EndsWith(':'))
@@ -876,62 +880,67 @@ namespace DeltaWorks
 					UINT type = GetDriveTypeW(driveName.c_str());
 					bool valid = type == DRIVE_FIXED || type == DRIVE_REMOTE || type == DRIVE_CDROM || type == DRIVE_RAMDISK;
 					outIsDirectory = true;
-					return valid || !mustExist;
+					outExists = valid;
+					if (findFlags & FindFlags::MustBeFile)
+						return false;
+					return valid || (findFlags & FindFlags::MustExists) == 0;
 				}
 
 				DWORD attributes = GetFileAttributesW(out.location.c_str());
 				if (attributes == INVALID_FILE_ATTRIBUTES)
-					return !mustExist;
-				outIsDirectory = (attributes&FILE_ATTRIBUTE_DIRECTORY)!=0;
+				{
+					return (findFlags & FindFlags::MustExists) == 0;
+				}
+				bool isDir = outIsDirectory = (attributes&FILE_ATTRIBUTE_DIRECTORY)!=0;
+				outExists = true;
 			#elif SYSTEM==UNIX
 				struct stat s;
 				if (stat(out.location.c_str(),&s))
-					return !mustExist;
-				outIsDirectory = s.st_mode&S_IFDIR;
+					return req == Requirement::None;
+				bool isDir = outIsDirectory = s.st_mode&S_IFDIR;
+				outExists = true;
 			#else
 				#error not supported
 			#endif
+			if (isDir && (findFlags & FindFlags::MustBeFile))
+				return false;
+			if (!isDir && (findFlags & FindFlags::MustBeDirectory))
+				return false;
 			return true;
 		}
 
 		const Folder::File*	 Folder::FindFile(const PathString&folder_str, bool mustExist/*=true*/)	const
 		{
-			bool wasDir;
-			const File*rs = FindEntry(folder_str,wasDir, mustExist);
-			if (!rs || wasDir)
-				return NULL;
-			return rs;
+			UINT32 flags = FindFlags::MustBeFile;
+			if (mustExist)
+				flags |= FindFlags::MustExists;
+			return Find(folder_str,flags);
 		}
 
 		bool	 Folder::FindFile(const PathString&folder_str, File&out, bool mustExist/*=true*/)	const
 		{
-			bool wasDir;
-			return FindEntry(folder_str,out,wasDir,mustExist) && !wasDir;
+			UINT32 flags = FindFlags::MustBeFile;
+			if (mustExist)
+				flags |= FindFlags::MustExists;
+			return Find(folder_str,out,flags);
 		}
 
 		bool	 Folder::FindDirectory(const PathString&folder_str, File&out, bool mustExist/*=true*/)	const
 		{
-			//return Find(folder_str,out,mustExist) && out.is_folder;
-			bool wasDir;
-			if (FindEntry(folder_str,out,wasDir,mustExist))
-			{
-				if (mustExist)
-					return wasDir;
-				return !IsFile(out.location);
-			}
-			return false;
+			bool wasDir,exists;
+			UINT32 flags = FindFlags::MustBeDirectory;
+			if (mustExist)
+				flags |= FindFlags::MustExists;
+			return FindEntry(folder_str,out,wasDir, exists,flags);
 		}
 
 		const Folder::File*	 Folder::FindDirectory(const PathString&folder_str, bool mustExist/*=true*/)	const
 		{
-			bool wasDir;
-			const File*rs = FindEntry(folder_str,wasDir,mustExist);
-			if (!rs)
-				return NULL;
-
+			bool wasDir,exists;
+			UINT32 flags = FindFlags::MustBeDirectory;
 			if (mustExist)
-				return wasDir ? rs : NULL;
-			return IsFile(rs->location) ? NULL : rs;
+				flags |= FindFlags::MustExists;
+			return FindEntry(folder_str,wasDir, exists,flags);
 		}
 
 		const Folder::File*	 Folder::CreateDirectory(const PathString&name)	const

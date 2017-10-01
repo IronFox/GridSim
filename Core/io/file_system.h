@@ -233,88 +233,100 @@ namespace DeltaWorks
 		};
 
 
+		namespace FindFlags
+		{
+			enum flag_t
+			{
+				MustExists = 0x1,
+				MustBeFile = 0x2,
+				MustBeDirectory = 0x4,
+			};
+		};
+
+
+
 		/**
-			\brief Folder handle
+		\brief Folder handle
 		*/
 		class Folder 
 		{
 		public:
-				typedef File	File;			//!< File entry
-				typedef Drive	Drive;			//!< Drive entry
+			typedef File	File;			//!< File entry
+			typedef Drive	Drive;			//!< Drive entry
 		private:
-				PathString			absolute_folder;
-		static	File				file;
-				#if SYSTEM == WINDOWS
-					HANDLE			find_handle;
-					WIN32_FIND_DATAW find_data;
-				#elif SYSTEM == UNIX
-					DIR				*find_handle;
-				#endif
+			PathString			absolute_folder;
+			static	File				file;
+			#if SYSTEM == WINDOWS
+				HANDLE			find_handle;
+				WIN32_FIND_DATAW find_data;
+			#elif SYSTEM == UNIX
+				DIR				*find_handle;
+			#endif
 
-				void				closeScan();
-				bool				locate(const PathString&path);
-				bool				ResolvePathAndMoveTo(const PathString&path, bool moveToParent);
-				bool				ResolvePath(const PathString&path, PathString*finalParent, PathString&final) const;
-				static bool			ExitAbs(PathString&, bool check);
+			void				closeScan();
+			bool				locate(const PathString&path);
+			bool				ResolvePathAndMoveTo(const PathString&path, bool moveToParent);
+			bool				ResolvePath(const PathString&path, PathString*finalParent, PathString&final) const;
+			static bool			ExitAbs(PathString&, bool check);
 		public:
 
 
 
-									Folder();
-									Folder(const PathString&folder_string);
-									Folder(const File&file);
-									Folder(const File*file);
-									Folder(const Folder&other);
-		virtual						~Folder();
-				Folder&				operator=(const Folder&other);
-				Folder&				operator=(const File&file);
-				Folder&				operator=(const File*file);
-				Folder&				operator=(const PathString&folder_string);
-				bool				MoveTo(const PathString&folder_string);	//!< Leaves the current location and moves to the specified folder. If goTo fails then Folder is in an invalid location. \param folder_string Absolute or relative folder to move to \return true on success
-				bool				MoveTo(const File*file);				//!< Leaves current location and moves to the specified folder. If goTo fails then Folder is in an invalid location. \param file Handle to the folder to move to \return true on success
-				bool				MoveTo(const File&file);				//!< Leaves current location and moves to the specified folder. If goTo fails then Folder is in an invalid location. \param file Handle to the folder to move to \return true on success
-				bool				Exit();									//!< Attempts to drop back to the next superior folder. If no such exists or it cannot be entered then Folder will return to the original state. \return true on success
-				bool				Enter(const File&file);					//!< Attempts to enter the specified sub folder. If no such exists or it cannot be entered then Folder will restore the original state. \param file Handle of the respective sub folder \return true on success
-				bool				Enter(const File*file);					//!< Attempts to enter the specified sub folder. If no such exists or it cannot be entered then Folder will restore the original state. \param file Handle of the respective sub folder \return true on success
-				bool				Enter(const PathString&folder_name);		//!< Attempts to enter the specified sub folder. If no such exists or it cannot be entered then Folder will restore the original state. \param folder_name Name of the respective sub folder \return true on success
-				const File*			ParentLocation()	const;				//!< Queries parent location. Returns NULL if folder is top-most folder \return Pointer to a handle pointing to the respective parent folder or NULL if no such exists
-				const File*			Location()			const;				//!< Queries location. Returns NULL if the current location is invalid \return Pointer to a handle pointing to the current location or NULL if the current location is invalid
-				const PathString&	LocationStr()		const;				//!< Queries location. \return Absolute location
-				const PathString&	GetLocation()		const;				//!< Queries location. \return Absolute location
-				bool				IsValidLocation()	const;					//!< Queries location validity. \return true if Folder resides in a valid folder (retrieves content of a local variable)
-				count_t				CountEntries()		const;				//!< Counts files/folders in the local folder \return Number of entries in the local folder
+								Folder();
+								Folder(const PathString&folder_string);
+								Folder(const File&file);
+								Folder(const File*file);
+								Folder(const Folder&other);
+			virtual				~Folder();
+			Folder&				operator=(const Folder&other);
+			Folder&				operator=(const File&file);
+			Folder&				operator=(const File*file);
+			Folder&				operator=(const PathString&folder_string);
+			bool				MoveTo(const PathString&folder_string);	//!< Leaves the current location and moves to the specified folder. If goTo fails then Folder is in an invalid location. \param folder_string Absolute or relative folder to move to \return true on success
+			bool				MoveTo(const File*file);				//!< Leaves current location and moves to the specified folder. If goTo fails then Folder is in an invalid location. \param file Handle to the folder to move to \return true on success
+			bool				MoveTo(const File&file);				//!< Leaves current location and moves to the specified folder. If goTo fails then Folder is in an invalid location. \param file Handle to the folder to move to \return true on success
+			bool				Exit();									//!< Attempts to drop back to the next superior folder. If no such exists or it cannot be entered then Folder will return to the original state. \return true on success
+			bool				Enter(const File&file);					//!< Attempts to enter the specified sub folder. If no such exists or it cannot be entered then Folder will restore the original state. \param file Handle of the respective sub folder \return true on success
+			bool				Enter(const File*file);					//!< Attempts to enter the specified sub folder. If no such exists or it cannot be entered then Folder will restore the original state. \param file Handle of the respective sub folder \return true on success
+			bool				Enter(const PathString&folder_name);		//!< Attempts to enter the specified sub folder. If no such exists or it cannot be entered then Folder will restore the original state. \param folder_name Name of the respective sub folder \return true on success
+			const File*			ParentLocation()	const;				//!< Queries parent location. Returns NULL if folder is top-most folder \return Pointer to a handle pointing to the respective parent folder or NULL if no such exists
+			const File*			Location()			const;				//!< Queries location. Returns NULL if the current location is invalid \return Pointer to a handle pointing to the current location or NULL if the current location is invalid
+			const PathString&	LocationStr()		const;				//!< Queries location. \return Absolute location
+			const PathString&	GetLocation()		const;				//!< Queries location. \return Absolute location
+			bool				IsValidLocation()	const;					//!< Queries location validity. \return true if Folder resides in a valid folder (retrieves content of a local variable)
+			count_t				CountEntries()		const;				//!< Counts files/folders in the local folder \return Number of entries in the local folder
 			
-				void				Reset();									//!< Resets the folder cursor to the beginning of the folder
-				void				Rewind();									//!< Identical to reset()
-				const File*			NextEntry(bool&outIsDirectory);				//!< Returns the next entry in the local folder \return Pointer to a file container pointing to the next entry in the local folder or NULL if no such exists
-				bool				NextEntry(File&out,bool&outIsDirectory);	//!< Identifies the next entry in the local folder \param out Target file structure to hold the next entry \return true if a next entry exists, false otherwise
-				const File*			NextEntry();								//!< Returns the next entry in the local folder \return Pointer to a file container pointing to the next entry in the local folder or NULL if no such exists
-				bool				NextEntry(File&out);						//!< Identifies the next entry in the local folder \param out Target file structure to hold the next entry \return true if a next entry exists, false otherwise
-				const File*			NextFolder();								//!< Returns the next folder in the local folder \return Pointer to a file container pointing to the next folder in the local folder or NULL if no such exists
-				bool				NextFolder(File&out);						//!< Identifies the next folder in the local folder \param out Target file structure to hold the next folder \return true if a next folder exists, false otherwise
-				const File*			NextFile();									//!< Returns the next file in the local folder \return Pointer to a file container pointing to the next file in the local folder or NULL if no such exists
-				bool				NextFile(File&out);							//!< Identifies the next file in the local folder \param out Target file structure to hold the next file \return true if a next file exists, false otherwise
-				const File*			NextFile(const PathString&extension);				//!< Returns the next file in the local folder matching the specified extension \return Pointer to a file container pointing to the next file matching the specified extension in the local folder or NULL of no such exists
-				bool				NextFile(const PathString&extension, File&out);	//!< Identifies the next file in the local folder matching the specified extension \param extension File extension to look for (without succeeding dot) \param out Target file structure to hold the next matching file \return true if a next file of the specified extension exists, false otherwise
-				const File*			FindEntry(const PathString&path, bool&outIsDirectory,bool mustExist)						const;
-				bool				FindEntry(const PathString&path, File&out, bool&outIsDirectory,bool mustExist)			const;
-				const File*			Find(const PathString&path, bool mustExist=true)						const;	//!< Locates the specified file or folder starting from the current folder location. \param path Path to the file or folder that should be located \return Pointer to a file container pointing to the specified entry or NULL if the entry could not be located
-				bool				Find(const PathString&path, File&out, bool mustExist=true)			const;	//!< Locates the specified file or folder starting from the current folder location. \param path Path to the file or folder that should be located \param out Out File structure reference. \return true if the entry could be located
-				const File*			FindFile(const PathString&path, bool mustExist=true)					const;	//!< Locates the specified file starting from the current folder location \param path Path to the file that should be located \return Pointer to a file container pointing to the specified file or NULL if the file could not be located
-				bool				FindFile(const PathString&path, File&out, bool mustExist=true)		const;	//!< Locates the specified file starting from the current folder location. \param path Path to the file or folder that should be located \param out Out File structure reference. \return true if the entry could be located
-				const File*			FindDirectory(const PathString&path, bool mustExist=true)				const;	//!< Locates the specified folder starting from the current folder location \param path Path to the folder that should be located \return Pointer to a file container pointing to the specified folder or NULL if the folder could not be located
-				bool				FindDirectory(const PathString&path, File&out, bool mustExist=true)		const;	//!< Locates the specified folder starting from the current folder location. \param path Path to the file or folder that should be located \param out Out File structure reference. \return true if the entry could be located
-				const File*			CreateDirectory(const PathString&name)				const;	//!< Creates the specified sub folder \param name Name of the sub folder to create \return Pointer to a file container pointing to the newly created folder or NULL if the folder could not be created
-				bool				CreateDirectory(const PathString&name, File&out)	const;	//!< Creates the specified sub folder \param name Name of the sub folder to create \param out Out File structure reference. \return true if the new folder could be created, false otherwise.
+			void				Reset();									//!< Resets the folder cursor to the beginning of the folder
+			void				Rewind();									//!< Identical to reset()
+			const File*			NextEntry(bool&outIsDirectory);				//!< Returns the next entry in the local folder \return Pointer to a file container pointing to the next entry in the local folder or NULL if no such exists
+			bool				NextEntry(File&out,bool&outIsDirectory);	//!< Identifies the next entry in the local folder \param out Target file structure to hold the next entry \return true if a next entry exists, false otherwise
+			const File*			NextEntry();								//!< Returns the next entry in the local folder \return Pointer to a file container pointing to the next entry in the local folder or NULL if no such exists
+			bool				NextEntry(File&out);						//!< Identifies the next entry in the local folder \param out Target file structure to hold the next entry \return true if a next entry exists, false otherwise
+			const File*			NextFolder();								//!< Returns the next folder in the local folder \return Pointer to a file container pointing to the next folder in the local folder or NULL if no such exists
+			bool				NextFolder(File&out);						//!< Identifies the next folder in the local folder \param out Target file structure to hold the next folder \return true if a next folder exists, false otherwise
+			const File*			NextFile();									//!< Returns the next file in the local folder \return Pointer to a file container pointing to the next file in the local folder or NULL if no such exists
+			bool				NextFile(File&out);							//!< Identifies the next file in the local folder \param out Target file structure to hold the next file \return true if a next file exists, false otherwise
+			const File*			NextFile(const PathString&extension);				//!< Returns the next file in the local folder matching the specified extension \return Pointer to a file container pointing to the next file matching the specified extension in the local folder or NULL of no such exists
+			bool				NextFile(const PathString&extension, File&out);	//!< Identifies the next file in the local folder matching the specified extension \param extension File extension to look for (without succeeding dot) \param out Target file structure to hold the next matching file \return true if a next file of the specified extension exists, false otherwise
+			const File*			FindEntry(const PathString&path, bool&outIsDirectory,bool&outExists,UINT32 findFlags)						const;
+			bool				FindEntry(const PathString&path, File&out, bool&outIsDirectory,bool&outExists,UINT32 findFlags)			const;
+			const File*			Find(const PathString&path,UINT32 findFlags = FindFlags::MustExists)						const;	//!< Locates the specified file or folder starting from the current folder location. \param path Path to the file or folder that should be located \return Pointer to a file container pointing to the specified entry or NULL if the entry could not be located
+			bool				Find(const PathString&path, File&out,UINT32 findFlags = FindFlags::MustExists)			const;	//!< Locates the specified file or folder starting from the current folder location. \param path Path to the file or folder that should be located \param out Out File structure reference. \return true if the entry could be located
+			const File*			FindFile(const PathString&path, bool mustExist=true)					const;	//!< Locates the specified file starting from the current folder location \param path Path to the file that should be located \return Pointer to a file container pointing to the specified file or NULL if the file could not be located
+			bool				FindFile(const PathString&path, File&out, bool mustExist=true)		const;	//!< Locates the specified file starting from the current folder location. \param path Path to the file or folder that should be located \param out Out File structure reference. \return true if the entry could be located
+			const File*			FindDirectory(const PathString&path, bool mustExist=true)				const;	//!< Locates the specified folder starting from the current folder location \param path Path to the folder that should be located \return Pointer to a file container pointing to the specified folder or NULL if the folder could not be located
+			bool				FindDirectory(const PathString&path, File&out, bool mustExist=true)		const;	//!< Locates the specified folder starting from the current folder location. \param path Path to the file or folder that should be located \param out Out File structure reference. \return true if the entry could be located
+			const File*			CreateDirectory(const PathString&name)				const;	//!< Creates the specified sub folder \param name Name of the sub folder to create \return Pointer to a file container pointing to the newly created folder or NULL if the folder could not be created
+			bool				CreateDirectory(const PathString&name, File&out)	const;	//!< Creates the specified sub folder \param name Name of the sub folder to create \param out Out File structure reference. \return true if the new folder could be created, false otherwise.
 			
-				String				ToString()		const;						//!< Creates a string representation of the local folder
+			String				ToString()		const;						//!< Creates a string representation of the local folder
 			
-				bool				operator<(const Folder&other)	const;
-				bool				operator>(const Folder&other)	const;
-				bool				operator<=(const Folder&other)	const;
-				bool				operator>=(const Folder&other)	const;
-				bool				operator==(const Folder&other)	const;
-				bool				operator!=(const Folder&other)	const;
+			bool				operator<(const Folder&other)	const;
+			bool				operator>(const Folder&other)	const;
+			bool				operator<=(const Folder&other)	const;
+			bool				operator>=(const Folder&other)	const;
+			bool				operator==(const Folder&other)	const;
+			bool				operator!=(const Folder&other)	const;
 
 		};
 
