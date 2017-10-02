@@ -27,6 +27,11 @@ namespace Engine
 			void		SetVolume(float volume);
 
 			float		GetVolume() const	{return volume;}
+			/**
+			Checks if the local player is playing and not fading out
+			*/
+			bool		IsPlaying() const	{return isPlaying && !doFade;}
+			bool		IsFadingOut() const {return doFade && isPlaying;}
 
 			void		ThreadMain() override;
 			void		Stop();
@@ -42,8 +47,8 @@ namespace Engine
 			float			volume = 1;
 			AudioDecoder	decoder;
 			PathString		source;
-			bool			loop,doFadeIn=false;
-			volatile bool	quit=false,doFade=false;;
+			bool			loop,doFadeIn=false,isPlaying=false;
+			volatile bool	quit=false,doFade=false;
 		};
 
 

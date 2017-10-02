@@ -74,10 +74,10 @@ namespace Engine
 
 		void	MusicPlayer::ThreadMain()
 		{
+			isPlaying = true;
 			ALuint			output=0,buffer[4]={0};
 			try
 			{
-
 				decoder.Open(source);
 
 				alGenSources( 1, &output );
@@ -171,6 +171,7 @@ namespace Engine
 			}
 			catch(...)
 			{}
+			isPlaying = false;
 		}
 
 
