@@ -237,6 +237,7 @@ namespace DeltaWorks
 		{
 			enum flag_t
 			{
+				None = 0x0,
 				MustExists = 0x1,
 				MustBeFile = 0x2,
 				MustBeDirectory = 0x4,

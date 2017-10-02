@@ -1466,7 +1466,7 @@ namespace DeltaWorks
 					scan.Rewind();
 					while (scan.NextEntry(found))
 					{
-						if (write.Find(found.GetName(),dest,false))
+						if (write.Find(found.GetName(),dest,FindFlags::None))
 							Copy(found.GetLocation(),dest.GetLocation(),copied,overwrite_if_exist);
 					}
 				}
@@ -1872,7 +1872,7 @@ namespace DeltaWorks
 		{
 			Folder	folder(GetWorkingDirectory());
 			File file;
-			if (folder.Find(relative_path,file))
+			if (folder.Find(relative_path,file,FindFlags::None))
 				return file.GetLocation();
 			return relative_path;
 		}
