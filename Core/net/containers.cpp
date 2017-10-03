@@ -45,20 +45,31 @@ namespace DeltaWorks
 			return true;
 		}
 
-		void			AssertValidity(const StringRef&str, const count_t maxLength)
+		void			AssertValidity(String&str, const count_t maxLength)
 		{
-			try
-			{
-				CheckValidity(str,maxLength);
-			}
-			catch (const std::exception&ex)
-			{
-				Except::TriggerFatal(CLOCATION,ex.what());
-			}
-			catch (...)
-			{
-				Except::TriggerFatal(CLOCATION,"Unknown exception");
-			}
+			#ifndef _DEBUG
+				str.Truncate(maxLength);
+
+				for (index_t i = 0; i < str.length(); i++)
+				{
+					const char c = str[i];
+					if (!IsValidChar(c))
+						str.Set(i,'?');
+				}
+			#else
+				try
+				{
+					CheckValidity(str,maxLength);
+				}
+				catch (const std::exception&ex)
+				{
+					Except::TriggerFatal(CLOCATION,ex.what());
+				}
+				catch (...)
+				{
+					Except::TriggerFatal(CLOCATION,"Unknown exception");
+				}
+			#endif
 		}
 
 		void			CheckValidity(const StringRef&str, const count_t maxLength)

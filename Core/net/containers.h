@@ -28,10 +28,6 @@ namespace DeltaWorks
 		*/
 		bool			IsValid(const StringRef&str, const count_t maxLength=std::numeric_limits<count_t>::max());
 		/**
-		Similar to IsValid(), but triggers detailed fatals. Any found error terminates the local program
-		*/
-		void			AssertValidity(const StringRef&str, const count_t maxLength=std::numeric_limits<count_t>::max());
-		/**
 		Similar to IsValid(), but throws detailed exceptions
 		*/
 		void			CheckValidity(const StringRef&str, const count_t maxLength=std::numeric_limits<count_t>::max());
@@ -40,9 +36,9 @@ namespace DeltaWorks
 		*/
 		inline bool		IsValid(const String&str, const count_t maxLength=std::numeric_limits<count_t>::max()) {return IsValid(str.ToRef(),maxLength);}
 		/**
-		@copydoc AssertValidity(const StringRef&,const count_t maxLength)
+		Similar to IsValid(), but triggers detailed fatals in debug mode, and silently fixes issues in release. Any found error in debug mode terminate the local program
 		*/
-		inline void		AssertValidity(const String&str, const count_t maxLength=std::numeric_limits<count_t>::max()) {AssertValidity(str.ToRef(),maxLength);}
+		void			AssertValidity(String&str, const count_t maxLength=std::numeric_limits<count_t>::max());
 		/**
 		@copydoc CheckValidity(const StringRef&,const count_t maxLength)
 		*/
@@ -85,8 +81,8 @@ namespace DeltaWorks
 				
 				void				operator=(const String&other)
 				{
-					AssertValidity(other,MaxLength);
 					String::operator=(other);
+					AssertValidity(*this,MaxLength);
 				}
 			};
 
