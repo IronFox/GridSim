@@ -450,6 +450,21 @@ namespace DeltaWorks
 
 
 
+		template <typename T>
+			inline bool		operator==(const TVec2<T>&a, const TVec2<T>&b)
+			{
+				return Vec::equal(a,b);
+			}
+		template <typename T>
+			inline bool		operator==(const TVec3<T>&a, const TVec3<T>&b)
+			{
+				return Vec::equal(a,b);
+			}
+		template <typename T>
+			inline bool		operator==(const TVec4<T>&a, const TVec4<T>&b)
+			{
+				return Vec::equal(a,b);
+			}
 
 		template <typename T>
 			inline Vec2<T>	operator-(const TVec2<T>&a, const TVec2<T>&b)
