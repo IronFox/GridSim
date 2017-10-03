@@ -350,6 +350,12 @@ namespace DeltaWorks
 				return Round(x * factor) / factor;
 			}
 
+		template <typename T>
+			inline int	RoundToInt(T x)
+			{
+				return int(Round(x));
+			}
+
 		/**
 		Calculates ceil(x/div) as an unsigned integer operation.
 		*/
