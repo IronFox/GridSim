@@ -438,7 +438,7 @@ void InconsistencyCoverage::Grow(InconsistencyCoverage & rs) const
 			for (UINT32 y = 0; y < this->grid.GetHeight(); y++)
 				for (UINT32 x = 0; x < this->grid.GetWidth(); x++)
 				{
-					const TSample&v = grid.Get(x, y, z);
+					const TExtSample&v = grid.Get(x, y, z);
 					auto&out = rs.grid.Get(x + expandBy, y + expandBy, z + expandBy);
 					out = v;
 					if (!out.IsConsistent())
@@ -449,7 +449,7 @@ void InconsistencyCoverage::Grow(InconsistencyCoverage & rs) const
 			for (UINT32 y = 0; y < grid.GetHeight(); y++)
 				for (UINT32 x = 0; x < grid.GetWidth(); x++)
 				{
-					TSample v = grid.Get(x,y,z);
+					TExtSample v = grid.Get(x,y,z);
 					if (!v.IsConsistent())
 						v.IncreaseDepth();
 					if (v.depth < 2)
@@ -551,7 +551,7 @@ static InconsistencyCoverage::TExtSample*	GetVerified(Array2D<InconsistencyCover
 
 
 template <class S>
-static const InconsistencyCoverage::TSample*	GetVerified(const Array3D<InconsistencyCoverage::TSample,S>&array, const M::VecN<int,3>&c)
+static const InconsistencyCoverage::TExtSample*	GetVerified(const Array3D<InconsistencyCoverage::TExtSample,S>&array, const M::VecN<int,3>&c)
 {
 	if (c.x < 0 || c.y < 0 || c.z < 0)
 		return nullptr;
@@ -561,7 +561,7 @@ static const InconsistencyCoverage::TSample*	GetVerified(const Array3D<Inconsist
 }
 
 template <class S>
-static InconsistencyCoverage::TSample*	GetVerified(Array3D<InconsistencyCoverage::TSample,S>&array, const M::VecN<int,3>&c)
+static InconsistencyCoverage::TExtSample*	GetVerified(Array3D<InconsistencyCoverage::TExtSample,S>&array, const M::VecN<int,3>&c)
 {
 	if (c.x < 0 || c.y < 0 || c.z < 0)
 		return nullptr;
@@ -778,7 +778,7 @@ bool		InconsistencyCoverage::FindInconsistentPlacementCandidate(TEntityCoords&in
 		{
 			if (grid.Get(x,y,z).IsConsistent())
 				continue;
-			int dist = sqr(x-c.x)+sqr(y-c.y)+sqr(z-c.z);
+			int dist = M::Sqr(x-c.x)+M::Sqr(y-c.y)+M::Sqr(z-c.z);
 			if (dist >= d2)
 				continue;
 			d2 =dist;

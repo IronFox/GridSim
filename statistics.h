@@ -4,7 +4,10 @@
 #include "InconsistencyCoverage.h"
 #include "simulation.h"
 #include <io/xml.h>
-	
+
+
+#define MERGE_PROFILE_IS_COMPARATOR_SOURCE
+
 
 
 namespace Statistics
@@ -399,6 +402,7 @@ namespace Statistics
 		}
 	};
 
+	#ifdef MERGE_PROFILE_IS_COMPARATOR_SOURCE
 	class ProfileComparator : public IC::Comparator
 	{
 		float	GetBadness(const IC::TSample&s) const;
@@ -409,6 +413,7 @@ namespace Statistics
 		}
 		virtual String GetName() const override {return "Profile";}
 	};
+	#endif
 
 
 	void	CaptureInconsistency(const IC&, const EntityStorage&inconsistent, const EntityStorage&consistent, const TGridCoords&shardOffset);

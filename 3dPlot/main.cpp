@@ -12,7 +12,6 @@
 #include <io/delta_crc32.h>
 #include <string/converter.h>
 
-using namespace DeltaWorks::Math;
 using namespace DeltaWorks;
 
 float l[3] = {0,1,0};
@@ -131,7 +130,7 @@ bool loop()		//main loop function
 {
 	if (mouse.buttons.pressed)		//rotate the camera if any mouse button is currently pressed
 	{
-		TVec2<> d = mouse.location.windowRelative - mouse.previous_location.windowRelative;
+		M::TVec2<> d = mouse.location.windowRelative - mouse.previous_location.windowRelative;
 		camera.AlterAngles(-d.y*100.0f,0,-d.x*100.0f);						//rotate the camera (also rebuild the camera)
 	}
 	static Timer::Time lastLoad = timer.Now();
@@ -830,7 +829,7 @@ void GetFilesIn(FileSystem::Folder sources, BasicBuffer<FileSystem::File>&rsOut,
 
 
 template <typename T, count_t NumCoefficientsX, count_t NumCoefficientsY>
-	void PrintTableToCSV(StringFile&csv, const char*name, const TMatrix<T,NumCoefficientsX,NumCoefficientsY>&p)
+	void PrintTableToCSV(StringFile&csv, const char*name, const M::TMatrix<T,NumCoefficientsX,NumCoefficientsY>&p)
 	{
 		csv << name<<','<<NumCoefficientsX<<','<<NumCoefficientsY;
 		csv << nl;

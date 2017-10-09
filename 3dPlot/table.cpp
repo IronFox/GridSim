@@ -1839,7 +1839,7 @@ Table::TEdgePoint::TEdgePoint(const float*cgsVertex):position(cgsVertex),color(c
 			float fy = (float)iy/(resolution-1);
 			float fx = fx0;
 			auto s = surfaceFunction(fy,fx);
-
+			//fx *= 1.008f;
 			fx = fx * 2.f - 1.f;
 			fy = fy * 2.f - 1.f;
 			if (!s.cover)

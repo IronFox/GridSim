@@ -710,7 +710,7 @@ namespace Build
 			float offset = (0.5f) - 0.5f * TotalScale;
 			float3 center = float3(shard.gridCoords)+float3(offset,0,0);
 
-			Box<> outer,inner,comm;
+			M::Box<> outer,inner,comm;
 			outer.SetCenter(center,0.5f*myScale);
 			inner.SetCenter(center,scale*0.5f*myScale);
 			comm.SetCenter(center,0.45f*myScale);
@@ -728,7 +728,7 @@ namespace Build
 			{
 				if (shard.sds.IsEmpty() || !shard.sds.Last().outboundRCS[n-shard.neighbors.begin()].confirmed)
 				{
-					Box<> comm2 = comm;
+					M::Box<> comm2 = comm;
 					comm2.Translate(comm.GetExtent()&float3(n->delta));
 					comm2.ConstrainBy(outer);
 					Scene3D::PutSolid(comm2);
@@ -744,7 +744,7 @@ namespace Build
 			foreach (grid.layers,layer)
 				foreach (layer->shardGrid,s)
 				{
-					highest = vmax(highest,s->sds.Count());
+					highest = M::Max(highest,s->sds.Count());
 				}
 
 			for (index_t i = 0; i < grid.layers.Count(); i++)

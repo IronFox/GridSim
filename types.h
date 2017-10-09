@@ -23,35 +23,18 @@ using namespace DeltaWorks;
 #endif
 
 
-//#define D3	//3d-grid
+#define D3	//3d-grid
 
 #ifdef D3
 	static const constexpr count_t Dimensions=3;
 	static const constexpr count_t NumNeighbors = 26;
 	template <typename T=float>
-		using Volume = Box<T>;
+		using Volume = M::Box<T>;
 
 	#include <container/array3d.h>
 
 	template <typename T,typename Strategy = typename Strategy::StrategySelector<T>::Default>
 		using GridArray = Array3D<T,Strategy>;
-
-	inline TVec3<index_t>	ToVector(const GridSize&s)
-	{
-		TVec3<index_t> rs;
-		Vec::def(rs,s.width,s.height,s.depth);
-		return rs;
-	}
-	template <typename T>
-	inline Size3D<index_t>	VectorToSize(const TVec3<T>&v)
-	{
-		return Size3D<index_t> (v.x,v.y,v.z);
-	}
-	template <typename T>
-	inline Index3D<index_t>	VectorToIndex(const TVec3<T>&v)
-	{
-		return Index3D<index_t> (v.x,v.y,v.z);
-	}
 
 
 #else

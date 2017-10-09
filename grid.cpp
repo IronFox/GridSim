@@ -7,9 +7,9 @@ void Grid::Layer::Create(const GridSize&size, Grid&g, index_t layer)
 	index = layer;
 	shardGrid.SetSize(size);
 	#ifdef D3
-		for (int x = 0; x < size.width; x++)
-			for (int y = 0; y < size.height; y++)
-				for (int z = 0; z < size.depth; z++)
+		for (index_t x = 0; x < size.width; x++)
+			for (index_t y = 0; y < size.height; y++)
+				for (index_t z = 0; z < size.depth; z++)
 				{
 					shardGrid.Get(x,y,z).Setup(g,int3(x,y,z),shardGrid.ToLinearIndexNoCheck(x,y,z),layer);
 				}

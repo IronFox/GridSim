@@ -537,7 +537,7 @@ namespace Statistics
 			TExportCategory cat;
 			cat.numLayers = 2;
 			cat.syncOps = 1;
-			ExportStackedTexMeasurement(cat,{"Total Merges","IC-Reduction","Perfect"},{
+			ExportStackedTexMeasurement(cat,{"Ineffective","Improved", "Reduced","Perfect","Copied"},{
 			
 				[](const TRun&r)
 				{
@@ -545,8 +545,25 @@ namespace Statistics
 						//return (double)NAN;
 					double mean,dev;
 					r.syncTotalMerged.GetMeanDeviation(mean,dev);
-					return mean*100;
+					double copied;
+					r.syncTotalCopied.GetMeanDeviation(copied,dev);
+					return (mean+copied)*100;
 				},
+
+				[](const TRun&r)
+					{
+						//if (r.setup.maxSiblingSyncOperations > 0)
+							//return (double)NAN;
+						double mean,dev,m0,d0,m1,d1,improved;
+						r.syncTotalMerged.GetMeanDeviation(m0,d0);
+						r.syncPerfectMerges.GetMeanDeviation(m1,d1);
+						r.syncICReducingMerges.GetMeanDeviation(mean,dev);
+						r.syncImprovingMerges.GetMeanDeviation(improved,dev);
+						double copied;
+						r.syncTotalCopied.GetMeanDeviation(copied,dev);
+						return ((mean+m1+improved)*m0+copied)*100;//stacked
+					},
+
 
 				[](const TRun&r)
 					{
@@ -556,7 +573,9 @@ namespace Statistics
 						r.syncTotalMerged.GetMeanDeviation(m0,d0);
 						r.syncPerfectMerges.GetMeanDeviation(m1,d1);
 						r.syncICReducingMerges.GetMeanDeviation(mean,dev);
-						return (mean+m1)*m0*100;//stacked
+						double copied;
+						r.syncTotalCopied.GetMeanDeviation(copied,dev);
+						return ((mean+m1)*m0+copied)*100;//stacked
 					},
 
 				[](const TRun&r)
@@ -566,8 +585,17 @@ namespace Statistics
 						double mean,dev,m0,d0;
 						r.syncTotalMerged.GetMeanDeviation(m0,d0);
 						r.syncPerfectMerges.GetMeanDeviation(mean,dev);
-						return mean*m0*100;
-					}
+						double copied;
+						r.syncTotalCopied.GetMeanDeviation(copied,dev);
+						return (mean*m0+copied)*100;
+					},
+				[](const TRun&r)
+				{
+					double mean0,mean1,dev;
+					r.syncTotalCopied.GetMeanDeviation(mean1,dev);
+					return (mean1)*100;
+					
+				},
 			},nullptr);
 
 			//ExportTexMeasurement("Recovering Nodes", [](const TRun&r)
@@ -968,7 +996,9 @@ namespace Statistics
 
 	void	CaptureInconsistency(const IC&ic, const EntityStorage&inconsistent, const EntityStorage&consistent, const TGridCoords&shardOffset)
 	{
-		//return;	//disabled while comparator sampling is active, so we don't have to lock in ProfileComparator::GetBadness()
+		#ifdef MERGE_PROFILE_IS_COMPARATOR_SOURCE
+			return;	//disabled while comparator sampling is active, so we don't have to lock in ProfileComparator::GetBadness()
+		#endif
 		Array2D<ICInclusionCell> inclusion = Array2D<ICInclusionCell>(count_t(IC::MaxDepth)+1, count_t(IC::MaxDistance)+1);
 		foreach (ic.GetGrid(),sample)
 			if (!sample->IsConsistent())
@@ -1521,6 +1551,7 @@ namespace Statistics
 	void ExportMergeResults(const TExperiment&ex)
 	{
 		using namespace Details;
+		#ifndef MERGE_PROFILE_IS_COMPARATOR_SOURCE
 		{
 			StringFile file;
 			file.Create(Filename(ex,"icProfile","csv"));
@@ -1551,7 +1582,8 @@ namespace Statistics
 				file << nl;
 			}
 		}
-
+		#endif
+	
 		{
 			XML::Container doc;
 			Array<String> keys;

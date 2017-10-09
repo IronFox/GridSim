@@ -22,8 +22,8 @@ Geometry				scenery,holeScenery,wallScenery,transparentScenery;
 
 
 //M::Box<>				range = M::Box<>(0,0,0,/*T=*/128,/*S=*/256,1.1);
-M::Box<>				range = M::Box<>(0,0,0,/*T=*/64,/*S=*/128,1.1);
-float3					markerSteps = float3(32, 64, 0.2);
+M::Box<>				range = M::Box<>(0,0,0,/*T=*/64,/*S=*/64,1.1);
+float3					markerSteps = float3(16, 32, 0.2);
 float3					markerLabelFactor = float3(1,0.5,1);
 M::TVec3<const char*>	arrowLabel = {"T","S","P"};
 
@@ -342,9 +342,10 @@ void RenderExtendedAxes()
 			1,0,0,
 		};
 		textout.SetColor(0, 0, 0);
-
-		float fontZoom = 8;
-//		textout.scale(fontZoom, fontZoom);
+		
+		textout.PushState();
+		float fontZoom = 2;
+		textout.Scale(fontZoom);
 
 		RenderAxis(range.x, markerSteps.x, xSystem, 2, arrowLabel.x ,Axis::X);
 		RenderAxis(range.y, markerSteps.y, ySystem, 2, arrowLabel.y, Axis::Y);
@@ -355,6 +356,8 @@ void RenderExtendedAxes()
 		RenderGrid(ySystem, 2, range.z, range.x, markerSteps.z, markerSteps.x, 1, 2);
 		RenderGrid(zSystem, 1, range.x, range.y, markerSteps.x, markerSteps.y, 2, 2);
 
+		textout.PopState();
+
 		glDisable(GL_DEPTH_TEST);
 
 	glPopMatrix();
@@ -363,9 +366,9 @@ void RenderExtendedAxes()
 void RenderExtendedAxesLabels()
 {
 	display.Pick(hud);
-
+	textout.PushState();
 		textout.SetColor(1, 1, 1, 1);
-		textout.Scale(2);
+		textout.Scale(3);
 		foreach(labels, l)
 		{
 			textout.MoveTo(l->coords.x*0.5+0.5, l->coords.y*0.5+0.5);
@@ -387,8 +390,9 @@ void RenderExtendedAxesLabels()
 			else
 				textout << l->cValue;
 		}
-		textout.Scale(0.5f);
+	textout.PopState();
 }
+
 
 
 void SetupRenderer()
@@ -400,7 +404,8 @@ void SetupRenderer()
 	ASSERT__(shadow_fbo1.ReferDepth().IsNotEmpty());
 		
 	const float3				light_direction0 = float3{-0.577f,0.577f,0.577f}.Normalized(),
-								light_direction1 = float3{0.577f,0.577f,0.8f}.Normalized();
+								//light_direction1 = float3{0.577f,0.577f,0.8f}.Normalized();
+								light_direction1 = float3{0,0,1}.Normalized();
 
 		
 	static const constexpr float r = 1.7f;//1.5f;
@@ -421,29 +426,7 @@ void SetupRenderer()
 
 
 
-	if (!shader.LoadComposition(
-		"[shared]\n"
-			"varying float h;\n"
-			"varying vec3 normal;\n"
-			"varying vec4 color;\n"
-			"varying vec3 shadow_coord0, shadow_coord1;\n"
-			"uniform vec3 light0;\n"
-			"uniform vec3 light1;\n"
-		"[vertex]\n"
-		"void main()\n"
-		"{\n"
-			"gl_Position = ftransform();\n"
-			"h = gl_MultiTexCoord0.x;\n"
-			"normal = gl_Normal;\n"
-			"color = gl_Color;\n"
-			"shadow_coord0 = (gl_TextureMatrix[0]*gl_Vertex).xyz*0.5+0.5;\n"		//orthographic projection, so no division needed
-			"shadow_coord0.z -= 0.01;\n"
-			"shadow_coord1 = (gl_TextureMatrix[1]*gl_Vertex).xyz*0.5+0.5;\n"		//orthographic projection, so no division needed
-			"shadow_coord1.z -= 0.01;\n"
-		"}\n"
-		"[fragment]\n"
-		"uniform sampler2DShadow shadow0,\n"
-								"shadow1;\n"
+	String intensityFunction =
 		"const float m_fTextureSize=2048.0;\n"
 		"const float m_fTexelSize=1.0/m_fTextureSize;\n"
 		"float intensity(sampler2DShadow shadow, vec3 shadow_coord)\n"
@@ -455,6 +438,9 @@ void SetupRenderer()
 			"mat2 matScreentoShadow = mat2(vShadowTexDDX.xy, vShadowTexDDY.xy);\n"
 			//"mat2 matShadowToScreen = inverse(	matScreentoShadow);\n"
 			"float fDeterminant = determinant(matScreentoShadow);\n"
+
+			"if (abs(fDeterminant) < 0.000000001) return shadow2D(shadow,shadow_coord).r;\n"
+
 			"float fInvDeterminant = 1.0f / fDeterminant;\n"
 
 			"mat2 matShadowToScreen = mat2("
@@ -484,6 +470,33 @@ void SetupRenderer()
 				
 			"return max(0.0,sum/25.0);\n"
 		"}\n"
+	;
+
+
+	if (!shader.LoadComposition(
+		"[shared]\n"
+			"varying float h;\n"
+			"varying vec3 normal;\n"
+			"varying vec4 color;\n"
+			"varying vec3 shadow_coord0, shadow_coord1;\n"
+			"uniform vec3 light0;\n"
+			"uniform vec3 light1;\n"
+		"[vertex]\n"
+		"void main()\n"
+		"{\n"
+			"gl_Position = ftransform();\n"
+			"h = gl_MultiTexCoord0.x;\n"
+			"normal = gl_Normal;\n"
+			"color = gl_Color;\n"
+			"shadow_coord0 = (gl_TextureMatrix[0]*gl_Vertex).xyz*0.5+0.5;\n"		//orthographic projection, so no division needed
+			"shadow_coord0.z -= 0.01;\n"
+			"shadow_coord1 = (gl_TextureMatrix[1]*gl_Vertex).xyz*0.5+0.5;\n"		//orthographic projection, so no division needed
+			"shadow_coord1.z -= 0.01;\n"
+		"}\n"
+		"[fragment]\n"
+		"uniform sampler2DShadow shadow0,\n"
+								"shadow1;\n"
+		+intensityFunction+
 
 		"void main()\n"
 		"{\n"
@@ -536,20 +549,7 @@ void SetupRenderer()
 		"uniform sampler2DShadow shadow0,\n"
 								"shadow1;\n"
 		//"uniform sampler2D shadow;\n"
-		"float intensity(sampler2DShadow shadow, vec3 shadow_coord)\n"
-		"{\n"
-			"shadow_coord.z -= 0.01;\n"
-			//"return shadow2D(shadow,shadow_coord).r;\n"
-			"const float step=0.001;\n"
-			"float sum = 0.0;\n"
-			"for (int x = -2; x <= 2; x++)\n"
-				"for (int y = -2; y <= 2; y++)\n"
-				"{\n"
-					"sum += shadow2D(shadow,shadow_coord+vec3(float(x)*step,float(y)*step,0.0)).r;\n"
-				"}\n"
-				
-			"return max(0.0,sum/25.0);\n"
-		"}\n"
+		+intensityFunction+
 		"void main()\n"
 		"{\n"
 			//"gl_Position = ftransform();\n"
@@ -599,46 +599,7 @@ void SetupRenderer()
 		"[fragment]\n"
 		"uniform sampler2DShadow shadow0,\n"
 								"shadow1;\n"
-		"const float m_fTextureSize=2048.0;\n"
-		"const float m_fTexelSize=1.0/m_fTextureSize;\n"
-		"float intensity(sampler2DShadow shadow, vec3 shadow_coord)\n"
-		"{\n"
-			"shadow_coord.z += 0.0001;\n"//z tolerance
-			//"return shadow2D(shadow,shadow_coord).r;\n"
-			"vec3 vShadowTexDDX = dFdx(shadow_coord);\n"
-			"vec3 vShadowTexDDY = dFdy(shadow_coord);\n"
-			"mat2 matScreentoShadow = mat2(vShadowTexDDX.xy, vShadowTexDDY.xy);\n"
-			//"mat2 matShadowToScreen = inverse(	matScreentoShadow);\n"
-			"float fDeterminant = determinant(matScreentoShadow);\n"
-			"float fInvDeterminant = 1.0f / fDeterminant;\n"
-
-			"mat2 matShadowToScreen = mat2("
-				"matScreentoShadow._22 * fInvDeterminant,"
-				"matScreentoShadow._12 * -fInvDeterminant,"
-				"matScreentoShadow._21 * -fInvDeterminant,"
-				"matScreentoShadow._11 * fInvDeterminant);\n"
-			//"matShadowToScreen = transpose(matShadowToScreen);\n"
-			"vec2 vRightShadowTexelLocation = vec2(m_fTexelSize, 0.0f);\n"
-			"vec2 vUpShadowTexelLocation = vec2(0.0f, m_fTexelSize);\n"
-			"vec2 vRightTexelDepthRatio = mul(matShadowToScreen, vRightShadowTexelLocation);\n"
-			"vec2 vUpTexelDepthRatio = mul(matShadowToScreen, vUpShadowTexelLocation);\n"
-
-			"float fUpTexelDepthDelta = vUpTexelDepthRatio.x * vShadowTexDDX.z+ vUpTexelDepthRatio.y * vShadowTexDDY.z;\n"
-			"float fRightTexelDepthDelta = vRightTexelDepthRatio.x * vShadowTexDDX.z + vRightTexelDepthRatio.y * vShadowTexDDY.z;\n"
-
-
-			//"const float step=0.001;\n"
-			"float sum = 0.0;\n"
-			"for (int x = -2; x <= 2; x++)\n"
-				"for (int y = -2; y <= 2; y++)\n"
-				"{\n"
-					"vec2 uv = vec2(x,y) * m_fTexelSize;\n"
-						
-					"sum += shadow2D(shadow,shadow_coord+vec3(uv,fRightTexelDepthDelta * float(x) + fUpTexelDepthDelta * float(y))).r;\n"
-				"}\n"
-				
-			"return max(0.0,sum/25.0);\n"
-		"}\n"
+		+intensityFunction+
 
 		"void main()\n"
 		"{\n"
@@ -673,53 +634,16 @@ void SetupRenderer()
 		"void main()\n"
 		"{\n"
 			"gl_Position = ftransform();\n"
-			"shadow_coord0 = (gl_TextureMatrix[0]*gl_Vertex).xyz*0.5+0.5;\n"		//orthographic projection, so no division needed
-			"shadow_coord1 = (gl_TextureMatrix[1]*gl_Vertex).xyz*0.5+0.5;\n"		//orthographic projection, so no division needed
+			"vec4 v = gl_Vertex;\n"
+			"v.x = clamp(v.x,-0.99,0.99);\n"
+			"shadow_coord0 = (gl_TextureMatrix[0]*v).xyz*0.5+0.5;\n"		//orthographic projection, so no division needed
+			"shadow_coord1 = (gl_TextureMatrix[1]*v).xyz*0.5+0.5;\n"		//orthographic projection, so no division needed
 		"}\n"
 		"[fragment]\n"
 		"uniform sampler2DShadow shadow0,\n"
 								"shadow1;\n"
-		"const float m_fTextureSize=2048.0;\n"
-		"const float m_fTexelSize=1.0/m_fTextureSize;\n"
 		"uniform sampler2D shadow;\n"
-		"float intensity(sampler2DShadow shadow, vec3 shadow_coord)\n"
-		"{\n"
-			"shadow_coord.z -= 0.001;\n"//z tolerance
-			//"return shadow2D(shadow,shadow_coord).r;\n"
-			"vec3 vShadowTexDDX = dFdx(shadow_coord);\n"
-			"vec3 vShadowTexDDY = dFdy(shadow_coord);\n"
-			"mat2 matScreentoShadow = mat2(vShadowTexDDX.xy, vShadowTexDDY.xy);\n"
-			//"mat2 matShadowToScreen = inverse(	matScreentoShadow);\n"
-			"float fDeterminant = determinant(matScreentoShadow);\n"
-			"float fInvDeterminant = 1.0f / fDeterminant;\n"
-
-			"mat2 matShadowToScreen = mat2("
-				"matScreentoShadow._22 * fInvDeterminant,"
-				"matScreentoShadow._12 * -fInvDeterminant,"
-				"matScreentoShadow._21 * -fInvDeterminant,"
-				"matScreentoShadow._11 * fInvDeterminant);\n"
-			//"matShadowToScreen = transpose(matShadowToScreen);\n"
-			"vec2 vRightShadowTexelLocation = vec2(m_fTexelSize, 0.0f);\n"
-			"vec2 vUpShadowTexelLocation = vec2(0.0f, m_fTexelSize);\n"
-			"vec2 vRightTexelDepthRatio = mul(matShadowToScreen, vRightShadowTexelLocation);\n"
-			"vec2 vUpTexelDepthRatio = mul(matShadowToScreen, vUpShadowTexelLocation);\n"
-
-			"float fUpTexelDepthDelta = vUpTexelDepthRatio.x * vShadowTexDDX.z+ vUpTexelDepthRatio.y * vShadowTexDDY.z;\n"
-			"float fRightTexelDepthDelta = vRightTexelDepthRatio.x * vShadowTexDDX.z + vRightTexelDepthRatio.y * vShadowTexDDY.z;\n"
-
-
-			//"const float step=0.001;\n"
-			"float sum = 0.0;\n"
-			"for (int x = -2; x <= 2; x++)\n"
-				"for (int y = -2; y <= 2; y++)\n"
-				"{\n"
-					"vec2 uv = vec2(x,y) * m_fTexelSize;\n"
-						
-					"sum += shadow2D(shadow,shadow_coord+vec3(uv,fRightTexelDepthDelta * float(x) + fUpTexelDepthDelta * float(y))).r;\n"
-				"}\n"
-				
-			"return max(0.0,sum/25.0);\n"
-		"}\n"
+		+intensityFunction+
 		"void main()\n"
 		"{\n"
 			"float my_intensity = 0.2 + 0.5 * intensity(shadow0,shadow_coord0)+0.5*intensity(shadow1,shadow_coord1);\n"
