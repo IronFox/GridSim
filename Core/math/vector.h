@@ -654,14 +654,14 @@ namespace DeltaWorks
 				template<typename T0>
 					MF_DECLARE(void)	Include(const T0&value)	//!< Expands the local range so that it includes the specified value
 										{
-											start = vmin(start,value);
-											end = vmax(end,value+1);
+											start = Min(start,value);
+											end = Max(end,value+1);
 										}
 				template<typename T0>
 					MF_DECLARE(void)	Include(const TIntRange<T0>&other)	//!< Expands the local range so that it includes the specified other range
 										{
-											start = vmin(start,other.start);
-											end = vmax(end,other.end);
+											start = Min(start,other.start);
+											end = Max(end,other.end);
 										}
 				template <typename T0>
 					MF_DECLARE(void)	Translate(const T0&delta)
@@ -673,6 +673,14 @@ namespace DeltaWorks
 					MF_DECLARE(bool)	Intersects(const TIntRange<T1>&other)	const
 										{
 											return start < other.end && end > other.start;
+										}
+				template <typename T1>
+					MF_DECLARE(Self)	Intersect(const TIntRange<T1>&other)	const
+										{
+											Self rs;
+											rs.start = Max(start,other.start);
+											rs.end = Min(end,other.end);
+											return rs;
 										}
 
 				friend String			ToString(const TIntRange<T>&r)
