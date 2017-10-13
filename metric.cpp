@@ -4,6 +4,7 @@
 
 namespace Metric
 {
+	/*static*/ const M::TVec2<> Direction3D::MaxValue = {MaxValueX, MaxValueY};
 
 	static float RectilinearLength(const M::TVec2<>&v)
 	{

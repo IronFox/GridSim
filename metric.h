@@ -183,7 +183,7 @@ namespace Metric
 				2.f * M_PIF;
 			#endif
 
-		static const constexpr M::TVec2<> MaxValue = {MaxValueX, MaxValueY};
+		static const M::TVec2<> MaxValue;
 
 
 		Angle	GetAngle() const

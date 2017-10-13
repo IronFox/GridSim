@@ -1412,7 +1412,7 @@ namespace Statistics
 
 	static void ExportTexFile(const String&name, const Details::MergeMeasurement::TMergeCapture&source)
 	{
-			try
+		try
 		{
 			using namespace Details::MergeMeasurement;
 
@@ -1908,6 +1908,7 @@ namespace Statistics
 			for (int i = 0; i < (int)MergeStrategy::Count; i++)
 			{
 				ExportTexFile("Binary"+ToExt((MergeStrategy)i));
+				ExportTexFile("Depth"+ToExt((MergeStrategy)i));
 			}
 		}
 	}
