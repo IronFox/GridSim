@@ -9,10 +9,157 @@
 #include <windows.h>
 #include <tlhelp32.h>
 #include <winternl.h>
+#include "../container/hashtable.h"
+
+
 //#include <iostream>
 
 namespace DeltaWorks
 {
+	//https://github.com/apache/reef/blob/master/lang/cs/Org.Apache.REEF.Bridge/BinaryUtil.cpp
+	//Apache License
+	DWORD GetActualAddressFromRVA(IMAGE_SECTION_HEADER* pSectionHeader, IMAGE_NT_HEADERS* pNTHeaders, DWORD dwRVA)
+	{
+		DWORD dwRet = 0;
+
+		for (int j = 0; j < pNTHeaders->FileHeader.NumberOfSections; j++, pSectionHeader++)
+		{
+			DWORD cbMaxOnDisk = std::min( pSectionHeader->Misc.VirtualSize, pSectionHeader->SizeOfRawData );
+
+			DWORD startSectRVA, endSectRVA;
+
+			startSectRVA = pSectionHeader->VirtualAddress;
+			endSectRVA = startSectRVA + cbMaxOnDisk;
+
+			if ( (dwRVA >= startSectRVA) && (dwRVA < endSectRVA))
+			{
+				dwRet =  (pSectionHeader->PointerToRawData ) + (dwRVA - startSectRVA);
+				break;
+			}
+
+		}
+
+		return dwRet;
+	}
+
+
+
+	bool _IsManaged(const PathString&path)
+	{
+		bool bIsManaged = false;    //variable that indicates whether
+									//managed or not.
+ 
+		HANDLE hFile = CreateFileW(path.c_str(), GENERIC_READ,
+									FILE_SHARE_READ,NULL,OPEN_EXISTING,
+									FILE_ATTRIBUTE_NORMAL,NULL);
+ 
+		//attempt the standard paths (Windows dir and system dir) if
+		//CreateFile failed in the first place.
+		if(INVALID_HANDLE_VALUE == hFile)
+			throw Except::IO::DriveAccess::FileOpenFault(CLOCATION,"Unable to open "+String(path));
+
+ 
+		//succeeded
+		HANDLE hOpenFileMapping = CreateFileMappingW(hFile,NULL,
+													PAGE_READONLY,0,
+													0,NULL);
+		if(hOpenFileMapping)
+		{
+			BYTE* lpBaseAddress = NULL;
+ 
+			//Map the file, so it can be simply be acted on as a
+			//contiguous array of bytes
+			lpBaseAddress = (BYTE*)MapViewOfFile(hOpenFileMapping,
+												FILE_MAP_READ,0,0,0);
+ 
+			if(lpBaseAddress)
+			{
+				//having mapped the executable, now start navigating
+				//through the sections
+ 
+				//DOS header is straightforward. It is the topmost
+				//structure in the PE file
+				//i.e. the one at the lowest offset into the file
+				IMAGE_DOS_HEADER* pDOSHeader =
+					(IMAGE_DOS_HEADER*)lpBaseAddress;
+ 
+				//the only important data in the DOS header is the
+				//e_lfanew
+				//the e_lfanew points to the offset of the beginning
+				//of NT Headers data
+				IMAGE_NT_HEADERS* pNTHeaders =
+					(IMAGE_NT_HEADERS*)((BYTE*)pDOSHeader +
+					pDOSHeader->e_lfanew);
+ 
+				//store the section header for future use. This will
+				//later be need to check to see if metadata lies within
+				//the area as indicated by the section headers
+				IMAGE_SECTION_HEADER* pSectionHeader =
+					(IMAGE_SECTION_HEADER*)((BYTE*)pNTHeaders +
+					sizeof(IMAGE_NT_HEADERS));
+ 
+				//Now, start parsing
+				//First of all check if it is a PE file. All assemblies
+				//are PE files.
+				if(pNTHeaders->Signature == IMAGE_NT_SIGNATURE)
+				{
+					//start parsing COM table (this is what points to
+					//the metadata and other information)
+					DWORD dwNETHeaderTableLocation =
+						pNTHeaders->OptionalHeader.DataDirectory
+						[IMAGE_DIRECTORY_ENTRY_COM_DESCRIPTOR].
+						VirtualAddress;
+ 
+					if(dwNETHeaderTableLocation)
+					{
+						//.NET header data does exist for this module;
+						//find its location in one of the sections
+						IMAGE_COR20_HEADER* pNETHeader =
+							(IMAGE_COR20_HEADER*)((BYTE*)pDOSHeader +
+							GetActualAddressFromRVA(pSectionHeader,
+							pNTHeaders,dwNETHeaderTableLocation));
+ 
+						if(pNETHeader)
+						{
+							//valid address obtained. Suffice it to say,
+							//this is good enough to identify this as a
+							//valid managed component
+							bIsManaged = true;
+						}
+					}
+				}
+				else
+				{
+				}
+				//cleanup
+				UnmapViewOfFile(lpBaseAddress);
+			}
+			//cleanup
+			CloseHandle(hOpenFileMapping);
+		}
+		//cleanup
+		CloseHandle(hFile);
+		return bIsManaged;
+	}
+
+
+
+	GenericHashTable<PathString,bool>	managedMap;
+
+	bool IsManaged(const PathString&path)
+	{
+		bool*v = managedMap.QueryPointer(path);
+		if (v)
+			return *v;
+		bool managed = _IsManaged(path);
+		managedMap.Set(path,managed);
+		return managed;
+	}
+
+
+
+
+
 
 	static DWORD		MapPathToProcess(const FileSystem::File&file)
 	{
@@ -127,20 +274,45 @@ namespace DeltaWorks
 	}
 
 
-	void		MonitoredProcess::Start(const PathString&workingDirectory, const PathString&executablePath, const PathString&parametersWithoutExecutableName, bool createWindow)
+	void		MonitoredProcess::Start(const PathString&_workingDirectory, const PathString&_executablePath, const PathString&parametersWithoutExecutableName, bool createWindow)
 	{
 		Terminate();
-		FileSystem::Folder f(workingDirectory);
+		FileSystem::Folder f(_workingDirectory);
 		if (!f.IsValidLocation())
-			throw Except::IO::DriveAccess("Process Start: Chosen working directory '"+String(workingDirectory)+"' is invalid");
+			throw Except::IO::DriveAccess("Process Start: Chosen working directory '"+String(_workingDirectory)+"' is invalid");
 		FileSystem::File found;
-		if (!f.FindFile(executablePath,found,false))
-			throw Except::IO::DriveAccess("Process Start: Chosen executable '"+String(executablePath)+"' does not exist");
+		if (!f.FindFile(_executablePath,found,false))
+			throw Except::IO::DriveAccess("Process Start: Chosen executable '"+String(_executablePath)+"' does not exist");
 		if (!found.DoesExist())
 			throw Except::IO::DriveAccess("Process Start: Chosen executable '"+String(found.GetLocation())+"' does not exist");
-		parameters = '"'+FileSystem::ExtractFileNameExt(executablePath)+"\" "+parametersWithoutExecutableName;
-		this->executablePath = found.GetLocation();
-		this->workingDirectory = f.GetLocation();
+		parameters = '"'+FileSystem::ExtractFileNameExt(_executablePath)+"\" "+parametersWithoutExecutableName;
+		executablePath = found.GetLocation();
+		workingDirectory = f.GetLocation();
+
+		if (IsManaged(executablePath))
+		{
+			/*
+			There is some ongoing issue with .NET programs and UNC paths.
+			
+			Setting the executable working directory to an UNC path will correctly start the application,
+			but any retrieval of the active working directory by that application will throw an exception.
+			Unfortunately, many IO constructors will do so implicitly even if unnecessary.
+			See https://blogs.msdn.microsoft.com/bclteam/2007/02/13/long-paths-in-net-part-1-of-3-kim-hamilton/ for reference.
+			Apparently, this is never going to be 'fixed'.
+
+			Therefor, at the risk of paths ending up too long, we strip any found UNC markers before executing
+			if the application is detected to be managed.
+			We could test string length, and potentially throw an exception, but recent changes in Windows 10
+			imply that the 260 character limitation could be entirely removed eventually.
+			E.g. https://blogs.msdn.microsoft.com/jeremykuhne/2016/07/30/net-4-6-2-and-long-paths-on-windows-10/
+			*/
+			const PathString uncMarker = "\\\\?\\";
+			if (executablePath.BeginsWith(uncMarker))
+				executablePath.EraseLeft(uncMarker.length());
+			if (workingDirectory.BeginsWith(uncMarker))
+				workingDirectory.EraseLeft(uncMarker.length());
+		}
+
 		this->createWindow = createWindow;
 		Restart();
 	}
