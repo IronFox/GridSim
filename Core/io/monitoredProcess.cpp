@@ -275,7 +275,7 @@ namespace DeltaWorks
 			return false;
 		}
 		DWORD process = MonitorDetails::MapPathToProcess(file);
-		if (process == NULL)
+		if (process == 0)
 			return false;
 
 		HANDLE processHandle = OpenProcess(PROCESS_ALL_ACCESS, FALSE, process);
@@ -288,7 +288,8 @@ namespace DeltaWorks
 		paths.executablePath = file.GetLocation();
 		paths.workingDirectory = file.GetFolder();
 		this->createWindow = HasAnyVisibleWindows();
-		
+		terminateOnQuit = false;
+		quitThread = false;
 		ThreadObject::Start();
 
 		return true;
@@ -355,7 +356,7 @@ namespace DeltaWorks
 
 	void			MonitoredProcess::ThreadedStartProcess(const Paths&paths)
 	{
-		if (infoOut.dwThreadId == 0)
+		if (infoOut.dwProcessId == 0)
 		{
 			STARTUPINFOW	infoIn;
 			//PROCESS_INFORMATION	infoOut;
