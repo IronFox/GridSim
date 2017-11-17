@@ -778,7 +778,7 @@ namespace DeltaWorks
 				case XML::Tidy:
 				{
 					Ctr::Array<String,Adopt>	lines;
-					explodeCallback(isNewLine,entry->inner_content,lines);
+					explodeCallback(isNewLine,entry->following_content,lines);
 					trim(lines);
 					for (index_t i = 0; i < lines.Count(); i++)
 					{
