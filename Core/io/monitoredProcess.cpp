@@ -465,7 +465,7 @@ namespace DeltaWorks
 					//PostThreadMessageA(threadID,WM_CLOSE,0,0);
 				}
 				count_t numTries = 0;
-				if (WaitForSingleObject(infoOut.hProcess,2000) != 0)
+				while (WaitForSingleObject(infoOut.hProcess,2000) != 0)
 				{
 					if (++numTries > 3)
 						throw Except::Program::GeneralFault(CLOCATION,"Unable to terminate monitored process");
